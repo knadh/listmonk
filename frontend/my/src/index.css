@@ -1,0 +1,264 @@
+/* Disable all the ridiculous, unnecessary animations except for the spinner */
+*:not(.ant-spin-dot-spin) {
+  animation-duration: 0s;
+  transition: none !important;
+}
+
+header.header {
+  margin-bottom: 30px;
+}
+
+hr {
+  border-width: 1px 0 0 0;
+  border-style: solid;
+  border-color: #eee;
+  margin: 30px 0;
+}
+
+/* Helpers */
+.center {
+  text-align: center;
+}
+
+.text-tiny {
+  font-size: 0.65em;
+}
+
+.text-small {
+  font-size: 0.85em;
+}
+
+.text-grey {
+  color: #999;
+}
+
+/* Layout */
+body {
+  margin: 0;
+  padding: 0;
+  font-family: sans-serif;
+}
+
+.content-body {
+  background: #fff;
+  padding: 24px;
+  min-height: 90vh;
+}
+
+.logo {
+  padding: 30px;
+}
+  .logo a {
+    overflow: hidden;
+    display: inline-block;
+  }
+  .logo img {
+    width: auto;
+    height: 22px;
+  }
+
+.ant-layout-sider.ant-layout-sider-collapsed .logo a {
+  width: 20px;
+}
+
+.hidden {
+  display: none;
+}
+
+/* Table actions */
+td .actions a {
+  display: inline-block;
+  padding: 10px;
+}
+
+td.actions {
+  text-align: right;
+}
+
+/* Templates */
+.wysiwyg {
+  padding: 30px;
+  color: red;
+}
+
+/* Subscribers */
+.subscriber-filter {
+  background: #fff;
+  min-width: 300px;
+  max-width: 500px;
+  width: 100%;
+  padding: 15px;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, .2);
+}
+  .subscriber-filter .lists {
+    width: 100%;
+  }
+
+.subscribers table .name {
+  margin-bottom: 10px;
+}
+
+.subscriber-query {
+  margin: 15px 0 30px 0;
+  padding: 30px;
+  box-shadow: 0 1px 6px #ddd;
+}
+  .subscriber-query textarea {
+    font-family: monospace;
+  }
+  .subscriber-query .actions {
+    margin-top: 15px;
+  }
+
+.subscriber-modal #lists .status {
+  color: #999;
+}
+  .subscriber-modal #lists .status.confirmed {
+    color: #52c41a;
+  }
+  .subscriber-modal #lists .status.unsubscribed {
+    color: #ff7875;
+  }
+
+/* Import */
+.import .import-container {
+  margin-top: 100px;
+}
+.import .logs,
+.import .help {
+  max-width: 950px;
+  margin-top: 30px;
+}
+  .import .stats .ant-progress {
+    margin-bottom: 30px;
+  }
+.import .csv-example {
+  background: #efefef;
+  padding: 5px 10px;
+  display: inline-block;
+}
+  .import .csv-example code {
+      display: block;
+  }
+  .import .csv-example .csv-headers span {
+    font-weight: bold;
+  }
+
+/* Campaigns */
+.campaigns table tbody td {
+  vertical-align: top;
+  border-bottom-width: 3px;
+  border-bottom-color: #efefef;
+}
+  .campaigns td.status .date {
+    display: block;
+    margin-top: 5px;
+  }
+  .campaigns td.lists .name {
+    margin-right: 15px;
+  }
+  .campaigns td hr {
+    margin: 10px 0;
+  }
+
+  .campaigns td.stats .ant-row {
+    border-bottom: 1px solid #eee;
+    padding: 5px 0;
+  }
+  .campaigns td.stats .ant-row:last-child {
+    border: 0;
+  }
+  .campaigns td.stats .label {
+    font-weight: 600;
+    color: #aaa;
+  }
+  .campaigns .duration {
+    text-transform: capitalize;
+  }
+
+.campaign .messengers {
+  text-transform: capitalize;
+}
+  .campaign .content-type .actions {
+    display: inline-block;
+    margin-left: 15px;
+  }
+  .campaign .content-actions {
+    margin-top: 30px;
+  }
+
+/* gallery */
+.gallery {
+  display:flex;
+  flex-direction: row;
+  flex-flow: wrap;
+}
+  .gallery .image {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    min-height: 90px;
+    
+    padding: 10px;
+    border: 1px solid #eee;
+    overflow: hidden;
+    margin: 10px;
+    text-align: center;
+    position: relative;
+  }
+    .gallery .name {
+      background: rgba(255, 255, 255, 0.8);
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 3px 5px;
+      width: 100%;
+      font-size: .75em;
+
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+    .gallery .actions {
+      position: absolute;
+      top: 10px;
+      right: 15px;
+      display: none;
+      text-align: center;
+    }
+    .gallery .actions a {
+      background: rgba(255, 255, 255, 0.9);
+      padding: 0 3px 3px 3px;
+      border-radius: 0 0 3px 3px;
+      display: inline-block;
+      margin-left: 5px;
+     }
+    .gallery .image:hover .actions {
+      display: block;
+    }
+  .gallery .image img {
+    max-width: 90px;
+    max-height: 90px;
+    display: block;
+  }
+
+/* gallery icon in the wsiwyg */
+.ql-gallery {
+  background: url('/gallery.svg');
+}
+
+/* templates */
+.templates .template-body {
+  margin-top: 30px;
+}
+  .template-preview {
+    border: 0;
+    width: 100%;
+    height: 100%;
+    min-height: 500px;
+  }
+  .template-preview-modal .ant-modal-footer button:first-child {
+    display: none;
+  }

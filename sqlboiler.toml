@@ -1,0 +1,6 @@
+[postgres]
+dbname="listmonk"
+host="localhost"
+port=5432
+user="postgres"
+pass="postgres"

@@ -1,0 +1,46 @@
+{{ define "header" }}
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />	
+	<title>{{ .Title }}</title>
+	<meta name="description" content="{{ .Description }}" />
+	<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+
+	<link href='https://fonts.googleapis.com/css?family=Open+Sans:400' rel='stylesheet' type='text/css'>	
+	<link href="/public/static/style.css" rel="stylesheet" type="text/css" />
+	<link rel="shortcut icon" href="/public/static/favicon.png" type="image/x-icon" />
+</head>
+<body>
+    <div class="container wrap">
+		<header class="header">
+			<div class="logo"><img src="/public/static/logo.svg" /></div>
+		</header>
+{{ end }}
+
+
+{{ define "footer" }}
+	</div>
+	
+	<div class="container">
+		<footer class="footer">
+			Powered by <a target="_blank" href="https://listmonk.app">listmonk</a>
+		</footer>
+	</div>
+
+
+	<script>
+		function unsubAll(e) {		
+			if(!confirm("Are you sure?")) {
+				e.preventDefault();
+				return false;
+			}
+		}
+
+		(function() {
+			document.querySelector("#btn-unsuball").onclick = unsubAll
+		})();
+	</script>
+</body>
+</html>
+{{ end }}

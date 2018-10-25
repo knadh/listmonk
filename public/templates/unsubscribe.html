@@ -1,0 +1,22 @@
+{{ define "unsubscribe" }}
+    {{ template "header" .}}
+
+    <h2>You have been unsubscribed</h2>
+    {{ if not .Blacklisted }}
+        <div class="unsub-all">
+            <p>
+                Unsubscribe from all future communications?
+            </p>
+            <form method="post">
+                <div>
+                    <input type="hidden" name="blacklist" value="true" />
+                    <button type="submit" class="button" id="btn-unsuball">Unsubscribe all</button>
+                </div>
+            </form>
+        </div>
+    {{ else }}
+        <p>You've been unsubscribed from all future communications.</p>
+    {{ end }}
+
+    {{ template "footer" .}}
+{{ end }}

@@ -1,0 +1,71 @@
+/* Flexit grid */
+.container{position:relative;width:100%;max-width:960px;margin:0 auto;padding:0 10px;box-sizing:border-box}.row{box-sizing:border-box;display:flex;flex:0 1 auto;flex-flow:row wrap}.columns,.column{box-sizing:border-box;flex-grow:1;flex-shrink:1;flex-basis:1;margin:10px 0 10px 4%}.column:first-child,.columns:first-child{margin-left:0}.one{max-width:4.6666666667%}.two{max-width:13.3333333333%}.three{max-width:22%}.four{max-width:30.6666666667%}.five{max-width:39.3333333333%}.six{max-width:48%}.seven{max-width:56.6666666667%}.eight{max-width:65.3333333333%}.nine{max-width:74%}.ten{max-width:82.6666666667%}.eleven{max-width:91.3333333333%}.twelve{max-width:100%;margin-left:0}.column-offset-0{margin-left:0}.column-offset-1{margin-left:8.33333333%}.column-offset-2{margin-left:16.66666667%}.column-offset-3{margin-left:25%}.column-offset-4{margin-left:33.33333333%}.column-offset-5{margin-left:41.66666667%}.column-offset-6{margin-left:50%}.column-offset-7{margin-left:58.33333333%}.column-offset-8{margin-left:66.66666667%}.column-offset-9{margin-left:75%}.column-offset-10{margin-left:83.33333333%}.column-offset-11{margin-left:91.66666667%}.between{justify-content:space-between}.evenly{justify-content:space-evenly}.around{justify-content:space-around}.center{justify-content:center;text-align:center}.start{justify-content:flex-start}.end{justify-content:flex-end}.top{align-items:flex-start}.bottom{align-items:flex-end}.middle{align-items:center}.first{order:-1}.last{order:1}.vertical{flex-flow:column wrap}.row-align-center{align-items:center}.space-right{margin-right:10px}.space-left{margin-left:10px}.space-bottom{margin-bottom:10px}.space-top{margin-top:10px}@media screen and (max-width: 768px){.container{overflow:auto}.columns,.column{min-width:100%;margin:10px 0}.column-offset-0,.column-offset-1,.column-offset-2,.column-offset-3,.column-offset-4,.column-offset-5,.column-offset-6,.column-offset-7,.column-offset-8,.column-offset-9,.column-offset-10,.column-offset-11{margin:unset}}/*# sourceMappingURL=dist/flexit.min.css.map */
+
+body {
+    background: #f9f9f9;
+    font-family: "Open Sans", "Helvetica Neue", sans-serif;
+    font-size: 16px;
+    line-height: 28px;
+    color: #111;
+}
+
+a {
+    color: #000;
+}
+
+h1, h2, h3, h4 {
+    font-weight: 400;
+}
+
+.button {
+    border: 0;
+    background: transparent;
+    padding: 10px 30px;
+    border-radius: 3px;
+    border: 1px solid #ddd;
+    cursor: pointer;
+    text-decoration: none;
+    color: #111;
+    display: inline-block;
+}
+    .button:hover {
+        background: #f3f3f3;
+    }
+
+.wrap {
+    background: #fff;
+    margin-top: 60px;
+    max-width: 600px;
+    padding: 45px;
+    box-shadow: 2px 2px 0 #f3f3f3;
+    border: 1px solid #eee;
+}
+
+.header {
+    margin-bottom: 60px;
+}
+    .header .logo img {
+        width: auto;
+        max-height: 24px;
+    }
+
+.unsub-all {
+    margin-top: 30px;
+    padding-top: 30px;
+    border-top: 1px solid #eee;
+}
+
+.footer {
+    text-align: center;
+    color: #aaa;
+    font-size: 0.775em;
+    margin-top: 30px;
+    margin-bottom: 30px;
+}
+    .footer a {
+        color: #aaa;
+        text-decoration: none;
+    }
+    .footer a:hover {
+        color: #111;
+    }
