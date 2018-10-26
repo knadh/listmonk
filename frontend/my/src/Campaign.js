@@ -2,6 +2,7 @@ import React from "react"
 import { Modal, Tabs, Row, Col, Form, Switch, Select, Radio, Tag, Input, Button, Icon, Spin, DatePicker, Popconfirm, notification } from "antd"
 import * as cs from "./constants"
 import Media from "./Media"
+import ModalPreview from "./ModalPreview"
 
 import moment from 'moment'
 import ReactQuill from "react-quill"
@@ -352,6 +353,7 @@ class Campaign extends React.PureComponent {
         record: {},
         contentType: "richtext",
         messengers: [],
+        previewRecord: null,
         body: "",
         currentTab: "form",
         editor: null,
@@ -403,6 +405,10 @@ class Campaign extends React.PureComponent {
     
     setCurrentTab = (tab) => {
         this.setState({ currentTab: tab })
+    }
+
+    handlePreview = (record) => {
+        this.setState({ previewRecord: record })
     }
 
     render() {
@@ -457,7 +463,7 @@ class Campaign extends React.PureComponent {
                             formDisabled={ this.state.formDisabled }
                         />
                         <div className="content-actions">
-                            <p><Button icon="search">Preview</Button></p>
+                            <p><Button icon="search"  onClick={() => this.handlePreview(this.state.record)}>Preview</Button></p>
                         </div>
                     </Tabs.TabPane>
                 </Tabs>
@@ -471,8 +477,19 @@ class Campaign extends React.PureComponent {
                             insertMedia: this.state.editor ? this.state.editor.insertMedia : null,
                             onCancel: this.toggleMedia,
                             onOk: this.toggleMedia
-                    } } />
+                        }} />
                 </Modal>
+
+                { this.state.previewRecord &&
+                    <ModalPreview
+                        title={ this.state.previewRecord.name }
+                        body={ this.state.body }
+                        previewURL={ cs.Routes.PreviewCampaign.replace(":id", this.state.previewRecord.id) }
+                        onCancel={() => {
+                            this.setState({ previewRecord: null })
+                        }}
+                    />
+                }
             </section>
         )
     }

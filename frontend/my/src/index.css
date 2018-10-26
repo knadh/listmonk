@@ -253,12 +253,15 @@ td.actions {
 .templates .template-body {
   margin-top: 30px;
 }
-  .template-preview {
+  .preview-iframe-container {
+    min-height: 500px;
+  }
+  .preview-iframe {
     border: 0;
     width: 100%;
     height: 100%;
     min-height: 500px;
   }
-  .template-preview-modal .ant-modal-footer button:first-child {
+  .preview-modal .ant-modal-footer button:first-child {
     display: none;
   }

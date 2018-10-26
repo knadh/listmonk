@@ -49,7 +49,6 @@ func handleGetSubscriber(c echo.Context) error {
 		id, _ = strconv.Atoi(c.Param("id"))
 	)
 
-	// Fetch one list.
 	if id < 1 {
 		return echo.NewHTTPError(http.StatusBadRequest, "Invalid subscriber ID.")
 	}

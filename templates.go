@@ -66,26 +66,30 @@ func handlePreviewTemplate(c echo.Context) error {
 	var (
 		app   = c.Get("app").(*App)
 		id, _ = strconv.Atoi(c.Param("id"))
-		tpls  []models.Template
+		body  = c.FormValue("body")
+
+		tpls []models.Template
 	)
 
-	if id < 1 {
-		return echo.NewHTTPError(http.StatusBadRequest, "Invalid ID.")
-	}
+	if body == "" {
+		if id < 1 {
+			return echo.NewHTTPError(http.StatusBadRequest, "Invalid ID.")
+		}
 
-	err := app.Queries.GetTemplates.Select(&tpls, id, false)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError,
-			fmt.Sprintf("Error fetching templates: %s", pqErrMsg(err)))
-	}
+		err := app.Queries.GetTemplates.Select(&tpls, id, false)
+		if err != nil {
+			return echo.NewHTTPError(http.StatusInternalServerError,
+				fmt.Sprintf("Error fetching templates: %s", pqErrMsg(err)))
+		}
 
-	if len(tpls) == 0 {
-		return echo.NewHTTPError(http.StatusBadRequest, "Template not found.")
+		if len(tpls) == 0 {
+			return echo.NewHTTPError(http.StatusBadRequest, "Template not found.")
+		}
+		body = tpls[0].Body
 	}
-	t := tpls[0]
 
 	// Compile the template.
-	tpl, err := runner.CompileMessageTemplate(t.Body, dummyTpl)
+	tpl, err := runner.CompileMessageTemplate(body, dummyTpl)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Error compiling template: %v", err))
 	}

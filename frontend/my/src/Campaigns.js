@@ -4,6 +4,7 @@ import { Row, Col, Button, Table, Icon, Tooltip, Tag, Popconfirm, Progress, Moda
 import dayjs from "dayjs"
 import relativeTime from 'dayjs/plugin/relativeTime' 
 
+import ModalPreview from "./ModalPreview"
 import * as cs from "./constants"
 
 class Campaigns extends React.PureComponent {
@@ -15,6 +16,7 @@ class Campaigns extends React.PureComponent {
         queryParams: "",
         stats: {},
         record: null,
+        previewRecord: null,
         cloneName: "",
         modalWaiting: false
     }
@@ -110,10 +112,16 @@ class Campaigns extends React.PureComponent {
             title: "",
             dataIndex: "actions",
             className: "actions",
-            width: "10%",
+            width: "20%",
             render: (text, record) => {
                 return (
                     <div className="actions">
+                        <Tooltip title="Preview campaign" placement="bottom">
+                            <a role="button" onClick={() => {
+                                this.handlePreview(record)
+                            }}><Icon type="search" /></a>
+                        </Tooltip>
+
                         <Tooltip title="Clone campaign" placement="bottom">
                             <a role="button" onClick={() => {
                                 let r = { ...record, lists: record.lists.map((i) => { return i.id }) }
@@ -352,6 +360,10 @@ class Campaigns extends React.PureComponent {
         })
     }
 
+    handlePreview = (record) => {
+        this.setState({ previewRecord: record })
+    }
+
     render() {
         const pagination = {
             ...this.paginationOptions,
@@ -377,18 +389,15 @@ class Campaigns extends React.PureComponent {
                     pagination={ pagination }
                 />
 
-                { this.state.record &&
-                    <Modal visible={ this.state.record } width="500px"
-                        className="clone-campaign-modal"
-                        title={ "Clone " + this.state.record.name}
-                        okText="Clone"
-                        confirmLoading={ this.state.modalWaiting }
-                        onCancel={ this.handleToggleCloneForm }
-                        onOk={() => { this.handleCloneCampaign({ ...this.state.record, name: this.state.cloneName }) }}>
-                            <Input autoFocus defaultValue={ this.state.record.name } style={{ width: "100%" }} onChange={(e) => {
-                                this.setState({ cloneName: e.target.value })
-                            }} />
-                    </Modal> }
+                { this.state.previewRecord &&
+                    <ModalPreview
+                        title={ this.state.previewRecord.name }
+                        previewURL={ cs.Routes.PreviewCampaign.replace(":id", this.state.previewRecord.id) }
+                        onCancel={() => {
+                            this.setState({ previewRecord: null })
+                        }}
+                    />
+                }
             </section>
         )
     }

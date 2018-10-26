@@ -161,8 +161,7 @@ ORDER BY created_at DESC OFFSET $3 LIMIT $4;
 SELECT campaigns.*, COALESCE(templates.body, (SELECT body FROM templates WHERE is_default = true LIMIT 1)) AS template_body
 FROM campaigns
 LEFT JOIN templates ON (templates.id = campaigns.template_id)
-WHERE (status='running' OR (status='scheduled' AND campaigns.send_at >= NOW()))
-AND NOT(campaigns.id = ANY($1::INT[]))
+WHERE campaigns.id = $1;
 
 -- name: get-campaign-stats
 SELECT id, status, to_send, sent, started_at, updated_at

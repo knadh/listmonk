@@ -89,26 +89,26 @@ func handlePreviewCampaign(c echo.Context) error {
 	var (
 		app   = c.Get("app").(*App)
 		id, _ = strconv.Atoi(c.Param("id"))
-		camps models.Campaigns
+		body  = c.FormValue("body")
+
+		camp models.Campaign
 	)
 
 	if id < 1 {
 		return echo.NewHTTPError(http.StatusBadRequest, "Invalid ID.")
 	}
 
-	err := app.Queries.GetCampaigns.Select(&camps, id, "", 0, 1)
+	err := app.Queries.GetCampaignForPreview.Get(&camp, id)
 	if err != nil {
+		if err == sql.ErrNoRows {
+			return echo.NewHTTPError(http.StatusBadRequest, "Campaign not found.")
+		}
+
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			fmt.Sprintf("Error fetching campaign: %s", pqErrMsg(err)))
-	} else if len(camps) == 0 {
-		return echo.NewHTTPError(http.StatusBadRequest, "Campaign not found.")
 	}
 
-	var (
-		camp = camps[0]
-		sub  models.Subscriber
-	)
-
+	var sub models.Subscriber
 	// Get a random subscriber from the campaign.
 	if err := app.Queries.GetOneCampaignSubscriber.Get(&sub, camp.ID); err != nil {
 		if err == sql.ErrNoRows {
@@ -126,7 +126,10 @@ func handlePreviewCampaign(c echo.Context) error {
 	}
 
 	// Compile the template.
-	tpl, err := runner.CompileMessageTemplate(`{{ template "content" . }}`, camp.Body)
+	if body == "" {
+		body = camp.Body
+	}
+	tpl, err := runner.CompileMessageTemplate(camp.TemplateBody, body)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Error compiling template: %v", err))
 	}

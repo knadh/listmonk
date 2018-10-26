@@ -60,6 +60,7 @@ export const Routes = {
 
     GetSubscribers: "/api/subscribers",
     GetSubscribersByList: "/api/subscribers/lists/:listID",
+    PreviewCampaign: "/api/campaigns/:id/preview",
     CreateSubscriber: "/api/subscribers",
     UpdateSubscriber: "/api/subscribers/:id",
     DeleteSubscriber: "/api/subscribers/:id",
@@ -81,6 +82,7 @@ export const Routes = {
 
     GetTemplates: "/api/templates",
     PreviewTemplate: "/api/templates/:id/preview",
+    PreviewNewTemplate: "/api/templates/preview",
     CreateTemplate: "/api/templates",
     UpdateTemplate: "/api/templates/:id",
     SetDefaultTemplate: "/api/templates/:id/default",

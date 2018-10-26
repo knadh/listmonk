@@ -1,13 +1,16 @@
 import React from "react"
 import { Row, Col, Modal, Form, Input, Button, Table, Icon, Tooltip, Tag, Popconfirm, Spin, notification } from "antd"
 
+import ModalPreview from "./ModalPreview"
 import Utils from "./utils"
 import * as cs from "./constants"
 
 class CreateFormDef extends React.PureComponent {
     state = {
         confirmDirty: false,
-        modalWaiting: false
+        modalWaiting: false,
+        previewName: "",
+        previewBody: ""
     }
 
     // Handle create / edit form submission.
@@ -50,6 +53,10 @@ class CreateFormDef extends React.PureComponent {
         this.setState({ confirmDirty: this.state.confirmDirty || !!value })
     }
 
+    handlePreview = (name, body) => {
+        this.setState({ previewName: name, previewBody: body })
+    }
+
     render() {
         const { formType, record, onClose } = this.props
         const { getFieldDecorator } = this.props.form
@@ -64,37 +71,54 @@ class CreateFormDef extends React.PureComponent {
         }
 
         return (
-            <Modal visible={ true } title={ formType === cs.FormCreate ? "Add template" : record.name }
-                okText={ this.state.form === cs.FormCreate ? "Add" : "Save" }
-                width="90%"
-                height={ 900 }
-                confirmLoading={ this.state.modalWaiting }
-                onCancel={ onClose }
-                onOk={ this.handleSubmit }>
+            <div>
+                <Modal visible={ true } title={ formType === cs.FormCreate ? "Add template" : record.name }
+                    okText={ this.state.form === cs.FormCreate ? "Add" : "Save" }
+                    width="90%"
+                    height={ 900 }
+                    confirmLoading={ this.state.modalWaiting }
+                    onCancel={ onClose }
+                    onOk={ this.handleSubmit }>
 
-                <Spin spinning={ this.props.reqStates[cs.ModelTemplates] === cs.StatePending }>
-                    <Form onSubmit={this.handleSubmit}>
-                        <Form.Item {...formItemLayout} label="Name">
-                            {getFieldDecorator("name", {
-                                initialValue: record.name,
-                                rules: [{ required: true }]
-                            })(<Input autoFocus maxLength="200" />)}
-                        </Form.Item>
-                        <Form.Item {...formItemLayout} name="body" label="Raw HTML">
-                            {getFieldDecorator("body", { initialValue: record.body ? record.body : "", rules: [{ required: true }] })(
-                                <Input.TextArea autosize={{ minRows: 10, maxRows: 30 }}>
-                                </Input.TextArea>
-                            )}
-                        </Form.Item>
-                    </Form>
-                </Spin>
-                <Row>
-                    <Col span="4"></Col>
-                    <Col span="18" className="text-grey text-small">
-                        The placeholder <code>{'{'}{'{'} template "content" . {'}'}{'}'}</code> should appear in the template. <a href="" target="_blank">Read more on templating</a>.
-                    </Col>
-                </Row>
-            </Modal>
+                    <Spin spinning={ this.props.reqStates[cs.ModelTemplates] === cs.StatePending }>
+                        <Form onSubmit={this.handleSubmit}>
+                            <Form.Item {...formItemLayout} label="Name">
+                                {getFieldDecorator("name", {
+                                    initialValue: record.name,
+                                    rules: [{ required: true }]
+                                })(<Input autoFocus maxLength="200" />)}
+                            </Form.Item>
+                            <Form.Item {...formItemLayout} name="body" label="Raw HTML">
+                                {getFieldDecorator("body", { initialValue: record.body ? record.body : "", rules: [{ required: true }] })(
+                                    <Input.TextArea autosize={{ minRows: 10, maxRows: 30 }} />
+                                )}
+                            </Form.Item>
+                            <Form.Item {...formItemLayout} colon={ false } label="&nbsp;">
+                                <Button icon="search"  onClick={ () => 
+                                    this.handlePreview(this.props.form.getFieldValue("name"), this.props.form.getFieldValue("body"))
+                                }>Preview</Button>
+                            </Form.Item>
+                        </Form>
+                    </Spin>
+                    <Row>
+                        <Col span="4"></Col>
+                        <Col span="18" className="text-grey text-small">
+                            The placeholder <code>{'{'}{'{'} template "content" . {'}'}{'}'}</code> should appear in the template. <a href="" target="_blank">Read more on templating</a>.
+                        </Col>
+                    </Row>
+                </Modal>
+
+                { this.state.previewBody &&
+                    <ModalPreview
+                        title={ this.state.previewName ? this.state.previewName : "Template preview" }
+                        previewURL={ cs.Routes.PreviewTemplate }
+                        body={ this.state.previewBody }
+                        onCancel={() => {
+                            this.setState({ previewBody: null, previewName: null })
+                        }}
+                    />
+                }
+            </div>
         )
     }
 }
@@ -243,17 +267,15 @@ class Templates extends React.PureComponent {
                     fetchRecords = { this.fetchRecords }
                 />
 
-                <Modal visible={ this.state.previewRecord !== null } title={ this.state.previewRecord ? this.state.previewRecord.name : "" }
-                    className="template-preview-modal"
-                    width="90%"
-                    height={ 900 }
-                    onOk={ () => { this.setState({ previewRecord: null }) } }>
-                    { this.state.previewRecord !== null &&
-                        <iframe title="Template preview"
-                                className="template-preview"
-                                src={ cs.Routes.PreviewTemplate.replace(":id", this.state.previewRecord.id) }>
-                        </iframe> }
-                </Modal>
+                { this.state.previewRecord &&
+                    <ModalPreview
+                        title={ this.state.previewRecord.name }
+                        previewURL={ cs.Routes.PreviewTemplate.replace(":id", this.state.previewRecord.id) }
+                        onCancel={() => {
+                            this.setState({ previewRecord: null })
+                        }}
+                    />
+                }
             </section>
         )
     }
