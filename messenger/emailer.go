@@ -69,6 +69,8 @@ func (e *emailer) Name() string {
 func (e *emailer) Push(fromAddr, toAddr, subject string, m []byte) error {
 	var key string
 
+	return nil
+
 	// If there are more than one SMTP servers, send to a random
 	// one from the list.
 	if e.numServers > 1 {
