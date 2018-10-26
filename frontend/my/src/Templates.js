@@ -93,11 +93,13 @@ class CreateFormDef extends React.PureComponent {
                                     <Input.TextArea autosize={{ minRows: 10, maxRows: 30 }} />
                                 )}
                             </Form.Item>
-                            <Form.Item {...formItemLayout} colon={ false } label="&nbsp;">
-                                <Button icon="search"  onClick={ () => 
-                                    this.handlePreview(this.props.form.getFieldValue("name"), this.props.form.getFieldValue("body"))
-                                }>Preview</Button>
-                            </Form.Item>
+                            { this.props.form.getFieldValue("body") !== "" &&
+                                <Form.Item {...formItemLayout} colon={ false } label="&nbsp;">
+                                    <Button icon="search"  onClick={ () => 
+                                        this.handlePreview(this.props.form.getFieldValue("name"), this.props.form.getFieldValue("body"))
+                                    }>Preview</Button>
+                                </Form.Item>
+                            }
                         </Form>
                     </Spin>
                     <Row>
@@ -111,7 +113,7 @@ class CreateFormDef extends React.PureComponent {
                 { this.state.previewBody &&
                     <ModalPreview
                         title={ this.state.previewName ? this.state.previewName : "Template preview" }
-                        previewURL={ cs.Routes.PreviewTemplate }
+                        previewURL={ cs.Routes.PreviewNewTemplate }
                         body={ this.state.previewBody }
                         onCancel={() => {
                             this.setState({ previewBody: null, previewName: null })
