@@ -398,6 +398,19 @@ class Campaigns extends React.PureComponent {
                         }}
                     />
                 }
+
+                { this.state.record &&
+                    <Modal visible={ this.state.record !== null } width="500px"
+                        className="clone-campaign-modal"
+                        title={ "Clone " + this.state.record.name}
+                        okText="Clone"
+                        confirmLoading={ this.state.modalWaiting }
+                        onCancel={ this.handleToggleCloneForm }
+                        onOk={() => { this.handleCloneCampaign({ ...this.state.record, name: this.state.cloneName }) }}>
+                            <Input autoFocus defaultValue={ this.state.record.name } style={{ width: "100%" }} onChange={(e) => {
+                                this.setState({ cloneName: e.target.value })
+                            }} />
+                    </Modal> }
             </section>
         )
     }
