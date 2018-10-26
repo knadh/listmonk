@@ -57,7 +57,7 @@ func handleGetSubscriber(c echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			fmt.Sprintf("Error fetching subscriber: %s", pqErrMsg(err)))
-	} else if err == sql.ErrNoRows {
+	} else if len(out) == 0 {
 		return echo.NewHTTPError(http.StatusBadRequest, "Subscriber not found.")
 	}
 	out.LoadLists(app.Queries.GetSubscriberLists)
