@@ -112,7 +112,7 @@ class Campaigns extends React.PureComponent {
             title: "",
             dataIndex: "actions",
             className: "actions",
-            width: "20%",
+            width: "15%",
             render: (text, record) => {
                 return (
                     <div className="actions">
