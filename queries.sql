@@ -3,6 +3,11 @@
 -- Get a single subscriber by id or UUID.
 SELECT * FROM subscribers WHERE CASE WHEN $1 > 0 THEN id = $1 ELSE uuid = $2 END;
 
+-- subscribers
+-- name: get-subscribers-by-emails
+-- Get subscribers by emails.
+SELECT * FROM subscribers WHERE email=ANY($1);
+
 -- name: get-subscriber-lists
 -- Get lists belonging to subscribers.
 SELECT lists.*, subscriber_lists.subscriber_id, subscriber_lists.status AS subscription_status FROM lists
@@ -158,7 +163,14 @@ WHERE ($1 = 0 OR id = $1) AND status=(CASE WHEN $2 != '' THEN $2::campaign_statu
 ORDER BY created_at DESC OFFSET $3 LIMIT $4;
 
 -- name: get-campaign-for-preview
-SELECT campaigns.*, COALESCE(templates.body, (SELECT body FROM templates WHERE is_default = true LIMIT 1)) AS template_body
+SELECT campaigns.*, COALESCE(templates.body, (SELECT body FROM templates WHERE is_default = true LIMIT 1)) AS template_body,
+(
+	SELECT COALESCE(ARRAY_TO_JSON(ARRAY_AGG(l)), '[]') FROM (
+		SELECT COALESCE(campaign_lists.list_id, 0) AS id,
+        campaign_lists.list_name AS name
+        FROM campaign_lists WHERE campaign_lists.campaign_id = campaigns.id
+	) l
+) AS lists
 FROM campaigns
 LEFT JOIN templates ON (templates.id = campaigns.template_id)
 WHERE campaigns.id = $1;

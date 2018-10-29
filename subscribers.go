@@ -43,10 +43,10 @@ var jsonMap = []byte("{}")
 // handleGetSubscriber handles the retrieval of a single subscriber by ID.
 func handleGetSubscriber(c echo.Context) error {
 	var (
-		app = c.Get("app").(*App)
-		out models.Subscribers
-
+		app   = c.Get("app").(*App)
 		id, _ = strconv.Atoi(c.Param("id"))
+
+		out models.Subscribers
 	)
 
 	if id < 1 {
@@ -183,6 +183,10 @@ func handleCreateSubscriber(c echo.Context) error {
 		true,
 		req.Lists)
 	if err != nil {
+		if err == sql.ErrNoRows {
+			return echo.NewHTTPError(http.StatusBadRequest, "The e-mail already exists.")
+		}
+
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			fmt.Sprintf("Error creating subscriber: %v", err))
 	}

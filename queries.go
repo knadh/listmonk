@@ -10,6 +10,7 @@ import (
 type Queries struct {
 	UpsertSubscriber            *sqlx.Stmt `query:"upsert-subscriber"`
 	GetSubscriber               *sqlx.Stmt `query:"get-subscriber"`
+	GetSubscribersByEmails      *sqlx.Stmt `query:"get-subscribers-by-emails"`
 	GetSubscriberLists          *sqlx.Stmt `query:"get-subscriber-lists"`
 	QuerySubscribers            string     `query:"query-subscribers"`
 	QuerySubscribersCount       string     `query:"query-subscribers-count"`

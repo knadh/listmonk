@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"regexp"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/asaskevich/govalidator"
@@ -24,6 +25,9 @@ type campaignReq struct {
 	models.Campaign
 	MessengerID string        `json:"messenger"`
 	Lists       pq.Int64Array `json:"lists"`
+
+	// This is only relevant to campaign test requests.
+	SubscriberEmails pq.StringArray `json:"subscribers"`
 }
 
 type campaignStats struct {
@@ -131,7 +135,8 @@ func handlePreviewCampaign(c echo.Context) error {
 	}
 	tpl, err := runner.CompileMessageTemplate(camp.TemplateBody, body)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Error compiling template: %v", err))
+		return echo.NewHTTPError(http.StatusBadRequest,
+			fmt.Sprintf("Error compiling template: %v", err))
 	}
 
 	// Render the message body.
@@ -139,7 +144,8 @@ func handlePreviewCampaign(c echo.Context) error {
 	if err := tpl.ExecuteTemplate(&out,
 		runner.BaseTPL,
 		runner.Message{Campaign: &camp, Subscriber: &sub, UnsubscribeURL: "#dummy"}); err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Error executing template: %v", err))
+		return echo.NewHTTPError(http.StatusBadRequest,
+			fmt.Sprintf("Error executing template: %v", err))
 	}
 
 	return c.HTML(http.StatusOK, out.String())
@@ -408,6 +414,91 @@ func handleGetCampaignMessengers(c echo.Context) error {
 	return c.JSON(http.StatusOK, okResp{app.Runner.GetMessengerNames()})
 }
 
+// handleTestCampaign handles the sending of a campaign message to
+// arbitrary subscribers for testing.
+func handleTestCampaign(c echo.Context) error {
+	var (
+		app       = c.Get("app").(*App)
+		campID, _ = strconv.Atoi(c.Param("id"))
+		req       campaignReq
+	)
+
+	if campID < 1 {
+		return echo.NewHTTPError(http.StatusBadRequest, "Invalid campaign ID.")
+	}
+
+	// Get and validate fields.
+	if err := c.Bind(&req); err != nil {
+		return err
+	}
+	// Validate.
+	if err := validateCampaignFields(req); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+	if len(req.SubscriberEmails) == 0 {
+		return echo.NewHTTPError(http.StatusBadRequest, "No subscribers to target.")
+	}
+
+	// Get the subscribers.
+	for i := 0; i < len(req.SubscriberEmails); i++ {
+		req.SubscriberEmails[i] = strings.ToLower(strings.TrimSpace(req.SubscriberEmails[i]))
+	}
+	var subs models.Subscribers
+	if err := app.Queries.GetSubscribersByEmails.Select(&subs, req.SubscriberEmails); err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError,
+			fmt.Sprintf("Error fetching subscribers: %s", pqErrMsg(err)))
+	} else if len(subs) == 0 {
+		return echo.NewHTTPError(http.StatusBadRequest, "No known subscribers given.")
+	}
+
+	// The campaign.
+	var camp models.Campaign
+	if err := app.Queries.GetCampaignForPreview.Get(&camp, campID); err != nil {
+		if err == sql.ErrNoRows {
+			return echo.NewHTTPError(http.StatusBadRequest, "Campaign not found.")
+		}
+		return echo.NewHTTPError(http.StatusInternalServerError,
+			fmt.Sprintf("Error fetching campaign: %s", pqErrMsg(err)))
+	}
+
+	// Override certain values in the DB with incoming values.
+	camp.Name = req.Name
+	camp.Subject = req.Subject
+	camp.FromEmail = req.FromEmail
+	camp.Body = req.Body
+
+	// Send the test messages.
+	for _, s := range subs {
+		if err := sendTestMessage(&s, &camp, app); err != nil {
+			return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Error sending test: %v", err))
+		}
+	}
+
+	return c.JSON(http.StatusOK, okResp{true})
+}
+
+// sendTestMessage takes a campaign and a subsriber and sends out a sample campain message.
+func sendTestMessage(sub *models.Subscriber, camp *models.Campaign, app *App) error {
+	tpl, err := runner.CompileMessageTemplate(camp.TemplateBody, camp.Body)
+	if err != nil {
+		return fmt.Errorf("Error compiling template: %v", err)
+	}
+
+	// Render the message body.
+	var out = bytes.Buffer{}
+	if err := tpl.ExecuteTemplate(&out,
+		runner.BaseTPL,
+		runner.Message{Campaign: camp, Subscriber: sub, UnsubscribeURL: "#dummy"}); err != nil {
+		return fmt.Errorf("Error executing template: %v", err)
+	}
+
+	if err := app.Messenger.Push(camp.FromEmail, sub.Email, camp.Subject, []byte(out.Bytes())); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // validateCampaignFields validates incoming campaign field values.
 func validateCampaignFields(c campaignReq) error {
 	if !regexFromAddress.Match([]byte(c.FromEmail)) {
@@ -432,6 +523,11 @@ func validateCampaignFields(c campaignReq) error {
 		if c.SendAt.Time.Before(time.Now()) {
 			return errors.New("`send_at` date should be in the future")
 		}
+	}
+
+	_, err := runner.CompileMessageTemplate(tplTag, c.Body)
+	if err != nil {
+		return fmt.Errorf("Error compiling campaign body: %v", err)
 	}
 
 	return nil

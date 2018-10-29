@@ -37,6 +37,8 @@ type App struct {
 	Importer  *subimporter.Importer
 	Runner    *runner.Runner
 	Logger    *log.Logger
+
+	Messenger messenger.Messenger
 }
 
 func init() {
@@ -104,6 +106,7 @@ func registerHandlers(e *echo.Echo) {
 	e.GET("/api/campaigns/:id", handleGetCampaigns)
 	e.GET("/api/campaigns/:id/preview", handlePreviewCampaign)
 	e.POST("/api/campaigns/:id/preview", handlePreviewCampaign)
+	e.POST("/api/campaigns/:id/test", handleTestCampaign)
 	e.POST("/api/campaigns", handleCreateCampaign)
 	e.PUT("/api/campaigns/:id", handleUpdateCampaign)
 	e.PUT("/api/campaigns/:id/status", handleUpdateCampaignStatus)
@@ -139,7 +142,7 @@ func registerHandlers(e *echo.Echo) {
 }
 
 // initMessengers initializes various messaging backends.
-func initMessengers(r *runner.Runner) {
+func initMessengers(r *runner.Runner) messenger.Messenger {
 	// Load SMTP configurations for the default e-mail Messenger.
 	var srv []messenger.Server
 	for name := range viper.GetStringMapString("smtp") {
@@ -158,14 +161,16 @@ func initMessengers(r *runner.Runner) {
 		logger.Printf("loaded SMTP config %s (%s@%s)", s.Name, s.Username, s.Host)
 	}
 
-	e, err := messenger.NewEmailer(srv...)
+	msgr, err := messenger.NewEmailer(srv...)
 	if err != nil {
 		logger.Fatalf("error loading e-mail messenger: %v", err)
 	}
 
-	if err := r.AddMessenger(e); err != nil {
+	if err := r.AddMessenger(msgr); err != nil {
 		logger.Printf("error registering messenger %s", err)
 	}
+
+	return msgr
 }
 
 func main() {
@@ -222,7 +227,7 @@ func main() {
 	app.Runner = r
 
 	// Add messengers.
-	initMessengers(app.Runner)
+	app.Messenger = initMessengers(app.Runner)
 
 	go r.Run(time.Duration(time.Second * 2))
 	r.SpawnWorkers()
