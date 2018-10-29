@@ -14,15 +14,20 @@ import (
 	"github.com/labstack/echo"
 )
 
-const dummyTpl = `
+const (
+	// tplTag is the template tag that should be present in a template
+	// as the placeholder for campaign bodies.
+	tplTag = `{{ template "content" . }}`
+
+	dummyTpl = `
 <p>Hi there</p>
 <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis et elit ac elit sollicitudin condimentum non a magna. Sed tempor mauris in facilisis vehicula. Aenean nisl urna, accumsan ac tincidunt vitae, interdum cursus massa. Interdum et malesuada fames ac ante ipsum primis in faucibus. Aliquam varius turpis et turpis lacinia placerat. Aenean id ligula a orci lacinia blandit at eu felis. Phasellus vel lobortis lacus. Suspendisse leo elit, luctus sed erat ut, venenatis fermentum ipsum. Donec bibendum neque quis.</p>
 
 <h3>Sub heading</h3>
 <p>Nam luctus dui non placerat mattis. Morbi non accumsan orci, vel interdum urna. Duis faucibus id nunc ut euismod. Curabitur et eros id erat feugiat fringilla in eget neque. Aliquam accumsan cursus eros sed faucibus.</p>
 
-<p>Here is a link to <a href="https://listmonk.app" target="_blank">listmonk</a>.</p>
-`
+		<p>Here is a link to <a href="https://listmonk.app" target="_blank">listmonk</a>.</p>`
+)
 
 type dummyMessage struct {
 	UnsubscribeURL string
@@ -222,8 +227,8 @@ func validateTemplate(o models.Template) error {
 		return errors.New("invalid length for `name`")
 	}
 
-	if !strings.Contains(o.Body, `{{ template "content" . }}`) {
-		return errors.New(`template body should contain the {{ template "content" . }} placeholder`)
+	if !strings.Contains(o.Body, tplTag) {
+		return fmt.Errorf("template body should contain the %s placeholder", tplTag)
 	}
 
 	return nil
