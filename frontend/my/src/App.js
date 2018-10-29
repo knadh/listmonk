@@ -47,18 +47,7 @@ class App extends React.PureComponent {
     // modelRequest is an opinionated wrapper for model specific HTTP requests,
     // including setting model states.
     modelRequest = async (model, route, method, params) => {
-        let url = route
-
-        // Replace :params in the URL with params in the array.
-        let uriParams = route.match(/:([a-z0-9\-_]+)/ig)
-        if(uriParams && uriParams.length > 0) {
-            uriParams.forEach((p) => {
-                let pName = p.slice(1) // Lose the ":" prefix
-                if(params && params.hasOwnProperty(pName)) {
-                    url = url.replace(p, params[pName])
-                }
-            })
-        }
+        let url = replaceParams(route, params)
 
         this.setState({ reqStates: { ...this.state.reqStates, [model]: cs.StatePending } })
         try {
@@ -97,9 +86,7 @@ class App extends React.PureComponent {
 
     // request is a wrapper for generic HTTP requests.
     request = async (url, method, params, headers) => {
-        if (params && params.hasOwnProperty("id") && typeof params["id"] === "number") {
-            url += "/" + params["id"]
-        }
+        url = replaceParams(url, params)
 
         this.setState({ reqStates: { ...this.state.reqStates, [url]: cs.StatePending } })
         try {
@@ -135,6 +122,22 @@ class App extends React.PureComponent {
             </BrowserRouter>
         )
     }
+}
+
+function replaceParams (route, params) {
+    console.log(route, params)
+    // Replace :params in the URL with params in the array.
+    let uriParams = route.match(/:([a-z0-9\-_]+)/ig)
+    if(uriParams && uriParams.length > 0) {
+        uriParams.forEach((p) => {
+            let pName = p.slice(1) // Lose the ":" prefix
+            if(params && params.hasOwnProperty(pName)) {
+                route = route.replace(p, params[pName])
+            }
+        })
+    }
+
+    return route
 }
 
 export default App
