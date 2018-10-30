@@ -62,7 +62,7 @@ type Importer struct {
 // Session represents a single import session.
 type Session struct {
 	im       *Importer
-	subQueue chan models.Subscriber
+	subQueue chan SubReq
 	log      *log.Logger
 
 	overrideStatus bool
@@ -123,7 +123,7 @@ func (im *Importer) NewSession(fName string, overrideStatus bool, listIDs []int)
 	s := &Session{
 		im:             im,
 		log:            log.New(im.status.logBuf, "", log.Ldate|log.Ltime),
-		subQueue:       make(chan models.Subscriber, commitBatchSize),
+		subQueue:       make(chan SubReq, commitBatchSize),
 		overrideStatus: overrideStatus,
 		listIDs:        listIDs,
 	}
@@ -219,7 +219,8 @@ func (s *Session) Start() {
 			listIDs)
 		if err != nil {
 			s.log.Printf("error executing insert: %v", err)
-			continue
+			tx.Rollback()
+			break
 		}
 		cur++
 		total++
@@ -383,9 +384,11 @@ func (s *Session) LoadCSV(srcPath string, delim rune) error {
 
 	var (
 		lnHdr = len(hdrKeys)
-		i     = 1
+		i     = 0
 	)
 	for {
+		i++
+
 		// Check for the stop signal.
 		select {
 		case <-s.im.stop:
@@ -413,17 +416,24 @@ func (s *Session) LoadCSV(srcPath string, delim rune) error {
 		// Iterate the key map and based on the indices mapped earlier,
 		// form a map of key: csv_value, eg: email: user@user.com.
 		row := make(map[string]string, lnCols)
-		for key := range csvHeaders {
+		for key := range hdrKeys {
 			row[key] = cols[hdrKeys[key]]
 		}
 
+		sub := SubReq{}
 		// Lowercase to ensure uniqueness in the DB.
-		row["email"] = strings.ToLower(strings.TrimSpace(row["email"]))
+		sub.Email = strings.ToLower(strings.TrimSpace(row["email"]))
+		sub.Name = row["name"]
 
-		sub := models.Subscriber{
-			Email:  row["email"],
-			Name:   row["name"],
-			Status: row["status"],
+		if _, ok := row["status"]; ok {
+			sub.Status = row["status"]
+		} else {
+			sub.Status = models.SubscriberStatusEnabled
+		}
+
+		if err := ValidateFields(sub); err != nil {
+			s.log.Printf("skipping line %d: %v", i, err)
+			continue
 		}
 
 		// JSON attributes.
@@ -441,8 +451,6 @@ func (s *Session) LoadCSV(srcPath string, delim rune) error {
 
 		// Send the subscriber to the queue.
 		s.subQueue <- sub
-
-		i++
 	}
 
 	close(s.subQueue)
@@ -492,7 +500,7 @@ func ValidateFields(s SubReq) error {
 		return errors.New("invalid `email`")
 	}
 	if !govalidator.IsByteLength(s.Name, 1, stdInputMaxLen) {
-		return errors.New("invalid length for `name`")
+		return errors.New("invalid or empty `name`")
 	}
 	if s.Status != SubscriberStatusEnabled && s.Status != SubscriberStatusDisabled &&
 		s.Status != SubscriberStatusBlacklisted {

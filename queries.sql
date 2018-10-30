@@ -44,8 +44,8 @@ SELECT COUNT(subscribers.id) as num FROM subscribers INNER JOIN subscriber_lists
 -- value is overwritten with the incoming value. This is used for insertions and bulk imports.
 WITH s AS (
     INSERT INTO subscribers (uuid, email, name, status, attribs)
-    VALUES($1, $2, $3, $4, $5) ON CONFLICT (email) DO UPDATE
-    SET name=$3, status=(CASE WHEN $6 = true THEN $4 ELSE subscribers.status END),
+    VALUES($1, $2, $3, (CASE WHEN $4 != '' THEN $4::subscriber_status ELSE 'enabled' END), $5) ON CONFLICT (email) DO UPDATE
+    SET name=$3, status=(CASE WHEN $6 IS TRUE THEN $4::subscriber_status ELSE subscribers.status END),
     attribs=$5, updated_at=NOW()
     RETURNING id
 )  INSERT INTO subscriber_lists (subscriber_id, list_id)
@@ -348,6 +348,22 @@ SELECT * FROM media ORDER BY created_at DESC;
 
 -- name: delete-media
 DELETE FROM media WHERE id=$1 RETURNING filename;
+
+-- links
+-- name: create-link
+INSERT INTO links (uuid, url) VALUES($1, $2) ON CONFLICT (url) DO UPDATE SET url=EXCLUDED.url RETURNING uuid;
+
+-- name: register-link-click
+WITH link AS (
+    SELECT url, links.id AS link_id, campaigns.id as campaign_id, subscribers.id AS subscriber_id FROM links
+    LEFT JOIN campaigns ON (campaigns.uuid = $1)
+    LEFT JOIN subscribers ON (subscribers.uuid = $2)
+    WHERE links.uuid = $3
+)
+INSERT INTO link_clicks (campaign_id, subscriber_id, link_id)
+    VALUES((SELECT campaign_id FROM link), (SELECT subscriber_id FROM link), (SELECT link_id FROM link))
+    RETURNING (SELECT url FROM link);
+
 
 -- -- name: get-stats
 -- WITH lists AS (
