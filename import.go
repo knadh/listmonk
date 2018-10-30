@@ -80,6 +80,8 @@ func handleImportSubscribers(c echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			fmt.Sprintf("Error extracting ZIP file: %v", err))
+	} else if len(files) == 0 {
+		return echo.NewHTTPError(http.StatusBadRequest, "No CSV files found to import.")
 	}
 	go impSess.LoadCSV(dir+"/"+files[0], rune(r.Delim[0]))
 
