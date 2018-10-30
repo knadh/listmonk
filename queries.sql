@@ -17,7 +17,7 @@ SELECT lists.*, subscriber_lists.subscriber_id, subscriber_lists.status AS subsc
 -- name: query-subscribers
 -- raw: true
 -- Unprepared statement for issuring arbitrary WHERE conditions.
-SELECT * FROM subscribers WHERE 1=1 %s OFFSET %d LIMIT %d;
+SELECT * FROM subscribers WHERE 1=1 %s order by updated_at DESC OFFSET %d LIMIT %d;
 
 -- name: query-subscribers-count
 -- raw: true
@@ -81,8 +81,9 @@ DELETE FROM subscribers WHERE id = ALL($1);
 -- If $3 is TRUE, then all subscriptions of the subscriber is blacklisted
 -- and all existing subscriptions, irrespective of lists, unsubscribed.
 WITH lists AS (
-    -- SELECT (JSONB_ARRAY_ELEMENTS(lists)->>'id')::INT AS list_id FROM campaigns WHERE uuid = $1
-    SELECT * from campaigns where uuid=$1
+    SELECT list_id FROM campaign_lists
+    LEFT JOIN campaigns ON (campaign_lists.campaign_id = campaigns.id)
+    WHERE campaigns.uuid = $1
 ),
 sub AS (
     UPDATE subscribers SET status = (CASE WHEN $3 IS TRUE THEN 'blacklisted' ELSE status END)
@@ -90,6 +91,7 @@ sub AS (
 )
 UPDATE subscriber_lists SET status = 'unsubscribed' WHERE
     subscriber_id = (SELECT id FROM sub) AND
+    -- If $3 is false, unsubscribe from the campaign's lists, otherwise all lists.
     CASE WHEN $3 IS FALSE THEN list_id = ANY(SELECT list_id FROM lists) ELSE list_id != 0 END;
 
 -- name: query-subscribers-into-lists
