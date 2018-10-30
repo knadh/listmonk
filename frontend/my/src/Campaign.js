@@ -225,12 +225,14 @@ class TheFormDef extends React.PureComponent {
                     this.setState({ loading: false })
                 }).catch(e => {
                     notification["error"]({ message: "Error", description: e.message })
+                    this.setState({ loading: false })
                 })
             } else {
                 this.props.modelRequest(cs.ModelCampaigns, cs.Routes.UpdateCampaign, cs.MethodPut, { ...values, id: this.props.record.id }).then((resp) => {
                     notification["success"]({ placement: "topRight",
                     message: "Campaign updated",
                     description: `"${values["name"]}" updated` })
+                    this.setState({ loading: false })
                 }).catch(e => {
                     notification["error"]({ message: "Error", description: e.message })
                     this.setState({ loading: false })
