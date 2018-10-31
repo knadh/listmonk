@@ -10,6 +10,7 @@ import (
 	"github.com/labstack/echo"
 )
 
+// Template wraps a template.Template for echo.
 type Template struct {
 	templates *template.Template
 }
@@ -21,7 +22,8 @@ type publicTpl struct {
 
 type unsubTpl struct {
 	publicTpl
-	Blacklisted bool
+	Unsubscribe bool
+	Blacklist   bool
 }
 
 type errorTpl struct {
@@ -33,8 +35,8 @@ type errorTpl struct {
 
 var regexValidUUID = regexp.MustCompile("^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-4[a-fA-F0-9]{3}-[8|9|aA|bB][a-fA-F0-9]{3}-[a-fA-F0-9]{12}$")
 
+// Render executes and renders a template for echo.
 func (t *Template) Render(w io.Writer, name string, data interface{}, c echo.Context) error {
-	// fmt.Println(t.templates.ExecuteTemplate(os.Stdout, name, nil))
 	return t.templates.ExecuteTemplate(w, name, data)
 }
 
@@ -44,37 +46,66 @@ func handleUnsubscribePage(c echo.Context) error {
 		app          = c.Get("app").(*App)
 		campUUID     = c.Param("campUUID")
 		subUUID      = c.Param("subUUID")
+		unsub, _     = strconv.ParseBool(c.FormValue("unsubscribe"))
 		blacklist, _ = strconv.ParseBool(c.FormValue("blacklist"))
 
 		out = unsubTpl{}
 	)
-	out.Blacklisted = blacklist
+	out.Unsubscribe = unsub
+	out.Blacklist = blacklist
 	out.Title = "Unsubscribe from mailing list"
 
 	if !regexValidUUID.MatchString(campUUID) ||
 		!regexValidUUID.MatchString(subUUID) {
-		err := errorTpl{}
-		err.Title = "Invalid request"
-		err.ErrorTitle = err.Title
-		err.ErrorMessage = "The unsubscription request contains invalid IDs. Please make sure to follow the correct link."
-		return c.Render(http.StatusBadRequest, "error", err)
+		return c.Render(http.StatusBadRequest, "error",
+			makeErrorTpl("Invalid request", "",
+				`The unsubscription request contains invalid IDs.
+				Please click on the correct link.`))
 	}
 
 	// Unsubscribe.
-	res, err := app.Queries.Unsubscribe.Exec(campUUID, subUUID, blacklist)
-	if err != nil {
-		app.Logger.Printf("Error unsubscribing : %v", err)
-		return echo.NewHTTPError(http.StatusBadRequest, "Subscription doesn't exist")
-	}
+	if unsub {
+		res, err := app.Queries.Unsubscribe.Exec(campUUID, subUUID, blacklist)
+		if err != nil {
+			app.Logger.Printf("Error unsubscribing : %v", err)
+			return echo.NewHTTPError(http.StatusBadRequest, "There was an internal error while unsubscribing you.")
+		}
 
-	num, err := res.RowsAffected()
-	if num == 0 {
-		err := errorTpl{}
-		err.Title = "Invalid subscription"
-		err.ErrorTitle = err.Title
-		err.ErrorMessage = "Looks like you are not subscribed to this mailing list."
-		return c.Render(http.StatusBadRequest, "error", err)
+		if !blacklist {
+			num, _ := res.RowsAffected()
+			if num == 0 {
+				return c.Render(http.StatusBadRequest, "error",
+					makeErrorTpl("Already unsubscribed", "",
+						`Looks like you are not subscribed to this mailing list.
+						You may have already unsubscribed.`))
+			}
+		}
 	}
 
 	return c.Render(http.StatusOK, "unsubscribe", out)
+}
+
+// handleLinkRedirect handles link UUID to real link redirection.
+func handleLinkRedirect(c echo.Context) error {
+	var (
+		app      = c.Get("app").(*App)
+		linkUUID = c.Param("linkUUID")
+		campUUID = c.Param("campUUID")
+		subUUID  = c.Param("subUUID")
+	)
+	if !regexValidUUID.MatchString(linkUUID) ||
+		!regexValidUUID.MatchString(campUUID) ||
+		!regexValidUUID.MatchString(subUUID) {
+		return c.Render(http.StatusBadRequest, "error",
+			makeErrorTpl("Invalid link", "", "The link you clicked is invalid."))
+	}
+
+	var url string
+	if err := app.Queries.RegisterLinkClick.Get(&url, linkUUID, campUUID, subUUID); err != nil {
+		app.Logger.Printf("error fetching redirect link: %s", err)
+		return c.Render(http.StatusInternalServerError, "error",
+			makeErrorTpl("Error opening link", "", "There was an error opening the link. Please try later."))
+	}
+
+	return c.Redirect(http.StatusTemporaryRedirect, url)
 }
