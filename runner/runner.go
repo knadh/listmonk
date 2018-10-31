@@ -304,6 +304,7 @@ func (m *Message) Render() error {
 func (r *Runner) trackLink(url, campUUID, subUUID string) string {
 	r.linksMutex.RLock()
 	if uu, ok := r.links[url]; ok {
+		r.linksMutex.RUnlock()
 		return uu
 	}
 	r.linksMutex.RUnlock()
