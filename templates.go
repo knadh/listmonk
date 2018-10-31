@@ -27,11 +27,6 @@ const (
 		<p>Here is a link to <a href="https://listmonk.app" target="_blank">listmonk</a>.</p>`
 )
 
-var dummySubscriber = models.Subscriber{
-	Email: "dummy@listmonk.app",
-	Name:  "Dummy User",
-}
-
 type dummyMessage struct {
 	UnsubscribeURL string
 }

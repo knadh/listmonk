@@ -117,12 +117,7 @@ func handlePreviewCampaign(c echo.Context) error {
 	if err := app.Queries.GetOneCampaignSubscriber.Get(&sub, camp.ID); err != nil {
 		if err == sql.ErrNoRows {
 			// There's no subscriber. Mock one.
-			sub = models.Subscriber{
-				Name:   "Dummy Subscriber",
-				Email:  "dummy@subscriber.com",
-				UUID:   "00000000-0000-0000-0000-000000000000",
-				Status: models.SubscriberStatusEnabled,
-			}
+			sub = dummySubscriber
 		} else {
 			return echo.NewHTTPError(http.StatusInternalServerError,
 				fmt.Sprintf("Error fetching subscriber: %s", pqErrMsg(err)))

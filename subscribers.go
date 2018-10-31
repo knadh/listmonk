@@ -38,7 +38,15 @@ type queryAddReq struct {
 	TargetLists pq.Int64Array `json:"target_lists"`
 }
 
-var jsonMap = []byte("{}")
+var (
+	jsonMap = []byte("{}")
+
+	dummySubscriber = models.Subscriber{
+		Email: "dummy@listmonk.app",
+		Name:  "Dummy Subscriber",
+		UUID:  "00000000-0000-0000-0000-000000000000",
+	}
+)
 
 // handleGetSubscriber handles the retrieval of a single subscriber by ID.
 func handleGetSubscriber(c echo.Context) error {
