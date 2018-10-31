@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bytes"
 	"errors"
 	"fmt"
 	"net/http"
@@ -10,7 +9,6 @@ import (
 
 	"github.com/asaskevich/govalidator"
 	"github.com/knadh/listmonk/models"
-	"github.com/knadh/listmonk/runner"
 	"github.com/labstack/echo"
 )
 
@@ -28,6 +26,11 @@ const (
 
 		<p>Here is a link to <a href="https://listmonk.app" target="_blank">listmonk</a>.</p>`
 )
+
+var dummySubscriber = models.Subscriber{
+	Email: "dummy@listmonk.app",
+	Name:  "Dummy User",
+}
 
 type dummyMessage struct {
 	UnsubscribeURL string
@@ -99,20 +102,19 @@ func handlePreviewTemplate(c echo.Context) error {
 	}
 
 	// Compile the template.
-	tpl, err := runner.CompileMessageTemplate(body, dummyTpl)
-	if err != nil {
+	camp := models.Campaign{TemplateBody: body, Body: dummyTpl}
+	if err := camp.CompileTemplate(app.Runner.TemplateFuncs(&camp)); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Error compiling template: %v", err))
 	}
 
 	// Render the message body.
-	var out = bytes.Buffer{}
-	if err := tpl.ExecuteTemplate(&out,
-		runner.BaseTPL,
-		dummyMessage{UnsubscribeURL: "#dummy"}); err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Error executing template: %v", err))
+	m := app.Runner.NewMessage(&camp, &dummySubscriber)
+	if err := m.Render(); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest,
+			fmt.Sprintf("Error rendering message: %v", err))
 	}
 
-	return c.HTML(http.StatusOK, out.String())
+	return c.HTML(http.StatusOK, string(m.Body))
 }
 
 // handleCreateTemplate handles template creation.

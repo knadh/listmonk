@@ -162,7 +162,7 @@ func handleCreateCampaign(c echo.Context) error {
 	}
 
 	// Validate.
-	if err := validateCampaignFields(o); err != nil {
+	if err := validateCampaignFields(o, app); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
@@ -235,7 +235,7 @@ func handleUpdateCampaign(c echo.Context) error {
 		return err
 	}
 
-	if err := validateCampaignFields(o); err != nil {
+	if err := validateCampaignFields(o, app); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
@@ -430,7 +430,7 @@ func handleTestCampaign(c echo.Context) error {
 		return err
 	}
 	// Validate.
-	if err := validateCampaignFields(req); err != nil {
+	if err := validateCampaignFields(req, app); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 	if len(req.SubscriberEmails) == 0 {
@@ -497,7 +497,7 @@ func sendTestMessage(sub *models.Subscriber, camp *models.Campaign, app *App) er
 }
 
 // validateCampaignFields validates incoming campaign field values.
-func validateCampaignFields(c campaignReq) error {
+func validateCampaignFields(c campaignReq, app *App) error {
 	if !regexFromAddress.Match([]byte(c.FromEmail)) {
 		if !govalidator.IsEmail(c.FromEmail) {
 			return errors.New("invalid `from_email`")
@@ -522,8 +522,8 @@ func validateCampaignFields(c campaignReq) error {
 		}
 	}
 
-	_, err := runner.CompileMessageTemplate(tplTag, c.Body)
-	if err != nil {
+	camp := models.Campaign{Body: c.Body, TemplateBody: tplTag}
+	if err := c.CompileTemplate(app.Runner.TemplateFuncs(&camp)); err != nil {
 		return fmt.Errorf("Error compiling campaign body: %v", err)
 	}
 

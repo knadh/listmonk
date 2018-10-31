@@ -324,27 +324,3 @@ func (r *Runner) trackLink(url, campUUID, subUUID string) string {
 
 	return fmt.Sprintf(r.cfg.LinkTrackURL, uu, campUUID, subUUID)
 }
-
-// CompileMessageTemplate takes a base template body string and a child (message) template
-// body string, compiles both and inserts the child template as the named template "content"
-// and returns the resultant template.
-func CompileMessageTemplate(baseBody, childBody string) (*template.Template, error) {
-	// Compile the base template.
-	baseTPL, err := template.New(BaseTPL).Parse(baseBody)
-	if err != nil {
-		return nil, fmt.Errorf("error compiling base template: %v", err)
-	}
-
-	// Compile the campaign message.
-	msgTpl, err := template.New(ContentTpl).Parse(childBody)
-	if err != nil {
-		return nil, fmt.Errorf("error compiling message: %v", err)
-	}
-
-	out, err := baseTPL.AddParseTree(ContentTpl, msgTpl.Tree)
-	if err != nil {
-		return nil, fmt.Errorf("error inserting child template: %v", err)
-	}
-
-	return out, nil
-}
