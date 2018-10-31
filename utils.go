@@ -245,3 +245,17 @@ func normalizeTags(tags []string) []string {
 
 	return out
 }
+
+// makeErrorTpl takes error details and returns an errorTpl
+// with the error details applied to be rendered in an HTML view.
+func makeErrorTpl(pageTitle, heading, desc string) errorTpl {
+	if heading == "" {
+		heading = pageTitle
+	}
+	err := errorTpl{}
+	err.Title = pageTitle
+	err.ErrorTitle = heading
+	err.ErrorMessage = desc
+
+	return err
+}

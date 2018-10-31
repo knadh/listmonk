@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/knadh/listmonk/models"
 	"github.com/lib/pq"
+	uuid "github.com/satori/go.uuid"
 )
 
 // runnerDB implements runner.DataSource over the primary
@@ -57,4 +58,16 @@ func (r *runnerDB) CancelCampaign(campID int) error {
 func (r *runnerDB) FinishCampaign(campID int) error {
 	_, err := r.queries.UpdateCampaignStatus.Exec(campID, models.CampaignStatusFinished)
 	return err
+}
+
+// CreateLink registers a URL with a UUID for tracking clicks and returns the UUID.
+func (r *runnerDB) CreateLink(url string) (string, error) {
+	// Create a new UUID for the URL. If the URL already exists in the DB
+	// the UUID in the database is returned.
+	var uu string
+	if err := r.queries.CreateLink.Get(&uu, uuid.NewV4(), url); err != nil {
+		return "", err
+	}
+
+	return uu, nil
 }

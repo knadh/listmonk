@@ -128,7 +128,6 @@ CREATE UNIQUE INDEX ON campaign_lists (campaign_id, list_id);
 
 DROP TABLE IF EXISTS campaign_views CASCADE;
 CREATE TABLE campaign_views (
-    id               SERIAL PRIMARY KEY,
     campaign_id      INTEGER REFERENCES campaigns(id) ON DELETE CASCADE ON UPDATE CASCADE,
 
     -- Subscribers may be deleted, but the link counts should remain.
@@ -153,15 +152,14 @@ DROP TABLE IF EXISTS links CASCADE;
 CREATE TABLE links (
     id               SERIAL PRIMARY KEY,
     uuid uuid        NOT NULL UNIQUE,
-    url              TEXT NOT NULL,
+    url              TEXT NOT NULL UNIQUE,
     created_at       TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
 DROP TABLE IF EXISTS link_clicks CASCADE;
 CREATE TABLE link_clicks (
-    id               SERIAL PRIMARY KEY,
     campaign_id      INTEGER REFERENCES campaigns(id) ON DELETE CASCADE ON UPDATE CASCADE,
-    link_id          INTEGER NULL REFERENCES links(id) ON DELETE CASCADE ON UPDATE CASCADE,
+    link_id          INTEGER REFERENCES links(id) ON DELETE CASCADE ON UPDATE CASCADE,
 
     -- Subscribers may be deleted, but the link counts should remain.
     subscriber_id    INTEGER NULL REFERENCES subscribers(id) ON DELETE SET NULL ON UPDATE CASCADE,

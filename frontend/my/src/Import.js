@@ -119,6 +119,7 @@ class TheFormDef extends React.PureComponent {
                         </div>
                     </Form.Item>
                     <Form.Item {...formItemTailLayout}>
+                        <p className="text-grey">For existing subscribers, the names and attributes will be overwritten with the values in the CSV.</p>
                         <Button type="primary" htmlType="submit"><Icon type="upload" /> Upload &amp; import</Button>
                     </Form.Item>
                 </Form>
@@ -302,7 +303,7 @@ class Import extends React.PureComponent {
                         (<code>status</code> and <code>attributes</code> are optional).
                         {" "}
                         <code>attributes</code> should be a valid JSON string with double escaped quotes.
-                        Spreadsheet programs should automatically take care of this without having to manually
+                        Spreadsheet programs should automatically take care of this without having you manually
                         escape quotes.
                     </p>
 

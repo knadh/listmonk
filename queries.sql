@@ -44,8 +44,8 @@ SELECT COUNT(subscribers.id) as num FROM subscribers INNER JOIN subscriber_lists
 -- value is overwritten with the incoming value. This is used for insertions and bulk imports.
 WITH s AS (
     INSERT INTO subscribers (uuid, email, name, status, attribs)
-    VALUES($1, $2, $3, (CASE WHEN $4 != '' THEN $4::subscriber_status ELSE 'enabled' END), $5) ON CONFLICT (email) DO UPDATE
-    SET name=$3, status=(CASE WHEN $6 IS TRUE THEN $4::subscriber_status ELSE subscribers.status END),
+    VALUES($1, $2, $3, $4, $5) ON CONFLICT (email) DO UPDATE
+    SET name=$3, status=(CASE WHEN $6 = true THEN $4 ELSE subscribers.status END),
     attribs=$5, updated_at=NOW()
     RETURNING id
 )  INSERT INTO subscriber_lists (subscriber_id, list_id)
@@ -90,7 +90,7 @@ sub AS (
     WHERE uuid = $2 RETURNING id
 )
 UPDATE subscriber_lists SET status = 'unsubscribed' WHERE
-    subscriber_id = (SELECT id FROM sub) AND
+    subscriber_id = (SELECT id FROM sub) AND status != 'unsubscribed' AND
     -- If $3 is false, unsubscribe from the campaign's lists, otherwise all lists.
     CASE WHEN $3 IS FALSE THEN list_id = ANY(SELECT list_id FROM lists) ELSE list_id != 0 END;
 
@@ -356,9 +356,9 @@ INSERT INTO links (uuid, url) VALUES($1, $2) ON CONFLICT (url) DO UPDATE SET url
 -- name: register-link-click
 WITH link AS (
     SELECT url, links.id AS link_id, campaigns.id as campaign_id, subscribers.id AS subscriber_id FROM links
-    LEFT JOIN campaigns ON (campaigns.uuid = $1)
-    LEFT JOIN subscribers ON (subscribers.uuid = $2)
-    WHERE links.uuid = $3
+    LEFT JOIN campaigns ON (campaigns.uuid = $2)
+    LEFT JOIN subscribers ON (subscribers.uuid = $3)
+    WHERE links.uuid = $1
 )
 INSERT INTO link_clicks (campaign_id, subscriber_id, link_id)
     VALUES((SELECT campaign_id FROM link), (SELECT subscriber_id FROM link), (SELECT link_id FROM link))

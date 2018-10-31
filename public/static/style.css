@@ -18,18 +18,25 @@ h1, h2, h3, h4 {
 }
 
 .button {
-    border: 0;
-    background: transparent;
+    background: #7f2aff;
     padding: 10px 30px;
     border-radius: 3px;
-    border: 1px solid #ddd;
+    border: 0;
     cursor: pointer;
     text-decoration: none;
-    color: #111;
+    color: #ffff;
     display: inline-block;
 }
     .button:hover {
-        background: #f3f3f3;
+        background: #333;
+    }
+    .button .button-outline {
+        background: transparent;
+        border: 1px solid #ddd;
+        color: #444'
+    }
+    .button .button-outline:hover {
+        color: #111;
     }
 
 .wrap {

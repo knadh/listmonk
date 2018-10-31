@@ -53,6 +53,9 @@ type Queries struct {
 	SetDefaultTemplate *sqlx.Stmt `query:"set-default-template"`
 	DeleteTemplate     *sqlx.Stmt `query:"delete-template"`
 
+	CreateLink        *sqlx.Stmt `query:"create-link"`
+	RegisterLinkClick *sqlx.Stmt `query:"register-link-click"`
+
 	// GetStats *sqlx.Stmt `query:"get-stats"`
 }
 
