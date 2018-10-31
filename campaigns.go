@@ -95,14 +95,14 @@ func handlePreviewCampaign(c echo.Context) error {
 		id, _ = strconv.Atoi(c.Param("id"))
 		body  = c.FormValue("body")
 
-		camp models.Campaign
+		camp = &models.Campaign{}
 	)
 
 	if id < 1 {
 		return echo.NewHTTPError(http.StatusBadRequest, "Invalid ID.")
 	}
 
-	err := app.Queries.GetCampaignForPreview.Get(&camp, id)
+	err := app.Queries.GetCampaignForPreview.Get(camp, id)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return echo.NewHTTPError(http.StatusBadRequest, "Campaign not found.")
@@ -130,25 +130,23 @@ func handlePreviewCampaign(c echo.Context) error {
 	}
 
 	// Compile the template.
-	if body == "" {
-		body = camp.Body
+	if body != "" {
+		camp.Body = body
 	}
-	tpl, err := runner.CompileMessageTemplate(camp.TemplateBody, body)
-	if err != nil {
+
+	if err := camp.CompileTemplate(app.Runner.TemplateFuncs(camp)); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest,
 			fmt.Sprintf("Error compiling template: %v", err))
 	}
 
 	// Render the message body.
-	var out = bytes.Buffer{}
-	if err := tpl.ExecuteTemplate(&out,
-		runner.BaseTPL,
-		runner.Message{Campaign: &camp, Subscriber: &sub, UnsubscribeURL: "#dummy"}); err != nil {
+	m := app.Runner.NewMessage(camp, &sub)
+	if err := m.Render(); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest,
-			fmt.Sprintf("Error executing template: %v", err))
+			fmt.Sprintf("Error rendering message: %v", err))
 	}
 
-	return c.HTML(http.StatusOK, out.String())
+	return c.HTML(http.StatusOK, string(m.Body))
 }
 
 // handleCreateCampaign handles campaign creation.
@@ -479,14 +477,13 @@ func handleTestCampaign(c echo.Context) error {
 
 // sendTestMessage takes a campaign and a subsriber and sends out a sample campain message.
 func sendTestMessage(sub *models.Subscriber, camp *models.Campaign, app *App) error {
-	tpl, err := runner.CompileMessageTemplate(camp.TemplateBody, camp.Body)
-	if err != nil {
+	if err := camp.CompileTemplate(app.Runner.TemplateFuncs(camp)); err != nil {
 		return fmt.Errorf("Error compiling template: %v", err)
 	}
 
 	// Render the message body.
 	var out = bytes.Buffer{}
-	if err := tpl.ExecuteTemplate(&out,
+	if err := camp.Tpl.ExecuteTemplate(&out,
 		runner.BaseTPL,
 		runner.Message{Campaign: camp, Subscriber: sub, UnsubscribeURL: "#dummy"}); err != nil {
 		return fmt.Errorf("Error executing template: %v", err)

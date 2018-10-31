@@ -76,7 +76,12 @@ func handlePreviewTemplate(c echo.Context) error {
 		tpls []models.Template
 	)
 
-	if body == "" {
+	if body != "" {
+		if strings.Count(body, tplTag) != 1 {
+			return echo.NewHTTPError(http.StatusBadRequest,
+				fmt.Sprintf("Template body should contain the %s placeholder exactly once", tplTag))
+		}
+	} else {
 		if id < 1 {
 			return echo.NewHTTPError(http.StatusBadRequest, "Invalid ID.")
 		}
@@ -227,8 +232,8 @@ func validateTemplate(o models.Template) error {
 		return errors.New("invalid length for `name`")
 	}
 
-	if !strings.Contains(o.Body, tplTag) {
-		return fmt.Errorf("template body should contain the %s placeholder", tplTag)
+	if strings.Count(o.Body, tplTag) != 1 {
+		return fmt.Errorf("template body should contain the %s placeholder exactly once", tplTag)
 	}
 
 	return nil

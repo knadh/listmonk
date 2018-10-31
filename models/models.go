@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"html/template"
+	"regexp"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/jmoiron/sqlx/types"
@@ -37,6 +38,20 @@ const (
 	UserTypeUser       = "user"
 	UserStatusEnabled  = "enabled"
 	UserStatusDisabled = "disabled"
+
+	// BaseTpl is the name of the base template.
+	BaseTpl = "base"
+
+	// ContentTpl is the name of the compiled message.
+	ContentTpl = "content"
+)
+
+// Regular expression for matching {{ Track "http://link.com" }} in the template
+// and substituting it with {{ Track "http://link.com" .Campaign.UUID .Subscriber.UUID }}
+// before compilation. This string gimmick is to make linking easier for users.
+var (
+	regexpLinkTag        = regexp.MustCompile(`{{(\s+)?Track\s+?"(.+?)"(\s+)?}}`)
+	regexpLinkTagReplace = `{{ Track "$2" .Campaign.UUID .Subscriber.UUID }}`
 )
 
 // Base holds common fields shared across models.
@@ -186,4 +201,30 @@ func (s SubscriberAttribs) Scan(src interface{}) error {
 		return json.Unmarshal(data, &s)
 	}
 	return fmt.Errorf("Could not not decode type %T -> %T", src, s)
+}
+
+// CompileTemplate compiles a campaign body template into its base
+// template and sets the resultant template to Campaign.Tpl
+func (c *Campaign) CompileTemplate(f template.FuncMap) error {
+	// Compile the base template.
+	t := regexpLinkTag.ReplaceAllString(c.TemplateBody, regexpLinkTagReplace)
+	baseTPL, err := template.New(BaseTpl).Funcs(f).Parse(t)
+	if err != nil {
+		return fmt.Errorf("error compiling base template: %v", err)
+	}
+
+	// Compile the campaign message.
+	t = regexpLinkTag.ReplaceAllString(c.Body, regexpLinkTagReplace)
+	msgTpl, err := template.New(ContentTpl).Funcs(f).Parse(t)
+	if err != nil {
+		return fmt.Errorf("error compiling message: %v", err)
+	}
+
+	out, err := baseTPL.AddParseTree(ContentTpl, msgTpl.Tree)
+	if err != nil {
+		return fmt.Errorf("error inserting child template: %v", err)
+	}
+
+	c.Tpl = out
+	return nil
 }
