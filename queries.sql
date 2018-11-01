@@ -198,12 +198,12 @@ WITH camps AS (
 ),
 counts AS (
     -- For each campaign above, get the total number of subscribers and the max_subscriber_id across all its lists.
-    SELECT campaign_id, COUNT(subs.id) as to_send, COALESCE(MAX(subs.id), 0) as max_subscriber_id
-    FROM subscribers subs, subscriber_lists sublists, campaign_lists camplists
-    WHERE sublists.list_id = camplists.list_id AND
-    subs.id = sublists.subscriber_id
-    AND camplists.campaign_id = ANY(SELECT id FROM camps)
-    GROUP BY camplists.campaign_id
+    SELECT id AS campaign_id, COUNT(subscriber_lists.subscriber_id) AS to_send,
+        COALESCE(MAX(subscriber_lists.subscriber_id), 0) AS max_subscriber_id FROM camps
+    LEFT JOIN campaign_lists ON (campaign_lists.campaign_id = camps.id)
+    LEFT JOIN subscriber_lists ON (subscriber_lists.list_id = campaign_lists.list_id)
+    WHERE campaign_lists.campaign_id = ANY(SELECT id FROM camps)
+    GROUP BY camps.id
 ),
 u AS (
     -- For each campaign above, update the to_send count.
