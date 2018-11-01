@@ -178,14 +178,12 @@ func handleCreateSubscriber(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	req.Email = strings.ToLower(strings.TrimSpace(req.Email))
-
 	// Insert and read ID.
 	var newID int
 	err := app.Queries.UpsertSubscriber.Get(&newID,
 		uuid.NewV4(),
-		req.Email,
-		req.Name,
+		strings.ToLower(strings.TrimSpace(req.Email)),
+		strings.TrimSpace(req.Name),
 		req.Status,
 		req.Attribs,
 		true,
@@ -227,11 +225,9 @@ func handleUpdateSubscriber(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "Invalid length for `name`.")
 	}
 
-	req.Email = strings.ToLower(strings.TrimSpace(req.Email))
-
 	_, err := app.Queries.UpdateSubscriber.Exec(req.ID,
-		req.Email,
-		req.Name,
+		strings.ToLower(strings.TrimSpace(req.Email)),
+		strings.TrimSpace(req.Name),
 		req.Status,
 		req.Attribs,
 		req.Lists)
