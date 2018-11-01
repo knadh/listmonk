@@ -132,7 +132,7 @@ DELETE FROM lists WHERE id = ALL($1);
 -- name: create-campaign
 -- This creates the campaign and inserts campaign_lists relationships.
 WITH counts AS (
-    SELECT COUNT(id) as to_send, MAX(id) as max_sub_id
+    SELECT COALESCE(COUNT(id), 0) as to_send, COALESCE(MAX(id), 0) as max_sub_id
     FROM subscribers
     LEFT JOIN subscriber_lists ON (subscribers.id = subscriber_lists.subscriber_id)
     WHERE subscriber_lists.list_id=ANY($11::INT[])
@@ -143,7 +143,6 @@ camp AS (
         SELECT $1, $2, $3, $4, $5, $6, $7, $8, $9, $10,
                 (SELECT to_send FROM counts),
                 (SELECT max_sub_id FROM counts)
-        WHERE (SELECT COALESCE(MAX(to_send), 0) FROM counts) > 0
         RETURNING id
 )
 INSERT INTO campaign_lists (campaign_id, list_id, list_name)
