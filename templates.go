@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	"errors"
 	"fmt"
 	"net/http"
@@ -209,13 +210,18 @@ func handleDeleteTemplate(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "Cannot delete the primordial template.")
 	}
 
-	res, err := app.Queries.DeleteTemplate.Exec(id)
+	var delID int
+	err := app.Queries.DeleteTemplate.Get(&delID, id)
 	if err != nil {
+		if err == sql.ErrNoRows {
+			return c.JSON(http.StatusOK, okResp{true})
+		}
+
 		return echo.NewHTTPError(http.StatusBadRequest,
 			fmt.Sprintf("Error deleting template: %v", err))
 	}
 
-	if n, _ := res.RowsAffected(); n == 0 {
+	if delID == 0 {
 		return echo.NewHTTPError(http.StatusBadRequest,
 			"Cannot delete the last, default, or non-existent template.")
 	}
