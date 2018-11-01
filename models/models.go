@@ -50,8 +50,8 @@ const (
 // and substituting it with {{ Track "http://link.com" .Campaign.UUID .Subscriber.UUID }}
 // before compilation. This string gimmick is to make linking easier for users.
 var (
-	regexpLinkTag        = regexp.MustCompile(`{{(\s+)?Track\s+?"(.+?)"(\s+)?}}`)
-	regexpLinkTagReplace = `{{ Track "$2" .Campaign.UUID .Subscriber.UUID }}`
+	regexpLinkTag        = regexp.MustCompile(`{{(\s+)?TrackLink\s+?"(.+?)"(\s+)?}}`)
+	regexpLinkTagReplace = `{{ TrackLink "$2" .Campaign.UUID .Subscriber.UUID }}`
 )
 
 // Base holds common fields shared across models.

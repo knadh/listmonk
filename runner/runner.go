@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"html/template"
 	"log"
+	"strings"
 	"sync"
 	"time"
 
@@ -195,19 +196,8 @@ func (r *Runner) SpawnWorkers() {
 	}
 }
 
-// TemplateFuncs returns the template functions to be applied into
-// compiled campaign templates.
-func (r *Runner) TemplateFuncs(c *models.Campaign) template.FuncMap {
-	return template.FuncMap{
-		"Track": func(url, campUUID, subUUID string) string {
-			return r.trackLink(url, campUUID, subUUID)
-		},
-	}
-}
-
 // addCampaign adds a campaign to the process queue.
 func (r *Runner) addCampaign(c *models.Campaign) error {
-
 	// Validate messenger.
 	if _, ok := r.messengers[c.MessengerID]; !ok {
 		r.src.CancelCampaign(c.ID)
@@ -323,4 +313,40 @@ func (r *Runner) trackLink(url, campUUID, subUUID string) string {
 	r.linksMutex.Unlock()
 
 	return fmt.Sprintf(r.cfg.LinkTrackURL, uu, campUUID, subUUID)
+}
+
+// TemplateFuncs returns the template functions to be applied into
+// compiled campaign templates.
+func (r *Runner) TemplateFuncs(c *models.Campaign) template.FuncMap {
+	return template.FuncMap{
+		"TrackLink": func(url, campUUID, subUUID string) string {
+			return r.trackLink(url, campUUID, subUUID)
+		},
+		"FirstName": func(name string) string {
+			for _, s := range strings.Split(name, " ") {
+				if len(s) > 2 {
+					return s
+				}
+			}
+
+			return name
+		},
+		"LastName": func(name string) string {
+			s := strings.Split(name, " ")
+			for i := len(s) - 1; i >= 0; i-- {
+				chunk := s[i]
+				if len(chunk) > 2 {
+					return chunk
+				}
+			}
+
+			return name
+		},
+		"Date": func(layout string) string {
+			if layout == "" {
+				layout = time.ANSIC
+			}
+			return time.Now().Format(layout)
+		},
+	}
 }
