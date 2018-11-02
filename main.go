@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	_ "github.com/jinzhu/gorm/dialects/postgres"
@@ -190,7 +191,9 @@ func main() {
 
 	var c constants
 	viper.UnmarshalKey("app", &c)
-	c.AssetPath = filepath.Clean(viper.GetString("app.asset_path"))
+	c.RootURL = strings.TrimRight(c.RootURL, "/")
+	c.UploadURI = filepath.Clean(c.UploadURI)
+	c.AssetPath = filepath.Clean(c.AssetPath)
 
 	// Initialize the app context that's passed around.
 	app := &App{
