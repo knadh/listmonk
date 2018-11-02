@@ -1,6 +1,5 @@
 - Add quote support to Quill link feature so that Track function can be inserted
 - Make {{ template }} a Regex check to account for spaces
-- Clicking on "all subscribers" from a list subscriber view doesn't do anything
 - Add css inliner
 - Duplicate mails to subscribers in multiple lists under one campaign?
 

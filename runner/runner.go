@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"html/template"
 	"log"
-	"strings"
 	"sync"
 	"time"
 
@@ -326,26 +325,6 @@ func (r *Runner) TemplateFuncs(c *models.Campaign) template.FuncMap {
 		"TrackView": func(campUUID, subUUID string) template.HTML {
 			return template.HTML(fmt.Sprintf(`<img src="%s" alt="campaign" />`,
 				fmt.Sprintf(r.cfg.ViewTrackURL, campUUID, subUUID)))
-		},
-		"FirstName": func(name string) string {
-			for _, s := range strings.Split(name, " ") {
-				if len(s) > 2 {
-					return s
-				}
-			}
-
-			return name
-		},
-		"LastName": func(name string) string {
-			s := strings.Split(name, " ")
-			for i := len(s) - 1; i >= 0; i-- {
-				chunk := s[i]
-				if len(chunk) > 2 {
-					return chunk
-				}
-			}
-
-			return name
 		},
 		"Date": func(layout string) string {
 			if layout == "" {

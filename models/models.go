@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"html/template"
 	"regexp"
+	"strings"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/jmoiron/sqlx/types"
@@ -232,4 +233,32 @@ func (c *Campaign) CompileTemplate(f template.FuncMap) error {
 
 	c.Tpl = out
 	return nil
+}
+
+// FirstName splits the name by spaces and returns the first chunk
+// of the name that's greater than 2 characters in length, assuming
+// that it is the subscriber's first name.
+func (s *Subscriber) FirstName() string {
+	for _, s := range strings.Split(s.Name, " ") {
+		if len(s) > 2 {
+			return s
+		}
+	}
+
+	return s.Name
+}
+
+// LastName splits the name by spaces and returns the last chunk
+// of the name that's greater than 2 characters in length, assuming
+// that it is the subscriber's last name.
+func (s *Subscriber) LastName() string {
+	chunks := strings.Split(s.Name, " ")
+	for i := len(chunks) - 1; i >= 0; i-- {
+		chunk := chunks[i]
+		if len(chunk) > 2 {
+			return chunk
+		}
+	}
+
+	return s.Name
 }
