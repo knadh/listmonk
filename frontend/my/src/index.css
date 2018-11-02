@@ -256,6 +256,14 @@ td.actions {
   .preview-iframe-container {
     min-height: 500px;
   }
+  .preview-iframe-spinner {
+    position: absolute !important;
+    width: 40px;
+    height: 40px;
+    left: calc(50% - 40px);
+    top: calc(30%);
+    /* top: 15px; */
+  }
   .preview-iframe {
     border: 0;
     width: 100%;
