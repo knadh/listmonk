@@ -10,7 +10,7 @@ import (
 
 type configScript struct {
 	RootURL    string   `json:"rootURL"`
-	UploadURI  string   `json:"uploadURL"`
+	UploadURI  string   `json:"uploadURI"`
 	FromEmail  string   `json:"fromEmail"`
 	Messengers []string `json:"messengers"`
 }

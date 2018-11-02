@@ -36,11 +36,11 @@ class Editor extends React.PureComponent {
                 [{ "color": [] }, { "background": [] }, { 'size': [] }],
                 [{"list": "ordered"}, {"list": "bullet"}, {"indent": "-1"}, {"indent": "+1"}],
                 [{"align": ""}, { "align": "center" }, { "align": "right" }, { "align": "justify" }],
-                ["link", "gallery"],
+                ["link", "image"],
                 ["clean", "font"]
             ],
             handlers: {
-                "gallery": () => {
+                "image": () => {
                     this.props.toggleMedia()
                 }
             }
@@ -62,12 +62,11 @@ class Editor extends React.PureComponent {
     // Custom handler for inserting images from the media popup.
     insertMedia = (uri) => {
         const quill = this.state.quill.getEditor()
-
         let range = quill.getSelection(true);
         quill.updateContents(new Delta()
           .retain(range.index)
           .delete(range.length)
-          .insert({ image: uri })
+          .insert({ image: this.props.config.rootURL + uri })
         , null);
     }
 
