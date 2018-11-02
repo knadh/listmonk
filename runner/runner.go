@@ -70,6 +70,7 @@ type Config struct {
 	Concurrency    int
 	LinkTrackURL   string
 	UnsubscribeURL string
+	ViewTrackURL   string
 }
 
 // New returns a new instance of Mailer.
@@ -321,6 +322,10 @@ func (r *Runner) TemplateFuncs(c *models.Campaign) template.FuncMap {
 	return template.FuncMap{
 		"TrackLink": func(url, campUUID, subUUID string) string {
 			return r.trackLink(url, campUUID, subUUID)
+		},
+		"TrackView": func(campUUID, subUUID string) template.HTML {
+			return template.HTML(fmt.Sprintf(`<img src="%s" alt="campaign" />`,
+				fmt.Sprintf(r.cfg.ViewTrackURL, campUUID, subUUID)))
 		},
 		"FirstName": func(name string) string {
 			for _, s := range strings.Split(name, " ") {

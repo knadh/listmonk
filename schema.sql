@@ -128,9 +128,9 @@ CREATE UNIQUE INDEX ON campaign_lists (campaign_id, list_id);
 
 DROP TABLE IF EXISTS campaign_views CASCADE;
 CREATE TABLE campaign_views (
-    campaign_id      INTEGER REFERENCES campaigns(id) ON DELETE CASCADE ON UPDATE CASCADE,
+    campaign_id      INTEGER NOT NULL REFERENCES campaigns(id) ON DELETE CASCADE ON UPDATE CASCADE,
 
-    -- Subscribers may be deleted, but the link counts should remain.
+    -- Subscribers may be deleted, but the view counts should remain.
     subscriber_id    INTEGER NULL REFERENCES subscribers(id) ON DELETE SET NULL ON UPDATE CASCADE,
     created_at       TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );

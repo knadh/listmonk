@@ -288,6 +288,15 @@ UPDATE campaigns SET status=$2, updated_at=NOW() WHERE id = $1;
 -- name: delete-campaign
 DELETE FROM campaigns WHERE id=$1 AND (status = 'draft' OR status = 'scheduled');
 
+-- name: register-campaign-view
+WITH view AS (
+    SELECT campaigns.id as campaign_id, subscribers.id AS subscriber_id FROM campaigns
+    LEFT JOIN subscribers ON (subscribers.uuid = $2)
+    WHERE campaigns.uuid = $1
+)
+INSERT INTO campaign_views (campaign_id, subscriber_id)
+    VALUES((SELECT campaign_id FROM view), (SELECT subscriber_id FROM view));
+
 -- users
 -- name: get-users
 SELECT * FROM users WHERE $1 = 0 OR id = $1 OFFSET $2 LIMIT $3;

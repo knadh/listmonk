@@ -36,6 +36,7 @@ type Queries struct {
 	UpdateCampaign           *sqlx.Stmt `query:"update-campaign"`
 	UpdateCampaignStatus     *sqlx.Stmt `query:"update-campaign-status"`
 	UpdateCampaignCounts     *sqlx.Stmt `query:"update-campaign-counts"`
+	RegisterCampaignView     *sqlx.Stmt `query:"register-campaign-view"`
 	DeleteCampaign           *sqlx.Stmt `query:"delete-campaign"`
 
 	CreateUser *sqlx.Stmt `query:"create-user"`

@@ -125,7 +125,6 @@ class App extends React.PureComponent {
 }
 
 function replaceParams (route, params) {
-    console.log(route, params)
     // Replace :params in the URL with params in the array.
     let uriParams = route.match(/:([a-z0-9\-_]+)/ig)
     if(uriParams && uriParams.length > 0) {

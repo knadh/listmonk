@@ -129,6 +129,7 @@ func registerHandlers(e *echo.Echo) {
 	e.GET("/unsubscribe/:campUUID/:subUUID", handleUnsubscribePage)
 	e.POST("/unsubscribe/:campUUID/:subUUID", handleUnsubscribePage)
 	e.GET("/link/:linkUUID/:campUUID/:subUUID", handleLinkRedirect)
+	e.GET("/campaign/:campUUID/:subUUID/px.png", handleRegisterCampaignView)
 
 	// Static views.
 	e.GET("/lists", handleIndexPage)
@@ -224,8 +225,12 @@ func main() {
 
 		// url.com/unsubscribe/{campaign_uuid}/{subscriber_uuid}
 		UnsubscribeURL: fmt.Sprintf("%s/unsubscribe/%%s/%%s", app.Constants.RootURL),
+
 		// url.com/link/{campaign_uuid}/{subscriber_uuid}/{link_uuid}
 		LinkTrackURL: fmt.Sprintf("%s/link/%%s/%%s/%%s", app.Constants.RootURL),
+
+		// url.com/campaign/{campaign_uuid}/{subscriber_uuid}/px.png
+		ViewTrackURL: fmt.Sprintf("%s/campaign/%%s/%%s/px.png", app.Constants.RootURL),
 	}, newRunnerDB(q), logger)
 	app.Runner = r
 

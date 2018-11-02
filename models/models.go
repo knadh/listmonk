@@ -52,6 +52,9 @@ const (
 var (
 	regexpLinkTag        = regexp.MustCompile(`{{(\s+)?TrackLink\s+?"(.+?)"(\s+)?}}`)
 	regexpLinkTagReplace = `{{ TrackLink "$2" .Campaign.UUID .Subscriber.UUID }}`
+
+	regexpViewTag        = regexp.MustCompile(`{{(\s+)?TrackView(\s+)?}}`)
+	regexpViewTagReplace = `{{ TrackView .Campaign.UUID .Subscriber.UUID }}`
 )
 
 // Base holds common fields shared across models.
@@ -208,6 +211,7 @@ func (s SubscriberAttribs) Scan(src interface{}) error {
 func (c *Campaign) CompileTemplate(f template.FuncMap) error {
 	// Compile the base template.
 	t := regexpLinkTag.ReplaceAllString(c.TemplateBody, regexpLinkTagReplace)
+	t = regexpViewTag.ReplaceAllString(c.TemplateBody, regexpViewTagReplace)
 	baseTPL, err := template.New(BaseTpl).Funcs(f).Parse(t)
 	if err != nil {
 		return fmt.Errorf("error compiling base template: %v", err)
@@ -215,6 +219,7 @@ func (c *Campaign) CompileTemplate(f template.FuncMap) error {
 
 	// Compile the campaign message.
 	t = regexpLinkTag.ReplaceAllString(c.Body, regexpLinkTagReplace)
+	t = regexpViewTag.ReplaceAllString(c.Body, regexpViewTagReplace)
 	msgTpl, err := template.New(ContentTpl).Funcs(f).Parse(t)
 	if err != nil {
 		return fmt.Errorf("error compiling message: %v", err)

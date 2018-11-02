@@ -1,7 +1,10 @@
 package main
 
 import (
+	"bytes"
 	"html/template"
+	"image"
+	"image/png"
 	"io"
 	"net/http"
 	"regexp"
@@ -33,7 +36,10 @@ type errorTpl struct {
 	ErrorMessage string
 }
 
-var regexValidUUID = regexp.MustCompile("^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-4[a-fA-F0-9]{3}-[8|9|aA|bB][a-fA-F0-9]{3}-[a-fA-F0-9]{12}$")
+var (
+	regexValidUUID = regexp.MustCompile("^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-4[a-fA-F0-9]{3}-[8|9|aA|bB][a-fA-F0-9]{3}-[a-fA-F0-9]{12}$")
+	pixelPNG       = drawTransparentImage(3, 14)
+)
 
 // Render executes and renders a template for echo.
 func (t *Template) Render(w io.Writer, name string, data interface{}, c echo.Context) error {
@@ -108,4 +114,35 @@ func handleLinkRedirect(c echo.Context) error {
 	}
 
 	return c.Redirect(http.StatusTemporaryRedirect, url)
+}
+
+// handleRegisterCampaignView registers a campaign view which comes in
+// the form of an pixel image request. Regardless of errors, this handler
+// should always render the pixel image bytes.
+func handleRegisterCampaignView(c echo.Context) error {
+	var (
+		app      = c.Get("app").(*App)
+		campUUID = c.Param("campUUID")
+		subUUID  = c.Param("subUUID")
+	)
+	if regexValidUUID.MatchString(campUUID) &&
+		regexValidUUID.MatchString(subUUID) {
+		if _, err := app.Queries.RegisterCampaignView.Exec(campUUID, subUUID); err != nil {
+			app.Logger.Printf("error registering campaign view: %s", err)
+		}
+	}
+
+	return c.Blob(http.StatusOK, "image/png", pixelPNG)
+}
+
+// drawTransparentImage draws a transparent PNG of given dimensions
+// and returns the PNG bytes.
+func drawTransparentImage(h, w int) []byte {
+	var (
+		img = image.NewRGBA(image.Rect(0, 0, w, h))
+		out = &bytes.Buffer{}
+	)
+
+	png.Encode(out, img)
+	return out.Bytes()
 }
