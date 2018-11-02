@@ -80,22 +80,19 @@ class Base extends React.Component {
                 <Layout>
                     <Content style={{ margin: "0 16px" }}>
                         <div className="content-body">
-
                             <div id="alert-container"></div>
-                            {/* <this.props.body setError={this.setError} /> */}
-
                             <Switch>
-                                <Route exact path="/" render={(props) => <Dashboard { ...{ ...this.props, route: props } } />} />
-                                <Route exact path="/lists" render={(props) => <Lists { ...{ ...this.props, route: props } } />} />
-                                <Route exact path="/subscribers" render={(props) => <Subscribers { ...{ ...this.props, route: props } } />} />
-                                <Route exact path="/subscribers/lists/:listID" render={(props) => <Subscribers { ...{ ...this.props, route: props } } />} />
-                                <Route exact path="/subscribers/import" render={(props) => <Import { ...{ ...this.props, route: props } } />} />
-                                <Route exact path="/campaigns" render={(props) => <Campaigns { ...{ ...this.props, route: props } } />} />
-                                <Route exact path="/campaigns/new" render={(props) => <Campaign { ...{ ...this.props, route: props } } />} />
-                                <Route exact path="/campaigns/media" render={(props) => <Media { ...{ ...this.props, route: props } } />} />
-                                <Route exact path="/campaigns/templates" render={(props) => <Templates { ...{ ...this.props, route: props } } />} />
-                                <Route exact path="/campaigns/:campaignID" render={(props) => <Campaign { ...{ ...this.props, route: props } } />} />
-                                <Route exact path="/test" render={(props) => <Test { ...{ ...this.props, route: props } } />} />
+                                <Route exact key="/" path="/" render={(props) => <Dashboard { ...{ ...this.props, route: props } } />} />
+                                <Route exact key="/lists" path="/lists" render={(props) => <Lists { ...{ ...this.props, route: props } } />} />
+                                <Route exact key="/subscribers" path="/subscribers" render={(props) => <Subscribers { ...{ ...this.props, route: props } } />} />
+                                <Route exact key="/subscribers/lists/:listID" path="/subscribers/lists/:listID" render={(props) => <Subscribers { ...{ ...this.props, route: props } } />} />
+                                <Route exact key="/subscribers/import" path="/subscribers/import" render={(props) => <Import { ...{ ...this.props, route: props } } />} />
+                                <Route exact key="/campaigns" path="/campaigns" render={(props) => <Campaigns { ...{ ...this.props, route: props } } />} />
+                                <Route exact key="/campaigns/new" path="/campaigns/new" render={(props) => <Campaign { ...{ ...this.props, route: props } } />} />
+                                <Route exact key="/campaigns/media" path="/campaigns/media" render={(props) => <Media { ...{ ...this.props, route: props } } />} />
+                                <Route exact key="/campaigns/templates" path="/campaigns/templates" render={(props) => <Templates { ...{ ...this.props, route: props } } />} />
+                                <Route exact key="/campaigns/:campaignID" path="/campaigns/:campaignID" render={(props) => <Campaign { ...{ ...this.props, route: props } } />} />
+                                <Route exact key="/test" path="/test" render={(props) => <Test { ...{ ...this.props, route: props } } />} />
                             </Switch>
 
                         </div>
