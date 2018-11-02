@@ -98,7 +98,15 @@ func handlePreviewTemplate(c echo.Context) error {
 	}
 
 	// Compile the template.
-	camp := models.Campaign{TemplateBody: body, Body: dummyTpl}
+	camp := models.Campaign{
+		UUID:         "00000000-0000-0000-0000-000000000000",
+		Name:         "Dummy Campaign",
+		Subject:      "Dummy Campaign Subject",
+		FromEmail:    "dummy-campaign@listmonk.app",
+		TemplateBody: body,
+		Body:         dummyTpl,
+	}
+
 	if err := camp.CompileTemplate(app.Runner.TemplateFuncs(&camp)); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Error compiling template: %v", err))
 	}
