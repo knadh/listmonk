@@ -26,6 +26,7 @@ type constants struct {
 	RootURL    string `mapstructure:"root"`
 	UploadPath string `mapstructure:"upload_path"`
 	UploadURI  string `mapstructure:"upload_uri"`
+	FromEmail  string `mapstructure:"from_email"`
 }
 
 // App contains the "global" components that are
@@ -77,6 +78,7 @@ func init() {
 // registerHandlers registers HTTP handlers.
 func registerHandlers(e *echo.Echo) {
 	e.GET("/", handleIndexPage)
+	e.GET("/api/config.js", handleGetConfigScript)
 	e.GET("/api/users", handleGetUsers)
 	e.POST("/api/users", handleCreateUser)
 	e.DELETE("/api/users/:id", handleDeleteUser)
@@ -102,7 +104,6 @@ func registerHandlers(e *echo.Echo) {
 
 	e.GET("/api/campaigns", handleGetCampaigns)
 	e.GET("/api/campaigns/running/stats", handleGetRunningCampaignStats)
-	e.GET("/api/campaigns/messengers", handleGetCampaignMessengers)
 	e.GET("/api/campaigns/:id", handleGetCampaigns)
 	e.GET("/api/campaigns/:id/preview", handlePreviewCampaign)
 	e.POST("/api/campaigns/:id/preview", handlePreviewCampaign)

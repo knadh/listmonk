@@ -401,12 +401,6 @@ func handleGetRunningCampaignStats(c echo.Context) error {
 	return c.JSON(http.StatusOK, okResp{out})
 }
 
-// handleGetCampaignMessengers returns the list of registered messengers.
-func handleGetCampaignMessengers(c echo.Context) error {
-	app := c.Get("app").(*App)
-	return c.JSON(http.StatusOK, okResp{app.Runner.GetMessengerNames()})
-}
-
 // handleTestCampaign handles the sending of a campaign message to
 // arbitrary subscribers for testing.
 func handleTestCampaign(c echo.Context) error {

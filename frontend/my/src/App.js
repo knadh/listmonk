@@ -118,6 +118,7 @@ class App extends React.PureComponent {
                 <Layout modelRequest={ this.modelRequest }
                     request={ this.request }
                     reqStates={ this.state.reqStates }
+                    config={ window.CONFIG }
                     data={ this.state.data } />
             </BrowserRouter>
         )

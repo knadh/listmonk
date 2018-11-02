@@ -3,8 +3,8 @@
 # Interface and port where the app will run its webserver.
 address = "0.0.0.0:9000"
 
-# Root to the listmonk installation that'll be used in the e-mails for linking to
-# images, the unsubscribe URL etc.
+# Public root URL of the listmonk installation that'll be used
+# in the messages for linking to images, unsubscribe page etc.
 root = "http://listmonk.mysite.com"
 
 # The default 'from' e-mail for outgoing e-mail campaigns.

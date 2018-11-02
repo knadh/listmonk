@@ -298,7 +298,7 @@ class TheFormDef extends React.PureComponent {
                         </Form.Item>
                         <Form.Item {...formItemLayout} label="From address">
                             {getFieldDecorator("from_email", {
-                                initialValue: record.from_email,
+                                initialValue: record.from_email ? record.from_email : this.props.config.fromEmail,
                                 rules: [{ required: true }, { validator: this.validateEmail }]
                             })(<Input disabled={ this.props.formDisabled } placeholder="Company Name <email@company.com>" maxLength="200" />)}
                         </Form.Item>
@@ -325,10 +325,10 @@ class TheFormDef extends React.PureComponent {
                                 <Select disabled={ this.props.formDisabled } mode="tags"></Select>
                                 )}
                         </Form.Item>
-                        <Form.Item {...formItemLayout} label="Messenger">
+                        <Form.Item {...formItemLayout} label="Messenger" style={{ display: this.props.config.messengers.length === 1 ? "none" : "block" }}>
                             {getFieldDecorator("messenger", { initialValue: record.messenger ? record.messenger : "email" })(
                                 <Radio.Group className="messengers">
-                                    {[...this.props.messengers].map((v, i) =>
+                                    {[...this.props.config.messengers].map((v, i) =>
                                         <Radio disabled={ this.props.formDisabled } value={v} key={v}>{ v }</Radio>
                                     )}
                                 </Radio.Group>
@@ -395,7 +395,6 @@ class Campaign extends React.PureComponent {
         campaignID: this.props.route.match.params ? parseInt(this.props.route.match.params.campaignID, 10) : 0,
         record: {},
         contentType: "richtext",
-        messengers: [],
         previewRecord: null,
         body: "",
         currentTab: "form",
@@ -412,14 +411,11 @@ class Campaign extends React.PureComponent {
         // Fetch templates.
         this.props.modelRequest(cs.ModelTemplates, cs.Routes.GetTemplates, cs.MethodGet)
 
-        // Fetch messengers.
-        this.props.request(cs.Routes.GetCampaignMessengers, cs.MethodGet).then((r) => {
-            this.setState({ messengers: r.data.data, loading: false })
-        })
-
         // Fetch campaign.
         if(this.state.campaignID) {
             this.fetchRecord(this.state.campaignID)
+        } else {
+            this.setState({ loading: false })
         }
     }
 
@@ -482,7 +478,6 @@ class Campaign extends React.PureComponent {
                             <TheForm { ...this.props }
                                 record={ this.state.record }
                                 isSingle={ this.state.record.id ? true : false }
-                                messengers={ this.state.messengers }
                                 body={ this.state.body ? this.state.body : this.state.record.body }
                                 contentType={ this.state.contentType }
                                 formDisabled={ this.state.formDisabled }
