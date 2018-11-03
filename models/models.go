@@ -212,7 +212,7 @@ func (s SubscriberAttribs) Scan(src interface{}) error {
 func (c *Campaign) CompileTemplate(f template.FuncMap) error {
 	// Compile the base template.
 	t := regexpLinkTag.ReplaceAllString(c.TemplateBody, regexpLinkTagReplace)
-	t = regexpViewTag.ReplaceAllString(c.TemplateBody, regexpViewTagReplace)
+	t = regexpViewTag.ReplaceAllString(t, regexpViewTagReplace)
 	baseTPL, err := template.New(BaseTpl).Funcs(f).Parse(t)
 	if err != nil {
 		return fmt.Errorf("error compiling base template: %v", err)
@@ -220,7 +220,7 @@ func (c *Campaign) CompileTemplate(f template.FuncMap) error {
 
 	// Compile the campaign message.
 	t = regexpLinkTag.ReplaceAllString(c.Body, regexpLinkTagReplace)
-	t = regexpViewTag.ReplaceAllString(c.Body, regexpViewTagReplace)
+	t = regexpViewTag.ReplaceAllString(t, regexpViewTagReplace)
 	msgTpl, err := template.New(ContentTpl).Funcs(f).Parse(t)
 	if err != nil {
 		return fmt.Errorf("error compiling message: %v", err)

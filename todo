@@ -1,6 +1,0 @@
-- Add quote support to Quill link feature so that Track function can be inserted
-- Make {{ template }} a Regex check to account for spaces
-- Add css inliner
-- Duplicate mails to subscribers in multiple lists under one campaign?
-
-- HTML syntax highlighting
