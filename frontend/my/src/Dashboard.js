@@ -1,7 +1,9 @@
 import React from 'react';
-import 'antd/dist/antd.css';
 
-class Dashboard extends React.Component {
+class Dashboard extends React.PureComponent {
+  componentDidMount = () => {
+    this.props.pageTitle("Dashboard")
+  }
   render() {
     return (
         <h1>Welcome</h1>

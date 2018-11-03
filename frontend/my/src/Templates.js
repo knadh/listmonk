@@ -25,7 +25,7 @@ class CreateFormDef extends React.PureComponent {
             if (this.props.formType === cs.FormCreate) {
                 // Create a new list.
                 this.props.modelRequest(cs.ModelTemplates, cs.Routes.CreateTemplate, cs.MethodPost, values).then(() => {
-                    notification["success"]({ placement: "topRight", message: "Template added", description: `"${values["name"]}" added` })
+                    notification["success"]({ placement: cs.MsgPosition, message: "Template added", description: `"${values["name"]}" added` })
                     this.props.fetchRecords()
                     this.props.onClose()
                     this.setState({ modalWaiting: false })
@@ -36,7 +36,7 @@ class CreateFormDef extends React.PureComponent {
             } else {
                 // Edit a list.
                 this.props.modelRequest(cs.ModelTemplates, cs.Routes.UpdateTemplate, cs.MethodPut, { ...values, id: this.props.record.id }).then(() => {
-                    notification["success"]({ placement: "topRight", message: "Template updated", description: `"${values["name"]}" modified` })
+                    notification["success"]({ placement: cs.MsgPosition, message: "Template updated", description: `"${values["name"]}" modified` })
                     this.props.fetchRecords()
                     this.props.onClose()
                     this.setState({ modalWaiting: false })
@@ -196,6 +196,7 @@ class Templates extends React.PureComponent {
     }
 
     componentDidMount() {
+        this.props.pageTitle("Templates")
         this.fetchRecords()
     }
 
@@ -206,7 +207,7 @@ class Templates extends React.PureComponent {
     handleDeleteRecord = (record) => {
         this.props.modelRequest(cs.ModelTemplates, cs.Routes.DeleteTemplate, cs.MethodDelete, { id: record.id })
             .then(() => {
-                notification["success"]({ placement: "topRight", message: "Template deleted", description: `"${record.name}" deleted` })
+                notification["success"]({ placement: cs.MsgPosition, message: "Template deleted", description: `"${record.name}" deleted` })
 
                 // Reload the table.
                 this.fetchRecords()
@@ -218,7 +219,7 @@ class Templates extends React.PureComponent {
     handleSetDefault = (record) => {
         this.props.modelRequest(cs.ModelTemplates, cs.Routes.SetDefaultTemplate, cs.MethodPut, { id: record.id })
             .then(() => {
-                notification["success"]({ placement: "topRight", message: "Template updated", description: `"${record.name}" set as default` })
+                notification["success"]({ placement: cs.MsgPosition, message: "Template updated", description: `"${record.name}" set as default` })
                 
                 // Reload the table.
                 this.fetchRecords()

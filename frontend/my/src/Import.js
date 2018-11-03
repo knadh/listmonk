@@ -262,6 +262,7 @@ class Import extends React.PureComponent {
     }
 
     componentDidMount() {
+        this.props.pageTitle("Import subscribers")
         this.fetchimportState()
     }
     render() {

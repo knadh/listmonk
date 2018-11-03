@@ -214,7 +214,7 @@ class TheFormDef extends React.PureComponent {
             this.setState({ loading: true })
             if(!this.props.isSingle) {
                 this.props.modelRequest(cs.ModelCampaigns, cs.Routes.CreateCampaign, cs.MethodPost, values).then((resp) => {
-                    notification["success"]({ placement: "topRight",
+                    notification["success"]({ placement: cs.MsgPosition,
                         message: "Campaign created",
                         description: `"${values["name"]}" created` })
 
@@ -228,7 +228,7 @@ class TheFormDef extends React.PureComponent {
                 })
             } else {
                 this.props.modelRequest(cs.ModelCampaigns, cs.Routes.UpdateCampaign, cs.MethodPut, { ...values, id: this.props.record.id }).then((resp) => {
-                    notification["success"]({ placement: "topRight",
+                    notification["success"]({ placement: cs.MsgPosition,
                     message: "Campaign updated",
                     description: `"${values["name"]}" updated` })
                     this.setState({ loading: false })
@@ -259,7 +259,7 @@ class TheFormDef extends React.PureComponent {
             this.setState({ loading: true })
             this.props.request(cs.Routes.TestCampaign, cs.MethodPost, values).then((resp) => {
                 this.setState({ loading: false })
-                notification["success"]({ placement: "topRight",
+                notification["success"]({ placement: cs.MsgPosition,
                 message: "Test sent",
                 description: `Test messages sent` })
             }).catch(e => {
@@ -276,6 +276,12 @@ class TheFormDef extends React.PureComponent {
         let subLists = []
         if(this.props.isSingle && record.lists) {
             subLists = record.lists.map((v) => { return v.id !== 0 ? v.id : null }).filter(v => v !== null)
+        }
+
+        if(this.record) {
+            this.props.pageTitle(record.name + " / Campaigns")
+        } else {
+            this.props.pageTitle("New campaign")
         }
 
         return (

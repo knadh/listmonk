@@ -112,12 +112,19 @@ class App extends React.PureComponent {
         }
     }
 
+
+    pageTitle = (title) => {
+        document.title = title
+    }
+
     render() {
         return (
             <BrowserRouter>
-                <Layout modelRequest={ this.modelRequest }
+                <Layout
+                    modelRequest={ this.modelRequest }
                     request={ this.request }
                     reqStates={ this.state.reqStates }
+                    pageTitle={ this.pageTitle }
                     config={ window.CONFIG }
                     data={ this.state.data } />
             </BrowserRouter>

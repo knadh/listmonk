@@ -4,6 +4,10 @@
   transition: none !important;
 }
 
+body {
+  font-weight: 400;
+}
+
 header.header {
   margin-bottom: 30px;
 }
@@ -54,7 +58,7 @@ body {
   }
   .logo img {
     width: auto;
-    height: 22px;
+    height: 28px;
   }
 
 .ant-layout-sider.ant-layout-sider-collapsed .logo a {
@@ -75,10 +79,13 @@ td.actions {
   text-align: right;
 }
 
+td .ant-tag {
+  margin-top: 5px;
+}
+
 /* Templates */
 .wysiwyg {
   padding: 30px;
-  color: red;
 }
 
 /* Subscribers */

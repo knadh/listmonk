@@ -27,6 +27,7 @@ export const FormEdit = "edit"
 export const MsgSuccess = "success"
 export const MsgWarning = "warning"
 export const MsgError = "error"
+export const MsgPosition = "bottomRight"
 
 // Model specific.
 export const CampaignStatusColors = {

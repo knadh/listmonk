@@ -3,7 +3,7 @@ import { Switch, Route } from "react-router-dom"
 import { Link } from "react-router-dom"
 import { Layout, Menu, Icon } from "antd"
 
-import "antd/dist/antd.css"
+// import "antd/dist/antd.css"
 import logo from "./static/listmonk.svg"
 
 // Views.
@@ -16,6 +16,7 @@ import Test from "./Test"
 import Campaigns from "./Campaigns";
 import Campaign from "./Campaign";
 import Media from "./Media";
+
 
 const { Content, Footer, Sider } = Layout
 const SubMenu = Menu.SubMenu
@@ -30,7 +31,7 @@ class Base extends React.Component {
     onCollapse = (collapsed) => {
         this.setState({ collapsed })
     }
-    
+
     render() {
         return (
             <Layout style={{ minHeight: "100vh" }}>

@@ -8,6 +8,7 @@ class TheFormDef extends React.PureComponent {
     }
 
     componentDidMount() {
+        this.props.pageTitle("Media")
         this.fetchRecords()
     }
 
@@ -18,7 +19,7 @@ class TheFormDef extends React.PureComponent {
     handleDeleteRecord = (record) => {
         this.props.modelRequest(cs.ModelMedia, cs.Routes.DeleteMedia, cs.MethodDelete, { id: record.id })
             .then(() => {
-                notification["success"]({ placement: "topRight", message: "Image deleted", description: `"${record.filename}" deleted` })
+                notification["success"]({ placement: cs.MsgPosition, message: "Image deleted", description: `"${record.filename}" deleted` })
 
                 // Reload the table.
                 this.fetchRecords()

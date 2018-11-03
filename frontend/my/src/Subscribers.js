@@ -1,4 +1,5 @@
 import React from "react"
+import { Link } from "react-router-dom"
 import { Row, Col, Modal, Form, Input, Select, Button, Table, Icon, Tooltip, Tag, Popconfirm, Spin, notification } from "antd"
 
 import Utils from "./utils"
@@ -233,9 +234,21 @@ class Subscribers extends React.PureComponent {
             sorter: true,
             width: "25%",
             render: (text, record) => {
-                return (
-                    <a role="button" onClick={() => this.handleShowEditForm(record)}>{text}</a>
+                
+                const out = [];
+                out.push(
+                    <div key={`sub-email-${ record.id }`} className="sub-name">
+                        <a role="button" onClick={() => { this.handleShowEditForm(record)}}>{text}</a>
+                    </div>
                 )
+                
+                if(record.lists.length > 0) {
+                    for (let i = 0; i < record.lists.length; i++) {
+                        out.push(<Tag className="list" key={`sub-${ record.id }-list-${ record.lists[i].id }`}><Link to={ `/subscribers/lists/${ record.lists[i].id }` }>{ record.lists[i].name }</Link></Tag>)
+                    }
+                }
+
+                return out
             }
         },
         {
@@ -404,6 +417,12 @@ class Subscribers extends React.PureComponent {
         const pagination = {
             ...this.paginationOptions,
             ...this.state.queryParams
+        }
+
+        if(this.state.queryParams.list) {
+            this.props.pageTitle(this.state.queryParams.list.name + " / Subscribers")
+        } else {
+            this.props.pageTitle("Subscribers")
         }
 
         return (

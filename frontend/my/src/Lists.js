@@ -23,7 +23,7 @@ class CreateFormDef extends React.PureComponent {
             if (this.props.formType === cs.FormCreate) {
                 // Create a new list.
                 this.props.modelRequest(cs.ModelLists, cs.Routes.CreateList, cs.MethodPost, values).then(() => {
-                    notification["success"]({ placement: "topRight", message: "List created", description: `"${values["name"]}" created` })
+                    notification["success"]({ placement: cs.MsgPosition, message: "List created", description: `"${values["name"]}" created` })
                     this.props.fetchRecords()
                     this.props.onClose()
                     this.setState({ modalWaiting: false })
@@ -34,7 +34,7 @@ class CreateFormDef extends React.PureComponent {
             } else {
                 // Edit a list.
                 this.props.modelRequest(cs.ModelLists, cs.Routes.UpdateList, cs.MethodPut, { ...values, id: this.props.record.id }).then(() => {
-                    notification["success"]({ placement: "topRight", message: "List modified", description: `"${values["name"]}" modified` })
+                    notification["success"]({ placement: cs.MsgPosition, message: "List modified", description: `"${values["name"]}" modified` })
                     this.props.fetchRecords()
                     this.props.onClose()
                     this.setState({ modalWaiting: false })
@@ -111,7 +111,7 @@ class Lists extends React.PureComponent {
             title: "Name",
             dataIndex: "name",
             sorter: true,
-            width: "50%",
+            width: "40%",
             render: (text, record) => {
                 const out = [];
                 out.push(
@@ -130,7 +130,7 @@ class Lists extends React.PureComponent {
         {
             title: "Type",
             dataIndex: "type",
-            width: "5%",
+            width: "10%",
             render: (type, _) => {
                 let color = type === "private" ? "orange" : "green"
                 return <Tag color={color}>{type}</Tag>
@@ -139,8 +139,13 @@ class Lists extends React.PureComponent {
         {
             title: "Subscribers",
             dataIndex: "subscriber_count",
-            width: "10%",
-            align: "center"
+            width: "15%",
+            align: "center",
+            render: (text, record) => {
+                return(
+                    <div className="name" key={`name-${record.id}`}><Link to={ `/subscribers/lists/${record.id}` }>{ text }</Link></div>
+                )
+            }
         },
         {
             title: "Created",
@@ -175,6 +180,7 @@ class Lists extends React.PureComponent {
     }
 
     componentDidMount() {
+        this.props.pageTitle("Lists")
         this.fetchRecords()
     }
 
@@ -185,7 +191,7 @@ class Lists extends React.PureComponent {
     deleteRecord = (record) => {
         this.props.modelRequest(cs.ModelLists, cs.Routes.DeleteList, cs.MethodDelete, { id: record.id })
             .then(() => {
-                notification["success"]({ placement: "topRight", message: "List deleted", description: `"${record.name}" deleted` })
+                notification["success"]({ placement: cs.MsgPosition, message: "List deleted", description: `"${record.name}" deleted` })
                 
                 // Reload the table.
                 this.fetchRecords()

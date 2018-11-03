@@ -248,6 +248,7 @@ class Campaigns extends React.PureComponent {
     }
 
     componentDidMount() {
+        this.props.pageTitle("Campaigns")
         dayjs.extend(relativeTime)
         this.fetchRecords()
     }
