@@ -117,19 +117,6 @@ class Campaigns extends React.PureComponent {
             render: (text, record) => {
                 return (
                     <div className="actions">
-                        <Tooltip title="Preview campaign" placement="bottom">
-                            <a role="button" onClick={() => {
-                                this.handlePreview(record)
-                            }}><Icon type="search" /></a>
-                        </Tooltip>
-
-                        <Tooltip title="Clone campaign" placement="bottom">
-                            <a role="button" onClick={() => {
-                                let r = { ...record, lists: record.lists.map((i) => { return i.id }) }
-                                this.handleToggleCloneForm(r)
-                            }}><Icon type="copy" /></a>
-                        </Tooltip>
-
                         { ( record.status === cs.CampaignStatusPaused ) &&
                             <Popconfirm title="Are you sure?" onConfirm={() => this.handleUpdateStatus(record, cs.CampaignStatusRunning)}>
                                 <Tooltip title="Resume campaign" placement="bottom"><a role="button"><Icon type="rocket" /></a></Tooltip>
@@ -160,6 +147,19 @@ class Campaigns extends React.PureComponent {
                                 <Tooltip title="Cancel campaign" placement="bottom"><a role="button"><Icon type="close-circle-o" /></a></Tooltip>
                             </Popconfirm>
                         }
+
+                        <Tooltip title="Preview campaign" placement="bottom">
+                            <a role="button" onClick={() => {
+                                this.handlePreview(record)
+                            }}><Icon type="search" /></a>
+                        </Tooltip>
+
+                        <Tooltip title="Clone campaign" placement="bottom">
+                            <a role="button" onClick={() => {
+                                let r = { ...record, lists: record.lists.map((i) => { return i.id }) }
+                                this.handleToggleCloneForm(r)
+                            }}><Icon type="copy" /></a>
+                        </Tooltip>
 
                         { ( record.status === cs.CampaignStatusDraft || record.status === cs.CampaignStatusScheduled ) &&
                             <Popconfirm title="Are you sure?" onConfirm={() => this.handleDeleteRecord(record)}>
