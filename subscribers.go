@@ -180,16 +180,14 @@ func handleCreateSubscriber(c echo.Context) error {
 
 	// Insert and read ID.
 	var newID int
-	err := app.Queries.UpsertSubscriber.Get(&newID,
+	err := app.Queries.InsertSubscriber.Get(&newID,
 		uuid.NewV4(),
 		strings.ToLower(strings.TrimSpace(req.Email)),
 		strings.TrimSpace(req.Name),
-		req.Status,
 		req.Attribs,
-		true,
 		req.Lists)
 	if err != nil {
-		if err == sql.ErrNoRows {
+		if pqErr, ok := err.(*pq.Error); ok && pqErr.Constraint == "subscribers_email_key" {
 			return echo.NewHTTPError(http.StatusBadRequest, "The e-mail already exists.")
 		}
 

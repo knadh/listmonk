@@ -39,22 +39,39 @@ SELECT COUNT(subscribers.id) as num FROM subscribers INNER JOIN subscriber_lists
     WHERE subscriber_lists.list_id = %d
     %s;
 
+-- name: insert-subscriber
+WITH sub AS (
+    INSERT INTO subscribers (uuid, email, name, attribs)
+    VALUES($1, $2, $3, $4)
+    returning id
+),
+subs AS (
+    INSERT INTO subscriber_lists (subscriber_id, list_id)
+    VALUES((SELECT id FROM sub), UNNEST($5::INT[]))
+    ON CONFLICT (subscriber_id, list_id) DO UPDATE
+    SET updated_at=NOW()
+)
+SELECT id from sub;
+
 -- name: upsert-subscriber
 -- Upserts a subscriber where existing subscribers get their names and attributes overwritten.
 -- The status field is only updated when $6 = 'override_status'.
-WITH s AS (
+WITH sub AS (
     INSERT INTO subscribers (uuid, email, name, attribs)
     VALUES($1, $2, $3, $4)
     ON CONFLICT (email) DO UPDATE
         SET name=$3,
         attribs=$4,
         updated_at=NOW()
-    RETURNING id
-)  INSERT INTO subscriber_lists (subscriber_id, list_id)
-    VALUES((SELECT id FROM s), UNNEST($5::INT[]))
+    RETURNING uuid, id
+),
+subs AS (
+    INSERT INTO subscriber_lists (subscriber_id, list_id)
+    VALUES((SELECT id FROM sub), UNNEST($5::INT[]))
     ON CONFLICT (subscriber_id, list_id) DO UPDATE
     SET updated_at=NOW()
-    RETURNING subscriber_id;
+)
+SELECT uuid, id from sub;
 
 -- name: blacklist-subscriber
 -- Upserts a subscriber where the update will only set the status to blacklisted
@@ -247,6 +264,7 @@ subs AS (
     WHERE subscriber_lists.list_id=ANY(
         SELECT list_id FROM campaign_lists where campaign_id=$1 AND list_id IS NOT NULL
     )
+    AND subscribers.status != 'blacklisted'
     AND id > (SELECT last_subscriber_id FROM camp)
     AND id <= (SELECT max_subscriber_id FROM camp)
     ORDER BY id LIMIT $2
