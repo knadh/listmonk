@@ -40,18 +40,34 @@ SELECT COUNT(subscribers.id) as num FROM subscribers INNER JOIN subscriber_lists
     %s;
 
 -- name: upsert-subscriber
--- In case of updates, if $6 (override_status) is true, only then, the existing
--- value is overwritten with the incoming value. This is used for insertions and bulk imports.
+-- Upserts a subscriber where existing subscribers get their names and attributes overwritten.
+-- The status field is only updated when $6 = 'override_status'.
 WITH s AS (
-    INSERT INTO subscribers (uuid, email, name, status, attribs)
-    VALUES($1, $2, $3, $4, $5) ON CONFLICT (email) DO UPDATE
-    SET name=$3, status=(CASE WHEN $6 = true THEN $4 ELSE subscribers.status END),
-    attribs=$5, updated_at=NOW()
+    INSERT INTO subscribers (uuid, email, name, attribs)
+    VALUES($1, $2, $3, $4)
+    ON CONFLICT (email) DO UPDATE
+        SET name=$3,
+        attribs=$4,
+        updated_at=NOW()
     RETURNING id
 )  INSERT INTO subscriber_lists (subscriber_id, list_id)
-    VALUES((SELECT id FROM s), UNNEST($7::INT[]) )
-    ON CONFLICT (subscriber_id, list_id) DO NOTHING
+    VALUES((SELECT id FROM s), UNNEST($5::INT[]))
+    ON CONFLICT (subscriber_id, list_id) DO UPDATE
+    SET updated_at=NOW()
     RETURNING subscriber_id;
+
+-- name: blacklist-subscriber
+-- Upserts a subscriber where the update will only set the status to blacklisted
+-- unlike upsert-subscribers where name and attributes are updated. In addition, all
+-- existing subscriptions are marked as 'unsubscribed'.
+WITH sub AS (
+    INSERT INTO subscribers (uuid, email, name, attribs, status)
+    VALUES($1, $2, $3, $4, 'blacklisted')
+    ON CONFLICT (email) DO UPDATE SET status='blacklisted', updated_at=NOW()
+    RETURNING id
+)
+UPDATE subscriber_lists SET status='unsubscribed', updated_at=NOW()
+    WHERE subscriber_id = (SELECT id FROM sub);
 
 -- name: update-subscriber
 -- Updates a subscriber's data, and given a list of list_ids, inserts subscriptions

@@ -122,9 +122,7 @@ func install(app *App, qMap goyesql.Queries) {
 		uuid.NewV4(),
 		email,
 		bytes.Title(name[0]),
-		models.SubscriberStatusEnabled,
 		`{"type": "known", "good": true}`,
-		true,
 		pq.Int64Array{int64(listID)},
 	); err != nil {
 		logger.Fatalf("Error creating subscriber: %v", err)

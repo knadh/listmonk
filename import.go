@@ -13,9 +13,9 @@ import (
 
 // reqImport represents file upload import params.
 type reqImport struct {
-	Delim          string `json:"delim"`
-	OverrideStatus bool   `json:"override_status"`
-	ListIDs        []int  `json:"lists"`
+	Mode    string `json:"mode"`
+	Delim   string `json:"delim"`
+	ListIDs []int  `json:"lists"`
 }
 
 // handleImportSubscribers handles the uploading and bulk importing of
@@ -34,6 +34,11 @@ func handleImportSubscribers(c echo.Context) error {
 	if err := json.Unmarshal([]byte(c.FormValue("params")), &r); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest,
 			fmt.Sprintf("Invalid `params` field: %v", err))
+	}
+
+	if r.Mode != subimporter.ModeSubscribe && r.Mode != subimporter.ModeBlacklist {
+		return echo.NewHTTPError(http.StatusBadRequest,
+			"Invalid `mode`")
 	}
 
 	if len(r.Delim) != 1 {
@@ -66,11 +71,10 @@ func handleImportSubscribers(c echo.Context) error {
 	}
 
 	// Start the importer session.
-	impSess, err := app.Importer.NewSession(file.Filename,
-		r.OverrideStatus,
-		r.ListIDs)
+	impSess, err := app.Importer.NewSession(file.Filename, r.Mode, r.ListIDs)
 	if err != nil {
-		return err
+		return echo.NewHTTPError(http.StatusBadRequest,
+			fmt.Sprintf("Error starting import session: %v", err))
 	}
 	go impSess.Start()
 
@@ -81,7 +85,8 @@ func handleImportSubscribers(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			fmt.Sprintf("Error extracting ZIP file: %v", err))
 	} else if len(files) == 0 {
-		return echo.NewHTTPError(http.StatusBadRequest, "No CSV files found to import.")
+		return echo.NewHTTPError(http.StatusBadRequest,
+			"No CSV files found to import.")
 	}
 	go impSess.LoadCSV(dir+"/"+files[0], rune(r.Delim[0]))
 
@@ -94,7 +99,6 @@ func handleGetImportSubscribers(c echo.Context) error {
 		app = c.Get("app").(*App)
 		s   = app.Importer.GetStats()
 	)
-
 	return c.JSON(http.StatusOK, okResp{s})
 }
 
@@ -110,6 +114,5 @@ func handleGetImportSubscriberLogs(c echo.Context) error {
 func handleStopImportSubscribers(c echo.Context) error {
 	app := c.Get("app").(*App)
 	app.Importer.Stop()
-
 	return c.JSON(http.StatusOK, okResp{app.Importer.GetStats()})
 }

@@ -1,5 +1,5 @@
 import React from "react"
-import { Row, Col, Form, Select, Input, Checkbox, Upload, Button, Icon, Spin, Progress, Popconfirm, Tag, notification } from "antd"
+import { Row, Col, Form, Select, Input, Upload, Button, Radio, Icon, Spin, Progress, Popconfirm, Tag, notification } from "antd"
 import * as cs from "./constants"
 
 const StatusNone      = "none"
@@ -11,7 +11,8 @@ const StatusFailed  = "failed"
 class TheFormDef extends React.PureComponent {
     state = {
         confirmDirty: false,
-        fileList: []
+        fileList: [],
+        mode: "subscribe"
     }
 
     componentDidMount() {
@@ -32,7 +33,7 @@ class TheFormDef extends React.PureComponent {
         }
 
         if(this.state.fileList.length < 1) {
-            notification["error"]({ message: "Error", description: "Select a valid file to upload" })
+            notification["error"]({ placement: cs.MsgPosition, message: "Error", description: "Select a valid file to upload" })
             return
         }
 
@@ -41,11 +42,11 @@ class TheFormDef extends React.PureComponent {
         params.append("file", this.state.fileList[0])
 
         this.props.request(cs.Routes.UploadRouteImport, cs.MethodPost, params).then(() => {
-            notification["info"]({ message: "File uploaded",
+            notification["info"]({ placement: cs.MsgPosition, message: "File uploaded",
                 description: "Please wait while the import is running" })
             this.props.fetchimportState()
         }).catch(e => {
-            notification["error"]({ message: "Error", description: e.message })
+            notification["error"]({ placement: cs.MsgPosition, message: "Error", description: e.message })
         })
     }
 
@@ -75,22 +76,35 @@ class TheFormDef extends React.PureComponent {
         return (
             <Spin spinning={false}>
                 <Form onSubmit={this.handleSubmit}>
-                    <Form.Item {...formItemLayout} label="Lists" extra="Lists to subscribe to">
-                        {getFieldDecorator("lists", { rules: [{ required: true }] })(
-                            <Select mode="multiple">
-                                {[...this.props.lists].map((v, i) =>
-                                    <Select.Option value={v["id"]} key={v["id"]}>{v["name"]}</Select.Option>
+                    <Form.Item {...formItemLayout} label="Mode">
+                        {getFieldDecorator("mode", { rules: [{ required: true }], initialValue: "subscribe" })(
+                            <Radio.Group className="mode" onChange={(e) => { this.setState({ mode: e.target.value }) }}>
+                                <Radio disabled={ this.props.formDisabled } value="subscribe">Subscribe</Radio>
+                                <Radio disabled={ this.props.formDisabled } value="blacklist">Blacklist</Radio>
+                            </Radio.Group>
+                        )}
+                    </Form.Item>
+                    { this.state.mode === "subscribe" &&
+                        <React.Fragment>
+                            <Form.Item {...formItemLayout} label="Lists" extra="Lists to subscribe to">
+                                {getFieldDecorator("lists", { rules: [{ required: true }] })(
+                                    <Select mode="multiple">
+                                        {[...this.props.lists].map((v, i) =>
+                                            <Select.Option value={v["id"]} key={v["id"]}>{v["name"]}</Select.Option>
+                                        )}
+                                    </Select>
                                 )}
-                            </Select>
-                        )}
-                    </Form.Item>
-                    <Form.Item {...formItemLayout}
-                        label="Override status?"
-                        extra="For existing subscribers in the system found again in the import, override their status, for example 'blacklisted' to 'active'. This is not always desirable.">
-                        {getFieldDecorator("override_status", )(
-                            <Checkbox initialValue="1" />
-                        )}
-                    </Form.Item>
+                            </Form.Item>
+                        </React.Fragment>
+                    }
+                    { this.state.mode === "blacklist" &&
+                        <Form.Item {...formItemTailLayout}>
+                            <p className="ant-form-extra">
+                                All existing subscribers found in the import will be marked as 'blacklisted' and will be
+                                unsubscribed from their existing subscriptions. New subscribers will be imported and marked as 'blacklisted'.
+                            </p>
+                        </Form.Item>
+                    }
                     <Form.Item {...formItemLayout} label="CSV column delimiter" extra="Default delimiter is comma">
                         {getFieldDecorator("delim", {
                             initialValue: ","
@@ -113,14 +127,14 @@ class TheFormDef extends React.PureComponent {
                                     <p className="ant-upload-drag-icon">
                                         <Icon type="inbox" />
                                     </p>
-                                    <p className="ant-upload-text">Click or drag file here</p>
+                                    <p className="ant-upload-text">Click or drag the ZIP file here</p>
                                 </Upload.Dragger>
                             )}
                         </div>
                     </Form.Item>
                     <Form.Item {...formItemTailLayout}>
-                        <p className="text-grey">For existing subscribers, the names and attributes will be overwritten with the values in the CSV.</p>
-                        <Button type="primary" htmlType="submit"><Icon type="upload" /> Upload &amp; import</Button>
+                        <p className="ant-form-extra">For existing subscribers, the names and attributes will be overwritten with the values in the CSV.</p>
+                        <Button type="primary" htmlType="submit"><Icon type="upload" /> Upload</Button>
                     </Form.Item>
                 </Form>
             </Spin>
@@ -140,7 +154,7 @@ class Importing extends React.PureComponent {
         this.props.request(cs.Routes.UploadRouteImport, cs.MethodDelete).then((r) => {
             this.props.fetchimportState()
         }).catch(e => {
-            notification["error"]({ message: "Error", description: e.message })
+            notification["error"]({ placement: cs.MsgPosition, message: "Error", description: e.message })
         })
     }
 
@@ -167,7 +181,7 @@ class Importing extends React.PureComponent {
             let t = document.querySelector("#log-textarea")
             t.scrollTop = t.scrollHeight;
         }).catch(e => {
-            notification["error"]({ message: "Error", description: e.message })
+            notification["error"]({ placement: cs.MsgPosition, message: "Error", description: e.message })
         })
     }
 
@@ -257,7 +271,7 @@ class Import extends React.PureComponent {
         this.props.request(cs.Routes.GetRouteImportStats, cs.MethodGet).then((r) => {
             this.setState({ importState: r.data.data })
         }).catch(e => {
-            notification["error"]({ message: "Error", description: e.message })
+            notification["error"]({ placement: cs.MsgPosition, message: "Error", description: e.message })
         })
     }
 

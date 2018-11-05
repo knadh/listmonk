@@ -46,11 +46,15 @@ const (
 	StatusStopping  = "stopping"
 	StatusFinished  = "finished"
 	StatusFailed    = "failed"
+
+	ModeSubscribe = "subscribe"
+	ModeBlacklist = "blacklist"
 )
 
 // Importer represents the bulk CSV subscriber import system.
 type Importer struct {
-	stmt        *sql.Stmt
+	upsert      *sql.Stmt
+	blacklist   *sql.Stmt
 	db          *sql.DB
 	isImporting bool
 	stop        chan bool
@@ -65,8 +69,8 @@ type Session struct {
 	subQueue chan SubReq
 	log      *log.Logger
 
-	overrideStatus bool
-	listIDs        []int
+	mode    string
+	listIDs []int
 }
 
 // Status reporesents statistics from an ongoing import session.
@@ -91,17 +95,17 @@ var (
 
 	csvHeaders = map[string]bool{"email": true,
 		"name":       true,
-		"status":     true,
 		"attributes": true}
 )
 
 // New returns a new instance of Importer.
-func New(stmt *sql.Stmt, db *sql.DB) *Importer {
+func New(upsert *sql.Stmt, blacklist *sql.Stmt, db *sql.DB) *Importer {
 	im := Importer{
-		stmt:   stmt,
-		stop:   make(chan bool, 1),
-		db:     db,
-		status: &Status{Status: StatusNone, logBuf: bytes.NewBuffer(nil)},
+		upsert:    upsert,
+		blacklist: blacklist,
+		stop:      make(chan bool, 1),
+		db:        db,
+		status:    &Status{Status: StatusNone, logBuf: bytes.NewBuffer(nil)},
 	}
 
 	return &im
@@ -109,7 +113,7 @@ func New(stmt *sql.Stmt, db *sql.DB) *Importer {
 
 // NewSession returns an new instance of Session. It takes the name
 // of the uploaded file, but doesn't do anything with it but retains it for stats.
-func (im *Importer) NewSession(fName string, overrideStatus bool, listIDs []int) (*Session, error) {
+func (im *Importer) NewSession(fName, mode string, listIDs []int) (*Session, error) {
 	if im.getStatus() != StatusNone {
 		return nil, errors.New("an import is already running")
 	}
@@ -121,11 +125,11 @@ func (im *Importer) NewSession(fName string, overrideStatus bool, listIDs []int)
 	im.Unlock()
 
 	s := &Session{
-		im:             im,
-		log:            log.New(im.status.logBuf, "", log.Ldate|log.Ltime),
-		subQueue:       make(chan SubReq, commitBatchSize),
-		overrideStatus: overrideStatus,
-		listIDs:        listIDs,
+		im:       im,
+		log:      log.New(im.status.logBuf, "", log.Ldate|log.Ltime),
+		subQueue: make(chan SubReq, commitBatchSize),
+		mode:     mode,
+		listIDs:  listIDs,
 	}
 
 	s.log.Printf("processing '%s'", fName)
@@ -136,7 +140,6 @@ func (im *Importer) NewSession(fName string, overrideStatus bool, listIDs []int)
 func (im *Importer) GetStats() Status {
 	im.RLock()
 	defer im.RUnlock()
-
 	return Status{
 		Name:     im.status.Name,
 		Status:   im.status.Status,
@@ -206,17 +209,20 @@ func (s *Session) Start() {
 				s.log.Printf("error creating DB transaction: %v", err)
 				continue
 			}
-			stmt = tx.Stmt(s.im.stmt)
+
+			if s.mode == ModeSubscribe {
+				stmt = tx.Stmt(s.im.upsert)
+			} else {
+				stmt = tx.Stmt(s.im.blacklist)
+			}
 		}
 
-		_, err := stmt.Exec(
-			uuid.NewV4(),
-			sub.Email,
-			sub.Name,
-			sub.Status,
-			sub.Attribs,
-			s.overrideStatus,
-			listIDs)
+		var err error
+		if s.mode == ModeSubscribe {
+			_, err = stmt.Exec(uuid.NewV4(), sub.Email, sub.Name, sub.Attribs, listIDs)
+		} else if s.mode == ModeBlacklist {
+			_, err = stmt.Exec(uuid.NewV4(), sub.Email, sub.Name, sub.Attribs)
+		}
 		if err != nil {
 			s.log.Printf("error executing insert: %v", err)
 			tx.Rollback()
@@ -403,8 +409,13 @@ func (s *Session) LoadCSV(srcPath string, delim rune) error {
 		if err == io.EOF {
 			break
 		} else if err != nil {
-			s.log.Printf("error reading CSV '%s'", err)
-			return err
+			if err, ok := err.(*csv.ParseError); ok && err.Err == csv.ErrFieldCount {
+				s.log.Printf("skipping line %d. %v", i, err)
+				continue
+			} else {
+				s.log.Printf("error reading CSV '%s'", err)
+				return err
+			}
 		}
 
 		lnCols := len(cols)
@@ -424,13 +435,6 @@ func (s *Session) LoadCSV(srcPath string, delim rune) error {
 		// Lowercase to ensure uniqueness in the DB.
 		sub.Email = strings.ToLower(strings.TrimSpace(row["email"]))
 		sub.Name = row["name"]
-
-		if _, ok := row["status"]; ok {
-			sub.Status = row["status"]
-		} else {
-			sub.Status = models.SubscriberStatusEnabled
-		}
-
 		if err := ValidateFields(sub); err != nil {
 			s.log.Printf("skipping line %d: %v", i, err)
 			continue
@@ -501,10 +505,6 @@ func ValidateFields(s SubReq) error {
 	}
 	if !govalidator.IsByteLength(s.Name, 1, stdInputMaxLen) {
 		return errors.New("invalid or empty `name`")
-	}
-	if s.Status != SubscriberStatusEnabled && s.Status != SubscriberStatusDisabled &&
-		s.Status != SubscriberStatusBlacklisted {
-		return errors.New("invalid `status`")
 	}
 
 	return nil

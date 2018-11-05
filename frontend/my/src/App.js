@@ -75,7 +75,10 @@ class App extends React.PureComponent {
         } catch (e) {
             // If it's a GET call, throw a global notification.
             if (method === cs.MethodGet) {
-                notification["error"]({ message: "Error fetching data", description: Utils.HttpError(e).message, duration: 0 })
+                notification["error"]({ placement: cs.MsgPosition,
+                                            message: "Error fetching data",
+                                            description: Utils.HttpError(e).message
+                                        })
             }
 
             // Set states and show the error on the layout.

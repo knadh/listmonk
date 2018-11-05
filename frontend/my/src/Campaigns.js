@@ -321,7 +321,7 @@ class Campaigns extends React.PureComponent {
     handleUpdateStatus = (record, status) => {
         this.props.modelRequest(cs.ModelCampaigns, cs.Routes.UpdateCampaignStatus, cs.MethodPut, { id: record.id, status: status })
             .then(() => {
-                notification["success"]({ placement: "topRight", message: `Campaign ${status}`, description: `"${record.name}" ${status}` })
+                notification["success"]({ placement: cs.MsgPosition, message: `Campaign ${status}`, description: `"${record.name}" ${status}` })
 
                 // Reload the table.
                 this.fetchRecords()
@@ -333,7 +333,7 @@ class Campaigns extends React.PureComponent {
     handleDeleteRecord = (record) => {
         this.props.modelRequest(cs.ModelCampaigns, cs.Routes.DeleteCampaign, cs.MethodDelete, { id: record.id })
             .then(() => {
-                notification["success"]({ placement: "topRight", message: "Campaign deleted", description: `"${record.name}" deleted` })
+                notification["success"]({ placement: cs.MsgPosition, message: "Campaign deleted", description: `"${record.name}" deleted` })
 
                 // Reload the table.
                 this.fetchRecords()
@@ -349,7 +349,7 @@ class Campaigns extends React.PureComponent {
     handleCloneCampaign = (record) => {
         this.setState({ modalWaiting: true })
         this.props.modelRequest(cs.ModelCampaigns, cs.Routes.CreateCampaign, cs.MethodPost, record).then((resp) => {
-            notification["success"]({ placement: "topRight",
+            notification["success"]({ placement: cs.MsgPosition,
                 message: "Campaign created",
                 description: `${record.name} created` })
 

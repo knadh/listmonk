@@ -29,7 +29,7 @@ CREATE TABLE subscribers (
     email           TEXT NOT NULL UNIQUE,
     name            TEXT NOT NULL,
     attribs         JSONB,
-    status          subscriber_status NOT NULL,
+    status          subscriber_status NOT NULL DEFAULT 'enabled',
     campaigns       INTEGER[],
 
     created_at      TIMESTAMP WITH TIME ZONE DEFAULT NOW(),

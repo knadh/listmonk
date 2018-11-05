@@ -9,6 +9,7 @@ import (
 // Queries contains all prepared SQL queries.
 type Queries struct {
 	UpsertSubscriber            *sqlx.Stmt `query:"upsert-subscriber"`
+	BlacklistSubscriber         *sqlx.Stmt `query:"blacklist-subscriber"`
 	GetSubscriber               *sqlx.Stmt `query:"get-subscriber"`
 	GetSubscribersByEmails      *sqlx.Stmt `query:"get-subscribers-by-emails"`
 	GetSubscriberLists          *sqlx.Stmt `query:"get-subscriber-lists"`

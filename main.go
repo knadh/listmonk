@@ -221,7 +221,7 @@ func main() {
 	}
 
 	app.Queries = q
-	app.Importer = subimporter.New(q.UpsertSubscriber.Stmt, db.DB)
+	app.Importer = subimporter.New(q.UpsertSubscriber.Stmt, q.BlacklistSubscriber.Stmt, db.DB)
 
 	// Campaign daemon.
 	r := runner.New(runner.Config{
