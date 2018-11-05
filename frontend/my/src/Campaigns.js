@@ -208,7 +208,6 @@ class Campaigns extends React.PureComponent {
                     <Progress strokeColor={ color } status="active"
                               type="line" percent={ this.progressPercent(record) } />
                 }
-
                 <Row><Col className="label" span={10}>Sent</Col><Col span={12}>
                     { sent >= toSend &&
                         <span>{ toSend }</span>   
@@ -225,25 +224,25 @@ class Campaigns extends React.PureComponent {
                 { rate > 0 &&
                     <Row><Col className="label" span={10}>Rate</Col><Col span={12}>{ Math.round(rate, 2) } / min</Col></Row>
                 }
-                
+
                 <Row><Col className="label" span={10}>Views</Col><Col span={12}>0</Col></Row>
                 <Row><Col className="label" span={10}>Clicks</Col><Col span={12}>0</Col></Row>
                 <br />
-
                 <Row><Col className="label" span={10}>Created</Col><Col span={12}>{ dayjs(record.created_at).format(cs.DateFormat) }</Col></Row>
 
                 { startedAt && 
                     <Row><Col className="label" span={10}>Started</Col><Col span={12}>{ dayjs(startedAt).format(cs.DateFormat) }</Col></Row>
                 }
-
                 { isDone && 
                     <Row><Col className="label" span={10}>Ended</Col><Col span={12}>
                         { dayjs(updatedAt).format(cs.DateFormat) }
                     </Col></Row>
                 }
-                <Row><Col className="label" span={10}>Duration</Col><Col className="duration" span={12}>
-                    { startedAt ? dayjs(updatedAt).from(dayjs(startedAt), true) : "" }
-                </Col></Row>
+                { startedAt && updatedAt &&
+                    <Row><Col className="label" span={10}>Duration</Col><Col className="duration" span={12}>
+                        { dayjs(updatedAt).from(dayjs(startedAt), true) }
+                    </Col></Row>
+                }
             </div>
         )
     }
