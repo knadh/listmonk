@@ -12,6 +12,7 @@ class TheFormDef extends React.PureComponent {
     state = {
         confirmDirty: false,
         fileList: [],
+        formLoading: false,
         mode: "subscribe"
     }
 
@@ -39,17 +40,19 @@ class TheFormDef extends React.PureComponent {
             return
         }
 
+        this.setState({ formLoading: true })
         let params = new FormData()
         params.set("params", JSON.stringify(values))
         params.append("file", this.state.fileList[0])
-
         this.props.request(cs.Routes.UploadRouteImport, cs.MethodPost, params).then(() => {
             notification["info"]({ placement: cs.MsgPosition,
                                     message: "File uploaded",
                                     description: "Please wait while the import is running" })
             this.props.fetchimportState()
+            this.setState({ formLoading: false })
         }).catch(e => {
             notification["error"]({ placement: cs.MsgPosition, message: "Error", description: e.message })
+            this.setState({ formLoading: false })
         })
     }
 
@@ -77,7 +80,7 @@ class TheFormDef extends React.PureComponent {
         }
 
         return (
-            <Spin spinning={false}>
+            <Spin spinning={ this.state.formLoading }>
                 <Form onSubmit={this.handleSubmit}>
                     <Form.Item {...formItemLayout} label="Mode">
                         {getFieldDecorator("mode", { rules: [{ required: true }], initialValue: "subscribe" })(
