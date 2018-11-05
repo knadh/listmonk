@@ -45,7 +45,7 @@ class Campaigns extends React.PureComponent {
             title: "Name",
             dataIndex: "name",
             sorter: true,
-            width: "30%",
+            width: "20%",
             vAlign: "top",
             render: (text, record) => {
                 const out = [];
@@ -85,7 +85,7 @@ class Campaigns extends React.PureComponent {
         {
             title: "Lists",
             dataIndex: "lists",
-            width: "20%",
+            width: "25%",
             align: "left",
             className: "lists",
             render: (lists, record) => {
@@ -93,15 +93,16 @@ class Campaigns extends React.PureComponent {
                 lists.forEach((l) => {
                     out.push(
                         <span className="name" key={`name-${l.id}`}><Link to={ `/subscribers/lists/${l.id}` }>{ l.name }</Link></span>
-                    )
-                })
-
-                return out
-            }
-        },
+                        )
+                    })
+                    
+                    return out
+                }
+            },
         {
             title: "Stats",
             className: "stats",
+            width: "30%",
             render: (text, record) => {
                 if(record.status !== cs.CampaignStatusDraft && record.status !== cs.CampaignStatusScheduled) {
                     return this.renderStats(record)
