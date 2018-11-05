@@ -46,7 +46,7 @@ func NewEmailer(srv ...Server) (Messenger, error) {
 			auth = smtp.PlainAuth("", s.Username, s.Password, s.Host)
 		}
 
-		pool, err := email.NewPool(fmt.Sprintf("%s:%d", s.Host, s.Port), 4, auth)
+		pool, err := email.NewPool(fmt.Sprintf("%s:%d", s.Host, s.Port), s.MaxConns, auth)
 		if err != nil {
 			return nil, err
 		}
