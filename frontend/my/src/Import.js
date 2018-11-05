@@ -33,7 +33,9 @@ class TheFormDef extends React.PureComponent {
         }
 
         if(this.state.fileList.length < 1) {
-            notification["error"]({ placement: cs.MsgPosition, message: "Error", description: "Select a valid file to upload" })
+            notification["error"]({ placement: cs.MsgPosition,
+                                    message: "Error",
+                                    description: "Select a valid file to upload" })
             return
         }
 
@@ -42,8 +44,9 @@ class TheFormDef extends React.PureComponent {
         params.append("file", this.state.fileList[0])
 
         this.props.request(cs.Routes.UploadRouteImport, cs.MethodPost, params).then(() => {
-            notification["info"]({ placement: cs.MsgPosition, message: "File uploaded",
-                description: "Please wait while the import is running" })
+            notification["info"]({ placement: cs.MsgPosition,
+                                    message: "File uploaded",
+                                    description: "Please wait while the import is running" })
             this.props.fetchimportState()
         }).catch(e => {
             notification["error"]({ placement: cs.MsgPosition, message: "Error", description: e.message })

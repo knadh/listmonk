@@ -39,7 +39,7 @@ class CreateFormDef extends React.PureComponent {
                     this.props.onClose()
                     this.setState({ modalWaiting: false })
                 }).catch(e => {
-                    notification["error"]({ message: "Error", description: e.message })
+                    notification["error"]({ placement: cs.MsgPosition, message: "Error", description: e.message })
                     this.setState({ modalWaiting: false })
                 })
             }
@@ -196,7 +196,7 @@ class Lists extends React.PureComponent {
                 // Reload the table.
                 this.fetchRecords()
             }).catch(e => {
-                notification["error"]({ message: "Error", description: e.message })
+                notification["error"]({ placement: cs.MsgPosition, message: "Error", description: e.message })
             })
     }
 

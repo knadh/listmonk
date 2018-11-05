@@ -223,7 +223,7 @@ class TheFormDef extends React.PureComponent {
                     this.props.setCurrentTab("content")
                     this.setState({ loading: false })
                 }).catch(e => {
-                    notification["error"]({ message: "Error", description: e.message })
+                    notification["error"]({ placement: cs.MsgPosition, message: "Error", description: e.message })
                     this.setState({ loading: false })
                 })
             } else {
@@ -233,7 +233,7 @@ class TheFormDef extends React.PureComponent {
                     description: `"${values["name"]}" updated` })
                     this.setState({ loading: false })
                 }).catch(e => {
-                    notification["error"]({ message: "Error", description: e.message })
+                    notification["error"]({ placement: cs.MsgPosition, message: "Error", description: e.message })
                     this.setState({ loading: false })
                 })
             }
@@ -264,7 +264,7 @@ class TheFormDef extends React.PureComponent {
                 description: `Test messages sent` })
             }).catch(e => {
                 this.setState({ loading: false })
-                notification["error"]({ message: "Error", description: e.message })
+                notification["error"]({ placement: cs.MsgPosition, message: "Error", description: e.message })
             })
         })
     }
@@ -435,7 +435,7 @@ class Campaign extends React.PureComponent {
                 this.setState({ formDisabled: true })
             }
         }).catch(e => {
-            notification["error"]({ message: "Error", description: e.message })
+            notification["error"]({ placement: cs.MsgPosition, message: "Error", description: e.message })
         })
     }
 

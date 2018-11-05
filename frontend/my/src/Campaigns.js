@@ -326,7 +326,7 @@ class Campaigns extends React.PureComponent {
                 // Reload the table.
                 this.fetchRecords()
             }).catch(e => {
-                notification["error"]({ message: "Error", description: e.message })
+                notification["error"]({ placement: cs.MsgPosition, message: "Error", description: e.message })
             })
     }
 
@@ -338,7 +338,7 @@ class Campaigns extends React.PureComponent {
                 // Reload the table.
                 this.fetchRecords()
             }).catch(e => {
-                notification["error"]({ message: "Error", description: e.message })
+                notification["error"]({ placement: cs.MsgPosition, message: "Error", description: e.message })
             })
     }
 
@@ -356,7 +356,7 @@ class Campaigns extends React.PureComponent {
             this.setState({ record: null, modalWaiting: false })
             this.props.route.history.push(cs.Routes.ViewCampaign.replace(":id", resp.data.data.id))
         }).catch(e => {
-            notification["error"]({ message: "Error", description: e.message })
+            notification["error"]({ placement: cs.MsgPosition, message: "Error", description: e.message })
             this.setState({ modalWaiting: false })
         })
     }

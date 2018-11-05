@@ -24,7 +24,7 @@ class TheFormDef extends React.PureComponent {
                 // Reload the table.
                 this.fetchRecords()
             }).catch(e => {
-                notification["error"]({ message: "Error", description: e.message })
+                notification["error"]({ placement: cs.MsgPosition, message: "Error", description: e.message })
             })
     }
 
@@ -40,7 +40,9 @@ class TheFormDef extends React.PureComponent {
 
     onFileChange = (f) => {
         if(f.file.error && f.file.response && f.file.response.hasOwnProperty("message")) {
-            notification["error"]({ message: "Error uploading file", description: f.file.response.message })
+            notification["error"]({ placement: cs.MsgPosition,
+                                    message: "Error uploading file",
+                                    description: f.file.response.message })
         } else if(f.file.status === "done") {
             this.fetchRecords()
         }
