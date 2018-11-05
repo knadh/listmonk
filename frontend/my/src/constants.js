@@ -52,6 +52,7 @@ export const SubscriptionStatusUnsubscribed = "unsubscribed"
 
 // API routes.
 export const Routes = {
+    GetDashboarcStats: "/api/dashboard/stats",
     GetUsers: "/api/users",
     
     GetLists: "/api/lists",
