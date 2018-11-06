@@ -284,7 +284,7 @@ LEFT JOIN subscriber_lists ON (subscribers.id = subscriber_lists.subscriber_id A
 WHERE subscriber_lists.list_id=ANY(
     SELECT list_id FROM campaign_lists where campaign_id=$1 AND list_id IS NOT NULL
 )
-LIMIT 1;
+ORDER BY RANDOM() LIMIT 1;
 
 -- name: update-campaign
 WITH camp AS (
