@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bytes"
 	"database/sql"
 	"errors"
 	"fmt"
@@ -13,7 +12,6 @@ import (
 
 	"github.com/asaskevich/govalidator"
 	"github.com/knadh/listmonk/models"
-	"github.com/knadh/listmonk/runner"
 	"github.com/labstack/echo"
 	"github.com/lib/pq"
 	uuid "github.com/satori/go.uuid"
@@ -471,14 +469,13 @@ func sendTestMessage(sub *models.Subscriber, camp *models.Campaign, app *App) er
 	}
 
 	// Render the message body.
-	var out = bytes.Buffer{}
-	if err := camp.Tpl.ExecuteTemplate(&out,
-		runner.BaseTPL,
-		runner.Message{Campaign: camp, Subscriber: sub, UnsubscribeURL: "#dummy"}); err != nil {
-		return fmt.Errorf("Error executing template: %v", err)
+	m := app.Runner.NewMessage(camp, sub)
+	if err := m.Render(); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest,
+			fmt.Sprintf("Error rendering message: %v", err))
 	}
 
-	if err := app.Messenger.Push(camp.FromEmail, sub.Email, camp.Subject, []byte(out.Bytes())); err != nil {
+	if err := app.Messenger.Push(camp.FromEmail, sub.Email, camp.Subject, m.Body); err != nil {
 		return err
 	}
 
