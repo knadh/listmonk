@@ -1,4 +1,4 @@
-import { Col, Row, notification, Card, Tooltip, Icon } from "antd"
+import { Col, Row, notification, Card, Tooltip, Icon, Spin } from "antd"
 import React from "react";
 import { Chart, Axis, Geom, Tooltip as BizTooltip } from 'bizcharts';
 
@@ -6,18 +6,19 @@ import * as cs from "./constants"
 
 class Dashboard extends React.PureComponent {
     state = {
-        stats: null
+        stats: null,
+        loading: true
     }
 
     campaignTypes = ["running", "finished", "paused", "draft", "scheduled", "cancelled"]
 
     componentDidMount = () => {
         this.props.pageTitle("Dashboard")
-
         this.props.request(cs.Routes.GetDashboarcStats, cs.MethodGet).then((resp) => {
-            this.setState({ stats: resp.data.data })
+            this.setState({ stats: resp.data.data, loading: false })
         }).catch(e => {
             notification["error"]({ message: "Error", description: e.message })
+            this.setState({ loading: false })
         })
     }
 
@@ -30,6 +31,7 @@ class Dashboard extends React.PureComponent {
             <section className = "dashboard">
                 <h1>Welcome</h1>
                 <hr />
+                <Spin spinning={ this.state.loading }>
                 { this.state.stats && 
                     <div className="stats">
                         <Row>
@@ -120,6 +122,7 @@ class Dashboard extends React.PureComponent {
                         </Row>
                     </div>
                 }
+                </Spin>
             </section>
         );
     }
