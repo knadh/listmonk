@@ -104,10 +104,15 @@ class Dashboard extends React.PureComponent {
 
                             <Col span={ 6 } offset={ 2 }>
                                 <Card title="Campaigns" bordered={ false } className="campaign-counts">
-                                    { this.campaignTypes.map((key, count) =>
+                                    { this.campaignTypes.map((key) =>
                                         <Row key={ `stats-campaigns-${ key }` }>
                                             <Col span={ 18 }><h1 className="name">{ key }</h1></Col>
-                                            <Col span={ 6 }><h1 className="count">{ count }</h1></Col>
+                                            <Col span={ 6 }>
+                                                <h1 className="count">
+                                                    { this.state.stats.campaigns.hasOwnProperty(key) ?
+                                                        this.state.stats.campaigns[key] : 0 }
+                                                </h1>
+                                            </Col>
                                         </Row>
                                     )}
                                 </Card>
