@@ -36,6 +36,10 @@ hr {
   color: #999;
 }
 
+.hidden {
+  display: none;
+}
+
 /* Layout */
 body {
   margin: 0;
@@ -65,8 +69,8 @@ body {
   width: 20px;
 }
 
-.hidden {
-  display: none;
+.broken {
+  margin: 100px;
 }
 
 /* Form */

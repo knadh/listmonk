@@ -1,7 +1,7 @@
 import React from 'react'
 import Utils from './utils'
 import { BrowserRouter } from 'react-router-dom'
-import { notification } from "antd"
+import { Icon, notification } from "antd"
 import axios from 'axios'
 import qs from 'qs'
 
@@ -121,6 +121,16 @@ class App extends React.PureComponent {
     }
 
     render() {
+        if(!window.CONFIG) {
+            return(
+                <div className="broken">
+                    <h1><Icon type="frown" /> Something's not right</h1>
+                    <p>The app configuration could not be loaded.
+                        Please ensure that the app is running and then refresh this page.</p>
+                </div>
+            )
+        }
+
         return (
             <BrowserRouter>
                 <Layout
