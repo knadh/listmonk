@@ -185,11 +185,14 @@ func (r *Runner) SpawnWorkers() {
 			for {
 				select {
 				case m := <-ch:
-					r.messengers[m.Campaign.MessengerID].Push(
+					err := r.messengers[m.Campaign.MessengerID].Push(
 						m.Campaign.FromEmail,
 						m.Subscriber.Email,
 						m.Campaign.Subject,
 						m.Body)
+					if err != nil {
+						r.logger.Printf("error pushing message: %v", err)
+					}
 				}
 			}
 		}(r.msgQueue)
