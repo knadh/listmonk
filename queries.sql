@@ -384,29 +384,29 @@ INSERT INTO link_clicks (campaign_id, subscriber_id, link_id)
 
 -- name: get-dashboard-stats
 WITH lists AS (
-    SELECT JSON_AGG(ROW_TO_JSON(row)) FROM (SELECT type, COUNT(id) AS num FROM lists GROUP BY type) row
+    SELECT JSON_OBJECT_AGG(type, num) FROM (SELECT type, COUNT(id) AS num FROM lists GROUP BY type) row
 ),
 subs AS (
-    SELECT JSON_AGG(ROW_TO_JSON(row)) FROM (SELECT status, COUNT(id) AS num FROM subscribers GROUP by status) row
+    SELECT JSON_OBJECT_AGG(status, num) FROM (SELECT status, COUNT(id) AS num FROM subscribers GROUP by status) row
 ),
 orphans AS (
     SELECT COUNT(id) FROM subscribers LEFT JOIN subscriber_lists ON (subscribers.id = subscriber_lists.subscriber_id)
     WHERE subscriber_lists.subscriber_id IS NULL
 ),
 camps AS (
-    SELECT JSON_AGG(ROW_TO_JSON(row)) FROM (SELECT status, COUNT(id) AS num FROM campaigns GROUP by status) row
+    SELECT JSON_OBJECT_AGG(status, num) FROM (SELECT status, COUNT(id) AS num FROM campaigns GROUP by status) row
 ),
 clicks AS (
     -- Clicks by day for the last 3 months
     SELECT JSON_AGG(ROW_TO_JSON(row))
-    FROM (SELECT COUNT(*) AS num, created_at::DATE as date
+    FROM (SELECT COUNT(*) AS count, created_at::DATE as date
           FROM link_clicks GROUP by date ORDER BY date DESC LIMIT 100
     ) row
 ),
 views AS (
     -- Views by day for the last 3 months
     SELECT JSON_AGG(ROW_TO_JSON(row))
-    FROM (SELECT COUNT(*) AS views, created_at::DATE as date
+    FROM (SELECT COUNT(*) AS count, created_at::DATE as date
           FROM campaign_views GROUP by date ORDER BY date DESC LIMIT 100
     ) row
 )
