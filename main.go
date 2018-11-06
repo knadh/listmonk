@@ -80,6 +80,7 @@ func init() {
 func registerHandlers(e *echo.Echo) {
 	e.GET("/", handleIndexPage)
 	e.GET("/api/config.js", handleGetConfigScript)
+	e.GET("/api/dashboard/stats", handleGetDashboardStats)
 	e.GET("/api/users", handleGetUsers)
 	e.POST("/api/users", handleCreateUser)
 	e.DELETE("/api/users/:id", handleDeleteUser)

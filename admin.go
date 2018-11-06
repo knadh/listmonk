@@ -3,8 +3,10 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"net/http"
 
+	"github.com/jmoiron/sqlx/types"
 	"github.com/labstack/echo"
 )
 
@@ -15,10 +17,8 @@ type configScript struct {
 	Messengers []string `json:"messengers"`
 }
 
-// handleGetStats returns a collection of general statistics.
-func handleGetStats(c echo.Context) error {
-	app := c.Get("app").(*App)
-	return c.JSON(http.StatusOK, okResp{app.Runner.GetMessengerNames()})
+type dashboardStats struct {
+	Stats types.JSONText `db:"stats"`
 }
 
 // handleGetConfigScript returns general configuration as a Javascript
@@ -40,4 +40,19 @@ func handleGetConfigScript(c echo.Context) error {
 	b.Write([]byte(`var CONFIG = `))
 	j.Encode(out)
 	return c.Blob(http.StatusOK, "application/javascript", b.Bytes())
+}
+
+// handleGetDashboardStats returns general states for the dashboard.
+func handleGetDashboardStats(c echo.Context) error {
+	var (
+		app = c.Get("app").(*App)
+		out dashboardStats
+	)
+
+	if err := app.Queries.GetDashboardStats.Get(&out); err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError,
+			fmt.Sprintf("Error fetching dashboard stats: %s", pqErrMsg(err)))
+	}
+
+	return c.JSON(http.StatusOK, okResp{out.Stats})
 }

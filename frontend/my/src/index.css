@@ -48,9 +48,12 @@ body {
 }
 
 .content-body {
-  background: #fff;
-  padding: 24px;
   min-height: 90vh;
+}
+
+section.content {
+  padding: 24px;
+  background: #fff;
 }
 
 .logo {
@@ -69,8 +72,17 @@ body {
   width: 20px;
 }
 
+.ant-card-head-title {
+  font-size: .85em !important;
+  color: #999 !important;
+}
+
 .broken {
   margin: 100px;
+}
+
+.hidden {
+  display: none;
 }
 
 /* Form */
@@ -89,6 +101,14 @@ td.actions {
 td .ant-tag {
   margin-top: 5px;
 }
+
+/* Dashboard */
+.dashboard {
+  margin: 24px;
+}
+  .dashboard .campaign-counts .name {
+    text-transform: capitalize;
+  }
 
 /* Templates */
 .wysiwyg {
