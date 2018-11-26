@@ -308,7 +308,10 @@ class TheFormDef extends React.PureComponent {
                             })(<Input disabled={ this.props.formDisabled } placeholder="Company Name <email@company.com>" maxLength="200" />)}
                         </Form.Item>
                         <Form.Item {...formItemLayout} label="Lists" extra="Lists to subscribe to">
-                            {getFieldDecorator("lists", { initialValue: subLists, rules: [{ required: true }] })(
+                            {getFieldDecorator("lists", {
+                                initialValue: subLists.length > 0 ? subLists : (this.props.data[cs.ModelLists].length === 1 ? [this.props.data[cs.ModelLists][0].id] : undefined),
+                                rules: [{ required: true }]
+                            })(
                                 <Select disabled={ this.props.formDisabled } mode="multiple">
                                     {[...this.props.data[cs.ModelLists]].map((v, i) =>
                                         <Select.Option value={ v["id"] } key={ v["id"] }>{ v["name"] }</Select.Option>
@@ -317,9 +320,12 @@ class TheFormDef extends React.PureComponent {
                             )}
                         </Form.Item>
                         <Form.Item {...formItemLayout} label="Template" extra="Template">
-                            {getFieldDecorator("template_id", { initialValue: record.template_id, rules: [{ required: true }] })(
+                            {getFieldDecorator("template_id", {
+                                initialValue: record.template_id ? record.template_id : (this.props.data[cs.ModelTemplates].length === 1 ? this.props.data[cs.ModelTemplates][0].id : undefined),
+                                rules: [{ required: true }]
+                            })(
                                 <Select disabled={ this.props.formDisabled }>
-                                    {[...this.props.data[cs.ModelTemplates]].map((v, i) =>
+                                    {this.props.data[cs.ModelTemplates].map((v, i) =>
                                         <Select.Option value={ v["id"] } key={ v["id"] }>{ v["name"] }</Select.Option>
                                     )}
                                 </Select>
