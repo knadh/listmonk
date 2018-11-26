@@ -5,8 +5,8 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"regexp"
 	"strconv"
-	"strings"
 
 	"github.com/asaskevich/govalidator"
 	"github.com/knadh/listmonk/models"
@@ -31,6 +31,10 @@ const (
 type dummyMessage struct {
 	UnsubscribeURL string
 }
+
+var (
+	regexpTplTag = regexp.MustCompile(`{{(\s+)?template\s+?"content"(\s+)?\.(\s+)?}}`)
+)
 
 // handleGetTemplates handles retrieval of templates.
 func handleGetTemplates(c echo.Context) error {
@@ -76,7 +80,7 @@ func handlePreviewTemplate(c echo.Context) error {
 	)
 
 	if body != "" {
-		if strings.Count(body, tplTag) != 1 {
+		if !regexpTplTag.MatchString(body) {
 			return echo.NewHTTPError(http.StatusBadRequest,
 				fmt.Sprintf("Template body should contain the %s placeholder exactly once", tplTag))
 		}
@@ -243,7 +247,7 @@ func validateTemplate(o models.Template) error {
 		return errors.New("invalid length for `name`")
 	}
 
-	if strings.Count(o.Body, tplTag) != 1 {
+	if !regexpTplTag.MatchString(o.Body) {
 		return fmt.Errorf("template body should contain the %s placeholder exactly once", tplTag)
 	}
 

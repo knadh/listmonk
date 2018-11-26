@@ -208,7 +208,7 @@ func (s SubscriberAttribs) Scan(src interface{}) error {
 }
 
 // CompileTemplate compiles a campaign body template into its base
-// template and sets the resultant template to Campaign.Tpl
+// template and sets the resultant template to Campaign.Tpl.
 func (c *Campaign) CompileTemplate(f template.FuncMap) error {
 	// Compile the base template.
 	t := regexpLinkTag.ReplaceAllString(c.TemplateBody, regexpLinkTagReplace)
