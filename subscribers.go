@@ -1,8 +1,5 @@
 package main
 
-// !!!!!!!!!!! TODO
-// For non-flat JSON attribs, show the advanced editor instead of the key-value editor
-
 import (
 	"context"
 	"database/sql"
@@ -184,6 +181,7 @@ func handleCreateSubscriber(c echo.Context) error {
 		uuid.NewV4(),
 		strings.ToLower(strings.TrimSpace(req.Email)),
 		strings.TrimSpace(req.Name),
+		req.Status,
 		req.Attribs,
 		req.Lists)
 	if err != nil {

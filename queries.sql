@@ -41,13 +41,17 @@ SELECT COUNT(subscribers.id) as num FROM subscribers INNER JOIN subscriber_lists
 
 -- name: insert-subscriber
 WITH sub AS (
-    INSERT INTO subscribers (uuid, email, name, attribs)
-    VALUES($1, $2, $3, $4)
+    INSERT INTO subscribers (uuid, email, name, status, attribs)
+    VALUES($1, $2, $3, $4, $5)
     returning id
 ),
 subs AS (
-    INSERT INTO subscriber_lists (subscriber_id, list_id)
-    VALUES((SELECT id FROM sub), UNNEST($5::INT[]))
+    INSERT INTO subscriber_lists (subscriber_id, list_id, status)
+    VALUES(
+        (SELECT id FROM sub),
+        UNNEST($6::INT[]),
+        (CASE WHEN $4='blacklisted' THEN 'unsubscribed'::subscription_status ELSE 'unconfirmed' END)
+    )
     ON CONFLICT (subscriber_id, list_id) DO UPDATE
     SET updated_at=NOW()
 )
@@ -101,9 +105,14 @@ WITH s AS (
 d AS (
     DELETE FROM subscriber_lists WHERE subscriber_id = $1 AND list_id != ALL($6)
 )
-INSERT INTO subscriber_lists (subscriber_id, list_id)
-    VALUES( (SELECT id FROM s), UNNEST($6) )
-    ON CONFLICT (subscriber_id, list_id) DO NOTHING;
+INSERT INTO subscriber_lists (subscriber_id, list_id, status)
+    VALUES(
+        (SELECT id FROM s),
+        UNNEST($6),
+        (CASE WHEN $4='blacklisted' THEN 'unsubscribed'::subscription_status ELSE 'unconfirmed' END)
+    )
+    ON CONFLICT (subscriber_id, list_id) DO UPDATE
+    SET status = (CASE WHEN $4='blacklisted' THEN 'unsubscribed'::subscription_status ELSE 'unconfirmed' END);
 
 -- name: delete-subscribers
 -- Delete one or more subscribers.
