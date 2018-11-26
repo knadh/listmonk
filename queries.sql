@@ -243,7 +243,7 @@ counts AS (
     SELECT id AS campaign_id, COUNT(subscriber_lists.subscriber_id) AS to_send,
         COALESCE(MAX(subscriber_lists.subscriber_id), 0) AS max_subscriber_id FROM camps
     LEFT JOIN campaign_lists ON (campaign_lists.campaign_id = camps.id)
-    LEFT JOIN subscriber_lists ON (subscriber_lists.list_id = campaign_lists.list_id)
+    LEFT JOIN subscriber_lists ON (subscriber_lists.list_id = campaign_lists.list_id AND subscriber_lists.status != 'unsubscribed')
     WHERE campaign_lists.campaign_id = ANY(SELECT id FROM camps)
     GROUP BY camps.id
 ),
