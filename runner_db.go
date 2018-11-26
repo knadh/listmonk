@@ -42,21 +42,9 @@ func (r *runnerDB) GetCampaign(campID int) (*models.Campaign, error) {
 	return out, err
 }
 
-// PauseCampaign marks a campaign as paused.
-func (r *runnerDB) PauseCampaign(campID int) error {
-	_, err := r.queries.UpdateCampaignStatus.Exec(campID, models.CampaignStatusPaused)
-	return err
-}
-
-// CancelCampaign marks a campaign as cancelled.
-func (r *runnerDB) CancelCampaign(campID int) error {
-	_, err := r.queries.UpdateCampaignStatus.Exec(campID, models.CampaignStatusCancelled)
-	return err
-}
-
-// FinishCampaign marks a campaign as finished.
-func (r *runnerDB) FinishCampaign(campID int) error {
-	_, err := r.queries.UpdateCampaignStatus.Exec(campID, models.CampaignStatusFinished)
+// UpdateCampaignStatus updates a campaign's status.
+func (r *runnerDB) UpdateCampaignStatus(campID int, status string) error {
+	_, err := r.queries.UpdateCampaignStatus.Exec(campID, status)
 	return err
 }
 

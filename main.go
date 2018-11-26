@@ -226,7 +226,8 @@ func main() {
 
 	// Campaign daemon.
 	r := runner.New(runner.Config{
-		Concurrency: viper.GetInt("app.concurrency"),
+		Concurrency:   viper.GetInt("app.concurrency"),
+		MaxSendErrors: viper.GetInt("app.max_send_errors"),
 
 		// url.com/unsubscribe/{campaign_uuid}/{subscriber_uuid}
 		UnsubscribeURL: fmt.Sprintf("%s/unsubscribe/%%s/%%s", app.Constants.RootURL),
@@ -242,7 +243,7 @@ func main() {
 	// Add messengers.
 	app.Messenger = initMessengers(app.Runner)
 
-	go r.Run(time.Duration(time.Second * 2))
+	go r.Run(time.Duration(time.Second * 5))
 	r.SpawnWorkers()
 
 	// Initialize the server.

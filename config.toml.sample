@@ -1,4 +1,3 @@
-# Application.
 [app]
 # Interface and port where the app will run its webserver.
 address = "0.0.0.0:9000"
@@ -26,6 +25,7 @@ asset_path = "frontend/my/build"
 # machine has and also the number of simultaenous e-mails the
 # mail server will  
 concurrency = 100
+
 
 # Database.
 [db]
