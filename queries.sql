@@ -259,7 +259,7 @@ WITH camp AS (
     WHERE id=$1 AND status='running'
 ),
 subs AS (
-    SELECT * FROM subscribers
+    SELECT DISTINCT ON(id) id AS uniq_id, * FROM subscribers
     LEFT JOIN subscriber_lists ON (subscribers.id = subscriber_lists.subscriber_id AND subscriber_lists.status != 'unsubscribed')
     WHERE subscriber_lists.list_id=ANY(
         SELECT list_id FROM campaign_lists where campaign_id=$1 AND list_id IS NOT NULL
