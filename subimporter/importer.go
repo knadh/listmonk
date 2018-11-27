@@ -297,7 +297,7 @@ func (s *Session) ExtractZIP(srcPath string, maxCSVs int) (string, []string, err
 		}
 
 		// Skip files without the .csv extension.
-		if !strings.Contains(strings.ToLower(fName), "csv") {
+		if !strings.HasSuffix(strings.ToLower(fName), ".csv") {
 			s.log.Printf("skipping non .csv file '%s'", fName)
 			continue
 		}
