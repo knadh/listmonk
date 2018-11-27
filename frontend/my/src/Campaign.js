@@ -321,7 +321,7 @@ class TheFormDef extends React.PureComponent {
                         </Form.Item>
                         <Form.Item {...formItemLayout} label="Template" extra="Template">
                             {getFieldDecorator("template_id", {
-                                initialValue: record.template_id ? record.template_id : (this.props.data[cs.ModelTemplates].length === 1 ? this.props.data[cs.ModelTemplates][0].id : undefined),
+                                initialValue: record.template_id ? record.template_id : (this.props.data[cs.ModelTemplates].length > 0 ? this.props.data[cs.ModelTemplates].filter(t => t.is_default)[0].id : undefined),
                                 rules: [{ required: true }]
                             })(
                                 <Select disabled={ this.props.formDisabled }>
