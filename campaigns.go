@@ -386,12 +386,14 @@ func handleGetRunningCampaignStats(c echo.Context) error {
 		if c.Started.Valid && c.UpdatedAt.Valid {
 			diff := c.UpdatedAt.Time.Sub(c.Started.Time).Minutes()
 			if diff > 0 {
-				out[i].Rate = float64(c.Sent) / diff
-
-				t := float64(c.ToSend)
-				if out[i].Rate > t {
-					out[i].Rate = t
+				var (
+					sent = float64(c.Sent)
+					rate = sent / diff
+				)
+				if rate > sent || rate > float64(c.ToSend) {
+					rate = sent
 				}
+				out[i].Rate = rate
 			}
 		}
 	}
