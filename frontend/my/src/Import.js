@@ -118,7 +118,7 @@ class TheFormDef extends React.PureComponent {
                     </Form.Item>
                     <Form.Item
                         {...formItemLayout}
-                        label="ZIP file">
+                        label="CSV or ZIP file">
                         <div className="dropbox">
                             {getFieldDecorator("file", {
                                 valuePropName: "file",
@@ -129,11 +129,11 @@ class TheFormDef extends React.PureComponent {
                                     multiple={ false }
                                     fileList={ this.state.fileList }
                                     beforeUpload={ this.onFileChange }
-                                    accept=".zip">
+                                    accept=".zip,.csv">
                                     <p className="ant-upload-drag-icon">
                                         <Icon type="inbox" />
                                     </p>
-                                    <p className="ant-upload-text">Click or drag the ZIP file here</p>
+                                    <p className="ant-upload-text">Click or drag a CSV or ZIP file here</p>
                                 </Upload.Dragger>
                             )}
                         </div>
@@ -316,8 +316,8 @@ class Import extends React.PureComponent {
                 <hr />
                 <div className="help">
                     <h2>Instructions</h2>
-                    <p>Upload a ZIP file with a single CSV file in it
-                        to bulk import a large number of subscribers in a single shot.
+                    <p>Upload a CSV file or a ZIP file with a single CSV file in it
+                        to bulk import a subscribers.
                     </p>
                     <p>
                         The CSV file should have the following headers with the exact column names

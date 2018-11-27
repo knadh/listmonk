@@ -6,6 +6,7 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
+	"strings"
 
 	"github.com/knadh/listmonk/subimporter"
 	"github.com/labstack/echo"
@@ -37,8 +38,7 @@ func handleImportSubscribers(c echo.Context) error {
 	}
 
 	if r.Mode != subimporter.ModeSubscribe && r.Mode != subimporter.ModeBlacklist {
-		return echo.NewHTTPError(http.StatusBadRequest,
-			"Invalid `mode`")
+		return echo.NewHTTPError(http.StatusBadRequest, "Invalid `mode`")
 	}
 
 	if len(r.Delim) != 1 {
@@ -78,17 +78,25 @@ func handleImportSubscribers(c echo.Context) error {
 	}
 	go impSess.Start()
 
-	// For now, we only extract 1 CSV from the ZIP. Handling async CSV
-	// imports is more trouble than it's worth.
-	dir, files, err := impSess.ExtractZIP(out.Name(), 1)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError,
-			fmt.Sprintf("Error extracting ZIP file: %v", err))
-	} else if len(files) == 0 {
-		return echo.NewHTTPError(http.StatusBadRequest,
-			"No CSV files found to import.")
+	if strings.HasSuffix(strings.ToLower(file.Filename), ".csv") {
+		go impSess.LoadCSV(out.Name(), rune(r.Delim[0]))
+	} else {
+		// Only 1 CSV from the ZIP is considered. If multiple files have
+		// to be processed, counting the net number of lines (to track progress),
+		// keeping the global import state (failed / successful) etc. across
+		// multiple files becomes complex. Instead, it's just easier for the
+		// end user to concat multiple CSVs (if there are multiple in the first)
+		// place and uploada as one in the first place.
+		dir, files, err := impSess.ExtractZIP(out.Name(), 1)
+		if err != nil {
+			return echo.NewHTTPError(http.StatusInternalServerError,
+				fmt.Sprintf("Error extracting ZIP file: %v", err))
+		} else if len(files) == 0 {
+			return echo.NewHTTPError(http.StatusBadRequest,
+				"No CSV files found to import.")
+		}
+		go impSess.LoadCSV(dir+"/"+files[0], rune(r.Delim[0]))
 	}
-	go impSess.LoadCSV(dir+"/"+files[0], rune(r.Delim[0]))
 
 	return c.JSON(http.StatusOK, okResp{app.Importer.GetStats()})
 }
