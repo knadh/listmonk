@@ -199,8 +199,16 @@ class TheFormDef extends React.PureComponent {
     }
 
     // Handle create / edit form submission.
-    handleSubmit = (e) => {
-        e.preventDefault()
+    handleSubmit = (cb) => {
+        if(this.state.loading) {
+            return
+        }
+
+        if(!cb) {
+            // Set a fake callback.
+            cb = () => {}
+        }
+
         this.props.form.validateFields((err, values) => {
             if (err) {
                 return
@@ -209,7 +217,7 @@ class TheFormDef extends React.PureComponent {
             if(!values.tags) {
                 values.tags = []
             }
-            
+
             values.body = this.props.body
             values.content_type = this.props.contentType
             
@@ -222,9 +230,11 @@ class TheFormDef extends React.PureComponent {
                         description: `"${values["name"]}" created` })
 
                     this.props.route.history.push(cs.Routes.ViewCampaign.replace(":id", resp.data.data.id) + "#content")
+                    cb(true)
                 }).catch(e => {
                     notification["error"]({ placement: cs.MsgPosition, message: "Error", description: e.message })
                     this.setState({ loading: false })
+                    cb(false)
                 })
             } else {
                 this.props.modelRequest(cs.ModelCampaigns, cs.Routes.UpdateCampaign, cs.MethodPut, { ...values, id: this.props.record.id }).then((resp) => {
@@ -232,9 +242,11 @@ class TheFormDef extends React.PureComponent {
                     message: "Campaign updated",
                     description: `"${values["name"]}" updated` })
                     this.setState({ loading: false })
+                    cb(true)
                 }).catch(e => {
                     notification["error"]({ placement: cs.MsgPosition, message: "Error", description: e.message })
                     this.setState({ loading: false })
+                    cb(false)
                 })
             }
         })
@@ -370,14 +382,6 @@ class TheFormDef extends React.PureComponent {
                             </Row>
                         </Form.Item>
 
-                        { !this.props.formDisabled && 
-                            <Form.Item {...formItemTailLayout}>
-                                <Button htmlType="submit" type="primary">
-                                    <Icon type="save" /> { !this.props.isSingle ? "Continue" : "Save changes" }
-                                </Button>
-                            </Form.Item>
-                        }
-
                         { this.props.isSingle &&
                             <div>
                                 <hr />
@@ -405,6 +409,7 @@ class Campaign extends React.PureComponent {
     state = {
         campaignID: this.props.route.match.params ? parseInt(this.props.route.match.params.campaignID, 10) : 0,
         record: {},
+        formRef: null,
         contentType: "richtext",
         previewRecord: null,
         body: "",
@@ -470,7 +475,7 @@ class Campaign extends React.PureComponent {
         return (
             <section className="content campaign">
                 <Row>
-                    <Col span={22}>
+                    <Col span={ 16 }>
                         { !this.state.record.id && <h1>Create a campaign</h1> }
                         { this.state.record.id &&
                             <h1>
@@ -479,7 +484,43 @@ class Campaign extends React.PureComponent {
                             </h1>
                         }
                     </Col>
-                    <Col span={2}>
+                    <Col span={ 8 } className="right">
+                        { !this.state.formDisabled && !this.state.loading &&
+                            <div>
+                                <Button type="primary" icon="save" onClick={() => {
+                                    this.state.formRef.handleSubmit()
+                                }}>{ !this.state.record.id ? "Continue" : "Save changes" }</Button>
+                                {" "}
+
+                                { ( this.state.record.status === cs.CampaignStatusDraft && this.state.record.send_at) &&
+                                    <Popconfirm title="The campaign will start automatically at the scheduled date and time. Schedule now?"
+                                        onConfirm={() => {
+                                            this.state.formRef.handleSubmit(() => {
+                                                this.props.route.history.push({
+                                                    pathname: cs.Routes.ViewCampaigns,
+                                                    state: { campaign: this.state.record, campaignStatus: cs.CampaignStatusScheduled }
+                                                })
+                                            })
+                                        }}>
+                                        <Button icon="clock-circle" type="primary">Schedule campaign</Button>
+                                    </Popconfirm>
+                                }
+
+                                { ( this.state.record.status === cs.CampaignStatusDraft && !this.state.record.send_at) &&
+                                    <Popconfirm title="Campaign properties cannot be changed once it starts. Save changes and start now?"
+                                        onConfirm={() => {
+                                            this.state.formRef.handleSubmit(() => {
+                                                this.props.route.history.push({
+                                                    pathname: cs.Routes.ViewCampaigns,
+                                                    state: { campaign: this.state.record, campaignStatus: cs.CampaignStatusRunning }
+                                                })
+                                            })
+                                         }}>
+                                        <Button icon="rocket" type="primary">Start campaign</Button>
+                                    </Popconfirm>
+                                }
+                            </div>
+                        }
                     </Col>
                 </Row>
                 <br />
@@ -492,6 +533,14 @@ class Campaign extends React.PureComponent {
                     <Tabs.TabPane tab="Campaign" key="form">
                         <Spin spinning={ this.state.loading }>
                             <TheForm { ...this.props }
+                                wrappedComponentRef={ (r) => {
+                                    if(!r) {
+                                        return
+                                    }
+                                    // Take the editor's reference and save it in the state
+                                    // so that it's insertMedia() function can be passed to <Media />
+                                    this.setState({ formRef: r })
+                                }}
                                 record={ this.state.record }
                                 isSingle={ this.state.record.id ? true : false }
                                 body={ this.state.body ? this.state.body : this.state.record.body }
@@ -506,10 +555,13 @@ class Campaign extends React.PureComponent {
                         { this.state.record.id &&
                             <div>
                                 <Editor { ...this.props }
-                                    ref={ (e) => {
+                                    ref={ (r) => {
+                                        if(!r) {
+                                            return
+                                        }
                                         // Take the editor's reference and save it in the state
                                         // so that it's insertMedia() function can be passed to <Media />
-                                        this.setState({ editor: e })
+                                        this.setState({ editor: r })
                                     }}
                                     isSingle={ this.state.record.id ? true : false }
                                     record={ this.state.record }
@@ -517,9 +569,11 @@ class Campaign extends React.PureComponent {
                                     toggleMedia={ this.toggleMedia }
                                     setContent={ this.setContent }
                                     formDisabled={ this.state.formDisabled }
-                                    />
+                                />
                                 <div className="content-actions">
-                                    <p><Button icon="search"  onClick={() => this.handlePreview(this.state.record)}>Preview</Button></p>
+                                    <p>
+                                        <Button icon="search" onClick={() => this.handlePreview(this.state.record)}>Preview</Button>
+                                    </p>
                                 </div>
                             </div>
                         }
@@ -535,9 +589,9 @@ class Campaign extends React.PureComponent {
                         onCancel={ this.toggleMedia }
                         onOk={ this.toggleMedia }>  
                     <Media { ...{ ...this.props,
-                            insertMedia: this.state.editor ? this.state.editor.insertMedia : null,
-                            onCancel: this.toggleMedia,
-                            onOk: this.toggleMedia }} />
+                        insertMedia: this.state.editor ? this.state.editor.insertMedia : null,
+                        onCancel: this.toggleMedia,
+                        onOk: this.toggleMedia }} />
                 </Modal>
 
                 { this.state.previewRecord &&

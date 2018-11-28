@@ -24,6 +24,10 @@ hr {
   text-align: center;
 }
 
+.right {
+  text-align: right;
+}
+
 .text-tiny {
   font-size: 0.65em;
 }

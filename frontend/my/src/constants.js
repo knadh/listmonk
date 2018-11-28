@@ -69,6 +69,7 @@ export const Routes = {
     DeleteSubscribers: "/api/subscribers",
     QuerySubscribersIntoLists: "/api/subscribers/lists",
     
+    ViewCampaigns: "/campaigns",
     ViewCampaign: "/campaigns/:id",
     GetCampaignMessengers: "/api/campaigns/messengers",
     GetCampaigns: "/api/campaigns",

@@ -251,6 +251,16 @@ class Campaigns extends React.PureComponent {
         this.props.pageTitle("Campaigns")
         dayjs.extend(relativeTime)
         this.fetchRecords()
+
+        // Did we land here to start a campaign?
+        let loc = this.props.route.location
+        let state = loc.state
+        if(state && state.hasOwnProperty("campaign")) {
+            this.handleUpdateStatus(state.campaign, state.campaignStatus)
+            delete state.campaign
+            delete state.campaignStatus
+            this.props.route.history.replace({ ...loc, state })
+        }
     }
 
     componentWillUnmount() {
