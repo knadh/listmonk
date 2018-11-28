@@ -229,7 +229,10 @@ class TheFormDef extends React.PureComponent {
                         message: "Campaign created",
                         description: `"${values["name"]}" created` })
 
-                    this.props.route.history.push(cs.Routes.ViewCampaign.replace(":id", resp.data.data.id) + "#content")
+                    this.props.route.history.push({
+                        pathname: cs.Routes.ViewCampaign.replace(":id", resp.data.data.id),
+                        hash: "content-tab"
+                    })
                     cb(true)
                 }).catch(e => {
                     notification["error"]({ placement: cs.MsgPosition, message: "Error", description: e.message })
@@ -435,7 +438,7 @@ class Campaign extends React.PureComponent {
         }
 
         // Content tab?
-        if(document.location.hash === "#content") {
+        if(document.location.hash === "#content-tab") {
             this.setCurrentTab("content")
         }
     }
