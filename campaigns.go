@@ -477,7 +477,7 @@ func sendTestMessage(sub *models.Subscriber, camp *models.Campaign, app *App) er
 			fmt.Sprintf("Error rendering message: %v", err))
 	}
 
-	if err := app.Messenger.Push(camp.FromEmail, sub.Email, camp.Subject, m.Body); err != nil {
+	if err := app.Messenger.Push(camp.FromEmail, []string{sub.Email}, camp.Subject, m.Body); err != nil {
 		return err
 	}
 

@@ -9,6 +9,11 @@ root = "http://listmonk.mysite.com"
 # The default 'from' e-mail for outgoing e-mail campaigns.
 from_email = "listmonk <from@mail.com>"
 
+# List of e-mail addresses to which admin notifications such as
+# import updates, campaign completion, failure etc. should be sent.
+# To disable notifications, set an empty list, eg: notify_emails = []
+notify_emails = ["admin1@mysite.com", "admin2@mysite.com"]
+
 # Path to the uploads directory where media will be uploaded.
 upload_path = "uploads"
 

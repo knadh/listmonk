@@ -20,14 +20,13 @@ import (
 	"github.com/spf13/viper"
 )
 
-var logger *log.Logger
-
 type constants struct {
-	AssetPath  string `mapstructure:"asset_path"`
-	RootURL    string `mapstructure:"root"`
-	UploadPath string `mapstructure:"upload_path"`
-	UploadURI  string `mapstructure:"upload_uri"`
-	FromEmail  string `mapstructure:"from_email"`
+	AssetPath    string   `mapstructure:"asset_path"`
+	RootURL      string   `mapstructure:"root"`
+	UploadPath   string   `mapstructure:"upload_path"`
+	UploadURI    string   `mapstructure:"upload_uri"`
+	FromEmail    string   `mapstructure:"from_email"`
+	NotifyEmails []string `mapstructure:"notify_emails"`
 }
 
 // App contains the "global" components that are
@@ -39,9 +38,11 @@ type App struct {
 	Importer  *subimporter.Importer
 	Runner    *runner.Runner
 	Logger    *log.Logger
-
+	NotifTpls *template.Template
 	Messenger messenger.Messenger
 }
+
+var logger *log.Logger
 
 func init() {
 	logger = log.New(os.Stdout, "SYS: ", log.Ldate|log.Ltime|log.Lshortfile)
@@ -94,7 +95,7 @@ func registerHandlers(e *echo.Echo) {
 	e.POST("/api/subscribers/lists", handleQuerySubscribersIntoLists)
 
 	e.GET("/api/import/subscribers", handleGetImportSubscribers)
-	e.GET("/api/import/subscribers/logs", handleGetImportSubscriberLogs)
+	e.GET("/api/import/subscribers/logs", handleGetImportSubscriberStats)
 	e.POST("/api/import/subscribers", handleImportSubscribers)
 	e.DELETE("/api/import/subscribers", handleStopImportSubscribers)
 
@@ -158,7 +159,6 @@ func initMessengers(r *runner.Runner) messenger.Messenger {
 
 		var s messenger.Server
 		viper.UnmarshalKey("smtp."+name, &s)
-
 		s.Name = name
 		s.SendTimeout = s.SendTimeout * time.Millisecond
 		srv = append(srv, s)
@@ -170,7 +170,6 @@ func initMessengers(r *runner.Runner) messenger.Messenger {
 	if err != nil {
 		logger.Fatalf("error loading e-mail messenger: %v", err)
 	}
-
 	if err := r.AddMessenger(msgr); err != nil {
 		logger.Printf("error registering messenger %s", err)
 	}
@@ -220,14 +219,32 @@ func main() {
 	if err := scanQueriesToStruct(q, qMap, db.Unsafe()); err != nil {
 		logger.Fatalf("no SQL queries loaded: %v", err)
 	}
-
 	app.Queries = q
-	app.Importer = subimporter.New(q.UpsertSubscriber.Stmt, q.BlacklistSubscriber.Stmt, db.DB)
+
+	// Importer.
+	importNotifCB := func(subject string, data map[string]interface{}) error {
+		return sendNotification(notifTplImport, subject, data, app)
+	}
+	app.Importer = subimporter.New(q.UpsertSubscriber.Stmt,
+		q.BlacklistSubscriber.Stmt,
+		db.DB,
+		importNotifCB)
+
+	// System e-mail templates.
+	notifTpls, err := template.ParseGlob("templates/*.html")
+	if err != nil {
+		logger.Fatalf("error loading system templates: %v", err)
+	}
+	app.NotifTpls = notifTpls
 
 	// Campaign daemon.
+	campNotifCB := func(subject string, data map[string]interface{}) error {
+		return sendNotification(notifTplCampaign, subject, data, app)
+	}
 	r := runner.New(runner.Config{
 		Concurrency:   viper.GetInt("app.concurrency"),
 		MaxSendErrors: viper.GetInt("app.max_send_errors"),
+		FromEmail:     app.Constants.FromEmail,
 
 		// url.com/unsubscribe/{campaign_uuid}/{subscriber_uuid}
 		UnsubscribeURL: fmt.Sprintf("%s/unsubscribe/%%s/%%s", app.Constants.RootURL),
@@ -237,7 +254,7 @@ func main() {
 
 		// url.com/campaign/{campaign_uuid}/{subscriber_uuid}/px.png
 		ViewTrackURL: fmt.Sprintf("%s/campaign/%%s/%%s/px.png", app.Constants.RootURL),
-	}, newRunnerDB(q), logger)
+	}, newRunnerDB(q), campNotifCB, logger)
 	app.Runner = r
 
 	// Add messengers.

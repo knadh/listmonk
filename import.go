@@ -110,8 +110,8 @@ func handleGetImportSubscribers(c echo.Context) error {
 	return c.JSON(http.StatusOK, okResp{s})
 }
 
-// handleGetImportSubscriberLogs returns import statistics.
-func handleGetImportSubscriberLogs(c echo.Context) error {
+// handleGetImportSubscriberStats returns import statistics.
+func handleGetImportSubscriberStats(c echo.Context) error {
 	app := c.Get("app").(*App)
 	return c.JSON(http.StatusOK, okResp{string(app.Importer.GetLogs())})
 }

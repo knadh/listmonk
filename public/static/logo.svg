@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="30.64039mm"
+   height="6.7046347mm"
+   viewBox="0 0 30.640391 6.7046347"
+   version="1.1"
+   id="svg8"
+   sodipodi:docname="logo.svg"
+   inkscape:version="0.92.3 (2405546, 2018-03-11)">
+  <defs
+     id="defs2" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="1"
+     inkscape:cx="109.96648"
+     inkscape:cy="13.945787"
+     inkscape:document-units="mm"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     inkscape:window-width="1853"
+     inkscape:window-height="1025"
+     inkscape:window-x="67"
+     inkscape:window-y="27"
+     inkscape:window-maximized="1"
+     fit-margin-top="0"
+     fit-margin-left="0"
+     fit-margin-right="0"
+     fit-margin-bottom="0" />
+  <metadata
+     id="metadata5">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-12.438455,-21.535559)">
+    <path
+       style="fill:#ffd42a;fill-opacity:1;stroke:none;stroke-width:1.43600929;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m 15.310858,21.535559 a 2.8721479,2.8721479 0 0 0 -2.872403,2.872389 2.8721479,2.8721479 0 0 0 0.333807,1.339229 c 0.441927,-0.942916 1.401145,-1.594382 2.538596,-1.594382 1.137597,0 2.096714,0.651716 2.538577,1.594828 a 2.8721479,2.8721479 0 0 0 0.333358,-1.339675 2.8721479,2.8721479 0 0 0 -2.871935,-2.872389 z"
+       id="circle920"
+       inkscape:connector-curvature="0"
+       inkscape:export-filename="/home/kailash/Site/listmonk/static/logo.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <flowRoot
+       xml:space="preserve"
+       id="flowRoot935"
+       style="font-style:normal;font-weight:normal;font-size:40px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
+       transform="matrix(0.18971612,0,0,0.18971612,67.141498,76.054278)"><flowRegion
+         id="flowRegion937"><rect
+           id="rect939"
+           width="338"
+           height="181"
+           x="-374"
+           y="-425.36423" /></flowRegion><flowPara
+         id="flowPara941" /></flowRoot>    <text
+       id="text874-8"
+       y="27.493284"
+       x="19.714029"
+       style="font-style:normal;font-variant:normal;font-weight:500;font-stretch:normal;font-size:5.92369604px;line-height:1.25;font-family:'IBM Plex Sans';-inkscape-font-specification:'IBM Plex Sans, Medium';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.03127443"
+       xml:space="preserve"
+       inkscape:export-filename="/home/kailash/Site/listmonk/static/logo.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96"><tspan
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:5.92369604px;font-family:'Avenir LT Std';-inkscape-font-specification:'Avenir LT Std Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;stroke-width:0.03127443"
+         y="27.493284"
+         x="19.714029"
+         id="tspan872-0"
+         sodipodi:role="line">listmonk</tspan></text>
+    <circle
+       r="2.1682308"
+       cy="25.693378"
+       cx="15.314515"
+       id="circle876-1"
+       style="fill:none;fill-opacity:1;stroke:#7f2aff;stroke-width:0.75716889;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       inkscape:export-filename="/home/kailash/Site/listmonk/static/logo.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <path
+       inkscape:connector-curvature="0"
+       id="path878-0"
+       d="m 15.314516,23.765261 a 2.1682305,2.6103294 0 0 0 -2.168147,2.610218 2.1682305,2.6103294 0 0 0 0.04998,0.542977 2.1682305,2.6103294 0 0 1 2.118166,-2.059418 2.1682305,2.6103294 0 0 1 2.118165,2.067255 2.1682305,2.6103294 0 0 0 0.04998,-0.550814 2.1682305,2.6103294 0 0 0 -2.168146,-2.610218 z"
+       style="fill:#7f2aff;fill-opacity:1;stroke:none;stroke-width:0.83078319;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       inkscape:export-filename="/home/kailash/Site/listmonk/static/logo.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+  </g>
+</svg>

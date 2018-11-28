@@ -13,6 +13,7 @@ import (
 	"encoding/csv"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"log"
@@ -53,13 +54,14 @@ const (
 
 // Importer represents the bulk CSV subscriber import system.
 type Importer struct {
-	upsert      *sql.Stmt
-	blacklist   *sql.Stmt
-	db          *sql.DB
+	upsert    *sql.Stmt
+	blacklist *sql.Stmt
+	db        *sql.DB
+	notifCB   models.AdminNotifCallback
+
 	isImporting bool
 	stop        chan bool
-
-	status *Status
+	status      *Status
 	sync.RWMutex
 }
 
@@ -99,12 +101,13 @@ var (
 )
 
 // New returns a new instance of Importer.
-func New(upsert *sql.Stmt, blacklist *sql.Stmt, db *sql.DB) *Importer {
+func New(upsert *sql.Stmt, blacklist *sql.Stmt, db *sql.DB, notifCB models.AdminNotifCallback) *Importer {
 	im := Importer{
 		upsert:    upsert,
 		blacklist: blacklist,
 		stop:      make(chan bool, 1),
 		db:        db,
+		notifCB:   notifCB,
 		status:    &Status{Status: StatusNone, logBuf: bytes.NewBuffer(nil)},
 	}
 
@@ -183,6 +186,24 @@ func (im *Importer) incrementImportCount(n int) {
 	im.Unlock()
 }
 
+// sendNotif sends admin notifications for import completions.
+func (im *Importer) sendNotif(status string) error {
+	var (
+		s    = im.GetStats()
+		data = map[string]interface{}{
+			"Name":     s.Name,
+			"Status":   status,
+			"Imported": s.Imported,
+			"Total":    s.Total,
+		}
+		subject = fmt.Sprintf("%s: %s import",
+			strings.Title(status),
+			s.Name)
+	)
+
+	return im.notifCB(subject, data)
+}
+
 // Start is a blocking function that selects on a channel queue until all
 // subscriber entries in the import session are imported. It should be
 // invoked as a goroutine.
@@ -249,6 +270,8 @@ func (s *Session) Start() {
 	if cur == 0 {
 		s.im.setStatus(StatusFinished)
 		s.log.Printf("imported finished")
+		s.im.sendNotif(StatusFinished)
+
 		return
 	}
 
@@ -257,12 +280,14 @@ func (s *Session) Start() {
 		tx.Rollback()
 		s.im.setStatus(StatusFailed)
 		s.log.Printf("error committing to DB: %v", err)
+		s.im.sendNotif(StatusFailed)
 		return
 	}
 
 	s.im.incrementImportCount(cur)
 	s.im.setStatus(StatusFinished)
 	s.log.Printf("imported finished")
+	s.im.sendNotif(StatusFinished)
 }
 
 // ExtractZIP takes a ZIP file's path and extracts all .csv files in it to

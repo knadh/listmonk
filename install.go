@@ -129,7 +129,7 @@ func install(app *App, qMap goyesql.Queries) {
 	}
 
 	// Default template.
-	tplBody, err := ioutil.ReadFile("default-template.html")
+	tplBody, err := ioutil.ReadFile("templates/default.tpl")
 	if err != nil {
 		tplBody = []byte(tplTag)
 	}

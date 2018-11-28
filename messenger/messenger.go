@@ -5,6 +5,6 @@ package messenger
 type Messenger interface {
 	Name() string
 
-	Push(fromAddr, toAddr, subject string, message []byte) error
+	Push(fromAddr string, toAddr []string, subject string, message []byte) error
 	Flush() error
 }

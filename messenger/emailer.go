@@ -66,7 +66,7 @@ func (e *emailer) Name() string {
 }
 
 // Push pushes a message to the server.
-func (e *emailer) Push(fromAddr, toAddr, subject string, m []byte) error {
+func (e *emailer) Push(fromAddr string, toAddr []string, subject string, m []byte) error {
 	var key string
 
 	// If there are more than one SMTP servers, send to a random
@@ -80,7 +80,7 @@ func (e *emailer) Push(fromAddr, toAddr, subject string, m []byte) error {
 	srv := e.servers[key]
 	err := srv.mailer.Send(&email.Email{
 		From:    fromAddr,
-		To:      []string{toAddr},
+		To:      toAddr,
 		Subject: subject,
 		HTML:    m,
 	}, srv.SendTimeout)

@@ -58,6 +58,10 @@ var (
 	regexpViewTagReplace = `{{ TrackView .Campaign.UUID .Subscriber.UUID }}`
 )
 
+// AdminNotifCallback is a callback function that's called
+// when a campaign's status changes.
+type AdminNotifCallback func(subject string, data map[string]interface{}) error
+
 // Base holds common fields shared across models.
 type Base struct {
 	ID        int       `db:"id" json:"id"`
