@@ -5,6 +5,7 @@ import { Icon, notification } from "antd"
 import axios from 'axios'
 import qs from 'qs'
 
+import logo from "./static/listmonk.svg"
 import Layout from './Layout'
 import * as cs from './constants'
 
@@ -124,7 +125,12 @@ class App extends React.PureComponent {
         if(!window.CONFIG) {
             return(
                 <div className="broken">
-                    <h1><Icon type="frown" /> Something's not right</h1>
+                    <p>
+                        <img src={logo} alt="listmonk logo" />
+                    </p>
+                    <hr />
+
+                    <h1><Icon type="warning" /> Something's not right</h1>
                     <p>The app configuration could not be loaded.
                         Please ensure that the app is running and then refresh this page.</p>
                 </div>

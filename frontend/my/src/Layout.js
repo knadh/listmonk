@@ -3,7 +3,6 @@ import { Switch, Route } from "react-router-dom"
 import { Link } from "react-router-dom"
 import { Layout, Menu, Icon } from "antd"
 
-// import "antd/dist/antd.css"
 import logo from "./static/listmonk.svg"
 
 // Views.
