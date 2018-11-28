@@ -128,9 +128,12 @@ class Editor extends React.PureComponent {
                     modules={ this.quillModules }
                     defaultValue={ this.props.record.body }
                     ref={ (o) => {
-                        if(o) {
-                            this.setState({ quill: o })
+                        if(!o) {
+                            return
                         }
+
+                        this.setState({ quill: o })
+                        document.querySelector(".ql-editor").focus()
                     }}
                     onChange={ () => {
                         if(!this.state.quill) {
@@ -218,10 +221,7 @@ class TheFormDef extends React.PureComponent {
                         message: "Campaign created",
                         description: `"${values["name"]}" created` })
 
-                    this.props.route.history.push(cs.Routes.ViewCampaign.replace(":id", resp.data.data.id))
-                    this.props.fetchRecord(resp.data.data.id)
-                    this.props.setCurrentTab("content")
-                    this.setState({ loading: false })
+                    this.props.route.history.push(cs.Routes.ViewCampaign.replace(":id", resp.data.data.id) + "#content")
                 }).catch(e => {
                     notification["error"]({ placement: cs.MsgPosition, message: "Error", description: e.message })
                     this.setState({ loading: false })
@@ -428,6 +428,11 @@ class Campaign extends React.PureComponent {
         } else {
             this.setState({ loading: false })
         }
+
+        // Content tab?
+        if(document.location.hash === "#content") {
+            this.setCurrentTab("content")
+        }
     }
 
     fetchRecord = (id) => {
@@ -498,22 +503,29 @@ class Campaign extends React.PureComponent {
                         </Spin>
                     </Tabs.TabPane>
                     <Tabs.TabPane tab="Content" disabled={ this.state.record.id ? false : true } key="content">
-                        <Editor { ...this.props }
-                            ref={ (e) => {
-                                // Take the editor's reference and save it in the state
-                                // so that it's insertMedia() function can be passed to <Media />
-                                this.setState({ editor: e })
-                            }}
-                            isSingle={ this.state.record.id ? true : false }
-                            record={ this.state.record }
-                            visible={ this.state.editorVisible }
-                            toggleMedia={ this.toggleMedia }
-                            setContent={ this.setContent }
-                            formDisabled={ this.state.formDisabled }
-                        />
-                        <div className="content-actions">
-                            <p><Button icon="search"  onClick={() => this.handlePreview(this.state.record)}>Preview</Button></p>
-                        </div>
+                        { this.state.record.id &&
+                            <div>
+                                <Editor { ...this.props }
+                                    ref={ (e) => {
+                                        // Take the editor's reference and save it in the state
+                                        // so that it's insertMedia() function can be passed to <Media />
+                                        this.setState({ editor: e })
+                                    }}
+                                    isSingle={ this.state.record.id ? true : false }
+                                    record={ this.state.record }
+                                    visible={ this.state.editorVisible }
+                                    toggleMedia={ this.toggleMedia }
+                                    setContent={ this.setContent }
+                                    formDisabled={ this.state.formDisabled }
+                                    />
+                                <div className="content-actions">
+                                    <p><Button icon="search"  onClick={() => this.handlePreview(this.state.record)}>Preview</Button></p>
+                                </div>
+                            </div>
+                        }
+                        { !this.state.record.id &&
+                            <Spin className="empty-spinner"></Spin>
+                        }
                     </Tabs.TabPane>
                 </Tabs>
 

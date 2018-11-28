@@ -40,6 +40,10 @@ hr {
   display: none;
 }
 
+.empty-spinner {
+  padding: 30px !important;
+}
+
 /* Layout */
 body {
   margin: 0;

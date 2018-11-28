@@ -30,7 +30,7 @@ class ModalPreview extends React.PureComponent {
                 onOk={ this.props.onCancel }>
                 <div className="preview-iframe-container">
                         <Spin className="preview-iframe-spinner"></Spin>
-                        <iframe key="xxxxxxxxx" onLoad={() => {
+                        <iframe key="preview-iframe" onLoad={() => {
                             // If state is used to manage the spinner, it causes
                             // the iframe to re-render and reload everything.
                             // Hack the spinner away from the DOM directly instead.
