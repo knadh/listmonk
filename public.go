@@ -132,6 +132,7 @@ func handleRegisterCampaignView(c echo.Context) error {
 		}
 	}
 
+	c.Response().Header().Set("Cache-Control", "no-cache")
 	return c.Blob(http.StatusOK, "image/png", pixelPNG)
 }
 
