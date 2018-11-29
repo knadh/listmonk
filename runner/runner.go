@@ -420,7 +420,7 @@ func (r *Runner) TemplateFuncs(c *models.Campaign) template.FuncMap {
 			return r.trackLink(url, campUUID, subUUID)
 		},
 		"TrackView": func(campUUID, subUUID string) template.HTML {
-			return template.HTML(fmt.Sprintf(`<img src="%s" alt="campaign" />`,
+			return template.HTML(fmt.Sprintf(`<img src="%s" alt="" />`,
 				fmt.Sprintf(r.cfg.ViewTrackURL, campUUID, subUUID)))
 		},
 		"Date": func(layout string) string {
