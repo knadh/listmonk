@@ -204,7 +204,9 @@ class Subscribers extends React.PureComponent {
             query: null,
             targetLists: []
         },
-        listAddVisible: false
+        listAddVisible: false,
+        allRowsSelected: false,
+        rowsSelected: []
     }
 
     // Pagination config.
@@ -234,7 +236,6 @@ class Subscribers extends React.PureComponent {
             sorter: true,
             width: "25%",
             render: (text, record) => {
-                
                 const out = [];
                 out.push(
                     <div key={`sub-email-${ record.id }`} className="sub-name">
@@ -244,7 +245,9 @@ class Subscribers extends React.PureComponent {
                 
                 if(record.lists.length > 0) {
                     for (let i = 0; i < record.lists.length; i++) {
-                        out.push(<Tag className="list" key={`sub-${ record.id }-list-${ record.lists[i].id }`}><Link to={ `/subscribers/lists/${ record.lists[i].id }` }>{ record.lists[i].name }</Link></Tag>)
+                        out.push(<Tag className="list" key={`sub-${ record.id }-list-${ record.lists[i].id }`}>
+                            <Link to={ `/subscribers/lists/${ record.lists[i].id }` }>{ record.lists[i].name }</Link>
+                        </Tag>)
                     }
                 }
 
@@ -255,7 +258,7 @@ class Subscribers extends React.PureComponent {
             title: "Name",
             dataIndex: "name",
             sorter: true,
-            width: "25%",
+            width: "15%",
             render: (text, record) => {
                 return (
                     <a role="button" onClick={() => this.handleShowEditForm(record)}>{text}</a>
@@ -398,14 +401,23 @@ class Subscribers extends React.PureComponent {
         this.setState({ formType: cs.FormEdit, record: record })
     }
 
-    handleToggleQueryForm = () => {
-        // The query form is being cancelled. Reset the results.
-        if(this.state.queryFormVisible) {
-            this.fetchRecords({
-                query: null
-            })
+    handleSearch = (q) => {
+        q = q.trim().toLowerCase()
+        if(q === "") {
+            this.fetchRecords({ query: null })
+            return
         }
 
+        q = q.replace(/'/g, "''")
+        const query = `(name LIKE '%${q}%' OR email LIKE '%${q}%')`
+        this.fetchRecords({ query: query })
+    }
+
+    handleRowSelection = (_, records) => {
+        this.setState({ allRowsSelected: false, rowsSelected: records.map(r => r.id) })
+    }
+
+    handleToggleQueryForm = () => {
         this.setState({ queryFormVisible: !this.state.queryFormVisible })
     }
 
@@ -429,54 +441,93 @@ class Subscribers extends React.PureComponent {
             <section className="content">
                 <header className="header">
                     <Row>
-                    <Col span={ 20 }>
-                        <h1>
-                            Subscribers
-                            { this.state.queryParams.list &&
-                                <span> &raquo; { this.state.queryParams.list.name }</span> }
+                        <Col span={ 20 }>
+                            <h1>
+                                Subscribers
+                                { this.state.queryParams.list &&
+                                    <span> &raquo; { this.state.queryParams.list.name }</span> }
 
-                        </h1>
-                    </Col>
-                    <Col span={ 2 }>
-                        { !this.state.queryFormVisible &&
-                        <a role="button" onClick={ this.handleToggleQueryForm }><Icon type="search" /> Advanced</a> }
-                     </Col>
-                    <Col span={ 2 }>
-                        <Button type="primary" icon="plus" onClick={ this.handleShowCreateForm }>Add subscriber</Button>
-                    </Col>
+                            </h1>
+                        </Col>
+                        <Col span={ 2 }>
+                            <Button type="primary" icon="plus" onClick={ this.handleShowCreateForm }>Add subscriber</Button>
+                        </Col>
                     </Row>
                 </header>
                 
-                { this.state.queryFormVisible &&
-                    <div className="subscriber-query">
-                        <p>
-                            Write a partial SQL expression to query the subscribers based on their
-                            primary information or attributes. Learn more.
-                        </p>
-                        <Input.TextArea placeholder="name LIKE '%user%'"
-                            id="subscriber-query"
-                            rows={ 10 }
-                            onChange={(e) => {
-                                this.setState({ queryParams: { ...this.state.queryParams, query: e.target.value } })
-                            }}
-                            autosize={{ minRows: 2, maxRows: 10 }} />
-
-                        <div className="actions">
-                            <Button
-                                disabled={ this.state.queryParams.query === "" }
-                                type="primary"
-                                icon="search"
-                                onClick={ () => { this.fetchRecords() } }>Query</Button>
-                            {" "}
-                            <Button
-                                disabled={ !this.state.queryParams.total }
-                                icon="plus"
-                                onClick={ this.handleToggleListAdd }>Add ({this.state.queryParams.total}) to list</Button>
-                            {" "}
-                            <Button icon="close" onClick={ this.handleToggleQueryForm }>Cancel</Button>
-                        </div>
-                    </div>
-                }
+                <div className="subscriber-query">
+                    <Row>
+                        <Col span={10}>
+                            <Row>
+                                <Col span={ 15 }>
+                                    <label>Search subscribers</label>
+                                    <Input.Search
+                                        name="name"
+                                        placeholder="Name or e-mail"
+                                        enterButton
+                                        onSearch={ this.handleSearch } />
+                                    {" "}
+                                </Col>
+                                <Col span={ 8 } offset={ 1 }>
+                                    <label>&nbsp;</label><br />
+                                    <a role="button" onClick={ this.handleToggleQueryForm }>
+                                        <Icon type="setting" /> Advanced</a>
+                                </Col>
+                            </Row>
+                            { this.state.queryFormVisible &&
+                                <div className="advanced-query">
+                                    <p>
+                                        <label>Advanced query</label>
+                                        <Input.TextArea placeholder="name LIKE '%user%'"
+                                            id="subscriber-query"
+                                            rows={ 10 }
+                                            onChange={(e) => {
+                                                this.setState({ queryParams: { ...this.state.queryParams, query: e.target.value } })
+                                            }}
+                                            value={ this.state.queryParams.query }
+                                            autosize={{ minRows: 2, maxRows: 10 }} />
+                                        <span className="text-tiny text-small">
+                                            Write a partial SQL expression to query the subscribers based on their primary information or attributes. Learn more.
+                                        </span>
+                                    </p>
+                                    <p>
+                                        <Button
+                                            disabled={ this.state.queryParams.query === "" }
+                                            type="primary"
+                                            icon="search"
+                                            onClick={ () => { this.fetchRecords() } }>Query</Button>
+                                        {" "}
+                                        <Button
+                                            disabled={ this.state.queryParams.query === "" }
+                                            icon="refresh"
+                                            onClick={ () => { this.fetchRecords({ query: null }) } }>Reset</Button>
+                                    </p>
+                                </div>
+                            }
+                        </Col>
+                        <Col span={14}>
+                            { this.state.rowsSelected.length > 0 &&
+                                <nav className="table-options">
+                                    <p>
+                                        <strong>{ this.state.allRowsSelected ? this.state.queryParams.total : this.state.rowsSelected.length }</strong>
+                                        {" "} subscriber(s) selected
+                                        { !this.state.allRowsSelected &&
+                                            <span> &mdash; <a role="button" onClick={ () => { this.setState({ allRowsSelected: true })
+                                                              }}>Select all { this.state.queryParams.total }?</a>
+                                            </span>
+                                        }
+                                    </p>
+                                    <p>
+                                        <a role="button"><Icon type="bars" /> Manage lists</a>
+                                        <a role="button"><Icon type="rocket" /> Send campaign</a>
+                                        <a role="button"><Icon type="delete" /> Delete</a>
+                                        <a role="button"><Icon type="close" /> Blacklist</a>
+                                    </p>
+                                </nav>
+                            }
+                        </Col>
+                    </Row>
+                </div>
 
                 <Table
                     columns={ this.columns }
@@ -485,7 +536,8 @@ class Subscribers extends React.PureComponent {
                     loading={ this.props.reqStates[cs.ModelSubscribers] !== cs.StateDone }
                     pagination={ pagination }
                     rowSelection = {{
-                        fixed: true
+                        columnWidth: "5%",
+                        onChange: this.handleRowSelection
                     }}
                 />
 

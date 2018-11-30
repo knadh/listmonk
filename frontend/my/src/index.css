@@ -110,6 +110,13 @@ td .ant-tag {
   margin-top: 5px;
 }
 
+/* External options */
+.table-options {
+}
+  .table-options a {
+    margin-right: 30px;
+  }
+
 /* Dashboard */
 .dashboard {
   margin: 24px;
@@ -124,27 +131,19 @@ td .ant-tag {
 }
 
 /* Subscribers */
-.subscriber-filter {
-  background: #fff;
-  min-width: 300px;
-  max-width: 500px;
-  width: 100%;
-  padding: 15px;
-  box-shadow: 0 1px 6px rgba(0, 0, 0, .2);
-}
-  .subscriber-filter .lists {
-    width: 100%;
-  }
-
 .subscribers table .name {
   margin-bottom: 10px;
 }
 
 .subscriber-query {
-  margin: 15px 0 30px 0;
+  margin: 0 0 15px 0;
   padding: 30px;
   box-shadow: 0 1px 6px #ddd;
+  min-height: 140px;
 }
+  .subscriber-query .advanced-query {
+    margin-top: 15px;
+  }
   .subscriber-query textarea {
     font-family: monospace;
   }
