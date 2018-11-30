@@ -148,13 +148,13 @@ func handleQuerySubscribers(c echo.Context) error {
 			fmt.Sprintf("Error fetching subscriber lists: %v", pqErrMsg(err)))
 	}
 
+	out.Query = query
 	if len(out.Results) == 0 {
 		out.Results = make(models.Subscribers, 0)
 		return c.JSON(http.StatusOK, okResp{out})
 	}
 
 	// Meta.
-	out.Query = query
 	out.Page = pg.Page
 	out.PerPage = pg.PerPage
 
