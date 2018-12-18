@@ -596,9 +596,10 @@ class Subscribers extends React.PureComponent {
                         <Col span={ 20 }>
                             <h1>
                                 Subscribers
+                                { this.props.data[cs.ModelSubscribers].total > 0 &&
+                                    <span> ({ this.props.data[cs.ModelSubscribers].total })</span> }
                                 { this.state.queryParams.list &&
                                     <span> &raquo; { this.state.queryParams.list.name }</span> }
-
                             </h1>
                         </Col>
                         <Col span={ 2 }>
