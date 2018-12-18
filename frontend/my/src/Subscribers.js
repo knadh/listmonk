@@ -632,7 +632,7 @@ class Subscribers extends React.PureComponent {
                                 <div className="advanced-query">
                                     <p>
                                         <label>Advanced query</label>
-                                        <Input.TextArea placeholder="name LIKE '%user%'"
+                                        <Input.TextArea placeholder="subscribers.name LIKE '%user%' or subscribers.status='blacklisted'"
                                             id="subscriber-query"
                                             rows={ 10 }
                                             onChange={(e) => {
