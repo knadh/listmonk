@@ -259,3 +259,25 @@ func makeErrorTpl(pageTitle, heading, desc string) errorTpl {
 
 	return err
 }
+
+// parseStringIDs takes a slice of numeric string IDs and
+// parses each number into an int64 and returns a slice of the
+// resultant values.
+func parseStringIDs(s []string) ([]int64, error) {
+	var vals []int64
+
+	for _, v := range s {
+		i, err := strconv.ParseInt(v, 10, 64)
+		if err != nil {
+			return nil, err
+		}
+
+		if i < 1 {
+			return nil, fmt.Errorf("%d is not a valid ID", i)
+		}
+
+		vals = append(vals, i)
+	}
+
+	return vals, nil
+}

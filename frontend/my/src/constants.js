@@ -67,7 +67,14 @@ export const Routes = {
     UpdateSubscriber: "/api/subscribers/:id",
     DeleteSubscriber: "/api/subscribers/:id",
     DeleteSubscribers: "/api/subscribers",
-    QuerySubscribersIntoLists: "/api/subscribers/lists",
+    BlacklistSubscriber: "/api/subscribers/:id/blacklist",
+    BlacklistSubscribers: "/api/subscribers/blacklist",
+    AddSubscriberToLists: "/api/subscribers/lists/:id",
+    AddSubscribersToLists: "/api/subscribers/lists",
+    
+    DeleteSubscribersByQuery: "/api/subscribers/query/delete",
+    BlacklistSubscribersByQuery: "/api/subscribers/query/blacklist",
+    AddSubscribersToListsByQuery: "/api/subscribers/query/lists",
     
     ViewCampaigns: "/campaigns",
     ViewCampaign: "/campaigns/:id",

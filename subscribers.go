@@ -16,6 +16,16 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
+// subQueryReq is a "catch all" struct for reading various
+// subscriber related requests.
+type subQueryReq struct {
+	Query         string        `json:"query"`
+	ListIDs       pq.Int64Array `json:"list_ids"`
+	TargetListIDs pq.Int64Array `json:"target_list_ids"`
+	SubscriberIDs pq.Int64Array `json:"ids"`
+	Action        string        `json:"action"`
+}
+
 type subsWrap struct {
 	Results models.Subscribers `json:"results"`
 
@@ -25,25 +35,11 @@ type subsWrap struct {
 	Page    int    `json:"page"`
 }
 
-type queryAddResp struct {
-	Count int64 `json:"count"`
+var dummySubscriber = models.Subscriber{
+	Email: "dummy@listmonk.app",
+	Name:  "Dummy Subscriber",
+	UUID:  "00000000-0000-0000-0000-000000000000",
 }
-
-type queryAddReq struct {
-	Query       string        `json:"query"`
-	SourceList  int           `json:"source_list"`
-	TargetLists pq.Int64Array `json:"target_lists"`
-}
-
-var (
-	jsonMap = []byte("{}")
-
-	dummySubscriber = models.Subscriber{
-		Email: "dummy@listmonk.app",
-		Name:  "Dummy Subscriber",
-		UUID:  "00000000-0000-0000-0000-000000000000",
-	}
-)
 
 // handleGetSubscriber handles the retrieval of a single subscriber by ID.
 func handleGetSubscriber(c echo.Context) error {
@@ -70,7 +66,7 @@ func handleGetSubscriber(c echo.Context) error {
 	return c.JSON(http.StatusOK, okResp{out[0]})
 }
 
-// handleQuerySubscribers handles querying subscribers based on arbitrary conditions in SQL.
+// handleQuerySubscribers handles querying subscribers based on an arbitrary SQL expression.
 func handleQuerySubscribers(c echo.Context) error {
 	var (
 		app = c.Get("app").(*App)
@@ -78,18 +74,17 @@ func handleQuerySubscribers(c echo.Context) error {
 
 		// Limit the subscribers to a particular list?
 		listID, _ = strconv.Atoi(c.FormValue("list_id"))
-		hasList   bool
 
 		// The "WHERE ?" bit.
 		query = c.FormValue("query")
-
-		out subsWrap
+		out   subsWrap
 	)
 
+	listIDs := pq.Int64Array{}
 	if listID < 0 {
 		return echo.NewHTTPError(http.StatusBadRequest, "Invalid `list_id`.")
 	} else if listID > 0 {
-		hasList = true
+		listIDs = append(listIDs, int64(listID))
 	}
 
 	// There's an arbitrary query condition from the frontend.
@@ -98,23 +93,7 @@ func handleQuerySubscribers(c echo.Context) error {
 		cond = " AND " + query
 	}
 
-	// The SQL queries to be executed are different for global subscribers
-	// and subscribers belonging to a specific list.
-	var (
-		stmt      = ""
-		stmtCount = ""
-	)
-	if hasList {
-		stmt = fmt.Sprintf(app.Queries.QuerySubscribersByList,
-			listID, cond, pg.Offset, pg.Limit)
-		stmtCount = fmt.Sprintf(app.Queries.QuerySubscribersByListCount,
-			listID, cond)
-	} else {
-		stmt = fmt.Sprintf(app.Queries.QuerySubscribers,
-			cond, pg.Offset, pg.Limit)
-		stmtCount = fmt.Sprintf(app.Queries.QuerySubscribersCount, cond)
-	}
-
+	stmt := fmt.Sprintf(app.Queries.QuerySubscribers, cond)
 	// Create a readonly transaction to prevent mutations.
 	tx, err := app.DB.BeginTxx(context.Background(), &sql.TxOptions{ReadOnly: true})
 	if err != nil {
@@ -122,24 +101,11 @@ func handleQuerySubscribers(c echo.Context) error {
 			fmt.Sprintf("Error preparing query: %v", pqErrMsg(err)))
 	}
 
-	// Run the actual query.
-	if err := tx.Select(&out.Results, stmt); err != nil {
+	// Run the query.
+	if err := tx.Select(&out.Results, stmt, listIDs, "id", pg.Offset, pg.Limit); err != nil {
 		tx.Rollback()
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			fmt.Sprintf("Error querying subscribers: %v", pqErrMsg(err)))
-	}
-
-	// Run the query count.
-	if err := tx.Get(&out.Total, stmtCount); err != nil {
-		tx.Rollback()
-		return echo.NewHTTPError(http.StatusInternalServerError,
-			fmt.Sprintf("Error running count query: %v", pqErrMsg(err)))
-	}
-
-	if err := tx.Commit(); err != nil {
-		tx.Rollback()
-		return echo.NewHTTPError(http.StatusInternalServerError,
-			fmt.Sprintf("Error in subscriber query transaction: %v", pqErrMsg(err)))
 	}
 
 	// Lazy load lists for each subscriber.
@@ -155,13 +121,14 @@ func handleQuerySubscribers(c echo.Context) error {
 	}
 
 	// Meta.
+	out.Total = out.Results[0].Total
 	out.Page = pg.Page
 	out.PerPage = pg.PerPage
 
 	return c.JSON(http.StatusOK, okResp{out})
 }
 
-// handleCreateSubscriber handles subscriber creation.
+// handleCreateSubscriber handles the creation of a new subscriber.
 func handleCreateSubscriber(c echo.Context) error {
 	var (
 		app = c.Get("app").(*App)
@@ -199,7 +166,7 @@ func handleCreateSubscriber(c echo.Context) error {
 	return c.JSON(http.StatusOK, handleGetSubscriber(c))
 }
 
-// handleUpdateSubscriber handles subscriber modification.
+// handleUpdateSubscriber handles modification of a subscriber.
 func handleUpdateSubscriber(c echo.Context) error {
 	var (
 		app   = c.Get("app").(*App)
@@ -236,109 +203,217 @@ func handleUpdateSubscriber(c echo.Context) error {
 	return handleGetSubscriber(c)
 }
 
-// handleDeleteSubscribers handles subscriber deletion,
-// either a single one (ID in the URI), or a list.
-func handleDeleteSubscribers(c echo.Context) error {
+// handleBlacklistSubscribers handles the blacklisting of one or more subscribers.
+// It takes either an ID in the URI, or a list of IDs in the request body.
+func handleBlacklistSubscribers(c echo.Context) error {
 	var (
-		app   = c.Get("app").(*App)
-		id, _ = strconv.ParseInt(c.Param("id"), 10, 64)
-		ids   pq.Int64Array
+		app = c.Get("app").(*App)
+		pID = c.Param("id")
+		IDs pq.Int64Array
 	)
 
-	// Read the list IDs if they were sent in the body.
-	c.Bind(&ids)
-	if id < 1 && len(ids) == 0 {
-		return echo.NewHTTPError(http.StatusBadRequest, "Invalid ID.")
+	// Is it a /:id call?
+	if pID != "" {
+		id, _ := strconv.ParseInt(pID, 10, 64)
+		if id < 1 {
+			return echo.NewHTTPError(http.StatusBadRequest, "Invalid ID.")
+		}
+		IDs = append(IDs, id)
+	} else {
+		// Multiple IDs.
+		var req subQueryReq
+		if err := c.Bind(&req); err != nil {
+			return echo.NewHTTPError(http.StatusBadRequest,
+				fmt.Sprintf("One or more invalid IDs given: %v", err))
+		}
+		if len(req.SubscriberIDs) == 0 {
+			return echo.NewHTTPError(http.StatusBadRequest,
+				"No IDs given.")
+		}
+		IDs = req.SubscriberIDs
 	}
 
-	if id > 0 {
-		ids = append(ids, id)
-	}
-
-	if _, err := app.Queries.DeleteSubscribers.Exec(ids); err != nil {
+	if _, err := app.Queries.BlacklistSubscribers.Exec(IDs); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError,
-			fmt.Sprintf("Delete failed: %v", err))
+			fmt.Sprintf("Error blacklisting: %v", err))
 	}
 
 	return c.JSON(http.StatusOK, okResp{true})
 }
 
-// handleQuerySubscribersIntoLists handles querying subscribers based on arbitrary conditions in SQL
-// and adding them to given lists.
-func handleQuerySubscribersIntoLists(c echo.Context) error {
+// handleManageSubscriberLists handles bulk addition or removal of subscribers
+// from or to one or more target lists.
+// It takes either an ID in the URI, or a list of IDs in the request body.
+func handleManageSubscriberLists(c echo.Context) error {
 	var (
 		app = c.Get("app").(*App)
-		req queryAddReq
+		pID = c.Param("id")
+		IDs pq.Int64Array
 	)
 
-	// Get and validate fields.
+	// Is it a /:id call?
+	if pID != "" {
+		id, _ := strconv.ParseInt(pID, 10, 64)
+		if id < 1 {
+			return echo.NewHTTPError(http.StatusBadRequest, "Invalid ID.")
+		}
+		IDs = append(IDs, id)
+	}
+
+	var req subQueryReq
 	if err := c.Bind(&req); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest,
-			fmt.Sprintf("Error parsing request: %v", err))
+			fmt.Sprintf("One or more invalid IDs given: %v", err))
+	}
+	if len(req.SubscriberIDs) == 0 {
+		return echo.NewHTTPError(http.StatusBadRequest,
+			"No IDs given.")
+	}
+	if len(IDs) == 0 {
+		IDs = req.SubscriberIDs
+	}
+	if len(req.TargetListIDs) == 0 {
+		return echo.NewHTTPError(http.StatusBadRequest, "No lists given.")
 	}
 
-	if len(req.TargetLists) < 1 {
-		return echo.NewHTTPError(http.StatusBadRequest, "Invalid `target_lists`.")
+	// Action.
+	var err error
+	switch req.Action {
+	case "add":
+		_, err = app.Queries.AddSubscribersToLists.Exec(IDs, req.TargetListIDs)
+	case "remove":
+		_, err = app.Queries.DeleteSubscriptions.Exec(IDs, req.TargetListIDs)
+	case "unsubscribe":
+		_, err = app.Queries.UnsubscribeSubscribersFromLists.Exec(IDs, req.TargetListIDs)
+	default:
+		return echo.NewHTTPError(http.StatusBadRequest, "Invalid action.")
 	}
 
-	if req.SourceList < 0 {
-		return echo.NewHTTPError(http.StatusBadRequest, "Invalid `source_list`.")
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError,
+			fmt.Sprintf("Error processing lists: %v", err))
 	}
 
-	if req.Query == "" {
-		return echo.NewHTTPError(http.StatusBadRequest, "Invalid subscriber `query`.")
-	}
-	cond := " AND " + req.Query
+	return c.JSON(http.StatusOK, okResp{true})
+}
 
-	// The SQL queries to be executed are different for global subscribers
-	// and subscribers belonging to a specific list.
+// handleDeleteSubscribers handles subscriber deletion.
+// It takes either an ID in the URI, or a list of IDs in the request body.
+func handleDeleteSubscribers(c echo.Context) error {
 	var (
-		stmt    = ""
-		stmtDry = ""
+		app = c.Get("app").(*App)
+		pID = c.Param("id")
+		IDs pq.Int64Array
 	)
-	if req.SourceList > 0 {
-		stmt = fmt.Sprintf(app.Queries.QuerySubscribersByList, req.SourceList, cond)
-		stmtDry = fmt.Sprintf(app.Queries.QuerySubscribersByList, req.SourceList, cond, 0, 1)
+
+	// Is it an /:id call?
+	if pID != "" {
+		id, _ := strconv.ParseInt(pID, 10, 64)
+		if id < 1 {
+			return echo.NewHTTPError(http.StatusBadRequest, "Invalid ID.")
+		}
+		IDs = append(IDs, id)
 	} else {
-		stmt = fmt.Sprintf(app.Queries.QuerySubscribersIntoLists, cond)
-		stmtDry = fmt.Sprintf(app.Queries.QuerySubscribers, cond, 0, 1)
+		// Multiple IDs.
+		i, err := parseStringIDs(c.Request().URL.Query()["id"])
+		if err != nil {
+			return echo.NewHTTPError(http.StatusBadRequest,
+				fmt.Sprintf("One or more invalid IDs given: %v", err))
+		}
+		if len(i) == 0 {
+			return echo.NewHTTPError(http.StatusBadRequest,
+				"No IDs given.")
+		}
+		IDs = i
 	}
 
-	// Create a readonly transaction to prevent mutations.
-	// This is used to dry-run the arbitrary query before it's used to
-	// insert subscriptions.
-	tx, err := app.DB.BeginTxx(context.Background(), &sql.TxOptions{ReadOnly: true})
+	if _, err := app.Queries.DeleteSubscribers.Exec(IDs); err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError,
+			fmt.Sprintf("Error deleting: %v", err))
+	}
+
+	return c.JSON(http.StatusOK, okResp{true})
+}
+
+// handleDeleteSubscribersByQuery bulk deletes based on an
+// arbitrary SQL expression.
+func handleDeleteSubscribersByQuery(c echo.Context) error {
+	var (
+		app = c.Get("app").(*App)
+		req subQueryReq
+	)
+
+	if err := c.Bind(&req); err != nil {
+		return err
+	}
+
+	err := app.Queries.execSubscriberQueryTpl(req.Query,
+		app.Queries.DeleteSubscribersByQuery,
+		req.ListIDs, app.DB)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError,
-			fmt.Sprintf("Error preparing query (dry-run): %v", pqErrMsg(err)))
+		return echo.NewHTTPError(http.StatusBadRequest,
+			fmt.Sprintf("Error: %v", err))
 	}
 
-	// Perform the dry run.
-	if _, err := tx.Exec(stmtDry); err != nil {
-		tx.Rollback()
-		return echo.NewHTTPError(http.StatusInternalServerError,
-			fmt.Sprintf("Error querying (dry-run) subscribers: %v", pqErrMsg(err)))
-	}
-	if err := tx.Commit(); err != nil {
-		tx.Rollback()
-		return echo.NewHTTPError(http.StatusInternalServerError,
-			fmt.Sprintf("Error in subscriber dry-run query transaction: %v", pqErrMsg(err)))
+	return c.JSON(http.StatusOK, okResp{true})
+}
+
+// handleBlacklistSubscribersByQuery bulk blacklists subscribers
+// based on an arbitrary SQL expression.
+func handleBlacklistSubscribersByQuery(c echo.Context) error {
+	var (
+		app = c.Get("app").(*App)
+		req subQueryReq
+	)
+
+	if err := c.Bind(&req); err != nil {
+		return err
 	}
 
-	// Prepare the query.
-	q, err := app.DB.Preparex(stmt)
+	err := app.Queries.execSubscriberQueryTpl(req.Query,
+		app.Queries.BlacklistSubscribersByQuery,
+		req.ListIDs, app.DB)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError,
-			fmt.Sprintf("Error preparing query: %v", pqErrMsg(err)))
+		return echo.NewHTTPError(http.StatusBadRequest,
+			fmt.Sprintf("Error: %v", err))
 	}
 
-	// Run the query.
-	res, err := q.Exec(req.TargetLists)
+	return c.JSON(http.StatusOK, okResp{true})
+}
+
+// handleBlacklistSubscribersByQuery bulk adds/removes/unsubscribers subscribers
+// from one or more lists based on an arbitrary SQL expression.
+func handleManageSubscriberListsByQuery(c echo.Context) error {
+	var (
+		app = c.Get("app").(*App)
+		req subQueryReq
+	)
+
+	if err := c.Bind(&req); err != nil {
+		return err
+	}
+	if len(req.TargetListIDs) == 0 {
+		return echo.NewHTTPError(http.StatusBadRequest, "No lists given.")
+	}
+
+	// Action.
+	var stmt string
+	switch req.Action {
+	case "add":
+		stmt = app.Queries.AddSubscribersToListsByQuery
+	case "remove":
+		stmt = app.Queries.DeleteSubscriptionsByQuery
+	case "unsubscribe":
+		stmt = app.Queries.UnsubscribeSubscribersFromListsByQuery
+	default:
+		return echo.NewHTTPError(http.StatusBadRequest, "Invalid action.")
+	}
+
+	err := app.Queries.execSubscriberQueryTpl(req.Query, stmt, req.ListIDs, app.DB, req.TargetListIDs)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError,
-			fmt.Sprintf("Error adding subscribers to lists: %v", pqErrMsg(err)))
+		return echo.NewHTTPError(http.StatusBadRequest,
+			fmt.Sprintf("Error: %v", err))
 	}
 
-	num, _ := res.RowsAffected()
-	return c.JSON(http.StatusOK, okResp{queryAddResp{num}})
+	return c.JSON(http.StatusOK, okResp{true})
 }

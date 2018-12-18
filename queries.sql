@@ -14,31 +14,6 @@ SELECT lists.*, subscriber_lists.subscriber_id, subscriber_lists.status AS subsc
     LEFT JOIN subscriber_lists ON (subscriber_lists.list_id = lists.id)
     WHERE subscriber_lists.subscriber_id = ANY($1::INT[]);
 
--- name: query-subscribers
--- raw: true
--- Unprepared statement for issuring arbitrary WHERE conditions.
-SELECT * FROM subscribers WHERE 1=1 %s order by updated_at DESC OFFSET %d LIMIT %d;
-
--- name: query-subscribers-count
--- raw: true
-SELECT COUNT(id) as num FROM subscribers WHERE 1=1 %s;
-
--- name: query-subscribers-by-list
--- raw: true
--- Unprepared statement for issuring arbitrary WHERE conditions.
-SELECT subscribers.* FROM subscribers INNER JOIN subscriber_lists
-    ON (subscriber_lists.subscriber_id = subscribers.id)
-    WHERE subscriber_lists.list_id = %d
-    %s
-    ORDER BY id DESC OFFSET %d LIMIT %d;
-
--- name: query-subscribers-by-list-count
--- raw: true
-SELECT COUNT(subscribers.id) as num FROM subscribers INNER JOIN subscriber_lists
-    ON (subscriber_lists.subscriber_id = subscribers.id)
-    WHERE subscriber_lists.list_id = %d
-    %s;
-
 -- name: insert-subscriber
 WITH sub AS (
     INSERT INTO subscribers (uuid, email, name, status, attribs)
@@ -77,10 +52,11 @@ subs AS (
 )
 SELECT uuid, id from sub;
 
--- name: blacklist-subscriber
+-- name: upsert-blacklist-subscriber
 -- Upserts a subscriber where the update will only set the status to blacklisted
 -- unlike upsert-subscribers where name and attributes are updated. In addition, all
 -- existing subscriptions are marked as 'unsubscribed'.
+-- This is used in the bulk importer.
 WITH sub AS (
     INSERT INTO subscribers (uuid, email, name, attribs, status)
     VALUES($1, $2, $3, $4, 'blacklisted')
@@ -116,7 +92,28 @@ INSERT INTO subscriber_lists (subscriber_id, list_id, status)
 
 -- name: delete-subscribers
 -- Delete one or more subscribers.
-DELETE FROM subscribers WHERE id = ALL($1);
+DELETE FROM subscribers WHERE id = ANY($1);
+
+-- name: blacklist-subscribers
+WITH b AS (
+    UPDATE subscribers SET status='blacklisted', updated_at=NOW()
+    WHERE id = ANY($1::INT[])
+)
+UPDATE subscriber_lists SET status='unsubscribed', updated_at=NOW()
+    WHERE subscriber_id = ANY($1::INT[]);
+
+-- name: add-subscribers-to-lists
+INSERT INTO subscriber_lists (subscriber_id, list_id)
+    (SELECT a, b FROM UNNEST($1::INT[]) a, UNNEST($2::INT[]) b)
+    ON CONFLICT (subscriber_id, list_id) DO NOTHING;
+
+-- name: delete-subscriptions
+DELETE FROM subscriber_lists
+    WHERE (subscriber_id, list_id) = ANY(SELECT a, b FROM UNNEST($1::INT[]) a, UNNEST($2::INT[]) b);
+
+-- name: unsubscribe-subscribers-from-lists
+UPDATE subscriber_lists SET status='unsubscribed', updated_at=NOW()
+    WHERE (subscriber_id, list_id) = ANY(SELECT a, b FROM UNNEST($1::INT[]) a, UNNEST($2::INT[]) b);
 
 -- name: unsubscribe
 -- Unsubscribes a subscriber given a campaign UUID (from all the lists in the campaign) and the subscriber UUID.
@@ -136,16 +133,80 @@ UPDATE subscriber_lists SET status = 'unsubscribed' WHERE
     -- If $3 is false, unsubscribe from the campaign's lists, otherwise all lists.
     CASE WHEN $3 IS FALSE THEN list_id = ANY(SELECT list_id FROM lists) ELSE list_id != 0 END;
 
--- name: query-subscribers-into-lists
+-- Partial and RAW queries used to construct arbitrary subscriber
+-- queries for segmentation follow.
+
+-- name: query-subscribers
 -- raw: true
--- Unprepared statement for issuring arbitrary WHERE conditions and getting
--- the resultant subscriber IDs into subscriber_lists.
-WITH subs AS (
-    SELECT id FROM subscribers WHERE status != 'blacklisted' %s
+-- Unprepared statement for issuring arbitrary WHERE conditions for
+-- searching subscribers. While the results are sliced using offset+limit,
+-- there's a COUNT() OVER() that still returns the total result count
+-- for pagination in the frontend, albeit being a field that'll repeat
+-- with every resultant row.
+SELECT COUNT(*) OVER () AS total, subscribers.* FROM subscribers
+    LEFT JOIN subscriber_lists
+    ON (
+        -- Optional list filtering.
+        (CASE WHEN CARDINALITY($1::INT[]) > 0 THEN true ELSE false END)
+        AND subscriber_lists.subscriber_id = subscribers.id
+    )
+    WHERE subscriber_lists.list_id = ALL($1::INT[])
+    %s
+    ORDER BY $2 DESC OFFSET $3 LIMIT $4;
+
+-- name: query-subscribers-template
+-- raw: true
+-- This raw query is reused in multiple queries (blacklist, add to list, delete)
+-- etc., so it's kept has a raw template to be injected into other raw queries,
+-- and for the same reason, it is not terminated with a semicolon.
+--
+-- All queries that embed this query should expect
+-- $1=true/false (dry-run or not) and $2=[]INT (option list IDs).
+-- That is, their positional arguments should start from $3.
+SELECT subscribers.id FROM subscribers
+LEFT JOIN subscriber_lists
+ON (
+    -- Optional list filtering.
+    (CASE WHEN CARDINALITY($2::INT[]) > 0 THEN true ELSE false END)
+    AND subscriber_lists.subscriber_id = subscribers.id
 )
+WHERE subscriber_lists.list_id = ALL($2::INT[]) %s
+LIMIT (CASE WHEN $1 THEN 1 END)
+
+-- name: delete-subscribers-by-query
+-- raw: true
+WITH subs AS (%s)
+DELETE FROM subscribers WHERE id=ANY(SELECT id FROM subs);
+
+-- name: blacklist-subscribers-by-query
+-- raw: true
+WITH subs AS (%s),
+b AS (
+    UPDATE subscribers SET status='blacklisted', updated_at=NOW()
+    WHERE id = ANY(SELECT id FROM subs)
+)
+UPDATE subscriber_lists SET status='unsubscribed', updated_at=NOW()
+    WHERE subscriber_id = ANY(SELECT id FROM subs);
+
+-- name: add-subscribers-to-lists-by-query
+-- raw: true
+WITH subs AS (%s)
 INSERT INTO subscriber_lists (subscriber_id, list_id)
-    (SELECT id, UNNEST($1::INT[]) FROM subs)
+    (SELECT a, b FROM UNNEST(ARRAY(SELECT id FROM subs)) a, UNNEST($3::INT[]) b)
     ON CONFLICT (subscriber_id, list_id) DO NOTHING;
+
+-- name: delete-subscriptions-by-query
+-- raw: true
+WITH subs AS (%s)
+DELETE FROM subscriber_lists
+    WHERE (subscriber_id, list_id) = ANY(SELECT a, b FROM UNNEST(ARRAY(SELECT id FROM subs)) a, UNNEST($3::INT[]) b);
+
+-- name: unsubscribe-subscribers-from-lists-by-query
+-- raw: true
+WITH subs AS (%s)
+UPDATE subscriber_lists SET status='unsubscribed', updated_at=NOW()
+    WHERE (subscriber_id, list_id) = ANY(SELECT a, b FROM UNNEST(ARRAY(SELECT id FROM subs)) a, UNNEST($3::INT[]) b);
+
 
 -- lists
 -- name: get-lists

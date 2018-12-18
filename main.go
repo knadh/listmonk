@@ -87,12 +87,22 @@ func registerHandlers(e *echo.Echo) {
 	e.DELETE("/api/users/:id", handleDeleteUser)
 
 	e.GET("/api/subscribers/:id", handleGetSubscriber)
-	e.GET("/api/subscribers", handleQuerySubscribers)
 	e.POST("/api/subscribers", handleCreateSubscriber)
 	e.PUT("/api/subscribers/:id", handleUpdateSubscriber)
+	e.PUT("/api/subscribers/blacklist", handleBlacklistSubscribers)
+	e.PUT("/api/subscribers/:id/blacklist", handleBlacklistSubscribers)
+	e.PUT("/api/subscribers/lists/:id", handleManageSubscriberLists)
+	e.PUT("/api/subscribers/lists", handleManageSubscriberLists)
 	e.DELETE("/api/subscribers/:id", handleDeleteSubscribers)
 	e.DELETE("/api/subscribers", handleDeleteSubscribers)
-	e.POST("/api/subscribers/lists", handleQuerySubscribersIntoLists)
+
+	// Subscriber operations based on arbitrary SQL queries.
+	// These aren't very REST-like.
+	e.POST("/api/subscribers/query/delete", handleDeleteSubscribersByQuery)
+	e.PUT("/api/subscribers/query/blacklist", handleBlacklistSubscribersByQuery)
+	e.PUT("/api/subscribers/query/lists", handleManageSubscriberListsByQuery)
+
+	e.GET("/api/subscribers", handleQuerySubscribers)
 
 	e.GET("/api/import/subscribers", handleGetImportSubscribers)
 	e.GET("/api/import/subscribers/logs", handleGetImportSubscriberStats)
@@ -226,7 +236,7 @@ func main() {
 		return sendNotification(notifTplImport, subject, data, app)
 	}
 	app.Importer = subimporter.New(q.UpsertSubscriber.Stmt,
-		q.BlacklistSubscriber.Stmt,
+		q.UpsertBlacklistSubscriber.Stmt,
 		db.DB,
 		importNotifCB)
 

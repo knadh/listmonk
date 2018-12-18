@@ -91,6 +91,10 @@ type Subscriber struct {
 	Status      string            `db:"status" json:"status"`
 	CampaignIDs pq.Int64Array     `db:"campaigns" json:"-"`
 	Lists       []List            `json:"lists"`
+
+	// Pseudofield for getting the total number of subscribers
+	// in searches and queries.
+	Total int `db:"total" json:"-"`
 }
 
 // SubscriberAttribs is the map of key:value attributes of a subscriber.

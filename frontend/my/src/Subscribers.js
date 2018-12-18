@@ -1,6 +1,6 @@
 import React from "react"
 import { Link } from "react-router-dom"
-import { Row, Col, Modal, Form, Input, Select, Button, Table, Icon, Tooltip, Tag, Popconfirm, Spin, notification } from "antd"
+import { Row, Col, Modal, Form, Input, Select, Button, Table, Icon, Tooltip, Tag, Popconfirm, Spin, notification, Radio } from "antd"
 
 import Utils from "./utils"
 import * as cs from "./constants"
@@ -129,7 +129,7 @@ class CreateFormDef extends React.PureComponent {
 
                 <div id="modal-alert-container"></div>
                 <Spin spinning={ this.props.reqStates[cs.ModelSubscribers] === cs.StatePending }>
-                    <Form onSubmit={this.handleSubmit}>
+                    <Form onSubmit={ this.handleSubmit }>
                         <Form.Item {...formItemLayout} label="E-mail">
                             {getFieldDecorator("email", {
                                 initialValue: record.email,
@@ -187,13 +187,101 @@ class CreateFormDef extends React.PureComponent {
     }
 }
 
+
+class ListsFormDef extends React.PureComponent {
+    state = {
+        modalWaiting: false
+    }
+
+    // Handle create / edit form submission.
+    handleSubmit = (e) => {
+        e.preventDefault()
+
+        var err = null, values = {}
+        this.props.form.validateFields((e, v) => {
+            err = e
+            values = v
+        })
+        if(err) {
+            return
+        }
+
+        if(this.props.allRowsSelected) {
+            values["list_ids"] = this.props.listIDs
+            values["query"] = this.props.query
+        } else {
+            values["ids"] = this.props.selectedRows.map(r => r.id)
+        }
+
+        this.setState({ modalWaiting: true })
+        this.props.request(!this.props.allRowsSelected ? cs.Routes.AddSubscribersToLists : cs.Routes.AddSubscribersToListsByQuery,
+                           cs.MethodPut, values).then(() => {
+            notification["success"]({ message: "Lists changed",
+                                      description: `Lists changed for selected subscribers` })
+            this.props.clearSelectedRows()
+            this.props.fetchRecords()
+            this.setState({ modalWaiting: false })
+            this.props.onClose()
+        }).catch(e => {
+            notification["error"]({ message: "Error", description: e.message })
+            this.setState({ modalWaiting: false })
+        })
+    }
+
+    render() {
+        const { getFieldDecorator } = this.props.form
+        const formItemLayout = {
+            labelCol: { xs: { span: 16 }, sm: { span: 4 } },
+            wrapperCol: { xs: { span: 16 }, sm: { span: 18 } }
+        }
+
+        return (
+            <Modal visible={ true } width="750px"
+                className="subscriber-lists-modal"
+                title="Manage lists"
+                okText="Ok"
+                confirmLoading={ this.state.modalWaiting }
+                onCancel={ this.props.onClose }
+                onOk={ this.handleSubmit }>
+                <Form onSubmit={ this.handleSubmit }>
+                    <Form.Item {...formItemLayout} label="Action">
+                        {getFieldDecorator("action", {
+                            initialValue: "add",
+                            rules: [{ required: true }]
+                        })(
+                            <Radio.Group>
+                                <Radio value="add">Add</Radio>
+                                <Radio value="remove">Remove</Radio>
+                                <Radio value="unsubscribe">Mark as unsubscribed</Radio>
+                            </Radio.Group>
+                        )}
+                    </Form.Item>
+                    <Form.Item {...formItemLayout} label="Lists">
+                        {getFieldDecorator("target_list_ids", { rules:[{ required: true }] })(
+                            <Select mode="multiple">
+                                {[...this.props.lists].map((v, i) =>
+                                    <Select.Option value={ v.id } key={ v.id }>
+                                        { v.name }
+                                    </Select.Option>
+                                )}
+                            </Select>
+                        )}
+                    </Form.Item>
+                </Form>
+            </Modal>
+        )
+    }
+}
+
 const CreateForm = Form.create()(CreateFormDef)
+const ListsForm = Form.create()(ListsFormDef)
 
 class Subscribers extends React.PureComponent {
     defaultPerPage = 20
 
     state = {
         formType: null,
+        listsFormVisible: false,
         record: {},
         queryParams: {
             page: 1,
@@ -204,9 +292,9 @@ class Subscribers extends React.PureComponent {
             query: null,
             targetLists: []
         },
-        listAddVisible: false,
+        listModalVisible: false,
         allRowsSelected: false,
-        rowsSelected: []
+        selectedRows: []
     }
 
     // Pagination config.
@@ -374,6 +462,57 @@ class Subscribers extends React.PureComponent {
             })
     }
 
+    handleDeleteRecords = (records) => {
+        this.props.modelRequest(cs.ModelSubscribers, cs.Routes.DeleteSubscribers, cs.MethodDelete, { id: records.map(r => r.id) })
+            .then(() => {
+                notification["success"]({ message: "Subscriber(s) deleted", description: "Selected subscribers deleted" })
+
+                // Reload the table.
+                this.fetchRecords()
+            }).catch(e => {
+                notification["error"]({ message: "Error", description: e.message })
+            })
+    }
+
+    handleBlacklistSubscribers = (records) => {
+        this.props.request(cs.Routes.BlacklistSubscribers, cs.MethodPut, { ids: records.map(r => r.id) })
+            .then(() => {
+                notification["success"]({ message: "Subscriber(s) blacklisted", description: "Selected subscribers blacklisted" })
+
+                // Reload the table.
+                this.fetchRecords()
+            }).catch(e => {
+                notification["error"]({ message: "Error", description: e.message })
+            })
+    }
+
+    // Arbitrary query based calls.
+    handleDeleteRecordsByQuery = (listIDs, query) => {
+        this.props.modelRequest(cs.ModelSubscribers, cs.Routes.DeleteSubscribersByQuery, cs.MethodPost,
+            { list_ids: listIDs, query: query })
+            .then(() => {
+                notification["success"]({ message: "Subscriber(s) deleted", description: "Selected subscribers have been deleted" })
+
+                // Reload the table.
+                this.fetchRecords()
+            }).catch(e => {
+                notification["error"]({ message: "Error", description: e.message })
+            })
+    }
+
+    handleBlacklistSubscribersByQuery = (listIDs, query) => {
+        this.props.request(cs.Routes.BlacklistSubscribersByQuery, cs.MethodPut,
+            { list_ids: listIDs, query: query })
+            .then(() => {
+                notification["success"]({ message: "Subscriber(s) blacklisted", description: "Selected subscribers have been blacklisted" })
+
+                // Reload the table.
+                this.fetchRecords()
+            }).catch(e => {
+                notification["error"]({ message: "Error", description: e.message })
+            })
+    }
+
     handleQuerySubscribersIntoLists = (query, sourceList, targetLists) => {
         let params = {
             query: query,
@@ -383,7 +522,7 @@ class Subscribers extends React.PureComponent {
 
         this.props.request(cs.Routes.QuerySubscribersIntoLists, cs.MethodPost, params).then((res) => {
             notification["success"]({ message: "Subscriber(s) added", description: `${ res.data.data.count } added` })
-            this.handleToggleListAdd()
+            this.handleToggleListModal()
         }).catch(e => {
             notification["error"]({ message: "Error", description: e.message })
         })
@@ -401,6 +540,10 @@ class Subscribers extends React.PureComponent {
         this.setState({ formType: cs.FormEdit, record: record })
     }
 
+    handleToggleListsForm = () => {
+        this.setState({ listsFormVisible: !this.state.listsFormVisible })
+    }
+
     handleSearch = (q) => {
         q = q.trim().toLowerCase()
         if(q === "") {
@@ -413,16 +556,25 @@ class Subscribers extends React.PureComponent {
         this.fetchRecords({ query: query })
     }
 
-    handleRowSelection = (_, records) => {
-        this.setState({ allRowsSelected: false, rowsSelected: records.map(r => r.id) })
+    handleSelectRow = (_, records) => {
+        this.setState({ allRowsSelected: false, selectedRows: records })
+    }
+
+    handleSelectAllRows = () => {
+        this.setState({ allRowsSelected: true,
+                        selectedRows: this.props.data[cs.ModelSubscribers].results })
+    }
+
+    clearSelectedRows = (_, records) => {
+        this.setState({ allRowsSelected: false, selectedRows: [] })
     }
 
     handleToggleQueryForm = () => {
         this.setState({ queryFormVisible: !this.state.queryFormVisible })
     }
 
-    handleToggleListAdd = () => {
-        this.setState({ listAddVisible: !this.state.listAddVisible })
+    handleToggleListModal = () => {
+        this.setState({ listModalVisible: !this.state.listModalVisible })
     }
 
     render() {
@@ -506,22 +658,44 @@ class Subscribers extends React.PureComponent {
                             }
                         </Col>
                         <Col span={14}>
-                            { this.state.rowsSelected.length > 0 &&
+                            { this.state.selectedRows.length > 0 &&
                                 <nav className="table-options">
                                     <p>
-                                        <strong>{ this.state.allRowsSelected ? this.state.queryParams.total : this.state.rowsSelected.length }</strong>
+                                        <strong>{ this.state.allRowsSelected ? this.state.queryParams.total : this.state.selectedRows.length }</strong>
                                         {" "} subscriber(s) selected
-                                        { !this.state.allRowsSelected &&
-                                            <span> &mdash; <a role="button" onClick={ () => { this.setState({ allRowsSelected: true })
-                                                              }}>Select all { this.state.queryParams.total }?</a>
+                                        { !this.state.allRowsSelected && this.state.queryParams.total > this.state.queryParams.perPage &&
+                                            <span> &mdash; <a role="button" onClick={ this.handleSelectAllRows }>
+                                                                Select all { this.state.queryParams.total }?</a>
                                             </span>
                                         }
                                     </p>
                                     <p>
-                                        <a role="button"><Icon type="bars" /> Manage lists</a>
+                                        <a role="button" onClick={ this.handleToggleListsForm }>
+                                            <Icon type="bars" /> Manage lists
+                                        </a>
                                         <a role="button"><Icon type="rocket" /> Send campaign</a>
-                                        <a role="button"><Icon type="delete" /> Delete</a>
-                                        <a role="button"><Icon type="close" /> Blacklist</a>
+                                        <Popconfirm title="Are you sure?" onConfirm={() => {
+                                                if(this.state.allRowsSelected) {
+                                                    this.handleDeleteRecordsByQuery(this.state.queryParams.listID ? [this.state.queryParams.listID] : [], this.state.queryParams.query)
+                                                    this.clearSelectedRows()
+                                                } else {
+                                                    this.handleDeleteRecords(this.state.selectedRows)
+                                                    this.clearSelectedRows()
+                                                }
+                                            }}>
+                                            <a role="button"><Icon type="delete" /> Delete</a>
+                                        </Popconfirm>
+                                        <Popconfirm title="Are you sure?" onConfirm={() => {
+                                                if(this.state.allRowsSelected) {
+                                                    this.handleBlacklistSubscribersByQuery(this.state.queryParams.listID ? [this.state.queryParams.listID] : [], this.state.queryParams.query)
+                                                    this.clearSelectedRows()
+                                                } else {
+                                                    this.handleBlacklistSubscribers(this.state.selectedRows)
+                                                    this.clearSelectedRows()
+                                                }
+                                            }}>
+                                            <a role="button"><Icon type="close" /> Blacklist</a>
+                                        </Popconfirm>
                                     </p>
                                 </nav>
                             }
@@ -531,13 +705,14 @@ class Subscribers extends React.PureComponent {
 
                 <Table
                     columns={ this.columns }
-                    rowKey={ record => `${record.id}-${record.email}` }
+                    rowKey={ record => `sub-${record.id}` }
                     dataSource={ this.props.data[cs.ModelSubscribers].results }
                     loading={ this.props.reqStates[cs.ModelSubscribers] !== cs.StateDone }
                     pagination={ pagination }
                     rowSelection = {{
                         columnWidth: "5%",
-                        onChange: this.handleRowSelection
+                        onChange: this.handleSelectRow,
+                        selectedRowKeys: this.state.selectedRows.map(r => `sub-${r.id}`)
                     }}
                 />
 
@@ -551,35 +726,16 @@ class Subscribers extends React.PureComponent {
                     onClose={ this.handleHideForm } />
                 }
 
-                <Modal visible={ this.state.listAddVisible } width="750px"
-                    className="list-add-modal"
-                    title={ "Add " + this.props.data[cs.ModelSubscribers].total + " subscriber(s) to lists" }
-                    okText="Add"
-                    onCancel={ this.handleToggleListAdd }
-                    onOk={() => {
-                        if(this.state.queryParams.targetLists.length == 0) {
-                            notification["warning"]({
-                                message: "No lists selected",
-                                description: "Select one or more lists"
-                            })
-                            return false
-                        }
-
-                        this.handleQuerySubscribersIntoLists(
-                            this.state.queryParams.query,
-                            this.state.queryParams.listID,
-                            this.state.queryParams.targetLists
-                        )
-                    }}
-                    okButtonProps={{ disabled: this.props.reqStates[cs.ModelSubscribers] === cs.StatePending }}>
-                        <Select mode="multiple" style={{ width: "100%" }} onChange={(lists) => {
-                            this.setState({ queryParams: { ...this.state.queryParams, targetLists: lists} })
-                        }}>
-                            { this.props.data[cs.ModelLists].map((v, i) =>
-                                <Select.Option value={ v.id } key={ v.id }>{ v.name }</Select.Option>
-                            )}
-                        </Select>
-                </Modal>
+                { this.state.listsFormVisible && <ListsForm {...this.props}
+                    lists={ this.props.data[cs.ModelLists] }
+                    allRowsSelected={ this.state.allRowsSelected }
+                    selectedRows={ this.state.selectedRows }
+                    selectedLists={ this.state.queryParams.listID ? [this.state.queryParams.listID] : []}
+                    clearSelectedRows={ this.clearSelectedRows }
+                    query={ this.state.queryParams.query }
+                    fetchRecords={ this.fetchRecords }
+                    onClose={ this.handleToggleListsForm } />
+                }
             </section>
         )
     }

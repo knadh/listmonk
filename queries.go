@@ -1,7 +1,11 @@
 package main
 
 import (
+	"context"
+	"database/sql"
 	"fmt"
+
+	"github.com/lib/pq"
 
 	"github.com/jmoiron/sqlx"
 )
@@ -10,20 +14,28 @@ import (
 type Queries struct {
 	GetDashboardStats *sqlx.Stmt `query:"get-dashboard-stats"`
 
-	InsertSubscriber            *sqlx.Stmt `query:"insert-subscriber"`
-	UpsertSubscriber            *sqlx.Stmt `query:"upsert-subscriber"`
-	BlacklistSubscriber         *sqlx.Stmt `query:"blacklist-subscriber"`
-	GetSubscriber               *sqlx.Stmt `query:"get-subscriber"`
-	GetSubscribersByEmails      *sqlx.Stmt `query:"get-subscribers-by-emails"`
-	GetSubscriberLists          *sqlx.Stmt `query:"get-subscriber-lists"`
-	QuerySubscribers            string     `query:"query-subscribers"`
-	QuerySubscribersCount       string     `query:"query-subscribers-count"`
-	QuerySubscribersByList      string     `query:"query-subscribers-by-list"`
-	QuerySubscribersByListCount string     `query:"query-subscribers-by-list-count"`
-	UpdateSubscriber            *sqlx.Stmt `query:"update-subscriber"`
-	DeleteSubscribers           *sqlx.Stmt `query:"delete-subscribers"`
-	Unsubscribe                 *sqlx.Stmt `query:"unsubscribe"`
-	QuerySubscribersIntoLists   string     `query:"query-subscribers-into-lists"`
+	InsertSubscriber                *sqlx.Stmt `query:"insert-subscriber"`
+	UpsertSubscriber                *sqlx.Stmt `query:"upsert-subscriber"`
+	UpsertBlacklistSubscriber       *sqlx.Stmt `query:"upsert-blacklist-subscriber"`
+	GetSubscriber                   *sqlx.Stmt `query:"get-subscriber"`
+	GetSubscribersByEmails          *sqlx.Stmt `query:"get-subscribers-by-emails"`
+	GetSubscriberLists              *sqlx.Stmt `query:"get-subscriber-lists"`
+	UpdateSubscriber                *sqlx.Stmt `query:"update-subscriber"`
+	BlacklistSubscribers            *sqlx.Stmt `query:"blacklist-subscribers"`
+	AddSubscribersToLists           *sqlx.Stmt `query:"add-subscribers-to-lists"`
+	DeleteSubscriptions             *sqlx.Stmt `query:"delete-subscriptions"`
+	UnsubscribeSubscribersFromLists *sqlx.Stmt `query:"unsubscribe-subscribers-from-lists"`
+	DeleteSubscribers               *sqlx.Stmt `query:"delete-subscribers"`
+	Unsubscribe                     *sqlx.Stmt `query:"unsubscribe"`
+
+	// Non-prepared arbitrary subscriber queries.
+	QuerySubscribers                       string `query:"query-subscribers"`
+	QuerySubscribersTpl                    string `query:"query-subscribers-template"`
+	DeleteSubscribersByQuery               string `query:"delete-subscribers-by-query"`
+	AddSubscribersToListsByQuery           string `query:"add-subscribers-to-lists-by-query"`
+	BlacklistSubscribersByQuery            string `query:"blacklist-subscribers-by-query"`
+	DeleteSubscriptionsByQuery             string `query:"delete-subscriptions-by-query"`
+	UnsubscribeSubscribersFromListsByQuery string `query:"unsubscribe-subscribers-from-lists-by-query"`
 
 	CreateList  *sqlx.Stmt `query:"create-list"`
 	GetLists    *sqlx.Stmt `query:"get-lists"`
@@ -73,4 +85,50 @@ func connectDB(host string, port int, user, pwd, dbName string) (*sqlx.DB, error
 	}
 
 	return db, nil
+}
+
+// compileSubscriberQueryTpl takes a arbitrary WHERE expressions
+// to filter subscribers from the subscribers table and prepares a query
+// out of it using the raw `query-subscribers-template` query template.
+// While doing this, a readonly transaction is created and the query is
+// dry run on it to ensure that it is indeed readonly.
+func (q *Queries) compileSubscriberQueryTpl(exp string, db *sqlx.DB) (string, error) {
+	tx, err := db.BeginTxx(context.Background(), &sql.TxOptions{ReadOnly: true})
+	if err != nil {
+		return "", err
+	}
+
+	// Perform the dry run.
+	if exp != "" {
+		exp = " AND " + exp
+	}
+	stmt := fmt.Sprintf(q.QuerySubscribersTpl, exp)
+	if _, err := tx.Exec(stmt, true, pq.Int64Array{}); err != nil {
+		tx.Rollback()
+		return "", err
+	}
+
+	return stmt, nil
+}
+
+// compileSubscriberQueryTpl takes a arbitrary WHERE expressions and a subscriber
+// query template that depends on the filter (eg: delete by query, blacklist by query etc.)
+// combines and executes them.
+func (q *Queries) execSubscriberQueryTpl(exp, tpl string, listIDs []int64, db *sqlx.DB, args ...interface{}) error {
+	// Perform a dry run.
+	filterExp, err := q.compileSubscriberQueryTpl(exp, db)
+	if err != nil {
+		return err
+	}
+
+	if len(listIDs) == 0 {
+		listIDs = pq.Int64Array{}
+	}
+	// First argument is the boolean indicating if the query is a dry run.
+	a := append([]interface{}{false, pq.Int64Array(listIDs)}, args...)
+	if _, err := db.Exec(fmt.Sprintf(tpl, filterExp), a...); err != nil {
+		return err
+	}
+
+	return nil
 }
