@@ -553,7 +553,7 @@ class Subscribers extends React.PureComponent {
         }
 
         q = q.replace(/'/g, "''")
-        const query = `(name LIKE '%${q}%' OR email LIKE '%${q}%')`
+        const query = `(name ~* '${q}' OR email ~* '${q}')`
         this.fetchRecords({ query: query })
     }
 
