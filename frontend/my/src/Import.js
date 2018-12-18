@@ -317,15 +317,11 @@ class Import extends React.PureComponent {
                 <div className="help">
                     <h2>Instructions</h2>
                     <p>Upload a CSV file or a ZIP file with a single CSV file in it
-                        to bulk import a subscribers.
-                    </p>
-                    <p>
-                        The CSV file should have the following headers with the exact column names
-                        (<code>status</code> and <code>attributes</code> are optional).
+                        to bulk import subscribers.
                         {" "}
-                        <code>attributes</code> should be a valid JSON string with double escaped quotes.
-                        Spreadsheet programs should automatically take care of this without having you manually
-                        escape quotes.
+                        The CSV file should have the following headers with the exact column names.
+                        {" "}
+                        <code>attributes</code> (optional) should be a valid JSON string with double escaped quotes.
                     </p>
 
                     <blockquote className="csv-example">
