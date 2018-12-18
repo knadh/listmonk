@@ -18,6 +18,7 @@ class Campaigns extends React.PureComponent {
         record: null,
         previewRecord: null,
         cloneName: "",
+        cloneModalVisible: false,
         modalWaiting: false
     }
 
@@ -353,7 +354,7 @@ class Campaigns extends React.PureComponent {
     }
 
     handleToggleCloneForm = (record) => {
-        this.setState({ record: record, cloneName: record.name })
+        this.setState({ cloneModalVisible: !this.state.cloneModalVisible, record: record, cloneName: record.name })
     }
 
     handleCloneCampaign = (record) => {
@@ -410,7 +411,7 @@ class Campaigns extends React.PureComponent {
                     />
                 }
 
-                { this.state.record &&
+                { this.state.cloneModalVisible && this.state.record &&
                     <Modal visible={ this.state.record !== null } width="500px"
                         className="clone-campaign-modal"
                         title={ "Clone " + this.state.record.name}
