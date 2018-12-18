@@ -157,7 +157,7 @@ class CreateFormDef extends React.PureComponent {
                                         <Select.Option value={ v.id } key={ v.id } disabled={ subStatuses[v.id] === cs.SubscriptionStatusUnsubscribed }>
                                             <span>{ v.name }
                                                 { subStatuses[v.id] &&
-                                                    <sup className={ "status " + subStatuses[v.id] }> { subStatuses[v.id] }</sup>
+                                                    <sup className={ "subscription-status " + subStatuses[v.id] }> { subStatuses[v.id] }</sup>
                                                 }
                                             </span>
                                         </Select.Option>
@@ -335,6 +335,7 @@ class Subscribers extends React.PureComponent {
                     for (let i = 0; i < record.lists.length; i++) {
                         out.push(<Tag className="list" key={`sub-${ record.id }-list-${ record.lists[i].id }`}>
                             <Link to={ `/subscribers/lists/${ record.lists[i].id }` }>{ record.lists[i].name }</Link>
+                            <sup className={ "subscription-status " + record.lists[i].subscription_status }> { record.lists[i].subscription_status }</sup>
                         </Tag>)
                     }
                 }

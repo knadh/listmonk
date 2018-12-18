@@ -151,13 +151,13 @@ td .ant-tag {
     margin-top: 15px;
   }
 
-.subscriber-modal #lists .status {
+.subscription-status {
   color: #999;
 }
-  .subscriber-modal #lists .status.confirmed {
+  .subscription-status.confirmed {
     color: #52c41a;
   }
-  .subscriber-modal #lists .status.unsubscribed {
+  .subscription-status.unsubscribed {
     color: #ff7875;
   }
 
