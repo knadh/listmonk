@@ -225,8 +225,8 @@ class Campaigns extends React.PureComponent {
                     <Row><Col className="label" span={10}>Rate</Col><Col span={12}>{ Math.round(rate, 2) } / min</Col></Row>
                 }
 
-                <Row><Col className="label" span={10}>Views</Col><Col span={12}>0</Col></Row>
-                <Row><Col className="label" span={10}>Clicks</Col><Col span={12}>0</Col></Row>
+                <Row><Col className="label" span={10}>Views</Col><Col span={12}>{ record.views }</Col></Row>
+                <Row><Col className="label" span={10}>Clicks</Col><Col span={12}>{ record.clicks }</Col></Row>
                 <br />
                 <Row><Col className="label" span={10}>Created</Col><Col span={12}>{ dayjs(record.created_at).format(cs.DateFormat) }</Col></Row>
 

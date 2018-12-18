@@ -136,6 +136,8 @@ type Campaign struct {
 	MessengerID string         `db:"messenger" json:"messenger"`
 	Lists       types.JSONText `json:"lists"`
 
+	View   int `db:"views" json:"views"`
+	Clicks int `db:"clicks" json:"clicks"`
 	// TemplateBody is joined in from templates by the next-campaigns query.
 	TemplateBody string             `db:"template_body" json:"-"`
 	Tpl          *template.Template `json:"-"`

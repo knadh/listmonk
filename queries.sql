@@ -255,7 +255,7 @@ INSERT INTO campaign_lists (campaign_id, list_id, list_name)
 -- name: get-campaigns
 -- Here, 'lists' is returned as an aggregated JSON array from campaign_lists because
 -- the list reference may have been deleted.
-SELECT campaigns.*, (
+SELECT campaigns.*, COUNT(campaign_views.campaign_id) AS views, COUNT(link_clicks.campaign_id) AS clicks, (
 	SELECT COALESCE(ARRAY_TO_JSON(ARRAY_AGG(l)), '[]') FROM (
 		SELECT COALESCE(campaign_lists.list_id, 0) AS id,
         campaign_lists.list_name AS name
@@ -263,7 +263,10 @@ SELECT campaigns.*, (
 	) l
 ) AS lists
 FROM campaigns
+LEFT JOIN campaign_views ON (campaign_views.campaign_id = campaigns.id)
+LEFT JOIN link_clicks ON (link_clicks.campaign_id = campaigns.id)
 WHERE ($1 = 0 OR id = $1) AND status=(CASE WHEN $2 != '' THEN $2::campaign_status ELSE status END)
+GROUP BY campaigns.id
 ORDER BY created_at DESC OFFSET $3 LIMIT $4;
 
 -- name: get-campaign-for-preview
