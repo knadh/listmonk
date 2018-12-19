@@ -223,7 +223,6 @@ func (m *Manager) Run(tick time.Duration) {
 			m.sendNotif(newC, newC.Status, "")
 		}
 	}
-
 }
 
 // SpawnWorkers spawns workers goroutines that push out messages.

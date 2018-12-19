@@ -51,8 +51,8 @@ const (
 // and substituting it with {{ Track "http://link.com" .Campaign.UUID .Subscriber.UUID }}
 // before compilation. This string gimmick is to make linking easier for users.
 var (
-	regexpLinkTag        = regexp.MustCompile(`{{(\s+)?TrackLink\s+?"(.+?)"(\s+)?}}`)
-	regexpLinkTagReplace = `{{ TrackLink "$2" .Campaign.UUID .Subscriber.UUID }}`
+	regexpLinkTag        = regexp.MustCompile("{{(\\s+)?TrackLink\\s+?(\"|`)(.+?)(\"|`)(\\s+)?}}")
+	regexpLinkTagReplace = `{{ TrackLink "$3" .Campaign.UUID .Subscriber.UUID }}`
 
 	regexpViewTag        = regexp.MustCompile(`{{(\s+)?TrackView(\s+)?}}`)
 	regexpViewTagReplace = `{{ TrackView .Campaign.UUID .Subscriber.UUID }}`
