@@ -59,7 +59,6 @@ class CreateFormDef extends React.PureComponent {
                 notification["success"]({ message: "Subscriber added", description: `${values["email"]} added` })
                 this.props.fetchRecords()
                 this.props.onClose()
-                this.setState({ modalWaiting: false })
             }).catch(e => {
                 notification["error"]({ message: "Error", description: e.message })
                 this.setState({ modalWaiting: false })
@@ -74,7 +73,6 @@ class CreateFormDef extends React.PureComponent {
                 // Reload the table.
                 this.props.fetchRecords()
                 this.props.onClose()
-                this.setState({ modalWaiting: false })
             }).catch(e => {
                 notification["error"]({ message: "Error", description: e.message })
                 this.setState({ modalWaiting: false })
