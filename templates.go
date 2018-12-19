@@ -111,12 +111,12 @@ func handlePreviewTemplate(c echo.Context) error {
 		Body:         dummyTpl,
 	}
 
-	if err := camp.CompileTemplate(app.Runner.TemplateFuncs(&camp)); err != nil {
+	if err := camp.CompileTemplate(app.Manager.TemplateFuncs(&camp)); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Error compiling template: %v", err))
 	}
 
 	// Render the message body.
-	m := app.Runner.NewMessage(&camp, &dummySubscriber)
+	m := app.Manager.NewMessage(&camp, &dummySubscriber)
 	if err := m.Render(); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest,
 			fmt.Sprintf("Error rendering message: %v", err))

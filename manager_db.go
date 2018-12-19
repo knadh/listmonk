@@ -12,7 +12,7 @@ type runnerDB struct {
 	queries *Queries
 }
 
-func newRunnerDB(q *Queries) *runnerDB {
+func newManagerDB(q *Queries) *runnerDB {
 	return &runnerDB{
 		queries: q,
 	}

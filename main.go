@@ -12,8 +12,8 @@ import (
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 	"github.com/jmoiron/sqlx"
 	"github.com/knadh/goyesql"
+	"github.com/knadh/listmonk/manager"
 	"github.com/knadh/listmonk/messenger"
-	"github.com/knadh/listmonk/runner"
 	"github.com/knadh/listmonk/subimporter"
 	"github.com/labstack/echo"
 	flag "github.com/spf13/pflag"
@@ -36,7 +36,7 @@ type App struct {
 	DB        *sqlx.DB
 	Queries   *Queries
 	Importer  *subimporter.Importer
-	Runner    *runner.Runner
+	Manager   *manager.Manager
 	Logger    *log.Logger
 	NotifTpls *template.Template
 	Messenger messenger.Messenger
@@ -158,7 +158,7 @@ func registerHandlers(e *echo.Echo) {
 }
 
 // initMessengers initializes various messaging backends.
-func initMessengers(r *runner.Runner) messenger.Messenger {
+func initMessengers(r *manager.Manager) messenger.Messenger {
 	// Load SMTP configurations for the default e-mail Messenger.
 	var srv []messenger.Server
 	for name := range viper.GetStringMapString("smtp") {
@@ -251,7 +251,7 @@ func main() {
 	campNotifCB := func(subject string, data map[string]interface{}) error {
 		return sendNotification(notifTplCampaign, subject, data, app)
 	}
-	r := runner.New(runner.Config{
+	m := manager.New(manager.Config{
 		Concurrency:   viper.GetInt("app.concurrency"),
 		MaxSendErrors: viper.GetInt("app.max_send_errors"),
 		FromEmail:     app.Constants.FromEmail,
@@ -264,14 +264,14 @@ func main() {
 
 		// url.com/campaign/{campaign_uuid}/{subscriber_uuid}/px.png
 		ViewTrackURL: fmt.Sprintf("%s/campaign/%%s/%%s/px.png", app.Constants.RootURL),
-	}, newRunnerDB(q), campNotifCB, logger)
-	app.Runner = r
+	}, newManagerDB(q), campNotifCB, logger)
+	app.Manager = m
 
 	// Add messengers.
-	app.Messenger = initMessengers(app.Runner)
+	app.Messenger = initMessengers(app.Manager)
 
-	go r.Run(time.Duration(time.Second * 5))
-	r.SpawnWorkers()
+	go m.Run(time.Duration(time.Second * 5))
+	m.SpawnWorkers()
 
 	// Initialize the server.
 	var srv = echo.New()

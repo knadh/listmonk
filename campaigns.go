@@ -127,13 +127,13 @@ func handlePreviewCampaign(c echo.Context) error {
 		camp.Body = body
 	}
 
-	if err := camp.CompileTemplate(app.Runner.TemplateFuncs(camp)); err != nil {
+	if err := camp.CompileTemplate(app.Manager.TemplateFuncs(camp)); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest,
 			fmt.Sprintf("Error compiling template: %v", err))
 	}
 
 	// Render the message body.
-	m := app.Runner.NewMessage(camp, &sub)
+	m := app.Manager.NewMessage(camp, &sub)
 	if err := m.Render(); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest,
 			fmt.Sprintf("Error rendering message: %v", err))
@@ -159,7 +159,7 @@ func handleCreateCampaign(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	if !app.Runner.HasMessenger(o.MessengerID) {
+	if !app.Manager.HasMessenger(o.MessengerID) {
 		return echo.NewHTTPError(http.StatusBadRequest,
 			fmt.Sprintf("Unknown messenger %s", o.MessengerID))
 	}
@@ -466,12 +466,12 @@ func handleTestCampaign(c echo.Context) error {
 
 // sendTestMessage takes a campaign and a subsriber and sends out a sample campain message.
 func sendTestMessage(sub *models.Subscriber, camp *models.Campaign, app *App) error {
-	if err := camp.CompileTemplate(app.Runner.TemplateFuncs(camp)); err != nil {
+	if err := camp.CompileTemplate(app.Manager.TemplateFuncs(camp)); err != nil {
 		return fmt.Errorf("Error compiling template: %v", err)
 	}
 
 	// Render the message body.
-	m := app.Runner.NewMessage(camp, sub)
+	m := app.Manager.NewMessage(camp, sub)
 	if err := m.Render(); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest,
 			fmt.Sprintf("Error rendering message: %v", err))
@@ -511,7 +511,7 @@ func validateCampaignFields(c campaignReq, app *App) error {
 	}
 
 	camp := models.Campaign{Body: c.Body, TemplateBody: tplTag}
-	if err := c.CompileTemplate(app.Runner.TemplateFuncs(&camp)); err != nil {
+	if err := c.CompileTemplate(app.Manager.TemplateFuncs(&camp)); err != nil {
 		return fmt.Errorf("Error compiling campaign body: %v", err)
 	}
 

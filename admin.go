@@ -30,7 +30,7 @@ func handleGetConfigScript(c echo.Context) error {
 			RootURL:    app.Constants.RootURL,
 			UploadURI:  app.Constants.UploadURI,
 			FromEmail:  app.Constants.FromEmail,
-			Messengers: app.Runner.GetMessengerNames(),
+			Messengers: app.Manager.GetMessengerNames(),
 		}
 
 		b = bytes.Buffer{}
