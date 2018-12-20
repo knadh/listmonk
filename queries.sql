@@ -255,19 +255,33 @@ INSERT INTO campaign_lists (campaign_id, list_id, list_name)
 -- name: get-campaigns
 -- Here, 'lists' is returned as an aggregated JSON array from campaign_lists because
 -- the list reference may have been deleted.
-SELECT campaigns.*, COUNT(campaign_views.campaign_id) AS views, COUNT(link_clicks.campaign_id) AS clicks, (
-	SELECT COALESCE(ARRAY_TO_JSON(ARRAY_AGG(l)), '[]') FROM (
-		SELECT COALESCE(campaign_lists.list_id, 0) AS id,
-        campaign_lists.list_name AS name
-        FROM campaign_lists WHERE campaign_lists.campaign_id = campaigns.id
-	) l
-) AS lists
-FROM campaigns
-LEFT JOIN campaign_views ON (campaign_views.campaign_id = campaigns.id)
-LEFT JOIN link_clicks ON (link_clicks.campaign_id = campaigns.id)
-WHERE ($1 = 0 OR id = $1) AND status=(CASE WHEN $2 != '' THEN $2::campaign_status ELSE status END)
-GROUP BY campaigns.id
-ORDER BY created_at DESC OFFSET $3 LIMIT $4;
+WITH camps AS (
+    SELECT campaigns.*, (
+        SELECT COALESCE(ARRAY_TO_JSON(ARRAY_AGG(l)), '[]') FROM (
+            SELECT COALESCE(campaign_lists.list_id, 0) AS id,
+            campaign_lists.list_name AS name
+            FROM campaign_lists WHERE campaign_lists.campaign_id = campaigns.id
+        ) l
+    ) AS lists
+    FROM campaigns
+    WHERE ($1 = 0 OR id = $1) AND status=(CASE WHEN $2 != '' THEN $2::campaign_status ELSE status END)
+    ORDER BY created_at DESC OFFSET $3 LIMIT $4
+), views AS (
+    SELECT campaign_id, COUNT(campaign_id) as num FROM campaign_views
+    WHERE campaign_id = ANY(SELECT id FROM camps)
+    GROUP BY campaign_id
+),
+clicks AS (
+    SELECT campaign_id, COUNT(campaign_id) as num FROM link_clicks
+    WHERE campaign_id = ANY(SELECT id FROM camps)
+    GROUP BY campaign_id
+)
+SELECT *,
+    COALESCE(v.num, 0) AS views,
+    COALESCE(c.num, 0) AS clicks
+FROM camps
+LEFT JOIN views AS v ON (v.campaign_id = camps.id)
+LEFT JOIN clicks AS c ON (c.campaign_id = camps.id);
 
 -- name: get-campaign-for-preview
 SELECT campaigns.*, COALESCE(templates.body, (SELECT body FROM templates WHERE is_default = true LIMIT 1)) AS template_body,
