@@ -19,7 +19,7 @@ CREATE TABLE users (
     created_at      TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at      TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
-DROP INDEX IF EXISTS idx_users_email; CREATE INDEX idx_users_email ON users(email);
+DROP INDEX IF EXISTS idx_users_email; CREATE INDEX idx_users_email ON users(LOWER(email));
 
 -- subscribers
 DROP TABLE IF EXISTS subscribers CASCADE;
@@ -28,14 +28,15 @@ CREATE TABLE subscribers (
     uuid uuid       NOT NULL UNIQUE,
     email           TEXT NOT NULL UNIQUE,
     name            TEXT NOT NULL,
-    attribs         JSONB,
+    attribs         JSONB NOT NULL DEFAULT '{}',
     status          subscriber_status NOT NULL DEFAULT 'enabled',
     campaigns       INTEGER[],
 
     created_at      TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at      TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
-DROP INDEX IF EXISTS idx_subscribers_email; CREATE INDEX idx_subscribers_email ON subscribers(email);
+DROP INDEX IF EXISTS idx_subs_email; CREATE UNIQUE INDEX idx_subs_email ON subscribers(LOWER(email));
+DROP INDEX IF EXISTS idx_subs_status; CREATE INDEX idx_subs_status ON subscribers(status);
 
 -- lists
 DROP TABLE IF EXISTS lists CASCADE;
@@ -49,7 +50,6 @@ CREATE TABLE lists (
     created_at      TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at      TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
-DROP INDEX IF EXISTS idx_lists_uuid; CREATE INDEX idx_lists_uuid ON lists(uuid);
 
 DROP TABLE IF EXISTS subscriber_lists CASCADE;
 CREATE TABLE subscriber_lists (
@@ -62,7 +62,9 @@ CREATE TABLE subscriber_lists (
 
     PRIMARY KEY(subscriber_id, list_id)
 );
-
+DROP INDEX IF EXISTS idx_sub_lists_sub_id; CREATE INDEX idx_sub_lists_sub_id ON subscriber_lists(subscriber_id);
+DROP INDEX IF EXISTS idx_sub_lists_list_id; CREATE INDEX idx_sub_lists_list_id ON subscriber_lists(list_id);
+DROP INDEX IF EXISTS idx_sub_lists_status; CREATE INDEX idx_sub_lists_status ON subscriber_lists(status);
 
 -- templates
 DROP TABLE IF EXISTS templates CASCADE;
@@ -94,14 +96,7 @@ CREATE TABLE campaigns (
 
     -- The ID of the messenger backend used to send this campaign. 
     messenger        TEXT NOT NULL,
-
     template_id      INTEGER REFERENCES templates(id) ON DELETE SET DEFAULT DEFAULT 1,
-
-    -- The lists to which a campaign is sent can change at any point.
-    -- They can be deleted, or they could be ephmeral. Hence, storing
-    -- references to the lists table is not possible. The list names and
-    -- their erstwhile IDs are stored in a JSON blob for posterity.
-    lists            JSONB,
 
     -- Progress and stats.
     to_send            INT NOT NULL DEFAULT 0,
@@ -113,7 +108,6 @@ CREATE TABLE campaigns (
     created_at       TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at       TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
-DROP INDEX IF EXISTS idx_campaigns_uuid; CREATE INDEX idx_campaigns_uuid ON campaigns(uuid);
 
 DROP TABLE IF EXISTS campaign_lists CASCADE;
 CREATE TABLE campaign_lists (
@@ -125,6 +119,8 @@ CREATE TABLE campaign_lists (
     list_name    TEXT NOT NULL DEFAULT ''
 );
 CREATE UNIQUE INDEX ON campaign_lists (campaign_id, list_id);
+DROP INDEX IF EXISTS idx_camp_lists_camp_id; CREATE INDEX idx_camp_lists_camp_id ON campaign_lists(campaign_id);
+DROP INDEX IF EXISTS idx_camp_lists_list_id; CREATE INDEX idx_camp_lists_list_id ON campaign_lists(list_id);
 
 DROP TABLE IF EXISTS campaign_views CASCADE;
 CREATE TABLE campaign_views (
@@ -134,6 +130,8 @@ CREATE TABLE campaign_views (
     subscriber_id    INTEGER NULL REFERENCES subscribers(id) ON DELETE SET NULL ON UPDATE CASCADE,
     created_at       TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
+DROP INDEX IF EXISTS idx_views_camp_id; CREATE INDEX idx_views_camp_id ON campaign_views(campaign_id);
+DROP INDEX IF EXISTS idx_views_subscriber_id; CREATE INDEX idx_views_subscriber_id ON campaign_views(subscriber_id);
 
 -- media
 DROP TABLE IF EXISTS media CASCADE;
@@ -165,3 +163,6 @@ CREATE TABLE link_clicks (
     subscriber_id    INTEGER NULL REFERENCES subscribers(id) ON DELETE SET NULL ON UPDATE CASCADE,
     created_at       TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
+DROP INDEX IF EXISTS idx_clicks_camp_id; CREATE INDEX idx_clicks_camp_id ON link_clicks(campaign_id);
+DROP INDEX IF EXISTS idx_clicks_link_id; CREATE INDEX idx_clicks_link_id ON link_clicks(link_id);
+DROP INDEX IF EXISTS idx_clicks_sub_id; CREATE INDEX idx_clicks_sub_id ON link_clicks(subscriber_id);
