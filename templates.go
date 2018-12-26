@@ -133,7 +133,7 @@ func handleCreateTemplate(c echo.Context) error {
 	)
 
 	if err := c.Bind(&o); err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+		return err
 	}
 
 	if err := validateTemplate(o); err != nil {
