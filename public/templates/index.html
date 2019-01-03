@@ -3,21 +3,31 @@
 <html>
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />	
-	<title>{{ .Title }}</title>
-	<meta name="description" content="{{ .Description }}" />
+	<title>{{ .Data.Title }}</title>
+	<meta name="description" content="{{ .Data.Description }}" />
 	<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 
-	<link href='https://fonts.googleapis.com/css?family=Open+Sans:400' rel='stylesheet' type='text/css'>	
+	<link href="https://fonts.googleapis.com/css?family=IBM+Plex+Sans:400,600" rel="stylesheet">
 	<link href="/public/static/style.css" rel="stylesheet" type="text/css" />
-	<link rel="shortcut icon" href="/public/static/favicon.png" type="image/x-icon" />
+
+	{{ if ne .FaviconURL "" }}
+		<link rel="shortcut icon" href="{{ .FaviconURL }}" type="image/x-icon" />
+	{{ else }}
+		<link rel="shortcut icon" href="/public/static/favicon.png" type="image/x-icon" />
+	{{ end }}
 </head>
 <body>
     <div class="container wrap">
 		<header class="header">
-			<div class="logo"><img src="/public/static/logo.svg" /></div>
+			<div class="logo">
+				{{ if ne .LogoURL "" }}
+					<img src="{{ .LogoURL }}" alt="{{ .Data.Title }}" />
+				{{ else }}
+					<img src="/public/static/logo.svg" alt="{{ .Data.Title }}" />
+				{{ end }}
+			</div>
 		</header>
 {{ end }}
-
 
 {{ define "footer" }}
 	</div>

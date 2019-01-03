@@ -4,7 +4,17 @@ address = "0.0.0.0:9000"
 
 # Public root URL of the listmonk installation that'll be used
 # in the messages for linking to images, unsubscribe page etc.
-root = "http://listmonk.mysite.com"
+root = "https://listmonk.mysite.com"
+
+# (Optional) full URL to the static logo to be displayed on
+# user facing view such as the unsubscription page.
+# eg: https://mysite.com/images/logo.svg
+logo_url = ""
+
+# (Optional) full URL to the static favicon to be displayed on
+# user facing view such as the unsubscription page.
+# eg: https://mysite.com/images/favicon.png
+favicon_url = ""
 
 # The default 'from' e-mail for outgoing e-mail campaigns.
 from_email = "listmonk <from@mail.com>"
@@ -21,9 +31,6 @@ upload_path = "uploads"
 # uploaded to upload_path will be made available publicly
 # under this URI, for instance, list.yoursite.com/uploads.
 upload_uri = "/uploads"
-
-# Directory where the app's static assets are stored (index.html, ./static etc.)
-asset_path = "frontend/my/build"
 
 # Maximum concurrent workers that will attempt to send messages
 # simultaneously. This should depend on the number of CPUs the

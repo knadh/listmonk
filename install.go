@@ -29,9 +29,10 @@ func install(app *App, qMap goyesql.Queries) {
 		emRegex, _ = regexp.Compile("(.+?)@(.+?)")
 	)
 
+	fmt.Println("")
 	fmt.Println("** First time installation. **")
 	fmt.Println("** IMPORTANT: This will wipe existing listmonk tables and types. **")
-	fmt.Println("\n")
+	fmt.Println("")
 
 	for len(email) == 0 {
 		fmt.Print("Enter the superadmin login e-mail: ")
@@ -83,7 +84,7 @@ func install(app *App, qMap goyesql.Queries) {
 	}
 
 	// Migrate the tables.
-	err = installMigrate(app.DB)
+	err = installMigrate(app.DB, app)
 	if err != nil {
 		logger.Fatalf("Error migrating DB schema: %v", err)
 	}
@@ -152,8 +153,8 @@ func install(app *App, qMap goyesql.Queries) {
 }
 
 // installMigrate executes the SQL schema and creates the necessary tables and types.
-func installMigrate(db *sqlx.DB) error {
-	q, err := ioutil.ReadFile("schema.sql")
+func installMigrate(db *sqlx.DB, app *App) error {
+	q, err := app.FS.Read("/schema.sql")
 	if err != nil {
 		return err
 	}

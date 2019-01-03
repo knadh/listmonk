@@ -1,9 +1,9 @@
 {{ define "error" }}
     {{ template "header" .}}
 
-    <h2>{{ .ErrorTitle }}</h2>
+    <h2>{{ .Data.ErrorTitle }}</h2>
     <div>
-        {{ .ErrorMessage }}
+        {{ .Data.ErrorMessage }}
     </div>
 
     {{ template "footer" .}}

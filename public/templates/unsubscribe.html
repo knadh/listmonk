@@ -1,7 +1,7 @@
 {{ define "unsubscribe" }}
     {{ template "header" .}}
 
-    {{ if not .Unsubscribe }}
+    {{ if not .Data.Unsubscribe }}
         <h2>Unsubscribe</h2>
         <p>Do you wish to unsubscribe from this mailing list?</p>
         <form method="post">
@@ -13,7 +13,7 @@
         {{ else }}
             <h2>You have been unsubscribed</h2>
         
-            {{ if not .Blacklist }}
+            {{ if not .Data.Blacklist }}
                 <div class="unsub-all">
                     <p>
                         Unsubscribe from all future communications?

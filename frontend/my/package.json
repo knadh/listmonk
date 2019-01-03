@@ -16,15 +16,9 @@
     "react-router-dom": "^4.3.1",
     "react-scripts": "1.1.4"
   },
-  "xxscripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test --env=jsdom",
-    "eject": "react-scripts eject"
-  },
   "scripts": {
     "start": "react-app-rewired start",
-    "build": "react-app-rewired build",
+    "build": "GENERATE_SOURCEMAP=false PUBLIC_URL=/frontend/ react-app-rewired build",
     "test": "react-app-rewired test --env=jsdom",
     "eject": "react-scripts eject"
   },

@@ -15,14 +15,16 @@ import (
 	"github.com/knadh/listmonk/manager"
 	"github.com/knadh/listmonk/messenger"
 	"github.com/knadh/listmonk/subimporter"
+	"github.com/knadh/stuffbin"
 	"github.com/labstack/echo"
 	flag "github.com/spf13/pflag"
 	"github.com/spf13/viper"
 )
 
 type constants struct {
-	AssetPath    string   `mapstructure:"asset_path"`
 	RootURL      string   `mapstructure:"root"`
+	LogoURL      string   `mapstructure:"logo_url"`
+	FaviconURL   string   `mapstructure:"favicon_url"`
 	UploadPath   string   `mapstructure:"upload_path"`
 	UploadURI    string   `mapstructure:"upload_uri"`
 	FromEmail    string   `mapstructure:"from_email"`
@@ -37,6 +39,7 @@ type App struct {
 	Queries   *Queries
 	Importer  *subimporter.Importer
 	Manager   *manager.Manager
+	FS        stuffbin.FileSystem
 	Logger    *log.Logger
 	NotifTpls *template.Template
 	Messenger messenger.Messenger
@@ -77,84 +80,36 @@ func init() {
 	}
 }
 
-// registerHandlers registers HTTP handlers.
-func registerHandlers(e *echo.Echo) {
-	e.GET("/", handleIndexPage)
-	e.GET("/api/config.js", handleGetConfigScript)
-	e.GET("/api/dashboard/stats", handleGetDashboardStats)
-	e.GET("/api/users", handleGetUsers)
-	e.POST("/api/users", handleCreateUser)
-	e.DELETE("/api/users/:id", handleDeleteUser)
+// initFileSystem initializes the stuffbin FileSystem to provide
+// access to bunded static assets to the app.
+func initFileSystem(binPath string) (stuffbin.FileSystem, error) {
+	fs, err := stuffbin.UnStuff("./listmonk")
+	if err == nil {
+		return fs, nil
+	}
 
-	e.GET("/api/subscribers/:id", handleGetSubscriber)
-	e.POST("/api/subscribers", handleCreateSubscriber)
-	e.PUT("/api/subscribers/:id", handleUpdateSubscriber)
-	e.PUT("/api/subscribers/blacklist", handleBlacklistSubscribers)
-	e.PUT("/api/subscribers/:id/blacklist", handleBlacklistSubscribers)
-	e.PUT("/api/subscribers/lists/:id", handleManageSubscriberLists)
-	e.PUT("/api/subscribers/lists", handleManageSubscriberLists)
-	e.DELETE("/api/subscribers/:id", handleDeleteSubscribers)
-	e.DELETE("/api/subscribers", handleDeleteSubscribers)
+	// Running in local mode. Load the required static assets into
+	// the in-memory stuffbin.FileSystem.
+	logger.Printf("unable to initialize embedded filesystem: %v", err)
+	logger.Printf("using local filesystem for static assets")
+	files := []string{
+		"config.toml.sample",
+		"queries.sql",
+		"schema.sql",
+		"email-templates",
+		"public",
 
-	// Subscriber operations based on arbitrary SQL queries.
-	// These aren't very REST-like.
-	e.POST("/api/subscribers/query/delete", handleDeleteSubscribersByQuery)
-	e.PUT("/api/subscribers/query/blacklist", handleBlacklistSubscribersByQuery)
-	e.PUT("/api/subscribers/query/lists", handleManageSubscriberListsByQuery)
+		// The frontend app's static assets are aliased to /frontend
+		// so that they are accessible at localhost:port/frontend/static/ ...
+		"frontend/my/build:/frontend",
+	}
 
-	e.GET("/api/subscribers", handleQuerySubscribers)
+	fs, err = stuffbin.NewLocalFS("/", files...)
+	if err != nil {
+		return nil, fmt.Errorf("failed to initialize local file for assets: %v", err)
+	}
 
-	e.GET("/api/import/subscribers", handleGetImportSubscribers)
-	e.GET("/api/import/subscribers/logs", handleGetImportSubscriberStats)
-	e.POST("/api/import/subscribers", handleImportSubscribers)
-	e.DELETE("/api/import/subscribers", handleStopImportSubscribers)
-
-	e.GET("/api/lists", handleGetLists)
-	e.GET("/api/lists/:id", handleGetLists)
-	e.POST("/api/lists", handleCreateList)
-	e.PUT("/api/lists/:id", handleUpdateList)
-	e.DELETE("/api/lists/:id", handleDeleteLists)
-
-	e.GET("/api/campaigns", handleGetCampaigns)
-	e.GET("/api/campaigns/running/stats", handleGetRunningCampaignStats)
-	e.GET("/api/campaigns/:id", handleGetCampaigns)
-	e.GET("/api/campaigns/:id/preview", handlePreviewCampaign)
-	e.POST("/api/campaigns/:id/preview", handlePreviewCampaign)
-	e.POST("/api/campaigns/:id/test", handleTestCampaign)
-	e.POST("/api/campaigns", handleCreateCampaign)
-	e.PUT("/api/campaigns/:id", handleUpdateCampaign)
-	e.PUT("/api/campaigns/:id/status", handleUpdateCampaignStatus)
-	e.DELETE("/api/campaigns/:id", handleDeleteCampaign)
-
-	e.GET("/api/media", handleGetMedia)
-	e.POST("/api/media", handleUploadMedia)
-	e.DELETE("/api/media/:id", handleDeleteMedia)
-
-	e.GET("/api/templates", handleGetTemplates)
-	e.GET("/api/templates/:id", handleGetTemplates)
-	e.GET("/api/templates/:id/preview", handlePreviewTemplate)
-	e.POST("/api/templates/preview", handlePreviewTemplate)
-	e.POST("/api/templates", handleCreateTemplate)
-	e.PUT("/api/templates/:id", handleUpdateTemplate)
-	e.PUT("/api/templates/:id/default", handleTemplateSetDefault)
-	e.DELETE("/api/templates/:id", handleDeleteTemplate)
-
-	// Subscriber facing views.
-	e.GET("/unsubscribe/:campUUID/:subUUID", handleUnsubscribePage)
-	e.POST("/unsubscribe/:campUUID/:subUUID", handleUnsubscribePage)
-	e.GET("/link/:linkUUID/:campUUID/:subUUID", handleLinkRedirect)
-	e.GET("/campaign/:campUUID/:subUUID/px.png", handleRegisterCampaignView)
-
-	// Static views.
-	e.GET("/lists", handleIndexPage)
-	e.GET("/subscribers", handleIndexPage)
-	e.GET("/subscribers/lists/:listID", handleIndexPage)
-	e.GET("/subscribers/import", handleIndexPage)
-	e.GET("/campaigns", handleIndexPage)
-	e.GET("/campaigns/new", handleIndexPage)
-	e.GET("/campaigns/media", handleIndexPage)
-	e.GET("/campaigns/templates", handleIndexPage)
-	e.GET("/campaigns/:campignID", handleIndexPage)
+	return fs, nil
 }
 
 // initMessengers initializes various messaging backends.
@@ -163,7 +118,7 @@ func initMessengers(r *manager.Manager) messenger.Messenger {
 	var srv []messenger.Server
 	for name := range viper.GetStringMapString("smtp") {
 		if !viper.GetBool(fmt.Sprintf("smtp.%s.enabled", name)) {
-			logger.Printf("skipped SMTP config %s", name)
+			logger.Printf("skipped SMTP: %s", name)
 			continue
 		}
 
@@ -173,7 +128,7 @@ func initMessengers(r *manager.Manager) messenger.Messenger {
 		s.SendTimeout = s.SendTimeout * time.Millisecond
 		srv = append(srv, s)
 
-		logger.Printf("loaded SMTP config %s (%s@%s)", s.Name, s.Username, s.Host)
+		logger.Printf("loaded SMTP: %s (%s@%s)", s.Name, s.Username, s.Host)
 	}
 
 	msgr, err := messenger.NewEmailer(srv...)
@@ -203,22 +158,34 @@ func main() {
 	viper.UnmarshalKey("app", &c)
 	c.RootURL = strings.TrimRight(c.RootURL, "/")
 	c.UploadURI = filepath.Clean(c.UploadURI)
-	c.AssetPath = filepath.Clean(c.AssetPath)
+	c.UploadPath = filepath.Clean(c.UploadPath)
+
+	// Initialize the static file system into which all
+	// required static assets (.sql, .js files etc.) are loaded.
+	fs, err := initFileSystem(os.Args[0])
+	if err != nil {
+		logger.Fatal(err)
+	}
 
 	// Initialize the app context that's passed around.
 	app := &App{
 		Constants: &c,
 		DB:        db,
 		Logger:    logger,
+		FS:        fs,
 	}
 
 	// Load SQL queries.
-	qMap, err := goyesql.ParseFile("queries.sql")
+	qB, err := fs.Read("/queries.sql")
 	if err != nil {
-		logger.Fatalf("error loading SQL queries: %v", err)
+		logger.Fatalf("error reading queries.sql: %v", err)
+	}
+	qMap, err := goyesql.ParseBytes(qB)
+	if err != nil {
+		logger.Fatalf("error parsing SQL queries: %v", err)
 	}
 
-	// First time installation.
+	// Run the first time installation.
 	if viper.GetBool("install") {
 		install(app, qMap)
 		return
@@ -231,7 +198,7 @@ func main() {
 	}
 	app.Queries = q
 
-	// Importer.
+	// Initialize the bulk subscriber importer.
 	importNotifCB := func(subject string, data map[string]interface{}) error {
 		return sendNotification(notifTplImport, subject, data, app)
 	}
@@ -240,14 +207,14 @@ func main() {
 		db.DB,
 		importNotifCB)
 
-	// System e-mail templates.
-	notifTpls, err := template.ParseGlob("templates/*.html")
+	// Read system e-mail templates.
+	notifTpls, err := stuffbin.ParseTemplatesGlob(fs, "/email-templates/*.html")
 	if err != nil {
-		logger.Fatalf("error loading system templates: %v", err)
+		logger.Fatalf("error loading system e-mail templates: %v", err)
 	}
 	app.NotifTpls = notifTpls
 
-	// Campaign daemon.
+	// Initialize the campaign manager.
 	campNotifCB := func(subject string, data map[string]interface{}) error {
 		return sendNotification(notifTplCampaign, subject, data, app)
 	}
@@ -270,11 +237,15 @@ func main() {
 	// Add messengers.
 	app.Messenger = initMessengers(app.Manager)
 
+	// Initialize the workers that push out messages.
 	go m.Run(time.Duration(time.Second * 5))
 	m.SpawnWorkers()
 
-	// Initialize the server.
+	// Initialize the HTTP server.
 	var srv = echo.New()
+	srv.HideBanner = true
+
+	// Register app (*App) to be injected into all HTTP handlers.
 	srv.Use(func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
 			c.Set("app", app)
@@ -282,25 +253,22 @@ func main() {
 		}
 	})
 
-	// User facing templates.
-	tpl, err := template.ParseGlob("public/templates/*.html")
+	// Parse user facing templates.
+	tpl, err := stuffbin.ParseTemplatesGlob(fs, "/public/templates/*.html")
 	if err != nil {
 		logger.Fatalf("error parsing public templates: %v", err)
 	}
-	srv.Renderer = &Template{
-		templates: tpl,
-	}
-	srv.HideBanner = true
+	srv.Renderer = &tplRenderer{
+		templates:  tpl,
+		RootURL:    c.RootURL,
+		LogoURL:    c.LogoURL,
+		FaviconURL: c.FaviconURL}
 
-	// Register HTTP middleware.
-	// e.Use(session.Middleware(sessions.NewCookieStore([]byte("secret"))))
-	// e.Use(authSession)
-	srv.Static("/static", filepath.Join(filepath.Clean(viper.GetString("app.asset_path")), "static"))
-	srv.Static("/static/public", "frontend/my/public")
-	srv.Static("/public/static", "public/static")
-	srv.Static(filepath.Clean(viper.GetString("app.upload_uri")),
-		filepath.Clean(viper.GetString("app.upload_path")))
+	// Register HTTP handlers and static file servers.
+	fSrv := app.FS.FileServer()
+	srv.GET("/public/*", echo.WrapHandler(fSrv))
+	srv.GET("/frontend/*", echo.WrapHandler(fSrv))
+	srv.Static(c.UploadURI, c.UploadURI)
 	registerHandlers(srv)
-
 	srv.Logger.Fatal(srv.Start(viper.GetString("app.address")))
 }

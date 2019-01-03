@@ -13,9 +13,21 @@ import (
 	"github.com/labstack/echo"
 )
 
-// Template wraps a template.Template for echo.
-type Template struct {
-	templates *template.Template
+// tplRenderer wraps a template.tplRenderer for echo.
+type tplRenderer struct {
+	templates  *template.Template
+	RootURL    string
+	LogoURL    string
+	FaviconURL string
+}
+
+// tplData is the data container that is injected
+// into public templates for accessing data.
+type tplData struct {
+	RootURL    string
+	LogoURL    string
+	FaviconURL string
+	Data       interface{}
 }
 
 type publicTpl struct {
@@ -31,7 +43,6 @@ type unsubTpl struct {
 
 type errorTpl struct {
 	publicTpl
-
 	ErrorTitle   string
 	ErrorMessage string
 }
@@ -42,8 +53,13 @@ var (
 )
 
 // Render executes and renders a template for echo.
-func (t *Template) Render(w io.Writer, name string, data interface{}, c echo.Context) error {
-	return t.templates.ExecuteTemplate(w, name, data)
+func (t *tplRenderer) Render(w io.Writer, name string, data interface{}, c echo.Context) error {
+	return t.templates.ExecuteTemplate(w, name, tplData{
+		RootURL:    t.RootURL,
+		LogoURL:    t.LogoURL,
+		FaviconURL: t.FaviconURL,
+		Data:       data,
+	})
 }
 
 // handleUnsubscribePage unsubscribes a subscriber and renders a view.
@@ -66,7 +82,7 @@ func handleUnsubscribePage(c echo.Context) error {
 		return c.Render(http.StatusBadRequest, "error",
 			makeErrorTpl("Invalid request", "",
 				`The unsubscription request contains invalid IDs.
-				Please click on the correct link.`))
+				Please follow the correct link.`))
 	}
 
 	// Unsubscribe.
@@ -74,7 +90,8 @@ func handleUnsubscribePage(c echo.Context) error {
 		res, err := app.Queries.Unsubscribe.Exec(campUUID, subUUID, blacklist)
 		if err != nil {
 			app.Logger.Printf("Error unsubscribing : %v", err)
-			return echo.NewHTTPError(http.StatusBadRequest, "There was an internal error while unsubscribing you.")
+			return echo.NewHTTPError(http.StatusBadRequest,
+				"There was an internal error while unsubscribing you.")
 		}
 
 		if !blacklist {
@@ -82,7 +99,7 @@ func handleUnsubscribePage(c echo.Context) error {
 			if num == 0 {
 				return c.Render(http.StatusBadRequest, "error",
 					makeErrorTpl("Already unsubscribed", "",
-						`Looks like you are not subscribed to this mailing list.
+						`You are not subscribed to this mailing list.
 						You may have already unsubscribed.`))
 			}
 		}
@@ -110,7 +127,8 @@ func handleLinkRedirect(c echo.Context) error {
 	if err := app.Queries.RegisterLinkClick.Get(&url, linkUUID, campUUID, subUUID); err != nil {
 		app.Logger.Printf("error fetching redirect link: %s", err)
 		return c.Render(http.StatusInternalServerError, "error",
-			makeErrorTpl("Error opening link", "", "There was an error opening the link. Please try later."))
+			makeErrorTpl("Error opening link", "",
+				"There was an error opening the link. Please try later."))
 	}
 
 	return c.Redirect(http.StatusTemporaryRedirect, url)
@@ -143,7 +161,6 @@ func drawTransparentImage(h, w int) []byte {
 		img = image.NewRGBA(image.Rect(0, 0, w, h))
 		out = &bytes.Buffer{}
 	)
-
 	png.Encode(out, img)
 	return out.Bytes()
 }

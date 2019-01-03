@@ -2,16 +2,14 @@ package main
 
 import (
 	"encoding/json"
+	"net/http"
 	"net/url"
-	"path/filepath"
 	"strconv"
 	"strings"
 
 	"github.com/asaskevich/govalidator"
 
-	"github.com/gorilla/sessions"
 	"github.com/labstack/echo"
-	"github.com/labstack/echo-contrib/session"
 )
 
 const (
@@ -40,39 +38,99 @@ type pagination struct {
 	Limit   int `json:"limit"`
 }
 
-// auth is a middleware that handles session authentication. If a session is not set,
-// it creates one and redirects the user to the login page. If a session is set,
-// it's authenticated before proceeding to the handler.
-func authSession(next echo.HandlerFunc) echo.HandlerFunc {
-	return func(c echo.Context) error {
-		sess, _ := session.Get("session", c)
+// registerHandlers registers HTTP handlers.
+func registerHandlers(e *echo.Echo) {
+	e.GET("/", handleIndexPage)
+	e.GET("/api/config.js", handleGetConfigScript)
+	e.GET("/api/dashboard/stats", handleGetDashboardStats)
+	e.GET("/api/users", handleGetUsers)
+	e.POST("/api/users", handleCreateUser)
+	e.DELETE("/api/users/:id", handleDeleteUser)
 
-		// It's a brand new session. Persist it.
-		if sess.IsNew {
-			sess.Options = &sessions.Options{
-				Path:     "/",
-				MaxAge:   86400 * 7,
-				HttpOnly: true,
-				// Secure:   true,
-			}
+	e.GET("/api/subscribers/:id", handleGetSubscriber)
+	e.POST("/api/subscribers", handleCreateSubscriber)
+	e.PUT("/api/subscribers/:id", handleUpdateSubscriber)
+	e.PUT("/api/subscribers/blacklist", handleBlacklistSubscribers)
+	e.PUT("/api/subscribers/:id/blacklist", handleBlacklistSubscribers)
+	e.PUT("/api/subscribers/lists/:id", handleManageSubscriberLists)
+	e.PUT("/api/subscribers/lists", handleManageSubscriberLists)
+	e.DELETE("/api/subscribers/:id", handleDeleteSubscribers)
+	e.DELETE("/api/subscribers", handleDeleteSubscribers)
 
-			sess.Values["user_id"] = 1
-			sess.Values["user"] = "kailash"
-			sess.Values["role"] = "superadmin"
-			sess.Values["user_email"] = "kailash@zerodha.com"
+	// Subscriber operations based on arbitrary SQL queries.
+	// These aren't very REST-like.
+	e.POST("/api/subscribers/query/delete", handleDeleteSubscribersByQuery)
+	e.PUT("/api/subscribers/query/blacklist", handleBlacklistSubscribersByQuery)
+	e.PUT("/api/subscribers/query/lists", handleManageSubscriberListsByQuery)
 
-			sess.Save(c.Request(), c.Response())
-		}
+	e.GET("/api/subscribers", handleQuerySubscribers)
 
-		return next(c)
-	}
+	e.GET("/api/import/subscribers", handleGetImportSubscribers)
+	e.GET("/api/import/subscribers/logs", handleGetImportSubscriberStats)
+	e.POST("/api/import/subscribers", handleImportSubscribers)
+	e.DELETE("/api/import/subscribers", handleStopImportSubscribers)
+
+	e.GET("/api/lists", handleGetLists)
+	e.GET("/api/lists/:id", handleGetLists)
+	e.POST("/api/lists", handleCreateList)
+	e.PUT("/api/lists/:id", handleUpdateList)
+	e.DELETE("/api/lists/:id", handleDeleteLists)
+
+	e.GET("/api/campaigns", handleGetCampaigns)
+	e.GET("/api/campaigns/running/stats", handleGetRunningCampaignStats)
+	e.GET("/api/campaigns/:id", handleGetCampaigns)
+	e.GET("/api/campaigns/:id/preview", handlePreviewCampaign)
+	e.POST("/api/campaigns/:id/preview", handlePreviewCampaign)
+	e.POST("/api/campaigns/:id/test", handleTestCampaign)
+	e.POST("/api/campaigns", handleCreateCampaign)
+	e.PUT("/api/campaigns/:id", handleUpdateCampaign)
+	e.PUT("/api/campaigns/:id/status", handleUpdateCampaignStatus)
+	e.DELETE("/api/campaigns/:id", handleDeleteCampaign)
+
+	e.GET("/api/media", handleGetMedia)
+	e.POST("/api/media", handleUploadMedia)
+	e.DELETE("/api/media/:id", handleDeleteMedia)
+
+	e.GET("/api/templates", handleGetTemplates)
+	e.GET("/api/templates/:id", handleGetTemplates)
+	e.GET("/api/templates/:id/preview", handlePreviewTemplate)
+	e.POST("/api/templates/preview", handlePreviewTemplate)
+	e.POST("/api/templates", handleCreateTemplate)
+	e.PUT("/api/templates/:id", handleUpdateTemplate)
+	e.PUT("/api/templates/:id/default", handleTemplateSetDefault)
+	e.DELETE("/api/templates/:id", handleDeleteTemplate)
+
+	// Subscriber facing views.
+	e.GET("/unsubscribe/:campUUID/:subUUID", handleUnsubscribePage)
+	e.POST("/unsubscribe/:campUUID/:subUUID", handleUnsubscribePage)
+	e.GET("/link/:linkUUID/:campUUID/:subUUID", handleLinkRedirect)
+	e.GET("/campaign/:campUUID/:subUUID/px.png", handleRegisterCampaignView)
+
+	// Static views.
+	e.GET("/lists", handleIndexPage)
+	e.GET("/subscribers", handleIndexPage)
+	e.GET("/subscribers/lists/:listID", handleIndexPage)
+	e.GET("/subscribers/import", handleIndexPage)
+	e.GET("/campaigns", handleIndexPage)
+	e.GET("/campaigns/new", handleIndexPage)
+	e.GET("/campaigns/media", handleIndexPage)
+	e.GET("/campaigns/templates", handleIndexPage)
+	e.GET("/campaigns/:campignID", handleIndexPage)
 }
 
 // handleIndex is the root handler that renders the login page if there's no
 // authenticated session, or redirects to the dashboard, if there's one.
 func handleIndexPage(c echo.Context) error {
 	app := c.Get("app").(*App)
-	return c.File(filepath.Join(app.Constants.AssetPath, "index.html"))
+
+	b, err := app.FS.Read("/frontend/index.html")
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError,
+			err)
+	}
+
+	c.Response().Header().Set("Content-Type", "text/html")
+	return c.String(http.StatusOK, string(b))
 }
 
 // makeAttribsBlob takes a list of keys and values and creates
