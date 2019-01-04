@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/jmoiron/sqlx"
+	"github.com/jmoiron/sqlx/types"
 	"github.com/lib/pq"
 
 	null "gopkg.in/volatiletech/null.v6"
@@ -133,6 +134,7 @@ type Campaign struct {
 	Tags        pq.StringArray `db:"tags" json:"tags"`
 	TemplateID  int            `db:"template_id" json:"template_id"`
 	MessengerID string         `db:"messenger" json:"messenger"`
+	Lists       types.JSONText `json:"lists"`
 
 	View   int `db:"views" json:"views"`
 	Clicks int `db:"clicks" json:"clicks"`
