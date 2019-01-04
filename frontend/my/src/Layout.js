@@ -20,6 +20,7 @@ import Media from "./Media";
 
 const { Content, Footer, Sider } = Layout
 const SubMenu = Menu.SubMenu
+const year = new Date().getUTCFullYear()
 
 class Base extends React.Component {
     state = {
@@ -99,8 +100,12 @@ class Base extends React.Component {
 
                         </div>
                     </Content>
-                    <Footer style={{ textAlign: "center" }}>
-                        listmonk &copy; 2018. MIT License.
+                    <Footer>
+                        <span className="text-small">
+                            <a href="https://listmonk.app" rel="noreferrer noopener" target="_blank">listmonk</a>
+                            {" "}
+                            &copy; 2019 { year != 2019 ? " - " + year : "" }
+                        </span>
                     </Footer>
                 </Layout>
             </Layout>
