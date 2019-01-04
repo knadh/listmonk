@@ -62,7 +62,7 @@ class CreateFormDef extends React.PureComponent {
                 {" "}
                 { record.name }
                 <br />                
-                <span className="text-tiny text-grey">ID { record.id } &mdash; UUID { record.uuid }</span>
+                <span className="text-tiny text-grey">ID { record.id } / UUID { record.uuid }</span>
             </div>
         )
     }

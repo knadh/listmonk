@@ -9,6 +9,7 @@ import logo from "./static/listmonk.svg"
 import Dashboard from "./Dashboard"
 import Lists from "./Lists"
 import Subscribers from "./Subscribers"
+import Subscriber from "./Subscriber"
 import Templates from "./Templates"
 import Import from "./Import"
 import Test from "./Test"
@@ -87,6 +88,7 @@ class Base extends React.Component {
                                 <Route exact key="/subscribers" path="/subscribers" render={(props) => <Subscribers { ...{ ...this.props, route: props } } />} />
                                 <Route exact key="/subscribers/lists/:listID" path="/subscribers/lists/:listID" render={(props) => <Subscribers { ...{ ...this.props, route: props } } />} />
                                 <Route exact key="/subscribers/import" path="/subscribers/import" render={(props) => <Import { ...{ ...this.props, route: props } } />} />
+                                <Route exact key="/subscribers/:subID" path="/subscribers/:subID" render={(props) => <Subscriber { ...{ ...this.props, route: props } } />} />
                                 <Route exact key="/campaigns" path="/campaigns" render={(props) => <Campaigns { ...{ ...this.props, route: props } } />} />
                                 <Route exact key="/campaigns/new" path="/campaigns/new" render={(props) => <Campaign { ...{ ...this.props, route: props } } />} />
                                 <Route exact key="/campaigns/media" path="/campaigns/media" render={(props) => <Media { ...{ ...this.props, route: props } } />} />

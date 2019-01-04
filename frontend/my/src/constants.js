@@ -55,12 +55,16 @@ export const Routes = {
     GetDashboarcStats: "/api/dashboard/stats",
     GetUsers: "/api/users",
     
+    // Lists.
     GetLists: "/api/lists",
     CreateList: "/api/lists",
     UpdateList: "/api/lists/:id",
     DeleteList: "/api/lists/:id",
 
+    // Subscribers.
+    ViewSubscribers: "/subscribers",
     GetSubscribers: "/api/subscribers",
+    GetSubscriber: "/api/subscribers/:id",
     GetSubscribersByList: "/api/subscribers/lists/:listID",
     PreviewCampaign: "/api/campaigns/:id/preview",
     CreateSubscriber: "/api/subscribers",
@@ -71,11 +75,11 @@ export const Routes = {
     BlacklistSubscribers: "/api/subscribers/blacklist",
     AddSubscriberToLists: "/api/subscribers/lists/:id",
     AddSubscribersToLists: "/api/subscribers/lists",
-    
     DeleteSubscribersByQuery: "/api/subscribers/query/delete",
     BlacklistSubscribersByQuery: "/api/subscribers/query/blacklist",
     AddSubscribersToListsByQuery: "/api/subscribers/query/lists",
     
+    // Campaigns.
     ViewCampaigns: "/campaigns",
     ViewCampaign: "/campaigns/:id",
     GetCampaignMessengers: "/api/campaigns/messengers",
@@ -88,10 +92,12 @@ export const Routes = {
     UpdateCampaignStatus: "/api/campaigns/:id/status",
     DeleteCampaign: "/api/campaigns/:id",
 
+    // Media.
     GetMedia: "/api/media",
     AddMedia: "/api/media",
     DeleteMedia: "/api/media/:id",
 
+    // Templates.
     GetTemplates: "/api/templates",
     PreviewTemplate: "/api/templates/:id/preview",
     PreviewNewTemplate: "/api/templates/preview",
@@ -100,6 +106,7 @@ export const Routes = {
     SetDefaultTemplate: "/api/templates/:id/default",
     DeleteTemplate: "/api/templates/:id",
 
+    // Import.
     UploadRouteImport: "/api/import/subscribers",
     GetRouteImportStats: "/api/import/subscribers",
     GetRouteImportLogs: "/api/import/subscribers/logs"

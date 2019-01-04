@@ -3,6 +3,7 @@ import { Link } from "react-router-dom"
 import { Row, Col, Modal, Form, Input, Select, Button, Table, Icon, Tooltip, Tag, Popconfirm, Spin, notification, Radio } from "antd"
 
 import Utils from "./utils"
+import Subscriber from "./Subscriber"
 import * as cs from "./constants"
 
 
@@ -10,183 +11,6 @@ const tagColors = {
     "enabled": "green",
     "blacklisted": "red"
 }
-
-class CreateFormDef extends React.PureComponent {
-    state = {
-        confirmDirty: false,
-        attribs: {},
-        modalWaiting: false
-    }
-
-    componentDidMount() {
-        this.setState({ attribs: this.props.record.attribs })
-    }
-
-    // Handle create / edit form submission.
-    handleSubmit = (e) => {
-        e.preventDefault()
-
-        var err = null, values = {}
-        this.props.form.validateFields((e, v) => {
-            err = e
-            values = v
-        })
-        if(err) {
-            return
-        }
-
-        values["attribs"] = {}
-
-        let a = this.props.form.getFieldValue("attribs-json")
-        if(a && a.length > 0) {
-            try {
-                values["attribs"] = JSON.parse(a)
-                if(values["attribs"] instanceof Array) {
-                    notification["error"]({ message: "Invalid JSON type",
-                                            description: "Attributes should be a map {} and not an array []" })
-                    return
-                }
-            } catch(e) {
-                notification["error"]({ message: "Invalid JSON in attributes", description: e.toString() })
-                return
-            }
-        }
-
-        this.setState({ modalWaiting: true })
-        if (this.props.formType === cs.FormCreate) {
-            // Add a subscriber.
-            this.props.modelRequest(cs.ModelSubscribers, cs.Routes.CreateSubscriber, cs.MethodPost, values).then(() => {
-                notification["success"]({ message: "Subscriber added", description: `${values["email"]} added` })
-                this.props.fetchRecords()
-                this.props.onClose()
-            }).catch(e => {
-                notification["error"]({ message: "Error", description: e.message })
-                this.setState({ modalWaiting: false })
-            })
-        } else {
-            // Edit a subscriber.
-            delete(values["keys"])
-            delete(values["vals"])
-            this.props.modelRequest(cs.ModelSubscribers, cs.Routes.UpdateSubscriber, cs.MethodPut, { ...values, id: this.props.record.id }).then(() => {
-                notification["success"]({ message: "Subscriber modified", description: `${values["email"]} modified` })
-                
-                // Reload the table.
-                this.props.fetchRecords()
-                this.props.onClose()
-            }).catch(e => {
-                notification["error"]({ message: "Error", description: e.message })
-                this.setState({ modalWaiting: false })
-            })
-        }
-    }
-
-    modalTitle(formType, record) {
-        if(formType === cs.FormCreate) {
-            return "Add subscriber"
-        }
-
-        return (
-             <div>
-                <Tag color={ tagColors.hasOwnProperty(record.status) ? tagColors[record.status] : "" }>{ record.status }</Tag>
-                {" "}
-                { record.name } ({ record.email })
-                <br />                
-                <span className="text-tiny text-grey">ID { record.id } &mdash; UUID { record.uuid }</span>
-             </div>
-        )
-    }
-
-    render() {
-        const { formType, record, onClose } = this.props;
-        const { getFieldDecorator } = this.props.form
-        const formItemLayout = {
-            labelCol: { xs: { span: 16 }, sm: { span: 4 } },
-            wrapperCol: { xs: { span: 16 }, sm: { span: 18 } }
-        }
-
-        if (formType === null) {
-            return null
-        }
-
-        let subListIDs = []
-        let subStatuses = {}
-        if(this.props.record && this.props.record.lists) {
-            subListIDs = this.props.record.lists.map((v) => { return v["id"] })
-            subStatuses = this.props.record.lists.reduce((o, item) => ({ ...o, [item.id]: item.subscription_status}), {})
-        } else if(this.props.list) {
-            subListIDs = [ this.props.list.id ]
-        }
-
-        return (
-            <Modal visible={ true } width="750px"
-                className="subscriber-modal"
-                title={ this.modalTitle(formType, record) }
-                okText={ this.state.form === cs.FormCreate ? "Add" : "Save" }
-                confirmLoading={ this.state.modalWaiting }
-                onCancel={ onClose }
-                onOk={ this.handleSubmit }
-                okButtonProps={{ disabled: this.props.reqStates[cs.ModelSubscribers] === cs.StatePending }}>
-
-                <div id="modal-alert-container"></div>
-                <Spin spinning={ this.props.reqStates[cs.ModelSubscribers] === cs.StatePending }>
-                    <Form onSubmit={ this.handleSubmit }>
-                        <Form.Item {...formItemLayout} label="E-mail">
-                            {getFieldDecorator("email", {
-                                initialValue: record.email,
-                                rules: [{ required: true }]
-                            })(<Input autoFocus pattern="(.+?)@(.+?)" maxLength="200" />)}
-                        </Form.Item>
-                        <Form.Item {...formItemLayout} label="Name">
-                            {getFieldDecorator("name", {
-                                initialValue: record.name,
-                                rules: [{ required: true }]
-                            })(<Input maxLength="200" />)}
-                        </Form.Item>
-                        <Form.Item {...formItemLayout} name="status" label="Status" extra="Blacklisted users will not receive any e-mails ever">
-                            {getFieldDecorator("status", { initialValue: record.status ? record.status : "enabled", rules: [{ required: true, message: "Type is required" }] })(
-                                <Select style={{ maxWidth: 120 }}>
-                                    <Select.Option value="enabled">Enabled</Select.Option>
-                                    <Select.Option value="blacklisted">Blacklisted</Select.Option>
-                                </Select>
-                            )}
-                        </Form.Item>
-                        <Form.Item {...formItemLayout} label="Lists" extra="Lists to subscribe to. Lists from which subscribers have unsubscribed themselves cannot be removed.">
-                            {getFieldDecorator("lists", { initialValue: subListIDs })(
-                                <Select mode="multiple">
-                                    {[...this.props.lists].map((v, i) =>
-                                        <Select.Option value={ v.id } key={ v.id } disabled={ subStatuses[v.id] === cs.SubscriptionStatusUnsubscribed }>
-                                            <span>{ v.name }
-                                                { subStatuses[v.id] &&
-                                                    <sup className={ "subscription-status " + subStatuses[v.id] }> { subStatuses[v.id] }</sup>
-                                                }
-                                            </span>
-                                        </Select.Option>
-                                    )}
-                                </Select>
-                            )}
-                        </Form.Item>
-                        <section>
-                            <h3>Attributes</h3>
-                            <p className="ant-form-extra">Attributes can be defined as a JSON map, for example:
-                                {'{"age": 30, "color": "red", "is_user": true}'}. <a href="">More info</a>.</p>
-
-                            <div className="json-editor">
-                                {getFieldDecorator("attribs-json", {
-                                    initialValue: JSON.stringify(this.state.attribs, null, 4)
-                                })(
-                                <Input.TextArea placeholder="{}"
-                                rows={10}
-                                readOnly={false}
-                                autosize={{ minRows: 5, maxRows: 10 }} />)}
-                            </div>
-                        </section>
-                    </Form>
-                </Spin>
-            </Modal>
-        )
-    }
-}
-
 
 class ListsFormDef extends React.PureComponent {
     state = {
@@ -273,7 +97,6 @@ class ListsFormDef extends React.PureComponent {
     }
 }
 
-const CreateForm = Form.create()(CreateFormDef)
 const ListsForm = Form.create()(ListsFormDef)
 
 class Subscribers extends React.PureComponent {
@@ -282,6 +105,7 @@ class Subscribers extends React.PureComponent {
     state = {
         formType: null,
         listsFormVisible: false,
+        modalForm: null,
         record: {},
         queryParams: {
             page: 1,
@@ -327,7 +151,14 @@ class Subscribers extends React.PureComponent {
                 const out = [];
                 out.push(
                     <div key={`sub-email-${ record.id }`} className="sub-name">
-                        <a role="button" onClick={() => { this.handleShowEditForm(record)}}>{text}</a>
+                        <Link to={ `/subscribers/${record.id}` } onClick={(e) => {
+                            // Open the individual subscriber page on ctrl+click
+                            // and the modal otherwise.
+                            if(!e.ctrlKey) {
+                                this.handleShowEditForm(record)
+                                e.preventDefault()
+                            }
+                        }}>{ text }</Link>
                     </div>
                 )
                 
@@ -350,7 +181,14 @@ class Subscribers extends React.PureComponent {
             width: "15%",
             render: (text, record) => {
                 return (
-                    <a role="button" onClick={() => this.handleShowEditForm(record)}>{text}</a>
+                    <Link to={ `/subscribers/${record.id}` } onClick={(e) => {
+                        // Open the individual subscriber page on ctrl+click
+                        // and the modal otherwise.
+                        if(!e.ctrlKey) {
+                            this.handleShowEditForm(record)
+                            e.preventDefault()
+                        }
+                    }}>{ text }</Link>
                 )
             }
         },
@@ -718,14 +556,38 @@ class Subscribers extends React.PureComponent {
                     }}
                 />
 
-                { this.state.formType !== null && <CreateForm {...this.props}
-                    formType={ this.state.formType }
-                    record={ this.state.record }
-                    lists={ this.props.data[cs.ModelLists] }
-                    list={ this.state.queryParams.list }
-                    fetchRecords={ this.fetchRecords }
-                    queryParams= { this.state.queryParams }
-                    onClose={ this.handleHideForm } />
+                { this.state.formType !== null &&
+                    <Modal visible={ true } width="750px"
+                        className="subscriber-modal"
+                        okText={ this.state.form === cs.FormCreate ? "Add" : "Save" }
+                        confirmLoading={ this.state.modalWaiting }
+                        onOk={(e) => {
+                            if(!this.state.modalForm) {
+                                return;
+                            }
+
+                            // This submits the form embedded in the Subscriber component.
+                            this.state.modalForm.submitForm(e, (ok) => {
+                                if(ok) {
+                                    this.handleHideForm()
+                                    this.fetchRecords()
+                                }
+                            })
+                        }}
+                        onCancel={ this.handleHideForm }
+                        okButtonProps={{ disabled: this.props.reqStates[cs.ModelSubscribers] === cs.StatePending }}>            
+                        <Subscriber {...this.props}
+                            isModal={ true }
+                            formType={ this.state.formType }
+                            record={ this.state.record }
+                            ref={ (r) => {
+                                if(!r) {
+                                    return
+                                }
+        
+                                this.setState({ modalForm: r })
+                            }}/>
+                    </Modal>
                 }
 
                 { this.state.listsFormVisible && <ListsForm {...this.props}
