@@ -5,6 +5,11 @@ import { Row, Col, Modal, Form, Input, Select, Button, Table, Icon, Tooltip, Tag
 import Utils from "./utils"
 import * as cs from "./constants"
 
+const tagColors = {
+    "private": "orange",
+    "public": "green"
+}
+
 class CreateFormDef extends React.PureComponent {
     state = {
         confirmDirty: false,
@@ -46,6 +51,22 @@ class CreateFormDef extends React.PureComponent {
         })
     }
 
+    modalTitle(formType, record) {
+        if(formType === cs.FormCreate) {
+            return "Create a list"
+        }
+
+        return (
+            <div>
+                <Tag color={ tagColors.hasOwnProperty(record.type) ? tagColors[record.type] : "" }>{ record.type }</Tag>
+                {" "}
+                { record.name }
+                <br />                
+                <span className="text-tiny text-grey">ID { record.id } &mdash; UUID { record.uuid }</span>
+            </div>
+        )
+    }
+
     render() {
         const { formType, record, onClose } = this.props
         const { getFieldDecorator } = this.props.form
@@ -60,7 +81,7 @@ class CreateFormDef extends React.PureComponent {
         }
 
         return (
-            <Modal visible={ true } title={ formType === cs.FormCreate ? "Create a list" : record.name }
+            <Modal visible={ true } title={ this.modalTitle(this.state.form, record) }
                 okText={ this.state.form === cs.FormCreate ? "Create" : "Save" }
                 confirmLoading={ this.state.modalWaiting }
                 onCancel={ onClose }

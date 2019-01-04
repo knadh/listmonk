@@ -481,10 +481,13 @@ class Campaign extends React.PureComponent {
                     <Col span={ 16 }>
                         { !this.state.record.id && <h1>Create a campaign</h1> }
                         { this.state.record.id &&
-                            <h1>
-                                <Tag color={ cs.CampaignStatusColors[this.state.record.status] }>{ this.state.record.status }</Tag>
-                                { this.state.record.name }
-                            </h1>
+                            <div>
+                                <h1>
+                                    <Tag color={ cs.CampaignStatusColors[this.state.record.status] }>{ this.state.record.status }</Tag>
+                                    { this.state.record.name }
+                                </h1>
+                                <span className="text-tiny text-grey">ID { this.state.record.id } &mdash; UUID { this.state.record.uuid }</span>
+                            </div>
                         }
                     </Col>
                     <Col span={ 8 } className="right">

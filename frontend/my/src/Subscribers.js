@@ -86,11 +86,13 @@ class CreateFormDef extends React.PureComponent {
         }
 
         return (
-             <span>
-                 <Tag color={ tagColors.hasOwnProperty(record.status) ? tagColors[record.status] : "" }>{ record.status }</Tag>
-                 {" "}
+             <div>
+                <Tag color={ tagColors.hasOwnProperty(record.status) ? tagColors[record.status] : "" }>{ record.status }</Tag>
+                {" "}
                 { record.name } ({ record.email })
-             </span>
+                <br />                
+                <span className="text-tiny text-grey">ID { record.id } &mdash; UUID { record.uuid }</span>
+             </div>
         )
     }
 
