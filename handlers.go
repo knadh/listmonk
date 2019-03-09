@@ -125,8 +125,7 @@ func handleIndexPage(c echo.Context) error {
 
 	b, err := app.FS.Read("/frontend/index.html")
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError,
-			err)
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
 	c.Response().Header().Set("Content-Type", "text/html")
