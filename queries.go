@@ -5,9 +5,8 @@ import (
 	"database/sql"
 	"fmt"
 
-	"github.com/lib/pq"
-
 	"github.com/jmoiron/sqlx"
+	"github.com/lib/pq"
 )
 
 // Queries contains all prepared SQL queries.

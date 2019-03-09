@@ -31,19 +31,19 @@ export const MsgPosition = "bottomRight"
 
 // Model specific.
 export const CampaignStatusColors = {
-	draft: "",
-	scheduled: "purple",
-	running: "blue",
-	paused: "orange",
-	finished: "green",
-	cancelled: "red",
+  draft: "",
+  scheduled: "purple",
+  running: "blue",
+  paused: "orange",
+  finished: "green",
+  cancelled: "red"
 }
 
-export const CampaignStatusDraft     = "draft"
+export const CampaignStatusDraft = "draft"
 export const CampaignStatusScheduled = "scheduled"
-export const CampaignStatusRunning   = "running"
-export const CampaignStatusPaused    = "paused"
-export const CampaignStatusFinished  = "finished"
+export const CampaignStatusRunning = "running"
+export const CampaignStatusPaused = "paused"
+export const CampaignStatusFinished = "finished"
 export const CampaignStatusCancelled = "cancelled"
 
 export const SubscriptionStatusConfirmed = "confirmed"
@@ -52,62 +52,62 @@ export const SubscriptionStatusUnsubscribed = "unsubscribed"
 
 // API routes.
 export const Routes = {
-    GetDashboarcStats: "/api/dashboard/stats",
-    GetUsers: "/api/users",
-    
-    // Lists.
-    GetLists: "/api/lists",
-    CreateList: "/api/lists",
-    UpdateList: "/api/lists/:id",
-    DeleteList: "/api/lists/:id",
+  GetDashboarcStats: "/api/dashboard/stats",
+  GetUsers: "/api/users",
 
-    // Subscribers.
-    ViewSubscribers: "/subscribers",
-    GetSubscribers: "/api/subscribers",
-    GetSubscriber: "/api/subscribers/:id",
-    GetSubscribersByList: "/api/subscribers/lists/:listID",
-    PreviewCampaign: "/api/campaigns/:id/preview",
-    CreateSubscriber: "/api/subscribers",
-    UpdateSubscriber: "/api/subscribers/:id",
-    DeleteSubscriber: "/api/subscribers/:id",
-    DeleteSubscribers: "/api/subscribers",
-    BlacklistSubscriber: "/api/subscribers/:id/blacklist",
-    BlacklistSubscribers: "/api/subscribers/blacklist",
-    AddSubscriberToLists: "/api/subscribers/lists/:id",
-    AddSubscribersToLists: "/api/subscribers/lists",
-    DeleteSubscribersByQuery: "/api/subscribers/query/delete",
-    BlacklistSubscribersByQuery: "/api/subscribers/query/blacklist",
-    AddSubscribersToListsByQuery: "/api/subscribers/query/lists",
-    
-    // Campaigns.
-    ViewCampaigns: "/campaigns",
-    ViewCampaign: "/campaigns/:id",
-    GetCampaignMessengers: "/api/campaigns/messengers",
-    GetCampaigns: "/api/campaigns",
-    GetCampaign: "/api/campaigns/:id",
-    GetRunningCampaignStats: "/api/campaigns/running/stats",
-    CreateCampaign: "/api/campaigns",
-    TestCampaign: "/api/campaigns/:id/test",
-    UpdateCampaign: "/api/campaigns/:id",
-    UpdateCampaignStatus: "/api/campaigns/:id/status",
-    DeleteCampaign: "/api/campaigns/:id",
+  // Lists.
+  GetLists: "/api/lists",
+  CreateList: "/api/lists",
+  UpdateList: "/api/lists/:id",
+  DeleteList: "/api/lists/:id",
 
-    // Media.
-    GetMedia: "/api/media",
-    AddMedia: "/api/media",
-    DeleteMedia: "/api/media/:id",
+  // Subscribers.
+  ViewSubscribers: "/subscribers",
+  GetSubscribers: "/api/subscribers",
+  GetSubscriber: "/api/subscribers/:id",
+  GetSubscribersByList: "/api/subscribers/lists/:listID",
+  PreviewCampaign: "/api/campaigns/:id/preview",
+  CreateSubscriber: "/api/subscribers",
+  UpdateSubscriber: "/api/subscribers/:id",
+  DeleteSubscriber: "/api/subscribers/:id",
+  DeleteSubscribers: "/api/subscribers",
+  BlacklistSubscriber: "/api/subscribers/:id/blacklist",
+  BlacklistSubscribers: "/api/subscribers/blacklist",
+  AddSubscriberToLists: "/api/subscribers/lists/:id",
+  AddSubscribersToLists: "/api/subscribers/lists",
+  DeleteSubscribersByQuery: "/api/subscribers/query/delete",
+  BlacklistSubscribersByQuery: "/api/subscribers/query/blacklist",
+  AddSubscribersToListsByQuery: "/api/subscribers/query/lists",
 
-    // Templates.
-    GetTemplates: "/api/templates",
-    PreviewTemplate: "/api/templates/:id/preview",
-    PreviewNewTemplate: "/api/templates/preview",
-    CreateTemplate: "/api/templates",
-    UpdateTemplate: "/api/templates/:id",
-    SetDefaultTemplate: "/api/templates/:id/default",
-    DeleteTemplate: "/api/templates/:id",
+  // Campaigns.
+  ViewCampaigns: "/campaigns",
+  ViewCampaign: "/campaigns/:id",
+  GetCampaignMessengers: "/api/campaigns/messengers",
+  GetCampaigns: "/api/campaigns",
+  GetCampaign: "/api/campaigns/:id",
+  GetRunningCampaignStats: "/api/campaigns/running/stats",
+  CreateCampaign: "/api/campaigns",
+  TestCampaign: "/api/campaigns/:id/test",
+  UpdateCampaign: "/api/campaigns/:id",
+  UpdateCampaignStatus: "/api/campaigns/:id/status",
+  DeleteCampaign: "/api/campaigns/:id",
 
-    // Import.
-    UploadRouteImport: "/api/import/subscribers",
-    GetRouteImportStats: "/api/import/subscribers",
-    GetRouteImportLogs: "/api/import/subscribers/logs"
+  // Media.
+  GetMedia: "/api/media",
+  AddMedia: "/api/media",
+  DeleteMedia: "/api/media/:id",
+
+  // Templates.
+  GetTemplates: "/api/templates",
+  PreviewTemplate: "/api/templates/:id/preview",
+  PreviewNewTemplate: "/api/templates/preview",
+  CreateTemplate: "/api/templates",
+  UpdateTemplate: "/api/templates/:id",
+  SetDefaultTemplate: "/api/templates/:id/default",
+  DeleteTemplate: "/api/templates/:id",
+
+  // Import.
+  UploadRouteImport: "/api/import/subscribers",
+  GetRouteImportStats: "/api/import/subscribers",
+  GetRouteImportLogs: "/api/import/subscribers/logs"
 }
