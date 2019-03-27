@@ -51,6 +51,10 @@ build:
 	go build  -o ${BIN} -ldflags="-s -w -X 'main.buildVersion=${VERSION}' -X 'main.buildDate=${BUILD_DATE}'"
 	stuffbin -a stuff -in ${BIN} -out ${BIN} ${STATIC}
 
+.PHONY: run
+run: build
+	./${BIN}
+
 .PHONY: deps
 deps:
 	go get -u github.com/knadh/stuffbin/...
