@@ -26,7 +26,7 @@ class Campaigns extends React.PureComponent {
   state = {
     formType: null,
     pollID: -1,
-    queryParams: "",
+    queryParams: {},
     stats: {},
     record: null,
     previewRecord: null,
@@ -37,19 +37,13 @@ class Campaigns extends React.PureComponent {
 
   // Pagination config.
   paginationOptions = {
-    hideOnSinglePage: true,
+    hideOnSinglePage: false,
     showSizeChanger: true,
     showQuickJumper: true,
     defaultPageSize: this.defaultPerPage,
     pageSizeOptions: ["20", "50", "70", "100"],
     position: "both",
-    showTotal: (total, range) => `${range[0]} to ${range[1]} of ${total}`,
-    onChange: (page, perPage) => {
-      this.fetchRecords({ page: page, per_page: perPage })
-    },
-    onShowSizeChange: (page, perPage) => {
-      this.fetchRecords({ page: page, per_page: perPage })
-    }
+    showTotal: (total, range) => `${range[0]} to ${range[1]} of ${total}`
   }
 
   constructor(props) {
@@ -62,6 +56,50 @@ class Campaigns extends React.PureComponent {
         sorter: true,
         width: "20%",
         vAlign: "top",
+        filterIcon: filtered => (
+          <Icon
+            type="search"
+            style={{ color: filtered ? "#1890ff" : undefined }}
+          />
+        ),
+        filterDropdown: ({
+          setSelectedKeys,
+          selectedKeys,
+          confirm,
+          clearFilters
+        }) => (
+          <div style={{ padding: 8 }}>
+            <Input
+              ref={node => {
+                this.searchInput = node
+              }}
+              placeholder={`Search`}
+              onChange={e =>
+                setSelectedKeys(e.target.value ? [e.target.value] : [])
+              }
+              onPressEnter={() => confirm()}
+              style={{ width: 188, marginBottom: 8, display: "block" }}
+            />
+            <Button
+              type="primary"
+              onClick={() => confirm()}
+              icon="search"
+              size="small"
+              style={{ width: 90, marginRight: 8 }}
+            >
+              Search
+            </Button>
+            <Button
+              onClick={() => {
+                clearFilters()
+              }}
+              size="small"
+              style={{ width: 90 }}
+            >
+              Reset
+            </Button>
+          </div>
+        ),
         render: (text, record) => {
           const out = []
           out.push(
@@ -86,6 +124,14 @@ class Campaigns extends React.PureComponent {
         dataIndex: "status",
         className: "status",
         width: "10%",
+        filters: [
+          { text: "Draft", value: "draft" },
+          { text: "Running", value: "running" },
+          { text: "Scheduled", value: "scheduled" },
+          { text: "Paused", value: "paused" },
+          { text: "Cancelled", value: "cancelled" },
+          { text: "Finished", value: "finished" }
+        ],
         render: (status, record) => {
           let color = cs.CampaignStatusColors.hasOwnProperty(status)
             ? cs.CampaignStatusColors[status]
@@ -415,14 +461,17 @@ class Campaigns extends React.PureComponent {
   }
 
   fetchRecords = params => {
+    if (!params) {
+      params = {}
+    }
     let qParams = {
       page: this.state.queryParams.page,
       per_page: this.state.queryParams.per_page
     }
 
-    // The records are for a specific list.
-    if (this.state.queryParams.listID) {
-      qParams.listID = this.state.queryParams.listID
+    // Avoid sending blank string where the enum check will fail.
+    if (!params.status) {
+      delete params.status
     }
 
     if (params) {
@@ -437,6 +486,17 @@ class Campaigns extends React.PureComponent {
         qParams
       )
       .then(r => {
+        this.setState({
+          queryParams: {
+            ...this.state.queryParams,
+            total: this.props.data[cs.ModelCampaigns].total,
+            per_page: this.props.data[cs.ModelCampaigns].per_page,
+            page: this.props.data[cs.ModelCampaigns].page,
+            query: this.props.data[cs.ModelCampaigns].query,
+            status: params.status
+          }
+        })
+
         this.startStatsPoll()
       })
   }
@@ -447,7 +507,7 @@ class Campaigns extends React.PureComponent {
 
     // If there's at least one running campaign, start polling.
     let hasRunning = false
-    this.props.data[cs.ModelCampaigns].forEach(c => {
+    this.props.data[cs.ModelCampaigns].results.forEach(c => {
       if (c.status === cs.CampaignStatusRunning) {
         hasRunning = true
         return
@@ -605,12 +665,32 @@ class Campaigns extends React.PureComponent {
         <br />
 
         <Table
-          className="subscribers"
+          className="campaigns"
           columns={this.columns}
           rowKey={record => record.uuid}
-          dataSource={this.props.data[cs.ModelCampaigns]}
+          dataSource={(() => {
+            if (
+              !this.props.data[cs.ModelCampaigns] ||
+              !this.props.data[cs.ModelCampaigns].hasOwnProperty("results")
+            ) {
+              return []
+            }
+            return this.props.data[cs.ModelCampaigns].results
+          })()}
           loading={this.props.reqStates[cs.ModelCampaigns] !== cs.StateDone}
           pagination={pagination}
+          onChange={(pagination, filters, sorter, records) => {
+            this.fetchRecords({
+              per_page: pagination.pageSize,
+              page: pagination.current,
+              status:
+                filters.status && filters.status.length > 0
+                  ? filters.status
+                  : "",
+              query:
+                filters.name && filters.name.length > 0 ? filters.name[0] : ""
+            })
+          }}
         />
 
         {this.state.previewRecord && (

@@ -38,50 +38,72 @@ type campaignStats struct {
 	Rate      float64   `json:"rate"`
 }
 
-var regexFromAddress = regexp.MustCompile(`(.+?)\s<(.+?)@(.+?)>`)
+type campsWrap struct {
+	Results []models.Campaign `json:"results"`
+
+	Query   string `json:"query"`
+	Total   int    `json:"total"`
+	PerPage int    `json:"per_page"`
+	Page    int    `json:"page"`
+}
+
+var (
+	regexFromAddress   = regexp.MustCompile(`(.+?)\s<(.+?)@(.+?)>`)
+	regexFullTextQuery = regexp.MustCompile(`\s+`)
+)
 
 // handleGetCampaigns handles retrieval of campaigns.
 func handleGetCampaigns(c echo.Context) error {
 	var (
 		app = c.Get("app").(*App)
 		pg  = getPagination(c.QueryParams())
-		out models.Campaigns
+		out campsWrap
 
 		id, _     = strconv.Atoi(c.Param("id"))
-		status    = c.FormValue("status")
-		single    = false
+		status    = c.QueryParams()["status"]
+		query     = strings.TrimSpace(c.FormValue("query"))
 		noBody, _ = strconv.ParseBool(c.QueryParam("no_body"))
+		single    = false
 	)
 
 	// Fetch one list.
 	if id > 0 {
 		single = true
 	}
+	if query != "" {
+		query = string(regexFullTextQuery.ReplaceAll([]byte(query), []byte("&")))
+	}
 
-	err := app.Queries.GetCampaigns.Select(&out, id, status, pg.Offset, pg.Limit)
+	err := app.Queries.GetCampaigns.Select(&out.Results, id, pq.StringArray(status), query, pg.Offset, pg.Limit)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			fmt.Sprintf("Error fetching campaigns: %s", pqErrMsg(err)))
-	} else if single && len(out) == 0 {
+	} else if single && len(out.Results) == 0 {
 		return echo.NewHTTPError(http.StatusBadRequest, "Campaign not found.")
-	} else if len(out) == 0 {
-		return c.JSON(http.StatusOK, okResp{[]struct{}{}})
+	} else if len(out.Results) == 0 {
+		out.Results = make([]models.Campaign, 0)
+		return c.JSON(http.StatusOK, out)
 	}
 
-	for i := 0; i < len(out); i++ {
+	for i := 0; i < len(out.Results); i++ {
 		// Replace null tags.
-		if out[i].Tags == nil {
-			out[i].Tags = make(pq.StringArray, 0)
+		if out.Results[i].Tags == nil {
+			out.Results[i].Tags = make(pq.StringArray, 0)
 		}
 
 		if noBody {
-			out[i].Body = ""
+			out.Results[i].Body = ""
 		}
 	}
 
 	if single {
-		return c.JSON(http.StatusOK, okResp{out[0]})
+		return c.JSON(http.StatusOK, okResp{out.Results[0]})
 	}
+
+	// Meta.
+	out.Total = out.Results[0].Total
+	out.Page = pg.Page
+	out.PerPage = pg.PerPage
 
 	return c.JSON(http.StatusOK, okResp{out})
 }

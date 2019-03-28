@@ -141,6 +141,10 @@ type Campaign struct {
 	// TemplateBody is joined in from templates by the next-campaigns query.
 	TemplateBody string             `db:"template_body" json:"-"`
 	Tpl          *template.Template `json:"-"`
+
+	// Pseudofield for getting the total number of subscribers
+	// in searches and queries.
+	Total int `db:"total" json:"-"`
 }
 
 // CampaignMeta contains fields tracking a campaign's progress.
