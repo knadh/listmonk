@@ -202,7 +202,7 @@ class Lists extends React.PureComponent {
           const out = []
           out.push(
             <div className="name" key={`name-${record.id}`}>
-              <Link to={`/subscribers/lists/${record.id}`}>{text}</Link>
+              <a role="button" onClick={() => this.handleShowEditForm(record)}>{text}</a>
             </div>
           )
 
