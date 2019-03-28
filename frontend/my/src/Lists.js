@@ -147,7 +147,7 @@ class CreateFormDef extends React.PureComponent {
               {getFieldDecorator("name", {
                 initialValue: record.name,
                 rules: [{ required: true }]
-              })(<Input autoFocus maxLength="200" />)}
+              })(<Input autoFocus maxLength={200} />)}
             </Form.Item>
             <Form.Item
               {...formItemLayout}
@@ -202,7 +202,9 @@ class Lists extends React.PureComponent {
           const out = []
           out.push(
             <div className="name" key={`name-${record.id}`}>
-              <a role="button" onClick={() => this.handleShowEditForm(record)}>{text}</a>
+              <a role="button" onClick={() => this.handleShowEditForm(record)}>
+                {text}
+              </a>
             </div>
           )
 

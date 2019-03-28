@@ -138,7 +138,7 @@ class CreateFormDef extends React.PureComponent {
                 {getFieldDecorator("name", {
                   initialValue: record.name,
                   rules: [{ required: true }]
-                })(<Input autoFocus maxLength="200" />)}
+                })(<Input autoFocus maxLength={200} />)}
               </Form.Item>
               <Form.Item {...formItemLayout} name="body" label="Raw HTML">
                 {getFieldDecorator("body", {

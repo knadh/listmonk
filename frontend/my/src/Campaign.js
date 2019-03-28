@@ -396,7 +396,7 @@ class TheFormDef extends React.PureComponent {
                 <Input
                   disabled={this.props.formDisabled}
                   autoFocus
-                  maxLength="200"
+                  maxLength={200}
                 />
               )}
             </Form.Item>
@@ -404,7 +404,7 @@ class TheFormDef extends React.PureComponent {
               {getFieldDecorator("subject", {
                 initialValue: record.subject,
                 rules: [{ required: true }]
-              })(<Input disabled={this.props.formDisabled} maxLength="500" />)}
+              })(<Input disabled={this.props.formDisabled} maxLength={500} />)}
             </Form.Item>
             <Form.Item {...formItemLayout} label="From address">
               {getFieldDecorator("from_email", {
@@ -416,7 +416,7 @@ class TheFormDef extends React.PureComponent {
                 <Input
                   disabled={this.props.formDisabled}
                   placeholder="Company Name <email@company.com>"
-                  maxLength="200"
+                  maxLength={200}
                 />
               )}
             </Form.Item>
@@ -431,7 +431,7 @@ class TheFormDef extends React.PureComponent {
                     ? subLists
                     : this.props.data[cs.ModelLists].length === 1
                     ? [this.props.data[cs.ModelLists][0].id]
-                    : undefined,
+                    : [1],
                 rules: [{ required: true }]
               })(
                 <Select disabled={this.props.formDisabled} mode="multiple">

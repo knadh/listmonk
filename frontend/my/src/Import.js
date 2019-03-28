@@ -165,7 +165,7 @@ class TheFormDef extends React.PureComponent {
           >
             {getFieldDecorator("delim", {
               initialValue: ","
-            })(<Input maxLength="1" style={{ maxWidth: 40 }} />)}
+            })(<Input maxLength={1} style={{ maxWidth: 40 }} />)}
           </Form.Item>
           <Form.Item {...formItemLayout} label="CSV or ZIP file">
             <div className="dropbox">
