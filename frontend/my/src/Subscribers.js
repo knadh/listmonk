@@ -762,7 +762,15 @@ class Subscribers extends React.PureComponent {
         <Table
           columns={this.columns}
           rowKey={record => `sub-${record.id}`}
-          dataSource={this.props.data[cs.ModelSubscribers].results}
+          dataSource={(() => {
+            if (
+              !this.props.data[cs.ModelSubscribers] ||
+              !this.props.data[cs.ModelSubscribers].hasOwnProperty("results")
+            ) {
+              return []
+            }
+            return this.props.data[cs.ModelSubscribers].results
+          })()}
           loading={this.props.reqStates[cs.ModelSubscribers] !== cs.StateDone}
           pagination={pagination}
           rowSelection={{
