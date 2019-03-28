@@ -22,6 +22,7 @@ import Media from "./Media"
 import ModalPreview from "./ModalPreview"
 
 import moment from "moment"
+import parseUrl from "querystring"
 import ReactQuill from "react-quill"
 import Delta from "quill-delta"
 import "react-quill/dist/quill.snow.css"
@@ -374,7 +375,19 @@ class TheFormDef extends React.PureComponent {
           return v.id !== 0 ? v.id : null
         })
         .filter(v => v !== null)
+    } else if (this.props.route.location.search) {
+      // list_id in the query params.
+      const p = parseUrl.parse(this.props.route.location.search.substring(1))
+      if (p.hasOwnProperty("list_id")) {
+        // eslint-disable-next-line radix
+        const id = parseInt(p.list_id)
+        if (id) {
+          subLists.push(id)
+        }
+      }
     }
+
+    console.log(subLists)
 
     if (this.record) {
       this.props.pageTitle(record.name + " / Campaigns")
@@ -431,7 +444,7 @@ class TheFormDef extends React.PureComponent {
                     ? subLists
                     : this.props.data[cs.ModelLists].length === 1
                     ? [this.props.data[cs.ModelLists][0].id]
-                    : [1],
+                    : undefined,
                 rules: [{ required: true }]
               })(
                 <Select disabled={this.props.formDisabled} mode="multiple">

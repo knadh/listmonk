@@ -261,9 +261,9 @@ class Lists extends React.PureComponent {
           return (
             <div className="actions">
               <Tooltip title="Send a campaign">
-                <a role="button">
+                <Link to={`/campaigns/new?list_id=${record.id}`}>
                   <Icon type="rocket" />
-                </a>
+                </Link>
               </Tooltip>
               <Tooltip title="Edit list">
                 <a
