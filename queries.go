@@ -42,7 +42,8 @@ type Queries struct {
 	DeleteLists *sqlx.Stmt `query:"delete-lists"`
 
 	CreateCampaign           *sqlx.Stmt `query:"create-campaign"`
-	GetCampaigns             *sqlx.Stmt `query:"get-campaigns"`
+	QueryCampaigns           *sqlx.Stmt `query:"query-campaigns"`
+	GetCampaign              *sqlx.Stmt `query:"get-campaign"`
 	GetCampaignForPreview    *sqlx.Stmt `query:"get-campaign-for-preview"`
 	GetCampaignStats         *sqlx.Stmt `query:"get-campaign-stats"`
 	NextCampaigns            *sqlx.Stmt `query:"next-campaigns"`

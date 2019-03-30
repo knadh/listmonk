@@ -21,8 +21,12 @@ import (
 // campaignReq is a wrapper over the Campaign model.
 type campaignReq struct {
 	models.Campaign
-	MessengerID string        `json:"messenger"`
-	Lists       pq.Int64Array `json:"lists"`
+
+	// This overrides Campaign.Lists to receive and
+	// write a list of int IDs during creation and updation.
+	// Campaign.Lists is JSONText for sending lists children
+	// to the outside world.
+	ListIDs pq.Int64Array `db:"-" json:"lists"`
 
 	// This is only relevant to campaign test requests.
 	SubscriberEmails pq.StringArray `json:"subscribers"`
@@ -74,7 +78,7 @@ func handleGetCampaigns(c echo.Context) error {
 		query = string(regexFullTextQuery.ReplaceAll([]byte(query), []byte("&")))
 	}
 
-	err := app.Queries.GetCampaigns.Select(&out.Results, id, pq.StringArray(status), query, pg.Offset, pg.Limit)
+	err := app.Queries.QueryCampaigns.Select(&out.Results, id, pq.StringArray(status), query, pg.Offset, pg.Limit)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			fmt.Sprintf("Error fetching campaigns: %s", pqErrMsg(err)))
@@ -199,7 +203,7 @@ func handleCreateCampaign(c echo.Context) error {
 		pq.StringArray(normalizeTags(o.Tags)),
 		"email",
 		o.TemplateID,
-		o.Lists,
+		o.ListIDs,
 	); err != nil {
 		if err == sql.ErrNoRows {
 			return echo.NewHTTPError(http.StatusBadRequest,
@@ -230,7 +234,7 @@ func handleUpdateCampaign(c echo.Context) error {
 	}
 
 	var cm models.Campaign
-	if err := app.Queries.GetCampaigns.Get(&cm, id, "", 0, 1); err != nil {
+	if err := app.Queries.GetCampaign.Get(&cm, id); err != nil {
 		if err == sql.ErrNoRows {
 			return echo.NewHTTPError(http.StatusBadRequest, "Campaign not found.")
 		}
@@ -263,7 +267,7 @@ func handleUpdateCampaign(c echo.Context) error {
 		o.SendAt,
 		pq.StringArray(normalizeTags(o.Tags)),
 		o.TemplateID,
-		o.Lists)
+		o.ListIDs)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			fmt.Sprintf("Error updating campaign: %s", pqErrMsg(err)))
@@ -288,7 +292,7 @@ func handleUpdateCampaignStatus(c echo.Context) error {
 	}
 
 	var cm models.Campaign
-	if err := app.Queries.GetCampaigns.Get(&cm, id, "", 0, 1); err != nil {
+	if err := app.Queries.GetCampaign.Get(&cm, id); err != nil {
 		if err == sql.ErrNoRows {
 			return echo.NewHTTPError(http.StatusBadRequest, "Campaign not found.")
 		}
@@ -361,7 +365,7 @@ func handleDeleteCampaign(c echo.Context) error {
 	}
 
 	var cm models.Campaign
-	if err := app.Queries.GetCampaigns.Get(&cm, id, "", 0, 1); err != nil {
+	if err := app.Queries.GetCampaign.Get(&cm, id); err != nil {
 		if err == sql.ErrNoRows {
 			return echo.NewHTTPError(http.StatusBadRequest, "Campaign not found.")
 		}

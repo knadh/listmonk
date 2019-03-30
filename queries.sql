@@ -252,7 +252,7 @@ INSERT INTO campaign_lists (campaign_id, list_id, list_name)
     (SELECT (SELECT id FROM camp), id, name FROM lists WHERE id=ANY($11::INT[]))
     RETURNING (SELECT id FROM camp);
 
--- name: get-campaigns
+-- name: query-campaigns
 -- Here, 'lists' is returned as an aggregated JSON array from campaign_lists because
 -- the list reference may have been deleted.
 -- While the results are sliced using offset+limit,
@@ -289,6 +289,26 @@ FROM camps
 LEFT JOIN views AS v ON (v.campaign_id = camps.id)
 LEFT JOIN clicks AS c ON (c.campaign_id = camps.id)
 ORDER BY camps.created_at DESC;
+
+-- name: get-campaign
+WITH camp AS (
+    SELECT * FROM campaigns WHERE id = $1
+), views AS (
+    SELECT campaign_id, COUNT(campaign_id) as num FROM campaign_views
+    WHERE campaign_id = ANY(SELECT id FROM camp)
+    GROUP BY campaign_id
+),
+clicks AS (
+    SELECT campaign_id, COUNT(campaign_id) as num FROM link_clicks
+    WHERE campaign_id = ANY(SELECT id FROM camp)
+    GROUP BY campaign_id
+)
+SELECT *,
+    COALESCE(v.num, 0) AS views,
+    COALESCE(c.num, 0) AS clicks
+FROM camp
+LEFT JOIN views AS v ON (v.campaign_id = camp.id)
+LEFT JOIN clicks AS c ON (c.campaign_id = camp.id);
 
 -- name: get-campaign-for-preview
 SELECT campaigns.*, COALESCE(templates.body, (SELECT body FROM templates WHERE is_default = true LIMIT 1)) AS template_body,
@@ -394,9 +414,9 @@ WITH camp AS (
         updated_at=NOW()
     WHERE id = $1 RETURNING id
 ),
-    -- Reset the relationships
 d AS (
-    DELETE FROM campaign_lists WHERE campaign_id = $1
+    -- Reset list relationships
+    DELETE FROM campaign_lists WHERE campaign_id = $1 AND NOT(list_id = ANY($10))
 )
 INSERT INTO campaign_lists (campaign_id, list_id, list_name)
     (SELECT $1 as campaign_id, id, name FROM lists WHERE id=ANY($10::INT[]))
