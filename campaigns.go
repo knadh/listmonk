@@ -43,7 +43,7 @@ type campaignStats struct {
 }
 
 type campsWrap struct {
-	Results []models.Campaign `json:"results"`
+	Results models.Campaigns `json:"results"`
 
 	Query   string `json:"query"`
 	Total   int    `json:"total"`
@@ -98,6 +98,12 @@ func handleGetCampaigns(c echo.Context) error {
 		if noBody {
 			out.Results[i].Body = ""
 		}
+	}
+
+	// Lazy load stats.
+	if err := out.Results.LoadStats(app.Queries.GetCampaignStats); err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError,
+			fmt.Sprintf("Error fetching campaign stats: %v", pqErrMsg(err)))
 	}
 
 	if single {
@@ -396,7 +402,7 @@ func handleGetRunningCampaignStats(c echo.Context) error {
 		out []campaignStats
 	)
 
-	if err := app.Queries.GetCampaignStats.Select(&out, models.CampaignStatusRunning); err != nil {
+	if err := app.Queries.GetCampaignStatus.Select(&out, models.CampaignStatusRunning); err != nil {
 		if err == sql.ErrNoRows {
 			return c.JSON(http.StatusOK, okResp{[]struct{}{}})
 		}

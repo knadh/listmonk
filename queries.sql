@@ -9,10 +9,25 @@ SELECT * FROM subscribers WHERE CASE WHEN $1 > 0 THEN id = $1 ELSE uuid = $2 END
 SELECT * FROM subscribers WHERE email=ANY($1);
 
 -- name: get-subscriber-lists
--- Get lists belonging to subscribers.
-SELECT lists.*, subscriber_lists.subscriber_id, subscriber_lists.status AS subscription_status FROM lists
+-- Get lists associations of subscribers given a list of subscriber IDs.
+-- This query is used to lazy load given a list of subscriber IDs.
+-- The query returns results in the same order as the given subscriber IDs, and for non-existent subscriber IDs,
+-- the query still returns a row with 0 values. Thus, for lazy loading, the application simply iterate on the results in
+-- the same order as the list of campaigns it would've queried and attach the results.
+WITH subs AS (
+    SELECT subscriber_id, JSON_AGG(
+        ROW_TO_JSON(
+            (SELECT l FROM (SELECT subscriber_lists.status AS subscription_status, lists.*) l)
+        )
+    ) AS lists FROM lists
     LEFT JOIN subscriber_lists ON (subscriber_lists.list_id = lists.id)
-    WHERE subscriber_lists.subscriber_id = ANY($1::INT[]);
+    WHERE subscriber_lists.subscriber_id = ANY($1)
+    GROUP BY subscriber_id
+)
+SELECT id as subscriber_id,
+    COALESCE(s.lists, '[]') AS lists
+    FROM (SELECT id FROM UNNEST($1) AS id) x
+    LEFT JOIN subs AS s ON (s.subscriber_id = id);
 
 -- name: insert-subscriber
 WITH sub AS (
@@ -259,56 +274,42 @@ INSERT INTO campaign_lists (campaign_id, list_id, list_name)
 -- there's a COUNT() OVER() that still returns the total result count
 -- for pagination in the frontend, albeit being a field that'll repeat
 -- with every resultant row.
-WITH camps AS (
-    SELECT COUNT(*) OVER () AS total, campaigns.*, (
-        SELECT COALESCE(ARRAY_TO_JSON(ARRAY_AGG(l)), '[]') FROM (
-            SELECT COALESCE(campaign_lists.list_id, 0) AS id,
-            campaign_lists.list_name AS name
-            FROM campaign_lists WHERE campaign_lists.campaign_id = campaigns.id
-        ) l
-    ) AS lists
-    FROM campaigns
-    WHERE ($1 = 0 OR id = $1)
-        AND status=ANY(CASE WHEN ARRAY_LENGTH($2::campaign_status[], 1) != 0 THEN $2::campaign_status[] ELSE ARRAY[status] END)
-        AND ($3 = '' OR (to_tsvector(name || subject) @@ to_tsquery($3)))
-    ORDER BY created_at DESC OFFSET $4 LIMIT $5
-), views AS (
-    SELECT campaign_id, COUNT(campaign_id) as num FROM campaign_views
-    WHERE campaign_id = ANY(SELECT id FROM camps)
-    GROUP BY campaign_id
-),
-clicks AS (
-    SELECT campaign_id, COUNT(campaign_id) as num FROM link_clicks
-    WHERE campaign_id = ANY(SELECT id FROM camps)
-    GROUP BY campaign_id
-)
-SELECT *,
-    COALESCE(v.num, 0) AS views,
-    COALESCE(c.num, 0) AS clicks
-FROM camps
-LEFT JOIN views AS v ON (v.campaign_id = camps.id)
-LEFT JOIN clicks AS c ON (c.campaign_id = camps.id)
-ORDER BY camps.created_at DESC;
+SELECT COUNT(*) OVER () AS total, campaigns.*
+FROM campaigns
+WHERE ($1 = 0 OR id = $1)
+    AND status=ANY(CASE WHEN ARRAY_LENGTH($2::campaign_status[], 1) != 0 THEN $2::campaign_status[] ELSE ARRAY[status] END)
+    AND ($3 = '' OR (to_tsvector(name || subject) @@ to_tsquery($3)))
+ORDER BY created_at DESC OFFSET $4 LIMIT $5;
 
 -- name: get-campaign
-WITH camp AS (
-    SELECT * FROM campaigns WHERE id = $1
+SELECT * FROM campaigns WHERE id = $1;
+
+-- name: get-campaign-stats
+-- This query is used to lazy load campaign stats (views, counts, list of lists) given a list of campaign IDs.
+-- The query returns results in the same order as the given campaign IDs, and for non-existent campaign IDs,
+-- the query still returns a row with 0 values. Thus, for lazy loading, the application simply iterate on the results in
+-- the same order as the list of campaigns it would've queried and attach the results.
+WITH lists AS (
+    SELECT campaign_id, JSON_AGG(JSON_BUILD_OBJECT('id', list_id, 'name', list_name)) AS lists FROM campaign_lists
+    WHERE campaign_id = ANY($1) GROUP BY campaign_id
 ), views AS (
     SELECT campaign_id, COUNT(campaign_id) as num FROM campaign_views
-    WHERE campaign_id = ANY(SELECT id FROM camp)
+    WHERE campaign_id = ANY($1)
     GROUP BY campaign_id
 ),
 clicks AS (
     SELECT campaign_id, COUNT(campaign_id) as num FROM link_clicks
-    WHERE campaign_id = ANY(SELECT id FROM camp)
+    WHERE campaign_id = ANY($1)
     GROUP BY campaign_id
 )
-SELECT *,
+SELECT id as campaign_id,
     COALESCE(v.num, 0) AS views,
-    COALESCE(c.num, 0) AS clicks
-FROM camp
-LEFT JOIN views AS v ON (v.campaign_id = camp.id)
-LEFT JOIN clicks AS c ON (c.campaign_id = camp.id);
+    COALESCE(c.num, 0) AS clicks,
+    COALESCE(l.lists, '[]') AS lists
+FROM (SELECT id FROM UNNEST($1) AS id) x
+LEFT JOIN lists AS l ON (l.campaign_id = id)
+LEFT JOIN views AS v ON (v.campaign_id = id)
+LEFT JOIN clicks AS c ON (c.campaign_id = id);
 
 -- name: get-campaign-for-preview
 SELECT campaigns.*, COALESCE(templates.body, (SELECT body FROM templates WHERE is_default = true LIMIT 1)) AS template_body,
@@ -323,7 +324,7 @@ FROM campaigns
 LEFT JOIN templates ON (templates.id = campaigns.template_id)
 WHERE campaigns.id = $1;
 
--- name: get-campaign-stats
+-- name: get-campaign-status
 SELECT id, status, to_send, sent, started_at, updated_at
     FROM campaigns
     WHERE status=$1;

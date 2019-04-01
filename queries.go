@@ -46,6 +46,7 @@ type Queries struct {
 	GetCampaign              *sqlx.Stmt `query:"get-campaign"`
 	GetCampaignForPreview    *sqlx.Stmt `query:"get-campaign-for-preview"`
 	GetCampaignStats         *sqlx.Stmt `query:"get-campaign-stats"`
+	GetCampaignStatus        *sqlx.Stmt `query:"get-campaign-status"`
 	NextCampaigns            *sqlx.Stmt `query:"next-campaigns"`
 	NextCampaignSubscribers  *sqlx.Stmt `query:"next-campaign-subscribers"`
 	GetOneCampaignSubscriber *sqlx.Stmt `query:"get-one-campaign-subscriber"`

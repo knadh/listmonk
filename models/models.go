@@ -3,6 +3,7 @@ package models
 import (
 	"database/sql/driver"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"html/template"
 	"regexp"
@@ -90,11 +91,15 @@ type Subscriber struct {
 	Attribs     SubscriberAttribs `db:"attribs" json:"attribs"`
 	Status      string            `db:"status" json:"status"`
 	CampaignIDs pq.Int64Array     `db:"campaigns" json:"-"`
-	Lists       []List            `json:"lists"`
+	Lists       types.JSONText    `db:"lists" json:"lists"`
 
 	// Pseudofield for getting the total number of subscribers
 	// in searches and queries.
 	Total int `db:"total" json:"-"`
+}
+type subLists struct {
+	SubscriberID int            `db:"subscriber_id"`
+	Lists        types.JSONText `db:"lists"`
 }
 
 // SubscriberAttribs is the map of key:value attributes of a subscriber.
@@ -134,10 +139,7 @@ type Campaign struct {
 	Tags        pq.StringArray `db:"tags" json:"tags"`
 	TemplateID  int            `db:"template_id" json:"template_id"`
 	MessengerID string         `db:"messenger" json:"messenger"`
-	Lists       types.JSONText `db:"lists" json:"lists"`
 
-	View   int `db:"views" json:"views"`
-	Clicks int `db:"clicks" json:"clicks"`
 	// TemplateBody is joined in from templates by the next-campaigns query.
 	TemplateBody string             `db:"template_body" json:"-"`
 	Tpl          *template.Template `json:"-"`
@@ -149,12 +151,23 @@ type Campaign struct {
 
 // CampaignMeta contains fields tracking a campaign's progress.
 type CampaignMeta struct {
+	CampaignID int `db:"campaign_id" json:""`
+	Views      int `db:"views" json:"views"`
+	Clicks     int `db:"clicks" json:"clicks"`
+
+	// This is a list of {list_id, name} pairs unlike Subscriber.Lists[]
+	// because lists can be deleted after a campaign is finished, resulting
+	// in null lists data to be returned. For that reason, campaign_lists maintains
+	// campaign-list associations with a historical record of id + name that persist
+	// even after a list is deleted.
+	Lists types.JSONText `db:"lists" json:"lists"`
+
 	StartedAt null.Time `db:"started_at" json:"started_at"`
 	ToSend    int       `db:"to_send" json:"to_send"`
 	Sent      int       `db:"sent" json:"sent"`
 }
 
-// Campaigns represents a slice of Campaign.
+// Campaigns represents a slice of Campaigns.
 type Campaigns []Campaign
 
 // Media represents an uploaded media item.
@@ -179,29 +192,32 @@ type Template struct {
 	IsDefault bool   `db:"is_default" json:"is_default"`
 }
 
+// GetIDs returns the list of subscriber IDs.
+func (subs Subscribers) GetIDs() []int {
+	IDs := make([]int, len(subs))
+	for i, c := range subs {
+		IDs[i] = c.ID
+	}
+
+	return IDs
+}
+
 // LoadLists lazy loads the lists for all the subscribers
 // in the Subscribers slice and attaches them to their []Lists property.
 func (subs Subscribers) LoadLists(stmt *sqlx.Stmt) error {
-	var (
-		lists  []List
-		subIDs = make([]int, len(subs))
-	)
-	for i := 0; i < len(subs); i++ {
-		subIDs[i] = subs[i].ID
-		subs[i].Lists = make([]List, 0)
-	}
-
-	err := stmt.Select(&lists, pq.Array(subIDs))
+	var sl []subLists
+	err := stmt.Select(&sl, pq.Array(subs.GetIDs()))
 	if err != nil {
 		return err
 	}
 
-	// Loop through each list and attach it to the subscribers by ID.
-	for _, l := range lists {
-		for i := 0; i < len(subs); i++ {
-			if l.SubscriberID == subs[i].ID {
-				subs[i].Lists = append(subs[i].Lists, l)
-			}
+	if len(subs) != len(sl) {
+		return errors.New("campaign stats count does not match")
+	}
+
+	for i, s := range sl {
+		if s.SubscriberID == subs[i].ID {
+			subs[i].Lists = s.Lists
 		}
 	}
 
@@ -219,6 +235,38 @@ func (s SubscriberAttribs) Scan(src interface{}) error {
 		return json.Unmarshal(data, &s)
 	}
 	return fmt.Errorf("Could not not decode type %T -> %T", src, s)
+}
+
+// GetIDs returns the list of campaign IDs.
+func (camps Campaigns) GetIDs() []int {
+	IDs := make([]int, len(camps))
+	for i, c := range camps {
+		IDs[i] = c.ID
+	}
+
+	return IDs
+}
+
+// LoadStats lazy loads campaign stats onto a list of campaigns.
+func (camps Campaigns) LoadStats(stmt *sqlx.Stmt) error {
+	var meta []CampaignMeta
+	if err := stmt.Select(&meta, pq.Array(camps.GetIDs())); err != nil {
+		return err
+	}
+
+	if len(camps) != len(meta) {
+		return errors.New("campaign stats count does not match")
+	}
+
+	for i, c := range meta {
+		if c.CampaignID == camps[i].ID {
+			camps[i].Lists = c.Lists
+			camps[i].Views = c.Views
+			camps[i].Clicks = c.Clicks
+		}
+	}
+
+	return nil
 }
 
 // CompileTemplate compiles a campaign body template into its base

@@ -159,9 +159,9 @@ class Campaigns extends React.PureComponent {
           const out = []
           lists.forEach(l => {
             out.push(
-              <span className="name" key={`name-${l.id}`}>
+              <Tag className="name" key={`name-${l.id}`}>
                 <Link to={`/subscribers/lists/${l.id}`}>{l.name}</Link>
-              </span>
+              </Tag>
             )
           })
 
