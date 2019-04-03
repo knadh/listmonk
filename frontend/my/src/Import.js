@@ -79,6 +79,7 @@ class TheFormDef extends React.PureComponent {
           message: "Error",
           description: e.message
         })
+        this.props.fetchimportState()
         this.setState({ formLoading: false })
       })
   }
@@ -289,7 +290,7 @@ class Importing extends React.PureComponent {
         )}
 
         <Row className="import-container">
-          <Col span="10" offset="3">
+          <Col span={10} offset={3}>
             <div className="stats center">
               <div>
                 <Progress type="line" percent={progressPercent} />

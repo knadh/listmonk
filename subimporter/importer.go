@@ -59,9 +59,8 @@ type Importer struct {
 	db        *sql.DB
 	notifCB   models.AdminNotifCallback
 
-	isImporting bool
-	stop        chan bool
-	status      *Status
+	stop   chan bool
+	status Status
 	sync.RWMutex
 }
 
@@ -108,7 +107,7 @@ func New(upsert *sql.Stmt, blacklist *sql.Stmt, db *sql.DB, notifCB models.Admin
 		stop:      make(chan bool, 1),
 		db:        db,
 		notifCB:   notifCB,
-		status:    &Status{Status: StatusNone, logBuf: bytes.NewBuffer(nil)},
+		status:    Status{Status: StatusNone, logBuf: bytes.NewBuffer(nil)},
 	}
 
 	return &im
@@ -122,7 +121,7 @@ func (im *Importer) NewSession(fName, mode string, listIDs []int) (*Session, err
 	}
 
 	im.Lock()
-	im.status = &Status{Status: StatusImporting,
+	im.status = Status{Status: StatusImporting,
 		Name:   fName,
 		logBuf: bytes.NewBuffer(nil)}
 	im.Unlock()
@@ -170,13 +169,25 @@ func (im *Importer) setStatus(status string) {
 	im.Unlock()
 }
 
-// setStatus get's the Importer's status.
+// getStatus get's the Importer's status.
 func (im *Importer) getStatus() string {
 	im.RLock()
 	status := im.status.Status
 	im.RUnlock()
 
 	return status
+}
+
+// isDone returns true if the importer is working (importing|stopping).
+func (im *Importer) isDone() bool {
+	s := true
+	im.RLock()
+	if im.getStatus() == StatusImporting || im.getStatus() == StatusStopping {
+		s = false
+	}
+	im.RUnlock()
+
+	return s
 }
 
 // incrementImportCount sets the Importer's "imported" counter.
@@ -290,13 +301,25 @@ func (s *Session) Start() {
 	s.im.sendNotif(StatusFinished)
 }
 
+// Stop stops an active import session.
+func (s *Session) Stop() {
+	close(s.subQueue)
+}
+
 // ExtractZIP takes a ZIP file's path and extracts all .csv files in it to
 // a temporary directory, and returns the name of the temp directory and the
 // list of extracted .csv files.
 func (s *Session) ExtractZIP(srcPath string, maxCSVs int) (string, []string, error) {
-	if s.im.isImporting {
+	if s.im.isDone() {
 		return "", nil, ErrIsImporting
 	}
+
+	failed := true
+	defer func() {
+		if failed {
+			s.im.setStatus(StatusFailed)
+		}
+	}()
 
 	z, err := zip.OpenReader(srcPath)
 	if err != nil {
@@ -355,12 +378,18 @@ func (s *Session) ExtractZIP(srcPath string, maxCSVs int) (string, []string, err
 		}
 	}
 
+	if len(files) == 0 {
+		s.log.Println("no CSV files found in the ZIP")
+		return "", nil, errors.New("no CSV files found in the ZIP")
+	}
+
+	failed = false
 	return dir, files, nil
 }
 
 // LoadCSV loads a CSV file and validates and imports the subscriber entries in it.
 func (s *Session) LoadCSV(srcPath string, delim rune) error {
-	if s.im.isImporting {
+	if s.im.isDone() {
 		return ErrIsImporting
 	}
 
@@ -488,11 +517,11 @@ func (s *Session) LoadCSV(srcPath string, delim rune) error {
 	return nil
 }
 
-// Stop sends a signal to stop all existing imports.
+// Stop sends a signal to stop the existing import.
 func (im *Importer) Stop() {
 	if im.getStatus() != StatusImporting {
 		im.Lock()
-		im.status = &Status{Status: StatusNone}
+		im.status = Status{Status: StatusNone}
 		im.Unlock()
 		return
 	}
@@ -526,10 +555,10 @@ func (s *Session) mapCSVHeaders(csvHdrs []string, knownHdrs map[string]bool) map
 // ValidateFields validates incoming subscriber field values.
 func ValidateFields(s SubReq) error {
 	if !govalidator.IsEmail(s.Email) {
-		return errors.New("invalid `email`")
+		return errors.New(`invalid email "` + s.Email + `"`)
 	}
 	if !govalidator.IsByteLength(s.Name, 1, stdInputMaxLen) {
-		return errors.New("invalid or empty `name`")
+		return errors.New(`invalid or empty name "` + s.Name + `"`)
 	}
 
 	return nil
