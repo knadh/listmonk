@@ -387,8 +387,6 @@ class TheFormDef extends React.PureComponent {
       }
     }
 
-    console.log(subLists)
-
     if (this.record) {
       this.props.pageTitle(record.name + " / Campaigns")
     } else {

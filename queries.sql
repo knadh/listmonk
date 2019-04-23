@@ -274,7 +274,13 @@ INSERT INTO campaign_lists (campaign_id, list_id, list_name)
 -- there's a COUNT() OVER() that still returns the total result count
 -- for pagination in the frontend, albeit being a field that'll repeat
 -- with every resultant row.
-SELECT COUNT(*) OVER () AS total, campaigns.*
+SELECT COUNT(*) OVER () AS total, campaigns.*, (
+        SELECT COALESCE(ARRAY_TO_JSON(ARRAY_AGG(l)), '[]') FROM (
+            SELECT COALESCE(campaign_lists.list_id, 0) AS id,
+            campaign_lists.list_name AS name
+            FROM campaign_lists WHERE campaign_lists.campaign_id = campaigns.id
+        ) l
+    ) AS lists
 FROM campaigns
 WHERE ($1 = 0 OR id = $1)
     AND status=ANY(CASE WHEN ARRAY_LENGTH($2::campaign_status[], 1) != 0 THEN $2::campaign_status[] ELSE ARRAY[status] END)
