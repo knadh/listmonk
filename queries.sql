@@ -27,7 +27,8 @@ WITH subs AS (
 SELECT id as subscriber_id,
     COALESCE(s.lists, '[]') AS lists
     FROM (SELECT id FROM UNNEST($1) AS id) x
-    LEFT JOIN subs AS s ON (s.subscriber_id = id);
+    LEFT JOIN subs AS s ON (s.subscriber_id = id)
+    ORDER BY ARRAY_POSITION($1, id);
 
 -- name: insert-subscriber
 WITH sub AS (
@@ -315,7 +316,8 @@ SELECT id as campaign_id,
 FROM (SELECT id FROM UNNEST($1) AS id) x
 LEFT JOIN lists AS l ON (l.campaign_id = id)
 LEFT JOIN views AS v ON (v.campaign_id = id)
-LEFT JOIN clicks AS c ON (c.campaign_id = id);
+LEFT JOIN clicks AS c ON (c.campaign_id = id)
+ORDER BY ARRAY_POSITION($1, id);
 
 -- name: get-campaign-for-preview
 SELECT campaigns.*, COALESCE(templates.body, (SELECT body FROM templates WHERE is_default = true LIMIT 1)) AS template_body,
