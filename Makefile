@@ -6,8 +6,8 @@ COMMIT_DATE := $(shell git show -s --format=%ci ${HASH})
 BUILD_DATE := $(shell date '+%Y-%m-%d %H:%M:%S')
 VERSION := ${HASH} (${COMMIT_DATE})
 
-.PHONY: build_frontend
-build_frontend:
+.PHONY: build-frontend
+build-frontend:
 	cd frontend/my && yarn install && yarn build
 
 .PHONY: quickdev
