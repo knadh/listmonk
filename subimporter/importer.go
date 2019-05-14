@@ -35,13 +35,6 @@ const (
 	// commitBatchSize is the number of inserts to commit in a single SQL transaction.
 	commitBatchSize = 10000
 
-	// SubscriberStatusEnabled indicates that a subscriber is active.
-	SubscriberStatusEnabled = "enabled"
-	// SubscriberStatusDisabled indicates that a subscriber is inactive or unsubscribed.
-	SubscriberStatusDisabled = "disabled"
-	// SubscriberStatusBlacklisted indicates that a subscriber is blacklisted.
-	SubscriberStatusBlacklisted = "blacklisted"
-
 	StatusNone      = "none"
 	StatusImporting = "importing"
 	StatusStopping  = "stopping"

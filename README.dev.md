@@ -52,7 +52,6 @@ Visit `http://localhost:9001` to access the frontend running in development mode
 # TODO: Essentials for v0.10
 
 - update list time after import
-- subscriber status "Enabled" -> "Active"
 - dockerize
 - add an http call to do version checks and alerts
 - make the design responsive
