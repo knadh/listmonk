@@ -277,12 +277,10 @@ func (s *Session) Start() {
 	if cur == 0 {
 		s.im.setStatus(StatusFinished)
 		s.log.Printf("imported finished")
-		s.im.sendNotif(StatusFinished)
-
 		if _, err := s.im.updateListDate.Exec(listIDs); err != nil {
 			s.log.Printf("error updating lists date: %v", err)
 		}
-
+		s.im.sendNotif(StatusFinished)
 		return
 	}
 
@@ -298,11 +296,10 @@ func (s *Session) Start() {
 	s.im.incrementImportCount(cur)
 	s.im.setStatus(StatusFinished)
 	s.log.Printf("imported finished")
-	s.im.sendNotif(StatusFinished)
-
 	if _, err := s.im.updateListDate.Exec(listIDs); err != nil {
 		s.log.Printf("error updating lists date: %v", err)
 	}
+	s.im.sendNotif(StatusFinished)
 }
 
 // Stop stops an active import session.

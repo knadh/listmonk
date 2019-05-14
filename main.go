@@ -200,7 +200,8 @@ func main() {
 
 	// Initialize the bulk subscriber importer.
 	importNotifCB := func(subject string, data map[string]interface{}) error {
-		return sendNotification(notifTplImport, subject, data, app)
+		go sendNotification(notifTplImport, subject, data, app)
+		return nil
 	}
 	app.Importer = subimporter.New(q.UpsertSubscriber.Stmt,
 		q.UpsertBlacklistSubscriber.Stmt,
