@@ -6,13 +6,12 @@ There are two independent components, the Go backend and the React frontend. In 
 
 1. Write `config.toml`
 2. Run `listmonk --install` to do the DB setup.
-3. Run `make deps` to install React / frontend dependencies
 
 # Dev environment
 
 ### 1. Run the backend
 
-`make run`
+`make deps` (once, to install dependencies) and then `make run`
 
 ### 2. Run the frontend
 
@@ -45,7 +44,7 @@ Visit `http://localhost:9001` to access the frontend running in development mode
 
 1. To build the Javascript frontend, run `make build-frontend`. This only needs to be run if the frontend has changed.
 
-2. `make build` builds a single production ready binary with all static assets embeded in it.
+2. `make build` builds a single production ready binary with all static assets embeded in it. Make sure to have installed the dependencies with `make deps` once.
 
 ---
 
