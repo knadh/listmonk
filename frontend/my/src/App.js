@@ -79,7 +79,9 @@ class App extends React.PureComponent {
 
       // If it's a GET call, set the response as the data state.
       if (method === cs.MethodGet) {
-        this.setState({ data: { ...this.state.data, [model]: res.data.data } })
+        this.setState({
+          data: { ...this.state.data, [model]: res.data.data }
+        })
       }
       return res
     } catch (e) {

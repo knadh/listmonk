@@ -47,10 +47,11 @@ const (
 
 // Importer represents the bulk CSV subscriber import system.
 type Importer struct {
-	upsert    *sql.Stmt
-	blacklist *sql.Stmt
-	db        *sql.DB
-	notifCB   models.AdminNotifCallback
+	upsert         *sql.Stmt
+	blacklist      *sql.Stmt
+	updateListDate *sql.Stmt
+	db             *sql.DB
+	notifCB        models.AdminNotifCallback
 
 	stop   chan bool
 	status Status
@@ -93,14 +94,16 @@ var (
 )
 
 // New returns a new instance of Importer.
-func New(upsert *sql.Stmt, blacklist *sql.Stmt, db *sql.DB, notifCB models.AdminNotifCallback) *Importer {
+func New(upsert *sql.Stmt, blacklist *sql.Stmt, updateListDate *sql.Stmt,
+	db *sql.DB, notifCB models.AdminNotifCallback) *Importer {
 	im := Importer{
-		upsert:    upsert,
-		blacklist: blacklist,
-		stop:      make(chan bool, 1),
-		db:        db,
-		notifCB:   notifCB,
-		status:    Status{Status: StatusNone, logBuf: bytes.NewBuffer(nil)},
+		upsert:         upsert,
+		blacklist:      blacklist,
+		updateListDate: updateListDate,
+		stop:           make(chan bool, 1),
+		db:             db,
+		notifCB:        notifCB,
+		status:         Status{Status: StatusNone, logBuf: bytes.NewBuffer(nil)},
 	}
 
 	return &im
@@ -276,6 +279,10 @@ func (s *Session) Start() {
 		s.log.Printf("imported finished")
 		s.im.sendNotif(StatusFinished)
 
+		if _, err := s.im.updateListDate.Exec(listIDs); err != nil {
+			s.log.Printf("error updating lists date: %v", err)
+		}
+
 		return
 	}
 
@@ -292,6 +299,10 @@ func (s *Session) Start() {
 	s.im.setStatus(StatusFinished)
 	s.log.Printf("imported finished")
 	s.im.sendNotif(StatusFinished)
+
+	if _, err := s.im.updateListDate.Exec(listIDs); err != nil {
+		s.log.Printf("error updating lists date: %v", err)
+	}
 }
 
 // Stop stops an active import session.

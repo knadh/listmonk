@@ -230,7 +230,7 @@ SELECT COUNT(*) OVER () AS total, lists.*, COUNT(subscriber_lists.subscriber_id)
     FROM lists LEFT JOIN subscriber_lists
 	ON (subscriber_lists.list_id = lists.id AND subscriber_lists.status != 'unsubscribed')
     WHERE ($1 = 0 OR id = $1)
-    GROUP BY lists.id ORDER BY lists.created_at OFFSET $2 LIMIT $3;
+    GROUP BY lists.id ORDER BY lists.created_at OFFSET $2 LIMIT (CASE WHEN $3 = 0 THEN NULL ELSE $3 END);
 
 -- name: create-list
 INSERT INTO lists (uuid, name, type, tags) VALUES($1, $2, $3, $4) RETURNING id;
@@ -242,6 +242,9 @@ UPDATE lists SET
     tags=(CASE WHEN ARRAY_LENGTH($4::VARCHAR(100)[], 1) > 0 THEN $4 ELSE tags END),
     updated_at=NOW()
 WHERE id = $1;
+
+-- name: update-lists-date
+UPDATE lists SET updated_at=NOW() WHERE id = ANY($1);
 
 -- name: delete-lists
 DELETE FROM lists WHERE id = ALL($1);

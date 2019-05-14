@@ -440,17 +440,20 @@ class TheFormDef extends React.PureComponent {
                 initialValue:
                   subLists.length > 0
                     ? subLists
-                    : this.props.data[cs.ModelLists].length === 1
-                    ? [this.props.data[cs.ModelLists][0].id]
+                    : this.props.data[cs.ModelLists].hasOwnProperty(
+                        "results"
+                      ) && this.props.data[cs.ModelLists].results.length === 1
+                    ? [this.props.data[cs.ModelLists].results[0].id]
                     : undefined,
                 rules: [{ required: true }]
               })(
                 <Select disabled={this.props.formDisabled} mode="multiple">
-                  {[...this.props.data[cs.ModelLists]].map((v, i) => (
-                    <Select.Option value={v["id"]} key={v["id"]}>
-                      {v["name"]}
-                    </Select.Option>
-                  ))}
+                  {this.props.data[cs.ModelLists].hasOwnProperty("results") &&
+                    [...this.props.data[cs.ModelLists].results].map((v, i) => (
+                      <Select.Option value={v["id"]} key={v["id"]}>
+                        {v["name"]}
+                      </Select.Option>
+                    ))}
                 </Select>
               )}
             </Form.Item>
@@ -585,7 +588,9 @@ class Campaign extends React.PureComponent {
 
   componentDidMount = () => {
     // Fetch lists.
-    this.props.modelRequest(cs.ModelLists, cs.Routes.GetLists, cs.MethodGet)
+    this.props.modelRequest(cs.ModelLists, cs.Routes.GetLists, cs.MethodGet, {
+      per_page: "all"
+    })
 
     // Fetch templates.
     this.props.modelRequest(

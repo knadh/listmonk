@@ -204,6 +204,7 @@ func main() {
 	}
 	app.Importer = subimporter.New(q.UpsertSubscriber.Stmt,
 		q.UpsertBlacklistSubscriber.Stmt,
+		q.UpdateListsDate.Stmt,
 		db.DB,
 		importNotifCB)
 

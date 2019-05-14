@@ -171,12 +171,19 @@ func makeAttribsBlob(keys []string, vals []string) ([]byte, bool) {
 // getPagination takes form values and extracts pagination values from it.
 func getPagination(q url.Values) pagination {
 	var (
-		perPage, _ = strconv.Atoi(q.Get("per_page"))
-		page, _    = strconv.Atoi(q.Get("page"))
+		page, _ = strconv.Atoi(q.Get("page"))
+		perPage = defaultPerPage
 	)
 
-	if perPage < 1 || perPage > maxPerPage {
-		perPage = defaultPerPage
+	pp := q.Get("per_page")
+	if pp == "all" {
+		// No limit.
+		perPage = 0
+	} else {
+		ppi, _ := strconv.Atoi(pp)
+		if ppi < 1 || ppi > maxPerPage {
+			perPage = defaultPerPage
+		}
 	}
 
 	if page < 1 {

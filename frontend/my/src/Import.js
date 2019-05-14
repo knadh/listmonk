@@ -33,7 +33,9 @@ class TheFormDef extends React.PureComponent {
 
   componentDidMount() {
     // Fetch lists.
-    this.props.modelRequest(cs.ModelLists, cs.Routes.GetLists, cs.MethodGet)
+    this.props.modelRequest(cs.ModelLists, cs.Routes.GetLists, cs.MethodGet, {
+      per_page: "all"
+    })
   }
 
   // Handle create / edit form submission.
@@ -413,7 +415,11 @@ class Import extends React.PureComponent {
         <TheForm
           {...this.props}
           fetchimportState={this.fetchimportState}
-          lists={this.props.data[cs.ModelLists]}
+          lists={
+            this.props.data[cs.ModelLists].hasOwnProperty("results")
+              ? this.props.data[cs.ModelLists].results
+              : []
+          }
         />
 
         <hr />
