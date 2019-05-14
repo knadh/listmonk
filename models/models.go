@@ -121,6 +121,10 @@ type List struct {
 
 	// This is only relevant when querying the lists of a subscriber.
 	SubscriptionStatus string `db:"subscription_status" json:"subscription_status,omitempty"`
+
+	// Pseudofield for getting the total number of subscribers
+	// in searches and queries.
+	Total int `db:"total" json:"-"`
 }
 
 // Campaign represents an e-mail campaign.

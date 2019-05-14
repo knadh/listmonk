@@ -13,12 +13,21 @@ import (
 	"github.com/labstack/echo"
 )
 
+type listsWrap struct {
+	Results []models.List `json:"results"`
+
+	Total   int `json:"total"`
+	PerPage int `json:"per_page"`
+	Page    int `json:"page"`
+}
+
 // handleGetLists handles retrieval of lists.
 func handleGetLists(c echo.Context) error {
 	var (
 		app = c.Get("app").(*App)
-		out []models.List
+		out listsWrap
 
+		pg        = getPagination(c.QueryParams())
 		listID, _ = strconv.Atoi(c.Param("id"))
 		single    = false
 	)
@@ -28,26 +37,31 @@ func handleGetLists(c echo.Context) error {
 		single = true
 	}
 
-	err := app.Queries.GetLists.Select(&out, listID)
+	err := app.Queries.GetLists.Select(&out.Results, listID, pg.Offset, pg.Limit)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			fmt.Sprintf("Error fetching lists: %s", pqErrMsg(err)))
-	} else if single && len(out) == 0 {
+	} else if single && len(out.Results) == 0 {
 		return echo.NewHTTPError(http.StatusBadRequest, "List not found.")
-	} else if len(out) == 0 {
+	} else if len(out.Results) == 0 {
 		return c.JSON(http.StatusOK, okResp{[]struct{}{}})
 	}
 
 	// Replace null tags.
-	for i, v := range out {
+	for i, v := range out.Results {
 		if v.Tags == nil {
-			out[i].Tags = make(pq.StringArray, 0)
+			out.Results[i].Tags = make(pq.StringArray, 0)
 		}
 	}
 
 	if single {
-		return c.JSON(http.StatusOK, okResp{out[0]})
+		return c.JSON(http.StatusOK, okResp{out.Results[0]})
 	}
+
+	// Meta.
+	out.Total = out.Results[0].Total
+	out.Page = pg.Page
+	out.PerPage = pg.PerPage
 
 	return c.JSON(http.StatusOK, okResp{out})
 }

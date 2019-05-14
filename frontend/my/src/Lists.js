@@ -184,9 +184,28 @@ class CreateFormDef extends React.PureComponent {
 const CreateForm = Form.create()(CreateFormDef)
 
 class Lists extends React.PureComponent {
+  defaultPerPage = 20
   state = {
     formType: null,
-    record: {}
+    record: {},
+    queryParams: {}
+  }
+
+  // Pagination config.
+  paginationOptions = {
+    hideOnSinglePage: false,
+    showSizeChanger: true,
+    showQuickJumper: true,
+    defaultPageSize: this.defaultPerPage,
+    pageSizeOptions: ["20", "50", "70", "100"],
+    position: "both",
+    showTotal: (total, range) => `${range[0]} to ${range[1]} of ${total}`,
+    onChange: (page, perPage) => {
+      this.fetchRecords({ page: page, per_page: perPage })
+    },
+    onShowSizeChange: (page, perPage) => {
+      this.fetchRecords({ page: page, per_page: perPage })
+    }
   }
 
   constructor(props) {
@@ -295,8 +314,28 @@ class Lists extends React.PureComponent {
     this.fetchRecords()
   }
 
-  fetchRecords = () => {
-    this.props.modelRequest(cs.ModelLists, cs.Routes.GetLists, cs.MethodGet)
+  fetchRecords = params => {
+    let qParams = {
+      page: this.state.queryParams.page,
+      per_page: this.state.queryParams.per_page
+    }
+    if (params) {
+      qParams = { ...qParams, ...params }
+    }
+
+    this.props
+      .modelRequest(cs.ModelLists, cs.Routes.GetLists, cs.MethodGet, qParams)
+      .then(() => {
+        this.setState({
+          queryParams: {
+            ...this.state.queryParams,
+            total: this.props.data[cs.ModelLists].total,
+            perPage: this.props.data[cs.ModelLists].per_page,
+            page: this.props.data[cs.ModelLists].page,
+            query: this.props.data[cs.ModelLists].query
+          }
+        })
+      })
   }
 
   deleteRecord = record => {
@@ -340,7 +379,7 @@ class Lists extends React.PureComponent {
       <section className="content">
         <Row>
           <Col span={22}>
-            <h1>Lists ({this.props.data[cs.ModelLists].length}) </h1>
+            <h1>Lists ({this.props.data[cs.ModelLists].total}) </h1>
           </Col>
           <Col span={2}>
             <Button
@@ -358,9 +397,17 @@ class Lists extends React.PureComponent {
           className="lists"
           columns={this.columns}
           rowKey={record => record.uuid}
-          dataSource={this.props.data[cs.ModelLists]}
+          dataSource={(() => {
+            if (
+              !this.props.data[cs.ModelLists] ||
+              !this.props.data[cs.ModelLists].hasOwnProperty("results")
+            ) {
+              return []
+            }
+            return this.props.data[cs.ModelLists].results
+          })()}
           loading={this.props.reqStates[cs.ModelLists] !== cs.StateDone}
-          pagination={false}
+          pagination={{ ...this.paginationOptions, ...this.state.queryParams }}
         />
 
         <CreateForm

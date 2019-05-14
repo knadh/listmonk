@@ -226,11 +226,11 @@ UPDATE subscriber_lists SET status='unsubscribed', updated_at=NOW()
 
 -- lists
 -- name: get-lists
-SELECT lists.*, COUNT(subscriber_lists.subscriber_id) AS subscriber_count
+SELECT COUNT(*) OVER () AS total, lists.*, COUNT(subscriber_lists.subscriber_id) AS subscriber_count
     FROM lists LEFT JOIN subscriber_lists
 	ON (subscriber_lists.list_id = lists.id AND subscriber_lists.status != 'unsubscribed')
     WHERE ($1 = 0 OR id = $1)
-    GROUP BY lists.id ORDER BY lists.created_at;
+    GROUP BY lists.id ORDER BY lists.created_at OFFSET $2 LIMIT $3;
 
 -- name: create-list
 INSERT INTO lists (uuid, name, type, tags) VALUES($1, $2, $3, $4) RETURNING id;
