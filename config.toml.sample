@@ -35,7 +35,7 @@ upload_uri = "/uploads"
 # Maximum concurrent workers that will attempt to send messages
 # simultaneously. This should depend on the number of CPUs the
 # machine has and also the number of simultaenous e-mails the
-# mail server will  
+# mail server will
 concurrency = 100
 
 # The number of errors (eg: SMTP timeouts while e-mailing) a running
@@ -51,6 +51,7 @@ port = 5432
 user = "listmonk"
 password = ""
 database = "listmonk"
+ssl_mode = "disable"
 
 # TQekh4quVgGc3HQ
 
