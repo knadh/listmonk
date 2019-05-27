@@ -1,5 +1,5 @@
 BIN := listmonk
-STATIC := config.toml.sample schema.sql queries.sql public email-templates frontend/my/build:/frontend
+STATIC := config.toml.sample schema.sql queries.sql public email-templates frontend/build:/frontend
 
 HASH := $(shell git rev-parse --short HEAD)
 COMMIT_DATE := $(shell git show -s --format=%ci ${HASH})
@@ -8,20 +8,20 @@ VERSION := ${HASH} (${COMMIT_DATE})
 
 .PHONY: build-frontend
 build-frontend:
-	cd frontend/my && yarn install && yarn build
+	cd frontend && yarn install && yarn build
 
 .PHONY: quickdev
 quickdev:
-	@ if [ ! -d "frontend/my/node_modules" ]; then \
+	@ if [ ! -d "frontend/node_modules" ]; then \
 		echo "Installing frontend deps"; \
-		cd frontend/my && yarn install; \
+		cd frontend && yarn install; \
 	fi
 
-	@ if [ ! -d "frontend/my/build" ]; then \
+	@ if [ ! -d "frontend/build" ]; then \
 		echo "Creating build directory"; \
-		mkdir -p frontend/my/build; \
+		mkdir -p frontend/build; \
 		echo "Building frontend assets"; \
-		cd frontend/my && yarn build; \
+		cd frontend && yarn build; \
 	fi
 
 	@ echo -e "\nBuilding go binary\n"

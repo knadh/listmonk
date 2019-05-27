@@ -15,7 +15,7 @@ There are two independent components, the Go backend and the React frontend. In 
 
 ### 2. Run the frontend
 
-`cd frontend/my` and `yarn start`
+`cd frontend` and `yarn start`
 
 ### 3. Setup an Nginx proxy endpoint
 
