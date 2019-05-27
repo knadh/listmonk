@@ -79,9 +79,9 @@ type Queries struct {
 }
 
 // connectDB initializes a database connection.
-func connectDB(host string, port int, user, pwd, dbName string) (*sqlx.DB, error) {
+func connectDB(host string, port int, user, pwd, dbName string, sslMode string) (*sqlx.DB, error) {
 	db, err := sqlx.Connect("postgres",
-		fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s", host, port, user, pwd, dbName))
+		fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=%s", host, port, user, pwd, dbName, sslMode))
 	if err != nil {
 		return nil, err
 	}

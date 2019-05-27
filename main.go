@@ -101,7 +101,7 @@ func initFileSystem(binPath string) (stuffbin.FileSystem, error) {
 
 		// The frontend app's static assets are aliased to /frontend
 		// so that they are accessible at localhost:port/frontend/static/ ...
-		"frontend/my/build:/frontend",
+		"frontend/build:/frontend",
 	}
 
 	fs, err = stuffbin.NewLocalFS("/", files...)
@@ -148,7 +148,8 @@ func main() {
 		viper.GetInt("db.port"),
 		viper.GetString("db.user"),
 		viper.GetString("db.password"),
-		viper.GetString("db.database"))
+		viper.GetString("db.database"),
+		viper.GetString("db.ssl_mode"))
 	if err != nil {
 		logger.Fatalf("error connecting to DB: %v", err)
 	}

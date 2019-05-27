@@ -9,7 +9,7 @@ require (
 	github.com/jordan-wright/email v0.0.0-20181027021455-480bedc4908b
 	github.com/knadh/goyesql v1.1.1
 	github.com/knadh/stuffbin v0.0.0-20190103171338-6379e949be48
-	github.com/labstack/echo v3.3.5+incompatible
+	github.com/labstack/echo v3.3.10+incompatible
 	github.com/labstack/gommon v0.2.7 // indirect
 	github.com/lib/pq v1.0.0
 	github.com/mattn/go-colorable v0.0.9 // indirect
