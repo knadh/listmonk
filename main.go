@@ -25,13 +25,13 @@ import (
 )
 
 type constants struct {
-	RootURL      string   `mapstructure:"root"`
-	LogoURL      string   `mapstructure:"logo_url"`
-	FaviconURL   string   `mapstructure:"favicon_url"`
-	UploadPath   string   `mapstructure:"upload_path"`
-	UploadURI    string   `mapstructure:"upload_uri"`
-	FromEmail    string   `mapstructure:"from_email"`
-	NotifyEmails []string `mapstructure:"notify_emails"`
+	RootURL      string   `koanf:"root"`
+	LogoURL      string   `koanf:"logo_url"`
+	FaviconURL   string   `koanf:"favicon_url"`
+	UploadPath   string   `koanf:"upload_path"`
+	UploadURI    string   `koanf:"upload_uri"`
+	FromEmail    string   `koanf:"from_email"`
+	NotifyEmails []string `koanf:"notify_emails"`
 }
 
 // App contains the "global" components that are
