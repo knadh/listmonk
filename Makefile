@@ -21,7 +21,7 @@ build:
 build-frontend:
 	cd frontend && yarn build
 
-.PHONY: build-dist
+.PHONY: dist
 build-dist:
 	stuffbin -a stuff -in ${BIN} -out ${BIN} ${STATIC}
 
