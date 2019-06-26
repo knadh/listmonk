@@ -1,25 +1,8 @@
-DROP TYPE IF EXISTS user_type CASCADE; CREATE TYPE user_type AS ENUM ('superadmin', 'user');
-DROP TYPE IF EXISTS user_status CASCADE; CREATE TYPE user_status AS ENUM ('enabled', 'disabled');
 DROP TYPE IF EXISTS list_type CASCADE; CREATE TYPE list_type AS ENUM ('public', 'private', 'temporary');
 DROP TYPE IF EXISTS subscriber_status CASCADE; CREATE TYPE subscriber_status AS ENUM ('enabled', 'disabled', 'blacklisted');
 DROP TYPE IF EXISTS subscription_status CASCADE; CREATE TYPE subscription_status AS ENUM ('unconfirmed', 'confirmed', 'unsubscribed');
 DROP TYPE IF EXISTS campaign_status CASCADE; CREATE TYPE campaign_status AS ENUM ('draft', 'running', 'scheduled', 'paused', 'cancelled', 'finished');
 DROP TYPE IF EXISTS content_type CASCADE; CREATE TYPE content_type AS ENUM ('richtext', 'html', 'plain');
-
--- users
-DROP TABLE IF EXISTS users CASCADE;
-CREATE TABLE users (
-    id              SERIAL PRIMARY KEY,
-    email           TEXT NOT NULL UNIQUE,
-    name            TEXT NOT NULL,
-    password        TEXT NOT NULL,
-    type            user_type NOT NULL,
-    status          user_status NOT NULL,
-
-    created_at      TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    updated_at      TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
-DROP INDEX IF EXISTS idx_users_email; CREATE INDEX idx_users_email ON users(LOWER(email));
 
 -- subscribers
 DROP TABLE IF EXISTS subscribers CASCADE;

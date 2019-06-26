@@ -57,11 +57,6 @@ type Queries struct {
 	RegisterCampaignView     *sqlx.Stmt `query:"register-campaign-view"`
 	DeleteCampaign           *sqlx.Stmt `query:"delete-campaign"`
 
-	CreateUser *sqlx.Stmt `query:"create-user"`
-	GetUsers   *sqlx.Stmt `query:"get-users"`
-	UpdateUser *sqlx.Stmt `query:"update-user"`
-	DeleteUser *sqlx.Stmt `query:"delete-user"`
-
 	InsertMedia *sqlx.Stmt `query:"insert-media"`
 	GetMedia    *sqlx.Stmt `query:"get-media"`
 	DeleteMedia *sqlx.Stmt `query:"delete-media"`
