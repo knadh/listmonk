@@ -14,13 +14,13 @@ const emName = "email"
 // Server represents an SMTP server's credentials.
 type Server struct {
 	Name         string
-	Host         string        `mapstructure:"host"`
-	Port         int           `mapstructure:"port"`
-	AuthProtocol string        `mapstructure:"auth_protocol"`
-	Username     string        `mapstructure:"username"`
-	Password     string        `mapstructure:"password"`
-	SendTimeout  time.Duration `mapstructure:"send_timeout"`
-	MaxConns     int           `mapstructure:"max_conns"`
+	Host         string        `koanf:"host"`
+	Port         int           `koanf:"port"`
+	AuthProtocol string        `koanf:"auth_protocol"`
+	Username     string        `koanf:"username"`
+	Password     string        `koanf:"password"`
+	SendTimeout  time.Duration `koanf:"send_timeout"`
+	MaxConns     int           `koanf:"max_conns"`
 
 	mailer *email.Pool
 }

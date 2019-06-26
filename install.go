@@ -10,7 +10,6 @@ import (
 	"github.com/knadh/listmonk/models"
 	"github.com/lib/pq"
 	uuid "github.com/satori/go.uuid"
-	"github.com/spf13/viper"
 )
 
 // install runs the first time setup of creating and
@@ -19,7 +18,7 @@ func install(app *App, qMap goyesql.Queries) {
 	fmt.Println("")
 	fmt.Println("** First time installation **")
 	fmt.Printf("** IMPORTANT: This will wipe existing listmonk tables and types in the DB '%s' **",
-		viper.GetString("db.database"))
+		ko.String("db.database"))
 	fmt.Println("")
 
 	var ok string
@@ -84,7 +83,7 @@ func install(app *App, qMap goyesql.Queries) {
 	}
 
 	logger.Printf("Setup complete")
-	logger.Printf(`Run the program view it at %s`, viper.GetString("app.address"))
+	logger.Printf(`Run the program view it at %s`, ko.String("app.address"))
 
 }
 

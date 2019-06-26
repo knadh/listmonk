@@ -12,13 +12,16 @@ import (
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 	"github.com/jmoiron/sqlx"
 	"github.com/knadh/goyesql"
+	"github.com/knadh/koanf"
+	"github.com/knadh/koanf/parsers/toml"
+	"github.com/knadh/koanf/providers/file"
+	"github.com/knadh/koanf/providers/posflag"
 	"github.com/knadh/listmonk/manager"
 	"github.com/knadh/listmonk/messenger"
 	"github.com/knadh/listmonk/subimporter"
 	"github.com/knadh/stuffbin"
 	"github.com/labstack/echo"
 	flag "github.com/spf13/pflag"
-	"github.com/spf13/viper"
 )
 
 type constants struct {
@@ -45,39 +48,42 @@ type App struct {
 	Messenger messenger.Messenger
 }
 
-var logger *log.Logger
+var (
+	// Global logger.
+	logger = log.New(os.Stdout, "", log.Ldate|log.Ltime|log.Lshortfile)
 
-func init() {
-	logger = log.New(os.Stdout, "SYS: ", log.Ldate|log.Ltime|log.Lshortfile)
+	// Global configuration reader.
+	ko = koanf.New(".")
+)
 
+func initConfig(ko *koanf.Koanf) error {
 	// Register --help handler.
-	flagSet := flag.NewFlagSet("config", flag.ContinueOnError)
-	flagSet.Usage = func() {
-		fmt.Println(flagSet.FlagUsages())
+	f := flag.NewFlagSet("config", flag.ContinueOnError)
+	f.Usage = func() {
+		fmt.Println(f.FlagUsages())
 		os.Exit(0)
 	}
 
 	// Setup the default configuration.
-	viper.SetConfigName("config")
-	flagSet.StringSlice("config", []string{"config.toml"},
+	f.StringSlice("config", []string{"config.toml"},
 		"Path to one or more config files (will be merged in order)")
-	flagSet.Bool("install", false, "Run first time installation")
-	flagSet.Bool("version", false, "Current version of the build")
+	f.Bool("install", false, "Run first time installation")
+	f.Bool("version", false, "Current version of the build")
 
 	// Process flags.
-	flagSet.Parse(os.Args[1:])
-	viper.BindPFlags(flagSet)
+	f.Parse(os.Args[1:])
 
-	// Read the config files.
-	cfgs := viper.GetStringSlice("config")
-	for _, c := range cfgs {
-		logger.Printf("reading config: %s", c)
-		viper.SetConfigFile(c)
-
-		if err := viper.MergeInConfig(); err != nil {
-			logger.Fatalf("error reading config: %s", err)
+	// Load config files.
+	cFiles, _ := f.GetStringSlice("config")
+	for _, f := range cFiles {
+		log.Printf("reading config: %s", f)
+		if err := ko.Load(file.Provider(f), toml.Parser()); err != nil {
+			return err
 		}
 	}
+	ko.Load(posflag.Provider(f, ".", ko), nil)
+
+	return nil
 }
 
 // initFileSystem initializes the stuffbin FileSystem to provide
@@ -116,14 +122,14 @@ func initFileSystem(binPath string) (stuffbin.FileSystem, error) {
 func initMessengers(r *manager.Manager) messenger.Messenger {
 	// Load SMTP configurations for the default e-mail Messenger.
 	var srv []messenger.Server
-	for name := range viper.GetStringMapString("smtp") {
-		if !viper.GetBool(fmt.Sprintf("smtp.%s.enabled", name)) {
+	for _, name := range ko.MapKeys("smtp") {
+		if !ko.Bool(fmt.Sprintf("smtp.%s.enabled", name)) {
 			logger.Printf("skipped SMTP: %s", name)
 			continue
 		}
 
 		var s messenger.Server
-		viper.UnmarshalKey("smtp."+name, &s)
+		ko.Unmarshal("smtp."+name, &s)
 		s.Name = name
 		s.SendTimeout = s.SendTimeout * time.Millisecond
 		srv = append(srv, s)
@@ -143,20 +149,26 @@ func initMessengers(r *manager.Manager) messenger.Messenger {
 }
 
 func main() {
+	// Load config into the global conf.
+	if err := initConfig(ko); err != nil {
+		logger.Printf("error reading config: %v", err)
+		os.Exit(1)
+	}
+
 	// Connect to the DB.
-	db, err := connectDB(viper.GetString("db.host"),
-		viper.GetInt("db.port"),
-		viper.GetString("db.user"),
-		viper.GetString("db.password"),
-		viper.GetString("db.database"),
-		viper.GetString("db.ssl_mode"))
+	db, err := connectDB(ko.String("db.host"),
+		ko.Int("db.port"),
+		ko.String("db.user"),
+		ko.String("db.password"),
+		ko.String("db.database"),
+		ko.String("db.ssl_mode"))
 	if err != nil {
 		logger.Fatalf("error connecting to DB: %v", err)
 	}
 	defer db.Close()
 
 	var c constants
-	viper.UnmarshalKey("app", &c)
+	ko.Unmarshal("app", &c)
 	c.RootURL = strings.TrimRight(c.RootURL, "/")
 	c.UploadURI = filepath.Clean(c.UploadURI)
 	c.UploadPath = filepath.Clean(c.UploadPath)
@@ -187,7 +199,7 @@ func main() {
 	}
 
 	// Run the first time installation.
-	if viper.GetBool("install") {
+	if ko.Bool("install") {
 		install(app, qMap)
 		return
 	}
@@ -222,8 +234,8 @@ func main() {
 		return sendNotification(notifTplCampaign, subject, data, app)
 	}
 	m := manager.New(manager.Config{
-		Concurrency:   viper.GetInt("app.concurrency"),
-		MaxSendErrors: viper.GetInt("app.max_send_errors"),
+		Concurrency:   ko.Int("app.concurrency"),
+		MaxSendErrors: ko.Int("app.max_send_errors"),
 		FromEmail:     app.Constants.FromEmail,
 
 		// url.com/unsubscribe/{campaign_uuid}/{subscriber_uuid}
@@ -273,5 +285,5 @@ func main() {
 	srv.GET("/frontend/*", echo.WrapHandler(fSrv))
 	srv.Static(c.UploadURI, c.UploadURI)
 	registerHandlers(srv)
-	srv.Logger.Fatal(srv.Start(viper.GetString("app.address")))
+	srv.Logger.Fatal(srv.Start(ko.String("app.address")))
 }
