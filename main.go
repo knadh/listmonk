@@ -89,7 +89,7 @@ func initConfig(ko *koanf.Koanf) error {
 // initFileSystem initializes the stuffbin FileSystem to provide
 // access to bunded static assets to the app.
 func initFileSystem(binPath string) (stuffbin.FileSystem, error) {
-	fs, err := stuffbin.UnStuff("./listmonk")
+	fs, err := stuffbin.UnStuff(os.Args[0])
 	if err == nil {
 		return fs, nil
 	}
