@@ -4,3 +4,4 @@ frontend/yarn.lock
 .vscode/
 
 config.toml
+node_modules
