@@ -29,6 +29,10 @@ build-dist:
 run: build
 	./${BIN}
 
+.PHONY: run-frontend
+run-frontend:
+	cd frontend && yarn start
+
 .PHONY: test
 test:
 	go test
