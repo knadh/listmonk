@@ -66,7 +66,7 @@ func install(app *App, qMap goyesql.Queries) {
 	}
 
 	// Default template.
-	tplBody, err := ioutil.ReadFile("templates/default.tpl")
+	tplBody, err := ioutil.ReadFile("email-templates/default.tpl")
 	if err != nil {
 		tplBody = []byte(tplTag)
 	}
