@@ -76,7 +76,7 @@ func handleQuerySubscribers(c echo.Context) error {
 		listID, _ = strconv.Atoi(c.FormValue("list_id"))
 
 		// The "WHERE ?" bit.
-		query = c.FormValue("query")
+		query = sanitizeSQLExp(c.FormValue("query"))
 		out   subsWrap
 	)
 
@@ -347,7 +347,7 @@ func handleDeleteSubscribersByQuery(c echo.Context) error {
 		return err
 	}
 
-	err := app.Queries.execSubscriberQueryTpl(req.Query,
+	err := app.Queries.execSubscriberQueryTpl(sanitizeSQLExp(req.Query),
 		app.Queries.DeleteSubscribersByQuery,
 		req.ListIDs, app.DB)
 	if err != nil {
@@ -370,7 +370,7 @@ func handleBlacklistSubscribersByQuery(c echo.Context) error {
 		return err
 	}
 
-	err := app.Queries.execSubscriberQueryTpl(req.Query,
+	err := app.Queries.execSubscriberQueryTpl(sanitizeSQLExp(req.Query),
 		app.Queries.BlacklistSubscribersByQuery,
 		req.ListIDs, app.DB)
 	if err != nil {
@@ -409,11 +409,26 @@ func handleManageSubscriberListsByQuery(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "Invalid action.")
 	}
 
-	err := app.Queries.execSubscriberQueryTpl(req.Query, stmt, req.ListIDs, app.DB, req.TargetListIDs)
+	err := app.Queries.execSubscriberQueryTpl(sanitizeSQLExp(req.Query), stmt, req.ListIDs, app.DB, req.TargetListIDs)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest,
 			fmt.Sprintf("Error: %v", err))
 	}
 
 	return c.JSON(http.StatusOK, okResp{true})
+}
+
+// sanitizeSQLExp does basic sanitisation on arbitrary
+// SQL query expressions coming from the frontend.
+func sanitizeSQLExp(q string) string {
+	if len(q) == 0 {
+		return ""
+	}
+	q = strings.TrimSpace(q)
+
+	// Remove semicolon suffix.
+	if q[len(q)-1] == ';' {
+		q = q[:len(q)-1]
+	}
+	return q
 }
