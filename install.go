@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"strings"
+	"time"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/knadh/goyesql"
@@ -57,9 +58,9 @@ func install(app *App, qMap goyesql.Queries) {
 	// Sample subscriber.
 	if _, err := q.UpsertSubscriber.Exec(
 		uuid.NewV4(),
-		"test@test.com",
-		"Test Subscriber",
-		`{"type": "known", "good": true}`,
+		"john@example.com",
+		"John Doe",
+		`{"type": "known", "good": true, "city": "Bengaluru"}`,
 		pq.Int64Array{int64(listID)},
 	); err != nil {
 		logger.Fatalf("Error creating subscriber: %v", err)
@@ -76,10 +77,29 @@ func install(app *App, qMap goyesql.Queries) {
 		"Default template",
 		string(tplBody),
 	); err != nil {
-		logger.Fatalf("Error creating default template: %v", err)
+		logger.Fatalf("error creating default template: %v", err)
 	}
 	if _, err := q.SetDefaultTemplate.Exec(tplID); err != nil {
-		logger.Fatalf("Error setting default template: %v", err)
+		logger.Fatalf("error setting default template: %v", err)
+	}
+
+	// Sample campaign.
+	sendAt := time.Now()
+	sendAt.Add(time.Minute * 43200)
+	if _, err := q.CreateCampaign.Exec(uuid.NewV4(),
+		"Test campaign",
+		"Welcome to listmonk",
+		"noreply@yoursite.com",
+		`<h3>Hi {{ .Subscriber.FirstName }}!</h3>
+			This is a test e-mail campaign. Your second name is {{ .Subscriber.LastName }} and you are from {{ .Subscriber.Attribs.city }}.`,
+		"richtext",
+		sendAt,
+		pq.StringArray{"test-campaign"},
+		"email",
+		1,
+		pq.Int64Array{1},
+	); err != nil {
+		logger.Fatalf("error creating sample campaign: %v", err)
 	}
 
 	logger.Printf("Setup complete")
