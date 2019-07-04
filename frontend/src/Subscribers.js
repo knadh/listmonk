@@ -1,5 +1,5 @@
-import React from "react"
-import { Link } from "react-router-dom"
+import React from "react";
+import { Link } from "react-router-dom";
 import {
   Row,
   Col,
@@ -15,44 +15,44 @@ import {
   Popconfirm,
   notification,
   Radio
-} from "antd"
+} from "antd";
 
-import Utils from "./utils"
-import Subscriber from "./Subscriber"
-import * as cs from "./constants"
+import Utils from "./utils";
+import Subscriber from "./Subscriber";
+import * as cs from "./constants";
 
 const tagColors = {
   enabled: "green",
   blacklisted: "red"
-}
+};
 
 class ListsFormDef extends React.PureComponent {
   state = {
     modalWaiting: false
-  }
+  };
 
   // Handle create / edit form submission.
   handleSubmit = e => {
-    e.preventDefault()
+    e.preventDefault();
 
     var err = null,
-      values = {}
+      values = {};
     this.props.form.validateFields((e, v) => {
-      err = e
-      values = v
-    })
+      err = e;
+      values = v;
+    });
     if (err) {
-      return
+      return;
     }
 
     if (this.props.allRowsSelected) {
-      values["list_ids"] = this.props.listIDs
-      values["query"] = this.props.query
+      values["list_ids"] = this.props.listIDs;
+      values["query"] = this.props.query;
     } else {
-      values["ids"] = this.props.selectedRows.map(r => r.id)
+      values["ids"] = this.props.selectedRows.map(r => r.id);
     }
 
-    this.setState({ modalWaiting: true })
+    this.setState({ modalWaiting: true });
     this.props
       .request(
         !this.props.allRowsSelected
@@ -65,24 +65,24 @@ class ListsFormDef extends React.PureComponent {
         notification["success"]({
           message: "Lists changed",
           description: `Lists changed for selected subscribers`
-        })
-        this.props.clearSelectedRows()
-        this.props.fetchRecords()
-        this.setState({ modalWaiting: false })
-        this.props.onClose()
+        });
+        this.props.clearSelectedRows();
+        this.props.fetchRecords();
+        this.setState({ modalWaiting: false });
+        this.props.onClose();
       })
       .catch(e => {
-        notification["error"]({ message: "Error", description: e.message })
-        this.setState({ modalWaiting: false })
-      })
-  }
+        notification["error"]({ message: "Error", description: e.message });
+        this.setState({ modalWaiting: false });
+      });
+  };
 
   render() {
-    const { getFieldDecorator } = this.props.form
+    const { getFieldDecorator } = this.props.form;
     const formItemLayout = {
       labelCol: { xs: { span: 16 }, sm: { span: 4 } },
       wrapperCol: { xs: { span: 16 }, sm: { span: 18 } }
-    }
+    };
 
     return (
       <Modal
@@ -123,14 +123,14 @@ class ListsFormDef extends React.PureComponent {
           </Form.Item>
         </Form>
       </Modal>
-    )
+    );
   }
 }
 
-const ListsForm = Form.create()(ListsFormDef)
+const ListsForm = Form.create()(ListsFormDef);
 
 class Subscribers extends React.PureComponent {
-  defaultPerPage = 20
+  defaultPerPage = 20;
 
   state = {
     formType: null,
@@ -151,7 +151,7 @@ class Subscribers extends React.PureComponent {
     listModalVisible: false,
     allRowsSelected: false,
     selectedRows: []
-  }
+  };
 
   // Pagination config.
   paginationOptions = {
@@ -163,15 +163,15 @@ class Subscribers extends React.PureComponent {
     position: "both",
     showTotal: (total, range) => `${range[0]} to ${range[1]} of ${total}`,
     onChange: (page, perPage) => {
-      this.fetchRecords({ page: page, per_page: perPage })
+      this.fetchRecords({ page: page, per_page: perPage });
     },
     onShowSizeChange: (page, perPage) => {
-      this.fetchRecords({ page: page, per_page: perPage })
+      this.fetchRecords({ page: page, per_page: perPage });
     }
-  }
+  };
 
   constructor(props) {
-    super(props)
+    super(props);
 
     // Table layout.
     this.columns = [
@@ -181,7 +181,7 @@ class Subscribers extends React.PureComponent {
         sorter: true,
         width: "25%",
         render: (text, record) => {
-          const out = []
+          const out = [];
           out.push(
             <div key={`sub-email-${record.id}`} className="sub-name">
               <Link
@@ -190,15 +190,15 @@ class Subscribers extends React.PureComponent {
                   // Open the individual subscriber page on ctrl+click
                   // and the modal otherwise.
                   if (!e.ctrlKey) {
-                    this.handleShowEditForm(record)
-                    e.preventDefault()
+                    this.handleShowEditForm(record);
+                    e.preventDefault();
                   }
                 }}
               >
                 {text}
               </Link>
             </div>
-          )
+          );
 
           if (record.lists.length > 0) {
             for (let i = 0; i < record.lists.length; i++) {
@@ -220,11 +220,11 @@ class Subscribers extends React.PureComponent {
                     {record.lists[i].subscription_status}
                   </sup>
                 </Tag>
-              )
+              );
             }
           }
 
-          return out
+          return out;
         }
       },
       {
@@ -240,14 +240,14 @@ class Subscribers extends React.PureComponent {
                 // Open the individual subscriber page on ctrl+click
                 // and the modal otherwise.
                 if (!e.ctrlKey) {
-                  this.handleShowEditForm(record)
-                  e.preventDefault()
+                  this.handleShowEditForm(record);
+                  e.preventDefault();
                 }
               }}
             >
               {text}
             </Link>
-          )
+          );
         }
       },
       {
@@ -261,7 +261,7 @@ class Subscribers extends React.PureComponent {
             >
               {status}
             </Tag>
-          )
+          );
         }
       },
       {
@@ -282,7 +282,7 @@ class Subscribers extends React.PureComponent {
                 0
               )}
             </span>
-          )
+          );
         }
       },
       {
@@ -290,7 +290,7 @@ class Subscribers extends React.PureComponent {
         width: "10%",
         dataIndex: "created_at",
         render: (date, _) => {
-          return Utils.DateString(date)
+          return Utils.DateString(date);
         }
       },
       {
@@ -298,7 +298,7 @@ class Subscribers extends React.PureComponent {
         width: "10%",
         dataIndex: "updated_at",
         render: (date, _) => {
-          return Utils.DateString(date)
+          return Utils.DateString(date);
         }
       },
       {
@@ -328,10 +328,10 @@ class Subscribers extends React.PureComponent {
                 </Tooltip>
               </Popconfirm>
             </div>
-          )
+          );
         }
       }
-    ]
+    ];
   }
 
   componentDidMount() {
@@ -341,18 +341,18 @@ class Subscribers extends React.PureComponent {
       .then(() => {
         // If this is an individual list's view, pick up that list.
         if (this.state.queryParams.listID) {
-          this.props.data[cs.ModelLists].forEach(l => {
+          this.props.data[cs.ModelLists].results.forEach(l => {
             if (l.id === this.state.queryParams.listID) {
               this.setState({
                 queryParams: { ...this.state.queryParams, list: l }
-              })
-              return false
+              });
+              return false;
             }
-          })
+          });
         }
-      })
+      });
 
-    this.fetchRecords()
+    this.fetchRecords();
   }
 
   fetchRecords = params => {
@@ -361,15 +361,15 @@ class Subscribers extends React.PureComponent {
       per_page: this.state.queryParams.per_page,
       list_id: this.state.queryParams.listID,
       query: this.state.queryParams.query
-    }
+    };
 
     // The records are for a specific list.
     if (this.state.queryParams.listID) {
-      qParams.list_id = this.state.queryParams.listID
+      qParams.list_id = this.state.queryParams.listID;
     }
 
     if (params) {
-      qParams = { ...qParams, ...params }
+      qParams = { ...qParams, ...params };
     }
 
     this.props
@@ -388,9 +388,9 @@ class Subscribers extends React.PureComponent {
             page: this.props.data[cs.ModelSubscribers].page,
             query: this.props.data[cs.ModelSubscribers].query
           }
-        })
-      })
-  }
+        });
+      });
+  };
 
   handleDeleteRecord = record => {
     this.props
@@ -404,15 +404,15 @@ class Subscribers extends React.PureComponent {
         notification["success"]({
           message: "Subscriber deleted",
           description: `${record.email} deleted`
-        })
+        });
 
         // Reload the table.
-        this.fetchRecords()
+        this.fetchRecords();
       })
       .catch(e => {
-        notification["error"]({ message: "Error", description: e.message })
-      })
-  }
+        notification["error"]({ message: "Error", description: e.message });
+      });
+  };
 
   handleDeleteRecords = records => {
     this.props
@@ -426,15 +426,15 @@ class Subscribers extends React.PureComponent {
         notification["success"]({
           message: "Subscriber(s) deleted",
           description: "Selected subscribers deleted"
-        })
+        });
 
         // Reload the table.
-        this.fetchRecords()
+        this.fetchRecords();
       })
       .catch(e => {
-        notification["error"]({ message: "Error", description: e.message })
-      })
-  }
+        notification["error"]({ message: "Error", description: e.message });
+      });
+  };
 
   handleBlacklistSubscribers = records => {
     this.props
@@ -445,15 +445,15 @@ class Subscribers extends React.PureComponent {
         notification["success"]({
           message: "Subscriber(s) blacklisted",
           description: "Selected subscribers blacklisted"
-        })
+        });
 
         // Reload the table.
-        this.fetchRecords()
+        this.fetchRecords();
       })
       .catch(e => {
-        notification["error"]({ message: "Error", description: e.message })
-      })
-  }
+        notification["error"]({ message: "Error", description: e.message });
+      });
+  };
 
   // Arbitrary query based calls.
   handleDeleteRecordsByQuery = (listIDs, query) => {
@@ -468,15 +468,15 @@ class Subscribers extends React.PureComponent {
         notification["success"]({
           message: "Subscriber(s) deleted",
           description: "Selected subscribers have been deleted"
-        })
+        });
 
         // Reload the table.
-        this.fetchRecords()
+        this.fetchRecords();
       })
       .catch(e => {
-        notification["error"]({ message: "Error", description: e.message })
-      })
-  }
+        notification["error"]({ message: "Error", description: e.message });
+      });
+  };
 
   handleBlacklistSubscribersByQuery = (listIDs, query) => {
     this.props
@@ -488,22 +488,22 @@ class Subscribers extends React.PureComponent {
         notification["success"]({
           message: "Subscriber(s) blacklisted",
           description: "Selected subscribers have been blacklisted"
-        })
+        });
 
         // Reload the table.
-        this.fetchRecords()
+        this.fetchRecords();
       })
       .catch(e => {
-        notification["error"]({ message: "Error", description: e.message })
-      })
-  }
+        notification["error"]({ message: "Error", description: e.message });
+      });
+  };
 
   handleQuerySubscribersIntoLists = (query, sourceList, targetLists) => {
     let params = {
       query: query,
       source_list: sourceList,
       target_lists: targetLists
-    }
+    };
 
     this.props
       .request(cs.Routes.QuerySubscribersIntoLists, cs.MethodPost, params)
@@ -511,75 +511,75 @@ class Subscribers extends React.PureComponent {
         notification["success"]({
           message: "Subscriber(s) added",
           description: `${res.data.data.count} added`
-        })
-        this.handleToggleListModal()
+        });
+        this.handleToggleListModal();
       })
       .catch(e => {
-        notification["error"]({ message: "Error", description: e.message })
-      })
-  }
+        notification["error"]({ message: "Error", description: e.message });
+      });
+  };
 
   handleHideForm = () => {
-    this.setState({ formType: null })
-  }
+    this.setState({ formType: null });
+  };
 
   handleShowCreateForm = () => {
-    this.setState({ formType: cs.FormCreate, attribs: [], record: {} })
-  }
+    this.setState({ formType: cs.FormCreate, attribs: [], record: {} });
+  };
 
   handleShowEditForm = record => {
-    this.setState({ formType: cs.FormEdit, record: record })
-  }
+    this.setState({ formType: cs.FormEdit, record: record });
+  };
 
   handleToggleListsForm = () => {
-    this.setState({ listsFormVisible: !this.state.listsFormVisible })
-  }
+    this.setState({ listsFormVisible: !this.state.listsFormVisible });
+  };
 
   handleSearch = q => {
-    q = q.trim().toLowerCase()
+    q = q.trim().toLowerCase();
     if (q === "") {
-      this.fetchRecords({ query: null })
-      return
+      this.fetchRecords({ query: null });
+      return;
     }
 
-    q = q.replace(/'/g, "''")
-    const query = `(name ~* '${q}' OR email ~* '${q}')`
-    this.fetchRecords({ query: query })
-  }
+    q = q.replace(/'/g, "''");
+    const query = `(name ~* '${q}' OR email ~* '${q}')`;
+    this.fetchRecords({ query: query });
+  };
 
   handleSelectRow = (_, records) => {
-    this.setState({ allRowsSelected: false, selectedRows: records })
-  }
+    this.setState({ allRowsSelected: false, selectedRows: records });
+  };
 
   handleSelectAllRows = () => {
     this.setState({
       allRowsSelected: true,
       selectedRows: this.props.data[cs.ModelSubscribers].results
-    })
-  }
+    });
+  };
 
   clearSelectedRows = (_, records) => {
-    this.setState({ allRowsSelected: false, selectedRows: [] })
-  }
+    this.setState({ allRowsSelected: false, selectedRows: [] });
+  };
 
   handleToggleQueryForm = () => {
-    this.setState({ queryFormVisible: !this.state.queryFormVisible })
-  }
+    this.setState({ queryFormVisible: !this.state.queryFormVisible });
+  };
 
   handleToggleListModal = () => {
-    this.setState({ listModalVisible: !this.state.listModalVisible })
-  }
+    this.setState({ listModalVisible: !this.state.listModalVisible });
+  };
 
   render() {
     const pagination = {
       ...this.paginationOptions,
       ...this.state.queryParams
-    }
+    };
 
     if (this.state.queryParams.list) {
-      this.props.pageTitle(this.state.queryParams.list.name + " / Subscribers")
+      this.props.pageTitle(this.state.queryParams.list.name + " / Subscribers");
     } else {
-      this.props.pageTitle("Subscribers")
+      this.props.pageTitle("Subscribers");
     }
 
     return (
@@ -644,7 +644,7 @@ class Subscribers extends React.PureComponent {
                             ...this.state.queryParams,
                             query: e.target.value
                           }
-                        })
+                        });
                       }}
                       value={this.state.queryParams.query}
                       autosize={{ minRows: 2, maxRows: 10 }}
@@ -661,7 +661,7 @@ class Subscribers extends React.PureComponent {
                       type="primary"
                       icon="search"
                       onClick={() => {
-                        this.fetchRecords()
+                        this.fetchRecords();
                       }}
                     >
                       Query
@@ -670,7 +670,7 @@ class Subscribers extends React.PureComponent {
                       disabled={this.state.queryParams.query === ""}
                       icon="refresh"
                       onClick={() => {
-                        this.fetchRecords({ query: null })
+                        this.fetchRecords({ query: null });
                       }}
                     >
                       Reset
@@ -717,11 +717,11 @@ class Subscribers extends React.PureComponent {
                               ? [this.state.queryParams.listID]
                               : [],
                             this.state.queryParams.query
-                          )
-                          this.clearSelectedRows()
+                          );
+                          this.clearSelectedRows();
                         } else {
-                          this.handleDeleteRecords(this.state.selectedRows)
-                          this.clearSelectedRows()
+                          this.handleDeleteRecords(this.state.selectedRows);
+                          this.clearSelectedRows();
                         }
                       }}
                     >
@@ -738,13 +738,13 @@ class Subscribers extends React.PureComponent {
                               ? [this.state.queryParams.listID]
                               : [],
                             this.state.queryParams.query
-                          )
-                          this.clearSelectedRows()
+                          );
+                          this.clearSelectedRows();
                         } else {
                           this.handleBlacklistSubscribers(
                             this.state.selectedRows
-                          )
-                          this.clearSelectedRows()
+                          );
+                          this.clearSelectedRows();
                         }
                       }}
                     >
@@ -767,9 +767,9 @@ class Subscribers extends React.PureComponent {
               !this.props.data[cs.ModelSubscribers] ||
               !this.props.data[cs.ModelSubscribers].hasOwnProperty("results")
             ) {
-              return []
+              return [];
             }
-            return this.props.data[cs.ModelSubscribers].results
+            return this.props.data[cs.ModelSubscribers].results;
           })()}
           loading={this.props.reqStates[cs.ModelSubscribers] !== cs.StateDone}
           pagination={pagination}
@@ -789,16 +789,16 @@ class Subscribers extends React.PureComponent {
             confirmLoading={this.state.modalWaiting}
             onOk={e => {
               if (!this.state.modalForm) {
-                return
+                return;
               }
 
               // This submits the form embedded in the Subscriber component.
               this.state.modalForm.submitForm(e, ok => {
                 if (ok) {
-                  this.handleHideForm()
-                  this.fetchRecords()
+                  this.handleHideForm();
+                  this.fetchRecords();
                 }
-              })
+              });
             }}
             onCancel={this.handleHideForm}
             okButtonProps={{
@@ -813,10 +813,10 @@ class Subscribers extends React.PureComponent {
               record={this.state.record}
               ref={r => {
                 if (!r) {
-                  return
+                  return;
                 }
 
-                this.setState({ modalForm: r })
+                this.setState({ modalForm: r });
               }}
             />
           </Modal>
@@ -825,7 +825,7 @@ class Subscribers extends React.PureComponent {
         {this.state.listsFormVisible && (
           <ListsForm
             {...this.props}
-            lists={this.props.data[cs.ModelLists]}
+            lists={this.props.data[cs.ModelLists].results}
             allRowsSelected={this.state.allRowsSelected}
             selectedRows={this.state.selectedRows}
             selectedLists={
@@ -840,8 +840,8 @@ class Subscribers extends React.PureComponent {
           />
         )}
       </section>
-    )
+    );
   }
 }
 
-export default Subscribers
+export default Subscribers;
