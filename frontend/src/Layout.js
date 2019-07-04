@@ -1,35 +1,35 @@
-import React from "react"
-import { Switch, Route } from "react-router-dom"
-import { Link } from "react-router-dom"
-import { Layout, Menu, Icon } from "antd"
+import React from "react";
+import { Switch, Route } from "react-router-dom";
+import { Link } from "react-router-dom";
+import { Layout, Menu, Icon } from "antd";
 
-import logo from "./static/listmonk.svg"
+import logo from "./static/listmonk.svg";
 
 // Views.
-import Dashboard from "./Dashboard"
-import Lists from "./Lists"
-import Subscribers from "./Subscribers"
-import Subscriber from "./Subscriber"
-import Templates from "./Templates"
-import Import from "./Import"
-import Campaigns from "./Campaigns"
-import Campaign from "./Campaign"
-import Media from "./Media"
+import Dashboard from "./Dashboard";
+import Lists from "./Lists";
+import Subscribers from "./Subscribers";
+import Subscriber from "./Subscriber";
+import Templates from "./Templates";
+import Import from "./Import";
+import Campaigns from "./Campaigns";
+import Campaign from "./Campaign";
+import Media from "./Media";
 
-const { Content, Footer, Sider } = Layout
-const SubMenu = Menu.SubMenu
-const year = new Date().getUTCFullYear()
+const { Content, Footer, Sider } = Layout;
+const SubMenu = Menu.SubMenu;
+const year = new Date().getUTCFullYear();
 
 class Base extends React.Component {
   state = {
     basePath: "/" + window.location.pathname.split("/")[1],
     error: null,
     collapsed: false
-  }
+  };
 
   onCollapse = collapsed => {
-    this.setState({ collapsed })
-  }
+    this.setState({ collapsed });
+  };
 
   render() {
     return (
@@ -245,13 +245,20 @@ class Base extends React.Component {
               >
                 listmonk
               </a>{" "}
-              &copy; 2019 {year !== 2019 ? " - " + year : ""}
+              &copy; 2019 {year !== 2019 ? " - " + year : ""} &mdash;{" "}
+              <a
+                href="https://listmonk.app/docs"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Docs
+              </a>
             </span>
           </Footer>
         </Layout>
       </Layout>
-    )
+    );
   }
 }
 
-export default Base
+export default Base;

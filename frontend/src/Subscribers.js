@@ -650,9 +650,14 @@ class Subscribers extends React.PureComponent {
                       autosize={{ minRows: 2, maxRows: 10 }}
                     />
                     <span className="text-tiny text-small">
-                      Write a partial SQL expression to query the subscribers
-                      based on their primary information or attributes. Learn
-                      more.
+                      Partial SQL expression to query subscriber attributes.{" "}
+                      <a
+                        href="https://listmonk.app/docs/querying-and-segmentation"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        Learn more <Icon type="link" />.
+                      </a>
                     </span>
                   </p>
                   <p>

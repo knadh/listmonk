@@ -1,4 +1,4 @@
-import React from "react"
+import React from "react";
 import {
   Row,
   Col,
@@ -13,11 +13,11 @@ import {
   Popconfirm,
   Spin,
   notification
-} from "antd"
+} from "antd";
 
-import ModalPreview from "./ModalPreview"
-import Utils from "./utils"
-import * as cs from "./constants"
+import ModalPreview from "./ModalPreview";
+import Utils from "./utils";
+import * as cs from "./constants";
 
 class CreateFormDef extends React.PureComponent {
   state = {
@@ -25,17 +25,17 @@ class CreateFormDef extends React.PureComponent {
     modalWaiting: false,
     previewName: "",
     previewBody: ""
-  }
+  };
 
   // Handle create / edit form submission.
   handleSubmit = e => {
-    e.preventDefault()
+    e.preventDefault();
     this.props.form.validateFields((err, values) => {
       if (err) {
-        return
+        return;
       }
 
-      this.setState({ modalWaiting: true })
+      this.setState({ modalWaiting: true });
       if (this.props.formType === cs.FormCreate) {
         // Create a new list.
         this.props
@@ -50,19 +50,19 @@ class CreateFormDef extends React.PureComponent {
               placement: cs.MsgPosition,
               message: "Template added",
               description: `"${values["name"]}" added`
-            })
-            this.props.fetchRecords()
-            this.props.onClose()
-            this.setState({ modalWaiting: false })
+            });
+            this.props.fetchRecords();
+            this.props.onClose();
+            this.setState({ modalWaiting: false });
           })
           .catch(e => {
             notification["error"]({
               placement: cs.MsgPosition,
               message: "Error",
               description: e.message
-            })
-            this.setState({ modalWaiting: false })
-          })
+            });
+            this.setState({ modalWaiting: false });
+          });
       } else {
         // Edit a list.
         this.props
@@ -77,43 +77,43 @@ class CreateFormDef extends React.PureComponent {
               placement: cs.MsgPosition,
               message: "Template updated",
               description: `"${values["name"]}" modified`
-            })
-            this.props.fetchRecords()
-            this.props.onClose()
-            this.setState({ modalWaiting: false })
+            });
+            this.props.fetchRecords();
+            this.props.onClose();
+            this.setState({ modalWaiting: false });
           })
           .catch(e => {
             notification["error"]({
               placement: cs.MsgPosition,
               message: "Error",
               description: e.message
-            })
-            this.setState({ modalWaiting: false })
-          })
+            });
+            this.setState({ modalWaiting: false });
+          });
       }
-    })
-  }
+    });
+  };
 
   handleConfirmBlur = e => {
-    const value = e.target.value
-    this.setState({ confirmDirty: this.state.confirmDirty || !!value })
-  }
+    const value = e.target.value;
+    this.setState({ confirmDirty: this.state.confirmDirty || !!value });
+  };
 
   handlePreview = (name, body) => {
-    this.setState({ previewName: name, previewBody: body })
-  }
+    this.setState({ previewName: name, previewBody: body });
+  };
 
   render() {
-    const { formType, record, onClose } = this.props
-    const { getFieldDecorator } = this.props.form
+    const { formType, record, onClose } = this.props;
+    const { getFieldDecorator } = this.props.form;
 
     const formItemLayout = {
       labelCol: { xs: { span: 16 }, sm: { span: 4 } },
       wrapperCol: { xs: { span: 16 }, sm: { span: 18 } }
-    }
+    };
 
     if (formType === null) {
-      return null
+      return null;
     }
 
     return (
@@ -173,8 +173,12 @@ class CreateFormDef extends React.PureComponent {
                 {"}"}
               </code>{" "}
               should appear in the template.{" "}
-              <a href="" target="_blank">
-                Read more on templating
+              <a
+                href="https://listmonk.app/docs/templating"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Learn more <Icon type="link" />.
               </a>
               .
             </Col>
@@ -191,26 +195,26 @@ class CreateFormDef extends React.PureComponent {
             previewURL={cs.Routes.PreviewNewTemplate}
             body={this.state.previewBody}
             onCancel={() => {
-              this.setState({ previewBody: null, previewName: null })
+              this.setState({ previewBody: null, previewName: null });
             }}
           />
         )}
       </div>
-    )
+    );
   }
 }
 
-const CreateForm = Form.create()(CreateFormDef)
+const CreateForm = Form.create()(CreateFormDef);
 
 class Templates extends React.PureComponent {
   state = {
     formType: null,
     record: {},
     previewRecord: null
-  }
+  };
 
   constructor(props) {
-    super(props)
+    super(props);
 
     this.columns = [
       {
@@ -230,21 +234,21 @@ class Templates extends React.PureComponent {
                 </div>
               )}
             </div>
-          )
+          );
         }
       },
       {
         title: "Created",
         dataIndex: "created_at",
         render: (date, _) => {
-          return Utils.DateString(date)
+          return Utils.DateString(date);
         }
       },
       {
         title: "Updated",
         dataIndex: "updated_at",
         render: (date, _) => {
-          return Utils.DateString(date)
+          return Utils.DateString(date);
         }
       },
       {
@@ -299,15 +303,15 @@ class Templates extends React.PureComponent {
                 </Popconfirm>
               )}
             </div>
-          )
+          );
         }
       }
-    ]
+    ];
   }
 
   componentDidMount() {
-    this.props.pageTitle("Templates")
-    this.fetchRecords()
+    this.props.pageTitle("Templates");
+    this.fetchRecords();
   }
 
   fetchRecords = () => {
@@ -315,8 +319,8 @@ class Templates extends React.PureComponent {
       cs.ModelTemplates,
       cs.Routes.GetTemplates,
       cs.MethodGet
-    )
-  }
+    );
+  };
 
   handleDeleteRecord = record => {
     this.props
@@ -331,15 +335,15 @@ class Templates extends React.PureComponent {
           placement: cs.MsgPosition,
           message: "Template deleted",
           description: `"${record.name}" deleted`
-        })
+        });
 
         // Reload the table.
-        this.fetchRecords()
+        this.fetchRecords();
       })
       .catch(e => {
-        notification["error"]({ message: "Error", description: e.message })
-      })
-  }
+        notification["error"]({ message: "Error", description: e.message });
+      });
+  };
 
   handleSetDefault = record => {
     this.props
@@ -354,35 +358,35 @@ class Templates extends React.PureComponent {
           placement: cs.MsgPosition,
           message: "Template updated",
           description: `"${record.name}" set as default`
-        })
+        });
 
         // Reload the table.
-        this.fetchRecords()
+        this.fetchRecords();
       })
       .catch(e => {
         notification["error"]({
           placement: cs.MsgPosition,
           message: "Error",
           description: e.message
-        })
-      })
-  }
+        });
+      });
+  };
 
   handlePreview = record => {
-    this.setState({ previewRecord: record })
-  }
+    this.setState({ previewRecord: record });
+  };
 
   hideForm = () => {
-    this.setState({ formType: null })
-  }
+    this.setState({ formType: null });
+  };
 
   handleShowCreateForm = () => {
-    this.setState({ formType: cs.FormCreate, record: {} })
-  }
+    this.setState({ formType: cs.FormCreate, record: {} });
+  };
 
   handleShowEditForm = record => {
-    this.setState({ formType: cs.FormEdit, record: record })
-  }
+    this.setState({ formType: cs.FormEdit, record: record });
+  };
 
   render() {
     return (
@@ -427,13 +431,13 @@ class Templates extends React.PureComponent {
               this.state.previewRecord.id
             )}
             onCancel={() => {
-              this.setState({ previewRecord: null })
+              this.setState({ previewRecord: null });
             }}
           />
         )}
       </section>
-    )
+    );
   }
 }
 
-export default Templates
+export default Templates;
