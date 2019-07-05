@@ -223,7 +223,7 @@ func main() {
 		importNotifCB)
 
 	// Read system e-mail templates.
-	notifTpls, err := stuffbin.ParseTemplatesGlob(fs, "/email-templates/*.html")
+	notifTpls, err := stuffbin.ParseTemplatesGlob(nil, fs, "/email-templates/*.html")
 	if err != nil {
 		logger.Fatalf("error loading system e-mail templates: %v", err)
 	}
@@ -269,7 +269,7 @@ func main() {
 	})
 
 	// Parse user facing templates.
-	tpl, err := stuffbin.ParseTemplatesGlob(fs, "/public/templates/*.html")
+	tpl, err := stuffbin.ParseTemplatesGlob(nil, fs, "/public/templates/*.html")
 	if err != nil {
 		logger.Fatalf("error parsing public templates: %v", err)
 	}
