@@ -7,7 +7,7 @@ listmonk is a standalone newsletter and mailing list manager written in Go. It i
 ### Installation and use
 
 - Download the [latest release](https://github.com/knadh/listmonk/releases) and extract the listmonk binary somewhere.
-- Copy `config.toml.sample` to `config.toml` and add your configuration (SMTP and Postgres DB credentials primarily).
+- Run `./listmonk --new-config` to generate a sample `config.toml` and add your configuration (SMTP and Postgres DB credentials primarily).
 - `./listmonk --install` to setup the DB.
 - Visit `http://localhost:9000`.
 - Since there is no user auth yet, it's best to put listmonk behind a proxy like Nginx and setup basicauth on all endpoints except for the few endpoints that need to be public. Here is a [sample nginx config](https://github.com/knadh/listmonk/wiki/Production-Nginx-config) for production use.
@@ -43,3 +43,7 @@ listmonk is a standalone newsletter and mailing list manager written in Go. It i
 listmonk is free, open source software licensed under AGPLv3. There are a few of essential features such as user auth/management and bounce tracking that are currently missing. Contributions are welcome.
 
 The backend is written in Go and the frontend is in React with Ant Design for UI. See [developer setup](https://github.com/knadh/listmonk/wiki/Developer-setup) to get started.
+
+## License
+
+listmonk is licensed under the AGPL v3 license.

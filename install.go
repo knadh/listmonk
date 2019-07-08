@@ -1,8 +1,10 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"io/ioutil"
+	"os"
 	"strings"
 	"time"
 
@@ -119,5 +121,26 @@ func installMigrate(db *sqlx.DB, app *App) error {
 		return err
 	}
 
+	return nil
+}
+
+func newConfigFile() error {
+	if _, err := os.Stat("config.toml"); !os.IsNotExist(err) {
+		return errors.New("config.toml exists. Remove it to generate a new one")
+	}
+
+	// Initialize the static file system into which all
+	// required static assets (.sql, .js files etc.) are loaded.
+	fs, err := initFileSystem(os.Args[0])
+	if err != nil {
+		return err
+	}
+
+	b, err := fs.Read("config.toml.sample")
+	if err != nil {
+		return fmt.Errorf("error reading sample config (is binary stuffed?): %v", err)
+	}
+
+	ioutil.WriteFile("config.toml", b, 0644)
 	return nil
 }

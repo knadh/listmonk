@@ -1,10 +1,10 @@
+LAST_COMMIT := $(shell git rev-parse --short HEAD)
+LAST_COMMIT_DATE := $(shell git show -s --format=%ci ${LAST_COMMIT})
+VERSION := $(shell git tag)
+BUILDSTR := ${VERSION} (${LAST_COMMIT} $(shell date -u +"%Y-%m-%dT%H:%M:%SZ"))
+
 BIN := listmonk
 STATIC := config.toml.sample schema.sql queries.sql public email-templates frontend/build:/frontend
-
-HASH := $(shell git rev-parse --short HEAD)
-COMMIT_DATE := $(shell git show -s --format=%ci ${HASH})
-BUILD_DATE := $(shell date '+%Y-%m-%d %H:%M:%S')
-VERSION := ${HASH} (${COMMIT_DATE})
 
 # Dependencies.
 .PHONY: deps
@@ -15,15 +15,11 @@ deps:
 # Build steps.
 .PHONY: build
 build:
-	go build  -o ${BIN} -ldflags="-s -w -X 'main.buildVersion=${VERSION}' -X 'main.buildDate=${BUILD_DATE}'"
+	go build  -o ${BIN} -ldflags="-s -w -X 'main.buildString=${BUILDSTR}'"
 
 .PHONY: build-frontend
 build-frontend:
 	cd frontend && yarn build
-
-.PHONY: dist
-build-dist:
-	stuffbin -a stuff -in ${BIN} -out ${BIN} ${STATIC}
 
 .PHONY: run
 run: build
@@ -35,9 +31,18 @@ run-frontend:
 
 .PHONY: test
 test:
-	go test
+	go test ./...
 
-.PHONY: clean
-clean:
-	go clean
-	- rm -f ${BIN}
+# dist builds the backend, frontend, and uses stuffbin to
+# embed all frontend assets into the binary.
+.PHONY: dist
+dist: build build-frontend
+	stuffbin -a stuff -in ${BIN} -out ${BIN} ${STATIC}
+
+# pack-releases runns stuffbin packing on a given list of
+# binaries. This is used with goreleaser for packing
+# release builds for cross-build targets.
+.PHONY: pack-releases
+pack-releases:
+	$(foreach var,$(RELEASE_BUILDS),stuffbin -a stuff -in ${var} -out ${var} ${STATIC} $(var);)
+

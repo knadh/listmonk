@@ -54,9 +54,11 @@ var (
 
 	// Global configuration reader.
 	ko = koanf.New(".")
+
+	buildString string
 )
 
-func initConfig(ko *koanf.Koanf) error {
+func init() {
 	// Register --help handler.
 	f := flag.NewFlagSet("config", flag.ContinueOnError)
 	f.Usage = func() {
@@ -69,21 +71,36 @@ func initConfig(ko *koanf.Koanf) error {
 		"Path to one or more config files (will be merged in order)")
 	f.Bool("install", false, "Run first time installation")
 	f.Bool("version", false, "Current version of the build")
+	f.Bool("new-config", false, "Generate sample config file")
 
 	// Process flags.
 	f.Parse(os.Args[1:])
+
+	// Display version.
+	if v, _ := f.GetBool("version"); v {
+		fmt.Println(buildString)
+		os.Exit(0)
+	}
+
+	// Generate new config.
+	if ok, _ := f.GetBool("new-config"); ok {
+		if err := newConfigFile(); err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+		fmt.Println("generated config.toml. Edit and run --install")
+		os.Exit(0)
+	}
 
 	// Load config files.
 	cFiles, _ := f.GetStringSlice("config")
 	for _, f := range cFiles {
 		log.Printf("reading config: %s", f)
 		if err := ko.Load(file.Provider(f), toml.Parser()); err != nil {
-			return err
+			log.Fatalf("error loadng config: %v", err)
 		}
 	}
 	ko.Load(posflag.Provider(f, ".", ko), nil)
-
-	return nil
 }
 
 // initFileSystem initializes the stuffbin FileSystem to provide
@@ -149,12 +166,6 @@ func initMessengers(r *manager.Manager) messenger.Messenger {
 }
 
 func main() {
-	// Load config into the global conf.
-	if err := initConfig(ko); err != nil {
-		logger.Printf("error reading config: %v", err)
-		os.Exit(1)
-	}
-
 	// Connect to the DB.
 	db, err := connectDB(ko.String("db.host"),
 		ko.Int("db.port"),
