@@ -2,7 +2,9 @@
 
 > listmonk is **alpha** software and may change and break. Use with caution. That said, it has been in active use at [zerodha.com](https://zerodha.com) for several months where it has processed hundreds of campaigns and tens of millions of e-mails.
 
-listmonk is a standalone newsletter and mailing list manager written in Go. It is fast, performant, and comes as a single binary. It uses a PostgreSQL database as its data store.
+listmonk is a standalone, self-hosted newsletter and mailing list manager. It is fast, performant, and comes as a single binary. It uses a PostgreSQL database as its data store.
+
+[![listmonk-splash](https://user-images.githubusercontent.com/547147/60884802-8189c180-a26b-11e9-85ee-622e5dee8869.png)](https://listmonk.app)
 
 ### Installation and use
 
@@ -11,6 +13,10 @@ listmonk is a standalone newsletter and mailing list manager written in Go. It i
 - `./listmonk --install` to setup the DB.
 - Visit `http://localhost:9000`.
 - Since there is no user auth yet, it's best to put listmonk behind a proxy like Nginx and setup basicauth on all endpoints except for the few endpoints that need to be public. Here is a [sample nginx config](https://github.com/knadh/listmonk/wiki/Production-Nginx-config) for production use.
+
+### Help and docs
+
+[Help and documentation](https://listmonk.app/docs) (work in progress).
 
 ### Current features
 
