@@ -2,7 +2,7 @@
 
 > listmonk is **alpha** software and may change and break. Use with caution. That said, it has been in active use at [zerodha.com](https://zerodha.com) for several months where it has processed hundreds of campaigns and tens of millions of e-mails.
 
-listmonk is a standalone, self-hosted newsletter and mailing list manager. It is fast, performant, and comes as a single binary. It uses a PostgreSQL database as its data store.
+listmonk is a standalone, self-hosted, newsletter and mailing list manager. It is fast, feature-rich, and packed into a single binary. It uses a PostgreSQL database as its data store.
 
 [![listmonk-splash](https://user-images.githubusercontent.com/547147/60884802-8189c180-a26b-11e9-85ee-622e5dee8869.png)](https://listmonk.app)
 
@@ -46,7 +46,7 @@ listmonk is a standalone, self-hosted newsletter and mailing list manager. It is
 
 ## Developers
 
-listmonk is free, open source software licensed under AGPLv3. There are a few of essential features such as user auth/management and bounce tracking that are currently missing. Contributions are welcome.
+listmonk is free, open source software licensed under AGPLv3. There are several essential features such as user auth/management and bounce tracking that are currently missing. Contributions are welcome.
 
 The backend is written in Go and the frontend is in React with Ant Design for UI. See [developer setup](https://github.com/knadh/listmonk/wiki/Developer-setup) to get started.
 
