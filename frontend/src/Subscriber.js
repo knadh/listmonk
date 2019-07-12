@@ -257,7 +257,14 @@ class CreateFormDef extends React.PureComponent {
             <p className="ant-form-extra">
               Attributes are defined as a JSON map, for example:
               {' {"age": 30, "color": "red", "is_user": true}'}.{" "}
-              <a href="">More info</a>.
+              <a
+                href="https://listmonk.app/docs/concepts"
+                rel="noopener noreferrer"
+                target="_blank"
+              >
+                More info
+              </a>
+              .
             </p>
           </Form.Item>
           {!this.props.isModal && (
