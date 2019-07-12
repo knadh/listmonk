@@ -27,3 +27,15 @@ archives:
       - config.toml.sample
       - README.md
       - LICENSE
+dockers:
+  -
+    goos: linux
+    goarch: amd64
+    binaries:
+    - listmonk
+    image_templates:
+    - "knadh/listmonk:latest"
+    - "knadh/listmonk:{{ .Tag }}"
+    dockerfile: Dockerfile
+    extra_files:
+    - config.toml.sample
