@@ -19,8 +19,10 @@ listmonk is a standalone, self-hosted, newsletter and mailing list manager. It i
 You can checkout the [docker-compose.yml](docker-compose.yml) to get an idea of how to run `listmonk` with `PostgreSQL` together using Docker.
 
 - `docker-compose up -d` to run all the services together.
-- `docker-compose run --rm app ./listmonk --install --config /etc/listmonk/config.toml` to setup the DB.
+- `docker-compose run --rm app ./listmonk --install` to setup the DB.
 - Visit `http://localhost:9000`.
+
+Alternatively, to run a demo of listmonk, you can quickly spin up a container `docker-compose up -d demo-db demo-app`. NOTE: This doesn't persist Postgres data after you stop and remove the container, this setup is intended only for demo. _DO NOT_ use the demo setup in production.
 
 ### Help and docs
 

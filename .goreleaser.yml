@@ -1,5 +1,6 @@
 env:
   - GO111MODULE=on
+  - CGO_ENABLED=0
   - RELEASE_BUILDS=dist/listmonk_darwin_amd64/listmonk dist/listmonk_linux_amd64/listmonk dist/listmonk_windows_amd64//listmonk.exe
 
 before:
@@ -34,8 +35,8 @@ dockers:
     binaries:
     - listmonk
     image_templates:
-    - "knadh/listmonk:latest"
-    - "knadh/listmonk:{{ .Tag }}"
+    - "listmonk/listmonk:latest"
+    - "listmonk/listmonk:{{ .Tag }}"
     dockerfile: Dockerfile
     extra_files:
     - config.toml.sample

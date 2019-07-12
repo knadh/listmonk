@@ -4,15 +4,18 @@
 
 version: "3.7"
 
-services:
-  db:
+x-app-defaults: &app-defaults
+  restart: unless-stopped
+  image: listmonk/listmonk:latest
+  ports:
+    - "9000:9000"
+  networks:
+    - listmonk
+
+x-db-defaults: &db-defaults
     image: postgres:11
     ports:
-      - "5432:5432"
-    volumes:
-      - type: volume
-        source: listmonk-data
-        target: /var/lib/postgresql/data
+      - "9432:5432"
     networks:
       - listmonk
     environment:
@@ -21,19 +24,27 @@ services:
       - POSTGRES_DB=listmonk
     restart: unless-stopped
 
+services:
+  db:
+    <<: *db-defaults
+    volumes:
+      - type: volume
+        source: listmonk-data
+        target: /var/lib/postgresql/data
+
   app:
-    restart: unless-stopped
+    <<: *app-defaults
     depends_on:
       - db
-    image: knadh/listmonk:latest
-    volumes:
-      - type: bind
-        source: ./config.toml
-        target: /etc/listmonk/config.toml
-    ports:
-      - "9000:9000"
-    networks:
-      - listmonk
+
+  demo-db:
+    <<: *db-defaults
+
+  demo-app:
+    <<: *app-defaults
+    command: [sh, -c, "yes | ./listmonk --install && ./listmonk"]
+    depends_on: 
+      - demo-db
 
 networks:
   listmonk:
