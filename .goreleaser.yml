@@ -24,6 +24,6 @@ builds:
 archives:
   - format: tar.gz
     files:
-      - config.toml.sample
       - README.md
+      - INSTALL.md
       - LICENSE
