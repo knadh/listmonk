@@ -46,10 +46,10 @@ max_send_errors = 1000
 
 # Database.
 [db]
-host = "localhost"
+host = "demo-db"
 port = 5432
 user = "listmonk"
-password = ""
+password = "listmonk"
 database = "listmonk"
 ssl_mode = "disable"
 

@@ -1,6 +1,7 @@
 env:
   - GO111MODULE=on
-  - RELEASE_BUILDS=dist/listmonk_darwin_amd64/listmonk dist/listmonk_linux_amd64/listmonk dist/listmonk_windows_amd64//listmonk.exe
+  - CGO_ENABLED=0
+  - RELEASE_BUILDS=dist/listmonk_darwin_amd64/listmonk dist/listmonk_linux_amd64/listmonk dist/listmonk_windows_amd64/listmonk.exe
 
 before:
   hooks:
@@ -27,3 +28,15 @@ archives:
       - README.md
       - INSTALL.md
       - LICENSE
+dockers:
+  -
+    goos: linux
+    goarch: amd64
+    binaries:
+    - listmonk
+    image_templates:
+    - "listmonk/listmonk:latest"
+    - "listmonk/listmonk:{{ .Tag }}"
+    dockerfile: Dockerfile
+    extra_files:
+    - config.toml.sample

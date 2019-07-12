@@ -14,6 +14,16 @@ listmonk is a standalone, self-hosted, newsletter and mailing list manager. It i
 - Visit `http://localhost:9000`.
 - Since there is no user auth yet, it's best to put listmonk behind a proxy like Nginx and setup basicauth on all endpoints except for the few endpoints that need to be public. Here is a [sample nginx config](https://github.com/knadh/listmonk/wiki/Production-Nginx-config) for production use.
 
+### Running on Docker
+
+You can checkout the [docker-compose.yml](docker-compose.yml) to get an idea of how to run `listmonk` with `PostgreSQL` together using Docker.
+
+- `docker-compose up -d` to run all the services together.
+- `docker-compose run --rm app ./listmonk --install` to setup the DB.
+- Visit `http://localhost:9000`.
+
+Alternatively, to run a demo of listmonk, you can quickly spin up a container `docker-compose up -d demo-db demo-app`. NOTE: This doesn't persist Postgres data after you stop and remove the container, this setup is intended only for demo. _DO NOT_ use the demo setup in production.
+
 ### Help and docs
 
 [Help and documentation](https://listmonk.app/docs) (work in progress).
