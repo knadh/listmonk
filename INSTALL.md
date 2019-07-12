@@ -12,6 +12,8 @@ You can checkout the [docker-compose.yml](docker-compose.yml) to get an idea of 
 - `docker-compose run --rm app ./listmonk --install` to setup the DB.
 - Visit `http://localhost:9000`.
 
+_NOTE_: This `docker-compose` file works with Docker Engine 18.06.0+ and `docker-compose` which supports file format 3.7.
+
 ### Demo Setup
 
 `docker-compose.yml` includes a demo setup to quickly try out `listmonk`. It spins up PostgreSQL and listmonk app containers without any persistent data.
