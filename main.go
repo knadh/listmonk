@@ -85,19 +85,22 @@ func init() {
 	// Generate new config.
 	if ok, _ := f.GetBool("new-config"); ok {
 		if err := newConfigFile(); err != nil {
-			fmt.Println(err)
+			logger.Println(err)
 			os.Exit(1)
 		}
-		fmt.Println("generated config.toml. Edit and run --install")
+		logger.Println("generated config.toml. Edit and run --install")
 		os.Exit(0)
 	}
 
 	// Load config files.
 	cFiles, _ := f.GetStringSlice("config")
 	for _, f := range cFiles {
-		log.Printf("reading config: %s", f)
+		logger.Printf("reading config: %s", f)
 		if err := ko.Load(file.Provider(f), toml.Parser()); err != nil {
-			log.Fatalf("error loadng config: %v", err)
+			if os.IsNotExist(err) {
+				logger.Fatal("config file not found. If there isn't one yet, run --new-config to generate one.")
+			}
+			logger.Fatalf("error loadng config: %v.", err)
 		}
 	}
 	ko.Load(posflag.Provider(f, ".", ko), nil)
