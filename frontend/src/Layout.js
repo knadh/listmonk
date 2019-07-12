@@ -115,28 +115,6 @@ class Base extends React.Component {
                 </Link>
               </Menu.Item>
             </SubMenu>
-
-            <SubMenu
-              key="/settings"
-              title={
-                <span>
-                  <Icon type="setting" />
-                  <span>Settings</span>
-                </span>
-              }
-            >
-              <Menu.Item key="9">
-                <Icon type="user" /> Users
-              </Menu.Item>
-              <Menu.Item key="10">
-                <Icon type="setting" />
-                Settings
-              </Menu.Item>
-            </SubMenu>
-            <Menu.Item key="11">
-              <Icon type="logout" />
-              <span>Logout</span>
-            </Menu.Item>
           </Menu>
         </Sider>
 
