@@ -16,6 +16,8 @@ listmonk is a standalone, self-hosted, newsletter and mailing list manager. It i
 
 ### Running on Docker
 
+You can pull the official Docker Image from [Docker Hub](https://hub.docker.com/r/listmonk/listmonk).
+
 You can checkout the [docker-compose.yml](docker-compose.yml) to get an idea of how to run `listmonk` with `PostgreSQL` together using Docker.
 
 - `docker-compose up -d` to run all the services together.
