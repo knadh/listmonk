@@ -105,7 +105,7 @@ func install(app *App, qMap goyesql.Queries) {
 	}
 
 	logger.Printf("Setup complete")
-	logger.Printf(`Run the program view it at %s`, ko.String("app.address"))
+	logger.Printf(`Run the program and access the dashboard at %s`, ko.String("app.address"))
 
 }
 
