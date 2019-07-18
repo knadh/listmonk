@@ -22,7 +22,8 @@ func sendNotification(tpl, subject string, data map[string]interface{}, app *App
 	err = app.Messenger.Push(app.Constants.FromEmail,
 		app.Constants.NotifyEmails,
 		subject,
-		b.Bytes())
+		b.Bytes(),
+		nil)
 	if err != nil {
 		app.Logger.Printf("error sending admin notification (%s): %v", subject, err)
 		return err

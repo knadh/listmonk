@@ -238,7 +238,7 @@ func (m *Manager) SpawnWorkers() {
 					msg.from,
 					[]string{msg.to},
 					msg.Campaign.Subject,
-					msg.Body)
+					msg.Body, nil)
 				if err != nil {
 					m.logger.Printf("error sending message in campaign %s: %v",
 						msg.Campaign.Name, err)

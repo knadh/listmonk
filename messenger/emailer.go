@@ -66,7 +66,7 @@ func (e *emailer) Name() string {
 }
 
 // Push pushes a message to the server.
-func (e *emailer) Push(fromAddr string, toAddr []string, subject string, m []byte) error {
+func (e *emailer) Push(fromAddr string, toAddr []string, subject string, m []byte, atts []*Attachment) error {
 	var key string
 
 	// If there are more than one SMTP servers, send to a random
@@ -77,12 +77,28 @@ func (e *emailer) Push(fromAddr string, toAddr []string, subject string, m []byt
 		key = e.serverNames[0]
 	}
 
+	// Are there attachments?
+	var files []*email.Attachment
+	if atts != nil {
+		files = make([]*email.Attachment, 0, len(atts))
+		for _, f := range atts {
+			a := &email.Attachment{
+				Filename: f.Name,
+				Header:   f.Header,
+				Content:  make([]byte, len(f.Content)),
+			}
+			copy(a.Content, f.Content)
+			files = append(files, a)
+		}
+	}
+
 	srv := e.servers[key]
 	err := srv.mailer.Send(&email.Email{
-		From:    fromAddr,
-		To:      toAddr,
-		Subject: subject,
-		HTML:    m,
+		From:        fromAddr,
+		To:          toAddr,
+		Subject:     subject,
+		HTML:        m,
+		Attachments: files,
 	}, srv.SendTimeout)
 
 	return err
