@@ -41,10 +41,10 @@ type unsubTpl struct {
 	Blacklist   bool
 }
 
-type errorTpl struct {
+type msgTpl struct {
 	publicTpl
-	ErrorTitle   string
-	ErrorMessage string
+	MessageTitle string
+	Message      string
 }
 
 var (
@@ -79,8 +79,8 @@ func handleUnsubscribePage(c echo.Context) error {
 
 	if !regexValidUUID.MatchString(campUUID) ||
 		!regexValidUUID.MatchString(subUUID) {
-		return c.Render(http.StatusBadRequest, "error",
-			makeErrorTpl("Invalid request", "",
+		return c.Render(http.StatusBadRequest, "message",
+			makeMsgTpl("Invalid request", "",
 				`The unsubscription request contains invalid IDs.
 				Please follow the correct link.`))
 	}
@@ -97,8 +97,8 @@ func handleUnsubscribePage(c echo.Context) error {
 		if !blacklist {
 			num, _ := res.RowsAffected()
 			if num == 0 {
-				return c.Render(http.StatusBadRequest, "error",
-					makeErrorTpl("Already unsubscribed", "",
+				return c.Render(http.StatusBadRequest, "message",
+					makeMsgTpl("Already unsubscribed", "",
 						`You are not subscribed to this mailing list.
 						You may have already unsubscribed.`))
 			}
@@ -119,15 +119,15 @@ func handleLinkRedirect(c echo.Context) error {
 	if !regexValidUUID.MatchString(linkUUID) ||
 		!regexValidUUID.MatchString(campUUID) ||
 		!regexValidUUID.MatchString(subUUID) {
-		return c.Render(http.StatusBadRequest, "error",
-			makeErrorTpl("Invalid link", "", "The link you clicked is invalid."))
+		return c.Render(http.StatusBadRequest, "message",
+			makeMsgTpl("Invalid link", "", "The link you clicked is invalid."))
 	}
 
 	var url string
 	if err := app.Queries.RegisterLinkClick.Get(&url, linkUUID, campUUID, subUUID); err != nil {
 		app.Logger.Printf("error fetching redirect link: %s", err)
-		return c.Render(http.StatusInternalServerError, "error",
-			makeErrorTpl("Error opening link", "",
+		return c.Render(http.StatusInternalServerError, "message",
+			makeMsgTpl("Error opening link", "",
 				"There was an error opening the link. Please try later."))
 	}
 
