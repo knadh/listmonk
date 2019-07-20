@@ -501,7 +501,7 @@ WHERE id = $1;
 WITH u AS (
     UPDATE templates SET is_default=true WHERE id=$1 RETURNING id
 )
-UPDATE templates SET is_default=false WHERE id != $1;
+UPDATE templates SET is_default=false WHERE id !=u.id;
 
 -- name: delete-template
 -- Delete a template as long as there's more than one. One deletion, set all campaigns
