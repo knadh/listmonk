@@ -107,8 +107,8 @@ INSERT INTO subscriber_lists (subscriber_id, list_id, status)
     SET status = (CASE WHEN $4='blacklisted' THEN 'unsubscribed'::subscription_status ELSE 'unconfirmed' END);
 
 -- name: delete-subscribers
--- Delete one or more subscribers.
-DELETE FROM subscribers WHERE id = ANY($1);
+-- Delete one or more subscribers by ID or UUID.
+DELETE FROM subscribers WHERE CASE WHEN ARRAY_LENGTH($1::INT[], 1) > 0 THEN id = ANY($1) ELSE uuid = ANY($2::UUID[]) END;
 
 -- name: blacklist-subscribers
 WITH b AS (

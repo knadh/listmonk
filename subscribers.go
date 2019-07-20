@@ -327,7 +327,7 @@ func handleDeleteSubscribers(c echo.Context) error {
 		IDs = i
 	}
 
-	if _, err := app.Queries.DeleteSubscribers.Exec(IDs); err != nil {
+	if _, err := app.Queries.DeleteSubscribers.Exec(IDs, nil); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			fmt.Sprintf("Error deleting: %v", err))
 	}
