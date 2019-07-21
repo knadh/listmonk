@@ -89,9 +89,10 @@ func handleSubscriptionPage(c echo.Context) error {
 		}
 
 		if _, err := app.Queries.Unsubscribe.Exec(campUUID, subUUID, blacklist); err != nil {
-			app.Logger.Printf("Error unsubscribing : %v", err)
-			return echo.NewHTTPError(http.StatusBadRequest,
-				"There was an internal error while unsubscribing you.")
+			app.Logger.Printf("error unsubscribing: %v", err)
+			return c.Render(http.StatusInternalServerError, "message",
+				makeMsgTpl("Error", "",
+					`Error processing request. Please retry.`))
 		}
 		return c.Render(http.StatusOK, "message",
 			makeMsgTpl("Unsubscribed", "",
