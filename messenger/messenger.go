@@ -18,3 +18,17 @@ type Attachment struct {
 	Header  textproto.MIMEHeader
 	Content []byte
 }
+
+// MakeAttachmentHeader is a helper function that returns a
+// textproto.MIMEHeader tailored for attachments, primarily
+// email. If no encoding is given, base64 is assumed.
+func MakeAttachmentHeader(filename, encoding string) textproto.MIMEHeader {
+	if encoding == "" {
+		encoding = "base64"
+	}
+	h := textproto.MIMEHeader{}
+	h.Set("Content-Disposition", "attachment; filename="+filename)
+	h.Set("Content-Type", "application/json; name=\""+filename+"\"")
+	h.Set("Content-Transfer-Encoding", "base64")
+	return h
+}
