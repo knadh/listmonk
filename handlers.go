@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/url"
+	"regexp"
 	"strconv"
 	"strings"
 
@@ -36,6 +37,8 @@ type pagination struct {
 	Offset  int `json:"offset"`
 	Limit   int `json:"limit"`
 }
+
+var reUUID = regexp.MustCompile("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$")
 
 // registerHandlers registers HTTP handlers.
 func registerHandlers(e *echo.Echo) {
@@ -97,12 +100,18 @@ func registerHandlers(e *echo.Echo) {
 	e.DELETE("/api/templates/:id", handleDeleteTemplate)
 
 	// Subscriber facing views.
-	e.GET("/subscription/:campUUID/:subUUID", handleSubscriptionPage)
-	e.POST("/subscription/:campUUID/:subUUID", handleSubscriptionPage)
-	e.POST("/subscription/export/:subUUID", handleSelfExportSubscriberData)
-	e.POST("/subscription/wipe/:subUUID", handleWipeSubscriberData)
-	e.GET("/link/:linkUUID/:campUUID/:subUUID", handleLinkRedirect)
-	e.GET("/campaign/:campUUID/:subUUID/px.png", handleRegisterCampaignView)
+	e.GET("/subscription/:campUUID/:subUUID", validateUUID(handleSubscriptionPage,
+		"campUUID", "subUUID"))
+	e.POST("/subscription/:campUUID/:subUUID", validateUUID(handleSubscriptionPage,
+		"campUUID", "subUUID"))
+	e.POST("/subscription/export/:subUUID", validateUUID(handleSelfExportSubscriberData,
+		"subUUID"))
+	e.POST("/subscription/wipe/:subUUID", validateUUID(handleWipeSubscriberData,
+		"subUUID"))
+	e.GET("/link/:linkUUID/:campUUID/:subUUID", validateUUID(handleLinkRedirect,
+		"linkUUID", "campUUID", "subUUID"))
+	e.GET("/campaign/:campUUID/:subUUID/px.png", validateUUID(handleRegisterCampaignView,
+		"campUUID", "subUUID"))
 
 	// Static views.
 	e.GET("/lists", handleIndexPage)
@@ -130,6 +139,20 @@ func handleIndexPage(c echo.Context) error {
 	return c.String(http.StatusOK, string(b))
 }
 
+// validateUUID validates the UUID string format for a given set of params.
+func validateUUID(next echo.HandlerFunc, params ...string) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		for _, p := range params {
+			if !reUUID.MatchString(c.Param(p)) {
+				return c.Render(http.StatusBadRequest, "message",
+					makeMsgTpl("Invalid request", "",
+						`One or more UUIDs in the request are invalid.`))
+			}
+		}
+		return next(c)
+	}
+}
+
 // makeAttribsBlob takes a list of keys and values and creates
 // a JSON map out of them.
 func makeAttribsBlob(keys []string, vals []string) ([]byte, bool) {
@@ -154,7 +177,6 @@ func makeAttribsBlob(keys []string, vals []string) ([]byte, bool) {
 				val = s
 			}
 		}
-
 		attribs[key] = val
 	}
 
@@ -162,7 +184,6 @@ func makeAttribsBlob(keys []string, vals []string) ([]byte, bool) {
 		j, _ := json.Marshal(attribs)
 		return j, true
 	}
-
 	return nil, false
 }
 

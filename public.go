@@ -7,7 +7,6 @@ import (
 	"image/png"
 	"io"
 	"net/http"
-	"regexp"
 	"strconv"
 
 	"github.com/knadh/listmonk/messenger"
@@ -52,8 +51,7 @@ type msgTpl struct {
 }
 
 var (
-	regexValidUUID = regexp.MustCompile("^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-4[a-fA-F0-9]{3}-[8|9|aA|bB][a-fA-F0-9]{3}-[a-fA-F0-9]{12}$")
-	pixelPNG       = drawTransparentImage(3, 14)
+	pixelPNG = drawTransparentImage(3, 14)
 )
 
 // Render executes and renders a template for echo.
@@ -83,14 +81,6 @@ func handleSubscriptionPage(c echo.Context) error {
 	out.AllowExport = app.Constants.Privacy.AllowExport
 	out.AllowWipe = app.Constants.Privacy.AllowWipe
 
-	if !regexValidUUID.MatchString(campUUID) ||
-		!regexValidUUID.MatchString(subUUID) {
-		return c.Render(http.StatusBadRequest, "message",
-			makeMsgTpl("Invalid request", "",
-				`The unsubscription request contains invalid IDs.
-				Please follow the correct link.`))
-	}
-
 	// Unsubscribe.
 	if unsub {
 		// Is blacklisting allowed?
@@ -119,12 +109,6 @@ func handleLinkRedirect(c echo.Context) error {
 		campUUID = c.Param("campUUID")
 		subUUID  = c.Param("subUUID")
 	)
-	if !regexValidUUID.MatchString(linkUUID) ||
-		!regexValidUUID.MatchString(campUUID) ||
-		!regexValidUUID.MatchString(subUUID) {
-		return c.Render(http.StatusBadRequest, "message",
-			makeMsgTpl("Invalid link", "", "The link you clicked is invalid."))
-	}
 
 	var url string
 	if err := app.Queries.RegisterLinkClick.Get(&url, linkUUID, campUUID, subUUID); err != nil {
@@ -146,13 +130,9 @@ func handleRegisterCampaignView(c echo.Context) error {
 		campUUID = c.Param("campUUID")
 		subUUID  = c.Param("subUUID")
 	)
-	if regexValidUUID.MatchString(campUUID) &&
-		regexValidUUID.MatchString(subUUID) {
-		if _, err := app.Queries.RegisterCampaignView.Exec(campUUID, subUUID); err != nil {
-			app.Logger.Printf("error registering campaign view: %s", err)
-		}
+	if _, err := app.Queries.RegisterCampaignView.Exec(campUUID, subUUID); err != nil {
+		app.Logger.Printf("error registering campaign view: %s", err)
 	}
-
 	c.Response().Header().Set("Cache-Control", "no-cache")
 	return c.Blob(http.StatusOK, "image/png", pixelPNG)
 }
@@ -166,12 +146,6 @@ func handleSelfExportSubscriberData(c echo.Context) error {
 		app     = c.Get("app").(*App)
 		subUUID = c.Param("subUUID")
 	)
-	if !regexValidUUID.MatchString(subUUID) {
-		return c.Render(http.StatusInternalServerError, "message",
-			makeMsgTpl("Invalid request", "",
-				"The subscriber ID is invalid."))
-	}
-
 	// Is export allowed?
 	if !app.Constants.Privacy.AllowExport {
 		return c.Render(http.StatusBadRequest, "message",
@@ -230,11 +204,6 @@ func handleWipeSubscriberData(c echo.Context) error {
 		app     = c.Get("app").(*App)
 		subUUID = c.Param("subUUID")
 	)
-	if !regexValidUUID.MatchString(subUUID) {
-		return c.Render(http.StatusInternalServerError, "message",
-			makeMsgTpl("Invalid request", "",
-				"The subscriber ID is invalid."))
-	}
 
 	// Is wiping allowed?
 	if !app.Constants.Privacy.AllowExport {
