@@ -1,0 +1,85 @@
+{{ define "subscription" }}
+{{ template "header" .}}
+<section>
+    {{ if not .Data.Unsubscribe }}
+        <h2>Unsubscribe</h2>
+        <p>Do you wish to unsubscribe from this mailing list?</p>
+        <form method="post">
+            <div>
+                <input type="hidden" name="unsubscribe" value="true" />
+                <button type="submit" class="button" id="btn-unsub">Unsubscribe</button>
+            </div>
+        </form>
+    {{ else }}
+        <h2>You have been unsubscribed</h2>
+        {{ if not .Data.Blacklist }}
+        <div class="unsub-all">
+            <p>Unsubscribe from all future communications?</p>
+            <form method="post">
+                <div>
+                    <input type="hidden" name="unsubscribe" value="true" />
+                    <input type="hidden" name="blacklist" value="true" />
+                    <button type="submit" class="button button-inline" id="btn-unsuball">
+                    Unsubscribe all
+                    </button>
+                </div>
+            </form>
+        </div>
+        {{ else }}
+            <p>You've been unsubscribed from all future communications.</p>
+        {{ end }}
+    {{ end }}
+</section>
+
+{{ if or .Data.AllowExport .Data.AllowWipe }}
+<form id="data-form" method="post" action="" onsubmit="return handleData()">
+    <section>
+        <h2>Privacy and data</h2>
+        {{ if .Data.AllowExport }}
+        <div class="row">
+            <div class="one columns">
+                <input id="privacy-export" type="radio" name="data-action" value="export" required />
+            </div>
+            <div class="ten columns">
+                <label for="privacy-export"><strong>Export your data</strong></label>
+                <br />
+                A copy of your data will be e-mailed to you.
+            </div>
+        </div>
+        {{ end }}
+
+        {{ if .Data.AllowWipe }}
+        <div class="row">
+            <div class="one columns">
+                <input id="privacy-wipe" type="radio" name="data-action" value="wipe" required />
+            </div>
+            <div class="ten columns">
+                <label for="privacy-wipe"><strong>Wipe your data</strong></label>
+                <br />
+                Delete all your subscriptions and related data from our database permanently.
+            </div>
+        </div>
+        {{ end }}
+        <p>
+            <input type="submit" value="Continue" class="button button-outline" />
+        </p>
+    </section>
+</form>
+<script>
+    function handleData() {
+        var a = document.querySelector('input[name="data-action"]:checked').value,
+            f = document.querySelector("#data-form");
+        if (a == "export") {
+            f.action = "/subscription/export/{{ .Data.SubUUID }}";
+            return true;
+        } else if (confirm("Are you sure you want to delete all your subscription data permanently?")) {
+            f.action = "/subscription/wipe/{{ .Data.SubUUID }}";
+            return true;
+        }
+        return false;
+    }
+</script>
+{{ end }}
+
+{{ template "footer" .}}
+{{ end }}

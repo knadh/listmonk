@@ -44,6 +44,25 @@ concurrency = 100
 max_send_errors = 1000
 
 
+[privacy]
+# Allow subscribers to export data recorded on them?
+allow_export = false
+
+# Items to include in the data export.
+# profile            Subscriber's profile including custom attributes
+# subscriptions      Subscriber's subscription lists (private list names are masked)
+# campaign_views     Campaigns the subscriber has viewed and the view counts
+# link_clicks        Links that the subscriber has clicked and the click counts
+exportable = ["profile", "subscriptions", "campaign_views", "link_clicks"]
+
+# Allow subscribers to delete themselves from the database?
+# This deletes the subscriber and all their subscriptions.
+# Their association to campaign views and link clicks are also
+# removed while views and click counts remain (with no subscriber
+# associated to them) so that stats and analytics aren't affected.
+allow_wipe = false
+
+
 # Database.
 [db]
 host = "demo-db"
@@ -52,8 +71,6 @@ user = "listmonk"
 password = "listmonk"
 database = "listmonk"
 ssl_mode = "disable"
-
-# TQekh4quVgGc3HQ
 
 
 # SMTP servers.

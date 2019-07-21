@@ -49,7 +49,6 @@ Alternatively, to run a demo of listmonk, you can quickly spin up a container `d
 - DB migrations
 - Bounce tracking
 - User auth, management, permissions
-- Privacy features for subscribers (Download and wipe all tracking data)
 - Ability to write raw campaign logs to a target
 - Analytics views and reports
 - Make Ant design UI components responsive

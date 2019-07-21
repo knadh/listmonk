@@ -26,6 +26,7 @@ type Queries struct {
 	UnsubscribeSubscribersFromLists *sqlx.Stmt `query:"unsubscribe-subscribers-from-lists"`
 	DeleteSubscribers               *sqlx.Stmt `query:"delete-subscribers"`
 	Unsubscribe                     *sqlx.Stmt `query:"unsubscribe"`
+	ExportSubscriberData            *sqlx.Stmt `query:"export-subscriber-data"`
 
 	// Non-prepared arbitrary subscriber queries.
 	QuerySubscribers                       string `query:"query-subscribers"`

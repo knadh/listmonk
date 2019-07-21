@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -33,6 +34,16 @@ type subsWrap struct {
 	Total   int    `json:"total"`
 	PerPage int    `json:"per_page"`
 	Page    int    `json:"page"`
+}
+
+// subProfileData represents a subscriber's collated data in JSON
+// for export.
+type subProfileData struct {
+	Email         string          `db:"email" json:"-"`
+	Profile       json.RawMessage `db:"profile" json:"profile,omitempty"`
+	Subscriptions json.RawMessage `db:"subscriptions" json:"subscriptions,omitempty"`
+	CampaignViews json.RawMessage `db:"campaign_views" json:"campaign_views,omitempty"`
+	LinkClicks    json.RawMessage `db:"link_clicks" json:"link_clicks,omitempty"`
 }
 
 var dummySubscriber = models.Subscriber{
@@ -416,6 +427,77 @@ func handleManageSubscriberListsByQuery(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, okResp{true})
+}
+
+// handleExportSubscriberData pulls the subscriber's profile,
+// list subscriptions, campaign views and clicks and produces
+// a JSON report. This is a privacy feature and depends on the
+// configuration in app.Constants.Privacy.
+func handleExportSubscriberData(c echo.Context) error {
+	var (
+		app = c.Get("app").(*App)
+		pID = c.Param("id")
+	)
+	id, _ := strconv.ParseInt(pID, 10, 64)
+	if id < 1 {
+		return echo.NewHTTPError(http.StatusBadRequest, "Invalid ID.")
+	}
+
+	// Get the subscriber's data. A single query that gets the profile,
+	// list subscriptions, campaign views, and link clicks. Names of
+	// private lists are replaced with "Private list".
+	_, b, err := exportSubscriberData(id, "", app.Constants.Privacy.Exportable, app)
+	if err != nil {
+		app.Logger.Printf("error exporting subscriber data: %s", err)
+		return echo.NewHTTPError(http.StatusBadRequest,
+			"Error exporting subscriber data.")
+	}
+
+	c.Response().Header().Set("Cache-Control", "no-cache")
+	c.Response().Header().Set("Content-Disposition", `attachment; filename="profile.json"`)
+	return c.Blob(http.StatusOK, "application/json", b)
+}
+
+// exportSubscriberData collates the data of a subscriber including profile,
+// subscriptions, campaign_views, link_clicks (if they're enabled in the config)
+// and returns a formatted, indented JSON payload. Either takes a numeric id
+// and an empty subUUID or takes 0 and a string subUUID.
+func exportSubscriberData(id int64, subUUID string, exportables map[string]bool, app *App) (subProfileData, []byte, error) {
+	// Get the subscriber's data. A single query that gets the profile,
+	// list subscriptions, campaign views, and link clicks. Names of
+	// private lists are replaced with "Private list".
+	var (
+		data subProfileData
+		uu   interface{}
+	)
+	// UUID should be a valid value or a nil.
+	if subUUID != "" {
+		uu = subUUID
+	}
+	if err := app.Queries.ExportSubscriberData.Get(&data, id, uu); err != nil {
+		return data, nil, err
+	}
+
+	// Filter out the non-exportable items.
+	if _, ok := exportables["profile"]; !ok {
+		data.Profile = nil
+	}
+	if _, ok := exportables["subscriptions"]; !ok {
+		data.Subscriptions = nil
+	}
+	if _, ok := exportables["campaign_views"]; !ok {
+		data.CampaignViews = nil
+	}
+	if _, ok := exportables["link_clicks"]; !ok {
+		data.LinkClicks = nil
+	}
+
+	// Marshal the data into an indented payload.
+	b, err := json.MarshalIndent(data, "", "  ")
+	if err != nil {
+		return data, nil, err
+	}
+	return data, b, nil
 }
 
 // sanitizeSQLExp does basic sanitisation on arbitrary

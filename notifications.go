@@ -31,3 +31,18 @@ func sendNotification(tpl, subject string, data map[string]interface{}, app *App
 
 	return nil
 }
+
+func getNotificationTemplate(tpl string, data map[string]interface{}, app *App) ([]byte, error) {
+	if data == nil {
+		data = make(map[string]interface{})
+	}
+	data["RootURL"] = app.Constants.RootURL
+
+	var b bytes.Buffer
+	err := app.NotifTpls.ExecuteTemplate(&b, tpl, data)
+	if err != nil {
+		return nil, err
+	}
+
+	return b.Bytes(), err
+}

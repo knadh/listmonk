@@ -8,7 +8,6 @@ import (
 	"strings"
 
 	"github.com/asaskevich/govalidator"
-
 	"github.com/labstack/echo"
 )
 
@@ -45,6 +44,7 @@ func registerHandlers(e *echo.Echo) {
 	e.GET("/api/dashboard/stats", handleGetDashboardStats)
 
 	e.GET("/api/subscribers/:id", handleGetSubscriber)
+	e.GET("/api/subscribers/:id/export", handleExportSubscriberData)
 	e.POST("/api/subscribers", handleCreateSubscriber)
 	e.PUT("/api/subscribers/:id", handleUpdateSubscriber)
 	e.PUT("/api/subscribers/blacklist", handleBlacklistSubscribers)
@@ -59,7 +59,6 @@ func registerHandlers(e *echo.Echo) {
 	e.POST("/api/subscribers/query/delete", handleDeleteSubscribersByQuery)
 	e.PUT("/api/subscribers/query/blacklist", handleBlacklistSubscribersByQuery)
 	e.PUT("/api/subscribers/query/lists", handleManageSubscriberListsByQuery)
-
 	e.GET("/api/subscribers", handleQuerySubscribers)
 
 	e.GET("/api/import/subscribers", handleGetImportSubscribers)
@@ -98,8 +97,10 @@ func registerHandlers(e *echo.Echo) {
 	e.DELETE("/api/templates/:id", handleDeleteTemplate)
 
 	// Subscriber facing views.
-	e.GET("/unsubscribe/:campUUID/:subUUID", handleUnsubscribePage)
-	e.POST("/unsubscribe/:campUUID/:subUUID", handleUnsubscribePage)
+	e.GET("/subscription/:campUUID/:subUUID", handleSubscriptionPage)
+	e.POST("/subscription/:campUUID/:subUUID", handleSubscriptionPage)
+	e.POST("/subscription/export/:subUUID", handleSelfExportSubscriberData)
+	e.POST("/subscription/wipe/:subUUID", handleWipeSubscriberData)
 	e.GET("/link/:linkUUID/:campUUID/:subUUID", handleLinkRedirect)
 	e.GET("/campaign/:campUUID/:subUUID/px.png", handleRegisterCampaignView)
 

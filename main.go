@@ -13,6 +13,7 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/knadh/goyesql"
 	"github.com/knadh/koanf"
+	"github.com/knadh/koanf/maps"
 	"github.com/knadh/koanf/parsers/toml"
 	"github.com/knadh/koanf/providers/file"
 	"github.com/knadh/koanf/providers/posflag"
@@ -25,13 +26,20 @@ import (
 )
 
 type constants struct {
-	RootURL      string   `koanf:"root"`
-	LogoURL      string   `koanf:"logo_url"`
-	FaviconURL   string   `koanf:"favicon_url"`
-	UploadPath   string   `koanf:"upload_path"`
-	UploadURI    string   `koanf:"upload_uri"`
-	FromEmail    string   `koanf:"from_email"`
-	NotifyEmails []string `koanf:"notify_emails"`
+	RootURL      string         `koanf:"root"`
+	LogoURL      string         `koanf:"logo_url"`
+	FaviconURL   string         `koanf:"favicon_url"`
+	UploadPath   string         `koanf:"upload_path"`
+	UploadURI    string         `koanf:"upload_uri"`
+	FromEmail    string         `koanf:"from_email"`
+	NotifyEmails []string       `koanf:"notify_emails"`
+	Privacy      privacyOptions `koanf:"privacy"`
+}
+
+type privacyOptions struct {
+	AllowExport bool            `koanf:"allow_export"`
+	AllowWipe   bool            `koanf:"allow_wipe"`
+	Exportable  map[string]bool `koanf:"-"`
 }
 
 // App contains the "global" components that are
@@ -183,9 +191,11 @@ func main() {
 
 	var c constants
 	ko.Unmarshal("app", &c)
+	ko.Unmarshal("privacy", &c.Privacy)
 	c.RootURL = strings.TrimRight(c.RootURL, "/")
 	c.UploadURI = filepath.Clean(c.UploadURI)
 	c.UploadPath = filepath.Clean(c.UploadPath)
+	c.Privacy.Exportable = maps.StringSliceToLookupMap(ko.Strings("privacy.exportable"))
 
 	// Initialize the static file system into which all
 	// required static assets (.sql, .js files etc.) are loaded.
@@ -253,7 +263,7 @@ func main() {
 		FromEmail:     app.Constants.FromEmail,
 
 		// url.com/unsubscribe/{campaign_uuid}/{subscriber_uuid}
-		UnsubscribeURL: fmt.Sprintf("%s/unsubscribe/%%s/%%s", app.Constants.RootURL),
+		UnsubscribeURL: fmt.Sprintf("%s/subscription/%%s/%%s", app.Constants.RootURL),
 
 		// url.com/link/{campaign_uuid}/{subscriber_uuid}/{link_uuid}
 		LinkTrackURL: fmt.Sprintf("%s/link/%%s/%%s/%%s", app.Constants.RootURL),
