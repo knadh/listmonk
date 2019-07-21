@@ -1,34 +1,23 @@
 {{ define "subscription" }}
 {{ template "header" .}}
 <section>
-    {{ if not .Data.Unsubscribe }}
-        <h2>Unsubscribe</h2>
-        <p>Do you wish to unsubscribe from this mailing list?</p>
-        <form method="post">
-            <div>
-                <input type="hidden" name="unsubscribe" value="true" />
-                <button type="submit" class="button" id="btn-unsub">Unsubscribe</button>
-            </div>
-        </form>
-    {{ else }}
-        <h2>You have been unsubscribed</h2>
-        {{ if not .Data.Blacklist }}
-        <div class="unsub-all">
-            <p>Unsubscribe from all future communications?</p>
-            <form method="post">
-                <div>
-                    <input type="hidden" name="unsubscribe" value="true" />
-                    <input type="hidden" name="blacklist" value="true" />
-                    <button type="submit" class="button button-inline" id="btn-unsuball">
-                    Unsubscribe all
-                    </button>
-                </div>
-            </form>
-        </div>
-        {{ else }}
-            <p>You've been unsubscribed from all future communications.</p>
+    <h2>Unsubscribe</h2>
+    <p>Do you wish to unsubscribe from this mailing list?</p>
+    <form method="post">
+        <p>
+            <input type="hidden" name="unsubscribe" value="true" />
+        </p>
+
+        {{ if .Data.AllowBlacklist }}
+        <p>
+            <input id="privacy-blacklist" type="checkbox" name="blacklist" value="true" /> <label for="privacy-blacklist">Also unsubscribe from all future e-mails.</label>
+        </p>
+
         {{ end }}
-    {{ end }}
+        <p>
+            <button type="submit" class="button" id="btn-unsub">Unsubscribe</button>
+        </p>
+    </form>
 </section>
 
 {{ if or .Data.AllowExport .Data.AllowWipe }}

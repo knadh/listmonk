@@ -45,6 +45,10 @@ max_send_errors = 1000
 
 
 [privacy]
+# Allow subscribers to unsubscribe from all mailing lists and mark themselves
+# as blacklisted?
+allow_blacklist = false
+
 # Allow subscribers to export data recorded on them?
 allow_export = false
 

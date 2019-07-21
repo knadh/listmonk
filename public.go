@@ -39,11 +39,10 @@ type publicTpl struct {
 
 type unsubTpl struct {
 	publicTpl
-	SubUUID     string
-	Unsubscribe bool
-	Blacklist   bool
-	AllowExport bool
-	AllowWipe   bool
+	SubUUID        string
+	AllowBlacklist bool
+	AllowExport    bool
+	AllowWipe      bool
 }
 
 type msgTpl struct {
@@ -78,10 +77,9 @@ func handleSubscriptionPage(c echo.Context) error {
 		blacklist, _ = strconv.ParseBool(c.FormValue("blacklist"))
 		out          = unsubTpl{}
 	)
-	out.Unsubscribe = unsub
 	out.SubUUID = subUUID
-	out.Blacklist = blacklist
 	out.Title = "Unsubscribe from mailing list"
+	out.AllowBlacklist = app.Constants.Privacy.AllowBlacklist
 	out.AllowExport = app.Constants.Privacy.AllowExport
 	out.AllowWipe = app.Constants.Privacy.AllowWipe
 
@@ -95,22 +93,19 @@ func handleSubscriptionPage(c echo.Context) error {
 
 	// Unsubscribe.
 	if unsub {
-		res, err := app.Queries.Unsubscribe.Exec(campUUID, subUUID, blacklist)
-		if err != nil {
+		// Is blacklisting allowed?
+		if !app.Constants.Privacy.AllowBlacklist {
+			blacklist = false
+		}
+
+		if _, err := app.Queries.Unsubscribe.Exec(campUUID, subUUID, blacklist); err != nil {
 			app.Logger.Printf("Error unsubscribing : %v", err)
 			return echo.NewHTTPError(http.StatusBadRequest,
 				"There was an internal error while unsubscribing you.")
 		}
-
-		if !blacklist {
-			num, _ := res.RowsAffected()
-			if num == 0 {
-				return c.Render(http.StatusBadRequest, "message",
-					makeMsgTpl("Already unsubscribed", "",
-						`You are not subscribed to this mailing list.
-						You may have already unsubscribed.`))
-			}
-		}
+		return c.Render(http.StatusOK, "message",
+			makeMsgTpl("Unsubscribed", "",
+				`You have been successfully unsubscribed.`))
 	}
 
 	return c.Render(http.StatusOK, "subscription", out)

@@ -37,9 +37,10 @@ type constants struct {
 }
 
 type privacyOptions struct {
-	AllowExport bool            `koanf:"allow_export"`
-	AllowWipe   bool            `koanf:"allow_wipe"`
-	Exportable  map[string]bool `koanf:"-"`
+	AllowBlacklist bool            `koanf:"allow_blacklist"`
+	AllowExport    bool            `koanf:"allow_export"`
+	AllowWipe      bool            `koanf:"allow_wipe"`
+	Exportable     map[string]bool `koanf:"-"`
 }
 
 // App contains the "global" components that are
