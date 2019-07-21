@@ -20,7 +20,7 @@ You can pull the official Docker Image from [Docker Hub](https://hub.docker.com/
 
 You can checkout the [docker-compose.yml](docker-compose.yml) to get an idea of how to run `listmonk` with `PostgreSQL` together using Docker.
 
-- `docker-compose up -d` to run all the services together.
+- `docker-compose up -d app db` to run all the services together.
 - `docker-compose run --rm app ./listmonk --install` to setup the DB.
 - Visit `http://localhost:9000`.
 
