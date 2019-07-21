@@ -7,8 +7,9 @@ require (
 	github.com/jmoiron/sqlx v1.2.0
 	github.com/jordan-wright/email v0.0.0-20181027021455-480bedc4908b
 	github.com/knadh/goyesql v2.0.0+incompatible
-	github.com/knadh/koanf v0.4.3
+	github.com/knadh/koanf v0.4.4
 	github.com/knadh/stuffbin v1.0.0
+	github.com/kr/pretty v0.1.0 // indirect
 	github.com/labstack/echo v3.3.10+incompatible
 	github.com/labstack/gommon v0.2.7 // indirect
 	github.com/lib/pq v1.0.0

@@ -19,6 +19,7 @@ type Queries struct {
 	GetSubscriber                   *sqlx.Stmt `query:"get-subscriber"`
 	GetSubscribersByEmails          *sqlx.Stmt `query:"get-subscribers-by-emails"`
 	GetSubscriberLists              *sqlx.Stmt `query:"get-subscriber-lists"`
+	SubscriberExists                *sqlx.Stmt `query:"subscriber-exists"`
 	UpdateSubscriber                *sqlx.Stmt `query:"update-subscriber"`
 	BlacklistSubscribers            *sqlx.Stmt `query:"blacklist-subscribers"`
 	AddSubscribersToLists           *sqlx.Stmt `query:"add-subscribers-to-lists"`
@@ -26,6 +27,7 @@ type Queries struct {
 	UnsubscribeSubscribersFromLists *sqlx.Stmt `query:"unsubscribe-subscribers-from-lists"`
 	DeleteSubscribers               *sqlx.Stmt `query:"delete-subscribers"`
 	Unsubscribe                     *sqlx.Stmt `query:"unsubscribe"`
+	ExportSubscriberData            *sqlx.Stmt `query:"export-subscriber-data"`
 
 	// Non-prepared arbitrary subscriber queries.
 	QuerySubscribers                       string `query:"query-subscribers"`

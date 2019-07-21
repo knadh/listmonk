@@ -3,7 +3,10 @@
 -- Get a single subscriber by id or UUID.
 SELECT * FROM subscribers WHERE CASE WHEN $1 > 0 THEN id = $1 ELSE uuid = $2 END;
 
--- subscribers
+-- name: subscriber-exists
+-- Check if a subscriber exists by id or UUID.
+SELECT exists (SELECT true FROM subscribers WHERE CASE WHEN $1 > 0 THEN id = $1 ELSE uuid = $2 END);
+
 -- name: get-subscribers-by-emails
 -- Get subscribers by emails.
 SELECT * FROM subscribers WHERE email=ANY($1);
@@ -107,8 +110,8 @@ INSERT INTO subscriber_lists (subscriber_id, list_id, status)
     SET status = (CASE WHEN $4='blacklisted' THEN 'unsubscribed'::subscription_status ELSE 'unconfirmed' END);
 
 -- name: delete-subscribers
--- Delete one or more subscribers.
-DELETE FROM subscribers WHERE id = ANY($1);
+-- Delete one or more subscribers by ID or UUID.
+DELETE FROM subscribers WHERE CASE WHEN ARRAY_LENGTH($1::INT[], 1) > 0 THEN id = ANY($1) ELSE uuid = ANY($2::UUID[]) END;
 
 -- name: blacklist-subscribers
 WITH b AS (
@@ -148,6 +151,46 @@ UPDATE subscriber_lists SET status = 'unsubscribed' WHERE
     subscriber_id = (SELECT id FROM sub) AND status != 'unsubscribed' AND
     -- If $3 is false, unsubscribe from the campaign's lists, otherwise all lists.
     CASE WHEN $3 IS FALSE THEN list_id = ANY(SELECT list_id FROM lists) ELSE list_id != 0 END;
+
+-- privacy
+-- name: export-subscriber-data
+WITH prof AS (
+    SELECT uuid, email, name, attribs, status, created_at, updated_at FROM subscribers WHERE
+    CASE WHEN $1 > 0 THEN id = $1 ELSE uuid = $2 END
+),
+subs AS (
+    SELECT JSON_AGG(
+        ROW_TO_JSON(
+            (SELECT l FROM (
+                SELECT subscriber_lists.status AS subscription_status,
+                        (CASE WHEN lists.type = 'private' THEN 'Private list' ELSE lists.name END) as name,
+                        lists.type, subscriber_lists.created_at
+            ) l)
+        )
+    ) AS lists FROM lists
+    LEFT JOIN subscriber_lists ON (subscriber_lists.list_id = lists.id)
+    WHERE subscriber_lists.subscriber_id = (SELECT id FROM prof)
+    GROUP BY subscriber_id
+),
+views AS (
+    SELECT JSON_AGG(t) AS views FROM
+    (SELECT subject as campaign, COUNT(subscriber_id) as views FROM campaign_views
+            LEFT JOIN campaigns ON (campaigns.id = campaign_views.campaign_id)
+            WHERE subscriber_id = (SELECT id FROM prof)
+            GROUP BY campaigns.id ORDER BY id) t
+),
+clicks AS (
+    SELECT JSON_AGG(t) AS views FROM
+    (SELECT url, COUNT(subscriber_id) as clicks FROM link_clicks
+        LEFT JOIN links ON (links.id = link_clicks.link_id)
+        WHERE subscriber_id = (SELECT id FROM prof)
+        GROUP BY links.id ORDER BY id) t
+)
+SELECT (SELECT email FROM prof) as email,
+        COALESCE((SELECT JSON_AGG(t) AS profile FROM prof t), '{}') AS profile,
+        COALESCE((SELECT * FROM subs), '[]') AS subscriptions,
+        COALESCE((SELECT * FROM views), '[]') AS campaign_views,
+        COALESCE((SELECT * FROM clicks), '[]') AS link_clicks;
 
 -- Partial and RAW queries used to construct arbitrary subscriber
 -- queries for segmentation follow.

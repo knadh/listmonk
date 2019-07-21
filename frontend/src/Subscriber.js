@@ -7,6 +7,8 @@ import {
   Select,
   Button,
   Tag,
+  Tooltip,
+  Icon,
   Spin,
   Popconfirm,
   notification
@@ -350,7 +352,7 @@ class Subscriber extends React.PureComponent {
       <section className="content">
         <header className="header">
           <Row>
-            <Col span={20}>
+            <Col span={22}>
               {!this.state.record.id && <h1>Add subscriber</h1>}
               {this.state.record.id && (
                 <div>
@@ -372,7 +374,16 @@ class Subscriber extends React.PureComponent {
                 </div>
               )}
             </Col>
-            <Col span={2} />
+            <Col span={2} className="right">
+              <Tooltip title="Export data" placement="top">
+                <a
+                  role="button"
+                  href={"/api/subscribers/" + this.state.record.id + "/export"}
+                >
+                  <Icon type="export" />
+                </a>
+              </Tooltip>
+            </Col>
           </Row>
         </header>
         <div>
