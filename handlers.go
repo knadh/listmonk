@@ -1,14 +1,11 @@
 package main
 
 import (
-	"encoding/json"
 	"net/http"
 	"net/url"
 	"regexp"
 	"strconv"
-	"strings"
 
-	"github.com/asaskevich/govalidator"
 	"github.com/labstack/echo"
 )
 
@@ -151,40 +148,6 @@ func validateUUID(next echo.HandlerFunc, params ...string) echo.HandlerFunc {
 		}
 		return next(c)
 	}
-}
-
-// makeAttribsBlob takes a list of keys and values and creates
-// a JSON map out of them.
-func makeAttribsBlob(keys []string, vals []string) ([]byte, bool) {
-	attribs := make(map[string]interface{})
-	for i, key := range keys {
-		var (
-			s   = vals[i]
-			val interface{}
-		)
-
-		// Try to detect common JSON types.
-		if govalidator.IsFloat(s) {
-			val, _ = strconv.ParseFloat(s, 64)
-		} else if govalidator.IsInt(s) {
-			val, _ = strconv.ParseInt(s, 10, 64)
-		} else {
-			ls := strings.ToLower(s)
-			if ls == "true" || ls == "false" {
-				val, _ = strconv.ParseBool(ls)
-			} else {
-				// It's a string.
-				val = s
-			}
-		}
-		attribs[key] = val
-	}
-
-	if len(attribs) > 0 {
-		j, _ := json.Marshal(attribs)
-		return j, true
-	}
-	return nil, false
 }
 
 // getPagination takes form values and extracts pagination values from it.
