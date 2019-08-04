@@ -378,10 +378,10 @@ class Lists extends React.PureComponent {
     return (
       <section className="content">
         <Row>
-          <Col span={22}>
+          <Col xs={12} sm={18}>
             <h1>Lists ({this.props.data[cs.ModelLists].total}) </h1>
           </Col>
-          <Col span={2}>
+          <Col xs={12} sm={6} className="align-right">
             <Button
               type="primary"
               icon="plus"

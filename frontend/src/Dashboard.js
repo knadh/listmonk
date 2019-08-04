@@ -45,16 +45,16 @@ class Dashboard extends React.PureComponent {
           {this.state.stats && (
             <div className="stats">
               <Row>
-                <Col span={16}>
+                <Col xs={24} sm={24} xl={16}>
                   <Row gutter={24}>
-                    <Col span={8}>
+                    <Col xs={24} sm={12} md={8}>
                       <Card title="Active subscribers" bordered={false}>
                         <h1 className="count">
                           {this.orZero(this.state.stats.subscribers.enabled)}
                         </h1>
                       </Card>
                     </Col>
-                    <Col span={8}>
+                    <Col xs={24} sm={12} md={8}>
                       <Card title="Blacklisted subscribers" bordered={false}>
                         <h1 className="count">
                           {this.orZero(
@@ -63,7 +63,7 @@ class Dashboard extends React.PureComponent {
                         </h1>
                       </Card>
                     </Col>
-                    <Col span={8}>
+                    <Col xs={24} sm={12} md={8}>
                       <Card title="Orphaned subscribers" bordered={false}>
                         <h1 className="count">
                           {this.orZero(this.state.stats.orphan_subscribers)}
@@ -72,16 +72,16 @@ class Dashboard extends React.PureComponent {
                     </Col>
                   </Row>
                 </Col>
-                <Col span={6} offset={2}>
+                <Col xs={24} sm={24} xl={{ span: 6, offset: 2 }}>
                   <Row gutter={24}>
-                    <Col span={12}>
+                    <Col xs={24} sm={12}>
                       <Card title="Public lists" bordered={false}>
                         <h1 className="count">
                           {this.orZero(this.state.stats.lists.public)}
                         </h1>
                       </Card>
                     </Col>
-                    <Col span={12}>
+                    <Col xs={24} sm={12}>
                       <Card title="Private lists" bordered={false}>
                         <h1 className="count">
                           {this.orZero(this.state.stats.lists.private)}
@@ -93,9 +93,9 @@ class Dashboard extends React.PureComponent {
               </Row>
               <hr />
               <Row>
-                <Col span={16}>
+                <Col xs={24} sm={24} xl={16}>
                   <Row gutter={24}>
-                    <Col span={12}>
+                    <Col xs={24} sm={12}>
                       <Card
                         title="Campaign views (last 3 months)"
                         bordered={false}
@@ -124,7 +124,7 @@ class Dashboard extends React.PureComponent {
                         </Chart>
                       </Card>
                     </Col>
-                    <Col span={12}>
+                    <Col xs={24} sm={12}>
                       <Card
                         title="Link clicks (last 3 months)"
                         bordered={false}
@@ -156,7 +156,7 @@ class Dashboard extends React.PureComponent {
                   </Row>
                 </Col>
 
-                <Col span={6} offset={2}>
+                <Col xs={24} sm={12} xl={{ span: 6, offset: 2 }}>
                   <Card
                     title="Campaigns"
                     bordered={false}

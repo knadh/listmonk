@@ -586,7 +586,7 @@ class Subscribers extends React.PureComponent {
       <section className="content">
         <header className="header">
           <Row>
-            <Col span={20}>
+            <Col xs={12} sm={14}>
               <h1>
                 Subscribers
                 {this.props.data[cs.ModelSubscribers].total > 0 && (
@@ -597,7 +597,7 @@ class Subscribers extends React.PureComponent {
                 )}
               </h1>
             </Col>
-            <Col span={2}>
+            <Col xs={12} sm={10} className="align-right">
               <Button
                 type="primary"
                 icon="plus"

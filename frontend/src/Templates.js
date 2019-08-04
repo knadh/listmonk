@@ -392,10 +392,10 @@ class Templates extends React.PureComponent {
     return (
       <section className="content templates">
         <Row>
-          <Col span={22}>
+          <Col xs={12} sm={14}>
             <h1>Templates ({this.props.data[cs.ModelTemplates].length}) </h1>
           </Col>
-          <Col span={2}>
+          <Col xs={12} sm={10} className="align-right">
             <Button
               type="primary"
               icon="plus"

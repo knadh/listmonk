@@ -240,7 +240,7 @@ td .ant-tag {
     justify-content: center;
 
     min-height: 90px;
-    
+
     padding: 10px;
     border: 1px solid #eee;
     overflow: hidden;
@@ -314,3 +314,13 @@ td .ant-tag {
   .preview-modal .ant-modal-footer button:first-child {
     display: none;
   }
+
+.align-right {
+	text-align: right;
+}
+
+@media screen and (max-width: 1200px) {
+  .dashboard .ant-card {
+    margin-bottom: 20px;
+  }
+}
