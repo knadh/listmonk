@@ -217,14 +217,12 @@ class TheFormDef extends React.PureComponent {
   }
 
   componentWillReceiveProps(nextProps) {
-    const has = nextProps.isSingle && nextProps.record.send_at !== null
-    if (!has) {
+    if (nextProps.record.send_at === this.props.record.send_at) {
       return
     }
-
-    if (this.state.sendLater !== has) {
-      this.setState({ sendLater: has })
-    }
+    this.setState({
+      sendLater: nextProps.isSingle && nextProps.record.send_at !== null
+    })
   }
 
   validateEmail = (rule, value, callback) => {
@@ -303,7 +301,11 @@ class TheFormDef extends React.PureComponent {
             cs.ModelCampaigns,
             cs.Routes.UpdateCampaign,
             cs.MethodPut,
-            { ...values, id: this.props.record.id }
+            {
+              ...values,
+              id: this.props.record.id,
+              send_at: !this.state.sendLater ? null : values.send_at
+            }
           )
           .then(resp => {
             notification["success"]({
@@ -511,9 +513,7 @@ class TheFormDef extends React.PureComponent {
             <Form.Item {...formItemLayout} label="Send later?">
               <Row>
                 <Col span={2}>
-                  {getFieldDecorator("send_later", {
-                    defaultChecked: this.props.isSingle
-                  })(
+                  {getFieldDecorator("send_later")(
                     <Switch
                       disabled={this.props.formDisabled}
                       checked={this.state.sendLater}

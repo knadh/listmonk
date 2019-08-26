@@ -22,6 +22,9 @@ import (
 type campaignReq struct {
 	models.Campaign
 
+	// Indicates if the "send_at" date should be written or set to null.
+	SendLater bool `db:"-" json:"send_later"`
+
 	// This overrides Campaign.Lists to receive and
 	// write a list of int IDs during creation and updation.
 	// Campaign.Lists is JSONText for sending lists children
@@ -271,6 +274,7 @@ func handleUpdateCampaign(c echo.Context) error {
 		o.Body,
 		o.ContentType,
 		o.SendAt,
+		o.SendLater,
 		pq.StringArray(normalizeTags(o.Tags)),
 		o.TemplateID,
 		o.ListIDs)
