@@ -30,5 +30,8 @@
     "eslint-plugin-prettier": "^3.0.1",
     "less-plugin-npm-import": "^2.1.0",
     "prettier": "1.15.3"
+  },
+  "prettier": {
+    "semi": false
   }
 }
