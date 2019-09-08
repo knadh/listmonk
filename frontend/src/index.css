@@ -315,12 +315,60 @@ td .ant-tag {
     display: none;
   }
 
-.align-right {
-	text-align: right;
-}
-
 @media screen and (max-width: 1200px) {
   .dashboard .ant-card {
     margin-bottom: 20px;
   }
+}
+
+@media screen and (max-width: 1023px) {
+	.ant-table-content {
+		overflow-x: auto;
+	}
+
+	.ant-table-thead > tr > th,
+	.ant-table-tbody > tr > td {
+		white-space: nowrap;
+	}
+}
+
+@media screen and (max-width: 768px) {
+	.ant-modal {
+		top: 0 !important;
+	}
+
+	hr {
+		margin: 20px 0;
+	}
+
+	.subscriber-query {
+		padding: 20px
+	}
+
+	.header-action-break {
+		text-align: left;
+	}
+
+	.subscribers.content .slc-subs-section .table-options {
+		margin-top: 20px;
+		padding-top: 20px;
+		border-top: 1px solid #f4f4f4;
+	}
+
+	.subscribers.content .slc-subs-actions a {
+		display: block;
+		margin-bottom: 5px;
+	}
+
+	.ant-modal.subscriber-modal .subscriber-export {
+		margin-top: 10px;
+	}
+
+	.ant-modal.subscriber-modal .subscriber-name {
+		display: block;
+	}
+
+	.dashboard {
+		margin: 24px 12px;
+	}
 }

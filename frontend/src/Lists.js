@@ -381,7 +381,7 @@ class Lists extends React.PureComponent {
           <Col xs={12} sm={18}>
             <h1>Lists ({this.props.data[cs.ModelLists].total}) </h1>
           </Col>
-          <Col xs={12} sm={6} className="align-right">
+          <Col xs={12} sm={6} className="right">
             <Button
               type="primary"
               icon="plus"

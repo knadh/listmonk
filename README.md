@@ -51,7 +51,6 @@ Alternatively, to run a demo of listmonk, you can quickly spin up a container `d
 - User auth, management, permissions
 - Ability to write raw campaign logs to a target
 - Analytics views and reports
-- Make Ant design UI components responsive
 - Better widgets on dashboard
 - Tests!
 

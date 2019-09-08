@@ -651,10 +651,10 @@ class Campaigns extends React.PureComponent {
     return (
       <section className="content campaigns">
         <Row>
-          <Col xs={12} sm={14}>
+          <Col xs={24} sm={14}>
             <h1>Campaigns</h1>
           </Col>
-          <Col xs={12} sm={10} className="align-right">
+          <Col xs={24} sm={10} className="right header-action-break">
             <Link to="/campaigns/new">
               <Button type="primary" icon="plus" role="link">
                 New campaign

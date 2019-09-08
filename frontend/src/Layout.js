@@ -33,7 +33,7 @@ class Base extends React.Component {
 
   componentDidMount() {
     // For small screen devices collapse the menu by default.
-    if (window.screen.width < 576) {
+    if (window.screen.width < 768) {
       this.setState({ collapsed: true });
     }
   };
