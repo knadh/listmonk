@@ -583,10 +583,10 @@ class Subscribers extends React.PureComponent {
     }
 
     return (
-      <section className="content">
+      <section className="content subscribers">
         <header className="header">
           <Row>
-            <Col span={20}>
+            <Col xs={24} sm={14}>
               <h1>
                 Subscribers
                 {this.props.data[cs.ModelSubscribers].total > 0 && (
@@ -597,7 +597,7 @@ class Subscribers extends React.PureComponent {
                 )}
               </h1>
             </Col>
-            <Col span={2}>
+            <Col xs={24} sm={10} className="right header-action-break">
               <Button
                 type="primary"
                 icon="plus"
@@ -611,9 +611,9 @@ class Subscribers extends React.PureComponent {
 
         <div className="subscriber-query">
           <Row>
-            <Col span={10}>
+            <Col sm={24} md={10}>
               <Row>
-                <Col span={15}>
+                <Row>
                   <label>Search subscribers</label>
                   <Input.Search
                     name="name"
@@ -621,14 +621,12 @@ class Subscribers extends React.PureComponent {
                     enterButton
                     onSearch={this.handleSearch}
                   />{" "}
-                </Col>
-                <Col span={8} offset={1}>
-                  <label>&nbsp;</label>
-                  <br />
+                </Row>
+                <Row style={{ marginTop: "10px" }}>
                   <a role="button" onClick={this.handleToggleQueryForm}>
                     <Icon type="setting" /> Advanced
                   </a>
-                </Col>
+                </Row>
               </Row>
               {this.state.queryFormVisible && (
                 <div className="advanced-query">
@@ -684,7 +682,7 @@ class Subscribers extends React.PureComponent {
                 </div>
               )}
             </Col>
-            <Col span={14}>
+            <Col sm={24} md={{ span: 12, offset: 2 }} className="slc-subs-section">
               {this.state.selectedRows.length > 0 && (
                 <nav className="table-options">
                   <p>
@@ -706,7 +704,7 @@ class Subscribers extends React.PureComponent {
                         </span>
                       )}
                   </p>
-                  <p>
+                  <p class="slc-subs-actions">
                     <a role="button" onClick={this.handleToggleListsForm}>
                       <Icon type="bars" /> Manage lists
                     </a>

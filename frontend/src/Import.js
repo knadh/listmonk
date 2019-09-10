@@ -101,8 +101,8 @@ class TheFormDef extends React.PureComponent {
     const { getFieldDecorator } = this.props.form
 
     const formItemLayout = {
-      labelCol: { xs: { span: 16 }, sm: { span: 4 } },
-      wrapperCol: { xs: { span: 16 }, sm: { span: 10 } }
+		labelCol: { sm: { span: 24 }, md: { span: 5 } },
+		wrapperCol: { sm: { span: 24 }, md: { span: 10 } }
     }
 
     const formItemTailLayout = {
@@ -163,7 +163,7 @@ class TheFormDef extends React.PureComponent {
           )}
           <Form.Item
             {...formItemLayout}
-            label="CSV column delimiter"
+            label="CSV delimiter"
             extra="Default delimiter is comma"
           >
             {getFieldDecorator("delim", {
