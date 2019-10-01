@@ -15,6 +15,7 @@ import (
 	"github.com/knadh/koanf"
 	"github.com/knadh/koanf/maps"
 	"github.com/knadh/koanf/parsers/toml"
+	"github.com/knadh/koanf/providers/env"
 	"github.com/knadh/koanf/providers/file"
 	"github.com/knadh/koanf/providers/posflag"
 	"github.com/knadh/listmonk/manager"
@@ -109,8 +110,15 @@ func init() {
 			if os.IsNotExist(err) {
 				logger.Fatal("config file not found. If there isn't one yet, run --new-config to generate one.")
 			}
-			logger.Fatalf("error loadng config: %v.", err)
+			logger.Fatalf("error loadng config from file: %v.", err)
 		}
+	}
+	// Load environment variables and merge into the loaded config.
+	if err := ko.Load(env.Provider("LISTMONK_", ".", func(s string) string {
+		return strings.Replace(strings.ToLower(
+			strings.TrimPrefix(s, "LISTMONK_")), "__", ".", -1)
+	}), nil); err != nil {
+		logger.Fatalf("error loading config from env: %v", err)
 	}
 	ko.Load(posflag.Provider(f, ".", ko), nil)
 }
