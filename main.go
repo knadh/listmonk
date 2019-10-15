@@ -19,6 +19,9 @@ import (
 	"github.com/knadh/koanf/providers/file"
 	"github.com/knadh/koanf/providers/posflag"
 	"github.com/knadh/listmonk/manager"
+	"github.com/knadh/listmonk/media"
+	"github.com/knadh/listmonk/media/providers/filesystem"
+	"github.com/knadh/listmonk/media/providers/s3"
 	"github.com/knadh/listmonk/messenger"
 	"github.com/knadh/listmonk/subimporter"
 	"github.com/knadh/stuffbin"
@@ -30,8 +33,6 @@ type constants struct {
 	RootURL      string         `koanf:"root"`
 	LogoURL      string         `koanf:"logo_url"`
 	FaviconURL   string         `koanf:"favicon_url"`
-	UploadPath   string         `koanf:"upload_path"`
-	UploadURI    string         `koanf:"upload_uri"`
 	FromEmail    string         `koanf:"from_email"`
 	NotifyEmails []string       `koanf:"notify_emails"`
 	Privacy      privacyOptions `koanf:"privacy"`
@@ -56,6 +57,7 @@ type App struct {
 	Logger    *log.Logger
 	NotifTpls *template.Template
 	Messenger messenger.Messenger
+	Media     media.Store
 }
 
 var (
@@ -195,6 +197,33 @@ func initMessengers(r *manager.Manager) messenger.Messenger {
 	return msgr
 }
 
+// initMediaStore initializes Upload manager with a custom backend.
+func initMediaStore() media.Store {
+	switch provider := ko.String("upload.provider"); provider {
+	case "s3":
+		var opts s3.Opts
+		ko.Unmarshal("upload.s3", &opts)
+		uplder, err := s3.NewS3Store(opts)
+		if err != nil {
+			logger.Fatalf("error initializing s3 upload provider %s", err)
+		}
+		return uplder
+	case "filesystem":
+		var opts filesystem.Opts
+		ko.Unmarshal("upload.filesystem", &opts)
+		opts.UploadPath = filepath.Clean(opts.UploadPath)
+		opts.UploadURI = filepath.Clean(opts.UploadURI)
+		uplder, err := filesystem.NewDiskStore(opts)
+		if err != nil {
+			logger.Fatalf("error initializing filesystem upload provider %s", err)
+		}
+		return uplder
+	default:
+		logger.Fatalf("unknown provider. please select one of either filesystem or s3")
+	}
+	return nil
+}
+
 func main() {
 	// Connect to the DB.
 	db, err := connectDB(ko.String("db.host"),
@@ -216,8 +245,6 @@ func main() {
 		log.Fatalf("error loading app config: %v", err)
 	}
 	c.RootURL = strings.TrimRight(c.RootURL, "/")
-	c.UploadURI = filepath.Clean(c.UploadURI)
-	c.UploadPath = filepath.Clean(c.UploadPath)
 	c.Privacy.Exportable = maps.StringSliceToLookupMap(ko.Strings("privacy.exportable"))
 
 	// Initialize the static file system into which all
@@ -299,6 +326,9 @@ func main() {
 	// Add messengers.
 	app.Messenger = initMessengers(app.Manager)
 
+	// Add uploader
+	app.Media = initMediaStore()
+
 	// Initialize the workers that push out messages.
 	go m.Run(time.Second * 5)
 	m.SpawnWorkers()
@@ -330,7 +360,9 @@ func main() {
 	fSrv := app.FS.FileServer()
 	srv.GET("/public/*", echo.WrapHandler(fSrv))
 	srv.GET("/frontend/*", echo.WrapHandler(fSrv))
-	srv.Static(c.UploadURI, c.UploadURI)
+	if ko.String("upload.provider") == "filesystem" {
+		srv.Static(ko.String("upload.filesystem.upload_uri"), ko.String("upload.filesystem.upload_path"))
+	}
 	registerHandlers(srv)
 	srv.Logger.Fatal(srv.Start(ko.String("app.address")))
 }

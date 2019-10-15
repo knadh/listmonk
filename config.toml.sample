@@ -24,14 +24,6 @@ from_email = "listmonk <from@mail.com>"
 # To disable notifications, set an empty list, eg: notify_emails = []
 notify_emails = ["admin1@mysite.com", "admin2@mysite.com"]
 
-# Path to the uploads directory where media will be uploaded.
-upload_path = "uploads"
-
-# Upload URI that's visible to the outside world. The media
-# uploaded to upload_path will be made available publicly
-# under this URI, for instance, list.yoursite.com/uploads.
-upload_uri = "/uploads"
-
 # Maximum concurrent workers that will attempt to send messages
 # simultaneously. This should depend on the number of CPUs the
 # machine has and also the number of simultaenous e-mails the
@@ -110,3 +102,33 @@ ssl_mode = "disable"
 
         # Maximum concurrent connections to the SMTP server.
         max_conns = 10
+
+# Upload settings
+[upload]
+# Provider which will be used to host uploaded media. Bundled providers are "filesystem" and "s3".
+provider = "filesystem"
+
+# S3 Provider settings
+[upload.s3]
+# (Optional). AWS Access Key and Secret Key for the user to access the bucket. Leaving it empty would default to use
+# instance IAM role.
+aws_access_key_id = ""
+aws_secret_access_key = ""
+# AWS Region where S3 bucket is hosted.
+aws_default_region="ap-south-1"
+# Specify bucket name.
+bucket=""
+# Path where the files will be stored inside bucket. Empty value ("") means the root of bucket.
+bucket_path=""
+# Bucket type can be "private" or "public".
+bucket_type="public"
+# (Optional) Specify TTL (in seconds) for the generated presigned URL. Expiry value is used only if the bucket is private.
+expiry="86400"
+
+# Filesystem provider settings
+[upload.filesystem]
+# Path to the uploads directory where media will be uploaded. Leaving it empty ("") means current working directory.
+upload_path=""
+# Upload URI that's visible to the outside world. The media uploaded to upload_path will be made available publicly
+# under this URI, for instance, list.yoursite.com/uploads.
+upload_uri = "/uploads"
