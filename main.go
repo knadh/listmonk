@@ -84,7 +84,9 @@ func init() {
 	f.Bool("new-config", false, "Generate sample config file")
 
 	// Process flags.
-	f.Parse(os.Args[1:])
+	if err := f.Parse(os.Args[1:]); err != nil {
+		logger.Fatalf("error loading flags: %v", err)
+	}
 
 	// Display version.
 	if v, _ := f.GetBool("version"); v {
@@ -120,13 +122,15 @@ func init() {
 	}), nil); err != nil {
 		logger.Fatalf("error loading config from env: %v", err)
 	}
-	ko.Load(posflag.Provider(f, ".", ko), nil)
+	if err := ko.Load(posflag.Provider(f, ".", ko), nil); err != nil {
+		logger.Fatalf("error loading config: %v", err)
+	}
 }
 
 // initFileSystem initializes the stuffbin FileSystem to provide
 // access to bunded static assets to the app.
 func initFileSystem(binPath string) (stuffbin.FileSystem, error) {
-	fs, err := stuffbin.UnStuff(os.Args[0])
+	fs, err := stuffbin.UnStuff(binPath)
 	if err == nil {
 		return fs, nil
 	}
@@ -158,17 +162,23 @@ func initFileSystem(binPath string) (stuffbin.FileSystem, error) {
 // initMessengers initializes various messaging backends.
 func initMessengers(r *manager.Manager) messenger.Messenger {
 	// Load SMTP configurations for the default e-mail Messenger.
-	var srv []messenger.Server
-	for _, name := range ko.MapKeys("smtp") {
+	var (
+		mapKeys = ko.MapKeys("smtp")
+		srv     = make([]messenger.Server, 0, len(mapKeys))
+	)
+
+	for _, name := range mapKeys {
 		if !ko.Bool(fmt.Sprintf("smtp.%s.enabled", name)) {
 			logger.Printf("skipped SMTP: %s", name)
 			continue
 		}
 
 		var s messenger.Server
-		ko.Unmarshal("smtp."+name, &s)
+		if err := ko.Unmarshal("smtp."+name, &s); err != nil {
+			logger.Fatalf("error loading SMTP: %v", err)
+		}
 		s.Name = name
-		s.SendTimeout = s.SendTimeout * time.Millisecond
+		s.SendTimeout *= time.Millisecond
 		srv = append(srv, s)
 
 		logger.Printf("loaded SMTP: %s (%s@%s)", s.Name, s.Username, s.Host)
@@ -199,8 +209,12 @@ func main() {
 	defer db.Close()
 
 	var c constants
-	ko.Unmarshal("app", &c)
-	ko.Unmarshal("privacy", &c.Privacy)
+	if err := ko.Unmarshal("app", &c); err != nil {
+		log.Fatalf("error loading app config: %v", err)
+	}
+	if err := ko.Unmarshal("privacy", &c.Privacy); err != nil {
+		log.Fatalf("error loading app config: %v", err)
+	}
 	c.RootURL = strings.TrimRight(c.RootURL, "/")
 	c.UploadURI = filepath.Clean(c.UploadURI)
 	c.UploadPath = filepath.Clean(c.UploadPath)
@@ -286,7 +300,7 @@ func main() {
 	app.Messenger = initMessengers(app.Manager)
 
 	// Initialize the workers that push out messages.
-	go m.Run(time.Duration(time.Second * 5))
+	go m.Run(time.Second * 5)
 	m.SpawnWorkers()
 
 	// Initialize the HTTP server.

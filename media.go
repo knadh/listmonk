@@ -16,9 +16,8 @@ import (
 var imageMimes = []string{"image/jpg", "image/jpeg", "image/png", "image/svg", "image/gif"}
 
 const (
-	thumbPrefix = "thumb_"
-	thumbWidth  = 90
-	thumbHeight = 90
+	thumbPrefix   = "thumb_"
+	thumbnailSize = 90
 )
 
 // handleUploadMedia handles media file uploads.
@@ -52,7 +51,7 @@ func handleUploadMedia(c echo.Context) error {
 			fmt.Sprintf("Error opening image for resizing: %s", err))
 	}
 
-	t := imaging.Resize(src, thumbWidth, 0, imaging.Lanczos)
+	t := imaging.Resize(src, thumbnailSize, 0, imaging.Lanczos)
 	if err := imaging.Save(t, fmt.Sprintf("%s/%s%s", app.Constants.UploadPath, thumbPrefix, fName)); err != nil {
 		cleanUp = true
 		return echo.NewHTTPError(http.StatusInternalServerError,
