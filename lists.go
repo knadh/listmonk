@@ -41,9 +41,11 @@ func handleGetLists(c echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			fmt.Sprintf("Error fetching lists: %s", pqErrMsg(err)))
-	} else if single && len(out.Results) == 0 {
+	}
+	if single && len(out.Results) == 0 {
 		return echo.NewHTTPError(http.StatusBadRequest, "List not found.")
-	} else if len(out.Results) == 0 {
+	}
+	if len(out.Results) == 0 {
 		return c.JSON(http.StatusOK, okResp{[]struct{}{}})
 	}
 
@@ -141,7 +143,9 @@ func handleDeleteLists(c echo.Context) error {
 	)
 
 	// Read the list IDs if they were sent in the body.
-	c.Bind(&ids)
+	if err := c.Bind(&ids); err != nil {
+		return err
+	}
 
 	if id < 1 && len(ids) == 0 {
 		return echo.NewHTTPError(http.StatusBadRequest, "Invalid ID.")

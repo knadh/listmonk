@@ -38,7 +38,8 @@ func NewEmailer(srv ...Server) (Messenger, error) {
 		servers: make(map[string]*Server),
 	}
 
-	for _, s := range srv {
+	for _, server := range srv {
+		s := server
 		var auth smtp.Auth
 		if s.AuthProtocol == "cram" {
 			auth = smtp.CRAMMD5Auth(s.Username, s.Password)

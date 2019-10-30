@@ -69,10 +69,13 @@ func handleGetSubscriber(c echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			fmt.Sprintf("Error fetching subscriber: %s", pqErrMsg(err)))
-	} else if len(out) == 0 {
+	}
+	if len(out) == 0 {
 		return echo.NewHTTPError(http.StatusBadRequest, "Subscriber not found.")
 	}
-	out.LoadLists(app.Queries.GetSubscriberLists)
+	if err := out.LoadLists(app.Queries.GetSubscriberLists); err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, "Error loading lists for subscriber.")
+	}
 
 	return c.JSON(http.StatusOK, okResp{out[0]})
 }

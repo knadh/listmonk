@@ -38,7 +38,7 @@ func handleGetConfigScript(c echo.Context) error {
 	)
 
 	b.Write([]byte(`var CONFIG = `))
-	j.Encode(out)
+	_ = j.Encode(out)
 	return c.Blob(http.StatusOK, "application/javascript", b.Bytes())
 }
 

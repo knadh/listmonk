@@ -13,9 +13,6 @@ const (
 	// stdInputMaxLen is the maximum allowed length for a standard input field.
 	stdInputMaxLen = 200
 
-	// bodyMaxLen is the maximum allowed length for e-mail bodies.
-	bodyMaxLen = 1000000
-
 	// defaultPerPage is the default number of results returned in an GET call.
 	defaultPerPage = 20
 

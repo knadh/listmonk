@@ -141,6 +141,5 @@ func newConfigFile() error {
 		return fmt.Errorf("error reading sample config (is binary stuffed?): %v", err)
 	}
 
-	ioutil.WriteFile("config.toml", b, 0644)
-	return nil
+	return ioutil.WriteFile("config.toml", b, 0644)
 }

@@ -27,11 +27,11 @@ var (
 	// filename_(number). The number is incremented in case
 	// new file uploads conflict with existing filenames
 	// on the filesystem.
-	fnameRegexp, _ = regexp.Compile(`(.+?)_([0-9]+)$`)
+	fnameRegexp = regexp.MustCompile(`(.+?)_([0-9]+)$`)
 
 	// This replaces all special characters
-	tagRegexp, _       = regexp.Compile(`[^a-z0-9\-\s]`)
-	tagRegexpSpaces, _ = regexp.Compile(`[\s]+`)
+	tagRegexp       = regexp.MustCompile(`[^a-z0-9\-\s]`)
+	tagRegexpSpaces = regexp.MustCompile(`[\s]+`)
 )
 
 // ScanToStruct prepares a given set of Queries and assigns the resulting
@@ -248,7 +248,7 @@ func normalizeTags(tags []string) []string {
 
 // makeMsgTpl takes a page title, heading, and message and returns
 // a msgTpl that can be rendered as a HTML view. This is used for
-// rendering aribtrary HTML views with error and success messages.
+// rendering arbitrary HTML views with error and success messages.
 func makeMsgTpl(pageTitle, heading, msg string) msgTpl {
 	if heading == "" {
 		heading = pageTitle
@@ -265,7 +265,7 @@ func makeMsgTpl(pageTitle, heading, msg string) msgTpl {
 // parses each number into an int64 and returns a slice of the
 // resultant values.
 func parseStringIDs(s []string) ([]int64, error) {
-	var vals []int64
+	vals := make([]int64, 0, len(s))
 
 	for _, v := range s {
 		i, err := strconv.ParseInt(v, 10, 64)

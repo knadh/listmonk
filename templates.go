@@ -28,10 +28,6 @@ const (
 		<p>Here is a link to <a href="https://listmonk.app" target="_blank">listmonk</a>.</p>`
 )
 
-type dummyMessage struct {
-	UnsubscribeURL string
-}
-
 var (
 	regexpTplTag = regexp.MustCompile(`{{(\s+)?template\s+?"content"(\s+)?\.(\s+)?}}`)
 )
@@ -56,12 +52,14 @@ func handleGetTemplates(c echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			fmt.Sprintf("Error fetching templates: %s", pqErrMsg(err)))
-	} else if single && len(out) == 0 {
+	}
+	if single && len(out) == 0 {
 		return echo.NewHTTPError(http.StatusBadRequest, "Template not found.")
-	} else if len(out) == 0 {
-		return c.JSON(http.StatusOK, okResp{[]struct{}{}})
 	}
 
+	if len(out) == 0 {
+		return c.JSON(http.StatusOK, okResp{[]struct{}{}})
+	}
 	if single {
 		return c.JSON(http.StatusOK, okResp{out[0]})
 	}

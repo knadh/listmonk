@@ -232,6 +232,6 @@ func drawTransparentImage(h, w int) []byte {
 		img = image.NewRGBA(image.Rect(0, 0, w, h))
 		out = &bytes.Buffer{}
 	)
-	png.Encode(out, img)
+	_ = png.Encode(out, img)
 	return out.Bytes()
 }

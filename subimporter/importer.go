@@ -335,7 +335,7 @@ func (s *Session) ExtractZIP(srcPath string, maxCSVs int) (string, []string, err
 		return "", nil, err
 	}
 
-	var files []string
+	files := make([]string, 0, len(z.File))
 	for _, f := range z.File {
 		fName := f.FileInfo().Name()
 
@@ -421,7 +421,7 @@ func (s *Session) LoadCSV(srcPath string, delim rune) error {
 	s.im.Unlock()
 
 	// Rewind, now that we've done a linecount on the same handler.
-	f.Seek(0, 0)
+	_, _ = f.Seek(0, 0)
 	rd := csv.NewReader(f)
 	rd.Comma = delim
 

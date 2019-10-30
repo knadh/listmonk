@@ -91,8 +91,8 @@ func New(cfg Config, src DataSource, notifCB models.AdminNotifCallback, l *log.L
 		notifCB:        notifCB,
 		logger:         l,
 		messengers:     make(map[string]messenger.Messenger),
-		camps:          make(map[int]*models.Campaign, 0),
-		links:          make(map[string]string, 0),
+		camps:          make(map[int]*models.Campaign),
+		links:          make(map[string]string),
 		subFetchQueue:  make(chan *models.Campaign, cfg.Concurrency),
 		msgQueue:       make(chan *Message, cfg.Concurrency),
 		msgErrorQueue:  make(chan msgError, cfg.MaxSendErrors),
@@ -125,7 +125,7 @@ func (m *Manager) AddMessenger(msg messenger.Messenger) error {
 
 // GetMessengerNames returns the list of registered messengers.
 func (m *Manager) GetMessengerNames() []string {
-	var names []string
+	names := make([]string, 0, len(m.messengers))
 	for n := range m.messengers {
 		names = append(names, n)
 	}

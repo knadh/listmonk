@@ -29,6 +29,6 @@ func MakeAttachmentHeader(filename, encoding string) textproto.MIMEHeader {
 	h := textproto.MIMEHeader{}
 	h.Set("Content-Disposition", "attachment; filename="+filename)
 	h.Set("Content-Type", "application/json; name=\""+filename+"\"")
-	h.Set("Content-Transfer-Encoding", "base64")
+	h.Set("Content-Transfer-Encoding", encoding)
 	return h
 }

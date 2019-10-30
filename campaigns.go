@@ -85,9 +85,11 @@ func handleGetCampaigns(c echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			fmt.Sprintf("Error fetching campaigns: %s", pqErrMsg(err)))
-	} else if single && len(out.Results) == 0 {
+	}
+	if single && len(out.Results) == 0 {
 		return echo.NewHTTPError(http.StatusBadRequest, "Campaign not found.")
-	} else if len(out.Results) == 0 {
+	}
+	if len(out.Results) == 0 {
 		out.Results = make([]models.Campaign, 0)
 		return c.JSON(http.StatusOK, out)
 	}
@@ -492,7 +494,8 @@ func handleTestCampaign(c echo.Context) error {
 
 	// Send the test messages.
 	for _, s := range subs {
-		if err := sendTestMessage(&s, &camp, app); err != nil {
+		sub := s
+		if err := sendTestMessage(&sub, &camp, app); err != nil {
 			return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Error sending test: %v", err))
 		}
 	}
@@ -500,7 +503,7 @@ func handleTestCampaign(c echo.Context) error {
 	return c.JSON(http.StatusOK, okResp{true})
 }
 
-// sendTestMessage takes a campaign and a subsriber and sends out a sample campain message.
+// sendTestMessage takes a campaign and a subsriber and sends out a sample campaign message.
 func sendTestMessage(sub *models.Subscriber, camp *models.Campaign, app *App) error {
 	if err := camp.CompileTemplate(app.Manager.TemplateFuncs(camp)); err != nil {
 		return fmt.Errorf("Error compiling template: %v", err)
