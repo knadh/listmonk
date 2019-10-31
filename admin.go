@@ -28,7 +28,6 @@ func handleGetConfigScript(c echo.Context) error {
 		app = c.Get("app").(*App)
 		out = configScript{
 			RootURL:    app.Constants.RootURL,
-			UploadURI:  app.Constants.UploadURI,
 			FromEmail:  app.Constants.FromEmail,
 			Messengers: app.Manager.GetMessengerNames(),
 		}

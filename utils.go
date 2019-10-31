@@ -4,30 +4,22 @@ import (
 	"bytes"
 	"crypto/rand"
 	"fmt"
-	"io"
-	"io/ioutil"
+	"log"
+	"mime/multipart"
 	"net/http"
-	"os"
-	"path/filepath"
 	"reflect"
 	"regexp"
 	"strconv"
 	"strings"
 
+	"github.com/disintegration/imaging"
 	"github.com/jmoiron/sqlx"
 	"github.com/knadh/goyesql"
 	"github.com/labstack/echo"
 	"github.com/lib/pq"
 )
 
-const tmpFilePrefix = "listmonk"
-
 var (
-	// This matches filenames, sans extensions, of the format
-	// filename_(number). The number is incremented in case
-	// new file uploads conflict with existing filenames
-	// on the filesystem.
-	fnameRegexp = regexp.MustCompile(`(.+?)_([0-9]+)$`)
 
 	// This replaces all special characters
 	tagRegexp       = regexp.MustCompile(`[^a-z0-9\-\s]`)
@@ -95,23 +87,12 @@ func scanQueriesToStruct(obj interface{}, q goyesql.Queries, db *sqlx.DB) error 
 	return nil
 }
 
-// uploadFile is a helper function on top of echo.Context for processing file uploads.
-// It allows copying a single file given the incoming file field name.
-// If the upload directory dir is empty, the file is copied to the system's temp directory.
-// If name is empty, the incoming file's name along with a small random hash is used.
-// When a slice of MIME types is given, the uploaded file's MIME type is validated against the list.
-func uploadFile(key string, dir, name string, mimes []string, c echo.Context) (string, error) {
-	file, err := c.FormFile(key)
-	if err != nil {
-		return "", echo.NewHTTPError(http.StatusBadRequest,
-			fmt.Sprintf("Invalid file uploaded: %v", err))
-	}
-
-	// Check MIME type.
+// validateMIME is a helper function to validate uploaded file's MIME type
+// against the slice of MIME types is given.
+func validateMIME(typ string, mimes []string) (ok bool) {
 	if len(mimes) > 0 {
 		var (
-			typ = file.Header.Get("Content-type")
-			ok  = false
+			ok = false
 		)
 		for _, m := range mimes {
 			if typ == m {
@@ -119,55 +100,42 @@ func uploadFile(key string, dir, name string, mimes []string, c echo.Context) (s
 				break
 			}
 		}
-
 		if !ok {
-			return "", echo.NewHTTPError(http.StatusBadRequest,
-				fmt.Sprintf("Unsupported file type (%s) uploaded.", typ))
+			return false
 		}
 	}
+	return true
+}
 
+// generateFileName appends the incoming file's name with a small random hash.
+func generateFileName(fName string) string {
+	name := strings.TrimSpace(fName)
+	if name == "" {
+		name, _ = generateRandomString(10)
+	}
+	return name
+}
+
+// createThumbnail reads the file object and returns a smaller image
+func createThumbnail(file *multipart.FileHeader) (*bytes.Reader, error) {
 	src, err := file.Open()
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	defer src.Close()
-
-	// There's no upload directory. Use a tempfile.
-	var out *os.File
-	if dir == "" {
-		o, err := ioutil.TempFile("", tmpFilePrefix)
-		if err != nil {
-			return "", echo.NewHTTPError(http.StatusInternalServerError,
-				fmt.Sprintf("Error copying uploaded file: %v", err))
-		}
-		out = o
-		name = o.Name()
-	} else {
-		// There's no explicit name. Use the one posted in the HTTP request.
-		if name == "" {
-			name = strings.TrimSpace(file.Filename)
-			if name == "" {
-				name, _ = generateRandomString(10)
-			}
-		}
-		name = assertUniqueFilename(dir, name)
-
-		o, err := os.OpenFile(filepath.Join(dir, name), os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0664)
-		if err != nil {
-			return "", echo.NewHTTPError(http.StatusInternalServerError,
-				fmt.Sprintf("Error copying uploaded file: %v", err))
-		}
-
-		out = o
+	img, err := imaging.Decode(src)
+	if err != nil {
+		return nil, echo.NewHTTPError(http.StatusInternalServerError,
+			fmt.Sprintf("Error decoding image: %v", err))
 	}
-	defer out.Close()
-
-	if _, err = io.Copy(out, src); err != nil {
-		return "", echo.NewHTTPError(http.StatusInternalServerError,
-			fmt.Sprintf("Error copying uploaded file: %v", err))
+	t := imaging.Resize(img, thumbnailSize, 0, imaging.Lanczos)
+	// Encode the image into a byte slice as PNG.
+	var buf bytes.Buffer
+	err = imaging.Encode(&buf, t, imaging.PNG)
+	if err != nil {
+		log.Fatal(err)
 	}
-
-	return name, nil
+	return bytes.NewReader(buf.Bytes()), nil
 }
 
 // Given an error, pqErrMsg will try to return pq error details
@@ -180,49 +148,6 @@ func pqErrMsg(err error) string {
 	}
 
 	return err.Error()
-}
-
-// generateRandomString generates a cryptographically random, alphanumeric string of length n.
-func generateRandomString(n int) (string, error) {
-	const dictionary = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
-
-	var bytes = make([]byte, n)
-	if _, err := rand.Read(bytes); err != nil {
-		return "", err
-	}
-
-	for k, v := range bytes {
-		bytes[k] = dictionary[v%byte(len(dictionary))]
-	}
-
-	return string(bytes), nil
-}
-
-// assertUniqueFilename takes a file path and check if it exists on the disk. If it doesn't,
-// it returns the same name and if it does, it adds a small random hash to the filename
-// and returns that.
-func assertUniqueFilename(dir, fileName string) string {
-	var (
-		ext  = filepath.Ext(fileName)
-		base = fileName[0 : len(fileName)-len(ext)]
-		num  = 0
-	)
-
-	for {
-		// There's no name conflict.
-		if _, err := os.Stat(filepath.Join(dir, fileName)); os.IsNotExist(err) {
-			return fileName
-		}
-
-		// Does the name match the _(num) syntax?
-		r := fnameRegexp.FindAllStringSubmatch(fileName, -1)
-		if len(r) == 1 && len(r[0]) == 3 {
-			num, _ = strconv.Atoi(r[0][2])
-		}
-		num++
-
-		fileName = fmt.Sprintf("%s_%d%s", base, num, ext)
-	}
 }
 
 // normalizeTags takes a list of string tags and normalizes them by
@@ -281,4 +206,20 @@ func parseStringIDs(s []string) ([]int64, error) {
 	}
 
 	return vals, nil
+}
+
+// generateRandomString generates a cryptographically random, alphanumeric string of length n.
+func generateRandomString(n int) (string, error) {
+	const dictionary = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+
+	var bytes = make([]byte, n)
+	if _, err := rand.Read(bytes); err != nil {
+		return "", err
+	}
+
+	for k, v := range bytes {
+		bytes[k] = dictionary[v%byte(len(dictionary))]
+	}
+
+	return string(bytes), nil
 }

@@ -174,19 +174,6 @@ type CampaignMeta struct {
 // Campaigns represents a slice of Campaigns.
 type Campaigns []Campaign
 
-// Media represents an uploaded media item.
-type Media struct {
-	ID        int       `db:"id" json:"id"`
-	UUID      string    `db:"uuid" json:"uuid"`
-	Filename  string    `db:"filename" json:"filename"`
-	Width     int       `db:"width" json:"width"`
-	Height    int       `db:"height" json:"height"`
-	CreatedAt null.Time `db:"created_at" json:"created_at"`
-
-	ThumbURI string `json:"thumb_uri"`
-	URI      string `json:"uri"`
-}
-
 // Template represents a reusable e-mail template.
 type Template struct {
 	Base

@@ -6,3 +6,4 @@ frontend/yarn.lock
 config.toml
 node_modules
 listmonk
+dist/*

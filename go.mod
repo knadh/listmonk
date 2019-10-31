@@ -2,6 +2,7 @@ module github.com/knadh/listmonk
 
 require (
 	github.com/asaskevich/govalidator v0.0.0-20180720115003-f9ffefc3facf
+	github.com/aws/aws-sdk-go v1.25.12
 	github.com/disintegration/imaging v1.5.0
 	github.com/jinzhu/gorm v1.9.1
 	github.com/jmoiron/sqlx v1.2.0
@@ -15,6 +16,7 @@ require (
 	github.com/lib/pq v1.0.0
 	github.com/mattn/go-colorable v0.0.9 // indirect
 	github.com/mattn/go-isatty v0.0.4 // indirect
+	github.com/rhnvrm/simples3 v0.2.4-0.20191018074503-3d5b071ef727
 	github.com/satori/go.uuid v1.2.0
 	github.com/spf13/pflag v1.0.3
 	github.com/stretchr/objx v0.2.0 // indirect
@@ -27,3 +29,5 @@ require (
 	gopkg.in/check.v1 v1.0.0-20180628173108-788fd7840127 // indirect
 	gopkg.in/volatiletech/null.v6 v6.0.0-20170828023728-0bef4e07ae1b
 )
+
+go 1.13
