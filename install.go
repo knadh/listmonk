@@ -17,21 +17,23 @@ import (
 
 // install runs the first time setup of creating and
 // migrating the database and creating the super user.
-func install(app *App, qMap goyesql.Queries) {
+func install(app *App, qMap goyesql.Queries, prompt bool) {
 	fmt.Println("")
 	fmt.Println("** First time installation **")
 	fmt.Printf("** IMPORTANT: This will wipe existing listmonk tables and types in the DB '%s' **",
 		ko.String("db.database"))
 	fmt.Println("")
 
-	var ok string
-	fmt.Print("Continue (y/n)?  ")
-	if _, err := fmt.Scanf("%s", &ok); err != nil {
-		logger.Fatalf("Error reading value from terminal: %v", err)
-	}
-	if strings.ToLower(ok) != "y" {
-		fmt.Println("Installation cancelled.")
-		return
+	if prompt {
+		var ok string
+		fmt.Print("Continue (y/n)?  ")
+		if _, err := fmt.Scanf("%s", &ok); err != nil {
+			logger.Fatalf("Error reading value from terminal: %v", err)
+		}
+		if strings.ToLower(ok) != "y" {
+			fmt.Println("Installation cancelled.")
+			return
+		}
 	}
 
 	// Migrate the tables.

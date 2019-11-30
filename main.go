@@ -84,6 +84,7 @@ func init() {
 	f.Bool("install", false, "Run first time installation")
 	f.Bool("version", false, "Current version of the build")
 	f.Bool("new-config", false, "Generate sample config file")
+	f.Bool("yes", false, "Assume 'yes' to prompts, eg: during --install")
 
 	// Process flags.
 	if err := f.Parse(os.Args[1:]); err != nil {
@@ -274,7 +275,7 @@ func main() {
 
 	// Run the first time installation.
 	if ko.Bool("install") {
-		install(app, qMap)
+		install(app, qMap, !ko.Bool("yes"))
 		return
 	}
 
