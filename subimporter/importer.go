@@ -561,7 +561,11 @@ func ValidateFields(s SubReq) error {
 	if !govalidator.IsByteLength(s.Name, 1, stdInputMaxLen) {
 		return errors.New(`invalid or empty name "` + s.Name + `"`)
 	}
-
+	if s.Status != models.SubscriberStatusEnabled &&
+		s.Status != models.SubscriberStatusDisabled &&
+		s.Status != models.SubscriberStatusBlackListed {
+		return errors.New(`invalid or empty status "` + s.Status + `"`)
+	}
 	return nil
 }
 
