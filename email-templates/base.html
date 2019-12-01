@@ -42,7 +42,20 @@
             .gutter {
                 padding: 30px;
             }
-
+            .button {
+                background: #7f2aff;
+                color: #fff !important;
+                display: inline-block;
+                border-radius: 3px;
+                padding: 10px 30px;
+                text-align: center;
+                text-decoration: none;
+                font-weight: bold;
+            }
+            .button:hover {
+                background: #222;
+                color: #fff;
+            }
             img {
                 max-width: 100%;
             }
@@ -67,7 +80,9 @@
     <div class="gutter">&nbsp;</div>
     <div class="wrap">
         <div class="header">
-            <a href="{{ index . "RootURL" }}"><img src="{{ index . "RootURL" }}/public/static/logo.svg" alt="listmonk" /></a>
+            {{ if ne LogoURL "" }}
+                <a href="{{ RootURL }}"><img src="{{ LogoURL }}" alt="listmonk" /></a>
+            {{ end }}
         </div>
 {{ end }}
 
