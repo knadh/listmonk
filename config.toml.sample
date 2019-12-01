@@ -9,12 +9,12 @@ root = "https://listmonk.mysite.com"
 # (Optional) full URL to the static logo to be displayed on
 # user facing view such as the unsubscription page.
 # eg: https://mysite.com/images/logo.svg
-logo_url = ""
+logo_url = "https://listmonk.mysite.com/public/static/logo.png"
 
 # (Optional) full URL to the static favicon to be displayed on
 # user facing view such as the unsubscription page.
 # eg: https://mysite.com/images/favicon.png
-favicon_url = ""
+favicon_url = "https://listmonk.mysite.com/public/static/favicon.png"
 
 # The default 'from' e-mail for outgoing e-mail campaigns.
 from_email = "listmonk <from@mail.com>"
