@@ -175,6 +175,11 @@
   }
 } /*# sourceMappingURL=dist/flexit.min.css.map */
 
+html, body {
+  padding: 0;
+  margin: 0;
+  min-width: 320px;
+}
 body {
   background: #f9f9f9;
   font-family: "Open Sans", "Helvetica Neue", sans-serif;
@@ -235,7 +240,9 @@ section {
 }
 
 .header {
-  margin-bottom: 60px;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 15px;
+  margin-bottom: 30px;
 }
 .header .logo img {
   width: auto;
@@ -266,8 +273,6 @@ section {
 @media screen and (max-width: 650px) {
   .wrap {
     margin: 0;
-  }
-  .header {
-    margin-bottom: 30px;
+    padding: 30px;
   }
 }

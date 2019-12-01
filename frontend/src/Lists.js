@@ -153,7 +153,8 @@ class CreateFormDef extends React.PureComponent {
               {...formItemLayout}
               name="type"
               label="Type"
-              extra="Public lists are open to the world to subscribe"
+              extra="Public lists are open to the world to subscribe and their
+              names may appear on public pages such as the subscription management page."
             >
               {getFieldDecorator("type", {
                 initialValue: record.type ? record.type : "private",
@@ -162,6 +163,23 @@ class CreateFormDef extends React.PureComponent {
                 <Select style={{ maxWidth: 120 }}>
                   <Select.Option value="private">Private</Select.Option>
                   <Select.Option value="public">Public</Select.Option>
+                </Select>
+              )}
+            </Form.Item>
+            <Form.Item
+              {...formItemLayout}
+              name="optin"
+              label="Opt-in"
+              extra="Double opt-in sends an e-mail to the subscriber asking for confirmation.
+              On Double opt-in lists, campaigns are only sent to confirmed subscribers."
+            >
+              {getFieldDecorator("optin", {
+                initialValue: record.optin ? record.optin : "single",
+                rules: [{ required: true }]
+              })(
+                <Select style={{ maxWidth: 120 }}>
+                  <Select.Option value="single">Single</Select.Option>
+                  <Select.Option value="double">Double</Select.Option>
                 </Select>
               )}
             </Form.Item>
@@ -239,16 +257,32 @@ class Lists extends React.PureComponent {
       {
         title: "Type",
         dataIndex: "type",
-        width: "10%",
-        render: (type, _) => {
+        width: "15%",
+        render: (type, record) => {
           let color = type === "private" ? "orange" : "green"
-          return <Tag color={color}>{type}</Tag>
+          return (
+            <div>
+              <p>
+                <Tag color={color}>{type}</Tag>
+                <Tag>{record.optin}</Tag>
+              </p>
+              {record.optin === cs.ListOptinDouble && (
+                <p className="text-small">
+                  <Tooltip title="Send a campaign to unconfirmed subscribers to opt-in">
+                    <Link to={`/campaigns/new?list_id=${record.id}`}>
+                      <Icon type="rocket" /> Send opt-in campaign
+                    </Link>
+                  </Tooltip>
+                </p>
+              )}
+            </div>
+          )
         }
       },
       {
         title: "Subscribers",
         dataIndex: "subscriber_count",
-        width: "15%",
+        width: "10%",
         align: "center",
         render: (text, record) => {
           return (

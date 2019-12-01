@@ -54,9 +54,10 @@ func install(app *App, qMap goyesql.Queries, prompt bool) {
 		uuid.NewV4().String(),
 		"Default list",
 		models.ListTypePublic,
+		models.ListOptinSingle,
 		pq.StringArray{"test"},
 	); err != nil {
-		logger.Fatalf("Error creating superadmin user: %v", err)
+		logger.Fatalf("Error creating list: %v", err)
 	}
 
 	// Sample subscriber.

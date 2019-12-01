@@ -1,4 +1,5 @@
 DROP TYPE IF EXISTS list_type CASCADE; CREATE TYPE list_type AS ENUM ('public', 'private', 'temporary');
+DROP TYPE IF EXISTS list_optin CASCADE; CREATE TYPE list_optin AS ENUM ('single', 'double');
 DROP TYPE IF EXISTS subscriber_status CASCADE; CREATE TYPE subscriber_status AS ENUM ('enabled', 'disabled', 'blacklisted');
 DROP TYPE IF EXISTS subscription_status CASCADE; CREATE TYPE subscription_status AS ENUM ('unconfirmed', 'confirmed', 'unsubscribed');
 DROP TYPE IF EXISTS campaign_status CASCADE; CREATE TYPE campaign_status AS ENUM ('draft', 'running', 'scheduled', 'paused', 'cancelled', 'finished');
@@ -28,6 +29,7 @@ CREATE TABLE lists (
     uuid            uuid NOT NULL UNIQUE,
     name            TEXT NOT NULL,
     type            list_type NOT NULL,
+    optin           list_optin NOT NULL DEFAULT 'single',
     tags            VARCHAR(100)[],
 
     created_at      TIMESTAMP WITH TIME ZONE DEFAULT NOW(),

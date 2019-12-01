@@ -63,9 +63,8 @@ type Message struct {
 	Subscriber *models.Subscriber
 	Body       []byte
 
-	unsubURL string
-	from     string
-	to       string
+	from string
+	to   string
 }
 
 // Config has parameters for configuring the manager.
@@ -76,6 +75,7 @@ type Config struct {
 	FromEmail      string
 	LinkTrackURL   string
 	UnsubURL       string
+	OptinURL       string
 	ViewTrackURL   string
 }
 
@@ -108,9 +108,8 @@ func (m *Manager) NewMessage(c *models.Campaign, s *models.Subscriber) *Message 
 		Campaign:   c,
 		Subscriber: s,
 
-		from:     c.FromEmail,
-		to:       s.Email,
-		unsubURL: fmt.Sprintf(m.cfg.UnsubURL, c.UUID, s.UUID),
+		from: c.FromEmail,
+		to:   s.Email,
 	}
 }
 
@@ -423,7 +422,12 @@ func (m *Manager) TemplateFuncs(c *models.Campaign) template.FuncMap {
 				fmt.Sprintf(m.cfg.ViewTrackURL, msg.Campaign.UUID, msg.Subscriber.UUID)))
 		},
 		"UnsubscribeURL": func(msg *Message) string {
-			return msg.unsubURL
+			return fmt.Sprintf(m.cfg.UnsubURL, c.UUID, msg.Subscriber.UUID)
+		},
+		"OptinURL": func(msg *Message) string {
+			// Add list IDs.
+			// TODO: Show private lists list on optin e-mail
+			return fmt.Sprintf(m.cfg.OptinURL, msg.Subscriber.UUID, "")
 		},
 		"Date": func(layout string) string {
 			if layout == "" {

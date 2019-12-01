@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"net/url"
 	"strconv"
 	"strings"
 
@@ -46,6 +47,14 @@ type subProfileData struct {
 	LinkClicks    json.RawMessage `db:"link_clicks" json:"link_clicks,omitempty"`
 }
 
+// subOptin contains the data that's passed to the double opt-in e-mail template.
+type subOptin struct {
+	*models.Subscriber
+
+	OptinURL string
+	Lists    []models.List
+}
+
 var dummySubscriber = models.Subscriber{
 	Email: "dummy@listmonk.app",
 	Name:  "Dummy Subscriber",
@@ -73,7 +82,7 @@ func handleGetSubscriber(c echo.Context) error {
 	if len(out) == 0 {
 		return echo.NewHTTPError(http.StatusBadRequest, "Subscriber not found.")
 	}
-	if err := out.LoadLists(app.Queries.GetSubscriberLists); err != nil {
+	if err := out.LoadLists(app.Queries.GetSubscriberListsLazy); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, "Error loading lists for subscriber.")
 	}
 
@@ -123,7 +132,7 @@ func handleQuerySubscribers(c echo.Context) error {
 	}
 
 	// Lazy load lists for each subscriber.
-	if err := out.Results.LoadLists(app.Queries.GetSubscriberLists); err != nil {
+	if err := out.Results.LoadLists(app.Queries.GetSubscriberListsLazy); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			fmt.Sprintf("Error fetching subscriber lists: %v", pqErrMsg(err)))
 	}
@@ -157,10 +166,14 @@ func handleCreateSubscriber(c echo.Context) error {
 	}
 
 	// Insert and read ID.
-	var newID int
+	var (
+		newID int
+		email = strings.ToLower(strings.TrimSpace(req.Email))
+	)
+	req.UUID = uuid.NewV4().String()
 	err := app.Queries.InsertSubscriber.Get(&newID,
-		uuid.NewV4(),
-		strings.ToLower(strings.TrimSpace(req.Email)),
+		req.UUID,
+		email,
 		strings.TrimSpace(req.Name),
 		req.Status,
 		req.Attribs,
@@ -169,10 +182,12 @@ func handleCreateSubscriber(c echo.Context) error {
 		if pqErr, ok := err.(*pq.Error); ok && pqErr.Constraint == "subscribers_email_key" {
 			return echo.NewHTTPError(http.StatusBadRequest, "The e-mail already exists.")
 		}
-
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			fmt.Sprintf("Error creating subscriber: %v", err))
 	}
+
+	// If the lists are double-optins, send confirmation e-mails.
+	go sendOptinConfirmation(req.Subscriber, []int64(req.Lists), app)
 
 	// Hand over to the GET handler to return the last insertion.
 	c.SetParamNames("id")
@@ -501,6 +516,44 @@ func exportSubscriberData(id int64, subUUID string, exportables map[string]bool,
 		return data, nil, err
 	}
 	return data, b, nil
+}
+
+// sendOptinConfirmation sends double opt-in confirmation e-mails to a subscriber
+// if at least one of the given listIDs is set to optin=double
+func sendOptinConfirmation(sub models.Subscriber, listIDs []int64, app *App) error {
+	var lists []models.List
+
+	// Fetch double opt-in lists from the given list IDs.
+	err := app.Queries.GetListsByOptin.Select(&lists, models.ListOptinDouble, pq.Int64Array(listIDs))
+	if err != nil {
+		app.Logger.Printf("error fetching lists for optin: %s", pqErrMsg(err))
+		return err
+	}
+
+	// None.
+	if len(lists) == 0 {
+		return nil
+	}
+
+	var (
+		out      = subOptin{Subscriber: &sub, Lists: lists}
+		qListIDs = url.Values{}
+	)
+	// Construct the opt-in URL with list IDs.
+	for _, l := range out.Lists {
+		qListIDs.Add("l", l.UUID)
+	}
+	out.OptinURL = fmt.Sprintf(app.Constants.OptinURL, sub.UUID, qListIDs.Encode())
+
+	// Send the e-mail.
+	if err := sendNotification([]string{sub.Email},
+		"Confirm subscription",
+		notifSubscriberOptin, out, app); err != nil {
+		app.Logger.Printf("error e-mailing subscriber profile: %s", err)
+		return err
+	}
+
+	return nil
 }
 
 // sanitizeSQLExp does basic sanitisation on arbitrary

@@ -23,6 +23,11 @@ const (
 	SubscriberStatusDisabled    = "disabled"
 	SubscriberStatusBlackListed = "blacklisted"
 
+	// Subscription.
+	SubscriptionStatusUnconfirmed  = "unconfirmed"
+	SubscriptionStatusConfirmed    = "confirmed"
+	SubscriptionStatusUnsubscribed = "unsubscribed"
+
 	// Campaign.
 	CampaignStatusDraft     = "draft"
 	CampaignStatusScheduled = "scheduled"
@@ -34,6 +39,8 @@ const (
 	// List.
 	ListTypePrivate = "private"
 	ListTypePublic  = "public"
+	ListOptinSingle = "single"
+	ListOptinDouble = "double"
 
 	// User.
 	UserTypeSuperadmin = "superadmin"
@@ -72,7 +79,7 @@ var regTplFuncs = []regTplFunc{
 
 // AdminNotifCallback is a callback function that's called
 // when a campaign's status changes.
-type AdminNotifCallback func(subject string, data map[string]interface{}) error
+type AdminNotifCallback func(subject string, data interface{}) error
 
 // Base holds common fields shared across models.
 type Base struct {
@@ -126,6 +133,7 @@ type List struct {
 	UUID            string         `db:"uuid" json:"uuid"`
 	Name            string         `db:"name" json:"name"`
 	Type            string         `db:"type" json:"type"`
+	Optin           string         `db:"optin" json:"optin"`
 	Tags            pq.StringArray `db:"tags" json:"tags"`
 	SubscriberCount int            `db:"subscriber_count" json:"subscriber_count"`
 	SubscriberID    int            `db:"subscriber_id" json:"-"`
@@ -306,7 +314,7 @@ func (c *Campaign) CompileTemplate(f template.FuncMap) error {
 // FirstName splits the name by spaces and returns the first chunk
 // of the name that's greater than 2 characters in length, assuming
 // that it is the subscriber's first name.
-func (s *Subscriber) FirstName() string {
+func (s Subscriber) FirstName() string {
 	for _, s := range strings.Split(s.Name, " ") {
 		if len(s) > 2 {
 			return s
@@ -319,7 +327,7 @@ func (s *Subscriber) FirstName() string {
 // LastName splits the name by spaces and returns the last chunk
 // of the name that's greater than 2 characters in length, assuming
 // that it is the subscriber's last name.
-func (s *Subscriber) LastName() string {
+func (s Subscriber) LastName() string {
 	chunks := strings.Split(s.Name, " ")
 	for i := len(chunks) - 1; i >= 0; i-- {
 		chunk := chunks[i]

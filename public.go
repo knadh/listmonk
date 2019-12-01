@@ -10,6 +10,7 @@ import (
 	"strconv"
 
 	"github.com/knadh/listmonk/messenger"
+	"github.com/knadh/listmonk/models"
 	"github.com/labstack/echo"
 	"github.com/lib/pq"
 )
@@ -42,6 +43,13 @@ type unsubTpl struct {
 	AllowBlacklist bool
 	AllowExport    bool
 	AllowWipe      bool
+}
+
+type optinTpl struct {
+	publicTpl
+	SubUUID   string
+	ListUUIDs []string      `query:"l" form:"l"`
+	Lists     []models.List `query:"-" form:"-"`
 }
 
 type msgTpl struct {
@@ -100,6 +108,73 @@ func handleSubscriptionPage(c echo.Context) error {
 	}
 
 	return c.Render(http.StatusOK, "subscription", out)
+}
+
+// handleOptinPage handles a double opt-in confirmation from subscribers.
+func handleOptinPage(c echo.Context) error {
+	var (
+		app        = c.Get("app").(*App)
+		subUUID    = c.Param("subUUID")
+		confirm, _ = strconv.ParseBool(c.FormValue("confirm"))
+		out        = optinTpl{}
+	)
+	out.SubUUID = subUUID
+	out.Title = "Confirm subscriptions"
+	out.SubUUID = subUUID
+
+	// Get and validate fields.
+	if err := c.Bind(&out); err != nil {
+		return err
+	}
+
+	// Validate list UUIDs if there are incoming UUIDs in the request.
+	if len(out.ListUUIDs) > 0 {
+		for _, l := range out.ListUUIDs {
+			if !reUUID.MatchString(l) {
+				return c.Render(http.StatusBadRequest, "message",
+					makeMsgTpl("Invalid request", "",
+						`One or more UUIDs in the request are invalid.`))
+			}
+		}
+
+		// Get lists by UUIDs.
+		if err := app.Queries.GetListsByUUID.Select(&out.Lists, pq.StringArray(out.ListUUIDs)); err != nil {
+			app.Logger.Printf("error fetching lists for optin: %s", pqErrMsg(err))
+			return c.Render(http.StatusInternalServerError, "message",
+				makeMsgTpl("Error", "",
+					`Error fetching lists. Please retry.`))
+		}
+	} else {
+		// Otherwise, get the list of all unconfirmed lists for the subscriber.
+		if err := app.Queries.GetSubscriberLists.Select(&out.Lists, 0, subUUID, models.SubscriptionStatusUnconfirmed); err != nil {
+			app.Logger.Printf("error fetching lists for optin: %s", pqErrMsg(err))
+			return c.Render(http.StatusInternalServerError, "message",
+				makeMsgTpl("Error", "",
+					`Error fetching lists. Please retry.`))
+		}
+	}
+
+	// There are no lists to confirm.
+	if len(out.Lists) == 0 {
+		return c.Render(http.StatusInternalServerError, "message",
+			makeMsgTpl("No subscriptions", "",
+				`There are no subscriptions to confirm.`))
+	}
+
+	// Confirm.
+	if confirm {
+		if _, err := app.Queries.ConfirmSubscriptionOptin.Exec(subUUID, pq.StringArray(out.ListUUIDs)); err != nil {
+			app.Logger.Printf("error unsubscribing: %v", err)
+			return c.Render(http.StatusInternalServerError, "message",
+				makeMsgTpl("Error", "",
+					`Error processing request. Please retry.`))
+		}
+		return c.Render(http.StatusOK, "message",
+			makeMsgTpl("Confirmed", "",
+				`Your subscriptions have been confirmed.`))
+	}
+
+	return c.Render(http.StatusOK, "optin", out)
 }
 
 // handleLinkRedirect handles link UUID to real link redirection.
@@ -166,9 +241,9 @@ func handleSelfExportSubscriberData(c echo.Context) error {
 	}
 
 	// Send the data out to the subscriber as an atachment.
-	msg, err := getNotificationTemplate("subscriber-data", nil, app)
-	if err != nil {
-		app.Logger.Printf("error preparing subscriber data e-mail template: %s", err)
+	var msg bytes.Buffer
+	if err := app.NotifTpls.ExecuteTemplate(&msg, notifSubscriberData, data); err != nil {
+		app.Logger.Printf("error compiling notification template '%s': %v", notifSubscriberData, err)
 		return c.Render(http.StatusInternalServerError, "message",
 			makeMsgTpl("Error preparing data", "",
 				"There was an error preparing your data. Please try later."))
@@ -178,7 +253,7 @@ func handleSelfExportSubscriberData(c echo.Context) error {
 	if err := app.Messenger.Push(app.Constants.FromEmail,
 		[]string{data.Email},
 		"Your profile data",
-		msg,
+		msg.Bytes(),
 		[]*messenger.Attachment{
 			&messenger.Attachment{
 				Name:    fname,

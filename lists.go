@@ -92,6 +92,7 @@ func handleCreateList(c echo.Context) error {
 		o.UUID,
 		o.Name,
 		o.Type,
+		o.Optin,
 		pq.StringArray(normalizeTags(o.Tags))); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			fmt.Sprintf("Error creating list: %s", pqErrMsg(err)))
@@ -120,7 +121,7 @@ func handleUpdateList(c echo.Context) error {
 		return err
 	}
 
-	res, err := app.Queries.UpdateList.Exec(id, o.Name, o.Type, pq.StringArray(normalizeTags(o.Tags)))
+	res, err := app.Queries.UpdateList.Exec(id, o.Name, o.Type, o.Optin, pq.StringArray(normalizeTags(o.Tags)))
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest,
 			fmt.Sprintf("Error updating list: %s", pqErrMsg(err)))

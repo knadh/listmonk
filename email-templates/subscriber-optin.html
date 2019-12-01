@@ -1,0 +1,21 @@
+{{ define "subscriber-optin" }}
+{{ template "header" . }}
+<h2>Confirm subscription</h2>
+<p>Hi {{ .Subscriber.FirstName }},</p>
+<p>You have been added to the following mailing lists:</p>
+<ul>
+    {{ range $i, $l := .Lists }}
+        {{ if eq .Type "public" }}
+            <li>{{ .Name }}</li>
+        {{ else }}
+            <li>Private list</li>
+        {{ end }}
+    {{ end }}
+</ul>
+<p>Confirm your subscription by clicking the below button.</p>
+<p>
+    <a href="{{ .OptinURL }}" class="button">Confirm subscription</a>
+</p>
+
+{{ template "footer" }}
+{{ end }}

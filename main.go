@@ -30,12 +30,16 @@ import (
 )
 
 type constants struct {
-	RootURL      string         `koanf:"root"`
-	LogoURL      string         `koanf:"logo_url"`
-	FaviconURL   string         `koanf:"favicon_url"`
-	FromEmail    string         `koanf:"from_email"`
-	NotifyEmails []string       `koanf:"notify_emails"`
-	Privacy      privacyOptions `koanf:"privacy"`
+	RootURL        string `koanf:"root"`
+	LogoURL        string `koanf:"logo_url"`
+	FaviconURL     string `koanf:"favicon_url"`
+	UnsubscribeURL string
+	LinkTrackURL   string
+	ViewTrackURL   string
+	OptinURL       string
+	FromEmail      string         `koanf:"from_email"`
+	NotifyEmails   []string       `koanf:"notify_emails"`
+	Privacy        privacyOptions `koanf:"privacy"`
 }
 
 type privacyOptions struct {
@@ -286,8 +290,8 @@ func main() {
 	app.Queries = q
 
 	// Initialize the bulk subscriber importer.
-	importNotifCB := func(subject string, data map[string]interface{}) error {
-		go sendNotification(notifTplImport, subject, data, app)
+	importNotifCB := func(subject string, data interface{}) error {
+		go sendNotification(app.Constants.NotifyEmails, subject, notifTplImport, data, app)
 		return nil
 	}
 	app.Importer = subimporter.New(q.UpsertSubscriber.Stmt,
@@ -296,30 +300,38 @@ func main() {
 		db.DB,
 		importNotifCB)
 
-	// Read system e-mail templates.
-	notifTpls, err := stuffbin.ParseTemplatesGlob(nil, fs, "/email-templates/*.html")
+	// Prepare notification e-mail templates.
+	notifTpls, err := compileNotifTpls("/email-templates/*.html", fs, app)
 	if err != nil {
-		logger.Fatalf("error loading system e-mail templates: %v", err)
+		logger.Fatalf("error loading e-mail notification templates: %v", err)
 	}
 	app.NotifTpls = notifTpls
 
+	// Static URLS.
+	// url.com/subscription/{campaign_uuid}/{subscriber_uuid}
+	c.UnsubscribeURL = fmt.Sprintf("%s/subscription/%%s/%%s", app.Constants.RootURL)
+
+	// url.com/subscription/optin/{subscriber_uuid}
+	c.OptinURL = fmt.Sprintf("%s/subscription/optin/%%s?%%s", app.Constants.RootURL)
+
+	// url.com/link/{campaign_uuid}/{subscriber_uuid}/{link_uuid}
+	c.LinkTrackURL = fmt.Sprintf("%s/link/%%s/%%s/%%s", app.Constants.RootURL)
+
+	// url.com/campaign/{campaign_uuid}/{subscriber_uuid}/px.png
+	c.ViewTrackURL = fmt.Sprintf("%s/campaign/%%s/%%s/px.png", app.Constants.RootURL)
+
 	// Initialize the campaign manager.
-	campNotifCB := func(subject string, data map[string]interface{}) error {
-		return sendNotification(notifTplCampaign, subject, data, app)
+	campNotifCB := func(subject string, data interface{}) error {
+		return sendNotification(app.Constants.NotifyEmails, subject, notifTplCampaign, data, app)
 	}
 	m := manager.New(manager.Config{
 		Concurrency:   ko.Int("app.concurrency"),
 		MaxSendErrors: ko.Int("app.max_send_errors"),
 		FromEmail:     app.Constants.FromEmail,
-
-		// url.com/unsubscribe/{campaign_uuid}/{subscriber_uuid}
-		UnsubURL: fmt.Sprintf("%s/subscription/%%s/%%s", app.Constants.RootURL),
-
-		// url.com/link/{campaign_uuid}/{subscriber_uuid}/{link_uuid}
-		LinkTrackURL: fmt.Sprintf("%s/link/%%s/%%s/%%s", app.Constants.RootURL),
-
-		// url.com/campaign/{campaign_uuid}/{subscriber_uuid}/px.png
-		ViewTrackURL: fmt.Sprintf("%s/campaign/%%s/%%s/px.png", app.Constants.RootURL),
+		UnsubURL:      c.UnsubscribeURL,
+		OptinURL:      c.OptinURL,
+		LinkTrackURL:  c.LinkTrackURL,
+		ViewTrackURL:  c.ViewTrackURL,
 	}, newManagerDB(q), campNotifCB, logger)
 	app.Manager = m
 

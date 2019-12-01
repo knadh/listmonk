@@ -50,6 +50,9 @@ export const SubscriptionStatusConfirmed = "confirmed"
 export const SubscriptionStatusUnConfirmed = "unconfirmed"
 export const SubscriptionStatusUnsubscribed = "unsubscribed"
 
+export const ListOptinSingle = "single"
+export const ListOptinDouble = "double"
+
 // API routes.
 export const Routes = {
   GetDashboarcStats: "/api/dashboard/stats",

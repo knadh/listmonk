@@ -98,6 +98,8 @@ func registerHandlers(e *echo.Echo) {
 		"campUUID", "subUUID"))
 	e.POST("/subscription/:campUUID/:subUUID", validateUUID(subscriberExists(handleSubscriptionPage),
 		"campUUID", "subUUID"))
+	e.GET("/subscription/optin/:subUUID", validateUUID(subscriberExists(handleOptinPage), "subUUID"))
+	e.POST("/subscription/optin/:subUUID", validateUUID(subscriberExists(handleOptinPage), "subUUID"))
 	e.POST("/subscription/export/:subUUID", validateUUID(subscriberExists(handleSelfExportSubscriberData),
 		"subUUID"))
 	e.POST("/subscription/wipe/:subUUID", validateUUID(subscriberExists(handleWipeSubscriberData),
