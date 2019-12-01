@@ -83,6 +83,13 @@ type SubReq struct {
 	Lists pq.Int64Array `json:"lists"`
 }
 
+type importStatusTpl struct {
+	Name     string
+	Status   string
+	Imported int
+	Total    int
+}
+
 var (
 	// ErrIsImporting is thrown when an import request is made while an
 	// import is already running.
@@ -196,19 +203,19 @@ func (im *Importer) incrementImportCount(n int) {
 // sendNotif sends admin notifications for import completions.
 func (im *Importer) sendNotif(status string) error {
 	var (
-		s    = im.GetStats()
-		data = map[string]interface{}{
-			"Name":     s.Name,
-			"Status":   status,
-			"Imported": s.Imported,
-			"Total":    s.Total,
+		s   = im.GetStats()
+		out = importStatusTpl{
+			Name:     s.Name,
+			Status:   status,
+			Imported: s.Imported,
+			Total:    s.Total,
 		}
 		subject = fmt.Sprintf("%s: %s import",
 			strings.Title(status),
 			s.Name)
 	)
 
-	return im.notifCB(subject, data)
+	return im.notifCB(subject, out)
 }
 
 // Start is a blocking function that selects on a channel queue until all
@@ -560,11 +567,6 @@ func ValidateFields(s SubReq) error {
 	}
 	if !govalidator.IsByteLength(s.Name, 1, stdInputMaxLen) {
 		return errors.New(`invalid or empty name "` + s.Name + `"`)
-	}
-	if s.Status != models.SubscriberStatusEnabled &&
-		s.Status != models.SubscriberStatusDisabled &&
-		s.Status != models.SubscriberStatusBlackListed {
-		return errors.New(`invalid or empty status "` + s.Status + `"`)
 	}
 	return nil
 }
