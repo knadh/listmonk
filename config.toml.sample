@@ -68,6 +68,9 @@ password = "listmonk"
 database = "listmonk"
 ssl_mode = "disable"
 
+# Maximum active and idle connections to pool.
+max_open = 50
+max_idle = 10
 
 # SMTP servers.
 [smtp]

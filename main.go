@@ -227,12 +227,11 @@ func initMediaStore() media.Store {
 
 func main() {
 	// Connect to the DB.
-	db, err := connectDB(ko.String("db.host"),
-		ko.Int("db.port"),
-		ko.String("db.user"),
-		ko.String("db.password"),
-		ko.String("db.database"),
-		ko.String("db.ssl_mode"))
+	var dbCfg dbConf
+	if err := ko.Unmarshal("db", &dbCfg); err != nil {
+		log.Fatalf("error loading db config: %v", err)
+	}
+	db, err := connectDB(dbCfg)
 	if err != nil {
 		logger.Fatalf("error connecting to DB: %v", err)
 	}
