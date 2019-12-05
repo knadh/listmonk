@@ -110,6 +110,7 @@ func (q *Queries) compileSubscriberQueryTpl(exp string, db *sqlx.DB) (string, er
 	if err != nil {
 		return "", err
 	}
+	defer tx.Rollback()
 
 	// Perform the dry run.
 	if exp != "" {
@@ -117,7 +118,6 @@ func (q *Queries) compileSubscriberQueryTpl(exp string, db *sqlx.DB) (string, er
 	}
 	stmt := fmt.Sprintf(q.QuerySubscribersTpl, exp)
 	if _, err := tx.Exec(stmt, true, pq.Int64Array{}); err != nil {
-		tx.Rollback()
 		return "", err
 	}
 
