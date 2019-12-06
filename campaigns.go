@@ -90,8 +90,8 @@ func handleGetCampaigns(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "Campaign not found.")
 	}
 	if len(out.Results) == 0 {
-		out.Results = make([]models.Campaign, 0)
-		return c.JSON(http.StatusOK, out)
+		out.Results = []models.Campaign{}
+		return c.JSON(http.StatusOK, okResp{out})
 	}
 
 	for i := 0; i < len(out.Results); i++ {
