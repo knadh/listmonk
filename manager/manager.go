@@ -59,12 +59,13 @@ type Manager struct {
 
 // Message represents an active subscriber that's being processed.
 type Message struct {
-	Campaign       *models.Campaign
-	Subscriber     *models.Subscriber
-	UnsubscribeURL string
-	Body           []byte
-	from           string
-	to             string
+	Campaign   *models.Campaign
+	Subscriber *models.Subscriber
+	Body       []byte
+
+	unsubURL string
+	from     string
+	to       string
 }
 
 // Config has parameters for configuring the manager.
@@ -74,7 +75,7 @@ type Config struct {
 	RequeueOnError bool
 	FromEmail      string
 	LinkTrackURL   string
-	UnsubscribeURL string
+	UnsubURL       string
 	ViewTrackURL   string
 }
 
@@ -104,11 +105,12 @@ func New(cfg Config, src DataSource, notifCB models.AdminNotifCallback, l *log.L
 // to message templates while they're compiled.
 func (m *Manager) NewMessage(c *models.Campaign, s *models.Subscriber) *Message {
 	return &Message{
-		from:           c.FromEmail,
-		to:             s.Email,
-		Campaign:       c,
-		Subscriber:     s,
-		UnsubscribeURL: fmt.Sprintf(m.cfg.UnsubscribeURL, c.UUID, s.UUID),
+		Campaign:   c,
+		Subscriber: s,
+
+		from:     c.FromEmail,
+		to:       s.Email,
+		unsubURL: fmt.Sprintf(m.cfg.UnsubURL, c.UUID, s.UUID),
 	}
 }
 
@@ -413,12 +415,15 @@ func (m *Manager) sendNotif(c *models.Campaign, status, reason string) error {
 // compiled campaign templates.
 func (m *Manager) TemplateFuncs(c *models.Campaign) template.FuncMap {
 	return template.FuncMap{
-		"TrackLink": func(url, campUUID, subUUID string) string {
-			return m.trackLink(url, campUUID, subUUID)
+		"TrackLink": func(url string, msg *Message) string {
+			return m.trackLink(url, msg.Campaign.UUID, msg.Subscriber.UUID)
 		},
-		"TrackView": func(campUUID, subUUID string) template.HTML {
+		"TrackView": func(msg *Message) template.HTML {
 			return template.HTML(fmt.Sprintf(`<img src="%s" alt="" />`,
-				fmt.Sprintf(m.cfg.ViewTrackURL, campUUID, subUUID)))
+				fmt.Sprintf(m.cfg.ViewTrackURL, msg.Campaign.UUID, msg.Subscriber.UUID)))
+		},
+		"UnsubscribeURL": func(msg *Message) string {
+			return msg.unsubURL
 		},
 		"Date": func(layout string) string {
 			if layout == "" {

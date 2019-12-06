@@ -48,16 +48,27 @@ const (
 	ContentTpl = "content"
 )
 
+// regTplFunc represents contains a regular expression for wrapping and
+// substituting a Go template function from the user's shorthand to a full
+// function call.
+type regTplFunc struct {
+	regExp  *regexp.Regexp
+	replace string
+}
+
 // Regular expression for matching {{ Track "http://link.com" }} in the template
 // and substituting it with {{ Track "http://link.com" .Campaign.UUID .Subscriber.UUID }}
 // before compilation. This string gimmick is to make linking easier for users.
-var (
-	regexpLinkTag        = regexp.MustCompile("{{(\\s+)?TrackLink\\s+?(\"|`)(.+?)(\"|`)(\\s+)?}}")
-	regexpLinkTagReplace = `{{ TrackLink "$3" .Campaign.UUID .Subscriber.UUID }}`
-
-	regexpViewTag        = regexp.MustCompile(`{{(\s+)?TrackView(\s+)?}}`)
-	regexpViewTagReplace = `{{ TrackView .Campaign.UUID .Subscriber.UUID }}`
-)
+var regTplFuncs = []regTplFunc{
+	regTplFunc{
+		regExp:  regexp.MustCompile("{{(\\s+)?TrackLink\\s+?(\"|`)(.+?)(\"|`)(\\s+)?}}"),
+		replace: `{{ TrackLink "$3" . }}`,
+	},
+	regTplFunc{
+		regExp:  regexp.MustCompile(`{{(\s+)?(TrackView|UnsubscribeURL|OptinURL)(\s+)?}}`),
+		replace: `{{ $2 . }}`,
+	},
+}
 
 // AdminNotifCallback is a callback function that's called
 // when a campaign's status changes.
@@ -264,17 +275,21 @@ func (camps Campaigns) LoadStats(stmt *sqlx.Stmt) error {
 // template and sets the resultant template to Campaign.Tpl.
 func (c *Campaign) CompileTemplate(f template.FuncMap) error {
 	// Compile the base template.
-	t := regexpLinkTag.ReplaceAllString(c.TemplateBody, regexpLinkTagReplace)
-	t = regexpViewTag.ReplaceAllString(t, regexpViewTagReplace)
-	baseTPL, err := template.New(BaseTpl).Funcs(f).Parse(t)
+	body := c.TemplateBody
+	for _, r := range regTplFuncs {
+		body = r.regExp.ReplaceAllString(body, r.replace)
+	}
+	baseTPL, err := template.New(BaseTpl).Funcs(f).Parse(body)
 	if err != nil {
 		return fmt.Errorf("error compiling base template: %v", err)
 	}
 
 	// Compile the campaign message.
-	t = regexpLinkTag.ReplaceAllString(c.Body, regexpLinkTagReplace)
-	t = regexpViewTag.ReplaceAllString(t, regexpViewTagReplace)
-	msgTpl, err := template.New(ContentTpl).Funcs(f).Parse(t)
+	body = c.Body
+	for _, r := range regTplFuncs {
+		body = r.regExp.ReplaceAllString(body, r.replace)
+	}
+	msgTpl, err := template.New(ContentTpl).Funcs(f).Parse(body)
 	if err != nil {
 		return fmt.Errorf("error compiling message: %v", err)
 	}

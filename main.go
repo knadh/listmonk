@@ -313,7 +313,7 @@ func main() {
 		FromEmail:     app.Constants.FromEmail,
 
 		// url.com/unsubscribe/{campaign_uuid}/{subscriber_uuid}
-		UnsubscribeURL: fmt.Sprintf("%s/subscription/%%s/%%s", app.Constants.RootURL),
+		UnsubURL: fmt.Sprintf("%s/subscription/%%s/%%s", app.Constants.RootURL),
 
 		// url.com/link/{campaign_uuid}/{subscriber_uuid}/{link_uuid}
 		LinkTrackURL: fmt.Sprintf("%s/link/%%s/%%s/%%s", app.Constants.RootURL),
