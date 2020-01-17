@@ -186,8 +186,8 @@ func getPagination(q url.Values) pagination {
 		perPage = 0
 	} else {
 		ppi, _ := strconv.Atoi(pp)
-		if ppi < 1 || ppi > maxPerPage {
-			perPage = defaultPerPage
+		if ppi > 0 && ppi <= maxPerPage {
+			perPage = ppi
 		}
 	}
 
