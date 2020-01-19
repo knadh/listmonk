@@ -37,7 +37,7 @@ Alternatively, to run a demo of listmonk, you can quickly spin up a container `d
 - Fast bulk subscriber import
 - Custom subscriber attributes
 - Subscriber querying and segmentation with ad-hoc SQL
-- Rich Go templates and WYSIWYG editor
+- Rich Go HTML templates and WYSIWYG editor
 - Media gallery
 - Multi-threaded multi-SMTP e-mail queues for fast campaign delivery
 - HTTP/JSON APIs for everything
