@@ -217,6 +217,8 @@ class TheFormDef extends React.PureComponent {
   }
 
   componentWillReceiveProps(nextProps) {
+    // On initial load, toggle the send_later switch if the record
+    // has a "send_at" date.
     if (nextProps.record.send_at === this.props.record.send_at) {
       return
     }
@@ -259,6 +261,12 @@ class TheFormDef extends React.PureComponent {
 
       values.body = this.props.body
       values.content_type = this.props.contentType
+
+      if (values.send_at) {
+        values.send_later = true
+      } else {
+        values.send_later = false
+      }
 
       // Create a new campaign.
       this.setState({ loading: true })
@@ -303,8 +311,7 @@ class TheFormDef extends React.PureComponent {
             cs.MethodPut,
             {
               ...values,
-              id: this.props.record.id,
-              send_at: !this.state.sendLater ? null : values.send_at
+              id: this.props.record.id
             }
           )
           .then(resp => {

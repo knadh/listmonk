@@ -1,4 +1,4 @@
-export const DateFormat = "ddd D MMM YYYY, hh:MM A"
+export const DateFormat = "ddd D MMM YYYY, hh:mm A"
 
 // Data types.
 export const ModelUsers = "users"

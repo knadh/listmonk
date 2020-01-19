@@ -411,8 +411,9 @@ u AS (
     -- For each campaign above, update the to_send count.
     UPDATE campaigns AS ca
     SET to_send = co.to_send,
-    max_subscriber_id = co.max_subscriber_id,
-    started_at=(CASE WHEN ca.started_at IS NULL THEN NOW() ELSE ca.started_at END)
+        status = (CASE WHEN status != 'running' THEN 'running' ELSE status END),
+        max_subscriber_id = co.max_subscriber_id,
+        started_at=(CASE WHEN ca.started_at IS NULL THEN NOW() ELSE ca.started_at END)
     FROM (SELECT * FROM counts) co
     WHERE ca.id = co.campaign_id
 )
