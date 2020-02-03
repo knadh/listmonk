@@ -93,6 +93,7 @@ class CreateFormDef extends React.PureComponent {
   }
 
   modalTitle(formType, record) {
+    console.log(formType)
     if (formType === cs.FormCreate) {
       return "Create a list"
     }
@@ -131,7 +132,7 @@ class CreateFormDef extends React.PureComponent {
     return (
       <Modal
         visible={true}
-        title={this.modalTitle(this.state.form, record)}
+        title={this.modalTitle(formType, record)}
         okText={this.state.form === cs.FormCreate ? "Create" : "Save"}
         confirmLoading={this.state.modalWaiting}
         onCancel={onClose}
