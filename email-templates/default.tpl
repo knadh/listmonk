@@ -23,6 +23,19 @@
                 border-radius: 5px;
             }
 
+            .button {
+                background: #7f2aff;
+                border-radius: 3px;
+                text-decoration: none !important;
+                color: #fff !important;
+                font-weight: bold;
+                padding: 10px 30px;
+                display: inline-block;
+            }
+            .button:hover {
+                background: #111;
+            }
+
             .footer {
                 text-align: center;
                 font-size: 12px;
