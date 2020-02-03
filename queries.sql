@@ -326,12 +326,16 @@ WITH campLists AS (
     -- Get the list_ids and their optin statuses for the campaigns found in the previous step.
     SELECT id AS list_id, campaign_id, optin FROM lists
     INNER JOIN campaign_lists ON (campaign_lists.list_id = lists.id)
-    WHERE id=ANY($11::INT[])
+    WHERE id=ANY($12::INT[])
+),
+tpl AS (
+    -- If there's no template_id given, use the defualt template.
+    SELECT (CASE WHEN $11 = 0 THEN id ELSE $11 END) AS id FROM templates WHERE is_default IS TRUE
 ),
 counts AS (
     SELECT COALESCE(COUNT(id), 0) as to_send, COALESCE(MAX(id), 0) as max_sub_id
     FROM subscribers
-    LEFT JOIN campLists ON (campLists.campaign_id = ANY($11::INT[]))
+    LEFT JOIN campLists ON (campLists.campaign_id = ANY($12::INT[]))
     LEFT JOIN subscriber_lists ON (
         subscriber_lists.status != 'unsubscribed' AND
         subscribers.id = subscriber_lists.subscriber_id AND
@@ -341,18 +345,16 @@ counts AS (
         -- any status except for 'unsubscribed' (already excluded above) works.
         (CASE WHEN campLists.optin = 'double' THEN subscriber_lists.status = 'confirmed' ELSE true END)
     )
-    WHERE subscriber_lists.list_id=ANY($11::INT[])
+    WHERE subscriber_lists.list_id=ANY($12::INT[])
     AND subscribers.status='enabled'
 ),
 camp AS (
-    INSERT INTO campaigns (uuid, name, subject, from_email, body, content_type, send_at, tags, messenger, template_id, to_send, max_subscriber_id)
-        SELECT $1, $2, $3, $4, $5, $6, $7, $8, $9, $10,
-                (SELECT to_send FROM counts),
-                (SELECT max_sub_id FROM counts)
+    INSERT INTO campaigns (uuid, type, name, subject, from_email, body, content_type, send_at, tags, messenger, template_id, to_send, max_subscriber_id)
+        SELECT $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, (SELECT id FROM tpl), (SELECT to_send FROM counts), (SELECT max_sub_id FROM counts)
         RETURNING id
 )
 INSERT INTO campaign_lists (campaign_id, list_id, list_name)
-    (SELECT (SELECT id FROM camp), id, name FROM lists WHERE id=ANY($11::INT[]))
+    (SELECT (SELECT id FROM camp), id, name FROM lists WHERE id=ANY($12::INT[]))
     RETURNING (SELECT id FROM camp);
 
 -- name: query-campaigns
