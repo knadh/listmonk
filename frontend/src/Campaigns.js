@@ -104,7 +104,14 @@ class Campaigns extends React.PureComponent {
           const out = []
           out.push(
             <div className="name" key={`name-${record.id}`}>
-              <Link to={`/campaigns/${record.id}`}>{text}</Link>
+              <Link to={`/campaigns/${record.id}`}>{text}</Link>{" "}
+              {record.type === cs.CampaignStatusOptin && (
+                <Tooltip title="Opt-in campaign" placement="top">
+                  <Tag className="campaign-type" color="geekblue">
+                    {record.type}
+                  </Tag>
+                </Tooltip>
+              )}
               <br />
               <span className="text-tiny">{record.subject}</span>
             </div>

@@ -45,6 +45,12 @@ export const CampaignStatusRunning = "running"
 export const CampaignStatusPaused = "paused"
 export const CampaignStatusFinished = "finished"
 export const CampaignStatusCancelled = "cancelled"
+export const CampaignStatusRegular = "regular"
+export const CampaignStatusOptin = "optin"
+
+export const CampaignTypeRegular = "regular"
+export const CampaignTypeOptin = "optin"
+
 export const CampaignContentTypeRichtext = "richtext"
 export const CampaignContentTypeHTML = "html"
 export const CampaignContentTypePlain = "plain"

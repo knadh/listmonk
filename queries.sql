@@ -295,10 +295,11 @@ SELECT COUNT(*) OVER () AS total, lists.*, COUNT(subscriber_lists.subscriber_id)
     GROUP BY lists.id ORDER BY lists.created_at OFFSET $2 LIMIT (CASE WHEN $3 = 0 THEN NULL ELSE $3 END);
 
 -- name: get-lists-by-optin
-SELECT * FROM lists WHERE optin=$1::list_optin AND id = ANY($2::INT[]) ORDER BY name;
-
--- name: get-lists-by-uuid
-SELECT * FROM lists WHERE uuid = ANY($1::UUID[]) ORDER BY name;
+-- Can have a list of IDs or a list of UUIDs.
+SELECT * FROM lists WHERE optin=$1::list_optin AND
+    (CASE WHEN $2::INT[] IS NOT NULL THEN id = ANY($2::INT[])
+          WHEN $3::UUID[] IS NOT NULL THEN uuid = ANY($3::UUID[])
+    END) ORDER BY name;
 
 -- name: create-list
 INSERT INTO lists (uuid, name, type, optin, tags) VALUES($1, $2, $3, $4, $5) RETURNING id;

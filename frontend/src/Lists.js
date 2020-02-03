@@ -269,7 +269,7 @@ class Lists extends React.PureComponent {
               {record.optin === cs.ListOptinDouble && (
                 <p className="text-small">
                   <Tooltip title="Send a campaign to unconfirmed subscribers to opt-in">
-                    <Link to={`/campaigns/new?list_id=${record.id}`}>
+                    <Link onClick={ e => { e.preventDefault(); this.makeOptinCampaign(record)} } to={`/campaigns/new?type=optin&list_id=${record.id}`}>
                       <Icon type="rocket" /> Send opt-in campaign
                     </Link>
                   </Tooltip>
@@ -394,6 +394,45 @@ class Lists extends React.PureComponent {
           description: e.message
         })
       })
+  }
+
+  makeOptinCampaign = record => {
+    this.props
+    .modelRequest(
+      cs.ModelCampaigns,
+      cs.Routes.CreateCampaign,
+      cs.MethodPost,
+      {
+        type: cs.CampaignTypeOptin,
+        name: "Optin: "+ record.name,
+        subject: "Confirm your subscriptions",
+        messenger: "email",
+        content_type: cs.CampaignContentTypeRichtext,
+        lists: [record.id]
+      }
+    )
+    .then(resp => {
+      notification["success"]({
+        placement: cs.MsgPosition,
+        message: "Opt-in campaign created",
+        description: "Opt-in campaign created"
+      })
+
+      // Redirect to the newly created campaign.
+      this.props.route.history.push({
+        pathname: cs.Routes.ViewCampaign.replace(
+          ":id",
+          resp.data.data.id
+        )
+      })
+    })
+    .catch(e => {
+      notification["error"]({
+        placement: cs.MsgPosition,
+        message: "Error",
+        description: e.message
+      })
+    })
   }
 
   handleHideForm = () => {

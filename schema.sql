@@ -3,6 +3,7 @@ DROP TYPE IF EXISTS list_optin CASCADE; CREATE TYPE list_optin AS ENUM ('single'
 DROP TYPE IF EXISTS subscriber_status CASCADE; CREATE TYPE subscriber_status AS ENUM ('enabled', 'disabled', 'blacklisted');
 DROP TYPE IF EXISTS subscription_status CASCADE; CREATE TYPE subscription_status AS ENUM ('unconfirmed', 'confirmed', 'unsubscribed');
 DROP TYPE IF EXISTS campaign_status CASCADE; CREATE TYPE campaign_status AS ENUM ('draft', 'running', 'scheduled', 'paused', 'cancelled', 'finished');
+DROP TYPE IF EXISTS campaign_type CASCADE; CREATE TYPE campaign_type AS ENUM ('regular', 'optin');
 DROP TYPE IF EXISTS content_type CASCADE; CREATE TYPE content_type AS ENUM ('richtext', 'html', 'plain');
 
 -- subscribers
@@ -78,6 +79,10 @@ CREATE TABLE campaigns (
     send_at          TIMESTAMP WITH TIME ZONE,
     status           campaign_status NOT NULL DEFAULT 'draft',
     tags             VARCHAR(100)[],
+
+    -- The subscription statuses of subscribers to which a campaign will be sent.
+    -- For opt-in campaigns, this will be 'unsubscribed'.
+    type campaign_type DEFAULT 'regular',
 
     -- The ID of the messenger backend used to send this campaign. 
     messenger        TEXT NOT NULL,

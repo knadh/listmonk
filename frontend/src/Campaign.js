@@ -259,6 +259,7 @@ class TheFormDef extends React.PureComponent {
         values.tags = []
       }
 
+      values.type = cs.CampaignTypeRegular
       values.body = this.props.body
       values.content_type = this.props.contentType
 
@@ -398,13 +399,13 @@ class TheFormDef extends React.PureComponent {
             }
           });
         } else {
-        // eslint-disable-next-line radix
-        const id = parseInt(p.list_id)
-        if (id) {
-          subLists.push(id)
+          // eslint-disable-next-line radix
+          const id = parseInt(p.list_id)
+          if (id) {
+            subLists.push(id)
+          }
         }
       }
-    }
     }
 
     if (this.record) {
@@ -469,7 +470,8 @@ class TheFormDef extends React.PureComponent {
               })(
                 <Select disabled={this.props.formDisabled} mode="multiple">
                   {this.props.data[cs.ModelLists].hasOwnProperty("results") &&
-                    [...this.props.data[cs.ModelLists].results].map((v, i) => (
+                    [...this.props.data[cs.ModelLists].results].map((v) => 
+                      (record.type !== cs.CampaignTypeOptin || v.optin === cs.ListOptinDouble) && (
                       <Select.Option value={v["id"]} key={v["id"]}>
                         {v["name"]}
                       </Select.Option>
@@ -684,6 +686,11 @@ class Campaign extends React.PureComponent {
                   >
                     {this.state.record.status}
                   </Tag>
+                  {this.state.record.type === cs.CampaignStatusOptin && (
+                    <Tag className="campaign-type" color="geekblue">
+                      {this.state.record.type}
+                    </Tag>
+                  )}
                   {this.state.record.name}
                 </h1>
                 <span className="text-tiny text-grey">

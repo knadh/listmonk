@@ -35,6 +35,8 @@ const (
 	CampaignStatusPaused    = "paused"
 	CampaignStatusFinished  = "finished"
 	CampaignStatusCancelled = "cancelled"
+	CampaignTypeRegular     = "regular"
+	CampaignTypeOptin       = "optin"
 
 	// List.
 	ListTypePrivate = "private"
@@ -152,6 +154,7 @@ type Campaign struct {
 	CampaignMeta
 
 	UUID        string         `db:"uuid" json:"uuid"`
+	Type        string         `db:"type" json:"type"`
 	Name        string         `db:"name" json:"name"`
 	Subject     string         `db:"subject" json:"subject"`
 	FromEmail   string         `db:"from_email" json:"from_email"`
