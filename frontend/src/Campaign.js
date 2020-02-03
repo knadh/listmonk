@@ -37,8 +37,8 @@ class Editor extends React.PureComponent {
     editor: null,
     quill: null,
     rawInput: null,
-    selContentType: "richtext",
-    contentType: "richtext",
+    selContentType: cs.CampaignContentTypeRichtext,
+    contentType: cs.CampaignContentTypeRichtext,
     body: ""
   }
 
@@ -108,11 +108,11 @@ class Editor extends React.PureComponent {
 
     // Switching from richtext to html.
     let body = ""
-    if (this.state.selContentType === "html") {
+    if (this.state.selContentType === cs.CampaignContentTypeHTML) {
       body = this.state.quill.editor.container.firstChild.innerHTML
       // eslint-disable-next-line
       this.state.rawInput.value = body
-    } else if (this.state.selContentType === "richtext") {
+    } else if (this.state.selContentType === cs.CampaignContentTypeRichtext) {
       body = this.state.rawInput.value
       this.state.quill.editor.clipboard.dangerouslyPasteHTML(body, "raw")
     }
@@ -135,8 +135,8 @@ class Editor extends React.PureComponent {
                     style={{ minWidth: 200 }}
                     value={this.state.selContentType}
                   >
-                    <Select.Option value="richtext">Rich Text</Select.Option>
-                    <Select.Option value="html">Raw HTML</Select.Option>
+                    <Select.Option value={ cs.CampaignContentTypeRichtext }>Rich Text</Select.Option>
+                    <Select.Option value={ cs.CampaignContentTypeHTML }>Raw HTML</Select.Option>
                   </Select>
                   {this.state.contentType !== this.state.selContentType && (
                     <div className="actions">
@@ -159,7 +159,7 @@ class Editor extends React.PureComponent {
         <ReactQuill
           readOnly={this.props.formDisabled}
           style={{
-            display: this.state.contentType === "richtext" ? "block" : "none"
+            display: this.state.contentType === cs.CampaignContentTypeRichtext ? "block" : "none"
           }}
           modules={this.quillModules}
           defaultValue={this.props.record.body}
@@ -594,7 +594,7 @@ class Campaign extends React.PureComponent {
       : 0,
     record: {},
     formRef: null,
-    contentType: "richtext",
+    contentType: cs.CampaignContentTypeRichtext,
     previewRecord: null,
     body: "",
     currentTab: "form",
