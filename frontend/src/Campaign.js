@@ -381,19 +381,30 @@ class TheFormDef extends React.PureComponent {
     if (this.props.isSingle && record.lists) {
       subLists = record.lists
         .map(v => {
+          // Exclude deleted lists.
           return v.id !== 0 ? v.id : null
         })
         .filter(v => v !== null)
     } else if (this.props.route.location.search) {
-      // list_id in the query params.
+      // One or more list_id in the query params.
       const p = parseUrl.parse(this.props.route.location.search.substring(1))
       if (p.hasOwnProperty("list_id")) {
+        if(Array.isArray(p.list_id)) {
+          p.list_id.forEach(i => {
+            // eslint-disable-next-line radix
+            const id = parseInt(i)
+            if (id) {
+              subLists.push(id)
+            }
+          });
+        } else {
         // eslint-disable-next-line radix
         const id = parseInt(p.list_id)
         if (id) {
           subLists.push(id)
         }
       }
+    }
     }
 
     if (this.record) {
