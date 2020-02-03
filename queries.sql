@@ -456,12 +456,18 @@ counts AS (
     FROM camps
     LEFT JOIN campLists ON (campLists.campaign_id = camps.id)
     LEFT JOIN subscriber_lists ON (
-        subscriber_lists.status != 'unsubscribed' AND
         subscriber_lists.list_id = campLists.list_id AND
+        (CASE
+            -- For optin campaigns, only e-mail 'unconfirmed' subscribers belonging to 'double' optin lists.
+            WHEN camps.type = 'optin' THEN subscriber_lists.status = 'unconfirmed' AND campLists.optin = 'double'
 
-        -- For double opt-in lists, consider only 'confirmed' subscriptions. For single opt-ins,
-        -- any status except for 'unsubscribed' (already excluded above) works.
-        (CASE WHEN campLists.optin = 'double' THEN subscriber_lists.status = 'confirmed' ELSE true END)
+            -- For regular campaigns with double optin lists, only e-mail 'confirmed' subscribers.
+            WHEN campLists.optin = 'double' THEN subscriber_lists.status = 'confirmed'
+
+            -- For regular campaigns with non-double optin lists, e-mail everyone
+            -- except unsubscribed subscribers.
+            ELSE subscriber_lists.status != 'unsubscribed'
+        END)
     )
     GROUP BY camps.id
 ),
@@ -482,7 +488,7 @@ SELECT * FROM camps;
 -- (last_subscriber_id). Every fetch updates the checkpoint and the sent count, which means
 -- every fetch returns a new batch of subscribers until all rows are exhausted.
 WITH camps AS (
-    SELECT last_subscriber_id, max_subscriber_id
+    SELECT last_subscriber_id, max_subscriber_id, type
     FROM campaigns
     WHERE id=$1 AND status='running'
 ),
@@ -499,7 +505,18 @@ subs AS (
     INNER JOIN subscribers ON (
         subscribers.status != 'blacklisted' AND
         subscribers.id = subscriber_lists.subscriber_id AND
-        (CASE WHEN campLists.optin = 'double' THEN subscriber_lists.status = 'confirmed' ELSE true END)
+
+        (CASE
+            -- For optin campaigns, only e-mail 'unconfirmed' subscribers.
+            WHEN (SELECT type FROM camps) = 'optin' THEN subscriber_lists.status = 'unconfirmed' AND campLists.optin = 'double'
+
+            -- For regular campaigns with double optin lists, only e-mail 'confirmed' subscribers.
+            WHEN campLists.optin = 'double' THEN subscriber_lists.status = 'confirmed'
+
+            -- For regular campaigns with non-double optin lists, e-mail everyone
+            -- except unsubscribed subscribers.
+            ELSE subscriber_lists.status != 'unsubscribed'
+        END)
     )
     WHERE subscriber_lists.status != 'unsubscribed' AND
     id > (SELECT last_subscriber_id FROM camps) AND
