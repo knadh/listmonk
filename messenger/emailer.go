@@ -43,7 +43,7 @@ func NewEmailer(srv ...Server) (Messenger, error) {
 		var auth smtp.Auth
 		if s.AuthProtocol == "cram" {
 			auth = smtp.CRAMMD5Auth(s.Username, s.Password)
-		} else {
+		} else if s.AuthProtocol == "plain" {
 			auth = smtp.PlainAuth("", s.Username, s.Password, s.Host)
 		}
 
