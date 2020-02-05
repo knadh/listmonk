@@ -436,7 +436,6 @@ class Import extends React.PureComponent {
             <code className="csv-headers">
               <span>email,</span>
               <span>name,</span>
-              <span>status,</span>
               <span>attributes</span>
             </code>
           </blockquote>
