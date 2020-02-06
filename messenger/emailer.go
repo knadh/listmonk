@@ -13,14 +13,15 @@ const emName = "email"
 
 // Server represents an SMTP server's credentials.
 type Server struct {
-	Name         string
-	Host         string        `koanf:"host"`
-	Port         int           `koanf:"port"`
-	AuthProtocol string        `koanf:"auth_protocol"`
-	Username     string        `koanf:"username"`
-	Password     string        `koanf:"password"`
-	SendTimeout  time.Duration `koanf:"send_timeout"`
-	MaxConns     int           `koanf:"max_conns"`
+	Name          string
+	Host          string        `koanf:"host"`
+	Port          int           `koanf:"port"`
+	AuthProtocol  string        `koanf:"auth_protocol"`
+	Username      string        `koanf:"username"`
+	Password      string        `koanf:"password"`
+	HelloHostname string        `koanf:"hello_hostname"`
+	SendTimeout   time.Duration `koanf:"send_timeout"`
+	MaxConns      int           `koanf:"max_conns"`
 
 	mailer *email.Pool
 }
@@ -50,6 +51,11 @@ func NewEmailer(srv ...Server) (Messenger, error) {
 		pool, err := email.NewPool(fmt.Sprintf("%s:%d", s.Host, s.Port), s.MaxConns, auth)
 		if err != nil {
 			return nil, err
+		}
+
+		// Optional SMTP HELLO hostname.
+		if server.HelloHostname != "" {
+			pool.SetHelloHostname(server.HelloHostname)
 		}
 
 		s.mailer = pool

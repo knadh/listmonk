@@ -84,6 +84,11 @@ max_idle = 10
         username = "xxxxx"
         password = ""
 
+        # Optional. Some SMTP servers require a FQDN in the hostname.
+        # By default, HELLOs go with "localhost". Set this if a custom
+        # hostname should be used.
+        hello_hostname = ""
+
         # Maximum time (milliseconds) to wait per e-mail push.
         send_timeout = 5000
 

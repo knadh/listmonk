@@ -30,4 +30,6 @@ require (
 	gopkg.in/volatiletech/null.v6 v6.0.0-20170828023728-0bef4e07ae1b
 )
 
+replace github.com/jordan-wright/email => github.com/knadh/email v0.0.0-20200206100304-6d2c7064c2e8
+
 go 1.13
