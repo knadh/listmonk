@@ -83,6 +83,7 @@ export const Routes = {
   UpdateSubscriber: "/api/subscribers/:id",
   DeleteSubscriber: "/api/subscribers/:id",
   DeleteSubscribers: "/api/subscribers",
+  SendSubscriberOptinMail: "/api/subscribers/:id/optin",
   BlacklistSubscriber: "/api/subscribers/:id/blacklist",
   BlacklistSubscribers: "/api/subscribers/blacklist",
   AddSubscriberToLists: "/api/subscribers/lists/:id",

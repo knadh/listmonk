@@ -44,6 +44,7 @@ func registerHandlers(e *echo.Echo) {
 	e.GET("/api/subscribers/:id/export", handleExportSubscriberData)
 	e.POST("/api/subscribers", handleCreateSubscriber)
 	e.PUT("/api/subscribers/:id", handleUpdateSubscriber)
+	e.POST("/api/subscribers/:id/optin", handleGetSubscriberSendOptin)
 	e.PUT("/api/subscribers/blacklist", handleBlacklistSubscribers)
 	e.PUT("/api/subscribers/:id/blacklist", handleBlacklistSubscribers)
 	e.PUT("/api/subscribers/lists/:id", handleManageSubscriberLists)

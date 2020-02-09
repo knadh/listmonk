@@ -1,4 +1,5 @@
 import React from "react"
+import { Link } from "react-router-dom"
 import {
   Row,
   Col,
@@ -156,6 +157,27 @@ class CreateFormDef extends React.PureComponent {
       })
   }
 
+  handleSendOptinMail = record => {
+    this.props
+      .request(cs.Routes.SendSubscriberOptinMail, cs.MethodPost, {
+        id: record.id
+      })
+      .then(r => {
+        notification["success"]({
+          placement: cs.MsgPosition,
+          message: "Sent",
+          description: `Opt-in e-mail sentto ${record.email}`
+        })
+      })
+      .catch(e => {
+        notification["error"]({
+          placement: cs.MsgPosition,
+          message: "Error",
+          description: e.message
+        })
+      })
+  }
+
   render() {
     const { formType, record } = this.props
     const { getFieldDecorator } = this.props.form
@@ -240,6 +262,24 @@ class CreateFormDef extends React.PureComponent {
                 ))}
               </Select>
             )}
+            {record.lists &&
+              record.lists.some(l => {
+                return (
+                  l.subscription_status === cs.SubscriptionStatusUnConfirmed
+                )
+              }) && (
+                <Tooltip title="Send an opt-in e-mail to the subscriber to confirm subscriptions">
+                  <Link
+                    onClick={e => {
+                      e.preventDefault()
+                      this.handleSendOptinMail(record)
+                    }}
+                    to={`/`}
+                  >
+                    <Icon type="rocket" /> Send opt-in e-mail
+                  </Link>
+                </Tooltip>
+              )}
           </Form.Item>
           <Form.Item {...layout} label="Attributes" colon={false}>
             <div>

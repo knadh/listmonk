@@ -232,6 +232,36 @@ func handleUpdateSubscriber(c echo.Context) error {
 	return handleGetSubscriber(c)
 }
 
+// handleGetSubscriberSendOptin sends an optin confirmation e-mail to a subscriber.
+func handleGetSubscriberSendOptin(c echo.Context) error {
+	var (
+		app   = c.Get("app").(*App)
+		id, _ = strconv.Atoi(c.Param("id"))
+		out   models.Subscribers
+	)
+
+	if id < 1 {
+		return echo.NewHTTPError(http.StatusBadRequest, "Invalid subscriber ID.")
+	}
+
+	// Fetch the subscriber.
+	err := app.Queries.GetSubscriber.Select(&out, id, nil)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError,
+			fmt.Sprintf("Error fetching subscriber: %s", pqErrMsg(err)))
+	}
+	if len(out) == 0 {
+		return echo.NewHTTPError(http.StatusBadRequest, "Subscriber not found.")
+	}
+
+	if err := sendOptinConfirmation(out[0], nil, app); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest,
+			"Error sending opt-in e-mail.")
+	}
+
+	return c.JSON(http.StatusOK, okResp{true})
+}
+
 // handleBlacklistSubscribers handles the blacklisting of one or more subscribers.
 // It takes either an ID in the URI, or a list of IDs in the request body.
 func handleBlacklistSubscribers(c echo.Context) error {
