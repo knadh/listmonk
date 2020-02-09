@@ -33,12 +33,13 @@ Alternatively, to run a demo of listmonk, you can quickly spin up a container `d
 ### Current features
 
 - Admin dashboard
-- Multiple public and private lists
+- Public, private, single and double optin lists (with optin campaigns)
 - Fast bulk subscriber import
 - Custom subscriber attributes
-- Subscriber querying and segmentation with ad-hoc SQL
-- Rich Go HTML templates and WYSIWYG editor
-- Media gallery
+- Subscriber querying and segmentation with ad-hoc SQL expressions
+- Subscriber data wipe / export privacy features
+- Rich programmable Go HTML templates and WYSIWYG editor
+- Media gallery (disk and S3 storage)
 - Multi-threaded multi-SMTP e-mail queues for fast campaign delivery
 - HTTP/JSON APIs for everything
 - Clicks and view tracking
