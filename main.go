@@ -30,16 +30,16 @@ import (
 )
 
 type constants struct {
-	RootURL        string `koanf:"root"`
-	LogoURL        string `koanf:"logo_url"`
-	FaviconURL     string `koanf:"favicon_url"`
-	UnsubscribeURL string
-	LinkTrackURL   string
-	ViewTrackURL   string
-	OptinURL       string
-	FromEmail      string         `koanf:"from_email"`
-	NotifyEmails   []string       `koanf:"notify_emails"`
-	Privacy        privacyOptions `koanf:"privacy"`
+	RootURL      string `koanf:"root"`
+	LogoURL      string `koanf:"logo_url"`
+	FaviconURL   string `koanf:"favicon_url"`
+	UnsubURL     string
+	LinkTrackURL string
+	ViewTrackURL string
+	OptinURL     string
+	FromEmail    string         `koanf:"from_email"`
+	NotifyEmails []string       `koanf:"notify_emails"`
+	Privacy      privacyOptions `koanf:"privacy"`
 }
 
 type privacyOptions struct {
@@ -309,7 +309,7 @@ func main() {
 
 	// Static URLS.
 	// url.com/subscription/{campaign_uuid}/{subscriber_uuid}
-	c.UnsubscribeURL = fmt.Sprintf("%s/subscription/%%s/%%s", app.Constants.RootURL)
+	c.UnsubURL = fmt.Sprintf("%s/subscription/%%s/%%s", app.Constants.RootURL)
 
 	// url.com/subscription/optin/{subscriber_uuid}
 	c.OptinURL = fmt.Sprintf("%s/subscription/optin/%%s?%%s", app.Constants.RootURL)
@@ -328,7 +328,7 @@ func main() {
 		Concurrency:   ko.Int("app.concurrency"),
 		MaxSendErrors: ko.Int("app.max_send_errors"),
 		FromEmail:     app.Constants.FromEmail,
-		UnsubURL:      c.UnsubscribeURL,
+		UnsubURL:      c.UnsubURL,
 		OptinURL:      c.OptinURL,
 		LinkTrackURL:  c.LinkTrackURL,
 		ViewTrackURL:  c.ViewTrackURL,
