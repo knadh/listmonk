@@ -49,12 +49,24 @@ func install(app *App, qMap goyesql.Queries, prompt bool) {
 	}
 
 	// Sample list.
-	var listID int
-	if err := q.CreateList.Get(&listID,
+	var (
+		defList   int
+		optinList int
+	)
+	if err := q.CreateList.Get(&defList,
 		uuid.NewV4().String(),
 		"Default list",
-		models.ListTypePublic,
+		models.ListTypePrivate,
 		models.ListOptinSingle,
+		pq.StringArray{"test"},
+	); err != nil {
+		logger.Fatalf("Error creating list: %v", err)
+	}
+
+	if err := q.CreateList.Get(&optinList, uuid.NewV4().String(),
+		"Opt-in list",
+		models.ListTypePublic,
+		models.ListOptinDouble,
 		pq.StringArray{"test"},
 	); err != nil {
 		logger.Fatalf("Error creating list: %v", err)
@@ -66,7 +78,16 @@ func install(app *App, qMap goyesql.Queries, prompt bool) {
 		"john@example.com",
 		"John Doe",
 		`{"type": "known", "good": true, "city": "Bengaluru"}`,
-		pq.Int64Array{int64(listID)},
+		pq.Int64Array{int64(defList)},
+	); err != nil {
+		logger.Fatalf("Error creating subscriber: %v", err)
+	}
+	if _, err := q.UpsertSubscriber.Exec(
+		uuid.NewV4(),
+		"anon@example.com",
+		"Anon Doe",
+		`{"type": "unknown", "good": true, "city": "Bengaluru"}`,
+		pq.Int64Array{int64(optinList)},
 	); err != nil {
 		logger.Fatalf("Error creating subscriber: %v", err)
 	}
@@ -92,6 +113,7 @@ func install(app *App, qMap goyesql.Queries, prompt bool) {
 	sendAt := time.Now()
 	sendAt.Add(time.Minute * 43200)
 	if _, err := q.CreateCampaign.Exec(uuid.NewV4(),
+		models.CampaignTypeRegular,
 		"Test campaign",
 		"Welcome to listmonk",
 		"No Reply <noreply@yoursite.com>",
