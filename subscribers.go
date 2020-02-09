@@ -167,11 +167,10 @@ func handleCreateSubscriber(c echo.Context) error {
 
 	// Insert and read ID.
 	var (
-		newID int
 		email = strings.ToLower(strings.TrimSpace(req.Email))
 	)
 	req.UUID = uuid.NewV4().String()
-	err := app.Queries.InsertSubscriber.Get(&newID,
+	err := app.Queries.InsertSubscriber.Get(&req.ID,
 		req.UUID,
 		email,
 		strings.TrimSpace(req.Name),
@@ -187,11 +186,12 @@ func handleCreateSubscriber(c echo.Context) error {
 	}
 
 	// If the lists are double-optins, send confirmation e-mails.
+	// Todo: This arbitrary goroutine should be moved to a centralised pool.
 	go sendOptinConfirmation(req.Subscriber, []int64(req.Lists), app)
 
 	// Hand over to the GET handler to return the last insertion.
 	c.SetParamNames("id")
-	c.SetParamValues(fmt.Sprintf("%d", newID))
+	c.SetParamValues(fmt.Sprintf("%d", req.ID))
 	return c.JSON(http.StatusOK, handleGetSubscriber(c))
 }
 
@@ -524,9 +524,10 @@ func sendOptinConfirmation(sub models.Subscriber, listIDs []int64, app *App) err
 	var lists []models.List
 
 	// Fetch double opt-in lists from the given list IDs.
-	err := app.Queries.GetListsByOptin.Select(&lists, models.ListOptinDouble, pq.Int64Array(listIDs))
-	if err != nil {
-		app.Logger.Printf("error fetching lists for optin: %s", pqErrMsg(err))
+	// Get the list of subscription lists where the subscriber hasn't confirmed.
+	if err := app.Queries.GetSubscriberLists.Select(&lists, sub.ID, nil,
+		pq.Int64Array(listIDs), nil, models.SubscriptionStatusUnconfirmed, nil); err != nil {
+		app.Logger.Printf("error fetching lists for opt-in: %s", pqErrMsg(err))
 		return err
 	}
 

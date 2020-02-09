@@ -18,7 +18,13 @@ WITH sub AS (
 SELECT * FROM lists
     LEFT JOIN subscriber_lists ON (lists.id = subscriber_lists.list_id)
     WHERE subscriber_id = (SELECT id FROM sub)
-    AND (CASE WHEN $3 != '' THEN subscriber_lists.status = $3::subscription_status END);
+    -- Optional list IDs or UUIDs to filter.
+    AND (CASE WHEN $3::INT[] IS NOT NULL THEN id = ANY($3::INT[])
+          WHEN $4::UUID[] IS NOT NULL THEN uuid = ANY($4::UUID[])
+          ELSE TRUE
+    END)
+    AND (CASE WHEN $5 != '' THEN subscriber_lists.status = $5::subscription_status END)
+    AND (CASE WHEN $6 != '' THEN lists.optin = $6::list_optin ELSE TRUE END);
 
 -- name: get-subscriber-lists-lazy
 -- Get lists associations of subscribers given a list of subscriber IDs.

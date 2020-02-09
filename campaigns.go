@@ -597,9 +597,9 @@ func makeOptinCampaignMessage(o campaignReq, app *App) (campaignReq, error) {
 	var lists []models.List
 	err := app.Queries.GetListsByOptin.Select(&lists, models.ListOptinDouble, pq.Int64Array(o.ListIDs), nil)
 	if err != nil {
-		app.Logger.Printf("error fetching lists for optin: %s", pqErrMsg(err))
+		app.Logger.Printf("error fetching lists for opt-in: %s", pqErrMsg(err))
 		return o, echo.NewHTTPError(http.StatusInternalServerError,
-			"Error fetching optin lists.")
+			"Error fetching opt-in lists.")
 	}
 
 	// No opt-in lists.

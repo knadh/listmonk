@@ -136,20 +136,14 @@ func handleOptinPage(c echo.Context) error {
 						`One or more UUIDs in the request are invalid.`))
 			}
 		}
+	}
 
-		// Get lists by UUIDs.
-		if err := app.Queries.GetListsByOptin.Select(&out.Lists, models.ListOptinDouble, nil, pq.StringArray(out.ListUUIDs)); err != nil {
-			app.Logger.Printf("error fetching lists for optin: %s", pqErrMsg(err))
-			return c.Render(http.StatusInternalServerError, "message",
-				makeMsgTpl("Error", "", `Error fetching lists. Please retry.`))
-		}
-	} else {
-		// Otherwise, get the list of all unconfirmed lists for the subscriber.
-		if err := app.Queries.GetSubscriberLists.Select(&out.Lists, 0, subUUID, models.SubscriptionStatusUnconfirmed); err != nil {
-			app.Logger.Printf("error fetching lists for optin: %s", pqErrMsg(err))
-			return c.Render(http.StatusInternalServerError, "message",
-				makeMsgTpl("Error", "", `Error fetching lists. Please retry.`))
-		}
+	// Get the list of subscription lists where the subscriber hasn't confirmed.
+	if err := app.Queries.GetSubscriberLists.Select(&out.Lists, 0, subUUID,
+		nil, pq.StringArray(out.ListUUIDs), models.SubscriptionStatusUnconfirmed, nil); err != nil {
+		app.Logger.Printf("error fetching lists for opt-in: %s", pqErrMsg(err))
+		return c.Render(http.StatusInternalServerError, "message",
+			makeMsgTpl("Error", "", `Error fetching lists. Please retry.`))
 	}
 
 	// There are no lists to confirm.
