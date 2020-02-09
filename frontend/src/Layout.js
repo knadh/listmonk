@@ -230,7 +230,8 @@ class Base extends React.Component {
               >
                 listmonk
               </a>{" "}
-              &copy; 2019 {year !== 2019 ? " - " + year : ""} &mdash;{" "}
+              &copy; 2019 {year !== 2019 ? " - " + year : ""}.
+              Version { process.env.REACT_APP_VERSION } &mdash;{" "}
               <a
                 href="https://listmonk.app/docs"
                 target="_blank"

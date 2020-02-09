@@ -19,7 +19,7 @@ build:
 
 .PHONY: build-frontend
 build-frontend:
-	cd frontend && yarn build
+	export REACT_APP_VERSION="${VERSION}" && cd frontend && yarn build
 
 .PHONY: run
 run: build
@@ -27,7 +27,7 @@ run: build
 
 .PHONY: run-frontend
 run-frontend:
-	cd frontend && yarn start
+	export REACT_APP_VERSION="${VERSION}" && cd frontend && yarn start
 
 .PHONY: test
 test:
