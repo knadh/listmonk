@@ -10,14 +10,17 @@ import (
 
 	"github.com/gofrs/uuid"
 	"github.com/jmoiron/sqlx"
-	"github.com/knadh/goyesql"
+	goyesqlx "github.com/knadh/goyesql/v2/sqlx"
 	"github.com/knadh/listmonk/models"
+	"github.com/knadh/stuffbin"
 	"github.com/lib/pq"
 )
 
 // install runs the first time setup of creating and
 // migrating the database and creating the super user.
-func install(app *App, qMap goyesql.Queries, prompt bool) {
+func install(db *sqlx.DB, fs stuffbin.FileSystem, prompt bool) {
+	qMap, _ := initQueries(queryFilePath, db, fs, false)
+
 	fmt.Println("")
 	fmt.Println("** First time installation **")
 	fmt.Printf("** IMPORTANT: This will wipe existing listmonk tables and types in the DB '%s' **",
@@ -28,7 +31,7 @@ func install(app *App, qMap goyesql.Queries, prompt bool) {
 		var ok string
 		fmt.Print("Continue (y/n)?  ")
 		if _, err := fmt.Scanf("%s", &ok); err != nil {
-			logger.Fatalf("Error reading value from terminal: %v", err)
+			lo.Fatalf("Error reading value from terminal: %v", err)
 		}
 		if strings.ToLower(ok) != "y" {
 			fmt.Println("Installation cancelled.")
@@ -37,15 +40,15 @@ func install(app *App, qMap goyesql.Queries, prompt bool) {
 	}
 
 	// Migrate the tables.
-	err := installMigrate(app.DB, app)
+	err := installMigrate(db, fs)
 	if err != nil {
-		logger.Fatalf("Error migrating DB schema: %v", err)
+		lo.Fatalf("Error migrating DB schema: %v", err)
 	}
 
 	// Load the queries.
 	var q Queries
-	if err := scanQueriesToStruct(&q, qMap, app.DB.Unsafe()); err != nil {
-		logger.Fatalf("error loading SQL queries: %v", err)
+	if err := goyesqlx.ScanToStruct(&q, qMap, db.Unsafe()); err != nil {
+		lo.Fatalf("error loading SQL queries: %v", err)
 	}
 
 	// Sample list.
@@ -60,7 +63,7 @@ func install(app *App, qMap goyesql.Queries, prompt bool) {
 		models.ListOptinSingle,
 		pq.StringArray{"test"},
 	); err != nil {
-		logger.Fatalf("Error creating list: %v", err)
+		lo.Fatalf("Error creating list: %v", err)
 	}
 
 	if err := q.CreateList.Get(&optinList, uuid.Must(uuid.NewV4()),
@@ -69,7 +72,7 @@ func install(app *App, qMap goyesql.Queries, prompt bool) {
 		models.ListOptinDouble,
 		pq.StringArray{"test"},
 	); err != nil {
-		logger.Fatalf("Error creating list: %v", err)
+		lo.Fatalf("Error creating list: %v", err)
 	}
 
 	// Sample subscriber.
@@ -80,7 +83,7 @@ func install(app *App, qMap goyesql.Queries, prompt bool) {
 		`{"type": "known", "good": true, "city": "Bengaluru"}`,
 		pq.Int64Array{int64(defList)},
 	); err != nil {
-		logger.Fatalf("Error creating subscriber: %v", err)
+		lo.Fatalf("Error creating subscriber: %v", err)
 	}
 	if _, err := q.UpsertSubscriber.Exec(
 		uuid.Must(uuid.NewV4()),
@@ -89,7 +92,7 @@ func install(app *App, qMap goyesql.Queries, prompt bool) {
 		`{"type": "unknown", "good": true, "city": "Bengaluru"}`,
 		pq.Int64Array{int64(optinList)},
 	); err != nil {
-		logger.Fatalf("Error creating subscriber: %v", err)
+		lo.Fatalf("Error creating subscriber: %v", err)
 	}
 
 	// Default template.
@@ -103,10 +106,10 @@ func install(app *App, qMap goyesql.Queries, prompt bool) {
 		"Default template",
 		string(tplBody),
 	); err != nil {
-		logger.Fatalf("error creating default template: %v", err)
+		lo.Fatalf("error creating default template: %v", err)
 	}
 	if _, err := q.SetDefaultTemplate.Exec(tplID); err != nil {
-		logger.Fatalf("error setting default template: %v", err)
+		lo.Fatalf("error setting default template: %v", err)
 	}
 
 	// Sample campaign.
@@ -126,17 +129,17 @@ func install(app *App, qMap goyesql.Queries, prompt bool) {
 		1,
 		pq.Int64Array{1},
 	); err != nil {
-		logger.Fatalf("error creating sample campaign: %v", err)
+		lo.Fatalf("error creating sample campaign: %v", err)
 	}
 
-	logger.Printf("Setup complete")
-	logger.Printf(`Run the program and access the dashboard at %s`, ko.String("app.address"))
+	lo.Printf("Setup complete")
+	lo.Printf(`Run the program and access the dashboard at %s`, ko.MustString("app.address"))
 
 }
 
 // installMigrate executes the SQL schema and creates the necessary tables and types.
-func installMigrate(db *sqlx.DB, app *App) error {
-	q, err := app.FS.Read("/schema.sql")
+func installMigrate(db *sqlx.DB, fs stuffbin.FileSystem) error {
+	q, err := fs.Read("/schema.sql")
 	if err != nil {
 		return err
 	}
@@ -156,11 +159,7 @@ func newConfigFile() error {
 
 	// Initialize the static file system into which all
 	// required static assets (.sql, .js files etc.) are loaded.
-	fs, err := initFileSystem(os.Args[0])
-	if err != nil {
-		return err
-	}
-
+	fs := initFS()
 	b, err := fs.Read("config.toml.sample")
 	if err != nil {
 		return fmt.Errorf("error reading sample config (is binary stuffed?): %v", err)

@@ -27,9 +27,9 @@ func handleGetConfigScript(c echo.Context) error {
 	var (
 		app = c.Get("app").(*App)
 		out = configScript{
-			RootURL:    app.Constants.RootURL,
-			FromEmail:  app.Constants.FromEmail,
-			Messengers: app.Manager.GetMessengerNames(),
+			RootURL:    app.constants.RootURL,
+			FromEmail:  app.constants.FromEmail,
+			Messengers: app.manager.GetMessengerNames(),
 		}
 
 		b = bytes.Buffer{}
@@ -48,7 +48,7 @@ func handleGetDashboardStats(c echo.Context) error {
 		out dashboardStats
 	)
 
-	if err := app.Queries.GetDashboardStats.Get(&out); err != nil {
+	if err := app.queries.GetDashboardStats.Get(&out); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			fmt.Sprintf("Error fetching dashboard stats: %s", pqErrMsg(err)))
 	}

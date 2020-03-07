@@ -97,19 +97,19 @@ func handleSubscriptionPage(c echo.Context) error {
 	)
 	out.SubUUID = subUUID
 	out.Title = "Unsubscribe from mailing list"
-	out.AllowBlacklist = app.Constants.Privacy.AllowBlacklist
-	out.AllowExport = app.Constants.Privacy.AllowExport
-	out.AllowWipe = app.Constants.Privacy.AllowWipe
+	out.AllowBlacklist = app.constants.Privacy.AllowBlacklist
+	out.AllowExport = app.constants.Privacy.AllowExport
+	out.AllowWipe = app.constants.Privacy.AllowWipe
 
 	// Unsubscribe.
 	if unsub {
 		// Is blacklisting allowed?
-		if !app.Constants.Privacy.AllowBlacklist {
+		if !app.constants.Privacy.AllowBlacklist {
 			blacklist = false
 		}
 
-		if _, err := app.Queries.Unsubscribe.Exec(campUUID, subUUID, blacklist); err != nil {
-			app.Logger.Printf("error unsubscribing: %v", err)
+		if _, err := app.queries.Unsubscribe.Exec(campUUID, subUUID, blacklist); err != nil {
+			app.log.Printf("error unsubscribing: %v", err)
 			return c.Render(http.StatusInternalServerError, tplMessage,
 				makeMsgTpl("Error", "",
 					`Error processing request. Please retry.`))
@@ -152,9 +152,9 @@ func handleOptinPage(c echo.Context) error {
 	}
 
 	// Get the list of subscription lists where the subscriber hasn't confirmed.
-	if err := app.Queries.GetSubscriberLists.Select(&out.Lists, 0, subUUID,
+	if err := app.queries.GetSubscriberLists.Select(&out.Lists, 0, subUUID,
 		nil, pq.StringArray(out.ListUUIDs), models.SubscriptionStatusUnconfirmed, nil); err != nil {
-		app.Logger.Printf("error fetching lists for opt-in: %s", pqErrMsg(err))
+		app.log.Printf("error fetching lists for opt-in: %s", pqErrMsg(err))
 		return c.Render(http.StatusInternalServerError, tplMessage,
 			makeMsgTpl("Error", "", `Error fetching lists. Please retry.`))
 	}
@@ -168,8 +168,8 @@ func handleOptinPage(c echo.Context) error {
 
 	// Confirm.
 	if confirm {
-		if _, err := app.Queries.ConfirmSubscriptionOptin.Exec(subUUID, pq.StringArray(out.ListUUIDs)); err != nil {
-			app.Logger.Printf("error unsubscribing: %v", err)
+		if _, err := app.queries.ConfirmSubscriptionOptin.Exec(subUUID, pq.StringArray(out.ListUUIDs)); err != nil {
+			app.log.Printf("error unsubscribing: %v", err)
 			return c.Render(http.StatusInternalServerError, tplMessage,
 				makeMsgTpl("Error", "",
 					`Error processing request. Please retry.`))
@@ -233,9 +233,9 @@ func handleLinkRedirect(c echo.Context) error {
 	)
 
 	var url string
-	if err := app.Queries.RegisterLinkClick.Get(&url, linkUUID, campUUID, subUUID); err != nil {
+	if err := app.queries.RegisterLinkClick.Get(&url, linkUUID, campUUID, subUUID); err != nil {
 		if err != sql.ErrNoRows {
-			app.Logger.Printf("error fetching redirect link: %s", err)
+			app.log.Printf("error fetching redirect link: %s", err)
 		}
 
 		return c.Render(http.StatusInternalServerError, tplMessage,
@@ -255,8 +255,8 @@ func handleRegisterCampaignView(c echo.Context) error {
 		campUUID = c.Param("campUUID")
 		subUUID  = c.Param("subUUID")
 	)
-	if _, err := app.Queries.RegisterCampaignView.Exec(campUUID, subUUID); err != nil {
-		app.Logger.Printf("error registering campaign view: %s", err)
+	if _, err := app.queries.RegisterCampaignView.Exec(campUUID, subUUID); err != nil {
+		app.log.Printf("error registering campaign view: %s", err)
 	}
 	c.Response().Header().Set("Cache-Control", "no-cache")
 	return c.Blob(http.StatusOK, "image/png", pixelPNG)
@@ -272,7 +272,7 @@ func handleSelfExportSubscriberData(c echo.Context) error {
 		subUUID = c.Param("subUUID")
 	)
 	// Is export allowed?
-	if !app.Constants.Privacy.AllowExport {
+	if !app.constants.Privacy.AllowExport {
 		return c.Render(http.StatusBadRequest, tplMessage,
 			makeMsgTpl("Invalid request", "", "The feature is not available."))
 	}
@@ -280,9 +280,9 @@ func handleSelfExportSubscriberData(c echo.Context) error {
 	// Get the subscriber's data. A single query that gets the profile,
 	// list subscriptions, campaign views, and link clicks. Names of
 	// private lists are replaced with "Private list".
-	data, b, err := exportSubscriberData(0, subUUID, app.Constants.Privacy.Exportable, app)
+	data, b, err := exportSubscriberData(0, subUUID, app.constants.Privacy.Exportable, app)
 	if err != nil {
-		app.Logger.Printf("error exporting subscriber data: %s", err)
+		app.log.Printf("error exporting subscriber data: %s", err)
 		return c.Render(http.StatusInternalServerError, tplMessage,
 			makeMsgTpl("Error processing request", "",
 				"There was an error processing your request. Please try later."))
@@ -290,8 +290,8 @@ func handleSelfExportSubscriberData(c echo.Context) error {
 
 	// Send the data out to the subscriber as an atachment.
 	var msg bytes.Buffer
-	if err := app.NotifTpls.ExecuteTemplate(&msg, notifSubscriberData, data); err != nil {
-		app.Logger.Printf("error compiling notification template '%s': %v",
+	if err := app.notifTpls.ExecuteTemplate(&msg, notifSubscriberData, data); err != nil {
+		app.log.Printf("error compiling notification template '%s': %v",
 			notifSubscriberData, err)
 		return c.Render(http.StatusInternalServerError, tplMessage,
 			makeMsgTpl("Error preparing data", "",
@@ -299,7 +299,7 @@ func handleSelfExportSubscriberData(c echo.Context) error {
 	}
 
 	const fname = "profile.json"
-	if err := app.Messenger.Push(app.Constants.FromEmail,
+	if err := app.messenger.Push(app.constants.FromEmail,
 		[]string{data.Email},
 		"Your profile data",
 		msg.Bytes(),
@@ -311,7 +311,7 @@ func handleSelfExportSubscriberData(c echo.Context) error {
 			},
 		},
 	); err != nil {
-		app.Logger.Printf("error e-mailing subscriber profile: %s", err)
+		app.log.Printf("error e-mailing subscriber profile: %s", err)
 		return c.Render(http.StatusInternalServerError, tplMessage,
 			makeMsgTpl("Error e-mailing data", "",
 				"There was an error e-mailing your data. Please try later."))
@@ -331,14 +331,14 @@ func handleWipeSubscriberData(c echo.Context) error {
 	)
 
 	// Is wiping allowed?
-	if !app.Constants.Privacy.AllowExport {
+	if !app.constants.Privacy.AllowExport {
 		return c.Render(http.StatusBadRequest, tplMessage,
 			makeMsgTpl("Invalid request", "",
 				"The feature is not available."))
 	}
 
-	if _, err := app.Queries.DeleteSubscribers.Exec(nil, pq.StringArray{subUUID}); err != nil {
-		app.Logger.Printf("error wiping subscriber data: %s", err)
+	if _, err := app.queries.DeleteSubscribers.Exec(nil, pq.StringArray{subUUID}); err != nil {
+		app.log.Printf("error wiping subscriber data: %s", err)
 		return c.Render(http.StatusInternalServerError, tplMessage,
 			makeMsgTpl("Error processing request", "",
 				"There was an error processing your request. Please try later."))

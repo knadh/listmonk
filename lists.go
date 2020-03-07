@@ -37,9 +37,9 @@ func handleGetLists(c echo.Context) error {
 		single = true
 	}
 
-	err := app.Queries.GetLists.Select(&out.Results, listID, pg.Offset, pg.Limit)
+	err := app.queries.GetLists.Select(&out.Results, listID, pg.Offset, pg.Limit)
 	if err != nil {
-		app.Logger.Printf("error fetching lists: %v", err)
+		app.log.Printf("error fetching lists: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			fmt.Sprintf("Error fetching lists: %s", pqErrMsg(err)))
 	}
@@ -87,20 +87,20 @@ func handleCreateList(c echo.Context) error {
 
 	uu, err := uuid.NewV4()
 	if err != nil {
-		app.Logger.Printf("error generating UUID: %v", err)
+		app.log.Printf("error generating UUID: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, "Error generating UUID")
 	}
 
 	// Insert and read ID.
 	var newID int
 	o.UUID = uu.String()
-	if err := app.Queries.CreateList.Get(&newID,
+	if err := app.queries.CreateList.Get(&newID,
 		o.UUID,
 		o.Name,
 		o.Type,
 		o.Optin,
 		pq.StringArray(normalizeTags(o.Tags))); err != nil {
-		app.Logger.Printf("error creating list: %v", err)
+		app.log.Printf("error creating list: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			fmt.Sprintf("Error creating list: %s", pqErrMsg(err)))
 	}
@@ -128,10 +128,10 @@ func handleUpdateList(c echo.Context) error {
 		return err
 	}
 
-	res, err := app.Queries.UpdateList.Exec(id,
+	res, err := app.queries.UpdateList.Exec(id,
 		o.Name, o.Type, o.Optin, pq.StringArray(normalizeTags(o.Tags)))
 	if err != nil {
-		app.Logger.Printf("error updating list: %v", err)
+		app.log.Printf("error updating list: %v", err)
 		return echo.NewHTTPError(http.StatusBadRequest,
 			fmt.Sprintf("Error updating list: %s", pqErrMsg(err)))
 	}
@@ -165,8 +165,8 @@ func handleDeleteLists(c echo.Context) error {
 		ids = append(ids, id)
 	}
 
-	if _, err := app.Queries.DeleteLists.Exec(ids); err != nil {
-		app.Logger.Printf("error deleting lists: %v", err)
+	if _, err := app.queries.DeleteLists.Exec(ids); err != nil {
+		app.log.Printf("error deleting lists: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			fmt.Sprintf("Error deleting: %v", err))
 	}

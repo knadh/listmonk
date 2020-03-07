@@ -25,7 +25,7 @@ func handleImportSubscribers(c echo.Context) error {
 	app := c.Get("app").(*App)
 
 	// Is an import already running?
-	if app.Importer.GetStats().Status == subimporter.StatusImporting {
+	if app.importer.GetStats().Status == subimporter.StatusImporting {
 		return echo.NewHTTPError(http.StatusBadRequest,
 			"An import is already running. Wait for it to finish or stop it before trying again.")
 	}
@@ -71,7 +71,7 @@ func handleImportSubscribers(c echo.Context) error {
 	}
 
 	// Start the importer session.
-	impSess, err := app.Importer.NewSession(file.Filename, r.Mode, r.ListIDs)
+	impSess, err := app.importer.NewSession(file.Filename, r.Mode, r.ListIDs)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest,
 			fmt.Sprintf("Error starting import session: %v", err))
@@ -95,14 +95,14 @@ func handleImportSubscribers(c echo.Context) error {
 		go impSess.LoadCSV(dir+"/"+files[0], rune(r.Delim[0]))
 	}
 
-	return c.JSON(http.StatusOK, okResp{app.Importer.GetStats()})
+	return c.JSON(http.StatusOK, okResp{app.importer.GetStats()})
 }
 
 // handleGetImportSubscribers returns import statistics.
 func handleGetImportSubscribers(c echo.Context) error {
 	var (
 		app = c.Get("app").(*App)
-		s   = app.Importer.GetStats()
+		s   = app.importer.GetStats()
 	)
 	return c.JSON(http.StatusOK, okResp{s})
 }
@@ -110,7 +110,7 @@ func handleGetImportSubscribers(c echo.Context) error {
 // handleGetImportSubscriberStats returns import statistics.
 func handleGetImportSubscriberStats(c echo.Context) error {
 	app := c.Get("app").(*App)
-	return c.JSON(http.StatusOK, okResp{string(app.Importer.GetLogs())})
+	return c.JSON(http.StatusOK, okResp{string(app.importer.GetLogs())})
 }
 
 // handleStopImportSubscribers sends a stop signal to the importer.
@@ -118,6 +118,6 @@ func handleGetImportSubscriberStats(c echo.Context) error {
 // is finished, it's state is cleared.
 func handleStopImportSubscribers(c echo.Context) error {
 	app := c.Get("app").(*App)
-	app.Importer.Stop()
-	return c.JSON(http.StatusOK, okResp{app.Importer.GetStats()})
+	app.importer.Stop()
+	return c.JSON(http.StatusOK, okResp{app.importer.GetStats()})
 }

@@ -48,7 +48,7 @@ func handleGetTemplates(c echo.Context) error {
 		single = true
 	}
 
-	err := app.Queries.GetTemplates.Select(&out, id, noBody)
+	err := app.queries.GetTemplates.Select(&out, id, noBody)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			fmt.Sprintf("Error fetching templates: %s", pqErrMsg(err)))
@@ -87,7 +87,7 @@ func handlePreviewTemplate(c echo.Context) error {
 			return echo.NewHTTPError(http.StatusBadRequest, "Invalid ID.")
 		}
 
-		err := app.Queries.GetTemplates.Select(&tpls, id, false)
+		err := app.queries.GetTemplates.Select(&tpls, id, false)
 		if err != nil {
 			return echo.NewHTTPError(http.StatusInternalServerError,
 				fmt.Sprintf("Error fetching templates: %s", pqErrMsg(err)))
@@ -109,12 +109,12 @@ func handlePreviewTemplate(c echo.Context) error {
 		Body:         dummyTpl,
 	}
 
-	if err := camp.CompileTemplate(app.Manager.TemplateFuncs(&camp)); err != nil {
+	if err := camp.CompileTemplate(app.manager.TemplateFuncs(&camp)); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Error compiling template: %v", err))
 	}
 
 	// Render the message body.
-	m := app.Manager.NewMessage(&camp, &dummySubscriber)
+	m := app.manager.NewMessage(&camp, &dummySubscriber)
 	if err := m.Render(); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest,
 			fmt.Sprintf("Error rendering message: %v", err))
@@ -140,7 +140,7 @@ func handleCreateTemplate(c echo.Context) error {
 
 	// Insert and read ID.
 	var newID int
-	if err := app.Queries.CreateTemplate.Get(&newID,
+	if err := app.queries.CreateTemplate.Get(&newID,
 		o.Name,
 		o.Body); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError,
@@ -174,7 +174,7 @@ func handleUpdateTemplate(c echo.Context) error {
 	}
 
 	// TODO: PASSWORD HASHING.
-	res, err := app.Queries.UpdateTemplate.Exec(o.ID, o.Name, o.Body)
+	res, err := app.queries.UpdateTemplate.Exec(o.ID, o.Name, o.Body)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			fmt.Sprintf("Error updating template: %s", pqErrMsg(err)))
@@ -198,7 +198,7 @@ func handleTemplateSetDefault(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "Invalid ID.")
 	}
 
-	_, err := app.Queries.SetDefaultTemplate.Exec(id)
+	_, err := app.queries.SetDefaultTemplate.Exec(id)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			fmt.Sprintf("Error updating template: %s", pqErrMsg(err)))
@@ -221,7 +221,7 @@ func handleDeleteTemplate(c echo.Context) error {
 	}
 
 	var delID int
-	err := app.Queries.DeleteTemplate.Get(&delID, id)
+	err := app.queries.DeleteTemplate.Get(&delID, id)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return c.JSON(http.StatusOK, okResp{true})

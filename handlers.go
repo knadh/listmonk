@@ -35,7 +35,7 @@ type pagination struct {
 var reUUID = regexp.MustCompile("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$")
 
 // registerHandlers registers HTTP handlers.
-func registerHandlers(e *echo.Echo) {
+func registerHTTPHandlers(e *echo.Echo) {
 	e.GET("/", handleIndexPage)
 	e.GET("/api/config.js", handleGetConfigScript)
 	e.GET("/api/dashboard/stats", handleGetDashboardStats)
@@ -128,7 +128,7 @@ func registerHandlers(e *echo.Echo) {
 func handleIndexPage(c echo.Context) error {
 	app := c.Get("app").(*App)
 
-	b, err := app.FS.Read("/frontend/index.html")
+	b, err := app.fs.Read("/frontend/index.html")
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
@@ -161,8 +161,8 @@ func subscriberExists(next echo.HandlerFunc, params ...string) echo.HandlerFunc 
 		)
 
 		var exists bool
-		if err := app.Queries.SubscriberExists.Get(&exists, 0, subUUID); err != nil {
-			app.Logger.Printf("error checking subscriber existence: %v", err)
+		if err := app.queries.SubscriberExists.Get(&exists, 0, subUUID); err != nil {
+			app.log.Printf("error checking subscriber existence: %v", err)
 			return c.Render(http.StatusInternalServerError, tplMessage,
 				makeMsgTpl("Error", "",
 					`Error processing request. Please retry.`))
