@@ -39,6 +39,7 @@ func handleGetLists(c echo.Context) error {
 
 	err := app.Queries.GetLists.Select(&out.Results, listID, pg.Offset, pg.Limit)
 	if err != nil {
+		app.Logger.Printf("error fetching lists: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			fmt.Sprintf("Error fetching lists: %s", pqErrMsg(err)))
 	}
@@ -64,7 +65,6 @@ func handleGetLists(c echo.Context) error {
 	out.Total = out.Results[0].Total
 	out.Page = pg.Page
 	out.PerPage = pg.PerPage
-
 	return c.JSON(http.StatusOK, okResp{out})
 }
 
@@ -87,7 +87,7 @@ func handleCreateList(c echo.Context) error {
 
 	uu, err := uuid.NewV4()
 	if err != nil {
-		app.Logger.Println("error generating UUID: %v", err)
+		app.Logger.Printf("error generating UUID: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, "Error generating UUID")
 	}
 
@@ -100,6 +100,7 @@ func handleCreateList(c echo.Context) error {
 		o.Type,
 		o.Optin,
 		pq.StringArray(normalizeTags(o.Tags))); err != nil {
+		app.Logger.Printf("error creating list: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			fmt.Sprintf("Error creating list: %s", pqErrMsg(err)))
 	}
@@ -127,8 +128,10 @@ func handleUpdateList(c echo.Context) error {
 		return err
 	}
 
-	res, err := app.Queries.UpdateList.Exec(id, o.Name, o.Type, o.Optin, pq.StringArray(normalizeTags(o.Tags)))
+	res, err := app.Queries.UpdateList.Exec(id,
+		o.Name, o.Type, o.Optin, pq.StringArray(normalizeTags(o.Tags)))
 	if err != nil {
+		app.Logger.Printf("error updating list: %v", err)
 		return echo.NewHTTPError(http.StatusBadRequest,
 			fmt.Sprintf("Error updating list: %s", pqErrMsg(err)))
 	}
@@ -163,8 +166,9 @@ func handleDeleteLists(c echo.Context) error {
 	}
 
 	if _, err := app.Queries.DeleteLists.Exec(ids); err != nil {
+		app.Logger.Printf("error deleting lists: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
-			fmt.Sprintf("Delete failed: %v", err))
+			fmt.Sprintf("Error deleting: %v", err))
 	}
 
 	return c.JSON(http.StatusOK, okResp{true})

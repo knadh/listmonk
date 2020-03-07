@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"database/sql"
 	"html/template"
 	"image"
 	"image/png"
@@ -113,6 +114,7 @@ func handleSubscriptionPage(c echo.Context) error {
 				makeMsgTpl("Error", "",
 					`Error processing request. Please retry.`))
 		}
+
 		return c.Render(http.StatusOK, tplMessage,
 			makeMsgTpl("Unsubscribed", "",
 				`You have been successfully unsubscribed.`))
@@ -232,7 +234,10 @@ func handleLinkRedirect(c echo.Context) error {
 
 	var url string
 	if err := app.Queries.RegisterLinkClick.Get(&url, linkUUID, campUUID, subUUID); err != nil {
-		app.Logger.Printf("error fetching redirect link: %s", err)
+		if err != sql.ErrNoRows {
+			app.Logger.Printf("error fetching redirect link: %s", err)
+		}
+
 		return c.Render(http.StatusInternalServerError, tplMessage,
 			makeMsgTpl("Error opening link", "",
 				"There was an error opening the link. Please try later."))
@@ -269,8 +274,7 @@ func handleSelfExportSubscriberData(c echo.Context) error {
 	// Is export allowed?
 	if !app.Constants.Privacy.AllowExport {
 		return c.Render(http.StatusBadRequest, tplMessage,
-			makeMsgTpl("Invalid request", "",
-				"The feature is not available."))
+			makeMsgTpl("Invalid request", "", "The feature is not available."))
 	}
 
 	// Get the subscriber's data. A single query that gets the profile,
@@ -287,7 +291,8 @@ func handleSelfExportSubscriberData(c echo.Context) error {
 	// Send the data out to the subscriber as an atachment.
 	var msg bytes.Buffer
 	if err := app.NotifTpls.ExecuteTemplate(&msg, notifSubscriberData, data); err != nil {
-		app.Logger.Printf("error compiling notification template '%s': %v", notifSubscriberData, err)
+		app.Logger.Printf("error compiling notification template '%s': %v",
+			notifSubscriberData, err)
 		return c.Render(http.StatusInternalServerError, tplMessage,
 			makeMsgTpl("Error preparing data", "",
 				"There was an error preparing your data. Please try later."))

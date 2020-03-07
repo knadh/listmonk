@@ -10,12 +10,18 @@ import (
 	"github.com/labstack/echo"
 )
 
-var imageMimes = []string{"image/jpg", "image/jpeg", "image/png", "image/svg", "image/gif"}
-
 const (
 	thumbPrefix   = "thumb_"
 	thumbnailSize = 90
 )
+
+// imageMimes is the list of image types allowed to be uploaded.
+var imageMimes = []string{
+	"image/jpg",
+	"image/jpeg",
+	"image/png",
+	"image/svg",
+	"image/gif"}
 
 // handleUploadMedia handles media file uploads.
 func handleUploadMedia(c echo.Context) error {
@@ -28,15 +34,17 @@ func handleUploadMedia(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest,
 			fmt.Sprintf("Invalid file uploaded: %v", err))
 	}
+
 	// Validate MIME type with the list of allowed types.
 	var typ = file.Header.Get("Content-type")
-	ok := validateMIME(typ, imageMimes)
-	if !ok {
+	if ok := validateMIME(typ, imageMimes); !ok {
 		return echo.NewHTTPError(http.StatusBadRequest,
 			fmt.Sprintf("Unsupported file type (%s) uploaded.", typ))
 	}
+
 	// Generate filename
 	fName := generateFileName(file.Filename)
+
 	// Read file contents in memory
 	src, err := file.Open()
 	if err != nil {
@@ -44,9 +52,11 @@ func handleUploadMedia(c echo.Context) error {
 			fmt.Sprintf("Error reading file: %s", err))
 	}
 	defer src.Close()
+
 	// Upload the file.
 	fName, err = app.Media.Put(fName, typ, src)
 	if err != nil {
+		app.Logger.Printf("error uploading file: %v", err)
 		cleanUp = true
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			fmt.Sprintf("Error uploading file: %s", err))
@@ -65,27 +75,30 @@ func handleUploadMedia(c echo.Context) error {
 	thumbFile, err := createThumbnail(file)
 	if err != nil {
 		cleanUp = true
+		app.Logger.Printf("error resizing image: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
-			fmt.Sprintf("Error opening image for resizing: %s", err))
+			fmt.Sprintf("Error resizing image: %s", err))
 	}
 
 	// Upload thumbnail.
 	thumbfName, err := app.Media.Put(thumbPrefix+fName, typ, thumbFile)
 	if err != nil {
 		cleanUp = true
+		app.Logger.Printf("error saving thumbnail: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			fmt.Sprintf("Error saving thumbnail: %s", err))
 	}
 
 	uu, err := uuid.NewV4()
 	if err != nil {
-		app.Logger.Println("error generating UUID: %v", err)
+		app.Logger.Printf("error generating UUID: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, "Error generating UUID")
 	}
 
 	// Write to the DB.
 	if _, err := app.Queries.InsertMedia.Exec(uu, fName, thumbfName, 0, 0); err != nil {
 		cleanUp = true
+		app.Logger.Printf("error inserting uploaded file to db: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			fmt.Sprintf("Error saving uploaded file to db: %s", pqErrMsg(err)))
 	}
@@ -131,6 +144,5 @@ func handleDeleteMedia(c echo.Context) error {
 
 	app.Media.Delete(m.Filename)
 	app.Media.Delete(thumbPrefix + m.Filename)
-
 	return c.JSON(http.StatusOK, okResp{true})
 }

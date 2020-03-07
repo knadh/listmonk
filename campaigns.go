@@ -88,6 +88,7 @@ func handleGetCampaigns(c echo.Context) error {
 
 	err := app.Queries.QueryCampaigns.Select(&out.Results, id, pq.StringArray(status), query, pg.Offset, pg.Limit)
 	if err != nil {
+		app.Logger.Printf("error fetching campaigns: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			fmt.Sprintf("Error fetching campaigns: %s", pqErrMsg(err)))
 	}
@@ -112,6 +113,7 @@ func handleGetCampaigns(c echo.Context) error {
 
 	// Lazy load stats.
 	if err := out.Results.LoadStats(app.Queries.GetCampaignStats); err != nil {
+		app.Logger.Printf("error fetching campaign stats: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			fmt.Sprintf("Error fetching campaign stats: %v", pqErrMsg(err)))
 	}
@@ -148,6 +150,7 @@ func handlePreviewCampaign(c echo.Context) error {
 			return echo.NewHTTPError(http.StatusBadRequest, "Campaign not found.")
 		}
 
+		app.Logger.Printf("error fetching campaign: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			fmt.Sprintf("Error fetching campaign: %s", pqErrMsg(err)))
 	}
@@ -159,6 +162,7 @@ func handlePreviewCampaign(c echo.Context) error {
 			// There's no subscriber. Mock one.
 			sub = dummySubscriber
 		} else {
+			app.Logger.Printf("error fetching subscriber: %v", err)
 			return echo.NewHTTPError(http.StatusInternalServerError,
 				fmt.Sprintf("Error fetching subscriber: %s", pqErrMsg(err)))
 		}
@@ -170,6 +174,7 @@ func handlePreviewCampaign(c echo.Context) error {
 	}
 
 	if err := camp.CompileTemplate(app.Manager.TemplateFuncs(camp)); err != nil {
+		app.Logger.Printf("error compiling template: %v", err)
 		return echo.NewHTTPError(http.StatusBadRequest,
 			fmt.Sprintf("Error compiling template: %v", err))
 	}
@@ -177,6 +182,7 @@ func handlePreviewCampaign(c echo.Context) error {
 	// Render the message body.
 	m := app.Manager.NewMessage(camp, &sub)
 	if err := m.Render(); err != nil {
+		app.Logger.Printf("error rendering message: %v", err)
 		return echo.NewHTTPError(http.StatusBadRequest,
 			fmt.Sprintf("Error rendering message: %v", err))
 	}
@@ -219,7 +225,7 @@ func handleCreateCampaign(c echo.Context) error {
 
 	uu, err := uuid.NewV4()
 	if err != nil {
-		app.Logger.Println("error generating UUID: %v", err)
+		app.Logger.Printf("error generating UUID: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, "Error generating UUID")
 	}
 
@@ -244,6 +250,7 @@ func handleCreateCampaign(c echo.Context) error {
 				"There aren't any subscribers in the target lists to create the campaign.")
 		}
 
+		app.Logger.Printf("error creating campaign: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			fmt.Sprintf("Error creating campaign: %v", pqErrMsg(err)))
 	}
@@ -272,6 +279,7 @@ func handleUpdateCampaign(c echo.Context) error {
 			return echo.NewHTTPError(http.StatusBadRequest, "Campaign not found.")
 		}
 
+		app.Logger.Printf("error fetching campaign: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			fmt.Sprintf("Error fetching campaign: %s", pqErrMsg(err)))
 	}
@@ -305,6 +313,7 @@ func handleUpdateCampaign(c echo.Context) error {
 		o.TemplateID,
 		o.ListIDs)
 	if err != nil {
+		app.Logger.Printf("error updating campaign: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			fmt.Sprintf("Error updating campaign: %s", pqErrMsg(err)))
 	}
@@ -333,6 +342,7 @@ func handleUpdateCampaignStatus(c echo.Context) error {
 			return echo.NewHTTPError(http.StatusBadRequest, "Campaign not found.")
 		}
 
+		app.Logger.Printf("error fetching campaign: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			fmt.Sprintf("Error fetching campaign: %s", pqErrMsg(err)))
 	}
@@ -377,8 +387,9 @@ func handleUpdateCampaignStatus(c echo.Context) error {
 
 	res, err := app.Queries.UpdateCampaignStatus.Exec(cm.ID, o.Status)
 	if err != nil {
+		app.Logger.Printf("error updating campaign status: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
-			fmt.Sprintf("Error updating campaign: %s", pqErrMsg(err)))
+			fmt.Sprintf("Error updating campaign status: %s", pqErrMsg(err)))
 	}
 
 	if n, _ := res.RowsAffected(); n == 0 {
@@ -406,6 +417,7 @@ func handleDeleteCampaign(c echo.Context) error {
 			return echo.NewHTTPError(http.StatusBadRequest, "Campaign not found.")
 		}
 
+		app.Logger.Printf("error fetching campaign: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			fmt.Sprintf("Error fetching campaign: %s", pqErrMsg(err)))
 	}
@@ -418,6 +430,7 @@ func handleDeleteCampaign(c echo.Context) error {
 	}
 
 	if _, err := app.Queries.DeleteCampaign.Exec(cm.ID); err != nil {
+		app.Logger.Printf("error deleting campaign: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			fmt.Sprintf("Error deleting campaign: %v", pqErrMsg(err)))
 	}
@@ -437,6 +450,7 @@ func handleGetRunningCampaignStats(c echo.Context) error {
 			return c.JSON(http.StatusOK, okResp{[]struct{}{}})
 		}
 
+		app.Logger.Printf("error fetching campaign stats: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			fmt.Sprintf("Error fetching campaign stats: %s", pqErrMsg(err)))
 	} else if len(out) == 0 {
@@ -496,6 +510,7 @@ func handleTestCampaign(c echo.Context) error {
 	}
 	var subs models.Subscribers
 	if err := app.Queries.GetSubscribersByEmails.Select(&subs, req.SubscriberEmails); err != nil {
+		app.Logger.Printf("error fetching subscribers: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			fmt.Sprintf("Error fetching subscribers: %s", pqErrMsg(err)))
 	} else if len(subs) == 0 {
@@ -508,6 +523,8 @@ func handleTestCampaign(c echo.Context) error {
 		if err == sql.ErrNoRows {
 			return echo.NewHTTPError(http.StatusBadRequest, "Campaign not found.")
 		}
+
+		app.Logger.Printf("error fetching campaign: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			fmt.Sprintf("Error fetching campaign: %s", pqErrMsg(err)))
 	}
@@ -522,7 +539,8 @@ func handleTestCampaign(c echo.Context) error {
 	for _, s := range subs {
 		sub := s
 		if err := sendTestMessage(&sub, &camp, app); err != nil {
-			return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Error sending test: %v", err))
+			return echo.NewHTTPError(http.StatusBadRequest,
+				fmt.Sprintf("Error sending test: %v", err))
 		}
 	}
 
@@ -532,12 +550,14 @@ func handleTestCampaign(c echo.Context) error {
 // sendTestMessage takes a campaign and a subsriber and sends out a sample campaign message.
 func sendTestMessage(sub *models.Subscriber, camp *models.Campaign, app *App) error {
 	if err := camp.CompileTemplate(app.Manager.TemplateFuncs(camp)); err != nil {
+		app.Logger.Printf("error compiling template: %v", err)
 		return fmt.Errorf("Error compiling template: %v", err)
 	}
 
 	// Render the message body.
 	m := app.Manager.NewMessage(camp, sub)
 	if err := m.Render(); err != nil {
+		app.Logger.Printf("error rendering message: %v", err)
 		return echo.NewHTTPError(http.StatusBadRequest,
 			fmt.Sprintf("Error rendering message: %v", err))
 	}

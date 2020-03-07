@@ -178,7 +178,6 @@ func (im *Importer) getStatus() string {
 	im.RLock()
 	status := im.status.Status
 	im.RUnlock()
-
 	return status
 }
 
@@ -190,7 +189,6 @@ func (im *Importer) isDone() bool {
 		s = false
 	}
 	im.RUnlock()
-
 	return s
 }
 

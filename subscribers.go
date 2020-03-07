@@ -76,6 +76,7 @@ func handleGetSubscriber(c echo.Context) error {
 
 	err := app.Queries.GetSubscriber.Select(&out, id, nil)
 	if err != nil {
+		app.Logger.Printf("error fetching subscriber: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			fmt.Sprintf("Error fetching subscriber: %s", pqErrMsg(err)))
 	}
@@ -83,7 +84,9 @@ func handleGetSubscriber(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "Subscriber not found.")
 	}
 	if err := out.LoadLists(app.Queries.GetSubscriberListsLazy); err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, "Error loading lists for subscriber.")
+		app.Logger.Printf("error loading subscriber lists: %v", err)
+		return echo.NewHTTPError(http.StatusInternalServerError,
+			"Error loading subscriber lists.")
 	}
 
 	return c.JSON(http.StatusOK, okResp{out[0]})
@@ -117,11 +120,13 @@ func handleQuerySubscribers(c echo.Context) error {
 	}
 
 	stmt := fmt.Sprintf(app.Queries.QuerySubscribers, cond)
+
 	// Create a readonly transaction to prevent mutations.
 	tx, err := app.DB.BeginTxx(context.Background(), &sql.TxOptions{ReadOnly: true})
 	if err != nil {
+		app.Logger.Printf("error preparing subscriber query: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
-			fmt.Sprintf("Error preparing query: %v", pqErrMsg(err)))
+			fmt.Sprintf("Error preparing subscriber query: %v", pqErrMsg(err)))
 	}
 	defer tx.Rollback()
 
@@ -133,6 +138,7 @@ func handleQuerySubscribers(c echo.Context) error {
 
 	// Lazy load lists for each subscriber.
 	if err := out.Results.LoadLists(app.Queries.GetSubscriberListsLazy); err != nil {
+		app.Logger.Printf("error fetching subscriber lists: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			fmt.Sprintf("Error fetching subscriber lists: %v", pqErrMsg(err)))
 	}
@@ -211,10 +217,10 @@ func handleUpdateSubscriber(c echo.Context) error {
 		req.Status,
 		req.Attribs,
 		req.Lists)
-
 	if err != nil {
+		app.Logger.Printf("error updating subscriber: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
-			fmt.Sprintf("Update failed: %v", pqErrMsg(err)))
+			fmt.Sprintf("Error updating subscriber: %v", pqErrMsg(err)))
 	}
 
 	return handleGetSubscriber(c)
@@ -235,6 +241,7 @@ func handleGetSubscriberSendOptin(c echo.Context) error {
 	// Fetch the subscriber.
 	err := app.Queries.GetSubscriber.Select(&out, id, nil)
 	if err != nil {
+		app.Logger.Printf("error fetching subscriber: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			fmt.Sprintf("Error fetching subscriber: %s", pqErrMsg(err)))
 	}
@@ -281,6 +288,7 @@ func handleBlacklistSubscribers(c echo.Context) error {
 	}
 
 	if _, err := app.Queries.BlacklistSubscribers.Exec(IDs); err != nil {
+		app.Logger.Printf("error blacklisting subscribers: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			fmt.Sprintf("Error blacklisting: %v", err))
 	}
@@ -337,6 +345,7 @@ func handleManageSubscriberLists(c echo.Context) error {
 	}
 
 	if err != nil {
+		app.Logger.Printf("error updating subscriptions: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			fmt.Sprintf("Error processing lists: %v", err))
 	}
@@ -375,8 +384,9 @@ func handleDeleteSubscribers(c echo.Context) error {
 	}
 
 	if _, err := app.Queries.DeleteSubscribers.Exec(IDs, nil); err != nil {
+		app.Logger.Printf("error deleting subscribers: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
-			fmt.Sprintf("Error deleting: %v", err))
+			fmt.Sprintf("Error deleting subscribers: %v", err))
 	}
 
 	return c.JSON(http.StatusOK, okResp{true})
@@ -398,6 +408,7 @@ func handleDeleteSubscribersByQuery(c echo.Context) error {
 		app.Queries.DeleteSubscribersByQuery,
 		req.ListIDs, app.DB)
 	if err != nil {
+		app.Logger.Printf("error querying subscribers: %v", err)
 		return echo.NewHTTPError(http.StatusBadRequest,
 			fmt.Sprintf("Error: %v", err))
 	}
@@ -421,6 +432,7 @@ func handleBlacklistSubscribersByQuery(c echo.Context) error {
 		app.Queries.BlacklistSubscribersByQuery,
 		req.ListIDs, app.DB)
 	if err != nil {
+		app.Logger.Printf("error blacklisting subscribers: %v", err)
 		return echo.NewHTTPError(http.StatusBadRequest,
 			fmt.Sprintf("Error: %v", err))
 	}
@@ -456,8 +468,10 @@ func handleManageSubscriberListsByQuery(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "Invalid action.")
 	}
 
-	err := app.Queries.execSubscriberQueryTpl(sanitizeSQLExp(req.Query), stmt, req.ListIDs, app.DB, req.TargetListIDs)
+	err := app.Queries.execSubscriberQueryTpl(sanitizeSQLExp(req.Query),
+		stmt, req.ListIDs, app.DB, req.TargetListIDs)
 	if err != nil {
+		app.Logger.Printf("error updating subscriptions: %v", err)
 		return echo.NewHTTPError(http.StatusBadRequest,
 			fmt.Sprintf("Error: %v", err))
 	}
@@ -514,8 +528,10 @@ func insertSubscriber(req subimporter.SubReq, app *App) (int, error) {
 		if pqErr, ok := err.(*pq.Error); ok && pqErr.Constraint == "subscribers_email_key" {
 			return 0, echo.NewHTTPError(http.StatusBadRequest, "The e-mail already exists.")
 		}
+
+		app.Logger.Printf("error inserting subscriber: %v", err)
 		return 0, echo.NewHTTPError(http.StatusInternalServerError,
-			fmt.Sprintf("Error creating subscriber: %v", err))
+			fmt.Sprintf("Error inserting subscriber: %v", err))
 	}
 
 	// If the lists are double-optins, send confirmation e-mails.
@@ -541,6 +557,7 @@ func exportSubscriberData(id int64, subUUID string, exportables map[string]bool,
 		uu = subUUID
 	}
 	if err := app.Queries.ExportSubscriberData.Get(&data, id, uu); err != nil {
+		app.Logger.Printf("error fetching subscriber export data: %v", err)
 		return data, nil, err
 	}
 
@@ -561,6 +578,7 @@ func exportSubscriberData(id int64, subUUID string, exportables map[string]bool,
 	// Marshal the data into an indented payload.
 	b, err := json.MarshalIndent(data, "", "  ")
 	if err != nil {
+		app.Logger.Printf("error marshalling subscriber export data: %v", err)
 		return data, nil, err
 	}
 	return data, b, nil
