@@ -1,42 +1,43 @@
-import React from "react";
-import { Switch, Route } from "react-router-dom";
-import { Link } from "react-router-dom";
-import { Layout, Menu, Icon } from "antd";
+import React from "react"
+import { Switch, Route } from "react-router-dom"
+import { Link } from "react-router-dom"
+import { Layout, Menu, Icon } from "antd"
 
-import logo from "./static/listmonk.svg";
+import logo from "./static/listmonk.svg"
 
 // Views.
-import Dashboard from "./Dashboard";
-import Lists from "./Lists";
-import Subscribers from "./Subscribers";
-import Subscriber from "./Subscriber";
-import Templates from "./Templates";
-import Import from "./Import";
-import Campaigns from "./Campaigns";
-import Campaign from "./Campaign";
-import Media from "./Media";
+import Dashboard from "./Dashboard"
+import Lists from "./Lists"
+import Forms from "./Forms"
+import Subscribers from "./Subscribers"
+import Subscriber from "./Subscriber"
+import Templates from "./Templates"
+import Import from "./Import"
+import Campaigns from "./Campaigns"
+import Campaign from "./Campaign"
+import Media from "./Media"
 
-const { Content, Footer, Sider } = Layout;
-const SubMenu = Menu.SubMenu;
-const year = new Date().getUTCFullYear();
+const { Content, Footer, Sider } = Layout
+const SubMenu = Menu.SubMenu
+const year = new Date().getUTCFullYear()
 
 class Base extends React.Component {
   state = {
     basePath: "/" + window.location.pathname.split("/")[1],
     error: null,
     collapsed: false
-  };
+  }
 
   onCollapse = collapsed => {
-    this.setState({ collapsed });
-  };
+    this.setState({ collapsed })
+  }
 
   componentDidMount() {
     // For small screen devices collapse the menu by default.
     if (window.screen.width < 768) {
-      this.setState({ collapsed: true });
+      this.setState({ collapsed: true })
     }
-  };
+  }
 
   render() {
     return (
@@ -65,12 +66,28 @@ class Base extends React.Component {
                 <span>Dashboard</span>
               </Link>
             </Menu.Item>
-            <Menu.Item key="/lists">
-              <Link to="/lists">
-                <Icon type="bars" />
-                <span>Lists</span>
-              </Link>
-            </Menu.Item>
+            <SubMenu
+              key="/lists"
+              title={
+                <span>
+                  <Icon type="bars" />
+                  <span>Lists</span>
+                </span>
+              }
+            >
+              <Menu.Item key="/lists">
+                <Link to="/lists">
+                  <Icon type="bars" />
+                  <span>All lists</span>
+                </Link>
+              </Menu.Item>
+              <Menu.Item key="/lists/forms">
+                <Link to="/lists/forms">
+                  <Icon type="form" />
+                  <span>Forms</span>
+                </Link>
+              </Menu.Item>
+            </SubMenu>
             <SubMenu
               key="/subscribers"
               title={
@@ -144,6 +161,14 @@ class Base extends React.Component {
                   path="/lists"
                   render={props => (
                     <Lists {...{ ...this.props, route: props }} />
+                  )}
+                />
+                <Route
+                  exact
+                  key="/lists/forms"
+                  path="/lists/forms"
+                  render={props => (
+                    <Forms {...{ ...this.props, route: props }} />
                   )}
                 />
                 <Route
@@ -230,8 +255,8 @@ class Base extends React.Component {
               >
                 listmonk
               </a>{" "}
-              &copy; 2019 {year !== 2019 ? " - " + year : ""}.
-              Version { process.env.REACT_APP_VERSION } &mdash;{" "}
+              &copy; 2019 {year !== 2019 ? " - " + year : ""}. Version{" "}
+              {process.env.REACT_APP_VERSION} &mdash;{" "}
               <a
                 href="https://listmonk.app/docs"
                 target="_blank"
@@ -243,8 +268,8 @@ class Base extends React.Component {
           </Footer>
         </Layout>
       </Layout>
-    );
+    )
   }
 }
 
-export default Base;
+export default Base

@@ -161,28 +161,16 @@ func handleCreateSubscriber(c echo.Context) error {
 	// Get and validate fields.
 	if err := c.Bind(&req); err != nil {
 		return err
-	} else if err := subimporter.ValidateFields(req); err != nil {
+	}
+	req.Email = strings.ToLower(strings.TrimSpace(req.Email))
+	if err := subimporter.ValidateFields(req); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	// Insert and read ID.
-	var (
-		email = strings.ToLower(strings.TrimSpace(req.Email))
-	)
-	req.UUID = uuid.NewV4().String()
-	err := app.Queries.InsertSubscriber.Get(&req.ID,
-		req.UUID,
-		email,
-		strings.TrimSpace(req.Name),
-		req.Status,
-		req.Attribs,
-		req.Lists)
+	// Insert the subscriber into the DB.
+	subID, err := insertSubscriber(req, app)
 	if err != nil {
-		if pqErr, ok := err.(*pq.Error); ok && pqErr.Constraint == "subscribers_email_key" {
-			return echo.NewHTTPError(http.StatusBadRequest, "The e-mail already exists.")
-		}
-		return echo.NewHTTPError(http.StatusInternalServerError,
-			fmt.Sprintf("Error creating subscriber: %v", err))
+		return err
 	}
 
 	// If the lists are double-optins, send confirmation e-mails.
@@ -191,7 +179,7 @@ func handleCreateSubscriber(c echo.Context) error {
 
 	// Hand over to the GET handler to return the last insertion.
 	c.SetParamNames("id")
-	c.SetParamValues(fmt.Sprintf("%d", req.ID))
+	c.SetParamValues(fmt.Sprintf("%d", subID))
 	return c.JSON(http.StatusOK, handleGetSubscriber(c))
 }
 
@@ -504,6 +492,31 @@ func handleExportSubscriberData(c echo.Context) error {
 	c.Response().Header().Set("Cache-Control", "no-cache")
 	c.Response().Header().Set("Content-Disposition", `attachment; filename="profile.json"`)
 	return c.Blob(http.StatusOK, "application/json", b)
+}
+
+// insertSubscriber inserts a subscriber and returns the ID.
+func insertSubscriber(req subimporter.SubReq, app *App) (int, error) {
+	req.UUID = uuid.NewV4().String()
+	err := app.Queries.InsertSubscriber.Get(&req.ID,
+		req.UUID,
+		req.Email,
+		strings.TrimSpace(req.Name),
+		req.Status,
+		req.Attribs,
+		req.Lists,
+		req.ListUUIDs)
+	if err != nil {
+		if pqErr, ok := err.(*pq.Error); ok && pqErr.Constraint == "subscribers_email_key" {
+			return 0, echo.NewHTTPError(http.StatusBadRequest, "The e-mail already exists.")
+		}
+		return 0, echo.NewHTTPError(http.StatusInternalServerError,
+			fmt.Sprintf("Error creating subscriber: %v", err))
+	}
+
+	// If the lists are double-optins, send confirmation e-mails.
+	// Todo: This arbitrary goroutine should be moved to a centralised pool.
+	go sendOptinConfirmation(req.Subscriber, []int64(req.Lists), app)
+	return req.ID, nil
 }
 
 // exportSubscriberData collates the data of a subscriber including profile,

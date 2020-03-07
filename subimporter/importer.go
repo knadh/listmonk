@@ -80,7 +80,8 @@ type Status struct {
 // SubReq is a wrapper over the Subscriber model.
 type SubReq struct {
 	models.Subscriber
-	Lists pq.Int64Array `json:"lists"`
+	Lists     pq.Int64Array  `json:"lists"`
+	ListUUIDs pq.StringArray `json:"list_uuids"`
 }
 
 type importStatusTpl struct {
@@ -562,8 +563,11 @@ func (s *Session) mapCSVHeaders(csvHdrs []string, knownHdrs map[string]bool) map
 
 // ValidateFields validates incoming subscriber field values.
 func ValidateFields(s SubReq) error {
+	if len(s.Email) > 1000 {
+		return errors.New(`e-mail too long`)
+	}
 	if !govalidator.IsEmail(s.Email) {
-		return errors.New(`invalid email "` + s.Email + `"`)
+		return errors.New(`invalid e-mail "` + s.Email + `"`)
 	}
 	if !govalidator.IsByteLength(s.Name, 1, stdInputMaxLen) {
 		return errors.New(`invalid or empty name "` + s.Name + `"`)

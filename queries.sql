@@ -54,11 +54,16 @@ WITH sub AS (
     VALUES($1, $2, $3, $4, $5)
     returning id
 ),
+listIDs AS (
+    SELECT id FROM lists WHERE
+        (CASE WHEN ARRAY_LENGTH($6::INT[], 1) > 0 THEN id=ANY($6)
+              ELSE uuid=ANY($7::UUID[]) END)
+),
 subs AS (
     INSERT INTO subscriber_lists (subscriber_id, list_id, status)
     VALUES(
         (SELECT id FROM sub),
-        UNNEST($6::INT[]),
+        UNNEST(ARRAY(SELECT id FROM listIDs)),
         (CASE WHEN $4='blacklisted' THEN 'unsubscribed'::subscription_status ELSE 'unconfirmed' END)
     )
     ON CONFLICT (subscriber_id, list_id) DO UPDATE
@@ -302,7 +307,7 @@ SELECT COUNT(*) OVER () AS total, lists.*, COUNT(subscriber_lists.subscriber_id)
 
 -- name: get-lists-by-optin
 -- Can have a list of IDs or a list of UUIDs.
-SELECT * FROM lists WHERE optin=$1::list_optin AND
+SELECT * FROM lists WHERE (CASE WHEN $1 != '' THEN optin=$1::list_optin ELSE TRUE END) AND
     (CASE WHEN $2::INT[] IS NOT NULL THEN id = ANY($2::INT[])
           WHEN $3::UUID[] IS NOT NULL THEN uuid = ANY($3::UUID[])
     END) ORDER BY name;

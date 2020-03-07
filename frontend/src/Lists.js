@@ -93,7 +93,6 @@ class CreateFormDef extends React.PureComponent {
   }
 
   modalTitle(formType, record) {
-    console.log(formType)
     if (formType === cs.FormCreate) {
       return "Create a list"
     }

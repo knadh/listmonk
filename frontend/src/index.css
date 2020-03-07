@@ -48,6 +48,13 @@ hr {
   padding: 30px !important;
 }
 
+ul.no {
+  list-style-type: none;
+}
+ul.no li {
+  margin-bottom: 10px;
+}
+
 /* Layout */
 body {
   margin: 0;
@@ -94,6 +101,16 @@ section.content {
 }
 
 /* Form */
+.list-form .html {
+  background: #fafafa;
+  padding: 30px;
+  max-width: 100%;
+  overflow-y: auto;
+  max-height: 600px;
+}
+.list-form .lists label {
+  display: block;
+}
 
 
 /* Table actions */

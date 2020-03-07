@@ -8,9 +8,11 @@ import (
 	"io"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/knadh/listmonk/messenger"
 	"github.com/knadh/listmonk/models"
+	"github.com/knadh/listmonk/subimporter"
 	"github.com/labstack/echo"
 	"github.com/lib/pq"
 )
@@ -56,6 +58,11 @@ type msgTpl struct {
 	publicTpl
 	MessageTitle string
 	Message      string
+}
+
+type subForm struct {
+	subimporter.SubReq
+	SubListUUIDs []string `form:"l"`
 }
 
 var (
@@ -167,6 +174,47 @@ func handleOptinPage(c echo.Context) error {
 	}
 
 	return c.Render(http.StatusOK, "optin", out)
+}
+
+// handleOptinPage handles a double opt-in confirmation from subscribers.
+func handleSubscriptionForm(c echo.Context) error {
+	var (
+		app = c.Get("app").(*App)
+		req subForm
+	)
+
+	// Get and validate fields.
+	if err := c.Bind(&req); err != nil {
+		return err
+	}
+
+	if len(req.SubListUUIDs) == 0 {
+		return c.Render(http.StatusInternalServerError, "message",
+			makeMsgTpl("Error", "",
+				`No lists to subscribe to.`))
+	}
+
+	// If there's no name, use the name bit from the e-mail.
+	req.Email = strings.ToLower(req.Email)
+	if req.Name == "" {
+		req.Name = strings.Split(req.Email, "@")[0]
+	}
+
+	// Validate fields.
+	if err := subimporter.ValidateFields(req.SubReq); err != nil {
+		return c.Render(http.StatusInternalServerError, "message",
+			makeMsgTpl("Error", "", err.Error()))
+	}
+
+	// Insert the subscriber into the DB.
+	req.Status = models.SubscriberStatusEnabled
+	req.ListUUIDs = pq.StringArray(req.SubListUUIDs)
+	if _, err := insertSubscriber(req.SubReq, app); err != nil {
+		return err
+	}
+
+	return c.Render(http.StatusInternalServerError, "message",
+		makeMsgTpl("Done", "", `Subscribed successfully.`))
 }
 
 // handleLinkRedirect handles link UUID to real link redirection.

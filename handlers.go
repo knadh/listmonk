@@ -95,6 +95,7 @@ func registerHandlers(e *echo.Echo) {
 	e.DELETE("/api/templates/:id", handleDeleteTemplate)
 
 	// Subscriber facing views.
+	e.POST("/subscription/form", handleSubscriptionForm)
 	e.GET("/subscription/:campUUID/:subUUID", validateUUID(subscriberExists(handleSubscriptionPage),
 		"campUUID", "subUUID"))
 	e.POST("/subscription/:campUUID/:subUUID", validateUUID(subscriberExists(handleSubscriptionPage),
