@@ -2,8 +2,8 @@ module github.com/knadh/listmonk
 
 require (
 	github.com/asaskevich/govalidator v0.0.0-20180720115003-f9ffefc3facf
-	github.com/aws/aws-sdk-go v1.25.12
 	github.com/disintegration/imaging v1.5.0
+	github.com/gofrs/uuid v3.2.0+incompatible
 	github.com/jinzhu/gorm v1.9.1
 	github.com/jmoiron/sqlx v1.2.0
 	github.com/jordan-wright/email v0.0.0-20181027021455-480bedc4908b
@@ -17,9 +17,7 @@ require (
 	github.com/mattn/go-colorable v0.0.9 // indirect
 	github.com/mattn/go-isatty v0.0.4 // indirect
 	github.com/rhnvrm/simples3 v0.2.4-0.20191018074503-3d5b071ef727
-	github.com/satori/go.uuid v1.2.0
 	github.com/spf13/pflag v1.0.3
-	github.com/stretchr/objx v0.2.0 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasttemplate v0.0.0-20170224212429-dcecefd839c4 // indirect
 	golang.org/x/crypto v0.0.0-20181106171534-e4dc69e5b2fd // indirect

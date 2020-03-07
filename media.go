@@ -5,9 +5,9 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/gofrs/uuid"
 	"github.com/knadh/listmonk/media"
 	"github.com/labstack/echo"
-	uuid "github.com/satori/go.uuid"
 )
 
 var imageMimes = []string{"image/jpg", "image/jpeg", "image/png", "image/svg", "image/gif"}
@@ -68,6 +68,7 @@ func handleUploadMedia(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			fmt.Sprintf("Error opening image for resizing: %s", err))
 	}
+
 	// Upload thumbnail.
 	thumbfName, err := app.Media.Put(thumbPrefix+fName, typ, thumbFile)
 	if err != nil {
@@ -75,8 +76,15 @@ func handleUploadMedia(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			fmt.Sprintf("Error saving thumbnail: %s", err))
 	}
+
+	uu, err := uuid.NewV4()
+	if err != nil {
+		app.Logger.Println("error generating UUID: %v", err)
+		return echo.NewHTTPError(http.StatusInternalServerError, "Error generating UUID")
+	}
+
 	// Write to the DB.
-	if _, err := app.Queries.InsertMedia.Exec(uuid.NewV4(), fName, thumbfName, 0, 0); err != nil {
+	if _, err := app.Queries.InsertMedia.Exec(uu, fName, thumbfName, 0, 0); err != nil {
 		cleanUp = true
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			fmt.Sprintf("Error saving uploaded file to db: %s", pqErrMsg(err)))

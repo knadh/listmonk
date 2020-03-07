@@ -1,9 +1,9 @@
 package main
 
 import (
+	"github.com/gofrs/uuid"
 	"github.com/knadh/listmonk/models"
 	"github.com/lib/pq"
-	uuid "github.com/satori/go.uuid"
 )
 
 // runnerDB implements runner.DataSource over the primary
@@ -52,10 +52,15 @@ func (r *runnerDB) UpdateCampaignStatus(campID int, status string) error {
 func (r *runnerDB) CreateLink(url string) (string, error) {
 	// Create a new UUID for the URL. If the URL already exists in the DB
 	// the UUID in the database is returned.
-	var uu string
-	if err := r.queries.CreateLink.Get(&uu, uuid.NewV4(), url); err != nil {
+	uu, err := uuid.NewV4()
+	if err != nil {
 		return "", err
 	}
 
-	return uu, nil
+	var out string
+	if err := r.queries.CreateLink.Get(&out, uu, url); err != nil {
+		return "", err
+	}
+
+	return out, nil
 }

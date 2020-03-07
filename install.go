@@ -8,11 +8,11 @@ import (
 	"strings"
 	"time"
 
+	"github.com/gofrs/uuid"
 	"github.com/jmoiron/sqlx"
 	"github.com/knadh/goyesql"
 	"github.com/knadh/listmonk/models"
 	"github.com/lib/pq"
-	uuid "github.com/satori/go.uuid"
 )
 
 // install runs the first time setup of creating and
@@ -54,7 +54,7 @@ func install(app *App, qMap goyesql.Queries, prompt bool) {
 		optinList int
 	)
 	if err := q.CreateList.Get(&defList,
-		uuid.NewV4().String(),
+		uuid.Must(uuid.NewV4()),
 		"Default list",
 		models.ListTypePrivate,
 		models.ListOptinSingle,
@@ -63,7 +63,7 @@ func install(app *App, qMap goyesql.Queries, prompt bool) {
 		logger.Fatalf("Error creating list: %v", err)
 	}
 
-	if err := q.CreateList.Get(&optinList, uuid.NewV4().String(),
+	if err := q.CreateList.Get(&optinList, uuid.Must(uuid.NewV4()),
 		"Opt-in list",
 		models.ListTypePublic,
 		models.ListOptinDouble,
@@ -74,7 +74,7 @@ func install(app *App, qMap goyesql.Queries, prompt bool) {
 
 	// Sample subscriber.
 	if _, err := q.UpsertSubscriber.Exec(
-		uuid.NewV4(),
+		uuid.Must(uuid.NewV4()),
 		"john@example.com",
 		"John Doe",
 		`{"type": "known", "good": true, "city": "Bengaluru"}`,
@@ -83,7 +83,7 @@ func install(app *App, qMap goyesql.Queries, prompt bool) {
 		logger.Fatalf("Error creating subscriber: %v", err)
 	}
 	if _, err := q.UpsertSubscriber.Exec(
-		uuid.NewV4(),
+		uuid.Must(uuid.NewV4()),
 		"anon@example.com",
 		"Anon Doe",
 		`{"type": "unknown", "good": true, "city": "Bengaluru"}`,
@@ -112,7 +112,7 @@ func install(app *App, qMap goyesql.Queries, prompt bool) {
 	// Sample campaign.
 	sendAt := time.Now()
 	sendAt.Add(time.Minute * 43200)
-	if _, err := q.CreateCampaign.Exec(uuid.NewV4(),
+	if _, err := q.CreateCampaign.Exec(uuid.Must(uuid.NewV4()),
 		models.CampaignTypeRegular,
 		"Test campaign",
 		"Welcome to listmonk",

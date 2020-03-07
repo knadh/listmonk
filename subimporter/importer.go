@@ -21,8 +21,8 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/gofrs/uuid"
 	"github.com/lib/pq"
-	uuid "github.com/satori/go.uuid"
 
 	"github.com/asaskevich/govalidator"
 	"github.com/knadh/listmonk/models"
@@ -253,11 +253,17 @@ func (s *Session) Start() {
 			}
 		}
 
-		var err error
+		uu, err := uuid.NewV4()
+		if err != nil {
+			s.log.Printf("error generating UUID: %v", err)
+			tx.Rollback()
+			break
+		}
+
 		if s.mode == ModeSubscribe {
-			_, err = stmt.Exec(uuid.NewV4(), sub.Email, sub.Name, sub.Attribs, listIDs)
+			_, err = stmt.Exec(uu, sub.Email, sub.Name, sub.Attribs, listIDs)
 		} else if s.mode == ModeBlacklist {
-			_, err = stmt.Exec(uuid.NewV4(), sub.Email, sub.Name, sub.Attribs)
+			_, err = stmt.Exec(uu, sub.Email, sub.Name, sub.Attribs)
 		}
 		if err != nil {
 			s.log.Printf("error executing insert: %v", err)

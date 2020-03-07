@@ -5,9 +5,9 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/gofrs/uuid"
 	"github.com/knadh/listmonk/models"
 	"github.com/lib/pq"
-	uuid "github.com/satori/go.uuid"
 
 	"github.com/asaskevich/govalidator"
 	"github.com/labstack/echo"
@@ -85,9 +85,15 @@ func handleCreateList(c echo.Context) error {
 			"Invalid length for the name field.")
 	}
 
+	uu, err := uuid.NewV4()
+	if err != nil {
+		app.Logger.Println("error generating UUID: %v", err)
+		return echo.NewHTTPError(http.StatusInternalServerError, "Error generating UUID")
+	}
+
 	// Insert and read ID.
 	var newID int
-	o.UUID = uuid.NewV4().String()
+	o.UUID = uu.String()
 	if err := app.Queries.CreateList.Get(&newID,
 		o.UUID,
 		o.Name,

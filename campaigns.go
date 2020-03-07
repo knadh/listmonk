@@ -14,10 +14,10 @@ import (
 	"time"
 
 	"github.com/asaskevich/govalidator"
+	"github.com/gofrs/uuid"
 	"github.com/knadh/listmonk/models"
 	"github.com/labstack/echo"
 	"github.com/lib/pq"
-	uuid "github.com/satori/go.uuid"
 	null "gopkg.in/volatiletech/null.v6"
 )
 
@@ -217,10 +217,16 @@ func handleCreateCampaign(c echo.Context) error {
 			fmt.Sprintf("Unknown messenger %s", o.MessengerID))
 	}
 
+	uu, err := uuid.NewV4()
+	if err != nil {
+		app.Logger.Println("error generating UUID: %v", err)
+		return echo.NewHTTPError(http.StatusInternalServerError, "Error generating UUID")
+	}
+
 	// Insert and read ID.
 	var newID int
 	if err := app.Queries.CreateCampaign.Get(&newID,
-		uuid.NewV4(),
+		uu,
 		o.Type,
 		o.Name,
 		o.Subject,

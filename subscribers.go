@@ -11,11 +11,11 @@ import (
 	"strings"
 
 	"github.com/asaskevich/govalidator"
+	"github.com/gofrs/uuid"
 	"github.com/knadh/listmonk/models"
 	"github.com/knadh/listmonk/subimporter"
 	"github.com/labstack/echo"
 	"github.com/lib/pq"
-	uuid "github.com/satori/go.uuid"
 )
 
 // subQueryReq is a "catch all" struct for reading various
@@ -496,8 +496,13 @@ func handleExportSubscriberData(c echo.Context) error {
 
 // insertSubscriber inserts a subscriber and returns the ID.
 func insertSubscriber(req subimporter.SubReq, app *App) (int, error) {
-	req.UUID = uuid.NewV4().String()
-	err := app.Queries.InsertSubscriber.Get(&req.ID,
+	uu, err := uuid.NewV4()
+	if err != nil {
+		return 0, err
+	}
+	req.UUID = uu.String()
+
+	err = app.Queries.InsertSubscriber.Get(&req.ID,
 		req.UUID,
 		req.Email,
 		strings.TrimSpace(req.Name),
