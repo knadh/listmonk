@@ -1,10 +1,13 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
+	"mime/multipart"
 	"net/http"
 	"strconv"
 
+	"github.com/disintegration/imaging"
 	"github.com/gofrs/uuid"
 	"github.com/knadh/listmonk/internal/media"
 	"github.com/labstack/echo"
@@ -145,4 +148,29 @@ func handleDeleteMedia(c echo.Context) error {
 	app.media.Delete(m.Filename)
 	app.media.Delete(thumbPrefix + m.Filename)
 	return c.JSON(http.StatusOK, okResp{true})
+}
+
+// createThumbnail reads the file object and returns a smaller image
+func createThumbnail(file *multipart.FileHeader) (*bytes.Reader, error) {
+	src, err := file.Open()
+	if err != nil {
+		return nil, err
+	}
+	defer src.Close()
+
+	img, err := imaging.Decode(src)
+	if err != nil {
+		return nil, echo.NewHTTPError(http.StatusInternalServerError,
+			fmt.Sprintf("Error decoding image: %v", err))
+	}
+
+	// Encode the image into a byte slice as PNG.
+	var (
+		thumb = imaging.Resize(img, thumbnailSize, 0, imaging.Lanczos)
+		out   bytes.Buffer
+	)
+	if err := imaging.Encode(&out, thumb, imaging.PNG); err != nil {
+		return nil, err
+	}
+	return bytes.NewReader(out.Bytes()), nil
 }

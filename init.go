@@ -186,7 +186,7 @@ func initImporter(app *App) *subimporter.Importer {
 }
 
 // initMessengers initializes various messaging backends.
-func initMessengers(r *manager.Manager) messenger.Messenger {
+func initMessengers(m *manager.Manager) messenger.Messenger {
 	// Load SMTP configurations for the default e-mail Messenger.
 	var (
 		mapKeys = ko.MapKeys("smtp")
@@ -215,7 +215,7 @@ func initMessengers(r *manager.Manager) messenger.Messenger {
 	if err != nil {
 		lo.Fatalf("error loading e-mail messenger: %v", err)
 	}
-	if err := r.AddMessenger(msgr); err != nil {
+	if err := m.AddMessenger(msgr); err != nil {
 		lo.Printf("error registering messenger %s", err)
 	}
 

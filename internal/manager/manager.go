@@ -122,7 +122,6 @@ func (m *Manager) AddMessenger(msg messenger.Messenger) error {
 		return fmt.Errorf("messenger '%s' is already loaded", id)
 	}
 	m.messengers[id] = msg
-
 	return nil
 }
 
@@ -132,7 +131,6 @@ func (m *Manager) GetMessengerNames() []string {
 	for n := range m.messengers {
 		names = append(names, n)
 	}
-
 	return names
 }
 
@@ -196,9 +194,7 @@ func (m *Manager) Run(tick time.Duration) {
 					delete(m.msgErrorCounts, e.camp.ID)
 
 					// Notify admins.
-					m.sendNotif(e.camp,
-						models.CampaignStatusPaused,
-						"Too many errors")
+					m.sendNotif(e.camp, models.CampaignStatusPaused, "Too many errors")
 				}
 			}
 		}
@@ -256,6 +252,34 @@ func (m *Manager) SpawnWorkers() {
 	}
 }
 
+// TemplateFuncs returns the template functions to be applied into
+// compiled campaign templates.
+func (m *Manager) TemplateFuncs(c *models.Campaign) template.FuncMap {
+	return template.FuncMap{
+		"TrackLink": func(url string, msg *Message) string {
+			return m.trackLink(url, msg.Campaign.UUID, msg.Subscriber.UUID)
+		},
+		"TrackView": func(msg *Message) template.HTML {
+			return template.HTML(fmt.Sprintf(`<img src="%s" alt="" />`,
+				fmt.Sprintf(m.cfg.ViewTrackURL, msg.Campaign.UUID, msg.Subscriber.UUID)))
+		},
+		"UnsubscribeURL": func(msg *Message) string {
+			return msg.unsubURL
+		},
+		"OptinURL": func(msg *Message) string {
+			// Add list IDs.
+			// TODO: Show private lists list on optin e-mail
+			return fmt.Sprintf(m.cfg.OptinURL, msg.Subscriber.UUID, "")
+		},
+		"Date": func(layout string) string {
+			if layout == "" {
+				layout = time.ANSIC
+			}
+			return time.Now().Format(layout)
+		},
+	}
+}
+
 // addCampaign adds a campaign to the process queue.
 func (m *Manager) addCampaign(c *models.Campaign) error {
 	// Validate messenger.
@@ -281,7 +305,6 @@ func (m *Manager) getPendingCampaignIDs() []int64 {
 	for _, c := range m.camps {
 		ids = append(ids, int64(c.ID))
 	}
-
 	return ids
 }
 
@@ -358,17 +381,6 @@ func (m *Manager) exhaustCampaign(c *models.Campaign, status string) (*models.Ca
 	return cm, nil
 }
 
-// Render takes a Message, executes its pre-compiled Campaign.Tpl
-// and applies the resultant bytes to Message.body to be used in messages.
-func (m *Message) Render() error {
-	out := bytes.Buffer{}
-	if err := m.Campaign.Tpl.ExecuteTemplate(&out, models.BaseTpl, m); err != nil {
-		return err
-	}
-	m.Body = out.Bytes()
-	return nil
-}
-
 // trackLink register a URL and return its UUID to be used in message templates
 // for tracking links.
 func (m *Manager) trackLink(url, campUUID, subUUID string) string {
@@ -412,30 +424,13 @@ func (m *Manager) sendNotif(c *models.Campaign, status, reason string) error {
 	return m.notifCB(subject, data)
 }
 
-// TemplateFuncs returns the template functions to be applied into
-// compiled campaign templates.
-func (m *Manager) TemplateFuncs(c *models.Campaign) template.FuncMap {
-	return template.FuncMap{
-		"TrackLink": func(url string, msg *Message) string {
-			return m.trackLink(url, msg.Campaign.UUID, msg.Subscriber.UUID)
-		},
-		"TrackView": func(msg *Message) template.HTML {
-			return template.HTML(fmt.Sprintf(`<img src="%s" alt="" />`,
-				fmt.Sprintf(m.cfg.ViewTrackURL, msg.Campaign.UUID, msg.Subscriber.UUID)))
-		},
-		"UnsubscribeURL": func(msg *Message) string {
-			return msg.unsubURL
-		},
-		"OptinURL": func(msg *Message) string {
-			// Add list IDs.
-			// TODO: Show private lists list on optin e-mail
-			return fmt.Sprintf(m.cfg.OptinURL, msg.Subscriber.UUID, "")
-		},
-		"Date": func(layout string) string {
-			if layout == "" {
-				layout = time.ANSIC
-			}
-			return time.Now().Format(layout)
-		},
+// Render takes a Message, executes its pre-compiled Campaign.Tpl
+// and applies the resultant bytes to Message.body to be used in messages.
+func (m *Message) Render() error {
+	out := bytes.Buffer{}
+	if err := m.Campaign.Tpl.ExecuteTemplate(&out, models.BaseTpl, m); err != nil {
+		return err
 	}
+	m.Body = out.Bytes()
+	return nil
 }

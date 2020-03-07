@@ -4,15 +4,10 @@ import (
 	"bytes"
 	"crypto/rand"
 	"fmt"
-	"log"
-	"mime/multipart"
-	"net/http"
 	"regexp"
 	"strconv"
 	"strings"
 
-	"github.com/disintegration/imaging"
-	"github.com/labstack/echo"
 	"github.com/lib/pq"
 )
 
@@ -52,28 +47,6 @@ func generateFileName(fName string) string {
 	return name
 }
 
-// createThumbnail reads the file object and returns a smaller image
-func createThumbnail(file *multipart.FileHeader) (*bytes.Reader, error) {
-	src, err := file.Open()
-	if err != nil {
-		return nil, err
-	}
-	defer src.Close()
-	img, err := imaging.Decode(src)
-	if err != nil {
-		return nil, echo.NewHTTPError(http.StatusInternalServerError,
-			fmt.Sprintf("Error decoding image: %v", err))
-	}
-	t := imaging.Resize(img, thumbnailSize, 0, imaging.Lanczos)
-	// Encode the image into a byte slice as PNG.
-	var buf bytes.Buffer
-	err = imaging.Encode(&buf, t, imaging.PNG)
-	if err != nil {
-		log.Fatal(err)
-	}
-	return bytes.NewReader(buf.Bytes()), nil
-}
-
 // Given an error, pqErrMsg will try to return pq error details
 // if it's a pq error.
 func pqErrMsg(err error) string {
@@ -82,7 +55,6 @@ func pqErrMsg(err error) string {
 			return fmt.Sprintf("%s. %s", err, err.Detail)
 		}
 	}
-
 	return err.Error()
 }
 
@@ -103,7 +75,6 @@ func normalizeTags(tags []string) []string {
 			out = append(out, string(rep))
 		}
 	}
-
 	return out
 }
 
@@ -118,7 +89,6 @@ func makeMsgTpl(pageTitle, heading, msg string) msgTpl {
 	err.Title = pageTitle
 	err.MessageTitle = heading
 	err.Message = msg
-
 	return err
 }
 
@@ -127,7 +97,6 @@ func makeMsgTpl(pageTitle, heading, msg string) msgTpl {
 // resultant values.
 func parseStringIDs(s []string) ([]int64, error) {
 	vals := make([]int64, 0, len(s))
-
 	for _, v := range s {
 		i, err := strconv.ParseInt(v, 10, 64)
 		if err != nil {
@@ -147,12 +116,11 @@ func parseStringIDs(s []string) ([]int64, error) {
 // generateRandomString generates a cryptographically random, alphanumeric string of length n.
 func generateRandomString(n int) (string, error) {
 	const dictionary = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
-
 	var bytes = make([]byte, n)
+
 	if _, err := rand.Read(bytes); err != nil {
 		return "", err
 	}
-
 	for k, v := range bytes {
 		bytes[k] = dictionary[v%byte(len(dictionary))]
 	}

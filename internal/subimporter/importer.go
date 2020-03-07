@@ -21,11 +21,10 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/gofrs/uuid"
-	"github.com/lib/pq"
-
 	"github.com/asaskevich/govalidator"
+	"github.com/gofrs/uuid"
 	"github.com/knadh/listmonk/models"
+	"github.com/lib/pq"
 )
 
 const (
@@ -34,7 +33,10 @@ const (
 
 	// commitBatchSize is the number of inserts to commit in a single SQL transaction.
 	commitBatchSize = 10000
+)
 
+// Various import statuses.
+const (
 	StatusNone      = "none"
 	StatusImporting = "importing"
 	StatusStopping  = "stopping"
@@ -113,7 +115,6 @@ func New(upsert *sql.Stmt, blacklist *sql.Stmt, updateListDate *sql.Stmt,
 		notifCB:        notifCB,
 		status:         Status{Status: StatusNone, logBuf: bytes.NewBuffer(nil)},
 	}
-
 	return &im
 }
 
@@ -162,7 +163,6 @@ func (im *Importer) GetLogs() []byte {
 	if im.status.logBuf == nil {
 		return []byte{}
 	}
-
 	return im.status.logBuf.Bytes()
 }
 
@@ -213,7 +213,6 @@ func (im *Importer) sendNotif(status string) error {
 			strings.Title(status),
 			s.Name)
 	)
-
 	return im.notifCB(subject, out)
 }
 
@@ -526,7 +525,6 @@ func (s *Session) LoadCSV(srcPath string, delim rune) error {
 
 	close(s.subQueue)
 	failed = false
-
 	return nil
 }
 
@@ -558,7 +556,6 @@ func (s *Session) mapCSVHeaders(csvHdrs []string, knownHdrs map[string]bool) map
 			s.log.Printf("ignoring unknown header '%s'", h)
 			continue
 		}
-
 		hdrKeys[h] = i
 	}
 
@@ -601,5 +598,4 @@ func countLines(r io.Reader) (int, error) {
 			return count, err
 		}
 	}
-
 }
