@@ -50,8 +50,10 @@ func initFS() stuffbin.FileSystem {
 		"config.toml.sample",
 		"queries.sql",
 		"schema.sql",
-		"email-templates",
-		"public",
+		"static/email-templates",
+
+		// Alias /static/public to /public for the HTTP fileserver.
+		"static/public:/public",
 
 		// The frontend app's static assets are aliased to /frontend
 		// so that they are accessible at localhost:port/frontend/static/ ...
@@ -261,7 +263,7 @@ func initNotifTemplates(path string, fs stuffbin.FileSystem, cs *constants) *tem
 			return cs.LogoURL
 		}}
 
-	tpl, err := stuffbin.ParseTemplatesGlob(funcs, fs, "/email-templates/*.html")
+	tpl, err := stuffbin.ParseTemplatesGlob(funcs, fs, "/static/email-templates/*.html")
 	if err != nil {
 		lo.Fatalf("error parsing e-mail notif templates: %v", err)
 	}

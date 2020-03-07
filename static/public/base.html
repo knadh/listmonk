@@ -1,0 +1,98 @@
+{{ define "header" }}
+<!doctype html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+        <base target="_blank">
+
+        <style>
+            body {
+                background-color: #F0F1F3;
+                font-family: 'Helvetica Neue', 'Segoe UI', Helvetica, sans-serif;
+                font-size: 15px;
+                line-height: 26px;
+                margin: 0;
+                color: #444;
+            }
+
+            .wrap {
+                background-color: #fff;
+                padding: 30px;
+                max-width: 525px;
+                margin: 0 auto;
+                border-radius: 5px;
+            }
+
+            .header {
+                border-bottom: 1px solid #eee;
+                padding-bottom: 15px;
+                margin-bottom: 15px;
+            }
+
+            .footer {
+                text-align: center;
+                font-size: 12px;
+                color: #888;
+            }
+                .footer a {
+                    color: #888;
+                }
+
+            .gutter {
+                padding: 30px;
+            }
+            .button {
+                background: #7f2aff;
+                color: #fff !important;
+                display: inline-block;
+                border-radius: 3px;
+                padding: 10px 30px;
+                text-align: center;
+                text-decoration: none;
+                font-weight: bold;
+            }
+            .button:hover {
+                background: #222;
+                color: #fff;
+            }
+            img {
+                max-width: 100%;
+            }
+
+            a {
+                color: #7f2aff;
+            }
+                a:hover {
+                    color: #111;
+                }
+            @media screen and (max-width: 600px) {
+                .wrap {
+                    max-width: auto;
+                }
+                .gutter {
+                    padding: 10px;
+                }
+            }
+        </style>
+    </head>
+<body style="background-color: #F0F1F3;">
+    <div class="gutter">&nbsp;</div>
+    <div class="wrap">
+        <div class="header">
+            {{ if ne LogoURL "" }}
+                <a href="{{ RootURL }}"><img src="{{ LogoURL }}" alt="listmonk" /></a>
+            {{ end }}
+        </div>
+{{ end }}
+
+{{ define "footer" }}
+    </div>
+    
+    <div class="footer">
+        <p>Powered by <a href="https://listmonk.app" target="_blank">listmonk</a></p>
+    </div>
+    <div class="gutter">&nbsp;</div>
+</body>
+</html>
+{{ end }}
