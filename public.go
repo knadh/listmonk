@@ -11,9 +11,9 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/knadh/listmonk/messenger"
+	"github.com/knadh/listmonk/internal/messenger"
+	"github.com/knadh/listmonk/internal/subimporter"
 	"github.com/knadh/listmonk/models"
-	"github.com/knadh/listmonk/subimporter"
 	"github.com/labstack/echo"
 	"github.com/lib/pq"
 )

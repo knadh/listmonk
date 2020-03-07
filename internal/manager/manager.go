@@ -9,7 +9,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/knadh/listmonk/messenger"
+	"github.com/knadh/listmonk/internal/messenger"
 	"github.com/knadh/listmonk/models"
 )
 

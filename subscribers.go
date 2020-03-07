@@ -13,7 +13,7 @@ import (
 	"github.com/asaskevich/govalidator"
 	"github.com/gofrs/uuid"
 	"github.com/knadh/listmonk/models"
-	"github.com/knadh/listmonk/subimporter"
+	"github.com/knadh/listmonk/internal/subimporter"
 	"github.com/labstack/echo"
 	"github.com/lib/pq"
 )

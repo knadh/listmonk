@@ -6,7 +6,7 @@ import (
 	"strconv"
 
 	"github.com/gofrs/uuid"
-	"github.com/knadh/listmonk/media"
+	"github.com/knadh/listmonk/internal/media"
 	"github.com/labstack/echo"
 )
 

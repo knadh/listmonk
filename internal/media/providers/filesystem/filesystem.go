@@ -10,7 +10,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/knadh/listmonk/media"
+	"github.com/knadh/listmonk/internal/media"
 )
 
 const tmpFilePrefix = "listmonk"

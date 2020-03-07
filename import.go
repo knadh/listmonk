@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/knadh/listmonk/subimporter"
+	"github.com/knadh/listmonk/internal/subimporter"
 	"github.com/labstack/echo"
 )
 

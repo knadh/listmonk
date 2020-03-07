@@ -6,7 +6,7 @@ import (
 	"io"
 	"time"
 
-	"github.com/knadh/listmonk/media"
+	"github.com/knadh/listmonk/internal/media"
 	"github.com/rhnvrm/simples3"
 )
 
