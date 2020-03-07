@@ -142,7 +142,7 @@ func validateUUID(next echo.HandlerFunc, params ...string) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		for _, p := range params {
 			if !reUUID.MatchString(c.Param(p)) {
-				return c.Render(http.StatusBadRequest, "message",
+				return c.Render(http.StatusBadRequest, tplMessage,
 					makeMsgTpl("Invalid request", "",
 						`One or more UUIDs in the request are invalid.`))
 			}
@@ -163,13 +163,13 @@ func subscriberExists(next echo.HandlerFunc, params ...string) echo.HandlerFunc 
 		var exists bool
 		if err := app.Queries.SubscriberExists.Get(&exists, 0, subUUID); err != nil {
 			app.Logger.Printf("error checking subscriber existence: %v", err)
-			return c.Render(http.StatusInternalServerError, "message",
+			return c.Render(http.StatusInternalServerError, tplMessage,
 				makeMsgTpl("Error", "",
 					`Error processing request. Please retry.`))
 		}
 
 		if !exists {
-			return c.Render(http.StatusBadRequest, "message",
+			return c.Render(http.StatusBadRequest, tplMessage,
 				makeMsgTpl("Not found", "",
 					`Subscription not found.`))
 		}
