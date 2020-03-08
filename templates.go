@@ -8,7 +8,6 @@ import (
 	"regexp"
 	"strconv"
 
-	"github.com/asaskevich/govalidator"
 	"github.com/knadh/listmonk/models"
 	"github.com/labstack/echo"
 )
@@ -241,7 +240,7 @@ func handleDeleteTemplate(c echo.Context) error {
 
 // validateTemplate validates template fields.
 func validateTemplate(o models.Template) error {
-	if !govalidator.IsByteLength(o.Name, 1, stdInputMaxLen) {
+	if !strHasLen(o.Name, 1, stdInputMaxLen) {
 		return errors.New("invalid length for `name`")
 	}
 

@@ -13,8 +13,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/asaskevich/govalidator"
 	"github.com/gofrs/uuid"
+	"github.com/knadh/listmonk/internal/subimporter"
 	"github.com/knadh/listmonk/models"
 	"github.com/labstack/echo"
 	"github.com/lib/pq"
@@ -574,19 +574,19 @@ func validateCampaignFields(c campaignReq, app *App) (campaignReq, error) {
 	if c.FromEmail == "" {
 		c.FromEmail = app.constants.FromEmail
 	} else if !regexFromAddress.Match([]byte(c.FromEmail)) {
-		if !govalidator.IsEmail(c.FromEmail) {
+		if !subimporter.IsEmail(c.FromEmail) {
 			return c, errors.New("invalid `from_email`")
 		}
 	}
 
-	if !govalidator.IsByteLength(c.Name, 1, stdInputMaxLen) {
+	if !strHasLen(c.Name, 1, stdInputMaxLen) {
 		return c, errors.New("invalid length for `name`")
 	}
-	if !govalidator.IsByteLength(c.Subject, 1, stdInputMaxLen) {
+	if !strHasLen(c.Subject, 1, stdInputMaxLen) {
 		return c, errors.New("invalid length for `subject`")
 	}
 
-	// if !govalidator.IsByteLength(c.Body, 1, bodyMaxLen) {
+	// if !hasLen(c.Body, 1, bodyMaxLen) {
 	// 	return c,errors.New("invalid length for `body`")
 	// }
 

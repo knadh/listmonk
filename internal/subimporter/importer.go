@@ -18,10 +18,10 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"regexp"
 	"strings"
 	"sync"
 
-	"github.com/asaskevich/govalidator"
 	"github.com/gofrs/uuid"
 	"github.com/knadh/listmonk/models"
 	"github.com/lib/pq"
@@ -101,6 +101,9 @@ var (
 	csvHeaders = map[string]bool{"email": true,
 		"name":       true,
 		"attributes": true}
+
+	// https://www.alexedwards.net/blog/validation-snippets-for-go#email-validation
+	regexEmail = regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+\\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
 )
 
 // New returns a new instance of Importer.
@@ -567,10 +570,10 @@ func ValidateFields(s SubReq) error {
 	if len(s.Email) > 1000 {
 		return errors.New(`e-mail too long`)
 	}
-	if !govalidator.IsEmail(s.Email) {
+	if !IsEmail(s.Email) {
 		return errors.New(`invalid e-mail "` + s.Email + `"`)
 	}
-	if !govalidator.IsByteLength(s.Name, 1, stdInputMaxLen) {
+	if len(s.Name) == 0 || len(s.Name) > stdInputMaxLen {
 		return errors.New(`invalid or empty name "` + s.Name + `"`)
 	}
 	return nil
@@ -598,4 +601,9 @@ func countLines(r io.Reader) (int, error) {
 			return count, err
 		}
 	}
+}
+
+// IsEmail checks whether the given string is a valid e-mail address.
+func IsEmail(email string) bool {
+	return regexEmail.MatchString(email)
 }

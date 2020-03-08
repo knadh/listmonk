@@ -127,3 +127,8 @@ func generateRandomString(n int) (string, error) {
 
 	return string(bytes), nil
 }
+
+// strHasLen checks if the given string has a length within min-max.
+func strHasLen(str string, min, max int) bool {
+	return len(str) >= min && len(str) <= max
+}

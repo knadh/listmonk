@@ -10,7 +10,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/asaskevich/govalidator"
 	"github.com/gofrs/uuid"
 	"github.com/knadh/listmonk/internal/subimporter"
 	"github.com/knadh/listmonk/models"
@@ -204,10 +203,10 @@ func handleUpdateSubscriber(c echo.Context) error {
 	if id < 1 {
 		return echo.NewHTTPError(http.StatusBadRequest, "Invalid ID.")
 	}
-	if req.Email != "" && !govalidator.IsEmail(req.Email) {
+	if req.Email != "" && !subimporter.IsEmail(req.Email) {
 		return echo.NewHTTPError(http.StatusBadRequest, "Invalid `email`.")
 	}
-	if req.Name != "" && !govalidator.IsByteLength(req.Name, 1, stdInputMaxLen) {
+	if req.Name != "" && !strHasLen(req.Name, 1, stdInputMaxLen) {
 		return echo.NewHTTPError(http.StatusBadRequest, "Invalid length for `name`.")
 	}
 

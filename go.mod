@@ -1,7 +1,6 @@
 module github.com/knadh/listmonk
 
 require (
-	github.com/asaskevich/govalidator v0.0.0-20180720115003-f9ffefc3facf
 	github.com/disintegration/imaging v1.5.0
 	github.com/gofrs/uuid v3.2.0+incompatible
 	github.com/jinzhu/gorm v1.9.1

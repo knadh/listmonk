@@ -9,7 +9,6 @@ import (
 	"github.com/knadh/listmonk/models"
 	"github.com/lib/pq"
 
-	"github.com/asaskevich/govalidator"
 	"github.com/labstack/echo"
 )
 
@@ -80,7 +79,7 @@ func handleCreateList(c echo.Context) error {
 	}
 
 	// Validate.
-	if !govalidator.IsByteLength(o.Name, 1, stdInputMaxLen) {
+	if !strHasLen(o.Name, 1, stdInputMaxLen) {
 		return echo.NewHTTPError(http.StatusBadRequest,
 			"Invalid length for the name field.")
 	}
