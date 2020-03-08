@@ -96,7 +96,7 @@ func install(db *sqlx.DB, fs stuffbin.FileSystem, prompt bool) {
 	}
 
 	// Default template.
-	tplBody, err := ioutil.ReadFile("email-templates/default.tpl")
+	tplBody, err := ioutil.ReadFile("static/email-templates/default.tpl")
 	if err != nil {
 		tplBody = []byte(tplTag)
 	}
@@ -134,7 +134,6 @@ func install(db *sqlx.DB, fs stuffbin.FileSystem, prompt bool) {
 
 	lo.Printf("Setup complete")
 	lo.Printf(`Run the program and access the dashboard at %s`, ko.MustString("app.address"))
-
 }
 
 // installMigrate executes the SQL schema and creates the necessary tables and types.
