@@ -29,8 +29,8 @@ func (r *runnerDB) NextCampaigns(excludeIDs []int64) ([]*models.Campaign, error)
 // Since batches are processed sequentially, the retrieval is ordered by ID,
 // and every batch takes the last ID of the last batch and fetches the next
 // batch above that.
-func (r *runnerDB) NextSubscribers(campID, limit int) ([]*models.Subscriber, error) {
-	var out []*models.Subscriber
+func (r *runnerDB) NextSubscribers(campID, limit int) ([]models.Subscriber, error) {
+	var out []models.Subscriber
 	err := r.queries.NextCampaignSubscribers.Select(&out, campID, limit)
 	return out, err
 }

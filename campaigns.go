@@ -180,7 +180,7 @@ func handlePreviewCampaign(c echo.Context) error {
 	}
 
 	// Render the message body.
-	m := app.manager.NewMessage(camp, &sub)
+	m := app.manager.NewMessage(camp, sub)
 	if err := m.Render(); err != nil {
 		app.log.Printf("error rendering message: %v", err)
 		return echo.NewHTTPError(http.StatusBadRequest,
@@ -538,7 +538,7 @@ func handleTestCampaign(c echo.Context) error {
 	// Send the test messages.
 	for _, s := range subs {
 		sub := s
-		if err := sendTestMessage(&sub, &camp, app); err != nil {
+		if err := sendTestMessage(sub, &camp, app); err != nil {
 			return echo.NewHTTPError(http.StatusBadRequest,
 				fmt.Sprintf("Error sending test: %v", err))
 		}
@@ -548,7 +548,7 @@ func handleTestCampaign(c echo.Context) error {
 }
 
 // sendTestMessage takes a campaign and a subsriber and sends out a sample campaign message.
-func sendTestMessage(sub *models.Subscriber, camp *models.Campaign, app *App) error {
+func sendTestMessage(sub models.Subscriber, camp *models.Campaign, app *App) error {
 	if err := camp.CompileTemplate(app.manager.TemplateFuncs(camp)); err != nil {
 		app.log.Printf("error compiling template: %v", err)
 		return fmt.Errorf("Error compiling template: %v", err)

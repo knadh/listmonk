@@ -114,7 +114,7 @@ func handlePreviewTemplate(c echo.Context) error {
 	}
 
 	// Render the message body.
-	m := app.manager.NewMessage(&camp, &dummySubscriber)
+	m := app.manager.NewMessage(&camp, dummySubscriber)
 	if err := m.Render(); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest,
 			fmt.Sprintf("Error rendering message: %v", err))

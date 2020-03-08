@@ -27,7 +27,7 @@ const (
 // that provides subscriber and campaign records.
 type DataSource interface {
 	NextCampaigns(excludeIDs []int64) ([]*models.Campaign, error)
-	NextSubscribers(campID, limit int) ([]*models.Subscriber, error)
+	NextSubscribers(campID, limit int) ([]models.Subscriber, error)
 	GetCampaign(campID int) (*models.Campaign, error)
 	UpdateCampaignStatus(campID int, status string) error
 	CreateLink(url string) (string, error)
@@ -52,7 +52,7 @@ type Manager struct {
 	linksMutex sync.RWMutex
 
 	subFetchQueue  chan *models.Campaign
-	msgQueue       chan *Message
+	msgQueue       chan Message
 	msgErrorQueue  chan msgError
 	msgErrorCounts map[int]int
 }
@@ -60,7 +60,7 @@ type Manager struct {
 // Message represents an active subscriber that's being processed.
 type Message struct {
 	Campaign   *models.Campaign
-	Subscriber *models.Subscriber
+	Subscriber models.Subscriber
 	Body       []byte
 
 	from     string
@@ -96,7 +96,7 @@ func New(cfg Config, src DataSource, notifCB models.AdminNotifCallback, l *log.L
 		camps:          make(map[int]*models.Campaign),
 		links:          make(map[string]string),
 		subFetchQueue:  make(chan *models.Campaign, cfg.Concurrency),
-		msgQueue:       make(chan *Message, cfg.Concurrency),
+		msgQueue:       make(chan Message, cfg.Concurrency),
 		msgErrorQueue:  make(chan msgError, cfg.MaxSendErrors),
 		msgErrorCounts: make(map[int]int),
 	}
@@ -104,8 +104,8 @@ func New(cfg Config, src DataSource, notifCB models.AdminNotifCallback, l *log.L
 
 // NewMessage creates and returns a Message that is made available
 // to message templates while they're compiled.
-func (m *Manager) NewMessage(c *models.Campaign, s *models.Subscriber) *Message {
-	return &Message{
+func (m *Manager) NewMessage(c *models.Campaign, s models.Subscriber) Message {
+	return Message{
 		Campaign:   c,
 		Subscriber: s,
 
