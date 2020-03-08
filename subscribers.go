@@ -17,6 +17,10 @@ import (
 	"github.com/lib/pq"
 )
 
+const (
+	dummyUUID = "00000000-0000-0000-0000-000000000000"
+)
+
 // subQueryReq is a "catch all" struct for reading various
 // subscriber related requests.
 type subQueryReq struct {
@@ -57,7 +61,7 @@ type subOptin struct {
 var dummySubscriber = models.Subscriber{
 	Email: "dummy@listmonk.app",
 	Name:  "Dummy Subscriber",
-	UUID:  "00000000-0000-0000-0000-000000000000",
+	UUID:  dummyUUID,
 }
 
 // handleGetSubscriber handles the retrieval of a single subscriber by ID.

@@ -100,7 +100,7 @@ func handlePreviewTemplate(c echo.Context) error {
 
 	// Compile the template.
 	camp := models.Campaign{
-		UUID:         "00000000-0000-0000-0000-000000000000",
+		UUID:         dummyUUID,
 		Name:         "Dummy Campaign",
 		Subject:      "Dummy Campaign Subject",
 		FromEmail:    "dummy-campaign@listmonk.app",

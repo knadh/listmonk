@@ -255,9 +255,14 @@ func handleRegisterCampaignView(c echo.Context) error {
 		campUUID = c.Param("campUUID")
 		subUUID  = c.Param("subUUID")
 	)
-	if _, err := app.queries.RegisterCampaignView.Exec(campUUID, subUUID); err != nil {
-		app.log.Printf("error registering campaign view: %s", err)
+
+	// Exclude dummy hits from template previews.
+	if campUUID != dummyUUID && subUUID != dummyUUID {
+		if _, err := app.queries.RegisterCampaignView.Exec(campUUID, subUUID); err != nil {
+			app.log.Printf("error registering campaign view: %s", err)
+		}
 	}
+
 	c.Response().Header().Set("Cache-Control", "no-cache")
 	return c.Blob(http.StatusOK, "image/png", pixelPNG)
 }
