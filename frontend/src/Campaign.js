@@ -322,6 +322,7 @@ class TheFormDef extends React.PureComponent {
               description: `"${values["name"]}" updated`
             })
             this.setState({ loading: false })
+            this.props.setRecord(resp.data.data)
             cb(true)
           })
           .catch(e => {
@@ -632,12 +633,17 @@ class Campaign extends React.PureComponent {
     }
   }
 
+  setRecord = r => {
+    this.setState({ record: r })
+  }
+
   fetchRecord = id => {
     this.props
       .request(cs.Routes.GetCampaign, cs.MethodGet, { id: id })
       .then(r => {
         const record = r.data.data
-        this.setState({ record: record, loading: false })
+        this.setState({ loading: false })
+        this.setRecord(record)
 
         // The form for non draft and scheduled campaigns should be locked.
         if (
@@ -780,6 +786,7 @@ class Campaign extends React.PureComponent {
                   this.setState({ formRef: r })
                 }}
                 record={this.state.record}
+                setRecord={this.setRecord}
                 isSingle={this.state.record.id ? true : false}
                 body={
                   this.state.body ? this.state.body : this.state.record.body
