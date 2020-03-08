@@ -533,7 +533,7 @@ class TheFormDef extends React.PureComponent {
             <hr />
             <Form.Item {...formItemLayout} label="Send later?">
               <Row>
-                <Col span={2}>
+                <Col lg={4}>
                   {getFieldDecorator("send_later")(
                     <Switch
                       disabled={this.props.formDisabled}
@@ -542,7 +542,7 @@ class TheFormDef extends React.PureComponent {
                     />
                   )}
                 </Col>
-                <Col xs={24} sm={2}>
+                <Col lg={20}>
                   {this.state.sendLater &&
                     getFieldDecorator("send_at", {
                       initialValue:
@@ -681,8 +681,8 @@ class Campaign extends React.PureComponent {
   render() {
     return (
       <section className="content campaign">
-        <Row>
-          <Col xs={24} sm={16}>
+        <Row gutter={[2, 16]}>
+          <Col span={24} md={12}>
             {!this.state.record.id && <h1>Create a campaign</h1>}
             {this.state.record.id && (
               <div>
@@ -706,7 +706,7 @@ class Campaign extends React.PureComponent {
               </div>
             )}
           </Col>
-          <Col xs={24} sm={8} className="right header-action-break">
+          <Col span={24} md={12} className="right header-action-break">
             {!this.state.formDisabled && !this.state.loading && (
               <div>
                 <Button
