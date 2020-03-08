@@ -65,10 +65,10 @@ type Manager struct {
 type CampaignMessage struct {
 	Campaign   *models.Campaign
 	Subscriber models.Subscriber
-	Body       []byte
 
 	from     string
 	to       string
+	body     []byte
 	unsubURL string
 }
 
@@ -263,7 +263,7 @@ func (m *Manager) SpawnWorkers() {
 					}
 
 					err := m.messengers[msg.Campaign.MessengerID].Push(
-						msg.from, []string{msg.to}, msg.Campaign.Subject, msg.Body, nil)
+						msg.from, []string{msg.to}, msg.Campaign.Subject, msg.body, nil)
 					if err != nil {
 						m.logger.Printf("error sending message in campaign %s: %v", msg.Campaign.Name, err)
 
@@ -472,6 +472,13 @@ func (m *CampaignMessage) Render() error {
 	if err := m.Campaign.Tpl.ExecuteTemplate(&out, models.BaseTpl, m); err != nil {
 		return err
 	}
-	m.Body = out.Bytes()
+	m.body = out.Bytes()
 	return nil
+}
+
+// Body returns a copy of the message body.
+func (m *CampaignMessage) Body() []byte {
+	out := make([]byte, len(m.body))
+	copy(out, m.body)
+	return out
 }

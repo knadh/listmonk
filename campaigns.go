@@ -187,7 +187,7 @@ func handlePreviewCampaign(c echo.Context) error {
 			fmt.Sprintf("Error rendering message: %v", err))
 	}
 
-	return c.HTML(http.StatusOK, string(m.Body))
+	return c.HTML(http.StatusOK, string(m.Body()))
 }
 
 // handleCreateCampaign handles campaign creation.
@@ -562,7 +562,7 @@ func sendTestMessage(sub models.Subscriber, camp *models.Campaign, app *App) err
 			fmt.Sprintf("Error rendering message: %v", err))
 	}
 
-	if err := app.messenger.Push(camp.FromEmail, []string{sub.Email}, camp.Subject, m.Body, nil); err != nil {
+	if err := app.messenger.Push(camp.FromEmail, []string{sub.Email}, camp.Subject, m.Body(), nil); err != nil {
 		return err
 	}
 

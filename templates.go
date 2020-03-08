@@ -119,7 +119,7 @@ func handlePreviewTemplate(c echo.Context) error {
 			fmt.Sprintf("Error rendering message: %v", err))
 	}
 
-	return c.HTML(http.StatusOK, string(m.Body))
+	return c.HTML(http.StatusOK, string(m.Body()))
 }
 
 // handleCreateTemplate handles template creation.
