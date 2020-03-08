@@ -138,7 +138,8 @@ func main() {
 	app.messenger = initMessengers(app.manager)
 	app.notifTpls = initNotifTemplates("/email-templates/*.html", fs, app.constants)
 
-	// Start the campaign workers.
+	// Start the campaign workers. The campaign batches (fetch from DB, push out
+	// messages) get processed at the specified interval.
 	go app.manager.Run(time.Second * 5)
 	app.manager.SpawnWorkers()
 

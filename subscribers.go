@@ -12,8 +12,8 @@ import (
 
 	"github.com/asaskevich/govalidator"
 	"github.com/gofrs/uuid"
-	"github.com/knadh/listmonk/models"
 	"github.com/knadh/listmonk/internal/subimporter"
+	"github.com/knadh/listmonk/models"
 	"github.com/labstack/echo"
 	"github.com/lib/pq"
 )
@@ -181,7 +181,7 @@ func handleCreateSubscriber(c echo.Context) error {
 
 	// If the lists are double-optins, send confirmation e-mails.
 	// Todo: This arbitrary goroutine should be moved to a centralised pool.
-	go sendOptinConfirmation(req.Subscriber, []int64(req.Lists), app)
+	_ = sendOptinConfirmation(req.Subscriber, []int64(req.Lists), app)
 
 	// Hand over to the GET handler to return the last insertion.
 	c.SetParamNames("id")
@@ -536,7 +536,7 @@ func insertSubscriber(req subimporter.SubReq, app *App) (int, error) {
 
 	// If the lists are double-optins, send confirmation e-mails.
 	// Todo: This arbitrary goroutine should be moved to a centralised pool.
-	go sendOptinConfirmation(req.Subscriber, []int64(req.Lists), app)
+	sendOptinConfirmation(req.Subscriber, []int64(req.Lists), app)
 	return req.ID, nil
 }
 
@@ -613,13 +613,11 @@ func sendOptinConfirmation(sub models.Subscriber, listIDs []int64, app *App) err
 	out.OptinURL = fmt.Sprintf(app.constants.OptinURL, sub.UUID, qListIDs.Encode())
 
 	// Send the e-mail.
-	if err := sendNotification([]string{sub.Email},
-		"Confirm subscription",
-		notifSubscriberOptin, out, app); err != nil {
+	if err := app.sendNotification([]string{sub.Email},
+		"Confirm subscription", notifSubscriberOptin, out); err != nil {
 		app.log.Printf("error e-mailing subscriber profile: %s", err)
 		return err
 	}
-
 	return nil
 }
 

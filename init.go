@@ -159,7 +159,7 @@ func initConstants() *constants {
 // initCampaignManager initializes the campaign manager.
 func initCampaignManager(app *App) *manager.Manager {
 	campNotifCB := func(subject string, data interface{}) error {
-		return sendNotification(app.constants.NotifyEmails, subject, notifTplCampaign, data, app)
+		return app.sendNotification(app.constants.NotifyEmails, subject, notifTplCampaign, data)
 	}
 	return manager.New(manager.Config{
 		Concurrency:   ko.Int("app.concurrency"),
@@ -180,7 +180,7 @@ func initImporter(app *App) *subimporter.Importer {
 		app.queries.UpdateListsDate.Stmt,
 		app.db.DB,
 		func(subject string, data interface{}) error {
-			go sendNotification(app.constants.NotifyEmails, subject, notifTplImport, data, app)
+			app.sendNotification(app.constants.NotifyEmails, subject, notifTplImport, data)
 			return nil
 		})
 }

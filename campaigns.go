@@ -180,7 +180,7 @@ func handlePreviewCampaign(c echo.Context) error {
 	}
 
 	// Render the message body.
-	m := app.manager.NewMessage(camp, sub)
+	m := app.manager.NewCampaignMessage(camp, sub)
 	if err := m.Render(); err != nil {
 		app.log.Printf("error rendering message: %v", err)
 		return echo.NewHTTPError(http.StatusBadRequest,
@@ -555,7 +555,7 @@ func sendTestMessage(sub models.Subscriber, camp *models.Campaign, app *App) err
 	}
 
 	// Render the message body.
-	m := app.manager.NewMessage(camp, sub)
+	m := app.manager.NewCampaignMessage(camp, sub)
 	if err := m.Render(); err != nil {
 		app.log.Printf("error rendering message: %v", err)
 		return echo.NewHTTPError(http.StatusBadRequest,

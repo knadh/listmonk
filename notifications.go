@@ -2,6 +2,8 @@ package main
 
 import (
 	"bytes"
+
+	"github.com/knadh/listmonk/internal/manager"
 )
 
 const (
@@ -19,18 +21,20 @@ type notifData struct {
 }
 
 // sendNotification sends out an e-mail notification to admins.
-func sendNotification(toEmails []string, subject, tplName string, data interface{}, app *App) error {
+func (app *App) sendNotification(toEmails []string, subject, tplName string, data interface{}) error {
 	var b bytes.Buffer
 	if err := app.notifTpls.ExecuteTemplate(&b, tplName, data); err != nil {
 		app.log.Printf("error compiling notification template '%s': %v", tplName, err)
 		return err
 	}
 
-	err := app.messenger.Push(app.constants.FromEmail,
-		toEmails,
-		subject,
-		b.Bytes(),
-		nil)
+	err := app.manager.PushMessage(manager.Message{
+		From:      app.constants.FromEmail,
+		To:        toEmails,
+		Subject:   subject,
+		Body:      b.Bytes(),
+		Messenger: "email",
+	})
 	if err != nil {
 		app.log.Printf("error sending admin notification (%s): %v", subject, err)
 		return err
