@@ -4,7 +4,7 @@ VERSION := $(shell git describe)
 BUILDSTR := ${VERSION} (${LAST_COMMIT} $(shell date -u +"%Y-%m-%dT%H:%M:%S%z"))
 
 BIN := listmonk
-STATIC := config.toml.sample schema.sql queries.sql public email-templates frontend/build:/frontend
+STATIC := config.toml.sample schema.sql queries.sql static/public:/public static/email-templates frontend/build:/frontend
 
 # Dependencies.
 .PHONY: deps
