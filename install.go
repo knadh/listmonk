@@ -113,8 +113,7 @@ func install(db *sqlx.DB, fs stuffbin.FileSystem, prompt bool) {
 	}
 
 	// Sample campaign.
-	sendAt := time.Now()
-	sendAt.Add(time.Minute * 43200)
+	sendAt := time.Now().Add(time.Hour * 24)
 	if _, err := q.CreateCampaign.Exec(uuid.Must(uuid.NewV4()),
 		models.CampaignTypeRegular,
 		"Test campaign",
