@@ -157,28 +157,28 @@ func initConstants() *constants {
 }
 
 // initCampaignManager initializes the campaign manager.
-func initCampaignManager(app *App) *manager.Manager {
+func initCampaignManager(q *Queries, cs *constants, app *App) *manager.Manager {
 	campNotifCB := func(subject string, data interface{}) error {
-		return app.sendNotification(app.constants.NotifyEmails, subject, notifTplCampaign, data)
+		return app.sendNotification(cs.NotifyEmails, subject, notifTplCampaign, data)
 	}
 	return manager.New(manager.Config{
 		Concurrency:   ko.Int("app.concurrency"),
 		MaxSendErrors: ko.Int("app.max_send_errors"),
-		FromEmail:     app.constants.FromEmail,
-		UnsubURL:      app.constants.UnsubURL,
-		OptinURL:      app.constants.OptinURL,
-		LinkTrackURL:  app.constants.LinkTrackURL,
-		ViewTrackURL:  app.constants.ViewTrackURL,
-	}, newManagerDB(app.queries), campNotifCB, lo)
+		FromEmail:     cs.FromEmail,
+		UnsubURL:      cs.UnsubURL,
+		OptinURL:      cs.OptinURL,
+		LinkTrackURL:  cs.LinkTrackURL,
+		ViewTrackURL:  cs.ViewTrackURL,
+	}, newManagerDB(q), campNotifCB, lo)
 
 }
 
 // initImporter initializes the bulk subscriber importer.
-func initImporter(app *App) *subimporter.Importer {
-	return subimporter.New(app.queries.UpsertSubscriber.Stmt,
-		app.queries.UpsertBlacklistSubscriber.Stmt,
-		app.queries.UpdateListsDate.Stmt,
-		app.db.DB,
+func initImporter(q *Queries, db *sqlx.DB, app *App) *subimporter.Importer {
+	return subimporter.New(q.UpsertSubscriber.Stmt,
+		q.UpsertBlacklistSubscriber.Stmt,
+		q.UpdateListsDate.Stmt,
+		db.DB,
 		func(subject string, data interface{}) error {
 			app.sendNotification(app.constants.NotifyEmails, subject, notifTplImport, data)
 			return nil

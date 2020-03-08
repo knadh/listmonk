@@ -133,8 +133,8 @@ func main() {
 		log:       lo,
 	}
 	_, app.queries = initQueries(queryFilePath, db, fs, true)
-	app.manager = initCampaignManager(app)
-	app.importer = initImporter(app)
+	app.manager = initCampaignManager(app.queries, app.constants, app)
+	app.importer = initImporter(app.queries, db, app)
 	app.messenger = initMessengers(app.manager)
 	app.notifTpls = initNotifTemplates("/email-templates/*.html", fs, app.constants)
 
