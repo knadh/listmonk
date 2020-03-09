@@ -104,6 +104,8 @@ var (
 
 	// https://www.alexedwards.net/blog/validation-snippets-for-go#email-validation
 	regexEmail = regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+\\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
+
+	regexCleanStr = regexp.MustCompile("[[:^ascii:]]")
 )
 
 // New returns a new instance of Importer.
@@ -555,6 +557,8 @@ func (s *Session) mapCSVHeaders(csvHdrs []string, knownHdrs map[string]bool) map
 	// This is to allow dynamic ordering of columns in th CSV.
 	hdrKeys := make(map[string]int)
 	for i, h := range csvHdrs {
+		// Clean the string of non-ASCII characters (BOM etc.).
+		h := regexCleanStr.ReplaceAllString(h, "")
 		if _, ok := knownHdrs[h]; !ok {
 			s.log.Printf("ignoring unknown header '%s'", h)
 			continue
