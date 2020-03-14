@@ -14,6 +14,9 @@ listmonk is a standalone, self-hosted, newsletter and mailing list manager. It i
 - Run `./listmonk` and visit `http://localhost:9000`.
 - Since there is no user auth yet, it's best to put listmonk behind a proxy like Nginx and setup basicauth on all endpoints except for the few endpoints that need to be public. Here is a [sample nginx config](https://github.com/knadh/listmonk/wiki/Production-Nginx-config) for production use.
 
+### Configuration and customization
+See the [configuration Wiki page](https://github.com/knadh/listmonk/wiki/Configuration).
+
 ### Running on Docker
 
 You can pull the official Docker Image from [Docker Hub](https://hub.docker.com/r/listmonk/listmonk).

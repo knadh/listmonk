@@ -29,41 +29,57 @@ const (
 
 // initFileSystem initializes the stuffbin FileSystem to provide
 // access to bunded static assets to the app.
-func initFS() stuffbin.FileSystem {
+func initFS(staticDir string) stuffbin.FileSystem {
 	// Get the executable's path.
 	path, err := os.Executable()
 	if err != nil {
 		log.Fatalf("error getting executable path: %v", err)
 	}
 
+	// Load the static files stuffed in the binary.
 	fs, err := stuffbin.UnStuff(path)
-	if err == nil {
-		return fs
-	}
-
-	// Running in local mode. Load the required static assets into
-	// the in-memory stuffbin.FileSystem.
-	lo.Printf("unable to initialize embedded filesystem: %v", err)
-	lo.Printf("using local filesystem for static assets")
-	files := []string{
-		"config.toml.sample",
-		"queries.sql",
-		"schema.sql",
-		"static/email-templates",
-
-		// Alias /static/public to /public for the HTTP fileserver.
-		"static/public:/public",
-
-		// The frontend app's static assets are aliased to /frontend
-		// so that they are accessible at localhost:port/frontend/static/ ...
-		"frontend/build:/frontend",
-	}
-
-	fs, err = stuffbin.NewLocalFS("/", files...)
 	if err != nil {
-		lo.Fatalf("failed to initialize local file for assets: %v", err)
+		// Running in local mode. Load local assets into
+		// the in-memory stuffbin.FileSystem.
+		lo.Printf("unable to initialize embedded filesystem: %v", err)
+		lo.Printf("using local filesystem for static assets")
+		files := []string{
+			"config.toml.sample",
+			"queries.sql",
+			"schema.sql",
+			"static/email-templates",
+
+			// Alias /static/public to /public for the HTTP fileserver.
+			"static/public:/public",
+
+			// The frontend app's static assets are aliased to /frontend
+			// so that they are accessible at localhost:port/frontend/static/ ...
+			"frontend/build:/frontend",
+		}
+
+		fs, err = stuffbin.NewLocalFS("/", files...)
+		if err != nil {
+			lo.Fatalf("failed to initialize local file for assets: %v", err)
+		}
 	}
 
+	// Optional static directory to override files.
+	if staticDir != "" {
+		lo.Printf("loading static files from: %v", staticDir)
+		fStatic, err := stuffbin.NewLocalFS("/", []string{
+			filepath.Join(staticDir, "/email-templates") + ":/static/email-templates",
+
+			// Alias /static/public to /public for the HTTP fileserver.
+			filepath.Join(staticDir, "/public") + ":/public",
+		}...)
+		if err != nil {
+			lo.Fatalf("failed reading static directory: %s: %v", staticDir, err)
+		}
+
+		if err := fs.Merge(fStatic); err != nil {
+			lo.Fatalf("error merging static directory: %s: %v", staticDir, err)
+		}
+	}
 	return fs
 }
 

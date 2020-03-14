@@ -57,11 +57,12 @@ func init() {
 
 	// Register the commandline flags.
 	f.StringSlice("config", []string{"config.toml"},
-		"Path to one or more config files (will be merged in order)")
-	f.Bool("install", false, "Run first time installation")
-	f.Bool("version", false, "Current version of the build")
-	f.Bool("new-config", false, "Generate sample config file")
-	f.Bool("yes", false, "Assume 'yes' to prompts, eg: during --install")
+		"path to one or more config files (will be merged in order)")
+	f.Bool("install", false, "run first time installation")
+	f.Bool("version", false, "current version of the build")
+	f.Bool("new-config", false, "generate sample config file")
+	f.String("static-dir", "", "(optional) path to directory with static files")
+	f.Bool("yes", false, "assume 'yes' to prompts, eg: during --install")
 
 	if err := f.Parse(os.Args[1:]); err != nil {
 		lo.Fatalf("error loading flags: %v", err)
@@ -111,7 +112,7 @@ func main() {
 	// Initialize the DB and the filesystem that are required by the installer
 	// and the app.
 	var (
-		fs = initFS()
+		fs = initFS(ko.String("static-dir"))
 		db = initDB()
 	)
 	defer db.Close()

@@ -7,7 +7,7 @@ require (
 	github.com/jordan-wright/email v0.0.0-20200307200233-de844847de93
 	github.com/knadh/goyesql/v2 v2.1.1
 	github.com/knadh/koanf v0.8.1
-	github.com/knadh/stuffbin v1.0.0
+	github.com/knadh/stuffbin v1.1.0
 	github.com/labstack/echo v3.3.10+incompatible
 	github.com/labstack/gommon v0.3.0 // indirect
 	github.com/lib/pq v1.3.0
