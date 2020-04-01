@@ -79,7 +79,7 @@ max_idle = 10
         host = "my.smtp.server"
         port = "25"
 
-        # cram | plain | empty for no auth
+        # "cram", "plain", or "login". Empty string for no auth.
         auth_protocol = "cram"
         username = "xxxxx"
         password = ""
