@@ -176,8 +176,17 @@ func initCampaignManager(q *Queries, cs *constants, app *App) *manager.Manager {
 	campNotifCB := func(subject string, data interface{}) error {
 		return app.sendNotification(cs.NotifyEmails, subject, notifTplCampaign, data)
 	}
+
+	if ko.Int("app.concurrency") < 1 {
+		log.Fatal("app.concurrency should be at least 1")
+	}
+	if ko.Int("app.message_rate") < 1 {
+		log.Fatal("app.message_rate should be at least 1")
+	}
+
 	return manager.New(manager.Config{
 		Concurrency:   ko.Int("app.concurrency"),
+		MessageRate:   ko.Int("app.message_rate"),
 		MaxSendErrors: ko.Int("app.max_send_errors"),
 		FromEmail:     cs.FromEmail,
 		UnsubURL:      cs.UnsubURL,

@@ -84,6 +84,7 @@ type Message struct {
 // Config has parameters for configuring the manager.
 type Config struct {
 	Concurrency    int
+	MessageRate    int
 	MaxSendErrors  int
 	RequeueOnError bool
 	FromEmail      string
@@ -254,6 +255,9 @@ func (m *Manager) Run(tick time.Duration) {
 func (m *Manager) SpawnWorkers() {
 	for i := 0; i < m.cfg.Concurrency; i++ {
 		go func() {
+			// Counter to keep track of the message / sec rate limit.
+			numMsg := 0
+
 			for {
 				select {
 				// Campaign message.
@@ -261,6 +265,13 @@ func (m *Manager) SpawnWorkers() {
 					if !m.isCampaignProcessing(msg.Campaign.ID) {
 						continue
 					}
+
+					// Pause on hitting the message rate.
+					if numMsg >= m.cfg.MessageRate {
+						time.Sleep(time.Second)
+						numMsg = 0
+					}
+					numMsg++
 
 					err := m.messengers[msg.Campaign.MessengerID].Push(
 						msg.from, []string{msg.to}, msg.Campaign.Subject, msg.body, nil)

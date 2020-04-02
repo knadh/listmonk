@@ -25,10 +25,17 @@ from_email = "listmonk <from@mail.com>"
 notify_emails = ["admin1@mysite.com", "admin2@mysite.com"]
 
 # Maximum concurrent workers that will attempt to send messages
-# simultaneously. This should depend on the number of CPUs the
-# machine has and also the number of simultaenous e-mails the
-# mail server will
-concurrency = 100
+# simultaneously. This should ideally depend on the number of CPUs
+# available, and should be based on the maximum number of messages
+# a target SMTP server will accept.
+concurrency = 5
+
+# Maximum number of messages to be sent out per second per worker.
+# If concurrency = 10 and message_rate = 10, then up to 10x10=100 messages
+# may be pushed out every second. This, along with concurrency, should be
+# tweaked to keep the net messages going out per second under the target
+# SMTP's rate limits, if any.
+message_rate = 5
 
 # The number of errors (eg: SMTP timeouts while e-mailing) a running
 # campaign should tolerate before it is paused for manual
