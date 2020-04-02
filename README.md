@@ -29,6 +29,17 @@ You can checkout the [docker-compose.yml](docker-compose.yml) to get an idea of 
 
 Alternatively, to run a demo of listmonk, you can quickly spin up a container `docker-compose up -d demo-db demo-app`. NOTE: This doesn't persist Postgres data after you stop and remove the container, this setup is intended only for demo. _DO NOT_ use the demo setup in production.
 
+### Other deployments
+
+#### Heroku 
+
+Using the [Nginx buildpack](https://github.com/heroku/heroku-buildpack-nginx) can be used to deploy listmonk on Heroku and use Nginx as a proxy to setup basicauth. 
+This one-click [Heroku deploy button](https://github.com/bumi/listmonk-heroku) provides an automated default deployment.
+
+[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/bumi/listmonk-heroku)
+
+Please note that [configuration options](https://github.com/knadh/listmonk/wiki/Configuration) must be set using [environment configruation variables](https://devcenter.heroku.com/articles/config-vars).
+
 ### Help and docs
 
 [Help and documentation](https://listmonk.app/docs) (work in progress).
