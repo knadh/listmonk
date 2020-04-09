@@ -7,6 +7,7 @@ import (
 	"net/smtp"
 	"time"
 
+	"github.com/jaytaylor/html2text"
 	"github.com/jordan-wright/email"
 )
 
@@ -26,6 +27,7 @@ type Server struct {
 	AuthProtocol  string        `koanf:"auth_protocol"`
 	Username      string        `koanf:"username"`
 	Password      string        `koanf:"password"`
+	EmailFormat   string        `koanf:"email_format"`
 	HelloHostname string        `koanf:"hello_hostname"`
 	SendTimeout   time.Duration `koanf:"send_timeout"`
 	MaxConns      int           `koanf:"max_conns"`
@@ -112,16 +114,30 @@ func (e *emailer) Push(fromAddr string, toAddr []string, subject string, m []byt
 		}
 	}
 
+	mtext, err := html2text.FromString(string(m), html2text.Options{PrettyTables: true})
+	if err != nil {
+		return err
+	}
+
 	srv := e.servers[key]
-	err := srv.mailer.Send(&email.Email{
+	em := &email.Email{
 		From:        fromAddr,
 		To:          toAddr,
 		Subject:     subject,
-		HTML:        m,
 		Attachments: files,
-	}, srv.SendTimeout)
+	}
 
-	return err
+	switch srv.EmailFormat {
+	case "html":
+		em.HTML = m
+	case "plain":
+		em.Text = []byte(mtext)
+	default:
+		em.HTML = m
+		em.Text = []byte(mtext)
+	}
+
+	return srv.mailer.Send(em, srv.SendTimeout)
 }
 
 // Flush flushes the message queue to the server.
