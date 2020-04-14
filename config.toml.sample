@@ -91,6 +91,10 @@ max_idle = 10
         username = "xxxxx"
         password = ""
 
+        # Optional. Inform listmonk on which email format to use
+        # {html|plain|both} default: both
+        email_format = "both"
+
         # Optional. Some SMTP servers require a FQDN in the hostname.
         # By default, HELLOs go with "localhost". Set this if a custom
         # hostname should be used.
@@ -111,6 +115,10 @@ max_idle = 10
         auth_protocol = "plain"
         username = "xxxxx"
         password = ""
+
+        # Optional. Inform listmonk on which email format to use
+        # {html|plain|both} default: both
+        email_format = "both"
 
         # Maximum time (milliseconds) to wait per e-mail push.
         send_timeout = 5000
