@@ -127,7 +127,7 @@ INSERT INTO subscriber_lists (subscriber_id, list_id, status)
         (CASE WHEN $4='blacklisted' THEN 'unsubscribed'::subscription_status ELSE 'unconfirmed' END)
     )
     ON CONFLICT (subscriber_id, list_id) DO UPDATE
-    SET status = (CASE WHEN $4='blacklisted' THEN 'unsubscribed'::subscription_status ELSE 'unconfirmed' END);
+    SET status = (CASE WHEN $4='blacklisted' THEN 'unsubscribed'::subscription_status ELSE subscriber_lists.status END);
 
 -- name: delete-subscribers
 -- Delete one or more subscribers by ID or UUID.
