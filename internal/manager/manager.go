@@ -262,10 +262,6 @@ func (m *Manager) SpawnWorkers() {
 				select {
 				// Campaign message.
 				case msg := <-m.campMsgQueue:
-					if !m.isCampaignProcessing(msg.Campaign.ID) {
-						continue
-					}
-
 					// Pause on hitting the message rate.
 					if numMsg >= m.cfg.MessageRate {
 						time.Sleep(time.Second)
