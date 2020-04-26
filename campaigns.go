@@ -274,7 +274,7 @@ func handleUpdateCampaign(c echo.Context) error {
 	}
 
 	var cm models.Campaign
-	if err := app.queries.GetCampaign.Get(&cm, id); err != nil {
+	if err := app.queries.GetCampaign.Get(&cm, id, nil); err != nil {
 		if err == sql.ErrNoRows {
 			return echo.NewHTTPError(http.StatusBadRequest, "Campaign not found.")
 		}
@@ -337,7 +337,7 @@ func handleUpdateCampaignStatus(c echo.Context) error {
 	}
 
 	var cm models.Campaign
-	if err := app.queries.GetCampaign.Get(&cm, id); err != nil {
+	if err := app.queries.GetCampaign.Get(&cm, id, nil); err != nil {
 		if err == sql.ErrNoRows {
 			return echo.NewHTTPError(http.StatusBadRequest, "Campaign not found.")
 		}
@@ -412,7 +412,7 @@ func handleDeleteCampaign(c echo.Context) error {
 	}
 
 	var cm models.Campaign
-	if err := app.queries.GetCampaign.Get(&cm, id); err != nil {
+	if err := app.queries.GetCampaign.Get(&cm, id, nil); err != nil {
 		if err == sql.ErrNoRows {
 			return echo.NewHTTPError(http.StatusBadRequest, "Campaign not found.")
 		}

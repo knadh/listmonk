@@ -382,7 +382,11 @@ WHERE ($1 = 0 OR id = $1)
 ORDER BY created_at DESC OFFSET $4 LIMIT $5;
 
 -- name: get-campaign
-SELECT * FROM campaigns WHERE id = $1;
+SELECT campaigns.*,
+    COALESCE(templates.body, (SELECT body FROM templates WHERE is_default = true LIMIT 1)) AS template_body
+    FROM campaigns
+    LEFT JOIN templates ON (templates.id = campaigns.template_id)
+    WHERE CASE WHEN $1 > 0 THEN campaigns.id = $1 ELSE uuid = $2 END;
 
 -- name: get-campaign-stats
 -- This query is used to lazy load campaign stats (views, counts, list of lists) given a list of campaign IDs.
