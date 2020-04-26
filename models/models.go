@@ -74,7 +74,7 @@ var regTplFuncs = []regTplFunc{
 		replace: `{{ TrackLink "$3" . }}`,
 	},
 	regTplFunc{
-		regExp:  regexp.MustCompile(`{{(\s+)?(TrackView|UnsubscribeURL|OptinURL)(\s+)?}}`),
+		regExp:  regexp.MustCompile(`{{(\s+)?(TrackView|UnsubscribeURL|OptinURL|MessageURL)(\s+)?}}`),
 		replace: `{{ $2 . }}`,
 	},
 }

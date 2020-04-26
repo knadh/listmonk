@@ -91,6 +91,7 @@ type Config struct {
 	LinkTrackURL   string
 	UnsubURL       string
 	OptinURL       string
+	MessageURL     string
 	ViewTrackURL   string
 }
 
@@ -311,6 +312,9 @@ func (m *Manager) TemplateFuncs(c *models.Campaign) template.FuncMap {
 			// Add list IDs.
 			// TODO: Show private lists list on optin e-mail
 			return fmt.Sprintf(m.cfg.OptinURL, msg.Subscriber.UUID, "")
+		},
+		"MessageURL": func(msg *CampaignMessage) string {
+			return fmt.Sprintf(m.cfg.MessageURL, c.UUID, msg.Subscriber.UUID)
 		},
 		"Date": func(layout string) string {
 			if layout == "" {

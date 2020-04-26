@@ -108,6 +108,8 @@ func registerHTTPHandlers(e *echo.Echo) {
 		"subUUID"))
 	e.GET("/link/:linkUUID/:campUUID/:subUUID", validateUUID(handleLinkRedirect,
 		"linkUUID", "campUUID", "subUUID"))
+	e.GET("/campaign/:campUUID/:subUUID", validateUUID(handleViewCampaignMessage,
+		"campUUID", "subUUID"))
 	e.GET("/campaign/:campUUID/:subUUID/px.png", validateUUID(handleRegisterCampaignView,
 		"campUUID", "subUUID"))
 

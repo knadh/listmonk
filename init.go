@@ -141,6 +141,7 @@ type constants struct {
 	LinkTrackURL string
 	ViewTrackURL string
 	OptinURL     string
+	MessageURL   string
 }
 
 func initConstants() *constants {
@@ -164,6 +165,9 @@ func initConstants() *constants {
 
 	// url.com/link/{campaign_uuid}/{subscriber_uuid}/{link_uuid}
 	c.LinkTrackURL = fmt.Sprintf("%s/link/%%s/%%s/%%s", c.RootURL)
+
+	// url.com/link/{campaign_uuid}/{subscriber_uuid}
+	c.MessageURL = fmt.Sprintf("%s/campaign/%%s/%%s", c.RootURL)
 
 	// url.com/campaign/{campaign_uuid}/{subscriber_uuid}/px.png
 	c.ViewTrackURL = fmt.Sprintf("%s/campaign/%%s/%%s/px.png", c.RootURL)
@@ -193,6 +197,7 @@ func initCampaignManager(q *Queries, cs *constants, app *App) *manager.Manager {
 		OptinURL:      cs.OptinURL,
 		LinkTrackURL:  cs.LinkTrackURL,
 		ViewTrackURL:  cs.ViewTrackURL,
+		MessageURL:    cs.MessageURL,
 	}, newManagerDB(q), campNotifCB, lo)
 
 }

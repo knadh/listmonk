@@ -84,6 +84,58 @@ func (t *tplRenderer) Render(w io.Writer, name string, data interface{}, c echo.
 	})
 }
 
+// handleViewCampaignMessage renders the HTML view of a campaign message.
+func handleViewCampaignMessage(c echo.Context) error {
+	var (
+		app      = c.Get("app").(*App)
+		campUUID = c.Param("campUUID")
+		subUUID  = c.Param("subUUID")
+	)
+
+	// Get the campaign.
+	var camp models.Campaign
+	if err := app.queries.GetCampaign.Get(&camp, 0, campUUID); err != nil {
+		if err == sql.ErrNoRows {
+			return c.Render(http.StatusNotFound, tplMessage,
+				makeMsgTpl("Not found", "", `The e-mail campaign was not found.`))
+		}
+
+		app.log.Printf("error fetching campaign: %v", err)
+		return c.Render(http.StatusInternalServerError, tplMessage,
+			makeMsgTpl("Error", "", `Error fetching e-mail campaign.`))
+	}
+
+	// Get the subscriber.
+	var sub models.Subscriber
+	if err := app.queries.GetSubscriber.Get(&sub, 0, subUUID); err != nil {
+		if err == sql.ErrNoRows {
+			return c.Render(http.StatusNotFound, tplMessage,
+				makeMsgTpl("Not found", "", `The e-mail message was not found.`))
+		}
+
+		app.log.Printf("error fetching campaign subscriber: %v", err)
+		return c.Render(http.StatusInternalServerError, tplMessage,
+			makeMsgTpl("Error", "", `Error fetching e-mail message.`))
+	}
+
+	// Compile the template.
+	if err := camp.CompileTemplate(app.manager.TemplateFuncs(&camp)); err != nil {
+		app.log.Printf("error compiling template: %v", err)
+		return c.Render(http.StatusInternalServerError, tplMessage,
+			makeMsgTpl("Error", "", `Error compiling e-mail template.`))
+	}
+
+	// Render the message body.
+	m := app.manager.NewCampaignMessage(&camp, sub)
+	if err := m.Render(); err != nil {
+		app.log.Printf("error rendering message: %v", err)
+		return c.Render(http.StatusInternalServerError, tplMessage,
+			makeMsgTpl("Error", "", `Error rendering e-mail message.`))
+	}
+
+	return c.HTML(http.StatusOK, string(m.Body()))
+}
+
 // handleSubscriptionPage renders the subscription management page and
 // handles unsubscriptions.
 func handleSubscriptionPage(c echo.Context) error {
