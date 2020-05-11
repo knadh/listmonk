@@ -60,7 +60,7 @@ func NewEmailer(srv ...Server) (Messenger, error) {
 			auth = &loginAuth{username: s.Username, password: s.Password}
 		case "":
 		default:
-			return nil, fmt.Errorf("unknown SMTP auth typer '%s'", s.AuthProtocol)
+			return nil, fmt.Errorf("unknown SMTP auth type '%s'", s.AuthProtocol)
 		}
 
 		pool, err := email.NewPool(fmt.Sprintf("%s:%d", s.Host, s.Port), s.MaxConns, auth)
