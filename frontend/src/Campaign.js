@@ -91,7 +91,7 @@ class Editor extends React.PureComponent {
       new Delta()
         .retain(range.index)
         .delete(range.length)
-        .insert({ image: this.props.config.rootURL + uri }),
+        .insert({ image: uri }),
       null
     )
   }
