@@ -6,8 +6,7 @@ import "net/textproto"
 // for instance, e-mail, SMS etc.
 type Messenger interface {
 	Name() string
-
-	Push(fromAddr string, toAddr []string, subject string, message []byte, atts []*Attachment) error
+	Push(fromAddr string, toAddr []string, subject string, message []byte, atts []Attachment) error
 	Flush() error
 }
 

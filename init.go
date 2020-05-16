@@ -7,11 +7,11 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-	"time"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/knadh/goyesql/v2"
 	goyesqlx "github.com/knadh/goyesql/v2/sqlx"
+	"github.com/knadh/koanf"
 	"github.com/knadh/koanf/maps"
 	"github.com/knadh/listmonk/internal/manager"
 	"github.com/knadh/listmonk/internal/media"
@@ -214,28 +214,27 @@ func initImporter(q *Queries, db *sqlx.DB, app *App) *subimporter.Importer {
 		})
 }
 
-// initMessengers initializes various messaging backends.
+// initMessengers initializes various messenger backends.
 func initMessengers(m *manager.Manager) messenger.Messenger {
-	// Load SMTP configurations for the default e-mail Messenger.
 	var (
 		mapKeys = ko.MapKeys("smtp")
 		srv     = make([]messenger.Server, 0, len(mapKeys))
 	)
 
+	// Load the default SMTP messengers.
 	for _, name := range mapKeys {
 		if !ko.Bool(fmt.Sprintf("smtp.%s.enabled", name)) {
 			lo.Printf("skipped SMTP: %s", name)
 			continue
 		}
 
-		var s messenger.Server
-		if err := ko.Unmarshal("smtp."+name, &s); err != nil {
+		// Read the SMTP config.
+		s := messenger.Server{Name: name}
+		if err := ko.UnmarshalWithConf("smtp."+name, &s, koanf.UnmarshalConf{Tag: "json"}); err != nil {
 			lo.Fatalf("error loading SMTP: %v", err)
 		}
-		s.Name = name
-		s.SendTimeout *= time.Millisecond
-		srv = append(srv, s)
 
+		srv = append(srv, s)
 		lo.Printf("loaded SMTP: %s (%s@%s)", s.Name, s.Username, s.Host)
 	}
 

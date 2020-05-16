@@ -5,10 +5,9 @@ import (
 	"fmt"
 	"math/rand"
 	"net/smtp"
-	"time"
 
 	"github.com/jaytaylor/html2text"
-	"github.com/jordan-wright/email"
+	"github.com/knadh/smtppool"
 )
 
 const emName = "email"
@@ -21,21 +20,21 @@ type loginAuth struct {
 
 // Server represents an SMTP server's credentials.
 type Server struct {
-	Name          string
-	Host          string        `koanf:"host"`
-	Port          int           `koanf:"port"`
-	AuthProtocol  string        `koanf:"auth_protocol"`
-	Username      string        `koanf:"username"`
-	Password      string        `koanf:"password"`
-	EmailFormat   string        `koanf:"email_format"`
-	HelloHostname string        `koanf:"hello_hostname"`
-	SendTimeout   time.Duration `koanf:"send_timeout"`
-	MaxConns      int           `koanf:"max_conns"`
+	Name         string
+	Username     string `json:"username"`
+	Password     string `json:"password"`
+	AuthProtocol string `json:"auth_protocol"`
+	EmailFormat  string `json:"email_format"`
 
-	mailer *email.Pool
+	// Rest of the options are embedded directly from the smtppool lib.
+	// The JSON tag is for config unmarshal to work.
+	smtppool.Opt `json:",squash"`
+
+	pool *smtppool.Pool
 }
 
-type emailer struct {
+// Emailer is the SMTP e-mail messenger.
+type Emailer struct {
 	servers     map[string]*Server
 	serverNames []string
 	numServers  int
@@ -43,8 +42,8 @@ type emailer struct {
 
 // NewEmailer creates and returns an e-mail Messenger backend.
 // It takes multiple SMTP configurations.
-func NewEmailer(srv ...Server) (Messenger, error) {
-	e := &emailer{
+func NewEmailer(srv ...Server) (*Emailer, error) {
+	e := &Emailer{
 		servers: make(map[string]*Server),
 	}
 
@@ -62,18 +61,14 @@ func NewEmailer(srv ...Server) (Messenger, error) {
 		default:
 			return nil, fmt.Errorf("unknown SMTP auth type '%s'", s.AuthProtocol)
 		}
+		s.Opt.Auth = auth
 
-		pool, err := email.NewPool(fmt.Sprintf("%s:%d", s.Host, s.Port), s.MaxConns, auth)
+		pool, err := smtppool.New(s.Opt)
 		if err != nil {
 			return nil, err
 		}
 
-		// Optional SMTP HELLO hostname.
-		if server.HelloHostname != "" {
-			pool.SetHelloHostname(server.HelloHostname)
-		}
-
-		s.mailer = pool
+		s.pool = pool
 		e.servers[s.Name] = &s
 		e.serverNames = append(e.serverNames, s.Name)
 	}
@@ -83,12 +78,12 @@ func NewEmailer(srv ...Server) (Messenger, error) {
 }
 
 // Name returns the Server's name.
-func (e *emailer) Name() string {
+func (e *Emailer) Name() string {
 	return emName
 }
 
 // Push pushes a message to the server.
-func (e *emailer) Push(fromAddr string, toAddr []string, subject string, m []byte, atts []*Attachment) error {
+func (e *Emailer) Push(fromAddr string, toAddr []string, subject string, m []byte, atts []Attachment) error {
 	var key string
 
 	// If there are more than one SMTP servers, send to a random
@@ -100,11 +95,11 @@ func (e *emailer) Push(fromAddr string, toAddr []string, subject string, m []byt
 	}
 
 	// Are there attachments?
-	var files []*email.Attachment
+	var files []smtppool.Attachment
 	if atts != nil {
-		files = make([]*email.Attachment, 0, len(atts))
+		files = make([]smtppool.Attachment, 0, len(atts))
 		for _, f := range atts {
-			a := &email.Attachment{
+			a := smtppool.Attachment{
 				Filename: f.Name,
 				Header:   f.Header,
 				Content:  make([]byte, len(f.Content)),
@@ -120,7 +115,7 @@ func (e *emailer) Push(fromAddr string, toAddr []string, subject string, m []byt
 	}
 
 	srv := e.servers[key]
-	em := &email.Email{
+	em := smtppool.Email{
 		From:        fromAddr,
 		To:          toAddr,
 		Subject:     subject,
@@ -137,11 +132,11 @@ func (e *emailer) Push(fromAddr string, toAddr []string, subject string, m []byt
 		em.Text = []byte(mtext)
 	}
 
-	return srv.mailer.Send(em, srv.SendTimeout)
+	return srv.pool.Send(em)
 }
 
 // Flush flushes the message queue to the server.
-func (e *emailer) Flush() error {
+func (e *Emailer) Flush() error {
 	return nil
 }
 

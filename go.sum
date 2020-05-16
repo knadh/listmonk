@@ -29,6 +29,10 @@ github.com/knadh/goyesql/v2 v2.1.1 h1:Orp5ldaxPM4ozKHfu1m7p6iolJFXDGOpF3/jyOgO6l
 github.com/knadh/goyesql/v2 v2.1.1/go.mod h1:pMzCA130/ZhEIoMmSmbEFXor3A2dxl5L+JllAc/l64s=
 github.com/knadh/koanf v0.8.1 h1:4VLACWqrkWRQIup3ooq6lOnaSbOJSNO+YVXnJn/NPZ8=
 github.com/knadh/koanf v0.8.1/go.mod h1:kVvmDbXnBtW49Czi4c1M+nnOWF0YSNZ8BaKvE/bCO1w=
+github.com/knadh/smtppool v0.1.1 h1:pSi1Gc5TXOaN/Z/YiqfZbk/vd9dqzXzAfQiss0QSGQU=
+github.com/knadh/smtppool v0.1.1/go.mod h1:3DJHouXAgPDBz0kC50HukOsdapYSwIEfJGwuip46oCA=
+github.com/knadh/smtppool v0.2.0 h1:+llTWRljNIVg05MMu9TiefELTNwblexjsd1ALAPXZUs=
+github.com/knadh/smtppool v0.2.0/go.mod h1:3DJHouXAgPDBz0kC50HukOsdapYSwIEfJGwuip46oCA=
 github.com/knadh/stuffbin v1.0.0 h1:NQon6PTpLXies4bRFhS3VpLCf6y+jn6YVXU3i2wPQ+M=
 github.com/knadh/stuffbin v1.0.0/go.mod h1:yVCFaWaKPubSNibBsTAJ939q2ABHudJQxRWZWV5yh+4=
 github.com/knadh/stuffbin v1.1.0 h1:f5S5BHzZALjuJEgTIOMC9NidEnBJM7Ze6Lu1GHR/lwU=

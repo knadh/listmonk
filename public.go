@@ -360,8 +360,8 @@ func handleSelfExportSubscriberData(c echo.Context) error {
 		[]string{data.Email},
 		"Your profile data",
 		msg.Bytes(),
-		[]*messenger.Attachment{
-			&messenger.Attachment{
+		[]messenger.Attachment{
+			{
 				Name:    fname,
 				Content: b,
 				Header:  messenger.MakeAttachmentHeader(fname, "base64"),

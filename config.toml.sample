@@ -91,8 +91,7 @@ max_idle = 10
         username = "xxxxx"
         password = ""
 
-        # Optional. Inform listmonk on which email format to use
-        # {html|plain|both} default: both
+        # Format to send e-mails in: html|plain|both.
         email_format = "both"
 
         # Optional. Some SMTP servers require a FQDN in the hostname.
@@ -100,11 +99,18 @@ max_idle = 10
         # hostname should be used.
         hello_hostname = ""
 
-        # Maximum time (milliseconds) to wait per e-mail push.
-        send_timeout = 5000
-
         # Maximum concurrent connections to the SMTP server.
         max_conns = 10
+
+        # Time to wait for new activity on a connection before closing
+        # it and removing it from the pool.
+        idle_timeout = "15s"
+
+        # Message send / wait timeout.
+        wait_timeout = "5s"
+
+        # The number of times a message should be retried if sending fails.
+	    max_msg_retries = 2
 
     [smtp.postal]
         enabled = false
@@ -116,15 +122,26 @@ max_idle = 10
         username = "xxxxx"
         password = ""
 
-        # Optional. Inform listmonk on which email format to use
-        # {html|plain|both} default: both
+        # Format to send e-mails in: html|plain|both.
         email_format = "both"
 
-        # Maximum time (milliseconds) to wait per e-mail push.
-        send_timeout = 5000
+        # Optional. Some SMTP servers require a FQDN in the hostname.
+        # By default, HELLOs go with "localhost". Set this if a custom
+        # hostname should be used.
+        hello_hostname = ""
 
         # Maximum concurrent connections to the SMTP server.
         max_conns = 10
+
+        # Time to wait for new activity on a connection before closing
+        # it and removing it from the pool.
+        idle_timeout = "15s"
+
+        # Message send / wait timeout.
+        wait_timeout = "5s"
+
+        # The number of times a message should be retried if sending fails.
+	    max_msg_retries = 2
 
 
 [upload]

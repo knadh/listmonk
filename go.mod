@@ -1,13 +1,14 @@
 module github.com/knadh/listmonk
+go 1.13
 
 require (
 	github.com/disintegration/imaging v1.6.2
 	github.com/gofrs/uuid v3.2.0+incompatible
 	github.com/jaytaylor/html2text v0.0.0-20200220170450-61d9dc4d7195
 	github.com/jmoiron/sqlx v1.2.0
-	github.com/jordan-wright/email v0.0.0-20200307200233-de844847de93
 	github.com/knadh/goyesql/v2 v2.1.1
 	github.com/knadh/koanf v0.8.1
+	github.com/knadh/smtppool v0.2.0
 	github.com/knadh/stuffbin v1.1.0
 	github.com/labstack/echo v3.3.10+incompatible
 	github.com/labstack/gommon v0.3.0 // indirect
@@ -22,6 +23,3 @@ require (
 	jaytaylor.com/html2text v0.0.0-20200220170450-61d9dc4d7195
 )
 
-replace github.com/jordan-wright/email => github.com/knadh/email v0.0.0-20200206100304-6d2c7064c2e8
-
-go 1.13
