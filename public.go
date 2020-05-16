@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"database/sql"
+	"fmt"
 	"html/template"
 	"image"
 	"image/png"
@@ -268,7 +269,8 @@ func handleSubscriptionForm(c echo.Context) error {
 	req.Status = models.SubscriberStatusEnabled
 	req.ListUUIDs = pq.StringArray(req.SubListUUIDs)
 	if _, err := insertSubscriber(req.SubReq, app); err != nil {
-		return err
+		return c.Render(http.StatusInternalServerError, tplMessage,
+			makeMsgTpl("Error", "", fmt.Sprintf("%s", err.(*echo.HTTPError).Message)))
 	}
 
 	return c.Render(http.StatusInternalServerError, tplMessage,
