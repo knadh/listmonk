@@ -1,7 +1,6 @@
 package messenger
 
 import (
-	"errors"
 	"fmt"
 	"math/rand"
 	"net/smtp"
@@ -11,12 +10,6 @@ import (
 )
 
 const emName = "email"
-
-// loginAuth is used for enabling SMTP "LOGIN" auth.
-type loginAuth struct {
-	username string
-	password string
-}
 
 // Server represents an SMTP server's credentials.
 type Server struct {
@@ -56,7 +49,7 @@ func NewEmailer(srv ...Server) (*Emailer, error) {
 		case "plain":
 			auth = smtp.PlainAuth("", s.Username, s.Password, s.Host)
 		case "login":
-			auth = &loginAuth{username: s.Username, password: s.Password}
+			auth = &smtppool.LoginAuth{Username: s.Username, Password: s.Password}
 		case "":
 		default:
 			return nil, fmt.Errorf("unknown SMTP auth type '%s'", s.AuthProtocol)
@@ -138,24 +131,4 @@ func (e *Emailer) Push(fromAddr string, toAddr []string, subject string, m []byt
 // Flush flushes the message queue to the server.
 func (e *Emailer) Flush() error {
 	return nil
-}
-
-// https://gist.github.com/andelf/5118732
-// Adds support for SMTP LOGIN auth.
-func (a *loginAuth) Start(server *smtp.ServerInfo) (string, []byte, error) {
-	return "LOGIN", []byte{}, nil
-}
-
-func (a *loginAuth) Next(fromServer []byte, more bool) ([]byte, error) {
-	if more {
-		switch string(fromServer) {
-		case "Username:":
-			return []byte(a.username), nil
-		case "Password:":
-			return []byte(a.password), nil
-		default:
-			return nil, errors.New("unkown SMTP fromServer")
-		}
-	}
-	return nil, nil
 }
