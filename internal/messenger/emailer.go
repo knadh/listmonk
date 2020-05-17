@@ -1,6 +1,7 @@
 package messenger
 
 import (
+	"crypto/tls"
 	"fmt"
 	"math/rand"
 	"net/smtp"
@@ -13,11 +14,13 @@ const emName = "email"
 
 // Server represents an SMTP server's credentials.
 type Server struct {
-	Name         string
-	Username     string `json:"username"`
-	Password     string `json:"password"`
-	AuthProtocol string `json:"auth_protocol"`
-	EmailFormat  string `json:"email_format"`
+	Name          string
+	Username      string `json:"username"`
+	Password      string `json:"password"`
+	AuthProtocol  string `json:"auth_protocol"`
+	EmailFormat   string `json:"email_format"`
+	TLSEnabled    bool   `json:"tls_enabled"`
+	TLSSkipVerify bool   `json:"tls_skip_verify"`
 
 	// Rest of the options are embedded directly from the smtppool lib.
 	// The JSON tag is for config unmarshal to work.
@@ -35,13 +38,13 @@ type Emailer struct {
 
 // NewEmailer creates and returns an e-mail Messenger backend.
 // It takes multiple SMTP configurations.
-func NewEmailer(srv ...Server) (*Emailer, error) {
+func NewEmailer(servers ...Server) (*Emailer, error) {
 	e := &Emailer{
 		servers: make(map[string]*Server),
 	}
 
-	for _, server := range srv {
-		s := server
+	for _, srv := range servers {
+		s := srv
 		var auth smtp.Auth
 		switch s.AuthProtocol {
 		case "cram":
@@ -55,6 +58,16 @@ func NewEmailer(srv ...Server) (*Emailer, error) {
 			return nil, fmt.Errorf("unknown SMTP auth type '%s'", s.AuthProtocol)
 		}
 		s.Opt.Auth = auth
+
+		// TLS config.
+		if s.TLSEnabled {
+			s.TLSConfig = &tls.Config{}
+			if s.TLSSkipVerify {
+				s.TLSConfig.InsecureSkipVerify = s.TLSSkipVerify
+			} else {
+				s.TLSConfig.ServerName = s.Host
+			}
+		}
 
 		pool, err := smtppool.New(s.Opt)
 		if err != nil {

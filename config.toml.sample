@@ -84,7 +84,7 @@ max_idle = 10
     [smtp.my0]
         enabled = true
         host = "my.smtp.server"
-        port = "25"
+        port = 25
 
         # "cram", "plain", or "login". Empty string for no auth.
         auth_protocol = "cram"
@@ -112,10 +112,14 @@ max_idle = 10
         # The number of times a message should be retried if sending fails.
 	    max_msg_retries = 2
 
+        # Enable STARTTLS.
+        tls_enabled = true
+        tls_skip_verify = false
+
     [smtp.postal]
         enabled = false
         host = "my.smtp.server2"
-        port = "25"
+        port = 25
 
         # cram or plain.
         auth_protocol = "plain"
@@ -143,6 +147,9 @@ max_idle = 10
         # The number of times a message should be retried if sending fails.
 	    max_msg_retries = 2
 
+        # Enable STARTTLS.
+        tls_enabled = true
+        tls_skip_verify = false
 
 [upload]
 # File storage backend. "filesystem" or "s3".
