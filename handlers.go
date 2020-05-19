@@ -125,8 +125,7 @@ func registerHTTPHandlers(e *echo.Echo) {
 	e.GET("/campaigns/:campignID", handleIndexPage)
 }
 
-// handleIndex is the root handler that renders the login page if there's no
-// authenticated session, or redirects to the dashboard, if there's one.
+// handleIndex is the root handler that renders the Javascript frontend.
 func handleIndexPage(c echo.Context) error {
 	app := c.Get("app").(*App)
 
