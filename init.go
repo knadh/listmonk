@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"html/template"
-	"log"
 	"os"
 	"path/filepath"
 	"strings"
@@ -33,7 +32,7 @@ func initFS(staticDir string) stuffbin.FileSystem {
 	// Get the executable's path.
 	path, err := os.Executable()
 	if err != nil {
-		log.Fatalf("error getting executable path: %v", err)
+		lo.Fatalf("error getting executable path: %v", err)
 	}
 
 	// Load the static files stuffed in the binary.
@@ -88,7 +87,7 @@ func initFS(staticDir string) stuffbin.FileSystem {
 func initDB() *sqlx.DB {
 	var dbCfg dbConf
 	if err := ko.Unmarshal("db", &dbCfg); err != nil {
-		log.Fatalf("error loading db config: %v", err)
+		lo.Fatalf("error loading db config: %v", err)
 	}
 	db, err := connectDB(dbCfg)
 	if err != nil {
@@ -148,10 +147,10 @@ func initConstants() *constants {
 	// Read constants.
 	var c constants
 	if err := ko.Unmarshal("app", &c); err != nil {
-		log.Fatalf("error loading app config: %v", err)
+		lo.Fatalf("error loading app config: %v", err)
 	}
 	if err := ko.Unmarshal("privacy", &c.Privacy); err != nil {
-		log.Fatalf("error loading app config: %v", err)
+		lo.Fatalf("error loading app config: %v", err)
 	}
 	c.RootURL = strings.TrimRight(c.RootURL, "/")
 	c.Privacy.Exportable = maps.StringSliceToLookupMap(ko.Strings("privacy.exportable"))
@@ -182,10 +181,10 @@ func initCampaignManager(q *Queries, cs *constants, app *App) *manager.Manager {
 	}
 
 	if ko.Int("app.concurrency") < 1 {
-		log.Fatal("app.concurrency should be at least 1")
+		lo.Fatal("app.concurrency should be at least 1")
 	}
 	if ko.Int("app.message_rate") < 1 {
-		log.Fatal("app.message_rate should be at least 1")
+		lo.Fatal("app.message_rate should be at least 1")
 	}
 
 	return manager.New(manager.Config{
