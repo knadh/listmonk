@@ -151,11 +151,6 @@ func handleDeleteLists(c echo.Context) error {
 		ids   pq.Int64Array
 	)
 
-	// Read the list IDs if they were sent in the body.
-	if err := c.Bind(&ids); err != nil {
-		return err
-	}
-
 	if id < 1 && len(ids) == 0 {
 		return echo.NewHTTPError(http.StatusBadRequest, "Invalid ID.")
 	}
