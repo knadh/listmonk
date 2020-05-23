@@ -595,7 +595,7 @@ func sendOptinConfirmation(sub models.Subscriber, listIDs []int64, app *App) err
 	// Fetch double opt-in lists from the given list IDs.
 	// Get the list of subscription lists where the subscriber hasn't confirmed.
 	if err := app.queries.GetSubscriberLists.Select(&lists, sub.ID, nil,
-		pq.Int64Array(listIDs), nil, models.SubscriptionStatusUnconfirmed, nil); err != nil {
+		pq.Int64Array(listIDs), nil, models.SubscriptionStatusUnconfirmed, models.ListOptinDouble); err != nil {
 		app.log.Printf("error fetching lists for opt-in: %s", pqErrMsg(err))
 		return err
 	}
