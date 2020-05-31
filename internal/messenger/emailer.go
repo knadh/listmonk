@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math/rand"
 	"net/smtp"
+	"net/textproto"
 
 	"github.com/jaytaylor/html2text"
 	"github.com/knadh/smtppool"
@@ -15,12 +16,13 @@ const emName = "email"
 // Server represents an SMTP server's credentials.
 type Server struct {
 	Name          string
-	Username      string `json:"username"`
-	Password      string `json:"password"`
-	AuthProtocol  string `json:"auth_protocol"`
-	EmailFormat   string `json:"email_format"`
-	TLSEnabled    bool   `json:"tls_enabled"`
-	TLSSkipVerify bool   `json:"tls_skip_verify"`
+	Username      string            `json:"username"`
+	Password      string            `json:"password"`
+	AuthProtocol  string            `json:"auth_protocol"`
+	EmailFormat   string            `json:"email_format"`
+	TLSEnabled    bool              `json:"tls_enabled"`
+	TLSSkipVerify bool              `json:"tls_skip_verify"`
+	EmailHeaders  map[string]string `json:"email_headers"`
 
 	// Rest of the options are embedded directly from the smtppool lib.
 	// The JSON tag is for config unmarshal to work.
@@ -126,6 +128,14 @@ func (e *Emailer) Push(fromAddr string, toAddr []string, subject string, m []byt
 		To:          toAddr,
 		Subject:     subject,
 		Attachments: files,
+	}
+
+	// If there are custom e-mail headers, attach them.
+	if len(srv.EmailHeaders) > 0 {
+		em.Headers = textproto.MIMEHeader{}
+		for k, v := range srv.EmailHeaders {
+			em.Headers.Set(k, v)
+		}
 	}
 
 	switch srv.EmailFormat {

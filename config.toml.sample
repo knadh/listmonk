@@ -116,6 +116,10 @@ max_idle = 10
         tls_enabled = true
         tls_skip_verify = false
 
+        # One or more optional custom headers to be attached to all e-mails
+        # sent from this SMTP server. Uncomment the line to enable.
+        # email_headers = { "X-Sender" = "listmonk", "X-Custom-Header" = "listmonk" }
+
     [smtp.postal]
         enabled = false
         host = "my.smtp.server2"
