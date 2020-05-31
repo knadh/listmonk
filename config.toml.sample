@@ -110,11 +110,15 @@ max_idle = 10
         wait_timeout = "5s"
 
         # The number of times a message should be retried if sending fails.
-	    max_msg_retries = 2
+	max_msg_retries = 2
 
         # Enable STARTTLS.
         tls_enabled = true
         tls_skip_verify = false
+
+        # Array of headers to add to each email sent from this server
+        # omit if you don't want to add any custom headers
+        inject_headers = [ "Custom-Header-Key:custom-value" ]
 
     [smtp.postal]
         enabled = false
@@ -145,7 +149,7 @@ max_idle = 10
         wait_timeout = "5s"
 
         # The number of times a message should be retried if sending fails.
-	    max_msg_retries = 2
+	max_msg_retries = 2
 
         # Enable STARTTLS.
         tls_enabled = true
