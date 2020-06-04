@@ -278,7 +278,7 @@ func handleSubscriptionForm(c echo.Context) error {
 			makeMsgTpl("Error", "", fmt.Sprintf("%s", err.(*echo.HTTPError).Message)))
 	}
 
-	return c.Render(http.StatusInternalServerError, tplMessage,
+	return c.Render(http.StatusOK, tplMessage,
 		makeMsgTpl("Done", "", `Subscribed successfully.`))
 }
 
