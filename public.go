@@ -399,7 +399,7 @@ func handleWipeSubscriberData(c echo.Context) error {
 	)
 
 	// Is wiping allowed?
-	if !app.constants.Privacy.AllowExport {
+	if !app.constants.Privacy.AllowWipe {
 		return c.Render(http.StatusBadRequest, tplMessage,
 			makeMsgTpl("Invalid request", "",
 				"The feature is not available."))
