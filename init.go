@@ -236,6 +236,9 @@ func initMessengers(m *manager.Manager) messenger.Messenger {
 		srv = append(srv, s)
 		lo.Printf("loaded SMTP: %s (%s@%s)", s.Name, s.Username, s.Host)
 	}
+	if len(srv) == 0 {
+		lo.Fatalf("no SMTP servers found in config")
+	}
 
 	// Initialize the default e-mail messenger.
 	msgr, err := messenger.NewEmailer(srv...)
