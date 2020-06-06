@@ -4,7 +4,12 @@ VERSION := $(shell git describe)
 BUILDSTR := ${VERSION} (${LAST_COMMIT} $(shell date -u +"%Y-%m-%dT%H:%M:%S%z"))
 
 BIN := listmonk
-STATIC := config.toml.sample schema.sql queries.sql static/public:/public static/email-templates frontend/build:/frontend
+STATIC := config.toml.sample \
+	schema.sql queries.sql \
+	static/public:/public \
+	static/email-templates \
+	frontend/dist:/frontend \
+	frontend/dist/frontend:/frontend
 
 # Dependencies.
 .PHONY: deps
@@ -19,7 +24,7 @@ build:
 
 .PHONY: build-frontend
 build-frontend:
-	export REACT_APP_VERSION="${VERSION}" && cd frontend && yarn build
+	export VUE_APP_VERSION="${VERSION}" && cd frontend && yarn build
 
 .PHONY: run
 run: build
@@ -27,7 +32,7 @@ run: build
 
 .PHONY: run-frontend
 run-frontend:
-	export REACT_APP_VERSION="${VERSION}" && cd frontend && yarn start
+	export VUE_APP_VERSION="${VERSION}" && cd frontend && yarn serve
 
 .PHONY: test
 test:

@@ -301,7 +301,7 @@ func handleUpdateCampaign(c echo.Context) error {
 		o = c
 	}
 
-	res, err := app.queries.UpdateCampaign.Exec(cm.ID,
+	_, err := app.queries.UpdateCampaign.Exec(cm.ID,
 		o.Name,
 		o.Subject,
 		o.FromEmail,
@@ -316,10 +316,6 @@ func handleUpdateCampaign(c echo.Context) error {
 		app.log.Printf("error updating campaign: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			fmt.Sprintf("Error updating campaign: %s", pqErrMsg(err)))
-	}
-
-	if n, _ := res.RowsAffected(); n == 0 {
-		return echo.NewHTTPError(http.StatusBadRequest, "Campaign not found.")
 	}
 
 	return handleGetCampaigns(c)
@@ -595,6 +591,10 @@ func validateCampaignFields(c campaignReq, app *App) (campaignReq, error) {
 		if c.SendAt.Time.Before(time.Now()) {
 			return c, errors.New("`send_at` date should be in the future")
 		}
+	}
+
+	if len(c.ListIDs) == 0 {
+		return c, errors.New("no lists selected")
 	}
 
 	camp := models.Campaign{Body: c.Body, TemplateBody: tplTag}

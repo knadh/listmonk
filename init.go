@@ -52,8 +52,10 @@ func initFS(staticDir string) stuffbin.FileSystem {
 			"static/public:/public",
 
 			// The frontend app's static assets are aliased to /frontend
-			// so that they are accessible at localhost:port/frontend/static/ ...
-			"frontend/build:/frontend",
+			// so that they are accessible at /frontend/js/* etc.
+			// Alias all files inside dist/ and dist/frontend to frontend/*.
+			"frontend/dist/:/frontend",
+			"frontend/dist/frontend:/frontend",
 		}
 
 		fs, err = stuffbin.NewLocalFS("/", files...)

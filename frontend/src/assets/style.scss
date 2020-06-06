@@ -1,0 +1,480 @@
+/* Import Bulma to set variables */
+@import "~bulma/sass/utilities/_all";
+
+$body-family: "IBM Plex Sans", "Helvetica Neue", sans-serif;
+$body-size: 15px;
+$primary: #7f2aff;
+$green: #4caf50;
+$turquoise: $green;
+$red: #ff5722;
+$link: $primary;
+$input-placeholder-color: $black-ter;
+
+$colors: map-merge($colors, (
+    "turquoise": ($green, $green-invert),
+    "green": ($green, $green-invert),
+    "success": ($green, $green-invert),
+    "danger": ($red, $green-invert),
+));
+
+$sidebar-box-shadow: none;
+$sidebar-width: 240px;
+$menu-item-active-background-color: $white-bis;
+$menu-item-active-color: $primary;
+
+/* Buefy */
+$modal-background-background-color: rgba(0, 0, 0, .30);
+$speed-slow: 25ms !default;
+$speed-slower: 50ms !default;
+
+/* Import full Bulma and Buefy to override styles. */
+// @import "~bulma";
+@import "./buefy";
+
+html, body {
+  height: 100%;
+}
+
+code {
+  color: $grey;
+}
+
+ul.no {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+section {
+  &.wrap {
+    max-width: 1100px;
+  }
+  &.wrap-small {
+    max-width: 900px;
+  }
+}
+.spinner.is-tiny {
+  display: inline-block;
+  height: 10px;
+  width: 10px;
+  position: relative;
+
+  .loading-overlay {
+    .loading-background {
+      background: none;
+    }
+    .loading-icon::after {
+      width: 10px;
+      height: 10px;
+      top: 0;
+      left: 0;
+      position: static;
+    }
+  }    
+}
+
+/* Two column sidebar+body layout */
+#app {
+  display: flex;
+  flex-direction: row;
+  min-height: 100%;
+  
+  > .sidebar {
+    flex-shrink: 1;
+    box-shadow: 0 0 5px #eee;
+    border-right: 1px solid #eee;
+
+    .b-sidebar {
+      position: sticky;
+      top: 0px;
+    }
+  }
+  > .main {
+    margin: 30px 30px 30px 45px;
+    flex-grow: 1;
+  }
+}
+
+.b-sidebar {
+  .logo {
+    padding: 15px;
+  }
+  .sidebar-content {
+    border-right: 1px solid #eee;
+  }
+  .menu-list {
+    .router-link-exact-active {
+      border-right: 5px solid $primary;
+      outline: 0 none;
+    }
+    li ul {
+      margin-right: 0;
+    }
+    > li {
+      margin-bottom: 5px;
+    }
+  }
+  .logo {
+    margin-bottom: 30px;
+  }
+  .favicon {
+    display: none;
+  }
+}
+
+/* Table colors and padding */
+.main table {
+  thead th {
+    background: $white-bis;
+    border-bottom: 1px solid $grey-lighter;
+  }
+  thead th, tbody td {
+    padding: 15px 10px;
+    border-color: #eaeaea;
+  }
+  .actions a {
+    margin: 0 10px;
+    display: inline-block;
+  }
+}
+
+/* Modal */
+.modal {
+  z-index: 100;
+}
+.modal-card-head {
+  display: block;
+}
+.modal .modal-card-foot {
+  justify-content: flex-end;
+}
+.modal .modal-close.is-large {
+  display: none;
+}
+
+/* Fix for button primary colour. */
+.button.is-primary {
+  background: $primary;
+  &:hover {
+    background: darken($primary, 15%);
+  }
+  &:disabled {
+    background: $grey-light;
+  }
+}
+
+.autocomplete .dropdown-content {
+  background-color: $white-bis;
+}
+
+.help {
+  color: $grey;
+}
+
+/* Tags */
+.tag {
+  min-width: 75px;
+
+  &:not(body) {
+    $color: $grey-lighter;
+    border: 1px solid $color;
+    box-shadow: 1px 1px 0 $color;
+    color: $grey;
+  }
+
+  &.private, &.scheduled, &.paused {
+    $color: #ed7b00;
+    color: $color;
+    background: #fff7e6;
+    border: 1px solid lighten($color, 37%);
+    box-shadow: 1px 1px 0 lighten($color, 37%);
+  }
+  &.public, &.running {
+    $color: #1890ff;
+    color: $color;
+    background: #e6f7ff;
+    border: 1px solid lighten($color, 37%);
+    box-shadow: 1px 1px 0 lighten($color, 25%);
+  }
+  &.finished, &.enabled {
+    $color: #50ab24;
+    color: $color;
+    background: #f6ffed;
+    border: 1px solid lighten($color, 45%);
+    box-shadow: 1px 1px 0 lighten($color, 45%);
+  }
+  &.blacklisted {
+    $color: #f5222d;
+    color: $color;
+    background: #fff1f0;
+    border: 1px solid lighten($color, 45%);
+    box-shadow: 1px 1px 0 lighten($color, 45%);
+  } 
+
+  sup {
+    font-weight: $weight-semibold;
+    letter-spacing: 0.03em;
+  }
+  &.unsubscribed sup {
+    color: #fa8c16;
+  }
+  &.confirmed sup {
+    color: #52c41a;
+  }
+  
+  &:not(body) .icon:first-child:last-child {
+    margin-right: 1px;
+  }
+}
+
+/* Dashboard */
+section.dashboard {
+  .counts {
+    .title {
+      margin-bottom: 1rem;
+    }
+    .level-item {
+      background-color: $white-bis;
+      padding: 30px;
+      margin: 10px;
+
+      &:first-child, &:last-child {
+        margin: 0;
+      }
+    }
+  }
+}
+
+/* Lists page */
+section.lists {
+  td .tag {
+    min-width: 65px;
+  }
+}
+
+/* Subscribers page */
+.subscribers-controls {
+  padding-bottom: 15px;
+}
+.subscribers-bulk {
+  .actions a {
+    display: inline-block;
+    margin-right: 30px;
+  }
+}
+
+/* Import page */
+section.import {
+  .delimiter input {
+    max-width: 100px;
+  }
+  .status {
+    padding: 60px;
+  }
+  .logs {
+    max-height: 240px;
+  }
+}
+
+/* Campaigns page */
+section.campaigns {
+  table tbody {
+    tr.running {
+      background: lighten(#1890ff, 43%);
+      td {
+        border-bottom: 1px solid lighten(#1890ff, 30%);
+      }
+
+      .spinner .loading-overlay .loading-icon::after {
+        border-bottom-color: lighten(#1890ff, 30%);
+        border-left-color: lighten(#1890ff, 30%);
+      }
+    }
+
+    td {
+      &.status .spinner {
+        margin-left: 10px;
+      }
+      .tags {
+        margin-top: 5px;
+      }
+
+      p {
+        margin: 0 !important;
+      }
+
+      &.lists ul {
+        font-size: $size-7;
+        list-style-type: circle;
+
+        a {
+          color: $grey-dark;
+          &:hover {
+            color: $primary;
+          }
+        }
+      }
+
+      .fields {
+        font-size: $size-7;
+        label {
+          font-weight: bold;
+          text-align: right;
+          min-width: 50px;
+          margin-right: 10px;
+          display: inline-block;
+        }
+      }
+
+      &.draft {
+        color: $grey-lighter;
+      }
+
+      .progress-wrapper {
+        .progress.is-small {
+          height: 0.4em;
+        }
+        display: inline-block;
+      }
+    }
+  }
+}
+
+/* Campaign / template preview popup */
+.preview {
+  padding: 0;
+  
+  /* Contain the spinner background in the content area. */
+  position: relative;
+
+  #iframe {
+    border: 0;
+    width: 100%;
+    height: 100%;
+    min-height: 500px;
+    padding: 0;
+    margin: 0 0 -5px 0;
+  }
+}
+
+/* Campaign */
+section.campaign {
+  header .buttons {
+    justify-content: flex-end;
+  }
+}
+
+/* Media gallery */
+.media-files {
+  .thumbs {
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: column;
+    flex-flow: row wrap;
+
+    .thumb {
+      margin: 10px;
+      max-height: 90px;
+      overflow: hidden;
+
+      position: relative;
+
+      .caption {
+        background-color: rgba($white, .70);
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        padding: 2px 5px;
+
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .actions {
+        background-color: rgba($white, .70);
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        padding: 2px 5px;
+        display: none;
+
+        a {
+          margin-left: 10px;
+        }
+      }
+
+      &:hover .actions {
+        display: block;
+      }
+    }
+
+    .box {
+      padding: 10px;
+    }
+  }
+}
+
+/* Template form */
+.template-modal {
+  .template-modal-content {
+    height: 95vh;
+    max-height: none;
+  }
+  .textarea {
+    max-height: none;
+    height: 55vh;
+  }
+}
+
+@media screen and (max-width: 1450px) and (min-width: 769px) {
+  section.campaigns {
+    /* Fold the stats labels until the card view */
+    table tbody td {
+      .fields {
+        label {
+          margin: 0;
+          display: block;
+          text-align: left;
+        }
+        p {
+          margin-bottom: 10px !important;
+        }
+      }
+    }
+  }
+}
+
+@media screen and (max-width: 1023px) {
+  /* Hide sidebar menu captions on mobile */
+  .b-sidebar .sidebar-content.is-mini-mobile {
+    .menu-list li {
+      margin-bottom: 30px;
+
+      span:nth-child(2) {
+        display: none;
+      }
+      .icon.is-small {
+        scale: 1.4;
+      }
+    }
+    .logo {
+      text-align: center;
+      .full {
+        display: none;
+      }
+      .favicon {
+        display: block;
+      }
+      .version {
+        display: none;
+      }
+    }
+  }
+
+  #app > .content {
+    margin: 15px;
+  }
+}

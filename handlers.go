@@ -115,6 +115,7 @@ func registerHTTPHandlers(e *echo.Echo) {
 
 	// Static views.
 	e.GET("/lists", handleIndexPage)
+	e.GET("/lists/forms", handleIndexPage)
 	e.GET("/subscribers", handleIndexPage)
 	e.GET("/subscribers/lists/:listID", handleIndexPage)
 	e.GET("/subscribers/import", handleIndexPage)

@@ -158,7 +158,7 @@ type Campaign struct {
 	Name        string         `db:"name" json:"name"`
 	Subject     string         `db:"subject" json:"subject"`
 	FromEmail   string         `db:"from_email" json:"from_email"`
-	Body        string         `db:"body" json:"body,omitempty"`
+	Body        string         `db:"body" json:"body"`
 	SendAt      null.Time      `db:"send_at" json:"send_at"`
 	Status      string         `db:"status" json:"status"`
 	ContentType string         `db:"content_type" json:"content_type"`
@@ -177,7 +177,7 @@ type Campaign struct {
 
 // CampaignMeta contains fields tracking a campaign's progress.
 type CampaignMeta struct {
-	CampaignID int `db:"campaign_id" json:""`
+	CampaignID int `db:"campaign_id" json:"-"`
 	Views      int `db:"views" json:"views"`
 	Clicks     int `db:"clicks" json:"clicks"`
 
