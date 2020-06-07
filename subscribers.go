@@ -189,7 +189,7 @@ func handleCreateSubscriber(c echo.Context) error {
 	// Hand over to the GET handler to return the last insertion.
 	c.SetParamNames("id")
 	c.SetParamValues(fmt.Sprintf("%d", subID))
-	return c.JSON(http.StatusOK, handleGetSubscriber(c))
+	return handleGetSubscriber(c)
 }
 
 // handleUpdateSubscriber handles modification of a subscriber.
