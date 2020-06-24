@@ -69,30 +69,14 @@ func handleGetSubscriber(c echo.Context) error {
 	var (
 		app   = c.Get("app").(*App)
 		id, _ = strconv.Atoi(c.Param("id"))
-
-		out models.Subscribers
 	)
 
-	if id < 1 {
-		return echo.NewHTTPError(http.StatusBadRequest, "Invalid subscriber ID.")
-	}
-
-	err := app.queries.GetSubscriber.Select(&out, id, nil)
+	sub, err := getSubscriber(id, app)
 	if err != nil {
-		app.log.Printf("error fetching subscriber: %v", err)
-		return echo.NewHTTPError(http.StatusInternalServerError,
-			fmt.Sprintf("Error fetching subscriber: %s", pqErrMsg(err)))
-	}
-	if len(out) == 0 {
-		return echo.NewHTTPError(http.StatusBadRequest, "Subscriber not found.")
-	}
-	if err := out.LoadLists(app.queries.GetSubscriberListsLazy); err != nil {
-		app.log.Printf("error loading subscriber lists: %v", err)
-		return echo.NewHTTPError(http.StatusInternalServerError,
-			"Error loading subscriber lists.")
+		return err
 	}
 
-	return c.JSON(http.StatusOK, okResp{out[0]})
+	return c.JSON(http.StatusOK, sub)
 }
 
 // handleQuerySubscribers handles querying subscribers based on an arbitrary SQL expression.
@@ -177,19 +161,12 @@ func handleCreateSubscriber(c echo.Context) error {
 	}
 
 	// Insert the subscriber into the DB.
-	subID, err := insertSubscriber(req, app)
+	sub, err := insertSubscriber(req, app)
 	if err != nil {
 		return err
 	}
 
-	// If the lists are double-optins, send confirmation e-mails.
-	// Todo: This arbitrary goroutine should be moved to a centralised pool.
-	_ = sendOptinConfirmation(req.Subscriber, []int64(req.Lists), app)
-
-	// Hand over to the GET handler to return the last insertion.
-	c.SetParamNames("id")
-	c.SetParamValues(fmt.Sprintf("%d", subID))
-	return handleGetSubscriber(c)
+	return c.JSON(http.StatusOK, okResp{sub})
 }
 
 // handleUpdateSubscriber handles modification of a subscriber.
@@ -226,11 +203,18 @@ func handleUpdateSubscriber(c echo.Context) error {
 			fmt.Sprintf("Error updating subscriber: %v", pqErrMsg(err)))
 	}
 
-	return handleGetSubscriber(c)
+	// Send a confirmation e-mail (if there are any double opt-in lists).
+	sub, err := getSubscriber(int(id), app)
+	if err != nil {
+		return err
+	}
+	_ = sendOptinConfirmation(sub, []int64(req.Lists), app)
+
+	return c.JSON(http.StatusOK, sub)
 }
 
 // handleGetSubscriberSendOptin sends an optin confirmation e-mail to a subscriber.
-func handleGetSubscriberSendOptin(c echo.Context) error {
+func handleSubscriberSendOptin(c echo.Context) error {
 	var (
 		app   = c.Get("app").(*App)
 		id, _ = strconv.Atoi(c.Param("id"))
@@ -512,10 +496,10 @@ func handleExportSubscriberData(c echo.Context) error {
 }
 
 // insertSubscriber inserts a subscriber and returns the ID.
-func insertSubscriber(req subimporter.SubReq, app *App) (int, error) {
+func insertSubscriber(req subimporter.SubReq, app *App) (models.Subscriber, error) {
 	uu, err := uuid.NewV4()
 	if err != nil {
-		return 0, err
+		return req.Subscriber, err
 	}
 	req.UUID = uu.String()
 
@@ -529,18 +513,50 @@ func insertSubscriber(req subimporter.SubReq, app *App) (int, error) {
 		req.ListUUIDs)
 	if err != nil {
 		if pqErr, ok := err.(*pq.Error); ok && pqErr.Constraint == "subscribers_email_key" {
-			return 0, echo.NewHTTPError(http.StatusBadRequest, "The e-mail already exists.")
+			return req.Subscriber, echo.NewHTTPError(http.StatusBadRequest, "The e-mail already exists.")
 		}
 
 		app.log.Printf("error inserting subscriber: %v", err)
-		return 0, echo.NewHTTPError(http.StatusInternalServerError,
+		return req.Subscriber, echo.NewHTTPError(http.StatusInternalServerError,
 			fmt.Sprintf("Error inserting subscriber: %v", err))
 	}
 
-	// If the lists are double-optins, send confirmation e-mails.
-	// Todo: This arbitrary goroutine should be moved to a centralised pool.
-	sendOptinConfirmation(req.Subscriber, []int64(req.Lists), app)
-	return req.ID, nil
+	// Fetch the subscriber's full data.
+	sub, err := getSubscriber(req.ID, app)
+	if err != nil {
+		return sub, err
+	}
+
+	// Send a confirmation e-mail (if there are any double opt-in lists).
+	_ = sendOptinConfirmation(sub, []int64(req.Lists), app)
+	return sub, nil
+}
+
+// getSubscriber gets a single subscriber by ID.
+func getSubscriber(id int, app *App) (models.Subscriber, error) {
+	var (
+		out models.Subscribers
+	)
+
+	if id < 1 {
+		return models.Subscriber{}, echo.NewHTTPError(http.StatusBadRequest, "Invalid subscriber ID.")
+	}
+
+	if err := app.queries.GetSubscriber.Select(&out, id, nil); err != nil {
+		app.log.Printf("error fetching subscriber: %v", err)
+		return models.Subscriber{}, echo.NewHTTPError(http.StatusInternalServerError,
+			fmt.Sprintf("Error fetching subscriber: %s", pqErrMsg(err)))
+	}
+	if len(out) == 0 {
+		return models.Subscriber{}, echo.NewHTTPError(http.StatusBadRequest, "Subscriber not found.")
+	}
+	if err := out.LoadLists(app.queries.GetSubscriberListsLazy); err != nil {
+		app.log.Printf("error loading subscriber lists: %v", err)
+		return models.Subscriber{}, echo.NewHTTPError(http.StatusInternalServerError,
+			"Error loading subscriber lists.")
+	}
+
+	return out[0], nil
 }
 
 // exportSubscriberData collates the data of a subscriber including profile,
@@ -587,7 +603,7 @@ func exportSubscriberData(id int64, subUUID string, exportables map[string]bool,
 	return data, b, nil
 }
 
-// sendOptinConfirmation sends double opt-in confirmation e-mails to a subscriber
+// sendOptinConfirmation sends a double opt-in confirmation e-mail to a subscriber
 // if at least one of the given listIDs is set to optin=double
 func sendOptinConfirmation(sub models.Subscriber, listIDs []int64, app *App) error {
 	var lists []models.List
