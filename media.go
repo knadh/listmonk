@@ -112,7 +112,7 @@ func handleUploadMedia(c echo.Context) error {
 func handleGetMedia(c echo.Context) error {
 	var (
 		app = c.Get("app").(*App)
-		out []media.Media
+		out = []media.Media{}
 	)
 
 	if err := app.queries.GetMedia.Select(&out); err != nil {
