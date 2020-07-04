@@ -159,14 +159,7 @@
             </b-table-column>
         </template>
         <template slot="empty" v-if="!loading.subscribers">
-            <section class="section">
-                <div class="content has-text-grey has-text-centered">
-                    <p>
-                        <b-icon icon="plus" size="is-large" />
-                    </p>
-                    <p>No subscribers.</p>
-                </div>
-            </section>
+          <empty-placeholder />
         </template>
     </b-table>
 
@@ -189,13 +182,13 @@ import Vue from 'vue';
 import { mapState } from 'vuex';
 import SubscriberForm from './SubscriberForm.vue';
 import SubscriberBulkList from './SubscriberBulkList.vue';
-
-Vue.component('subscriber-form', SubscriberForm);
-Vue.component('subscriber-bulk-list', SubscriberBulkList);
+import EmptyPlaceholder from '../components/EmptyPlaceholder.vue';
 
 export default Vue.extend({
   components: {
     SubscriberForm,
+    SubscriberBulkList,
+    EmptyPlaceholder,
   },
 
   data() {

@@ -13,8 +13,10 @@
 <script>
 export default {
   name: 'EmptyPlaceholder',
+
   props: {
     icon: String,
     label: String,
   },
 };
+</script>

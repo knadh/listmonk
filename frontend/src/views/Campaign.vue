@@ -141,11 +141,11 @@ import dayjs from 'dayjs';
 import ListSelector from '../components/ListSelector.vue';
 import Editor from '../components/Editor.vue';
 
-Vue.component('list-selector', ListSelector);
-Vue.component('editor', Editor);
-
 export default Vue.extend({
-  name: 'Campaign',
+  components: {
+    ListSelector,
+    Editor,
+  },
 
   data() {
     return {

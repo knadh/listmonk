@@ -10,7 +10,7 @@
       <div class="tile is-ancestor">
         <div class="tile is-vertical is-12">
           <div class="tile">
-            <div class="tile is-parent is-vertical">
+            <div class="tile is-parent is-vertical relative">
               <b-loading v-if="isCountsLoading" active :is-full-page="false" />
               <article class="tile is-child notification">
                 <div class="columns is-mobile">
@@ -55,7 +55,7 @@
               </article><!-- campaigns -->
             </div><!-- block -->
 
-            <div class="tile is-parent">
+            <div class="tile is-parent relative">
               <b-loading v-if="isCountsLoading" active :is-full-page="false" />
               <article class="tile is-child notification">
                 <div class="columns is-mobile">
@@ -87,7 +87,7 @@
               </article><!-- subscribers -->
             </div>
           </div>
-          <div class="tile is-parent">
+          <div class="tile is-parent relative">
             <b-loading v-if="isChartsLoading" active :is-full-page="false" />
             <article class="tile is-child notification charts">
               <div class="columns">

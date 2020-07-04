@@ -57,19 +57,16 @@
 </template>
 
 <script>
-import Vue from 'vue';
 import 'quill/dist/quill.snow.css';
 import 'quill/dist/quill.core.css';
 import { quillEditor } from 'vue-quill-editor';
-// import Delta from 'quill-delta';
 import CampaignPreview from './CampaignPreview.vue';
 import Media from '../views/Media.vue';
 
-Vue.component('media', Media);
-Vue.component('campaign-preview', CampaignPreview);
-
 export default {
   components: {
+    Media,
+    CampaignPreview,
     quillEditor,
   },
 

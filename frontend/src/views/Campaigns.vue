@@ -171,15 +171,8 @@
               </a>
             </b-table-column>
         </template>
-        <template slot="empty" v-if="!loading.lists">
-            <section class="section">
-                <div class="content has-text-grey has-text-centered">
-                    <p>
-                        <b-icon icon="plus" size="is-large" />
-                    </p>
-                    <p>Nothing here.</p>
-                </div>
-            </section>
+        <template slot="empty" v-if="!loading.campaigns">
+          <empty-placeholder />
         </template>
     </b-table>
 
@@ -197,12 +190,16 @@ import { mapState } from 'vuex';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import CampaignPreview from '../components/CampaignPreview.vue';
-
-Vue.component('campaign-preview', CampaignPreview);
+import EmptyPlaceholder from '../components/EmptyPlaceholder.vue';
 
 dayjs.extend(relativeTime);
 
 export default Vue.extend({
+  components: {
+    CampaignPreview,
+    EmptyPlaceholder,
+  },
+
   data() {
     return {
       previewItem: null,

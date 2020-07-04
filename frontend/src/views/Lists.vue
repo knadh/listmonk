@@ -73,14 +73,7 @@
         </template>
 
         <template slot="empty" v-if="!loading.lists">
-            <section class="section">
-                <div class="content has-text-grey has-text-centered">
-                    <p>
-                        <b-icon icon="plus" size="is-large" />
-                    </p>
-                    <p>Nothing here yet.</p>
-                </div>
-            </section>
+            <empty-placeholder />
         </template>
     </b-table>
 
@@ -95,12 +88,12 @@
 import Vue from 'vue';
 import { mapState } from 'vuex';
 import ListForm from './ListForm.vue';
-
-Vue.component('list-form', ListForm);
+import EmptyPlaceholder from '../components/EmptyPlaceholder.vue';
 
 export default Vue.extend({
   components: {
     ListForm,
+    EmptyPlaceholder,
   },
 
   data() {

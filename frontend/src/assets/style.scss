@@ -45,6 +45,10 @@ ul.no {
   margin: 0;
 }
 
+.relative {
+  position: relative;
+}
+
 section {
   &.wrap {
     max-width: 1100px;
@@ -248,10 +252,6 @@ section.dashboard {
     display: inline-block;
     min-width: 50px;
     text-align: right;
-  }
-
-  .tile {
-    position: relative;
   }
 
   .charts {

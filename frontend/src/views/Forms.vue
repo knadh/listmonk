@@ -1,14 +1,18 @@
 <template>
-  <section class="forms content">
+  <section class="forms content relative">
     <h1 class="title is-4">Forms</h1>
     <hr />
-    <div class="columns">
+    <b-loading v-if="loading.lists" :active="loading.lists" :is-full-page="false" />
+    <div class="columns" v-else-if="publicLists.length > 0">
       <div class="column is-4">
         <h4>Public lists</h4>
         <p>Select lists to add to the form.</p>
+
+        <b-loading :active="loading.lists" :is-full-page="false" />
         <ul class="no">
-          <li v-for="l in lists" :key="l.id">
-            <b-checkbox v-model="checked" :native-value="l.uuid">{{ l.name }}</b-checkbox>
+          <li v-for="l in publicLists" :key="l.id">
+            <b-checkbox v-model="checked"
+              :native-value="l.uuid">{{ l.name }}</b-checkbox>
           </li>
         </ul>
       </div>
@@ -27,7 +31,7 @@
         &lt;h3&gt;Subscribe&lt;/h3&gt;
         &lt;p&gt;&lt;input type=&quot;text&quot; name=&quot;email&quot; placeholder=&quot;E-mail&quot; /&gt;&lt;/p&gt;
         &lt;p&gt;&lt;input type=&quot;text&quot; name=&quot;name&quot; placeholder=&quot;Name (optional)&quot; /&gt;&lt;/p&gt;
-      <template v-for="l in lists"><span v-if="l.uuid in selected" :key="l.id" :set="id = l.uuid.substr(0, 5)">
+      <template v-for="l in publicLists"><span v-if="l.uuid in selected" :key="l.id" :set="id = l.uuid.substr(0, 5)">
         &lt;p&gt;
           &lt;input id=&quot;{{ id }}&quot; type=&quot;checkbox&quot; name=&quot;l&quot; value=&quot;{{ uuid }}&quot; /&gt;
           &lt;label for=&quot;{{ id }}&quot;&gt;{{ l.name }}&lt;/label&gt;
@@ -36,12 +40,15 @@
     &lt;/div&gt;
 &lt;/form&gt;</pre>
       </div>
-    </div>
+    </div><!-- columns -->
+
+    <p v-else>There are no public lists to create forms.</p>
   </section>
 </template>
 
 <script>
 import Vue from 'vue';
+import { mapState } from 'vuex';
 
 export default Vue.extend({
   name: 'ListForm',
@@ -52,13 +59,23 @@ export default Vue.extend({
     };
   },
 
+  methods: {
+    getPublicLists(lists) {
+      console.log(lists.filter((l) => l.type === 'public'));
+      return lists.filter((l) => l.type === 'public');
+    },
+  },
+
   computed: {
-    lists() {
-      if (!this.$store.state.lists.results) {
+    ...mapState(['lists', 'loading']),
+
+    publicLists() {
+      if (!this.lists.results) {
         return [];
       }
-      return this.$store.state.lists.results.filter((l) => l.type === 'public');
+      return this.lists.results.filter((l) => l.type === 'public');
     },
+
     selected() {
       const sel = [];
       this.checked.forEach((uuid) => {
@@ -66,10 +83,6 @@ export default Vue.extend({
       });
       return sel;
     },
-  },
-
-  mounted() {
-    this.$api.getLists();
   },
 });
 </script>

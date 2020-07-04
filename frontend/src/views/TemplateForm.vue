@@ -46,10 +46,10 @@ import Vue from 'vue';
 import { mapState } from 'vuex';
 import CampaignPreview from '../components/CampaignPreview.vue';
 
-Vue.component('campaign-preview', CampaignPreview);
-
 export default Vue.extend({
-  name: 'TemplateForm',
+  components: {
+    CampaignPreview,
+  },
 
   props: {
     data: Object,

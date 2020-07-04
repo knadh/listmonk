@@ -55,14 +55,7 @@
         </template>
 
         <template slot="empty" v-if="!loading.templates">
-            <section class="section">
-                <div class="content has-text-grey has-text-centered">
-                    <p>
-                        <b-icon icon="plus" size="is-large" />
-                    </p>
-                    <p>Nothing here.</p>
-                </div>
-            </section>
+          <empty-placeholder />
         </template>
     </b-table>
 
@@ -86,13 +79,13 @@ import Vue from 'vue';
 import { mapState } from 'vuex';
 import TemplateForm from './TemplateForm.vue';
 import CampaignPreview from '../components/CampaignPreview.vue';
-
-Vue.component('campaign-preview', CampaignPreview);
-Vue.component('template-form', TemplateForm);
+import EmptyPlaceholder from '../components/EmptyPlaceholder.vue';
 
 export default Vue.extend({
   components: {
+    CampaignPreview,
     TemplateForm,
+    EmptyPlaceholder,
   },
 
   data() {

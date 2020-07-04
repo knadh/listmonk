@@ -129,10 +129,10 @@ import Vue from 'vue';
 import { mapState } from 'vuex';
 import ListSelector from '../components/ListSelector.vue';
 
-Vue.component('list-selector', ListSelector);
-
 export default Vue.extend({
-  name: 'Import',
+  components: {
+    ListSelector,
+  },
 
   props: {
     data: {},
