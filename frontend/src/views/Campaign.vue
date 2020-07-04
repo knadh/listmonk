@@ -159,7 +159,7 @@ export default Vue.extend({
       form: {
         name: '',
         subject: '',
-        fromEmail: '',
+        fromEmail: window.CONFIG.fromEmail,
         templateId: 0,
         lists: [],
         tags: [],

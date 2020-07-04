@@ -77,6 +77,16 @@
     <div class="main">
       <router-view :key="$route.fullPath" />
     </div>
+
+    <b-loading v-if="!isLoaded" active>
+        <div class="has-text-centered">
+          <h1 class="title">Oops</h1>
+          <p>
+            Can't connect to the listmonk backend.<br />
+            Make sure it is running and refresh this page.
+          </p>
+        </div>
+    </b-loading>
   </div>
 </template>
 
@@ -90,6 +100,7 @@ export default Vue.extend({
     return {
       activeItem: {},
       activeGroup: {},
+      isLoaded: window.CONFIG,
     };
   },
 
