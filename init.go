@@ -87,10 +87,13 @@ func initFS(staticDir string) stuffbin.FileSystem {
 // initDB initializes the main DB connection pool and parse and loads the app's
 // SQL queries into a prepared query map.
 func initDB() *sqlx.DB {
+
 	var dbCfg dbConf
 	if err := ko.Unmarshal("db", &dbCfg); err != nil {
 		lo.Fatalf("error loading db config: %v", err)
 	}
+
+	lo.Printf("connecting to db: %s:%d/%s", dbCfg.Host, dbCfg.Port, dbCfg.DBName)
 	db, err := connectDB(dbCfg)
 	if err != nil {
 		lo.Fatalf("error connecting to DB: %v", err)

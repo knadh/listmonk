@@ -31,6 +31,10 @@ export default class utils {
   static validateEmail = (e) => e.match(reEmail);
 
   static niceNumber = (n) => {
+    if (n === null || n === undefined) {
+      return 0;
+    }
+
     let pfx = '';
     let div = 1;
 

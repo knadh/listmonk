@@ -79,6 +79,13 @@ http.interceptors.response.use((resp) => {
 // loading: modelName (set's the loading status in the global store: eg: store.loading.lists = true)
 // store: modelName (set's the API response in the global store. eg: store.lists: { ... } )
 
+// Dashboard
+export const getDashboardCounts = () => http.get('/api/dashboard/counts',
+  { loading: models.dashboard });
+
+export const getDashboardCharts = () => http.get('/api/dashboard/charts',
+  { loading: models.dashboard });
+
 // Lists.
 export const getLists = () => http.get('/api/lists',
   { loading: models.lists, store: models.lists });

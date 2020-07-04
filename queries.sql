@@ -678,21 +678,8 @@ INSERT INTO link_clicks (campaign_id, subscriber_id, link_id)
     RETURNING (SELECT url FROM link);
 
 
--- name: get-dashboard-stats
-WITH lists AS (
-    SELECT JSON_OBJECT_AGG(type, num) FROM (SELECT type, COUNT(id) AS num FROM lists GROUP BY type) row
-),
-subs AS (
-    SELECT JSON_OBJECT_AGG(status, num) FROM (SELECT status, COUNT(id) AS num FROM subscribers GROUP by status) row
-),
-orphans AS (
-    SELECT COUNT(id) FROM subscribers LEFT JOIN subscriber_lists ON (subscribers.id = subscriber_lists.subscriber_id)
-    WHERE subscriber_lists.subscriber_id IS NULL
-),
-camps AS (
-    SELECT JSON_OBJECT_AGG(status, num) FROM (SELECT status, COUNT(id) AS num FROM campaigns GROUP by status) row
-),
-clicks AS (
+-- name: get-dashboard-charts
+WITH clicks AS (
     -- Clicks by day for the last 3 months
     SELECT JSON_AGG(ROW_TO_JSON(row))
     FROM (SELECT COUNT(*) AS count, created_at::DATE as date
@@ -706,9 +693,31 @@ views AS (
           FROM campaign_views GROUP by date ORDER BY date DESC LIMIT 100
     ) row
 )
-SELECT JSON_BUILD_OBJECT('lists', COALESCE((SELECT * FROM lists), '[]'),
-                        'subscribers', COALESCE((SELECT * FROM subs), '[]'),
-                        'orphan_subscribers', (SELECT * FROM orphans),
-                        'campaigns', COALESCE((SELECT * FROM camps), '[]'),
-                        'link_clicks', COALESCE((SELECT * FROM clicks), '[]'),
-                        'campaign_views', COALESCE((SELECT * FROM views), '[]')) AS stats;
+SELECT JSON_BUILD_OBJECT('link_clicks', COALESCE((SELECT * FROM clicks), '[]'),
+                        'campaign_views', COALESCE((SELECT * FROM views), '[]'));
+
+-- name: get-dashboard-counts
+SELECT JSON_BUILD_OBJECT('subscribers', JSON_BUILD_OBJECT(
+                            'total', (SELECT COUNT(*) FROM subscribers),
+                            'blacklisted', (SELECT COUNT(*) FROM subscribers WHERE status='blacklisted'),
+                            'orphans', (
+                                SELECT COUNT(id) FROM subscribers
+                                LEFT JOIN subscriber_lists ON (subscribers.id = subscriber_lists.subscriber_id)
+                                WHERE subscriber_lists.subscriber_id IS NULL
+                            )
+                        ),
+                        'lists', JSON_BUILD_OBJECT(
+                            'total', (SELECT COUNT(*) FROM lists),
+                            'private', (SELECT COUNT(*) FROM lists WHERE type='private'),
+                            'public', (SELECT COUNT(*) FROM lists WHERE type='public'),
+                            'optin_single', (SELECT COUNT(*) FROM lists WHERE optin='single'),
+                            'optin_double', (SELECT COUNT(*) FROM lists WHERE optin='double')
+                        ),
+                        'campaigns', JSON_BUILD_OBJECT(
+                            'total', (SELECT COUNT(*) FROM campaigns),
+                            'by_status', (
+                                SELECT JSON_OBJECT_AGG (status, num) FROM
+                                (SELECT status, COUNT(*) AS num FROM campaigns GROUP BY status) r
+                            )
+                        ),
+                        'messages', (SELECT SUM(sent) AS messages FROM campaigns));

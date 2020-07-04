@@ -38,7 +38,8 @@ var reUUID = regexp.MustCompile("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[
 func registerHTTPHandlers(e *echo.Echo) {
 	e.GET("/", handleIndexPage)
 	e.GET("/api/config.js", handleGetConfigScript)
-	e.GET("/api/dashboard/stats", handleGetDashboardStats)
+	e.GET("/api/dashboard/charts", handleGetDashboardCharts)
+	e.GET("/api/dashboard/counts", handleGetDashboardCounts)
 
 	e.GET("/api/subscribers/:id", handleGetSubscriber)
 	e.GET("/api/subscribers/:id/export", handleExportSubscriberData)

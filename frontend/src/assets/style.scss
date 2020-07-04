@@ -111,7 +111,7 @@ section {
       margin-right: 0;
     }
     > li {
-      margin-bottom: 5px;
+      margin-bottom: 15px;
     }
   }
   .logo {
@@ -229,19 +229,33 @@ section {
 
 /* Dashboard */
 section.dashboard {
-  .counts {
-    .title {
-      margin-bottom: 1rem;
-    }
-    .level-item {
-      background-color: $white-bis;
-      padding: 30px;
-      margin: 10px;
+  .title {
+    margin-bottom: 0.5rem;
+  }
 
-      &:first-child, &:last-child {
-        margin: 0;
-      }
+  .level-item {
+    background-color: $white-bis;
+    padding: 30px;
+    margin: 10px;
+
+    &:first-child, &:last-child {
+      margin: 0;
     }
+  }
+
+  label {
+    font-weight: bold;
+    display: inline-block;
+    min-width: 50px;
+    text-align: right;
+  }
+
+  .tile {
+    position: relative;
+  }
+
+  .charts {
+    min-height: 200px;
   }
 }
 
@@ -429,6 +443,39 @@ section.campaign {
   }
 }
 
+.c3 {
+  .c3-chart-lines .c3-line {
+    stroke-width: 2px;
+  }
+  .c3-axis-x .tick line,
+  .c3-axis-y .tick line {
+    display: none;
+  }
+  text {
+    fill: $grey;
+    font-family: $body-family;
+    font-size: 11px;
+  }
+  .c3-axis path, .c3-axis line {
+    stroke: #eee;
+  }
+
+  .c3-tooltip {
+    border: 0;
+    background-color: #fff;
+    empty-cells: show;
+    box-shadow: none;
+    opacity: 0.9;
+
+    tr {
+      border: 0;
+    }
+    th {
+      background: $white;
+    }
+  }
+}
+
 @media screen and (max-width: 1450px) and (min-width: 769px) {
   section.campaigns {
     /* Fold the stats labels until the card view */
@@ -476,5 +523,11 @@ section.campaign {
 
   #app > .content {
     margin: 15px;
+  }
+}
+
+@media screen and (max-width: 840px) {
+  section.dashboard label {
+    min-width: auto;
   }
 }

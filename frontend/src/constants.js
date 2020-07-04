@@ -1,4 +1,5 @@
 export const models = Object.freeze({
+  dashboard: 'dashboard',
   lists: 'lists',
   subscribers: 'subscribers',
   campaigns: 'campaigns',
@@ -20,3 +21,7 @@ export const storeKeys = Object.freeze({
 });
 
 export const timestamp = 'ddd D MMM YYYY, hh:mm A';
+
+export const colors = Object.freeze({
+  primary: '#7f2aff',
+});

@@ -11,6 +11,7 @@
   "dependencies": {
     "axios": "^0.19.2",
     "buefy": "^0.8.20",
+    "c3": "^0.7.18",
     "core-js": "^3.6.5",
     "dayjs": "^1.8.28",
     "humps": "^2.0.1",
@@ -20,6 +21,7 @@
     "quill-delta": "^4.2.2",
     "sass-loader": "^8.0.2",
     "vue": "^2.6.11",
+    "vue-c3": "^1.2.11",
     "vue-quill-editor": "^3.0.6",
     "vue-router": "^3.2.0",
     "vuex": "^3.4.0"

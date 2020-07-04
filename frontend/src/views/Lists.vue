@@ -40,7 +40,7 @@
                 </router-link>
             </b-table-column>
 
-            <b-table-column field="subscribers" label="Subscribers" numeric sortable centered>
+            <b-table-column field="subscriberCount" label="Subscribers" numeric sortable centered>
                 <router-link :to="`/subscribers/lists/${props.row.id}`">
                   {{ props.row.subscriberCount }}
                 </router-link>
@@ -78,7 +78,7 @@
                     <p>
                         <b-icon icon="plus" size="is-large" />
                     </p>
-                    <p>Nothing here.</p>
+                    <p>Nothing here yet.</p>
                 </div>
             </section>
         </template>
