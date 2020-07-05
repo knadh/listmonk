@@ -195,6 +195,7 @@ func initCampaignManager(q *Queries, cs *constants, app *App) *manager.Manager {
 	}
 
 	return manager.New(manager.Config{
+		BatchSize:     ko.Int("app.batch_size"),
 		Concurrency:   ko.Int("app.concurrency"),
 		MessageRate:   ko.Int("app.message_rate"),
 		MaxSendErrors: ko.Int("app.max_send_errors"),

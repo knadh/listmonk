@@ -15,8 +15,6 @@ import (
 )
 
 const (
-	batchSize = 10000
-
 	// BaseTPL is the name of the base template.
 	BaseTPL = "base"
 
@@ -84,6 +82,9 @@ type Message struct {
 
 // Config has parameters for configuring the manager.
 type Config struct {
+	// Number of subscribers to pull from the DB in a single iteration.
+	BatchSize int
+
 	Concurrency    int
 	MessageRate    int
 	MaxSendErrors  int
@@ -103,6 +104,16 @@ type msgError struct {
 
 // New returns a new instance of Mailer.
 func New(cfg Config, src DataSource, notifCB models.AdminNotifCallback, l *log.Logger) *Manager {
+	if cfg.BatchSize < 1 {
+		cfg.BatchSize = 1000
+	}
+	if cfg.Concurrency < 1 {
+		cfg.Concurrency = 1
+	}
+	if cfg.MessageRate < 1 {
+		cfg.MessageRate = 1
+	}
+
 	return &Manager{
 		cfg:                cfg,
 		src:                src,
@@ -232,7 +243,7 @@ func (m *Manager) Run(tick time.Duration) {
 
 	// Fetch the next set of subscribers for a campaign and process them.
 	for c := range m.subFetchQueue {
-		has, err := m.nextSubscribers(c, batchSize)
+		has, err := m.nextSubscribers(c, m.cfg.BatchSize)
 		if err != nil {
 			m.logger.Printf("error processing campaign batch (%s): %v", c.Name, err)
 			continue
