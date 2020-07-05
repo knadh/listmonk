@@ -33,10 +33,8 @@
     />
 
     <!-- raw html editor //-->
-    <b-input v-if="form.format === 'html'"
-      @input="onEditorChange"
-      v-model="form.body" type="textarea" />
-
+    <div v-if="form.format === 'html'"
+      ref="htmlEditor" id="html-editor" class="html-editor"></div>
 
     <!-- campaign preview //-->
     <campaign-preview v-if="isPreviewing"
@@ -60,7 +58,10 @@
 <script>
 import 'quill/dist/quill.snow.css';
 import 'quill/dist/quill.core.css';
+
 import { quillEditor } from 'vue-quill-editor';
+import CodeFlask from 'codeflask';
+
 import CampaignPreview from './CampaignPreview.vue';
 import Media from '../views/Media.vue';
 
@@ -155,6 +156,31 @@ export default {
       this.$emit('input', { contentType: this.form.format, body: this.form.body });
     },
 
+    initHTMLEditor() {
+      // CodeFlask editor is rendered in a shadow DOM tree to keep its styles
+      // sandboxed away from the global styles.
+      const el = document.createElement('code-flask');
+      el.attachShadow({ mode: 'open' });
+      el.shadowRoot.innerHTML = `
+        <style>.codeflask .codeflask__flatten { font-size: 15px; }</style>
+        <div id="area"></area>
+      `;
+      this.$refs.htmlEditor.appendChild(el);
+
+      const flask = new CodeFlask(el.shadowRoot.getElementById('area'), {
+        language: 'html',
+        lineNumbers: true,
+        styleParent: el.shadowRoot,
+        readonly: this.disabled,
+      });
+
+      flask.updateCode(this.form.body);
+      flask.onUpdate((b) => {
+        this.form.body = b;
+        this.$emit('input', { contentType: this.form.format, body: this.form.body });
+      });
+    },
+
     togglePreview() {
       this.isPreviewing = !this.isPreviewing;
     },
@@ -165,6 +191,12 @@ export default {
 
     onMediaSelect(m) {
       this.$refs.quill.quill.insertEmbed(10, 'image', m.url);
+    },
+  },
+
+  computed: {
+    htmlFormat() {
+      return this.form.format;
     },
   },
 
@@ -182,6 +214,19 @@ export default {
     body(b) {
       this.form.body = b;
     },
+
+    htmlFormat(f) {
+      if (f !== 'html') {
+        return;
+      }
+
+      this.$nextTick(() => {
+        this.initHTMLEditor();
+      });
+    },
+  },
+
+  mounted() {
   },
 };
 </script>

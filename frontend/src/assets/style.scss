@@ -126,6 +126,16 @@ section {
   }
 }
 
+/* HTML code editor */
+.html-editor {
+  position: relative;
+  width: 100%;
+  min-height: 250px;
+  height: 65vh;
+  border: 1px solid $grey-lighter;
+  border-radius: 2px;
+}
+
 /* Table colors and padding */
 .main table {
   thead th {
