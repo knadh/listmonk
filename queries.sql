@@ -557,6 +557,7 @@ WITH camp AS (
         body=(CASE WHEN $5 != '' THEN $5 ELSE body END),
         content_type=(CASE WHEN $6 != '' THEN $6::content_type ELSE content_type END),
         send_at=(CASE WHEN $8 THEN $7::TIMESTAMP WITH TIME ZONE WHEN NOT $8 THEN NULL ELSE send_at END),
+        status=(CASE WHEN NOT $8 THEN 'draft' ELSE status END),
         tags=(CASE WHEN ARRAY_LENGTH($9::VARCHAR(100)[], 1) > 0 THEN $9 ELSE tags END),
         template_id=(CASE WHEN $10 != 0 THEN $10 ELSE template_id END),
         updated_at=NOW()
