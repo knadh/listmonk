@@ -71,7 +71,7 @@
 
                 <b-field label="Tags">
                   <b-taginput v-model="form.tags" :disabled="!canEdit"
-                    ellipsis icon="tag" placeholder="Tags"></b-taginput>
+                    ellipsis icon="tag-outline" placeholder="Tags"></b-taginput>
                 </b-field>
                 <hr />
 

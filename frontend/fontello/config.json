@@ -427,6 +427,20 @@
       ]
     },
     {
+      "uid": "b1f680726c5ff5a4b55a4e2701aaedd6",
+      "css": "content-save-outline",
+      "code": 59422,
+      "src": "custom_icons",
+      "selected": true,
+      "svg": {
+        "path": "M709 125H209Q173.8 125 149.4 149.4T125 209V791Q125 826.2 149.4 850.6T209 875H791Q826.2 875 850.6 850.6T875 791V291ZM791 791H209V209H673.8L791 326.2V791ZM500 500Q447.3 500 411.1 536.1T375 625 411.1 713.9 500 750 588.9 713.9 625 625 588.9 536.1 500 500ZM250 250H625V416H250V250Z",
+        "width": 1000
+      },
+      "search": [
+        "content-save-outline"
+      ]
+    },
+    {
       "uid": "f4ad3f6d071a0bfb3a8452b514ed0892",
       "css": "vector-square",
       "code": 983041,
@@ -29264,20 +29278,6 @@
       },
       "search": [
         "comment-question"
-      ]
-    },
-    {
-      "uid": "b1f680726c5ff5a4b55a4e2701aaedd6",
-      "css": "content-save-outline",
-      "code": 985112,
-      "src": "custom_icons",
-      "selected": false,
-      "svg": {
-        "path": "M709 125H209Q173.8 125 149.4 149.4T125 209V791Q125 826.2 149.4 850.6T209 875H791Q826.2 875 850.6 850.6T875 791V291ZM791 791H209V209H673.8L791 326.2V791ZM500 500Q447.3 500 411.1 536.1T375 625 411.1 713.9 500 750 588.9 713.9 625 625 588.9 536.1 500 500ZM250 250H625V416H250V250Z",
-        "width": 1000
-      },
-      "search": [
-        "content-save-outline"
       ]
     },
     {
