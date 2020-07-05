@@ -2,6 +2,8 @@
   <section class="media-files">
     <h1 class="title is-4">Media
       <span v-if="media.length > 0">({{ media.length }})</span>
+
+      <span class="has-text-grey-light"> / {{ $serverConfig.mediaProvider }}</span>
     </h1>
 
     <b-loading :active="isProcessing || loading.media"></b-loading>
@@ -45,16 +47,16 @@
 
         <div class="thumbs">
           <div v-for="m in group.items" :key="m.id" class="box thumb">
-            <a @click="(e) => onMediaSelect(m, e)" :href="m.uri" target="_blank">
-              <img :src="m.thumbUri" :title="m.filename" />
+            <a @click="(e) => onMediaSelect(m, e)" :href="m.url" target="_blank">
+              <img :src="m.thumbUrl" :title="m.filename" />
             </a>
             <span class="caption is-size-7" :title="m.filename">{{ m.filename }}</span>
 
             <div class="actions has-text-right">
-              <a :href="m.uri" target="_blank">
+              <a :href="m.url" target="_blank">
                   <b-icon icon="arrow-top-right" size="is-small" />
               </a>
-              <a href="#" @click.prevent="deleteMedia(m.id)">
+              <a href="#" @click.prevent="$utils.confirm(null, () => deleteMedia(m.id))">
                   <b-icon icon="trash-can-outline" size="is-small" />
               </a>
             </div>

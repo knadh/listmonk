@@ -5,7 +5,7 @@ It's best if the `listmonk/frontend` directory is opened in an IDE as a separate
 For developer setup instructions, refer to the main project's README.
 
 ## Globals
-`main.js` is where Buefy is injected globally into Vue. In addition two controllers, `$api` (collection of API calls from `api/index.js`) and `$utils` (util functions from `util.js`), are also attached globaly to Vue. They are accessible within Vue as `this.$api` and `this.$utils`.
+`main.js` is where Buefy is injected globally into Vue. In addition two controllers, `$api` (collection of API calls from `api/index.js`), `$utils` (util functions from `util.js`), `$serverConfig` (loaded form /api/config.js) are also attached globaly to Vue. They are accessible within Vue as `this.$api` and `this.$utils`.
 
 Some constants are defined in `constants.js`.
 

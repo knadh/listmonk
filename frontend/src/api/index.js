@@ -22,8 +22,7 @@ const http = axios.create({
         return resp;
       }
 
-      const data = humps.camelizeKeys(resp.data);
-      return data;
+      return humps.camelizeKeys(resp.data);
     },
   ],
 

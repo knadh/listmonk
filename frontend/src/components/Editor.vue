@@ -164,7 +164,7 @@ export default {
     },
 
     onMediaSelect(m) {
-      this.$refs.quill.quill.insertEmbed(10, 'image', m.uri);
+      this.$refs.quill.quill.insertEmbed(10, 'image', m.url);
     },
   },
 

@@ -146,6 +146,8 @@ type constants struct {
 	ViewTrackURL string
 	OptinURL     string
 	MessageURL   string
+
+	MediaProvider string
 }
 
 func initConstants() *constants {
@@ -159,6 +161,7 @@ func initConstants() *constants {
 	}
 	c.RootURL = strings.TrimRight(c.RootURL, "/")
 	c.Privacy.Exportable = maps.StringSliceToLookupMap(ko.Strings("privacy.exportable"))
+	c.MediaProvider = ko.String("upload.provider")
 
 	// Static URLS.
 	// url.com/subscription/{campaign_uuid}/{subscriber_uuid}
@@ -175,7 +178,6 @@ func initConstants() *constants {
 
 	// url.com/campaign/{campaign_uuid}/{subscriber_uuid}/px.png
 	c.ViewTrackURL = fmt.Sprintf("%s/campaign/%%s/%%s/px.png", c.RootURL)
-
 	return &c
 }
 
@@ -272,6 +274,7 @@ func initMediaStore() media.Store {
 	case "filesystem":
 		var opts filesystem.Opts
 		ko.Unmarshal("upload.filesystem", &opts)
+		opts.RootURL = ko.String("app.root")
 		opts.UploadPath = filepath.Clean(opts.UploadPath)
 		opts.UploadURI = filepath.Clean(opts.UploadURI)
 		uplder, err := filesystem.NewDiskStore(opts)

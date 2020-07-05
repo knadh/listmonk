@@ -99,7 +99,7 @@ func handleUploadMedia(c echo.Context) error {
 	}
 
 	// Write to the DB.
-	if _, err := app.queries.InsertMedia.Exec(uu, fName, thumbfName, 0, 0); err != nil {
+	if _, err := app.queries.InsertMedia.Exec(uu, fName, thumbfName, app.constants.MediaProvider); err != nil {
 		cleanUp = true
 		app.log.Printf("error inserting uploaded file to db: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
@@ -115,14 +115,14 @@ func handleGetMedia(c echo.Context) error {
 		out = []media.Media{}
 	)
 
-	if err := app.queries.GetMedia.Select(&out); err != nil {
+	if err := app.queries.GetMedia.Select(&out, app.constants.MediaProvider); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			fmt.Sprintf("Error fetching media list: %s", pqErrMsg(err)))
 	}
 
 	for i := 0; i < len(out); i++ {
-		out[i].URI = app.media.Get(out[i].Filename)
-		out[i].ThumbURI = app.media.Get(thumbPrefix + out[i].Filename)
+		out[i].URL = app.media.Get(out[i].Filename)
+		out[i].ThumbURL = app.media.Get(out[i].Thumb)
 	}
 
 	return c.JSON(http.StatusOK, okResp{out})

@@ -19,12 +19,19 @@ const tmpFilePrefix = "listmonk"
 type Opts struct {
 	UploadPath string `koanf:"upload_path"`
 	UploadURI  string `koanf:"upload_uri"`
+	RootURL    string `koanf:"root_url"`
 }
 
 // Client implements `media.Store`
 type Client struct {
 	opts Opts
 }
+
+// This matches filenames, sans extensions, of the format
+// filename_(number). The number is incremented in case
+// new file uploads conflict with existing filenames
+// on the filesystem.
+var fnameRegexp = regexp.MustCompile(`(.+?)_([0-9]+)$`)
 
 // NewDiskStore initialises store for Filesystem provider.
 func NewDiskStore(opts Opts) (media.Store, error) {
@@ -34,7 +41,7 @@ func NewDiskStore(opts Opts) (media.Store, error) {
 }
 
 // Put accepts the filename, the content type and file object itself and stores the file in disk.
-func (e *Client) Put(filename string, cType string, src io.ReadSeeker) (string, error) {
+func (c *Client) Put(filename string, cType string, src io.ReadSeeker) (string, error) {
 	var out *os.File
 	// There's no explicit name. Use the one posted in the HTTP request.
 	if filename == "" {
@@ -44,7 +51,7 @@ func (e *Client) Put(filename string, cType string, src io.ReadSeeker) (string, 
 		}
 	}
 	// Get the directory path
-	dir := getDir(e.opts.UploadPath)
+	dir := getDir(c.opts.UploadPath)
 	filename = assertUniqueFilename(dir, filename)
 	o, err := os.OpenFile(filepath.Join(dir, filename), os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0664)
 	if err != nil {
@@ -60,25 +67,19 @@ func (e *Client) Put(filename string, cType string, src io.ReadSeeker) (string, 
 }
 
 // Get accepts a filename and retrieves the full path from disk.
-func (e *Client) Get(name string) string {
-	return fmt.Sprintf("%s/%s", e.opts.UploadURI, name)
+func (c *Client) Get(name string) string {
+	return fmt.Sprintf("%s%s/%s", c.opts.RootURL, c.opts.UploadURI, name)
 }
 
 // Delete accepts a filename and removes it from disk.
-func (e *Client) Delete(file string) error {
-	dir := getDir(e.opts.UploadPath)
+func (c *Client) Delete(file string) error {
+	dir := getDir(c.opts.UploadPath)
 	err := os.Remove(filepath.Join(dir, file))
 	if err != nil {
 		return err
 	}
 	return nil
 }
-
-// This matches filenames, sans extensions, of the format
-// filename_(number). The number is incremented in case
-// new file uploads conflict with existing filenames
-// on the filesystem.
-var fnameRegexp = regexp.MustCompile(`(.+?)_([0-9]+)$`)
 
 // assertUniqueFilename takes a file path and check if it exists on the disk. If it doesn't,
 // it returns the same name and if it does, it adds a small random hash to the filename

@@ -4,13 +4,14 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"strings"
 	"time"
 
 	"github.com/knadh/listmonk/internal/media"
 	"github.com/rhnvrm/simples3"
 )
 
-const amznS3PublicURL = "https://%s.s3.%s.amazonaws.com/%s"
+const amznS3PublicURL = "https://%s.s3.%s.amazonaws.com%s"
 
 // Opts represents AWS S3 specific params
 type Opts struct {
@@ -19,6 +20,7 @@ type Opts struct {
 	Region     string `koanf:"aws_default_region"`
 	Bucket     string `koanf:"bucket"`
 	BucketPath string `koanf:"bucket_path"`
+	BucketURL  string `koanf:"bucket_url"`
 	BucketType string `koanf:"bucket_type"`
 	Expiry     int    `koanf:"expiry"`
 }
@@ -54,55 +56,61 @@ func NewS3Store(opts Opts) (media.Store, error) {
 }
 
 // Put takes in the filename, the content type and file object itself and uploads to S3.
-func (e *Client) Put(name string, cType string, file io.ReadSeeker) (string, error) {
+func (c *Client) Put(name string, cType string, file io.ReadSeeker) (string, error) {
 	// Upload input parameters
 	upParams := simples3.UploadInput{
-		Bucket:      e.opts.Bucket,
-		ObjectKey:   getBucketPath(e.opts.BucketPath, name),
+		Bucket:      c.opts.Bucket,
 		ContentType: cType,
 		FileName:    name,
 		Body:        file,
+
+		// Paths inside the bucket should not start with /.
+		ObjectKey: strings.TrimPrefix(makeBucketPath(c.opts.BucketPath, name), "/"),
 	}
 	// Perform an upload.
-	_, err := e.s3.FileUpload(upParams)
-	if err != nil {
+	if _, err := c.s3.FileUpload(upParams); err != nil {
 		return "", err
 	}
 	return name, nil
 }
 
 // Get accepts the filename of the object stored and retrieves from S3.
-func (e *Client) Get(name string) string {
+func (c *Client) Get(name string) string {
 	// Generate a private S3 pre-signed URL if it's a private bucket.
-	if e.opts.BucketType == "private" {
-		url := e.s3.GeneratePresignedURL(simples3.PresignedInput{
-			Bucket:        e.opts.Bucket,
-			ObjectKey:     getBucketPath(e.opts.BucketPath, name),
+	if c.opts.BucketType == "private" {
+		url := c.s3.GeneratePresignedURL(simples3.PresignedInput{
+			Bucket:        c.opts.Bucket,
+			ObjectKey:     makeBucketPath(c.opts.BucketPath, name),
 			Method:        "GET",
 			Timestamp:     time.Now(),
-			ExpirySeconds: e.opts.Expiry,
+			ExpirySeconds: c.opts.Expiry,
 		})
 		return url
 	}
+
 	// Generate a public S3 URL if it's a public bucket.
-	url := fmt.Sprintf(amznS3PublicURL, e.opts.Bucket, e.opts.Region, getBucketPath(e.opts.BucketPath, name))
+	url := ""
+	if c.opts.BucketURL != "" {
+		url = c.opts.BucketURL + makeBucketPath(c.opts.BucketPath, name)
+	} else {
+		url = fmt.Sprintf(amznS3PublicURL, c.opts.Bucket, c.opts.Region,
+			makeBucketPath(c.opts.BucketPath, name))
+	}
 	return url
 }
 
 // Delete accepts the filename of the object and deletes from S3.
-func (e *Client) Delete(name string) error {
-	err := e.s3.FileDelete(simples3.DeleteInput{
-		Bucket:    e.opts.Bucket,
-		ObjectKey: getBucketPath(e.opts.BucketPath, name),
+func (c *Client) Delete(name string) error {
+	err := c.s3.FileDelete(simples3.DeleteInput{
+		Bucket:    c.opts.Bucket,
+		ObjectKey: strings.TrimPrefix(makeBucketPath(c.opts.BucketPath, name), "/"),
 	})
 	return err
 }
 
-// getBucketPath constructs the key for the object stored in S3.
-// If path is empty, the key is the combination of root of S3 bucket and filename.
-func getBucketPath(path string, name string) string {
-	if path == "" {
-		return fmt.Sprintf("%s", name)
+func makeBucketPath(bucketPath string, name string) string {
+	if bucketPath == "/" {
+		return "/" + name
 	}
-	return fmt.Sprintf("%s/%s", path, name)
+	return fmt.Sprintf("%s/%s", bucketPath, name)
 }

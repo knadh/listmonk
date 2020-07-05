@@ -91,6 +91,7 @@ export default class utils {
       message: msg,
       type: !typ ? 'is-success' : typ,
       queue: false,
+      duration: 3000,
     });
   };
 }

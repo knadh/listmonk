@@ -166,20 +166,23 @@ provider = "filesystem"
         aws_secret_access_key = ""
 
         # AWS Region where S3 bucket is hosted.
-        aws_default_region="ap-south-1"
+        aws_default_region = "ap-south-1"
 
         # Bucket name.
-        bucket=""
+        bucket = ""
 
-        # Path where the files will be stored inside bucket. Empty for root.
-        bucket_path=""
+        # Path where the files will be stored inside bucket. Default is "/".
+        bucket_path = "/"
+
+        # Optional full URL to the bucket. eg: https://files.mycustom.com
+        bucket_url = ""
 
         # "private" or "public".
-        bucket_type="public"
+        bucket_type = "public"
 
         # (Optional) Specify TTL (in seconds) for the generated presigned URL.
         # Expiry value is used only if the bucket is private.
-        expiry="86400"
+        expiry = 86400
 
     [upload.filesystem]
         # Path to the uploads directory where media will be uploaded.

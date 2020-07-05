@@ -11,9 +11,10 @@ import (
 )
 
 type configScript struct {
-	RootURL    string   `json:"rootURL"`
-	FromEmail  string   `json:"fromEmail"`
-	Messengers []string `json:"messengers"`
+	RootURL       string   `json:"rootURL"`
+	FromEmail     string   `json:"fromEmail"`
+	Messengers    []string `json:"messengers"`
+	MediaProvider string   `json:"media_provider"`
 }
 
 // handleGetConfigScript returns general configuration as a Javascript
@@ -22,9 +23,10 @@ func handleGetConfigScript(c echo.Context) error {
 	var (
 		app = c.Get("app").(*App)
 		out = configScript{
-			RootURL:    app.constants.RootURL,
-			FromEmail:  app.constants.FromEmail,
-			Messengers: app.manager.GetMessengerNames(),
+			RootURL:       app.constants.RootURL,
+			FromEmail:     app.constants.FromEmail,
+			Messengers:    app.manager.GetMessengerNames(),
+			MediaProvider: app.constants.MediaProvider,
 		}
 
 		b = bytes.Buffer{}
