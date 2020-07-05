@@ -16,7 +16,15 @@
             </div>
           </b-field>
 
-          <list-selector
+          <b-field v-if="form.mode === 'subscribe'"
+            label="Overwrite?"
+            message="Overwrite name and attribs of existing subscribers?">
+            <div>
+              <b-switch v-model="form.overwrite" name="overwrite" />
+            </div>
+          </b-field>
+
+          <list-selector v-if="form.mode === 'subscribe'"
             label="Lists"
             placeholder="Lists to subscribe to"
             message="Lists to subscribe to."
@@ -31,9 +39,7 @@
               placeholder="," maxlength="1" required />
           </b-field>
 
-          <b-field label="CSV or ZIP file"
-            message="For existing subscribers, the names and attributes
-            will be overwritten with the values in the CSV.">
+          <b-field label="CSV or ZIP file">
             <b-upload v-model="form.file" drag-drop expanded required>
               <div class="has-text-centered section">
                 <p>
@@ -50,12 +56,12 @@
           </div>
           <div class="buttons">
             <b-button native-type="submit" type="is-primary"
-              :disabled="form.lists.length === 0"
+              :disabled="!form.file || (form.mode === 'subscribe' && form.lists.length === 0)"
               :loading="isProcessing">Upload</b-button>
           </div>
         </div>
       </form>
-      <hr />
+      <br /><br />
 
       <div class="import-help">
         <h5 class="title is-size-6">Instructions</h5>
@@ -145,6 +151,7 @@ export default Vue.extend({
         mode: 'subscribe',
         delim: ',',
         lists: [],
+        overwrite: true,
         file: null,
       },
 
@@ -247,6 +254,7 @@ export default Vue.extend({
       this.isProcessing = true;
       this.$api.stopImport().then(() => {
         this.pollStatus();
+        this.form.file = null;
       });
     },
 
@@ -259,6 +267,7 @@ export default Vue.extend({
         mode: this.form.mode,
         delim: this.form.delim,
         lists: this.form.lists.map((l) => l.id),
+        overwrite: this.form.overwrite,
       }));
       params.set('file', this.form.file);
 
@@ -275,6 +284,7 @@ export default Vue.extend({
         this.pollStatus();
       }, () => {
         this.isProcessing = false;
+        this.form.file = null;
       });
     },
   },

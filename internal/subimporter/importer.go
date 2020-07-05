@@ -49,15 +49,20 @@ const (
 
 // Importer represents the bulk CSV subscriber import system.
 type Importer struct {
-	upsert         *sql.Stmt
-	blacklist      *sql.Stmt
-	updateListDate *sql.Stmt
-	db             *sql.DB
-	notifCB        models.AdminNotifCallback
+	opt Options
+	db  *sql.DB
 
 	stop   chan bool
 	status Status
 	sync.RWMutex
+}
+
+// Options represents inport options.
+type Options struct {
+	UpsertStmt         *sql.Stmt
+	BlacklistStmt      *sql.Stmt
+	UpdateListDateStmt *sql.Stmt
+	NotifCB            models.AdminNotifCallback
 }
 
 // Session represents a single import session.
@@ -66,8 +71,9 @@ type Session struct {
 	subQueue chan SubReq
 	log      *log.Logger
 
-	mode    string
-	listIDs []int
+	mode      string
+	overwrite bool
+	listIDs   []int
 }
 
 // Status reporesents statistics from an ongoing import session.
@@ -98,7 +104,8 @@ var (
 	// import is already running.
 	ErrIsImporting = errors.New("import is already running")
 
-	csvHeaders = map[string]bool{"email": true,
+	csvHeaders = map[string]bool{
+		"email":      true,
 		"name":       true,
 		"attributes": true}
 
@@ -109,23 +116,19 @@ var (
 )
 
 // New returns a new instance of Importer.
-func New(upsert *sql.Stmt, blacklist *sql.Stmt, updateListDate *sql.Stmt,
-	db *sql.DB, notifCB models.AdminNotifCallback) *Importer {
+func New(opt Options, db *sql.DB) *Importer {
 	im := Importer{
-		upsert:         upsert,
-		blacklist:      blacklist,
-		updateListDate: updateListDate,
-		stop:           make(chan bool, 1),
-		db:             db,
-		notifCB:        notifCB,
-		status:         Status{Status: StatusNone, logBuf: bytes.NewBuffer(nil)},
+		opt:    opt,
+		stop:   make(chan bool, 1),
+		db:     db,
+		status: Status{Status: StatusNone, logBuf: bytes.NewBuffer(nil)},
 	}
 	return &im
 }
 
 // NewSession returns an new instance of Session. It takes the name
 // of the uploaded file, but doesn't do anything with it but retains it for stats.
-func (im *Importer) NewSession(fName, mode string, listIDs []int) (*Session, error) {
+func (im *Importer) NewSession(fName, mode string, overWrite bool, listIDs []int) (*Session, error) {
 	if im.getStatus() != StatusNone {
 		return nil, errors.New("an import is already running")
 	}
@@ -137,11 +140,12 @@ func (im *Importer) NewSession(fName, mode string, listIDs []int) (*Session, err
 	im.Unlock()
 
 	s := &Session{
-		im:       im,
-		log:      log.New(im.status.logBuf, "", log.Ldate|log.Ltime),
-		subQueue: make(chan SubReq, commitBatchSize),
-		mode:     mode,
-		listIDs:  listIDs,
+		im:        im,
+		log:       log.New(im.status.logBuf, "", log.Ldate|log.Ltime),
+		subQueue:  make(chan SubReq, commitBatchSize),
+		mode:      mode,
+		overwrite: overWrite,
+		listIDs:   listIDs,
 	}
 
 	s.log.Printf("processing '%s'", fName)
@@ -218,7 +222,7 @@ func (im *Importer) sendNotif(status string) error {
 			strings.Title(status),
 			s.Name)
 	)
-	return im.notifCB(subject, out)
+	return im.opt.NotifCB(subject, out)
 }
 
 // Start is a blocking function that selects on a channel queue until all
@@ -249,9 +253,9 @@ func (s *Session) Start() {
 			}
 
 			if s.mode == ModeSubscribe {
-				stmt = tx.Stmt(s.im.upsert)
+				stmt = tx.Stmt(s.im.opt.UpsertStmt)
 			} else {
-				stmt = tx.Stmt(s.im.blacklist)
+				stmt = tx.Stmt(s.im.opt.BlacklistStmt)
 			}
 		}
 
@@ -263,7 +267,7 @@ func (s *Session) Start() {
 		}
 
 		if s.mode == ModeSubscribe {
-			_, err = stmt.Exec(uu, sub.Email, sub.Name, sub.Attribs, listIDs)
+			_, err = stmt.Exec(uu, sub.Email, sub.Name, sub.Attribs, listIDs, s.overwrite)
 		} else if s.mode == ModeBlacklist {
 			_, err = stmt.Exec(uu, sub.Email, sub.Name, sub.Attribs)
 		}
@@ -293,7 +297,7 @@ func (s *Session) Start() {
 	if cur == 0 {
 		s.im.setStatus(StatusFinished)
 		s.log.Printf("imported finished")
-		if _, err := s.im.updateListDate.Exec(listIDs); err != nil {
+		if _, err := s.im.opt.UpdateListDateStmt.Exec(listIDs); err != nil {
 			s.log.Printf("error updating lists date: %v", err)
 		}
 		s.im.sendNotif(StatusFinished)
@@ -312,7 +316,7 @@ func (s *Session) Start() {
 	s.im.incrementImportCount(cur)
 	s.im.setStatus(StatusFinished)
 	s.log.Printf("imported finished")
-	if _, err := s.im.updateListDate.Exec(listIDs); err != nil {
+	if _, err := s.im.opt.UpdateListDateStmt.Exec(listIDs); err != nil {
 		s.log.Printf("error updating lists date: %v", err)
 	}
 	s.im.sendNotif(StatusFinished)

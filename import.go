@@ -14,9 +14,10 @@ import (
 
 // reqImport represents file upload import params.
 type reqImport struct {
-	Mode    string `json:"mode"`
-	Delim   string `json:"delim"`
-	ListIDs []int  `json:"lists"`
+	Mode      string `json:"mode"`
+	Overwrite bool   `json:"overwrite"`
+	Delim     string `json:"delim"`
+	ListIDs   []int  `json:"lists"`
 }
 
 // handleImportSubscribers handles the uploading and bulk importing of
@@ -71,7 +72,7 @@ func handleImportSubscribers(c echo.Context) error {
 	}
 
 	// Start the importer session.
-	impSess, err := app.importer.NewSession(file.Filename, r.Mode, r.ListIDs)
+	impSess, err := app.importer.NewSession(file.Filename, r.Mode, r.Overwrite, r.ListIDs)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest,
 			fmt.Sprintf("Error starting import session: %v", err))

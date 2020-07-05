@@ -73,13 +73,14 @@ SELECT id from sub;
 
 -- name: upsert-subscriber
 -- Upserts a subscriber where existing subscribers get their names and attributes overwritten.
--- The status field is only updated when $6 = 'override_status'.
+-- If $6 = true, update values, otherwise, skip.
 WITH sub AS (
-    INSERT INTO subscribers (uuid, email, name, attribs)
+    INSERT INTO subscribers as s (uuid, email, name, attribs)
     VALUES($1, $2, $3, $4)
-    ON CONFLICT (email) DO UPDATE
-        SET name=$3,
-        attribs=$4,
+    ON CONFLICT (email)
+    DO UPDATE SET
+        name=(CASE WHEN $6 THEN $3 ELSE s.name END),
+        attribs=(CASE WHEN $6 THEN $4 ELSE s.attribs END),
         updated_at=NOW()
     RETURNING uuid, id
 ),

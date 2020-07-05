@@ -211,14 +211,16 @@ func initCampaignManager(q *Queries, cs *constants, app *App) *manager.Manager {
 
 // initImporter initializes the bulk subscriber importer.
 func initImporter(q *Queries, db *sqlx.DB, app *App) *subimporter.Importer {
-	return subimporter.New(q.UpsertSubscriber.Stmt,
-		q.UpsertBlacklistSubscriber.Stmt,
-		q.UpdateListsDate.Stmt,
-		db.DB,
-		func(subject string, data interface{}) error {
-			app.sendNotification(app.constants.NotifyEmails, subject, notifTplImport, data)
-			return nil
-		})
+	return subimporter.New(
+		subimporter.Options{
+			UpsertStmt:         q.UpsertSubscriber.Stmt,
+			BlacklistStmt:      q.UpsertBlacklistSubscriber.Stmt,
+			UpdateListDateStmt: q.UpdateListsDate.Stmt,
+			NotifCB: func(subject string, data interface{}) error {
+				app.sendNotification(app.constants.NotifyEmails, subject, notifTplImport, data)
+				return nil
+			},
+		}, db.DB)
 }
 
 // initMessengers initializes various messenger backends.

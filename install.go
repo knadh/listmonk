@@ -82,7 +82,7 @@ func install(db *sqlx.DB, fs stuffbin.FileSystem, prompt bool) {
 		"John Doe",
 		`{"type": "known", "good": true, "city": "Bengaluru"}`,
 		pq.Int64Array{int64(defList)},
-	); err != nil {
+		true); err != nil {
 		lo.Fatalf("Error creating subscriber: %v", err)
 	}
 	if _, err := q.UpsertSubscriber.Exec(
@@ -91,7 +91,7 @@ func install(db *sqlx.DB, fs stuffbin.FileSystem, prompt bool) {
 		"Anon Doe",
 		`{"type": "unknown", "good": true, "city": "Bengaluru"}`,
 		pq.Int64Array{int64(optinList)},
-	); err != nil {
+		true); err != nil {
 		lo.Fatalf("Error creating subscriber: %v", err)
 	}
 
