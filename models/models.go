@@ -169,6 +169,7 @@ type Campaign struct {
 	// TemplateBody is joined in from templates by the next-campaigns query.
 	TemplateBody string             `db:"template_body" json:"-"`
 	Tpl          *template.Template `json:"-"`
+	SubjectTpl   *template.Template `json:"-"`
 
 	// Pseudofield for getting the total number of subscribers
 	// in searches and queries.
@@ -308,6 +309,19 @@ func (c *Campaign) CompileTemplate(f template.FuncMap) error {
 	out, err := baseTPL.AddParseTree(ContentTpl, msgTpl.Tree)
 	if err != nil {
 		return fmt.Errorf("error inserting child template: %v", err)
+	}
+
+	// If the subject line has a template string, compile it.
+	if strings.Contains(c.Subject, "{{") {
+		subj := c.Subject
+		for _, r := range regTplFuncs {
+			subj = r.regExp.ReplaceAllString(subj, r.replace)
+		}
+		subjTpl, err := template.New(ContentTpl).Funcs(f).Parse(subj)
+		if err != nil {
+			return fmt.Errorf("error compiling subject: %v", err)
+		}
+		c.SubjectTpl = subjTpl
 	}
 
 	c.Tpl = out

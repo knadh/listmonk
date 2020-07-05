@@ -68,6 +68,7 @@ type CampaignMessage struct {
 
 	from     string
 	to       string
+	subject  string
 	body     []byte
 	unsubURL string
 }
@@ -126,6 +127,7 @@ func (m *Manager) NewCampaignMessage(c *models.Campaign, s models.Subscriber) Ca
 		Campaign:   c,
 		Subscriber: s,
 
+		subject:  c.Subject,
 		from:     c.FromEmail,
 		to:       s.Email,
 		unsubURL: fmt.Sprintf(m.cfg.UnsubURL, c.UUID, s.UUID),
@@ -271,7 +273,7 @@ func (m *Manager) SpawnWorkers() {
 					numMsg++
 
 					err := m.messengers[msg.Campaign.MessengerID].Push(
-						msg.from, []string{msg.to}, msg.Campaign.Subject, msg.body, nil)
+						msg.from, []string{msg.to}, msg.subject, msg.body, nil)
 					if err != nil {
 						m.logger.Printf("error sending message in campaign %s: %v", msg.Campaign.Name, err)
 
@@ -480,11 +482,26 @@ func (m *Manager) sendNotif(c *models.Campaign, status, reason string) error {
 // and applies the resultant bytes to Message.body to be used in messages.
 func (m *CampaignMessage) Render() error {
 	out := bytes.Buffer{}
+
+	// Render the subject if it's a template.
+	if m.Campaign.SubjectTpl != nil {
+		if err := m.Campaign.SubjectTpl.ExecuteTemplate(&out, models.ContentTpl, m); err != nil {
+			return err
+		}
+		m.subject = out.String()
+		out.Reset()
+	}
+
 	if err := m.Campaign.Tpl.ExecuteTemplate(&out, models.BaseTpl, m); err != nil {
 		return err
 	}
 	m.body = out.Bytes()
 	return nil
+}
+
+// Subject returns a copy of the message subject
+func (m *CampaignMessage) Subject() string {
+	return m.subject
 }
 
 // Body returns a copy of the message body.
