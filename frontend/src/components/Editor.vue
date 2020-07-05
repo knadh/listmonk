@@ -162,7 +162,10 @@ export default {
       const el = document.createElement('code-flask');
       el.attachShadow({ mode: 'open' });
       el.shadowRoot.innerHTML = `
-        <style>.codeflask .codeflask__flatten { font-size: 15px; }</style>
+        <style>
+          .codeflask .codeflask__flatten { font-size: 15px; }
+          .codeflask .codeflask__lines { background: #fafafa; }
+        </style>
         <div id="area"></area>
       `;
       this.$refs.htmlEditor.appendChild(el);
