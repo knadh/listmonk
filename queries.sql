@@ -224,6 +224,7 @@ SELECT (SELECT email FROM prof) as email,
 -- there's a COUNT() OVER() that still returns the total result count
 -- for pagination in the frontend, albeit being a field that'll repeat
 -- with every resultant row.
+-- %s = arbitrary expression, %s = order by field, %s = order direction
 SELECT COUNT(*) OVER () AS total, subscribers.* FROM subscribers
     LEFT JOIN subscriber_lists
     ON (
@@ -233,7 +234,7 @@ SELECT COUNT(*) OVER () AS total, subscribers.* FROM subscribers
     )
     WHERE subscriber_lists.list_id = ALL($1::INT[])
     %s
-    ORDER BY $2 DESC OFFSET $3 LIMIT $4;
+    ORDER BY %s %s OFFSET $2 LIMIT $3;
 
 -- name: query-subscribers-template
 -- raw: true

@@ -101,12 +101,16 @@ func handleQuerySubscribers(c echo.Context) error {
 	}
 
 	// There's an arbitrary query condition from the frontend.
-	cond := ""
+	var (
+		cond  = ""
+		ordBy = "updated_at"
+		ord   = "DESC"
+	)
 	if query != "" {
 		cond = " AND " + query
 	}
 
-	stmt := fmt.Sprintf(app.queries.QuerySubscribers, cond)
+	stmt := fmt.Sprintf(app.queries.QuerySubscribers, cond, ordBy, ord)
 
 	// Create a readonly transaction to prevent mutations.
 	tx, err := app.db.BeginTxx(context.Background(), &sql.TxOptions{ReadOnly: true})
@@ -117,8 +121,8 @@ func handleQuerySubscribers(c echo.Context) error {
 	}
 	defer tx.Rollback()
 
-	// Run the query.
-	if err := tx.Select(&out.Results, stmt, listIDs, "updaated_at", pg.Offset, pg.Limit); err != nil {
+	// Run the query. stmt is the raw SQL query.
+	if err := tx.Select(&out.Results, stmt, listIDs, pg.Offset, pg.Limit); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			fmt.Sprintf("Error querying subscribers: %v", pqErrMsg(err)))
 	}
