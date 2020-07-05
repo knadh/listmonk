@@ -86,7 +86,9 @@ export default {
 
   mounted() {
     setTimeout(() => {
-      this.$refs.form.submit();
+      if (this.$refs.form) {
+        this.$refs.form.submit();
+      }
     }, 100);
   },
 };

@@ -29,6 +29,7 @@
       :disabled="disabled"
       placeholder="Content here"
       @change="onEditorChange($event)"
+      @ready="onEditorReady($event)"
     />
 
     <!-- raw html editor //-->
@@ -142,6 +143,13 @@ export default {
       );
     },
 
+    onEditorReady() {
+      // Hack to focus the editor on page load.
+      this.$nextTick(() => {
+        window.setTimeout(() => this.$refs.quill.quill.focus(), 100);
+      });
+    },
+
     onEditorChange() {
       // The parent's v-model gets { contentType, body }.
       this.$emit('input', { contentType: this.form.format, body: this.form.body });
@@ -156,8 +164,7 @@ export default {
     },
 
     onMediaSelect(m) {
-      this.$refs.quill.quill
-        .insertEmbed(10, 'image', m.uri);
+      this.$refs.quill.quill.insertEmbed(10, 'image', m.uri);
     },
   },
 

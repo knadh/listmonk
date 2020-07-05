@@ -181,7 +181,7 @@ export default Vue.extend({
     },
 
     getCampaign(id) {
-      this.$api.getCampaign(id).then((r) => {
+      return this.$api.getCampaign(id).then((r) => {
         this.data = r.data;
         this.form = { ...this.form, ...r.data };
 
@@ -237,12 +237,12 @@ export default Vue.extend({
       };
 
       this.$api.createCampaign(data).then((r) => {
-        this.$router.push({ name: 'campaign', params: { id: r.data.id } });
+        this.$router.push({ name: 'campaign', hash: '#content', params: { id: r.data.id } });
 
-        this.data = r.data;
-        this.isEditing = true;
-        this.isNew = false;
-        this.activeTab = 1;
+        // this.data = r.data;
+        // this.isEditing = true;
+        // this.isNew = false;
+        // this.activeTab = 1;
       });
       return false;
     },
@@ -326,7 +326,6 @@ export default Vue.extend({
   mounted() {
     const { id } = this.$route.params;
 
-
     // New campaign.
     if (id === 'new') {
       this.isNew = true;
@@ -355,7 +354,11 @@ export default Vue.extend({
 
     // Fetch campaign.
     if (this.isEditing) {
-      this.getCampaign(id);
+      this.getCampaign(id).then(() => {
+        if (this.$route.hash === '#content') {
+          this.activeTab = 1;
+        }
+      });
     }
 
     this.$nextTick(() => {
