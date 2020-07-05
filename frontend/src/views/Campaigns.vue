@@ -101,7 +101,7 @@
                 <p title="Speed" v-if="stats.rate">
                   <label><b-icon icon="speedometer" size="is-small"></b-icon></label>
                   <span class="send-rate">
-                    {{ stats.rate }} / min
+                    {{ stats.rate.toFixed(0) }} / min
                   </span>
                 </p>
                 <p v-if="isRunning(props.row.id)">
