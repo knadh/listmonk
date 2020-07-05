@@ -432,8 +432,14 @@ func (s *Session) LoadCSV(srcPath string, delim rune) error {
 		s.log.Printf("error counting lines in '%s': '%v'", srcPath, err)
 		return err
 	}
+
+	if numLines == 0 {
+		return errors.New("empty file")
+	}
+
 	s.im.Lock()
-	s.im.status.Total = numLines
+	// Exclude the header from count.
+	s.im.status.Total = numLines - 1
 	s.im.Unlock()
 
 	// Rewind, now that we've done a linecount on the same handler.

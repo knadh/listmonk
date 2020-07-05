@@ -284,7 +284,7 @@ export default Vue.extend({
 
     // Import progress bar value.
     progress() {
-      if (!this.status) {
+      if (!this.status || !this.status.total > 0) {
         return 0;
       }
       return Math.ceil((this.status.imported / this.status.total) * 100);
