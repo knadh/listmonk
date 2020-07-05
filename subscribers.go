@@ -118,7 +118,7 @@ func handleQuerySubscribers(c echo.Context) error {
 	defer tx.Rollback()
 
 	// Run the query.
-	if err := tx.Select(&out.Results, stmt, listIDs, "id", pg.Offset, pg.Limit); err != nil {
+	if err := tx.Select(&out.Results, stmt, listIDs, "updaated_at", pg.Offset, pg.Limit); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			fmt.Sprintf("Error querying subscribers: %v", pqErrMsg(err)))
 	}
