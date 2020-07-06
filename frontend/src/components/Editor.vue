@@ -193,7 +193,11 @@ export default {
     },
 
     onMediaSelect(m) {
-      this.$refs.quill.quill.insertEmbed(10, 'image', m.url);
+      const sel = this.$refs.quill.quill.getSelection();
+      if (!sel) {
+        return;
+      }
+      this.$refs.quill.quill.insertEmbed(sel.index, 'image', m.url);
     },
   },
 
