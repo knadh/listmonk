@@ -157,9 +157,12 @@ func (m *Manager) AddMessenger(msg messenger.Messenger) error {
 
 // PushMessage pushes a Message to be sent out by the workers.
 func (m *Manager) PushMessage(msg Message) error {
+	t := time.NewTicker(time.Second * 3)
+	defer t.Stop()
+
 	select {
 	case m.msgQueue <- msg:
-	case <-time.After(time.Second * 3):
+	case <-t.C:
 		m.logger.Println("message push timed out: %'s'", msg.Subject)
 		return errors.New("message push timed out")
 	}
