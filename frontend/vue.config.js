@@ -13,5 +13,5 @@ module.exports = {
   indexPath: './frontend/index.html',
 
   productionSourceMap: false,
-  filenameHashing: false,
+  filenameHashing: true,
 };
