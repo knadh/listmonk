@@ -414,6 +414,10 @@ export default Vue.extend({
 
     // Turns the value into the simple input field into an SQL query expression.
     fullQueryExp() {
+      if (this.isSearchAdvanced) {
+        return this.queryParams.fullQuery;
+      }
+
       const q = this.queryParams.query.replace(/'/g, "''").trim();
       if (!q) {
         return '';
