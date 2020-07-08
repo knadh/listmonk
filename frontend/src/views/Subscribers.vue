@@ -395,6 +395,7 @@ export default Vue.extend({
         data.ids = this.bulk.checked.map((s) => s.id);
       } else {
         // 'All' is selected, perform by query.
+        data.query = this.fullQueryExp;
         fn = this.$api.addSubscribersToListsByQuery;
       }
 
