@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"syscall"
+	"time"
 
 	"github.com/jmoiron/sqlx/types"
 	"github.com/labstack/echo"
@@ -14,7 +16,8 @@ type configScript struct {
 	RootURL       string   `json:"rootURL"`
 	FromEmail     string   `json:"fromEmail"`
 	Messengers    []string `json:"messengers"`
-	MediaProvider string   `json:"media_provider"`
+	MediaProvider string   `json:"mediaProvider"`
+	NeedsRestart  bool     `json:"needsRestart"`
 }
 
 // handleGetConfigScript returns general configuration as a Javascript
@@ -28,11 +31,16 @@ func handleGetConfigScript(c echo.Context) error {
 			Messengers:    app.manager.GetMessengerNames(),
 			MediaProvider: app.constants.MediaProvider,
 		}
+	)
 
+	app.Lock()
+	out.NeedsRestart = app.needsRestart
+	app.Unlock()
+
+	var (
 		b = bytes.Buffer{}
 		j = json.NewEncoder(&b)
 	)
-
 	b.Write([]byte(`var CONFIG = `))
 	_ = j.Encode(out)
 	return c.Blob(http.StatusOK, "application/javascript", b.Bytes())
@@ -66,4 +74,14 @@ func handleGetDashboardCounts(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, okResp{out})
+}
+
+// handleReloadApp restarts the app.
+func handleReloadApp(c echo.Context) error {
+	app := c.Get("app").(*App)
+	go func() {
+		<-time.After(time.Millisecond * 500)
+		app.sigChan <- syscall.SIGHUP
+	}()
+	return c.JSON(http.StatusOK, okResp{true})
 }

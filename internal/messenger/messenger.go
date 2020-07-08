@@ -8,6 +8,7 @@ type Messenger interface {
 	Name() string
 	Push(fromAddr string, toAddr []string, subject string, message []byte, atts []Attachment) error
 	Flush() error
+	Close() error
 }
 
 // Attachment represents a file or blob attachment that can be

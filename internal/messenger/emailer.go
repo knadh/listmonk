@@ -15,7 +15,6 @@ const emName = "email"
 
 // Server represents an SMTP server's credentials.
 type Server struct {
-	Name          string
 	Username      string            `json:"username"`
 	Password      string            `json:"password"`
 	AuthProtocol  string            `json:"auth_protocol"`
@@ -33,16 +32,14 @@ type Server struct {
 
 // Emailer is the SMTP e-mail messenger.
 type Emailer struct {
-	servers     map[string]*Server
-	serverNames []string
-	numServers  int
+	servers []*Server
 }
 
 // NewEmailer creates and returns an e-mail Messenger backend.
 // It takes multiple SMTP configurations.
 func NewEmailer(servers ...Server) (*Emailer, error) {
 	e := &Emailer{
-		servers: make(map[string]*Server),
+		servers: make([]*Server, 0, len(servers)),
 	}
 
 	for _, srv := range servers {
@@ -77,11 +74,9 @@ func NewEmailer(servers ...Server) (*Emailer, error) {
 		}
 
 		s.pool = pool
-		e.servers[s.Name] = &s
-		e.serverNames = append(e.serverNames, s.Name)
+		e.servers = append(e.servers, &s)
 	}
 
-	e.numServers = len(e.serverNames)
 	return e, nil
 }
 
@@ -92,14 +87,16 @@ func (e *Emailer) Name() string {
 
 // Push pushes a message to the server.
 func (e *Emailer) Push(fromAddr string, toAddr []string, subject string, m []byte, atts []Attachment) error {
-	var key string
-
 	// If there are more than one SMTP servers, send to a random
 	// one from the list.
-	if e.numServers > 1 {
-		key = e.serverNames[rand.Intn(e.numServers)]
+	var (
+		ln  = len(e.servers)
+		srv *Server
+	)
+	if ln > 1 {
+		srv = e.servers[rand.Intn(ln)]
 	} else {
-		key = e.serverNames[0]
+		srv = e.servers[0]
 	}
 
 	// Are there attachments?
@@ -122,7 +119,6 @@ func (e *Emailer) Push(fromAddr string, toAddr []string, subject string, m []byt
 		return err
 	}
 
-	srv := e.servers[key]
 	em := smtppool.Email{
 		From:        fromAddr,
 		To:          toAddr,
@@ -153,5 +149,13 @@ func (e *Emailer) Push(fromAddr string, toAddr []string, subject string, m []byt
 
 // Flush flushes the message queue to the server.
 func (e *Emailer) Flush() error {
+	return nil
+}
+
+// Close closes the SMTP pools.
+func (e *Emailer) Close() error {
+	for _, s := range e.servers {
+		s.pool.Close()
+	}
 	return nil
 }

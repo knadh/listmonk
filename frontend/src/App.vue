@@ -63,9 +63,9 @@
                   icon="file-image-outline" label="Templates"></b-menu-item>
               </b-menu-item><!-- campaigns -->
 
-              <!-- <b-menu-item :to="{name: 'settings'}" tag="router-link"
+              <b-menu-item :to="{name: 'settings'}" tag="router-link"
                 :active="activeItem.settings"
-                icon="cog-outline" label="Settings"></b-menu-item> -->
+                icon="cog-outline" label="Settings"></b-menu-item>
             </b-menu-list>
           </b-menu>
         </div>
@@ -75,6 +75,18 @@
 
     <!-- body //-->
     <div class="main">
+      <div class="global-notices" v-if="serverConfig.needsRestart">
+        <div v-if="serverConfig.needsRestart" class="notification is-danger">
+          Settings have changed. Pause all running campaigns and restart the app
+           &mdash;
+          <b-button class="is-primary" size="is-small"
+            @click="$utils.confirm(
+              'Ensure running campaigns are paused. Restart?', reloadApp)">
+              Restart
+          </b-button>
+        </div>
+      </div>
+
       <router-view :key="$route.fullPath" />
     </div>
 
@@ -82,8 +94,8 @@
         <div class="has-text-centered">
           <h1 class="title">Oops</h1>
           <p>
-            Can't connect to the listmonk backend.<br />
-            Make sure it is running and refresh this page.
+            Can't connect to the backend.<br />
+            Make sure the server is running and refresh this page.
           </p>
         </div>
     </b-loading>
@@ -92,6 +104,7 @@
 
 <script>
 import Vue from 'vue';
+import { mapState } from 'vuex';
 
 export default Vue.extend({
   name: 'App',
@@ -115,16 +128,34 @@ export default Vue.extend({
     },
   },
 
+  methods: {
+    reloadApp() {
+      this.$api.reloadApp().then(() => {
+        this.$utils.toast('Reloading app ...');
+
+        // Poll until there's a 200 response, waiting for the app
+        // to restart and come back up.
+        const pollId = setInterval(() => {
+          clearInterval(pollId);
+          this.$utils.toast('Reload complete');
+          document.location.reload();
+        }, 500);
+      });
+    },
+  },
+
+  computed: {
+    ...mapState(['serverConfig']),
+
+    version() {
+      return process.env.VUE_APP_VERSION;
+    },
+  },
+
   mounted() {
     // Lists is required across different views. On app load, fetch the lists
     // and have them in the store.
     this.$api.getLists();
-  },
-
-  computed: {
-    version() {
-      return process.env.VUE_APP_VERSION;
-    },
   },
 });
 </script>

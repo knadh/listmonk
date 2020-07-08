@@ -724,3 +724,14 @@ SELECT JSON_BUILD_OBJECT('subscribers', JSON_BUILD_OBJECT(
                             )
                         ),
                         'messages', (SELECT SUM(sent) AS messages FROM campaigns));
+
+-- name: get-settings
+SELECT JSON_OBJECT_AGG(key, value) AS settings
+    FROM (
+        SELECT * FROM settings ORDER BY key
+    ) t;
+
+-- name: update-settings
+UPDATE settings AS s SET value = c.value
+    -- For each key in the incoming JSON map, update the row with the key and it's value.
+    FROM(SELECT * FROM JSONB_EACH($1)) AS c(key, value) WHERE s.key = c.key;

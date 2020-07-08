@@ -15,14 +15,14 @@ const amznS3PublicURL = "https://%s.s3.%s.amazonaws.com%s"
 
 // Opts represents AWS S3 specific params
 type Opts struct {
-	AccessKey  string `koanf:"aws_access_key_id"`
-	SecretKey  string `koanf:"aws_secret_access_key"`
-	Region     string `koanf:"aws_default_region"`
-	Bucket     string `koanf:"bucket"`
-	BucketPath string `koanf:"bucket_path"`
-	BucketURL  string `koanf:"bucket_url"`
-	BucketType string `koanf:"bucket_type"`
-	Expiry     int    `koanf:"expiry"`
+	AccessKey  string        `koanf:"aws_access_key_id"`
+	SecretKey  string        `koanf:"aws_secret_access_key"`
+	Region     string        `koanf:"aws_default_region"`
+	Bucket     string        `koanf:"bucket"`
+	BucketPath string        `koanf:"bucket_path"`
+	BucketURL  string        `koanf:"bucket_url"`
+	BucketType string        `koanf:"bucket_type"`
+	Expiry     time.Duration `koanf:"expiry"`
 }
 
 // Client implements `media.Store` for S3 provider
@@ -83,7 +83,7 @@ func (c *Client) Get(name string) string {
 			ObjectKey:     makeBucketPath(c.opts.BucketPath, name),
 			Method:        "GET",
 			Timestamp:     time.Now(),
-			ExpirySeconds: c.opts.Expiry,
+			ExpirySeconds: int(c.opts.Expiry.Seconds()),
 		})
 		return url
 	}

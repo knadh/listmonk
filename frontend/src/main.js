@@ -7,6 +7,7 @@ import router from './router';
 import store from './store';
 import * as api from './api';
 import utils from './utils';
+import { models } from './constants';
 
 Vue.use(Buefy, {});
 Vue.config.productionTip = false;
@@ -16,7 +17,10 @@ Vue.prototype.$api = api;
 Vue.prototype.$utils = utils;
 
 // window.CONFIG is loaded from /api/config.js directly in a <script> tag.
-Vue.prototype.$serverConfig = humps.camelizeKeys(window.CONFIG);
+if (window.CONFIG) {
+  store.commit('setModelResponse',
+    { model: models.serverConfig, data: humps.camelizeKeys(window.CONFIG) });
+}
 
 new Vue({
   router,

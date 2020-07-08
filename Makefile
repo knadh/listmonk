@@ -20,7 +20,7 @@ deps:
 # Build steps.
 .PHONY: build
 build:
-	go build  -o ${BIN} -ldflags="-s -w -X 'main.buildString=${BUILDSTR}'"
+	go build -o ${BIN} -ldflags="-s -w -X 'main.buildString=${BUILDSTR}'"
 
 .PHONY: build-frontend
 build-frontend:

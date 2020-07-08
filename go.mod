@@ -1,4 +1,5 @@
 module github.com/knadh/listmonk
+
 go 1.13
 
 require (
@@ -7,12 +8,13 @@ require (
 	github.com/jaytaylor/html2text v0.0.0-20200220170450-61d9dc4d7195
 	github.com/jmoiron/sqlx v1.2.0
 	github.com/knadh/goyesql/v2 v2.1.1
-	github.com/knadh/koanf v0.8.1
+	github.com/knadh/koanf v0.12.0
 	github.com/knadh/smtppool v0.2.0
 	github.com/knadh/stuffbin v1.1.0
 	github.com/labstack/echo v3.3.10+incompatible
 	github.com/labstack/gommon v0.3.0 // indirect
 	github.com/lib/pq v1.3.0
+	github.com/nats-io/nats-server/v2 v2.1.7 // indirect
 	github.com/niemeyer/pretty v0.0.0-20200227124842-a10e7caefd8e // indirect
 	github.com/olekukonko/tablewriter v0.0.4 // indirect
 	github.com/rhnvrm/simples3 v0.5.0

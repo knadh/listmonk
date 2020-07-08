@@ -41,6 +41,8 @@ export default new Vuex.Store({
     [models.campaigns]: (state) => state[models.campaigns],
     [models.media]: (state) => state[models.media],
     [models.templates]: (state) => state[models.templates],
+    [models.settings]: (state) => state[models.settings],
+    [models.serverConfig]: (state) => state[models.serverConfig],
   },
 
   modules: {

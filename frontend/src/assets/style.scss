@@ -77,6 +77,7 @@ section {
   }    
 }
 
+
 /* Two column sidebar+body layout */
 #app {
   display: flex;
@@ -126,6 +127,20 @@ section {
   }
 }
 
+/* Global notices */
+.global-notices {
+  margin-bottom: 30px;
+}
+.notification {
+  padding: 10px 15px;
+  &.is-danger {
+    background: $white-ter;
+    color: $black;
+    border-left: 5px solid $red;
+    font-weight: bold;
+  }
+}
+
 /* HTML code editor */
 .html-editor {
   position: relative;
@@ -164,6 +179,11 @@ section {
 }
 .modal .modal-close.is-large {
   display: none;
+}
+
+/* Toasts */
+.notices .toast {
+  animation: none;
 }
 
 /* Fix for button primary colour. */
@@ -453,6 +473,20 @@ section.campaign {
   }
 }
 
+/* Settings */
+.settings {
+  .disabled {
+    opacity: 0.30;
+  }
+  .tab-content {
+    padding-top: 30px;
+  }
+  .box {
+    margin-bottom: 30px;
+  }
+}
+
+/* C3 charting lib */
 .c3 {
   .c3-chart-lines .c3-line {
     stroke-width: 2px;

@@ -1,25 +1,25 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"html/template"
 	"log"
 	"os"
+	"os/signal"
 	"strings"
+	"sync"
+	"syscall"
 	"time"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/knadh/koanf"
-	"github.com/knadh/koanf/parsers/toml"
 	"github.com/knadh/koanf/providers/env"
-	"github.com/knadh/koanf/providers/file"
-	"github.com/knadh/koanf/providers/posflag"
 	"github.com/knadh/listmonk/internal/manager"
 	"github.com/knadh/listmonk/internal/media"
 	"github.com/knadh/listmonk/internal/messenger"
 	"github.com/knadh/listmonk/internal/subimporter"
 	"github.com/knadh/stuffbin"
-	flag "github.com/spf13/pflag"
 )
 
 // App contains the "global" components that are
@@ -35,47 +35,38 @@ type App struct {
 	media     media.Store
 	notifTpls *template.Template
 	log       *log.Logger
+
+	// Channel for passing reload signals.
+	sigChan chan os.Signal
+
+	// Global variable that stores the state indicating that a restart is required
+	// after a settings update.
+	needsRestart bool
+	sync.Mutex
 }
 
 var (
-	// Global logger.
 	lo = log.New(os.Stdout, "", log.Ldate|log.Ltime|log.Lshortfile)
-
-	// Global configuration reader.
 	ko = koanf.New(".")
+
+	fs      stuffbin.FileSystem
+	db      *sqlx.DB
+	queries *Queries
 
 	buildString string
 )
 
 func init() {
-	f := flag.NewFlagSet("config", flag.ContinueOnError)
-	f.Usage = func() {
-		// Register --help handler.
-		fmt.Println(f.FlagUsages())
-		os.Exit(0)
-	}
-
-	// Register the commandline flags.
-	f.StringSlice("config", []string{"config.toml"},
-		"path to one or more config files (will be merged in order)")
-	f.Bool("install", false, "run first time installation")
-	f.Bool("version", false, "current version of the build")
-	f.Bool("new-config", false, "generate sample config file")
-	f.String("static-dir", "", "(optional) path to directory with static files")
-	f.Bool("yes", false, "assume 'yes' to prompts, eg: during --install")
-
-	if err := f.Parse(os.Args[1:]); err != nil {
-		lo.Fatalf("error loading flags: %v", err)
-	}
+	initFlags()
 
 	// Display version.
-	if v, _ := f.GetBool("version"); v {
+	if ko.Bool("version") {
 		fmt.Println(buildString)
 		os.Exit(0)
 	}
 
 	// Generate new config.
-	if ok, _ := f.GetBool("new-config"); ok {
+	if ko.Bool("new-config") {
 		if err := newConfigFile(); err != nil {
 			lo.Println(err)
 			os.Exit(1)
@@ -84,38 +75,12 @@ func init() {
 		os.Exit(0)
 	}
 
-	// Load config files.
-	cFiles, _ := f.GetStringSlice("config")
-	for _, f := range cFiles {
-		lo.Printf("reading config: %s", f)
-		if err := ko.Load(file.Provider(f), toml.Parser()); err != nil {
-			if os.IsNotExist(err) {
-				lo.Fatal("config file not found. If there isn't one yet, run --new-config to generate one.")
-			}
-			lo.Fatalf("error loadng config from file: %v.", err)
-		}
-	}
+	// Load config files to pick up the database settings first.
+	initConfigFiles(ko.Strings("config"), ko)
 
-	// Load environment variables and merge into the loaded config.
-	if err := ko.Load(env.Provider("LISTMONK_", ".", func(s string) string {
-		return strings.Replace(strings.ToLower(
-			strings.TrimPrefix(s, "LISTMONK_")), "__", ".", -1)
-	}), nil); err != nil {
-		lo.Fatalf("error loading config from env: %v", err)
-	}
-	if err := ko.Load(posflag.Provider(f, ".", ko), nil); err != nil {
-		lo.Fatalf("error loading config: %v", err)
-	}
-}
-
-func main() {
-	// Initialize the DB and the filesystem that are required by the installer
-	// and the app.
-	var (
-		fs = initFS(ko.String("static-dir"))
-		db = initDB()
-	)
-	defer db.Close()
+	// Connect to the database, load the filesystem to read SQL queries.
+	db = initDB()
+	fs = initFS(ko.String("static-dir"))
 
 	// Installer mode? This runs before the SQL queries are loaded and prepared
 	// as the installer needs to work on an empty DB.
@@ -124,6 +89,22 @@ func main() {
 		return
 	}
 
+	// Load the SQL queries from the filesystem.
+	_, queries := initQueries(queryFilePath, db, fs, true)
+
+	// Load settings from DB.
+	initSettings(queries)
+
+	// Load environment variables and merge into the loaded config.
+	if err := ko.Load(env.Provider("LISTMONK_", ".", func(s string) string {
+		return strings.Replace(strings.ToLower(
+			strings.TrimPrefix(s, "LISTMONK_")), "__", ".", -1)
+	}), nil); err != nil {
+		lo.Fatalf("error loading config from env: %v", err)
+	}
+}
+
+func main() {
 	// Initialize the main app controller that wraps all of the app's
 	// components. This is passed around HTTP handlers.
 	app := &App{
@@ -143,6 +124,32 @@ func main() {
 	// messages) get processed at the specified interval.
 	go app.manager.Run(time.Second * 5)
 
-	// Start and run the app server.
-	initHTTPServer(app)
+	// Start the app server.
+	srv := initHTTPServer(app)
+
+	// Wait for the reload signal with a callback to gracefully shut down resources.
+	// The `wait` channel is passed to awaitReload to wait for the callback to finish
+	// within N seconds, or do a force reload.
+	app.sigChan = make(chan os.Signal)
+	signal.Notify(app.sigChan, syscall.SIGHUP)
+
+	closerWait := make(chan bool)
+	<-awaitReload(app.sigChan, closerWait, func() {
+		// Stop the HTTP server.
+		ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+		defer cancel()
+		srv.Shutdown(ctx)
+
+		// Close the campaign manager.
+		app.manager.Close()
+
+		// Close the DB pool.
+		app.db.DB.Close()
+
+		// Close the messenger pool.
+		app.messenger.Close()
+
+		// Signal the close.
+		closerWait <- true
+	})
 }

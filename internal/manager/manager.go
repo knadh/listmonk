@@ -184,6 +184,13 @@ func (m *Manager) HasMessenger(id string) bool {
 	return ok
 }
 
+// HasRunningCampaigns checks if there are any active campaigns.
+func (m *Manager) HasRunningCampaigns() bool {
+	m.campsMutex.Lock()
+	defer m.campsMutex.Unlock()
+	return len(m.camps) > 0
+}
+
 // Run is a blocking function (that should be invoked as a goroutine)
 // that scans the data source at regular intervals for pending campaigns,
 // and queues them for processing. The process queue fetches batches of
@@ -230,7 +237,11 @@ func (m *Manager) messageWorker() {
 	for {
 		select {
 		// Campaign message.
-		case msg := <-m.campMsgQueue:
+		case msg, ok := <-m.campMsgQueue:
+			if !ok {
+				return
+			}
+
 			// Pause on hitting the message rate.
 			if numMsg >= m.cfg.MessageRate {
 				time.Sleep(time.Second)
@@ -250,7 +261,10 @@ func (m *Manager) messageWorker() {
 			}
 
 		// Arbitrary message.
-		case msg := <-m.msgQueue:
+		case msg, ok := <-m.msgQueue:
+			if !ok {
+				return
+			}
 			err := m.messengers[msg.Messenger].Push(
 				msg.From, msg.To, msg.Subject, msg.Body, nil)
 			if err != nil {
@@ -291,6 +305,13 @@ func (m *Manager) TemplateFuncs(c *models.Campaign) template.FuncMap {
 	}
 }
 
+// Close closes and exits the campaign manager.
+func (m *Manager) Close() {
+	close(m.subFetchQueue)
+	close(m.campMsgErrorQueue)
+	close(m.msgQueue)
+}
+
 // scanCampaigns is a blocking function that periodically scans the data source
 // for campaigns to process and dispatches them to the manager.
 func (m *Manager) scanCampaigns(tick time.Duration) {
@@ -323,7 +344,10 @@ func (m *Manager) scanCampaigns(tick time.Duration) {
 
 			// Aggregate errors from sending messages to check against the error threshold
 			// after which a campaign is paused.
-		case e := <-m.campMsgErrorQueue:
+		case e, ok := <-m.campMsgErrorQueue:
+			if !ok {
+				return
+			}
 			if m.cfg.MaxSendErrors < 1 {
 				continue
 			}

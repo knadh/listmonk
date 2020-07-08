@@ -1,10 +1,15 @@
 export const models = Object.freeze({
+  // This is the config loaded from /api/config.js directly onto the page
+  // via a <script> tag.
+  serverConfig: 'serverConfig',
+
   dashboard: 'dashboard',
   lists: 'lists',
   subscribers: 'subscribers',
   campaigns: 'campaigns',
   templates: 'templates',
   media: 'media',
+  settings: 'settings',
 });
 
 // Ad-hoc URIs that are used outside of vuex requests.

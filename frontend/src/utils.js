@@ -86,12 +86,12 @@ export default class utils {
     });
   };
 
-  static toast = (msg, typ) => {
+  static toast = (msg, typ, duration) => {
     Toast.open({
       message: msg,
       type: !typ ? 'is-success' : typ,
       queue: false,
-      duration: 3000,
+      duration: duration || 3000,
     });
   };
 }

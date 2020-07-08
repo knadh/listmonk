@@ -37,9 +37,14 @@ var reUUID = regexp.MustCompile("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[
 // registerHandlers registers HTTP handlers.
 func registerHTTPHandlers(e *echo.Echo) {
 	e.GET("/", handleIndexPage)
+	e.GET("/api/health", handleHealthCheck)
 	e.GET("/api/config.js", handleGetConfigScript)
 	e.GET("/api/dashboard/charts", handleGetDashboardCharts)
 	e.GET("/api/dashboard/counts", handleGetDashboardCounts)
+
+	e.GET("/api/settings", handleGetSettings)
+	e.PUT("/api/settings", handleUpdateSettings)
+	e.POST("/api/admin/reload", handleReloadApp)
 
 	e.GET("/api/subscribers/:id", handleGetSubscriber)
 	e.GET("/api/subscribers/:id/export", handleExportSubscriberData)
@@ -138,6 +143,11 @@ func handleIndexPage(c echo.Context) error {
 
 	c.Response().Header().Set("Content-Type", "text/html")
 	return c.String(http.StatusOK, string(b))
+}
+
+// handleHealthCheck is a healthcheck endpoint that returns a 200 response.
+func handleHealthCheck(c echo.Context) error {
+	return c.JSON(http.StatusOK, okResp{true})
 }
 
 // validateUUID middleware validates the UUID string format for a given set of params.

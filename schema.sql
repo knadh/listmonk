@@ -155,3 +155,40 @@ CREATE TABLE link_clicks (
 DROP INDEX IF EXISTS idx_clicks_camp_id; CREATE INDEX idx_clicks_camp_id ON link_clicks(campaign_id);
 DROP INDEX IF EXISTS idx_clicks_link_id; CREATE INDEX idx_clicks_link_id ON link_clicks(link_id);
 DROP INDEX IF EXISTS idx_clicks_sub_id; CREATE INDEX idx_clicks_sub_id ON link_clicks(subscriber_id);
+
+-- settings
+DROP TABLE IF EXISTS settings CASCADE;
+CREATE TABLE settings (
+    key             TEXT NOT NULL UNIQUE,
+    value           JSONB NOT NULL DEFAULT '{}',
+    updated_at      TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+DROP INDEX IF EXISTS idx_settings_key; CREATE INDEX idx_settings_key ON settings(key);
+INSERT INTO settings (key, value) VALUES
+    ('app.favicon_url', '""'),
+    ('app.from_email', '"listmonk <noreply@listmonk.yoursite.com>"'),
+    ('app.logo_url', '"http://localhost:9000/public/static/logo.png"'),
+    ('app.concurrency', '10'),
+    ('app.message_rate', '10'),
+    ('app.batch_size', '1000'),
+    ('app.max_send_errors', '1000'),
+    ('app.notify_emails', '["admin1@mysite.com", "admin2@mysite.com"]'),
+    ('privacy.allow_blacklist', 'true'),
+    ('privacy.allow_export', 'true'),
+    ('privacy.allow_wipe', 'true'),
+    ('privacy.exportable', '["profile", "subscriptions", "campaign_views", "link_clicks"]'),
+    ('upload.provider', '"filesystem"'),
+    ('upload.filesystem.upload_path', '"uploads"'),
+    ('upload.filesystem.upload_uri', '"/uploads"'),
+    ('upload.s3.aws_access_key_id', '""'),
+    ('upload.s3.aws_secret_access_key', '""'),
+    ('upload.s3.aws_default_region', '"ap-south-b"'),
+    ('upload.s3.bucket', '""'),
+    ('upload.s3.bucket_domain', '""'),
+    ('upload.s3.bucket_path', '"/"'),
+    ('upload.s3.bucket_type', '"public"'),
+    ('upload.s3.expiry', '"14d"'),
+    ('smtp',
+        '[{"enabled":true, "host":"smtp.yoursite.com","port":25,"auth_protocol":"cram","username":"username","password":"password","hello_hostname":"","max_conns":10,"idle_timeout":"15s","wait_timeout":"5s","max_msg_retries":2,"tls_enabled":true,"tls_skip_verify":false,"email_headers":[]},
+          {"enabled":false, "host":"smtp2.yoursite.com","port":587,"auth_protocol":"plain","username":"username","password":"password","hello_hostname":"","max_conns":10,"idle_timeout":"15s","wait_timeout":"5s","max_msg_retries":2,"tls_enabled":false,"tls_skip_verify":false,"email_headers":[]}]'),
+    ('messengers', '[]');

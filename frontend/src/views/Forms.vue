@@ -61,7 +61,6 @@ export default Vue.extend({
 
   methods: {
     getPublicLists(lists) {
-      console.log(lists.filter((l) => l.type === 'public'));
       return lists.filter((l) => l.type === 'public');
     },
   },

@@ -9,22 +9,6 @@ const http = axios.create({
   baseURL: process.env.BASE_URL,
   withCredentials: false,
   responseType: 'json',
-  // transformResponse: [
-  //   // Apply the defaut transformations as well.
-  //   ...axios.defaults.transformResponse,
-  //   (resp) => {
-  //     if (!resp) {
-  //       return resp;
-  //     }
-
-  //     // There's an error message.
-  //     if ('message' in resp && resp.message !== '') {
-  //       return resp;
-  //     }
-
-  //     return humps.camelizeKeys(resp.data);
-  //   },
-  // ],
 
   // Override the default serializer to switch params from becoming []id=a&[]id=b ...
   // in GET and DELETE requests to id=a&id=b.
@@ -47,12 +31,13 @@ http.interceptors.response.use((resp) => {
     store.commit('setLoading', { model: resp.config.loading, status: false });
   }
 
-  let data = {};
-  if (resp.data && resp.data.data) {
-    if (typeof resp.data.data === 'object') {
-      data = humps.camelizeKeys(resp.data.data);
-    } else {
-      data = resp.data.data;
+  let data = { ...resp.data.data };
+  if (!resp.config.preserveCase) {
+    if (resp.data && resp.data.data) {
+      if (typeof resp.data.data === 'object') {
+        // Transform field case.
+        data = humps.camelizeKeys(resp.data.data);
+      }
     }
   }
 
@@ -75,11 +60,13 @@ http.interceptors.response.use((resp) => {
     msg = err.toString();
   }
 
-  Toast.open({
-    message: msg,
-    type: 'is-danger',
-    queue: false,
-  });
+  if (!err.config.disableToast) {
+    Toast.open({
+      message: msg,
+      type: 'is-danger',
+      queue: false,
+    });
+  }
 
   return Promise.reject(err);
 });
@@ -87,6 +74,12 @@ http.interceptors.response.use((resp) => {
 // API calls accept the following config keys.
 // loading: modelName (set's the loading status in the global store: eg: store.loading.lists = true)
 // store: modelName (set's the API response in the global store. eg: store.lists: { ... } )
+
+// Health check endpoint that does not throw a toast.
+export const getHealth = () => http.get('/api/health',
+  { disableToast: true });
+
+export const reloadApp = () => http.post('/api/admin/reload');
 
 // Dashboard
 export const getDashboardCounts = () => http.get('/api/dashboard/counts',
@@ -197,3 +190,10 @@ export const makeTemplateDefault = async (id) => http.put(`/api/templates/${id}/
 
 export const deleteTemplate = async (id) => http.delete(`/api/templates/${id}`,
   { loading: models.templates });
+
+// Settings.
+export const getSettings = async () => http.get('/api/settings',
+  { loading: models.settings, preserveCase: true });
+
+export const updateSettings = async (data) => http.put('/api/settings', data,
+  { loading: models.settings });

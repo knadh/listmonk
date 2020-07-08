@@ -1,17 +1,25 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"html/template"
 	"os"
 	"path/filepath"
 	"strings"
+	"syscall"
+	"time"
 
 	"github.com/jmoiron/sqlx"
+	"github.com/jmoiron/sqlx/types"
 	"github.com/knadh/goyesql/v2"
 	goyesqlx "github.com/knadh/goyesql/v2/sqlx"
 	"github.com/knadh/koanf"
 	"github.com/knadh/koanf/maps"
+	"github.com/knadh/koanf/parsers/toml"
+	"github.com/knadh/koanf/providers/confmap"
+	"github.com/knadh/koanf/providers/file"
+	"github.com/knadh/koanf/providers/posflag"
 	"github.com/knadh/listmonk/internal/manager"
 	"github.com/knadh/listmonk/internal/media"
 	"github.com/knadh/listmonk/internal/media/providers/filesystem"
@@ -20,11 +28,73 @@ import (
 	"github.com/knadh/listmonk/internal/subimporter"
 	"github.com/knadh/stuffbin"
 	"github.com/labstack/echo"
+	flag "github.com/spf13/pflag"
 )
 
 const (
 	queryFilePath = "queries.sql"
 )
+
+// constants contains static, constant config values required by the app.
+type constants struct {
+	RootURL      string   `koanf:"root"`
+	LogoURL      string   `koanf:"logo_url"`
+	FaviconURL   string   `koanf:"favicon_url"`
+	FromEmail    string   `koanf:"from_email"`
+	NotifyEmails []string `koanf:"notify_emails"`
+	Privacy      struct {
+		AllowBlacklist bool            `koanf:"allow_blacklist"`
+		AllowExport    bool            `koanf:"allow_export"`
+		AllowWipe      bool            `koanf:"allow_wipe"`
+		Exportable     map[string]bool `koanf:"-"`
+	} `koanf:"privacy"`
+
+	UnsubURL     string
+	LinkTrackURL string
+	ViewTrackURL string
+	OptinURL     string
+	MessageURL   string
+
+	MediaProvider string
+}
+
+func initFlags() {
+	f := flag.NewFlagSet("config", flag.ContinueOnError)
+	f.Usage = func() {
+		// Register --help handler.
+		fmt.Println(f.FlagUsages())
+		os.Exit(0)
+	}
+
+	// Register the commandline flags.
+	f.StringSlice("config", []string{"config.toml"},
+		"path to one or more config files (will be merged in order)")
+	f.Bool("install", false, "run first time installation")
+	f.Bool("version", false, "current version of the build")
+	f.Bool("new-config", false, "generate sample config file")
+	f.String("static-dir", "", "(optional) path to directory with static files")
+	f.Bool("yes", false, "assume 'yes' to prompts, eg: during --install")
+	if err := f.Parse(os.Args[1:]); err != nil {
+		lo.Fatalf("error loading flags: %v", err)
+	}
+
+	if err := ko.Load(posflag.Provider(f, ".", ko), nil); err != nil {
+		lo.Fatalf("error loading config: %v", err)
+	}
+}
+
+// initConfigFiles loads the given config files into the koanf instance.
+func initConfigFiles(files []string, ko *koanf.Koanf) {
+	for _, f := range files {
+		lo.Printf("reading config: %s", f)
+		if err := ko.Load(file.Provider(f), toml.Parser()); err != nil {
+			if os.IsNotExist(err) {
+				lo.Fatal("config file not found. If there isn't one yet, run --new-config to generate one.")
+			}
+			lo.Fatalf("error loadng config from file: %v.", err)
+		}
+	}
+}
 
 // initFileSystem initializes the stuffbin FileSystem to provide
 // access to bunded static assets to the app.
@@ -87,7 +157,6 @@ func initFS(staticDir string) stuffbin.FileSystem {
 // initDB initializes the main DB connection pool and parse and loads the app's
 // SQL queries into a prepared query map.
 func initDB() *sqlx.DB {
-
 	var dbCfg dbConf
 	if err := ko.Unmarshal("db", &dbCfg); err != nil {
 		lo.Fatalf("error loading db config: %v", err)
@@ -98,7 +167,6 @@ func initDB() *sqlx.DB {
 	if err != nil {
 		lo.Fatalf("error connecting to DB: %v", err)
 	}
-
 	return db
 }
 
@@ -127,27 +195,22 @@ func initQueries(sqlFile string, db *sqlx.DB, fs stuffbin.FileSystem, prepareQue
 	return qMap, &q
 }
 
-// constants contains static, constant config values required by the app.
-type constants struct {
-	RootURL      string   `koanf:"root"`
-	LogoURL      string   `koanf:"logo_url"`
-	FaviconURL   string   `koanf:"favicon_url"`
-	FromEmail    string   `koanf:"from_email"`
-	NotifyEmails []string `koanf:"notify_emails"`
-	Privacy      struct {
-		AllowBlacklist bool            `koanf:"allow_blacklist"`
-		AllowExport    bool            `koanf:"allow_export"`
-		AllowWipe      bool            `koanf:"allow_wipe"`
-		Exportable     map[string]bool `koanf:"-"`
-	} `koanf:"privacy"`
+// initSettings loads settings from the DB.
+func initSettings(q *Queries) {
+	var s types.JSONText
+	if err := q.GetSettings.Get(&s); err != nil {
+		lo.Fatalf("error reading settings from DB: %s", pqErrMsg(err))
+	}
 
-	UnsubURL     string
-	LinkTrackURL string
-	ViewTrackURL string
-	OptinURL     string
-	MessageURL   string
-
-	MediaProvider string
+	// Setting keys are dot separated, eg: app.favicon_url. Unflatten them into
+	// nested maps {app: {favicon_url}}.
+	var out map[string]interface{}
+	if err := json.Unmarshal(s, &out); err != nil {
+		lo.Fatalf("error unmarshalling settings from DB: %v", err)
+	}
+	if err := ko.Load(confmap.Provider(out, "."), nil); err != nil {
+		lo.Fatalf("error parsing settings from DB: %v", err)
+	}
 }
 
 func initConstants() *constants {
@@ -159,6 +222,7 @@ func initConstants() *constants {
 	if err := ko.Unmarshal("privacy", &c.Privacy); err != nil {
 		lo.Fatalf("error loading app config: %v", err)
 	}
+
 	c.RootURL = strings.TrimRight(c.RootURL, "/")
 	c.Privacy.Exportable = maps.StringSliceToLookupMap(ko.Strings("privacy.exportable"))
 	c.MediaProvider = ko.String("upload.provider")
@@ -227,31 +291,35 @@ func initImporter(q *Queries, db *sqlx.DB, app *App) *subimporter.Importer {
 func initMessengers(m *manager.Manager) messenger.Messenger {
 	var (
 		mapKeys = ko.MapKeys("smtp")
-		srv     = make([]messenger.Server, 0, len(mapKeys))
+		servers = make([]messenger.Server, 0, len(mapKeys))
 	)
 
+	items := ko.Slices("smtp")
+	if len(items) == 0 {
+		lo.Fatalf("no SMTP servers found in config")
+	}
+
 	// Load the default SMTP messengers.
-	for _, name := range mapKeys {
-		if !ko.Bool(fmt.Sprintf("smtp.%s.enabled", name)) {
-			lo.Printf("skipped SMTP: %s", name)
+	for _, item := range items {
+		if !item.Bool("enabled") {
 			continue
 		}
 
 		// Read the SMTP config.
-		s := messenger.Server{Name: name}
-		if err := ko.UnmarshalWithConf("smtp."+name, &s, koanf.UnmarshalConf{Tag: "json"}); err != nil {
+		var s messenger.Server
+		if err := item.UnmarshalWithConf("", &s, koanf.UnmarshalConf{Tag: "json"}); err != nil {
 			lo.Fatalf("error loading SMTP: %v", err)
 		}
 
-		srv = append(srv, s)
-		lo.Printf("loaded SMTP: %s (%s@%s)", s.Name, s.Username, s.Host)
+		servers = append(servers, s)
+		lo.Printf("loaded SMTP: %s@%s", item.String("username"), item.String("host"))
 	}
-	if len(srv) == 0 {
-		lo.Fatalf("no SMTP servers found in config")
+	if len(servers) == 0 {
+		lo.Fatalf("no SMTP servers enabled in settings")
 	}
 
 	// Initialize the default e-mail messenger.
-	msgr, err := messenger.NewEmailer(srv...)
+	msgr, err := messenger.NewEmailer(servers...)
 	if err != nil {
 		lo.Fatalf("error loading e-mail messenger: %v", err)
 	}
@@ -266,28 +334,31 @@ func initMessengers(m *manager.Manager) messenger.Messenger {
 func initMediaStore() media.Store {
 	switch provider := ko.String("upload.provider"); provider {
 	case "s3":
-		var opts s3.Opts
-		ko.Unmarshal("upload.s3", &opts)
-		uplder, err := s3.NewS3Store(opts)
+		var o s3.Opts
+		ko.Unmarshal("upload.s3", &o)
+		up, err := s3.NewS3Store(o)
 		if err != nil {
 			lo.Fatalf("error initializing s3 upload provider %s", err)
 		}
-		return uplder
+		lo.Println("media upload provider: s3")
+		return up
 
 	case "filesystem":
-		var opts filesystem.Opts
-		ko.Unmarshal("upload.filesystem", &opts)
-		opts.RootURL = ko.String("app.root")
-		opts.UploadPath = filepath.Clean(opts.UploadPath)
-		opts.UploadURI = filepath.Clean(opts.UploadURI)
-		uplder, err := filesystem.NewDiskStore(opts)
+		var o filesystem.Opts
+
+		ko.Unmarshal("upload.filesystem", &o)
+		o.RootURL = ko.String("app.root")
+		o.UploadPath = filepath.Clean(o.UploadPath)
+		o.UploadURI = filepath.Clean(o.UploadURI)
+		up, err := filesystem.NewDiskStore(o)
 		if err != nil {
 			lo.Fatalf("error initializing filesystem upload provider %s", err)
 		}
-		return uplder
+		lo.Println("media upload provider: filesystem")
+		return up
 
 	default:
-		lo.Fatalf("unknown provider. please select one of either filesystem or s3")
+		lo.Fatalf("unknown provider. select filesystem or s3")
 	}
 	return nil
 }
@@ -312,7 +383,7 @@ func initNotifTemplates(path string, fs stuffbin.FileSystem, cs *constants) *tem
 }
 
 // initHTTPServer sets up and runs the app's main HTTP server and blocks forever.
-func initHTTPServer(app *App) {
+func initHTTPServer(app *App) *echo.Echo {
 	// Initialize the HTTP server.
 	var srv = echo.New()
 	srv.HideBanner = true
@@ -349,5 +420,47 @@ func initHTTPServer(app *App) {
 	registerHTTPHandlers(srv)
 
 	// Start the server.
-	srv.Logger.Fatal(srv.Start(ko.String("app.address")))
+	go func() {
+		if err := srv.Start(ko.String("app.address")); err != nil {
+			if strings.Contains(err.Error(), "Server closed") {
+				lo.Println("HTTP server shut down")
+			} else {
+				lo.Fatalf("error starting HTTP server: %v", err)
+			}
+		}
+	}()
+
+	return srv
+}
+
+func awaitReload(sigChan chan os.Signal, closerWait chan bool, closer func()) chan bool {
+	// The blocking signal handler that main() waits on.
+	out := make(chan bool)
+
+	// Respawn a new process and exit the running one.
+	respawn := func() {
+		if err := syscall.Exec(os.Args[0], os.Args, os.Environ()); err != nil {
+			lo.Fatalf("error spawning process: %v", err)
+		}
+		os.Exit(0)
+	}
+
+	// Listen for reload signal.
+	go func() {
+		for range sigChan {
+			lo.Println("reloading on signal ...")
+
+			go closer()
+			select {
+			case <-closerWait:
+				// Wait for the closer to finish.
+				respawn()
+			case <-time.After(time.Second * 3):
+				// Or timeout and force close.
+				respawn()
+			}
+		}
+	}()
+
+	return out
 }
