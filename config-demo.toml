@@ -73,7 +73,7 @@ allow_wipe = false
 
 # Database.
 [db]
-host = "db"
+host = "demo-db"
 port = 5432
 user = "listmonk"
 password = "listmonk"

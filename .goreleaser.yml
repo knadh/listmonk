@@ -40,3 +40,4 @@ dockers:
     dockerfile: Dockerfile
     extra_files:
     - config.toml.sample
+    - config-demo.toml

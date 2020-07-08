@@ -21,13 +21,13 @@ See the [configuration Wiki page](https://github.com/knadh/listmonk/wiki/Configu
 
 You can pull the official Docker Image from [Docker Hub](https://hub.docker.com/r/listmonk/listmonk).
 
-You can checkout the [docker-compose.yml](docker-compose.yml) to get an idea of how to run `listmonk` with `PostgreSQL` together using Docker (also see [configuring with environment variables](https://github.com/knadh/listmonk/wiki/Configuration)).
+You can checkout the [docker-compose.yml](docker-compose.yml) to get an idea of how to run `listmonk` with `PostgreSQL` together using Docker (also see [configuring with environment variables](https://github.com/knadh/listmonk/wiki/Configuration)). Please visit [INSTALL.md](INSTALL.md) for detailed instructions on how to setup Listmonk with Docker.
 
-- `docker-compose up -d app db` to run all the services together.
-- `docker-compose run --rm app ./listmonk --install` to setup the DB.
-- Visit `http://localhost:9000`.
+**Alternatively**, to run a demo of listmonk, you can quickly spin up a local setup with:
 
-Alternatively, to run a demo of listmonk, you can quickly spin up a container `docker-compose up -d demo-db demo-app`. NOTE: This doesn't persist Postgres data after you stop and remove the container, this setup is intended only for demo. _DO NOT_ use the demo setup in production.
+`docker-compose up -d demo-db demo-app`.
+
+**NOTE:** This doesn't persist Postgres data after you stop and remove the container, this setup is intended only for demo. _DO NOT_ use the demo setup in production.
 
 ### Other deployments
 
