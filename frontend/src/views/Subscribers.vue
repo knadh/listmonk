@@ -35,6 +35,7 @@
             <div v-if="isSearchAdvanced">
               <b-field>
                 <b-input v-model="queryParams.queryExp"
+                  @keydown.native.enter="onAdvancedQueryEnter"
                   type="textarea" ref="queryExp"
                   placeholder="subscribers.name LIKE '%user%' or subscribers.status='blacklisted'">
                 </b-input>
@@ -43,8 +44,7 @@
                 <span class="is-size-6 has-text-grey">
                   Partial SQL expression to query subscriber attributes.{{ ' ' }}
                   <a href="https://listmonk.app/docs/querying-and-segmentation"
-                    target="_blank" rel="noopener noreferrer">
-                    Learn more <b-icon icon="link" size="is-small" />.
+                    target="_blank" rel="noopener noreferrer"> Learn more.
                   </a>
                 </span>
               </b-field>
@@ -285,6 +285,13 @@ export default Vue.extend({
     onSimpleQueryInput(v) {
       const q = v.replace(/'/, "''").trim();
       this.queryParams.queryExp = `(name ~* '${q}' OR email ~* '${q}')`;
+    },
+
+    // Ctrl + Enter on the advanced query searches.
+    onAdvancedQueryEnter(e) {
+      if (e.ctrlKey) {
+        this.querySubscribers();
+      }
     },
 
     // Search / query subscribers.
