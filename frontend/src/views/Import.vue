@@ -216,10 +216,10 @@ export default Vue.extend({
 
       // Poll for the status as long as the import is running.
       this.pollID = setInterval(() => {
-        this.$api.getImportStatus().then((r) => {
+        this.$api.getImportStatus().then((data) => {
           this.isProcessing = false;
           this.isLoading = false;
-          this.status = r.data;
+          this.status = data;
           this.getLogs();
 
           if (!this.isRunning()) {
@@ -236,8 +236,8 @@ export default Vue.extend({
     },
 
     getLogs() {
-      this.$api.getImportLogs().then((r) => {
-        this.logs = r.data;
+      this.$api.getImportLogs().then((data) => {
+        this.logs = data;
 
         Vue.nextTick(() => {
           // vue.$refs doesn't work as the logs textarea is rendered dynamiaclly.
@@ -271,7 +271,7 @@ export default Vue.extend({
       }));
       params.set('file', this.form.file);
 
-      // Make the API request.
+      // Post.
       this.$api.importSubscribers(params).then(() => {
         // On file upload, show a confirmation.
         this.$buefy.toast.open({

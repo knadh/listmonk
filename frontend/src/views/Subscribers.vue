@@ -385,6 +385,7 @@ export default Vue.extend({
     bulkChangeLists(action, lists) {
       const data = {
         action,
+        query: this.fullQueryExp,
         target_list_ids: lists.map((l) => l.id),
       };
 

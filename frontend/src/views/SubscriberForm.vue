@@ -108,11 +108,11 @@ export default Vue.extend({
         lists: this.form.lists.map((l) => l.id),
       };
 
-      this.$api.createSubscriber(data).then((resp) => {
+      this.$api.createSubscriber(data).then((d) => {
         this.$emit('finished');
         this.$parent.close();
         this.$buefy.toast.open({
-          message: `'${resp.data.name}' created`,
+          message: `'${d.name}' created`,
           type: 'is-success',
           queue: false,
         });
@@ -136,11 +136,11 @@ export default Vue.extend({
         lists: this.form.lists.map((l) => l.id),
       };
 
-      this.$api.updateSubscriber(data).then((resp) => {
+      this.$api.updateSubscriber(data).then((d) => {
         this.$emit('finished');
         this.$parent.close();
         this.$buefy.toast.open({
-          message: `'${resp.data.name}' updated`,
+          message: `'${d.name}' updated`,
           type: 'is-success',
           queue: false,
         });

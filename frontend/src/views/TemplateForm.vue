@@ -94,11 +94,11 @@ export default Vue.extend({
         body: this.form.body,
       };
 
-      this.$api.createTemplate(data).then((resp) => {
+      this.$api.createTemplate(data).then((d) => {
         this.$emit('finished');
         this.$parent.close();
         this.$buefy.toast.open({
-          message: `'${resp.data.name}' created`,
+          message: `'${d.name}' created`,
           type: 'is-success',
           queue: false,
         });
@@ -112,11 +112,11 @@ export default Vue.extend({
         body: this.form.body,
       };
 
-      this.$api.updateTemplate(data).then((resp) => {
+      this.$api.updateTemplate(data).then((d) => {
         this.$emit('finished');
         this.$parent.close();
         this.$buefy.toast.open({
-          message: `'${resp.data.name}' updated`,
+          message: `'${d.name}' updated`,
           type: 'is-success',
           queue: false,
         });

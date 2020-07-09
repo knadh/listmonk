@@ -79,11 +79,11 @@ export default Vue.extend({
     },
 
     createList() {
-      this.$api.createList(this.form).then((resp) => {
+      this.$api.createList(this.form).then((data) => {
         this.$emit('finished');
         this.$parent.close();
         this.$buefy.toast.open({
-          message: `'${resp.data.name}' created`,
+          message: `'${data.name}' created`,
           type: 'is-success',
           queue: false,
         });
@@ -91,11 +91,11 @@ export default Vue.extend({
     },
 
     updateList() {
-      this.$api.updateList({ id: this.data.id, ...this.form }).then((resp) => {
+      this.$api.updateList({ id: this.data.id, ...this.form }).then((data) => {
         this.$emit('finished');
         this.$parent.close();
         this.$buefy.toast.open({
-          message: `'${resp.data.name}' updated`,
+          message: `'${data.name}' updated`,
           type: 'is-success',
           queue: false,
         });

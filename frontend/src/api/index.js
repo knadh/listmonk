@@ -9,22 +9,22 @@ const http = axios.create({
   baseURL: process.env.BASE_URL,
   withCredentials: false,
   responseType: 'json',
-  transformResponse: [
-    // Apply the defaut transformations as well.
-    ...axios.defaults.transformResponse,
-    (resp) => {
-      if (!resp) {
-        return resp;
-      }
+  // transformResponse: [
+  //   // Apply the defaut transformations as well.
+  //   ...axios.defaults.transformResponse,
+  //   (resp) => {
+  //     if (!resp) {
+  //       return resp;
+  //     }
 
-      // There's an error message.
-      if ('message' in resp && resp.message !== '') {
-        return resp;
-      }
+  //     // There's an error message.
+  //     if ('message' in resp && resp.message !== '') {
+  //       return resp;
+  //     }
 
-      return humps.camelizeKeys(resp.data);
-    },
-  ],
+  //     return humps.camelizeKeys(resp.data);
+  //   },
+  // ],
 
   // Override the default serializer to switch params from becoming []id=a&[]id=b ...
   // in GET and DELETE requests to id=a&id=b.
@@ -47,11 +47,21 @@ http.interceptors.response.use((resp) => {
     store.commit('setLoading', { model: resp.config.loading, status: false });
   }
 
+  let data = {};
+  if (resp.data && resp.data.data) {
+    if (typeof resp.data.data === 'object') {
+      data = humps.camelizeKeys(resp.data.data);
+    } else {
+      data = resp.data.data;
+    }
+  }
+
   // Store the API response for a model.
   if ('store' in resp.config) {
-    store.commit('setModelResponse', { model: resp.config.store, data: resp.data });
+    store.commit('setModelResponse', { model: resp.config.store, data });
   }
-  return resp;
+
+  return data;
 }, (err) => {
   // Clear the loading state for a model.
   if ('loading' in err.config) {

@@ -293,9 +293,9 @@ export default Vue.extend({
 
       // Poll for the status as long as the import is running.
       this.pollID = setInterval(() => {
-        this.$api.getCampaignStats().then((r) => {
+        this.$api.getCampaignStats().then((data) => {
           // Stop polling. No running campaigns.
-          if (r.data.length === 0) {
+          if (data.length === 0) {
             clearInterval(this.pollID);
 
             // There were running campaigns and stats earlier. Clear them
@@ -307,7 +307,7 @@ export default Vue.extend({
           } else {
             // Turn the list of campaigns [{id: 1, ...}, {id: 2, ...}] into
             // a map indexed by the id: {1: {}, 2: {}}.
-            this.campaignStatsData = r.data.reduce((obj, cur) => ({ ...obj, [cur.id]: cur }), {});
+            this.campaignStatsData = data.reduce((obj, cur) => ({ ...obj, [cur.id]: cur }), {});
           }
         }, () => {
           clearInterval(this.pollID);
@@ -336,8 +336,8 @@ export default Vue.extend({
         template_id: c.templateId,
         body: c.body,
       };
-      this.$api.createCampaign(data).then((r) => {
-        this.$router.push({ name: 'campaign', params: { id: r.data.id } });
+      this.$api.createCampaign(data).then((d) => {
+        this.$router.push({ name: 'campaign', params: { id: d.id } });
       });
     },
 

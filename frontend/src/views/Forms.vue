@@ -33,7 +33,7 @@
         &lt;p&gt;&lt;input type=&quot;text&quot; name=&quot;name&quot; placeholder=&quot;Name (optional)&quot; /&gt;&lt;/p&gt;
       <template v-for="l in publicLists"><span v-if="l.uuid in selected" :key="l.id" :set="id = l.uuid.substr(0, 5)">
         &lt;p&gt;
-          &lt;input id=&quot;{{ id }}&quot; type=&quot;checkbox&quot; name=&quot;l&quot; value=&quot;{{ uuid }}&quot; /&gt;
+          &lt;input id=&quot;{{ id }}&quot; type=&quot;checkbox&quot; name=&quot;l&quot; value=&quot;{{ l.uuid }}&quot; /&gt;
           &lt;label for=&quot;{{ id }}&quot;&gt;{{ l.name }}&lt;/label&gt;
         &lt;/p&gt;</span></template>
         &lt;p&gt;&lt;input type=&quot;submit&quot; value=&quot;Subscribe&quot; /&gt;&lt;/p&gt;

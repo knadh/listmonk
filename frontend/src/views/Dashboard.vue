@@ -185,31 +185,31 @@ export default Vue.extend({
 
   mounted() {
     // Pull the counts.
-    this.$api.getDashboardCounts().then((r) => {
-      this.counts = r.data;
+    this.$api.getDashboardCounts().then((data) => {
+      this.counts = data;
       this.isCountsLoading = false;
     });
 
     // Pull the charts.
-    this.$api.getDashboardCharts().then((r) => {
+    this.$api.getDashboardCharts().then((data) => {
       this.isChartsLoading = false;
 
       // vue-c3 lib requires unique instances of Vue() to communicate.
-      if (r.data.campaignViews.length > 0) {
+      if (data.campaignViews.length > 0) {
         this.chartViewsInst = this;
 
         this.$nextTick(() => {
           this.chartViewsInst.$emit('init',
-            this.makeChart('Campaign views', r.data.campaignViews));
+            this.makeChart('Campaign views', data.campaignViews));
         });
       }
 
-      if (r.data.linkClicks.length > 0) {
+      if (data.linkClicks.length > 0) {
         this.chartClicksInst = new Vue();
 
         this.$nextTick(() => {
           this.chartClicksInst.$emit('init',
-            this.makeChart('Link clicks', r.data.linkClicks));
+            this.makeChart('Link clicks', data.linkClicks));
         });
       }
     });
