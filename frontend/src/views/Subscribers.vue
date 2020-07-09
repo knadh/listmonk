@@ -20,7 +20,7 @@
         <form @submit.prevent="querySubscribers">
           <div>
             <b-field grouped>
-              <b-input v-model="queryParams.query"
+              <b-input @input="onSimpleQueryInput"
                 placeholder="E-mail or name" icon="account-search-outline" ref="query"
                 :disabled="isSearchAdvanced"></b-input>
               <b-button native-type="submit" type="is-primary" icon-left="account-search-outline"
@@ -34,8 +34,8 @@
 
             <div v-if="isSearchAdvanced">
               <b-field>
-                <b-input v-model="queryParams.fullQuery"
-                  type="textarea" ref="fullQuery"
+                <b-input v-model="queryParams.queryExp"
+                  type="textarea" ref="queryExp"
                   placeholder="subscribers.name LIKE '%user%' or subscribers.status='blacklisted'">
                 </b-input>
               </b-field>
@@ -208,11 +208,8 @@ export default Vue.extend({
 
       // Query params to filter the getSubscribers() API call.
       queryParams: {
-        // Simple query field.
-        query: '',
-
-        // Advanced query filled. This value should be accessed via fullQueryExp().
-        fullQuery: '',
+        // Search query expression.
+        queryExp: '',
 
         // ID of the list the current subscriber view is filtered by.
         listID: null,
@@ -240,12 +237,7 @@ export default Vue.extend({
 
       // Toggling to advanced search.
       this.$nextTick(() => {
-        // Turn the string in the simple query input into an SQL exprssion and
-        // show in the full query input.
-        if (this.queryParams.query !== '') {
-          this.queryParams.fullQuery = this.fullQueryExp;
-        }
-        this.$refs.fullQuery.focus();
+        this.$refs.queryExp.focus();
       });
     },
 
@@ -288,11 +280,18 @@ export default Vue.extend({
       this.querySubscribers();
     },
 
+    // Prepares an SQL expression for simple name search inputs and saves it
+    // in this.queryExp.
+    onSimpleQueryInput(v) {
+      const q = v.replace(/'/, "''").trim();
+      this.queryParams.queryExp = `(name ~* '${q}' OR email ~* '${q}')`;
+    },
+
     // Search / query subscribers.
     querySubscribers() {
       this.$api.getSubscribers({
         list_id: this.queryParams.listID,
-        query: this.fullQueryExp,
+        query: this.queryParams.queryExp,
         page: this.queryParams.page,
       }).then(() => {
         this.bulk.checked = [];
@@ -329,7 +328,7 @@ export default Vue.extend({
         // 'All' is selected, blacklist by query.
         fn = () => {
           this.$api.blacklistSubscribersByQuery({
-            query: this.fullQueryExp,
+            query: this.queryParams.queryExp,
             list_ids: [],
           }).then(() => this.querySubscribers());
         };
@@ -362,7 +361,7 @@ export default Vue.extend({
         // 'All' is selected, delete by query.
         fn = () => {
           this.$api.deleteSubscribersByQuery({
-            query: this.fullQueryExp,
+            query: this.queryParams.queryExp,
             list_ids: [],
           }).then(() => {
             this.querySubscribers();
@@ -411,15 +410,6 @@ export default Vue.extend({
 
   computed: {
     ...mapState(['subscribers', 'lists', 'loading']),
-
-    // Turns the value into the simple input field into an SQL query expression.
-    fullQueryExp() {
-      const q = this.queryParams.query.replace(/'/g, "''").trim();
-      if (!q) {
-        return '';
-      }
-      return `(name ~* '${q}' OR email ~* '${q}')`;
-    },
 
     numSelectedSubscribers() {
       if (this.bulk.all) {
