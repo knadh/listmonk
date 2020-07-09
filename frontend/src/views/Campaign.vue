@@ -181,13 +181,13 @@ export default Vue.extend({
     },
 
     getCampaign(id) {
-      return this.$api.getCampaign(id).then((r) => {
-        this.data = r.data;
-        this.form = { ...this.form, ...r.data };
+      return this.$api.getCampaign(id).then((data) => {
+        this.data = data;
+        this.form = { ...this.form, ...data };
 
-        if (r.data.sendAt !== null) {
+        if (data.sendAt !== null) {
           this.form.sendLater = true;
-          this.form.sendAtDate = dayjs(r.data.sendAt).toDate();
+          this.form.sendAtDate = dayjs(data.sendAt).toDate();
         }
       });
     },
@@ -236,13 +236,8 @@ export default Vue.extend({
         // body: this.form.body,
       };
 
-      this.$api.createCampaign(data).then((r) => {
-        this.$router.push({ name: 'campaign', hash: '#content', params: { id: r.data.id } });
-
-        // this.data = r.data;
-        // this.isEditing = true;
-        // this.isNew = false;
-        // this.activeTab = 1;
+      this.$api.createCampaign(data).then((d) => {
+        this.$router.push({ name: 'campaign', hash: '#content', params: { id: d.id } });
       });
       return false;
     },
@@ -270,10 +265,10 @@ export default Vue.extend({
 
       // This promise is used by startCampaign to first save before starting.
       return new Promise((resolve) => {
-        this.$api.updateCampaign(this.data.id, data).then((resp) => {
-          this.data = resp.data;
+        this.$api.updateCampaign(this.data.id, data).then((d) => {
+          this.data = d;
           this.$buefy.toast.open({
-            message: `'${resp.data.name}' ${typMsg}`,
+            message: `'${d.name}' ${typMsg}`,
             type: 'is-success',
             queue: false,
           });
@@ -344,10 +339,10 @@ export default Vue.extend({
     }
 
     // Get templates list.
-    this.$api.getTemplates().then((r) => {
-      if (r.data.length > 0) {
+    this.$api.getTemplates().then((data) => {
+      if (data.length > 0) {
         if (!this.form.templateId) {
-          this.form.templateId = r.data.find((i) => i.isDefault === true).id;
+          this.form.templateId = data.find((i) => i.isDefault === true).id;
         }
       }
     });

@@ -76,7 +76,7 @@ func handleGetSubscriber(c echo.Context) error {
 		return err
 	}
 
-	return c.JSON(http.StatusOK, sub)
+	return c.JSON(http.StatusOK, okResp{sub})
 }
 
 // handleQuerySubscribers handles querying subscribers based on an arbitrary SQL expression.
@@ -214,7 +214,7 @@ func handleUpdateSubscriber(c echo.Context) error {
 	}
 	_ = sendOptinConfirmation(sub, []int64(req.Lists), app)
 
-	return c.JSON(http.StatusOK, sub)
+	return c.JSON(http.StatusOK, okResp{sub})
 }
 
 // handleGetSubscriberSendOptin sends an optin confirmation e-mail to a subscriber.
