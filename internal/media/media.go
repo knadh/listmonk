@@ -23,6 +23,7 @@ type Media struct {
 type Store interface {
 	Put(string, string, io.ReadSeeker) (string, error)
 	Delete(string) error
-	Get(string, bool) string
+	Get(string) string
+	GetData(string) string
 	Supports() []string
 }

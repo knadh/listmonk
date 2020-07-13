@@ -69,11 +69,14 @@ func (c *Client) Put(filename string, cType string, src io.ReadSeeker) (string, 
 }
 
 // Get accepts a filename and retrieves the full path from disk.
-func (c *Client) Get(name string, b bool) string {
-	if b {
-		return b64(filepath.Join(c.opts.UploadPath, name))
-	}
+func (c *Client) Get(name string) string {
+
 	return fmt.Sprintf("%s/%s", c.opts.UploadURI, name)
+}
+
+// GetData accepts filename and sends back file as base64 string.
+func (c *Client) GetData(name string) string {
+	return b64(filepath.Join(c.opts.UploadPath, name))
 }
 
 // Delete accepts a filename and removes it from disk.

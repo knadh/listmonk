@@ -78,8 +78,8 @@ func (c *Client) Put(name string, cType string, file io.ReadSeeker) (string, err
 }
 
 // Get accepts the filename of the object stored and retrieves from S3.
-func (c *Client) Get(name string, b bool) string {
-	var url = ""
+func (c *Client) Get(name string) string {
+	var url string
 	// Generate a private S3 pre-signed URL if it's a private bucket.
 	if c.opts.BucketType == "private" {
 		url = c.s3.GeneratePresignedURL(simples3.PresignedInput{
@@ -89,18 +89,16 @@ func (c *Client) Get(name string, b bool) string {
 			Timestamp:     time.Now(),
 			ExpirySeconds: c.opts.Expiry,
 		})
-	} else {
-		// Generate a public S3 URL if it's a public bucket.
-		if c.opts.BucketURL != "" {
-			url = c.opts.BucketURL + makeBucketPath(c.opts.BucketPath, name)
-		} else {
-			url = fmt.Sprintf(amznS3PublicURL, c.opts.Bucket, c.opts.Region,
-				makeBucketPath(c.opts.BucketPath, name))
-		}
+
+		return url
 	}
 
-	if b {
-		return b64(url)
+	// Generate a public S3 URL if it's a public bucket.
+	if c.opts.BucketURL != "" {
+		url = c.opts.BucketURL + makeBucketPath(c.opts.BucketPath, name)
+	} else {
+		url = fmt.Sprintf(amznS3PublicURL, c.opts.Bucket, c.opts.Region,
+			makeBucketPath(c.opts.BucketPath, name))
 	}
 
 	return url
@@ -113,6 +111,13 @@ func (c *Client) Delete(name string) error {
 		ObjectKey: strings.TrimPrefix(makeBucketPath(c.opts.BucketPath, name), "/"),
 	})
 	return err
+}
+
+// GetData returns base64 encoded file data.
+func (c *Client) GetData(name string) string {
+	url := c.Get(name)
+
+	return b64(url)
 }
 
 func makeBucketPath(bucketPath string, name string) string {
