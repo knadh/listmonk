@@ -16,11 +16,13 @@ type Media struct {
 	ThumbURL  string    `json:"thumb_url"`
 	Provider  string    `json:"provider"`
 	URL       string    `json:"url"`
+	Supports  []string  `json:"supports"`
 }
 
 // Store represents functions to store and retrieve media (files).
 type Store interface {
 	Put(string, string, io.ReadSeeker) (string, error)
 	Delete(string) error
-	Get(string) string
+	Get(string, bool) string
+	Supports() []string
 }

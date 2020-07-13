@@ -18,6 +18,11 @@ const (
 	thumbnailSize = 90
 )
 
+type mediaResp struct {
+	Media    []media.Media `json:"media"`
+	Supports []string      `json:"supports,omitempty"`
+}
+
 // imageMimes is the list of image types allowed to be uploaded.
 var imageMimes = []string{
 	"image/jpg",
@@ -115,14 +120,17 @@ func handleGetMedia(c echo.Context) error {
 		out = []media.Media{}
 	)
 
+	b64, _ := strconv.ParseBool(c.QueryParam("base64"))
+
 	if err := app.queries.GetMedia.Select(&out, app.constants.MediaProvider); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			fmt.Sprintf("Error fetching media list: %s", pqErrMsg(err)))
 	}
 
 	for i := 0; i < len(out); i++ {
-		out[i].URL = app.media.Get(out[i].Filename)
-		out[i].ThumbURL = app.media.Get(out[i].Thumb)
+		out[i].URL = app.media.Get(out[i].Filename, b64)
+		out[i].ThumbURL = app.media.Get(thumbPrefix+out[i].Filename, b64)
+		out[i].Supports = app.media.Supports()
 	}
 
 	return c.JSON(http.StatusOK, okResp{out})

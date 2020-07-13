@@ -2,8 +2,10 @@ package filesystem
 
 import (
 	"crypto/rand"
+	"encoding/base64"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -67,8 +69,11 @@ func (c *Client) Put(filename string, cType string, src io.ReadSeeker) (string, 
 }
 
 // Get accepts a filename and retrieves the full path from disk.
-func (c *Client) Get(name string) string {
-	return fmt.Sprintf("%s%s/%s", c.opts.RootURL, c.opts.UploadURI, name)
+func (c *Client) Get(name string, b bool) string {
+	if b {
+		return b64(filepath.Join(c.opts.UploadPath, name))
+	}
+	return fmt.Sprintf("%s/%s", c.opts.UploadURI, name)
 }
 
 // Delete accepts a filename and removes it from disk.
@@ -79,6 +84,11 @@ func (c *Client) Delete(file string) error {
 		return err
 	}
 	return nil
+}
+
+// Supports which formats.
+func (c *Client) Supports() []string {
+	return []string{"url", "base64"}
 }
 
 // assertUniqueFilename takes a file path and check if it exists on the disk. If it doesn't,
@@ -131,4 +141,14 @@ func getDir(dir string) string {
 		dir, _ = os.Getwd()
 	}
 	return dir
+}
+
+func b64(path string) string {
+	body, err := ioutil.ReadFile(path)
+
+	if err != nil {
+		return ""
+	}
+
+	return base64.StdEncoding.EncodeToString(body)
 }

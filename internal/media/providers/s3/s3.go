@@ -1,9 +1,12 @@
 package s3
 
 import (
+	"encoding/base64"
 	"errors"
 	"fmt"
 	"io"
+	"io/ioutil"
+	"net/http"
 	"strings"
 	"time"
 
@@ -75,27 +78,31 @@ func (c *Client) Put(name string, cType string, file io.ReadSeeker) (string, err
 }
 
 // Get accepts the filename of the object stored and retrieves from S3.
-func (c *Client) Get(name string) string {
+func (c *Client) Get(name string, b bool) string {
+	var url = ""
 	// Generate a private S3 pre-signed URL if it's a private bucket.
 	if c.opts.BucketType == "private" {
-		url := c.s3.GeneratePresignedURL(simples3.PresignedInput{
+		url = c.s3.GeneratePresignedURL(simples3.PresignedInput{
 			Bucket:        c.opts.Bucket,
 			ObjectKey:     makeBucketPath(c.opts.BucketPath, name),
 			Method:        "GET",
 			Timestamp:     time.Now(),
 			ExpirySeconds: c.opts.Expiry,
 		})
-		return url
+	} else {
+		// Generate a public S3 URL if it's a public bucket.
+		if c.opts.BucketURL != "" {
+			url = c.opts.BucketURL + makeBucketPath(c.opts.BucketPath, name)
+		} else {
+			url = fmt.Sprintf(amznS3PublicURL, c.opts.Bucket, c.opts.Region,
+				makeBucketPath(c.opts.BucketPath, name))
+		}
 	}
 
-	// Generate a public S3 URL if it's a public bucket.
-	url := ""
-	if c.opts.BucketURL != "" {
-		url = c.opts.BucketURL + makeBucketPath(c.opts.BucketPath, name)
-	} else {
-		url = fmt.Sprintf(amznS3PublicURL, c.opts.Bucket, c.opts.Region,
-			makeBucketPath(c.opts.BucketPath, name))
+	if b {
+		return b64(url)
 	}
+
 	return url
 }
 
@@ -113,4 +120,25 @@ func makeBucketPath(bucketPath string, name string) string {
 		return "/" + name
 	}
 	return fmt.Sprintf("%s/%s", bucketPath, name)
+}
+
+// Supports which output formats.
+func (c *Client) Supports() []string {
+	return []string{"url", "base64"}
+}
+
+func b64(url string) string {
+	resp, err := http.Get(url)
+	if err != nil {
+		return ""
+	}
+
+	defer func() { _ = resp.Body.Close() }()
+	body, err := ioutil.ReadAll(resp.Body)
+
+	if err != nil {
+		return ""
+	}
+
+	return base64.StdEncoding.EncodeToString(body)
 }
