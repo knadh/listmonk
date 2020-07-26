@@ -35,7 +35,8 @@
                   <b-tooltip label="Scheduled" type="is-dark">
                     <span class="is-size-7 has-text-grey scheduled">
                       <b-icon icon="alarm" size="is-small" />
-                      {{ $utils.niceDate(props.row.sendAt, true) }}
+                      {{ $utils.duration(Date(), props.row.sendAt, true) }}
+                      &ndash; {{ $utils.niceDate(props.row.sendAt, true) }}
                     </span>
                   </b-tooltip>
                 </p>
@@ -79,7 +80,7 @@
                 <p v-if="stats.startedAt && stats.updatedAt"
                   class="is-capitalized" title="Duration">
                   <label><b-icon icon="alarm" size="is-small" /></label>
-                  {{ duration(stats.startedAt, stats.updatedAt) }}
+                  {{ $utils.duration(stats.startedAt, stats.updatedAt) }}
                 </p>
               </div>
             </b-table-column>
@@ -189,12 +190,8 @@
 <script>
 import Vue from 'vue';
 import { mapState } from 'vuex';
-import dayjs from 'dayjs';
-import relativeTime from 'dayjs/plugin/relativeTime';
 import CampaignPreview from '../components/CampaignPreview.vue';
 import EmptyPlaceholder from '../components/EmptyPlaceholder.vue';
-
-dayjs.extend(relativeTime);
 
 export default Vue.extend({
   components: {
@@ -252,10 +249,6 @@ export default Vue.extend({
         return ['running'];
       }
       return '';
-    },
-
-    duration(start, end) {
-      return dayjs(end).from(dayjs(start), true);
     },
 
     onPageChange(p) {

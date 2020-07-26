@@ -83,7 +83,8 @@
                   </div>
                   <div class="column">
                     <br />
-                    <b-field v-if="form.sendLater">
+                    <b-field v-if="form.sendLater"
+                      :message="$utils.duration(Date(), form.sendAtDate)">
                       <b-datetimepicker
                         v-model="form.sendAtDate"
                         :disabled="!canEdit"

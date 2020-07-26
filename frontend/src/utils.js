@@ -2,6 +2,10 @@ import {
   ToastProgrammatic as Toast,
   DialogProgrammatic as Dialog,
 } from 'buefy';
+import dayjs from 'dayjs';
+import relativeTime from 'dayjs/plugin/relativeTime';
+
+dayjs.extend(relativeTime);
 
 const reEmail = /(.+?)@(.+?)/ig;
 
@@ -26,6 +30,10 @@ export default class utils {
 
     return out;
   };
+
+  static duration(start, end) {
+    return dayjs(end).from(dayjs(start), true);
+  }
 
   // Simple, naive, e-mail address check.
   static validateEmail = (e) => e.match(reEmail);
