@@ -31,14 +31,16 @@ http.interceptors.response.use((resp) => {
     store.commit('setLoading', { model: resp.config.loading, status: false });
   }
 
-  let data = { ...resp.data.data };
-  if (!resp.config.preserveCase) {
-    if (resp.data && resp.data.data) {
-      if (typeof resp.data.data === 'object') {
-        // Transform field case.
-        data = humps.camelizeKeys(resp.data.data);
-      }
+
+  let data = {};
+  if (typeof resp.data.data === 'object') {
+    data = { ...resp.data.data };
+    if (!resp.config.preserveCase) {
+      // Transform field case.
+      data = humps.camelizeKeys(resp.data.data);
     }
+  } else {
+    data = resp.data.data;
   }
 
   // Store the API response for a model.
@@ -137,7 +139,8 @@ export const importSubscribers = (data) => http.post('/api/import/subscribers', 
 
 export const getImportStatus = () => http.get('/api/import/subscribers');
 
-export const getImportLogs = () => http.get('/api/import/subscribers/logs');
+export const getImportLogs = async () => http.get('/api/import/subscribers/logs',
+  { preserveCase: true });
 
 export const stopImport = () => http.delete('/api/import/subscribers');
 
