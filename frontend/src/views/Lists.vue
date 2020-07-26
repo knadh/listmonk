@@ -22,6 +22,7 @@
             </b-table-column>
 
             <b-table-column field="type" label="Type" sortable>
+              <div>
                 <b-tag :class="props.row.type">{{ props.row.type }}</b-tag>
                 {{ ' ' }}
                 <b-tag>
@@ -38,6 +39,7 @@
                     Send opt-in campaign
                   </b-tooltip>
                 </router-link>
+              </div>
             </b-table-column>
 
             <b-table-column field="subscriberCount" label="Subscribers" numeric sortable centered>
@@ -54,21 +56,23 @@
             </b-table-column>
 
             <b-table-column class="actions" align="right">
-              <router-link :to="`/campaign/new?list_id=${props.row.id}`">
-                <b-tooltip label="Send campaign" type="is-dark">
-                  <b-icon icon="rocket-launch-outline" size="is-small" />
-                </b-tooltip>
-              </router-link>
-              <a href="" @click.prevent="showEditForm(props.row)">
-                <b-tooltip label="Edit" type="is-dark">
-                  <b-icon icon="pencil-outline" size="is-small" />
-                </b-tooltip>
-              </a>
-              <a href="" @click.prevent="deleteList(props.row)">
-                <b-tooltip label="Delete" type="is-dark">
-                  <b-icon icon="trash-can-outline" size="is-small" />
-                </b-tooltip>
-              </a>
+              <div>
+                <router-link :to="`/campaign/new?list_id=${props.row.id}`">
+                  <b-tooltip label="Send campaign" type="is-dark">
+                    <b-icon icon="rocket-launch-outline" size="is-small" />
+                  </b-tooltip>
+                </router-link>
+                <a href="" @click.prevent="showEditForm(props.row)">
+                  <b-tooltip label="Edit" type="is-dark">
+                    <b-icon icon="pencil-outline" size="is-small" />
+                  </b-tooltip>
+                </a>
+                <a href="" @click.prevent="deleteList(props.row)">
+                  <b-tooltip label="Delete" type="is-dark">
+                    <b-icon icon="trash-can-outline" size="is-small" />
+                  </b-tooltip>
+                </a>
+              </div>
             </b-table-column>
         </template>
 
@@ -78,7 +82,7 @@
     </b-table>
 
     <!-- Add / edit form modal -->
-    <b-modal scroll="keep" :aria-modal="true" :active.sync="isFormVisible" :width="450">
+    <b-modal scroll="keep" :aria-modal="true" :active.sync="isFormVisible" :width="600">
       <list-form :data="curItem" :isEditing="isEditing" @finished="formFinished"></list-form>
     </b-modal>
   </section>

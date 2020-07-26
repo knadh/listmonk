@@ -12,16 +12,17 @@
         </p>
       </header>
       <section expanded class="modal-card-body">
-        <b-field label="E-mail">
+        <b-field label="E-mail" label-position="on-border">
           <b-input :maxlength="200" v-model="form.email" :ref="'focus'"
             placeholder="E-mail" required></b-input>
         </b-field>
 
-        <b-field label="Name">
+        <b-field label="Name" label-position="on-border">
           <b-input :maxlength="200" v-model="form.name" placeholder="Name"></b-input>
         </b-field>
 
-        <b-field label="Status" message="Blacklisted subscribers will never receive any e-mails.">
+        <b-field label="Status" label-position="on-border"
+          message="Blacklisted subscribers will never receive any e-mails.">
           <b-select v-model="form.status" placeholder="Status" required>
             <option value="enabled">Enabled</option>
             <option value="blacklisted">Blacklisted</option>
@@ -37,7 +38,7 @@
           :all="lists.results"
         ></list-selector>
 
-        <b-field label="Attributes"
+        <b-field label="Attributes" label-position="on-border"
           message='Attributes are defined as a JSON map, for example:
             {"job": "developer", "location": "Mars", "has_rocket": true}.'>
           <b-input v-model="form.strAttribs" type="textarea" />

@@ -1,93 +1,103 @@
 <template>
   <div id="app">
-    <section class="sidebar">
-      <b-sidebar
-        type="is-white"
-        position="static"
-        mobile="reduce"
-        :fullheight="true"
-        :open="true"
-        :can-cancel="false"
-      >
-        <div>
+    <b-navbar :fixed-top="true">
+        <template slot="brand">
           <div class="logo">
-            <a href="/"><img class="full" src="@/assets/logo.svg"/></a>
-            <img class="favicon" src="@/assets/favicon.png"/>
-            <p class="is-size-7 has-text-grey version">{{ version }}</p>
+            <router-link :to="{name: 'dashboard'}">
+              <img class="full" src="@/assets/logo.svg"/>
+              <img class="favicon" src="@/assets/favicon.png"/>
+            </router-link>
           </div>
-          <b-menu :accordion="false">
-            <b-menu-list>
-              <b-menu-item :to="{name: 'dashboard'}" tag="router-link"
-                :active="activeItem.dashboard"
-                icon="view-dashboard-variant-outline" label="Dashboard">
-              </b-menu-item><!-- dashboard -->
+        </template>
+        <template slot="end">
+            <b-navbar-item tag="div"></b-navbar-item>
+        </template>
+    </b-navbar>
 
-              <b-menu-item :expanded="activeGroup.lists"
-                icon="format-list-bulleted-square" label="Lists">
-                <b-menu-item :to="{name: 'lists'}" tag="router-link"
-                  :active="activeItem.lists"
-                  icon="format-list-bulleted-square" label="All lists"></b-menu-item>
+    <div class="wrapper">
+      <section class="sidebar">
+        <b-sidebar
+          position="static"
+          mobile="reduce"
+          :fullheight="true"
+          :open="true"
+          :can-cancel="false"
+        >
+          <div>
+            <b-menu :accordion="false">
+              <b-menu-list>
+                <b-menu-item :to="{name: 'dashboard'}" tag="router-link"
+                  :active="activeItem.dashboard"
+                  icon="view-dashboard-variant-outline" label="Dashboard">
+                </b-menu-item><!-- dashboard -->
 
-                <b-menu-item :to="{name: 'forms'}" tag="router-link"
-                  :active="activeItem.forms"
-                  icon="newspaper-variant-outline" label="Forms"></b-menu-item>
-              </b-menu-item><!-- lists -->
+                <b-menu-item :expanded="activeGroup.lists"
+                  icon="format-list-bulleted-square" label="Lists">
+                  <b-menu-item :to="{name: 'lists'}" tag="router-link"
+                    :active="activeItem.lists"
+                    icon="format-list-bulleted-square" label="All lists"></b-menu-item>
 
-              <b-menu-item :expanded="activeGroup.subscribers"
-                icon="account-multiple" label="Subscribers">
-                <b-menu-item :to="{name: 'subscribers'}" tag="router-link"
-                  :active="activeItem.subscribers"
-                  icon="account-multiple" label="All subscribers"></b-menu-item>
+                  <b-menu-item :to="{name: 'forms'}" tag="router-link"
+                    :active="activeItem.forms"
+                    icon="newspaper-variant-outline" label="Forms"></b-menu-item>
+                </b-menu-item><!-- lists -->
 
-                <b-menu-item :to="{name: 'import'}" tag="router-link"
-                  :active="activeItem.import"
-                  icon="file-upload-outline" label="Import"></b-menu-item>
-              </b-menu-item><!-- subscribers -->
+                <b-menu-item :expanded="activeGroup.subscribers"
+                  icon="account-multiple" label="Subscribers">
+                  <b-menu-item :to="{name: 'subscribers'}" tag="router-link"
+                    :active="activeItem.subscribers"
+                    icon="account-multiple" label="All subscribers"></b-menu-item>
 
-              <b-menu-item :expanded="activeGroup.campaigns"
-                  icon="rocket-launch-outline" label="Campaigns">
-                <b-menu-item :to="{name: 'campaigns'}" tag="router-link"
-                  :active="activeItem.campaigns"
-                  icon="rocket-launch-outline" label="All campaigns"></b-menu-item>
+                  <b-menu-item :to="{name: 'import'}" tag="router-link"
+                    :active="activeItem.import"
+                    icon="file-upload-outline" label="Import"></b-menu-item>
+                </b-menu-item><!-- subscribers -->
 
-                <b-menu-item :to="{name: 'campaign', params: {id: 'new'}}" tag="router-link"
-                  :active="activeItem.campaign"
-                  icon="plus" label="Create new"></b-menu-item>
+                <b-menu-item :expanded="activeGroup.campaigns"
+                    icon="rocket-launch-outline" label="Campaigns">
+                  <b-menu-item :to="{name: 'campaigns'}" tag="router-link"
+                    :active="activeItem.campaigns"
+                    icon="rocket-launch-outline" label="All campaigns"></b-menu-item>
 
-                <b-menu-item :to="{name: 'media'}" tag="router-link"
-                  :active="activeItem.media"
-                  icon="image-outline" label="Media"></b-menu-item>
+                  <b-menu-item :to="{name: 'campaign', params: {id: 'new'}}" tag="router-link"
+                    :active="activeItem.campaign"
+                    icon="plus" label="Create new"></b-menu-item>
 
-                <b-menu-item :to="{name: 'templates'}" tag="router-link"
-                  :active="activeItem.templates"
-                  icon="file-image-outline" label="Templates"></b-menu-item>
-              </b-menu-item><!-- campaigns -->
+                  <b-menu-item :to="{name: 'media'}" tag="router-link"
+                    :active="activeItem.media"
+                    icon="image-outline" label="Media"></b-menu-item>
 
-              <b-menu-item :to="{name: 'settings'}" tag="router-link"
-                :active="activeItem.settings"
-                icon="cog-outline" label="Settings"></b-menu-item>
-            </b-menu-list>
-          </b-menu>
+                  <b-menu-item :to="{name: 'templates'}" tag="router-link"
+                    :active="activeItem.templates"
+                    icon="file-image-outline" label="Templates"></b-menu-item>
+                </b-menu-item><!-- campaigns -->
+
+                <b-menu-item :to="{name: 'settings'}" tag="router-link"
+                  :active="activeItem.settings"
+                  icon="cog-outline" label="Settings"></b-menu-item>
+              </b-menu-list>
+            </b-menu>
+          </div>
+        </b-sidebar>
+      </section>
+      <!-- sidebar-->
+
+      <!-- body //-->
+      <div class="main">
+        <div class="global-notices" v-if="serverConfig.needsRestart">
+          <div v-if="serverConfig.needsRestart" class="notification is-danger">
+            Settings have changed. Pause all running campaigns and restart the app
+             &mdash;
+            <b-button class="is-primary" size="is-small"
+              @click="$utils.confirm(
+                'Ensure running campaigns are paused. Restart?', reloadApp)">
+                Restart
+            </b-button>
+          </div>
         </div>
-      </b-sidebar>
-    </section>
-    <!-- sidebar-->
 
-    <!-- body //-->
-    <div class="main">
-      <div class="global-notices" v-if="serverConfig.needsRestart">
-        <div v-if="serverConfig.needsRestart" class="notification is-danger">
-          Settings have changed. Pause all running campaigns and restart the app
-           &mdash;
-          <b-button class="is-primary" size="is-small"
-            @click="$utils.confirm(
-              'Ensure running campaigns are paused. Restart?', reloadApp)">
-              Restart
-          </b-button>
-        </div>
+        <router-view :key="$route.fullPath" />
       </div>
-
-      <router-view :key="$route.fullPath" />
     </div>
 
     <b-loading v-if="!isLoaded" active>

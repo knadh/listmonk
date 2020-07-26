@@ -140,22 +140,24 @@
             </b-table-column>
 
             <b-table-column class="actions" align="right">
-              <a :href="`/api/subscribers/${props.row.id}/export`">
-                <b-tooltip label="Download data" type="is-dark">
-                  <b-icon icon="cloud-download-outline" size="is-small" />
-                </b-tooltip>
-              </a>
-              <a :href="`/subscribers/${props.row.id}`"
-                @click.prevent="showEditForm(props.row)">
-                <b-tooltip label="Edit" type="is-dark">
-                  <b-icon icon="pencil-outline" size="is-small" />
-                </b-tooltip>
-              </a>
-              <a href='' @click.prevent="deleteSubscriber(props.row)">
-                <b-tooltip label="Delete" type="is-dark">
-                  <b-icon icon="trash-can-outline" size="is-small" />
-                </b-tooltip>
-              </a>
+              <div>
+                <a :href="`/api/subscribers/${props.row.id}/export`">
+                  <b-tooltip label="Download data" type="is-dark">
+                    <b-icon icon="cloud-download-outline" size="is-small" />
+                  </b-tooltip>
+                </a>
+                <a :href="`/subscribers/${props.row.id}`"
+                  @click.prevent="showEditForm(props.row)">
+                  <b-tooltip label="Edit" type="is-dark">
+                    <b-icon icon="pencil-outline" size="is-small" />
+                  </b-tooltip>
+                </a>
+                <a href='' @click.prevent="deleteSubscriber(props.row)">
+                  <b-tooltip label="Delete" type="is-dark">
+                    <b-icon icon="trash-can-outline" size="is-small" />
+                  </b-tooltip>
+                </a>
+              </div>
             </b-table-column>
         </template>
         <template slot="empty" v-if="!loading.subscribers">
@@ -170,7 +172,7 @@
     </b-modal>
 
     <!-- Add / edit form modal -->
-    <b-modal scroll="keep" :aria-modal="true" :active.sync="isFormVisible" :width="750">
+    <b-modal scroll="keep" :aria-modal="true" :active.sync="isFormVisible" :width="600">
       <subscriber-form :data="curItem" :isEditing="isEditing"
         @finished="querySubscribers"></subscriber-form>
     </b-modal>

@@ -2,21 +2,21 @@
   <form @submit.prevent="onSubmit">
     <div class="modal-card content" style="width: auto">
       <header class="modal-card-head">
+        <p v-if="isEditing" class="has-text-grey-light is-size-7">
+          ID: {{ data.id }} / UUID: {{ data.uuid }}
+        </p>
         <b-tag v-if="isEditing" :class="[data.type, 'is-pulled-right']">{{ data.type }}</b-tag>
         <h4 v-if="isEditing">{{ data.name }}</h4>
         <h4 v-else>New list</h4>
 
-        <p v-if="isEditing" class="has-text-grey is-size-7">
-          ID: {{ data.id }} / UUID: {{ data.uuid }}
-        </p>
       </header>
       <section expanded class="modal-card-body">
-        <b-field label="Name">
+        <b-field label="Name" label-position="on-border">
           <b-input :maxlength="200" :ref="'focus'" v-model="form.name"
             placeholder="Name" required></b-input>
         </b-field>
 
-        <b-field label="Type"
+        <b-field label="Type" label-position="on-border"
           message="Public lists are open to the world to subscribe
                    and their names may appear on public pages such as the subscription
                    management page.">
@@ -26,7 +26,7 @@
           </b-select>
         </b-field>
 
-        <b-field label="Opt-in"
+        <b-field label="Opt-in" label-position="on-border"
           message="Double opt-in sends an e-mail to the subscriber asking for
                    confirmation. On Double opt-in lists, campaigns are only sent to
                    confirmed subscribers.">

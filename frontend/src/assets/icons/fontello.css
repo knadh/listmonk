@@ -71,3 +71,6 @@
 .mdi-chevron-right:before { content: '\e81c'; } /* '' */
 .mdi-chevron-left:before { content: '\e81d'; } /* '' */
 .mdi-content-save-outline:before { content: '\e81e'; } /* '' */
+.mdi-minus:before { content: '\e81f'; } /* '' */
+.mdi-arrow-up:before { content: '\e820'; } /* '' */
+.mdi-arrow-down:before { content: '\e821'; } /* '' */

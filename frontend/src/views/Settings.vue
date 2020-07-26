@@ -16,16 +16,16 @@
     <section class="wrap-small">
       <form @submit.prevent="onSubmit">
         <b-tabs type="is-boxed" :animated="false">
-          <b-tab-item label="General">
+          <b-tab-item label="General" label-position="on-border">
             <div class="items">
-              <b-field label="Logo URL"
+              <b-field label="Logo URL" label-position="on-border"
                 message="(Optional) full URL to the static logo to be displayed on
                         user facing view such as the unsubscription page.">
                 <b-input v-model="form['app.logo_url']" name="app.logo_url"
                     placeholder='https://listmonk.yoursite.com/logo.png' :maxlength="300" />
               </b-field>
 
-              <b-field label="Favicon URL"
+              <b-field label="Favicon URL" label-position="on-border"
                 message="(Optional) full URL to the static favicon to be displayed on
                         user facing view such as the unsubscription page.">
                 <b-input v-model="form['app.favicon_url']" name="app.favicon_url"
@@ -33,7 +33,7 @@
               </b-field>
 
               <hr />
-              <b-field label="Default 'from' email"
+              <b-field label="Default 'from' email" label-position="on-border"
                 message="(Optional) full URL to the static logo to be displayed on
                         user facing view such as the unsubscription page.">
                 <b-input v-model="form['app.from_email']" name="app.from_email"
@@ -41,7 +41,7 @@
                     pattern="(.+?)\s<(.+?)@(.+?)>" :maxlength="300" />
               </b-field>
 
-              <b-field label="Admin notification e-mails"
+              <b-field label="Admin notification e-mails" label-position="on-border"
                 message="Comma separated list of e-mail addresses to which admin
                         notifications such as import updates, campaign completion,
                         failure etc. should be sent.">
@@ -54,7 +54,7 @@
 
           <b-tab-item label="Performance">
             <div class="items">
-              <b-field label="Concurrency"
+              <b-field label="Concurrency" label-position="on-border"
                 message="Maximum concurrent worker (threads) that will attempt to send messages
                         simultaneously.">
                 <b-numberinput v-model="form['app.concurrency']"
@@ -62,7 +62,7 @@
                     placeholder="5" min="1" max="10000" />
               </b-field>
 
-              <b-field label="Message rate"
+              <b-field label="Message rate" label-position="on-border"
                 message="Maximum number of messages to be sent out per second
                         per worker in a second. If concurrency = 10 and message_rate = 10,
                         then up to 10x10=100 messages may be pushed out every second.
@@ -74,7 +74,7 @@
                     placeholder="5" min="1" max="100000" />
               </b-field>
 
-              <b-field label="Batch size"
+              <b-field label="Batch size" label-position="on-border"
                 message="The number of subscribers to pull from the databse in a single iteration.
                         Each iteration pulls subscribers from the database, sends messages to them,
                         and then moves on to the next iteration to pull the next batch.
@@ -85,7 +85,7 @@
                     placeholder="1000" min="1" max="100000" />
               </b-field>
 
-              <b-field label="Maximum error threshold"
+              <b-field label="Maximum error threshold" label-position="on-border"
                 message="The number of errors (eg: SMTP timeouts while e-mailing) a running
                         campaign should tolerate before it is paused for manual
                         investigation or intervention. Set to 0 to never pause.">
@@ -125,7 +125,7 @@
 
           <b-tab-item label="Media uploads">
             <div class="items">
-              <b-field label="Provider">
+              <b-field label="Provider" label-position="on-border">
                 <b-select v-model="form['upload.provider']" name="upload.provider">
                   <option value="filesystem">filesystem</option>
                   <option value="s3">s3</option>
@@ -133,14 +133,14 @@
               </b-field>
 
               <div class="block" v-if="form['upload.provider'] === 'filesystem'">
-                <b-field label="Upload path"
+                <b-field label="Upload path" label-position="on-border"
                   message="Path to the directory where media will be uploaded.">
                   <b-input v-model="form['upload.filesystem.upload_path']"
                       name="app.upload_path" placeholder='/home/listmonk/uploads'
                       :maxlength="200" />
                 </b-field>
 
-                <b-field label="Upload URI"
+                <b-field label="Upload URI" label-position="on-border"
                   message="Upload URI that's visible to the outside world.
                         The media uploaded to upload_path will be publicly accessible
                         under {root_url}/{}, for instance, https://listmonk.yoursite.com/uploads.">
@@ -150,43 +150,65 @@
               </div><!-- filesystem -->
 
               <div class="block" v-if="form['upload.provider'] === 's3'">
-                <b-field label="AWS access key">
-                  <b-input v-model="form['upload.s3.aws_access_key_id']"
-                      name="upload.s3.aws_access_key_id" :maxlength="200" />
-                </b-field>
-                <b-field label="AWS access secret">
-                  <b-input v-model="form['upload.s3.aws_secret_access_key']"
-                      name="upload.s3.aws_secret_access_key" type="password" :maxlength="200" />
-                </b-field>
-                <b-field label="Region">
-                  <b-input v-model="form['upload.s3.aws_default_region']"
-                      name="upload.s3.aws_default_region"
-                      :maxlength="200" placeholder="ap-south-1" />
-                </b-field>
-                <b-field label="Bucket">
-                  <b-input v-model="form['upload.s3.bucket']"
-                      name="upload.s3.bucket" :maxlength="200" placeholder="" />
-                </b-field>
-                <b-field label="Bucket path"
-                  message="Path inside the bucket to upload files. Default is /">
-                  <b-input v-model="form['upload.s3.bucket']"
-                      name="upload.s3.bucket_path" :maxlength="200" placeholder="/" />
-                </b-field>
-                <b-field label="Bucket type">
-                  <b-select v-model="form['upload.s3.bucket_type']"
-                    name="upload.s3.bucket_type">
-                    <option value="private">private</option>
-                    <option value="public">public</option>
-                  </b-select>
-                </b-field>
-                <b-field label="Upload expiry"
-                  message="(Optional) Specify TTL (in seconds) for the generated presigned URL.
-                          Only applicable for private buckets
-                          (s, m, h, d for seconds, minutes, hours, days).">
-                  <b-input v-model="form['upload.s3.expiry']"
-                    name="upload.s3.expiry"
-                    placeholder="14d" :pattern="regDuration" :maxlength="10" />
-                </b-field>
+                <div class="columns">
+                  <div class="column is-3">
+                    <b-field label="Region" label-position="on-border" expanded>
+                      <b-input v-model="form['upload.s3.aws_default_region']"
+                          name="upload.s3.aws_default_region"
+                          :maxlength="200" placeholder="ap-south-1" />
+                    </b-field>
+                  </div>
+                  <div class="column">
+                    <b-field grouped>
+                      <b-field label="AWS access key" label-position="on-border" expanded>
+                        <b-input v-model="form['upload.s3.aws_access_key_id']"
+                            name="upload.s3.aws_access_key_id" :maxlength="200" />
+                      </b-field>
+                      <b-field label="AWS access secret" label-position="on-border" expanded>
+                        <b-input v-model="form['upload.s3.aws_secret_access_key']"
+                            name="upload.s3.aws_secret_access_key" type="password"
+                            :maxlength="200" />
+                      </b-field>
+                    </b-field>
+                  </div>
+                </div>
+
+                <div class="columns">
+                  <div class="column is-3">
+                    <b-field label="Bucket type" label-position="on-border">
+                      <b-select v-model="form['upload.s3.bucket_type']"
+                        name="upload.s3.bucket_type" expanded>
+                        <option value="private">private</option>
+                        <option value="public">public</option>
+                      </b-select>
+                    </b-field>
+                  </div>
+                  <div class="column">
+                    <b-field grouped>
+                      <b-field label="Bucket" label-position="on-border" expanded>
+                        <b-input v-model="form['upload.s3.bucket']"
+                            name="upload.s3.bucket" :maxlength="200" placeholder="" />
+                      </b-field>
+                      <b-field label="Bucket path" label-position="on-border"
+                        message="Path inside the bucket to upload files. Default is /" expanded>
+                        <b-input v-model="form['upload.s3.bucket_path']"
+                            name="upload.s3.bucket_path" :maxlength="200" placeholder="/" />
+                      </b-field>
+                    </b-field>
+                  </div>
+                </div>
+                <div class="columns">
+                  <div class="column is-3">
+                    <b-field label="Upload expiry" label-position="on-border"
+                      message="(Optional) Specify TTL (in seconds) for the generated presigned URL.
+                              Only applicable for private buckets
+                              (s, m, h, d for seconds, minutes, hours, days)." expanded>
+                      <b-input v-model="form['upload.s3.expiry']"
+                        name="upload.s3.expiry"
+                        placeholder="14d" :pattern="regDuration" :maxlength="10" />
+                    </b-field>
+                  </div>
+                </div>
               </div><!-- s3 -->
             </div>
           </b-tab-item><!-- media -->
@@ -211,14 +233,14 @@
                   <div class="column" :class="{'disabled': !item.enabled}">
                     <div class="columns">
                       <div class="column is-8">
-                        <b-field label="Host"
+                        <b-field label="Host" label-position="on-border"
                           message="SMTP server's host address.">
                           <b-input v-model="item.host" name="host"
                             placeholder='smtp.yourmailserver.net' :maxlength="200" />
                         </b-field>
                       </div>
                       <div class="column">
-                        <b-field label="Port"
+                        <b-field label="Port" label-position="on-border"
                           message="SMTP server's port.">
                           <b-numberinput v-model="item.port" name="port" type="is-light"
                               controls-position="compact"
@@ -229,7 +251,7 @@
 
                     <div class="columns">
                       <div class="column is-2">
-                        <b-field label="Auth protocol">
+                        <b-field label="Auth protocol" label-position="on-border">
                           <b-select v-model="item.auth_protocol" name="auth_protocol">
                             <option value="none">none</option>
                             <option value="cram">cram</option>
@@ -240,12 +262,12 @@
                       </div>
                       <div class="column">
                         <b-field grouped>
-                          <b-field label="Username" expanded>
+                          <b-field label="Username" label-position="on-border" expanded>
                             <b-input v-model="item.username"
                               :disabled="item.auth_protocol === 'none'"
                               name="username" placeholder="mysmtp" :maxlength="200" />
                           </b-field>
-                          <b-field label="Password" expanded
+                          <b-field label="Password" label-position="on-border" expanded
                             message="Enter a value to change. Otherwise, leave empty.">
                             <b-input v-model="item.password"
                               :disabled="item.auth_protocol === 'none'"
@@ -259,7 +281,7 @@
 
                     <div class="columns">
                       <div class="column is-6">
-                        <b-field label="HELO hostname"
+                        <b-field label="HELO hostname" label-position="on-border"
                           message="Optional. Some SMTP servers require a FQDN in the hostname.
                                 By default, HELLOs go with 'localhost'. Set this if a custom
                                 hostname should be used.">
@@ -285,7 +307,7 @@
 
                     <div class="columns">
                       <div class="column is-3">
-                        <b-field label="Max. connections"
+                        <b-field label="Max. connections" label-position="on-border"
                           message="Maximum concurrent connections to the SMTP server.">
                           <b-numberinput v-model="item.max_conns" name="max_conns" type="is-light"
                               controls-position="compact"
@@ -293,7 +315,7 @@
                         </b-field>
                       </div>
                       <div class="column is-3">
-                        <b-field label="Retries"
+                        <b-field label="Retries" label-position="on-border"
                           message="The number of times a message should be retried
                                   if sending fails.">
                           <b-numberinput v-model="item.max_msg_retries" name="max_msg_retries"
@@ -303,7 +325,7 @@
                         </b-field>
                       </div>
                       <div class="column is-3">
-                        <b-field label="Idle timeout"
+                        <b-field label="Idle timeout" label-position="on-border"
                           message="Time to wait for new activity on a connection before closing
                                   it and removing it from the pool (s for second, m for minute).">
                           <b-input v-model="item.idle_timeout" name="idle_timeout"
@@ -311,7 +333,7 @@
                         </b-field>
                       </div>
                       <div class="column is-3">
-                        <b-field label="Wait timeout"
+                        <b-field label="Wait timeout" label-position="on-border"
                           message="Time to wait for new activity on a connection before closing
                                   it and removing it from the pool (s for second, m for minute).">
                           <b-input v-model="item.wait_timeout" name="wait_timeout"
@@ -341,7 +363,7 @@ import { models } from '../constants';
 export default Vue.extend({
   data() {
     return {
-      regDuration: '[0-9]+(ms|s|m|h)',
+      regDuration: '[0-9]+(ms|s|m|h|d)',
       isLoading: true,
 
       // formCopy is a stringified copy of the original settings against which

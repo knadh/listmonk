@@ -116,59 +116,61 @@
             </b-table-column>
 
             <b-table-column class="actions" width="13%" align="right">
-              <a href="" v-if="canStart(props.row)"
-                @click.prevent="$utils.confirm(null,
-                  () => changeCampaignStatus(props.row, 'running'))">
-                <b-tooltip label="Start" type="is-dark">
-                  <b-icon icon="rocket-launch-outline" size="is-small" />
-                </b-tooltip>
-              </a>
-              <a href="" v-if="canPause(props.row)"
-                @click.prevent="$utils.confirm(null,
-                  () => changeCampaignStatus(props.row, 'paused'))">
-                <b-tooltip label="Pause" type="is-dark">
-                  <b-icon icon="pause-circle-outline" size="is-small" />
-                </b-tooltip>
-              </a>
-              <a href="" v-if="canResume(props.row)"
-                @click.prevent="$utils.confirm(null,
-                  () => changeCampaignStatus(props.row, 'running'))">
-                <b-tooltip label="Send" type="is-dark">
-                  <b-icon icon="rocket-launch-outline" size="is-small" />
-                </b-tooltip>
-              </a>
-              <a href="" v-if="canSchedule(props.row)"
-                @click.prevent="$utils.confirm(`This campaign will start automatically at the
-                    scheduled date and time. Schedule now?`,
-                      () => changeCampaignStatus(props.row, 'scheduled'))">
-                <b-tooltip label="Schedule" type="is-dark">
-                  <b-icon icon="clock-start" size="is-small" />
-                </b-tooltip>
-              </a>
-              <a href="" @click.prevent="previewCampaign(props.row)">
-                <b-tooltip label="Preview" type="is-dark">
-                  <b-icon icon="file-find-outline" size="is-small" />
-                </b-tooltip>
-              </a>
-              <a href="" @click.prevent="$utils.prompt(`Clone campaign`,
-                      { placeholder: 'Campaign name', value: `Copy of ${props.row.name}`},
-                      (name) => cloneCampaign(name, props.row))">
-                <b-tooltip label="Clone" type="is-dark">
-                  <b-icon icon="file-multiple-outline" size="is-small" />
-                </b-tooltip>
-              </a>
-              <a href="" v-if="canCancel(props.row)"
-                @click.prevent="$utils.confirm(null,
-                  () => changeCampaignStatus(props.row, 'cancelled'))">
-                <b-tooltip label="Cancel" type="is-dark">
-                  <b-icon icon="trash-can-outline" size="is-small" />
-                </b-tooltip>
-              </a>
-              <a href="" v-if="canDelete(props.row)"
-                @click.prevent="$utils.confirm(`Delete '${props.row.name}'?`,
-                  () => deleteCampaign(props.row))">
-                  <b-icon icon="trash-can-outline" size="is-small" />
-              </a>
+              <div>
+                <a href="" v-if="canStart(props.row)"
+                  @click.prevent="$utils.confirm(null,
+                    () => changeCampaignStatus(props.row, 'running'))">
+                  <b-tooltip label="Start" type="is-dark">
+                    <b-icon icon="rocket-launch-outline" size="is-small" />
+                  </b-tooltip>
+                </a>
+                <a href="" v-if="canPause(props.row)"
+                  @click.prevent="$utils.confirm(null,
+                    () => changeCampaignStatus(props.row, 'paused'))">
+                  <b-tooltip label="Pause" type="is-dark">
+                    <b-icon icon="pause-circle-outline" size="is-small" />
+                  </b-tooltip>
+                </a>
+                <a href="" v-if="canResume(props.row)"
+                  @click.prevent="$utils.confirm(null,
+                    () => changeCampaignStatus(props.row, 'running'))">
+                  <b-tooltip label="Send" type="is-dark">
+                    <b-icon icon="rocket-launch-outline" size="is-small" />
+                  </b-tooltip>
+                </a>
+                <a href="" v-if="canSchedule(props.row)"
+                  @click.prevent="$utils.confirm(`This campaign will start automatically at the
+                      scheduled date and time. Schedule now?`,
+                        () => changeCampaignStatus(props.row, 'scheduled'))">
+                  <b-tooltip label="Schedule" type="is-dark">
+                    <b-icon icon="clock-start" size="is-small" />
+                  </b-tooltip>
+                </a>
+                <a href="" @click.prevent="previewCampaign(props.row)">
+                  <b-tooltip label="Preview" type="is-dark">
+                    <b-icon icon="file-find-outline" size="is-small" />
+                  </b-tooltip>
+                </a>
+                <a href="" @click.prevent="$utils.prompt(`Clone campaign`,
+                        { placeholder: 'Campaign name', value: `Copy of ${props.row.name}`},
+                        (name) => cloneCampaign(name, props.row))">
+                  <b-tooltip label="Clone" type="is-dark">
+                    <b-icon icon="file-multiple-outline" size="is-small" />
+                  </b-tooltip>
+                </a>
+                <a href="" v-if="canCancel(props.row)"
+                  @click.prevent="$utils.confirm(null,
+                    () => changeCampaignStatus(props.row, 'cancelled'))">
+                  <b-tooltip label="Cancel" type="is-dark">
+                    <b-icon icon="trash-can-outline" size="is-small" />
+                  </b-tooltip>
+                </a>
+                <a href="" v-if="canDelete(props.row)"
+                  @click.prevent="$utils.confirm(`Delete '${props.row.name}'?`,
+                    () => deleteCampaign(props.row))">
+                    <b-icon icon="trash-can-outline" size="is-small" />
+                </a>
+              </div>
             </b-table-column>
         </template>
         <template slot="empty" v-if="!loading.campaigns">

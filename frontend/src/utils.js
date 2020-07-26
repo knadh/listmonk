@@ -63,7 +63,7 @@ export default class utils {
   // UI shortcuts.
   static confirm = (msg, onConfirm, onCancel) => {
     Dialog.confirm({
-      scroll: 'keep',
+      scroll: 'clip',
       message: !msg ? 'Are you sure?' : msg,
       onConfirm,
       onCancel,
@@ -72,7 +72,7 @@ export default class utils {
 
   static prompt = (msg, inputAttrs, onConfirm, onCancel) => {
     Dialog.prompt({
-      scroll: 'keep',
+      scroll: 'clip',
       message: msg,
       confirmText: 'OK',
       inputAttrs: {
@@ -91,7 +91,7 @@ export default class utils {
       message: msg,
       type: !typ ? 'is-success' : typ,
       queue: false,
-      duration: duration || 3000,
+      duration: duration || 2000,
     });
   };
 }

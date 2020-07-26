@@ -33,22 +33,22 @@
     <b-loading :active="loading.campaigns"></b-loading>
 
     <b-tabs type="is-boxed" :animated="false" v-model="activeTab">
-      <b-tab-item label="Campaign" icon="rocket-launch-outline">
+      <b-tab-item label="Campaign" label-position="on-border" icon="rocket-launch-outline">
         <section class="wrap">
           <div class="columns">
             <div class="column is-7">
               <form @submit.prevent="onSubmit">
-                <b-field label="Name">
+                <b-field label="Name" label-position="on-border">
                   <b-input :maxlength="200" :ref="'focus'" v-model="form.name" :disabled="!canEdit"
                     placeholder="Name" required></b-input>
                 </b-field>
 
-                <b-field label="Subject">
+                <b-field label="Subject" label-position="on-border">
                   <b-input :maxlength="200" v-model="form.subject" :disabled="!canEdit"
                     placeholder="Subject" required></b-input>
                 </b-field>
 
-                <b-field label="From address">
+                <b-field label="From address" label-position="on-border">
                   <b-input :maxlength="200" v-model="form.fromEmail" :disabled="!canEdit"
                     placeholder="Your Name <noreply@yoursite.com>" required></b-input>
                 </b-field>
@@ -62,34 +62,40 @@
                   placeholder="Lists to send to"
                 ></list-selector>
 
-                <b-field label="Template">
+                <b-field label="Template" label-position="on-border">
                   <b-select placeholder="Template" v-model="form.templateId"
                     :disabled="!canEdit" required>
                     <option v-for="t in templates" :value="t.id" :key="t.id">{{ t.name }}</option>
                   </b-select>
                 </b-field>
 
-                <b-field label="Tags">
+                <b-field label="Tags" label-position="on-border">
                   <b-taginput v-model="form.tags" :disabled="!canEdit"
                     ellipsis icon="tag-outline" placeholder="Tags"></b-taginput>
                 </b-field>
                 <hr />
 
-                <b-field label="Send later?">
-                    <b-switch v-model="form.sendLater" :disabled="!canEdit"></b-switch>
-                </b-field>
-
-                <b-field v-if="form.sendLater" label="Send at">
-                  <b-datetimepicker
-                    v-model="form.sendAtDate"
-                    :disabled="!canEdit"
-                    placeholder="Date and time"
-                    icon="calendar-clock"
-                    :timepicker="{ hourFormat: '24' }"
-                    :datetime-formatter="formatDateTime"
-                    horizontal-time-picker>
-                  </b-datetimepicker>
-                </b-field>
+                <div class="columns">
+                  <div class="column is-2">
+                    <b-field label="Send later?">
+                        <b-switch v-model="form.sendLater" :disabled="!canEdit"></b-switch>
+                    </b-field>
+                  </div>
+                  <div class="column">
+                    <br />
+                    <b-field v-if="form.sendLater">
+                      <b-datetimepicker
+                        v-model="form.sendAtDate"
+                        :disabled="!canEdit"
+                        placeholder="Date and time"
+                        icon="calendar-clock"
+                        :timepicker="{ hourFormat: '24' }"
+                        :datetime-formatter="formatDateTime"
+                        horizontal-time-picker>
+                      </b-datetimepicker>
+                    </b-field>
+                  </div>
+                </div>
                 <hr />
 
                 <b-field v-if="isNew">
@@ -267,11 +273,7 @@ export default Vue.extend({
       return new Promise((resolve) => {
         this.$api.updateCampaign(this.data.id, data).then((d) => {
           this.data = d;
-          this.$buefy.toast.open({
-            message: `'${d.name}' ${typMsg}`,
-            type: 'is-success',
-            queue: false,
-          });
+          this.$utils.toast(`'${d.name}' ${typMsg}`);
           resolve();
         });
       });
@@ -327,11 +329,7 @@ export default Vue.extend({
     } else {
       const intID = parseInt(id, 10);
       if (intID <= 0 || Number.isNaN(intID)) {
-        this.$buefy.toast.open({
-          message: 'Invalid campaign',
-          type: 'is-danger',
-          queue: false,
-        });
+        this.$utils.toast('Invalid campaign');
         return;
       }
 

@@ -1,7 +1,6 @@
 <template>
   <div class="field">
-    <b-field :label="label  + (selectedItems ? ` (${selectedItems.length})` : '')">
-      <div :class="classes">
+      <div :class="['list-tags', ...classes]">
         <b-taglist>
           <b-tag v-for="l in selectedItems"
             :key="l.id"
@@ -13,9 +12,10 @@
           </b-tag>
         </b-taglist>
       </div>
-    </b-field>
 
-    <b-field :message="message">
+    <b-field :message="message"
+      :label="label  + (selectedItems ? ` (${selectedItems.length})` : '')"
+      label-position="on-border">
       <b-autocomplete
         :placeholder="placeholder"
         clearable

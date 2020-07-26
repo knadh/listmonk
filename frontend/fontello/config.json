@@ -441,6 +441,48 @@
       ]
     },
     {
+      "uid": "80491c76df0c066833e0f8211903d37c",
+      "css": "minus",
+      "code": 59423,
+      "src": "custom_icons",
+      "selected": true,
+      "svg": {
+        "path": "M791 541H209V459H791V541Z",
+        "width": 1000
+      },
+      "search": [
+        "minus"
+      ]
+    },
+    {
+      "uid": "a7a02467d65aabd7cd61903ea3e855b6",
+      "css": "arrow-up",
+      "code": 59424,
+      "src": "custom_icons",
+      "selected": true,
+      "svg": {
+        "path": "M541 834H459V334L228.5 562.5 169.9 503.9 500 173.8 830.1 503.9 771.5 562.5 541 334V834Z",
+        "width": 1000
+      },
+      "search": [
+        "arrow-up"
+      ]
+    },
+    {
+      "uid": "a9b97a98d1427ca1c4f90b2f8f4f03c1",
+      "css": "arrow-down",
+      "code": 59425,
+      "src": "custom_icons",
+      "selected": true,
+      "svg": {
+        "path": "M459 166H541V666L771.5 437.5 830.1 496.1 500 826.2 169.9 496.1 228.5 437.5 459 666V166Z",
+        "width": 1000
+      },
+      "search": [
+        "arrow-down"
+      ]
+    },
+    {
       "uid": "f4ad3f6d071a0bfb3a8452b514ed0892",
       "css": "vector-square",
       "code": 983041,
@@ -1365,20 +1407,6 @@
       ]
     },
     {
-      "uid": "a9b97a98d1427ca1c4f90b2f8f4f03c1",
-      "css": "arrow-down",
-      "code": 983109,
-      "src": "custom_icons",
-      "selected": false,
-      "svg": {
-        "path": "M459 166H541V666L771.5 437.5 830.1 496.1 500 826.2 169.9 496.1 228.5 437.5 459 666V166Z",
-        "width": 1000
-      },
-      "search": [
-        "arrow-down"
-      ]
-    },
-    {
       "uid": "578692c5a0b505985bf797ee8ebce545",
       "css": "arrow-down-thick",
       "code": 983110,
@@ -1684,20 +1712,6 @@
       },
       "search": [
         "arrow-top-left"
-      ]
-    },
-    {
-      "uid": "a7a02467d65aabd7cd61903ea3e855b6",
-      "css": "arrow-up",
-      "code": 983133,
-      "src": "custom_icons",
-      "selected": false,
-      "svg": {
-        "path": "M541 834H459V334L228.5 562.5 169.9 503.9 500 173.8 830.1 503.9 771.5 562.5 541 334V834Z",
-        "width": 1000
-      },
-      "search": [
-        "arrow-up"
       ]
     },
     {
@@ -12772,20 +12786,6 @@
       },
       "search": [
         "minecraft"
-      ]
-    },
-    {
-      "uid": "80491c76df0c066833e0f8211903d37c",
-      "css": "minus",
-      "code": 983924,
-      "src": "custom_icons",
-      "selected": false,
-      "svg": {
-        "path": "M791 541H209V459H791V541Z",
-        "width": 1000
-      },
-      "search": [
-        "minus"
       ]
     },
     {

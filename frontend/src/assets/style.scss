@@ -1,14 +1,16 @@
 /* Import Bulma to set variables */
 @import "~bulma/sass/utilities/_all";
 
-$body-family: "IBM Plex Sans", "Helvetica Neue", sans-serif;
+$body-family: "Inter", "Helvetica Neue", sans-serif;
 $body-size: 15px;
+$background: $white-bis;
+$body-background-color: $white-bis;
 $primary: #7f2aff;
 $green: #4caf50;
 $turquoise: $green;
 $red: #ff5722;
 $link: $primary;
-$input-placeholder-color: $black-ter;
+$input-placeholder-color: $grey-light;
 
 $colors: map-merge($colors, (
     "turquoise": ($green, $green-invert),
@@ -77,35 +79,58 @@ section {
   }    
 }
 
+.box {
+  box-shadow: 0 0 2px $grey-lighter;
+}
 
 /* Two column sidebar+body layout */
 #app {
-  display: flex;
-  flex-direction: row;
   min-height: 100%;
-  
-  > .sidebar {
-    flex-shrink: 1;
-    box-shadow: 0 0 5px #eee;
-    border-right: 1px solid #eee;
-
-    .b-sidebar {
-      position: sticky;
-      top: 0px;
-    }
+  .wrapper {
+    display: flex;
+    flex-direction: row;
+    min-height: 100vh;
+    margin-top: 0px;
   }
-  > .main {
-    margin: 30px 30px 30px 45px;
+
+  .sidebar {
+    flex-shrink: 1;
+    box-shadow: 0 0 3px $grey-lighter;
+    background: $white;
+  }
+
+  .main {
+    background: $white;
+    margin-left: 15px;
+    padding: 30px;
     flex-grow: 1;
+    position: relative;
+  }
+}
+
+.navbar {
+  box-shadow: 0 0 3px $grey-lighter;
+}
+.navbar-brand {
+  padding: 0 0 0 25px;
+  .favicon {
+    display: none;
+  }
+  .full {
+    max-height: 20px;
+    margin-top: 12px;
+  }
+  .favicon {
+    margin-top: 8px;
   }
 }
 
 .b-sidebar {
-  .logo {
-    padding: 15px;
-  }
+  position: sticky;
+  top: 75px;
+
   .sidebar-content {
-    border-right: 1px solid #eee;
+    background: transparent;
   }
   .menu-list {
     .router-link-exact-active {
@@ -116,14 +141,14 @@ section {
       margin-right: 0;
     }
     > li {
-      margin-bottom: 15px;
+      margin-bottom: 10px;
+      a {
+        padding-left: 25px;
+      }
     }
-  }
-  .logo {
-    margin-bottom: 30px;
-  }
-  .favicon {
-    display: none;
+    a {
+      border-radius: 0;
+    }
   }
 }
 
@@ -181,10 +206,6 @@ section {
   display: none;
 }
 
-/* Toasts */
-.notices .toast {
-  animation: none;
-}
 
 /* Fix for button primary colour. */
 .button.is-primary {
@@ -198,11 +219,39 @@ section {
 }
 
 .autocomplete .dropdown-content {
-  background-color: $white-bis;
+  background-color: $white-ter;
 }
 
-.help {
-  color: $grey;
+.input, .taginput .taginput-container.is-focusable, .textarea {
+  box-shadow: inset 2px 2px 0px $white-ter;
+}
+
+/* Form fields */
+.field {
+  &:not(:last-child) {
+    margin-bottom: 2rem;
+  }
+
+  .control {
+    position: relative;
+
+    .help.counter {
+      position: absolute;
+      top: -20px;
+      right: 0;
+    }
+  }
+
+  label {
+    color: $grey;
+  }
+
+  .help {
+    color: $grey-light;
+  }
+}
+.has-numberinput .field, .field.is-grouped {
+  margin-bottom: 0;
 }
 
 /* Tags */
@@ -267,6 +316,10 @@ section.dashboard {
     margin-bottom: 0.5rem;
   }
 
+  .counts .column {
+    padding: 30px;
+  }
+
   .level-item {
     background-color: $white-bis;
     padding: 30px;
@@ -294,6 +347,11 @@ section.lists {
   td .tag {
     min-width: 65px;
   }
+}
+
+/* List selector */
+.list-tags {
+  margin-bottom: 1rem;
 }
 
 /* Subscribers page */
@@ -520,6 +578,40 @@ section.campaign {
   }
 }
 
+/* Vue animations */
+.slide-enter-active, .slide-leave-active {
+  transition: opacity 50ms;
+  max-height: none;
+}
+.slide-enter, .slide-leave-to {
+  transition: opacity 50ms;
+  opacity: 0;
+  max-height: none;
+}
+.slide-leave-active, .slide-leave-to {
+  transition: none;
+  display: none;  
+}
+
+
+/* Toasts */
+.notices {
+  @keyframes scale {
+    0% {
+      scale: 1;
+    }
+    50% {
+      scale: 1.3;
+    }
+    100% {
+      scale: 1;
+    }
+  }
+  .toast {
+    animation: scale 300ms ease-in-out;
+  }
+}
+
 @media screen and (max-width: 1450px) and (min-width: 769px) {
   section.campaigns {
     /* Fold the stats labels until the card view */
@@ -539,34 +631,57 @@ section.campaign {
 }
 
 @media screen and (max-width: 1023px) {
+  html, body {
+    overflow-x: auto;
+  }
+
+  #app .main {
+    margin-left: 5px;
+    padding: 30px 20px 30px 20px;
+  }
+
+  .navbar-brand {
+    .full {
+      display: none;
+    }
+    .favicon {
+      display: block;
+    }
+    padding-left: 10px;
+  }
+
+  .b-sidebar {
+    top: 30px;
+  }
+
   /* Hide sidebar menu captions on mobile */
   .b-sidebar .sidebar-content.is-mini-mobile {
-    .menu-list li {
-      margin-bottom: 30px;
+    .menu-list {
+      li {
+        margin-bottom: 30px;
 
-      span:nth-child(2) {
-        display: none;
+        span:nth-child(2) {
+          display: none;
+        }
+        .icon.is-small {
+          scale: 1.4;
+        }
       }
-      .icon.is-small {
-        scale: 1.4;
-      }
-    }
-    .logo {
-      text-align: center;
-      .full {
-        display: none;
-      }
-      .favicon {
-        display: block;
-      }
-      .version {
-        display: none;
+      > li {
+        a {
+          padding-left: 15px;
+        }
       }
     }
   }
 
-  #app > .content {
-    margin: 15px;
+  td .tags {
+    display: block;
+    text-align: right;
+
+    .tag:not(:last-child) {
+      margin-right: 0;
+    }
   }
 }
 

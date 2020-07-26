@@ -7,22 +7,34 @@
     <section v-if="isFree()" class="wrap-small">
       <form @submit.prevent="onSubmit" class="box">
         <div>
-          <b-field label="Mode">
-            <div>
-              <b-radio v-model="form.mode" name="mode"
-                native-value="subscribe">Subscribe</b-radio>
-              <b-radio v-model="form.mode" name="mode"
-                native-value="blacklist">Blacklist</b-radio>
+          <div class="columns">
+            <div class="column">
+              <b-field label="Mode">
+                <div>
+                  <b-radio v-model="form.mode" name="mode"
+                    native-value="subscribe">Subscribe</b-radio>
+                  <b-radio v-model="form.mode" name="mode"
+                    native-value="blacklist">Blacklist</b-radio>
+                </div>
+              </b-field>
             </div>
-          </b-field>
-
-          <b-field v-if="form.mode === 'subscribe'"
-            label="Overwrite?"
-            message="Overwrite name and attribs of existing subscribers?">
-            <div>
-              <b-switch v-model="form.overwrite" name="overwrite" />
+            <div class="column">
+              <b-field v-if="form.mode === 'subscribe'"
+                label="Overwrite?"
+                message="Overwrite name and attribs of existing subscribers?">
+                <div>
+                  <b-switch v-model="form.overwrite" name="overwrite" />
+                </div>
+              </b-field>
             </div>
-          </b-field>
+            <div class="column">
+              <b-field label="CSV delimiter" message="Default delimiter is comma."
+                class="delimiter">
+                <b-input v-model="form.delim" name="delim"
+                  placeholder="," maxlength="1" required />
+              </b-field>
+            </div>
+          </div>
 
           <list-selector v-if="form.mode === 'subscribe'"
             label="Lists"
@@ -33,13 +45,8 @@
             :all="lists.results"
           ></list-selector>
           <hr />
-          <b-field label="CSV delimiter" message="Default delimiter is comma."
-            class="delimiter">
-            <b-input v-model="form.delim" name="delim"
-              placeholder="," maxlength="1" required />
-          </b-field>
 
-          <b-field label="CSV or ZIP file">
+          <b-field label="CSV or ZIP file" label-position="on-border">
             <b-upload v-model="form.file" drag-drop expanded required>
               <div class="has-text-centered section">
                 <p>

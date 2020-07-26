@@ -29,28 +29,30 @@
             </b-table-column>
 
             <b-table-column class="actions" align="right">
-              <a href="#" @click.prevent="previewTemplate(props.row)">
-                <b-tooltip label="Preview" type="is-dark">
-                  <b-icon icon="file-find-outline" size="is-small" />
-                </b-tooltip>
-              </a>
-              <a href="#" @click.prevent="showEditForm(props.row)">
-                <b-tooltip label="Edit" type="is-dark">
-                  <b-icon icon="pencil-outline" size="is-small" />
-                </b-tooltip>
-              </a>
-             <a v-if="!props.row.isDefault" href="#"
-                @click.prevent="$utils.confirm(null, () => makeTemplateDefault(props.row))">
-                <b-tooltip label="Make default" type="is-dark">
-                  <b-icon icon="check-circle-outline" size="is-small" />
-                </b-tooltip>
-              </a>
-              <a v-if="!props.row.isDefault"
-                href="#" @click.prevent="$utils.confirm(null, () => deleteTemplate(props.row))">
-                <b-tooltip label="Delete" type="is-dark">
-                  <b-icon icon="trash-can-outline" size="is-small" />
-                </b-tooltip>
-              </a>
+              <div>
+                <a href="#" @click.prevent="previewTemplate(props.row)">
+                  <b-tooltip label="Preview" type="is-dark">
+                    <b-icon icon="file-find-outline" size="is-small" />
+                  </b-tooltip>
+                </a>
+                <a href="#" @click.prevent="showEditForm(props.row)">
+                  <b-tooltip label="Edit" type="is-dark">
+                    <b-icon icon="pencil-outline" size="is-small" />
+                  </b-tooltip>
+                </a>
+               <a v-if="!props.row.isDefault" href="#"
+                  @click.prevent="$utils.confirm(null, () => makeTemplateDefault(props.row))">
+                  <b-tooltip label="Make default" type="is-dark">
+                    <b-icon icon="check-circle-outline" size="is-small" />
+                  </b-tooltip>
+                </a>
+                <a v-if="!props.row.isDefault"
+                  href="#" @click.prevent="$utils.confirm(null, () => deleteTemplate(props.row))">
+                  <b-tooltip label="Delete" type="is-dark">
+                    <b-icon icon="trash-can-outline" size="is-small" />
+                  </b-tooltip>
+                </a>
+              </div>
             </b-table-column>
         </template>
 

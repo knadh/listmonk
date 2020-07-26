@@ -2,8 +2,7 @@
   <form @submit.prevent="onSubmit">
     <div class="modal-card" style="width: auto">
       <header class="modal-card-head">
-        <h4>Manage lists</h4>
-        <p>{{ numSubscribers }} subscriber(s) selected</p>
+        <h4 class="title is-size-5">Manage lists</h4>
       </header>
 
       <section expanded class="modal-card-body">

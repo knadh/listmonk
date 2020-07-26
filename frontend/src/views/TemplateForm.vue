@@ -11,12 +11,12 @@
             <h4 v-else>New template</h4>
         </header>
         <section expanded class="modal-card-body">
-            <b-field label="Name">
+            <b-field label="Name" label-position="on-border">
             <b-input :maxlength="200" :ref="'focus'" v-model="form.name"
                 placeholder="Name" required></b-input>
             </b-field>
 
-            <b-field label="Raw HTML">
+            <b-field label="Raw HTML" label-position="on-border">
             <b-input v-model="form.body" type="textarea" required />
             </b-field>
 
