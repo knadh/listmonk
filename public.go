@@ -146,7 +146,7 @@ func handleSubscriptionPage(c echo.Context) error {
 		app          = c.Get("app").(*App)
 		campUUID     = c.Param("campUUID")
 		subUUID      = c.Param("subUUID")
-		unsub, _     = strconv.ParseBool(c.FormValue("unsubscribe"))
+		unsub        = c.Request().Method == http.MethodPost
 		blocklist, _ = strconv.ParseBool(c.FormValue("blocklist"))
 		out          = unsubTpl{}
 	)
@@ -366,19 +366,20 @@ func handleSelfExportSubscriberData(c echo.Context) error {
 	}
 
 	// Send the data as a JSON attachment to the subscriber.
-	const fname = "profile.json"
-	if err := app.messenger.Push(app.constants.FromEmail,
-		[]string{data.Email},
-		"Your profile data",
-		msg.Bytes(),
-		[]messenger.Attachment{
+	const fname = "data.json"
+	if err := app.messenger.Push(messenger.Message{
+		From:    app.constants.FromEmail,
+		To:      []string{data.Email},
+		Subject: "Your data",
+		Body:    msg.Bytes(),
+		Attachments: []messenger.Attachment{
 			{
 				Name:    fname,
 				Content: b,
 				Header:  messenger.MakeAttachmentHeader(fname, "base64"),
 			},
 		},
-	); err != nil {
+	}); err != nil {
 		app.log.Printf("error e-mailing subscriber profile: %s", err)
 		return c.Render(http.StatusInternalServerError, tplMessage,
 			makeMsgTpl("Error e-mailing data", "",

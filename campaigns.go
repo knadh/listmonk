@@ -14,6 +14,7 @@ import (
 	"time"
 
 	"github.com/gofrs/uuid"
+	"github.com/knadh/listmonk/internal/messenger"
 	"github.com/knadh/listmonk/internal/subimporter"
 	"github.com/knadh/listmonk/models"
 	"github.com/labstack/echo"
@@ -558,10 +559,12 @@ func sendTestMessage(sub models.Subscriber, camp *models.Campaign, app *App) err
 			fmt.Sprintf("Error rendering message: %v", err))
 	}
 
-	if err := app.messenger.Push(camp.FromEmail,
-		[]string{sub.Email},
-		m.Subject(),
-		m.Body(), nil); err != nil {
+	if err := app.messenger.Push(messenger.Message{
+		From:    camp.FromEmail,
+		To:      []string{sub.Email},
+		Subject: m.Subject(),
+		Body:    m.Body(),
+	}); err != nil {
 		return err
 	}
 

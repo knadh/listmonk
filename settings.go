@@ -24,6 +24,7 @@ type settings struct {
 
 	Messengers []interface{} `json:"messengers"`
 
+	PrivacyUnsubHeader    bool     `json:"privacy.unsubscribe_header"`
 	PrivacyAllowBlocklist bool     `json:"privacy.allow_blocklist"`
 	PrivacyAllowExport    bool     `json:"privacy.allow_export"`
 	PrivacyAllowWipe      bool     `json:"privacy.allow_wipe"`

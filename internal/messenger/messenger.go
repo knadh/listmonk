@@ -6,9 +6,19 @@ import "net/textproto"
 // for instance, e-mail, SMS etc.
 type Messenger interface {
 	Name() string
-	Push(fromAddr string, toAddr []string, subject string, message []byte, atts []Attachment) error
+	Push(Message) error
 	Flush() error
 	Close() error
+}
+
+// Message is the message pushed to a Messenger.
+type Message struct {
+	From        string
+	To          []string
+	Subject     string
+	Body        []byte
+	Headers     textproto.MIMEHeader
+	Attachments []Attachment
 }
 
 // Attachment represents a file or blob attachment that can be

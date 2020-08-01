@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"html/template"
 	"log"
+	"net/textproto"
 	"strings"
 	"sync"
 	"time"
@@ -95,6 +96,7 @@ type Config struct {
 	OptinURL       string
 	MessageURL     string
 	ViewTrackURL   string
+	UnsubHeader    bool
 }
 
 type msgError struct {
@@ -249,9 +251,23 @@ func (m *Manager) messageWorker() {
 			}
 			numMsg++
 
-			err := m.messengers[msg.Campaign.MessengerID].Push(
-				msg.from, []string{msg.to}, msg.subject, msg.body, nil)
-			if err != nil {
+			// Outgoing message.
+			out := messenger.Message{
+				From:    msg.from,
+				To:      []string{msg.to},
+				Subject: msg.subject,
+				Body:    msg.body,
+			}
+
+			// Attach List-Unsubscribe headers?
+			if m.cfg.UnsubHeader {
+				h := textproto.MIMEHeader{}
+				h.Set("List-Unsubscribe-Post", "List-Unsubscribe=One-Click")
+				h.Set("List-Unsubscribe", `<`+msg.unsubURL+`>`)
+				out.Headers = h
+			}
+
+			if err := m.messengers[msg.Campaign.MessengerID].Push(out); err != nil {
 				m.logger.Printf("error sending message in campaign %s: %v", msg.Campaign.Name, err)
 
 				select {
@@ -265,8 +281,13 @@ func (m *Manager) messageWorker() {
 			if !ok {
 				return
 			}
-			err := m.messengers[msg.Messenger].Push(
-				msg.From, msg.To, msg.Subject, msg.Body, nil)
+
+			err := m.messengers[msg.Messenger].Push(messenger.Message{
+				From:    msg.From,
+				To:      msg.To,
+				Subject: msg.Subject,
+				Body:    msg.Body,
+			})
 			if err != nil {
 				m.logger.Printf("error sending message '%s': %v", msg.Subject, err)
 			}

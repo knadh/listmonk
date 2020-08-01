@@ -104,6 +104,13 @@
 
           <b-tab-item label="Privacy">
             <div class="items">
+              <b-field label="Include `List-Unsubscribe` header"
+                message="Include unsubscription headers that allow e-mail clients to
+                        allow users to unsubscribe in a single click.">
+                <b-switch v-model="form['privacy.unsubscribe_header']"
+                    name="privacy.unsubscribe_header" />
+              </b-field>
+
               <b-field label="Allow blocklisting"
                 message="Allow subscribers to unsubscribe from all mailing lists and mark
                       themselves as blocklisted?">
@@ -118,9 +125,9 @@
               </b-field>
 
               <b-field label="Allow wiping"
-                message="Allow subscribers to delete themselves from the database?
-                      This deletes the subscriber and all their subscriptions.
-                      Their association to campaign views and link clicks are also
+                message="Allow subscribers to delete themselves including their
+                      subscriptions and all other data from the database.
+                      Campaign views and link clicks are also
                       removed while views and click counts remain (with no subscriber
                       associated to them) so that stats and analytics aren't affected.">
                 <b-switch v-model="form['privacy.allow_wipe']"

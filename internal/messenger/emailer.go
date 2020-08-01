@@ -86,7 +86,7 @@ func (e *Emailer) Name() string {
 }
 
 // Push pushes a message to the server.
-func (e *Emailer) Push(fromAddr string, toAddr []string, subject string, m []byte, atts []Attachment) error {
+func (e *Emailer) Push(m Message) error {
 	// If there are more than one SMTP servers, send to a random
 	// one from the list.
 	var (
@@ -101,9 +101,9 @@ func (e *Emailer) Push(fromAddr string, toAddr []string, subject string, m []byt
 
 	// Are there attachments?
 	var files []smtppool.Attachment
-	if atts != nil {
-		files = make([]smtppool.Attachment, 0, len(atts))
-		for _, f := range atts {
+	if m.Attachments != nil {
+		files = make([]smtppool.Attachment, 0, len(m.Attachments))
+		for _, f := range m.Attachments {
 			a := smtppool.Attachment{
 				Filename: f.Name,
 				Header:   f.Header,
@@ -114,21 +114,27 @@ func (e *Emailer) Push(fromAddr string, toAddr []string, subject string, m []byt
 		}
 	}
 
-	mtext, err := html2text.FromString(string(m), html2text.Options{PrettyTables: true})
+	mtext, err := html2text.FromString(string(m.Body),
+		html2text.Options{PrettyTables: true})
 	if err != nil {
 		return err
 	}
 
 	em := smtppool.Email{
-		From:        fromAddr,
-		To:          toAddr,
-		Subject:     subject,
+		From:        m.From,
+		To:          m.To,
+		Subject:     m.Subject,
 		Attachments: files,
 	}
 
-	// If there are custom e-mail headers, attach them.
+	em.Headers = textproto.MIMEHeader{}
+	// Attach e-mail level headers.
+	if len(m.Headers) > 0 {
+		em.Headers = m.Headers
+	}
+
+	// Attach SMTP level headers.
 	if len(srv.EmailHeaders) > 0 {
-		em.Headers = textproto.MIMEHeader{}
 		for k, v := range srv.EmailHeaders {
 			em.Headers.Set(k, v)
 		}
@@ -136,11 +142,11 @@ func (e *Emailer) Push(fromAddr string, toAddr []string, subject string, m []byt
 
 	switch srv.EmailFormat {
 	case "html":
-		em.HTML = m
+		em.HTML = m.Body
 	case "plain":
 		em.Text = []byte(mtext)
 	default:
-		em.HTML = m
+		em.HTML = m.Body
 		em.Text = []byte(mtext)
 	}
 

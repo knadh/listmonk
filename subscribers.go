@@ -495,7 +495,7 @@ func handleExportSubscriberData(c echo.Context) error {
 	}
 
 	c.Response().Header().Set("Cache-Control", "no-cache")
-	c.Response().Header().Set("Content-Disposition", `attachment; filename="profile.json"`)
+	c.Response().Header().Set("Content-Disposition", `attachment; filename="data.json"`)
 	return c.Blob(http.StatusOK, "application/json", b)
 }
 

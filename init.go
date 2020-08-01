@@ -269,6 +269,7 @@ func initCampaignManager(q *Queries, cs *constants, app *App) *manager.Manager {
 		LinkTrackURL:  cs.LinkTrackURL,
 		ViewTrackURL:  cs.ViewTrackURL,
 		MessageURL:    cs.MessageURL,
+		UnsubHeader:   ko.Bool("privacy.unsubscribe_header"),
 	}, newManagerDB(q), campNotifCB, lo)
 
 }
