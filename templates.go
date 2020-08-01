@@ -149,7 +149,7 @@ func handleCreateTemplate(c echo.Context) error {
 	// Hand over to the GET handler to return the last insertion.
 	c.SetParamNames("id")
 	c.SetParamValues(fmt.Sprintf("%d", newID))
-	return c.JSON(http.StatusOK, handleGetLists(c))
+	return handleGetTemplates(c)
 }
 
 // handleUpdateTemplate handles template modification.
