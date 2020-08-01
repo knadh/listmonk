@@ -98,11 +98,11 @@
 
           <b-tab-item label="Privacy">
             <div class="items">
-              <b-field label="Allow blacklisting"
+              <b-field label="Allow blocklisting"
                 message="Allow subscribers to unsubscribe from all mailing lists and mark
-                      themselves as blacklisted?">
-                <b-switch v-model="form['privacy.allow_blacklist']"
-                    name="privacy.allow_blacklist" />
+                      themselves as blocklisted?">
+                <b-switch v-model="form['privacy.allow_blocklist']"
+                    name="privacy.allow_blocklist" />
               </b-field>
 
               <b-field label="Allow exporting"

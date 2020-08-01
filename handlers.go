@@ -51,8 +51,8 @@ func registerHTTPHandlers(e *echo.Echo) {
 	e.POST("/api/subscribers", handleCreateSubscriber)
 	e.PUT("/api/subscribers/:id", handleUpdateSubscriber)
 	e.POST("/api/subscribers/:id/optin", handleSubscriberSendOptin)
-	e.PUT("/api/subscribers/blacklist", handleBlacklistSubscribers)
-	e.PUT("/api/subscribers/:id/blacklist", handleBlacklistSubscribers)
+	e.PUT("/api/subscribers/blocklist", handleBlocklistSubscribers)
+	e.PUT("/api/subscribers/:id/blocklist", handleBlocklistSubscribers)
 	e.PUT("/api/subscribers/lists/:id", handleManageSubscriberLists)
 	e.PUT("/api/subscribers/lists", handleManageSubscriberLists)
 	e.DELETE("/api/subscribers/:id", handleDeleteSubscribers)
@@ -61,7 +61,7 @@ func registerHTTPHandlers(e *echo.Echo) {
 	// Subscriber operations based on arbitrary SQL queries.
 	// These aren't very REST-like.
 	e.POST("/api/subscribers/query/delete", handleDeleteSubscribersByQuery)
-	e.PUT("/api/subscribers/query/blacklist", handleBlacklistSubscribersByQuery)
+	e.PUT("/api/subscribers/query/blocklist", handleBlocklistSubscribersByQuery)
 	e.PUT("/api/subscribers/query/lists", handleManageSubscriberListsByQuery)
 	e.GET("/api/subscribers", handleQuerySubscribers)
 

@@ -43,7 +43,7 @@ type constants struct {
 	FromEmail    string   `koanf:"from_email"`
 	NotifyEmails []string `koanf:"notify_emails"`
 	Privacy      struct {
-		AllowBlacklist bool            `koanf:"allow_blacklist"`
+		AllowBlocklist bool            `koanf:"allow_blocklist"`
 		AllowExport    bool            `koanf:"allow_export"`
 		AllowWipe      bool            `koanf:"allow_wipe"`
 		Exportable     map[string]bool `koanf:"-"`
@@ -278,7 +278,7 @@ func initImporter(q *Queries, db *sqlx.DB, app *App) *subimporter.Importer {
 	return subimporter.New(
 		subimporter.Options{
 			UpsertStmt:         q.UpsertSubscriber.Stmt,
-			BlacklistStmt:      q.UpsertBlacklistSubscriber.Stmt,
+			BlocklistStmt:      q.UpsertBlocklistSubscriber.Stmt,
 			UpdateListDateStmt: q.UpdateListsDate.Stmt,
 			NotifCB: func(subject string, data interface{}) error {
 				app.sendNotification(app.constants.NotifyEmails, subject, notifTplImport, data)

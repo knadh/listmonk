@@ -67,8 +67,8 @@
                   <div class="column is-6">
                     <ul class="no is-size-7 has-text-grey">
                       <li>
-                        <label>{{ $utils.niceNumber(counts.subscribers.blacklisted) }}</label>
-                        blacklisted
+                        <label>{{ $utils.niceNumber(counts.subscribers.blocklisted) }}</label>
+                        blocklisted
                       </li>
                       <li>
                         <label>{{ $utils.niceNumber(counts.subscribers.orphans) }}</label>

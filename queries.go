@@ -16,14 +16,14 @@ type Queries struct {
 
 	InsertSubscriber                *sqlx.Stmt `query:"insert-subscriber"`
 	UpsertSubscriber                *sqlx.Stmt `query:"upsert-subscriber"`
-	UpsertBlacklistSubscriber       *sqlx.Stmt `query:"upsert-blacklist-subscriber"`
+	UpsertBlocklistSubscriber       *sqlx.Stmt `query:"upsert-blocklist-subscriber"`
 	GetSubscriber                   *sqlx.Stmt `query:"get-subscriber"`
 	GetSubscribersByEmails          *sqlx.Stmt `query:"get-subscribers-by-emails"`
 	GetSubscriberLists              *sqlx.Stmt `query:"get-subscriber-lists"`
 	GetSubscriberListsLazy          *sqlx.Stmt `query:"get-subscriber-lists-lazy"`
 	SubscriberExists                *sqlx.Stmt `query:"subscriber-exists"`
 	UpdateSubscriber                *sqlx.Stmt `query:"update-subscriber"`
-	BlacklistSubscribers            *sqlx.Stmt `query:"blacklist-subscribers"`
+	BlocklistSubscribers            *sqlx.Stmt `query:"blocklist-subscribers"`
 	AddSubscribersToLists           *sqlx.Stmt `query:"add-subscribers-to-lists"`
 	DeleteSubscriptions             *sqlx.Stmt `query:"delete-subscriptions"`
 	ConfirmSubscriptionOptin        *sqlx.Stmt `query:"confirm-subscription-optin"`
@@ -37,7 +37,7 @@ type Queries struct {
 	QuerySubscribersTpl                    string `query:"query-subscribers-template"`
 	DeleteSubscribersByQuery               string `query:"delete-subscribers-by-query"`
 	AddSubscribersToListsByQuery           string `query:"add-subscribers-to-lists-by-query"`
-	BlacklistSubscribersByQuery            string `query:"blacklist-subscribers-by-query"`
+	BlocklistSubscribersByQuery            string `query:"blocklist-subscribers-by-query"`
 	DeleteSubscriptionsByQuery             string `query:"delete-subscriptions-by-query"`
 	UnsubscribeSubscribersFromListsByQuery string `query:"unsubscribe-subscribers-from-lists-by-query"`
 
@@ -132,7 +132,7 @@ func (q *Queries) compileSubscriberQueryTpl(exp string, db *sqlx.DB) (string, er
 }
 
 // compileSubscriberQueryTpl takes a arbitrary WHERE expressions and a subscriber
-// query template that depends on the filter (eg: delete by query, blacklist by query etc.)
+// query template that depends on the filter (eg: delete by query, blocklist by query etc.)
 // combines and executes them.
 func (q *Queries) execSubscriberQueryTpl(exp, tpl string, listIDs []int64, db *sqlx.DB, args ...interface{}) error {
 	// Perform a dry run.

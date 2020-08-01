@@ -22,10 +22,10 @@
         </b-field>
 
         <b-field label="Status" label-position="on-border"
-          message="Blacklisted subscribers will never receive any e-mails.">
+          message="Blocklisted subscribers will never receive any e-mails.">
           <b-select v-model="form.status" placeholder="Status" required>
             <option value="enabled">Enabled</option>
-            <option value="blacklisted">Blacklisted</option>
+            <option value="blocklisted">Blocklisted</option>
           </b-select>
         </b-field>
 

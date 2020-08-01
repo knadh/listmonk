@@ -122,10 +122,10 @@ export const addSubscribersToLists = (data) => http.put('/api/subscribers/lists'
 export const addSubscribersToListsByQuery = (data) => http.put('/api/subscribers/query/lists',
   data, { loading: models.subscribers });
 
-export const blacklistSubscribers = (data) => http.put('/api/subscribers/blacklist', data,
+export const blocklistSubscribers = (data) => http.put('/api/subscribers/blocklist', data,
   { loading: models.subscribers });
 
-export const blacklistSubscribersByQuery = (data) => http.put('/api/subscribers/query/blacklist', data,
+export const blocklistSubscribersByQuery = (data) => http.put('/api/subscribers/query/blocklist', data,
   { loading: models.subscribers });
 
 export const deleteSubscribers = (params) => http.delete('/api/subscribers',

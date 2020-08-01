@@ -6,7 +6,6 @@ import (
 	"io/ioutil"
 	"os"
 	"strings"
-	"time"
 
 	"github.com/gofrs/uuid"
 	"github.com/jmoiron/sqlx"
@@ -113,7 +112,6 @@ func install(db *sqlx.DB, fs stuffbin.FileSystem, prompt bool) {
 	}
 
 	// Sample campaign.
-	sendAt := time.Now().Add(time.Hour * 24)
 	if _, err := q.CreateCampaign.Exec(uuid.Must(uuid.NewV4()),
 		models.CampaignTypeRegular,
 		"Test campaign",
@@ -122,7 +120,7 @@ func install(db *sqlx.DB, fs stuffbin.FileSystem, prompt bool) {
 		`<h3>Hi {{ .Subscriber.FirstName }}!</h3>
 			This is a test e-mail campaign. Your second name is {{ .Subscriber.LastName }} and you are from {{ .Subscriber.Attribs.city }}.`,
 		"richtext",
-		sendAt,
+		nil,
 		pq.StringArray{"test-campaign"},
 		"email",
 		1,

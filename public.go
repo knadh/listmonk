@@ -48,7 +48,7 @@ type publicTpl struct {
 type unsubTpl struct {
 	publicTpl
 	SubUUID        string
-	AllowBlacklist bool
+	AllowBlocklist bool
 	AllowExport    bool
 	AllowWipe      bool
 }
@@ -147,23 +147,23 @@ func handleSubscriptionPage(c echo.Context) error {
 		campUUID     = c.Param("campUUID")
 		subUUID      = c.Param("subUUID")
 		unsub, _     = strconv.ParseBool(c.FormValue("unsubscribe"))
-		blacklist, _ = strconv.ParseBool(c.FormValue("blacklist"))
+		blocklist, _ = strconv.ParseBool(c.FormValue("blocklist"))
 		out          = unsubTpl{}
 	)
 	out.SubUUID = subUUID
 	out.Title = "Unsubscribe from mailing list"
-	out.AllowBlacklist = app.constants.Privacy.AllowBlacklist
+	out.AllowBlocklist = app.constants.Privacy.AllowBlocklist
 	out.AllowExport = app.constants.Privacy.AllowExport
 	out.AllowWipe = app.constants.Privacy.AllowWipe
 
 	// Unsubscribe.
 	if unsub {
-		// Is blacklisting allowed?
-		if !app.constants.Privacy.AllowBlacklist {
-			blacklist = false
+		// Is blocklisting allowed?
+		if !app.constants.Privacy.AllowBlocklist {
+			blocklist = false
 		}
 
-		if _, err := app.queries.Unsubscribe.Exec(campUUID, subUUID, blacklist); err != nil {
+		if _, err := app.queries.Unsubscribe.Exec(campUUID, subUUID, blocklist); err != nil {
 			app.log.Printf("error unsubscribing: %v", err)
 			return c.Render(http.StatusInternalServerError, tplMessage,
 				makeMsgTpl("Error", "",

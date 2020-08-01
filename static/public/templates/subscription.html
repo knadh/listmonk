@@ -7,9 +7,9 @@
         <div>
             <input type="hidden" name="unsubscribe" value="true" />
 
-            {{ if .Data.AllowBlacklist }}
+            {{ if .Data.AllowBlocklist }}
                 <p>
-                    <input id="privacy-blacklist" type="checkbox" name="blacklist" value="true" /> <label for="privacy-blacklist">Also unsubscribe from all future e-mails.</label>
+                    <input id="privacy-blocklist" type="checkbox" name="blocklist" value="true" /> <label for="privacy-blocklist">Also unsubscribe from all future e-mails.</label>
                 </p>
             {{ end }}
 

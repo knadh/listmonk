@@ -294,7 +294,7 @@ section {
     border: 1px solid lighten($color, 45%);
     box-shadow: 1px 1px 0 lighten($color, 45%);
   }
-  &.blacklisted, &.cancelled {
+  &.blocklisted, &.cancelled {
     $color: #f5222d;
     color: $color;
     background: #fff1f0;

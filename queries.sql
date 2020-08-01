@@ -64,7 +64,7 @@ subs AS (
     VALUES(
         (SELECT id FROM sub),
         UNNEST(ARRAY(SELECT id FROM listIDs)),
-        (CASE WHEN $4='blacklisted' THEN 'unsubscribed'::subscription_status ELSE 'unconfirmed' END)
+        (CASE WHEN $4='blocklisted' THEN 'unsubscribed'::subscription_status ELSE 'unconfirmed' END)
     )
     ON CONFLICT (subscriber_id, list_id) DO UPDATE
     SET updated_at=NOW()
@@ -92,15 +92,15 @@ subs AS (
 )
 SELECT uuid, id from sub;
 
--- name: upsert-blacklist-subscriber
--- Upserts a subscriber where the update will only set the status to blacklisted
+-- name: upsert-blocklist-subscriber
+-- Upserts a subscriber where the update will only set the status to blocklisted
 -- unlike upsert-subscribers where name and attributes are updated. In addition, all
 -- existing subscriptions are marked as 'unsubscribed'.
 -- This is used in the bulk importer.
 WITH sub AS (
     INSERT INTO subscribers (uuid, email, name, attribs, status)
-    VALUES($1, $2, $3, $4, 'blacklisted')
-    ON CONFLICT (email) DO UPDATE SET status='blacklisted', updated_at=NOW()
+    VALUES($1, $2, $3, $4, 'blocklisted')
+    ON CONFLICT (email) DO UPDATE SET status='blocklisted', updated_at=NOW()
     RETURNING id
 )
 UPDATE subscriber_lists SET status='unsubscribed', updated_at=NOW()
@@ -125,18 +125,18 @@ INSERT INTO subscriber_lists (subscriber_id, list_id, status)
     VALUES(
         (SELECT id FROM s),
         UNNEST($6),
-        (CASE WHEN $4='blacklisted' THEN 'unsubscribed'::subscription_status ELSE 'unconfirmed' END)
+        (CASE WHEN $4='blocklisted' THEN 'unsubscribed'::subscription_status ELSE 'unconfirmed' END)
     )
     ON CONFLICT (subscriber_id, list_id) DO UPDATE
-    SET status = (CASE WHEN $4='blacklisted' THEN 'unsubscribed'::subscription_status ELSE subscriber_lists.status END);
+    SET status = (CASE WHEN $4='blocklisted' THEN 'unsubscribed'::subscription_status ELSE subscriber_lists.status END);
 
 -- name: delete-subscribers
 -- Delete one or more subscribers by ID or UUID.
 DELETE FROM subscribers WHERE CASE WHEN ARRAY_LENGTH($1::INT[], 1) > 0 THEN id = ANY($1) ELSE uuid = ANY($2::UUID[]) END;
 
--- name: blacklist-subscribers
+-- name: blocklist-subscribers
 WITH b AS (
-    UPDATE subscribers SET status='blacklisted', updated_at=NOW()
+    UPDATE subscribers SET status='blocklisted', updated_at=NOW()
     WHERE id = ANY($1::INT[])
 )
 UPDATE subscriber_lists SET status='unsubscribed', updated_at=NOW()
@@ -167,7 +167,7 @@ UPDATE subscriber_lists SET status='unsubscribed', updated_at=NOW()
 
 -- name: unsubscribe
 -- Unsubscribes a subscriber given a campaign UUID (from all the lists in the campaign) and the subscriber UUID.
--- If $3 is TRUE, then all subscriptions of the subscriber is blacklisted
+-- If $3 is TRUE, then all subscriptions of the subscriber is blocklisted
 -- and all existing subscriptions, irrespective of lists, unsubscribed.
 WITH lists AS (
     SELECT list_id FROM campaign_lists
@@ -175,7 +175,7 @@ WITH lists AS (
     WHERE campaigns.uuid = $1
 ),
 sub AS (
-    UPDATE subscribers SET status = (CASE WHEN $3 IS TRUE THEN 'blacklisted' ELSE status END)
+    UPDATE subscribers SET status = (CASE WHEN $3 IS TRUE THEN 'blocklisted' ELSE status END)
     WHERE uuid = $2 RETURNING id
 )
 UPDATE subscriber_lists SET status = 'unsubscribed' WHERE
@@ -239,7 +239,7 @@ SELECT COUNT(*) OVER () AS total, subscribers.* FROM subscribers
 
 -- name: query-subscribers-template
 -- raw: true
--- This raw query is reused in multiple queries (blacklist, add to list, delete)
+-- This raw query is reused in multiple queries (blocklist, add to list, delete)
 -- etc., so it's kept has a raw template to be injected into other raw queries,
 -- and for the same reason, it is not terminated with a semicolon.
 --
@@ -261,11 +261,11 @@ LIMIT (CASE WHEN $1 THEN 1 END)
 WITH subs AS (%s)
 DELETE FROM subscribers WHERE id=ANY(SELECT id FROM subs);
 
--- name: blacklist-subscribers-by-query
+-- name: blocklist-subscribers-by-query
 -- raw: true
 WITH subs AS (%s),
 b AS (
-    UPDATE subscribers SET status='blacklisted', updated_at=NOW()
+    UPDATE subscribers SET status='blocklisted', updated_at=NOW()
     WHERE id = ANY(SELECT id FROM subs)
 )
 UPDATE subscriber_lists SET status='unsubscribed', updated_at=NOW()
@@ -513,7 +513,7 @@ subs AS (
         campLists.list_id = subscriber_lists.list_id
     )
     INNER JOIN subscribers ON (
-        subscribers.status != 'blacklisted' AND
+        subscribers.status != 'blocklisted' AND
         subscribers.id = subscriber_lists.subscriber_id AND
 
         (CASE
@@ -702,7 +702,7 @@ SELECT JSON_BUILD_OBJECT('link_clicks', COALESCE((SELECT * FROM clicks), '[]'),
 -- name: get-dashboard-counts
 SELECT JSON_BUILD_OBJECT('subscribers', JSON_BUILD_OBJECT(
                             'total', (SELECT COUNT(*) FROM subscribers),
-                            'blacklisted', (SELECT COUNT(*) FROM subscribers WHERE status='blacklisted'),
+                            'blocklisted', (SELECT COUNT(*) FROM subscribers WHERE status='blocklisted'),
                             'orphans', (
                                 SELECT COUNT(id) FROM subscribers
                                 LEFT JOIN subscriber_lists ON (subscribers.id = subscriber_lists.subscriber_id)

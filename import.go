@@ -38,7 +38,7 @@ func handleImportSubscribers(c echo.Context) error {
 			fmt.Sprintf("Invalid `params` field: %v", err))
 	}
 
-	if r.Mode != subimporter.ModeSubscribe && r.Mode != subimporter.ModeBlacklist {
+	if r.Mode != subimporter.ModeSubscribe && r.Mode != subimporter.ModeBlocklist {
 		return echo.NewHTTPError(http.StatusBadRequest, "Invalid `mode`")
 	}
 

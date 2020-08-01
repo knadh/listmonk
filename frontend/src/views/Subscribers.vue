@@ -37,7 +37,7 @@
                 <b-input v-model="queryParams.queryExp"
                   @keydown.native.enter="onAdvancedQueryEnter"
                   type="textarea" ref="queryExp"
-                  placeholder="subscribers.name LIKE '%user%' or subscribers.status='blacklisted'">
+                  placeholder="subscribers.name LIKE '%user%' or subscribers.status='blocklisted'">
                 </b-input>
               </b-field>
               <b-field>
@@ -80,8 +80,8 @@
               <b-icon icon="trash-can-outline" size="is-small" /> Delete
             </a>
 
-            <a href='' @click.prevent="blacklistSubscribers">
-              <b-icon icon="account-off-outline" size="is-small" /> Blacklist
+            <a href='' @click.prevent="blocklistSubscribers">
+              <b-icon icon="account-off-outline" size="is-small" /> Blocklist
             </a>
           </p><!-- selection actions //-->
         </div>
@@ -324,19 +324,19 @@ export default Vue.extend({
       );
     },
 
-    blacklistSubscribers() {
+    blocklistSubscribers() {
       let fn = null;
       if (!this.bulk.all && this.bulk.checked.length > 0) {
-        // If 'all' is not selected, blacklist subscribers by IDs.
+        // If 'all' is not selected, blocklist subscribers by IDs.
         fn = () => {
           const ids = this.bulk.checked.map((s) => s.id);
-          this.$api.blacklistSubscribers({ ids })
+          this.$api.blocklistSubscribers({ ids })
             .then(() => this.querySubscribers());
         };
       } else {
-        // 'All' is selected, blacklist by query.
+        // 'All' is selected, blocklist by query.
         fn = () => {
-          this.$api.blacklistSubscribersByQuery({
+          this.$api.blocklistSubscribersByQuery({
             query: this.queryParams.queryExp,
             list_ids: [],
           }).then(() => this.querySubscribers());
@@ -344,7 +344,7 @@ export default Vue.extend({
       }
 
       this.$utils.confirm(
-        `Blacklist ${this.numSelectedSubscribers} subscriber(s)?`,
+        `Blocklist ${this.numSelectedSubscribers} subscriber(s)?`,
         fn,
       );
     },

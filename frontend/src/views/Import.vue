@@ -14,7 +14,7 @@
                   <b-radio v-model="form.mode" name="mode"
                     native-value="subscribe">Subscribe</b-radio>
                   <b-radio v-model="form.mode" name="mode"
-                    native-value="blacklist">Blacklist</b-radio>
+                    native-value="blocklist">Blocklist</b-radio>
                 </div>
               </b-field>
             </div>

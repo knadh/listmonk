@@ -21,7 +21,7 @@ const (
 	// Subscriber.
 	SubscriberStatusEnabled     = "enabled"
 	SubscriberStatusDisabled    = "disabled"
-	SubscriberStatusBlackListed = "blacklisted"
+	SubscriberStatusBlockListed = "blocklisted"
 
 	// Subscription.
 	SubscriptionStatusUnconfirmed  = "unconfirmed"

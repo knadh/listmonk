@@ -52,7 +52,7 @@ func NewEmailer(servers ...Server) (*Emailer, error) {
 			auth = smtp.PlainAuth("", s.Username, s.Password, s.Host)
 		case "login":
 			auth = &smtppool.LoginAuth{Username: s.Username, Password: s.Password}
-		case "":
+		case "", "none":
 		default:
 			return nil, fmt.Errorf("unknown SMTP auth type '%s'", s.AuthProtocol)
 		}

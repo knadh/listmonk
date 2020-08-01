@@ -44,7 +44,7 @@ const (
 	StatusFailed    = "failed"
 
 	ModeSubscribe = "subscribe"
-	ModeBlacklist = "blacklist"
+	ModeBlocklist = "blocklist"
 )
 
 // Importer represents the bulk CSV subscriber import system.
@@ -60,7 +60,7 @@ type Importer struct {
 // Options represents inport options.
 type Options struct {
 	UpsertStmt         *sql.Stmt
-	BlacklistStmt      *sql.Stmt
+	BlocklistStmt      *sql.Stmt
 	UpdateListDateStmt *sql.Stmt
 	NotifCB            models.AdminNotifCallback
 }
@@ -255,7 +255,7 @@ func (s *Session) Start() {
 			if s.mode == ModeSubscribe {
 				stmt = tx.Stmt(s.im.opt.UpsertStmt)
 			} else {
-				stmt = tx.Stmt(s.im.opt.BlacklistStmt)
+				stmt = tx.Stmt(s.im.opt.BlocklistStmt)
 			}
 		}
 
@@ -268,7 +268,7 @@ func (s *Session) Start() {
 
 		if s.mode == ModeSubscribe {
 			_, err = stmt.Exec(uu, sub.Email, sub.Name, sub.Attribs, listIDs, s.overwrite)
-		} else if s.mode == ModeBlacklist {
+		} else if s.mode == ModeBlocklist {
 			_, err = stmt.Exec(uu, sub.Email, sub.Name, sub.Attribs)
 		}
 		if err != nil {

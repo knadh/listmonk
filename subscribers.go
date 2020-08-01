@@ -248,9 +248,9 @@ func handleSubscriberSendOptin(c echo.Context) error {
 	return c.JSON(http.StatusOK, okResp{true})
 }
 
-// handleBlacklistSubscribers handles the blacklisting of one or more subscribers.
+// handleBlocklistSubscribers handles the blocklisting of one or more subscribers.
 // It takes either an ID in the URI, or a list of IDs in the request body.
-func handleBlacklistSubscribers(c echo.Context) error {
+func handleBlocklistSubscribers(c echo.Context) error {
 	var (
 		app = c.Get("app").(*App)
 		pID = c.Param("id")
@@ -278,10 +278,10 @@ func handleBlacklistSubscribers(c echo.Context) error {
 		IDs = req.SubscriberIDs
 	}
 
-	if _, err := app.queries.BlacklistSubscribers.Exec(IDs); err != nil {
-		app.log.Printf("error blacklisting subscribers: %v", err)
+	if _, err := app.queries.BlocklistSubscribers.Exec(IDs); err != nil {
+		app.log.Printf("error blocklisting subscribers: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
-			fmt.Sprintf("Error blacklisting: %v", err))
+			fmt.Sprintf("Error blocklisting: %v", err))
 	}
 
 	return c.JSON(http.StatusOK, okResp{true})
@@ -407,9 +407,9 @@ func handleDeleteSubscribersByQuery(c echo.Context) error {
 	return c.JSON(http.StatusOK, okResp{true})
 }
 
-// handleBlacklistSubscribersByQuery bulk blacklists subscribers
+// handleBlocklistSubscribersByQuery bulk blocklists subscribers
 // based on an arbitrary SQL expression.
-func handleBlacklistSubscribersByQuery(c echo.Context) error {
+func handleBlocklistSubscribersByQuery(c echo.Context) error {
 	var (
 		app = c.Get("app").(*App)
 		req subQueryReq
@@ -420,10 +420,10 @@ func handleBlacklistSubscribersByQuery(c echo.Context) error {
 	}
 
 	err := app.queries.execSubscriberQueryTpl(sanitizeSQLExp(req.Query),
-		app.queries.BlacklistSubscribersByQuery,
+		app.queries.BlocklistSubscribersByQuery,
 		req.ListIDs, app.db)
 	if err != nil {
-		app.log.Printf("error blacklisting subscribers: %v", err)
+		app.log.Printf("error blocklisting subscribers: %v", err)
 		return echo.NewHTTPError(http.StatusBadRequest,
 			fmt.Sprintf("Error: %v", err))
 	}
@@ -431,7 +431,7 @@ func handleBlacklistSubscribersByQuery(c echo.Context) error {
 	return c.JSON(http.StatusOK, okResp{true})
 }
 
-// handleBlacklistSubscribersByQuery bulk adds/removes/unsubscribers subscribers
+// handleManageSubscriberListsByQuery bulk adds/removes/unsubscribers subscribers
 // from one or more lists based on an arbitrary SQL expression.
 func handleManageSubscriberListsByQuery(c echo.Context) error {
 	var (
