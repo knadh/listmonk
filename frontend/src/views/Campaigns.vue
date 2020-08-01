@@ -15,10 +15,8 @@
     <form @submit.prevent="getCampaigns">
       <b-field grouped>
           <b-input v-model="queryParams.query"
-            placeholder="Name or subject" icon="magnify" ref="query"
-            :disabled="isSearchAdvanced"></b-input>
-          <b-button native-type="submit" type="is-primary" icon-left="magnify"
-            :disabled="isSearchAdvanced"></b-button>
+            placeholder="Name or subject" icon="magnify" ref="query"></b-input>
+          <b-button native-type="submit" type="is-primary" icon-left="magnify"></b-button>
       </b-field>
     </form>
 

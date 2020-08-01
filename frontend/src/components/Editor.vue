@@ -22,6 +22,7 @@
 
     <!-- wsywig //-->
     <quill-editor
+      :class="{'fullscreen': isEditorFullscreen}"
       v-if="form.format === 'richtext'"
       v-model="form.body"
       ref="quill"
@@ -84,6 +85,7 @@ export default {
     return {
       isPreviewing: false,
       isMediaVisible: false,
+      isEditorFullscreen: false,
       form: {
         body: '',
         format: this.contentType,
@@ -104,6 +106,16 @@ export default {
       options: {
         placeholder: 'Content here',
         modules: {
+          keyboard: {
+            bindings: {
+              esc: {
+                key: 27,
+                handler: () => {
+                  this.toggleFullscreen(true);
+                },
+              },
+            },
+          },
           toolbar: {
             container: [
               [{ header: [1, 2, 3, false] }],
@@ -122,11 +134,12 @@ export default {
                 { align: 'justify' },
               ],
               ['link', 'image'],
-              ['clean', 'font'],
+              ['clean', 'fullscreen'],
             ],
 
             handlers: {
               image: this.toggleMedia,
+              fullscreen: () => this.toggleFullscreen(false),
             },
           },
         },
@@ -196,6 +209,15 @@ export default {
     toggleMedia() {
       this.lastSel = this.$refs.quill.quill.getSelection();
       this.isMediaVisible = !this.isMediaVisible;
+    },
+
+    toggleFullscreen(onlyMinimize) {
+      if (onlyMinimize) {
+        if (!this.isEditorFullscreen) {
+          return;
+        }
+      }
+      this.isEditorFullscreen = !this.isEditorFullscreen;
     },
 
     onMediaSelect(m) {
