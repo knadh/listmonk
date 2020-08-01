@@ -26,7 +26,7 @@ func handleGetLists(c echo.Context) error {
 		app = c.Get("app").(*App)
 		out listsWrap
 
-		pg        = getPagination(c.QueryParams())
+		pg        = getPagination(c.QueryParams(), 20, 50)
 		listID, _ = strconv.Atoi(c.Param("id"))
 		single    = false
 	)

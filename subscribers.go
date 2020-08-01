@@ -83,7 +83,7 @@ func handleGetSubscriber(c echo.Context) error {
 func handleQuerySubscribers(c echo.Context) error {
 	var (
 		app = c.Get("app").(*App)
-		pg  = getPagination(c.QueryParams())
+		pg  = getPagination(c.QueryParams(), 30, 100)
 
 		// Limit the subscribers to a particular list?
 		listID, _ = strconv.Atoi(c.FormValue("list_id"))

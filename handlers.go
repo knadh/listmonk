@@ -12,12 +12,6 @@ import (
 const (
 	// stdInputMaxLen is the maximum allowed length for a standard input field.
 	stdInputMaxLen = 200
-
-	// defaultPerPage is the default number of results returned in an GET call.
-	defaultPerPage = 20
-
-	// maxPerPage is the maximum number of allowed for paginated records.
-	maxPerPage = 100
 )
 
 type okResp struct {
@@ -191,12 +185,8 @@ func subscriberExists(next echo.HandlerFunc, params ...string) echo.HandlerFunc 
 }
 
 // getPagination takes form values and extracts pagination values from it.
-func getPagination(q url.Values) pagination {
-	var (
-		page, _ = strconv.Atoi(q.Get("page"))
-		perPage = defaultPerPage
-	)
-
+func getPagination(q url.Values, perPage, maxPerPage int) pagination {
+	page, _ := strconv.Atoi(q.Get("page"))
 	pp := q.Get("per_page")
 	if pp == "all" {
 		// No limit.
