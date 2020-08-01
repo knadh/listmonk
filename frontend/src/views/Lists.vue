@@ -2,7 +2,9 @@
   <section class="lists">
     <header class="columns">
       <div class="column is-two-thirds">
-        <h1 class="title is-4">Lists <span v-if="lists.total > 0">({{ lists.total }})</span></h1>
+        <h1 class="title is-4">Lists
+          <span v-if="!isNaN(lists.total)">({{ lists.total }})</span>
+        </h1>
       </div>
       <div class="column has-text-right">
         <b-button type="is-primary" icon-left="plus" @click="showNewForm">New</b-button>

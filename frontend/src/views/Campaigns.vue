@@ -3,7 +3,7 @@
     <header class="columns">
       <div class="column is-two-thirds">
         <h1 class="title is-4">Campaigns
-          <span v-if="campaigns.total > 0">({{ campaigns.total }})</span>
+          <span v-if="!isNaN(campaigns.total)">({{ campaigns.total }})</span>
         </h1>
       </div>
       <div class="column has-text-right">
@@ -11,6 +11,16 @@
           type="is-primary" icon-left="plus">New</b-button>
       </div>
     </header>
+
+    <form @submit.prevent="getCampaigns">
+      <b-field grouped>
+          <b-input v-model="queryParams.query"
+            placeholder="Name or subject" icon="magnify" ref="query"
+            :disabled="isSearchAdvanced"></b-input>
+          <b-button native-type="submit" type="is-primary" icon-left="magnify"
+            :disabled="isSearchAdvanced"></b-button>
+      </b-field>
+    </form>
 
     <b-table
       :data="campaigns.results"
@@ -207,6 +217,7 @@ export default Vue.extend({
       previewItem: null,
       queryParams: {
         page: 1,
+        query: '',
       },
       pollID: null,
       campaignStatsData: {},
@@ -271,6 +282,7 @@ export default Vue.extend({
     getCampaigns() {
       this.$api.getCampaigns({
         page: this.queryParams.page,
+        query: this.queryParams.query,
       });
     },
 

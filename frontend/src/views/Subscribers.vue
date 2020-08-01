@@ -3,8 +3,7 @@
     <header class="columns">
       <div class="column is-half">
         <h1 class="title is-4">Subscribers
-          <span v-if="subscribers.total > 0">({{ subscribers.total }})</span>
-
+          <span v-if="!isNaN(subscribers.total)">({{ subscribers.total }})</span>
           <span v-if="currentList">
             &raquo; {{ currentList.name }}
           </span>
@@ -21,9 +20,9 @@
           <div>
             <b-field grouped>
               <b-input @input="onSimpleQueryInput" v-model="queryInput"
-                placeholder="E-mail or name" icon="account-search-outline" ref="query"
+                placeholder="E-mail or name" icon="magnify" ref="query"
                 :disabled="isSearchAdvanced"></b-input>
-              <b-button native-type="submit" type="is-primary" icon-left="account-search-outline"
+              <b-button native-type="submit" type="is-primary" icon-left="magnify"
                 :disabled="isSearchAdvanced"></b-button>
             </b-field>
 
@@ -51,7 +50,7 @@
 
               <div class="buttons">
                 <b-button native-type="submit" type="is-primary"
-                  icon-left="account-search-outline">Query</b-button>
+                  icon-left="magnify">Query</b-button>
                 <b-button @click.prevent="toggleAdvancedSearch" icon-left="cancel">Reset</b-button>
               </div>
             </div><!-- advanced query -->

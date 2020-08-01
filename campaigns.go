@@ -84,7 +84,8 @@ func handleGetCampaigns(c echo.Context) error {
 		single = true
 	}
 	if query != "" {
-		query = string(regexFullTextQuery.ReplaceAll([]byte(query), []byte("&")))
+		query = `%` +
+			string(regexFullTextQuery.ReplaceAll([]byte(query), []byte("&"))) + `%`
 	}
 
 	err := app.queries.QueryCampaigns.Select(&out.Results, id, pq.StringArray(status), query, pg.Offset, pg.Limit)

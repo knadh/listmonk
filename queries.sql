@@ -380,7 +380,7 @@ SELECT COUNT(*) OVER () AS total, campaigns.*, (
 FROM campaigns
 WHERE ($1 = 0 OR id = $1)
     AND status=ANY(CASE WHEN ARRAY_LENGTH($2::campaign_status[], 1) != 0 THEN $2::campaign_status[] ELSE ARRAY[status] END)
-    AND ($3 = '' OR (to_tsvector(name || subject) @@ to_tsquery($3)))
+    AND ($3 = '' OR CONCAT(name, subject) ILIKE $3)
 ORDER BY campaigns.updated_at DESC OFFSET $4 LIMIT $5;
 
 -- name: get-campaign
