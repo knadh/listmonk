@@ -163,7 +163,7 @@
                   @click.prevent="$utils.confirm(null,
                     () => changeCampaignStatus(props.row, 'cancelled'))">
                   <b-tooltip label="Cancel" type="is-dark">
-                    <b-icon icon="trash-can-outline" size="is-small" />
+                    <b-icon icon="cancel" size="is-small" />
                   </b-tooltip>
                 </a>
                 <a href="" v-if="canDelete(props.row)"
