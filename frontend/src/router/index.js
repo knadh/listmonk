@@ -94,7 +94,7 @@ const router = new VueRouter({
 
 router.afterEach((to) => {
   Vue.nextTick(() => {
-    document.title = to.meta.title;
+    document.title = `${to.meta.title} / listmonk`;
   });
 });
 
