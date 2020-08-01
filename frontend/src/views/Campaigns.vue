@@ -153,7 +153,7 @@
                   </b-tooltip>
                 </a>
                 <a href="" @click.prevent="$utils.prompt(`Clone campaign`,
-                        { placeholder: 'Campaign name', value: `Copy of ${props.row.name}`},
+                        { placeholder: 'Name', value: `Copy of ${props.row.name}`},
                         (name) => cloneCampaign(name, props.row))">
                   <b-tooltip label="Clone" type="is-dark">
                     <b-icon icon="file-multiple-outline" size="is-small" />

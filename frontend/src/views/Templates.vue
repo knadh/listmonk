@@ -40,7 +40,14 @@
                     <b-icon icon="pencil-outline" size="is-small" />
                   </b-tooltip>
                 </a>
-               <a v-if="!props.row.isDefault" href="#"
+                <a href="" @click.prevent="$utils.prompt(`Clone template`,
+                        { placeholder: 'Name', value: `Copy of ${props.row.name}`},
+                        (name) => cloneTemplate(name, props.row))">
+                  <b-tooltip label="Clone" type="is-dark">
+                    <b-icon icon="file-multiple-outline" size="is-small" />
+                  </b-tooltip>
+                </a>
+                <a v-if="!props.row.isDefault" href="#"
                   @click.prevent="$utils.confirm(null, () => makeTemplateDefault(props.row))">
                   <b-tooltip label="Make default" type="is-dark">
                     <b-icon icon="check-circle-outline" size="is-small" />
@@ -124,6 +131,19 @@ export default Vue.extend({
 
     closePreview() {
       this.previewItem = null;
+    },
+
+    cloneTemplate(name, t) {
+      const data = { name, body: t.body };
+      this.$api.createTemplate(data).then((d) => {
+        this.$api.getTemplates();
+        this.$emit('finished');
+        this.$buefy.toast.open({
+          message: `'${d.name}' created`,
+          type: 'is-success',
+          queue: false,
+        });
+      });
     },
 
     makeTemplateDefault(tpl) {
