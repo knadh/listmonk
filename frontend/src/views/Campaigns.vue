@@ -50,7 +50,7 @@
                 </p>
                 <p class="is-size-7 has-text-grey">{{ props.row.subject }}</p>
                 <b-taglist>
-                    <b-tag v-for="t in props.row.tags" :key="t">{{ t }}</b-tag>
+                    <b-tag class="is-small" v-for="t in props.row.tags" :key="t">{{ t }}</b-tag>
                 </b-taglist>
               </div>
             </b-table-column>

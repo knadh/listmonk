@@ -15,10 +15,15 @@
       hoverable
       default-sort="createdAt">
         <template slot-scope="props">
-            <b-table-column field="name" label="Name" sortable>
-              <router-link :to="{name: 'subscribers_list', params: { listID: props.row.id }}">
-                {{ props.row.name }}
-              </router-link>
+            <b-table-column field="name" label="Name" sortable width="25%">
+              <div>
+                <router-link :to="{name: 'subscribers_list', params: { listID: props.row.id }}">
+                  {{ props.row.name }}
+                </router-link>
+                <b-taglist>
+                    <b-tag class="is-small" v-for="t in props.row.tags" :key="t">{{ t }}</b-tag>
+                </b-taglist>
+              </div>
             </b-table-column>
 
             <b-table-column field="type" label="Type" sortable>

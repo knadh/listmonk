@@ -35,6 +35,11 @@
             <option value="double">Double</option>
           </b-select>
         </b-field>
+
+        <b-field label="Tags" label-position="on-border">
+          <b-taginput v-model="form.tags" ellipsis
+            icon="tag-outline" placeholder="Tags"></b-taginput>
+        </b-field>
       </section>
       <footer class="modal-card-foot has-text-right">
         <b-button @click="$parent.close()">Close</b-button>
@@ -64,6 +69,7 @@ export default Vue.extend({
         name: '',
         type: '',
         optin: '',
+        tags: '',
       },
     };
   },

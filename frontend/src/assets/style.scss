@@ -258,6 +258,14 @@ section {
 .tag {
   min-width: 75px;
 
+  &.is-small {
+    font-size: 0.65rem;
+    background: $white-ter;
+    border: 1px solid $white-ter;
+    padding: 3px 5px;
+    min-width: auto !important;
+  }
+
   &:not(body) {
     $color: $grey-lighter;
     border: 1px solid $color;
