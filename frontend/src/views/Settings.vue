@@ -354,6 +354,22 @@
                         </b-field>
                       </div>
                     </div>
+                    <hr />
+
+                    <div>
+                      <p v-if="item.email_headers.length === 0 && !item.showHeaders">
+                        <a href="#" class="is-size-7" @click.prevent="() => showSMTPHeaders(n)">
+                          <b-icon icon="plus" />Set custom headers</a>
+                      </p>
+                      <b-field v-if="item.email_headers.length > 0 || item.showHeaders"
+                        label="Custom headers" label-position="on-border"
+                        message='Optional array of e-mail headers to include in all messages
+                          sent from this server.
+                          eg: [{"X-Custom": "value"}, {"X-Custom2": "value"}]'>
+                        <b-input v-model="item.strEmailHeaders" name="email_headers" type="textarea"
+                          placeholder='[{"X-Custom": "value"}, {"X-Custom2": "value"}]' />
+                      </b-field>
+                    </div>
                   </div>
                 </div><!-- second container column -->
               </div><!-- block -->
@@ -396,7 +412,24 @@ export default Vue.extend({
       this.form.smtp.splice(i, 1);
     },
 
+    showSMTPHeaders(i) {
+      const s = this.form.smtp[i];
+      s.showHeaders = true;
+      this.form.smtp.splice(i, 1, s);
+    },
+
     onSubmit() {
+      const form = { ...this.form };
+
+      // De-serialize custom e-mail headers.
+      for (let i = 0; i < form.smtp.length; i += 1) {
+        if (form.smtp[i].strEmailHeaders && form.smtp[i].strEmailHeaders !== '[]') {
+          form.smtp[i].email_headers = JSON.parse(form.smtp[i].strEmailHeaders);
+        } else {
+          form.smtp[i].email_headers = [];
+        }
+      }
+
       this.isLoading = true;
       this.$api.updateSettings(this.form).then((data) => {
         if (data.needsRestart) {
@@ -425,8 +458,14 @@ export default Vue.extend({
 
     getSettings() {
       this.$api.getSettings().then((data) => {
-        this.form = data;
-        this.formCopy = JSON.stringify(data);
+        const d = data;
+        // Serialize the `email_headers` array map to display on the form.
+        for (let i = 0; i < d.smtp.length; i += 1) {
+          d.smtp[i].strEmailHeaders = JSON.stringify(d.smtp[i].email_headers, null, 4);
+        }
+
+        this.form = d;
+        this.formCopy = JSON.stringify(d);
         this.isLoading = false;
       });
     },
