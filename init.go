@@ -37,7 +37,7 @@ const (
 
 // constants contains static, constant config values required by the app.
 type constants struct {
-	RootURL      string   `koanf:"root"`
+	RootURL      string   `koanf:"root_url"`
 	LogoURL      string   `koanf:"logo_url"`
 	FaviconURL   string   `koanf:"favicon_url"`
 	FromEmail    string   `koanf:"from_email"`
@@ -347,7 +347,7 @@ func initMediaStore() media.Store {
 		var o filesystem.Opts
 
 		ko.Unmarshal("upload.filesystem", &o)
-		o.RootURL = ko.String("app.root")
+		o.RootURL = ko.String("app.root_url")
 		o.UploadPath = filepath.Clean(o.UploadPath)
 		o.UploadURI = filepath.Clean(o.UploadURI)
 		up, err := filesystem.NewDiskStore(o)

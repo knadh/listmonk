@@ -18,6 +18,12 @@
         <b-tabs type="is-boxed" :animated="false">
           <b-tab-item label="General" label-position="on-border">
             <div class="items">
+              <b-field label="Root URL" label-position="on-border"
+                message="Public URL of the installation (no trailing slash).">
+                <b-input v-model="form['app.root_url']" name="app.root_url"
+                    placeholder='https://listmonk.yoursite.com' :maxlength="300" />
+              </b-field>
+
               <b-field label="Logo URL" label-position="on-border"
                 message="(Optional) full URL to the static logo to be displayed on
                         user facing view such as the unsubscription page.">

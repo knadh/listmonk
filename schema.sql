@@ -165,6 +165,7 @@ CREATE TABLE settings (
 );
 DROP INDEX IF EXISTS idx_settings_key; CREATE INDEX idx_settings_key ON settings(key);
 INSERT INTO settings (key, value) VALUES
+    ('app.root_url', '"https://localhost:9000"'),
     ('app.favicon_url', '""'),
     ('app.from_email', '"listmonk <noreply@listmonk.yoursite.com>"'),
     ('app.logo_url', '"http://localhost:9000/public/static/logo.png"'),
