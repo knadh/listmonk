@@ -36,14 +36,13 @@
                   {{ ' ' }}
                   {{ props.row.optin }}
                 </b-tag>{{ ' ' }}
-                <router-link :to="{name: 'campaign', params: {id: 'new'},
-                  query: {type: 'optin', 'list_id': props.row.id}}"
-                  v-if="props.row.optin === 'double'" class="is-size-7 send-optin">
+                <a v-if="props.row.optin === 'double'" class="is-size-7 send-optin"
+                  href="#" @click="$utils.confirm(null, () => createOptinCampaign(props.row))">
                   <b-tooltip label="Send opt-in campaign" type="is-dark">
                     <b-icon icon="rocket-launch-outline" size="is-small" />
                     Send opt-in campaign
                   </b-tooltip>
-                </router-link>
+                </a>
               </div>
             </b-table-column>
 
@@ -149,10 +148,27 @@ export default Vue.extend({
         },
       );
     },
+
+    createOptinCampaign(list) {
+      const data = {
+        name: `Opt-in to ${list.name}`,
+        subject: `Confirm subscription(s) ${list.name}`,
+        lists: [list.id],
+        from_email: this.serverConfig.fromEmail,
+        content_type: 'richtext',
+        messenger: 'email',
+        type: 'optin',
+      };
+
+      this.$api.createCampaign(data).then((d) => {
+        this.$router.push({ name: 'campaign', hash: '#content', params: { id: d.id } });
+      });
+      return false;
+    },
   },
 
   computed: {
-    ...mapState(['lists', 'loading']),
+    ...mapState(['lists', 'serverConfig', 'loading']),
   },
 
   mounted() {

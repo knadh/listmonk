@@ -638,13 +638,9 @@ func makeOptinCampaignMessage(o campaignReq, app *App) (campaignReq, error) {
 	}
 
 	// Construct the opt-in URL with list IDs.
-	var (
-		listIDs   = url.Values{}
-		listNames = make([]string, 0, len(lists))
-	)
+	listIDs := url.Values{}
 	for _, l := range lists {
 		listIDs.Add("l", l.UUID)
-		listNames = append(listNames, l.Name)
 	}
 	// optinURLFunc := template.URL("{{ OptinURL }}?" + listIDs.Encode())
 	optinURLAttr := template.HTMLAttr(fmt.Sprintf(`href="{{ OptinURL }}%s"`, listIDs.Encode()))
@@ -660,8 +656,6 @@ func makeOptinCampaignMessage(o campaignReq, app *App) (campaignReq, error) {
 			"Error compiling opt-in campaign template.")
 	}
 
-	o.Name = "Opt-in campaign " + strings.Join(listNames, ", ")
-	o.Subject = "Confirm your subscription(s)"
 	o.Body = b.String()
 	return o, nil
 }

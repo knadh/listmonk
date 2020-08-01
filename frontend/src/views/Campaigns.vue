@@ -45,6 +45,9 @@
             <b-table-column field="name" label="Name" sortable width="25%">
               <div>
                 <p>
+                  <b-tag v-if="props.row.type !== 'regular'" class="is-small">
+                    {{ props.row.type }}
+                  </b-tag>
                   <router-link :to="{ name: 'campaign', params: { 'id': props.row.id }}">
                     {{ props.row.name }}</router-link>
                 </p>
