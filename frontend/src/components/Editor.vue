@@ -95,6 +95,11 @@ export default {
         radioFormat: this.contentType,
       },
 
+      // Last position of the cursor in the editor before the media popup
+      // was opened. This is used to insert media on selection from the poup
+      // where the caret may be lost.
+      lastSel: null,
+
       // Quill editor options.
       options: {
         placeholder: 'Content here',
@@ -189,15 +194,12 @@ export default {
     },
 
     toggleMedia() {
+      this.lastSel = this.$refs.quill.quill.getSelection();
       this.isMediaVisible = !this.isMediaVisible;
     },
 
     onMediaSelect(m) {
-      const sel = this.$refs.quill.quill.getSelection();
-      if (!sel) {
-        return;
-      }
-      this.$refs.quill.quill.insertEmbed(sel.index, 'image', m.url);
+      this.$refs.quill.quill.insertEmbed(this.lastSel.index || 0, 'image', m.url);
     },
   },
 
