@@ -20,7 +20,7 @@
         <form @submit.prevent="querySubscribers">
           <div>
             <b-field grouped>
-              <b-input @input="onSimpleQueryInput"
+              <b-input @input="onSimpleQueryInput" v-model="queryInput"
                 placeholder="E-mail or name" icon="account-search-outline" ref="query"
                 :disabled="isSearchAdvanced"></b-input>
               <b-button native-type="submit" type="is-primary" icon-left="account-search-outline"
@@ -52,7 +52,7 @@
               <div class="buttons">
                 <b-button native-type="submit" type="is-primary"
                   icon-left="account-search-outline">Query</b-button>
-                <b-button @click.prevent="toggleAdvancedSearch" icon-left="close">Reset</b-button>
+                <b-button @click.prevent="toggleAdvancedSearch" icon-left="cancel">Reset</b-button>
               </div>
             </div><!-- advanced query -->
           </div>
@@ -208,6 +208,8 @@ export default Vue.extend({
         all: false,
       },
 
+      queryInput: '',
+
       // Query params to filter the getSubscribers() API call.
       queryParams: {
         // Search query expression.
@@ -232,7 +234,12 @@ export default Vue.extend({
       // Toggling to simple search.
       if (!this.isSearchAdvanced) {
         this.$nextTick(() => {
+          this.queryInput = '';
+          this.queryParams.queryExp = '';
+          this.queryParams.page = 1;
           this.$refs.query.focus();
+
+          this.querySubscribers();
         });
         return;
       }

@@ -4,7 +4,7 @@
             <p>
                 <b-icon :icon="!icon ? 'plus' : icon" size="is-large" />
             </p>
-            <p>{{ !label ? 'Nothing here yet' : label  }}</p>
+            <p>{{ !label ? 'Nothing here' : label  }}</p>
         </div>
     </section>
 </template>
