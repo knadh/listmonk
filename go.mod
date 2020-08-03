@@ -20,6 +20,7 @@ require (
 	github.com/rhnvrm/simples3 v0.5.0
 	github.com/spf13/pflag v1.0.5
 	github.com/ssor/bom v0.0.0-20170718123548-6386211fdfcf // indirect
+	golang.org/x/mod v0.3.0
 	gopkg.in/check.v1 v1.0.0-20200227125254-8fa46927fb4f // indirect
 	gopkg.in/volatiletech/null.v6 v6.0.0-20170828023728-0bef4e07ae1b
 	jaytaylor.com/html2text v0.0.0-20200220170450-61d9dc4d7195

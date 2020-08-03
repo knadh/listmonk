@@ -17,29 +17,29 @@ import (
 
 // install runs the first time setup of creating and
 // migrating the database and creating the super user.
-func install(db *sqlx.DB, fs stuffbin.FileSystem, prompt bool) {
+func install(lastVer string, db *sqlx.DB, fs stuffbin.FileSystem, prompt bool) {
 	qMap, _ := initQueries(queryFilePath, db, fs, false)
 
 	fmt.Println("")
-	fmt.Println("** First time installation **")
+	fmt.Println("** first time installation **")
 	fmt.Printf("** IMPORTANT: This will wipe existing listmonk tables and types in the DB '%s' **",
 		ko.String("db.database"))
 	fmt.Println("")
 
 	if prompt {
 		var ok string
-		fmt.Print("Continue (y/n)?  ")
+		fmt.Print("continue (y/n)?  ")
 		if _, err := fmt.Scanf("%s", &ok); err != nil {
-			lo.Fatalf("Error reading value from terminal: %v", err)
+			lo.Fatalf("error reading value from terminal: %v", err)
 		}
 		if strings.ToLower(ok) != "y" {
-			fmt.Println("Installation cancelled.")
+			fmt.Println("install cancelled.")
 			return
 		}
 	}
 
 	// Migrate the tables.
-	err := installMigrate(db, fs)
+	err := installSchema(lastVer, db, fs)
 	if err != nil {
 		lo.Fatalf("Error migrating DB schema: %v", err)
 	}
@@ -133,19 +133,28 @@ func install(db *sqlx.DB, fs stuffbin.FileSystem, prompt bool) {
 	lo.Printf(`Run the program and access the dashboard at %s`, ko.MustString("app.address"))
 }
 
-// installMigrate executes the SQL schema and creates the necessary tables and types.
-func installMigrate(db *sqlx.DB, fs stuffbin.FileSystem) error {
+// installSchema executes the SQL schema and creates the necessary tables and types.
+func installSchema(curVer string, db *sqlx.DB, fs stuffbin.FileSystem) error {
 	q, err := fs.Read("/schema.sql")
 	if err != nil {
 		return err
 	}
 
-	_, err = db.Query(string(q))
-	if err != nil {
+	if _, err := db.Exec(string(q)); err != nil {
 		return err
 	}
 
-	return nil
+	// Insert the current migration version.
+	return recordMigrationVersion(curVer, db)
+}
+
+// recordMigrationVersion inserts the given version (of DB migration) into the
+// `migrations` array in the settings table.
+func recordMigrationVersion(ver string, db *sqlx.DB) error {
+	_, err := db.Exec(fmt.Sprintf(`INSERT INTO settings (key, value)
+	VALUES('migrations', '["%s"]'::JSONB)
+	ON CONFLICT (key) DO UPDATE SET value = settings.value || EXCLUDED.value`, ver))
+	return err
 }
 
 func newConfigFile() error {

@@ -128,7 +128,7 @@ DROP TABLE IF EXISTS media CASCADE;
 CREATE TABLE media (
     id               SERIAL PRIMARY KEY,
     uuid uuid        NOT NULL UNIQUE,
-    provider         TEXT NOT NULL,
+    provider         TEXT NOT NULL DEFAULT '',
     filename         TEXT NOT NULL,
     thumb            TEXT NOT NULL,
     created_at       TIMESTAMP WITH TIME ZONE DEFAULT NOW()

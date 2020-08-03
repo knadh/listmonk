@@ -70,6 +70,7 @@ func initFlags() {
 	f.StringSlice("config", []string{"config.toml"},
 		"path to one or more config files (will be merged in order)")
 	f.Bool("install", false, "run first time installation")
+	f.Bool("upgrade", false, "upgrade database to the current version")
 	f.Bool("version", false, "current version of the build")
 	f.Bool("new-config", false, "generate sample config file")
 	f.String("static-dir", "", "(optional) path to directory with static files")

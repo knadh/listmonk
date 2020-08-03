@@ -57,6 +57,7 @@ var (
 )
 
 func init() {
+	lo.Println(buildString)
 	initFlags()
 
 	// Display version.
@@ -85,9 +86,17 @@ func init() {
 	// Installer mode? This runs before the SQL queries are loaded and prepared
 	// as the installer needs to work on an empty DB.
 	if ko.Bool("install") {
-		install(db, fs, !ko.Bool("yes"))
-		return
+		// Save the version of the last listed migration.
+		install(migList[len(migList)-1].version, db, fs, !ko.Bool("yes"))
+		os.Exit(0)
 	}
+	if ko.Bool("upgrade") {
+		upgrade(db, fs, !ko.Bool("yes"))
+		os.Exit(0)
+	}
+
+	// Before the queries are prepared, see if there are pending upgrades.
+	checkUpgrade(db)
 
 	// Load the SQL queries from the filesystem.
 	_, queries := initQueries(queryFilePath, db, fs, true)
