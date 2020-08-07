@@ -60,11 +60,36 @@
 import 'quill/dist/quill.snow.css';
 import 'quill/dist/quill.core.css';
 
-import { quillEditor } from 'vue-quill-editor';
+import { quillEditor, Quill } from 'vue-quill-editor';
 import CodeFlask from 'codeflask';
 
 import CampaignPreview from './CampaignPreview.vue';
 import Media from '../views/Media.vue';
+
+// Setup Quill to use inline CSS style attributes instead of classes.
+Quill.register(Quill.import('attributors/attribute/direction'), true);
+Quill.register(Quill.import('attributors/style/align'), true);
+Quill.register(Quill.import('attributors/style/background'), true);
+Quill.register(Quill.import('attributors/style/color'), true);
+Quill.register(Quill.import('formats/indent'), true);
+
+const quillFontSizes = Quill.import('attributors/style/size');
+quillFontSizes.whitelist = ['11px', '13px', '22px', '32px'];
+Quill.register(quillFontSizes, true);
+
+// Custom class to override the default indent behaviour to get inline CSS
+// style instead of classes.
+class IndentAttributor extends Quill.import('parchment').Attributor.Style {
+  multiplier = 30;
+
+  add(node, value) {
+    return super.add(node, `${value * this.multiplier}px`);
+  }
+
+  value(node) {
+    return parseFloat(super.value(node)) / this.multiplier || undefined;
+  }
+}
 
 export default {
   components: {
@@ -120,7 +145,7 @@ export default {
             container: [
               [{ header: [1, 2, 3, false] }],
               ['bold', 'italic', 'underline', 'strike', 'blockquote', 'code'],
-              [{ color: [] }, { background: [] }, { size: [] }],
+              [{ color: [] }, { background: [] }, { size: quillFontSizes.whitelist }],
               [
                 { list: 'ordered' },
                 { list: 'bullet' },
@@ -182,7 +207,7 @@ export default {
       el.shadowRoot.innerHTML = `
         <style>
           .codeflask .codeflask__flatten { font-size: 15px; }
-          .codeflask .codeflask__lines { background: #fafafa; }
+          .codeflask .codeflask__lines { background: #fafafa; z-index: 10; }
         </style>
         <div id="area"></area>
       `;
@@ -190,7 +215,7 @@ export default {
 
       const flask = new CodeFlask(el.shadowRoot.getElementById('area'), {
         language: 'html',
-        lineNumbers: true,
+        lineNumbers: false,
         styleParent: el.shadowRoot,
         readonly: this.disabled,
       });
@@ -258,6 +283,15 @@ export default {
   },
 
   mounted() {
+    // Initialize the Quill indentation plugin.
+    const levels = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+    const multiplier = 30;
+    const indentStyle = new IndentAttributor('indent', 'margin-left', {
+      scope: Quill.import('parchment').Scope.BLOCK,
+      whitelist: levels.map((value) => `${value * multiplier}px`),
+    });
+
+    Quill.register(indentStyle);
   },
 };
 </script>

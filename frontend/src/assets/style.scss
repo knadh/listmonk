@@ -191,6 +191,24 @@ section {
     font-size: 1.2rem;
     line-height: 0.95rem;
   }
+  .ql-toolbar.ql-snow .ql-picker.ql-size {
+    .ql-picker-item[data-value="11px"]::before {
+      content: 'Small';
+      font-size: 11px !important;
+    }
+    .ql-picker-item[data-value="13px"]::before {
+      content: 'Normal';
+      font-size: 13px !important;
+    }
+    .ql-picker-item[data-value="22px"]::before {
+      content: 'Big';
+      font-size: 20px !important;
+    }
+    .ql-picker-item[data-value="32px"]::before {
+      content: 'Huge';
+      font-size: 32px !important;
+    }
+  }
 }
 
 /* Table colors and padding */
@@ -224,7 +242,7 @@ section {
 }
 
 
-/* Fix for button primary colour. */
+/* Fix for input colours */
 .button.is-primary {
   background: $primary;
   &:hover {
@@ -269,6 +287,11 @@ section {
 }
 .has-numberinput .field, .field.is-grouped {
   margin-bottom: 0;
+}
+
+/* Tabs */
+.b-tabs .tab-content {
+  padding-top: 2rem;
 }
 
 /* Tags */
@@ -560,9 +583,6 @@ section.campaign {
 .settings {
   .disabled {
     opacity: 0.30;
-  }
-  .tab-content {
-    padding-top: 30px;
   }
   .box {
     margin-bottom: 30px;
