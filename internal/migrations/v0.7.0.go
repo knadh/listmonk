@@ -66,6 +66,7 @@ func V0_7_0(db *sqlx.DB, fs stuffbin.FileSystem, ko *koanf.Koanf) error {
 	
 	-- Insert default settings if the table is empty.
 	INSERT INTO settings (key, value) SELECT k, v::JSONB FROM (VALUES
+		('app.root_url', '"http://localhost:9000"'),
 		('app.favicon_url', '""'),
 		('app.from_email', '"listmonk <noreply@listmonk.yoursite.com>"'),
 		('app.logo_url', '"http://localhost:9000/public/static/logo.png"'),

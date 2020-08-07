@@ -177,7 +177,8 @@
                         <b-input v-model="form['upload.s3.aws_access_key_id']"
                             name="upload.s3.aws_access_key_id" :maxlength="200" />
                       </b-field>
-                      <b-field label="AWS access secret" label-position="on-border" expanded>
+                      <b-field label="AWS access secret" label-position="on-border" expanded
+                        message="Enter a value to change.">
                         <b-input v-model="form['upload.s3.aws_secret_access_key']"
                             name="upload.s3.aws_secret_access_key" type="password"
                             :maxlength="200" />
@@ -281,7 +282,7 @@
                               name="username" placeholder="mysmtp" :maxlength="200" />
                           </b-field>
                           <b-field label="Password" label-position="on-border" expanded
-                            message="Enter a value to change. Otherwise, leave empty.">
+                            message="Enter a value to change.">
                             <b-input v-model="item.password"
                               :disabled="item.auth_protocol === 'none'"
                               name="password" type="password" placeholder="Enter to change"
@@ -389,6 +390,8 @@ import { mapState } from 'vuex';
 import store from '../store';
 import { models } from '../constants';
 
+const dummyPassword = ' '.repeat(8);
+
 export default Vue.extend({
   data() {
     return {
@@ -419,10 +422,15 @@ export default Vue.extend({
     },
 
     onSubmit() {
-      const form = { ...this.form };
+      const form = JSON.parse(JSON.stringify(this.form));
 
       // De-serialize custom e-mail headers.
       for (let i = 0; i < form.smtp.length; i += 1) {
+        // If it's the dummy UI password placeholder, ignore it.
+        if (form.smtp[i].password === dummyPassword) {
+          form.smtp[i].password = '';
+        }
+
         if (form.smtp[i].strEmailHeaders && form.smtp[i].strEmailHeaders !== '[]') {
           form.smtp[i].email_headers = JSON.parse(form.smtp[i].strEmailHeaders);
         } else {
@@ -430,8 +438,12 @@ export default Vue.extend({
         }
       }
 
+      if (form['upload.s3.aws_secret_access_key'] === dummyPassword) {
+        form['upload.s3.aws_secret_access_key'] = '';
+      }
+
       this.isLoading = true;
-      this.$api.updateSettings(this.form).then((data) => {
+      this.$api.updateSettings(form).then((data) => {
         if (data.needsRestart) {
           // Update the 'needsRestart' flag on the global serverConfig state
           // as there are running campaigns and the app couldn't auto-restart.
@@ -462,6 +474,14 @@ export default Vue.extend({
         // Serialize the `email_headers` array map to display on the form.
         for (let i = 0; i < d.smtp.length; i += 1) {
           d.smtp[i].strEmailHeaders = JSON.stringify(d.smtp[i].email_headers, null, 4);
+
+          // The backend doesn't send passwords, so add a dummy so that it
+          // the password looks filled on the UI.
+          d.smtp[i].password = dummyPassword;
+        }
+
+        if (d['upload.provider'] === 's3') {
+          d['upload.s3.aws_secret_access_key'] = dummyPassword;
         }
 
         this.form = d;

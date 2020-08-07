@@ -117,7 +117,7 @@ func handleUpdateSettings(c echo.Context) error {
 	}
 	if !has {
 		return echo.NewHTTPError(http.StatusBadRequest,
-			"At least one SMTP block should be enabled")
+			"Minimum one SMTP block should be enabled.")
 	}
 
 	// S3 password?

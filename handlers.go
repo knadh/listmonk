@@ -124,6 +124,7 @@ func registerHTTPHandlers(e *echo.Echo) {
 	e.GET("/campaigns/media", handleIndexPage)
 	e.GET("/campaigns/templates", handleIndexPage)
 	e.GET("/campaigns/:campignID", handleIndexPage)
+	e.GET("/settings", handleIndexPage)
 }
 
 // handleIndex is the root handler that renders the Javascript frontend.
