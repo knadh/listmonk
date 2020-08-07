@@ -79,6 +79,14 @@ func init() {
 	// Load config files to pick up the database settings first.
 	initConfigFiles(ko.Strings("config"), ko)
 
+	// Load environment variables and merge into the loaded config.
+	if err := ko.Load(env.Provider("LISTMONK_", ".", func(s string) string {
+		return strings.Replace(strings.ToLower(
+			strings.TrimPrefix(s, "LISTMONK_")), "__", ".", -1)
+	}), nil); err != nil {
+		lo.Fatalf("error loading config from env: %v", err)
+	}
+
 	// Connect to the database, load the filesystem to read SQL queries.
 	db = initDB()
 	fs = initFS(ko.String("static-dir"))
@@ -104,13 +112,6 @@ func init() {
 	// Load settings from DB.
 	initSettings(queries)
 
-	// Load environment variables and merge into the loaded config.
-	if err := ko.Load(env.Provider("LISTMONK_", ".", func(s string) string {
-		return strings.Replace(strings.ToLower(
-			strings.TrimPrefix(s, "LISTMONK_")), "__", ".", -1)
-	}), nil); err != nil {
-		lo.Fatalf("error loading config from env: %v", err)
-	}
 }
 
 func main() {
