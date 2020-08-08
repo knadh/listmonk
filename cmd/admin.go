@@ -13,11 +13,12 @@ import (
 )
 
 type configScript struct {
-	RootURL       string   `json:"rootURL"`
-	FromEmail     string   `json:"fromEmail"`
-	Messengers    []string `json:"messengers"`
-	MediaProvider string   `json:"mediaProvider"`
-	NeedsRestart  bool     `json:"needsRestart"`
+	RootURL       string     `json:"rootURL"`
+	FromEmail     string     `json:"fromEmail"`
+	Messengers    []string   `json:"messengers"`
+	MediaProvider string     `json:"mediaProvider"`
+	NeedsRestart  bool       `json:"needsRestart"`
+	Update        *AppUpdate `json:"update"`
 }
 
 // handleGetConfigScript returns general configuration as a Javascript
@@ -35,6 +36,7 @@ func handleGetConfigScript(c echo.Context) error {
 
 	app.Lock()
 	out.NeedsRestart = app.needsRestart
+	out.Update = app.update
 	app.Unlock()
 
 	var (

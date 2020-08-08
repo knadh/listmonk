@@ -84,7 +84,7 @@
 
       <!-- body //-->
       <div class="main">
-        <div class="global-notices" v-if="serverConfig.needsRestart">
+        <div class="global-notices" v-if="serverConfig.needsRestart || serverConfig.update">
           <div v-if="serverConfig.needsRestart" class="notification is-danger">
             Settings have changed. Pause all running campaigns and restart the app
              &mdash;
@@ -93,6 +93,10 @@
                 'Ensure running campaigns are paused. Restart?', reloadApp)">
                 Restart
             </b-button>
+          </div>
+          <div v-if="serverConfig.update" class="notification is-success">
+            A new update ({{ serverConfig.update.version }}) is available.
+            <a :href="serverConfig.update.url" target="_blank">View</a>
           </div>
         </div>
 

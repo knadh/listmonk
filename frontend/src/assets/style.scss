@@ -158,11 +158,17 @@ section {
 }
 .notification {
   padding: 10px 15px;
+  border-left: 5px solid #eee;
+
   &.is-danger {
     background: $white-ter;
     color: $black;
-    border-left: 5px solid $red;
-    font-weight: bold;
+    border-left-color: $red;
+  }
+  &.is-success {
+    background: $white-ter;
+    color: $black;
+    border-left-color: $green;
   }
 }
 

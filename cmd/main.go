@@ -42,6 +42,9 @@ type App struct {
 	// Global variable that stores the state indicating that a restart is required
 	// after a settings update.
 	needsRestart bool
+
+	// Global state that stores data on an available remote update.
+	update *AppUpdate
 	sync.Mutex
 }
 
@@ -53,7 +56,8 @@ var (
 	db      *sqlx.DB
 	queries *Queries
 
-	buildString string
+	buildString   string
+	versionString string
 )
 
 func init() {
@@ -136,6 +140,9 @@ func main() {
 
 	// Start the app server.
 	srv := initHTTPServer(app)
+
+	// Star the update checker.
+	go checkUpdates(versionString, time.Hour*24, app)
 
 	// Wait for the reload signal with a callback to gracefully shut down resources.
 	// The `wait` channel is passed to awaitReload to wait for the callback to finish

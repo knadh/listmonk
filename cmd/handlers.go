@@ -34,7 +34,6 @@ var reUUID = regexp.MustCompile("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[
 func registerHTTPHandlers(e *echo.Echo) {
 	// Group of private handlers with BasicAuth.
 	g := e.Group("", middleware.BasicAuth(basicAuth))
-
 	g.GET("/", handleIndexPage)
 	g.GET("/api/health", handleHealthCheck)
 	g.GET("/api/config.js", handleGetConfigScript)
