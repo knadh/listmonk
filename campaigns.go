@@ -560,16 +560,12 @@ func sendTestMessage(sub models.Subscriber, camp *models.Campaign, app *App) err
 			fmt.Sprintf("Error rendering message: %v", err))
 	}
 
-	if err := app.messenger.Push(messenger.Message{
+	return app.messenger.Push(messenger.Message{
 		From:    camp.FromEmail,
 		To:      []string{sub.Email},
 		Subject: m.Subject(),
 		Body:    m.Body(),
-	}); err != nil {
-		return err
-	}
-
-	return nil
+	})
 }
 
 // validateCampaignFields validates incoming campaign field values.

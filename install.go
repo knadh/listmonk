@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"regexp"
 	"strings"
 
 	"github.com/gofrs/uuid"
@@ -168,6 +169,13 @@ func newConfigFile() error {
 	b, err := fs.Read("config.toml.sample")
 	if err != nil {
 		return fmt.Errorf("error reading sample config (is binary stuffed?): %v", err)
+	}
+
+	// Generate a random admin password.
+	pwd, err := generateRandomString(16)
+	if err == nil {
+		b = regexp.MustCompile(`admin_password\s+?=\s+?(.*)`).
+			ReplaceAll(b, []byte(fmt.Sprintf(`admin_password = "%s"`, pwd)))
 	}
 
 	return ioutil.WriteFile("config.toml", b, 0644)

@@ -1,12 +1,14 @@
 package main
 
 import (
+	"crypto/subtle"
 	"net/http"
 	"net/url"
 	"regexp"
 	"strconv"
 
 	"github.com/labstack/echo"
+	"github.com/labstack/echo/middleware"
 )
 
 const (
@@ -30,71 +32,87 @@ var reUUID = regexp.MustCompile("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[
 
 // registerHandlers registers HTTP handlers.
 func registerHTTPHandlers(e *echo.Echo) {
-	e.GET("/", handleIndexPage)
-	e.GET("/api/health", handleHealthCheck)
-	e.GET("/api/config.js", handleGetConfigScript)
-	e.GET("/api/dashboard/charts", handleGetDashboardCharts)
-	e.GET("/api/dashboard/counts", handleGetDashboardCounts)
+	// Group of private handlers with BasicAuth.
+	g := e.Group("", middleware.BasicAuth(basicAuth))
 
-	e.GET("/api/settings", handleGetSettings)
-	e.PUT("/api/settings", handleUpdateSettings)
-	e.POST("/api/admin/reload", handleReloadApp)
+	g.GET("/", handleIndexPage)
+	g.GET("/api/health", handleHealthCheck)
+	g.GET("/api/config.js", handleGetConfigScript)
+	g.GET("/api/dashboard/charts", handleGetDashboardCharts)
+	g.GET("/api/dashboard/counts", handleGetDashboardCounts)
 
-	e.GET("/api/subscribers/:id", handleGetSubscriber)
-	e.GET("/api/subscribers/:id/export", handleExportSubscriberData)
-	e.POST("/api/subscribers", handleCreateSubscriber)
-	e.PUT("/api/subscribers/:id", handleUpdateSubscriber)
-	e.POST("/api/subscribers/:id/optin", handleSubscriberSendOptin)
-	e.PUT("/api/subscribers/blocklist", handleBlocklistSubscribers)
-	e.PUT("/api/subscribers/:id/blocklist", handleBlocklistSubscribers)
-	e.PUT("/api/subscribers/lists/:id", handleManageSubscriberLists)
-	e.PUT("/api/subscribers/lists", handleManageSubscriberLists)
-	e.DELETE("/api/subscribers/:id", handleDeleteSubscribers)
-	e.DELETE("/api/subscribers", handleDeleteSubscribers)
+	g.GET("/api/settings", handleGetSettings)
+	g.PUT("/api/settings", handleUpdateSettings)
+	g.POST("/api/admin/reload", handleReloadApp)
+
+	g.GET("/api/subscribers/:id", handleGetSubscriber)
+	g.GET("/api/subscribers/:id/export", handleExportSubscriberData)
+	g.POST("/api/subscribers", handleCreateSubscriber)
+	g.PUT("/api/subscribers/:id", handleUpdateSubscriber)
+	g.POST("/api/subscribers/:id/optin", handleSubscriberSendOptin)
+	g.PUT("/api/subscribers/blocklist", handleBlocklistSubscribers)
+	g.PUT("/api/subscribers/:id/blocklist", handleBlocklistSubscribers)
+	g.PUT("/api/subscribers/lists/:id", handleManageSubscriberLists)
+	g.PUT("/api/subscribers/lists", handleManageSubscriberLists)
+	g.DELETE("/api/subscribers/:id", handleDeleteSubscribers)
+	g.DELETE("/api/subscribers", handleDeleteSubscribers)
 
 	// Subscriber operations based on arbitrary SQL queries.
 	// These aren't very REST-like.
-	e.POST("/api/subscribers/query/delete", handleDeleteSubscribersByQuery)
-	e.PUT("/api/subscribers/query/blocklist", handleBlocklistSubscribersByQuery)
-	e.PUT("/api/subscribers/query/lists", handleManageSubscriberListsByQuery)
-	e.GET("/api/subscribers", handleQuerySubscribers)
+	g.POST("/api/subscribers/query/delete", handleDeleteSubscribersByQuery)
+	g.PUT("/api/subscribers/query/blocklist", handleBlocklistSubscribersByQuery)
+	g.PUT("/api/subscribers/query/lists", handleManageSubscriberListsByQuery)
+	g.GET("/api/subscribers", handleQuerySubscribers)
 
-	e.GET("/api/import/subscribers", handleGetImportSubscribers)
-	e.GET("/api/import/subscribers/logs", handleGetImportSubscriberStats)
-	e.POST("/api/import/subscribers", handleImportSubscribers)
-	e.DELETE("/api/import/subscribers", handleStopImportSubscribers)
+	g.GET("/api/import/subscribers", handleGetImportSubscribers)
+	g.GET("/api/import/subscribers/logs", handleGetImportSubscriberStats)
+	g.POST("/api/import/subscribers", handleImportSubscribers)
+	g.DELETE("/api/import/subscribers", handleStopImportSubscribers)
 
-	e.GET("/api/lists", handleGetLists)
-	e.GET("/api/lists/:id", handleGetLists)
-	e.POST("/api/lists", handleCreateList)
-	e.PUT("/api/lists/:id", handleUpdateList)
-	e.DELETE("/api/lists/:id", handleDeleteLists)
+	g.GET("/api/lists", handleGetLists)
+	g.GET("/api/lists/:id", handleGetLists)
+	g.POST("/api/lists", handleCreateList)
+	g.PUT("/api/lists/:id", handleUpdateList)
+	g.DELETE("/api/lists/:id", handleDeleteLists)
 
-	e.GET("/api/campaigns", handleGetCampaigns)
-	e.GET("/api/campaigns/running/stats", handleGetRunningCampaignStats)
-	e.GET("/api/campaigns/:id", handleGetCampaigns)
-	e.GET("/api/campaigns/:id/preview", handlePreviewCampaign)
-	e.POST("/api/campaigns/:id/preview", handlePreviewCampaign)
-	e.POST("/api/campaigns/:id/test", handleTestCampaign)
-	e.POST("/api/campaigns", handleCreateCampaign)
-	e.PUT("/api/campaigns/:id", handleUpdateCampaign)
-	e.PUT("/api/campaigns/:id/status", handleUpdateCampaignStatus)
-	e.DELETE("/api/campaigns/:id", handleDeleteCampaign)
+	g.GET("/api/campaigns", handleGetCampaigns)
+	g.GET("/api/campaigns/running/stats", handleGetRunningCampaignStats)
+	g.GET("/api/campaigns/:id", handleGetCampaigns)
+	g.GET("/api/campaigns/:id/preview", handlePreviewCampaign)
+	g.POST("/api/campaigns/:id/preview", handlePreviewCampaign)
+	g.POST("/api/campaigns/:id/test", handleTestCampaign)
+	g.POST("/api/campaigns", handleCreateCampaign)
+	g.PUT("/api/campaigns/:id", handleUpdateCampaign)
+	g.PUT("/api/campaigns/:id/status", handleUpdateCampaignStatus)
+	g.DELETE("/api/campaigns/:id", handleDeleteCampaign)
 
-	e.GET("/api/media", handleGetMedia)
-	e.POST("/api/media", handleUploadMedia)
-	e.DELETE("/api/media/:id", handleDeleteMedia)
+	g.GET("/api/media", handleGetMedia)
+	g.POST("/api/media", handleUploadMedia)
+	g.DELETE("/api/media/:id", handleDeleteMedia)
 
-	e.GET("/api/templates", handleGetTemplates)
-	e.GET("/api/templates/:id", handleGetTemplates)
-	e.GET("/api/templates/:id/preview", handlePreviewTemplate)
-	e.POST("/api/templates/preview", handlePreviewTemplate)
-	e.POST("/api/templates", handleCreateTemplate)
-	e.PUT("/api/templates/:id", handleUpdateTemplate)
-	e.PUT("/api/templates/:id/default", handleTemplateSetDefault)
-	e.DELETE("/api/templates/:id", handleDeleteTemplate)
+	g.GET("/api/templates", handleGetTemplates)
+	g.GET("/api/templates/:id", handleGetTemplates)
+	g.GET("/api/templates/:id/preview", handlePreviewTemplate)
+	g.POST("/api/templates/preview", handlePreviewTemplate)
+	g.POST("/api/templates", handleCreateTemplate)
+	g.PUT("/api/templates/:id", handleUpdateTemplate)
+	g.PUT("/api/templates/:id/default", handleTemplateSetDefault)
+	g.DELETE("/api/templates/:id", handleDeleteTemplate)
 
-	// Subscriber facing views.
+	// Static admin views.
+	g.GET("/lists", handleIndexPage)
+	g.GET("/lists/forms", handleIndexPage)
+	g.GET("/subscribers", handleIndexPage)
+	g.GET("/subscribers/lists/:listID", handleIndexPage)
+	g.GET("/subscribers/import", handleIndexPage)
+	g.GET("/campaigns", handleIndexPage)
+	g.GET("/campaigns/new", handleIndexPage)
+	g.GET("/campaigns/media", handleIndexPage)
+	g.GET("/campaigns/templates", handleIndexPage)
+	g.GET("/campaigns/:campignID", handleIndexPage)
+	g.GET("/settings", handleIndexPage)
+
+	// Public subscriber facing views.
 	e.POST("/subscription/form", handleSubscriptionForm)
 	e.GET("/subscription/:campUUID/:subUUID", validateUUID(subscriberExists(handleSubscriptionPage),
 		"campUUID", "subUUID"))
@@ -112,19 +130,6 @@ func registerHTTPHandlers(e *echo.Echo) {
 		"campUUID", "subUUID"))
 	e.GET("/campaign/:campUUID/:subUUID/px.png", validateUUID(handleRegisterCampaignView,
 		"campUUID", "subUUID"))
-
-	// Static views.
-	e.GET("/lists", handleIndexPage)
-	e.GET("/lists/forms", handleIndexPage)
-	e.GET("/subscribers", handleIndexPage)
-	e.GET("/subscribers/lists/:listID", handleIndexPage)
-	e.GET("/subscribers/import", handleIndexPage)
-	e.GET("/campaigns", handleIndexPage)
-	e.GET("/campaigns/new", handleIndexPage)
-	e.GET("/campaigns/media", handleIndexPage)
-	e.GET("/campaigns/templates", handleIndexPage)
-	e.GET("/campaigns/:campignID", handleIndexPage)
-	e.GET("/settings", handleIndexPage)
 }
 
 // handleIndex is the root handler that renders the Javascript frontend.
@@ -143,6 +148,23 @@ func handleIndexPage(c echo.Context) error {
 // handleHealthCheck is a healthcheck endpoint that returns a 200 response.
 func handleHealthCheck(c echo.Context) error {
 	return c.JSON(http.StatusOK, okResp{true})
+}
+
+// basicAuth middleware does an HTTP BasicAuth authentication for admin handlers.
+func basicAuth(username, password string, c echo.Context) (bool, error) {
+	app := c.Get("app").(*App)
+
+	// Auth is disabled.
+	if len(app.constants.AdminUsername) == 0 &&
+		len(app.constants.AdminPassword) == 0 {
+		return true, nil
+	}
+
+	if subtle.ConstantTimeCompare([]byte(username), app.constants.AdminUsername) == 1 &&
+		subtle.ConstantTimeCompare([]byte(password), app.constants.AdminPassword) == 1 {
+		return true, nil
+	}
+	return false, nil
 }
 
 // validateUUID middleware validates the UUID string format for a given set of params.

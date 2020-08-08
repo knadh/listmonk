@@ -75,6 +75,7 @@ func V0_7_0(db *sqlx.DB, fs stuffbin.FileSystem, ko *koanf.Koanf) error {
 		('app.batch_size', '1000'),
 		('app.max_send_errors', '1000'),
 		('app.notify_emails', '["admin1@mysite.com", "admin2@mysite.com"]'),
+		('privacy.unsubscribe_header', 'true'),
 		('privacy.allow_blocklist', 'true'),
 		('privacy.allow_export', 'true'),
 		('privacy.allow_wipe', 'true'),

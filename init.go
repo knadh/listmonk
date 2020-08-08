@@ -48,13 +48,14 @@ type constants struct {
 		AllowWipe      bool            `koanf:"allow_wipe"`
 		Exportable     map[string]bool `koanf:"-"`
 	} `koanf:"privacy"`
+	AdminUsername []byte `koanf:"admin_username"`
+	AdminPassword []byte `koanf:"admin_password"`
 
-	UnsubURL     string
-	LinkTrackURL string
-	ViewTrackURL string
-	OptinURL     string
-	MessageURL   string
-
+	UnsubURL      string
+	LinkTrackURL  string
+	ViewTrackURL  string
+	OptinURL      string
+	MessageURL    string
 	MediaProvider string
 }
 
