@@ -8,7 +8,7 @@ STATIC := config.toml.sample \
 	schema.sql queries.sql \
 	static/public:/public \
 	static/email-templates \
-	frontend/dist:/frontend \
+	frontend/dist/favicon.png:/frontend/favicon.png \
 	frontend/dist/frontend:/frontend
 
 # Dependencies.
@@ -49,5 +49,5 @@ dist: build build-frontend
 # release builds for cross-build targets.
 .PHONY: pack-releases
 pack-releases:
-	$(foreach var,$(RELEASE_BUILDS),stuffbin -a stuff -in ${var} -out ${var} ${STATIC} $(var);)
+	$(foreach var,$(RELEASE_BUILDS),stuffbin -a stuff -in ${var} -out ${var} ${STATIC};)
 

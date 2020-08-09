@@ -126,7 +126,7 @@ func initFS(staticDir string) stuffbin.FileSystem {
 			// The frontend app's static assets are aliased to /frontend
 			// so that they are accessible at /frontend/js/* etc.
 			// Alias all files inside dist/ and dist/frontend to frontend/*.
-			"frontend/dist/:/frontend",
+			"frontend/dist/favicon.png:/frontend/favicon.png",
 			"frontend/dist/frontend:/frontend",
 		}
 

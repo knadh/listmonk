@@ -9,6 +9,7 @@ before:
 
 builds:
   - binary: listmonk
+    main: ./cmd
     goos:
       - windows
       - darwin
@@ -16,7 +17,7 @@ builds:
     goarch:
       - amd64
     ldflags:
-      - -s -w -X "main.buildString={{ .Tag }} ({{ .ShortCommit }} {{ .Date }})"
+      - -s -w -X "main.buildString={{ .Tag }} ({{ .ShortCommit }} {{ .Date }})" -X "main.versionString={{ .Tag }}"
 
     hooks:
       # stuff executables with static assets.
@@ -26,8 +27,8 @@ archives:
   - format: tar.gz
     files:
       - README.md
-      - INSTALL.md
       - LICENSE
+
 dockers:
   -
     goos: linux
