@@ -92,12 +92,12 @@
             <article class="tile is-child notification charts">
               <div class="columns">
                 <div class="column is-6">
-                  <h3 class="title is-size-6 has-text-right">Campaign views</h3>
+                  <h3 class="title is-size-6">Campaign views</h3><br />
                   <vue-c3 v-if="chartViewsInst" :handler="chartViewsInst"></vue-c3>
                   <empty-placeholder v-else-if="!isChartsLoading" />
                 </div>
                 <div class="column is-6">
-                  <h3 class="title is-size-6 has-text-right">Link clicks</h3>
+                  <h3 class="title is-size-6 has-text-right">Link clicks</h3><br />
                   <vue-c3 v-if="chartClicksInst" :handler="chartClicksInst"></vue-c3>
                   <empty-placeholder v-else-if="!isChartsLoading" />
                 </div>

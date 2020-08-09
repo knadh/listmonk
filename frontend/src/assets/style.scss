@@ -117,11 +117,12 @@ section {
     display: none;
   }
   .full {
-    max-height: 20px;
-    margin-top: 12px;
+    max-height: 17px;
+    margin-top: 15px;
   }
   .favicon {
-    margin-top: 8px;
+    margin-top: 12px;
+    max-height: 24px;
   }
 }
 
@@ -393,6 +394,10 @@ section.dashboard {
 
   .charts {
     min-height: 200px;
+  }
+
+  .notification {
+    border-width: 0;
   }
 }
 
@@ -739,5 +744,8 @@ section.campaign {
 @media screen and (max-width: 840px) {
   section.dashboard label {
     min-width: auto;
+  }
+  .table-mobile-sort {
+    margin-top: 15px;
   }
 }
