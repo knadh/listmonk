@@ -14,8 +14,10 @@
     <b-table
       :data="lists.results"
       :loading="loading.lists"
-      hoverable
-      default-sort="createdAt">
+      :row-class="highlightedRow"
+      paginated backend-pagination pagination-position="both" @page-change="onPageChange"
+      :current-page="queryParams.page" :per-page="lists.perPage" :total="lists.total"
+      hoverable>
         <template slot-scope="props">
             <b-table-column field="name" label="Name" sortable width="25%">
               <div>
@@ -112,6 +114,9 @@ export default Vue.extend({
       curItem: null,
       isEditing: false,
       isFormVisible: false,
+      queryParams: {
+        page: 1,
+      },
     };
   },
 
@@ -149,6 +154,17 @@ export default Vue.extend({
           });
         },
       );
+    },
+
+    onPageChange(p) {
+      this.queryParams.page = p;
+      this.getLists();
+    },
+
+    getLists() {
+      this.$api.getLists({
+        page: this.queryParams.page,
+      });
     },
 
     createOptinCampaign(list) {
