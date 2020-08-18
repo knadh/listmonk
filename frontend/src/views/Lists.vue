@@ -17,7 +17,8 @@
       :row-class="highlightedRow"
       paginated backend-pagination pagination-position="both" @page-change="onPageChange"
       :current-page="queryParams.page" :per-page="lists.perPage" :total="lists.total"
-      hoverable>
+      hoverable
+      default-sort="createdAt">
         <template slot-scope="props">
             <b-table-column field="name" label="Name" sortable width="25%">
               <div>
@@ -136,7 +137,7 @@ export default Vue.extend({
     },
 
     formFinished() {
-      this.$api.getLists();
+      this.getLists();
     },
 
     deleteList(list) {
@@ -144,7 +145,7 @@ export default Vue.extend({
         'Are you sure? This does not delete subscribers.',
         () => {
           this.$api.deleteList(list.id).then(() => {
-            this.$api.getLists();
+            this.getLists();
 
             this.$buefy.toast.open({
               message: `'${list.name}' deleted`,
@@ -190,7 +191,7 @@ export default Vue.extend({
   },
 
   mounted() {
-    this.$api.getLists();
+    this.getLists();
   },
 });
 </script>
