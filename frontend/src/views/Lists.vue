@@ -14,6 +14,9 @@
     <b-table
       :data="lists.results"
       :loading="loading.lists"
+      :row-class="highlightedRow"
+      paginated backend-pagination pagination-position="both" @page-change="onPageChange"
+      :current-page="queryParams.page" :per-page="lists.perPage" :total="lists.total"
       hoverable
       default-sort="createdAt">
         <template slot-scope="props">
@@ -99,22 +102,22 @@ import Vue from 'vue';
 import { mapState } from 'vuex';
 import ListForm from './ListForm.vue';
 import EmptyPlaceholder from '../components/EmptyPlaceholder.vue';
-
 export default Vue.extend({
   components: {
     ListForm,
     EmptyPlaceholder,
   },
-
   data() {
     return {
       // Current list item being edited.
       curItem: null,
       isEditing: false,
       isFormVisible: false,
+      queryParams: {
+        page: 1,
+      },
     };
   },
-
   methods: {
     // Show the edit list form.
     showEditForm(list) {
@@ -122,25 +125,21 @@ export default Vue.extend({
       this.isFormVisible = true;
       this.isEditing = true;
     },
-
     // Show the new list form.
     showNewForm() {
       this.curItem = {};
       this.isFormVisible = true;
       this.isEditing = false;
     },
-
     formFinished() {
-      this.$api.getLists();
+      this.getLists();
     },
-
     deleteList(list) {
       this.$utils.confirm(
         'Are you sure? This does not delete subscribers.',
         () => {
           this.$api.deleteList(list.id).then(() => {
-            this.$api.getLists();
-
+            this.getLists();
             this.$buefy.toast.open({
               message: `'${list.name}' deleted`,
               type: 'is-success',
@@ -150,7 +149,15 @@ export default Vue.extend({
         },
       );
     },
-
+    onPageChange(p) {
+      this.queryParams.page = p;
+      this.getLists();
+    },
+    getLists() {
+      this.$api.getLists({
+        page: this.queryParams.page,
+      });
+    },
     createOptinCampaign(list) {
       const data = {
         name: `Opt-in to ${list.name}`,
@@ -161,20 +168,17 @@ export default Vue.extend({
         messenger: 'email',
         type: 'optin',
       };
-
       this.$api.createCampaign(data).then((d) => {
         this.$router.push({ name: 'campaign', hash: '#content', params: { id: d.id } });
       });
       return false;
     },
   },
-
   computed: {
     ...mapState(['lists', 'serverConfig', 'loading']),
   },
-
   mounted() {
-    this.$api.getLists();
+    this.getLists();
   },
 });
 </script>
