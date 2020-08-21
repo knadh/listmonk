@@ -103,6 +103,7 @@ func handleViewCampaignMessage(c echo.Context) error {
 		}
 
 		app.log.Printf("error fetching campaign: %v", err)
+
 		return c.Render(http.StatusInternalServerError, tplMessage,
 			makeMsgTpl("Error", "", `Error fetching e-mail campaign.`))
 	}
@@ -116,6 +117,7 @@ func handleViewCampaignMessage(c echo.Context) error {
 		}
 
 		app.log.Printf("error fetching campaign subscriber: %v", err)
+
 		return c.Render(http.StatusInternalServerError, tplMessage,
 			makeMsgTpl("Error", "", `Error fetching e-mail message.`))
 	}
@@ -150,6 +152,7 @@ func handleSubscriptionPage(c echo.Context) error {
 		blocklist, _ = strconv.ParseBool(c.FormValue("blocklist"))
 		out          = unsubTpl{}
 	)
+
 	out.SubUUID = subUUID
 	out.Title = "Unsubscribe from mailing list"
 	out.AllowBlocklist = app.constants.Privacy.AllowBlocklist
@@ -165,6 +168,7 @@ func handleSubscriptionPage(c echo.Context) error {
 
 		if _, err := app.queries.Unsubscribe.Exec(campUUID, subUUID, blocklist); err != nil {
 			app.log.Printf("error unsubscribing: %v", err)
+
 			return c.Render(http.StatusInternalServerError, tplMessage,
 				makeMsgTpl("Error", "",
 					`Error processing request. Please retry.`))
@@ -188,6 +192,7 @@ func handleOptinPage(c echo.Context) error {
 		confirm, _ = strconv.ParseBool(c.FormValue("confirm"))
 		out        = optinTpl{}
 	)
+
 	out.SubUUID = subUUID
 	out.Title = "Confirm subscriptions"
 	out.SubUUID = subUUID
@@ -227,10 +232,12 @@ func handleOptinPage(c echo.Context) error {
 	if confirm {
 		if _, err := app.queries.ConfirmSubscriptionOptin.Exec(subUUID, pq.StringArray(out.ListUUIDs)); err != nil {
 			app.log.Printf("error unsubscribing: %v", err)
+
 			return c.Render(http.StatusInternalServerError, tplMessage,
 				makeMsgTpl("Error", "",
 					`Error processing request. Please retry.`))
 		}
+
 		return c.Render(http.StatusOK, tplMessage,
 			makeMsgTpl("Confirmed", "",
 				`Your subscriptions have been confirmed.`))
@@ -273,6 +280,7 @@ func handleSubscriptionForm(c echo.Context) error {
 	// Insert the subscriber into the DB.
 	req.Status = models.SubscriberStatusEnabled
 	req.ListUUIDs = pq.StringArray(req.SubListUUIDs)
+
 	if _, err := insertSubscriber(req.SubReq, app); err != nil {
 		return c.Render(http.StatusInternalServerError, tplMessage,
 			makeMsgTpl("Error", "", fmt.Sprintf("%s", err.(*echo.HTTPError).Message)))
@@ -326,6 +334,7 @@ func handleRegisterCampaignView(c echo.Context) error {
 	}
 
 	c.Response().Header().Set("Cache-Control", "no-cache")
+
 	return c.Blob(http.StatusOK, "image/png", pixelPNG)
 }
 
@@ -350,6 +359,7 @@ func handleSelfExportSubscriberData(c echo.Context) error {
 	data, b, err := exportSubscriberData(0, subUUID, app.constants.Privacy.Exportable, app)
 	if err != nil {
 		app.log.Printf("error exporting subscriber data: %s", err)
+
 		return c.Render(http.StatusInternalServerError, tplMessage,
 			makeMsgTpl("Error processing request", "",
 				"There was an error processing your request. Please try later."))
@@ -360,6 +370,7 @@ func handleSelfExportSubscriberData(c echo.Context) error {
 	if err := app.notifTpls.ExecuteTemplate(&msg, notifSubscriberData, data); err != nil {
 		app.log.Printf("error compiling notification template '%s': %v",
 			notifSubscriberData, err)
+
 		return c.Render(http.StatusInternalServerError, tplMessage,
 			makeMsgTpl("Error preparing data", "",
 				"There was an error preparing your data. Please try later."))
@@ -367,6 +378,7 @@ func handleSelfExportSubscriberData(c echo.Context) error {
 
 	// Send the data as a JSON attachment to the subscriber.
 	const fname = "data.json"
+
 	if err := app.messenger.Push(messenger.Message{
 		From:    app.constants.FromEmail,
 		To:      []string{data.Email},
@@ -381,10 +393,12 @@ func handleSelfExportSubscriberData(c echo.Context) error {
 		},
 	}); err != nil {
 		app.log.Printf("error e-mailing subscriber profile: %s", err)
+
 		return c.Render(http.StatusInternalServerError, tplMessage,
 			makeMsgTpl("Error e-mailing data", "",
 				"There was an error e-mailing your data. Please try later."))
 	}
+
 	return c.Render(http.StatusOK, tplMessage,
 		makeMsgTpl("Data e-mailed", "",
 			`Your data has been e-mailed to you as an attachment.`))
@@ -408,6 +422,7 @@ func handleWipeSubscriberData(c echo.Context) error {
 
 	if _, err := app.queries.DeleteSubscribers.Exec(nil, pq.StringArray{subUUID}); err != nil {
 		app.log.Printf("error wiping subscriber data: %s", err)
+
 		return c.Render(http.StatusInternalServerError, tplMessage,
 			makeMsgTpl("Error processing request", "",
 				"There was an error processing your request. Please try later."))
@@ -425,6 +440,8 @@ func drawTransparentImage(h, w int) []byte {
 		img = image.NewRGBA(image.Rect(0, 0, w, h))
 		out = &bytes.Buffer{}
 	)
+
 	_ = png.Encode(out, img)
+
 	return out.Bytes()
 }

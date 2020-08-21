@@ -34,11 +34,14 @@ var migList = []migFunc{
 func upgrade(db *sqlx.DB, fs stuffbin.FileSystem, prompt bool) {
 	if prompt {
 		var ok string
+
 		fmt.Printf("** IMPORTANT: Take a backup of the database before upgrading.\n")
 		fmt.Print("continue (y/n)?  ")
+
 		if _, err := fmt.Scanf("%s", &ok); err != nil {
 			lo.Fatalf("error reading value from terminal: %v", err)
 		}
+
 		if strings.ToLower(ok) != "y" {
 			fmt.Println("upgrade cancelled")
 			return
@@ -59,6 +62,7 @@ func upgrade(db *sqlx.DB, fs stuffbin.FileSystem, prompt bool) {
 	// Execute migrations in succession.
 	for _, m := range toRun {
 		lo.Printf("running migration %s", m.version)
+
 		if err := m.fn(db, fs, ko); err != nil {
 			lo.Fatalf("error running migration %s: %v", m.version, err)
 		}
@@ -69,6 +73,7 @@ func upgrade(db *sqlx.DB, fs stuffbin.FileSystem, prompt bool) {
 			if isTableNotExistErr(err) {
 				continue
 			}
+
 			lo.Fatalf("error recording migration version %s: %v", m.version, err)
 		}
 	}
@@ -101,7 +106,7 @@ func checkUpgrade(db *sqlx.DB) {
 // getPendingMigrations gets the pending migrations by comparing the last
 // recorded migration in the DB against all migrations listed in `migrations`.
 func getPendingMigrations(db *sqlx.DB) (string, []migFunc, error) {
-	lastVer, err := getLastMigrationVersion()
+	lastVer, err := getLastMigrationVersion(db)
 	if err != nil {
 		return "", nil, err
 	}
@@ -109,6 +114,7 @@ func getPendingMigrations(db *sqlx.DB) (string, []migFunc, error) {
 	// Iterate through the migration versions and get everything above the last
 	// last upgraded semver.
 	var toRun []migFunc
+
 	for i, m := range migList {
 		if semver.Compare(m.version, lastVer) > 0 {
 			toRun = migList[i:]
@@ -121,7 +127,7 @@ func getPendingMigrations(db *sqlx.DB) (string, []migFunc, error) {
 
 // getLastMigrationVersion returns the last migration semver recorded in the DB.
 // If there isn't any, `v0.0.0` is returned.
-func getLastMigrationVersion() (string, error) {
+func getLastMigrationVersion(db *sqlx.DB) (string, error) {
 	var v string
 	if err := db.Get(&v, `
 		SELECT COALESCE(
@@ -130,8 +136,10 @@ func getLastMigrationVersion() (string, error) {
 		if isTableNotExistErr(err) {
 			return "v0.0.0", nil
 		}
+
 		return v, err
 	}
+
 	return v, nil
 }
 
@@ -144,5 +152,6 @@ func isTableNotExistErr(err error) bool {
 			return true
 		}
 	}
+
 	return false
 }

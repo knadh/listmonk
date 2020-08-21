@@ -43,8 +43,10 @@ func handleGetConfigScript(c echo.Context) error {
 		b = bytes.Buffer{}
 		j = json.NewEncoder(&b)
 	)
-	b.Write([]byte(`var CONFIG = `))
+
+	_, _ = b.Write([]byte(`var CONFIG = `))
 	_ = j.Encode(out)
+
 	return c.Blob(http.StatusOK, "application/javascript", b.Bytes())
 }
 
@@ -80,10 +82,12 @@ func handleGetDashboardCounts(c echo.Context) error {
 
 // handleReloadApp restarts the app.
 func handleReloadApp(c echo.Context) error {
-	app := c.Get("app").(*App)
+	app, _ := c.Get("app").(*App)
+
 	go func() {
 		<-time.After(time.Millisecond * 500)
 		app.sigChan <- syscall.SIGHUP
 	}()
+
 	return c.JSON(http.StatusOK, okResp{true})
 }

@@ -23,7 +23,7 @@ type reqImport struct {
 // handleImportSubscribers handles the uploading and bulk importing of
 // a ZIP file of one or more CSV files.
 func handleImportSubscribers(c echo.Context) error {
-	app := c.Get("app").(*App)
+	app, _ := c.Get("app").(*App)
 
 	// Is an import already running?
 	if app.importer.GetStats().Status == subimporter.StatusImporting {
@@ -57,14 +57,16 @@ func handleImportSubscribers(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	defer src.Close()
+
+	defer func() { _ = src.Close() }()
 
 	out, err := ioutil.TempFile("", "listmonk")
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			fmt.Sprintf("Error copying uploaded file: %v", err))
 	}
-	defer out.Close()
+
+	defer func() { _ = out.Close() }()
 
 	if _, err = io.Copy(out, src); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError,
@@ -77,10 +79,13 @@ func handleImportSubscribers(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest,
 			fmt.Sprintf("Error starting import session: %v", err))
 	}
+
 	go impSess.Start()
 
 	if strings.HasSuffix(strings.ToLower(file.Filename), ".csv") {
-		go impSess.LoadCSV(out.Name(), rune(r.Delim[0]))
+		go func() {
+			_ = impSess.LoadCSV(out.Name(), rune(r.Delim[0]))
+		}()
 	} else {
 		// Only 1 CSV from the ZIP is considered. If multiple files have
 		// to be processed, counting the net number of lines (to track progress),
@@ -93,7 +98,10 @@ func handleImportSubscribers(c echo.Context) error {
 			return echo.NewHTTPError(http.StatusInternalServerError,
 				fmt.Sprintf("Error processing ZIP file: %v", err))
 		}
-		go impSess.LoadCSV(dir+"/"+files[0], rune(r.Delim[0]))
+
+		go func() {
+			_ = impSess.LoadCSV(dir+"/"+files[0], rune(r.Delim[0]))
+		}()
 	}
 
 	return c.JSON(http.StatusOK, okResp{app.importer.GetStats()})
@@ -105,12 +113,13 @@ func handleGetImportSubscribers(c echo.Context) error {
 		app = c.Get("app").(*App)
 		s   = app.importer.GetStats()
 	)
+
 	return c.JSON(http.StatusOK, okResp{s})
 }
 
 // handleGetImportSubscriberStats returns import statistics.
 func handleGetImportSubscriberStats(c echo.Context) error {
-	app := c.Get("app").(*App)
+	app, _ := c.Get("app").(*App)
 	return c.JSON(http.StatusOK, okResp{string(app.importer.GetLogs())})
 }
 
@@ -118,7 +127,9 @@ func handleGetImportSubscriberStats(c echo.Context) error {
 // If there's an ongoing import, it'll be stopped, and if an import
 // is finished, it's state is cleared.
 func handleStopImportSubscribers(c echo.Context) error {
-	app := c.Get("app").(*App)
+	app, _ := c.Get("app").(*App)
+
 	app.importer.Stop()
+
 	return c.JSON(http.StatusOK, okResp{app.importer.GetStats()})
 }

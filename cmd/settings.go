@@ -64,7 +64,7 @@ type settings struct {
 
 // handleGetSettings returns settings from the DB.
 func handleGetSettings(c echo.Context) error {
-	app := c.Get("app").(*App)
+	app, _ := c.Get("app").(*App)
 
 	s, err := getSettings(app)
 	if err != nil {
@@ -75,6 +75,7 @@ func handleGetSettings(c echo.Context) error {
 	for i := 0; i < len(s.SMTP); i++ {
 		s.SMTP[i].Password = ""
 	}
+
 	s.UploadS3AwsSecretAccessKey = ""
 
 	return c.JSON(http.StatusOK, okResp{s})
@@ -100,6 +101,7 @@ func handleUpdateSettings(c echo.Context) error {
 
 	// There should be at least one SMTP block that's enabled.
 	has := false
+
 	for i, s := range set.SMTP {
 		if s.Enabled {
 			has = true
@@ -115,6 +117,7 @@ func handleUpdateSettings(c echo.Context) error {
 			}
 		}
 	}
+
 	if !has {
 		return echo.NewHTTPError(http.StatusBadRequest,
 			"Minimum one SMTP block should be enabled.")

@@ -52,6 +52,7 @@ func handleGetTemplates(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			fmt.Sprintf("Error fetching templates: %s", pqErrMsg(err)))
 	}
+
 	if single && len(out) == 0 {
 		return echo.NewHTTPError(http.StatusBadRequest, "Template not found.")
 	}
@@ -59,6 +60,7 @@ func handleGetTemplates(c echo.Context) error {
 	if len(out) == 0 {
 		return c.JSON(http.StatusOK, okResp{[]struct{}{}})
 	}
+
 	if single {
 		return c.JSON(http.StatusOK, okResp{out[0]})
 	}
@@ -86,8 +88,7 @@ func handlePreviewTemplate(c echo.Context) error {
 			return echo.NewHTTPError(http.StatusBadRequest, "Invalid ID.")
 		}
 
-		err := app.queries.GetTemplates.Select(&tpls, id, false)
-		if err != nil {
+		if err := app.queries.GetTemplates.Select(&tpls, id, false); err != nil {
 			return echo.NewHTTPError(http.StatusInternalServerError,
 				fmt.Sprintf("Error fetching templates: %s", pqErrMsg(err)))
 		}
@@ -139,9 +140,7 @@ func handleCreateTemplate(c echo.Context) error {
 
 	// Insert and read ID.
 	var newID int
-	if err := app.queries.CreateTemplate.Get(&newID,
-		o.Name,
-		o.Body); err != nil {
+	if err := app.queries.CreateTemplate.Get(&newID, o.Name, o.Body); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			fmt.Sprintf("Error template user: %v", pqErrMsg(err)))
 	}
@@ -149,6 +148,7 @@ func handleCreateTemplate(c echo.Context) error {
 	// Hand over to the GET handler to return the last insertion.
 	c.SetParamNames("id")
 	c.SetParamValues(fmt.Sprintf("%d", newID))
+
 	return handleGetTemplates(c)
 }
 
@@ -220,6 +220,7 @@ func handleDeleteTemplate(c echo.Context) error {
 	}
 
 	var delID int
+
 	err := app.queries.DeleteTemplate.Get(&delID, id)
 	if err != nil {
 		if err == sql.ErrNoRows {

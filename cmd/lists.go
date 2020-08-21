@@ -42,9 +42,11 @@ func handleGetLists(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			fmt.Sprintf("Error fetching lists: %s", pqErrMsg(err)))
 	}
+
 	if single && len(out.Results) == 0 {
 		return echo.NewHTTPError(http.StatusBadRequest, "List not found.")
 	}
+
 	if len(out.Results) == 0 {
 		return c.JSON(http.StatusOK, okResp{[]struct{}{}})
 	}
@@ -64,6 +66,7 @@ func handleGetLists(c echo.Context) error {
 	out.Total = out.Results[0].Total
 	out.Page = pg.Page
 	out.PerPage = pg.PerPage
+
 	return c.JSON(http.StatusOK, okResp{out})
 }
 
@@ -87,19 +90,24 @@ func handleCreateList(c echo.Context) error {
 	uu, err := uuid.NewV4()
 	if err != nil {
 		app.log.Printf("error generating UUID: %v", err)
+
 		return echo.NewHTTPError(http.StatusInternalServerError, "Error generating UUID")
 	}
 
 	// Insert and read ID.
 	var newID int
+
 	o.UUID = uu.String()
-	if err := app.queries.CreateList.Get(&newID,
+
+	err = app.queries.CreateList.Get(&newID,
 		o.UUID,
 		o.Name,
 		o.Type,
 		o.Optin,
-		pq.StringArray(normalizeTags(o.Tags))); err != nil {
+		pq.StringArray(normalizeTags(o.Tags)))
+	if err != nil {
 		app.log.Printf("error creating list: %v", err)
+
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			fmt.Sprintf("Error creating list: %s", pqErrMsg(err)))
 	}
@@ -107,6 +115,7 @@ func handleCreateList(c echo.Context) error {
 	// Hand over to the GET handler to return the last insertion.
 	c.SetParamNames("id")
 	c.SetParamValues(fmt.Sprintf("%d", newID))
+
 	return c.JSON(http.StatusOK, handleGetLists(c))
 }
 

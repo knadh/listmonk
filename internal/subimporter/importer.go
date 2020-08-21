@@ -123,6 +123,7 @@ func New(opt Options, db *sql.DB) *Importer {
 		db:     db,
 		status: Status{Status: StatusNone, logBuf: bytes.NewBuffer(nil)},
 	}
+
 	return &im
 }
 
@@ -149,6 +150,7 @@ func (im *Importer) NewSession(fName, mode string, overWrite bool, listIDs []int
 	}
 
 	s.log.Printf("processing '%s'", fName)
+
 	return s, nil
 }
 
@@ -156,6 +158,7 @@ func (im *Importer) NewSession(fName, mode string, overWrite bool, listIDs []int
 func (im *Importer) GetStats() Status {
 	im.RLock()
 	defer im.RUnlock()
+
 	return Status{
 		Name:     im.status.Name,
 		Status:   im.status.Status,
@@ -172,6 +175,7 @@ func (im *Importer) GetLogs() []byte {
 	if im.status.logBuf == nil {
 		return []byte{}
 	}
+
 	return im.status.logBuf.Bytes()
 }
 
@@ -187,17 +191,22 @@ func (im *Importer) getStatus() string {
 	im.RLock()
 	status := im.status.Status
 	im.RUnlock()
+
 	return status
 }
 
 // isDone returns true if the importer is working (importing|stopping).
 func (im *Importer) isDone() bool {
 	s := true
+
 	im.RLock()
+
 	if im.getStatus() == StatusImporting || im.getStatus() == StatusStopping {
 		s = false
 	}
+
 	im.RUnlock()
+
 	return s
 }
 
@@ -222,6 +231,7 @@ func (im *Importer) sendNotif(status string) error {
 			strings.Title(status),
 			s.Name)
 	)
+
 	return im.opt.NotifCB(subject, out)
 }
 
@@ -262,7 +272,9 @@ func (s *Session) Start() {
 		uu, err := uuid.NewV4()
 		if err != nil {
 			s.log.Printf("error generating UUID: %v", err)
-			tx.Rollback()
+
+			_ = tx.Rollback()
+
 			break
 		}
 
@@ -271,9 +283,12 @@ func (s *Session) Start() {
 		} else if s.mode == ModeBlocklist {
 			_, err = stmt.Exec(uu, sub.Email, sub.Name, sub.Attribs)
 		}
+
 		if err != nil {
 			s.log.Printf("error executing insert: %v", err)
-			tx.Rollback()
+
+			_ = tx.Rollback()
+
 			break
 		}
 		cur++
@@ -282,7 +297,8 @@ func (s *Session) Start() {
 		// Batch size is met. Commit.
 		if cur%commitBatchSize == 0 {
 			if err := tx.Commit(); err != nil {
-				tx.Rollback()
+				_ = tx.Rollback()
+
 				s.log.Printf("error committing to DB: %v", err)
 			} else {
 				s.im.incrementImportCount(cur)
@@ -297,29 +313,37 @@ func (s *Session) Start() {
 	if cur == 0 {
 		s.im.setStatus(StatusFinished)
 		s.log.Printf("imported finished")
+
 		if _, err := s.im.opt.UpdateListDateStmt.Exec(listIDs); err != nil {
 			s.log.Printf("error updating lists date: %v", err)
 		}
-		s.im.sendNotif(StatusFinished)
+
+		_ = s.im.sendNotif(StatusFinished)
+
 		return
 	}
 
 	// Queue's closed and there are records left to commit.
 	if err := tx.Commit(); err != nil {
-		tx.Rollback()
+		_ = tx.Rollback()
+
 		s.im.setStatus(StatusFailed)
 		s.log.Printf("error committing to DB: %v", err)
-		s.im.sendNotif(StatusFailed)
+		_ = s.im.sendNotif(StatusFailed)
+
 		return
 	}
 
 	s.im.incrementImportCount(cur)
 	s.im.setStatus(StatusFinished)
+
 	s.log.Printf("imported finished")
+
 	if _, err := s.im.opt.UpdateListDateStmt.Exec(listIDs); err != nil {
 		s.log.Printf("error updating lists date: %v", err)
 	}
-	s.im.sendNotif(StatusFinished)
+
+	_ = s.im.sendNotif(StatusFinished)
 }
 
 // Stop stops an active import session.
@@ -336,6 +360,7 @@ func (s *Session) ExtractZIP(srcPath string, maxCSVs int) (string, []string, err
 	}
 
 	failed := true
+
 	defer func() {
 		if failed {
 			s.im.setStatus(StatusFailed)
@@ -346,7 +371,8 @@ func (s *Session) ExtractZIP(srcPath string, maxCSVs int) (string, []string, err
 	if err != nil {
 		return "", nil, err
 	}
-	defer z.Close()
+
+	defer func() { _ = z.Close() }()
 
 	// Create a temporary directory to extract the files.
 	dir, err := ioutil.TempDir("", "listmonk")
@@ -356,6 +382,7 @@ func (s *Session) ExtractZIP(srcPath string, maxCSVs int) (string, []string, err
 	}
 
 	files := make([]string, 0, len(z.File))
+
 	for _, f := range z.File {
 		fName := f.FileInfo().Name()
 
@@ -372,24 +399,29 @@ func (s *Session) ExtractZIP(srcPath string, maxCSVs int) (string, []string, err
 		}
 
 		s.log.Printf("extracting '%s'", fName)
+
 		src, err := f.Open()
 		if err != nil {
 			s.log.Printf("error opening '%s' from ZIP: '%v'", fName, err)
 			return "", nil, err
 		}
-		defer src.Close()
+
+		defer func() { _ = src.Close() }()
 
 		out, err := os.OpenFile(dir+"/"+fName, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, f.Mode())
 		if err != nil {
 			s.log.Printf("error creating '%s/%s': '%v'", dir, fName, err)
 			return "", nil, err
 		}
-		defer out.Close()
+
+		defer func() { _ = out.Close() }()
 
 		if _, err := io.Copy(out, src); err != nil {
 			s.log.Printf("error extracting to '%s/%s': '%v'", dir, fName, err)
+
 			return "", nil, err
 		}
+
 		s.log.Printf("extracted '%s'", fName)
 
 		files = append(files, fName)
@@ -405,6 +437,7 @@ func (s *Session) ExtractZIP(srcPath string, maxCSVs int) (string, []string, err
 	}
 
 	failed = false
+
 	return dir, files, nil
 }
 
@@ -417,13 +450,14 @@ func (s *Session) LoadCSV(srcPath string, delim rune) error {
 	// Default status is "failed" in case the function
 	// returns at one of the many possible errors.
 	failed := true
+
 	defer func() {
 		if failed {
 			s.im.setStatus(StatusFailed)
 		}
 	}()
 
-	f, err := os.Open(srcPath)
+	f, err := os.Open(srcPath) // nolint - Potential file inclusion via variable
 	if err != nil {
 		return err
 	}
@@ -455,6 +489,7 @@ func (s *Session) LoadCSV(srcPath string, delim rune) error {
 	csvHdr, err := rd.Read()
 	if err != nil {
 		s.log.Printf("error reading header from '%s': '%v'", srcPath, err)
+
 		return err
 	}
 
@@ -462,10 +497,13 @@ func (s *Session) LoadCSV(srcPath string, delim rune) error {
 	// email, and name are required headers.
 	if _, ok := hdrKeys["email"]; !ok {
 		s.log.Printf("'email' column not found in '%s'", srcPath)
+
 		return errors.New("'email' column not found")
 	}
+
 	if _, ok := hdrKeys["name"]; !ok {
 		s.log.Printf("'name' column not found in '%s'", srcPath)
+
 		return errors.New("'name' column not found")
 	}
 
@@ -473,6 +511,7 @@ func (s *Session) LoadCSV(srcPath string, delim rune) error {
 		lnHdr = len(hdrKeys)
 		i     = 0
 	)
+
 	for {
 		i++
 
@@ -480,8 +519,11 @@ func (s *Session) LoadCSV(srcPath string, delim rune) error {
 		select {
 		case <-s.im.stop:
 			failed = false
+
 			close(s.subQueue)
+
 			s.log.Println("stop request received")
+
 			return nil
 		default:
 		}
@@ -516,6 +558,7 @@ func (s *Session) LoadCSV(srcPath string, delim rune) error {
 		// Lowercase to ensure uniqueness in the DB.
 		sub.Email = strings.ToLower(strings.TrimSpace(row["email"]))
 		sub.Name = row["name"]
+
 		if err := ValidateFields(sub); err != nil {
 			s.log.Printf("skipping line %d: %v", i, err)
 			continue
@@ -527,6 +570,7 @@ func (s *Session) LoadCSV(srcPath string, delim rune) error {
 				attribs models.SubscriberAttribs
 				b       = []byte(row["attributes"])
 			)
+
 			if err := json.Unmarshal(b, &attribs); err != nil {
 				s.log.Printf("skipping invalid attributes JSON on line %d for '%s': %v", i, sub.Email, err)
 			} else {
@@ -539,7 +583,9 @@ func (s *Session) LoadCSV(srcPath string, delim rune) error {
 	}
 
 	close(s.subQueue)
+
 	failed = false
+
 	return nil
 }
 
@@ -549,6 +595,7 @@ func (im *Importer) Stop() {
 		im.Lock()
 		im.status = Status{Status: StatusNone}
 		im.Unlock()
+
 		return
 	}
 
@@ -566,13 +613,16 @@ func (s *Session) mapCSVHeaders(csvHdrs []string, knownHdrs map[string]bool) map
 	// Map 0-n column index to the header keys, name: 0, email: 1 etc.
 	// This is to allow dynamic ordering of columns in th CSV.
 	hdrKeys := make(map[string]int)
+
 	for i, h := range csvHdrs {
 		// Clean the string of non-ASCII characters (BOM etc.).
-		h := regexCleanStr.ReplaceAllString(h, "")
+		h = regexCleanStr.ReplaceAllString(h, "")
 		if _, ok := knownHdrs[h]; !ok {
 			s.log.Printf("ignoring unknown header '%s'", h)
+
 			continue
 		}
+
 		hdrKeys[h] = i
 	}
 
@@ -584,12 +634,15 @@ func ValidateFields(s SubReq) error {
 	if len(s.Email) > 1000 {
 		return errors.New(`e-mail too long`)
 	}
+
 	if !IsEmail(s.Email) {
 		return errors.New(`invalid e-mail "` + s.Email + `"`)
 	}
+
 	if len(s.Name) == 0 || len(s.Name) > stdInputMaxLen {
 		return errors.New(`invalid or empty name "` + s.Name + `"`)
 	}
+
 	return nil
 }
 

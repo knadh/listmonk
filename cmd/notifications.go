@@ -13,12 +13,12 @@ const (
 	notifSubscriberData  = "subscriber-data"
 )
 
-// notifData represents params commonly used across different notification
-// templates.
-type notifData struct {
-	RootURL string
-	LogoURL string
-}
+// // notifData represents params commonly used across different notification
+// // templates.
+// type notifData struct {
+// 	RootURL string
+// 	LogoURL string
+// }
 
 // sendNotification sends out an e-mail notification to admins.
 func (app *App) sendNotification(toEmails []string, subject, tplName string, data interface{}) error {
@@ -35,9 +35,11 @@ func (app *App) sendNotification(toEmails []string, subject, tplName string, dat
 		Body:      b.Bytes(),
 		Messenger: "email",
 	})
+
 	if err != nil {
 		app.log.Printf("error sending admin notification (%s): %v", subject, err)
 		return err
 	}
+
 	return nil
 }

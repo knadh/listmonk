@@ -69,6 +69,7 @@ type regTplFunc struct {
 // and substituting it with {{ Track "http://link.com" .Campaign.UUID .Subscriber.UUID }}
 // before compilation. This string gimmick is to make linking easier for users.
 var regTplFuncs = []regTplFunc{
+	// Redundant usage.
 	regTplFunc{
 		regExp:  regexp.MustCompile("{{(\\s+)?TrackLink\\s+?(\"|`)(.+?)(\"|`)(\\s+)?}}"),
 		replace: `{{ TrackLink "$3" . }}`,
@@ -220,8 +221,8 @@ func (subs Subscribers) GetIDs() []int {
 // in the Subscribers slice and attaches them to their []Lists property.
 func (subs Subscribers) LoadLists(stmt *sqlx.Stmt) error {
 	var sl []subLists
-	err := stmt.Select(&sl, pq.Array(subs.GetIDs()))
-	if err != nil {
+
+	if err := stmt.Select(&sl, pq.Array(subs.GetIDs())); err != nil {
 		return err
 	}
 
@@ -248,6 +249,7 @@ func (s SubscriberAttribs) Scan(src interface{}) error {
 	if data, ok := src.([]byte); ok {
 		return json.Unmarshal(data, &s)
 	}
+
 	return fmt.Errorf("Could not not decode type %T -> %T", src, s)
 }
 
@@ -291,6 +293,7 @@ func (c *Campaign) CompileTemplate(f template.FuncMap) error {
 	for _, r := range regTplFuncs {
 		body = r.regExp.ReplaceAllString(body, r.replace)
 	}
+
 	baseTPL, err := template.New(BaseTpl).Funcs(f).Parse(body)
 	if err != nil {
 		return fmt.Errorf("error compiling base template: %v", err)
@@ -301,6 +304,7 @@ func (c *Campaign) CompileTemplate(f template.FuncMap) error {
 	for _, r := range regTplFuncs {
 		body = r.regExp.ReplaceAllString(body, r.replace)
 	}
+
 	msgTpl, err := template.New(ContentTpl).Funcs(f).Parse(body)
 	if err != nil {
 		return fmt.Errorf("error compiling message: %v", err)
@@ -317,14 +321,18 @@ func (c *Campaign) CompileTemplate(f template.FuncMap) error {
 		for _, r := range regTplFuncs {
 			subj = r.regExp.ReplaceAllString(subj, r.replace)
 		}
+
 		subjTpl, err := template.New(ContentTpl).Funcs(f).Parse(subj)
+
 		if err != nil {
 			return fmt.Errorf("error compiling subject: %v", err)
 		}
+
 		c.SubjectTpl = subjTpl
 	}
 
 	c.Tpl = out
+
 	return nil
 }
 
@@ -346,6 +354,7 @@ func (s Subscriber) FirstName() string {
 // that it is the subscriber's last name.
 func (s Subscriber) LastName() string {
 	chunks := strings.Split(s.Name, " ")
+
 	for i := len(chunks) - 1; i >= 0; i-- {
 		chunk := chunks[i]
 		if len(chunk) > 2 {

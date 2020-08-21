@@ -35,6 +35,7 @@ func checkUpdates(curVersion string, interval time.Duration, app *App) {
 
 	time.Sleep(time.Second * 1)
 	ticker := time.NewTicker(interval)
+
 	for ; true; <-ticker.C {
 		resp, err := http.Get(updateCheckURL)
 		if err != nil {
@@ -52,7 +53,8 @@ func checkUpdates(curVersion string, interval time.Duration, app *App) {
 			app.log.Printf("error reading remote update payload: %v", err)
 			continue
 		}
-		resp.Body.Close()
+
+		_ = resp.Body.Close()
 
 		var up remoteUpdateResp
 		if err := json.Unmarshal(b, &up); err != nil {

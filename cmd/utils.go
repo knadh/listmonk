@@ -25,16 +25,19 @@ func validateMIME(typ string, mimes []string) (ok bool) {
 		var (
 			ok = false
 		)
+
 		for _, m := range mimes {
 			if typ == m {
 				ok = true
 				break
 			}
 		}
+
 		if !ok {
 			return false
 		}
 	}
+
 	return true
 }
 
@@ -44,6 +47,7 @@ func generateFileName(fName string) string {
 	if name == "" {
 		name, _ = generateRandomString(10)
 	}
+
 	return name
 }
 
@@ -55,6 +59,7 @@ func pqErrMsg(err error) string {
 			return fmt.Sprintf("%s. %s", err, err.Detail)
 		}
 	}
+
 	return err.Error()
 }
 
@@ -75,20 +80,23 @@ func normalizeTags(tags []string) []string {
 			out = append(out, string(rep))
 		}
 	}
+
 	return out
 }
 
 // makeMsgTpl takes a page title, heading, and message and returns
 // a msgTpl that can be rendered as a HTML view. This is used for
 // rendering arbitrary HTML views with error and success messages.
-func makeMsgTpl(pageTitle, heading, msg string) msgTpl {
+func makeMsgTpl(pageTitle, heading, msg string) msgTpl { // nolint - heading always receives `""`
 	if heading == "" {
 		heading = pageTitle
 	}
+
 	err := msgTpl{}
 	err.Title = pageTitle
 	err.MessageTitle = heading
 	err.Message = msg
+
 	return err
 }
 
@@ -97,6 +105,7 @@ func makeMsgTpl(pageTitle, heading, msg string) msgTpl {
 // resultant values.
 func parseStringIDs(s []string) ([]int64, error) {
 	vals := make([]int64, 0, len(s))
+
 	for _, v := range s {
 		i, err := strconv.ParseInt(v, 10, 64)
 		if err != nil {
@@ -116,11 +125,13 @@ func parseStringIDs(s []string) ([]int64, error) {
 // generateRandomString generates a cryptographically random, alphanumeric string of length n.
 func generateRandomString(n int) (string, error) {
 	const dictionary = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+
 	var bytes = make([]byte, n)
 
 	if _, err := rand.Read(bytes); err != nil {
 		return "", err
 	}
+
 	for k, v := range bytes {
 		bytes[k] = dictionary[v%byte(len(dictionary))]
 	}
@@ -129,6 +140,6 @@ func generateRandomString(n int) (string, error) {
 }
 
 // strHasLen checks if the given string has a length within min-max.
-func strHasLen(str string, min, max int) bool {
+func strHasLen(str string, min, max int) bool { // nolint -  min always receives `1`
 	return len(str) >= min && len(str) <= max
 }

@@ -34,8 +34,11 @@ type Client struct {
 // NewS3Store initialises store for S3 provider. It takes in the AWS configuration
 // and sets up the `simples3` client to interact with AWS APIs for all bucket operations.
 func NewS3Store(opts Opts) (media.Store, error) {
-	var s3svc *simples3.S3
-	var err error
+	var (
+		s3svc *simples3.S3
+		err   error
+	)
+
 	if opts.Region == "" {
 		return nil, errors.New("Invalid AWS Region specified. Please check `upload.s3` config")
 	}
@@ -49,6 +52,7 @@ func NewS3Store(opts Opts) (media.Store, error) {
 			return nil, err
 		}
 	}
+
 	return &Client{
 		s3:   s3svc,
 		opts: opts,
@@ -71,6 +75,7 @@ func (c *Client) Put(name string, cType string, file io.ReadSeeker) (string, err
 	if _, err := c.s3.FileUpload(upParams); err != nil {
 		return "", err
 	}
+
 	return name, nil
 }
 
@@ -85,6 +90,7 @@ func (c *Client) Get(name string) string {
 			Timestamp:     time.Now(),
 			ExpirySeconds: int(c.opts.Expiry.Seconds()),
 		})
+
 		return url
 	}
 
@@ -96,6 +102,7 @@ func (c *Client) Get(name string) string {
 		url = fmt.Sprintf(amznS3PublicURL, c.opts.Bucket, c.opts.Region,
 			makeBucketPath(c.opts.BucketPath, name))
 	}
+
 	return url
 }
 
@@ -105,6 +112,7 @@ func (c *Client) Delete(name string) error {
 		Bucket:    c.opts.Bucket,
 		ObjectKey: strings.TrimPrefix(makeBucketPath(c.opts.BucketPath, name), "/"),
 	})
+
 	return err
 }
 
@@ -112,5 +120,6 @@ func makeBucketPath(bucketPath string, name string) string {
 	if bucketPath == "/" {
 		return "/" + name
 	}
+
 	return fmt.Sprintf("%s/%s", bucketPath, name)
 }

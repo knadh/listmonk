@@ -133,7 +133,7 @@ func registerHTTPHandlers(e *echo.Echo) {
 
 // handleIndex is the root handler that renders the Javascript frontend.
 func handleIndexPage(c echo.Context) error {
-	app := c.Get("app").(*App)
+	app, _ := c.Get("app").(*App)
 
 	b, err := app.fs.Read("/frontend/index.html")
 	if err != nil {
@@ -141,6 +141,7 @@ func handleIndexPage(c echo.Context) error {
 	}
 
 	c.Response().Header().Set("Content-Type", "text/html")
+
 	return c.String(http.StatusOK, string(b))
 }
 
@@ -151,7 +152,7 @@ func handleHealthCheck(c echo.Context) error {
 
 // basicAuth middleware does an HTTP BasicAuth authentication for admin handlers.
 func basicAuth(username, password string, c echo.Context) (bool, error) {
-	app := c.Get("app").(*App)
+	app, _ := c.Get("app").(*App)
 
 	// Auth is disabled.
 	if len(app.constants.AdminUsername) == 0 &&
@@ -163,6 +164,7 @@ func basicAuth(username, password string, c echo.Context) (bool, error) {
 		subtle.ConstantTimeCompare([]byte(password), app.constants.AdminPassword) == 1 {
 		return true, nil
 	}
+
 	return false, nil
 }
 
@@ -176,13 +178,14 @@ func validateUUID(next echo.HandlerFunc, params ...string) echo.HandlerFunc {
 						`One or more UUIDs in the request are invalid.`))
 			}
 		}
+
 		return next(c)
 	}
 }
 
 // subscriberExists middleware checks if a subscriber exists given the UUID
 // param in a request.
-func subscriberExists(next echo.HandlerFunc, params ...string) echo.HandlerFunc {
+func subscriberExists(next echo.HandlerFunc, params ...string) echo.HandlerFunc { // nolint - unused param - params.
 	return func(c echo.Context) error {
 		var (
 			app     = c.Get("app").(*App)
@@ -192,6 +195,7 @@ func subscriberExists(next echo.HandlerFunc, params ...string) echo.HandlerFunc 
 		var exists bool
 		if err := app.queries.SubscriberExists.Get(&exists, 0, subUUID); err != nil {
 			app.log.Printf("error checking subscriber existence: %v", err)
+
 			return c.Render(http.StatusInternalServerError, tplMessage,
 				makeMsgTpl("Error", "",
 					`Error processing request. Please retry.`))
@@ -202,6 +206,7 @@ func subscriberExists(next echo.HandlerFunc, params ...string) echo.HandlerFunc 
 				makeMsgTpl("Not found", "",
 					`Subscription not found.`))
 		}
+
 		return next(c)
 	}
 }
@@ -210,6 +215,7 @@ func subscriberExists(next echo.HandlerFunc, params ...string) echo.HandlerFunc 
 func getPagination(q url.Values, perPage, maxPerPage int) pagination {
 	page, _ := strconv.Atoi(q.Get("page"))
 	pp := q.Get("per_page")
+
 	if pp == "all" {
 		// No limit.
 		perPage = 0

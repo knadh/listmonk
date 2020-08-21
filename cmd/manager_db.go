@@ -21,7 +21,9 @@ func newManagerDB(q *Queries) *runnerDB {
 // NextCampaigns retrieves active campaigns ready to be processed.
 func (r *runnerDB) NextCampaigns(excludeIDs []int64) ([]*models.Campaign, error) {
 	var out []*models.Campaign
+
 	err := r.queries.NextCampaigns.Select(&out, pq.Int64Array(excludeIDs))
+
 	return out, err
 }
 
@@ -32,6 +34,7 @@ func (r *runnerDB) NextCampaigns(excludeIDs []int64) ([]*models.Campaign, error)
 func (r *runnerDB) NextSubscribers(campID, limit int) ([]models.Subscriber, error) {
 	var out []models.Subscriber
 	err := r.queries.NextCampaignSubscribers.Select(&out, campID, limit)
+
 	return out, err
 }
 
@@ -39,12 +42,14 @@ func (r *runnerDB) NextSubscribers(campID, limit int) ([]models.Subscriber, erro
 func (r *runnerDB) GetCampaign(campID int) (*models.Campaign, error) {
 	var out = &models.Campaign{}
 	err := r.queries.GetCampaign.Get(out, campID, nil)
+
 	return out, err
 }
 
 // UpdateCampaignStatus updates a campaign's status.
 func (r *runnerDB) UpdateCampaignStatus(campID int, status string) error {
 	_, err := r.queries.UpdateCampaignStatus.Exec(campID, status)
+
 	return err
 }
 

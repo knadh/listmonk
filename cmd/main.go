@@ -52,9 +52,9 @@ var (
 	lo = log.New(os.Stdout, "", log.Ldate|log.Ltime|log.Lshortfile)
 	ko = koanf.New(".")
 
-	fs      stuffbin.FileSystem
-	db      *sqlx.DB
-	queries *Queries
+	fs stuffbin.FileSystem
+	db *sqlx.DB
+	// queries *Queries
 
 	buildString   string
 	versionString string
@@ -76,7 +76,9 @@ func init() {
 			lo.Println(err)
 			os.Exit(1)
 		}
+
 		lo.Println("generated config.toml. Edit and run --install")
+
 		os.Exit(0)
 	}
 
@@ -100,10 +102,13 @@ func init() {
 	if ko.Bool("install") {
 		// Save the version of the last listed migration.
 		install(migList[len(migList)-1].version, db, fs, !ko.Bool("yes"))
+
 		os.Exit(0)
 	}
+
 	if ko.Bool("upgrade") {
 		upgrade(db, fs, !ko.Bool("yes"))
+
 		os.Exit(0)
 	}
 
@@ -115,7 +120,6 @@ func init() {
 
 	// Load settings from DB.
 	initSettings(queries)
-
 }
 
 func main() {
@@ -132,7 +136,7 @@ func main() {
 	app.manager = initCampaignManager(app.queries, app.constants, app)
 	app.importer = initImporter(app.queries, db, app)
 	app.messenger = initMessengers(app.manager)
-	app.notifTpls = initNotifTemplates("/email-templates/*.html", fs, app.constants)
+	app.notifTpls = initNotifTemplates("/static/email-templates/*.html", fs, app.constants)
 
 	// Start the campaign workers. The campaign batches (fetch from DB, push out
 	// messages) get processed at the specified interval.
@@ -155,16 +159,16 @@ func main() {
 		// Stop the HTTP server.
 		ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
 		defer cancel()
-		srv.Shutdown(ctx)
+		_ = srv.Shutdown(ctx)
 
 		// Close the campaign manager.
 		app.manager.Close()
 
 		// Close the DB pool.
-		app.db.DB.Close()
+		_ = app.db.DB.Close()
 
 		// Close the messenger pool.
-		app.messenger.Close()
+		_ = app.messenger.Close()
 
 		// Signal the close.
 		closerWait <- true

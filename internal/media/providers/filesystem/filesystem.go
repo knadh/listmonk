@@ -13,7 +13,7 @@ import (
 	"github.com/knadh/listmonk/internal/media"
 )
 
-const tmpFilePrefix = "listmonk"
+const tmpFilePrefix = "listmonk" //nolint
 
 // Opts represents filesystem params
 type Opts struct {
@@ -50,19 +50,24 @@ func (c *Client) Put(filename string, cType string, src io.ReadSeeker) (string, 
 			filename, _ = generateRandomString(10)
 		}
 	}
+
 	// Get the directory path
 	dir := getDir(c.opts.UploadPath)
 	filename = assertUniqueFilename(dir, filename)
-	o, err := os.OpenFile(filepath.Join(dir, filename), os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0664)
+
+	o, err := os.OpenFile(filepath.Join(dir, filename), os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0664) //nolint
 	if err != nil {
 		return "", err
 	}
+
 	out = o
-	defer out.Close()
+
+	defer func() { _ = out.Close() }()
 
 	if _, err := io.Copy(out, src); err != nil {
 		return "", err
 	}
+
 	return filename, nil
 }
 
@@ -75,9 +80,11 @@ func (c *Client) Get(name string) string {
 func (c *Client) Delete(file string) error {
 	dir := getDir(c.opts.UploadPath)
 	err := os.Remove(filepath.Join(dir, file))
+
 	if err != nil {
 		return err
 	}
+
 	return nil
 }
 
@@ -130,5 +137,6 @@ func getDir(dir string) string {
 	if dir == "" {
 		dir, _ = os.Getwd()
 	}
+
 	return dir
 }

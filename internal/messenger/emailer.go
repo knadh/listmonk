@@ -25,7 +25,7 @@ type Server struct {
 
 	// Rest of the options are embedded directly from the smtppool lib.
 	// The JSON tag is for config unmarshal to work.
-	smtppool.Opt `json:",squash"`
+	smtppool.Opt `json:",squash"` //nolint
 
 	pool *smtppool.Pool
 }
@@ -43,8 +43,10 @@ func NewEmailer(servers ...Server) (*Emailer, error) {
 	}
 
 	for _, srv := range servers {
-		s := srv
 		var auth smtp.Auth
+
+		s := srv
+
 		switch s.AuthProtocol {
 		case "cram":
 			auth = smtp.CRAMMD5Auth(s.Username, s.Password)
@@ -56,6 +58,7 @@ func NewEmailer(servers ...Server) (*Emailer, error) {
 		default:
 			return nil, fmt.Errorf("unknown SMTP auth type '%s'", s.AuthProtocol)
 		}
+
 		s.Opt.Auth = auth
 
 		// TLS config.
@@ -93,6 +96,7 @@ func (e *Emailer) Push(m Message) error {
 		ln  = len(e.servers)
 		srv *Server
 	)
+
 	if ln > 1 {
 		srv = e.servers[rand.Intn(ln)]
 	} else {
@@ -103,6 +107,7 @@ func (e *Emailer) Push(m Message) error {
 	var files []smtppool.Attachment
 	if m.Attachments != nil {
 		files = make([]smtppool.Attachment, 0, len(m.Attachments))
+
 		for _, f := range m.Attachments {
 			a := smtppool.Attachment{
 				Filename: f.Name,
@@ -163,5 +168,6 @@ func (e *Emailer) Close() error {
 	for _, s := range e.servers {
 		s.pool.Close()
 	}
+
 	return nil
 }

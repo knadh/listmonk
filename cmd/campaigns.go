@@ -83,6 +83,7 @@ func handleGetCampaigns(c echo.Context) error {
 	if id > 0 {
 		single = true
 	}
+
 	if query != "" {
 		query = `%` +
 			string(regexFullTextQuery.ReplaceAll([]byte(query), []byte("&"))) + `%`
@@ -94,9 +95,11 @@ func handleGetCampaigns(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			fmt.Sprintf("Error fetching campaigns: %s", pqErrMsg(err)))
 	}
+
 	if single && len(out.Results) == 0 {
 		return echo.NewHTTPError(http.StatusBadRequest, "Campaign not found.")
 	}
+
 	if len(out.Results) == 0 {
 		out.Results = []models.Campaign{}
 		return c.JSON(http.StatusOK, okResp{out})
@@ -153,6 +156,7 @@ func handlePreviewCampaign(c echo.Context) error {
 		}
 
 		app.log.Printf("error fetching campaign: %v", err)
+
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			fmt.Sprintf("Error fetching campaign: %s", pqErrMsg(err)))
 	}
@@ -210,6 +214,7 @@ func handleCreateCampaign(c echo.Context) error {
 		if err != nil {
 			return err
 		}
+
 		o = op
 	}
 
@@ -253,6 +258,7 @@ func handleCreateCampaign(c echo.Context) error {
 		}
 
 		app.log.Printf("error creating campaign: %v", err)
+
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			fmt.Sprintf("Error creating campaign: %v", pqErrMsg(err)))
 	}
@@ -260,6 +266,7 @@ func handleCreateCampaign(c echo.Context) error {
 	// Hand over to the GET handler to return the last insertion.
 	c.SetParamNames("id")
 	c.SetParamValues(fmt.Sprintf("%d", newID))
+
 	return handleGetCampaigns(c)
 }
 
@@ -282,6 +289,7 @@ func handleUpdateCampaign(c echo.Context) error {
 		}
 
 		app.log.Printf("error fetching campaign: %v", err)
+
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			fmt.Sprintf("Error fetching campaign: %s", pqErrMsg(err)))
 	}
@@ -341,6 +349,7 @@ func handleUpdateCampaignStatus(c echo.Context) error {
 		}
 
 		app.log.Printf("error fetching campaign: %v", err)
+
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			fmt.Sprintf("Error fetching campaign: %s", pqErrMsg(err)))
 	}
@@ -352,6 +361,7 @@ func handleUpdateCampaignStatus(c echo.Context) error {
 	}
 
 	errMsg := ""
+
 	switch o.Status {
 	case models.CampaignStatusDraft:
 		if cm.Status != models.CampaignStatusScheduled {
@@ -361,6 +371,7 @@ func handleUpdateCampaignStatus(c echo.Context) error {
 		if cm.Status != models.CampaignStatusDraft {
 			errMsg = "Only draft campaigns can be scheduled"
 		}
+
 		if !cm.SendAt.Valid {
 			errMsg = "Campaign needs a `send_at` date to be scheduled"
 		}
@@ -416,6 +427,7 @@ func handleDeleteCampaign(c echo.Context) error {
 		}
 
 		app.log.Printf("error fetching campaign: %v", err)
+
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			fmt.Sprintf("Error fetching campaign: %s", pqErrMsg(err)))
 	}
@@ -449,6 +461,7 @@ func handleGetRunningCampaignStats(c echo.Context) error {
 		}
 
 		app.log.Printf("error fetching campaign stats: %v", err)
+
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			fmt.Sprintf("Error fetching campaign stats: %s", pqErrMsg(err)))
 	} else if len(out) == 0 {
@@ -464,9 +477,11 @@ func handleGetRunningCampaignStats(c echo.Context) error {
 					sent = float64(c.Sent)
 					rate = sent / diff
 				)
+
 				if rate > sent || rate > float64(c.ToSend) {
 					rate = sent
 				}
+
 				out[i].Rate = rate
 			}
 		}
@@ -495,9 +510,10 @@ func handleTestCampaign(c echo.Context) error {
 	// Validate.
 	if c, err := validateCampaignFields(req, app); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
-	} else {
+	} else { //nolint
 		req = c
 	}
+
 	if len(req.SubscriberEmails) == 0 {
 		return echo.NewHTTPError(http.StatusBadRequest, "No subscribers to target.")
 	}
@@ -506,6 +522,7 @@ func handleTestCampaign(c echo.Context) error {
 	for i := 0; i < len(req.SubscriberEmails); i++ {
 		req.SubscriberEmails[i] = strings.ToLower(strings.TrimSpace(req.SubscriberEmails[i]))
 	}
+
 	var subs models.Subscribers
 	if err := app.queries.GetSubscribersByEmails.Select(&subs, req.SubscriberEmails); err != nil {
 		app.log.Printf("error fetching subscribers: %v", err)
@@ -523,6 +540,7 @@ func handleTestCampaign(c echo.Context) error {
 		}
 
 		app.log.Printf("error fetching campaign: %v", err)
+
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			fmt.Sprintf("Error fetching campaign: %s", pqErrMsg(err)))
 	}
@@ -581,6 +599,7 @@ func validateCampaignFields(c campaignReq, app *App) (campaignReq, error) {
 	if !strHasLen(c.Name, 1, stdInputMaxLen) {
 		return c, errors.New("invalid length for `name`")
 	}
+
 	if !strHasLen(c.Subject, 1, stdInputMaxLen) {
 		return c, errors.New("invalid length for `subject`")
 	}
@@ -624,6 +643,7 @@ func makeOptinCampaignMessage(o campaignReq, app *App) (campaignReq, error) {
 
 	// Fetch double opt-in lists from the given list IDs.
 	var lists []models.List
+
 	err := app.queries.GetListsByOptin.Select(&lists, models.ListOptinDouble, pq.Int64Array(o.ListIDs), nil)
 	if err != nil {
 		app.log.Printf("error fetching lists for opt-in: %s", pqErrMsg(err))
@@ -639,11 +659,12 @@ func makeOptinCampaignMessage(o campaignReq, app *App) (campaignReq, error) {
 
 	// Construct the opt-in URL with list IDs.
 	listIDs := url.Values{}
+
 	for _, l := range lists {
 		listIDs.Add("l", l.UUID)
 	}
 	// optinURLFunc := template.URL("{{ OptinURL }}?" + listIDs.Encode())
-	optinURLAttr := template.HTMLAttr(fmt.Sprintf(`href="{{ OptinURL }}%s"`, listIDs.Encode()))
+	optinURLAttr := template.HTMLAttr(fmt.Sprintf(`href="{{ OptinURL }}%s"`, listIDs.Encode())) // nolint
 
 	// Prepare sample opt-in message for the campaign.
 	var b bytes.Buffer
@@ -657,5 +678,6 @@ func makeOptinCampaignMessage(o campaignReq, app *App) (campaignReq, error) {
 	}
 
 	o.Body = b.String()
+
 	return o, nil
 }

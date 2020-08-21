@@ -102,8 +102,10 @@ func connectDB(c dbConf) (*sqlx.DB, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	db.SetMaxOpenConns(c.MaxOpen)
 	db.SetMaxIdleConns(c.MaxIdle)
+
 	return db, nil
 }
 
@@ -117,12 +119,14 @@ func (q *Queries) compileSubscriberQueryTpl(exp string, db *sqlx.DB) (string, er
 	if err != nil {
 		return "", err
 	}
-	defer tx.Rollback()
+
+	defer func() { _ = tx.Rollback() }()
 
 	// Perform the dry run.
 	if exp != "" {
 		exp = " AND " + exp
 	}
+
 	stmt := fmt.Sprintf(q.QuerySubscribersTpl, exp)
 	if _, err := tx.Exec(stmt, true, pq.Int64Array{}); err != nil {
 		return "", err

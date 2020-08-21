@@ -76,6 +76,7 @@ func initFlags() {
 	f.Bool("new-config", false, "generate sample config file")
 	f.String("static-dir", "", "(optional) path to directory with static files")
 	f.Bool("yes", false, "assume 'yes' to prompts, eg: during --install")
+
 	if err := f.Parse(os.Args[1:]); err != nil {
 		lo.Fatalf("error loading flags: %v", err)
 	}
@@ -89,10 +90,12 @@ func initFlags() {
 func initConfigFiles(files []string, ko *koanf.Koanf) {
 	for _, f := range files {
 		lo.Printf("reading config: %s", f)
+
 		if err := ko.Load(file.Provider(f), toml.Parser()); err != nil {
 			if os.IsNotExist(err) {
 				lo.Fatal("config file not found. If there isn't one yet, run --new-config to generate one.")
 			}
+
 			lo.Fatalf("error loadng config from file: %v.", err)
 		}
 	}
@@ -114,6 +117,7 @@ func initFS(staticDir string) stuffbin.FileSystem {
 		// the in-memory stuffbin.FileSystem.
 		lo.Printf("unable to initialize embedded filesystem: %v", err)
 		lo.Printf("using local filesystem for static assets")
+
 		files := []string{
 			"config.toml.sample",
 			"queries.sql",
@@ -145,6 +149,7 @@ func initFS(staticDir string) stuffbin.FileSystem {
 			// Alias /static/public to /public for the HTTP fileserver.
 			filepath.Join(staticDir, "/public") + ":/public",
 		}...)
+
 		if err != nil {
 			lo.Fatalf("failed reading static directory: %s: %v", staticDir, err)
 		}
@@ -153,6 +158,7 @@ func initFS(staticDir string) stuffbin.FileSystem {
 			lo.Fatalf("error merging static directory: %s: %v", staticDir, err)
 		}
 	}
+
 	return fs
 }
 
@@ -165,10 +171,12 @@ func initDB() *sqlx.DB {
 	}
 
 	lo.Printf("connecting to db: %s:%d/%s", dbCfg.Host, dbCfg.Port, dbCfg.DBName)
+
 	db, err := connectDB(dbCfg)
 	if err != nil {
 		lo.Fatalf("error connecting to DB: %v", err)
 	}
+
 	return db
 }
 
@@ -180,6 +188,7 @@ func initQueries(sqlFile string, db *sqlx.DB, fs stuffbin.FileSystem, prepareQue
 	if err != nil {
 		lo.Fatalf("error reading SQL file %s: %v", sqlFile, err)
 	}
+
 	qMap, err := goyesql.ParseBytes(qB)
 	if err != nil {
 		lo.Fatalf("error parsing SQL queries: %v", err)
@@ -194,6 +203,7 @@ func initQueries(sqlFile string, db *sqlx.DB, fs stuffbin.FileSystem, prepareQue
 	if err := goyesqlx.ScanToStruct(&q, qMap, db.Unsafe()); err != nil {
 		lo.Fatalf("error preparing SQL queries: %v", err)
 	}
+
 	return qMap, &q
 }
 
@@ -210,6 +220,7 @@ func initSettings(q *Queries) {
 	if err := json.Unmarshal(s, &out); err != nil {
 		lo.Fatalf("error unmarshalling settings from DB: %v", err)
 	}
+
 	if err := ko.Load(confmap.Provider(out, "."), nil); err != nil {
 		lo.Fatalf("error parsing settings from DB: %v", err)
 	}
@@ -221,6 +232,7 @@ func initConstants() *constants {
 	if err := ko.Unmarshal("app", &c); err != nil {
 		lo.Fatalf("error loading app config: %v", err)
 	}
+
 	if err := ko.Unmarshal("privacy", &c.Privacy); err != nil {
 		lo.Fatalf("error loading app config: %v", err)
 	}
@@ -244,6 +256,7 @@ func initConstants() *constants {
 
 	// url.com/campaign/{campaign_uuid}/{subscriber_uuid}/px.png
 	c.ViewTrackURL = fmt.Sprintf("%s/campaign/%%s/%%s/px.png", c.RootURL)
+
 	return &c
 }
 
@@ -256,6 +269,7 @@ func initCampaignManager(q *Queries, cs *constants, app *App) *manager.Manager {
 	if ko.Int("app.concurrency") < 1 {
 		lo.Fatal("app.concurrency should be at least 1")
 	}
+
 	if ko.Int("app.message_rate") < 1 {
 		lo.Fatal("app.message_rate should be at least 1")
 	}
@@ -273,7 +287,6 @@ func initCampaignManager(q *Queries, cs *constants, app *App) *manager.Manager {
 		MessageURL:    cs.MessageURL,
 		UnsubHeader:   ko.Bool("privacy.unsubscribe_header"),
 	}, newManagerDB(q), campNotifCB, lo)
-
 }
 
 // initImporter initializes the bulk subscriber importer.
@@ -284,7 +297,8 @@ func initImporter(q *Queries, db *sqlx.DB, app *App) *subimporter.Importer {
 			BlocklistStmt:      q.UpsertBlocklistSubscriber.Stmt,
 			UpdateListDateStmt: q.UpdateListsDate.Stmt,
 			NotifCB: func(subject string, data interface{}) error {
-				app.sendNotification(app.constants.NotifyEmails, subject, notifTplImport, data)
+				_ = app.sendNotification(app.constants.NotifyEmails, subject, notifTplImport, data)
+
 				return nil
 			},
 		}, db.DB)
@@ -315,8 +329,10 @@ func initMessengers(m *manager.Manager) messenger.Messenger {
 		}
 
 		servers = append(servers, s)
+
 		lo.Printf("loaded SMTP: %s@%s", item.String("username"), item.String("host"))
 	}
+
 	if len(servers) == 0 {
 		lo.Fatalf("no SMTP servers enabled in settings")
 	}
@@ -326,6 +342,7 @@ func initMessengers(m *manager.Manager) messenger.Messenger {
 	if err != nil {
 		lo.Fatalf("error loading e-mail messenger: %v", err)
 	}
+
 	if err := m.AddMessenger(msgr); err != nil {
 		lo.Printf("error registering messenger %s", err)
 	}
@@ -338,31 +355,38 @@ func initMediaStore() media.Store {
 	switch provider := ko.String("upload.provider"); provider {
 	case "s3":
 		var o s3.Opts
-		ko.Unmarshal("upload.s3", &o)
+		_ = ko.Unmarshal("upload.s3", &o)
+
 		up, err := s3.NewS3Store(o)
 		if err != nil {
 			lo.Fatalf("error initializing s3 upload provider %s", err)
 		}
+
 		lo.Println("media upload provider: s3")
+
 		return up
 
 	case "filesystem":
 		var o filesystem.Opts
 
-		ko.Unmarshal("upload.filesystem", &o)
+		_ = ko.Unmarshal("upload.filesystem", &o)
 		o.RootURL = ko.String("app.root_url")
 		o.UploadPath = filepath.Clean(o.UploadPath)
 		o.UploadURI = filepath.Clean(o.UploadURI)
 		up, err := filesystem.NewDiskStore(o)
+
 		if err != nil {
 			lo.Fatalf("error initializing filesystem upload provider %s", err)
 		}
+
 		lo.Println("media upload provider: filesystem")
+
 		return up
 
 	default:
 		lo.Fatalf("unknown provider. select filesystem or s3")
 	}
+
 	return nil
 }
 
@@ -378,10 +402,11 @@ func initNotifTemplates(path string, fs stuffbin.FileSystem, cs *constants) *tem
 			return cs.LogoURL
 		}}
 
-	tpl, err := stuffbin.ParseTemplatesGlob(funcs, fs, "/static/email-templates/*.html")
+	tpl, err := stuffbin.ParseTemplatesGlob(funcs, fs, path)
 	if err != nil {
 		lo.Fatalf("error parsing e-mail notif templates: %v", err)
 	}
+
 	return tpl
 }
 
@@ -404,6 +429,7 @@ func initHTTPServer(app *App) *echo.Echo {
 	if err != nil {
 		lo.Fatalf("error parsing public templates: %v", err)
 	}
+
 	srv.Renderer = &tplRenderer{
 		templates:  tpl,
 		RootURL:    app.constants.RootURL,
@@ -414,6 +440,7 @@ func initHTTPServer(app *App) *echo.Echo {
 	fSrv := app.fs.FileServer()
 	srv.GET("/public/*", echo.WrapHandler(fSrv))
 	srv.GET("/frontend/*", echo.WrapHandler(fSrv))
+
 	if ko.String("upload.provider") == "filesystem" {
 		srv.Static(ko.String("upload.filesystem.upload_uri"),
 			ko.String("upload.filesystem.upload_path"))
@@ -442,9 +469,11 @@ func awaitReload(sigChan chan os.Signal, closerWait chan bool, closer func()) ch
 
 	// Respawn a new process and exit the running one.
 	respawn := func() {
+		// nolint
 		if err := syscall.Exec(os.Args[0], os.Args, os.Environ()); err != nil {
 			lo.Fatalf("error spawning process: %v", err)
 		}
+
 		os.Exit(0)
 	}
 

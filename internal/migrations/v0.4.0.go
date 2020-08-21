@@ -22,5 +22,6 @@ func V0_4_0(db *sqlx.DB, fs stuffbin.FileSystem, ko *koanf.Koanf) error {
 	ALTER TABLE lists ADD COLUMN IF NOT EXISTS optin list_optin NOT NULL DEFAULT 'single';
 	ALTER TABLE campaigns ADD COLUMN IF NOT EXISTS type campaign_type DEFAULT 'regular';
 	`)
+
 	return err
 }

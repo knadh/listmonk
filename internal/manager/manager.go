@@ -109,9 +109,11 @@ func New(cfg Config, src DataSource, notifCB models.AdminNotifCallback, l *log.L
 	if cfg.BatchSize < 1 {
 		cfg.BatchSize = 1000
 	}
+
 	if cfg.Concurrency < 1 {
 		cfg.Concurrency = 1
 	}
+
 	if cfg.MessageRate < 1 {
 		cfg.MessageRate = 1
 	}
@@ -153,7 +155,9 @@ func (m *Manager) AddMessenger(msg messenger.Messenger) error {
 	if _, ok := m.messengers[id]; ok {
 		return fmt.Errorf("messenger '%s' is already loaded", id)
 	}
+
 	m.messengers[id] = msg
+
 	return nil
 }
 
@@ -168,6 +172,7 @@ func (m *Manager) PushMessage(msg Message) error {
 		m.logger.Println("message push timed out: %'s'", msg.Subject)
 		return errors.New("message push timed out")
 	}
+
 	return nil
 }
 
@@ -177,6 +182,7 @@ func (m *Manager) GetMessengerNames() []string {
 	for n := range m.messengers {
 		names = append(names, n)
 	}
+
 	return names
 }
 
@@ -190,6 +196,7 @@ func (m *Manager) HasMessenger(id string) bool {
 func (m *Manager) HasRunningCampaigns() bool {
 	m.campsMutex.Lock()
 	defer m.campsMutex.Unlock()
+
 	return len(m.camps) > 0
 }
 
@@ -226,7 +233,8 @@ func (m *Manager) Run(tick time.Duration) {
 				m.logger.Printf("error exhausting campaign (%s): %v", c.Name, err)
 				continue
 			}
-			m.sendNotif(newC, newC.Status, "")
+
+			_ = m.sendNotif(newC, newC.Status, "")
 		}
 	}
 }
@@ -236,6 +244,7 @@ func (m *Manager) Run(tick time.Duration) {
 func (m *Manager) messageWorker() {
 	// Counter to keep track of the message / sec rate limit.
 	numMsg := 0
+
 	for {
 		select {
 		// Campaign message.
@@ -247,8 +256,10 @@ func (m *Manager) messageWorker() {
 			// Pause on hitting the message rate.
 			if numMsg >= m.cfg.MessageRate {
 				time.Sleep(time.Second)
+
 				numMsg = 0
 			}
+
 			numMsg++
 
 			// Outgoing message.
@@ -303,8 +314,9 @@ func (m *Manager) TemplateFuncs(c *models.Campaign) template.FuncMap {
 			return m.trackLink(url, msg.Campaign.UUID, msg.Subscriber.UUID)
 		},
 		"TrackView": func(msg *CampaignMessage) template.HTML {
+
 			return template.HTML(fmt.Sprintf(`<img src="%s" alt="" />`,
-				fmt.Sprintf(m.cfg.ViewTrackURL, msg.Campaign.UUID, msg.Subscriber.UUID)))
+				fmt.Sprintf(m.cfg.ViewTrackURL, msg.Campaign.UUID, msg.Subscriber.UUID))) // nolint - G203: this method will not auto-escape HTML.
 		},
 		"UnsubscribeURL": func(msg *CampaignMessage) string {
 			return msg.unsubURL
@@ -321,6 +333,7 @@ func (m *Manager) TemplateFuncs(c *models.Campaign) template.FuncMap {
 			if layout == "" {
 				layout = time.ANSIC
 			}
+
 			return time.Now().Format(layout)
 		},
 	}
@@ -337,6 +350,7 @@ func (m *Manager) Close() {
 // for campaigns to process and dispatches them to the manager.
 func (m *Manager) scanCampaigns(tick time.Duration) {
 	t := time.NewTicker(tick)
+
 	for {
 		select {
 		// Periodically scan the data source for campaigns to process.
@@ -352,6 +366,7 @@ func (m *Manager) scanCampaigns(tick time.Duration) {
 					m.logger.Printf("error processing campaign (%s): %v", c.Name, err)
 					continue
 				}
+
 				m.logger.Printf("start processing campaign (%s)", c.Name)
 
 				// If subscriber processing is busy, move on. Blocking and waiting
@@ -369,6 +384,7 @@ func (m *Manager) scanCampaigns(tick time.Duration) {
 			if !ok {
 				return
 			}
+
 			if m.cfg.MaxSendErrors < 1 {
 				continue
 			}
@@ -380,12 +396,13 @@ func (m *Manager) scanCampaigns(tick time.Duration) {
 					m.cfg.MaxSendErrors, e.camp.Name)
 
 				if m.isCampaignProcessing(e.camp.ID) {
-					m.exhaustCampaign(e.camp, models.CampaignStatusPaused)
+					_, _ = m.exhaustCampaign(e.camp, models.CampaignStatusPaused)
 				}
+
 				delete(m.campMsgErrorCounts, e.camp.ID)
 
 				// Notify admins.
-				m.sendNotif(e.camp, models.CampaignStatusPaused, "Too many errors")
+				_ = m.sendNotif(e.camp, models.CampaignStatusPaused, "Too many errors")
 			}
 		}
 	}
@@ -395,7 +412,8 @@ func (m *Manager) scanCampaigns(tick time.Duration) {
 func (m *Manager) addCampaign(c *models.Campaign) error {
 	// Validate messenger.
 	if _, ok := m.messengers[c.MessengerID]; !ok {
-		m.src.UpdateCampaignStatus(c.ID, models.CampaignStatusCancelled)
+		_ = m.src.UpdateCampaignStatus(c.ID, models.CampaignStatusCancelled)
+
 		return fmt.Errorf("unknown messenger %s on campaign %s", c.MessengerID, c.Name)
 	}
 
@@ -408,6 +426,7 @@ func (m *Manager) addCampaign(c *models.Campaign) error {
 	m.campsMutex.Lock()
 	m.camps[c.ID] = c
 	m.campsMutex.Unlock()
+
 	return nil
 }
 
@@ -415,11 +434,14 @@ func (m *Manager) addCampaign(c *models.Campaign) error {
 func (m *Manager) getPendingCampaignIDs() []int64 {
 	// Needs to return an empty slice in case there are no campaigns.
 	m.campsMutex.RLock()
+
 	ids := make([]int64, 0, len(m.camps))
 	for _, c := range m.camps {
 		ids = append(ids, int64(c.ID))
 	}
+
 	m.campsMutex.RUnlock()
+
 	return ids
 }
 
@@ -460,6 +482,7 @@ func (m *Manager) isCampaignProcessing(id int) bool {
 	m.campsMutex.RLock()
 	_, ok := m.camps[id]
 	m.campsMutex.RUnlock()
+
 	return ok
 }
 
@@ -476,6 +499,7 @@ func (m *Manager) exhaustCampaign(c *models.Campaign, status string) (*models.Ca
 		} else {
 			m.logger.Printf("set campaign (%s) to %s", c.Name, status)
 		}
+
 		return c, nil
 	}
 
@@ -488,6 +512,7 @@ func (m *Manager) exhaustCampaign(c *models.Campaign, status string) (*models.Ca
 	// If a running campaign has exhausted subscribers, it's finished.
 	if cm.Status == models.CampaignStatusRunning {
 		cm.Status = models.CampaignStatusFinished
+
 		if err := m.src.UpdateCampaignStatus(c.ID, models.CampaignStatusFinished); err != nil {
 			m.logger.Printf("error finishing campaign (%s): %v", c.Name, err)
 		} else {
@@ -539,6 +564,7 @@ func (m *Manager) sendNotif(c *models.Campaign, status, reason string) error {
 			"Reason": reason,
 		}
 	)
+
 	return m.notifCB(subject, data)
 }
 
@@ -552,14 +578,18 @@ func (m *CampaignMessage) Render() error {
 		if err := m.Campaign.SubjectTpl.ExecuteTemplate(&out, models.ContentTpl, m); err != nil {
 			return err
 		}
+
 		m.subject = out.String()
+
 		out.Reset()
 	}
 
 	if err := m.Campaign.Tpl.ExecuteTemplate(&out, models.BaseTpl, m); err != nil {
 		return err
 	}
+
 	m.body = out.Bytes()
+
 	return nil
 }
 
@@ -572,5 +602,6 @@ func (m *CampaignMessage) Subject() string {
 func (m *CampaignMessage) Body() []byte {
 	out := make([]byte, len(m.body))
 	copy(out, m.body)
+
 	return out
 }

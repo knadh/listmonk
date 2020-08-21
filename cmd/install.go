@@ -29,12 +29,16 @@ func install(lastVer string, db *sqlx.DB, fs stuffbin.FileSystem, prompt bool) {
 
 	if prompt {
 		var ok string
+
 		fmt.Print("continue (y/n)?  ")
+
 		if _, err := fmt.Scanf("%s", &ok); err != nil {
 			lo.Fatalf("error reading value from terminal: %v", err)
 		}
+
 		if strings.ToLower(ok) != "y" {
 			fmt.Println("install cancelled.")
+
 			return
 		}
 	}
@@ -47,7 +51,7 @@ func install(lastVer string, db *sqlx.DB, fs stuffbin.FileSystem, prompt bool) {
 
 	// Load the queries.
 	var q Queries
-	if err := goyesqlx.ScanToStruct(&q, qMap, db.Unsafe()); err != nil {
+	if err = goyesqlx.ScanToStruct(&q, qMap, db.Unsafe()); err != nil {
 		lo.Fatalf("error loading SQL queries: %v", err)
 	}
 
@@ -56,7 +60,8 @@ func install(lastVer string, db *sqlx.DB, fs stuffbin.FileSystem, prompt bool) {
 		defList   int
 		optinList int
 	)
-	if err := q.CreateList.Get(&defList,
+
+	if err = q.CreateList.Get(&defList,
 		uuid.Must(uuid.NewV4()),
 		"Default list",
 		models.ListTypePrivate,
@@ -66,7 +71,7 @@ func install(lastVer string, db *sqlx.DB, fs stuffbin.FileSystem, prompt bool) {
 		lo.Fatalf("Error creating list: %v", err)
 	}
 
-	if err := q.CreateList.Get(&optinList, uuid.Must(uuid.NewV4()),
+	if err = q.CreateList.Get(&optinList, uuid.Must(uuid.NewV4()),
 		"Opt-in list",
 		models.ListTypePublic,
 		models.ListOptinDouble,
@@ -76,7 +81,7 @@ func install(lastVer string, db *sqlx.DB, fs stuffbin.FileSystem, prompt bool) {
 	}
 
 	// Sample subscriber.
-	if _, err := q.UpsertSubscriber.Exec(
+	if _, err = q.UpsertSubscriber.Exec(
 		uuid.Must(uuid.NewV4()),
 		"john@example.com",
 		"John Doe",
@@ -85,7 +90,8 @@ func install(lastVer string, db *sqlx.DB, fs stuffbin.FileSystem, prompt bool) {
 		true); err != nil {
 		lo.Fatalf("Error creating subscriber: %v", err)
 	}
-	if _, err := q.UpsertSubscriber.Exec(
+
+	if _, err = q.UpsertSubscriber.Exec(
 		uuid.Must(uuid.NewV4()),
 		"anon@example.com",
 		"Anon Doe",
@@ -108,6 +114,7 @@ func install(lastVer string, db *sqlx.DB, fs stuffbin.FileSystem, prompt bool) {
 	); err != nil {
 		lo.Fatalf("error creating default template: %v", err)
 	}
+
 	if _, err := q.SetDefaultTemplate.Exec(tplID); err != nil {
 		lo.Fatalf("error setting default template: %v", err)
 	}
@@ -141,7 +148,7 @@ func installSchema(curVer string, db *sqlx.DB, fs stuffbin.FileSystem) error {
 		return err
 	}
 
-	if _, err := db.Exec(string(q)); err != nil {
+	if _, err = db.Exec(string(q)); err != nil {
 		return err
 	}
 
@@ -152,9 +159,11 @@ func installSchema(curVer string, db *sqlx.DB, fs stuffbin.FileSystem) error {
 // recordMigrationVersion inserts the given version (of DB migration) into the
 // `migrations` array in the settings table.
 func recordMigrationVersion(ver string, db *sqlx.DB) error {
+	// nolint
 	_, err := db.Exec(fmt.Sprintf(`INSERT INTO settings (key, value)
 	VALUES('migrations', '["%s"]'::JSONB)
 	ON CONFLICT (key) DO UPDATE SET value = settings.value || EXCLUDED.value`, ver))
+
 	return err
 }
 
@@ -166,6 +175,7 @@ func newConfigFile() error {
 	// Initialize the static file system into which all
 	// required static assets (.sql, .js files etc.) are loaded.
 	fs := initFS("")
+
 	b, err := fs.Read("config.toml.sample")
 	if err != nil {
 		return fmt.Errorf("error reading sample config (is binary stuffed?): %v", err)

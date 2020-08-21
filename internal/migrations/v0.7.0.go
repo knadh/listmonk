@@ -23,7 +23,9 @@ func V0_7_0(db *sqlx.DB, fs stuffbin.FileSystem, ko *koanf.Koanf) error {
 		if err != nil {
 			return err
 		}
-		defer tx.Rollback()
+
+		defer func() { _ = tx.Rollback() }()
+
 		if _, err := tx.Exec(`
 			-- Change the status column to text.
 			ALTER TABLE subscribers ALTER COLUMN status TYPE TEXT;
@@ -43,6 +45,7 @@ func V0_7_0(db *sqlx.DB, fs stuffbin.FileSystem, ko *koanf.Koanf) error {
 		`); err != nil {
 			return err
 		}
+
 		if err := tx.Commit(); err != nil {
 			return err
 		}
