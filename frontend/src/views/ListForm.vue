@@ -67,9 +67,9 @@ export default Vue.extend({
       // Binds form input values.
       form: {
         name: '',
-        type: '',
-        optin: '',
-        tags: '',
+        type: 'private',
+        optin: 'single',
+        tags: [],
       },
     };
   },
@@ -114,7 +114,7 @@ export default Vue.extend({
   },
 
   mounted() {
-    this.form = { ...this.$props.data };
+    this.form = { ...this.form, ...this.$props.data };
 
     this.$nextTick(() => {
       this.$refs.focus.focus();
