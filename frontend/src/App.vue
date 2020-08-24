@@ -56,7 +56,7 @@
                 </b-menu-item><!-- subscribers -->
 
                 <b-menu-item :expanded="activeGroup.campaigns"
-                  :active="activeGroup.campaigns"
+                    :active="activeGroup.campaigns"
                     icon="rocket-launch-outline" label="Campaigns">
                   <b-menu-item :to="{name: 'campaigns'}" tag="router-link"
                     :active="activeItem.campaigns"
