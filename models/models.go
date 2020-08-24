@@ -69,12 +69,11 @@ type regTplFunc struct {
 // and substituting it with {{ Track "http://link.com" .Campaign.UUID .Subscriber.UUID }}
 // before compilation. This string gimmick is to make linking easier for users.
 var regTplFuncs = []regTplFunc{
-	// Redundant usage.
-	regTplFunc{
+	{
 		regExp:  regexp.MustCompile("{{(\\s+)?TrackLink\\s+?(\"|`)(.+?)(\"|`)(\\s+)?}}"),
 		replace: `{{ TrackLink "$3" . }}`,
 	},
-	regTplFunc{
+	{
 		regExp:  regexp.MustCompile(`{{(\s+)?(TrackView|UnsubscribeURL|OptinURL|MessageURL)(\s+)?}}`),
 		replace: `{{ $2 . }}`,
 	},
