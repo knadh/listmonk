@@ -32,6 +32,7 @@
                 </b-menu-item><!-- dashboard -->
 
                 <b-menu-item :expanded="activeGroup.lists"
+                  :active="activeGroup.lists"
                   icon="format-list-bulleted-square" label="Lists">
                   <b-menu-item :to="{name: 'lists'}" tag="router-link"
                     :active="activeItem.lists"
@@ -43,6 +44,7 @@
                 </b-menu-item><!-- lists -->
 
                 <b-menu-item :expanded="activeGroup.subscribers"
+                  :active="activeGroup.subscribers"
                   icon="account-multiple" label="Subscribers">
                   <b-menu-item :to="{name: 'subscribers'}" tag="router-link"
                     :active="activeItem.subscribers"
@@ -54,6 +56,7 @@
                 </b-menu-item><!-- subscribers -->
 
                 <b-menu-item :expanded="activeGroup.campaigns"
+                    :active="activeGroup.campaigns"
                     icon="rocket-launch-outline" label="Campaigns">
                   <b-menu-item :to="{name: 'campaigns'}" tag="router-link"
                     :active="activeItem.campaigns"
@@ -138,6 +141,10 @@ export default Vue.extend({
       this.activeItem = { [to.name]: true };
       if (to.meta.group) {
         this.activeGroup = { [to.meta.group]: true };
+      } else {
+        // Reset activeGroup to collapse menu items on navigating
+        // to non group items from sidebar
+        this.activeGroup = {};
       }
     },
   },
