@@ -33,6 +33,7 @@
 
                 <b-menu-item :expanded="activeGroup.lists"
                   :active="activeGroup.lists"
+                  v-on:update:active="(state) => toggleGroup('lists', state)"
                   icon="format-list-bulleted-square" label="Lists">
                   <b-menu-item :to="{name: 'lists'}" tag="router-link"
                     :active="activeItem.lists"
@@ -45,6 +46,7 @@
 
                 <b-menu-item :expanded="activeGroup.subscribers"
                   :active="activeGroup.subscribers"
+                  v-on:update:active="(state) => toggleGroup('subscribers', state)"
                   icon="account-multiple" label="Subscribers">
                   <b-menu-item :to="{name: 'subscribers'}" tag="router-link"
                     :active="activeItem.subscribers"
@@ -56,8 +58,9 @@
                 </b-menu-item><!-- subscribers -->
 
                 <b-menu-item :expanded="activeGroup.campaigns"
-                    :active="activeGroup.campaigns"
-                    icon="rocket-launch-outline" label="Campaigns">
+                  :active="activeGroup.campaigns"
+                  v-on:update:active="(state) => toggleGroup('campaigns', state)"
+                  icon="rocket-launch-outline" label="Campaigns">
                   <b-menu-item :to="{name: 'campaigns'}" tag="router-link"
                     :active="activeItem.campaigns"
                     icon="rocket-launch-outline" label="All campaigns"></b-menu-item>
@@ -150,6 +153,9 @@ export default Vue.extend({
   },
 
   methods: {
+    toggleGroup(group, state) {
+      this.activeGroup = state ? { [group]: true } : {};
+    },
     reloadApp() {
       this.$api.reloadApp().then(() => {
         this.$utils.toast('Reloading app ...');
