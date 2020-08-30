@@ -42,7 +42,7 @@ This one-click [Heroku deploy button](https://github.com/bumi/listmonk-heroku) p
 
 [![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/bumi/listmonk-heroku)
 
-Please note that [configuration options](https://listmonk.app/docs/configuration) must be set using [environment configruation variables](https://devcenter.heroku.com/articles/config-vars).
+Please note that [configuration options](https://listmonk.app/docs/configuration) must be set using [environment configuration variables](https://devcenter.heroku.com/articles/config-vars).
 
 
 
