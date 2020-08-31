@@ -116,7 +116,8 @@ func handleCreateList(c echo.Context) error {
 	c.SetParamNames("id")
 	c.SetParamValues(fmt.Sprintf("%d", newID))
 
-	return c.JSON(http.StatusOK, handleGetLists(c))
+	return handleGetLists(c)
+
 }
 
 // handleUpdateList handles list modification.

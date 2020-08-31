@@ -91,8 +91,8 @@ export const getDashboardCharts = () => http.get('/api/dashboard/charts',
   { loading: models.dashboard });
 
 // Lists.
-export const getLists = () => http.get('/api/lists',
-  { loading: models.lists, store: models.lists });
+export const getLists = (params) => http.get('/api/lists',
+  { params, loading: models.lists, store: models.lists });
 
 export const createList = (data) => http.post('/api/lists', data,
   { loading: models.lists });

@@ -14,10 +14,13 @@
     <b-table
       :data="lists.results"
       :loading="loading.lists"
-      hoverable
-      default-sort="createdAt">
+      hoverable default-sort="createdAt"
+      paginated backend-pagination pagination-position="both" @page-change="onPageChange"
+      :current-page="queryParams.page" :per-page="lists.perPage" :total="lists.total"
+    >
         <template slot-scope="props">
-            <b-table-column field="name" label="Name" sortable width="25%">
+            <b-table-column field="name" label="Name" sortable width="25%"
+              paginated backend-pagination pagination-position="both" @page-change="onPageChange">
               <div>
                 <router-link :to="{name: 'subscribers_list', params: { listID: props.row.id }}">
                   {{ props.row.name }}
@@ -112,10 +115,16 @@ export default Vue.extend({
       curItem: null,
       isEditing: false,
       isFormVisible: false,
+      queryParams: { page: 1 },
     };
   },
 
   methods: {
+    onPageChange(p) {
+      this.queryParams.page = p;
+      this.getLists();
+    },
+
     // Show the edit list form.
     showEditForm(list) {
       this.curItem = list;
@@ -131,7 +140,11 @@ export default Vue.extend({
     },
 
     formFinished() {
-      this.$api.getLists();
+      this.getLists();
+    },
+
+    getLists() {
+      this.$api.getLists({ page: this.queryParams.page });
     },
 
     deleteList(list) {
@@ -139,7 +152,7 @@ export default Vue.extend({
         'Are you sure? This does not delete subscribers.',
         () => {
           this.$api.deleteList(list.id).then(() => {
-            this.$api.getLists();
+            this.getLists();
 
             this.$buefy.toast.open({
               message: `'${list.name}' deleted`,
@@ -174,7 +187,7 @@ export default Vue.extend({
   },
 
   mounted() {
-    this.$api.getLists();
+    this.getLists();
   },
 });
 </script>

@@ -8,7 +8,7 @@ module.exports = {
   // and the URI for assets are tightly coupled. This is handled in the Go app
   // by using stuffbin aliases.
   assetsDir: 'frontend',
-  
+
   // Move the index.html file from dist/index.html to dist/frontend/index.html
   indexPath: './frontend/index.html',
 
