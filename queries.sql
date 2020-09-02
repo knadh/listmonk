@@ -75,8 +75,8 @@ SELECT id from sub;
 -- Upserts a subscriber where existing subscribers get their names and attributes overwritten.
 -- If $6 = true, update values, otherwise, skip.
 WITH sub AS (
-    INSERT INTO subscribers as s (uuid, email, name, attribs)
-    VALUES($1, $2, $3, $4)
+    INSERT INTO subscribers as s (uuid, email, name, attribs, status)
+    VALUES($1, $2, $3, $4, 'enabled')
     ON CONFLICT (email)
     DO UPDATE SET
         name=(CASE WHEN $6 THEN $3 ELSE s.name END),
