@@ -47,7 +47,7 @@
           <hr />
 
           <b-field label="CSV or ZIP file" label-position="on-border">
-            <b-upload v-model="form.file" drag-drop expanded required>
+            <b-upload v-model="form.file" drag-drop expanded>
               <div class="has-text-centered section">
                 <p>
                   <b-icon icon="file-upload-outline" size="is-large"></b-icon>

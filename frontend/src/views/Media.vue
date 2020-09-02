@@ -17,7 +17,7 @@
               drag-drop
               multiple
               accept=".png,.jpg,.jpeg,.gif"
-              expanded required>
+              expanded>
               <div class="has-text-centered section">
                 <p>
                   <b-icon icon="file-upload-outline" size="is-large"></b-icon>
