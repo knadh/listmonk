@@ -1,9 +1,10 @@
-package main
+package app
 
 import (
 	"errors"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"os"
 	"regexp"
 	"strings"
@@ -11,6 +12,7 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/jmoiron/sqlx"
 	goyesqlx "github.com/knadh/goyesql/v2/sqlx"
+	"github.com/knadh/koanf"
 	"github.com/knadh/listmonk/models"
 	"github.com/knadh/stuffbin"
 	"github.com/lib/pq"
@@ -18,8 +20,8 @@ import (
 
 // install runs the first time setup of creating and
 // migrating the database and creating the super user.
-func install(lastVer string, db *sqlx.DB, fs stuffbin.FileSystem, prompt bool) {
-	qMap, _ := initQueries(queryFilePath, db, fs, false)
+func install(lastVer string, db *sqlx.DB, fs stuffbin.FileSystem, prompt bool, ko *koanf.Koanf, lo *log.Logger) {
+	qMap, _ := initQueries(queryFilePath, db, fs, false, lo)
 
 	fmt.Println("")
 	fmt.Println("** first time installation **")
@@ -158,14 +160,14 @@ func recordMigrationVersion(ver string, db *sqlx.DB) error {
 	return err
 }
 
-func newConfigFile() error {
+func newConfigFile(lo *log.Logger) error {
 	if _, err := os.Stat("config.toml"); !os.IsNotExist(err) {
 		return errors.New("config.toml exists. Remove it to generate a new one")
 	}
 
 	// Initialize the static file system into which all
 	// required static assets (.sql, .js files etc.) are loaded.
-	fs := initFS("")
+	fs := initFS("", lo)
 	b, err := fs.Read("config.toml.sample")
 	if err != nil {
 		return fmt.Errorf("error reading sample config (is binary stuffed?): %v", err)

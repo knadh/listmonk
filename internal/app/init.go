@@ -1,9 +1,10 @@
-package main
+package app
 
 import (
 	"encoding/json"
 	"fmt"
 	"html/template"
+	"log"
 	"os"
 	"path/filepath"
 	"strings"
@@ -59,7 +60,7 @@ type constants struct {
 	MediaProvider string
 }
 
-func initFlags() {
+func initFlags(ko *koanf.Koanf, lo *log.Logger) {
 	f := flag.NewFlagSet("config", flag.ContinueOnError)
 	f.Usage = func() {
 		// Register --help handler.
@@ -86,7 +87,7 @@ func initFlags() {
 }
 
 // initConfigFiles loads the given config files into the koanf instance.
-func initConfigFiles(files []string, ko *koanf.Koanf) {
+func initConfigFiles(files []string, ko *koanf.Koanf, lo *log.Logger) {
 	for _, f := range files {
 		lo.Printf("reading config: %s", f)
 		if err := ko.Load(file.Provider(f), toml.Parser()); err != nil {
@@ -100,7 +101,7 @@ func initConfigFiles(files []string, ko *koanf.Koanf) {
 
 // initFileSystem initializes the stuffbin FileSystem to provide
 // access to bunded static assets to the app.
-func initFS(staticDir string) stuffbin.FileSystem {
+func initFS(staticDir string, lo *log.Logger) stuffbin.FileSystem {
 	// Get the executable's path.
 	path, err := os.Executable()
 	if err != nil {
@@ -158,7 +159,7 @@ func initFS(staticDir string) stuffbin.FileSystem {
 
 // initDB initializes the main DB connection pool and parse and loads the app's
 // SQL queries into a prepared query map.
-func initDB() *sqlx.DB {
+func initDB(ko *koanf.Koanf, lo *log.Logger) *sqlx.DB {
 	var dbCfg dbConf
 	if err := ko.Unmarshal("db", &dbCfg); err != nil {
 		lo.Fatalf("error loading db config: %v", err)
@@ -174,7 +175,7 @@ func initDB() *sqlx.DB {
 
 // initQueries loads named SQL queries from the queries file and optionally
 // prepares them.
-func initQueries(sqlFile string, db *sqlx.DB, fs stuffbin.FileSystem, prepareQueries bool) (goyesql.Queries, *Queries) {
+func initQueries(sqlFile string, db *sqlx.DB, fs stuffbin.FileSystem, prepareQueries bool, lo *log.Logger) (goyesql.Queries, *Queries) {
 	// Load SQL queries.
 	qB, err := fs.Read(sqlFile)
 	if err != nil {
@@ -198,7 +199,7 @@ func initQueries(sqlFile string, db *sqlx.DB, fs stuffbin.FileSystem, prepareQue
 }
 
 // initSettings loads settings from the DB.
-func initSettings(q *Queries) {
+func initSettings(q *Queries, ko *koanf.Koanf, lo *log.Logger) {
 	var s types.JSONText
 	if err := q.GetSettings.Get(&s); err != nil {
 		lo.Fatalf("error reading settings from DB: %s", pqErrMsg(err))
@@ -215,7 +216,7 @@ func initSettings(q *Queries) {
 	}
 }
 
-func initConstants() *constants {
+func initConstants(ko *koanf.Koanf, lo *log.Logger) *constants {
 	// Read constants.
 	var c constants
 	if err := ko.Unmarshal("app", &c); err != nil {
@@ -248,7 +249,7 @@ func initConstants() *constants {
 }
 
 // initCampaignManager initializes the campaign manager.
-func initCampaignManager(q *Queries, cs *constants, app *App) *manager.Manager {
+func initCampaignManager(q *Queries, cs *constants, app *App, ko *koanf.Koanf, lo *log.Logger) *manager.Manager {
 	campNotifCB := func(subject string, data interface{}) error {
 		return app.sendNotification(cs.NotifyEmails, subject, notifTplCampaign, data)
 	}
@@ -291,7 +292,7 @@ func initImporter(q *Queries, db *sqlx.DB, app *App) *subimporter.Importer {
 }
 
 // initMessengers initializes various messenger backends.
-func initMessengers(m *manager.Manager) messenger.Messenger {
+func initMessengers(m *manager.Manager, ko *koanf.Koanf, lo *log.Logger) messenger.Messenger {
 	var (
 		mapKeys = ko.MapKeys("smtp")
 		servers = make([]messenger.Server, 0, len(mapKeys))
@@ -334,7 +335,7 @@ func initMessengers(m *manager.Manager) messenger.Messenger {
 }
 
 // initMediaStore initializes Upload manager with a custom backend.
-func initMediaStore() media.Store {
+func initMediaStore(ko *koanf.Koanf, lo *log.Logger) media.Store {
 	switch provider := ko.String("upload.provider"); provider {
 	case "s3":
 		var o s3.Opts
@@ -368,7 +369,7 @@ func initMediaStore() media.Store {
 
 // initNotifTemplates compiles and returns e-mail notification templates that are
 // used for sending ad-hoc notifications to admins and subscribers.
-func initNotifTemplates(path string, fs stuffbin.FileSystem, cs *constants) *template.Template {
+func initNotifTemplates(path string, fs stuffbin.FileSystem, cs *constants, lo *log.Logger) *template.Template {
 	// Register utility functions that the e-mail templates can use.
 	funcs := template.FuncMap{
 		"RootURL": func() string {
@@ -386,7 +387,7 @@ func initNotifTemplates(path string, fs stuffbin.FileSystem, cs *constants) *tem
 }
 
 // initHTTPServer sets up and runs the app's main HTTP server and blocks forever.
-func initHTTPServer(app *App) *echo.Echo {
+func initHTTPServer(app *App, ko *koanf.Koanf, lo *log.Logger) *echo.Echo {
 	// Initialize the HTTP server.
 	var srv = echo.New()
 	srv.HideBanner = true
@@ -436,7 +437,7 @@ func initHTTPServer(app *App) *echo.Echo {
 	return srv
 }
 
-func awaitReload(sigChan chan os.Signal, closerWait chan bool, closer func()) chan bool {
+func awaitReload(sigChan chan os.Signal, closerWait chan bool, closer func(), lo *log.Logger) chan bool {
 	// The blocking signal handler that main() waits on.
 	out := make(chan bool)
 

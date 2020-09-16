@@ -1,4 +1,4 @@
-package main
+package app
 
 import (
 	"context"
@@ -48,21 +48,16 @@ type App struct {
 	sync.Mutex
 }
 
-var (
-	lo = log.New(os.Stdout, "", log.Ldate|log.Ltime|log.Lshortfile)
-	ko = koanf.New(".")
+func initApp(buildString, versionString string) (stuffbin.FileSystem, *sqlx.DB, *koanf.Koanf, *log.Logger) {
+	var (
+		ko = koanf.New(".")
+		lo = log.New(os.Stdout, "", log.Ldate|log.Ltime|log.Lshortfile)
+		db *sqlx.DB
+		fs stuffbin.FileSystem
+	)
 
-	fs      stuffbin.FileSystem
-	db      *sqlx.DB
-	queries *Queries
-
-	buildString   string
-	versionString string
-)
-
-func init() {
 	lo.Println(buildString)
-	initFlags()
+	initFlags(ko, lo)
 
 	// Display version.
 	if ko.Bool("version") {
@@ -72,7 +67,7 @@ func init() {
 
 	// Generate new config.
 	if ko.Bool("new-config") {
-		if err := newConfigFile(); err != nil {
+		if err := newConfigFile(lo); err != nil {
 			lo.Println(err)
 			os.Exit(1)
 		}
@@ -81,7 +76,7 @@ func init() {
 	}
 
 	// Load config files to pick up the database settings first.
-	initConfigFiles(ko.Strings("config"), ko)
+	initConfigFiles(ko.Strings("config"), ko, lo)
 
 	// Load environment variables and merge into the loaded config.
 	if err := ko.Load(env.Provider("LISTMONK_", ".", func(s string) string {
@@ -92,54 +87,59 @@ func init() {
 	}
 
 	// Connect to the database, load the filesystem to read SQL queries.
-	db = initDB()
-	fs = initFS(ko.String("static-dir"))
+	db = initDB(ko, lo)
+	fs = initFS(ko.String("static-dir"), lo)
 
 	// Installer mode? This runs before the SQL queries are loaded and prepared
 	// as the installer needs to work on an empty DB.
 	if ko.Bool("install") {
 		// Save the version of the last listed migration.
-		install(migList[len(migList)-1].version, db, fs, !ko.Bool("yes"))
+		install(migList[len(migList)-1].version, db, fs, !ko.Bool("yes"), ko, lo)
 		os.Exit(0)
 	}
 	if ko.Bool("upgrade") {
-		upgrade(db, fs, !ko.Bool("yes"))
+		upgrade(db, fs, !ko.Bool("yes"), ko, lo)
 		os.Exit(0)
 	}
 
 	// Before the queries are prepared, see if there are pending upgrades.
-	checkUpgrade(db)
+	checkUpgrade(db, lo)
 
 	// Load the SQL queries from the filesystem.
-	_, queries := initQueries(queryFilePath, db, fs, true)
+	_, queries := initQueries(queryFilePath, db, fs, true, lo)
 
 	// Load settings from DB.
-	initSettings(queries)
+	initSettings(queries, ko, lo)
 
+	return fs, db, ko, lo
 }
 
-func main() {
+func Run(buildString, versionString string) {
+	var (
+		fs, db, ko, lo = initApp(buildString, versionString)
+	)
+
 	// Initialize the main app controller that wraps all of the app's
 	// components. This is passed around HTTP handlers.
 	app := &App{
 		fs:        fs,
 		db:        db,
-		constants: initConstants(),
-		media:     initMediaStore(),
+		constants: initConstants(ko, lo),
+		media:     initMediaStore(ko, lo),
 		log:       lo,
 	}
-	_, app.queries = initQueries(queryFilePath, db, fs, true)
-	app.manager = initCampaignManager(app.queries, app.constants, app)
+	_, app.queries = initQueries(queryFilePath, db, fs, true, lo)
+	app.manager = initCampaignManager(app.queries, app.constants, app, ko, lo)
 	app.importer = initImporter(app.queries, db, app)
-	app.messenger = initMessengers(app.manager)
-	app.notifTpls = initNotifTemplates("/email-templates/*.html", fs, app.constants)
+	app.messenger = initMessengers(app.manager, ko, lo)
+	app.notifTpls = initNotifTemplates("/email-templates/*.html", fs, app.constants, lo)
 
 	// Start the campaign workers. The campaign batches (fetch from DB, push out
 	// messages) get processed at the specified interval.
 	go app.manager.Run(time.Second * 5)
 
 	// Start the app server.
-	srv := initHTTPServer(app)
+	srv := initHTTPServer(app, ko, lo)
 
 	// Star the update checker.
 	go checkUpdates(versionString, time.Hour*24, app)
@@ -168,5 +168,5 @@ func main() {
 
 		// Signal the close.
 		closerWait <- true
-	})
+	}, lo)
 }

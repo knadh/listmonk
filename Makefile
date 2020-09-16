@@ -20,15 +20,15 @@ deps:
 # Build steps.
 .PHONY: build
 build:
-	go build -o ${BIN} -ldflags="-s -w -X 'main.buildString=${BUILDSTR}' -X 'main.versionString=${VERSION}'" cmd/*.go
+	go build -o ${BIN} -ldflags="-s -w -X 'main.buildString=${BUILDSTR}' -X 'main.versionString=${VERSION}'" ./cmd/listmonk
 
 .PHONY: build-frontend
 build-frontend:
 	export VUE_APP_VERSION="${VERSION}" && cd frontend && yarn build
 
 .PHONY: run
-run: build
-	./${BIN}
+run: 
+	go run ./cmd/listmonk	
 
 .PHONY: run-frontend
 run-frontend:

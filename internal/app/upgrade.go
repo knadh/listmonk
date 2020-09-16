@@ -1,7 +1,8 @@
-package main
+package app
 
 import (
 	"fmt"
+	"log"
 	"strings"
 
 	"github.com/jmoiron/sqlx"
@@ -31,7 +32,7 @@ var migList = []migFunc{
 
 // upgrade upgrades the database to the current version by running SQL migration files
 // for all version from the last known version to the current one.
-func upgrade(db *sqlx.DB, fs stuffbin.FileSystem, prompt bool) {
+func upgrade(db *sqlx.DB, fs stuffbin.FileSystem, prompt bool, ko *koanf.Koanf, lo *log.Logger) {
 	if prompt {
 		var ok string
 		fmt.Printf("** IMPORTANT: Take a backup of the database before upgrading.\n")
@@ -78,7 +79,7 @@ func upgrade(db *sqlx.DB, fs stuffbin.FileSystem, prompt bool) {
 
 // checkUpgrade checks if the current database schema matches the expected
 // binary version.
-func checkUpgrade(db *sqlx.DB) {
+func checkUpgrade(db *sqlx.DB, lo *log.Logger) {
 	lastVer, toRun, err := getPendingMigrations(db)
 	if err != nil {
 		lo.Fatalf("error checking migrations: %v", err)
@@ -101,7 +102,7 @@ func checkUpgrade(db *sqlx.DB) {
 // getPendingMigrations gets the pending migrations by comparing the last
 // recorded migration in the DB against all migrations listed in `migrations`.
 func getPendingMigrations(db *sqlx.DB) (string, []migFunc, error) {
-	lastVer, err := getLastMigrationVersion()
+	lastVer, err := getLastMigrationVersion(db)
 	if err != nil {
 		return "", nil, err
 	}
@@ -121,7 +122,7 @@ func getPendingMigrations(db *sqlx.DB) (string, []migFunc, error) {
 
 // getLastMigrationVersion returns the last migration semver recorded in the DB.
 // If there isn't any, `v0.0.0` is returned.
-func getLastMigrationVersion() (string, error) {
+func getLastMigrationVersion(db *sqlx.DB) (string, error) {
 	var v string
 	if err := db.Get(&v, `
 		SELECT COALESCE(
