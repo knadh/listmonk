@@ -119,7 +119,7 @@
               </b-field>
 
               <b-field label="Allow exporting"
-                message="Allow subscribers to export data colected on them?">
+                message="Allow subscribers to export data collected on them?">
                 <b-switch v-model="form['privacy.allow_export']"
                     name="privacy.allow_export" />
               </b-field>
