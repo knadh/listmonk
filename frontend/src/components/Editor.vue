@@ -11,11 +11,14 @@
             <b-radio v-model="form.radioFormat"
               @input="onChangeFormat" :disabled="disabled" name="format"
               native-value="html">Raw HTML</b-radio>
+            <b-radio v-model="form.radioFormat"
+              @input="onChangeFormat" :disabled="disabled" name="format"
+              native-value="plain">Plain text</b-radio>
           </div>
         </b-field>
       </div>
       <div class="column is-6 has-text-right">
-          <b-button @click="togglePreview" type="is-primary"
+          <b-button @click="onTogglePreview" type="is-primary"
             icon-left="file-find-outline">Preview</b-button>
       </div>
     </div>
@@ -37,9 +40,13 @@
     <div v-if="form.format === 'html'"
       ref="htmlEditor" id="html-editor" class="html-editor"></div>
 
+    <!-- plain text editor //-->
+    <b-input v-if="form.format === 'plain'" v-model="form.body" @input="onEditorChange"
+      type="textarea" ref="plainEditor" class="plain-editor" />
+
     <!-- campaign preview //-->
     <campaign-preview v-if="isPreviewing"
-      @close="togglePreview"
+      @close="onTogglePreview"
       type='campaign'
       :id='id'
       :title='title'
@@ -136,7 +143,7 @@ export default {
               esc: {
                 key: 27,
                 handler: () => {
-                  this.toggleFullscreen(true);
+                  this.onToggleFullscreen(true);
                 },
               },
             },
@@ -163,8 +170,8 @@ export default {
             ],
 
             handlers: {
-              image: this.toggleMedia,
-              fullscreen: () => this.toggleFullscreen(false),
+              image: this.onToggleMedia,
+              fullscreen: () => this.onToggleFullscreen(false),
             },
           },
         },
@@ -227,16 +234,16 @@ export default {
       });
     },
 
-    togglePreview() {
+    onTogglePreview() {
       this.isPreviewing = !this.isPreviewing;
     },
 
-    toggleMedia() {
+    onToggleMedia() {
       this.lastSel = this.$refs.quill.quill.getSelection();
       this.isMediaVisible = !this.isMediaVisible;
     },
 
-    toggleFullscreen(onlyMinimize) {
+    onToggleFullscreen(onlyMinimize) {
       if (onlyMinimize) {
         if (!this.isEditorFullscreen) {
           return;

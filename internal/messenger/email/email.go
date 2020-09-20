@@ -1,4 +1,4 @@
-package messenger
+package email
 
 import (
 	"crypto/tls"
@@ -8,6 +8,7 @@ import (
 	"net/textproto"
 
 	"github.com/jaytaylor/html2text"
+	"github.com/knadh/listmonk/internal/messenger"
 	"github.com/knadh/smtppool"
 )
 
@@ -35,9 +36,8 @@ type Emailer struct {
 	servers []*Server
 }
 
-// NewEmailer creates and returns an e-mail Messenger backend.
-// It takes multiple SMTP configurations.
-func NewEmailer(servers ...Server) (*Emailer, error) {
+// New returns an SMTP e-mail Messenger backend with a the given SMTP servers.
+func New(servers ...Server) (*Emailer, error) {
 	e := &Emailer{
 		servers: make([]*Server, 0, len(servers)),
 	}
@@ -86,7 +86,7 @@ func (e *Emailer) Name() string {
 }
 
 // Push pushes a message to the server.
-func (e *Emailer) Push(m Message) error {
+func (e *Emailer) Push(m messenger.Message) error {
 	// If there are more than one SMTP servers, send to a random
 	// one from the list.
 	var (

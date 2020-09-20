@@ -123,7 +123,7 @@ func install(lastVer string, db *sqlx.DB, fs stuffbin.FileSystem, prompt bool) {
 		"richtext",
 		nil,
 		pq.StringArray{"test-campaign"},
-		"email",
+		emailMsgr,
 		1,
 		pq.Int64Array{1},
 	); err != nil {

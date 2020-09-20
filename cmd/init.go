@@ -25,6 +25,8 @@ import (
 	"github.com/knadh/listmonk/internal/media/providers/filesystem"
 	"github.com/knadh/listmonk/internal/media/providers/s3"
 	"github.com/knadh/listmonk/internal/messenger"
+	"github.com/knadh/listmonk/internal/messenger/email"
+	"github.com/knadh/listmonk/internal/messenger/postback"
 	"github.com/knadh/listmonk/internal/subimporter"
 	"github.com/knadh/stuffbin"
 	"github.com/labstack/echo"
@@ -290,11 +292,11 @@ func initImporter(q *Queries, db *sqlx.DB, app *App) *subimporter.Importer {
 		}, db.DB)
 }
 
-// initMessengers initializes various messenger backends.
-func initMessengers(m *manager.Manager) messenger.Messenger {
+// initSMTPMessenger initializes the SMTP messenger.
+func initSMTPMessenger(m *manager.Manager) messenger.Messenger {
 	var (
 		mapKeys = ko.MapKeys("smtp")
-		servers = make([]messenger.Server, 0, len(mapKeys))
+		servers = make([]email.Server, 0, len(mapKeys))
 	)
 
 	items := ko.Slices("smtp")
@@ -302,35 +304,69 @@ func initMessengers(m *manager.Manager) messenger.Messenger {
 		lo.Fatalf("no SMTP servers found in config")
 	}
 
-	// Load the default SMTP messengers.
+	// Load the config for multipme SMTP servers.
 	for _, item := range items {
 		if !item.Bool("enabled") {
 			continue
 		}
 
 		// Read the SMTP config.
-		var s messenger.Server
+		var s email.Server
 		if err := item.UnmarshalWithConf("", &s, koanf.UnmarshalConf{Tag: "json"}); err != nil {
-			lo.Fatalf("error loading SMTP: %v", err)
+			lo.Fatalf("error reading SMTP config: %v", err)
 		}
 
 		servers = append(servers, s)
-		lo.Printf("loaded SMTP: %s@%s", item.String("username"), item.String("host"))
+		lo.Printf("loaded email (SMTP) messenger: %s@%s",
+			item.String("username"), item.String("host"))
 	}
 	if len(servers) == 0 {
 		lo.Fatalf("no SMTP servers enabled in settings")
 	}
 
-	// Initialize the default e-mail messenger.
-	msgr, err := messenger.NewEmailer(servers...)
+	// Initialize the e-mail messenger with multiple SMTP servers.
+	msgr, err := email.New(servers...)
 	if err != nil {
 		lo.Fatalf("error loading e-mail messenger: %v", err)
 	}
-	if err := m.AddMessenger(msgr); err != nil {
-		lo.Printf("error registering messenger %s", err)
-	}
 
 	return msgr
+}
+
+// initPostbackMessengers initializes and returns all the enabled
+// HTTP postback messenger backends.
+func initPostbackMessengers(m *manager.Manager) []messenger.Messenger {
+	items := ko.Slices("messengers")
+	if len(items) == 0 {
+		return nil
+	}
+
+	var out []messenger.Messenger
+	for _, item := range items {
+		if !item.Bool("enabled") {
+			continue
+		}
+
+		// Read the Postback server config.
+		var (
+			name = item.String("name")
+			o    postback.Options
+		)
+		if err := item.UnmarshalWithConf("", &o, koanf.UnmarshalConf{Tag: "json"}); err != nil {
+			lo.Fatalf("error reading Postback config: %v", err)
+		}
+
+		// Initialize the Messenger.
+		p, err := postback.New(o)
+		if err != nil {
+			lo.Fatalf("error initializing Postback messenger %s: %v", name, err)
+		}
+		out = append(out, p)
+
+		lo.Printf("loaded Postback messenger: %s", name)
+	}
+
+	return out
 }
 
 // initMediaStore initializes Upload manager with a custom backend.

@@ -28,14 +28,13 @@ func (app *App) sendNotification(toEmails []string, subject, tplName string, dat
 		return err
 	}
 
-	err := app.manager.PushMessage(manager.Message{
-		From:      app.constants.FromEmail,
-		To:        toEmails,
-		Subject:   subject,
-		Body:      b.Bytes(),
-		Messenger: "email",
-	})
-	if err != nil {
+	m := manager.Message{}
+	m.From = app.constants.FromEmail
+	m.To = toEmails
+	m.Subject = subject
+	m.Body = b.Bytes()
+	m.Messenger = emailMsgr
+	if err := app.manager.PushMessage(m); err != nil {
 		app.log.Printf("error sending admin notification (%s): %v", subject, err)
 		return err
 	}

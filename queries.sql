@@ -561,16 +561,17 @@ WITH camp AS (
         send_at=(CASE WHEN $8 THEN $7::TIMESTAMP WITH TIME ZONE WHEN NOT $8 THEN NULL ELSE send_at END),
         status=(CASE WHEN NOT $8 THEN 'draft' ELSE status END),
         tags=$9::VARCHAR(100)[],
-        template_id=(CASE WHEN $10 != 0 THEN $10 ELSE template_id END),
+        messenger=(CASE WHEN $10 != '' THEN $10 ELSE messenger END),
+        template_id=(CASE WHEN $11 != 0 THEN $11 ELSE template_id END),
         updated_at=NOW()
     WHERE id = $1 RETURNING id
 ),
 d AS (
     -- Reset list relationships
-    DELETE FROM campaign_lists WHERE campaign_id = $1 AND NOT(list_id = ANY($11))
+    DELETE FROM campaign_lists WHERE campaign_id = $1 AND NOT(list_id = ANY($12))
 )
 INSERT INTO campaign_lists (campaign_id, list_id, list_name)
-    (SELECT $1 as campaign_id, id, name FROM lists WHERE id=ANY($11::INT[]))
+    (SELECT $1 as campaign_id, id, name FROM lists WHERE id=ANY($12::INT[]))
     ON CONFLICT (campaign_id, list_id) DO UPDATE SET list_name = EXCLUDED.list_name;
 
 -- name: update-campaign-counts

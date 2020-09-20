@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"regexp"
+	"strings"
 	"syscall"
 	"time"
 
@@ -22,13 +24,23 @@ type settings struct {
 	AppMaxSendErrors int      `json:"app.max_send_errors"`
 	AppMessageRate   int      `json:"app.message_rate"`
 
-	Messengers []interface{} `json:"messengers"`
-
 	PrivacyUnsubHeader    bool     `json:"privacy.unsubscribe_header"`
 	PrivacyAllowBlocklist bool     `json:"privacy.allow_blocklist"`
 	PrivacyAllowExport    bool     `json:"privacy.allow_export"`
 	PrivacyAllowWipe      bool     `json:"privacy.allow_wipe"`
 	PrivacyExportable     []string `json:"privacy.exportable"`
+
+	UploadProvider             string `json:"upload.provider"`
+	UploadFilesystemUploadPath string `json:"upload.filesystem.upload_path"`
+	UploadFilesystemUploadURI  string `json:"upload.filesystem.upload_uri"`
+	UploadS3AwsAccessKeyID     string `json:"upload.s3.aws_access_key_id"`
+	UploadS3AwsDefaultRegion   string `json:"upload.s3.aws_default_region"`
+	UploadS3AwsSecretAccessKey string `json:"upload.s3.aws_secret_access_key,omitempty"`
+	UploadS3Bucket             string `json:"upload.s3.bucket"`
+	UploadS3BucketDomain       string `json:"upload.s3.bucket_domain"`
+	UploadS3BucketPath         string `json:"upload.s3.bucket_path"`
+	UploadS3BucketType         string `json:"upload.s3.bucket_type"`
+	UploadS3Expiry             string `json:"upload.s3.expiry"`
 
 	SMTP []struct {
 		Enabled       bool                `json:"enabled"`
@@ -47,20 +59,21 @@ type settings struct {
 		TLSSkipVerify bool                `json:"tls_skip_verify"`
 	} `json:"smtp"`
 
-	UploadProvider string `json:"upload.provider"`
-
-	UploadFilesystemUploadPath string `json:"upload.filesystem.upload_path"`
-	UploadFilesystemUploadURI  string `json:"upload.filesystem.upload_uri"`
-
-	UploadS3AwsAccessKeyID     string `json:"upload.s3.aws_access_key_id"`
-	UploadS3AwsDefaultRegion   string `json:"upload.s3.aws_default_region"`
-	UploadS3AwsSecretAccessKey string `json:"upload.s3.aws_secret_access_key,omitempty"`
-	UploadS3Bucket             string `json:"upload.s3.bucket"`
-	UploadS3BucketDomain       string `json:"upload.s3.bucket_domain"`
-	UploadS3BucketPath         string `json:"upload.s3.bucket_path"`
-	UploadS3BucketType         string `json:"upload.s3.bucket_type"`
-	UploadS3Expiry             string `json:"upload.s3.expiry"`
+	Messengers []struct {
+		Enabled       bool   `json:"enabled"`
+		Name          string `json:"name"`
+		RootURL       string `json:"root_url"`
+		Username      string `json:"username"`
+		Password      string `json:"password,omitempty"`
+		MaxConns      int    `json:"max_conns"`
+		Timeout       string `json:"timeout"`
+		MaxMsgRetries int    `json:"max_msg_retries"`
+	} `json:"messengers"`
 }
+
+var (
+	reAlphaNum = regexp.MustCompile(`[^a-z0-9\-]`)
+)
 
 // handleGetSettings returns settings from the DB.
 func handleGetSettings(c echo.Context) error {
@@ -74,6 +87,9 @@ func handleGetSettings(c echo.Context) error {
 	// Empty out passwords.
 	for i := 0; i < len(s.SMTP); i++ {
 		s.SMTP[i].Password = ""
+	}
+	for i := 0; i < len(s.Messengers); i++ {
+		s.Messengers[i].Password = ""
 	}
 	s.UploadS3AwsSecretAccessKey = ""
 
@@ -111,13 +127,43 @@ func handleUpdateSettings(c echo.Context) error {
 			if len(cur.SMTP) > i &&
 				set.SMTP[i].Host == cur.SMTP[i].Host &&
 				set.SMTP[i].Username == cur.SMTP[i].Username {
+				// Copy the existing password as password's needn't be
+				// sent from the frontend for updating entries.
 				set.SMTP[i].Password = cur.SMTP[i].Password
 			}
 		}
 	}
 	if !has {
 		return echo.NewHTTPError(http.StatusBadRequest,
-			"Minimum one SMTP block should be enabled.")
+			"At least one SMTP block should be enabled.")
+	}
+
+	// Validate and sanitize postback Messenger names. Duplicates are disallowed
+	// and "email" is a reserved name.
+	names := map[string]bool{emailMsgr: true}
+
+	for i := range set.Messengers {
+		if set.Messengers[i].Password == "" {
+			if len(cur.Messengers) > i &&
+				set.Messengers[i].RootURL == cur.Messengers[i].RootURL &&
+				set.Messengers[i].Username == cur.Messengers[i].Username {
+				// Copy the existing password as password's needn't be
+				// sent from the frontend for updating entries.
+				set.Messengers[i].Password = cur.Messengers[i].Password
+			}
+		}
+
+		name := reAlphaNum.ReplaceAllString(strings.ToLower(set.Messengers[i].Name), "")
+		if _, ok := names[name]; ok {
+			return echo.NewHTTPError(http.StatusBadRequest,
+				fmt.Sprintf("Duplicate messenger name `%s`.", name))
+		}
+		if len(name) == 0 {
+			return echo.NewHTTPError(http.StatusBadRequest, "Invalid messenger name.")
+		}
+
+		set.Messengers[i].Name = name
+		names[name] = true
 	}
 
 	// S3 password?

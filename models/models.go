@@ -164,7 +164,7 @@ type Campaign struct {
 	ContentType string         `db:"content_type" json:"content_type"`
 	Tags        pq.StringArray `db:"tags" json:"tags"`
 	TemplateID  int            `db:"template_id" json:"template_id"`
-	MessengerID string         `db:"messenger" json:"messenger"`
+	Messenger   string         `db:"messenger" json:"messenger"`
 
 	// TemplateBody is joined in from templates by the next-campaigns query.
 	TemplateBody string             `db:"template_body" json:"-"`

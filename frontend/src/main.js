@@ -16,6 +16,22 @@ Vue.config.productionTip = false;
 Vue.prototype.$api = api;
 Vue.prototype.$utils = utils;
 
+Vue.prototype.$reloadServerConfig = () => {
+  // Get the config.js <script> tag, remove it, and re-add it.
+  let s = document.querySelector('#server-config');
+  const url = s.getAttribute('src');
+  s.remove();
+
+  s = document.createElement('script');
+  s.setAttribute('src', url);
+  s.setAttribute('id', 'server-config');
+  s.onload = () => {
+    store.commit('setModelResponse',
+      { model: models.serverConfig, data: humps.camelizeKeys(window.CONFIG) });
+  };
+  document.body.appendChild(s);
+};
+
 // window.CONFIG is loaded from /api/config.js directly in a <script> tag.
 if (window.CONFIG) {
   store.commit('setModelResponse',

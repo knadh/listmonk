@@ -367,7 +367,7 @@ func handleSelfExportSubscriberData(c echo.Context) error {
 
 	// Send the data as a JSON attachment to the subscriber.
 	const fname = "data.json"
-	if err := app.messenger.Push(messenger.Message{
+	if err := app.messengers[emailMsgr].Push(messenger.Message{
 		From:    app.constants.FromEmail,
 		To:      []string{data.Email},
 		Subject: "Your data",

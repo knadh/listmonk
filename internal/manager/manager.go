@@ -74,10 +74,10 @@ type CampaignMessage struct {
 
 // Message represents a generic message to be pushed to a messenger.
 type Message struct {
-	From      string
-	To        []string
-	Subject   string
-	Body      []byte
+	messenger.Message
+	Subscriber models.Subscriber
+
+	// Messenger is the messenger backend to use: email|postback.
 	Messenger string
 }
 
@@ -171,15 +171,6 @@ func (m *Manager) PushMessage(msg Message) error {
 	return nil
 }
 
-// GetMessengerNames returns the list of registered messengers.
-func (m *Manager) GetMessengerNames() []string {
-	names := make([]string, 0, len(m.messengers))
-	for n := range m.messengers {
-		names = append(names, n)
-	}
-	return names
-}
-
 // HasMessenger checks if a given messenger is registered.
 func (m *Manager) HasMessenger(id string) bool {
 	_, ok := m.messengers[id]
@@ -253,10 +244,13 @@ func (m *Manager) messageWorker() {
 
 			// Outgoing message.
 			out := messenger.Message{
-				From:    msg.from,
-				To:      []string{msg.to},
-				Subject: msg.subject,
-				Body:    msg.body,
+				From:        msg.from,
+				To:          []string{msg.to},
+				Subject:     msg.subject,
+				ContentType: msg.Campaign.ContentType,
+				Body:        msg.body,
+				Subscriber:  msg.Subscriber,
+				Campaign:    msg.Campaign,
 			}
 
 			// Attach List-Unsubscribe headers?
@@ -267,7 +261,7 @@ func (m *Manager) messageWorker() {
 				out.Headers = h
 			}
 
-			if err := m.messengers[msg.Campaign.MessengerID].Push(out); err != nil {
+			if err := m.messengers[msg.Campaign.Messenger].Push(out); err != nil {
 				m.logger.Printf("error sending message in campaign %s: %v", msg.Campaign.Name, err)
 
 				select {
@@ -283,10 +277,13 @@ func (m *Manager) messageWorker() {
 			}
 
 			err := m.messengers[msg.Messenger].Push(messenger.Message{
-				From:    msg.From,
-				To:      msg.To,
-				Subject: msg.Subject,
-				Body:    msg.Body,
+				From:        msg.From,
+				To:          msg.To,
+				Subject:     msg.Subject,
+				ContentType: msg.ContentType,
+				Body:        msg.Body,
+				Subscriber:  msg.Subscriber,
+				Campaign:    msg.Campaign,
 			})
 			if err != nil {
 				m.logger.Printf("error sending message '%s': %v", msg.Subject, err)
@@ -394,9 +391,9 @@ func (m *Manager) scanCampaigns(tick time.Duration) {
 // addCampaign adds a campaign to the process queue.
 func (m *Manager) addCampaign(c *models.Campaign) error {
 	// Validate messenger.
-	if _, ok := m.messengers[c.MessengerID]; !ok {
+	if _, ok := m.messengers[c.Messenger]; !ok {
 		m.src.UpdateCampaignStatus(c.ID, models.CampaignStatusCancelled)
-		return fmt.Errorf("unknown messenger %s on campaign %s", c.MessengerID, c.Name)
+		return fmt.Errorf("unknown messenger %s on campaign %s", c.Messenger, c.Name)
 	}
 
 	// Load the template.

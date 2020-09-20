@@ -183,7 +183,7 @@ export default Vue.extend({
   },
 
   computed: {
-    ...mapState(['lists', 'serverConfig', 'loading']),
+    ...mapState(['serverConfig', 'loading', 'lists']),
   },
 
   mounted() {

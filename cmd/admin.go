@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"sort"
 	"syscall"
 	"time"
 
@@ -29,10 +30,21 @@ func handleGetConfigScript(c echo.Context) error {
 		out = configScript{
 			RootURL:       app.constants.RootURL,
 			FromEmail:     app.constants.FromEmail,
-			Messengers:    app.manager.GetMessengerNames(),
 			MediaProvider: app.constants.MediaProvider,
 		}
 	)
+
+	// Sort messenger names with `email` always as the first item.
+	var names []string
+	for name := range app.messengers {
+		if name == emailMsgr {
+			continue
+		}
+		names = append(names, name)
+	}
+	sort.Strings(names)
+	out.Messengers = append(out.Messengers, emailMsgr)
+	out.Messengers = append(out.Messengers, names...)
 
 	app.Lock()
 	out.NeedsRestart = app.needsRestart

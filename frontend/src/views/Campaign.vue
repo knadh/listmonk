@@ -69,6 +69,14 @@
                   </b-select>
                 </b-field>
 
+                <b-field label="Messenger" label-position="on-border">
+                  <b-select placeholder="Messenger" v-model="form.messenger"
+                    :disabled="!canEdit" required>
+                    <option v-for="m in serverConfig.messengers"
+                      :value="m" :key="m">{{ m }}</option>
+                  </b-select>
+                </b-field>
+
                 <b-field label="Tags" label-position="on-border">
                   <b-taginput v-model="form.tags" :disabled="!canEdit"
                     ellipsis icon="tag-outline" placeholder="Tags"></b-taginput>
@@ -206,12 +214,12 @@ export default Vue.extend({
         subject: this.form.subject,
         lists: this.form.lists.map((l) => l.id),
         from_email: this.form.fromEmail,
-        content_type: 'richtext',
-        messenger: 'email',
+        messenger: this.form.messenger,
         type: 'regular',
         tags: this.form.tags,
         template_id: this.form.templateId,
-        body: this.form.body,
+        content_type: this.form.content.contentType,
+        body: this.form.content.body,
         subscribers: this.form.testEmails,
       };
 
@@ -255,7 +263,7 @@ export default Vue.extend({
         subject: this.form.subject,
         lists: this.form.lists.map((l) => l.id),
         from_email: this.form.fromEmail,
-        messenger: 'email',
+        messenger: this.form.messenger,
         type: 'regular',
         tags: this.form.tags,
         send_later: this.form.sendLater,
@@ -305,7 +313,7 @@ export default Vue.extend({
   },
 
   computed: {
-    ...mapState(['lists', 'templates', 'loading']),
+    ...mapState(['serverConfig', 'loading', 'lists', 'templates']),
 
     canEdit() {
       return this.isNew
@@ -353,6 +361,8 @@ export default Vue.extend({
           this.activeTab = 1;
         }
       });
+    } else {
+      this.form.messenger = 'email';
     }
 
     this.$nextTick(() => {

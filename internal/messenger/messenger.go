@@ -1,6 +1,10 @@
 package messenger
 
-import "net/textproto"
+import (
+	"net/textproto"
+
+	"github.com/knadh/listmonk/models"
+)
 
 // Messenger is an interface for a generic messaging backend,
 // for instance, e-mail, SMS etc.
@@ -16,9 +20,15 @@ type Message struct {
 	From        string
 	To          []string
 	Subject     string
+	ContentType string
 	Body        []byte
 	Headers     textproto.MIMEHeader
 	Attachments []Attachment
+
+	Subscriber models.Subscriber
+
+	// Campaign is generally the same instance for a large number of subscribers.
+	Campaign *models.Campaign
 }
 
 // Attachment represents a file or blob attachment that can be

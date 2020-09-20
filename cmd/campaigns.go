@@ -220,11 +220,6 @@ func handleCreateCampaign(c echo.Context) error {
 		o = c
 	}
 
-	if !app.manager.HasMessenger(o.MessengerID) {
-		return echo.NewHTTPError(http.StatusBadRequest,
-			fmt.Sprintf("Unknown messenger %s", o.MessengerID))
-	}
-
 	uu, err := uuid.NewV4()
 	if err != nil {
 		app.log.Printf("error generating UUID: %v", err)
@@ -243,7 +238,7 @@ func handleCreateCampaign(c echo.Context) error {
 		o.ContentType,
 		o.SendAt,
 		pq.StringArray(normalizeTags(o.Tags)),
-		"email",
+		o.Messenger,
 		o.TemplateID,
 		o.ListIDs,
 	); err != nil {
@@ -312,6 +307,7 @@ func handleUpdateCampaign(c echo.Context) error {
 		o.SendAt,
 		o.SendLater,
 		pq.StringArray(normalizeTags(o.Tags)),
+		o.Messenger,
 		o.TemplateID,
 		o.ListIDs)
 	if err != nil {
@@ -492,6 +488,7 @@ func handleTestCampaign(c echo.Context) error {
 	if err := c.Bind(&req); err != nil {
 		return err
 	}
+
 	// Validate.
 	if c, err := validateCampaignFields(req, app); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
@@ -532,6 +529,9 @@ func handleTestCampaign(c echo.Context) error {
 	camp.Subject = req.Subject
 	camp.FromEmail = req.FromEmail
 	camp.Body = req.Body
+	camp.Messenger = req.Messenger
+	camp.ContentType = req.ContentType
+	camp.TemplateID = req.TemplateID
 
 	// Send the test messages.
 	for _, s := range subs {
@@ -560,11 +560,14 @@ func sendTestMessage(sub models.Subscriber, camp *models.Campaign, app *App) err
 			fmt.Sprintf("Error rendering message: %v", err))
 	}
 
-	return app.messenger.Push(messenger.Message{
-		From:    camp.FromEmail,
-		To:      []string{sub.Email},
-		Subject: m.Subject(),
-		Body:    m.Body(),
+	return app.messengers[camp.Messenger].Push(messenger.Message{
+		From:        camp.FromEmail,
+		To:          []string{sub.Email},
+		Subject:     m.Subject(),
+		ContentType: camp.ContentType,
+		Body:        m.Body(),
+		Subscriber:  sub,
+		Campaign:    camp,
 	})
 }
 
@@ -600,9 +603,13 @@ func validateCampaignFields(c campaignReq, app *App) (campaignReq, error) {
 		return c, errors.New("no lists selected")
 	}
 
+	if !app.manager.HasMessenger(c.Messenger) {
+		return c, fmt.Errorf("unknown messenger %s", c.Messenger)
+	}
+
 	camp := models.Campaign{Body: c.Body, TemplateBody: tplTag}
 	if err := c.CompileTemplate(app.manager.TemplateFuncs(&camp)); err != nil {
-		return c, fmt.Errorf("Error compiling campaign body: %v", err)
+		return c, fmt.Errorf("error compiling campaign body: %v", err)
 	}
 
 	return c, nil
