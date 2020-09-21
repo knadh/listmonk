@@ -1,3 +1,5 @@
+<a href="https://zerodha.tech"><img src="https://zerodha.tech/static/images/github-badge.svg" align="right" /></a>
+
 ![listmonk](https://user-images.githubusercontent.com/547147/89733021-43fbf700-da70-11ea-82e4-e98cb5010257.png)
 
 listmonk is a standalone, self-hosted, newsletter and mailing list manager. It is fast, feature-rich, and packed into a single binary. It uses a PostgreSQL database as its data store.
