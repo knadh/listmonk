@@ -1,6 +1,6 @@
 LAST_COMMIT := $(shell git rev-parse --short HEAD)
 LAST_COMMIT_DATE := $(shell git show -s --format=%ci ${LAST_COMMIT})
-VERSION := $(shell git describe)
+VERSION := $(shell git describe --tags)
 BUILDSTR := ${VERSION} (${LAST_COMMIT} $(shell date -u +"%Y-%m-%dT%H:%M:%S%z"))
 
 BIN := listmonk
