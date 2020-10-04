@@ -99,14 +99,12 @@
           <code className="csv-row">
             <span>user1@mail.com,</span>
             <span>"User One",</span>
-            <span>{'"{""age"": 42, ""planet"": ""Mars""}"'}</span>
+            <span>"{""age"": 42, ""planet"": ""Mars""}"</span>
           </code><br />
           <code className="csv-row">
             <span>user2@mail.com,</span>
             <span>"User Two",</span>
-            <span>
-              {'"{""age"": 24, ""job"": ""Time Traveller""}"'}
-            </span>
+            <span>"{""age"": 24, ""job"": ""Time Traveller""}"</span>
           </code>
         </blockquote>
       </div>
