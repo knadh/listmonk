@@ -245,7 +245,7 @@ export default Vue.extend({
         this.logs = data;
 
         Vue.nextTick(() => {
-          // vue.$refs doesn't work as the logs textarea is rendered dynamiaclly.
+          // vue.$refs doesn't work as the logs textarea is rendered dynamically.
           const ref = document.getElementById('import-log');
           if (ref) {
             ref.scrollTop = ref.scrollHeight;

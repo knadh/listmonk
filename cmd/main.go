@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"html/template"
+	"io"
 	"log"
 	"os"
 	"os/signal"
@@ -15,6 +16,7 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/knadh/koanf"
 	"github.com/knadh/koanf/providers/env"
+	"github.com/knadh/listmonk/internal/buflog"
 	"github.com/knadh/listmonk/internal/manager"
 	"github.com/knadh/listmonk/internal/media"
 	"github.com/knadh/listmonk/internal/messenger"
@@ -39,6 +41,7 @@ type App struct {
 	media      media.Store
 	notifTpls  *template.Template
 	log        *log.Logger
+	bufLog     *buflog.BufLog
 
 	// Channel for passing reload signals.
 	sigChan chan os.Signal
@@ -53,9 +56,12 @@ type App struct {
 }
 
 var (
-	lo = log.New(os.Stdout, "", log.Ldate|log.Ltime|log.Lshortfile)
-	ko = koanf.New(".")
+	// Buffered log writer for storing N lines of log entries for the UI.
+	bufLog = buflog.New(5000)
+	lo     = log.New(io.MultiWriter(os.Stdout, bufLog), "",
+		log.Ldate|log.Ltime|log.Lshortfile)
 
+	ko      = koanf.New(".")
 	fs      stuffbin.FileSystem
 	db      *sqlx.DB
 	queries *Queries
@@ -119,7 +125,6 @@ func init() {
 
 	// Load settings from DB.
 	initSettings(queries)
-
 }
 
 func main() {
@@ -132,6 +137,7 @@ func main() {
 		media:      initMediaStore(),
 		messengers: make(map[string]messenger.Messenger),
 		log:        lo,
+		bufLog:     bufLog,
 	}
 	_, app.queries = initQueries(queryFilePath, db, fs, true)
 	app.manager = initCampaignManager(app.queries, app.constants, app)

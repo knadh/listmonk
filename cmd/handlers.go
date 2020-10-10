@@ -43,6 +43,7 @@ func registerHTTPHandlers(e *echo.Echo) {
 	g.GET("/api/settings", handleGetSettings)
 	g.PUT("/api/settings", handleUpdateSettings)
 	g.POST("/api/admin/reload", handleReloadApp)
+	g.GET("/api/logs", handleGetLogs)
 
 	g.GET("/api/subscribers/:id", handleGetSubscriber)
 	g.GET("/api/subscribers/:id/export", handleExportSubscriberData)

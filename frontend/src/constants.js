@@ -10,6 +10,7 @@ export const models = Object.freeze({
   templates: 'templates',
   media: 'media',
   settings: 'settings',
+  logs: 'logs',
 });
 
 // Ad-hoc URIs that are used outside of vuex requests.

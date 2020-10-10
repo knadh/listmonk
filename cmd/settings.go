@@ -217,6 +217,12 @@ func handleUpdateSettings(c echo.Context) error {
 	return c.JSON(http.StatusOK, okResp{true})
 }
 
+// handleGetLogs returns the log entries stored in the log buffer.
+func handleGetLogs(c echo.Context) error {
+	app := c.Get("app").(*App)
+	return c.JSON(http.StatusOK, okResp{app.bufLog.Lines()})
+}
+
 func getSettings(app *App) (settings, error) {
 	var (
 		b   types.JSONText

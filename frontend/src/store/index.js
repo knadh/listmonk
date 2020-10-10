@@ -43,6 +43,7 @@ export default new Vuex.Store({
     [models.templates]: (state) => state[models.templates],
     [models.settings]: (state) => state[models.settings],
     [models.serverConfig]: (state) => state[models.serverConfig],
+    [models.logs]: (state) => state[models.logs],
   },
 
   modules: {

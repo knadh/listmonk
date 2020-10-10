@@ -200,3 +200,6 @@ export const getSettings = async () => http.get('/api/settings',
 
 export const updateSettings = async (data) => http.put('/api/settings', data,
   { loading: models.settings });
+
+export const getLogs = async () => http.get('/api/logs',
+  { loading: models.logs });

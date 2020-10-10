@@ -11,6 +11,7 @@ $turquoise: $green;
 $red: #ff5722;
 $link: $primary;
 $input-placeholder-color: $grey-light;
+$grey-lightest: #eaeaea;
 
 $colors: map-merge($colors, (
     "turquoise": ($green, $green-invert),
@@ -39,6 +40,11 @@ html, body {
 
 code {
   color: $grey;
+}
+
+pre {
+  background: none;
+  border: 1px solid $grey-lightest;
 }
 
 ul.no {
@@ -226,7 +232,7 @@ section {
   }
   thead th, tbody td {
     padding: 15px 10px;
-    border-color: #eaeaea;
+    border-color: $grey-lightest;
   }
   .actions a {
     margin: 0 10px;
@@ -597,6 +603,24 @@ section.campaign {
   }
   .box {
     margin-bottom: 30px;
+  }
+}
+
+/* Logs */
+.logs {
+  .lines {
+    height: 70vh;
+    overflow-y: scroll;
+
+    .stamp {
+      color: $primary;
+      display: inline-block;
+      min-width: 160px;
+    }
+
+    .line:hover {
+      background: $white-bis;
+    }
   }
 }
 

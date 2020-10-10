@@ -77,6 +77,12 @@ const routes = [
     meta: { title: 'Settings', group: 'settings' },
     component: () => import(/* webpackChunkName: "main" */ '../views/Settings.vue'),
   },
+  {
+    path: '/settings/logs',
+    name: 'logs',
+    meta: { title: 'Logs', group: 'settings' },
+    component: () => import(/* webpackChunkName: "main" */ '../views/Logs.vue'),
+  },
 ];
 
 const router = new VueRouter({

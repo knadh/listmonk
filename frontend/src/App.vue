@@ -78,9 +78,19 @@
                     icon="file-image-outline" label="Templates"></b-menu-item>
                 </b-menu-item><!-- campaigns -->
 
-                <b-menu-item :to="{name: 'settings'}" tag="router-link"
-                  :active="activeItem.settings"
-                  icon="cog-outline" label="Settings"></b-menu-item>
+                <b-menu-item :expanded="activeGroup.settings"
+                  :active="activeGroup.settings"
+                  v-on:update:active="(state) => toggleGroup('settings', state)"
+                  icon="cog-outline" label="Settings">
+
+                  <b-menu-item :to="{name: 'settings'}" tag="router-link"
+                    :active="activeItem.settings"
+                    icon="cog-outline" label="Settings"></b-menu-item>
+
+                  <b-menu-item :to="{name: 'logs'}" tag="router-link"
+                    :active="activeItem.logs"
+                    icon="newspaper-variant-outline" label="Logs"></b-menu-item>
+                </b-menu-item><!-- settings -->
               </b-menu-list>
             </b-menu>
           </div>
