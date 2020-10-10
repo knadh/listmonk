@@ -494,8 +494,22 @@ export default Vue.extend({
 
   methods: {
     addSMTP() {
-      const [data] = JSON.parse(JSON.stringify(this.form.smtp.slice(-1)));
-      this.form.smtp.push(data);
+      this.form.smtp.push({
+        enabled: true,
+        host: '',
+        hello_hostname: '',
+        port: 587,
+        auth_protocol: 'none',
+        username: '',
+        password: '',
+        email_headers: [],
+        max_conns: 10,
+        max_msg_retries: 2,
+        idle_timeout: '15s',
+        wait_timeout: '5s',
+        tls_enabled: true,
+        tls_skip_verify: false,
+      });
     },
 
     removeSMTP(i) {
