@@ -9,6 +9,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/gofrs/uuid"
 	"github.com/jmoiron/sqlx/types"
 	"github.com/labstack/echo"
 )
@@ -43,6 +44,7 @@ type settings struct {
 	UploadS3Expiry             string `json:"upload.s3.expiry"`
 
 	SMTP []struct {
+		UUID          string              `json:"uuid"`
 		Enabled       bool                `json:"enabled"`
 		Host          string              `json:"host"`
 		HelloHostname string              `json:"hello_hostname"`
@@ -60,6 +62,7 @@ type settings struct {
 	} `json:"smtp"`
 
 	Messengers []struct {
+		UUID          string `json:"uuid"`
 		Enabled       bool   `json:"enabled"`
 		Name          string `json:"name"`
 		RootURL       string `json:"root_url"`
@@ -121,15 +124,21 @@ func handleUpdateSettings(c echo.Context) error {
 			has = true
 		}
 
-		// If there's no password coming in from the frontend, attempt to get the
-		// last saved password for the SMTP block at the same position.
-		if set.SMTP[i].Password == "" {
-			if len(cur.SMTP) > i &&
-				set.SMTP[i].Host == cur.SMTP[i].Host &&
-				set.SMTP[i].Username == cur.SMTP[i].Username {
-				// Copy the existing password as password's needn't be
-				// sent from the frontend for updating entries.
-				set.SMTP[i].Password = cur.SMTP[i].Password
+		// Assign a UUID. The frontend only sends a password when the user explictly
+		// changes the password. In other cases, the existing password in the DB
+		// is copied while updating the settings and the UUID is used to match
+		// the incoming array of SMTP blocks with the array in the DB.
+		if s.UUID == "" {
+			set.SMTP[i].UUID = uuid.Must(uuid.NewV4()).String()
+		}
+
+		// If there's no password coming in from the frontend, copy the existing
+		// password by matching the UUID.
+		if s.Password == "" {
+			for _, c := range cur.SMTP {
+				if s.UUID == c.UUID {
+					set.SMTP[i].Password = c.Password
+				}
 			}
 		}
 	}
@@ -142,18 +151,21 @@ func handleUpdateSettings(c echo.Context) error {
 	// and "email" is a reserved name.
 	names := map[string]bool{emailMsgr: true}
 
-	for i := range set.Messengers {
-		if set.Messengers[i].Password == "" {
-			if len(cur.Messengers) > i &&
-				set.Messengers[i].RootURL == cur.Messengers[i].RootURL &&
-				set.Messengers[i].Username == cur.Messengers[i].Username {
-				// Copy the existing password as password's needn't be
-				// sent from the frontend for updating entries.
-				set.Messengers[i].Password = cur.Messengers[i].Password
+	for i, m := range set.Messengers {
+		// UUID to keep track of password changes similar to the SMTP logic above.
+		if m.UUID == "" {
+			set.Messengers[i].UUID = uuid.Must(uuid.NewV4()).String()
+		}
+
+		if m.Password == "" {
+			for _, c := range cur.Messengers {
+				if m.UUID == c.UUID {
+					set.Messengers[i].Password = c.Password
+				}
 			}
 		}
 
-		name := reAlphaNum.ReplaceAllString(strings.ToLower(set.Messengers[i].Name), "")
+		name := reAlphaNum.ReplaceAllString(strings.ToLower(m.Name), "")
 		if _, ok := names[name]; ok {
 			return echo.NewHTTPError(http.StatusBadRequest,
 				fmt.Sprintf("Duplicate messenger name `%s`.", name))
