@@ -586,7 +586,7 @@ WHERE id=$1;
 UPDATE campaigns SET status=$2, updated_at=NOW() WHERE id = $1;
 
 -- name: delete-campaign
-DELETE FROM campaigns WHERE id=$1 AND (status = 'draft' OR status = 'scheduled');
+DELETE FROM campaigns WHERE id=$1;
 
 -- name: register-campaign-view
 WITH view AS (

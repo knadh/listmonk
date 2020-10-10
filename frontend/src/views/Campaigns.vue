@@ -177,8 +177,7 @@
                     <b-icon icon="cancel" size="is-small" />
                   </b-tooltip>
                 </a>
-                <a href="" v-if="canDelete(props.row)"
-                  @click.prevent="$utils.confirm(`Delete '${props.row.name}'?`,
+                <a href="" @click.prevent="$utils.confirm(`Delete '${props.row.name}'?`,
                     () => deleteCampaign(props.row))">
                     <b-icon icon="trash-can-outline" size="is-small" />
                 </a>
@@ -238,9 +237,6 @@ export default Vue.extend({
     },
     canResume(c) {
       return c.status === 'paused';
-    },
-    canDelete(c) {
-      return c.status === 'draft' || c.status === 'scheduled';
     },
     isSheduled(c) {
       return c.status === 'scheduled' || c.sendAt !== null;

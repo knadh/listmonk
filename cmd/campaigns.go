@@ -416,13 +416,6 @@ func handleDeleteCampaign(c echo.Context) error {
 			fmt.Sprintf("Error fetching campaign: %s", pqErrMsg(err)))
 	}
 
-	// Only scheduled campaigns can be deleted.
-	if cm.Status != models.CampaignStatusDraft &&
-		cm.Status != models.CampaignStatusScheduled {
-		return echo.NewHTTPError(http.StatusBadRequest,
-			"Only campaigns that haven't been started can be deleted.")
-	}
-
 	if _, err := app.queries.DeleteCampaign.Exec(cm.ID); err != nil {
 		app.log.Printf("error deleting campaign: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
