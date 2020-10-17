@@ -118,6 +118,7 @@ export default {
       isPreviewing: false,
       isMediaVisible: false,
       isEditorFullscreen: false,
+      isReady: false,
       form: {
         body: '',
         format: this.contentType,
@@ -195,6 +196,8 @@ export default {
     },
 
     onEditorReady() {
+      this.isReady = true;
+
       // Hack to focus the editor on page load.
       this.$nextTick(() => {
         window.setTimeout(() => this.$refs.quill.quill.focus(), 100);
@@ -202,6 +205,10 @@ export default {
     },
 
     onEditorChange() {
+      if (!this.isReady) {
+        return;
+      }
+
       // The parent's v-model gets { contentType, body }.
       this.$emit('input', { contentType: this.form.format, body: this.form.body });
     },

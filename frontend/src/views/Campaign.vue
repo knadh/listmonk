@@ -198,7 +198,13 @@ export default Vue.extend({
     getCampaign(id) {
       return this.$api.getCampaign(id).then((data) => {
         this.data = data;
-        this.form = { ...this.form, ...data };
+        this.form = {
+          ...this.form,
+          ...data,
+
+          // The structure that is populated by editor input event.
+          content: { contentType: data.contentType, body: data.body },
+        };
 
         if (data.sendAt !== null) {
           this.form.sendLater = true;
