@@ -17,6 +17,7 @@ import (
 	"io"
 	"io/ioutil"
 	"log"
+	"net/mail"
 	"os"
 	"regexp"
 	"strings"
@@ -108,9 +109,6 @@ var (
 		"email":      true,
 		"name":       true,
 		"attributes": true}
-
-	// https://www.alexedwards.net/blog/validation-snippets-for-go#email-validation
-	regexEmail = regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+\\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
 
 	regexCleanStr = regexp.MustCompile("[[:^ascii:]]")
 )
@@ -619,5 +617,11 @@ func countLines(r io.Reader) (int, error) {
 
 // IsEmail checks whether the given string is a valid e-mail address.
 func IsEmail(email string) bool {
-	return regexEmail.MatchString(email)
+	// Since `mail.ParseAddress` parses an email address which can also contain optional name component
+	// here we check if incoming email string is same as the parsed email.Address. So this eliminates
+	// any valid email address with name and also valid address with empty name like `<abc@example.com>`.
+	if em, err := mail.ParseAddress(email); err != nil || em.Address != email {
+		return false
+	}
+	return true
 }
