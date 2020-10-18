@@ -32,7 +32,6 @@ var reSemver = regexp.MustCompile(`-(.*)`)
 func checkUpdates(curVersion string, interval time.Duration, app *App) {
 	// Strip -* suffix.
 	curVersion = reSemver.ReplaceAllString(curVersion, "")
-
 	time.Sleep(time.Second * 1)
 	ticker := time.NewTicker(interval)
 	for ; true; <-ticker.C {

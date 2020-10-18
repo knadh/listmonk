@@ -71,7 +71,6 @@ var (
 )
 
 func init() {
-	lo.Println(buildString)
 	initFlags()
 
 	// Display version.
@@ -79,6 +78,8 @@ func init() {
 		fmt.Println(buildString)
 		os.Exit(0)
 	}
+
+	lo.Println(buildString)
 
 	// Generate new config.
 	if ko.Bool("new-config") {
