@@ -25,11 +25,12 @@ type settings struct {
 	AppMaxSendErrors int      `json:"app.max_send_errors"`
 	AppMessageRate   int      `json:"app.message_rate"`
 
-	PrivacyUnsubHeader    bool     `json:"privacy.unsubscribe_header"`
-	PrivacyAllowBlocklist bool     `json:"privacy.allow_blocklist"`
-	PrivacyAllowExport    bool     `json:"privacy.allow_export"`
-	PrivacyAllowWipe      bool     `json:"privacy.allow_wipe"`
-	PrivacyExportable     []string `json:"privacy.exportable"`
+	PrivacyIndividualTracking bool     `json:"privacy.individual_tracking"`
+	PrivacyUnsubHeader        bool     `json:"privacy.unsubscribe_header"`
+	PrivacyAllowBlocklist     bool     `json:"privacy.allow_blocklist"`
+	PrivacyAllowExport        bool     `json:"privacy.allow_export"`
+	PrivacyAllowWipe          bool     `json:"privacy.allow_wipe"`
+	PrivacyExportable         []string `json:"privacy.exportable"`
 
 	UploadProvider             string `json:"upload.provider"`
 	UploadFilesystemUploadPath string `json:"upload.filesystem.upload_path"`

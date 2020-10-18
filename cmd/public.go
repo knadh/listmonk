@@ -293,6 +293,11 @@ func handleLinkRedirect(c echo.Context) error {
 		subUUID  = c.Param("subUUID")
 	)
 
+	// If individual tracking is disabled, do not record the subscriber ID.
+	if !app.constants.Privacy.IndividualTracking {
+		subUUID = ""
+	}
+
 	var url string
 	if err := app.queries.RegisterLinkClick.Get(&url, linkUUID, campUUID, subUUID); err != nil {
 		if err != sql.ErrNoRows {
@@ -317,6 +322,11 @@ func handleRegisterCampaignView(c echo.Context) error {
 		campUUID = c.Param("campUUID")
 		subUUID  = c.Param("subUUID")
 	)
+
+	// If individual tracking is disabled, do not record the subscriber ID.
+	if !app.constants.Privacy.IndividualTracking {
+		subUUID = ""
+	}
 
 	// Exclude dummy hits from template previews.
 	if campUUID != dummyUUID && subUUID != dummyUUID {

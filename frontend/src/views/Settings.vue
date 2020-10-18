@@ -104,6 +104,14 @@
 
           <b-tab-item label="Privacy">
             <div class="items">
+              <b-field label="Individual subscriber tracking"
+                message="Track subscriber-level campaign views and clicks.
+                When disabled, view and click tracking continue without
+                being linked to individual subscribers.">
+                <b-switch v-model="form['privacy.individual_tracking']"
+                    name="privacy.individual_tracking" />
+              </b-field>
+
               <b-field label="Include `List-Unsubscribe` header"
                 message="Include unsubscription headers that allow e-mail clients to
                         allow users to unsubscribe in a single click.">

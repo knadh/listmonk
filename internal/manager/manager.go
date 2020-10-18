@@ -21,6 +21,8 @@ const (
 
 	// ContentTpl is the name of the compiled message.
 	ContentTpl = "content"
+
+	dummyUUID = "00000000-0000-0000-0000-000000000000"
 )
 
 // DataSource represents a data backend, such as a database,
@@ -86,17 +88,18 @@ type Config struct {
 	// Number of subscribers to pull from the DB in a single iteration.
 	BatchSize int
 
-	Concurrency    int
-	MessageRate    int
-	MaxSendErrors  int
-	RequeueOnError bool
-	FromEmail      string
-	LinkTrackURL   string
-	UnsubURL       string
-	OptinURL       string
-	MessageURL     string
-	ViewTrackURL   string
-	UnsubHeader    bool
+	Concurrency        int
+	MessageRate        int
+	MaxSendErrors      int
+	RequeueOnError     bool
+	FromEmail          string
+	IndividualTracking bool
+	LinkTrackURL       string
+	UnsubURL           string
+	OptinURL           string
+	MessageURL         string
+	ViewTrackURL       string
+	UnsubHeader        bool
 }
 
 type msgError struct {
@@ -297,11 +300,21 @@ func (m *Manager) messageWorker() {
 func (m *Manager) TemplateFuncs(c *models.Campaign) template.FuncMap {
 	return template.FuncMap{
 		"TrackLink": func(url string, msg *CampaignMessage) string {
-			return m.trackLink(url, msg.Campaign.UUID, msg.Subscriber.UUID)
+			subUUID := msg.Subscriber.UUID
+			if !m.cfg.IndividualTracking {
+				subUUID = dummyUUID
+			}
+
+			return m.trackLink(url, msg.Campaign.UUID, subUUID)
 		},
 		"TrackView": func(msg *CampaignMessage) template.HTML {
+			subUUID := msg.Subscriber.UUID
+			if !m.cfg.IndividualTracking {
+				subUUID = dummyUUID
+			}
+
 			return template.HTML(fmt.Sprintf(`<img src="%s" alt="" />`,
-				fmt.Sprintf(m.cfg.ViewTrackURL, msg.Campaign.UUID, msg.Subscriber.UUID)))
+				fmt.Sprintf(m.cfg.ViewTrackURL, msg.Campaign.UUID, subUUID)))
 		},
 		"UnsubscribeURL": func(msg *CampaignMessage) string {
 			return msg.unsubURL

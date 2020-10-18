@@ -45,10 +45,11 @@ type constants struct {
 	FromEmail    string   `koanf:"from_email"`
 	NotifyEmails []string `koanf:"notify_emails"`
 	Privacy      struct {
-		AllowBlocklist bool            `koanf:"allow_blocklist"`
-		AllowExport    bool            `koanf:"allow_export"`
-		AllowWipe      bool            `koanf:"allow_wipe"`
-		Exportable     map[string]bool `koanf:"-"`
+		IndividualTracking bool            `koanf:"individual_tracking"`
+		AllowBlocklist     bool            `koanf:"allow_blocklist"`
+		AllowExport        bool            `koanf:"allow_export"`
+		AllowWipe          bool            `koanf:"allow_wipe"`
+		Exportable         map[string]bool `koanf:"-"`
 	} `koanf:"privacy"`
 	AdminUsername []byte `koanf:"admin_username"`
 	AdminPassword []byte `koanf:"admin_password"`
@@ -263,17 +264,18 @@ func initCampaignManager(q *Queries, cs *constants, app *App) *manager.Manager {
 	}
 
 	return manager.New(manager.Config{
-		BatchSize:     ko.Int("app.batch_size"),
-		Concurrency:   ko.Int("app.concurrency"),
-		MessageRate:   ko.Int("app.message_rate"),
-		MaxSendErrors: ko.Int("app.max_send_errors"),
-		FromEmail:     cs.FromEmail,
-		UnsubURL:      cs.UnsubURL,
-		OptinURL:      cs.OptinURL,
-		LinkTrackURL:  cs.LinkTrackURL,
-		ViewTrackURL:  cs.ViewTrackURL,
-		MessageURL:    cs.MessageURL,
-		UnsubHeader:   ko.Bool("privacy.unsubscribe_header"),
+		BatchSize:          ko.Int("app.batch_size"),
+		Concurrency:        ko.Int("app.concurrency"),
+		MessageRate:        ko.Int("app.message_rate"),
+		MaxSendErrors:      ko.Int("app.max_send_errors"),
+		FromEmail:          cs.FromEmail,
+		IndividualTracking: ko.Bool("privacy.individual_tracking"),
+		UnsubURL:           cs.UnsubURL,
+		OptinURL:           cs.OptinURL,
+		LinkTrackURL:       cs.LinkTrackURL,
+		ViewTrackURL:       cs.ViewTrackURL,
+		MessageURL:         cs.MessageURL,
+		UnsubHeader:        ko.Bool("privacy.unsubscribe_header"),
 	}, newManagerDB(q), campNotifCB, lo)
 
 }

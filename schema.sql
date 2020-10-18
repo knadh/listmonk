@@ -174,6 +174,7 @@ INSERT INTO settings (key, value) VALUES
     ('app.batch_size', '1000'),
     ('app.max_send_errors', '1000'),
     ('app.notify_emails', '["admin1@mysite.com", "admin2@mysite.com"]'),
+    ('privacy.individual_tracking', 'false'),
     ('privacy.unsubscribe_header', 'true'),
     ('privacy.allow_blocklist', 'true'),
     ('privacy.allow_export', 'true'),

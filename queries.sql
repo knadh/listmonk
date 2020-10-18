@@ -591,7 +591,7 @@ DELETE FROM campaigns WHERE id=$1;
 -- name: register-campaign-view
 WITH view AS (
     SELECT campaigns.id as campaign_id, subscribers.id AS subscriber_id FROM campaigns
-    LEFT JOIN subscribers ON (subscribers.uuid = $2)
+    LEFT JOIN subscribers ON (CASE WHEN $2::TEXT != '' THEN subscribers.uuid = $2::UUID ELSE FALSE END)
     WHERE campaigns.uuid = $1
 )
 INSERT INTO campaign_views (campaign_id, subscriber_id)
@@ -674,7 +674,7 @@ INSERT INTO links (uuid, url) VALUES($1, $2) ON CONFLICT (url) DO UPDATE SET url
 WITH link AS (
     SELECT url, links.id AS link_id, campaigns.id as campaign_id, subscribers.id AS subscriber_id FROM links
     LEFT JOIN campaigns ON (campaigns.uuid = $2)
-    LEFT JOIN subscribers ON (subscribers.uuid = $3)
+    LEFT JOIN subscribers ON (CASE WHEN $3::TEXT != '' THEN subscribers.uuid = $3::UUID ELSE FALSE END)
     WHERE links.uuid = $1
 )
 INSERT INTO link_clicks (campaign_id, subscriber_id, link_id)
