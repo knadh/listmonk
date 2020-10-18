@@ -13,6 +13,9 @@ builds:
       - windows
       - darwin
       - linux
+      - freebsd
+      - openbsd
+      - netbsd
     goarch:
       - amd64
     ldflags:
