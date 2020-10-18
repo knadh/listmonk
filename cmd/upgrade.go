@@ -27,6 +27,7 @@ type migFunc struct {
 var migList = []migFunc{
 	{"v0.4.0", migrations.V0_4_0},
 	{"v0.7.0", migrations.V0_7_0},
+	{"v0.8.0", migrations.V0_8_0},
 }
 
 // upgrade upgrades the database to the current version by running SQL migration files
@@ -52,7 +53,7 @@ func upgrade(db *sqlx.DB, fs stuffbin.FileSystem, prompt bool) {
 
 	// No migrations to run.
 	if len(toRun) == 0 {
-		lo.Printf("no upgrades to run. Database is up-to-date.")
+		lo.Printf("no upgrades to run. Database is up to date.")
 		return
 	}
 
