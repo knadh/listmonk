@@ -300,13 +300,14 @@ func handleLinkRedirect(c echo.Context) error {
 
 	var url string
 	if err := app.queries.RegisterLinkClick.Get(&url, linkUUID, campUUID, subUUID); err != nil {
-		if err != sql.ErrNoRows {
-			app.log.Printf("error fetching redirect link: %s", err)
+		if pqErr, ok := err.(*pq.Error); ok && pqErr.Column == "link_id" {
+			return c.Render(http.StatusNotFound, tplMessage,
+				makeMsgTpl("Invalid link", "", "The requested link is invalid."))
 		}
 
+		app.log.Printf("error fetching redirect link: %s", err)
 		return c.Render(http.StatusInternalServerError, tplMessage,
-			makeMsgTpl("Error opening link", "",
-				"There was an error opening the link. Please try later."))
+			makeMsgTpl("Error opening link", "", "There was an error opening the link. Please try later."))
 	}
 
 	return c.Redirect(http.StatusTemporaryRedirect, url)

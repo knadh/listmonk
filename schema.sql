@@ -145,8 +145,8 @@ CREATE TABLE links (
 
 DROP TABLE IF EXISTS link_clicks CASCADE;
 CREATE TABLE link_clicks (
-    campaign_id      INTEGER REFERENCES campaigns(id) ON DELETE CASCADE ON UPDATE CASCADE,
-    link_id          INTEGER REFERENCES links(id) ON DELETE CASCADE ON UPDATE CASCADE,
+    campaign_id      INTEGER NULL REFERENCES campaigns(id) ON DELETE CASCADE ON UPDATE CASCADE,
+    link_id          INTEGER NOT NULL REFERENCES links(id) ON DELETE CASCADE ON UPDATE CASCADE,
 
     -- Subscribers may be deleted, but the link counts should remain.
     subscriber_id    INTEGER NULL REFERENCES subscribers(id) ON DELETE SET NULL ON UPDATE CASCADE,
