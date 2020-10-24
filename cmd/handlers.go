@@ -111,6 +111,7 @@ func registerHTTPHandlers(e *echo.Echo) {
 	g.GET("/campaigns/templates", handleIndexPage)
 	g.GET("/campaigns/:campignID", handleIndexPage)
 	g.GET("/settings", handleIndexPage)
+	g.GET("/settings/logs", handleIndexPage)
 
 	// Public subscriber facing views.
 	e.POST("/subscription/form", handleSubscriptionForm)
