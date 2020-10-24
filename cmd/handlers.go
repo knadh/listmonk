@@ -14,6 +14,9 @@ import (
 const (
 	// stdInputMaxLen is the maximum allowed length for a standard input field.
 	stdInputMaxLen = 200
+
+	sortAsc  = "asc"
+	sortDesc = "desc"
 )
 
 type okResp struct {

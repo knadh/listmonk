@@ -58,11 +58,15 @@ type subOptin struct {
 	Lists    []models.List
 }
 
-var dummySubscriber = models.Subscriber{
-	Email: "dummy@listmonk.app",
-	Name:  "Dummy Subscriber",
-	UUID:  dummyUUID,
-}
+var (
+	dummySubscriber = models.Subscriber{
+		Email: "dummy@listmonk.app",
+		Name:  "Dummy Subscriber",
+		UUID:  dummyUUID,
+	}
+
+	subQuerySortFields = []string{"email", "name", "created_at", "updated_at"}
+)
 
 // handleGetSubscriber handles the retrieval of a single subscriber by ID.
 func handleGetSubscriber(c echo.Context) error {
@@ -89,8 +93,10 @@ func handleQuerySubscribers(c echo.Context) error {
 		listID, _ = strconv.Atoi(c.FormValue("list_id"))
 
 		// The "WHERE ?" bit.
-		query = sanitizeSQLExp(c.FormValue("query"))
-		out   subsWrap
+		query   = sanitizeSQLExp(c.FormValue("query"))
+		orderBy = c.FormValue("order_by")
+		order   = c.FormValue("order")
+		out     subsWrap
 	)
 
 	listIDs := pq.Int64Array{}
@@ -100,17 +106,21 @@ func handleQuerySubscribers(c echo.Context) error {
 		listIDs = append(listIDs, int64(listID))
 	}
 
-	// There's an arbitrary query condition from the frontend.
-	var (
-		cond  = ""
-		ordBy = "updated_at"
-		ord   = "DESC"
-	)
+	// There's an arbitrary query condition.
+	cond := ""
 	if query != "" {
 		cond = " AND " + query
 	}
 
-	stmt := fmt.Sprintf(app.queries.QuerySubscribers, cond, ordBy, ord)
+	// Sort params.
+	if !strSliceContains(orderBy, subQuerySortFields) {
+		orderBy = "updated_at"
+	}
+	if order != sortAsc && order != sortDesc {
+		order = sortAsc
+	}
+
+	stmt := fmt.Sprintf(app.queries.QuerySubscribers, cond, orderBy, order)
 
 	// Create a readonly transaction to prevent mutations.
 	tx, err := app.db.BeginTxx(context.Background(), &sql.TxOptions{ReadOnly: true})

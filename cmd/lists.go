@@ -20,6 +20,10 @@ type listsWrap struct {
 	Page    int `json:"page"`
 }
 
+var (
+	listQuerySortFields = []string{"name", "type", "subscriber_count", "created_at", "updated_at"}
+)
+
 // handleGetLists handles retrieval of lists.
 func handleGetLists(c echo.Context) error {
 	var (
@@ -27,6 +31,8 @@ func handleGetLists(c echo.Context) error {
 		out listsWrap
 
 		pg        = getPagination(c.QueryParams(), 20, 50)
+		orderBy   = c.FormValue("order_by")
+		order     = c.FormValue("order")
 		listID, _ = strconv.Atoi(c.Param("id"))
 		single    = false
 	)
@@ -36,8 +42,15 @@ func handleGetLists(c echo.Context) error {
 		single = true
 	}
 
-	err := app.queries.GetLists.Select(&out.Results, listID, pg.Offset, pg.Limit)
-	if err != nil {
+	// Sort params.
+	if !strSliceContains(orderBy, listQuerySortFields) {
+		orderBy = "created_at"
+	}
+	if order != sortAsc && order != sortDesc {
+		order = sortAsc
+	}
+
+	if err := db.Select(&out.Results, fmt.Sprintf(app.queries.GetLists, orderBy, order), listID, pg.Offset, pg.Limit); err != nil {
 		app.log.Printf("error fetching lists: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			fmt.Sprintf("Error fetching lists: %s", pqErrMsg(err)))

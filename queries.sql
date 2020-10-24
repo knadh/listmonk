@@ -1,3 +1,4 @@
+
 -- subscribers
 -- name: get-subscriber
 -- Get a single subscriber by id or UUID.
@@ -297,7 +298,7 @@ SELECT COUNT(*) OVER () AS total, lists.*, COUNT(subscriber_lists.subscriber_id)
     FROM lists LEFT JOIN subscriber_lists
 	ON (subscriber_lists.list_id = lists.id AND subscriber_lists.status != 'unsubscribed')
     WHERE ($1 = 0 OR id = $1)
-    GROUP BY lists.id ORDER BY lists.created_at OFFSET $2 LIMIT (CASE WHEN $3 = 0 THEN NULL ELSE $3 END);
+    GROUP BY lists.id ORDER BY %s %s OFFSET $2 LIMIT (CASE WHEN $3 = 0 THEN NULL ELSE $3 END);
 
 -- name: get-lists-by-optin
 -- Can have a list of IDs or a list of UUIDs.
@@ -370,18 +371,23 @@ INSERT INTO campaign_lists (campaign_id, list_id, list_name)
 -- there's a COUNT() OVER() that still returns the total result count
 -- for pagination in the frontend, albeit being a field that'll repeat
 -- with every resultant row.
-SELECT COUNT(*) OVER () AS total, campaigns.*, (
-        SELECT COALESCE(ARRAY_TO_JSON(ARRAY_AGG(l)), '[]') FROM (
-            SELECT COALESCE(campaign_lists.list_id, 0) AS id,
-            campaign_lists.list_name AS name
-            FROM campaign_lists WHERE campaign_lists.campaign_id = campaigns.id
+SELECT  campaigns.id, campaigns.uuid, campaigns.name, campaigns.subject, campaigns.from_email,
+        campaigns.messenger, campaigns.started_at, campaigns.to_send, campaigns.sent, campaigns.type,
+        campaigns.body, campaigns.send_at, campaigns.status, campaigns.content_type, campaigns.tags,
+        campaigns.template_id, campaigns.created_at, campaigns.updated_at,
+        COUNT(*) OVER () AS total,
+        (
+            SELECT COALESCE(ARRAY_TO_JSON(ARRAY_AGG(l)), '[]') FROM (
+                SELECT COALESCE(campaign_lists.list_id, 0) AS id,
+                campaign_lists.list_name AS name
+                FROM campaign_lists WHERE campaign_lists.campaign_id = campaigns.id
         ) l
     ) AS lists
 FROM campaigns
 WHERE ($1 = 0 OR id = $1)
     AND status=ANY(CASE WHEN ARRAY_LENGTH($2::campaign_status[], 1) != 0 THEN $2::campaign_status[] ELSE ARRAY[status] END)
     AND ($3 = '' OR CONCAT(name, subject) ILIKE $3)
-ORDER BY campaigns.updated_at DESC OFFSET $4 LIMIT $5;
+ORDER BY %s %s OFFSET $4 LIMIT $5;
 
 -- name: get-campaign
 SELECT campaigns.*,

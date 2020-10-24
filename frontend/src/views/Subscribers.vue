@@ -94,17 +94,16 @@
       :checked-rows.sync="bulk.checked"
       paginated backend-pagination pagination-position="both" @page-change="onPageChange"
       :current-page="queryParams.page" :per-page="subscribers.perPage" :total="subscribers.total"
-      hoverable
-      checkable>
+      hoverable checkable backend-sorting @sort="onSort">
         <template slot-scope="props">
-            <b-table-column field="status" label="Status">
+            <b-table-column field="status" label="Status" sortable>
               <a :href="`/subscribers/${props.row.id}`"
                 @click.prevent="showEditForm(props.row)">
                 <b-tag :class="props.row.status">{{ props.row.status }}</b-tag>
               </a>
             </b-table-column>
 
-            <b-table-column field="email" label="E-mail">
+            <b-table-column field="email" label="E-mail" sortable>
               <a :href="`/subscribers/${props.row.id}`"
                 @click.prevent="showEditForm(props.row)">
                 {{ props.row.email }}
@@ -119,7 +118,7 @@
               </b-taglist>
             </b-table-column>
 
-            <b-table-column field="name" label="Name">
+            <b-table-column field="name" label="Name" sortable>
               <a :href="`/subscribers/${props.row.id}`"
                 @click.prevent="showEditForm(props.row)">
                 {{ props.row.name }}
@@ -130,11 +129,11 @@
               {{ listCount(props.row.lists) }}
             </b-table-column>
 
-            <b-table-column field="createdAt" label="Created">
+            <b-table-column field="created_at" label="Created" sortable>
                 {{ $utils.niceDate(props.row.createdAt) }}
             </b-table-column>
 
-            <b-table-column field="updatedAt" label="Updated">
+            <b-table-column field="updated_at" label="Updated" sortable>
                 {{ $utils.niceDate(props.row.updatedAt) }}
             </b-table-column>
 
@@ -217,6 +216,8 @@ export default Vue.extend({
         // ID of the list the current subscriber view is filtered by.
         listID: null,
         page: 1,
+        orderBy: 'updated_at',
+        order: 'desc',
       },
     };
   },
@@ -279,12 +280,14 @@ export default Vue.extend({
       this.isBulkListFormVisible = true;
     },
 
-    sortSubscribers(field, order, event) {
-      console.log(field, order, event);
-    },
-
     onPageChange(p) {
       this.queryParams.page = p;
+      this.querySubscribers();
+    },
+
+    onSort(field, direction) {
+      this.queryParams.orderBy = field;
+      this.queryParams.order = direction;
       this.querySubscribers();
     },
 
@@ -308,6 +311,8 @@ export default Vue.extend({
         list_id: this.queryParams.listID,
         query: this.queryParams.queryExp,
         page: this.queryParams.page,
+        order_by: this.queryParams.orderBy,
+        order: this.queryParams.order,
       }).then(() => {
         this.bulk.checked = [];
       });

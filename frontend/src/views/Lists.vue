@@ -17,6 +17,7 @@
       hoverable default-sort="createdAt"
       paginated backend-pagination pagination-position="both" @page-change="onPageChange"
       :current-page="queryParams.page" :per-page="lists.perPage" :total="lists.total"
+      backend-sorting @sort="onSort"
     >
         <template slot-scope="props">
             <b-table-column field="name" label="Name" sortable width="25%"
@@ -51,16 +52,16 @@
               </div>
             </b-table-column>
 
-            <b-table-column field="subscriberCount" label="Subscribers" numeric sortable centered>
+            <b-table-column field="subscriber_count" label="Subscribers" numeric sortable centered>
                 <router-link :to="`/subscribers/lists/${props.row.id}`">
                   {{ props.row.subscriberCount }}
                 </router-link>
             </b-table-column>
 
-            <b-table-column field="createdAt" label="Created" sortable>
+            <b-table-column field="created_at" label="Created" sortable>
                 {{ $utils.niceDate(props.row.createdAt) }}
             </b-table-column>
-            <b-table-column field="updatedAt" label="Updated" sortable>
+            <b-table-column field="updated_at" label="Updated" sortable>
                 {{ $utils.niceDate(props.row.updatedAt) }}
             </b-table-column>
 
@@ -115,7 +116,11 @@ export default Vue.extend({
       curItem: null,
       isEditing: false,
       isFormVisible: false,
-      queryParams: { page: 1 },
+      queryParams: {
+        page: 1,
+        orderBy: 'created_at',
+        order: 'asc',
+      },
     };
   },
 
@@ -124,6 +129,13 @@ export default Vue.extend({
       this.queryParams.page = p;
       this.getLists();
     },
+
+    onSort(field, direction) {
+      this.queryParams.orderBy = field;
+      this.queryParams.order = direction;
+      this.getLists();
+    },
+
 
     // Show the edit list form.
     showEditForm(list) {
@@ -144,7 +156,11 @@ export default Vue.extend({
     },
 
     getLists() {
-      this.$api.getLists({ page: this.queryParams.page });
+      this.$api.getLists({
+        page: this.queryParams.page,
+        order_by: this.queryParams.orderBy,
+        order: this.queryParams.order,
+      });
     },
 
     deleteList(list) {

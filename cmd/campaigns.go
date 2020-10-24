@@ -63,6 +63,8 @@ type campsWrap struct {
 var (
 	regexFromAddress   = regexp.MustCompile(`(.+?)\s<(.+?)@(.+?)>`)
 	regexFullTextQuery = regexp.MustCompile(`\s+`)
+
+	campaignQuerySortFields = []string{"name", "status", "created_at", "updated_at"}
 )
 
 // handleGetCampaigns handles retrieval of campaigns.
@@ -75,11 +77,13 @@ func handleGetCampaigns(c echo.Context) error {
 		id, _     = strconv.Atoi(c.Param("id"))
 		status    = c.QueryParams()["status"]
 		query     = strings.TrimSpace(c.FormValue("query"))
+		orderBy   = c.FormValue("order_by")
+		order     = c.FormValue("order")
 		noBody, _ = strconv.ParseBool(c.QueryParam("no_body"))
-		single    = false
 	)
 
 	// Fetch one list.
+	single := false
 	if id > 0 {
 		single = true
 	}
@@ -88,8 +92,18 @@ func handleGetCampaigns(c echo.Context) error {
 			string(regexFullTextQuery.ReplaceAll([]byte(query), []byte("&"))) + `%`
 	}
 
-	err := app.queries.QueryCampaigns.Select(&out.Results, id, pq.StringArray(status), query, pg.Offset, pg.Limit)
-	if err != nil {
+	// Sort params.
+	if !strSliceContains(orderBy, campaignQuerySortFields) {
+		orderBy = "created_at"
+	}
+	if order != sortAsc && order != sortDesc {
+		order = sortDesc
+	}
+
+	stmt := fmt.Sprintf(app.queries.QueryCampaigns, orderBy, order)
+
+	// Unsafe to ignore scanning fields not present in models.Campaigns.
+	if err := db.Select(&out.Results, stmt, id, pq.StringArray(status), query, pg.Offset, pg.Limit); err != nil {
 		app.log.Printf("error fetching campaigns: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			fmt.Sprintf("Error fetching campaigns: %s", pqErrMsg(err)))

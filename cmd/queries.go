@@ -42,14 +42,14 @@ type Queries struct {
 	UnsubscribeSubscribersFromListsByQuery string `query:"unsubscribe-subscribers-from-lists-by-query"`
 
 	CreateList      *sqlx.Stmt `query:"create-list"`
-	GetLists        *sqlx.Stmt `query:"get-lists"`
+	GetLists        string     `query:"get-lists"`
 	GetListsByOptin *sqlx.Stmt `query:"get-lists-by-optin"`
 	UpdateList      *sqlx.Stmt `query:"update-list"`
 	UpdateListsDate *sqlx.Stmt `query:"update-lists-date"`
 	DeleteLists     *sqlx.Stmt `query:"delete-lists"`
 
 	CreateCampaign           *sqlx.Stmt `query:"create-campaign"`
-	QueryCampaigns           *sqlx.Stmt `query:"query-campaigns"`
+	QueryCampaigns           string     `query:"query-campaigns"`
 	GetCampaign              *sqlx.Stmt `query:"get-campaign"`
 	GetCampaignForPreview    *sqlx.Stmt `query:"get-campaign-for-preview"`
 	GetCampaignStats         *sqlx.Stmt `query:"get-campaign-stats"`

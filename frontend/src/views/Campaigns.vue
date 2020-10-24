@@ -26,10 +26,10 @@
       :row-class="highlightedRow"
       paginated backend-pagination pagination-position="both" @page-change="onPageChange"
       :current-page="queryParams.page" :per-page="campaigns.perPage" :total="campaigns.total"
-      hoverable>
+      hoverable backend-sorting @sort="onSort">
         <template slot-scope="props">
             <b-table-column class="status" field="status" label="Status"
-              width="10%" :id="props.row.id">
+              width="10%" :id="props.row.id" sortable>
               <div>
                 <p>
                   <router-link :to="{ name: 'campaign', params: { 'id': props.row.id }}">
@@ -74,7 +74,7 @@
                 </li>
               </ul>
             </b-table-column>
-            <b-table-column field="updatedAt" label="Timestamps" width="19%" sortable>
+            <b-table-column field="created_at" label="Timestamps" width="19%" sortable>
               <div class="fields timestamps" :set="stats = getCampaignStats(props.row)">
                 <p>
                   <label>Created</label>
@@ -96,7 +96,7 @@
               </div>
             </b-table-column>
 
-            <b-table-column :class="props.row.status" label="Stats" width="18%">
+            <b-table-column field="stats" :class="props.row.status" label="Stats" width="18%">
               <div class="fields stats" :set="stats = getCampaignStats(props.row)">
                 <p>
                   <label>Views</label>
@@ -215,6 +215,8 @@ export default Vue.extend({
       queryParams: {
         page: 1,
         query: '',
+        orderBy: 'created_at',
+        order: 'desc',
       },
       pollID: null,
       campaignStatsData: {},
@@ -264,6 +266,12 @@ export default Vue.extend({
       this.getCampaigns();
     },
 
+    onSort(field, direction) {
+      this.queryParams.orderBy = field;
+      this.queryParams.order = direction;
+      this.getCampaigns();
+    },
+
     // Campaign actions.
     previewCampaign(c) {
       this.previewItem = c;
@@ -277,6 +285,8 @@ export default Vue.extend({
       this.$api.getCampaigns({
         page: this.queryParams.page,
         query: this.queryParams.query,
+        order_by: this.queryParams.orderBy,
+        order: this.queryParams.order,
       });
     },
 

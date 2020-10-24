@@ -132,3 +132,14 @@ func generateRandomString(n int) (string, error) {
 func strHasLen(str string, min, max int) bool {
 	return len(str) >= min && len(str) <= max
 }
+
+// strSliceContains checks if a string is present in the string slice.
+func strSliceContains(str string, sl []string) bool {
+	for _, s := range sl {
+		if s == str {
+			return true
+		}
+	}
+
+	return false
+}
