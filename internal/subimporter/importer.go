@@ -139,7 +139,7 @@ func (im *Importer) NewSession(fName, mode string, overWrite bool, listIDs []int
 
 	s := &Session{
 		im:        im,
-		log:       log.New(im.status.logBuf, "", log.Ldate|log.Ltime),
+		log:       log.New(im.status.logBuf, "", log.Ldate|log.Ltime|log.Lshortfile),
 		subQueue:  make(chan SubReq, commitBatchSize),
 		mode:      mode,
 		overwrite: overWrite,

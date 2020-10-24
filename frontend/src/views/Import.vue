@@ -127,10 +127,9 @@
       </p>
       <br />
 
-      <p>
-        <b-input v-model="logs" id="import-log" class="logs"
-          type="textarea" readonly placeholder="Import log" />
-      </p>
+      <div class="import-logs">
+        <log-view :lines="logs" :loading="false" />
+      </div>
     </section>
   </section>
 </template>
@@ -139,10 +138,12 @@
 import Vue from 'vue';
 import { mapState } from 'vuex';
 import ListSelector from '../components/ListSelector.vue';
+import LogView from '../components/LogView.vue';
 
 export default Vue.extend({
   components: {
     ListSelector,
+    LogView,
   },
 
   props: {
@@ -242,7 +243,7 @@ export default Vue.extend({
 
     getLogs() {
       this.$api.getImportLogs().then((data) => {
-        this.logs = data;
+        this.logs = data.split('\n');
 
         Vue.nextTick(() => {
           // vue.$refs doesn't work as the logs textarea is rendered dynamically.

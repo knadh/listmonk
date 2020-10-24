@@ -438,8 +438,9 @@ section.import {
   .status {
     padding: 60px;
   }
-  .logs {
+  .log-view .lines {
     max-height: 240px;
+    text-align: left;
   }
 }
 
@@ -607,7 +608,7 @@ section.campaign {
 }
 
 /* Logs */
-.logs {
+.log-view {
   .lines {
     height: 70vh;
     overflow-y: scroll;
