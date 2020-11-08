@@ -537,7 +537,7 @@ subs AS (
     WHERE subscriber_lists.status != 'unsubscribed' AND
     id > (SELECT last_subscriber_id FROM camps) AND
     id <= (SELECT max_subscriber_id FROM camps)
-    ORDER BY id LIMIT $2
+    ORDER BY subscribers.id LIMIT $2
 ),
 u AS (
     UPDATE campaigns
