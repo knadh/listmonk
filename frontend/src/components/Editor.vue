@@ -84,6 +84,11 @@ const quillFontSizes = Quill.import('attributors/style/size');
 quillFontSizes.whitelist = ['11px', '13px', '22px', '32px'];
 Quill.register(quillFontSizes, true);
 
+// Sanitize {{ TrackLink "xxx" }} quotes to backticks.
+const regLink = new RegExp(/{{(\s+)?TrackLink(\s+)?"(.+?)"(\s+)?}}/);
+const Link = Quill.import('formats/link');
+Link.sanitize = (l) => l.replace(regLink, '{{ TrackLink `$3`}}');
+
 // Custom class to override the default indent behaviour to get inline CSS
 // style instead of classes.
 class IndentAttributor extends Quill.import('parchment').Attributor.Style {
