@@ -238,3 +238,23 @@ func getPagination(q url.Values, perPage, maxPerPage int) pagination {
 		Limit:   perPage,
 	}
 }
+
+// copyEchoCtx returns a copy of the the current echo.Context in a request
+// with the given params set for the active handler to proxy the request
+// to another handler without mutating its context.
+func copyEchoCtx(c echo.Context, params map[string]string) echo.Context {
+	var (
+		keys = make([]string, 0, len(params))
+		vals = make([]string, 0, len(params))
+	)
+	for k, v := range params {
+		keys = append(keys, k)
+		vals = append(vals, v)
+	}
+
+	b := c.Echo().NewContext(c.Request(), c.Response())
+	b.Set("app", c.Get("app").(*App))
+	b.SetParamNames(keys...)
+	b.SetParamValues(vals...)
+	return b
+}

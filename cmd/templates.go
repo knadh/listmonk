@@ -147,9 +147,9 @@ func handleCreateTemplate(c echo.Context) error {
 	}
 
 	// Hand over to the GET handler to return the last insertion.
-	c.SetParamNames("id")
-	c.SetParamValues(fmt.Sprintf("%d", newID))
-	return handleGetTemplates(c)
+	return handleGetTemplates(copyEchoCtx(c, map[string]string{
+		"id": fmt.Sprintf("%d", newID),
+	}))
 }
 
 // handleUpdateTemplate handles template modification.

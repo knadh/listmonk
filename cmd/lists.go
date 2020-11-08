@@ -118,9 +118,9 @@ func handleCreateList(c echo.Context) error {
 	}
 
 	// Hand over to the GET handler to return the last insertion.
-	c.SetParamNames("id")
-	c.SetParamValues(fmt.Sprintf("%d", newID))
-	return handleGetLists(c)
+	return handleGetLists(copyEchoCtx(c, map[string]string{
+		"id": fmt.Sprintf("%d", newID),
+	}))
 }
 
 // handleUpdateList handles list modification.

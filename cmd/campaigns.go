@@ -267,9 +267,9 @@ func handleCreateCampaign(c echo.Context) error {
 	}
 
 	// Hand over to the GET handler to return the last insertion.
-	c.SetParamNames("id")
-	c.SetParamValues(fmt.Sprintf("%d", newID))
-	return handleGetCampaigns(c)
+	return handleGetCampaigns(copyEchoCtx(c, map[string]string{
+		"id": fmt.Sprintf("%d", newID),
+	}))
 }
 
 // handleUpdateCampaign handles campaign modification.
