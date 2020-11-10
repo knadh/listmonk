@@ -180,3 +180,14 @@ func newConfigFile() error {
 
 	return ioutil.WriteFile("config.toml", b, 0644)
 }
+
+// checkSchema checks if the DB schema is installed.
+func checkSchema(db *sqlx.DB) (bool, error) {
+	if _, err := db.Exec(`SELECT id FROM templates LIMIT 1`); err != nil {
+		if isTableNotExistErr(err) {
+			return false, nil
+		}
+		return false, err
+	}
+	return true, nil
+}

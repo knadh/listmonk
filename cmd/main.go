@@ -113,6 +113,14 @@ func init() {
 		install(migList[len(migList)-1].version, db, fs, !ko.Bool("yes"))
 		os.Exit(0)
 	}
+
+	// Check if the DB schema is installed.
+	if ok, err := checkSchema(db); err != nil {
+		log.Fatalf("error checking schema in DB: %v", err)
+	} else if !ok {
+		lo.Fatal("the database does not appear to be setup. Run --install.")
+	}
+
 	if ko.Bool("upgrade") {
 		upgrade(db, fs, !ko.Bool("yes"))
 		os.Exit(0)
