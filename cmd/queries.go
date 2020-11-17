@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"time"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/lib/pq"
@@ -84,14 +85,15 @@ type Queries struct {
 
 // dbConf contains database config required for connecting to a DB.
 type dbConf struct {
-	Host     string `koanf:"host"`
-	Port     int    `koanf:"port"`
-	User     string `koanf:"user"`
-	Password string `koanf:"password"`
-	DBName   string `koanf:"database"`
-	SSLMode  string `koanf:"ssl_mode"`
-	MaxOpen  int    `koanf:"max_open"`
-	MaxIdle  int    `koanf:"max_idle"`
+	Host        string        `koanf:"host"`
+	Port        int           `koanf:"port"`
+	User        string        `koanf:"user"`
+	Password    string        `koanf:"password"`
+	DBName      string        `koanf:"database"`
+	SSLMode     string        `koanf:"ssl_mode"`
+	MaxOpen     int           `koanf:"max_open"`
+	MaxIdle     int           `koanf:"max_idle"`
+	MaxLifetime time.Duration `koanf:"max_lifetime"`
 }
 
 // connectDB initializes a database connection.
@@ -104,6 +106,7 @@ func connectDB(c dbConf) (*sqlx.DB, error) {
 	}
 	db.SetMaxOpenConns(c.MaxOpen)
 	db.SetMaxIdleConns(c.MaxIdle)
+	db.SetConnMaxLifetime(c.MaxLifetime)
 	return db, nil
 }
 
