@@ -67,7 +67,7 @@
 
             <b-table-column class="actions" align="right">
               <div>
-                <router-link :to="`/campaign/new?list_id=${props.row.id}`">
+                <router-link :to="`/campaigns/new?list_id=${props.row.id}`">
                   <b-tooltip label="Send campaign" type="is-dark">
                     <b-icon icon="rocket-launch-outline" size="is-small" />
                   </b-tooltip>

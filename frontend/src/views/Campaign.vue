@@ -170,6 +170,9 @@ export default Vue.extend({
 
       data: {},
 
+      // IDs from ?list_id query param.
+      selListIDs: [],
+
       // Binds form input values.
       form: {
         name: '',
@@ -333,6 +336,20 @@ export default Vue.extend({
     canStart() {
       return this.data.status === 'draft' && !this.data.sendAt;
     },
+
+    selectedLists() {
+      if (this.selListIDs.length === 0 || !this.lists.results) {
+        return [];
+      }
+
+      return this.lists.results.filter((l) => this.selListIDs.indexOf(l.id) > -1);
+    },
+  },
+
+  watch: {
+    selectedLists() {
+      this.form.lists = this.selectedLists;
+    },
   },
 
   mounted() {
@@ -341,6 +358,18 @@ export default Vue.extend({
     // New campaign.
     if (id === 'new') {
       this.isNew = true;
+
+      if (this.$route.query.list_id) {
+        // Multiple list_id query params.
+        let strIds = [];
+        if (typeof this.$route.query.list_id === 'object') {
+          strIds = this.$route.query.list_id;
+        } else {
+          strIds = [this.$route.query.list_id];
+        }
+
+        this.selListIDs = strIds.map((v) => parseInt(v, 10));
+      }
     } else {
       const intID = parseInt(id, 10);
       if (intID <= 0 || Number.isNaN(intID)) {
