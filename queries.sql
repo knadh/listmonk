@@ -294,11 +294,16 @@ UPDATE subscriber_lists SET status='unsubscribed', updated_at=NOW()
 
 -- lists
 -- name: get-lists
-SELECT COUNT(*) OVER () AS total, lists.*, COUNT(subscriber_lists.subscriber_id) AS subscriber_count
-    FROM lists LEFT JOIN subscriber_lists
-	ON (subscriber_lists.list_id = lists.id AND subscriber_lists.status != 'unsubscribed')
-    WHERE ($1 = 0 OR id = $1)
-    GROUP BY lists.id ORDER BY %s %s OFFSET $2 LIMIT (CASE WHEN $3 = 0 THEN NULL ELSE $3 END);
+WITH ls AS (
+	SELECT COUNT(*) OVER () AS total, lists.* FROM lists
+    WHERE ($1 = 0 OR id = $1) OFFSET $2 LIMIT $3
+),
+counts AS (
+	SELECT COUNT(*) as subscriber_count, list_id FROM subscriber_lists WHERE status != 'unsubscribed' GROUP BY list_id
+)
+SELECT ls.*, COALESCE(subscriber_count, 0) AS subscriber_count FROM ls
+    LEFT JOIN counts ON (counts.list_id = ls.id) ORDER BY %s %s;
+
 
 -- name: get-lists-by-optin
 -- Can have a list of IDs or a list of UUIDs.
