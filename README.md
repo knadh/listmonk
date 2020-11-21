@@ -7,8 +7,6 @@ listmonk is a standalone, self-hosted, newsletter and mailing list manager. It i
 [![listmonk-dashboard](https://user-images.githubusercontent.com/547147/89733057-87566580-da70-11ea-8160-855f6f046a55.png)](https://listmonk.app)
 Visit [listmonk.app](https://listmonk.app)
 
-> listmonk is **alpha** software and may change and break. Use with caution. That said, it has been in active use at [zerodha.com](https://zerodha.com) where it has processed hundreds of campaigns and tens of millions of e-mails.
-
 ## Installation
 
 ### Docker
