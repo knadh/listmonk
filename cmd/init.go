@@ -23,6 +23,7 @@ import (
 	"github.com/knadh/listmonk/internal/i18n"
 	"github.com/knadh/listmonk/internal/manager"
 	"github.com/knadh/listmonk/internal/media"
+	"github.com/knadh/listmonk/internal/media/providers/dav"
 	"github.com/knadh/listmonk/internal/media/providers/filesystem"
 	"github.com/knadh/listmonk/internal/media/providers/s3"
 	"github.com/knadh/listmonk/internal/messenger"
@@ -419,6 +420,20 @@ func initMediaStore() media.Store {
 		}
 		lo.Println("media upload provider: filesystem")
 		return up
+
+	case "webdav":
+		var o dav.Opts
+
+		if err := ko.Unmarshal("upload.webdav", &o); err != nil {
+			lo.Fatalf("error unmarshaling webdav upload provider %s", err)
+		}
+
+		d, err := dav.New(o)
+		if err != nil {
+			lo.Fatalf("error initializing webdav upload provider %s", err)
+		}
+
+		return d
 
 	default:
 		lo.Fatalf("unknown provider. select filesystem or s3")

@@ -20,3 +20,11 @@
     max_open = 25
     max_idle = 25
     max_lifetime = "300s"
+
+[upload.webdav]
+    endpoint        = ""
+    dav_username    = ""
+    dav_password    = ""
+    root_path       = ""
+    [upload.webdav.headers]
+        Authorization   = "OAuth token"
