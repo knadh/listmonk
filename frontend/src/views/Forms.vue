@@ -1,12 +1,12 @@
 <template>
   <section class="forms content relative">
-    <h1 class="title is-4">Forms</h1>
+    <h1 class="title is-4">{{ $t('forms.title') }}</h1>
     <hr />
     <b-loading v-if="loading.lists" :active="loading.lists" :is-full-page="false" />
     <div class="columns" v-else-if="publicLists.length > 0">
       <div class="column is-4">
-        <h4>Public lists</h4>
-        <p>Select lists to add to the form.</p>
+        <h4>{{ $t('forms.publicLists') }}</h4>
+        <p>{{ $t('forms.selectHelp') }}</p>
 
         <b-loading :active="loading.lists" :is-full-page="false" />
         <ul class="no">
@@ -17,16 +17,13 @@
         </ul>
       </div>
       <div class="column">
-        <h4>Form HTML</h4>
+        <h4>{{ $t('forms.formHTML') }}</h4>
         <p>
-          Use the following HTML to show a subscription form on an external webpage.
-        </p>
-        <p>
-          The form should have the <code>email</code> field and one or more <code>l</code>
-          (list UUID) fields. The <code>name</code> field is optional.
+          {{ $t('forms.formHTMLHelp') }}
         </p>
 
-        <pre><!-- eslint-disable max-len -->&lt;form method=&quot;post&quot; action=&quot;http://localhost:9000/subscription/form&quot; class=&quot;listmonk-form&quot;&gt;
+        <!-- eslint-disable max-len -->
+        <pre>&lt;form method=&quot;post&quot; action=&quot;{{ serverConfig.rootURL }}/subscription/form&quot; class=&quot;listmonk-form&quot;&gt;
     &lt;div&gt;
         &lt;h3&gt;Subscribe&lt;/h3&gt;
         &lt;p&gt;&lt;input type=&quot;text&quot; name=&quot;email&quot; placeholder=&quot;E-mail&quot; /&gt;&lt;/p&gt;
@@ -42,7 +39,7 @@
       </div>
     </div><!-- columns -->
 
-    <p v-else>There are no public lists to create forms.</p>
+    <p v-else></p>
   </section>
 </template>
 
@@ -66,7 +63,7 @@ export default Vue.extend({
   },
 
   computed: {
-    ...mapState(['lists', 'loading']),
+    ...mapState(['lists', 'loading', 'serverConfig']),
 
     publicLists() {
       if (!this.lists.results) {

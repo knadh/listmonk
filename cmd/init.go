@@ -20,6 +20,7 @@ import (
 	"github.com/knadh/koanf/providers/confmap"
 	"github.com/knadh/koanf/providers/file"
 	"github.com/knadh/koanf/providers/posflag"
+	"github.com/knadh/listmonk/internal/i18n"
 	"github.com/knadh/listmonk/internal/manager"
 	"github.com/knadh/listmonk/internal/media"
 	"github.com/knadh/listmonk/internal/media/providers/filesystem"
@@ -44,6 +45,7 @@ type constants struct {
 	FaviconURL   string   `koanf:"favicon_url"`
 	FromEmail    string   `koanf:"from_email"`
 	NotifyEmails []string `koanf:"notify_emails"`
+	Lang         string   `koanf:"lang"`
 	Privacy      struct {
 		IndividualTracking bool            `koanf:"individual_tracking"`
 		AllowBlocklist     bool            `koanf:"allow_blocklist"`
@@ -131,6 +133,7 @@ func initFS(staticDir string) stuffbin.FileSystem {
 			// Alias all files inside dist/ and dist/frontend to frontend/*.
 			"frontend/dist/favicon.png:/frontend/favicon.png",
 			"frontend/dist/frontend:/frontend",
+			"i18n:/i18n",
 		}
 
 		fs, err = stuffbin.NewLocalFS("/", files...)
@@ -230,6 +233,7 @@ func initConstants() *constants {
 	}
 
 	c.RootURL = strings.TrimRight(c.RootURL, "/")
+	c.Lang = ko.String("app.lang")
 	c.Privacy.Exportable = maps.StringSliceToLookupMap(ko.Strings("privacy.exportable"))
 	c.MediaProvider = ko.String("upload.provider")
 
@@ -249,6 +253,22 @@ func initConstants() *constants {
 	// url.com/campaign/{campaign_uuid}/{subscriber_uuid}/px.png
 	c.ViewTrackURL = fmt.Sprintf("%s/campaign/%%s/%%s/px.png", c.RootURL)
 	return &c
+}
+
+// initI18n initializes a new i18n instance with the selected language map
+// loaded from the filesystem.
+func initI18n(lang string, fs stuffbin.FileSystem) *i18n.I18nLang {
+	b, err := fs.Read(fmt.Sprintf("/i18n/%s.json", lang))
+	if err != nil {
+		lo.Fatalf("error loading i18n language file: %v", err)
+	}
+
+	i, err := i18n.New(lang, b)
+	if err != nil {
+		lo.Fatalf("error unmarshalling i18n language: %v", err)
+	}
+
+	return i
 }
 
 // initCampaignManager initializes the campaign manager.
@@ -407,7 +427,7 @@ func initMediaStore() media.Store {
 
 // initNotifTemplates compiles and returns e-mail notification templates that are
 // used for sending ad-hoc notifications to admins and subscribers.
-func initNotifTemplates(path string, fs stuffbin.FileSystem, cs *constants) *template.Template {
+func initNotifTemplates(path string, fs stuffbin.FileSystem, i *i18n.I18nLang, cs *constants) *template.Template {
 	// Register utility functions that the e-mail templates can use.
 	funcs := template.FuncMap{
 		"RootURL": func() string {
@@ -415,7 +435,11 @@ func initNotifTemplates(path string, fs stuffbin.FileSystem, cs *constants) *tem
 		},
 		"LogoURL": func() string {
 			return cs.LogoURL
-		}}
+		},
+		"L": func() *i18n.I18nLang {
+			return i
+		},
+	}
 
 	tpl, err := stuffbin.ParseTemplatesGlob(funcs, fs, "/static/email-templates/*.html")
 	if err != nil {

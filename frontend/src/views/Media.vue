@@ -1,6 +1,6 @@
 <template>
   <section class="media-files">
-    <h1 class="title is-4">Media
+    <h1 class="title is-4">{{ $t('media.title') }}
       <span v-if="media.length > 0">({{ media.length }})</span>
 
       <span class="has-text-grey-light"> / {{ serverConfig.mediaProvider }}</span>
@@ -11,7 +11,7 @@
     <section class="wrap-small">
       <form @submit.prevent="onSubmit" class="box">
         <div>
-          <b-field label="Upload image">
+          <b-field :label="$t('media.uploadImage')">
             <b-upload
               v-model="form.files"
               drag-drop
@@ -22,7 +22,7 @@
                 <p>
                   <b-icon icon="file-upload-outline" size="is-large"></b-icon>
                 </p>
-                <p>Click or drag one or more images here</p>
+                <p>{{ $t('media.uploadHelp') }}</p>
               </div>
             </b-upload>
           </b-field>
@@ -35,7 +35,7 @@
           <div class="buttons">
             <b-button native-type="submit" type="is-primary" icon-left="file-upload-outline"
               :disabled="form.files.length === 0"
-              :loading="isProcessing">Upload</b-button>
+              :loading="isProcessing">{{ $tc('media.upload') }}</b-button>
           </div>
         </div>
       </form>

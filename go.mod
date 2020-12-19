@@ -27,3 +27,5 @@ require (
 	gopkg.in/volatiletech/null.v6 v6.0.0-20170828023728-0bef4e07ae1b
 	jaytaylor.com/html2text v0.0.0-20200220170450-61d9dc4d7195
 )
+
+replace github.com/knadh/smtppool => /home/kailash/code/go/my/knadh/smtp-pool

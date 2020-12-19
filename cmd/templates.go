@@ -50,16 +50,17 @@ func handleGetTemplates(c echo.Context) error {
 	err := app.queries.GetTemplates.Select(&out, id, noBody)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError,
-			fmt.Sprintf("Error fetching templates: %s", pqErrMsg(err)))
+			app.i18n.Ts2("globals.messages.errorFetching",
+				"name", "globals.terms.templates", "error", pqErrMsg(err)))
 	}
 	if single && len(out) == 0 {
-		return echo.NewHTTPError(http.StatusBadRequest, "Template not found.")
+		return echo.NewHTTPError(http.StatusBadRequest,
+			app.i18n.Ts2("globals.messages.notFound", "name", "{globals.terms.template}"))
 	}
 
 	if len(out) == 0 {
 		return c.JSON(http.StatusOK, okResp{[]struct{}{}})
-	}
-	if single {
+	} else if single {
 		return c.JSON(http.StatusOK, okResp{out[0]})
 	}
 
@@ -79,21 +80,23 @@ func handlePreviewTemplate(c echo.Context) error {
 	if body != "" {
 		if !regexpTplTag.MatchString(body) {
 			return echo.NewHTTPError(http.StatusBadRequest,
-				fmt.Sprintf("Template body should contain the %s placeholder exactly once", tplTag))
+				app.i18n.Ts2("templates.placeholderHelp", "placeholder", tplTag))
 		}
 	} else {
 		if id < 1 {
-			return echo.NewHTTPError(http.StatusBadRequest, "Invalid ID.")
+			return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidID"))
 		}
 
 		err := app.queries.GetTemplates.Select(&tpls, id, false)
 		if err != nil {
 			return echo.NewHTTPError(http.StatusInternalServerError,
-				fmt.Sprintf("Error fetching templates: %s", pqErrMsg(err)))
+				app.i18n.Ts2("globals.messages.errorFetching",
+					"name", "globals.terms.templates", "error", pqErrMsg(err)))
 		}
 
 		if len(tpls) == 0 {
-			return echo.NewHTTPError(http.StatusBadRequest, "Template not found.")
+			return echo.NewHTTPError(http.StatusBadRequest,
+				app.i18n.Ts2("globals.messages.notFound", "name", "{globals.terms.template}"))
 		}
 		body = tpls[0].Body
 	}
@@ -101,22 +104,23 @@ func handlePreviewTemplate(c echo.Context) error {
 	// Compile the template.
 	camp := models.Campaign{
 		UUID:         dummyUUID,
-		Name:         "Dummy Campaign",
-		Subject:      "Dummy Campaign Subject",
+		Name:         app.i18n.T("templates.dummyName"),
+		Subject:      app.i18n.T("templates.dummySubject"),
 		FromEmail:    "dummy-campaign@listmonk.app",
 		TemplateBody: body,
 		Body:         dummyTpl,
 	}
 
 	if err := camp.CompileTemplate(app.manager.TemplateFuncs(&camp)); err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Error compiling template: %v", err))
+		return echo.NewHTTPError(http.StatusBadRequest,
+			app.i18n.Ts2("templates.errorCompiling", "error", err.Error()))
 	}
 
 	// Render the message body.
 	m := app.manager.NewCampaignMessage(&camp, dummySubscriber)
 	if err := m.Render(); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest,
-			fmt.Sprintf("Error rendering message: %v", err))
+			app.i18n.Ts2("templates.errorRendering", "error", err.Error()))
 	}
 
 	return c.HTML(http.StatusOK, string(m.Body()))
@@ -133,7 +137,7 @@ func handleCreateTemplate(c echo.Context) error {
 		return err
 	}
 
-	if err := validateTemplate(o); err != nil {
+	if err := validateTemplate(o, app); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
@@ -143,7 +147,8 @@ func handleCreateTemplate(c echo.Context) error {
 		o.Name,
 		o.Body); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError,
-			fmt.Sprintf("Error template user: %v", pqErrMsg(err)))
+			app.i18n.Ts2("globals.messages.errorCreating",
+				"name", "{globals.terms.template}", "error", pqErrMsg(err)))
 	}
 
 	// Hand over to the GET handler to return the last insertion.
@@ -160,7 +165,7 @@ func handleUpdateTemplate(c echo.Context) error {
 	)
 
 	if id < 1 {
-		return echo.NewHTTPError(http.StatusBadRequest, "Invalid ID.")
+		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidID"))
 	}
 
 	var o models.Template
@@ -168,7 +173,7 @@ func handleUpdateTemplate(c echo.Context) error {
 		return err
 	}
 
-	if err := validateTemplate(o); err != nil {
+	if err := validateTemplate(o, app); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
@@ -176,11 +181,13 @@ func handleUpdateTemplate(c echo.Context) error {
 	res, err := app.queries.UpdateTemplate.Exec(o.ID, o.Name, o.Body)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError,
-			fmt.Sprintf("Error updating template: %s", pqErrMsg(err)))
+			app.i18n.Ts2("globals.messages.errorUpdating",
+				"name", "{globals.terms.template}", "error", pqErrMsg(err)))
 	}
 
 	if n, _ := res.RowsAffected(); n == 0 {
-		return echo.NewHTTPError(http.StatusBadRequest, "Template not found.")
+		return echo.NewHTTPError(http.StatusBadRequest,
+			app.i18n.Ts2("globals.messages.notFound", "name", "{globals.terms.template}"))
 	}
 
 	return handleGetTemplates(c)
@@ -194,13 +201,14 @@ func handleTemplateSetDefault(c echo.Context) error {
 	)
 
 	if id < 1 {
-		return echo.NewHTTPError(http.StatusBadRequest, "Invalid ID.")
+		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidID"))
 	}
 
 	_, err := app.queries.SetDefaultTemplate.Exec(id)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError,
-			fmt.Sprintf("Error updating template: %s", pqErrMsg(err)))
+			app.i18n.Ts2("globals.messages.errorUpdating",
+				"name", "{globals.terms.template}", "error", pqErrMsg(err)))
 	}
 
 	return handleGetTemplates(c)
@@ -214,9 +222,10 @@ func handleDeleteTemplate(c echo.Context) error {
 	)
 
 	if id < 1 {
-		return echo.NewHTTPError(http.StatusBadRequest, "Invalid ID.")
+		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidID"))
 	} else if id == 1 {
-		return echo.NewHTTPError(http.StatusBadRequest, "Cannot delete the primordial template.")
+		return echo.NewHTTPError(http.StatusBadRequest,
+			app.i18n.T("templates.cantDeleteDefault"))
 	}
 
 	var delID int
@@ -226,26 +235,28 @@ func handleDeleteTemplate(c echo.Context) error {
 			return c.JSON(http.StatusOK, okResp{true})
 		}
 
-		return echo.NewHTTPError(http.StatusBadRequest,
-			fmt.Sprintf("Error deleting template: %v", err))
+		return echo.NewHTTPError(http.StatusInternalServerError,
+			app.i18n.Ts2("globals.messages.errorCreating",
+				"name", "{globals.terms.template}", "error", pqErrMsg(err)))
 	}
 
 	if delID == 0 {
 		return echo.NewHTTPError(http.StatusBadRequest,
-			"Cannot delete the last, default, or non-existent template.")
+			app.i18n.T("templates.cantDeleteDefault"))
 	}
 
 	return c.JSON(http.StatusOK, okResp{true})
 }
 
 // validateTemplate validates template fields.
-func validateTemplate(o models.Template) error {
+func validateTemplate(o models.Template, app *App) error {
 	if !strHasLen(o.Name, 1, stdInputMaxLen) {
-		return errors.New("invalid length for `name`")
+		return errors.New(app.i18n.T("campaigns.fieldInvalidName"))
 	}
 
 	if !regexpTplTag.MatchString(o.Body) {
-		return fmt.Errorf("template body should contain the %s placeholder exactly once", tplTag)
+		return echo.NewHTTPError(http.StatusBadRequest,
+			app.i18n.Ts2("templates.placeholderHelp", "placeholder", tplTag))
 	}
 
 	return nil

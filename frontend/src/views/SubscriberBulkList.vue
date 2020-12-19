@@ -2,19 +2,23 @@
   <form @submit.prevent="onSubmit">
     <div class="modal-card" style="width: auto">
       <header class="modal-card-head">
-        <h4 class="title is-size-5">Manage lists</h4>
+        <h4 class="title is-size-5">{{ $t('subscribers.manageLists') }}</h4>
       </header>
 
       <section expanded class="modal-card-body">
         <b-field label="Action">
           <div>
-            <b-radio v-model="form.action" name="action" native-value="add">Add</b-radio>
-            <b-radio v-model="form.action" name="action" native-value="remove">Remove</b-radio>
+            <b-radio v-model="form.action" name="action" native-value="add">
+              {{ $t('globals.buttons.add') }}
+            </b-radio>
+            <b-radio v-model="form.action" name="action" native-value="remove">
+              {{ $t('globals.buttons.remove') }}
+            </b-radio>
             <b-radio
               v-model="form.action"
               name="action"
               native-value="unsubscribe"
-            >Mark as unsubscribed</b-radio>
+            >{{ $t('subscribers.markUnsubscribed') }}</b-radio>
           </div>
         </b-field>
 
@@ -28,9 +32,9 @@
       </section>
 
       <footer class="modal-card-foot has-text-right">
-        <b-button @click="$parent.close()">Close</b-button>
+        <b-button @click="$parent.close()">{{ $t('globals.buttons.close') }}</b-button>
         <b-button native-type="submit" type="is-primary"
-          :disabled="form.lists.length === 0">Save</b-button>
+          :disabled="form.lists.length === 0">{{ $t('globals.buttons.save') }}</b-button>
       </footer>
     </div>
   </form>

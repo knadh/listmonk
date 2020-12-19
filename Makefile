@@ -8,7 +8,8 @@ STATIC := config.toml.sample \
 	static/public:/public \
 	static/email-templates \
 	frontend/dist/favicon.png:/frontend/favicon.png \
-	frontend/dist/frontend:/frontend
+	frontend/dist/frontend:/frontend \
+	i18n:/i18n
 
 # Install dependencies for building.
 .PHONY: deps

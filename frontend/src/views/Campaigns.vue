@@ -2,20 +2,20 @@
   <section class="campaigns">
     <header class="columns">
       <div class="column is-two-thirds">
-        <h1 class="title is-4">Campaigns
+        <h1 class="title is-4">{{ $t('globals.terms.campaigns') }}
           <span v-if="!isNaN(campaigns.total)">({{ campaigns.total }})</span>
         </h1>
       </div>
       <div class="column has-text-right">
         <b-button :to="{name: 'campaign', params:{id: 'new'}}" tag="router-link"
-          type="is-primary" icon-left="plus">New</b-button>
+          type="is-primary" icon-left="plus">{{ $t('globals.buttons.new') }}</b-button>
       </div>
     </header>
 
     <form @submit.prevent="getCampaigns">
       <b-field grouped>
           <b-input v-model="queryParams.query"
-            placeholder="Name or subject" icon="magnify" ref="query"></b-input>
+            :placeholder="$t('campaigns.queryPlaceholder')" icon="magnify" ref="query"></b-input>
           <b-button native-type="submit" type="is-primary" icon-left="magnify"></b-button>
       </b-field>
     </form>
@@ -40,7 +40,7 @@
                   </router-link>
                 </p>
                 <p v-if="isSheduled(props.row)">
-                  <b-tooltip label="Scheduled" type="is-dark">
+                  <b-tooltip :label="$t('scheduled')" type="is-dark">
                     <span class="is-size-7 has-text-grey scheduled">
                       <b-icon icon="alarm" size="is-small" />
                       {{ $utils.duration(Date(), props.row.sendAt, true) }}
@@ -50,7 +50,7 @@
                 </p>
               </div>
             </b-table-column>
-            <b-table-column field="name" label="Name" sortable width="25%">
+            <b-table-column field="name" :label="$t('globals.fields.name')" sortable width="25%">
               <div>
                 <p>
                   <b-tag v-if="props.row.type !== 'regular'" class="is-small">
@@ -65,7 +65,8 @@
                 </b-taglist>
               </div>
             </b-table-column>
-            <b-table-column class="lists" field="lists" label="Lists" width="15%">
+            <b-table-column class="lists" field="lists"
+              :label="$t('globals.terms.lists')" width="15%">
               <ul class="no">
                 <li v-for="l in props.row.lists" :key="l.id">
                   <router-link :to="{name: 'subscribers_list', params: { listID: l.id }}">
@@ -74,7 +75,8 @@
                 </li>
               </ul>
             </b-table-column>
-            <b-table-column field="created_at" label="Timestamps" width="19%" sortable>
+            <b-table-column field="created_at" :label="$t('campaigns.timestamps')"
+              width="19%" sortable>
               <div class="fields timestamps" :set="stats = getCampaignStats(props.row)">
                 <p>
                   <label>Created</label>
@@ -99,15 +101,15 @@
             <b-table-column field="stats" :class="props.row.status" label="Stats" width="18%">
               <div class="fields stats" :set="stats = getCampaignStats(props.row)">
                 <p>
-                  <label>Views</label>
+                  <label>{{ $t('campaigns.views') }}</label>
                   {{ props.row.views }}
                 </p>
                 <p>
-                  <label>Clicks</label>
+                  <label>{{ $t('campaigns.clicks') }}</label>
                   {{ props.row.clicks }}
                 </p>
                 <p>
-                  <label>Sent</label>
+                  <label>{{ $t('campaigns.sent') }}</label>
                   {{ stats.sent }} / {{ stats.toSend }}
                 </p>
                 <p title="Speed" v-if="stats.rate">
@@ -117,7 +119,7 @@
                   </span>
                 </p>
                 <p v-if="isRunning(props.row.id)">
-                  <label>Progress
+                  <label>{{ $t('campaigns.progress') }}
                     <span class="spinner is-tiny">
                       <b-loading :is-full-page="false" active />
                     </span>
@@ -132,52 +134,52 @@
                 <a href="" v-if="canStart(props.row)"
                   @click.prevent="$utils.confirm(null,
                     () => changeCampaignStatus(props.row, 'running'))">
-                  <b-tooltip label="Start" type="is-dark">
+                  <b-tooltip :label="$t('campaigns.start')" type="is-dark">
                     <b-icon icon="rocket-launch-outline" size="is-small" />
                   </b-tooltip>
                 </a>
                 <a href="" v-if="canPause(props.row)"
                   @click.prevent="$utils.confirm(null,
                     () => changeCampaignStatus(props.row, 'paused'))">
-                  <b-tooltip label="Pause" type="is-dark">
+                  <b-tooltip :label="$t('campaigns.pause')" type="is-dark">
                     <b-icon icon="pause-circle-outline" size="is-small" />
                   </b-tooltip>
                 </a>
                 <a href="" v-if="canResume(props.row)"
                   @click.prevent="$utils.confirm(null,
                     () => changeCampaignStatus(props.row, 'running'))">
-                  <b-tooltip label="Send" type="is-dark">
+                  <b-tooltip :label="$t('campaigns.send')" type="is-dark">
                     <b-icon icon="rocket-launch-outline" size="is-small" />
                   </b-tooltip>
                 </a>
                 <a href="" v-if="canSchedule(props.row)"
-                  @click.prevent="$utils.confirm(`This campaign will start automatically at the
-                      scheduled date and time. Schedule now?`,
-                        () => changeCampaignStatus(props.row, 'scheduled'))">
-                  <b-tooltip label="Schedule" type="is-dark">
+                  @click.prevent="$utils.confirm($t('campaigns.confirmSchedule'),
+                                () => changeCampaignStatus(props.row, 'scheduled'))">
+                  <b-tooltip :label="$t('campaigns.schedule')" type="is-dark">
                     <b-icon icon="clock-start" size="is-small" />
                   </b-tooltip>
                 </a>
                 <a href="" @click.prevent="previewCampaign(props.row)">
-                  <b-tooltip label="Preview" type="is-dark">
+                  <b-tooltip :label="$t('campaigns.preview')" type="is-dark">
                     <b-icon icon="file-find-outline" size="is-small" />
                   </b-tooltip>
                 </a>
-                <a href="" @click.prevent="$utils.prompt(`Clone campaign`,
-                        { placeholder: 'Name', value: `Copy of ${props.row.name}`},
-                        (name) => cloneCampaign(name, props.row))">
-                  <b-tooltip label="Clone" type="is-dark">
+                <a href="" @click.prevent="$utils.prompt($t('globals.buttons.clone'),
+                        { placeholder: $t('globals.fields.name'),
+                          value: $t('campaigns.copyOf', { name: props.row.name }) },
+                          (name) => cloneCampaign(name, props.row))">
+                  <b-tooltip :label="$t('globals.buttons.clone')" type="is-dark">
                     <b-icon icon="file-multiple-outline" size="is-small" />
                   </b-tooltip>
                 </a>
                 <a href="" v-if="canCancel(props.row)"
                   @click.prevent="$utils.confirm(null,
                     () => changeCampaignStatus(props.row, 'cancelled'))">
-                  <b-tooltip label="Cancel" type="is-dark">
+                  <b-tooltip :label="$t('globals.buttons.cancel')" type="is-dark">
                     <b-icon icon="cancel" size="is-small" />
                   </b-tooltip>
                 </a>
-                <a href="" @click.prevent="$utils.confirm(`Delete '${props.row.name}'?`,
+                <a href="" @click.prevent="$utils.confirm($tc('campaigns.confirmDelete'),
                     () => deleteCampaign(props.row))">
                     <b-icon icon="trash-can-outline" size="is-small" />
                 </a>
@@ -331,7 +333,7 @@ export default Vue.extend({
 
     changeCampaignStatus(c, status) {
       this.$api.changeCampaignStatus(c.id, status).then(() => {
-        this.$utils.toast(`'${c.name}' is ${status}`);
+        this.$utils.toast(this.$t('campaigns.statusChanged', { name: c.name, status }));
         this.getCampaigns();
         this.pollStats();
       });
@@ -358,7 +360,7 @@ export default Vue.extend({
     deleteCampaign(c) {
       this.$api.deleteCampaign(c.id).then(() => {
         this.getCampaigns();
-        this.$utils.toast(`'${c.name}' deleted`);
+        this.$utils.toast(this.$t('globals.messages.deleted', { name: c.name }));
       });
     },
   },

@@ -1,6 +1,7 @@
 import Vue from 'vue';
 import Buefy from 'buefy';
 import humps from 'humps';
+import VueI18n from 'vue-i18n';
 
 import App from './App.vue';
 import router from './router';
@@ -8,6 +9,12 @@ import store from './store';
 import * as api from './api';
 import utils from './utils';
 import { models } from './constants';
+
+// Internationalisation.
+Vue.use(VueI18n);
+
+// Create VueI18n instance with options
+const i18n = new VueI18n();
 
 Vue.use(Buefy, {});
 Vue.config.productionTip = false;
@@ -36,10 +43,15 @@ Vue.prototype.$reloadServerConfig = () => {
 if (window.CONFIG) {
   store.commit('setModelResponse',
     { model: models.serverConfig, data: humps.camelizeKeys(window.CONFIG) });
+
+  // Load language.
+  i18n.locale = window.CONFIG.lang['_.code'];
+  i18n.setLocaleMessage(i18n.locale, window.CONFIG.lang);
 }
 
 new Vue({
   router,
   store,
+  i18n,
   render: (h) => h(App),
 }).$mount('#app');

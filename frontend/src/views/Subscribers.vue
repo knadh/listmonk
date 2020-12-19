@@ -2,7 +2,7 @@
   <section class="subscribers">
     <header class="columns">
       <div class="column is-half">
-        <h1 class="title is-4">Subscribers
+        <h1 class="title is-4">{{ $t('globals.terms.subscribers') }}
           <span v-if="!isNaN(subscribers.total)">({{ subscribers.total }})</span>
           <span v-if="currentList">
             &raquo; {{ currentList.name }}
@@ -10,7 +10,9 @@
         </h1>
       </div>
       <div class="column has-text-right">
-        <b-button type="is-primary" icon-left="plus" @click="showNewForm">New</b-button>
+        <b-button type="is-primary" icon-left="plus" @click="showNewForm">
+          {{ $t('globals.buttons.new') }}
+        </b-button>
       </div>
     </header>
 
@@ -20,7 +22,7 @@
           <div>
             <b-field grouped>
               <b-input @input="onSimpleQueryInput" v-model="queryInput"
-                placeholder="E-mail or name" icon="magnify" ref="query"
+                :placeholder="$t('subscribers.queryPlaceholder')" icon="magnify" ref="query"
                 :disabled="isSearchAdvanced"></b-input>
               <b-button native-type="submit" type="is-primary" icon-left="magnify"
                 :disabled="isSearchAdvanced"></b-button>
@@ -28,7 +30,9 @@
 
             <p>
               <a href="#" @click.prevent="toggleAdvancedSearch">
-                <b-icon icon="cog-outline" size="is-small" /> Advanced</a>
+                <b-icon icon="cog-outline" size="is-small" />
+                {{ $t('subscribers.advancedQuery') }}
+              </a>
             </p>
 
             <div v-if="isSearchAdvanced">
@@ -41,17 +45,20 @@
               </b-field>
               <b-field>
                 <span class="is-size-6 has-text-grey">
-                  Partial SQL expression to query subscriber attributes.{{ ' ' }}
+                  {{ $t('subscribers.advancedQueryHelp') }}.{{ ' ' }}
                   <a href="https://listmonk.app/docs/querying-and-segmentation"
-                    target="_blank" rel="noopener noreferrer"> Learn more.
+                    target="_blank" rel="noopener noreferrer">
+                    {{ $t('globals.buttons.learnMore') }}.
                   </a>
                 </span>
               </b-field>
 
               <div class="buttons">
                 <b-button native-type="submit" type="is-primary"
-                  icon-left="magnify">Query</b-button>
-                <b-button @click.prevent="toggleAdvancedSearch" icon-left="cancel">Reset</b-button>
+                  icon-left="magnify">{{ $t('subscribers.query') }}</b-button>
+                <b-button @click.prevent="toggleAdvancedSearch" icon-left="cancel">
+                  {{ $t('subscribers.reset') }}
+                </b-button>
               </div>
             </div><!-- advanced query -->
           </div>
@@ -62,11 +69,13 @@
         <div>
           <p>
             <span class="is-size-5 has-text-weight-semibold">
-              {{ numSelectedSubscribers }} subscriber(s) selected
+              {{ $t('subscribers.numSelected', { num: numSelectedSubscribers }) }}
             </span>
             <span v-if="!bulk.all && subscribers.total > subscribers.perPage">
-              &mdash; <a href="" @click.prevent="selectAllSubscribers">
-                Select all {{ subscribers.total }}</a>
+              &mdash;
+              <a href="" @click.prevent="selectAllSubscribers">
+                {{ $t('subscribers.selectAll', { num: subscribers.total }) }}
+              </a>
             </span>
           </p>
 
@@ -99,7 +108,9 @@
             <b-table-column field="status" label="Status" sortable>
               <a :href="`/subscribers/${props.row.id}`"
                 @click.prevent="showEditForm(props.row)">
-                <b-tag :class="props.row.status">{{ props.row.status }}</b-tag>
+                <b-tag :class="props.row.status">
+                  {{ $t('subscribers.status.'+ props.row.status) }}
+                </b-tag>
               </a>
             </b-table-column>
 
@@ -112,7 +123,8 @@
                   <router-link :to="`/subscribers/lists/${props.row.id}`">
                     <b-tag :class="l.subscriptionStatus" v-for="l in props.row.lists"
                       size="is-small" :key="l.id">
-                        {{ l.name }} <sup>{{ l.subscriptionStatus }}</sup>
+                        {{ l.name }}
+                        <sup>{{ $t('subscribers.status.'+ l.subscriptionStatus) }}</sup>
                     </b-tag>
                   </router-link>
               </b-taglist>
@@ -140,18 +152,18 @@
             <b-table-column class="actions" align="right">
               <div>
                 <a :href="`/api/subscribers/${props.row.id}/export`">
-                  <b-tooltip label="Download data" type="is-dark">
+                  <b-tooltip :label="$t('subscribers.downloadData')" type="is-dark">
                     <b-icon icon="cloud-download-outline" size="is-small" />
                   </b-tooltip>
                 </a>
                 <a :href="`/subscribers/${props.row.id}`"
                   @click.prevent="showEditForm(props.row)">
-                  <b-tooltip label="Edit" type="is-dark">
+                  <b-tooltip :label="$t('globals.buttons.edit')" type="is-dark">
                     <b-icon icon="pencil-outline" size="is-small" />
                   </b-tooltip>
                 </a>
                 <a href='' @click.prevent="deleteSubscriber(props.row)">
-                  <b-tooltip label="Delete" type="is-dark">
+                  <b-tooltip :label="$t('globals.buttons.delete')" type="is-dark">
                     <b-icon icon="trash-can-outline" size="is-small" />
                   </b-tooltip>
                 </a>
@@ -326,7 +338,7 @@ export default Vue.extend({
             this.querySubscribers();
 
             this.$buefy.toast.open({
-              message: `'${sub.name}' deleted.`,
+              message: this.$t('globals.messages.deleted', { name: sub.name }),
               type: 'is-success',
               queue: false,
             });
@@ -354,10 +366,7 @@ export default Vue.extend({
         };
       }
 
-      this.$utils.confirm(
-        `Blocklist ${this.numSelectedSubscribers} subscriber(s)?`,
-        fn,
-      );
+      this.$utils.confirm(this.$t('subscribers.confirmBlocklist', { num: this.numSelectedSubscribers }), fn);
     },
 
     deleteSubscribers() {
@@ -371,7 +380,7 @@ export default Vue.extend({
               this.querySubscribers();
 
               this.$buefy.toast.open({
-                message: `${this.numSelectedSubscribers} subscriber(s) deleted`,
+                message: this.$t('subscribers.subscribersDeleted', { num: this.numSelectedSubscribers }),
                 type: 'is-success',
                 queue: false,
               });
@@ -387,7 +396,7 @@ export default Vue.extend({
             this.querySubscribers();
 
             this.$buefy.toast.open({
-              message: `${this.numSelectedSubscribers} subscriber(s) deleted`,
+              message: this.$t('subscribers.subscribersDeleted', { num: this.numSelectedSubscribers }),
               type: 'is-success',
               queue: false,
             });
@@ -395,10 +404,7 @@ export default Vue.extend({
         };
       }
 
-      this.$utils.confirm(
-        `Delete ${this.numSelectedSubscribers} subscriber(s)?`,
-        fn,
-      );
+      this.$utils.confirm(this.$t('subscribers.confirmDelete', { num: this.numSelectedSubscribers }), fn);
     },
 
     bulkChangeLists(action, lists) {
@@ -422,7 +428,7 @@ export default Vue.extend({
       fn(data).then(() => {
         this.querySubscribers();
         this.$buefy.toast.open({
-          message: 'List change applied',
+          message: this.$t('subscribers.listChangeApplied'),
           type: 'is-success',
           queue: false,
         });

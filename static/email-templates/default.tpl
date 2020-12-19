@@ -76,7 +76,10 @@
     </div>
     
     <div class="footer" style="text-align: center;font-size: 12px;color: #888;">
-        <p>Don't want to receive these e-mails? <a href="{{ UnsubscribeURL }}" style="color: #888;">Unsubscribe</a></p>
+        <p>
+            {{ I18n.T "email.unsubHelp" }}
+            <a href="{{ UnsubscribeURL }}" style="color: #888;">{{ I18n.T "email.unsub" }}</a>
+        </p>
         <p>Powered by <a href="https://listmonk.app" target="_blank" style="color: #888;">listmonk</a></p>
     </div>
     <div class="gutter" style="padding: 30px;">&nbsp;{{ TrackView }}</div>

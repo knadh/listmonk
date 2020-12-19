@@ -2,6 +2,8 @@ package main
 
 import (
 	"crypto/subtle"
+	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/url"
 	"regexp"
@@ -31,7 +33,10 @@ type pagination struct {
 	Limit   int `json:"limit"`
 }
 
-var reUUID = regexp.MustCompile("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$")
+var (
+	reUUID     = regexp.MustCompile("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$")
+	reLangCode = regexp.MustCompile("[^a-zA-Z_0-9]")
+)
 
 // registerHandlers registers HTTP handlers.
 func registerHTTPHandlers(e *echo.Echo) {
@@ -40,6 +45,7 @@ func registerHTTPHandlers(e *echo.Echo) {
 	g.GET("/", handleIndexPage)
 	g.GET("/api/health", handleHealthCheck)
 	g.GET("/api/config.js", handleGetConfigScript)
+	g.GET("/api/lang/:lang", handleLoadLanguage)
 	g.GET("/api/dashboard/charts", handleGetDashboardCharts)
 	g.GET("/api/dashboard/counts", handleGetDashboardCounts)
 
@@ -154,6 +160,23 @@ func handleHealthCheck(c echo.Context) error {
 	return c.JSON(http.StatusOK, okResp{true})
 }
 
+// handleLoadLanguage returns the JSON language pack given the language code.
+func handleLoadLanguage(c echo.Context) error {
+	app := c.Get("app").(*App)
+
+	lang := c.Param("lang")
+	if len(lang) > 6 || reLangCode.MatchString(lang) {
+		return echo.NewHTTPError(http.StatusBadRequest, "Invalid language code.")
+	}
+
+	b, err := app.fs.Read(fmt.Sprintf("/lang/%s.json", lang))
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "Unknown language.")
+	}
+
+	return c.JSON(http.StatusOK, okResp{json.RawMessage(b)})
+}
+
 // basicAuth middleware does an HTTP BasicAuth authentication for admin handlers.
 func basicAuth(username, password string, c echo.Context) (bool, error) {
 	app := c.Get("app").(*App)
@@ -174,11 +197,13 @@ func basicAuth(username, password string, c echo.Context) (bool, error) {
 // validateUUID middleware validates the UUID string format for a given set of params.
 func validateUUID(next echo.HandlerFunc, params ...string) echo.HandlerFunc {
 	return func(c echo.Context) error {
+		app := c.Get("app").(*App)
+
 		for _, p := range params {
 			if !reUUID.MatchString(c.Param(p)) {
 				return c.Render(http.StatusBadRequest, tplMessage,
-					makeMsgTpl("Invalid request", "",
-						`One or more UUIDs in the request are invalid.`))
+					makeMsgTpl(app.i18n.T("public.errorTitle"), "",
+						app.i18n.T("globals.messages.invalidUUID")))
 			}
 		}
 		return next(c)
@@ -198,14 +223,14 @@ func subscriberExists(next echo.HandlerFunc, params ...string) echo.HandlerFunc 
 		if err := app.queries.SubscriberExists.Get(&exists, 0, subUUID); err != nil {
 			app.log.Printf("error checking subscriber existence: %v", err)
 			return c.Render(http.StatusInternalServerError, tplMessage,
-				makeMsgTpl("Error", "",
-					`Error processing request. Please retry.`))
+				makeMsgTpl(app.i18n.T("public.errorTitle"), "",
+					app.i18n.T("public.errorProcessingRequest")))
 		}
 
 		if !exists {
-			return c.Render(http.StatusBadRequest, tplMessage,
-				makeMsgTpl("Not found", "",
-					`Subscription not found.`))
+			return c.Render(http.StatusNotFound, tplMessage,
+				makeMsgTpl(app.i18n.T("public.notFoundTitle"), "",
+					app.i18n.T("public.subNotFound")))
 		}
 		return next(c)
 	}

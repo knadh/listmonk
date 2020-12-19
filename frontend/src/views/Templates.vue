@@ -2,60 +2,62 @@
   <section class="templates">
     <header class="columns">
       <div class="column is-two-thirds">
-        <h1 class="title is-4">Templates
+        <h1 class="title is-4">{{ $t('globals.terms.templates') }}
           <span v-if="templates.length > 0">({{ templates.length }})</span></h1>
       </div>
       <div class="column has-text-right">
-        <b-button type="is-primary" icon-left="plus" @click="showNewForm">New</b-button>
+        <b-button type="is-primary" icon-left="plus" @click="showNewForm">
+          {{ $t('globals.buttons.new') }}
+        </b-button>
       </div>
     </header>
 
     <b-table :data="templates" :hoverable="true" :loading="loading.templates"
       default-sort="createdAt">
         <template slot-scope="props">
-            <b-table-column field="name" label="Name" sortable>
+            <b-table-column field="name" :label="$t('globals.fields.name')" sortable>
                 <a :href="props.row.id" @click.prevent="showEditForm(props.row)">
                   {{ props.row.name }}
                 </a>
-                <b-tag v-if="props.row.isDefault">default</b-tag>
+                <b-tag v-if="props.row.isDefault">{{ $t('templates.default') }}</b-tag>
             </b-table-column>
 
-            <b-table-column field="createdAt" label="Created" sortable>
+            <b-table-column field="createdAt" :label="$t('globals.fields.createdAt')" sortable>
                 {{ $utils.niceDate(props.row.createdAt) }}
             </b-table-column>
 
-            <b-table-column field="updatedAt" label="Updated" sortable>
+            <b-table-column field="updatedAt" :label="$t('globals.fields.updatedAt')" sortable>
                 {{ $utils.niceDate(props.row.updatedAt) }}
             </b-table-column>
 
             <b-table-column class="actions" align="right">
               <div>
                 <a href="#" @click.prevent="previewTemplate(props.row)">
-                  <b-tooltip label="Preview" type="is-dark">
+                  <b-tooltip :label="$t('templates.preview')" type="is-dark">
                     <b-icon icon="file-find-outline" size="is-small" />
                   </b-tooltip>
                 </a>
                 <a href="#" @click.prevent="showEditForm(props.row)">
-                  <b-tooltip label="Edit" type="is-dark">
+                  <b-tooltip :label="$t('globals.buttons.edit')" type="is-dark">
                     <b-icon icon="pencil-outline" size="is-small" />
                   </b-tooltip>
                 </a>
                 <a href="" @click.prevent="$utils.prompt(`Clone template`,
                         { placeholder: 'Name', value: `Copy of ${props.row.name}`},
                         (name) => cloneTemplate(name, props.row))">
-                  <b-tooltip label="Clone" type="is-dark">
+                  <b-tooltip :label="$t('globals.buttons.clone')" type="is-dark">
                     <b-icon icon="file-multiple-outline" size="is-small" />
                   </b-tooltip>
                 </a>
                 <a v-if="!props.row.isDefault" href="#"
                   @click.prevent="$utils.confirm(null, () => makeTemplateDefault(props.row))">
-                  <b-tooltip label="Make default" type="is-dark">
+                  <b-tooltip :label="$t('templates.makeDefault')" type="is-dark">
                     <b-icon icon="check-circle-outline" size="is-small" />
                   </b-tooltip>
                 </a>
                 <a v-if="!props.row.isDefault"
                   href="#" @click.prevent="$utils.confirm(null, () => deleteTemplate(props.row))">
-                  <b-tooltip label="Delete" type="is-dark">
+                  <b-tooltip :label="$t('globals.buttons.delete')" type="is-dark">
                     <b-icon icon="trash-can-outline" size="is-small" />
                   </b-tooltip>
                 </a>
@@ -151,7 +153,7 @@ export default Vue.extend({
         this.$api.getTemplates();
 
         this.$buefy.toast.open({
-          message: `'${tpl.name}' made default`,
+          message: this.$t('globals.messages.created', { name: tpl.name }),
           type: 'is-success',
           queue: false,
         });
@@ -163,7 +165,7 @@ export default Vue.extend({
         this.$api.getTemplates();
 
         this.$buefy.toast.open({
-          message: `'${tpl.name}' deleted`,
+          message: this.$t('globals.messages.deleted', { name: tpl.name }),
           type: 'is-success',
           queue: false,
         });

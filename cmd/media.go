@@ -2,7 +2,6 @@ package main
 
 import (
 	"bytes"
-	"fmt"
 	"mime/multipart"
 	"net/http"
 	"strconv"
@@ -35,14 +34,14 @@ func handleUploadMedia(c echo.Context) error {
 	file, err := c.FormFile("file")
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest,
-			fmt.Sprintf("Invalid file uploaded: %v", err))
+			app.i18n.Ts2("media.invalidFile", "error", err.Error()))
 	}
 
 	// Validate MIME type with the list of allowed types.
 	var typ = file.Header.Get("Content-type")
 	if ok := validateMIME(typ, imageMimes); !ok {
 		return echo.NewHTTPError(http.StatusBadRequest,
-			fmt.Sprintf("Unsupported file type (%s) uploaded.", typ))
+			app.i18n.Ts2("media.unsupportedFileType", "type", typ))
 	}
 
 	// Generate filename
@@ -51,8 +50,8 @@ func handleUploadMedia(c echo.Context) error {
 	// Read file contents in memory
 	src, err := file.Open()
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest,
-			fmt.Sprintf("Error reading file: %s", err))
+		return echo.NewHTTPError(http.StatusInternalServerError,
+			app.i18n.Ts2("media.errorReadingFile", "error", err.Error()))
 	}
 	defer src.Close()
 
@@ -62,7 +61,7 @@ func handleUploadMedia(c echo.Context) error {
 		app.log.Printf("error uploading file: %v", err)
 		cleanUp = true
 		return echo.NewHTTPError(http.StatusInternalServerError,
-			fmt.Sprintf("Error uploading file: %s", err))
+			app.i18n.Ts2("media.errorUploading", "error", err.Error()))
 	}
 
 	defer func() {
@@ -80,7 +79,7 @@ func handleUploadMedia(c echo.Context) error {
 		cleanUp = true
 		app.log.Printf("error resizing image: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
-			fmt.Sprintf("Error resizing image: %s", err))
+			app.i18n.Ts2("media.errorResizing", "error", err.Error()))
 	}
 
 	// Upload thumbnail.
@@ -89,13 +88,14 @@ func handleUploadMedia(c echo.Context) error {
 		cleanUp = true
 		app.log.Printf("error saving thumbnail: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
-			fmt.Sprintf("Error saving thumbnail: %s", err))
+			app.i18n.Ts2("media.errorSavingThumbnail", "error", err.Error()))
 	}
 
 	uu, err := uuid.NewV4()
 	if err != nil {
 		app.log.Printf("error generating UUID: %v", err)
-		return echo.NewHTTPError(http.StatusInternalServerError, "Error generating UUID")
+		return echo.NewHTTPError(http.StatusInternalServerError,
+			app.i18n.Ts2("globals.messages.errorUUID", "error", err.Error()))
 	}
 
 	// Write to the DB.
@@ -103,7 +103,8 @@ func handleUploadMedia(c echo.Context) error {
 		cleanUp = true
 		app.log.Printf("error inserting uploaded file to db: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
-			fmt.Sprintf("Error saving uploaded file to db: %s", pqErrMsg(err)))
+			app.i18n.Ts2("globals.messages.errorCreating",
+				"name", "globals.terms.media", "error", pqErrMsg(err)))
 	}
 	return c.JSON(http.StatusOK, okResp{true})
 }
@@ -117,7 +118,8 @@ func handleGetMedia(c echo.Context) error {
 
 	if err := app.queries.GetMedia.Select(&out, app.constants.MediaProvider); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError,
-			fmt.Sprintf("Error fetching media list: %s", pqErrMsg(err)))
+			app.i18n.Ts2("globals.messages.errorFetching",
+				"name", "globals.terms.media", "error", pqErrMsg(err)))
 	}
 
 	for i := 0; i < len(out); i++ {
@@ -136,13 +138,14 @@ func handleDeleteMedia(c echo.Context) error {
 	)
 
 	if id < 1 {
-		return echo.NewHTTPError(http.StatusBadRequest, "Invalid ID.")
+		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidID"))
 	}
 
 	var m media.Media
 	if err := app.queries.DeleteMedia.Get(&m, id); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError,
-			fmt.Sprintf("Error deleting media: %s", pqErrMsg(err)))
+			app.i18n.Ts2("globals.messages.errorDeleting",
+				"name", "globals.terms.media", "error", pqErrMsg(err)))
 	}
 
 	app.media.Delete(m.Filename)
@@ -160,8 +163,7 @@ func createThumbnail(file *multipart.FileHeader) (*bytes.Reader, error) {
 
 	img, err := imaging.Decode(src)
 	if err != nil {
-		return nil, echo.NewHTTPError(http.StatusInternalServerError,
-			fmt.Sprintf("Error decoding image: %v", err))
+		return nil, err
 	}
 
 	// Encode the image into a byte slice as PNG.

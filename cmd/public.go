@@ -12,6 +12,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/knadh/listmonk/internal/i18n"
 	"github.com/knadh/listmonk/internal/messenger"
 	"github.com/knadh/listmonk/internal/subimporter"
 	"github.com/knadh/listmonk/models"
@@ -38,6 +39,7 @@ type tplData struct {
 	LogoURL    string
 	FaviconURL string
 	Data       interface{}
+	L          *i18n.I18nLang
 }
 
 type publicTpl struct {
@@ -82,6 +84,7 @@ func (t *tplRenderer) Render(w io.Writer, name string, data interface{}, c echo.
 		LogoURL:    t.LogoURL,
 		FaviconURL: t.FaviconURL,
 		Data:       data,
+		L:          c.Get("app").(*App).i18n,
 	})
 }
 
@@ -99,12 +102,14 @@ func handleViewCampaignMessage(c echo.Context) error {
 	if err := app.queries.GetCampaign.Get(&camp, 0, campUUID); err != nil {
 		if err == sql.ErrNoRows {
 			return c.Render(http.StatusNotFound, tplMessage,
-				makeMsgTpl("Not found", "", `The e-mail campaign was not found.`))
+				makeMsgTpl(app.i18n.T("public.notFoundTitle"), "",
+					app.i18n.T("public.campaignNotFound")))
 		}
 
 		app.log.Printf("error fetching campaign: %v", err)
 		return c.Render(http.StatusInternalServerError, tplMessage,
-			makeMsgTpl("Error", "", `Error fetching e-mail campaign.`))
+			makeMsgTpl(app.i18n.T("public.errorTitle"), "",
+				app.i18n.Ts2("public.errorFetchingCampaign")))
 	}
 
 	// Get the subscriber.
@@ -112,19 +117,22 @@ func handleViewCampaignMessage(c echo.Context) error {
 	if err := app.queries.GetSubscriber.Get(&sub, 0, subUUID); err != nil {
 		if err == sql.ErrNoRows {
 			return c.Render(http.StatusNotFound, tplMessage,
-				makeMsgTpl("Not found", "", `The e-mail message was not found.`))
+				makeMsgTpl(app.i18n.T("public.notFoundTitle"), "",
+					app.i18n.T("public.errorFetchingEmail")))
 		}
 
 		app.log.Printf("error fetching campaign subscriber: %v", err)
 		return c.Render(http.StatusInternalServerError, tplMessage,
-			makeMsgTpl("Error", "", `Error fetching e-mail message.`))
+			makeMsgTpl(app.i18n.T("public.errorTitle"), "",
+				app.i18n.Ts2("public.errorFetchingCampaign")))
 	}
 
 	// Compile the template.
 	if err := camp.CompileTemplate(app.manager.TemplateFuncs(&camp)); err != nil {
 		app.log.Printf("error compiling template: %v", err)
 		return c.Render(http.StatusInternalServerError, tplMessage,
-			makeMsgTpl("Error", "", `Error compiling e-mail template.`))
+			makeMsgTpl(app.i18n.T("public.errorTitle"), "",
+				app.i18n.Ts2("public.errorFetchingCampaign")))
 	}
 
 	// Render the message body.
@@ -132,7 +140,8 @@ func handleViewCampaignMessage(c echo.Context) error {
 	if err := m.Render(); err != nil {
 		app.log.Printf("error rendering message: %v", err)
 		return c.Render(http.StatusInternalServerError, tplMessage,
-			makeMsgTpl("Error", "", `Error rendering e-mail message.`))
+			makeMsgTpl(app.i18n.T("public.errorTitle"), "",
+				app.i18n.Ts2("public.errorFetchingCampaign")))
 	}
 
 	return c.HTML(http.StatusOK, string(m.Body()))
@@ -151,7 +160,7 @@ func handleSubscriptionPage(c echo.Context) error {
 		out          = unsubTpl{}
 	)
 	out.SubUUID = subUUID
-	out.Title = "Unsubscribe from mailing list"
+	out.Title = app.i18n.T("public.unsubscribeTitle")
 	out.AllowBlocklist = app.constants.Privacy.AllowBlocklist
 	out.AllowExport = app.constants.Privacy.AllowExport
 	out.AllowWipe = app.constants.Privacy.AllowWipe
@@ -166,13 +175,13 @@ func handleSubscriptionPage(c echo.Context) error {
 		if _, err := app.queries.Unsubscribe.Exec(campUUID, subUUID, blocklist); err != nil {
 			app.log.Printf("error unsubscribing: %v", err)
 			return c.Render(http.StatusInternalServerError, tplMessage,
-				makeMsgTpl("Error", "",
-					`Error processing request. Please retry.`))
+				makeMsgTpl(app.i18n.T("public.errorTitle"), "",
+					app.i18n.Ts2("public.errorProcessingRequest")))
 		}
 
 		return c.Render(http.StatusOK, tplMessage,
-			makeMsgTpl("Unsubscribed", "",
-				`You have been successfully unsubscribed.`))
+			makeMsgTpl(app.i18n.T("public.unsubbedTitle"), "",
+				app.i18n.T("public.unsubbedInfo")))
 	}
 
 	return c.Render(http.StatusOK, "subscription", out)
@@ -189,7 +198,7 @@ func handleOptinPage(c echo.Context) error {
 		out        = optinTpl{}
 	)
 	out.SubUUID = subUUID
-	out.Title = "Confirm subscriptions"
+	out.Title = app.i18n.T("public.confirmOptinSubTitle")
 	out.SubUUID = subUUID
 
 	// Get and validate fields.
@@ -202,8 +211,8 @@ func handleOptinPage(c echo.Context) error {
 		for _, l := range out.ListUUIDs {
 			if !reUUID.MatchString(l) {
 				return c.Render(http.StatusBadRequest, tplMessage,
-					makeMsgTpl("Invalid request", "",
-						`One or more UUIDs in the request are invalid.`))
+					makeMsgTpl(app.i18n.T("public.errorTitle"), "",
+						app.i18n.T("globals.messages.invalidUUID")))
 			}
 		}
 	}
@@ -212,15 +221,17 @@ func handleOptinPage(c echo.Context) error {
 	if err := app.queries.GetSubscriberLists.Select(&out.Lists, 0, subUUID,
 		nil, pq.StringArray(out.ListUUIDs), models.SubscriptionStatusUnconfirmed, nil); err != nil {
 		app.log.Printf("error fetching lists for opt-in: %s", pqErrMsg(err))
+
 		return c.Render(http.StatusInternalServerError, tplMessage,
-			makeMsgTpl("Error", "", `Error fetching lists. Please retry.`))
+			makeMsgTpl(app.i18n.T("public.errorTitle"), "",
+				app.i18n.Ts2("public.errorFetchingLists")))
 	}
 
 	// There are no lists to confirm.
 	if len(out.Lists) == 0 {
 		return c.Render(http.StatusInternalServerError, tplMessage,
-			makeMsgTpl("No subscriptions", "",
-				`There are no subscriptions to confirm.`))
+			makeMsgTpl(app.i18n.T("public.noSubTitle"), "",
+				app.i18n.Ts2("public.noSubInfo")))
 	}
 
 	// Confirm.
@@ -228,12 +239,13 @@ func handleOptinPage(c echo.Context) error {
 		if _, err := app.queries.ConfirmSubscriptionOptin.Exec(subUUID, pq.StringArray(out.ListUUIDs)); err != nil {
 			app.log.Printf("error unsubscribing: %v", err)
 			return c.Render(http.StatusInternalServerError, tplMessage,
-				makeMsgTpl("Error", "",
-					`Error processing request. Please retry.`))
+				makeMsgTpl(app.i18n.T("public.errorTitle"), "",
+					app.i18n.Ts2("public.errorProcessingRequest")))
 		}
+
 		return c.Render(http.StatusOK, tplMessage,
-			makeMsgTpl("Confirmed", "",
-				`Your subscriptions have been confirmed.`))
+			makeMsgTpl(app.i18n.T("public.subsConfirmedTitle"), "",
+				app.i18n.Ts2("public.subConfirmed")))
 	}
 
 	return c.Render(http.StatusOK, "optin", out)
@@ -253,9 +265,9 @@ func handleSubscriptionForm(c echo.Context) error {
 	}
 
 	if len(req.SubListUUIDs) == 0 {
-		return c.Render(http.StatusInternalServerError, tplMessage,
-			makeMsgTpl("Error", "",
-				`No lists to subscribe to.`))
+		return c.Render(http.StatusBadRequest, tplMessage,
+			makeMsgTpl(app.i18n.T("public.errorTitle"), "",
+				app.i18n.T("globals.messages.invalidUUID")))
 	}
 
 	// If there's no name, use the name bit from the e-mail.
@@ -267,7 +279,7 @@ func handleSubscriptionForm(c echo.Context) error {
 	// Validate fields.
 	if err := subimporter.ValidateFields(req.SubReq); err != nil {
 		return c.Render(http.StatusInternalServerError, tplMessage,
-			makeMsgTpl("Error", "", err.Error()))
+			makeMsgTpl(app.i18n.T("public.errorTitle"), "", err.Error()))
 	}
 
 	// Insert the subscriber into the DB.
@@ -275,11 +287,12 @@ func handleSubscriptionForm(c echo.Context) error {
 	req.ListUUIDs = pq.StringArray(req.SubListUUIDs)
 	if _, err := insertSubscriber(req.SubReq, app); err != nil {
 		return c.Render(http.StatusInternalServerError, tplMessage,
-			makeMsgTpl("Error", "", fmt.Sprintf("%s", err.(*echo.HTTPError).Message)))
+			makeMsgTpl(app.i18n.T("public.errorTitle"), "", fmt.Sprintf("%s", err.(*echo.HTTPError).Message)))
 	}
 
 	return c.Render(http.StatusOK, tplMessage,
-		makeMsgTpl("Done", "", `Subscribed successfully.`))
+		makeMsgTpl(app.i18n.T("public.subsConfirmedTitle"), "",
+			app.i18n.Ts2("public.subConfirmed")))
 }
 
 // handleLinkRedirect redirects a link UUID to its original underlying link
@@ -302,12 +315,14 @@ func handleLinkRedirect(c echo.Context) error {
 	if err := app.queries.RegisterLinkClick.Get(&url, linkUUID, campUUID, subUUID); err != nil {
 		if pqErr, ok := err.(*pq.Error); ok && pqErr.Column == "link_id" {
 			return c.Render(http.StatusNotFound, tplMessage,
-				makeMsgTpl("Invalid link", "", "The requested link is invalid."))
+				makeMsgTpl(app.i18n.T("public.errorTitle"), "",
+					app.i18n.Ts2("public.invalidLink")))
 		}
 
 		app.log.Printf("error fetching redirect link: %s", err)
 		return c.Render(http.StatusInternalServerError, tplMessage,
-			makeMsgTpl("Error opening link", "", "There was an error opening the link. Please try later."))
+			makeMsgTpl(app.i18n.T("public.errorTitle"), "",
+				app.i18n.Ts2("public.errorProcessingRequest")))
 	}
 
 	return c.Redirect(http.StatusTemporaryRedirect, url)
@@ -352,7 +367,8 @@ func handleSelfExportSubscriberData(c echo.Context) error {
 	// Is export allowed?
 	if !app.constants.Privacy.AllowExport {
 		return c.Render(http.StatusBadRequest, tplMessage,
-			makeMsgTpl("Invalid request", "", "The feature is not available."))
+			makeMsgTpl(app.i18n.T("public.errorTitle"), "",
+				app.i18n.Ts2("public.invalidFeature")))
 	}
 
 	// Get the subscriber's data. A single query that gets the profile,
@@ -362,18 +378,17 @@ func handleSelfExportSubscriberData(c echo.Context) error {
 	if err != nil {
 		app.log.Printf("error exporting subscriber data: %s", err)
 		return c.Render(http.StatusInternalServerError, tplMessage,
-			makeMsgTpl("Error processing request", "",
-				"There was an error processing your request. Please try later."))
+			makeMsgTpl(app.i18n.T("public.errorTitle"), "",
+				app.i18n.Ts2("public.errorProcessingRequest")))
 	}
 
 	// Prepare the attachment e-mail.
 	var msg bytes.Buffer
 	if err := app.notifTpls.ExecuteTemplate(&msg, notifSubscriberData, data); err != nil {
-		app.log.Printf("error compiling notification template '%s': %v",
-			notifSubscriberData, err)
+		app.log.Printf("error compiling notification template '%s': %v", notifSubscriberData, err)
 		return c.Render(http.StatusInternalServerError, tplMessage,
-			makeMsgTpl("Error preparing data", "",
-				"There was an error preparing your data. Please try later."))
+			makeMsgTpl(app.i18n.T("public.errorTitle"), "",
+				app.i18n.Ts2("public.errorProcessingRequest")))
 	}
 
 	// Send the data as a JSON attachment to the subscriber.
@@ -393,12 +408,13 @@ func handleSelfExportSubscriberData(c echo.Context) error {
 	}); err != nil {
 		app.log.Printf("error e-mailing subscriber profile: %s", err)
 		return c.Render(http.StatusInternalServerError, tplMessage,
-			makeMsgTpl("Error e-mailing data", "",
-				"There was an error e-mailing your data. Please try later."))
+			makeMsgTpl(app.i18n.T("public.errorTitle"), "",
+				app.i18n.Ts2("public.errorProcessingRequest")))
 	}
+
 	return c.Render(http.StatusOK, tplMessage,
-		makeMsgTpl("Data e-mailed", "",
-			`Your data has been e-mailed to you as an attachment.`))
+		makeMsgTpl(app.i18n.T("public.dataSentTitle"), "",
+			app.i18n.T("public.dataSent")))
 }
 
 // handleWipeSubscriberData allows a subscriber to delete their data. The
@@ -413,20 +429,20 @@ func handleWipeSubscriberData(c echo.Context) error {
 	// Is wiping allowed?
 	if !app.constants.Privacy.AllowWipe {
 		return c.Render(http.StatusBadRequest, tplMessage,
-			makeMsgTpl("Invalid request", "",
-				"The feature is not available."))
+			makeMsgTpl(app.i18n.T("public.errorTitle"), "",
+				app.i18n.Ts2("public.invalidFeature")))
 	}
 
 	if _, err := app.queries.DeleteSubscribers.Exec(nil, pq.StringArray{subUUID}); err != nil {
 		app.log.Printf("error wiping subscriber data: %s", err)
 		return c.Render(http.StatusInternalServerError, tplMessage,
-			makeMsgTpl("Error processing request", "",
-				"There was an error processing your request. Please try later."))
+			makeMsgTpl(app.i18n.T("public.errorTitle"), "",
+				app.i18n.Ts2("public.errorProcessingRequest")))
 	}
 
 	return c.Render(http.StatusOK, tplMessage,
-		makeMsgTpl("Data removed", "",
-			`Your subscriptions and all associated data has been removed.`))
+		makeMsgTpl(app.i18n.T("public.dataRemovedTitle"), "",
+			app.i18n.T("public.dataRemoved")))
 }
 
 // drawTransparentImage draws a transparent PNG of given dimensions

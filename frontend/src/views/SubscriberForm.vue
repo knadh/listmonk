@@ -5,53 +5,54 @@
 
         <b-tag v-if="isEditing" :class="[data.status, 'is-pulled-right']">{{ data.status }}</b-tag>
         <h4 v-if="isEditing">{{ data.name }}</h4>
-        <h4 v-else>New subscriber</h4>
+        <h4 v-else>{{ $t('subscribers.newSubscriber') }}</h4>
 
         <p v-if="isEditing" class="has-text-grey is-size-7">
-          ID: {{ data.id }} / UUID: {{ data.uuid }}
+          {{ $t('globals.fields.id') }}: {{ data.id }} /
+          {{ $t('globals.fields.uuid') }}: {{ data.uuid }}
         </p>
       </header>
       <section expanded class="modal-card-body">
-        <b-field label="E-mail" label-position="on-border">
+        <b-field :label="$t('subscribers.email')" label-position="on-border">
           <b-input :maxlength="200" v-model="form.email" :ref="'focus'"
-            placeholder="E-mail" required></b-input>
+            :placeholder="$t('subscribers.email')" required></b-input>
         </b-field>
 
-        <b-field label="Name" label-position="on-border">
-          <b-input :maxlength="200" v-model="form.name" placeholder="Name"></b-input>
+        <b-field :label="$t('globals.fields.name')" label-position="on-border">
+          <b-input :maxlength="200" v-model="form.name"
+            :placeholder="$t('globals.fields.name')"></b-input>
         </b-field>
 
-        <b-field label="Status" label-position="on-border"
-          message="Blocklisted subscribers will never receive any e-mails.">
+        <b-field :label="Status" label-position="on-border"
+          :message="$t('subscribers.blocklistedHelp')">
           <b-select v-model="form.status" placeholder="Status" required>
-            <option value="enabled">Enabled</option>
-            <option value="blocklisted">Blocklisted</option>
+            <option value="enabled">{{ $t('subscribers.status.enabled') }}</option>
+            <option value="blocklisted">{{ $t('subscribers.status.blocklisted') }}</option>
           </b-select>
         </b-field>
 
         <list-selector
-          label="Lists"
-          placeholder="Lists to subscribe to"
-          message="Lists from which subscribers have unsubscribed themselves cannot be removed."
+          :label="$t('subscribers.lists')"
+          :placeholder="$t('subscribers.listsPlaceholder')"
+          :message="$t('subscribers.listsHelp')"
           v-model="form.lists"
           :selected="form.lists"
           :all="lists.results"
         ></list-selector>
 
-        <b-field label="Attributes" label-position="on-border"
-          message='Attributes are defined as a JSON map, for example:
-            {"job": "developer", "location": "Mars", "has_rocket": true}.'>
+        <b-field :label="$t('subscribers.attribs')" label-position="on-border"
+          :message="$t('subscribers.attribsHelp') + ' ' + egAttribs">
           <b-input v-model="form.strAttribs" type="textarea" />
         </b-field>
         <a href="https://listmonk.app/docs/concepts"
           target="_blank" rel="noopener noreferrer" class="is-size-7">
-          Learn more <b-icon icon="link" size="is-small" />.
+          {{ $t('globals.buttons.learnMore') }} <b-icon icon="link" size="is-small" />.
         </a>
       </section>
       <footer class="modal-card-foot has-text-right">
-        <b-button @click="$parent.close()">Close</b-button>
+        <b-button @click="$parent.close()">{{ $t('globals.buttons.close') }}</b-button>
         <b-button native-type="submit" type="is-primary"
-          :loading="loading.subscribers">Save</b-button>
+          :loading="loading.subscribers">{{ $t('globals.buttons.save') }}</b-button>
       </footer>
     </div>
   </form>
@@ -80,6 +81,8 @@ export default Vue.extend({
       // Binds form input values. This is populated by subscriber props passed
       // from the parent component in mounted().
       form: { lists: [], strAttribs: '{}' },
+
+      egAttribs: '{"job": "developer", "location": "Mars", "has_rocket": true}',
     };
   },
 
@@ -113,7 +116,7 @@ export default Vue.extend({
         this.$emit('finished');
         this.$parent.close();
         this.$buefy.toast.open({
-          message: `'${d.name}' created`,
+          message: this.$t('globals.messages.created', { name: d.name }),
           type: 'is-success',
           queue: false,
         });
@@ -141,7 +144,7 @@ export default Vue.extend({
         this.$emit('finished');
         this.$parent.close();
         this.$buefy.toast.open({
-          message: `'${d.name}' updated`,
+          message: this.$t('globals.messages.updated', { name: d.name }),
           type: 'is-success',
           queue: false,
         });
@@ -155,7 +158,7 @@ export default Vue.extend({
         attribs = JSON.parse(str);
       } catch (e) {
         this.$buefy.toast.open({
-          message: `Invalid JSON in attributes: ${e.toString()}`,
+          message: `${this.$t('subscribers.invalidJSON')}: e.toString()`,
           type: 'is-danger',
           duration: 3000,
           queue: false,

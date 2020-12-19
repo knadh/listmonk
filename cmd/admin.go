@@ -14,12 +14,14 @@ import (
 )
 
 type configScript struct {
-	RootURL       string     `json:"rootURL"`
-	FromEmail     string     `json:"fromEmail"`
-	Messengers    []string   `json:"messengers"`
-	MediaProvider string     `json:"mediaProvider"`
-	NeedsRestart  bool       `json:"needsRestart"`
-	Update        *AppUpdate `json:"update"`
+	RootURL       string          `json:"rootURL"`
+	FromEmail     string          `json:"fromEmail"`
+	Messengers    []string        `json:"messengers"`
+	MediaProvider string          `json:"mediaProvider"`
+	NeedsRestart  bool            `json:"needsRestart"`
+	Update        *AppUpdate      `json:"update"`
+	Langs         []i18nLang      `json:"langs"`
+	Lang          json.RawMessage `json:"lang"`
 }
 
 // handleGetConfigScript returns general configuration as a Javascript
@@ -33,6 +35,17 @@ func handleGetConfigScript(c echo.Context) error {
 			MediaProvider: app.constants.MediaProvider,
 		}
 	)
+
+	// Language list.
+	langList, err := geti18nLangList(app.constants.Lang, app)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError,
+			fmt.Sprintf("Error loading language list: %v", err))
+	}
+	out.Langs = langList
+
+	// Current language.
+	out.Lang = json.RawMessage(app.i18n.JSON())
 
 	// Sort messenger names with `email` always as the first item.
 	var names []string
@@ -51,13 +64,19 @@ func handleGetConfigScript(c echo.Context) error {
 	out.Update = app.update
 	app.Unlock()
 
-	var (
-		b = bytes.Buffer{}
-		j = json.NewEncoder(&b)
-	)
+	// Write the Javascript variable opening;
+	b := bytes.Buffer{}
 	b.Write([]byte(`var CONFIG = `))
-	_ = j.Encode(out)
-	return c.Blob(http.StatusOK, "application/javascript", b.Bytes())
+
+	// Encode the config payload as JSON and write as the variable's value assignment.
+	j := json.NewEncoder(&b)
+	if err := j.Encode(out); err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError,
+			app.i18n.Ts("admin.errorMarshallingConfig", map[string]string{
+				"error": err.Error(),
+			}))
+	}
+	return c.Blob(http.StatusOK, "application/javascript; charset=utf-8", b.Bytes())
 }
 
 // handleGetDashboardCharts returns chart data points to render ont he dashboard.
@@ -69,7 +88,10 @@ func handleGetDashboardCharts(c echo.Context) error {
 
 	if err := app.queries.GetDashboardCharts.Get(&out); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError,
-			fmt.Sprintf("Error fetching dashboard stats: %s", pqErrMsg(err)))
+			app.i18n.Ts("globals.messages.errorFetching", map[string]string{
+				"name":  "dashboard charts",
+				"error": pqErrMsg(err),
+			}))
 	}
 
 	return c.JSON(http.StatusOK, okResp{out})
@@ -84,7 +106,10 @@ func handleGetDashboardCounts(c echo.Context) error {
 
 	if err := app.queries.GetDashboardCounts.Get(&out); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError,
-			fmt.Sprintf("Error fetching dashboard statsc counts: %s", pqErrMsg(err)))
+			app.i18n.Ts("globals.messages.errorFetching", map[string]string{
+				"name":  "dashboard stats",
+				"error": pqErrMsg(err),
+			}))
 	}
 
 	return c.JSON(http.StatusOK, okResp{out})
