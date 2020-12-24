@@ -5,7 +5,7 @@ go 1.13
 require (
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible // indirect
 	github.com/disintegration/imaging v1.6.2
-	github.com/gofrs/uuid v4.0.0+incompatible
+	github.com/gofrs/uuid v3.3.0+incompatible
 	github.com/jaytaylor/html2text v0.0.0-20200412013138-3577fbdbcff7
 	github.com/jmoiron/sqlx v1.3.1
 	github.com/knadh/goyesql/v2 v2.1.1

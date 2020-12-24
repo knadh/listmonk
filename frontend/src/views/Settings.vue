@@ -180,6 +180,7 @@
                 <b-select v-model="form['upload.provider']" name="upload.provider">
                   <option value="filesystem">filesystem</option>
                   <option value="s3">s3</option>
+                  <option value="webdav">webdav</option>
                 </b-select>
               </b-field>
 
@@ -268,6 +269,49 @@
                   </div>
                 </div>
               </div><!-- s3 -->
+              <div class="block" v-if="form['upload.provider'] === 'webdav'">
+                <div class="columns">
+                  <div class="column is-4">
+                    <b-field label="WebDav Endpoint" label-position="on-border" expanded>
+                      <b-input v-model="form['upload.webdav.endpoint']"
+                        name="upload.webdav.endpoint"
+                        :maxlength="300" placeholder="" />
+                    </b-field>
+                  </div>
+                  <div class="column">
+                    <b-field grouped>
+                      <b-field label="WebDav Username" label-position="on-border" expanded>
+                        <b-input v-model="form['upload.webdav.username']"
+                            name="upload.webdav.username" :maxlength="200" />
+                      </b-field>
+                      <b-field label="WebDav Password" label-position="on-border" expanded
+                        message="Enter a value to change.">
+                        <b-input v-model="form['upload.webdav.password']"
+                          name="upload.webdav.password" type="password"
+                          :maxlength="200" />
+                      </b-field>
+                      <b-field label="WebDav root path" label-position="on-border" expanded>
+                      <b-input v-model="form['upload.webdav.root_path']"
+                          name="upload.webdav.root_path"
+                          :maxlength="200" placeholder="" />
+                      </b-field>
+                    </b-field>
+                  </div>
+                </div>
+                <div class="column">
+                  <b-field
+                    label="Custom headers" label-position="on-border"
+                    message='Optional array of webdav headers to include in all communications
+                      sent from this server.
+                      eg: {"X-Custom": "value", "X-Custom2": "value"}'>
+                    <b-input
+                        name="upload.webdav.headers"
+                        type="textarea"
+                        v-model="form['upload.webdav.dav_headers']"
+                        placeholder='{"X-Custom": "value", "X-Custom2": "value"}' />
+                  </b-field>
+                </div>
+              </div><!-- web dav -->
             </div>
           </b-tab-item><!-- media -->
 
@@ -412,7 +456,7 @@
                         <b-input v-model="item.strEmailHeaders" name="email_headers" type="textarea"
                           placeholder='[{"X-Custom": "value"}, {"X-Custom2": "value"}]' />
                       </b-field>
-                    </div>
+                    </div> <!-- headers -->
                   </div>
                 </div><!-- second container column -->
               </div><!-- block -->
@@ -612,6 +656,12 @@ export default Vue.extend({
           form.smtp[i].password = '';
         }
 
+        if (form['upload.webdav.dav_headers']) {
+          form['upload.webdav.headers'] = JSON.parse(form['upload.webdav.dav_headers']);
+        } else {
+          form['upload.webdav.headers'] = {};
+        }
+
         if (form.smtp[i].strEmailHeaders && form.smtp[i].strEmailHeaders !== '[]') {
           form.smtp[i].email_headers = JSON.parse(form.smtp[i].strEmailHeaders);
         } else {
@@ -621,6 +671,10 @@ export default Vue.extend({
 
       if (form['upload.s3.aws_secret_access_key'] === dummyPassword) {
         form['upload.s3.aws_secret_access_key'] = '';
+      }
+
+      if (form['upload.webdav.password'] === dummyPassword) {
+        form['upload.webdav.password'] = '';
       }
 
       for (let i = 0; i < form.messengers.length; i += 1) {
@@ -678,6 +732,8 @@ export default Vue.extend({
         if (d['upload.provider'] === 's3') {
           d['upload.s3.aws_secret_access_key'] = dummyPassword;
         }
+
+        d['upload.webdav.dav_headers'] = JSON.stringify(d['upload.webdav.headers']);
 
         this.form = d;
         this.formCopy = JSON.stringify(d);

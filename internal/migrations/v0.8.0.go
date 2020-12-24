@@ -13,6 +13,13 @@ func V0_8_0(db *sqlx.DB, fs stuffbin.FileSystem, ko *koanf.Koanf) error {
 		ON CONFLICT DO NOTHING;
 	INSERT INTO settings (key, value) VALUES ('messengers', '[]')
 		ON CONFLICT DO NOTHING;
+	INSERT INTO settings (key, value) VALUES
+		('upload.webdav.endpoint', ''),
+		('upload.webdav.username', ''),
+		('upload.webdav.password', ''),
+		('upload.webdav.headers', ''),
+		('upload.webdav.root_path', '')
+	ON CONFLICT DO NOTHING;
 
 	-- Link clicks shouldn't exist if there's no corresponding link.
 	-- links_clicks.link_id should have been NOT NULL originally.

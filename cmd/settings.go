@@ -50,10 +50,10 @@ type settings struct {
 	UploadS3BucketType         string            `json:"upload.s3.bucket_type"`
 	UploadS3Expiry             string            `json:"upload.s3.expiry"`
 	UploadDavEndpoint          string            `json:"upload.webdav.endpoint"`
-	UploadDavUsername          string            `koanf:"upload.webdav.username"`
-	UploadDavPassword          string            `koanf:"upload.webdav.password"`
-	UploadDavRootPath          string            `koanf:"upload.webdav.root_path"`
-	UploadDavHeaders           map[string]string `koanf:"upload.webdav.headers"`
+	UploadDavUsername          string            `json:"upload.webdav.username"`
+	UploadDavPassword          string            `json:"upload.webdav.password"`
+	UploadDavRootPath          string            `json:"upload.webdav.root_path"`
+	WebDavHeaders              map[string]string `json:"upload.webdav.headers"`
 
 	SMTP []struct {
 		UUID          string              `json:"uuid"`
