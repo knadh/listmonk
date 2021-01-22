@@ -14,7 +14,11 @@ Visit [listmonk.app](https://listmonk.app)
 The latest image is available on DockerHub at `listmonk/listmonk:latest`. Use the sample [docker-compose.yml](https://github.com/knadh/listmonk/blob/master/docker-compose.yml) to run listmonk and Postgres DB with docker-compose as follows:
 
 #### Demo
-`docker-compose up -d demo-db demo-app`
+
+```bash
+mkdir listmonk-demo
+sh -c "$(curl -sSL https://raw.githubusercontent.com/knadh/listmonk/master/install-demo.sh)"
+```
 
 The demo does not persist Postgres after the containers are removed. DO NOT use this demo setup in production.
 
