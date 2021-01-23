@@ -1,22 +1,22 @@
 {{ define "campaign-status" }}
 {{ template "header" . }}
-<h2>{{ .L.T "email.status.campaignUpdate" }}</h2>
+<h2>{{ L.Ts "email.status.campaignUpdate" }}</h2>
 <table width="100%">
     <tr>
-        <td width="30%"><strong>{{ .L.T "globa.L.Terms.campaign" }}</strong></td>
+        <td width="30%"><strong>{{ L.Ts "globa.L.Terms.campaign" }}</strong></td>
         <td><a href="{{ index . "RootURL" }}/campaigns/{{ index . "ID" }}">{{ index . "Name" }}</a></td>
     </tr>
     <tr>
-        <td width="30%"><strong>{{ .L.T "email.status.status" }}</strong></td>
+        <td width="30%"><strong>{{ L.Ts "email.status.status" }}</strong></td>
         <td>{{ index . "Status" }}</td>
     </tr>
     <tr>
-        <td width="30%"><strong>{{ .L.T "email.status.campaignSent" }}</strong></td>
+        <td width="30%"><strong>{{ L.Ts "email.status.campaignSent" }}</strong></td>
         <td>{{ index . "Sent" }} / {{ index . "ToSend" }}</td>
     </tr>
     {{ if ne (index . "Reason") "" }}
         <tr>
-            <td width="30%"><strong>{{ .L.T "email.status.campaignReason" }}</strong></td>
+            <td width="30%"><strong>{{ L.Ts "email.status.campaignReason" }}</strong></td>
             <td>{{ index . "Reason" }}</td>
         </tr>
     {{ end }}

@@ -39,7 +39,7 @@ type tplData struct {
 	LogoURL    string
 	FaviconURL string
 	Data       interface{}
-	L          *i18n.I18nLang
+	L          *i18n.I18n
 }
 
 type publicTpl struct {

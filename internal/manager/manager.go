@@ -11,6 +11,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/knadh/listmonk/internal/i18n"
 	"github.com/knadh/listmonk/internal/messenger"
 	"github.com/knadh/listmonk/models"
 )
@@ -40,6 +41,7 @@ type DataSource interface {
 type Manager struct {
 	cfg        Config
 	src        DataSource
+	i18n       *i18n.I18n
 	messengers map[string]messenger.Messenger
 	notifCB    models.AdminNotifCallback
 	logger     *log.Logger
@@ -108,7 +110,7 @@ type msgError struct {
 }
 
 // New returns a new instance of Mailer.
-func New(cfg Config, src DataSource, notifCB models.AdminNotifCallback, l *log.Logger) *Manager {
+func New(cfg Config, src DataSource, notifCB models.AdminNotifCallback, i *i18n.I18n, l *log.Logger) *Manager {
 	if cfg.BatchSize < 1 {
 		cfg.BatchSize = 1000
 	}
@@ -122,6 +124,7 @@ func New(cfg Config, src DataSource, notifCB models.AdminNotifCallback, l *log.L
 	return &Manager{
 		cfg:                cfg,
 		src:                src,
+		i18n:               i,
 		notifCB:            notifCB,
 		logger:             l,
 		messengers:         make(map[string]messenger.Messenger),
@@ -333,6 +336,9 @@ func (m *Manager) TemplateFuncs(c *models.Campaign) template.FuncMap {
 				layout = time.ANSIC
 			}
 			return time.Now().Format(layout)
+		},
+		"L": func() *i18n.I18n {
+			return m.i18n
 		},
 	}
 }

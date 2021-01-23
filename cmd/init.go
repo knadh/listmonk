@@ -258,13 +258,13 @@ func initConstants() *constants {
 
 // initI18n initializes a new i18n instance with the selected language map
 // loaded from the filesystem.
-func initI18n(lang string, fs stuffbin.FileSystem) *i18n.I18nLang {
+func initI18n(lang string, fs stuffbin.FileSystem) *i18n.I18n {
 	b, err := fs.Read(fmt.Sprintf("/i18n/%s.json", lang))
 	if err != nil {
 		lo.Fatalf("error loading i18n language file: %v", err)
 	}
 
-	i, err := i18n.New(lang, b)
+	i, err := i18n.New(b)
 	if err != nil {
 		lo.Fatalf("error unmarshalling i18n language: %v", err)
 	}
@@ -298,7 +298,7 @@ func initCampaignManager(q *Queries, cs *constants, app *App) *manager.Manager {
 		ViewTrackURL:       cs.ViewTrackURL,
 		MessageURL:         cs.MessageURL,
 		UnsubHeader:        ko.Bool("privacy.unsubscribe_header"),
-	}, newManagerDB(q), campNotifCB, lo)
+	}, newManagerDB(q), campNotifCB, app.i18n, lo)
 
 }
 
@@ -428,7 +428,7 @@ func initMediaStore() media.Store {
 
 // initNotifTemplates compiles and returns e-mail notification templates that are
 // used for sending ad-hoc notifications to admins and subscribers.
-func initNotifTemplates(path string, fs stuffbin.FileSystem, i *i18n.I18nLang, cs *constants) *template.Template {
+func initNotifTemplates(path string, fs stuffbin.FileSystem, i *i18n.I18n, cs *constants) *template.Template {
 	// Register utility functions that the e-mail templates can use.
 	funcs := template.FuncMap{
 		"RootURL": func() string {
@@ -437,7 +437,7 @@ func initNotifTemplates(path string, fs stuffbin.FileSystem, i *i18n.I18nLang, c
 		"LogoURL": func() string {
 			return cs.LogoURL
 		},
-		"L": func() *i18n.I18nLang {
+		"L": func() *i18n.I18n {
 			return i
 		},
 	}
@@ -464,7 +464,10 @@ func initHTTPServer(app *App) *echo.Echo {
 	})
 
 	// Parse and load user facing templates.
-	tpl, err := stuffbin.ParseTemplatesGlob(nil, app.fs, "/public/templates/*.html")
+	tpl, err := stuffbin.ParseTemplatesGlob(template.FuncMap{
+		"L": func() *i18n.I18n {
+			return app.i18n
+		}}, app.fs, "/public/templates/*.html")
 	if err != nil {
 		lo.Fatalf("error parsing public templates: %v", err)
 	}

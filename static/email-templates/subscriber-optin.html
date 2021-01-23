@@ -1,20 +1,20 @@
 {{ define "subscriber-optin" }}
 {{ template "header" . }}
-<h2>{{ .L.T "email.optin.confirmSubTitle" }}</h2>
-<p>{{ .L.Ts "email.optin.confirmSubWelcome" "name" .Subscriber.FirstName }}</p>
-<p>{{ .L.T "email.optin.confirmSubInfo" }}</p>
+<h2>{{ L.Ts "email.optin.confirmSubTitle" }}</h2>
+<p>{{ L.Ts "email.optin.confirmSubWelcome" "name" .Subscriber.FirstName }}</p>
+<p>{{ L.Ts "email.optin.confirmSubInfo" }}</p>
 <ul>
     {{ range $i, $l := .Lists }}
         {{ if eq .Type "public" }}
             <li>{{ .Name }}</li>
         {{ else }}
-            <li>{{ .L.T "email.optin.privateList" }}</li>
+            <li>{{ L.Ts "email.optin.privateList" }}</li>
         {{ end }}
     {{ end }}
 </ul>
-<p>{{ .L.T "email.optin.confirmSubHelp" }}</p>
+<p>{{ L.Ts "email.optin.confirmSubHelp" }}</p>
 <p>
-    <a href="{{ .OptinURL }}" class="button">{{ .L.T "email.optin.confirmSub" }}</a>
+    <a href="{{ .OptinURL }}" class="button">{{ L.Ts "email.optin.confirmSub" }}</a>
 </p>
 
 {{ template "footer" }}

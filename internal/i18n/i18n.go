@@ -1,48 +1,66 @@
+// i18n is a simple package that translates strings using a language map.
+// It mimicks some functionality of the vue-i18n library so that the same JSON
+// language map may be used in the JS frontent and the Go backend.
 package i18n
 
 import (
 	"encoding/json"
+	"errors"
 	"regexp"
 	"strings"
 )
 
-// Lang represents a loaded language.
-type Lang struct {
-	Code    string `json:"code"`
-	Name    string `json:"name"`
-	langMap map[string]string
-}
-
-// I18nLang is a simple i18n library that translates strings using a language map.
-// It mimicks some functionality of the vue-i18n library so that the same JSON
-// language map may be used in the JS frontent and the Go backend.
-type I18nLang struct {
-	Code    string `json:"code"`
-	Name    string `json:"name"`
+// I18n offers translation functions over a language map.
+type I18n struct {
+	code    string `json:"code"`
+	name    string `json:"name"`
 	langMap map[string]string
 }
 
 var reParam = regexp.MustCompile(`(?i)\{([a-z0-9-.]+)\}`)
 
 // New returns an I18n instance.
-func New(code string, b []byte) (*I18nLang, error) {
+func New(b []byte) (*I18n, error) {
 	var l map[string]string
 	if err := json.Unmarshal(b, &l); err != nil {
 		return nil, err
 	}
-	return &I18nLang{
+
+	code, ok := l["_.code"]
+	if !ok {
+		return nil, errors.New("missing _.code field in language file")
+	}
+
+	name, ok := l["_.name"]
+	if !ok {
+		return nil, errors.New("missing _.name field in language file")
+	}
+
+	return &I18n{
 		langMap: l,
+		code:    code,
+		name:    name,
 	}, nil
 }
 
+// Name returns the canonical name of the language.
+func (i *I18n) Name() string {
+	return i.name
+}
+
+// Code returns the ISO code of the language.
+func (i *I18n) Code() string {
+	return i.code
+}
+
 // JSON returns the languagemap as raw JSON.
-func (i *I18nLang) JSON() []byte {
+func (i *I18n) JSON() []byte {
 	b, _ := json.Marshal(i.langMap)
 	return b
 }
 
 // T returns the translation for the given key similar to vue i18n's t().
-func (i *I18nLang) T(key string) string {
+func (i *I18n) T(key string) string {
 	s, ok := i.langMap[key]
 	if !ok {
 		return key
@@ -59,7 +77,7 @@ func (i *I18nLang) T(key string) string {
 // eg: Ts("globals.message.notFound",
 //         "name", "campaigns",
 //         "error", err)
-func (i *I18nLang) Ts(key string, params ...string) string {
+func (i *I18n) Ts(key string, params ...string) string {
 	if len(params)%2 != 0 {
 		return key + `: Invalid arguments`
 	}
@@ -82,7 +100,7 @@ func (i *I18nLang) Ts(key string, params ...string) string {
 // Tc returns the translation for the given key similar to vue i18n's tc().
 // It expects the language string in the map to be of the form `Singular | Plural` and
 // returns `Plural` if n > 1, or `Singular` otherwise.
-func (i *I18nLang) Tc(key string, n int) string {
+func (i *I18n) Tc(key string, n int) string {
 	s, ok := i.langMap[key]
 	if !ok {
 		return key
@@ -98,7 +116,7 @@ func (i *I18nLang) Tc(key string, n int) string {
 
 // getSingular returns the singular term from the vuei18n pipe separated value.
 // singular term | plural term
-func (i *I18nLang) getSingular(s string) string {
+func (i *I18n) getSingular(s string) string {
 	if !strings.Contains(s, "|") {
 		return s
 	}
@@ -108,7 +126,7 @@ func (i *I18nLang) getSingular(s string) string {
 
 // getSingular returns the plural term from the vuei18n pipe separated value.
 // singular term | plural term
-func (i *I18nLang) getPlural(s string) string {
+func (i *I18n) getPlural(s string) string {
 	if !strings.Contains(s, "|") {
 		return s
 	}
@@ -122,7 +140,7 @@ func (i *I18nLang) getPlural(s string) string {
 }
 
 // subAllParams recursively resolves and replaces all {params} in a string.
-func (i *I18nLang) subAllParams(s string) string {
+func (i *I18n) subAllParams(s string) string {
 	if !strings.Contains(s, `{`) {
 		return s
 	}

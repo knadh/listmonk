@@ -1,26 +1,26 @@
 {{ define "optin" }}
 {{ template "header" .}}
 <section>
-    <h2>{{ .L.T "public.confirmSubTitle" }}</h2>
+    <h2>{{ L.T "public.confirmSubTitle" }}</h2>
     <p>
-        {{ .L.T "public.confirmSubInfo" }}
+        {{ L.T "public.confirmSubInfo" }}
     </p>
 
     <form method="post">
         <ul>
             {{ range $i, $l := .Data.Lists }}
                 <input type="hidden" name="l" value="{{ $l.UUID }}" />
-                {{ if eq $.L.Type "public" }}
+                {{ if eq $l.Type "public" }}
                     <li>{{ $l.Name }}</li>
                 {{ else }}
-                    <li>{{ .L.T "public.subPrivateList" }}</li>
+                    <li>{{ L.Ts "public.subPrivateList" }}</li>
                 {{ end }}
             {{ end }}
         </ul>
         <p>
             <input type="hidden" name="confirm" value="true" />
             <button type="submit" class="button" id="btn-unsub">
-                {{ .L.T "public.confirmSub" }}
+                {{ L.Ts "public.confirmSub" }}
             </button>
         </p>
     </form>

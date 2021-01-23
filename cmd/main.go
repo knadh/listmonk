@@ -40,7 +40,7 @@ type App struct {
 	importer   *subimporter.Importer
 	messengers map[string]messenger.Messenger
 	media      media.Store
-	i18n       *i18n.I18nLang
+	i18n       *i18n.I18n
 	notifTpls  *template.Template
 	log        *log.Logger
 	bufLog     *buflog.BufLog
