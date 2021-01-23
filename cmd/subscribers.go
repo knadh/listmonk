@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"database/sql"
+	"encoding/csv"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -158,6 +159,98 @@ func handleQuerySubscribers(c echo.Context) error {
 	out.PerPage = pg.PerPage
 
 	return c.JSON(http.StatusOK, okResp{out})
+}
+
+// handleExportSubscribers handles querying subscribers based on an arbitrary SQL expression.
+func handleExportSubscribers(c echo.Context) error {
+	var (
+		app = c.Get("app").(*App)
+
+		// Limit the subscribers to a particular list?
+		listID, _ = strconv.Atoi(c.FormValue("list_id"))
+
+		// The "WHERE ?" bit.
+		query = sanitizeSQLExp(c.FormValue("query"))
+	)
+
+	listIDs := pq.Int64Array{}
+	if listID < 0 {
+		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.errorID"))
+	} else if listID > 0 {
+		listIDs = append(listIDs, int64(listID))
+	}
+
+	// There's an arbitrary query condition.
+	cond := ""
+	if query != "" {
+		cond = " AND " + query
+	}
+
+	stmt := fmt.Sprintf(app.queries.QuerySubscribersForExport, cond)
+
+	// Verify that the arbitrary SQL search expression is read only.
+	if cond != "" {
+		tx, err := app.db.Unsafe().BeginTxx(context.Background(), &sql.TxOptions{ReadOnly: true})
+		if err != nil {
+			app.log.Printf("error preparing subscriber query: %v", err)
+			return echo.NewHTTPError(http.StatusBadRequest,
+				app.i18n.Ts2("subscribers.errorPreparingQuery", "error", pqErrMsg(err)))
+		}
+		defer tx.Rollback()
+
+		if _, err := tx.Query(stmt, nil, 0, 1); err != nil {
+			return echo.NewHTTPError(http.StatusBadRequest,
+				app.i18n.Ts2("subscribers.errorPreparingQuery", "error", pqErrMsg(err)))
+		}
+	}
+
+	// Prepare the actual query statement.
+	tx, err := db.Preparex(stmt)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest,
+			app.i18n.Ts2("subscribers.errorPreparingQuery", "error", pqErrMsg(err)))
+	}
+
+	// Run the query until all rows are exhausted.
+	var (
+		id = 0
+
+		h  = c.Response().Header()
+		wr = csv.NewWriter(c.Response())
+	)
+
+	h.Set(echo.HeaderContentType, echo.MIMEOctetStream)
+	h.Set("Content-type", "text/csv")
+	h.Set(echo.HeaderContentDisposition, "attachment; filename="+"subscribers.csv")
+	h.Set("Content-Transfer-Encoding", "binary")
+	h.Set("Cache-Control", "no-cache")
+	wr.Write([]string{"uuid", "email", "name", "attributes", "status", "created_at", "updated_at"})
+
+loop:
+	for {
+		var out []models.SubscriberExport
+		if err := tx.Select(&out, listIDs, id, app.constants.DBBatchSize); err != nil {
+			return echo.NewHTTPError(http.StatusInternalServerError,
+				app.i18n.Ts2("globals.messages.errorFetching",
+					"name", "globals.terms.subscribers", "error", pqErrMsg(err)))
+		}
+		if len(out) == 0 {
+			break loop
+		}
+
+		for _, r := range out {
+			if err = wr.Write([]string{r.UUID, r.Email, r.Name, r.Attribs, r.Status,
+				r.CreatedAt.Time.String(), r.UpdatedAt.Time.String()}); err != nil {
+				app.log.Printf("error streaming CSV export: %v", err)
+				break loop
+			}
+		}
+		wr.Flush()
+
+		id = out[len(out)-1].ID
+	}
+
+	return nil
 }
 
 // handleCreateSubscriber handles the creation of a new subscriber.

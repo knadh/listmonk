@@ -128,6 +128,17 @@ type SubscriberAttribs map[string]interface{}
 // Subscribers represents a slice of Subscriber.
 type Subscribers []Subscriber
 
+// SubscriberExport represents a subscriber record that is exported to raw data.
+type SubscriberExport struct {
+	Base
+
+	UUID    string `db:"uuid" json:"uuid"`
+	Email   string `db:"email" json:"email"`
+	Name    string `db:"name" json:"name"`
+	Attribs string `db:"attribs" json:"attribs"`
+	Status  string `db:"status" json:"status"`
+}
+
 // List represents a mailing list.
 type List struct {
 	Base

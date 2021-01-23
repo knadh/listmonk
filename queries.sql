@@ -238,6 +238,22 @@ SELECT COUNT(*) OVER () AS total, subscribers.* FROM subscribers
     %s
     ORDER BY %s %s OFFSET $2 LIMIT $3;
 
+-- name: query-subscribers-for-export
+-- raw: true
+-- Unprepared statement for issuring arbitrary WHERE conditions for
+-- searching subscribers to do bulk CSV export.
+-- %s = arbitrary expression
+SELECT s.id, s.uuid, s.email, s.name, s.status, s.attribs, s.created_at, s.updated_at FROM subscribers s
+    LEFT JOIN subscriber_lists sl
+    ON (
+        -- Optional list filtering.
+        (CASE WHEN CARDINALITY($1::INT[]) > 0 THEN true ELSE false END)
+        AND sl.subscriber_id = s.id
+    )
+    WHERE sl.list_id = ALL($1::INT[]) AND id > $2
+    %s
+    ORDER BY s.id ASC LIMIT $3;
+
 -- name: query-subscribers-template
 -- raw: true
 -- This raw query is reused in multiple queries (blocklist, add to list, delete)

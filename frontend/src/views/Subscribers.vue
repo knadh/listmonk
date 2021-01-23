@@ -104,6 +104,11 @@
       paginated backend-pagination pagination-position="both" @page-change="onPageChange"
       :current-page="queryParams.page" :per-page="subscribers.perPage" :total="subscribers.total"
       hoverable checkable backend-sorting @sort="onSort">
+        <template slot="top-left">
+          <a href='' @click.prevent="exportSubscribers">
+            <b-icon icon="cloud-download-outline" size="is-small" /> Export
+          </a>
+        </template>
         <template slot-scope="props">
             <b-table-column field="status" label="Status" sortable>
               <a :href="`/subscribers/${props.row.id}`"
@@ -195,6 +200,7 @@ import { mapState } from 'vuex';
 import SubscriberForm from './SubscriberForm.vue';
 import SubscriberBulkList from './SubscriberBulkList.vue';
 import EmptyPlaceholder from '../components/EmptyPlaceholder.vue';
+import { uris } from '../constants';
 
 export default Vue.extend({
   components: {
@@ -367,6 +373,15 @@ export default Vue.extend({
       }
 
       this.$utils.confirm(this.$t('subscribers.confirmBlocklist', { num: this.numSelectedSubscribers }), fn);
+    },
+
+    exportSubscribers() {
+      this.$utils.confirm(this.$t('subscribers.confirmExport', { num: this.subscribers.total }), () => {
+        const q = new URLSearchParams();
+        q.append('query', this.queryParams.queryExp);
+        q.append('list_id', this.queryParams.listID);
+        document.location.href = `${uris.exportSubscribers}?${q.toString()}`;
+      });
     },
 
     deleteSubscribers() {

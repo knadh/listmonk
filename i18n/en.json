@@ -315,6 +315,7 @@
     "subscribers.attribsHelp": "Attributes are defined as a JSON map, for example:",
     "subscribers.blocklistedHelp": "Blocklisted subscribers will never receive any e-mails.",
     "subscribers.confirmBlocklist": "Blocklist {num} subscriber(s)?",
+    "subscribers.confirmExport": "Export {num} subscriber(s)?",
     "subscribers.confirmDelete": "Delete {num} subscriber(s)?",
     "subscribers.downloadData": "Download data",
     "subscribers.email": "E-mail",

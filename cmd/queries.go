@@ -35,6 +35,7 @@ type Queries struct {
 
 	// Non-prepared arbitrary subscriber queries.
 	QuerySubscribers                       string `query:"query-subscribers"`
+	QuerySubscribersForExport              string `query:"query-subscribers-for-export"`
 	QuerySubscribersTpl                    string `query:"query-subscribers-template"`
 	DeleteSubscribersByQuery               string `query:"delete-subscribers-by-query"`
 	AddSubscribersToListsByQuery           string `query:"add-subscribers-to-lists-by-query"`

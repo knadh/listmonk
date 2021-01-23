@@ -46,6 +46,7 @@ type constants struct {
 	FromEmail    string   `koanf:"from_email"`
 	NotifyEmails []string `koanf:"notify_emails"`
 	Lang         string   `koanf:"lang"`
+	DBBatchSize  int      `koanf:"batch_size"`
 	Privacy      struct {
 		IndividualTracking bool            `koanf:"individual_tracking"`
 		AllowBlocklist     bool            `koanf:"allow_blocklist"`

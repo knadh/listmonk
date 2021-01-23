@@ -18,6 +18,7 @@ export const uris = Object.freeze({
   previewCampaign: '/api/campaigns/:id/preview',
   previewTemplate: '/api/templates/:id/preview',
   previewRawTemplate: '/api/templates/preview',
+  exportSubscribers: '/api/subscribers/export',
 });
 
 // Keys used in Vuex store.
