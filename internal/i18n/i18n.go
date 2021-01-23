@@ -54,33 +54,12 @@ func (i *I18nLang) T(key string) string {
 // Ts returns the translation for the given key similar to vue i18n's t()
 // and subsitutes the params in the given map in the translated value.
 // In the language values, the substitutions are represented as: {key}
-func (i *I18nLang) Ts(key string, params map[string]string) string {
-	s, ok := i.langMap[key]
-	if !ok {
-		return key
-	}
-
-	s = i.getSingular(s)
-	for p, val := range params {
-
-		// If there are {params} in the map values, substitute them.
-		val = i.subAllParams(val)
-
-		s = strings.ReplaceAll(s, `{`+p+`}`, val)
-	}
-
-	return s
-}
-
-// Ts2 returns the translation for the given key similar to vue i18n's t()
-// and subsitutes the params in the given map in the translated value.
-// In the language values, the substitutions are represented as: {key}
 // The params and values are received as a pairs of succeeding strings.
 // That is, the number of these arguments should be an even number.
-// eg: Ts2("globals.message.notFound",
+// eg: Ts("globals.message.notFound",
 //         "name", "campaigns",
 //         "error", err)
-func (i *I18nLang) Ts2(key string, params ...string) string {
+func (i *I18nLang) Ts(key string, params ...string) string {
 	if len(params)%2 != 0 {
 		return key + `: Invalid arguments`
 	}

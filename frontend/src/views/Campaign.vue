@@ -43,7 +43,7 @@
               <form @submit.prevent="onSubmit">
                 <b-field :label="$t('globals.fields.name')" label-position="on-border">
                   <b-input :maxlength="200" :ref="'focus'" v-model="form.name" :disabled="!canEdit"
-                    placeholder="$t('globals.fields.name')" required></b-input>
+                    :placeholder="$t('globals.fields.name')" required></b-input>
                 </b-field>
 
                 <b-field :label="$t('campaigns.subject')" label-position="on-border">

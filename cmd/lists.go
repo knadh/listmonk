@@ -53,12 +53,12 @@ func handleGetLists(c echo.Context) error {
 	if err := db.Select(&out.Results, fmt.Sprintf(app.queries.GetLists, orderBy, order), listID, pg.Offset, pg.Limit); err != nil {
 		app.log.Printf("error fetching lists: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
-			app.i18n.Ts2("globals.messages.errorFetching",
+			app.i18n.Ts("globals.messages.errorFetching",
 				"name", "{globals.terms.lists}", "error", pqErrMsg(err)))
 	}
 	if single && len(out.Results) == 0 {
 		return echo.NewHTTPError(http.StatusBadRequest,
-			app.i18n.Ts2("globals.messages.notFound", "name", "{globals.terms.list}"))
+			app.i18n.Ts("globals.messages.notFound", "name", "{globals.terms.list}"))
 	}
 	if len(out.Results) == 0 {
 		return c.JSON(http.StatusOK, okResp{[]struct{}{}})
@@ -102,7 +102,7 @@ func handleCreateList(c echo.Context) error {
 	if err != nil {
 		app.log.Printf("error generating UUID: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
-			app.i18n.Ts("globals.messages.errorUUID", map[string]string{"error": err.Error()}))
+			app.i18n.Ts("globals.messages.errorUUID", "error", err.Error()))
 	}
 
 	// Insert and read ID.
@@ -116,7 +116,7 @@ func handleCreateList(c echo.Context) error {
 		pq.StringArray(normalizeTags(o.Tags))); err != nil {
 		app.log.Printf("error creating list: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
-			app.i18n.Ts2("globals.messages.errorCreating",
+			app.i18n.Ts("globals.messages.errorCreating",
 				"name", "{globals.terms.list}", "error", pqErrMsg(err)))
 	}
 
@@ -148,13 +148,13 @@ func handleUpdateList(c echo.Context) error {
 	if err != nil {
 		app.log.Printf("error updating list: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
-			app.i18n.Ts2("globals.messages.errorUpdating",
+			app.i18n.Ts("globals.messages.errorUpdating",
 				"name", "{globals.terms.list}", "error", pqErrMsg(err)))
 	}
 
 	if n, _ := res.RowsAffected(); n == 0 {
 		return echo.NewHTTPError(http.StatusBadRequest,
-			app.i18n.Ts2("globals.messages.notFound", "name", "{globals.terms.list}"))
+			app.i18n.Ts("globals.messages.notFound", "name", "{globals.terms.list}"))
 	}
 
 	return handleGetLists(c)
@@ -180,7 +180,7 @@ func handleDeleteLists(c echo.Context) error {
 	if _, err := app.queries.DeleteLists.Exec(ids); err != nil {
 		app.log.Printf("error deleting lists: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
-			app.i18n.Ts2("globals.messages.errorDeleting",
+			app.i18n.Ts("globals.messages.errorDeleting",
 				"name", "{globals.terms.list}", "error", pqErrMsg(err)))
 	}
 

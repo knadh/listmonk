@@ -34,14 +34,14 @@ func handleUploadMedia(c echo.Context) error {
 	file, err := c.FormFile("file")
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest,
-			app.i18n.Ts2("media.invalidFile", "error", err.Error()))
+			app.i18n.Ts("media.invalidFile", "error", err.Error()))
 	}
 
 	// Validate MIME type with the list of allowed types.
 	var typ = file.Header.Get("Content-type")
 	if ok := validateMIME(typ, imageMimes); !ok {
 		return echo.NewHTTPError(http.StatusBadRequest,
-			app.i18n.Ts2("media.unsupportedFileType", "type", typ))
+			app.i18n.Ts("media.unsupportedFileType", "type", typ))
 	}
 
 	// Generate filename
@@ -51,7 +51,7 @@ func handleUploadMedia(c echo.Context) error {
 	src, err := file.Open()
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError,
-			app.i18n.Ts2("media.errorReadingFile", "error", err.Error()))
+			app.i18n.Ts("media.errorReadingFile", "error", err.Error()))
 	}
 	defer src.Close()
 
@@ -61,7 +61,7 @@ func handleUploadMedia(c echo.Context) error {
 		app.log.Printf("error uploading file: %v", err)
 		cleanUp = true
 		return echo.NewHTTPError(http.StatusInternalServerError,
-			app.i18n.Ts2("media.errorUploading", "error", err.Error()))
+			app.i18n.Ts("media.errorUploading", "error", err.Error()))
 	}
 
 	defer func() {
@@ -79,7 +79,7 @@ func handleUploadMedia(c echo.Context) error {
 		cleanUp = true
 		app.log.Printf("error resizing image: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
-			app.i18n.Ts2("media.errorResizing", "error", err.Error()))
+			app.i18n.Ts("media.errorResizing", "error", err.Error()))
 	}
 
 	// Upload thumbnail.
@@ -88,14 +88,14 @@ func handleUploadMedia(c echo.Context) error {
 		cleanUp = true
 		app.log.Printf("error saving thumbnail: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
-			app.i18n.Ts2("media.errorSavingThumbnail", "error", err.Error()))
+			app.i18n.Ts("media.errorSavingThumbnail", "error", err.Error()))
 	}
 
 	uu, err := uuid.NewV4()
 	if err != nil {
 		app.log.Printf("error generating UUID: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
-			app.i18n.Ts2("globals.messages.errorUUID", "error", err.Error()))
+			app.i18n.Ts("globals.messages.errorUUID", "error", err.Error()))
 	}
 
 	// Write to the DB.
@@ -103,7 +103,7 @@ func handleUploadMedia(c echo.Context) error {
 		cleanUp = true
 		app.log.Printf("error inserting uploaded file to db: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
-			app.i18n.Ts2("globals.messages.errorCreating",
+			app.i18n.Ts("globals.messages.errorCreating",
 				"name", "{globals.terms.media}", "error", pqErrMsg(err)))
 	}
 	return c.JSON(http.StatusOK, okResp{true})
@@ -118,7 +118,7 @@ func handleGetMedia(c echo.Context) error {
 
 	if err := app.queries.GetMedia.Select(&out, app.constants.MediaProvider); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError,
-			app.i18n.Ts2("globals.messages.errorFetching",
+			app.i18n.Ts("globals.messages.errorFetching",
 				"name", "{globals.terms.media}", "error", pqErrMsg(err)))
 	}
 
@@ -144,7 +144,7 @@ func handleDeleteMedia(c echo.Context) error {
 	var m media.Media
 	if err := app.queries.DeleteMedia.Get(&m, id); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError,
-			app.i18n.Ts2("globals.messages.errorDeleting",
+			app.i18n.Ts("globals.messages.errorDeleting",
 				"name", "{globals.terms.media}", "error", pqErrMsg(err)))
 	}
 

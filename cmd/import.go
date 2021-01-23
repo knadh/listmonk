@@ -33,7 +33,7 @@ func handleImportSubscribers(c echo.Context) error {
 	var r reqImport
 	if err := json.Unmarshal([]byte(c.FormValue("params")), &r); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest,
-			app.i18n.Ts2("import.invalidParams", "error", err.Error()))
+			app.i18n.Ts("import.invalidParams", "error", err.Error()))
 	}
 
 	if r.Mode != subimporter.ModeSubscribe && r.Mode != subimporter.ModeBlocklist {
@@ -47,7 +47,7 @@ func handleImportSubscribers(c echo.Context) error {
 	file, err := c.FormFile("file")
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest,
-			app.i18n.Ts2("import.invalidFile", "error", err.Error()))
+			app.i18n.Ts("import.invalidFile", "error", err.Error()))
 	}
 
 	src, err := file.Open()
@@ -59,20 +59,20 @@ func handleImportSubscribers(c echo.Context) error {
 	out, err := ioutil.TempFile("", "listmonk")
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError,
-			app.i18n.Ts2("import.errorCopyingFile", "error", err.Error()))
+			app.i18n.Ts("import.errorCopyingFile", "error", err.Error()))
 	}
 	defer out.Close()
 
 	if _, err = io.Copy(out, src); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError,
-			app.i18n.Ts2("import.errorCopyingFile", "error", err.Error()))
+			app.i18n.Ts("import.errorCopyingFile", "error", err.Error()))
 	}
 
 	// Start the importer session.
 	impSess, err := app.importer.NewSession(file.Filename, r.Mode, r.Overwrite, r.ListIDs)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError,
-			app.i18n.Ts2("import.errorStarting", "error", err.Error()))
+			app.i18n.Ts("import.errorStarting", "error", err.Error()))
 	}
 	go impSess.Start()
 
@@ -88,7 +88,7 @@ func handleImportSubscribers(c echo.Context) error {
 		dir, files, err := impSess.ExtractZIP(out.Name(), 1)
 		if err != nil {
 			return echo.NewHTTPError(http.StatusInternalServerError,
-				app.i18n.Ts2("import.errorProcessingZIP", "error", err.Error()))
+				app.i18n.Ts("import.errorProcessingZIP", "error", err.Error()))
 		}
 		go impSess.LoadCSV(dir+"/"+files[0], rune(r.Delim[0]))
 	}

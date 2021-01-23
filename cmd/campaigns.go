@@ -106,12 +106,12 @@ func handleGetCampaigns(c echo.Context) error {
 	if err := db.Select(&out.Results, stmt, id, pq.StringArray(status), query, pg.Offset, pg.Limit); err != nil {
 		app.log.Printf("error fetching campaigns: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
-			app.i18n.Ts2("globals.messages.errorFetching",
+			app.i18n.Ts("globals.messages.errorFetching",
 				"name", "{globals.terms.campaign}", "error", pqErrMsg(err)))
 	}
 	if single && len(out.Results) == 0 {
 		return echo.NewHTTPError(http.StatusBadRequest,
-			app.i18n.Ts2("campaigns.notFound", "name", "{globals.terms.campaign}"))
+			app.i18n.Ts("campaigns.notFound", "name", "{globals.terms.campaign}"))
 	}
 	if len(out.Results) == 0 {
 		out.Results = []models.Campaign{}
@@ -133,7 +133,7 @@ func handleGetCampaigns(c echo.Context) error {
 	if err := out.Results.LoadStats(app.queries.GetCampaignStats); err != nil {
 		app.log.Printf("error fetching campaign stats: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
-			app.i18n.Ts2("globals.messages.errorFetching",
+			app.i18n.Ts("globals.messages.errorFetching",
 				"name", "{globals.terms.campaign}", "error", pqErrMsg(err)))
 	}
 
@@ -167,12 +167,12 @@ func handlePreviewCampaign(c echo.Context) error {
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return echo.NewHTTPError(http.StatusBadRequest,
-				app.i18n.Ts2("globals.messages.notFound", "name", "{globals.terms.campaign}"))
+				app.i18n.Ts("globals.messages.notFound", "name", "{globals.terms.campaign}"))
 		}
 
 		app.log.Printf("error fetching campaign: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
-			app.i18n.Ts2("globals.messages.errorFetching",
+			app.i18n.Ts("globals.messages.errorFetching",
 				"name", "{globals.terms.campaign}", "error", pqErrMsg(err)))
 	}
 
@@ -185,7 +185,7 @@ func handlePreviewCampaign(c echo.Context) error {
 		} else {
 			app.log.Printf("error fetching subscriber: %v", err)
 			return echo.NewHTTPError(http.StatusInternalServerError,
-				app.i18n.Ts2("globals.messages.errorFetching",
+				app.i18n.Ts("globals.messages.errorFetching",
 					"name", "{globals.terms.subscriber}", "error", pqErrMsg(err)))
 		}
 	}
@@ -198,7 +198,7 @@ func handlePreviewCampaign(c echo.Context) error {
 	if err := camp.CompileTemplate(app.manager.TemplateFuncs(camp)); err != nil {
 		app.log.Printf("error compiling template: %v", err)
 		return echo.NewHTTPError(http.StatusBadRequest,
-			app.i18n.Ts2("templates.errorCompiling", "error", err.Error()))
+			app.i18n.Ts("templates.errorCompiling", "error", err.Error()))
 	}
 
 	// Render the message body.
@@ -206,7 +206,7 @@ func handlePreviewCampaign(c echo.Context) error {
 	if err := m.Render(); err != nil {
 		app.log.Printf("error rendering message: %v", err)
 		return echo.NewHTTPError(http.StatusBadRequest,
-			app.i18n.Ts2("templates.errorRendering", "error", err.Error()))
+			app.i18n.Ts("templates.errorRendering", "error", err.Error()))
 	}
 
 	return c.HTML(http.StatusOK, string(m.Body()))
@@ -244,7 +244,7 @@ func handleCreateCampaign(c echo.Context) error {
 	if err != nil {
 		app.log.Printf("error generating UUID: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
-			app.i18n.Ts2("globals.messages.errorUUID", "error", err.Error()))
+			app.i18n.Ts("globals.messages.errorUUID", "error", err.Error()))
 	}
 
 	// Insert and read ID.
@@ -269,7 +269,7 @@ func handleCreateCampaign(c echo.Context) error {
 
 		app.log.Printf("error creating campaign: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
-			app.i18n.Ts2("globals.messages.errorCreating",
+			app.i18n.Ts("globals.messages.errorCreating",
 				"name", "{globals.terms.campaign}", "error", pqErrMsg(err)))
 	}
 
@@ -296,12 +296,12 @@ func handleUpdateCampaign(c echo.Context) error {
 	if err := app.queries.GetCampaign.Get(&cm, id, nil); err != nil {
 		if err == sql.ErrNoRows {
 			return echo.NewHTTPError(http.StatusInternalServerError,
-				app.i18n.Ts2("globals.messages.notFound", "name", "{globals.terms.campaign}"))
+				app.i18n.Ts("globals.messages.notFound", "name", "{globals.terms.campaign}"))
 		}
 
 		app.log.Printf("error fetching campaign: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
-			app.i18n.Ts2("globals.messages.errorFetching",
+			app.i18n.Ts("globals.messages.errorFetching",
 				"name", "{globals.terms.campaign}", "error", pqErrMsg(err)))
 	}
 
@@ -336,7 +336,7 @@ func handleUpdateCampaign(c echo.Context) error {
 	if err != nil {
 		app.log.Printf("error updating campaign: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
-			app.i18n.Ts2("globals.messages.errorUpdating",
+			app.i18n.Ts("globals.messages.errorUpdating",
 				"name", "{globals.terms.campaign}", "error", pqErrMsg(err)))
 	}
 
@@ -358,15 +358,12 @@ func handleUpdateCampaignStatus(c echo.Context) error {
 	if err := app.queries.GetCampaign.Get(&cm, id, nil); err != nil {
 		if err == sql.ErrNoRows {
 			return echo.NewHTTPError(http.StatusBadRequest,
-				app.i18n.Ts("", map[string]string{
-					"name": "{globals.terms.campaign}",
-				}))
+				app.i18n.Ts("globals.message.notFound", "name", "{globals.terms.campaign}"))
 		}
 
 		app.log.Printf("error fetching campaign: %v", err)
-
 		return echo.NewHTTPError(http.StatusInternalServerError,
-			app.i18n.Ts2("globals.messages.errorFetching",
+			app.i18n.Ts("globals.messages.errorFetching",
 				"name", "{globals.terms.campaign}", "error", pqErrMsg(err)))
 	}
 
@@ -413,13 +410,13 @@ func handleUpdateCampaignStatus(c echo.Context) error {
 		app.log.Printf("error updating campaign status: %v", err)
 
 		return echo.NewHTTPError(http.StatusInternalServerError,
-			app.i18n.Ts2("globals.messages.errorUpdating",
+			app.i18n.Ts("globals.messages.errorUpdating",
 				"name", "{globals.terms.campaign}", "error", pqErrMsg(err)))
 	}
 
 	if n, _ := res.RowsAffected(); n == 0 {
 		return echo.NewHTTPError(http.StatusBadRequest,
-			app.i18n.Ts2("globals.messages.notFound",
+			app.i18n.Ts("globals.messages.notFound",
 				"name", "{globals.terms.campaign}", "error", pqErrMsg(err)))
 	}
 
@@ -442,20 +439,20 @@ func handleDeleteCampaign(c echo.Context) error {
 	if err := app.queries.GetCampaign.Get(&cm, id, nil); err != nil {
 		if err == sql.ErrNoRows {
 			return echo.NewHTTPError(http.StatusBadRequest,
-				app.i18n.Ts2("globals.messages.notFound",
+				app.i18n.Ts("globals.messages.notFound",
 					"name", "{globals.terms.campaign}", "error", pqErrMsg(err)))
 		}
 
 		app.log.Printf("error fetching campaign: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
-			app.i18n.Ts2("globals.messages.errorFetching",
+			app.i18n.Ts("globals.messages.errorFetching",
 				"name", "{globals.terms.campaign}", "error", pqErrMsg(err)))
 	}
 
 	if _, err := app.queries.DeleteCampaign.Exec(cm.ID); err != nil {
 		app.log.Printf("error deleting campaign: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
-			app.i18n.Ts2("globals.messages.errorDeleting",
+			app.i18n.Ts("globals.messages.errorDeleting",
 				"name", "{globals.terms.campaign}", "error", pqErrMsg(err)))
 
 	}
@@ -477,7 +474,7 @@ func handleGetRunningCampaignStats(c echo.Context) error {
 
 		app.log.Printf("error fetching campaign stats: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
-			app.i18n.Ts2("globals.messages.errorFetching",
+			app.i18n.Ts("globals.messages.errorFetching",
 				"name", "{globals.terms.campaign}", "error", pqErrMsg(err)))
 	} else if len(out) == 0 {
 		return c.JSON(http.StatusOK, okResp{[]struct{}{}})
@@ -539,7 +536,7 @@ func handleTestCampaign(c echo.Context) error {
 	if err := app.queries.GetSubscribersByEmails.Select(&subs, req.SubscriberEmails); err != nil {
 		app.log.Printf("error fetching subscribers: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
-			app.i18n.Ts2("globals.messages.errorFetching",
+			app.i18n.Ts("globals.messages.errorFetching",
 				"name", "{globals.terms.subscribers}", "error", pqErrMsg(err)))
 	} else if len(subs) == 0 {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("campaigns.noKnownSubsToTest"))
@@ -550,13 +547,13 @@ func handleTestCampaign(c echo.Context) error {
 	if err := app.queries.GetCampaignForPreview.Get(&camp, campID); err != nil {
 		if err == sql.ErrNoRows {
 			return echo.NewHTTPError(http.StatusBadRequest,
-				app.i18n.Ts2("globals.messages.notFound",
+				app.i18n.Ts("globals.messages.notFound",
 					"name", "{globals.terms.campaign}"))
 		}
 
 		app.log.Printf("error fetching campaign: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
-			app.i18n.Ts2("globals.messages.errorFetching",
+			app.i18n.Ts("globals.messages.errorFetching",
 				"name", "{globals.terms.campaign}", "error", pqErrMsg(err)))
 	}
 
@@ -574,7 +571,7 @@ func handleTestCampaign(c echo.Context) error {
 		sub := s
 		if err := sendTestMessage(sub, &camp, app); err != nil {
 			return echo.NewHTTPError(http.StatusInternalServerError,
-				app.i18n.Ts2("campaigns.errorSendTest", "error", err.Error()))
+				app.i18n.Ts("campaigns.errorSendTest", "error", err.Error()))
 		}
 	}
 
@@ -586,7 +583,7 @@ func sendTestMessage(sub models.Subscriber, camp *models.Campaign, app *App) err
 	if err := camp.CompileTemplate(app.manager.TemplateFuncs(camp)); err != nil {
 		app.log.Printf("error compiling template: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
-			app.i18n.Ts2("templates.errorCompiling", "error", err.Error()))
+			app.i18n.Ts("templates.errorCompiling", "error", err.Error()))
 	}
 
 	// Render the message body.
@@ -594,7 +591,7 @@ func sendTestMessage(sub models.Subscriber, camp *models.Campaign, app *App) err
 	if err := m.Render(); err != nil {
 		app.log.Printf("error rendering message: %v", err)
 		return echo.NewHTTPError(http.StatusNotFound,
-			app.i18n.Ts2("templates.errorRendering", "error", err.Error()))
+			app.i18n.Ts("templates.errorRendering", "error", err.Error()))
 	}
 
 	return app.messengers[camp.Messenger].Push(messenger.Message{
@@ -641,12 +638,12 @@ func validateCampaignFields(c campaignReq, app *App) (campaignReq, error) {
 	}
 
 	if !app.manager.HasMessenger(c.Messenger) {
-		return c, errors.New(app.i18n.Ts2("campaigns.fieldInvalidMessenger", "name", c.Messenger))
+		return c, errors.New(app.i18n.Ts("campaigns.fieldInvalidMessenger", "name", c.Messenger))
 	}
 
 	camp := models.Campaign{Body: c.Body, TemplateBody: tplTag}
 	if err := c.CompileTemplate(app.manager.TemplateFuncs(&camp)); err != nil {
-		return c, errors.New(app.i18n.Ts2("campaigns.fieldInvalidBody", "error", err.Error()))
+		return c, errors.New(app.i18n.Ts("campaigns.fieldInvalidBody", "error", err.Error()))
 	}
 
 	return c, nil
@@ -672,7 +669,7 @@ func makeOptinCampaignMessage(o campaignReq, app *App) (campaignReq, error) {
 	if err != nil {
 		app.log.Printf("error fetching lists for opt-in: %s", pqErrMsg(err))
 		return o, echo.NewHTTPError(http.StatusInternalServerError,
-			app.i18n.Ts2("globals.messages.errorFetching",
+			app.i18n.Ts("globals.messages.errorFetching",
 				"name", "{globals.terms.list}", "error", pqErrMsg(err)))
 	}
 
@@ -697,7 +694,7 @@ func makeOptinCampaignMessage(o campaignReq, app *App) (campaignReq, error) {
 	}{lists, optinURLAttr}); err != nil {
 		app.log.Printf("error compiling 'optin-campaign' template: %v", err)
 		return o, echo.NewHTTPError(http.StatusBadRequest,
-			app.i18n.Ts2("templates.errorCompiling", "error", err.Error()))
+			app.i18n.Ts("templates.errorCompiling", "error", err.Error()))
 	}
 
 	o.Body = b.String()

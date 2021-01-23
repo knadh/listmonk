@@ -72,9 +72,7 @@ func handleGetConfigScript(c echo.Context) error {
 	j := json.NewEncoder(&b)
 	if err := j.Encode(out); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError,
-			app.i18n.Ts("admin.errorMarshallingConfig", map[string]string{
-				"error": err.Error(),
-			}))
+			app.i18n.Ts("admin.errorMarshallingConfig", "error", err.Error()))
 	}
 	return c.Blob(http.StatusOK, "application/javascript; charset=utf-8", b.Bytes())
 }
@@ -88,10 +86,7 @@ func handleGetDashboardCharts(c echo.Context) error {
 
 	if err := app.queries.GetDashboardCharts.Get(&out); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError,
-			app.i18n.Ts("globals.messages.errorFetching", map[string]string{
-				"name":  "dashboard charts",
-				"error": pqErrMsg(err),
-			}))
+			app.i18n.Ts("globals.messages.errorFetching", "name", "dashboard charts", "error", pqErrMsg(err)))
 	}
 
 	return c.JSON(http.StatusOK, okResp{out})
@@ -106,10 +101,7 @@ func handleGetDashboardCounts(c echo.Context) error {
 
 	if err := app.queries.GetDashboardCounts.Get(&out); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError,
-			app.i18n.Ts("globals.messages.errorFetching", map[string]string{
-				"name":  "dashboard stats",
-				"error": pqErrMsg(err),
-			}))
+			app.i18n.Ts("globals.messages.errorFetching", "name", "dashboard stats", "error", pqErrMsg(err)))
 	}
 
 	return c.JSON(http.StatusOK, okResp{out})

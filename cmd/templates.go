@@ -50,12 +50,12 @@ func handleGetTemplates(c echo.Context) error {
 	err := app.queries.GetTemplates.Select(&out, id, noBody)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError,
-			app.i18n.Ts2("globals.messages.errorFetching",
+			app.i18n.Ts("globals.messages.errorFetching",
 				"name", "{globals.terms.templates}", "error", pqErrMsg(err)))
 	}
 	if single && len(out) == 0 {
 		return echo.NewHTTPError(http.StatusBadRequest,
-			app.i18n.Ts2("globals.messages.notFound", "name", "{globals.terms.template}"))
+			app.i18n.Ts("globals.messages.notFound", "name", "{globals.terms.template}"))
 	}
 
 	if len(out) == 0 {
@@ -80,7 +80,7 @@ func handlePreviewTemplate(c echo.Context) error {
 	if body != "" {
 		if !regexpTplTag.MatchString(body) {
 			return echo.NewHTTPError(http.StatusBadRequest,
-				app.i18n.Ts2("templates.placeholderHelp", "placeholder", tplTag))
+				app.i18n.Ts("templates.placeholderHelp", "placeholder", tplTag))
 		}
 	} else {
 		if id < 1 {
@@ -90,13 +90,13 @@ func handlePreviewTemplate(c echo.Context) error {
 		err := app.queries.GetTemplates.Select(&tpls, id, false)
 		if err != nil {
 			return echo.NewHTTPError(http.StatusInternalServerError,
-				app.i18n.Ts2("globals.messages.errorFetching",
+				app.i18n.Ts("globals.messages.errorFetching",
 					"name", "{globals.terms.templates}", "error", pqErrMsg(err)))
 		}
 
 		if len(tpls) == 0 {
 			return echo.NewHTTPError(http.StatusBadRequest,
-				app.i18n.Ts2("globals.messages.notFound", "name", "{globals.terms.template}"))
+				app.i18n.Ts("globals.messages.notFound", "name", "{globals.terms.template}"))
 		}
 		body = tpls[0].Body
 	}
@@ -113,14 +113,14 @@ func handlePreviewTemplate(c echo.Context) error {
 
 	if err := camp.CompileTemplate(app.manager.TemplateFuncs(&camp)); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest,
-			app.i18n.Ts2("templates.errorCompiling", "error", err.Error()))
+			app.i18n.Ts("templates.errorCompiling", "error", err.Error()))
 	}
 
 	// Render the message body.
 	m := app.manager.NewCampaignMessage(&camp, dummySubscriber)
 	if err := m.Render(); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest,
-			app.i18n.Ts2("templates.errorRendering", "error", err.Error()))
+			app.i18n.Ts("templates.errorRendering", "error", err.Error()))
 	}
 
 	return c.HTML(http.StatusOK, string(m.Body()))
@@ -147,7 +147,7 @@ func handleCreateTemplate(c echo.Context) error {
 		o.Name,
 		o.Body); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError,
-			app.i18n.Ts2("globals.messages.errorCreating",
+			app.i18n.Ts("globals.messages.errorCreating",
 				"name", "{globals.terms.template}", "error", pqErrMsg(err)))
 	}
 
@@ -181,13 +181,13 @@ func handleUpdateTemplate(c echo.Context) error {
 	res, err := app.queries.UpdateTemplate.Exec(o.ID, o.Name, o.Body)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError,
-			app.i18n.Ts2("globals.messages.errorUpdating",
+			app.i18n.Ts("globals.messages.errorUpdating",
 				"name", "{globals.terms.template}", "error", pqErrMsg(err)))
 	}
 
 	if n, _ := res.RowsAffected(); n == 0 {
 		return echo.NewHTTPError(http.StatusBadRequest,
-			app.i18n.Ts2("globals.messages.notFound", "name", "{globals.terms.template}"))
+			app.i18n.Ts("globals.messages.notFound", "name", "{globals.terms.template}"))
 	}
 
 	return handleGetTemplates(c)
@@ -207,7 +207,7 @@ func handleTemplateSetDefault(c echo.Context) error {
 	_, err := app.queries.SetDefaultTemplate.Exec(id)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError,
-			app.i18n.Ts2("globals.messages.errorUpdating",
+			app.i18n.Ts("globals.messages.errorUpdating",
 				"name", "{globals.terms.template}", "error", pqErrMsg(err)))
 	}
 
@@ -236,7 +236,7 @@ func handleDeleteTemplate(c echo.Context) error {
 		}
 
 		return echo.NewHTTPError(http.StatusInternalServerError,
-			app.i18n.Ts2("globals.messages.errorCreating",
+			app.i18n.Ts("globals.messages.errorCreating",
 				"name", "{globals.terms.template}", "error", pqErrMsg(err)))
 	}
 
@@ -256,7 +256,7 @@ func validateTemplate(o models.Template, app *App) error {
 
 	if !regexpTplTag.MatchString(o.Body) {
 		return echo.NewHTTPError(http.StatusBadRequest,
-			app.i18n.Ts2("templates.placeholderHelp", "placeholder", tplTag))
+			app.i18n.Ts("templates.placeholderHelp", "placeholder", tplTag))
 	}
 
 	return nil

@@ -109,7 +109,7 @@ func handleViewCampaignMessage(c echo.Context) error {
 		app.log.Printf("error fetching campaign: %v", err)
 		return c.Render(http.StatusInternalServerError, tplMessage,
 			makeMsgTpl(app.i18n.T("public.errorTitle"), "",
-				app.i18n.Ts2("public.errorFetchingCampaign")))
+				app.i18n.Ts("public.errorFetchingCampaign")))
 	}
 
 	// Get the subscriber.
@@ -124,7 +124,7 @@ func handleViewCampaignMessage(c echo.Context) error {
 		app.log.Printf("error fetching campaign subscriber: %v", err)
 		return c.Render(http.StatusInternalServerError, tplMessage,
 			makeMsgTpl(app.i18n.T("public.errorTitle"), "",
-				app.i18n.Ts2("public.errorFetchingCampaign")))
+				app.i18n.Ts("public.errorFetchingCampaign")))
 	}
 
 	// Compile the template.
@@ -132,7 +132,7 @@ func handleViewCampaignMessage(c echo.Context) error {
 		app.log.Printf("error compiling template: %v", err)
 		return c.Render(http.StatusInternalServerError, tplMessage,
 			makeMsgTpl(app.i18n.T("public.errorTitle"), "",
-				app.i18n.Ts2("public.errorFetchingCampaign")))
+				app.i18n.Ts("public.errorFetchingCampaign")))
 	}
 
 	// Render the message body.
@@ -141,7 +141,7 @@ func handleViewCampaignMessage(c echo.Context) error {
 		app.log.Printf("error rendering message: %v", err)
 		return c.Render(http.StatusInternalServerError, tplMessage,
 			makeMsgTpl(app.i18n.T("public.errorTitle"), "",
-				app.i18n.Ts2("public.errorFetchingCampaign")))
+				app.i18n.Ts("public.errorFetchingCampaign")))
 	}
 
 	return c.HTML(http.StatusOK, string(m.Body()))
@@ -176,7 +176,7 @@ func handleSubscriptionPage(c echo.Context) error {
 			app.log.Printf("error unsubscribing: %v", err)
 			return c.Render(http.StatusInternalServerError, tplMessage,
 				makeMsgTpl(app.i18n.T("public.errorTitle"), "",
-					app.i18n.Ts2("public.errorProcessingRequest")))
+					app.i18n.Ts("public.errorProcessingRequest")))
 		}
 
 		return c.Render(http.StatusOK, tplMessage,
@@ -224,14 +224,14 @@ func handleOptinPage(c echo.Context) error {
 
 		return c.Render(http.StatusInternalServerError, tplMessage,
 			makeMsgTpl(app.i18n.T("public.errorTitle"), "",
-				app.i18n.Ts2("public.errorFetchingLists")))
+				app.i18n.Ts("public.errorFetchingLists")))
 	}
 
 	// There are no lists to confirm.
 	if len(out.Lists) == 0 {
 		return c.Render(http.StatusInternalServerError, tplMessage,
 			makeMsgTpl(app.i18n.T("public.noSubTitle"), "",
-				app.i18n.Ts2("public.noSubInfo")))
+				app.i18n.Ts("public.noSubInfo")))
 	}
 
 	// Confirm.
@@ -240,12 +240,12 @@ func handleOptinPage(c echo.Context) error {
 			app.log.Printf("error unsubscribing: %v", err)
 			return c.Render(http.StatusInternalServerError, tplMessage,
 				makeMsgTpl(app.i18n.T("public.errorTitle"), "",
-					app.i18n.Ts2("public.errorProcessingRequest")))
+					app.i18n.Ts("public.errorProcessingRequest")))
 		}
 
 		return c.Render(http.StatusOK, tplMessage,
 			makeMsgTpl(app.i18n.T("public.subsConfirmedTitle"), "",
-				app.i18n.Ts2("public.subConfirmed")))
+				app.i18n.Ts("public.subConfirmed")))
 	}
 
 	return c.Render(http.StatusOK, "optin", out)
@@ -292,7 +292,7 @@ func handleSubscriptionForm(c echo.Context) error {
 
 	return c.Render(http.StatusOK, tplMessage,
 		makeMsgTpl(app.i18n.T("public.subsConfirmedTitle"), "",
-			app.i18n.Ts2("public.subConfirmed")))
+			app.i18n.Ts("public.subConfirmed")))
 }
 
 // handleLinkRedirect redirects a link UUID to its original underlying link
@@ -316,13 +316,13 @@ func handleLinkRedirect(c echo.Context) error {
 		if pqErr, ok := err.(*pq.Error); ok && pqErr.Column == "link_id" {
 			return c.Render(http.StatusNotFound, tplMessage,
 				makeMsgTpl(app.i18n.T("public.errorTitle"), "",
-					app.i18n.Ts2("public.invalidLink")))
+					app.i18n.Ts("public.invalidLink")))
 		}
 
 		app.log.Printf("error fetching redirect link: %s", err)
 		return c.Render(http.StatusInternalServerError, tplMessage,
 			makeMsgTpl(app.i18n.T("public.errorTitle"), "",
-				app.i18n.Ts2("public.errorProcessingRequest")))
+				app.i18n.Ts("public.errorProcessingRequest")))
 	}
 
 	return c.Redirect(http.StatusTemporaryRedirect, url)
@@ -368,7 +368,7 @@ func handleSelfExportSubscriberData(c echo.Context) error {
 	if !app.constants.Privacy.AllowExport {
 		return c.Render(http.StatusBadRequest, tplMessage,
 			makeMsgTpl(app.i18n.T("public.errorTitle"), "",
-				app.i18n.Ts2("public.invalidFeature")))
+				app.i18n.Ts("public.invalidFeature")))
 	}
 
 	// Get the subscriber's data. A single query that gets the profile,
@@ -379,7 +379,7 @@ func handleSelfExportSubscriberData(c echo.Context) error {
 		app.log.Printf("error exporting subscriber data: %s", err)
 		return c.Render(http.StatusInternalServerError, tplMessage,
 			makeMsgTpl(app.i18n.T("public.errorTitle"), "",
-				app.i18n.Ts2("public.errorProcessingRequest")))
+				app.i18n.Ts("public.errorProcessingRequest")))
 	}
 
 	// Prepare the attachment e-mail.
@@ -388,7 +388,7 @@ func handleSelfExportSubscriberData(c echo.Context) error {
 		app.log.Printf("error compiling notification template '%s': %v", notifSubscriberData, err)
 		return c.Render(http.StatusInternalServerError, tplMessage,
 			makeMsgTpl(app.i18n.T("public.errorTitle"), "",
-				app.i18n.Ts2("public.errorProcessingRequest")))
+				app.i18n.Ts("public.errorProcessingRequest")))
 	}
 
 	// Send the data as a JSON attachment to the subscriber.
@@ -409,7 +409,7 @@ func handleSelfExportSubscriberData(c echo.Context) error {
 		app.log.Printf("error e-mailing subscriber profile: %s", err)
 		return c.Render(http.StatusInternalServerError, tplMessage,
 			makeMsgTpl(app.i18n.T("public.errorTitle"), "",
-				app.i18n.Ts2("public.errorProcessingRequest")))
+				app.i18n.Ts("public.errorProcessingRequest")))
 	}
 
 	return c.Render(http.StatusOK, tplMessage,
@@ -430,14 +430,14 @@ func handleWipeSubscriberData(c echo.Context) error {
 	if !app.constants.Privacy.AllowWipe {
 		return c.Render(http.StatusBadRequest, tplMessage,
 			makeMsgTpl(app.i18n.T("public.errorTitle"), "",
-				app.i18n.Ts2("public.invalidFeature")))
+				app.i18n.Ts("public.invalidFeature")))
 	}
 
 	if _, err := app.queries.DeleteSubscribers.Exec(nil, pq.StringArray{subUUID}); err != nil {
 		app.log.Printf("error wiping subscriber data: %s", err)
 		return c.Render(http.StatusInternalServerError, tplMessage,
 			makeMsgTpl(app.i18n.T("public.errorTitle"), "",
-				app.i18n.Ts2("public.errorProcessingRequest")))
+				app.i18n.Ts("public.errorProcessingRequest")))
 	}
 
 	return c.Render(http.StatusOK, tplMessage,

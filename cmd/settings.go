@@ -169,7 +169,7 @@ func handleUpdateSettings(c echo.Context) error {
 		name := reAlphaNum.ReplaceAllString(strings.ToLower(m.Name), "")
 		if _, ok := names[name]; ok {
 			return echo.NewHTTPError(http.StatusBadRequest,
-				app.i18n.Ts2("settings.duplicateMessengerName", "name", name))
+				app.i18n.Ts("settings.duplicateMessengerName", "name", name))
 		}
 		if len(name) == 0 {
 			return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("settings.invalidMessengerName"))
@@ -188,13 +188,13 @@ func handleUpdateSettings(c echo.Context) error {
 	b, err := json.Marshal(set)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError,
-			app.i18n.Ts2("settings.errorEncoding", "error", err.Error()))
+			app.i18n.Ts("settings.errorEncoding", "error", err.Error()))
 	}
 
 	// Update the settings in the DB.
 	if _, err := app.queries.UpdateSettings.Exec(b); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError,
-			app.i18n.Ts2("globals.messages.errorUpdating",
+			app.i18n.Ts("globals.messages.errorUpdating",
 				"name", "{globals.terms.settings}", "error", pqErrMsg(err)))
 	}
 
@@ -233,14 +233,14 @@ func getSettings(app *App) (settings, error) {
 
 	if err := app.queries.GetSettings.Get(&b); err != nil {
 		return out, echo.NewHTTPError(http.StatusInternalServerError,
-			app.i18n.Ts2("globals.messages.errorFetching",
+			app.i18n.Ts("globals.messages.errorFetching",
 				"name", "{globals.terms.settings}", "error", pqErrMsg(err)))
 	}
 
 	// Unmarshall the settings and filter out sensitive fields.
 	if err := json.Unmarshal([]byte(b), &out); err != nil {
 		return out, echo.NewHTTPError(http.StatusInternalServerError,
-			app.i18n.Ts2("settings.errorEncoding", "error", err.Error()))
+			app.i18n.Ts("settings.errorEncoding", "error", err.Error()))
 	}
 
 	return out, nil

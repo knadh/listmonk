@@ -128,14 +128,14 @@ func handleQuerySubscribers(c echo.Context) error {
 	if err != nil {
 		app.log.Printf("error preparing subscriber query: %v", err)
 		return echo.NewHTTPError(http.StatusBadRequest,
-			app.i18n.Ts2("subscribers.errorPreparingQuery", "error", pqErrMsg(err)))
+			app.i18n.Ts("subscribers.errorPreparingQuery", "error", pqErrMsg(err)))
 	}
 	defer tx.Rollback()
 
 	// Run the query. stmt is the raw SQL query.
 	if err := tx.Select(&out.Results, stmt, listIDs, pg.Offset, pg.Limit); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError,
-			app.i18n.Ts2("globals.messages.errorFetching",
+			app.i18n.Ts("globals.messages.errorFetching",
 				"name", "{globals.terms.subscribers}", "error", pqErrMsg(err)))
 	}
 
@@ -143,7 +143,7 @@ func handleQuerySubscribers(c echo.Context) error {
 	if err := out.Results.LoadLists(app.queries.GetSubscriberListsLazy); err != nil {
 		app.log.Printf("error fetching subscriber lists: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
-			app.i18n.Ts2("globals.messages.errorFetching",
+			app.i18n.Ts("globals.messages.errorFetching",
 				"name", "{globals.terms.subscribers}", "error", pqErrMsg(err)))
 	}
 
@@ -194,13 +194,13 @@ func handleExportSubscribers(c echo.Context) error {
 		if err != nil {
 			app.log.Printf("error preparing subscriber query: %v", err)
 			return echo.NewHTTPError(http.StatusBadRequest,
-				app.i18n.Ts2("subscribers.errorPreparingQuery", "error", pqErrMsg(err)))
+				app.i18n.Ts("subscribers.errorPreparingQuery", "error", pqErrMsg(err)))
 		}
 		defer tx.Rollback()
 
 		if _, err := tx.Query(stmt, nil, 0, 1); err != nil {
 			return echo.NewHTTPError(http.StatusBadRequest,
-				app.i18n.Ts2("subscribers.errorPreparingQuery", "error", pqErrMsg(err)))
+				app.i18n.Ts("subscribers.errorPreparingQuery", "error", pqErrMsg(err)))
 		}
 	}
 
@@ -208,7 +208,7 @@ func handleExportSubscribers(c echo.Context) error {
 	tx, err := db.Preparex(stmt)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest,
-			app.i18n.Ts2("subscribers.errorPreparingQuery", "error", pqErrMsg(err)))
+			app.i18n.Ts("subscribers.errorPreparingQuery", "error", pqErrMsg(err)))
 	}
 
 	// Run the query until all rows are exhausted.
@@ -231,7 +231,7 @@ loop:
 		var out []models.SubscriberExport
 		if err := tx.Select(&out, listIDs, id, app.constants.DBBatchSize); err != nil {
 			return echo.NewHTTPError(http.StatusInternalServerError,
-				app.i18n.Ts2("globals.messages.errorFetching",
+				app.i18n.Ts("globals.messages.errorFetching",
 					"name", "{globals.terms.subscribers}", "error", pqErrMsg(err)))
 		}
 		if len(out) == 0 {
@@ -309,7 +309,7 @@ func handleUpdateSubscriber(c echo.Context) error {
 	if err != nil {
 		app.log.Printf("error updating subscriber: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
-			app.i18n.Ts2("globals.messages.errorUpdating",
+			app.i18n.Ts("globals.messages.errorUpdating",
 				"name", "{globals.terms.subscriber}", "error", pqErrMsg(err)))
 	}
 
@@ -340,12 +340,12 @@ func handleSubscriberSendOptin(c echo.Context) error {
 	if err != nil {
 		app.log.Printf("error fetching subscriber: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
-			app.i18n.Ts2("globals.messages.errorFetching",
+			app.i18n.Ts("globals.messages.errorFetching",
 				"name", "{globals.terms.subscribers}", "error", pqErrMsg(err)))
 	}
 	if len(out) == 0 {
 		return echo.NewHTTPError(http.StatusBadRequest,
-			app.i18n.Ts2("globals.messages.notFound", "name", "{globals.terms.subscriber}"))
+			app.i18n.Ts("globals.messages.notFound", "name", "{globals.terms.subscriber}"))
 	}
 
 	if err := sendOptinConfirmation(out[0], nil, app); err != nil {
@@ -377,7 +377,7 @@ func handleBlocklistSubscribers(c echo.Context) error {
 		var req subQueryReq
 		if err := c.Bind(&req); err != nil {
 			return echo.NewHTTPError(http.StatusBadRequest,
-				app.i18n.Ts2("subscribers.errorInvalidIDs", "error", err.Error()))
+				app.i18n.Ts("subscribers.errorInvalidIDs", "error", err.Error()))
 		}
 		if len(req.SubscriberIDs) == 0 {
 			return echo.NewHTTPError(http.StatusBadRequest,
@@ -389,7 +389,7 @@ func handleBlocklistSubscribers(c echo.Context) error {
 	if _, err := app.queries.BlocklistSubscribers.Exec(IDs); err != nil {
 		app.log.Printf("error blocklisting subscribers: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
-			app.i18n.Ts2("subscribers.errorBlocklisting", "error", err.Error()))
+			app.i18n.Ts("subscribers.errorBlocklisting", "error", err.Error()))
 	}
 
 	return c.JSON(http.StatusOK, okResp{true})
@@ -417,7 +417,7 @@ func handleManageSubscriberLists(c echo.Context) error {
 	var req subQueryReq
 	if err := c.Bind(&req); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest,
-			app.i18n.Ts2("subscribers.errorInvalidIDs", "error", err.Error()))
+			app.i18n.Ts("subscribers.errorInvalidIDs", "error", err.Error()))
 	}
 	if len(req.SubscriberIDs) == 0 {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("subscribers.errorNoIDs"))
@@ -445,7 +445,7 @@ func handleManageSubscriberLists(c echo.Context) error {
 	if err != nil {
 		app.log.Printf("error updating subscriptions: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
-			app.i18n.Ts2("globals.messages.errorUpdating",
+			app.i18n.Ts("globals.messages.errorUpdating",
 				"name", "{globals.terms.subscribers}", "error", err.Error()))
 	}
 
@@ -473,11 +473,11 @@ func handleDeleteSubscribers(c echo.Context) error {
 		i, err := parseStringIDs(c.Request().URL.Query()["id"])
 		if err != nil {
 			return echo.NewHTTPError(http.StatusBadRequest,
-				app.i18n.Ts2("subscribers.errorInvalidIDs", "error", err.Error()))
+				app.i18n.Ts("subscribers.errorInvalidIDs", "error", err.Error()))
 		}
 		if len(i) == 0 {
 			return echo.NewHTTPError(http.StatusBadRequest,
-				app.i18n.Ts2("subscribers.errorNoIDs", "error", err.Error()))
+				app.i18n.Ts("subscribers.errorNoIDs", "error", err.Error()))
 		}
 		IDs = i
 	}
@@ -485,7 +485,7 @@ func handleDeleteSubscribers(c echo.Context) error {
 	if _, err := app.queries.DeleteSubscribers.Exec(IDs, nil); err != nil {
 		app.log.Printf("error deleting subscribers: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
-			app.i18n.Ts2("globals.messages.errorDeleting",
+			app.i18n.Ts("globals.messages.errorDeleting",
 				"name", "{globals.terms.subscribers}", "error", pqErrMsg(err)))
 	}
 
@@ -510,7 +510,7 @@ func handleDeleteSubscribersByQuery(c echo.Context) error {
 	if err != nil {
 		app.log.Printf("error deleting subscribers: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
-			app.i18n.Ts2("globals.messages.errorDeleting",
+			app.i18n.Ts("globals.messages.errorDeleting",
 				"name", "{globals.terms.subscribers}", "error", pqErrMsg(err)))
 	}
 
@@ -535,7 +535,7 @@ func handleBlocklistSubscribersByQuery(c echo.Context) error {
 	if err != nil {
 		app.log.Printf("error blocklisting subscribers: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
-			app.i18n.Ts2("subscribers.errorBlocklisting", "error", pqErrMsg(err)))
+			app.i18n.Ts("subscribers.errorBlocklisting", "error", pqErrMsg(err)))
 	}
 
 	return c.JSON(http.StatusOK, okResp{true})
@@ -575,7 +575,7 @@ func handleManageSubscriberListsByQuery(c echo.Context) error {
 	if err != nil {
 		app.log.Printf("error updating subscriptions: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
-			app.i18n.Ts2("globals.messages.errorUpdating",
+			app.i18n.Ts("globals.messages.errorUpdating",
 				"name", "{globals.terms.subscribers}", "error", pqErrMsg(err)))
 	}
 
@@ -603,7 +603,7 @@ func handleExportSubscriberData(c echo.Context) error {
 	if err != nil {
 		app.log.Printf("error exporting subscriber data: %s", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
-			app.i18n.Ts2("globals.messages.errorFetching",
+			app.i18n.Ts("globals.messages.errorFetching",
 				"name", "{globals.terms.subscribers}", "error", err.Error()))
 	}
 
@@ -636,7 +636,7 @@ func insertSubscriber(req subimporter.SubReq, app *App) (models.Subscriber, erro
 
 		app.log.Printf("error inserting subscriber: %v", err)
 		return req.Subscriber, echo.NewHTTPError(http.StatusInternalServerError,
-			app.i18n.Ts2("globals.messages.errorCreating",
+			app.i18n.Ts("globals.messages.errorCreating",
 				"name", "{globals.terms.subscriber}", "error", pqErrMsg(err)))
 	}
 
@@ -665,17 +665,17 @@ func getSubscriber(id int, app *App) (models.Subscriber, error) {
 	if err := app.queries.GetSubscriber.Select(&out, id, nil); err != nil {
 		app.log.Printf("error fetching subscriber: %v", err)
 		return models.Subscriber{}, echo.NewHTTPError(http.StatusInternalServerError,
-			app.i18n.Ts2("globals.messages.errorFetching",
+			app.i18n.Ts("globals.messages.errorFetching",
 				"name", "{globals.terms.subscriber}", "error", pqErrMsg(err)))
 	}
 	if len(out) == 0 {
 		return models.Subscriber{}, echo.NewHTTPError(http.StatusBadRequest,
-			app.i18n.Ts2("globals.messages.notFound", "name", "{globals.terms.subscriber}"))
+			app.i18n.Ts("globals.messages.notFound", "name", "{globals.terms.subscriber}"))
 	}
 	if err := out.LoadLists(app.queries.GetSubscriberListsLazy); err != nil {
 		app.log.Printf("error loading subscriber lists: %v", err)
 		return models.Subscriber{}, echo.NewHTTPError(http.StatusInternalServerError,
-			app.i18n.Ts2("globals.messages.errorFetching",
+			app.i18n.Ts("globals.messages.errorFetching",
 				"name", "{globals.terms.lists}", "error", pqErrMsg(err)))
 	}
 
