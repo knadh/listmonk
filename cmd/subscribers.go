@@ -136,7 +136,7 @@ func handleQuerySubscribers(c echo.Context) error {
 	if err := tx.Select(&out.Results, stmt, listIDs, pg.Offset, pg.Limit); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			app.i18n.Ts2("globals.messages.errorFetching",
-				"name", "globals.terms.subscribers", "error", pqErrMsg(err)))
+				"name", "{globals.terms.subscribers}", "error", pqErrMsg(err)))
 	}
 
 	// Lazy load lists for each subscriber.
@@ -144,7 +144,7 @@ func handleQuerySubscribers(c echo.Context) error {
 		app.log.Printf("error fetching subscriber lists: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			app.i18n.Ts2("globals.messages.errorFetching",
-				"name", "globals.terms.subscribers", "error", pqErrMsg(err)))
+				"name", "{globals.terms.subscribers}", "error", pqErrMsg(err)))
 	}
 
 	out.Query = query
@@ -232,7 +232,7 @@ loop:
 		if err := tx.Select(&out, listIDs, id, app.constants.DBBatchSize); err != nil {
 			return echo.NewHTTPError(http.StatusInternalServerError,
 				app.i18n.Ts2("globals.messages.errorFetching",
-					"name", "globals.terms.subscribers", "error", pqErrMsg(err)))
+					"name", "{globals.terms.subscribers}", "error", pqErrMsg(err)))
 		}
 		if len(out) == 0 {
 			break loop
@@ -341,7 +341,7 @@ func handleSubscriberSendOptin(c echo.Context) error {
 		app.log.Printf("error fetching subscriber: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			app.i18n.Ts2("globals.messages.errorFetching",
-				"name", "globals.terms.subscribers", "error", pqErrMsg(err)))
+				"name", "{globals.terms.subscribers}", "error", pqErrMsg(err)))
 	}
 	if len(out) == 0 {
 		return echo.NewHTTPError(http.StatusBadRequest,
@@ -604,7 +604,7 @@ func handleExportSubscriberData(c echo.Context) error {
 		app.log.Printf("error exporting subscriber data: %s", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			app.i18n.Ts2("globals.messages.errorFetching",
-				"name", "globals.terms.subscribers", "error", err.Error()))
+				"name", "{globals.terms.subscribers}", "error", err.Error()))
 	}
 
 	c.Response().Header().Set("Cache-Control", "no-cache")
@@ -666,7 +666,7 @@ func getSubscriber(id int, app *App) (models.Subscriber, error) {
 		app.log.Printf("error fetching subscriber: %v", err)
 		return models.Subscriber{}, echo.NewHTTPError(http.StatusInternalServerError,
 			app.i18n.Ts2("globals.messages.errorFetching",
-				"name", "globals.terms.subscriber", "error", pqErrMsg(err)))
+				"name", "{globals.terms.subscriber}", "error", pqErrMsg(err)))
 	}
 	if len(out) == 0 {
 		return models.Subscriber{}, echo.NewHTTPError(http.StatusBadRequest,
@@ -676,7 +676,7 @@ func getSubscriber(id int, app *App) (models.Subscriber, error) {
 		app.log.Printf("error loading subscriber lists: %v", err)
 		return models.Subscriber{}, echo.NewHTTPError(http.StatusInternalServerError,
 			app.i18n.Ts2("globals.messages.errorFetching",
-				"name", "globals.terms.lists", "error", pqErrMsg(err)))
+				"name", "{globals.terms.lists}", "error", pqErrMsg(err)))
 	}
 
 	return out[0], nil

@@ -51,7 +51,7 @@ func handleGetTemplates(c echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			app.i18n.Ts2("globals.messages.errorFetching",
-				"name", "globals.terms.templates", "error", pqErrMsg(err)))
+				"name", "{globals.terms.templates}", "error", pqErrMsg(err)))
 	}
 	if single && len(out) == 0 {
 		return echo.NewHTTPError(http.StatusBadRequest,
@@ -91,7 +91,7 @@ func handlePreviewTemplate(c echo.Context) error {
 		if err != nil {
 			return echo.NewHTTPError(http.StatusInternalServerError,
 				app.i18n.Ts2("globals.messages.errorFetching",
-					"name", "globals.terms.templates", "error", pqErrMsg(err)))
+					"name", "{globals.terms.templates}", "error", pqErrMsg(err)))
 		}
 
 		if len(tpls) == 0 {

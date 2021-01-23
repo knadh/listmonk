@@ -195,7 +195,7 @@ func handleUpdateSettings(c echo.Context) error {
 	if _, err := app.queries.UpdateSettings.Exec(b); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			app.i18n.Ts2("globals.messages.errorUpdating",
-				"name", "globals.terms.settings", "error", pqErrMsg(err)))
+				"name", "{globals.terms.settings}", "error", pqErrMsg(err)))
 	}
 
 	// If there are any active campaigns, don't do an auto reload and
@@ -234,7 +234,7 @@ func getSettings(app *App) (settings, error) {
 	if err := app.queries.GetSettings.Get(&b); err != nil {
 		return out, echo.NewHTTPError(http.StatusInternalServerError,
 			app.i18n.Ts2("globals.messages.errorFetching",
-				"name", "globals.terms.settings", "error", pqErrMsg(err)))
+				"name", "{globals.terms.settings}", "error", pqErrMsg(err)))
 	}
 
 	// Unmarshall the settings and filter out sensitive fields.
