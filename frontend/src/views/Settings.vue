@@ -92,6 +92,45 @@
                     name="app.max_send_errors" type="is-light"
                     placeholder="1999" min="0" max="100000" />
               </b-field>
+
+              <div>
+                <div class="columns">
+                  <div class="column is-6">
+                    <b-field :label="$t('settings.performance.slidingWindow')"
+                      :message="$t('settings.performance.slidingWindowHelp')">
+                      <b-switch v-model="form['app.message_sliding_window']"
+                          name="app.message_sliding_window" />
+                    </b-field>
+                  </div>
+
+                  <div class="column is-3"
+                    :class="{'disabled': !form['app.message_sliding_window']}">
+                    <b-field :label="$t('settings.performance.slidingWindowRate')"
+                      label-position="on-border"
+                      :message="$t('settings.performance.slidingWindowRateHelp')">
+
+                      <b-numberinput v-model="form['app.message_sliding_window_rate']"
+                        name="sliding_window_rate" type="is-light"
+                        controls-position="compact"
+                        :disabled="!form['app.message_sliding_window']"
+                        placeholder="25" min="1" max="10000000" />
+                    </b-field>
+                  </div>
+
+                  <div class="column is-3"
+                    :class="{'disabled': !form['app.message_sliding_window']}">
+                    <b-field :label="$t('settings.performance.slidingWindowDuration')"
+                      label-position="on-border"
+                      :message="$t('settings.performance.slidingWindowDurationHelp')">
+
+                      <b-input v-model="form['app.message_sliding_window_duration']"
+                        name="sliding_window_duration"
+                        :disabled="!form['app.message_sliding_window']"
+                        placeholder="1h" :pattern="regDuration" :maxlength="10" />
+                    </b-field>
+                  </div>
+                </div>
+              </div><!-- sliding window -->
             </div>
           </b-tab-item><!-- performance -->
 

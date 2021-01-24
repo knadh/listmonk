@@ -282,6 +282,14 @@
     "settings.performance.messageRate": "Message rate",
     "settings.performance.messageRateHelp": "Maximum number of messages to be sent out per second per worker in a second. If concurrency = 10 and message_rate = 10, then up to 10x10=100 messages may be pushed out every second. This, along with concurrency, should be tweaked to keep the net messages going out per second under the target message servers rate limits if any.",
     "settings.performance.name": "Performance",
+
+    "settings.performance.slidingWindow": "Enable sliding window limit",
+    "settings.performance.slidingWindowHelp": "Limit the total number of messages that are sent out in given period. On reaching this limit, messages are be held from sending until the time window clears.",
+    "settings.performance.slidingWindowDuration": "Duration",
+    "settings.performance.slidingWindowDurationHelp": "Duration of the sliding window period (m for minute, h for hour)",
+    "settings.performance.slidingWindowRate": "Max. messages",
+    "settings.performance.slidingWindowRateHelp": "Maximum number of messages to send within the window duration",
+
     "settings.privacy.allowBlocklist": "Allow blocklisting",
     "settings.privacy.allowBlocklistHelp": "Allow subscribers to unsubscribe from all mailing lists and mark themselves as blocklisted?",
     "settings.privacy.allowExport": "Allow exporting",

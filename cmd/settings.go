@@ -26,6 +26,10 @@ type settings struct {
 	AppMaxSendErrors int `json:"app.max_send_errors"`
 	AppMessageRate   int `json:"app.message_rate"`
 
+	AppMessageSlidingWindow         bool   `json:"app.message_sliding_window"`
+	AppMessageSlidingWindowDuration string `json:"app.message_sliding_window_duration"`
+	AppMessageSlidingWindowRate     int    `json:"app.message_sliding_window_rate"`
+
 	PrivacyIndividualTracking bool     `json:"privacy.individual_tracking"`
 	PrivacyUnsubHeader        bool     `json:"privacy.unsubscribe_header"`
 	PrivacyAllowBlocklist     bool     `json:"privacy.allow_blocklist"`
