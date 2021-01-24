@@ -52,7 +52,7 @@ dist: build build-frontend
 # in the .goreleaser post-build hook.
 .PHONY: pack-bin
 pack-bin:
-	stuffbin -a stuff -in $(bin) -out $(bin) ${STATIC}
+	stuffbin -a stuff -in ${BIN} -out ${BIN} ${STATIC}
 
 # Use goreleaser to do a dry run producing local builds.
 .PHONY: release-dry
