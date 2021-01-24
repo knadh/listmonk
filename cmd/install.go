@@ -96,15 +96,15 @@ func install(lastVer string, db *sqlx.DB, fs stuffbin.FileSystem, prompt bool) {
 	}
 
 	// Default template.
-	tplBody, err := ioutil.ReadFile("static/email-templates/default.tpl")
+	tplBody, err := fs.Get("/static/email-templates/default.tpl")
 	if err != nil {
-		tplBody = []byte(tplTag)
+		lo.Fatalf("error reading default e-mail template: %v", err)
 	}
 
 	var tplID int
 	if err := q.CreateTemplate.Get(&tplID,
 		"Default template",
-		string(tplBody),
+		string(tplBody.ReadBytes()),
 	); err != nil {
 		lo.Fatalf("error creating default template: %v", err)
 	}
