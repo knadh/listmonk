@@ -350,8 +350,8 @@
                             :message="$t('settings.smtp.tlsHelp')">
                             <b-switch v-model="item.tls_enabled" name="item.tls_enabled" />
                           </b-field>
-                          <b-field :label="$t('settings.smtp.tls')" expanded
-                            :message="$t('settings.smtp.tlsHelp')">
+                          <b-field :label="$t('settings.smtp.skipTLS')" expanded
+                            :message="$t('settings.smtp.skipTLSHelp')">
                             <b-switch v-model="item.tls_skip_verify"
                               :disabled="!item.tls_enabled" name="item.tls_skip_verify" />
                           </b-field>
