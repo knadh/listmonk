@@ -7,37 +7,43 @@ import App from './App.vue';
 import router from './router';
 import store from './store';
 import * as api from './api';
-import utils from './utils';
 import { models } from './constants';
+import Utils from './utils';
 
 // Internationalisation.
 Vue.use(VueI18n);
-
-// Create VueI18n instance with options
 const i18n = new VueI18n();
 
 Vue.use(Buefy, {});
 Vue.config.productionTip = false;
 
-// Custom global elements.
-Vue.prototype.$api = api;
-Vue.prototype.$utils = utils;
+// Globals.
+const ut = new Utils(i18n);
+Vue.mixin({
+  computed: {
+    $utils: () => ut,
+    $api: () => api,
+  },
 
-Vue.prototype.$reloadServerConfig = () => {
-  // Get the config.js <script> tag, remove it, and re-add it.
-  let s = document.querySelector('#server-config');
-  const url = s.getAttribute('src');
-  s.remove();
+  methods: {
+    $reloadServerConfig: () => {
+      // Get the config.js <script> tag, remove it, and re-add it.
+      let s = document.querySelector('#server-config');
+      const url = s.getAttribute('src');
+      s.remove();
 
-  s = document.createElement('script');
-  s.setAttribute('src', url);
-  s.setAttribute('id', 'server-config');
-  s.onload = () => {
-    store.commit('setModelResponse',
-      { model: models.serverConfig, data: humps.camelizeKeys(window.CONFIG) });
-  };
-  document.body.appendChild(s);
-};
+      s = document.createElement('script');
+      s.setAttribute('src', url);
+      s.setAttribute('id', 'server-config');
+      s.onload = () => {
+        store.commit('setModelResponse',
+          { model: models.serverConfig, data: humps.camelizeKeys(window.CONFIG) });
+      };
+      document.body.appendChild(s);
+    },
+  },
+});
+
 
 // window.CONFIG is loaded from /api/config.js directly in a <script> tag.
 if (window.CONFIG) {
