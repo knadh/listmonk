@@ -8,7 +8,7 @@
         <div>
           <div class="columns">
             <div class="column">
-              <b-field label="Mode">
+              <b-field :label="$t('import.mode')">
                 <div>
                   <b-radio v-model="form.mode" name="mode"
                     native-value="subscribe">{{ $t('import.subscribe') }}</b-radio>

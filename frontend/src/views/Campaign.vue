@@ -65,15 +65,15 @@
                   :placeholder="$t('campaigns.sendToLists')"
                 ></list-selector>
 
-                <b-field :label="$tc('terms.template')" label-position="on-border">
-                  <b-select :placeholder="$tc('terms.template')" v-model="form.templateId"
+                <b-field :label="$tc('globals.terms.template')" label-position="on-border">
+                  <b-select :placeholder="$tc('globals.terms.template')" v-model="form.templateId"
                     :disabled="!canEdit" required>
                     <option v-for="t in templates" :value="t.id" :key="t.id">{{ t.name }}</option>
                   </b-select>
                 </b-field>
 
-                <b-field :label="$tc('terms.messenger')" label-position="on-border">
-                  <b-select :placeholder="$tc('terms.messenger')" v-model="form.messenger"
+                <b-field :label="$tc('globals.terms.messenger')" label-position="on-border">
+                  <b-select :placeholder="$tc('globals.terms.messenger')" v-model="form.messenger"
                     :disabled="!canEdit" required>
                     <option v-for="m in serverConfig.messengers"
                       :value="m" :key="m">{{ m }}</option>
@@ -87,7 +87,7 @@
                 <hr />
 
                 <div class="columns">
-                  <div class="column is-2">
+                  <div class="column is-4">
                     <b-field :label="$t('campaigns.sendLater')">
                         <b-switch v-model="form.sendLater" :disabled="!canEdit" />
                     </b-field>
@@ -99,7 +99,7 @@
                       <b-datetimepicker
                         v-model="form.sendAtDate"
                         :disabled="!canEdit"
-                        :placeholder="$t('dateAndTime')"
+                        :placeholder="$t('campaigns.dateAndTime')"
                         icon="calendar-clock"
                         :timepicker="{ hourFormat: '24' }"
                         :datetime-formatter="formatDateTime"
@@ -137,7 +137,7 @@
         </section>
       </b-tab-item><!-- campaign -->
 
-      <b-tab-item label="Content" icon="text" :disabled="isNew">
+      <b-tab-item :label="$t('campaigns.content')" icon="text" :disabled="isNew">
         <section class="wrap">
           <editor
             v-model="form.content"

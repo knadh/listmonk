@@ -41,7 +41,7 @@
 
                   <b-menu-item :to="{name: 'forms'}" tag="router-link"
                     :active="activeItem.forms"
-                    icon="newspaper-variant-outline" label="Forms"></b-menu-item>
+                    icon="newspaper-variant-outline" :label="$t('menu.forms')"></b-menu-item>
                 </b-menu-item><!-- lists -->
 
                 <b-menu-item :expanded="activeGroup.subscribers"
@@ -54,7 +54,7 @@
 
                   <b-menu-item :to="{name: 'import'}" tag="router-link"
                     :active="activeItem.import"
-                    icon="file-upload-outline" label="Import"></b-menu-item>
+                    icon="file-upload-outline" :label="$t('menu.import')"></b-menu-item>
                 </b-menu-item><!-- subscribers -->
 
                 <b-menu-item :expanded="activeGroup.campaigns"

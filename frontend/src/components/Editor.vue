@@ -7,19 +7,19 @@
           <div>
             <b-radio v-model="form.radioFormat"
               @input="onChangeFormat" :disabled="disabled" name="format"
-              native-value="richtext">Rich text</b-radio>
+              native-value="richtext">{{ $t('campaigns.richText') }}</b-radio>
             <b-radio v-model="form.radioFormat"
               @input="onChangeFormat" :disabled="disabled" name="format"
-              native-value="html">Raw HTML</b-radio>
+              native-value="html">{{ $t('campaigns.rawHTML') }}</b-radio>
             <b-radio v-model="form.radioFormat"
               @input="onChangeFormat" :disabled="disabled" name="format"
-              native-value="plain">Plain text</b-radio>
+              native-value="plain">{{ $t('campaigns.plainText') }}</b-radio>
           </div>
         </b-field>
       </div>
       <div class="column is-6 has-text-right">
           <b-button @click="onTogglePreview" type="is-primary"
-            icon-left="file-find-outline">Preview</b-button>
+            icon-left="file-find-outline">{{ $t('campaigns.preview') }}</b-button>
       </div>
     </div>
 
@@ -31,7 +31,7 @@
       ref="quill"
       :options="options"
       :disabled="disabled"
-      placeholder="Content here"
+      :placeholder="$t('campaigns.contentHelp')"
       @change="onEditorChange($event)"
       @ready="onEditorReady($event)"
     />
@@ -142,7 +142,7 @@ export default {
 
       // Quill editor options.
       options: {
-        placeholder: 'Content here',
+        placeholder: this.$t('campaigns.contentHelp'),
         modules: {
           keyboard: {
             bindings: {
@@ -188,7 +188,7 @@ export default {
   methods: {
     onChangeFormat(format) {
       this.$utils.confirm(
-        'The content may lose some formatting. Are you sure?',
+        this.$t('campaigns.confirmSwitchFormat'),
         () => {
           this.form.format = format;
           this.onEditorChange();

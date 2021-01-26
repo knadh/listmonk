@@ -28,12 +28,14 @@
       :current-page="queryParams.page" :per-page="campaigns.perPage" :total="campaigns.total"
       hoverable backend-sorting @sort="onSort">
         <template slot-scope="props">
-            <b-table-column class="status" field="status" label="Status"
+            <b-table-column class="status" field="status" :label="$t('globals.fields.status')"
               width="10%" :id="props.row.id" sortable>
               <div>
                 <p>
                   <router-link :to="{ name: 'campaign', params: { 'id': props.row.id }}">
-                    <b-tag :class="props.row.status">{{ props.row.status }}</b-tag>
+                    <b-tag :class="props.row.status">
+                      {{ $t(`campaigns.status.${props.row.status}`) }}
+                    </b-tag>
                     <span class="spinner is-tiny" v-if="isRunning(props.row.id)">
                       <b-loading :is-full-page="false" active />
                     </span>
@@ -79,15 +81,15 @@
               width="19%" sortable>
               <div class="fields timestamps" :set="stats = getCampaignStats(props.row)">
                 <p>
-                  <label>Created</label>
+                  <label>{{ $t('globals.fields.createdAt') }}</label>
                   {{ $utils.niceDate(props.row.createdAt, true) }}
                 </p>
                 <p v-if="stats.startedAt">
-                  <label>Started</label>
+                  <label>{{ $t('campaigns.startedAt') }}</label>
                   {{ $utils.niceDate(stats.startedAt, true) }}
                 </p>
                 <p v-if="isDone(props.row)">
-                  <label>Ended</label>
+                  <label>{{ $t('campaigns.ended') }}</label>
                   {{ $utils.niceDate(stats.updatedAt, true) }}
                 </p>
                 <p v-if="stats.startedAt && stats.updatedAt"
@@ -98,7 +100,8 @@
               </div>
             </b-table-column>
 
-            <b-table-column field="stats" :class="props.row.status" label="Stats" width="18%">
+            <b-table-column field="stats" :class="props.row.status"
+              :label="$t('campaigns.stats')" width="18%">
               <div class="fields stats" :set="stats = getCampaignStats(props.row)">
                 <p>
                   <label>{{ $t('campaigns.views') }}</label>

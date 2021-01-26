@@ -161,14 +161,14 @@
               </b-field>
 
               <b-field :label="$t('settings.privacy.allowWipe')"
-                message="$t('settings.privacy.allowWipeHelp')">
+                :message="$t('settings.privacy.allowWipeHelp')">
                 <b-switch v-model="form['privacy.allow_wipe']"
                     name="privacy.allow_wipe" />
               </b-field>
             </div>
           </b-tab-item><!-- privacy -->
 
-          <b-tab-item label="Media uploads">
+          <b-tab-item :label="$t('settings.media.title')">
             <div class="items">
               <b-field :label="$t('settings.media.provider')" label-position="on-border">
                 <b-select v-model="form['upload.provider']" name="upload.provider">

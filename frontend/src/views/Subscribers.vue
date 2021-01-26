@@ -106,11 +106,11 @@
       hoverable checkable backend-sorting @sort="onSort">
         <template slot="top-left">
           <a href='' @click.prevent="exportSubscribers">
-            <b-icon icon="cloud-download-outline" size="is-small" /> Export
+            <b-icon icon="cloud-download-outline" size="is-small" /> {{ $t('subscribers.export') }}
           </a>
         </template>
         <template slot-scope="props">
-            <b-table-column field="status" label="Status" sortable>
+            <b-table-column field="status" :label="$t('globals.fields.status')" sortable>
               <a :href="`/subscribers/${props.row.id}`"
                 @click.prevent="showEditForm(props.row)">
                 <b-tag :class="props.row.status">
@@ -119,7 +119,7 @@
               </a>
             </b-table-column>
 
-            <b-table-column field="email" label="E-mail" sortable>
+            <b-table-column field="email" :label="$t('subscribers.email')" sortable>
               <a :href="`/subscribers/${props.row.id}`"
                 @click.prevent="showEditForm(props.row)">
                 {{ props.row.email }}
@@ -135,22 +135,22 @@
               </b-taglist>
             </b-table-column>
 
-            <b-table-column field="name" label="Name" sortable>
+            <b-table-column field="name" :label="$t('globals.fields.name')" sortable>
               <a :href="`/subscribers/${props.row.id}`"
                 @click.prevent="showEditForm(props.row)">
                 {{ props.row.name }}
               </a>
             </b-table-column>
 
-            <b-table-column field="lists" label="Lists" numeric centered>
+            <b-table-column field="lists" :label="$t('globals.terms.lists')" numeric centered>
               {{ listCount(props.row.lists) }}
             </b-table-column>
 
-            <b-table-column field="created_at" label="Created" sortable>
+            <b-table-column field="created_at" :label="$t('globals.fields.createdAt')" sortable>
                 {{ $utils.niceDate(props.row.createdAt) }}
             </b-table-column>
 
-            <b-table-column field="updated_at" label="Updated" sortable>
+            <b-table-column field="updated_at" :label="$t('globals.fields.updatedAt')" sortable>
                 {{ $utils.niceDate(props.row.updatedAt) }}
             </b-table-column>
 
@@ -338,7 +338,7 @@ export default Vue.extend({
 
     deleteSubscriber(sub) {
       this.$utils.confirm(
-        'Are you sure?',
+        null,
         () => {
           this.$api.deleteSubscriber(sub.id).then(() => {
             this.querySubscribers();
