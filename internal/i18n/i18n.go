@@ -43,6 +43,21 @@ func New(b []byte) (*I18n, error) {
 	}, nil
 }
 
+// Load loads a JSON language map into the instance overwriting
+// existing keys that conflict.
+func (i *I18n) Load(b []byte) error {
+	var l map[string]string
+	if err := json.Unmarshal(b, &l); err != nil {
+		return err
+	}
+
+	for k, v := range l {
+		i.langMap[k] = v
+	}
+
+	return nil
+}
+
 // Name returns the canonical name of the language.
 func (i *I18n) Name() string {
 	return i.name

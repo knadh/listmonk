@@ -257,16 +257,30 @@ func initConstants() *constants {
 }
 
 // initI18n initializes a new i18n instance with the selected language map
-// loaded from the filesystem.
+// loaded from the filesystem. English is a loaded first as the default map
+// and then the selected language is loaded on top of it so that if there are
+// missing translations in it, the default English translations show up.
 func initI18n(lang string, fs stuffbin.FileSystem) *i18n.I18n {
-	b, err := fs.Read(fmt.Sprintf("/i18n/%s.json", lang))
+	const def = "en"
+
+	b, err := fs.Read(fmt.Sprintf("/i18n/%s.json", def))
 	if err != nil {
-		lo.Fatalf("error loading i18n language file: %v", err)
+		lo.Fatalf("error reading default i18n language file: %s: %v", def, err)
 	}
 
+	// Initialize with the default language.
 	i, err := i18n.New(b)
 	if err != nil {
 		lo.Fatalf("error unmarshalling i18n language: %v", err)
+	}
+
+	// Load the selected language on top of it.
+	b, err = fs.Read(fmt.Sprintf("/i18n/%s.json", lang))
+	if err != nil {
+		lo.Fatalf("error reading i18n language file: %v", err)
+	}
+	if err := i.Load(b); err != nil {
+		lo.Fatalf("error loading i18n language file: %v", err)
 	}
 
 	return i
