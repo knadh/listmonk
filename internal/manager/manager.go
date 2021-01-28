@@ -348,6 +348,8 @@ func (m *Manager) Close() {
 // for campaigns to process and dispatches them to the manager.
 func (m *Manager) scanCampaigns(tick time.Duration) {
 	t := time.NewTicker(tick)
+	defer t.Stop()
+
 	for {
 		select {
 		// Periodically scan the data source for campaigns to process.
