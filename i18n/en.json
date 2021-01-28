@@ -311,7 +311,7 @@
     "settings.messengers.urlHelp": "Root URL of the Postback server.",
     "settings.messengers.username": "Username",
     "settings.performance.batchSize": "Batch size",
-    "settings.performance.batchSizeHelp": "The number of subscribers to pull from the databse in a single iteration. Each iteration pulls subscribers from the database, sends messages to them, and then moves on to the next iteration to pull the next batch. This should ideally be higher than the maximum achievable throughput (concurrency * message_rate).",
+    "settings.performance.batchSizeHelp": "The number of subscribers to pull from the database in a single iteration. Each iteration pulls subscribers from the database, sends messages to them, and then moves on to the next iteration to pull the next batch. This should ideally be higher than the maximum achievable throughput (concurrency * message_rate).",
     "settings.performance.concurrency": "Concurrency",
     "settings.performance.concurrencyHelp": "Maximum concurrent worker (threads) that will attempt to send messages simultaneously.",
     "settings.performance.maxErrThreshold": "Maximum error threshold",
