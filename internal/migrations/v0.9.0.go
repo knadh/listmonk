@@ -11,12 +11,15 @@ import (
 // V0_9_0 performs the DB migrations for v.0.9.0.
 func V0_9_0(db *sqlx.DB, fs stuffbin.FileSystem, ko *koanf.Koanf) error {
 	if _, err := db.Exec(`
-	INSERT INTO settings (key, value) VALUES
-		('app.lang', '"en"'),
-		('app.message_sliding_window', 'false'),
-		('app.message_sliding_window_duration', '"1h"'),
-		('app.message_sliding_window_rate', '10000')
-		ON CONFLICT DO NOTHING;
+		INSERT INTO settings (key, value) VALUES
+			('app.lang', '"en"'),
+			('app.message_sliding_window', 'false'),
+			('app.message_sliding_window_duration', '"1h"'),
+			('app.message_sliding_window_rate', '10000')
+			ON CONFLICT DO NOTHING;
+
+		-- Add alternate (plain text) body field on campaigns.
+		ALTER TABLE campaigns ADD COLUMN IF NOT EXISTS altbody TEXT NULL DEFAULT NULL;
 	`); err != nil {
 		return err
 	}

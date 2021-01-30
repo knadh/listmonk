@@ -224,6 +224,16 @@ section {
   }
 }
 
+.editor {
+  margin-bottom: 30px;  
+}
+  .plain-editor textarea {
+    height: 65vh;
+  }
+  .alt-body textarea {
+    height: 30vh;
+  }
+
 /* Table colors and padding */
 .main table {
   thead th {

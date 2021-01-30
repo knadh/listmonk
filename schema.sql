@@ -75,6 +75,7 @@ CREATE TABLE campaigns (
     subject          TEXT NOT NULL,
     from_email       TEXT NOT NULL,
     body             TEXT NOT NULL,
+    altbody          TEXT NULL,
     content_type     content_type NOT NULL DEFAULT 'richtext',
     send_at          TIMESTAMP WITH TIME ZONE,
     status           campaign_status NOT NULL DEFAULT 'draft',

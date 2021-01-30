@@ -37,6 +37,8 @@
     "campaigns.onlyPausedDraft": "Only paused campaigns and drafts can be started.",
     "campaigns.onlyScheduledAsDraft": "Only scheduled campaigns can be saved as drafts.",
     "campaigns.pause": "Pause",
+    "campaigns.addAltText": "Add alternate plain text message",
+    "campaigns.removeAltText": "Remove alternate plain text message",
     "campaigns.plainText": "Plain text",
     "campaigns.preview": "Preview",
     "campaigns.progress": "Progress",
