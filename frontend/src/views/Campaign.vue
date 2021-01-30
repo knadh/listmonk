@@ -138,16 +138,29 @@
       </b-tab-item><!-- campaign -->
 
       <b-tab-item :label="$t('campaigns.content')" icon="text" :disabled="isNew">
-        <section class="wrap">
-          <editor
-            v-model="form.content"
-            :id="data.id"
-            :title="data.name"
-            :contentType="data.contentType"
-            :body="data.body"
-            :disabled="!canEdit"
-          />
-        </section>
+        <editor
+          v-model="form.content"
+          :id="data.id"
+          :title="data.name"
+          :contentType="data.contentType"
+          :body="data.body"
+          :disabled="!canEdit"
+        />
+
+        <div v-if="canEdit && form.content.contentType !== 'plain'" class="alt-body">
+          <p class="is-size-6 has-text-grey has-text-right">
+            <a v-if="form.altbody === null" href="#" @click.prevent="addAltBody">
+              <b-icon icon="text" size="is-small" /> {{ $t('campaigns.addAltText') }}
+            </a>
+            <a v-else href="#" @click.prevent="$utils.confirm(null, removeAltBody)">
+              <b-icon icon="trash-can-outline" size="is-small" />
+              {{ $t('campaigns.removeAltText') }}
+            </a>
+          </p>
+          <br />
+          <b-input v-if="form.altbody !== null" v-model="form.altbody"
+            type="textarea" :disabled="!canEdit" />
+        </div>
       </b-tab-item><!-- content -->
     </b-tabs>
   </section>
@@ -157,6 +170,8 @@
 import Vue from 'vue';
 import { mapState } from 'vuex';
 import dayjs from 'dayjs';
+import htmlToPlainText from 'textversionjs';
+
 import ListSelector from '../components/ListSelector.vue';
 import Editor from '../components/Editor.vue';
 
@@ -187,6 +202,7 @@ export default Vue.extend({
         tags: [],
         sendAt: null,
         content: { contentType: 'richtext', body: '' },
+        altbody: null,
 
         // Parsed Date() version of send_at from the API.
         sendAtDate: null,
@@ -200,6 +216,22 @@ export default Vue.extend({
   methods: {
     formatDateTime(s) {
       return dayjs(s).format('YYYY-MM-DD HH:mm');
+    },
+
+    addAltBody() {
+      this.form.altbody = htmlToPlainText(this.form.content.body);
+    },
+
+    removeAltBody() {
+      this.form.altbody = null;
+    },
+
+    onSubmit() {
+      if (this.isNew) {
+        this.createCampaign();
+      } else {
+        this.updateCampaign();
+      }
     },
 
     getCampaign(id) {
@@ -233,6 +265,7 @@ export default Vue.extend({
         template_id: this.form.templateId,
         content_type: this.form.content.contentType,
         body: this.form.content.body,
+        altbody: this.form.content.contentType !== 'plain' ? this.form.altbody : null,
         subscribers: this.form.testEmails,
       };
 
@@ -240,14 +273,6 @@ export default Vue.extend({
         this.$utils.toast(this.$t('campaigns.testSent'));
       });
       return false;
-    },
-
-    onSubmit() {
-      if (this.isNew) {
-        this.createCampaign();
-      } else {
-        this.updateCampaign();
-      }
     },
 
     createCampaign() {
@@ -284,6 +309,7 @@ export default Vue.extend({
         template_id: this.form.templateId,
         content_type: this.form.content.contentType,
         body: this.form.content.body,
+        altbody: this.form.content.contentType !== 'plain' ? this.form.altbody : null,
       };
 
       let typMsg = 'globals.messages.updated';

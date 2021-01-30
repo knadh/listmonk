@@ -14,6 +14,7 @@ import (
 	"time"
 
 	"github.com/gofrs/uuid"
+	"github.com/jaytaylor/html2text"
 	"github.com/knadh/listmonk/internal/messenger"
 	"github.com/knadh/listmonk/internal/subimporter"
 	"github.com/knadh/listmonk/models"
@@ -149,7 +150,7 @@ func handleGetCampaigns(c echo.Context) error {
 	return c.JSON(http.StatusOK, okResp{out})
 }
 
-// handlePreviewTemplate renders the HTML preview of a campaign body.
+// handlePreviewCampaign renders the HTML preview of a campaign body.
 func handlePreviewCampaign(c echo.Context) error {
 	var (
 		app   = c.Get("app").(*App)
@@ -212,6 +213,17 @@ func handlePreviewCampaign(c echo.Context) error {
 	return c.HTML(http.StatusOK, string(m.Body()))
 }
 
+// handleCampainBodyToText converts an HTML campaign body to plaintext.
+func handleCampainBodyToText(c echo.Context) error {
+	out, err := html2text.FromString(c.FormValue("body"),
+		html2text.Options{PrettyTables: false})
+	if err != nil {
+		return err
+	}
+
+	return c.HTML(http.StatusOK, string(out))
+}
+
 // handleCreateCampaign handles campaign creation.
 // Newly created campaigns are always drafts.
 func handleCreateCampaign(c echo.Context) error {
@@ -256,6 +268,7 @@ func handleCreateCampaign(c echo.Context) error {
 		o.Subject,
 		o.FromEmail,
 		o.Body,
+		o.AltBody,
 		o.ContentType,
 		o.SendAt,
 		pq.StringArray(normalizeTags(o.Tags)),
@@ -309,8 +322,10 @@ func handleUpdateCampaign(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("campaigns.cantUpdate"))
 	}
 
-	// Incoming params.
-	var o campaignReq
+	// Read the incoming params into the existing campaign fields from the DB.
+	// This allows updating of values that have been sent where as fields
+	// that are not in the request retain the old values.
+	o := campaignReq{Campaign: cm}
 	if err := c.Bind(&o); err != nil {
 		return err
 	}
@@ -326,6 +341,7 @@ func handleUpdateCampaign(c echo.Context) error {
 		o.Subject,
 		o.FromEmail,
 		o.Body,
+		o.AltBody,
 		o.ContentType,
 		o.SendAt,
 		o.SendLater,
@@ -557,11 +573,12 @@ func handleTestCampaign(c echo.Context) error {
 				"name", "{globals.terms.campaign}", "error", pqErrMsg(err)))
 	}
 
-	// Override certain values in the DB with incoming values.
+	// Override certain values from the DB with incoming values.
 	camp.Name = req.Name
 	camp.Subject = req.Subject
 	camp.FromEmail = req.FromEmail
 	camp.Body = req.Body
+	camp.AltBody = req.AltBody
 	camp.Messenger = req.Messenger
 	camp.ContentType = req.ContentType
 	camp.TemplateID = req.TemplateID
@@ -601,6 +618,7 @@ func sendTestMessage(sub models.Subscriber, camp *models.Campaign, app *App) err
 		Subject:     m.Subject(),
 		ContentType: camp.ContentType,
 		Body:        m.Body(),
+		AltBody:     m.AltBody(),
 		Subscriber:  sub,
 		Campaign:    camp,
 	})

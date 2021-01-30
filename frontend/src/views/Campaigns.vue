@@ -354,6 +354,7 @@ export default Vue.extend({
         tags: c.tags,
         template_id: c.templateId,
         body: c.body,
+        altbody: c.altbody,
       };
       this.$api.createCampaign(data).then((d) => {
         this.$router.push({ name: 'campaign', params: { id: d.id } });

@@ -79,6 +79,7 @@ type CampaignMessage struct {
 	to       string
 	subject  string
 	body     []byte
+	altBody  []byte
 	unsubURL string
 }
 
@@ -265,6 +266,7 @@ func (m *Manager) messageWorker() {
 				Subject:     msg.subject,
 				ContentType: msg.Campaign.ContentType,
 				Body:        msg.body,
+				AltBody:     msg.altBody,
 				Subscriber:  msg.Subscriber,
 				Campaign:    msg.Campaign,
 			}
@@ -299,6 +301,7 @@ func (m *Manager) messageWorker() {
 				Subject:     msg.Subject,
 				ContentType: msg.ContentType,
 				Body:        msg.Body,
+				AltBody:     msg.AltBody,
 				Subscriber:  msg.Subscriber,
 				Campaign:    msg.Campaign,
 			})
@@ -616,10 +619,25 @@ func (m *CampaignMessage) Render() error {
 		out.Reset()
 	}
 
+	// Compile the main template.
 	if err := m.Campaign.Tpl.ExecuteTemplate(&out, models.BaseTpl, m); err != nil {
 		return err
 	}
 	m.body = out.Bytes()
+
+	// Is there an alt body?
+	if m.Campaign.ContentType != models.CampaignContentTypePlain && m.Campaign.AltBody.Valid {
+		if m.Campaign.AltBodyTpl != nil {
+			b := bytes.Buffer{}
+			if err := m.Campaign.AltBodyTpl.ExecuteTemplate(&b, models.ContentTpl, m); err != nil {
+				return err
+			}
+			m.altBody = b.Bytes()
+		} else {
+			m.altBody = []byte(m.Campaign.AltBody.String)
+		}
+	}
+
 	return nil
 }
 
@@ -632,5 +650,12 @@ func (m *CampaignMessage) Subject() string {
 func (m *CampaignMessage) Body() []byte {
 	out := make([]byte, len(m.body))
 	copy(out, m.body)
+	return out
+}
+
+// AltBody returns a copy of the message's alt body.
+func (m *CampaignMessage) AltBody() []byte {
+	out := make([]byte, len(m.altBody))
+	copy(out, m.altBody)
 	return out
 }
