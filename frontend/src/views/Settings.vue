@@ -558,6 +558,11 @@ export default Vue.extend({
         tls_enabled: true,
         tls_skip_verify: false,
       });
+
+      this.$nextTick(() => {
+        const items = document.querySelectorAll('.mail-servers input[name="host"]');
+        items[items.length - 1].focus();
+      });
     },
 
     removeSMTP(i) {
@@ -580,6 +585,11 @@ export default Vue.extend({
         max_conns: 25,
         max_msg_retries: 2,
         timeout: '5s',
+      });
+
+      this.$nextTick(() => {
+        const items = document.querySelectorAll('.messengers input[name="name"]');
+        items[items.length - 1].focus();
       });
     },
 
