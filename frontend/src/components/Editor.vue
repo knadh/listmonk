@@ -244,6 +244,8 @@ export default {
         this.form.body = b;
         this.$emit('input', { contentType: this.form.format, body: this.form.body });
       });
+
+      this.isReady = true;
     },
 
     onTogglePreview() {
@@ -288,6 +290,7 @@ export default {
 
     body(b) {
       this.form.body = b;
+      this.onEditorChange();
     },
 
     htmlFormat(f) {
