@@ -244,7 +244,7 @@ func handleOptinPage(c echo.Context) error {
 		}
 
 		return c.Render(http.StatusOK, tplMessage,
-			makeMsgTpl(app.i18n.T("public.subsConfirmedTitle"), "",
+			makeMsgTpl(app.i18n.T("public.subConfirmedTitle"), "",
 				app.i18n.Ts("public.subConfirmed")))
 	}
 
@@ -291,7 +291,7 @@ func handleSubscriptionForm(c echo.Context) error {
 	}
 
 	return c.Render(http.StatusOK, tplMessage,
-		makeMsgTpl(app.i18n.T("public.subsConfirmedTitle"), "",
+		makeMsgTpl(app.i18n.T("public.subConfirmedTitle"), "",
 			app.i18n.Ts("public.subConfirmed")))
 }
 

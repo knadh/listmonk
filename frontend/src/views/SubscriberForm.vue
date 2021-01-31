@@ -23,9 +23,9 @@
             :placeholder="$t('globals.fields.name')"></b-input>
         </b-field>
 
-        <b-field :label="Status" label-position="on-border"
+        <b-field :label="$t('globals.fields.status')" label-position="on-border"
           :message="$t('subscribers.blocklistedHelp')">
-          <b-select v-model="form.status" placeholder="Status" required>
+          <b-select v-model="form.status" :placeholder="$t('globals.fields.status')" required>
             <option value="enabled">{{ $t('subscribers.status.enabled') }}</option>
             <option value="blocklisted">{{ $t('subscribers.status.blocklisted') }}</option>
           </b-select>
