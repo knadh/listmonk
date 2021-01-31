@@ -310,6 +310,9 @@ UPDATE subscriber_lists SET status='unsubscribed', updated_at=NOW()
 
 -- lists
 -- name: get-lists
+SELECT * FROM lists WHERE (CASE WHEN $1 = '' THEN 1=1 ELSE type=$1::list_type END) ORDER by name DESC;
+
+-- name: query-lists
 WITH ls AS (
 	SELECT COUNT(*) OVER () AS total, lists.* FROM lists
     WHERE ($1 = 0 OR id = $1) OFFSET $2 LIMIT $3

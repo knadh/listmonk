@@ -68,6 +68,11 @@ type msgTpl struct {
 	Message      string
 }
 
+type subFormTpl struct {
+	publicTpl
+	Lists []models.List
+}
+
 type subForm struct {
 	subimporter.SubReq
 	SubListUUIDs []string `form:"l"`
@@ -251,6 +256,40 @@ func handleOptinPage(c echo.Context) error {
 	return c.Render(http.StatusOK, "optin", out)
 }
 
+// handleSubscriptionFormPage handles subscription requests coming from public
+// HTML subscription forms.
+func handleSubscriptionFormPage(c echo.Context) error {
+	var (
+		app = c.Get("app").(*App)
+	)
+
+	if !app.constants.EnablePublicSubPage {
+		return c.Render(http.StatusNotFound, tplMessage,
+			makeMsgTpl(app.i18n.T("public.errorTitle"), "",
+				app.i18n.Ts("public.invalidFeature")))
+	}
+
+	// Get all public lists.
+	var lists []models.List
+	if err := app.queries.GetLists.Select(&lists, models.ListTypePublic); err != nil {
+		app.log.Printf("error fetching public lists for form: %s", pqErrMsg(err))
+		return c.Render(http.StatusInternalServerError, tplMessage,
+			makeMsgTpl(app.i18n.T("public.errorTitle"), "",
+				app.i18n.Ts("public.errorFetchingLists")))
+	}
+
+	if len(lists) == 0 {
+		return c.Render(http.StatusInternalServerError, tplMessage,
+			makeMsgTpl(app.i18n.T("public.errorTitle"), "",
+				app.i18n.Ts("public.noListsAvailable")))
+	}
+
+	out := subFormTpl{}
+	out.Title = app.i18n.T("public.sub")
+	out.Lists = lists
+	return c.Render(http.StatusOK, "subscription-form", out)
+}
+
 // handleSubscriptionForm handles subscription requests coming from public
 // HTML subscription forms.
 func handleSubscriptionForm(c echo.Context) error {
@@ -267,7 +306,7 @@ func handleSubscriptionForm(c echo.Context) error {
 	if len(req.SubListUUIDs) == 0 {
 		return c.Render(http.StatusBadRequest, tplMessage,
 			makeMsgTpl(app.i18n.T("public.errorTitle"), "",
-				app.i18n.T("globals.messages.invalidUUID")))
+				app.i18n.T("public.noListsSelected")))
 	}
 
 	// If there's no name, use the name bit from the e-mail.
@@ -291,7 +330,7 @@ func handleSubscriptionForm(c echo.Context) error {
 	}
 
 	return c.Render(http.StatusOK, tplMessage,
-		makeMsgTpl(app.i18n.T("public.subConfirmedTitle"), "",
+		makeMsgTpl(app.i18n.T("public.subTitle"), "",
 			app.i18n.Ts("public.subConfirmed")))
 }
 

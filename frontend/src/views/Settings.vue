@@ -51,6 +51,12 @@
                   placeholder='you@yoursite.com' />
               </b-field>
 
+              <b-field :label="$t('settings.general.enablePublicSubPage')"
+                :message="$t('settings.general.enablePublicSubPageHelp')">
+                <b-switch v-model="form['app.enable_public_subscription_page']"
+                    name="app.enable_public_subscription_page" />
+              </b-field>
+
               <hr />
               <b-field :label="$t('settings.general.language')" label-position="on-border">
                 <b-select v-model="form['app.lang']" name="app.lang">
@@ -149,7 +155,7 @@
               </b-field>
 
               <b-field :label="$t('settings.privacy.allowBlocklist')"
-                :message="$t('settings.privacy.allowBlocklist')">
+                :message="$t('settings.privacy.allowBlocklistHelp')">
                 <b-switch v-model="form['privacy.allow_blocklist']"
                     name="privacy.allow_blocklist" />
               </b-field>

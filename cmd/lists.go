@@ -50,7 +50,7 @@ func handleGetLists(c echo.Context) error {
 		order = sortAsc
 	}
 
-	if err := db.Select(&out.Results, fmt.Sprintf(app.queries.GetLists, orderBy, order), listID, pg.Offset, pg.Limit); err != nil {
+	if err := db.Select(&out.Results, fmt.Sprintf(app.queries.QueryLists, orderBy, order), listID, pg.Offset, pg.Limit); err != nil {
 		app.log.Printf("error fetching lists: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			app.i18n.Ts("globals.messages.errorFetching",

@@ -44,7 +44,8 @@ type Queries struct {
 	UnsubscribeSubscribersFromListsByQuery string `query:"unsubscribe-subscribers-from-lists-by-query"`
 
 	CreateList      *sqlx.Stmt `query:"create-list"`
-	GetLists        string     `query:"get-lists"`
+	QueryLists      string     `query:"query-lists"`
+	GetLists        *sqlx.Stmt `query:"get-lists"`
 	GetListsByOptin *sqlx.Stmt `query:"get-lists-by-optin"`
 	UpdateList      *sqlx.Stmt `query:"update-list"`
 	UpdateListsDate *sqlx.Stmt `query:"update-lists-date"`

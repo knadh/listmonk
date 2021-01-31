@@ -40,14 +40,15 @@ const (
 
 // constants contains static, constant config values required by the app.
 type constants struct {
-	RootURL      string   `koanf:"root_url"`
-	LogoURL      string   `koanf:"logo_url"`
-	FaviconURL   string   `koanf:"favicon_url"`
-	FromEmail    string   `koanf:"from_email"`
-	NotifyEmails []string `koanf:"notify_emails"`
-	Lang         string   `koanf:"lang"`
-	DBBatchSize  int      `koanf:"batch_size"`
-	Privacy      struct {
+	RootURL             string   `koanf:"root_url"`
+	LogoURL             string   `koanf:"logo_url"`
+	FaviconURL          string   `koanf:"favicon_url"`
+	FromEmail           string   `koanf:"from_email"`
+	NotifyEmails        []string `koanf:"notify_emails"`
+	EnablePublicSubPage bool     `koanf:"enable_public_subscription_page"`
+	Lang                string   `koanf:"lang"`
+	DBBatchSize         int      `koanf:"batch_size"`
+	Privacy             struct {
 		IndividualTracking bool            `koanf:"individual_tracking"`
 		AllowBlocklist     bool            `koanf:"allow_blocklist"`
 		AllowExport        bool            `koanf:"allow_export"`

@@ -126,6 +126,7 @@ func registerHTTPHandlers(e *echo.Echo) {
 	g.GET("/settings/logs", handleIndexPage)
 
 	// Public subscriber facing views.
+	e.GET("/subscription/form", handleSubscriptionFormPage)
 	e.POST("/subscription/form", handleSubscriptionForm)
 	e.GET("/subscription/:campUUID/:subUUID", validateUUID(subscriberExists(handleSubscriptionPage),
 		"campUUID", "subUUID"))

@@ -14,14 +14,15 @@ import (
 )
 
 type configScript struct {
-	RootURL       string          `json:"rootURL"`
-	FromEmail     string          `json:"fromEmail"`
-	Messengers    []string        `json:"messengers"`
-	MediaProvider string          `json:"mediaProvider"`
-	NeedsRestart  bool            `json:"needsRestart"`
-	Update        *AppUpdate      `json:"update"`
-	Langs         []i18nLang      `json:"langs"`
-	Lang          json.RawMessage `json:"lang"`
+	RootURL             string          `json:"rootURL"`
+	FromEmail           string          `json:"fromEmail"`
+	Messengers          []string        `json:"messengers"`
+	MediaProvider       string          `json:"mediaProvider"`
+	NeedsRestart        bool            `json:"needsRestart"`
+	Update              *AppUpdate      `json:"update"`
+	Langs               []i18nLang      `json:"langs"`
+	EnablePublicSubPage bool            `json:"enablePublicSubscriptionPage"`
+	Lang                json.RawMessage `json:"lang"`
 }
 
 // handleGetConfigScript returns general configuration as a Javascript
@@ -30,9 +31,10 @@ func handleGetConfigScript(c echo.Context) error {
 	var (
 		app = c.Get("app").(*App)
 		out = configScript{
-			RootURL:       app.constants.RootURL,
-			FromEmail:     app.constants.FromEmail,
-			MediaProvider: app.constants.MediaProvider,
+			RootURL:             app.constants.RootURL,
+			FromEmail:           app.constants.FromEmail,
+			MediaProvider:       app.constants.MediaProvider,
+			EnablePublicSubPage: app.constants.EnablePublicSubPage,
 		}
 	)
 

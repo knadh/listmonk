@@ -177,6 +177,7 @@ INSERT INTO settings (key, value) VALUES
     ('app.message_sliding_window', 'false'),
     ('app.message_sliding_window_duration', '"1h"'),
     ('app.message_sliding_window_rate', '10000'),
+    ('app.enable_public_subscription_page', 'true'),
     ('app.notify_emails', '["admin1@mysite.com", "admin2@mysite.com"]'),
     ('app.lang', '"en"'),
     ('privacy.individual_tracking', 'false'),

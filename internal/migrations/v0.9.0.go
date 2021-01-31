@@ -15,7 +15,8 @@ func V0_9_0(db *sqlx.DB, fs stuffbin.FileSystem, ko *koanf.Koanf) error {
 			('app.lang', '"en"'),
 			('app.message_sliding_window', 'false'),
 			('app.message_sliding_window_duration', '"1h"'),
-			('app.message_sliding_window_rate', '10000')
+			('app.message_sliding_window_rate', '10000'),
+			('app.enable_public_subscription_page', 'true')
 			ON CONFLICT DO NOTHING;
 
 		-- Add alternate (plain text) body field on campaigns.
