@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"encoding/csv"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -67,6 +68,8 @@ var (
 	}
 
 	subQuerySortFields = []string{"email", "name", "created_at", "updated_at"}
+
+	errSubscriberExists = errors.New("subscriber already exists")
 )
 
 // handleGetSubscriber handles the retrieval of a single subscriber by ID.
@@ -272,6 +275,10 @@ func handleCreateSubscriber(c echo.Context) error {
 	// Insert the subscriber into the DB.
 	sub, err := insertSubscriber(req, app)
 	if err != nil {
+		if err == errSubscriberExists {
+			return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("subscribers.emailExists"))
+		}
+
 		return err
 	}
 
@@ -630,8 +637,7 @@ func insertSubscriber(req subimporter.SubReq, app *App) (models.Subscriber, erro
 		req.ListUUIDs)
 	if err != nil {
 		if pqErr, ok := err.(*pq.Error); ok && pqErr.Constraint == "subscribers_email_key" {
-			return req.Subscriber,
-				echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("subscribers.emailExists"))
+			return req.Subscriber, errSubscriberExists
 		}
 
 		app.log.Printf("error inserting subscriber: %v", err)

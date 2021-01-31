@@ -285,7 +285,7 @@ func handleSubscriptionForm(c echo.Context) error {
 	// Insert the subscriber into the DB.
 	req.Status = models.SubscriberStatusEnabled
 	req.ListUUIDs = pq.StringArray(req.SubListUUIDs)
-	if _, err := insertSubscriber(req.SubReq, app); err != nil {
+	if _, err := insertSubscriber(req.SubReq, app); err != nil && err != errSubscriberExists {
 		return c.Render(http.StatusInternalServerError, tplMessage,
 			makeMsgTpl(app.i18n.T("public.errorTitle"), "", fmt.Sprintf("%s", err.(*echo.HTTPError).Message)))
 	}
