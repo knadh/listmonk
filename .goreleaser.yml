@@ -23,7 +23,7 @@ builds:
 
     hooks:
       # stuff executables with static assets.
-      post: make pack-bin bin={{ .Path }}
+      post: make pack-bin BIN={{ .Path }}
 
 archives:
   - format: tar.gz
