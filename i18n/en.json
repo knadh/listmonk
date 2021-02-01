@@ -280,7 +280,7 @@
     "settings.general.faviconURL": "Favicon URL",
     "settings.general.faviconURLHelp": "(Optional) full URL to the static favicon to be displayed on user facing view such as the unsubscription page.",
     "settings.general.fromEmail": "Default `from` email",
-    "settings.general.fromEmailHelp": "(Optional) full URL to the static logo to be displayed on user facing view such as the unsubscription page.",
+    "settings.general.fromEmailHelp": "Default `from` e-mail to show on outgoing campaign e-mails. This can be changed per campaign.",
     "settings.general.language": "Language",
     "settings.general.logoURL": "Root URL",
     "settings.general.logoURLHelp": "(Optional) full URL to the static logo to be displayed on user facing view such as the unsubscription page.",
