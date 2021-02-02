@@ -83,7 +83,7 @@
     "email.optin.privateList": "Lista privada",
     "email.status.campaignReason": "Motivo",
     "email.status.campaignSent": "Enviada",
-    "email.status.campaignTitle": "Atualização de campanha",
+    "email.status.campaignUpdateTitle": "Atualização de campanha",
     "email.status.importFile": "Ficheiro",
     "email.status.importRecords": "Registos",
     "email.status.importTitle": "Importar atualização",

@@ -83,7 +83,7 @@
     "email.optin.privateList": "Private list",
     "email.status.campaignReason": "Reason",
     "email.status.campaignSent": "Sent",
-    "email.status.campaignTitle": "Campaign update",
+    "email.status.campaignUpdateTitle": "Campaign update",
     "email.status.importFile": "File",
     "email.status.importRecords": "Records",
     "email.status.importTitle": "Import update",
