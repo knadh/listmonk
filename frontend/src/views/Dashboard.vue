@@ -14,13 +14,13 @@
               <b-loading v-if="isCountsLoading" active :is-full-page="false" />
               <article class="tile is-child notification">
                 <div class="columns is-mobile">
-                  <div class="column is-4">
+                  <div class="column is-6">
                     <p class="title">{{ $utils.niceNumber(counts.lists.total) }}</p>
                     <p class="is-size-6 has-text-grey">
                       {{ $tc('globals.terms.list', counts.lists.total) }}
                     </p>
                   </div>
-                  <div class="column is-8">
+                  <div class="column is-6">
                     <ul class="no is-size-7 has-text-grey">
                       <li>
                         <label>{{ $utils.niceNumber(counts.lists.public) }}</label>
@@ -45,13 +45,13 @@
 
               <article class="tile is-child notification">
                 <div class="columns is-mobile">
-                  <div class="column is-4">
+                  <div class="column is-6">
                     <p class="title">{{ $utils.niceNumber(counts.campaigns.total) }}</p>
                     <p class="is-size-6 has-text-grey">
                       {{ $tc('globals.terms.campaign', counts.campaigns.total) }}
                     </p>
                   </div>
-                  <div class="column is-8">
+                  <div class="column is-6">
                     <ul class="no is-size-7 has-text-grey">
                       <li v-for="(num, status) in counts.campaigns.byStatus" :key="status">
                         <label>{{ num }}</label> {{ status }}
@@ -66,14 +66,14 @@
               <b-loading v-if="isCountsLoading" active :is-full-page="false" />
               <article class="tile is-child notification">
                 <div class="columns is-mobile">
-                  <div class="column is-4">
+                  <div class="column is-6">
                     <p class="title">{{ $utils.niceNumber(counts.subscribers.total) }}</p>
                     <p class="is-size-6 has-text-grey">
                       {{ $tc('globals.terms.subscriber', counts.subscribers.total) }}
                     </p>
                   </div>
 
-                  <div class="column is-8">
+                  <div class="column is-6">
                     <ul class="no is-size-7 has-text-grey">
                       <li>
                         <label>{{ $utils.niceNumber(counts.subscribers.blocklisted) }}</label>
