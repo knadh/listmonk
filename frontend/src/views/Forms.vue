@@ -2,7 +2,13 @@
   <section class="forms content relative">
     <h1 class="title is-4">{{ $t('forms.title') }}</h1>
     <hr />
+
     <b-loading v-if="loading.lists" :active="loading.lists" :is-full-page="false" />
+    <p v-else-if="publicLists.length === 0">
+      {{ $t('forms.noPublicLists') }}
+    </p>
+
+
     <div class="columns" v-else-if="publicLists.length > 0">
       <div class="column is-4">
         <h4>{{ $t('forms.publicLists') }}</h4>
