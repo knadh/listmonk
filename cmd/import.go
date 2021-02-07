@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -27,30 +26,28 @@ func handleImportSubscribers(c echo.Context) error {
 
 	// Is an import already running?
 	if app.importer.GetStats().Status == subimporter.StatusImporting {
-		return echo.NewHTTPError(http.StatusBadRequest,
-			"An import is already running. Wait for it to finish or stop it before trying again.")
+		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("import.alreadyRunning"))
 	}
 
 	// Unmarsal the JSON params.
 	var r reqImport
 	if err := json.Unmarshal([]byte(c.FormValue("params")), &r); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest,
-			fmt.Sprintf("Invalid `params` field: %v", err))
+			app.i18n.Ts("import.invalidParams", "error", err.Error()))
 	}
 
 	if r.Mode != subimporter.ModeSubscribe && r.Mode != subimporter.ModeBlocklist {
-		return echo.NewHTTPError(http.StatusBadRequest, "Invalid `mode`")
+		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("import.invalidMode"))
 	}
 
 	if len(r.Delim) != 1 {
-		return echo.NewHTTPError(http.StatusBadRequest,
-			"`delim` should be a single character")
+		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("import.invalidDelim"))
 	}
 
 	file, err := c.FormFile("file")
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest,
-			fmt.Sprintf("Invalid `file`: %v", err))
+			app.i18n.Ts("import.invalidFile", "error", err.Error()))
 	}
 
 	src, err := file.Open()
@@ -62,20 +59,20 @@ func handleImportSubscribers(c echo.Context) error {
 	out, err := ioutil.TempFile("", "listmonk")
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError,
-			fmt.Sprintf("Error copying uploaded file: %v", err))
+			app.i18n.Ts("import.errorCopyingFile", "error", err.Error()))
 	}
 	defer out.Close()
 
 	if _, err = io.Copy(out, src); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError,
-			fmt.Sprintf("Error copying uploaded file: %v", err))
+			app.i18n.Ts("import.errorCopyingFile", "error", err.Error()))
 	}
 
 	// Start the importer session.
 	impSess, err := app.importer.NewSession(file.Filename, r.Mode, r.Overwrite, r.ListIDs)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest,
-			fmt.Sprintf("Error starting import session: %v", err))
+		return echo.NewHTTPError(http.StatusInternalServerError,
+			app.i18n.Ts("import.errorStarting", "error", err.Error()))
 	}
 	go impSess.Start()
 
@@ -91,7 +88,7 @@ func handleImportSubscribers(c echo.Context) error {
 		dir, files, err := impSess.ExtractZIP(out.Name(), 1)
 		if err != nil {
 			return echo.NewHTTPError(http.StatusInternalServerError,
-				fmt.Sprintf("Error processing ZIP file: %v", err))
+				app.i18n.Ts("import.errorProcessingZIP", "error", err.Error()))
 		}
 		go impSess.LoadCSV(dir+"/"+files[0], rune(r.Delim[0]))
 	}

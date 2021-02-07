@@ -12,9 +12,6 @@ import (
 )
 
 var (
-
-	// This replaces all special characters
-	tagRegexp       = regexp.MustCompile(`[^a-z0-9\-\s]`)
 	tagRegexpSpaces = regexp.MustCompile(`[\s]+`)
 )
 
@@ -62,14 +59,12 @@ func pqErrMsg(err error) string {
 // lowercasing and removing all special characters except for dashes.
 func normalizeTags(tags []string) []string {
 	var (
-		out   []string
-		space = []byte(" ")
-		dash  = []byte("-")
+		out  []string
+		dash = []byte("-")
 	)
 
 	for _, t := range tags {
-		rep := bytes.TrimSpace(tagRegexp.ReplaceAll(bytes.ToLower([]byte(t)), space))
-		rep = tagRegexpSpaces.ReplaceAll(rep, dash)
+		rep := tagRegexpSpaces.ReplaceAll(bytes.TrimSpace([]byte(t)), dash)
 
 		if len(rep) > 0 {
 			out = append(out, string(rep))

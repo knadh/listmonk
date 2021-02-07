@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"regexp"
 	"strings"
@@ -15,15 +14,22 @@ import (
 )
 
 type settings struct {
-	AppRootURL       string   `json:"app.root_url"`
-	AppLogoURL       string   `json:"app.logo_url"`
-	AppFaviconURL    string   `json:"app.favicon_url"`
-	AppFromEmail     string   `json:"app.from_email"`
-	AppNotifyEmails  []string `json:"app.notify_emails"`
-	AppBatchSize     int      `json:"app.batch_size"`
-	AppConcurrency   int      `json:"app.concurrency"`
-	AppMaxSendErrors int      `json:"app.max_send_errors"`
-	AppMessageRate   int      `json:"app.message_rate"`
+	AppRootURL          string   `json:"app.root_url"`
+	AppLogoURL          string   `json:"app.logo_url"`
+	AppFaviconURL       string   `json:"app.favicon_url"`
+	AppFromEmail        string   `json:"app.from_email"`
+	AppNotifyEmails     []string `json:"app.notify_emails"`
+	EnablePublicSubPage bool     `json:"app.enable_public_subscription_page"`
+	AppLang             string   `json:"app.lang"`
+
+	AppBatchSize     int `json:"app.batch_size"`
+	AppConcurrency   int `json:"app.concurrency"`
+	AppMaxSendErrors int `json:"app.max_send_errors"`
+	AppMessageRate   int `json:"app.message_rate"`
+
+	AppMessageSlidingWindow         bool   `json:"app.message_sliding_window"`
+	AppMessageSlidingWindowDuration string `json:"app.message_sliding_window_duration"`
+	AppMessageSlidingWindowRate     int    `json:"app.message_sliding_window_rate"`
 
 	PrivacyIndividualTracking bool     `json:"privacy.individual_tracking"`
 	PrivacyUnsubHeader        bool     `json:"privacy.unsubscribe_header"`
@@ -144,8 +150,7 @@ func handleUpdateSettings(c echo.Context) error {
 		}
 	}
 	if !has {
-		return echo.NewHTTPError(http.StatusBadRequest,
-			"At least one SMTP block should be enabled.")
+		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("settings.errorNoSMTP"))
 	}
 
 	// Validate and sanitize postback Messenger names. Duplicates are disallowed
@@ -169,10 +174,10 @@ func handleUpdateSettings(c echo.Context) error {
 		name := reAlphaNum.ReplaceAllString(strings.ToLower(m.Name), "")
 		if _, ok := names[name]; ok {
 			return echo.NewHTTPError(http.StatusBadRequest,
-				fmt.Sprintf("Duplicate messenger name `%s`.", name))
+				app.i18n.Ts("settings.duplicateMessengerName", "name", name))
 		}
 		if len(name) == 0 {
-			return echo.NewHTTPError(http.StatusBadRequest, "Invalid messenger name.")
+			return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("settings.invalidMessengerName"))
 		}
 
 		set.Messengers[i].Name = name
@@ -188,13 +193,14 @@ func handleUpdateSettings(c echo.Context) error {
 	b, err := json.Marshal(set)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError,
-			fmt.Sprintf("Error encoding settings: %v", err))
+			app.i18n.Ts("settings.errorEncoding", "error", err.Error()))
 	}
 
 	// Update the settings in the DB.
 	if _, err := app.queries.UpdateSettings.Exec(b); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError,
-			fmt.Sprintf("Error updating settings: %s", pqErrMsg(err)))
+			app.i18n.Ts("globals.messages.errorUpdating",
+				"name", "{globals.terms.settings}", "error", pqErrMsg(err)))
 	}
 
 	// If there are any active campaigns, don't do an auto reload and
@@ -232,13 +238,14 @@ func getSettings(app *App) (settings, error) {
 
 	if err := app.queries.GetSettings.Get(&b); err != nil {
 		return out, echo.NewHTTPError(http.StatusInternalServerError,
-			fmt.Sprintf("Error fetching settings: %s", pqErrMsg(err)))
+			app.i18n.Ts("globals.messages.errorFetching",
+				"name", "{globals.terms.settings}", "error", pqErrMsg(err)))
 	}
 
 	// Unmarshall the settings and filter out sensitive fields.
 	if err := json.Unmarshal([]byte(b), &out); err != nil {
 		return out, echo.NewHTTPError(http.StatusInternalServerError,
-			fmt.Sprintf("Error parsing settings: %v", err))
+			app.i18n.Ts("settings.errorEncoding", "error", err.Error()))
 	}
 
 	return out, nil

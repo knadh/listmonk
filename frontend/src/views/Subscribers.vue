@@ -2,7 +2,7 @@
   <section class="subscribers">
     <header class="columns">
       <div class="column is-half">
-        <h1 class="title is-4">Subscribers
+        <h1 class="title is-4">{{ $t('globals.terms.subscribers') }}
           <span v-if="!isNaN(subscribers.total)">({{ subscribers.total }})</span>
           <span v-if="currentList">
             &raquo; {{ currentList.name }}
@@ -10,7 +10,9 @@
         </h1>
       </div>
       <div class="column has-text-right">
-        <b-button type="is-primary" icon-left="plus" @click="showNewForm">New</b-button>
+        <b-button type="is-primary" icon-left="plus" @click="showNewForm">
+          {{ $t('globals.buttons.new') }}
+        </b-button>
       </div>
     </header>
 
@@ -20,7 +22,7 @@
           <div>
             <b-field grouped>
               <b-input @input="onSimpleQueryInput" v-model="queryInput"
-                placeholder="E-mail or name" icon="magnify" ref="query"
+                :placeholder="$t('subscribers.queryPlaceholder')" icon="magnify" ref="query"
                 :disabled="isSearchAdvanced"></b-input>
               <b-button native-type="submit" type="is-primary" icon-left="magnify"
                 :disabled="isSearchAdvanced"></b-button>
@@ -28,7 +30,9 @@
 
             <p>
               <a href="#" @click.prevent="toggleAdvancedSearch">
-                <b-icon icon="cog-outline" size="is-small" /> Advanced</a>
+                <b-icon icon="cog-outline" size="is-small" />
+                {{ $t('subscribers.advancedQuery') }}
+              </a>
             </p>
 
             <div v-if="isSearchAdvanced">
@@ -41,17 +45,20 @@
               </b-field>
               <b-field>
                 <span class="is-size-6 has-text-grey">
-                  Partial SQL expression to query subscriber attributes.{{ ' ' }}
+                  {{ $t('subscribers.advancedQueryHelp') }}.{{ ' ' }}
                   <a href="https://listmonk.app/docs/querying-and-segmentation"
-                    target="_blank" rel="noopener noreferrer"> Learn more.
+                    target="_blank" rel="noopener noreferrer">
+                    {{ $t('globals.buttons.learnMore') }}.
                   </a>
                 </span>
               </b-field>
 
               <div class="buttons">
                 <b-button native-type="submit" type="is-primary"
-                  icon-left="magnify">Query</b-button>
-                <b-button @click.prevent="toggleAdvancedSearch" icon-left="cancel">Reset</b-button>
+                  icon-left="magnify">{{ $t('subscribers.query') }}</b-button>
+                <b-button @click.prevent="toggleAdvancedSearch" icon-left="cancel">
+                  {{ $t('subscribers.reset') }}
+                </b-button>
               </div>
             </div><!-- advanced query -->
           </div>
@@ -62,11 +69,13 @@
         <div>
           <p>
             <span class="is-size-5 has-text-weight-semibold">
-              {{ numSelectedSubscribers }} subscriber(s) selected
+              {{ $t('subscribers.numSelected', { num: numSelectedSubscribers }) }}
             </span>
             <span v-if="!bulk.all && subscribers.total > subscribers.perPage">
-              &mdash; <a href="" @click.prevent="selectAllSubscribers">
-                Select all {{ subscribers.total }}</a>
+              &mdash;
+              <a href="" @click.prevent="selectAllSubscribers">
+                {{ $t('subscribers.selectAll', { num: subscribers.total }) }}
+              </a>
             </span>
           </p>
 
@@ -95,15 +104,22 @@
       paginated backend-pagination pagination-position="both" @page-change="onPageChange"
       :current-page="queryParams.page" :per-page="subscribers.perPage" :total="subscribers.total"
       hoverable checkable backend-sorting @sort="onSort">
+        <template slot="top-left">
+          <a href='' @click.prevent="exportSubscribers">
+            <b-icon icon="cloud-download-outline" size="is-small" /> {{ $t('subscribers.export') }}
+          </a>
+        </template>
         <template slot-scope="props">
-            <b-table-column field="status" label="Status" sortable>
+            <b-table-column field="status" :label="$t('globals.fields.status')" sortable>
               <a :href="`/subscribers/${props.row.id}`"
                 @click.prevent="showEditForm(props.row)">
-                <b-tag :class="props.row.status">{{ props.row.status }}</b-tag>
+                <b-tag :class="props.row.status">
+                  {{ $t('subscribers.status.'+ props.row.status) }}
+                </b-tag>
               </a>
             </b-table-column>
 
-            <b-table-column field="email" label="E-mail" sortable>
+            <b-table-column field="email" :label="$t('subscribers.email')" sortable>
               <a :href="`/subscribers/${props.row.id}`"
                 @click.prevent="showEditForm(props.row)">
                 {{ props.row.email }}
@@ -112,46 +128,47 @@
                   <router-link :to="`/subscribers/lists/${props.row.id}`">
                     <b-tag :class="l.subscriptionStatus" v-for="l in props.row.lists"
                       size="is-small" :key="l.id">
-                        {{ l.name }} <sup>{{ l.subscriptionStatus }}</sup>
+                        {{ l.name }}
+                        <sup>{{ $t('subscribers.status.'+ l.subscriptionStatus) }}</sup>
                     </b-tag>
                   </router-link>
               </b-taglist>
             </b-table-column>
 
-            <b-table-column field="name" label="Name" sortable>
+            <b-table-column field="name" :label="$t('globals.fields.name')" sortable>
               <a :href="`/subscribers/${props.row.id}`"
                 @click.prevent="showEditForm(props.row)">
                 {{ props.row.name }}
               </a>
             </b-table-column>
 
-            <b-table-column field="lists" label="Lists" numeric centered>
+            <b-table-column field="lists" :label="$t('globals.terms.lists')" numeric centered>
               {{ listCount(props.row.lists) }}
             </b-table-column>
 
-            <b-table-column field="created_at" label="Created" sortable>
+            <b-table-column field="created_at" :label="$t('globals.fields.createdAt')" sortable>
                 {{ $utils.niceDate(props.row.createdAt) }}
             </b-table-column>
 
-            <b-table-column field="updated_at" label="Updated" sortable>
+            <b-table-column field="updated_at" :label="$t('globals.fields.updatedAt')" sortable>
                 {{ $utils.niceDate(props.row.updatedAt) }}
             </b-table-column>
 
             <b-table-column class="actions" align="right">
               <div>
                 <a :href="`/api/subscribers/${props.row.id}/export`">
-                  <b-tooltip label="Download data" type="is-dark">
+                  <b-tooltip :label="$t('subscribers.downloadData')" type="is-dark">
                     <b-icon icon="cloud-download-outline" size="is-small" />
                   </b-tooltip>
                 </a>
                 <a :href="`/subscribers/${props.row.id}`"
                   @click.prevent="showEditForm(props.row)">
-                  <b-tooltip label="Edit" type="is-dark">
+                  <b-tooltip :label="$t('globals.buttons.edit')" type="is-dark">
                     <b-icon icon="pencil-outline" size="is-small" />
                   </b-tooltip>
                 </a>
                 <a href='' @click.prevent="deleteSubscriber(props.row)">
-                  <b-tooltip label="Delete" type="is-dark">
+                  <b-tooltip :label="$t('globals.buttons.delete')" type="is-dark">
                     <b-icon icon="trash-can-outline" size="is-small" />
                   </b-tooltip>
                 </a>
@@ -183,6 +200,7 @@ import { mapState } from 'vuex';
 import SubscriberForm from './SubscriberForm.vue';
 import SubscriberBulkList from './SubscriberBulkList.vue';
 import EmptyPlaceholder from '../components/EmptyPlaceholder.vue';
+import { uris } from '../constants';
 
 export default Vue.extend({
   components: {
@@ -320,13 +338,13 @@ export default Vue.extend({
 
     deleteSubscriber(sub) {
       this.$utils.confirm(
-        'Are you sure?',
+        null,
         () => {
           this.$api.deleteSubscriber(sub.id).then(() => {
             this.querySubscribers();
 
             this.$buefy.toast.open({
-              message: `'${sub.name}' deleted.`,
+              message: this.$t('globals.messages.deleted', { name: sub.name }),
               type: 'is-success',
               queue: false,
             });
@@ -354,10 +372,16 @@ export default Vue.extend({
         };
       }
 
-      this.$utils.confirm(
-        `Blocklist ${this.numSelectedSubscribers} subscriber(s)?`,
-        fn,
-      );
+      this.$utils.confirm(this.$t('subscribers.confirmBlocklist', { num: this.numSelectedSubscribers }), fn);
+    },
+
+    exportSubscribers() {
+      this.$utils.confirm(this.$t('subscribers.confirmExport', { num: this.subscribers.total }), () => {
+        const q = new URLSearchParams();
+        q.append('query', this.queryParams.queryExp);
+        q.append('list_id', this.queryParams.listID);
+        document.location.href = `${uris.exportSubscribers}?${q.toString()}`;
+      });
     },
 
     deleteSubscribers() {
@@ -371,7 +395,7 @@ export default Vue.extend({
               this.querySubscribers();
 
               this.$buefy.toast.open({
-                message: `${this.numSelectedSubscribers} subscriber(s) deleted`,
+                message: this.$t('subscribers.subscribersDeleted', { num: this.numSelectedSubscribers }),
                 type: 'is-success',
                 queue: false,
               });
@@ -387,7 +411,7 @@ export default Vue.extend({
             this.querySubscribers();
 
             this.$buefy.toast.open({
-              message: `${this.numSelectedSubscribers} subscriber(s) deleted`,
+              message: this.$t('subscribers.subscribersDeleted', { num: this.numSelectedSubscribers }),
               type: 'is-success',
               queue: false,
             });
@@ -395,10 +419,7 @@ export default Vue.extend({
         };
       }
 
-      this.$utils.confirm(
-        `Delete ${this.numSelectedSubscribers} subscriber(s)?`,
-        fn,
-      );
+      this.$utils.confirm(this.$t('subscribers.confirmDelete', { num: this.numSelectedSubscribers }), fn);
     },
 
     bulkChangeLists(action, lists) {
@@ -422,7 +443,7 @@ export default Vue.extend({
       fn(data).then(() => {
         this.querySubscribers();
         this.$buefy.toast.open({
-          message: 'List change applied',
+          message: this.$t('subscribers.listChangeApplied'),
           type: 'is-success',
           queue: false,
         });

@@ -9,21 +9,22 @@ dayjs.extend(relativeTime);
 
 const reEmail = /(.+?)@(.+?)/ig;
 
-export default class utils {
-  static months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug',
-    'Sep', 'Oct', 'Nov', 'Dec'];
-
-  static days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+export default class Utils {
+  constructor(i18n) {
+    this.i18n = i18n;
+  }
 
   // Parses an ISO timestamp to a simpler form.
-  static niceDate = (stamp, showTime) => {
+  niceDate = (stamp, showTime) => {
     if (!stamp) {
       return '';
     }
 
     const d = new Date(stamp);
-    let out = `${utils.days[d.getDay()]}, ${d.getDate()}`;
-    out += ` ${utils.months[d.getMonth()]} ${d.getFullYear()}`;
+    const day = this.i18n.t(`globals.days.${(d.getDay() + 1)}`);
+    const month = this.i18n.t(`globals.months.${(d.getMonth() + 1)}`);
+    let out = `${day}, ${d.getDate()}`;
+    out += ` ${month} ${d.getFullYear()}`;
     if (showTime) {
       out += ` ${d.getHours()}:${d.getMinutes()}`;
     }
@@ -31,14 +32,12 @@ export default class utils {
     return out;
   };
 
-  static duration(start, end) {
-    return dayjs(end).from(dayjs(start), true);
-  }
+  duration = (start, end) => dayjs(end).from(dayjs(start), true);
 
   // Simple, naive, e-mail address check.
-  static validateEmail = (e) => e.match(reEmail);
+  validateEmail = (e) => e.match(reEmail);
 
-  static niceNumber = (n) => {
+  niceNumber = (n) => {
     if (n === null || n === undefined) {
       return 0;
     }
@@ -69,20 +68,23 @@ export default class utils {
   }
 
   // UI shortcuts.
-  static confirm = (msg, onConfirm, onCancel) => {
+  confirm = (msg, onConfirm, onCancel) => {
     Dialog.confirm({
       scroll: 'clip',
-      message: !msg ? 'Are you sure?' : msg,
+      message: !msg ? this.i18n.t('globals.messages.confirm') : msg,
+      confirmText: this.i18n.t('globals.buttons.ok'),
+      cancelText: this.i18n.t('globals.buttons.cancel'),
       onConfirm,
       onCancel,
     });
   };
 
-  static prompt = (msg, inputAttrs, onConfirm, onCancel) => {
+  prompt = (msg, inputAttrs, onConfirm, onCancel) => {
     Dialog.prompt({
       scroll: 'clip',
       message: msg,
-      confirmText: 'OK',
+      confirmText: this.i18n.t('globals.buttons.ok'),
+      cancelText: this.i18n.t('globals.buttons.cancel'),
       inputAttrs: {
         type: 'string',
         maxlength: 200,
@@ -94,7 +96,7 @@ export default class utils {
     });
   };
 
-  static toast = (msg, typ, duration) => {
+  toast = (msg, typ, duration) => {
     Toast.open({
       message: msg,
       type: !typ ? 'is-success' : typ,

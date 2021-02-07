@@ -1,3 +1,7 @@
+* {
+  box-sizing: border-box;
+}
+
 /* Flexit grid */
 .container {
   position: relative;
@@ -195,6 +199,7 @@ a:hover {
 }
 label {
   cursor: pointer;
+  color: #666;
 }
 h1,
 h2,
@@ -202,13 +207,23 @@ h3,
 h4 {
   font-weight: 400;
 }
-section {
+.section {
   margin-bottom: 45px;
 }
 
+input[type="text"], input[type="email"], select {
+  padding: 10px 15px;
+  border: 1px solid #888;
+  border-radius: 3px;
+  width: 100%;
+}
+  input:focus {
+    border-color: #7f2aff;
+  }
+
 .button {
   background: #7f2aff;
-  padding: 10px 30px;
+  padding: 15px 30px;
   border-radius: 3px;
   border: 0;
   cursor: pointer;
@@ -216,6 +231,7 @@ section {
   color: #ffff;
   display: inline-block;
   min-width: 150px;
+  font-size: 1.1em;
 }
 .button:hover {
   background: #333;
@@ -253,6 +269,10 @@ section {
   margin-top: 30px;
   padding-top: 30px;
   border-top: 1px solid #eee;
+}
+
+.form .lists {
+  margin-top: 45px;
 }
 
 .footer {

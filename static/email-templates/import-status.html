@@ -1,17 +1,17 @@
 {{ define "import-status" }}
 {{ template "header" . }}
-<h2>Import update</h2>
+<h2>{{ L.Ts "email.status.importTitle" }}</h2>
 <table width="100%">
     <tr>
-        <td width="30%"><strong>File</strong></td>
+        <td width="30%"><strong>{{ L.Ts "email.status.importFile" }}</strong></td>
         <td><a href="{{ RootURL }}/subscribers/import">{{ .Name }}</a></td>
     </tr>
     <tr>
-        <td width="30%"><strong>Status</strong></td>
+        <td width="30%"><strong>{{ L.Ts "email.status.status" }}</strong></td>
         <td>{{ .Status }}</td>
     </tr>
     <tr>
-        <td width="30%"><strong>Records</strong></td>
+        <td width="30%"><strong>{{ L.Ts "email.status.importRecords" }}</strong></td>
         <td>{{ .Imported }} / {{ .Total }}</td>
     </tr>
 </table>

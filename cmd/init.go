@@ -20,6 +20,7 @@ import (
 	"github.com/knadh/koanf/providers/confmap"
 	"github.com/knadh/koanf/providers/file"
 	"github.com/knadh/koanf/providers/posflag"
+	"github.com/knadh/listmonk/internal/i18n"
 	"github.com/knadh/listmonk/internal/manager"
 	"github.com/knadh/listmonk/internal/media"
 	"github.com/knadh/listmonk/internal/media/providers/filesystem"
@@ -39,12 +40,15 @@ const (
 
 // constants contains static, constant config values required by the app.
 type constants struct {
-	RootURL      string   `koanf:"root_url"`
-	LogoURL      string   `koanf:"logo_url"`
-	FaviconURL   string   `koanf:"favicon_url"`
-	FromEmail    string   `koanf:"from_email"`
-	NotifyEmails []string `koanf:"notify_emails"`
-	Privacy      struct {
+	RootURL             string   `koanf:"root_url"`
+	LogoURL             string   `koanf:"logo_url"`
+	FaviconURL          string   `koanf:"favicon_url"`
+	FromEmail           string   `koanf:"from_email"`
+	NotifyEmails        []string `koanf:"notify_emails"`
+	EnablePublicSubPage bool     `koanf:"enable_public_subscription_page"`
+	Lang                string   `koanf:"lang"`
+	DBBatchSize         int      `koanf:"batch_size"`
+	Privacy             struct {
 		IndividualTracking bool            `koanf:"individual_tracking"`
 		AllowBlocklist     bool            `koanf:"allow_blocklist"`
 		AllowExport        bool            `koanf:"allow_export"`
@@ -131,6 +135,7 @@ func initFS(staticDir string) stuffbin.FileSystem {
 			// Alias all files inside dist/ and dist/frontend to frontend/*.
 			"frontend/dist/favicon.png:/frontend/favicon.png",
 			"frontend/dist/frontend:/frontend",
+			"i18n:/i18n",
 		}
 
 		fs, err = stuffbin.NewLocalFS("/", files...)
@@ -230,6 +235,7 @@ func initConstants() *constants {
 	}
 
 	c.RootURL = strings.TrimRight(c.RootURL, "/")
+	c.Lang = ko.String("app.lang")
 	c.Privacy.Exportable = maps.StringSliceToLookupMap(ko.Strings("privacy.exportable"))
 	c.MediaProvider = ko.String("upload.provider")
 
@@ -251,6 +257,36 @@ func initConstants() *constants {
 	return &c
 }
 
+// initI18n initializes a new i18n instance with the selected language map
+// loaded from the filesystem. English is a loaded first as the default map
+// and then the selected language is loaded on top of it so that if there are
+// missing translations in it, the default English translations show up.
+func initI18n(lang string, fs stuffbin.FileSystem) *i18n.I18n {
+	const def = "en"
+
+	b, err := fs.Read(fmt.Sprintf("/i18n/%s.json", def))
+	if err != nil {
+		lo.Fatalf("error reading default i18n language file: %s: %v", def, err)
+	}
+
+	// Initialize with the default language.
+	i, err := i18n.New(b)
+	if err != nil {
+		lo.Fatalf("error unmarshalling i18n language: %v", err)
+	}
+
+	// Load the selected language on top of it.
+	b, err = fs.Read(fmt.Sprintf("/i18n/%s.json", lang))
+	if err != nil {
+		lo.Fatalf("error reading i18n language file: %v", err)
+	}
+	if err := i.Load(b); err != nil {
+		lo.Fatalf("error loading i18n language file: %v", err)
+	}
+
+	return i
+}
+
 // initCampaignManager initializes the campaign manager.
 func initCampaignManager(q *Queries, cs *constants, app *App) *manager.Manager {
 	campNotifCB := func(subject string, data interface{}) error {
@@ -265,19 +301,22 @@ func initCampaignManager(q *Queries, cs *constants, app *App) *manager.Manager {
 	}
 
 	return manager.New(manager.Config{
-		BatchSize:          ko.Int("app.batch_size"),
-		Concurrency:        ko.Int("app.concurrency"),
-		MessageRate:        ko.Int("app.message_rate"),
-		MaxSendErrors:      ko.Int("app.max_send_errors"),
-		FromEmail:          cs.FromEmail,
-		IndividualTracking: ko.Bool("privacy.individual_tracking"),
-		UnsubURL:           cs.UnsubURL,
-		OptinURL:           cs.OptinURL,
-		LinkTrackURL:       cs.LinkTrackURL,
-		ViewTrackURL:       cs.ViewTrackURL,
-		MessageURL:         cs.MessageURL,
-		UnsubHeader:        ko.Bool("privacy.unsubscribe_header"),
-	}, newManagerDB(q), campNotifCB, lo)
+		BatchSize:             ko.Int("app.batch_size"),
+		Concurrency:           ko.Int("app.concurrency"),
+		MessageRate:           ko.Int("app.message_rate"),
+		MaxSendErrors:         ko.Int("app.max_send_errors"),
+		FromEmail:             cs.FromEmail,
+		IndividualTracking:    ko.Bool("privacy.individual_tracking"),
+		UnsubURL:              cs.UnsubURL,
+		OptinURL:              cs.OptinURL,
+		LinkTrackURL:          cs.LinkTrackURL,
+		ViewTrackURL:          cs.ViewTrackURL,
+		MessageURL:            cs.MessageURL,
+		UnsubHeader:           ko.Bool("privacy.unsubscribe_header"),
+		SlidingWindow:         ko.Bool("app.message_sliding_window"),
+		SlidingWindowDuration: ko.Duration("app.message_sliding_window_duration"),
+		SlidingWindowRate:     ko.Int("app.message_sliding_window_rate"),
+	}, newManagerDB(q), campNotifCB, app.i18n, lo)
 
 }
 
@@ -407,7 +446,7 @@ func initMediaStore() media.Store {
 
 // initNotifTemplates compiles and returns e-mail notification templates that are
 // used for sending ad-hoc notifications to admins and subscribers.
-func initNotifTemplates(path string, fs stuffbin.FileSystem, cs *constants) *template.Template {
+func initNotifTemplates(path string, fs stuffbin.FileSystem, i *i18n.I18n, cs *constants) *template.Template {
 	// Register utility functions that the e-mail templates can use.
 	funcs := template.FuncMap{
 		"RootURL": func() string {
@@ -415,7 +454,11 @@ func initNotifTemplates(path string, fs stuffbin.FileSystem, cs *constants) *tem
 		},
 		"LogoURL": func() string {
 			return cs.LogoURL
-		}}
+		},
+		"L": func() *i18n.I18n {
+			return i
+		},
+	}
 
 	tpl, err := stuffbin.ParseTemplatesGlob(funcs, fs, "/static/email-templates/*.html")
 	if err != nil {
@@ -439,7 +482,10 @@ func initHTTPServer(app *App) *echo.Echo {
 	})
 
 	// Parse and load user facing templates.
-	tpl, err := stuffbin.ParseTemplatesGlob(nil, app.fs, "/public/templates/*.html")
+	tpl, err := stuffbin.ParseTemplatesGlob(template.FuncMap{
+		"L": func() *i18n.I18n {
+			return app.i18n
+		}}, app.fs, "/public/templates/*.html")
 	if err != nil {
 		lo.Fatalf("error parsing public templates: %v", err)
 	}

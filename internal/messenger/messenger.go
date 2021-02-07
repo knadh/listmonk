@@ -22,6 +22,7 @@ type Message struct {
 	Subject     string
 	ContentType string
 	Body        []byte
+	AltBody     []byte
 	Headers     textproto.MIMEHeader
 	Attachments []Attachment
 

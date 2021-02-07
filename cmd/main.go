@@ -17,6 +17,7 @@ import (
 	"github.com/knadh/koanf"
 	"github.com/knadh/koanf/providers/env"
 	"github.com/knadh/listmonk/internal/buflog"
+	"github.com/knadh/listmonk/internal/i18n"
 	"github.com/knadh/listmonk/internal/manager"
 	"github.com/knadh/listmonk/internal/media"
 	"github.com/knadh/listmonk/internal/messenger"
@@ -39,6 +40,7 @@ type App struct {
 	importer   *subimporter.Importer
 	messengers map[string]messenger.Messenger
 	media      media.Store
+	i18n       *i18n.I18n
 	notifTpls  *template.Template
 	log        *log.Logger
 	bufLog     *buflog.BufLog
@@ -148,10 +150,14 @@ func main() {
 		log:        lo,
 		bufLog:     bufLog,
 	}
+
+	// Load i18n language map.
+	app.i18n = initI18n(app.constants.Lang, fs)
+
 	_, app.queries = initQueries(queryFilePath, db, fs, true)
 	app.manager = initCampaignManager(app.queries, app.constants, app)
 	app.importer = initImporter(app.queries, db, app)
-	app.notifTpls = initNotifTemplates("/email-templates/*.html", fs, app.constants)
+	app.notifTpls = initNotifTemplates("/email-templates/*.html", fs, app.i18n, app.constants)
 
 	// Initialize the default SMTP (`email`) messenger.
 	app.messengers[emailMsgr] = initSMTPMessenger(app.manager)

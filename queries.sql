@@ -238,6 +238,22 @@ SELECT COUNT(*) OVER () AS total, subscribers.* FROM subscribers
     %s
     ORDER BY %s %s OFFSET $2 LIMIT $3;
 
+-- name: query-subscribers-for-export
+-- raw: true
+-- Unprepared statement for issuring arbitrary WHERE conditions for
+-- searching subscribers to do bulk CSV export.
+-- %s = arbitrary expression
+SELECT s.id, s.uuid, s.email, s.name, s.status, s.attribs, s.created_at, s.updated_at FROM subscribers s
+    LEFT JOIN subscriber_lists sl
+    ON (
+        -- Optional list filtering.
+        (CASE WHEN CARDINALITY($1::INT[]) > 0 THEN true ELSE false END)
+        AND sl.subscriber_id = s.id
+    )
+    WHERE sl.list_id = ALL($1::INT[]) AND id > $2
+    %s
+    ORDER BY s.id ASC LIMIT $3;
+
 -- name: query-subscribers-template
 -- raw: true
 -- This raw query is reused in multiple queries (blocklist, add to list, delete)
@@ -294,6 +310,9 @@ UPDATE subscriber_lists SET status='unsubscribed', updated_at=NOW()
 
 -- lists
 -- name: get-lists
+SELECT * FROM lists WHERE (CASE WHEN $1 = '' THEN 1=1 ELSE type=$1::list_type END) ORDER by name DESC;
+
+-- name: query-lists
 WITH ls AS (
 	SELECT COUNT(*) OVER () AS total, lists.* FROM lists
     WHERE ($1 = 0 OR id = $1) OFFSET $2 LIMIT $3
@@ -338,16 +357,16 @@ WITH campLists AS (
     -- Get the list_ids and their optin statuses for the campaigns found in the previous step.
     SELECT id AS list_id, campaign_id, optin FROM lists
     INNER JOIN campaign_lists ON (campaign_lists.list_id = lists.id)
-    WHERE id=ANY($12::INT[])
+    WHERE id=ANY($13::INT[])
 ),
 tpl AS (
     -- If there's no template_id given, use the defualt template.
-    SELECT (CASE WHEN $11 = 0 THEN id ELSE $11 END) AS id FROM templates WHERE is_default IS TRUE
+    SELECT (CASE WHEN $12 = 0 THEN id ELSE $12 END) AS id FROM templates WHERE is_default IS TRUE
 ),
 counts AS (
     SELECT COALESCE(COUNT(id), 0) as to_send, COALESCE(MAX(id), 0) as max_sub_id
     FROM subscribers
-    LEFT JOIN campLists ON (campLists.campaign_id = ANY($12::INT[]))
+    LEFT JOIN campLists ON (campLists.campaign_id = ANY($13::INT[]))
     LEFT JOIN subscriber_lists ON (
         subscriber_lists.status != 'unsubscribed' AND
         subscribers.id = subscriber_lists.subscriber_id AND
@@ -357,16 +376,16 @@ counts AS (
         -- any status except for 'unsubscribed' (already excluded above) works.
         (CASE WHEN campLists.optin = 'double' THEN subscriber_lists.status = 'confirmed' ELSE true END)
     )
-    WHERE subscriber_lists.list_id=ANY($12::INT[])
+    WHERE subscriber_lists.list_id=ANY($13::INT[])
     AND subscribers.status='enabled'
 ),
 camp AS (
-    INSERT INTO campaigns (uuid, type, name, subject, from_email, body, content_type, send_at, tags, messenger, template_id, to_send, max_subscriber_id)
-        SELECT $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, (SELECT id FROM tpl), (SELECT to_send FROM counts), (SELECT max_sub_id FROM counts)
+    INSERT INTO campaigns (uuid, type, name, subject, from_email, body, altbody, content_type, send_at, tags, messenger, template_id, to_send, max_subscriber_id)
+        SELECT $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, (SELECT id FROM tpl), (SELECT to_send FROM counts), (SELECT max_sub_id FROM counts)
         RETURNING id
 )
 INSERT INTO campaign_lists (campaign_id, list_id, list_name)
-    (SELECT (SELECT id FROM camp), id, name FROM lists WHERE id=ANY($12::INT[]))
+    (SELECT (SELECT id FROM camp), id, name FROM lists WHERE id=ANY($13::INT[]))
     RETURNING (SELECT id FROM camp);
 
 -- name: query-campaigns
@@ -376,19 +395,19 @@ INSERT INTO campaign_lists (campaign_id, list_id, list_name)
 -- there's a COUNT() OVER() that still returns the total result count
 -- for pagination in the frontend, albeit being a field that'll repeat
 -- with every resultant row.
-SELECT  campaigns.id, campaigns.uuid, campaigns.name, campaigns.subject, campaigns.from_email,
-        campaigns.messenger, campaigns.started_at, campaigns.to_send, campaigns.sent, campaigns.type,
-        campaigns.body, campaigns.send_at, campaigns.status, campaigns.content_type, campaigns.tags,
-        campaigns.template_id, campaigns.created_at, campaigns.updated_at,
+SELECT  c.id, c.uuid, c.name, c.subject, c.from_email,
+        c.messenger, c.started_at, c.to_send, c.sent, c.type,
+        c.body, c.altbody, c.send_at, c.status, c.content_type, c.tags,
+        c.template_id, c.created_at, c.updated_at,
         COUNT(*) OVER () AS total,
         (
             SELECT COALESCE(ARRAY_TO_JSON(ARRAY_AGG(l)), '[]') FROM (
                 SELECT COALESCE(campaign_lists.list_id, 0) AS id,
                 campaign_lists.list_name AS name
-                FROM campaign_lists WHERE campaign_lists.campaign_id = campaigns.id
+                FROM campaign_lists WHERE campaign_lists.campaign_id = c.id
         ) l
     ) AS lists
-FROM campaigns
+FROM campaigns c
 WHERE ($1 = 0 OR id = $1)
     AND status=ANY(CASE WHEN ARRAY_LENGTH($2::campaign_status[], 1) != 0 THEN $2::campaign_status[] ELSE ARRAY[status] END)
     AND ($3 = '' OR CONCAT(name, subject) ILIKE $3)
@@ -564,25 +583,26 @@ ORDER BY RANDOM() LIMIT 1;
 -- name: update-campaign
 WITH camp AS (
     UPDATE campaigns SET
-        name=(CASE WHEN $2 != '' THEN $2 ELSE name END),
-        subject=(CASE WHEN $3 != '' THEN $3 ELSE subject END),
-        from_email=(CASE WHEN $4 != '' THEN $4 ELSE from_email END),
-        body=(CASE WHEN $5 != '' THEN $5 ELSE body END),
-        content_type=(CASE WHEN $6 != '' THEN $6::content_type ELSE content_type END),
-        send_at=(CASE WHEN $8 THEN $7::TIMESTAMP WITH TIME ZONE WHEN NOT $8 THEN NULL ELSE send_at END),
-        status=(CASE WHEN NOT $8 THEN 'draft' ELSE status END),
-        tags=$9::VARCHAR(100)[],
-        messenger=(CASE WHEN $10 != '' THEN $10 ELSE messenger END),
-        template_id=(CASE WHEN $11 != 0 THEN $11 ELSE template_id END),
+        name=$2,
+        subject=$3,
+        from_email=$4,
+        body=$5,
+        altbody=(CASE WHEN $6 = '' THEN NULL ELSE $6 END),
+        content_type=$7::content_type,
+        send_at=$8::TIMESTAMP WITH TIME ZONE,
+        status=(CASE WHEN NOT $9 THEN 'draft' ELSE status END),
+        tags=$10::VARCHAR(100)[],
+        messenger=$11,
+        template_id=$12,
         updated_at=NOW()
     WHERE id = $1 RETURNING id
 ),
 d AS (
     -- Reset list relationships
-    DELETE FROM campaign_lists WHERE campaign_id = $1 AND NOT(list_id = ANY($12))
+    DELETE FROM campaign_lists WHERE campaign_id = $1 AND NOT(list_id = ANY($13))
 )
 INSERT INTO campaign_lists (campaign_id, list_id, list_name)
-    (SELECT $1 as campaign_id, id, name FROM lists WHERE id=ANY($12::INT[]))
+    (SELECT $1 as campaign_id, id, name FROM lists WHERE id=ANY($13::INT[]))
     ON CONFLICT (campaign_id, list_id) DO UPDATE SET list_name = EXCLUDED.list_name;
 
 -- name: update-campaign-counts

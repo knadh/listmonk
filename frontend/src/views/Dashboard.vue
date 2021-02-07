@@ -16,23 +16,28 @@
                 <div class="columns is-mobile">
                   <div class="column is-6">
                     <p class="title">{{ $utils.niceNumber(counts.lists.total) }}</p>
-                    <p class="is-size-6 has-text-grey">Lists</p>
+                    <p class="is-size-6 has-text-grey">
+                      {{ $tc('globals.terms.list', counts.lists.total) }}
+                    </p>
                   </div>
                   <div class="column is-6">
                     <ul class="no is-size-7 has-text-grey">
                       <li>
-                        <label>{{ $utils.niceNumber(counts.lists.public) }}</label> public
+                        <label>{{ $utils.niceNumber(counts.lists.public) }}</label>
+                        {{ $t('lists.types.public') }}
                       </li>
                       <li>
-                        <label>{{ $utils.niceNumber(counts.lists.private) }}</label> private
+                        <label>{{ $utils.niceNumber(counts.lists.private) }}</label>
+                        {{ $t('lists.types.private') }}
                       </li>
                       <li>
                         <label>{{ $utils.niceNumber(counts.lists.optinSingle) }}</label>
-                        single opt-in
+                        {{ $t('lists.optins.single') }}
                       </li>
                       <li>
                         <label>{{ $utils.niceNumber(counts.lists.optinDouble) }}</label>
-                        double opt-in</li>
+                        {{ $t('lists.optins.double') }}
+                      </li>
                     </ul>
                   </div>
                 </div>
@@ -42,7 +47,9 @@
                 <div class="columns is-mobile">
                   <div class="column is-6">
                     <p class="title">{{ $utils.niceNumber(counts.campaigns.total) }}</p>
-                    <p class="is-size-6 has-text-grey">Campaigns</p>
+                    <p class="is-size-6 has-text-grey">
+                      {{ $tc('globals.terms.campaign', counts.campaigns.total) }}
+                    </p>
                   </div>
                   <div class="column is-6">
                     <ul class="no is-size-7 has-text-grey">
@@ -61,27 +68,31 @@
                 <div class="columns is-mobile">
                   <div class="column is-6">
                     <p class="title">{{ $utils.niceNumber(counts.subscribers.total) }}</p>
-                    <p class="is-size-6 has-text-grey">Subscribers</p>
+                    <p class="is-size-6 has-text-grey">
+                      {{ $tc('globals.terms.subscriber', counts.subscribers.total) }}
+                    </p>
                   </div>
 
                   <div class="column is-6">
                     <ul class="no is-size-7 has-text-grey">
                       <li>
                         <label>{{ $utils.niceNumber(counts.subscribers.blocklisted) }}</label>
-                        blocklisted
+                        {{ $t('subscribers.status.blocklisted') }}
                       </li>
                       <li>
                         <label>{{ $utils.niceNumber(counts.subscribers.orphans) }}</label>
-                        orphans
+                        {{ $t('dashboard.orphanSubs') }}
                       </li>
                     </ul>
                   </div><!-- subscriber breakdown -->
                 </div><!-- subscriber columns -->
                 <hr />
                 <div class="columns">
-                  <div class="column is-6">
+                  <div class="column is-12">
                     <p class="title">{{ $utils.niceNumber(counts.messages) }}</p>
-                    <p class="is-size-6 has-text-grey">Messages sent</p>
+                    <p class="is-size-6 has-text-grey">
+                      {{ $t('dashboard.messagesSent') }}
+                    </p>
                   </div>
                 </div>
               </article><!-- subscribers -->
@@ -92,12 +103,14 @@
             <article class="tile is-child notification charts">
               <div class="columns">
                 <div class="column is-6">
-                  <h3 class="title is-size-6">Campaign views</h3><br />
+                  <h3 class="title is-size-6">{{ $t('dashboard.campaignViews') }}</h3><br />
                   <vue-c3 v-if="chartViewsInst" :handler="chartViewsInst"></vue-c3>
                   <empty-placeholder v-else-if="!isChartsLoading" />
                 </div>
                 <div class="column is-6">
-                  <h3 class="title is-size-6 has-text-right">Link clicks</h3><br />
+                  <h3 class="title is-size-6 has-text-right">
+                    {{ $t('dashboard.linkClicks') }}
+                  </h3><br />
                   <vue-c3 v-if="chartClicksInst" :handler="chartClicksInst"></vue-c3>
                   <empty-placeholder v-else-if="!isChartsLoading" />
                 </div>
@@ -200,7 +213,7 @@ export default Vue.extend({
 
         this.$nextTick(() => {
           this.chartViewsInst.$emit('init',
-            this.makeChart('Campaign views', data.campaignViews));
+            this.makeChart(this.$t('dashboard.campaignViews'), data.campaignViews));
         });
       }
 
@@ -209,7 +222,7 @@ export default Vue.extend({
 
         this.$nextTick(() => {
           this.chartClicksInst.$emit('init',
-            this.makeChart('Link clicks', data.linkClicks));
+            this.makeChart(this.$t('dashboard.linkClicks'), data.linkClicks));
         });
       }
     });

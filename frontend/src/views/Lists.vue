@@ -2,12 +2,15 @@
   <section class="lists">
     <header class="columns">
       <div class="column is-two-thirds">
-        <h1 class="title is-4">Lists
+        <h1 class="title is-4">
+          {{ $t('globals.terms.lists') }}
           <span v-if="!isNaN(lists.total)">({{ lists.total }})</span>
         </h1>
       </div>
       <div class="column has-text-right">
-        <b-button type="is-primary" icon-left="plus" @click="showNewForm">New</b-button>
+        <b-button type="is-primary" icon-left="plus" @click="showNewForm">
+          {{ $t('globals.buttons.new') }}
+        </b-button>
       </div>
     </header>
 
@@ -20,8 +23,9 @@
       backend-sorting @sort="onSort"
     >
         <template slot-scope="props">
-            <b-table-column field="name" label="Name" sortable width="25%"
-              paginated backend-pagination pagination-position="both" @page-change="onPageChange">
+            <b-table-column field="name" :label="$t('globals.fields.name')"
+              sortable width="25%" paginated backend-pagination pagination-position="both"
+              @page-change="onPageChange">
               <div>
                 <router-link :to="{name: 'subscribers_list', params: { listID: props.row.id }}">
                   {{ props.row.name }}
@@ -32,53 +36,56 @@
               </div>
             </b-table-column>
 
-            <b-table-column field="type" label="Type" sortable>
+            <b-table-column field="type" :label="$t('globals.fields.type')" sortable>
               <div>
-                <b-tag :class="props.row.type">{{ props.row.type }}</b-tag>
+                <b-tag :class="props.row.type">
+                  {{ $t('lists.types.' + props.row.type) }}
+                </b-tag>
                 {{ ' ' }}
                 <b-tag>
                   <b-icon :icon="props.row.optin === 'double' ?
                     'account-check-outline' : 'account-off-outline'" size="is-small" />
                   {{ ' ' }}
-                  {{ props.row.optin }}
+                  {{ $t('lists.optins.' + props.row.optin) }}
                 </b-tag>{{ ' ' }}
                 <a v-if="props.row.optin === 'double'" class="is-size-7 send-optin"
                   href="#" @click="$utils.confirm(null, () => createOptinCampaign(props.row))">
-                  <b-tooltip label="Send opt-in campaign" type="is-dark">
+                  <b-tooltip :label="$t('lists.sendOptinCampaign')" type="is-dark">
                     <b-icon icon="rocket-launch-outline" size="is-small" />
-                    Send opt-in campaign
+                    {{ $t('lists.sendOptinCampaign') }}
                   </b-tooltip>
                 </a>
               </div>
             </b-table-column>
 
-            <b-table-column field="subscriber_count" label="Subscribers" numeric sortable centered>
+            <b-table-column field="subscriber_count" :label="$t('globals.terms.lists')"
+              numeric sortable centered>
                 <router-link :to="`/subscribers/lists/${props.row.id}`">
                   {{ props.row.subscriberCount }}
                 </router-link>
             </b-table-column>
 
-            <b-table-column field="created_at" label="Created" sortable>
+            <b-table-column field="created_at" :label="$t('globals.fields.createdAt')" sortable>
                 {{ $utils.niceDate(props.row.createdAt) }}
             </b-table-column>
-            <b-table-column field="updated_at" label="Updated" sortable>
+            <b-table-column field="updated_at" :label="$t('globals.fields.updatedAt')" sortable>
                 {{ $utils.niceDate(props.row.updatedAt) }}
             </b-table-column>
 
             <b-table-column class="actions" align="right">
               <div>
                 <router-link :to="`/campaigns/new?list_id=${props.row.id}`">
-                  <b-tooltip label="Send campaign" type="is-dark">
+                  <b-tooltip :label="$t('lists.sendCampaign')" type="is-dark">
                     <b-icon icon="rocket-launch-outline" size="is-small" />
                   </b-tooltip>
                 </router-link>
                 <a href="" @click.prevent="showEditForm(props.row)">
-                  <b-tooltip label="Edit" type="is-dark">
+                  <b-tooltip :label="$t('globals.buttons.edit')" type="is-dark">
                     <b-icon icon="pencil-outline" size="is-small" />
                   </b-tooltip>
                 </a>
                 <a href="" @click.prevent="deleteList(props.row)">
-                  <b-tooltip label="Delete" type="is-dark">
+                  <b-tooltip :label="$t('globals.buttons.delete')" type="is-dark">
                     <b-icon icon="trash-can-outline" size="is-small" />
                   </b-tooltip>
                 </a>
@@ -165,13 +172,13 @@ export default Vue.extend({
 
     deleteList(list) {
       this.$utils.confirm(
-        'Are you sure? This does not delete subscribers.',
+        this.$t('lists.confirmDelete'),
         () => {
           this.$api.deleteList(list.id).then(() => {
             this.getLists();
 
             this.$buefy.toast.open({
-              message: `'${list.name}' deleted`,
+              message: this.$t('globals.messages.deleted', { name: list.name }),
               type: 'is-success',
               queue: false,
             });
@@ -182,8 +189,8 @@ export default Vue.extend({
 
     createOptinCampaign(list) {
       const data = {
-        name: `Opt-in to ${list.name}`,
-        subject: `Confirm subscription(s) ${list.name}`,
+        name: this.$t('lists.optinTo', { name: list.name }),
+        subject: this.$t('lists.confirmSub', { name: list.name }),
         lists: [list.id],
         from_email: this.serverConfig.fromEmail,
         content_type: 'richtext',

@@ -29,14 +29,17 @@ const (
 	SubscriptionStatusUnsubscribed = "unsubscribed"
 
 	// Campaign.
-	CampaignStatusDraft     = "draft"
-	CampaignStatusScheduled = "scheduled"
-	CampaignStatusRunning   = "running"
-	CampaignStatusPaused    = "paused"
-	CampaignStatusFinished  = "finished"
-	CampaignStatusCancelled = "cancelled"
-	CampaignTypeRegular     = "regular"
-	CampaignTypeOptin       = "optin"
+	CampaignStatusDraft         = "draft"
+	CampaignStatusScheduled     = "scheduled"
+	CampaignStatusRunning       = "running"
+	CampaignStatusPaused        = "paused"
+	CampaignStatusFinished      = "finished"
+	CampaignStatusCancelled     = "cancelled"
+	CampaignTypeRegular         = "regular"
+	CampaignTypeOptin           = "optin"
+	CampaignContentTypeRichtext = "richtext"
+	CampaignContentTypeHTML     = "html"
+	CampaignContentTypePlain    = "plain"
 
 	// List.
 	ListTypePrivate = "private"
@@ -128,6 +131,17 @@ type SubscriberAttribs map[string]interface{}
 // Subscribers represents a slice of Subscriber.
 type Subscribers []Subscriber
 
+// SubscriberExport represents a subscriber record that is exported to raw data.
+type SubscriberExport struct {
+	Base
+
+	UUID    string `db:"uuid" json:"uuid"`
+	Email   string `db:"email" json:"email"`
+	Name    string `db:"name" json:"name"`
+	Attribs string `db:"attribs" json:"attribs"`
+	Status  string `db:"status" json:"status"`
+}
+
 // List represents a mailing list.
 type List struct {
 	Base
@@ -159,6 +173,7 @@ type Campaign struct {
 	Subject     string         `db:"subject" json:"subject"`
 	FromEmail   string         `db:"from_email" json:"from_email"`
 	Body        string         `db:"body" json:"body"`
+	AltBody     null.String    `db:"altbody" json:"altbody"`
 	SendAt      null.Time      `db:"send_at" json:"send_at"`
 	Status      string         `db:"status" json:"status"`
 	ContentType string         `db:"content_type" json:"content_type"`
@@ -170,6 +185,7 @@ type Campaign struct {
 	TemplateBody string             `db:"template_body" json:"-"`
 	Tpl          *template.Template `json:"-"`
 	SubjectTpl   *template.Template `json:"-"`
+	AltBodyTpl   *template.Template `json:"-"`
 
 	// Pseudofield for getting the total number of subscribers
 	// in searches and queries.
@@ -310,6 +326,7 @@ func (c *Campaign) CompileTemplate(f template.FuncMap) error {
 	if err != nil {
 		return fmt.Errorf("error inserting child template: %v", err)
 	}
+	c.Tpl = out
 
 	// If the subject line has a template string, compile it.
 	if strings.Contains(c.Subject, "{{") {
@@ -324,7 +341,18 @@ func (c *Campaign) CompileTemplate(f template.FuncMap) error {
 		c.SubjectTpl = subjTpl
 	}
 
-	c.Tpl = out
+	if strings.Contains(c.AltBody.String, "{{") {
+		b := c.AltBody.String
+		for _, r := range regTplFuncs {
+			b = r.regExp.ReplaceAllString(b, r.replace)
+		}
+		bTpl, err := template.New(ContentTpl).Funcs(f).Parse(b)
+		if err != nil {
+			return fmt.Errorf("error compiling alt plaintext message: %v", err)
+		}
+		c.AltBodyTpl = bTpl
+	}
+
 	return nil
 }
 

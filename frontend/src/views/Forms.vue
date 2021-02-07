@@ -1,12 +1,18 @@
 <template>
   <section class="forms content relative">
-    <h1 class="title is-4">Forms</h1>
+    <h1 class="title is-4">{{ $t('forms.title') }}</h1>
     <hr />
+
     <b-loading v-if="loading.lists" :active="loading.lists" :is-full-page="false" />
+    <p v-else-if="publicLists.length === 0">
+      {{ $t('forms.noPublicLists') }}
+    </p>
+
+
     <div class="columns" v-else-if="publicLists.length > 0">
       <div class="column is-4">
-        <h4>Public lists</h4>
-        <p>Select lists to add to the form.</p>
+        <h4>{{ $t('forms.publicLists') }}</h4>
+        <p>{{ $t('forms.selectHelp') }}</p>
 
         <b-loading :active="loading.lists" :is-full-page="false" />
         <ul class="no">
@@ -15,34 +21,41 @@
               :native-value="l.uuid">{{ l.name }}</b-checkbox>
           </li>
         </ul>
+
+
+        <template v-if="serverConfig.enablePublicSubscriptionPage">
+          <hr />
+          <h4>{{ $t('forms.publicSubPage') }}</h4>
+          <p>
+            <a :href="`${serverConfig.rootURL}/subscription/form`"
+              target="_blank">{{ serverConfig.rootURL }}/subscription/form</a>
+          </p>
+        </template>
       </div>
       <div class="column">
-        <h4>Form HTML</h4>
+        <h4>{{ $t('forms.formHTML') }}</h4>
         <p>
-          Use the following HTML to show a subscription form on an external webpage.
-        </p>
-        <p>
-          The form should have the <code>email</code> field and one or more <code>l</code>
-          (list UUID) fields. The <code>name</code> field is optional.
+          {{ $t('forms.formHTMLHelp') }}
         </p>
 
-        <pre><!-- eslint-disable max-len -->&lt;form method=&quot;post&quot; action=&quot;http://localhost:9000/subscription/form&quot; class=&quot;listmonk-form&quot;&gt;
+        <!-- eslint-disable max-len -->
+        <pre v-if="checked.length > 0">&lt;form method=&quot;post&quot; action=&quot;{{ serverConfig.rootURL }}/subscription/form&quot; class=&quot;listmonk-form&quot;&gt;
     &lt;div&gt;
         &lt;h3&gt;Subscribe&lt;/h3&gt;
-        &lt;p&gt;&lt;input type=&quot;text&quot; name=&quot;email&quot; placeholder=&quot;E-mail&quot; /&gt;&lt;/p&gt;
-        &lt;p&gt;&lt;input type=&quot;text&quot; name=&quot;name&quot; placeholder=&quot;Name (optional)&quot; /&gt;&lt;/p&gt;
+        &lt;p&gt;&lt;input type=&quot;text&quot; name=&quot;email&quot; placeholder=&quot;{{ $t('subscribers.email') }}&quot; /&gt;&lt;/p&gt;
+        &lt;p&gt;&lt;input type=&quot;text&quot; name=&quot;name&quot; placeholder=&quot;{{ $t('public.subName') }}&quot; /&gt;&lt;/p&gt;
       <template v-for="l in publicLists"><span v-if="l.uuid in selected" :key="l.id" :set="id = l.uuid.substr(0, 5)">
         &lt;p&gt;
-          &lt;input id=&quot;{{ id }}&quot; type=&quot;checkbox&quot; name=&quot;l&quot; value=&quot;{{ l.uuid }}&quot; /&gt;
+          &lt;input id=&quot;{{ id }}&quot; type=&quot;checkbox&quot; name=&quot;l&quot; checked value=&quot;{{ l.uuid }}&quot; /&gt;
           &lt;label for=&quot;{{ id }}&quot;&gt;{{ l.name }}&lt;/label&gt;
         &lt;/p&gt;</span></template>
-        &lt;p&gt;&lt;input type=&quot;submit&quot; value=&quot;Subscribe&quot; /&gt;&lt;/p&gt;
+
+        &lt;p&gt;&lt;input type=&quot;submit&quot; value=&quot;{{ $t('public.sub') }}&quot; /&gt;&lt;/p&gt;
     &lt;/div&gt;
 &lt;/form&gt;</pre>
       </div>
     </div><!-- columns -->
 
-    <p v-else>There are no public lists to create forms.</p>
   </section>
 </template>
 
@@ -66,7 +79,7 @@ export default Vue.extend({
   },
 
   computed: {
-    ...mapState(['lists', 'loading']),
+    ...mapState(['lists', 'loading', 'serverConfig']),
 
     publicLists() {
       if (!this.lists.results) {

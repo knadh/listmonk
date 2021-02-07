@@ -50,13 +50,15 @@ func handleGetLists(c echo.Context) error {
 		order = sortAsc
 	}
 
-	if err := db.Select(&out.Results, fmt.Sprintf(app.queries.GetLists, orderBy, order), listID, pg.Offset, pg.Limit); err != nil {
+	if err := db.Select(&out.Results, fmt.Sprintf(app.queries.QueryLists, orderBy, order), listID, pg.Offset, pg.Limit); err != nil {
 		app.log.Printf("error fetching lists: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
-			fmt.Sprintf("Error fetching lists: %s", pqErrMsg(err)))
+			app.i18n.Ts("globals.messages.errorFetching",
+				"name", "{globals.terms.lists}", "error", pqErrMsg(err)))
 	}
 	if single && len(out.Results) == 0 {
-		return echo.NewHTTPError(http.StatusBadRequest, "List not found.")
+		return echo.NewHTTPError(http.StatusBadRequest,
+			app.i18n.Ts("globals.messages.notFound", "name", "{globals.terms.list}"))
 	}
 	if len(out.Results) == 0 {
 		return c.JSON(http.StatusOK, okResp{[]struct{}{}})
@@ -93,14 +95,14 @@ func handleCreateList(c echo.Context) error {
 
 	// Validate.
 	if !strHasLen(o.Name, 1, stdInputMaxLen) {
-		return echo.NewHTTPError(http.StatusBadRequest,
-			"Invalid length for the name field.")
+		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("lists.invalidName"))
 	}
 
 	uu, err := uuid.NewV4()
 	if err != nil {
 		app.log.Printf("error generating UUID: %v", err)
-		return echo.NewHTTPError(http.StatusInternalServerError, "Error generating UUID")
+		return echo.NewHTTPError(http.StatusInternalServerError,
+			app.i18n.Ts("globals.messages.errorUUID", "error", err.Error()))
 	}
 
 	// Insert and read ID.
@@ -114,7 +116,8 @@ func handleCreateList(c echo.Context) error {
 		pq.StringArray(normalizeTags(o.Tags))); err != nil {
 		app.log.Printf("error creating list: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
-			fmt.Sprintf("Error creating list: %s", pqErrMsg(err)))
+			app.i18n.Ts("globals.messages.errorCreating",
+				"name", "{globals.terms.list}", "error", pqErrMsg(err)))
 	}
 
 	// Hand over to the GET handler to return the last insertion.
@@ -131,7 +134,7 @@ func handleUpdateList(c echo.Context) error {
 	)
 
 	if id < 1 {
-		return echo.NewHTTPError(http.StatusBadRequest, "Invalid ID.")
+		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidID"))
 	}
 
 	// Incoming params.
@@ -144,12 +147,14 @@ func handleUpdateList(c echo.Context) error {
 		o.Name, o.Type, o.Optin, pq.StringArray(normalizeTags(o.Tags)))
 	if err != nil {
 		app.log.Printf("error updating list: %v", err)
-		return echo.NewHTTPError(http.StatusBadRequest,
-			fmt.Sprintf("Error updating list: %s", pqErrMsg(err)))
+		return echo.NewHTTPError(http.StatusInternalServerError,
+			app.i18n.Ts("globals.messages.errorUpdating",
+				"name", "{globals.terms.list}", "error", pqErrMsg(err)))
 	}
 
 	if n, _ := res.RowsAffected(); n == 0 {
-		return echo.NewHTTPError(http.StatusBadRequest, "List not found.")
+		return echo.NewHTTPError(http.StatusBadRequest,
+			app.i18n.Ts("globals.messages.notFound", "name", "{globals.terms.list}"))
 	}
 
 	return handleGetLists(c)
@@ -165,7 +170,7 @@ func handleDeleteLists(c echo.Context) error {
 	)
 
 	if id < 1 && len(ids) == 0 {
-		return echo.NewHTTPError(http.StatusBadRequest, "Invalid ID.")
+		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidID"))
 	}
 
 	if id > 0 {
@@ -175,7 +180,8 @@ func handleDeleteLists(c echo.Context) error {
 	if _, err := app.queries.DeleteLists.Exec(ids); err != nil {
 		app.log.Printf("error deleting lists: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
-			fmt.Sprintf("Error deleting: %v", err))
+			app.i18n.Ts("globals.messages.errorDeleting",
+				"name", "{globals.terms.list}", "error", pqErrMsg(err)))
 	}
 
 	return c.JSON(http.StatusOK, okResp{true})

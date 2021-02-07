@@ -1,7 +1,6 @@
 <template>
   <section class="import">
-    <h1 class="title is-4">Import subscribers</h1>
-
+    <h1 class="title is-4">{{ $t('import.title') }}</h1>
     <b-loading :active="isLoading"></b-loading>
 
     <section v-if="isFree()" class="wrap-small">
@@ -9,26 +8,26 @@
         <div>
           <div class="columns">
             <div class="column">
-              <b-field label="Mode">
+              <b-field :label="$t('import.mode')">
                 <div>
                   <b-radio v-model="form.mode" name="mode"
-                    native-value="subscribe">Subscribe</b-radio>
+                    native-value="subscribe">{{ $t('import.subscribe') }}</b-radio>
                   <b-radio v-model="form.mode" name="mode"
-                    native-value="blocklist">Blocklist</b-radio>
+                    native-value="blocklist">{{ $t('import.blocklist') }}</b-radio>
                 </div>
               </b-field>
             </div>
             <div class="column">
               <b-field v-if="form.mode === 'subscribe'"
-                label="Overwrite?"
-                message="Overwrite name and attribs of existing subscribers?">
+                :label="$t('import.overwrite')"
+                :message="$t('import.overwriteHelp')">
                 <div>
                   <b-switch v-model="form.overwrite" name="overwrite" />
                 </div>
               </b-field>
             </div>
             <div class="column">
-              <b-field label="CSV delimiter" message="Default delimiter is comma."
+              <b-field :label="$t('import.csvDelim')" :message="$t('import.csvDelimHelp')"
                 class="delimiter">
                 <b-input v-model="form.delim" name="delim"
                   placeholder="," maxlength="1" required />
@@ -37,22 +36,22 @@
           </div>
 
           <list-selector v-if="form.mode === 'subscribe'"
-            label="Lists"
-            placeholder="Lists to subscribe to"
-            message="Lists to subscribe to."
+            :label="$t('globals.terms.lists')"
+            :placeholder="$t('import.listSubHelp')"
+            :message="$t('import.listSubHelp')"
             v-model="form.lists"
             :selected="form.lists"
             :all="lists.results"
           ></list-selector>
           <hr />
 
-          <b-field label="CSV or ZIP file" label-position="on-border">
+          <b-field :label="$t('import.csvFile')" label-position="on-border">
             <b-upload v-model="form.file" drag-drop expanded>
               <div class="has-text-centered section">
                 <p>
                   <b-icon icon="file-upload-outline" size="is-large"></b-icon>
                 </p>
-                <p>Click or drag a CSV or ZIP file here</p>
+                <p>{{ $t('import.csvFileHelp') }}</p>
               </div>
             </b-upload>
           </b-field>
@@ -64,20 +63,15 @@
           <div class="buttons">
             <b-button native-type="submit" type="is-primary"
               :disabled="!form.file || (form.mode === 'subscribe' && form.lists.length === 0)"
-              :loading="isProcessing">Upload</b-button>
+              :loading="isProcessing">{{ $t('import.upload') }}</b-button>
           </div>
         </div>
       </form>
       <br /><br />
 
       <div class="import-help">
-        <h5 class="title is-size-6">Instructions</h5>
-        <p>
-          Upload a CSV file or a ZIP file with a single CSV file in it to bulk
-          import subscribers. The CSV file should have the following headers
-          with the exact column names. <code>attributes</code> (optional)
-          should be a valid JSON string with double escaped quotes.
-        </p>
+        <h5 class="title is-size-6">{{ $t('import.instructions') }}</h5>
+        <p>{{ $t('import.instructionsHelp') }}</p>
         <br />
         <blockquote className="csv-example">
           <code className="csv-headers">
@@ -89,7 +83,7 @@
 
         <hr />
 
-        <h5 class="title is-size-6">Example raw CSV</h5>
+        <h5 class="title is-size-6">{{ $t('import.csvExample') }}</h5>
         <blockquote className="csv-example">
           <code className="csv-headers">
             <span>email,</span>
@@ -118,12 +112,14 @@
           {'has-text-danger': (status.status === 'failed' || status.status === 'stopped')}]">
         {{ status.status }}</p>
 
-      <p>{{ status.imported }} / {{ status.total }} records</p>
+      <p>{{ $t('import.recordsCount', { num: status.imported, total: status.total }) }}</p>
       <br />
 
       <p>
         <b-button @click="stopImport" :loading="isProcessing" icon-left="file-upload-outline"
-          type="is-primary">{{ isDone() ? 'Done' : 'Stop import' }}</b-button>
+          type="is-primary">
+          {{ isDone() ? $t('import.importDone') : $t('import.stopImport') }}
+        </b-button>
       </p>
       <br />
 
@@ -281,7 +277,7 @@ export default Vue.extend({
       this.$api.importSubscribers(params).then(() => {
         // On file upload, show a confirmation.
         this.$buefy.toast.open({
-          message: 'Import started',
+          message: this.$t('import.importStarted'),
           type: 'is-success',
           queue: false,
         });

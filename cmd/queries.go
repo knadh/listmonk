@@ -35,6 +35,7 @@ type Queries struct {
 
 	// Non-prepared arbitrary subscriber queries.
 	QuerySubscribers                       string `query:"query-subscribers"`
+	QuerySubscribersForExport              string `query:"query-subscribers-for-export"`
 	QuerySubscribersTpl                    string `query:"query-subscribers-template"`
 	DeleteSubscribersByQuery               string `query:"delete-subscribers-by-query"`
 	AddSubscribersToListsByQuery           string `query:"add-subscribers-to-lists-by-query"`
@@ -43,7 +44,8 @@ type Queries struct {
 	UnsubscribeSubscribersFromListsByQuery string `query:"unsubscribe-subscribers-from-lists-by-query"`
 
 	CreateList      *sqlx.Stmt `query:"create-list"`
-	GetLists        string     `query:"get-lists"`
+	QueryLists      string     `query:"query-lists"`
+	GetLists        *sqlx.Stmt `query:"get-lists"`
 	GetListsByOptin *sqlx.Stmt `query:"get-lists-by-optin"`
 	UpdateList      *sqlx.Stmt `query:"update-list"`
 	UpdateListsDate *sqlx.Stmt `query:"update-lists-date"`

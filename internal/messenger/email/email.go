@@ -7,7 +7,6 @@ import (
 	"net/smtp"
 	"net/textproto"
 
-	"github.com/jaytaylor/html2text"
 	"github.com/knadh/listmonk/internal/messenger"
 	"github.com/knadh/smtppool"
 )
@@ -19,7 +18,6 @@ type Server struct {
 	Username      string            `json:"username"`
 	Password      string            `json:"password"`
 	AuthProtocol  string            `json:"auth_protocol"`
-	EmailFormat   string            `json:"email_format"`
 	TLSEnabled    bool              `json:"tls_enabled"`
 	TLSSkipVerify bool              `json:"tls_skip_verify"`
 	EmailHeaders  map[string]string `json:"email_headers"`
@@ -114,12 +112,6 @@ func (e *Emailer) Push(m messenger.Message) error {
 		}
 	}
 
-	mtext, err := html2text.FromString(string(m.Body),
-		html2text.Options{PrettyTables: true})
-	if err != nil {
-		return err
-	}
-
 	em := smtppool.Email{
 		From:        m.From,
 		To:          m.To,
@@ -140,14 +132,14 @@ func (e *Emailer) Push(m messenger.Message) error {
 		}
 	}
 
-	switch srv.EmailFormat {
-	case "html":
-		em.HTML = m.Body
+	switch m.ContentType {
 	case "plain":
-		em.Text = []byte(mtext)
+		em.Text = []byte(m.Body)
 	default:
 		em.HTML = m.Body
-		em.Text = []byte(mtext)
+		if len(m.AltBody) > 0 {
+			em.Text = m.AltBody
+		}
 	}
 
 	return srv.pool.Send(em)

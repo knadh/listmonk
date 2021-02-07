@@ -6,25 +6,27 @@
           <b-tag v-if="isEditing" :class="data.status">{{ data.status }}</b-tag>
           <b-tag v-if="data.type === 'optin'" :class="data.type">{{ data.type }}</b-tag>
           <span v-if="isEditing" class="has-text-grey-light is-size-7">
-            ID: {{ data.id }} / UUID: {{ data.uuid }}
+            {{ $t('globals.fields.id') }}: {{ data.id }} /
+            {{ $t('globals.fields.uuid') }}: {{ data.uuid }}
           </span>
         </p>
         <h4 v-if="isEditing" class="title is-4">{{ data.name }}</h4>
-        <h4 v-else class="title is-4">New campaign</h4>
+        <h4 v-else class="title is-4">{{ $t('campaigns.newCampaign') }}</h4>
       </div>
 
       <div class="column">
         <div class="buttons" v-if="isEditing && canEdit">
           <b-button @click="onSubmit" :loading="loading.campaigns"
-            type="is-primary" icon-left="content-save-outline">Save changes</b-button>
-
+            type="is-primary" icon-left="content-save-outline">
+            {{ $t('globals.buttons.saveChanges') }}
+          </b-button>
           <b-button v-if="canStart" @click="startCampaign" :loading="loading.campaigns"
             type="is-primary" icon-left="rocket-launch-outline">
-              Start campaign
+              {{ $t('campaigns.start') }}
           </b-button>
           <b-button v-if="canSchedule" @click="startCampaign" :loading="loading.campaigns"
             type="is-primary" icon-left="clock-start">
-              Schedule campaign
+              {{ $t('campaigns.schedule') }}
           </b-button>
         </div>
       </div>
@@ -33,24 +35,25 @@
     <b-loading :active="loading.campaigns"></b-loading>
 
     <b-tabs type="is-boxed" :animated="false" v-model="activeTab">
-      <b-tab-item label="Campaign" label-position="on-border" icon="rocket-launch-outline">
+      <b-tab-item :label="$tc('globals.terms.campaign')" label-position="on-border"
+        icon="rocket-launch-outline">
         <section class="wrap">
           <div class="columns">
             <div class="column is-7">
               <form @submit.prevent="onSubmit">
-                <b-field label="Name" label-position="on-border">
+                <b-field :label="$t('globals.fields.name')" label-position="on-border">
                   <b-input :maxlength="200" :ref="'focus'" v-model="form.name" :disabled="!canEdit"
-                    placeholder="Name" required></b-input>
+                    :placeholder="$t('globals.fields.name')" required></b-input>
                 </b-field>
 
-                <b-field label="Subject" label-position="on-border">
+                <b-field :label="$t('campaigns.subject')" label-position="on-border">
                   <b-input :maxlength="200" v-model="form.subject" :disabled="!canEdit"
-                    placeholder="Subject" required></b-input>
+                    :placeholder="$t('campaigns.subject')" required></b-input>
                 </b-field>
 
-                <b-field label="From address" label-position="on-border">
+                <b-field :label="$t('campaigns.fromAddress')" label-position="on-border">
                   <b-input :maxlength="200" v-model="form.fromEmail" :disabled="!canEdit"
-                    placeholder="Your Name <noreply@yoursite.com>" required></b-input>
+                    :placeholder="$t('campaigns.fromAddressPlaceholder')" required></b-input>
                 </b-field>
 
                 <list-selector
@@ -58,35 +61,35 @@
                   :selected="form.lists"
                   :all="lists.results"
                   :disabled="!canEdit"
-                  label="Lists"
-                  placeholder="Lists to send to"
+                  :label="$t('globals.terms.lists')"
+                  :placeholder="$t('campaigns.sendToLists')"
                 ></list-selector>
 
-                <b-field label="Template" label-position="on-border">
-                  <b-select placeholder="Template" v-model="form.templateId"
+                <b-field :label="$tc('globals.terms.template')" label-position="on-border">
+                  <b-select :placeholder="$tc('globals.terms.template')" v-model="form.templateId"
                     :disabled="!canEdit" required>
                     <option v-for="t in templates" :value="t.id" :key="t.id">{{ t.name }}</option>
                   </b-select>
                 </b-field>
 
-                <b-field label="Messenger" label-position="on-border">
-                  <b-select placeholder="Messenger" v-model="form.messenger"
+                <b-field :label="$tc('globals.terms.messenger')" label-position="on-border">
+                  <b-select :placeholder="$tc('globals.terms.messenger')" v-model="form.messenger"
                     :disabled="!canEdit" required>
                     <option v-for="m in serverConfig.messengers"
                       :value="m" :key="m">{{ m }}</option>
                   </b-select>
                 </b-field>
 
-                <b-field label="Tags" label-position="on-border">
+                <b-field :label="$t('globals.terms.tags')" label-position="on-border">
                   <b-taginput v-model="form.tags" :disabled="!canEdit"
-                    ellipsis icon="tag-outline" placeholder="Tags"></b-taginput>
+                    ellipsis icon="tag-outline" :placeholder="$t('globals.terms.tags')" />
                 </b-field>
                 <hr />
 
                 <div class="columns">
-                  <div class="column is-2">
-                    <b-field label="Send later?">
-                        <b-switch v-model="form.sendLater" :disabled="!canEdit"></b-switch>
+                  <div class="column is-4">
+                    <b-field :label="$t('campaigns.sendLater')">
+                        <b-switch v-model="form.sendLater" :disabled="!canEdit" />
                     </b-field>
                   </div>
                   <div class="column">
@@ -96,7 +99,7 @@
                       <b-datetimepicker
                         v-model="form.sendAtDate"
                         :disabled="!canEdit"
-                        placeholder="Date and time"
+                        :placeholder="$t('campaigns.dateAndTime')"
                         icon="calendar-clock"
                         :timepicker="{ hourFormat: '24' }"
                         :datetime-formatter="formatDateTime"
@@ -109,23 +112,24 @@
 
                 <b-field v-if="isNew">
                   <b-button native-type="submit" type="is-primary"
-                    :loading="loading.campaigns">Continue</b-button>
+                    :loading="loading.campaigns">{{ $t('campaigns.continue') }}</b-button>
                 </b-field>
               </form>
             </div>
             <div class="column is-4 is-offset-1">
               <br />
               <div class="box">
-                <h3 class="title is-size-6">Send test message</h3>
-                  <b-field message="Hit Enter after typing an address to add multiple recipients.
-                      The addresses must belong to existing subscribers.">
-                    <b-taginput  v-model="form.testEmails"
+                <h3 class="title is-size-6">{{ $t('campaigns.sendTest') }}</h3>
+                  <b-field :message="$t('campaigns.sendTestHelp')">
+                    <b-taginput v-model="form.testEmails"
                       :before-adding="$utils.validateEmail" :disabled="this.isNew"
-                      ellipsis icon="email-outline" placeholder="E-mails"></b-taginput>
+                      ellipsis icon="email-outline" :placeholder="$t('campaigns.testEmails')" />
                   </b-field>
                   <b-field>
                     <b-button @click="sendTest" :loading="loading.campaigns" :disabled="this.isNew"
-                      type="is-primary" icon-left="email-outline">Send</b-button>
+                      type="is-primary" icon-left="email-outline">
+                      {{ $t('campaigns.send') }}
+                    </b-button>
                   </b-field>
               </div>
             </div>
@@ -133,17 +137,30 @@
         </section>
       </b-tab-item><!-- campaign -->
 
-      <b-tab-item label="Content" icon="text" :disabled="isNew">
-        <section class="wrap">
-          <editor
-            v-model="form.content"
-            :id="data.id"
-            :title="data.name"
-            :contentType="data.contentType"
-            :body="data.body"
-            :disabled="!canEdit"
-          />
-        </section>
+      <b-tab-item :label="$t('campaigns.content')" icon="text" :disabled="isNew">
+        <editor
+          v-model="form.content"
+          :id="data.id"
+          :title="data.name"
+          :contentType="data.contentType"
+          :body="data.body"
+          :disabled="!canEdit"
+        />
+
+        <div v-if="canEdit && form.content.contentType !== 'plain'" class="alt-body">
+          <p class="is-size-6 has-text-grey has-text-right">
+            <a v-if="form.altbody === null" href="#" @click.prevent="addAltBody">
+              <b-icon icon="text" size="is-small" /> {{ $t('campaigns.addAltText') }}
+            </a>
+            <a v-else href="#" @click.prevent="$utils.confirm(null, removeAltBody)">
+              <b-icon icon="trash-can-outline" size="is-small" />
+              {{ $t('campaigns.removeAltText') }}
+            </a>
+          </p>
+          <br />
+          <b-input v-if="form.altbody !== null" v-model="form.altbody"
+            type="textarea" :disabled="!canEdit" />
+        </div>
       </b-tab-item><!-- content -->
     </b-tabs>
   </section>
@@ -153,6 +170,8 @@
 import Vue from 'vue';
 import { mapState } from 'vuex';
 import dayjs from 'dayjs';
+import htmlToPlainText from 'textversionjs';
+
 import ListSelector from '../components/ListSelector.vue';
 import Editor from '../components/Editor.vue';
 
@@ -183,6 +202,7 @@ export default Vue.extend({
         tags: [],
         sendAt: null,
         content: { contentType: 'richtext', body: '' },
+        altbody: null,
 
         // Parsed Date() version of send_at from the API.
         sendAtDate: null,
@@ -196,6 +216,22 @@ export default Vue.extend({
   methods: {
     formatDateTime(s) {
       return dayjs(s).format('YYYY-MM-DD HH:mm');
+    },
+
+    addAltBody() {
+      this.form.altbody = htmlToPlainText(this.form.content.body);
+    },
+
+    removeAltBody() {
+      this.form.altbody = null;
+    },
+
+    onSubmit() {
+      if (this.isNew) {
+        this.createCampaign();
+      } else {
+        this.updateCampaign();
+      }
     },
 
     getCampaign(id) {
@@ -229,21 +265,14 @@ export default Vue.extend({
         template_id: this.form.templateId,
         content_type: this.form.content.contentType,
         body: this.form.content.body,
+        altbody: this.form.content.contentType !== 'plain' ? this.form.altbody : null,
         subscribers: this.form.testEmails,
       };
 
       this.$api.testCampaign(data).then(() => {
-        this.$utils.toast('Test message sent');
+        this.$utils.toast(this.$t('campaigns.testSent'));
       });
       return false;
-    },
-
-    onSubmit() {
-      if (this.isNew) {
-        this.createCampaign();
-      } else {
-        this.updateCampaign();
-      }
     },
 
     createCampaign() {
@@ -280,18 +309,19 @@ export default Vue.extend({
         template_id: this.form.templateId,
         content_type: this.form.content.contentType,
         body: this.form.content.body,
+        altbody: this.form.content.contentType !== 'plain' ? this.form.altbody : null,
       };
 
-      let typMsg = 'updated';
+      let typMsg = 'globals.messages.updated';
       if (typ === 'start') {
-        typMsg = 'started';
+        typMsg = 'campaigns.started';
       }
 
       // This promise is used by startCampaign to first save before starting.
       return new Promise((resolve) => {
         this.$api.updateCampaign(this.data.id, data).then((d) => {
           this.data = d;
-          this.$utils.toast(`'${d.name}' ${typMsg}`);
+          this.$utils.toast(this.$t(typMsg, { name: d.name }));
           resolve();
         });
       });
@@ -373,7 +403,7 @@ export default Vue.extend({
     } else {
       const intID = parseInt(id, 10);
       if (intID <= 0 || Number.isNaN(intID)) {
-        this.$utils.toast('Invalid campaign');
+        this.$utils.toast(this.$t('campaigns.invalid'));
         return;
       }
 

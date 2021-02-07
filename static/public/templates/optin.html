@@ -1,9 +1,9 @@
 {{ define "optin" }}
 {{ template "header" .}}
 <section>
-    <h2>Confirm</h2>
+    <h2>{{ L.T "public.confirmSubTitle" }}</h2>
     <p>
-        You have been added to the following mailing lists:
+        {{ L.T "public.confirmSubInfo" }}
     </p>
 
     <form method="post">
@@ -13,13 +13,15 @@
                 {{ if eq $l.Type "public" }}
                     <li>{{ $l.Name }}</li>
                 {{ else }}
-                    <li>Private list</li>
+                    <li>{{ L.Ts "public.subPrivateList" }}</li>
                 {{ end }}
             {{ end }}
         </ul>
         <p>
             <input type="hidden" name="confirm" value="true" />
-            <button type="submit" class="button" id="btn-unsub">Confirm subscription(s)</button>
+            <button type="submit" class="button" id="btn-unsub">
+                {{ L.Ts "public.confirmSub" }}
+            </button>
         </p>
     </form>
 </section>

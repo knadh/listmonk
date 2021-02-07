@@ -5,31 +5,32 @@
         <header class="modal-card-head">
             <b-button @click="previewTemplate"
               class="is-pulled-right" type="is-primary"
-              icon-left="file-find-outline">Preview</b-button>
+              icon-left="file-find-outline">{{ $t('templates.preview') }}</b-button>
 
             <h4 v-if="isEditing">{{ data.name }}</h4>
-            <h4 v-else>New template</h4>
+            <h4 v-else>{{ $t('templates.newTemplate') }}</h4>
         </header>
         <section expanded class="modal-card-body">
-            <b-field label="Name" label-position="on-border">
+            <b-field :label="$t('globals.fields.name')" label-position="on-border">
             <b-input :maxlength="200" :ref="'focus'" v-model="form.name"
-                placeholder="Name" required></b-input>
+                placeholder="$t('globals.fields.name')" required></b-input>
             </b-field>
 
-            <b-field label="Raw HTML" label-position="on-border">
+            <b-field :label="$t('globals.fields.rawHTML')" label-position="on-border">
             <b-input v-model="form.body" type="textarea" required />
             </b-field>
 
             <p class="is-size-7">
-                The placeholder <code>{{ egPlaceholder }}</code>
-                should appear in the template.
-                <a target="_blank" href="https://listmonk.app/docs/templating">Learn more.</a>
+              {{ $t('templates.placeholderHelp', { placeholder: egPlaceholder }) }}
+              <a target="_blank" href="https://listmonk.app/docs/templating">
+                {{ $t('globals.buttons.learnMore') }}
+              </a>
             </p>
         </section>
         <footer class="modal-card-foot has-text-right">
-            <b-button @click="$parent.close()">Close</b-button>
+            <b-button @click="$parent.close()">{{ $t('globals.buttons.close') }}</b-button>
             <b-button native-type="submit" type="is-primary"
-            :loading="loading.templates">Save</b-button>
+            :loading="loading.templates">{{ $t('globals.buttons.save') }}</b-button>
         </footer>
       </div>
     </form>
@@ -98,7 +99,7 @@ export default Vue.extend({
         this.$emit('finished');
         this.$parent.close();
         this.$buefy.toast.open({
-          message: `'${d.name}' created`,
+          message: this.$t('globals.messages.created', { name: d.name }),
           type: 'is-success',
           queue: false,
         });
