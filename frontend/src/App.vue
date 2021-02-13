@@ -163,9 +163,10 @@ export default Vue.extend({
         // Poll until there's a 200 response, waiting for the app
         // to restart and come back up.
         const pollId = setInterval(() => {
-          clearInterval(pollId);
-          this.$utils.toast('Reload complete');
-          document.location.reload();
+          this.$api.getHealth().then(() => {
+            clearInterval(pollId);
+            document.location.reload();
+          });
         }, 500);
       });
     },
