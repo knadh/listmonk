@@ -324,14 +324,18 @@ func handleSubscriptionForm(c echo.Context) error {
 	// Insert the subscriber into the DB.
 	req.Status = models.SubscriberStatusEnabled
 	req.ListUUIDs = pq.StringArray(req.SubListUUIDs)
-	if _, err := insertSubscriber(req.SubReq, app); err != nil && err != errSubscriberExists {
+	_, _, hasOptin, err := insertSubscriber(req.SubReq, app)
+	if err != nil {
 		return c.Render(http.StatusInternalServerError, tplMessage,
 			makeMsgTpl(app.i18n.T("public.errorTitle"), "", fmt.Sprintf("%s", err.(*echo.HTTPError).Message)))
 	}
 
-	return c.Render(http.StatusOK, tplMessage,
-		makeMsgTpl(app.i18n.T("public.subTitle"), "",
-			app.i18n.Ts("public.subConfirmed")))
+	msg := "public.subConfirmed"
+	if hasOptin {
+		msg = "public.subOptinPending"
+	}
+
+	return c.Render(http.StatusOK, tplMessage, makeMsgTpl(app.i18n.T("public.subTitle"), "", app.i18n.Ts(msg)))
 }
 
 // handleLinkRedirect redirects a link UUID to its original underlying link

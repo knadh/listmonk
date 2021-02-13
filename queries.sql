@@ -1,8 +1,13 @@
 
 -- subscribers
 -- name: get-subscriber
--- Get a single subscriber by id or UUID.
-SELECT * FROM subscribers WHERE CASE WHEN $1 > 0 THEN id = $1 ELSE uuid = $2 END;
+-- Get a single subscriber by id or UUID or email.
+SELECT * FROM subscribers WHERE
+    CASE
+        WHEN $1 > 0 THEN id = $1
+        WHEN $2 != '' THEN uuid = $2::UUID
+        WHEN $3 != '' THEN email = $3
+    END;
 
 -- name: subscriber-exists
 -- Check if a subscriber exists by id or UUID.
