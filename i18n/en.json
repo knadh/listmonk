@@ -79,7 +79,7 @@
     "email.optin.confirmSubHelp": "Confirm your subscription by clicking the below button.",
     "email.optin.confirmSubInfo": "You have been added to the following lists:",
     "email.optin.confirmSubTitle": "Confirm subscription",
-    "email.optin.confirmSubWelcome": "Hi {name},",
+    "email.optin.confirmSubWelcome": "Hi",
     "email.optin.privateList": "Private list",
     "email.status.campaignReason": "Reason",
     "email.status.campaignSent": "Sent",

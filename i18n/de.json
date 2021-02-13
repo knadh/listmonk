@@ -77,7 +77,7 @@
   "email.optin.confirmSubHelp": "Bestätige dein Abonnement mit einem Klick auf den nachfolgenden Knopf.",
   "email.optin.confirmSubInfo": "Du hast dich erfolgreich für folgende Listen angemeldet:",
   "email.optin.confirmSubTitle": "Abonnement bestätigen",
-  "email.optin.confirmSubWelcome": "Hallo {name},",
+  "email.optin.confirmSubWelcome": "Hallo",
   "email.optin.privateList": "Private Liste",
   "email.status.campaignReason": "Grund",
   "email.status.campaignSent": "Gesendet",

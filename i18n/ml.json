@@ -77,7 +77,7 @@
     "email.optin.confirmSubHelp": "നിങ്ങൾ വരിക്കാരനാകുന്നത് താഴെയുള്ള ബട്ടണിൽ ഞെക്കിക്കൊണ്ട് സ്ഥിരീകരിക്കുക.",
     "email.optin.confirmSubInfo": "നിങ്ങൾ താഴെപ്പറയുന്ന ലിസ്റ്റുകളിൽ അംഗമാണ്:",
     "email.optin.confirmSubTitle": "വരിക്കാരനാകുന്നത് സ്ഥിരീകരിക്കുക",
-    "email.optin.confirmSubWelcome": "നമസ്കാരം {name},",
+    "email.optin.confirmSubWelcome": "നമസ്കാരം",
     "email.optin.privateList": "സ്വകാര്യ ലിസ്റ്റ്",
     "email.status.campaignReason": "കാരണം",
     "email.status.campaignSent": "അയച്ചു",

@@ -79,7 +79,7 @@
     "email.optin.confirmSubHelp": "Confirme a sua subscrição clicando no botão abaixo.",
     "email.optin.confirmSubInfo": "Foi adicionado às seguintes listas:",
     "email.optin.confirmSubTitle": "Confirmar subscrição",
-    "email.optin.confirmSubWelcome": "Olá {name},",
+    "email.optin.confirmSubWelcome": "Olá",
     "email.optin.privateList": "Lista privada",
     "email.status.campaignReason": "Motivo",
     "email.status.campaignSent": "Enviada",
