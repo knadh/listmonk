@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <b-navbar :fixed-top="true">
+    <b-navbar :fixed-top="true" v-if="$root.isLoaded">
         <template slot="brand">
           <div class="logo">
             <router-link :to="{name: 'dashboard'}">
@@ -14,7 +14,7 @@
         </template>
     </b-navbar>
 
-    <div class="wrapper">
+    <div class="wrapper" v-if="$root.isLoaded">
       <section class="sidebar">
         <b-sidebar
           position="static"
@@ -100,18 +100,17 @@
 
       <!-- body //-->
       <div class="main">
-        <div class="global-notices" v-if="serverConfig.needsRestart || serverConfig.update">
-          <div v-if="serverConfig.needsRestart" class="notification is-danger">
-            Settings have changed. Pause all running campaigns and restart the app
+        <div class="global-notices" v-if="serverConfig.needs_restart || serverConfig.update">
+          <div v-if="serverConfig.needs_restart" class="notification is-danger">
+            {{ $t('settings.needsRestart') }}
              &mdash;
             <b-button class="is-primary" size="is-small"
-              @click="$utils.confirm(
-                'Ensure running campaigns are paused. Restart?', reloadApp)">
-                Restart
+              @click="$utils.confirm($t('settings.confirmRestart'), reloadApp)">
+                {{ $t('settings.restart') }}
             </b-button>
           </div>
           <div v-if="serverConfig.update" class="notification is-success">
-            A new update ({{ serverConfig.update.version }}) is available.
+            {{ $t('settings.updateAvailable', { version: serverConfig.update.version }) }}
             <a :href="serverConfig.update.url" target="_blank">View</a>
           </div>
         </div>
@@ -120,15 +119,7 @@
       </div>
     </div>
 
-    <b-loading v-if="!isLoaded" active>
-        <div class="has-text-centered">
-          <h1 class="title">Oops</h1>
-          <p>
-            Can't connect to the backend.<br />
-            Make sure the server is running and refresh this page.
-          </p>
-        </div>
-    </b-loading>
+    <b-loading v-if="!$root.isLoaded" active />
   </div>
 </template>
 
@@ -143,7 +134,6 @@ export default Vue.extend({
     return {
       activeItem: {},
       activeGroup: {},
-      isLoaded: window.CONFIG,
     };
   },
 

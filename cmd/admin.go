@@ -1,8 +1,6 @@
 package main
 
 import (
-	"bytes"
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"sort"
@@ -13,41 +11,29 @@ import (
 	"github.com/labstack/echo"
 )
 
-type configScript struct {
-	RootURL             string          `json:"rootURL"`
-	FromEmail           string          `json:"fromEmail"`
-	Messengers          []string        `json:"messengers"`
-	MediaProvider       string          `json:"mediaProvider"`
-	NeedsRestart        bool            `json:"needsRestart"`
-	Update              *AppUpdate      `json:"update"`
-	Langs               []i18nLang      `json:"langs"`
-	EnablePublicSubPage bool            `json:"enablePublicSubscriptionPage"`
-	Lang                json.RawMessage `json:"lang"`
+type serverConfig struct {
+	Messengers   []string   `json:"messengers"`
+	Langs        []i18nLang `json:"langs"`
+	Lang         string     `json:"lang"`
+	Update       *AppUpdate `json:"update"`
+	NeedsRestart bool       `json:"needs_restart"`
 }
 
-// handleGetConfigScript returns general configuration as a Javascript
-// variable that can be included in an HTML page directly.
-func handleGetConfigScript(c echo.Context) error {
+// handleGetServerConfig returns general server config.
+func handleGetServerConfig(c echo.Context) error {
 	var (
 		app = c.Get("app").(*App)
-		out = configScript{
-			RootURL:             app.constants.RootURL,
-			FromEmail:           app.constants.FromEmail,
-			MediaProvider:       app.constants.MediaProvider,
-			EnablePublicSubPage: app.constants.EnablePublicSubPage,
-		}
+		out = serverConfig{}
 	)
 
 	// Language list.
-	langList, err := geti18nLangList(app.constants.Lang, app)
+	langList, err := getI18nLangList(app.constants.Lang, app)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			fmt.Sprintf("Error loading language list: %v", err))
 	}
 	out.Langs = langList
-
-	// Current language.
-	out.Lang = json.RawMessage(app.i18n.JSON())
+	out.Lang = app.constants.Lang
 
 	// Sort messenger names with `email` always as the first item.
 	var names []string
@@ -66,17 +52,7 @@ func handleGetConfigScript(c echo.Context) error {
 	out.Update = app.update
 	app.Unlock()
 
-	// Write the Javascript variable opening;
-	b := bytes.Buffer{}
-	b.Write([]byte(`var CONFIG = `))
-
-	// Encode the config payload as JSON and write as the variable's value assignment.
-	j := json.NewEncoder(&b)
-	if err := j.Encode(out); err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError,
-			app.i18n.Ts("admin.errorMarshallingConfig", "error", err.Error()))
-	}
-	return c.Blob(http.StatusOK, "application/javascript; charset=utf-8", b.Bytes())
+	return c.JSON(http.StatusOK, okResp{out})
 }
 
 // handleGetDashboardCharts returns chart data points to render ont he dashboard.

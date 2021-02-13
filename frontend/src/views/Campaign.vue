@@ -75,7 +75,7 @@
                 <b-field :label="$tc('globals.terms.messenger')" label-position="on-border">
                   <b-select :placeholder="$tc('globals.terms.messenger')" v-model="form.messenger"
                     :disabled="!canEdit" required>
-                    <option v-for="m in serverConfig.messengers"
+                    <option v-for="m in messengers"
                       :value="m" :key="m">{{ m }}</option>
                   </b-select>
                 </b-field>
@@ -196,7 +196,7 @@ export default Vue.extend({
       form: {
         name: '',
         subject: '',
-        fromEmail: window.CONFIG.fromEmail,
+        fromEmail: '',
         templateId: 0,
         lists: [],
         tags: [],
@@ -352,7 +352,7 @@ export default Vue.extend({
   },
 
   computed: {
-    ...mapState(['serverConfig', 'loading', 'lists', 'templates']),
+    ...mapState(['settings', 'loading', 'lists', 'templates']),
 
     canEdit() {
       return this.isNew
@@ -374,6 +374,10 @@ export default Vue.extend({
 
       return this.lists.results.filter((l) => this.selListIDs.indexOf(l.id) > -1);
     },
+
+    messengers() {
+      return ['email', ...this.settings.messengers.map((m) => m.name)];
+    },
   },
 
   watch: {
@@ -383,6 +387,8 @@ export default Vue.extend({
   },
 
   mounted() {
+    this.form.fromEmail = this.settings['app.from_email'];
+
     const { id } = this.$route.params;
 
     // New campaign.

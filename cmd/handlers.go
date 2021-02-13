@@ -2,8 +2,6 @@ package main
 
 import (
 	"crypto/subtle"
-	"encoding/json"
-	"fmt"
 	"net/http"
 	"net/url"
 	"regexp"
@@ -44,8 +42,8 @@ func registerHTTPHandlers(e *echo.Echo) {
 	g := e.Group("", middleware.BasicAuth(basicAuth))
 	g.GET("/", handleIndexPage)
 	g.GET("/api/health", handleHealthCheck)
-	g.GET("/api/config.js", handleGetConfigScript)
-	g.GET("/api/lang/:lang", handleLoadLanguage)
+	g.GET("/api/config", handleGetServerConfig)
+	g.GET("/api/lang/:lang", handleGetI18nLang)
 	g.GET("/api/dashboard/charts", handleGetDashboardCharts)
 	g.GET("/api/dashboard/counts", handleGetDashboardCounts)
 
@@ -162,23 +160,6 @@ func handleIndexPage(c echo.Context) error {
 // handleHealthCheck is a healthcheck endpoint that returns a 200 response.
 func handleHealthCheck(c echo.Context) error {
 	return c.JSON(http.StatusOK, okResp{true})
-}
-
-// handleLoadLanguage returns the JSON language pack given the language code.
-func handleLoadLanguage(c echo.Context) error {
-	app := c.Get("app").(*App)
-
-	lang := c.Param("lang")
-	if len(lang) > 6 || reLangCode.MatchString(lang) {
-		return echo.NewHTTPError(http.StatusBadRequest, "Invalid language code.")
-	}
-
-	b, err := app.fs.Read(fmt.Sprintf("/lang/%s.json", lang))
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, "Unknown language.")
-	}
-
-	return c.JSON(http.StatusOK, okResp{json.RawMessage(b)})
 }
 
 // basicAuth middleware does an HTTP BasicAuth authentication for admin handlers.

@@ -22,13 +22,12 @@
           </li>
         </ul>
 
-
-        <template v-if="serverConfig.enablePublicSubscriptionPage">
+        <template v-if="settings['app.enable_public_subscription_page']">
           <hr />
           <h4>{{ $t('forms.publicSubPage') }}</h4>
           <p>
-            <a :href="`${serverConfig.rootURL}/subscription/form`"
-              target="_blank">{{ serverConfig.rootURL }}/subscription/form</a>
+            <a :href="`${settings['app.root_url']}/subscription/form`"
+              target="_blank">{{ settings['app.root_url'] }}/subscription/form</a>
           </p>
         </template>
       </div>
@@ -39,7 +38,7 @@
         </p>
 
         <!-- eslint-disable max-len -->
-        <pre v-if="checked.length > 0">&lt;form method=&quot;post&quot; action=&quot;{{ serverConfig.rootURL }}/subscription/form&quot; class=&quot;listmonk-form&quot;&gt;
+        <pre v-if="checked.length > 0">&lt;form method=&quot;post&quot; action=&quot;{{ settings['app.root_url'] }}/subscription/form&quot; class=&quot;listmonk-form&quot;&gt;
     &lt;div&gt;
         &lt;h3&gt;Subscribe&lt;/h3&gt;
         &lt;p&gt;&lt;input type=&quot;text&quot; name=&quot;email&quot; placeholder=&quot;{{ $t('subscribers.email') }}&quot; /&gt;&lt;/p&gt;
@@ -79,7 +78,7 @@ export default Vue.extend({
   },
 
   computed: {
-    ...mapState(['lists', 'loading', 'serverConfig']),
+    ...mapState(['loading', 'lists', 'settings']),
 
     publicLists() {
       if (!this.lists.results) {

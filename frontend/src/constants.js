@@ -1,8 +1,6 @@
 export const models = Object.freeze({
-  // This is the config loaded from /api/config.js directly onto the page
-  // via a <script> tag.
   serverConfig: 'serverConfig',
-
+  lang: 'lang',
   dashboard: 'dashboard',
   lists: 'lists',
   subscribers: 'subscribers',

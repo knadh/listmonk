@@ -195,11 +195,17 @@ export const deleteTemplate = async (id) => http.delete(`/api/templates/${id}`,
   { loading: models.templates });
 
 // Settings.
+export const getServerConfig = async () => http.get('/api/config',
+  { loading: models.serverConfig, store: models.serverConfig, preserveCase: true });
+
 export const getSettings = async () => http.get('/api/settings',
-  { loading: models.settings, preserveCase: true });
+  { loading: models.settings, store: models.settings, preserveCase: true });
 
 export const updateSettings = async (data) => http.put('/api/settings', data,
   { loading: models.settings });
 
 export const getLogs = async () => http.get('/api/logs',
   { loading: models.logs });
+
+export const getLang = async (lang) => http.get(`/api/lang/${lang}`,
+  { loading: models.lang, preserveCase: true });
