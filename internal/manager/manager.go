@@ -353,6 +353,9 @@ func (m *Manager) TemplateFuncs(c *models.Campaign) template.FuncMap {
 		"L": func() *i18n.I18n {
 			return m.i18n
 		},
+		"Safe": func(safeHTML string) template.HTML {
+			return template.HTML(safeHTML)
+		},
 	}
 }
 
