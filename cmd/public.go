@@ -118,15 +118,14 @@ func handleViewCampaignMessage(c echo.Context) error {
 	}
 
 	// Get the subscriber.
-	var sub models.Subscriber
-	if err := app.queries.GetSubscriber.Get(&sub, 0, subUUID); err != nil {
+	sub, err := getSubscriber(0, subUUID, "", app)
+	if err != nil {
 		if err == sql.ErrNoRows {
 			return c.Render(http.StatusNotFound, tplMessage,
 				makeMsgTpl(app.i18n.T("public.notFoundTitle"), "",
 					app.i18n.T("public.errorFetchingEmail")))
 		}
 
-		app.log.Printf("error fetching campaign subscriber: %v", err)
 		return c.Render(http.StatusInternalServerError, tplMessage,
 			makeMsgTpl(app.i18n.T("public.errorTitle"), "",
 				app.i18n.Ts("public.errorFetchingCampaign")))

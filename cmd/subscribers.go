@@ -338,7 +338,6 @@ func handleSubscriberSendOptin(c echo.Context) error {
 	var (
 		app   = c.Get("app").(*App)
 		id, _ = strconv.Atoi(c.Param("id"))
-		out   models.Subscribers
 	)
 
 	if id < 1 {
@@ -346,19 +345,15 @@ func handleSubscriberSendOptin(c echo.Context) error {
 	}
 
 	// Fetch the subscriber.
-	err := app.queries.GetSubscriber.Select(&out, id, nil)
+	out, err := getSubscriber(id, "", "", app)
 	if err != nil {
 		app.log.Printf("error fetching subscriber: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			app.i18n.Ts("globals.messages.errorFetching",
 				"name", "{globals.terms.subscribers}", "error", pqErrMsg(err)))
 	}
-	if len(out) == 0 {
-		return echo.NewHTTPError(http.StatusBadRequest,
-			app.i18n.Ts("globals.messages.notFound", "name", "{globals.terms.subscriber}"))
-	}
 
-	if _, err := sendOptinConfirmation(out[0], nil, app); err != nil {
+	if _, err := sendOptinConfirmation(out, nil, app); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			app.i18n.T("subscribers.errorSendingOptin"))
 	}
