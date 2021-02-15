@@ -343,7 +343,7 @@
     "settings.privacy.allowWipe": "Autoriser l'effacement",
     "settings.privacy.allowWipeHelp": "Autoriser les abonnés à supprimer leurs abonnements et toutes les autres données de la base de données. Les vues de campagne et les clics sur les liens sont également supprimés, tandis que le compteur global de vues et de nombre de clics restent inchangés (aucun abonné ne leur est associé) afin que les statistiques et les analyses ne soient pas affectées.",
     "settings.privacy.individualSubTracking": "Suivi individuel des abonnés",
-    "settings.privacy.individualSubTrackingHelp": "Suivez les vues et les clics des campagnes par abonné. Lorsqu'elle est désactivée, la vue et le suivi des clics continuent sans être liés à des abonnés individuels.",
+    "settings.privacy.individualSubTrackingHelp": "Suivez les vues et les clics des campagnes par abonné. Lorsqu'il est désactivé, le suivi des vues et des clics s'effectue sans être lié aux abonnés individuels.",
     "settings.privacy.listUnsubHeader": "Inclure l'en-tête `List-Unsubscribe`",
     "settings.privacy.listUnsubHeaderHelp": "Incluez des en-têtes de désabonnement qui permettre aux utilisateurs de se désabonner en un seul clic depuis leur client de messagerie.",
     "settings.privacy.name": "Vie privée",
