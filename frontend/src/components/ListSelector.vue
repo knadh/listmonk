@@ -5,7 +5,7 @@
           <b-tag v-for="l in selectedItems"
             :key="l.id"
             :class="l.subscriptionStatus"
-            :closable="!disabled && l.subscriptionStatus !== 'unsubscribed'"
+            :closable="true"
             :data-id="l.id"
             @close="removeList(l.id)">
             {{ l.name }} <sup>{{ l.subscriptionStatus }}</sup>

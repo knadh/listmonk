@@ -259,6 +259,7 @@
     "public.privacyWipeHelp": "Delete all your subscriptions and related data from the database permanently.",
     "public.sub": "Subscribe",
     "public.subConfirmed": "Subscribed successfully.",
+    "public.subOptinPending": "An e-mail has been sent to you to confirm your subscription(s).",
     "public.subConfirmedTitle": "Confirmed",
     "public.subName": "Name (optional)",
     "public.subNotFound": "Subscription not found.",
