@@ -12,6 +12,7 @@ In `main.js`, Buefy and vue-i18n are attached globally. In addition:
 
 Some constants are defined in `constants.js`.
 
+
 ## APIs and states
 The project uses a global `vuex` state to centrally store the responses to pretty much all APIs (eg: fetch lists, campaigns etc.) except for a few exceptions. These are called `models` and have been defined in `constants.js`. The definitions are in `store/index.js`.
 

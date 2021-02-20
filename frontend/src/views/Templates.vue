@@ -32,31 +32,34 @@
 
             <b-table-column class="actions" align="right">
               <div>
-                <a href="#" @click.prevent="previewTemplate(props.row)">
+                <a href="#" @click.prevent="previewTemplate(props.row)" data-cy="btn-preview">
                   <b-tooltip :label="$t('templates.preview')" type="is-dark">
                     <b-icon icon="file-find-outline" size="is-small" />
                   </b-tooltip>
                 </a>
-                <a href="#" @click.prevent="showEditForm(props.row)">
+                <a href="#" @click.prevent="showEditForm(props.row)" data-cy="btn-edit">
                   <b-tooltip :label="$t('globals.buttons.edit')" type="is-dark">
                     <b-icon icon="pencil-outline" size="is-small" />
                   </b-tooltip>
                 </a>
                 <a href="" @click.prevent="$utils.prompt(`Clone template`,
                         { placeholder: 'Name', value: `Copy of ${props.row.name}`},
-                        (name) => cloneTemplate(name, props.row))">
+                        (name) => cloneTemplate(name, props.row))"
+                        data-cy="btn-clone">
                   <b-tooltip :label="$t('globals.buttons.clone')" type="is-dark">
                     <b-icon icon="file-multiple-outline" size="is-small" />
                   </b-tooltip>
                 </a>
                 <a v-if="!props.row.isDefault" href="#"
-                  @click.prevent="$utils.confirm(null, () => makeTemplateDefault(props.row))">
+                  @click.prevent="$utils.confirm(null, () => makeTemplateDefault(props.row))"
+                  data-cy="btn-set-default">
                   <b-tooltip :label="$t('templates.makeDefault')" type="is-dark">
                     <b-icon icon="check-circle-outline" size="is-small" />
                   </b-tooltip>
                 </a>
                 <a v-if="!props.row.isDefault"
-                  href="#" @click.prevent="$utils.confirm(null, () => deleteTemplate(props.row))">
+                  href="#" @click.prevent="$utils.confirm(null, () => deleteTemplate(props.row))"
+                  data-cy="btn-delete">
                   <b-tooltip :label="$t('globals.buttons.delete')" type="is-dark">
                     <b-icon icon="trash-can-outline" size="is-small" />
                   </b-tooltip>

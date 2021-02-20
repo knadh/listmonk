@@ -17,15 +17,15 @@
       <div class="column">
         <div class="buttons" v-if="isEditing && canEdit">
           <b-button @click="onSubmit" :loading="loading.campaigns"
-            type="is-primary" icon-left="content-save-outline">
+            type="is-primary" icon-left="content-save-outline" data-cy="btn-save">
             {{ $t('globals.buttons.saveChanges') }}
           </b-button>
           <b-button v-if="canStart" @click="startCampaign" :loading="loading.campaigns"
-            type="is-primary" icon-left="rocket-launch-outline">
+            type="is-primary" icon-left="rocket-launch-outline" data-cy="btn-start">
               {{ $t('campaigns.start') }}
           </b-button>
           <b-button v-if="canSchedule" @click="startCampaign" :loading="loading.campaigns"
-            type="is-primary" icon-left="clock-start">
+            type="is-primary" icon-left="clock-start" data-cy="btn-schedule">
               {{ $t('campaigns.schedule') }}
           </b-button>
         </div>
@@ -42,17 +42,20 @@
             <div class="column is-7">
               <form @submit.prevent="onSubmit">
                 <b-field :label="$t('globals.fields.name')" label-position="on-border">
-                  <b-input :maxlength="200" :ref="'focus'" v-model="form.name" :disabled="!canEdit"
+                  <b-input :maxlength="200" :ref="'focus'" v-model="form.name"
+                    name="name" :disabled="!canEdit"
                     :placeholder="$t('globals.fields.name')" required></b-input>
                 </b-field>
 
                 <b-field :label="$t('campaigns.subject')" label-position="on-border">
-                  <b-input :maxlength="200" v-model="form.subject" :disabled="!canEdit"
+                  <b-input :maxlength="200" v-model="form.subject"
+                    name="subject" :disabled="!canEdit"
                     :placeholder="$t('campaigns.subject')" required></b-input>
                 </b-field>
 
                 <b-field :label="$t('campaigns.fromAddress')" label-position="on-border">
-                  <b-input :maxlength="200" v-model="form.fromEmail" :disabled="!canEdit"
+                  <b-input :maxlength="200" v-model="form.fromEmail"
+                    name="from_email" :disabled="!canEdit"
                     :placeholder="$t('campaigns.fromAddressPlaceholder')" required></b-input>
                 </b-field>
 
@@ -67,34 +70,34 @@
 
                 <b-field :label="$tc('globals.terms.template')" label-position="on-border">
                   <b-select :placeholder="$tc('globals.terms.template')" v-model="form.templateId"
-                    :disabled="!canEdit" required>
+                    name="template" :disabled="!canEdit" required>
                     <option v-for="t in templates" :value="t.id" :key="t.id">{{ t.name }}</option>
                   </b-select>
                 </b-field>
 
                 <b-field :label="$tc('globals.terms.messenger')" label-position="on-border">
                   <b-select :placeholder="$tc('globals.terms.messenger')" v-model="form.messenger"
-                    :disabled="!canEdit" required>
+                    name="messenger" :disabled="!canEdit" required>
                     <option v-for="m in messengers"
                       :value="m" :key="m">{{ m }}</option>
                   </b-select>
                 </b-field>
 
                 <b-field :label="$t('globals.terms.tags')" label-position="on-border">
-                  <b-taginput v-model="form.tags" :disabled="!canEdit"
+                  <b-taginput v-model="form.tags" name="tags" :disabled="!canEdit"
                     ellipsis icon="tag-outline" :placeholder="$t('globals.terms.tags')" />
                 </b-field>
                 <hr />
 
                 <div class="columns">
                   <div class="column is-4">
-                    <b-field :label="$t('campaigns.sendLater')">
+                    <b-field :label="$t('campaigns.sendLater')" data-cy="btn-send-later">
                         <b-switch v-model="form.sendLater" :disabled="!canEdit" />
                     </b-field>
                   </div>
                   <div class="column">
                     <br />
-                    <b-field v-if="form.sendLater"
+                    <b-field v-if="form.sendLater" data-cy="send_at"
                       :message="form.sendAtDate ? $utils.duration(Date(), form.sendAtDate) : ''">
                       <b-datetimepicker
                         v-model="form.sendAtDate"
@@ -112,7 +115,9 @@
 
                 <b-field v-if="isNew">
                   <b-button native-type="submit" type="is-primary"
-                    :loading="loading.campaigns">{{ $t('campaigns.continue') }}</b-button>
+                    :loading="loading.campaigns" data-cy="btn-continue">
+                    {{ $t('campaigns.continue') }}
+                  </b-button>
                 </b-field>
               </form>
             </div>

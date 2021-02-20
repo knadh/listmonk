@@ -3,14 +3,16 @@
     <header class="columns">
       <div class="column is-half">
         <h1 class="title is-4">{{ $t('globals.terms.subscribers') }}
-          <span v-if="!isNaN(subscribers.total)">({{ subscribers.total }})</span>
+          <span v-if="!isNaN(subscribers.total)">
+            (<span data-cy="count">{{ subscribers.total }}</span>)
+          </span>
           <span v-if="currentList">
             &raquo; {{ currentList.name }}
           </span>
         </h1>
       </div>
       <div class="column has-text-right">
-        <b-button type="is-primary" icon-left="plus" @click="showNewForm">
+        <b-button type="is-primary" icon-left="plus" @click="showNewForm" data-cy="btn-new">
           {{ $t('globals.buttons.new') }}
         </b-button>
       </div>
@@ -23,13 +25,13 @@
             <b-field grouped>
               <b-input @input="onSimpleQueryInput" v-model="queryInput"
                 :placeholder="$t('subscribers.queryPlaceholder')" icon="magnify" ref="query"
-                :disabled="isSearchAdvanced"></b-input>
+                :disabled="isSearchAdvanced" data-cy="search"></b-input>
               <b-button native-type="submit" type="is-primary" icon-left="magnify"
-                :disabled="isSearchAdvanced"></b-button>
+                :disabled="isSearchAdvanced" data-cy="btn-search"></b-button>
             </b-field>
 
             <p>
-              <a href="#" @click.prevent="toggleAdvancedSearch">
+              <a href="#" @click.prevent="toggleAdvancedSearch" data-cy="btn-advanced-search">
                 <b-icon icon="cog-outline" size="is-small" />
                 {{ $t('subscribers.advancedQuery') }}
               </a>
@@ -40,7 +42,8 @@
                 <b-input v-model="queryParams.queryExp"
                   @keydown.native.enter="onAdvancedQueryEnter"
                   type="textarea" ref="queryExp"
-                  placeholder="subscribers.name LIKE '%user%' or subscribers.status='blocklisted'">
+                  placeholder="subscribers.name LIKE '%user%' or subscribers.status='blocklisted'"
+                  data-cy="query">
                 </b-input>
               </b-field>
               <b-field>
@@ -55,8 +58,9 @@
 
               <div class="buttons">
                 <b-button native-type="submit" type="is-primary"
-                  icon-left="magnify">{{ $t('subscribers.query') }}</b-button>
-                <b-button @click.prevent="toggleAdvancedSearch" icon-left="cancel">
+                  icon-left="magnify" data-cy="btn-query">{{ $t('subscribers.query') }}</b-button>
+                <b-button @click.prevent="toggleAdvancedSearch" icon-left="cancel"
+                  data-cy="btn-query-reset">
                   {{ $t('subscribers.reset') }}
                 </b-button>
               </div>
@@ -80,15 +84,15 @@
           </p>
 
           <p class="actions">
-            <a href='' @click.prevent="showBulkListForm">
+            <a href='' @click.prevent="showBulkListForm" data-cy="btn-manage-lists">
               <b-icon icon="format-list-bulleted-square" size="is-small" /> Manage lists
             </a>
 
-            <a href='' @click.prevent="deleteSubscribers">
+            <a href='' @click.prevent="deleteSubscribers" data-cy="btn-delete-subscribers">
               <b-icon icon="trash-can-outline" size="is-small" /> Delete
             </a>
 
-            <a href='' @click.prevent="blocklistSubscribers">
+            <a href='' @click.prevent="blocklistSubscribers" data-cy="btn-manage-blocklist">
               <b-icon icon="account-off-outline" size="is-small" /> Blocklist
             </a>
           </p><!-- selection actions //-->
@@ -110,7 +114,8 @@
           </a>
         </template>
         <template slot-scope="props">
-            <b-table-column field="status" :label="$t('globals.fields.status')" sortable>
+            <b-table-column field="status" :label="$t('globals.fields.status')"
+              header-class="cy-status" :data-id="props.row.id" sortable>
               <a :href="`/subscribers/${props.row.id}`"
                 @click.prevent="showEditForm(props.row)">
                 <b-tag :class="props.row.status">
@@ -119,7 +124,8 @@
               </a>
             </b-table-column>
 
-            <b-table-column field="email" :label="$t('subscribers.email')" sortable>
+            <b-table-column field="email" :label="$t('subscribers.email')"
+              header-class="cy-email" sortable>
               <a :href="`/subscribers/${props.row.id}`"
                 @click.prevent="showEditForm(props.row)">
                 {{ props.row.email }}
@@ -137,39 +143,43 @@
               </b-taglist>
             </b-table-column>
 
-            <b-table-column field="name" :label="$t('globals.fields.name')" sortable>
+            <b-table-column field="name" :label="$t('globals.fields.name')"
+               header-class="cy-name" sortable>
               <a :href="`/subscribers/${props.row.id}`"
                 @click.prevent="showEditForm(props.row)">
                 {{ props.row.name }}
               </a>
             </b-table-column>
 
-            <b-table-column field="lists" :label="$t('globals.terms.lists')" numeric centered>
+            <b-table-column field="lists" :label="$t('globals.terms.lists')"
+              header-class="cy-lists" numeric centered>
               {{ listCount(props.row.lists) }}
             </b-table-column>
 
-            <b-table-column field="created_at" :label="$t('globals.fields.createdAt')" sortable>
+            <b-table-column field="created_at" :label="$t('globals.fields.createdAt')"
+              header-class="cy-created_at" sortable>
                 {{ $utils.niceDate(props.row.createdAt) }}
             </b-table-column>
 
-            <b-table-column field="updated_at" :label="$t('globals.fields.updatedAt')" sortable>
+            <b-table-column field="updated_at" :label="$t('globals.fields.updatedAt')"
+              header-class="cy-updated_at" sortable>
                 {{ $utils.niceDate(props.row.updatedAt) }}
             </b-table-column>
 
             <b-table-column class="actions" align="right">
               <div>
-                <a :href="`/api/subscribers/${props.row.id}/export`">
+                <a :href="`/api/subscribers/${props.row.id}/export`" data-cy="btn-download">
                   <b-tooltip :label="$t('subscribers.downloadData')" type="is-dark">
                     <b-icon icon="cloud-download-outline" size="is-small" />
                   </b-tooltip>
                 </a>
                 <a :href="`/subscribers/${props.row.id}`"
-                  @click.prevent="showEditForm(props.row)">
+                  @click.prevent="showEditForm(props.row)" data-cy="btn-edit">
                   <b-tooltip :label="$t('globals.buttons.edit')" type="is-dark">
                     <b-icon icon="pencil-outline" size="is-small" />
                   </b-tooltip>
                 </a>
-                <a href='' @click.prevent="deleteSubscriber(props.row)">
+                <a href='' @click.prevent="deleteSubscriber(props.row)" data-cy="btn-delete">
                   <b-tooltip :label="$t('globals.buttons.delete')" type="is-dark">
                     <b-icon icon="trash-can-outline" size="is-small" />
                   </b-tooltip>
@@ -245,7 +255,7 @@ export default Vue.extend({
   methods: {
     // Count the lists from which a subscriber has not unsubscribed.
     listCount(lists) {
-      return lists.reduce((defVal, item) => (defVal + item.status !== 'unsubscribed' ? 1 : 0), 0);
+      return lists.reduce((defVal, item) => (defVal + (item.subscriptionStatus !== 'unsubscribed' ? 1 : 0)), 0);
     },
 
     toggleAdvancedSearch() {

@@ -8,24 +8,25 @@
         <h4 v-else>{{ $t('subscribers.newSubscriber') }}</h4>
 
         <p v-if="isEditing" class="has-text-grey is-size-7">
-          {{ $t('globals.fields.id') }}: {{ data.id }} /
+          {{ $t('globals.fields.id') }}: <span data-cy="id">{{ data.id }}</span> /
           {{ $t('globals.fields.uuid') }}: {{ data.uuid }}
         </p>
       </header>
       <section expanded class="modal-card-body">
         <b-field :label="$t('subscribers.email')" label-position="on-border">
-          <b-input :maxlength="200" v-model="form.email" :ref="'focus'"
+          <b-input :maxlength="200" v-model="form.email" name="email" :ref="'focus'"
             :placeholder="$t('subscribers.email')" required></b-input>
         </b-field>
 
         <b-field :label="$t('globals.fields.name')" label-position="on-border">
-          <b-input :maxlength="200" v-model="form.name"
+          <b-input :maxlength="200" v-model="form.name" name="name"
             :placeholder="$t('globals.fields.name')"></b-input>
         </b-field>
 
         <b-field :label="$t('globals.fields.status')" label-position="on-border"
           :message="$t('subscribers.blocklistedHelp')">
-          <b-select v-model="form.status" :placeholder="$t('globals.fields.status')" required>
+          <b-select v-model="form.status" name="status" :placeholder="$t('globals.fields.status')"
+            required>
             <option value="enabled">{{ $t('subscribers.status.enabled') }}</option>
             <option value="blocklisted">{{ $t('subscribers.status.blocklisted') }}</option>
           </b-select>
@@ -42,7 +43,7 @@
 
         <b-field :label="$t('subscribers.attribs')" label-position="on-border"
           :message="$t('subscribers.attribsHelp') + ' ' + egAttribs">
-          <b-input v-model="form.strAttribs" type="textarea" />
+          <b-input v-model="form.strAttribs" name="attribs" type="textarea" />
         </b-field>
         <a href="https://listmonk.app/docs/concepts"
           target="_blank" rel="noopener noreferrer" class="is-size-7">

@@ -12,13 +12,13 @@
       </header>
       <section expanded class="modal-card-body">
         <b-field :label="$t('globals.fields.name')" label-position="on-border">
-          <b-input :maxlength="200" :ref="'focus'" v-model="form.name"
+          <b-input :maxlength="200" :ref="'focus'" v-model="form.name" name="name"
             :placeholder="$t('globals.fields.name')" required></b-input>
         </b-field>
 
         <b-field :label="$t('lists.type')" label-position="on-border"
           :message="$t('lists.typeHelp')">
-          <b-select v-model="form.type" :placeholder="$t('lists.typeHelp')" required>
+          <b-select v-model="form.type" name="type" :placeholder="$t('lists.typeHelp')" required>
             <option value="private">{{ $t('lists.types.private') }}</option>
             <option value="public">{{ $t('lists.types.public') }}</option>
           </b-select>
@@ -26,14 +26,14 @@
 
         <b-field :label="$t('lists.optin')" label-position="on-border"
           :message="$t('lists.optinHelp')">
-          <b-select v-model="form.optin" placeholder="Opt-in type" required>
+          <b-select v-model="form.optin" name="optin" placeholder="Opt-in type" required>
             <option value="single">{{ $t('lists.optins.single') }}</option>
             <option value="double">{{ $t('lists.optins.double') }}</option>
           </b-select>
         </b-field>
 
         <b-field :label="$t('globals.terms.tags')" label-position="on-border">
-          <b-taginput v-model="form.tags" ellipsis
+          <b-taginput v-model="form.tags" name="tags" ellipsis
             icon="tag-outline" :placeholder="$t('globals.terms.tags')"></b-taginput>
         </b-field>
       </section>

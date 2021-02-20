@@ -37,9 +37,17 @@ var (
 )
 
 // registerHandlers registers HTTP handlers.
-func registerHTTPHandlers(e *echo.Echo) {
+func registerHTTPHandlers(e *echo.Echo, app *App) {
 	// Group of private handlers with BasicAuth.
-	g := e.Group("", middleware.BasicAuth(basicAuth))
+	var g *echo.Group
+
+	if len(app.constants.AdminUsername) == 0 ||
+		len(app.constants.AdminPassword) == 0 {
+		g = e.Group("")
+	} else {
+		g = e.Group("", middleware.BasicAuth(basicAuth))
+	}
+
 	g.GET("/", handleIndexPage)
 	g.GET("/api/health", handleHealthCheck)
 	g.GET("/api/config", handleGetServerConfig)

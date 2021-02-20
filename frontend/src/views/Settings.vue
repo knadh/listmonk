@@ -8,7 +8,9 @@
       <div class="column has-text-right">
         <b-button :disabled="!hasFormChanged"
           type="is-primary" icon-left="content-save-outline"
-          @click="onSubmit" class="isSaveEnabled">{{ $t('globals.buttons.save') }}</b-button>
+          @click="onSubmit" class="isSaveEnabled" data-cy="btn-save">
+          {{ $t('globals.buttons.save') }}
+        </b-button>
       </div>
     </header>
     <hr />
@@ -278,11 +280,11 @@
                   <div class="column is-2">
                     <b-field :label="$t('globals.buttons.enabled')">
                       <b-switch v-model="item.enabled" name="enabled"
-                          :native-value="true" />
+                          :native-value="true" data-cy="btn-enable-smtp" />
                     </b-field>
                     <b-field v-if="form.smtp.length > 1">
                       <a @click.prevent="$utils.confirm(null, () => removeSMTP(n))"
-                        href="#" class="is-size-7">
+                        href="#" class="is-size-7" data-cy="btn-delete-smtp">
                         <b-icon icon="trash-can-outline" size="is-small" />
                         {{ $t('globals.buttons.delete') }}
                       </a>

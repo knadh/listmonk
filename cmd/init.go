@@ -487,7 +487,7 @@ func initHTTPServer(app *App) *echo.Echo {
 	}
 
 	// Register all HTTP handlers.
-	registerHTTPHandlers(srv)
+	registerHTTPHandlers(srv, app)
 
 	// Start the server.
 	go func() {

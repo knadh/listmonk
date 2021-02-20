@@ -7,13 +7,16 @@
           <div>
             <b-radio v-model="form.radioFormat"
               @input="onChangeFormat" :disabled="disabled" name="format"
-              native-value="richtext">{{ $t('campaigns.richText') }}</b-radio>
+              native-value="richtext"
+              data-cy="check-richtext">{{ $t('campaigns.richText') }}</b-radio>
             <b-radio v-model="form.radioFormat"
               @input="onChangeFormat" :disabled="disabled" name="format"
-              native-value="html">{{ $t('campaigns.rawHTML') }}</b-radio>
+              native-value="html"
+              data-cy="check-html">{{ $t('campaigns.rawHTML') }}</b-radio>
             <b-radio v-model="form.radioFormat"
               @input="onChangeFormat" :disabled="disabled" name="format"
-              native-value="plain">{{ $t('campaigns.plainText') }}</b-radio>
+              native-value="plain"
+              data-cy="check-plain">{{ $t('campaigns.plainText') }}</b-radio>
           </div>
         </b-field>
       </div>
@@ -42,7 +45,7 @@
 
     <!-- plain text editor //-->
     <b-input v-if="form.format === 'plain'" v-model="form.body" @input="onEditorChange"
-      type="textarea" ref="plainEditor" class="plain-editor" />
+      type="textarea" name="content" ref="plainEditor" class="plain-editor" />
 
     <!-- campaign preview //-->
     <campaign-preview v-if="isPreviewing"

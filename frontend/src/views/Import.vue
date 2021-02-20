@@ -11,9 +11,11 @@
               <b-field :label="$t('import.mode')">
                 <div>
                   <b-radio v-model="form.mode" name="mode"
-                    native-value="subscribe">{{ $t('import.subscribe') }}</b-radio>
+                    native-value="subscribe"
+                    data-cy="check-subscribe">{{ $t('import.subscribe') }}</b-radio>
                   <b-radio v-model="form.mode" name="mode"
-                    native-value="blocklist">{{ $t('import.blocklist') }}</b-radio>
+                    native-value="blocklist"
+                    data-cy="check-blocklist">{{ $t('import.blocklist') }}</b-radio>
                 </div>
               </b-field>
             </div>

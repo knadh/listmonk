@@ -1,5 +1,5 @@
 <template>
-  <div class="field">
+  <div class="field list-selector">
       <div :class="['list-tags', ...classes]">
         <b-taglist>
           <b-tag v-for="l in selectedItems"

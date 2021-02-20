@@ -15,7 +15,7 @@
         <p>{{ $t('forms.selectHelp') }}</p>
 
         <b-loading :active="loading.lists" :is-full-page="false" />
-        <ul class="no">
+        <ul class="no" data-cy="lists">
           <li v-for="l in publicLists" :key="l.id">
             <b-checkbox v-model="checked"
               :native-value="l.uuid">{{ l.name }}</b-checkbox>
@@ -27,11 +27,11 @@
           <h4>{{ $t('forms.publicSubPage') }}</h4>
           <p>
             <a :href="`${settings['app.root_url']}/subscription/form`"
-              target="_blank">{{ settings['app.root_url'] }}/subscription/form</a>
+              target="_blank" data-cy="url">{{ settings['app.root_url'] }}/subscription/form</a>
           </p>
         </template>
       </div>
-      <div class="column">
+      <div class="column" data-cy="form">
         <h4>{{ $t('forms.formHTML') }}</h4>
         <p>
           {{ $t('forms.formHTMLHelp') }}
