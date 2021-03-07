@@ -125,13 +125,15 @@
                 {{ props.row.email }}
               </a>
               <b-taglist>
-                  <router-link :to="`/subscribers/lists/${props.row.id}`">
-                    <b-tag :class="l.subscriptionStatus" v-for="l in props.row.lists"
-                      size="is-small" :key="l.id">
-                        {{ l.name }}
-                        <sup>{{ $t('subscribers.status.'+ l.subscriptionStatus) }}</sup>
+                <template v-for="l in props.row.lists">
+                  <router-link :to="`/subscribers/lists/${l.id}`"
+                    v-bind:key="l.id" style="padding-right:0.5em;">
+                    <b-tag :class="l.subscriptionStatus" size="is-small" :key="l.id">
+                      {{ l.name }}
+                      <sup>{{ $t('subscribers.status.'+ l.subscriptionStatus) }}</sup>
                     </b-tag>
                   </router-link>
+                </template>
               </b-taglist>
             </b-table-column>
 
