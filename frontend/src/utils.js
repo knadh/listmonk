@@ -21,7 +21,7 @@ export default class Utils {
     }
 
     const d = new Date(stamp);
-    const day = this.i18n.t(`globals.days.${(d.getDay() + 1)}`);
+    const day = this.i18n.t(`globals.days.${(d.getDay())}`);
     const month = this.i18n.t(`globals.months.${(d.getMonth() + 1)}`);
     let out = `${day}, ${d.getDate()}`;
     out += ` ${month} ${d.getFullYear()}`;
