@@ -310,7 +310,7 @@ func handleUpdateSubscriber(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("subscribers.invalidName"))
 	}
 
-	_, err := app.queries.UpdateSubscriber.Exec(req.ID,
+	_, err := app.queries.UpdateSubscriber.Exec(id,
 		strings.ToLower(strings.TrimSpace(req.Email)),
 		strings.TrimSpace(req.Name),
 		req.Status,

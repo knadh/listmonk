@@ -177,8 +177,7 @@ func handleUpdateTemplate(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	// TODO: PASSWORD HASHING.
-	res, err := app.queries.UpdateTemplate.Exec(o.ID, o.Name, o.Body)
+	res, err := app.queries.UpdateTemplate.Exec(id, o.Name, o.Body)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			app.i18n.Ts("globals.messages.errorUpdating",
