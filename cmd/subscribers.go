@@ -42,6 +42,13 @@ type subsWrap struct {
 	Page    int    `json:"page"`
 }
 
+type subUpdateReq struct {
+	models.Subscriber
+	RawAttribs json.RawMessage `json:"attribs"`
+	Lists      pq.Int64Array   `json:"lists"`
+	ListUUIDs  pq.StringArray  `json:"list_uuids"`
+}
+
 // subProfileData represents a subscriber's collated data in JSON
 // for export.
 type subProfileData struct {
@@ -293,7 +300,7 @@ func handleUpdateSubscriber(c echo.Context) error {
 	var (
 		app   = c.Get("app").(*App)
 		id, _ = strconv.ParseInt(c.Param("id"), 10, 64)
-		req   subimporter.SubReq
+		req   subUpdateReq
 	)
 	// Get and validate fields.
 	if err := c.Bind(&req); err != nil {
@@ -310,11 +317,21 @@ func handleUpdateSubscriber(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("subscribers.invalidName"))
 	}
 
+	// If there's an attribs value, validate it.
+	if len(req.RawAttribs) > 0 {
+		var a models.SubscriberAttribs
+		if err := json.Unmarshal(req.RawAttribs, &a); err != nil {
+			return echo.NewHTTPError(http.StatusInternalServerError,
+				app.i18n.Ts("globals.messages.errorUpdating",
+					"name", "{globals.terms.subscriber}", "error", err.Error()))
+		}
+	}
+
 	_, err := app.queries.UpdateSubscriber.Exec(id,
 		strings.ToLower(strings.TrimSpace(req.Email)),
 		strings.TrimSpace(req.Name),
 		req.Status,
-		req.Attribs,
+		req.RawAttribs,
 		req.Lists)
 	if err != nil {
 		app.log.Printf("error updating subscriber: %v", err)

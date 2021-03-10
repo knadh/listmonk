@@ -97,9 +97,12 @@ export default Vue.extend({
     },
 
     createSubscriber() {
-      const attribs = this.validateAttribs(this.form.strAttribs);
-      if (!attribs) {
-        return;
+      let attribs = {};
+      if (this.form.strAttribs) {
+        attribs = this.validateAttribs(this.form.strAttribs);
+        if (!attribs) {
+          return;
+        }
       }
 
       const data = {
@@ -124,9 +127,12 @@ export default Vue.extend({
     },
 
     updateSubscriber() {
-      const attribs = this.validateAttribs(this.form.strAttribs);
-      if (!attribs) {
-        return;
+      let attribs = {};
+      if (this.form.strAttribs) {
+        attribs = this.validateAttribs(this.form.strAttribs);
+        if (!attribs) {
+          return;
+        }
       }
 
       const data = {
@@ -158,7 +164,7 @@ export default Vue.extend({
         attribs = JSON.parse(str);
       } catch (e) {
         this.$buefy.toast.open({
-          message: `${this.$t('subscribers.invalidJSON')}: e.toString()`,
+          message: `${this.$t('subscribers.invalidJSON')}: ${e.toString()}`,
           type: 'is-danger',
           duration: 3000,
           queue: false,

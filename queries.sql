@@ -120,7 +120,7 @@ WITH s AS (
         email=(CASE WHEN $2 != '' THEN $2 ELSE email END),
         name=(CASE WHEN $3 != '' THEN $3 ELSE name END),
         status=(CASE WHEN $4 != '' THEN $4::subscriber_status ELSE status END),
-        attribs=(CASE WHEN $5::TEXT != '' THEN $5::JSONB ELSE attribs END),
+        attribs=(CASE WHEN $5 != '' THEN $5::JSONB ELSE attribs END),
         updated_at=NOW()
     WHERE id = $1 RETURNING id
 ),
