@@ -272,7 +272,8 @@
               <div class="block" v-if="form['upload.provider'] === 'webdav'">
                 <div class="columns">
                   <div class="column is-4">
-                    <b-field label="WebDav Endpoint" label-position="on-border" expanded>
+                    <b-field :label="$t('settings.media.webdav.endpoint')"
+                      label-position="on-border" expanded>
                       <b-input v-model="form['upload.webdav.endpoint']"
                         name="upload.webdav.endpoint"
                         :maxlength="300" placeholder="" />
@@ -280,17 +281,20 @@
                   </div>
                   <div class="column">
                     <b-field grouped>
-                      <b-field label="WebDav Username" label-position="on-border" expanded>
+                      <b-field :label="$t('settings.media.webdav.username')"
+                        label-position="on-border" expanded>
                         <b-input v-model="form['upload.webdav.username']"
                             name="upload.webdav.username" :maxlength="200" />
                       </b-field>
-                      <b-field label="WebDav Password" label-position="on-border" expanded
+                      <b-field :label="$t('settings.media.webdav.password')"
+                        label-position="on-border" expanded
                         message="Enter a value to change.">
                         <b-input v-model="form['upload.webdav.password']"
                           name="upload.webdav.password" type="password"
                           :maxlength="200" />
                       </b-field>
-                      <b-field label="WebDav root path" label-position="on-border" expanded>
+                      <b-field :label="$t('settings.media.webdav.rootPath')"
+                        label-position="on-border" expanded>
                       <b-input v-model="form['upload.webdav.root_path']"
                           name="upload.webdav.root_path"
                           :maxlength="200" placeholder="" />
@@ -300,10 +304,8 @@
                 </div>
                 <div class="column">
                   <b-field
-                    label="Custom headers" label-position="on-border"
-                    message='Optional array of webdav headers to include in all communications
-                      sent from this server.
-                      eg: {"X-Custom": "value", "X-Custom2": "value"}'>
+                    :label="$t('settings.media.webdav.customHeaders')" label-position="on-border"
+                    :message="$t('settings.media.webdav.customHeadersHelp')">
                     <b-input
                         name="upload.webdav.headers"
                         type="textarea"
@@ -644,7 +646,6 @@ export default Vue.extend({
     removeMessenger(i) {
       this.form.messengers.splice(i, 1);
     },
-
 
     onSubmit() {
       const form = JSON.parse(JSON.stringify(this.form));

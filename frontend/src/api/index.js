@@ -1,9 +1,9 @@
-import { ToastProgrammatic as Toast } from 'buefy';
 import axios from 'axios';
+import { ToastProgrammatic as Toast } from 'buefy';
 import humps from 'humps';
 import qs from 'qs';
-import store from '../store';
 import { models } from '../constants';
+import store from '../store';
 
 const http = axios.create({
   baseURL: process.env.BASE_URL,
@@ -14,7 +14,6 @@ const http = axios.create({
   // in GET and DELETE requests to id=a&id=b.
   paramsSerializer: (params) => qs.stringify(params, { arrayFormat: 'repeat' }),
 });
-
 
 // Intercept requests to set the 'loading' state of a model.
 http.interceptors.request.use((config) => {
@@ -30,7 +29,6 @@ http.interceptors.response.use((resp) => {
   if ('loading' in resp.config) {
     store.commit('setLoading', { model: resp.config.loading, status: false });
   }
-
 
   let data = {};
   if (typeof resp.data.data === 'object') {

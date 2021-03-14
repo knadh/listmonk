@@ -44,7 +44,7 @@ func TestGetFile(t *testing.T) {
 }
 
 func TestDeleteFile(t *testing.T) {
-	c, err := NewDavStore(Opts{
+	c, err := New(Opts{
 		Endpoint: "https://webdav.yandex.com",
 		Password: "",
 		Username: "",

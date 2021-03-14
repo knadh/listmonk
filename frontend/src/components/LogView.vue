@@ -7,7 +7,6 @@
     </section>
 </template>
 
-
 <script>
 const reFormatLine = new RegExp(/^(.*) (.+?)\.go:[0-9]+:\s/g);
 

@@ -143,7 +143,6 @@ export default Vue.extend({
       this.getLists();
     },
 
-
     // Show the edit list form.
     showEditForm(list) {
       this.curItem = list;
