@@ -27,6 +27,8 @@ The demo does not persist Postgres after the containers are removed. DO NOT use 
 - `docker-compose run --rm app ./listmonk --install` to setup the DB (or `--upgrade` to upgrade an existing DB)
 - Run `docker-compose up app` and visit `http://localhost:9000`.
 
+You can also take a look at [this article](https://yasoob.me/posts/setting-up-listmonk-opensource-newsletter-mailing/) by [Yasoob](https://twitter.com/yasoobkhalid) on how he deployed listmonk in production using Docker, NGINX, and automated SSL via Let's Encrypt. The final setup is available in [this GitHub repo](https://github.com/yasoob/listmonk-setup).
+
 More information on [docs](https://listmonk.app/docs).
 
 __________________
