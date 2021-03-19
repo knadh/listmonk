@@ -35,7 +35,7 @@ dockers:
   -
     goos: linux
     goarch: amd64
-    binaries:
+    ids:
     - listmonk
     image_templates:
     - "listmonk/listmonk:latest"
