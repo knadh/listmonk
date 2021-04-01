@@ -16,7 +16,7 @@
                 :placeholder="$t('globals.fields.name')" required></b-input>
             </b-field>
 
-            <b-field :label="$t('globals.fields.rawHTML')" label-position="on-border">
+            <b-field :label="$t('templates.rawHTML')" label-position="on-border">
             <b-input v-model="form.body" type="textarea" required />
             </b-field>
 
