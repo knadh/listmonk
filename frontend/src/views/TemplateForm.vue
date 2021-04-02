@@ -13,10 +13,10 @@
         <section expanded class="modal-card-body">
             <b-field :label="$t('globals.fields.name')" label-position="on-border">
             <b-input :maxlength="200" :ref="'focus'" v-model="form.name"
-                placeholder="$t('globals.fields.name')" required></b-input>
+                :placeholder="$t('globals.fields.name')" required></b-input>
             </b-field>
 
-            <b-field :label="$t('globals.fields.rawHTML')" label-position="on-border">
+            <b-field :label="$t('templates.rawHTML')" label-position="on-border">
             <b-input v-model="form.body" type="textarea" required />
             </b-field>
 
