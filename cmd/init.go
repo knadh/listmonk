@@ -32,6 +32,7 @@ import (
 	"github.com/knadh/stuffbin"
 	"github.com/labstack/echo"
 	flag "github.com/spf13/pflag"
+	"golang.org/x/crypto/acme/autocert"
 )
 
 const (
@@ -48,7 +49,12 @@ type constants struct {
 	EnablePublicSubPage bool     `koanf:"enable_public_subscription_page"`
 	Lang                string   `koanf:"lang"`
 	DBBatchSize         int      `koanf:"batch_size"`
-	Privacy             struct {
+	TLS                 struct {
+		Enable  bool   `koanf:"enable"`
+		Domain  string `koanf:"domain"`
+		CertDir string `koanf:"cert_dir"`
+	} `koanf:"tls"`
+	Privacy struct {
 		IndividualTracking bool            `koanf:"individual_tracking"`
 		AllowBlocklist     bool            `koanf:"allow_blocklist"`
 		AllowExport        bool            `koanf:"allow_export"`
@@ -230,8 +236,11 @@ func initConstants() *constants {
 	if err := ko.Unmarshal("app", &c); err != nil {
 		lo.Fatalf("error loading app config: %v", err)
 	}
+	if err := ko.Unmarshal("tls", &c.TLS); err != nil {
+		lo.Fatalf("error loading app tls config: %v", err)
+	}
 	if err := ko.Unmarshal("privacy", &c.Privacy); err != nil {
-		lo.Fatalf("error loading app config: %v", err)
+		lo.Fatalf("error loading app privacy config: %v", err)
 	}
 
 	c.RootURL = strings.TrimRight(c.RootURL, "/")
@@ -455,6 +464,12 @@ func initHTTPServer(app *App) *echo.Echo {
 	var srv = echo.New()
 	srv.HideBanner = true
 
+	if app.constants.TLS.Enable {
+		srv.AutoTLSManager.HostPolicy = autocert.HostWhitelist(app.constants.TLS.Domain)
+		// Cache certificates
+		srv.AutoTLSManager.Cache = autocert.DirCache(app.constants.TLS.CertDir)
+	}
+
 	// Register app (*App) to be injected into all HTTP handlers.
 	srv.Use(func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
@@ -491,7 +506,15 @@ func initHTTPServer(app *App) *echo.Echo {
 
 	// Start the server.
 	go func() {
-		if err := srv.Start(ko.String("app.address")); err != nil {
+		addr := ko.String("app.address")
+
+		var err error
+		if app.constants.TLS.Enable {
+			err = srv.StartAutoTLS(addr)
+		} else {
+			err = srv.Start(addr)
+		}
+		if err != nil {
 			if strings.Contains(err.Error(), "Server closed") {
 				lo.Println("HTTP server shut down")
 			} else {
