@@ -13,16 +13,16 @@ x-app-defaults: &app-defaults
     - listmonk
 
 x-db-defaults: &db-defaults
-    image: postgres:11
-    ports:
-      - "9432:5432"
-    networks:
-      - listmonk
-    environment:
-      - POSTGRES_PASSWORD=listmonk
-      - POSTGRES_USER=listmonk
-      - POSTGRES_DB=listmonk
-    restart: unless-stopped
+  image: postgres:11
+  ports:
+    - "9432:5432"
+  networks:
+    - listmonk
+  environment:
+    - POSTGRES_PASSWORD=listmonk
+    - POSTGRES_USER=listmonk
+    - POSTGRES_DB=listmonk
+  restart: unless-stopped
 
 services:
   db:
@@ -43,7 +43,7 @@ services:
   demo-app:
     <<: *app-defaults
     command: [sh, -c, "yes | ./listmonk --install --config config-demo.toml && ./listmonk --config config-demo.toml"]
-    depends_on: 
+    depends_on:
       - demo-db
 
 networks:
