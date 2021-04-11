@@ -17,36 +17,41 @@ deps:
 	go get -u github.com/knadh/stuffbin/...
 	cd frontend && yarn install
 
-# Run the JS frontend server in dev mode.
-.PHONY: run-frontend
-run-frontend:
-	export VUE_APP_VERSION="${VERSION}" && cd frontend && yarn serve
-
-# Build the JS frontend into frontend/dist.
-.PHONY: build-frontend
-build-frontend:
-	export VUE_APP_VERSION="${VERSION}" && cd frontend && yarn build
+# Build the backend to ./listmonk.
+.PHONY: build
+build:
+	CGO_ENABLED=0 go build -o ${BIN} -ldflags="-s -w -X 'main.buildString=${BUILDSTR}' -X 'main.versionString=${VERSION}'" cmd/*.go
 
 # Run the backend.
 .PHONY: run
 run: build
 	./${BIN}
 
-# Build the backend to ./listmonk.
-.PHONY: build
-build:
-	go build -o ${BIN} -ldflags="-s -w -X 'main.buildString=${BUILDSTR}' -X 'main.versionString=${VERSION}'" cmd/*.go
+# Build the JS frontend into frontend/dist.
+.PHONY: build-frontend
+build-frontend:
+	export VUE_APP_VERSION="${VERSION}" && cd frontend && yarn build
 
-# pack-releases runns stuffbin packing on the given binary. This is used
-# in the .goreleaser post-build hook.
-.PHONY: pack-bin
-pack-bin:
-	stuffbin -a stuff -in ${BIN} -out ${BIN} ${STATIC}
+# Run the JS frontend server in dev mode.
+.PHONY: run-frontend
+run-frontend:
+	export VUE_APP_VERSION="${VERSION}" && cd frontend && yarn serve
+
+# Run Go tests.
+.PHONY: test
+test:
+	go test ./...
 
 # Bundle all static assets including the JS frontend into the ./listmonk binary
 # using stuffbin (installed with make deps).
 .PHONY: dist
 dist: build build-frontend
+	stuffbin -a stuff -in ${BIN} -out ${BIN} ${STATIC}
+
+# pack-releases runns stuffbin packing on the given binary. This is used
+# in the .goreleaser post-build hook.
+.PHONY: pack-bin
+pack-bin:
 	stuffbin -a stuff -in ${BIN} -out ${BIN} ${STATIC}
 
 # Use goreleaser to do a dry run producing local builds.
@@ -58,13 +63,3 @@ release-dry:
 .PHONY: release
 release:
 	goreleaser --parallelism 1 --rm-dist --skip-validate
-
-# Opens the cypress frontend tests UI.
-.PHONY: open-frontend-tests
-open-frontend-tests:
-	cd frontend && ./node_modules/cypress/bin/cypress open
-
-# Run Go tests.
-.PHONY: test
-test:
-	go test ./...
