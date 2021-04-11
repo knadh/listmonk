@@ -15,6 +15,10 @@
               data-cy="check-html">{{ $t('campaigns.rawHTML') }}</b-radio>
             <b-radio v-model="form.radioFormat"
               @input="onChangeFormat" :disabled="disabled" name="format"
+              native-value="markdown"
+              data-cy="check-markdown">{{ $t('campaigns.markdown') }}</b-radio>
+            <b-radio v-model="form.radioFormat"
+              @input="onChangeFormat" :disabled="disabled" name="format"
               native-value="plain"
               data-cy="check-plain">{{ $t('campaigns.plainText') }}</b-radio>
           </div>
@@ -43,16 +47,18 @@
     <div v-if="form.format === 'html'"
       ref="htmlEditor" id="html-editor" class="html-editor"></div>
 
-    <!-- plain text editor //-->
-    <b-input v-if="form.format === 'plain'" v-model="form.body" @input="onEditorChange"
+    <!-- plain text / markdown editor //-->
+    <b-input v-if="form.format === 'plain' || form.format === 'markdown'"
+      v-model="form.body" @input="onEditorChange"
       type="textarea" name="content" ref="plainEditor" class="plain-editor" />
 
     <!-- campaign preview //-->
     <campaign-preview v-if="isPreviewing"
       @close="onTogglePreview"
-      type='campaign'
-      :id='id'
-      :title='title'
+      type="campaign"
+      :id="id"
+      :title="title"
+      :contentType="form.format"
       :body="form.body"></campaign-preview>
 
     <!-- image picker -->
@@ -198,7 +204,7 @@ export default {
         },
         () => {
           // On cancel, undo the radio selection.
-          this.form.radioFormat = format === 'richtext' ? 'html' : 'richtext';
+          this.form.radioFormat = this.form.format;
         },
       );
     },
@@ -285,6 +291,10 @@ export default {
     contentType(f) {
       this.form.format = f;
       this.form.radioFormat = f;
+
+      if (f === 'plain' || f === 'markdown') {
+        this.isReady = true;
+      }
 
       // Trigger the change event so that the body and content type
       // are propagated to the parent on first load.

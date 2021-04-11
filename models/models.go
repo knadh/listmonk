@@ -1,6 +1,7 @@
 package models
 
 import (
+	"bytes"
 	"database/sql/driver"
 	"encoding/json"
 	"errors"
@@ -12,6 +13,7 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/jmoiron/sqlx/types"
 	"github.com/lib/pq"
+	"github.com/yuin/goldmark"
 
 	null "gopkg.in/volatiletech/null.v6"
 )
@@ -39,6 +41,7 @@ const (
 	CampaignTypeOptin           = "optin"
 	CampaignContentTypeRichtext = "richtext"
 	CampaignContentTypeHTML     = "html"
+	CampaignContentTypeMarkdown = "markdown"
 	CampaignContentTypePlain    = "plain"
 
 	// List.
@@ -312,8 +315,18 @@ func (c *Campaign) CompileTemplate(f template.FuncMap) error {
 		return fmt.Errorf("error compiling base template: %v", err)
 	}
 
+	// If the format is markdown, convert Markdown to HTML.
+	if c.ContentType == CampaignContentTypeMarkdown {
+		var b bytes.Buffer
+		if err := goldmark.Convert([]byte(c.Body), &b); err != nil {
+			return err
+		}
+		body = b.String()
+	} else {
+		body = c.Body
+	}
+
 	// Compile the campaign message.
-	body = c.Body
 	for _, r := range regTplFuncs {
 		body = r.regExp.ReplaceAllString(body, r.replace)
 	}
