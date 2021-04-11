@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"html/template"
+	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
@@ -53,6 +54,7 @@ type constants struct {
 		Enable  bool   `koanf:"enable"`
 		Domain  string `koanf:"domain"`
 		CertDir string `koanf:"cert_dir"`
+		Email   string `koanf:"email"`
 	} `koanf:"tls"`
 	Privacy struct {
 		IndividualTracking bool            `koanf:"individual_tracking"`
@@ -468,6 +470,7 @@ func initHTTPServer(app *App) *echo.Echo {
 		srv.AutoTLSManager.HostPolicy = autocert.HostWhitelist(app.constants.TLS.Domain)
 		// Cache certificates
 		srv.AutoTLSManager.Cache = autocert.DirCache(app.constants.TLS.CertDir)
+		srv.AutoTLSManager.Email = app.constants.TLS.Email
 	}
 
 	// Register app (*App) to be injected into all HTTP handlers.
@@ -504,12 +507,23 @@ func initHTTPServer(app *App) *echo.Echo {
 	// Register all HTTP handlers.
 	registerHTTPHandlers(srv)
 
+	if app.constants.TLS.Enable {
+		go func() {
+			// does automatic http to https redirects and handles HTTP-01 challenge
+			err := http.ListenAndServe(":http", srv.AutoTLSManager.HTTPHandler(nil))
+			if err != nil {
+				lo.Fatalf("error starting HTTP cert handler: %v", err)
+			}
+		}()
+	}
+
 	// Start the server.
 	go func() {
 		addr := ko.String("app.address")
 
 		var err error
 		if app.constants.TLS.Enable {
+			lo.Println("srv.StartAutoTLS(addr)")
 			err = srv.StartAutoTLS(addr)
 		} else {
 			err = srv.Start(addr)
