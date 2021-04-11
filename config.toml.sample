@@ -1,6 +1,6 @@
 [app]
     # Interface and port where the app will run its webserver.
-    address = "0.0.0.0:9000"
+    address = "0.0.0.0:443"
 
     # BasicAuth authentication for the admin dashboard. This will eventually
     # be replaced with a better multi-user, role-based authentication system.
@@ -8,6 +8,12 @@
     # only where an external authentication is already setup.
     admin_username = "listmonk"
     admin_password = "listmonk"
+
+[tls]
+    enable = true
+    domain = "listmonk.company.com"
+    cert_dir = "/app"
+    email = "me@company.com"
 
 # Database.
 [db]

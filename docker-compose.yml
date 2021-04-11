@@ -8,7 +8,8 @@ x-app-defaults: &app-defaults
   restart: unless-stopped
   image: listmonk/listmonk:latest
   ports:
-    - "9000:9000"
+    - "80:80"
+    - "443:443"
   networks:
     - listmonk
 
@@ -34,6 +35,8 @@ services:
 
   app:
     <<: *app-defaults
+    volumes:
+      - ./:/app
     depends_on:
       - db
 
