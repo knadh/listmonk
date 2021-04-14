@@ -34,6 +34,8 @@ func checkUpdates(curVersion string, interval time.Duration, app *App) {
 	curVersion = reSemver.ReplaceAllString(curVersion, "")
 	time.Sleep(time.Second * 1)
 	ticker := time.NewTicker(interval)
+	defer ticker.Stop()
+
 	for ; true; <-ticker.C {
 		resp, err := http.Get(updateCheckURL)
 		if err != nil {

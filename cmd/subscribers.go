@@ -42,6 +42,13 @@ type subsWrap struct {
 	Page    int    `json:"page"`
 }
 
+type subUpdateReq struct {
+	models.Subscriber
+	RawAttribs json.RawMessage `json:"attribs"`
+	Lists      pq.Int64Array   `json:"lists"`
+	ListUUIDs  pq.StringArray  `json:"list_uuids"`
+}
+
 // subProfileData represents a subscriber's collated data in JSON
 // for export.
 type subProfileData struct {
@@ -79,7 +86,11 @@ func handleGetSubscriber(c echo.Context) error {
 		id, _ = strconv.Atoi(c.Param("id"))
 	)
 
-	sub, err := getSubscriber(id, app)
+	if id < 1 {
+		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidID"))
+	}
+
+	sub, err := getSubscriber(id, "", "", app)
 	if err != nil {
 		return err
 	}
@@ -273,13 +284,12 @@ func handleCreateSubscriber(c echo.Context) error {
 	}
 
 	// Insert the subscriber into the DB.
-	sub, err := insertSubscriber(req, app)
+	sub, isNew, _, err := insertSubscriber(req, app)
 	if err != nil {
-		if err == errSubscriberExists {
-			return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("subscribers.emailExists"))
-		}
-
 		return err
+	}
+	if !isNew {
+		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("subscribers.emailExists"))
 	}
 
 	return c.JSON(http.StatusOK, okResp{sub})
@@ -290,7 +300,7 @@ func handleUpdateSubscriber(c echo.Context) error {
 	var (
 		app   = c.Get("app").(*App)
 		id, _ = strconv.ParseInt(c.Param("id"), 10, 64)
-		req   subimporter.SubReq
+		req   subUpdateReq
 	)
 	// Get and validate fields.
 	if err := c.Bind(&req); err != nil {
@@ -307,11 +317,21 @@ func handleUpdateSubscriber(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("subscribers.invalidName"))
 	}
 
-	_, err := app.queries.UpdateSubscriber.Exec(req.ID,
+	// If there's an attribs value, validate it.
+	if len(req.RawAttribs) > 0 {
+		var a models.SubscriberAttribs
+		if err := json.Unmarshal(req.RawAttribs, &a); err != nil {
+			return echo.NewHTTPError(http.StatusInternalServerError,
+				app.i18n.Ts("globals.messages.errorUpdating",
+					"name", "{globals.terms.subscriber}", "error", err.Error()))
+		}
+	}
+
+	_, err := app.queries.UpdateSubscriber.Exec(id,
 		strings.ToLower(strings.TrimSpace(req.Email)),
 		strings.TrimSpace(req.Name),
 		req.Status,
-		req.Attribs,
+		req.RawAttribs,
 		req.Lists)
 	if err != nil {
 		app.log.Printf("error updating subscriber: %v", err)
@@ -321,11 +341,11 @@ func handleUpdateSubscriber(c echo.Context) error {
 	}
 
 	// Send a confirmation e-mail (if there are any double opt-in lists).
-	sub, err := getSubscriber(int(id), app)
+	sub, err := getSubscriber(int(id), "", "", app)
 	if err != nil {
 		return err
 	}
-	_ = sendOptinConfirmation(sub, []int64(req.Lists), app)
+	_, _ = sendOptinConfirmation(sub, []int64(req.Lists), app)
 
 	return c.JSON(http.StatusOK, okResp{sub})
 }
@@ -335,7 +355,6 @@ func handleSubscriberSendOptin(c echo.Context) error {
 	var (
 		app   = c.Get("app").(*App)
 		id, _ = strconv.Atoi(c.Param("id"))
-		out   models.Subscribers
 	)
 
 	if id < 1 {
@@ -343,19 +362,15 @@ func handleSubscriberSendOptin(c echo.Context) error {
 	}
 
 	// Fetch the subscriber.
-	err := app.queries.GetSubscriber.Select(&out, id, nil)
+	out, err := getSubscriber(id, "", "", app)
 	if err != nil {
 		app.log.Printf("error fetching subscriber: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			app.i18n.Ts("globals.messages.errorFetching",
 				"name", "{globals.terms.subscribers}", "error", pqErrMsg(err)))
 	}
-	if len(out) == 0 {
-		return echo.NewHTTPError(http.StatusBadRequest,
-			app.i18n.Ts("globals.messages.notFound", "name", "{globals.terms.subscriber}"))
-	}
 
-	if err := sendOptinConfirmation(out[0], nil, app); err != nil {
+	if _, err := sendOptinConfirmation(out, nil, app); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			app.i18n.T("subscribers.errorSendingOptin"))
 	}
@@ -619,56 +634,53 @@ func handleExportSubscriberData(c echo.Context) error {
 	return c.Blob(http.StatusOK, "application/json", b)
 }
 
-// insertSubscriber inserts a subscriber and returns the ID.
-func insertSubscriber(req subimporter.SubReq, app *App) (models.Subscriber, error) {
+// insertSubscriber inserts a subscriber and returns the ID. The first bool indicates if
+// it was a new subscriber, and the second bool indicates if the subscriber was sent an optin confirmation.
+func insertSubscriber(req subimporter.SubReq, app *App) (models.Subscriber, bool, bool, error) {
 	uu, err := uuid.NewV4()
 	if err != nil {
-		return req.Subscriber, err
+		return req.Subscriber, false, false, err
 	}
 	req.UUID = uu.String()
 
-	err = app.queries.InsertSubscriber.Get(&req.ID,
+	isNew := true
+	if err = app.queries.InsertSubscriber.Get(&req.ID,
 		req.UUID,
 		req.Email,
 		strings.TrimSpace(req.Name),
 		req.Status,
 		req.Attribs,
 		req.Lists,
-		req.ListUUIDs)
-	if err != nil {
+		req.ListUUIDs); err != nil {
 		if pqErr, ok := err.(*pq.Error); ok && pqErr.Constraint == "subscribers_email_key" {
-			return req.Subscriber, errSubscriberExists
+			isNew = false
+		} else {
+			// return req.Subscriber, errSubscriberExists
+			app.log.Printf("error inserting subscriber: %v", err)
+			return req.Subscriber, false, false, echo.NewHTTPError(http.StatusInternalServerError,
+				app.i18n.Ts("globals.messages.errorCreating",
+					"name", "{globals.terms.subscriber}", "error", pqErrMsg(err)))
 		}
-
-		app.log.Printf("error inserting subscriber: %v", err)
-		return req.Subscriber, echo.NewHTTPError(http.StatusInternalServerError,
-			app.i18n.Ts("globals.messages.errorCreating",
-				"name", "{globals.terms.subscriber}", "error", pqErrMsg(err)))
 	}
 
-	// Fetch the subscriber's full data.
-	sub, err := getSubscriber(req.ID, app)
+	// Fetch the subscriber's full data. If the subscriber already existed and wasn't
+	// created, the id will be empty. Fetch the details by e-mail then.
+	sub, err := getSubscriber(req.ID, "", strings.ToLower(req.Email), app)
 	if err != nil {
-		return sub, err
+		return sub, false, false, err
 	}
 
 	// Send a confirmation e-mail (if there are any double opt-in lists).
-	_ = sendOptinConfirmation(sub, []int64(req.Lists), app)
-	return sub, nil
+	num, _ := sendOptinConfirmation(sub, []int64(req.Lists), app)
+	return sub, isNew, num > 0, nil
 }
 
-// getSubscriber gets a single subscriber by ID.
-func getSubscriber(id int, app *App) (models.Subscriber, error) {
-	var (
-		out models.Subscribers
-	)
+// getSubscriber gets a single subscriber by ID, uuid, or e-mail in that order.
+// Only one of these params should have a value.
+func getSubscriber(id int, uuid, email string, app *App) (models.Subscriber, error) {
+	var out models.Subscribers
 
-	if id < 1 {
-		return models.Subscriber{},
-			echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidID"))
-	}
-
-	if err := app.queries.GetSubscriber.Select(&out, id, nil); err != nil {
+	if err := app.queries.GetSubscriber.Select(&out, id, uuid, email); err != nil {
 		app.log.Printf("error fetching subscriber: %v", err)
 		return models.Subscriber{}, echo.NewHTTPError(http.StatusInternalServerError,
 			app.i18n.Ts("globals.messages.errorFetching",
@@ -733,8 +745,9 @@ func exportSubscriberData(id int64, subUUID string, exportables map[string]bool,
 }
 
 // sendOptinConfirmation sends a double opt-in confirmation e-mail to a subscriber
-// if at least one of the given listIDs is set to optin=double
-func sendOptinConfirmation(sub models.Subscriber, listIDs []int64, app *App) error {
+// if at least one of the given listIDs is set to optin=double. It returns the number of
+// opt-in lists that were found.
+func sendOptinConfirmation(sub models.Subscriber, listIDs []int64, app *App) (int, error) {
 	var lists []models.List
 
 	// Fetch double opt-in lists from the given list IDs.
@@ -742,12 +755,12 @@ func sendOptinConfirmation(sub models.Subscriber, listIDs []int64, app *App) err
 	if err := app.queries.GetSubscriberLists.Select(&lists, sub.ID, nil,
 		pq.Int64Array(listIDs), nil, models.SubscriptionStatusUnconfirmed, models.ListOptinDouble); err != nil {
 		app.log.Printf("error fetching lists for opt-in: %s", pqErrMsg(err))
-		return err
+		return 0, err
 	}
 
 	// None.
 	if len(lists) == 0 {
-		return nil
+		return 0, nil
 	}
 
 	var (
@@ -764,9 +777,9 @@ func sendOptinConfirmation(sub models.Subscriber, listIDs []int64, app *App) err
 	if err := app.sendNotification([]string{sub.Email},
 		app.i18n.T("subscribers.optinSubject"), notifSubscriberOptin, out); err != nil {
 		app.log.Printf("error sending opt-in e-mail: %s", err)
-		return err
+		return 0, err
 	}
-	return nil
+	return len(lists), nil
 }
 
 // sanitizeSQLExp does basic sanitisation on arbitrary

@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <b-navbar :fixed-top="true">
+    <b-navbar :fixed-top="true" v-if="$root.isLoaded">
         <template slot="brand">
           <div class="logo">
             <router-link :to="{name: 'dashboard'}">
@@ -14,7 +14,7 @@
         </template>
     </b-navbar>
 
-    <div class="wrapper">
+    <div class="wrapper" v-if="$root.isLoaded">
       <section class="sidebar">
         <b-sidebar
           position="static"
@@ -32,63 +32,63 @@
                 </b-menu-item><!-- dashboard -->
 
                 <b-menu-item :expanded="activeGroup.lists"
-                  :active="activeGroup.lists"
+                  :active="activeGroup.lists" data-cy="lists"
                   v-on:update:active="(state) => toggleGroup('lists', state)"
                   icon="format-list-bulleted-square" :label="$t('globals.terms.lists')">
                   <b-menu-item :to="{name: 'lists'}" tag="router-link"
-                    :active="activeItem.lists"
+                    :active="activeItem.lists" data-cy="all-lists"
                     icon="format-list-bulleted-square" :label="$t('menu.allLists')"></b-menu-item>
 
                   <b-menu-item :to="{name: 'forms'}" tag="router-link"
-                    :active="activeItem.forms"
+                    :active="activeItem.forms" class="forms"
                     icon="newspaper-variant-outline" :label="$t('menu.forms')"></b-menu-item>
                 </b-menu-item><!-- lists -->
 
                 <b-menu-item :expanded="activeGroup.subscribers"
-                  :active="activeGroup.subscribers"
+                  :active="activeGroup.subscribers" data-cy="subscribers"
                   v-on:update:active="(state) => toggleGroup('subscribers', state)"
                   icon="account-multiple" :label="$t('globals.terms.subscribers')">
                   <b-menu-item :to="{name: 'subscribers'}" tag="router-link"
-                    :active="activeItem.subscribers"
+                    :active="activeItem.subscribers" data-cy="all-subscribers"
                     icon="account-multiple" :label="$t('menu.allSubscribers')"></b-menu-item>
 
                   <b-menu-item :to="{name: 'import'}" tag="router-link"
-                    :active="activeItem.import"
+                    :active="activeItem.import" data-cy="import"
                     icon="file-upload-outline" :label="$t('menu.import')"></b-menu-item>
                 </b-menu-item><!-- subscribers -->
 
                 <b-menu-item :expanded="activeGroup.campaigns"
-                  :active="activeGroup.campaigns"
+                  :active="activeGroup.campaigns" data-cy="campaigns"
                   v-on:update:active="(state) => toggleGroup('campaigns', state)"
                   icon="rocket-launch-outline" :label="$t('globals.terms.campaigns')">
                   <b-menu-item :to="{name: 'campaigns'}" tag="router-link"
-                    :active="activeItem.campaigns"
+                    :active="activeItem.campaigns" data-cy="all-campaigns"
                     icon="rocket-launch-outline" :label="$t('menu.allCampaigns')"></b-menu-item>
 
                   <b-menu-item :to="{name: 'campaign', params: {id: 'new'}}" tag="router-link"
-                    :active="activeItem.campaign"
+                    :active="activeItem.campaign" data-cy="new-campaign"
                     icon="plus" :label="$t('menu.newCampaign')"></b-menu-item>
 
                   <b-menu-item :to="{name: 'media'}" tag="router-link"
-                    :active="activeItem.media"
+                    :active="activeItem.media" data-cy="media"
                     icon="image-outline" :label="$t('menu.media')"></b-menu-item>
 
                   <b-menu-item :to="{name: 'templates'}" tag="router-link"
-                    :active="activeItem.templates"
+                    :active="activeItem.templates" data-cy="templates"
                     icon="file-image-outline" :label="$t('globals.terms.templates')"></b-menu-item>
                 </b-menu-item><!-- campaigns -->
 
                 <b-menu-item :expanded="activeGroup.settings"
-                  :active="activeGroup.settings"
+                  :active="activeGroup.settings" data-cy="settings"
                   v-on:update:active="(state) => toggleGroup('settings', state)"
                   icon="cog-outline" :label="$t('menu.settings')">
 
                   <b-menu-item :to="{name: 'settings'}" tag="router-link"
-                    :active="activeItem.settings"
+                    :active="activeItem.settings" data-cy="all-settings"
                     icon="cog-outline" :label="$t('menu.settings')"></b-menu-item>
 
                   <b-menu-item :to="{name: 'logs'}" tag="router-link"
-                    :active="activeItem.logs"
+                    :active="activeItem.logs" data-cy="logs"
                     icon="newspaper-variant-outline" :label="$t('menu.logs')"></b-menu-item>
                 </b-menu-item><!-- settings -->
               </b-menu-list>
@@ -100,18 +100,17 @@
 
       <!-- body //-->
       <div class="main">
-        <div class="global-notices" v-if="serverConfig.needsRestart || serverConfig.update">
-          <div v-if="serverConfig.needsRestart" class="notification is-danger">
-            Settings have changed. Pause all running campaigns and restart the app
+        <div class="global-notices" v-if="serverConfig.needs_restart || serverConfig.update">
+          <div v-if="serverConfig.needs_restart" class="notification is-danger">
+            {{ $t('settings.needsRestart') }}
              &mdash;
             <b-button class="is-primary" size="is-small"
-              @click="$utils.confirm(
-                'Ensure running campaigns are paused. Restart?', reloadApp)">
-                Restart
+              @click="$utils.confirm($t('settings.confirmRestart'), reloadApp)">
+                {{ $t('settings.restart') }}
             </b-button>
           </div>
           <div v-if="serverConfig.update" class="notification is-success">
-            A new update ({{ serverConfig.update.version }}) is available.
+            {{ $t('settings.updateAvailable', { version: serverConfig.update.version }) }}
             <a :href="serverConfig.update.url" target="_blank">View</a>
           </div>
         </div>
@@ -120,15 +119,7 @@
       </div>
     </div>
 
-    <b-loading v-if="!isLoaded" active>
-        <div class="has-text-centered">
-          <h1 class="title">Oops</h1>
-          <p>
-            Can't connect to the backend.<br />
-            Make sure the server is running and refresh this page.
-          </p>
-        </div>
-    </b-loading>
+    <b-loading v-if="!$root.isLoaded" active />
   </div>
 </template>
 
@@ -143,7 +134,6 @@ export default Vue.extend({
     return {
       activeItem: {},
       activeGroup: {},
-      isLoaded: window.CONFIG,
     };
   },
 
@@ -173,9 +163,10 @@ export default Vue.extend({
         // Poll until there's a 200 response, waiting for the app
         // to restart and come back up.
         const pollId = setInterval(() => {
-          clearInterval(pollId);
-          this.$utils.toast('Reload complete');
-          document.location.reload();
+          this.$api.getHealth().then(() => {
+            clearInterval(pollId);
+            document.location.reload();
+          });
         }, 500);
       });
     },

@@ -8,16 +8,19 @@
       <section expanded class="modal-card-body">
         <b-field label="Action">
           <div>
-            <b-radio v-model="form.action" name="action" native-value="add">
+            <b-radio v-model="form.action" name="action" native-value="add"
+              data-cy="check-list-add">
               {{ $t('globals.buttons.add') }}
             </b-radio>
-            <b-radio v-model="form.action" name="action" native-value="remove">
+            <b-radio v-model="form.action" name="action" native-value="remove"
+              data-cy="check-list-remove">
               {{ $t('globals.buttons.remove') }}
             </b-radio>
             <b-radio
               v-model="form.action"
               name="action"
               native-value="unsubscribe"
+              data-cy="check-list-unsubscribe"
             >{{ $t('subscribers.markUnsubscribed') }}</b-radio>
           </div>
         </b-field>

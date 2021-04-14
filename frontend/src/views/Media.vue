@@ -3,7 +3,7 @@
     <h1 class="title is-4">{{ $t('media.title') }}
       <span v-if="media.length > 0">({{ media.length }})</span>
 
-      <span class="has-text-grey-light"> / {{ serverConfig.mediaProvider }}</span>
+      <span class="has-text-grey-light"> / {{ settings['upload.provider'] }}</span>
     </h1>
 
     <b-loading :active="isProcessing || loading.media"></b-loading>
@@ -141,7 +141,7 @@ export default Vue.extend({
   },
 
   computed: {
-    ...mapState(['media', 'serverConfig', 'loading']),
+    ...mapState(['loading', 'media', 'settings']),
 
     isProcessing() {
       if (this.toUpload > 0 && this.uploaded < this.toUpload) {

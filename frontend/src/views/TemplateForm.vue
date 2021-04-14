@@ -12,12 +12,12 @@
         </header>
         <section expanded class="modal-card-body">
             <b-field :label="$t('globals.fields.name')" label-position="on-border">
-            <b-input :maxlength="200" :ref="'focus'" v-model="form.name"
-                placeholder="$t('globals.fields.name')" required></b-input>
+              <b-input :maxlength="200" :ref="'focus'" v-model="form.name" name="name"
+                  :placeholder="$t('globals.fields.name')" required />
             </b-field>
 
-            <b-field :label="$t('globals.fields.rawHTML')" label-position="on-border">
-            <b-input v-model="form.body" type="textarea" required />
+            <b-field :label="$t('templates.rawHTML')" label-position="on-border">
+              <b-input v-model="form.body" type="textarea" required />
             </b-field>
 
             <p class="is-size-7">

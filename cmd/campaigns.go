@@ -155,16 +155,14 @@ func handlePreviewCampaign(c echo.Context) error {
 	var (
 		app   = c.Get("app").(*App)
 		id, _ = strconv.Atoi(c.Param("id"))
-		body  = c.FormValue("body")
-
-		camp = &models.Campaign{}
 	)
 
 	if id < 1 {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidID"))
 	}
 
-	err := app.queries.GetCampaignForPreview.Get(camp, id)
+	var camp models.Campaign
+	err := app.queries.GetCampaignForPreview.Get(&camp, id)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return echo.NewHTTPError(http.StatusBadRequest,
@@ -175,6 +173,12 @@ func handlePreviewCampaign(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			app.i18n.Ts("globals.messages.errorFetching",
 				"name", "{globals.terms.campaign}", "error", pqErrMsg(err)))
+	}
+
+	// There's a body in the request to preview instead of the body in the DB.
+	if c.Request().Method == http.MethodPost {
+		camp.ContentType = c.FormValue("content_type")
+		camp.Body = c.FormValue("body")
 	}
 
 	var sub models.Subscriber
@@ -191,19 +195,14 @@ func handlePreviewCampaign(c echo.Context) error {
 		}
 	}
 
-	// Compile the template.
-	if body != "" {
-		camp.Body = body
-	}
-
-	if err := camp.CompileTemplate(app.manager.TemplateFuncs(camp)); err != nil {
+	if err := camp.CompileTemplate(app.manager.TemplateFuncs(&camp)); err != nil {
 		app.log.Printf("error compiling template: %v", err)
 		return echo.NewHTTPError(http.StatusBadRequest,
 			app.i18n.Ts("templates.errorCompiling", "error", err.Error()))
 	}
 
 	// Render the message body.
-	m := app.manager.NewCampaignMessage(camp, sub)
+	m := app.manager.NewCampaignMessage(&camp, sub)
 	if err := m.Render(); err != nil {
 		app.log.Printf("error rendering message: %v", err)
 		return echo.NewHTTPError(http.StatusBadRequest,

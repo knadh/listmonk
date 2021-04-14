@@ -1,0 +1,28 @@
+{
+  "profile": [
+    {
+      "id": 2,
+      "uuid": "0954ba2e-50e4-4847-86f4-c2b8b72dace8",
+      "email": "anon@example.com",
+      "name": "Anon Doe",
+      "attribs": {
+        "city": "Bengaluru",
+        "good": true,
+        "type": "unknown"
+      },
+      "status": "enabled",
+      "created_at": "2021-02-20T15:52:16.251648+05:30",
+      "updated_at": "2021-02-20T15:52:16.251648+05:30"
+    }
+  ],
+  "subscriptions": [
+    {
+      "subscription_status": "unconfirmed",
+      "name": "Opt-in list",
+      "type": "public",
+      "created_at": "2021-02-20T15:52:16.251648+05:30"
+    }
+  ],
+  "campaign_views": [],
+  "link_clicks": []
+}

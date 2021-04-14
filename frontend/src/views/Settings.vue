@@ -1,6 +1,6 @@
 <template>
   <section class="settings">
-    <b-loading :is-full-page="true" v-if="isLoading" active />
+    <b-loading :is-full-page="true" v-if="loading.settings || isLoading" active />
     <header class="columns">
       <div class="column is-half">
         <h1 class="title is-4">{{ $t('settings.title') }}</h1>
@@ -8,7 +8,9 @@
       <div class="column has-text-right">
         <b-button :disabled="!hasFormChanged"
           type="is-primary" icon-left="content-save-outline"
-          @click="onSubmit" class="isSaveEnabled">{{ $t('globals.buttons.save') }}</b-button>
+          @click="onSubmit" class="isSaveEnabled" data-cy="btn-save">
+          {{ $t('globals.buttons.save') }}
+        </b-button>
       </div>
     </header>
     <hr />
@@ -278,11 +280,11 @@
                   <div class="column is-2">
                     <b-field :label="$t('globals.buttons.enabled')">
                       <b-switch v-model="item.enabled" name="enabled"
-                          :native-value="true" />
+                          :native-value="true" data-cy="btn-enable-smtp" />
                     </b-field>
                     <b-field v-if="form.smtp.length > 1">
                       <a @click.prevent="$utils.confirm(null, () => removeSMTP(n))"
-                        href="#" class="is-size-7">
+                        href="#" class="is-size-7" data-cy="btn-delete-smtp">
                         <b-icon icon="trash-can-outline" size="is-small" />
                         {{ $t('globals.buttons.delete') }}
                       </a>
@@ -528,8 +530,6 @@
 <script>
 import Vue from 'vue';
 import { mapState } from 'vuex';
-import store from '../store';
-import { models } from '../constants';
 
 const dummyPassword = ' '.repeat(8);
 
@@ -537,7 +537,7 @@ export default Vue.extend({
   data() {
     return {
       regDuration: '[0-9]+(ms|s|m|h|d)',
-      isLoading: true,
+      isLoading: false,
 
       // formCopy is a stringified copy of the original settings against which
       // form is compared to detect changes.
@@ -635,11 +635,11 @@ export default Vue.extend({
       this.isLoading = true;
       this.$api.updateSettings(form).then((data) => {
         if (data.needsRestart) {
-          // Update the 'needsRestart' flag on the global serverConfig state
-          // as there are running campaigns and the app couldn't auto-restart.
-          store.commit('setModelResponse',
-            { model: models.serverConfig, data: { ...this.serverConfig, needsRestart: true } });
+          // There are running campaigns and the app didn't auto restart.
+          // The UI will show a warning.
+          this.$root.loadConfig();
           this.getSettings();
+          this.isLoading = false;
           return;
         }
 
@@ -650,8 +650,8 @@ export default Vue.extend({
         const pollId = setInterval(() => {
           this.$api.getHealth().then(() => {
             clearInterval(pollId);
+            this.$root.loadConfig();
             this.getSettings();
-            this.$reloadServerConfig();
           });
         }, 500);
       }, () => {
@@ -666,7 +666,7 @@ export default Vue.extend({
         for (let i = 0; i < d.smtp.length; i += 1) {
           d.smtp[i].strEmailHeaders = JSON.stringify(d.smtp[i].email_headers, null, 4);
 
-          // The backend doesn't send passwords, so add a dummy so that it
+          // The backend doesn't send passwords, so add a dummy so that
           // the password looks filled on the UI.
           d.smtp[i].password = dummyPassword;
         }

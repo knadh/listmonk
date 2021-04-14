@@ -12,7 +12,7 @@
           <div class="tile">
             <div class="tile is-parent is-vertical relative">
               <b-loading v-if="isCountsLoading" active :is-full-page="false" />
-              <article class="tile is-child notification">
+              <article class="tile is-child notification" data-cy="lists">
                 <div class="columns is-mobile">
                   <div class="column is-6">
                     <p class="title">{{ $utils.niceNumber(counts.lists.total) }}</p>
@@ -43,7 +43,7 @@
                 </div>
               </article><!-- lists -->
 
-              <article class="tile is-child notification">
+              <article class="tile is-child notification" data-cy="campaigns">
                 <div class="columns is-mobile">
                   <div class="column is-6">
                     <p class="title">{{ $utils.niceNumber(counts.campaigns.total) }}</p>
@@ -64,7 +64,7 @@
 
             <div class="tile is-parent relative">
               <b-loading v-if="isCountsLoading" active :is-full-page="false" />
-              <article class="tile is-child notification">
+              <article class="tile is-child notification" data-cy="subscribers">
                 <div class="columns is-mobile">
                   <div class="column is-6">
                     <p class="title">{{ $utils.niceNumber(counts.subscribers.total) }}</p>
@@ -87,7 +87,7 @@
                   </div><!-- subscriber breakdown -->
                 </div><!-- subscriber columns -->
                 <hr />
-                <div class="columns">
+                <div class="columns" data-cy="messages">
                   <div class="column is-12">
                     <p class="title">{{ $utils.niceNumber(counts.messages) }}</p>
                     <p class="is-size-6 has-text-grey">

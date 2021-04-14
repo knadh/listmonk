@@ -262,28 +262,10 @@ func initConstants() *constants {
 // and then the selected language is loaded on top of it so that if there are
 // missing translations in it, the default English translations show up.
 func initI18n(lang string, fs stuffbin.FileSystem) *i18n.I18n {
-	const def = "en"
-
-	b, err := fs.Read(fmt.Sprintf("/i18n/%s.json", def))
+	i, err := getI18nLang(lang, fs)
 	if err != nil {
-		lo.Fatalf("error reading default i18n language file: %s: %v", def, err)
+		lo.Fatal(err)
 	}
-
-	// Initialize with the default language.
-	i, err := i18n.New(b)
-	if err != nil {
-		lo.Fatalf("error unmarshalling i18n language: %v", err)
-	}
-
-	// Load the selected language on top of it.
-	b, err = fs.Read(fmt.Sprintf("/i18n/%s.json", lang))
-	if err != nil {
-		lo.Fatalf("error reading i18n language file: %v", err)
-	}
-	if err := i.Load(b); err != nil {
-		lo.Fatalf("error loading i18n language file: %v", err)
-	}
-
 	return i
 }
 
@@ -505,7 +487,7 @@ func initHTTPServer(app *App) *echo.Echo {
 	}
 
 	// Register all HTTP handlers.
-	registerHTTPHandlers(srv)
+	registerHTTPHandlers(srv, app)
 
 	// Start the server.
 	go func() {

@@ -2,38 +2,43 @@
   <section class="forms content relative">
     <h1 class="title is-4">{{ $t('forms.title') }}</h1>
     <hr />
+
     <b-loading v-if="loading.lists" :active="loading.lists" :is-full-page="false" />
+    <p v-else-if="publicLists.length === 0">
+      {{ $t('forms.noPublicLists') }}
+    </p>
+
+
     <div class="columns" v-else-if="publicLists.length > 0">
       <div class="column is-4">
         <h4>{{ $t('forms.publicLists') }}</h4>
         <p>{{ $t('forms.selectHelp') }}</p>
 
         <b-loading :active="loading.lists" :is-full-page="false" />
-        <ul class="no">
+        <ul class="no" data-cy="lists">
           <li v-for="l in publicLists" :key="l.id">
             <b-checkbox v-model="checked"
               :native-value="l.uuid">{{ l.name }}</b-checkbox>
           </li>
         </ul>
 
-
-        <template v-if="serverConfig.enablePublicSubscriptionPage">
+        <template v-if="settings['app.enable_public_subscription_page']">
           <hr />
           <h4>{{ $t('forms.publicSubPage') }}</h4>
           <p>
-            <a :href="`${serverConfig.rootURL}/subscription/form`"
-              target="_blank">{{ serverConfig.rootURL }}/subscription/form</a>
+            <a :href="`${settings['app.root_url']}/subscription/form`"
+              target="_blank" data-cy="url">{{ settings['app.root_url'] }}/subscription/form</a>
           </p>
         </template>
       </div>
-      <div class="column">
+      <div class="column" data-cy="form">
         <h4>{{ $t('forms.formHTML') }}</h4>
         <p>
           {{ $t('forms.formHTMLHelp') }}
         </p>
 
         <!-- eslint-disable max-len -->
-        <pre v-if="checked.length > 0">&lt;form method=&quot;post&quot; action=&quot;{{ serverConfig.rootURL }}/subscription/form&quot; class=&quot;listmonk-form&quot;&gt;
+        <pre v-if="checked.length > 0">&lt;form method=&quot;post&quot; action=&quot;{{ settings['app.root_url'] }}/subscription/form&quot; class=&quot;listmonk-form&quot;&gt;
     &lt;div&gt;
         &lt;h3&gt;Subscribe&lt;/h3&gt;
         &lt;p&gt;&lt;input type=&quot;text&quot; name=&quot;email&quot; placeholder=&quot;{{ $t('subscribers.email') }}&quot; /&gt;&lt;/p&gt;
@@ -73,7 +78,7 @@ export default Vue.extend({
   },
 
   computed: {
-    ...mapState(['lists', 'loading', 'serverConfig']),
+    ...mapState(['loading', 'lists', 'settings']),
 
     publicLists() {
       if (!this.lists.results) {

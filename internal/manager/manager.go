@@ -11,6 +11,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/Masterminds/sprig/v3"
 	"github.com/knadh/listmonk/internal/i18n"
 	"github.com/knadh/listmonk/internal/messenger"
 	"github.com/knadh/listmonk/models"
@@ -315,7 +316,7 @@ func (m *Manager) messageWorker() {
 // TemplateFuncs returns the template functions to be applied into
 // compiled campaign templates.
 func (m *Manager) TemplateFuncs(c *models.Campaign) template.FuncMap {
-	return template.FuncMap{
+	f := template.FuncMap{
 		"TrackLink": func(url string, msg *CampaignMessage) string {
 			subUUID := msg.Subscriber.UUID
 			if !m.cfg.IndividualTracking {
@@ -353,7 +354,14 @@ func (m *Manager) TemplateFuncs(c *models.Campaign) template.FuncMap {
 		"L": func() *i18n.I18n {
 			return m.i18n
 		},
+		"Safe": func(safeHTML string) template.HTML {
+			return template.HTML(safeHTML)
+		},
 	}
+	for k, v := range sprig.GenericFuncMap() {
+		f[k] = v
+	}
+	return f
 }
 
 // Close closes and exits the campaign manager.
@@ -367,6 +375,8 @@ func (m *Manager) Close() {
 // for campaigns to process and dispatches them to the manager.
 func (m *Manager) scanCampaigns(tick time.Duration) {
 	t := time.NewTicker(tick)
+	defer t.Stop()
+
 	for {
 		select {
 		// Periodically scan the data source for campaigns to process.
