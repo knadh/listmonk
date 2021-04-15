@@ -58,6 +58,7 @@ SELECT id as subscriber_id,
 WITH sub AS (
     INSERT INTO subscribers (uuid, email, name, status, attribs)
     VALUES($1, $2, $3, $4, $5)
+    ON CONFLICT(email) DO UPDATE SET updated_at=NOW()
     returning id
 ),
 listIDs AS (
