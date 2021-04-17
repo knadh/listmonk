@@ -29,8 +29,8 @@ func handleGetI18nLang(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "Invalid language code.")
 	}
 
-	i, err := getI18nLang(lang, app.fs)
-	if err != nil {
+	i, ok, err := getI18nLang(lang, app.fs)
+	if err != nil && !ok {
 		return echo.NewHTTPError(http.StatusBadRequest, "Unknown language.")
 	}
 
@@ -65,29 +65,31 @@ func getI18nLangList(lang string, app *App) ([]i18nLang, error) {
 	return out, nil
 }
 
-func getI18nLang(lang string, fs stuffbin.FileSystem) (*i18n.I18n, error) {
+// The bool indicates whether the specified language could be loaded. If it couldn't
+// be, the app shouldn't halt but throw a warning.
+func getI18nLang(lang string, fs stuffbin.FileSystem) (*i18n.I18n, bool, error) {
 	const def = "en"
 
 	b, err := fs.Read(fmt.Sprintf("/i18n/%s.json", def))
 	if err != nil {
-		return nil, fmt.Errorf("error reading default i18n language file: %s: %v", def, err)
+		return nil, false, fmt.Errorf("error reading default i18n language file: %s: %v", def, err)
 	}
 
 	// Initialize with the default language.
 	i, err := i18n.New(b)
 	if err != nil {
-		return nil, fmt.Errorf("error unmarshalling i18n language: %v", err)
+		return nil, false, fmt.Errorf("error unmarshalling i18n language: %s: %v", lang, err)
 	}
 
 	// Load the selected language on top of it.
 	b, err = fs.Read(fmt.Sprintf("/i18n/%s.json", lang))
 	if err != nil {
-		return nil, fmt.Errorf("error reading i18n language file: %v", err)
+		return i, true, fmt.Errorf("error reading i18n language file: %s: %v", lang, err)
 	}
 
 	if err := i.Load(b); err != nil {
-		return nil, fmt.Errorf("error loading i18n language file: %v", err)
+		return i, true, fmt.Errorf("error loading i18n language file: %s: %v", lang, err)
 	}
 
-	return i, nil
+	return i, true, nil
 }

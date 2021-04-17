@@ -82,6 +82,7 @@ func initFlags() {
 	f.Bool("version", false, "current version of the build")
 	f.Bool("new-config", false, "generate sample config file")
 	f.String("static-dir", "", "(optional) path to directory with static files")
+	f.String("i18n-dir", "", "(optional) path to directory with i18n language files")
 	f.Bool("yes", false, "assume 'yes' to prompts, eg: during --install")
 	if err := f.Parse(os.Args[1:]); err != nil {
 		lo.Fatalf("error loading flags: %v", err)
@@ -107,7 +108,7 @@ func initConfigFiles(files []string, ko *koanf.Koanf) {
 
 // initFileSystem initializes the stuffbin FileSystem to provide
 // access to bunded static assets to the app.
-func initFS(staticDir string) stuffbin.FileSystem {
+func initFS(staticDir, i18nDir string) stuffbin.FileSystem {
 	// Get the executable's path.
 	path, err := os.Executable()
 	if err != nil {
@@ -144,7 +145,7 @@ func initFS(staticDir string) stuffbin.FileSystem {
 		}
 	}
 
-	// Optional static directory to override files.
+	// Optional static directory to override static files.
 	if staticDir != "" {
 		lo.Printf("loading static files from: %v", staticDir)
 		fStatic, err := stuffbin.NewLocalFS("/", []string{
@@ -159,6 +160,19 @@ func initFS(staticDir string) stuffbin.FileSystem {
 
 		if err := fs.Merge(fStatic); err != nil {
 			lo.Fatalf("error merging static directory: %s: %v", staticDir, err)
+		}
+	}
+
+	// Optional static directory to override i18n language files.
+	if i18nDir != "" {
+		lo.Printf("loading i18n language files from: %v", i18nDir)
+		fi18n, err := stuffbin.NewLocalFS("/", []string{i18nDir + ":/i18n"}...)
+		if err != nil {
+			lo.Fatalf("failed reading i18n directory: %s: %v", i18nDir, err)
+		}
+
+		if err := fs.Merge(fi18n); err != nil {
+			lo.Fatalf("error merging i18n directory: %s: %v", i18nDir, err)
 		}
 	}
 	return fs
@@ -262,9 +276,13 @@ func initConstants() *constants {
 // and then the selected language is loaded on top of it so that if there are
 // missing translations in it, the default English translations show up.
 func initI18n(lang string, fs stuffbin.FileSystem) *i18n.I18n {
-	i, err := getI18nLang(lang, fs)
+	i, ok, err := getI18nLang(lang, fs)
 	if err != nil {
-		lo.Fatal(err)
+		if ok {
+			lo.Println(err)
+		} else {
+			lo.Fatal(err)
+		}
 	}
 	return i
 }
