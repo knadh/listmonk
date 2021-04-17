@@ -60,7 +60,7 @@ describe('Subscribers', () => {
 
 
     cases.forEach((c, n) => {
-      // Select one of the 2 subscriber in the table.
+      // Select one of the 2 subscribers in the table.
       Object.keys(c.rows).forEach((r) => {
         cy.get('tbody td.checkbox-cell .checkbox').eq(r).click();
       });
@@ -86,7 +86,7 @@ describe('Subscribers', () => {
           cy.wrap($el).find('.tag').should('have.length', c.rows[r].length);
           c.rows[r].forEach((status, n) => {
             // eg: .tag(n).unconfirmed
-            cy.wrap($el).find(`.tag:nth-child(${n + 1}).${status}`);
+            cy.wrap($el).find('.tag').eq(n).should('have.class', status);
           });
         });
       });
@@ -133,6 +133,7 @@ describe('Subscribers', () => {
     });
 
     // Confirm the edits on the table.
+    cy.wait(250);
     cy.get('tbody tr').each(($el) => {
       cy.wrap($el).find('td[data-id]').invoke('attr', 'data-id').then((id) => {
         cy.wrap($el).find('td[data-label=E-mail]').contains(rows[id].email);
@@ -140,7 +141,6 @@ describe('Subscribers', () => {
         cy.wrap($el).find('td[data-label=Status]').contains(rows[id].status, { matchCase: false });
 
         // Both lists on the enabled sub should be 'unconfirmed' and the blocklisted one, 'unsubscribed.'
-        cy.wait(250);
         cy.wrap($el).find(`.tags .${rows[id].status === 'enabled' ? 'unconfirmed' : 'unsubscribed'}`)
           .its('length').should('eq', 2);
         cy.wrap($el).find('td[data-label=Lists]').then((l) => {

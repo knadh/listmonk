@@ -71,7 +71,7 @@ subs AS (
     VALUES(
         (SELECT id FROM sub),
         UNNEST(ARRAY(SELECT id FROM listIDs)),
-        (CASE WHEN $4='blocklisted' THEN 'unsubscribed'::subscription_status ELSE 'unconfirmed' END)
+        (CASE WHEN $4='blocklisted' THEN 'unsubscribed'::subscription_status ELSE $8::subscription_status END)
     )
     ON CONFLICT (subscriber_id, list_id) DO UPDATE
     SET updated_at=NOW()

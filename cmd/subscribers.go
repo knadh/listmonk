@@ -643,7 +643,14 @@ func insertSubscriber(req subimporter.SubReq, app *App) (models.Subscriber, bool
 	}
 	req.UUID = uu.String()
 
-	isNew := true
+	var (
+		isNew     = true
+		subStatus = models.SubscriptionStatusUnconfirmed
+	)
+	if req.PreconfirmSubs {
+		subStatus = models.SubscriptionStatusConfirmed
+	}
+
 	if err = app.queries.InsertSubscriber.Get(&req.ID,
 		req.UUID,
 		req.Email,
@@ -651,7 +658,8 @@ func insertSubscriber(req subimporter.SubReq, app *App) (models.Subscriber, bool
 		req.Status,
 		req.Attribs,
 		req.Lists,
-		req.ListUUIDs); err != nil {
+		req.ListUUIDs,
+		subStatus); err != nil {
 		if pqErr, ok := err.(*pq.Error); ok && pqErr.Constraint == "subscribers_email_key" {
 			isNew = false
 		} else {
@@ -670,9 +678,13 @@ func insertSubscriber(req subimporter.SubReq, app *App) (models.Subscriber, bool
 		return sub, false, false, err
 	}
 
-	// Send a confirmation e-mail (if there are any double opt-in lists).
-	num, _ := sendOptinConfirmation(sub, []int64(req.Lists), app)
-	return sub, isNew, num > 0, nil
+	hasOptin := false
+	if !req.PreconfirmSubs {
+		// Send a confirmation e-mail (if there are any double opt-in lists).
+		num, _ := sendOptinConfirmation(sub, []int64(req.Lists), app)
+		hasOptin = num > 0
+	}
+	return sub, isNew, hasOptin, nil
 }
 
 // getSubscriber gets a single subscriber by ID, uuid, or e-mail in that order.

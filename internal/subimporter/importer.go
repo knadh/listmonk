@@ -89,8 +89,9 @@ type Status struct {
 // SubReq is a wrapper over the Subscriber model.
 type SubReq struct {
 	models.Subscriber
-	Lists     pq.Int64Array  `json:"lists"`
-	ListUUIDs pq.StringArray `json:"list_uuids"`
+	Lists          pq.Int64Array  `json:"lists"`
+	ListUUIDs      pq.StringArray `json:"list_uuids"`
+	PreconfirmSubs bool           `json:"preconfirm_subscriptions"`
 }
 
 type importStatusTpl struct {
