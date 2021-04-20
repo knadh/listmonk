@@ -1,4 +1,4 @@
-FROM alpine:latest AS deploy
+FROM alpine:latest
 RUN apk --no-cache add ca-certificates
 WORKDIR /listmonk
 COPY listmonk .
