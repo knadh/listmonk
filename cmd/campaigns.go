@@ -181,20 +181,9 @@ func handlePreviewCampaign(c echo.Context) error {
 		camp.Body = c.FormValue("body")
 	}
 
-	var sub models.Subscriber
-	// Get a random subscriber from the campaign.
-	if err := app.queries.GetOneCampaignSubscriber.Get(&sub, camp.ID); err != nil {
-		if err == sql.ErrNoRows {
-			// There's no subscriber. Mock one.
-			sub = dummySubscriber
-		} else {
-			app.log.Printf("error fetching subscriber: %v", err)
-			return echo.NewHTTPError(http.StatusInternalServerError,
-				app.i18n.Ts("globals.messages.errorFetching",
-					"name", "{globals.terms.subscriber}", "error", pqErrMsg(err)))
-		}
-	}
-
+	// Use a dummy campaign ID to prevent views and clicks from {{ TrackView }}
+	// and {{ TrackLink }} being registered on preview.
+	camp.UUID = dummySubscriber.UUID
 	if err := camp.CompileTemplate(app.manager.TemplateFuncs(&camp)); err != nil {
 		app.log.Printf("error compiling template: %v", err)
 		return echo.NewHTTPError(http.StatusBadRequest,
@@ -202,7 +191,7 @@ func handlePreviewCampaign(c echo.Context) error {
 	}
 
 	// Render the message body.
-	m := app.manager.NewCampaignMessage(&camp, sub)
+	m := app.manager.NewCampaignMessage(&camp, dummySubscriber)
 	if err := m.Render(); err != nil {
 		app.log.Printf("error rendering message: %v", err)
 		return echo.NewHTTPError(http.StatusBadRequest,
