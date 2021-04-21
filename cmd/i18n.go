@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"sort"
 
 	"github.com/knadh/listmonk/internal/i18n"
 	"github.com/knadh/stuffbin"
@@ -61,6 +62,10 @@ func getI18nLangList(lang string, app *App) ([]i18nLang, error) {
 			Name: lang.Name,
 		})
 	}
+
+	sort.SliceStable(out, func(i, j int) bool {
+		return out[i].Code < out[j].Code
+	})
 
 	return out, nil
 }
