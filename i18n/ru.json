@@ -216,7 +216,7 @@
     "media.errorSavingThumbnail": "Ошибка сохранения миниатюры: {error}",
     "media.errorUploading": "Ошибка выгрузки файла: {error}",
     "media.invalidFile": "Неверный файл: {error}",
-    "media.title": "Медия",
+    "media.title": "Медиа",
     "media.unsupportedFileType": "Неподдерживаемый тип файла ({type})",
     "media.upload": "Выгрузить",
     "media.uploadHelp": "Кликните или перетащите сюда одно или более изображений",
