@@ -274,6 +274,9 @@ input[type="text"], input[type="email"], select {
 .form .lists {
   margin-top: 45px;
 }
+  .form .nonce {
+    display: none;
+  }
 
 .footer {
   text-align: center;

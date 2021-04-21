@@ -302,6 +302,14 @@ func handleSubscriptionForm(c echo.Context) error {
 		return err
 	}
 
+	// If there's a nonce value, a bot could've filled the form.
+	if c.FormValue("nonce") != "" {
+		return c.Render(http.StatusOK, tplMessage,
+			makeMsgTpl(app.i18n.T("public.errorTitle"), "",
+				app.i18n.T("public.invalidFeature")))
+
+	}
+
 	if len(req.SubListUUIDs) == 0 {
 		return c.Render(http.StatusBadRequest, tplMessage,
 			makeMsgTpl(app.i18n.T("public.errorTitle"), "",
