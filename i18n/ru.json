@@ -89,7 +89,7 @@
     "email.status.importRecords": "Записи",
     "email.status.importTitle": "Import update",
     "email.status.status": "Статус",
-    "email.unsub": "Описаться",
+    "email.unsub": "Отписаться",
     "email.unsubHelp": "Не хотите получать эти письма?",
     "forms.formHTML": "Форма HTML",
     "forms.formHTMLHelp": "Используйте следующий HTML-код, чтобы показать форму подписки на внешней веб-странице. Форма должна иметь поле электронной почты и одно или несколько полей `l` (список UUID). Поле имени необязательно.",
