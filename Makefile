@@ -20,7 +20,7 @@ deps:
 # Build the backend to ./listmonk.
 .PHONY: build
 build:
-	CGO_ENABLED=0 go build -o ${BIN} -ldflags="-s -w -X 'main.buildString=${BUILDSTR}' -X 'main.versionString=${VERSION}'" cmd/*.go
+	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o ${BIN} -ldflags="-s -w -X 'main.buildString=${BUILDSTR}' -X 'main.versionString=${VERSION}'" cmd/*.go
 
 # Run the backend.
 .PHONY: run
