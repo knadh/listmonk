@@ -25,6 +25,8 @@ const (
 	ContentTpl = "content"
 
 	dummyUUID = "00000000-0000-0000-0000-000000000000"
+
+	layoutISO = "2006-01-02"
 )
 
 // DataSource represents a data backend, such as a database,
@@ -350,6 +352,16 @@ func (m *Manager) TemplateFuncs(c *models.Campaign) template.FuncMap {
 				layout = time.ANSIC
 			}
 			return time.Now().Format(layout)
+		},
+		"DaysRemain": func(layout string) int {
+			if layout == "" {
+				layout = time.ANSIC
+			}
+
+			to, _ := time.Parse(layoutISO, layout)
+			from := time.Now()
+
+			return int(to.Sub(from).Hours() / 24)
 		},
 		"L": func() *i18n.I18n {
 			return m.i18n
