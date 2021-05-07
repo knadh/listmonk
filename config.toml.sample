@@ -1,5 +1,8 @@
 [app]
-# Interface and port where the app will run its webserver.
+# Interface and port where the app will run its webserver.  The default value
+# of localhost will only listen to connections from the current machine. To
+# listen on all interfaces use '0.0.0.0'. To listen on the default web address
+# port, use port 80 (this will require running with elevated permissions).
 address = "localhost:9000"
 
 # BasicAuth authentication for the admin dashboard. This will eventually
