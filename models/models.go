@@ -14,6 +14,7 @@ import (
 	"github.com/jmoiron/sqlx/types"
 	"github.com/lib/pq"
 	"github.com/yuin/goldmark"
+	"github.com/yuin/goldmark/renderer/html"
 
 	null "gopkg.in/volatiletech/null.v6"
 )
@@ -317,8 +318,13 @@ func (c *Campaign) CompileTemplate(f template.FuncMap) error {
 
 	// If the format is markdown, convert Markdown to HTML.
 	if c.ContentType == CampaignContentTypeMarkdown {
+		md := goldmark.New(
+			goldmark.WithRendererOptions(
+				html.WithUnsafe,
+			),
+		)
 		var b bytes.Buffer
-		if err := goldmark.Convert([]byte(c.Body), &b); err != nil {
+		if err := md.Convert([]byte(c.Body), &b); err != nil {
 			return err
 		}
 		body = b.String()
