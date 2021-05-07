@@ -1,6 +1,6 @@
 [app]
 # Interface and port where the app will run its webserver.
-address = "0.0.0.0:9000"
+address = "localhost:9000"
 
 # BasicAuth authentication for the admin dashboard. This will eventually
 # be replaced with a better multi-user, role-based authentication system.
