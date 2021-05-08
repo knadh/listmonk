@@ -14,7 +14,8 @@ import (
 	"github.com/jmoiron/sqlx/types"
 	"github.com/lib/pq"
 	"github.com/yuin/goldmark"
-
+	"github.com/yuin/goldmark/extension"
+	"github.com/yuin/goldmark/renderer/html"
 	null "gopkg.in/volatiletech/null.v6"
 )
 
@@ -225,6 +226,19 @@ type Template struct {
 	IsDefault bool   `db:"is_default" json:"is_default"`
 }
 
+// markdown is a global instance of Markdown parser and renderer.
+var markdown = goldmark.New(
+	goldmark.WithRendererOptions(
+		html.WithXHTML(),
+		html.WithUnsafe(),
+	),
+	goldmark.WithExtensions(
+		extension.Table,
+		extension.Strikethrough,
+		extension.TaskList,
+	),
+)
+
 // GetIDs returns the list of subscriber IDs.
 func (subs Subscribers) GetIDs() []int {
 	IDs := make([]int, len(subs))
@@ -318,7 +332,7 @@ func (c *Campaign) CompileTemplate(f template.FuncMap) error {
 	// If the format is markdown, convert Markdown to HTML.
 	if c.ContentType == CampaignContentTypeMarkdown {
 		var b bytes.Buffer
-		if err := goldmark.Convert([]byte(c.Body), &b); err != nil {
+		if err := markdown.Convert([]byte(c.Body), &b); err != nil {
 			return err
 		}
 		body = b.String()
