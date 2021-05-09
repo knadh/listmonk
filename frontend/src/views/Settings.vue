@@ -661,7 +661,8 @@ export default Vue.extend({
 
     getSettings() {
       this.$api.getSettings().then((data) => {
-        const d = data;
+        const d = JSON.parse(JSON.stringify(data));
+
         // Serialize the `email_headers` array map to display on the form.
         for (let i = 0; i < d.smtp.length; i += 1) {
           d.smtp[i].strEmailHeaders = JSON.stringify(d.smtp[i].email_headers, null, 4);
