@@ -383,6 +383,30 @@ func (c *Campaign) CompileTemplate(f template.FuncMap) error {
 	return nil
 }
 
+// ConvertContent converts a campaign's body from one format to another,
+// for example, Markdown to HTML.
+func (c *Campaign) ConvertContent(from, to string) (string, error) {
+	body := c.Body
+	for _, r := range regTplFuncs {
+		body = r.regExp.ReplaceAllString(body, r.replace)
+	}
+
+	// If the format is markdown, convert Markdown to HTML.
+	var out string
+	if from == CampaignContentTypeMarkdown &&
+		(to == CampaignContentTypeHTML || to == CampaignContentTypeRichtext) {
+		var b bytes.Buffer
+		if err := markdown.Convert([]byte(c.Body), &b); err != nil {
+			return out, err
+		}
+		out = b.String()
+	} else {
+		return out, errors.New("unknown formats to convert")
+	}
+
+	return out, nil
+}
+
 // FirstName splits the name by spaces and returns the first chunk
 // of the name that's greater than 2 characters in length, assuming
 // that it is the subscriber's first name.

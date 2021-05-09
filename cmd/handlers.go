@@ -97,6 +97,7 @@ func registerHTTPHandlers(e *echo.Echo, app *App) {
 	g.GET("/api/campaigns/:id", handleGetCampaigns)
 	g.GET("/api/campaigns/:id/preview", handlePreviewCampaign)
 	g.POST("/api/campaigns/:id/preview", handlePreviewCampaign)
+	g.POST("/api/campaigns/:id/content", handleCampaignContent)
 	g.POST("/api/campaigns/:id/text", handlePreviewCampaign)
 	g.POST("/api/campaigns/:id/test", handleTestCampaign)
 	g.POST("/api/campaigns", handleCreateCampaign)

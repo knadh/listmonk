@@ -156,6 +156,9 @@ export const getCampaignStats = async () => http.get('/api/campaigns/running/sta
 export const createCampaign = async (data) => http.post('/api/campaigns', data,
   { loading: models.campaigns });
 
+export const convertCampaignContent = async (data) => http.post(`/api/campaigns/${data.id}/content`, data,
+  { loading: models.campaigns });
+
 export const testCampaign = async (data) => http.post(`/api/campaigns/${data.id}/test`, data,
   { loading: models.campaigns });
 

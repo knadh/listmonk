@@ -14,7 +14,6 @@ import (
 	"time"
 
 	"github.com/gofrs/uuid"
-	"github.com/jaytaylor/html2text"
 	"github.com/knadh/listmonk/internal/messenger"
 	"github.com/knadh/listmonk/internal/subimporter"
 	"github.com/knadh/listmonk/models"
@@ -23,7 +22,8 @@ import (
 	null "gopkg.in/volatiletech/null.v6"
 )
 
-// campaignReq is a wrapper over the Campaign model.
+// campaignReq is a wrapper over the Campaign model for receiving
+// campaign creation and updation data from APIs.
 type campaignReq struct {
 	models.Campaign
 
@@ -40,6 +40,14 @@ type campaignReq struct {
 	SubscriberEmails pq.StringArray `json:"subscribers"`
 
 	Type string `json:"type"`
+}
+
+// campaignContentReq wraps params coming from API requests for converting
+// campaign content formats.
+type campaignContentReq struct {
+	models.Campaign
+	From string `json:"from"`
+	To   string `json:"to"`
 }
 
 type campaignStats struct {
@@ -201,15 +209,28 @@ func handlePreviewCampaign(c echo.Context) error {
 	return c.HTML(http.StatusOK, string(m.Body()))
 }
 
-// handleCampainBodyToText converts an HTML campaign body to plaintext.
-func handleCampainBodyToText(c echo.Context) error {
-	out, err := html2text.FromString(c.FormValue("body"),
-		html2text.Options{PrettyTables: false})
-	if err != nil {
+// handleCampaignContent handles campaign content (body) format conversions.
+func handleCampaignContent(c echo.Context) error {
+	var (
+		app   = c.Get("app").(*App)
+		id, _ = strconv.Atoi(c.Param("id"))
+	)
+
+	if id < 1 {
+		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidID"))
+	}
+
+	var camp campaignContentReq
+	if err := c.Bind(&camp); err != nil {
 		return err
 	}
 
-	return c.HTML(http.StatusOK, string(out))
+	out, err := camp.ConvertContent(camp.From, camp.To)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	return c.JSON(http.StatusOK, okResp{out})
 }
 
 // handleCreateCampaign handles campaign creation.

@@ -78,6 +78,7 @@ import 'quill/dist/quill.core.css';
 
 import { quillEditor, Quill } from 'vue-quill-editor';
 import CodeFlask from 'codeflask';
+import TurndownService from 'turndown';
 
 import CampaignPreview from './CampaignPreview.vue';
 import Media from '../views/Media.vue';
@@ -97,6 +98,8 @@ Quill.register(quillFontSizes, true);
 const regLink = new RegExp(/{{(\s+)?TrackLink(\s+)?"(.+?)"(\s+)?}}/);
 const Link = Quill.import('formats/link');
 Link.sanitize = (l) => l.replace(regLink, '{{ TrackLink `$3`}}');
+
+const turndown = new TurndownService();
 
 // Custom class to override the default indent behaviour to get inline CSS
 // style instead of classes.
@@ -191,6 +194,9 @@ export default {
           },
         },
       },
+
+      // HTML editor.
+      flask: null,
     };
   },
 
@@ -241,20 +247,23 @@ export default {
       `;
       this.$refs.htmlEditor.appendChild(el);
 
-      const flask = new CodeFlask(el.shadowRoot.getElementById('area'), {
+      this.flask = new CodeFlask(el.shadowRoot.getElementById('area'), {
         language: 'html',
         lineNumbers: false,
         styleParent: el.shadowRoot,
         readonly: this.disabled,
       });
-
-      flask.updateCode(this.form.body);
-      flask.onUpdate((b) => {
+      this.flask.onUpdate((b) => {
         this.form.body = b;
         this.$emit('input', { contentType: this.form.format, body: this.form.body });
       });
 
+      this.updateHTMLEditor();
       this.isReady = true;
+    },
+
+    updateHTMLEditor() {
+      this.flask.updateCode(this.form.body);
     },
 
     onTogglePreview() {
@@ -277,6 +286,46 @@ export default {
 
     onMediaSelect(m) {
       this.$refs.quill.quill.insertEmbed(this.lastSel.index || 0, 'image', m.url);
+    },
+
+    beautifyHTML(str) {
+      const div = document.createElement('div');
+      div.innerHTML = str.trim();
+      return this.formatHTMLNode(div, 0).innerHTML;
+    },
+
+    formatHTMLNode(node, level) {
+      const lvl = level + 1;
+      const indentBefore = new Array(lvl + 1).join('  ');
+      const indentAfter = new Array(lvl - 1).join('  ');
+      let textNode = null;
+
+      for (let i = 0; i < node.children.length; i += 1) {
+        textNode = document.createTextNode(`\n${indentBefore}`);
+        node.insertBefore(textNode, node.children[i]);
+
+        this.formatHTMLNode(node.children[i], lvl);
+        if (node.lastElementChild === node.children[i]) {
+          textNode = document.createTextNode(`\n${indentAfter}`);
+          node.appendChild(textNode);
+        }
+      }
+
+      return node;
+    },
+
+    trimLines(str, removeEmptyLines) {
+      const out = str.split('\n');
+      for (let i = 0; i < out.length; i += 1) {
+        const line = out[i].trim();
+        if (removeEmptyLines) {
+          out[i] = line;
+        } else if (line === '') {
+          out[i] = '';
+        }
+      }
+
+      return out.join('\n').replace(/\n\s*\n\s*\n/g, '\n\n');
     },
   },
 
@@ -306,14 +355,45 @@ export default {
       this.onEditorChange();
     },
 
-    htmlFormat(f) {
-      if (f !== 'html') {
-        return;
+    htmlFormat(to, from) {
+      // On switch to HTML, initialize the HTML editor.
+      if (to === 'html') {
+        this.$nextTick(() => {
+          this.initHTMLEditor();
+        });
       }
 
-      this.$nextTick(() => {
-        this.initHTMLEditor();
-      });
+      if ((from === 'richtext' || from === 'html') && to === 'plain') {
+        // richtext, html => plain
+
+        // Preserve line breaks when converting HTML to plaintext. Quill produces
+        // HTML without any linebreaks.
+        const d = document.createElement('div');
+        d.innerHTML = this.beautifyHTML(this.form.body);
+        this.form.body = this.trimLines(d.innerText.trim(), true);
+      } else if ((from === 'richtext' || from === 'html') && to === 'markdown') {
+        // richtext, html => markdown
+        this.form.body = turndown.turndown(this.form.body).replace(/\n\n+/ig, '\n\n');
+      } else if (from === 'plain' && (to === 'richtext' || to === 'html')) {
+        // plain => richtext, html
+        this.form.body = this.form.body.replace(/\n/ig, '<br>\n');
+      } else if (from === 'richtext' && to === 'html') {
+        // richtext => html
+        this.form.body = this.trimLines(this.beautifyHTML(this.form.body), false);
+      } else if (from === 'markdown' && (to === 'richtext' || to === 'html')) {
+        // markdown => richtext, html.
+        this.$api.convertCampaignContent({
+          id: 1, body: this.form.body, from, to,
+        }).then((data) => {
+          this.form.body = this.beautifyHTML(data.trim());
+          // Update the HTML editor.
+          if (to === 'html') {
+            this.updateHTMLEditor();
+          }
+        });
+      }
+
+      this.onEditorChange();
     },
   },
 
