@@ -279,6 +279,8 @@
     "settings.errorNoSMTP": "Mindestens ein SMTP Block muss aktiviert sein",
     "settings.general.adminNotifEmails": "Admin Benachrichtigungen",
     "settings.general.adminNotifEmailsHelp": "Komma getrennte Liste von E-Mail Adressen welche Admin Benachrichtigungen erhalten. Wie Importupdates, Fertigstellung von Kapganen, Fehler usw.",
+    "settings.general.checkUpdates": "Check for updates",
+    "settings.general.checkUpdatesHelp": "Periodically check for new app releases and notify.",
     "settings.general.enablePublicSubPage": "Enable public subscription page",
     "settings.general.enablePublicSubPageHelp": "Show a public subscription page with all the public lists for people to subscribe.",
     "settings.general.faviconURL": "Favicon URL",

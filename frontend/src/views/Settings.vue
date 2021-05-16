@@ -59,6 +59,12 @@
                     name="app.enable_public_subscription_page" />
               </b-field>
 
+              <b-field :label="$t('settings.general.checkUpdates')"
+                :message="$t('settings.general.checkUpdatesHelp')">
+                <b-switch v-model="form['app.check_updates']"
+                    name="app.check_updates" />
+              </b-field>
+
               <hr />
               <b-field :label="$t('settings.general.language')" label-position="on-border">
                 <b-select v-model="form['app.lang']" name="app.lang">

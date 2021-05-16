@@ -279,6 +279,8 @@
     "settings.errorNoSMTP": "Co najmniej jeden blok SMTP powinien być aktywowany",
     "settings.general.adminNotifEmails": "Adres email do powiadomień admina",
     "settings.general.adminNotifEmailsHelp": "Lista maili oddzielona przecinkami do adminów, którym przesyłać informacje o importach, zakończonych kampaniach, błędach itd. ",
+    "settings.general.checkUpdates": "Check for updates",
+    "settings.general.checkUpdatesHelp": "Periodically check for new app releases and notify.",
     "settings.general.enablePublicSubPage": "Włącz publiczną stronę subskrypcji",
     "settings.general.enablePublicSubPageHelp": "Pokaż publiczną stronę do zapisu na subskrypcje publicznych list.",
     "settings.general.faviconURL": "URL Favicony",

@@ -222,9 +222,9 @@ func initQueries(sqlFile string, db *sqlx.DB, fs stuffbin.FileSystem, prepareQue
 }
 
 // initSettings loads settings from the DB.
-func initSettings(q *Queries) {
+func initSettings(q *sqlx.Stmt) {
 	var s types.JSONText
-	if err := q.GetSettings.Get(&s); err != nil {
+	if err := q.Get(&s); err != nil {
 		lo.Fatalf("error reading settings from DB: %s", pqErrMsg(err))
 	}
 

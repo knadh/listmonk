@@ -20,6 +20,7 @@ type settings struct {
 	AppFromEmail        string   `json:"app.from_email"`
 	AppNotifyEmails     []string `json:"app.notify_emails"`
 	EnablePublicSubPage bool     `json:"app.enable_public_subscription_page"`
+	CheckUpdates        bool     `json:"app.check_updates"`
 	AppLang             string   `json:"app.lang"`
 
 	AppBatchSize     int `json:"app.batch_size"`

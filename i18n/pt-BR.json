@@ -279,6 +279,8 @@
     "settings.errorNoSMTP": "Pelo menos um bloco SMTP deve estar habilitado",
     "settings.general.adminNotifEmails": "E-mails de notificação de administrador",
     "settings.general.adminNotifEmailsHelp": "Lista de e-mails separados por vírgula para os quais as notificações de administração, como atualizações de importação, conclusão da campanha, falha, etc. devem ser enviadas.",
+    "settings.general.checkUpdates": "Check for updates",
+    "settings.general.checkUpdatesHelp": "Periodically check for new app releases and notify.",
     "settings.general.enablePublicSubPage": "Habilitar a página pública de inscrição",
     "settings.general.enablePublicSubPageHelp": "Habilitar a página pública de inscrição com todas as listas públicas para as pessoas se inscreverem.",
     "settings.general.faviconURL": "URL do Favicon",

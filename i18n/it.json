@@ -279,6 +279,8 @@
     "settings.errorNoSMTP": "Devi attivare almeno un blocco SMTP",
     "settings.general.adminNotifEmails": "Mail di notifica amministratore",
     "settings.general.adminNotifEmailsHelp": "Lista indirizzi mail separati da virgole ai quali saranno inviate notifiche di amministrazione come gli aggiornamenti di importazione, la fine della campagna, eventuali problemi ecc.",
+    "settings.general.checkUpdates": "Check for updates",
+    "settings.general.checkUpdatesHelp": "Periodically check for new app releases and notify.",
     "settings.general.enablePublicSubPage": "Attiva la pagina di iscrizione pubblica",
     "settings.general.enablePublicSubPageHelp": "Visualizza una pagina di iscrizione pubblica con tutte le liste pubbliche a cui è possibile iscriversi.",
     "settings.general.faviconURL": "URL della favicon",

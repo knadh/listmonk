@@ -135,7 +135,7 @@ func init() {
 	_, queries := initQueries(queryFilePath, db, fs, true)
 
 	// Load settings from DB.
-	initSettings(queries)
+	initSettings(queries.GetSettings)
 }
 
 func main() {
@@ -180,7 +180,9 @@ func main() {
 	srv := initHTTPServer(app)
 
 	// Star the update checker.
-	go checkUpdates(versionString, time.Hour*24, app)
+	if ko.Bool("app.check_updates") {
+		go checkUpdates(versionString, time.Hour*24, app)
+	}
 
 	// Wait for the reload signal with a callback to gracefully shut down resources.
 	// The `wait` channel is passed to awaitReload to wait for the callback to finish

@@ -279,6 +279,8 @@
     "settings.errorNoSMTP": "Должен быть включён минимум один блок SMTP",
     "settings.general.adminNotifEmails": "Письма с уведомлениями для администратора",
     "settings.general.adminNotifEmailsHelp": "Список адресов электронной почты, разделенных запятыми, на которые следует отправлять уведомления администратора, такие как обновления импорта, завершение кампании, сбой и т.д. ",
+    "settings.general.checkUpdates": "Check for updates",
+    "settings.general.checkUpdatesHelp": "Periodically check for new app releases and notify.",
     "settings.general.enablePublicSubPage": "Включить публичную страницу подписки",
     "settings.general.enablePublicSubPageHelp": "Показать страницу общедоступной подписки со всеми общедоступными списками, на которые можно подписаться.",
     "settings.general.faviconURL": "Favicon URL",
