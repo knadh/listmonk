@@ -126,10 +126,6 @@ func initFS(staticDir, i18nDir string) stuffbin.FileSystem {
 			"config.toml.sample",
 			"queries.sql",
 			"schema.sql",
-			"static/email-templates",
-
-			// Alias /static/public to /public for the HTTP fileserver.
-			"static/public:/public",
 
 			// The frontend app's static assets are aliased to /frontend
 			// so that they are accessible at /frontend/js/* etc.
@@ -137,6 +133,11 @@ func initFS(staticDir, i18nDir string) stuffbin.FileSystem {
 			"frontend/dist/favicon.png:/frontend/favicon.png",
 			"frontend/dist/frontend:/frontend",
 			"i18n:/i18n",
+		}
+
+		// If no external static dir is provided, try to load from the working dir.
+		if staticDir == "" {
+			files = append(files, "static/email-templates", "static/public:/public")
 		}
 
 		fs, err = stuffbin.NewLocalFS("/", files...)
