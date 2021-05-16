@@ -57,13 +57,20 @@
                     <b-icon icon="check-circle-outline" size="is-small" />
                   </b-tooltip>
                 </a>
-                <a v-if="!props.row.isDefault"
-                  href="#" @click.prevent="$utils.confirm(null, () => deleteTemplate(props.row))"
+                <span v-else class="a has-text-grey-light">
+                    <b-icon icon="check-circle-outline" size="is-small" />
+                </span>
+
+                <a v-if="!props.row.isDefault" href="#"
+                  @click.prevent="$utils.confirm(null, () => deleteTemplate(props.row))"
                   data-cy="btn-delete">
                   <b-tooltip :label="$t('globals.buttons.delete')" type="is-dark">
                     <b-icon icon="trash-can-outline" size="is-small" />
                   </b-tooltip>
                 </a>
+                <span v-else class="a has-text-grey-light">
+                    <b-icon icon="trash-can-outline" size="is-small" />
+                </span>
               </div>
             </b-table-column>
         </template>
