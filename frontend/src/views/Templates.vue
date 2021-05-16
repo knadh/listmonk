@@ -143,35 +143,21 @@ export default Vue.extend({
       this.$api.createTemplate(data).then((d) => {
         this.$api.getTemplates();
         this.$emit('finished');
-        this.$buefy.toast.open({
-          message: `'${d.name}' created`,
-          type: 'is-success',
-          queue: false,
-        });
+        this.$utils.toast(`'${d.name}' created`);
       });
     },
 
     makeTemplateDefault(tpl) {
       this.$api.makeTemplateDefault(tpl.id).then(() => {
         this.$api.getTemplates();
-
-        this.$buefy.toast.open({
-          message: this.$t('globals.messages.created', { name: tpl.name }),
-          type: 'is-success',
-          queue: false,
-        });
+        this.$utils.toast(this.$t('globals.messages.created', { name: tpl.name }));
       });
     },
 
     deleteTemplate(tpl) {
       this.$api.deleteTemplate(tpl.id).then(() => {
         this.$api.getTemplates();
-
-        this.$buefy.toast.open({
-          message: this.$t('globals.messages.deleted', { name: tpl.name }),
-          type: 'is-success',
-          queue: false,
-        });
+        this.$utils.toast(this.$t('globals.messages.deleted', { name: tpl.name }));
       });
     },
   },

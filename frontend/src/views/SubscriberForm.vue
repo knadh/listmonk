@@ -119,11 +119,7 @@ export default Vue.extend({
       this.$api.createSubscriber(data).then((d) => {
         this.$emit('finished');
         this.$parent.close();
-        this.$buefy.toast.open({
-          message: this.$t('globals.messages.created', { name: d.name }),
-          type: 'is-success',
-          queue: false,
-        });
+        this.$utils.toast(this.$t('globals.messages.created', { name: d.name }));
       });
     },
 
@@ -150,11 +146,7 @@ export default Vue.extend({
       this.$api.updateSubscriber(data).then((d) => {
         this.$emit('finished');
         this.$parent.close();
-        this.$buefy.toast.open({
-          message: this.$t('globals.messages.updated', { name: d.name }),
-          type: 'is-success',
-          queue: false,
-        });
+        this.$utils.toast(this.$t('globals.messages.updated', { name: d.name }));
       });
     },
 
@@ -164,21 +156,12 @@ export default Vue.extend({
       try {
         attribs = JSON.parse(str);
       } catch (e) {
-        this.$buefy.toast.open({
-          message: `${this.$t('subscribers.invalidJSON')}: ${e.toString()}`,
-          type: 'is-danger',
-          duration: 3000,
-          queue: false,
-        });
+        this.$utils.toast(`${this.$t('subscribers.invalidJSON')}: ${e.toString()}`,
+          'is-danger', 3000);
         return null;
       }
       if (attribs instanceof Array) {
-        this.$buefy.toast.open({
-          message: 'Attributes should be a map {} and not an array []',
-          type: 'is-danger',
-          duration: 3000,
-          queue: false,
-        });
+        this.$utils.toast('Attributes should be a map {} and not an array []', 'is-danger', 3000);
         return null;
       }
 

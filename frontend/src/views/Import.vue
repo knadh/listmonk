@@ -278,11 +278,7 @@ export default Vue.extend({
       // Post.
       this.$api.importSubscribers(params).then(() => {
         // On file upload, show a confirmation.
-        this.$buefy.toast.open({
-          message: this.$t('import.importStarted'),
-          type: 'is-success',
-          queue: false,
-        });
+        this.$utils.toast(this.$t('import.importStarted'));
 
         // Start polling status.
         this.pollStatus();

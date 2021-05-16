@@ -84,11 +84,7 @@ export default Vue.extend({
       this.$api.createList(this.form).then((data) => {
         this.$emit('finished');
         this.$parent.close();
-        this.$buefy.toast.open({
-          message: this.$t('globals.messages.created', { name: data.name }),
-          type: 'is-success',
-          queue: false,
-        });
+        this.$utils.toast(this.$t('globals.messages.created', { name: data.name }));
       });
     },
 
@@ -96,11 +92,7 @@ export default Vue.extend({
       this.$api.updateList({ id: this.data.id, ...this.form }).then((data) => {
         this.$emit('finished');
         this.$parent.close();
-        this.$buefy.toast.open({
-          message: this.$t('globals.messages.updated', { name: data.name }),
-          type: 'is-success',
-          queue: false,
-        });
+        this.$utils.toast(this.$t('globals.messages.updated', { name: data.name }));
       });
     },
   },

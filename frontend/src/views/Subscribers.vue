@@ -355,11 +355,7 @@ export default Vue.extend({
           this.$api.deleteSubscriber(sub.id).then(() => {
             this.querySubscribers();
 
-            this.$buefy.toast.open({
-              message: this.$t('globals.messages.deleted', { name: sub.name }),
-              type: 'is-success',
-              queue: false,
-            });
+            this.$utils.toast(this.$t('globals.messages.deleted', { name: sub.name }));
           });
         },
       );
@@ -406,11 +402,7 @@ export default Vue.extend({
             .then(() => {
               this.querySubscribers();
 
-              this.$buefy.toast.open({
-                message: this.$t('subscribers.subscribersDeleted', { num: this.numSelectedSubscribers }),
-                type: 'is-success',
-                queue: false,
-              });
+              this.$utils.toast(this.$t('subscribers.subscribersDeleted', { num: this.numSelectedSubscribers }));
             });
         };
       } else {
@@ -422,11 +414,8 @@ export default Vue.extend({
           }).then(() => {
             this.querySubscribers();
 
-            this.$buefy.toast.open({
-              message: this.$t('subscribers.subscribersDeleted', { num: this.numSelectedSubscribers }),
-              type: 'is-success',
-              queue: false,
-            });
+            this.$utils.toast(this.$t('subscribers.subscribersDeleted',
+              { num: this.numSelectedSubscribers }));
           });
         };
       }
@@ -454,11 +443,7 @@ export default Vue.extend({
 
       fn(data).then(() => {
         this.querySubscribers();
-        this.$buefy.toast.open({
-          message: this.$t('subscribers.listChangeApplied'),
-          type: 'is-success',
-          queue: false,
-        });
+        this.$utils.toast(this.$t('subscribers.listChangeApplied'));
       });
     },
   },

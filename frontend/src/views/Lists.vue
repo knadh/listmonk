@@ -181,11 +181,7 @@ export default Vue.extend({
           this.$api.deleteList(list.id).then(() => {
             this.getLists();
 
-            this.$buefy.toast.open({
-              message: this.$t('globals.messages.deleted', { name: list.name }),
-              type: 'is-success',
-              queue: false,
-            });
+            this.$utils.toast(this.$t('globals.messages.deleted', { name: list.name }));
           });
         },
       );

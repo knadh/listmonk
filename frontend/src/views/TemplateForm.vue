@@ -98,11 +98,7 @@ export default Vue.extend({
       this.$api.createTemplate(data).then((d) => {
         this.$emit('finished');
         this.$parent.close();
-        this.$buefy.toast.open({
-          message: this.$t('globals.messages.created', { name: d.name }),
-          type: 'is-success',
-          queue: false,
-        });
+        this.$utils.toast(this.$t('globals.messages.created', { name: d.name }));
       });
     },
 
@@ -116,11 +112,7 @@ export default Vue.extend({
       this.$api.updateTemplate(data).then((d) => {
         this.$emit('finished');
         this.$parent.close();
-        this.$buefy.toast.open({
-          message: `'${d.name}' updated`,
-          type: 'is-success',
-          queue: false,
-        });
+        this.$utils.toast(`'${d.name}' updated`);
       });
     },
   },

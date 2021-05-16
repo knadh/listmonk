@@ -9,6 +9,17 @@ dayjs.extend(relativeTime);
 
 const reEmail = /(.+?)@(.+?)/ig;
 
+const htmlEntities = {
+  '&': '&amp;',
+  '<': '&lt;',
+  '>': '&gt;',
+  '"': '&quot;',
+  "'": '&#39;',
+  '/': '&#x2F;',
+  '`': '&#x60;',
+  '=': '&#x3D;',
+};
+
 export default class Utils {
   constructor(i18n) {
     this.i18n = i18n;
@@ -67,6 +78,9 @@ export default class Utils {
     return out.toFixed(2) + pfx;
   }
 
+  // https://stackoverflow.com/a/12034334
+  escapeHTML = (html) => html.replace(/[&<>"'`=/]/g, (s) => htmlEntities[s]);
+
   // UI shortcuts.
   confirm = (msg, onConfirm, onCancel) => {
     Dialog.confirm({
@@ -98,7 +112,7 @@ export default class Utils {
 
   toast = (msg, typ, duration) => {
     Toast.open({
-      message: msg,
+      message: this.escapeHTML(msg),
       type: !typ ? 'is-success' : typ,
       queue: false,
       duration: duration || 2000,
