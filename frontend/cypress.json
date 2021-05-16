@@ -1,5 +1,5 @@
 {
-	"baseUrl": "http://localhost:9000",
+	"baseUrl": "http://localhost:8080",
 	"env": {
 		"server_init_command": "pkill -9 listmonk | cd ../ && ./listmonk --install --yes && ./listmonk > /dev/null 2>/dev/null &",
 		"username": "listmonk",

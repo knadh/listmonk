@@ -1,7 +1,6 @@
 package main
 
 import (
-	"database/sql"
 	"errors"
 	"fmt"
 	"net/http"
@@ -222,23 +221,15 @@ func handleDeleteTemplate(c echo.Context) error {
 
 	if id < 1 {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidID"))
-	} else if id == 1 {
-		return echo.NewHTTPError(http.StatusBadRequest,
-			app.i18n.T("templates.cantDeleteDefault"))
 	}
 
 	var delID int
 	err := app.queries.DeleteTemplate.Get(&delID, id)
 	if err != nil {
-		if err == sql.ErrNoRows {
-			return c.JSON(http.StatusOK, okResp{true})
-		}
-
 		return echo.NewHTTPError(http.StatusInternalServerError,
-			app.i18n.Ts("globals.messages.errorCreating",
+			app.i18n.Ts("globals.messages.errorDeleting",
 				"name", "{globals.terms.template}", "error", pqErrMsg(err)))
 	}
-
 	if delID == 0 {
 		return echo.NewHTTPError(http.StatusBadRequest,
 			app.i18n.T("templates.cantDeleteDefault"))

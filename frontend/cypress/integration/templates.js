@@ -26,7 +26,7 @@ describe('Templates', () => {
     cy.get('input[name=name]').clear().type('edited');
     cy.get('textarea[name=body]').clear().type('<span>test</span> {{ template "content" . }}',
       { parseSpecialCharSequences: false, delay: 0 });
-    cy.get('footer.modal-card-foot button.is-primary').click();
+    cy.get('.modal-card-foot button.is-primary').click();
     cy.wait(250);
     cy.get('tbody td[data-label="Name"] a').contains('edited');
   });
@@ -40,7 +40,7 @@ describe('Templates', () => {
       cy.get('span').first().contains('test');
       cy.get('p').first().contains('Hi there');
     });
-    cy.get('footer.modal-card-foot button').click();
+    cy.get('.modal-card-foot button').click();
 
     // Cloned one should have the full template.
     cy.get('tbody [data-cy=btn-preview').eq(1).click();
@@ -49,7 +49,7 @@ describe('Templates', () => {
       cy.get('.wrap p').first().contains('Hi there');
       cy.get('.footer a').first().contains('Unsubscribe');
     });
-    cy.get('footer.modal-card-foot button').click();
+    cy.get('.modal-card-foot button').click();
   });
 
   it('Sets default', () => {
@@ -69,6 +69,7 @@ describe('Templates', () => {
 
 
   it('Deletes template', () => {
+    cy.wait(250);
     cy.get('tbody td.actions [data-cy=btn-delete]').first().click();
     cy.get('.modal button.is-primary').click();
     cy.wait(250);

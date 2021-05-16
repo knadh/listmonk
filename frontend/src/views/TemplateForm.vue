@@ -17,7 +17,7 @@
             </b-field>
 
             <b-field :label="$t('templates.rawHTML')" label-position="on-border">
-              <b-input v-model="form.body" type="textarea" required />
+              <b-input v-model="form.body" type="textarea" name="body" required />
             </b-field>
 
             <p class="is-size-7">
