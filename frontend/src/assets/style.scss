@@ -57,6 +57,10 @@ ul.no {
   position: relative;
 }
 
+.content pre {
+  white-space: pre-wrap;
+}
+
 section {
   &.wrap {
     max-width: 1100px;
@@ -65,6 +69,7 @@ section {
     max-width: 900px;
   }
 }
+
 .spinner.is-tiny {
   display: inline-block;
   height: 10px;
