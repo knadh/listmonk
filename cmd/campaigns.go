@@ -14,7 +14,6 @@ import (
 	"time"
 
 	"github.com/gofrs/uuid"
-	"github.com/knadh/listmonk/internal/messenger"
 	"github.com/knadh/listmonk/internal/subimporter"
 	"github.com/knadh/listmonk/models"
 	"github.com/labstack/echo"
@@ -199,14 +198,14 @@ func handlePreviewCampaign(c echo.Context) error {
 	}
 
 	// Render the message body.
-	m := app.manager.NewCampaignMessage(&camp, dummySubscriber)
-	if err := m.Render(); err != nil {
+	msg, err := app.manager.NewCampaignMessage(&camp, dummySubscriber)
+	if err != nil {
 		app.log.Printf("error rendering message: %v", err)
 		return echo.NewHTTPError(http.StatusBadRequest,
 			app.i18n.Ts("templates.errorRendering", "error", err.Error()))
 	}
 
-	return c.HTML(http.StatusOK, string(m.Body()))
+	return c.HTML(http.StatusOK, string(msg.Body()))
 }
 
 // handleCampaignContent handles campaign content (body) format conversions.
@@ -613,24 +612,15 @@ func sendTestMessage(sub models.Subscriber, camp *models.Campaign, app *App) err
 			app.i18n.Ts("templates.errorCompiling", "error", err.Error()))
 	}
 
-	// Render the message body.
-	m := app.manager.NewCampaignMessage(camp, sub)
-	if err := m.Render(); err != nil {
+	// Create a sample campaign message.
+	msg, err := app.manager.NewCampaignMessage(camp, sub)
+	if err != nil {
 		app.log.Printf("error rendering message: %v", err)
 		return echo.NewHTTPError(http.StatusNotFound,
 			app.i18n.Ts("templates.errorRendering", "error", err.Error()))
 	}
 
-	return app.messengers[camp.Messenger].Push(messenger.Message{
-		From:        camp.FromEmail,
-		To:          []string{sub.Email},
-		Subject:     m.Subject(),
-		ContentType: camp.ContentType,
-		Body:        m.Body(),
-		AltBody:     m.AltBody(),
-		Subscriber:  sub,
-		Campaign:    camp,
-	})
+	return app.manager.PushCampaignMessage(msg)
 }
 
 // validateCampaignFields validates incoming campaign field values.

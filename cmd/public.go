@@ -140,15 +140,15 @@ func handleViewCampaignMessage(c echo.Context) error {
 	}
 
 	// Render the message body.
-	m := app.manager.NewCampaignMessage(&camp, sub)
-	if err := m.Render(); err != nil {
+	msg, err := app.manager.NewCampaignMessage(&camp, sub)
+	if err != nil {
 		app.log.Printf("error rendering message: %v", err)
 		return c.Render(http.StatusInternalServerError, tplMessage,
 			makeMsgTpl(app.i18n.T("public.errorTitle"), "",
 				app.i18n.Ts("public.errorFetchingCampaign")))
 	}
 
-	return c.HTML(http.StatusOK, string(m.Body()))
+	return c.HTML(http.StatusOK, string(msg.Body()))
 }
 
 // handleSubscriptionPage renders the subscription management page and

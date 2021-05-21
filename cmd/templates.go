@@ -116,13 +116,13 @@ func handlePreviewTemplate(c echo.Context) error {
 	}
 
 	// Render the message body.
-	m := app.manager.NewCampaignMessage(&camp, dummySubscriber)
-	if err := m.Render(); err != nil {
+	msg, err := app.manager.NewCampaignMessage(&camp, dummySubscriber)
+	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest,
 			app.i18n.Ts("templates.errorRendering", "error", err.Error()))
 	}
 
-	return c.HTML(http.StatusOK, string(m.Body()))
+	return c.HTML(http.StatusOK, string(msg.Body()))
 }
 
 // handleCreateTemplate handles template creation.
