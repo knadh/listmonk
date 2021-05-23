@@ -22,84 +22,85 @@
       :current-page="queryParams.page" :per-page="lists.perPage" :total="lists.total"
       backend-sorting @sort="onSort"
     >
-        <template slot-scope="props">
-            <b-table-column field="name" :label="$t('globals.fields.name')" header-class="cy-name"
-              sortable width="25%" paginated backend-pagination pagination-position="both"
-              @page-change="onPageChange" :data-id="props.row.id">
-              <div>
-                <router-link :to="{name: 'subscribers_list', params: { listID: props.row.id }}">
-                  {{ props.row.name }}
-                </router-link>
-                <b-taglist>
-                    <b-tag class="is-small" v-for="t in props.row.tags" :key="t">{{ t }}</b-tag>
-                </b-taglist>
-              </div>
-            </b-table-column>
+      <b-table-column v-slot="props" field="name" :label="$t('globals.fields.name')"
+        header-class="cy-name" sortable width="25%"
+        paginated backend-pagination pagination-position="both"
+        :td-attrs="$utils.tdID"
+        @page-change="onPageChange">
+        <div>
+          <router-link :to="{name: 'subscribers_list', params: { listID: props.row.id }}">
+            {{ props.row.name }}
+          </router-link>
+          <b-taglist>
+              <b-tag class="is-small" v-for="t in props.row.tags" :key="t">{{ t }}</b-tag>
+          </b-taglist>
+        </div>
+      </b-table-column>
 
-            <b-table-column field="type" :label="$t('globals.fields.type')" header-class="cy-type"
-              sortable>
-              <div>
-                <b-tag :class="props.row.type" :data-cy="`type-${props.row.type}`">
-                  {{ $t('lists.types.' + props.row.type) }}
-                </b-tag>
-                {{ ' ' }}
-                <b-tag :data-cy="`optin-${props.row.optin}`">
-                  <b-icon :icon="props.row.optin === 'double' ?
-                    'account-check-outline' : 'account-off-outline'" size="is-small" />
-                  {{ ' ' }}
-                  {{ $t('lists.optins.' + props.row.optin) }}
-                </b-tag>{{ ' ' }}
-                <a v-if="props.row.optin === 'double'" class="is-size-7 send-optin"
-                  href="#" @click="$utils.confirm(null, () => createOptinCampaign(props.row))"
-                  data-cy="btn-send-optin-campaign">
-                  <b-tooltip :label="$t('lists.sendOptinCampaign')" type="is-dark">
-                    <b-icon icon="rocket-launch-outline" size="is-small" />
-                    {{ $t('lists.sendOptinCampaign') }}
-                  </b-tooltip>
-                </a>
-              </div>
-            </b-table-column>
+      <b-table-column v-slot="props" field="type" :label="$t('globals.fields.type')"
+        header-class="cy-type" sortable>
+        <div>
+          <b-tag :class="props.row.type" :data-cy="`type-${props.row.type}`">
+            {{ $t('lists.types.' + props.row.type) }}
+          </b-tag>
+          {{ ' ' }}
+          <b-tag :data-cy="`optin-${props.row.optin}`">
+            <b-icon :icon="props.row.optin === 'double' ?
+              'account-check-outline' : 'account-off-outline'" size="is-small" />
+            {{ ' ' }}
+            {{ $t('lists.optins.' + props.row.optin) }}
+          </b-tag>{{ ' ' }}
+          <a v-if="props.row.optin === 'double'" class="is-size-7 send-optin"
+            href="#" @click="$utils.confirm(null, () => createOptinCampaign(props.row))"
+            data-cy="btn-send-optin-campaign">
+            <b-tooltip :label="$t('lists.sendOptinCampaign')" type="is-dark">
+              <b-icon icon="rocket-launch-outline" size="is-small" />
+              {{ $t('lists.sendOptinCampaign') }}
+            </b-tooltip>
+          </a>
+        </div>
+      </b-table-column>
 
-            <b-table-column field="subscriber_count" :label="$t('globals.terms.subscribers')"
-              header-class="cy-subscribers" numeric sortable centered>
-                <router-link :to="`/subscribers/lists/${props.row.id}`">
-                  {{ props.row.subscriberCount }}
-                </router-link>
-            </b-table-column>
+      <b-table-column v-slot="props" field="subscriber_count"
+        :label="$t('globals.terms.subscribers')" header-class="cy-subscribers"
+        numeric sortable centered>
+        <router-link :to="`/subscribers/lists/${props.row.id}`">
+          {{ props.row.subscriberCount }}
+        </router-link>
+      </b-table-column>
 
-            <b-table-column field="created_at" :label="$t('globals.fields.createdAt')"
-              header-class="cy-created_at" sortable>
-                {{ $utils.niceDate(props.row.createdAt) }}
-            </b-table-column>
-            <b-table-column field="updated_at" :label="$t('globals.fields.updatedAt')"
-              header-class="cy-updated_at" sortable>
-                {{ $utils.niceDate(props.row.updatedAt) }}
-            </b-table-column>
+      <b-table-column v-slot="props" field="created_at" :label="$t('globals.fields.createdAt')"
+        header-class="cy-created_at" sortable>
+          {{ $utils.niceDate(props.row.createdAt) }}
+      </b-table-column>
+      <b-table-column v-slot="props" field="updated_at" :label="$t('globals.fields.updatedAt')"
+        header-class="cy-updated_at" sortable>
+          {{ $utils.niceDate(props.row.updatedAt) }}
+      </b-table-column>
 
-            <b-table-column class="actions" align="right">
-              <div>
-                <router-link :to="`/campaigns/new?list_id=${props.row.id}`" data-cy="btn-campaign">
-                  <b-tooltip :label="$t('lists.sendCampaign')" type="is-dark">
-                    <b-icon icon="rocket-launch-outline" size="is-small" />
-                  </b-tooltip>
-                </router-link>
-                <a href="" @click.prevent="showEditForm(props.row)" data-cy="btn-edit">
-                  <b-tooltip :label="$t('globals.buttons.edit')" type="is-dark">
-                    <b-icon icon="pencil-outline" size="is-small" />
-                  </b-tooltip>
-                </a>
-                <a href="" @click.prevent="deleteList(props.row)" data-cy="btn-delete">
-                  <b-tooltip :label="$t('globals.buttons.delete')" type="is-dark">
-                    <b-icon icon="trash-can-outline" size="is-small" />
-                  </b-tooltip>
-                </a>
-              </div>
-            </b-table-column>
-        </template>
+      <b-table-column v-slot="props" cell-class="actions" align="right">
+        <div>
+          <router-link :to="`/campaigns/new?list_id=${props.row.id}`" data-cy="btn-campaign">
+            <b-tooltip :label="$t('lists.sendCampaign')" type="is-dark">
+              <b-icon icon="rocket-launch-outline" size="is-small" />
+            </b-tooltip>
+          </router-link>
+          <a href="" @click.prevent="showEditForm(props.row)" data-cy="btn-edit">
+            <b-tooltip :label="$t('globals.buttons.edit')" type="is-dark">
+              <b-icon icon="pencil-outline" size="is-small" />
+            </b-tooltip>
+          </a>
+          <a href="" @click.prevent="deleteList(props.row)" data-cy="btn-delete">
+            <b-tooltip :label="$t('globals.buttons.delete')" type="is-dark">
+              <b-icon icon="trash-can-outline" size="is-small" />
+            </b-tooltip>
+          </a>
+        </div>
+      </b-table-column>
 
-        <template slot="empty" v-if="!loading.lists">
-            <empty-placeholder />
-        </template>
+      <template #empty v-if="!loading.lists">
+          <empty-placeholder />
+      </template>
     </b-table>
 
     <!-- Add / edit form modal -->

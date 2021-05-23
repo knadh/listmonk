@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "axios": "^0.21.1",
-    "buefy": "^0.8.20",
+    "buefy": "^0.9.7",
     "c3": "^0.7.18",
     "codeflask": "^1.4.1",
     "core-js": "^3.6.5",
