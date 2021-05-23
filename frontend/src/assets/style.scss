@@ -628,11 +628,22 @@ section.campaign {
   .lines {
     height: 70vh;
     overflow-y: scroll;
+    font-family: monospace;
+    font-size: 0.90rem;
 
-    .stamp {
+    padding: 15px;
+    border: 1px solid $grey-lightest;
+
+    .line {
+      display: block;
+      margin-bottom: 2px;
+    }
+
+    .timestamp {
       color: $primary;
       display: inline-block;
-      min-width: 160px;
+      min-width: 175px;
+      margin-right: 5px;
     }
 
     .line:hover {
