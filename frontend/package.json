@@ -11,12 +11,12 @@
   "dependencies": {
     "axios": "^0.21.1",
     "buefy": "^0.9.7",
-    "c3": "^0.7.18",
+    "c3": "^0.7.20",
     "codeflask": "^1.4.1",
-    "core-js": "^3.6.5",
-    "dayjs": "^1.8.28",
+    "core-js": "^3.12.1",
+    "dayjs": "^1.10.4",
     "humps": "^2.0.1",
-    "qs": "^6.9.4",
+    "qs": "^6.10.1",
     "quill": "^1.3.7",
     "quill-delta": "^4.2.2",
     "textversionjs": "^1.1.3",
@@ -26,7 +26,7 @@
     "vue-i18n": "^8.22.2",
     "vue-quill-editor": "^3.0.6",
     "vue-router": "^3.2.0",
-    "vuex": "^3.4.0"
+    "vuex": "^3.6.2"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "~4.5.13",
