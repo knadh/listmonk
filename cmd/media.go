@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"mime/multipart"
 	"net/http"
+	"path/filepath"
 	"strconv"
 
 	"github.com/disintegration/imaging"
@@ -17,13 +18,11 @@ const (
 	thumbnailSize = 90
 )
 
-// imageMimes is the list of image types allowed to be uploaded.
-var imageMimes = []string{
-	"image/jpg",
-	"image/jpeg",
-	"image/png",
-	"image/svg",
-	"image/gif"}
+// validMimes is the list of image types allowed to be uploaded.
+var (
+	validMimes = []string{"image/jpg", "image/jpeg", "image/png", "image/gif"}
+	validExts  = []string{".jpg", ".jpeg", ".png", ".gif"}
+)
 
 // handleUploadMedia handles media file uploads.
 func handleUploadMedia(c echo.Context) error {
@@ -37,9 +36,16 @@ func handleUploadMedia(c echo.Context) error {
 			app.i18n.Ts("media.invalidFile", "error", err.Error()))
 	}
 
-	// Validate MIME type with the list of allowed types.
-	var typ = file.Header.Get("Content-type")
-	if ok := validateMIME(typ, imageMimes); !ok {
+	// Validate file extension.
+	ext := filepath.Ext(file.Filename)
+	if ok := inArray(ext, validExts); !ok {
+		return echo.NewHTTPError(http.StatusBadRequest,
+			app.i18n.Ts("media.unsupportedFileType", "type", ext))
+	}
+
+	// Validate file's mime.
+	typ := file.Header.Get("Content-type")
+	if ok := inArray(typ, validMimes); !ok {
 		return echo.NewHTTPError(http.StatusBadRequest,
 			app.i18n.Ts("media.unsupportedFileType", "type", typ))
 	}

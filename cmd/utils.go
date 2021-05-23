@@ -15,24 +15,14 @@ var (
 	tagRegexpSpaces = regexp.MustCompile(`[\s]+`)
 )
 
-// validateMIME is a helper function to validate uploaded file's MIME type
-// against the slice of MIME types is given.
-func validateMIME(typ string, mimes []string) (ok bool) {
-	if len(mimes) > 0 {
-		var (
-			ok = false
-		)
-		for _, m := range mimes {
-			if typ == m {
-				ok = true
-				break
-			}
-		}
-		if !ok {
-			return false
+// inArray checks if a string is present in a list of strings.
+func inArray(val string, vals []string) (ok bool) {
+	for _, v := range vals {
+		if v == val {
+			return true
 		}
 	}
-	return true
+	return false
 }
 
 // generateFileName appends the incoming file's name with a small random hash.
