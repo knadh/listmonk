@@ -15,12 +15,20 @@ module.exports = {
   productionSourceMap: false,
   filenameHashing: true,
 
-	devServer: {
+  css: {
+    loaderOptions: {
+      sass: {
+        implementation: require('sass'), // This line must in sass option
+      },
+    },
+  },
+
+  devServer: {
     port: process.env.LISTMONK_FRONTEND_PORT || 8080,
-		proxy: {
-			'^/api': {
-				target: process.env.LISTMONK_API_URL || 'http://127.0.0.1:9000'
-			}
-		}
-	}
+    proxy: {
+      '^/api': {
+        target: process.env.LISTMONK_API_URL || 'http://127.0.0.1:9000'
+      }
+    }
+  }
 };

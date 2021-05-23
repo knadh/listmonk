@@ -108,86 +108,85 @@
       paginated backend-pagination pagination-position="both" @page-change="onPageChange"
       :current-page="queryParams.page" :per-page="subscribers.perPage" :total="subscribers.total"
       hoverable checkable backend-sorting @sort="onSort">
-        <template slot="top-left">
+        <template #top-left>
           <a href='' @click.prevent="exportSubscribers">
             <b-icon icon="cloud-download-outline" size="is-small" /> {{ $t('subscribers.export') }}
           </a>
         </template>
-        <template slot-scope="props">
-            <b-table-column field="status" :label="$t('globals.fields.status')"
-              header-class="cy-status" :data-id="props.row.id" sortable>
-              <a :href="`/subscribers/${props.row.id}`"
-                @click.prevent="showEditForm(props.row)">
-                <b-tag :class="props.row.status">
-                  {{ $t('subscribers.status.'+ props.row.status) }}
+        <b-table-column v-slot="props" field="status" :label="$t('globals.fields.status')"
+          header-class="cy-status" :td-attrs="$utils.tdID" sortable>
+          <a :href="`/subscribers/${props.row.id}`"
+            @click.prevent="showEditForm(props.row)">
+            <b-tag :class="props.row.status">
+              {{ $t('subscribers.status.'+ props.row.status) }}
+            </b-tag>
+          </a>
+        </b-table-column>
+
+        <b-table-column v-slot="props" field="email" :label="$t('subscribers.email')"
+          header-class="cy-email" sortable>
+          <a :href="`/subscribers/${props.row.id}`"
+            @click.prevent="showEditForm(props.row)">
+            {{ props.row.email }}
+          </a>
+          <b-taglist>
+            <template v-for="l in props.row.lists">
+              <router-link :to="`/subscribers/lists/${l.id}`"
+                v-bind:key="l.id" style="padding-right:0.5em;">
+                <b-tag :class="l.subscriptionStatus" size="is-small" :key="l.id">
+                  {{ l.name }}
+                  <sup>{{ $t('subscribers.status.'+ l.subscriptionStatus) }}</sup>
                 </b-tag>
-              </a>
-            </b-table-column>
+              </router-link>
+            </template>
+          </b-taglist>
+        </b-table-column>
 
-            <b-table-column field="email" :label="$t('subscribers.email')"
-              header-class="cy-email" sortable>
-              <a :href="`/subscribers/${props.row.id}`"
-                @click.prevent="showEditForm(props.row)">
-                {{ props.row.email }}
-              </a>
-              <b-taglist>
-                <template v-for="l in props.row.lists">
-                  <router-link :to="`/subscribers/lists/${l.id}`"
-                    v-bind:key="l.id" style="padding-right:0.5em;">
-                    <b-tag :class="l.subscriptionStatus" size="is-small" :key="l.id">
-                      {{ l.name }}
-                      <sup>{{ $t('subscribers.status.'+ l.subscriptionStatus) }}</sup>
-                    </b-tag>
-                  </router-link>
-                </template>
-              </b-taglist>
-            </b-table-column>
+        <b-table-column v-slot="props" field="name" :label="$t('globals.fields.name')"
+           header-class="cy-name" sortable>
+          <a :href="`/subscribers/${props.row.id}`"
+            @click.prevent="showEditForm(props.row)">
+            {{ props.row.name }}
+          </a>
+        </b-table-column>
 
-            <b-table-column field="name" :label="$t('globals.fields.name')"
-               header-class="cy-name" sortable>
-              <a :href="`/subscribers/${props.row.id}`"
-                @click.prevent="showEditForm(props.row)">
-                {{ props.row.name }}
-              </a>
-            </b-table-column>
+        <b-table-column v-slot="props" field="lists" :label="$t('globals.terms.lists')"
+          header-class="cy-lists" centered>
+          {{ listCount(props.row.lists) }}
+        </b-table-column>
 
-            <b-table-column field="lists" :label="$t('globals.terms.lists')"
-              header-class="cy-lists" numeric centered>
-              {{ listCount(props.row.lists) }}
-            </b-table-column>
+        <b-table-column v-slot="props" field="created_at" :label="$t('globals.fields.createdAt')"
+          header-class="cy-created_at" sortable>
+            {{ $utils.niceDate(props.row.createdAt) }}
+        </b-table-column>
 
-            <b-table-column field="created_at" :label="$t('globals.fields.createdAt')"
-              header-class="cy-created_at" sortable>
-                {{ $utils.niceDate(props.row.createdAt) }}
-            </b-table-column>
+        <b-table-column v-slot="props" field="updated_at" :label="$t('globals.fields.updatedAt')"
+          header-class="cy-updated_at" sortable>
+            {{ $utils.niceDate(props.row.updatedAt) }}
+        </b-table-column>
 
-            <b-table-column field="updated_at" :label="$t('globals.fields.updatedAt')"
-              header-class="cy-updated_at" sortable>
-                {{ $utils.niceDate(props.row.updatedAt) }}
-            </b-table-column>
+        <b-table-column v-slot="props" label="Actions" cell-class="actions" align="right">
+          <div>
+            <a :href="`/api/subscribers/${props.row.id}/export`" data-cy="btn-download">
+              <b-tooltip :label="$t('subscribers.downloadData')" type="is-dark">
+                <b-icon icon="cloud-download-outline" size="is-small" />
+              </b-tooltip>
+            </a>
+            <a :href="`/subscribers/${props.row.id}`"
+              @click.prevent="showEditForm(props.row)" data-cy="btn-edit">
+              <b-tooltip :label="$t('globals.buttons.edit')" type="is-dark">
+                <b-icon icon="pencil-outline" size="is-small" />
+              </b-tooltip>
+            </a>
+            <a href='' @click.prevent="deleteSubscriber(props.row)" data-cy="btn-delete">
+              <b-tooltip :label="$t('globals.buttons.delete')" type="is-dark">
+                <b-icon icon="trash-can-outline" size="is-small" />
+              </b-tooltip>
+            </a>
+          </div>
+        </b-table-column>
 
-            <b-table-column class="actions" align="right">
-              <div>
-                <a :href="`/api/subscribers/${props.row.id}/export`" data-cy="btn-download">
-                  <b-tooltip :label="$t('subscribers.downloadData')" type="is-dark">
-                    <b-icon icon="cloud-download-outline" size="is-small" />
-                  </b-tooltip>
-                </a>
-                <a :href="`/subscribers/${props.row.id}`"
-                  @click.prevent="showEditForm(props.row)" data-cy="btn-edit">
-                  <b-tooltip :label="$t('globals.buttons.edit')" type="is-dark">
-                    <b-icon icon="pencil-outline" size="is-small" />
-                  </b-tooltip>
-                </a>
-                <a href='' @click.prevent="deleteSubscriber(props.row)" data-cy="btn-delete">
-                  <b-tooltip :label="$t('globals.buttons.delete')" type="is-dark">
-                    <b-icon icon="trash-can-outline" size="is-small" />
-                  </b-tooltip>
-                </a>
-              </div>
-            </b-table-column>
-        </template>
-        <template slot="empty" v-if="!loading.subscribers">
+        <template #empty v-if="!loading.subscribers">
           <empty-placeholder />
         </template>
     </b-table>

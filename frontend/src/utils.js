@@ -118,4 +118,8 @@ export default class Utils {
       duration: duration || 2000,
     });
   };
+
+  // Takes a props.row from a Buefy b-column <td> template and
+  // returns a `data-id` attribute which Buefy then applies to the td.
+  tdID = (row) => ({ 'data-id': row.id.toString() });
 }

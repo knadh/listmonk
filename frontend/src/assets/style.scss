@@ -30,10 +30,11 @@ $modal-background-background-color: rgba(0, 0, 0, .30);
 $speed-slow: 25ms !default;
 $speed-slower: 50ms !default;
 
-/* Import full Bulma and Buefy to override styles. */
-// @import "~bulma";
-@import "./buefy";
+/* Import full Bulma and Buefy */
+@import "~bulma";
+@import "~buefy/src/scss/buefy";
 
+/* Custom style overrides */
 html, body {
   height: 100%;
 }
@@ -752,6 +753,7 @@ section.campaign {
 
   /* Hide sidebar menu captions on mobile */
   .b-sidebar .sidebar-content.is-mini-mobile {
+    max-width: 90px;
     .menu-list {
       li {
         margin-bottom: 30px;
@@ -773,7 +775,6 @@ section.campaign {
 
   td .tags {
     display: block;
-    text-align: right;
 
     .tag:not(:last-child) {
       margin-right: 0;
