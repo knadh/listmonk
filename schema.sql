@@ -5,6 +5,7 @@ DROP TYPE IF EXISTS subscription_status CASCADE; CREATE TYPE subscription_status
 DROP TYPE IF EXISTS campaign_status CASCADE; CREATE TYPE campaign_status AS ENUM ('draft', 'running', 'scheduled', 'paused', 'cancelled', 'finished');
 DROP TYPE IF EXISTS campaign_type CASCADE; CREATE TYPE campaign_type AS ENUM ('regular', 'optin');
 DROP TYPE IF EXISTS content_type CASCADE; CREATE TYPE content_type AS ENUM ('richtext', 'html', 'plain', 'markdown');
+DROP TYPE IF EXISTS bounce_type CASCADE; CREATE TYPE bounce_type AS ENUM ('soft', 'hard', 'complaint');
 
 -- subscribers
 DROP TABLE IF EXISTS subscribers CASCADE;
@@ -201,4 +202,28 @@ INSERT INTO settings (key, value) VALUES
     ('smtp',
         '[{"enabled":true, "host":"smtp.yoursite.com","port":25,"auth_protocol":"cram","username":"username","password":"password","hello_hostname":"","max_conns":10,"idle_timeout":"15s","wait_timeout":"5s","max_msg_retries":2,"tls_enabled":true,"tls_skip_verify":false,"email_headers":[]},
           {"enabled":false, "host":"smtp2.yoursite.com","port":587,"auth_protocol":"plain","username":"username","password":"password","hello_hostname":"","max_conns":10,"idle_timeout":"15s","wait_timeout":"5s","max_msg_retries":2,"tls_enabled":false,"tls_skip_verify":false,"email_headers":[]}]'),
-    ('messengers', '[]');
+    ('messengers', '[]'),
+    ('bounce.enabled', 'false'),
+    ('bounce.webhooks_enabled', 'false'),
+    ('bounce.count', '2'),
+    ('bounce.action', '"blocklist"'),
+    ('bounce.ses_enabled', 'false'),
+    ('bounce.sendgrid_enabled', 'false'),
+    ('bounce.sendgrid_key', '""'),
+    ('bounce.mailboxes',
+        '[{"enabled":false, "type": "pop", "host":"pop.yoursite.com","port":995,"auth_protocol":"userpass","username":"username","password":"password","return_path": "bounce@listmonk.yoursite.com","scan_interval":"15m","tls_enabled":true,"tls_skip_verify":false}]');
+
+-- bounces
+DROP TABLE IF EXISTS bounces CASCADE;
+CREATE TABLE bounces (
+    id               SERIAL PRIMARY KEY,
+    subscriber_id    INTEGER NOT NULL REFERENCES subscribers(id) ON DELETE CASCADE ON UPDATE CASCADE,
+    campaign_id      INTEGER NULL REFERENCES campaigns(id) ON DELETE SET NULL ON UPDATE CASCADE,
+    type             bounce_type NOT NULL DEFAULT 'hard',
+    source           TEXT NOT NULL DEFAULT '',
+    meta             JSONB NOT NULL DEFAULT '{}',
+    created_at       TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+DROP INDEX IF EXISTS idx_bounces_sub_id; CREATE INDEX idx_bounces_sub_id ON bounces(subscriber_id);
+DROP INDEX IF EXISTS idx_bounces_camp_id; CREATE INDEX idx_bounces_camp_id ON bounces(campaign_id);
+DROP INDEX IF EXISTS idx_bounces_source; CREATE INDEX idx_bounces_source ON bounces(source);

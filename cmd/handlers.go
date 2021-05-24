@@ -62,6 +62,8 @@ func registerHTTPHandlers(e *echo.Echo, app *App) {
 
 	g.GET("/api/subscribers/:id", handleGetSubscriber)
 	g.GET("/api/subscribers/:id/export", handleExportSubscriberData)
+	g.GET("/api/subscribers/:id/bounces", handleGetSubscriberBounces)
+	g.DELETE("/api/subscribers/:id/bounces", handleDeleteSubscriberBounces)
 	g.POST("/api/subscribers", handleCreateSubscriber)
 	g.PUT("/api/subscribers/:id", handleUpdateSubscriber)
 	g.POST("/api/subscribers/:id/optin", handleSubscriberSendOptin)
@@ -71,6 +73,10 @@ func registerHTTPHandlers(e *echo.Echo, app *App) {
 	g.PUT("/api/subscribers/lists", handleManageSubscriberLists)
 	g.DELETE("/api/subscribers/:id", handleDeleteSubscribers)
 	g.DELETE("/api/subscribers", handleDeleteSubscribers)
+
+	g.GET("/api/bounces", handleGetBounces)
+	g.DELETE("/api/bounces", handleDeleteBounces)
+	g.DELETE("/api/bounces/:id", handleDeleteBounces)
 
 	// Subscriber operations based on arbitrary SQL queries.
 	// These aren't very REST-like.
@@ -131,6 +137,14 @@ func registerHTTPHandlers(e *echo.Echo, app *App) {
 	g.GET("/campaigns/:campignID", handleIndexPage)
 	g.GET("/settings", handleIndexPage)
 	g.GET("/settings/logs", handleIndexPage)
+
+	if app.constants.BounceWebhooksEnabled {
+		// Private authenticated bounce endpoint.
+		g.POST("/webhooks/bounce", handleBounceWebhook)
+
+		// Public bounce endpoints for webservices like SES.
+		e.POST("/webhooks/service/:service", handleBounceWebhook)
+	}
 
 	// Public subscriber facing views.
 	e.GET("/subscription/form", handleSubscriptionFormPage)

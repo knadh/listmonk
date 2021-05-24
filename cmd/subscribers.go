@@ -614,6 +614,28 @@ func handleManageSubscriberListsByQuery(c echo.Context) error {
 	return c.JSON(http.StatusOK, okResp{true})
 }
 
+// handleDeleteSubscriberBounces deletes all the bounces on a subscriber.
+func handleDeleteSubscriberBounces(c echo.Context) error {
+	var (
+		app = c.Get("app").(*App)
+		pID = c.Param("id")
+	)
+
+	id, _ := strconv.ParseInt(pID, 10, 64)
+	if id < 1 {
+		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidID"))
+	}
+
+	if _, err := app.queries.DeleteBouncesBySubscriber.Exec(id, nil); err != nil {
+		app.log.Printf("error deleting bounces: %v", err)
+		return echo.NewHTTPError(http.StatusInternalServerError,
+			app.i18n.Ts("globals.messages.errorDeleting",
+				"name", "{globals.terms.bounces}", "error", pqErrMsg(err)))
+	}
+
+	return c.JSON(http.StatusOK, okResp{true})
+}
+
 // handleExportSubscriberData pulls the subscriber's profile,
 // list subscriptions, campaign views and clicks and produces
 // a JSON report. This is a privacy feature and depends on the
