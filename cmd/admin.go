@@ -62,7 +62,7 @@ func handleGetDashboardCharts(c echo.Context) error {
 		out types.JSONText
 	)
 
-	if err := app.queries.GetDashboardCharts.Get(&out); err != nil {
+	if err := app.queries.GetDashboardCharts(&out); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			app.i18n.Ts("globals.messages.errorFetching", "name", "dashboard charts", "error", pqErrMsg(err)))
 	}
@@ -77,7 +77,7 @@ func handleGetDashboardCounts(c echo.Context) error {
 		out types.JSONText
 	)
 
-	if err := app.queries.GetDashboardCounts.Get(&out); err != nil {
+	if err := app.queries.GetDashboardCounts(&out); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			app.i18n.Ts("globals.messages.errorFetching", "name", "dashboard stats", "error", pqErrMsg(err)))
 	}

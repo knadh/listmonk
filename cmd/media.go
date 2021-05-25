@@ -99,7 +99,7 @@ func handleUploadMedia(c echo.Context) error {
 	}
 
 	// Write to the DB.
-	if _, err := app.queries.InsertMedia.Exec(uu, fName, thumbfName, app.constants.MediaProvider); err != nil {
+	if err := app.queries.InsertMedia(uu, fName, thumbfName, app.constants.MediaProvider); err != nil {
 		cleanUp = true
 		app.log.Printf("error inserting uploaded file to db: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
@@ -116,7 +116,7 @@ func handleGetMedia(c echo.Context) error {
 		out = []media.Media{}
 	)
 
-	if err := app.queries.GetMedia.Select(&out, app.constants.MediaProvider); err != nil {
+	if err := app.queries.GetMedia(&out, app.constants.MediaProvider); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			app.i18n.Ts("globals.messages.errorFetching",
 				"name", "{globals.terms.media}", "error", pqErrMsg(err)))
@@ -142,7 +142,7 @@ func handleDeleteMedia(c echo.Context) error {
 	}
 
 	var m media.Media
-	if err := app.queries.DeleteMedia.Get(&m, id); err != nil {
+	if err := app.queries.DeleteMedia(&m, id); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			app.i18n.Ts("globals.messages.errorDeleting",
 				"name", "{globals.terms.media}", "error", pqErrMsg(err)))

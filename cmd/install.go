@@ -14,6 +14,7 @@ import (
 	"github.com/knadh/listmonk/models"
 	"github.com/knadh/stuffbin"
 	"github.com/lib/pq"
+	null "gopkg.in/volatiletech/null.v6"
 )
 
 // install runs the first time setup of creating and
@@ -56,7 +57,7 @@ func install(lastVer string, db *sqlx.DB, fs stuffbin.FileSystem, prompt bool) {
 		defList   int
 		optinList int
 	)
-	if err := q.CreateList.Get(&defList,
+	if err := q.CreateList(&defList,
 		uuid.Must(uuid.NewV4()),
 		"Default list",
 		models.ListTypePrivate,
@@ -66,7 +67,7 @@ func install(lastVer string, db *sqlx.DB, fs stuffbin.FileSystem, prompt bool) {
 		lo.Fatalf("Error creating list: %v", err)
 	}
 
-	if err := q.CreateList.Get(&optinList, uuid.Must(uuid.NewV4()),
+	if err := q.CreateList(&optinList, uuid.Must(uuid.NewV4()),
 		"Opt-in list",
 		models.ListTypePublic,
 		models.ListOptinDouble,
@@ -102,27 +103,28 @@ func install(lastVer string, db *sqlx.DB, fs stuffbin.FileSystem, prompt bool) {
 	}
 
 	var tplID int
-	if err := q.CreateTemplate.Get(&tplID,
+	if err := q.CreateTemplate(&tplID,
 		"Default template",
 		string(tplBody.ReadBytes()),
 	); err != nil {
 		lo.Fatalf("error creating default template: %v", err)
 	}
-	if _, err := q.SetDefaultTemplate.Exec(tplID); err != nil {
+	if err := q.SetDefaultTemplate(tplID); err != nil {
 		lo.Fatalf("error setting default template: %v", err)
 	}
 
 	// Sample campaign.
-	if _, err := q.CreateCampaign.Exec(uuid.Must(uuid.NewV4()),
+	var campaignID int
+	if err := q.CreateCampaign(&campaignID, uuid.Must(uuid.NewV4()),
 		models.CampaignTypeRegular,
 		"Test campaign",
 		"Welcome to listmonk",
 		"No Reply <noreply@yoursite.com>",
 		`<h3>Hi {{ .Subscriber.FirstName }}!</h3>
 			This is a test e-mail campaign. Your second name is {{ .Subscriber.LastName }} and you are from {{ .Subscriber.Attribs.city }}.`,
-		nil,
+		null.String{},
 		"richtext",
-		nil,
+		null.Time{},
 		pq.StringArray{"test-campaign"},
 		emailMsgr,
 		1,

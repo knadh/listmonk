@@ -108,7 +108,7 @@ func handleCreateList(c echo.Context) error {
 	// Insert and read ID.
 	var newID int
 	o.UUID = uu.String()
-	if err := app.queries.CreateList.Get(&newID,
+	if err := app.queries.CreateList(&newID,
 		o.UUID,
 		o.Name,
 		o.Type,
@@ -143,7 +143,7 @@ func handleUpdateList(c echo.Context) error {
 		return err
 	}
 
-	res, err := app.queries.UpdateList.Exec(id,
+	res, err := app.queries.UpdateList(id,
 		o.Name, o.Type, o.Optin, pq.StringArray(normalizeTags(o.Tags)))
 	if err != nil {
 		app.log.Printf("error updating list: %v", err)
@@ -177,7 +177,7 @@ func handleDeleteLists(c echo.Context) error {
 		ids = append(ids, id)
 	}
 
-	if _, err := app.queries.DeleteLists.Exec(ids); err != nil {
+	if err := app.queries.DeleteLists(ids); err != nil {
 		app.log.Printf("error deleting lists: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			app.i18n.Ts("globals.messages.errorDeleting",

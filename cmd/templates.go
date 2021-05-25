@@ -46,7 +46,7 @@ func handleGetTemplates(c echo.Context) error {
 		single = true
 	}
 
-	err := app.queries.GetTemplates.Select(&out, id, noBody)
+	err := app.queries.GetTemplates(&out, id, noBody)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			app.i18n.Ts("globals.messages.errorFetching",
@@ -86,7 +86,7 @@ func handlePreviewTemplate(c echo.Context) error {
 			return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidID"))
 		}
 
-		err := app.queries.GetTemplates.Select(&tpls, id, false)
+		err := app.queries.GetTemplates(&tpls, id, false)
 		if err != nil {
 			return echo.NewHTTPError(http.StatusInternalServerError,
 				app.i18n.Ts("globals.messages.errorFetching",
@@ -142,7 +142,7 @@ func handleCreateTemplate(c echo.Context) error {
 
 	// Insert and read ID.
 	var newID int
-	if err := app.queries.CreateTemplate.Get(&newID,
+	if err := app.queries.CreateTemplate(&newID,
 		o.Name,
 		o.Body); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError,
@@ -176,7 +176,7 @@ func handleUpdateTemplate(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	res, err := app.queries.UpdateTemplate.Exec(id, o.Name, o.Body)
+	res, err := app.queries.UpdateTemplate(id, o.Name, o.Body)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			app.i18n.Ts("globals.messages.errorUpdating",
@@ -202,7 +202,7 @@ func handleTemplateSetDefault(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidID"))
 	}
 
-	_, err := app.queries.SetDefaultTemplate.Exec(id)
+	err := app.queries.SetDefaultTemplate(id)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			app.i18n.Ts("globals.messages.errorUpdating",
@@ -224,7 +224,7 @@ func handleDeleteTemplate(c echo.Context) error {
 	}
 
 	var delID int
-	err := app.queries.DeleteTemplate.Get(&delID, id)
+	err := app.queries.DeleteTemplate(&delID, id)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			app.i18n.Ts("globals.messages.errorDeleting",

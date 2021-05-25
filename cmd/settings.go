@@ -198,7 +198,7 @@ func handleUpdateSettings(c echo.Context) error {
 	}
 
 	// Update the settings in the DB.
-	if _, err := app.queries.UpdateSettings.Exec(b); err != nil {
+	if err := app.queries.UpdateSettings(b); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			app.i18n.Ts("globals.messages.errorUpdating",
 				"name", "{globals.terms.settings}", "error", pqErrMsg(err)))

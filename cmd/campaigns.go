@@ -170,7 +170,7 @@ func handlePreviewCampaign(c echo.Context) error {
 	}
 
 	var camp models.Campaign
-	err := app.queries.GetCampaignForPreview.Get(&camp, id)
+	err := app.queries.GetCampaignForPreview(&camp, id)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return echo.NewHTTPError(http.StatusBadRequest,
@@ -270,7 +270,7 @@ func handleCreateCampaign(c echo.Context) error {
 
 	// Insert and read ID.
 	var newID int
-	if err := app.queries.CreateCampaign.Get(&newID,
+	if err := app.queries.CreateCampaign(&newID,
 		uu,
 		o.Type,
 		o.Name,
@@ -315,7 +315,7 @@ func handleUpdateCampaign(c echo.Context) error {
 	}
 
 	var cm models.Campaign
-	if err := app.queries.GetCampaign.Get(&cm, id, nil); err != nil {
+	if err := app.queries.GetCampaign(&cm, id, nil); err != nil {
 		if err == sql.ErrNoRows {
 			return echo.NewHTTPError(http.StatusInternalServerError,
 				app.i18n.Ts("globals.messages.notFound", "name", "{globals.terms.campaign}"))
@@ -345,7 +345,7 @@ func handleUpdateCampaign(c echo.Context) error {
 		o = c
 	}
 
-	_, err := app.queries.UpdateCampaign.Exec(cm.ID,
+	err := app.queries.UpdateCampaign(cm.ID,
 		o.Name,
 		o.Subject,
 		o.FromEmail,
@@ -380,7 +380,7 @@ func handleUpdateCampaignStatus(c echo.Context) error {
 	}
 
 	var cm models.Campaign
-	if err := app.queries.GetCampaign.Get(&cm, id, nil); err != nil {
+	if err := app.queries.GetCampaign(&cm, id, nil); err != nil {
 		if err == sql.ErrNoRows {
 			return echo.NewHTTPError(http.StatusBadRequest,
 				app.i18n.Ts("globals.message.notFound", "name", "{globals.terms.campaign}"))
@@ -430,7 +430,7 @@ func handleUpdateCampaignStatus(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, errMsg)
 	}
 
-	res, err := app.queries.UpdateCampaignStatus.Exec(cm.ID, o.Status)
+	res, err := app.queries.UpdateCampaignStatus(cm.ID, o.Status)
 	if err != nil {
 		app.log.Printf("error updating campaign status: %v", err)
 
@@ -461,7 +461,7 @@ func handleDeleteCampaign(c echo.Context) error {
 	}
 
 	var cm models.Campaign
-	if err := app.queries.GetCampaign.Get(&cm, id, nil); err != nil {
+	if err := app.queries.GetCampaign(&cm, id, nil); err != nil {
 		if err == sql.ErrNoRows {
 			return echo.NewHTTPError(http.StatusBadRequest,
 				app.i18n.Ts("globals.messages.notFound",
@@ -474,7 +474,7 @@ func handleDeleteCampaign(c echo.Context) error {
 				"name", "{globals.terms.campaign}", "error", pqErrMsg(err)))
 	}
 
-	if _, err := app.queries.DeleteCampaign.Exec(cm.ID); err != nil {
+	if err := app.queries.DeleteCampaign(cm.ID); err != nil {
 		app.log.Printf("error deleting campaign: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			app.i18n.Ts("globals.messages.errorDeleting",
@@ -492,7 +492,7 @@ func handleGetRunningCampaignStats(c echo.Context) error {
 		out []campaignStats
 	)
 
-	if err := app.queries.GetCampaignStatus.Select(&out, models.CampaignStatusRunning); err != nil {
+	if err := app.queries.GetCampaignStatus(&out, models.CampaignStatusRunning); err != nil {
 		if err == sql.ErrNoRows {
 			return c.JSON(http.StatusOK, okResp{[]struct{}{}})
 		}
@@ -558,7 +558,7 @@ func handleTestCampaign(c echo.Context) error {
 		req.SubscriberEmails[i] = strings.ToLower(strings.TrimSpace(req.SubscriberEmails[i]))
 	}
 	var subs models.Subscribers
-	if err := app.queries.GetSubscribersByEmails.Select(&subs, req.SubscriberEmails); err != nil {
+	if err := app.queries.GetSubscribersByEmails(&subs, req.SubscriberEmails); err != nil {
 		app.log.Printf("error fetching subscribers: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			app.i18n.Ts("globals.messages.errorFetching",
@@ -569,7 +569,7 @@ func handleTestCampaign(c echo.Context) error {
 
 	// The campaign.
 	var camp models.Campaign
-	if err := app.queries.GetCampaignForPreview.Get(&camp, campID); err != nil {
+	if err := app.queries.GetCampaignForPreview(&camp, campID); err != nil {
 		if err == sql.ErrNoRows {
 			return echo.NewHTTPError(http.StatusBadRequest,
 				app.i18n.Ts("globals.messages.notFound",
@@ -693,7 +693,7 @@ func makeOptinCampaignMessage(o campaignReq, app *App) (campaignReq, error) {
 
 	// Fetch double opt-in lists from the given list IDs.
 	var lists []models.List
-	err := app.queries.GetListsByOptin.Select(&lists, models.ListOptinDouble, pq.Int64Array(o.ListIDs), nil)
+	err := app.queries.GetListsByOptin(&lists, models.ListOptinDouble, pq.Int64Array(o.ListIDs), nil)
 	if err != nil {
 		app.log.Printf("error fetching lists for opt-in: %s", pqErrMsg(err))
 		return o, echo.NewHTTPError(http.StatusInternalServerError,

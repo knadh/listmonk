@@ -104,7 +104,7 @@ func handleViewCampaignMessage(c echo.Context) error {
 
 	// Get the campaign.
 	var camp models.Campaign
-	if err := app.queries.GetCampaign.Get(&camp, 0, campUUID); err != nil {
+	if err := app.queries.GetCampaign(&camp, 0, &campUUID); err != nil {
 		if err == sql.ErrNoRows {
 			return c.Render(http.StatusNotFound, tplMessage,
 				makeMsgTpl(app.i18n.T("public.notFoundTitle"), "",
@@ -176,7 +176,7 @@ func handleSubscriptionPage(c echo.Context) error {
 			blocklist = false
 		}
 
-		if _, err := app.queries.Unsubscribe.Exec(campUUID, subUUID, blocklist); err != nil {
+		if err := app.queries.Unsubscribe(campUUID, subUUID, blocklist); err != nil {
 			app.log.Printf("error unsubscribing: %v", err)
 			return c.Render(http.StatusInternalServerError, tplMessage,
 				makeMsgTpl(app.i18n.T("public.errorTitle"), "",
@@ -222,8 +222,8 @@ func handleOptinPage(c echo.Context) error {
 	}
 
 	// Get the list of subscription lists where the subscriber hasn't confirmed.
-	if err := app.queries.GetSubscriberLists.Select(&out.Lists, 0, subUUID,
-		nil, pq.StringArray(out.ListUUIDs), models.SubscriptionStatusUnconfirmed, nil); err != nil {
+	if err := app.queries.GetSubscriberLists(&out.Lists, 0, subUUID,
+		nil, pq.StringArray(out.ListUUIDs), models.SubscriptionStatusUnconfirmed, ""); err != nil {
 		app.log.Printf("error fetching lists for opt-in: %s", pqErrMsg(err))
 
 		return c.Render(http.StatusInternalServerError, tplMessage,
@@ -240,7 +240,7 @@ func handleOptinPage(c echo.Context) error {
 
 	// Confirm.
 	if confirm {
-		if _, err := app.queries.ConfirmSubscriptionOptin.Exec(subUUID, pq.StringArray(out.ListUUIDs)); err != nil {
+		if err := app.queries.ConfirmSubscriptionOptin(subUUID, pq.StringArray(out.ListUUIDs)); err != nil {
 			app.log.Printf("error unsubscribing: %v", err)
 			return c.Render(http.StatusInternalServerError, tplMessage,
 				makeMsgTpl(app.i18n.T("public.errorTitle"), "",
@@ -270,7 +270,7 @@ func handleSubscriptionFormPage(c echo.Context) error {
 
 	// Get all public lists.
 	var lists []models.List
-	if err := app.queries.GetLists.Select(&lists, models.ListTypePublic); err != nil {
+	if err := app.queries.GetLists(&lists, models.ListTypePublic); err != nil {
 		app.log.Printf("error fetching public lists for form: %s", pqErrMsg(err))
 		return c.Render(http.StatusInternalServerError, tplMessage,
 			makeMsgTpl(app.i18n.T("public.errorTitle"), "",
@@ -362,7 +362,7 @@ func handleLinkRedirect(c echo.Context) error {
 	}
 
 	var url string
-	if err := app.queries.RegisterLinkClick.Get(&url, linkUUID, campUUID, subUUID); err != nil {
+	if err := app.queries.RegisterLinkClick(&url, linkUUID, campUUID, subUUID); err != nil {
 		if pqErr, ok := err.(*pq.Error); ok && pqErr.Column == "link_id" {
 			return c.Render(http.StatusNotFound, tplMessage,
 				makeMsgTpl(app.i18n.T("public.errorTitle"), "",
@@ -396,7 +396,7 @@ func handleRegisterCampaignView(c echo.Context) error {
 
 	// Exclude dummy hits from template previews.
 	if campUUID != dummyUUID && subUUID != dummyUUID {
-		if _, err := app.queries.RegisterCampaignView.Exec(campUUID, subUUID); err != nil {
+		if err := app.queries.RegisterCampaignView(campUUID, subUUID); err != nil {
 			app.log.Printf("error registering campaign view: %s", err)
 		}
 	}
@@ -483,7 +483,7 @@ func handleWipeSubscriberData(c echo.Context) error {
 				app.i18n.Ts("public.invalidFeature")))
 	}
 
-	if _, err := app.queries.DeleteSubscribers.Exec(nil, pq.StringArray{subUUID}); err != nil {
+	if err := app.queries.DeleteSubscribers(nil, pq.StringArray{subUUID}); err != nil {
 		app.log.Printf("error wiping subscriber data: %s", err)
 		return c.Render(http.StatusInternalServerError, tplMessage,
 			makeMsgTpl(app.i18n.T("public.errorTitle"), "",
