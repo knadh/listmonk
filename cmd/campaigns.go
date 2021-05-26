@@ -109,15 +109,16 @@ func handleGetCampaigns(c echo.Context) error {
 		order = sortDesc
 	}
 
-	stmt := fmt.Sprintf(app.queries.QueryCampaigns, orderBy, order)
-
 	// Unsafe to ignore scanning fields not present in models.Campaigns.
-	if err := db.Select(&out.Results, stmt, id, pq.StringArray(status), query, pg.Offset, pg.Limit); err != nil {
+	results, err := app.queries.QueryCampaigns(id, pg.Offset, pg.Limit, status, query, orderBy, order)
+	if err != nil {
 		app.log.Printf("error fetching campaigns: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			app.i18n.Ts("globals.messages.errorFetching",
 				"name", "{globals.terms.campaign}", "error", pqErrMsg(err)))
 	}
+	out.Results = results
+
 	if single && len(out.Results) == 0 {
 		return echo.NewHTTPError(http.StatusBadRequest,
 			app.i18n.Ts("campaigns.notFound", "name", "{globals.terms.campaign}"))

@@ -58,7 +58,7 @@ type Queries struct {
 	deleteLists     *sqlx.Stmt `query:"delete-lists"`
 
 	createCampaign           *sqlx.Stmt `query:"create-campaign"`
-	QueryCampaigns           string     `query:"query-campaigns"`
+	queryCampaigns           string     `query:"query-campaigns"`
 	getCampaign              *sqlx.Stmt `query:"get-campaign"`
 	getCampaignForPreview    *sqlx.Stmt `query:"get-campaign-for-preview"`
 	GetCampaignStats         *sqlx.Stmt `query:"get-campaign-stats"`
@@ -365,6 +365,17 @@ func (q *Queries) QueryLists(listID, offset, limit int, orderBy, order string) (
 
 	var results []models.List
 	if err := db.Select(&results, query, listID, offset, limit); err != nil {
+		return nil, err
+	}
+
+	return results, nil
+}
+
+func (q *Queries) QueryCampaigns(id, offset, limit int, status []string, query, orderBy, order string) ([]models.Campaign, error) {
+	stmt := fmt.Sprintf(q.queryCampaigns, orderBy, order)
+
+	var results []models.Campaign
+	if err := db.Select(&results, stmt, id, pq.StringArray(status), query, offset, limit); err != nil {
 		return nil, err
 	}
 
