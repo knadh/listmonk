@@ -50,7 +50,7 @@ type Queries struct {
 	UnsubscribeSubscribersFromListsByQuery string `query:"unsubscribe-subscribers-from-lists-by-query"`
 
 	createList      *sqlx.Stmt `query:"create-list"`
-	QueryLists      string     `query:"query-lists"`
+	queryLists      string     `query:"query-lists"`
 	getLists        *sqlx.Stmt `query:"get-lists"`
 	getListsByOptin *sqlx.Stmt `query:"get-lists-by-optin"`
 	updateList      *sqlx.Stmt `query:"update-list"`
@@ -253,7 +253,7 @@ func (q *Queries) CreateCampaign(
 	templateID int,
 	listIDs pq.Int64Array,
 ) error {
-	_, err := q.deleteLists.Exec(id, uuid, campaignType, name, subject, fromEmail, body, altBody, contentType, sendAt, tags, messenger, templateID, listIDs)
+	_, err := q.createCampaign.Exec(id, uuid, campaignType, name, subject, fromEmail, body, altBody, contentType, sendAt, tags, messenger, templateID, listIDs)
 	return err
 }
 
@@ -358,6 +358,17 @@ func (q *Queries) RegisterLinkClick(url *string, linkUUID, campUUID, subUUID str
 func (q *Queries) UpdateSettings(settings []byte) error {
 	_, err := q.updateSettings.Exec(settings)
 	return err
+}
+
+func (q *Queries) QueryLists(listID, offset, limit int, orderBy, order string) ([]models.List, error) {
+	query := fmt.Sprintf(q.queryLists, orderBy, order)
+
+	var results []models.List
+	if err := db.Select(&results, query, listID, offset, limit); err != nil {
+		return nil, err
+	}
+
+	return results, nil
 }
 
 // dbConf contains database config required for connecting to a DB.

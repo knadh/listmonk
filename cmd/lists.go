@@ -50,33 +50,35 @@ func handleGetLists(c echo.Context) error {
 		order = sortAsc
 	}
 
-	if err := db.Select(&out.Results, fmt.Sprintf(app.queries.QueryLists, orderBy, order), listID, pg.Offset, pg.Limit); err != nil {
+	results, err := app.queries.QueryLists(listID, pg.Offset, pg.Limit, orderBy, order)
+	if err != nil {
 		app.log.Printf("error fetching lists: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			app.i18n.Ts("globals.messages.errorFetching",
 				"name", "{globals.terms.lists}", "error", pqErrMsg(err)))
 	}
-	if single && len(out.Results) == 0 {
+	if single && len(results) == 0 {
 		return echo.NewHTTPError(http.StatusBadRequest,
 			app.i18n.Ts("globals.messages.notFound", "name", "{globals.terms.list}"))
 	}
-	if len(out.Results) == 0 {
+	if len(results) == 0 {
 		return c.JSON(http.StatusOK, okResp{[]struct{}{}})
 	}
 
 	// Replace null tags.
-	for i, v := range out.Results {
+	for i, v := range results {
 		if v.Tags == nil {
-			out.Results[i].Tags = make(pq.StringArray, 0)
+			results[i].Tags = make(pq.StringArray, 0)
 		}
 	}
 
 	if single {
-		return c.JSON(http.StatusOK, okResp{out.Results[0]})
+		return c.JSON(http.StatusOK, okResp{results[0]})
 	}
 
 	// Meta.
-	out.Total = out.Results[0].Total
+	out.Results = results
+	out.Total = results[0].Total
 	out.Page = pg.Page
 	out.PerPage = pg.PerPage
 	return c.JSON(http.StatusOK, okResp{out})
