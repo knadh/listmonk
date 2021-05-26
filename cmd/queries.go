@@ -28,7 +28,7 @@ type Queries struct {
 	getSubscriber                   *sqlx.Stmt `query:"get-subscriber"`
 	getSubscribersByEmails          *sqlx.Stmt `query:"get-subscribers-by-emails"`
 	getSubscriberLists              *sqlx.Stmt `query:"get-subscriber-lists"`
-	GetSubscriberListsLazy          *sqlx.Stmt `query:"get-subscriber-lists-lazy"`
+	getSubscriberListsLazy          *sqlx.Stmt `query:"get-subscriber-lists-lazy"`
 	subscriberExists                *sqlx.Stmt `query:"subscriber-exists"`
 	updateSubscriber                *sqlx.Stmt `query:"update-subscriber"`
 	blocklistSubscribers            *sqlx.Stmt `query:"blocklist-subscribers"`
@@ -441,6 +441,24 @@ func (q *Queries) GetSettings() (json.RawMessage, error) {
 		return nil, fmt.Errorf("error reading settings from DB: %s", pqErrMsg(err))
 	}
 	return json.RawMessage(s), nil
+}
+
+type SubscriberLists struct {
+	SubscriberID int            `db:"subscriber_id"`
+	Lists        types.JSONText `db:"lists"`
+}
+
+func (q *Queries) GetSubscriberListsLazy(subscriberIDs []int) ([]SubscriberLists, error) {
+	var sl []SubscriberLists
+	if err := q.getSubscriberListsLazy.Select(&sl, pq.Array(subscriberIDs)); err != nil {
+		return sl, err
+	}
+
+	if len(subscriberIDs) != len(sl) {
+		return sl, errors.New("campaign stats count does not match")
+	}
+
+	return sl, nil
 }
 
 // dbConf contains database config required for connecting to a DB.

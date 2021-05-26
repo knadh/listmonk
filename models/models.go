@@ -10,7 +10,6 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/jmoiron/sqlx"
 	"github.com/jmoiron/sqlx/types"
 	"github.com/lib/pq"
 	"github.com/yuin/goldmark"
@@ -123,10 +122,6 @@ type Subscriber struct {
 	// Pseudofield for getting the total number of subscribers
 	// in searches and queries.
 	Total int `db:"total" json:"-"`
-}
-type subLists struct {
-	SubscriberID int            `db:"subscriber_id"`
-	Lists        types.JSONText `db:"lists"`
 }
 
 // SubscriberAttribs is the map of key:value attributes of a subscriber.
@@ -247,28 +242,6 @@ func (subs Subscribers) GetIDs() []int {
 	}
 
 	return IDs
-}
-
-// LoadLists lazy loads the lists for all the subscribers
-// in the Subscribers slice and attaches them to their []Lists property.
-func (subs Subscribers) LoadLists(stmt *sqlx.Stmt) error {
-	var sl []subLists
-	err := stmt.Select(&sl, pq.Array(subs.GetIDs()))
-	if err != nil {
-		return err
-	}
-
-	if len(subs) != len(sl) {
-		return errors.New("campaign stats count does not match")
-	}
-
-	for i, s := range sl {
-		if s.SubscriberID == subs[i].ID {
-			subs[i].Lists = s.Lists
-		}
-	}
-
-	return nil
 }
 
 // Value returns the JSON marshalled SubscriberAttribs.

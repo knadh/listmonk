@@ -154,11 +154,17 @@ func handleQuerySubscribers(c echo.Context) error {
 	}
 
 	// Lazy load lists for each subscriber.
-	if err := out.Results.LoadLists(app.queries.GetSubscriberListsLazy); err != nil {
+	sl, err := app.queries.GetSubscriberListsLazy(out.Results.GetIDs())
+	if err != nil {
 		app.log.Printf("error fetching subscriber lists: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			app.i18n.Ts("globals.messages.errorFetching",
 				"name", "{globals.terms.subscribers}", "error", pqErrMsg(err)))
+	}
+	for i, s := range sl {
+		if s.SubscriberID == out.Results[i].ID {
+			out.Results[i].Lists = s.Lists
+		}
 	}
 
 	out.Query = query
@@ -702,11 +708,17 @@ func getSubscriber(id int, uuid, email string, app *App) (models.Subscriber, err
 		return models.Subscriber{}, echo.NewHTTPError(http.StatusBadRequest,
 			app.i18n.Ts("globals.messages.notFound", "name", "{globals.terms.subscriber}"))
 	}
-	if err := out.LoadLists(app.queries.GetSubscriberListsLazy); err != nil {
+	sl, err := app.queries.GetSubscriberListsLazy(out.GetIDs())
+	if err != nil {
 		app.log.Printf("error loading subscriber lists: %v", err)
 		return models.Subscriber{}, echo.NewHTTPError(http.StatusInternalServerError,
 			app.i18n.Ts("globals.messages.errorFetching",
 				"name", "{globals.terms.lists}", "error", pqErrMsg(err)))
+	}
+	for i, s := range sl {
+		if s.SubscriberID == out[i].ID {
+			out[i].Lists = s.Lists
+		}
 	}
 
 	return out[0], nil
