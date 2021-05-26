@@ -140,11 +140,19 @@ func handleGetCampaigns(c echo.Context) error {
 	}
 
 	// Lazy load stats.
-	if err := out.Results.LoadStats(app.queries.GetCampaignStats); err != nil {
+	stats, err := app.queries.GetCampaignStats(out.Results.GetIDs())
+	if err != nil {
 		app.log.Printf("error fetching campaign stats: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			app.i18n.Ts("globals.messages.errorFetching",
 				"name", "{globals.terms.campaign}", "error", pqErrMsg(err)))
+	}
+	for i, c := range stats {
+		if c.CampaignID == out.Results[i].CampaignID {
+			out.Results[i].Lists = c.Lists
+			out.Results[i].Views = c.Views
+			out.Results[i].Clicks = c.Clicks
+		}
 	}
 
 	if single {

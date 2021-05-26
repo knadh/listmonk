@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"time"
 
@@ -61,7 +62,7 @@ type Queries struct {
 	queryCampaigns           string     `query:"query-campaigns"`
 	getCampaign              *sqlx.Stmt `query:"get-campaign"`
 	getCampaignForPreview    *sqlx.Stmt `query:"get-campaign-for-preview"`
-	GetCampaignStats         *sqlx.Stmt `query:"get-campaign-stats"`
+	getCampaignStats         *sqlx.Stmt `query:"get-campaign-stats"`
 	getCampaignStatus        *sqlx.Stmt `query:"get-campaign-status"`
 	nextCampaigns            *sqlx.Stmt `query:"next-campaigns"`
 	nextCampaignSubscribers  *sqlx.Stmt `query:"next-campaign-subscribers"`
@@ -419,6 +420,19 @@ func (q *Queries) UpdateListsDate(listIDs pq.Int64Array, tx *sql.Tx) error {
 	}
 	_, err := stmt.Exec(listIDs)
 	return err
+}
+
+func (q *Queries) GetCampaignStats(campaignIDs []int) ([]models.CampaignMeta, error) {
+	var meta []models.CampaignMeta
+	if err := q.getCampaignStats.Select(&meta, pq.Array(campaignIDs)); err != nil {
+		return meta, err
+	}
+
+	if len(campaignIDs) != len(meta) {
+		return meta, errors.New("campaign stats count does not match")
+	}
+
+	return meta, nil
 }
 
 // dbConf contains database config required for connecting to a DB.

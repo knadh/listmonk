@@ -294,28 +294,6 @@ func (camps Campaigns) GetIDs() []int {
 	return IDs
 }
 
-// LoadStats lazy loads campaign stats onto a list of campaigns.
-func (camps Campaigns) LoadStats(stmt *sqlx.Stmt) error {
-	var meta []CampaignMeta
-	if err := stmt.Select(&meta, pq.Array(camps.GetIDs())); err != nil {
-		return err
-	}
-
-	if len(camps) != len(meta) {
-		return errors.New("campaign stats count does not match")
-	}
-
-	for i, c := range meta {
-		if c.CampaignID == camps[i].ID {
-			camps[i].Lists = c.Lists
-			camps[i].Views = c.Views
-			camps[i].Clicks = c.Clicks
-		}
-	}
-
-	return nil
-}
-
 // CompileTemplate compiles a campaign body template into its base
 // template and sets the resultant template to Campaign.Tpl.
 func (c *Campaign) CompileTemplate(f template.FuncMap) error {
