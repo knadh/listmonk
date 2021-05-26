@@ -19,6 +19,8 @@ import (
 
 // Queries contains all prepared SQL queries.
 type Queries struct {
+	db *sqlx.DB
+
 	getDashboardCharts *sqlx.Stmt `query:"get-dashboard-charts"`
 	getDashboardCounts *sqlx.Stmt `query:"get-dashboard-counts"`
 
@@ -41,7 +43,7 @@ type Queries struct {
 	exportSubscriberData            *sqlx.Stmt `query:"export-subscriber-data"`
 
 	// Non-prepared arbitrary subscriber queries.
-	QuerySubscribers                       string `query:"query-subscribers"`
+	querySubscribers                       string `query:"query-subscribers"`
 	QuerySubscribersForExport              string `query:"query-subscribers-for-export"`
 	QuerySubscribersTpl                    string `query:"query-subscribers-template"`
 	DeleteSubscribersByQuery               string `query:"delete-subscribers-by-query"`
@@ -459,6 +461,31 @@ func (q *Queries) GetSubscriberListsLazy(subscriberIDs []int) ([]SubscriberLists
 	}
 
 	return sl, nil
+}
+
+func (q *Queries) QuerySubscribers(listIDs pq.Int64Array, query, orderBy, order string, offset, limit int) ([]models.Subscriber, error) {
+	// Create a readonly transaction to prevent mutations.
+	tx, err := q.db.BeginTxx(context.Background(), &sql.TxOptions{ReadOnly: true})
+	if err != nil {
+		return nil, fmt.Errorf("error preparing subscriber query: %w", err)
+	}
+	defer tx.Rollback()
+
+	// There's an arbitrary query condition.
+	cond := ""
+	if query != "" {
+		cond = " AND " + query
+	}
+
+	stmt := fmt.Sprintf(q.querySubscribers, cond, orderBy, order)
+
+	// Run the query. stmt is the raw SQL query.
+	var results []models.Subscriber
+	if err := tx.Select(&results, stmt, listIDs, offset, limit); err != nil {
+		return results, err
+	}
+
+	return results, nil
 }
 
 // dbConf contains database config required for connecting to a DB.

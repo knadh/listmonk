@@ -121,12 +121,6 @@ func handleQuerySubscribers(c echo.Context) error {
 		listIDs = append(listIDs, int64(listID))
 	}
 
-	// There's an arbitrary query condition.
-	cond := ""
-	if query != "" {
-		cond = " AND " + query
-	}
-
 	// Sort params.
 	if !strSliceContains(orderBy, subQuerySortFields) {
 		orderBy = "updated_at"
@@ -135,23 +129,13 @@ func handleQuerySubscribers(c echo.Context) error {
 		order = sortAsc
 	}
 
-	stmt := fmt.Sprintf(app.queries.QuerySubscribers, cond, orderBy, order)
-
-	// Create a readonly transaction to prevent mutations.
-	tx, err := app.db.BeginTxx(context.Background(), &sql.TxOptions{ReadOnly: true})
+	results, err := app.queries.QuerySubscribers(listIDs, query, order, order, pg.Offset, pg.Limit)
 	if err != nil {
-		app.log.Printf("error preparing subscriber query: %v", err)
-		return echo.NewHTTPError(http.StatusBadRequest,
-			app.i18n.Ts("subscribers.errorPreparingQuery", "error", pqErrMsg(err)))
-	}
-	defer tx.Rollback()
-
-	// Run the query. stmt is the raw SQL query.
-	if err := tx.Select(&out.Results, stmt, listIDs, pg.Offset, pg.Limit); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			app.i18n.Ts("globals.messages.errorFetching",
 				"name", "{globals.terms.subscribers}", "error", pqErrMsg(err)))
 	}
+	out.Results = results
 
 	// Lazy load lists for each subscriber.
 	sl, err := app.queries.GetSubscriberListsLazy(out.Results.GetIDs())
