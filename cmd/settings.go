@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/gofrs/uuid"
-	"github.com/jmoiron/sqlx/types"
 	"github.com/labstack/echo"
 )
 
@@ -233,18 +232,18 @@ func handleGetLogs(c echo.Context) error {
 
 func getSettings(app *App) (settings, error) {
 	var (
-		b   types.JSONText
 		out settings
 	)
 
-	if err := app.queries.GetSettings.Get(&b); err != nil {
+	settings, err := app.queries.GetSettings()
+	if err != nil {
 		return out, echo.NewHTTPError(http.StatusInternalServerError,
 			app.i18n.Ts("globals.messages.errorFetching",
 				"name", "{globals.terms.settings}", "error", pqErrMsg(err)))
 	}
 
 	// Unmarshall the settings and filter out sensitive fields.
-	if err := json.Unmarshal([]byte(b), &out); err != nil {
+	if err := json.Unmarshal(settings, &out); err != nil {
 		return out, echo.NewHTTPError(http.StatusInternalServerError,
 			app.i18n.Ts("settings.errorEncoding", "error", err.Error()))
 	}

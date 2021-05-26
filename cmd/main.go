@@ -135,7 +135,11 @@ func init() {
 	_, queries := initQueries(queryFilePath, db, fs, true)
 
 	// Load settings from DB.
-	initSettings(queries.GetSettings)
+	settings, err := queries.GetSettings()
+	if err != nil {
+		lo.Fatal(err)
+	}
+	initSettings(settings)
 }
 
 func main() {

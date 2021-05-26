@@ -11,7 +11,6 @@ import (
 	"time"
 
 	"github.com/jmoiron/sqlx"
-	"github.com/jmoiron/sqlx/types"
 	"github.com/knadh/goyesql/v2"
 	goyesqlx "github.com/knadh/goyesql/v2/sqlx"
 	"github.com/knadh/koanf"
@@ -222,16 +221,11 @@ func initQueries(sqlFile string, db *sqlx.DB, fs stuffbin.FileSystem, prepareQue
 }
 
 // initSettings loads settings from the DB.
-func initSettings(q *sqlx.Stmt) {
-	var s types.JSONText
-	if err := q.Get(&s); err != nil {
-		lo.Fatalf("error reading settings from DB: %s", pqErrMsg(err))
-	}
-
+func initSettings(settings json.RawMessage) {
 	// Setting keys are dot separated, eg: app.favicon_url. Unflatten them into
 	// nested maps {app: {favicon_url}}.
 	var out map[string]interface{}
-	if err := json.Unmarshal(s, &out); err != nil {
+	if err := json.Unmarshal(settings, &out); err != nil {
 		lo.Fatalf("error unmarshalling settings from DB: %v", err)
 	}
 	if err := ko.Load(confmap.Provider(out, "."), nil); err != nil {

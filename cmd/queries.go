@@ -86,7 +86,7 @@ type Queries struct {
 	createLink        *sqlx.Stmt `query:"create-link"`
 	registerLinkClick *sqlx.Stmt `query:"register-link-click"`
 
-	GetSettings    *sqlx.Stmt `query:"get-settings"`
+	getSettings    *sqlx.Stmt `query:"get-settings"`
 	updateSettings *sqlx.Stmt `query:"update-settings"`
 
 	// GetStats *sqlx.Stmt `query:"get-stats"`
@@ -433,6 +433,14 @@ func (q *Queries) GetCampaignStats(campaignIDs []int) ([]models.CampaignMeta, er
 	}
 
 	return meta, nil
+}
+
+func (q *Queries) GetSettings() (json.RawMessage, error) {
+	var s types.JSONText
+	if err := q.getSettings.Get(&s); err != nil {
+		return nil, fmt.Errorf("error reading settings from DB: %s", pqErrMsg(err))
+	}
+	return json.RawMessage(s), nil
 }
 
 // dbConf contains database config required for connecting to a DB.
