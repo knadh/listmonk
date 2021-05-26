@@ -22,8 +22,8 @@ type Queries struct {
 	getDashboardCounts *sqlx.Stmt `query:"get-dashboard-counts"`
 
 	insertSubscriber                *sqlx.Stmt `query:"insert-subscriber"`
-	UpsertSubscriber                *sqlx.Stmt `query:"upsert-subscriber"`
-	UpsertBlocklistSubscriber       *sqlx.Stmt `query:"upsert-blocklist-subscriber"`
+	upsertSubscriber                *sqlx.Stmt `query:"upsert-subscriber"`
+	upsertBlocklistSubscriber       *sqlx.Stmt `query:"upsert-blocklist-subscriber"`
 	getSubscriber                   *sqlx.Stmt `query:"get-subscriber"`
 	getSubscribersByEmails          *sqlx.Stmt `query:"get-subscribers-by-emails"`
 	getSubscriberLists              *sqlx.Stmt `query:"get-subscriber-lists"`
@@ -54,7 +54,7 @@ type Queries struct {
 	getLists        *sqlx.Stmt `query:"get-lists"`
 	getListsByOptin *sqlx.Stmt `query:"get-lists-by-optin"`
 	updateList      *sqlx.Stmt `query:"update-list"`
-	UpdateListsDate *sqlx.Stmt `query:"update-lists-date"`
+	updateListsDate *sqlx.Stmt `query:"update-lists-date"`
 	deleteLists     *sqlx.Stmt `query:"delete-lists"`
 
 	createCampaign           *sqlx.Stmt `query:"create-campaign"`
@@ -380,6 +380,45 @@ func (q *Queries) QueryCampaigns(id, offset, limit int, status []string, query, 
 	}
 
 	return results, nil
+}
+
+func (q *Queries) UpsertSubscriber(
+	uuid uuid.UUID,
+	email, name string,
+	attribs models.SubscriberAttribs,
+	listIDs pq.Int64Array,
+	overwrite bool,
+	tx *sql.Tx,
+) error {
+	stmt := q.upsertSubscriber.Stmt
+	if tx != nil {
+		stmt = tx.Stmt(stmt)
+	}
+	_, err := q.upsertSubscriber.Exec(uuid, email, name, attribs, listIDs, overwrite)
+	return err
+}
+
+func (q *Queries) UpsertBlocklistSubscriber(
+	uu uuid.UUID,
+	email, name string,
+	attribs models.SubscriberAttribs,
+	tx *sql.Tx,
+) error {
+	stmt := q.upsertBlocklistSubscriber.Stmt
+	if tx != nil {
+		stmt = tx.Stmt(stmt)
+	}
+	_, err := stmt.Exec(uu, email, name, attribs)
+	return err
+}
+
+func (q *Queries) UpdateListsDate(listIDs pq.Int64Array, tx *sql.Tx) error {
+	stmt := q.updateListsDate.Stmt
+	if tx != nil {
+		stmt = tx.Stmt(stmt)
+	}
+	_, err := stmt.Exec(listIDs)
+	return err
 }
 
 // dbConf contains database config required for connecting to a DB.

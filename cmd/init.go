@@ -325,9 +325,7 @@ func initCampaignManager(q *Queries, cs *constants, app *App) *manager.Manager {
 func initImporter(q *Queries, db *sqlx.DB, app *App) *subimporter.Importer {
 	return subimporter.New(
 		subimporter.Options{
-			UpsertStmt:         q.UpsertSubscriber.Stmt,
-			BlocklistStmt:      q.UpsertBlocklistSubscriber.Stmt,
-			UpdateListDateStmt: q.UpdateListsDate.Stmt,
+			Store: q,
 			NotifCB: func(subject string, data interface{}) error {
 				app.sendNotification(app.constants.NotifyEmails, subject, notifTplImport, data)
 				return nil

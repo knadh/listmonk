@@ -77,22 +77,24 @@ func install(lastVer string, db *sqlx.DB, fs stuffbin.FileSystem, prompt bool) {
 	}
 
 	// Sample subscriber.
-	if _, err := q.UpsertSubscriber.Exec(
+	if err := q.UpsertSubscriber(
 		uuid.Must(uuid.NewV4()),
 		"john@example.com",
 		"John Doe",
-		`{"type": "known", "good": true, "city": "Bengaluru"}`,
+		models.SubscriberAttribs{"type": "known", "good": true, "city": "Bengaluru"},
 		pq.Int64Array{int64(defList)},
-		true); err != nil {
+		true,
+		nil); err != nil {
 		lo.Fatalf("Error creating subscriber: %v", err)
 	}
-	if _, err := q.UpsertSubscriber.Exec(
+	if err := q.UpsertSubscriber(
 		uuid.Must(uuid.NewV4()),
 		"anon@example.com",
 		"Anon Doe",
-		`{"type": "unknown", "good": true, "city": "Bengaluru"}`,
+		models.SubscriberAttribs{"type": "unknown", "good": true, "city": "Bengaluru"},
 		pq.Int64Array{int64(optinList)},
-		true); err != nil {
+		true,
+		nil); err != nil {
 		lo.Fatalf("Error creating subscriber: %v", err)
 	}
 

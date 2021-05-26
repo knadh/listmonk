@@ -58,12 +58,31 @@ type Importer struct {
 	sync.RWMutex
 }
 
+type Store interface {
+	UpsertSubscriber(
+		uuid uuid.UUID,
+		email, name string,
+		attribs models.SubscriberAttribs,
+		listIDs pq.Int64Array,
+		overwrite bool,
+		tx *sql.Tx,
+	) error
+	UpdateListsDate(
+		listIDs pq.Int64Array,
+		tx *sql.Tx,
+	) error
+	UpsertBlocklistSubscriber(
+		uu uuid.UUID,
+		email, name string,
+		attribs models.SubscriberAttribs,
+		tx *sql.Tx,
+	) error
+}
+
 // Options represents inport options.
 type Options struct {
-	UpsertStmt         *sql.Stmt
-	BlocklistStmt      *sql.Stmt
-	UpdateListDateStmt *sql.Stmt
-	NotifCB            models.AdminNotifCallback
+	Store   Store
+	NotifCB models.AdminNotifCallback
 }
 
 // Session represents a single import session.
@@ -230,10 +249,10 @@ func (im *Importer) sendNotif(status string) error {
 func (s *Session) Start() {
 	var (
 		tx    *sql.Tx
-		stmt  *sql.Stmt
 		err   error
 		total = 0
 		cur   = 0
+		store = s.im.opt.Store
 
 		listIDs = make(pq.Int64Array, len(s.listIDs))
 	)
@@ -250,12 +269,6 @@ func (s *Session) Start() {
 				s.log.Printf("error creating DB transaction: %v", err)
 				continue
 			}
-
-			if s.mode == ModeSubscribe {
-				stmt = tx.Stmt(s.im.opt.UpsertStmt)
-			} else {
-				stmt = tx.Stmt(s.im.opt.BlocklistStmt)
-			}
 		}
 
 		uu, err := uuid.NewV4()
@@ -266,9 +279,9 @@ func (s *Session) Start() {
 		}
 
 		if s.mode == ModeSubscribe {
-			_, err = stmt.Exec(uu, sub.Email, sub.Name, sub.Attribs, listIDs, s.overwrite)
+			err = store.UpsertSubscriber(uu, sub.Email, sub.Name, sub.Attribs, listIDs, s.overwrite, tx)
 		} else if s.mode == ModeBlocklist {
-			_, err = stmt.Exec(uu, sub.Email, sub.Name, sub.Attribs)
+			err = store.UpsertBlocklistSubscriber(uu, sub.Email, sub.Name, sub.Attribs, tx)
 		}
 		if err != nil {
 			s.log.Printf("error executing insert: %v", err)
@@ -296,7 +309,7 @@ func (s *Session) Start() {
 	if cur == 0 {
 		s.im.setStatus(StatusFinished)
 		s.log.Printf("imported finished")
-		if _, err := s.im.opt.UpdateListDateStmt.Exec(listIDs); err != nil {
+		if err := s.im.opt.Store.UpdateListsDate(listIDs, tx); err != nil {
 			s.log.Printf("error updating lists date: %v", err)
 		}
 		s.im.sendNotif(StatusFinished)
@@ -315,7 +328,7 @@ func (s *Session) Start() {
 	s.im.incrementImportCount(cur)
 	s.im.setStatus(StatusFinished)
 	s.log.Printf("imported finished")
-	if _, err := s.im.opt.UpdateListDateStmt.Exec(listIDs); err != nil {
+	if err := s.im.opt.Store.UpdateListsDate(listIDs, tx); err != nil {
 		s.log.Printf("error updating lists date: %v", err)
 	}
 	s.im.sendNotif(StatusFinished)
