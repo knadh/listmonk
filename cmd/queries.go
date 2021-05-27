@@ -45,12 +45,12 @@ type Queries struct {
 	// Non-prepared arbitrary subscriber queries.
 	querySubscribers                       string `query:"query-subscribers"`
 	querySubscribersForExport              string `query:"query-subscribers-for-export"`
-	QuerySubscribersTpl                    string `query:"query-subscribers-template"`
-	DeleteSubscribersByQuery               string `query:"delete-subscribers-by-query"`
-	AddSubscribersToListsByQuery           string `query:"add-subscribers-to-lists-by-query"`
-	BlocklistSubscribersByQuery            string `query:"blocklist-subscribers-by-query"`
-	DeleteSubscriptionsByQuery             string `query:"delete-subscriptions-by-query"`
-	UnsubscribeSubscribersFromListsByQuery string `query:"unsubscribe-subscribers-from-lists-by-query"`
+	querySubscribersTpl                    string `query:"query-subscribers-template"`
+	deleteSubscribersByQuery               string `query:"delete-subscribers-by-query"`
+	addSubscribersToListsByQuery           string `query:"add-subscribers-to-lists-by-query"`
+	blocklistSubscribersByQuery            string `query:"blocklist-subscribers-by-query"`
+	deleteSubscriptionsByQuery             string `query:"delete-subscriptions-by-query"`
+	unsubscribeSubscribersFromListsByQuery string `query:"unsubscribe-subscribers-from-lists-by-query"`
 
 	createList      *sqlx.Stmt `query:"create-list"`
 	queryLists      string     `query:"query-lists"`
@@ -540,6 +540,26 @@ func (q *Queries) QuerySubscribersForExport(
 	return nil
 }
 
+func (q *Queries) DeleteSubscriptionsByQuery(exp string, listIDs pq.Int64Array) error {
+	return q.execSubscriberQueryTpl(sanitizeSQLExp(exp), q.deleteSubscriptionsByQuery, listIDs, q.db)
+}
+
+func (q *Queries) BlocklistSubscribersByQuery(exp string, listIDs pq.Int64Array) error {
+	return q.execSubscriberQueryTpl(sanitizeSQLExp(exp), q.blocklistSubscribersByQuery, listIDs, q.db)
+}
+
+func (q *Queries) DeleteSubscribersByQuery(exp string, listIDs pq.Int64Array) error {
+	return q.execSubscriberQueryTpl(sanitizeSQLExp(exp), q.deleteSubscribersByQuery, listIDs, q.db)
+}
+
+func (q *Queries) UnsubscribeSubscribersFromListsByQuery(exp string, listIDs, targetListIDs pq.Int64Array) error {
+	return q.execSubscriberQueryTpl(sanitizeSQLExp(exp), q.unsubscribeSubscribersFromListsByQuery, listIDs, q.db, targetListIDs)
+}
+
+func (q *Queries) AddSubscribersToListsByQuery(exp string, listIDs, targetListIDs pq.Int64Array) error {
+	return q.execSubscriberQueryTpl(sanitizeSQLExp(exp), q.addSubscribersToListsByQuery, listIDs, q.db, targetListIDs)
+}
+
 // dbConf contains database config required for connecting to a DB.
 type dbConf struct {
 	Host        string        `koanf:"host"`
@@ -583,7 +603,7 @@ func (q *Queries) compileSubscriberQueryTpl(exp string, db *sqlx.DB) (string, er
 	if exp != "" {
 		exp = " AND " + exp
 	}
-	stmt := fmt.Sprintf(q.QuerySubscribersTpl, exp)
+	stmt := fmt.Sprintf(q.querySubscribersTpl, exp)
 	if _, err := tx.Exec(stmt, true, pq.Int64Array{}); err != nil {
 		return "", err
 	}

@@ -469,9 +469,7 @@ func handleDeleteSubscribersByQuery(c echo.Context) error {
 		return err
 	}
 
-	err := app.queries.execSubscriberQueryTpl(sanitizeSQLExp(req.Query),
-		app.queries.DeleteSubscribersByQuery,
-		req.ListIDs, app.db)
+	err := app.queries.DeleteSubscribersByQuery(req.Query, req.ListIDs)
 	if err != nil {
 		app.log.Printf("error deleting subscribers: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
@@ -494,9 +492,7 @@ func handleBlocklistSubscribersByQuery(c echo.Context) error {
 		return err
 	}
 
-	err := app.queries.execSubscriberQueryTpl(sanitizeSQLExp(req.Query),
-		app.queries.BlocklistSubscribersByQuery,
-		req.ListIDs, app.db)
+	err := app.queries.BlocklistSubscribersByQuery(req.Query, req.ListIDs)
 	if err != nil {
 		app.log.Printf("error blocklisting subscribers: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
@@ -523,20 +519,17 @@ func handleManageSubscriberListsByQuery(c echo.Context) error {
 	}
 
 	// Action.
-	var stmt string
+	var err error
 	switch req.Action {
 	case "add":
-		stmt = app.queries.AddSubscribersToListsByQuery
+		err = app.queries.AddSubscribersToListsByQuery(req.Query, req.ListIDs, req.TargetListIDs)
 	case "remove":
-		stmt = app.queries.DeleteSubscriptionsByQuery
+		err = app.queries.DeleteSubscriptionsByQuery(req.Query, req.ListIDs)
 	case "unsubscribe":
-		stmt = app.queries.UnsubscribeSubscribersFromListsByQuery
+		err = app.queries.UnsubscribeSubscribersFromListsByQuery(req.Query, req.ListIDs, req.TargetListIDs)
 	default:
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("subscribers.invalidAction"))
 	}
-
-	err := app.queries.execSubscriberQueryTpl(sanitizeSQLExp(req.Query),
-		stmt, req.ListIDs, app.db, req.TargetListIDs)
 	if err != nil {
 		app.log.Printf("error updating subscriptions: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
