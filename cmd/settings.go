@@ -197,7 +197,7 @@ func handleUpdateSettings(c echo.Context) error {
 	}
 
 	// Update the settings in the DB.
-	if err := app.queries.UpdateSettings(b); err != nil {
+	if err := app.store.UpdateSettings(b); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			app.i18n.Ts("globals.messages.errorUpdating",
 				"name", "{globals.terms.settings}", "error", pqErrMsg(err)))
@@ -235,7 +235,7 @@ func getSettings(app *App) (settings, error) {
 		out settings
 	)
 
-	settings, err := app.queries.GetSettings()
+	settings, err := app.store.GetSettings()
 	if err != nil {
 		return out, echo.NewHTTPError(http.StatusInternalServerError,
 			app.i18n.Ts("globals.messages.errorFetching",

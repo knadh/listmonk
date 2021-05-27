@@ -9,19 +9,19 @@ import (
 // runnerDB implements runner.DataSource over the primary
 // database.
 type runnerDB struct {
-	queries *Queries
+	store Store
 }
 
-func newManagerDB(q *Queries) *runnerDB {
+func newManagerDB(s Store) *runnerDB {
 	return &runnerDB{
-		queries: q,
+		store: s,
 	}
 }
 
 // NextCampaigns retrieves active campaigns ready to be processed.
 func (r *runnerDB) NextCampaigns(excludeIDs []int64) ([]*models.Campaign, error) {
 	var out []*models.Campaign
-	err := r.queries.NextCampaigns(&out, pq.Int64Array(excludeIDs))
+	err := r.store.NextCampaigns(&out, pq.Int64Array(excludeIDs))
 	return out, err
 }
 
@@ -31,20 +31,20 @@ func (r *runnerDB) NextCampaigns(excludeIDs []int64) ([]*models.Campaign, error)
 // batch above that.
 func (r *runnerDB) NextSubscribers(campID, limit int) ([]models.Subscriber, error) {
 	var out []models.Subscriber
-	err := r.queries.NextCampaignSubscribers(&out, campID, limit)
+	err := r.store.NextCampaignSubscribers(&out, campID, limit)
 	return out, err
 }
 
 // GetCampaign fetches a campaign from the database.
 func (r *runnerDB) GetCampaign(campID int) (*models.Campaign, error) {
 	var out = &models.Campaign{}
-	err := r.queries.GetCampaign(out, campID, nil)
+	err := r.store.GetCampaign(out, campID, nil)
 	return out, err
 }
 
 // UpdateCampaignStatus updates a campaign's status.
 func (r *runnerDB) UpdateCampaignStatus(campID int, status string) error {
-	_, err := r.queries.UpdateCampaignStatus(campID, status)
+	_, err := r.store.UpdateCampaignStatus(campID, status)
 	return err
 }
 
@@ -58,7 +58,7 @@ func (r *runnerDB) CreateLink(url string) (string, error) {
 	}
 
 	var out string
-	if err := r.queries.CreateLink(&out, uu, url); err != nil {
+	if err := r.store.CreateLink(&out, uu, url); err != nil {
 		return "", err
 	}
 

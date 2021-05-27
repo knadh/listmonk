@@ -17,6 +17,8 @@ import (
 	null "gopkg.in/volatiletech/null.v6"
 )
 
+var q Store = &Queries{}
+
 // Queries contains all prepared SQL queries.
 type Queries struct {
 	db *sqlx.DB

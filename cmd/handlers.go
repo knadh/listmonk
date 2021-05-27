@@ -214,7 +214,7 @@ func subscriberExists(next echo.HandlerFunc, params ...string) echo.HandlerFunc 
 		)
 
 		var exists bool
-		if err := app.queries.SubscriberExists(&exists, 0, subUUID); err != nil {
+		if err := app.store.SubscriberExists(&exists, 0, subUUID); err != nil {
 			app.log.Printf("error checking subscriber existence: %v", err)
 			return c.Render(http.StatusInternalServerError, tplMessage,
 				makeMsgTpl(app.i18n.T("public.errorTitle"), "",

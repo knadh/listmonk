@@ -127,7 +127,7 @@ func handleQuerySubscribers(c echo.Context) error {
 		order = sortAsc
 	}
 
-	results, err := app.queries.QuerySubscribers(listIDs, query, order, order, pg.Offset, pg.Limit)
+	results, err := app.store.QuerySubscribers(listIDs, query, order, order, pg.Offset, pg.Limit)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			app.i18n.Ts("globals.messages.errorFetching",
@@ -136,7 +136,7 @@ func handleQuerySubscribers(c echo.Context) error {
 	out.Results = results
 
 	// Lazy load lists for each subscriber.
-	sl, err := app.queries.GetSubscriberListsLazy(out.Results.GetIDs())
+	sl, err := app.store.GetSubscriberListsLazy(out.Results.GetIDs())
 	if err != nil {
 		app.log.Printf("error fetching subscriber lists: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
@@ -195,7 +195,7 @@ func handleExportSubscribers(c echo.Context) error {
 	h.Set("Cache-Control", "no-cache")
 	wr.Write([]string{"uuid", "email", "name", "attributes", "status", "created_at", "updated_at"})
 
-	return app.queries.QuerySubscribersForExport(query, listIDs, app.constants.DBBatchSize, func(out []models.SubscriberExport) error {
+	return app.store.QuerySubscribersForExport(query, listIDs, app.constants.DBBatchSize, func(out []models.SubscriberExport) error {
 		for _, r := range out {
 			if err := wr.Write(
 				[]string{r.UUID, r.Email, r.Name, r.Attribs, r.Status, r.CreatedAt.Time.String(), r.UpdatedAt.Time.String()},
@@ -270,7 +270,7 @@ func handleUpdateSubscriber(c echo.Context) error {
 		}
 	}
 
-	err := app.queries.UpdateSubscriber(id,
+	err := app.store.UpdateSubscriber(id,
 		strings.ToLower(strings.TrimSpace(req.Email)),
 		strings.TrimSpace(req.Name),
 		req.Status,
@@ -351,7 +351,7 @@ func handleBlocklistSubscribers(c echo.Context) error {
 		IDs = req.SubscriberIDs
 	}
 
-	if err := app.queries.BlocklistSubscribers(IDs); err != nil {
+	if err := app.store.BlocklistSubscribers(IDs); err != nil {
 		app.log.Printf("error blocklisting subscribers: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			app.i18n.Ts("subscribers.errorBlocklisting", "error", err.Error()))
@@ -398,11 +398,11 @@ func handleManageSubscriberLists(c echo.Context) error {
 	var err error
 	switch req.Action {
 	case "add":
-		err = app.queries.AddSubscribersToLists(IDs, req.TargetListIDs)
+		err = app.store.AddSubscribersToLists(IDs, req.TargetListIDs)
 	case "remove":
-		err = app.queries.DeleteSubscriptions(IDs, req.TargetListIDs)
+		err = app.store.DeleteSubscriptions(IDs, req.TargetListIDs)
 	case "unsubscribe":
-		err = app.queries.UnsubscribeSubscribersFromLists(IDs, req.TargetListIDs)
+		err = app.store.UnsubscribeSubscribersFromLists(IDs, req.TargetListIDs)
 	default:
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("subscribers.invalidAction"))
 	}
@@ -447,7 +447,7 @@ func handleDeleteSubscribers(c echo.Context) error {
 		IDs = i
 	}
 
-	if err := app.queries.DeleteSubscribers(IDs, nil); err != nil {
+	if err := app.store.DeleteSubscribers(IDs, nil); err != nil {
 		app.log.Printf("error deleting subscribers: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			app.i18n.Ts("globals.messages.errorDeleting",
@@ -469,7 +469,7 @@ func handleDeleteSubscribersByQuery(c echo.Context) error {
 		return err
 	}
 
-	err := app.queries.DeleteSubscribersByQuery(req.Query, req.ListIDs)
+	err := app.store.DeleteSubscribersByQuery(req.Query, req.ListIDs)
 	if err != nil {
 		app.log.Printf("error deleting subscribers: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
@@ -492,7 +492,7 @@ func handleBlocklistSubscribersByQuery(c echo.Context) error {
 		return err
 	}
 
-	err := app.queries.BlocklistSubscribersByQuery(req.Query, req.ListIDs)
+	err := app.store.BlocklistSubscribersByQuery(req.Query, req.ListIDs)
 	if err != nil {
 		app.log.Printf("error blocklisting subscribers: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
@@ -522,11 +522,11 @@ func handleManageSubscriberListsByQuery(c echo.Context) error {
 	var err error
 	switch req.Action {
 	case "add":
-		err = app.queries.AddSubscribersToListsByQuery(req.Query, req.ListIDs, req.TargetListIDs)
+		err = app.store.AddSubscribersToListsByQuery(req.Query, req.ListIDs, req.TargetListIDs)
 	case "remove":
-		err = app.queries.DeleteSubscriptionsByQuery(req.Query, req.ListIDs)
+		err = app.store.DeleteSubscriptionsByQuery(req.Query, req.ListIDs)
 	case "unsubscribe":
-		err = app.queries.UnsubscribeSubscribersFromListsByQuery(req.Query, req.ListIDs, req.TargetListIDs)
+		err = app.store.UnsubscribeSubscribersFromListsByQuery(req.Query, req.ListIDs, req.TargetListIDs)
 	default:
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("subscribers.invalidAction"))
 	}
@@ -587,7 +587,7 @@ func insertSubscriber(req subimporter.SubReq, app *App) (models.Subscriber, bool
 		subStatus = models.SubscriptionStatusConfirmed
 	}
 
-	if err = app.queries.InsertSubscriber(&req.ID,
+	if err = app.store.InsertSubscriber(&req.ID,
 		req.UUID,
 		req.Email,
 		strings.TrimSpace(req.Name),
@@ -628,7 +628,7 @@ func insertSubscriber(req subimporter.SubReq, app *App) (models.Subscriber, bool
 func getSubscriber(id int, uuid, email string, app *App) (models.Subscriber, error) {
 	var out models.Subscribers
 
-	if err := app.queries.GetSubscriber(&out, id, uuid, email); err != nil {
+	if err := app.store.GetSubscriber(&out, id, uuid, email); err != nil {
 		app.log.Printf("error fetching subscriber: %v", err)
 		return models.Subscriber{}, echo.NewHTTPError(http.StatusInternalServerError,
 			app.i18n.Ts("globals.messages.errorFetching",
@@ -638,7 +638,7 @@ func getSubscriber(id int, uuid, email string, app *App) (models.Subscriber, err
 		return models.Subscriber{}, echo.NewHTTPError(http.StatusBadRequest,
 			app.i18n.Ts("globals.messages.notFound", "name", "{globals.terms.subscriber}"))
 	}
-	sl, err := app.queries.GetSubscriberListsLazy(out.GetIDs())
+	sl, err := app.store.GetSubscriberListsLazy(out.GetIDs())
 	if err != nil {
 		app.log.Printf("error loading subscriber lists: %v", err)
 		return models.Subscriber{}, echo.NewHTTPError(http.StatusInternalServerError,
@@ -670,7 +670,7 @@ func exportSubscriberData(id int64, subUUID string, exportables map[string]bool,
 	if subUUID != "" {
 		uu = subUUID
 	}
-	if err := app.queries.ExportSubscriberData(&data, id, uu); err != nil {
+	if err := app.store.ExportSubscriberData(&data, id, uu); err != nil {
 		app.log.Printf("error fetching subscriber export data: %v", err)
 		return data, nil, err
 	}
@@ -706,7 +706,7 @@ func sendOptinConfirmation(sub models.Subscriber, listIDs []int64, app *App) (in
 
 	// Fetch double opt-in lists from the given list IDs.
 	// Get the list of subscription lists where the subscriber hasn't confirmed.
-	if err := app.queries.GetSubscriberLists(&lists, sub.ID, "",
+	if err := app.store.GetSubscriberLists(&lists, sub.ID, "",
 		pq.Int64Array(listIDs), nil, models.SubscriptionStatusUnconfirmed, models.ListOptinDouble); err != nil {
 		app.log.Printf("error fetching lists for opt-in: %s", pqErrMsg(err))
 		return 0, err

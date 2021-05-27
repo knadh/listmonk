@@ -34,7 +34,7 @@ const (
 type App struct {
 	fs         stuffbin.FileSystem
 	db         *sqlx.DB
-	queries    *Queries
+	store      Store
 	constants  *constants
 	manager    *manager.Manager
 	importer   *subimporter.Importer
@@ -63,10 +63,10 @@ var (
 	lo     = log.New(io.MultiWriter(os.Stdout, bufLog), "",
 		log.Ldate|log.Ltime|log.Lshortfile)
 
-	ko      = koanf.New(".")
-	fs      stuffbin.FileSystem
-	db      *sqlx.DB
-	queries *Queries
+	ko    = koanf.New(".")
+	fs    stuffbin.FileSystem
+	db    *sqlx.DB
+	store Store
 
 	buildString   string
 	versionString string
@@ -158,9 +158,9 @@ func main() {
 	// Load i18n language map.
 	app.i18n = initI18n(app.constants.Lang, fs)
 
-	_, app.queries = initQueries(queryFilePath, db, fs, true)
-	app.manager = initCampaignManager(app.queries, app.constants, app)
-	app.importer = initImporter(app.queries, db, app)
+	_, app.store = initQueries(queryFilePath, db, fs, true)
+	app.manager = initCampaignManager(app.store, app.constants, app)
+	app.importer = initImporter(app.store, db, app)
 	app.notifTpls = initNotifTemplates("/email-templates/*.html", fs, app.i18n, app.constants)
 
 	// Initialize the default SMTP (`email`) messenger.

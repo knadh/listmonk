@@ -50,7 +50,7 @@ func handleGetLists(c echo.Context) error {
 		order = sortAsc
 	}
 
-	results, err := app.queries.QueryLists(listID, pg.Offset, pg.Limit, orderBy, order)
+	results, err := app.store.QueryLists(listID, pg.Offset, pg.Limit, orderBy, order)
 	if err != nil {
 		app.log.Printf("error fetching lists: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
@@ -110,7 +110,7 @@ func handleCreateList(c echo.Context) error {
 	// Insert and read ID.
 	var newID int
 	o.UUID = uu.String()
-	if err := app.queries.CreateList(&newID,
+	if err := app.store.CreateList(&newID,
 		o.UUID,
 		o.Name,
 		o.Type,
@@ -145,7 +145,7 @@ func handleUpdateList(c echo.Context) error {
 		return err
 	}
 
-	res, err := app.queries.UpdateList(id,
+	res, err := app.store.UpdateList(id,
 		o.Name, o.Type, o.Optin, pq.StringArray(normalizeTags(o.Tags)))
 	if err != nil {
 		app.log.Printf("error updating list: %v", err)
@@ -179,7 +179,7 @@ func handleDeleteLists(c echo.Context) error {
 		ids = append(ids, id)
 	}
 
-	if err := app.queries.DeleteLists(ids); err != nil {
+	if err := app.store.DeleteLists(ids); err != nil {
 		app.log.Printf("error deleting lists: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			app.i18n.Ts("globals.messages.errorDeleting",

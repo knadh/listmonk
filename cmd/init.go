@@ -283,7 +283,7 @@ func initI18n(lang string, fs stuffbin.FileSystem) *i18n.I18n {
 }
 
 // initCampaignManager initializes the campaign manager.
-func initCampaignManager(q *Queries, cs *constants, app *App) *manager.Manager {
+func initCampaignManager(s Store, cs *constants, app *App) *manager.Manager {
 	campNotifCB := func(subject string, data interface{}) error {
 		return app.sendNotification(cs.NotifyEmails, subject, notifTplCampaign, data)
 	}
@@ -311,15 +311,15 @@ func initCampaignManager(q *Queries, cs *constants, app *App) *manager.Manager {
 		SlidingWindow:         ko.Bool("app.message_sliding_window"),
 		SlidingWindowDuration: ko.Duration("app.message_sliding_window_duration"),
 		SlidingWindowRate:     ko.Int("app.message_sliding_window_rate"),
-	}, newManagerDB(q), campNotifCB, app.i18n, lo)
+	}, newManagerDB(s), campNotifCB, app.i18n, lo)
 
 }
 
 // initImporter initializes the bulk subscriber importer.
-func initImporter(q *Queries, db *sqlx.DB, app *App) *subimporter.Importer {
+func initImporter(s Store, db *sqlx.DB, app *App) *subimporter.Importer {
 	return subimporter.New(
 		subimporter.Options{
-			Store: q,
+			Store: s,
 			NotifCB: func(subject string, data interface{}) error {
 				app.sendNotification(app.constants.NotifyEmails, subject, notifTplImport, data)
 				return nil
