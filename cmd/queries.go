@@ -262,13 +262,11 @@ func (q *Queries) CreateCampaign(
 }
 
 func (q *Queries) GetCampaign(campaign *models.Campaign, id int, uuid *string) error {
-	_, err := q.GetCampaignStmt.Exec(campaign, id, uuid)
-	return err
+	return q.GetCampaignStmt.Get(campaign, id, uuid)
 }
 
 func (q *Queries) GetCampaignForPreview(campaign *models.Campaign, id int) error {
-	_, err := q.GetCampaignForPreviewStmt.Exec(campaign, id)
-	return err
+	return q.GetCampaignForPreviewStmt.Get(campaign, id)
 }
 
 func (q *Queries) GetCampaignStatus(stats interface{}, status string) error {
@@ -524,7 +522,7 @@ func (q *Queries) QuerySubscribersForExport(
 
 	for id := 0; ; {
 		var out []models.SubscriberExport
-		if err := stmt.Select(&out, listIDs, id, nil, batchSize); err != nil {
+		if err := stmt.Select(&out, listIDs, id, batchSize); err != nil {
 			return err
 		}
 		if len(out) == 0 {

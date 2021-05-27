@@ -127,7 +127,7 @@ func handleQuerySubscribers(c echo.Context) error {
 		order = sortAsc
 	}
 
-	results, err := app.store.QuerySubscribers(listIDs, query, order, order, pg.Offset, pg.Limit)
+	results, err := app.store.QuerySubscribers(listIDs, query, orderBy, order, pg.Offset, pg.Limit)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			app.i18n.Ts("globals.messages.errorFetching",
@@ -195,12 +195,11 @@ func handleExportSubscribers(c echo.Context) error {
 	h.Set("Cache-Control", "no-cache")
 	wr.Write([]string{"uuid", "email", "name", "attributes", "status", "created_at", "updated_at"})
 
-	return app.store.QuerySubscribersForExport(query, listIDs, app.constants.DBBatchSize, func(out []models.SubscriberExport) error {
+	err := app.store.QuerySubscribersForExport(query, listIDs, app.constants.DBBatchSize, func(out []models.SubscriberExport) error {
 		for _, r := range out {
 			if err := wr.Write(
 				[]string{r.UUID, r.Email, r.Name, r.Attribs, r.Status, r.CreatedAt.Time.String(), r.UpdatedAt.Time.String()},
 			); err != nil {
-				app.log.Printf("error streaming CSV export: %v", err)
 				return err
 			}
 		}
@@ -208,6 +207,11 @@ func handleExportSubscribers(c echo.Context) error {
 
 		return nil
 	})
+	if err != nil {
+		app.log.Printf("error streaming CSV export: %v", err)
+		return err
+	}
+	return nil
 }
 
 // handleCreateSubscriber handles the creation of a new subscriber.
