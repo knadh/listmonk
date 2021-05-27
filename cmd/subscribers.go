@@ -1,8 +1,6 @@
 package main
 
 import (
-	"context"
-	"database/sql"
 	"encoding/csv"
 	"encoding/json"
 	"errors"
@@ -184,41 +182,8 @@ func handleExportSubscribers(c echo.Context) error {
 		listIDs = append(listIDs, int64(listID))
 	}
 
-	// There's an arbitrary query condition.
-	cond := ""
-	if query != "" {
-		cond = " AND " + query
-	}
-
-	stmt := fmt.Sprintf(app.queries.QuerySubscribersForExport, cond)
-
-	// Verify that the arbitrary SQL search expression is read only.
-	if cond != "" {
-		tx, err := app.db.Unsafe().BeginTxx(context.Background(), &sql.TxOptions{ReadOnly: true})
-		if err != nil {
-			app.log.Printf("error preparing subscriber query: %v", err)
-			return echo.NewHTTPError(http.StatusBadRequest,
-				app.i18n.Ts("subscribers.errorPreparingQuery", "error", pqErrMsg(err)))
-		}
-		defer tx.Rollback()
-
-		if _, err := tx.Query(stmt, nil, 0, 1); err != nil {
-			return echo.NewHTTPError(http.StatusBadRequest,
-				app.i18n.Ts("subscribers.errorPreparingQuery", "error", pqErrMsg(err)))
-		}
-	}
-
-	// Prepare the actual query statement.
-	tx, err := db.Preparex(stmt)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest,
-			app.i18n.Ts("subscribers.errorPreparingQuery", "error", pqErrMsg(err)))
-	}
-
 	// Run the query until all rows are exhausted.
 	var (
-		id = 0
-
 		h  = c.Response().Header()
 		wr = csv.NewWriter(c.Response())
 	)
@@ -230,31 +195,19 @@ func handleExportSubscribers(c echo.Context) error {
 	h.Set("Cache-Control", "no-cache")
 	wr.Write([]string{"uuid", "email", "name", "attributes", "status", "created_at", "updated_at"})
 
-loop:
-	for {
-		var out []models.SubscriberExport
-		if err := tx.Select(&out, listIDs, id, app.constants.DBBatchSize); err != nil {
-			return echo.NewHTTPError(http.StatusInternalServerError,
-				app.i18n.Ts("globals.messages.errorFetching",
-					"name", "{globals.terms.subscribers}", "error", pqErrMsg(err)))
-		}
-		if len(out) == 0 {
-			break loop
-		}
-
+	return app.queries.QuerySubscribersForExport(query, listIDs, app.constants.DBBatchSize, func(out []models.SubscriberExport) error {
 		for _, r := range out {
-			if err = wr.Write([]string{r.UUID, r.Email, r.Name, r.Attribs, r.Status,
-				r.CreatedAt.Time.String(), r.UpdatedAt.Time.String()}); err != nil {
+			if err := wr.Write(
+				[]string{r.UUID, r.Email, r.Name, r.Attribs, r.Status, r.CreatedAt.Time.String(), r.UpdatedAt.Time.String()},
+			); err != nil {
 				app.log.Printf("error streaming CSV export: %v", err)
-				break loop
+				return err
 			}
 		}
 		wr.Flush()
 
-		id = out[len(out)-1].ID
-	}
-
-	return nil
+		return nil
+	})
 }
 
 // handleCreateSubscriber handles the creation of a new subscriber.

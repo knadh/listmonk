@@ -44,7 +44,7 @@ type Queries struct {
 
 	// Non-prepared arbitrary subscriber queries.
 	querySubscribers                       string `query:"query-subscribers"`
-	QuerySubscribersForExport              string `query:"query-subscribers-for-export"`
+	querySubscribersForExport              string `query:"query-subscribers-for-export"`
 	QuerySubscribersTpl                    string `query:"query-subscribers-template"`
 	DeleteSubscribersByQuery               string `query:"delete-subscribers-by-query"`
 	AddSubscribersToListsByQuery           string `query:"add-subscribers-to-lists-by-query"`
@@ -486,6 +486,58 @@ func (q *Queries) QuerySubscribers(listIDs pq.Int64Array, query, orderBy, order 
 	}
 
 	return results, nil
+}
+
+func (q *Queries) QuerySubscribersForExport(
+	query string,
+	listIDs pq.Int64Array,
+	batchSize int,
+	onFetch func([]models.SubscriberExport) error,
+) error {
+	// There's an arbitrary query condition.
+	cond := ""
+	if query != "" {
+		cond = " AND " + query
+	}
+
+	sqlStr := fmt.Sprintf(q.querySubscribersForExport, cond)
+
+	// Verify that the arbitrary SQL search expression is read only.
+	if cond != "" {
+		tx, err := q.db.Unsafe().BeginTxx(context.Background(), &sql.TxOptions{ReadOnly: true})
+		if err != nil {
+			return err
+		}
+		defer tx.Rollback()
+
+		if _, err := tx.Query(sqlStr, nil, 0, 1); err != nil {
+			return err
+		}
+	}
+
+	// Prepare the actual query statement.
+	stmt, err := q.db.Preparex(sqlStr)
+	if err != nil {
+		return err
+	}
+
+	for id := 0; ; {
+		var out []models.SubscriberExport
+		if err := stmt.Select(&out, listIDs, id, nil, batchSize); err != nil {
+			return err
+		}
+		if len(out) == 0 {
+			break
+		}
+
+		if err := onFetch(out); err != nil {
+			return err
+		}
+
+		id = out[len(out)-1].ID
+	}
+
+	return nil
 }
 
 // dbConf contains database config required for connecting to a DB.
