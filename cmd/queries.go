@@ -21,85 +21,85 @@ import (
 type Queries struct {
 	db *sqlx.DB
 
-	getDashboardCharts *sqlx.Stmt `query:"get-dashboard-charts"`
-	getDashboardCounts *sqlx.Stmt `query:"get-dashboard-counts"`
+	GetDashboardChartsStmt *sqlx.Stmt `query:"get-dashboard-charts"`
+	GetDashboardCountsStmt *sqlx.Stmt `query:"get-dashboard-counts"`
 
-	insertSubscriber                *sqlx.Stmt `query:"insert-subscriber"`
-	upsertSubscriber                *sqlx.Stmt `query:"upsert-subscriber"`
-	upsertBlocklistSubscriber       *sqlx.Stmt `query:"upsert-blocklist-subscriber"`
-	getSubscriber                   *sqlx.Stmt `query:"get-subscriber"`
-	getSubscribersByEmails          *sqlx.Stmt `query:"get-subscribers-by-emails"`
-	getSubscriberLists              *sqlx.Stmt `query:"get-subscriber-lists"`
-	getSubscriberListsLazy          *sqlx.Stmt `query:"get-subscriber-lists-lazy"`
-	subscriberExists                *sqlx.Stmt `query:"subscriber-exists"`
-	updateSubscriber                *sqlx.Stmt `query:"update-subscriber"`
-	blocklistSubscribers            *sqlx.Stmt `query:"blocklist-subscribers"`
-	addSubscribersToLists           *sqlx.Stmt `query:"add-subscribers-to-lists"`
-	deleteSubscriptions             *sqlx.Stmt `query:"delete-subscriptions"`
-	confirmSubscriptionOptin        *sqlx.Stmt `query:"confirm-subscription-optin"`
-	unsubscribeSubscribersFromLists *sqlx.Stmt `query:"unsubscribe-subscribers-from-lists"`
-	deleteSubscribers               *sqlx.Stmt `query:"delete-subscribers"`
-	unsubscribe                     *sqlx.Stmt `query:"unsubscribe"`
-	exportSubscriberData            *sqlx.Stmt `query:"export-subscriber-data"`
+	InsertSubscriberStmt                *sqlx.Stmt `query:"insert-subscriber"`
+	UpsertSubscriberStmt                *sqlx.Stmt `query:"upsert-subscriber"`
+	UpsertBlocklistSubscriberStmt       *sqlx.Stmt `query:"upsert-blocklist-subscriber"`
+	GetSubscriberStmt                   *sqlx.Stmt `query:"get-subscriber"`
+	GetSubscribersByEmailsStmt          *sqlx.Stmt `query:"get-subscribers-by-emails"`
+	GetSubscriberListsStmt              *sqlx.Stmt `query:"get-subscriber-lists"`
+	GetSubscriberListsLazyStmt          *sqlx.Stmt `query:"get-subscriber-lists-lazy"`
+	SubscriberExistsStmt                *sqlx.Stmt `query:"subscriber-exists"`
+	UpdateSubscriberStmt                *sqlx.Stmt `query:"update-subscriber"`
+	BlocklistSubscribersStmt            *sqlx.Stmt `query:"blocklist-subscribers"`
+	AddSubscribersToListsStmt           *sqlx.Stmt `query:"add-subscribers-to-lists"`
+	DeleteSubscriptionsStmt             *sqlx.Stmt `query:"delete-subscriptions"`
+	ConfirmSubscriptionOptinStmt        *sqlx.Stmt `query:"confirm-subscription-optin"`
+	UnsubscribeSubscribersFromListsStmt *sqlx.Stmt `query:"unsubscribe-subscribers-from-lists"`
+	DeleteSubscribersStmt               *sqlx.Stmt `query:"delete-subscribers"`
+	UnsubscribeStmt                     *sqlx.Stmt `query:"unsubscribe"`
+	ExportSubscriberDataStmt            *sqlx.Stmt `query:"export-subscriber-data"`
 
 	// Non-prepared arbitrary subscriber queries.
-	querySubscribers                       string `query:"query-subscribers"`
-	querySubscribersForExport              string `query:"query-subscribers-for-export"`
-	querySubscribersTpl                    string `query:"query-subscribers-template"`
-	deleteSubscribersByQuery               string `query:"delete-subscribers-by-query"`
-	addSubscribersToListsByQuery           string `query:"add-subscribers-to-lists-by-query"`
-	blocklistSubscribersByQuery            string `query:"blocklist-subscribers-by-query"`
-	deleteSubscriptionsByQuery             string `query:"delete-subscriptions-by-query"`
-	unsubscribeSubscribersFromListsByQuery string `query:"unsubscribe-subscribers-from-lists-by-query"`
+	QuerySubscribersStmt                       string `query:"query-subscribers"`
+	QuerySubscribersForExportStmt              string `query:"query-subscribers-for-export"`
+	QuerySubscribersTplStmt                    string `query:"query-subscribers-template"`
+	DeleteSubscribersByQueryStmt               string `query:"delete-subscribers-by-query"`
+	AddSubscribersToListsByQueryStmt           string `query:"add-subscribers-to-lists-by-query"`
+	BlocklistSubscribersByQueryStmt            string `query:"blocklist-subscribers-by-query"`
+	DeleteSubscriptionsByQueryStmt             string `query:"delete-subscriptions-by-query"`
+	UnsubscribeSubscribersFromListsByQueryStmt string `query:"unsubscribe-subscribers-from-lists-by-query"`
 
-	createList      *sqlx.Stmt `query:"create-list"`
-	queryLists      string     `query:"query-lists"`
-	getLists        *sqlx.Stmt `query:"get-lists"`
-	getListsByOptin *sqlx.Stmt `query:"get-lists-by-optin"`
-	updateList      *sqlx.Stmt `query:"update-list"`
-	updateListsDate *sqlx.Stmt `query:"update-lists-date"`
-	deleteLists     *sqlx.Stmt `query:"delete-lists"`
+	CreateListStmt      *sqlx.Stmt `query:"create-list"`
+	QueryListsStmt      string     `query:"query-lists"`
+	GetListsStmt        *sqlx.Stmt `query:"get-lists"`
+	GetListsByOptinStmt *sqlx.Stmt `query:"get-lists-by-optin"`
+	UpdateListStmt      *sqlx.Stmt `query:"update-list"`
+	UpdateListsDateStmt *sqlx.Stmt `query:"update-lists-date"`
+	DeleteListsStmt     *sqlx.Stmt `query:"delete-lists"`
 
-	createCampaign           *sqlx.Stmt `query:"create-campaign"`
-	queryCampaigns           string     `query:"query-campaigns"`
-	getCampaign              *sqlx.Stmt `query:"get-campaign"`
-	getCampaignForPreview    *sqlx.Stmt `query:"get-campaign-for-preview"`
-	getCampaignStats         *sqlx.Stmt `query:"get-campaign-stats"`
-	getCampaignStatus        *sqlx.Stmt `query:"get-campaign-status"`
-	nextCampaigns            *sqlx.Stmt `query:"next-campaigns"`
-	nextCampaignSubscribers  *sqlx.Stmt `query:"next-campaign-subscribers"`
-	getOneCampaignSubscriber *sqlx.Stmt `query:"get-one-campaign-subscriber"`
-	updateCampaign           *sqlx.Stmt `query:"update-campaign"`
-	updateCampaignStatus     *sqlx.Stmt `query:"update-campaign-status"`
-	updateCampaignCounts     *sqlx.Stmt `query:"update-campaign-counts"`
-	registerCampaignView     *sqlx.Stmt `query:"register-campaign-view"`
-	deleteCampaign           *sqlx.Stmt `query:"delete-campaign"`
+	CreateCampaignStmt           *sqlx.Stmt `query:"create-campaign"`
+	QueryCampaignsStmt           string     `query:"query-campaigns"`
+	GetCampaignStmt              *sqlx.Stmt `query:"get-campaign"`
+	GetCampaignForPreviewStmt    *sqlx.Stmt `query:"get-campaign-for-preview"`
+	GetCampaignStatsStmt         *sqlx.Stmt `query:"get-campaign-stats"`
+	GetCampaignStatusStmt        *sqlx.Stmt `query:"get-campaign-status"`
+	NextCampaignsStmt            *sqlx.Stmt `query:"next-campaigns"`
+	NextCampaignSubscribersStmt  *sqlx.Stmt `query:"next-campaign-subscribers"`
+	GetOneCampaignSubscriberStmt *sqlx.Stmt `query:"get-one-campaign-subscriber"`
+	UpdateCampaignStmt           *sqlx.Stmt `query:"update-campaign"`
+	UpdateCampaignStatusStmt     *sqlx.Stmt `query:"update-campaign-status"`
+	UpdateCampaignCountsStmt     *sqlx.Stmt `query:"update-campaign-counts"`
+	RegisterCampaignViewStmt     *sqlx.Stmt `query:"register-campaign-view"`
+	DeleteCampaignStmt           *sqlx.Stmt `query:"delete-campaign"`
 
-	insertMedia *sqlx.Stmt `query:"insert-media"`
-	getMedia    *sqlx.Stmt `query:"get-media"`
-	deleteMedia *sqlx.Stmt `query:"delete-media"`
+	InsertMediaStmt *sqlx.Stmt `query:"insert-media"`
+	GetMediaStmt    *sqlx.Stmt `query:"get-media"`
+	DeleteMediaStmt *sqlx.Stmt `query:"delete-media"`
 
-	createTemplate     *sqlx.Stmt `query:"create-template"`
-	getTemplates       *sqlx.Stmt `query:"get-templates"`
-	updateTemplate     *sqlx.Stmt `query:"update-template"`
-	setDefaultTemplate *sqlx.Stmt `query:"set-default-template"`
-	deleteTemplate     *sqlx.Stmt `query:"delete-template"`
+	CreateTemplateStmt     *sqlx.Stmt `query:"create-template"`
+	GetTemplatesStmt       *sqlx.Stmt `query:"get-templates"`
+	UpdateTemplateStmt     *sqlx.Stmt `query:"update-template"`
+	SetDefaultTemplateStmt *sqlx.Stmt `query:"set-default-template"`
+	DeleteTemplateStmt     *sqlx.Stmt `query:"delete-template"`
 
-	createLink        *sqlx.Stmt `query:"create-link"`
-	registerLinkClick *sqlx.Stmt `query:"register-link-click"`
+	CreateLinkStmt        *sqlx.Stmt `query:"create-link"`
+	RegisterLinkClickStmt *sqlx.Stmt `query:"register-link-click"`
 
-	getSettings    *sqlx.Stmt `query:"get-settings"`
-	updateSettings *sqlx.Stmt `query:"update-settings"`
+	GetSettingsStmt    *sqlx.Stmt `query:"get-settings"`
+	UpdateSettingsStmt *sqlx.Stmt `query:"update-settings"`
 
 	// GetStats *sqlx.Stmt `query:"get-stats"`
 }
 
 func (q *Queries) GetDashboardCharts(c *types.JSONText) error {
-	return q.getDashboardCharts.Get(c)
+	return q.GetDashboardChartsStmt.Get(c)
 }
 
 func (q *Queries) GetDashboardCounts(c *types.JSONText) error {
-	return q.getDashboardCounts.Get(c)
+	return q.GetDashboardCountsStmt.Get(c)
 }
 
 func (q *Queries) InsertSubscriber(
@@ -110,15 +110,15 @@ func (q *Queries) InsertSubscriber(
 	listUUIDs pq.StringArray,
 	subStatus string,
 ) error {
-	return q.insertSubscriber.Get(&id, uuid, email, name, status, attribs, lists, listUUIDs, subStatus)
+	return q.InsertSubscriberStmt.Get(&id, uuid, email, name, status, attribs, lists, listUUIDs, subStatus)
 }
 
 func (q *Queries) GetSubscriber(s *models.Subscribers, id int, uuid, email string) error {
-	return q.getSubscriber.Select(s, id, uuid, email)
+	return q.GetSubscriberStmt.Select(s, id, uuid, email)
 }
 
 func (q *Queries) GetSubscribersByEmails(s *models.Subscribers, emails pq.StringArray) error {
-	return q.getSubscribersByEmails.Select(s, emails)
+	return q.GetSubscribersByEmailsStmt.Select(s, emails)
 }
 
 func (q *Queries) GetSubscriberLists(
@@ -128,14 +128,14 @@ func (q *Queries) GetSubscriberLists(
 	listUUIDs pq.StringArray,
 	subStatus, optin string,
 ) error {
-	return q.getSubscriberLists.Select(lists, id, uuid, listIDs, listUUIDs, subStatus, optin)
+	return q.GetSubscriberListsStmt.Select(lists, id, uuid, listIDs, listUUIDs, subStatus, optin)
 }
 
 func (q *Queries) SubscriberExists(
 	exists *bool,
 	id int, uuid string,
 ) error {
-	return q.subscriberExists.Select(exists, id, uuid)
+	return q.SubscriberExistsStmt.Select(exists, id, uuid)
 }
 
 func (q *Queries) UpdateSubscriber(
@@ -144,49 +144,49 @@ func (q *Queries) UpdateSubscriber(
 	attribs json.RawMessage,
 	lists pq.Int64Array,
 ) error {
-	_, err := q.updateSubscriber.Exec(id, email, name, status, attribs, lists)
+	_, err := q.UpdateSubscriberStmt.Exec(id, email, name, status, attribs, lists)
 	return err
 }
 
 func (q *Queries) BlocklistSubscribers(
 	list pq.Int64Array,
 ) error {
-	_, err := q.blocklistSubscribers.Exec(list)
+	_, err := q.BlocklistSubscribersStmt.Exec(list)
 	return err
 }
 
 func (q *Queries) AddSubscribersToLists(
 	subscribers, lists pq.Int64Array,
 ) error {
-	_, err := q.blocklistSubscribers.Exec(subscribers, lists)
+	_, err := q.BlocklistSubscribersStmt.Exec(subscribers, lists)
 	return err
 }
 
 func (q *Queries) DeleteSubscriptions(
 	subscribers, lists pq.Int64Array,
 ) error {
-	_, err := q.deleteSubscriptions.Exec(subscribers, lists)
+	_, err := q.DeleteSubscriptionsStmt.Exec(subscribers, lists)
 	return err
 }
 
 func (q *Queries) UnsubscribeSubscribersFromLists(
 	subscribers, lists pq.Int64Array,
 ) error {
-	_, err := q.unsubscribeSubscribersFromLists.Exec(subscribers, lists)
+	_, err := q.UnsubscribeSubscribersFromListsStmt.Exec(subscribers, lists)
 	return err
 }
 
 func (q *Queries) ConfirmSubscriptionOptin(
 	subUUID string, listUUIDs pq.StringArray,
 ) error {
-	_, err := q.confirmSubscriptionOptin.Exec(subUUID, listUUIDs)
+	_, err := q.ConfirmSubscriptionOptinStmt.Exec(subUUID, listUUIDs)
 	return err
 }
 
 func (q *Queries) DeleteSubscribers(
 	subIDs pq.Int64Array, subUUIDs pq.StringArray,
 ) error {
-	_, err := q.deleteSubscribers.Exec(subIDs, subUUIDs)
+	_, err := q.DeleteSubscribersStmt.Exec(subIDs, subUUIDs)
 	return err
 }
 
@@ -194,7 +194,7 @@ func (q *Queries) Unsubscribe(
 	campaignUUID, subUUID string,
 	blocklist bool,
 ) error {
-	_, err := q.unsubscribe.Exec(campaignUUID, subUUID, blocklist)
+	_, err := q.UnsubscribeStmt.Exec(campaignUUID, subUUID, blocklist)
 	return err
 }
 
@@ -203,7 +203,7 @@ func (q *Queries) ExportSubscriberData(
 	id int64,
 	uuidOrNil interface{},
 ) error {
-	return q.exportSubscriberData.Get(data, id, uuidOrNil)
+	return q.ExportSubscriberDataStmt.Get(data, id, uuidOrNil)
 }
 
 func (q *Queries) CreateList(
@@ -212,14 +212,14 @@ func (q *Queries) CreateList(
 	name, listType, optin string,
 	tags pq.StringArray,
 ) error {
-	return q.exportSubscriberData.Get(list, uuid, name, listType, optin, tags)
+	return q.CreateListStmt.Get(list, uuid, name, listType, optin, tags)
 }
 
 func (q *Queries) GetLists(
 	lists *[]models.List,
 	listType string,
 ) error {
-	return q.getLists.Select(lists, listType)
+	return q.GetListsStmt.Select(lists, listType)
 }
 
 func (q *Queries) GetListsByOptin(
@@ -228,7 +228,7 @@ func (q *Queries) GetListsByOptin(
 	listIDs pq.Int64Array,
 	listUUIDs pq.StringArray,
 ) error {
-	return q.getListsByOptin.Select(lists, optin, listIDs, listUUIDs)
+	return q.GetListsByOptinStmt.Select(lists, optin, listIDs, listUUIDs)
 }
 
 func (q *Queries) UpdateList(
@@ -236,16 +236,16 @@ func (q *Queries) UpdateList(
 	name, listType, optin string,
 	tags pq.StringArray,
 ) (sql.Result, error) {
-	return q.updateList.Exec(id, name, listType, optin, tags)
+	return q.UpdateListStmt.Exec(id, name, listType, optin, tags)
 }
 
 func (q *Queries) DeleteLists(ids pq.Int64Array) error {
-	_, err := q.deleteLists.Exec(ids)
+	_, err := q.DeleteListsStmt.Exec(ids)
 	return err
 }
 
 func (q *Queries) CreateCampaign(
-	id *int,
+	newID *int,
 	uuid uuid.UUID,
 	campaignType, name, subject, fromEmail, body string,
 	altBody null.String,
@@ -256,30 +256,29 @@ func (q *Queries) CreateCampaign(
 	templateID int,
 	listIDs pq.Int64Array,
 ) error {
-	_, err := q.createCampaign.Exec(id, uuid, campaignType, name, subject, fromEmail, body, altBody, contentType, sendAt, tags, messenger, templateID, listIDs)
-	return err
+	return q.CreateCampaignStmt.Get(newID, uuid, campaignType, name, subject, fromEmail, body, altBody, contentType, sendAt, tags, messenger, templateID, listIDs)
 }
 
 func (q *Queries) GetCampaign(campaign *models.Campaign, id int, uuid *string) error {
-	_, err := q.getCampaign.Exec(campaign, id, uuid)
+	_, err := q.GetCampaignStmt.Exec(campaign, id, uuid)
 	return err
 }
 
 func (q *Queries) GetCampaignForPreview(campaign *models.Campaign, id int) error {
-	_, err := q.getCampaignForPreview.Exec(campaign, id)
+	_, err := q.GetCampaignForPreviewStmt.Exec(campaign, id)
 	return err
 }
 
 func (q *Queries) GetCampaignStatus(stats interface{}, status string) error {
-	return q.getCampaignStatus.Select(stats, status)
+	return q.GetCampaignStatusStmt.Select(stats, status)
 }
 
 func (q *Queries) NextCampaigns(c *[]*models.Campaign, excludeIDs pq.Int64Array) error {
-	return q.nextCampaigns.Select(c, excludeIDs)
+	return q.NextCampaignsStmt.Select(c, excludeIDs)
 }
 
 func (q *Queries) NextCampaignSubscribers(subs *[]models.Subscriber, campID, limit int) error {
-	return q.nextCampaignSubscribers.Select(subs, campID, limit)
+	return q.NextCampaignSubscribersStmt.Select(subs, campID, limit)
 }
 
 func (q *Queries) UpdateCampaign(
@@ -294,7 +293,7 @@ func (q *Queries) UpdateCampaign(
 	templateID int,
 	listIDs pq.Int64Array,
 ) error {
-	_, err := q.updateCampaign.Exec(id, name, subject, fromEmail, body, altBody, contentType, sendAt, sendLater, tags, messenger, templateID, listIDs)
+	_, err := q.UpdateCampaignStmt.Exec(id, name, subject, fromEmail, body, altBody, contentType, sendAt, sendLater, tags, messenger, templateID, listIDs)
 	return err
 }
 
@@ -302,69 +301,69 @@ func (q *Queries) UpdateCampaignStatus(
 	id int,
 	status string,
 ) (sql.Result, error) {
-	return q.updateCampaignStatus.Exec(id, status)
+	return q.UpdateCampaignStatusStmt.Exec(id, status)
 }
 
 func (q *Queries) RegisterCampaignView(campUUID, subUUID string) error {
-	_, err := q.registerCampaignView.Exec(campUUID, subUUID)
+	_, err := q.RegisterCampaignViewStmt.Exec(campUUID, subUUID)
 	return err
 }
 
 func (q *Queries) DeleteCampaign(id int) error {
-	_, err := q.deleteCampaign.Exec(id)
+	_, err := q.DeleteCampaignStmt.Exec(id)
 	return err
 }
 
 func (q *Queries) InsertMedia(id uuid.UUID, filename, thumbnailFilename, mediaProvider string) error {
-	_, err := q.insertMedia.Exec(id, filename, thumbnailFilename, mediaProvider)
+	_, err := q.InsertMediaStmt.Exec(id, filename, thumbnailFilename, mediaProvider)
 	return err
 }
 
 func (q *Queries) GetMedia(media *[]media.Media, provider string) error {
-	return q.getMedia.Select(media, provider)
+	return q.GetMediaStmt.Select(media, provider)
 }
 
 func (q *Queries) DeleteMedia(media *media.Media, id int) error {
-	return q.deleteMedia.Get(media, id)
+	return q.DeleteMediaStmt.Get(media, id)
 }
 
 func (q *Queries) CreateTemplate(id *int, name, body string) error {
-	return q.createTemplate.Get(id, name, body)
+	return q.CreateTemplateStmt.Get(id, name, body)
 }
 
 func (q *Queries) GetTemplates(out *[]models.Template, id int, noBody bool) error {
-	return q.getTemplates.Select(out, id, noBody)
+	return q.GetTemplatesStmt.Select(out, id, noBody)
 }
 
 func (q *Queries) UpdateTemplate(id int, name, body string) (sql.Result, error) {
-	return q.updateTemplate.Exec(id, name, body)
+	return q.UpdateTemplateStmt.Exec(id, name, body)
 }
 
 func (q *Queries) SetDefaultTemplate(id int) error {
-	_, err := q.setDefaultTemplate.Exec(id)
+	_, err := q.SetDefaultTemplateStmt.Exec(id)
 	return err
 }
 
 func (q *Queries) DeleteTemplate(delID *int, id int) error {
-	_, err := q.deleteTemplate.Exec(delID, id)
+	_, err := q.DeleteTemplateStmt.Exec(delID, id)
 	return err
 }
 
 func (q *Queries) CreateLink(out *string, id uuid.UUID, url string) error {
-	return q.createLink.Get(out, id, url)
+	return q.CreateLinkStmt.Get(out, id, url)
 }
 
 func (q *Queries) RegisterLinkClick(url *string, linkUUID, campUUID, subUUID string) error {
-	return q.registerLinkClick.Get(url, linkUUID, campUUID, subUUID)
+	return q.RegisterLinkClickStmt.Get(url, linkUUID, campUUID, subUUID)
 }
 
 func (q *Queries) UpdateSettings(settings []byte) error {
-	_, err := q.updateSettings.Exec(settings)
+	_, err := q.UpdateSettingsStmt.Exec(settings)
 	return err
 }
 
 func (q *Queries) QueryLists(listID, offset, limit int, orderBy, order string) ([]models.List, error) {
-	query := fmt.Sprintf(q.queryLists, orderBy, order)
+	query := fmt.Sprintf(q.QueryListsStmt, orderBy, order)
 
 	var results []models.List
 	if err := db.Select(&results, query, listID, offset, limit); err != nil {
@@ -375,7 +374,7 @@ func (q *Queries) QueryLists(listID, offset, limit int, orderBy, order string) (
 }
 
 func (q *Queries) QueryCampaigns(id, offset, limit int, status []string, query, orderBy, order string) ([]models.Campaign, error) {
-	stmt := fmt.Sprintf(q.queryCampaigns, orderBy, order)
+	stmt := fmt.Sprintf(q.QueryCampaignsStmt, orderBy, order)
 
 	var results []models.Campaign
 	if err := db.Select(&results, stmt, id, pq.StringArray(status), query, offset, limit); err != nil {
@@ -393,11 +392,11 @@ func (q *Queries) UpsertSubscriber(
 	overwrite bool,
 	tx *sql.Tx,
 ) error {
-	stmt := q.upsertSubscriber.Stmt
+	stmt := q.UpsertSubscriberStmt.Stmt
 	if tx != nil {
 		stmt = tx.Stmt(stmt)
 	}
-	_, err := q.upsertSubscriber.Exec(uuid, email, name, attribs, listIDs, overwrite)
+	_, err := q.UpsertSubscriberStmt.Exec(uuid, email, name, attribs, listIDs, overwrite)
 	return err
 }
 
@@ -407,7 +406,7 @@ func (q *Queries) UpsertBlocklistSubscriber(
 	attribs models.SubscriberAttribs,
 	tx *sql.Tx,
 ) error {
-	stmt := q.upsertBlocklistSubscriber.Stmt
+	stmt := q.UpsertBlocklistSubscriberStmt.Stmt
 	if tx != nil {
 		stmt = tx.Stmt(stmt)
 	}
@@ -416,7 +415,7 @@ func (q *Queries) UpsertBlocklistSubscriber(
 }
 
 func (q *Queries) UpdateListsDate(listIDs pq.Int64Array, tx *sql.Tx) error {
-	stmt := q.updateListsDate.Stmt
+	stmt := q.UpdateListsDateStmt.Stmt
 	if tx != nil {
 		stmt = tx.Stmt(stmt)
 	}
@@ -426,7 +425,7 @@ func (q *Queries) UpdateListsDate(listIDs pq.Int64Array, tx *sql.Tx) error {
 
 func (q *Queries) GetCampaignStats(campaignIDs []int) ([]models.CampaignMeta, error) {
 	var meta []models.CampaignMeta
-	if err := q.getCampaignStats.Select(&meta, pq.Array(campaignIDs)); err != nil {
+	if err := q.GetCampaignStatsStmt.Select(&meta, pq.Array(campaignIDs)); err != nil {
 		return meta, err
 	}
 
@@ -439,7 +438,7 @@ func (q *Queries) GetCampaignStats(campaignIDs []int) ([]models.CampaignMeta, er
 
 func (q *Queries) GetSettings() (json.RawMessage, error) {
 	var s types.JSONText
-	if err := q.getSettings.Get(&s); err != nil {
+	if err := q.GetSettingsStmt.Get(&s); err != nil {
 		return nil, fmt.Errorf("error reading settings from DB: %s", pqErrMsg(err))
 	}
 	return json.RawMessage(s), nil
@@ -452,7 +451,7 @@ type SubscriberLists struct {
 
 func (q *Queries) GetSubscriberListsLazy(subscriberIDs []int) ([]SubscriberLists, error) {
 	var sl []SubscriberLists
-	if err := q.getSubscriberListsLazy.Select(&sl, pq.Array(subscriberIDs)); err != nil {
+	if err := q.GetSubscriberListsLazyStmt.Select(&sl, pq.Array(subscriberIDs)); err != nil {
 		return sl, err
 	}
 
@@ -477,7 +476,7 @@ func (q *Queries) QuerySubscribers(listIDs pq.Int64Array, query, orderBy, order 
 		cond = " AND " + query
 	}
 
-	stmt := fmt.Sprintf(q.querySubscribers, cond, orderBy, order)
+	stmt := fmt.Sprintf(q.QuerySubscribersStmt, cond, orderBy, order)
 
 	// Run the query. stmt is the raw SQL query.
 	var results []models.Subscriber
@@ -500,7 +499,7 @@ func (q *Queries) QuerySubscribersForExport(
 		cond = " AND " + query
 	}
 
-	sqlStr := fmt.Sprintf(q.querySubscribersForExport, cond)
+	sqlStr := fmt.Sprintf(q.QuerySubscribersForExportStmt, cond)
 
 	// Verify that the arbitrary SQL search expression is read only.
 	if cond != "" {
@@ -541,23 +540,23 @@ func (q *Queries) QuerySubscribersForExport(
 }
 
 func (q *Queries) DeleteSubscriptionsByQuery(exp string, listIDs pq.Int64Array) error {
-	return q.execSubscriberQueryTpl(sanitizeSQLExp(exp), q.deleteSubscriptionsByQuery, listIDs, q.db)
+	return q.execSubscriberQueryTpl(sanitizeSQLExp(exp), q.DeleteSubscriptionsByQueryStmt, listIDs, q.db)
 }
 
 func (q *Queries) BlocklistSubscribersByQuery(exp string, listIDs pq.Int64Array) error {
-	return q.execSubscriberQueryTpl(sanitizeSQLExp(exp), q.blocklistSubscribersByQuery, listIDs, q.db)
+	return q.execSubscriberQueryTpl(sanitizeSQLExp(exp), q.BlocklistSubscribersByQueryStmt, listIDs, q.db)
 }
 
 func (q *Queries) DeleteSubscribersByQuery(exp string, listIDs pq.Int64Array) error {
-	return q.execSubscriberQueryTpl(sanitizeSQLExp(exp), q.deleteSubscribersByQuery, listIDs, q.db)
+	return q.execSubscriberQueryTpl(sanitizeSQLExp(exp), q.DeleteSubscribersByQueryStmt, listIDs, q.db)
 }
 
 func (q *Queries) UnsubscribeSubscribersFromListsByQuery(exp string, listIDs, targetListIDs pq.Int64Array) error {
-	return q.execSubscriberQueryTpl(sanitizeSQLExp(exp), q.unsubscribeSubscribersFromListsByQuery, listIDs, q.db, targetListIDs)
+	return q.execSubscriberQueryTpl(sanitizeSQLExp(exp), q.UnsubscribeSubscribersFromListsByQueryStmt, listIDs, q.db, targetListIDs)
 }
 
 func (q *Queries) AddSubscribersToListsByQuery(exp string, listIDs, targetListIDs pq.Int64Array) error {
-	return q.execSubscriberQueryTpl(sanitizeSQLExp(exp), q.addSubscribersToListsByQuery, listIDs, q.db, targetListIDs)
+	return q.execSubscriberQueryTpl(sanitizeSQLExp(exp), q.AddSubscribersToListsByQueryStmt, listIDs, q.db, targetListIDs)
 }
 
 // dbConf contains database config required for connecting to a DB.
@@ -603,7 +602,7 @@ func (q *Queries) compileSubscriberQueryTpl(exp string, db *sqlx.DB) (string, er
 	if exp != "" {
 		exp = " AND " + exp
 	}
-	stmt := fmt.Sprintf(q.querySubscribersTpl, exp)
+	stmt := fmt.Sprintf(q.QuerySubscribersTplStmt, exp)
 	if _, err := tx.Exec(stmt, true, pq.Int64Array{}); err != nil {
 		return "", err
 	}
