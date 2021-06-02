@@ -13,10 +13,11 @@ import (
 
 // reqImport represents file upload import params.
 type reqImport struct {
-	Mode      string `json:"mode"`
-	Overwrite bool   `json:"overwrite"`
-	Delim     string `json:"delim"`
-	ListIDs   []int  `json:"lists"`
+	Mode               string `json:"mode"`
+	SubscriptionStatus string `json:"subscriptionStatus"`
+	Overwrite          bool   `json:"overwrite"`
+	Delim              string `json:"delim"`
+	ListIDs            []int  `json:"lists"`
 }
 
 // handleImportSubscribers handles the uploading and bulk importing of
@@ -38,6 +39,10 @@ func handleImportSubscribers(c echo.Context) error {
 
 	if r.Mode != subimporter.ModeSubscribe && r.Mode != subimporter.ModeBlocklist {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("import.invalidMode"))
+	}
+
+	if r.SubscriptionStatus != subimporter.SubscriptionStatusUnconfirmed && r.SubscriptionStatus != subimporter.SubscriptionStatusConfirmed {
+		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("import.invalidSubscriptionStatus"))
 	}
 
 	if len(r.Delim) != 1 {
@@ -69,7 +74,7 @@ func handleImportSubscribers(c echo.Context) error {
 	}
 
 	// Start the importer session.
-	impSess, err := app.importer.NewSession(file.Filename, r.Mode, r.Overwrite, r.ListIDs)
+	impSess, err := app.importer.NewSession(file.Filename, r.Mode, r.SubscriptionStatus, r.Overwrite, r.ListIDs)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			app.i18n.Ts("import.errorStarting", "error", err.Error()))

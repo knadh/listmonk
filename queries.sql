@@ -80,20 +80,20 @@ SELECT id from sub;
 
 -- name: upsert-subscriber
 -- Upserts a subscriber where existing subscribers get their names and attributes overwritten.
--- If $6 = true, update values, otherwise, skip.
+-- If $7 = true, update values, otherwise, skip.
 WITH sub AS (
     INSERT INTO subscribers as s (uuid, email, name, attribs, status)
     VALUES($1, $2, $3, $4, 'enabled')
     ON CONFLICT (email)
     DO UPDATE SET
-        name=(CASE WHEN $6 THEN $3 ELSE s.name END),
-        attribs=(CASE WHEN $6 THEN $4 ELSE s.attribs END),
+        name=(CASE WHEN $7 THEN $3 ELSE s.name END),
+        attribs=(CASE WHEN $7 THEN $4 ELSE s.attribs END),
         updated_at=NOW()
     RETURNING uuid, id
 ),
 subs AS (
-    INSERT INTO subscriber_lists (subscriber_id, list_id)
-    VALUES((SELECT id FROM sub), UNNEST($5::INT[]))
+    INSERT INTO subscriber_lists (subscriber_id, list_id, status)
+    VALUES((SELECT id FROM sub), UNNEST($5::INT[]), $6)
     ON CONFLICT (subscriber_id, list_id) DO UPDATE
     SET updated_at=NOW()
 )

@@ -46,6 +46,9 @@ const (
 
 	ModeSubscribe = "subscribe"
 	ModeBlocklist = "blocklist"
+
+	SubscriptionStatusUnconfirmed = "unconfirmed"
+	SubscriptionStatusConfirmed   = "confirmed"
 )
 
 // Importer represents the bulk CSV subscriber import system.
@@ -72,9 +75,10 @@ type Session struct {
 	subQueue chan SubReq
 	log      *log.Logger
 
-	mode      string
-	overwrite bool
-	listIDs   []int
+	mode               string
+	subscriptionStatus string
+	overwrite          bool
+	listIDs            []int
 }
 
 // Status reporesents statistics from an ongoing import session.
@@ -127,7 +131,7 @@ func New(opt Options, db *sql.DB) *Importer {
 
 // NewSession returns an new instance of Session. It takes the name
 // of the uploaded file, but doesn't do anything with it but retains it for stats.
-func (im *Importer) NewSession(fName, mode string, overWrite bool, listIDs []int) (*Session, error) {
+func (im *Importer) NewSession(fName, mode string, subscriptionStatus string, overWrite bool, listIDs []int) (*Session, error) {
 	if im.getStatus() != StatusNone {
 		return nil, errors.New("an import is already running")
 	}
@@ -139,12 +143,13 @@ func (im *Importer) NewSession(fName, mode string, overWrite bool, listIDs []int
 	im.Unlock()
 
 	s := &Session{
-		im:        im,
-		log:       log.New(im.status.logBuf, "", log.Ldate|log.Ltime|log.Lshortfile),
-		subQueue:  make(chan SubReq, commitBatchSize),
-		mode:      mode,
-		overwrite: overWrite,
-		listIDs:   listIDs,
+		im:                 im,
+		log:                log.New(im.status.logBuf, "", log.Ldate|log.Ltime|log.Lshortfile),
+		subQueue:           make(chan SubReq, commitBatchSize),
+		mode:               mode,
+		subscriptionStatus: subscriptionStatus,
+		overwrite:          overWrite,
+		listIDs:            listIDs,
 	}
 
 	s.log.Printf("processing '%s'", fName)
@@ -266,7 +271,7 @@ func (s *Session) Start() {
 		}
 
 		if s.mode == ModeSubscribe {
-			_, err = stmt.Exec(uu, sub.Email, sub.Name, sub.Attribs, listIDs, s.overwrite)
+			_, err = stmt.Exec(uu, sub.Email, sub.Name, sub.Attribs, listIDs, s.subscriptionStatus, s.overwrite)
 		} else if s.mode == ModeBlocklist {
 			_, err = stmt.Exec(uu, sub.Email, sub.Name, sub.Attribs)
 		}
