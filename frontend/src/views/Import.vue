@@ -13,9 +13,43 @@
                   <b-radio v-model="form.mode" name="mode"
                     native-value="subscribe"
                     data-cy="check-subscribe">{{ $t('import.subscribe') }}</b-radio>
+                  <br />
                   <b-radio v-model="form.mode" name="mode"
                     native-value="blocklist"
                     data-cy="check-blocklist">{{ $t('import.blocklist') }}</b-radio>
+                </div>
+              </b-field>
+            </div>
+            <div class="column">
+              <b-field :label="$t('import.subscriptionStatus')">
+                <div>
+                  <div v-if="form.mode === 'subscribe'" style="display:block">
+                    <b-radio
+                      v-model="form.subscriptionStatus"
+                      name="subscriptionStatus"
+                      native-value="unconfirmed"
+                      data-cy="check-unconfirmed">
+                      {{ $t('import.unconfirmed') }}
+                    </b-radio>
+                  </div>
+                  <div v-if="form.mode === 'subscribe'" style="display:block">
+                    <b-radio
+                      v-model="form.subscriptionStatus"
+                      name="subscriptionStatus"
+                      native-value="confirmed"
+                      data-cy="check-confirmed">
+                      {{ $t('import.confirmed') }}
+                    </b-radio>
+                  </div>
+                  <div v-if="form.mode === 'blocklist'" style="display:block">
+                    <b-radio
+                      v-model="form.subscriptionStatus"
+                      name="subscriptionStatus"
+                      native-value="unsubscribed"
+                      data-cy="check-unsubscribed">
+                      {{ $t('import.unsubscribed') }}
+                    </b-radio>
+                  </div>
                 </div>
               </b-field>
             </div>
@@ -153,6 +187,7 @@ export default Vue.extend({
     return {
       form: {
         mode: 'subscribe',
+        subscriptionStatus: 'unconfirmed',
         delim: ',',
         lists: [],
         overwrite: true,
@@ -168,6 +203,19 @@ export default Vue.extend({
       logs: '',
       pollID: null,
     };
+  },
+
+  watch: {
+    form: {
+      handler(val) {
+        if (val.mode === 'subscribe') {
+          this.form.subscriptionStatus = 'unconfirmed';
+        } else if (val.mode === 'blocklist') {
+          this.form.subscriptionStatus = 'unsubscribed';
+        }
+      },
+      deep: true,
+    },
   },
 
   methods: {
@@ -269,6 +317,7 @@ export default Vue.extend({
       const params = new FormData();
       params.set('params', JSON.stringify({
         mode: this.form.mode,
+        subscriptionStatus: this.form.subscriptionStatus,
         delim: this.form.delim,
         lists: this.form.lists.map((l) => l.id),
         overwrite: this.form.overwrite,

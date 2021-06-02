@@ -82,6 +82,7 @@ func install(lastVer string, db *sqlx.DB, fs stuffbin.FileSystem, prompt bool) {
 		"John Doe",
 		`{"type": "known", "good": true, "city": "Bengaluru"}`,
 		pq.Int64Array{int64(defList)},
+		models.SubscriptionStatusUnconfirmed,
 		true); err != nil {
 		lo.Fatalf("Error creating subscriber: %v", err)
 	}
@@ -91,6 +92,7 @@ func install(lastVer string, db *sqlx.DB, fs stuffbin.FileSystem, prompt bool) {
 		"Anon Doe",
 		`{"type": "unknown", "good": true, "city": "Bengaluru"}`,
 		pq.Int64Array{int64(optinList)},
+		models.SubscriptionStatusUnconfirmed,
 		true); err != nil {
 		lo.Fatalf("Error creating subscriber: %v", err)
 	}
