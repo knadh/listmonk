@@ -151,6 +151,8 @@ func registerHTTPHandlers(e *echo.Echo, app *App) {
 		"campUUID", "subUUID"))
 	e.GET("/campaign/:campUUID/:subUUID/px.png", validateUUID(handleRegisterCampaignView,
 		"campUUID", "subUUID"))
+	// Public health API endpoint.
+	e.GET("/health", handleHealthCheck)
 }
 
 // handleIndex is the root handler that renders the Javascript frontend.
