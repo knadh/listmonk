@@ -242,7 +242,7 @@ SELECT COUNT(*) OVER () AS total, subscribers.* FROM subscribers
     )
     WHERE subscriber_lists.list_id = ALL($1::INT[])
     %s
-    ORDER BY %s %s OFFSET $2 LIMIT $3;
+    ORDER BY %s %s OFFSET $2 LIMIT (CASE WHEN $3 = 0 THEN NULL ELSE $3 END);
 
 -- name: query-subscribers-for-export
 -- raw: true
@@ -258,7 +258,7 @@ SELECT s.id, s.uuid, s.email, s.name, s.status, s.attribs, s.created_at, s.updat
     )
     WHERE sl.list_id = ALL($1::INT[]) AND id > $2
     %s
-    ORDER BY s.id ASC LIMIT $3;
+    ORDER BY s.id ASC LIMIT (CASE WHEN $3 = 0 THEN NULL ELSE $3 END);
 
 -- name: query-subscribers-template
 -- raw: true
@@ -321,7 +321,7 @@ SELECT * FROM lists WHERE (CASE WHEN $1 = '' THEN 1=1 ELSE type=$1::list_type EN
 -- name: query-lists
 WITH ls AS (
 	SELECT COUNT(*) OVER () AS total, lists.* FROM lists
-    WHERE ($1 = 0 OR id = $1) OFFSET $2 LIMIT $3
+    WHERE ($1 = 0 OR id = $1) OFFSET $2 LIMIT (CASE WHEN $3 = 0 THEN NULL ELSE $3 END)
 ),
 counts AS (
 	SELECT COUNT(*) as subscriber_count, list_id FROM subscriber_lists WHERE status != 'unsubscribed' GROUP BY list_id
@@ -417,7 +417,7 @@ FROM campaigns c
 WHERE ($1 = 0 OR id = $1)
     AND status=ANY(CASE WHEN ARRAY_LENGTH($2::campaign_status[], 1) != 0 THEN $2::campaign_status[] ELSE ARRAY[status] END)
     AND ($3 = '' OR CONCAT(name, subject) ILIKE $3)
-ORDER BY %s %s OFFSET $4 LIMIT $5;
+ORDER BY %s %s OFFSET $4 LIMIT (CASE WHEN $5 = 0 THEN NULL ELSE $5 END);
 
 -- name: get-campaign
 SELECT campaigns.*,

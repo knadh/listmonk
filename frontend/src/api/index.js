@@ -92,7 +92,11 @@ export const getDashboardCharts = () => http.get('/api/dashboard/charts',
 
 // Lists.
 export const getLists = (params) => http.get('/api/lists',
-  { params, loading: models.lists, store: models.lists });
+  {
+    params: (!params ? { per_page: 'all' } : params),
+    loading: models.lists,
+    store: models.lists,
+  });
 
 export const createList = (data) => http.post('/api/lists', data,
   { loading: models.lists });
