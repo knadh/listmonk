@@ -374,7 +374,7 @@ export default Vue.extend({
         fn = () => {
           this.$api.blocklistSubscribersByQuery({
             query: this.queryParams.queryExp,
-            list_ids: [],
+            list_ids: [this.queryParams.listID],
           }).then(() => this.querySubscribers());
         };
       }
@@ -409,7 +409,7 @@ export default Vue.extend({
         fn = () => {
           this.$api.deleteSubscribersByQuery({
             query: this.queryParams.queryExp,
-            list_ids: [],
+            list_ids: [this.queryParams.listID],
           }).then(() => {
             this.querySubscribers();
 
