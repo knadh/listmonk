@@ -233,15 +233,18 @@ func subscriberExists(next echo.HandlerFunc, params ...string) echo.HandlerFunc 
 }
 
 // getPagination takes form values and extracts pagination values from it.
-func getPagination(q url.Values, perPage, maxPerPage int) pagination {
-	page, _ := strconv.Atoi(q.Get("page"))
-	pp := q.Get("per_page")
+func getPagination(q url.Values, perPage int) pagination {
+	var (
+		page, _ = strconv.Atoi(q.Get("page"))
+		pp      = q.Get("per_page")
+	)
+
 	if pp == "all" {
 		// No limit.
 		perPage = 0
 	} else {
 		ppi, _ := strconv.Atoi(pp)
-		if ppi > 0 && ppi <= maxPerPage {
+		if ppi > 0 {
 			perPage = ppi
 		}
 	}

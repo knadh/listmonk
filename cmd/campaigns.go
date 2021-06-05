@@ -79,7 +79,7 @@ var (
 func handleGetCampaigns(c echo.Context) error {
 	var (
 		app = c.Get("app").(*App)
-		pg  = getPagination(c.QueryParams(), 20, 50)
+		pg  = getPagination(c.QueryParams(), 20)
 		out campsWrap
 
 		id, _     = strconv.Atoi(c.Param("id"))

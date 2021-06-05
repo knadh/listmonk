@@ -30,7 +30,7 @@ func handleGetLists(c echo.Context) error {
 		app = c.Get("app").(*App)
 		out listsWrap
 
-		pg        = getPagination(c.QueryParams(), 20, 50)
+		pg        = getPagination(c.QueryParams(), 20)
 		orderBy   = c.FormValue("order_by")
 		order     = c.FormValue("order")
 		listID, _ = strconv.Atoi(c.Param("id"))
