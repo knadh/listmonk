@@ -135,22 +135,22 @@ func registerHTTPHandlers(e *echo.Echo, app *App) {
 	// Public subscriber facing views.
 	e.GET("/subscription/form", handleSubscriptionFormPage)
 	e.POST("/subscription/form", handleSubscriptionForm)
-	e.GET("/subscription/:campUUID/:subUUID", validateUUID(subscriberExists(handleSubscriptionPage),
-		"campUUID", "subUUID"))
+	e.GET("/subscription/:campUUID/:subUUID", noIndex(validateUUID(subscriberExists(handleSubscriptionPage),
+		"campUUID", "subUUID")))
 	e.POST("/subscription/:campUUID/:subUUID", validateUUID(subscriberExists(handleSubscriptionPage),
 		"campUUID", "subUUID"))
-	e.GET("/subscription/optin/:subUUID", validateUUID(subscriberExists(handleOptinPage), "subUUID"))
+	e.GET("/subscription/optin/:subUUID", noIndex(validateUUID(subscriberExists(handleOptinPage), "subUUID")))
 	e.POST("/subscription/optin/:subUUID", validateUUID(subscriberExists(handleOptinPage), "subUUID"))
 	e.POST("/subscription/export/:subUUID", validateUUID(subscriberExists(handleSelfExportSubscriberData),
 		"subUUID"))
 	e.POST("/subscription/wipe/:subUUID", validateUUID(subscriberExists(handleWipeSubscriberData),
 		"subUUID"))
-	e.GET("/link/:linkUUID/:campUUID/:subUUID", validateUUID(handleLinkRedirect,
-		"linkUUID", "campUUID", "subUUID"))
-	e.GET("/campaign/:campUUID/:subUUID", validateUUID(handleViewCampaignMessage,
-		"campUUID", "subUUID"))
-	e.GET("/campaign/:campUUID/:subUUID/px.png", validateUUID(handleRegisterCampaignView,
-		"campUUID", "subUUID"))
+	e.GET("/link/:linkUUID/:campUUID/:subUUID", noIndex(validateUUID(handleLinkRedirect,
+		"linkUUID", "campUUID", "subUUID")))
+	e.GET("/campaign/:campUUID/:subUUID", noIndex(validateUUID(handleViewCampaignMessage,
+		"campUUID", "subUUID")))
+	e.GET("/campaign/:campUUID/:subUUID/px.png", noIndex(validateUUID(handleRegisterCampaignView,
+		"campUUID", "subUUID")))
 	// Public health API endpoint.
 	e.GET("/health", handleHealthCheck)
 }
@@ -228,6 +228,14 @@ func subscriberExists(next echo.HandlerFunc, params ...string) echo.HandlerFunc 
 				makeMsgTpl(app.i18n.T("public.notFoundTitle"), "",
 					app.i18n.T("public.subNotFound")))
 		}
+		return next(c)
+	}
+}
+
+// noIndex adds the HTTP header requesting robots to not crawl the page.
+func noIndex(next echo.HandlerFunc, params ...string) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		c.Response().Header().Set("X-Robots-Tag", "noindex")
 		return next(c)
 	}
 }

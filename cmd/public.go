@@ -286,6 +286,7 @@ func handleSubscriptionFormPage(c echo.Context) error {
 	out := subFormTpl{}
 	out.Title = app.i18n.T("public.sub")
 	out.Lists = lists
+
 	return c.Render(http.StatusOK, "subscription-form", out)
 }
 
