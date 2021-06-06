@@ -186,6 +186,7 @@
     "import.invalidFile": "Fichier non valide : {error}",
     "import.invalidMode": "Mode invalide",
     "import.invalidParams": "Paramètres non valides : {error}",
+    "import.invalidSubStatus": "Invalid subscription status",
     "import.listSubHelp": "Abonner aux listes",
     "import.mode": "Mode",
     "import.overwrite": "Écraser ?",

@@ -95,7 +95,7 @@ subs AS (
     INSERT INTO subscriber_lists (subscriber_id, list_id, status)
     VALUES((SELECT id FROM sub), UNNEST($5::INT[]), $6)
     ON CONFLICT (subscriber_id, list_id) DO UPDATE
-    SET updated_at=NOW()
+    SET updated_at=NOW(), status=(CASE WHEN $7 THEN $6 ELSE subscriber_lists.status END)
 )
 SELECT uuid, id from sub;
 

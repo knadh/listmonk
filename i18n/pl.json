@@ -186,6 +186,7 @@
     "import.invalidFile": "Nieprawidłowy plik: {error}",
     "import.invalidMode": "Nieprawidłowy tryp",
     "import.invalidParams": "Nieprawidłowe parametry: {error}",
+    "import.invalidSubStatus": "Invalid subscription status",
     "import.listSubHelp": "Listy do subskrybowania.",
     "import.mode": "Tryb",
     "import.overwrite": "Nadpisać?",

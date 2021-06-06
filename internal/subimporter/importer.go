@@ -46,9 +46,6 @@ const (
 
 	ModeSubscribe = "subscribe"
 	ModeBlocklist = "blocklist"
-
-	SubscriptionStatusUnconfirmed = "unconfirmed"
-	SubscriptionStatusConfirmed   = "confirmed"
 )
 
 // Importer represents the bulk CSV subscriber import system.
@@ -75,10 +72,17 @@ type Session struct {
 	subQueue chan SubReq
 	log      *log.Logger
 
-	mode               string
-	subscriptionStatus string
-	overwrite          bool
-	listIDs            []int
+	opt SessionOpt
+}
+
+// SessionOpt represents the options for an importer session.
+type SessionOpt struct {
+	Filename  string `json:"filename"`
+	Mode      string `json:"mode"`
+	SubStatus string `json:"subscription_status"`
+	Overwrite bool   `json:"overwrite"`
+	Delim     string `json:"delim"`
+	ListIDs   []int  `json:"lists"`
 }
 
 // Status reporesents statistics from an ongoing import session.
@@ -131,28 +135,25 @@ func New(opt Options, db *sql.DB) *Importer {
 
 // NewSession returns an new instance of Session. It takes the name
 // of the uploaded file, but doesn't do anything with it but retains it for stats.
-func (im *Importer) NewSession(fName, mode string, subscriptionStatus string, overWrite bool, listIDs []int) (*Session, error) {
+func (im *Importer) NewSession(opt SessionOpt) (*Session, error) {
 	if im.getStatus() != StatusNone {
 		return nil, errors.New("an import is already running")
 	}
 
 	im.Lock()
 	im.status = Status{Status: StatusImporting,
-		Name:   fName,
+		Name:   opt.Filename,
 		logBuf: bytes.NewBuffer(nil)}
 	im.Unlock()
 
 	s := &Session{
-		im:                 im,
-		log:                log.New(im.status.logBuf, "", log.Ldate|log.Ltime|log.Lshortfile),
-		subQueue:           make(chan SubReq, commitBatchSize),
-		mode:               mode,
-		subscriptionStatus: subscriptionStatus,
-		overwrite:          overWrite,
-		listIDs:            listIDs,
+		im:       im,
+		log:      log.New(im.status.logBuf, "", log.Ldate|log.Ltime|log.Lshortfile),
+		subQueue: make(chan SubReq, commitBatchSize),
+		opt:      opt,
 	}
 
-	s.log.Printf("processing '%s'", fName)
+	s.log.Printf("processing '%s'", opt.Filename)
 	return s, nil
 }
 
@@ -240,10 +241,10 @@ func (s *Session) Start() {
 		total = 0
 		cur   = 0
 
-		listIDs = make(pq.Int64Array, len(s.listIDs))
+		listIDs = make(pq.Int64Array, len(s.opt.ListIDs))
 	)
 
-	for i, v := range s.listIDs {
+	for i, v := range s.opt.ListIDs {
 		listIDs[i] = int64(v)
 	}
 
@@ -256,7 +257,7 @@ func (s *Session) Start() {
 				continue
 			}
 
-			if s.mode == ModeSubscribe {
+			if s.opt.Mode == ModeSubscribe {
 				stmt = tx.Stmt(s.im.opt.UpsertStmt)
 			} else {
 				stmt = tx.Stmt(s.im.opt.BlocklistStmt)
@@ -270,9 +271,9 @@ func (s *Session) Start() {
 			break
 		}
 
-		if s.mode == ModeSubscribe {
-			_, err = stmt.Exec(uu, sub.Email, sub.Name, sub.Attribs, listIDs, s.subscriptionStatus, s.overwrite)
-		} else if s.mode == ModeBlocklist {
+		if s.opt.Mode == ModeSubscribe {
+			_, err = stmt.Exec(uu, sub.Email, sub.Name, sub.Attribs, listIDs, s.opt.SubStatus, s.opt.Overwrite)
+		} else if s.opt.Mode == ModeBlocklist {
 			_, err = stmt.Exec(uu, sub.Email, sub.Name, sub.Attribs)
 		}
 		if err != nil {

@@ -186,6 +186,7 @@
     "import.invalidFile": "Неверный файл: {error}",
     "import.invalidMode": "Неверный режим",
     "import.invalidParams": "Неверные параметры: {error}",
+    "import.invalidSubStatus": "Invalid subscription status",
     "import.listSubHelp": "Списки для подписки.",
     "import.mode": "Режим",
     "import.overwrite": "Перезаписать?",

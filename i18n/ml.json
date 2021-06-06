@@ -186,6 +186,7 @@
     "import.invalidFile": " ഫയൽ അസാധുവാണ് : {error}",
     "import.invalidMode": "ശൈലി അസാധുവാണ്",
     "import.invalidParams": "പരാമുകൾ അസാധുവാണ്: {error}",
+    "import.invalidSubStatus": "Invalid subscription status",
     "import.listSubHelp": "വരിക്കാരനാകാനുള്ള ലിസ്റ്റുകൾ.",
     "import.mode": "ശൈലി",
     "import.overwrite": "തിരുത്തിയെഴുതട്ടേ?",
