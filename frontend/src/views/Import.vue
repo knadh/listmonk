@@ -60,7 +60,8 @@
             </div>
 
             <div class="column">
-              <b-field :label="$t('import.csvDelim')" :message="$t('import.csvDelimHelp')" class="delimiter">
+              <b-field :label="$t('import.csvDelim')" :message="$t('import.csvDelimHelp')"
+                class="delimiter">
                 <b-input v-model="form.delim" name="delim" placeholder="," maxlength="1" required />
               </b-field>
             </div>
