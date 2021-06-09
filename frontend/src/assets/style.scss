@@ -317,6 +317,9 @@ section {
 .has-numberinput .field, .field.is-grouped {
   margin-bottom: 0;
 }
+.b-numberinput.field.is-grouped div.control {
+  flex-grow: 0;
+}
 
 /* Tabs */
 .b-tabs .tab-content {
