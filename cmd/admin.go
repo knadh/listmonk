@@ -17,6 +17,7 @@ type serverConfig struct {
 	Lang         string     `json:"lang"`
 	Update       *AppUpdate `json:"update"`
 	NeedsRestart bool       `json:"needs_restart"`
+	Version      string     `json:"version"`
 }
 
 // handleGetServerConfig returns general server config.
@@ -51,6 +52,7 @@ func handleGetServerConfig(c echo.Context) error {
 	out.NeedsRestart = app.needsRestart
 	out.Update = app.update
 	app.Unlock()
+	out.Version = versionString
 
 	return c.JSON(http.StatusOK, okResp{out})
 }
