@@ -1,14 +1,10 @@
-#!/bin/sh
-
-set -e
+#!/usr/bin/env sh
+set -eu
 
 # Listmonk demo setup using `docker-compose`.
-#
 # See https://listmonk.app/docs/installation/ for detailed installation steps.
-#
 
-
-check_dependency() {
+check_dependencies() {
 	if ! command -v curl > /dev/null; then
 		echo "curl is not installed."
 		exit 1
@@ -35,6 +31,6 @@ show_output(){
 }
 
 
-check_dependency
+check_dependencies
 setup_containers
 show_output

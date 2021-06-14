@@ -17,14 +17,39 @@ The latest image is available on DockerHub at `listmonk/listmonk:latest`. Use th
 
 ```bash
 mkdir listmonk-demo
-sh -c "$(curl -sSL https://raw.githubusercontent.com/knadh/listmonk/master/install-demo.sh)"
+sh -c "$(curl -fsSL https://raw.githubusercontent.com/knadh/listmonk/master/install-demo.sh)"
 ```
 
 The demo does not persist Postgres after the containers are removed. DO NOT use this demo setup in production.
 
 #### Production
+
+##### Easy Docker install
+
+This setup is recommended if you want to _quickly_ setup `listmonk` in production.
+
+```bash
+mkdir listmonk
+sh -c "$(curl -fsSL https://raw.githubusercontent.com/knadh/listmonk/master/install-prod.sh)"
+```
+
+The above shell script performs the following actions:
+
+- Downloads `docker-compose.yml` and generates a `config.toml`.
+- Runs a Postgres container and installs the database schema.
+- Runs the `listmonk` container.
+
+**NOTE**: It's recommended to examine the contents of the shell script, before running in your environment.
+
+##### Manual Docker install
+
+The following workflow is recommended to setup `listmonk` manually using `docker-compose`. You are encouraged to customise the contents of `docker-compose.yml` to your needs. The overall setup looks like:
+
 - `docker-compose up db` to run the Postgres DB.
-- `docker-compose run --rm app ./listmonk --install` to setup the DB (or `--upgrade` to upgrade an existing DB)
+- `docker-compose run --rm app ./listmonk --install` to setup the DB (or `--upgrade` to upgrade an existing DB).
+- Copy `config.toml.sample` to your directory and make the following changes:
+    - `app.address` => `0.0.0.0:9000` (Port forwarding on Docker will work only if the app is advertising on all interfaces.)
+    - `db.host` => `listmonk_db` (Container Name of the DB container)
 - Run `docker-compose up app` and visit `http://localhost:9000`.
 
 More information on [docs](https://listmonk.app/docs).
