@@ -8,7 +8,6 @@ import (
 	"path/filepath"
 	"regexp"
 	"strconv"
-	"strings"
 
 	"github.com/knadh/listmonk/internal/media"
 )
@@ -43,13 +42,7 @@ func NewDiskStore(opts Opts) (media.Store, error) {
 // Put accepts the filename, the content type and file object itself and stores the file in disk.
 func (c *Client) Put(filename string, cType string, src io.ReadSeeker) (string, error) {
 	var out *os.File
-	// There's no explicit name. Use the one posted in the HTTP request.
-	if filename == "" {
-		filename = strings.TrimSpace(filename)
-		if filename == "" {
-			filename, _ = generateRandomString(10)
-		}
-	}
+
 	// Get the directory path
 	dir := getDir(c.opts.UploadPath)
 	filename = assertUniqueFilename(dir, filename)

@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"crypto/rand"
 	"fmt"
+	"path/filepath"
 	"regexp"
 	"strconv"
 	"strings"
@@ -25,13 +26,13 @@ func inArray(val string, vals []string) (ok bool) {
 	return false
 }
 
-// generateFileName appends the incoming file's name with a small random hash.
-func generateFileName(fName string) string {
+// makeFilename sanitizes a filename (user supplied upload filenames).
+func makeFilename(fName string) string {
 	name := strings.TrimSpace(fName)
 	if name == "" {
 		name, _ = generateRandomString(10)
 	}
-	return name
+	return filepath.Base(name)
 }
 
 // Given an error, pqErrMsg will try to return pq error details

@@ -51,7 +51,7 @@ func handleUploadMedia(c echo.Context) error {
 	}
 
 	// Generate filename
-	fName := generateFileName(file.Filename)
+	fName := makeFilename(file.Filename)
 
 	// Read file contents in memory
 	src, err := file.Open()
