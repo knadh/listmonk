@@ -2,6 +2,8 @@ LAST_COMMIT := $(shell git rev-parse --short HEAD)
 VERSION := $(shell git describe --tags --abbrev=0)
 BUILDSTR := ${VERSION} (\#${LAST_COMMIT} $(shell date -u +"%Y-%m-%dT%H:%M:%S%z"))
 
+YARN ?= yarn
+
 BIN := listmonk
 STATIC := config.toml.sample \
 	schema.sql queries.sql \
@@ -15,7 +17,7 @@ STATIC := config.toml.sample \
 .PHONY: deps
 deps:
 	go get -u github.com/knadh/stuffbin/...
-	cd frontend && yarn install
+	cd frontend && $(YARN) install
 
 # Build the backend to ./listmonk.
 .PHONY: build
@@ -30,12 +32,12 @@ run: build
 # Build the JS frontend into frontend/dist.
 .PHONY: build-frontend
 build-frontend:
-	export VUE_APP_VERSION="${VERSION}" && cd frontend && yarn build
+	export VUE_APP_VERSION="${VERSION}" && cd frontend && $(YARN) build
 
 # Run the JS frontend server in dev mode.
 .PHONY: run-frontend
 run-frontend:
-	export VUE_APP_VERSION="${VERSION}" && cd frontend && yarn serve
+	export VUE_APP_VERSION="${VERSION}" && cd frontend && $(YARN) serve
 
 # Run Go tests.
 .PHONY: test
