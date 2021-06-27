@@ -2,6 +2,18 @@ LAST_COMMIT := $(shell git rev-parse --short HEAD)
 VERSION := $(shell git describe --tags --abbrev=0)
 BUILDSTR := ${VERSION} (\#${LAST_COMMIT} $(shell date -u +"%Y-%m-%dT%H:%M:%S%z"))
 
+YARN ?= yarn
+GOPATH ?= $(HOME)/go
+STUFFBIN ?= $(GOPATH)/bin/stuffbin
+FRONTEND_YARN_MODULES = frontend/node_modules
+FRONTEND_DIST = frontend/dist
+FRONTEND_DEPS = \
+	$(FRONTEND_YARN_MODULES) \
+	frontend/package.json \
+	frontend/vue.config.js \
+	frontend/babel.config.js \
+	$(shell find frontend/fontello frontend/public frontend/src -type f)
+
 BIN := listmonk
 STATIC := config.toml.sample \
 	schema.sql queries.sql \
@@ -11,31 +23,37 @@ STATIC := config.toml.sample \
 	frontend/dist/frontend:/frontend \
 	i18n:/i18n
 
-# Install dependencies for building.
-.PHONY: deps
-deps:
+.PHONY: build
+build: $(BIN)
+
+$(STUFFBIN):
 	go get -u github.com/knadh/stuffbin/...
-	cd frontend && yarn install
+
+$(FRONTEND_YARN_MODULES): frontend/package.json frontend/yarn.lock
+	cd frontend && $(YARN) install
+	touch --no-create $(FRONTEND_YARN_MODULES)
 
 # Build the backend to ./listmonk.
-.PHONY: build
-build:
+$(BIN): $(shell find cmd -type f -name "*.go")
 	CGO_ENABLED=0 go build -o ${BIN} -ldflags="-s -w -X 'main.buildString=${BUILDSTR}' -X 'main.versionString=${VERSION}'" cmd/*.go
 
 # Run the backend.
 .PHONY: run
-run: build
+run: $(BIN)
 	./${BIN}
 
 # Build the JS frontend into frontend/dist.
+$(FRONTEND_DIST): $(FRONTEND_DEPS)
+	export VUE_APP_VERSION="${VERSION}" && cd frontend && $(YARN) build
+	touch --no-create $(FRONTEND_DIST)
+
 .PHONY: build-frontend
-build-frontend:
-	export VUE_APP_VERSION="${VERSION}" && cd frontend && yarn build
+build-frontend: $(FRONTEND_DIST)
 
 # Run the JS frontend server in dev mode.
 .PHONY: run-frontend
 run-frontend:
-	export VUE_APP_VERSION="${VERSION}" && cd frontend && yarn serve
+	export VUE_APP_VERSION="${VERSION}" && cd frontend && $(YARN) serve
 
 # Run Go tests.
 .PHONY: test
@@ -45,14 +63,14 @@ test:
 # Bundle all static assets including the JS frontend into the ./listmonk binary
 # using stuffbin (installed with make deps).
 .PHONY: dist
-dist: build build-frontend
-	stuffbin -a stuff -in ${BIN} -out ${BIN} ${STATIC}
+dist: $(STUFFBIN) build build-frontend
+	$(STUFFBIN) -a stuff -in ${BIN} -out ${BIN} ${STATIC}
 
 # pack-releases runns stuffbin packing on the given binary. This is used
 # in the .goreleaser post-build hook.
 .PHONY: pack-bin
-pack-bin:
-	stuffbin -a stuff -in ${BIN} -out ${BIN} ${STATIC}
+pack-bin: $(STUFFBIN)
+	$(STUFFBIN) -a stuff -in ${BIN} -out ${BIN} ${STATIC}
 
 # Use goreleaser to do a dry run producing local builds.
 .PHONY: release-dry
