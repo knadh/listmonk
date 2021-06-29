@@ -34,7 +34,7 @@ $(FRONTEND_YARN_MODULES): frontend/package.json frontend/yarn.lock
 	touch --no-create $(FRONTEND_YARN_MODULES)
 
 # Build the backend to ./listmonk.
-$(BIN): $(shell find cmd -type f -name "*.go")
+$(BIN): $(shell find . -type f -name "*.go")
 	CGO_ENABLED=0 go build -o ${BIN} -ldflags="-s -w -X 'main.buildString=${BUILDSTR}' -X 'main.versionString=${VERSION}'" cmd/*.go
 
 # Run the backend.
