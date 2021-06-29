@@ -85,11 +85,12 @@ func init() {
 
 	// Generate new config.
 	if ko.Bool("new-config") {
-		if err := newConfigFile(); err != nil {
+		path := ko.Strings("config")[0]
+		if err := newConfigFile(path); err != nil {
 			lo.Println(err)
 			os.Exit(1)
 		}
-		lo.Println("generated config.toml. Edit and run --install")
+		lo.Printf("generated %s. Edit and run --install", path)
 		os.Exit(0)
 	}
 

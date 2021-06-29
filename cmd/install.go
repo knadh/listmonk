@@ -1,7 +1,6 @@
 package main
 
 import (
-	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -161,9 +160,9 @@ func recordMigrationVersion(ver string, db *sqlx.DB) error {
 	return err
 }
 
-func newConfigFile() error {
-	if _, err := os.Stat("config.toml"); !os.IsNotExist(err) {
-		return errors.New("config.toml exists. Remove it to generate a new one")
+func newConfigFile(path string) error {
+	if _, err := os.Stat(path); !os.IsNotExist(err) {
+		return fmt.Errorf("%s exists. Remove it to generate a new one.", path)
 	}
 
 	// Initialize the static file system into which all
@@ -181,7 +180,7 @@ func newConfigFile() error {
 			ReplaceAll(b, []byte(fmt.Sprintf(`admin_password = "%s"`, pwd)))
 	}
 
-	return ioutil.WriteFile("config.toml", b, 0644)
+	return ioutil.WriteFile(path, b, 0644)
 }
 
 // checkSchema checks if the DB schema is installed.
