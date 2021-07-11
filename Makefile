@@ -19,7 +19,6 @@ STATIC := config.toml.sample \
 	schema.sql queries.sql \
 	static/public:/public \
 	static/email-templates \
-	frontend/dist/favicon.png:/frontend/favicon.png \
 	frontend/dist/frontend:/frontend \
 	i18n:/i18n
 
@@ -44,8 +43,9 @@ run: $(BIN)
 
 # Build the JS frontend into frontend/dist.
 $(FRONTEND_DIST): $(FRONTEND_DEPS)
-	export VUE_APP_VERSION="${VERSION}" && cd frontend && $(YARN) build
+	export VUE_APP_VERSION="${VERSION}" && cd frontend && $(YARN) build && mv dist/favicon.png dist/frontend/favicon.png
 	touch --no-create $(FRONTEND_DIST)
+
 
 .PHONY: build-frontend
 build-frontend: $(FRONTEND_DIST)

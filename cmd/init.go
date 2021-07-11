@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"html/template"
 	"os"
+	"path"
 	"path/filepath"
 	"strings"
 	"syscall"
@@ -108,74 +109,100 @@ func initConfigFiles(files []string, ko *koanf.Koanf) {
 
 // initFileSystem initializes the stuffbin FileSystem to provide
 // access to bunded static assets to the app.
-func initFS(staticDir, i18nDir string) stuffbin.FileSystem {
+func initFS(appDir, frontendDir, staticDir, i18nDir string) stuffbin.FileSystem {
+	var (
+		// stuffbin real_path:virtual_alias paths to map local assets on disk
+		// when there an embedded filestystem is not found.
+
+		// These paths are joined with appDir.
+		appFiles = []string{
+			"./config.toml.sample:config.toml.sample",
+			"./queries.sql:queries.sql",
+			"./schema.sql:schema.sql",
+		}
+
+		frontendFiles = []string{
+			// The app's frontend assets are accessible at /frontend/js/* during runtime.
+			// These paths are joined with frontendDir.
+			"./:/frontend",
+		}
+
+		staticFiles = []string{
+			// These paths are joined with staticDir.
+			"./email-templates:static/email-templates",
+			"./public:/public",
+		}
+
+		i18nFiles = []string{
+			// These paths are joined with i18nDir.
+			"./:/i18n",
+		}
+	)
+
 	// Get the executable's path.
 	path, err := os.Executable()
 	if err != nil {
 		lo.Fatalf("error getting executable path: %v", err)
 	}
 
-	// Load the static files stuffed in the binary.
+	// Load embedded files in the executable.
+	hasEmbed := true
 	fs, err := stuffbin.UnStuff(path)
 	if err != nil {
+		hasEmbed = false
+
 		// Running in local mode. Load local assets into
 		// the in-memory stuffbin.FileSystem.
-		lo.Printf("unable to initialize embedded filesystem: %v", err)
-		lo.Printf("using local filesystem for static assets")
-		files := []string{
-			"config.toml.sample",
-			"queries.sql",
-			"schema.sql",
+		lo.Printf("unable to initialize embedded filesystem (%v). Using local filesystem", err)
 
-			// The frontend app's static assets are aliased to /frontend
-			// so that they are accessible at /frontend/js/* etc.
-			// Alias all files inside dist/ and dist/frontend to frontend/*.
-			"frontend/dist/favicon.png:/frontend/favicon.png",
-			"frontend/dist/frontend:/frontend",
-			"i18n:/i18n",
-		}
-
-		// If no external static dir is provided, try to load from the working dir.
-		if staticDir == "" {
-			files = append(files, "static/email-templates", "static/public:/public")
-		}
-
-		fs, err = stuffbin.NewLocalFS("/", files...)
+		fs, err = stuffbin.NewLocalFS("/")
 		if err != nil {
 			lo.Fatalf("failed to initialize local file for assets: %v", err)
 		}
 	}
 
-	// Optional static directory to override static files.
-	if staticDir != "" {
-		lo.Printf("loading static files from: %v", staticDir)
-		fStatic, err := stuffbin.NewLocalFS("/", []string{
-			filepath.Join(staticDir, "/email-templates") + ":/static/email-templates",
-
-			// Alias /static/public to /public for the HTTP fileserver.
-			filepath.Join(staticDir, "/public") + ":/public",
-		}...)
-		if err != nil {
-			lo.Fatalf("failed reading static directory: %s: %v", staticDir, err)
-		}
-
-		if err := fs.Merge(fStatic); err != nil {
-			lo.Fatalf("error merging static directory: %s: %v", staticDir, err)
-		}
+	// If the embed failed, load app and frontend files from the compile-time paths.
+	files := []string{}
+	if !hasEmbed {
+		files = append(files, joinFSPaths(appDir, appFiles)...)
+		files = append(files, joinFSPaths(frontendDir, frontendFiles)...)
 	}
 
-	// Optional static directory to override i18n language files.
-	if i18nDir != "" {
-		lo.Printf("loading i18n language files from: %v", i18nDir)
-		fi18n, err := stuffbin.NewLocalFS("/", []string{i18nDir + ":/i18n"}...)
-		if err != nil {
-			lo.Fatalf("failed reading i18n directory: %s: %v", i18nDir, err)
+	// Irrespective of the embeds, if there are user specified static or i18n paths,
+	// load files from there and override default files (embedded or picked up from CWD).
+	if !hasEmbed || i18nDir != "" {
+		if i18nDir == "" {
+			// Default dir in cwd.
+			i18nDir = "i18n"
 		}
-
-		if err := fs.Merge(fi18n); err != nil {
-			lo.Fatalf("error merging i18n directory: %s: %v", i18nDir, err)
-		}
+		lo.Printf("will load i18n files from: %v", i18nDir)
+		files = append(files, joinFSPaths(i18nDir, i18nFiles)...)
 	}
+
+	if !hasEmbed || staticDir != "" {
+		if staticDir == "" {
+			// Default dir in cwd.
+			staticDir = "static"
+		}
+		lo.Printf("will load static files from: %v", staticDir)
+		files = append(files, joinFSPaths(staticDir, staticFiles)...)
+	}
+
+	// No additional files to load.
+	if len(files) == 0 {
+		return fs
+	}
+
+	// Load files from disk and overlay into the FS.
+	fStatic, err := stuffbin.NewLocalFS("/", files...)
+	if err != nil {
+		lo.Fatalf("failed reading static files from disk: '%s': %v", staticDir, err)
+	}
+
+	if err := fs.Merge(fStatic); err != nil {
+		lo.Fatalf("error merging static files: '%s': %v", staticDir, err)
+	}
+
 	return fs
 }
 
@@ -550,6 +577,18 @@ func awaitReload(sigChan chan os.Signal, closerWait chan bool, closer func()) ch
 			}
 		}
 	}()
+
+	return out
+}
+
+func joinFSPaths(root string, paths []string) []string {
+	out := make([]string, 0, len(paths))
+	for _, p := range paths {
+		// real_path:stuffbin_alias
+		f := strings.Split(p, ":")
+
+		out = append(out, path.Join(root, f[0])+":"+f[1])
+	}
 
 	return out
 }
