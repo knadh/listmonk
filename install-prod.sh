@@ -12,7 +12,7 @@ GREEN="$(tput setaf 2 2>/dev/null || printf '')"
 NO_COLOR="$(tput sgr0 2>/dev/null || printf '')"
 
 info() {
-  printf '%s\n' "${BLUE}>${NO_COLOR} $*"
+  printf '%s\n' "${BLUE}> ${NO_COLOR} $*"
 }
 
 error() {
@@ -20,7 +20,7 @@ error() {
 }
 
 completed() {
-  printf '%s\n' "${GREEN}✓${GREEN} $*"
+  printf '%s\n' "${GREEN}✓ ${NO_COLOR} $*"
 }
 
 exists() {
