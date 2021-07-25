@@ -36,10 +36,10 @@ $(FRONTEND_YARN_MODULES): frontend/package.json frontend/yarn.lock
 $(BIN): $(shell find . -type f -name "*.go")
 	CGO_ENABLED=0 go build -o ${BIN} -ldflags="-s -w -X 'main.buildString=${BUILDSTR}' -X 'main.versionString=${VERSION}'" cmd/*.go
 
-# Run the backend.
+# Run the backend in dev mode. The frontend assets in dev mode are loaded from disk from frontend/dist/frontend.
 .PHONY: run
-run: $(BIN)
-	./${BIN}
+run:
+	CGO_ENABLED=0 go run -ldflags="-s -w -X 'main.buildString=${BUILDSTR}' -X 'main.versionString=${VERSION}' -X 'main.frontendDir=frontend/dist/frontend'" cmd/*.go
 
 # Build the JS frontend into frontend/dist.
 $(FRONTEND_DIST): $(FRONTEND_DEPS)
