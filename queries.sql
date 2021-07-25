@@ -249,16 +249,24 @@ SELECT COUNT(*) OVER () AS total, subscribers.* FROM subscribers
 -- Unprepared statement for issuring arbitrary WHERE conditions for
 -- searching subscribers to do bulk CSV export.
 -- %s = arbitrary expression
-SELECT s.id, s.uuid, s.email, s.name, s.status, s.attribs, s.created_at, s.updated_at FROM subscribers s
+SELECT subscribers.id,
+       subscribers.uuid,
+       subscribers.email,
+       subscribers.name,
+       subscribers.status,
+       subscribers.attribs,
+       subscribers.created_at,
+       subscribers.updated_at
+       FROM subscribers
     LEFT JOIN subscriber_lists sl
     ON (
         -- Optional list filtering.
         (CASE WHEN CARDINALITY($1::INT[]) > 0 THEN true ELSE false END)
-        AND sl.subscriber_id = s.id
+        AND sl.subscriber_id = subscribers.id
     )
     WHERE sl.list_id = ALL($1::INT[]) AND id > $2
     %s
-    ORDER BY s.id ASC LIMIT (CASE WHEN $3 = 0 THEN NULL ELSE $3 END);
+    ORDER BY subscribers.id ASC LIMIT (CASE WHEN $3 = 0 THEN NULL ELSE $3 END);
 
 -- name: query-subscribers-template
 -- raw: true
