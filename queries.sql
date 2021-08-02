@@ -132,7 +132,7 @@ INSERT INTO subscriber_lists (subscriber_id, list_id, status)
     VALUES(
         (SELECT id FROM s),
         UNNEST($6),
-        (CASE WHEN $4='blocklisted' THEN 'unsubscribed'::subscription_status ELSE 'unconfirmed' END)
+        (CASE WHEN $4='blocklisted' THEN 'unsubscribed'::subscription_status ELSE $7::subscription_status END)
     )
     ON CONFLICT (subscriber_id, list_id) DO UPDATE
     SET status = (CASE WHEN $4='blocklisted' THEN 'unsubscribed'::subscription_status ELSE subscriber_lists.status END);

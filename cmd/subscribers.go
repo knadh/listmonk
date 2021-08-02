@@ -44,9 +44,10 @@ type subsWrap struct {
 
 type subUpdateReq struct {
 	models.Subscriber
-	RawAttribs json.RawMessage `json:"attribs"`
-	Lists      pq.Int64Array   `json:"lists"`
-	ListUUIDs  pq.StringArray  `json:"list_uuids"`
+	RawAttribs     json.RawMessage `json:"attribs"`
+	Lists          pq.Int64Array   `json:"lists"`
+	ListUUIDs      pq.StringArray  `json:"list_uuids"`
+	PreconfirmSubs bool            `json:"preconfirm_subscriptions"`
 }
 
 // subProfileData represents a subscriber's collated data in JSON
@@ -327,12 +328,18 @@ func handleUpdateSubscriber(c echo.Context) error {
 		}
 	}
 
+	subStatus := models.SubscriptionStatusUnconfirmed
+	if req.PreconfirmSubs {
+		subStatus = models.SubscriptionStatusConfirmed
+	}
+
 	_, err := app.queries.UpdateSubscriber.Exec(id,
 		strings.ToLower(strings.TrimSpace(req.Email)),
 		strings.TrimSpace(req.Name),
 		req.Status,
 		req.RawAttribs,
-		req.Lists)
+		req.Lists,
+		subStatus)
 	if err != nil {
 		app.log.Printf("error updating subscriber: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
@@ -345,7 +352,10 @@ func handleUpdateSubscriber(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	_, _ = sendOptinConfirmation(sub, []int64(req.Lists), app)
+
+	if !req.PreconfirmSubs {
+		_, _ = sendOptinConfirmation(sub, []int64(req.Lists), app)
+	}
 
 	return c.JSON(http.StatusOK, okResp{sub})
 }
