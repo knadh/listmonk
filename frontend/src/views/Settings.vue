@@ -302,15 +302,15 @@
                   <div class="column" :class="{'disabled': !item.enabled}">
                     <div class="columns">
                       <div class="column is-8">
-                        <b-field :label="$t('settings.smtp.host')" label-position="on-border"
-                          :message="$t('settings.smtp.hostHelp')">
+                        <b-field :label="$t('settings.mailserver.host')" label-position="on-border"
+                          :message="$t('settings.mailserver.hostHelp')">
                           <b-input v-model="item.host" name="host"
                             placeholder='smtp.yourmailserver.net' :maxlength="200" />
                         </b-field>
                       </div>
                       <div class="column">
-                        <b-field :label="$t('settings.smtp.port')" label-position="on-border"
-                          :message="$t('settings.smtp.portHelp')">
+                        <b-field :label="$t('settings.mailserver.port')" label-position="on-border"
+                          :message="$t('settings.mailserver.portHelp')">
                           <b-numberinput v-model="item.port" name="port" type="is-light"
                               controls-position="compact"
                               placeholder="25" min="1" max="65535" />
@@ -320,7 +320,7 @@
 
                     <div class="columns">
                       <div class="column is-2">
-                        <b-field :label="$t('settings.smtp.authProtocol')"
+                        <b-field :label="$t('settings.mailserver.authProtocol')"
                           label-position="on-border">
                           <b-select v-model="item.auth_protocol" name="auth_protocol">
                             <option value="none">none</option>
@@ -332,19 +332,19 @@
                       </div>
                       <div class="column">
                         <b-field grouped>
-                          <b-field :label="$t('settings.smtp.username')"
+                          <b-field :label="$t('settings.mailserver.username')"
                             label-position="on-border" expanded>
                             <b-input v-model="item.username"
                               :disabled="item.auth_protocol === 'none'"
                               name="username" placeholder="mysmtp" :maxlength="200" />
                           </b-field>
-                          <b-field :label="$t('settings.smtp.password')"
+                          <b-field :label="$t('settings.mailserver.password')"
                             label-position="on-border" expanded
-                            :message="$t('settings.smtp.passwordHelp')">
+                            :message="$t('settings.mailserver.passwordHelp')">
                             <b-input v-model="item.password"
                               :disabled="item.auth_protocol === 'none'"
                               name="password" type="password"
-                              :placeholder="$t('settings.smtp.passwordHelp')"
+                              :placeholder="$t('settings.mailserver.passwordHelp')"
                               :maxlength="200" />
                           </b-field>
                         </b-field>
@@ -362,12 +362,12 @@
                       </div>
                       <div class="column">
                         <b-field grouped>
-                          <b-field :label="$t('settings.smtp.tls')" expanded
-                            :message="$t('settings.smtp.tlsHelp')">
+                          <b-field :label="$t('settings.mailserver.tls')" expanded
+                            :message="$t('settings.mailserver.tlsHelp')">
                             <b-switch v-model="item.tls_enabled" name="item.tls_enabled" />
                           </b-field>
-                          <b-field :label="$t('settings.smtp.skipTLS')" expanded
-                            :message="$t('settings.smtp.skipTLSHelp')">
+                          <b-field :label="$t('settings.mailserver.skipTLS')" expanded
+                            :message="$t('settings.mailserver.skipTLSHelp')">
                             <b-switch v-model="item.tls_skip_verify"
                               :disabled="!item.tls_enabled" name="item.tls_skip_verify" />
                           </b-field>
@@ -378,8 +378,9 @@
 
                     <div class="columns">
                       <div class="column is-3">
-                        <b-field :label="$t('settings.smtp.maxConns')" label-position="on-border"
-                          :message="$t('settings.smtp.maxConnsHelp')">
+                        <b-field :label="$t('settings.mailserver.maxConns')"
+                          label-position="on-border"
+                          :message="$t('settings.mailserver.maxConnsHelp')">
                           <b-numberinput v-model="item.max_conns" name="max_conns" type="is-light"
                               controls-position="compact"
                               placeholder="25" min="1" max="65535" />
@@ -395,15 +396,17 @@
                         </b-field>
                       </div>
                       <div class="column is-3">
-                        <b-field :label="$t('settings.smtp.idleTimeout')" label-position="on-border"
-                          :message="$t('settings.smtp.idleTimeoutHelp')">
+                        <b-field :label="$t('settings.mailserver.idleTimeout')"
+                          label-position="on-border"
+                          :message="$t('settings.mailserver.idleTimeoutHelp')">
                           <b-input v-model="item.idle_timeout" name="idle_timeout"
                             placeholder="15s" :pattern="regDuration" :maxlength="10" />
                         </b-field>
                       </div>
                       <div class="column is-3">
-                        <b-field :label="$t('settings.smtp.waitTimeout')" label-position="on-border"
-                          :message="$t('settings.smtp.waitTimeoutHelp')">
+                        <b-field :label="$t('settings.mailserver.waitTimeout')"
+                          label-position="on-border"
+                          :message="$t('settings.mailserver.waitTimeoutHelp')">
                           <b-input v-model="item.wait_timeout" name="wait_timeout"
                             placeholder="5s" :pattern="regDuration" :maxlength="10" />
                         </b-field>
@@ -518,15 +521,15 @@
                         </b-field>
                       </div>
                       <div class="column is-6">
-                        <b-field :label="$t('settings.bounces.host')" label-position="on-border"
-                          :message="$t('settings.bounces.hostHelp')">
+                        <b-field :label="$t('settings.mailserver.host')" label-position="on-border"
+                          :message="$t('settings.mailserver.hostHelp')">
                           <b-input v-model="item.host" name="host"
                             placeholder='bounce.yourmailserver.net' :maxlength="200" />
                         </b-field>
                       </div>
                       <div class="column is-3">
-                        <b-field :label="$t('settings.bounces.port')" label-position="on-border"
-                          :message="$t('settings.bounces.portHelp')">
+                        <b-field :label="$t('settings.mailserver.port')" label-position="on-border"
+                          :message="$t('settings.mailserver.portHelp')">
                           <b-numberinput v-model="item.port" name="port" type="is-light"
                               controls-position="compact"
                               placeholder="25" min="1" max="65535" />
@@ -536,7 +539,7 @@
 
                     <div class="columns">
                       <div class="column is-3">
-                        <b-field :label="$t('settings.bounces.authProtocol')"
+                        <b-field :label="$t('settings.mailserver.authProtocol')"
                           label-position="on-border">
                           <b-select v-model="item.auth_protocol" name="auth_protocol">
                             <option value="none">none</option>
@@ -551,19 +554,19 @@
                       </div>
                       <div class="column">
                         <b-field grouped>
-                          <b-field :label="$t('settings.bounces.username')"
+                          <b-field :label="$t('settings.mailserver.username')"
                             label-position="on-border" expanded>
                             <b-input v-model="item.username"
                               :disabled="item.auth_protocol === 'none'"
                               name="username" placeholder="mysmtp" :maxlength="200" />
                           </b-field>
-                          <b-field :label="$t('settings.bounces.password')"
+                          <b-field :label="$t('settings.mailserver.password')"
                             label-position="on-border" expanded
-                            :message="$t('settings.bounces.passwordHelp')">
+                            :message="$t('settings.mailserver.passwordHelp')">
                             <b-input v-model="item.password"
                               :disabled="item.auth_protocol === 'none'"
                               name="password" type="password"
-                              :placeholder="$t('settings.bounces.passwordHelp')"
+                              :placeholder="$t('settings.mailserver.passwordHelp')"
                               :maxlength="200" />
                           </b-field>
                         </b-field>
@@ -573,12 +576,12 @@
                     <div class="columns">
                       <div class="column is-6">
                         <b-field grouped>
-                          <b-field :label="$t('settings.bounces.tls')" expanded
-                            :message="$t('settings.bounces.tlsHelp')">
+                          <b-field :label="$t('settings.mailserver.tls')" expanded
+                            :message="$t('settings.mailserver.tlsHelp')">
                             <b-switch v-model="item.tls_enabled" name="item.tls_enabled" />
                           </b-field>
-                          <b-field :label="$t('settings.bounces.skipTLS')" expanded
-                            :message="$t('settings.bounces.skipTLSHelp')">
+                          <b-field :label="$t('settings.mailserver.skipTLS')" expanded
+                            :message="$t('settings.mailserver.skipTLSHelp')">
                             <b-switch v-model="item.tls_skip_verify"
                               :disabled="!item.tls_enabled" name="item.tls_skip_verify" />
                           </b-field>
