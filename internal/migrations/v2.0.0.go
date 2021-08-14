@@ -26,7 +26,7 @@ func V2_0_0(db *sqlx.DB, fs stuffbin.FileSystem, ko *koanf.Koanf) error {
 	}
 
 	if _, err := db.Exec(`
-		INSERT INTO settings (key, value) SELECT k, v::JSONB FROM (VALUES
+		INSERT INTO settings (key, value) VALUES
 	    ('bounce.enabled', 'false'),
 	    ('bounce.webhooks_enabled', 'false'),
 	    ('bounce.count', '2'),
@@ -34,8 +34,8 @@ func V2_0_0(db *sqlx.DB, fs stuffbin.FileSystem, ko *koanf.Koanf) error {
 	    ('bounce.ses_enabled', 'false'),
 	    ('bounce.sendgrid_enabled', 'false'),
 	    ('bounce.sendgrid_key', '""'),
-	    ('bounce.mailboxes', '[{"enabled":false, "type": "pop", "host":"pop.yoursite.com","port":995,"auth_protocol":"userpass","username":"username","password":"password","return_path": "bounce@listmonk.yoursite.com","scan_interval":"15m","tls_enabled":true,"tls_skip_verify":false}]'))
-	    VALS (k, v) WHERE NOT EXISTS(SELECT * FROM settings LIMIT 1);`); err != nil {
+	    ('bounce.mailboxes', '[{"enabled":false, "type": "pop", "host":"pop.yoursite.com","port":995,"auth_protocol":"userpass","username":"username","password":"password","return_path": "bounce@listmonk.yoursite.com","scan_interval":"15m","tls_enabled":true,"tls_skip_verify":false}]')
+	    ON CONFLICT DO NOTHING;`); err != nil {
 		return err
 	}
 
