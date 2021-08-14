@@ -120,13 +120,12 @@ type User struct {
 type Subscriber struct {
 	Base
 
-	UUID        string            `db:"uuid" json:"uuid"`
-	Email       string            `db:"email" json:"email"`
-	Name        string            `db:"name" json:"name"`
-	Attribs     SubscriberAttribs `db:"attribs" json:"attribs"`
-	Status      string            `db:"status" json:"status"`
-	CampaignIDs pq.Int64Array     `db:"campaigns" json:"-"`
-	Lists       types.JSONText    `db:"lists" json:"lists"`
+	UUID    string            `db:"uuid" json:"uuid"`
+	Email   string            `db:"email" json:"email"`
+	Name    string            `db:"name" json:"name"`
+	Attribs SubscriberAttribs `db:"attribs" json:"attribs"`
+	Status  string            `db:"status" json:"status"`
+	Lists   types.JSONText    `db:"lists" json:"lists"`
 
 	// Pseudofield for getting the total number of subscribers
 	// in searches and queries.

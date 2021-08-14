@@ -39,5 +39,9 @@ func V2_0_0(db *sqlx.DB, fs stuffbin.FileSystem, ko *koanf.Koanf) error {
 		return err
 	}
 
+	if _, err := db.Exec(`ALTER TABLE subscribers DROP COLUMN IF EXISTS campaigns; `); err != nil {
+		return err
+	}
+
 	return nil
 }
