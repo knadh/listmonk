@@ -18,7 +18,7 @@
     <hr />
 
     <section class="wrap-small">
-      <form @submit.prevent="onSubmit">
+      <form @submit.prevent="onSubmit" v-if="!isLoading">
         <b-tabs type="is-boxed" :animated="false">
           <b-tab-item :label="$t('settings.general.name')" label-position="on-border">
             <div class="items">
@@ -503,7 +503,8 @@
 
             <!-- bounce mailbox -->
             <b-field :label="$t('settings.bounces.enableMailbox')">
-              <b-switch v-model="form['bounce.mailboxes'][0].enabled"
+              <b-switch v-if="form['bounce.mailboxes']"
+                v-model="form['bounce.mailboxes'][0].enabled"
                 :disabled="!form['bounce.enabled']"
                 name="enabled" :native-value="true" data-cy="btn-enable-bounce-mailbox" />
             </b-field>
@@ -885,7 +886,10 @@ export default Vue.extend({
 
         this.form = d;
         this.formCopy = JSON.stringify(d);
-        this.isLoading = false;
+
+        this.$nextTick(() => {
+          this.isLoading = false;
+        });
       });
     },
   },
