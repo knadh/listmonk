@@ -80,6 +80,28 @@ type settings struct {
 		Timeout       string `json:"timeout"`
 		MaxMsgRetries int    `json:"max_msg_retries"`
 	} `json:"messengers"`
+
+	BounceEnabled        bool   `json:"bounce.enabled"`
+	BounceEnableWebhooks bool   `json:"bounce.webhooks_enabled"`
+	BounceCount          int    `json:"bounce.count"`
+	BounceAction         string `json:"bounce.action"`
+	SESEnabled           bool   `json:"bounce.ses_enabled"`
+	SendgridEnabled      bool   `json:"bounce.sendgrid_enabled"`
+	SendgridKey          string `json:"bounce.sendgrid_key"`
+	BounceBoxes          []struct {
+		UUID          string `json:"uuid"`
+		Enabled       bool   `json:"enabled"`
+		Type          string `json:"type"`
+		Host          string `json:"host"`
+		Port          int    `json:"port"`
+		AuthProtocol  string `json:"auth_protocol"`
+		ReturnPath    string `json:"return_path"`
+		Username      string `json:"username"`
+		Password      string `json:"password,omitempty"`
+		TLSEnabled    bool   `json:"tls_enabled"`
+		TLSSkipVerify bool   `json:"tls_skip_verify"`
+		ScanInterval  string `json:"scan_interval"`
+	} `json:"bounce.mailboxes"`
 }
 
 var (
@@ -99,10 +121,14 @@ func handleGetSettings(c echo.Context) error {
 	for i := 0; i < len(s.SMTP); i++ {
 		s.SMTP[i].Password = ""
 	}
+	for i := 0; i < len(s.BounceBoxes); i++ {
+		s.BounceBoxes[i].Password = ""
+	}
 	for i := 0; i < len(s.Messengers); i++ {
 		s.Messengers[i].Password = ""
 	}
 	s.UploadS3AwsSecretAccessKey = ""
+	s.SendgridKey = ""
 
 	return c.JSON(http.StatusOK, okResp{s})
 }
@@ -154,6 +180,31 @@ func handleUpdateSettings(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("settings.errorNoSMTP"))
 	}
 
+	// Bounce boxes.
+	for i, s := range set.BounceBoxes {
+		// Assign a UUID. The frontend only sends a password when the user explictly
+		// changes the password. In other cases, the existing password in the DB
+		// is copied while updating the settings and the UUID is used to match
+		// the incoming array of blocks with the array in the DB.
+		if s.UUID == "" {
+			set.BounceBoxes[i].UUID = uuid.Must(uuid.NewV4()).String()
+		}
+
+		if d, _ := time.ParseDuration(s.ScanInterval); d.Minutes() < 1 {
+			return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("settings.bounces.invalidScanInterval"))
+		}
+
+		// If there's no password coming in from the frontend, copy the existing
+		// password by matching the UUID.
+		if s.Password == "" {
+			for _, c := range cur.BounceBoxes {
+				if s.UUID == c.UUID {
+					set.BounceBoxes[i].Password = c.Password
+				}
+			}
+		}
+	}
+
 	// Validate and sanitize postback Messenger names. Duplicates are disallowed
 	// and "email" is a reserved name.
 	names := map[string]bool{emailMsgr: true}
@@ -188,6 +239,9 @@ func handleUpdateSettings(c echo.Context) error {
 	// S3 password?
 	if set.UploadS3AwsSecretAccessKey == "" {
 		set.UploadS3AwsSecretAccessKey = cur.UploadS3AwsSecretAccessKey
+	}
+	if set.SendgridKey == "" {
+		set.SendgridKey = cur.SendgridKey
 	}
 
 	// Marshal settings.

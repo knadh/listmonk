@@ -111,6 +111,21 @@ export const deleteList = (id) => http.delete(`/api/lists/${id}`,
 export const getSubscribers = async (params) => http.get('/api/subscribers',
   { params, loading: models.subscribers, store: models.subscribers });
 
+export const getSubscriber = async (id) => http.get(`/api/subscribers/${id}`,
+  { loading: models.subscribers });
+
+export const getSubscriberBounces = async (id) => http.get(`/api/subscribers/${id}/bounces`,
+  { loading: models.bounces });
+
+export const deleteSubscriberBounces = async (id) => http.delete(`/api/subscribers/${id}/bounces`,
+  { loading: models.bounces });
+
+export const deleteBounce = async (id) => http.delete(`/api/bounces/${id}`,
+  { loading: models.bounces });
+
+export const deleteBounces = async (params) => http.delete('/api/bounces',
+  { params, loading: models.bounces });
+
 export const createSubscriber = (data) => http.post('/api/subscribers', data,
   { loading: models.subscribers });
 
@@ -147,6 +162,10 @@ export const getImportLogs = async () => http.get('/api/import/subscribers/logs'
   { preserveCase: true });
 
 export const stopImport = () => http.delete('/api/import/subscribers');
+
+// Bounces.
+export const getBounces = async (params) => http.get('/api/bounces',
+  { params, loading: models.bounces });
 
 // Campaigns.
 export const getCampaigns = async (params) => http.get('/api/campaigns',

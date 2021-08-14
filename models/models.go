@@ -9,6 +9,7 @@ import (
 	"html/template"
 	"regexp"
 	"strings"
+	"time"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/jmoiron/sqlx/types"
@@ -62,6 +63,13 @@ const (
 
 	// ContentTpl is the name of the compiled message.
 	ContentTpl = "content"
+
+	// Headers attached to e-mails for bounce tracking.
+	EmailHeaderSubscriberUUID = "X-Listmonk-Subscriber"
+	EmailHeaderCampaignUUID   = "X-Listmonk-Campaign"
+
+	BounceTypeHard = "hard"
+	BounceTypeSoft = "soft"
 )
 
 // regTplFunc represents contains a regular expression for wrapping and
@@ -201,6 +209,7 @@ type CampaignMeta struct {
 	CampaignID int `db:"campaign_id" json:"-"`
 	Views      int `db:"views" json:"views"`
 	Clicks     int `db:"clicks" json:"clicks"`
+	Bounces    int `db:"bounces" json:"bounces"`
 
 	// This is a list of {list_id, name} pairs unlike Subscriber.Lists[]
 	// because lists can be deleted after a campaign is finished, resulting
@@ -224,6 +233,27 @@ type Template struct {
 	Name      string `db:"name" json:"name"`
 	Body      string `db:"body" json:"body,omitempty"`
 	IsDefault bool   `db:"is_default" json:"is_default"`
+}
+
+// Bounce represents a single bounce event.
+type Bounce struct {
+	ID        int             `db:"id" json:"id"`
+	Type      string          `db:"type" json:"type"`
+	Source    string          `db:"source" json:"source"`
+	Meta      json.RawMessage `db:"meta" json:"meta"`
+	CreatedAt time.Time       `db:"created_at" json:"created_at"`
+
+	// One of these should be provided.
+	Email          string `db:"email" json:"email,omitempty"`
+	SubscriberUUID string `db:"subscriber_uuid" json:"subscriber_uuid,omitempty"`
+	SubscriberID   int    `db:"subscriber_id" json:"subscriber_id,omitempty"`
+
+	CampaignUUID string           `db:"campaign_uuid" json:"campaign_uuid,omitempty"`
+	Campaign     *json.RawMessage `db:"campaign" json:"campaign"`
+
+	// Pseudofield for getting the total number of bounces
+	// in searches and queries.
+	Total int `db:"total" json:"-"`
 }
 
 // markdown is a global instance of Markdown parser and renderer.
@@ -310,6 +340,7 @@ func (camps Campaigns) LoadStats(stmt *sqlx.Stmt) error {
 			camps[i].Lists = c.Lists
 			camps[i].Views = c.Views
 			camps[i].Clicks = c.Clicks
+			camps[i].Bounces = c.Bounces
 		}
 	}
 

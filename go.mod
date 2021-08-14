@@ -8,6 +8,7 @@ require (
 	github.com/disintegration/imaging v1.6.2
 	github.com/gofrs/uuid v3.2.0+incompatible
 	github.com/jmoiron/sqlx v1.2.0
+	github.com/knadh/go-pop3 v0.1.0
 	github.com/knadh/goyesql/v2 v2.1.1
 	github.com/knadh/koanf v0.12.0
 	github.com/knadh/smtppool v0.2.1

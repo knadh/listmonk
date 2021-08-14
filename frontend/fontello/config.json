@@ -511,6 +511,34 @@
       ]
     },
     {
+      "uid": "e97fad4c93444c9b81151c2aa4086e13",
+      "css": "chart-bar",
+      "code": 59428,
+      "src": "custom_icons",
+      "selected": true,
+      "svg": {
+        "path": "M916 875H84V125H166V791H250V416H416V791H500V250H666V791H750V584H916V875Z",
+        "width": 1000
+      },
+      "search": [
+        "chart-bar"
+      ]
+    },
+    {
+      "uid": "61e03b48670cd93477e233e0d6bb3f1c",
+      "css": "email-bounce",
+      "code": 59429,
+      "src": "custom_icons",
+      "selected": true,
+      "svg": {
+        "path": "M916 834H750V959L541 771.5 750 584V709H916V834ZM834 166H166Q132.8 166 108.4 190.4T84 250V750Q84 785.2 108.4 809.6T166 834H459V750H166V334L500 541 834 334V625H916V250Q916 214.8 891.6 190.4T834 166ZM500 459L166 250H834Z",
+        "width": 1000
+      },
+      "search": [
+        "email-bounce"
+      ]
+    },
+    {
       "uid": "f4ad3f6d071a0bfb3a8452b514ed0892",
       "css": "vector-square",
       "code": 983041,
@@ -4568,20 +4596,6 @@
       },
       "search": [
         "chart-areaspline"
-      ]
-    },
-    {
-      "uid": "e97fad4c93444c9b81151c2aa4086e13",
-      "css": "chart-bar",
-      "code": 983336,
-      "src": "custom_icons",
-      "selected": false,
-      "svg": {
-        "path": "M916 875H84V125H166V791H250V416H416V791H500V250H666V791H750V584H916V875Z",
-        "width": 1000
-      },
-      "search": [
-        "chart-bar"
       ]
     },
     {
@@ -60442,20 +60456,6 @@
       },
       "search": [
         "email-receive"
-      ]
-    },
-    {
-      "uid": "61e03b48670cd93477e233e0d6bb3f1c",
-      "css": "email-receive-outline",
-      "code": 987355,
-      "src": "custom_icons",
-      "selected": false,
-      "svg": {
-        "path": "M916 834H750V959L541 771.5 750 584V709H916V834ZM834 166H166Q132.8 166 108.4 190.4T84 250V750Q84 785.2 108.4 809.6T166 834H459V750H166V334L500 541 834 334V625H916V250Q916 214.8 891.6 190.4T834 166ZM500 459L166 250H834Z",
-        "width": 1000
-      },
-      "search": [
-        "email-receive-outline"
       ]
     },
     {
