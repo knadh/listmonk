@@ -85,7 +85,7 @@ func V0_7_0(db *sqlx.DB, fs stuffbin.FileSystem, ko *koanf.Koanf) error {
 		('upload.filesystem.upload_uri', '"/uploads"'),
 		('upload.s3.aws_access_key_id', '""'),
 		('upload.s3.aws_secret_access_key', '""'),
-		('upload.s3.aws_default_region', '"ap-south-b"'),
+		('upload.s3.aws_default_region', '"ap-south-1"'),
 		('upload.s3.bucket', '""'),
 		('upload.s3.bucket_domain', '""'),
 		('upload.s3.bucket_path', '"/"'),

@@ -452,7 +452,7 @@ func initPostbackMessengers(m *manager.Manager) []messenger.Messenger {
 func initMediaStore() media.Store {
 	switch provider := ko.String("upload.provider"); provider {
 	case "s3":
-		var o s3.Opts
+		var o s3.Opt
 		ko.Unmarshal("upload.s3", &o)
 		up, err := s3.NewS3Store(o)
 		if err != nil {

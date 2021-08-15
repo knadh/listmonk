@@ -354,6 +354,8 @@
     "settings.media.s3.secret": "Secrete de acceso a AWS (secret)",
     "settings.media.s3.uploadExpiry": "Expiración de carga",
     "settings.media.s3.uploadExpiryHelp": "(Opcional) TTL específico (en segundos) para la URL pre firmada generada. Solo es aplicable para contenedores privados (s, m, h, d para segundos, minutos, horas, días)",
+    "settings.media.s3.url": "S3 backend URL",
+    "settings.media.s3.urlHelp": "Only change if using a custom S3 comptaible backend like Minio.",
     "settings.media.title": "Cargas de media",
     "settings.media.upload.path": "Ruta de carga",
     "settings.media.upload.pathHelp": "Ruta al directorio donde la media será cargada.",

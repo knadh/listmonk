@@ -354,6 +354,8 @@
     "settings.media.s3.secret": "Segredo de acesso AWS",
     "settings.media.s3.uploadExpiry": "Expiração do arquivo enviado",
     "settings.media.s3.uploadExpiryHelp": "(Opcional) Especificar TTL (em segundos) para a URL pré-assinada gerada. Apenas aplicável para buckets privados (s, m, h, d para segundos, minutos, horas e dias).",
+    "settings.media.s3.url": "S3 backend URL",
+    "settings.media.s3.urlHelp": "Only change if using a custom S3 comptaible backend like Minio.",
     "settings.media.title": "Envios de mídias",
     "settings.media.upload.path": "Caminho de envio",
     "settings.media.upload.pathHelp": "Caminho para o diretório onde a mídia será enviado.",

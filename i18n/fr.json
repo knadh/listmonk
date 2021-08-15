@@ -354,6 +354,8 @@
     "settings.media.s3.secret": "Mot de passe d'accès AWS",
     "settings.media.s3.uploadExpiry": "Durée de validité",
     "settings.media.s3.uploadExpiryHelp": "(Facultatif) Spécifiez la durée de validité (en secondes) pour l'URL prédéfinie générée. Uniquement applicable pour les compartiments privés (s, m, h, d pour les secondes, minutes, heures, jours).",
+    "settings.media.s3.url": "S3 backend URL",
+    "settings.media.s3.urlHelp": "Only change if using a custom S3 comptaible backend like Minio.",
     "settings.media.title": "Mise en ligne de fichiers",
     "settings.media.upload.path": "Emplacement d'envoi des fichiers",
     "settings.media.upload.pathHelp": "Chemin vers le répertoire où les médias seront mis en ligne",

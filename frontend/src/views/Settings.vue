@@ -18,7 +18,7 @@
     <hr />
 
     <section class="wrap-small">
-      <form @submit.prevent="onSubmit" v-if="!isLoading">
+      <form @submit.prevent="onSubmit">
         <b-tabs type="is-boxed" :animated="false">
           <b-tab-item :label="$t('settings.general.name')" label-position="on-border">
             <div class="items">
@@ -213,7 +213,7 @@
                   <div class="column is-3">
                     <b-field :label="$t('settings.media.s3.region')"
                       label-position="on-border" expanded>
-                      <b-input v-model="form['upload.s3.aws_default_region']"
+                      <b-input v-model="form['upload.s3.aws_default_region']" @input="onS3URLChange"
                           name="upload.s3.aws_default_region"
                           :maxlength="200" placeholder="ap-south-1" />
                     </b-field>
@@ -254,7 +254,7 @@
                     <b-field grouped>
                       <b-field :label="$t('settings.media.s3.bucket')"
                         label-position="on-border" expanded>
-                        <b-input v-model="form['upload.s3.bucket']"
+                        <b-input v-model="form['upload.s3.bucket']" @input="onS3URLChange"
                             name="upload.s3.bucket" :maxlength="200" placeholder="" />
                       </b-field>
                       <b-field :label="$t('settings.media.s3.bucketPath')"
@@ -274,6 +274,16 @@
                       <b-input v-model="form['upload.s3.expiry']"
                         name="upload.s3.expiry"
                         placeholder="14d" :pattern="regDuration" :maxlength="10" />
+                    </b-field>
+                  </div>
+                  <div class="column">
+                    <b-field :label="$t('settings.media.s3.url')"
+                      label-position="on-border"
+                      :message="$t('settings.media.s3.urlHelp')" expanded>
+                      <b-input v-model="form['upload.s3.url']"
+                        name="upload.s3.url"
+                        :disabled="!form['upload.s3.bucket']"
+                        placeholder="https://s3.region.amazonaws.com" :maxlength="200" />
                     </b-field>
                   </div>
                 </div>
@@ -786,6 +796,13 @@ export default Vue.extend({
       this.form.messengers.splice(i, 1);
     },
 
+    onS3URLChange() {
+      // If a custom non-AWS URL has been entered, don't update it automatically.
+      if (this.form['upload.s3.url'] !== '' && !this.form['upload.s3.url'].match(/amazonaws\.com/)) {
+        return;
+      }
+      this.form['upload.s3.url'] = `https://s3.${this.form['upload.s3.aws_default_region']}.amazonaws.com`;
+    },
 
     onSubmit() {
       const form = JSON.parse(JSON.stringify(this.form));

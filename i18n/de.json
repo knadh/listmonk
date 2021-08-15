@@ -354,6 +354,8 @@
     "settings.media.s3.secret": "AWS Access Secret",
     "settings.media.s3.uploadExpiry": "Upload Ablaufdatum",
     "settings.media.s3.uploadExpiryHelp": "(Optional) Zeit bis zum Ablauf (in Sekunden) für die generierte URL. Nur für private Buckets. (s, m, h, d für Sekunden, Minuten, Stunden, Tage).",
+    "settings.media.s3.url": "S3 backend URL",
+    "settings.media.s3.urlHelp": "Only change if using a custom S3 comptaible backend like Minio.",
     "settings.media.title": "Medien Uploads",
     "settings.media.upload.path": "Upload Pfad",
     "settings.media.upload.pathHelp": "Pfad zum Upload Verzeichnis.",

@@ -354,6 +354,8 @@
     "settings.media.s3.secret": "AWS പ്രവേശന രഹസ്യം",
     "settings.media.s3.uploadExpiry": "അപ്ലോഡിന്റെ കാലാവധി",
     "settings.media.s3.uploadExpiryHelp": "(ഐച്ഛികം) മുൻകൂട്ടി നിർമ്മിക്കുന്ന യൂ. ആർ. എല്ലിനുള്ള സെക്കന്റിലുള്ള TTL വ്യക്തമാക്കുക . സ്വകാര്യ ബക്കറ്റുകൾക്ക് മാത്രമേ ബാധകമാകൂ (s, m, h, d എന്നിവ യഥാക്രമം സെക്കന്റ്, മിനുട്ട്, മണിക്കൂർ, ദിവസങ്ങൾ എന്നിവയെ സൂചിപ്പിക്കുന്നു).",
+    "settings.media.s3.url": "S3 backend URL",
+    "settings.media.s3.urlHelp": "Only change if using a custom S3 comptaible backend like Minio.",
     "settings.media.title": "മീഡിയാ അപ്ലോഡുകൾ",
     "settings.media.upload.path": "അപ്ലോഡ് പാത്ത്",
     "settings.media.upload.pathHelp": "മീഡിയ അപ്ലോഡ് ചെയ്യുന്നതിനുള്ള ഡയറക്ടറിയിലേക്കുള്ള പാത്ത്.",

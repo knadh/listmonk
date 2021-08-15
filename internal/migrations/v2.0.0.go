@@ -43,5 +43,17 @@ func V2_0_0(db *sqlx.DB, fs stuffbin.FileSystem, ko *koanf.Koanf) error {
 		return err
 	}
 
+	// S3 URL i snow a settings field. Prepare S3 URL based on region and bucket.
+	if _, err := db.Exec(`
+		WITH region AS (
+			SELECT value#>>'{}' AS value FROM settings WHERE key='upload.s3.aws_default_region'
+		), s3url AS (
+			SELECT FORMAT('https://s3.%s.amazonaws.com', (SELECT value FROM region)) AS value
+		)
+
+		INSERT INTO settings (key, value) VALUES ('upload.s3.url', TO_JSON((SELECT * FROM s3url))) ON CONFLICT DO NOTHING;`); err != nil {
+		return err
+	}
+
 	return nil
 }
