@@ -7,6 +7,7 @@ import (
 	"strings"
 	"syscall"
 	"time"
+	"os"
 
 	"github.com/gofrs/uuid"
 	"github.com/jmoiron/sqlx/types"
@@ -80,6 +81,9 @@ type settings struct {
 		Timeout       string `json:"timeout"`
 		MaxMsgRetries int    `json:"max_msg_retries"`
 	} `json:"messengers"`
+
+	AppearanceCustomCSS		string `json:"appearance.custom_css"`
+	SettingActiveTab		string `json:"activeTab"`
 }
 
 var (
@@ -190,6 +194,11 @@ func handleUpdateSettings(c echo.Context) error {
 		set.UploadS3AwsSecretAccessKey = cur.UploadS3AwsSecretAccessKey
 	}
 
+	// Custom CSS
+	if err := os.WriteFile("frontend/dist/frontend/custom.css", []byte(set.AppearanceCustomCSS), 0666); err != nil {
+        return err
+    }
+ 
 	// Marshal settings.
 	b, err := json.Marshal(set)
 	if err != nil {

@@ -47,7 +47,7 @@ run:
 
 # Build the JS frontend into frontend/dist.
 $(FRONTEND_DIST): $(FRONTEND_DEPS)
-	export VUE_APP_VERSION="${VERSION}" && cd frontend && $(YARN) build && mv dist/favicon.png dist/frontend/favicon.png
+	export VUE_APP_VERSION="${VERSION}" && cd frontend && $(YARN) build && mv dist/favicon.png dist/frontend/favicon.png && mv dist/custom.css dist/frontend/custom.css
 	touch --no-create $(FRONTEND_DIST)
 
 
