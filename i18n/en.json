@@ -274,7 +274,7 @@
     "public.unsubbedInfo": "You have unsubscribed successfully.",
     "public.unsubbedTitle": "Unsubscribed",
     "public.unsubscribeTitle": "Unsubscribe from mailing list",
-    "settings.appearance.cssHelp": "Optional. Add any custom css rules to theme the listmonk admin dashboard. You will need to refresh the page to apply any changes.",
+    "settings.appearance.cssHelp": "Optional. Add any custom css rules to theme the listmonk admin dashboard.",
     "settings.appearance.name": "Appearance",
     "settings.confirmRestart": "Ensure running campaigns are paused. Restart?",
     "settings.duplicateMessengerName": "Duplicate messenger name: {name}",
