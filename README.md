@@ -65,14 +65,7 @@ __________________
 __________________
 
 ### Heroku 
-
-Using the [Nginx buildpack](https://github.com/heroku/heroku-buildpack-nginx) can be used to deploy listmonk on Heroku and use Nginx as a proxy to setup basicauth. 
-This one-click [Heroku deploy button](https://github.com/bumi/listmonk-heroku) provides an automated default deployment.
-
-[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/bumi/listmonk-heroku)
-
-Please note that [configuration options](https://listmonk.app/docs/configuration) must be set using [environment configuration variables](https://devcenter.heroku.com/articles/config-vars).
-
+[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/knadh/listmonk-heroku)
 
 
 ## Developers
