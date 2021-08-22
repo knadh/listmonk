@@ -70,7 +70,6 @@ func New(opt Opt, q *Queries, lo *log.Logger) (*Manager, error) {
 		switch opt.MailboxType {
 		case "pop":
 			m.mailbox = mailbox.NewPOP(opt.Mailbox)
-		case "imap":
 		default:
 			return nil, errors.New("unknown bounce mailbox type")
 		}
@@ -107,13 +106,18 @@ func (m *Manager) Run() {
 				return
 			}
 
+			date := b.CreatedAt
+			if date.IsZero() {
+				date = time.Now()
+			}
+
 			_, err := m.queries.RecordQuery.Exec(b.SubscriberUUID,
 				b.Email,
 				b.CampaignUUID,
 				b.Type,
 				b.Source,
 				b.Meta,
-				b.CreatedAt,
+				date,
 				m.opt.BounceCount,
 				m.opt.BounceAction)
 			if err != nil {
