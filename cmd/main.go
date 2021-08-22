@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	_ "embed"
 	"fmt"
 	"html/template"
 	"io"
