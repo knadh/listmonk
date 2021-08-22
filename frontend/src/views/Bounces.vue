@@ -36,11 +36,13 @@
         </router-link>
       </b-table-column>
 
-      <b-table-column v-slot="props" field="campaign_name" :label="$tc('globals.terms.campaign')"
+      <b-table-column v-slot="props" field="campaign" :label="$tc('globals.terms.campaign')"
         sortable>
-        <router-link :to="{ name: 'bounces', query: { campaign_id: props.row.campaign.id }}">
+        <router-link v-if="props.row.campaign"
+          :to="{ name: 'bounces', query: { campaign_id: props.row.campaign.id }}">
           {{ props.row.campaign.name }}
         </router-link>
+        <span v-else>-</span>
       </b-table-column>
 
       <b-table-column v-slot="props" field="source" :label="$t('bounces.source')" sortable>

@@ -449,13 +449,13 @@
           <b-tab-item :label="$t('settings.bounces.name')">
             <div class="columns mb-6">
               <div class="column">
-                <b-field :label="$t('settings.bounces.enable')">
+                <b-field :label="$t('settings.bounces.enable')" data-cy="btn-enable-bounce">
                   <b-switch v-model="form['bounce.enabled']" name="bounce.enabled" />
                 </b-field>
               </div>
               <div class="column" :class="{'disabled': !form['bounce.enabled']}">
                 <b-field :label="$t('settings.bounces.count')" label-position="on-border"
-                  :message="$t('settings.bounces.countHelp')">
+                  :message="$t('settings.bounces.countHelp')" data-cy="btn-bounce-count">
                   <b-numberinput v-model="form['bounce.count']"
                     name="bounce.count" type="is-light"
                     controls-position="compact" placeholder="3" min="1" max="1000" />
@@ -472,7 +472,8 @@
             </div><!-- columns -->
 
             <div class="mb-6">
-              <b-field :label="$t('settings.bounces.enableWebhooks')">
+              <b-field :label="$t('settings.bounces.enableWebhooks')"
+                data-cy="btn-enable-bounce-webhook">
                 <b-switch v-model="form['bounce.webhooks_enabled']"
                   :disabled="!form['bounce.enabled']"
                   name="webhooks_enabled" :native-value="true"

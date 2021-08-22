@@ -130,6 +130,7 @@ func registerHTTPHandlers(e *echo.Echo, app *App) {
 	g.GET("/subscribers", handleIndexPage)
 	g.GET("/subscribers/lists/:listID", handleIndexPage)
 	g.GET("/subscribers/import", handleIndexPage)
+	g.GET("/subscribers/bounces", handleIndexPage)
 	g.GET("/campaigns", handleIndexPage)
 	g.GET("/campaigns/new", handleIndexPage)
 	g.GET("/campaigns/media", handleIndexPage)
