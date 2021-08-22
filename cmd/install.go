@@ -17,13 +17,17 @@ import (
 
 // install runs the first time setup of creating and
 // migrating the database and creating the super user.
-func install(lastVer string, db *sqlx.DB, fs stuffbin.FileSystem, prompt bool) {
+func install(lastVer string, db *sqlx.DB, fs stuffbin.FileSystem, prompt, idempotent bool) {
 	qMap, _ := initQueries(queryFilePath, db, fs, false)
 
 	fmt.Println("")
-	fmt.Println("** first time installation **")
-	fmt.Printf("** IMPORTANT: This will wipe existing listmonk tables and types in the DB '%s' **",
-		ko.String("db.database"))
+	if !idempotent {
+		fmt.Println("** first time installation **")
+		fmt.Printf("** IMPORTANT: This will wipe existing listmonk tables and types in the DB '%s' **",
+			ko.String("db.database"))
+	} else {
+		fmt.Println("** first time (idempotent) installation **")
+	}
 	fmt.Println("")
 
 	if prompt {
@@ -38,10 +42,22 @@ func install(lastVer string, db *sqlx.DB, fs stuffbin.FileSystem, prompt bool) {
 		}
 	}
 
+	// If idempotence is on, check if the DB is already setup.
+	if idempotent {
+		if _, err := db.Exec("SELECT count(*) FROM settings"); err != nil {
+			// If "settings" doesn't exist, assume it's a fresh install.
+			if pqErr, ok := err.(*pq.Error); ok && pqErr.Code != "42P01" {
+				lo.Fatalf("error checking existing DB schema: %v", err)
+			}
+		} else {
+			lo.Println("skipping install as database appears to be already setup")
+			os.Exit(0)
+		}
+	}
+
 	// Migrate the tables.
-	err := installSchema(lastVer, db, fs)
-	if err != nil {
-		lo.Fatalf("Error migrating DB schema: %v", err)
+	if err := installSchema(lastVer, db, fs); err != nil {
+		lo.Fatalf("error migrating DB schema: %v", err)
 	}
 
 	// Load the queries.
@@ -62,7 +78,7 @@ func install(lastVer string, db *sqlx.DB, fs stuffbin.FileSystem, prompt bool) {
 		models.ListOptinSingle,
 		pq.StringArray{"test"},
 	); err != nil {
-		lo.Fatalf("Error creating list: %v", err)
+		lo.Fatalf("error creating list: %v", err)
 	}
 
 	if err := q.CreateList.Get(&optinList, uuid.Must(uuid.NewV4()),
@@ -71,7 +87,7 @@ func install(lastVer string, db *sqlx.DB, fs stuffbin.FileSystem, prompt bool) {
 		models.ListOptinDouble,
 		pq.StringArray{"test"},
 	); err != nil {
-		lo.Fatalf("Error creating list: %v", err)
+		lo.Fatalf("error creating list: %v", err)
 	}
 
 	// Sample subscriber.
@@ -93,7 +109,7 @@ func install(lastVer string, db *sqlx.DB, fs stuffbin.FileSystem, prompt bool) {
 		pq.Int64Array{int64(optinList)},
 		models.SubscriptionStatusUnconfirmed,
 		true); err != nil {
-		lo.Fatalf("Error creating subscriber: %v", err)
+		lo.Fatalf("error creating subscriber: %v", err)
 	}
 
 	// Default template.
@@ -132,8 +148,8 @@ func install(lastVer string, db *sqlx.DB, fs stuffbin.FileSystem, prompt bool) {
 		lo.Fatalf("error creating sample campaign: %v", err)
 	}
 
-	lo.Printf("Setup complete")
-	lo.Printf(`Run the program and access the dashboard at %s`, ko.MustString("app.address"))
+	lo.Printf("setup complete")
+	lo.Printf(`run the program and access the dashboard at %s`, ko.MustString("app.address"))
 }
 
 // installSchema executes the SQL schema and creates the necessary tables and types.

@@ -84,13 +84,14 @@ func initFlags() {
 	// Register the commandline flags.
 	f.StringSlice("config", []string{"config.toml"},
 		"path to one or more config files (will be merged in order)")
-	f.Bool("install", false, "run first time installation")
+	f.Bool("install", false, "setup database (first time)")
+	f.Bool("idempotent", false, "make --install run only if the databse isn't already setup")
 	f.Bool("upgrade", false, "upgrade database to the current version")
 	f.Bool("version", false, "current version of the build")
 	f.Bool("new-config", false, "generate sample config file")
 	f.String("static-dir", "", "(optional) path to directory with static files")
 	f.String("i18n-dir", "", "(optional) path to directory with i18n language files")
-	f.Bool("yes", false, "assume 'yes' to prompts, eg: during --install")
+	f.Bool("yes", false, "assume 'yes' to prompts during --install/upgrade")
 	if err := f.Parse(os.Args[1:]); err != nil {
 		lo.Fatalf("error loading flags: %v", err)
 	}
