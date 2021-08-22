@@ -19,7 +19,7 @@
 
     <section class="wrap-small">
       <form @submit.prevent="onSubmit">
-        <b-tabs type="is-boxed" :animated="false" v-model="selectedTab">
+        <b-tabs type="is-boxed" :animated="false">
           <b-tab-item :label="$t('settings.general.name')" label-position="on-border">
             <div class="items">
               <b-field :label="$t('settings.general.rootURL')" label-position="on-border"
@@ -213,7 +213,7 @@
                   <div class="column is-3">
                     <b-field :label="$t('settings.media.s3.region')"
                       label-position="on-border" expanded>
-                      <b-input v-model="form['upload.s3.aws_default_region']"
+                      <b-input v-model="form['upload.s3.aws_default_region']" @input="onS3URLChange"
                           name="upload.s3.aws_default_region"
                           :maxlength="200" placeholder="ap-south-1" />
                     </b-field>
@@ -254,7 +254,7 @@
                     <b-field grouped>
                       <b-field :label="$t('settings.media.s3.bucket')"
                         label-position="on-border" expanded>
-                        <b-input v-model="form['upload.s3.bucket']"
+                        <b-input v-model="form['upload.s3.bucket']" @input="onS3URLChange"
                             name="upload.s3.bucket" :maxlength="200" placeholder="" />
                       </b-field>
                       <b-field :label="$t('settings.media.s3.bucketPath')"
@@ -274,6 +274,16 @@
                       <b-input v-model="form['upload.s3.expiry']"
                         name="upload.s3.expiry"
                         placeholder="14d" :pattern="regDuration" :maxlength="10" />
+                    </b-field>
+                  </div>
+                  <div class="column">
+                    <b-field :label="$t('settings.media.s3.url')"
+                      label-position="on-border"
+                      :message="$t('settings.media.s3.urlHelp')" expanded>
+                      <b-input v-model="form['upload.s3.url']"
+                        name="upload.s3.url"
+                        :disabled="!form['upload.s3.bucket']"
+                        placeholder="https://s3.region.amazonaws.com" :maxlength="200" />
                     </b-field>
                   </div>
                 </div>
@@ -302,15 +312,15 @@
                   <div class="column" :class="{'disabled': !item.enabled}">
                     <div class="columns">
                       <div class="column is-8">
-                        <b-field :label="$t('settings.smtp.host')" label-position="on-border"
-                          :message="$t('settings.smtp.hostHelp')">
+                        <b-field :label="$t('settings.mailserver.host')" label-position="on-border"
+                          :message="$t('settings.mailserver.hostHelp')">
                           <b-input v-model="item.host" name="host"
                             placeholder='smtp.yourmailserver.net' :maxlength="200" />
                         </b-field>
                       </div>
                       <div class="column">
-                        <b-field :label="$t('settings.smtp.port')" label-position="on-border"
-                          :message="$t('settings.smtp.portHelp')">
+                        <b-field :label="$t('settings.mailserver.port')" label-position="on-border"
+                          :message="$t('settings.mailserver.portHelp')">
                           <b-numberinput v-model="item.port" name="port" type="is-light"
                               controls-position="compact"
                               placeholder="25" min="1" max="65535" />
@@ -320,7 +330,7 @@
 
                     <div class="columns">
                       <div class="column is-2">
-                        <b-field :label="$t('settings.smtp.authProtocol')"
+                        <b-field :label="$t('settings.mailserver.authProtocol')"
                           label-position="on-border">
                           <b-select v-model="item.auth_protocol" name="auth_protocol">
                             <option value="none">none</option>
@@ -332,19 +342,19 @@
                       </div>
                       <div class="column">
                         <b-field grouped>
-                          <b-field :label="$t('settings.smtp.username')"
+                          <b-field :label="$t('settings.mailserver.username')"
                             label-position="on-border" expanded>
                             <b-input v-model="item.username"
                               :disabled="item.auth_protocol === 'none'"
                               name="username" placeholder="mysmtp" :maxlength="200" />
                           </b-field>
-                          <b-field :label="$t('settings.smtp.password')"
+                          <b-field :label="$t('settings.mailserver.password')"
                             label-position="on-border" expanded
-                            :message="$t('settings.smtp.passwordHelp')">
+                            :message="$t('settings.mailserver.passwordHelp')">
                             <b-input v-model="item.password"
                               :disabled="item.auth_protocol === 'none'"
                               name="password" type="password"
-                              :placeholder="$t('settings.smtp.passwordHelp')"
+                              :placeholder="$t('settings.mailserver.passwordHelp')"
                               :maxlength="200" />
                           </b-field>
                         </b-field>
@@ -362,12 +372,12 @@
                       </div>
                       <div class="column">
                         <b-field grouped>
-                          <b-field :label="$t('settings.smtp.tls')" expanded
-                            :message="$t('settings.smtp.tlsHelp')">
+                          <b-field :label="$t('settings.mailserver.tls')" expanded
+                            :message="$t('settings.mailserver.tlsHelp')">
                             <b-switch v-model="item.tls_enabled" name="item.tls_enabled" />
                           </b-field>
-                          <b-field :label="$t('settings.smtp.skipTLS')" expanded
-                            :message="$t('settings.smtp.skipTLSHelp')">
+                          <b-field :label="$t('settings.mailserver.skipTLS')" expanded
+                            :message="$t('settings.mailserver.skipTLSHelp')">
                             <b-switch v-model="item.tls_skip_verify"
                               :disabled="!item.tls_enabled" name="item.tls_skip_verify" />
                           </b-field>
@@ -378,8 +388,9 @@
 
                     <div class="columns">
                       <div class="column is-3">
-                        <b-field :label="$t('settings.smtp.maxConns')" label-position="on-border"
-                          :message="$t('settings.smtp.maxConnsHelp')">
+                        <b-field :label="$t('settings.mailserver.maxConns')"
+                          label-position="on-border"
+                          :message="$t('settings.mailserver.maxConnsHelp')">
                           <b-numberinput v-model="item.max_conns" name="max_conns" type="is-light"
                               controls-position="compact"
                               placeholder="25" min="1" max="65535" />
@@ -395,15 +406,17 @@
                         </b-field>
                       </div>
                       <div class="column is-3">
-                        <b-field :label="$t('settings.smtp.idleTimeout')" label-position="on-border"
-                          :message="$t('settings.smtp.idleTimeoutHelp')">
+                        <b-field :label="$t('settings.mailserver.idleTimeout')"
+                          label-position="on-border"
+                          :message="$t('settings.mailserver.idleTimeoutHelp')">
                           <b-input v-model="item.idle_timeout" name="idle_timeout"
                             placeholder="15s" :pattern="regDuration" :maxlength="10" />
                         </b-field>
                       </div>
                       <div class="column is-3">
-                        <b-field :label="$t('settings.smtp.waitTimeout')" label-position="on-border"
-                          :message="$t('settings.smtp.waitTimeoutHelp')">
+                        <b-field :label="$t('settings.mailserver.waitTimeout')"
+                          label-position="on-border"
+                          :message="$t('settings.mailserver.waitTimeoutHelp')">
                           <b-input v-model="item.wait_timeout" name="wait_timeout"
                             placeholder="5s" :pattern="regDuration" :maxlength="10" />
                         </b-field>
@@ -432,6 +445,175 @@
               {{ $t('globals.buttons.addNew') }}
             </b-button>
           </b-tab-item><!-- mail servers -->
+
+          <b-tab-item :label="$t('settings.bounces.name')">
+            <div class="columns mb-6">
+              <div class="column">
+                <b-field :label="$t('settings.bounces.enable')" data-cy="btn-enable-bounce">
+                  <b-switch v-model="form['bounce.enabled']" name="bounce.enabled" />
+                </b-field>
+              </div>
+              <div class="column" :class="{'disabled': !form['bounce.enabled']}">
+                <b-field :label="$t('settings.bounces.count')" label-position="on-border"
+                  :message="$t('settings.bounces.countHelp')" data-cy="btn-bounce-count">
+                  <b-numberinput v-model="form['bounce.count']"
+                    name="bounce.count" type="is-light"
+                    controls-position="compact" placeholder="3" min="1" max="1000" />
+                </b-field>
+              </div>
+              <div class="column" :class="{'disabled': !form['bounce.enabled']}">
+                <b-field :label="$t('settings.bounces.action')" label-position="on-border">
+                  <b-select name="bounce.action" v-model="form['bounce.action']">
+                    <option value="blocklist">{{ $t('settings.bounces.blocklist') }}</option>
+                    <option value="delete">{{ $t('settings.bounces.delete') }}</option>
+                  </b-select>
+                </b-field>
+              </div>
+            </div><!-- columns -->
+
+            <div class="mb-6">
+              <b-field :label="$t('settings.bounces.enableWebhooks')"
+                data-cy="btn-enable-bounce-webhook">
+                <b-switch v-model="form['bounce.webhooks_enabled']"
+                  :disabled="!form['bounce.enabled']"
+                  name="webhooks_enabled" :native-value="true"
+                  data-cy="btn-enable-bounce-webhook" />
+                <p class="has-text-grey">
+                  <a href="" target="_blank">{{ $t('globals.buttons.learnMore') }} &rarr;</a>
+                </p>
+              </b-field>
+              <div class="box" v-if="form['bounce.webhooks_enabled']">
+                  <div class="columns">
+                    <div class="column">
+                      <b-field :label="$t('settings.bounces.enableSES')">
+                        <b-switch v-model="form['bounce.ses_enabled']"
+                          name="ses_enabled" :native-value="true" data-cy="btn-enable-bounce-ses" />
+                      </b-field>
+                    </div>
+                  </div>
+                  <div class="columns">
+                    <div class="column is-3">
+                      <b-field :label="$t('settings.bounces.enableSendgrid')">
+                        <b-switch v-model="form['bounce.sendgrid_enabled']"
+                          name="sendgrid_enabled" :native-value="true"
+                          data-cy="btn-enable-bounce-sendgrid" />
+                      </b-field>
+                    </div>
+                    <div class="column">
+                      <b-field :label="$t('settings.bounces.sendgridKey')"
+                        :message="$t('globals.messages.passwordChange')">
+                        <b-input v-model="form['bounce.sendgrid_key']" type="password"
+                          :disabled="!form['bounce.sendgrid_enabled']"
+                          name="sendgrid_enabled" :native-value="true"
+                          data-cy="btn-enable-bounce-sendgrid" />
+                      </b-field>
+                    </div>
+                  </div>
+              </div>
+            </div>
+
+            <!-- bounce mailbox -->
+            <b-field :label="$t('settings.bounces.enableMailbox')">
+              <b-switch v-if="form['bounce.mailboxes']"
+                v-model="form['bounce.mailboxes'][0].enabled"
+                :disabled="!form['bounce.enabled']"
+                name="enabled" :native-value="true" data-cy="btn-enable-bounce-mailbox" />
+            </b-field>
+
+            <template v-if="form['bounce.enabled'] && form['bounce.mailboxes'][0].enabled">
+              <div class="block box" v-for="(item, n) in form['bounce.mailboxes']" :key="n">
+                <div class="columns">
+                  <div class="column" :class="{'disabled': !item.enabled}">
+                    <div class="columns">
+                      <div class="column is-3">
+                        <b-field :label="$t('settings.bounces.type')" label-position="on-border">
+                          <b-select v-model="item.type" name="type">
+                              <option value="pop">POP</option>
+                          </b-select>
+                        </b-field>
+                      </div>
+                      <div class="column is-6">
+                        <b-field :label="$t('settings.mailserver.host')" label-position="on-border"
+                          :message="$t('settings.mailserver.hostHelp')">
+                          <b-input v-model="item.host" name="host"
+                            placeholder='bounce.yourmailserver.net' :maxlength="200" />
+                        </b-field>
+                      </div>
+                      <div class="column is-3">
+                        <b-field :label="$t('settings.mailserver.port')" label-position="on-border"
+                          :message="$t('settings.mailserver.portHelp')">
+                          <b-numberinput v-model="item.port" name="port" type="is-light"
+                              controls-position="compact"
+                              placeholder="25" min="1" max="65535" />
+                        </b-field>
+                      </div>
+                    </div><!-- host -->
+
+                    <div class="columns">
+                      <div class="column is-3">
+                        <b-field :label="$t('settings.mailserver.authProtocol')"
+                          label-position="on-border">
+                          <b-select v-model="item.auth_protocol" name="auth_protocol">
+                            <option value="none">none</option>
+                            <option v-if="item.type === 'pop'" value="userpass">userpass</option>
+                            <template v-else>
+                              <option value="cram">cram</option>
+                              <option value="plain">plain</option>
+                              <option value="login">login</option>
+                            </template>
+                          </b-select>
+                        </b-field>
+                      </div>
+                      <div class="column">
+                        <b-field grouped>
+                          <b-field :label="$t('settings.mailserver.username')"
+                            label-position="on-border" expanded>
+                            <b-input v-model="item.username"
+                              :disabled="item.auth_protocol === 'none'"
+                              name="username" placeholder="mysmtp" :maxlength="200" />
+                          </b-field>
+                          <b-field :label="$t('settings.mailserver.password')"
+                            label-position="on-border" expanded
+                            :message="$t('settings.mailserver.passwordHelp')">
+                            <b-input v-model="item.password"
+                              :disabled="item.auth_protocol === 'none'"
+                              name="password" type="password"
+                              :placeholder="$t('settings.mailserver.passwordHelp')"
+                              :maxlength="200" />
+                          </b-field>
+                        </b-field>
+                      </div>
+                    </div><!-- auth -->
+
+                    <div class="columns">
+                      <div class="column is-6">
+                        <b-field grouped>
+                          <b-field :label="$t('settings.mailserver.tls')" expanded
+                            :message="$t('settings.mailserver.tlsHelp')">
+                            <b-switch v-model="item.tls_enabled" name="item.tls_enabled" />
+                          </b-field>
+                          <b-field :label="$t('settings.mailserver.skipTLS')" expanded
+                            :message="$t('settings.mailserver.skipTLSHelp')">
+                            <b-switch v-model="item.tls_skip_verify"
+                              :disabled="!item.tls_enabled" name="item.tls_skip_verify" />
+                          </b-field>
+                        </b-field>
+                      </div>
+                      <div class="column"></div>
+                      <div class="column is-4">
+                        <b-field :label="$t('settings.bounces.scanInterval')" expanded
+                          label-position="on-border"
+                          :message="$t('settings.bounces.scanIntervalHelp')">
+                          <b-input v-model="item.scan_interval" name="scan_interval"
+                            placeholder="15m" :pattern="regDuration" :maxlength="10" />
+                        </b-field>
+                      </div>
+                    </div><!-- TLS -->
+                  </div>
+                </div><!-- second container column -->
+              </div><!-- block -->
+            </template>
+          </b-tab-item><!-- bounces -->
 
           <b-tab-item :label="$t('settings.messengers.name')">
             <div class="items messengers">
@@ -528,16 +710,6 @@
               {{ $t('globals.buttons.addNew') }}
             </b-button>
           </b-tab-item><!-- messengers -->
-
-          <b-tab-item :label="$t('settings.appearance.name')">
-            <div class="items">
-              <!-- eslint-disable-next-line max-len -->
-              <b-field :label="$t('templates.customCSS')" label-position="on-border" :message="$t('settings.appearance.cssHelp')">
-              <!-- eslint-disable-next-line max-len -->
-              <b-input v-model="form['appearance.custom_css']" type="textarea" name="body" required />
-            </b-field>
-            </div>
-          </b-tab-item><!-- appearance -->
         </b-tabs>
 
       </form>
@@ -561,7 +733,6 @@ export default Vue.extend({
       // form is compared to detect changes.
       formCopy: '',
       form: {},
-      selectedTab: null,
     };
   },
 
@@ -594,6 +765,10 @@ export default Vue.extend({
       this.form.smtp.splice(i, 1);
     },
 
+    removeBounceBox(i) {
+      this.form['bounce.mailboxes'].splice(i, 1);
+    },
+
     showSMTPHeaders(i) {
       const s = this.form.smtp[i];
       s.showHeaders = true;
@@ -622,13 +797,18 @@ export default Vue.extend({
       this.form.messengers.splice(i, 1);
     },
 
+    onS3URLChange() {
+      // If a custom non-AWS URL has been entered, don't update it automatically.
+      if (this.form['upload.s3.url'] !== '' && !this.form['upload.s3.url'].match(/amazonaws\.com/)) {
+        return;
+      }
+      this.form['upload.s3.url'] = `https://s3.${this.form['upload.s3.aws_default_region']}.amazonaws.com`;
+    },
 
     onSubmit() {
-      // update activeTab
-      this.form.activeTab = this.selectedTab;
       const form = JSON.parse(JSON.stringify(this.form));
 
-      // De-serialize custom e-mail headers.
+      // SMTP boxes.
       for (let i = 0; i < form.smtp.length; i += 1) {
         // If it's the dummy UI password placeholder, ignore it.
         if (form.smtp[i].password === dummyPassword) {
@@ -642,8 +822,20 @@ export default Vue.extend({
         }
       }
 
+      // Bounces boxes.
+      for (let i = 0; i < form['bounce.mailboxes'].length; i += 1) {
+        // If it's the dummy UI password placeholder, ignore it.
+        if (form['bounce.mailboxes'][i].password === dummyPassword) {
+          form['bounce.mailboxes'][i].password = '';
+        }
+      }
+
       if (form['upload.s3.aws_secret_access_key'] === dummyPassword) {
         form['upload.s3.aws_secret_access_key'] = '';
+      }
+
+      if (form['bounce.sendgrid_key'] === dummyPassword) {
+        form['bounce.sendgrid_key'] = '';
       }
 
       for (let i = 0; i < form.messengers.length; i += 1) {
@@ -673,7 +865,6 @@ export default Vue.extend({
             clearInterval(pollId);
             this.$root.loadConfig();
             this.getSettings();
-            document.location.reload();
           });
         }, 500);
       }, () => {
@@ -694,6 +885,12 @@ export default Vue.extend({
           d.smtp[i].password = dummyPassword;
         }
 
+        for (let i = 0; i < d['bounce.mailboxes'].length; i += 1) {
+          // The backend doesn't send passwords, so add a dummy so that
+          // the password looks filled on the UI.
+          d['bounce.mailboxes'][i].password = dummyPassword;
+        }
+
         for (let i = 0; i < d.messengers.length; i += 1) {
           // The backend doesn't send passwords, so add a dummy so that it
           // the password looks filled on the UI.
@@ -703,14 +900,14 @@ export default Vue.extend({
         if (d['upload.provider'] === 's3') {
           d['upload.s3.aws_secret_access_key'] = dummyPassword;
         }
+        d['bounce.sendgrid_key'] = dummyPassword;
 
         this.form = d;
         this.formCopy = JSON.stringify(d);
-        this.isLoading = false;
 
-        if (d.activeTab !== '') {
-          this.selectedTab = d.activeTab;
-        }
+        this.$nextTick(() => {
+          this.isLoading = false;
+        });
       });
     },
   },

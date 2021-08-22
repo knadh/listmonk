@@ -117,6 +117,12 @@
             <label>{{ $t('campaigns.sent') }}</label>
             {{ stats.sent }} / {{ stats.toSend }}
           </p>
+          <p>
+            <label>{{ $t('globals.terms.bounces') }}</label>
+            <router-link :to="{name: 'bounces', query: { campaign_id: props.row.id }}">
+              {{ props.row.bounces }}
+            </router-link>
+          </p>
           <p title="Speed" v-if="stats.rate">
             <label><b-icon icon="speedometer" size="is-small"></b-icon></label>
             <span class="send-rate">

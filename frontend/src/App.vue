@@ -55,6 +55,10 @@
                   <b-menu-item :to="{name: 'import'}" tag="router-link"
                     :active="activeItem.import" data-cy="import"
                     icon="file-upload-outline" :label="$t('menu.import')"></b-menu-item>
+
+                  <b-menu-item :to="{name: 'bounces'}" tag="router-link"
+                    :active="activeItem.bounces" data-cy="bounces"
+                    icon="email-bounce" :label="$t('globals.terms.bounces')"></b-menu-item>
                 </b-menu-item><!-- subscribers -->
 
                 <b-menu-item :expanded="activeGroup.campaigns"

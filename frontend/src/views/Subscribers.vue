@@ -198,7 +198,8 @@
     </b-modal>
 
     <!-- Add / edit form modal -->
-    <b-modal scroll="keep" :aria-modal="true" :active.sync="isFormVisible" :width="600">
+    <b-modal scroll="keep" :aria-modal="true" :active.sync="isFormVisible" :width="600"
+      @close="onFormClose">
       <subscriber-form :data="curItem" :isEditing="isEditing"
         @finished="querySubscribers"></subscriber-form>
     </b-modal>
@@ -307,6 +308,12 @@ export default Vue.extend({
 
     showBulkListForm() {
       this.isBulkListFormVisible = true;
+    },
+
+    onFormClose() {
+      if (this.$route.params.id) {
+        this.$router.push({ name: 'subscribers' });
+      }
     },
 
     onPageChange(p) {
@@ -472,8 +479,14 @@ export default Vue.extend({
       this.queryParams.listID = parseInt(this.$route.params.listID, 10);
     }
 
-    // Get subscribers on load.
-    this.querySubscribers();
+    if (this.$route.params.id) {
+      this.$api.getSubscriber(parseInt(this.$route.params.id, 10)).then((data) => {
+        this.showEditForm(data);
+      });
+    } else {
+      // Get subscribers on load.
+      this.querySubscribers();
+    }
   },
 });
 </script>

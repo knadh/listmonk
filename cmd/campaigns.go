@@ -73,6 +73,7 @@ var (
 	regexFullTextQuery = regexp.MustCompile(`\s+`)
 
 	campaignQuerySortFields = []string{"name", "status", "created_at", "updated_at"}
+	bounceQuerySortFields   = []string{"email", "campaign_name", "source", "created_at"}
 )
 
 // handleGetCampaigns handles retrieval of campaigns.

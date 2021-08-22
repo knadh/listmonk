@@ -83,6 +83,10 @@ type Queries struct {
 	UpdateSettings *sqlx.Stmt `query:"update-settings"`
 
 	// GetStats *sqlx.Stmt `query:"get-stats"`
+	RecordBounce              *sqlx.Stmt `query:"record-bounce"`
+	QueryBounces              string     `query:"query-bounces"`
+	DeleteBounces             *sqlx.Stmt `query:"delete-bounces"`
+	DeleteBouncesBySubscriber *sqlx.Stmt `query:"delete-bounces-by-subscriber"`
 }
 
 // dbConf contains database config required for connecting to a DB.

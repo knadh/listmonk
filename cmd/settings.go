@@ -7,7 +7,6 @@ import (
 	"strings"
 	"syscall"
 	"time"
-	"os"
 
 	"github.com/gofrs/uuid"
 	"github.com/jmoiron/sqlx/types"
@@ -43,6 +42,7 @@ type settings struct {
 	UploadProvider             string `json:"upload.provider"`
 	UploadFilesystemUploadPath string `json:"upload.filesystem.upload_path"`
 	UploadFilesystemUploadURI  string `json:"upload.filesystem.upload_uri"`
+	UploadS3URL                string `json:"upload.s3.url"`
 	UploadS3AwsAccessKeyID     string `json:"upload.s3.aws_access_key_id"`
 	UploadS3AwsDefaultRegion   string `json:"upload.s3.aws_default_region"`
 	UploadS3AwsSecretAccessKey string `json:"upload.s3.aws_secret_access_key,omitempty"`
@@ -82,8 +82,27 @@ type settings struct {
 		MaxMsgRetries int    `json:"max_msg_retries"`
 	} `json:"messengers"`
 
-	AppearanceCustomCSS		string `json:"appearance.custom_css"`
-	SettingActiveTab		string `json:"activeTab"`
+	BounceEnabled        bool   `json:"bounce.enabled"`
+	BounceEnableWebhooks bool   `json:"bounce.webhooks_enabled"`
+	BounceCount          int    `json:"bounce.count"`
+	BounceAction         string `json:"bounce.action"`
+	SESEnabled           bool   `json:"bounce.ses_enabled"`
+	SendgridEnabled      bool   `json:"bounce.sendgrid_enabled"`
+	SendgridKey          string `json:"bounce.sendgrid_key"`
+	BounceBoxes          []struct {
+		UUID          string `json:"uuid"`
+		Enabled       bool   `json:"enabled"`
+		Type          string `json:"type"`
+		Host          string `json:"host"`
+		Port          int    `json:"port"`
+		AuthProtocol  string `json:"auth_protocol"`
+		ReturnPath    string `json:"return_path"`
+		Username      string `json:"username"`
+		Password      string `json:"password,omitempty"`
+		TLSEnabled    bool   `json:"tls_enabled"`
+		TLSSkipVerify bool   `json:"tls_skip_verify"`
+		ScanInterval  string `json:"scan_interval"`
+	} `json:"bounce.mailboxes"`
 }
 
 var (
@@ -103,10 +122,14 @@ func handleGetSettings(c echo.Context) error {
 	for i := 0; i < len(s.SMTP); i++ {
 		s.SMTP[i].Password = ""
 	}
+	for i := 0; i < len(s.BounceBoxes); i++ {
+		s.BounceBoxes[i].Password = ""
+	}
 	for i := 0; i < len(s.Messengers); i++ {
 		s.Messengers[i].Password = ""
 	}
 	s.UploadS3AwsSecretAccessKey = ""
+	s.SendgridKey = ""
 
 	return c.JSON(http.StatusOK, okResp{s})
 }
@@ -158,6 +181,31 @@ func handleUpdateSettings(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("settings.errorNoSMTP"))
 	}
 
+	// Bounce boxes.
+	for i, s := range set.BounceBoxes {
+		// Assign a UUID. The frontend only sends a password when the user explictly
+		// changes the password. In other cases, the existing password in the DB
+		// is copied while updating the settings and the UUID is used to match
+		// the incoming array of blocks with the array in the DB.
+		if s.UUID == "" {
+			set.BounceBoxes[i].UUID = uuid.Must(uuid.NewV4()).String()
+		}
+
+		if d, _ := time.ParseDuration(s.ScanInterval); d.Minutes() < 1 {
+			return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("settings.bounces.invalidScanInterval"))
+		}
+
+		// If there's no password coming in from the frontend, copy the existing
+		// password by matching the UUID.
+		if s.Password == "" {
+			for _, c := range cur.BounceBoxes {
+				if s.UUID == c.UUID {
+					set.BounceBoxes[i].Password = c.Password
+				}
+			}
+		}
+	}
+
 	// Validate and sanitize postback Messenger names. Duplicates are disallowed
 	// and "email" is a reserved name.
 	names := map[string]bool{emailMsgr: true}
@@ -193,12 +241,10 @@ func handleUpdateSettings(c echo.Context) error {
 	if set.UploadS3AwsSecretAccessKey == "" {
 		set.UploadS3AwsSecretAccessKey = cur.UploadS3AwsSecretAccessKey
 	}
+	if set.SendgridKey == "" {
+		set.SendgridKey = cur.SendgridKey
+	}
 
-	// Custom CSS
-	if err := os.WriteFile("frontend/dist/frontend/custom.css", []byte(set.AppearanceCustomCSS), 0666); err != nil {
-        return err
-    }
- 
 	// Marshal settings.
 	b, err := json.Marshal(set)
 	if err != nil {

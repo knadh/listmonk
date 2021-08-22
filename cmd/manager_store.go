@@ -12,7 +12,7 @@ type runnerDB struct {
 	queries *Queries
 }
 
-func newManagerDB(q *Queries) *runnerDB {
+func newManagerStore(q *Queries) *runnerDB {
 	return &runnerDB{
 		queries: q,
 	}
@@ -63,4 +63,32 @@ func (r *runnerDB) CreateLink(url string) (string, error) {
 	}
 
 	return out, nil
+}
+
+// RecordBounce records a bounce event and returns the bounce count.
+func (r *runnerDB) RecordBounce(b models.Bounce) (int64, int, error) {
+	var res = struct {
+		SubscriberID int64 `db:"subscriber_id"`
+		Num          int   `db:"num"`
+	}{}
+
+	err := r.queries.UpdateCampaignStatus.Select(&res,
+		b.SubscriberUUID,
+		b.Email,
+		b.CampaignUUID,
+		b.Type,
+		b.Source,
+		b.Meta)
+
+	return res.SubscriberID, res.Num, err
+}
+
+func (r *runnerDB) BlocklistSubscriber(id int64) error {
+	_, err := r.queries.BlocklistSubscribers.Exec(pq.Int64Array{id})
+	return err
+}
+
+func (r *runnerDB) DeleteSubscriber(id int64) error {
+	_, err := r.queries.DeleteSubscribers.Exec(pq.Int64Array{id})
+	return err
 }

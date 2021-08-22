@@ -21,6 +21,8 @@ import (
 	"github.com/knadh/koanf/providers/confmap"
 	"github.com/knadh/koanf/providers/file"
 	"github.com/knadh/koanf/providers/posflag"
+	"github.com/knadh/listmonk/internal/bounce"
+	"github.com/knadh/listmonk/internal/bounce/mailbox"
 	"github.com/knadh/listmonk/internal/i18n"
 	"github.com/knadh/listmonk/internal/manager"
 	"github.com/knadh/listmonk/internal/media"
@@ -65,6 +67,10 @@ type constants struct {
 	OptinURL      string
 	MessageURL    string
 	MediaProvider string
+
+	BounceWebhooksEnabled bool
+	BounceSESEnabled      bool
+	BounceSendgridEnabled bool
 }
 
 func initFlags() {
@@ -311,6 +317,10 @@ func initConstants() *constants {
 
 	// url.com/campaign/{campaign_uuid}/{subscriber_uuid}/px.png
 	c.ViewTrackURL = fmt.Sprintf("%s/campaign/%%s/%%s/px.png", c.RootURL)
+
+	c.BounceWebhooksEnabled = ko.Bool("bounce.webhooks_enabled")
+	c.BounceSESEnabled = ko.Bool("bounce.ses_enabled")
+	c.BounceSendgridEnabled = ko.Bool("bounce.sendgrid_enabled")
 	return &c
 }
 
@@ -359,8 +369,7 @@ func initCampaignManager(q *Queries, cs *constants, app *App) *manager.Manager {
 		SlidingWindow:         ko.Bool("app.message_sliding_window"),
 		SlidingWindowDuration: ko.Duration("app.message_sliding_window_duration"),
 		SlidingWindowRate:     ko.Int("app.message_sliding_window_rate"),
-	}, newManagerDB(q), campNotifCB, app.i18n, lo)
-
+	}, newManagerStore(q), campNotifCB, app.i18n, lo)
 }
 
 // initImporter initializes the bulk subscriber importer.
@@ -458,7 +467,7 @@ func initPostbackMessengers(m *manager.Manager) []messenger.Messenger {
 func initMediaStore() media.Store {
 	switch provider := ko.String("upload.provider"); provider {
 	case "s3":
-		var o s3.Opts
+		var o s3.Opt
 		ko.Unmarshal("upload.s3", &o)
 		up, err := s3.NewS3Store(o)
 		if err != nil {
@@ -508,6 +517,45 @@ func initNotifTemplates(path string, fs stuffbin.FileSystem, i *i18n.I18n, cs *c
 		lo.Fatalf("error parsing e-mail notif templates: %v", err)
 	}
 	return tpl
+}
+
+// initBounceManager initializes the bounce manager that scans mailboxes and listens to webhooks
+// for incoming bounce events.
+func initBounceManager(app *App) *bounce.Manager {
+	opt := bounce.Opt{
+		BounceCount:     ko.MustInt("bounce.count"),
+		BounceAction:    ko.MustString("bounce.action"),
+		WebhooksEnabled: ko.Bool("bounce.webhooks_enabled"),
+		SESEnabled:      ko.Bool("bounce.ses_enabled"),
+		SendgridEnabled: ko.Bool("bounce.sendgrid_enabled"),
+		SendgridKey:     ko.String("bounce.sendgrid_key"),
+	}
+
+	// For now, only one mailbox is supported.
+	for _, b := range ko.Slices("bounce.mailboxes") {
+		if !b.Bool("enabled") {
+			continue
+		}
+
+		var boxOpt mailbox.Opt
+		if err := b.UnmarshalWithConf("", &boxOpt, koanf.UnmarshalConf{Tag: "json"}); err != nil {
+			lo.Fatalf("error reading bounce mailbox config: %v", err)
+		}
+
+		opt.MailboxType = b.String("type")
+		opt.MailboxEnabled = true
+		opt.Mailbox = boxOpt
+		break
+	}
+
+	b, err := bounce.New(opt, &bounce.Queries{
+		RecordQuery: app.queries.RecordBounce,
+	}, app.log)
+	if err != nil {
+		lo.Fatalf("error initializing bounce manager: %v", err)
+	}
+
+	return b
 }
 
 // initHTTPServer sets up and runs the app's main HTTP server and blocks forever.

@@ -2,7 +2,6 @@ package s3
 
 import (
 	"errors"
-	"fmt"
 	"io"
 	"strings"
 	"time"
@@ -11,16 +10,14 @@ import (
 	"github.com/rhnvrm/simples3"
 )
 
-const amznS3PublicURL = "https://%s.s3.%s.amazonaws.com%s"
-
-// Opts represents AWS S3 specific params
-type Opts struct {
+// Opt represents AWS S3 specific params
+type Opt struct {
+	URL        string        `koanf:"url"`
 	AccessKey  string        `koanf:"aws_access_key_id"`
 	SecretKey  string        `koanf:"aws_secret_access_key"`
 	Region     string        `koanf:"aws_default_region"`
 	Bucket     string        `koanf:"bucket"`
 	BucketPath string        `koanf:"bucket_path"`
-	BucketURL  string        `koanf:"bucket_url"`
 	BucketType string        `koanf:"bucket_type"`
 	Expiry     time.Duration `koanf:"expiry"`
 }
@@ -28,30 +25,36 @@ type Opts struct {
 // Client implements `media.Store` for S3 provider
 type Client struct {
 	s3   *simples3.S3
-	opts Opts
+	opts Opt
 }
 
 // NewS3Store initialises store for S3 provider. It takes in the AWS configuration
 // and sets up the `simples3` client to interact with AWS APIs for all bucket operations.
-func NewS3Store(opts Opts) (media.Store, error) {
-	var s3svc *simples3.S3
-	var err error
-	if opts.Region == "" {
-		return nil, errors.New("Invalid AWS Region specified. Please check `upload.s3` config")
+func NewS3Store(opt Opt) (media.Store, error) {
+	var (
+		cl  *simples3.S3
+		err error
+	)
+	if opt.URL == "" {
+		return nil, errors.New("Invalid AWS URL in settings.")
 	}
+	opt.URL = strings.TrimRight(opt.URL, "/")
+
 	// Use Access Key/Secret Key if specified in config.
-	if opts.AccessKey != "" && opts.SecretKey != "" {
-		s3svc = simples3.New(opts.Region, opts.AccessKey, opts.SecretKey)
+	if opt.AccessKey != "" && opt.SecretKey != "" {
+		cl = simples3.New(opt.Region, opt.AccessKey, opt.SecretKey)
 	} else {
 		// fallback to IAM role if no access key/secret key is provided.
-		s3svc, err = simples3.NewUsingIAM(opts.Region)
+		cl, err = simples3.NewUsingIAM(opt.Region)
 		if err != nil {
 			return nil, err
 		}
 	}
+	cl.SetEndpoint(opt.URL)
+
 	return &Client{
-		s3:   s3svc,
-		opts: opts,
+		s3:   cl,
+		opts: opt,
 	}, nil
 }
 
@@ -65,7 +68,7 @@ func (c *Client) Put(name string, cType string, file io.ReadSeeker) (string, err
 		Body:        file,
 
 		// Paths inside the bucket should not start with /.
-		ObjectKey: strings.TrimPrefix(makeBucketPath(c.opts.BucketPath, name), "/"),
+		ObjectKey: c.makeBucketPath(name),
 	}
 	// Perform an upload.
 	if _, err := c.s3.FileUpload(upParams); err != nil {
@@ -78,39 +81,42 @@ func (c *Client) Put(name string, cType string, file io.ReadSeeker) (string, err
 func (c *Client) Get(name string) string {
 	// Generate a private S3 pre-signed URL if it's a private bucket.
 	if c.opts.BucketType == "private" {
-		url := c.s3.GeneratePresignedURL(simples3.PresignedInput{
+		u := c.s3.GeneratePresignedURL(simples3.PresignedInput{
 			Bucket:        c.opts.Bucket,
-			ObjectKey:     makeBucketPath(c.opts.BucketPath, name),
+			ObjectKey:     c.makeBucketPath(name),
 			Method:        "GET",
 			Timestamp:     time.Now(),
 			ExpirySeconds: int(c.opts.Expiry.Seconds()),
 		})
-		return url
+		return u
 	}
 
 	// Generate a public S3 URL if it's a public bucket.
-	url := ""
-	if c.opts.BucketURL != "" {
-		url = c.opts.BucketURL + makeBucketPath(c.opts.BucketPath, name)
-	} else {
-		url = fmt.Sprintf(amznS3PublicURL, c.opts.Bucket, c.opts.Region,
-			makeBucketPath(c.opts.BucketPath, name))
-	}
-	return url
+	return c.makeFileURL(name)
 }
 
 // Delete accepts the filename of the object and deletes from S3.
 func (c *Client) Delete(name string) error {
 	err := c.s3.FileDelete(simples3.DeleteInput{
 		Bucket:    c.opts.Bucket,
-		ObjectKey: strings.TrimPrefix(makeBucketPath(c.opts.BucketPath, name), "/"),
+		ObjectKey: c.makeBucketPath(name),
 	})
 	return err
 }
 
-func makeBucketPath(bucketPath string, name string) string {
-	if bucketPath == "/" {
-		return "/" + name
+// makeBucketPath returns the file path inside the bucket. The path should not
+// start with a /.
+func (c *Client) makeBucketPath(name string) string {
+	// If the path is root (/), return the filename without the preceding slash.
+	p := strings.TrimPrefix(strings.TrimSuffix(c.opts.BucketPath, "/"), "/")
+	if p == "" {
+		return name
 	}
-	return fmt.Sprintf("%s/%s", bucketPath, name)
+
+	// whatever/bucket/path/filename.jpg: No preceding slash.
+	return p + "/" + name
+}
+
+func (c *Client) makeFileURL(name string) string {
+	return c.opts.URL + "/" + c.opts.Bucket + "/" + c.makeBucketPath(name)
 }

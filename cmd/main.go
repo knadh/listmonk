@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	_ "embed"
 	"fmt"
 	"html/template"
 	"io"
@@ -17,6 +16,7 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/knadh/koanf"
 	"github.com/knadh/koanf/providers/env"
+	"github.com/knadh/listmonk/internal/bounce"
 	"github.com/knadh/listmonk/internal/buflog"
 	"github.com/knadh/listmonk/internal/i18n"
 	"github.com/knadh/listmonk/internal/manager"
@@ -42,6 +42,7 @@ type App struct {
 	messengers map[string]messenger.Messenger
 	media      media.Store
 	i18n       *i18n.I18n
+	bounce     *bounce.Manager
 	notifTpls  *template.Template
 	log        *log.Logger
 	bufLog     *buflog.BufLog
@@ -168,6 +169,11 @@ func main() {
 	app.manager = initCampaignManager(app.queries, app.constants, app)
 	app.importer = initImporter(app.queries, db, app)
 	app.notifTpls = initNotifTemplates("/email-templates/*.html", fs, app.i18n, app.constants)
+
+	if ko.Bool("bounce.enabled") {
+		app.bounce = initBounceManager(app)
+		go app.bounce.Run()
+	}
 
 	// Initialize the default SMTP (`email`) messenger.
 	app.messengers[emailMsgr] = initSMTPMessenger(app.manager)

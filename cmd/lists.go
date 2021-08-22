@@ -160,8 +160,7 @@ func handleUpdateList(c echo.Context) error {
 	return handleGetLists(c)
 }
 
-// handleDeleteLists handles deletion deletion,
-// either a single one (ID in the URI), or a list.
+// handleDeleteLists handles list deletion, either a single one (ID in the URI), or a list.
 func handleDeleteLists(c echo.Context) error {
 	var (
 		app   = c.Get("app").(*App)

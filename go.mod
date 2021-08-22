@@ -8,6 +8,7 @@ require (
 	github.com/disintegration/imaging v1.6.2
 	github.com/gofrs/uuid v3.2.0+incompatible
 	github.com/jmoiron/sqlx v1.2.0
+	github.com/knadh/go-pop3 v0.1.0
 	github.com/knadh/goyesql/v2 v2.1.1
 	github.com/knadh/koanf v0.12.0
 	github.com/knadh/smtppool v0.2.1
@@ -18,7 +19,7 @@ require (
 	github.com/mailru/easyjson v0.7.6
 	github.com/mitchellh/copystructure v1.1.2 // indirect
 	github.com/niemeyer/pretty v0.0.0-20200227124842-a10e7caefd8e // indirect
-	github.com/rhnvrm/simples3 v0.5.0
+	github.com/rhnvrm/simples3 v0.7.0
 	github.com/spf13/pflag v1.0.5
 	github.com/yuin/goldmark v1.3.4
 	golang.org/x/mod v0.3.0
