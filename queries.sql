@@ -798,13 +798,14 @@ camp AS (
     SELECT id FROM campaigns WHERE $3 != '' AND uuid = $3::UUID
 ),
 bounce AS (
-    -- Record the bounce if it the subscriber is not already blocklisted;
+    -- Record the bounce if the subscriber is not already blocklisted;
     INSERT INTO bounces (subscriber_id, campaign_id, type, source, meta, created_at)
     SELECT (SELECT id FROM sub), (SELECT id FROM camp), $4, $5, $6, $7
     WHERE NOT EXISTS (SELECT 1 WHERE (SELECT status FROM sub) = 'blocklisted')
 ),
 num AS (
-    SELECT COUNT(*) AS num FROM bounces WHERE subscriber_id = (SELECT id FROM sub)
+    -- Add a +1 to include the current insertion that is happening.
+    SELECT COUNT(*) + 1 AS num FROM bounces WHERE subscriber_id = (SELECT id FROM sub)
 ),
 -- block1 and block2 will run when $8 = 'blocklist' and the number of bounces exceed $8.
 block1 AS (
