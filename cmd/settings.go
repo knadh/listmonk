@@ -7,6 +7,7 @@ import (
 	"strings"
 	"syscall"
 	"time"
+	"os"
 
 	"github.com/gofrs/uuid"
 	"github.com/jmoiron/sqlx/types"
@@ -103,6 +104,9 @@ type settings struct {
 		TLSSkipVerify bool   `json:"tls_skip_verify"`
 		ScanInterval  string `json:"scan_interval"`
 	} `json:"bounce.mailboxes"`
+
+	AppearanceCustomCSS		string `json:"appearance.custom_css"`
+	SettingActiveTab		string `json:"activeTab"`
 }
 
 var (
@@ -244,6 +248,11 @@ func handleUpdateSettings(c echo.Context) error {
 	if set.SendgridKey == "" {
 		set.SendgridKey = cur.SendgridKey
 	}
+
+	// Custom CSS
+	if err := os.WriteFile("frontend/dist/frontend/custom.css", []byte(set.AppearanceCustomCSS), 0666); err != nil {
+        return err
+    }
 
 	// Marshal settings.
 	b, err := json.Marshal(set)

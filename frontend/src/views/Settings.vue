@@ -19,7 +19,7 @@
 
     <section class="wrap-small">
       <form @submit.prevent="onSubmit">
-        <b-tabs type="is-boxed" :animated="false">
+        <b-tabs type="is-boxed" :animated="false" v-model="selectedTab">
           <b-tab-item :label="$t('settings.general.name')" label-position="on-border">
             <div class="items">
               <b-field :label="$t('settings.general.rootURL')" label-position="on-border"
@@ -710,6 +710,16 @@
               {{ $t('globals.buttons.addNew') }}
             </b-button>
           </b-tab-item><!-- messengers -->
+
+          <b-tab-item :label="$t('settings.appearance.name')">
+            <div class="items">
+              <!-- eslint-disable-next-line max-len -->
+              <b-field :label="$t('templates.customCSS')" label-position="on-border" :message="$t('settings.appearance.cssHelp')">
+              <!-- eslint-disable-next-line max-len -->
+              <b-input v-model="form['appearance.custom_css']" type="textarea" name="body" required />
+            </b-field>
+            </div>
+          </b-tab-item><!-- appearance -->
         </b-tabs>
 
       </form>
@@ -733,6 +743,7 @@ export default Vue.extend({
       // form is compared to detect changes.
       formCopy: '',
       form: {},
+      selectedTab: null,
     };
   },
 
@@ -806,6 +817,8 @@ export default Vue.extend({
     },
 
     onSubmit() {
+      // update activeTab
+      this.form.activeTab = this.selectedTab;
       const form = JSON.parse(JSON.stringify(this.form));
 
       // SMTP boxes.
@@ -865,6 +878,7 @@ export default Vue.extend({
             clearInterval(pollId);
             this.$root.loadConfig();
             this.getSettings();
+            document.location.reload();
           });
         }, 500);
       }, () => {
@@ -904,6 +918,10 @@ export default Vue.extend({
 
         this.form = d;
         this.formCopy = JSON.stringify(d);
+
+        if (d.activeTab !== '') {
+          this.selectedTab = d.activeTab;
+        }
 
         this.$nextTick(() => {
           this.isLoading = false;
