@@ -239,6 +239,10 @@ func validateBounceFields(b models.Bounce, app *App) error {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidData"))
 	}
 
+	if b.Type != models.BounceTypeHard && b.Type != models.BounceTypeSoft {
+		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidData"))
+	}
+
 	if b.Email != "" && !subimporter.IsEmail(b.Email) {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidEmail"))
 	}
