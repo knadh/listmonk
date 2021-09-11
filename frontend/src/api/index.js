@@ -181,6 +181,18 @@ export const getCampaignStats = async () => http.get('/api/campaigns/running/sta
 export const createCampaign = async (data) => http.post('/api/campaigns', data,
   { loading: models.campaigns });
 
+export const getCampaignViewCounts = async (params) => http.get('/api/campaigns/analytics/views',
+  { params, loading: models.campaigns });
+
+export const getCampaignClickCounts = async (params) => http.get('/api/campaigns/analytics/clicks',
+  { params, loading: models.campaigns });
+
+export const getCampaignBounceCounts = async (params) => http.get('/api/campaigns/analytics/bounces',
+  { params, loading: models.campaigns });
+
+export const getCampaignLinkCounts = async (params) => http.get('/api/campaigns/analytics/links',
+  { params, loading: models.campaigns });
+
 export const convertCampaignContent = async (data) => http.post(`/api/campaigns/${data.id}/content`, data,
   { loading: models.campaigns });
 

@@ -427,7 +427,7 @@
     "subscribers.email": "Correo electrónico",
     "subscribers.emailExists": "El correo electrónico ya existe.",
     "subscribers.errorBlocklisting": "Error blocklisting subscriptrores: {error}",
-    "subscribers.errorInvalidIDs": "Uno o más IDs ingresados son inválidos: {error}",
+    "globals.messages.errorInvalidIDs": "Uno o más IDs ingresados son inválidos: {error}",
     "subscribers.errorNoIDs": "No se ingresaron IDs.",
     "subscribers.errorNoListsGiven": "No se ingresaron listas.",
     "subscribers.errorPreparingQuery": "Error preparando la consulta del subscriptor: {error}",

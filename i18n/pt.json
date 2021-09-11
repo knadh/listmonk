@@ -427,7 +427,7 @@
     "subscribers.email": "E-mail",
     "subscribers.emailExists": "E-mail já existe.",
     "subscribers.errorBlocklisting": "Erro ao bloquear subscritores: {error}",
-    "subscribers.errorInvalidIDs": "Foram dados um ou mais IDs inválidos: {error}",
+    "globals.messages.errorInvalidIDs": "Foram dados um ou mais IDs inválidos: {error}",
     "subscribers.errorNoIDs": "Não foram dados IDs.",
     "subscribers.errorNoListsGiven": "Não foram dadas listas.",
     "subscribers.errorPreparingQuery": "Erro ao preparar query dos subscritores: {error}",

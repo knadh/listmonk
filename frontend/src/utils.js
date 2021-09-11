@@ -78,6 +78,23 @@ export default class Utils {
     return out.toFixed(2) + pfx;
   }
 
+  // Parse one or more numeric ids as query params and return as an array of ints.
+  parseQueryIDs = (ids) => {
+    if (!ids) {
+      return [];
+    }
+
+    if (typeof ids === 'string') {
+      return [parseInt(ids, 10)];
+    }
+
+    if (typeof ids === 'number') {
+      return [parseInt(ids, 10)];
+    }
+
+    return ids.map((id) => parseInt(id, 10));
+  }
+
   // https://stackoverflow.com/a/12034334
   escapeHTML = (html) => html.replace(/[&<>"'`=/]/g, (s) => htmlEntities[s]);
 

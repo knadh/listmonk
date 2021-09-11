@@ -262,9 +262,16 @@ body.is-noscroll .b-sidebar {
     padding: 15px 10px;
     border-color: $grey-lightest;
   }
+
   .actions a, .actions .a {
     margin: 0 10px;
     display: inline-block;
+  }
+  .actions a[data-disabled],
+  .actions .icon[data-disabled] {
+    pointer-events: none;
+    cursor: not-allowed;
+    color: $grey-light;
   }
 }
 
@@ -294,15 +301,36 @@ body.is-noscroll .b-sidebar {
   }
 }
 
-.autocomplete .dropdown-content {
-  background-color: $white-ter;
+.autocomplete {
+  .dropdown-content {
+    background-color: $white-bis;
+  }
+  a.dropdown-item {
+    &:hover, &.is-hovered {
+      background-color: $grey-lightest;
+      color: $primary;
+    }
+  }
 }
 
 .input, .taginput .taginput-container.is-focusable, .textarea {
-  // box-shadow: inset 2px 2px 0px $white-ter;
   box-shadow: 2px 2px 0 $white-ter;
   border: 1px solid $grey-lighter;
 }
+
+.input {
+  height: auto;
+  padding: 10px 12px;
+}
+  .control.has-icons-left .icon.is-left {
+    height: 3rem;
+  }
+
+.button {
+  height: auto;
+  padding: 10px 20px;
+}
+
 
 /* Form fields */
 .field {
@@ -368,10 +396,10 @@ body.is-noscroll .b-sidebar {
   }
   &.public, &.running {
     $color: $primary;
-    color: $color;
+    color: lighten($color, 20%);;
     background: #e6f7ff;
-    border: 1px solid lighten($color, 37%);
-    box-shadow: 1px 1px 0 lighten($color, 25%);
+    border: 1px solid lighten($color, 42%);
+    box-shadow: 1px 1px 0 lighten($color, 42%);
   }
   &.finished, &.enabled {
     $color: $green;
@@ -491,25 +519,22 @@ section.import {
 /* Campaigns page */
 section.campaigns {
   table tbody {
-    tr.running {
-      background: lighten(#1890ff, 43%);
-      td {
-        border-bottom: 1px solid lighten(#1890ff, 30%);
-      }
-
-      .spinner {
-        margin-left: 10px;
-      }
-      .spinner .loading-overlay .loading-icon::after {
+    .spinner {
+      margin-left: 10px;
+      .loading-overlay .loading-icon::after {
         border-bottom-color: lighten(#1890ff, 30%);
         border-left-color: lighten(#1890ff, 30%);
       }
     }
 
-    td {
-      &.status .spinner {
-        margin-left: 10px;
+    tr.running {
+      background: lighten(#1890ff, 43%);
+      td {
+        border-bottom: 1px solid lighten(#1890ff, 30%);
       }
+    }
+
+    td {
       .tags {
         margin-top: 5px;
       }
@@ -519,15 +544,8 @@ section.campaigns {
       }
 
       &.lists ul {
-        font-size: $size-7;
+        // font-size: $size-7;
         list-style-type: circle;
-
-        a {
-          color: $grey-dark;
-          &:hover {
-            color: $primary;
-          }
-        }
       }
 
       .fields {
@@ -552,6 +570,26 @@ section.campaigns {
         display: inline-block;
       }
     }
+  }
+}
+
+section.analytics {
+  .charts {
+    position: relative;
+    min-height: 100px;
+  }
+
+  .chart {
+    margin-bottom: 45px;
+  }
+
+  .donut-container {
+    position: relative;
+  }
+  .donut {
+    bottom: 0px;
+    right: 0px;
+    position: absolute !important;
   }
 }
 
@@ -702,11 +740,10 @@ section.campaign {
   }
 
   .c3-tooltip {
-    border: 0;
-    background-color: #fff;
+    @extend .box;
+    padding: 10px;
     empty-cells: show;
-    box-shadow: none;
-    opacity: 0.9;
+    opacity: 0.95;
 
     tr {
       border: 0;

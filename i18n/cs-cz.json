@@ -427,7 +427,7 @@
     "subscribers.email": "E-mail",
     "subscribers.emailExists": "E-mail již existuje.",
     "subscribers.errorBlocklisting": "Chyba při uvádění odběratelů na seznam blokovaných: {error}",
-    "subscribers.errorInvalidIDs": "Uvedeno jedno nebo více neplatných ID: {error}",
+    "globals.messages.errorInvalidIDs": "Uvedeno jedno nebo více neplatných ID: {error}",
     "subscribers.errorNoIDs": "Nejsou uvedena žádná ID.",
     "subscribers.errorNoListsGiven": "Nejsou uvedeny žádné seznamy.",
     "subscribers.errorPreparingQuery": "Chyba při přípravě dotazu na odběratele: {error}",

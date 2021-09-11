@@ -427,7 +427,7 @@
     "subscribers.email": "ഇ-മെയിൽ",
     "subscribers.emailExists": "ഇ-മെയിൽ നേരത്തേതന്നെ ഉള്ളതാണ്",
     "subscribers.errorBlocklisting": "വരിക്കാരെ തടയുന്ന പട്ടികയിൽ പെടുത്തുന്നതിൽ പരാജയപ്പേട്ടു: {error}",
-    "subscribers.errorInvalidIDs": "നൽകിയിരിക്കുന്ന ഐഡികളിൽ ഒന്നോ അതിലധികം അസാധുവാണ്: {error}",
+    "globals.messages.errorInvalidIDs": "നൽകിയിരിക്കുന്ന ഐഡികളിൽ ഒന്നോ അതിലധികം അസാധുവാണ്: {error}",
     "subscribers.errorNoIDs": "ഐഡികളൊന്നും നൽകിയിട്ടില്ല",
     "subscribers.errorNoListsGiven": "ലിസ്റ്റുകളോന്നും നൽകിയിട്ടില്ല",
     "subscribers.errorPreparingQuery": "വരിക്കാരന്റെ ചോദ്യം തയാറാക്കുന്നതിൽ പരാജയപ്പെട്ടു: {error}",

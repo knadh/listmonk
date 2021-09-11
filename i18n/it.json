@@ -427,7 +427,7 @@
     "subscribers.email": "Email",
     "subscribers.emailExists": "Email già esistente.",
     "subscribers.errorBlocklisting": "Errore durante il blocco degli iscritti: {error}",
-    "subscribers.errorInvalidIDs": "Una o più credenziali fornite non valide: {error}",
+    "globals.messages.errorInvalidIDs": "Una o più credenziali fornite non valide: {error}",
     "subscribers.errorNoIDs": "Nessun ID fornito.",
     "subscribers.errorNoListsGiven": "Nessuna lista fornita.",
     "subscribers.errorPreparingQuery": "Errore durante la preparazione della richiesta dell'iscritto: {error}",

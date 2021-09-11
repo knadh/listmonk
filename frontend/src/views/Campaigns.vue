@@ -29,7 +29,7 @@
       paginated backend-pagination pagination-position="both" @page-change="onPageChange"
       :current-page="queryParams.page" :per-page="campaigns.perPage" :total="campaigns.total"
       hoverable backend-sorting @sort="onSort">
-      <b-table-column v-slot="props" class="status" field="status"
+      <b-table-column v-slot="props" cell-class="status" field="status"
         :label="$t('globals.fields.status')" width="10%" sortable
         :td-attrs="$utils.tdID" header-class="cy-status">
         <div>
@@ -70,9 +70,9 @@
           </b-taglist>
         </div>
       </b-table-column>
-      <b-table-column v-slot="props" class="lists" field="lists"
+      <b-table-column v-slot="props" cell-class="lists" field="lists"
         :label="$t('globals.terms.lists')" width="15%">
-        <ul class="no">
+        <ul>
           <li v-for="l in props.row.lists" :key="l.id">
             <router-link :to="{name: 'subscribers_list', params: { listID: l.id }}">
               {{ l.name }}
@@ -103,7 +103,7 @@
         </div>
       </b-table-column>
 
-      <b-table-column v-slot="props" field="stats" :label="$t('campaigns.stats')" width="18%">
+      <b-table-column v-slot="props" field="stats" :label="$t('campaigns.stats')" width="15%">
         <div class="fields stats" :set="stats = getCampaignStats(props.row)">
           <p>
             <label>{{ $t('campaigns.views') }}</label>
@@ -140,8 +140,9 @@
         </div>
       </b-table-column>
 
-      <b-table-column v-slot="props" cell-class="actions" width="13%" align="right">
+      <b-table-column v-slot="props" cell-class="actions" width="15%" align="right">
         <div>
+          <!-- start / pause / resume / scheduled -->
           <a href="" v-if="canStart(props.row)"
             @click.prevent="$utils.confirm(null,
               () => changeCampaignStatus(props.row, 'running'))" data-cy="btn-start">
@@ -170,6 +171,25 @@
               <b-icon icon="clock-start" size="is-small" />
             </b-tooltip>
           </a>
+
+          <!-- placeholder for finished campaigns -->
+          <a v-if="!canCancel(props.row)
+            && !canSchedule(props.row) && !canStart(props.row)" data-disabled>
+            <b-icon icon="rocket-launch-outline" size="is-small" />
+          </a>
+
+          <a href="" v-if="canCancel(props.row)"
+            @click.prevent="$utils.confirm(null,
+              () => changeCampaignStatus(props.row, 'cancelled'))"
+              data-cy="btn-cancel">
+            <b-tooltip :label="$t('globals.buttons.cancel')" type="is-dark">
+              <b-icon icon="cancel" size="is-small" />
+            </b-tooltip>
+          </a>
+          <a v-else data-disabled>
+            <b-icon icon="cancel" size="is-small" />
+          </a>
+
           <a href="" @click.prevent="previewCampaign(props.row)" data-cy="btn-preview">
             <b-tooltip :label="$t('campaigns.preview')" type="is-dark">
               <b-icon icon="file-find-outline" size="is-small" />
@@ -184,14 +204,11 @@
               <b-icon icon="file-multiple-outline" size="is-small" />
             </b-tooltip>
           </a>
-          <a href="" v-if="canCancel(props.row)"
-            @click.prevent="$utils.confirm(null,
-              () => changeCampaignStatus(props.row, 'cancelled'))"
-              data-cy="btn-cancel">
-            <b-tooltip :label="$t('globals.buttons.cancel')" type="is-dark">
-              <b-icon icon="cancel" size="is-small" />
+          <router-link :to="{ name: 'campaignAnalytics', query: { 'id': props.row.id }}">
+            <b-tooltip :label="$t('globals.terms.analytics')" type="is-dark">
+              <b-icon icon="chart-bar" size="is-small" />
             </b-tooltip>
-          </a>
+          </router-link>
           <a href=""
             @click.prevent="$utils.confirm($t('campaigns.confirmDelete', { name: props.row.name }),
             () => deleteCampaign(props.row))" data-cy="btn-delete">

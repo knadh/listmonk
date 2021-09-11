@@ -427,7 +427,7 @@
     "subscribers.email": "E-Mail",
     "subscribers.emailExists": "E-Mail existiert bereits.",
     "subscribers.errorBlocklisting": "Fehler. Abonnement ist geblockt: {error}",
-    "subscribers.errorInvalidIDs": "Eine oder mehrere IDs sind ungültig: {error}",
+    "globals.messages.errorInvalidIDs": "Eine oder mehrere IDs sind ungültig: {error}",
     "subscribers.errorNoIDs": "Keine IDs angegeben.",
     "subscribers.errorNoListsGiven": "Keine Listen angegeben.",
     "subscribers.errorPreparingQuery": "Fehler beim Vorbereiten der Abonnentenabfrage: {error}",
