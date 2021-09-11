@@ -8,7 +8,8 @@ BUILDSTR := ${VERSION} (\#${LAST_COMMIT} $(shell date -u +"%Y-%m-%dT%H:%M:%S%z")
 
 YARN ?= yarn
 GOPATH ?= $(HOME)/go
-STUFFBIN ?= $(GOPATH)/bin/stuffbin
+GOBIN ?= $(HOME)/gobin
+STUFFBIN ?= $(GOBIN)/stuffbin
 FRONTEND_YARN_MODULES = frontend/node_modules
 FRONTEND_DIST = frontend/dist
 FRONTEND_DEPS = \
@@ -30,7 +31,7 @@ STATIC := config.toml.sample \
 build: $(BIN)
 
 $(STUFFBIN):
-	go get -u github.com/knadh/stuffbin/...
+	go install github.com/knadh/stuffbin/...@latest
 
 $(FRONTEND_YARN_MODULES): frontend/package.json frontend/yarn.lock
 	cd frontend && $(YARN) install
