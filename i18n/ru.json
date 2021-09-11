@@ -427,7 +427,7 @@
     "subscribers.email": "E-mail",
     "subscribers.emailExists": "E-mail существует.",
     "subscribers.errorBlocklisting": "Ошибка блокировки подписчиков: {error}",
-    "subscribers.errorInvalidIDs": "Указан один или более неверных ID: {error}",
+    "globals.messages.errorInvalidIDs": "Указан один или более неверных ID: {error}",
     "subscribers.errorNoIDs": "Не указано ни одного ID.",
     "subscribers.errorNoListsGiven": "Не указано ни одного списка.",
     "subscribers.errorPreparingQuery": "Ошибка подготовки запроса подписчиков: {error}",

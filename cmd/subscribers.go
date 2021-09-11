@@ -409,7 +409,7 @@ func handleBlocklistSubscribers(c echo.Context) error {
 		var req subQueryReq
 		if err := c.Bind(&req); err != nil {
 			return echo.NewHTTPError(http.StatusBadRequest,
-				app.i18n.Ts("subscribers.errorInvalidIDs", "error", err.Error()))
+				app.i18n.Ts("globals.messages.errorInvalidIDs", "error", err.Error()))
 		}
 		if len(req.SubscriberIDs) == 0 {
 			return echo.NewHTTPError(http.StatusBadRequest,
@@ -449,7 +449,7 @@ func handleManageSubscriberLists(c echo.Context) error {
 	var req subQueryReq
 	if err := c.Bind(&req); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest,
-			app.i18n.Ts("subscribers.errorInvalidIDs", "error", err.Error()))
+			app.i18n.Ts("globals.messages.errorInvalidIDs", "error", err.Error()))
 	}
 	if len(req.SubscriberIDs) == 0 {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("subscribers.errorNoIDs"))
@@ -505,7 +505,7 @@ func handleDeleteSubscribers(c echo.Context) error {
 		i, err := parseStringIDs(c.Request().URL.Query()["id"])
 		if err != nil {
 			return echo.NewHTTPError(http.StatusBadRequest,
-				app.i18n.Ts("subscribers.errorInvalidIDs", "error", err.Error()))
+				app.i18n.Ts("globals.messages.errorInvalidIDs", "error", err.Error()))
 		}
 		if len(i) == 0 {
 			return echo.NewHTTPError(http.StatusBadRequest,

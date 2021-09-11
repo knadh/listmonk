@@ -427,7 +427,7 @@
     "subscribers.email": "E-posta",
     "subscribers.emailExists": "E-posta zaten mevcut.",
     "subscribers.errorBlocklisting": "Hata, erişime engelli üyeleri gösterme: {error}",
-    "subscribers.errorInvalidIDs": "Bir yada daha fazla geçersiz ID: {error}",
+    "globals.messages.errorInvalidIDs": "Bir yada daha fazla geçersiz ID: {error}",
     "subscribers.errorNoIDs": "Herhangi bir ID verilmedi.",
     "subscribers.errorNoListsGiven": "Liste tanımı yapılmamış.",
     "subscribers.errorPreparingQuery": "Hata, üye sorgusu hazırlarken: {error}",
