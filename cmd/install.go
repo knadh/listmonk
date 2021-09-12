@@ -32,7 +32,7 @@ func install(lastVer string, db *sqlx.DB, fs stuffbin.FileSystem, prompt, idempo
 
 	if prompt {
 		var ok string
-		fmt.Print("continue (y/n)?  ")
+		fmt.Print("continue (y/N)?  ")
 		if _, err := fmt.Scanf("%s", &ok); err != nil {
 			lo.Fatalf("error reading value from terminal: %v", err)
 		}
