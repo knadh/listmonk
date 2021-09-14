@@ -8,8 +8,7 @@ BUILDSTR := ${VERSION} (\#${LAST_COMMIT} $(shell date -u +"%Y-%m-%dT%H:%M:%S%z")
 
 YARN ?= yarn
 GOPATH ?= $(HOME)/go
-GOBIN ?= $(HOME)/gobin
-STUFFBIN ?= $(GOBIN)/stuffbin
+STUFFBIN ?= $(GOPATH)/bin/stuffbin
 FRONTEND_YARN_MODULES = frontend/node_modules
 FRONTEND_DIST = frontend/dist
 FRONTEND_DEPS = \
