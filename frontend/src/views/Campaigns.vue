@@ -124,7 +124,7 @@
             </router-link>
           </p>
           <p title="Speed" v-if="stats.rate">
-            <label><b-icon icon="speedometer" size="is-small"></b-icon></label>
+            <label><b-icon icon="calendar-clock" size="is-small"></b-icon></label>
             <span class="send-rate">
               {{ stats.rate.toFixed(0) }} / min
             </span>
@@ -192,8 +192,9 @@
               <b-icon icon="cancel" size="is-small" />
             </b-tooltip>
           </a>
-          <a href="" @click.prevent="$utils.confirm($tc('campaigns.confirmDelete'),
-              () => deleteCampaign(props.row))" data-cy="btn-delete">
+          <a href=""
+            @click.prevent="$utils.confirm($t('campaigns.confirmDelete', { name: props.row.name }),
+            () => deleteCampaign(props.row))" data-cy="btn-delete">
               <b-icon icon="trash-can-outline" size="is-small" />
           </a>
         </div>

@@ -5,10 +5,10 @@ $body-family: "Inter", "Helvetica Neue", sans-serif;
 $body-size: 15px;
 $background: $white-bis;
 $body-background-color: $white-bis;
-$primary: #7f2aff;
-$green: #4caf50;
+$primary: #0055d4;
+$green: #0db35e;
 $turquoise: $green;
-$red: #ff5722;
+$red: #FF5722;
 $link: $primary;
 $input-placeholder-color: $grey-light;
 $grey-lightest: #eaeaea;
@@ -27,8 +27,6 @@ $menu-item-active-color: $primary;
 
 /* Buefy */
 $modal-background-background-color: rgba(0, 0, 0, .30);
-$speed-slow: 25ms !default;
-$speed-slower: 50ms !default;
 
 /* Import full Bulma and Buefy */
 @import "~bulma";
@@ -92,14 +90,13 @@ section {
 }
 
 .box {
-  background: $white-bis;
-  box-shadow: 2px 2px 5px $white-ter;
-  border: 1px solid $grey-lightest;
-
-  hr {
+  background: $white;
+  box-shadow: 2px 2px 0 #f3f3f3;
+  border: 1px solid #eee;
+}
+  .box hr {
     background-color: #efefef;
   }
-}
 
 .page-header {
   min-height: 60px;
@@ -173,6 +170,11 @@ section {
       border-radius: 0;
     }
   }
+}
+
+/* Fix for sidebar jumping on modals */
+body.is-noscroll .b-sidebar {
+  top: 26px;
 }
 
 /* Global notices */
@@ -297,7 +299,9 @@ section {
 }
 
 .input, .taginput .taginput-container.is-focusable, .textarea {
-  box-shadow: inset 2px 2px 0px $white-ter;
+  // box-shadow: inset 2px 2px 0px $white-ter;
+  box-shadow: 2px 2px 0 $white-ter;
+  border: 1px solid $grey-lighter;
 }
 
 /* Form fields */
@@ -317,11 +321,11 @@ section {
   }
 
   label {
-    color: $grey;
+    color: $grey-dark;
   }
 
   .help {
-    color: $grey-light;
+    color: $grey;
   }
 }
 .has-numberinput .field, .field.is-grouped {
@@ -363,21 +367,21 @@ section {
     box-shadow: 1px 1px 0 lighten($color, 37%);
   }
   &.public, &.running {
-    $color: #1890ff;
+    $color: $primary;
     color: $color;
     background: #e6f7ff;
     border: 1px solid lighten($color, 37%);
     box-shadow: 1px 1px 0 lighten($color, 25%);
   }
   &.finished, &.enabled {
-    $color: #50ab24;
+    $color: $green;
     color: $color;
     background: #f6ffed;
     border: 1px solid lighten($color, 45%);
     box-shadow: 1px 1px 0 lighten($color, 45%);
   }
   &.blocklisted, &.cancelled {
-    $color: #f5222d;
+    $color: $red;
     color: $color;
     background: #fff1f0;
     border: 1px solid lighten($color, 30%);
@@ -404,6 +408,11 @@ section {
 section.dashboard {
   .title {
     margin-bottom: 0.5rem;
+  }
+
+  .tile.notification {
+    @extend .box;
+    padding: 10px;
   }
 
   .counts .column {
@@ -488,6 +497,9 @@ section.campaigns {
         border-bottom: 1px solid lighten(#1890ff, 30%);
       }
 
+      .spinner {
+        margin-left: 10px;
+      }
       .spinner .loading-overlay .loading-icon::after {
         border-bottom-color: lighten(#1890ff, 30%);
         border-left-color: lighten(#1890ff, 30%);
@@ -723,19 +735,22 @@ section.campaign {
 
 /* Toasts */
 .notices {
-  @keyframes scale {
-    0% {
-      scale: 1;
-    }
-    50% {
-      scale: 1.3;
-    }
-    100% {
-      scale: 1;
-    }
-  }
   .toast {
-    animation: scale 300ms ease-in-out;
+    @extend .box;
+    border-left: 15px solid $grey;
+    border-radius: 3px;
+    padding: 20px;
+
+    &.is-danger {
+      background: $white;
+      border-left-color: $red;
+      color: $grey-dark;
+    }
+    &.is-success {
+      background: $white;
+      border-left-color: $green;
+      color: $grey-dark;
+    }
   }
 }
 

@@ -55,6 +55,9 @@
                     <ul class="no is-size-7 has-text-grey">
                       <li v-for="(num, status) in counts.campaigns.byStatus" :key="status">
                         <label>{{ num }}</label> {{ status }}
+                        <span v-if="status === 'running'" class="spinner is-tiny">
+                          <b-loading :is-full-page="false" active />
+                        </span>
                       </li>
                     </ul>
                   </div>

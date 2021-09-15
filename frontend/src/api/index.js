@@ -67,6 +67,8 @@ http.interceptors.response.use((resp) => {
       message: msg,
       type: 'is-danger',
       queue: false,
+      position: 'is-top',
+      pauseOnHover: true,
     });
   }
 
