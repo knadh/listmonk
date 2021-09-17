@@ -102,7 +102,7 @@ CREATE TABLE campaigns (
 
 DROP TABLE IF EXISTS campaign_lists CASCADE;
 CREATE TABLE campaign_lists (
-    id               BIGSERIAL PRIMARY KEY,
+    id           BIGSERIAL PRIMARY KEY,
     campaign_id  INTEGER NOT NULL REFERENCES campaigns(id) ON DELETE CASCADE ON UPDATE CASCADE,
 
     -- Lists may be deleted, so list_id is nullable
