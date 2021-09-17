@@ -326,6 +326,16 @@ body.is-noscroll .b-sidebar {
     height: 3rem;
   }
 
+.taginput .taginput-container .autocomplete {
+  input {
+    padding: 16px 32px 17px 32px;
+  }
+
+  .control.has-icons-left .icon.is-left {
+    height: 2rem;
+  }
+}
+
 .button {
   height: auto;
   padding: 10px 20px;
