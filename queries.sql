@@ -208,13 +208,13 @@ views AS (
     SELECT subject as campaign, COUNT(subscriber_id) as views FROM campaign_views
         LEFT JOIN campaigns ON (campaigns.id = campaign_views.campaign_id)
         WHERE subscriber_id = (SELECT id FROM prof)
-        GROUP BY campaigns.id ORDER BY id
+        GROUP BY campaigns.id ORDER BY campaigns.id
 ),
 clicks AS (
     SELECT url, COUNT(subscriber_id) as clicks FROM link_clicks
         LEFT JOIN links ON (links.id = link_clicks.link_id)
         WHERE subscriber_id = (SELECT id FROM prof)
-        GROUP BY links.id ORDER BY id
+        GROUP BY links.id ORDER BY links.id
 )
 SELECT (SELECT email FROM prof) as email,
         COALESCE((SELECT JSON_AGG(t) FROM prof t), '{}') AS profile,
@@ -369,9 +369,9 @@ DELETE FROM lists WHERE id = ALL($1);
 -- This creates the campaign and inserts campaign_lists relationships.
 WITH campLists AS (
     -- Get the list_ids and their optin statuses for the campaigns found in the previous step.
-    SELECT id AS list_id, campaign_id, optin FROM lists
+    SELECT lists.id AS list_id, campaign_id, optin FROM lists
     INNER JOIN campaign_lists ON (campaign_lists.list_id = lists.id)
-    WHERE id=ANY($13::INT[])
+    WHERE lists.id = ANY($13::INT[])
 ),
 tpl AS (
     -- If there's no template_id given, use the defualt template.
@@ -504,7 +504,7 @@ WITH camps AS (
 ),
 campLists AS (
     -- Get the list_ids and their optin statuses for the campaigns found in the previous step.
-    SELECT id AS list_id, campaign_id, optin FROM lists
+    SELECT lists.id AS list_id, campaign_id, optin FROM lists
     INNER JOIN campaign_lists ON (campaign_lists.list_id = lists.id)
     WHERE campaign_lists.campaign_id = ANY(SELECT id FROM camps)
 ),
@@ -591,7 +591,7 @@ WITH camps AS (
     WHERE id=$1 AND status='running'
 ),
 campLists AS (
-    SELECT id AS list_id, optin FROM lists
+    SELECT lists.id AS list_id, optin FROM lists
     INNER JOIN campaign_lists ON (campaign_lists.list_id = lists.id)
     WHERE campaign_lists.campaign_id = $1
 ),
