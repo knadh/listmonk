@@ -82,7 +82,7 @@
                     icon="file-image-outline" :label="$t('globals.terms.templates')"></b-menu-item>
 
                   <b-menu-item :to="{name: 'campaignAnalytics'}" tag="router-link"
-                    :active="activeItem.analytics" data-cy="analytics"
+                    :active="activeItem.campaignAnalytics" data-cy="analytics"
                     icon="chart-bar" :label="$t('globals.terms.analytics')"></b-menu-item>
                 </b-menu-item><!-- campaigns -->
 

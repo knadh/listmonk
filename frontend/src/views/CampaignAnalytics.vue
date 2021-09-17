@@ -48,7 +48,10 @@
       <div class="chart columns" v-for="(v, k) in charts" :key="k">
         <div class="column is-9">
           <b-loading v-if="v.loading" :active="v.loading" :is-full-page="false" />
-          <h4 v-if="v.chart !== null">{{ v.name }} ({{ counts[k] }})</h4>
+          <h4 v-if="v.chart !== null">
+            {{ v.name }}
+            <span class="has-text-grey-light">({{ $utils.niceNumber(counts[k]) }})</span>
+          </h4>
           <div :ref="`chart-${k}`" :id="`chart-${k}`"></div>
         </div>
         <div class="column is-2 donut-container">
