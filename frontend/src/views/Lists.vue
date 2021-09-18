@@ -65,7 +65,7 @@
         :label="$t('globals.terms.subscribers')" header-class="cy-subscribers"
         numeric sortable centered>
         <router-link :to="`/subscribers/lists/${props.row.id}`">
-          {{ props.row.subscriberCount }}
+          {{ $utils.formatNumber(props.row.subscriberCount) }}
         </router-link>
       </b-table-column>
 

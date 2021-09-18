@@ -107,20 +107,20 @@
         <div class="fields stats" :set="stats = getCampaignStats(props.row)">
           <p>
             <label>{{ $t('campaigns.views') }}</label>
-            {{ props.row.views }}
+            {{ $utils.formatNumber(props.row.views) }}
           </p>
           <p>
             <label>{{ $t('campaigns.clicks') }}</label>
-            {{ props.row.clicks }}
+            {{ $utils.formatNumber(props.row.clicks) }}
           </p>
           <p>
             <label>{{ $t('campaigns.sent') }}</label>
-            {{ stats.sent }} / {{ stats.toSend }}
+            {{ $utils.formatNumber(stats.sent) }} / {{ $utils.formatNumber(stats.toSend) }}
           </p>
           <p>
             <label>{{ $t('globals.terms.bounces') }}</label>
             <router-link :to="{name: 'bounces', query: { campaign_id: props.row.id }}">
-              {{ props.row.bounces }}
+              {{ $utils.formatNumber(props.row.bounces) }}
             </router-link>
           </p>
           <p title="Speed" v-if="stats.rate">

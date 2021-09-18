@@ -23,6 +23,7 @@ const htmlEntities = {
 export default class Utils {
   constructor(i18n) {
     this.i18n = i18n;
+    this.intlNumFormat = new Intl.NumberFormat();
   }
 
   // Parses an ISO timestamp to a simpler form.
@@ -76,6 +77,10 @@ export default class Utils {
     }
 
     return out.toFixed(2) + pfx;
+  }
+
+  formatNumber(v) {
+    return this.intlNumFormat.format(v);
   }
 
   // Parse one or more numeric ids as query params and return as an array of ints.
