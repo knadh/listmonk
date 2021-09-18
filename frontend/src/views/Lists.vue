@@ -130,7 +130,7 @@ export default Vue.extend({
       isFormVisible: false,
       queryParams: {
         page: 1,
-        orderBy: 'created_at',
+        orderBy: 'id',
         order: 'asc',
       },
     };

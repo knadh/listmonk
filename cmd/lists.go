@@ -79,6 +79,10 @@ func handleGetLists(c echo.Context) error {
 	out.Total = out.Results[0].Total
 	out.Page = pg.Page
 	out.PerPage = pg.PerPage
+	if out.PerPage == 0 {
+		out.PerPage = out.Total
+	}
+
 	return c.JSON(http.StatusOK, okResp{out})
 }
 
