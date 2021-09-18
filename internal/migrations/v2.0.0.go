@@ -67,6 +67,9 @@ func V2_0_0(db *sqlx.DB, fs stuffbin.FileSystem, ko *koanf.Koanf) error {
 				ALTER TABLE campaign_lists ADD COLUMN IF NOT EXISTS id BIGSERIAL PRIMARY KEY;
 			END IF;
 		END$$;
+
+		CREATE INDEX IF NOT EXISTS idx_views_date ON campaign_views((TIMEZONE('UTC', created_at)::DATE));
+		CREATE INDEX IF NOT EXISTS idx_clicks_date ON link_clicks((TIMEZONE('UTC', created_at)::DATE));
 	`); err != nil {
 		return err
 	}

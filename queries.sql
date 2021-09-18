@@ -233,7 +233,7 @@ SELECT (SELECT email FROM prof) as email,
 -- for pagination in the frontend, albeit being a field that'll repeat
 -- with every resultant row.
 -- %s = arbitrary expression, %s = order by field, %s = order direction
-SELECT COUNT(*) OVER () AS total, subscribers.* FROM subscribers
+SELECT subscribers.* FROM subscribers
     LEFT JOIN subscriber_lists
     ON (
         -- Optional list filtering.
@@ -243,6 +243,17 @@ SELECT COUNT(*) OVER () AS total, subscribers.* FROM subscribers
     WHERE subscriber_lists.list_id = ALL($1::INT[])
     %s
     ORDER BY %s %s OFFSET $2 LIMIT (CASE WHEN $3 = 0 THEN NULL ELSE $3 END);
+
+-- name: query-subscribers-count
+-- Replica of query-subscribers for obtaining the results count.
+SELECT COUNT(*) AS total FROM subscribers
+    LEFT JOIN subscriber_lists
+    ON (
+        -- Optional list filtering.
+        (CASE WHEN CARDINALITY($1::INT[]) > 0 THEN true ELSE false END)
+        AND subscriber_lists.subscriber_id = subscribers.id
+    )
+    WHERE subscriber_lists.list_id = ALL($1::INT[]) %s;
 
 -- name: query-subscribers-for-export
 -- raw: true
@@ -773,26 +784,43 @@ INSERT INTO link_clicks (campaign_id, subscriber_id, link_id) VALUES(
 
 -- name: get-dashboard-charts
 WITH clicks AS (
-    -- Clicks by day for the last 3 months
     SELECT JSON_AGG(ROW_TO_JSON(row))
-    FROM (SELECT COUNT(*) AS count, created_at::DATE as date
-          FROM link_clicks GROUP by date ORDER BY date DESC LIMIT 100
+    FROM (
+        WITH viewDates AS (
+          SELECT TIMEZONE('UTC', created_at)::DATE AS to_date,
+                 TIMEZONE('UTC', created_at)::DATE - INTERVAL '30 DAY' AS from_date
+                 FROM link_clicks ORDER BY id DESC LIMIT 1
+        )
+        SELECT COUNT(*) AS count, created_at::DATE as date FROM link_clicks
+          -- use > between < to force the use of the date index.
+          WHERE TIMEZONE('UTC', created_at)::DATE BETWEEN (SELECT from_date FROM viewDates) AND (SELECT to_date FROM viewDates)
+          GROUP by date ORDER BY date
     ) row
 ),
 views AS (
-    -- Views by day for the last 3 months
     SELECT JSON_AGG(ROW_TO_JSON(row))
-    FROM (SELECT COUNT(*) AS count, created_at::DATE as date
-          FROM campaign_views GROUP by date ORDER BY date DESC LIMIT 100
+    FROM (
+        WITH viewDates AS (
+          SELECT TIMEZONE('UTC', created_at)::DATE AS to_date,
+                 TIMEZONE('UTC', created_at)::DATE - INTERVAL '30 DAY' AS from_date
+                 FROM campaign_views ORDER BY id DESC LIMIT 1
+        )
+        SELECT COUNT(*) AS count, created_at::DATE as date FROM campaign_views
+          -- use > between < to force the use of the date index.
+          WHERE TIMEZONE('UTC', created_at)::DATE BETWEEN (SELECT from_date FROM viewDates) AND (SELECT to_date FROM viewDates)
+          GROUP by date ORDER BY date
     ) row
 )
 SELECT JSON_BUILD_OBJECT('link_clicks', COALESCE((SELECT * FROM clicks), '[]'),
                         'campaign_views', COALESCE((SELECT * FROM views), '[]'));
 
 -- name: get-dashboard-counts
+WITH subs AS (
+    SELECT COUNT(*) AS num, status FROM subscribers GROUP BY status
+)
 SELECT JSON_BUILD_OBJECT('subscribers', JSON_BUILD_OBJECT(
-                            'total', (SELECT COUNT(*) FROM subscribers),
-                            'blocklisted', (SELECT COUNT(*) FROM subscribers WHERE status='blocklisted'),
+                            'total', (SELECT SUM(num) FROM subs),
+                            'blocklisted', (SELECT num FROM subs WHERE status='blocklisted'),
                             'orphans', (
                                 SELECT COUNT(id) FROM subscribers
                                 LEFT JOIN subscriber_lists ON (subscribers.id = subscriber_lists.subscriber_id)

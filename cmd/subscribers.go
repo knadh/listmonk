@@ -112,7 +112,7 @@ func handleQuerySubscribers(c echo.Context) error {
 		query   = sanitizeSQLExp(c.FormValue("query"))
 		orderBy = c.FormValue("order_by")
 		order   = c.FormValue("order")
-		out     subsWrap
+		out     = subsWrap{Results: make([]models.Subscriber, 0, 1)}
 	)
 
 	listIDs := pq.Int64Array{}
@@ -130,15 +130,15 @@ func handleQuerySubscribers(c echo.Context) error {
 
 	// Sort params.
 	if !strSliceContains(orderBy, subQuerySortFields) {
-		orderBy = "updated_at"
+		orderBy = "subscribers.id"
 	}
 	if order != sortAsc && order != sortDesc {
-		order = sortAsc
+		order = sortDesc
 	}
 
-	stmt := fmt.Sprintf(app.queries.QuerySubscribers, cond, orderBy, order)
-
-	// Create a readonly transaction to prevent mutations.
+	// Create a readonly transaction that just does COUNT() to obtain the count of results
+	// and to ensure that the arbitrary query is indeed readonly.
+	stmt := fmt.Sprintf(app.queries.QuerySubscribersCount, cond)
 	tx, err := app.db.BeginTxx(context.Background(), &sql.TxOptions{ReadOnly: true})
 	if err != nil {
 		app.log.Printf("error preparing subscriber query: %v", err)
@@ -147,7 +147,21 @@ func handleQuerySubscribers(c echo.Context) error {
 	}
 	defer tx.Rollback()
 
-	// Run the query. stmt is the raw SQL query.
+	// Execute the readonly query and get the count of results.
+	var total = 0
+	if err := tx.Get(&total, stmt, listIDs); err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError,
+			app.i18n.Ts("globals.messages.errorFetching",
+				"name", "{globals.terms.subscribers}", "error", pqErrMsg(err)))
+	}
+
+	// No results.
+	if total == 0 {
+		return c.JSON(http.StatusOK, okResp{out})
+	}
+
+	// Run the query again and fetch the actual data. stmt is the raw SQL query.
+	stmt = fmt.Sprintf(app.queries.QuerySubscribers, cond, orderBy, order)
 	if err := tx.Select(&out.Results, stmt, listIDs, pg.Offset, pg.Limit); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			app.i18n.Ts("globals.messages.errorFetching",
@@ -169,7 +183,7 @@ func handleQuerySubscribers(c echo.Context) error {
 	}
 
 	// Meta.
-	out.Total = out.Results[0].Total
+	out.Total = total
 	out.Page = pg.Page
 	out.PerPage = pg.PerPage
 
