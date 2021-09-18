@@ -39,6 +39,23 @@ http.interceptors.response.use((resp) => {
       // Transform field case.
       data = humps.camelizeKeys(resp.data.data);
     }
+
+    if (resp.config.preserveCase && resp.config.preserveResultsCase) {
+      resp.data.data.results.forEach((r, n) => {
+        // Only preserve case for certain keys under the 'results' key.
+        const save = {};
+        resp.config.preserveResultsCase.forEach((key) => {
+          save[key] = JSON.stringify(r[key]);
+        });
+
+        const item = humps.camelizeKeys(r);
+        Object.keys(save).forEach((key) => {
+          item[key] = JSON.parse(save[key]);
+        });
+
+        data.results[n] = item;
+      });
+    }
   } else {
     data = resp.data.data;
   }
@@ -111,7 +128,13 @@ export const deleteList = (id) => http.delete(`/api/lists/${id}`,
 
 // Subscribers.
 export const getSubscribers = async (params) => http.get('/api/subscribers',
-  { params, loading: models.subscribers, store: models.subscribers });
+  {
+    params,
+    loading: models.subscribers,
+    store: models.subscribers,
+    preserveCase: true,
+    preserveResultsCase: ['attribs'],
+  });
 
 export const getSubscriber = async (id) => http.get(`/api/subscribers/${id}`,
   { loading: models.subscribers });
