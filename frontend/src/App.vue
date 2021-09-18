@@ -191,7 +191,7 @@ export default Vue.extend({
   mounted() {
     // Lists is required across different views. On app load, fetch the lists
     // and have them in the store.
-    this.$api.getLists();
+    this.$api.getLists({ minimal: true });
   },
 });
 </script>

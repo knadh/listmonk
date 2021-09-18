@@ -64,9 +64,6 @@ section {
   &.wrap {
     max-width: 1100px;
   }
-  &.wrap-small {
-    max-width: 900px;
-  }
 }
 
 .spinner.is-tiny {
@@ -293,6 +290,12 @@ body.is-noscroll .b-sidebar {
 /* Fix for input colours */
 .button.is-primary {
   background: $primary;
+
+  &:not(.is-small) {
+    height: auto;
+    padding: 10px 20px;
+  }
+
   &:hover {
     background: darken($primary, 15%);
   }
@@ -334,11 +337,6 @@ body.is-noscroll .b-sidebar {
   .control.has-icons-left .icon.is-left {
     height: 2rem;
   }
-}
-
-.button {
-  height: auto;
-  padding: 10px 20px;
 }
 
 /* Form fields */
@@ -732,6 +730,10 @@ section.campaign {
 
 /* C3 charting lib */
 .c3 {
+  .c3-text.c3-empty {
+    font-family: $body-family;
+    font-size: $size-6;
+  }
   .c3-chart-lines .c3-line {
     stroke-width: 2px;
   }
