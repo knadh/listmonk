@@ -124,7 +124,7 @@
             </router-link>
           </p>
           <p title="Speed" v-if="stats.rate">
-            <label><b-icon icon="calendar-clock" size="is-small"></b-icon></label>
+            <label><b-icon icon="speedometer" size="is-small"></b-icon></label>
             <span class="send-rate">
               {{ stats.rate.toFixed(0) }} / min
             </span>
