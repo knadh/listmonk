@@ -118,6 +118,9 @@ export const getLists = (params) => http.get('/api/lists',
     store: models.lists,
   });
 
+export const getList = async (id) => http.get(`/api/lists/${id}`,
+  { loading: models.list });
+
 export const createList = (data) => http.post('/api/lists', data,
   { loading: models.lists });
 

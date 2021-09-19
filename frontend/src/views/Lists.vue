@@ -28,9 +28,10 @@
         :td-attrs="$utils.tdID"
         @page-change="onPageChange">
         <div>
-          <router-link :to="{name: 'subscribers_list', params: { listID: props.row.id }}">
+          <a :href="`/lists/${props.row.id}`"
+            @click.prevent="showEditForm(props.row)">
             {{ props.row.name }}
-          </router-link>
+          </a>
           <b-taglist>
               <b-tag class="is-small" v-for="t in props.row.tags" :key="t">{{ t }}</b-tag>
           </b-taglist>
@@ -104,7 +105,8 @@
     </b-table>
 
     <!-- Add / edit form modal -->
-    <b-modal scroll="keep" :aria-modal="true" :active.sync="isFormVisible" :width="600">
+    <b-modal scroll="keep" :aria-modal="true" :active.sync="isFormVisible" :width="600"
+      @close="onFormClose">
       <list-form :data="curItem" :isEditing="isEditing" @finished="formFinished"></list-form>
     </b-modal>
   </section>
@@ -167,6 +169,12 @@ export default Vue.extend({
       this.getLists();
     },
 
+    onFormClose() {
+      if (this.$route.params.id) {
+        this.$router.push({ name: 'lists' });
+      }
+    },
+
     getLists() {
       this.$api.getLists({
         page: this.queryParams.page,
@@ -211,7 +219,13 @@ export default Vue.extend({
   },
 
   mounted() {
-    this.getLists();
+    if (this.$route.params.id) {
+      this.$api.getList(parseInt(this.$route.params.id, 10)).then((data) => {
+        this.showEditForm(data);
+      });
+    } else {
+      this.getLists();
+    }
   },
 });
 </script>

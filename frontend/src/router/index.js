@@ -24,6 +24,12 @@ const routes = [
     component: () => import(/* webpackChunkName: "main" */ '../views/Forms.vue'),
   },
   {
+    path: '/lists/:id',
+    name: 'lists',
+    meta: { title: 'Lists', group: 'lists' },
+    component: () => import(/* webpackChunkName: "main" */ '../views/Lists.vue'),
+  },
+  {
     path: '/subscribers',
     name: 'subscribers',
     meta: { title: 'Subscribers', group: 'subscribers' },

@@ -343,7 +343,10 @@ WITH ls AS (
     WHERE ($1 = 0 OR id = $1) OFFSET $2 LIMIT (CASE WHEN $3 = 0 THEN NULL ELSE $3 END)
 ),
 counts AS (
-	SELECT COUNT(*) as subscriber_count, list_id FROM subscriber_lists WHERE status != 'unsubscribed' GROUP BY list_id
+	SELECT COUNT(*) as subscriber_count, list_id FROM subscriber_lists
+    WHERE status != 'unsubscribed'
+    AND ($1 = 0 OR list_id = $1)
+    GROUP BY list_id
 )
 SELECT ls.*, COALESCE(subscriber_count, 0) AS subscriber_count FROM ls
     LEFT JOIN counts ON (counts.list_id = ls.id) ORDER BY %s %s;
