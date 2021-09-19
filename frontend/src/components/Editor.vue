@@ -31,16 +31,27 @@
     </div>
 
     <!-- wsywig //-->
-    <quill-editor
-      :class="{'fullscreen': isEditorFullscreen}"
-      v-if="form.format === 'richtext'"
+    <tiny-mce
       v-model="form.body"
-      ref="quill"
-      :options="options"
+      v-if="form.format === 'richtext'"
       :disabled="disabled"
-      :placeholder="$t('campaigns.contentHelp')"
-      @change="onEditorChange($event)"
-      @ready="onEditorReady($event)"
+      :init="{
+         height: 500,
+         menubar: false,
+         plugins: [
+           'lists', 'link', 'image', 'charmap', 'anchor',
+           'fullscreen', 'table', 'code', 'wordcount', 'hr',
+         ],
+         toolbar: 'undo redo | formatselect fontsizeselect | bold italic backcolor | ' +
+           'alignleft aligncenter alignright alignjustify | ' +
+           'bullist numlist table | outdent indent | removeformat | link hr',
+         skin: false,
+         content_css: false,
+         content_style: 'body { font-family: \'Helvetica Neue\', \'Segoe UI\', Helvetica, sans-serif; font-size: 15px; line-height: 26px; color: #444; }' +
+           'img { max-width: 100%; }'+
+           'a { color: #0055d4; }'+
+           'a:hover { color: #111; }'
+         }"
     />
 
     <!-- raw html editor //-->
@@ -73,54 +84,35 @@
 </template>
 
 <script>
-import 'quill/dist/quill.snow.css';
-import 'quill/dist/quill.core.css';
-
-import { quillEditor, Quill } from 'vue-quill-editor';
 import CodeFlask from 'codeflask';
 import TurndownService from 'turndown';
-import { colors } from '../constants';
 
+import 'tinymce';
+import 'tinymce/icons/default';
+import 'tinymce/themes/silver';
+import 'tinymce/skins/ui/oxide/skin.css';
+import 'tinymce/plugins/code';
+import 'tinymce/plugins/link';
+import 'tinymce/plugins/lists';
+import 'tinymce/plugins/table';
+import 'tinymce/plugins/hr';
+import 'tinymce/plugins/wordcount';
+import 'tinymce/plugins/charmap';
+import 'tinymce/plugins/image';
+import 'tinymce/plugins/anchor';
+import 'tinymce/plugins/fullscreen';
+
+import TinyMce from '@tinymce/tinymce-vue';
 import CampaignPreview from './CampaignPreview.vue';
 import Media from '../views/Media.vue';
 
-// Setup Quill to use inline CSS style attributes instead of classes.
-Quill.register(Quill.import('attributors/attribute/direction'), true);
-Quill.register(Quill.import('attributors/style/align'), true);
-Quill.register(Quill.import('attributors/style/background'), true);
-Quill.register(Quill.import('attributors/style/color'), true);
-Quill.register(Quill.import('formats/indent'), true);
-
-const quillFontSizes = Quill.import('attributors/style/size');
-quillFontSizes.whitelist = ['11px', '13px', '22px', '32px'];
-Quill.register(quillFontSizes, true);
-
-// Sanitize {{ TrackLink "xxx" }} quotes to backticks.
-const regLink = new RegExp(/{{(\s+)?TrackLink(\s+)?"(.+?)"(\s+)?}}/);
-const Link = Quill.import('formats/link');
-Link.sanitize = (l) => l.replace(regLink, '{{ TrackLink `$3`}}');
-
 const turndown = new TurndownService();
-
-// Custom class to override the default indent behaviour to get inline CSS
-// style instead of classes.
-class IndentAttributor extends Quill.import('parchment').Attributor.Style {
-  multiplier = 30;
-
-  add(node, value) {
-    return super.add(node, `${value * this.multiplier}px`);
-  }
-
-  value(node) {
-    return parseFloat(super.value(node)) / this.multiplier || undefined;
-  }
-}
 
 export default {
   components: {
     Media,
     CampaignPreview,
-    quillEditor,
+    TinyMce,
   },
 
   props: {
@@ -153,49 +145,6 @@ export default {
       // where the caret may be lost.
       lastSel: null,
 
-      // Quill editor options.
-      options: {
-        placeholder: this.$t('campaigns.contentHelp'),
-        modules: {
-          keyboard: {
-            bindings: {
-              esc: {
-                key: 27,
-                handler: () => {
-                  this.onToggleFullscreen(true);
-                },
-              },
-            },
-          },
-          toolbar: {
-            container: [
-              [{ header: [1, 2, 3, false] }],
-              ['bold', 'italic', 'underline', 'strike', 'blockquote', 'code'],
-              [{ color: [] }, { background: [] }, { size: quillFontSizes.whitelist }],
-              [
-                { list: 'ordered' },
-                { list: 'bullet' },
-                { indent: '-1' },
-                { indent: '+1' },
-              ],
-              [
-                { align: '' },
-                { align: 'center' },
-                { align: 'right' },
-                { align: 'justify' },
-              ],
-              ['link', 'image'],
-              ['clean', 'fullscreen'],
-            ],
-
-            handlers: {
-              image: this.onToggleMedia,
-              fullscreen: () => this.onToggleFullscreen(false),
-            },
-          },
-        },
-      },
-
       // HTML editor.
       flask: null,
     };
@@ -216,15 +165,6 @@ export default {
       );
     },
 
-    onEditorReady() {
-      this.isReady = true;
-
-      // Hack to focus the editor on page load.
-      this.$nextTick(() => {
-        window.setTimeout(() => this.$refs.quill.quill.focus(), 100);
-      });
-    },
-
     onEditorChange() {
       if (!this.isReady) {
         return;
@@ -243,9 +183,6 @@ export default {
         <style>
           .codeflask .codeflask__flatten { font-size: 15px; }
           .codeflask .codeflask__lines { background: #fafafa; z-index: 10; }
-          .codeflask .token.tag { font-weight: bold; }
-          .codeflask .token.attr-name { color: #111; }
-          .codeflask .token.attr-value { color: ${colors.primary} !important; }
         </style>
         <div id="area"></area>
       `;
@@ -274,22 +211,9 @@ export default {
       this.isPreviewing = !this.isPreviewing;
     },
 
-    onToggleMedia() {
-      this.lastSel = this.$refs.quill.quill.getSelection();
-      this.isMediaVisible = !this.isMediaVisible;
-    },
-
-    onToggleFullscreen(onlyMinimize) {
-      if (onlyMinimize) {
-        if (!this.isEditorFullscreen) {
-          return;
-        }
-      }
-      this.isEditorFullscreen = !this.isEditorFullscreen;
-    },
-
     onMediaSelect(m) {
-      this.$refs.quill.quill.insertEmbed(this.lastSel.index || 0, 'image', m.url);
+      // TODO: Embed image to TinyMce
+      console.log('onMediaSelect', m);
     },
 
     beautifyHTML(str) {
@@ -399,18 +323,6 @@ export default {
 
       this.onEditorChange();
     },
-  },
-
-  mounted() {
-    // Initialize the Quill indentation plugin.
-    const levels = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-    const multiplier = 30;
-    const indentStyle = new IndentAttributor('indent', 'margin-left', {
-      scope: Quill.import('parchment').Scope.BLOCK,
-      whitelist: levels.map((value) => `${value * multiplier}px`),
-    });
-
-    Quill.register(indentStyle);
   },
 };
 </script>
