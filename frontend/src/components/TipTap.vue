@@ -172,7 +172,7 @@ export default {
           return 'Heading 3';
         }
       }
-      return 'Paragraph';
+      return 'Normal';
     },
     currentHeadingIcon() {
       if (this.editor.isActive('heading')) {
