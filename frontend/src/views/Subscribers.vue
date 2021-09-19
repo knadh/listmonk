@@ -118,7 +118,7 @@
           <a :href="`/subscribers/${props.row.id}`"
             @click.prevent="showEditForm(props.row)">
             <b-tag :class="props.row.status">
-              {{ $t('subscribers.status.'+ props.row.status) }}
+              {{ $t(`subscribers.status.${props.row.status}`) }}
             </b-tag>
           </a>
         </b-table-column>

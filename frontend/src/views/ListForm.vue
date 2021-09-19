@@ -6,7 +6,9 @@
           {{ $t('globals.fields.id') }}: {{ data.id }} /
           {{ $t('globals.fields.uuid') }}: {{ data.uuid }}
         </p>
-        <b-tag v-if="isEditing" :class="[data.type, 'is-pulled-right']">{{ data.type }}</b-tag>
+        <b-tag v-if="isEditing" :class="[data.type, 'is-pulled-right']">
+          {{ $t(`lists.types.${data.type}`) }}
+        </b-tag>
         <h4 v-if="isEditing">{{ data.name }}</h4>
         <h4 v-else>{{ $t('lists.newList') }}</h4>
       </header>

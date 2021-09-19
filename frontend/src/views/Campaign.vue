@@ -3,8 +3,12 @@
     <header class="columns">
       <div class="column is-8">
         <p v-if="isEditing" class="tags">
-          <b-tag v-if="isEditing" :class="data.status">{{ data.status }}</b-tag>
-          <b-tag v-if="data.type === 'optin'" :class="data.type">{{ data.type }}</b-tag>
+          <b-tag v-if="isEditing" :class="data.status">
+            {{ $t(`campaigns.status.${data.status}`) }}
+          </b-tag>
+          <b-tag v-if="data.type === 'optin'" :class="data.type">
+            {{ $t('lists.optin') }}
+          </b-tag>
           <span v-if="isEditing" class="has-text-grey-light is-size-7">
             {{ $t('globals.fields.id') }}: {{ data.id }} /
             {{ $t('globals.fields.uuid') }}: {{ data.uuid }}

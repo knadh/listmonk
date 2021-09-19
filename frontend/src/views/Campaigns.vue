@@ -58,8 +58,8 @@
         sortable header-class="cy-name">
         <div>
           <p>
-            <b-tag v-if="props.row.type !== 'regular'" class="is-small">
-              {{ props.row.type }}
+            <b-tag v-if="props.row.type === 'optin'" class="is-small">
+              {{ $t('lists.optin') }}
             </b-tag>
             <router-link :to="{ name: 'campaign', params: { 'id': props.row.id }}">
               {{ props.row.name }}</router-link>
