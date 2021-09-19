@@ -2,7 +2,9 @@
   <form @submit.prevent="onSubmit">
     <div class="modal-card content" style="width: auto">
       <header class="modal-card-head">
-        <b-tag v-if="isEditing" :class="[data.status, 'is-pulled-right']">{{ data.status }}</b-tag>
+        <b-tag v-if="isEditing" :class="[data.status, 'is-pulled-right']">
+          {{ $t(`subscribers.status.${data.status}`) }}
+        </b-tag>
         <h4 v-if="isEditing">{{ data.name }}</h4>
         <h4 v-else>{{ $t('subscribers.newSubscriber') }}</h4>
 

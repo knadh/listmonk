@@ -7,7 +7,7 @@
             :class="l.subscriptionStatus"
             :closable="true"
             :data-id="l.id"
-            @close="removeList(l.id)">
+            @close="removeList(l.id)" class="list">
             {{ l.name }} <sup>{{ l.subscriptionStatus }}</sup>
           </b-tag>
         </b-taglist>
@@ -17,10 +17,11 @@
       :label="label  + (selectedItems ? ` (${selectedItems.length})` : '')"
       label-position="on-border">
       <b-autocomplete
+        v-model="query"
         :placeholder="placeholder"
         clearable
         dropdown-position="top"
-        :disabled="disabled || filteredLists.length === 0"
+        :disabled="all.length === 0"
         :keep-first="true"
         :clear-on-select="true"
         :open-on-focus="true"
@@ -60,6 +61,7 @@ export default {
 
   data() {
     return {
+      query: '',
       selectedItems: [],
     };
   },
@@ -70,6 +72,7 @@ export default {
         return;
       }
       this.selectedItems.push(l);
+      this.query = '';
 
       // Propagate the items to the parent's v-model binding.
       Vue.nextTick(() => {
@@ -88,14 +91,17 @@ export default {
   },
 
   computed: {
-    // Returns the list of lists to which the subscriber isn't subscribed.
+    // Return the list of unselected lists.
     filteredLists() {
       // Get a map of IDs of the user subsciptions. eg: {1: true, 2: true};
       const subIDs = this.selectedItems.reduce((obj, item) => ({ ...obj, [item.id]: true }), {});
 
       // Filter lists from the global lists whose IDs are not in the user's
       // subscribed ist.
-      return this.$props.all.filter((l) => !(l.id in subIDs));
+      const q = this.query.toLowerCase();
+      return this.$props.all.filter(
+        (l) => (!(l.id in subIDs) && l.name.toLowerCase().indexOf(q) >= 0),
+      );
     },
   },
 

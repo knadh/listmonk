@@ -5,10 +5,10 @@ $body-family: "Inter", "Helvetica Neue", sans-serif;
 $body-size: 15px;
 $background: $white-bis;
 $body-background-color: $white-bis;
-$primary: #7f2aff;
-$green: #4caf50;
+$primary: #0055d4;
+$green: #0db35e;
 $turquoise: $green;
-$red: #ff5722;
+$red: #FF5722;
 $link: $primary;
 $input-placeholder-color: $grey-light;
 $grey-lightest: #eaeaea;
@@ -27,8 +27,6 @@ $menu-item-active-color: $primary;
 
 /* Buefy */
 $modal-background-background-color: rgba(0, 0, 0, .30);
-$speed-slow: 25ms !default;
-$speed-slower: 50ms !default;
 
 /* Import full Bulma and Buefy */
 @import "~bulma";
@@ -66,9 +64,6 @@ section {
   &.wrap {
     max-width: 1100px;
   }
-  &.wrap-small {
-    max-width: 900px;
-  }
 }
 
 .spinner.is-tiny {
@@ -92,14 +87,13 @@ section {
 }
 
 .box {
-  background: $white-bis;
-  box-shadow: 2px 2px 5px $white-ter;
-  border: 1px solid $grey-lightest;
-
-  hr {
+  background: $white;
+  box-shadow: 2px 2px 0 #f3f3f3;
+  border: 1px solid #eee;
+}
+  .box hr {
     background-color: #efefef;
   }
-}
 
 .page-header {
   min-height: 60px;
@@ -173,6 +167,13 @@ section {
       border-radius: 0;
     }
   }
+}
+
+/* Fix for sidebar jumping on modals */
+body.is-noscroll {
+  position: static;
+  overflow-y: visible;
+  width: auto;
 }
 
 /* Global notices */
@@ -260,9 +261,16 @@ section {
     padding: 15px 10px;
     border-color: $grey-lightest;
   }
+
   .actions a, .actions .a {
     margin: 0 10px;
     display: inline-block;
+  }
+  .actions a[data-disabled],
+  .actions .icon[data-disabled] {
+    pointer-events: none;
+    cursor: not-allowed;
+    color: $grey-light;
   }
 }
 
@@ -284,6 +292,12 @@ section {
 /* Fix for input colours */
 .button.is-primary {
   background: $primary;
+
+  &:not(.is-small) {
+    height: auto;
+    padding: 10px 20px;
+  }
+
   &:hover {
     background: darken($primary, 15%);
   }
@@ -292,12 +306,48 @@ section {
   }
 }
 
-.autocomplete .dropdown-content {
-  background-color: $white-ter;
+.autocomplete {
+  .dropdown-content {
+    background-color: $white-bis;
+    border: 1px solid $primary;
+  }
+  a.dropdown-item {
+    font-size: $size-6;
+    &:hover, &.is-hovered {
+      background-color: $grey-lightest;
+      color: $primary;
+    }
+  }
+  .dropdown-menu {
+    top: 92%;
+  }
+  .dropdown-menu.is-opened-top {
+    top: auto;
+    bottom: 92%;
+  }
 }
 
 .input, .taginput .taginput-container.is-focusable, .textarea {
-  box-shadow: inset 2px 2px 0px $white-ter;
+  box-shadow: 2px 2px 0 $white-ter;
+  border: 1px solid $grey-lighter;
+}
+
+.input {
+  height: auto;
+  padding: 10px 12px;
+}
+  .control.has-icons-left .icon.is-left {
+    height: 3rem;
+  }
+
+.taginput .taginput-container .autocomplete {
+  input {
+    padding: 16px 32px 17px 32px;
+  }
+
+  .control.has-icons-left .icon.is-left {
+    height: 2rem;
+  }
 }
 
 /* Form fields */
@@ -317,11 +367,11 @@ section {
   }
 
   label {
-    color: $grey;
+    color: $grey-dark;
   }
 
   .help {
-    color: $grey-light;
+    color: $grey;
   }
 }
 .has-numberinput .field, .field.is-grouped {
@@ -338,7 +388,7 @@ section {
 
 /* Tags */
 .tag {
-  min-width: 75px;
+  min-width: 85px;
 
   &.is-small {
     font-size: 0.65rem;
@@ -349,6 +399,7 @@ section {
   }
 
   &:not(body) {
+    font-size: 0.85em;
     $color: $grey-lighter;
     border: 1px solid $color;
     box-shadow: 1px 1px 0 $color;
@@ -362,22 +413,22 @@ section {
     border: 1px solid lighten($color, 37%);
     box-shadow: 1px 1px 0 lighten($color, 37%);
   }
-  &.public, &.running {
-    $color: #1890ff;
-    color: $color;
+  &.public, &.running, &.list {
+    $color: $primary;
+    color: lighten($color, 20%);;
     background: #e6f7ff;
-    border: 1px solid lighten($color, 37%);
-    box-shadow: 1px 1px 0 lighten($color, 25%);
+    border: 1px solid lighten($color, 42%);
+    box-shadow: 1px 1px 0 lighten($color, 42%);
   }
   &.finished, &.enabled {
-    $color: #50ab24;
+    $color: $green;
     color: $color;
     background: #f6ffed;
     border: 1px solid lighten($color, 45%);
     box-shadow: 1px 1px 0 lighten($color, 45%);
   }
   &.blocklisted, &.cancelled {
-    $color: #f5222d;
+    $color: $red;
     color: $color;
     background: #fff1f0;
     border: 1px solid lighten($color, 30%);
@@ -404,6 +455,11 @@ section {
 section.dashboard {
   .title {
     margin-bottom: 0.5rem;
+  }
+
+  .tile.notification {
+    @extend .box;
+    padding: 10px;
   }
 
   .counts .column {
@@ -482,22 +538,22 @@ section.import {
 /* Campaigns page */
 section.campaigns {
   table tbody {
-    tr.running {
-      background: lighten(#1890ff, 43%);
-      td {
-        border-bottom: 1px solid lighten(#1890ff, 30%);
-      }
-
-      .spinner .loading-overlay .loading-icon::after {
+    .spinner {
+      margin-left: 10px;
+      .loading-overlay .loading-icon::after {
         border-bottom-color: lighten(#1890ff, 30%);
         border-left-color: lighten(#1890ff, 30%);
       }
     }
 
-    td {
-      &.status .spinner {
-        margin-left: 10px;
+    tr.running {
+      background: lighten(#1890ff, 43%);
+      td {
+        border-bottom: 1px solid lighten(#1890ff, 30%);
       }
+    }
+
+    td {
       .tags {
         margin-top: 5px;
       }
@@ -507,15 +563,8 @@ section.campaigns {
       }
 
       &.lists ul {
-        font-size: $size-7;
+        // font-size: $size-7;
         list-style-type: circle;
-
-        a {
-          color: $grey-dark;
-          &:hover {
-            color: $primary;
-          }
-        }
       }
 
       .fields {
@@ -540,6 +589,26 @@ section.campaigns {
         display: inline-block;
       }
     }
+  }
+}
+
+section.analytics {
+  .charts {
+    position: relative;
+    min-height: 100px;
+  }
+
+  .chart {
+    margin-bottom: 45px;
+  }
+
+  .donut-container {
+    position: relative;
+  }
+  .donut {
+    bottom: 0px;
+    right: 0px;
+    position: absolute !important;
   }
 }
 
@@ -673,6 +742,10 @@ section.campaign {
 
 /* C3 charting lib */
 .c3 {
+  .c3-text.c3-empty {
+    font-family: $body-family;
+    font-size: $size-6;
+  }
   .c3-chart-lines .c3-line {
     stroke-width: 2px;
   }
@@ -690,11 +763,10 @@ section.campaign {
   }
 
   .c3-tooltip {
-    border: 0;
-    background-color: #fff;
+    @extend .box;
+    padding: 10px;
     empty-cells: show;
-    box-shadow: none;
-    opacity: 0.9;
+    opacity: 0.95;
 
     tr {
       border: 0;
@@ -723,19 +795,22 @@ section.campaign {
 
 /* Toasts */
 .notices {
-  @keyframes scale {
-    0% {
-      scale: 1;
-    }
-    50% {
-      scale: 1.3;
-    }
-    100% {
-      scale: 1;
-    }
-  }
   .toast {
-    animation: scale 300ms ease-in-out;
+    @extend .box;
+    border-left: 15px solid $grey;
+    border-radius: 3px;
+    padding: 20px;
+
+    &.is-danger {
+      background: $white;
+      border-left-color: $red;
+      color: $grey-dark;
+    }
+    &.is-success {
+      background: $white;
+      border-left-color: $green;
+      color: $grey-dark;
+    }
   }
 }
 

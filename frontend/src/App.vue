@@ -80,6 +80,10 @@
                   <b-menu-item :to="{name: 'templates'}" tag="router-link"
                     :active="activeItem.templates" data-cy="templates"
                     icon="file-image-outline" :label="$t('globals.terms.templates')"></b-menu-item>
+
+                  <b-menu-item :to="{name: 'campaignAnalytics'}" tag="router-link"
+                    :active="activeItem.campaignAnalytics" data-cy="analytics"
+                    icon="chart-bar" :label="$t('globals.terms.analytics')"></b-menu-item>
                 </b-menu-item><!-- campaigns -->
 
                 <b-menu-item :expanded="activeGroup.settings"
@@ -187,7 +191,7 @@ export default Vue.extend({
   mounted() {
     // Lists is required across different views. On app load, fetch the lists
     // and have them in the store.
-    this.$api.getLists();
+    this.$api.getLists({ minimal: true });
   },
 });
 </script>

@@ -8,7 +8,7 @@
 
     <b-loading :active="isProcessing || loading.media"></b-loading>
 
-    <section class="wrap-small">
+    <section class="wrap">
       <form @submit.prevent="onSubmit" class="box">
         <div>
           <b-field :label="$t('media.uploadImage')">

@@ -20,7 +20,7 @@
 
     <section class="subscribers-controls columns">
       <div class="column is-4">
-        <form @submit.prevent="querySubscribers">
+        <form @submit.prevent="onSubmit">
           <div>
             <b-field grouped>
               <b-input @input="onSimpleQueryInput" v-model="queryInput"
@@ -118,7 +118,7 @@
           <a :href="`/subscribers/${props.row.id}`"
             @click.prevent="showEditForm(props.row)">
             <b-tag :class="props.row.status">
-              {{ $t('subscribers.status.'+ props.row.status) }}
+              {{ $t(`subscribers.status.${props.row.status}`) }}
             </b-tag>
           </a>
         </b-table-column>
@@ -246,7 +246,7 @@ export default Vue.extend({
         // ID of the list the current subscriber view is filtered by.
         listID: null,
         page: 1,
-        orderBy: 'updated_at',
+        orderBy: 'id',
         order: 'desc',
       },
     };
@@ -317,40 +317,51 @@ export default Vue.extend({
     },
 
     onPageChange(p) {
-      this.queryParams.page = p;
-      this.querySubscribers();
+      this.querySubscribers({ page: p });
     },
 
     onSort(field, direction) {
-      this.queryParams.orderBy = field;
-      this.queryParams.order = direction;
-      this.querySubscribers();
+      this.querySubscribers({ orderBy: field, order: direction });
     },
 
     // Prepares an SQL expression for simple name search inputs and saves it
     // in this.queryExp.
     onSimpleQueryInput(v) {
       const q = v.replace(/'/, "''").trim();
-      this.queryParams.queryExp = `(name ~* '${q}' OR email ~* '${q}')`;
+      this.queryParams.page = 1;
+
+      if (this.$utils.validateEmail(q)) {
+        this.queryParams.queryExp = `email = '${q}'`;
+      } else {
+        this.queryParams.queryExp = `(name ~* '${q}' OR email ~* '${q}')`;
+      }
     },
 
     // Ctrl + Enter on the advanced query searches.
     onAdvancedQueryEnter(e) {
       if (e.ctrlKey) {
-        this.querySubscribers();
+        this.onSubmit();
       }
     },
 
+    onSubmit() {
+      this.querySubscribers({ page: 1 });
+    },
+
     // Search / query subscribers.
-    querySubscribers() {
-      this.$api.getSubscribers({
-        list_id: this.queryParams.listID,
-        query: this.queryParams.queryExp,
-        page: this.queryParams.page,
-        order_by: this.queryParams.orderBy,
-        order: this.queryParams.order,
-      }).then(() => {
-        this.bulk.checked = [];
+    querySubscribers(params) {
+      this.queryParams = { ...this.queryParams, ...params };
+
+      this.$nextTick(() => {
+        this.$api.getSubscribers({
+          list_id: this.queryParams.listID,
+          query: this.queryParams.queryExp,
+          page: this.queryParams.page,
+          order_by: this.queryParams.orderBy,
+          order: this.queryParams.order,
+        }).then(() => {
+          this.bulk.checked = [];
+        });
       });
     },
 

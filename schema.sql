@@ -102,6 +102,7 @@ CREATE TABLE campaigns (
 
 DROP TABLE IF EXISTS campaign_lists CASCADE;
 CREATE TABLE campaign_lists (
+    id           BIGSERIAL PRIMARY KEY,
     campaign_id  INTEGER NOT NULL REFERENCES campaigns(id) ON DELETE CASCADE ON UPDATE CASCADE,
 
     -- Lists may be deleted, so list_id is nullable
@@ -115,6 +116,7 @@ DROP INDEX IF EXISTS idx_camp_lists_list_id; CREATE INDEX idx_camp_lists_list_id
 
 DROP TABLE IF EXISTS campaign_views CASCADE;
 CREATE TABLE campaign_views (
+    id               BIGSERIAL PRIMARY KEY,
     campaign_id      INTEGER NOT NULL REFERENCES campaigns(id) ON DELETE CASCADE ON UPDATE CASCADE,
 
     -- Subscribers may be deleted, but the view counts should remain.
@@ -123,6 +125,7 @@ CREATE TABLE campaign_views (
 );
 DROP INDEX IF EXISTS idx_views_camp_id; CREATE INDEX idx_views_camp_id ON campaign_views(campaign_id);
 DROP INDEX IF EXISTS idx_views_subscriber_id; CREATE INDEX idx_views_subscriber_id ON campaign_views(subscriber_id);
+DROP INDEX IF EXISTS idx_views_date; CREATE INDEX idx_views_date ON campaign_views((TIMEZONE('UTC', created_at)::DATE));
 
 -- media
 DROP TABLE IF EXISTS media CASCADE;
@@ -146,6 +149,7 @@ CREATE TABLE links (
 
 DROP TABLE IF EXISTS link_clicks CASCADE;
 CREATE TABLE link_clicks (
+    id               BIGSERIAL PRIMARY KEY,
     campaign_id      INTEGER NULL REFERENCES campaigns(id) ON DELETE CASCADE ON UPDATE CASCADE,
     link_id          INTEGER NOT NULL REFERENCES links(id) ON DELETE CASCADE ON UPDATE CASCADE,
 
@@ -156,6 +160,7 @@ CREATE TABLE link_clicks (
 DROP INDEX IF EXISTS idx_clicks_camp_id; CREATE INDEX idx_clicks_camp_id ON link_clicks(campaign_id);
 DROP INDEX IF EXISTS idx_clicks_link_id; CREATE INDEX idx_clicks_link_id ON link_clicks(link_id);
 DROP INDEX IF EXISTS idx_clicks_sub_id; CREATE INDEX idx_clicks_sub_id ON link_clicks(subscriber_id);
+DROP INDEX IF EXISTS idx_clicks_date; CREATE INDEX idx_clicks_date ON link_clicks((TIMEZONE('UTC', created_at)::DATE));
 
 -- settings
 DROP TABLE IF EXISTS settings CASCADE;
@@ -227,3 +232,4 @@ CREATE TABLE bounces (
 DROP INDEX IF EXISTS idx_bounces_sub_id; CREATE INDEX idx_bounces_sub_id ON bounces(subscriber_id);
 DROP INDEX IF EXISTS idx_bounces_camp_id; CREATE INDEX idx_bounces_camp_id ON bounces(campaign_id);
 DROP INDEX IF EXISTS idx_bounces_source; CREATE INDEX idx_bounces_source ON bounces(source);
+DROP INDEX IF EXISTS idx_bounces_date; CREATE INDEX idx_bounces_date ON bounces((TIMEZONE('UTC', created_at)::DATE));

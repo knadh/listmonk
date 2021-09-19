@@ -6,7 +6,7 @@
       </div>
     </header>
 
-    <section class="counts wrap-small">
+    <section class="counts wrap">
       <div class="tile is-ancestor">
         <div class="tile is-vertical is-12">
           <div class="tile">
@@ -15,13 +15,16 @@
               <article class="tile is-child notification" data-cy="lists">
                 <div class="columns is-mobile">
                   <div class="column is-6">
-                    <p class="title">{{ $utils.niceNumber(counts.lists.total) }}</p>
+                    <p class="title">
+                      <b-icon icon="format-list-bulleted-square" />
+                      {{ $utils.niceNumber(counts.lists.total) }}
+                    </p>
                     <p class="is-size-6 has-text-grey">
                       {{ $tc('globals.terms.list', counts.lists.total) }}
                     </p>
                   </div>
                   <div class="column is-6">
-                    <ul class="no is-size-7 has-text-grey">
+                    <ul class="no has-text-grey">
                       <li>
                         <label>{{ $utils.niceNumber(counts.lists.public) }}</label>
                         {{ $t('lists.types.public') }}
@@ -46,15 +49,21 @@
               <article class="tile is-child notification" data-cy="campaigns">
                 <div class="columns is-mobile">
                   <div class="column is-6">
-                    <p class="title">{{ $utils.niceNumber(counts.campaigns.total) }}</p>
+                    <p class="title">
+                      <b-icon icon="rocket-launch-outline" />
+                      {{ $utils.niceNumber(counts.campaigns.total) }}
+                    </p>
                     <p class="is-size-6 has-text-grey">
                       {{ $tc('globals.terms.campaign', counts.campaigns.total) }}
                     </p>
                   </div>
                   <div class="column is-6">
-                    <ul class="no is-size-7 has-text-grey">
+                    <ul class="no has-text-grey">
                       <li v-for="(num, status) in counts.campaigns.byStatus" :key="status">
                         <label>{{ num }}</label> {{ status }}
+                        <span v-if="status === 'running'" class="spinner is-tiny">
+                          <b-loading :is-full-page="false" active />
+                        </span>
                       </li>
                     </ul>
                   </div>
@@ -67,14 +76,17 @@
               <article class="tile is-child notification" data-cy="subscribers">
                 <div class="columns is-mobile">
                   <div class="column is-6">
-                    <p class="title">{{ $utils.niceNumber(counts.subscribers.total) }}</p>
+                    <p class="title">
+                      <b-icon icon="account-multiple" />
+                      {{ $utils.niceNumber(counts.subscribers.total) }}
+                    </p>
                     <p class="is-size-6 has-text-grey">
                       {{ $tc('globals.terms.subscriber', counts.subscribers.total) }}
                     </p>
                   </div>
 
                   <div class="column is-6">
-                    <ul class="no is-size-7 has-text-grey">
+                    <ul class="no has-text-grey">
                       <li>
                         <label>{{ $utils.niceNumber(counts.subscribers.blocklisted) }}</label>
                         {{ $t('subscribers.status.blocklisted') }}
@@ -89,7 +101,10 @@
                 <hr />
                 <div class="columns" data-cy="messages">
                   <div class="column is-12">
-                    <p class="title">{{ $utils.niceNumber(counts.messages) }}</p>
+                    <p class="title">
+                      <b-icon icon="email-outline" />
+                      {{ $utils.niceNumber(counts.messages) }}
+                    </p>
                     <p class="is-size-6 has-text-grey">
                       {{ $t('dashboard.messagesSent') }}
                     </p>
@@ -104,15 +119,13 @@
               <div class="columns">
                 <div class="column is-6">
                   <h3 class="title is-size-6">{{ $t('dashboard.campaignViews') }}</h3><br />
-                  <vue-c3 v-if="chartViewsInst" :handler="chartViewsInst"></vue-c3>
-                  <empty-placeholder v-else-if="!isChartsLoading" />
+                  <div ref="chart-views"></div>
                 </div>
                 <div class="column is-6">
                   <h3 class="title is-size-6 has-text-right">
                     {{ $t('dashboard.linkClicks') }}
                   </h3><br />
-                  <vue-c3 v-if="chartClicksInst" :handler="chartClicksInst"></vue-c3>
-                  <empty-placeholder v-else-if="!isChartsLoading" />
+                  <div ref="chart-clicks"></div>
                 </div>
               </div>
             </article>
@@ -130,23 +143,13 @@
 
 <script>
 import Vue from 'vue';
-import VueC3 from 'vue-c3';
+import c3 from 'c3';
 import dayjs from 'dayjs';
 import { colors } from '../constants';
-import EmptyPlaceholder from '../components/EmptyPlaceholder.vue';
 
 export default Vue.extend({
-  components: {
-    EmptyPlaceholder,
-    VueC3,
-  },
-
   data() {
     return {
-      // Unique Vue() instances for each chart.
-      chartViewsInst: null,
-      chartClicksInst: null,
-
       isChartsLoading: true,
       isCountsLoading: true,
 
@@ -160,21 +163,22 @@ export default Vue.extend({
   },
 
   methods: {
-    makeChart(label, data) {
+    renderChart(label, data, el) {
       const conf = {
+        bindto: el,
+        unload: true,
         data: {
-          columns: [
-            [label, ...data.map((d) => d.count).reverse()],
-          ],
           type: 'spline',
+          columns: [],
           color() {
             return colors.primary;
           },
+          empty: { label: { text: this.$t('globals.messages.emptyState') } },
         },
         axis: {
           x: {
             type: 'category',
-            categories: data.map((d) => dayjs(d.date).format('DD MMM')).reverse(),
+            categories: data.map((d) => dayjs(d.date).format('DD MMM')),
             tick: {
               rotate: -45,
               multiline: false,
@@ -186,7 +190,14 @@ export default Vue.extend({
           show: false,
         },
       };
-      return conf;
+
+      if (data.length > 0) {
+        conf.data.columns.push([label, ...data.map((d) => d.count)]);
+      }
+
+      this.$nextTick(() => {
+        c3.generate(conf);
+      });
     },
   },
 
@@ -206,25 +217,8 @@ export default Vue.extend({
     // Pull the charts.
     this.$api.getDashboardCharts().then((data) => {
       this.isChartsLoading = false;
-
-      // vue-c3 lib requires unique instances of Vue() to communicate.
-      if (data.campaignViews.length > 0) {
-        this.chartViewsInst = this;
-
-        this.$nextTick(() => {
-          this.chartViewsInst.$emit('init',
-            this.makeChart(this.$t('dashboard.campaignViews'), data.campaignViews));
-        });
-      }
-
-      if (data.linkClicks.length > 0) {
-        this.chartClicksInst = new Vue();
-
-        this.$nextTick(() => {
-          this.chartClicksInst.$emit('init',
-            this.makeChart(this.$t('dashboard.linkClicks'), data.linkClicks));
-        });
-      }
+      this.renderChart(this.$t('dashboard.linkClicks'), data.campaignViews, this.$refs['chart-views']);
+      this.renderChart(this.$t('dashboard.linkClicks'), data.linkClicks, this.$refs['chart-clicks']);
     });
   },
 });

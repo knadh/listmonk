@@ -28,9 +28,10 @@
         :td-attrs="$utils.tdID"
         @page-change="onPageChange">
         <div>
-          <router-link :to="{name: 'subscribers_list', params: { listID: props.row.id }}">
+          <a :href="`/lists/${props.row.id}`"
+            @click.prevent="showEditForm(props.row)">
             {{ props.row.name }}
-          </router-link>
+          </a>
           <b-taglist>
               <b-tag class="is-small" v-for="t in props.row.tags" :key="t">{{ t }}</b-tag>
           </b-taglist>
@@ -41,14 +42,14 @@
         header-class="cy-type" sortable>
         <div>
           <b-tag :class="props.row.type" :data-cy="`type-${props.row.type}`">
-            {{ $t('lists.types.' + props.row.type) }}
+            {{ $t(`lists.types.${props.row.type}`) }}
           </b-tag>
           {{ ' ' }}
           <b-tag :data-cy="`optin-${props.row.optin}`">
             <b-icon :icon="props.row.optin === 'double' ?
               'account-check-outline' : 'account-off-outline'" size="is-small" />
             {{ ' ' }}
-            {{ $t('lists.optins.' + props.row.optin) }}
+            {{ $t(`lists.optins.${props.row.optin}`) }}
           </b-tag>{{ ' ' }}
           <a v-if="props.row.optin === 'double'" class="is-size-7 send-optin"
             href="#" @click="$utils.confirm(null, () => createOptinCampaign(props.row))"
@@ -65,7 +66,7 @@
         :label="$t('globals.terms.subscribers')" header-class="cy-subscribers"
         numeric sortable centered>
         <router-link :to="`/subscribers/lists/${props.row.id}`">
-          {{ props.row.subscriberCount }}
+          {{ $utils.formatNumber(props.row.subscriberCount) }}
         </router-link>
       </b-table-column>
 
@@ -104,7 +105,8 @@
     </b-table>
 
     <!-- Add / edit form modal -->
-    <b-modal scroll="keep" :aria-modal="true" :active.sync="isFormVisible" :width="600">
+    <b-modal scroll="keep" :aria-modal="true" :active.sync="isFormVisible" :width="600"
+      @close="onFormClose">
       <list-form :data="curItem" :isEditing="isEditing" @finished="formFinished"></list-form>
     </b-modal>
   </section>
@@ -130,7 +132,7 @@ export default Vue.extend({
       isFormVisible: false,
       queryParams: {
         page: 1,
-        orderBy: 'created_at',
+        orderBy: 'id',
         order: 'asc',
       },
     };
@@ -165,6 +167,12 @@ export default Vue.extend({
 
     formFinished() {
       this.getLists();
+    },
+
+    onFormClose() {
+      if (this.$route.params.id) {
+        this.$router.push({ name: 'lists' });
+      }
     },
 
     getLists() {
@@ -211,7 +219,13 @@ export default Vue.extend({
   },
 
   mounted() {
-    this.getLists();
+    if (this.$route.params.id) {
+      this.$api.getList(parseInt(this.$route.params.id, 10)).then((data) => {
+        this.showEditForm(data);
+      });
+    } else {
+      this.getLists();
+    }
   },
 });
 </script>

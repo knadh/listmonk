@@ -126,10 +126,6 @@ type Subscriber struct {
 	Attribs SubscriberAttribs `db:"attribs" json:"attribs"`
 	Status  string            `db:"status" json:"status"`
 	Lists   types.JSONText    `db:"lists" json:"lists"`
-
-	// Pseudofield for getting the total number of subscribers
-	// in searches and queries.
-	Total int `db:"total" json:"-"`
 }
 type subLists struct {
 	SubscriberID int            `db:"subscriber_id"`

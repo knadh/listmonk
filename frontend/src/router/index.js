@@ -24,6 +24,12 @@ const routes = [
     component: () => import(/* webpackChunkName: "main" */ '../views/Forms.vue'),
   },
   {
+    path: '/lists/:id',
+    name: 'lists',
+    meta: { title: 'Lists', group: 'lists' },
+    component: () => import(/* webpackChunkName: "main" */ '../views/Lists.vue'),
+  },
+  {
     path: '/subscribers',
     name: 'subscribers',
     meta: { title: 'Subscribers', group: 'subscribers' },
@@ -70,6 +76,12 @@ const routes = [
     name: 'templates',
     meta: { title: 'Templates', group: 'campaigns' },
     component: () => import(/* webpackChunkName: "main" */ '../views/Templates.vue'),
+  },
+  {
+    path: '/campaigns/analytics',
+    name: 'campaignAnalytics',
+    meta: { title: 'Campaign analytics', group: 'campaigns' },
+    component: () => import(/* webpackChunkName: "main" */ '../views/CampaignAnalytics.vue'),
   },
   {
     path: '/campaigns/:id',

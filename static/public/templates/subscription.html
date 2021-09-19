@@ -25,27 +25,19 @@
         <h2>{{ L.T "public.privacyTitle" }}</h2>
         {{ if .Data.AllowExport }}
         <div class="row">
-            <div class="one columns">
-                <input id="privacy-export" type="radio" name="data-action" value="export" required />
-            </div>
-            <div class="ten columns">
-                <label for="privacy-export"><strong>{{ L.T "public.privacyExport" }}</strong></label>
-                <br />
-                {{ L.T "public.privacyExportHelp" }}
-            </div>
+            <input id="privacy-export" type="radio" name="data-action" value="export" required />
+            <label for="privacy-export"><strong>{{ L.T "public.privacyExport" }}</strong></label>
+            <br />
+            {{ L.T "public.privacyExportHelp" }}
         </div>
         {{ end }}
 
         {{ if .Data.AllowWipe }}
         <div class="row">
-            <div class="one columns">
-                <input id="privacy-wipe" type="radio" name="data-action" value="wipe" required />
-            </div>
-            <div class="ten columns">
-                <label for="privacy-wipe"><strong>{{ L.T "public.privacyWipe" }}</strong></label>
-                <br />
-                {{ L.T "public.privacyWipeHelp" }}
-            </div>
+            <input id="privacy-wipe" type="radio" name="data-action" value="wipe" required />
+            <label for="privacy-wipe"><strong>{{ L.T "public.privacyWipe" }}</strong></label>
+            <br />
+            {{ L.T "public.privacyWipeHelp" }}
         </div>
         {{ end }}
         <p>

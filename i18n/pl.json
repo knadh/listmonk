@@ -427,7 +427,7 @@
     "subscribers.email": "Email",
     "subscribers.emailExists": "Email już istnieje.",
     "subscribers.errorBlocklisting": "Błąd blokowania subskrybentów: {error}",
-    "subscribers.errorInvalidIDs": "Podano jeden lub więcej nieprawidłowy ID: {error}",
+    "globals.messages.errorInvalidIDs": "Podano jeden lub więcej nieprawidłowy ID: {error}",
     "subscribers.errorNoIDs": "Nie podano identyfikatorów.",
     "subscribers.errorNoListsGiven": "Nie podano list.",
     "subscribers.errorPreparingQuery": "Błąd przygotowywania zapytania o subskrypcje: {error}",

@@ -3,7 +3,7 @@
     <h1 class="title is-4">{{ $t('import.title') }}</h1>
     <b-loading :active="isLoading"></b-loading>
 
-    <section v-if="isFree()" class="wrap-small">
+    <section v-if="isFree()" class="wrap">
       <form @submit.prevent="onSubmit" class="box">
         <div>
           <div class="columns">
