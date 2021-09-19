@@ -170,8 +170,10 @@ section {
 }
 
 /* Fix for sidebar jumping on modals */
-body.is-noscroll .b-sidebar {
-  top: 26px;
+body.is-noscroll {
+  position: static;
+  overflow-y: visible;
+  width: auto;
 }
 
 /* Global notices */
