@@ -150,7 +150,7 @@ export default {
           },
           {
             onClick: () => this.editor.chain().focus().setTextAlign('justify').run(),
-            label: 'Align left',
+            label: 'Justify',
             icon: 'format-align-justify',
             isActiveCondition: { textAlign: 'justify' },
           },
@@ -206,7 +206,12 @@ export default {
 
   mounted() {
     this.editor = new Editor({
-      extensions: [StarterKit, TextAlign],
+      extensions: [
+        StarterKit,
+        TextAlign.configure({
+          types: ['heading', 'paragraph'],
+        }),
+      ],
       content: this.modelValue,
       onUpdate: () => {
         // HTML
