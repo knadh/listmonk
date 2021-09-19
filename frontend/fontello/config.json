@@ -553,6 +553,242 @@
       ]
     },
     {
+      "uid": "e27609a822399bd20e4f9bcbe57dc54b",
+      "css": "format-italic",
+      "code": 983671,
+      "src": "custom_icons",
+      "selected": true,
+      "svg": {
+        "path": "M416 166V291H507.8L367.2 625H250V750H584V625H492.2L632.8 291H750V166H416Z",
+        "width": 1000
+      },
+      "search": [
+        "format-italic"
+      ]
+    },
+    {
+      "uid": "5bf5dbc3983f236d2c57f2d4ebcd2659",
+      "css": "format-underline",
+      "code": 983687,
+      "src": "custom_icons",
+      "selected": true,
+      "svg": {
+        "path": "M209 875H791V791H209V875ZM500 709Q568.4 709 626 674.8T716.8 583 750 459V125H646.5V459Q646.5 519.5 603.5 561.5T500 603.5 396.5 561.5 353.5 459V125H250V459Q250 525.4 283.2 583T374 674.8 500 709Z",
+        "width": 1000
+      },
+      "search": [
+        "format-underline"
+      ]
+    },
+    {
+      "uid": "4fb4e172c3d51e93f54944398df7f747",
+      "css": "format-strikethrough-variant",
+      "code": 983681,
+      "src": "custom_icons",
+      "selected": true,
+      "svg": {
+        "path": "M959 500V584H775.4Q793 621.1 794.9 673.8 796.9 732.4 773.4 783.2 746.1 843.8 687.5 877 621.1 916 515.6 916 361.3 918 275.4 847.7 212.9 796.9 191.4 716.8 179.7 675.8 181.6 646.5L347.7 648.4Q347.7 738.3 418 771.5 457 789.1 505.9 787.1H511.7Q556.6 783.2 584 769.5 634.8 746.1 638.7 688.5T546.9 584H41V500H959ZM808.6 328.1H642.6V308.6Q638.7 287.1 628.9 269.5 615.2 244.1 587.9 230.5 556.6 210.9 505.9 210.9 419.9 210.9 388.7 253.9 373 277.3 375 312.5V314.5Q378.9 335.9 396.5 357.4 429.7 394.5 500 412.1H238.3L226.6 382.8Q212.9 345.7 209 310.5 205.1 259.8 220.7 218.8 240.2 169.9 289.1 136.7 347.7 97.7 447.3 84 513.7 74.2 566.4 80.1 617.2 84 656.3 101.6 693.4 115.2 720.7 138.7 746.1 160.2 763.7 187.5 779.3 210.9 791 238.3 798.8 259.8 802.7 283.2 806.6 300.8 807.6 315.4T808.6 328.1Z",
+        "width": 1000
+      },
+      "search": [
+        "format-strikethrough-variant"
+      ]
+    },
+    {
+      "uid": "c86da582217b7248a882b2d37d8a870d",
+      "css": "format-quote-close",
+      "code": 983678,
+      "src": "custom_icons",
+      "selected": true,
+      "svg": {
+        "path": "M584 709H709L791 541V291H541V541H666ZM250 709H375L459 541V291H209V541H334Z",
+        "width": 1000
+      },
+      "search": [
+        "format-quote-close"
+      ]
+    },
+    {
+      "uid": "7034e4d22866af82bef811f52fb1ba46",
+      "css": "code",
+      "code": 61729,
+      "src": "fontawesome"
+    },
+    {
+      "uid": "49bd394b5ca1f79d77fb85a7a09d1d06",
+      "css": "format-color-text",
+      "code": 984734,
+      "src": "custom_icons",
+      "selected": true,
+      "svg": {
+        "path": "M400.4 500L500 236.3 599.6 500H400.4ZM459 125L228.5 709H322.3L369.1 584H630.9L677.7 709H771.5L541 125H459Z",
+        "width": 1000
+      },
+      "search": [
+        "format-color-text"
+      ]
+    },
+    {
+      "uid": "ed8fbb96924014d05b084ff2487a6286",
+      "css": "format-color-highlight",
+      "code": 986673,
+      "src": "custom_icons",
+      "selected": true,
+      "svg": {
+        "path": "M166 709L281.3 593.8H279.3Q261.7 574.2 261.7 548.8T279.3 503.9L476.6 306.6 654.3 484.4 457 681.6Q439.5 699.2 414.1 699.2T369.1 681.6L343.8 709H166ZM662.1 121.1Q681.6 103.5 707 103.5T752 121.1L839.8 209Q857.4 228.5 857.4 253.9T839.8 298.8L703.1 435.5 525.4 257.8Z",
+        "width": 1000
+      },
+      "search": [
+        "format-color-highlight"
+      ]
+    },
+    {
+      "uid": "53aed6a520d1b1fe32bd8b6839180749",
+      "css": "format-list-numbered",
+      "code": 983675,
+      "src": "custom_icons",
+      "selected": true,
+      "svg": {
+        "path": "M291 541V459H875V541H291ZM291 791V709H875V791H291ZM291 291V209H875V291H291ZM125 334V209H84V166H166V334H125ZM84 709V666H209V834H84V791H166V771.5H125V728.5H166V709H84ZM177.7 416Q189.5 416 199.2 425.8T209 448.2 199.2 468.8L130.9 541H209V584H84V544.9L166 459H84V416H177.7Z",
+        "width": 1000
+      },
+      "search": [
+        "format-list-numbered"
+      ]
+    },
+    {
+      "uid": "d89f24624f92b3ac219c28005ae1f5fd",
+      "css": "format-align-center",
+      "code": 983648,
+      "src": "custom_icons",
+      "selected": true,
+      "svg": {
+        "path": "M125 125H875V209H125V125ZM291 291H709V375H291V291ZM125 459H875V541H125V459ZM291 625H709V709H291V625ZM125 791H875V875H125V791Z",
+        "width": 1000
+      },
+      "search": [
+        "format-align-center"
+      ]
+    },
+    {
+      "uid": "da4ce633a936407cd6f2cc9a0e480e1a",
+      "css": "format-align-justify",
+      "code": 983649,
+      "src": "custom_icons",
+      "selected": true,
+      "svg": {
+        "path": "M125 125H875V209H125V125ZM125 291H875V375H125V291ZM125 459H875V541H125V459ZM125 625H875V709H125V625ZM125 791H875V875H125V791Z",
+        "width": 1000
+      },
+      "search": [
+        "format-align-justify"
+      ]
+    },
+    {
+      "uid": "546825e99b6176f41fbc55a3f1f1a7da",
+      "css": "format-align-left",
+      "code": 983650,
+      "src": "custom_icons",
+      "selected": true,
+      "svg": {
+        "path": "M125 125H875V209H125V125ZM125 291H625V375H125V291ZM125 459H875V541H125V459ZM125 625H625V709H125V625ZM125 791H875V875H125V791Z",
+        "width": 1000
+      },
+      "search": [
+        "format-align-left"
+      ]
+    },
+    {
+      "uid": "0d31e205ac127623e85afcdb8ddc9fb2",
+      "css": "format-align-right",
+      "code": 983651,
+      "src": "custom_icons",
+      "selected": true,
+      "svg": {
+        "path": "M125 125H875V209H125V125ZM375 291H875V375H375V291ZM125 459H875V541H125V459ZM375 625H875V709H375V625ZM125 791H875V875H125V791Z",
+        "width": 1000
+      },
+      "search": [
+        "format-align-right"
+      ]
+    },
+    {
+      "uid": "e594fc6e5870b4ab7e49f52571d52577",
+      "css": "resize-full",
+      "code": 59432,
+      "src": "fontawesome"
+    },
+    {
+      "uid": "5cdf3683c40b1523689ad52f224305ff",
+      "css": "format-bold",
+      "code": 983652,
+      "src": "custom_icons",
+      "selected": true,
+      "svg": {
+        "path": "M562.5 646.5H416V521.5H562.5Q587.9 521.5 606.4 539.1T625 583 606.4 627.9 562.5 646.5ZM416 271.5H541Q568.4 271.5 585.9 289.1T603.5 333 585.9 377.9 541 396.5H416V271.5ZM650.4 449.2Q679.7 427.7 699.2 396.5T718.8 334Q718.8 263.7 670.9 214.8T552.7 166H291V750H585.9Q650.4 750 695.3 704.1T740.2 591.8Q740.2 544.9 715.8 506.8T650.4 449.2Z",
+        "width": 1000
+      },
+      "search": [
+        "format-bold"
+      ]
+    },
+    {
+      "uid": "73955bf6af5e90c55f5c02cd5f4449af",
+      "css": "format-header-1",
+      "code": 983659,
+      "src": "custom_icons",
+      "selected": true,
+      "svg": {
+        "path": "M125 166H209V416H375V166H459V750H375V500H209V750H125V166ZM584 750V666H666V263.7L562.5 322.3V226.6L666 166H750V666H834V750H584Z",
+        "width": 1000
+      },
+      "search": [
+        "format-header-1"
+      ]
+    },
+    {
+      "uid": "deb8c3ee12827fa41f1dd27d8d389cbc",
+      "css": "format-header-2",
+      "code": 983660,
+      "src": "custom_icons",
+      "selected": true,
+      "svg": {
+        "path": "M125 166H209V416H375V166H459V750H375V500H209V750H125V166ZM875 750H625Q589.8 750 565.4 725.6T541 668 564.5 609.4L767.6 392.6Q791 369.1 791 334T766.6 274.4 708 250 649.4 274.4 625 334H541Q541 263.7 589.8 214.8T708 166 826.2 214.8 875 333 826.2 451.2L625 666H875V750Z",
+        "width": 1000
+      },
+      "search": [
+        "format-header-2"
+      ]
+    },
+    {
+      "uid": "d3eecdd764279b4a5fd4cd5fc39a7e38",
+      "css": "format-header-3",
+      "code": 983661,
+      "src": "custom_icons",
+      "selected": true,
+      "svg": {
+        "path": "M125 166H209V416H375V166H459V750H375V500H209V750H125V166ZM625 166H791Q826.2 166 850.6 190.4T875 250V666Q875 701.2 850.6 725.6T791 750H625Q589.8 750 565.4 725.6T541 666V625H625V666H791V500H625V416H791V250H625V291H541V250Q541 214.8 565.4 190.4T625 166Z",
+        "width": 1000
+      },
+      "search": [
+        "format-header-3"
+      ]
+    },
+    {
+      "uid": "eec5d4a72fc15770f3f14b8178a6b5ac",
+      "css": "format-paragraph",
+      "code": 983677,
+      "src": "custom_icons",
+      "selected": true,
+      "svg": {
+        "path": "M541 166Q611.3 166 660.2 214.8T709 333 660.2 451.2 541 500H459V750H375V166H541ZM541 416Q576.2 416 600.6 391.6T625 333 600.6 274.4 541 250H459V416H541Z",
+        "width": 1000
+      },
+      "search": [
+        "format-paragraph"
+      ]
+    },
+    {
       "uid": "f4ad3f6d071a0bfb3a8452b514ed0892",
       "css": "vector-square",
       "code": 983041,
@@ -8967,76 +9203,6 @@
       ]
     },
     {
-      "uid": "d89f24624f92b3ac219c28005ae1f5fd",
-      "css": "format-align-center",
-      "code": 983648,
-      "src": "custom_icons",
-      "selected": false,
-      "svg": {
-        "path": "M125 125H875V209H125V125ZM291 291H709V375H291V291ZM125 459H875V541H125V459ZM291 625H709V709H291V625ZM125 791H875V875H125V791Z",
-        "width": 1000
-      },
-      "search": [
-        "format-align-center"
-      ]
-    },
-    {
-      "uid": "da4ce633a936407cd6f2cc9a0e480e1a",
-      "css": "format-align-justify",
-      "code": 983649,
-      "src": "custom_icons",
-      "selected": false,
-      "svg": {
-        "path": "M125 125H875V209H125V125ZM125 291H875V375H125V291ZM125 459H875V541H125V459ZM125 625H875V709H125V625ZM125 791H875V875H125V791Z",
-        "width": 1000
-      },
-      "search": [
-        "format-align-justify"
-      ]
-    },
-    {
-      "uid": "546825e99b6176f41fbc55a3f1f1a7da",
-      "css": "format-align-left",
-      "code": 983650,
-      "src": "custom_icons",
-      "selected": false,
-      "svg": {
-        "path": "M125 125H875V209H125V125ZM125 291H625V375H125V291ZM125 459H875V541H125V459ZM125 625H625V709H125V625ZM125 791H875V875H125V791Z",
-        "width": 1000
-      },
-      "search": [
-        "format-align-left"
-      ]
-    },
-    {
-      "uid": "0d31e205ac127623e85afcdb8ddc9fb2",
-      "css": "format-align-right",
-      "code": 983651,
-      "src": "custom_icons",
-      "selected": false,
-      "svg": {
-        "path": "M125 125H875V209H125V125ZM375 291H875V375H375V291ZM125 459H875V541H125V459ZM375 625H875V709H375V625ZM125 791H875V875H125V791Z",
-        "width": 1000
-      },
-      "search": [
-        "format-align-right"
-      ]
-    },
-    {
-      "uid": "5cdf3683c40b1523689ad52f224305ff",
-      "css": "format-bold",
-      "code": 983652,
-      "src": "custom_icons",
-      "selected": false,
-      "svg": {
-        "path": "M562.5 646.5H416V521.5H562.5Q587.9 521.5 606.4 539.1T625 583 606.4 627.9 562.5 646.5ZM416 271.5H541Q568.4 271.5 585.9 289.1T603.5 333 585.9 377.9 541 396.5H416V271.5ZM650.4 449.2Q679.7 427.7 699.2 396.5T718.8 334Q718.8 263.7 670.9 214.8T552.7 166H291V750H585.9Q650.4 750 695.3 704.1T740.2 591.8Q740.2 544.9 715.8 506.8T650.4 449.2Z",
-        "width": 1000
-      },
-      "search": [
-        "format-bold"
-      ]
-    },
-    {
       "uid": "5834d32217cd253887e18bd49a23703e",
       "css": "format-clear",
       "code": 983653,
@@ -9118,48 +9284,6 @@
       },
       "search": [
         "format-float-right"
-      ]
-    },
-    {
-      "uid": "73955bf6af5e90c55f5c02cd5f4449af",
-      "css": "format-header-1",
-      "code": 983659,
-      "src": "custom_icons",
-      "selected": false,
-      "svg": {
-        "path": "M125 166H209V416H375V166H459V750H375V500H209V750H125V166ZM584 750V666H666V263.7L562.5 322.3V226.6L666 166H750V666H834V750H584Z",
-        "width": 1000
-      },
-      "search": [
-        "format-header-1"
-      ]
-    },
-    {
-      "uid": "deb8c3ee12827fa41f1dd27d8d389cbc",
-      "css": "format-header-2",
-      "code": 983660,
-      "src": "custom_icons",
-      "selected": false,
-      "svg": {
-        "path": "M125 166H209V416H375V166H459V750H375V500H209V750H125V166ZM875 750H625Q589.8 750 565.4 725.6T541 668 564.5 609.4L767.6 392.6Q791 369.1 791 334T766.6 274.4 708 250 649.4 274.4 625 334H541Q541 263.7 589.8 214.8T708 166 826.2 214.8 875 333 826.2 451.2L625 666H875V750Z",
-        "width": 1000
-      },
-      "search": [
-        "format-header-2"
-      ]
-    },
-    {
-      "uid": "d3eecdd764279b4a5fd4cd5fc39a7e38",
-      "css": "format-header-3",
-      "code": 983661,
-      "src": "custom_icons",
-      "selected": false,
-      "svg": {
-        "path": "M125 166H209V416H375V166H459V750H375V500H209V750H125V166ZM625 166H791Q826.2 166 850.6 190.4T875 250V666Q875 701.2 850.6 725.6T791 750H625Q589.8 750 565.4 725.6T541 666V625H625V666H791V500H625V416H791V250H625V291H541V250Q541 214.8 565.4 190.4T625 166Z",
-        "width": 1000
-      },
-      "search": [
-        "format-header-3"
       ]
     },
     {
@@ -9289,20 +9413,6 @@
       ]
     },
     {
-      "uid": "e27609a822399bd20e4f9bcbe57dc54b",
-      "css": "format-italic",
-      "code": 983671,
-      "src": "custom_icons",
-      "selected": false,
-      "svg": {
-        "path": "M416 166V291H507.8L367.2 625H250V750H584V625H492.2L632.8 291H750V166H416Z",
-        "width": 1000
-      },
-      "search": [
-        "format-italic"
-      ]
-    },
-    {
       "uid": "3e4508b82ef86070aea9e49729a3f585",
       "css": "format-line-spacing",
       "code": 983672,
@@ -9345,20 +9455,6 @@
       ]
     },
     {
-      "uid": "53aed6a520d1b1fe32bd8b6839180749",
-      "css": "format-list-numbered",
-      "code": 983675,
-      "src": "custom_icons",
-      "selected": false,
-      "svg": {
-        "path": "M291 541V459H875V541H291ZM291 791V709H875V791H291ZM291 291V209H875V291H291ZM125 334V209H84V166H166V334H125ZM84 709V666H209V834H84V791H166V771.5H125V728.5H166V709H84ZM177.7 416Q189.5 416 199.2 425.8T209 448.2 199.2 468.8L130.9 541H209V584H84V544.9L166 459H84V416H177.7Z",
-        "width": 1000
-      },
-      "search": [
-        "format-list-numbered"
-      ]
-    },
-    {
       "uid": "9e856792d2689ad4d9504d7694d2568e",
       "css": "format-paint",
       "code": 983676,
@@ -9370,34 +9466,6 @@
       },
       "search": [
         "format-paint"
-      ]
-    },
-    {
-      "uid": "eec5d4a72fc15770f3f14b8178a6b5ac",
-      "css": "format-paragraph",
-      "code": 983677,
-      "src": "custom_icons",
-      "selected": false,
-      "svg": {
-        "path": "M541 166Q611.3 166 660.2 214.8T709 333 660.2 451.2 541 500H459V750H375V166H541ZM541 416Q576.2 416 600.6 391.6T625 333 600.6 274.4 541 250H459V416H541Z",
-        "width": 1000
-      },
-      "search": [
-        "format-paragraph"
-      ]
-    },
-    {
-      "uid": "c86da582217b7248a882b2d37d8a870d",
-      "css": "format-quote-close",
-      "code": 983678,
-      "src": "custom_icons",
-      "selected": false,
-      "svg": {
-        "path": "M584 709H709L791 541V291H541V541H666ZM250 709H375L459 541V291H209V541H334Z",
-        "width": 1000
-      },
-      "search": [
-        "format-quote-close"
       ]
     },
     {
@@ -9426,20 +9494,6 @@
       },
       "search": [
         "format-strikethrough"
-      ]
-    },
-    {
-      "uid": "4fb4e172c3d51e93f54944398df7f747",
-      "css": "format-strikethrough-variant",
-      "code": 983681,
-      "src": "custom_icons",
-      "selected": false,
-      "svg": {
-        "path": "M959 500V584H775.4Q793 621.1 794.9 673.8 796.9 732.4 773.4 783.2 746.1 843.8 687.5 877 621.1 916 515.6 916 361.3 918 275.4 847.7 212.9 796.9 191.4 716.8 179.7 675.8 181.6 646.5L347.7 648.4Q347.7 738.3 418 771.5 457 789.1 505.9 787.1H511.7Q556.6 783.2 584 769.5 634.8 746.1 638.7 688.5T546.9 584H41V500H959ZM808.6 328.1H642.6V308.6Q638.7 287.1 628.9 269.5 615.2 244.1 587.9 230.5 556.6 210.9 505.9 210.9 419.9 210.9 388.7 253.9 373 277.3 375 312.5V314.5Q378.9 335.9 396.5 357.4 429.7 394.5 500 412.1H238.3L226.6 382.8Q212.9 345.7 209 310.5 205.1 259.8 220.7 218.8 240.2 169.9 289.1 136.7 347.7 97.7 447.3 84 513.7 74.2 566.4 80.1 617.2 84 656.3 101.6 693.4 115.2 720.7 138.7 746.1 160.2 763.7 187.5 779.3 210.9 791 238.3 798.8 259.8 802.7 283.2 806.6 300.8 807.6 315.4T808.6 328.1Z",
-        "width": 1000
-      },
-      "search": [
-        "format-strikethrough-variant"
       ]
     },
     {
@@ -9510,20 +9564,6 @@
       },
       "search": [
         "format-textdirection-r-to-l"
-      ]
-    },
-    {
-      "uid": "5bf5dbc3983f236d2c57f2d4ebcd2659",
-      "css": "format-underline",
-      "code": 983687,
-      "src": "custom_icons",
-      "selected": false,
-      "svg": {
-        "path": "M209 875H791V791H209V875ZM500 709Q568.4 709 626 674.8T716.8 583 750 459V125H646.5V459Q646.5 519.5 603.5 561.5T500 603.5 396.5 561.5 353.5 459V125H250V459Q250 525.4 283.2 583T374 674.8 500 709Z",
-        "width": 1000
-      },
-      "search": [
-        "format-underline"
       ]
     },
     {
@@ -24042,20 +24082,6 @@
       },
       "search": [
         "folder-star"
-      ]
-    },
-    {
-      "uid": "49bd394b5ca1f79d77fb85a7a09d1d06",
-      "css": "format-color-text",
-      "code": 984734,
-      "src": "custom_icons",
-      "selected": false,
-      "svg": {
-        "path": "M400.4 500L500 236.3 599.6 500H400.4ZM459 125L228.5 709H322.3L369.1 584H630.9L677.7 709H771.5L541 125H459Z",
-        "width": 1000
-      },
-      "search": [
-        "format-color-text"
       ]
     },
     {
@@ -50992,20 +51018,6 @@
       },
       "search": [
         "firework"
-      ]
-    },
-    {
-      "uid": "ed8fbb96924014d05b084ff2487a6286",
-      "css": "format-color-highlight",
-      "code": 986673,
-      "src": "custom_icons",
-      "selected": false,
-      "svg": {
-        "path": "M166 709L281.3 593.8H279.3Q261.7 574.2 261.7 548.8T279.3 503.9L476.6 306.6 654.3 484.4 457 681.6Q439.5 699.2 414.1 699.2T369.1 681.6L343.8 709H166ZM662.1 121.1Q681.6 103.5 707 103.5T752 121.1L839.8 209Q857.4 228.5 857.4 253.9T839.8 298.8L703.1 435.5 525.4 257.8Z",
-        "width": 1000
-      },
-      "search": [
-        "format-color-highlight"
       ]
     },
     {
