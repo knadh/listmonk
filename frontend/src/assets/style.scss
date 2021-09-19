@@ -307,12 +307,21 @@ body.is-noscroll .b-sidebar {
 .autocomplete {
   .dropdown-content {
     background-color: $white-bis;
+    border: 1px solid $primary;
   }
   a.dropdown-item {
+    font-size: $size-6;
     &:hover, &.is-hovered {
       background-color: $grey-lightest;
       color: $primary;
     }
+  }
+  .dropdown-menu {
+    top: 92%;
+  }
+  .dropdown-menu.is-opened-top {
+    top: auto;
+    bottom: 92%;
   }
 }
 
@@ -377,7 +386,7 @@ body.is-noscroll .b-sidebar {
 
 /* Tags */
 .tag {
-  min-width: 75px;
+  min-width: 85px;
 
   &.is-small {
     font-size: 0.65rem;
@@ -388,6 +397,7 @@ body.is-noscroll .b-sidebar {
   }
 
   &:not(body) {
+    font-size: 0.85em;
     $color: $grey-lighter;
     border: 1px solid $color;
     box-shadow: 1px 1px 0 $color;
@@ -401,7 +411,7 @@ body.is-noscroll .b-sidebar {
     border: 1px solid lighten($color, 37%);
     box-shadow: 1px 1px 0 lighten($color, 37%);
   }
-  &.public, &.running {
+  &.public, &.running, &.list {
     $color: $primary;
     color: lighten($color, 20%);;
     background: #e6f7ff;
