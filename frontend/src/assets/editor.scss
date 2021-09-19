@@ -56,11 +56,14 @@ $border-color: #dadada;
     display: flex;
     flex-wrap: wrap;
     border-bottom: 1px solid #ccc;
-    padding: 0.5rem 0.5rem 0 0.5rem;
+    padding: 0.5rem;
 
     > * {
-      margin-right: 0.5rem;
-      margin-bottom: 0.5rem;
+      margin-right: 1rem;
+      
+      > * {
+        margin-right: 0.5em;
+      }
     }
   }
 }
