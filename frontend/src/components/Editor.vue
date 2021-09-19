@@ -31,35 +31,53 @@
     </div>
 
     <!-- wsywig //-->
-    <quill-editor
-      :class="{'fullscreen': isEditorFullscreen}"
-      v-if="form.format === 'richtext'"
-      v-model="form.body"
-      ref="quill"
-      :options="options"
-      :disabled="disabled"
-      :placeholder="$t('campaigns.contentHelp')"
-      @change="onEditorChange($event)"
-      @ready="onEditorReady($event)"
-    />
+    <template v-if="form.format === 'richtext'">
+      <quill-editor
+        :class="{ fullscreen: isEditorFullscreen }"
+        v-model="dummy"
+        ref="quill"
+        :options="options"
+        :disabled="disabled"
+        :placeholder="$t('campaigns.contentHelp')"
+        @change="onEditorChange($event)"
+        @ready="onEditorReady($event)"
+      />
+
+      <tip-tap v-model="form.body" ref="tiptap" class="mt-5"></tip-tap>
+
+      <!-- Preview for the  -->
+      <pre style="max-width: 400px;">{{ form.body }}</pre>
+    </template>
 
     <!-- raw html editor //-->
-    <div v-if="form.format === 'html'"
-      ref="htmlEditor" id="html-editor" class="html-editor"></div>
+    <div
+      v-else-if="form.format === 'html'"
+      ref="htmlEditor"
+      id="html-editor"
+      class="html-editor"
+    ></div>
 
     <!-- plain text / markdown editor //-->
-    <b-input v-if="form.format === 'plain' || form.format === 'markdown'"
-      v-model="form.body" @input="onEditorChange"
-      type="textarea" name="content" ref="plainEditor" class="plain-editor" />
+    <b-input
+      v-else-if="form.format === 'plain' || form.format === 'markdown'"
+      v-model="form.body"
+      @input="onEditorChange"
+      type="textarea"
+      name="content"
+      ref="plainEditor"
+      class="plain-editor"
+    />
 
     <!-- campaign preview //-->
-    <campaign-preview v-if="isPreviewing"
+    <campaign-preview
+      v-if="isPreviewing"
       @close="onTogglePreview"
       type="campaign"
       :id="id"
       :title="title"
       :contentType="form.format"
-      :body="form.body"></campaign-preview>
+      :body="form.body"
+    ></campaign-preview>
 
     <!-- image picker -->
     <b-modal scroll="keep" :aria-modal="true" :active.sync="isMediaVisible" :width="900">
@@ -82,6 +100,7 @@ import TurndownService from 'turndown';
 
 import CampaignPreview from './CampaignPreview.vue';
 import Media from '../views/Media.vue';
+import TipTap from './TipTap.vue';
 
 // Setup Quill to use inline CSS style attributes instead of classes.
 Quill.register(Quill.import('attributors/attribute/direction'), true);
@@ -120,6 +139,7 @@ export default {
     Media,
     CampaignPreview,
     quillEditor,
+    TipTap,
   },
 
   props: {

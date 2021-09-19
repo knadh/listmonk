@@ -1,0 +1,269 @@
+@function rem($px, $base: $base-font-size) {
+  @return ($px / 16px) * 1rem;
+}
+
+// Font Family
+$font-family: sans-serif;
+
+// Base Font for HTML
+$base-font-size: 14px;
+
+// Paragraph Styles
+$paragraph-color: #505050;
+$paragraph-size: rem(15px);
+$paragraph-line-height: 1.1em;
+$paragraph-margin: rem(12px);
+
+// Header Styles
+$header-color: #000000;
+$header-size: rem(32px);
+$header-line-height: 1.2em;
+$header-margin: $paragraph-margin * 1.2;
+
+// Blockquote Styles
+$blockquote-color: #505050;
+$blockquote-size: rem(23px);
+$blockquote-line-height: 1.5em;
+$blockquote-margin: $paragraph-margin * 1.5;
+
+// Links
+$link-color: #459bd9;
+
+// hr
+$hr-margin: 30px;
+
+// Type Misc
+$font-weight-bold: 800;
+$border-color: #dadada;
+
+.tiptap-editor {
+  $root: &;
+  border: 1px solid #ccc;
+
+  .tiptap-editor__content {
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    max-height: 250px;
+    min-height: 100px;
+    overflow: scroll;
+    border-radius: 8px;
+    width: 100%;
+  }
+
+  .editor-menu {
+    display: flex;
+    flex-wrap: wrap;
+    border-bottom: 1px solid #ccc;
+    padding: 0.5rem 0.5rem 0 0.5rem;
+
+    > * {
+      margin-right: 0.5rem;
+      margin-bottom: 0.5rem;
+    }
+  }
+}
+
+.ProseMirror {
+  > * + * {
+    margin-top: 0.75em;
+  }
+
+  font-size: $base-font-size;
+  font-family: $font-family;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
+
+  &:focus {
+    outline: none;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    line-height: $header-line-height;
+
+    &:first-child {
+      margin-top: 0;
+    }
+  }
+
+  h1 {
+    font-size: $header-size;
+    margin-bottom: $header-margin;
+  }
+
+  h2 {
+    font-size: $header-size / 1.3;
+    margin-bottom: $header-margin / 1.3;
+  }
+
+  h3 {
+    font-size: $header-size / 1.5;
+    margin-bottom: $header-margin / 1.5;
+  }
+
+  h4 {
+    font-size: $header-size / 1.7;
+    margin-bottom: $header-margin / 1.7;
+  }
+
+  h5 {
+    font-size: $header-size / 1.8;
+    margin-bottom: $header-margin / 1.8;
+  }
+
+  h6 {
+    font-size: $header-size / 2;
+    margin-bottom: $header-margin / 2;
+  }
+
+  p {
+    margin-bottom: $paragraph-margin;
+    font-size: $paragraph-size;
+    line-height: $paragraph-line-height;
+    color: $paragraph-color;
+
+    &:last-of-type {
+      margin-bottom: 0;
+    }
+  }
+
+  // Links
+  a {
+    color: $link-color;
+    transition: all 0.2s ease;
+
+    &:hover {
+      color: darken($link-color, 20%);
+    }
+  }
+
+  ul,
+  ol {
+    margin: $paragraph-margin 0 0 20px;
+
+    li {
+      margin-top: 10px;
+      line-height: $paragraph-line-height;
+      color: $paragraph-color;
+    }
+
+    ul,
+    ol {
+      margin-top: 0;
+    }
+  }
+
+  ul {
+    li {
+      list-style: disc;
+    }
+
+    ul {
+      li {
+        list-style: circle;
+      }
+    }
+  }
+
+  ol {
+    li {
+      list-style: decimal;
+    }
+  }
+
+  img {
+    max-width: 100%;
+    height: auto;
+  }
+
+  blockquote {
+    margin: $blockquote-margin 0;
+    font-size: $blockquote-size;
+    line-height: $blockquote-line-height;
+    color: $blockquote-color;
+    border-left: 4px solid #ccc;
+    padding-left: rem(16px);
+  }
+
+  hr {
+    height: 1px;
+    margin: $hr-margin 0;
+    border: none;
+    background-color: $border-color;
+  }
+
+  figure {
+    margin: $blockquote-margin 0;
+
+    img {
+      margin: 0;
+    }
+  }
+
+  figcaption {
+    margin-top: 10px;
+    color: lighten($paragraph-color, 10%);
+    font-size: $paragraph-margin * 0.8;
+  }
+
+  // Code
+
+  pre {
+    display: block;
+    margin: 0 0 $paragraph-margin 0;
+    color: #f8f8f2;
+    padding: 0.5rem;
+    background-color: #23241f;
+    border: 1px solid $border-color;
+    overflow: auto;
+    border-radius: 3px;
+
+    code {
+      color: #f8f8f2;
+      position: static;
+      padding: 0;
+      border: none;
+      line-height: 1.5em;
+    }
+  }
+
+  code {
+    position: relative;
+    top: -0.2em;
+    padding: 3px;
+    font-family: monospace;
+    font-size: $paragraph-size / 1.2;
+    color: darken($border-color, 70%);
+    line-height: 1em;
+    pointer-events: none;
+    border: 1px solid $border-color;
+    border-radius: 3px;
+  }
+
+  // Misc Styles
+  em,
+  i,
+  .italic {
+    font-style: italic;
+  }
+
+  strong,
+  b,
+  .bold {
+    font-weight: $font-weight-bold;
+  }
+
+  img {
+    display: block;
+    max-width: 100%;
+    margin: $blockquote-margin 0;
+  }
+}
