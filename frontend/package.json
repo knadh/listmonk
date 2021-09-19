@@ -9,6 +9,8 @@
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
+    "@tiptap/extension-text-align": "^2.0.0-beta.23",
+    "@tiptap/extension-underline": "^2.0.0-beta.16",
     "@tiptap/starter-kit": "^2.0.0-beta.104",
     "@tiptap/vue-2": "^2.0.0-beta.50",
     "axios": "^0.21.1",
