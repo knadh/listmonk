@@ -108,6 +108,7 @@ import CampaignPreview from './CampaignPreview.vue';
 import Media from '../views/Media.vue';
 
 const turndown = new TurndownService();
+import { colors } from '../constants';
 
 export default {
   components: {
@@ -184,6 +185,9 @@ export default {
         <style>
           .codeflask .codeflask__flatten { font-size: 15px; }
           .codeflask .codeflask__lines { background: #fafafa; z-index: 10; }
+          .codeflask .token.tag { font-weight: bold; }
+          .codeflask .token.attr-name { color: #111; }
+          .codeflask .token.attr-value { color: ${colors.primary} !important; }
         </style>
         <div id="area"></area>
       `;
