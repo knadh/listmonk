@@ -48,7 +48,7 @@ input[type="text"], input[type="email"], select {
 
 .button {
   background: #0055d4;
-  padding: 10px 30px;
+  padding: 15px 30px;
   border-radius: 3px;
   border: 0;
   cursor: pointer;
