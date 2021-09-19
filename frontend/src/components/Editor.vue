@@ -46,7 +46,7 @@
       <tip-tap v-model="form.body" ref="tiptap" class="mt-5"></tip-tap>
 
       <!-- Preview for the  -->
-      <pre style="max-width: 400px;">{{ form.body }}</pre>
+      <pre style="max-width: 800px;" class="mt-5">{{ form.body }}</pre>
     </template>
 
     <!-- raw html editor //-->
