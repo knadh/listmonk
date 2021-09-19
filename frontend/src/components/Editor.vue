@@ -76,16 +76,27 @@ import 'tinymce';
 import 'tinymce/icons/default';
 import 'tinymce/themes/silver';
 import 'tinymce/skins/ui/oxide/skin.css';
+
+import 'tinymce/plugins/charmap';
 import 'tinymce/plugins/code';
+import 'tinymce/plugins/colorpicker';
+import 'tinymce/plugins/contextmenu';
+import 'tinymce/plugins/emoticons';
+import 'tinymce/plugins/emoticons/js/emojis';
+import 'tinymce/plugins/fullscreen';
+import 'tinymce/plugins/help';
+import 'tinymce/plugins/hr';
+import 'tinymce/plugins/image';
+import 'tinymce/plugins/imagetools';
 import 'tinymce/plugins/link';
 import 'tinymce/plugins/lists';
+import 'tinymce/plugins/paste';
+import 'tinymce/plugins/searchreplace';
 import 'tinymce/plugins/table';
-import 'tinymce/plugins/hr';
+import 'tinymce/plugins/textcolor';
+import 'tinymce/plugins/visualblocks';
+import 'tinymce/plugins/visualchars';
 import 'tinymce/plugins/wordcount';
-import 'tinymce/plugins/charmap';
-import 'tinymce/plugins/image';
-import 'tinymce/plugins/anchor';
-import 'tinymce/plugins/fullscreen';
 
 import TinyMce from '@tinymce/tinymce-vue';
 import CampaignPreview from './CampaignPreview.vue';
@@ -136,16 +147,33 @@ export default {
 
       // TODO: Possibility to overwrite this config from an external source for easy customization
       tinyMceOptions: {
+        // TODO: To use `language`, you have to download your desired language pack here:
+        //   https://www.tiny.cloud/get-tiny/language-packages/, then somehow copy it into /frontend/js/langs/
         language: this.$t('settings.general.language'),
-        height: 400,
+        height: 500,
         plugins: [
-          'lists', 'link', 'image', 'charmap', 'anchor',
-          'fullscreen', 'table', 'code', 'wordcount', 'hr',
+          'charmap',
+          'code',
+          'emoticons',
+          'fullscreen',
+          'help',
+          'hr',
+          'image',
+          'imagetools',
+          'link',
+          'lists',
+          'paste',
+          'searchreplace',
+          'table',
+          'visualblocks',
+          'visualchars',
+          'wordcount',
         ],
-        // TODO: As a default config, max out all the plugins and toolbars
-        toolbar: 'undo redo | formatselect fontsizeselect | bold italic backcolor | '
+        toolbar: 'undo redo | formatselect styleselect fontsizeselect | '
+          + 'bold italic underline strikethrough forecolor backcolor subscript superscript | '
           + 'alignleft aligncenter alignright alignjustify | '
-          + 'bullist numlist table | outdent indent | removeformat | link hr',
+          + 'bullist numlist table image | outdent indent | link hr removeformat | '
+          + 'code fullscreen help',
         skin: false,
         content_css: false,
         // TODO: Get the `content_style` from an external source (to match the template styles)
@@ -154,6 +182,11 @@ export default {
           + 'img { max-width: 100%; }'
           + 'a { color: #0055d4; }'
           + 'a:hover { color: #111; }',
+        file_picker_types: 'image',
+        file_picker_callback: (callback) => {
+          this.isMediaVisible = true;
+          this.runTinyMceImageCallback = callback;
+        },
       },
     };
   },
@@ -222,9 +255,8 @@ export default {
       this.isPreviewing = !this.isPreviewing;
     },
 
-    onMediaSelect(m) {
-      // TODO: Embed image to TinyMce
-      console.log('onMediaSelect', m);
+    onMediaSelect(media) {
+      this.runTinyMceImageCallback(media.url);
     },
 
     beautifyHTML(str) {

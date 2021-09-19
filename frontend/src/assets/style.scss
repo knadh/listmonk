@@ -83,7 +83,7 @@ section {
       left: 0;
       position: static;
     }
-  }    
+  }
 }
 
 .box {
@@ -205,44 +205,9 @@ body.is-noscroll {
   border: 1px solid $grey-lighter;
   border-radius: 2px;
 }
-.quill-editor {
-  background: #fff;
-  &.fullscreen {
-    position: fixed;
-    top: 10px;
-    right: 10px;
-    bottom: 10px;
-    left: 10px;
-    z-index: 100;
-  }
-  .ql-fullscreen:after {
-    content: "⤢";
-    font-weight: 600;
-    font-size: 1.2rem;
-    line-height: 0.95rem;
-  }
-  .ql-toolbar.ql-snow .ql-picker.ql-size {
-    .ql-picker-item[data-value="11px"]::before {
-      content: 'Small';
-      font-size: 11px !important;
-    }
-    .ql-picker-item[data-value="13px"]::before {
-      content: 'Normal';
-      font-size: 13px !important;
-    }
-    .ql-picker-item[data-value="22px"]::before {
-      content: 'Big';
-      font-size: 20px !important;
-    }
-    .ql-picker-item[data-value="32px"]::before {
-      content: 'Huge';
-      font-size: 32px !important;
-    }
-  }
-}
 
 .editor {
-  margin-bottom: 30px;  
+  margin-bottom: 30px;
 }
   .plain-editor textarea {
     height: 65vh;
@@ -276,7 +241,7 @@ body.is-noscroll {
 
 /* Modal */
 .modal {
-  z-index: 100;
+  z-index: 1350; // Needs to get above the TinyMCE modal
 }
 .modal-card-head {
   display: block;
@@ -433,7 +398,7 @@ body.is-noscroll {
     background: #fff1f0;
     border: 1px solid lighten($color, 30%);
     box-shadow: 1px 1px 0 lighten($color, 30%);
-  } 
+  }
 
   sup {
     font-weight: $weight-semibold;
@@ -445,7 +410,7 @@ body.is-noscroll {
   &.confirmed sup {
     color: #52c41a;
   }
-  
+
   &:not(body) .icon:first-child:last-child {
     margin-right: 1px;
   }
@@ -615,7 +580,7 @@ section.analytics {
 /* Campaign / template preview popup */
 .preview {
   padding: 0;
-  
+
   /* Contain the spinner background in the content area. */
   position: relative;
 
@@ -789,7 +754,7 @@ section.campaign {
 }
 .slide-leave-active, .slide-leave-to {
   transition: none;
-  display: none;  
+  display: none;
 }
 
 
