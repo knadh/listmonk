@@ -30,7 +30,7 @@ STATIC := config.toml.sample \
 build: $(BIN)
 
 $(STUFFBIN):
-	go get -u github.com/knadh/stuffbin/...
+	go install github.com/knadh/stuffbin/...
 
 $(FRONTEND_YARN_MODULES): frontend/package.json frontend/yarn.lock
 	cd frontend && $(YARN) install
