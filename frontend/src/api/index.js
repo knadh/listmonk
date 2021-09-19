@@ -41,19 +41,20 @@ http.interceptors.response.use((resp) => {
     }
 
     if (resp.config.preserveCase && resp.config.preserveResultsCase) {
-      resp.data.data.results.forEach((r, n) => {
-        // Only preserve case for certain keys under the 'results' key.
-        const save = {};
-        resp.config.preserveResultsCase.forEach((key) => {
-          save[key] = JSON.stringify(r[key]);
-        });
+      // For each key in preserveResultsCase, get the values out in an array of arrays
+      // and save them as stringified JSON.
+      const save = resp.data.data.results.map(
+        (r) => resp.config.preserveResultsCase.map((k) => JSON.stringify(r[k])),
+      );
 
-        const item = humps.camelizeKeys(r);
-        Object.keys(save).forEach((key) => {
-          item[key] = JSON.parse(save[key]);
-        });
+      // Camelcase everything.
+      data = humps.camelizeKeys(resp.data.data);
 
-        data.results[n] = item;
+      // Put the saved results back.
+      data.results.forEach((r, n) => {
+        resp.config.preserveResultsCase.forEach((k, i) => {
+          data.results[n][k] = JSON.parse(save[n][i]);
+        });
       });
     }
   } else {
