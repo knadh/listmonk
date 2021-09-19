@@ -17,7 +17,7 @@
     </header>
     <hr />
 
-    <section class="wrap-small">
+    <section class="wrap">
       <form @submit.prevent="onSubmit">
         <b-tabs type="is-boxed" :animated="false">
           <b-tab-item :label="$t('settings.general.name')" label-position="on-border">
