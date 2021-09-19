@@ -47,7 +47,8 @@
            'bullist numlist table | outdent indent | removeformat | link hr',
          skin: false,
          content_css: false,
-         content_style: 'body { font-family: \'Helvetica Neue\', \'Segoe UI\', Helvetica, sans-serif; font-size: 15px; line-height: 26px; color: #444; }' +
+         content_style: 'body { font-family: \'Helvetica Neue\', \'Segoe UI\', Helvetica, ' +
+             'sans-serif; font-size: 15px; line-height: 26px; color: #444; }' +
            'img { max-width: 100%; }'+
            'a { color: #0055d4; }'+
            'a:hover { color: #111; }'
