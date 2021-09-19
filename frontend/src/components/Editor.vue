@@ -35,24 +35,8 @@
       v-model="form.body"
       v-if="form.format === 'richtext'"
       :disabled="disabled"
-      :init="{
-         height: 500,
-         menubar: false,
-         plugins: [
-           'lists', 'link', 'image', 'charmap', 'anchor',
-           'fullscreen', 'table', 'code', 'wordcount', 'hr',
-         ],
-         toolbar: 'undo redo | formatselect fontsizeselect | bold italic backcolor | ' +
-           'alignleft aligncenter alignright alignjustify | ' +
-           'bullist numlist table | outdent indent | removeformat | link hr',
-         skin: false,
-         content_css: false,
-         content_style: 'body { font-family: \'Helvetica Neue\', \'Segoe UI\', Helvetica, ' +
-             'sans-serif; font-size: 15px; line-height: 26px; color: #444; }' +
-           'img { max-width: 100%; }'+
-           'a { color: #0055d4; }'+
-           'a:hover { color: #111; }'
-         }"
+      :init="tinyMceOptions"
+      @init="() => isReady = true"
     />
 
     <!-- raw html editor //-->
@@ -149,6 +133,28 @@ export default {
 
       // HTML editor.
       flask: null,
+
+      // TODO: Possibility to overwrite this config from an external source for easy customization
+      tinyMceOptions: {
+        language: this.$t('settings.general.language'),
+        height: 400,
+        plugins: [
+          'lists', 'link', 'image', 'charmap', 'anchor',
+          'fullscreen', 'table', 'code', 'wordcount', 'hr',
+        ],
+        // TODO: As a default config, max out all the plugins and toolbars
+        toolbar: 'undo redo | formatselect fontsizeselect | bold italic backcolor | '
+          + 'alignleft aligncenter alignright alignjustify | '
+          + 'bullist numlist table | outdent indent | removeformat | link hr',
+        skin: false,
+        content_css: false,
+        // TODO: Get the `content_style` from an external source (to match the template styles)
+        content_style: 'body { font-family: \'Helvetica Neue\', \'Segoe UI\', Helvetica, '
+          + 'sans-serif; font-size: 15px; line-height: 26px; color: #444; }'
+          + 'img { max-width: 100%; }'
+          + 'a { color: #0055d4; }'
+          + 'a:hover { color: #111; }',
+      },
     };
   },
 
