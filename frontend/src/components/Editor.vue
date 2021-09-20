@@ -39,7 +39,6 @@
       v-if="form.format === 'richtext'"
       :disabled="disabled"
       :init="tinyMceOptions"
-      @init="() => isReady = true"
     />
 
     <!-- raw html editor //-->
@@ -174,11 +173,13 @@ export default {
           a { color: ${colors.primary}; }
           table, td { border-color: #ccc;}
         `,
+
         file_picker_types: 'image',
         file_picker_callback: (callback) => {
           this.isMediaVisible = true;
           this.runTinyMceImageCallback = callback;
         },
+        init_instance_callback: () => { this.isReady = true; },
       },
     };
   },
@@ -315,6 +316,11 @@ export default {
 
     body(b) {
       this.form.body = b;
+      this.onEditorChange();
+    },
+
+    // eslint-disable-next-line func-names
+    'form.body': function () {
       this.onEditorChange();
     },
 
