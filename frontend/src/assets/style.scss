@@ -208,12 +208,31 @@ body.is-noscroll {
 
 .editor {
   margin-bottom: 30px;
+
+  .tox-tinymce {
+    box-shadow: 2px 2px 0 #f3f3f3;
+    border: 1px solid #eee;
+  
+    .tox-toolbar__primary {
+      border-color: #eee !important;
+    }
+  }
 }
   .plain-editor textarea {
     height: 65vh;
   }
   .alt-body textarea {
     height: 30vh;
+  }
+
+  .tox, .tox-tinymce, .tox-tinymce-aux, .tox .tox-button, .tox .tox-button-link, .tox .tox-dialog__title,
+  .tox .tox-textfield,
+  .tox .tox-toolbar-textfield,
+  .tox .tox-listboxfield .tox-listbox--select,
+  .tox .tox-textarea,
+  .tox .tox-selectfield select {
+    /* All TinyMCE components */
+    font-family: $body-family !important;
   }
 
 /* Table colors and padding */

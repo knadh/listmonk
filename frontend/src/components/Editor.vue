@@ -9,14 +9,17 @@
               @input="onChangeFormat" :disabled="disabled" name="format"
               native-value="richtext"
               data-cy="check-richtext">{{ $t('campaigns.richText') }}</b-radio>
+
             <b-radio v-model="form.radioFormat"
               @input="onChangeFormat" :disabled="disabled" name="format"
               native-value="html"
               data-cy="check-html">{{ $t('campaigns.rawHTML') }}</b-radio>
+
             <b-radio v-model="form.radioFormat"
               @input="onChangeFormat" :disabled="disabled" name="format"
               native-value="markdown"
               data-cy="check-markdown">{{ $t('campaigns.markdown') }}</b-radio>
+
             <b-radio v-model="form.radioFormat"
               @input="onChangeFormat" :disabled="disabled" name="format"
               native-value="plain"
@@ -77,6 +80,8 @@ import 'tinymce/icons/default';
 import 'tinymce/themes/silver';
 import 'tinymce/skins/ui/oxide/skin.css';
 
+import 'tinymce/plugins/autoresize';
+import 'tinymce/plugins/autolink';
 import 'tinymce/plugins/charmap';
 import 'tinymce/plugins/code';
 import 'tinymce/plugins/colorpicker';
@@ -101,9 +106,9 @@ import 'tinymce/plugins/wordcount';
 import TinyMce from '@tinymce/tinymce-vue';
 import CampaignPreview from './CampaignPreview.vue';
 import Media from '../views/Media.vue';
+import { colors } from '../constants';
 
 const turndown = new TurndownService();
-import { colors } from '../constants';
 
 export default {
   components: {
@@ -149,39 +154,26 @@ export default {
       tinyMceOptions: {
         // TODO: To use `language`, you have to download your desired language pack here:
         //   https://www.tiny.cloud/get-tiny/language-packages/, then somehow copy it into /frontend/js/langs/
-        language: this.$t('settings.general.language'),
-        height: 500,
+        // language: this.$t('settings.general.language'),
+        min_height: 500,
         plugins: [
-          'charmap',
-          'code',
-          'emoticons',
-          'fullscreen',
-          'help',
-          'hr',
-          'image',
-          'imagetools',
-          'link',
-          'lists',
-          'paste',
-          'searchreplace',
-          'table',
-          'visualblocks',
-          'visualchars',
-          'wordcount',
+          'autoresize', 'autolink', 'charmap', 'code', 'emoticons', 'fullscreen', 'help',
+          'hr', 'image', 'imagetools', 'link', 'lists', 'paste', 'searchreplace',
+          'table', 'visualblocks', 'visualchars', 'wordcount',
         ],
-        toolbar: 'undo redo | formatselect styleselect fontsizeselect | '
-          + 'bold italic underline strikethrough forecolor backcolor subscript superscript | '
-          + 'alignleft aligncenter alignright alignjustify | '
-          + 'bullist numlist table image | outdent indent | link hr removeformat | '
-          + 'code fullscreen help',
+        toolbar: `undo redo | formatselect styleselect fontsizeselect | 
+                  bold italic underline strikethrough forecolor backcolor subscript superscript | 
+                  alignleft aligncenter alignright alignjustify |
+                  bullist numlist table image | outdent indent | link hr removeformat |
+                  code fullscreen help`,
         skin: false,
         content_css: false,
-        // TODO: Get the `content_style` from an external source (to match the template styles)
-        content_style: 'body { font-family: \'Helvetica Neue\', \'Segoe UI\', Helvetica, '
-          + 'sans-serif; font-size: 15px; line-height: 26px; color: #444; }'
-          + 'img { max-width: 100%; }'
-          + 'a { color: #0055d4; }'
-          + 'a:hover { color: #111; }',
+        content_style: `
+          body { font-family: 'Inter', sans-serif; font-size: 15px; }
+          img { max-width: 100%; }
+          a { color: ${colors.primary}; }
+          table, td { border-color: #ccc;}
+        `,
         file_picker_types: 'image',
         file_picker_callback: (callback) => {
           this.isMediaVisible = true;
