@@ -89,7 +89,7 @@ section {
 .box {
   background: $white;
   box-shadow: 2px 2px 0 #f3f3f3;
-  border: 1px solid #eee;
+  border: 1px solid #e6e6e6;
 }
   .box hr {
     background-color: #efefef;
@@ -211,11 +211,18 @@ body.is-noscroll {
 
   .tox-tinymce {
     box-shadow: 2px 2px 0 #f3f3f3;
-    border: 1px solid #eee;
+    border: 1px solid #e6e6e6;
+    border-radius: 3px;
   
     .tox-toolbar__primary {
-      border-color: #eee !important;
+      border-color: #e6e6e6 !important;
     }
+  }
+  .tox-statusbar__branding {
+    display: none;
+  }
+  .tox .tox-statusbar {
+    border: 0;
   }
 }
   .plain-editor textarea {
