@@ -16,7 +16,7 @@ The latest image is available on DockerHub at `listmonk/listmonk:latest`. Use th
 #### Demo
 
 ```bash
-mkdir listmonk-demo
+mkdir listmonk-demo && cd listmonk-demo
 sh -c "$(curl -fsSL https://raw.githubusercontent.com/knadh/listmonk/master/install-demo.sh)"
 ```
 
@@ -29,7 +29,7 @@ The demo does not persist Postgres after the containers are removed. DO NOT use 
 This setup is recommended if you want to _quickly_ setup `listmonk` in production.
 
 ```bash
-mkdir listmonk
+mkdir listmonk && cd listmonk
 sh -c "$(curl -fsSL https://raw.githubusercontent.com/knadh/listmonk/master/install-prod.sh)"
 ```
 
