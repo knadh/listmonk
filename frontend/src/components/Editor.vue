@@ -73,6 +73,7 @@
 <script>
 import CodeFlask from 'codeflask';
 import TurndownService from 'turndown';
+import { indent } from 'indent.js';
 
 import 'tinymce';
 import 'tinymce/icons/default';
@@ -253,9 +254,13 @@ export default {
     },
 
     beautifyHTML(str) {
-      const div = document.createElement('div');
-      div.innerHTML = str.trim();
-      return this.formatHTMLNode(div, 0).innerHTML;
+      // Pad all tags with linebreaks.
+      let s = this.trimLines(str.replace(/(<([^>]+)>)/ig, '\n$1\n'), true);
+
+      // Remove extra linebreaks.
+      s = s.replace(/\n+/g, '\n');
+
+      return indent.html(s, { tabString: '  ' }).trim();
     },
 
     formatHTMLNode(node, level) {
@@ -348,7 +353,7 @@ export default {
         this.form.body = this.form.body.replace(/\n/ig, '<br>\n');
       } else if (from === 'richtext' && to === 'html') {
         // richtext => html
-        this.form.body = this.trimLines(this.beautifyHTML(this.form.body), false);
+        this.form.body = this.beautifyHTML(this.form.body);
       } else if (from === 'markdown' && (to === 'richtext' || to === 'html')) {
         // markdown => richtext, html.
         this.$api.convertCampaignContent({
