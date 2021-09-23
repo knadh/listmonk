@@ -67,8 +67,7 @@ test:
 # Bundle all static assets including the JS frontend into the ./listmonk binary
 # using stuffbin (installed with make deps).
 .PHONY: dist
-dist: $(STUFFBIN) build build-frontend
-	$(STUFFBIN) -a stuff -in ${BIN} -out ${BIN} ${STATIC}
+dist: $(STUFFBIN) build build-frontend pack-bin
 
 # pack-releases runns stuffbin packing on the given binary. This is used
 # in the .goreleaser post-build hook.
