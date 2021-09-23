@@ -26,7 +26,10 @@ module.exports = {
   devServer: {
     port: process.env.LISTMONK_FRONTEND_PORT || 8080,
     proxy: {
-      '^/(api|webhooks|subscription|public)|$': {
+      '^/$': {
+        target: process.env.LISTMONK_API_URL || 'http://127.0.0.1:9000'
+      },
+      '^/(api|webhooks|subscription|public)': {
         target: process.env.LISTMONK_API_URL || 'http://127.0.0.1:9000'
       }
     }

@@ -6,22 +6,22 @@
         <b-field label="Format">
           <div>
             <b-radio v-model="form.radioFormat"
-              @input="onChangeFormat" :disabled="disabled" name="format"
+              @input="onFormatChange" :disabled="disabled" name="format"
               native-value="richtext"
               data-cy="check-richtext">{{ $t('campaigns.richText') }}</b-radio>
 
             <b-radio v-model="form.radioFormat"
-              @input="onChangeFormat" :disabled="disabled" name="format"
+              @input="onFormatChange" :disabled="disabled" name="format"
               native-value="html"
               data-cy="check-html">{{ $t('campaigns.rawHTML') }}</b-radio>
 
             <b-radio v-model="form.radioFormat"
-              @input="onChangeFormat" :disabled="disabled" name="format"
+              @input="onFormatChange" :disabled="disabled" name="format"
               native-value="markdown"
               data-cy="check-markdown">{{ $t('campaigns.markdown') }}</b-radio>
 
             <b-radio v-model="form.radioFormat"
-              @input="onChangeFormat" :disabled="disabled" name="format"
+              @input="onFormatChange" :disabled="disabled" name="format"
               native-value="plain"
               data-cy="check-plain">{{ $t('campaigns.plainText') }}</b-radio>
           </div>
@@ -36,9 +36,9 @@
     <!-- wsywig //-->
     <tiny-mce
       v-model="form.body"
-      v-if="form.format === 'richtext'"
+      v-if="isRichtextReady && form.format === 'richtext'"
       :disabled="disabled"
-      :init="tinyMceOptions"
+      :init="richtextConf"
     />
 
     <!-- raw html editor //-->
@@ -71,6 +71,7 @@
 </template>
 
 <script>
+import { mapState } from 'vuex';
 import CodeFlask from 'codeflask';
 import TurndownService from 'turndown';
 import { indent } from 'indent.js';
@@ -106,9 +107,22 @@ import 'tinymce/plugins/wordcount';
 import TinyMce from '@tinymce/tinymce-vue';
 import CampaignPreview from './CampaignPreview.vue';
 import Media from '../views/Media.vue';
-import { colors } from '../constants';
+import { colors, uris } from '../constants';
 
 const turndown = new TurndownService();
+
+// Map of listmonk language codes to corresponding TinyMCE language files.
+const LANGS = {
+  'cs-cz': 'cs',
+  de: 'de',
+  es: 'es_419',
+  fr: 'fr_FR',
+  it: 'it_IT',
+  pl: 'pl',
+  pt: 'pt_PT',
+  'pt-BR': 'pt_BR',
+  tr: 'tr',
+};
 
 export default {
   components: {
@@ -131,6 +145,8 @@ export default {
       isMediaVisible: false,
       isEditorFullscreen: false,
       isReady: false,
+      isRichtextReady: false,
+      richtextConf: {},
       form: {
         body: '',
         format: this.contentType,
@@ -149,20 +165,22 @@ export default {
 
       // HTML editor.
       flask: null,
+    };
+  },
 
-      // TODO: Possibility to overwrite this config from an external source for easy customization
-      tinyMceOptions: {
-        // TODO: To use `language`, you have to download your desired language pack here:
-        //   https://www.tiny.cloud/get-tiny/language-packages/, then somehow copy it into /frontend/js/langs/
-        // language: this.$t('settings.general.language'),
+  methods: {
+    initRichtextEditor() {
+      const { lang } = this.serverConfig;
+
+      this.richtextConf = {
         min_height: 500,
         plugins: [
           'autoresize', 'autolink', 'charmap', 'code', 'emoticons', 'fullscreen', 'help',
           'hr', 'image', 'imagetools', 'link', 'lists', 'paste', 'searchreplace',
           'table', 'visualblocks', 'visualchars', 'wordcount',
         ],
-        toolbar: `undo redo | formatselect styleselect fontsizeselect | 
-                  bold italic underline strikethrough forecolor backcolor subscript superscript | 
+        toolbar: `undo redo | formatselect styleselect fontsizeselect |
+                  bold italic underline strikethrough forecolor backcolor subscript superscript |
                   alignleft aligncenter alignright alignjustify |
                   bullist numlist table image | outdent indent | link hr removeformat |
                   code fullscreen help`,
@@ -181,32 +199,12 @@ export default {
           this.runTinyMceImageCallback = callback;
         },
         init_instance_callback: () => { this.isReady = true; },
-      },
-    };
-  },
 
-  methods: {
-    onChangeFormat(format) {
-      this.$utils.confirm(
-        this.$t('campaigns.confirmSwitchFormat'),
-        () => {
-          this.form.format = format;
-          this.onEditorChange();
-        },
-        () => {
-          // On cancel, undo the radio selection.
-          this.form.radioFormat = this.form.format;
-        },
-      );
-    },
+        language: LANGS[lang] || null,
+        language_url: LANGS[lang] ? `${uris.static}/tinymce/lang/${LANGS[lang]}.js` : null,
+      };
 
-    onEditorChange() {
-      if (!this.isReady) {
-        return;
-      }
-
-      // The parent's v-model gets { contentType, body }.
-      this.$emit('input', { contentType: this.form.format, body: this.form.body });
+      this.isRichtextReady = true;
     },
 
     initHTMLEditor() {
@@ -243,6 +241,29 @@ export default {
 
     updateHTMLEditor() {
       this.flask.updateCode(this.form.body);
+    },
+
+    onFormatChange(format) {
+      this.$utils.confirm(
+        this.$t('campaigns.confirmSwitchFormat'),
+        () => {
+          this.form.format = format;
+          this.onEditorChange();
+        },
+        () => {
+          // On cancel, undo the radio selection.
+          this.form.radioFormat = this.form.format;
+        },
+      );
+    },
+
+    onEditorChange() {
+      if (!this.isReady) {
+        return;
+      }
+
+      // The parent's v-model gets { contentType, body }.
+      this.$emit('input', { contentType: this.form.format, body: this.form.body });
     },
 
     onTogglePreview() {
@@ -298,7 +319,13 @@ export default {
     },
   },
 
+  mounted() {
+    this.initRichtextEditor();
+  },
+
   computed: {
+    ...mapState(['serverConfig']),
+
     htmlFormat() {
       return this.form.format;
     },
@@ -340,8 +367,7 @@ export default {
       if ((from === 'richtext' || from === 'html') && to === 'plain') {
         // richtext, html => plain
 
-        // Preserve line breaks when converting HTML to plaintext. Quill produces
-        // HTML without any linebreaks.
+        // Preserve line breaks when converting HTML to plaintext.
         const d = document.createElement('div');
         d.innerHTML = this.beautifyHTML(this.form.body);
         this.form.body = this.trimLines(d.innerText.trim(), true);
