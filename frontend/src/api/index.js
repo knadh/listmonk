@@ -6,7 +6,7 @@ import store from '../store';
 import { models } from '../constants';
 
 const http = axios.create({
-  baseURL: process.env.BASE_URL,
+  baseURL: process.env.VUE_APP_API_URL || '/',
   withCredentials: false,
   responseType: 'json',
 

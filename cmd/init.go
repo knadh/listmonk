@@ -39,6 +39,9 @@ import (
 
 const (
 	queryFilePath = "queries.sql"
+
+	// Root URI of the admin frontend.
+	adminRoot = "/admin"
 )
 
 // constants contains static, constant config values required by the app.
@@ -129,9 +132,9 @@ func initFS(appDir, frontendDir, staticDir, i18nDir string) stuffbin.FileSystem 
 		}
 
 		frontendFiles = []string{
-			// The app's frontend assets are accessible at /frontend/js/* during runtime.
-			// These paths are joined with frontendDir.
-			"./:/frontend",
+			// Admin frontend's static assets accessible at /admin/* during runtime.
+			// These paths are sourced from frontendDir.
+			"./:/admin",
 		}
 
 		staticFiles = []string{
@@ -574,15 +577,21 @@ func initHTTPServer(app *App) *echo.Echo {
 
 	// Initialize the static file server.
 	fSrv := app.fs.FileServer()
+
+	// Public (subscriber) facing static files.
 	srv.GET("/public/*", echo.WrapHandler(fSrv))
-	srv.GET("/frontend/*", echo.WrapHandler(fSrv))
+
+	// Admin (frontend) facing static files.
+	srv.GET("/admin/static/*", echo.WrapHandler(fSrv))
+
+	// Public (subscriber) facing media upload files.
 	if ko.String("upload.provider") == "filesystem" {
 		srv.Static(ko.String("upload.filesystem.upload_uri"),
 			ko.String("upload.filesystem.upload_path"))
 	}
 
 	// Register all HTTP handlers.
-	registerHTTPHandlers(srv, app)
+	initHTTPHandlers(srv, app)
 
 	// Start the server.
 	go func() {

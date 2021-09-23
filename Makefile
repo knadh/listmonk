@@ -23,7 +23,7 @@ STATIC := config.toml.sample \
 	schema.sql queries.sql \
 	static/public:/public \
 	static/email-templates \
-	frontend/dist/frontend:/frontend \
+	frontend/dist:/admin \
 	i18n:/i18n
 
 .PHONY: build
@@ -40,14 +40,14 @@ $(FRONTEND_YARN_MODULES): frontend/package.json frontend/yarn.lock
 $(BIN): $(shell find . -type f -name "*.go")
 	CGO_ENABLED=0 go build -o ${BIN} -ldflags="-s -w -X 'main.buildString=${BUILDSTR}' -X 'main.versionString=${VERSION}'" cmd/*.go
 
-# Run the backend in dev mode. The frontend assets in dev mode are loaded from disk from frontend/dist/frontend.
+# Run the backend in dev mode. The frontend assets in dev mode are loaded from disk from frontend/dist.
 .PHONY: run
 run:
-	CGO_ENABLED=0 go run -ldflags="-s -w -X 'main.buildString=${BUILDSTR}' -X 'main.versionString=${VERSION}' -X 'main.frontendDir=frontend/dist/frontend'" cmd/*.go
+	CGO_ENABLED=0 go run -ldflags="-s -w -X 'main.buildString=${BUILDSTR}' -X 'main.versionString=${VERSION}' -X 'main.frontendDir=frontend/dist'" cmd/*.go
 
 # Build the JS frontend into frontend/dist.
 $(FRONTEND_DIST): $(FRONTEND_DEPS)
-	export VUE_APP_VERSION="${VERSION}" && cd frontend && $(YARN) build && mv dist/favicon.png dist/frontend/favicon.png
+	export VUE_APP_VERSION="${VERSION}" && cd frontend && $(YARN) build
 	touch --no-create $(FRONTEND_DIST)
 
 
