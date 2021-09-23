@@ -83,13 +83,13 @@ section {
       left: 0;
       position: static;
     }
-  }    
+  }
 }
 
 .box {
   background: $white;
   box-shadow: 2px 2px 0 #f3f3f3;
-  border: 1px solid #eee;
+  border: 1px solid #e6e6e6;
 }
   .box hr {
     background-color: #efefef;
@@ -205,50 +205,41 @@ body.is-noscroll {
   border: 1px solid $grey-lighter;
   border-radius: 2px;
 }
-.quill-editor {
-  background: #fff;
-  &.fullscreen {
-    position: fixed;
-    top: 10px;
-    right: 10px;
-    bottom: 10px;
-    left: 10px;
-    z-index: 100;
-  }
-  .ql-fullscreen:after {
-    content: "⤢";
-    font-weight: 600;
-    font-size: 1.2rem;
-    line-height: 0.95rem;
-  }
-  .ql-toolbar.ql-snow .ql-picker.ql-size {
-    .ql-picker-item[data-value="11px"]::before {
-      content: 'Small';
-      font-size: 11px !important;
-    }
-    .ql-picker-item[data-value="13px"]::before {
-      content: 'Normal';
-      font-size: 13px !important;
-    }
-    .ql-picker-item[data-value="22px"]::before {
-      content: 'Big';
-      font-size: 20px !important;
-    }
-    .ql-picker-item[data-value="32px"]::before {
-      content: 'Huge';
-      font-size: 32px !important;
-    }
-  }
-}
 
 .editor {
-  margin-bottom: 30px;  
+  margin-bottom: 30px;
+
+  .tox-tinymce {
+    box-shadow: 2px 2px 0 #f3f3f3;
+    border: 1px solid #e6e6e6;
+    border-radius: 3px;
+  
+    .tox-toolbar__primary {
+      border-color: #e6e6e6 !important;
+    }
+  }
+  .tox-statusbar__branding {
+    display: none;
+  }
+  .tox .tox-statusbar {
+    border: 0;
+  }
 }
   .plain-editor textarea {
     height: 65vh;
   }
   .alt-body textarea {
     height: 30vh;
+  }
+
+  .tox, .tox-tinymce, .tox-tinymce-aux, .tox .tox-button, .tox .tox-button-link, .tox .tox-dialog__title,
+  .tox .tox-textfield,
+  .tox .tox-toolbar-textfield,
+  .tox .tox-listboxfield .tox-listbox--select,
+  .tox .tox-textarea,
+  .tox .tox-selectfield select {
+    /* All TinyMCE components */
+    font-family: $body-family !important;
   }
 
 /* Table colors and padding */
@@ -276,7 +267,7 @@ body.is-noscroll {
 
 /* Modal */
 .modal {
-  z-index: 100;
+  z-index: 1350; // Needs to get above the TinyMCE modal
 }
 .modal-card-head {
   display: block;
@@ -433,7 +424,7 @@ body.is-noscroll {
     background: #fff1f0;
     border: 1px solid lighten($color, 30%);
     box-shadow: 1px 1px 0 lighten($color, 30%);
-  } 
+  }
 
   sup {
     font-weight: $weight-semibold;
@@ -445,7 +436,7 @@ body.is-noscroll {
   &.confirmed sup {
     color: #52c41a;
   }
-  
+
   &:not(body) .icon:first-child:last-child {
     margin-right: 1px;
   }
@@ -615,7 +606,7 @@ section.analytics {
 /* Campaign / template preview popup */
 .preview {
   padding: 0;
-  
+
   /* Contain the spinner background in the content area. */
   position: relative;
 
@@ -789,7 +780,7 @@ section.campaign {
 }
 .slide-leave-active, .slide-leave-to {
   transition: none;
-  display: none;  
+  display: none;
 }
 
 

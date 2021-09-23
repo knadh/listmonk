@@ -13,12 +13,16 @@ export const models = Object.freeze({
 });
 
 // Ad-hoc URIs that are used outside of vuex requests.
+const baseURL = process.env.BASE_URL.replace(/\/$/, '');
+
 export const uris = Object.freeze({
   previewCampaign: '/api/campaigns/:id/preview',
   previewTemplate: '/api/templates/:id/preview',
   previewRawTemplate: '/api/templates/preview',
   exportSubscribers: '/api/subscribers/export',
+  static: `${baseURL}/static`,
 });
+
 
 // Keys used in Vuex store.
 export const storeKeys = Object.freeze({
