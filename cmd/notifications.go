@@ -22,6 +22,10 @@ type notifData struct {
 
 // sendNotification sends out an e-mail notification to admins.
 func (app *App) sendNotification(toEmails []string, subject, tplName string, data interface{}) error {
+	if len(toEmails) == 0 {
+		return nil
+	}
+
 	var b bytes.Buffer
 	if err := app.notifTpls.ExecuteTemplate(&b, tplName, data); err != nil {
 		app.log.Printf("error compiling notification template '%s': %v", tplName, err)
