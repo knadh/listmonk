@@ -44,7 +44,7 @@ describe('Forms', () => {
     // There should be no errors and two new subscribers should be subscribed to two lists.
     for (let i = 0; i < 2; i++) {
       for (let j = 0; j < 2; j++) {
-        cy.loginAndVisit('/subscription/form');
+        cy.loginAndVisit(`${apiUrl}/subscription/form`);
         cy.get('input[name=email]').clear().type(`test${i}@test.com`);
         cy.get('input[name=name]').clear().type(`test${i}`);
         cy.get('input[type=checkbox]').eq(j).click();

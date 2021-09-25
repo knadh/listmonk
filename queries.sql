@@ -30,7 +30,8 @@ SELECT * FROM lists
           ELSE TRUE
     END)
     AND (CASE WHEN $5 != '' THEN subscriber_lists.status = $5::subscription_status END)
-    AND (CASE WHEN $6 != '' THEN lists.optin = $6::list_optin ELSE TRUE END);
+    AND (CASE WHEN $6 != '' THEN lists.optin = $6::list_optin ELSE TRUE END)
+    ORDER BY id;
 
 -- name: get-subscriber-lists-lazy
 -- Get lists associations of subscribers given a list of subscriber IDs.
@@ -335,7 +336,8 @@ UPDATE subscriber_lists SET status='unsubscribed', updated_at=NOW()
 
 -- lists
 -- name: get-lists
-SELECT * FROM lists WHERE (CASE WHEN $1 = '' THEN 1=1 ELSE type=$1::list_type END) ORDER by name DESC;
+SELECT * FROM lists WHERE (CASE WHEN $1 = '' THEN 1=1 ELSE type=$1::list_type END)
+    ORDER BY CASE WHEN $2 = 'id' THEN id END, CASE WHEN $2 = 'name' THEN name END;
 
 -- name: query-lists
 WITH ls AS (

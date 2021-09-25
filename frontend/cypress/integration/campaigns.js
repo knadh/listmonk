@@ -1,6 +1,6 @@
 const apiUrl = Cypress.env('apiUrl');
 
-describe('Subscribers', () => {
+describe('Campaigns', () => {
   it('Opens campaigns page', () => {
     cy.resetDB();
     cy.loginAndVisit('/campaigns');
@@ -22,7 +22,7 @@ describe('Subscribers', () => {
     // Change the list.
     cy.get('.list-selector a.delete').click();
     cy.get('.list-selector input').click();
-    cy.get('.list-selector .autocomplete a').eq(1).click();
+    cy.get('.list-selector .autocomplete a').eq(0).click();
 
     // Clear and redo tags.
     cy.get('input[name=tags]').type('{backspace}new-tag{enter}');
@@ -63,7 +63,7 @@ describe('Subscribers', () => {
       expect(data.body).to.equal('new-content');
 
       expect(data.lists.length).to.equal(1);
-      expect(data.lists[0].id).to.equal(2);
+      expect(data.lists[0].id).to.equal(1);
       expect(data.tags.length).to.equal(1);
       expect(data.tags[0]).to.equal('new-tag');
     });
@@ -137,9 +137,10 @@ describe('Subscribers', () => {
         cy.wait(250);
 
         // Insert content.
-        cy.get('.ql-editor').type(`hello${n} \{\{ .Subscriber.Name \}\}`, { parseSpecialCharSequences: false });
-        cy.get('.ql-editor').type('{enter}');
-        cy.get('.ql-editor').type('\{\{ .Subscriber.Attribs.city \}\}', { parseSpecialCharSequences: false });
+        cy.window().then((win) => {
+          win.tinymce.editors[0].setContent(`hello${n} \{\{ .Subscriber.Name \}\}\n\{\{ .Subscriber.Attribs.city \}\}`);
+        });
+        cy.wait(200);
 
         // Select content type.
         cy.get(`label[data-cy=check-${c}]`).click();

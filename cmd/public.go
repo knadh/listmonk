@@ -270,7 +270,7 @@ func handleSubscriptionFormPage(c echo.Context) error {
 
 	// Get all public lists.
 	var lists []models.List
-	if err := app.queries.GetLists.Select(&lists, models.ListTypePublic); err != nil {
+	if err := app.queries.GetLists.Select(&lists, models.ListTypePublic, "name"); err != nil {
 		app.log.Printf("error fetching public lists for form: %s", pqErrMsg(err))
 		return c.Render(http.StatusInternalServerError, tplMessage,
 			makeMsgTpl(app.i18n.T("public.errorTitle"), "",

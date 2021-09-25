@@ -45,7 +45,7 @@ func handleGetLists(c echo.Context) error {
 
 	if !single && minimal {
 		// Minimal query simply returns the list of all lists with no additional metadata. This is fast.
-		if err := app.queries.GetLists.Select(&out.Results, ""); err != nil {
+		if err := app.queries.GetLists.Select(&out.Results, "", "id"); err != nil {
 			app.log.Printf("error fetching lists: %v", err)
 			return echo.NewHTTPError(http.StatusInternalServerError,
 				app.i18n.Ts("globals.messages.errorFetching",

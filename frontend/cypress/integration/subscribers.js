@@ -58,7 +58,7 @@ describe('Subscribers', () => {
       { radio: 'check-list-remove', lists: [0, 1], rows: { 1: [] } },
       { radio: 'check-list-add', lists: [0, 1], rows: { 0: ['unsubscribed', 'unsubscribed'], 1: ['unconfirmed', 'unconfirmed'] } },
       { radio: 'check-list-remove', lists: [0], rows: { 0: ['unsubscribed'] } },
-      { radio: 'check-list-add', lists: [0], rows: { 0: ['unsubscribed', 'unconfirmed'] } },
+      { radio: 'check-list-add', lists: [0], rows: { 0: ['unconfirmed', 'unsubscribed'] } },
     ];
 
 
@@ -214,9 +214,9 @@ describe('Subscribers', () => {
 
     cases.forEach((c) => {
       cy.sortTable(`thead th.${c}`, asc);
-      cy.wait(100);
+      cy.wait(250);
       cy.sortTable(`thead th.${c}`, desc);
-      cy.wait(100);
+      cy.wait(250);
     });
   });
 });
@@ -319,5 +319,4 @@ describe('Domain blocklist', () => {
       expect(response.status).to.equal(200);
     });
   });
-
-})
+});

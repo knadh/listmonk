@@ -14,6 +14,7 @@ Cypress.Commands.add('resetDB', () => {
 // table against the given IDs, asserting the expected order of sort.
 Cypress.Commands.add('sortTable', (theadSelector, ordIDs) => {
   cy.get(theadSelector).click();
+  cy.wait(500);
   cy.get('tbody td[data-id]').each(($el, index) => {
     expect(ordIDs[index]).to.equal(parseInt($el.attr('data-id')));
   });
