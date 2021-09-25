@@ -1,7 +1,7 @@
 <template>
   <section class="subscribers">
-    <header class="columns">
-      <div class="column is-half">
+    <header class="columns page-header">
+      <div class="column is-10">
         <h1 class="title is-4">{{ $t('globals.terms.subscribers') }}
           <span v-if="!isNaN(subscribers.total)">
             (<span data-cy="count">{{ subscribers.total }}</span>)
@@ -12,51 +12,44 @@
         </h1>
       </div>
       <div class="column has-text-right">
-        <b-button type="is-primary" icon-left="plus" @click="showNewForm" data-cy="btn-new">
-          {{ $t('globals.buttons.new') }}
-        </b-button>
+        <b-field expanded>
+          <b-button expanded type="is-primary" icon-left="plus"
+            @click="showNewForm" data-cy="btn-new" class="btn-new">
+            {{ $t('globals.buttons.new') }}
+          </b-button>
+        </b-field>
       </div>
     </header>
 
     <section class="subscribers-controls">
       <div class="columns">
-        <div class="column is-6">
+        <div class="column is-4">
           <form @submit.prevent="onSubmit">
             <div>
-              <b-field grouped>
-                <b-input @input="onSimpleQueryInput" v-model="queryInput"
+              <b-field addons>
+                <b-input @input="onSimpleQueryInput" v-model="queryInput" expanded
                   :placeholder="$t('subscribers.queryPlaceholder')" icon="magnify" ref="query"
                   :disabled="isSearchAdvanced" data-cy="search"></b-input>
-                <b-button native-type="submit" type="is-primary" icon-left="magnify"
-                  :disabled="isSearchAdvanced" data-cy="btn-search"></b-button>
+                <p class="controls">
+                  <b-button native-type="submit" type="is-primary" icon-left="magnify"
+                    :disabled="isSearchAdvanced" data-cy="btn-search"></b-button>
+                </p>
               </b-field>
 
-              <p>
-                <a href="#" @click.prevent="toggleAdvancedSearch" data-cy="btn-advanced-search">
-                  <b-icon icon="cog-outline" size="is-small" />
-                  {{ $t('subscribers.advancedQuery') }}
-                </a>
-              </p>
-
               <div v-if="isSearchAdvanced">
-                <b-field>
-                  <b-input v-model="queryParams.queryExp"
-                    @keydown.native.enter="onAdvancedQueryEnter"
-                    type="textarea" ref="queryExp"
-                    placeholder="subscribers.name LIKE '%user%' or subscribers.status='blocklisted'"
-                    data-cy="query">
-                  </b-input>
-                </b-field>
-                <b-field>
-                  <span class="is-size-6 has-text-grey">
-                    {{ $t('subscribers.advancedQueryHelp') }}.{{ ' ' }}
-                    <a href="https://listmonk.app/docs/querying-and-segmentation"
-                      target="_blank" rel="noopener noreferrer">
-                      {{ $t('globals.buttons.learnMore') }}.
-                    </a>
-                  </span>
-                </b-field>
-
+                <b-input v-model="queryParams.queryExp"
+                  @keydown.native.enter="onAdvancedQueryEnter"
+                  type="textarea" ref="queryExp"
+                  placeholder="subscribers.name LIKE '%user%' or subscribers.status='blocklisted'"
+                  data-cy="query">
+                </b-input>
+                <span class="is-size-6 has-text-grey">
+                  {{ $t('subscribers.advancedQueryHelp') }}.{{ ' ' }}
+                  <a href="https://listmonk.app/docs/querying-and-segmentation"
+                    target="_blank" rel="noopener noreferrer">
+                    {{ $t('globals.buttons.learnMore') }}.
+                  </a>
+                </span>
                 <div class="buttons">
                   <b-button native-type="submit" type="is-primary"
                     icon-left="magnify" data-cy="btn-query">{{ $t('subscribers.query') }}</b-button>
@@ -68,37 +61,13 @@
               </div><!-- advanced query -->
             </div>
           </form>
-        </div><!-- search -->
-
-        <div class="column is-6 subscribers-bulk" v-if="bulk.checked.length > 0">
-          <div>
-            <p>
-              <span class="is-size-5 has-text-weight-semibold">
-                {{ $t('subscribers.numSelected', { num: numSelectedSubscribers }) }}
-              </span>
-              <span v-if="!bulk.all && subscribers.total > subscribers.perPage">
-                &mdash;
-                <a href="" @click.prevent="selectAllSubscribers">
-                  {{ $t('subscribers.selectAll', { num: subscribers.total }) }}
-                </a>
-              </span>
-            </p>
-
-            <p class="actions">
-              <a href='' @click.prevent="showBulkListForm" data-cy="btn-manage-lists">
-                <b-icon icon="format-list-bulleted-square" size="is-small" /> Manage lists
-              </a>
-
-              <a href='' @click.prevent="deleteSubscribers" data-cy="btn-delete-subscribers">
-                <b-icon icon="trash-can-outline" size="is-small" /> Delete
-              </a>
-
-              <a href='' @click.prevent="blocklistSubscribers" data-cy="btn-manage-blocklist">
-                <b-icon icon="account-off-outline" size="is-small" /> Blocklist
-              </a>
-            </p><!-- selection actions //-->
+          <div v-if="!isSearchAdvanced" class="toggle-advanced">
+            <a href="#" @click.prevent="toggleAdvancedSearch" data-cy="btn-advanced-search">
+              <b-icon icon="cog-outline" size="is-small" />
+              {{ $t('subscribers.advancedQuery') }}
+            </a>
           </div>
-        </div>
+        </div><!-- search -->
       </div>
     </section><!-- control -->
 
@@ -110,11 +79,38 @@
       paginated backend-pagination pagination-position="both" @page-change="onPageChange"
       :current-page="queryParams.page" :per-page="subscribers.perPage" :total="subscribers.total"
       hoverable checkable backend-sorting @sort="onSort">
+
         <template #top-left>
-          <a href='' @click.prevent="exportSubscribers">
-            <b-icon icon="cloud-download-outline" size="is-small" /> {{ $t('subscribers.export') }}
-          </a>
+          <div class="actions">
+            <a class="a" href='' @click.prevent="exportSubscribers">
+              <b-icon icon="cloud-download-outline" size="is-small" />
+              {{ $t('subscribers.export') }}
+            </a>
+            <template v-if="bulk.checked.length > 0">
+              <a class="a" href='' @click.prevent="showBulkListForm" data-cy="btn-manage-lists">
+                <b-icon icon="format-list-bulleted-square" size="is-small" /> Manage lists
+              </a>
+              <a class="a" href='' @click.prevent="deleteSubscribers"
+                data-cy="btn-delete-subscribers">
+                <b-icon icon="trash-can-outline" size="is-small" /> Delete
+              </a>
+              <a class="a" href='' @click.prevent="blocklistSubscribers"
+                data-cy="btn-manage-blocklist">
+                <b-icon icon="account-off-outline" size="is-small" /> Blocklist
+              </a>
+              <span class="a">
+                {{ $t('subscribers.numSelected', { num: numSelectedSubscribers }) }}
+                <span v-if="!bulk.all && subscribers.total > subscribers.perPage">
+                  &mdash;
+                  <a href="" @click.prevent="selectAllSubscribers">
+                    {{ $t('subscribers.selectAll', { num: subscribers.total }) }}
+                  </a>
+                </span>
+              </span>
+            </template>
+          </div>
         </template>
+
         <b-table-column v-slot="props" field="status" :label="$t('globals.fields.status')"
           header-class="cy-status" :td-attrs="$utils.tdID" sortable>
           <a :href="`/subscribers/${props.row.id}`"
@@ -265,14 +261,11 @@ export default Vue.extend({
 
       // Toggling to simple search.
       if (!this.isSearchAdvanced) {
-        this.$nextTick(() => {
-          this.queryInput = '';
-          this.queryParams.queryExp = '';
-          this.queryParams.page = 1;
-          this.$refs.query.focus();
-
-          this.querySubscribers();
-        });
+        this.queryInput = '';
+        this.queryParams.queryExp = '';
+        this.queryParams.page = 1;
+        this.querySubscribers();
+        this.$refs.query.focus();
         return;
       }
 

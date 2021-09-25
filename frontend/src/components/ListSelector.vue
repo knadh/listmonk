@@ -113,5 +113,11 @@ export default {
       this.selectedItems = JSON.parse(JSON.stringify(this.selected));
     },
   },
+
+  mounted() {
+    if (this.selected) {
+      this.selectedItems = JSON.parse(JSON.stringify(this.selected));
+    }
+  },
 };
 </script>

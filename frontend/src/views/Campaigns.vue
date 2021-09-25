@@ -1,26 +1,21 @@
 <template>
   <section class="campaigns">
-    <header class="columns">
-      <div class="column is-two-thirds">
+    <header class="columns page-header">
+      <div class="column is-10">
         <h1 class="title is-4">{{ $t('globals.terms.campaigns') }}
           <span v-if="!isNaN(campaigns.total)">({{ campaigns.total }})</span>
         </h1>
       </div>
       <div class="column has-text-right">
-        <b-button :to="{name: 'campaign', params:{id: 'new'}}" tag="router-link"
-          type="is-primary" icon-left="plus" data-cy="btn-new">
-          {{ $t('globals.buttons.new') }}
-        </b-button>
+        <b-field expanded>
+          <b-button expanded :to="{name: 'campaign', params:{id: 'new'}}"
+            tag="router-link" class="btn-new"
+            type="is-primary" icon-left="plus" data-cy="btn-new">
+            {{ $t('globals.buttons.new') }}
+          </b-button>
+        </b-field>
       </div>
     </header>
-
-    <form @submit.prevent="getCampaigns">
-      <b-field grouped>
-          <b-input v-model="queryParams.query" name="query"
-            :placeholder="$t('campaigns.queryPlaceholder')" icon="magnify" ref="query"></b-input>
-          <b-button native-type="submit" type="is-primary" icon-left="magnify"></b-button>
-      </b-field>
-    </form>
 
     <b-table
       :data="campaigns.results"
@@ -29,6 +24,25 @@
       paginated backend-pagination pagination-position="both" @page-change="onPageChange"
       :current-page="queryParams.page" :per-page="campaigns.perPage" :total="campaigns.total"
       hoverable backend-sorting @sort="onSort">
+
+      <template #top-left>
+        <div class="columns">
+          <div class="column is-6">
+            <form @submit.prevent="getCampaigns">
+              <div>
+                <b-field>
+                  <b-input v-model="queryParams.query" name="query" expanded
+                    :placeholder="$t('campaigns.queryPlaceholder')" icon="magnify" ref="query" />
+                  <p class="controls">
+                    <b-button native-type="submit" type="is-primary" icon-left="magnify" />
+                  </p>
+                </b-field>
+              </div>
+            </form>
+          </div>
+        </div>
+      </template>
+
       <b-table-column v-slot="props" cell-class="status" field="status"
         :label="$t('globals.fields.status')" width="10%" sortable
         :td-attrs="$utils.tdID" header-class="cy-status">

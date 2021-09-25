@@ -1,18 +1,20 @@
 <template>
   <section class="settings">
     <b-loading :is-full-page="true" v-if="loading.settings || isLoading" active />
-    <header class="columns">
+    <header class="columns page-header">
       <div class="column is-half">
         <h1 class="title is-4">{{ $t('settings.title') }}
           <span class="has-text-grey-light">({{ serverConfig.version }})</span>
         </h1>
       </div>
       <div class="column has-text-right">
-        <b-button :disabled="!hasFormChanged"
-          type="is-primary" icon-left="content-save-outline"
-          @click="onSubmit" class="isSaveEnabled" data-cy="btn-save">
-          {{ $t('globals.buttons.save') }}
-        </b-button>
+        <b-field expanded>
+          <b-button expanded :disabled="!hasFormChanged"
+            type="is-primary" icon-left="content-save-outline"
+            @click="onSubmit" class="isSaveEnabled" data-cy="btn-save">
+            {{ $t('globals.buttons.save') }}
+          </b-button>
+        </b-field>
       </div>
     </header>
     <hr />

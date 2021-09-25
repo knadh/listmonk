@@ -1,7 +1,7 @@
 <template>
   <section class="campaign">
-    <header class="columns">
-      <div class="column is-8">
+    <header class="columns page-header">
+      <div class="column is-6">
         <p v-if="isEditing" class="tags">
           <b-tag v-if="isEditing" :class="data.status">
             {{ $t(`campaigns.status.${data.status}`) }}
@@ -18,20 +18,29 @@
         <h4 v-else class="title is-4">{{ $t('campaigns.newCampaign') }}</h4>
       </div>
 
-      <div class="column">
-        <div class="buttons" v-if="isEditing && canEdit">
-          <b-button @click="onSubmit" :loading="loading.campaigns"
-            type="is-primary" icon-left="content-save-outline" data-cy="btn-save">
-            {{ $t('globals.buttons.saveChanges') }}
-          </b-button>
-          <b-button v-if="canStart" @click="startCampaign" :loading="loading.campaigns"
-            type="is-primary" icon-left="rocket-launch-outline" data-cy="btn-start">
-              {{ $t('campaigns.start') }}
-          </b-button>
-          <b-button v-if="canSchedule" @click="startCampaign" :loading="loading.campaigns"
-            type="is-primary" icon-left="clock-start" data-cy="btn-schedule">
-              {{ $t('campaigns.schedule') }}
-          </b-button>
+      <div class="column is-6">
+        <div class="buttons">
+          <b-field grouped v-if="isEditing && canEdit">
+            <b-field expanded>
+              <b-button  expanded @click="onSubmit" :loading="loading.campaigns"
+                type="is-primary" icon-left="content-save-outline" data-cy="btn-save">
+                {{ $t('globals.buttons.saveChanges') }}
+              </b-button>
+            </b-field>
+            <b-field expanded v-if="canStart">
+              <b-button  expanded @click="startCampaign" :loading="loading.campaigns"
+                type="is-primary" icon-left="rocket-launch-outline" data-cy="btn-start">
+                {{ $t('campaigns.start') }}
+              </b-button>
+            </b-field>
+            <b-field expanded v-if="canSchedule">
+              <b-button  expanded @click="startCampaign"
+                :loading="loading.campaigns"
+                type="is-primary" icon-left="clock-start" data-cy="btn-schedule">
+                {{ $t('campaigns.schedule') }}
+              </b-button>
+            </b-field>
+          </b-field>
         </div>
       </div>
     </header>

@@ -1,16 +1,19 @@
 <template>
   <section class="lists">
-    <header class="columns">
-      <div class="column is-two-thirds">
+    <header class="columns page-header">
+      <div class="column is-10">
         <h1 class="title is-4">
           {{ $t('globals.terms.lists') }}
           <span v-if="!isNaN(lists.total)">({{ lists.total }})</span>
         </h1>
       </div>
       <div class="column has-text-right">
-        <b-button type="is-primary" icon-left="plus" @click="showNewForm" data-cy="btn-new">
-          {{ $t('globals.buttons.new') }}
-        </b-button>
+        <b-field expanded>
+          <b-button expanded type="is-primary" icon-left="plus" class="btn-new"
+            @click="showNewForm" data-cy="btn-new">
+            {{ $t('globals.buttons.new') }}
+          </b-button>
+        </b-field>
       </div>
     </header>
 
@@ -40,7 +43,7 @@
 
       <b-table-column v-slot="props" field="type" :label="$t('globals.fields.type')"
         header-class="cy-type" sortable>
-        <div>
+        <div class="tags">
           <b-tag :class="props.row.type" :data-cy="`type-${props.row.type}`">
             {{ $t(`lists.types.${props.row.type}`) }}
           </b-tag>
@@ -86,11 +89,20 @@
               <b-icon icon="rocket-launch-outline" size="is-small" />
             </b-tooltip>
           </router-link>
+
           <a href="" @click.prevent="showEditForm(props.row)" data-cy="btn-edit">
             <b-tooltip :label="$t('globals.buttons.edit')" type="is-dark">
               <b-icon icon="pencil-outline" size="is-small" />
             </b-tooltip>
           </a>
+
+          <router-link :to="{name: 'import', query: { list_id: props.row.id }}"
+            data-cy="btn-import">
+            <b-tooltip :label="$t('import.title')" type="is-dark">
+              <b-icon icon="file-upload-outline" size="is-small" />
+            </b-tooltip>
+          </router-link>
+
           <a href="" @click.prevent="deleteList(props.row)" data-cy="btn-delete">
             <b-tooltip :label="$t('globals.buttons.delete')" type="is-dark">
               <b-icon icon="trash-can-outline" size="is-small" />

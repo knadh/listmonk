@@ -95,9 +95,6 @@ section {
     background-color: #efefef;
   }
 
-.page-header {
-  min-height: 60px;
-}
 
 /* Two column sidebar+body layout */
 #app {
@@ -209,6 +206,9 @@ body.is-noscroll {
 .editor {
   margin-bottom: 30px;
 
+  .tox .tox-dialog-wrap {
+    z-index: 950;
+  }
   .tox-tinymce {
     box-shadow: 2px 2px 0 #f3f3f3;
     border: 1px solid #e6e6e6;
@@ -266,8 +266,14 @@ body.is-noscroll {
 }
 
 /* Modal */
-.modal {
-  z-index: 1350; // Needs to get above the TinyMCE modal
+.modal-background {
+  background: rgba(255, 255, 255, 0.7);
+}
+.modal-content, .modal.dialog .modal-card {
+  background: $white;
+  box-shadow: 2px 2px 3px #e4e4e4;
+  border: 1px solid #e5e5e5;
+  padding: 0;
 }
 .modal-card-head {
   display: block;
@@ -279,21 +285,45 @@ body.is-noscroll {
   display: none;
 }
 
+/* Table */
+.b-table .level-left {
+  min-width: 60%;
+  display: block;
+
+  .actions .a {
+    display: inline-block;
+    margin-right: 30px;
+  }
+}
+
 
 /* Fix for input colours */
-.button.is-primary {
-  background: $primary;
+.button {
+  &.is-primary {
+    background: $primary;
+
+    &:hover {
+      background: darken($primary, 15%);
+    }
+    &:disabled {
+      background: $grey-light;
+    }
+  }
 
   &:not(.is-small) {
     height: auto;
     padding: 10px 20px;
   }
+}
 
-  &:hover {
-    background: darken($primary, 15%);
+.has-addons {
+  .controls .button.is-primary {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
   }
-  &:disabled {
-    background: $grey-light;
+
+  .input:hover {
+    box-shadow: none;
   }
 }
 
@@ -323,7 +353,11 @@ body.is-noscroll {
   border: 1px solid $grey-lighter;
 }
 
-.input {
+.select:not(.is-multiple) {
+  height: auto;
+}
+
+.input, .select select {
   height: auto;
   padding: 10px 12px;
 }
@@ -442,6 +476,13 @@ body.is-noscroll {
   }
 }
 
+/* Page header */
+.page-header {
+  .buttons {
+    justify-content: flex-end;
+  }
+}
+
 /* Dashboard */
 section.dashboard {
   .title {
@@ -496,13 +537,17 @@ section.lists {
 }
 
 /* Subscribers page */
-.subscribers-controls {
-  padding-bottom: 15px;
-}
-.subscribers-bulk {
-  .actions a {
-    display: inline-block;
-    margin-right: 30px;
+.subscribers {
+  .subscribers-controls .buttons {
+    margin-top: 15px;
+  }
+
+  .toggle-advanced {
+    margin-top: 10px;
+  }
+
+  .b-table {
+    margin-top: 25px;
   }
 }
 
@@ -617,13 +662,6 @@ section.analytics {
     min-height: 500px;
     padding: 0;
     margin: 0 0 -5px 0;
-  }
-}
-
-/* Campaign */
-section.campaign {
-  header .buttons {
-    justify-content: flex-end;
   }
 }
 
@@ -805,25 +843,20 @@ section.campaign {
   }
 }
 
-@media screen and (max-width: 1450px) and (min-width: 769px) {
-  section.campaigns {
-    /* Fold the stats labels until the card view */
-    table tbody td {
-      .fields {
-        label {
-          margin: 0;
-          display: block;
-          text-align: left;
-        }
-        p {
-          margin-bottom: 10px !important;
-        }
-      }
+@media screen and (max-width: 1500px) {
+  .b-table {
+    .top.level {
+      display: block;
     }
+  }
+  .b-table .level-left {
+    display: block;
+    width: 100%;
+    min-width: 0;
   }
 }
 
-@media screen and (max-width: 1023px) {
+@media screen and (max-width: 1100px) {
   html, body {
     overflow-x: auto;
   }
@@ -869,20 +902,58 @@ section.campaign {
     }
   }
 
-  td .tags {
-    display: block;
+  .navbar-burger {
+    display: none;
+  }
 
+  td .tags {
     .tag:not(:last-child) {
       margin-right: 0;
     }
   }
-}
 
-@media screen and (max-width: 840px) {
   section.dashboard label {
     min-width: auto;
   }
-  .table-mobile-sort {
-    margin-top: 15px;
+
+  /* Tabs */
+  nav.tabs.is-boxed ul {
+    display: block;
+    text-align: left;
+    flex-grow: 1;
+
+    li {
+      a {
+        justify-content: left;
+        border: 1px solid $grey-lighter !important;
+      }
+
+      &.is-active a {
+        border-bottom: 1px solid $grey-lighter !important;
+        padding-left: 30px;
+      }
+    }
+  }
+
+  /* Table top-left controls */
+  .b-table .level-left {
+    .actions .a {
+      display: block;
+      margin: 0 0 5px 0;
+    }
+  }
+}
+
+@media screen and (max-width: 850px) {
+  .page-header .buttons {
+    display: block;
+  }
+}
+
+/* On big sizes, keep the header buttons small and non-expanded. */
+@media screen and (min-width: 769px) {
+  .page-header .button {
+    display: inline-block;
+    width: auto;
   }
 }
