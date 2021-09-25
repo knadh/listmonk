@@ -124,7 +124,7 @@ export default Vue.extend({
     return {
       // Binds form input values. This is populated by subscriber props passed
       // from the parent component in mounted().
-      form: { lists: [], strAttribs: '{}' },
+      form: { lists: [], strAttribs: '{}', status: 'enabled' },
       isBounceVisible: false,
       bounces: [],
       visibleMeta: {},
