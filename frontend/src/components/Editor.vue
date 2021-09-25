@@ -121,6 +121,7 @@ const LANGS = {
   pl: 'pl',
   pt: 'pt_PT',
   'pt-BR': 'pt_BR',
+  ro: 'ro',
   tr: 'tr',
 };
 
