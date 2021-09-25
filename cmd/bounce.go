@@ -6,10 +6,8 @@ import (
 	"io/ioutil"
 	"net/http"
 	"strconv"
-	"strings"
 	"time"
 
-	"github.com/knadh/listmonk/internal/subimporter"
 	"github.com/knadh/listmonk/models"
 	"github.com/labstack/echo"
 	"github.com/lib/pq"
@@ -164,11 +162,11 @@ func handleBounceWebhook(c echo.Context) error {
 			return echo.NewHTTPError(http.StatusBadRequest, app.i18n.Ts("globals.messages.invalidData"))
 		}
 
-		if err := validateBounceFields(b, app); err != nil {
+		if bv, err := validateBounceFields(b, app); err != nil {
 			return err
+		} else {
+			b = bv
 		}
-
-		b.Email = strings.ToLower(b.Email)
 
 		if len(b.Meta) == 0 {
 			b.Meta = json.RawMessage("{}")
@@ -234,22 +232,26 @@ func handleBounceWebhook(c echo.Context) error {
 	return c.JSON(http.StatusOK, okResp{true})
 }
 
-func validateBounceFields(b models.Bounce, app *App) error {
+func validateBounceFields(b models.Bounce, app *App) (models.Bounce, error) {
 	if b.Email == "" && b.SubscriberUUID == "" {
-		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidData"))
-	}
-
-	if b.Type != models.BounceTypeHard && b.Type != models.BounceTypeSoft {
-		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidData"))
-	}
-
-	if b.Email != "" && !subimporter.IsEmail(b.Email) {
-		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidEmail"))
+		return b, echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidData"))
 	}
 
 	if b.SubscriberUUID != "" && !reUUID.MatchString(b.SubscriberUUID) {
-		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidUUID"))
+		return b, echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidUUID"))
 	}
 
-	return nil
+	if b.Email != "" {
+		em, err := app.importer.SanitizeEmail(b.Email)
+		if err != nil {
+			return b, echo.NewHTTPError(http.StatusBadRequest, err.Error())
+		}
+		b.Email = em
+	}
+
+	if b.Type != models.BounceTypeHard && b.Type != models.BounceTypeSoft {
+		return b, echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidData"))
+	}
+
+	return b, nil
 }

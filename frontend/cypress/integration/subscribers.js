@@ -1,3 +1,5 @@
+const apiUrl = Cypress.env('apiUrl');
+
 describe('Subscribers', () => {
   it('Opens subscribers page', () => {
     cy.resetDB();
@@ -43,6 +45,7 @@ describe('Subscribers', () => {
     });
 
     cy.get('[data-cy=btn-query-reset]').click();
+    cy.wait(1000);
     cy.get('tbody td[data-label=Status]').its('length').should('eq', 2);
   });
 
@@ -55,7 +58,7 @@ describe('Subscribers', () => {
       { radio: 'check-list-remove', lists: [0, 1], rows: { 1: [] } },
       { radio: 'check-list-add', lists: [0, 1], rows: { 0: ['unsubscribed', 'unsubscribed'], 1: ['unconfirmed', 'unconfirmed'] } },
       { radio: 'check-list-remove', lists: [0], rows: { 0: ['unsubscribed'] } },
-      { radio: 'check-list-add', lists: [0], rows: { 0: ['unconfirmed', 'unsubscribed'] } },
+      { radio: 'check-list-add', lists: [0], rows: { 0: ['unsubscribed', 'unconfirmed'] } },
     ];
 
 
@@ -109,7 +112,7 @@ describe('Subscribers', () => {
 
     // Open the edit popup and edit the default lists.
     cy.get('[data-cy=btn-edit]').each(($el, n) => {
-      const email = `email-${n}@email.com`;
+      const email = `email-${n}@EMAIL.com`;
       const name = `name-${n}`;
 
       // Open the edit modal.
@@ -136,7 +139,7 @@ describe('Subscribers', () => {
     cy.wait(250);
     cy.get('tbody tr').each(($el) => {
       cy.wrap($el).find('td[data-id]').invoke('attr', 'data-id').then((id) => {
-        cy.wrap($el).find('td[data-label=E-mail]').contains(rows[id].email);
+        cy.wrap($el).find('td[data-label=E-mail]').contains(rows[id].email.toLowerCase());
         cy.wrap($el).find('td[data-label=Name]').contains(rows[id].name);
         cy.wrap($el).find('td[data-label=Status]').contains(rows[id].status, { matchCase: false });
 
@@ -171,7 +174,7 @@ describe('Subscribers', () => {
     // Cycle through each status and each list ID combination and create subscribers.
     const n = 0;
     for (let n = 0; n < 6; n++) {
-      const email = `email-${n}@email.com`;
+      const email = `email-${n}@EMAIL.com`;
       const name = `name-${n}`;
       const status = statuses[(n + 1) % statuses.length];
       const list = lists[(n + 1) % lists.length];
@@ -192,7 +195,7 @@ describe('Subscribers', () => {
       // which is always the first row in the table.
       cy.wait(250);
       const tr = cy.get('tbody tr:nth-child(1)').then(($el) => {
-        cy.wrap($el).find('td[data-label=E-mail]').contains(email);
+        cy.wrap($el).find('td[data-label=E-mail]').contains(email.toLowerCase());
         cy.wrap($el).find('td[data-label=Name]').contains(name);
         cy.wrap($el).find('td[data-label=Status]').contains(status, { matchCase: false });
         cy.wrap($el).find(`.tags .${status === 'enabled' ? 'unconfirmed' : 'unsubscribed'}`)
@@ -217,3 +220,104 @@ describe('Subscribers', () => {
     });
   });
 });
+
+
+describe('Domain blocklist', () => {
+  it('Opens settings page', () => {
+    cy.resetDB();
+  });
+
+  it('Add domains to blocklist', () => {
+    cy.loginAndVisit('/settings');
+    cy.get('.b-tabs nav a').eq(2).click();
+    cy.get('textarea[name="privacy.domain_blocklist"]').clear().type('ban.net\n\nBaN.OrG\n\nban.com\n\n');
+    cy.get('[data-cy=btn-save]').click();
+  });
+
+  it('Try subscribing via public page', () => {
+    cy.visit(`${apiUrl}/subscription/form`);
+    cy.get('input[name=email]').clear().type('test@noban.net');
+    cy.get('button[type=submit]').click();
+    cy.get('h2').contains('Subscribe');
+
+    cy.visit(`${apiUrl}/subscription/form`);
+    cy.get('input[name=email]').clear().type('test@ban.net');
+    cy.get('button[type=submit]').click();
+    cy.get('h2').contains('Error');
+  });
+
+
+  // Post to the admin API.
+  it('Try via admin API', () => {
+    cy.wait(1000);
+
+    // Add non-banned domain.
+    cy.request({
+      method: 'POST', url: `${apiUrl}/api/subscribers`, failOnStatusCode: true,
+      body: { email: 'test1@noban.net', 'name': 'test', 'lists': [1], 'status': 'enabled' }
+    }).should((response) => {
+      expect(response.status).to.equal(200);
+    });
+
+    // Add banned domain.
+    cy.request({
+      method: 'POST', url: `${apiUrl}/api/subscribers`, failOnStatusCode: false,
+      body: { email: 'test1@ban.com', 'name': 'test', 'lists': [1], 'status': 'enabled' }
+    }).should((response) => {
+      expect(response.status).to.equal(400);
+    });
+
+    // Modify an existinb subscriber to a banned domain.
+    cy.request({
+      method: 'PUT', url: `${apiUrl}/api/subscribers/1`, failOnStatusCode: false,
+      body: { email: 'test3@ban.org', 'name': 'test', 'lists': [1], 'status': 'enabled' }
+    }).should((response) => {
+      expect(response.status).to.equal(400);
+    });
+  });
+
+  it('Try via import', () => {
+    cy.loginAndVisit('/subscribers/import');
+    cy.get('.list-selector input').click();
+    cy.get('.list-selector .autocomplete a').first().click();
+
+    cy.fixture('subs-domain-blocklist.csv').then((data) => {
+      cy.get('input[type="file"]').attachFile({
+        fileContent: data.toString(),
+        fileName: 'subs.csv',
+        mimeType: 'text/csv',
+      });
+    });
+
+    cy.get('button.is-primary').click();
+    cy.get('section.wrap .has-text-success');
+    // cy.get('button.is-primary').click();
+    cy.get('.log-view').should('contain', 'ban1-import@BAN.net').and('contain', 'ban2-import@ban.ORG');
+    cy.wait(100);
+  });
+
+  it('Clear blocklist and try', () => {
+    cy.loginAndVisit('/settings');
+    cy.get('.b-tabs nav a').eq(2).click();
+    cy.get('textarea[name="privacy.domain_blocklist"]').clear();
+    cy.get('[data-cy=btn-save]').click();
+    cy.wait(1000);
+
+    // Add banned domain.
+    cy.request({
+      method: 'POST', url: `${apiUrl}/api/subscribers`, failOnStatusCode: true,
+      body: { email: 'test4@BAN.com', 'name': 'test', 'lists': [1], 'status': 'enabled' }
+    }).should((response) => {
+      expect(response.status).to.equal(200);
+    });
+
+    // Modify an existinb subscriber to a banned domain.
+    cy.request({
+      method: 'PUT', url: `${apiUrl}/api/subscribers/1`, failOnStatusCode: true,
+      body: { email: 'test4@BAN.org', 'name': 'test', 'lists': [1], 'status': 'enabled' }
+    }).should((response) => {
+      expect(response.status).to.equal(200);
+    });
+  });
+
+})

@@ -193,6 +193,7 @@ INSERT INTO settings (key, value) VALUES
     ('privacy.allow_export', 'true'),
     ('privacy.allow_wipe', 'true'),
     ('privacy.exportable', '["profile", "subscriptions", "campaign_views", "link_clicks"]'),
+    ('privacy.domain_blocklist', '[]'),
     ('upload.provider', '"filesystem"'),
     ('upload.filesystem.upload_path', '"uploads"'),
     ('upload.filesystem.upload_uri', '"/uploads"'),

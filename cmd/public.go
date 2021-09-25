@@ -318,15 +318,17 @@ func handleSubscriptionForm(c echo.Context) error {
 	}
 
 	// If there's no name, use the name bit from the e-mail.
-	req.Email = strings.ToLower(req.Email)
+	req.Name = strings.TrimSpace(req.Name)
 	if req.Name == "" {
 		req.Name = strings.Split(req.Email, "@")[0]
 	}
 
 	// Validate fields.
-	if err := subimporter.ValidateFields(req.SubReq); err != nil {
+	if r, err := app.importer.ValidateFields(req.SubReq); err != nil {
 		return c.Render(http.StatusInternalServerError, tplMessage,
 			makeMsgTpl(app.i18n.T("public.errorTitle"), "", err.Error()))
+	} else {
+		req.SubReq = r
 	}
 
 	// Insert the subscriber into the DB.

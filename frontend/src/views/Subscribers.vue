@@ -18,84 +18,86 @@
       </div>
     </header>
 
-    <section class="subscribers-controls columns">
-      <div class="column is-4">
-        <form @submit.prevent="onSubmit">
-          <div>
-            <b-field grouped>
-              <b-input @input="onSimpleQueryInput" v-model="queryInput"
-                :placeholder="$t('subscribers.queryPlaceholder')" icon="magnify" ref="query"
-                :disabled="isSearchAdvanced" data-cy="search"></b-input>
-              <b-button native-type="submit" type="is-primary" icon-left="magnify"
-                :disabled="isSearchAdvanced" data-cy="btn-search"></b-button>
-            </b-field>
+    <section class="subscribers-controls">
+      <div class="columns">
+        <div class="column is-6">
+          <form @submit.prevent="onSubmit">
+            <div>
+              <b-field grouped>
+                <b-input @input="onSimpleQueryInput" v-model="queryInput"
+                  :placeholder="$t('subscribers.queryPlaceholder')" icon="magnify" ref="query"
+                  :disabled="isSearchAdvanced" data-cy="search"></b-input>
+                <b-button native-type="submit" type="is-primary" icon-left="magnify"
+                  :disabled="isSearchAdvanced" data-cy="btn-search"></b-button>
+              </b-field>
 
+              <p>
+                <a href="#" @click.prevent="toggleAdvancedSearch" data-cy="btn-advanced-search">
+                  <b-icon icon="cog-outline" size="is-small" />
+                  {{ $t('subscribers.advancedQuery') }}
+                </a>
+              </p>
+
+              <div v-if="isSearchAdvanced">
+                <b-field>
+                  <b-input v-model="queryParams.queryExp"
+                    @keydown.native.enter="onAdvancedQueryEnter"
+                    type="textarea" ref="queryExp"
+                    placeholder="subscribers.name LIKE '%user%' or subscribers.status='blocklisted'"
+                    data-cy="query">
+                  </b-input>
+                </b-field>
+                <b-field>
+                  <span class="is-size-6 has-text-grey">
+                    {{ $t('subscribers.advancedQueryHelp') }}.{{ ' ' }}
+                    <a href="https://listmonk.app/docs/querying-and-segmentation"
+                      target="_blank" rel="noopener noreferrer">
+                      {{ $t('globals.buttons.learnMore') }}.
+                    </a>
+                  </span>
+                </b-field>
+
+                <div class="buttons">
+                  <b-button native-type="submit" type="is-primary"
+                    icon-left="magnify" data-cy="btn-query">{{ $t('subscribers.query') }}</b-button>
+                  <b-button @click.prevent="toggleAdvancedSearch" icon-left="cancel"
+                    data-cy="btn-query-reset">
+                    {{ $t('subscribers.reset') }}
+                  </b-button>
+                </div>
+              </div><!-- advanced query -->
+            </div>
+          </form>
+        </div><!-- search -->
+
+        <div class="column is-6 subscribers-bulk" v-if="bulk.checked.length > 0">
+          <div>
             <p>
-              <a href="#" @click.prevent="toggleAdvancedSearch" data-cy="btn-advanced-search">
-                <b-icon icon="cog-outline" size="is-small" />
-                {{ $t('subscribers.advancedQuery') }}
-              </a>
+              <span class="is-size-5 has-text-weight-semibold">
+                {{ $t('subscribers.numSelected', { num: numSelectedSubscribers }) }}
+              </span>
+              <span v-if="!bulk.all && subscribers.total > subscribers.perPage">
+                &mdash;
+                <a href="" @click.prevent="selectAllSubscribers">
+                  {{ $t('subscribers.selectAll', { num: subscribers.total }) }}
+                </a>
+              </span>
             </p>
 
-            <div v-if="isSearchAdvanced">
-              <b-field>
-                <b-input v-model="queryParams.queryExp"
-                  @keydown.native.enter="onAdvancedQueryEnter"
-                  type="textarea" ref="queryExp"
-                  placeholder="subscribers.name LIKE '%user%' or subscribers.status='blocklisted'"
-                  data-cy="query">
-                </b-input>
-              </b-field>
-              <b-field>
-                <span class="is-size-6 has-text-grey">
-                  {{ $t('subscribers.advancedQueryHelp') }}.{{ ' ' }}
-                  <a href="https://listmonk.app/docs/querying-and-segmentation"
-                    target="_blank" rel="noopener noreferrer">
-                    {{ $t('globals.buttons.learnMore') }}.
-                  </a>
-                </span>
-              </b-field>
-
-              <div class="buttons">
-                <b-button native-type="submit" type="is-primary"
-                  icon-left="magnify" data-cy="btn-query">{{ $t('subscribers.query') }}</b-button>
-                <b-button @click.prevent="toggleAdvancedSearch" icon-left="cancel"
-                  data-cy="btn-query-reset">
-                  {{ $t('subscribers.reset') }}
-                </b-button>
-              </div>
-            </div><!-- advanced query -->
-          </div>
-        </form>
-      </div><!-- search -->
-
-      <div class="column is-4 subscribers-bulk" v-if="bulk.checked.length > 0">
-        <div>
-          <p>
-            <span class="is-size-5 has-text-weight-semibold">
-              {{ $t('subscribers.numSelected', { num: numSelectedSubscribers }) }}
-            </span>
-            <span v-if="!bulk.all && subscribers.total > subscribers.perPage">
-              &mdash;
-              <a href="" @click.prevent="selectAllSubscribers">
-                {{ $t('subscribers.selectAll', { num: subscribers.total }) }}
+            <p class="actions">
+              <a href='' @click.prevent="showBulkListForm" data-cy="btn-manage-lists">
+                <b-icon icon="format-list-bulleted-square" size="is-small" /> Manage lists
               </a>
-            </span>
-          </p>
 
-          <p class="actions">
-            <a href='' @click.prevent="showBulkListForm" data-cy="btn-manage-lists">
-              <b-icon icon="format-list-bulleted-square" size="is-small" /> Manage lists
-            </a>
+              <a href='' @click.prevent="deleteSubscribers" data-cy="btn-delete-subscribers">
+                <b-icon icon="trash-can-outline" size="is-small" /> Delete
+              </a>
 
-            <a href='' @click.prevent="deleteSubscribers" data-cy="btn-delete-subscribers">
-              <b-icon icon="trash-can-outline" size="is-small" /> Delete
-            </a>
-
-            <a href='' @click.prevent="blocklistSubscribers" data-cy="btn-manage-blocklist">
-              <b-icon icon="account-off-outline" size="is-small" /> Blocklist
-            </a>
-          </p><!-- selection actions //-->
+              <a href='' @click.prevent="blocklistSubscribers" data-cy="btn-manage-blocklist">
+                <b-icon icon="account-off-outline" size="is-small" /> Blocklist
+              </a>
+            </p><!-- selection actions //-->
+          </div>
         </div>
       </div>
     </section><!-- control -->

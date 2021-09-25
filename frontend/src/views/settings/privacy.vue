@@ -29,6 +29,13 @@
       <b-switch v-model="data['privacy.allow_wipe']"
           name="privacy.allow_wipe" />
     </b-field>
+
+    <b-field :label="$t('settings.privacy.domainBlocklist')"
+      :message="$t('settings.privacy.domainBlocklistHelp')">
+      <b-input type="textarea"
+          v-model="data['privacy.domain_blocklist']"
+          name="privacy.domain_blocklist" />
+    </b-field>
   </div>
 </template>
 

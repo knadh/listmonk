@@ -61,6 +61,7 @@ type constants struct {
 		AllowExport        bool            `koanf:"allow_export"`
 		AllowWipe          bool            `koanf:"allow_wipe"`
 		Exportable         map[string]bool `koanf:"-"`
+		DomainBlocklist    map[string]bool `koanf:"-"`
 	} `koanf:"privacy"`
 	AdminUsername []byte `koanf:"admin_username"`
 	AdminPassword []byte `koanf:"admin_password"`
@@ -291,6 +292,7 @@ func initConstants() *constants {
 	c.Lang = ko.String("app.lang")
 	c.Privacy.Exportable = maps.StringSliceToLookupMap(ko.Strings("privacy.exportable"))
 	c.MediaProvider = ko.String("upload.provider")
+	c.Privacy.DomainBlocklist = maps.StringSliceToLookupMap(ko.Strings("privacy.domain_blocklist"))
 
 	// Static URLS.
 	// url.com/subscription/{campaign_uuid}/{subscriber_uuid}
@@ -366,6 +368,7 @@ func initCampaignManager(q *Queries, cs *constants, app *App) *manager.Manager {
 func initImporter(q *Queries, db *sqlx.DB, app *App) *subimporter.Importer {
 	return subimporter.New(
 		subimporter.Options{
+			DomainBlocklist:    app.constants.Privacy.DomainBlocklist,
 			UpsertStmt:         q.UpsertSubscriber.Stmt,
 			BlocklistStmt:      q.UpsertBlocklistSubscriber.Stmt,
 			UpdateListDateStmt: q.UpdateListsDate.Stmt,
@@ -373,7 +376,7 @@ func initImporter(q *Queries, db *sqlx.DB, app *App) *subimporter.Importer {
 				app.sendNotification(app.constants.NotifyEmails, subject, notifTplImport, data)
 				return nil
 			},
-		}, db.DB)
+		}, db.DB, app.i18n)
 }
 
 // initSMTPMessenger initializes the SMTP messenger.

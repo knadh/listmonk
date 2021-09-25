@@ -39,6 +39,7 @@ type settings struct {
 	PrivacyAllowExport        bool     `json:"privacy.allow_export"`
 	PrivacyAllowWipe          bool     `json:"privacy.allow_wipe"`
 	PrivacyExportable         []string `json:"privacy.exportable"`
+	DomainBlocklist           []string `json:"privacy.domain_blocklist"`
 
 	UploadProvider             string `json:"upload.provider"`
 	UploadFilesystemUploadPath string `json:"upload.filesystem.upload_path"`
@@ -245,6 +246,16 @@ func handleUpdateSettings(c echo.Context) error {
 	if set.SendgridKey == "" {
 		set.SendgridKey = cur.SendgridKey
 	}
+
+	// Domain blocklist.
+	doms := make([]string, 0)
+	for _, d := range set.DomainBlocklist {
+		d = strings.TrimSpace(strings.ToLower(d))
+		if d != "" {
+			doms = append(doms, d)
+		}
+	}
+	set.DomainBlocklist = doms
 
 	// Marshal settings.
 	b, err := json.Marshal(set)

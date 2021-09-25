@@ -15,7 +15,6 @@ import (
 
 	"github.com/gofrs/uuid"
 	"github.com/jmoiron/sqlx"
-	"github.com/knadh/listmonk/internal/subimporter"
 	"github.com/knadh/listmonk/models"
 	"github.com/labstack/echo"
 	"github.com/lib/pq"
@@ -687,7 +686,7 @@ func validateCampaignFields(c campaignReq, app *App) (campaignReq, error) {
 	if c.FromEmail == "" {
 		c.FromEmail = app.constants.FromEmail
 	} else if !regexFromAddress.Match([]byte(c.FromEmail)) {
-		if !subimporter.IsEmail(c.FromEmail) {
+		if _, err := app.importer.SanitizeEmail(c.FromEmail); err != nil {
 			return c, errors.New(app.i18n.T("campaigns.fieldInvalidFromEmail"))
 		}
 	}

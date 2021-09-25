@@ -293,9 +293,12 @@ func handleCreateSubscriber(c echo.Context) error {
 	if err := c.Bind(&req); err != nil {
 		return err
 	}
-	req.Email = strings.ToLower(strings.TrimSpace(req.Email))
-	if err := subimporter.ValidateFields(req); err != nil {
+
+	r, err := app.importer.ValidateFields(req)
+	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	} else {
+		req = r
 	}
 
 	// Insert the subscriber into the DB.
@@ -325,9 +328,13 @@ func handleUpdateSubscriber(c echo.Context) error {
 	if id < 1 {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidID"))
 	}
-	if req.Email != "" && !subimporter.IsEmail(req.Email) {
-		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("subscribers.invalidEmail"))
+
+	if em, err := app.importer.SanitizeEmail(req.Email); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	} else {
+		req.Email = em
 	}
+
 	if req.Name != "" && !strHasLen(req.Name, 1, stdInputMaxLen) {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("subscribers.invalidName"))
 	}
