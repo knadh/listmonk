@@ -332,6 +332,8 @@
     "settings.general.name": "Основное",
     "settings.general.rootURL": "Базовый URL",
     "settings.general.rootURLHelp": "Публичный URL текущего портала (без конечного слэша).",
+    "settings.general.sendOptinConfirm": "Send opt-in confirmation",
+    "settings.general.sendOptinConfirmHelp": "When new subscribers signup or are added via the admin form, send an opt-in confirmation e-mail.",
     "settings.invalidMessengerName": "Неверное имя мессенджера.",
     "settings.mailserver.authProtocol": "Протокол авторизации",
     "settings.mailserver.host": "Хост",

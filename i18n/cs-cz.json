@@ -332,6 +332,8 @@
     "settings.general.name": "Obecné",
     "settings.general.rootURL": "Kořenová adresa URL",
     "settings.general.rootURLHelp": "Veřejná adresa URL instalace (bez koncového lomítka).",
+    "settings.general.sendOptinConfirm": "Send opt-in confirmation",
+    "settings.general.sendOptinConfirmHelp": "When new subscribers signup or are added via the admin form, send an opt-in confirmation e-mail.",
     "settings.invalidMessengerName": "Neplatné jméno kurýra.",
     "settings.mailserver.authProtocol": "Ověřovací protokol",
     "settings.mailserver.host": "Hostitel",

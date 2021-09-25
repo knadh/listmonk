@@ -332,6 +332,8 @@
     "settings.general.name": "Général",
     "settings.general.rootURL": "URL racine",
     "settings.general.rootURLHelp": "URL publique de l'installation (sans slash final)",
+    "settings.general.sendOptinConfirm": "Send opt-in confirmation",
+    "settings.general.sendOptinConfirmHelp": "When new subscribers signup or are added via the admin form, send an opt-in confirmation e-mail.",
     "settings.invalidMessengerName": "Nom de messagerie invalide",
     "settings.mailserver.authProtocol": "Protocole d'authentification",
     "settings.mailserver.host": "Hôte",

@@ -367,7 +367,7 @@ func handleUpdateSubscriber(c echo.Context) error {
 		return err
 	}
 
-	if !req.PreconfirmSubs {
+	if !req.PreconfirmSubs && app.constants.SendOptinConfirmation {
 		_, _ = sendOptinConfirmation(sub, []int64(req.Lists), app)
 	}
 
@@ -725,7 +725,7 @@ func insertSubscriber(req subimporter.SubReq, app *App) (models.Subscriber, bool
 	}
 
 	hasOptin := false
-	if !req.PreconfirmSubs {
+	if !req.PreconfirmSubs && app.constants.SendOptinConfirmation {
 		// Send a confirmation e-mail (if there are any double opt-in lists).
 		num, _ := sendOptinConfirmation(sub, []int64(req.Lists), app)
 		hasOptin = num > 0

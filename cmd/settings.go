@@ -14,14 +14,15 @@ import (
 )
 
 type settings struct {
-	AppRootURL          string   `json:"app.root_url"`
-	AppLogoURL          string   `json:"app.logo_url"`
-	AppFaviconURL       string   `json:"app.favicon_url"`
-	AppFromEmail        string   `json:"app.from_email"`
-	AppNotifyEmails     []string `json:"app.notify_emails"`
-	EnablePublicSubPage bool     `json:"app.enable_public_subscription_page"`
-	CheckUpdates        bool     `json:"app.check_updates"`
-	AppLang             string   `json:"app.lang"`
+	AppRootURL            string   `json:"app.root_url"`
+	AppLogoURL            string   `json:"app.logo_url"`
+	AppFaviconURL         string   `json:"app.favicon_url"`
+	AppFromEmail          string   `json:"app.from_email"`
+	AppNotifyEmails       []string `json:"app.notify_emails"`
+	EnablePublicSubPage   bool     `json:"app.enable_public_subscription_page"`
+	SendOptinConfirmation bool     `json:"app.send_optin_confirmation"`
+	CheckUpdates          bool     `json:"app.check_updates"`
+	AppLang               string   `json:"app.lang"`
 
 	AppBatchSize     int `json:"app.batch_size"`
 	AppConcurrency   int `json:"app.concurrency"`

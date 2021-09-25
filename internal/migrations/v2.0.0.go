@@ -38,6 +38,7 @@ func V2_0_0(db *sqlx.DB, fs stuffbin.FileSystem, ko *koanf.Koanf) error {
 
 	if _, err := db.Exec(`
 		INSERT INTO settings (key, value) VALUES
+	    ('app.send_optin_confirmation', 'true'),
 	    ('bounce.enabled', 'false'),
 	    ('bounce.webhooks_enabled', 'false'),
 	    ('bounce.count', '2'),
