@@ -1,3 +1,5 @@
+const apiUrl = Cypress.env('apiUrl');
+
 describe('Subscribers', () => {
   it('Opens campaigns page', () => {
     cy.resetDB();
@@ -50,7 +52,7 @@ describe('Subscribers', () => {
     cy.wait(250);
 
     // Verify the changes.
-    cy.request('/api/campaigns/1').should((response) => {
+    cy.request(`${apiUrl}/api/campaigns/1`).should((response) => {
       const { data } = response.body;
       expect(data.status).to.equal('scheduled');
       expect(data.name).to.equal('new-name');
@@ -112,7 +114,7 @@ describe('Subscribers', () => {
     let n = 0;
     cTypes.forEach((c) => {
       lists.forEach((l) => {
-      // Click the 'new button'
+        // Click the 'new button'
         cy.get('[data-cy=btn-new]').click();
         cy.wait(100);
 
@@ -165,7 +167,7 @@ describe('Subscribers', () => {
     });
 
     // Fetch the campaigns API and verfiy the values that couldn't be verified on the table UI.
-    cy.request('/api/campaigns?order=asc&order_by=created_at').should((response) => {
+    cy.request(`${apiUrl}/api/campaigns?order=asc&order_by=created_at`).should((response) => {
       const { data } = response.body;
       expect(data.total).to.equal(lists.length * cTypes.length);
 

@@ -1,3 +1,5 @@
+const apiUrl = Cypress.env('apiUrl');
+
 describe('Forms', () => {
   it('Opens forms page', () => {
     cy.resetDB();
@@ -36,7 +38,7 @@ describe('Forms', () => {
 
   it('Subscribes from public form page', () => {
     // Create a public test list.
-    cy.request('POST', '/api/lists', { name: 'test-list', type: 'public', optin: 'single' });
+    cy.request('POST', `${apiUrl}/api/lists`, { name: 'test-list', type: 'public', optin: 'single' });
 
     // Open the public page and subscribe to alternating lists multiple times.
     // There should be no errors and two new subscribers should be subscribed to two lists.
@@ -53,7 +55,7 @@ describe('Forms', () => {
     }
 
     // Verify form subscriptions.
-    cy.request('/api/subscribers').should((response) => {
+    cy.request(`${apiUrl}/api/subscribers`).should((response) => {
       const { data } = response.body;
 
       // Two new + two dummy subscribers that are there by default.
