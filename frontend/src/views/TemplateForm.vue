@@ -16,8 +16,9 @@
                   :placeholder="$t('globals.fields.name')" required />
             </b-field>
 
-            <b-field :label="$t('templates.rawHTML')" label-position="on-border">
-              <b-input v-model="form.body" type="textarea" name="body" required />
+            <b-field v-if="form.body !== null"
+              :label="$t('templates.rawHTML')" label-position="on-border">
+              <html-editor v-model="form.body" name="body" required />
             </b-field>
 
             <p class="is-size-7">
@@ -46,10 +47,12 @@
 import Vue from 'vue';
 import { mapState } from 'vuex';
 import CampaignPreview from '../components/CampaignPreview.vue';
+import HTMLEditor from '../components/HTMLEditor.vue';
 
 export default Vue.extend({
   components: {
     CampaignPreview,
+    'html-editor': HTMLEditor,
   },
 
   props: {
@@ -64,6 +67,7 @@ export default Vue.extend({
         name: '',
         type: '',
         optin: '',
+        body: null,
       },
       previewItem: null,
       egPlaceholder: '{{ template "content" . }}',

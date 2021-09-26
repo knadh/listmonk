@@ -29,9 +29,13 @@ describe('Campaigns', () => {
 
     // Enable schedule.
     cy.get('[data-cy=btn-send-later] .check').click();
+    cy.wait(100);
     cy.get('.datepicker input').click();
+    cy.wait(100);
     cy.get('.datepicker-header .control:nth-child(2) select').select((new Date().getFullYear() + 1).toString());
+    cy.wait(100);
     cy.get('.datepicker-body a.is-selectable:first').click();
+    cy.wait(100);
     cy.get('body').click(1, 1);
 
     // Switch to content tab.
@@ -71,7 +75,49 @@ describe('Campaigns', () => {
     cy.get('tbody td[data-label=Status] .tag.scheduled');
   });
 
+
+  it('Switches formats', () => {
+    cy.resetDB()
+    cy.loginAndVisit('/campaigns');
+    const formats = ['html', 'markdown', 'plain'];
+    const htmlBody = '<strong>hello</strong> \{\{ .Subscriber.Name \}\} from {\{ .Subscriber.Attribs.city \}\}';
+    const plainBody = 'hello Demo Subscriber from Bengaluru';
+
+    // Set test content the first time.
+    cy.get('td[data-label=Status] a').click();
+    cy.get('.b-tabs nav a').eq(1).click();
+    cy.window().then((win) => {
+      win.tinymce.editors[0].setContent(htmlBody);
+      win.tinymce.editors[0].save();
+    });
+    cy.get('button[data-cy=btn-save]').click();
+
+
+    formats.forEach((c) => {
+      cy.loginAndVisit('/campaigns');
+      cy.get('td[data-label=Status] a').click();
+
+      // Switch to content tab.
+      cy.get('.b-tabs nav a').eq(1).click();
+
+      // Switch format.
+      cy.get(`label[data-cy=check-${c}]`).click();
+      cy.get('.modal button.is-primary').click();
+
+      // Check content.
+      cy.get('button[data-cy=btn-preview]').click();
+      cy.wait(200);
+      cy.get("#iframe").then(($f) => {
+        const doc = $f.contents();
+        expect(doc.find('.wrap').text().trim().replace(/(\s|\n)+/, ' ')).equal(plainBody);
+      });
+      cy.get('.modal-card-foot button').click();
+    });
+  });
+
+
   it('Clones campaign', () => {
+    cy.loginAndVisit('/campaigns');
     for (let n = 0; n < 3; n++) {
       // Clone the campaign.
       cy.get('[data-cy=btn-clone]').first().click();
@@ -109,7 +155,7 @@ describe('Campaigns', () => {
 
   it('Adds new campaigns', () => {
     const lists = [[1], [1, 2]];
-    const cTypes = ['richtext', 'html', 'plain'];
+    const cTypes = ['richtext', 'html', 'markdown', 'plain'];
 
     let n = 0;
     cTypes.forEach((c) => {
@@ -136,12 +182,6 @@ describe('Campaigns', () => {
         cy.get('button[data-cy=btn-continue]').click();
         cy.wait(250);
 
-        // Insert content.
-        cy.window().then((win) => {
-          win.tinymce.editors[0].setContent(`hello${n} \{\{ .Subscriber.Name \}\}\n\{\{ .Subscriber.Attribs.city \}\}`);
-        });
-        cy.wait(200);
-
         // Select content type.
         cy.get(`label[data-cy=check-${c}]`).click();
 
@@ -150,8 +190,37 @@ describe('Campaigns', () => {
           cy.get('.modal button.is-primary').click();
         }
 
+        // Insert content.
+        const htmlBody = `<strong>hello${n}</strong> \{\{ .Subscriber.Name \}\} from {\{ .Subscriber.Attribs.city \}\}`;
+        const plainBody = `hello${n} Demo Subscriber from Bengaluru`;
+        const markdownBody = `**hello${n}** Demo Subscriber from Bengaluru`;
+
+        if (c === 'richtext') {
+          cy.window().then((win) => {
+            win.tinymce.editors[0].setContent(htmlBody);
+            win.tinymce.editors[0].save();
+          });
+          cy.wait(200);
+        } else if (c === 'html') {
+          cy.get('code-flask').shadow().find('.codeflask textarea').invoke('val', htmlBody).trigger('input');
+        } else if (c === 'markdown') {
+          cy.get('textarea[name=content]').invoke('val', markdownBody).trigger('input');
+        } else if (c === 'plain') {
+          cy.get('textarea[name=content]').invoke('val', plainBody).trigger('input');
+        }
+
         // Save.
         cy.get('button[data-cy=btn-save]').click();
+
+        // Preview and match the body.
+        cy.get('button[data-cy=btn-preview]').click();
+        cy.wait(200);
+        cy.get("#iframe").then(($f) => {
+          const doc = $f.contents();
+          expect(doc.find('.wrap').text().trim()).equal(plainBody);
+        });
+
+        cy.get('.modal-card-foot button').click();
 
         cy.clickMenu('all-campaigns');
         cy.wait(250);
@@ -200,8 +269,8 @@ describe('Campaigns', () => {
   });
 
   it('Sorts campaigns', () => {
-    const asc = [5, 6, 7, 8, 9, 10];
-    const desc = [10, 9, 8, 7, 6, 5];
+    const asc = [5, 6, 7, 8, 9, 10, 11, 12];
+    const desc = [12, 11, 10, 9, 8, 7, 6, 5];
     const cases = ['cy-name', 'cy-timestamp'];
 
     cases.forEach((c) => {

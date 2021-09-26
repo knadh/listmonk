@@ -29,7 +29,9 @@
       </div>
       <div class="column is-6 has-text-right">
           <b-button @click="onTogglePreview" type="is-primary"
-            icon-left="file-find-outline">{{ $t('campaigns.preview') }}</b-button>
+            icon-left="file-find-outline" data-cy="btn-preview">
+            {{ $t('campaigns.preview') }}
+          </b-button>
       </div>
     </div>
 
@@ -42,8 +44,7 @@
     />
 
     <!-- raw html editor //-->
-    <div v-if="form.format === 'html'"
-      ref="htmlEditor" id="html-editor" class="html-editor"></div>
+    <html-editor v-if="form.format === 'html'" v-model="form.body" />
 
     <!-- plain text / markdown editor //-->
     <b-input v-if="form.format === 'plain' || form.format === 'markdown'"
@@ -72,7 +73,6 @@
 
 <script>
 import { mapState } from 'vuex';
-import CodeFlask from 'codeflask';
 import TurndownService from 'turndown';
 import { indent } from 'indent.js';
 
@@ -80,7 +80,6 @@ import 'tinymce';
 import 'tinymce/icons/default';
 import 'tinymce/themes/silver';
 import 'tinymce/skins/ui/oxide/skin.css';
-
 import 'tinymce/plugins/autoresize';
 import 'tinymce/plugins/autolink';
 import 'tinymce/plugins/charmap';
@@ -103,9 +102,10 @@ import 'tinymce/plugins/textcolor';
 import 'tinymce/plugins/visualblocks';
 import 'tinymce/plugins/visualchars';
 import 'tinymce/plugins/wordcount';
-
 import TinyMce from '@tinymce/tinymce-vue';
+
 import CampaignPreview from './CampaignPreview.vue';
+import HTMLEditor from './HTMLEditor.vue';
 import Media from '../views/Media.vue';
 import { colors, uris } from '../constants';
 
@@ -129,6 +129,7 @@ export default {
   components: {
     Media,
     CampaignPreview,
+    'html-editor': HTMLEditor,
     TinyMce,
   },
 
@@ -164,9 +165,6 @@ export default {
       // was opened. This is used to insert media on selection from the poup
       // where the caret may be lost.
       lastSel: null,
-
-      // HTML editor.
-      flask: null,
     };
   },
 
@@ -217,42 +215,6 @@ export default {
       };
 
       this.isRichtextReady = true;
-    },
-
-    initHTMLEditor() {
-      // CodeFlask editor is rendered in a shadow DOM tree to keep its styles
-      // sandboxed away from the global styles.
-      const el = document.createElement('code-flask');
-      el.attachShadow({ mode: 'open' });
-      el.shadowRoot.innerHTML = `
-        <style>
-          .codeflask .codeflask__flatten { font-size: 15px; }
-          .codeflask .codeflask__lines { background: #fafafa; z-index: 10; }
-          .codeflask .token.tag { font-weight: bold; }
-          .codeflask .token.attr-name { color: #111; }
-          .codeflask .token.attr-value { color: ${colors.primary} !important; }
-        </style>
-        <div id="area"></area>
-      `;
-      this.$refs.htmlEditor.appendChild(el);
-
-      this.flask = new CodeFlask(el.shadowRoot.getElementById('area'), {
-        language: 'html',
-        lineNumbers: false,
-        styleParent: el.shadowRoot,
-        readonly: this.disabled,
-      });
-      this.flask.onUpdate((b) => {
-        this.form.body = b;
-        this.$emit('input', { contentType: this.form.format, body: this.form.body });
-      });
-
-      this.updateHTMLEditor();
-      this.isReady = true;
-    },
-
-    updateHTMLEditor() {
-      this.flask.updateCode(this.form.body);
     },
 
     onFormatChange(format) {
@@ -362,26 +324,6 @@ export default {
       return indent.html(s, { tabString: '  ' }).trim();
     },
 
-    formatHTMLNode(node, level) {
-      const lvl = level + 1;
-      const indentBefore = new Array(lvl + 1).join('  ');
-      const indentAfter = new Array(lvl - 1).join('  ');
-      let textNode = null;
-
-      for (let i = 0; i < node.children.length; i += 1) {
-        textNode = document.createTextNode(`\n${indentBefore}`);
-        node.insertBefore(textNode, node.children[i]);
-
-        this.formatHTMLNode(node.children[i], lvl);
-        if (node.lastElementChild === node.children[i]) {
-          textNode = document.createTextNode(`\n${indentAfter}`);
-          node.appendChild(textNode);
-        }
-      }
-
-      return node;
-    },
-
     trimLines(str, removeEmptyLines) {
       const out = str.split('\n');
       for (let i = 0; i < out.length; i += 1) {
@@ -415,7 +357,7 @@ export default {
       this.form.format = f;
       this.form.radioFormat = f;
 
-      if (f === 'plain' || f === 'markdown') {
+      if (f !== 'richtext') {
         this.isReady = true;
       }
 
@@ -435,13 +377,6 @@ export default {
     },
 
     htmlFormat(to, from) {
-      // On switch to HTML, initialize the HTML editor.
-      if (to === 'html') {
-        this.$nextTick(() => {
-          this.initHTMLEditor();
-        });
-      }
-
       if ((from === 'richtext' || from === 'html') && to === 'plain') {
         // richtext, html => plain
 

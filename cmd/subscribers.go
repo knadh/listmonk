@@ -70,9 +70,10 @@ type subOptin struct {
 
 var (
 	dummySubscriber = models.Subscriber{
-		Email: "demo@listmonk.app",
-		Name:  "Demo Subscriber",
-		UUID:  dummyUUID,
+		Email:   "demo@listmonk.app",
+		Name:    "Demo Subscriber",
+		UUID:    dummyUUID,
+		Attribs: models.SubscriberAttribs{"city": "Bengaluru"},
 	}
 
 	subQuerySortFields = []string{"email", "name", "created_at", "updated_at"}

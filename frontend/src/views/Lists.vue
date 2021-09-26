@@ -48,12 +48,14 @@
             {{ $t(`lists.types.${props.row.type}`) }}
           </b-tag>
           {{ ' ' }}
-          <b-tag :data-cy="`optin-${props.row.optin}`">
+
+          <b-tag :class="props.row.optin" :data-cy="`optin-${props.row.optin}`">
             <b-icon :icon="props.row.optin === 'double' ?
               'account-check-outline' : 'account-off-outline'" size="is-small" />
             {{ ' ' }}
             {{ $t(`lists.optins.${props.row.optin}`) }}
           </b-tag>{{ ' ' }}
+
           <a v-if="props.row.optin === 'double'" class="is-size-7 send-optin"
             href="#" @click="$utils.confirm(null, () => createOptinCampaign(props.row))"
             data-cy="btn-send-optin-campaign">
