@@ -482,5 +482,7 @@
     "templates.newTemplate": "New template",
     "templates.placeholderHelp": "The placeholder {placeholder} should appear exactly once in the template.",
     "templates.preview": "Preview",
-    "templates.rawHTML": "Raw HTML"
+    "templates.rawHTML": "Raw HTML",
+    "users.login": "Login",
+    "users.logout": "Logout"
 }

@@ -10,7 +10,9 @@
           </div>
         </template>
         <template slot="end">
-            <b-navbar-item tag="div"></b-navbar-item>
+            <b-navbar-item tag="div">
+              <a href="#" @click.prevent="doLogout">{{ $t('users.logout') }}</a>
+            </b-navbar-item>
         </template>
     </b-navbar>
 
@@ -134,6 +136,7 @@
 <script>
 import Vue from 'vue';
 import { mapState } from 'vuex';
+import { uris } from './constants';
 
 export default Vue.extend({
   name: 'App',
@@ -164,6 +167,21 @@ export default Vue.extend({
     toggleGroup(group, state) {
       this.activeGroup = state ? { [group]: true } : {};
     },
+
+    doLogout() {
+      const http = new XMLHttpRequest();
+
+      const u = uris.root.substr(-1) === '/' ? uris.root : `${uris.root}/`;
+      http.open('get', `${u}api/logout`, false, 'logout_non_user', 'logout_non_user');
+      http.onload = () => {
+        document.location.href = uris.root;
+      };
+      http.onerror = () => {
+        document.location.href = uris.root;
+      };
+      http.send();
+    },
+
     reloadApp() {
       this.$api.reloadApp().then(() => {
         this.$utils.toast('Reloading app ...');

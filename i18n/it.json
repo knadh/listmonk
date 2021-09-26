@@ -482,5 +482,7 @@
     "templates.newTemplate": "Nuovo modello",
     "templates.placeholderHelp": "Il segnaposto {placeholder} deve apparire esattamente una volta nel modello.",
     "templates.preview": "Anteprima",
-    "templates.rawHTML": "HTML semplice"
+    "templates.rawHTML": "HTML semplice",
+    "users.login": "Login",
+    "users.logout": "Logout"
 }

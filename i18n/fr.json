@@ -482,5 +482,7 @@
     "templates.newTemplate": "Nouveau modèle",
     "templates.placeholderHelp": "L'espace réservé {placeholder} doit apparaître exactement une fois dans le modèle.",
     "templates.preview": "Aperçu",
-    "templates.rawHTML": "HTML brut"
+    "templates.rawHTML": "HTML brut",
+    "users.login": "Login",
+    "users.logout": "Logout"
 }

@@ -482,5 +482,7 @@
     "templates.newTemplate": "Новый шаблон",
     "templates.placeholderHelp": "Заполнитель {placeholder} должен присутствовать в шаблоне в одном экземпляре.",
     "templates.preview": "Предпросмотр",
-    "templates.rawHTML": "Необработанный HTML"
+    "templates.rawHTML": "Необработанный HTML",
+    "users.login": "Login",
+    "users.logout": "Logout"
 }

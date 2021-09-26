@@ -482,5 +482,7 @@
     "templates.newTemplate": "Novo modelo",
     "templates.placeholderHelp": "O palavra reservada {placeholder} deve aparecer exatamente uma vez no modelo.",
     "templates.preview": "Pré-visualizar",
-    "templates.rawHTML": "Código HTML"
+    "templates.rawHTML": "Código HTML",
+    "users.login": "Login",
+    "users.logout": "Logout"
 }

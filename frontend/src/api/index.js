@@ -6,7 +6,7 @@ import store from '../store';
 import { models } from '../constants';
 
 const http = axios.create({
-  baseURL: process.env.VUE_APP_API_URL || '/',
+  baseURL: process.env.VUE_APP_ROOT_URL || '/',
   withCredentials: false,
   responseType: 'json',
 
@@ -276,3 +276,7 @@ export const getLogs = async () => http.get('/api/logs',
 
 export const getLang = async (lang) => http.get(`/api/lang/${lang}`,
   { loading: models.lang, preserveCase: true });
+
+export const logout = async () => http.get('/api/logout', {
+  auth: { username: 'wrong', password: 'wrong' },
+});

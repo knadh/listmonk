@@ -482,5 +482,7 @@
     "templates.newTemplate": "Nowy szablon",
     "templates.placeholderHelp": "Symbol zastępczy {placeholder} powinien występować dokładnie raz w szablonie.",
     "templates.preview": "Podgląd",
-    "templates.rawHTML": "Surowy HTML"
+    "templates.rawHTML": "Surowy HTML",
+    "users.login": "Login",
+    "users.logout": "Logout"
 }

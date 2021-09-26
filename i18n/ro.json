@@ -482,5 +482,7 @@
     "templates.newTemplate": "Template nou",
     "templates.placeholderHelp": "Substituentul {placeholder} ar trebui să apară exact o dată în șablon.",
     "templates.preview": "Previzualizare",
-    "templates.rawHTML": "HTML brut"
+    "templates.rawHTML": "HTML brut",
+    "users.login": "Login",
+    "users.logout": "Logout"
 }

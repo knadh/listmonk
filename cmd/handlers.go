@@ -51,8 +51,8 @@ func initHTTPHandlers(e *echo.Echo, app *App) {
 
 	// Admin JS app views.
 	// /admin/static/* file server is registered in initHTTPServer().
-	g.GET("/", func(c echo.Context) error {
-		return c.Redirect(http.StatusPermanentRedirect, path.Join(adminRoot, ""))
+	e.GET("/", func(c echo.Context) error {
+		return c.Render(http.StatusOK, "home", publicTpl{Title: "listmonk"})
 	})
 	g.GET(path.Join(adminRoot, ""), handleAdminPage)
 	g.GET(path.Join(adminRoot, "/*"), handleAdminPage)

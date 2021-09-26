@@ -482,5 +482,7 @@
     "templates.newTemplate": "Nová šablona",
     "templates.placeholderHelp": "Zástupný symbol {placeholder} by se měl v šabloně objevit právě jednou.",
     "templates.preview": "Náhled",
-    "templates.rawHTML": "Kód HTML"
+    "templates.rawHTML": "Kód HTML",
+    "users.login": "Login",
+    "users.logout": "Logout"
 }

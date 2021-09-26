@@ -482,5 +482,7 @@
     "templates.newTemplate": "Neue Vorlage",
     "templates.placeholderHelp": "Der Platzhalter \"{placeholder}\" darf nur einmal im Template vorkommen.",
     "templates.preview": "Vorschau",
-    "templates.rawHTML": "HTML"
+    "templates.rawHTML": "HTML",
+    "users.login": "Login",
+    "users.logout": "Logout"
 }

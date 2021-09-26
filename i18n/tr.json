@@ -482,5 +482,7 @@
     "templates.newTemplate": "Yeni taslak",
     "templates.placeholderHelp": "Yer tutucu {placeholder} taslak içinde sadece bir kere olmalıdır.",
     "templates.preview": "Önizleme",
-    "templates.rawHTML": "Ham HTML"
+    "templates.rawHTML": "Ham HTML",
+    "users.login": "Login",
+    "users.logout": "Logout"
 }

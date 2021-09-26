@@ -46,6 +46,9 @@ input[type="text"], input[type="email"], select {
     border-color: #0055d4;
   }
 
+.center {
+  text-align: center;
+}
 .button {
   background: #0055d4;
   padding: 15px 30px;
@@ -57,9 +60,11 @@ input[type="text"], input[type="email"], select {
   display: inline-block;
   min-width: 150px;
   font-size: 1.1em;
+  text-align: center;
 }
 .button:hover {
   background: #333;
+  color: #fff;
 }
 .button.button-outline {
   background: #fff;

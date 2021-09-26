@@ -482,5 +482,7 @@
     "templates.newTemplate": "Nueva plantilla",
     "templates.placeholderHelp": "El marcador {placeholder} debe aparecer exactamente una vez en la plantilla.",
     "templates.preview": "Vista pewliminar",
-    "templates.rawHTML": "HTML crudo"
+    "templates.rawHTML": "HTML crudo",
+    "users.login": "Login",
+    "users.logout": "Logout"
 }

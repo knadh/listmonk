@@ -482,5 +482,7 @@
     "templates.newTemplate": "പുതിയ ടെംപ്ലേറ്റ്",
     "templates.placeholderHelp": "{placeholder} എന്ന പ്ലെയ്‌സ്‌ഹോൾഡർ ടെംപ്ലേറ്റിൽ ഒരിക്കലെങ്കിലും വരണം.",
     "templates.preview": "പ്രിവ്യൂ",
-    "templates.rawHTML": "എച്. ടീ. എം. എൽ"
+    "templates.rawHTML": "എച്. ടീ. എം. എൽ",
+    "users.login": "Login",
+    "users.logout": "Logout"
 }
