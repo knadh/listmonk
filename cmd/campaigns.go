@@ -251,6 +251,15 @@ func handleCreateCampaign(c echo.Context) error {
 			return err
 		}
 		o = op
+	} else if o.Type == "" {
+		o.Type = models.CampaignTypeRegular
+	}
+
+	if o.ContentType == "" {
+		o.ContentType = models.CampaignContentTypeRichtext
+	}
+	if o.Messenger == "" {
+		o.Messenger = "email"
 	}
 
 	// Validate.

@@ -704,6 +704,10 @@ func insertSubscriber(req subimporter.SubReq, app *App) (models.Subscriber, bool
 		subStatus = models.SubscriptionStatusConfirmed
 	}
 
+	if req.Status == "" {
+		req.Status = models.UserStatusEnabled
+	}
+
 	if err = app.queries.InsertSubscriber.Get(&req.ID,
 		req.UUID,
 		req.Email,

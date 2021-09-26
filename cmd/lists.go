@@ -132,6 +132,13 @@ func handleCreateList(c echo.Context) error {
 			app.i18n.Ts("globals.messages.errorUUID", "error", err.Error()))
 	}
 
+	if o.Type == "" {
+		o.Type = models.ListTypePrivate
+	}
+	if o.Optin == "" {
+		o.Optin = models.ListOptinSingle
+	}
+
 	// Insert and read ID.
 	var newID int
 	o.UUID = uu.String()
