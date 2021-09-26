@@ -78,6 +78,7 @@
     "campaigns.testEmails": "E-mails",
     "campaigns.testSent": "Тестовое сообщение отправлено",
     "campaigns.timestamps": "Метки времени",
+    "campaigns.trackLink": "Track link",
     "campaigns.views": "Просмотры",
     "dashboard.campaignViews": "Просмотров компании",
     "dashboard.linkClicks": "Кликов по ссылкам",

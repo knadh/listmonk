@@ -80,15 +80,23 @@ type regTplFunc struct {
 	replace string
 }
 
-// Regular expression for matching {{ Track "http://link.com" }} in the template
-// and substituting it with {{ Track "http://link.com" .Campaign.UUID .Subscriber.UUID }}
-// before compilation. This string gimmick is to make linking easier for users.
 var regTplFuncs = []regTplFunc{
-	regTplFunc{
+	// Convert the shorthand https://google.com@TrackLink to {{ TrackLink ... }}.
+	// This is for WYSIWYG editors that encode and break quotes {{ "" }} when inserted
+	// inside <a href="{{ TrackLink "https://these-quotes-break" }}>.
+	{
+		regExp:  regexp.MustCompile(`(https?://.+?)@TrackLink`),
+		replace: `{{ TrackLink "$1" . }}`,
+	},
+
+	// Regular expression for matching {{ TrackLink "http://link.com" }} in the template
+	// and substituting it with {{ Track "http://link.com" . }} (the dot context)
+	// before compilation. This is to make linking easier for users.
+	{
 		regExp:  regexp.MustCompile("{{(\\s+)?TrackLink\\s+?(\"|`)(.+?)(\"|`)(\\s+)?}}"),
 		replace: `{{ TrackLink "$3" . }}`,
 	},
-	regTplFunc{
+	{
 		regExp:  regexp.MustCompile(`{{(\s+)?(TrackView|UnsubscribeURL|OptinURL|MessageURL)(\s+)?}}`),
 		replace: `{{ $2 . }}`,
 	},

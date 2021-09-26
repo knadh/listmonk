@@ -225,6 +225,17 @@ body.is-noscroll {
     border: 0;
   }
 }
+
+.tox-track-link {
+  display: block !important;
+  cursor: pointer !important;
+
+  margin: 5px 0 10px 0 !important;
+  input {
+    margin-right: 5px !important;
+  }
+}
+
   .plain-editor textarea {
     height: 65vh;
   }

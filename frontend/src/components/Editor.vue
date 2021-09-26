@@ -148,6 +148,7 @@ export default {
       isReady: false,
       isRichtextReady: false,
       richtextConf: {},
+      isTrackLink: false,
       form: {
         body: '',
         format: this.contentType,
@@ -174,7 +175,18 @@ export default {
       const { lang } = this.serverConfig;
 
       this.richtextConf = {
+        init_instance_callback: () => { this.isReady = true; },
+        urlconverter_callback: this.onEditorURLConvert,
+
+        setup: (editor) => {
+          editor.on('init', () => {
+            this.onEditorDialogOpen(editor);
+          });
+        },
+
         min_height: 500,
+        entity_encoding: 'raw',
+        convert_urls: true,
         plugins: [
           'autoresize', 'autolink', 'charmap', 'code', 'emoticons', 'fullscreen', 'help',
           'hr', 'image', 'imagetools', 'link', 'lists', 'paste', 'searchreplace',
@@ -194,15 +206,14 @@ export default {
           table, td { border-color: #ccc;}
         `,
 
+        language: LANGS[lang] || null,
+        language_url: LANGS[lang] ? `${uris.static}/tinymce/lang/${LANGS[lang]}.js` : null,
+
         file_picker_types: 'image',
         file_picker_callback: (callback) => {
           this.isMediaVisible = true;
           this.runTinyMceImageCallback = callback;
         },
-        init_instance_callback: () => { this.isReady = true; },
-
-        language: LANGS[lang] || null,
-        language_url: LANGS[lang] ? `${uris.static}/tinymce/lang/${LANGS[lang]}.js` : null,
       };
 
       this.isRichtextReady = true;
@@ -256,6 +267,72 @@ export default {
           this.form.radioFormat = this.form.format;
         },
       );
+    },
+
+    onEditorURLConvert(url) {
+      let u = url;
+      if (this.isTrackLink) {
+        u = `${u}@TrackLink`;
+      }
+
+      this.isTrackLink = false;
+      return u;
+    },
+
+    onEditorDialogOpen(editor) {
+      const ed = editor;
+      const oldEd = ed.windowManager.open;
+      const self = this;
+
+      ed.windowManager.open = (t, r) => {
+        const isOK = t.initialData && 'url' in t.initialData && 'anchor' in t.initialData;
+
+        // Not the link modal.
+        if (!isOK) {
+          return oldEd.apply(this, [t, r]);
+        }
+
+        // If an existing link is being edited, check for the tracking flag `@TrackLink` at the end
+        // of the url. Remove that from the URL and instead check the checkbox.
+        let checked = false;
+        if (!t.initialData.link !== '') {
+          const t2 = t;
+          const url = t2.initialData.url.value.replace(/@TrackLink$/, '');
+
+          if (t2.initialData.url.value !== url) {
+            t2.initialData.url.value = url;
+            checked = true;
+          }
+        }
+
+        // Execute the modal.
+        const modal = oldEd.apply(this, [t, r]);
+
+        // Is it the link dialog?
+        if (isOK) {
+          // Insert tracking checkbox.
+          const c = document.createElement('input');
+          c.setAttribute('type', 'checkbox');
+
+          if (checked) {
+            c.setAttribute('checked', checked);
+          }
+
+          // Store the checkbox's state in the Vue instance to pick up from
+          // the TinyMCE link conversion callback.
+          c.onchange = (e) => {
+            self.isTrackLink = e.target.checked;
+          };
+
+          const l = document.createElement('label');
+          l.appendChild(c);
+          l.appendChild(document.createTextNode('Track link?'));
+          l.classList.add('tox-label', 'tox-track-link');
+
+          document.querySelector('.tox-form__controls-h-stack .tox-control-wrap').appendChild(l);
+        }
+        return modal;
+      };
     },
 
     onEditorChange() {

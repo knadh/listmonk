@@ -15,6 +15,20 @@
                 color: #444;
             }
 
+            pre {
+                background: #f4f4f4f4;
+                padding: 2px;
+            }
+
+            table {
+                width: 100%;
+                border: 1px solid #ddd;
+            }
+            table td {
+                border-color: #ddd;
+                padding: 5px;
+            }
+
             .wrap {
                 background-color: #fff;
                 padding: 30px;
