@@ -203,12 +203,18 @@ body.is-noscroll {
   border-radius: 2px;
 }
 
+.plain-editor textarea {
+  height: 65vh;
+}
+
+.alt-body textarea {
+  height: 30vh;
+}
+
+
 .editor {
   margin-bottom: 30px;
 
-  .tox .tox-dialog-wrap {
-    z-index: 950;
-  }
   .tox-tinymce {
     box-shadow: 2px 2px 0 #f3f3f3;
     border: 1px solid #e6e6e6;
@@ -226,24 +232,41 @@ body.is-noscroll {
   }
 }
 
-.tox-track-link {
-  display: block !important;
-  cursor: pointer !important;
 
-  margin: 5px 0 10px 0 !important;
-  input {
-    margin-right: 5px !important;
+.tox.tox-silver-sink {
+  z-index: 850;
+
+  .tox-dialog-wrap {
+    z-index: 900;
+  }
+  .tox-dialog {
+    @extend .box;
+  }
+
+  .tox-track-link {
+    display: block;
+    cursor: pointer;
+
+    margin: 5px 0 10px 0;
+    input {
+      margin-right: 5px;
+    }
+  }
+
+  .tox-button {
+    border-radius: 4px;
+  }
+  .tox-button:not(.tox-button--secondary):not(.tox-button--naked) {
+    background: $primary;
+  }
+
+  .tox-textfield {
+    box-shadow: 2px 2px 0 $white-ter;
+    border: 1px solid $grey-lighter;
   }
 }
 
-  .plain-editor textarea {
-    height: 65vh;
-  }
-  .alt-body textarea {
-    height: 30vh;
-  }
-
-  .tox, .tox-tinymce, .tox-tinymce-aux, .tox .tox-button, .tox .tox-button-link, .tox .tox-dialog__title,
+.tox, .tox-tinymce, .tox-tinymce-aux, .tox .tox-button, .tox .tox-button-link, .tox .tox-dialog__title,
   .tox .tox-textfield,
   .tox .tox-toolbar-textfield,
   .tox .tox-listboxfield .tox-listbox--select,
@@ -277,6 +300,9 @@ body.is-noscroll {
 }
 
 /* Modal */
+.modal {
+  z-index: 950;
+}
 .modal-background {
   background: rgba(255, 255, 255, 0.7);
 }
