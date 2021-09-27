@@ -2,7 +2,7 @@
   <section class="campaign">
     <header class="columns page-header">
       <div class="column is-6">
-        <p v-if="isEditing" class="tags">
+        <p v-if="isEditing && data.status" class="tags">
           <b-tag v-if="isEditing" :class="data.status">
             {{ $t(`campaigns.status.${data.status}`) }}
           </b-tag>
