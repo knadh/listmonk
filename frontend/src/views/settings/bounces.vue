@@ -32,7 +32,7 @@
           name="webhooks_enabled" :native-value="true"
           data-cy="btn-enable-bounce-webhook" />
         <p class="has-text-grey">
-          <a href="" target="_blank">{{ $t('globals.buttons.learnMore') }} &rarr;</a>
+          <a href="https://listmonk.app/docs/bounces" target="_blank">{{ $t('globals.buttons.learnMore') }} &rarr;</a>
         </p>
       </b-field>
       <div class="box" v-if="data['bounce.webhooks_enabled']">
