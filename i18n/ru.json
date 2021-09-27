@@ -31,6 +31,7 @@
     "campaigns.fieldInvalidName": "Неверная длина имени.",
     "campaigns.fieldInvalidSendAt": "Запланированная дата должна быть позже текущей.",
     "campaigns.fieldInvalidSubject": "Неверная длина темы.",
+    "campaigns.formatHTML": "Format HTML",
     "campaigns.fromAddress": "Адрес отправителя",
     "campaigns.fromAddressPlaceholder": "Ваше имя <noreply@yoursite.com>",
     "campaigns.invalid": "Неверная компания",

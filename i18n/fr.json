@@ -31,6 +31,7 @@
     "campaigns.fieldInvalidName": "Longueur du nom invalide.",
     "campaigns.fieldInvalidSendAt": "La date planifiée doit être future.",
     "campaigns.fieldInvalidSubject": "Longueur d'objet non valide.",
+    "campaigns.formatHTML": "Format HTML",
     "campaigns.fromAddress": "Adresse d'envoi",
     "campaigns.fromAddressPlaceholder": "Nom à afficher <noreply@votresite.com>",
     "campaigns.invalid": "Campagne non valide",

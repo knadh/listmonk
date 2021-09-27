@@ -36,12 +36,32 @@
     </div>
 
     <!-- wsywig //-->
-    <tiny-mce
-      v-model="form.body"
-      v-if="isRichtextReady && form.format === 'richtext'"
-      :disabled="disabled"
-      :init="richtextConf"
-    />
+    <template v-if="isRichtextReady && form.format === 'richtext'">
+      <tiny-mce
+        v-model="form.body"
+        :disabled="disabled"
+        :init="richtextConf"
+      />
+
+      <b-modal scroll="keep" :width="1200"
+        :aria-modal="true" :active.sync="isRichtextSourceVisible">
+        <div>
+          <section expanded class="modal-card-body preview">
+            <html-editor v-model="richTextSourceBody" />
+          </section>
+          <footer class="modal-card-foot has-text-right">
+            <b-button @click="onFormatRichtextHTML">{{ $t('campaigns.formatHTML') }}</b-button>
+            <b-button @click="() => { this.isRichtextSourceVisible = false; }">
+              {{ $t('globals.buttons.close') }}
+            </b-button>
+            <b-button @click="onSaveRichTextSource" class="is-primary">
+              {{ $t('globals.buttons.save') }}
+            </b-button>
+          </footer>
+        </div>
+      </b-modal>
+
+    </template>
 
     <!-- raw html editor //-->
     <html-editor v-if="form.format === 'html'" v-model="form.body" />
@@ -83,7 +103,6 @@ import 'tinymce/skins/ui/oxide/skin.css';
 import 'tinymce/plugins/autoresize';
 import 'tinymce/plugins/autolink';
 import 'tinymce/plugins/charmap';
-import 'tinymce/plugins/code';
 import 'tinymce/plugins/colorpicker';
 import 'tinymce/plugins/contextmenu';
 import 'tinymce/plugins/emoticons';
@@ -148,8 +167,10 @@ export default {
       isEditorFullscreen: false,
       isReady: false,
       isRichtextReady: false,
+      isRichtextSourceVisible: false,
       richtextConf: {},
       isTrackLink: false,
+      richTextSourceBody: '',
       form: {
         body: '',
         format: this.contentType,
@@ -180,13 +201,20 @@ export default {
           editor.on('init', () => {
             this.onEditorDialogOpen(editor);
           });
+
+          // Custom HTML editor.
+          editor.ui.registry.addButton('html', {
+            icon: 'sourcecode',
+            tooltip: 'Source code',
+            onAction: this.onRichtextViewSource,
+          });
         },
 
         min_height: 500,
         entity_encoding: 'raw',
         convert_urls: true,
         plugins: [
-          'autoresize', 'autolink', 'charmap', 'code', 'emoticons', 'fullscreen', 'help',
+          'autoresize', 'autolink', 'charmap', 'emoticons', 'fullscreen', 'help',
           'hr', 'image', 'imagetools', 'link', 'lists', 'paste', 'searchreplace',
           'table', 'visualblocks', 'visualchars', 'wordcount',
         ],
@@ -194,7 +222,7 @@ export default {
                   bold italic underline strikethrough forecolor backcolor subscript superscript |
                   alignleft aligncenter alignright alignjustify |
                   bullist numlist table image | outdent indent | link hr removeformat |
-                  code fullscreen help`,
+                  html fullscreen help`,
         fontsize_formats: '10px 11px 12px 14px 15px 16px 18px 24px 36px',
         skin: false,
         content_css: false,
@@ -240,6 +268,23 @@ export default {
 
       this.isTrackLink = false;
       return u;
+    },
+
+
+    onRichtextViewSource() {
+      this.richTextSourceBody = this.form.body;
+      this.isRichtextSourceVisible = true;
+    },
+
+    onFormatRichtextHTML() {
+      this.richTextSourceBody = this.beautifyHTML(this.richTextSourceBody);
+    },
+
+    onSaveRichTextSource() {
+      this.form.body = this.richTextSourceBody;
+      window.tinymce.editors[0].setContent(this.form.body);
+      this.richTextSourceBody = '';
+      this.isRichtextSourceVisible = false;
     },
 
     onEditorDialogOpen(editor) {
@@ -384,7 +429,9 @@ export default {
         // Preserve line breaks when converting HTML to plaintext.
         const d = document.createElement('div');
         d.innerHTML = this.beautifyHTML(this.form.body);
-        this.form.body = this.trimLines(d.innerText.trim(), true);
+        this.$nextTick(() => {
+          this.form.body = this.trimLines(d.innerText.trim(), true);
+        });
       } else if ((from === 'richtext' || from === 'html') && to === 'markdown') {
         // richtext, html => markdown
         this.form.body = turndown.turndown(this.form.body).replace(/\n\n+/ig, '\n\n');

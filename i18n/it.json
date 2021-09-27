@@ -31,6 +31,7 @@
     "campaigns.fieldInvalidName": "Lunghezza del nome non valida.",
     "campaigns.fieldInvalidSendAt": "La data programmata deve essere futura.",
     "campaigns.fieldInvalidSubject": "Lunghezza dell'oggetto non valida.",
+    "campaigns.formatHTML": "Format HTML",
     "campaigns.fromAddress": "Mittente",
     "campaigns.fromAddressPlaceholder": "Tuo nome <noreply@tuosito.com>",
     "campaigns.invalid": "Campagna non valida",

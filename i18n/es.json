@@ -31,6 +31,7 @@
     "campaigns.fieldInvalidName": "Largo de nombre inválido",
     "campaigns.fieldInvalidSendAt": "La hora agendada debe ser en el futuro.",
     "campaigns.fieldInvalidSubject": "Largo de asunto inválido",
+    "campaigns.formatHTML": "Format HTML",
     "campaigns.fromAddress": "Dirección origen",
     "campaigns.fromAddressPlaceholder": "Su Nombre <noresponder@susitio.com>",
     "campaigns.invalid": "Campaña inválida",

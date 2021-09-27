@@ -31,6 +31,7 @@
     "campaigns.fieldInvalidName": "İsim uzunluğu yanlış.",
     "campaigns.fieldInvalidSendAt": "Tanımlanan tarih gelecekte olmalı.",
     "campaigns.fieldInvalidSubject": "Konu uzunluğu yanlış verilmiş.",
+    "campaigns.formatHTML": "Format HTML",
     "campaigns.fromAddress": "Gelen adres",
     "campaigns.fromAddressPlaceholder": "isminiz <cevap-verme@siteniz.com>",
     "campaigns.invalid": "Yanlış tanımlı kapmanya",

@@ -31,6 +31,7 @@
     "campaigns.fieldInvalidName": "Quantidade de caracteres inválida para o nome.",
     "campaigns.fieldInvalidSendAt": "A data agendada deve ser no futuro.",
     "campaigns.fieldInvalidSubject": "Quantidade de caracteres inválida para o assunto.",
+    "campaigns.formatHTML": "Format HTML",
     "campaigns.fromAddress": "Endereço do remetente",
     "campaigns.fromAddressPlaceholder": "Seu Nome <noreply@yoursite.com>",
     "campaigns.invalid": "Campanha inválida",

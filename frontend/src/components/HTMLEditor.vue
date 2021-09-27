@@ -14,6 +14,7 @@ export default {
 
   data() {
     return {
+      data: '',
       flask: null,
     };
   },
@@ -43,8 +44,9 @@ export default {
         readonly: this.disabled,
       });
 
-      this.flask.onUpdate((b) => {
-        this.$emit('input', b);
+      this.flask.onUpdate((v) => {
+        this.data = v;
+        this.$emit('input', v);
       });
 
       // Set the initial value.
@@ -54,6 +56,14 @@ export default {
 
   mounted() {
     this.initHTMLEditor(this.$props.value || '');
+  },
+
+  watch: {
+    value(newVal) {
+      if (newVal !== this.data) {
+        this.flask.updateCode(newVal);
+      }
+    },
   },
 };
 </script>

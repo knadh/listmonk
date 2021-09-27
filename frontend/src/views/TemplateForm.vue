@@ -18,7 +18,7 @@
 
             <b-field v-if="form.body !== null"
               :label="$t('templates.rawHTML')" label-position="on-border">
-              <html-editor v-model="form.body" name="body" required />
+              <html-editor v-model="form.body" name="body" />
             </b-field>
 
             <p class="is-size-7">

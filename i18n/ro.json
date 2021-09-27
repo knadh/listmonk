@@ -31,6 +31,7 @@
     "campaigns.fieldInvalidName": "Lungime nevalidă pentru nume",
     "campaigns.fieldInvalidSendAt": "Data programată ar trebui să fie în viitor.",
     "campaigns.fieldInvalidSubject": "Lungime nevalida pentru subiect.",
+    "campaigns.formatHTML": "Format HTML",
     "campaigns.fromAddress": "De la adresa",
     "campaigns.fromAddressPlaceholder": "Numele tau <noreply@yoursite.com>",
     "campaigns.invalid": "Campanie nevalidă",

@@ -31,6 +31,7 @@
     "campaigns.fieldInvalidName": "Neplatná délka jména.",
     "campaigns.fieldInvalidSendAt": "Naplánované datum by mělo být v budoucnosti.",
     "campaigns.fieldInvalidSubject": "Neplatná délka předmětu.",
+    "campaigns.formatHTML": "Format HTML",
     "campaigns.fromAddress": "Z adresy",
     "campaigns.fromAddressPlaceholder": "Vaše jméno <noreply@yoursite.com>",
     "campaigns.invalid": "Neplatná kampaň",

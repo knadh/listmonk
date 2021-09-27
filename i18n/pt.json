@@ -31,6 +31,7 @@
     "campaigns.fieldInvalidName": "Tamanho de nome inválido.",
     "campaigns.fieldInvalidSendAt": "Data agendada deve ser no futuro.",
     "campaigns.fieldInvalidSubject": "Tamanho de corpo inválido.",
+    "campaigns.formatHTML": "Format HTML",
     "campaigns.fromAddress": "Endereço do Remetente",
     "campaigns.fromAddressPlaceholder": "O Teu Nome <noreply@oteusite.com>",
     "campaigns.invalid": "Campanha inválida",
