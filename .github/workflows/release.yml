@@ -27,7 +27,7 @@ jobs:
 
       - name: Prepare Dependencies
         run: |
-          make deps
+          make dist
 
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v2
