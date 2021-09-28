@@ -23,6 +23,7 @@ const htmlEntities = {
 export default class Utils {
   constructor(i18n) {
     this.i18n = i18n;
+    this.intlNumFormat = new Intl.NumberFormat();
   }
 
   // Parses an ISO timestamp to a simpler form.
@@ -78,13 +79,34 @@ export default class Utils {
     return out.toFixed(2) + pfx;
   }
 
+  formatNumber(v) {
+    return this.intlNumFormat.format(v);
+  }
+
+  // Parse one or more numeric ids as query params and return as an array of ints.
+  parseQueryIDs = (ids) => {
+    if (!ids) {
+      return [];
+    }
+
+    if (typeof ids === 'string') {
+      return [parseInt(ids, 10)];
+    }
+
+    if (typeof ids === 'number') {
+      return [parseInt(ids, 10)];
+    }
+
+    return ids.map((id) => parseInt(id, 10));
+  }
+
   // https://stackoverflow.com/a/12034334
   escapeHTML = (html) => html.replace(/[&<>"'`=/]/g, (s) => htmlEntities[s]);
 
   // UI shortcuts.
   confirm = (msg, onConfirm, onCancel) => {
     Dialog.confirm({
-      scroll: 'clip',
+      scroll: 'keep',
       message: !msg ? this.i18n.t('globals.messages.confirm') : msg,
       confirmText: this.i18n.t('globals.buttons.ok'),
       cancelText: this.i18n.t('globals.buttons.cancel'),
@@ -95,7 +117,7 @@ export default class Utils {
 
   prompt = (msg, inputAttrs, onConfirm, onCancel) => {
     Dialog.prompt({
-      scroll: 'clip',
+      scroll: 'keep',
       message: msg,
       confirmText: this.i18n.t('globals.buttons.ok'),
       cancelText: this.i18n.t('globals.buttons.cancel'),
@@ -115,7 +137,9 @@ export default class Utils {
       message: this.escapeHTML(msg),
       type: !typ ? 'is-success' : typ,
       queue: false,
-      duration: duration || 2000,
+      duration: duration || 3000,
+      position: 'is-top',
+      pauseOnHover: true,
     });
   };
 

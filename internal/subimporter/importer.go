@@ -24,6 +24,7 @@ import (
 	"sync"
 
 	"github.com/gofrs/uuid"
+	"github.com/knadh/listmonk/internal/i18n"
 	"github.com/knadh/listmonk/models"
 	"github.com/lib/pq"
 )
@@ -50,8 +51,9 @@ const (
 
 // Importer represents the bulk CSV subscriber import system.
 type Importer struct {
-	opt Options
-	db  *sql.DB
+	opt  Options
+	db   *sql.DB
+	i18n *i18n.I18n
 
 	stop   chan bool
 	status Status
@@ -64,6 +66,9 @@ type Options struct {
 	BlocklistStmt      *sql.Stmt
 	UpdateListDateStmt *sql.Stmt
 	NotifCB            models.AdminNotifCallback
+
+	// Lookup table for blocklisted domains.
+	DomainBlocklist map[string]bool
 }
 
 // Session represents a single import session.
@@ -123,12 +128,13 @@ var (
 )
 
 // New returns a new instance of Importer.
-func New(opt Options, db *sql.DB) *Importer {
+func New(opt Options, db *sql.DB, i *i18n.I18n) *Importer {
 	im := Importer{
 		opt:    opt,
-		stop:   make(chan bool, 1),
 		db:     db,
+		i18n:   i,
 		status: Status{Status: StatusNone, logBuf: bytes.NewBuffer(nil)},
+		stop:   make(chan bool, 1),
 	}
 	return &im
 }
@@ -518,11 +524,12 @@ func (s *Session) LoadCSV(srcPath string, delim rune) error {
 		}
 
 		sub := SubReq{}
-		// Lowercase to ensure uniqueness in the DB.
-		sub.Email = strings.ToLower(strings.TrimSpace(row["email"]))
+		sub.Email = row["email"]
 		sub.Name = row["name"]
-		if err := ValidateFields(sub); err != nil {
-			s.log.Printf("skipping line %d: %v", i, err)
+
+		sub, err = s.im.ValidateFields(sub)
+		if err != nil {
+			s.log.Printf("skipping line %d: %s: %v", i, sub.Email, err)
 			continue
 		}
 
@@ -564,6 +571,51 @@ func (im *Importer) Stop() {
 	}
 }
 
+// ValidateFields validates incoming subscriber field values and returns sanitized fields.
+func (im *Importer) ValidateFields(s SubReq) (SubReq, error) {
+	if len(s.Email) > 1000 {
+		return s, errors.New(im.i18n.T("subscribers.invalidEmail"))
+	}
+
+	s.Name = strings.TrimSpace(s.Name)
+	if len(s.Name) == 0 || len(s.Name) > stdInputMaxLen {
+		return s, errors.New(im.i18n.T("subscribers.invalidName"))
+	}
+
+	em, err := im.SanitizeEmail(s.Email)
+	if err != nil {
+		return s, err
+	}
+	s.Email = em
+
+	return s, nil
+}
+
+// SanitizeEmail validates and sanitizes an e-mail string and returns the lowercased,
+// e-mail component of an e-mail string.
+func (im *Importer) SanitizeEmail(email string) (string, error) {
+	email = strings.ToLower(strings.TrimSpace(email))
+
+	// Since `mail.ParseAddress` parses an email address which can also contain optional name component
+	// here we check if incoming email string is same as the parsed email.Address. So this eliminates
+	// any valid email address with name and also valid address with empty name like `<abc@example.com>`.
+	em, err := mail.ParseAddress(email)
+	if err != nil || em.Address != email {
+		return "", errors.New(im.i18n.T("subscribers.invalidEmail"))
+	}
+
+	// Check if the e-mail's domain is blocklisted.
+	d := strings.Split(em.Address, "@")
+	if len(d) == 2 {
+		_, ok := im.opt.DomainBlocklist[d[1]]
+		if ok {
+			return "", errors.New(im.i18n.T("subscribers.domainBlocklisted"))
+		}
+	}
+
+	return em.Address, nil
+}
+
 // mapCSVHeaders takes a list of headers obtained from a CSV file, a map of known headers,
 // and returns a new map with each of the headers in the known map mapped by the position (0-n)
 // in the given CSV list.
@@ -582,20 +634,6 @@ func (s *Session) mapCSVHeaders(csvHdrs []string, knownHdrs map[string]bool) map
 	}
 
 	return hdrKeys
-}
-
-// ValidateFields validates incoming subscriber field values.
-func ValidateFields(s SubReq) error {
-	if len(s.Email) > 1000 {
-		return errors.New(`e-mail too long`)
-	}
-	if !IsEmail(s.Email) {
-		return errors.New(`invalid e-mail "` + s.Email + `"`)
-	}
-	if len(s.Name) == 0 || len(s.Name) > stdInputMaxLen {
-		return errors.New(`invalid or empty name "` + s.Name + `"`)
-	}
-	return nil
 }
 
 // countLines counts the number of line breaks in a file. This does not
@@ -620,15 +658,4 @@ func countLines(r io.Reader) (int, error) {
 			return count, err
 		}
 	}
-}
-
-// IsEmail checks whether the given string is a valid e-mail address.
-func IsEmail(email string) bool {
-	// Since `mail.ParseAddress` parses an email address which can also contain optional name component
-	// here we check if incoming email string is same as the parsed email.Address. So this eliminates
-	// any valid email address with name and also valid address with empty name like `<abc@example.com>`.
-	if em, err := mail.ParseAddress(email); err != nil || em.Address != email {
-		return false
-	}
-	return true
 }

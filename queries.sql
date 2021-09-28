@@ -30,7 +30,8 @@ SELECT * FROM lists
           ELSE TRUE
     END)
     AND (CASE WHEN $5 != '' THEN subscriber_lists.status = $5::subscription_status END)
-    AND (CASE WHEN $6 != '' THEN lists.optin = $6::list_optin ELSE TRUE END);
+    AND (CASE WHEN $6 != '' THEN lists.optin = $6::list_optin ELSE TRUE END)
+    ORDER BY id;
 
 -- name: get-subscriber-lists-lazy
 -- Get lists associations of subscribers given a list of subscriber IDs.
@@ -208,13 +209,13 @@ views AS (
     SELECT subject as campaign, COUNT(subscriber_id) as views FROM campaign_views
         LEFT JOIN campaigns ON (campaigns.id = campaign_views.campaign_id)
         WHERE subscriber_id = (SELECT id FROM prof)
-        GROUP BY campaigns.id ORDER BY id
+        GROUP BY campaigns.id ORDER BY campaigns.id
 ),
 clicks AS (
     SELECT url, COUNT(subscriber_id) as clicks FROM link_clicks
         LEFT JOIN links ON (links.id = link_clicks.link_id)
         WHERE subscriber_id = (SELECT id FROM prof)
-        GROUP BY links.id ORDER BY id
+        GROUP BY links.id ORDER BY links.id
 )
 SELECT (SELECT email FROM prof) as email,
         COALESCE((SELECT JSON_AGG(t) FROM prof t), '{}') AS profile,
@@ -233,7 +234,7 @@ SELECT (SELECT email FROM prof) as email,
 -- for pagination in the frontend, albeit being a field that'll repeat
 -- with every resultant row.
 -- %s = arbitrary expression, %s = order by field, %s = order direction
-SELECT COUNT(*) OVER () AS total, subscribers.* FROM subscribers
+SELECT subscribers.* FROM subscribers
     LEFT JOIN subscriber_lists
     ON (
         -- Optional list filtering.
@@ -243,6 +244,17 @@ SELECT COUNT(*) OVER () AS total, subscribers.* FROM subscribers
     WHERE subscriber_lists.list_id = ALL($1::INT[])
     %s
     ORDER BY %s %s OFFSET $2 LIMIT (CASE WHEN $3 = 0 THEN NULL ELSE $3 END);
+
+-- name: query-subscribers-count
+-- Replica of query-subscribers for obtaining the results count.
+SELECT COUNT(*) AS total FROM subscribers
+    LEFT JOIN subscriber_lists
+    ON (
+        -- Optional list filtering.
+        (CASE WHEN CARDINALITY($1::INT[]) > 0 THEN true ELSE false END)
+        AND subscriber_lists.subscriber_id = subscribers.id
+    )
+    WHERE subscriber_lists.list_id = ALL($1::INT[]) %s;
 
 -- name: query-subscribers-for-export
 -- raw: true
@@ -324,7 +336,8 @@ UPDATE subscriber_lists SET status='unsubscribed', updated_at=NOW()
 
 -- lists
 -- name: get-lists
-SELECT * FROM lists WHERE (CASE WHEN $1 = '' THEN 1=1 ELSE type=$1::list_type END) ORDER by name DESC;
+SELECT * FROM lists WHERE (CASE WHEN $1 = '' THEN 1=1 ELSE type=$1::list_type END)
+    ORDER BY CASE WHEN $2 = 'id' THEN id END, CASE WHEN $2 = 'name' THEN name END;
 
 -- name: query-lists
 WITH ls AS (
@@ -332,7 +345,10 @@ WITH ls AS (
     WHERE ($1 = 0 OR id = $1) OFFSET $2 LIMIT (CASE WHEN $3 = 0 THEN NULL ELSE $3 END)
 ),
 counts AS (
-	SELECT COUNT(*) as subscriber_count, list_id FROM subscriber_lists WHERE status != 'unsubscribed' GROUP BY list_id
+	SELECT COUNT(*) as subscriber_count, list_id FROM subscriber_lists
+    WHERE status != 'unsubscribed'
+    AND ($1 = 0 OR list_id = $1)
+    GROUP BY list_id
 )
 SELECT ls.*, COALESCE(subscriber_count, 0) AS subscriber_count FROM ls
     LEFT JOIN counts ON (counts.list_id = ls.id) ORDER BY %s %s;
@@ -369,9 +385,9 @@ DELETE FROM lists WHERE id = ALL($1);
 -- This creates the campaign and inserts campaign_lists relationships.
 WITH campLists AS (
     -- Get the list_ids and their optin statuses for the campaigns found in the previous step.
-    SELECT id AS list_id, campaign_id, optin FROM lists
+    SELECT lists.id AS list_id, campaign_id, optin FROM lists
     INNER JOIN campaign_lists ON (campaign_lists.list_id = lists.id)
-    WHERE id=ANY($13::INT[])
+    WHERE lists.id = ANY($13::INT[])
 ),
 tpl AS (
     -- If there's no template_id given, use the defualt template.
@@ -504,7 +520,7 @@ WITH camps AS (
 ),
 campLists AS (
     -- Get the list_ids and their optin statuses for the campaigns found in the previous step.
-    SELECT id AS list_id, campaign_id, optin FROM lists
+    SELECT lists.id AS list_id, campaign_id, optin FROM lists
     INNER JOIN campaign_lists ON (campaign_lists.list_id = lists.id)
     WHERE campaign_lists.campaign_id = ANY(SELECT id FROM camps)
 ),
@@ -544,6 +560,43 @@ u AS (
 )
 SELECT * FROM camps;
 
+-- name: get-campaign-view-counts
+WITH intval AS (
+    -- For intervals < a week, aggregate counts hourly, otherwise daily.
+    SELECT CASE WHEN (EXTRACT (EPOCH FROM ($3::TIMESTAMP - $2::TIMESTAMP)) / 86400) >= 7 THEN 'day' ELSE 'hour' END
+)
+SELECT campaign_id, COUNT(*) AS "count", DATE_TRUNC((SELECT * FROM intval), created_at) AS "timestamp"
+    FROM campaign_views
+    WHERE campaign_id=ANY($1) AND created_at >= $2 AND created_at <= $3
+    GROUP BY campaign_id, "timestamp" ORDER BY "timestamp" ASC;
+
+-- name: get-campaign-click-counts
+WITH intval AS (
+    -- For intervals < a week, aggregate counts hourly, otherwise daily.
+    SELECT CASE WHEN (EXTRACT (EPOCH FROM ($3::TIMESTAMP - $2::TIMESTAMP)) / 86400) >= 7 THEN 'day' ELSE 'hour' END
+)
+SELECT campaign_id, COUNT(*) AS "count", DATE_TRUNC((SELECT * FROM intval), created_at) AS "timestamp"
+    FROM link_clicks
+    WHERE campaign_id=ANY($1) AND created_at >= $2 AND created_at <= $3
+    GROUP BY campaign_id, "timestamp" ORDER BY "timestamp" ASC;
+
+-- name: get-campaign-bounce-counts
+WITH intval AS (
+    -- For intervals < a week, aggregate counts hourly, otherwise daily.
+    SELECT CASE WHEN (EXTRACT (EPOCH FROM ($3::TIMESTAMP - $2::TIMESTAMP)) / 86400) >= 7 THEN 'day' ELSE 'hour' END
+)
+SELECT campaign_id, COUNT(*) AS "count", DATE_TRUNC((SELECT * FROM intval), created_at) AS "timestamp"
+    FROM bounces
+    WHERE campaign_id=ANY($1) AND created_at >= $2 AND created_at <= $3
+    GROUP BY campaign_id, "timestamp" ORDER BY "timestamp" ASC;
+
+-- name: get-campaign-link-counts
+SELECT COUNT(*) AS "count", url
+    FROM link_clicks
+    LEFT JOIN links ON (link_clicks.link_id = links.id)
+    WHERE campaign_id=ANY($1) AND link_clicks.created_at >= $2 AND link_clicks.created_at <= $3
+    GROUP BY links.url ORDER BY "count" DESC LIMIT 50;
+
 -- name: next-campaign-subscribers
 -- Returns a batch of subscribers in a given campaign starting from the last checkpoint
 -- (last_subscriber_id). Every fetch updates the checkpoint and the sent count, which means
@@ -554,7 +607,7 @@ WITH camps AS (
     WHERE id=$1 AND status='running'
 ),
 campLists AS (
-    SELECT id AS list_id, optin FROM lists
+    SELECT lists.id AS list_id, optin FROM lists
     INNER JOIN campaign_lists ON (campaign_lists.list_id = lists.id)
     WHERE campaign_lists.campaign_id = $1
 ),
@@ -736,26 +789,43 @@ INSERT INTO link_clicks (campaign_id, subscriber_id, link_id) VALUES(
 
 -- name: get-dashboard-charts
 WITH clicks AS (
-    -- Clicks by day for the last 3 months
     SELECT JSON_AGG(ROW_TO_JSON(row))
-    FROM (SELECT COUNT(*) AS count, created_at::DATE as date
-          FROM link_clicks GROUP by date ORDER BY date DESC LIMIT 100
+    FROM (
+        WITH viewDates AS (
+          SELECT TIMEZONE('UTC', created_at)::DATE AS to_date,
+                 TIMEZONE('UTC', created_at)::DATE - INTERVAL '30 DAY' AS from_date
+                 FROM link_clicks ORDER BY id DESC LIMIT 1
+        )
+        SELECT COUNT(*) AS count, created_at::DATE as date FROM link_clicks
+          -- use > between < to force the use of the date index.
+          WHERE TIMEZONE('UTC', created_at)::DATE BETWEEN (SELECT from_date FROM viewDates) AND (SELECT to_date FROM viewDates)
+          GROUP by date ORDER BY date
     ) row
 ),
 views AS (
-    -- Views by day for the last 3 months
     SELECT JSON_AGG(ROW_TO_JSON(row))
-    FROM (SELECT COUNT(*) AS count, created_at::DATE as date
-          FROM campaign_views GROUP by date ORDER BY date DESC LIMIT 100
+    FROM (
+        WITH viewDates AS (
+          SELECT TIMEZONE('UTC', created_at)::DATE AS to_date,
+                 TIMEZONE('UTC', created_at)::DATE - INTERVAL '30 DAY' AS from_date
+                 FROM campaign_views ORDER BY id DESC LIMIT 1
+        )
+        SELECT COUNT(*) AS count, created_at::DATE as date FROM campaign_views
+          -- use > between < to force the use of the date index.
+          WHERE TIMEZONE('UTC', created_at)::DATE BETWEEN (SELECT from_date FROM viewDates) AND (SELECT to_date FROM viewDates)
+          GROUP by date ORDER BY date
     ) row
 )
 SELECT JSON_BUILD_OBJECT('link_clicks', COALESCE((SELECT * FROM clicks), '[]'),
                         'campaign_views', COALESCE((SELECT * FROM views), '[]'));
 
 -- name: get-dashboard-counts
+WITH subs AS (
+    SELECT COUNT(*) AS num, status FROM subscribers GROUP BY status
+)
 SELECT JSON_BUILD_OBJECT('subscribers', JSON_BUILD_OBJECT(
-                            'total', (SELECT COUNT(*) FROM subscribers),
-                            'blocklisted', (SELECT COUNT(*) FROM subscribers WHERE status='blocklisted'),
+                            'total', (SELECT SUM(num) FROM subs),
+                            'blocklisted', (SELECT num FROM subs WHERE status='blocklisted'),
                             'orphans', (
                                 SELECT COUNT(id) FROM subscribers
                                 LEFT JOIN subscriber_lists ON (subscribers.id = subscriber_lists.subscriber_id)

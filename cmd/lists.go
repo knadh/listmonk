@@ -24,22 +24,45 @@ var (
 	listQuerySortFields = []string{"name", "type", "subscriber_count", "created_at", "updated_at"}
 )
 
-// handleGetLists handles retrieval of lists.
+// handleGetLists retrieves lists with additional metadata like subscriber counts. This may be slow.
 func handleGetLists(c echo.Context) error {
 	var (
 		app = c.Get("app").(*App)
 		out listsWrap
 
-		pg        = getPagination(c.QueryParams(), 20)
-		orderBy   = c.FormValue("order_by")
-		order     = c.FormValue("order")
-		listID, _ = strconv.Atoi(c.Param("id"))
-		single    = false
+		pg         = getPagination(c.QueryParams(), 20)
+		orderBy    = c.FormValue("order_by")
+		order      = c.FormValue("order")
+		minimal, _ = strconv.ParseBool(c.FormValue("minimal"))
+		listID, _  = strconv.Atoi(c.Param("id"))
+		single     = false
 	)
 
 	// Fetch one list.
 	if listID > 0 {
 		single = true
+	}
+
+	if !single && minimal {
+		// Minimal query simply returns the list of all lists with no additional metadata. This is fast.
+		if err := app.queries.GetLists.Select(&out.Results, "", "id"); err != nil {
+			app.log.Printf("error fetching lists: %v", err)
+			return echo.NewHTTPError(http.StatusInternalServerError,
+				app.i18n.Ts("globals.messages.errorFetching",
+					"name", "{globals.terms.lists}", "error", pqErrMsg(err)))
+		}
+		if len(out.Results) == 0 {
+			return c.JSON(http.StatusOK, okResp{[]struct{}{}})
+		}
+
+		// Meta.
+		out.Total = out.Results[0].Total
+		out.Page = 1
+		out.PerPage = out.Total
+		if out.PerPage == 0 {
+			out.PerPage = out.Total
+		}
+		return c.JSON(http.StatusOK, okResp{out})
 	}
 
 	// Sort params.
@@ -79,6 +102,10 @@ func handleGetLists(c echo.Context) error {
 	out.Total = out.Results[0].Total
 	out.Page = pg.Page
 	out.PerPage = pg.PerPage
+	if out.PerPage == 0 {
+		out.PerPage = out.Total
+	}
+
 	return c.JSON(http.StatusOK, okResp{out})
 }
 
@@ -103,6 +130,13 @@ func handleCreateList(c echo.Context) error {
 		app.log.Printf("error generating UUID: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			app.i18n.Ts("globals.messages.errorUUID", "error", err.Error()))
+	}
+
+	if o.Type == "" {
+		o.Type = models.ListTypePrivate
+	}
+	if o.Optin == "" {
+		o.Optin = models.ListOptinSingle
 	}
 
 	// Insert and read ID.

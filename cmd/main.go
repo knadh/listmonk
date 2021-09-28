@@ -123,7 +123,7 @@ func init() {
 	// as the installer needs to work on an empty DB.
 	if ko.Bool("install") {
 		// Save the version of the last listed migration.
-		install(migList[len(migList)-1].version, db, fs, !ko.Bool("yes"))
+		install(migList[len(migList)-1].version, db, fs, !ko.Bool("yes"), ko.Bool("idempotent"))
 		os.Exit(0)
 	}
 

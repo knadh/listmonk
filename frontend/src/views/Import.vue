@@ -3,7 +3,7 @@
     <h1 class="title is-4">{{ $t('import.title') }}</h1>
     <b-loading :active="isLoading"></b-loading>
 
-    <section v-if="isFree()" class="wrap-small">
+    <section v-if="isFree()" class="wrap">
       <form @submit.prevent="onSubmit" class="box">
         <div>
           <div class="columns">
@@ -348,6 +348,13 @@ export default Vue.extend({
 
   mounted() {
     this.pollStatus();
+
+    const ids = this.$utils.parseQueryIDs(this.$route.query.list_id);
+    if (ids.length > 0 && this.lists.results) {
+      this.$nextTick(() => {
+        this.form.lists = this.lists.results.filter((l) => ids.indexOf(l.id) > -1);
+      });
+    }
   },
 });
 </script>

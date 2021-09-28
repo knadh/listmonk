@@ -137,7 +137,7 @@ func handleCreateTemplate(c echo.Context) error {
 	}
 
 	if err := validateTemplate(o, app); err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+		return err
 	}
 
 	// Insert and read ID.

@@ -1,3 +1,5 @@
+const apiUrl = Cypress.env('apiUrl');
+
 describe('Templates', () => {
   it('Opens settings page', () => {
     cy.resetDB();
@@ -27,7 +29,7 @@ describe('Templates', () => {
     cy.wait(250);
 
     // Verify the changes.
-    cy.request('/api/settings').should((response) => {
+    cy.request(`${apiUrl}/api/settings`).should((response) => {
       const { data } = response.body;
       expect(data['app.root_url']).to.equal(rootURL);
       expect(data['app.favicon_url']).to.equal(faveURL);

@@ -24,8 +24,8 @@ describe('Templates', () => {
     cy.get('tbody td.actions [data-cy=btn-edit]').first().click();
     cy.wait(250);
     cy.get('input[name=name]').clear().type('edited');
-    cy.get('textarea[name=body]').clear().type('<span>test</span> {{ template "content" . }}',
-      { parseSpecialCharSequences: false, delay: 0 });
+    cy.get('code-flask').shadow().find('.codeflask textarea').invoke('val', '<span>test</span> {{ template "content" . }}').trigger('input');
+
     cy.get('.modal-card-foot button.is-primary').click();
     cy.wait(250);
     cy.get('tbody td[data-label="Name"] a').contains('edited');

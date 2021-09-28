@@ -1,3 +1,5 @@
+const apiUrl = Cypress.env('apiUrl');
+
 describe('Bounces', () => {
   let subs = [];
 
@@ -18,7 +20,7 @@ describe('Bounces', () => {
   it('Post bounces', () => {
     // Get campaign.
     let camp = {};
-    cy.request('/api/campaigns').then((resp) => {
+    cy.request(`${apiUrl}/api/campaigns`).then((resp) => {
       camp = resp.body.data.results[0];
     })
     cy.then(() => {
@@ -27,7 +29,7 @@ describe('Bounces', () => {
 
 
     // Get subscribers.
-    cy.request('/api/subscribers').then((resp) => {
+    cy.request(`${apiUrl}/api/subscribers`).then((resp) => {
       subs = resp.body.data.results;
       console.log(subs)
     });
@@ -36,12 +38,12 @@ describe('Bounces', () => {
       console.log(`got ${subs.length} subscribers`);
 
       // Post bounces. Blocklist the 1st sub.
-      cy.request('POST', '/webhooks/bounce', { source: "api", type: "hard", email: subs[0].email });
-      cy.request('POST', '/webhooks/bounce', { source: "api", type: "hard", campaign_uuid: camp.uuid, email: subs[0].email });
-      cy.request('POST', '/webhooks/bounce', { source: "api", type: "hard", campaign_uuid: camp.uuid, subscriber_uuid: subs[0].uuid });
+      cy.request('POST', `${apiUrl}/webhooks/bounce`, { source: "api", type: "hard", email: subs[0].email });
+      cy.request('POST', `${apiUrl}/webhooks/bounce`, { source: "api", type: "hard", campaign_uuid: camp.uuid, email: subs[0].email });
+      cy.request('POST', `${apiUrl}/webhooks/bounce`, { source: "api", type: "hard", campaign_uuid: camp.uuid, subscriber_uuid: subs[0].uuid });
 
       for (let i = 0; i < 2; i++) {
-        cy.request('POST', '/webhooks/bounce', { source: "api", type: "soft", campaign_uuid: camp.uuid, subscriber_uuid: subs[1].uuid });
+        cy.request('POST', `${apiUrl}/webhooks/bounce`, { source: "api", type: "soft", campaign_uuid: camp.uuid, subscriber_uuid: subs[1].uuid });
       }
     });
 

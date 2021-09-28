@@ -30,7 +30,7 @@ describe('Lists', () => {
 
   it('Checks individual subscribers in lists', () => {
     const subs = [{ listID: 1, email: 'john@example.com' },
-      { listID: 2, email: 'anon@example.com' }];
+    { listID: 2, email: 'anon@example.com' }];
 
     // Click on each list on the lists page, go the the subscribers page
     // for that list, and check the subscriber details.
@@ -94,16 +94,17 @@ describe('Lists', () => {
         cy.get('select[name=optin]').select(o);
         cy.get('input[name=tags]').type(`tag${n}{enter}${t}{enter}${o}{enter}`);
         cy.get('button[type=submit]').click();
+        cy.wait(200);
 
         // Confirm the addition by inspecting the newly created list row.
         const tr = `tbody tr:nth-child(${n + 1})`;
         cy.get(`${tr} td[data-label=Name]`).contains(name);
-        cy.get(`${tr} td[data-label=Type] [data-cy=type-${t}]`);
-        cy.get(`${tr} td[data-label=Type] [data-cy=optin-${o}]`);
+        cy.get(`${tr} td[data-label=Type] .tag[data-cy=type-${t}]`);
+        cy.get(`${tr} td[data-label=Type] .tag[data-cy=optin-${o}]`);
         cy.get(`${tr} .tags`)
           .should('contain', `tag${n}`)
-          .and('contain', t)
-          .and('contain', o);
+          .and('contain', t, { matchCase: false })
+          .and('contain', o, { matchCase: false });
 
         n++;
       });

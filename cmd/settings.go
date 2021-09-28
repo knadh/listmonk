@@ -15,14 +15,15 @@ import (
 )
 
 type settings struct {
-	AppRootURL          string   `json:"app.root_url"`
-	AppLogoURL          string   `json:"app.logo_url"`
-	AppFaviconURL       string   `json:"app.favicon_url"`
-	AppFromEmail        string   `json:"app.from_email"`
-	AppNotifyEmails     []string `json:"app.notify_emails"`
-	EnablePublicSubPage bool     `json:"app.enable_public_subscription_page"`
-	CheckUpdates        bool     `json:"app.check_updates"`
-	AppLang             string   `json:"app.lang"`
+	AppRootURL            string   `json:"app.root_url"`
+	AppLogoURL            string   `json:"app.logo_url"`
+	AppFaviconURL         string   `json:"app.favicon_url"`
+	AppFromEmail          string   `json:"app.from_email"`
+	AppNotifyEmails       []string `json:"app.notify_emails"`
+	EnablePublicSubPage   bool     `json:"app.enable_public_subscription_page"`
+	SendOptinConfirmation bool     `json:"app.send_optin_confirmation"`
+	CheckUpdates          bool     `json:"app.check_updates"`
+	AppLang               string   `json:"app.lang"`
 
 	AppBatchSize     int `json:"app.batch_size"`
 	AppConcurrency   int `json:"app.concurrency"`
@@ -39,6 +40,7 @@ type settings struct {
 	PrivacyAllowExport        bool     `json:"privacy.allow_export"`
 	PrivacyAllowWipe          bool     `json:"privacy.allow_wipe"`
 	PrivacyExportable         []string `json:"privacy.exportable"`
+	DomainBlocklist           []string `json:"privacy.domain_blocklist"`
 
 	UploadProvider             string `json:"upload.provider"`
 	UploadFilesystemUploadPath string `json:"upload.filesystem.upload_path"`
@@ -253,6 +255,16 @@ func handleUpdateSettings(c echo.Context) error {
 	if err := os.WriteFile("frontend/dist/frontend/custom.css", []byte(set.AppearanceCustomCSS), 0666); err != nil {
         return err
     }
+
+	// Domain blocklist.
+	doms := make([]string, 0)
+	for _, d := range set.DomainBlocklist {
+		d = strings.TrimSpace(strings.ToLower(d))
+		if d != "" {
+			doms = append(doms, d)
+		}
+	}
+	set.DomainBlocklist = doms
 
 	// Marshal settings.
 	b, err := json.Marshal(set)

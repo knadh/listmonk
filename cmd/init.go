@@ -39,24 +39,29 @@ import (
 
 const (
 	queryFilePath = "queries.sql"
+
+	// Root URI of the admin frontend.
+	adminRoot = "/admin"
 )
 
 // constants contains static, constant config values required by the app.
 type constants struct {
-	RootURL             string   `koanf:"root_url"`
-	LogoURL             string   `koanf:"logo_url"`
-	FaviconURL          string   `koanf:"favicon_url"`
-	FromEmail           string   `koanf:"from_email"`
-	NotifyEmails        []string `koanf:"notify_emails"`
-	EnablePublicSubPage bool     `koanf:"enable_public_subscription_page"`
-	Lang                string   `koanf:"lang"`
-	DBBatchSize         int      `koanf:"batch_size"`
-	Privacy             struct {
+	RootURL               string   `koanf:"root_url"`
+	LogoURL               string   `koanf:"logo_url"`
+	FaviconURL            string   `koanf:"favicon_url"`
+	FromEmail             string   `koanf:"from_email"`
+	NotifyEmails          []string `koanf:"notify_emails"`
+	EnablePublicSubPage   bool     `koanf:"enable_public_subscription_page"`
+	SendOptinConfirmation bool     `koanf:"send_optin_confirmation"`
+	Lang                  string   `koanf:"lang"`
+	DBBatchSize           int      `koanf:"batch_size"`
+	Privacy               struct {
 		IndividualTracking bool            `koanf:"individual_tracking"`
 		AllowBlocklist     bool            `koanf:"allow_blocklist"`
 		AllowExport        bool            `koanf:"allow_export"`
 		AllowWipe          bool            `koanf:"allow_wipe"`
 		Exportable         map[string]bool `koanf:"-"`
+		DomainBlocklist    map[string]bool `koanf:"-"`
 	} `koanf:"privacy"`
 	AdminUsername []byte `koanf:"admin_username"`
 	AdminPassword []byte `koanf:"admin_password"`
@@ -84,13 +89,14 @@ func initFlags() {
 	// Register the commandline flags.
 	f.StringSlice("config", []string{"config.toml"},
 		"path to one or more config files (will be merged in order)")
-	f.Bool("install", false, "run first time installation")
+	f.Bool("install", false, "setup database (first time)")
+	f.Bool("idempotent", false, "make --install run only if the databse isn't already setup")
 	f.Bool("upgrade", false, "upgrade database to the current version")
 	f.Bool("version", false, "current version of the build")
 	f.Bool("new-config", false, "generate sample config file")
 	f.String("static-dir", "", "(optional) path to directory with static files")
 	f.String("i18n-dir", "", "(optional) path to directory with i18n language files")
-	f.Bool("yes", false, "assume 'yes' to prompts, eg: during --install")
+	f.Bool("yes", false, "assume 'yes' to prompts during --install/upgrade")
 	if err := f.Parse(os.Args[1:]); err != nil {
 		lo.Fatalf("error loading flags: %v", err)
 	}
@@ -128,9 +134,9 @@ func initFS(appDir, frontendDir, staticDir, i18nDir string) stuffbin.FileSystem 
 		}
 
 		frontendFiles = []string{
-			// The app's frontend assets are accessible at /frontend/js/* during runtime.
-			// These paths are joined with frontendDir.
-			"./:/frontend",
+			// Admin frontend's static assets accessible at /admin/* during runtime.
+			// These paths are sourced from frontendDir.
+			"./:/admin",
 		}
 
 		staticFiles = []string{
@@ -301,6 +307,7 @@ func initConstants() *constants {
 	c.Lang = ko.String("app.lang")
 	c.Privacy.Exportable = maps.StringSliceToLookupMap(ko.Strings("privacy.exportable"))
 	c.MediaProvider = ko.String("upload.provider")
+	c.Privacy.DomainBlocklist = maps.StringSliceToLookupMap(ko.Strings("privacy.domain_blocklist"))
 
 	// Static URLS.
 	// url.com/subscription/{campaign_uuid}/{subscriber_uuid}
@@ -376,6 +383,7 @@ func initCampaignManager(q *Queries, cs *constants, app *App) *manager.Manager {
 func initImporter(q *Queries, db *sqlx.DB, app *App) *subimporter.Importer {
 	return subimporter.New(
 		subimporter.Options{
+			DomainBlocklist:    app.constants.Privacy.DomainBlocklist,
 			UpsertStmt:         q.UpsertSubscriber.Stmt,
 			BlocklistStmt:      q.UpsertBlocklistSubscriber.Stmt,
 			UpdateListDateStmt: q.UpdateListsDate.Stmt,
@@ -383,7 +391,7 @@ func initImporter(q *Queries, db *sqlx.DB, app *App) *subimporter.Importer {
 				app.sendNotification(app.constants.NotifyEmails, subject, notifTplImport, data)
 				return nil
 			},
-		}, db.DB)
+		}, db.DB, app.i18n)
 }
 
 // initSMTPMessenger initializes the SMTP messenger.
@@ -588,15 +596,21 @@ func initHTTPServer(app *App) *echo.Echo {
 
 	// Initialize the static file server.
 	fSrv := app.fs.FileServer()
+
+	// Public (subscriber) facing static files.
 	srv.GET("/public/*", echo.WrapHandler(fSrv))
-	srv.GET("/frontend/*", echo.WrapHandler(fSrv))
+
+	// Admin (frontend) facing static files.
+	srv.GET("/admin/static/*", echo.WrapHandler(fSrv))
+
+	// Public (subscriber) facing media upload files.
 	if ko.String("upload.provider") == "filesystem" {
 		srv.Static(ko.String("upload.filesystem.upload_uri"),
 			ko.String("upload.filesystem.upload_path"))
 	}
 
 	// Register all HTTP handlers.
-	registerHTTPHandlers(srv, app)
+	initHTTPHandlers(srv, app)
 
 	// Start the server.
 	go func() {

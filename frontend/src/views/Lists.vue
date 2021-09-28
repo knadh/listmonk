@@ -1,16 +1,19 @@
 <template>
   <section class="lists">
-    <header class="columns">
-      <div class="column is-two-thirds">
+    <header class="columns page-header">
+      <div class="column is-10">
         <h1 class="title is-4">
           {{ $t('globals.terms.lists') }}
           <span v-if="!isNaN(lists.total)">({{ lists.total }})</span>
         </h1>
       </div>
       <div class="column has-text-right">
-        <b-button type="is-primary" icon-left="plus" @click="showNewForm" data-cy="btn-new">
-          {{ $t('globals.buttons.new') }}
-        </b-button>
+        <b-field expanded>
+          <b-button expanded type="is-primary" icon-left="plus" class="btn-new"
+            @click="showNewForm" data-cy="btn-new">
+            {{ $t('globals.buttons.new') }}
+          </b-button>
+        </b-field>
       </div>
     </header>
 
@@ -28,9 +31,10 @@
         :td-attrs="$utils.tdID"
         @page-change="onPageChange">
         <div>
-          <router-link :to="{name: 'subscribers_list', params: { listID: props.row.id }}">
+          <a :href="`/lists/${props.row.id}`"
+            @click.prevent="showEditForm(props.row)">
             {{ props.row.name }}
-          </router-link>
+          </a>
           <b-taglist>
               <b-tag class="is-small" v-for="t in props.row.tags" :key="t">{{ t }}</b-tag>
           </b-taglist>
@@ -39,17 +43,19 @@
 
       <b-table-column v-slot="props" field="type" :label="$t('globals.fields.type')"
         header-class="cy-type" sortable>
-        <div>
+        <div class="tags">
           <b-tag :class="props.row.type" :data-cy="`type-${props.row.type}`">
-            {{ $t('lists.types.' + props.row.type) }}
+            {{ $t(`lists.types.${props.row.type}`) }}
           </b-tag>
           {{ ' ' }}
-          <b-tag :data-cy="`optin-${props.row.optin}`">
+
+          <b-tag :class="props.row.optin" :data-cy="`optin-${props.row.optin}`">
             <b-icon :icon="props.row.optin === 'double' ?
               'account-check-outline' : 'account-off-outline'" size="is-small" />
             {{ ' ' }}
-            {{ $t('lists.optins.' + props.row.optin) }}
+            {{ $t(`lists.optins.${props.row.optin}`) }}
           </b-tag>{{ ' ' }}
+
           <a v-if="props.row.optin === 'double'" class="is-size-7 send-optin"
             href="#" @click="$utils.confirm(null, () => createOptinCampaign(props.row))"
             data-cy="btn-send-optin-campaign">
@@ -65,7 +71,7 @@
         :label="$t('globals.terms.subscribers')" header-class="cy-subscribers"
         numeric sortable centered>
         <router-link :to="`/subscribers/lists/${props.row.id}`">
-          {{ props.row.subscriberCount }}
+          {{ $utils.formatNumber(props.row.subscriberCount) }}
         </router-link>
       </b-table-column>
 
@@ -85,11 +91,20 @@
               <b-icon icon="rocket-launch-outline" size="is-small" />
             </b-tooltip>
           </router-link>
+
           <a href="" @click.prevent="showEditForm(props.row)" data-cy="btn-edit">
             <b-tooltip :label="$t('globals.buttons.edit')" type="is-dark">
               <b-icon icon="pencil-outline" size="is-small" />
             </b-tooltip>
           </a>
+
+          <router-link :to="{name: 'import', query: { list_id: props.row.id }}"
+            data-cy="btn-import">
+            <b-tooltip :label="$t('import.title')" type="is-dark">
+              <b-icon icon="file-upload-outline" size="is-small" />
+            </b-tooltip>
+          </router-link>
+
           <a href="" @click.prevent="deleteList(props.row)" data-cy="btn-delete">
             <b-tooltip :label="$t('globals.buttons.delete')" type="is-dark">
               <b-icon icon="trash-can-outline" size="is-small" />
@@ -104,7 +119,8 @@
     </b-table>
 
     <!-- Add / edit form modal -->
-    <b-modal scroll="keep" :aria-modal="true" :active.sync="isFormVisible" :width="600">
+    <b-modal scroll="keep" :aria-modal="true" :active.sync="isFormVisible" :width="600"
+      @close="onFormClose">
       <list-form :data="curItem" :isEditing="isEditing" @finished="formFinished"></list-form>
     </b-modal>
   </section>
@@ -130,7 +146,7 @@ export default Vue.extend({
       isFormVisible: false,
       queryParams: {
         page: 1,
-        orderBy: 'created_at',
+        orderBy: 'id',
         order: 'asc',
       },
     };
@@ -165,6 +181,12 @@ export default Vue.extend({
 
     formFinished() {
       this.getLists();
+    },
+
+    onFormClose() {
+      if (this.$route.params.id) {
+        this.$router.push({ name: 'lists' });
+      }
     },
 
     getLists() {
@@ -211,7 +233,13 @@ export default Vue.extend({
   },
 
   mounted() {
-    this.getLists();
+    if (this.$route.params.id) {
+      this.$api.getList(parseInt(this.$route.params.id, 10)).then((data) => {
+        this.showEditForm(data);
+      });
+    } else {
+      this.getLists();
+    }
   },
 });
 </script>

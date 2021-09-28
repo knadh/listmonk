@@ -6,7 +6,7 @@ import store from '../store';
 import { models } from '../constants';
 
 const http = axios.create({
-  baseURL: process.env.BASE_URL,
+  baseURL: process.env.VUE_APP_ROOT_URL || '/',
   withCredentials: false,
   responseType: 'json',
 
@@ -39,6 +39,24 @@ http.interceptors.response.use((resp) => {
       // Transform field case.
       data = humps.camelizeKeys(resp.data.data);
     }
+
+    if (resp.config.preserveCase && resp.config.preserveResultsCase) {
+      // For each key in preserveResultsCase, get the values out in an array of arrays
+      // and save them as stringified JSON.
+      const save = resp.data.data.results.map(
+        (r) => resp.config.preserveResultsCase.map((k) => JSON.stringify(r[k])),
+      );
+
+      // Camelcase everything.
+      data = humps.camelizeKeys(resp.data.data);
+
+      // Put the saved results back.
+      data.results.forEach((r, n) => {
+        resp.config.preserveResultsCase.forEach((k, i) => {
+          data.results[n][k] = JSON.parse(save[n][i]);
+        });
+      });
+    }
   } else {
     data = resp.data.data;
   }
@@ -67,6 +85,8 @@ http.interceptors.response.use((resp) => {
       message: msg,
       type: 'is-danger',
       queue: false,
+      position: 'is-top',
+      pauseOnHover: true,
     });
   }
 
@@ -98,6 +118,9 @@ export const getLists = (params) => http.get('/api/lists',
     store: models.lists,
   });
 
+export const getList = async (id) => http.get(`/api/lists/${id}`,
+  { loading: models.list });
+
 export const createList = (data) => http.post('/api/lists', data,
   { loading: models.lists });
 
@@ -109,7 +132,13 @@ export const deleteList = (id) => http.delete(`/api/lists/${id}`,
 
 // Subscribers.
 export const getSubscribers = async (params) => http.get('/api/subscribers',
-  { params, loading: models.subscribers, store: models.subscribers });
+  {
+    params,
+    loading: models.subscribers,
+    store: models.subscribers,
+    preserveCase: true,
+    preserveResultsCase: ['attribs'],
+  });
 
 export const getSubscriber = async (id) => http.get(`/api/subscribers/${id}`,
   { loading: models.subscribers });
@@ -179,6 +208,18 @@ export const getCampaignStats = async () => http.get('/api/campaigns/running/sta
 export const createCampaign = async (data) => http.post('/api/campaigns', data,
   { loading: models.campaigns });
 
+export const getCampaignViewCounts = async (params) => http.get('/api/campaigns/analytics/views',
+  { params, loading: models.campaigns });
+
+export const getCampaignClickCounts = async (params) => http.get('/api/campaigns/analytics/clicks',
+  { params, loading: models.campaigns });
+
+export const getCampaignBounceCounts = async (params) => http.get('/api/campaigns/analytics/bounces',
+  { params, loading: models.campaigns });
+
+export const getCampaignLinkCounts = async (params) => http.get('/api/campaigns/analytics/links',
+  { params, loading: models.campaigns });
+
 export const convertCampaignContent = async (data) => http.post(`/api/campaigns/${data.id}/content`, data,
   { loading: models.campaigns });
 
@@ -235,3 +276,7 @@ export const getLogs = async () => http.get('/api/logs',
 
 export const getLang = async (lang) => http.get(`/api/lang/${lang}`,
   { loading: models.lang, preserveCase: true });
+
+export const logout = async () => http.get('/api/logout', {
+  auth: { username: 'wrong', password: 'wrong' },
+});

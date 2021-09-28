@@ -22,7 +22,7 @@
           ></iframe>
         </section>
         <footer class="modal-card-foot has-text-right">
-          <b-button @click="close">Close</b-button>
+          <b-button @click="close">{{ $t('globals.buttons.close') }}</b-button>
         </footer>
       </div>
     </b-modal>

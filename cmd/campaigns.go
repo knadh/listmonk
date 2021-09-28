@@ -14,7 +14,7 @@ import (
 	"time"
 
 	"github.com/gofrs/uuid"
-	"github.com/knadh/listmonk/internal/subimporter"
+	"github.com/jmoiron/sqlx"
 	"github.com/knadh/listmonk/models"
 	"github.com/labstack/echo"
 	"github.com/lib/pq"
@@ -47,6 +47,17 @@ type campaignContentReq struct {
 	models.Campaign
 	From string `json:"from"`
 	To   string `json:"to"`
+}
+
+type campCountStats struct {
+	CampaignID int       `db:"campaign_id" json:"campaign_id"`
+	Count      int       `db:"count" json:"count"`
+	Timestamp  time.Time `db:"timestamp" json:"timestamp"`
+}
+
+type campTopLinks struct {
+	URL   string `db:"url" json:"url"`
+	Count int    `db:"count" json:"count"`
 }
 
 type campaignStats struct {
@@ -96,23 +107,11 @@ func handleGetCampaigns(c echo.Context) error {
 	if id > 0 {
 		single = true
 	}
-	if query != "" {
-		query = `%` +
-			string(regexFullTextQuery.ReplaceAll([]byte(query), []byte("&"))) + `%`
-	}
 
-	// Sort params.
-	if !strSliceContains(orderBy, campaignQuerySortFields) {
-		orderBy = "created_at"
-	}
-	if order != sortAsc && order != sortDesc {
-		order = sortDesc
-	}
-
-	stmt := fmt.Sprintf(app.queries.QueryCampaigns, orderBy, order)
+	queryStr, stmt := makeCampaignQuery(query, orderBy, order, app.queries.QueryCampaigns)
 
 	// Unsafe to ignore scanning fields not present in models.Campaigns.
-	if err := db.Select(&out.Results, stmt, id, pq.StringArray(status), query, pg.Offset, pg.Limit); err != nil {
+	if err := db.Select(&out.Results, stmt, id, pq.StringArray(status), queryStr, pg.Offset, pg.Limit); err != nil {
 		app.log.Printf("error fetching campaigns: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			app.i18n.Ts("globals.messages.errorFetching",
@@ -252,6 +251,15 @@ func handleCreateCampaign(c echo.Context) error {
 			return err
 		}
 		o = op
+	} else if o.Type == "" {
+		o.Type = models.CampaignTypeRegular
+	}
+
+	if o.ContentType == "" {
+		o.ContentType = models.CampaignContentTypeRichtext
+	}
+	if o.Messenger == "" {
+		o.Messenger = "email"
 	}
 
 	// Validate.
@@ -605,6 +613,64 @@ func handleTestCampaign(c echo.Context) error {
 	return c.JSON(http.StatusOK, okResp{true})
 }
 
+// handleGetCampaignViewAnalytics retrieves view counts for a campaign.
+func handleGetCampaignViewAnalytics(c echo.Context) error {
+	var (
+		app = c.Get("app").(*App)
+
+		typ  = c.Param("type")
+		from = c.QueryParams().Get("from")
+		to   = c.QueryParams().Get("to")
+	)
+
+	ids, err := parseStringIDs(c.Request().URL.Query()["id"])
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest,
+			app.i18n.Ts("globals.messages.errorInvalidIDs", "error", err.Error()))
+	}
+
+	if len(ids) == 0 {
+		return echo.NewHTTPError(http.StatusBadRequest,
+			app.i18n.Ts("globals.messages.missingFields", "name", "`id`"))
+	}
+
+	// Pick campaign view counts or click counts.
+	var stmt *sqlx.Stmt
+	switch typ {
+	case "views":
+		stmt = app.queries.GetCampaignViewCounts
+	case "clicks":
+		stmt = app.queries.GetCampaignClickCounts
+	case "bounces":
+		stmt = app.queries.GetCampaignBounceCounts
+	case "links":
+		out := make([]campTopLinks, 0)
+		if err := app.queries.GetCampaignLinkCounts.Select(&out, pq.Int64Array(ids), from, to); err != nil {
+			app.log.Printf("error fetching campaign %s: %v", typ, err)
+			return echo.NewHTTPError(http.StatusInternalServerError,
+				app.i18n.Ts("globals.messages.errorFetching",
+					"name", "{globals.terms.analytics}", "error", pqErrMsg(err)))
+		}
+		return c.JSON(http.StatusOK, okResp{out})
+	default:
+		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidData"))
+	}
+
+	if !strHasLen(from, 10, 30) || !strHasLen(to, 10, 30) {
+		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("analytics.invalidDates"))
+	}
+
+	out := make([]campCountStats, 0)
+	if err := stmt.Select(&out, pq.Int64Array(ids), from, to); err != nil {
+		app.log.Printf("error fetching campaign %s: %v", typ, err)
+		return echo.NewHTTPError(http.StatusInternalServerError,
+			app.i18n.Ts("globals.messages.errorFetching",
+				"name", "{globals.terms.analytics}", "error", pqErrMsg(err)))
+	}
+
+	return c.JSON(http.StatusOK, okResp{out})
+}
+
 // sendTestMessage takes a campaign and a subsriber and sends out a sample campaign message.
 func sendTestMessage(sub models.Subscriber, camp *models.Campaign, app *App) error {
 	if err := camp.CompileTemplate(app.manager.TemplateFuncs(camp)); err != nil {
@@ -629,7 +695,7 @@ func validateCampaignFields(c campaignReq, app *App) (campaignReq, error) {
 	if c.FromEmail == "" {
 		c.FromEmail = app.constants.FromEmail
 	} else if !regexFromAddress.Match([]byte(c.FromEmail)) {
-		if !subimporter.IsEmail(c.FromEmail) {
+		if _, err := app.importer.SanitizeEmail(c.FromEmail); err != nil {
 			return c, errors.New(app.i18n.T("campaigns.fieldInvalidFromEmail"))
 		}
 	}
@@ -718,4 +784,22 @@ func makeOptinCampaignMessage(o campaignReq, app *App) (campaignReq, error) {
 
 	o.Body = b.String()
 	return o, nil
+}
+
+// makeCampaignQuery cleans an optional campaign search string and prepares the
+// campaign SQL statement (string) and returns them.
+func makeCampaignQuery(q, orderBy, order, query string) (string, string) {
+	if q != "" {
+		q = `%` + string(regexFullTextQuery.ReplaceAll([]byte(q), []byte("&"))) + `%`
+	}
+
+	// Sort params.
+	if !strSliceContains(orderBy, campaignQuerySortFields) {
+		orderBy = "created_at"
+	}
+	if order != sortAsc && order != sortDesc {
+		order = sortDesc
+	}
+
+	return q, fmt.Sprintf(query, orderBy, order)
 }

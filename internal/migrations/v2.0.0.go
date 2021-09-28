@@ -9,6 +9,17 @@ import (
 // V2_0_0 performs the DB migrations for v.1.0.0.
 func V2_0_0(db *sqlx.DB, fs stuffbin.FileSystem, ko *koanf.Koanf) error {
 	if _, err := db.Exec(`
+		DO $$
+		BEGIN
+			IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'bounce_type') THEN
+				CREATE TYPE bounce_type AS ENUM ('soft', 'hard', 'complaint');
+			END IF;
+		END$$;
+	`); err != nil {
+		return err
+	}
+
+	if _, err := db.Exec(`
 		CREATE TABLE IF NOT EXISTS bounces (
 		    id               SERIAL PRIMARY KEY,
 		    subscriber_id    INTEGER NOT NULL REFERENCES subscribers(id) ON DELETE CASCADE ON UPDATE CASCADE,
@@ -27,6 +38,8 @@ func V2_0_0(db *sqlx.DB, fs stuffbin.FileSystem, ko *koanf.Koanf) error {
 
 	if _, err := db.Exec(`
 		INSERT INTO settings (key, value) VALUES
+	    ('app.send_optin_confirmation', 'true'),
+	    ('privacy.domain_blocklist', '[]'),
 	    ('bounce.enabled', 'false'),
 	    ('bounce.webhooks_enabled', 'false'),
 	    ('bounce.count', '2'),
@@ -39,7 +52,27 @@ func V2_0_0(db *sqlx.DB, fs stuffbin.FileSystem, ko *koanf.Koanf) error {
 		return err
 	}
 
-	if _, err := db.Exec(`ALTER TABLE subscribers DROP COLUMN IF EXISTS campaigns; `); err != nil {
+	if _, err := db.Exec(`ALTER TABLE subscribers DROP COLUMN IF EXISTS campaigns`); err != nil {
+		return err
+	}
+
+	if _, err := db.Exec(`
+		DO $$
+		BEGIN
+			IF NOT EXISTS (SELECT 1 FROM pg_class WHERE relname = 'campaign_views_pkey') THEN
+				ALTER TABLE campaign_views ADD COLUMN IF NOT EXISTS id BIGSERIAL PRIMARY KEY;
+			END IF;
+			IF NOT EXISTS (SELECT 1 FROM pg_class WHERE relname = 'link_clicks_pkey') THEN
+				ALTER TABLE link_clicks ADD COLUMN IF NOT EXISTS id BIGSERIAL PRIMARY KEY;
+			END IF;
+			IF NOT EXISTS (SELECT 1 FROM pg_class WHERE relname = 'campaign_lists_pkey') THEN
+				ALTER TABLE campaign_lists ADD COLUMN IF NOT EXISTS id BIGSERIAL PRIMARY KEY;
+			END IF;
+		END$$;
+
+		CREATE INDEX IF NOT EXISTS idx_views_date ON campaign_views((TIMEZONE('UTC', created_at)::DATE));
+		CREATE INDEX IF NOT EXISTS idx_clicks_date ON link_clicks((TIMEZONE('UTC', created_at)::DATE));
+	`); err != nil {
 		return err
 	}
 
