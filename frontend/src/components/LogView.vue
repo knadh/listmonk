@@ -5,7 +5,7 @@
         <template v-for="(l, i) in lines">
           <span :set="line = splitLine(l)" :key="i" class="line">
             <span class="timestamp" :title="line.file">{{ line.timestamp }}</span>
-            <span class="message">{{ line.message }}</span>
+            <span class="log-message">{{ line.message }}</span>
           </span>
         </template>
       </div>

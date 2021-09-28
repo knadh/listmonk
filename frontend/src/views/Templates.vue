@@ -1,14 +1,17 @@
 <template>
   <section class="templates">
-    <header class="columns">
-      <div class="column is-two-thirds">
+    <header class="columns page-header">
+      <div class="column is-10">
         <h1 class="title is-4">{{ $t('globals.terms.templates') }}
           <span v-if="templates.length > 0">({{ templates.length }})</span></h1>
       </div>
       <div class="column has-text-right">
-        <b-button type="is-primary" icon-left="plus" @click="showNewForm">
-          {{ $t('globals.buttons.new') }}
-        </b-button>
+        <b-field expanded>
+          <b-button expanded type="is-primary" icon-left="plus" class="btn-new"
+            @click="showNewForm">
+            {{ $t('globals.buttons.new') }}
+          </b-button>
+        </b-field>
       </div>
     </header>
 

@@ -4,6 +4,7 @@ import (
 	"crypto/subtle"
 	"net/http"
 	"net/url"
+	"path"
 	"regexp"
 	"strconv"
 
@@ -33,11 +34,11 @@ type pagination struct {
 
 var (
 	reUUID     = regexp.MustCompile("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$")
-	reLangCode = regexp.MustCompile("[^a-zA-Z_0-9]")
+	reLangCode = regexp.MustCompile("[^a-zA-Z_0-9\\-]")
 )
 
 // registerHandlers registers HTTP handlers.
-func registerHTTPHandlers(e *echo.Echo, app *App) {
+func initHTTPHandlers(e *echo.Echo, app *App) {
 	// Group of private handlers with BasicAuth.
 	var g *echo.Group
 
@@ -48,7 +49,15 @@ func registerHTTPHandlers(e *echo.Echo, app *App) {
 		g = e.Group("", middleware.BasicAuth(basicAuth))
 	}
 
-	g.GET("/", handleIndexPage)
+	// Admin JS app views.
+	// /admin/static/* file server is registered in initHTTPServer().
+	e.GET("/", func(c echo.Context) error {
+		return c.Render(http.StatusOK, "home", publicTpl{Title: "listmonk"})
+	})
+	g.GET(path.Join(adminRoot, ""), handleAdminPage)
+	g.GET(path.Join(adminRoot, "/*"), handleAdminPage)
+
+	// API endpoints.
 	g.GET("/api/health", handleHealthCheck)
 	g.GET("/api/config", handleGetServerConfig)
 	g.GET("/api/lang/:lang", handleGetI18nLang)
@@ -101,6 +110,7 @@ func registerHTTPHandlers(e *echo.Echo, app *App) {
 	g.GET("/api/campaigns", handleGetCampaigns)
 	g.GET("/api/campaigns/running/stats", handleGetRunningCampaignStats)
 	g.GET("/api/campaigns/:id", handleGetCampaigns)
+	g.GET("/api/campaigns/analytics/:type", handleGetCampaignViewAnalytics)
 	g.GET("/api/campaigns/:id/preview", handlePreviewCampaign)
 	g.POST("/api/campaigns/:id/preview", handlePreviewCampaign)
 	g.POST("/api/campaigns/:id/content", handleCampaignContent)
@@ -123,21 +133,6 @@ func registerHTTPHandlers(e *echo.Echo, app *App) {
 	g.PUT("/api/templates/:id", handleUpdateTemplate)
 	g.PUT("/api/templates/:id/default", handleTemplateSetDefault)
 	g.DELETE("/api/templates/:id", handleDeleteTemplate)
-
-	// Static admin views.
-	g.GET("/lists", handleIndexPage)
-	g.GET("/lists/forms", handleIndexPage)
-	g.GET("/subscribers", handleIndexPage)
-	g.GET("/subscribers/lists/:listID", handleIndexPage)
-	g.GET("/subscribers/import", handleIndexPage)
-	g.GET("/subscribers/bounces", handleIndexPage)
-	g.GET("/campaigns", handleIndexPage)
-	g.GET("/campaigns/new", handleIndexPage)
-	g.GET("/campaigns/media", handleIndexPage)
-	g.GET("/campaigns/templates", handleIndexPage)
-	g.GET("/campaigns/:campignID", handleIndexPage)
-	g.GET("/settings", handleIndexPage)
-	g.GET("/settings/logs", handleIndexPage)
 
 	if app.constants.BounceWebhooksEnabled {
 		// Private authenticated bounce endpoint.
@@ -170,17 +165,16 @@ func registerHTTPHandlers(e *echo.Echo, app *App) {
 	e.GET("/health", handleHealthCheck)
 }
 
-// handleIndex is the root handler that renders the Javascript frontend.
-func handleIndexPage(c echo.Context) error {
+// handleAdminPage is the root handler that renders the Javascript admin frontend.
+func handleAdminPage(c echo.Context) error {
 	app := c.Get("app").(*App)
 
-	b, err := app.fs.Read("/frontend/index.html")
+	b, err := app.fs.Read(path.Join(adminRoot, "/index.html"))
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
-	c.Response().Header().Set("Content-Type", "text/html")
-	return c.String(http.StatusOK, string(b))
+	return c.HTMLBlob(http.StatusOK, b)
 }
 
 // handleHealthCheck is a healthcheck endpoint that returns a 200 response.

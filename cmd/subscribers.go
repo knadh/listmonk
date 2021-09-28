@@ -70,9 +70,10 @@ type subOptin struct {
 
 var (
 	dummySubscriber = models.Subscriber{
-		Email: "demo@listmonk.app",
-		Name:  "Demo Subscriber",
-		UUID:  dummyUUID,
+		Email:   "demo@listmonk.app",
+		Name:    "Demo Subscriber",
+		UUID:    dummyUUID,
+		Attribs: models.SubscriberAttribs{"city": "Bengaluru"},
 	}
 
 	subQuerySortFields = []string{"email", "name", "created_at", "updated_at"}
@@ -112,7 +113,7 @@ func handleQuerySubscribers(c echo.Context) error {
 		query   = sanitizeSQLExp(c.FormValue("query"))
 		orderBy = c.FormValue("order_by")
 		order   = c.FormValue("order")
-		out     subsWrap
+		out     = subsWrap{Results: make([]models.Subscriber, 0, 1)}
 	)
 
 	listIDs := pq.Int64Array{}
@@ -130,15 +131,15 @@ func handleQuerySubscribers(c echo.Context) error {
 
 	// Sort params.
 	if !strSliceContains(orderBy, subQuerySortFields) {
-		orderBy = "updated_at"
+		orderBy = "subscribers.id"
 	}
 	if order != sortAsc && order != sortDesc {
-		order = sortAsc
+		order = sortDesc
 	}
 
-	stmt := fmt.Sprintf(app.queries.QuerySubscribers, cond, orderBy, order)
-
-	// Create a readonly transaction to prevent mutations.
+	// Create a readonly transaction that just does COUNT() to obtain the count of results
+	// and to ensure that the arbitrary query is indeed readonly.
+	stmt := fmt.Sprintf(app.queries.QuerySubscribersCount, cond)
 	tx, err := app.db.BeginTxx(context.Background(), &sql.TxOptions{ReadOnly: true})
 	if err != nil {
 		app.log.Printf("error preparing subscriber query: %v", err)
@@ -147,7 +148,21 @@ func handleQuerySubscribers(c echo.Context) error {
 	}
 	defer tx.Rollback()
 
-	// Run the query. stmt is the raw SQL query.
+	// Execute the readonly query and get the count of results.
+	var total = 0
+	if err := tx.Get(&total, stmt, listIDs); err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError,
+			app.i18n.Ts("globals.messages.errorFetching",
+				"name", "{globals.terms.subscribers}", "error", pqErrMsg(err)))
+	}
+
+	// No results.
+	if total == 0 {
+		return c.JSON(http.StatusOK, okResp{out})
+	}
+
+	// Run the query again and fetch the actual data. stmt is the raw SQL query.
+	stmt = fmt.Sprintf(app.queries.QuerySubscribers, cond, orderBy, order)
 	if err := tx.Select(&out.Results, stmt, listIDs, pg.Offset, pg.Limit); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			app.i18n.Ts("globals.messages.errorFetching",
@@ -169,7 +184,7 @@ func handleQuerySubscribers(c echo.Context) error {
 	}
 
 	// Meta.
-	out.Total = out.Results[0].Total
+	out.Total = total
 	out.Page = pg.Page
 	out.PerPage = pg.PerPage
 
@@ -279,9 +294,12 @@ func handleCreateSubscriber(c echo.Context) error {
 	if err := c.Bind(&req); err != nil {
 		return err
 	}
-	req.Email = strings.ToLower(strings.TrimSpace(req.Email))
-	if err := subimporter.ValidateFields(req); err != nil {
+
+	r, err := app.importer.ValidateFields(req)
+	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	} else {
+		req = r
 	}
 
 	// Insert the subscriber into the DB.
@@ -311,9 +329,13 @@ func handleUpdateSubscriber(c echo.Context) error {
 	if id < 1 {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidID"))
 	}
-	if req.Email != "" && !subimporter.IsEmail(req.Email) {
-		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("subscribers.invalidEmail"))
+
+	if em, err := app.importer.SanitizeEmail(req.Email); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	} else {
+		req.Email = em
 	}
+
 	if req.Name != "" && !strHasLen(req.Name, 1, stdInputMaxLen) {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("subscribers.invalidName"))
 	}
@@ -353,7 +375,7 @@ func handleUpdateSubscriber(c echo.Context) error {
 		return err
 	}
 
-	if !req.PreconfirmSubs {
+	if !req.PreconfirmSubs && app.constants.SendOptinConfirmation {
 		_, _ = sendOptinConfirmation(sub, []int64(req.Lists), app)
 	}
 
@@ -409,7 +431,7 @@ func handleBlocklistSubscribers(c echo.Context) error {
 		var req subQueryReq
 		if err := c.Bind(&req); err != nil {
 			return echo.NewHTTPError(http.StatusBadRequest,
-				app.i18n.Ts("subscribers.errorInvalidIDs", "error", err.Error()))
+				app.i18n.Ts("globals.messages.errorInvalidIDs", "error", err.Error()))
 		}
 		if len(req.SubscriberIDs) == 0 {
 			return echo.NewHTTPError(http.StatusBadRequest,
@@ -449,7 +471,7 @@ func handleManageSubscriberLists(c echo.Context) error {
 	var req subQueryReq
 	if err := c.Bind(&req); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest,
-			app.i18n.Ts("subscribers.errorInvalidIDs", "error", err.Error()))
+			app.i18n.Ts("globals.messages.errorInvalidIDs", "error", err.Error()))
 	}
 	if len(req.SubscriberIDs) == 0 {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("subscribers.errorNoIDs"))
@@ -505,7 +527,7 @@ func handleDeleteSubscribers(c echo.Context) error {
 		i, err := parseStringIDs(c.Request().URL.Query()["id"])
 		if err != nil {
 			return echo.NewHTTPError(http.StatusBadRequest,
-				app.i18n.Ts("subscribers.errorInvalidIDs", "error", err.Error()))
+				app.i18n.Ts("globals.messages.errorInvalidIDs", "error", err.Error()))
 		}
 		if len(i) == 0 {
 			return echo.NewHTTPError(http.StatusBadRequest,
@@ -683,6 +705,10 @@ func insertSubscriber(req subimporter.SubReq, app *App) (models.Subscriber, bool
 		subStatus = models.SubscriptionStatusConfirmed
 	}
 
+	if req.Status == "" {
+		req.Status = models.UserStatusEnabled
+	}
+
 	if err = app.queries.InsertSubscriber.Get(&req.ID,
 		req.UUID,
 		req.Email,
@@ -711,7 +737,7 @@ func insertSubscriber(req subimporter.SubReq, app *App) (models.Subscriber, bool
 	}
 
 	hasOptin := false
-	if !req.PreconfirmSubs {
+	if !req.PreconfirmSubs && app.constants.SendOptinConfirmation {
 		// Send a confirmation e-mail (if there are any double opt-in lists).
 		num, _ := sendOptinConfirmation(sub, []int64(req.Lists), app)
 		hasOptin = num > 0

@@ -13,7 +13,7 @@ x-app-defaults: &app-defaults
     - listmonk
 
 x-db-defaults: &db-defaults
-  image: postgres:11
+  image: postgres:13
   ports:
     - "9432:5432"
   networks:

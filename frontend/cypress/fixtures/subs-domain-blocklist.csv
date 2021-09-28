@@ -1,0 +1,5 @@
+email,name,attributes
+noban1-import@mail.com,First0 Last0,"{""age"": 29, ""city"": ""Bangalore"", ""clientId"": ""DAXX79""}"
+ban1-import@BAN.net,First1 Last1,"{""age"": 43, ""city"": ""Bangalore"", ""clientId"": ""DAXX71""}"
+noban2-import1@mail.com,First2 Last2,"{""age"": 47, ""city"": ""Bangalore"", ""clientId"": ""DAXX70""}"
+ban2-import@ban.ORG,First1 Last1,"{""age"": 43, ""city"": ""Bangalore"", ""clientId"": ""DAXX71""}"

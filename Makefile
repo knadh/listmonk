@@ -23,14 +23,14 @@ STATIC := config.toml.sample \
 	schema.sql queries.sql \
 	static/public:/public \
 	static/email-templates \
-	frontend/dist/frontend:/frontend \
+	frontend/dist:/admin \
 	i18n:/i18n
 
 .PHONY: build
 build: $(BIN)
 
 $(STUFFBIN):
-	go get -u github.com/knadh/stuffbin/...
+	go install github.com/knadh/stuffbin/...
 
 $(FRONTEND_YARN_MODULES): frontend/package.json frontend/yarn.lock
 	cd frontend && $(YARN) install
@@ -40,14 +40,14 @@ $(FRONTEND_YARN_MODULES): frontend/package.json frontend/yarn.lock
 $(BIN): $(shell find . -type f -name "*.go")
 	CGO_ENABLED=0 go build -o ${BIN} -ldflags="-s -w -X 'main.buildString=${BUILDSTR}' -X 'main.versionString=${VERSION}'" cmd/*.go
 
-# Run the backend in dev mode. The frontend assets in dev mode are loaded from disk from frontend/dist/frontend.
+# Run the backend in dev mode. The frontend assets in dev mode are loaded from disk from frontend/dist.
 .PHONY: run
 run:
-	CGO_ENABLED=0 go run -ldflags="-s -w -X 'main.buildString=${BUILDSTR}' -X 'main.versionString=${VERSION}' -X 'main.frontendDir=frontend/dist/frontend'" cmd/*.go
+	CGO_ENABLED=0 go run -ldflags="-s -w -X 'main.buildString=${BUILDSTR}' -X 'main.versionString=${VERSION}' -X 'main.frontendDir=frontend/dist'" cmd/*.go
 
 # Build the JS frontend into frontend/dist.
 $(FRONTEND_DIST): $(FRONTEND_DEPS)
-	export VUE_APP_VERSION="${VERSION}" && cd frontend && $(YARN) build && mv dist/favicon.png dist/frontend/favicon.png && mv dist/custom.css dist/frontend/custom.css
+	export VUE_APP_VERSION="${VERSION}" && cd frontend && $(YARN) build && mv dist/custom.css dist/frontend/custom.css
 	touch --no-create $(FRONTEND_DIST)
 
 
@@ -67,8 +67,7 @@ test:
 # Bundle all static assets including the JS frontend into the ./listmonk binary
 # using stuffbin (installed with make deps).
 .PHONY: dist
-dist: $(STUFFBIN) build build-frontend
-	$(STUFFBIN) -a stuff -in ${BIN} -out ${BIN} ${STATIC}
+dist: $(STUFFBIN) build build-frontend pack-bin
 
 # pack-releases runns stuffbin packing on the given binary. This is used
 # in the .goreleaser post-build hook.

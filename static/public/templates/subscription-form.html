@@ -15,19 +15,15 @@
                 <label>{{ L.T "public.subName" }}</label>
                 <input name="name" type="text" placeholder="{{ L.T "public.subName" }}" >
             </p>
-            <div class="lists">
+            <ul class="lists">
                 <h2>{{ L.T "globals.terms.lists" }}</h2>
                 {{ range $i, $l := .Data.Lists }}
-                    <div class="row">
-                        <div class="one column">
-                            <input checked="true" id="l-{{ $l.UUID}}" type="checkbox" name="l" value="{{ $l.UUID }}" >
-                        </div>
-                        <div class="eleven columns">
-                            <label for="l-{{ $l.UUID}}">{{ $l.Name }}</label>
-                        </div>
-                    </div>
+                    <li>
+                        <input checked="true" id="l-{{ $l.UUID}}" type="checkbox" name="l" value="{{ $l.UUID }}" >
+                        <label for="l-{{ $l.UUID}}">{{ $l.Name }}</label>
+                    </li>
                 {{ end }}
-            </div>
+            </ul>
             <p>
                 <button type="submit" class="button">{{ L.T "public.sub" }}</button>
             </p>

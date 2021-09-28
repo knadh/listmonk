@@ -2,7 +2,9 @@
   <form @submit.prevent="onSubmit">
     <div class="modal-card content" style="width: auto">
       <header class="modal-card-head">
-        <b-tag v-if="isEditing" :class="[data.status, 'is-pulled-right']">{{ data.status }}</b-tag>
+        <b-tag v-if="isEditing" :class="[data.status, 'is-pulled-right']">
+          {{ $t(`subscribers.status.${data.status}`) }}
+        </b-tag>
         <h4 v-if="isEditing">{{ data.name }}</h4>
         <h4 v-else>{{ $t('subscribers.newSubscriber') }}</h4>
 
@@ -122,7 +124,7 @@ export default Vue.extend({
     return {
       // Binds form input values. This is populated by subscriber props passed
       // from the parent component in mounted().
-      form: { lists: [], strAttribs: '{}' },
+      form: { lists: [], strAttribs: '{}', status: 'enabled' },
       isBounceVisible: false,
       bounces: [],
       visibleMeta: {},

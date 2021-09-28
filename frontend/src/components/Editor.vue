@@ -6,19 +6,22 @@
         <b-field label="Format">
           <div>
             <b-radio v-model="form.radioFormat"
-              @input="onChangeFormat" :disabled="disabled" name="format"
+              @input="onFormatChange" :disabled="disabled" name="format"
               native-value="richtext"
               data-cy="check-richtext">{{ $t('campaigns.richText') }}</b-radio>
+
             <b-radio v-model="form.radioFormat"
-              @input="onChangeFormat" :disabled="disabled" name="format"
+              @input="onFormatChange" :disabled="disabled" name="format"
               native-value="html"
               data-cy="check-html">{{ $t('campaigns.rawHTML') }}</b-radio>
+
             <b-radio v-model="form.radioFormat"
-              @input="onChangeFormat" :disabled="disabled" name="format"
+              @input="onFormatChange" :disabled="disabled" name="format"
               native-value="markdown"
               data-cy="check-markdown">{{ $t('campaigns.markdown') }}</b-radio>
+
             <b-radio v-model="form.radioFormat"
-              @input="onChangeFormat" :disabled="disabled" name="format"
+              @input="onFormatChange" :disabled="disabled" name="format"
               native-value="plain"
               data-cy="check-plain">{{ $t('campaigns.plainText') }}</b-radio>
           </div>
@@ -26,26 +29,42 @@
       </div>
       <div class="column is-6 has-text-right">
           <b-button @click="onTogglePreview" type="is-primary"
-            icon-left="file-find-outline">{{ $t('campaigns.preview') }}</b-button>
+            icon-left="file-find-outline" data-cy="btn-preview">
+            {{ $t('campaigns.preview') }}
+          </b-button>
       </div>
     </div>
 
     <!-- wsywig //-->
-    <quill-editor
-      :class="{'fullscreen': isEditorFullscreen}"
-      v-if="form.format === 'richtext'"
-      v-model="form.body"
-      ref="quill"
-      :options="options"
-      :disabled="disabled"
-      :placeholder="$t('campaigns.contentHelp')"
-      @change="onEditorChange($event)"
-      @ready="onEditorReady($event)"
-    />
+    <template v-if="isRichtextReady && form.format === 'richtext'">
+      <tiny-mce
+        v-model="form.body"
+        :disabled="disabled"
+        :init="richtextConf"
+      />
+
+      <b-modal scroll="keep" :width="1200"
+        :aria-modal="true" :active.sync="isRichtextSourceVisible">
+        <div>
+          <section expanded class="modal-card-body preview">
+            <html-editor v-model="richTextSourceBody" />
+          </section>
+          <footer class="modal-card-foot has-text-right">
+            <b-button @click="onFormatRichtextHTML">{{ $t('campaigns.formatHTML') }}</b-button>
+            <b-button @click="() => { this.isRichtextSourceVisible = false; }">
+              {{ $t('globals.buttons.close') }}
+            </b-button>
+            <b-button @click="onSaveRichTextSource" class="is-primary">
+              {{ $t('globals.buttons.save') }}
+            </b-button>
+          </footer>
+        </div>
+      </b-modal>
+
+    </template>
 
     <!-- raw html editor //-->
-    <div v-if="form.format === 'html'"
-      ref="htmlEditor" id="html-editor" class="html-editor"></div>
+    <html-editor v-if="form.format === 'html'" v-model="form.body" />
 
     <!-- plain text / markdown editor //-->
     <b-input v-if="form.format === 'plain' || form.format === 'markdown'"
@@ -73,53 +92,64 @@
 </template>
 
 <script>
-import 'quill/dist/quill.snow.css';
-import 'quill/dist/quill.core.css';
-
-import { quillEditor, Quill } from 'vue-quill-editor';
-import CodeFlask from 'codeflask';
+import { mapState } from 'vuex';
 import TurndownService from 'turndown';
+import { indent } from 'indent.js';
+
+import 'tinymce';
+import 'tinymce/icons/default';
+import 'tinymce/themes/silver';
+import 'tinymce/skins/ui/oxide/skin.css';
+import 'tinymce/plugins/autoresize';
+import 'tinymce/plugins/autolink';
+import 'tinymce/plugins/charmap';
+import 'tinymce/plugins/colorpicker';
+import 'tinymce/plugins/contextmenu';
+import 'tinymce/plugins/emoticons';
+import 'tinymce/plugins/emoticons/js/emojis';
+import 'tinymce/plugins/fullscreen';
+import 'tinymce/plugins/help';
+import 'tinymce/plugins/hr';
+import 'tinymce/plugins/image';
+import 'tinymce/plugins/imagetools';
+import 'tinymce/plugins/link';
+import 'tinymce/plugins/lists';
+import 'tinymce/plugins/paste';
+import 'tinymce/plugins/searchreplace';
+import 'tinymce/plugins/table';
+import 'tinymce/plugins/textcolor';
+import 'tinymce/plugins/visualblocks';
+import 'tinymce/plugins/visualchars';
+import 'tinymce/plugins/wordcount';
+import TinyMce from '@tinymce/tinymce-vue';
 
 import CampaignPreview from './CampaignPreview.vue';
+import HTMLEditor from './HTMLEditor.vue';
 import Media from '../views/Media.vue';
-
-// Setup Quill to use inline CSS style attributes instead of classes.
-Quill.register(Quill.import('attributors/attribute/direction'), true);
-Quill.register(Quill.import('attributors/style/align'), true);
-Quill.register(Quill.import('attributors/style/background'), true);
-Quill.register(Quill.import('attributors/style/color'), true);
-Quill.register(Quill.import('formats/indent'), true);
-
-const quillFontSizes = Quill.import('attributors/style/size');
-quillFontSizes.whitelist = ['11px', '13px', '22px', '32px'];
-Quill.register(quillFontSizes, true);
-
-// Sanitize {{ TrackLink "xxx" }} quotes to backticks.
-const regLink = new RegExp(/{{(\s+)?TrackLink(\s+)?"(.+?)"(\s+)?}}/);
-const Link = Quill.import('formats/link');
-Link.sanitize = (l) => l.replace(regLink, '{{ TrackLink `$3`}}');
+import { colors, uris } from '../constants';
 
 const turndown = new TurndownService();
 
-// Custom class to override the default indent behaviour to get inline CSS
-// style instead of classes.
-class IndentAttributor extends Quill.import('parchment').Attributor.Style {
-  multiplier = 30;
-
-  add(node, value) {
-    return super.add(node, `${value * this.multiplier}px`);
-  }
-
-  value(node) {
-    return parseFloat(super.value(node)) / this.multiplier || undefined;
-  }
-}
+// Map of listmonk language codes to corresponding TinyMCE language files.
+const LANGS = {
+  'cs-cz': 'cs',
+  de: 'de',
+  es: 'es_419',
+  fr: 'fr_FR',
+  it: 'it_IT',
+  pl: 'pl',
+  pt: 'pt_PT',
+  'pt-BR': 'pt_BR',
+  ro: 'ro',
+  tr: 'tr',
+};
 
 export default {
   components: {
     Media,
     CampaignPreview,
-    quillEditor,
+    'html-editor': HTMLEditor,
+    TinyMce,
   },
 
   props: {
@@ -136,6 +166,11 @@ export default {
       isMediaVisible: false,
       isEditorFullscreen: false,
       isReady: false,
+      isRichtextReady: false,
+      isRichtextSourceVisible: false,
+      richtextConf: {},
+      isTrackLink: false,
+      richTextSourceBody: '',
       form: {
         body: '',
         format: this.contentType,
@@ -151,57 +186,67 @@ export default {
       // was opened. This is used to insert media on selection from the poup
       // where the caret may be lost.
       lastSel: null,
-
-      // Quill editor options.
-      options: {
-        placeholder: this.$t('campaigns.contentHelp'),
-        modules: {
-          keyboard: {
-            bindings: {
-              esc: {
-                key: 27,
-                handler: () => {
-                  this.onToggleFullscreen(true);
-                },
-              },
-            },
-          },
-          toolbar: {
-            container: [
-              [{ header: [1, 2, 3, false] }],
-              ['bold', 'italic', 'underline', 'strike', 'blockquote', 'code'],
-              [{ color: [] }, { background: [] }, { size: quillFontSizes.whitelist }],
-              [
-                { list: 'ordered' },
-                { list: 'bullet' },
-                { indent: '-1' },
-                { indent: '+1' },
-              ],
-              [
-                { align: '' },
-                { align: 'center' },
-                { align: 'right' },
-                { align: 'justify' },
-              ],
-              ['link', 'image'],
-              ['clean', 'fullscreen'],
-            ],
-
-            handlers: {
-              image: this.onToggleMedia,
-              fullscreen: () => this.onToggleFullscreen(false),
-            },
-          },
-        },
-      },
-
-      // HTML editor.
-      flask: null,
     };
   },
 
   methods: {
-    onChangeFormat(format) {
+    initRichtextEditor() {
+      const { lang } = this.serverConfig;
+
+      this.richtextConf = {
+        init_instance_callback: () => { this.isReady = true; },
+        urlconverter_callback: this.onEditorURLConvert,
+
+        setup: (editor) => {
+          editor.on('init', () => {
+            this.onEditorDialogOpen(editor);
+          });
+
+          // Custom HTML editor.
+          editor.ui.registry.addButton('html', {
+            icon: 'sourcecode',
+            tooltip: 'Source code',
+            onAction: this.onRichtextViewSource,
+          });
+        },
+
+        min_height: 500,
+        entity_encoding: 'raw',
+        convert_urls: true,
+        plugins: [
+          'autoresize', 'autolink', 'charmap', 'emoticons', 'fullscreen', 'help',
+          'hr', 'image', 'imagetools', 'link', 'lists', 'paste', 'searchreplace',
+          'table', 'visualblocks', 'visualchars', 'wordcount',
+        ],
+        toolbar: `undo redo | formatselect styleselect fontsizeselect |
+                  bold italic underline strikethrough forecolor backcolor subscript superscript |
+                  alignleft aligncenter alignright alignjustify |
+                  bullist numlist table image | outdent indent | link hr removeformat |
+                  html fullscreen help`,
+        fontsize_formats: '10px 11px 12px 14px 15px 16px 18px 24px 36px',
+        skin: false,
+        content_css: false,
+        content_style: `
+          body { font-family: 'Inter', sans-serif; font-size: 15px; }
+          img { max-width: 100%; }
+          a { color: ${colors.primary}; }
+          table, td { border-color: #ccc;}
+        `,
+
+        language: LANGS[lang] || null,
+        language_url: LANGS[lang] ? `${uris.static}/tinymce/lang/${LANGS[lang]}.js` : null,
+
+        file_picker_types: 'image',
+        file_picker_callback: (callback) => {
+          this.isMediaVisible = true;
+          this.runTinyMceImageCallback = callback;
+        },
+      };
+
+      this.isRichtextReady = true;
+    },
+
+    onFormatChange(format) {
       this.$utils.confirm(
         this.$t('campaigns.confirmSwitchFormat'),
         () => {
@@ -215,13 +260,87 @@ export default {
       );
     },
 
-    onEditorReady() {
-      this.isReady = true;
+    onEditorURLConvert(url) {
+      let u = url;
+      if (this.isTrackLink) {
+        u = `${u}@TrackLink`;
+      }
 
-      // Hack to focus the editor on page load.
-      this.$nextTick(() => {
-        window.setTimeout(() => this.$refs.quill.quill.focus(), 100);
-      });
+      this.isTrackLink = false;
+      return u;
+    },
+
+
+    onRichtextViewSource() {
+      this.richTextSourceBody = this.form.body;
+      this.isRichtextSourceVisible = true;
+    },
+
+    onFormatRichtextHTML() {
+      this.richTextSourceBody = this.beautifyHTML(this.richTextSourceBody);
+    },
+
+    onSaveRichTextSource() {
+      this.form.body = this.richTextSourceBody;
+      window.tinymce.editors[0].setContent(this.form.body);
+      this.richTextSourceBody = '';
+      this.isRichtextSourceVisible = false;
+    },
+
+    onEditorDialogOpen(editor) {
+      const ed = editor;
+      const oldEd = ed.windowManager.open;
+      const self = this;
+
+      ed.windowManager.open = (t, r) => {
+        const isOK = t.initialData && 'url' in t.initialData && 'anchor' in t.initialData;
+
+        // Not the link modal.
+        if (!isOK) {
+          return oldEd.apply(this, [t, r]);
+        }
+
+        // If an existing link is being edited, check for the tracking flag `@TrackLink` at the end
+        // of the url. Remove that from the URL and instead check the checkbox.
+        let checked = false;
+        if (!t.initialData.link !== '') {
+          const t2 = t;
+          const url = t2.initialData.url.value.replace(/@TrackLink$/, '');
+
+          if (t2.initialData.url.value !== url) {
+            t2.initialData.url.value = url;
+            checked = true;
+          }
+        }
+
+        // Execute the modal.
+        const modal = oldEd.apply(this, [t, r]);
+
+        // Is it the link dialog?
+        if (isOK) {
+          // Insert tracking checkbox.
+          const c = document.createElement('input');
+          c.setAttribute('type', 'checkbox');
+
+          if (checked) {
+            c.setAttribute('checked', checked);
+          }
+
+          // Store the checkbox's state in the Vue instance to pick up from
+          // the TinyMCE link conversion callback.
+          c.onchange = (e) => {
+            self.isTrackLink = e.target.checked;
+          };
+
+          const l = document.createElement('label');
+          l.appendChild(c);
+          l.appendChild(document.createTextNode('Track link?'));
+          l.classList.add('tox-label', 'tox-track-link');
+
+          document.querySelector('.tox-form__controls-h-stack .tox-control-wrap').appendChild(l);
+        }
+        return modal;
+      };
     },
 
     onEditorChange() {
@@ -233,85 +352,22 @@ export default {
       this.$emit('input', { contentType: this.form.format, body: this.form.body });
     },
 
-    initHTMLEditor() {
-      // CodeFlask editor is rendered in a shadow DOM tree to keep its styles
-      // sandboxed away from the global styles.
-      const el = document.createElement('code-flask');
-      el.attachShadow({ mode: 'open' });
-      el.shadowRoot.innerHTML = `
-        <style>
-          .codeflask .codeflask__flatten { font-size: 15px; }
-          .codeflask .codeflask__lines { background: #fafafa; z-index: 10; }
-        </style>
-        <div id="area"></area>
-      `;
-      this.$refs.htmlEditor.appendChild(el);
-
-      this.flask = new CodeFlask(el.shadowRoot.getElementById('area'), {
-        language: 'html',
-        lineNumbers: false,
-        styleParent: el.shadowRoot,
-        readonly: this.disabled,
-      });
-      this.flask.onUpdate((b) => {
-        this.form.body = b;
-        this.$emit('input', { contentType: this.form.format, body: this.form.body });
-      });
-
-      this.updateHTMLEditor();
-      this.isReady = true;
-    },
-
-    updateHTMLEditor() {
-      this.flask.updateCode(this.form.body);
-    },
-
     onTogglePreview() {
       this.isPreviewing = !this.isPreviewing;
     },
 
-    onToggleMedia() {
-      this.lastSel = this.$refs.quill.quill.getSelection();
-      this.isMediaVisible = !this.isMediaVisible;
-    },
-
-    onToggleFullscreen(onlyMinimize) {
-      if (onlyMinimize) {
-        if (!this.isEditorFullscreen) {
-          return;
-        }
-      }
-      this.isEditorFullscreen = !this.isEditorFullscreen;
-    },
-
-    onMediaSelect(m) {
-      this.$refs.quill.quill.insertEmbed(this.lastSel.index || 0, 'image', m.url);
+    onMediaSelect(media) {
+      this.runTinyMceImageCallback(media.url);
     },
 
     beautifyHTML(str) {
-      const div = document.createElement('div');
-      div.innerHTML = str.trim();
-      return this.formatHTMLNode(div, 0).innerHTML;
-    },
+      // Pad all tags with linebreaks.
+      let s = this.trimLines(str.replace(/(<([^>]+)>)/ig, '\n$1\n'), true);
 
-    formatHTMLNode(node, level) {
-      const lvl = level + 1;
-      const indentBefore = new Array(lvl + 1).join('  ');
-      const indentAfter = new Array(lvl - 1).join('  ');
-      let textNode = null;
+      // Remove extra linebreaks.
+      s = s.replace(/\n+/g, '\n');
 
-      for (let i = 0; i < node.children.length; i += 1) {
-        textNode = document.createTextNode(`\n${indentBefore}`);
-        node.insertBefore(textNode, node.children[i]);
-
-        this.formatHTMLNode(node.children[i], lvl);
-        if (node.lastElementChild === node.children[i]) {
-          textNode = document.createTextNode(`\n${indentAfter}`);
-          node.appendChild(textNode);
-        }
-      }
-
-      return node;
+      return indent.html(s, { tabString: '  ' }).trim();
     },
 
     trimLines(str, removeEmptyLines) {
@@ -329,7 +385,13 @@ export default {
     },
   },
 
+  mounted() {
+    this.initRichtextEditor();
+  },
+
   computed: {
+    ...mapState(['serverConfig']),
+
     htmlFormat() {
       return this.form.format;
     },
@@ -341,7 +403,7 @@ export default {
       this.form.format = f;
       this.form.radioFormat = f;
 
-      if (f === 'plain' || f === 'markdown') {
+      if (f !== 'richtext') {
         this.isReady = true;
       }
 
@@ -355,22 +417,21 @@ export default {
       this.onEditorChange();
     },
 
-    htmlFormat(to, from) {
-      // On switch to HTML, initialize the HTML editor.
-      if (to === 'html') {
-        this.$nextTick(() => {
-          this.initHTMLEditor();
-        });
-      }
+    // eslint-disable-next-line func-names
+    'form.body': function () {
+      this.onEditorChange();
+    },
 
+    htmlFormat(to, from) {
       if ((from === 'richtext' || from === 'html') && to === 'plain') {
         // richtext, html => plain
 
-        // Preserve line breaks when converting HTML to plaintext. Quill produces
-        // HTML without any linebreaks.
+        // Preserve line breaks when converting HTML to plaintext.
         const d = document.createElement('div');
         d.innerHTML = this.beautifyHTML(this.form.body);
-        this.form.body = this.trimLines(d.innerText.trim(), true);
+        this.$nextTick(() => {
+          this.form.body = this.trimLines(d.innerText.trim(), true);
+        });
       } else if ((from === 'richtext' || from === 'html') && to === 'markdown') {
         // richtext, html => markdown
         this.form.body = turndown.turndown(this.form.body).replace(/\n\n+/ig, '\n\n');
@@ -379,7 +440,7 @@ export default {
         this.form.body = this.form.body.replace(/\n/ig, '<br>\n');
       } else if (from === 'richtext' && to === 'html') {
         // richtext => html
-        this.form.body = this.trimLines(this.beautifyHTML(this.form.body), false);
+        this.form.body = this.beautifyHTML(this.form.body);
       } else if (from === 'markdown' && (to === 'richtext' || to === 'html')) {
         // markdown => richtext, html.
         this.$api.convertCampaignContent({
@@ -395,18 +456,6 @@ export default {
 
       this.onEditorChange();
     },
-  },
-
-  mounted() {
-    // Initialize the Quill indentation plugin.
-    const levels = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-    const multiplier = 30;
-    const indentStyle = new IndentAttributor('indent', 'margin-left', {
-      scope: Quill.import('parchment').Scope.BLOCK,
-      whitelist: levels.map((value) => `${value * multiplier}px`),
-    });
-
-    Quill.register(indentStyle);
   },
 };
 </script>

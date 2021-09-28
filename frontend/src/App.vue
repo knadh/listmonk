@@ -10,7 +10,9 @@
           </div>
         </template>
         <template slot="end">
-            <b-navbar-item tag="div"></b-navbar-item>
+            <b-navbar-item tag="div">
+              <a href="#" @click.prevent="doLogout">{{ $t('users.logout') }}</a>
+            </b-navbar-item>
         </template>
     </b-navbar>
 
@@ -80,6 +82,10 @@
                   <b-menu-item :to="{name: 'templates'}" tag="router-link"
                     :active="activeItem.templates" data-cy="templates"
                     icon="file-image-outline" :label="$t('globals.terms.templates')"></b-menu-item>
+
+                  <b-menu-item :to="{name: 'campaignAnalytics'}" tag="router-link"
+                    :active="activeItem.campaignAnalytics" data-cy="analytics"
+                    icon="chart-bar" :label="$t('globals.terms.analytics')"></b-menu-item>
                 </b-menu-item><!-- campaigns -->
 
                 <b-menu-item :expanded="activeGroup.settings"
@@ -130,6 +136,7 @@
 <script>
 import Vue from 'vue';
 import { mapState } from 'vuex';
+import { uris } from './constants';
 
 export default Vue.extend({
   name: 'App',
@@ -160,6 +167,21 @@ export default Vue.extend({
     toggleGroup(group, state) {
       this.activeGroup = state ? { [group]: true } : {};
     },
+
+    doLogout() {
+      const http = new XMLHttpRequest();
+
+      const u = uris.root.substr(-1) === '/' ? uris.root : `${uris.root}/`;
+      http.open('get', `${u}api/logout`, false, 'logout_non_user', 'logout_non_user');
+      http.onload = () => {
+        document.location.href = uris.root;
+      };
+      http.onerror = () => {
+        document.location.href = uris.root;
+      };
+      http.send();
+    },
+
     reloadApp() {
       this.$api.reloadApp().then(() => {
         this.$utils.toast('Reloading app ...');
@@ -187,7 +209,7 @@ export default Vue.extend({
   mounted() {
     // Lists is required across different views. On app load, fetch the lists
     // and have them in the store.
-    this.$api.getLists();
+    this.$api.getLists({ minimal: true });
   },
 });
 </script>
