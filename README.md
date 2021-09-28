@@ -31,7 +31,7 @@ sh -c "$(curl -fsSL https://raw.githubusercontent.com/knadh/listmonk/master/inst
 ```
 Visit `http://localhost:9000`.
 
-**NOTE**: Always exmaine the contents of shell scripts before executing them.
+**NOTE**: Always examine the contents of shell scripts before executing them.
 
 See [installation docs](https://listmonk.app/docs/installation).
 
