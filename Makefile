@@ -34,7 +34,7 @@ $(STUFFBIN):
 
 $(FRONTEND_YARN_MODULES): frontend/package.json frontend/yarn.lock
 	cd frontend && $(YARN) install
-	touch --no-create $(FRONTEND_YARN_MODULES)
+	touch -c $(FRONTEND_YARN_MODULES)
 
 # Build the backend to ./listmonk.
 $(BIN): $(shell find . -type f -name "*.go")
@@ -48,7 +48,7 @@ run:
 # Build the JS frontend into frontend/dist.
 $(FRONTEND_DIST): $(FRONTEND_DEPS)
 	export VUE_APP_VERSION="${VERSION}" && cd frontend && $(YARN) build
-	touch --no-create $(FRONTEND_DIST)
+	touch -c $(FRONTEND_DIST)
 
 
 .PHONY: build-frontend
