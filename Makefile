@@ -72,7 +72,7 @@ dist: $(STUFFBIN) build build-frontend pack-bin
 # pack-releases runns stuffbin packing on the given binary. This is used
 # in the .goreleaser post-build hook.
 .PHONY: pack-bin
-pack-bin: $(STUFFBIN)
+pack-bin: build-frontend $(BIN) $(STUFFBIN)
 	$(STUFFBIN) -a stuff -in ${BIN} -out ${BIN} ${STATIC}
 
 # Use goreleaser to do a dry run producing local builds.
