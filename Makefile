@@ -34,7 +34,7 @@ $(STUFFBIN):
 
 $(FRONTEND_YARN_MODULES): frontend/package.json frontend/yarn.lock
 	cd frontend && $(YARN) install
-	touch --no-create $(FRONTEND_YARN_MODULES)
+	touch -c $(FRONTEND_YARN_MODULES)
 
 # Build the backend to ./listmonk.
 $(BIN): $(shell find . -type f -name "*.go")
@@ -48,8 +48,7 @@ run:
 # Build the JS frontend into frontend/dist.
 $(FRONTEND_DIST): $(FRONTEND_DEPS)
 	export VUE_APP_VERSION="${VERSION}" && cd frontend && $(YARN) build && mv dist/custom.css dist/frontend/custom.css
-	touch --no-create $(FRONTEND_DIST)
-
+	touch -c $(FRONTEND_DIST)
 
 .PHONY: build-frontend
 build-frontend: $(FRONTEND_DIST)
@@ -72,7 +71,7 @@ dist: $(STUFFBIN) build build-frontend pack-bin
 # pack-releases runns stuffbin packing on the given binary. This is used
 # in the .goreleaser post-build hook.
 .PHONY: pack-bin
-pack-bin: $(STUFFBIN)
+pack-bin: build-frontend $(BIN) $(STUFFBIN)
 	$(STUFFBIN) -a stuff -in ${BIN} -out ${BIN} ${STATIC}
 
 # Use goreleaser to do a dry run producing local builds.
