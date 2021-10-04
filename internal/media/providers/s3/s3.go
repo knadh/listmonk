@@ -1,7 +1,7 @@
 package s3
 
 import (
-	"errors"
+	"fmt"
 	"io"
 	"strings"
 	"time"
@@ -36,7 +36,7 @@ func NewS3Store(opt Opt) (media.Store, error) {
 		err error
 	)
 	if opt.URL == "" {
-		return nil, errors.New("Invalid AWS URL in settings.")
+		opt.URL = fmt.Sprintf("https://s3.%s.amazonaws.com", opt.Region)
 	}
 	opt.URL = strings.TrimRight(opt.URL, "/")
 

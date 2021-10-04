@@ -95,8 +95,7 @@
             label-position="on-border"
             :message="$t('settings.media.s3.urlHelp')" expanded>
             <b-input v-model="data['upload.s3.url']"
-              name="upload.s3.url"
-              :disabled="!data['upload.s3.bucket']"
+              name="upload.s3.url" :disabled="!data['upload.s3.bucket']" required
               placeholder="https://s3.region.amazonaws.com" :maxlength="200" />
           </b-field>
         </div>
