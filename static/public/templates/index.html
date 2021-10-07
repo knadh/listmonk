@@ -6,12 +6,12 @@
 	<title>{{ .Data.Title }}</title>
 	<meta name="description" content="{{ .Data.Description }}" />
 	<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
-	<link href="/public/static/style.css" rel="stylesheet" type="text/css" />
+	<link href="/newsletter/subscriptions/public/static/style.css" rel="stylesheet" type="text/css" />
 
 	{{ if ne .FaviconURL "" }}
 		<link rel="shortcut icon" href="{{ .FaviconURL }}" type="image/x-icon" />
 	{{ else }}
-		<link rel="shortcut icon" href="/public/static/favicon.png" type="image/x-icon" />
+		<link rel="shortcut icon" href="/newsletter/subscriptions/public/static/favicon.png" type="image/x-icon" />
 	{{ end }}
 </head>
 <body>
@@ -21,18 +21,21 @@
 				{{ if ne .LogoURL "" }}
 					<img src="{{ .LogoURL }}" alt="{{ .Data.Title }}" />
 				{{ else }}
-					<img src="/public/static/logo.svg" alt="{{ .Data.Title }}" />
+					<img src="/newsletter/subscriptions/public/static/logo.svg" alt="{{ .Data.Title }}" />
 				{{ end }}
 			</div>
+			<h1>
+				Mailing list
+			</h1>
 		</header>
 {{ end }}
 
 {{ define "footer" }}
 	</div>
 	
-	<footer class="container">
+	<!-- <footer class="container">
 		Powered by <a target="_blank" href="https://listmonk.app">listmonk</a>
-	</footer>
+	</footer> -->
 </body>
 </html>
 {{ end }}
