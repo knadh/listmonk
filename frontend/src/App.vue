@@ -217,4 +217,5 @@ export default Vue.extend({
 <style lang="scss">
   @import "assets/style.scss";
   @import "assets/icons/fontello.css";
+  @import "assets/icons/fontello-ext.css";
 </style>
