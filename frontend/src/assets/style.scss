@@ -384,8 +384,12 @@ body.is-noscroll {
     display: inline-block;
     margin-right: 30px;
   }
+
 }
 
+.not-provided {
+  color: #d1d3d4;
+}
 
 /* Fix for input colours */
 .button {
