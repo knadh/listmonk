@@ -151,6 +151,31 @@
           </a>
         </b-table-column>
 
+        <b-table-column v-slot="props" field="company" :label="'Company'"
+           header-class="cy-name">
+           <template v-if="props.row.attribs['company_name'] || props.row.attribs['company']">
+            {{ props.row.attribs["company_name"] || props.row.attribs["company"] }}
+           </template>
+           <template v-else>
+              <span class="not-provided">Not provided</span>
+           </template>
+        </b-table-column>
+
+        <b-table-column v-slot="props" field="personalInterest" :label="'Personal Interest'"
+           header-class="cy-name" centered>
+           <template
+           v-if="props.row.attribs['personalInterest'] || props.row.attribs['personal_Interest']">
+            <b-tooltip label="Personal interest" type="is-success">
+                <b-icon icon="iext-ok-circled" size="is-medium" pack="iext" type="is-success" />
+              </b-tooltip>
+           </template>
+           <template v-else>
+              <b-tooltip label="Professional interest" type="is-warning">
+                <b-icon icon="iext-cancel-circled" size="is-medium" pack="iext" type="is-warning" />
+              </b-tooltip>
+           </template>
+        </b-table-column>
+
         <b-table-column v-slot="props" field="lists" :label="$t('globals.terms.lists')"
           header-class="cy-lists" centered>
           {{ listCount(props.row.lists) }}
@@ -158,7 +183,7 @@
 
         <b-table-column v-slot="props" field="created_at" :label="$t('globals.fields.createdAt')"
           header-class="cy-created_at" sortable>
-            {{ $utils.niceDate(props.row.createdAt) }}
+            {{ $utils.niceDate(props.row.attribs['subscription_date'] || props.row.createdAt ) }}
         </b-table-column>
 
         <b-table-column v-slot="props" field="updated_at" :label="$t('globals.fields.updatedAt')"
