@@ -17,10 +17,10 @@ const rootURL = process.env.VUE_APP_ROOT_URL || '/';
 const baseURL = process.env.BASE_URL.replace(/\/$/, '');
 
 export const uris = Object.freeze({
-  previewCampaign: '/api/campaigns/:id/preview',
-  previewTemplate: '/api/templates/:id/preview',
-  previewRawTemplate: '/api/templates/preview',
-  exportSubscribers: '/api/subscribers/export',
+  previewCampaign: `${rootURL}/api/campaigns/:id/preview`,
+  previewTemplate: `${rootURL}/api/templates/:id/preview`,
+  previewRawTemplate: `${rootURL}/api/templates/preview`,
+  exportSubscribers: `${rootURL}/api/subscribers/export`,
   base: `${baseURL}/static`,
   root: rootURL,
   static: `${baseURL}/static`,
