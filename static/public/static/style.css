@@ -93,6 +93,11 @@ input[type="text"], input[type="email"], select {
   padding-bottom: 15px;
   margin-bottom: 30px;
 }
+
+.header .logo {
+  text-align: center;  
+}
+
 .header .logo img {
   width: auto;
   max-width: 150px;
