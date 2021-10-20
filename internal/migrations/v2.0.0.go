@@ -88,15 +88,5 @@ func V2_0_0(db *sqlx.DB, fs stuffbin.FileSystem, ko *koanf.Koanf) error {
 		return err
 	}
 
-	//Custom CSS
-	if _, err := db.Exec(`
-		INSERT INTO settings (key, value) VALUES
-			('appearance.custom_css', '"/* custom.css */"'),
-			('activeTab', '""')
-			ON CONFLICT DO NOTHING;
-	`); err != nil {
-		return err
-	}
-
 	return nil
 }

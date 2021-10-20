@@ -29,7 +29,7 @@ module.exports = {
       '^/$': {
         target: process.env.LISTMONK_API_URL || 'http://127.0.0.1:9000'
       },
-      '^/(api|webhooks|subscription|public)': {
+      '^/(api|webhooks|subscription|public|health|admin/custom.css)': {
         target: process.env.LISTMONK_API_URL || 'http://127.0.0.1:9000'
       }
     }

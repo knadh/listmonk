@@ -9,9 +9,8 @@
       </div>
       <div class="column has-text-right">
         <b-field expanded>
-          <b-button expanded :disabled="!hasFormChanged"
-            type="is-primary" icon-left="content-save-outline"
-            @click="onSubmit" class="isSaveEnabled" data-cy="btn-save">
+          <!-- eslint-disable-next-line max-len -->
+          <b-button expanded :disabled="!hasFormChanged" type="is-primary" icon-left="content-save-outline" @click="onSubmit" class="isSaveEnabled" data-cy="btn-save">
             {{ $t('globals.buttons.save') }}
           </b-button>
         </b-field>
@@ -21,7 +20,7 @@
 
     <section class="wrap">
       <form @submit.prevent="onSubmit">
-        <b-tabs type="is-boxed" :animated="false" v-model="selectedTab">
+        <b-tabs type="is-boxed" :animated="false" v-model="activeTab">
           <b-tab-item :label="$t('settings.general.name')" label-position="on-border">
             <general-settings :form="form" :key="key" />
           </b-tab-item><!-- general -->
@@ -50,15 +49,16 @@
             <messenger-settings :form="form" :key="key" />
           </b-tab-item><!-- messengers -->
 
-          <b-tab-item :label="$t('settings.appearance.name')">
+          <b-tab-item :label="$t('settings.admin.name')">
             <div class="items">
               <!-- eslint-disable-next-line max-len -->
-              <b-field :label="$t('templates.customCSS')" label-position="on-border" :message="$t('settings.appearance.cssHelp')">
-              <!-- eslint-disable-next-line max-len -->
-              <b-input v-model="form['appearance.custom_css']" type="textarea" name="body" required />
-            </b-field>
+              <b-field :label="$t('templates.customCSS')" label-position="on-border" :message="$t('settings.admin.cssHelp')">
+                <!-- eslint-disable-next-line max-len -->
+                <b-input v-model="form['admin.custom_css']" type="textarea" name="body" required />
+              </b-field>
             </div>
-          </b-tab-item><!-- appearance -->
+          </b-tab-item><!-- admin -->
+
         </b-tabs>
 
       </form>
@@ -102,14 +102,18 @@ export default Vue.extend({
       // form is compared to detect changes.
       formCopy: '',
       form: {},
-      selectedTab: null,
+      activeTab: 0,
     };
+  },
+
+  watch: {
+    activeTab: function saveActiveTab() {
+      localStorage.setItem('active_tab', this.activeTab);
+    },
   },
 
   methods: {
     onSubmit() {
-      // update activeTab
-      this.form.activeTab = this.selectedTab;
       const form = JSON.parse(JSON.stringify(this.form));
 
       // SMTP boxes.
@@ -218,10 +222,6 @@ export default Vue.extend({
         this.form = d;
         this.formCopy = JSON.stringify(d);
 
-        if (d.activeTab !== '') {
-          this.selectedTab = d.activeTab;
-        }
-
         this.$nextTick(() => {
           this.isLoading = false;
         });
@@ -250,6 +250,12 @@ export default Vue.extend({
 
   mounted() {
     this.getSettings();
+
+    // Reload active tab.
+    if (localStorage.getItem('active_tab')) {
+      this.activeTab = JSON.parse(localStorage.getItem('active_tab'));
+    }
   },
 });
+
 </script>

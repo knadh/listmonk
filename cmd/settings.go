@@ -7,7 +7,6 @@ import (
 	"strings"
 	"syscall"
 	"time"
-	"os"
 
 	"github.com/gofrs/uuid"
 	"github.com/jmoiron/sqlx/types"
@@ -107,8 +106,7 @@ type settings struct {
 		ScanInterval  string `json:"scan_interval"`
 	} `json:"bounce.mailboxes"`
 
-	AppearanceCustomCSS		string `json:"appearance.custom_css"`
-	SettingActiveTab		string `json:"activeTab"`
+	AdminCustomCSS		string `json:"admin.custom_css"`
 }
 
 var (
@@ -251,11 +249,6 @@ func handleUpdateSettings(c echo.Context) error {
 		set.SendgridKey = cur.SendgridKey
 	}
 
-	// Custom CSS
-	if err := os.WriteFile("frontend/dist/frontend/custom.css", []byte(set.AppearanceCustomCSS), 0666); err != nil {
-        return err
-    }
-
 	// Domain blocklist.
 	doms := make([]string, 0)
 	for _, d := range set.DomainBlocklist {
@@ -305,6 +298,19 @@ func handleUpdateSettings(c echo.Context) error {
 func handleGetLogs(c echo.Context) error {
 	app := c.Get("app").(*App)
 	return c.JSON(http.StatusOK, okResp{app.bufLog.Lines()})
+}
+
+// handleGetCustomCSS returns the custom CSS from the DB.
+func handleGetCustomCSS(c echo.Context) error {
+	app := c.Get("app").(*App)
+
+	s, err := getSettings(app)
+	if err != nil {
+		return err
+	}
+
+	css := []byte(s.AdminCustomCSS)
+	return c.Blob(http.StatusOK, "text/css", css)
 }
 
 func getSettings(app *App) (settings, error) {

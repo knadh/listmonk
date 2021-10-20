@@ -47,8 +47,9 @@ run:
 
 # Build the JS frontend into frontend/dist.
 $(FRONTEND_DIST): $(FRONTEND_DEPS)
-	export VUE_APP_VERSION="${VERSION}" && cd frontend && $(YARN) build && mv dist/custom.css dist/frontend/custom.css
+	export VUE_APP_VERSION="${VERSION}" && cd frontend && $(YARN) build
 	touch -c $(FRONTEND_DIST)
+
 
 .PHONY: build-frontend
 build-frontend: $(FRONTEND_DIST)

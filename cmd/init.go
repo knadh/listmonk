@@ -260,21 +260,6 @@ func initQueries(sqlFile string, db *sqlx.DB, fs stuffbin.FileSystem, prepareQue
 	return qMap, &q
 }
 
-func initCustomCSS(db *sqlx.DB) {
-
-	var css string
-	if err := db.Get(&css, `
-		(SELECT value->>-1 FROM settings WHERE key='appearance.custom_css')
-		`); err != nil {
-		css = "/* custom.css */"
-	}
-
-	//Generate Custom CSS file
-	if err := os.WriteFile("frontend/dist/frontend/custom.css", []byte(css), 0666); err != nil {
-        lo.Fatalf("error creating custom.css file: %v", err)
-    }
-}
-
 // initSettings loads settings from the DB.
 func initSettings(q *sqlx.Stmt) {
 	var s types.JSONText
