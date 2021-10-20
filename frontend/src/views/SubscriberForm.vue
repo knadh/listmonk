@@ -165,6 +165,18 @@ export default Vue.extend({
     },
 
     onSubmit() {
+      // If there is no name, auto-generate one from the e-mail.
+      if (!this.form.name) {
+        let name = '';
+        [name] = this.form.email.toLowerCase().split('@');
+
+        if (name.includes('.')) {
+          this.form.name = name.split('.').map((c) => this.$utils.titleCase(c)).join(' ');
+        } else {
+          this.form.name = this.$utils.titleCase(name);
+        }
+      }
+
       if (this.isEditing) {
         this.updateSubscriber();
         return;
