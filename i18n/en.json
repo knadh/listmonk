@@ -294,7 +294,7 @@
     "public.unsubbedInfo": "You have unsubscribed successfully.",
     "public.unsubbedTitle": "Unsubscribed",
     "public.unsubscribeTitle": "Unsubscribe from mailing list",
-    "settings.admin.cssHelp": "Optional. Add any custom css rules to theme the listmonk admin dashboard.",
+    "settings.admin.cssHelp": "Optional. Add custom css rules to theme the listmonk admin dashboard and public signup page",
     "settings.admin.name": "Admin",
     "settings.bounces.action": "Action",
     "settings.bounces.blocklist": "Blocklist",
