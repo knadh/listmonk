@@ -111,6 +111,7 @@
     "forms.title": "Formlar",
     "globals.buttons.add": "Ekle",
     "globals.buttons.addNew": "Ekle yeni",
+    "globals.buttons.back": "Back",
     "globals.buttons.cancel": "İptal",
     "globals.buttons.clone": "Klonla",
     "globals.buttons.close": "Kapat",

@@ -116,6 +116,10 @@ input[type="text"], input[type="email"], select {
     display: none;
   }
 
+#btn-back {
+  display: none;
+}
+
 footer.container {
   margin-top: 15px;
   text-align: center;

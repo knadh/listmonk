@@ -111,6 +111,7 @@
     "forms.title": "Formulare",
     "globals.buttons.add": "Adaugă",
     "globals.buttons.addNew": "Adaugă nou",
+    "globals.buttons.back": "Back",
     "globals.buttons.cancel": "Anulează",
     "globals.buttons.clone": "Clonează",
     "globals.buttons.close": "Închide",

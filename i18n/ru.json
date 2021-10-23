@@ -111,6 +111,7 @@
     "forms.title": "Формы",
     "globals.buttons.add": "Добавить",
     "globals.buttons.addNew": "Добавить",
+    "globals.buttons.back": "Back",
     "globals.buttons.cancel": "Отменить",
     "globals.buttons.clone": "Клонировать",
     "globals.buttons.close": "Закрыть",

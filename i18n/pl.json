@@ -111,6 +111,7 @@
     "forms.title": "Formularze",
     "globals.buttons.add": "Dodanj",
     "globals.buttons.addNew": "Dodaj nowe",
+    "globals.buttons.back": "Back",
     "globals.buttons.cancel": "Anuluj",
     "globals.buttons.clone": "Klonuj",
     "globals.buttons.close": "Zamknij",

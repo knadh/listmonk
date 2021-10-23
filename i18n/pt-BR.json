@@ -111,6 +111,7 @@
     "forms.title": "Formulários",
     "globals.buttons.add": "Adicionar",
     "globals.buttons.addNew": "Adicionar novo",
+    "globals.buttons.back": "Back",
     "globals.buttons.cancel": "Cancelar",
     "globals.buttons.clone": "Clonar",
     "globals.buttons.close": "Fechar",
