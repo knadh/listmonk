@@ -280,3 +280,6 @@ export const getLang = async (lang) => http.get(`/api/lang/${lang}`,
 export const logout = async () => http.get('/api/logout', {
   auth: { username: 'wrong', password: 'wrong' },
 });
+
+export const getNotifTemplate = async (name) => http.get(`/api/admin/template/${name}`,
+  { loading: models.settings });

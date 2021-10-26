@@ -134,8 +134,12 @@ func initHTTPHandlers(e *echo.Echo, app *App) {
 	g.PUT("/api/templates/:id/default", handleTemplateSetDefault)
 	g.DELETE("/api/templates/:id", handleDeleteTemplate)
 
-	// Custom CSS
-	g.GET("/admin/custom.css", handleGetCustomCSS)
+	// Appearance
+	g.GET("/api/admin/custom.css", handleGetAdminCustomCSS)
+	g.GET("/api/admin/template/:name", handleGetNotifTemplate)
+	g.GET("/api/admin/template/preview", handleGenerateNotifPreview)
+	g.GET("/api/public/custom.css", handleGetPublicCustomCSS)
+	g.GET("/api/public/custom.js", handleGetPublicCustomJS)
 
 	if app.constants.BounceWebhooksEnabled {
 		// Private authenticated bounce endpoint.

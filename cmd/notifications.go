@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"html/template"
 
 	"github.com/knadh/listmonk/internal/manager"
 )
@@ -26,8 +27,29 @@ func (app *App) sendNotification(toEmails []string, subject, tplName string, dat
 		return nil
 	}
 
+	//check to see if we have any custom templates defined in the Admin Dashboard
+	s, err := GetSettings(app)
+	if err != nil {
+		return err
+	}
+
+	header := []byte(s.AdminCustomTemplateHeader)
+	footer := []byte(s.AdminCustomTemplateFooter)
+
+	//duplicate the default template and replace any custom templates
+	dupTpl, _ := app.notifTpls.Clone()
+	if len(header) != 0 {
+		header, _ := template.New("header").Parse(string(header))
+		dupTpl.AddParseTree("header", header.Tree) 
+	}
+
+	if len(footer) != 0 {
+		footer, _ := template.New("footer").Parse(string(footer))
+		dupTpl.AddParseTree("footer", footer.Tree) 
+	}
+
 	var b bytes.Buffer
-	if err := app.notifTpls.ExecuteTemplate(&b, tplName, data); err != nil {
+	if err := dupTpl.ExecuteTemplate(&b, tplName, data); err != nil {
 		app.log.Printf("error compiling notification template '%s': %v", tplName, err)
 		return err
 	}
@@ -43,4 +65,15 @@ func (app *App) sendNotification(toEmails []string, subject, tplName string, dat
 		return err
 	}
 	return nil
+}
+
+func GetDefaultEmailTemplate(app *App, tplName string) []byte {
+	var b bytes.Buffer
+	var i interface{}
+	if err := app.notifTpls.ExecuteTemplate(&b, tplName, i); err != nil {
+		app.log.Printf("error retrieving template '%s': %v", tplName, err)
+		return nil
+	}
+
+	return b.Bytes()
 }

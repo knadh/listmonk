@@ -106,7 +106,11 @@ type settings struct {
 		ScanInterval  string `json:"scan_interval"`
 	} `json:"bounce.mailboxes"`
 
-	AdminCustomCSS		string `json:"admin.custom_css"`
+	AdminCustomCSS					string `json:"appearance.admin.custom_css"`
+	AdminCustomTemplateHeader		string `json:"appearance.admin.templates.header"`
+	AdminCustomTemplateFooter		string `json:"appearance.admin.templates.footer"`
+	PublicCustomCSS					string `json:"appearance.public.custom_css"`
+	PublicCustomJS					string `json:"appearance.public.custom_js"`
 }
 
 var (
@@ -117,7 +121,7 @@ var (
 func handleGetSettings(c echo.Context) error {
 	app := c.Get("app").(*App)
 
-	s, err := getSettings(app)
+	s, err := GetSettings(app)
 	if err != nil {
 		return err
 	}
@@ -151,7 +155,7 @@ func handleUpdateSettings(c echo.Context) error {
 	}
 
 	// Get the existing settings.
-	cur, err := getSettings(app)
+	cur, err := GetSettings(app)
 	if err != nil {
 		return err
 	}
@@ -300,11 +304,11 @@ func handleGetLogs(c echo.Context) error {
 	return c.JSON(http.StatusOK, okResp{app.bufLog.Lines()})
 }
 
-// handleGetCustomCSS returns the custom CSS from the DB.
-func handleGetCustomCSS(c echo.Context) error {
+// handleGetAdminCustomCSS returns the Admin custom CSS from the DB.
+func handleGetAdminCustomCSS(c echo.Context) error {
 	app := c.Get("app").(*App)
 
-	s, err := getSettings(app)
+	s, err := GetSettings(app)
 	if err != nil {
 		return err
 	}
@@ -313,7 +317,33 @@ func handleGetCustomCSS(c echo.Context) error {
 	return c.Blob(http.StatusOK, "text/css", css)
 }
 
-func getSettings(app *App) (settings, error) {
+// handleGetPublicCustomCSS returns the Admin custom CSS from the DB.
+func handleGetPublicCustomCSS(c echo.Context) error {
+	app := c.Get("app").(*App)
+
+	s, err := GetSettings(app)
+	if err != nil {
+		return err
+	}
+
+	css := []byte(s.PublicCustomCSS)
+	return c.Blob(http.StatusOK, "text/css", css)
+}
+
+// handleGetPublicCustomJS returns the Admin custom CSS from the DB.
+func handleGetPublicCustomJS(c echo.Context) error {
+	app := c.Get("app").(*App)
+
+	s, err := GetSettings(app)
+	if err != nil {
+		return err
+	}
+
+	js := []byte(s.PublicCustomJS)
+	return c.Blob(http.StatusOK, "text/javascript", js)
+}
+
+func GetSettings(app *App) (settings, error) {
 	var (
 		b   types.JSONText
 		out settings
@@ -332,4 +362,40 @@ func getSettings(app *App) (settings, error) {
 	}
 
 	return out, nil
+}
+
+// handleGetAdminCustomTemplate returns the default notification template given the block name.
+func handleGetNotifTemplate(c echo.Context) error {
+	app := c.Get("app").(*App)
+	name := c.Param("name")
+	template := GetDefaultEmailTemplate(app, name)
+	return c.JSON(http.StatusOK, okResp{string(template)})
+}
+
+// handleGenerateNotifPreview returns a constructed notifiactions template from the db and/or base.html
+func handleGenerateNotifPreview(c echo.Context) error {
+	app := c.Get("app").(*App)
+	s, err := GetSettings(app)
+	if err != nil {
+		return err
+	}
+
+	arr := []string{}
+	header := s.AdminCustomTemplateHeader
+	footer := s.AdminCustomTemplateFooter
+
+	if header != "" {
+		arr = append(arr, header) 
+	} else {
+		arr = append(arr, string(GetDefaultEmailTemplate(app, "header")))
+	}
+
+	if footer != "" {
+		arr = append(arr, footer) 
+	} else {
+		arr = append(arr, string(GetDefaultEmailTemplate(app, "footer")))
+	}
+
+	constructed := strings.Join(arr, "\n")
+	return c.Blob(http.StatusOK, "text/html", []byte(constructed))
 }

@@ -49,15 +49,9 @@
             <messenger-settings :form="form" :key="key" />
           </b-tab-item><!-- messengers -->
 
-          <b-tab-item :label="$t('settings.admin.name')">
-            <div class="items">
-              <!-- eslint-disable-next-line max-len -->
-              <b-field :label="$t('templates.customCSS')" label-position="on-border" :message="$t('settings.admin.cssHelp')">
-                <!-- eslint-disable-next-line max-len -->
-                <b-input v-model="form['admin.custom_css']" type="textarea" name="body" required />
-              </b-field>
-            </div>
-          </b-tab-item><!-- admin -->
+          <b-tab-item :label="$t('settings.appearance.name')">
+            <appearance-settings :form="form" :key="key" />
+          </b-tab-item><!-- appearance -->
 
         </b-tabs>
 
@@ -76,6 +70,7 @@ import MediaSettings from './settings/media.vue';
 import SmtpSettings from './settings/smtp.vue';
 import BounceSettings from './settings/bounces.vue';
 import MessengerSettings from './settings/messengers.vue';
+import AppearanceSettings from './settings/appearance.vue';
 
 const dummyPassword = ' '.repeat(8);
 
@@ -88,6 +83,7 @@ export default Vue.extend({
     SmtpSettings,
     BounceSettings,
     MessengerSettings,
+    AppearanceSettings,
   },
 
   data() {
@@ -108,7 +104,7 @@ export default Vue.extend({
 
   watch: {
     activeTab: function saveActiveTab() {
-      localStorage.setItem('active_tab', this.activeTab);
+      localStorage.setItem('admin.settings.active_tab', this.activeTab);
     },
   },
 
@@ -252,8 +248,8 @@ export default Vue.extend({
     this.getSettings();
 
     // Reload active tab.
-    if (localStorage.getItem('active_tab')) {
-      this.activeTab = JSON.parse(localStorage.getItem('active_tab'));
+    if (localStorage.getItem('admin.settings.active_tab')) {
+      this.activeTab = JSON.parse(localStorage.getItem('admin.settings.active_tab'));
     }
   },
 });
