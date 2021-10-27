@@ -462,6 +462,8 @@
     "subscribers.newSubscriber": "Novo inscrito",
     "subscribers.numSelected": "{num} inscrito(s) selecionado(s)",
     "subscribers.optinSubject": "Confirmar a inscrição",
+    "subscribers.preconfirm": "Pre-confirm subscriptions",
+    "subscribers.preconfirmHelp": "Don't send opt-in e-mails and mark all list subscriptions as 'subscribed'.",
     "subscribers.query": "Consulta",
     "subscribers.queryPlaceholder": "E-mail ou nome",
     "subscribers.reset": "Redefinir",

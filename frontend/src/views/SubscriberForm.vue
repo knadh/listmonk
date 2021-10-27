@@ -48,6 +48,11 @@
           :all="lists.results"
         ></list-selector>
 
+        <b-field :message="$t('subscribers.preconfirmHelp')">
+            <b-checkbox v-model="form.preconfirm"
+              :native-value="true">{{ $t('subscribers.preconfirm') }}</b-checkbox>
+        </b-field>
+
         <b-field :label="$t('subscribers.attribs')" label-position="on-border"
           :message="$t('subscribers.attribsHelp') + ' ' + egAttribs">
           <div>
@@ -124,7 +129,12 @@ export default Vue.extend({
     return {
       // Binds form input values. This is populated by subscriber props passed
       // from the parent component in mounted().
-      form: { lists: [], strAttribs: '{}', status: 'enabled' },
+      form: {
+        lists: [],
+        strAttribs: '{}',
+        status: 'enabled',
+        preconfirm: false,
+      },
       isBounceVisible: false,
       bounces: [],
       visibleMeta: {},
@@ -199,6 +209,7 @@ export default Vue.extend({
         name: this.form.name,
         status: this.form.status,
         attribs,
+        preconfirm_subscriptions: this.form.preconfirm,
 
         // List IDs.
         lists: this.form.lists.map((l) => l.id),
@@ -225,6 +236,7 @@ export default Vue.extend({
         email: this.form.email,
         name: this.form.name,
         status: this.form.status,
+        preconfirm_subscriptions: this.form.preconfirm,
         attribs,
 
         // List IDs.

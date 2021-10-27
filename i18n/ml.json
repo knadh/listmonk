@@ -462,6 +462,8 @@
     "subscribers.newSubscriber": "പുതിയ വരിക്കാരൻ",
     "subscribers.numSelected": "വരിക്കാരനെ തിരഞ്ഞെടുത്തു | {num} വരിക്കാരെ തിരഞ്ഞെടുത്തു",
     "subscribers.optinSubject": "വരിക്കാരനാകുന്നത് തീർപ്പാക്കുക",
+    "subscribers.preconfirm": "Pre-confirm subscriptions",
+    "subscribers.preconfirmHelp": "Don't send opt-in e-mails and mark all list subscriptions as 'subscribed'.",
     "subscribers.query": "ചോദ്യം",
     "subscribers.queryPlaceholder": "പേരോ ഇ-മെയിൽ വിലാസമോ",
     "subscribers.reset": "പുനഃസജ്ജമാക്കുക",
