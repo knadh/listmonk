@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"html/template"
 	"io"
 	"log"
 	"os"
@@ -43,7 +42,7 @@ type App struct {
 	media      media.Store
 	i18n       *i18n.I18n
 	bounce     *bounce.Manager
-	notifTpls  *template.Template
+	notifTpls  *notifTpls
 	log        *log.Logger
 	bufLog     *buflog.BufLog
 
