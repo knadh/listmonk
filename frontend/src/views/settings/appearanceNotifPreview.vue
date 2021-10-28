@@ -10,7 +10,7 @@
         <section expanded class="modal-card-body preview">
           <b-loading :active="isLoading" :is-full-page="false"></b-loading>
           <!-- eslint-disable-next-line max-len -->
-          <iframe id="iframe" name="iframe" ref="iframe" :title="previewTitle" :src="previewURL" @load="onLoaded"></iframe>
+          <iframe id="iframe" name="iframe" ref="iframe" :title="previewTitle" :src="previewURL"></iframe>
         </section>
         <footer class="modal-card-foot has-text-right">
           <b-button @click="close">{{ $t('globals.buttons.close') }}</b-button>
@@ -43,15 +43,10 @@ export default Vue.extend({
       this.$emit('close');
       this.isVisible = false;
     },
-
-    // On iframe load, kill the spinner.
-    onLoaded() {
-      this.isLoading = false;
-    },
   },
 
   mounted() {
-    console.log(this.previewTitle);
+    this.isLoading = false;
   },
 });
 
