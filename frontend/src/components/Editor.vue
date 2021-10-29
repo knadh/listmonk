@@ -60,7 +60,6 @@
           </footer>
         </div>
       </b-modal>
-
     </template>
 
     <!-- raw html editor //-->
@@ -211,6 +210,7 @@ export default {
         },
 
         min_height: 500,
+        toolbar_sticky: true,
         entity_encoding: 'raw',
         convert_urls: true,
         plugins: [

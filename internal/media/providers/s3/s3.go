@@ -1,7 +1,7 @@
 package s3
 
 import (
-	"errors"
+	"fmt"
 	"io"
 	"strings"
 	"time"
@@ -36,7 +36,7 @@ func NewS3Store(opt Opt) (media.Store, error) {
 		err error
 	)
 	if opt.URL == "" {
-		return nil, errors.New("Invalid AWS URL in settings.")
+		opt.URL = fmt.Sprintf("https://s3.%s.amazonaws.com", opt.Region)
 	}
 	opt.URL = strings.TrimRight(opt.URL, "/")
 
@@ -61,7 +61,7 @@ func NewS3Store(opt Opt) (media.Store, error) {
 // Put takes in the filename, the content type and file object itself and uploads to S3.
 func (c *Client) Put(name string, cType string, file io.ReadSeeker) (string, error) {
 	// Upload input parameters
-	upParams := simples3.UploadInput{
+	p := simples3.UploadInput{
 		Bucket:      c.opts.Bucket,
 		ContentType: cType,
 		FileName:    name,
@@ -70,8 +70,13 @@ func (c *Client) Put(name string, cType string, file io.ReadSeeker) (string, err
 		// Paths inside the bucket should not start with /.
 		ObjectKey: c.makeBucketPath(name),
 	}
-	// Perform an upload.
-	if _, err := c.s3.FileUpload(upParams); err != nil {
+
+	if c.opts.BucketType == "public" {
+		p.ACL = "public-read"
+	}
+
+	// Upload.
+	if _, err := c.s3.FileUpload(p); err != nil {
 		return "", err
 	}
 	return name, nil

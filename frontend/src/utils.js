@@ -103,6 +103,8 @@ export default class Utils {
   // https://stackoverflow.com/a/12034334
   escapeHTML = (html) => html.replace(/[&<>"'`=/]/g, (s) => htmlEntities[s]);
 
+  titleCase = (str) => str[0].toUpperCase() + str.substr(1).toLowerCase();
+
   // UI shortcuts.
   confirm = (msg, onConfirm, onCancel) => {
     Dialog.confirm({

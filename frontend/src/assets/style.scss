@@ -230,6 +230,11 @@ body.is-noscroll {
   .tox .tox-statusbar {
     border: 0;
   }
+
+  .tox-tinymce--toolbar-sticky-on .tox-editor-header {
+    padding-top: 48px !important;
+  }
+
 }
 
 

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"html/template"
@@ -32,6 +33,7 @@ import (
 	"github.com/knadh/listmonk/internal/messenger/email"
 	"github.com/knadh/listmonk/internal/messenger/postback"
 	"github.com/knadh/listmonk/internal/subimporter"
+	"github.com/knadh/listmonk/models"
 	"github.com/knadh/stuffbin"
 	"github.com/labstack/echo"
 	flag "github.com/spf13/pflag"
@@ -76,6 +78,11 @@ type constants struct {
 	BounceWebhooksEnabled bool
 	BounceSESEnabled      bool
 	BounceSendgridEnabled bool
+}
+
+type notifTpls struct {
+	tpls        *template.Template
+	contentType string
 }
 
 func initFlags() {
@@ -491,7 +498,7 @@ func initMediaStore() media.Store {
 
 // initNotifTemplates compiles and returns e-mail notification templates that are
 // used for sending ad-hoc notifications to admins and subscribers.
-func initNotifTemplates(path string, fs stuffbin.FileSystem, i *i18n.I18n, cs *constants) *template.Template {
+func initNotifTemplates(path string, fs stuffbin.FileSystem, i *i18n.I18n, cs *constants) *notifTpls {
 	// Register utility functions that the e-mail templates can use.
 	funcs := template.FuncMap{
 		"RootURL": func() string {
@@ -505,11 +512,36 @@ func initNotifTemplates(path string, fs stuffbin.FileSystem, i *i18n.I18n, cs *c
 		},
 	}
 
-	tpl, err := stuffbin.ParseTemplatesGlob(funcs, fs, "/static/email-templates/*.html")
+	tpls, err := stuffbin.ParseTemplatesGlob(funcs, fs, "/static/email-templates/*.html")
 	if err != nil {
 		lo.Fatalf("error parsing e-mail notif templates: %v", err)
 	}
-	return tpl
+
+	html, err := fs.Read("/static/email-templates/base.html")
+	if err != nil {
+		lo.Fatalf("error reading static/email-templates/base.html: %v", err)
+	}
+
+	out := &notifTpls{
+		tpls:        tpls,
+		contentType: models.CampaignContentTypeHTML,
+	}
+
+	// Determine whether the notification templates are HTML or plaintext.
+	// Copy the first few (arbitrary) bytes of the template and check if has the <!doctype html> tag.
+	ln := 256
+	if len(html) < ln {
+		ln = len(html)
+	}
+	h := make([]byte, ln)
+	copy(h, html[0:ln])
+
+	if !bytes.Contains(bytes.ToLower(h), []byte("<!doctype html>")) {
+		out.contentType = models.CampaignContentTypePlain
+		lo.Println("system e-mail templates are plaintext")
+	}
+
+	return out
 }
 
 // initBounceManager initializes the bounce manager that scans mailboxes and listens to webhooks

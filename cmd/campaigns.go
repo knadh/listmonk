@@ -773,7 +773,7 @@ func makeOptinCampaignMessage(o campaignReq, app *App) (campaignReq, error) {
 
 	// Prepare sample opt-in message for the campaign.
 	var b bytes.Buffer
-	if err := app.notifTpls.ExecuteTemplate(&b, "optin-campaign", struct {
+	if err := app.notifTpls.tpls.ExecuteTemplate(&b, "optin-campaign", struct {
 		Lists        []models.List
 		OptinURLAttr template.HTMLAttr
 	}{lists, optinURLAttr}); err != nil {
