@@ -188,7 +188,7 @@ func main() {
 
 	// Start the campaign workers. The campaign batches (fetch from DB, push out
 	// messages) get processed at the specified interval.
-	go app.manager.Run(time.Second * 5)
+	go app.manager.Run()
 
 	// Start the app server.
 	srv := initHTTPServer(app)

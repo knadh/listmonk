@@ -99,11 +99,12 @@ func initFlags() {
 	f.Bool("install", false, "setup database (first time)")
 	f.Bool("idempotent", false, "make --install run only if the databse isn't already setup")
 	f.Bool("upgrade", false, "upgrade database to the current version")
-	f.Bool("version", false, "current version of the build")
+	f.Bool("version", false, "show current version of the build")
 	f.Bool("new-config", false, "generate sample config file")
 	f.String("static-dir", "", "(optional) path to directory with static files")
 	f.String("i18n-dir", "", "(optional) path to directory with i18n language files")
 	f.Bool("yes", false, "assume 'yes' to prompts during --install/upgrade")
+	f.Bool("passive", false, "run in passive mode where campaigns are not processed")
 	if err := f.Parse(os.Args[1:]); err != nil {
 		lo.Fatalf("error loading flags: %v", err)
 	}
@@ -194,7 +195,7 @@ func initFS(appDir, frontendDir, staticDir, i18nDir string) stuffbin.FileSystem 
 			// Default dir in cwd.
 			i18nDir = "i18n"
 		}
-		lo.Printf("will load i18n files from: %v", i18nDir)
+		lo.Printf("loading i18n files from: %v", i18nDir)
 		files = append(files, joinFSPaths(i18nDir, i18nFiles)...)
 	}
 
@@ -203,7 +204,7 @@ func initFS(appDir, frontendDir, staticDir, i18nDir string) stuffbin.FileSystem 
 			// Default dir in cwd.
 			staticDir = "static"
 		}
-		lo.Printf("will load static files from: %v", staticDir)
+		lo.Printf("loading static files from: %v", staticDir)
 		files = append(files, joinFSPaths(staticDir, staticFiles)...)
 	}
 
@@ -352,6 +353,10 @@ func initCampaignManager(q *Queries, cs *constants, app *App) *manager.Manager {
 		lo.Fatal("app.message_rate should be at least 1")
 	}
 
+	if ko.Bool("passive") {
+		lo.Println("running in passive mode. won't process campaigns.")
+	}
+
 	return manager.New(manager.Config{
 		BatchSize:             ko.Int("app.batch_size"),
 		Concurrency:           ko.Int("app.concurrency"),
@@ -368,6 +373,8 @@ func initCampaignManager(q *Queries, cs *constants, app *App) *manager.Manager {
 		SlidingWindow:         ko.Bool("app.message_sliding_window"),
 		SlidingWindowDuration: ko.Duration("app.message_sliding_window_duration"),
 		SlidingWindowRate:     ko.Int("app.message_sliding_window_rate"),
+		ScanInterval:          time.Second * 5,
+		ScanCampaigns:         !ko.Bool("passive"),
 	}, newManagerStore(q), campNotifCB, app.i18n, lo)
 }
 
