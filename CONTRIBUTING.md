@@ -10,7 +10,7 @@ Welcome to listmonk! You can contribute to the project in the following ways:
 2. **Feature suggestions:** If you feel there is a nice enhancement or feature that can benefit many users, please open a feature request issue.
 	1. Ensure that you have searched the existing issues to avoid duplicates.
 	2. What makes sense for the project, what suits its scope and goals, and its future direction are at the discretion of the maintainers who put in the time, effort, and energy in building and maintaining the project for free. Please be respectful of this and keep discussions friendly and fruitful.
-	3. It is the responsibility of the requester to clearly explain and justify why a change is warranted. It is not the responsibility of the maintainers to coax this information out a requester. So, please post well researched, well thought out, and detailed feature requests saving everyone time.
+	3. It is the responsibility of the requester to clearly explain and justify why a change is warranted. It is not the responsibility of the maintainers to coax this information out of a requester. So, please post well researched, well thought out, and detailed feature requests saving everyone time.
 	4. Maintainers may close unclear feature requests that lack enough information. [Suggest a feature here](https://github.com/knadh/listmonk/issues/new?assignees=&labels=enhancement&template=feature-or-change-request.md&title=).
 
 3. **Improving docs:** You can submit corrections and improvements to the [documentation](https://listmonk.app/docs) website on the [docs repo](https://github.com/knadh/listmonk-docs).
