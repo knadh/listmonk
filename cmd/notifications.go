@@ -37,7 +37,7 @@ func (app *App) sendNotification(toEmails []string, subject, tplName string, dat
 	footer := []byte(s.AdminCustomTemplateFooter)
 
 	//duplicate the default template and replace any custom templates
-	dupTpl, _ := app.notifTpls.Clone()
+	dupTpl, _ := app.notifTpls.tpls.Clone()
 	if len(header) != 0 {
 		header, _ := template.New("header").Parse(string(header))
 		dupTpl.AddParseTree("header", header.Tree) 
@@ -71,7 +71,7 @@ func (app *App) sendNotification(toEmails []string, subject, tplName string, dat
 func GetDefaultEmailTemplate(app *App, tplName string) []byte {
 	var b bytes.Buffer
 	var i interface{}
-	if err := app.notifTpls.ExecuteTemplate(&b, tplName, i); err != nil {
+	if err := app.notifTpls.tpls.ExecuteTemplate(&b, tplName, i); err != nil {
 		app.log.Printf("error retrieving template '%s': %v", tplName, err)
 		return nil
 	}
