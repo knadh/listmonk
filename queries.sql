@@ -495,7 +495,7 @@ SELECT campaigns.*, COALESCE(templates.body, (SELECT body FROM templates WHERE i
 	) l
 ) AS lists
 FROM campaigns
-LEFT JOIN templates ON (templates.id = campaigns.template_id)
+LEFT JOIN templates ON (templates.id = (CASE WHEN $2=0 THEN campaigns.template_id ELSE $2 END))
 WHERE campaigns.id = $1;
 
 -- name: get-campaign-status
