@@ -1,9 +1,6 @@
 package main
 
 import (
-	"bytes"
-	"html/template"
-
 	"github.com/knadh/listmonk/internal/manager"
 )
 
@@ -27,29 +24,8 @@ func (app *App) sendNotification(toEmails []string, subject, tplName string, dat
 		return nil
 	}
 
-	//check to see if we have any custom templates defined in the Admin Dashboard
-	s, err := GetSettings(app)
+	body, err := GenerateEmailTemplate(app, tplName, data)
 	if err != nil {
-		return err
-	}
-
-	header := []byte(s.AdminCustomTemplateHeader)
-	footer := []byte(s.AdminCustomTemplateFooter)
-
-	//duplicate the default template and replace any custom templates
-	dupTpl, _ := app.notifTpls.tpls.Clone()
-	if len(header) != 0 {
-		header, _ := template.New("header").Parse(string(header))
-		dupTpl.AddParseTree("header", header.Tree) 
-	}
-
-	if len(footer) != 0 {
-		footer, _ := template.New("footer").Parse(string(footer))
-		dupTpl.AddParseTree("footer", footer.Tree) 
-	}
-
-	var b bytes.Buffer
-	if err := dupTpl.ExecuteTemplate(&b, tplName, data); err != nil {
 		app.log.Printf("error compiling notification template '%s': %v", tplName, err)
 		return err
 	}
@@ -59,22 +35,11 @@ func (app *App) sendNotification(toEmails []string, subject, tplName string, dat
 	m.From = app.constants.FromEmail
 	m.To = toEmails
 	m.Subject = subject
-	m.Body = b.Bytes()
+	m.Body = body
 	m.Messenger = emailMsgr
 	if err := app.manager.PushMessage(m); err != nil {
 		app.log.Printf("error sending admin notification (%s): %v", subject, err)
 		return err
 	}
 	return nil
-}
-
-func GetDefaultEmailTemplate(app *App, tplName string) []byte {
-	var b bytes.Buffer
-	var i interface{}
-	if err := app.notifTpls.tpls.ExecuteTemplate(&b, tplName, i); err != nil {
-		app.log.Printf("error retrieving template '%s': %v", tplName, err)
-		return nil
-	}
-
-	return b.Bytes()
 }

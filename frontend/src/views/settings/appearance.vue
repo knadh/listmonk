@@ -41,71 +41,41 @@
 
       <!-- eslint-disable-next-line max-len -->
       <b-tab-item :label="$t('settings.appearance.templates.name')" label-position="on-border">
-        <div class="block">
-          <p>
-            {{ $t('settings.appearance.templates.help') }}
-          </p>
-          <p>
-            <a href="https://github.com/knadh/listmonk/blob/master/static/email-templates/base.html">https://github.com/knadh/listmonk/blob/master/static/email-templates/base.html</a>
-          </p>
-          <p>
-            {{ $t('settings.appearance.templates.moreHelp') }}
-          </p>
+        <p>
+          {{ $t('settings.appearance.templates.help') }}
+        </p>
+        <p>
+          <a href="https://listmonk.app/docs/templating/">https://listmonk.app/docs/templating/</a>
+        </p>
+        <p>
+          {{ $t('settings.appearance.templates.previewHelp') }}
+        </p>
 
-          <div class="columns">
-            <div class="column is-three-quarters">
-              <p>
-                {{ $t('settings.appearance.templates.previewHelp') }}
-              </p>
-            </div>
-            <div class="column has-text-right">
+        <div class="columns is-vcentered">
+          <div class="column">
+            <b-select v-model="activeTemplate">
               <!-- eslint-disable-next-line max-len -->
-              <b-button type="is-primary" class="has-text-right" icon-left="file-find-outline" @click.prevent="showPreview()">{{ $t('globals.buttons.preview') }}</b-button>
+              <option v-for="template in definedTemplates" :value="template" :key="template">{{template}}</option>
+            </b-select>
+          </div>
+          <div class="column is-narrow">
+            <div class="columns">
+              <div class="column is-narrow">
+                <!-- eslint-disable-next-line max-len -->
+                <b-button type="is-primary is-light" size="is-small" icon-left="eye-outline" @click.prevent="showTemplate(activeTemplate)">{{ $t('globals.buttons.showDefault') }}</b-button>
+              </div>
+              <div class="column is-narrow">
+                <!-- eslint-disable-next-line max-len -->
+                <b-button type="is-primary" size="is-small" icon-left="file-find-outline" @click.prevent="showPreview()">{{ $t('globals.buttons.preview') }}</b-button>
+              </div>
             </div>
           </div>
         </div>
-        <hr>
-
-        <div class="block">
+        <!-- eslint-disable-next-line max-len -->
+        <b-field :label="$t('settings.appearance.customTemplate')" label-position="on-border" :message="$t('settings.appearance.templates.templateHelp')">
           <!-- eslint-disable-next-line max-len -->
-          <b-field :label="$t('settings.appearance.headerTemplate')" label-position="on-border" :message="$t('settings.appearance.headerTemplateHelp')">
-            <!-- eslint-disable-next-line max-len -->
-            <b-input v-model="data['appearance.admin.templates.header']" type="textarea" name="body" />
-          </b-field>
-
-          <div class="columns">
-            <div class="column is-three-quarters">
-              <p>
-                {{ $t('settings.appearance.headerTemplateInfo') }}
-              </p>
-            </div>
-            <div class="column has-text-right">
-              <!-- eslint-disable-next-line max-len -->
-              <b-button type="is-primary" size="is-small" class="has-text-right" icon-left="eye-outline" @click.prevent="showDefaultTemplate('header')">{{ $t('globals.buttons.showDefault') }}</b-button>
-            </div>
-          </div>
-        </div>
-        <hr>
-
-        <div class="block">
-          <!-- eslint-disable-next-line max-len -->
-          <b-field :label="$t('settings.appearance.footerTemplate')" label-position="on-border" :message="$t('settings.appearance.footerTemplateHelp')">
-            <!-- eslint-disable-next-line max-len -->
-            <b-input v-model="data['appearance.admin.templates.footer']" type="textarea" name="body" />
-          </b-field>
-
-          <div class="columns">
-            <div class="column is-three-quarters">
-              <p>
-                {{ $t('settings.appearance.footerTemplateInfo') }}
-              </p>
-            </div>
-            <div class="column has-text-right">
-              <!-- eslint-disable-next-line max-len -->
-              <b-button type="is-primary" size="is-small" class="has-text-right" icon-left="eye-outline" @click.prevent="showDefaultTemplate('footer')">{{ $t('globals.buttons.showDefault') }}</b-button>
-            </div>
-          </div>
-        </div>
+          <b-input v-model="data[`appearance.admin.custom_templates.${activeTemplate}`]" type="textarea" name="body" />
+        </b-field>
 
         <!-- show default modal -->
         <!-- eslint-disable-next-line max-len -->
@@ -115,7 +85,7 @@
 
         <!-- show preview -->
         <!-- eslint-disable-next-line max-len -->
-        <appearance-notif-preview v-if="previewTitle" :previewTitle="previewTitle" @close="closePreview"></appearance-notif-preview>
+        <appearance-notif-preview v-if="previewTitle" :previewTitle="previewTitle" :previewURL="previewURL" @close="closePreview"></appearance-notif-preview>
       </b-tab-item><!-- notifications -->
     </b-tabs>
   </div>
@@ -137,6 +107,9 @@ export default Vue.extend({
     form: {
       type: Object,
     },
+    definedTemplates: {
+      type: Array,
+    },
   },
 
   data() {
@@ -144,9 +117,11 @@ export default Vue.extend({
       data: this.form,
       activeTab: 0,
       isDefaultViewerVisible: false,
-      defaultName: '',
-      defaultBody: '',
+      defaultName: null,
+      defaultBody: null,
       previewTitle: null,
+      previewURL: null,
+      activeTemplate: null,
     };
   },
 
@@ -154,18 +129,24 @@ export default Vue.extend({
     activeTab: function activeTab() {
       localStorage.setItem('admin.settings.appearance.active_tab', this.activeTab);
     },
+
+    activeTemplate: function activeTemplate() {
+      localStorage.setItem('admin.settings.appearance.active_template', this.activeTemplate);
+    },
   },
 
   methods: {
     showPreview() {
-      this.previewTitle = this.$t('settings.appearance.templates.previewTitle');
+      this.previewTitle = this.activeTemplate;
+      this.previewURL = `/api/admin/templates/preview/${this.activeTemplate}`;
     },
 
     closePreview() {
       this.previewTitle = null;
+      this.previewURL = null;
     },
 
-    showDefaultTemplate(name) {
+    showTemplate(name) {
       this.$api.getNotifTemplate(name).then((resp) => {
         const capitalized = name.charAt(0).toUpperCase() + name.slice(1);
         this.defaultName = `{{ ${capitalized} }}`;
@@ -181,6 +162,15 @@ export default Vue.extend({
     // Reload active tab.
     if (localStorage.getItem('admin.settings.appearance.active_tab')) {
       this.activeTab = JSON.parse(localStorage.getItem('admin.settings.appearance.active_tab'));
+    }
+
+    // Reload active Template
+    if (localStorage.getItem('admin.settings.appearance.active_template')) {
+      this.activeTemplate = localStorage.getItem('admin.settings.appearance.active_template');
+    }
+
+    if (!this.activeTemplate) {
+      [this.activeTemplate] = this.definedTemplates;
     }
   },
 

@@ -26,8 +26,12 @@ export default Vue.extend({
   },
 
   props: {
-    defaultName: String,
-    defaultBody: String,
+    defaultName: {
+      type: String,
+    },
+    defaultBody: {
+      type: String,
+    },
   },
 
   data() {

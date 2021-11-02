@@ -281,5 +281,11 @@ export const logout = async () => http.get('/api/logout', {
   auth: { username: 'wrong', password: 'wrong' },
 });
 
-export const getNotifTemplate = async (name) => http.get(`/api/admin/template/${name}`,
+export const getNotifTemplate = async (name) => http.get(`/api/admin/templates/${name}`,
+  { loading: models.settings });
+
+export const generateNotifPreview = async (name) => http.get(`/api/admin/templates/preview/${name}`,
+  { loading: models.settings });
+
+export const getDefinedTemplates = async () => http.get('/api/admin/templates',
   { loading: models.settings });

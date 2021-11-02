@@ -7,10 +7,15 @@ import (
 	"strings"
 	"syscall"
 	"time"
+	"fmt"
+	"html/template"
+	"sort"
+	"bytes"
 
 	"github.com/gofrs/uuid"
 	"github.com/jmoiron/sqlx/types"
 	"github.com/labstack/echo"
+	"github.com/knadh/listmonk/models"
 )
 
 type settings struct {
@@ -106,15 +111,61 @@ type settings struct {
 		ScanInterval  string `json:"scan_interval"`
 	} `json:"bounce.mailboxes"`
 
-	AdminCustomCSS					string `json:"appearance.admin.custom_css"`
-	AdminCustomTemplateHeader		string `json:"appearance.admin.templates.header"`
-	AdminCustomTemplateFooter		string `json:"appearance.admin.templates.footer"`
-	PublicCustomCSS					string `json:"appearance.public.custom_css"`
-	PublicCustomJS					string `json:"appearance.public.custom_js"`
+	AdminCustomCSS					string 				`json:"appearance.admin.custom_css"`
+	AdminCustomTemplates			map[string]string 	`json:"appearance.admin.custom_templates"`
+	PublicCustomCSS					string 				`json:"appearance.public.custom_css"`
+	PublicCustomJS					string 				`json:"appearance.public.custom_js"`
+}
+
+type dummyStruct struct {
+	models.Subscriber
+
+	OptinURL 		string
+	OptinURLAttr 	template.HTMLAttr
+	Lists    		[]models.List
+	Imported 		int
+	Total			int
 }
 
 var (
 	reAlphaNum = regexp.MustCompile(`[^a-z0-9\-]`)
+
+	dummySub = models.Subscriber{
+		Email:   	"demo@listmonk.app",
+		Name:    	"Demo Subscriber",
+		UUID:    	dummyUUID,
+		Attribs: 	models.SubscriberAttribs{"city": "Bengaluru"},
+		Status:	 	"enabled",
+	}
+
+	dummyList = models.List{
+		UUID:            	dummyUUID,
+		Name:            	"Demo list",
+		Type:            	"public",
+		Optin:           	"double",
+		SubscriberCount: 	100,
+		SubscriberID:    	1,
+		SubscriptionStatus: "confirmed",
+		Total: 				500,
+	}
+
+	dummyData = dummyStruct{
+		Subscriber: 	dummySub,
+		OptinURL:		"https://demo.url",
+		OptinURLAttr:	template.HTMLAttr(fmt.Sprintf(`href="OptinURL"`)),
+		Lists:			[]models.List {dummyList},
+		Imported:		100,
+		Total:			150,
+	}
+
+	dummyCampaign = map[string]interface{}{
+			"ID":     	1,
+			"Name":   	"Demo Campaign",
+			"Status": 	"running",
+			"Sent":   	1000,
+			"ToSend": 	1200,
+			"Reason": 	"",
+	}
 )
 
 // handleGetSettings returns settings from the DB.
@@ -368,34 +419,89 @@ func GetSettings(app *App) (settings, error) {
 func handleGetNotifTemplate(c echo.Context) error {
 	app := c.Get("app").(*App)
 	name := c.Param("name")
-	template := GetDefaultEmailTemplate(app, name)
+
+	template := GetDefaultTemplate(app, name)
 	return c.JSON(http.StatusOK, okResp{string(template)})
 }
 
-// handleGenerateNotifPreview returns a constructed notifiactions template from the db and/or base.html
+// handleGetTemplates returns the currently defined templates.
+func handleGetDefinedTemplates(c echo.Context) error {
+	app := c.Get("app").(*App)
+
+	defined := GetDefinedTemplates(app)
+	return c.JSON(http.StatusOK, okResp{defined})
+}
+
+// handleGenerateNotifPreview returns a constructed notifications template from the db
 func handleGenerateNotifPreview(c echo.Context) error {
 	app := c.Get("app").(*App)
+	name := c.Param("name")
+
+	//use dummy data to generate preview
+	body, err := GenerateEmailTemplate(app, name, dummyData)
+	if err != nil {
+
+		//try using dummy campaign data before returning error
+		cBody, cErr := GenerateEmailTemplate(app, name, dummyCampaign)
+		if cErr != nil {
+			app.log.Printf("error generating notification preview '%s': %v", name, cErr)
+			return cErr
+		}
+		return c.Blob(http.StatusOK, "text/html", []byte(cBody))
+	}
+
+	return c.Blob(http.StatusOK, "text/html", []byte(body))
+}
+
+func GetDefinedTemplates(app *App) []string {
+	templs := app.notifTpls.tpls.Templates()
+	defined := []string{}
+	for _, tmpl := range templs {
+		name := tmpl.Name()
+
+		//ignore any .html templates
+		if !strings.HasSuffix(name, "html") {
+			defined = append(defined, name)
+		}
+	}
+
+	sort.Strings(defined)
+	return defined
+}
+
+func GenerateEmailTemplate(app *App, tplName string, data interface{}) ([]byte, error) {
+	//get settings
 	s, err := GetSettings(app)
 	if err != nil {
-		return err
+		return nil, err
+	}
+	
+	//duplicate the default template
+	dupTpl, _ := app.notifTpls.tpls.Clone()
+
+	//get all defined template names
+	dfltTempls := GetDefinedTemplates(app)
+
+	//check to see if we have any custom templates defined in the Admin Dashboard, then override the default template
+	cstmTmplsJSON := map[string]string(s.AdminCustomTemplates)
+	for _, name := range dfltTempls {
+			val, ok := cstmTmplsJSON[name]
+			if ok {
+				newTemplate, _ := template.New(name).Parse(val)
+				dupTpl.AddParseTree(name, newTemplate.Tree)
+			}
 	}
 
-	arr := []string{}
-	header := s.AdminCustomTemplateHeader
-	footer := s.AdminCustomTemplateFooter
-
-	if header != "" {
-		arr = append(arr, header) 
-	} else {
-		arr = append(arr, string(GetDefaultEmailTemplate(app, "header")))
+	var b bytes.Buffer
+	if err := dupTpl.ExecuteTemplate(&b, tplName, data); err != nil {
+		app.log.Printf("error generating notification template '%s': %v", tplName, err)
+		return nil, err
 	}
 
-	if footer != "" {
-		arr = append(arr, footer) 
-	} else {
-		arr = append(arr, string(GetDefaultEmailTemplate(app, "footer")))
-	}
+	return b.Bytes(), nil
+}
 
-	constructed := strings.Join(arr, "\n")
-	return c.Blob(http.StatusOK, "text/html", []byte(constructed))
+func GetDefaultTemplate(app *App, tplName string) []byte {
+	tmpl := app.notifTpls.tpls.Lookup(tplName)
+	return []byte(tmpl.Tree.Root.String())
 }

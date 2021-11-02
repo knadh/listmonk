@@ -25,16 +25,18 @@ import Vue from 'vue';
 
 export default Vue.extend({
   props: {
-    previewTitle: String,
+    previewTitle: {
+      type: String,
+    },
+    previewURL: {
+      type: String,
+    },
   },
 
   data() {
     return {
       isVisible: true,
       isLoading: true,
-
-      // preview is dynamically generated and returned from http handler
-      previewURL: '/api/admin/template/preview',
     };
   },
 
