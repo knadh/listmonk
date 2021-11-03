@@ -85,6 +85,8 @@
     "dashboard.linkClicks": "Linklerin tıklanması",
     "dashboard.messagesSent": "Mesaj gönderildi",
     "dashboard.orphanSubs": "Sahipsiz",
+    "dashboard.subscriberDomains": "Subscriber e-mail domains",
+    "dashboard.subscribersCount": "Subscribers count",
     "email.data.info": "Hakkınızda üretilmiş tüm veri JSON formatında bir dosya olarak eklendi. Bir meti düzenleyici ile görüntüleyebilirsiniz.",
     "email.data.title": "Sizin veriniz",
     "email.optin.confirmSub": "Üyeliği onaylayınız",

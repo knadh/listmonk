@@ -85,6 +85,8 @@
     "dashboard.linkClicks": "Clickuri pe link",
     "dashboard.messagesSent": "Mesaj trimis",
     "dashboard.orphanSubs": "orfani",
+    "dashboard.subscriberDomains": "Subscriber e-mail domains",
+    "dashboard.subscribersCount": "Subscribers count",
     "email.data.info": "O copie a tuturor datelor înregistrate pe dvs. este atașată ca fișier în format JSON. Poate fi vizualizat într-un editor de text.",
     "email.data.title": "Datele tale",
     "email.optin.confirmSub": "Confirmă abonarea",
