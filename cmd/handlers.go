@@ -136,9 +136,10 @@ func initHTTPHandlers(e *echo.Echo, app *App) {
 
 	// Appearance
 	g.GET("/api/admin/custom.css", handleGetAdminCustomCSS)
-	g.GET("/api/admin/templates/:name", handleGetNotifTemplate)
 	g.GET("/api/admin/templates", handleGetDefinedTemplates)
+	g.GET("/api/admin/templates/:name", handleGetNotifTemplate)
 	g.GET("/api/admin/templates/preview/:name", handleGenerateNotifPreview)
+	g.GET("/api/admin/templates/staticdir/isloaded", handleGetStaticDirStatus)
 	g.GET("/api/public/custom.css", handleGetPublicCustomCSS)
 	g.GET("/api/public/custom.js", handleGetPublicCustomJS)
 

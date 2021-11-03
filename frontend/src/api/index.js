@@ -289,3 +289,6 @@ export const generateNotifPreview = async (name) => http.get(`/api/admin/templat
 
 export const getDefinedTemplates = async () => http.get('/api/admin/templates',
   { loading: models.settings });
+
+export const getStaticDirStatus = () => http.get('/api/admin/templates/staticdir/isloaded',
+  { loading: models.settings });

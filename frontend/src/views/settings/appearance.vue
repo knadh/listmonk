@@ -40,7 +40,7 @@
       </b-tab-item><!-- public -->
 
       <!-- eslint-disable-next-line max-len -->
-      <b-tab-item :label="$t('settings.appearance.templates.name')" label-position="on-border">
+      <b-tab-item :visible="isNotifTabVisible" :label="$t('settings.appearance.templates.name')" label-position="on-border">
         <p>
           {{ $t('settings.appearance.templates.help') }}
         </p>
@@ -66,7 +66,7 @@
               </div>
               <div class="column is-narrow">
                 <!-- eslint-disable-next-line max-len -->
-                <b-button type="is-primary" size="is-small" icon-left="file-find-outline" @click.prevent="showPreview()">{{ $t('globals.buttons.preview') }}</b-button>
+                <b-button type="is-primary" size="is-small" icon-left="file-find-outline" :disabled="isDisabled" @click.prevent="showPreview()">{{ $t('globals.buttons.preview') }}</b-button>
               </div>
             </div>
           </div>
@@ -122,6 +122,8 @@ export default Vue.extend({
       previewTitle: null,
       previewURL: null,
       activeTemplate: null,
+      isDisabled: true,
+      isNotifTabVisible: false,
     };
   },
 
@@ -132,6 +134,9 @@ export default Vue.extend({
 
     activeTemplate: function activeTemplate() {
       localStorage.setItem('admin.settings.appearance.active_template', this.activeTemplate);
+
+      // Disable preview on partial templates
+      this.isDisabled = (this.activeTemplate.startsWith('partial-'));
     },
   },
 
@@ -148,8 +153,7 @@ export default Vue.extend({
 
     showTemplate(name) {
       this.$api.getNotifTemplate(name).then((resp) => {
-        const capitalized = name.charAt(0).toUpperCase() + name.slice(1);
-        this.defaultName = `{{ ${capitalized} }}`;
+        this.defaultName = `{{ ${name} }}`;
         if (resp.length > 0) {
           this.defaultBody = resp;
           this.isDefaultViewerVisible = true;
@@ -172,6 +176,11 @@ export default Vue.extend({
     if (!this.activeTemplate) {
       [this.activeTemplate] = this.definedTemplates;
     }
+
+    // Show the Appearance/Notifications template editor?
+    this.$api.getStaticDirStatus().then((resp) => {
+      this.isNotifTabVisible = !resp;
+    });
   },
 
   computed: {

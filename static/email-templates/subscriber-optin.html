@@ -1,5 +1,5 @@
 {{ define "subscriber-optin" }}
-{{ template "header" . }}
+{{ template "partial-header" . }}
 <h2>{{ L.Ts "email.optin.confirmSubTitle" }}</h2>
 <p>{{ L.Ts "email.optin.confirmSubWelcome" }} {{ .Subscriber.FirstName }}</p>
 <p>{{ L.Ts "email.optin.confirmSubInfo" }}</p>
@@ -17,5 +17,5 @@
     <a href="{{ .OptinURL }}" class="button">{{ L.Ts "email.optin.confirmSub" }}</a>
 </p>
 
-{{ template "footer" }}
+{{ template "partial-footer" }}
 {{ end }}

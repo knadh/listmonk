@@ -453,6 +453,14 @@ func handleGenerateNotifPreview(c echo.Context) error {
 	return c.Blob(http.StatusOK, "text/html", []byte(body))
 }
 
+// handleGetTemplates returns the currently defined templates.
+func handleGetStaticDirStatus(c echo.Context) error {
+	app := c.Get("app").(*App)
+
+	status := app.staticDirLoaded
+	return c.JSON(http.StatusOK, okResp{status})
+}
+
 func GetDefinedTemplates(app *App) []string {
 	templs := app.notifTpls.tpls.Templates()
 	defined := []string{}
@@ -479,17 +487,21 @@ func GenerateEmailTemplate(app *App, tplName string, data interface{}) ([]byte, 
 	//duplicate the default template
 	dupTpl, _ := app.notifTpls.tpls.Clone()
 
-	//get all defined template names
-	dfltTempls := GetDefinedTemplates(app)
+	// Disable custom templates if we startup using the --static-dir flag
+	status := app.staticDirLoaded
+	if status == false {
+		//get all defined template names
+		dfltTempls := GetDefinedTemplates(app)
 
-	//check to see if we have any custom templates defined in the Admin Dashboard, then override the default template
-	cstmTmplsJSON := map[string]string(s.AdminCustomTemplates)
-	for _, name := range dfltTempls {
-			val, ok := cstmTmplsJSON[name]
-			if ok {
-				newTemplate, _ := template.New(name).Parse(val)
-				dupTpl.AddParseTree(name, newTemplate.Tree)
-			}
+		//check to see if we have any custom templates defined in the Admin Dashboard, then override the default template
+		cstmTmplsJSON := map[string]string(s.AdminCustomTemplates)
+		for _, name := range dfltTempls {
+				val, ok := cstmTmplsJSON[name]
+				if ok {
+					newTemplate, _ := template.New(name).Parse(val)
+					dupTpl.AddParseTree(name, newTemplate.Tree)
+				}
+		} 
 	}
 
 	var b bytes.Buffer

@@ -88,7 +88,7 @@ export default Vue.extend({
 
   data() {
     return {
-      // :key="key" is a ack to re-render child components every time settings
+      // :key="key" is a hack to re-render child components every time settings
       // is pulled. Otherwise, props don't react.
       key: 0,
 
