@@ -129,15 +129,23 @@
                 </div>
               </div>
               <div class="columns">
-                <div class="column is-6">
+                <div class="column">
                   <h3 class="title is-size-6">{{ $t('dashboard.subscribersCount') }}</h3><br />
                   <div ref="chart-subscribers"></div>
                 </div>
-                <div class="column is-6">
-                  <h3 class="title is-size-6 has-text-right">
+              </div>
+              <div class="columns">
+                <div class="column">
+                  <h3 class="title is-size-6">
                     {{ $t('dashboard.subscriberDomains') }}
                   </h3><br />
-                  <div ref="chart-domains"></div>
+                  <div class="columns">
+                    <div class="column is-4">
+                      <div ref="chart-domains"></div>
+                    </div>
+                    <div class="column is-8">
+                      <div class="legend-container"></div>
+                    </div>
                 </div>
               </div>
             </article>
@@ -151,11 +159,34 @@
 
 <style lang="css">
   @import "~c3/c3.css";
+  .legend span {
+    display: inline-block;
+    margin-left: 7px;
+    margin-right: 7px;
+    padding: 5px;
+  }
+
+  .legend .hidden {
+    color: rgb(161, 161, 161);
+  }
+
+  .legend .hidden span {
+    visibility: hidden;
+  }
+
+  .legend {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    overflow: auto;
+    height: 320px;
+  }
 </style>
 
 <script>
 import Vue from 'vue';
 import c3 from 'c3';
+import * as d3 from 'd3';
 import dayjs from 'dayjs';
 import { colors } from '../constants';
 
@@ -233,7 +264,25 @@ export default Vue.extend({
       };
 
       this.$nextTick(() => {
-        c3.generate(conf);
+        const chart = c3.generate(conf);
+
+        d3.select('.legend-container').insert('div', '.chart').attr('class', 'legend').selectAll('div')
+          .data([...data.map((d) => d.domain)])
+          .enter()
+          .append('div')
+          .attr('data-id', (id) => id)
+          .attr('class', 'is-size-6')
+          .html((id) => `<span style="background-color: ${chart.color(id)}"></span> ${id}`)
+          .on('mouseover', (event) => {
+            chart.focus(event.target.dataset.id);
+          })
+          .on('mouseout', () => {
+            chart.revert();
+          })
+          .on('click', (event) => {
+            event.target.classList.toggle('hidden');
+            chart.toggle(event.target.dataset.id);
+          });
       });
     },
   },
