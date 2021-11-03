@@ -1,4 +1,4 @@
-FROM node as base
+FROM node:16 as base
 
 WORKDIR /listmonk
 COPY . .
