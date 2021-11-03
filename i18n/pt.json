@@ -85,6 +85,8 @@
     "dashboard.linkClicks": "Cliques nos links",
     "dashboard.messagesSent": "Mensagens enviadas",
     "dashboard.orphanSubs": "Órfãos",
+    "dashboard.subscriberDomains": "Subscriber e-mail domains",
+    "dashboard.subscribersCount": "Subscribers count",
     "email.data.info": "Uma cópia de todos os seus dados está em anexo em formato JSON. Pode ser visualizada num editor de texto.",
     "email.data.title": "Os seus dados",
     "email.optin.confirmSub": "Confirmar subscrição",

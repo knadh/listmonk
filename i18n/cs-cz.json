@@ -85,6 +85,8 @@
     "dashboard.linkClicks": "Klepnutí na odkaz",
     "dashboard.messagesSent": "Zprávy odeslány",
     "dashboard.orphanSubs": "Sirotci",
+    "dashboard.subscriberDomains": "Subscriber e-mail domains",
+    "dashboard.subscribersCount": "Subscribers count",
     "email.data.info": "Kopie všech dat, která jste zaznamenali, je připojená jako soubor ve formátu JSON. Lze ji zobrazit v textovém editoru.",
     "email.data.title": "Vaše data",
     "email.optin.confirmSub": "Potvrdit odběr",

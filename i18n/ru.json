@@ -85,6 +85,8 @@
     "dashboard.linkClicks": "Кликов по ссылкам",
     "dashboard.messagesSent": "Отправлено сообщений",
     "dashboard.orphanSubs": "Подписчиков не в писках",
+    "dashboard.subscriberDomains": "Subscriber e-mail domains",
+    "dashboard.subscribersCount": "Subscribers count",
     "email.data.info": "Копия всех записанных на вас данных прилагается в виде файла в формате JSON. Его можно просмотреть в текстовом редакторе.",
     "email.data.title": "Ваши данные",
     "email.optin.confirmSub": "Подтвердить подписку",

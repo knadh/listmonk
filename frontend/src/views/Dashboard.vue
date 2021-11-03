@@ -128,6 +128,18 @@
                   <div ref="chart-clicks"></div>
                 </div>
               </div>
+              <div class="columns">
+                <div class="column is-6">
+                  <h3 class="title is-size-6">{{ $t('dashboard.subscribersCount') }}</h3><br />
+                  <div ref="chart-subscribers"></div>
+                </div>
+                <div class="column is-6">
+                  <h3 class="title is-size-6 has-text-right">
+                    {{ $t('dashboard.subscriberDomains') }}
+                  </h3><br />
+                  <div ref="chart-domains"></div>
+                </div>
+              </div>
             </article>
           </div>
         </div>
@@ -199,6 +211,31 @@ export default Vue.extend({
         c3.generate(conf);
       });
     },
+
+    renderPieChart(data, el) {
+      const conf = {
+        bindto: el,
+        unload: true,
+        data: {
+          type: 'pie',
+          labels: 'true',
+          columns: [...data.map((d) => [d.domain, d.count])],
+          empty: { label: { text: this.$t('globals.messages.emptyState') } },
+        },
+        tooltip: {
+          format: {
+            value: (value) => `${value} addresses`,
+          },
+        },
+        legend: {
+          show: false,
+        },
+      };
+
+      this.$nextTick(() => {
+        c3.generate(conf);
+      });
+    },
   },
 
   computed: {
@@ -217,8 +254,10 @@ export default Vue.extend({
     // Pull the charts.
     this.$api.getDashboardCharts().then((data) => {
       this.isChartsLoading = false;
-      this.renderChart(this.$t('dashboard.linkClicks'), data.campaignViews, this.$refs['chart-views']);
+      this.renderChart(this.$t('dashboard.campaignViews'), data.campaignViews, this.$refs['chart-views']);
       this.renderChart(this.$t('dashboard.linkClicks'), data.linkClicks, this.$refs['chart-clicks']);
+      this.renderChart(this.$t('dashboard.subscribersCount'), data.subscribers, this.$refs['chart-subscribers']);
+      this.renderPieChart(data.domains, this.$refs['chart-domains']);
     });
   },
 });

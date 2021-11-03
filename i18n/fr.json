@@ -85,6 +85,8 @@
     "dashboard.linkClicks": "clics sur liens",
     "dashboard.messagesSent": "messages envoyés",
     "dashboard.orphanSubs": "abonnements sans retour",
+    "dashboard.subscriberDomains": "Subscriber e-mail domains",
+    "dashboard.subscribersCount": "Subscribers count",
     "email.data.info": "Vous trouverez un fichier au format JSON contenant l'ensemble des données enregistrées à votre sujet en pièce jointe. Il peut être visualisé dans un éditeur de texte.",
     "email.data.title": "Vos données personnelles",
     "email.optin.confirmSub": "Confirmer votre abonnement",
