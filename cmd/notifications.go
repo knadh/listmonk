@@ -1,6 +1,8 @@
 package main
 
 import (
+	"bytes"
+
 	"github.com/knadh/listmonk/internal/manager"
 )
 
@@ -24,18 +26,18 @@ func (app *App) sendNotification(toEmails []string, subject, tplName string, dat
 		return nil
 	}
 
-	body, err := GenerateEmailTemplate(app, tplName, data)
-	if err != nil {
-		app.log.Printf("error compiling notification template '%s': %v", tplName, err)
-		return err
-	}
+	var b bytes.Buffer
+ 	if err != nil {
+ 		app.log.Printf("error compiling notification template '%s': %v", tplName, err)
+ 		return err
+ 	}
 
 	m := manager.Message{}
 	m.ContentType = app.notifTpls.contentType
 	m.From = app.constants.FromEmail
 	m.To = toEmails
 	m.Subject = subject
-	m.Body = body
+	m.Body = b.Bytes()
 	m.Messenger = emailMsgr
 	if err := app.manager.PushMessage(m); err != nil {
 		app.log.Printf("error sending admin notification (%s): %v", subject, err)

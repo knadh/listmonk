@@ -220,7 +220,6 @@ INSERT INTO settings (key, value) VALUES
     ('bounce.mailboxes',
         '[{"enabled":false, "type": "pop", "host":"pop.yoursite.com","port":995,"auth_protocol":"userpass","username":"username","password":"password","return_path": "bounce@listmonk.yoursite.com","scan_interval":"15m","tls_enabled":true,"tls_skip_verify":false}]'),
     ('appearance.admin.custom_css', '""'),
-    ('appearance.admin.custom_templates', '{}'),
     ('appearance.public.custom_css', '""'),
     ('appearance.public.custom_js', '""');
 

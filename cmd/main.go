@@ -56,9 +56,6 @@ type App struct {
 	// Global state that stores data on an available remote update.
 	update *AppUpdate
 	sync.Mutex
-
-	//Global variable indicating if static-dir is configured
-	staticDirLoaded bool
 }
 
 var (
@@ -81,7 +78,6 @@ var (
 	// overridden by build flags, are relative to the CWD at runtime.
 	appDir      string = "."
 	frontendDir string = "frontend"
-	staticDirLoaded bool = false
 )
 
 func init() {
@@ -115,11 +111,6 @@ func init() {
 			strings.TrimPrefix(s, "LISTMONK_")), "__", ".", -1)
 	}), nil); err != nil {
 		lo.Fatalf("error loading config from env: %v", err)
-	}
-
-	// set a bool which is referenced by the Settings/Appearance/Notifications tab 
-	if len(ko.String("static-dir")) > 0 {
-		staticDirLoaded = true 
 	}
 
 	// Connect to the database, load the filesystem to read SQL queries.
@@ -167,7 +158,6 @@ func main() {
 		messengers: make(map[string]messenger.Messenger),
 		log:        lo,
 		bufLog:     bufLog,
-		staticDirLoaded: staticDirLoaded,
 	}
 
 	// Load i18n language map.

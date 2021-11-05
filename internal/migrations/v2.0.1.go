@@ -11,7 +11,6 @@ func V2_0_1(db *sqlx.DB, fs stuffbin.FileSystem, ko *koanf.Koanf) error {
 	if _, err := db.Exec(`
 		INSERT INTO settings (key, value) VALUES
  			('appearance.admin.custom_css', '""'),
- 			('appearance.admin.custom_templates', '{}'),
  			('appearance.public.custom_css', '""'),
  			('appearance.public.custom_js', '""')
  			ON CONFLICT DO NOTHING;

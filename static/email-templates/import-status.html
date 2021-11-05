@@ -1,5 +1,5 @@
 {{ define "import-status" }}
-{{ template "partial-header" . }}
+{{ template "header" . }}
 <h2>{{ L.Ts "email.status.importTitle" }}</h2>
 <table width="100%">
     <tr>
@@ -15,5 +15,5 @@
         <td>{{ .Imported }} / {{ .Total }}</td>
     </tr>
 </table>
-{{ template "partial-footer" }}
+{{ template "footer" }}
 {{ end }}

@@ -50,7 +50,7 @@
           </b-tab-item><!-- messengers -->
 
           <b-tab-item :label="$t('settings.appearance.name')">
-            <appearance-settings :form="form" :key="key" :definedTemplates="definedTemplates" />
+            <appearance-settings :form="form" :key="key" />
           </b-tab-item><!-- appearance -->
 
         </b-tabs>
@@ -99,7 +99,6 @@ export default Vue.extend({
       formCopy: '',
       form: {},
       activeTab: 0,
-      definedTemplates: [],
     };
   },
 
@@ -152,18 +151,6 @@ export default Vue.extend({
 
       // Domain blocklist array from multi-line strings.
       form['privacy.domain_blocklist'] = form['privacy.domain_blocklist'].split('\n').map((v) => v.trim().toLowerCase()).filter((v) => v !== '');
-
-      // Appearance Templates
-      if (this.definedTemplates.length > 0) {
-        const customTemplates = {};
-        this.definedTemplates.forEach((name) => {
-          if (form[`appearance.admin.custom_templates.${name}`]) {
-            customTemplates[name] = form[`appearance.admin.custom_templates.${name}`];
-            delete form[`appearance.admin.custom_templates.${name}`];
-          }
-        });
-        form['appearance.admin.custom_templates'] = customTemplates;
-      }
 
       this.isLoading = true;
       this.$api.updateSettings(form).then((data) => {
@@ -273,13 +260,6 @@ export default Vue.extend({
     if (localStorage.getItem('admin.settings.active_tab')) {
       this.activeTab = JSON.parse(localStorage.getItem('admin.settings.active_tab'));
     }
-
-    // Get template names
-    this.$api.getDefinedTemplates().then((resp) => {
-      if (resp.length > 0) {
-        this.definedTemplates = resp;
-      }
-    });
   },
 });
 
