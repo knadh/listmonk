@@ -27,7 +27,7 @@ func (app *App) sendNotification(toEmails []string, subject, tplName string, dat
 	}
 
 	var b bytes.Buffer
- 	if err != nil {
+ 	if err := app.notifTpls.tpls.ExecuteTemplate(&b, tplName, data); err != nil {
  		app.log.Printf("error compiling notification template '%s': %v", tplName, err)
  		return err
  	}

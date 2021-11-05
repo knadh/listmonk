@@ -214,15 +214,6 @@ export default Vue.extend({
         // Domain blocklist array to multi-line string.
         d['privacy.domain_blocklist'] = d['privacy.domain_blocklist'].join('\n');
 
-        // Appearance Templates
-        if (d['appearance.admin.custom_templates']) {
-          const tmpls = d['appearance.admin.custom_templates'];
-          const keys = Object.keys(tmpls);
-          keys.forEach((key) => {
-            d[`appearance.admin.custom_templates.${key}`] = tmpls[key];
-          });
-        }
-
         this.key += 1;
         this.form = d;
         this.formCopy = JSON.stringify(d);
