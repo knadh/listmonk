@@ -347,7 +347,7 @@ func getSettings(app *App) (settings, error) {
 		out settings
 	)
 
-	if err := app.queries.getSettings.Get(&b); err != nil {
+	if err := app.queries.GetSettings.Get(&b); err != nil {
 		return out, echo.NewHTTPError(http.StatusInternalServerError,
 			app.i18n.Ts("globals.messages.errorFetching",
 				"name", "{globals.terms.settings}", "error", pqErrMsg(err)))
