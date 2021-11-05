@@ -205,6 +205,10 @@ func handlePreviewCampaign(c echo.Context) error {
 			app.i18n.Ts("templates.errorRendering", "error", err.Error()))
 	}
 
+	if camp.ContentType == models.CampaignContentTypePlain {
+		return c.String(http.StatusOK, string(msg.Body()))
+	}
+
 	return c.HTML(http.StatusOK, string(msg.Body()))
 }
 
