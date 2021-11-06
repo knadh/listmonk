@@ -160,6 +160,7 @@
           v-model="form.content"
           :id="data.id"
           :title="data.name"
+          :templateId="form.templateId"
           :contentType="data.contentType"
           :body="data.body"
           :disabled="!canEdit"

@@ -160,8 +160,9 @@ func handleGetCampaigns(c echo.Context) error {
 // handlePreviewCampaign renders the HTML preview of a campaign body.
 func handlePreviewCampaign(c echo.Context) error {
 	var (
-		app   = c.Get("app").(*App)
-		id, _ = strconv.Atoi(c.Param("id"))
+		app      = c.Get("app").(*App)
+		id, _    = strconv.Atoi(c.Param("id"))
+		tplID, _ = strconv.Atoi(c.FormValue("template_id"))
 	)
 
 	if id < 1 {
@@ -169,8 +170,7 @@ func handlePreviewCampaign(c echo.Context) error {
 	}
 
 	var camp models.Campaign
-	err := app.queries.GetCampaignForPreview.Get(&camp, id)
-	if err != nil {
+	if err := app.queries.GetCampaignForPreview.Get(&camp, id, tplID); err != nil {
 		if err == sql.ErrNoRows {
 			return echo.NewHTTPError(http.StatusBadRequest,
 				app.i18n.Ts("globals.messages.notFound", "name", "{globals.terms.campaign}"))
@@ -203,6 +203,10 @@ func handlePreviewCampaign(c echo.Context) error {
 		app.log.Printf("error rendering message: %v", err)
 		return echo.NewHTTPError(http.StatusBadRequest,
 			app.i18n.Ts("templates.errorRendering", "error", err.Error()))
+	}
+
+	if camp.ContentType == models.CampaignContentTypePlain {
+		return c.String(http.StatusOK, string(msg.Body()))
 	}
 
 	return c.HTML(http.StatusOK, string(msg.Body()))

@@ -98,8 +98,7 @@ type Message struct {
 // Config has parameters for configuring the manager.
 type Config struct {
 	// Number of subscribers to pull from the DB in a single iteration.
-	BatchSize int
-
+	BatchSize             int
 	Concurrency           int
 	MessageRate           int
 	MaxSendErrors         int
@@ -115,6 +114,16 @@ type Config struct {
 	MessageURL            string
 	ViewTrackURL          string
 	UnsubHeader           bool
+
+	// Interval to scan the DB for active campaign checkpoints.
+	ScanInterval time.Duration
+
+	// ScanCampaigns indicates whether this instance of manager will scan the DB
+	// for active campaigns and process them.
+	// This can be used to run multiple instances of listmonk
+	// (exposed to the internet, private etc.) where only one does campaign
+	// processing while the others handle other kinds of traffic.
+	ScanCampaigns bool
 }
 
 type msgError struct {
@@ -234,8 +243,10 @@ func (m *Manager) HasRunningCampaigns() bool {
 // subscribers and pushes messages to them for each queued campaign
 // until all subscribers are exhausted, at which point, a campaign is marked
 // as "finished".
-func (m *Manager) Run(tick time.Duration) {
-	go m.scanCampaigns(tick)
+func (m *Manager) Run() {
+	if m.cfg.ScanCampaigns {
+		go m.scanCampaigns(m.cfg.ScanInterval)
+	}
 
 	// Spawn N message workers.
 	for i := 0; i < m.cfg.Concurrency; i++ {
