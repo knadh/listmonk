@@ -304,6 +304,8 @@ export default Vue.extend({
         messenger: 'email',
         type: 'regular',
         tags: this.form.tags,
+        send_later: this.form.sendLater,
+        send_at: this.form.sendLater ? this.form.sendAtDate : null,
         template_id: this.form.templateId,
         // body: this.form.body,
       };
