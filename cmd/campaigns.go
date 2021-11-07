@@ -643,6 +643,8 @@ func handleGetCampaignViewAnalytics(c echo.Context) error {
 	switch typ {
 	case "views":
 		stmt = app.queries.GetCampaignViewCounts
+	case "uniquev":
+		stmt = app.queries.GetCampaignUniqueViewCounts
 	case "clicks":
 		stmt = app.queries.GetCampaignClickCounts
 	case "bounces":

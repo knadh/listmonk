@@ -211,6 +211,12 @@ views AS (
         WHERE subscriber_id = (SELECT id FROM prof)
         GROUP BY campaigns.id ORDER BY campaigns.id
 ),
+uniquev AS (
+    SELECT subject as campaign, COUNT(DISTINCT subscriber_id) as views FROM campaign_views
+        LEFT JOIN campaigns ON (campaigns.id = campaign_views.campaign_id)
+        WHERE subscriber_id = (SELECT id FROM prof)
+        GROUP BY campaigns.id ORDER BY campaigns.id
+),
 clicks AS (
     SELECT url, COUNT(subscriber_id) as clicks FROM link_clicks
         LEFT JOIN links ON (links.id = link_clicks.link_id)
@@ -220,6 +226,7 @@ clicks AS (
 SELECT (SELECT email FROM prof) as email,
         COALESCE((SELECT JSON_AGG(t) FROM prof t), '{}') AS profile,
         COALESCE((SELECT JSON_AGG(t) FROM subs t), '[]') AS subscriptions,
+        COALESCE((SELECT JSON_AGG(t) FROM uniquev t), '[]') AS uniqueviews,
         COALESCE((SELECT JSON_AGG(t) FROM views t), '[]') AS campaign_views,
         COALESCE((SELECT JSON_AGG(t) FROM clicks t), '[]') AS link_clicks;
 
@@ -458,8 +465,14 @@ SELECT campaigns.*,
 WITH lists AS (
     SELECT campaign_id, JSON_AGG(JSON_BUILD_OBJECT('id', list_id, 'name', list_name)) AS lists FROM campaign_lists
     WHERE campaign_id = ANY($1) GROUP BY campaign_id
-), views AS (
+), 
+views AS (
     SELECT campaign_id, COUNT(campaign_id) as num FROM campaign_views
+    WHERE campaign_id = ANY($1)
+    GROUP BY campaign_id
+),
+uniquev AS (
+    SELECT campaign_id, COUNT(DISTINCT subscriber_id) as num FROM campaign_views
     WHERE campaign_id = ANY($1)
     GROUP BY campaign_id
 ),
@@ -475,12 +488,14 @@ bounces AS (
 )
 SELECT id as campaign_id,
     COALESCE(v.num, 0) AS views,
+    COALESCE(u.num, 0) AS uniquev,
     COALESCE(c.num, 0) AS clicks,
     COALESCE(b.num, 0) AS bounces,
     COALESCE(l.lists, '[]') AS lists
 FROM (SELECT id FROM UNNEST($1) AS id) x
 LEFT JOIN lists AS l ON (l.campaign_id = id)
 LEFT JOIN views AS v ON (v.campaign_id = id)
+LEFT JOIN uniquev AS u ON (u.campaign_id = id)
 LEFT JOIN clicks AS c ON (c.campaign_id = id)
 LEFT JOIN bounces AS b ON (b.campaign_id = id)
 ORDER BY ARRAY_POSITION($1, id);
@@ -575,8 +590,19 @@ WITH intval AS (
     -- For intervals < a week, aggregate counts hourly, otherwise daily.
     SELECT CASE WHEN (EXTRACT (EPOCH FROM ($3::TIMESTAMP - $2::TIMESTAMP)) / 86400) >= 7 THEN 'day' ELSE 'hour' END
 )
+
 SELECT campaign_id, COUNT(*) AS "count", DATE_TRUNC((SELECT * FROM intval), created_at) AS "timestamp"
     FROM link_clicks
+    WHERE campaign_id=ANY($1) AND created_at >= $2 AND created_at <= $3
+    GROUP BY campaign_id, "timestamp" ORDER BY "timestamp" ASC;
+
+-- name: get-campaign-unique-view-counts
+WITH intval AS (
+    -- For intervals < a week, aggregate counts hourly, otherwise daily.
+    SELECT CASE WHEN (EXTRACT (EPOCH FROM ($3::TIMESTAMP - $2::TIMESTAMP)) / 86400) >= 7 THEN 'day' ELSE 'hour' END
+)
+SELECT campaign_id, COUNT(DISTINCT subscriber_id) AS "count", DATE_TRUNC((SELECT * FROM intval), created_at) AS "timestamp" 
+    FROM campaign_views 
     WHERE campaign_id=ANY($1) AND created_at >= $2 AND created_at <= $3
     GROUP BY campaign_id, "timestamp" ORDER BY "timestamp" ASC;
 

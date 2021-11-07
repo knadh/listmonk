@@ -52,24 +52,25 @@ type Queries struct {
 	UpdateListsDate *sqlx.Stmt `query:"update-lists-date"`
 	DeleteLists     *sqlx.Stmt `query:"delete-lists"`
 
-	CreateCampaign           *sqlx.Stmt `query:"create-campaign"`
-	QueryCampaigns           string     `query:"query-campaigns"`
-	GetCampaign              *sqlx.Stmt `query:"get-campaign"`
-	GetCampaignForPreview    *sqlx.Stmt `query:"get-campaign-for-preview"`
-	GetCampaignStats         *sqlx.Stmt `query:"get-campaign-stats"`
-	GetCampaignStatus        *sqlx.Stmt `query:"get-campaign-status"`
-	GetCampaignViewCounts    *sqlx.Stmt `query:"get-campaign-view-counts"`
-	GetCampaignClickCounts   *sqlx.Stmt `query:"get-campaign-click-counts"`
-	GetCampaignBounceCounts  *sqlx.Stmt `query:"get-campaign-bounce-counts"`
-	GetCampaignLinkCounts    *sqlx.Stmt `query:"get-campaign-link-counts"`
-	NextCampaigns            *sqlx.Stmt `query:"next-campaigns"`
-	NextCampaignSubscribers  *sqlx.Stmt `query:"next-campaign-subscribers"`
-	GetOneCampaignSubscriber *sqlx.Stmt `query:"get-one-campaign-subscriber"`
-	UpdateCampaign           *sqlx.Stmt `query:"update-campaign"`
-	UpdateCampaignStatus     *sqlx.Stmt `query:"update-campaign-status"`
-	UpdateCampaignCounts     *sqlx.Stmt `query:"update-campaign-counts"`
-	RegisterCampaignView     *sqlx.Stmt `query:"register-campaign-view"`
-	DeleteCampaign           *sqlx.Stmt `query:"delete-campaign"`
+	CreateCampaign              *sqlx.Stmt `query:"create-campaign"`
+	QueryCampaigns              string     `query:"query-campaigns"`
+	GetCampaign                 *sqlx.Stmt `query:"get-campaign"`
+	GetCampaignForPreview       *sqlx.Stmt `query:"get-campaign-for-preview"`
+	GetCampaignStats            *sqlx.Stmt `query:"get-campaign-stats"`
+	GetCampaignStatus           *sqlx.Stmt `query:"get-campaign-status"`
+	GetCampaignViewCounts       *sqlx.Stmt `query:"get-campaign-view-counts"`
+	GetCampaignUniqueViewCounts *sqlx.Stmt `query:"get-campaign-unique-view-counts"`
+	GetCampaignClickCounts      *sqlx.Stmt `query:"get-campaign-click-counts"`
+	GetCampaignBounceCounts     *sqlx.Stmt `query:"get-campaign-bounce-counts"`
+	GetCampaignLinkCounts       *sqlx.Stmt `query:"get-campaign-link-counts"`
+	NextCampaigns               *sqlx.Stmt `query:"next-campaigns"`
+	NextCampaignSubscribers     *sqlx.Stmt `query:"next-campaign-subscribers"`
+	GetOneCampaignSubscriber    *sqlx.Stmt `query:"get-one-campaign-subscriber"`
+	UpdateCampaign              *sqlx.Stmt `query:"update-campaign"`
+	UpdateCampaignStatus        *sqlx.Stmt `query:"update-campaign-status"`
+	UpdateCampaignCounts        *sqlx.Stmt `query:"update-campaign-counts"`
+	RegisterCampaignView        *sqlx.Stmt `query:"register-campaign-view"`
+	DeleteCampaign              *sqlx.Stmt `query:"delete-campaign"`
 
 	InsertMedia *sqlx.Stmt `query:"insert-media"`
 	GetMedia    *sqlx.Stmt `query:"get-media"`

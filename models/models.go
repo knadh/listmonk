@@ -213,7 +213,7 @@ type CampaignMeta struct {
 	Views      int `db:"views" json:"views"`
 	Clicks     int `db:"clicks" json:"clicks"`
 	Bounces    int `db:"bounces" json:"bounces"`
-
+	Uniquev    int `db:"uniquev" json:"uniquev"`
 	// This is a list of {list_id, name} pairs unlike Subscriber.Lists[]
 	// because lists can be deleted after a campaign is finished, resulting
 	// in null lists data to be returned. For that reason, campaign_lists maintains
@@ -343,6 +343,7 @@ func (camps Campaigns) LoadStats(stmt *sqlx.Stmt) error {
 			camps[i].Lists = c.Lists
 			camps[i].Views = c.Views
 			camps[i].Clicks = c.Clicks
+			camps[i].Uniquev = c.Uniquev
 			camps[i].Bounces = c.Bounces
 		}
 	}

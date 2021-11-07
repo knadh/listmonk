@@ -214,6 +214,9 @@ export const getCampaignViewCounts = async (params) => http.get('/api/campaigns/
 export const getCampaignClickCounts = async (params) => http.get('/api/campaigns/analytics/clicks',
   { params, loading: models.campaigns });
 
+export const getCampaignUniqueCounts = async (params) => http.get('/api/campaigns/analytics/uniquev',
+  { params, loading: models.campaigns });
+
 export const getCampaignBounceCounts = async (params) => http.get('/api/campaigns/analytics/bounces',
   { params, loading: models.campaigns });
 

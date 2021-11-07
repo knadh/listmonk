@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "@vue/cli-service": "^4.5.15"
+  }
+}

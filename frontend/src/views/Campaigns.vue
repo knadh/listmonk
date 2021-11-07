@@ -124,6 +124,10 @@
             {{ $utils.formatNumber(props.row.views) }}
           </p>
           <p>
+            <label>{{ $t('campaigns.uniquev') }}</label>
+            {{ $utils.formatNumber(props.row.uniquev) }}
+          </p>
+          <p>
             <label>{{ $t('campaigns.clicks') }}</label>
             {{ $utils.formatNumber(props.row.clicks) }}
           </p>
