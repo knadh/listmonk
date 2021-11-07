@@ -543,6 +543,7 @@ func handleTestCampaign(c echo.Context) error {
 	var (
 		app       = c.Get("app").(*App)
 		campID, _ = strconv.Atoi(c.Param("id"))
+		tplID, _  = strconv.Atoi(c.FormValue("template_id"))
 		req       campaignReq
 	)
 
@@ -581,7 +582,7 @@ func handleTestCampaign(c echo.Context) error {
 
 	// The campaign.
 	var camp models.Campaign
-	if err := app.queries.GetCampaignForPreview.Get(&camp, campID); err != nil {
+	if err := app.queries.GetCampaignForPreview.Get(&camp, campID, tplID); err != nil {
 		if err == sql.ErrNoRows {
 			return echo.NewHTTPError(http.StatusBadRequest,
 				app.i18n.Ts("globals.messages.notFound",
