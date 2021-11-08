@@ -1,7 +1,6 @@
 <template>
   <div class="items">
-    <b-tabs type="is-boxed" :animated="false" v-model="activeTab">
-      <!-- eslint-disable-next-line max-len -->
+    <b-tabs :animated="false" v-model="activeTab">
       <b-tab-item :label="$t('settings.appearance.admin.name')" label-position="on-border">
         <div class="block">
           <p>
@@ -10,14 +9,11 @@
         </div>
         <br /><br />
 
-        <!-- eslint-disable-next-line max-len -->
         <b-field :label="$t('settings.appearance.customCSS')" label-position="on-border" :message="$t('settings.appearance.cssHelp')">
-          <!-- eslint-disable-next-line max-len -->
-          <b-input v-model="data['appearance.admin.custom_css']" type="textarea" name="body" />
+          <appearance-editor v-model="data['appearance.admin.custom_css']" name="body" language="css" />
         </b-field>
       </b-tab-item><!-- admin -->
 
-      <!-- eslint-disable-next-line max-len -->
       <b-tab-item :label="$t('settings.appearance.public.name')" label-position="on-border">
         <div class="block">
           <p>
@@ -26,16 +22,12 @@
         </div>
         <br /><br />
 
-        <!-- eslint-disable-next-line max-len -->
         <b-field :label="$t('settings.appearance.customCSS')" label-position="on-border" :message="$t('settings.appearance.cssHelp')">
-          <!-- eslint-disable-next-line max-len -->
-          <b-input v-model="data['appearance.public.custom_css']" type="textarea" name="body" />
+          <appearance-editor v-model="data['appearance.public.custom_css']" name="body" language="css" />
         </b-field>
 
-        <!-- eslint-disable-next-line max-len -->
         <b-field :label="$t('settings.appearance.customJS')" label-position="on-border" :message="$t('settings.appearance.jsHelp')">
-          <!-- eslint-disable-next-line max-len -->
-          <b-input v-model="data['appearance.public.custom_js']" type="textarea" name="body" />
+          <appearance-editor v-model="data['appearance.public.custom_js']" name="body" language="javascript" />
         </b-field>
       </b-tab-item><!-- public -->
     </b-tabs>
@@ -45,8 +37,13 @@
 <script>
 import Vue from 'vue';
 import { mapState } from 'vuex';
+import AppearanceEditor from '../../components/AppearanceEditor.vue';
 
 export default Vue.extend({
+  components: {
+    'appearance-editor': AppearanceEditor,
+  },
+
   props: {
     form: {
       type: Object,
