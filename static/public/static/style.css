@@ -46,6 +46,10 @@ input[type="text"], input[type="email"], select {
     border-color: #0055d4;
   }
 
+input:focus::placeholder {
+  color: transparent;
+}
+
 .center {
   text-align: center;
 }
