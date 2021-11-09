@@ -80,7 +80,6 @@ export default Vue.extend({
       activeItem: {},
       activeGroup: {},
       showLogout: Boolean,
-      isSideBar: Boolean,
       windowWidth: window.innerWidth,
     };
   },
