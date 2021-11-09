@@ -1,4 +1,5 @@
 <template>
+  <!-- eslint-disable max-len -->
   <b-menu-list v-if="isSideBarView || isMobileView">
     <b-menu-item :to="{name: 'dashboard'}" tag="router-link" :active="activeItem.dashboard" icon="view-dashboard-variant-outline" :label="$t('menu.dashboard')">
     </b-menu-item><!-- dashboard -->
@@ -83,7 +84,7 @@ export default {
 
   methods: {
     toggleGroup(group, state) {
-      this.$emit(group, state);
+      this.$emit('toggleGroup', group, state);
     },
 
     doLogout() {

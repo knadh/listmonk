@@ -10,7 +10,7 @@
           </div>
         </template>
         <template slot="end">
-            <navigation :activeItem="activeItem" :activeGroup="activeGroup" :showLogout="true" :isSideBar="false" :isMobile="isMobile"/>
+            <navigation :activeItem="activeItem" :activeGroup="activeGroup" :showLogout="true" :isSideBar="false" :isMobile="isMobile" @toggleGroup="toggleGroup" />
         </template>
     </b-navbar>
 
@@ -25,7 +25,7 @@
         >
           <div>
             <b-menu :accordion="false">
-              <navigation :activeItem="activeItem" :activeGroup="activeGroup" :showLogout="false" :isSideBar="true" />
+              <navigation :activeItem="activeItem" :activeGroup="activeGroup" :showLogout="false" :isSideBar="true" @toggleGroup="toggleGroup" />
             </b-menu>
           </div>
         </b-sidebar>
@@ -60,7 +60,6 @@
 <script>
 import Vue from 'vue';
 import { mapState } from 'vuex';
-import { uris } from './constants';
 
 import Navigation from './components/Navigation.vue';
 
@@ -99,20 +98,6 @@ export default Vue.extend({
   methods: {
     toggleGroup(group, state) {
       this.activeGroup = state ? { [group]: true } : {};
-    },
-
-    doLogout() {
-      const http = new XMLHttpRequest();
-
-      const u = uris.root.substr(-1) === '/' ? uris.root : `${uris.root}/`;
-      http.open('get', `${u}api/logout`, false, 'logout_non_user', 'logout_non_user');
-      http.onload = () => {
-        document.location.href = uris.root;
-      };
-      http.onerror = () => {
-        document.location.href = uris.root;
-      };
-      http.send();
     },
 
     reloadApp() {
