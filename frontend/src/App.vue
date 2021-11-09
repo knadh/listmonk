@@ -10,7 +10,11 @@
           </div>
         </template>
         <template slot="end">
-            <navigation :activeItem="activeItem" :activeGroup="activeGroup" :showLogout="true" :isSideBar="false" :isMobile="isMobile" @toggleGroup="toggleGroup" />
+          <navigation v-if="isMobile" :isMobile="isMobile"
+            :activeItem="activeItem" :activeGroup="activeGroup" @toggleGroup="toggleGroup" />
+          <b-navbar-item v-else tag="div">
+            <a href="#" @click.prevent="doLogout">{{ $t('users.logout') }}</a>
+          </b-navbar-item>
         </template>
     </b-navbar>
 
@@ -25,7 +29,8 @@
         >
           <div>
             <b-menu :accordion="false">
-              <navigation :activeItem="activeItem" :activeGroup="activeGroup" :showLogout="false" :isSideBar="true" @toggleGroup="toggleGroup" />
+              <navigation v-if="!isMobile" :isMobile="isMobile"
+                :activeItem="activeItem" :activeGroup="activeGroup" @toggleGroup="toggleGroup" />
             </b-menu>
           </div>
         </b-sidebar>
