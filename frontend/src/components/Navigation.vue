@@ -82,8 +82,6 @@
 
 
 <script>
-import { uris } from '../constants';
-
 export default {
   name: 'navigation',
 
@@ -99,17 +97,7 @@ export default {
     },
 
     doLogout() {
-      const http = new XMLHttpRequest();
-
-      const u = uris.root.substr(-1) === '/' ? uris.root : `${uris.root}/`;
-      http.open('get', `${u}api/logout`, false, 'logout_non_user', 'logout_non_user');
-      http.onload = () => {
-        document.location.href = uris.root;
-      };
-      http.onerror = () => {
-        document.location.href = uris.root;
-      };
-      http.send();
+      this.$emit('doLogout');
     },
   },
 };
