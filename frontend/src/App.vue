@@ -81,7 +81,6 @@ export default Vue.extend({
     return {
       activeItem: {},
       activeGroup: {},
-      showLogout: Boolean,
       windowWidth: window.innerWidth,
     };
   },
