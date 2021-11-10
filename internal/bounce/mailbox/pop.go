@@ -2,8 +2,10 @@ package mailbox
 
 import (
 	"encoding/json"
+	"regexp"
 	"time"
 
+	"github.com/emersion/go-message"
 	"github.com/knadh/go-pop3"
 	"github.com/knadh/listmonk/models"
 )
@@ -13,6 +15,11 @@ type POP struct {
 	opt    Opt
 	client *pop3.Client
 }
+
+var (
+	reCampUUID = regexp.MustCompile(`(?m)(?m:^` + models.EmailHeaderCampaignUUID + `:\s+?)([a-z0-9\-]{36})`)
+	reSubUUID  = regexp.MustCompile(`(?m)(?m:^` + models.EmailHeaderSubscriberUUID + `:\s+?)([a-z0-9\-]{36})`)
+)
 
 // NewPOP returns a new instance of the POP mailbox client.
 func NewPOP(opt Opt) *POP {
@@ -61,21 +68,41 @@ func (p *POP) Scan(limit int, ch chan models.Bounce) error {
 
 	// Download messages.
 	for id := 1; id <= count; id++ {
-		// Download just one line of the body as the body is not required at all.
-		m, err := c.Top(id, 1)
+		// Retrieve the raw bytes of the message.
+		b, err := c.RetrRaw(id)
 		if err != nil {
 			return err
 		}
 
+		// Parse the message.
+		m, err := message.Read(b)
+		if err != nil {
+			return err
+		}
+
+		// Check if the identifiers are available in the parsed message.
 		var (
 			campUUID = m.Header.Get(models.EmailHeaderCampaignUUID)
 			subUUID  = m.Header.Get(models.EmailHeaderSubscriberUUID)
-			date, _  = time.Parse("Mon, 02 Jan 2006 15:04:05 -0700", m.Header.Get("Date"))
 		)
+
+		// If they are not, try to extract them from the message body.
+		if campUUID == "" {
+			if u := reCampUUID.FindSubmatch(b.Bytes()); len(u) == 2 {
+				campUUID = string(u[1])
+			}
+		}
+		if subUUID == "" {
+			if u := reSubUUID.FindSubmatch(b.Bytes()); len(u) == 2 {
+				subUUID = string(u[1])
+			}
+		}
 
 		if campUUID == "" || subUUID == "" {
 			continue
 		}
+
+		date, _ := time.Parse("Mon, 02 Jan 2006 15:04:05 -0700", m.Header.Get("Date"))
 		if date.IsZero() {
 			date = time.Now()
 		}
@@ -98,8 +125,8 @@ func (p *POP) Scan(limit int, ch chan models.Bounce) error {
 		select {
 		case ch <- models.Bounce{
 			Type:           "hard",
-			CampaignUUID:   m.Header.Get(models.EmailHeaderCampaignUUID),
-			SubscriberUUID: m.Header.Get(models.EmailHeaderSubscriberUUID),
+			CampaignUUID:   campUUID,
+			SubscriberUUID: subUUID,
 			Source:         p.opt.Host,
 			CreatedAt:      date,
 			Meta:           json.RawMessage(meta),

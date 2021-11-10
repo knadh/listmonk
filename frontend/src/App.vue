@@ -11,7 +11,8 @@
         </template>
         <template slot="end">
           <navigation v-if="isMobile" :isMobile="isMobile"
-            :activeItem="activeItem" :activeGroup="activeGroup" @toggleGroup="toggleGroup" />
+            :activeItem="activeItem" :activeGroup="activeGroup" @toggleGroup="toggleGroup"
+            @doLogout="doLogout" />
           <b-navbar-item v-else tag="div">
             <a href="#" @click.prevent="doLogout">{{ $t('users.logout') }}</a>
           </b-navbar-item>
@@ -65,6 +66,7 @@
 <script>
 import Vue from 'vue';
 import { mapState } from 'vuex';
+import { uris } from './constants';
 
 import Navigation from './components/Navigation.vue';
 
@@ -79,7 +81,6 @@ export default Vue.extend({
     return {
       activeItem: {},
       activeGroup: {},
-      showLogout: Boolean,
       windowWidth: window.innerWidth,
     };
   },
@@ -117,6 +118,20 @@ export default Vue.extend({
           });
         }, 500);
       });
+    },
+
+    doLogout() {
+      const http = new XMLHttpRequest();
+
+      const u = uris.root.substr(-1) === '/' ? uris.root : `${uris.root}/`;
+      http.open('get', `${u}api/logout`, false, 'logout_non_user', 'logout_non_user');
+      http.onload = () => {
+        document.location.href = uris.root;
+      };
+      http.onerror = () => {
+        document.location.href = uris.root;
+      };
+      http.send();
     },
   },
 
