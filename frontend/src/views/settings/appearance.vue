@@ -9,8 +9,10 @@
         </div>
         <br /><br />
 
-        <b-field :label="$t('settings.appearance.customCSS')" label-position="on-border" :message="$t('settings.appearance.cssHelp')">
-          <appearance-editor v-model="data['appearance.admin.custom_css']" name="body" language="css" />
+        <b-field :label="$t('settings.appearance.customCSS')" label-position="on-border"
+        :message="$t('settings.appearance.cssHelp')">
+          <appearance-editor v-model="data['appearance.admin.custom_css']" name="body"
+          language="css" />
         </b-field>
       </b-tab-item><!-- admin -->
 
@@ -22,12 +24,16 @@
         </div>
         <br /><br />
 
-        <b-field :label="$t('settings.appearance.customCSS')" label-position="on-border" :message="$t('settings.appearance.cssHelp')">
-          <appearance-editor v-model="data['appearance.public.custom_css']" name="body" language="css" />
+        <b-field :label="$t('settings.appearance.customCSS')" label-position="on-border"
+        :message="$t('settings.appearance.cssHelp')">
+          <appearance-editor v-model="data['appearance.public.custom_css']" name="body"
+          language="css" />
         </b-field>
 
-        <b-field :label="$t('settings.appearance.customJS')" label-position="on-border" :message="$t('settings.appearance.jsHelp')">
-          <appearance-editor v-model="data['appearance.public.custom_js']" name="body" language="javascript" />
+        <b-field :label="$t('settings.appearance.customJS')" label-position="on-border"
+        :message="$t('settings.appearance.jsHelp')">
+          <appearance-editor v-model="data['appearance.public.custom_js']" name="body"
+          language="javascript" />
         </b-field>
       </b-tab-item><!-- public -->
     </b-tabs>

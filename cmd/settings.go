@@ -119,7 +119,7 @@ var (
 func handleGetSettings(c echo.Context) error {
 	app := c.Get("app").(*App)
 
-	s, err := GetSettings(app)
+	s, err := getSettings(app)
 	if err != nil {
 		return err
 	}

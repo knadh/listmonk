@@ -4,6 +4,7 @@
 
 <script>
 import CodeFlask from 'codeflask';
+import { colors } from '../constants';
 
 export default {
   props: {
@@ -26,6 +27,7 @@ export default {
       el.attachShadow({ mode: 'open' });
       el.shadowRoot.innerHTML = `
         <style>
+          .codeflask .codeflask__textarea { color: transparent !important; }
           .codeflask .codeflask__flatten { font-size: 15px; }
           .codeflask .codeflask__lines { background: #fafafa; z-index: 10; }
           .codeflask .token.tag { font-weight: bold; }
@@ -40,7 +42,6 @@ export default {
         language: this.language,
         lineNumbers: false,
         styleParent: el.shadowRoot,
-        defaultTheme: false,
       });
 
       // Set the initial value.
