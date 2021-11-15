@@ -12,7 +12,7 @@ DROP TABLE IF EXISTS subscribers CASCADE;
 CREATE TABLE subscribers (
     id              SERIAL PRIMARY KEY,
     uuid uuid       NOT NULL UNIQUE,
-    email           TEXT NOT NULL UNIQUE,
+    email           TEXT NOT NULL,
     name            TEXT NOT NULL,
     attribs         JSONB NOT NULL DEFAULT '{}',
     status          subscriber_status NOT NULL DEFAULT 'enabled',
@@ -20,7 +20,7 @@ CREATE TABLE subscribers (
     created_at      TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at      TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
-DROP INDEX IF EXISTS idx_subs_email; CREATE UNIQUE INDEX idx_subs_email ON subscribers(LOWER(email));
+--DROP INDEX IF EXISTS idx_subs_email; CREATE UNIQUE INDEX idx_subs_email ON subscribers(LOWER(email));
 DROP INDEX IF EXISTS idx_subs_status; CREATE INDEX idx_subs_status ON subscribers(status);
 
 -- lists
