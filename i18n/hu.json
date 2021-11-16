@@ -424,7 +424,7 @@
     "settings.smtp.customHeadersHelp": "Az e-mail fejlécek opcionális tömbje a szerverről küldött összes üzenetben.  eg: [{\"X-Custom\": \"value\"}, {\"X-Custom2\": \"value\"}]",
     "settings.smtp.enabled": "Engedélyez",
     "settings.smtp.heloHost": "HELO hostname",
-    "settings.smtp.heloHostHelp": "Választható. Egyes SMTP-kiszolgálók FQDN-t igényelnek a gazdagépnévben. Alapértelmezés szerint a HELLO-k a "localhost"-tal együtt járnak. Állítsa be, ha egyéni gazdagépnevet kíván használni.",
+    "settings.smtp.heloHostHelp": "Választható. Egyes SMTP-kiszolgálók FQDN-t igényelnek a gazdagépnévben. Alapértelmezés szerint a HELLO-k a \"localhost\"-tal együtt járnak. Állítsa be, ha egyéni gazdagépnevet kíván használni.",
     "settings.smtp.name": "SMTP",
     "settings.smtp.retries": "Újrapróbálkozások",
     "settings.smtp.retriesHelp": "Az újrapróbálkozások száma, ha az üzenet sikertelen.",
