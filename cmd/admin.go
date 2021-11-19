@@ -12,12 +12,13 @@ import (
 )
 
 type serverConfig struct {
-	Messengers   []string   `json:"messengers"`
-	Langs        []i18nLang `json:"langs"`
-	Lang         string     `json:"lang"`
-	Update       *AppUpdate `json:"update"`
-	NeedsRestart bool       `json:"needs_restart"`
-	Version      string     `json:"version"`
+	Messengers    []string   `json:"messengers"`
+	Langs         []i18nLang `json:"langs"`
+	Lang          string     `json:"lang"`
+	Update        *AppUpdate `json:"update"`
+	NeedsRestart  bool       `json:"needs_restart"`
+	Version       string     `json:"version"`
+	MJMLSupported bool       `json:"mjml_supported"`
 }
 
 // handleGetServerConfig returns general server config.
@@ -53,6 +54,8 @@ func handleGetServerConfig(c echo.Context) error {
 	out.Update = app.update
 	app.Unlock()
 	out.Version = versionString
+
+	out.MJMLSupported = mjmlSupported
 
 	return c.JSON(http.StatusOK, okResp{out})
 }

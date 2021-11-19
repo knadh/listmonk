@@ -54,6 +54,7 @@
     "campaigns.progress": "Progress",
     "campaigns.queryPlaceholder": "Name or subject",
     "campaigns.rawHTML": "Raw HTML",
+    "campaigns.rawMJML": "MJML",
     "campaigns.removeAltText": "Remove alternate plain text message",
     "campaigns.richText": "Rich text",
     "campaigns.schedule": "Schedule campaign",

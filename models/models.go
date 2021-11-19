@@ -43,6 +43,7 @@ const (
 	CampaignTypeOptin           = "optin"
 	CampaignContentTypeRichtext = "richtext"
 	CampaignContentTypeHTML     = "html"
+	CampaignContentTypeMJML     = "mjml"
 	CampaignContentTypeMarkdown = "markdown"
 	CampaignContentTypePlain    = "plain"
 
@@ -70,6 +71,9 @@ const (
 
 	BounceTypeHard = "hard"
 	BounceTypeSoft = "soft"
+
+	TemplateTypeHTML = "html"
+	TemplateTypeMJML = "mjml"
 )
 
 // regTplFunc represents contains a regular expression for wrapping and
@@ -196,8 +200,9 @@ type Campaign struct {
 	TemplateID  int            `db:"template_id" json:"template_id"`
 	Messenger   string         `db:"messenger" json:"messenger"`
 
-	// TemplateBody is joined in from templates by the next-campaigns query.
+	// TemplateBody and TemplateType are joined in from templates by the next-campaigns query.
 	TemplateBody string             `db:"template_body" json:"-"`
+	TemplateType string             `db:"template_type" json:"-"`
 	Tpl          *template.Template `json:"-"`
 	SubjectTpl   *template.Template `json:"-"`
 	AltBodyTpl   *template.Template `json:"-"`
@@ -235,6 +240,7 @@ type Template struct {
 
 	Name      string `db:"name" json:"name"`
 	Body      string `db:"body" json:"body,omitempty"`
+	Type      string `db:"type" json:"type"`
 	IsDefault bool   `db:"is_default" json:"is_default"`
 }
 

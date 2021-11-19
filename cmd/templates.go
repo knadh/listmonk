@@ -1,9 +1,11 @@
 package main
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
 	"net/http"
+	"os/exec"
 	"regexp"
 	"strconv"
 
@@ -69,9 +71,10 @@ func handleGetTemplates(c echo.Context) error {
 // handlePreviewTemplate renders the HTML preview of a template.
 func handlePreviewTemplate(c echo.Context) error {
 	var (
-		app   = c.Get("app").(*App)
-		id, _ = strconv.Atoi(c.Param("id"))
-		body  = c.FormValue("body")
+		app          = c.Get("app").(*App)
+		id, _        = strconv.Atoi(c.Param("id"))
+		body         = c.FormValue("body")
+		templateType = c.FormValue("content_type")
 
 		tpls []models.Template
 	)
@@ -98,6 +101,7 @@ func handlePreviewTemplate(c echo.Context) error {
 				app.i18n.Ts("globals.messages.notFound", "name", "{globals.terms.template}"))
 		}
 		body = tpls[0].Body
+		templateType = tpls[0].Type
 	}
 
 	// Compile the template.
@@ -107,7 +111,15 @@ func handlePreviewTemplate(c echo.Context) error {
 		Subject:      app.i18n.T("templates.dummySubject"),
 		FromEmail:    "dummy-campaign@listmonk.app",
 		TemplateBody: body,
-		Body:         dummyTpl,
+		TemplateType: templateType,
+	}
+
+	if camp.TemplateType != models.TemplateTypeMJML {
+		//Only include the dummy content if the template type is not MJML.
+		// (since the content placeholder can be placed anywhere in the MJML, there are many cases
+		// where the dummy template causes a compilation error, i.e. if the content placeholder is not
+		// wrapped in <mj-text> tags)
+		camp.Body = dummyTpl
 	}
 
 	if err := camp.CompileTemplate(app.manager.TemplateFuncs(&camp)); err != nil {
@@ -144,7 +156,8 @@ func handleCreateTemplate(c echo.Context) error {
 	var newID int
 	if err := app.queries.CreateTemplate.Get(&newID,
 		o.Name,
-		o.Body); err != nil {
+		o.Body,
+		o.Type); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			app.i18n.Ts("globals.messages.errorCreating",
 				"name", "{globals.terms.template}", "error", pqErrMsg(err)))
@@ -176,7 +189,7 @@ func handleUpdateTemplate(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	res, err := app.queries.UpdateTemplate.Exec(id, o.Name, o.Body)
+	res, err := app.queries.UpdateTemplate.Exec(id, o.Name, o.Body, o.Type)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			app.i18n.Ts("globals.messages.errorUpdating",
@@ -250,4 +263,20 @@ func validateTemplate(o models.Template, app *App) error {
 	}
 
 	return nil
+}
+
+func checkMJMLSupported() {
+	cmd := exec.Command("mjml", "--version")
+	errBuf := bytes.Buffer{}
+	cmd.Stderr = &errBuf
+	err := cmd.Run()
+	if err != nil {
+		fmt.Fprintln(&errBuf, err)
+	}
+	if errBuf.Len() > 0 {
+		fmt.Println("MJML not found on system. MJML Support disabled.")
+		mjmlSupported = false
+	} else {
+		mjmlSupported = true
+	}
 }

@@ -15,6 +15,11 @@
               native-value="html"
               data-cy="check-html">{{ $t('campaigns.rawHTML') }}</b-radio>
 
+            <b-radio v-if="serverConfig.mjml_supported" v-model="form.radioFormat"
+              @input="onFormatChange" :disabled="disabled || mjmlDisallowed" name="format"
+              native-value="mjml"
+              data-cy="check-mjml">{{ $t('campaigns.rawMJML') }}</b-radio>
+
             <b-radio v-model="form.radioFormat"
               @input="onFormatChange" :disabled="disabled" name="format"
               native-value="markdown"
@@ -62,8 +67,8 @@
       </b-modal>
     </template>
 
-    <!-- raw html editor //-->
-    <html-editor v-if="form.format === 'html'" v-model="form.body" />
+    <!-- raw html / mjml editor //-->
+    <html-editor v-if="form.format === 'html' || form.format === 'mjml'" v-model="form.body" />
 
     <!-- plain text / markdown editor //-->
     <b-input v-if="form.format === 'plain' || form.format === 'markdown'"
@@ -166,6 +171,7 @@ export default {
 
   data() {
     return {
+      mjmlDisallowed: true,
       isPreviewing: false,
       isMediaVisible: false,
       isEditorFullscreen: false,
@@ -388,6 +394,16 @@ export default {
 
       return out.join('\n').replace(/\n\s*\n\s*\n/g, '\n\n');
     },
+
+    getTemplate(id) {
+      return this.$api.getTemplates().then((data) => {
+        const only = data.filter((t) => t.id === id);
+        if (only.length === 1) {
+          return only[0];
+        }
+        return null;
+      });
+    },
   },
 
   mounted() {
@@ -460,6 +476,14 @@ export default {
       }
 
       this.onEditorChange();
+    },
+
+    templateId(id) {
+      this.getTemplate(id).then((template) => {
+        if (template) {
+          this.mjmlDisallowed = template.type !== 'mjml';
+        }
+      });
     },
   },
 };

@@ -444,8 +444,9 @@ WHERE ($1 = 0 OR id = $1)
 ORDER BY %s %s OFFSET $4 LIMIT (CASE WHEN $5 = 0 THEN NULL ELSE $5 END);
 
 -- name: get-campaign
-SELECT campaigns.*,
-    COALESCE(templates.body, (SELECT body FROM templates WHERE is_default = true LIMIT 1)) AS template_body
+SELECT campaigns.*, 
+       COALESCE(templates.body, (SELECT body FROM templates WHERE is_default = true LIMIT 1)) AS template_body,
+       COALESCE(templates.type, (SELECT type FROM templates WHERE is_default = true LIMIT 1)) AS template_type
     FROM campaigns
     LEFT JOIN templates ON (templates.id = campaigns.template_id)
     WHERE CASE WHEN $1 > 0 THEN campaigns.id = $1 ELSE uuid = $2 END;
@@ -486,7 +487,9 @@ LEFT JOIN bounces AS b ON (b.campaign_id = id)
 ORDER BY ARRAY_POSITION($1, id);
 
 -- name: get-campaign-for-preview
-SELECT campaigns.*, COALESCE(templates.body, (SELECT body FROM templates WHERE is_default = true LIMIT 1)) AS template_body,
+SELECT campaigns.*, 
+       COALESCE(templates.body, (SELECT body FROM templates WHERE is_default = true LIMIT 1)) AS template_body,
+       COALESCE(templates.type, (SELECT type FROM templates WHERE is_default = true LIMIT 1)) AS template_type,
 (
 	SELECT COALESCE(ARRAY_TO_JSON(ARRAY_AGG(l)), '[]') FROM (
 		SELECT COALESCE(campaign_lists.list_id, 0) AS id,
@@ -512,7 +515,9 @@ SELECT id, status, to_send, sent, started_at, updated_at
 -- a campaign. This is used to fetch and slice subscribers for the campaign in next-subscriber-campaigns.
 WITH camps AS (
     -- Get all running campaigns and their template bodies (if the template's deleted, the default template body instead)
-    SELECT campaigns.*, COALESCE(templates.body, (SELECT body FROM templates WHERE is_default = true LIMIT 1)) AS template_body
+    SELECT campaigns.*, 
+           COALESCE(templates.body, (SELECT body FROM templates WHERE is_default = true LIMIT 1)) AS template_body,
+           COALESCE(templates.type, (SELECT type FROM templates WHERE is_default = true LIMIT 1)) AS template_type
     FROM campaigns
     LEFT JOIN templates ON (templates.id = campaigns.template_id)
     WHERE (status='running' OR (status='scheduled' AND NOW() >= campaigns.send_at))
@@ -727,18 +732,19 @@ DELETE FROM users WHERE $1 != 1 AND id=$1;
 -- templates
 -- name: get-templates
 -- Only if the second param ($2) is true, body is returned.
-SELECT id, name, (CASE WHEN $2 = false THEN body ELSE '' END) as body,
+SELECT id, name, (CASE WHEN $2 = false THEN body ELSE '' END) as body, type,
     is_default, created_at, updated_at
     FROM templates WHERE $1 = 0 OR id = $1
     ORDER BY created_at;
 
 -- name: create-template
-INSERT INTO templates (name, body) VALUES($1, $2) RETURNING id;
+INSERT INTO templates (name, body, type) VALUES($1, $2, $3) RETURNING id;
 
 -- name: update-template
 UPDATE templates SET
     name=(CASE WHEN $2 != '' THEN $2 ELSE name END),
     body=(CASE WHEN $3 != '' THEN $3 ELSE body END),
+    type=(CASE WHEN $4 != '' THEN $4::template_type ELSE type END),
     updated_at=NOW()
 WHERE id = $1;
 

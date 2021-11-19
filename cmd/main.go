@@ -78,6 +78,8 @@ var (
 	// overridden by build flags, are relative to the CWD at runtime.
 	appDir      string = "."
 	frontendDir string = "frontend"
+
+	mjmlSupported bool
 )
 
 func init() {
@@ -197,6 +199,8 @@ func main() {
 	if ko.Bool("app.check_updates") {
 		go checkUpdates(versionString, time.Hour*24, app)
 	}
+
+	checkMJMLSupported()
 
 	// Wait for the reload signal with a callback to gracefully shut down resources.
 	// The `wait` channel is passed to awaitReload to wait for the callback to finish

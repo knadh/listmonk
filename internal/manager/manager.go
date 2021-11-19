@@ -7,6 +7,7 @@ import (
 	"html/template"
 	"log"
 	"net/textproto"
+	"os/exec"
 	"strings"
 	"sync"
 	"time"
@@ -674,6 +675,22 @@ func (m *CampaignMessage) render() error {
 	if err := m.Campaign.Tpl.ExecuteTemplate(&out, models.BaseTpl, m); err != nil {
 		return err
 	}
+
+	if m.Campaign.TemplateType == models.TemplateTypeMJML {
+		mjml := exec.Command("mjml", "-i", "-s")
+		mjml.Stdin = &out
+		mjml.Stdout = &out
+		errBuf := bytes.Buffer{}
+		mjml.Stderr = &errBuf
+		err := mjml.Run()
+		if err != nil {
+			fmt.Fprintln(&errBuf, err)
+		}
+		if errBuf.Len() > 0 {
+			return errors.New(errBuf.String())
+		}
+	}
+
 	m.body = out.Bytes()
 
 	// Is there an alt body?

@@ -16,8 +16,16 @@
                   :placeholder="$t('globals.fields.name')" required />
             </b-field>
 
+            <b-field :label="$t('globals.fields.type')" label-position="on-border">
+              <b-select v-model="form.type" name="type" required>
+                <option value="html">HTML</option>
+                <option value="mjml" v-if="serverConfig.mjml_supported">MJML</option>
+              </b-select>
+            </b-field>
+
             <b-field v-if="form.body !== null"
-              :label="$t('templates.rawHTML')" label-position="on-border">
+              :label="form.type.toUpperCase()"
+              label-position="on-border">
               <html-editor v-model="form.body" name="body" />
             </b-field>
 
@@ -39,6 +47,7 @@
       type='template'
       :title="previewItem.name"
       :body="form.body"
+      :contentType="form.type"
       @close="closePreview"></campaign-preview>
   </section>
 </template>
@@ -65,6 +74,7 @@ export default Vue.extend({
       // Binds form input values.
       form: {
         name: '',
+        // html | mjml
         type: '',
         optin: '',
         body: null,
@@ -97,6 +107,7 @@ export default Vue.extend({
         id: this.data.id,
         name: this.form.name,
         body: this.form.body,
+        type: this.form.type,
       };
 
       this.$api.createTemplate(data).then((d) => {
@@ -111,6 +122,7 @@ export default Vue.extend({
         id: this.data.id,
         name: this.form.name,
         body: this.form.body,
+        type: this.form.type,
       };
 
       this.$api.updateTemplate(data).then((d) => {
@@ -122,7 +134,7 @@ export default Vue.extend({
   },
 
   computed: {
-    ...mapState(['loading']),
+    ...mapState(['loading', 'serverConfig']),
   },
 
   mounted() {

@@ -4,8 +4,9 @@ DROP TYPE IF EXISTS subscriber_status CASCADE; CREATE TYPE subscriber_status AS 
 DROP TYPE IF EXISTS subscription_status CASCADE; CREATE TYPE subscription_status AS ENUM ('unconfirmed', 'confirmed', 'unsubscribed');
 DROP TYPE IF EXISTS campaign_status CASCADE; CREATE TYPE campaign_status AS ENUM ('draft', 'running', 'scheduled', 'paused', 'cancelled', 'finished');
 DROP TYPE IF EXISTS campaign_type CASCADE; CREATE TYPE campaign_type AS ENUM ('regular', 'optin');
-DROP TYPE IF EXISTS content_type CASCADE; CREATE TYPE content_type AS ENUM ('richtext', 'html', 'plain', 'markdown');
+DROP TYPE IF EXISTS content_type CASCADE; CREATE TYPE content_type AS ENUM ('richtext', 'html', 'plain', 'markdown', 'mjml');
 DROP TYPE IF EXISTS bounce_type CASCADE; CREATE TYPE bounce_type AS ENUM ('soft', 'hard', 'complaint');
+DROP TYPE IF EXISTS template_type CASCADE; CREATE TYPE template_type AS ENUM ('html', 'mjml');
 
 -- subscribers
 DROP TABLE IF EXISTS subscribers CASCADE;
@@ -58,6 +59,7 @@ CREATE TABLE templates (
     id              SERIAL PRIMARY KEY,
     name            TEXT NOT NULL,
     body            TEXT NOT NULL,
+    type            template_type NOT NULL DEFAULT 'html',
     is_default      BOOLEAN NOT NULL DEFAULT false,
 
     created_at      TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
