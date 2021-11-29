@@ -229,7 +229,7 @@
     "lists.sendCampaign": "Kampagne abschicken",
     "lists.sendOptinCampaign": "Opt-In Kampagne senden",
     "lists.type": "Typ",
-    "lists.typeHelp": "Öffentliche Listen können von Allen abonniert werden. Die Namen der Abonnenten könnten auf einer öffentlichen Seite, wie der Verwaltungsseite auftauchen.",
+    "lists.typeHelp": "Öffentliche Listen können von allen abonniert werden. Die Namen der Listen könnten auf einer öffentlichen Seite, wie z.B. der Seite für die Abonnentenverwaltung erscheinen.",
     "lists.types.private": "Privat",
     "lists.types.public": "Öffentlich",
     "logs.title": "Logs",
