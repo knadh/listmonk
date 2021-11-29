@@ -241,7 +241,7 @@ SELECT subscribers.* FROM subscribers
         (CASE WHEN CARDINALITY($1::INT[]) > 0 THEN true ELSE false END)
         AND subscriber_lists.subscriber_id = subscribers.id
     )
-    WHERE subscriber_lists.list_id = ALL($1::INT[])
+    WHERE (CARDINALITY($1) = 0 OR subscriber_lists.list_id = ANY($1::INT[]))
     %s
     ORDER BY %s %s OFFSET $2 LIMIT (CASE WHEN $3 = 0 THEN NULL ELSE $3 END);
 
@@ -254,7 +254,7 @@ SELECT COUNT(*) AS total FROM subscribers
         (CASE WHEN CARDINALITY($1::INT[]) > 0 THEN true ELSE false END)
         AND subscriber_lists.subscriber_id = subscribers.id
     )
-    WHERE subscriber_lists.list_id = ALL($1::INT[]) %s;
+    WHERE (CARDINALITY($1) = 0 OR subscriber_lists.list_id = ANY($1::INT[])) %s;
 
 -- name: query-subscribers-for-export
 -- raw: true
