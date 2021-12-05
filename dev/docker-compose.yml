@@ -1,0 +1,61 @@
+version: "3"
+
+services:
+  mailhog:
+    image: mailhog/mailhog:v1.0.1
+    ports:
+      - "1025:1025" # SMTP
+      - "8025:8025" # UI
+
+  db:
+    image: postgres:13
+    ports:
+      - "5432:5432"
+    networks:
+      - listmonk-dev
+    environment:
+      - POSTGRES_PASSWORD=listmonk-dev
+      - POSTGRES_USER=listmonk-dev
+      - POSTGRES_DB=listmonk-dev
+    restart: unless-stopped
+    volumes:
+      - type: volume
+        source: listmonk-dev-db
+        target: /var/lib/postgresql/data
+
+  front:
+    build:
+      context: ../
+      dockerfile: dev/app.Dockerfile
+    command: ["make", "run-frontend"]
+    ports:
+      - "8080:8080"
+    environment:
+      - LISTMONK_API_URL=http://backend:9000
+    depends_on:
+      - db
+    volumes:
+      - ../:/app
+    networks:
+      - listmonk-dev
+
+  backend:
+    build:
+      context: ../
+      dockerfile: dev/app.Dockerfile
+    command: ["make", "run-backend-docker"]
+    ports:
+      - "9000:9000"
+    depends_on:
+      - db
+    volumes:
+      - ../:/app
+      - $GOPATH/pkg/mod/cache:/go/pkg/mod/cache
+    networks:
+      - listmonk-dev
+
+volumes:
+  listmonk-dev-db:
+
+networks:
+  listmonk-dev:
