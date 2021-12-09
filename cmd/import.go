@@ -9,7 +9,7 @@ import (
 
 	"github.com/knadh/listmonk/internal/subimporter"
 	"github.com/knadh/listmonk/models"
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 )
 
 // handleImportSubscribers handles the uploading and bulk importing of

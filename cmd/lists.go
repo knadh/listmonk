@@ -9,7 +9,7 @@ import (
 	"github.com/knadh/listmonk/models"
 	"github.com/lib/pq"
 
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 )
 
 type listsWrap struct {

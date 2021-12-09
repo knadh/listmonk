@@ -35,7 +35,7 @@ import (
 	"github.com/knadh/listmonk/internal/subimporter"
 	"github.com/knadh/listmonk/models"
 	"github.com/knadh/stuffbin"
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 	flag "github.com/spf13/pflag"
 )
 

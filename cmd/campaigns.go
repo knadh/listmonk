@@ -16,7 +16,7 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/jmoiron/sqlx"
 	"github.com/knadh/listmonk/models"
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 	"github.com/lib/pq"
 	null "gopkg.in/volatiletech/null.v6"
 )

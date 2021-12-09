@@ -10,7 +10,7 @@ import (
 
 	"github.com/gofrs/uuid"
 	"github.com/jmoiron/sqlx/types"
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 )
 
 type settings struct {
