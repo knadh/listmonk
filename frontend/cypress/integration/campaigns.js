@@ -108,6 +108,9 @@ describe('Campaigns', () => {
       cy.get('button[data-cy=btn-preview]').click();
       cy.wait(200);
       cy.get("#iframe").then(($f) => {
+        if (c === 'plain') {
+          return;
+        }
         const doc = $f.contents();
         expect(doc.find('.wrap').text().trim().replace(/(\s|\n)+/, ' ')).equal(plainBody);
       });
@@ -216,6 +219,9 @@ describe('Campaigns', () => {
         cy.get('button[data-cy=btn-preview]').click();
         cy.wait(200);
         cy.get("#iframe").then(($f) => {
+          if (c === 'plain') {
+            return;
+          }
           const doc = $f.contents();
           expect(doc.find('.wrap').text().trim()).equal(plainBody);
         });
