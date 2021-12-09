@@ -1,59 +1,59 @@
 <template>
-  <section class="settings">
-    <b-loading :is-full-page="true" v-if="loading.settings || isLoading" active />
-    <header class="columns page-header">
-      <div class="column is-half">
-        <h1 class="title is-4">{{ $t('settings.title') }}
-          <span class="has-text-grey-light">({{ serverConfig.version }})</span>
-        </h1>
-      </div>
-      <div class="column has-text-right">
-        <b-field expanded>
-          <b-button expanded :disabled="!hasFormChanged"
-            type="is-primary" icon-left="content-save-outline"
-            @click="onSubmit" class="isSaveEnabled" data-cy="btn-save">
-            {{ $t('globals.buttons.save') }}
-          </b-button>
-        </b-field>
-      </div>
-    </header>
-    <hr />
+  <form @submit.prevent="onSubmit">
+    <section class="settings">
+      <b-loading :is-full-page="true" v-if="loading.settings || isLoading" active />
+      <header class="columns page-header">
+        <div class="column is-half">
+          <h1 class="title is-4">{{ $t('settings.title') }}
+            <span class="has-text-grey-light">({{ serverConfig.version }})</span>
+          </h1>
+        </div>
+        <div class="column has-text-right">
+          <b-field expanded>
+            <b-button expanded :disabled="!hasFormChanged"
+              type="is-primary" icon-left="content-save-outline" native-type="submit"
+              class="isSaveEnabled" data-cy="btn-save">
+              {{ $t('globals.buttons.save') }}
+            </b-button>
+          </b-field>
+        </div>
+      </header>
+      <hr />
 
-    <section class="wrap">
-      <form @submit.prevent="onSubmit">
-        <b-tabs type="is-boxed" :animated="false">
-          <b-tab-item :label="$t('settings.general.name')" label-position="on-border">
-            <general-settings :form="form" :key="key" />
-          </b-tab-item><!-- general -->
+      <section class="wrap">
+          <b-tabs type="is-boxed" :animated="false">
+            <b-tab-item :label="$t('settings.general.name')" label-position="on-border">
+              <general-settings :form="form" :key="key" />
+            </b-tab-item><!-- general -->
 
-          <b-tab-item :label="$t('settings.performance.name')">
-            <performance-settings :form="form" :key="key" />
-          </b-tab-item><!-- performance -->
+            <b-tab-item :label="$t('settings.performance.name')">
+              <performance-settings :form="form" :key="key" />
+            </b-tab-item><!-- performance -->
 
-          <b-tab-item :label="$t('settings.privacy.name')">
-            <privacy-settings :form="form" :key="key" />
-          </b-tab-item><!-- privacy -->
+            <b-tab-item :label="$t('settings.privacy.name')">
+              <privacy-settings :form="form" :key="key" />
+            </b-tab-item><!-- privacy -->
 
-          <b-tab-item :label="$t('settings.media.title')">
-            <media-settings :form="form" :key="key" />
-          </b-tab-item><!-- media -->
+            <b-tab-item :label="$t('settings.media.title')">
+              <media-settings :form="form" :key="key" />
+            </b-tab-item><!-- media -->
 
-          <b-tab-item :label="$t('settings.smtp.name')">
-            <smtp-settings :form="form" :key="key" />
-          </b-tab-item><!-- mail servers -->
+            <b-tab-item :label="$t('settings.smtp.name')">
+              <smtp-settings :form="form" :key="key" />
+            </b-tab-item><!-- mail servers -->
 
-          <b-tab-item :label="$t('settings.bounces.name')">
-            <bounce-settings :form="form" :key="key" />
-          </b-tab-item><!-- bounces -->
+            <b-tab-item :label="$t('settings.bounces.name')">
+              <bounce-settings :form="form" :key="key" />
+            </b-tab-item><!-- bounces -->
 
-          <b-tab-item :label="$t('settings.messengers.name')">
-            <messenger-settings :form="form" :key="key" />
-          </b-tab-item><!-- messengers -->
-        </b-tabs>
+            <b-tab-item :label="$t('settings.messengers.name')">
+              <messenger-settings :form="form" :key="key" />
+            </b-tab-item><!-- messengers -->
+          </b-tabs>
 
-      </form>
+      </section>
     </section>
-  </section>
+  </form>
 </template>
 
 <script>

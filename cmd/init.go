@@ -490,7 +490,7 @@ func initMediaStore() media.Store {
 		o.RootURL = ko.String("app.root_url")
 		o.UploadPath = filepath.Clean(o.UploadPath)
 		o.UploadURI = filepath.Clean(o.UploadURI)
-		up, err := filesystem.NewDiskStore(o)
+		up, err := filesystem.New(o)
 		if err != nil {
 			lo.Fatalf("error initializing filesystem upload provider %s", err)
 		}
@@ -628,9 +628,8 @@ func initHTTPServer(app *App) *echo.Echo {
 	srv.GET("/admin/static/*", echo.WrapHandler(fSrv))
 
 	// Public (subscriber) facing media upload files.
-	if ko.String("upload.provider") == "filesystem" {
-		srv.Static(ko.String("upload.filesystem.upload_uri"),
-			ko.String("upload.filesystem.upload_path"))
+	if ko.String("upload.provider") == "filesystem" && ko.String("upload.filesystem.upload_uri") != "" {
+		srv.Static(ko.String("upload.filesystem.upload_uri"), ko.String("upload.filesystem.upload_path"))
 	}
 
 	// Register all HTTP handlers.
