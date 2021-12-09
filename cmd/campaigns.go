@@ -102,13 +102,13 @@ func handleGetCampaigns(c echo.Context) error {
 		noBody, _ = strconv.ParseBool(c.QueryParam("no_body"))
 	)
 
-	// Fetch one list.
+	// Fetch one campaign.
 	single := false
 	if id > 0 {
 		single = true
 	}
 
-	queryStr, stmt := makeCampaignQuery(query, orderBy, order, app.queries.QueryCampaigns)
+	queryStr, stmt := makeSearchQuery(query, orderBy, order, app.queries.QueryCampaigns)
 
 	// Unsafe to ignore scanning fields not present in models.Campaigns.
 	if err := db.Select(&out.Results, stmt, id, pq.StringArray(status), queryStr, pg.Offset, pg.Limit); err != nil {
@@ -791,9 +791,10 @@ func makeOptinCampaignMessage(o campaignReq, app *App) (campaignReq, error) {
 	return o, nil
 }
 
-// makeCampaignQuery cleans an optional campaign search string and prepares the
-// campaign SQL statement (string) and returns them.
-func makeCampaignQuery(q, orderBy, order, query string) (string, string) {
+// makeSearchQuery cleans an optional search string and prepares the
+// query SQL statement (string interpolated) and returns the
+// search query string along with the SQL expression.
+func makeSearchQuery(q, orderBy, order, query string) (string, string) {
 	if q != "" {
 		q = `%` + string(regexFullTextQuery.ReplaceAll([]byte(q), []byte("&"))) + `%`
 	}

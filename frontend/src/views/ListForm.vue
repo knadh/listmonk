@@ -42,7 +42,7 @@
       <footer class="modal-card-foot has-text-right">
         <b-button @click="$parent.close()">{{ $t('globals.buttons.close') }}</b-button>
         <b-button native-type="submit" type="is-primary"
-          :loading="loading.lists">{{ $t('globals.buttons.save') }}</b-button>
+          :loading="loading.lists" data-cy="btn-save">{{ $t('globals.buttons.save') }}</b-button>
       </footer>
     </div>
   </form>

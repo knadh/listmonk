@@ -342,7 +342,8 @@ SELECT * FROM lists WHERE (CASE WHEN $1 = '' THEN 1=1 ELSE type=$1::list_type EN
 -- name: query-lists
 WITH ls AS (
 	SELECT COUNT(*) OVER () AS total, lists.* FROM lists
-    WHERE ($1 = 0 OR id = $1) OFFSET $2 LIMIT (CASE WHEN $3 = 0 THEN NULL ELSE $3 END)
+    WHERE ($1 = 0 OR id = $1) AND ($2 = '' OR name ILIKE $2)
+    OFFSET $3 LIMIT (CASE WHEN $4 = 0 THEN NULL ELSE $4 END)
 ),
 counts AS (
 	SELECT COUNT(*) as subscriber_count, list_id FROM subscriber_lists

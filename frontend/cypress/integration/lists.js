@@ -50,8 +50,9 @@ describe('Lists', () => {
       cy.get('input[name=name]').clear().type(`list-${n}`);
       cy.get('select[name=type]').select('public');
       cy.get('select[name=optin]').select('double');
-      cy.get('input[name=tags]').clear().type(`tag${n}`);
-      cy.get('button[type=submit]').click();
+      cy.get('input[name=tags]').clear().type(`tag${n}{enter}`);
+      cy.get('[data-cy=btn-save]').click();
+      cy.wait(100);
     });
     cy.wait(250);
 
@@ -93,7 +94,7 @@ describe('Lists', () => {
         cy.get('select[name=type]').select(t);
         cy.get('select[name=optin]').select(o);
         cy.get('input[name=tags]').type(`tag${n}{enter}${t}{enter}${o}{enter}`);
-        cy.get('button[type=submit]').click();
+        cy.get('[data-cy=btn-save]').click();
         cy.wait(200);
 
         // Confirm the addition by inspecting the newly created list row.
@@ -101,14 +102,18 @@ describe('Lists', () => {
         cy.get(`${tr} td[data-label=Name]`).contains(name);
         cy.get(`${tr} td[data-label=Type] .tag[data-cy=type-${t}]`);
         cy.get(`${tr} td[data-label=Type] .tag[data-cy=optin-${o}]`);
-        cy.get(`${tr} .tags`)
-          .should('contain', `tag${n}`)
-          .and('contain', t, { matchCase: false })
-          .and('contain', o, { matchCase: false });
-
         n++;
       });
     });
+  });
+
+
+  it('Searches lists', () => {
+    cy.get('[data-cy=query]').clear().type('list-public-single-2{enter}');
+    cy.wait(200)
+    cy.get('tbody tr').its('length').should('eq', 1);
+    cy.get('tbody td[data-label="Name"]').first().contains('list-public-single-2');
+    cy.get('[data-cy=query]').clear().type('{enter}');
   });
 
 
@@ -119,8 +124,8 @@ describe('Lists', () => {
     cy.sortTable('thead th.cy-name', [4, 3, 6, 5]);
     cy.sortTable('thead th.cy-name', [5, 6, 3, 4]);
 
-    cy.sortTable('thead th.cy-type', [5, 6, 4, 3]);
-    cy.sortTable('thead th.cy-type', [4, 3, 5, 6]);
+    cy.sortTable('thead th.cy-type', [3, 4, 5, 6]);
+    cy.sortTable('thead th.cy-type', [6, 5, 4, 3]);
 
     cy.sortTable('thead th.cy-created_at', [3, 4, 5, 6]);
     cy.sortTable('thead th.cy-created_at', [6, 5, 4, 3]);
