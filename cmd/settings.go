@@ -105,6 +105,11 @@ type settings struct {
 		TLSSkipVerify bool   `json:"tls_skip_verify"`
 		ScanInterval  string `json:"scan_interval"`
 	} `json:"bounce.mailboxes"`
+
+	AdminCustomCSS  string `json:"appearance.admin.custom_css"`
+	AdminCustomJS   string `json:"appearance.admin.custom_js"`
+	PublicCustomCSS string `json:"appearance.public.custom_css"`
+	PublicCustomJS  string `json:"appearance.public.custom_js"`
 }
 
 var (

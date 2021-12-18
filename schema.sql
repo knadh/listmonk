@@ -218,7 +218,11 @@ INSERT INTO settings (key, value) VALUES
     ('bounce.sendgrid_enabled', 'false'),
     ('bounce.sendgrid_key', '""'),
     ('bounce.mailboxes',
-        '[{"enabled":false, "type": "pop", "host":"pop.yoursite.com","port":995,"auth_protocol":"userpass","username":"username","password":"password","return_path": "bounce@listmonk.yoursite.com","scan_interval":"15m","tls_enabled":true,"tls_skip_verify":false}]');
+        '[{"enabled":false, "type": "pop", "host":"pop.yoursite.com","port":995,"auth_protocol":"userpass","username":"username","password":"password","return_path": "bounce@listmonk.yoursite.com","scan_interval":"15m","tls_enabled":true,"tls_skip_verify":false}]'),
+    ('appearance.admin.custom_css', '""'),
+    ('appearance.admin.custom_js', '""'),
+    ('appearance.public.custom_css', '""'),
+    ('appearance.public.custom_js', '""');
 
 -- bounces
 DROP TABLE IF EXISTS bounces CASCADE;

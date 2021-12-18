@@ -49,6 +49,10 @@
             <b-tab-item :label="$t('settings.messengers.name')">
               <messenger-settings :form="form" :key="key" />
             </b-tab-item><!-- messengers -->
+
+            <b-tab-item :label="$t('settings.appearance.name')">
+              <appearance-settings :form="form" :key="key" />
+            </b-tab-item><!-- appearance -->
           </b-tabs>
 
       </section>
@@ -66,6 +70,7 @@ import MediaSettings from './settings/media.vue';
 import SmtpSettings from './settings/smtp.vue';
 import BounceSettings from './settings/bounces.vue';
 import MessengerSettings from './settings/messengers.vue';
+import AppearanceSettings from './settings/appearance.vue';
 
 const dummyPassword = ' '.repeat(8);
 
@@ -78,6 +83,7 @@ export default Vue.extend({
     SmtpSettings,
     BounceSettings,
     MessengerSettings,
+    AppearanceSettings,
   },
 
   data() {
