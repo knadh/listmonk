@@ -32,13 +32,12 @@ export default class Utils {
       return '';
     }
 
-    const d = new Date(stamp);
-    const day = this.i18n.t(`globals.days.${(d.getDay())}`);
-    const month = this.i18n.t(`globals.months.${(d.getMonth() + 1)}`);
-    let out = `${day}, ${d.getDate()}`;
-    out += ` ${month} ${d.getFullYear()}`;
+    const d = dayjs(stamp);
+    const day = this.i18n.t(`globals.days.${d.day()}`);
+    const month = this.i18n.t(`globals.months.${d.month() + 1}`);
+    let out = d.format(`[${day},] DD [${month}] YYYY`);
     if (showTime) {
-      out += ` ${d.getHours()}:${d.getMinutes()}`;
+      out += d.format(', HH:mm');
     }
 
     return out;
