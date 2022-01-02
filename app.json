@@ -1,0 +1,40 @@
+{
+  "name": "listmonk",
+  "description": "Self-hosted newsletter + mailing list manager",
+  "repository": "https://github.com/rbrn/listmonk",
+  "logo": "https://listmonk.app/static/images/listmonk.svg",
+  "website": "https://listmonk.app",
+  "keywords": ["emails", "newsletter", "mailing-list"],
+
+  "buildpacks": [
+    {
+      "url": "https://github.com/heroku/heroku-buildpack-apt"
+    },
+    {
+      "url": "https://github.com/rbrn/listmonk"
+    }
+  ],
+  "addons": ["heroku-postgresql"],
+
+  "env": {
+    "ROOT_URL": {
+      "description": "URL of the installation",
+      "required": true,
+      "value": "https://yourlistmonk.herokuapp.com"
+    },
+    "LISTMONK_APP__ADMIN_USERNAME": {
+      "description": "Admin username",
+      "required": true
+    },
+    "LISTMONK_APP__ADMIN_PASSWORD": {
+      "description": "Admin password",
+      "required": true
+    }
+  },
+
+  "scripts": {
+    "postdeploy": "./install-db.sh"
+  },
+
+  "success_url": "/admin/settings"
+}
