@@ -68,7 +68,7 @@ type settings struct {
 		MaxMsgRetries int                 `json:"max_msg_retries"`
 		IdleTimeout   string              `json:"idle_timeout"`
 		WaitTimeout   string              `json:"wait_timeout"`
-		TLSEnabled    bool                `json:"tls_enabled"`
+		TLSType       string              `json:"tls_type"`
 		TLSSkipVerify bool                `json:"tls_skip_verify"`
 	} `json:"smtp"`
 

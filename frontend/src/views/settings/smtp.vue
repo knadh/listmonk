@@ -81,13 +81,17 @@
               <div class="column">
                 <b-field grouped>
                   <b-field :label="$t('settings.mailserver.tls')" expanded
-                    :message="$t('settings.mailserver.tlsHelp')">
-                    <b-switch v-model="item.tls_enabled" name="item.tls_enabled" />
+                    :message="$t('settings.mailserver.tlsHelp')" label-position="on-border">
+                    <b-select v-model="item.tls_type" name="items.tls_type">
+                      <option value="none">{{ $t('globals.states.off') }}</option>
+                      <option value="STARTTLS">STARTTLS</option>
+                      <option value="TLS">SSL/TLS</option>
+                    </b-select>
                   </b-field>
                   <b-field :label="$t('settings.mailserver.skipTLS')" expanded
                     :message="$t('settings.mailserver.skipTLSHelp')">
                     <b-switch v-model="item.tls_skip_verify"
-                      :disabled="!item.tls_enabled" name="item.tls_skip_verify" />
+                      :disabled="item.tls_type === 'none'" name="item.tls_skip_verify" />
                   </b-field>
                 </b-field>
               </div>
@@ -188,7 +192,7 @@ export default Vue.extend({
         max_msg_retries: 2,
         idle_timeout: '15s',
         wait_timeout: '5s',
-        tls_enabled: true,
+        tls_type: 'STARTTLS',
         tls_skip_verify: false,
       });
 
