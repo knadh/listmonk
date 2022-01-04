@@ -16,7 +16,6 @@
     "codeflask": "^1.4.1",
     "core-js": "^3.12.1",
     "dayjs": "^1.10.4",
-    "humps": "^2.0.1",
     "indent.js": "^0.3.5",
     "qs": "^6.10.1",
     "textversionjs": "^1.1.3",
