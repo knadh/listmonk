@@ -15,6 +15,7 @@ import (
 	"github.com/jmoiron/sqlx/types"
 	"github.com/lib/pq"
 	"github.com/yuin/goldmark"
+	"github.com/yuin/goldmark/parser"
 	"github.com/yuin/goldmark/extension"
 	"github.com/yuin/goldmark/renderer/html"
 	null "gopkg.in/volatiletech/null.v6"
@@ -261,6 +262,9 @@ type Bounce struct {
 
 // markdown is a global instance of Markdown parser and renderer.
 var markdown = goldmark.New(
+	goldmark.WithParserOptions(
+		parser.WithAutoHeadingID(),
+	),
 	goldmark.WithRendererOptions(
 		html.WithXHTML(),
 		html.WithUnsafe(),
