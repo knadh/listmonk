@@ -8,7 +8,7 @@ import (
 
 // V2_1_0 performs the DB migrations for v.2.1.0.
 func V2_1_0(db *sqlx.DB, fs stuffbin.FileSystem, ko *koanf.Koanf) error {
-	// Insert into appearance related settings.
+	// Insert appearance related settings.
 	if _, err := db.Exec(`
 		INSERT INTO settings (key, value) VALUES
  			('appearance.admin.custom_css', '""'),
@@ -31,6 +31,10 @@ func V2_1_0(db *sqlx.DB, fs stuffbin.FileSystem, ko *koanf.Koanf) error {
 			) AS updated FROM settings, JSONB_ARRAY_ELEMENTS(value) v WHERE key = 'smtp'
 		) s WHERE key = 'smtp';
 	`); err != nil {
+		return err
+	}
+
+	if _, err := db.Exec(`ALTER TABLE campaigns ADD COLUMN IF NOT EXISTS headers JSONB NOT NULL DEFAULT '[]';`); err != nil {
 		return err
 	}
 

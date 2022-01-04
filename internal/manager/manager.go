@@ -319,6 +319,15 @@ func (m *Manager) worker() {
 				h.Set("List-Unsubscribe", `<`+msg.unsubURL+`>`)
 			}
 
+			// Attach any custom headers.
+			if len(msg.Campaign.Headers) > 0 {
+				for _, set := range msg.Campaign.Headers {
+					for hdr, val := range set {
+						h.Add(hdr, val)
+					}
+				}
+			}
+
 			out.Headers = h
 
 			if err := m.messengers[msg.Campaign.Messenger].Push(out); err != nil {

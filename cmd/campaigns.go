@@ -292,6 +292,7 @@ func handleCreateCampaign(c echo.Context) error {
 		o.AltBody,
 		o.ContentType,
 		o.SendAt,
+		o.Headers,
 		pq.StringArray(normalizeTags(o.Tags)),
 		o.Messenger,
 		o.TemplateID,
@@ -366,6 +367,7 @@ func handleUpdateCampaign(c echo.Context) error {
 		o.ContentType,
 		o.SendAt,
 		o.SendLater,
+		o.Headers,
 		pq.StringArray(normalizeTags(o.Tags)),
 		o.Messenger,
 		o.TemplateID,
@@ -603,6 +605,7 @@ func handleTestCampaign(c echo.Context) error {
 	camp.AltBody = req.AltBody
 	camp.Messenger = req.Messenger
 	camp.ContentType = req.ContentType
+	camp.Headers = req.Headers
 	camp.TemplateID = req.TemplateID
 
 	// Send the test messages.
@@ -734,6 +737,10 @@ func validateCampaignFields(c campaignReq, app *App) (campaignReq, error) {
 	camp := models.Campaign{Body: c.Body, TemplateBody: tplTag}
 	if err := c.CompileTemplate(app.manager.TemplateFuncs(&camp)); err != nil {
 		return c, errors.New(app.i18n.Ts("campaigns.fieldInvalidBody", "error", err.Error()))
+	}
+
+	if len(c.Headers) == 0 {
+		c.Headers = make([]map[string]string, 0)
 	}
 
 	return c, nil

@@ -72,6 +72,10 @@ const (
 	BounceTypeSoft = "soft"
 )
 
+// Headers represents an array of string maps used to represent SMTP, HTTP headers etc.
+// similar to url.Values{}
+type Headers []map[string]string
+
 // regTplFunc represents contains a regular expression for wrapping and
 // substituting a Go template function from the user's shorthand to a full
 // function call.
@@ -193,6 +197,7 @@ type Campaign struct {
 	Status      string         `db:"status" json:"status"`
 	ContentType string         `db:"content_type" json:"content_type"`
 	Tags        pq.StringArray `db:"tags" json:"tags"`
+	Headers     Headers        `db:"headers" json:"headers"`
 	TemplateID  int            `db:"template_id" json:"template_id"`
 	Messenger   string         `db:"messenger" json:"messenger"`
 
@@ -467,4 +472,41 @@ func (s Subscriber) LastName() string {
 	}
 
 	return s.Name
+}
+
+// Scan implements the sql.Scanner interface.
+func (h *Headers) Scan(src interface{}) error {
+	var b []byte
+	switch src := src.(type) {
+	case []byte:
+		b = src
+	case string:
+		b = []byte(src)
+	case nil:
+		return nil
+	}
+
+	if err := json.Unmarshal(b, h); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// Value implements the driver.Valuer interface.
+func (h Headers) Value() (driver.Value, error) {
+	if h == nil {
+		return nil, nil
+	}
+
+	if n := len(h); n > 0 {
+		b, err := json.Marshal(h)
+		if err != nil {
+			return nil, err
+		}
+
+		return b, nil
+	}
+
+	return "[]", nil
 }

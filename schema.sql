@@ -78,6 +78,7 @@ CREATE TABLE campaigns (
     altbody          TEXT NULL,
     content_type     content_type NOT NULL DEFAULT 'richtext',
     send_at          TIMESTAMP WITH TIME ZONE,
+    headers          JSONB NOT NULL DEFAULT '[]',
     status           campaign_status NOT NULL DEFAULT 'draft',
     tags             VARCHAR(100)[],
 
