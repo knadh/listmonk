@@ -29,7 +29,7 @@ func V2_1_0(db *sqlx.DB, fs stuffbin.FileSystem, ko *koanf.Koanf) error {
 			SELECT JSONB_AGG(
 				JSONB_SET(v - 'tls_enabled', '{tls_type}', (CASE WHEN v->>'tls_enabled' = 'true' THEN '"STARTTLS"' ELSE '"none"' END)::JSONB)
 			) AS updated FROM settings, JSONB_ARRAY_ELEMENTS(value) v WHERE key = 'smtp'
-		) s WHERE key = 'smtp';
+		) s WHERE key = 'smtp' AND value::TEXT LIKE '%tls_enabled%';
 	`); err != nil {
 		return err
 	}
