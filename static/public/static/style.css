@@ -14,7 +14,7 @@ body {
   color: #111;
 }
 a {
-  color: #0055d4;
+  color: #6E24FF;
 }
 a:hover {
   color: #111;
@@ -43,7 +43,7 @@ input[type="text"], input[type="email"], select {
   font-size: 1em;
 }
   input:focus {
-    border-color: #0055d4;
+    border-color: #6E24FF;
   }
 
 input:focus::placeholder {
@@ -54,7 +54,7 @@ input:focus::placeholder {
   text-align: center;
 }
 .button {
-  background: #0055d4;
+  background: #6E24FF;
   padding: 15px 30px;
   border-radius: 3px;
   border: 0;
@@ -72,17 +72,17 @@ input:focus::placeholder {
 }
 .button.button-outline {
   background: #fff;
-  border: 1px solid #0055d4;
-  color: #0055d4;
+  border: 1px solid #6E24FF;
+  color: #6E24FF;
 }
 .button.button-outline:hover {
-  background-color: #0055d4;
+  background-color: #6E24FF;
   color: #fff;
 }
 
 .container {
   margin: 60px auto 15px auto;
-  max-width: 550px;  
+  max-width: 550px;
 }
 
 .wrap {
