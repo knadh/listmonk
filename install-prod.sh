@@ -77,7 +77,7 @@ is_running() {
 }
 
 generate_password(){
-	echo $(tr -dc A-Za-z0-9 </dev/urandom | head -c 13 ; echo '')
+	echo $(LC_ALL=C tr -dc A-Za-z0-9 </dev/urandom | head -c 13 ; echo '')
 }
 
 get_config() {

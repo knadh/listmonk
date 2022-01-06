@@ -15,6 +15,7 @@ import (
 	"github.com/jmoiron/sqlx/types"
 	"github.com/lib/pq"
 	"github.com/yuin/goldmark"
+	"github.com/yuin/goldmark/parser"
 	"github.com/yuin/goldmark/extension"
 	"github.com/yuin/goldmark/renderer/html"
 	null "gopkg.in/volatiletech/null.v6"
@@ -71,6 +72,10 @@ const (
 	BounceTypeHard = "hard"
 	BounceTypeSoft = "soft"
 )
+
+// Headers represents an array of string maps used to represent SMTP, HTTP headers etc.
+// similar to url.Values{}
+type Headers []map[string]string
 
 // regTplFunc represents contains a regular expression for wrapping and
 // substituting a Go template function from the user's shorthand to a full
@@ -129,8 +134,8 @@ type Subscriber struct {
 	Base
 
 	UUID    string            `db:"uuid" json:"uuid"`
-	Email   string            `db:"email" json:"email"`
-	Name    string            `db:"name" json:"name"`
+	Email   string            `db:"email" json:"email" form:"email"`
+	Name    string            `db:"name" json:"name" form:"name"`
 	Attribs SubscriberAttribs `db:"attribs" json:"attribs"`
 	Status  string            `db:"status" json:"status"`
 	Lists   types.JSONText    `db:"lists" json:"lists"`
@@ -193,6 +198,7 @@ type Campaign struct {
 	Status      string         `db:"status" json:"status"`
 	ContentType string         `db:"content_type" json:"content_type"`
 	Tags        pq.StringArray `db:"tags" json:"tags"`
+	Headers     Headers        `db:"headers" json:"headers"`
 	TemplateID  int            `db:"template_id" json:"template_id"`
 	Messenger   string         `db:"messenger" json:"messenger"`
 
@@ -261,6 +267,9 @@ type Bounce struct {
 
 // markdown is a global instance of Markdown parser and renderer.
 var markdown = goldmark.New(
+	goldmark.WithParserOptions(
+		parser.WithAutoHeadingID(),
+	),
 	goldmark.WithRendererOptions(
 		html.WithXHTML(),
 		html.WithUnsafe(),
@@ -467,4 +476,41 @@ func (s Subscriber) LastName() string {
 	}
 
 	return s.Name
+}
+
+// Scan implements the sql.Scanner interface.
+func (h *Headers) Scan(src interface{}) error {
+	var b []byte
+	switch src := src.(type) {
+	case []byte:
+		b = src
+	case string:
+		b = []byte(src)
+	case nil:
+		return nil
+	}
+
+	if err := json.Unmarshal(b, h); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// Value implements the driver.Valuer interface.
+func (h Headers) Value() (driver.Value, error) {
+	if h == nil {
+		return nil, nil
+	}
+
+	if n := len(h); n > 0 {
+		b, err := json.Marshal(h)
+		if err != nil {
+			return nil, err
+		}
+
+		return b, nil
+	}
+
+	return "[]", nil
 }

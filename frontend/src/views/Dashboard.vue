@@ -60,7 +60,7 @@
                   <div class="column is-6">
                     <ul class="no has-text-grey">
                       <li v-for="(num, status) in counts.campaigns.byStatus" :key="status">
-                        <label>{{ num }}</label>
+                        <label :data-cy="`campaigns-${status}`">{{ num }}</label>
                         {{ $t(`campaigns.status.${status}`) }}
                         <span v-if="status === 'running'" class="spinner is-tiny">
                           <b-loading :is-full-page="false" active />

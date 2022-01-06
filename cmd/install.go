@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -146,6 +147,7 @@ func install(lastVer string, db *sqlx.DB, fs stuffbin.FileSystem, prompt, idempo
 		nil,
 		"richtext",
 		nil,
+		json.RawMessage("[]"),
 		pq.StringArray{"test-campaign"},
 		emailMsgr,
 		1,

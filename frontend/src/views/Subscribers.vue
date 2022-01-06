@@ -399,7 +399,10 @@ export default Vue.extend({
       this.$utils.confirm(this.$t('subscribers.confirmExport', { num: this.subscribers.total }), () => {
         const q = new URLSearchParams();
         q.append('query', this.queryParams.queryExp);
-        q.append('list_id', this.queryParams.listID);
+
+        if (this.queryParams.listID) {
+          q.append('list_id', this.queryParams.listID);
+        }
         document.location.href = `${uris.exportSubscribers}?${q.toString()}`;
       });
     },

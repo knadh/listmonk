@@ -32,13 +32,12 @@ export default class Utils {
       return '';
     }
 
-    const d = new Date(stamp);
-    const day = this.i18n.t(`globals.days.${(d.getDay())}`);
-    const month = this.i18n.t(`globals.months.${(d.getMonth() + 1)}`);
-    let out = `${day}, ${d.getDate()}`;
-    out += ` ${month} ${d.getFullYear()}`;
+    const d = dayjs(stamp);
+    const day = this.i18n.t(`globals.days.${d.day()}`);
+    const month = this.i18n.t(`globals.months.${d.month() + 1}`);
+    let out = d.format(`[${day},] DD [${month}] YYYY`);
     if (showTime) {
-      out += ` ${d.getHours()}:${d.getMinutes()}`;
+      out += d.format(', HH:mm');
     }
 
     return out;
@@ -148,4 +147,45 @@ export default class Utils {
   // Takes a props.row from a Buefy b-column <td> template and
   // returns a `data-id` attribute which Buefy then applies to the td.
   tdID = (row) => ({ 'data-id': row.id.toString() });
+
+  camelString = (str) => {
+    const s = str.replace(/[-_\s]+(.)?/g, (match, chr) => (chr ? chr.toUpperCase() : ''));
+    return s.substr(0, 1).toLowerCase() + s.substr(1);
+  }
+
+  // camelKeys recursively camelCases all keys in a given object (array or {}).
+  // For each key it traverses, it passes a dot separated key path to an optional testFunc() bool.
+  // so that it can camelcase or leave a particular key alone based on what testFunc() returns.
+  // eg: The keypath for {"data": {"results": ["created_at": 123]}} is
+  // .data.results.*.created_at (array indices become *)
+  // testFunc() can examine this key and return true to convert it to camelcase
+  // or false to leave it as-is.
+  camelKeys = (obj, testFunc, keys) => {
+    if (obj === null) {
+      return obj;
+    }
+
+    if (Array.isArray(obj)) {
+      return obj.map((o) => this.camelKeys(o, testFunc, `${keys || ''}.*`));
+    }
+
+    if (obj.constructor === Object) {
+      return Object.keys(obj).reduce((result, key) => {
+        const keyPath = `${keys || ''}.${key}`;
+        let k = key;
+
+        // If there's no testfunc or if a function is defined and it returns true, convert.
+        if (testFunc === undefined || testFunc(keyPath)) {
+          k = this.camelString(key);
+        }
+
+        return {
+          ...result,
+          [k]: this.camelKeys(obj[key], testFunc, keyPath),
+        };
+      }, {});
+    }
+
+    return obj;
+  };
 }
