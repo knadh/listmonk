@@ -164,6 +164,7 @@ type List struct {
 	UUID            string         `db:"uuid" json:"uuid"`
 	Name            string         `db:"name" json:"name"`
 	Type            string         `db:"type" json:"type"`
+	Channel         string         `db:"channel" json:"channel"`
 	Optin           string         `db:"optin" json:"optin"`
 	Tags            pq.StringArray `db:"tags" json:"tags"`
 	SubscriberCount int            `db:"subscriber_count" json:"subscriber_count"`

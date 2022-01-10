@@ -235,3 +235,6 @@ DROP INDEX IF EXISTS idx_bounces_sub_id; CREATE INDEX idx_bounces_sub_id ON boun
 DROP INDEX IF EXISTS idx_bounces_camp_id; CREATE INDEX idx_bounces_camp_id ON bounces(campaign_id);
 DROP INDEX IF EXISTS idx_bounces_source; CREATE INDEX idx_bounces_source ON bounces(source);
 DROP INDEX IF EXISTS idx_bounces_date; CREATE INDEX idx_bounces_date ON bounces((TIMEZONE('UTC', created_at)::DATE));
+
+DROP TYPE IF EXISTS list_channel_type CASCADE; CREATE TYPE list_channel_type AS ENUM ('email', 'sms');
+ALTER TABLE  lists ADD COLUMN  list_channel  list_channel_type NOT NULL DEFAULT 'email';
