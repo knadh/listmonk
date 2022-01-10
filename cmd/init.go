@@ -35,7 +35,7 @@ import (
 	"github.com/knadh/listmonk/internal/subimporter"
 	"github.com/knadh/listmonk/models"
 	"github.com/knadh/stuffbin"
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 	flag "github.com/spf13/pflag"
 )
 
@@ -67,6 +67,13 @@ type constants struct {
 	} `koanf:"privacy"`
 	AdminUsername []byte `koanf:"admin_username"`
 	AdminPassword []byte `koanf:"admin_password"`
+
+	Appearance struct {
+		AdminCSS  []byte `koanf:"admin.custom_css"`
+		AdminJS   []byte `koanf:"admin.custom_js"`
+		PublicCSS []byte `koanf:"public.custom_css"`
+		PublicJS  []byte `koanf:"public.custom_js"`
+	}
 
 	UnsubURL      string
 	LinkTrackURL  string
@@ -293,7 +300,10 @@ func initConstants() *constants {
 		lo.Fatalf("error loading app config: %v", err)
 	}
 	if err := ko.Unmarshal("privacy", &c.Privacy); err != nil {
-		lo.Fatalf("error loading app config: %v", err)
+		lo.Fatalf("error loading app.privacy config: %v", err)
+	}
+	if err := ko.UnmarshalWithConf("appearance", &c.Appearance, koanf.UnmarshalConf{FlatPaths: true}); err != nil {
+		lo.Fatalf("error loading app.appearance config: %v", err)
 	}
 
 	c.RootURL = strings.TrimRight(c.RootURL, "/")
@@ -490,7 +500,7 @@ func initMediaStore() media.Store {
 		o.RootURL = ko.String("app.root_url")
 		o.UploadPath = filepath.Clean(o.UploadPath)
 		o.UploadURI = filepath.Clean(o.UploadURI)
-		up, err := filesystem.NewDiskStore(o)
+		up, err := filesystem.New(o)
 		if err != nil {
 			lo.Fatalf("error initializing filesystem upload provider %s", err)
 		}
@@ -622,15 +632,14 @@ func initHTTPServer(app *App) *echo.Echo {
 	fSrv := app.fs.FileServer()
 
 	// Public (subscriber) facing static files.
-	srv.GET("/public/*", echo.WrapHandler(fSrv))
+	srv.GET("/public/static/*", echo.WrapHandler(fSrv))
 
 	// Admin (frontend) facing static files.
 	srv.GET("/admin/static/*", echo.WrapHandler(fSrv))
 
 	// Public (subscriber) facing media upload files.
-	if ko.String("upload.provider") == "filesystem" {
-		srv.Static(ko.String("upload.filesystem.upload_uri"),
-			ko.String("upload.filesystem.upload_path"))
+	if ko.String("upload.provider") == "filesystem" && ko.String("upload.filesystem.upload_uri") != "" {
+		srv.Static(ko.String("upload.filesystem.upload_uri"), ko.String("upload.filesystem.upload_path"))
 	}
 
 	// Register all HTTP handlers.

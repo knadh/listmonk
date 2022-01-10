@@ -17,24 +17,6 @@ CREATE TYPE bounce_type AS ENUM ('soft', 'hard', 'complaint');
 
 -- subscribers
 DROP TABLE IF EXISTS subscribers CASCADE;
-CREATE TABLE subscribers
-(
-    id         SERIAL PRIMARY KEY,
-    uuid       uuid              NOT NULL UNIQUE,
-    email      TEXT              NOT NULL UNIQUE,
-    name       TEXT              NOT NULL,
-    attribs    JSONB             NOT NULL DEFAULT '{}',
-    status     subscriber_status NOT NULL DEFAULT 'enabled',
-
-    created_at TIMESTAMP WITH TIME ZONE   DEFAULT NOW(),
-    updated_at TIMESTAMP WITH TIME ZONE   DEFAULT NOW()
-);
-DROP
-INDEX IF EXISTS idx_subs_email; CREATE
-UNIQUE INDEX idx_subs_email ON subscribers(LOWER(email));
-DROP
-INDEX IF EXISTS idx_subs_status; CREATE
-INDEX idx_subs_status ON subscribers(status);
 
 -- lists
 DROP TABLE IF EXISTS lists CASCADE;
@@ -91,19 +73,19 @@ UNIQUE INDEX ON templates (is_default) WHERE is_default = true;
 
 -- campaigns
 DROP TABLE IF EXISTS campaigns CASCADE;
-CREATE TABLE campaigns
-(
-    id                 SERIAL PRIMARY KEY,
-    uuid               uuid            NOT NULL UNIQUE,
-    name               TEXT            NOT NULL,
-    subject            TEXT            NOT NULL,
-    from_email         TEXT            NOT NULL,
-    body               TEXT            NOT NULL,
-    altbody            TEXT NULL,
-    content_type       content_type    NOT NULL                                DEFAULT 'richtext',
-    send_at            TIMESTAMP WITH TIME ZONE,
-    status             campaign_status NOT NULL                                DEFAULT 'draft',
-    tags               VARCHAR(100)[],
+CREATE TABLE campaigns (
+    id               SERIAL PRIMARY KEY,
+    uuid uuid        NOT NULL UNIQUE,
+    name             TEXT NOT NULL,
+    subject          TEXT NOT NULL,
+    from_email       TEXT NOT NULL,
+    body             TEXT NOT NULL,
+    altbody          TEXT NULL,
+    content_type     content_type NOT NULL DEFAULT 'richtext',
+    send_at          TIMESTAMP WITH TIME ZONE,
+    headers          JSONB NOT NULL DEFAULT '[]',
+    status           campaign_status NOT NULL DEFAULT 'draft',
+    tags             VARCHAR(100)[],
 
     -- The subscription statuses of subscribers to which a campaign will be sent.
     -- For opt-in campaigns, this will be 'unsubscribed'.
@@ -218,112 +200,61 @@ CREATE TABLE settings
     value      JSONB NOT NULL           DEFAULT '{}',
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
-DROP
-INDEX IF EXISTS idx_settings_key; CREATE
-INDEX idx_settings_key ON settings(key);
-INSERT INTO settings (key, value)
-VALUES ('app.root_url', '"http://localhost:9000"'),
-       ('app.favicon_url', '""'),
-       ('app.from_email', '"listmonk <noreply@listmonk.yoursite.com>"'),
-       ('app.logo_url', '"http://localhost:9000/public/static/logo.png"'),
-       ('app.concurrency', '10'),
-       ('app.message_rate', '10'),
-       ('app.batch_size', '1000'),
-       ('app.max_send_errors', '1000'),
-       ('app.message_sliding_window', 'false'),
-       ('app.message_sliding_window_duration', '"1h"'),
-       ('app.message_sliding_window_rate', '10000'),
-       ('app.enable_public_subscription_page', 'true'),
-       ('app.send_optin_confirmation', 'true'),
-       ('app.check_updates', 'true'),
-       ('app.notify_emails', '[
-         "admin1@mysite.com",
-         "admin2@mysite.com"
-       ]'),
-       ('app.lang', '"en"'),
-       ('privacy.individual_tracking', 'false'),
-       ('privacy.unsubscribe_header', 'true'),
-       ('privacy.allow_blocklist', 'true'),
-       ('privacy.allow_export', 'true'),
-       ('privacy.allow_wipe', 'true'),
-       ('privacy.exportable', '[
-         "profile",
-         "subscriptions",
-         "campaign_views",
-         "link_clicks"
-       ]'),
-       ('privacy.domain_blocklist', '[]'),
-       ('upload.provider', '"filesystem"'),
-       ('upload.filesystem.upload_path', '"uploads"'),
-       ('upload.filesystem.upload_uri', '"/uploads"'),
-       ('upload.s3.url', '"https://ap-south-1.s3.amazonaws.com"'),
-       ('upload.s3.aws_access_key_id', '""'),
-       ('upload.s3.aws_secret_access_key', '""'),
-       ('upload.s3.aws_default_region', '"ap-south-1"'),
-       ('upload.s3.bucket', '""'),
-       ('upload.s3.bucket_domain', '""'),
-       ('upload.s3.bucket_path', '"/"'),
-       ('upload.s3.bucket_type', '"public"'),
-       ('upload.s3.expiry', '"14d"'),
-       ('smtp',
-        '[
-          {
-            "enabled": true,
-            "host": "smtp.yoursite.com",
-            "port": 25,
-            "auth_protocol": "cram",
-            "username": "username",
-            "password": "password",
-            "hello_hostname": "",
-            "max_conns": 10,
-            "idle_timeout": "15s",
-            "wait_timeout": "5s",
-            "max_msg_retries": 2,
-            "tls_enabled": true,
-            "tls_skip_verify": false,
-            "email_headers": []
-          },
-          {
-            "enabled": false,
-            "host": "smtp2.yoursite.com",
-            "port": 587,
-            "auth_protocol": "plain",
-            "username": "username",
-            "password": "password",
-            "hello_hostname": "",
-            "max_conns": 10,
-            "idle_timeout": "15s",
-            "wait_timeout": "5s",
-            "max_msg_retries": 2,
-            "tls_enabled": false,
-            "tls_skip_verify": false,
-            "email_headers": []
-          }
-        ]'),
-       ('messengers', '[]'),
-       ('bounce.enabled', 'false'),
-       ('bounce.webhooks_enabled', 'false'),
-       ('bounce.count', '2'),
-       ('bounce.action', '"blocklist"'),
-       ('bounce.ses_enabled', 'false'),
-       ('bounce.sendgrid_enabled', 'false'),
-       ('bounce.sendgrid_key', '""'),
-       ('bounce.mailboxes',
-        '[
-          {
-            "enabled": false,
-            "type": "pop",
-            "host": "pop.yoursite.com",
-            "port": 995,
-            "auth_protocol": "userpass",
-            "username": "username",
-            "password": "password",
-            "return_path": "bounce@listmonk.yoursite.com",
-            "scan_interval": "15m",
-            "tls_enabled": true,
-            "tls_skip_verify": false
-          }
-        ]');
+
+DROP INDEX IF EXISTS idx_settings_key; CREATE INDEX idx_settings_key ON settings(key);
+INSERT INTO settings (key, value) VALUES
+    ('app.root_url', '"http://localhost:9000"'),
+    ('app.favicon_url', '""'),
+    ('app.from_email', '"listmonk <noreply@listmonk.yoursite.com>"'),
+    ('app.logo_url', '"http://localhost:9000/public/static/logo.png"'),
+    ('app.concurrency', '10'),
+    ('app.message_rate', '10'),
+    ('app.batch_size', '1000'),
+    ('app.max_send_errors', '1000'),
+    ('app.message_sliding_window', 'false'),
+    ('app.message_sliding_window_duration', '"1h"'),
+    ('app.message_sliding_window_rate', '10000'),
+    ('app.enable_public_subscription_page', 'true'),
+    ('app.send_optin_confirmation', 'true'),
+    ('app.check_updates', 'true'),
+    ('app.notify_emails', '["admin1@mysite.com", "admin2@mysite.com"]'),
+    ('app.lang', '"en"'),
+    ('privacy.individual_tracking', 'false'),
+    ('privacy.unsubscribe_header', 'true'),
+    ('privacy.allow_blocklist', 'true'),
+    ('privacy.allow_export', 'true'),
+    ('privacy.allow_wipe', 'true'),
+    ('privacy.exportable', '["profile", "subscriptions", "campaign_views", "link_clicks"]'),
+    ('privacy.domain_blocklist', '[]'),
+    ('upload.provider', '"filesystem"'),
+    ('upload.filesystem.upload_path', '"uploads"'),
+    ('upload.filesystem.upload_uri', '"/uploads"'),
+    ('upload.s3.url', '"https://ap-south-1.s3.amazonaws.com"'),
+    ('upload.s3.aws_access_key_id', '""'),
+    ('upload.s3.aws_secret_access_key', '""'),
+    ('upload.s3.aws_default_region', '"ap-south-1"'),
+    ('upload.s3.bucket', '""'),
+    ('upload.s3.bucket_domain', '""'),
+    ('upload.s3.bucket_path', '"/"'),
+    ('upload.s3.bucket_type', '"public"'),
+    ('upload.s3.expiry', '"14d"'),
+    ('smtp',
+        '[{"enabled":true, "host":"smtp.yoursite.com","port":25,"auth_protocol":"cram","username":"username","password":"password","hello_hostname":"","max_conns":10,"idle_timeout":"15s","wait_timeout":"5s","max_msg_retries":2,"tls_type":"STARTTLS","tls_skip_verify":false,"email_headers":[]},
+          {"enabled":false, "host":"smtp.gmail.com","port":465,"auth_protocol":"login","username":"username@gmail.com","password":"password","hello_hostname":"","max_conns":10,"idle_timeout":"15s","wait_timeout":"5s","max_msg_retries":2,"tls_type":"TLS","tls_skip_verify":false,"email_headers":[]}]'),
+    ('messengers', '[]'),
+    ('bounce.enabled', 'false'),
+    ('bounce.webhooks_enabled', 'false'),
+    ('bounce.count', '2'),
+    ('bounce.action', '"blocklist"'),
+    ('bounce.ses_enabled', 'false'),
+    ('bounce.sendgrid_enabled', 'false'),
+    ('bounce.sendgrid_key', '""'),
+    ('bounce.mailboxes',
+        '[{"enabled":false, "type": "pop", "host":"pop.yoursite.com","port":995,"auth_protocol":"userpass","username":"username","password":"password","return_path": "bounce@listmonk.yoursite.com","scan_interval":"15m","tls_enabled":true,"tls_skip_verify":false}]'),
+    ('appearance.admin.custom_css', '""'),
+    ('appearance.admin.custom_js', '""'),
+    ('appearance.public.custom_css', '""'),
+    ('appearance.public.custom_js', '""');
 
 -- bounces
 DROP TABLE IF EXISTS bounces CASCADE;

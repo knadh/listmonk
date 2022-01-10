@@ -13,7 +13,7 @@ describe('Dashboard', () => {
 
     // Campaign counts.
     cy.get('[data-cy=campaigns] .title').contains('1');
-    cy.get('[data-cy=campaigns]').contains('1 draft');
+    cy.get('[data-cy=campaigns-draft]').contains('1');
 
     // Subscriber counts.
     cy.get('[data-cy=subscribers] .title').contains('2');

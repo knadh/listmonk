@@ -25,6 +25,25 @@
       :current-page="queryParams.page" :per-page="lists.perPage" :total="lists.total"
       backend-sorting @sort="onSort"
     >
+      <template #top-left>
+        <div class="columns">
+          <div class="column is-6">
+            <form @submit.prevent="getLists">
+              <div>
+                <b-field>
+                  <b-input v-model="queryParams.query" name="query" expanded
+                    icon="magnify" ref="query" data-cy="query" />
+                  <p class="controls">
+                    <b-button native-type="submit" type="is-primary" icon-left="magnify"
+                      data-cy="btn-query" />
+                  </p>
+                </b-field>
+              </div>
+            </form>
+          </div>
+        </div>
+      </template>
+
       <b-table-column v-slot="props" field="name" :label="$t('globals.fields.name')"
         header-class="cy-name" sortable width="25%"
         paginated backend-pagination pagination-position="both"
@@ -146,6 +165,7 @@ export default Vue.extend({
       isFormVisible: false,
       queryParams: {
         page: 1,
+        query: '',
         orderBy: 'id',
         order: 'asc',
       },
@@ -192,6 +212,7 @@ export default Vue.extend({
     getLists() {
       this.$api.getLists({
         page: this.queryParams.page,
+        query: this.queryParams.query,
         order_by: this.queryParams.orderBy,
         order: this.queryParams.order,
       });

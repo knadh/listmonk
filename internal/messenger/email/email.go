@@ -18,7 +18,7 @@ type Server struct {
 	Username      string            `json:"username"`
 	Password      string            `json:"password"`
 	AuthProtocol  string            `json:"auth_protocol"`
-	TLSEnabled    bool              `json:"tls_enabled"`
+	TLSType       string            `json:"tls_type"`
 	TLSSkipVerify bool              `json:"tls_skip_verify"`
 	EmailHeaders  map[string]string `json:"email_headers"`
 
@@ -57,12 +57,17 @@ func New(servers ...Server) (*Emailer, error) {
 		s.Opt.Auth = auth
 
 		// TLS config.
-		if s.TLSEnabled {
+		if s.TLSType != "none" {
 			s.TLSConfig = &tls.Config{}
 			if s.TLSSkipVerify {
 				s.TLSConfig.InsecureSkipVerify = s.TLSSkipVerify
 			} else {
 				s.TLSConfig.ServerName = s.Host
+			}
+
+			// SSL/TLS, not STARTTLS.
+			if s.TLSType == "TLS" {
+				s.Opt.SSL = true
 			}
 		}
 

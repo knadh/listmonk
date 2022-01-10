@@ -63,12 +63,15 @@
     </b-field>
 
     <hr />
-    <b-field :label="$t('settings.general.language')" label-position="on-border">
+    <b-field :label="$t('settings.general.language')" label-position="on-border" :addons="false">
       <b-select v-model="data['app.lang']" name="app.lang">
           <option v-for="l in serverConfig.langs" :key="l.code" :value="l.code">
             {{ l.name }}
           </option>
       </b-select>
+      <p class="mt-2">
+        <a href="https://listmonk.app/docs/i18n/#additional-language-packs" target="_blank">{{ $t('globals.buttons.more') }} &rarr;</a>
+      </p>
     </b-field>
   </div>
 </template>

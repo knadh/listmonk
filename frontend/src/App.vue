@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <b-navbar :fixed-top="true" v-if="$root.isLoaded">
-        <template slot="brand">
+        <template #brand>
           <div class="logo">
             <router-link :to="{name: 'dashboard'}">
               <img class="full" src="@/assets/logo.svg"/>
@@ -9,7 +9,7 @@
             </router-link>
           </div>
         </template>
-        <template slot="end">
+        <template #end>
           <navigation v-if="isMobile" :isMobile="isMobile"
             :activeItem="activeItem" :activeGroup="activeGroup" @toggleGroup="toggleGroup"
             @doLogout="doLogout" />

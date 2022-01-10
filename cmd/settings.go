@@ -10,7 +10,7 @@ import (
 
 	"github.com/gofrs/uuid"
 	"github.com/jmoiron/sqlx/types"
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 )
 
 type settings struct {
@@ -68,7 +68,7 @@ type settings struct {
 		MaxMsgRetries int                 `json:"max_msg_retries"`
 		IdleTimeout   string              `json:"idle_timeout"`
 		WaitTimeout   string              `json:"wait_timeout"`
-		TLSEnabled    bool                `json:"tls_enabled"`
+		TLSType       string              `json:"tls_type"`
 		TLSSkipVerify bool                `json:"tls_skip_verify"`
 	} `json:"smtp"`
 
@@ -105,6 +105,11 @@ type settings struct {
 		TLSSkipVerify bool   `json:"tls_skip_verify"`
 		ScanInterval  string `json:"scan_interval"`
 	} `json:"bounce.mailboxes"`
+
+	AdminCustomCSS  string `json:"appearance.admin.custom_css"`
+	AdminCustomJS   string `json:"appearance.admin.custom_js"`
+	PublicCustomCSS string `json:"appearance.public.custom_css"`
+	PublicCustomJS  string `json:"appearance.public.custom_js"`
 }
 
 var (

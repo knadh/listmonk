@@ -252,6 +252,13 @@ export default {
     },
 
     onFormatChange(format) {
+      if (this.form.body.trim() === '') {
+        this.form.format = format;
+        this.onEditorChange();
+        return;
+      }
+
+      // Content isn't empty. Warn.
       this.$utils.confirm(
         this.$t('campaigns.confirmSwitchFormat'),
         () => {

@@ -179,6 +179,43 @@ func easyjsonDf11841fDecodeGithubComKnadhListmonkInternalMessengerPostback2(in *
 			out.UUID = string(in.String())
 		case "name":
 			out.Name = string(in.String())
+		case "headers":
+			if in.IsNull() {
+				in.Skip()
+				out.Headers = nil
+			} else {
+				in.Delim('[')
+				if out.Headers == nil {
+					if !in.IsDelim(']') {
+						out.Headers = make(models.Headers, 0, 8)
+					} else {
+						out.Headers = models.Headers{}
+					}
+				} else {
+					out.Headers = (out.Headers)[:0]
+				}
+				for !in.IsDelim(']') {
+					var v4 map[string]string
+					if in.IsNull() {
+						in.Skip()
+					} else {
+						in.Delim('{')
+						v4 = make(map[string]string)
+						for !in.IsDelim('}') {
+							key := string(in.String())
+							in.WantColon()
+							var v5 string
+							v5 = string(in.String())
+							(v4)[key] = v5
+							in.WantComma()
+						}
+						in.Delim('}')
+					}
+					out.Headers = append(out.Headers, v4)
+					in.WantComma()
+				}
+				in.Delim(']')
+			}
 		case "tags":
 			if in.IsNull() {
 				in.Skip()
@@ -195,9 +232,9 @@ func easyjsonDf11841fDecodeGithubComKnadhListmonkInternalMessengerPostback2(in *
 					out.Tags = (out.Tags)[:0]
 				}
 				for !in.IsDelim(']') {
-					var v4 string
-					v4 = string(in.String())
-					out.Tags = append(out.Tags, v4)
+					var v6 string
+					v6 = string(in.String())
+					out.Tags = append(out.Tags, v6)
 					in.WantComma()
 				}
 				in.Delim(']')
@@ -227,17 +264,49 @@ func easyjsonDf11841fEncodeGithubComKnadhListmonkInternalMessengerPostback2(out 
 		out.String(string(in.Name))
 	}
 	{
+		const prefix string = ",\"headers\":"
+		out.RawString(prefix)
+		if in.Headers == nil && (out.Flags&jwriter.NilSliceAsEmpty) == 0 {
+			out.RawString("null")
+		} else {
+			out.RawByte('[')
+			for v7, v8 := range in.Headers {
+				if v7 > 0 {
+					out.RawByte(',')
+				}
+				if v8 == nil && (out.Flags&jwriter.NilMapAsEmpty) == 0 {
+					out.RawString(`null`)
+				} else {
+					out.RawByte('{')
+					v9First := true
+					for v9Name, v9Value := range v8 {
+						if v9First {
+							v9First = false
+						} else {
+							out.RawByte(',')
+						}
+						out.String(string(v9Name))
+						out.RawByte(':')
+						out.String(string(v9Value))
+					}
+					out.RawByte('}')
+				}
+			}
+			out.RawByte(']')
+		}
+	}
+	{
 		const prefix string = ",\"tags\":"
 		out.RawString(prefix)
 		if in.Tags == nil && (out.Flags&jwriter.NilSliceAsEmpty) == 0 {
 			out.RawString("null")
 		} else {
 			out.RawByte('[')
-			for v5, v6 := range in.Tags {
-				if v5 > 0 {
+			for v10, v11 := range in.Tags {
+				if v10 > 0 {
 					out.RawByte(',')
 				}
-				out.String(string(v6))
+				out.String(string(v11))
 			}
 			out.RawByte(']')
 		}
@@ -278,15 +347,15 @@ func easyjsonDf11841fDecodeGithubComKnadhListmonkInternalMessengerPostback1(in *
 				for !in.IsDelim('}') {
 					key := string(in.String())
 					in.WantColon()
-					var v7 interface{}
-					if m, ok := v7.(easyjson.Unmarshaler); ok {
+					var v12 interface{}
+					if m, ok := v12.(easyjson.Unmarshaler); ok {
 						m.UnmarshalEasyJSON(in)
-					} else if m, ok := v7.(json.Unmarshaler); ok {
+					} else if m, ok := v12.(json.Unmarshaler); ok {
 						_ = m.UnmarshalJSON(in.Raw())
 					} else {
-						v7 = in.Interface()
+						v12 = in.Interface()
 					}
-					(out.Attribs)[key] = v7
+					(out.Attribs)[key] = v12
 					in.WantComma()
 				}
 				in.Delim('}')
@@ -329,21 +398,21 @@ func easyjsonDf11841fEncodeGithubComKnadhListmonkInternalMessengerPostback1(out 
 			out.RawString(`null`)
 		} else {
 			out.RawByte('{')
-			v8First := true
-			for v8Name, v8Value := range in.Attribs {
-				if v8First {
-					v8First = false
+			v13First := true
+			for v13Name, v13Value := range in.Attribs {
+				if v13First {
+					v13First = false
 				} else {
 					out.RawByte(',')
 				}
-				out.String(string(v8Name))
+				out.String(string(v13Name))
 				out.RawByte(':')
-				if m, ok := v8Value.(easyjson.Marshaler); ok {
+				if m, ok := v13Value.(easyjson.Marshaler); ok {
 					m.MarshalEasyJSON(out)
-				} else if m, ok := v8Value.(json.Marshaler); ok {
+				} else if m, ok := v13Value.(json.Marshaler); ok {
 					out.Raw(m.MarshalJSON())
 				} else {
-					out.Raw(json.Marshal(v8Value))
+					out.Raw(json.Marshal(v13Value))
 				}
 			}
 			out.RawByte('}')

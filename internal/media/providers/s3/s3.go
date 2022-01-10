@@ -76,7 +76,7 @@ func (c *Client) Put(name string, cType string, file io.ReadSeeker) (string, err
 	}
 
 	// Upload.
-	if _, err := c.s3.FileUpload(p); err != nil {
+	if _, err := c.s3.FilePut(p); err != nil {
 		return "", err
 	}
 	return name, nil

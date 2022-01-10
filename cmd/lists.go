@@ -4,12 +4,13 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/gofrs/uuid"
 	"github.com/knadh/listmonk/models"
 	"github.com/lib/pq"
 
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 )
 
 type listsWrap struct {
@@ -31,20 +32,21 @@ func handleGetLists(c echo.Context) error {
 		out listsWrap
 
 		pg         = getPagination(c.QueryParams(), 20)
+		query      = strings.TrimSpace(c.FormValue("query"))
 		orderBy    = c.FormValue("order_by")
 		order      = c.FormValue("order")
 		minimal, _ = strconv.ParseBool(c.FormValue("minimal"))
 		listID, _  = strconv.Atoi(c.Param("id"))
-		single     = false
 	)
 
 	// Fetch one list.
+	single := false
 	if listID > 0 {
 		single = true
 	}
 
+	// Minimal query simply returns the list of all lists without JOIN subscriber counts. This is fast.
 	if !single && minimal {
-		// Minimal query simply returns the list of all lists with no additional metadata. This is fast.
 		if err := app.queries.GetLists.Select(&out.Results, "", "id"); err != nil {
 			app.log.Printf("error fetching lists: %v", err)
 			return echo.NewHTTPError(http.StatusInternalServerError,
@@ -65,15 +67,14 @@ func handleGetLists(c echo.Context) error {
 		return c.JSON(http.StatusOK, okResp{out})
 	}
 
-	// Sort params.
-	if !strSliceContains(orderBy, listQuerySortFields) {
-		orderBy = "created_at"
-	}
-	if order != sortAsc && order != sortDesc {
-		order = sortAsc
-	}
+	queryStr, stmt := makeSearchQuery(query, orderBy, order, app.queries.QueryLists)
 
-	if err := db.Select(&out.Results, fmt.Sprintf(app.queries.QueryLists, orderBy, order), listID, pg.Offset, pg.Limit); err != nil {
+	if err := db.Select(&out.Results,
+		stmt,
+		listID,
+		queryStr,
+		pg.Offset,
+		pg.Limit); err != nil {
 		app.log.Printf("error fetching lists: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			app.i18n.Ts("globals.messages.errorFetching",

@@ -15,7 +15,7 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/knadh/listmonk/internal/subimporter"
 	"github.com/knadh/listmonk/models"
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 	"github.com/lib/pq"
 )
 
@@ -106,9 +106,6 @@ func handleQuerySubscribers(c echo.Context) error {
 		app = c.Get("app").(*App)
 		pg  = getPagination(c.QueryParams(), 30)
 
-		// Limit the subscribers to a particular list?
-		listID, _ = strconv.Atoi(c.FormValue("list_id"))
-
 		// The "WHERE ?" bit.
 		query   = sanitizeSQLExp(c.FormValue("query"))
 		orderBy = c.FormValue("order_by")
@@ -116,11 +113,10 @@ func handleQuerySubscribers(c echo.Context) error {
 		out     = subsWrap{Results: make([]models.Subscriber, 0, 1)}
 	)
 
-	listIDs := pq.Int64Array{}
-	if listID < 0 {
-		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.errorID"))
-	} else if listID > 0 {
-		listIDs = append(listIDs, int64(listID))
+	// Limit the subscribers to sepcific lists?
+	listIDs, err := getQueryListIDs(c.QueryParams())
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidID"))
 	}
 
 	// There's an arbitrary query condition.
@@ -196,18 +192,14 @@ func handleExportSubscribers(c echo.Context) error {
 	var (
 		app = c.Get("app").(*App)
 
-		// Limit the subscribers to a particular list?
-		listID, _ = strconv.Atoi(c.FormValue("list_id"))
-
 		// The "WHERE ?" bit.
 		query = sanitizeSQLExp(c.FormValue("query"))
 	)
 
-	listIDs := pq.Int64Array{}
-	if listID < 0 {
-		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.errorID"))
-	} else if listID > 0 {
-		listIDs = append(listIDs, int64(listID))
+	// Limit the subscribers to sepcific lists?
+	listIDs, err := getQueryListIDs(c.QueryParams())
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidID"))
 	}
 
 	// There's an arbitrary query condition.
@@ -865,4 +857,23 @@ func sanitizeSQLExp(q string) string {
 		q = q[:len(q)-1]
 	}
 	return q
+}
+
+func getQueryListIDs(qp url.Values) (pq.Int64Array, error) {
+	out := pq.Int64Array{}
+	if vals, ok := qp["list_id"]; ok {
+		for _, v := range vals {
+			if v == "" {
+				continue
+			}
+
+			listID, err := strconv.Atoi(v)
+			if err != nil {
+				return nil, err
+			}
+			out = append(out, int64(listID))
+		}
+	}
+
+	return out, nil
 }

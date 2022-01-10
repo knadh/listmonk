@@ -38,7 +38,7 @@
             }
 
             .button {
-                background: #0055d4;
+                background: #6E24FF;
                 border-radius: 3px;
                 text-decoration: none !important;
                 color: #fff !important;
@@ -69,7 +69,7 @@
             }
 
             a {
-                color: #0055d4;
+                color: #6E24FF;
             }
                 a:hover {
                     color: #111;
@@ -89,13 +89,13 @@
     <div class="wrap" style="background-color: #fff;padding: 30px;max-width: 525px;margin: 0 auto;border-radius: 5px;">
         {{ template "content" . }}
     </div>
-    
+
     <div class="footer" style="text-align: center;font-size: 12px;color: #888;">
         <p>
             {{ L.T "email.unsubHelp" }}
             <a href="{{ UnsubscribeURL }}" style="color: #888;">{{ L.T "email.unsub" }}</a>
         </p>
-        <p>Powered by <a href="https://listmonk.app" target="_blank" style="color: #888;">listmonk</a></p>
+        <p>Powered by <a href="https://yournotify.com" target="_blank" style="color: #888;">Yournotify</a></p>
     </div>
     <div class="gutter" style="padding: 30px;">&nbsp;{{ TrackView }}</div>
 </body>

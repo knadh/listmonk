@@ -100,6 +100,18 @@ export default {
       this.$emit('doLogout');
     },
   },
+
+  mounted() {
+    // A hack to close the open accordion burger menu items on click.
+    // Buefy does not have a way to do this.
+    if (this.isMobile) {
+      document.querySelectorAll('.navbar li a[href]').forEach((e) => {
+        e.onclick = () => {
+          document.querySelector('.navbar-burger').click();
+        };
+      });
+    }
+  },
 };
 
 </script>
