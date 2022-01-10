@@ -21,7 +21,7 @@ type listsWrap struct {
 }
 
 var (
-	listQuerySortFields = []string{"name", "type", "channel", "subscriber_count", "created_at", "updated_at"}
+	listQuerySortFields = []string{"name", "type", "channel", "meta", "subscriber_count", "created_at", "updated_at"}
 )
 
 // handleGetLists retrieves lists with additional metadata like subscriber counts. This may be slow.
