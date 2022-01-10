@@ -236,6 +236,7 @@
     "lists.typeHelp": "Public lists are open to the world to subscribe and their names may appear on public pages such as the subscription management page.",
     "lists.types.private": "Private",
     "lists.types.public": "Public",
+    "lists.test": "Test",
     "logs.title": "Logs",
     "media.errorReadingFile": "Error reading file: {error}",
     "media.errorResizing": "Error resizing image: {error}",
