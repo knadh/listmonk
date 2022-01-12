@@ -25,6 +25,7 @@
     "campaigns.dateAndTime": "Fecha y hora",
     "campaigns.ended": "Finalizado",
     "campaigns.errorSendTest": "Error al enviar la prueba: {error}",
+    "campaigns.analytics.export": "Exportar",
     "campaigns.fieldInvalidBody": "Error al compilar el cuerpo de la campaña: {error}",
     "campaigns.fieldInvalidFromEmail": "Correo origen inválido.",
     "campaigns.fieldInvalidListIDs": "IDs de lista inválidos",

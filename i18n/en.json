@@ -25,6 +25,7 @@
     "campaigns.dateAndTime": "Date and time",
     "campaigns.ended": "Ended",
     "campaigns.errorSendTest": "Error sending test: {error}",
+    "campaigns.analytics.export": "Export",
     "campaigns.fieldInvalidBody": "Error compiling campaign body: {error}",
     "campaigns.fieldInvalidFromEmail": "Invalid `from_email`.",
     "campaigns.fieldInvalidListIDs": "Invalid list IDs.",

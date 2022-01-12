@@ -25,6 +25,7 @@
     "campaigns.dateAndTime": "Дата и время",
     "campaigns.ended": "Окончено",
     "campaigns.errorSendTest": "Ошибка отправки теста: {error}",
+    "campaigns.analytics.export": "Экспорт",
     "campaigns.fieldInvalidBody": "Ошибка сборки тела компании: {error}",
     "campaigns.fieldInvalidFromEmail": "Неверный `from_email`.",
     "campaigns.fieldInvalidListIDs": "Неверные ID списков.",

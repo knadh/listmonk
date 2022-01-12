@@ -113,6 +113,7 @@ func initHTTPHandlers(e *echo.Echo, app *App) {
 	g.GET("/api/campaigns/running/stats", handleGetRunningCampaignStats)
 	g.GET("/api/campaigns/:id", handleGetCampaigns)
 	g.GET("/api/campaigns/analytics/:type", handleGetCampaignViewAnalytics)
+	g.GET("/api/campaigns/analytics/:type/export", middleware.GzipWithConfig(middleware.GzipConfig{Level: 9})(handleGetCampaignAnalyticsExport))
 	g.GET("/api/campaigns/:id/preview", handlePreviewCampaign)
 	g.POST("/api/campaigns/:id/preview", handlePreviewCampaign)
 	g.POST("/api/campaigns/:id/content", handleCampaignContent)

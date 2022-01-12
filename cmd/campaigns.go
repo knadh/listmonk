@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"database/sql"
+	"encoding/csv"
 	"errors"
 	"fmt"
 	"html/template"
@@ -677,6 +678,79 @@ func handleGetCampaignViewAnalytics(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, okResp{out})
+}
+
+// handleGetCampaignAnalyticsExport retrieves details data to export as CSV
+func handleGetCampaignAnalyticsExport(c echo.Context) error {
+	var (
+		app = c.Get("app").(*App)
+
+		typ  = c.Param("type")
+		from = c.QueryParams().Get("from")
+		to   = c.QueryParams().Get("to")
+
+		start = 0
+		limit = app.constants.DBBatchSize
+
+		h  = c.Response().Header()
+		wr = csv.NewWriter(c.Response())
+	)
+
+	campaign_ids, err := parseStringIDs(c.Request().URL.Query()["id"])
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest,
+			app.i18n.Ts("globals.messages.errorInvalidIDs", "error", err.Error()))
+	}
+
+	if len(campaign_ids) == 0 {
+		return echo.NewHTTPError(http.StatusBadRequest,
+			app.i18n.Ts("globals.messages.missingFields", "name", "`id`"))
+	}
+
+	if !strHasLen(from, 10, 30) || !strHasLen(to, 10, 30) {
+		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("analytics.invalidDates"))
+	}
+
+	h.Set(echo.HeaderContentType, echo.MIMEOctetStream)
+	h.Set("Content-type", "text/csv")
+	h.Set(echo.HeaderContentDisposition, "attachment; filename="+typ+".csv")
+	h.Set("Content-Transfer-Encoding", "binary")
+	h.Set("Cache-Control", "no-cache")
+	wr.Write([]string{"campaign", "link", "subscriber", "clicked_at"})
+
+	var stmt *sqlx.Stmt
+	switch typ {
+	case "links":
+		stmt = app.queries.GetCampaignLinkDetails
+
+	loop:
+		for {
+			var out []models.LinkExport
+			if err := stmt.Select(&out, pq.Int64Array(campaign_ids), from, to, start, limit); err != nil {
+				//As the response is already open, error message is not sent in the response body
+				app.log.Printf("error executing query: %v", err)
+				return echo.NewHTTPError(http.StatusInternalServerError)
+			}
+			for _, r := range out {
+				if err = wr.Write([]string{r.Campaign, r.Link, r.Suscriber, r.ClickedAt.Time.String()}); err != nil {
+					app.log.Printf("error streaming CSV export: %v", err)
+					break loop
+				}
+			}
+			wr.Flush()
+
+			if len(out) < limit {
+				break loop
+			} else {
+				start += len(out)
+			}
+		}
+
+	default:
+		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidData"))
+	}
+
+	return nil
 }
 
 // sendTestMessage takes a campaign and a subsriber and sends out a sample campaign message.

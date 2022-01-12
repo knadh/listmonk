@@ -25,6 +25,7 @@
     "campaigns.dateAndTime": "Tarih ve saat",
     "campaigns.ended": "Bitti",
     "campaigns.errorSendTest": "Test gönderirken hata: {error}",
+    "campaigns.analytics.export": "Export",
     "campaigns.fieldInvalidBody": "Kampanya gövdesini oluşturma hatası: {error}",
     "campaigns.fieldInvalidFromEmail": "Yanlış `from_email`.",
     "campaigns.fieldInvalidListIDs": "Yanlış liste ID'leri.",

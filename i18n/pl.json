@@ -24,6 +24,7 @@
     "campaigns.customHeadersHelp": "Array of custom headers to attach to outgoing messages. eg: [{\"X-Custom\": \"value\"}, {\"X-Custom2\": \"value\"}]",
     "campaigns.dateAndTime": "Data i czas",
     "campaigns.ended": "Zakończona",
+    "campaigns.analytics.export": "Eksport",
     "campaigns.errorSendTest": "Błąd wysyłania testu: {error}",
     "campaigns.fieldInvalidBody": "Błąd kompilacji treści kampanii: {error}",
     "campaigns.fieldInvalidFromEmail": "Nieprawidłowy `from_email`.",

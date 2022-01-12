@@ -25,6 +25,7 @@
     "campaigns.dateAndTime": "Datum a čas",
     "campaigns.ended": "Ukončeno",
     "campaigns.errorSendTest": "Chyba při odesílání testu: {error}",
+    "campaigns.analytics.export": "Export",
     "campaigns.fieldInvalidBody": "Chyba při kompilaci těla kampaně: {error}",
     "campaigns.fieldInvalidFromEmail": "Neplatný údaj `z_e-mailu`.",
     "campaigns.fieldInvalidListIDs": "Neplatný seznam ID.",

@@ -25,6 +25,7 @@
     "campaigns.dateAndTime": "Datum en tijd",
     "campaigns.ended": "Beëindigd",
     "campaigns.errorSendTest": "Fout bij verzenden test: {error}",
+    "campaigns.analytics.export": "Exporteer",
     "campaigns.fieldInvalidBody": "Fout bij compileren campagne-inhoud: {error}",
     "campaigns.fieldInvalidFromEmail": "Ongeldige afzender.",
     "campaigns.fieldInvalidListIDs": "Ongeldige lijst IDs.",

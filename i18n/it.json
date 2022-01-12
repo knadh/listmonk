@@ -25,6 +25,7 @@
     "campaigns.dateAndTime": "Data e ora",
     "campaigns.ended": "Finito",
     "campaigns.errorSendTest": "Errore durante il test di invio: {error}",
+    "campaigns.analytics.export": "Esportazione",
     "campaigns.fieldInvalidBody": "Errore durante la compilazione del contenuto della campagna: {error}",
     "campaigns.fieldInvalidFromEmail": "`Mittente` non valido.",
     "campaigns.fieldInvalidListIDs": "ID della lista non valido.",

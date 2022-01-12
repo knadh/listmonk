@@ -25,6 +25,7 @@
     "campaigns.dateAndTime": "തിയതിയും സമയവും",
     "campaigns.ended": "അവസാനിച്ചു",
     "campaigns.errorSendTest": "ടെസ്റ്റ് അയയ്ക്കുന്നത് പരാജയപ്പെട്ടു: {error}",
+    "campaigns.analytics.export": "എക്സ്പോർട്ട്",
     "campaigns.fieldInvalidBody": "ക്യാമ്പേയ്ന്റെ ചട്ടക്കൂട് തയ്യാറാക്കുന്നതിൽ പരാജയപ്പെട്ടു : {error}",
     "campaigns.fieldInvalidFromEmail": "`from_email` അസാധുവാണ്.",
     "campaigns.fieldInvalidListIDs": "ലിസ്റ്റ് ഐഡികൾ അസാധുവാണ്.",

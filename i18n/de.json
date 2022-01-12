@@ -25,6 +25,7 @@
     "campaigns.dateAndTime": "Datum und Zeit",
     "campaigns.ended": "Abgeschlossen",
     "campaigns.errorSendTest": "Fehler beim Senden der Testmail: {error}",
+    "campaigns.analytics.export": "Exportieren",
     "campaigns.fieldInvalidBody": "Fehler beim Erstellen des Kampagneninhalts: {error}",
     "campaigns.fieldInvalidFromEmail": "Ungültiges Format `from_email`.",
     "campaigns.fieldInvalidListIDs": "Ungültige Listen IDs.",

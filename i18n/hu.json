@@ -25,6 +25,7 @@
     "campaigns.dateAndTime": "Dátum és Idő",
     "campaigns.ended": "Befejezett",
     "campaigns.errorSendTest": "Hiba a teszt küldésekor: {error}",
+    "campaigns.analytics.export": "Exportálás",
     "campaigns.fieldInvalidBody": "Hiba a kampánytörzs összeállításakor: {error}",
     "campaigns.fieldInvalidFromEmail": "Érvénytelen `from_email`.",
     "campaigns.fieldInvalidListIDs": "Érvénytelen lista IDs.",

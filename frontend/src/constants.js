@@ -21,6 +21,7 @@ export const uris = Object.freeze({
   previewTemplate: '/api/templates/:id/preview',
   previewRawTemplate: '/api/templates/preview',
   exportSubscribers: '/api/subscribers/export',
+  exportCampaignsDetails: '/api/campaigns/analytics/:type/export',
   base: `${baseURL}/static`,
   root: rootURL,
   static: `${baseURL}/static`,

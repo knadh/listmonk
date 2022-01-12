@@ -25,6 +25,7 @@
     "campaigns.dateAndTime": "Dată și oră",
     "campaigns.ended": "Terminat",
     "campaigns.errorSendTest": "Eroare trimitere test: {erore}",
+    "campaigns.analytics.export": "Export",
     "campaigns.fieldInvalidBody": "Eroare la copmilarea corpului campaniei: {eroere}",
     "campaigns.fieldInvalidFromEmail": "`from_email` invalid.",
     "campaigns.fieldInvalidListIDs": "Invalid list IDs.",

@@ -52,6 +52,10 @@
             {{ v.name }}
             <span class="has-text-grey-light">({{ $utils.niceNumber(counts[k]) }})</span>
           </h4>
+          <a class="a export" v-if="v.exportFn !== null" href='' @click.prevent="v.exportFn(k)">
+            <b-icon icon="cloud-download-outline" size="is-small" />
+            {{ $t('campaigns.analytics.export') }}
+          </a>
           <div :ref="`chart-${k}`" :id="`chart-${k}`"></div>
         </div>
         <div class="column is-2 donut-container">
@@ -70,7 +74,7 @@
 import Vue from 'vue';
 import dayjs from 'dayjs';
 import c3 from 'c3';
-import { colors } from '../constants';
+import { colors, uris } from '../constants';
 
 const chartColorRed = '#ee7d5b';
 const chartColors = [
@@ -107,6 +111,7 @@ export default Vue.extend({
           donut: null,
           donutFn: this.renderDonutChart,
           loading: false,
+          exportFn: null,
         },
 
         clicks: {
@@ -118,6 +123,7 @@ export default Vue.extend({
           donut: null,
           donutFn: this.renderDonutChart,
           loading: false,
+          exportFn: null,
         },
 
         bounces: {
@@ -130,6 +136,7 @@ export default Vue.extend({
           donutFn: this.renderDonutChart,
           donutColor: chartColorRed,
           loading: false,
+          exportFn: null,
         },
 
         links: {
@@ -139,6 +146,7 @@ export default Vue.extend({
           loading: false,
           fn: this.$api.getCampaignLinkCounts,
           chartFn: this.renderLinksChart,
+          exportFn: this.exportDetails,
         },
       },
 
@@ -395,6 +403,17 @@ export default Vue.extend({
         }
         this.charts[typ].loading = false;
       });
+    },
+
+    exportDetails(key) {
+      const q = new URLSearchParams();
+      const uri = uris.exportCampaignsDetails.replace(':type', key);
+      const from = dayjs(this.form.from).format('YYYY-MM-DDTHH:mm:ssZ');
+      const to = dayjs(this.form.to).format('YYYY-MM-DDTHH:mm:ssZ');
+      q.append('from', from);
+      q.append('to', to);
+      q.append('id', this.form.campaigns.map((c) => c.id));
+      document.location.href = `${uri}?${q.toString()}`;
     },
   },
 

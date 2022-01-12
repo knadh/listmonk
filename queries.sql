@@ -581,6 +581,15 @@ SELECT campaign_id, COUNT(*) AS "count", DATE_TRUNC((SELECT * FROM intval), crea
     WHERE campaign_id=ANY($1) AND created_at >= $2 AND created_at <= $3
     GROUP BY campaign_id, "timestamp" ORDER BY "timestamp" ASC;
 
+-- name: get-campaign-link-details
+SELECT campaigns.name as "campaign", links.url as "link", subscribers.email as "suscriber", link_clicks.created_at AS "clicked_at"
+    FROM link_clicks
+    LEFT JOIN links ON (link_clicks.link_id = links.id)
+    LEFT JOIN campaigns ON (link_clicks.campaign_id = campaigns.id)
+    LEFT JOIN subscribers ON (link_clicks.subscriber_id = subscribers.id)
+    WHERE link_clicks.campaign_id=ANY($1) AND link_clicks.created_at >= $2 AND link_clicks.created_at <= $3
+    ORDER BY "clicked_at" DESC OFFSET $4 LIMIT (CASE WHEN $5 = 0 THEN NULL ELSE $5 END);
+
 -- name: get-campaign-bounce-counts
 WITH intval AS (
     -- For intervals < a week, aggregate counts hourly, otherwise daily.

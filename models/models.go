@@ -15,8 +15,8 @@ import (
 	"github.com/jmoiron/sqlx/types"
 	"github.com/lib/pq"
 	"github.com/yuin/goldmark"
-	"github.com/yuin/goldmark/parser"
 	"github.com/yuin/goldmark/extension"
+	"github.com/yuin/goldmark/parser"
 	"github.com/yuin/goldmark/renderer/html"
 	null "gopkg.in/volatiletech/null.v6"
 )
@@ -234,6 +234,14 @@ type CampaignMeta struct {
 
 // Campaigns represents a slice of Campaigns.
 type Campaigns []Campaign
+
+// LinkExport represents a link record that is exported to raw data.
+type LinkExport struct {
+	Campaign  string    `db:"campaign" json:"campaign"`
+	Link      string    `db:"link" json:"link"`
+	Suscriber string    `db:"suscriber" json:"suscriber"`
+	ClickedAt null.Time `db:"clicked_at" json:"clicked_at"`
+}
 
 // Template represents a reusable e-mail template.
 type Template struct {
