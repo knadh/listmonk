@@ -235,6 +235,30 @@ type CampaignMeta struct {
 // Campaigns represents a slice of Campaigns.
 type Campaigns []Campaign
 
+// ViewExport represents a view record that is exported to raw data.
+type ViewExport struct {
+	Campaign  string    `db:"campaign" json:"campaign"`
+	Suscriber string    `db:"suscriber" json:"suscriber"`
+	ViewedAt  null.Time `db:"viewed_at" json:"viewed_at"`
+}
+
+// ClickExport represents a view record that is exported to raw data.
+type ClickExport struct {
+	Campaign   string `db:"campaign" json:"campaign"`
+	Suscriber  string `db:"suscriber" json:"suscriber"`
+	ClickCount int    `db:"click_count" json:"click_count"`
+}
+
+// BounceExport represents a bounce record that is exported to raw data.
+type BounceExport struct {
+	Campaign   string    `db:"campaign" json:"campaign"`
+	Suscriber  string    `db:"suscriber" json:"suscriber"`
+	BounceType string    `db:"bounce_type" json:"bounce_type"`
+	Source     string    `db:"source" json:"source"`
+	Meta       string    `db:"meta" json:"meta"`
+	BouncedAt  null.Time `db:"bounced_at" json:"bounced_at"`
+}
+
 // LinkExport represents a link record that is exported to raw data.
 type LinkExport struct {
 	Campaign  string    `db:"campaign" json:"campaign"`

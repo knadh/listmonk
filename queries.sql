@@ -581,8 +581,35 @@ SELECT campaign_id, COUNT(*) AS "count", DATE_TRUNC((SELECT * FROM intval), crea
     WHERE campaign_id=ANY($1) AND created_at >= $2 AND created_at <= $3
     GROUP BY campaign_id, "timestamp" ORDER BY "timestamp" ASC;
 
+-- name: get-campaign-view-details
+SELECT campaigns.name as "campaign", subscribers.email as "suscriber", campaign_views.created_at AS "viewed_at"
+    FROM campaign_views
+    LEFT JOIN campaigns ON (campaign_views.campaign_id = campaigns.id)
+    LEFT JOIN subscribers ON (campaign_views.subscriber_id = subscribers.id)
+    WHERE campaign_views.campaign_id=ANY($1) AND campaign_views.created_at >= $2 AND campaign_views.created_at <= $3
+    ORDER BY "viewed_at" DESC OFFSET $4 LIMIT (CASE WHEN $5 = 0 THEN NULL ELSE $5 END);
+
+
+-- name: get-campaign-click-details
+SELECT campaigns.name as "campaign", subscribers.email as "suscriber", count(*) AS "click_count"
+    FROM link_clicks
+    LEFT JOIN links ON (link_clicks.link_id = links.id)
+    LEFT JOIN campaigns ON (link_clicks.campaign_id = campaigns.id)
+    LEFT JOIN subscribers ON (link_clicks.subscriber_id = subscribers.id)
+    WHERE link_clicks.campaign_id=ANY($1) AND link_clicks.created_at >= $2 AND link_clicks.created_at <= $3
+    GROUP BY campaigns.name, subscribers.email
+    ORDER BY count(*) DESC OFFSET $4 LIMIT (CASE WHEN $5 = 0 THEN NULL ELSE $5 END);
+
+-- name: get-campaign-bounce-details
+SELECT campaigns.name as "campaign", subscribers.email as "suscriber", bounces.type as "bounce_type", bounces.source, bounces.meta, bounces.created_at AS "bounced_at"
+    FROM bounces
+    LEFT JOIN campaigns ON (bounces.campaign_id = campaigns.id)
+    LEFT JOIN subscribers ON (bounces.subscriber_id = subscribers.id)
+    WHERE bounces.campaign_id=ANY($1) AND bounces.created_at >= $2 AND bounces.created_at <= $3
+    ORDER BY "bounced_at" DESC OFFSET $4 LIMIT (CASE WHEN $5 = 0 THEN NULL ELSE $5 END);
+
 -- name: get-campaign-link-details
-SELECT campaigns.name as "campaign", links.url as "link", subscribers.email as "suscriber", link_clicks.created_at AS "clicked_at"
+SELECT campaigns.name as "campaign", subscribers.email as "suscriber", link_clicks.created_at AS "clicked_at"
     FROM link_clicks
     LEFT JOIN links ON (link_clicks.link_id = links.id)
     LEFT JOIN campaigns ON (link_clicks.campaign_id = campaigns.id)

@@ -146,7 +146,7 @@ export default Vue.extend({
           loading: false,
           fn: this.$api.getCampaignLinkCounts,
           chartFn: this.renderLinksChart,
-          exportFn: this.exportDetails,
+          exportFn: null,
         },
       },
 
@@ -402,6 +402,7 @@ export default Vue.extend({
           this.charts[typ].donutFn(typ, camps, data);
         }
         this.charts[typ].loading = false;
+        this.charts[typ].exportFn = this.exportDetails;
       });
     },
 

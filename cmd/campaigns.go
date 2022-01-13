@@ -9,6 +9,7 @@ import (
 	"html/template"
 	"net/http"
 	"net/url"
+	"reflect"
 	"regexp"
 	"strconv"
 	"strings"
@@ -689,11 +690,11 @@ func handleGetCampaignAnalyticsExport(c echo.Context) error {
 		from = c.QueryParams().Get("from")
 		to   = c.QueryParams().Get("to")
 
-		start = 0
-		limit = app.constants.DBBatchSize
-
 		h  = c.Response().Header()
 		wr = csv.NewWriter(c.Response())
+
+		start = 0
+		limit = app.constants.DBBatchSize
 	)
 
 	campaign_ids, err := parseStringIDs(c.Request().URL.Query()["id"])
@@ -716,40 +717,87 @@ func handleGetCampaignAnalyticsExport(c echo.Context) error {
 	h.Set(echo.HeaderContentDisposition, "attachment; filename="+typ+".csv")
 	h.Set("Content-Transfer-Encoding", "binary")
 	h.Set("Cache-Control", "no-cache")
-	wr.Write([]string{"campaign", "link", "subscriber", "clicked_at"})
 
 	var stmt *sqlx.Stmt
+	var dynOut []interface{}
+	var fields []string
 	switch typ {
+	case "views":
+		stmt = app.queries.GetCampaignViewDetails
+		dynOut = []interface{}{&[]models.ViewExport{}}
+		wr.Write([]string{"campaign", "subscriber", "viewed_at"})
+	case "clicks":
+		stmt = app.queries.GetCampaignClickDetails
+		dynOut = []interface{}{&[]models.ClickExport{}}
+		wr.Write([]string{"campaign", "subscriber", "click_count"})
+	case "bounces":
+		stmt = app.queries.GetCampaignBounceDetails
+		dynOut = []interface{}{&[]models.BounceExport{}}
+		wr.Write([]string{"campaign", "subscriber", "type", "source", "meta", "bounced_at"})
 	case "links":
 		stmt = app.queries.GetCampaignLinkDetails
-
-	loop:
-		for {
-			var out []models.LinkExport
-			if err := stmt.Select(&out, pq.Int64Array(campaign_ids), from, to, start, limit); err != nil {
-				//As the response is already open, error message is not sent in the response body
-				app.log.Printf("error executing query: %v", err)
-				return echo.NewHTTPError(http.StatusInternalServerError)
-			}
-			for _, r := range out {
-				if err = wr.Write([]string{r.Campaign, r.Link, r.Suscriber, r.ClickedAt.Time.String()}); err != nil {
-					app.log.Printf("error streaming CSV export: %v", err)
-					break loop
-				}
-			}
-			wr.Flush()
-
-			if len(out) < limit {
-				break loop
-			} else {
-				start += len(out)
-			}
-		}
+		dynOut = []interface{}{&[]models.LinkExport{}}
+		wr.Write([]string{"campaign", "link", "subscriber", "clicked_at"})
 
 	default:
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidData"))
 	}
 
+loop:
+	for {
+		rows, err := stmt.Query(pq.Int64Array(campaign_ids), from, to, start, limit)
+		if err != nil {
+			app.log.Printf("error executing query: %v", err)
+			return echo.NewHTTPError(http.StatusInternalServerError)
+		}
+		defer rows.Close()
+
+		out := dynOut[0]
+		err = sqlx.StructScan(rows, out)
+		if err != nil {
+			app.log.Printf("error parsing result: %v", err)
+			return echo.NewHTTPError(http.StatusInternalServerError)
+		}
+
+		outArr := reflect.ValueOf(out)
+		if outArr.Kind() == reflect.Ptr {
+			outArr = outArr.Elem()
+		}
+		if outArr.Kind() != reflect.Slice {
+			app.log.Printf("expected slice type, found %q", outArr.Kind().String())
+			return echo.NewHTTPError(http.StatusInternalServerError)
+		}
+
+		for i := 0; i < outArr.Len(); i++ {
+			row := outArr.Index(i).Interface()
+			switch r := row.(type) {
+			case models.LinkExport:
+				fields = []string{r.Campaign, r.Link, r.Suscriber, r.ClickedAt.Time.String()}
+			case models.ViewExport:
+				fields = []string{r.Campaign, r.Suscriber, r.ViewedAt.Time.String()}
+			case models.BounceExport:
+				fields = []string{r.Campaign, r.Suscriber, r.BounceType, r.Source, r.Meta, r.BouncedAt.Time.String()}
+			case models.ClickExport:
+				fields = []string{r.Campaign, r.Suscriber, strconv.Itoa(r.ClickCount)}
+			default:
+				app.log.Printf("expected an Exportable model type, found %T", row)
+				return echo.NewHTTPError(http.StatusInternalServerError)
+			}
+
+			if err = wr.Write(fields); err != nil {
+				app.log.Printf("error streaming CSV export: %v", err)
+				break loop
+			}
+		}
+
+		wr.Flush()
+
+		if outArr.Len() < limit {
+			break loop
+		} else {
+			start += outArr.Len()
+		}
+	}
 	return nil
 }
 
