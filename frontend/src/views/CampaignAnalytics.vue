@@ -54,7 +54,7 @@
           </h4>
           <a class="a export" v-if="v.exportFn !== null" href='' @click.prevent="v.exportFn(k)">
             <b-icon icon="cloud-download-outline" size="is-small" />
-            {{ $t('campaigns.analytics.export') }}
+            {{ $t('globals.buttons.export') }}
           </a>
           <div :ref="`chart-${k}`" :id="`chart-${k}`"></div>
         </div>

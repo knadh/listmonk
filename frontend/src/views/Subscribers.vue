@@ -84,7 +84,7 @@
           <div class="actions">
             <a class="a" href='' @click.prevent="exportSubscribers">
               <b-icon icon="cloud-download-outline" size="is-small" />
-              {{ $t('subscribers.export') }}
+              {{ $t('globals.buttons.export') }}
             </a>
             <template v-if="bulk.checked.length > 0">
               <a class="a" href='' @click.prevent="showBulkListForm" data-cy="btn-manage-lists">
