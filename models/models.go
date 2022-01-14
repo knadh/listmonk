@@ -15,8 +15,8 @@ import (
 	"github.com/jmoiron/sqlx/types"
 	"github.com/lib/pq"
 	"github.com/yuin/goldmark"
-	"github.com/yuin/goldmark/parser"
 	"github.com/yuin/goldmark/extension"
+	"github.com/yuin/goldmark/parser"
 	"github.com/yuin/goldmark/renderer/html"
 	null "gopkg.in/volatiletech/null.v6"
 )
@@ -169,12 +169,12 @@ type List struct {
 	UUID            string          `db:"uuid" json:"uuid"`
 	Name            string          `db:"name" json:"name"`
 	Type            string          `db:"type" json:"type"`
-	Channel         string          `db:"channel" json:"channel"`
 	Optin           string          `db:"optin" json:"optin"`
-	Meta            json.RawMessage `db:"meta" json:"meta"`
 	Tags            pq.StringArray  `db:"tags" json:"tags"`
 	SubscriberCount int             `db:"subscriber_count" json:"subscriber_count"`
 	SubscriberID    int             `db:"subscriber_id" json:"-"`
+	Meta            json.RawMessage `db:"meta" json:"meta"`
+	Channel         string          `db:"channel" json:"channel"`
 
 	// This is only relevant when querying the lists of a subscriber.
 	SubscriptionStatus string `db:"subscription_status" json:"subscription_status,omitempty"`
