@@ -242,7 +242,7 @@ type ViewExport struct {
 	ViewedAt  null.Time `db:"viewed_at" json:"viewed_at"`
 }
 
-// ClickExport represents a view record that is exported to raw data.
+// ClickExport represents a click record that is exported to raw data.
 type ClickExport struct {
 	Campaign   string `db:"campaign" json:"campaign"`
 	Suscriber  string `db:"suscriber" json:"suscriber"`
