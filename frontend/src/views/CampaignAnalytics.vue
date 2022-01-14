@@ -413,7 +413,9 @@ export default Vue.extend({
       const to = dayjs(this.form.to).format('YYYY-MM-DDTHH:mm:ssZ');
       q.append('from', from);
       q.append('to', to);
-      q.append('id', this.form.campaigns.map((c) => c.id));
+      this.form.campaigns.map((c) => c.id).forEach((id) => {
+        q.append('id', id);
+      });
       document.location.href = `${uri}?${q.toString()}`;
     },
   },
