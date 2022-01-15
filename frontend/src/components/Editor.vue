@@ -203,6 +203,7 @@ export default {
 
         setup: (editor) => {
           editor.on('init', () => {
+            editor.focus();
             this.onEditorDialogOpen(editor);
           });
 
