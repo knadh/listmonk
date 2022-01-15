@@ -36,7 +36,6 @@ require (
 	golang.org/x/sys v0.0.0-20211205182925-97ca703d548d // indirect
 	gopkg.in/check.v1 v1.0.0-20200227125254-8fa46927fb4f // indirect
 	gopkg.in/volatiletech/null.v6 v6.0.0-20170828023728-0bef4e07ae1b
-	gopkg.in/yaml.v2 v2.4.0 // indirect
 )
 
 replace github.com/imdario/mergo => github.com/imdario/mergo v0.3.8

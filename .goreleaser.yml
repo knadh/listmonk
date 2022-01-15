@@ -7,15 +7,10 @@ before:
     - make build-frontend
 
 builds:
-  - binary: listmonk
+  - binary: younotify-listmonk
     main: ./cmd
     goos:
-      - windows
-      - darwin
       - linux
-      - freebsd
-      - openbsd
-      - netbsd
     goarch:
       - amd64
     ldflags:
@@ -30,17 +25,3 @@ archives:
     files:
       - README.md
       - LICENSE
-
-dockers:
-  -
-    goos: linux
-    goarch: amd64
-    ids:
-    - listmonk
-    image_templates:
-    - "listmonk/listmonk:latest"
-    - "listmonk/listmonk:{{ .Tag }}"
-    dockerfile: Dockerfile
-    extra_files:
-    - config.toml.sample
-    - config-demo.toml
