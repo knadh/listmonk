@@ -110,6 +110,46 @@ func handleGetLists(c echo.Context) error {
 	return c.JSON(http.StatusOK, okResp{out})
 }
 
+// handleGetLists retrieves lists with additional metadata like subscriber counts. This may be slow.
+func handleGetListsByUserId(c echo.Context) error {
+	var (
+		app    = c.Get("app").(*App)
+		out    listsWrap
+		pg     = getPagination(c.QueryParams(), 20)
+		userId = c.FormValue("userid")
+	)
+
+	// Fetch one list.
+
+	if err := app.queries.GetListsById.Select(&out.Results, userId); err != nil {
+		app.log.Printf("error fetching lists: %v", err)
+		return echo.NewHTTPError(http.StatusInternalServerError,
+			app.i18n.Ts("globals.messages.errorFetching",
+				"name", "{globals.terms.lists}", "error", pqErrMsg(err)))
+	}
+
+	if len(out.Results) == 0 {
+		return c.JSON(http.StatusOK, okResp{[]struct{}{}})
+	}
+
+	// Replace null tags.
+	for i, v := range out.Results {
+		if v.Tags == nil {
+			out.Results[i].Tags = make(pq.StringArray, 0)
+		}
+	}
+
+	// Meta.
+	out.Total = out.Results[0].Total
+	out.Page = pg.Page
+	out.PerPage = pg.PerPage
+	if out.PerPage == 0 {
+		out.PerPage = out.Total
+	}
+
+	return c.JSON(http.StatusOK, okResp{out})
+}
+
 // handleCreateList handles list creation.
 func handleCreateList(c echo.Context) error {
 	var (

@@ -339,6 +339,9 @@ UPDATE subscriber_lists SET status='unsubscribed', updated_at=NOW()
 SELECT * FROM lists WHERE (CASE WHEN $1 = '' THEN 1=1 ELSE type=$1::list_type END)
     ORDER BY CASE WHEN $2 = 'id' THEN id END, CASE WHEN $2 = 'name' THEN name END;
 
+-- name: get-lists-by-userid
+SELECT * FROM lists WHERE userid = $1 ORDER BY id;
+
 -- name: query-lists
 WITH ls AS (
 	SELECT COUNT(*) OVER () AS total, lists.* FROM lists
