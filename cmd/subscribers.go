@@ -65,6 +65,7 @@ type subOptin struct {
 	*models.Subscriber
 
 	OptinURL string
+	UnsubURL string
 	Lists    []models.List
 }
 
@@ -830,6 +831,7 @@ func sendOptinConfirmation(sub models.Subscriber, listIDs []int64, app *App) (in
 		qListIDs.Add("l", l.UUID)
 	}
 	out.OptinURL = fmt.Sprintf(app.constants.OptinURL, sub.UUID, qListIDs.Encode())
+	out.UnsubURL = fmt.Sprintf(app.constants.UnsubURL, dummyUUID, sub.UUID)
 
 	// Send the e-mail.
 	if err := app.sendNotification([]string{sub.Email},
