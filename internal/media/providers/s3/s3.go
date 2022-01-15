@@ -13,6 +13,7 @@ import (
 // Opt represents AWS S3 specific params
 type Opt struct {
 	URL        string        `koanf:"url"`
+	PublicURL  string        `koanf:"public_url"`
 	AccessKey  string        `koanf:"aws_access_key_id"`
 	SecretKey  string        `koanf:"aws_secret_access_key"`
 	Region     string        `koanf:"aws_default_region"`
@@ -119,5 +120,9 @@ func (c *Client) makeBucketPath(name string) string {
 }
 
 func (c *Client) makeFileURL(name string) string {
+	if c.opts.PublicURL != "" {
+		return c.opts.PublicURL + "/" + c.makeBucketPath(name)
+	}
+
 	return c.opts.URL + "/" + c.opts.Bucket + "/" + c.makeBucketPath(name)
 }

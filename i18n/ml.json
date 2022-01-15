@@ -377,6 +377,8 @@
     "settings.media.s3.bucketTypePrivate": "സ്വകാര്യമായ",
     "settings.media.s3.bucketTypePublic": "പൊതുവായ",
     "settings.media.s3.key": "AWS പ്രവേശന വാക്യം",
+    "settings.media.s3.publicURL": "Custom public URL (optional)",
+    "settings.media.s3.publicURLHelp": "Custom S3 domain to use for image links instead of the default S3 backend URL.",
     "settings.media.s3.region": "മേഖല",
     "settings.media.s3.secret": "AWS പ്രവേശന രഹസ്യം",
     "settings.media.s3.uploadExpiry": "അപ്ലോഡിന്റെ കാലാവധി",

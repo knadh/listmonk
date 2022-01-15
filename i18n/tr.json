@@ -377,6 +377,8 @@
     "settings.media.s3.bucketTypePrivate": "Özel",
     "settings.media.s3.bucketTypePublic": "Erişime açık",
     "settings.media.s3.key": "AWS erişim anahtarı",
+    "settings.media.s3.publicURL": "Custom public URL (optional)",
+    "settings.media.s3.publicURLHelp": "Custom S3 domain to use for image links instead of the default S3 backend URL.",
     "settings.media.s3.region": "Bölge",
     "settings.media.s3.secret": "AWS erişim şifresi(secret)",
     "settings.media.s3.uploadExpiry": "Yükleme sona erme",

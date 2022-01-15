@@ -377,6 +377,8 @@
     "settings.media.s3.bucketTypePrivate": "Privé",
     "settings.media.s3.bucketTypePublic": "Public",
     "settings.media.s3.key": "Clé d'accès AWS",
+    "settings.media.s3.publicURL": "Custom public URL (optional)",
+    "settings.media.s3.publicURLHelp": "Custom S3 domain to use for image links instead of the default S3 backend URL.",
     "settings.media.s3.region": "Région",
     "settings.media.s3.secret": "Mot de passe d'accès AWS",
     "settings.media.s3.uploadExpiry": "Durée de validité",

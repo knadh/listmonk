@@ -45,6 +45,7 @@ type settings struct {
 	UploadFilesystemUploadPath string `json:"upload.filesystem.upload_path"`
 	UploadFilesystemUploadURI  string `json:"upload.filesystem.upload_uri"`
 	UploadS3URL                string `json:"upload.s3.url"`
+	UploadS3PublicURL          string `json:"upload.s3.public_url"`
 	UploadS3AwsAccessKeyID     string `json:"upload.s3.aws_access_key_id"`
 	UploadS3AwsDefaultRegion   string `json:"upload.s3.aws_default_region"`
 	UploadS3AwsSecretAccessKey string `json:"upload.s3.aws_secret_access_key,omitempty"`
