@@ -172,8 +172,8 @@ export default {
       isReady: false,
       isRichtextReady: false,
       isRichtextSourceVisible: false,
-      richtextConf: {},
       isTrackLink: false,
+      richtextConf: {},
       richTextSourceBody: '',
       form: {
         body: '',

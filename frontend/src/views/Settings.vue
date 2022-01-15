@@ -230,7 +230,7 @@ export default Vue.extend({
 
   beforeRouteLeave(to, from, next) {
     if (this.hasFormChanged) {
-      this.$utils.confirm(this.$t('settings.messengers.messageDiscard'), () => next(true));
+      this.$utils.confirm(this.$t('globals.messages.confirmDiscard'), () => next(true));
       return;
     }
     next(true);
