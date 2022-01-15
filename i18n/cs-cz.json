@@ -479,6 +479,8 @@
     "subscribers.queryPlaceholder": "E-mail nebo jméno",
     "subscribers.reset": "Reset",
     "subscribers.selectAll": "Vybrat vše {num}",
+    "subscribers.sendOptinConfirm": "Send opt-in confirmation",
+    "subscribers.sentOptinConfirm": "Opt-in confirmation sent",
     "subscribers.status.blocklisted": "Uvedeno na seznamu blokovaných",
     "subscribers.status.confirmed": "Potvrzeno",
     "subscribers.status.enabled": "Povoleno",

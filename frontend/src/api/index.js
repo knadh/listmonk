@@ -158,6 +158,9 @@ export const createSubscriber = (data) => http.post('/api/subscribers', data,
 export const updateSubscriber = (data) => http.put(`/api/subscribers/${data.id}`, data,
   { loading: models.subscribers });
 
+export const sendSubscriberOptin = (id) => http.post(`/api/subscribers/${id}/optin`, {},
+  { loading: models.subscribers });
+
 export const deleteSubscriber = (id) => http.delete(`/api/subscribers/${id}`,
   { loading: models.subscribers });
 

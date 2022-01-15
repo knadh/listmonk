@@ -367,10 +367,6 @@ func handleUpdateSubscriber(c echo.Context) error {
 		return err
 	}
 
-	if !req.PreconfirmSubs && app.constants.SendOptinConfirmation {
-		_, _ = sendOptinConfirmation(sub, []int64(req.Lists), app)
-	}
-
 	return c.JSON(http.StatusOK, okResp{sub})
 }
 

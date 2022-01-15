@@ -479,6 +479,8 @@
     "subscribers.queryPlaceholder": "E-mail vagy név",
     "subscribers.reset": "Visszaállítás",
     "subscribers.selectAll": "Összes kijelölése {num}",
+    "subscribers.sendOptinConfirm": "Send opt-in confirmation",
+    "subscribers.sentOptinConfirm": "Opt-in confirmation sent",
     "subscribers.status.blocklisted": "Feketelistás",
     "subscribers.status.confirmed": "Megerősített",
     "subscribers.status.enabled": "Engedélyezve",

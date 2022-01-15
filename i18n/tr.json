@@ -479,6 +479,8 @@
     "subscribers.queryPlaceholder": "E-posta veya isim",
     "subscribers.reset": "Sıfırla",
     "subscribers.selectAll": "Select all {num}",
+    "subscribers.sendOptinConfirm": "Send opt-in confirmation",
+    "subscribers.sentOptinConfirm": "Opt-in confirmation sent",
     "subscribers.status.blocklisted": "Engellenmiş",
     "subscribers.status.confirmed": "Doğrulanmış",
     "subscribers.status.enabled": "Etkinleştirildi",

@@ -479,6 +479,8 @@
     "subscribers.queryPlaceholder": "Correo electrónico o nombre",
     "subscribers.reset": "Restablecer",
     "subscribers.selectAll": "Seleccionar todos {num}",
+    "subscribers.sendOptinConfirm": "Send opt-in confirmation",
+    "subscribers.sentOptinConfirm": "Opt-in confirmation sent",
     "subscribers.status.blocklisted": "Bloqueado",
     "subscribers.status.confirmed": "Confirmado",
     "subscribers.status.enabled": "Habilitado",

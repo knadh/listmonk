@@ -479,6 +479,8 @@
     "subscribers.queryPlaceholder": "പേരോ ഇ-മെയിൽ വിലാസമോ",
     "subscribers.reset": "പുനഃസജ്ജമാക്കുക",
     "subscribers.selectAll": "{num} എല്ലാം തിരഞ്ഞടുക്കുക",
+    "subscribers.sendOptinConfirm": "Send opt-in confirmation",
+    "subscribers.sentOptinConfirm": "Opt-in confirmation sent",
     "subscribers.status.blocklisted": "തടയുന്ന പട്ടികയിൽ ചേർത്തു",
     "subscribers.status.confirmed": "Confirmed",
     "subscribers.status.enabled": "പ്രവർത്തനക്ഷമാക്കി",

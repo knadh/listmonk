@@ -479,6 +479,8 @@
     "subscribers.queryPlaceholder": "E-mail или имя",
     "subscribers.reset": "Сброс",
     "subscribers.selectAll": "Выбрать все {num}",
+    "subscribers.sendOptinConfirm": "Send opt-in confirmation",
+    "subscribers.sentOptinConfirm": "Opt-in confirmation sent",
     "subscribers.status.blocklisted": "Заблокирован",
     "subscribers.status.confirmed": "Подтверждён",
     "subscribers.status.enabled": "Включён",
