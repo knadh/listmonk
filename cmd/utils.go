@@ -13,7 +13,7 @@ import (
 )
 
 var (
-	tagRegexpSpaces = regexp.MustCompile(`[\s]+`)
+	regexpSpaces = regexp.MustCompile(`[\s]+`)
 )
 
 // inArray checks if a string is present in a list of strings.
@@ -32,6 +32,8 @@ func makeFilename(fName string) string {
 	if name == "" {
 		name, _ = generateRandomString(10)
 	}
+	// replace whitespace with "-"
+	name = regexpSpaces.ReplaceAllString(name, "-")
 	return filepath.Base(name)
 }
 
@@ -55,7 +57,7 @@ func normalizeTags(tags []string) []string {
 	)
 
 	for _, t := range tags {
-		rep := tagRegexpSpaces.ReplaceAll(bytes.TrimSpace([]byte(t)), dash)
+		rep := regexpSpaces.ReplaceAll(bytes.TrimSpace([]byte(t)), dash)
 
 		if len(rep) > 0 {
 			out = append(out, string(rep))
