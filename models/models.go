@@ -175,7 +175,7 @@ type List struct {
 	SubscriberID    int             `db:"subscriber_id" json:"-"`
 	Meta            json.RawMessage `db:"meta" json:"meta"`
 	Channel         string          `db:"channel" json:"channel"`
-
+	Userid          string          `db:"userid" json:"userid"`
 	// This is only relevant when querying the lists of a subscriber.
 	SubscriptionStatus string `db:"subscription_status" json:"subscription_status,omitempty"`
 

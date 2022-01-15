@@ -242,6 +242,7 @@ DROP INDEX IF EXISTS idx_bounces_source; CREATE INDEX idx_bounces_source ON boun
 DROP INDEX IF EXISTS idx_bounces_date; CREATE INDEX idx_bounces_date ON bounces((TIMEZONE('UTC', created_at)::DATE));
 
 -- Jan 10, 2022
-DROP TYPE IF EXISTS list_channel_type CASCADE; CREATE TYPE list_channel_type AS ENUM ('email', 'sms');
-ALTER TABLE lists ADD COLUMN list_channel list_channel_type NOT NULL DEFAULT 'email';
+DROP TYPE IF EXISTS list_channel CASCADE; CREATE TYPE list_channel AS ENUM ('email', 'sms');
+ALTER TABLE lists ADD COLUMN channel list_channel NOT NULL DEFAULT 'email';
+ALTER TABLE lists ADD COLUMN userid TEXT NOT NULL DEFAULT 'system';
 ALTER TABLE lists ADD COLUMN meta JSONB NOT NULL DEFAULT '{}';
