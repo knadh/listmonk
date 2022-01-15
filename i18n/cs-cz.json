@@ -104,6 +104,7 @@
     "email.status.status": "Stav",
     "email.unsub": "Zrušit odběr",
     "email.unsubHelp": "Nechcete dostávat tyto e-maily?",
+    "email.viewInBrowser": "View in browser",
     "forms.formHTML": "HTML formuláře",
     "forms.formHTMLHelp": "Použijte následující HTML k zobrazení formuláře odběru na externí webové stránce. Formulář by měl mít pole e-mailu a jedno nebo více polí `l` (vypsat UUID). Název pole je volitelný.",
     "forms.noPublicLists": "Nejsou žádné veřejné seznamy ke generování formulářů.",

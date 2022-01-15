@@ -104,6 +104,7 @@
     "email.status.status": "Status",
     "email.unsub": "Unsubscribe",
     "email.unsubHelp": "Don't want to receive these e-mails?",
+    "email.viewInBrowser": "View in browser",
     "forms.formHTML": "Form HTML",
     "forms.formHTMLHelp": "Use the following HTML to show a subscription form on an external webpage. The form should have the email field and one or more `l` (list UUID) fields. The name field is optional.",
     "forms.noPublicLists": "There are no public lists to generate a forms.",

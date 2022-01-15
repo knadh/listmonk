@@ -104,6 +104,7 @@
     "email.status.status": "Durum",
     "email.unsub": "Üyeliği sonlandır",
     "email.unsubHelp": "Bu e-posta'ları almak istemiyorum",
+    "email.viewInBrowser": "View in browser",
     "forms.formHTML": "HTML Formu",
     "forms.formHTMLHelp": "Harici bir web sayfasında bir abonelik formu göstermek için aşağıdaki HTML'yi kullanın. Formda e-posta alanı ve bir veya daha fazla `l` (liste UUID) alanı bulunmalıdır. `İsim` alanı isteğe bağlıdır.",
     "forms.noPublicLists": "Form'a ihtiyaç duyulan erişime açık listeler yok.",

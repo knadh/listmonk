@@ -104,6 +104,7 @@
     "email.status.status": "Stare",
     "email.unsub": "Dezabonare",
     "email.unsubHelp": "Nu dorești să primești aceste emailuri?",
+    "email.viewInBrowser": "View in browser",
     "forms.formHTML": "Formular HTML",
     "forms.formHTMLHelp": "Utilizați următorul HTML pentru a afișa un formular de abonament pe o pagină web externă. Formularul trebuie să aibă câmpul de e-mail și unul sau mai multe câmpuri `l` (listă UUID). Câmpul de nume este opțional.",
     "forms.noPublicLists": "Nu există liste publice pentru a genera un formular.",

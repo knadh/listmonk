@@ -104,6 +104,7 @@
     "email.status.status": "Status",
     "email.unsub": "Cancelar assinatura",
     "email.unsubHelp": "Não quer mais receber estes e-mails?",
+    "email.viewInBrowser": "View in browser",
     "forms.formHTML": "Formulário HTML",
     "forms.formHTMLHelp": "Use este HTML para inserir um formulário de inscrição em uma página externa. O formulário deve ter o campo de e-mail e um ou mais campos `l` (lista UUID). O campo nome é opcional.",
     "forms.noPublicLists": "Não há nenhuma lista pública para gerar um formulário.",

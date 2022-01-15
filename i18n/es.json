@@ -104,6 +104,7 @@
     "email.status.status": "Estado",
     "email.unsub": "Des-subscribir",
     "email.unsubHelp": "¿No quiere recibir estos correos electrónicos?",
+    "email.viewInBrowser": "View in browser",
     "forms.formHTML": "Formulario HTML",
     "forms.formHTMLHelp": "Use este código HTML para mostrar el formulario de subscripción en un sitio web externo. El formulario debe contener el campo \"correo electrónico\" y uno o más campos `l` (UUID de lista). El campo nombre es opcional.",
     "forms.noPublicLists": "No hay listas públicas para generar formularios",

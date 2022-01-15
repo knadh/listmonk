@@ -104,6 +104,7 @@
     "email.status.status": "Status",
     "email.unsub": "Uitschrijven",
     "email.unsubHelp": "Wil je deze e-mails niet meer ontvangen?",
+    "email.viewInBrowser": "View in browser",
     "forms.formHTML": "Formulier HTML",
     "forms.formHTMLHelp": "Gebruik de volgende HTML om een inschrijvingsformulier te tonen op een externe webpagina. Het formulier moet het email veld en een of meer `l` (lijst UUID) velden bevatten. Het naam veld is optioneel.",
     "forms.noPublicLists": "Er zijn geen publieke lijsten om formulieren te genereren.",

@@ -104,6 +104,7 @@
     "email.status.status": "Status",
     "email.unsub": "Odsubskrybuj",
     "email.unsubHelp": "Nie chcesz otrzymywać tych maili?",
+    "email.viewInBrowser": "View in browser",
     "forms.formHTML": "Formularz HTML",
     "forms.formHTMLHelp": "Użyj następującego kodu HTML w celu wyświetlenia formularza na zewnętrznej stronie. Formularz powinien mieć pole z adresem email i jedno lub więcej pól z `l` (UUID listy). Pole z nazwą jest opcjonalne.",
     "forms.noPublicLists": "Nie ma publicznych list do wygenerowania formularza.",

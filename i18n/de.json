@@ -104,6 +104,7 @@
     "email.status.status": "Status",
     "email.unsub": "Abmelden",
     "email.unsubHelp": "Du möchtest diese E-Mails nicht mehr?",
+    "email.viewInBrowser": "View in browser",
     "forms.formHTML": "Formular HTML",
     "forms.formHTMLHelp": "Benutze den folgenden HTML-Code, um das Formular zum Anmelden auf einer externen Seite anzuzeigen. Das Formular sollte das `email` Feld und eines oder mehrere `l` (Listen UUID) Felder enthalten. `name` ist optional.",
     "forms.noPublicLists": "Es existieren keine öffentlichen Listen, für die ein Formular erstellt werden kann.",
