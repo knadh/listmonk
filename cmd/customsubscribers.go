@@ -19,7 +19,7 @@ func handleQuerySubscribersByUserId(c echo.Context) error {
 		query   = sanitizeSQLExp(c.FormValue("query"))
 		orderBy = c.FormValue("order_by")
 		order   = c.FormValue("order")
-		userId  = c.FormValue("userid")
+		userId  = c.Param("userid")
 		out     = subsWrap{Results: make([]models.Subscriber, 0, 1)}
 	)
 

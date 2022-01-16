@@ -21,7 +21,7 @@ func handleGetListsByUserId(c echo.Context) error {
 		orderBy   = c.FormValue("order_by")
 		order     = c.FormValue("order")
 		listID, _ = strconv.Atoi(c.Param("id"))
-		userId    = c.FormValue("userid")
+		userId    = c.Param("userid")
 	)
 
 	// Fetch one list.

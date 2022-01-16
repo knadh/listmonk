@@ -22,7 +22,7 @@ func handleGetCampaignsByUserId(c echo.Context) error {
 		orderBy   = c.FormValue("order_by")
 		order     = c.FormValue("order")
 		noBody, _ = strconv.ParseBool(c.QueryParam("no_body"))
-		userId    = c.FormValue("userid")
+		userId    = c.Param("userid")
 	)
 
 	// Fetch one campaign.
