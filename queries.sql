@@ -245,6 +245,26 @@ SELECT subscribers.* FROM subscribers
     %s
     ORDER BY %s %s OFFSET $2 LIMIT (CASE WHEN $3 = 0 THEN NULL ELSE $3 END);
 
+
+-- name: query-subscribers-by-userid
+-- raw: true
+-- Unprepared statement for issuring arbitrary WHERE conditions for
+-- searching subscribers. While the results are sliced using offset+limit,
+-- there's a COUNT() OVER() that still returns the total result count
+-- for pagination in the frontend, albeit being a field that'll repeat
+-- with every resultant row.
+-- %s = arbitrary expression, %s = order by field, %s = order direction
+SELECT subscribers.* FROM subscribers
+                              LEFT JOIN subscriber_lists
+                                        ON (
+                                            -- Optional list filtering.
+                                                (CASE WHEN CARDINALITY($1::INT[]) > 0 THEN true ELSE false END)
+                                                AND subscriber_lists.subscriber_id = subscribers.id
+                                            )
+WHERE subscribers.userid = $4 AND  (CARDINALITY($1) = 0 OR subscriber_lists.list_id = ANY($1::INT[]))
+    %s
+ORDER BY %s %s OFFSET $2 LIMIT (CASE WHEN $3 = 0 THEN NULL ELSE $3 END);
+
 -- name: query-subscribers-count
 -- Replica of query-subscribers for obtaining the results count.
 SELECT COUNT(*) AS total FROM subscribers

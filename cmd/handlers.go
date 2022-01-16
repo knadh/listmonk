@@ -95,6 +95,7 @@ func initHTTPHandlers(e *echo.Echo, app *App) {
 	g.PUT("/api/subscribers/query/blocklist", handleBlocklistSubscribersByQuery)
 	g.PUT("/api/subscribers/query/lists", handleManageSubscriberListsByQuery)
 	g.GET("/api/subscribers", handleQuerySubscribers)
+	g.GET("/api/subscribers-by-userid", handleQuerySubscribersByUserId)
 	g.GET("/api/subscribers/export",
 		middleware.GzipWithConfig(middleware.GzipConfig{Level: 9})(handleExportSubscribers))
 
