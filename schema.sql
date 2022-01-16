@@ -246,3 +246,5 @@ DROP TYPE IF EXISTS list_channel CASCADE; CREATE TYPE list_channel AS ENUM ('ema
 ALTER TABLE lists ADD COLUMN channel list_channel NOT NULL DEFAULT 'email';
 ALTER TABLE lists ADD COLUMN userid TEXT NOT NULL DEFAULT 'system';
 ALTER TABLE lists ADD COLUMN meta JSONB NOT NULL DEFAULT '{}';
+
+ALTER TABLE subscribers ADD COLUMN userid TEXT NOT NULL DEFAULT 'system';
