@@ -357,6 +357,22 @@ counts AS (
 SELECT ls.*, COALESCE(subscriber_count, 0) AS subscriber_count FROM ls
     LEFT JOIN counts ON (counts.list_id = ls.id) ORDER BY %s %s;
 
+-- name: query-lists-by-userid
+WITH ls AS (
+    SELECT COUNT(*) OVER () AS total, lists.* FROM lists
+    WHERE ($1 = 0 OR id = $1) AND ($2 = '' OR name ILIKE $2) AND userid = $5
+    OFFSET $3 LIMIT (CASE WHEN $4 = 0 THEN NULL ELSE $4 END)
+    ),
+    counts AS (
+SELECT COUNT(*) as subscriber_count, list_id FROM subscriber_lists
+WHERE status != 'unsubscribed'
+  AND ($1 = 0 OR list_id = $1)
+GROUP BY list_id
+    )
+SELECT ls.*, COALESCE(subscriber_count, 0) AS subscriber_count FROM ls
+                                                                        LEFT JOIN counts ON (counts.list_id = ls.id) ORDER BY %s %s;
+
+
 
 -- name: get-lists-by-optin
 -- Can have a list of IDs or a list of UUIDs.

@@ -816,3 +816,11 @@ func makeSearchQuery(q, orderBy, order, query string) (string, string) {
 
 	return q, fmt.Sprintf(query, orderBy, order)
 }
+
+// makeSearchQuery cleans an optional search string and prepares the
+// query SQL statement (string interpolated) and returns the
+// search query string along with the SQL expression.
+func makeSearchQueryByUserId(userId, query string) string {
+
+	return fmt.Sprintf(query, userId)
+}
