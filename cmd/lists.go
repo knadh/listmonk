@@ -125,7 +125,13 @@ func handleGetListsByUserId(c echo.Context) error {
 	)
 
 	// Fetch one list.
+
 	single := false
+	if listID > 0 {
+		single = true
+	}
+
+	println(listID)
 
 	queryStr, stmt := makeSearchQuery(query, orderBy, order, app.queries.QueryListsByUserId)
 

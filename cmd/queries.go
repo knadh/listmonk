@@ -44,14 +44,14 @@ type Queries struct {
 	DeleteSubscriptionsByQuery             string `query:"delete-subscriptions-by-query"`
 	UnsubscribeSubscribersFromListsByQuery string `query:"unsubscribe-subscribers-from-lists-by-query"`
 
-	CreateList      *sqlx.Stmt `query:"create-list"`
-	QueryLists      string     `query:"query-lists"`
-	GetLists        *sqlx.Stmt `query:"get-lists"`
-	GetListsById    *sqlx.Stmt `query:"get-lists-by-userid"`
-	GetListsByOptin *sqlx.Stmt `query:"get-lists-by-optin"`
-	UpdateList      *sqlx.Stmt `query:"update-list"`
-	UpdateListsDate *sqlx.Stmt `query:"update-lists-date"`
-	DeleteLists     *sqlx.Stmt `query:"delete-lists"`
+	CreateList         *sqlx.Stmt `query:"create-list"`
+	QueryLists         string     `query:"query-lists"`
+	GetLists           *sqlx.Stmt `query:"get-lists"`
+	QueryListsByUserId string     `query:"query-lists-by-userid"`
+	GetListsByOptin    *sqlx.Stmt `query:"get-lists-by-optin"`
+	UpdateList         *sqlx.Stmt `query:"update-list"`
+	UpdateListsDate    *sqlx.Stmt `query:"update-lists-date"`
+	DeleteLists        *sqlx.Stmt `query:"delete-lists"`
 
 	CreateCampaign           *sqlx.Stmt `query:"create-campaign"`
 	QueryCampaigns           string     `query:"query-campaigns"`
