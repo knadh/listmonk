@@ -95,7 +95,7 @@ func initHTTPHandlers(e *echo.Echo, app *App) {
 	g.PUT("/api/subscribers/query/blocklist", handleBlocklistSubscribersByQuery)
 	g.PUT("/api/subscribers/query/lists", handleManageSubscriberListsByQuery)
 	g.GET("/api/subscribers", handleQuerySubscribers)
-	g.GET("/api/subscribers-by-userid", handleQuerySubscribersByUserId)
+	g.GET("/api/subscribers-by-userid/:userid", handleQuerySubscribersByUserId)
 	g.GET("/api/subscribers/export",
 		middleware.GzipWithConfig(middleware.GzipConfig{Level: 9})(handleExportSubscribers))
 
@@ -105,14 +105,14 @@ func initHTTPHandlers(e *echo.Echo, app *App) {
 	g.DELETE("/api/import/subscribers", handleStopImportSubscribers)
 
 	g.GET("/api/lists", handleGetLists)
-	g.GET("/api/lists-by-userid", handleGetListsByUserId)
+	g.GET("/api/lists-by-userid/:userid", handleGetListsByUserId)
 	g.GET("/api/lists/:id", handleGetLists)
 	g.POST("/api/lists", handleCreateList)
 	g.PUT("/api/lists/:id", handleUpdateList)
 	g.DELETE("/api/lists/:id", handleDeleteLists)
 
 	g.GET("/api/campaigns", handleGetCampaigns)
-	g.GET("/api/campaigns-by-userid", handleGetCampaignsByUserId)
+	g.GET("/api/campaigns-by-userid/:userid", handleGetCampaignsByUserId)
 	g.GET("/api/campaigns/running/stats", handleGetRunningCampaignStats)
 	g.GET("/api/campaigns/:id", handleGetCampaigns)
 	g.GET("/api/campaigns/analytics/:type", handleGetCampaignViewAnalytics)
