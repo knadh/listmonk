@@ -104,7 +104,7 @@ func initHTTPHandlers(e *echo.Echo, app *App) {
 	g.DELETE("/api/import/subscribers", handleStopImportSubscribers)
 
 	g.GET("/api/lists", handleGetLists)
-	g.GET("/api/lists-by-id", handleGetListsByUserId)
+	g.GET("/api/lists-by-userid", handleGetListsByUserId)
 	g.GET("/api/lists/:id", handleGetLists)
 	g.POST("/api/lists", handleCreateList)
 	g.PUT("/api/lists/:id", handleUpdateList)
