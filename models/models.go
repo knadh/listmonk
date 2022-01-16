@@ -213,7 +213,8 @@ type Campaign struct {
 
 	// Pseudofield for getting the total number of subscribers
 	// in searches and queries.
-	Total int `db:"total" json:"-"`
+	Total  int    `db:"total" json:"-"`
+	Userid string `db:"userid" json:"userid"`
 }
 
 // CampaignMeta contains fields tracking a campaign's progress.

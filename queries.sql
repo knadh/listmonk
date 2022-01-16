@@ -483,6 +483,33 @@ WHERE ($1 = 0 OR id = $1)
     AND ($3 = '' OR CONCAT(name, subject) ILIKE $3)
 ORDER BY %s %s OFFSET $4 LIMIT (CASE WHEN $5 = 0 THEN NULL ELSE $5 END);
 
+
+-- name: query-campaigns-by-userid
+-- Here, 'lists' is returned as an aggregated JSON array from campaign_lists because
+-- the list reference may have been deleted.
+-- While the results are sliced using offset+limit,
+-- there's a COUNT() OVER() that still returns the total result count
+-- for pagination in the frontend, albeit being a field that'll repeat
+-- with every resultant row.
+SELECT  c.id, c.uuid, c.name, c.subject, c.from_email,
+        c.messenger, c.started_at, c.to_send, c.sent, c.type,
+        c.body, c.altbody, c.send_at, c.headers, c.status, c.content_type, c.tags,
+        c.template_id, c.created_at, c.updated_at, c.userid,
+        COUNT(*) OVER () AS total,
+        (
+            SELECT COALESCE(ARRAY_TO_JSON(ARRAY_AGG(l)), '[]') FROM (
+                                                                        SELECT COALESCE(campaign_lists.list_id, 0) AS id,
+                                                                               campaign_lists.list_name AS name
+                                                                        FROM campaign_lists WHERE campaign_lists.campaign_id = c.id
+                                                                    ) l
+        ) AS lists
+FROM campaigns c
+WHERE userid=$6 AND ($1 = 0 OR id = $1)
+  AND status=ANY(CASE WHEN ARRAY_LENGTH($2::campaign_status[], 1) != 0 THEN $2::campaign_status[] ELSE ARRAY[status] END)
+  AND ($3 = '' OR CONCAT(name, subject) ILIKE $3)
+ORDER BY %s %s OFFSET $4 LIMIT (CASE WHEN $5 = 0 THEN NULL ELSE $5 END);
+
+
 -- name: get-campaign
 SELECT campaigns.*,
     COALESCE(templates.body, (SELECT body FROM templates WHERE is_default = true LIMIT 1)) AS template_body
