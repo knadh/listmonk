@@ -48,10 +48,22 @@
           :all="lists.results"
         ></list-selector>
 
-        <b-field :message="$t('subscribers.preconfirmHelp')">
-            <b-checkbox v-model="form.preconfirm"
-              :native-value="true">{{ $t('subscribers.preconfirm') }}</b-checkbox>
-        </b-field>
+        <div class="columns mb-5">
+          <div class="column is-7">
+            <b-field :message="$t('subscribers.preconfirmHelp')">
+                <b-checkbox v-model="form.preconfirm"
+                  :native-value="true" :disabled="!hasOptinList">
+                  {{ $t('subscribers.preconfirm') }}
+                </b-checkbox>
+            </b-field>
+          </div>
+          <div class="column is-5 has-text-right" v-if="isEditing">
+            <a href="" @click.prevent="sendOptinConfirmation"
+              :class="{'is-disabled': !hasOptinList}">
+              <b-icon icon="email-outline" size="is-small" />
+              {{ $t('subscribers.sendOptinConfirm') }}</a>
+          </div>
+        </div>
 
         <b-field :label="$t('subscribers.attribs')" label-position="on-border"
           :message="$t('subscribers.attribsHelp') + ' ' + egAttribs">
@@ -250,6 +262,12 @@ export default Vue.extend({
       });
     },
 
+    sendOptinConfirmation() {
+      this.$api.sendSubscriberOptin(this.form.id).then(() => {
+        this.$utils.toast(this.$t('subscribers.sentOptinConfirm'));
+      });
+    },
+
     validateAttribs(str) {
       // Parse and validate attributes JSON.
       let attribs = {};
@@ -271,6 +289,10 @@ export default Vue.extend({
 
   computed: {
     ...mapState(['lists', 'loading']),
+
+    hasOptinList() {
+      return this.form.lists.some((l) => l.optin === 'double');
+    },
   },
 
   mounted() {

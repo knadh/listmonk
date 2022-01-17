@@ -172,8 +172,8 @@ export default {
       isReady: false,
       isRichtextReady: false,
       isRichtextSourceVisible: false,
-      richtextConf: {},
       isTrackLink: false,
+      richtextConf: {},
       richTextSourceBody: '',
       form: {
         body: '',
@@ -203,6 +203,7 @@ export default {
 
         setup: (editor) => {
           editor.on('init', () => {
+            editor.focus();
             this.onEditorDialogOpen(editor);
           });
 

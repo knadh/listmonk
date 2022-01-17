@@ -199,6 +199,7 @@ INSERT INTO settings (key, value) VALUES
     ('upload.filesystem.upload_path', '"uploads"'),
     ('upload.filesystem.upload_uri', '"/uploads"'),
     ('upload.s3.url', '"https://ap-south-1.s3.amazonaws.com"'),
+    ('upload.s3.public_url', '""'),
     ('upload.s3.aws_access_key_id', '""'),
     ('upload.s3.aws_secret_access_key', '""'),
     ('upload.s3.aws_default_region', '"ap-south-1"'),

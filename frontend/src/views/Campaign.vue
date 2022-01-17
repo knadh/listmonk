@@ -47,7 +47,7 @@
 
     <b-loading :active="loading.campaigns"></b-loading>
 
-    <b-tabs type="is-boxed" :animated="false" v-model="activeTab">
+    <b-tabs type="is-boxed" :animated="false" v-model="activeTab" @input="onTab">
       <b-tab-item :label="$tc('globals.terms.campaign')" label-position="on-border"
         icon="rocket-launch-outline">
         <section class="wrap">
@@ -267,6 +267,19 @@ export default Vue.extend({
       this.isHeadersVisible = !this.isHeadersVisible;
     },
 
+    isUnsaved() {
+      return this.data.body !== this.form.content.body
+        || this.data.contentType !== this.form.content.contentType;
+    },
+
+    onTab(t) {
+      if (t === 1 && window.tinymce && window.tinymce.editors.length > 0) {
+        this.$nextTick(() => {
+          window.tinymce.editors[0].focus();
+        });
+      }
+    },
+
     onSubmit(typ) {
       if (this.form.headersStr && this.form.headersStr !== '[]') {
         try {
@@ -444,6 +457,14 @@ export default Vue.extend({
     },
   },
 
+  beforeRouteLeave(to, from, next) {
+    if (this.isUnsaved()) {
+      this.$utils.confirm(this.$t('globals.messages.confirmDiscard'), () => next(true));
+      return;
+    }
+    next(true);
+  },
+
   watch: {
     selectedLists() {
       this.form.lists = this.selectedLists;
@@ -451,6 +472,8 @@ export default Vue.extend({
   },
 
   mounted() {
+    window.onbeforeunload = () => this.isUnsaved() || null;
+
     this.form.fromEmail = this.settings['app.from_email'];
 
     const { id } = this.$route.params;
