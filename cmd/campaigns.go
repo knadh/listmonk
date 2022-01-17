@@ -9,7 +9,6 @@ import (
 	"html/template"
 	"net/http"
 	"net/url"
-	"reflect"
 	"regexp"
 	"strconv"
 	"strings"
@@ -51,15 +50,14 @@ type campaignContentReq struct {
 	To   string `json:"to"`
 }
 
-type campCountStats struct {
-	CampaignID int       `db:"campaign_id" json:"campaign_id"`
-	Count      int       `db:"count" json:"count"`
-	Timestamp  time.Time `db:"timestamp" json:"timestamp"`
-}
-
-type campTopLinks struct {
-	URL   string `db:"url" json:"url"`
-	Count int    `db:"count" json:"count"`
+type campStatsData struct {
+	CampaignID   int       `db:"campaign_id" json:"campaign_id,omitempty"`
+	CampaignName string    `db:"campaign_name" json:"campaign_name,omitempty"`
+	Email        string    `db:"suscriber_email" json:"subscriber_email,omitempty"`
+	URL          string    `db:"url" json:"url,omitempty"`
+	Count        int       `db:"count" json:"count,omitempty"`
+	Source       string    `db:"source" json:"source,omitempty"`
+	Timestamp    time.Time `db:"timestamp" json:"timestamp,omitempty"`
 }
 
 type campaignStats struct {
@@ -644,6 +642,10 @@ func handleGetCampaignViewAnalytics(c echo.Context) error {
 			app.i18n.Ts("globals.messages.missingFields", "name", "`id`"))
 	}
 
+	if !strHasLen(from, 10, 30) || !strHasLen(to, 10, 30) {
+		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("analytics.invalidDates"))
+	}
+
 	// Pick campaign view counts or click counts.
 	var stmt *sqlx.Stmt
 	switch typ {
@@ -654,23 +656,12 @@ func handleGetCampaignViewAnalytics(c echo.Context) error {
 	case "bounces":
 		stmt = app.queries.GetCampaignBounceCounts
 	case "links":
-		out := make([]campTopLinks, 0)
-		if err := app.queries.GetCampaignLinkCounts.Select(&out, pq.Int64Array(ids), from, to); err != nil {
-			app.log.Printf("error fetching campaign %s: %v", typ, err)
-			return echo.NewHTTPError(http.StatusInternalServerError,
-				app.i18n.Ts("globals.messages.errorFetching",
-					"name", "{globals.terms.analytics}", "error", pqErrMsg(err)))
-		}
-		return c.JSON(http.StatusOK, okResp{out})
+		stmt = app.queries.GetCampaignLinkCounts
 	default:
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidData"))
 	}
 
-	if !strHasLen(from, 10, 30) || !strHasLen(to, 10, 30) {
-		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("analytics.invalidDates"))
-	}
-
-	out := make([]campCountStats, 0)
+	out := make([]campStatsData, 0)
 	if err := stmt.Select(&out, pq.Int64Array(ids), from, to); err != nil {
 		app.log.Printf("error fetching campaign %s: %v", typ, err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
@@ -719,69 +710,44 @@ func handleGetCampaignAnalyticsExport(c echo.Context) error {
 	h.Set("Cache-Control", "no-cache")
 
 	var stmt *sqlx.Stmt
-	var dynOut []interface{}
 	var fields []string
 	switch typ {
 	case "views":
 		stmt = app.queries.GetCampaignViewDetails
-		dynOut = []interface{}{&[]models.ViewExport{}}
 		wr.Write([]string{"campaign", "subscriber", "viewed_at"})
 	case "clicks":
 		stmt = app.queries.GetCampaignClickDetails
-		dynOut = []interface{}{&[]models.ClickExport{}}
 		wr.Write([]string{"campaign", "subscriber", "click_count"})
 	case "bounces":
 		stmt = app.queries.GetCampaignBounceDetails
-		dynOut = []interface{}{&[]models.BounceExport{}}
-		wr.Write([]string{"campaign", "subscriber", "type", "source", "meta", "bounced_at"})
+		wr.Write([]string{"campaign", "subscriber", "source", "bounced_at"})
 	case "links":
 		stmt = app.queries.GetCampaignLinkDetails
-		dynOut = []interface{}{&[]models.LinkExport{}}
 		wr.Write([]string{"campaign", "link", "subscriber", "clicked_at"})
-
 	default:
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidData"))
 	}
 
 loop:
 	for {
-		rows, err := stmt.Query(pq.Int64Array(campaign_ids), from, to, start, limit)
-		if err != nil {
+		out := make([]campStatsData, 0)
+		if err := stmt.Select(&out, pq.Int64Array(campaign_ids), from, to, start, limit); err != nil {
 			app.log.Printf("error executing query: %v", err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
-		defer rows.Close()
 
-		out := dynOut[0]
-		err = sqlx.StructScan(rows, out)
-		if err != nil {
-			app.log.Printf("error parsing result: %v", err)
-			return echo.NewHTTPError(http.StatusInternalServerError)
-		}
-
-		outArr := reflect.ValueOf(out)
-		if outArr.Kind() == reflect.Ptr {
-			outArr = outArr.Elem()
-		}
-		if outArr.Kind() != reflect.Slice {
-			app.log.Printf("expected slice type, found %q", outArr.Kind().String())
-			return echo.NewHTTPError(http.StatusInternalServerError)
-		}
-
-		for i := 0; i < outArr.Len(); i++ {
-			row := outArr.Index(i).Interface()
-			switch r := row.(type) {
-			case models.LinkExport:
-				fields = []string{r.Campaign, r.Link, r.Suscriber, r.ClickedAt.Time.String()}
-			case models.ViewExport:
-				fields = []string{r.Campaign, r.Suscriber, r.ViewedAt.Time.String()}
-			case models.BounceExport:
-				fields = []string{r.Campaign, r.Suscriber, r.BounceType, r.Source, r.Meta, r.BouncedAt.Time.String()}
-			case models.ClickExport:
-				fields = []string{r.Campaign, r.Suscriber, strconv.Itoa(r.ClickCount)}
+		for _, r := range out {
+			switch typ {
+			case "views":
+				fields = []string{r.CampaignName, r.Email, r.Timestamp.String()}
+			case "clicks":
+				fields = []string{r.CampaignName, r.Email, strconv.Itoa(r.Count)}
+			case "bounces":
+				fields = []string{r.CampaignName, r.Email, r.Source, r.Timestamp.String()}
+			case "links":
+				fields = []string{r.CampaignName, r.URL, r.Email, r.Timestamp.String()}
 			default:
-				app.log.Printf("expected an Exportable model type, found %T", row)
-				return echo.NewHTTPError(http.StatusInternalServerError)
+				return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidData"))
 			}
 
 			if err = wr.Write(fields); err != nil {
@@ -792,10 +758,10 @@ loop:
 
 		wr.Flush()
 
-		if outArr.Len() < limit {
+		if len(out) < limit {
 			break loop
 		} else {
-			start += outArr.Len()
+			start += len(out)
 		}
 	}
 	return nil
