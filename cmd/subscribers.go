@@ -42,15 +42,6 @@ type subsWrap struct {
 	Page    int    `json:"page"`
 }
 
-type subsWrapDet struct {
-	Results models.SubscribersWithDetails `json:"results"`
-
-	Query   string `json:"query"`
-	Total   int    `json:"total"`
-	PerPage int    `json:"per_page"`
-	Page    int    `json:"page"`
-}
-
 type subUpdateReq struct {
 	models.Subscriber
 	RawAttribs     json.RawMessage `json:"attribs"`

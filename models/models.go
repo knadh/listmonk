@@ -141,20 +141,6 @@ type Subscriber struct {
 	Lists   types.JSONText    `db:"lists" json:"lists"`
 	Userid  string            `db:"userid" json:"userid"`
 }
-
-type SubscriberWithListDetails struct {
-	Base
-
-	UUID    string            `db:"uuid" json:"uuid"`
-	Email   string            `db:"email" json:"email" form:"email"`
-	Name    string            `db:"name" json:"name" form:"name"`
-	Attribs SubscriberAttribs `db:"attribs" json:"attribs"`
-	Status  string            `db:"status" json:"status"`
-	Lists   types.JSONText    `db:"lists" json:"lists"`
-	Userid  string            `db:"userid" json:"userid"`
-	Channel string            `db:"channel" json:"channel"`
-}
-
 type subLists struct {
 	SubscriberID int            `db:"subscriber_id"`
 	Lists        types.JSONText `db:"lists"`
@@ -165,7 +151,6 @@ type SubscriberAttribs map[string]interface{}
 
 // Subscribers represents a slice of Subscriber.
 type Subscribers []Subscriber
-type SubscribersWithDetails []SubscriberWithListDetails
 
 // SubscriberExport represents a subscriber record that is exported to raw data.
 type SubscriberExport struct {
