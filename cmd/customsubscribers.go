@@ -45,7 +45,7 @@ func handleQuerySubscribersByUserId(c echo.Context) error {
 
 	// Create a readonly transaction that just does COUNT() to obtain the count of results
 	// and to ensure that the arbitrary query is indeed readonly.
-	stmt := fmt.Sprintf(app.queries.QuerySubscribersCount, cond)
+	stmt := fmt.Sprintf(app.queries.QuerySubscribersByUserIdCount, cond)
 	tx, err := app.db.BeginTxx(context.Background(), &sql.TxOptions{ReadOnly: true})
 	if err != nil {
 		app.log.Printf("error preparing subscriber query: %v", err)
@@ -56,7 +56,7 @@ func handleQuerySubscribersByUserId(c echo.Context) error {
 
 	// Execute the readonly query and get the count of results.
 	var total = 0
-	if err := tx.Get(&total, stmt, listIDs); err != nil {
+	if err := tx.Get(&total, stmt, listIDs, userId); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			app.i18n.Ts("globals.messages.errorFetching",
 				"name", "{globals.terms.subscribers}", "error", pqErrMsg(err)))
