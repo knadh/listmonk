@@ -254,16 +254,21 @@ SELECT subscribers.* FROM subscribers
 -- for pagination in the frontend, albeit being a field that'll repeat
 -- with every resultant row.
 -- %s = arbitrary expression, %s = order by field, %s = order direction
-SELECT subscribers.* FROM subscribers
+SELECT subscribers.*,  CAST(coalesce( lists.channel::VARCHAR , 'N/A' ) AS TEXT)  as channel  FROM subscribers
                               LEFT JOIN subscriber_lists
-                                        ON (
-                                            -- Optional list filtering.
-                                                (CASE WHEN CARDINALITY($1::INT[]) > 0 THEN true ELSE false END)
-                                                AND subscriber_lists.subscriber_id = subscribers.id
-                                            )
-WHERE subscribers.userid = $4 AND  (CARDINALITY($1) = 0 OR subscriber_lists.list_id = ANY($1::INT[]))
+                                        ON  subscriber_lists.subscriber_id = subscribers.id
+                              LEFT JOIN lists ON ( subscriber_lists.list_id = lists.id )
+WHERE subscribers.userid = $3
     %s
-ORDER BY %s %s OFFSET $2 LIMIT (CASE WHEN $3 = 0 THEN NULL ELSE $3 END);
+ORDER BY %s %s OFFSET $1 LIMIT (CASE WHEN $2 = 0 THEN NULL ELSE $2 END);
+
+-- name: query-subscribers-by-userid-count
+-- Replica of query-subscribers for obtaining the results count.
+SELECT COUNT(*) AS total FROM subscribers
+                                  LEFT JOIN subscriber_lists
+                                            ON  subscriber_lists.subscriber_id = subscribers.id
+                                  LEFT JOIN lists ON ( subscriber_lists.list_id = lists.id )
+WHERE subscribers.userid = $1;
 
 -- name: query-subscribers-count
 -- Replica of query-subscribers for obtaining the results count.
