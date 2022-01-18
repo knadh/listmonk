@@ -254,11 +254,12 @@ SELECT subscribers.* FROM subscribers
 -- for pagination in the frontend, albeit being a field that'll repeat
 -- with every resultant row.
 -- %s = arbitrary expression, %s = order by field, %s = order direction
-SELECT subscribers.*,  CAST(coalesce( lists.channel::VARCHAR , 'N/A' ) AS TEXT)  as channel  FROM subscribers
+SELECT subscribers.*,  lists.channel  FROM subscribers
                               LEFT JOIN subscriber_lists
                                         ON  subscriber_lists.subscriber_id = subscribers.id
                               LEFT JOIN lists ON ( subscriber_lists.list_id = lists.id )
-WHERE subscribers.userid = $3
+WHERE subscribers.userid = $3 AND
+   CASE WHEN coalesce( trim($4::varchar),'')='' THEN 1 = 1 ELSE lists.channel = $4 END
     %s
 ORDER BY %s %s OFFSET $1 LIMIT (CASE WHEN $2 = 0 THEN NULL ELSE $2 END);
 
@@ -268,7 +269,7 @@ SELECT COUNT(*) AS total FROM subscribers
                                   LEFT JOIN subscriber_lists
                                             ON  subscriber_lists.subscriber_id = subscribers.id
                                   LEFT JOIN lists ON ( subscriber_lists.list_id = lists.id )
-WHERE subscribers.userid = $1;
+WHERE subscribers.userid = $1 AND CASE WHEN coalesce( trim($2::varchar),'')='' THEN 1 = 1 ELSE lists.channel = $2 END;
 
 -- name: query-subscribers-count-by-userid
 -- Replica of query-subscribers for obtaining the results count.

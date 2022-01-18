@@ -20,6 +20,7 @@ func handleQuerySubscribersByUserId(c echo.Context) error {
 		orderBy = c.FormValue("order_by")
 		order   = c.FormValue("order")
 		userId  = c.Param("userid")
+		channel = c.FormValue("channel")
 		out     = subsWrapDet{Results: make([]models.SubscriberWithListDetails, 0, 1)}
 	)
 
@@ -50,7 +51,7 @@ func handleQuerySubscribersByUserId(c echo.Context) error {
 
 	// Execute the readonly query and get the count of results.
 	var total = 0
-	if err := tx.Get(&total, stmt, userId); err != nil {
+	if err := tx.Get(&total, stmt, userId, channel); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			app.i18n.Ts("globals.messages.errorFetching",
 				"name", "{globals.terms.subscribers}", "error", pqErrMsg(err)))
@@ -63,7 +64,8 @@ func handleQuerySubscribersByUserId(c echo.Context) error {
 
 	// Run the query again and fetch the actual data. stmt is the raw SQL query.
 	stmt = fmt.Sprintf(app.queries.QuerySubscribersByUserid, cond, orderBy, order)
-	if err := tx.Select(&out.Results, stmt, pg.Offset, pg.Limit, userId); err != nil {
+
+	if err := tx.Select(&out.Results, stmt, pg.Offset, pg.Limit, userId, channel); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			app.i18n.Ts("globals.messages.errorFetching",
 				"name", "{globals.terms.subscribers}", "error", pqErrMsg(err)))
