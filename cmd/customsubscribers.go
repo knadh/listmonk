@@ -20,14 +20,9 @@ func handleQuerySubscribersByUserId(c echo.Context) error {
 		orderBy = c.FormValue("order_by")
 		order   = c.FormValue("order")
 		userId  = c.Param("userid")
-		out     = subsWrap{Results: make([]models.Subscriber, 0, 1)}
+		channel = c.FormValue("channel")
+		out     = subsWrapDet{Results: make([]models.SubscriberWithListDetails, 0, 1)}
 	)
-
-	// Limit the subscribers to sepcific lists?
-	listIDs, err := getQueryListIDs(c.QueryParams())
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidID"))
-	}
 
 	// There's an arbitrary query condition.
 	cond := ""
@@ -45,7 +40,7 @@ func handleQuerySubscribersByUserId(c echo.Context) error {
 
 	// Create a readonly transaction that just does COUNT() to obtain the count of results
 	// and to ensure that the arbitrary query is indeed readonly.
-	stmt := fmt.Sprintf(app.queries.QuerySubscribersByUserIdCount, cond)
+	stmt := fmt.Sprintf(app.queries.QuerySubscribersByUserIdCount)
 	tx, err := app.db.BeginTxx(context.Background(), &sql.TxOptions{ReadOnly: true})
 	if err != nil {
 		app.log.Printf("error preparing subscriber query: %v", err)
@@ -56,7 +51,7 @@ func handleQuerySubscribersByUserId(c echo.Context) error {
 
 	// Execute the readonly query and get the count of results.
 	var total = 0
-	if err := tx.Get(&total, stmt, listIDs, userId); err != nil {
+	if err := tx.Get(&total, stmt, userId, channel); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			app.i18n.Ts("globals.messages.errorFetching",
 				"name", "{globals.terms.subscribers}", "error", pqErrMsg(err)))
@@ -69,15 +64,8 @@ func handleQuerySubscribersByUserId(c echo.Context) error {
 
 	// Run the query again and fetch the actual data. stmt is the raw SQL query.
 	stmt = fmt.Sprintf(app.queries.QuerySubscribersByUserid, cond, orderBy, order)
-	if err := tx.Select(&out.Results, stmt, listIDs, pg.Offset, pg.Limit, userId); err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError,
-			app.i18n.Ts("globals.messages.errorFetching",
-				"name", "{globals.terms.subscribers}", "error", pqErrMsg(err)))
-	}
 
-	// Lazy load lists for each subscriber.
-	if err := out.Results.LoadLists(app.queries.GetSubscriberListsLazy); err != nil {
-		app.log.Printf("error fetching subscriber lists: %v", err)
+	if err := tx.Select(&out.Results, stmt, pg.Offset, pg.Limit, userId, channel); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			app.i18n.Ts("globals.messages.errorFetching",
 				"name", "{globals.terms.subscribers}", "error", pqErrMsg(err)))
@@ -85,7 +73,7 @@ func handleQuerySubscribersByUserId(c echo.Context) error {
 
 	out.Query = query
 	if len(out.Results) == 0 {
-		out.Results = make(models.Subscribers, 0)
+		out.Results = make(models.SubscribersWithDetails, 0)
 		return c.JSON(http.StatusOK, okResp{out})
 	}
 
