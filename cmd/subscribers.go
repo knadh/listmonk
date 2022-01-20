@@ -718,7 +718,7 @@ func insertSubscriber(req subimporter.SubReq, app *App) (models.Subscriber, bool
 		req.Attribs,
 		req.Lists,
 		req.ListUUIDs,
-		subStatus); err != nil {
+		subStatus, req.Userid); err != nil {
 		if pqErr, ok := err.(*pq.Error); ok && pqErr.Constraint == "subscribers_email_key" {
 			isNew = false
 		} else {
