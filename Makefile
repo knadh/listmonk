@@ -112,4 +112,4 @@ rm-dev-docker: build ## Delete the docker containers including DB volumes.
 .PHONY: init-dev-docker
 init-dev-docker: build-dev-docker ## Delete the docker containers including DB volumes.
 	cd dev; \
-	docker-compose run --rm backend sh -c "make dist && yes | ./listmonk --install --config dev/config.toml"
+	docker-compose run --rm backend sh -c "make dist && ./listmonk --install --idempotent --yes --config dev/config.toml"
