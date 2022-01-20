@@ -254,7 +254,7 @@ SELECT subscribers.* FROM subscribers
 -- for pagination in the frontend, albeit being a field that'll repeat
 -- with every resultant row.
 -- %s = arbitrary expression, %s = order by field, %s = order direction
-SELECT subscribers.*,  lists.channel  FROM subscribers
+SELECT subscribers.*,  coalesce (lists.channel, 'NA') as channel FROM subscribers
                               LEFT JOIN subscriber_lists
                                         ON  subscriber_lists.subscriber_id = subscribers.id
                               LEFT JOIN lists ON ( subscriber_lists.list_id = lists.id )
