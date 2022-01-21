@@ -48,10 +48,12 @@ const (
 	CampaignContentTypePlain    = "plain"
 
 	// List.
-	ListTypePrivate = "private"
-	ListTypePublic  = "public"
-	ListOptinSingle = "single"
-	ListOptinDouble = "double"
+	ListTypePrivate   = "private"
+	ListTypePublic    = "public"
+	ListOptinSingle   = "single"
+	ListOptinDouble   = "double"
+	ListChannelSingle = "email"
+	ListUserIdSingle  = "system"
 
 	// User.
 	UserTypeSuperadmin = "superadmin"
