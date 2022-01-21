@@ -22,6 +22,7 @@ func handleGetListsByUserId(c echo.Context) error {
 		order     = c.FormValue("order")
 		listID, _ = strconv.Atoi(c.Param("id"))
 		userId    = c.Param("userid")
+		channel   = c.FormValue("channel")
 	)
 
 	// Fetch one list.
@@ -40,7 +41,7 @@ func handleGetListsByUserId(c echo.Context) error {
 		listID,
 		queryStr,
 		pg.Offset,
-		pg.Limit, userId); err != nil {
+		pg.Limit, userId, channel); err != nil {
 		app.log.Printf("error fetching lists: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			app.i18n.Ts("globals.messages.errorFetching",
