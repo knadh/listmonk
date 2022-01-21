@@ -398,7 +398,9 @@ SELECT ls.*, COALESCE(subscriber_count, 0) AS subscriber_count FROM ls
 -- name: query-lists-by-userid
 WITH ls AS (
     SELECT COUNT(*) OVER () AS total, lists.* FROM lists
-    WHERE ($1 = 0 OR id = $1) AND ($2 = '' OR name ILIKE $2) AND userid = $5
+    WHERE ($1 = 0 OR id = $1) AND ($2 = '' OR name ILIKE $2)
+      AND userid = $5
+      AND  CASE WHEN coalesce( trim($6::varchar),'')='' THEN 1 = 1 ELSE channel = $6 END
     OFFSET $3 LIMIT (CASE WHEN $4 = 0 THEN NULL ELSE $4 END)
     ),
     counts AS (
@@ -420,7 +422,7 @@ SELECT * FROM lists WHERE (CASE WHEN $1 != '' THEN optin=$1::list_optin ELSE TRU
     END) ORDER BY name;
 
 -- name: create-list
-INSERT INTO lists (uuid, name, type, optin, tags) VALUES($1, $2, $3, $4, $5) RETURNING id;
+INSERT INTO lists (uuid, name, type, optin, tags, channel, userid) VALUES($1, $2, $3, $4, $5, $6, $7) RETURNING id;
 
 -- name: update-list
 UPDATE lists SET

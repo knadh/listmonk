@@ -140,6 +140,14 @@ func handleCreateList(c echo.Context) error {
 		o.Optin = models.ListOptinSingle
 	}
 
+	if o.Channel == "" {
+		o.Channel = models.ListChannelSingle
+	}
+
+	if o.Userid == "" {
+		o.Userid = models.ListUserIdSingle
+	}
+
 	// Insert and read ID.
 	var newID int
 	o.UUID = uu.String()
@@ -148,7 +156,9 @@ func handleCreateList(c echo.Context) error {
 		o.Name,
 		o.Type,
 		o.Optin,
-		pq.StringArray(normalizeTags(o.Tags))); err != nil {
+		pq.StringArray(normalizeTags(o.Tags)),
+		o.Channel,
+		o.Userid); err != nil {
 		app.log.Printf("error creating list: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			app.i18n.Ts("globals.messages.errorCreating",
