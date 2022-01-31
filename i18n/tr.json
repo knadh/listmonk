@@ -384,7 +384,7 @@
     "settings.media.s3.uploadExpiry": "Yükleme sona erme",
     "settings.media.s3.uploadExpiryHelp": "(İsteğe bağlı) Oluşturulan önceden imzalanmış URL için TTL'yi (saniye cinsinden) belirtin. Yalnızca özel paketler için geçerlidir (saniye, dakika, saat, gün için s, m, h, d).",
     "settings.media.s3.url": "S3 backend URL",
-    "settings.media.s3.urlHelp": "Only change if using a custom S3 comptaible backend like Minio.",
+    "settings.media.s3.urlHelp": "Only change if using a custom S3 compatible backend like Minio.",
     "settings.media.title": "Medya yüklemeleri",
     "settings.media.upload.path": "Yükleme yolu",
     "settings.media.upload.pathHelp": "Medyanın yükleneceği dizinin yolu.",
