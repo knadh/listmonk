@@ -384,7 +384,7 @@
     "settings.media.s3.uploadExpiry": "Upload expiry",
     "settings.media.s3.uploadExpiryHelp": "(Optional) Specify TTL (in seconds) for the generated presigned URL. Only applicable for private buckets (s, m, h, d for seconds, minutes, hours, days).",
     "settings.media.s3.url": "S3 backend URL",
-    "settings.media.s3.urlHelp": "Only change if using a custom S3 comptaible backend like Minio.",
+    "settings.media.s3.urlHelp": "Only change if using a custom S3 compatible backend like Minio.",
     "settings.media.title": "Media uploads",
     "settings.media.upload.path": "Upload path",
     "settings.media.upload.pathHelp": "Path to the directory where media will be uploaded.",

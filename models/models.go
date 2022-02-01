@@ -15,8 +15,8 @@ import (
 	"github.com/jmoiron/sqlx/types"
 	"github.com/lib/pq"
 	"github.com/yuin/goldmark"
-	"github.com/yuin/goldmark/parser"
 	"github.com/yuin/goldmark/extension"
+	"github.com/yuin/goldmark/parser"
 	"github.com/yuin/goldmark/renderer/html"
 	null "gopkg.in/volatiletech/null.v6"
 )
@@ -86,6 +86,14 @@ type regTplFunc struct {
 }
 
 var regTplFuncs = []regTplFunc{
+	// Regular expression for matching {{ TrackLink "http://link.com" }} in the template
+	// and substituting it with {{ Track "http://link.com" . }} (the dot context)
+	// before compilation. This is to make linking easier for users.
+	{
+		regExp:  regexp.MustCompile("{{(\\s+)?TrackLink(\\s+)?(.+?)(\\s+)?}}"),
+		replace: `{{ TrackLink $3 . }}`,
+	},
+
 	// Convert the shorthand https://google.com@TrackLink to {{ TrackLink ... }}.
 	// This is for WYSIWYG editors that encode and break quotes {{ "" }} when inserted
 	// inside <a href="{{ TrackLink "https://these-quotes-break" }}>.
@@ -94,13 +102,6 @@ var regTplFuncs = []regTplFunc{
 		replace: `{{ TrackLink "$1" . }}`,
 	},
 
-	// Regular expression for matching {{ TrackLink "http://link.com" }} in the template
-	// and substituting it with {{ Track "http://link.com" . }} (the dot context)
-	// before compilation. This is to make linking easier for users.
-	{
-		regExp:  regexp.MustCompile("{{(\\s+)?TrackLink\\s+?(\"|`)(.+?)(\"|`)(\\s+)?}}"),
-		replace: `{{ TrackLink "$3" . }}`,
-	},
 	{
 		regExp:  regexp.MustCompile(`{{(\s+)?(TrackView|UnsubscribeURL|OptinURL|MessageURL)(\s+)?}}`),
 		replace: `{{ $2 . }}`,
@@ -387,6 +388,7 @@ func (c *Campaign) CompileTemplate(f template.FuncMap) error {
 	for _, r := range regTplFuncs {
 		body = r.regExp.ReplaceAllString(body, r.replace)
 	}
+
 	msgTpl, err := template.New(ContentTpl).Funcs(f).Parse(body)
 	if err != nil {
 		return fmt.Errorf("error compiling message: %v", err)

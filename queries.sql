@@ -60,7 +60,7 @@ WITH sub AS (
     INSERT INTO subscribers (uuid, email, name, status, attribs)
     VALUES($1, $2, $3, $4, $5)
     ON CONFLICT(email) DO UPDATE SET updated_at=NOW()
-    returning id
+    returning id, status
 ),
 listIDs AS (
     SELECT id FROM lists WHERE
@@ -75,7 +75,12 @@ subs AS (
         (CASE WHEN $4='blocklisted' THEN 'unsubscribed'::subscription_status ELSE $8::subscription_status END)
     )
     ON CONFLICT (subscriber_id, list_id) DO UPDATE
-    SET updated_at=NOW()
+        SET updated_at=NOW(),
+            status=(
+                CASE WHEN $4='blocklisted' OR (SELECT status FROM sub)='blocklisted'
+                THEN 'unsubscribed'::subscription_status
+                ELSE $8::subscription_status END
+            )
 )
 SELECT id from sub;
 
