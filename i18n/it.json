@@ -386,7 +386,7 @@
     "settings.media.s3.uploadExpiry": "Caricamento scaduto",
     "settings.media.s3.uploadExpiryHelp": "(Facoltativo) Specifica il TTL (in secondi) per l'URL predefinito generato. Applicabile solo per i buckets privati (s, m, h, d per i secondi, minuti, ore e giorni).",
     "settings.media.s3.url": "S3 backend URL",
-    "settings.media.s3.urlHelp": "Only change if using a custom S3 comptaible backend like Minio.",
+    "settings.media.s3.urlHelp": "Only change if using a custom S3 compatible backend like Minio.",
     "settings.media.title": "Caricamento dei media",
     "settings.media.upload.path": "Percorso del caricamento",
     "settings.media.upload.pathHelp": "Percorso verso il repertorio dove i media saranno caricati.",

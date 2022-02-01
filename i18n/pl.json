@@ -386,7 +386,7 @@
     "settings.media.s3.uploadExpiry": "Wygaśnięcie przesyłania",
     "settings.media.s3.uploadExpiryHelp": "(Opcjonalne) Zdefiniuj TTL (w sekundach) dla wygenerowanego podpisanego URL. Tylko dla prywatnych komór (bucketów) (s, m, h, d dla sekund, minut, godzin, dni).",
     "settings.media.s3.url": "S3 backend URL",
-    "settings.media.s3.urlHelp": "Only change if using a custom S3 comptaible backend like Minio.",
+    "settings.media.s3.urlHelp": "Only change if using a custom S3 compatible backend like Minio.",
     "settings.media.title": "Wysyłka mediów",
     "settings.media.upload.path": "Ścieżka do wysyłki",
     "settings.media.upload.pathHelp": "Ścieżka do folderu do którego media będą wrzucane.",

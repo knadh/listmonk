@@ -386,7 +386,7 @@
     "settings.media.s3.uploadExpiry": "Срок жизни выгрузки",
     "settings.media.s3.uploadExpiryHelp": "(Необязательно) Укажите TTL (в секундах) сгенерированного подписанного URL. Применимо только для приватных bucket (s, m, h, d соответствует секундам, минутам, часам и дням).",
     "settings.media.s3.url": "S3 backend URL",
-    "settings.media.s3.urlHelp": "Only change if using a custom S3 comptaible backend like Minio.",
+    "settings.media.s3.urlHelp": "Only change if using a custom S3 compatible backend like Minio.",
     "settings.media.title": "Выгрузки медиа",
     "settings.media.upload.path": "Путь для выгрузок",
     "settings.media.upload.pathHelp": "Путь до каталога, куда будут выгружаться медиа-файлы.",
