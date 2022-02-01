@@ -249,9 +249,8 @@ func initDB() *sqlx.DB {
 	return db
 }
 
-// initQueries loads named SQL queries from the queries file and optionally
-// prepares them.
-func initQueries(sqlFile string, db *sqlx.DB, fs stuffbin.FileSystem, prepareQueries bool) (goyesql.Queries, *Queries) {
+// readQueries reads named SQL queries from the SQL queries file into a query map.
+func readQueries(sqlFile string, db *sqlx.DB, fs stuffbin.FileSystem) goyesql.Queries {
 	// Load SQL queries.
 	qB, err := fs.Read(sqlFile)
 	if err != nil {
@@ -262,23 +261,38 @@ func initQueries(sqlFile string, db *sqlx.DB, fs stuffbin.FileSystem, prepareQue
 		lo.Fatalf("error parsing SQL queries: %v", err)
 	}
 
-	if !prepareQueries {
-		return qMap, nil
+	return qMap
+}
+
+// prepareQueries queries prepares a query map and returns a *Queries
+func prepareQueries(qMap goyesql.Queries, db *sqlx.DB, ko *koanf.Koanf) *Queries {
+	// The campaign view/click count queries have a COUNT(%s) placeholder that should either
+	// be substituted with * to pull non-unique rows when individual subscriber tracking is off
+	// as all subscriber_ids will be null, or with DISTINCT subscriber_id when tracking is on
+	// to only pull unique rows per subscriber.
+	sel := "*"
+	if ko.Bool("privacy.individual_tracking") {
+		sel = "DISTINCT subscriber_id"
 	}
 
-	// Prepare queries.
+	keys := []string{"get-campaign-view-counts", "get-campaign-click-counts", "get-campaign-link-counts"}
+	for _, k := range keys {
+		qMap[k].Query = fmt.Sprintf(qMap[k].Query, sel)
+	}
+
+	// Scan and prepare all queries.
 	var q Queries
 	if err := goyesqlx.ScanToStruct(&q, qMap, db.Unsafe()); err != nil {
 		lo.Fatalf("error preparing SQL queries: %v", err)
 	}
 
-	return qMap, &q
+	return &q
 }
 
-// initSettings loads settings from the DB.
-func initSettings(q *sqlx.Stmt) {
+// initSettings loads settings from the DB into the given Koanf map.
+func initSettings(query string, db *sqlx.DB, ko *koanf.Koanf) {
 	var s types.JSONText
-	if err := q.Get(&s); err != nil {
+	if err := db.Get(&s, query); err != nil {
 		lo.Fatalf("error reading settings from DB: %s", pqErrMsg(err))
 	}
 

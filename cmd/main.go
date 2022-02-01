@@ -140,11 +140,16 @@ func init() {
 	// Before the queries are prepared, see if there are pending upgrades.
 	checkUpgrade(db)
 
-	// Load the SQL queries from the filesystem.
-	_, queries := initQueries(queryFilePath, db, fs, true)
+	// Read the SQL queries from the queries file.
+	qMap := readQueries(queryFilePath, db, fs)
 
 	// Load settings from DB.
-	initSettings(queries.GetSettings)
+	if q, ok := qMap["get-settings"]; ok {
+		initSettings(q.Query, db, ko)
+	}
+
+	// Prepare queries.
+	queries = prepareQueries(qMap, db, ko)
 }
 
 func main() {
@@ -163,7 +168,7 @@ func main() {
 	// Load i18n language map.
 	app.i18n = initI18n(app.constants.Lang, fs)
 
-	_, app.queries = initQueries(queryFilePath, db, fs, true)
+	app.queries = queries
 	app.manager = initCampaignManager(app.queries, app.constants, app)
 	app.importer = initImporter(app.queries, db, app)
 	app.notifTpls = initNotifTemplates("/email-templates/*.html", fs, app.i18n, app.constants)

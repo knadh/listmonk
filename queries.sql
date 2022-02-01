@@ -567,21 +567,25 @@ u AS (
 SELECT * FROM camps;
 
 -- name: get-campaign-view-counts
+-- raw: true
+-- %s = * or DISTINCT subscriber_id (prepared based on based on individual tracking=on/off). Prepared on boot.
 WITH intval AS (
     -- For intervals < a week, aggregate counts hourly, otherwise daily.
     SELECT CASE WHEN (EXTRACT (EPOCH FROM ($3::TIMESTAMP - $2::TIMESTAMP)) / 86400) >= 7 THEN 'day' ELSE 'hour' END
 )
-SELECT campaign_id, COUNT(*) AS "count", DATE_TRUNC((SELECT * FROM intval), created_at) AS "timestamp"
+SELECT campaign_id, COUNT(%s) AS "count", DATE_TRUNC((SELECT * FROM intval), created_at) AS "timestamp"
     FROM campaign_views
     WHERE campaign_id=ANY($1) AND created_at >= $2 AND created_at <= $3
     GROUP BY campaign_id, "timestamp" ORDER BY "timestamp" ASC;
 
 -- name: get-campaign-click-counts
+-- raw: true
+-- %s = * or DISTINCT subscriber_id (prepared based on based on individual tracking=on/off). Prepared on boot.
 WITH intval AS (
     -- For intervals < a week, aggregate counts hourly, otherwise daily.
     SELECT CASE WHEN (EXTRACT (EPOCH FROM ($3::TIMESTAMP - $2::TIMESTAMP)) / 86400) >= 7 THEN 'day' ELSE 'hour' END
 )
-SELECT campaign_id, COUNT(*) AS "count", DATE_TRUNC((SELECT * FROM intval), created_at) AS "timestamp"
+SELECT campaign_id, COUNT(%s) AS "count", DATE_TRUNC((SELECT * FROM intval), created_at) AS "timestamp"
     FROM link_clicks
     WHERE campaign_id=ANY($1) AND created_at >= $2 AND created_at <= $3
     GROUP BY campaign_id, "timestamp" ORDER BY "timestamp" ASC;
@@ -597,7 +601,9 @@ SELECT campaign_id, COUNT(*) AS "count", DATE_TRUNC((SELECT * FROM intval), crea
     GROUP BY campaign_id, "timestamp" ORDER BY "timestamp" ASC;
 
 -- name: get-campaign-link-counts
-SELECT COUNT(*) AS "count", url
+-- raw: true
+-- %s = * or DISTINCT subscriber_id (prepared based on based on individual tracking=on/off). Prepared on boot.
+SELECT COUNT(%s) AS "count", url
     FROM link_clicks
     LEFT JOIN links ON (link_clicks.link_id = links.id)
     WHERE campaign_id=ANY($1) AND link_clicks.created_at >= $2 AND link_clicks.created_at <= $3
