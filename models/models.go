@@ -149,6 +149,9 @@ type subLists struct {
 // SubscriberAttribs is the map of key:value attributes of a subscriber.
 type SubscriberAttribs map[string]interface{}
 
+// StringIntMap is used to define DB Scan()s.
+type StringIntMap map[string]int
+
 // Subscribers represents a slice of Subscriber.
 type Subscribers []Subscriber
 
@@ -167,13 +170,14 @@ type SubscriberExport struct {
 type List struct {
 	Base
 
-	UUID            string         `db:"uuid" json:"uuid"`
-	Name            string         `db:"name" json:"name"`
-	Type            string         `db:"type" json:"type"`
-	Optin           string         `db:"optin" json:"optin"`
-	Tags            pq.StringArray `db:"tags" json:"tags"`
-	SubscriberCount int            `db:"subscriber_count" json:"subscriber_count"`
-	SubscriberID    int            `db:"subscriber_id" json:"-"`
+	UUID             string         `db:"uuid" json:"uuid"`
+	Name             string         `db:"name" json:"name"`
+	Type             string         `db:"type" json:"type"`
+	Optin            string         `db:"optin" json:"optin"`
+	Tags             pq.StringArray `db:"tags" json:"tags"`
+	SubscriberCount  int            `db:"-" json:"subscriber_count"`
+	SubscriberCounts StringIntMap   `db:"subscriber_statuses" json:"subscriber_statuses"`
+	SubscriberID     int            `db:"subscriber_id" json:"-"`
 
 	// This is only relevant when querying the lists of a subscriber.
 	SubscriptionStatus string `db:"subscription_status" json:"subscription_status,omitempty"`
@@ -319,12 +323,20 @@ func (s SubscriberAttribs) Value() (driver.Value, error) {
 	return json.Marshal(s)
 }
 
-// Scan unmarshals JSON into SubscriberAttribs.
+// Scan unmarshals JSONB from the DB.
 func (s SubscriberAttribs) Scan(src interface{}) error {
 	if data, ok := src.([]byte); ok {
 		return json.Unmarshal(data, &s)
 	}
-	return fmt.Errorf("Could not not decode type %T -> %T", src, s)
+	return fmt.Errorf("could not not decode type %T -> %T", src, s)
+}
+
+// Scan unmarshals JSONB from the DB.
+func (s StringIntMap) Scan(src interface{}) error {
+	if data, ok := src.([]byte); ok {
+		return json.Unmarshal(data, &s)
+	}
+	return fmt.Errorf("could not not decode type %T -> %T", src, s)
 }
 
 // GetIDs returns the list of campaign IDs.

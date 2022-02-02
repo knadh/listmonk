@@ -351,12 +351,13 @@ WITH ls AS (
     OFFSET $3 LIMIT (CASE WHEN $4 = 0 THEN NULL ELSE $4 END)
 ),
 counts AS (
-	SELECT COUNT(*) as subscriber_count, list_id FROM subscriber_lists
-    WHERE status != 'unsubscribed'
-    AND ($1 = 0 OR list_id = $1)
-    GROUP BY list_id
+    SELECT list_id, JSON_OBJECT_AGG(status, subscriber_count) AS subscriber_statuses FROM (
+        SELECT COUNT(*) as subscriber_count, list_id, status FROM subscriber_lists
+        WHERE ($1 = 0 OR list_id = $1)
+        GROUP BY list_id, status
+    ) row GROUP BY list_id
 )
-SELECT ls.*, COALESCE(subscriber_count, 0) AS subscriber_count FROM ls
+SELECT ls.*, subscriber_statuses FROM ls
     LEFT JOIN counts ON (counts.list_id = ls.id) ORDER BY %s %s;
 
 
