@@ -51,13 +51,13 @@ type campaignContentReq struct {
 }
 
 type campStatsData struct {
-	CampaignID   int       `db:"campaign_id" json:"campaign_id,omitempty"`
-	CampaignName string    `db:"campaign_name" json:"campaign_name,omitempty"`
-	Email        string    `db:"suscriber_email" json:"subscriber_email,omitempty"`
-	URL          string    `db:"url" json:"url,omitempty"`
-	Count        int       `db:"count" json:"count,omitempty"`
-	Source       string    `db:"source" json:"source,omitempty"`
-	Timestamp    time.Time `db:"timestamp" json:"timestamp,omitempty"`
+	CampaignID   int         `db:"campaign_id" json:"campaign_id,omitempty"`
+	CampaignName string      `db:"campaign_name" json:"campaign_name,omitempty"`
+	Email        null.String `db:"suscriber_email" json:"-"`
+	URL          string      `db:"url" json:"url,omitempty"`
+	Count        int         `db:"count" json:"count,omitempty"`
+	Source       string      `db:"source" json:"source,omitempty"`
+	Timestamp    time.Time   `db:"timestamp" json:"timestamp,omitempty"`
 }
 
 type campaignStats struct {
@@ -737,15 +737,22 @@ loop:
 		}
 
 		for _, r := range out {
+			//when personal tracking is off, email is null
+			var strEmail string
+			if r.Email.Valid {
+				strEmail = r.Email.String
+			} else {
+				strEmail = ""
+			}
 			switch typ {
 			case "views":
-				fields = []string{r.CampaignName, r.Email, r.Timestamp.String()}
+				fields = []string{r.CampaignName, strEmail, r.Timestamp.String()}
 			case "clicks":
-				fields = []string{r.CampaignName, r.Email, strconv.Itoa(r.Count)}
+				fields = []string{r.CampaignName, strEmail, strconv.Itoa(r.Count)}
 			case "bounces":
-				fields = []string{r.CampaignName, r.Email, r.Source, r.Timestamp.String()}
+				fields = []string{r.CampaignName, strEmail, r.Source, r.Timestamp.String()}
 			case "links":
-				fields = []string{r.CampaignName, r.URL, r.Email, r.Timestamp.String()}
+				fields = []string{r.CampaignName, r.URL, strEmail, r.Timestamp.String()}
 			default:
 				return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidData"))
 			}
