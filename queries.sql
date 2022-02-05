@@ -615,40 +615,43 @@ SELECT COUNT(%s) AS "count", url
 -- (last_subscriber_id). Every fetch updates the checkpoint and the sent count, which means
 -- every fetch returns a new batch of subscribers until all rows are exhausted.
 WITH camps AS (
-    SELECT last_subscriber_id, max_subscriber_id, type
-    FROM campaigns
-    WHERE id=$1 AND status='running'
+    SELECT last_subscriber_id, max_subscriber_id, type FROM campaigns WHERE id = $1 AND status='running'
 ),
 campLists AS (
     SELECT lists.id AS list_id, optin FROM lists
-    INNER JOIN campaign_lists ON (campaign_lists.list_id = lists.id)
+    LEFT JOIN campaign_lists ON (campaign_lists.list_id = lists.id)
     WHERE campaign_lists.campaign_id = $1
 ),
+subIDs AS (
+    SELECT DISTINCT ON (subscriber_lists.subscriber_id) subscriber_id, list_id, status FROM subscriber_lists
+    WHERE
+        -- ARRAY_AGG is 20x faster instead of a simple SELECT because the query planner
+        -- understands the CTE's cardinality after the scalar array conversion. Huh.
+        list_id = ANY((SELECT ARRAY_AGG(list_id) FROM campLists)::INT[]) AND
+        status != 'unsubscribed' AND
+        subscriber_id > (SELECT last_subscriber_id FROM camps) AND
+        subscriber_id <= (SELECT max_subscriber_id FROM camps)
+    ORDER BY subscriber_id LIMIT $2
+),
 subs AS (
-    SELECT DISTINCT ON(subscribers.id) id AS uniq_id, subscribers.* FROM subscriber_lists
-    INNER JOIN campLists ON (
-        campLists.list_id = subscriber_lists.list_id
-    )
+    SELECT subscribers.* FROM subIDs
+    LEFT JOIN campLists ON (campLists.list_id = subIDs.list_id)
     INNER JOIN subscribers ON (
         subscribers.status != 'blocklisted' AND
-        subscribers.id = subscriber_lists.subscriber_id AND
+        subscribers.id = subIDs.subscriber_id AND
 
         (CASE
             -- For optin campaigns, only e-mail 'unconfirmed' subscribers.
-            WHEN (SELECT type FROM camps) = 'optin' THEN subscriber_lists.status = 'unconfirmed' AND campLists.optin = 'double'
+            WHEN (SELECT type FROM camps) = 'optin' THEN subIDs.status = 'unconfirmed' AND campLists.optin = 'double'
 
             -- For regular campaigns with double optin lists, only e-mail 'confirmed' subscribers.
-            WHEN campLists.optin = 'double' THEN subscriber_lists.status = 'confirmed'
+            WHEN campLists.optin = 'double' THEN subIDs.status = 'confirmed'
 
             -- For regular campaigns with non-double optin lists, e-mail everyone
             -- except unsubscribed subscribers.
-            ELSE subscriber_lists.status != 'unsubscribed'
+            ELSE subIDs.status != 'unsubscribed'
         END)
     )
-    WHERE subscriber_lists.status != 'unsubscribed' AND
-    id > (SELECT last_subscriber_id FROM camps) AND
-    id <= (SELECT max_subscriber_id FROM camps)
-    ORDER BY subscribers.id LIMIT $2
 ),
 u AS (
     UPDATE campaigns
