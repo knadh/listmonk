@@ -325,6 +325,11 @@ func (s SubscriberAttribs) Value() (driver.Value, error) {
 
 // Scan unmarshals JSONB from the DB.
 func (s SubscriberAttribs) Scan(src interface{}) error {
+	if src == nil {
+		s = make(SubscriberAttribs)
+		return nil
+	}
+
 	if data, ok := src.([]byte); ok {
 		return json.Unmarshal(data, &s)
 	}
@@ -333,6 +338,11 @@ func (s SubscriberAttribs) Scan(src interface{}) error {
 
 // Scan unmarshals JSONB from the DB.
 func (s StringIntMap) Scan(src interface{}) error {
+	if src == nil {
+		s = make(StringIntMap)
+		return nil
+	}
+
 	if data, ok := src.([]byte); ok {
 		return json.Unmarshal(data, &s)
 	}
