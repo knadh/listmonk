@@ -135,13 +135,14 @@ type User struct {
 type Subscriber struct {
 	Base
 
-	UUID    string            `db:"uuid" json:"uuid"`
-	Email   string            `db:"email" json:"email" form:"email"`
-	Name    string            `db:"name" json:"name" form:"name"`
-	Attribs SubscriberAttribs `db:"attribs" json:"attribs"`
-	Status  string            `db:"status" json:"status"`
-	Lists   types.JSONText    `db:"lists" json:"lists"`
-	Userid  string            `db:"userid" json:"userid"`
+	UUID      string            `db:"uuid" json:"uuid"`
+	Email     string            `db:"email" json:"email" form:"email"`
+	Name      string            `db:"name" json:"name" form:"name"`
+	Attribs   SubscriberAttribs `db:"attribs" json:"attribs"`
+	Status    string            `db:"status" json:"status"`
+	Lists     types.JSONText    `db:"lists" json:"lists"`
+	Userid    string            `db:"userid" json:"userid"`
+	Telephone string            `db:"telephone" json:"telephone"`
 }
 
 type SubscriberWithListDetails struct {

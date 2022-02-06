@@ -57,8 +57,8 @@ SELECT id as subscriber_id,
 
 -- name: insert-subscriber
 WITH sub AS (
-    INSERT INTO subscribers (uuid, email, name, status, attribs, userid)
-    VALUES($1, $2, $3, $4, $5, $9)
+    INSERT INTO subscribers (uuid, email, name, status, attribs, userid, telephone)
+    VALUES($1, $2, $3, $4, $5, $9, $10)
     ON CONFLICT(uuid) DO UPDATE SET updated_at=NOW()
     returning id
 ),
