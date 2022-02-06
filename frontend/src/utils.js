@@ -8,6 +8,7 @@ import relativeTime from 'dayjs/plugin/relativeTime';
 dayjs.extend(relativeTime);
 
 const reEmail = /(.+?)@(.+?)/ig;
+const prefKey = 'listmonk_pref';
 
 const htmlEntities = {
   '&': '&amp;',
@@ -188,4 +189,23 @@ export default class Utils {
 
     return obj;
   };
+
+  getPref = (key) => {
+    if (localStorage.getItem(prefKey) === null) {
+      return null;
+    }
+
+    const p = JSON.parse(localStorage.getItem(prefKey));
+    return key in p ? p[key] : null;
+  };
+
+  setPref = (key, val) => {
+    let p = {};
+    if (localStorage.getItem(prefKey) !== null) {
+      p = JSON.parse(localStorage.getItem(prefKey));
+    }
+
+    p[key] = val;
+    localStorage.setItem(prefKey, JSON.stringify(p));
+  }
 }
