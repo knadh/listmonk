@@ -362,7 +362,7 @@ func handleUpdateSubscriber(c echo.Context) error {
 		req.Status,
 		req.RawAttribs,
 		req.Lists,
-		subStatus)
+		subStatus, req.Telephone)
 	if err != nil {
 		app.log.Printf("error updating subscriber: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
@@ -718,7 +718,7 @@ func insertSubscriber(req subimporter.SubReq, app *App) (models.Subscriber, bool
 		req.Attribs,
 		req.Lists,
 		req.ListUUIDs,
-		subStatus, req.Userid); err != nil {
+		subStatus, req.Userid, req.Telephone); err != nil {
 		if pqErr, ok := err.(*pq.Error); ok && pqErr.Constraint == "subscribers_email_key" {
 			isNew = false
 		} else {

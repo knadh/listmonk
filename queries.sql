@@ -57,8 +57,8 @@ SELECT id as subscriber_id,
 
 -- name: insert-subscriber
 WITH sub AS (
-    INSERT INTO subscribers (uuid, email, name, status, attribs, userid)
-    VALUES($1, $2, $3, $4, $5, $9)
+    INSERT INTO subscribers (uuid, email, name, status, attribs, userid, telephone)
+    VALUES($1, $2, $3, $4, $5, $9, $10)
     ON CONFLICT(uuid) DO UPDATE SET updated_at=NOW()
     returning id
 ),
@@ -123,6 +123,7 @@ WITH s AS (
         name=(CASE WHEN $3 != '' THEN $3 ELSE name END),
         status=(CASE WHEN $4 != '' THEN $4::subscriber_status ELSE status END),
         attribs=(CASE WHEN $5 != '' THEN $5::JSONB ELSE attribs END),
+        telephone=(CASE WHEN $8 != '' THEN $8 ELSE telephone END),
         updated_at=NOW()
     WHERE id = $1 RETURNING id
 ),
