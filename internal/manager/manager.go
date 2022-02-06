@@ -15,6 +15,7 @@ import (
 	"github.com/knadh/listmonk/internal/i18n"
 	"github.com/knadh/listmonk/internal/messenger"
 	"github.com/knadh/listmonk/models"
+	"github.com/paulbellamy/ratecounter"
 )
 
 const (
@@ -39,6 +40,11 @@ type Store interface {
 	DeleteSubscriber(id int64) error
 }
 
+// CampStats contains campaign stats like per minute send rate.
+type CampStats struct {
+	SendRate int
+}
+
 // Manager handles the scheduling, processing, and queuing of campaigns
 // and message pushes.
 type Manager struct {
@@ -50,8 +56,9 @@ type Manager struct {
 	logger     *log.Logger
 
 	// Campaigns that are currently running.
-	camps    map[int]*models.Campaign
-	campsMut sync.RWMutex
+	camps     map[int]*models.Campaign
+	campRates map[int]*ratecounter.RateCounter
+	campsMut  sync.RWMutex
 
 	// Links generated using Track() are cached here so as to not query
 	// the database for the link UUID for every message sent. This has to
@@ -153,6 +160,7 @@ func New(cfg Config, store Store, notifCB models.AdminNotifCallback, i *i18n.I18
 		logger:             l,
 		messengers:         make(map[string]messenger.Messenger),
 		camps:              make(map[int]*models.Campaign),
+		campRates:          make(map[int]*ratecounter.RateCounter),
 		links:              make(map[string]string),
 		subFetchQueue:      make(chan *models.Campaign, cfg.Concurrency),
 		campMsgQueue:       make(chan CampaignMessage, cfg.Concurrency*2),
@@ -235,6 +243,19 @@ func (m *Manager) HasRunningCampaigns() bool {
 	m.campsMut.Lock()
 	defer m.campsMut.Unlock()
 	return len(m.camps) > 0
+}
+
+// GetCampaignStats returns campaign statistics.
+func (m *Manager) GetCampaignStats(id int) CampStats {
+	n := 0
+
+	m.campsMut.Lock()
+	if r, ok := m.campRates[id]; ok {
+		n = int(r.Rate())
+	}
+	m.campsMut.Unlock()
+
+	return CampStats{SendRate: n}
 }
 
 // Run is a blocking function (that should be invoked as a goroutine)
@@ -337,8 +358,15 @@ func (m *Manager) worker() {
 				select {
 				case m.campMsgErrorQueue <- msgError{camp: msg.Campaign, err: err}:
 				default:
+					continue
 				}
 			}
+
+			m.campsMut.Lock()
+			if r, ok := m.campRates[msg.Campaign.ID]; ok {
+				r.Incr(1)
+			}
+			m.campsMut.Unlock()
 
 		// Arbitrary message.
 		case msg, ok := <-m.msgQueue:
@@ -497,6 +525,7 @@ func (m *Manager) addCampaign(c *models.Campaign) error {
 	// Add the campaign to the active map.
 	m.campsMut.Lock()
 	m.camps[c.ID] = c
+	m.campRates[c.ID] = ratecounter.NewRateCounter(time.Minute)
 	m.campsMut.Unlock()
 	return nil
 }
@@ -589,6 +618,7 @@ func (m *Manager) isCampaignProcessing(id int) bool {
 func (m *Manager) exhaustCampaign(c *models.Campaign, status string) (*models.Campaign, error) {
 	m.campsMut.Lock()
 	delete(m.camps, c.ID)
+	delete(m.campRates, c.ID)
 	m.campsMut.Unlock()
 
 	// A status has been passed. Change the campaign's status

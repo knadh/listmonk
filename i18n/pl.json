@@ -57,6 +57,7 @@
     "campaigns.preview": "Podgląd",
     "campaigns.progress": "Postęp",
     "campaigns.queryPlaceholder": "Nazwa lub temat",
+    "campaigns.rateMinuteShort": "min",
     "campaigns.rawHTML": "Raw HTML",
     "campaigns.removeAltText": "Usuń alternatywną treść typu plain text",
     "campaigns.richText": "Wzbogacony format tekstowy (Rich text)",

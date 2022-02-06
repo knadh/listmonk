@@ -110,7 +110,7 @@
             <span>{{ $utils.niceDate(stats.updatedAt, true) }}</span>
           </p>
           <p v-if="stats.startedAt && stats.updatedAt"
-            class="is-capitalized" title="Duration">
+            class="is-capitalized">
             <label><b-icon icon="alarm" size="is-small" /></label>
             <span>{{ $utils.duration(stats.startedAt, stats.updatedAt) }}</span>
           </p>
@@ -142,10 +142,15 @@
               </router-link>
             </span>
           </p>
-          <p title="Speed" v-if="stats.rate">
+          <p v-if="stats.rate">
             <label><b-icon icon="speedometer" size="is-small"></b-icon></label>
             <span class="send-rate">
-              {{ stats.rate.toFixed(0) }} / min
+              <b-tooltip
+                :label="`${stats.netRate} / ${$t('campaigns.rateMinuteShort')} @
+                  ${$utils.duration(stats.startedAt, stats.updatedAt)}`"
+                type="is-dark">
+                {{ stats.rate.toFixed(0) }} / {{ $t('campaigns.rateMinuteShort') }}
+              </b-tooltip>
             </span>
           </p>
           <p v-if="isRunning(props.row.id)">

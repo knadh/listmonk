@@ -57,6 +57,7 @@
     "campaigns.preview": "Vorschau",
     "campaigns.progress": "Fortschritt",
     "campaigns.queryPlaceholder": "Name oder Betreff",
+    "campaigns.rateMinuteShort": "min",
     "campaigns.rawHTML": "HTML Code",
     "campaigns.removeAltText": "Lösche den alternativen unformatierten Text",
     "campaigns.richText": "Rich-Text",
