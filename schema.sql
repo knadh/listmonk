@@ -86,7 +86,7 @@ CREATE TABLE campaigns (
     -- For opt-in campaigns, this will be 'unsubscribed'.
     type campaign_type DEFAULT 'regular',
 
-    -- The ID of the messenger backend used to send this campaign. 
+    -- The ID of the messenger backend used to send this campaign.
     messenger        TEXT NOT NULL,
     template_id      INTEGER REFERENCES templates(id) ON DELETE SET DEFAULT DEFAULT 1,
 
@@ -241,15 +241,80 @@ DROP INDEX IF EXISTS idx_bounces_camp_id; CREATE INDEX idx_bounces_camp_id ON bo
 DROP INDEX IF EXISTS idx_bounces_source; CREATE INDEX idx_bounces_source ON bounces(source);
 DROP INDEX IF EXISTS idx_bounces_date; CREATE INDEX idx_bounces_date ON bounces((TIMEZONE('UTC', created_at)::DATE));
 
+-- affiliates / Jan 26, 2022
+DROP TABLE IF EXISTS affiliates CASCADE;
+CREATE TABLE affiliates (
+    id               SERIAL PRIMARY KEY,
+    userid           TEXT NOT NULL DEFAULT '',
+	status           TEXT NOT NULL DEFAULT '',
+	code             TEXT NOT NULL DEFAULT '',
+	transaction      TEXT NOT NULL DEFAULT '',
+	amount           INT NOT NULL DEFAULT 0,
+	paid           	 INT NOT NULL DEFAULT 0,
+	discount         INT NOT NULL DEFAULT 0,
+    created_at       TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- affiliates_codes / Jan 26, 2022
+DROP TABLE IF EXISTS affiliates_codes CASCADE;
+CREATE TABLE affiliates_codes (
+    id               SERIAL PRIMARY KEY,
+    userid           TEXT NOT NULL DEFAULT '',
+	code             TEXT NOT NULL DEFAULT '',
+	status           TEXT NOT NULL DEFAULT '',
+	commission     	 TEXT NOT NULL DEFAULT '',
+	discount         INT NOT NULL DEFAULT 0,
+    created_at       TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- payments / Jan 26, 2022
+DROP TABLE IF EXISTS payments CASCADE;
+CREATE TABLE payments (
+    id               SERIAL PRIMARY KEY,
+    userid           TEXT NOT NULL DEFAULT '',
+	amount           INT NOT NULL DEFAULT 0,
+	reference        TEXT NOT NULL DEFAULT '',
+	merchant     	 TEXT NOT NULL DEFAULT '',
+	package          TEXT NOT NULL DEFAULT '',
+    created_at       TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- api / Jan 26, 2022
+DROP TABLE IF EXISTS apis CASCADE;
+CREATE TABLE apis (
+    id               SERIAL PRIMARY KEY,
+    userid           TEXT NOT NULL DEFAULT '',
+	key              TEXT NOT NULL DEFAULT '',
+	name             TEXT NOT NULL DEFAULT '',
+    created_at       TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- newsletters / Jan 26, 2022
+DROP TABLE IF EXISTS newsletters CASCADE;
+CREATE TABLE newsletters (
+    id               SERIAL PRIMARY KEY,
+    userid           TEXT NOT NULL DEFAULT '',
+	name             TEXT NOT NULL DEFAULT '',
+	list             JSONB NOT NULL DEFAULT '{}',
+    created_at       TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+
 -- Jan 10, 2022
 DROP TYPE IF EXISTS list_channel CASCADE; CREATE TYPE list_channel AS ENUM ('email', 'sms');
 --ALTER TABLE lists ADD COLUMN channel list_channel NOT NULL DEFAULT 'email';
-ALTER TABLE lists ADD COLUMN userid TEXT NOT NULL DEFAULT 'system';
-ALTER TABLE lists ADD COLUMN meta JSONB NOT NULL DEFAULT '{}';
+ALTER TABLE lists ADD COLUMN IF NOT EXISTS userid TEXT NOT NULL DEFAULT 'system';
+ALTER TABLE lists ADD COLUMN IF NOT EXISTS meta JSONB NOT NULL DEFAULT '{}';
 
-ALTER TABLE subscribers ADD COLUMN userid TEXT NOT NULL DEFAULT 'system';
-ALTER TABLE campaigns ADD COLUMN userid TEXT NOT NULL DEFAULT 'system';
+ALTER TABLE subscribers ADD COLUMN IF NOT EXISTS userid TEXT NOT NULL DEFAULT 'system';
+ALTER TABLE campaigns ADD COLUMN IF NOT EXISTS userid TEXT NOT NULL DEFAULT 'system';
 
 --Jan 18
 ALTER TABLE lists DROP COLUMN channel;
-ALTER TABLE lists ADD COLUMN channel TEXT NOT NULL DEFAULT 'email';
+ALTER TABLE lists ADD COLUMN IF NOT EXISTS channel TEXT NOT NULL DEFAULT 'email';
+
+-- Jan 25
+ALTER TABLE templates ADD COLUMN IF NOT EXISTS text TEXT NOT NULL DEFAULT '';
+ALTER TABLE templates ADD COLUMN IF NOT EXISTS channel TEXT NOT NULL DEFAULT 'email';
+ALTER TABLE templates ADD COLUMN IF NOT EXISTS json TEXT NOT NULL DEFAULT '';
+ALTER TABLE templates ADD COLUMN IF NOT EXISTS status TEXT NOT NULL DEFAULT 'enabled';
