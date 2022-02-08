@@ -148,14 +148,15 @@ type Subscriber struct {
 type SubscriberWithListDetails struct {
 	Base
 
-	UUID    string            `db:"uuid" json:"uuid"`
-	Email   string            `db:"email" json:"email" form:"email"`
-	Name    string            `db:"name" json:"name" form:"name"`
-	Attribs SubscriberAttribs `db:"attribs" json:"attribs"`
-	Status  string            `db:"status" json:"status"`
-	Lists   types.JSONText    `db:"lists" json:"lists"`
-	Userid  string            `db:"userid" json:"userid"`
-	Channel string            `db:"channel" json:"channel"`
+	UUID      string            `db:"uuid" json:"uuid"`
+	Email     string            `db:"email" json:"email" form:"email"`
+	Name      string            `db:"name" json:"name" form:"name"`
+	Attribs   SubscriberAttribs `db:"attribs" json:"attribs"`
+	Status    string            `db:"status" json:"status"`
+	Lists     types.JSONText    `db:"lists" json:"lists"`
+	Userid    string            `db:"userid" json:"userid"`
+	Channel   string            `db:"channel" json:"channel"`
+	Telephone string            `db:"telephone" json:"telephone"`
 }
 
 type subLists struct {
