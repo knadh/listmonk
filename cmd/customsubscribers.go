@@ -40,7 +40,10 @@ func handleQuerySubscribersByUserId(c echo.Context) error {
 
 	// Create a readonly transaction that just does COUNT() to obtain the count of results
 	// and to ensure that the arbitrary query is indeed readonly.
-	stmt := fmt.Sprintf(app.queries.QuerySubscribersByUserIdCount)
+	stmt := fmt.Sprintf(app.queries.QuerySubscribersByUserIdCount, cond)
+
+	//println(stmt)
+
 	tx, err := app.db.BeginTxx(context.Background(), &sql.TxOptions{ReadOnly: true})
 	if err != nil {
 		app.log.Printf("error preparing subscriber query: %v", err)
@@ -57,6 +60,7 @@ func handleQuerySubscribersByUserId(c echo.Context) error {
 				"name", "{globals.terms.subscribers}", "error", pqErrMsg(err)))
 	}
 
+	//println(total)
 	// No results.
 	if total == 0 {
 		return c.JSON(http.StatusOK, okResp{out})
@@ -64,6 +68,8 @@ func handleQuerySubscribersByUserId(c echo.Context) error {
 
 	// Run the query again and fetch the actual data. stmt is the raw SQL query.
 	stmt = fmt.Sprintf(app.queries.QuerySubscribersByUserid, cond, orderBy, order)
+
+	//println(app.queries.QuerySubscribersByUserid)
 
 	if err := tx.Select(&out.Results, stmt, pg.Offset, pg.Limit, userId, channel); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError,

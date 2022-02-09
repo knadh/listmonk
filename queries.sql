@@ -270,7 +270,7 @@ SELECT COUNT(*) AS total FROM subscribers
                                   LEFT JOIN subscriber_lists
                                             ON  subscriber_lists.subscriber_id = subscribers.id
                                   LEFT JOIN lists ON ( subscriber_lists.list_id = lists.id )
-WHERE subscribers.userid = $1 AND CASE WHEN coalesce( trim($2::varchar),'')='' THEN 1 = 1 ELSE lists.channel = $2 END;
+WHERE subscribers.userid = $1 AND CASE WHEN coalesce( trim($2::varchar),'')='' THEN 1 = 1 ELSE lists.channel = $2 END  %s;
 
 -- name: query-subscribers-count-by-userid
 -- Replica of query-subscribers for obtaining the results count.
