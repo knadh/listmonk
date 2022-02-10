@@ -77,6 +77,14 @@ func handleQuerySubscribersByUserId(c echo.Context) error {
 				"name", "{globals.terms.subscribers}", "error", pqErrMsg(err)))
 	}
 
+	// Lazy load lists for each subscriber.
+	if err := out.Results.LoadListsWithDetails(app.queries.GetSubscriberListsLazy); err != nil {
+		app.log.Printf("error fetching subscriber lists: %v", err)
+		return echo.NewHTTPError(http.StatusInternalServerError,
+			app.i18n.Ts("globals.messages.errorFetching",
+				"name", "{globals.terms.subscribers}", "error", pqErrMsg(err)))
+	}
+
 	out.Query = query
 	if len(out.Results) == 0 {
 		out.Results = make(models.SubscribersWithDetails, 0)

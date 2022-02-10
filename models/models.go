@@ -314,9 +314,41 @@ func (subs Subscribers) GetIDs() []int {
 	return IDs
 }
 
+// GetIDs returns the list of subscriber IDs.
+func (subs SubscribersWithDetails) GetIDs() []int {
+	IDs := make([]int, len(subs))
+	for i, c := range subs {
+		IDs[i] = c.ID
+	}
+
+	return IDs
+}
+
 // LoadLists lazy loads the lists for all the subscribers
 // in the Subscribers slice and attaches them to their []Lists property.
 func (subs Subscribers) LoadLists(stmt *sqlx.Stmt) error {
+	var sl []subLists
+	err := stmt.Select(&sl, pq.Array(subs.GetIDs()))
+	if err != nil {
+		return err
+	}
+
+	if len(subs) != len(sl) {
+		return errors.New("campaign stats count does not match")
+	}
+
+	for i, s := range sl {
+		if s.SubscriberID == subs[i].ID {
+			subs[i].Lists = s.Lists
+		}
+	}
+
+	return nil
+}
+
+// LoadLists lazy loads the lists for all the subscribers
+// in the Subscribers slice and attaches them to their []Lists property.
+func (subs SubscribersWithDetails) LoadListsWithDetails(stmt *sqlx.Stmt) error {
 	var sl []subLists
 	err := stmt.Select(&sl, pq.Array(subs.GetIDs()))
 	if err != nil {
