@@ -259,7 +259,8 @@ SELECT subscribers.*,  coalesce (lists.channel, 'NA') as channel FROM subscriber
     LEFT JOIN subscriber_lists
     ON (
         -- Optional list filtering.
-        subscriber_lists.subscriber_id = subscribers.id
+        (CASE WHEN CARDINALITY($1::INT[]) > 0 THEN true ELSE false END)
+        AND subscriber_lists.subscriber_id = subscribers.id
     )
 WHERE subscribers.userid = $3 AND
    CASE WHEN coalesce( trim($4::varchar),'')='' THEN 1 = 1 ELSE lists.channel = $4 END
@@ -272,7 +273,8 @@ SELECT COUNT(*) AS total FROM subscribers
     LEFT JOIN subscriber_lists
     ON (
         -- Optional list filtering.
-        subscriber_lists.subscriber_id = subscribers.id
+        (CASE WHEN CARDINALITY($1::INT[]) > 0 THEN true ELSE false END)
+        AND subscriber_lists.subscriber_id = subscribers.id
     )
 WHERE subscribers.userid = $1 AND CASE WHEN coalesce( trim($2::varchar),'')='' THEN 1 = 1 ELSE lists.channel = $2 END  %s;
 
