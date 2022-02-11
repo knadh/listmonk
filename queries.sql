@@ -529,6 +529,7 @@ SELECT  c.id, c.uuid, c.name, c.subject, c.from_email,
         ) AS lists
 FROM campaigns c
 WHERE userid=$6 AND ($1 = 0 OR id = $1)
+  AND (CASE WHEN $7 = '' THEN 1=1 ELSE messenger=$7 END)
   AND status=ANY(CASE WHEN ARRAY_LENGTH($2::campaign_status[], 1) != 0 THEN $2::campaign_status[] ELSE ARRAY[status] END)
   AND ($3 = '' OR CONCAT(name, subject) ILIKE $3)
 ORDER BY %s %s OFFSET $4 LIMIT (CASE WHEN $5 = 0 THEN NULL ELSE $5 END);

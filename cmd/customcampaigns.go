@@ -23,6 +23,7 @@ func handleGetCampaignsByUserId(c echo.Context) error {
 		order     = c.FormValue("order")
 		noBody, _ = strconv.ParseBool(c.QueryParam("no_body"))
 		userId    = c.Param("userid")
+		messenger = c.FormValue("channel")
 	)
 
 	// Fetch one campaign.
@@ -34,7 +35,7 @@ func handleGetCampaignsByUserId(c echo.Context) error {
 	queryStr, stmt := makeSearchQuery(query, orderBy, order, app.queries.QueryCampaignsByUserId)
 
 	// Unsafe to ignore scanning fields not present in models.Campaigns.
-	if err := db.Select(&out.Results, stmt, id, pq.StringArray(status), queryStr, pg.Offset, pg.Limit, userId); err != nil {
+	if err := db.Select(&out.Results, stmt, id, pq.StringArray(status), queryStr, pg.Offset, pg.Limit, userId, messenger); err != nil {
 		app.log.Printf("error fetching campaigns: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			app.i18n.Ts("globals.messages.errorFetching",
