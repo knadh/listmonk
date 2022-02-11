@@ -4,6 +4,7 @@ go 1.13
 
 require (
 	github.com/Masterminds/sprig/v3 v3.2.2
+	github.com/comilio/go-sms-send v0.0.0-20171228082829-eadf1d63e166 // indirect
 	github.com/disintegration/imaging v1.6.2
 	github.com/emersion/go-message v0.15.0
 	github.com/fsnotify/fsnotify v1.5.1 // indirect
