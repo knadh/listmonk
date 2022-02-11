@@ -471,9 +471,12 @@ counts AS (
     AND subscribers.status='enabled'
 ),
 camp AS (
-    INSERT INTO campaigns (uuid, type, name, subject, from_email, body, altbody, content_type, send_at, headers, tags, messenger, template_id, to_send, max_subscriber_id)
-        SELECT $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, (SELECT id FROM tpl), (SELECT to_send FROM counts), (SELECT max_sub_id FROM counts)
-        RETURNING id
+    INSERT INTO campaigns (uuid, type, name, subject, from_email, body, altbody, content_type, send_at, headers, tags, messenger, template_id, to_send, max_subscriber_id, userid)
+        SELECT $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12,
+               (SELECT id FROM tpl),
+               (SELECT to_send FROM counts), (SELECT max_sub_id FROM counts),
+               $15
+               RETURNING id
 )
 INSERT INTO campaign_lists (campaign_id, list_id, list_name)
     (SELECT (SELECT id FROM camp), id, name FROM lists WHERE id=ANY($14::INT[]))
@@ -526,6 +529,7 @@ SELECT  c.id, c.uuid, c.name, c.subject, c.from_email,
         ) AS lists
 FROM campaigns c
 WHERE userid=$6 AND ($1 = 0 OR id = $1)
+  AND (CASE WHEN $7 = '' THEN 1=1 ELSE messenger=$7 END)
   AND status=ANY(CASE WHEN ARRAY_LENGTH($2::campaign_status[], 1) != 0 THEN $2::campaign_status[] ELSE ARRAY[status] END)
   AND ($3 = '' OR CONCAT(name, subject) ILIKE $3)
 ORDER BY %s %s OFFSET $4 LIMIT (CASE WHEN $5 = 0 THEN NULL ELSE $5 END);
