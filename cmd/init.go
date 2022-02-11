@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"github.com/knadh/listmonk/internal/messenger/sms"
 	"html/template"
 	"os"
 	"path"
@@ -439,6 +440,22 @@ func initSMTPMessenger(m *manager.Manager) messenger.Messenger {
 	msgr, err := email.New(servers...)
 	if err != nil {
 		lo.Fatalf("error loading e-mail messenger: %v", err)
+	}
+
+	return msgr
+}
+
+// initSMTPMessenger initializes the SMTP messenger.
+func initSMSMessenger(m *manager.Manager) messenger.Messenger {
+	var (
+		mapKeys = ko.MapKeys("sms")
+		servers = make([]sms.Server, 0, len(mapKeys))
+	)
+
+	// Initialize the e-mail messenger with multiple SMTP servers.
+	msgr, err := sms.New(servers...)
+	if err != nil {
+		lo.Fatalf("error loading sms messenger: %v", err)
 	}
 
 	return msgr
