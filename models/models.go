@@ -69,6 +69,14 @@ const (
 	EmailHeaderSubscriberUUID = "X-Listmonk-Subscriber"
 	EmailHeaderCampaignUUID   = "X-Listmonk-Campaign"
 
+	// Additional standard headers
+	EmailHeaderDate        = "Date"
+	EmailHeaderFrom        = "From"
+	EmailHeaderSubject     = "Subject"
+	EmailHeaderMessageId   = "Message-Id"
+	EmailHeaderDeliveredTo = "Delivered-To"
+	EmailHeaderReceived    = "Received"
+
 	BounceTypeHard = "hard"
 	BounceTypeSoft = "soft"
 )

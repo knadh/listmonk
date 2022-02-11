@@ -2,6 +2,7 @@ package mailbox
 
 import (
 	"encoding/json"
+	"io"
 	"regexp"
 	"time"
 
@@ -18,8 +19,14 @@ type POP struct {
 }
 
 var (
-	reCampUUID = regexp.MustCompile(`(?m)(?m:^` + models.EmailHeaderCampaignUUID + `:\s+?)([a-z0-9\-]{36})`)
-	reSubUUID  = regexp.MustCompile(`(?m)(?m:^` + models.EmailHeaderSubscriberUUID + `:\s+?)([a-z0-9\-]{36})`)
+	reCampUUID           = regexp.MustCompile(`(?m)(?:^` + models.EmailHeaderCampaignUUID + `:\s+?)([a-z0-9\-]{36})`)
+	reSubUUID            = regexp.MustCompile(`(?m)(?:^` + models.EmailHeaderSubscriberUUID + `:\s+?)([a-z0-9\-]{36})`)
+	reMessageDate        = regexp.MustCompile(`(?m)(?:^` + models.EmailHeaderDate + `:\s+?)([\w,\,\ ,:,+,-]*(?:\(?:\w*\))?)`)
+	reMessageFrom        = regexp.MustCompile(`(?m)(?:^` + models.EmailHeaderFrom + `:\s+?)(.*)`)
+	reMessageSubject     = regexp.MustCompile(`(?m)(?:^` + models.EmailHeaderSubject + `:\s+?)(.*)`)
+	reMessageID          = regexp.MustCompile(`(?m)(?:^` + models.EmailHeaderMessageId + `:\s+?)(.*)`)
+	reMessageDeliveredTo = regexp.MustCompile(`(?m)(?:^` + models.EmailHeaderDeliveredTo + `:\s+?)(.*)`)
+	reMessageReceived    = regexp.MustCompile(`(?m)(?:^` + models.EmailHeaderReceived + `:\s+?)(.*)`)
 )
 
 // NewPOP returns a new instance of the POP mailbox client.
@@ -81,29 +88,84 @@ func (p *POP) Scan(limit int, ch chan models.Bounce) error {
 			return err
 		}
 
-		// Check if the identifiers are available in the parsed message.
-		var (
-			campUUID = m.Header.Get(models.EmailHeaderCampaignUUID)
-			subUUID  = m.Header.Get(models.EmailHeaderSubscriberUUID)
-		)
+		h := m
+
+		// If this is a multipart message, find the last part.
+		if mr := m.MultipartReader(); mr != nil {
+			for {
+				part, err := mr.NextPart()
+				if err == io.EOF {
+					break
+				} else if err != nil {
+					return err
+				}
+				h = part
+			}
+		}
+
+		// Check if the identifiers are available in the parsed header.
+		campUUID := h.Header.Get(models.EmailHeaderCampaignUUID)
+		subUUID := h.Header.Get(models.EmailHeaderSubscriberUUID)
+		messageDate := h.Header.Get(models.EmailHeaderDate)
+		messageFrom := h.Header.Get(models.EmailHeaderFrom)
+		messageSubject := h.Header.Get(models.EmailHeaderSubject)
+		messageID := h.Header.Get(models.EmailHeaderMessageId)
+		messageDeliveredTo := h.Header.Get(models.EmailHeaderDeliveredTo)
+		messageReceived := h.Header.Map()[models.EmailHeaderReceived]
+
+		// Reset the "unread portion" pointer of the message buffer.
+		// If you don't do this, you can't read the entire body because the pointer will not point to the beginning.
+		b, _ = c.RetrRaw(id)
 
 		// If they are not, try to extract them from the message body.
 		if campUUID == "" {
-			if u := reCampUUID.FindSubmatch(b.Bytes()); len(u) == 2 {
-				campUUID = string(u[1])
+			if u := reCampUUID.FindAllSubmatch(b.Bytes(), -1); u != nil {
+				campUUID = string(u[len(u)-1][1])
+			} else {
+				continue
 			}
 		}
 		if subUUID == "" {
-			if u := reSubUUID.FindSubmatch(b.Bytes()); len(u) == 2 {
-				subUUID = string(u[1])
+			if u := reSubUUID.FindAllSubmatch(b.Bytes(), -1); u != nil {
+				subUUID = string(u[len(u)-1][1])
+			} else {
+				continue
+			}
+		}
+		if messageDate == "" {
+			if u := reMessageDate.FindAllSubmatch(b.Bytes(), -1); u != nil {
+				messageDate = string(u[len(u)-1][1])
+			}
+		}
+		if messageFrom == "" {
+			if u := reMessageFrom.FindAllSubmatch(b.Bytes(), -1); u != nil {
+				messageFrom = string(u[len(u)-1][1])
+			}
+		}
+		if messageSubject == "" {
+			if u := reMessageSubject.FindAllSubmatch(b.Bytes(), -1); u != nil {
+				messageSubject = string(u[len(u)-1][1])
+			}
+		}
+		if messageID == "" {
+			if u := reMessageID.FindAllSubmatch(b.Bytes(), -1); u != nil {
+				messageID = string(u[len(u)-1][1])
+			}
+		}
+		if messageDeliveredTo == "" {
+			if u := reMessageDeliveredTo.FindAllSubmatch(b.Bytes(), -1); u != nil {
+				messageDeliveredTo = string(u[len(u)-1][1])
+			}
+		}
+		if len(messageReceived) == 0 {
+			if u := reMessageReceived.FindAllSubmatch(b.Bytes(), -1); u != nil {
+				for i := 0; i < len(u); i++ {
+					messageReceived = append(messageReceived, string(u[i][1]))
+				}
 			}
 		}
 
-		if campUUID == "" || subUUID == "" {
-			continue
-		}
-
-		date, _ := time.Parse("Mon, 02 Jan 2006 15:04:05 -0700", m.Header.Get("Date"))
+		date, _ := time.Parse("Mon, 02 Jan 2006 15:04:05 -0700", messageDate)
 		if date.IsZero() {
 			date = time.Now()
 		}
@@ -116,11 +178,11 @@ func (p *POP) Scan(limit int, ch chan models.Bounce) error {
 			DeliveredTo string   `json:"delivered_to"`
 			Received    []string `json:"received"`
 		}{
-			From:        m.Header.Get("From"),
-			Subject:     m.Header.Get("Subject"),
-			MessageID:   m.Header.Get("Message-Id"),
-			DeliveredTo: m.Header.Get("Delivered-To"),
-			Received:    m.Header.Map()["Received"],
+			From:        messageFrom,
+			Subject:     messageSubject,
+			MessageID:   messageID,
+			DeliveredTo: messageDeliveredTo,
+			Received:    messageReceived,
 		})
 
 		select {
@@ -130,7 +192,7 @@ func (p *POP) Scan(limit int, ch chan models.Bounce) error {
 			SubscriberUUID: subUUID,
 			Source:         p.opt.Host,
 			CreatedAt:      date,
-			Meta:           json.RawMessage(meta),
+			Meta:           meta,
 		}:
 		default:
 		}
