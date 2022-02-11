@@ -2,7 +2,6 @@ package sms
 
 import (
 	"errors"
-	"github.com/comilio/go-sms-send"
 	"github.com/knadh/listmonk/internal/messenger"
 )
 
@@ -10,9 +9,9 @@ const emName = "sms"
 
 // Server represents an SMTP server's credentials.
 type Server struct {
-	Username  string `json:"username"`
-	Password  string `json:"password"`
-	smsSender *sms.SMS
+	Username string `json:"username"`
+	Password string `json:"password"`
+	//smsSender *sms.SMS
 }
 
 type SMSSender struct {
@@ -21,15 +20,15 @@ type SMSSender struct {
 
 // New returns an SMTP e-mail Messenger backend with a the given SMTP servers.
 func New(servers ...Server) (*SMSSender, error) {
-	var SMS sms.SMS
-
+	//var SMS sms.SMS
+	//https://github.com/linxGnu/gosmpp/blob/master/example/main.go
 	e := &SMSSender{
 		servers: make([]*Server, 0, len(servers)),
 	}
 
 	for _, srv := range servers {
 		s := srv
-		SMS.Auth(s.Username, s.Password)
+		//SMS.Auth(s.Username, s.Password)
 		e.servers = append(e.servers, &s)
 	}
 
