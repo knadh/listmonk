@@ -4,7 +4,9 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"github.com/knadh/listmonk/internal/messenger/sms"
 	"html/template"
+	"log"
 	"os"
 	"path"
 	"path/filepath"
@@ -444,6 +446,47 @@ func initSMTPMessenger(m *manager.Manager) messenger.Messenger {
 	return msgr
 }
 
+// initSMSMessenger initializes the SMS messenger.
+func initSMSMessenger(m *manager.Manager) messenger.Messenger {
+	var (
+		mapKeys = ko.MapKeys("sms")
+		servers = make([]sms.Server, 0, len(mapKeys))
+	)
+
+	items := ko.Slices("sms")
+	if len(items) == 0 {
+		lo.Fatalf("no SMS servers found in config")
+	}
+
+	// Load the config for multipme SMTP servers.
+	for _, item := range items {
+		if !item.Bool("enabled") {
+			continue
+		}
+
+		// Read the SMTP config.
+		var s sms.Server
+		if err := item.UnmarshalWithConf("", &s, koanf.UnmarshalConf{Tag: "json"}); err != nil {
+			lo.Fatalf("error reading SMS config: %v", err)
+		}
+
+		servers = append(servers, s)
+		lo.Printf("loaded email (SMS) messenger: %s@%s",
+			item.String("username"), item.String("host"))
+	}
+	if len(servers) == 0 {
+		lo.Fatalf("no SMS servers enabled in settings")
+	}
+
+	// Initialize the e-mail messenger with multiple SMTP servers.
+	msgr, err := sms.New(servers...)
+	if err != nil {
+		lo.Fatalf("error loading SMS messenger: %v", err)
+	}
+
+	return msgr
+}
+
 // initPostbackMessengers initializes and returns all the enabled
 // HTTP postback messenger backends.
 func initPostbackMessengers(m *manager.Manager) []messenger.Messenger {
@@ -454,6 +497,7 @@ func initPostbackMessengers(m *manager.Manager) []messenger.Messenger {
 
 	var out []messenger.Messenger
 	for _, item := range items {
+		log.Println(item)
 		if !item.Bool("enabled") {
 			continue
 		}

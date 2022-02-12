@@ -7,6 +7,7 @@ require (
 	github.com/disintegration/imaging v1.6.2
 	github.com/emersion/go-message v0.15.0
 	github.com/fsnotify/fsnotify v1.5.1 // indirect
+	github.com/go-resty/resty/v2 v2.7.0 // indirect
 	github.com/gofrs/uuid v4.0.0+incompatible
 	github.com/google/uuid v1.3.0 // indirect
 	github.com/huandu/xstrings v1.3.2 // indirect
