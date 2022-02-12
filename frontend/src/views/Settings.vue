@@ -243,7 +243,6 @@ export default Vue.extend({
   },
 
   watch: {
-    // Capture contentType and body passed from the parent as props.
     tab(t) {
       this.$utils.setPref('settings.tab', t);
     },
