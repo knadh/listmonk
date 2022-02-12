@@ -2,6 +2,8 @@ package sms
 
 import (
 	"errors"
+	"fmt"
+	"github.com/go-resty/resty/v2"
 	"github.com/knadh/listmonk/internal/messenger"
 )
 
@@ -9,9 +11,9 @@ const emName = "sms"
 
 // Server represents an SMTP server's credentials.
 type Server struct {
-	Username string `json:"username"`
-	Password string `json:"password"`
-	//smsSender *sms.SMS
+	Username  string `json:"username"`
+	Password  string `json:"password"`
+	smsSender *resty.Client
 }
 
 type SMSSender struct {
@@ -39,18 +41,29 @@ func (e *SMSSender) Name() string {
 	return emName
 }
 
+//https://github.com/go-resty/resty
 func (e *SMSSender) Push(m messenger.Message) error {
-	/*var (
-		ln  = len(e.servers)
-		srv *Server
-	)
-	if ln > 1 {
-		srv = e.servers[rand.Intn(ln)]
-	} else {
-		srv = e.servers[0]
-	}*/
-	//return srv.smsSender.Send(m.To, m.Body, "Classic")
-	return errors.New("Not implemented")
+	client := resty.New()
+
+	resp, err := client.R().
+		SetHeader("Accept", "application/json").
+		SetHeader("Content-Type", "application/x-www-form-urlencoded").
+		SetHeader("apiKey", "").
+		SetBody(`{"to":"to", "message":"1212123", "from": "from"}`).
+		EnableTrace().
+		Post("https://api.sandbox.africastalking.com/version1/messaging")
+
+	// Explore response object
+	fmt.Println("Response Info:")
+	fmt.Println("  Error      :", err)
+	fmt.Println("  Status Code:", resp.StatusCode())
+	fmt.Println("  Status     :", resp.Status())
+	fmt.Println("  Proto      :", resp.Proto())
+	fmt.Println("  Time       :", resp.Time())
+	fmt.Println("  Received At:", resp.ReceivedAt())
+	fmt.Println("  Body       :\n", resp)
+	fmt.Println()
+	return errors.New("Still Not implemented")
 }
 
 func (e *SMSSender) Flush() error {
