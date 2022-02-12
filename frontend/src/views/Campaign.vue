@@ -440,7 +440,7 @@ export default Vue.extend({
     },
 
     messengers() {
-      return ['email', ...this.settings.messengers.map((m) => m.name)];
+      return ['email', 'sms', ...this.settings.messengers.map((m) => m.name)];
     },
   },
 
