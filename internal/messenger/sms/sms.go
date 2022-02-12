@@ -5,34 +5,39 @@ import (
 	"fmt"
 	"github.com/go-resty/resty/v2"
 	"github.com/knadh/listmonk/internal/messenger"
+	"log"
+	"math/rand"
 )
 
 const emName = "sms"
 
 // Server represents an SMTP server's credentials.
 type Server struct {
-	Username  string `json:"username"`
-	Password  string `json:"password"`
-	smsSender *resty.Client
+	Username   string `json:"username"`
+	Password   string `json:"password"`
+	Host       string `json:"host"`
+	ApiKey     string `json:"api_key"`
+	RestClient *resty.Client
 }
 
 type SMSSender struct {
 	servers []*Server
 }
 
-// New returns an SMTP e-mail Messenger backend with a the given SMTP servers.
+// New returns an SMS sms Messenger backend with a the given SMTP servers.
 func New(servers ...Server) (*SMSSender, error) {
-	//var SMS sms.SMS
-	//https://github.com/linxGnu/gosmpp/blob/master/example/main.go
 	e := &SMSSender{
 		servers: make([]*Server, 0, len(servers)),
 	}
 
 	for _, srv := range servers {
 		s := srv
-		//SMS.Auth(s.Username, s.Password)
+		s.RestClient = resty.New()
 		e.servers = append(e.servers, &s)
+		log.Println("Setting SMS Server on " + srv.Host + " " + srv.ApiKey)
 	}
+
+	log.Println(len(servers))
 
 	return e, nil
 }
@@ -45,31 +50,45 @@ func (e *SMSSender) Name() string {
 func (e *SMSSender) Push(m messenger.Message) error {
 	client := resty.New()
 
-	resp, err := client.R().
-		SetHeader("Accept", "application/json").
-		SetHeader("Content-Type", "application/x-www-form-urlencoded").
-		SetHeader("apiKey", "").
-		SetBody(`{"to":"to", "message":"1212123", "from": "from"}`).
-		EnableTrace().
-		Post("https://api.sandbox.africastalking.com/version1/messaging")
+	var (
+		ln  = len(e.servers)
+		srv *Server
+	)
+	if ln > 1 {
+		srv = e.servers[rand.Intn(ln)]
+	} else {
+		srv = e.servers[0]
+	}
 
-	// Explore response object
-	fmt.Println("Response Info:")
-	fmt.Println("  Error      :", err)
-	fmt.Println("  Status Code:", resp.StatusCode())
-	fmt.Println("  Status     :", resp.Status())
-	fmt.Println("  Proto      :", resp.Proto())
-	fmt.Println("  Time       :", resp.Time())
-	fmt.Println("  Received At:", resp.ReceivedAt())
-	fmt.Println("  Body       :\n", resp)
-	fmt.Println()
-	return errors.New("Still Not implemented")
+	for _, subscriberContact := range m.To {
+		log.Println(subscriberContact)
+		var messageContent = `{"to":"` + subscriberContact + `", "message":"` + string([]byte(m.Body)) + `", "from": "` + m.From + `"}`
+		resp, err := client.R().
+			SetHeader("Accept", "application/json").
+			SetHeader("Content-Type", "application/x-www-form-urlencoded").
+			SetHeader("apiKey", srv.ApiKey).
+			SetBody(messageContent).
+			EnableTrace().
+			Post(srv.Host)
+
+		fmt.Println("Response Info:")
+		fmt.Println("  Error      :", err)
+		fmt.Println("  Status Code:", resp.StatusCode())
+		fmt.Println("  Status     :", resp.Status())
+		fmt.Println("  Proto      :", resp.Proto())
+		fmt.Println("  Time       :", resp.Time())
+		fmt.Println("  Received At:", resp.ReceivedAt())
+		fmt.Println("  Body       :\n", resp)
+		fmt.Println()
+
+	}
+	return errors.New("still Not implemented")
 }
 
 func (e *SMSSender) Flush() error {
-	return errors.New("Not implemented")
+	return errors.New("not implemented")
 }
 
 func (e *SMSSender) Close() error {
-	return errors.New("Not implemented")
+	return errors.New("not implemented")
 }
