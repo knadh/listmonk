@@ -4,7 +4,6 @@ go 1.13
 
 require (
 	github.com/Masterminds/sprig/v3 v3.2.2
-	github.com/comilio/go-sms-send v0.0.0-20171228082829-eadf1d63e166 // indirect
 	github.com/disintegration/imaging v1.6.2
 	github.com/emersion/go-message v0.15.0
 	github.com/fsnotify/fsnotify v1.5.1 // indirect
@@ -22,7 +21,6 @@ require (
 	github.com/labstack/echo/v4 v4.6.1
 	github.com/labstack/gommon v0.3.1 // indirect
 	github.com/lib/pq v1.10.3
-	github.com/linxGnu/gosmpp v0.1.3 // indirect
 	github.com/mailru/easyjson v0.7.7
 	github.com/mattn/go-colorable v0.1.12 // indirect
 	github.com/mitchellh/mapstructure v1.4.2 // indirect
