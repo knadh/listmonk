@@ -167,7 +167,7 @@ func handleUpdateSettings(c echo.Context) error {
 			has = true
 		}
 
-		// Assign a UUID. The frontend only sends a password when the user explictly
+		// Assign a UUID. The frontend only sends a password when the user explicitly
 		// changes the password. In other cases, the existing password in the DB
 		// is copied while updating the settings and the UUID is used to match
 		// the incoming array of SMTP blocks with the array in the DB.
@@ -191,7 +191,7 @@ func handleUpdateSettings(c echo.Context) error {
 
 	// Bounce boxes.
 	for i, s := range set.BounceBoxes {
-		// Assign a UUID. The frontend only sends a password when the user explictly
+		// Assign a UUID. The frontend only sends a password when the user explicitly
 		// changes the password. In other cases, the existing password in the DB
 		// is copied while updating the settings and the UUID is used to match
 		// the incoming array of blocks with the array in the DB.
@@ -316,7 +316,7 @@ func getSettings(app *App) (settings, error) {
 				"name", "{globals.terms.settings}", "error", pqErrMsg(err)))
 	}
 
-	// Unmarshall the settings and filter out sensitive fields.
+	// Unmarshal the settings and filter out sensitive fields.
 	if err := json.Unmarshal([]byte(b), &out); err != nil {
 		return out, echo.NewHTTPError(http.StatusInternalServerError,
 			app.i18n.Ts("settings.errorEncoding", "error", err.Error()))

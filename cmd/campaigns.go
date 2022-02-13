@@ -684,7 +684,7 @@ func handleGetCampaignViewAnalytics(c echo.Context) error {
 	return c.JSON(http.StatusOK, okResp{out})
 }
 
-// sendTestMessage takes a campaign and a subsriber and sends out a sample campaign message.
+// sendTestMessage takes a campaign and a subscriber and sends out a sample campaign message.
 func sendTestMessage(sub models.Subscriber, camp *models.Campaign, app *App) error {
 	if err := camp.CompileTemplate(app.manager.TemplateFuncs(camp)); err != nil {
 		app.log.Printf("error compiling template: %v", err)
