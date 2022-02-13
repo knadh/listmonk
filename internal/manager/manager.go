@@ -607,7 +607,7 @@ func (m *Manager) nextSubscribers(c *models.Campaign, batchSize int) (bool, erro
 	return true, nil
 }
 
-// isCampaignProcessing checks if the campaign is bing processed.
+// isCampaignProcessing checks if the campaign is being processed.
 func (m *Manager) isCampaignProcessing(id int) bool {
 	m.campsMut.RLock()
 	_, ok := m.camps[id]
