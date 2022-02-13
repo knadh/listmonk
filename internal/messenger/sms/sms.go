@@ -60,29 +60,31 @@ func (e *SMSSender) Push(m messenger.Message) error {
 		srv = e.servers[0]
 	}
 
-	for _, subscriberContact := range m.To {
-		log.Println(subscriberContact)
-		var messageContent = `{"to":"` + subscriberContact + `", "message":"` + string([]byte(m.Body)) + `", "from": "` + m.From + `"}`
-		resp, err := client.R().
-			SetHeader("Accept", "application/json").
-			SetHeader("Content-Type", "application/x-www-form-urlencoded").
-			SetHeader("apiKey", srv.ApiKey).
-			SetBody(messageContent).
-			EnableTrace().
-			Post(srv.Host)
+	log.Println(`{"to":"` + m.Subscriber.Telephone + `", "message":"` + string([]byte(m.Body)) + `", "from": "` + m.Subscriber.Telephone + `"}`)
 
-		fmt.Println("Response Info:")
-		fmt.Println("  Error      :", err)
-		fmt.Println("  Status Code:", resp.StatusCode())
-		fmt.Println("  Status     :", resp.Status())
-		fmt.Println("  Proto      :", resp.Proto())
-		fmt.Println("  Time       :", resp.Time())
-		fmt.Println("  Received At:", resp.ReceivedAt())
-		fmt.Println("  Body       :\n", resp)
-		fmt.Println()
+	resp, err := client.R().
+		SetHeader("Accept", "application/json").
+		SetHeader("Content-Type", "application/x-www-form-urlencoded").
+		SetHeader("apiKey", srv.ApiKey).
+		SetFormData(map[string]string{
+			"username": srv.Username,
+			"to":       m.Subscriber.Telephone,
+			"from":     m.From,
+			"message":  string([]byte(m.Body)),
+		}).
+		EnableTrace().
+		Post(srv.Host)
 
-	}
-	return errors.New("still Not implemented")
+	fmt.Println("Response Info:")
+	fmt.Println("  Error      :", err)
+	fmt.Println("  Status Code:", resp.StatusCode())
+	fmt.Println("  Status     :", resp.Status())
+	fmt.Println("  Proto      :", resp.Proto())
+	fmt.Println("  Time       :", resp.Time())
+	fmt.Println("  Received At:", resp.ReceivedAt())
+	fmt.Println("  Body       :\n", resp)
+	fmt.Println()
+	return err
 }
 
 func (e *SMSSender) Flush() error {
