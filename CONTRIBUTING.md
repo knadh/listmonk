@@ -13,7 +13,7 @@ Welcome to listmonk! You can contribute to the project in the following ways:
 	3. It is the responsibility of the requester to clearly explain and justify why a change is warranted. It is not the responsibility of the maintainers to coax this information out of a requester. So, please post well researched, well thought out, and detailed feature requests saving everyone time.
 	4. Maintainers may close unclear feature requests that lack enough information. [Suggest a feature here](https://github.com/knadh/listmonk/issues/new?assignees=&labels=enhancement&template=feature-or-change-request.md&title=).
 
-3. **Improving docs:** You can submit corrections and improvements to the [documentation](https://listmonk.app/docs) website on the [docs repo](https://github.com/knadh/listmonk-docs).
+3. **Improving docs:** You can submit corrections and improvements to the [documentation](https://listmonk.app/docs) website on the [docs repo](https://github.com/knadh/listmonk-site).
 
 4. **i18n translations:** The project is available in many languages thanks to user contributions. You can create a new language pack or submit corrections to existing ones. There is a UI available for making translations easy. [More info here](https://listmonk.app/docs/i18n/).
 

@@ -7,7 +7,7 @@
   font-style: normal;
   font-weight: 400;
   src: local(''),
-       url('assets/icons/inter-v3-regular.woff2') format('woff2'),
+       url('assets/fonts/Inter-Regular.woff2') format('woff2'),
 }
 
 /* import inter-600 */
@@ -16,7 +16,7 @@
   font-style: normal;
   font-weight: 600;
   src: local(''),
-       url('assets/icons/inter-v3-600.woff2') format('woff2'),
+       url('assets/fonts/Inter-Bold.woff2') format('woff2'),
 }
 
 $body-family: "Inter", "Helvetica Neue", sans-serif;
