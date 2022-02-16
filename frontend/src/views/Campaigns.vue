@@ -350,7 +350,7 @@ export default Vue.extend({
     },
 
     // Stats returns the campaign object with stats (sent, toSend etc.)
-    // if there's live stats availabe for running campaigns. Otherwise,
+    // if there's live stats available for running campaigns. Otherwise,
     // it returns the incoming campaign object that has the static stats
     // values.
     getCampaignStats(c) {
