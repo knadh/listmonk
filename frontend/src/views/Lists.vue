@@ -61,7 +61,7 @@
       </b-table-column>
 
       <b-table-column v-slot="props" field="type" :label="$t('globals.fields.type')"
-        header-class="cy-type" sortable>
+        header-class="cy-type" sortable width="15%">
         <div class="tags">
           <b-tag :class="props.row.type" :data-cy="`type-${props.row.type}`">
             {{ $t(`lists.types.${props.row.type}`) }}
@@ -92,6 +92,16 @@
         <router-link :to="`/subscribers/lists/${props.row.id}`">
           {{ $utils.formatNumber(props.row.subscriberCount) }}
         </router-link>
+      </b-table-column>
+
+      <b-table-column v-slot="props" field="subscriber_counts"
+        header-class="cy-subscribers" width="10%">
+        <div class="fields stats">
+          <p v-for="(count, status) in props.row.subscriberStatuses" :key="status">
+            <label>{{ $t(`subscribers.status.${status}`) }}</label>
+            <span :class="status">{{ $utils.formatNumber(count) }}</span>
+          </p>
+        </div>
       </b-table-column>
 
       <b-table-column v-slot="props" field="created_at" :label="$t('globals.fields.createdAt')"

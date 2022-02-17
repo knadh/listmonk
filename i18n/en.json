@@ -57,6 +57,7 @@
     "campaigns.preview": "Preview",
     "campaigns.progress": "Progress",
     "campaigns.queryPlaceholder": "Name or subject",
+    "campaigns.rateMinuteShort": "min",
     "campaigns.rawHTML": "Raw HTML",
     "campaigns.removeAltText": "Remove alternate plain text message",
     "campaigns.richText": "Rich text",

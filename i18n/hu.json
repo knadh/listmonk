@@ -57,6 +57,7 @@
     "campaigns.preview": "Előnézet",
     "campaigns.progress": "Folyamatban",
     "campaigns.queryPlaceholder": "Név vagy tárgy",
+    "campaigns.rateMinuteShort": "min",
     "campaigns.rawHTML": "Nyers (Raw) HTML",
     "campaigns.removeAltText": "Alternatív egyszerű szöveges üzenet eltávolítása",
     "campaigns.richText": "Rich text",

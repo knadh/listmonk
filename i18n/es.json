@@ -57,6 +57,7 @@
     "campaigns.preview": "Vista previa",
     "campaigns.progress": "Progreso",
     "campaigns.queryPlaceholder": "Nombre o asunto",
+    "campaigns.rateMinuteShort": "min",
     "campaigns.rawHTML": "HTML crudo",
     "campaigns.removeAltText": "Eliminar mensaje en texto plano alternativo",
     "campaigns.richText": "Texto enriquecido",

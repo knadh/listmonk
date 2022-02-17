@@ -104,7 +104,7 @@ func initFlags() {
 	f.StringSlice("config", []string{"config.toml"},
 		"path to one or more config files (will be merged in order)")
 	f.Bool("install", false, "setup database (first time)")
-	f.Bool("idempotent", false, "make --install run only if the databse isn't already setup")
+	f.Bool("idempotent", false, "make --install run only if the database isn't already setup")
 	f.Bool("upgrade", false, "upgrade database to the current version")
 	f.Bool("version", false, "show current version of the build")
 	f.Bool("new-config", false, "generate sample config file")
@@ -129,13 +129,13 @@ func initConfigFiles(files []string, ko *koanf.Koanf) {
 			if os.IsNotExist(err) {
 				lo.Fatal("config file not found. If there isn't one yet, run --new-config to generate one.")
 			}
-			lo.Fatalf("error loadng config from file: %v.", err)
+			lo.Fatalf("error loading config from file: %v.", err)
 		}
 	}
 }
 
 // initFileSystem initializes the stuffbin FileSystem to provide
-// access to bunded static assets to the app.
+// access to bundled static assets to the app.
 func initFS(appDir, frontendDir, staticDir, i18nDir string) stuffbin.FileSystem {
 	var (
 		// stuffbin real_path:virtual_alias paths to map local assets on disk
@@ -429,7 +429,7 @@ func initSMTPMessenger(m *manager.Manager) messenger.Messenger {
 		lo.Fatalf("no SMTP servers found in config")
 	}
 
-	// Load the config for multipme SMTP servers.
+	// Load the config for multiple SMTP servers.
 	for _, item := range items {
 		if !item.Bool("enabled") {
 			continue

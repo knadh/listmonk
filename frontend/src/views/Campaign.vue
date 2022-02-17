@@ -406,12 +406,7 @@ export default Vue.extend({
 
     // Starts or schedule a campaign.
     startCampaign() {
-      let status = '';
-      if (this.canStart) {
-        status = 'running';
-      } else if (this.canSchedule) {
-        status = 'scheduled';
-      } else {
+      if (!this.canStart && !this.canSchedule) {
         return;
       }
 
@@ -420,6 +415,15 @@ export default Vue.extend({
           // First save the campaign.
           this.updateCampaign().then(() => {
             // Then start/schedule it.
+            let status = '';
+            if (this.canStart) {
+              status = 'running';
+            } else if (this.canSchedule) {
+              status = 'scheduled';
+            } else {
+              return;
+            }
+
             this.$api.changeCampaignStatus(this.data.id, status).then(() => {
               this.$router.push({ name: 'campaigns' });
             });

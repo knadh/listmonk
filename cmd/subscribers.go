@@ -31,6 +31,7 @@ type subQueryReq struct {
 	TargetListIDs pq.Int64Array `json:"target_list_ids"`
 	SubscriberIDs pq.Int64Array `json:"ids"`
 	Action        string        `json:"action"`
+	Status        string        `json:"status"`
 }
 
 type subsWrap struct {
@@ -476,7 +477,7 @@ func handleManageSubscriberLists(c echo.Context) error {
 	var err error
 	switch req.Action {
 	case "add":
-		_, err = app.queries.AddSubscribersToLists.Exec(IDs, req.TargetListIDs)
+		_, err = app.queries.AddSubscribersToLists.Exec(IDs, req.TargetListIDs, req.Status)
 	case "remove":
 		_, err = app.queries.DeleteSubscriptions.Exec(IDs, req.TargetListIDs)
 	case "unsubscribe":
