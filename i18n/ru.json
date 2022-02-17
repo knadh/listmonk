@@ -57,6 +57,7 @@
     "campaigns.preview": "Предпросмотр",
     "campaigns.progress": "Прогресс",
     "campaigns.queryPlaceholder": "Имя темы",
+    "campaigns.rateMinuteShort": "min",
     "campaigns.rawHTML": "Необработанный HTML",
     "campaigns.removeAltText": "Удалить альтернативное простое текстовое сообщение",
     "campaigns.richText": "Форматированный текст",

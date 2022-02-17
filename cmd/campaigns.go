@@ -67,7 +67,8 @@ type campaignStats struct {
 	Sent      int       `db:"sent" json:"sent"`
 	Started   null.Time `db:"started_at" json:"started_at"`
 	UpdatedAt null.Time `db:"updated_at" json:"updated_at"`
-	Rate      float64   `json:"rate"`
+	Rate      int       `json:"rate"`
+	NetRate   int       `json:"net_rate"`
 }
 
 type campsWrap struct {
@@ -522,17 +523,21 @@ func handleGetRunningCampaignStats(c echo.Context) error {
 	// Compute rate.
 	for i, c := range out {
 		if c.Started.Valid && c.UpdatedAt.Valid {
-			diff := c.UpdatedAt.Time.Sub(c.Started.Time).Minutes()
-			if diff > 0 {
-				var (
-					sent = float64(c.Sent)
-					rate = sent / diff
-				)
-				if rate > sent || rate > float64(c.ToSend) {
-					rate = sent
-				}
-				out[i].Rate = rate
+			diff := int(c.UpdatedAt.Time.Sub(c.Started.Time).Minutes())
+			if diff < 1 {
+				diff = 1
 			}
+
+			rate := c.Sent / diff
+			if rate > c.Sent || rate > c.ToSend {
+				rate = c.Sent
+			}
+
+			// Rate since the starting of the campaign.
+			out[i].NetRate = rate
+
+			// Realtime running rate over the last minute.
+			out[i].Rate = app.manager.GetCampaignStats(c.ID).SendRate
 		}
 	}
 
@@ -774,7 +779,7 @@ loop:
 	return nil
 }
 
-// sendTestMessage takes a campaign and a subsriber and sends out a sample campaign message.
+// sendTestMessage takes a campaign and a subscriber and sends out a sample campaign message.
 func sendTestMessage(sub models.Subscriber, camp *models.Campaign, app *App) error {
 	if err := camp.CompileTemplate(app.manager.TemplateFuncs(camp)); err != nil {
 		app.log.Printf("error compiling template: %v", err)

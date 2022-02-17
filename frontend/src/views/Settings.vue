@@ -21,7 +21,7 @@
       <hr />
 
       <section class="wrap">
-          <b-tabs type="is-boxed" :animated="false">
+          <b-tabs type="is-boxed" :animated="false" v-model="tab">
             <b-tab-item :label="$t('settings.general.name')" label-position="on-border">
               <general-settings :form="form" :key="key" />
             </b-tab-item><!-- general -->
@@ -98,6 +98,7 @@ export default Vue.extend({
       // form is compared to detect changes.
       formCopy: '',
       form: {},
+      tab: 0,
     };
   },
 
@@ -237,7 +238,14 @@ export default Vue.extend({
   },
 
   mounted() {
+    this.tab = this.$utils.getPref('settings.tab') || 0;
     this.getSettings();
+  },
+
+  watch: {
+    tab(t) {
+      this.$utils.setPref('settings.tab', t);
+    },
   },
 });
 </script>
