@@ -55,7 +55,7 @@ type campStatsData struct {
 	CampaignName string      `db:"campaign_name" json:"campaign_name,omitempty"`
 	Email        null.String `db:"suscriber_email" json:"-"`
 	URL          string      `db:"url" json:"url,omitempty"`
-	Count        int         `db:"count" json:"count,omitempty"`
+	Count        int         `db:"count" json:"count"`
 	Source       string      `db:"source" json:"source,omitempty"`
 	Timestamp    time.Time   `db:"timestamp" json:"timestamp,omitempty"`
 }
