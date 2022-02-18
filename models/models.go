@@ -234,6 +234,7 @@ type Campaign struct {
 	// in searches and queries.
 	Total  int    `db:"total" json:"-"`
 	Userid string `db:"userid" json:"userid"`
+	Json   string `db:"json" json:"json"`
 }
 
 // CampaignMeta contains fields tracking a campaign's progress.

@@ -296,7 +296,7 @@ func handleCreateCampaign(c echo.Context) error {
 		pq.StringArray(normalizeTags(o.Tags)),
 		o.Messenger,
 		o.TemplateID,
-		o.ListIDs, o.Userid,
+		o.ListIDs, o.Userid, o.Json,
 	); err != nil {
 		if err == sql.ErrNoRows {
 			return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("campaigns.noSubs"))
