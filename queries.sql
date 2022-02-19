@@ -471,11 +471,11 @@ counts AS (
     AND subscribers.status='enabled'
 ),
 camp AS (
-    INSERT INTO campaigns (uuid, type, name, subject, from_email, body, altbody, content_type, send_at, headers, tags, messenger, template_id, to_send, max_subscriber_id, userid, json)
-        SELECT $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12,
+    INSERT INTO campaigns (uuid, type, name, subject, from_email, body, altbody, content_type, send_at, headers, tags, messenger, template_id, to_send, max_subscriber_id, json, userid)
+        SELECT $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $16,
                (SELECT id FROM tpl),
                (SELECT to_send FROM counts), (SELECT max_sub_id FROM counts),
-               $15, $16
+               $15
                RETURNING id
 )
 INSERT INTO campaign_lists (campaign_id, list_id, list_name)
