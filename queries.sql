@@ -448,7 +448,7 @@ WITH campLists AS (
     -- Get the list_ids and their optin statuses for the campaigns found in the previous step.
     SELECT lists.id AS list_id, campaign_id, optin FROM lists
     INNER JOIN campaign_lists ON (campaign_lists.list_id = lists.id)
-    WHERE lists.id = ANY($15::INT[])
+    WHERE lists.id = ANY($14::INT[])
 ),
 tpl AS (
     -- If there's no template_id given, use the defualt template.
@@ -457,7 +457,7 @@ tpl AS (
 counts AS (
     SELECT COALESCE(COUNT(id), 0) as to_send, COALESCE(MAX(id), 0) as max_sub_id
     FROM subscribers
-    LEFT JOIN campLists ON (campLists.campaign_id = ANY($15::INT[]))
+    LEFT JOIN campLists ON (campLists.campaign_id = ANY($14::INT[]))
     LEFT JOIN subscriber_lists ON (
         subscriber_lists.status != 'unsubscribed' AND
         subscribers.id = subscriber_lists.subscriber_id AND
@@ -467,19 +467,19 @@ counts AS (
         -- any status except for 'unsubscribed' (already excluded above) works.
         (CASE WHEN campLists.optin = 'double' THEN subscriber_lists.status = 'confirmed' ELSE true END)
     )
-    WHERE subscriber_lists.list_id=ANY($15::INT[])
+    WHERE subscriber_lists.list_id=ANY($14::INT[])
     AND subscribers.status='enabled'
 ),
 camp AS (
     INSERT INTO campaigns (uuid, type, name, subject, from_email, body, altbody, content_type, send_at, headers, tags, messenger, template_id, to_send, max_subscriber_id, userid, json)
-        SELECT $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $14,
+        SELECT $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $15,
                (SELECT id FROM tpl),
                (SELECT to_send FROM counts), (SELECT max_sub_id FROM counts),
                $16
                RETURNING id
 )
 INSERT INTO campaign_lists (campaign_id, list_id, list_name)
-    (SELECT (SELECT id FROM camp), id, name FROM lists WHERE id=ANY($15::INT[]))
+    (SELECT (SELECT id FROM camp), id, name FROM lists WHERE id=ANY($14::INT[]))
     RETURNING (SELECT id FROM camp);
 
 -- name: query-campaigns
@@ -761,16 +761,16 @@ WITH camp AS (
         tags=$11::VARCHAR(100)[],
         messenger=$12,
         template_id=$13,
-		json=$14,
+		json=$15,
         updated_at=NOW()
     WHERE id = $1 RETURNING id
 ),
 d AS (
     -- Reset list relationships
-    DELETE FROM campaign_lists WHERE campaign_id = $1 AND NOT(list_id = ANY($15))
+    DELETE FROM campaign_lists WHERE campaign_id = $1 AND NOT(list_id = ANY($14))
 )
 INSERT INTO campaign_lists (campaign_id, list_id, list_name)
-    (SELECT $1 as campaign_id, id, name FROM lists WHERE id=ANY($15::INT[]))
+    (SELECT $1 as campaign_id, id, name FROM lists WHERE id=ANY($14::INT[]))
     ON CONFLICT (campaign_id, list_id) DO UPDATE SET list_name = EXCLUDED.list_name;
 
 -- name: update-campaign-counts
