@@ -761,7 +761,7 @@ WITH camp AS (
         tags=$11::VARCHAR(100)[],
         messenger=$12,
         template_id=$13,
-		json=$15,
+		json=$14,
         updated_at=NOW()
     WHERE id = $1 RETURNING id
 ),
