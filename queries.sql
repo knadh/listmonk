@@ -475,7 +475,7 @@ camp AS (
         SELECT $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $16,
                (SELECT id FROM tpl),
                (SELECT to_send FROM counts), (SELECT max_sub_id FROM counts),
-               $16
+               $15
                RETURNING id
 )
 INSERT INTO campaign_lists (campaign_id, list_id, list_name)
@@ -761,7 +761,7 @@ WITH camp AS (
         tags=$11::VARCHAR(100)[],
         messenger=$12,
         template_id=$13,
-		json=$16,
+		json=$15,
         updated_at=NOW()
     WHERE id = $1 RETURNING id
 ),
