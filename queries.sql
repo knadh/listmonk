@@ -518,7 +518,7 @@ ORDER BY %s %s OFFSET $4 LIMIT (CASE WHEN $5 = 0 THEN NULL ELSE $5 END);
 SELECT  c.id, c.uuid, c.name, c.subject, c.from_email,
         c.messenger, c.started_at, c.to_send, c.sent, c.type,
         c.body, c.altbody, c.send_at, c.headers, c.status, c.content_type, c.tags,
-        c.template_id, c.created_at, c.updated_at, c.json, c.userid,
+        c.template_id, c.created_at, c.updated_at, c.userid, c.json,
         COUNT(*) OVER () AS total,
         (
             SELECT COALESCE(ARRAY_TO_JSON(ARRAY_AGG(l)), '[]') FROM (
