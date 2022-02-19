@@ -475,7 +475,7 @@ camp AS (
         SELECT $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $16,
                (SELECT id FROM tpl),
                (SELECT to_send FROM counts), (SELECT max_sub_id FROM counts),
-               $15
+               $16
                RETURNING id
 )
 INSERT INTO campaign_lists (campaign_id, list_id, list_name)
