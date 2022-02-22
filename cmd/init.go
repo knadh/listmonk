@@ -32,6 +32,7 @@ import (
 	"github.com/knadh/listmonk/internal/messenger"
 	"github.com/knadh/listmonk/internal/messenger/email"
 	"github.com/knadh/listmonk/internal/messenger/postback"
+	"github.com/knadh/listmonk/internal/metrics"
 	"github.com/knadh/listmonk/internal/subimporter"
 	"github.com/knadh/listmonk/models"
 	"github.com/knadh/stuffbin"
@@ -305,6 +306,32 @@ func initSettings(query string, db *sqlx.DB, ko *koanf.Koanf) {
 	if err := ko.Load(confmap.Provider(out, "."), nil); err != nil {
 		lo.Fatalf("error parsing settings from DB: %v", err)
 	}
+}
+
+// setMetricsDefault configured the default values for Prometheus metrics
+// configuration
+func setKoanfMetricsDefaults() {
+	if err := ko.Load(confmap.Provider(map[string]interface{}{
+		"metrics.enabled":           false,
+		"metrics.export_go_metrics": false,
+	}, "."), nil); err != nil {
+		lo.Fatalf("error initializing metrics config defaults: %v", err)
+	}
+}
+
+// initMetrics loads settings for Prometheus metrics
+func initMetrics() *metrics.Manager {
+	var c metrics.HandlerConfig
+
+	m := metrics.New("listmonk")
+
+	if err := ko.Unmarshal("metrics", &c); err != nil {
+		lo.Fatalf("error loading metrics config: %v", err)
+	}
+
+	m.SetHandlerConfig(c)
+
+	return m
 }
 
 func initConstants() *constants {

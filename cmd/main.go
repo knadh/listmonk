@@ -21,6 +21,7 @@ import (
 	"github.com/knadh/listmonk/internal/manager"
 	"github.com/knadh/listmonk/internal/media"
 	"github.com/knadh/listmonk/internal/messenger"
+	"github.com/knadh/listmonk/internal/metrics"
 	"github.com/knadh/listmonk/internal/subimporter"
 	"github.com/knadh/stuffbin"
 )
@@ -56,6 +57,9 @@ type App struct {
 	// Global state that stores data on an available remote update.
 	update *AppUpdate
 	sync.Mutex
+
+	// Configuration for metrics
+	metrics *metrics.Manager
 }
 
 var (
@@ -81,6 +85,8 @@ var (
 )
 
 func init() {
+	setKoanfMetricsDefaults()
+
 	initFlags()
 
 	// Display version.
@@ -163,6 +169,7 @@ func main() {
 		messengers: make(map[string]messenger.Messenger),
 		log:        lo,
 		bufLog:     bufLog,
+		metrics:    initMetrics(),
 	}
 
 	// Load i18n language map.
@@ -194,6 +201,16 @@ func main() {
 	// Start the campaign workers. The campaign batches (fetch from DB, push out
 	// messages) get processed at the specified interval.
 	go app.manager.Run()
+
+	if app.metrics.GetHandlerConfig().Enabled {
+		app.metrics.InfoSet(
+			"version",
+			metrics.Labels{
+				"build":   buildString,
+				"version": versionString,
+			},
+		)
+	}
 
 	// Start the app server.
 	srv := initHTTPServer(app)

@@ -127,6 +127,14 @@ func initHTTPHandlers(e *echo.Echo, app *App) {
 	g.POST("/api/media", handleUploadMedia)
 	g.DELETE("/api/media/:id", handleDeleteMedia)
 
+	if app.metrics.GetHandlerConfig().Enabled {
+		// Public metrics endpoint
+		g.GET("/api/metrics", app.metrics.HandlePromMetrics())
+
+		// Enable our metrics middleware to inspect requests
+		e.Use(app.metrics.MetricsMiddlewareWithConfig())
+	}
+
 	g.GET("/api/templates", handleGetTemplates)
 	g.GET("/api/templates/:id", handleGetTemplates)
 	g.GET("/api/templates/:id/preview", handlePreviewTemplate)

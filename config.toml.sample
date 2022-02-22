@@ -23,3 +23,8 @@ ssl_mode = "disable"
 max_open = 25
 max_idle = 25
 max_lifetime = "300s"
+
+# Prometheus Metrics.
+[metrics]
+enabled = true
+export_go_metrics = false
