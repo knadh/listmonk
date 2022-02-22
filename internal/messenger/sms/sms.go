@@ -60,7 +60,7 @@ func (e *SMSSender) Push(m messenger.Message) error {
 		srv = e.servers[0]
 	}
 
-	log.Println(`{"to":"` + m.Subscriber.Telephone + `", "message":"` + string([]byte(m.Body)) + `", "from": "` + m.Subscriber.Telephone + `"}`)
+	log.Println(`{"to":"` + m.Subscriber.Telephone + `", "message":"` + string([]byte(m.Body)) + `", "from": "` + srv.Username + `"}`)
 
 	resp, err := client.R().
 		SetHeader("Accept", "application/json").
@@ -69,7 +69,7 @@ func (e *SMSSender) Push(m messenger.Message) error {
 		SetFormData(map[string]string{
 			"username": srv.Username,
 			"to":       m.Subscriber.Telephone,
-			"from":     m.From,
+			"from":     srv.Username,
 			"message":  string([]byte(m.Body)),
 		}).
 		EnableTrace().
