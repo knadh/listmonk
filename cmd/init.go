@@ -447,7 +447,7 @@ func initSMTPMessenger(m *manager.Manager) messenger.Messenger {
 }
 
 // initSMSMessenger initializes the SMS messenger.
-func initSMSMessenger(m *manager.Manager) messenger.Messenger {
+func initSMSMessenger(m *manager.Manager, q *Queries, d *sqlx.DB) messenger.Messenger {
 	var (
 		mapKeys = ko.MapKeys("sms")
 		servers = make([]sms.Server, 0, len(mapKeys))
@@ -479,7 +479,7 @@ func initSMSMessenger(m *manager.Manager) messenger.Messenger {
 	}
 
 	// Initialize the e-mail messenger with multiple SMTP servers.
-	msgr, err := sms.New(servers...)
+	msgr, err := sms.New(db, servers...)
 	if err != nil {
 		lo.Fatalf("error loading SMS messenger: %v", err)
 	}
