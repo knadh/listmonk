@@ -447,7 +447,7 @@ func initSMTPMessenger(m *manager.Manager) messenger.Messenger {
 }
 
 // initSMSMessenger initializes the SMS messenger.
-func initSMSMessenger(m *manager.Manager, q *Queries, d *sqlx.DB) messenger.Messenger {
+func initSMSMessenger(m *manager.Manager, d *sqlx.DB) messenger.Messenger {
 	var (
 		mapKeys = ko.MapKeys("sms")
 		servers = make([]sms.Server, 0, len(mapKeys))
