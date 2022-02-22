@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/knadh/listmonk/internal/metrics"
 	"github.com/knadh/listmonk/models"
 	"github.com/labstack/echo/v4"
 	"github.com/lib/pq"
@@ -224,8 +225,17 @@ func handleBounceWebhook(c echo.Context) error {
 
 	// Record bounces if any.
 	for _, b := range bounces {
+		ml := metrics.Labels{
+			"campaign": b.CampaignUUID,
+			"source":   b.Source,
+			"type":     b.Type,
+		}
+
 		if err := app.bounce.Record(b); err != nil {
 			app.log.Printf("error recording bounce: %v", err)
+			app.metrics.CounterIncrement("bounces_errors_total", ml)
+		} else {
+			app.metrics.CounterIncrement("bounces_processed_total", ml)
 		}
 	}
 
