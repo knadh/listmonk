@@ -16,6 +16,7 @@ describe('Lists', () => {
     cy.get('.list-tags .tag').contains('Default list');
 
     cy.clickMenu('lists', 'all-lists');
+    cy.get('.modal button.is-primary').click();
   });
 
 
@@ -23,7 +24,6 @@ describe('Lists', () => {
     cy.get('tbody a[data-cy=btn-send-optin-campaign]').click();
     cy.get('.modal button.is-primary').click();
     cy.location('pathname').should('contain', '/campaigns/2');
-
     cy.clickMenu('lists', 'all-lists');
   });
 

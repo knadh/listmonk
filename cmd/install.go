@@ -10,7 +10,6 @@ import (
 
 	"github.com/gofrs/uuid"
 	"github.com/jmoiron/sqlx"
-	goyesqlx "github.com/knadh/goyesql/v2/sqlx"
 	"github.com/knadh/listmonk/models"
 	"github.com/knadh/stuffbin"
 	"github.com/lib/pq"
@@ -19,7 +18,7 @@ import (
 // install runs the first time setup of creating and
 // migrating the database and creating the super user.
 func install(lastVer string, db *sqlx.DB, fs stuffbin.FileSystem, prompt, idempotent bool) {
-	qMap, _ := initQueries(queryFilePath, db, fs, false)
+	qMap := readQueries(queryFilePath, db, fs)
 
 	fmt.Println("")
 	if !idempotent {
@@ -62,10 +61,7 @@ func install(lastVer string, db *sqlx.DB, fs stuffbin.FileSystem, prompt, idempo
 	}
 
 	// Load the queries.
-	var q Queries
-	if err := goyesqlx.ScanToStruct(&q, qMap, db.Unsafe()); err != nil {
-		lo.Fatalf("error loading SQL queries: %v", err)
-	}
+	q := prepareQueries(qMap, db, ko)
 
 	// Sample list.
 	var (

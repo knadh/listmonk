@@ -93,6 +93,11 @@ func handleGetLists(c echo.Context) error {
 		if v.Tags == nil {
 			out.Results[i].Tags = make(pq.StringArray, 0)
 		}
+
+		// Total counts.
+		for _, c := range v.SubscriberCounts {
+			out.Results[i].SubscriberCount += c
+		}
 	}
 
 	if single {
