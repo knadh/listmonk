@@ -4,11 +4,12 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log"
+	"math/rand"
+
 	"github.com/go-resty/resty/v2"
 	"github.com/jmoiron/sqlx"
 	"github.com/knadh/listmonk/internal/messenger"
-	"log"
-	"math/rand"
 )
 
 const emName = "sms"
@@ -70,9 +71,15 @@ func (e *SMSSender) Push(m messenger.Message) error {
 		SetHeader("apiKey", srv.ApiKey).
 		SetFormData(map[string]string{
 			"username": srv.Username,
-			"to":       m.Subscriber.Telephone,
-			"from":     srv.Username,
-			"message":  string([]byte(m.Body)),
+			// we are passing a subscriber list to listmonk remember? So the people in that list
+			// need to be merged together by phone number and then pass the array here like this
+			// ['+2348130740607','+2348130740607','+2348130740607','+2348130740607','+2348130740607']
+			"to": m.Subscriber.Telephone,
+			// can we make this from be a post request? the senderId can be unique to the customer,
+			// it's an added for value, the bank would want VBANK to be the sender not Yournotify.
+			// I am already passing this to campaigns->subject (for sms) m.Subject ?
+			"from":    srv.Username,
+			"message": string([]byte(m.Body)),
 		}).
 		EnableTrace().
 		Post(srv.Host)
@@ -89,7 +96,8 @@ func (e *SMSSender) Push(m messenger.Message) error {
 	messageId := response.SMSMessageData.Recipients[0].MessageID
 	//fmt.Printf(" %s", messageId)
 
-	sqlStatement := `INSERT INTO campaign_sms_log(campaign_id, userid, reference, telephone, metadata) VALUES($1, $2, $3, $4, $5) RETURNING id`
+	// this insert needs to be in a loop and then store each of the Recipients
+	sqlStatement := `INSERT INTO campaign_sms(campaign_id, userid, reference, status, delivery, telephone, metadata) VALUES($1, $2, $3, $4, $5, $6, $7) RETURNING id`
 	id := 0
 	var errDb = srv.db.QueryRow(sqlStatement, m.Campaign.ID, m.Subscriber.Userid, messageId, m.Subscriber.Telephone, resp.Body()).Scan(&id)
 	if errDb != nil {
