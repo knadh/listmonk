@@ -308,6 +308,7 @@ CREATE TABLE campaign_sms (
     userid          TEXT NOT NULL,
     reference       TEXT NOT NULL,
 	status       	TEXT NOT NULL,
+	statusCode      INT NOT NULL,
 	delivery       	TEXT NOT NULL,
     telephone       TEXT NOT NULL,
     metadata        JSONB NOT NULL DEFAULT '{}',

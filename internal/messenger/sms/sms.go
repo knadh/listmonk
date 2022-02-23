@@ -71,10 +71,7 @@ func (e *SMSSender) Push(m messenger.Message) error {
 		SetHeader("apiKey", srv.ApiKey).
 		SetFormData(map[string]string{
 			"username": srv.Username,
-			// we are passing a subscriber list to listmonk remember? So the people in that list
-			// need to be merged together by phone number and then pass the array here like this
-			// ['+2348130740607','+2348130740607','+2348130740607','+2348130740607','+2348130740607']
-			"to": m.Subscriber.Telephone,
+			"to":       m.Subscriber.Telephone,
 			// can we make this from be a post request? the senderId can be unique to the customer,
 			// it's an added for value, the bank would want VBANK to be the sender not Yournotify.
 			// I am already passing this to campaigns->subject (for sms) m.Subject ?
@@ -94,12 +91,44 @@ func (e *SMSSender) Push(m messenger.Message) error {
 
 	json.Unmarshal([]byte(resp.Body()), &response)
 	messageId := response.SMSMessageData.Recipients[0].MessageID
+	status := response.SMSMessageData.Recipients[0].Status
+	statusCode := response.SMSMessageData.Recipients[0].StatusCode
+	delivery := ""
+
 	//fmt.Printf(" %s", messageId)
 
+	// if (element.statusCode == 100) {
+	// 	delivery = "Processed";
+	// } else if (element.statusCode == 101) {
+	// 	delivery = "Sent";
+	// } else if (element.statusCode == 102) {
+	// 	delivery = "Queued";
+	// } else if (element.statusCode == 401) {
+	// 	delivery = "RiskHold";
+	// } else if (element.statusCode == 402) {
+	// 	delivery = "InvalidSenderId";
+	// } else if (element.statusCode == 403) {
+	// 	delivery = "InvalidPhoneNumber";
+	// } else if (element.statusCode == 404) {
+	// 	delivery = "UnsupportedNumberType";
+	// } else if (element.statusCode == 405) {
+	// 	delivery = "InsufficientBalance";
+	// } else if (element.statusCode == 406) {
+	// 	delivery = "UserInBlacklist";
+	// } else if (element.statusCode == 407) {
+	// 	delivery = "CouldNotRoute";
+	// } else if (element.statusCode == 500) {
+	// 	delivery = "InternalServerError";
+	// } else if (element.statusCode == 501) {
+	// 	delivery = "GatewayError";
+	// } else if (element.statusCode == 502) {
+	// 	delivery = "RejectedByGateway";
+	// }
+
 	// this insert needs to be in a loop and then store each of the Recipients
-	sqlStatement := `INSERT INTO campaign_sms(campaign_id, userid, reference, status, delivery, telephone, metadata) VALUES($1, $2, $3, $4, $5, $6, $7) RETURNING id`
+	sqlStatement := `INSERT INTO campaign_sms(campaign_id, userid, reference, status, statusCode, delivery, telephone, metadata) VALUES($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id`
 	id := 0
-	var errDb = srv.db.QueryRow(sqlStatement, m.Campaign.ID, m.Subscriber.Userid, messageId, m.Subscriber.Telephone, resp.Body()).Scan(&id)
+	var errDb = srv.db.QueryRow(sqlStatement, m.Campaign.ID, m.Subscriber.Userid, messageId, status, statusCode, delivery, m.Subscriber.Telephone, resp.Body()).Scan(&id)
 	if errDb != nil {
 		panic(errDb)
 	}
