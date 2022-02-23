@@ -311,6 +311,7 @@ CREATE TABLE campaign_sms (
                               status       	TEXT NOT NULL,
                               statusCode      INT,
                               telephone       TEXT NOT NULL,
+                              server       TEXT NOT NULL,
                               metadata        JSONB NOT NULL DEFAULT '{}',
                               created_at      TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
                               updated_at      TIMESTAMP WITH TIME ZONE DEFAULT NOW()
