@@ -173,6 +173,7 @@ func initHTTPHandlers(e *echo.Echo, app *App) {
 
 	// Public health API endpoint.
 	e.GET("/health", handleHealthCheck)
+	e.POST("/africatalking/delivery-reports", handleDeliveryRequest)
 }
 
 // handleAdminPage is the root handler that renders the Javascript admin frontend.
