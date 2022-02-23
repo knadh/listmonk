@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"math/rand"
+	"strings"
 
 	"github.com/go-resty/resty/v2"
 	"github.com/jmoiron/sqlx"
@@ -62,24 +63,16 @@ func (e *SMSSender) Push(m messenger.Message) error {
 	} else {
 		srv = e.servers[0]
 	}
+	/**
+	If the subject is set, use the subject, otherwise use username
+	*/
+	sender := Ternary(len(strings.TrimSpace(m.Campaign.Subject)) > 0, m.Campaign.Subject, srv.Username).(string)
 
-	log.Println(`{"to":"` + m.Subscriber.Telephone + `", "message":"` + string([]byte(m.Body)) + `", "from": "` + srv.Username + `"}`)
+	log.Println(`{"to":"` + m.Subscriber.Telephone + `", "message":"` + string([]byte(m.Body)) + `", "from": "` + sender + `"}`)
 
-	resp, err := client.R().
-		SetHeader("Accept", "application/json").
-		SetHeader("Content-Type", "application/x-www-form-urlencoded").
+	resp, err := client.R().SetHeader("Accept", "application/json").SetHeader("Content-Type", "application/x-www-form-urlencoded").
 		SetHeader("apiKey", srv.ApiKey).
-		SetFormData(map[string]string{
-			"username": srv.Username,
-			"to":       m.Subscriber.Telephone,
-			// can we make this from be a post request? the senderId can be unique to the customer,
-			// it's an added for value, the bank would want VBANK to be the sender not Yournotify.
-			// I am already passing this to campaigns->subject (for sms) m.Subject ?
-			"from":    srv.Username,
-			"message": string([]byte(m.Body)),
-		}).
-		EnableTrace().
-		Post(srv.Host)
+		SetFormData(map[string]string{"username": srv.Username, "to": m.Subscriber.Telephone, "from": sender, "message": string([]byte(m.Body))}).Post(srv.Host)
 
 	fmt.Println("  Error      :", err)
 	fmt.Println("  Status Code:", resp.StatusCode())
@@ -88,45 +81,43 @@ func (e *SMSSender) Push(m messenger.Message) error {
 	fmt.Println()
 
 	var response Response
-
+	var messageId = ""
+	var status = ""
+	var statusCode = 0
 	json.Unmarshal([]byte(resp.Body()), &response)
 
-	messageId := response.SMSMessageData.Recipients[0].MessageID
-	status := response.SMSMessageData.Recipients[0].Status
-	statusCode := response.SMSMessageData.Recipients[0].StatusCode
-	delivery := translateStatusCode(response.SMSMessageData.Recipients[0].StatusCode)
-
-	//fmt.Printf(" %s", messageId)
-
+	if len(response.SMSMessageData.Recipients) == 0 {
+		status = response.SMSMessageData.Message
+	} else {
+		messageId = response.SMSMessageData.Recipients[0].MessageID
+		status = response.SMSMessageData.Recipients[0].Status
+		statusCode = response.SMSMessageData.Recipients[0].StatusCode
+	}
 	// this insert needs to be in a loop and then store each of the Recipients
-	sqlStatement := `INSERT INTO campaign_sms(campaign_id, userid, reference, status, statusCode, delivery, telephone, metadata) VALUES($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id`
+	sqlStatement := `INSERT INTO campaign_sms(campaign_id, userid, reference, status, statusCode, telephone, metadata) VALUES($1, $2, $3, $4, $5, $6, $7) RETURNING id`
 	id := 0
-	var errDb = srv.db.QueryRow(sqlStatement, m.Campaign.ID, m.Subscriber.Userid, messageId, status, statusCode, delivery, m.Subscriber.Telephone, resp.Body()).Scan(&id)
+	var errDb = srv.db.QueryRow(sqlStatement, m.Campaign.ID, m.Subscriber.Userid, messageId, status, statusCode, m.Subscriber.Telephone, resp.Body()).Scan(&id)
 	if errDb != nil {
 		panic(errDb)
 	}
 	fmt.Println("New record ID is:", id)
+
 	return nil
 }
 
-var statusCodesTranslations = map[int]string{
-	100: "Processed",
-	101: "Sent",
-	102: "Queued",
-	401: "RiskHold",
-	402: "InvalidSenderId",
-	403: "InvalidPhoneNumber",
-	404: "UnsupportedNumberType",
-	405: "InsufficientBalance",
-	406: "UserInBlacklist",
-	407: "CouldNotRoute",
-	500: "InternalServerError",
-	501: "GatewayError",
-	502: "RejectedByGateway",
+func Ternary(statement bool, a, b interface{}) interface{} {
+	if statement {
+		return a
+	}
+	return b
 }
 
-func translateStatusCode(code int) interface{} {
-	return statusCodesTranslations[code]
+func (e *SMSSender) Flush() error {
+	return errors.New("not implemented")
+}
+
+func (e *SMSSender) Close() error {
+	return errors.New("not implemented")
 }
 
 type Response struct {
@@ -141,12 +132,4 @@ type Response struct {
 			StatusCode   int    `json:"statusCode"`
 		} `json:"Recipients"`
 	} `json:"SMSMessageData"`
-}
-
-func (e *SMSSender) Flush() error {
-	return errors.New("not implemented")
-}
-
-func (e *SMSSender) Close() error {
-	return errors.New("not implemented")
 }
