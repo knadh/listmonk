@@ -84,6 +84,10 @@ func (e *SMSSender) Push(m messenger.Message) error {
 	var messageId = ""
 	var status = ""
 	var statusCode = 0
+	serverName := fmt.Sprintf("%s@%s", srv.Username, srv.Host)
+
+	println(serverName)
+
 	json.Unmarshal([]byte(resp.Body()), &response)
 
 	if len(response.SMSMessageData.Recipients) == 0 {
@@ -94,9 +98,9 @@ func (e *SMSSender) Push(m messenger.Message) error {
 		statusCode = response.SMSMessageData.Recipients[0].StatusCode
 	}
 	// this insert needs to be in a loop and then store each of the Recipients
-	sqlStatement := `INSERT INTO campaign_sms(campaign_id, userid, reference, status, statusCode, telephone, metadata) VALUES($1, $2, $3, $4, $5, $6, $7) RETURNING id`
+	sqlStatement := `INSERT INTO campaign_sms(campaign_id, userid, reference, status, statusCode, telephone, metadata, server) VALUES($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id`
 	id := 0
-	var errDb = srv.db.QueryRow(sqlStatement, m.Campaign.ID, m.Subscriber.Userid, messageId, status, statusCode, m.Subscriber.Telephone, resp.Body()).Scan(&id)
+	var errDb = srv.db.QueryRow(sqlStatement, m.Campaign.ID, m.Subscriber.Userid, messageId, status, statusCode, m.Subscriber.Telephone, resp.Body(), serverName).Scan(&id)
 	if errDb != nil {
 		panic(errDb)
 	}
