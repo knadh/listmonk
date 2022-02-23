@@ -301,20 +301,23 @@ CREATE TABLE newsletters (
 
 
 -- campaign sms log
-
 DROP TABLE IF EXISTS campaign_sms CASCADE;
 CREATE TABLE campaign_sms (
-                              id              SERIAL PRIMARY KEY,
-                              campaign_id     INT NOT NULL,
-                              userid          TEXT NOT NULL,
-                              reference       TEXT,
-                              status       	TEXT NOT NULL,
-                              statusCode      INT,
-                              telephone       TEXT NOT NULL,
-                              metadata        JSONB NOT NULL DEFAULT '{}',
-                              created_at      TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-                              updated_at      TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+    id              SERIAL PRIMARY KEY,
+    campaign_id     INT NOT NULL,
+    userid          TEXT NOT NULL,
+    reference       TEXT,
+    status       	TEXT NOT NULL,
+    status_code     INT,
+    telephone       TEXT NOT NULL,
+	network_code    TEXT NOT NULL DEFAULT '',
+	failure_reason  TEXT NOT NULL DEFAULT '',
+	retry_count     INT NOT NULL DEFAULT 0,
+    metadata        JSONB NOT NULL DEFAULT '{}',
+    created_at      TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at      TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
+
 -- Jan 10, 2022  author const
 ALTER TABLE lists ADD COLUMN IF NOT EXISTS userid TEXT NOT NULL DEFAULT 'system';
 ALTER TABLE lists ADD COLUMN IF NOT EXISTS meta JSONB NOT NULL DEFAULT '{}';
@@ -324,7 +327,6 @@ ALTER TABLE campaigns ADD COLUMN IF NOT EXISTS userid TEXT NOT NULL DEFAULT 'sys
 ALTER TABLE campaigns ADD COLUMN IF NOT EXISTS json TEXT NOT NULL DEFAULT '';
 
 --Jan 18 author const
-ALTER TABLE lists DROP COLUMN channel;
 ALTER TABLE lists ADD COLUMN IF NOT EXISTS channel TEXT NOT NULL DEFAULT 'email';
 
 -- Jan 25, author shina
