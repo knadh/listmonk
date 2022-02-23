@@ -2,15 +2,16 @@ package main
 
 import (
 	"github.com/labstack/echo/v4"
+	"log"
 )
 
 type smsDeliveryReq struct {
-	id            string `json:"id"`
-	status        string `json:"status"`
-	phoneNumber   string `json:"phoneNumber"`
-	networkCode   string `json:"networkCode"`
-	failureReason string `json:"failureReason"`
-	retryCount    int    `json:"retryCount"`
+	ID            string `json:"id"`
+	Status        string `json:"status"`
+	PhoneNumber   string `json:"phoneNumber"`
+	NetworkCode   string `json:"networkCode"`
+	FailureReason string `json:"failureReason"`
+	RetryCount    int    `json:"retryCount"`
 }
 
 func handleDeliveryRequest(c echo.Context) error {
@@ -18,11 +19,14 @@ func handleDeliveryRequest(c echo.Context) error {
 		app         = c.Get("app").(*App)
 		deliveryReq smsDeliveryReq
 	)
+	if err := c.Bind(&deliveryReq); err != nil {
+		return err
+	}
 
-	app.log.Printf(deliveryReq.status)
+	log.Println("ID : " + deliveryReq.ID + " Status: " + deliveryReq.Status)
 
-	sqlStatement := `UPDATE campaign_sms SET status = $1 WHERE reference = $1;`
-	var _, errDb = app.db.Exec(sqlStatement, deliveryReq.id, deliveryReq.status)
+	sqlStatement := `UPDATE campaign_sms SET status = $2 WHERE reference = $1;`
+	var _, errDb = app.db.Exec(sqlStatement, deliveryReq.ID, deliveryReq.Status)
 	if errDb != nil {
 		panic(errDb)
 	}

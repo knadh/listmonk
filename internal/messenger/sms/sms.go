@@ -65,7 +65,7 @@ func (e *SMSSender) Push(m messenger.Message) error {
 	}
 
 	if len(m.Campaign.Body) == 0 {
-		return fmt.Errorf("Campaign body should no be empty")
+		return fmt.Errorf("campaign body should no be empty")
 	}
 
 	/**
