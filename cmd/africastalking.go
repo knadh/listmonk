@@ -19,7 +19,12 @@ func handleDeliveryRequest(c echo.Context) error {
 		deliveryReq smsDeliveryReq
 	)
 
-	println(app)
-	println(deliveryReq)
+	app.log.Printf(deliveryReq.status)
+
+	sqlStatement := `UPDATE campaign_sms SET status = $1 WHERE reference = $1;`
+	var _, errDb = app.db.Exec(sqlStatement, deliveryReq.id, deliveryReq.status)
+	if errDb != nil {
+		panic(errDb)
+	}
 	return nil
 }
