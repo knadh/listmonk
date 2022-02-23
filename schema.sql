@@ -63,8 +63,8 @@ CREATE TABLE templates (
     created_at      TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at      TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
-CREATE UNIQUE INDEX ON templates (is_default) WHERE is_default = true;
 
+CREATE UNIQUE INDEX ON templates (is_default) WHERE is_default = true;
 
 -- campaigns
 DROP TABLE IF EXISTS campaigns CASCADE;
@@ -299,6 +299,19 @@ CREATE TABLE newsletters (
     created_at       TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
+
+-- campaign sms log
+DROP TABLE IF EXISTS campaign_sms_log CASCADE;
+CREATE TABLE campaign_sms_log (
+     id              SERIAL PRIMARY KEY,
+     campaign_id     INT NOT NULL,
+     userid          TEXT NOT NULL,
+     reference       TEXT NOT NULL,
+     telephone       TEXT NOT NULL,
+     metadata         JSONB NOT NULL DEFAULT '{}',
+     created_at      TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+     updated_at      TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
 
 -- Jan 10, 2022  author const
 ALTER TABLE lists ADD COLUMN IF NOT EXISTS userid TEXT NOT NULL DEFAULT 'system';
