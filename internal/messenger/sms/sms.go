@@ -90,40 +90,13 @@ func (e *SMSSender) Push(m messenger.Message) error {
 	var response Response
 
 	json.Unmarshal([]byte(resp.Body()), &response)
+
 	messageId := response.SMSMessageData.Recipients[0].MessageID
 	status := response.SMSMessageData.Recipients[0].Status
 	statusCode := response.SMSMessageData.Recipients[0].StatusCode
-	delivery := ""
+	delivery := translateStatusCode(response.SMSMessageData.Recipients[0].StatusCode)
 
 	//fmt.Printf(" %s", messageId)
-
-	// if (element.statusCode == 100) {
-	// 	delivery = "Processed";
-	// } else if (element.statusCode == 101) {
-	// 	delivery = "Sent";
-	// } else if (element.statusCode == 102) {
-	// 	delivery = "Queued";
-	// } else if (element.statusCode == 401) {
-	// 	delivery = "RiskHold";
-	// } else if (element.statusCode == 402) {
-	// 	delivery = "InvalidSenderId";
-	// } else if (element.statusCode == 403) {
-	// 	delivery = "InvalidPhoneNumber";
-	// } else if (element.statusCode == 404) {
-	// 	delivery = "UnsupportedNumberType";
-	// } else if (element.statusCode == 405) {
-	// 	delivery = "InsufficientBalance";
-	// } else if (element.statusCode == 406) {
-	// 	delivery = "UserInBlacklist";
-	// } else if (element.statusCode == 407) {
-	// 	delivery = "CouldNotRoute";
-	// } else if (element.statusCode == 500) {
-	// 	delivery = "InternalServerError";
-	// } else if (element.statusCode == 501) {
-	// 	delivery = "GatewayError";
-	// } else if (element.statusCode == 502) {
-	// 	delivery = "RejectedByGateway";
-	// }
 
 	// this insert needs to be in a loop and then store each of the Recipients
 	sqlStatement := `INSERT INTO campaign_sms(campaign_id, userid, reference, status, statusCode, delivery, telephone, metadata) VALUES($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id`
@@ -132,8 +105,28 @@ func (e *SMSSender) Push(m messenger.Message) error {
 	if errDb != nil {
 		panic(errDb)
 	}
-	//fmt.Println("New record ID is:", id)
+	fmt.Println("New record ID is:", id)
 	return nil
+}
+
+var statusCodesTranslations = map[int]string{
+	100: "Processed",
+	101: "Sent",
+	102: "Queued",
+	401: "RiskHold",
+	402: "InvalidSenderId",
+	403: "InvalidPhoneNumber",
+	404: "UnsupportedNumberType",
+	405: "InsufficientBalance",
+	406: "UserInBlacklist",
+	407: "CouldNotRoute",
+	500: "InternalServerError",
+	501: "GatewayError",
+	502: "RejectedByGateway",
+}
+
+func translateStatusCode(code int) interface{} {
+	return statusCodesTranslations[code]
 }
 
 type Response struct {
