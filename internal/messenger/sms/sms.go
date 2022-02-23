@@ -63,6 +63,11 @@ func (e *SMSSender) Push(m messenger.Message) error {
 	} else {
 		srv = e.servers[0]
 	}
+
+	if len(m.Campaign.Body) == 0 {
+		return fmt.Errorf("Campaign body should no be empty")
+	}
+
 	/**
 	If the subject is set, use the subject, otherwise use username
 	*/
