@@ -14,7 +14,8 @@ func V2_1_0(db *sqlx.DB, fs stuffbin.FileSystem, ko *koanf.Koanf) error {
  			('appearance.admin.custom_css', '""'),
  			('appearance.admin.custom_js', '""'),
  			('appearance.public.custom_css', '""'),
- 			('appearance.public.custom_js', '""')
+ 			('appearance.public.custom_js', '""'),
+ 			('upload.s3.public_url', '""')
  			ON CONFLICT DO NOTHING;
 	`); err != nil {
 		return err

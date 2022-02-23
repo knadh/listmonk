@@ -41,10 +41,10 @@
                 <b-field :label="$t('settings.mailserver.authProtocol')"
                   label-position="on-border">
                   <b-select v-model="item.auth_protocol" name="auth_protocol">
-                    <option value="none">none</option>
-                    <option value="cram">cram</option>
-                    <option value="plain">plain</option>
-                    <option value="login">login</option>
+                    <option value="login">LOGIN</option>
+                    <option value="cram">CRAM</option>
+                    <option value="plain">PLAIN</option>
+                    <option value="none">None</option>
                   </b-select>
                 </b-field>
               </div>
