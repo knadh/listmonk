@@ -68,11 +68,11 @@ func (e *SMSSender) Push(m messenger.Message) error {
 	*/
 	sender := Ternary(len(strings.TrimSpace(m.Campaign.Subject)) > 0, m.Campaign.Subject, srv.Username).(string)
 
-	log.Println(`{"to":"` + m.Subscriber.Telephone + `", "message":"` + string([]byte(m.Body)) + `", "from": "` + sender + `"}`)
+	log.Println(`{"to":"` + m.Subscriber.Telephone + `", "message":"` + string([]byte(m.Campaign.Body)) + `", "from": "` + sender + `"}`)
 
 	resp, err := client.R().SetHeader("Accept", "application/json").SetHeader("Content-Type", "application/x-www-form-urlencoded").
 		SetHeader("apiKey", srv.ApiKey).
-		SetFormData(map[string]string{"username": srv.Username, "to": m.Subscriber.Telephone, "from": sender, "message": string([]byte(m.Body))}).Post(srv.Host)
+		SetFormData(map[string]string{"username": srv.Username, "to": m.Subscriber.Telephone, "from": sender, "message": string([]byte(m.Campaign.Body))}).Post(srv.Host)
 
 	fmt.Println("  Error      :", err)
 	fmt.Println("  Status Code:", resp.StatusCode())
