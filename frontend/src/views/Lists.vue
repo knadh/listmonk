@@ -98,7 +98,7 @@
         header-class="cy-subscribers" width="10%">
         <div class="fields stats">
           <p v-for="(count, status) in props.row.subscriberStatuses" :key="status">
-            <label>{{ $t(`subscribers.status.${status}`) }}</label>
+            <label>{{ $tc(`subscribers.status.${status}`, count) }}</label>
             <span :class="status">{{ $utils.formatNumber(count) }}</span>
           </p>
         </div>
