@@ -25,8 +25,8 @@ func handleDeliveryRequest(c echo.Context) error {
 
 	log.Println("ID : " + deliveryReq.ID + " Status: " + deliveryReq.Status)
 
-	sqlStatement := `UPDATE campaign_sms SET status = $2 WHERE reference = $1;`
-	var _, errDb = app.db.Exec(sqlStatement, deliveryReq.ID, deliveryReq.Status)
+	sqlStatement := `UPDATE campaign_sms SET status = $2, network_code = $3, failure_reason = $4 WHERE reference = $1;`
+	var _, errDb = app.db.Exec(sqlStatement, deliveryReq.ID, deliveryReq.Status, deliveryReq.NetworkCode, deliveryReq.FailureReason)
 	if errDb != nil {
 		panic(errDb)
 	}
