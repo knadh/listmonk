@@ -19,6 +19,22 @@ Vue.config.productionTip = false;
 Vue.prototype.$utils = new Utils(i18n);
 Vue.prototype.$api = api;
 
+// Setup the router.
+router.beforeEach((to, from, next) => {
+  if (to.matched.length === 0) {
+    next('/404');
+  } else {
+    next();
+  }
+});
+
+router.afterEach((to) => {
+  Vue.nextTick(() => {
+    const t = to.meta.title ? `${i18n.tc(to.meta.title, 0)} /` : '';
+    document.title = `${t} listmonk`;
+  });
+});
+
 new Vue({
   router,
   store,
