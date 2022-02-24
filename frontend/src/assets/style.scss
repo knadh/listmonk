@@ -23,7 +23,7 @@ $body-family: "Inter", "Helvetica Neue", sans-serif;
 $body-size: 15px;
 $background: $white-bis;
 $body-background-color: $white-bis;
-$primary: #0055d4;
+$primary: #6e24ff;
 $green: #0db35e;
 $turquoise: $green;
 $red: #FF5722;
@@ -242,7 +242,7 @@ body.is-noscroll {
     box-shadow: 2px 2px 0 #f3f3f3;
     border: 1px solid #e6e6e6;
     border-radius: 3px;
-  
+
     .tox-toolbar__primary {
       border-color: #e6e6e6 !important;
     }
