@@ -436,6 +436,7 @@ UPDATE lists SET
     name=(CASE WHEN $2 != '' THEN $2 ELSE name END),
     type=(CASE WHEN $3 != '' THEN $3::list_type ELSE type END),
     optin=(CASE WHEN $4 != '' THEN $4::list_optin ELSE optin END),
+    userid=(CASE WHEN $6 != '' THEN $6 ELSE name END),
     tags=$5::VARCHAR(100)[],
     updated_at=NOW()
 WHERE id = $1;

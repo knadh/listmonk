@@ -194,7 +194,7 @@ func handleUpdateList(c echo.Context) error {
 	}
 
 	res, err := app.queries.UpdateList.Exec(id,
-		o.Name, o.Type, o.Optin, pq.StringArray(normalizeTags(o.Tags)))
+		o.Name, o.Type, o.Optin, pq.StringArray(normalizeTags(o.Tags)), o.Userid)
 	if err != nil {
 		app.log.Printf("error updating list: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
