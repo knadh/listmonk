@@ -246,7 +246,8 @@ DROP INDEX IF EXISTS idx_bounces_date; CREATE INDEX idx_bounces_date ON bounces(
 DROP TABLE IF EXISTS affiliates CASCADE;
 CREATE TABLE affiliates (
     id               SERIAL PRIMARY KEY,
-    userid           TEXT NOT NULL DEFAULT '',
+    userid           TEXT NOT NULL,
+	affiliate        TEXT NOT NULL,
 	status           TEXT NOT NULL DEFAULT '',
 	code             TEXT NOT NULL DEFAULT '',
 	transaction      TEXT NOT NULL DEFAULT '',
@@ -260,7 +261,7 @@ CREATE TABLE affiliates (
 DROP TABLE IF EXISTS affiliates_codes CASCADE;
 CREATE TABLE affiliates_codes (
     id               SERIAL PRIMARY KEY,
-    userid           TEXT NOT NULL DEFAULT '',
+    userid           TEXT NOT NULL,
 	code             TEXT NOT NULL DEFAULT '',
 	status           TEXT NOT NULL DEFAULT '',
 	commission     	 TEXT NOT NULL DEFAULT '',
@@ -335,6 +336,7 @@ ALTER TABLE templates ADD COLUMN IF NOT EXISTS text TEXT NOT NULL DEFAULT '';
 ALTER TABLE templates ADD COLUMN IF NOT EXISTS channel TEXT NOT NULL DEFAULT 'email';
 ALTER TABLE templates ADD COLUMN IF NOT EXISTS json TEXT NOT NULL DEFAULT '';
 ALTER TABLE templates ADD COLUMN IF NOT EXISTS status TEXT NOT NULL DEFAULT 'enabled';
+ALTER TABLE templates ADD COLUMN IF NOT EXISTS userid TEXT NOT NULL DEFAULT 'system';
 
 -- Feb 6 author const
 ALTER TABLE subscribers ADD COLUMN IF NOT EXISTS telephone TEXT NOT NULL DEFAULT '';
