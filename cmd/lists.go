@@ -163,7 +163,7 @@ func handleCreateList(c echo.Context) error {
 		o.Optin,
 		pq.StringArray(normalizeTags(o.Tags)),
 		o.Channel,
-		o.Userid, o.Meta); err != nil {
+		o.Userid); err != nil {
 		app.log.Printf("error creating list: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			app.i18n.Ts("globals.messages.errorCreating",
