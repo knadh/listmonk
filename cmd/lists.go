@@ -158,7 +158,7 @@ func handleCreateList(c echo.Context) error {
 		o.Optin,
 		pq.StringArray(normalizeTags(o.Tags)),
 		o.Channel,
-		o.Userid); err != nil {
+		o.Userid, o.Meta); err != nil {
 		app.log.Printf("error creating list: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			app.i18n.Ts("globals.messages.errorCreating",
@@ -189,7 +189,7 @@ func handleUpdateList(c echo.Context) error {
 	}
 
 	res, err := app.queries.UpdateList.Exec(id,
-		o.Name, o.Type, o.Optin, pq.StringArray(normalizeTags(o.Tags)))
+		o.Name, o.Type, o.Optin, pq.StringArray(normalizeTags(o.Tags)), o.Userid)
 	if err != nil {
 		app.log.Printf("error updating list: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
