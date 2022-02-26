@@ -429,13 +429,14 @@ SELECT * FROM lists WHERE (CASE WHEN $1 != '' THEN optin=$1::list_optin ELSE TRU
     END) ORDER BY name;
 
 -- name: create-list
-INSERT INTO lists (uuid, name, type, optin, tags, channel, userid) VALUES($1, $2, $3, $4, $5, $6, $7) RETURNING id;
+INSERT INTO lists (uuid, name, type, optin, tags, channel, userid, meta) VALUES($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id;
 
 -- name: update-list
 UPDATE lists SET
     name=(CASE WHEN $2 != '' THEN $2 ELSE name END),
     type=(CASE WHEN $3 != '' THEN $3::list_type ELSE type END),
     optin=(CASE WHEN $4 != '' THEN $4::list_optin ELSE optin END),
+    userid=(CASE WHEN $6 != '' THEN $6 ELSE name END),
     tags=$5::VARCHAR(100)[],
     updated_at=NOW()
 WHERE id = $1;
