@@ -1,5 +1,5 @@
 // i18n is a simple package that translates strings using a language map.
-// It mimicks some functionality of the vue-i18n library so that the same JSON
+// It mimics some functionality of the vue-i18n library so that the same JSON
 // language map may be used in the JS frontend and the Go backend.
 package i18n
 

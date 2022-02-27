@@ -115,7 +115,7 @@ func handleQuerySubscribers(c echo.Context) error {
 		out     = subsWrap{Results: make([]models.Subscriber, 0, 1)}
 	)
 
-	// Limit the subscribers to sepcific lists?
+	// Limit the subscribers to specific lists?
 	listIDs, err := getQueryInts("list_id", c.QueryParams())
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidID"))
@@ -198,7 +198,7 @@ func handleExportSubscribers(c echo.Context) error {
 		query = sanitizeSQLExp(c.FormValue("query"))
 	)
 
-	// Limit the subscribers to sepcific lists?
+	// Limit the subscribers to specific lists?
 	listIDs, err := getQueryInts("list_id", c.QueryParams())
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidID"))
@@ -591,7 +591,7 @@ func handleBlocklistSubscribersByQuery(c echo.Context) error {
 	return c.JSON(http.StatusOK, okResp{true})
 }
 
-// handleManageSubscriberListsByQuery bulk adds/removes/unsubscribers subscribers
+// handleManageSubscriberListsByQuery bulk adds/removes/unsubscribes subscribers
 // from one or more lists based on an arbitrary SQL expression.
 func handleManageSubscriberListsByQuery(c echo.Context) error {
 	var (
