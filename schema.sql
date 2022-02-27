@@ -316,6 +316,7 @@ CREATE TABLE campaign_sms (
 	failure_reason  TEXT NOT NULL DEFAULT '',
 	retry_count     INT NOT NULL DEFAULT 0,
     metadata        JSONB NOT NULL DEFAULT '{}',
+	server        	TEXT NOT NULL DEFAULT '',
     created_at      TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at      TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
