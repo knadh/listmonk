@@ -364,7 +364,7 @@ func handleUpdateSubscriber(c echo.Context) error {
 		req.Status,
 		req.RawAttribs,
 		req.Lists,
-		subStatus, req.Telephone)
+		subStatus, req.Userid, req.Telephone)
 	if err != nil {
 		app.log.Printf("error updating subscriber: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,

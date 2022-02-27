@@ -128,8 +128,8 @@ WITH s AS (
         name=(CASE WHEN $3 != '' THEN $3 ELSE name END),
         status=(CASE WHEN $4 != '' THEN $4::subscriber_status ELSE status END),
         attribs=(CASE WHEN $5 != '' THEN $5::JSONB ELSE attribs END),
-        telephone=(CASE WHEN $8 != '' THEN $8 ELSE telephone END),
-		userid=(CASE WHEN $9 != '' THEN $9 ELSE userid END),
+		userid=(CASE WHEN $8 != '' THEN $8 ELSE userid END),
+        telephone=(CASE WHEN $9 != '' THEN $9 ELSE telephone END),
         updated_at=NOW()
     WHERE id = $1 RETURNING id
 ),
