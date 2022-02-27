@@ -175,7 +175,7 @@ INSERT INTO settings (key, value) VALUES
     ('app.root_url', '"http://localhost:9000"'),
     ('app.favicon_url', '""'),
     ('app.from_email', '"listmonk <noreply@listmonk.yoursite.com>"'),
-    ('app.logo_url', '"http://localhost:9000/public/static/logo.png"'),
+    ('app.logo_url', '""'),
     ('app.concurrency', '10'),
     ('app.message_rate', '10'),
     ('app.batch_size', '1000'),
@@ -199,6 +199,7 @@ INSERT INTO settings (key, value) VALUES
     ('upload.filesystem.upload_path', '"uploads"'),
     ('upload.filesystem.upload_uri', '"/uploads"'),
     ('upload.s3.url', '"https://ap-south-1.s3.amazonaws.com"'),
+    ('upload.s3.public_url', '""'),
     ('upload.s3.aws_access_key_id', '""'),
     ('upload.s3.aws_secret_access_key', '""'),
     ('upload.s3.aws_default_region', '"ap-south-1"'),
@@ -245,7 +246,8 @@ DROP INDEX IF EXISTS idx_bounces_date; CREATE INDEX idx_bounces_date ON bounces(
 DROP TABLE IF EXISTS affiliates CASCADE;
 CREATE TABLE affiliates (
     id               SERIAL PRIMARY KEY,
-    userid           TEXT NOT NULL DEFAULT '',
+    userid           TEXT NOT NULL,
+	affiliate        TEXT NOT NULL,
 	status           TEXT NOT NULL DEFAULT '',
 	code             TEXT NOT NULL DEFAULT '',
 	transaction      TEXT NOT NULL DEFAULT '',
@@ -259,7 +261,7 @@ CREATE TABLE affiliates (
 DROP TABLE IF EXISTS affiliates_codes CASCADE;
 CREATE TABLE affiliates_codes (
     id               SERIAL PRIMARY KEY,
-    userid           TEXT NOT NULL DEFAULT '',
+    userid           TEXT NOT NULL,
 	code             TEXT NOT NULL DEFAULT '',
 	status           TEXT NOT NULL DEFAULT '',
 	commission     	 TEXT NOT NULL DEFAULT '',
@@ -303,20 +305,20 @@ CREATE TABLE newsletters (
 -- campaign sms log
 DROP TABLE IF EXISTS campaign_sms CASCADE;
 CREATE TABLE campaign_sms (
-
-                              id              SERIAL PRIMARY KEY,
-                              campaign_id     INT NOT NULL,
-                              userid          TEXT NOT NULL,
-                              reference       TEXT,
-                              status       	TEXT NOT NULL,
-                              statusCode      INT,
-                              telephone       TEXT NOT NULL,
-                              failure_reason      TEXT,
-                              network_Code    TEXT,
-                              server       TEXT NOT NULL,
-                              metadata        JSONB NOT NULL DEFAULT '{}',
-                              created_at      TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-                              updated_at      TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+    id              SERIAL PRIMARY KEY,
+    campaign_id     INT NOT NULL,
+    userid          TEXT NOT NULL,
+    reference       TEXT,
+    status       	TEXT NOT NULL,
+    status_code     INT,
+    telephone       TEXT NOT NULL,
+	network_code    TEXT NOT NULL DEFAULT '',
+	failure_reason  TEXT NOT NULL DEFAULT '',
+	retry_count     INT NOT NULL DEFAULT 0,
+    metadata        JSONB NOT NULL DEFAULT '{}',
+	server        	TEXT NOT NULL DEFAULT '',
+    created_at      TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at      TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
 -- Jan 10, 2022  author const
@@ -335,6 +337,7 @@ ALTER TABLE templates ADD COLUMN IF NOT EXISTS text TEXT NOT NULL DEFAULT '';
 ALTER TABLE templates ADD COLUMN IF NOT EXISTS channel TEXT NOT NULL DEFAULT 'email';
 ALTER TABLE templates ADD COLUMN IF NOT EXISTS json TEXT NOT NULL DEFAULT '';
 ALTER TABLE templates ADD COLUMN IF NOT EXISTS status TEXT NOT NULL DEFAULT 'enabled';
+ALTER TABLE templates ADD COLUMN IF NOT EXISTS userid TEXT NOT NULL DEFAULT 'system';
 
 -- Feb 6 author const
 ALTER TABLE subscribers ADD COLUMN IF NOT EXISTS telephone TEXT NOT NULL DEFAULT '';

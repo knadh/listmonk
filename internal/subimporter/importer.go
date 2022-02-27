@@ -60,7 +60,7 @@ type Importer struct {
 	sync.RWMutex
 }
 
-// Options represents inport options.
+// Options represents import options.
 type Options struct {
 	UpsertStmt         *sql.Stmt
 	BlocklistStmt      *sql.Stmt
@@ -90,7 +90,7 @@ type SessionOpt struct {
 	ListIDs   []int  `json:"lists"`
 }
 
-// Status reporesents statistics from an ongoing import session.
+// Status represents statistics from an ongoing import session.
 type Status struct {
 	Name     string `json:"name"`
 	Total    int    `json:"total"`

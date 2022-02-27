@@ -88,6 +88,14 @@ type regTplFunc struct {
 }
 
 var regTplFuncs = []regTplFunc{
+	// Regular expression for matching {{ TrackLink "http://link.com" }} in the template
+	// and substituting it with {{ Track "http://link.com" . }} (the dot context)
+	// before compilation. This is to make linking easier for users.
+	{
+		regExp:  regexp.MustCompile("{{(\\s+)?TrackLink(\\s+)?(.+?)(\\s+)?}}"),
+		replace: `{{ TrackLink $3 . }}`,
+	},
+
 	// Convert the shorthand https://google.com@TrackLink to {{ TrackLink ... }}.
 	// This is for WYSIWYG editors that encode and break quotes {{ "" }} when inserted
 	// inside <a href="{{ TrackLink "https://these-quotes-break" }}>.
@@ -96,13 +104,6 @@ var regTplFuncs = []regTplFunc{
 		replace: `{{ TrackLink "$1" . }}`,
 	},
 
-	// Regular expression for matching {{ TrackLink "http://link.com" }} in the template
-	// and substituting it with {{ Track "http://link.com" . }} (the dot context)
-	// before compilation. This is to make linking easier for users.
-	{
-		regExp:  regexp.MustCompile("{{(\\s+)?TrackLink\\s+?(\"|`)(.+?)(\"|`)(\\s+)?}}"),
-		replace: `{{ TrackLink "$3" . }}`,
-	},
 	{
 		regExp:  regexp.MustCompile(`{{(\s+)?(TrackView|UnsubscribeURL|OptinURL|MessageURL)(\s+)?}}`),
 		replace: `{{ $2 . }}`,
@@ -167,6 +168,9 @@ type subLists struct {
 // SubscriberAttribs is the map of key:value attributes of a subscriber.
 type SubscriberAttribs map[string]interface{}
 
+// StringIntMap is used to define DB Scan()s.
+type StringIntMap map[string]int
+
 // Subscribers represents a slice of Subscriber.
 type Subscribers []Subscriber
 type SubscribersWithDetails []SubscriberWithListDetails
@@ -186,16 +190,18 @@ type SubscriberExport struct {
 type List struct {
 	Base
 
-	UUID            string          `db:"uuid" json:"uuid"`
-	Name            string          `db:"name" json:"name"`
-	Type            string          `db:"type" json:"type"`
-	Optin           string          `db:"optin" json:"optin"`
-	Tags            pq.StringArray  `db:"tags" json:"tags"`
-	SubscriberCount int             `db:"subscriber_count" json:"subscriber_count"`
-	SubscriberID    int             `db:"subscriber_id" json:"-"`
-	Meta            json.RawMessage `db:"meta" json:"meta"`
-	Channel         string          `db:"channel" json:"channel"`
-	Userid          string          `db:"userid" json:"userid"`
+	UUID             string          `db:"uuid" json:"uuid"`
+	Name             string          `db:"name" json:"name"`
+	Type             string          `db:"type" json:"type"`
+	Optin            string          `db:"optin" json:"optin"`
+	Tags             pq.StringArray  `db:"tags" json:"tags"`
+	SubscriberCount  int             `db:"subscriber_count" json:"subscriber_count"`
+	SubscriberCounts StringIntMap    `db:"subscriber_statuses" json:"subscriber_statuses"`
+	SubscriberID     int             `db:"subscriber_id" json:"-"`
+	Meta             json.RawMessage `db:"meta" json:"meta"`
+	Channel          string          `db:"channel" json:"channel"`
+	Userid           string          `db:"userid" json:"userid"`
+
 	// This is only relevant when querying the lists of a subscriber.
 	SubscriptionStatus string `db:"subscription_status" json:"subscription_status,omitempty"`
 
@@ -385,12 +391,30 @@ func (s SubscriberAttribs) Value() (driver.Value, error) {
 	return json.Marshal(s)
 }
 
-// Scan unmarshals JSON into SubscriberAttribs.
+// Scan unmarshals JSONB from the DB.
 func (s SubscriberAttribs) Scan(src interface{}) error {
+	if src == nil {
+		s = make(SubscriberAttribs)
+		return nil
+	}
+
 	if data, ok := src.([]byte); ok {
 		return json.Unmarshal(data, &s)
 	}
-	return fmt.Errorf("Could not not decode type %T -> %T", src, s)
+	return fmt.Errorf("could not not decode type %T -> %T", src, s)
+}
+
+// Scan unmarshals JSONB from the DB.
+func (s StringIntMap) Scan(src interface{}) error {
+	if src == nil {
+		s = make(StringIntMap)
+		return nil
+	}
+
+	if data, ok := src.([]byte); ok {
+		return json.Unmarshal(data, &s)
+	}
+	return fmt.Errorf("could not not decode type %T -> %T", src, s)
 }
 
 // GetIDs returns the list of campaign IDs.
@@ -454,6 +478,7 @@ func (c *Campaign) CompileTemplate(f template.FuncMap) error {
 	for _, r := range regTplFuncs {
 		body = r.regExp.ReplaceAllString(body, r.replace)
 	}
+
 	msgTpl, err := template.New(ContentTpl).Funcs(f).Parse(body)
 	if err != nil {
 		return fmt.Errorf("error compiling message: %v", err)
