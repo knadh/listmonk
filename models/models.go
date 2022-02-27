@@ -208,6 +208,8 @@ type CampaignSms struct {
 	Base
 	ID            int    `db:"id" json:"id"`
 	Status        string `db:"status" json:"status"`
+	CampaignId    int    `db:"campaign_id" json:"campaign_id"`
+	UserId        string `db:"userid" json:"userid"`
 	StatusCode    string `db:"status_code" json:"status_code"`
 	Reference     string `db:"reference" json:"reference"`
 	Telephone     string `db:"telephone" json:"telephone"`
