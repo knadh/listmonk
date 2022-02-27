@@ -129,6 +129,7 @@ WITH s AS (
         status=(CASE WHEN $4 != '' THEN $4::subscriber_status ELSE status END),
         attribs=(CASE WHEN $5 != '' THEN $5::JSONB ELSE attribs END),
         telephone=(CASE WHEN $8 != '' THEN $8 ELSE telephone END),
+		userid=(CASE WHEN $9 != '' THEN $9 ELSE userid END),
         updated_at=NOW()
     WHERE id = $1 RETURNING id
 ),
