@@ -372,7 +372,7 @@ func handleUpdateCampaign(c echo.Context) error {
 		pq.StringArray(normalizeTags(o.Tags)),
 		o.Messenger,
 		o.TemplateID,
-		o.ListIDs, o.Json)
+		o.ListIDs, o.Userid, o.Json)
 	if err != nil {
 		app.log.Printf("error updating campaign: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
