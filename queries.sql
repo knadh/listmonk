@@ -817,6 +817,12 @@ INSERT INTO campaign_views (campaign_id, subscriber_id)
 -- name: get-campaign-sms-logs
 SELECT * FROM campaign_sms WHERE campaign_id = $1;
 
+-- name: get-campaign-sms-counts
+SELECT count(*) as sent,
+       COUNT(CASE WHEN status = 'Sent' THEN 1 ELSE NULL END) as delivered,
+       COUNT(CASE WHEN status != 'Sent' THEN 1 ELSE NULL END) as failed
+from campaign_sms WHERE campaign_id = $1;
+
 -- users
 -- name: get-users
 SELECT * FROM users WHERE $1 = 0 OR id = $1 OFFSET $2 LIMIT $3;
