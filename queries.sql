@@ -814,6 +814,9 @@ WITH view AS (
 INSERT INTO campaign_views (campaign_id, subscriber_id)
     VALUES((SELECT campaign_id FROM view), (SELECT subscriber_id FROM view));
 
+-- name: get-campaign-sms-logs
+SELECT * FROM campaign_sms WHERE campaign_id = $1;
+
 -- users
 -- name: get-users
 SELECT * FROM users WHERE $1 = 0 OR id = $1 OFFSET $2 LIMIT $3;
