@@ -172,8 +172,8 @@ export default {
       isReady: false,
       isRichtextReady: false,
       isRichtextSourceVisible: false,
-      richtextConf: {},
       isTrackLink: false,
+      richtextConf: {},
       richTextSourceBody: '',
       form: {
         body: '',
@@ -203,6 +203,7 @@ export default {
 
         setup: (editor) => {
           editor.on('init', () => {
+            editor.focus();
             this.onEditorDialogOpen(editor);
           });
 
@@ -374,7 +375,7 @@ export default {
 
     beautifyHTML(str) {
       // Pad all tags with linebreaks.
-      let s = this.trimLines(str.replace(/(<([^>]+)>)/ig, '\n$1\n'), true);
+      let s = this.trimLines(str.replace(/(<(?!(\/)?a|span)([^>]+)>)/ig, '\n$1\n'), true);
 
       // Remove extra linebreaks.
       s = s.replace(/\n+/g, '\n');

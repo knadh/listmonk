@@ -1,6 +1,6 @@
 <template>
   <div class="items">
-    <b-tabs :animated="false">
+    <b-tabs :animated="false" v-model="tab">
       <b-tab-item :label="$t('settings.appearance.adminName')" label-position="on-border">
         <div class="block">
           {{ $t('settings.appearance.adminHelp') }}
@@ -55,7 +55,18 @@ export default Vue.extend({
   data() {
     return {
       data: this.form,
+      tab: 0,
     };
+  },
+
+  mounted() {
+    this.tab = this.$utils.getPref('settings.apperanceTab') || 0;
+  },
+
+  watch: {
+    tab(t) {
+      this.$utils.setPref('settings.apperanceTab', t);
+    },
   },
 
   computed: {
