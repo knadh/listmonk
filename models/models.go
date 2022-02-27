@@ -204,6 +204,17 @@ type List struct {
 	Total int `db:"total" json:"-"`
 }
 
+type CampaignSms struct {
+	Base
+	ID            int    `db:"id" json:"id"`
+	Status        string `db:"status" json:"status"`
+	StatusCode    string `db:"status_code" json:"status_code"`
+	Reference     string `db:"reference" json:"reference"`
+	Telephone     string `db:"telephone" json:"telephone"`
+	FailureReason string `db:"failure_reason" json:"failure_reason"`
+	NetworkCode   string `db:"network_code" json:"network_code"`
+}
+
 // Campaign represents an e-mail campaign.
 type Campaign struct {
 	Base

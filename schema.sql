@@ -303,21 +303,7 @@ CREATE TABLE newsletters (
 -- campaign sms log
 DROP TABLE IF EXISTS campaign_sms CASCADE;
 CREATE TABLE campaign_sms (
-<<<<<<< HEAD
-    id              SERIAL PRIMARY KEY,
-    campaign_id     INT NOT NULL,
-    userid          TEXT NOT NULL,
-    reference       TEXT,
-    status       	TEXT NOT NULL,
-    status_code     INT,
-    telephone       TEXT NOT NULL,
-	network_code    TEXT NOT NULL DEFAULT '',
-	failure_reason  TEXT NOT NULL DEFAULT '',
-	retry_count     INT NOT NULL DEFAULT 0,
-    metadata        JSONB NOT NULL DEFAULT '{}',
-    created_at      TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    updated_at      TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-=======
+
                               id              SERIAL PRIMARY KEY,
                               campaign_id     INT NOT NULL,
                               userid          TEXT NOT NULL,
@@ -331,7 +317,6 @@ CREATE TABLE campaign_sms (
                               metadata        JSONB NOT NULL DEFAULT '{}',
                               created_at      TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
                               updated_at      TIMESTAMP WITH TIME ZONE DEFAULT NOW()
->>>>>>> a46fac147551e658c522280b29d3af626fb1e613
 );
 
 -- Jan 10, 2022  author const
