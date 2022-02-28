@@ -820,8 +820,8 @@ SELECT * FROM campaign_sms WHERE campaign_id = $1;
 -- name: get-campaign-sms-counts
 WITH campaign_stats AS (
     SELECT campaign_id, count(*) AS sent,
-           COUNT(CASE WHEN status = 'Sent' THEN 1 ELSE NULL END) as delivered,
-           COUNT(CASE WHEN status != 'Sent' THEN 1 ELSE NULL END) as failed
+           COUNT(CASE WHEN status = 'Success' THEN 1 ELSE NULL END) as delivered,
+           COUNT(CASE WHEN status != 'Success' THEN 1 ELSE NULL END) as failed
     from campaign_sms WHERE campaign_id = $1 group by campaign_id)
 SELECT s.*, c.name, COALESCE(c.altbody, '') AS altbody FROM campaign_stats s LEFT JOIN campaigns c on c.id = s.campaign_id;
 
