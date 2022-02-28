@@ -8,10 +8,13 @@ import (
 )
 
 type CampaignSmsWrap struct {
-	Results   []models.CampaignSms `json:"results"`
-	Sent      int                  `db:"sent" json:"sent"`
-	Delivered int                  `db:"delivered" json:"delivered"`
-	Failed    int                  `db:"failed" json:"failed"`
+	Results         []models.CampaignSms `json:"results"`
+	Sent            int                  `db:"sent" json:"sent"`
+	Delivered       int                  `db:"delivered" json:"delivered"`
+	Failed          int                  `db:"failed" json:"failed"`
+	CampaignId      int                  `db:"campaign_id" json:"campaignId"`
+	CampaignName    string               `db:"name" json:"campaignName"`
+	CampaignAltBody string               `db:"altbody" json:"campaignAltBody"`
 }
 
 // handleGetSmsLogsByCampaignId retrieves lists of campaign sms
@@ -43,6 +46,11 @@ func handleGetSmsLogsByCampaignId(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			app.i18n.Ts("globals.messages.errorFetching",
 				"name", "{globals.terms.campaign}", "error", pqErrMsg(err)))
+	}
+
+	if len(out) != 1 {
+		app.log.Printf("error fetching campaign sms with id: %v", campaignId)
+		return c.JSON(http.StatusOK, okResp{[]struct{}{}})
 	}
 
 	out[0].Results = outResults
