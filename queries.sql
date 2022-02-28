@@ -819,8 +819,8 @@ SELECT * FROM campaign_sms WHERE campaign_id = $1;
 
 -- name: get-campaign-sms-counts
 SELECT count(*) as sent,
-       COUNT(CASE WHEN status = 'Sent' THEN 1 ELSE NULL END) as delivered,
-       COUNT(CASE WHEN status != 'Sent' THEN 1 ELSE NULL END) as failed
+       COUNT(CASE WHEN status = 'Success' THEN 1 ELSE NULL END) as delivered,
+       COUNT(CASE WHEN status != 'Success' THEN 1 ELSE NULL END) as failed
 from campaign_sms WHERE campaign_id = $1;
 
 -- users
