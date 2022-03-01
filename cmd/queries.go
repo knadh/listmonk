@@ -121,7 +121,7 @@ func connectDB(c dbConf) (*sqlx.DB, error) {
 	return db, nil
 }
 
-// compileSubscriberQueryTpl takes a arbitrary WHERE expressions
+// compileSubscriberQueryTpl takes an arbitrary WHERE expressions
 // to filter subscribers from the subscribers table and prepares a query
 // out of it using the raw `query-subscribers-template` query template.
 // While doing this, a readonly transaction is created and the query is
@@ -145,7 +145,7 @@ func (q *Queries) compileSubscriberQueryTpl(exp string, db *sqlx.DB) (string, er
 	return stmt, nil
 }
 
-// compileSubscriberQueryTpl takes a arbitrary WHERE expressions and a subscriber
+// compileSubscriberQueryTpl takes an arbitrary WHERE expressions and a subscriber
 // query template that depends on the filter (eg: delete by query, blocklist by query etc.)
 // combines and executes them.
 func (q *Queries) execSubscriberQueryTpl(exp, tpl string, listIDs []int64, db *sqlx.DB, args ...interface{}) error {

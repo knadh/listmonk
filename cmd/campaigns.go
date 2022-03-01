@@ -22,7 +22,7 @@ import (
 )
 
 // campaignReq is a wrapper over the Campaign model for receiving
-// campaign creation and updation data from APIs.
+// campaign creation and update data from APIs.
 type campaignReq struct {
 	models.Campaign
 
@@ -346,7 +346,7 @@ func handleUpdateCampaign(c echo.Context) error {
 	}
 
 	// Read the incoming params into the existing campaign fields from the DB.
-	// This allows updating of values that have been sent where as fields
+	// This allows updating of values that have been sent whereas fields
 	// that are not in the request retain the old values.
 	o := campaignReq{Campaign: cm}
 	if err := c.Bind(&o); err != nil {

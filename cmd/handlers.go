@@ -189,7 +189,7 @@ func handleHealthCheck(c echo.Context) error {
 	return c.JSON(http.StatusOK, okResp{true})
 }
 
-// serveCustomApperance serves the given custom CSS/JS apperance blob
+// serveCustomApperance serves the given custom CSS/JS appearance blob
 // meant for customizing public and admin pages from the admin settings UI.
 func serveCustomApperance(name string) echo.HandlerFunc {
 	return func(c echo.Context) error {
