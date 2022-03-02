@@ -32,6 +32,29 @@ router.afterEach((to) => {
   });
 });
 
+function initConfig(app) {
+  // Load server side config and language before mounting the app.
+  api.getServerConfig().then((data) => {
+    api.getLang(data.lang).then((lang) => {
+      i18n.locale = data.lang;
+      i18n.setLocaleMessage(i18n.locale, lang);
+
+      Vue.prototype.$utils = new Utils(i18n);
+      Vue.prototype.$api = api;
+
+      // Set the page title after i18n has loaded.
+      const to = router.history.current;
+      const t = to.meta.title ? `${i18n.tc(to.meta.title, 0)} /` : '';
+      document.title = `${t} listmonk`;
+
+      if (app) {
+        app.$mount('#app');
+      }
+    });
+  });
+
+  api.getSettings();
+}
 
 const v = new Vue({
   router,
@@ -43,28 +66,15 @@ const v = new Vue({
     isLoaded: false,
   },
 
+  methods: {
+    loadConfig() {
+      initConfig();
+    },
+  },
+
   mounted() {
     v.isLoaded = true;
   },
 });
 
-
-// Load server side config and language before mounting the app.
-api.getServerConfig().then((data) => {
-  api.getLang(data.lang).then((lang) => {
-    i18n.locale = data.lang;
-    i18n.setLocaleMessage(i18n.locale, lang);
-
-    Vue.prototype.$utils = new Utils(i18n);
-    Vue.prototype.$api = api;
-
-    // Set the page title after i18n has loaded.
-    const to = router.history.current;
-    const t = to.meta.title ? `${i18n.tc(to.meta.title, 0)} /` : '';
-    document.title = `${t} listmonk`;
-
-    v.$mount('#app');
-  });
-});
-
-api.getSettings();
+initConfig(v);
