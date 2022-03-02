@@ -34,7 +34,7 @@ type Emailer struct {
 	servers []*Server
 }
 
-// New returns an SMTP e-mail Messenger backend with a the given SMTP servers.
+// New returns an SMTP e-mail Messenger backend with the given SMTP servers.
 func New(servers ...Server) (*Emailer, error) {
 	e := &Emailer{
 		servers: make([]*Server, 0, len(servers)),
