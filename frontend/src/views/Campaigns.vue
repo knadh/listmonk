@@ -61,8 +61,11 @@
             <b-tooltip :label="$t('scheduled')" type="is-dark">
               <span class="is-size-7 has-text-grey scheduled">
                 <b-icon icon="alarm" size="is-small" />
-                {{ $utils.duration(Date(), props.row.sendAt, true) }}
-                <br />{{ $utils.niceDate(props.row.sendAt, true) }}
+                <span v-if="!isDone(props.row) && !isRunning(props.row)">
+                  {{ $utils.duration(new Date(), props.row.sendAt, true) }}
+                  <br />
+                </span>
+                {{ $utils.niceDate(props.row.sendAt, true) }}
               </span>
             </b-tooltip>
           </p>

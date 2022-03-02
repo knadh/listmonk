@@ -49,6 +49,8 @@ export default class Utils {
     }
   }
 
+  getDate = (d) => dayjs(d);
+
   // Parses an ISO timestamp to a simpler form.
   niceDate = (stamp, showTime) => {
     if (!stamp) {
