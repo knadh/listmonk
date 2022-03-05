@@ -233,9 +233,9 @@ func handleBounceWebhook(c echo.Context) error {
 
 		if err := app.bounce.Record(b); err != nil {
 			app.log.Printf("error recording bounce: %v", err)
-			app.metrics.CounterIncrement("bounces_errors_total", ml)
+			app.metrics.Increment("bounces_errors_total", ml)
 		} else {
-			app.metrics.CounterIncrement("bounces_processed_total", ml)
+			app.metrics.Increment("bounces_processed_total", ml)
 		}
 	}
 

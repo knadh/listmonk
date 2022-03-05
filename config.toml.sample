@@ -26,5 +26,6 @@ max_lifetime = "300s"
 
 # Prometheus Metrics.
 [metrics]
-enabled = true
-export_go_metrics = false
+namespace = "listmonk"
+export_process_metrics = true
+export_http_metrics = true
