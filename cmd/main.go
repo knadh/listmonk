@@ -85,8 +85,6 @@ var (
 )
 
 func init() {
-	setKoanfMetricsDefaults()
-
 	initFlags()
 
 	// Display version.
@@ -201,16 +199,6 @@ func main() {
 	// Start the campaign workers. The campaign batches (fetch from DB, push out
 	// messages) get processed at the specified interval.
 	go app.manager.Run()
-
-	if app.metrics.GetHandlerConfig().Enabled {
-		app.metrics.InfoSet(
-			"version",
-			metrics.Labels{
-				"build":   buildString,
-				"version": versionString,
-			},
-		)
-	}
 
 	// Start the app server.
 	srv := initHTTPServer(app)

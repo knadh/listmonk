@@ -48,10 +48,10 @@ func (app *App) sendNotification(toEmails []string, subject, tplName string, dat
 
 	if err := app.manager.PushMessage(m); err != nil {
 		app.log.Printf("error sending admin notification (%s): %v", subject, err)
-		app.metrics.CounterIncrement("messages_pushed_errors_total", ml)
+		app.metrics.Increment("messages_pushed_errors_total", ml)
 		return err
 	} else {
-		app.metrics.CounterIncrement("messages_pushed_total", ml)
+		app.metrics.Increment("messages_pushed_total", ml)
 	}
 	return nil
 }

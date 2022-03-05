@@ -308,30 +308,22 @@ func initSettings(query string, db *sqlx.DB, ko *koanf.Koanf) {
 	}
 }
 
-// setMetricsDefault configured the default values for Prometheus metrics
-// configuration
-func setKoanfMetricsDefaults() {
-	if err := ko.Load(confmap.Provider(map[string]interface{}{
-		"metrics.enabled":           false,
-		"metrics.export_go_metrics": false,
-	}, "."), nil); err != nil {
-		lo.Fatalf("error initializing metrics config defaults: %v", err)
-	}
-}
-
-// initMetrics loads settings for Prometheus metrics
+// initMetrics initializes a Metrics manager.
 func initMetrics() *metrics.Manager {
-	var c metrics.HandlerConfig
+	var (
+		ns = ko.String("metrics.namespace")
+	)
 
-	m := metrics.New("listmonk")
-
-	if err := ko.Unmarshal("metrics", &c); err != nil {
-		lo.Fatalf("error loading metrics config: %v", err)
+	// Set a default namespace.
+	if ns == "" {
+		ns = "listmonk"
 	}
 
-	m.SetHandlerConfig(c)
-
-	return m
+	return metrics.Init(metrics.Opts{
+		Namespace:         ns,
+		ExportGoMetrics:   ko.Bool("metrics.export_process_metrics"),
+		ExportHTTPMetrics: ko.Bool("metrics.export_http_metrics"),
+	})
 }
 
 func initConstants() *constants {

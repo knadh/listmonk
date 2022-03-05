@@ -49,6 +49,11 @@ func initHTTPHandlers(e *echo.Echo, app *App) {
 		g = e.Group("", middleware.BasicAuth(basicAuth))
 	}
 
+	// Collect metrics from HTTP handlers by injecting a middleware to export metrics.
+	if app.metrics.Opts.ExportHTTPMetrics {
+		e.Use(app.metrics.HTTPMiddleware())
+	}
+
 	// Admin JS app views.
 	// /admin/static/* file server is registered in initHTTPServer().
 	e.GET("/", func(c echo.Context) error {
@@ -127,13 +132,7 @@ func initHTTPHandlers(e *echo.Echo, app *App) {
 	g.POST("/api/media", handleUploadMedia)
 	g.DELETE("/api/media/:id", handleDeleteMedia)
 
-	if app.metrics.GetHandlerConfig().Enabled {
-		// Public metrics endpoint
-		g.GET("/api/metrics", app.metrics.HandlePromMetrics())
-
-		// Enable our metrics middleware to inspect requests
-		e.Use(app.metrics.MetricsMiddlewareWithConfig())
-	}
+	g.GET("/api/metrics", handleMetrics)
 
 	g.GET("/api/templates", handleGetTemplates)
 	g.GET("/api/templates/:id", handleGetTemplates)
@@ -195,6 +194,15 @@ func handleAdminPage(c echo.Context) error {
 // handleHealthCheck is a healthcheck endpoint that returns a 200 response.
 func handleHealthCheck(c echo.Context) error {
 	return c.JSON(http.StatusOK, okResp{true})
+}
+
+// handleMetrics serves the internal app metrics in Prometheus format.
+func handleMetrics(c echo.Context) error {
+	var (
+		app = c.Get("app").(*App)
+	)
+	app.metrics.FlushMetrics(c.Response().Writer)
+	return nil
 }
 
 // serveCustomApperance serves the given custom CSS/JS appearance blob
