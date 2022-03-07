@@ -46,9 +46,6 @@ __________________
 See [installation docs](https://listmonk.app/docs/installation).
 __________________
 
-### Heroku 
-[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/knadh/listmonk-heroku-deploy)
-
 
 ## Developers
 listmonk is a free and open source software licensed under AGPLv3. If you are interested in contributing, refer to the [developer setup](https://listmonk.app/docs/developer-setup). The backend is written in Go and the frontend is Vue with Buefy for UI. 
