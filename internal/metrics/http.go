@@ -2,7 +2,6 @@ package metrics
 
 import (
 	"fmt"
-	"reflect"
 	"time"
 
 	"github.com/labstack/echo/v4"
@@ -23,8 +22,7 @@ func (s *Manager) HTTPMiddleware() echo.MiddlewareFunc {
 				path = c.Path()
 			)
 
-			// To avoid high cardinality of "path" labels (essentially 404 requests) in metric names.
-			if isNotFoundHandler(c.Handler()) {
+			if c.Response().Status == 404 {
 				path = notFoundPath
 			}
 
@@ -55,9 +53,4 @@ func (s *Manager) HTTPMiddleware() echo.MiddlewareFunc {
 			return err
 		}
 	}
-}
-
-// Source: https://github.com/globocom/echo-prometheus/blob/9ae975523cfc327f82381486a4af3b381e4bfe5e/middleware.go#L65
-func isNotFoundHandler(handler echo.HandlerFunc) bool {
-	return reflect.ValueOf(handler).Pointer() == reflect.ValueOf(echo.NotFoundHandler).Pointer()
 }
