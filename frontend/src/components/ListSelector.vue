@@ -8,7 +8,7 @@
             :closable="true"
             :data-id="l.id"
             @close="removeList(l.id)" class="list">
-            {{ l.name }} <sup>{{ l.subscriptionStatus }}</sup>
+            {{ l.name }} <sup v-if="l.optin === 'double'">{{ l.subscriptionStatus }}</sup>
           </b-tag>
         </b-taglist>
       </div>

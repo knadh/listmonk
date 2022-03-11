@@ -112,7 +112,7 @@ func getPendingMigrations(db *sqlx.DB) (string, []migFunc, error) {
 	}
 
 	// Iterate through the migration versions and get everything above the last
-	// last upgraded semver.
+	// upgraded semver.
 	var toRun []migFunc
 	for i, m := range migList {
 		if semver.Compare(m.version, lastVer) > 0 {

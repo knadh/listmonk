@@ -147,7 +147,7 @@ func handleBounceWebhook(c echo.Context) error {
 		bounces []models.Bounce
 	)
 
-	// Read the request body instead of using using c.Bind() to read to save the entire raw request as meta.
+	// Read the request body instead of using c.Bind() to read to save the entire raw request as meta.
 	rawReq, err := ioutil.ReadAll(c.Request().Body)
 	if err != nil {
 		app.log.Printf("error reading ses notification body: %v", err)
