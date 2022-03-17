@@ -100,6 +100,7 @@ import 'tinymce';
 import 'tinymce/icons/default';
 import 'tinymce/themes/silver';
 import 'tinymce/skins/ui/oxide/skin.css';
+import 'tinymce/plugins/anchor';
 import 'tinymce/plugins/autoresize';
 import 'tinymce/plugins/autolink';
 import 'tinymce/plugins/charmap';
@@ -220,8 +221,8 @@ export default {
         entity_encoding: 'raw',
         convert_urls: true,
         plugins: [
-          'autoresize', 'autolink', 'charmap', 'emoticons', 'fullscreen', 'help',
-          'hr', 'image', 'imagetools', 'link', 'lists', 'paste', 'searchreplace',
+          'anchor', 'autoresize', 'autolink', 'charmap', 'emoticons', 'fullscreen',
+          'help', 'hr', 'image', 'imagetools', 'link', 'lists', 'paste', 'searchreplace',
           'table', 'visualblocks', 'visualchars', 'wordcount',
         ],
         toolbar: `undo redo | formatselect styleselect fontsizeselect |
