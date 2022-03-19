@@ -97,7 +97,7 @@
       <b-table-column v-slot="props" field="subscriber_counts"
         header-class="cy-subscribers" width="10%">
         <div class="fields stats">
-          <p v-for="(count, status) in props.row.subscriberStatuses" :key="status">
+          <p v-for="(count, status) in filterStatuses(props.row)" :key="status">
             <label>{{ $tc(`subscribers.status.${status}`, count) }}</label>
             <span :class="status">{{ $utils.formatNumber(count) }}</span>
           </p>
@@ -217,6 +217,15 @@ export default Vue.extend({
       if (this.$route.params.id) {
         this.$router.push({ name: 'lists' });
       }
+    },
+
+    filterStatuses(list) {
+      const out = { ...list.subscriberStatuses };
+      if (list.optin === 'single') {
+        delete out.unconfirmed;
+        delete out.confirmed;
+      }
+      return out;
     },
 
     getLists() {
