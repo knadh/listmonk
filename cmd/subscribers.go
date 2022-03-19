@@ -116,7 +116,7 @@ func handleQuerySubscribers(c echo.Context) error {
 	)
 
 	// Limit the subscribers to sepcific lists?
-	listIDs, err := getQueryListIDs(c.QueryParams())
+	listIDs, err := getQueryInts("list_id", c.QueryParams())
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidID"))
 	}
@@ -199,7 +199,13 @@ func handleExportSubscribers(c echo.Context) error {
 	)
 
 	// Limit the subscribers to sepcific lists?
-	listIDs, err := getQueryListIDs(c.QueryParams())
+	listIDs, err := getQueryInts("list_id", c.QueryParams())
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidID"))
+	}
+
+	// Export only specific subscriber IDs?
+	subIDs, err := getQueryInts("id", c.QueryParams())
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidID"))
 	}
@@ -222,7 +228,7 @@ func handleExportSubscribers(c echo.Context) error {
 		}
 		defer tx.Rollback()
 
-		if _, err := tx.Query(stmt, nil, 0, 1); err != nil {
+		if _, err := tx.Query(stmt, nil, 0, nil, 1); err != nil {
 			return echo.NewHTTPError(http.StatusBadRequest,
 				app.i18n.Ts("subscribers.errorPreparingQuery", "error", pqErrMsg(err)))
 		}
@@ -253,7 +259,7 @@ func handleExportSubscribers(c echo.Context) error {
 loop:
 	for {
 		var out []models.SubscriberExport
-		if err := tx.Select(&out, listIDs, id, app.constants.DBBatchSize); err != nil {
+		if err := tx.Select(&out, listIDs, id, subIDs, app.constants.DBBatchSize); err != nil {
 			return echo.NewHTTPError(http.StatusInternalServerError,
 				app.i18n.Ts("globals.messages.errorFetching",
 					"name", "{globals.terms.subscribers}", "error", pqErrMsg(err)))
@@ -858,9 +864,9 @@ func sanitizeSQLExp(q string) string {
 	return q
 }
 
-func getQueryListIDs(qp url.Values) (pq.Int64Array, error) {
+func getQueryInts(param string, qp url.Values) (pq.Int64Array, error) {
 	out := pq.Int64Array{}
-	if vals, ok := qp["list_id"]; ok {
+	if vals, ok := qp[param]; ok {
 		for _, v := range vals {
 			if v == "" {
 				continue
