@@ -455,7 +455,7 @@ func handleManageSubscriberLists(c echo.Context) error {
 		IDs pq.Int64Array
 	)
 
-	// Is it a /:id call?
+	// Is it an /:id call?
 	if pID != "" {
 		id, _ := strconv.ParseInt(pID, 10, 64)
 		if id < 1 {

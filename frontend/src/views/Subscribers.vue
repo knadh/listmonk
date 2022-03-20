@@ -454,6 +454,7 @@ export default Vue.extend({
       const data = {
         action,
         query: this.fullQueryExp,
+        list_ids: this.queryParams.listID ? [this.queryParams.listID] : null,
         target_list_ids: lists.map((l) => l.id),
       };
 
