@@ -17,11 +17,13 @@ import (
 	"github.com/knadh/koanf/providers/env"
 	"github.com/knadh/listmonk/internal/bounce"
 	"github.com/knadh/listmonk/internal/buflog"
+	"github.com/knadh/listmonk/internal/core"
 	"github.com/knadh/listmonk/internal/i18n"
 	"github.com/knadh/listmonk/internal/manager"
 	"github.com/knadh/listmonk/internal/media"
 	"github.com/knadh/listmonk/internal/messenger"
 	"github.com/knadh/listmonk/internal/subimporter"
+	"github.com/knadh/listmonk/models"
 	"github.com/knadh/stuffbin"
 )
 
@@ -32,9 +34,10 @@ const (
 // App contains the "global" components that are
 // passed around, especially through HTTP handlers.
 type App struct {
+	core       *core.Core
 	fs         stuffbin.FileSystem
 	db         *sqlx.DB
-	queries    *Queries
+	queries    *models.Queries
 	constants  *constants
 	manager    *manager.Manager
 	importer   *subimporter.Importer
@@ -67,7 +70,7 @@ var (
 	ko      = koanf.New(".")
 	fs      stuffbin.FileSystem
 	db      *sqlx.DB
-	queries *Queries
+	queries *models.Queries
 
 	// Compile-time variables.
 	buildString   string
@@ -167,6 +170,18 @@ func main() {
 
 	// Load i18n language map.
 	app.i18n = initI18n(app.constants.Lang, fs)
+
+	app.core = core.New(&core.Opt{
+		Constants: core.Constants{
+			SendOptinConfirmation: app.constants.SendOptinConfirmation,
+		},
+		Queries: queries,
+		DB:      db,
+		I18n:    app.i18n,
+		Log:     lo,
+	}, &core.Hooks{
+		SendOptinConfirmation: sendOptinConfirmationHook(app),
+	})
 
 	app.queries = queries
 	app.manager = initCampaignManager(app.queries, app.constants, app)

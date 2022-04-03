@@ -9,10 +9,6 @@ SELECT * FROM subscribers WHERE
         WHEN $3 != '' THEN email = $3
     END;
 
--- name: subscriber-exists
--- Check if a subscriber exists by id or UUID.
-SELECT exists (SELECT true FROM subscribers WHERE CASE WHEN $1 > 0 THEN id = $1 ELSE uuid = $2 END);
-
 -- name: get-subscribers-by-emails
 -- Get subscribers by emails.
 SELECT * FROM subscribers WHERE email=ANY($1);
@@ -25,8 +21,8 @@ SELECT * FROM lists
     LEFT JOIN subscriber_lists ON (lists.id = subscriber_lists.list_id)
     WHERE subscriber_id = (SELECT id FROM sub)
     -- Optional list IDs or UUIDs to filter.
-    AND (CASE WHEN $3::INT[] IS NOT NULL THEN id = ANY($3::INT[])
-          WHEN $4::UUID[] IS NOT NULL THEN uuid = ANY($4::UUID[])
+    AND (CASE WHEN CARDINALITY($3::INT[]) > 0 THEN id = ANY($3::INT[])
+          WHEN CARDINALITY($4::UUID[]) > 0 THEN uuid = ANY($4::UUID[])
           ELSE TRUE
     END)
     AND (CASE WHEN $5 != '' THEN subscriber_lists.status = $5::subscription_status END)
@@ -64,7 +60,7 @@ WITH sub AS (
 ),
 listIDs AS (
     SELECT id FROM lists WHERE
-        (CASE WHEN ARRAY_LENGTH($6::INT[], 1) > 0 THEN id=ANY($6)
+        (CASE WHEN CARDINALITY($6::INT[]) > 0 THEN id=ANY($6)
               ELSE uuid=ANY($7::UUID[]) END)
 ),
 subs AS (
@@ -348,8 +344,14 @@ SELECT * FROM lists WHERE (CASE WHEN $1 = '' THEN 1=1 ELSE type=$1::list_type EN
 -- name: query-lists
 WITH ls AS (
 	SELECT COUNT(*) OVER () AS total, lists.* FROM lists
-    WHERE ($1 = 0 OR id = $1) AND ($2 = '' OR name ILIKE $2)
-    OFFSET $3 LIMIT (CASE WHEN $4 = 0 THEN NULL ELSE $4 END)
+    WHERE
+        CASE
+            WHEN $1 > 0 THEN id = $1
+            WHEN $2 != '' THEN uuid = $2::UUID
+            WHEN $3 != '' THEN name ILIKE $3
+            ELSE true
+        END
+    OFFSET $4 LIMIT (CASE WHEN $5 = 0 THEN NULL ELSE $5 END)
 ),
 counts AS (
     SELECT list_id, JSON_OBJECT_AGG(status, subscriber_count) AS subscriber_statuses FROM (
@@ -447,7 +449,7 @@ SELECT  c.id, c.uuid, c.name, c.subject, c.from_email,
     ) AS lists
 FROM campaigns c
 WHERE ($1 = 0 OR id = $1)
-    AND status=ANY(CASE WHEN ARRAY_LENGTH($2::campaign_status[], 1) != 0 THEN $2::campaign_status[] ELSE ARRAY[status] END)
+    AND status=ANY(CASE WHEN CARDINALITY($2::campaign_status[]) != 0 THEN $2::campaign_status[] ELSE ARRAY[status] END)
     AND ($3 = '' OR CONCAT(name, subject) ILIKE $3)
 ORDER BY %s %s OFFSET $4 LIMIT (CASE WHEN $5 = 0 THEN NULL ELSE $5 END);
 
@@ -767,7 +769,7 @@ WITH u AS (
 UPDATE templates SET is_default=false WHERE id != $1;
 
 -- name: delete-template
--- Delete a template as long as there's more than one. One deletion, set all campaigns
+-- Delete a template as long as there's more than one. On deletion, set all campaigns
 -- with that template to the default template instead.
 WITH tpl AS (
     DELETE FROM templates WHERE id = $1 AND (SELECT COUNT(id) FROM templates) > 1 AND is_default = false RETURNING id
@@ -781,10 +783,13 @@ UPDATE campaigns SET template_id = (SELECT id FROM def) WHERE (SELECT id FROM tp
 
 -- media
 -- name: insert-media
-INSERT INTO media (uuid, filename, thumb, provider, created_at) VALUES($1, $2, $3, $4, NOW());
+INSERT INTO media (uuid, filename, thumb, provider, created_at) VALUES($1, $2, $3, $4, NOW()) RETURNING id;
+
+-- name: get-all-media
+SELECT * FROM media WHERE provider=$1 ORDER BY created_at DESC;
 
 -- name: get-media
-SELECT * FROM media WHERE provider=$1 ORDER BY created_at DESC;
+SELECT * FROM media WHERE CASE WHEN $1 > 0 THEN id = $1 ELSE uuid = $2 END;
 
 -- name: delete-media
 DELETE FROM media WHERE id=$1 RETURNING filename;
@@ -934,7 +939,7 @@ WHERE ($1 = 0 OR bounces.id = $1)
 ORDER BY %s %s OFFSET $5 LIMIT $6;
 
 -- name: delete-bounces
-DELETE FROM bounces WHERE ARRAY_LENGTH($1::INT[], 1) IS NULL OR id = ANY($1);
+DELETE FROM bounces WHERE CARDINALITY($1::INT[]) = 0 OR id = ANY($1);
 
 -- name: delete-bounces-by-subscriber
 WITH sub AS (

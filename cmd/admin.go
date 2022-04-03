@@ -7,7 +7,6 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/jmoiron/sqlx/types"
 	"github.com/labstack/echo/v4"
 )
 
@@ -61,12 +60,11 @@ func handleGetServerConfig(c echo.Context) error {
 func handleGetDashboardCharts(c echo.Context) error {
 	var (
 		app = c.Get("app").(*App)
-		out types.JSONText
 	)
 
-	if err := app.queries.GetDashboardCharts.Get(&out); err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError,
-			app.i18n.Ts("globals.messages.errorFetching", "name", "dashboard charts", "error", pqErrMsg(err)))
+	out, err := app.core.GetDashboardCharts()
+	if err != nil {
+		return err
 	}
 
 	return c.JSON(http.StatusOK, okResp{out})
@@ -76,12 +74,11 @@ func handleGetDashboardCharts(c echo.Context) error {
 func handleGetDashboardCounts(c echo.Context) error {
 	var (
 		app = c.Get("app").(*App)
-		out types.JSONText
 	)
 
-	if err := app.queries.GetDashboardCounts.Get(&out); err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError,
-			app.i18n.Ts("globals.messages.errorFetching", "name", "dashboard stats", "error", pqErrMsg(err)))
+	out, err := app.core.GetDashboardCounts()
+	if err != nil {
+		return err
 	}
 
 	return c.JSON(http.StatusOK, okResp{out})

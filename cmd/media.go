@@ -8,8 +8,6 @@ import (
 	"strconv"
 
 	"github.com/disintegration/imaging"
-	"github.com/gofrs/uuid"
-	"github.com/knadh/listmonk/internal/media"
 	"github.com/labstack/echo/v4"
 )
 
@@ -97,20 +95,11 @@ func handleUploadMedia(c echo.Context) error {
 			app.i18n.Ts("media.errorSavingThumbnail", "error", err.Error()))
 	}
 
-	uu, err := uuid.NewV4()
-	if err != nil {
-		app.log.Printf("error generating UUID: %v", err)
-		return echo.NewHTTPError(http.StatusInternalServerError,
-			app.i18n.Ts("globals.messages.errorUUID", "error", err.Error()))
-	}
-
 	// Write to the DB.
-	if _, err := app.queries.InsertMedia.Exec(uu, fName, thumbfName, app.constants.MediaProvider); err != nil {
+	// TODO: cleanup
+	if _, err := app.core.InsertMedia(fName, thumbfName, app.constants.MediaProvider, app.media); err != nil {
 		cleanUp = true
-		app.log.Printf("error inserting uploaded file to db: %v", err)
-		return echo.NewHTTPError(http.StatusInternalServerError,
-			app.i18n.Ts("globals.messages.errorCreating",
-				"name", "{globals.terms.media}", "error", pqErrMsg(err)))
+		return err
 	}
 	return c.JSON(http.StatusOK, okResp{true})
 }
@@ -118,19 +107,22 @@ func handleUploadMedia(c echo.Context) error {
 // handleGetMedia handles retrieval of uploaded media.
 func handleGetMedia(c echo.Context) error {
 	var (
-		app = c.Get("app").(*App)
-		out = []media.Media{}
+		app   = c.Get("app").(*App)
+		id, _ = strconv.Atoi(c.Param("id"))
 	)
 
-	if err := app.queries.GetMedia.Select(&out, app.constants.MediaProvider); err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError,
-			app.i18n.Ts("globals.messages.errorFetching",
-				"name", "{globals.terms.media}", "error", pqErrMsg(err)))
+	// Fetch one list.
+	if id > 0 {
+		out, err := app.core.GetMedia(id, "", app.media)
+		if err != nil {
+			return err
+		}
+		return c.JSON(http.StatusOK, okResp{out})
 	}
 
-	for i := 0; i < len(out); i++ {
-		out[i].URL = app.media.Get(out[i].Filename)
-		out[i].ThumbURL = app.media.Get(out[i].Thumb)
+	out, err := app.core.GetAllMedia(app.constants.MediaProvider, app.media)
+	if err != nil {
+		return err
 	}
 
 	return c.JSON(http.StatusOK, okResp{out})
@@ -147,15 +139,14 @@ func handleDeleteMedia(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidID"))
 	}
 
-	var m media.Media
-	if err := app.queries.DeleteMedia.Get(&m, id); err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError,
-			app.i18n.Ts("globals.messages.errorDeleting",
-				"name", "{globals.terms.media}", "error", pqErrMsg(err)))
+	fname, err := app.core.DeleteMedia(id)
+	if err != nil {
+		return err
 	}
 
-	app.media.Delete(m.Filename)
-	app.media.Delete(thumbPrefix + m.Filename)
+	app.media.Delete(fname)
+	app.media.Delete(thumbPrefix + fname)
+
 	return c.JSON(http.StatusOK, okResp{true})
 }
 

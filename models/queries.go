@@ -1,10 +1,9 @@
-package main
+package models
 
 import (
 	"context"
 	"database/sql"
 	"fmt"
-	"time"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/lib/pq"
@@ -22,7 +21,6 @@ type Queries struct {
 	GetSubscribersByEmails          *sqlx.Stmt `query:"get-subscribers-by-emails"`
 	GetSubscriberLists              *sqlx.Stmt `query:"get-subscriber-lists"`
 	GetSubscriberListsLazy          *sqlx.Stmt `query:"get-subscriber-lists-lazy"`
-	SubscriberExists                *sqlx.Stmt `query:"subscriber-exists"`
 	UpdateSubscriber                *sqlx.Stmt `query:"update-subscriber"`
 	BlocklistSubscribers            *sqlx.Stmt `query:"blocklist-subscribers"`
 	AddSubscribersToLists           *sqlx.Stmt `query:"add-subscribers-to-lists"`
@@ -72,6 +70,7 @@ type Queries struct {
 	DeleteCampaign           *sqlx.Stmt `query:"delete-campaign"`
 
 	InsertMedia *sqlx.Stmt `query:"insert-media"`
+	GetAllMedia *sqlx.Stmt `query:"get-all-media"`
 	GetMedia    *sqlx.Stmt `query:"get-media"`
 	DeleteMedia *sqlx.Stmt `query:"delete-media"`
 
@@ -94,39 +93,12 @@ type Queries struct {
 	DeleteBouncesBySubscriber *sqlx.Stmt `query:"delete-bounces-by-subscriber"`
 }
 
-// dbConf contains database config required for connecting to a DB.
-type dbConf struct {
-	Host        string        `koanf:"host"`
-	Port        int           `koanf:"port"`
-	User        string        `koanf:"user"`
-	Password    string        `koanf:"password"`
-	DBName      string        `koanf:"database"`
-	SSLMode     string        `koanf:"ssl_mode"`
-	MaxOpen     int           `koanf:"max_open"`
-	MaxIdle     int           `koanf:"max_idle"`
-	MaxLifetime time.Duration `koanf:"max_lifetime"`
-}
-
-// connectDB initializes a database connection.
-func connectDB(c dbConf) (*sqlx.DB, error) {
-	db, err := sqlx.Connect("postgres",
-		fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=%s",
-			c.Host, c.Port, c.User, c.Password, c.DBName, c.SSLMode))
-	if err != nil {
-		return nil, err
-	}
-	db.SetMaxOpenConns(c.MaxOpen)
-	db.SetMaxIdleConns(c.MaxIdle)
-	db.SetConnMaxLifetime(c.MaxLifetime)
-	return db, nil
-}
-
-// compileSubscriberQueryTpl takes an arbitrary WHERE expressions
+// CompileSubscriberQueryTpl takes an arbitrary WHERE expressions
 // to filter subscribers from the subscribers table and prepares a query
 // out of it using the raw `query-subscribers-template` query template.
 // While doing this, a readonly transaction is created and the query is
 // dry run on it to ensure that it is indeed readonly.
-func (q *Queries) compileSubscriberQueryTpl(exp string, db *sqlx.DB) (string, error) {
+func (q *Queries) CompileSubscriberQueryTpl(exp string, db *sqlx.DB) (string, error) {
 	tx, err := db.BeginTxx(context.Background(), &sql.TxOptions{ReadOnly: true})
 	if err != nil {
 		return "", err
@@ -148,19 +120,19 @@ func (q *Queries) compileSubscriberQueryTpl(exp string, db *sqlx.DB) (string, er
 // compileSubscriberQueryTpl takes an arbitrary WHERE expressions and a subscriber
 // query template that depends on the filter (eg: delete by query, blocklist by query etc.)
 // combines and executes them.
-func (q *Queries) execSubscriberQueryTpl(exp, tpl string, listIDs []int64, db *sqlx.DB, args ...interface{}) error {
+func (q *Queries) ExecSubscriberQueryTpl(exp, tpl string, listIDs []int, db *sqlx.DB, args ...interface{}) error {
 	// Perform a dry run.
-	filterExp, err := q.compileSubscriberQueryTpl(exp, db)
+	filterExp, err := q.CompileSubscriberQueryTpl(exp, db)
 	if err != nil {
 		return err
 	}
 
 	if len(listIDs) == 0 {
-		listIDs = pq.Int64Array{}
+		listIDs = []int{}
 	}
 
 	// First argument is the boolean indicating if the query is a dry run.
-	a := append([]interface{}{false, pq.Int64Array(listIDs)}, args...)
+	a := append([]interface{}{false, pq.Array(listIDs)}, args...)
 	if _, err := db.Exec(fmt.Sprintf(tpl, filterExp), a...); err != nil {
 		return err
 	}

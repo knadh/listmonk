@@ -2,7 +2,6 @@ package main
 
 import (
 	"bytes"
-	"database/sql"
 	"errors"
 	"fmt"
 	"html/template"
@@ -13,12 +12,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/gofrs/uuid"
-	"github.com/jmoiron/sqlx"
 	"github.com/knadh/listmonk/models"
 	"github.com/labstack/echo/v4"
 	"github.com/lib/pq"
-	null "gopkg.in/volatiletech/null.v6"
 )
 
 // campaignReq is a wrapper over the Campaign model for receiving
@@ -27,18 +23,16 @@ type campaignReq struct {
 	models.Campaign
 
 	// Indicates if the "send_at" date should be written or set to null.
-	SendLater bool `db:"-" json:"send_later"`
+	SendLater bool `json:"send_later"`
 
 	// This overrides Campaign.Lists to receive and
 	// write a list of int IDs during creation and updation.
 	// Campaign.Lists is JSONText for sending lists children
 	// to the outside world.
-	ListIDs pq.Int64Array `db:"-" json:"lists"`
+	ListIDs []int `json:"lists"`
 
 	// This is only relevant to campaign test requests.
 	SubscriberEmails pq.StringArray `json:"subscribers"`
-
-	Type string `json:"type"`
 }
 
 // campaignContentReq wraps params coming from API requests for converting
@@ -49,43 +43,8 @@ type campaignContentReq struct {
 	To   string `json:"to"`
 }
 
-type campCountStats struct {
-	CampaignID int       `db:"campaign_id" json:"campaign_id"`
-	Count      int       `db:"count" json:"count"`
-	Timestamp  time.Time `db:"timestamp" json:"timestamp"`
-}
-
-type campTopLinks struct {
-	URL   string `db:"url" json:"url"`
-	Count int    `db:"count" json:"count"`
-}
-
-type campaignStats struct {
-	ID        int       `db:"id" json:"id"`
-	Status    string    `db:"status" json:"status"`
-	ToSend    int       `db:"to_send" json:"to_send"`
-	Sent      int       `db:"sent" json:"sent"`
-	Started   null.Time `db:"started_at" json:"started_at"`
-	UpdatedAt null.Time `db:"updated_at" json:"updated_at"`
-	Rate      int       `json:"rate"`
-	NetRate   int       `json:"net_rate"`
-}
-
-type campsWrap struct {
-	Results models.Campaigns `json:"results"`
-
-	Query   string `json:"query"`
-	Total   int    `json:"total"`
-	PerPage int    `json:"per_page"`
-	Page    int    `json:"page"`
-}
-
 var (
-	regexFromAddress   = regexp.MustCompile(`(.+?)\s<(.+?)@(.+?)>`)
-	regexFullTextQuery = regexp.MustCompile(`\s+`)
-
-	campaignQuerySortFields = []string{"name", "status", "created_at", "updated_at"}
-	bounceQuerySortFields   = []string{"email", "campaign_name", "source", "created_at"}
+	regexFromAddress = regexp.MustCompile(`(.+?)\s<(.+?)@(.+?)>`)
 )
 
 // handleGetCampaigns handles retrieval of campaigns.
@@ -93,9 +52,7 @@ func handleGetCampaigns(c echo.Context) error {
 	var (
 		app = c.Get("app").(*App)
 		pg  = getPagination(c.QueryParams(), 20)
-		out campsWrap
 
-		id, _     = strconv.Atoi(c.Param("id"))
 		status    = c.QueryParams()["status"]
 		query     = strings.TrimSpace(c.FormValue("query"))
 		orderBy   = c.FormValue("order_by")
@@ -103,57 +60,48 @@ func handleGetCampaigns(c echo.Context) error {
 		noBody, _ = strconv.ParseBool(c.QueryParam("no_body"))
 	)
 
-	// Fetch one campaign.
-	single := false
-	if id > 0 {
-		single = true
+	res, err := app.core.QueryCampaigns(query, status, orderBy, order, pg.Offset, pg.Limit)
+	if err != nil {
+		return err
 	}
 
-	queryStr, stmt := makeSearchQuery(query, orderBy, order, app.queries.QueryCampaigns)
+	if noBody {
+		for i := 0; i < len(res); i++ {
+			res[i].Body = ""
+		}
+	}
 
-	// Unsafe to ignore scanning fields not present in models.Campaigns.
-	if err := db.Select(&out.Results, stmt, id, pq.StringArray(status), queryStr, pg.Offset, pg.Limit); err != nil {
-		app.log.Printf("error fetching campaigns: %v", err)
-		return echo.NewHTTPError(http.StatusInternalServerError,
-			app.i18n.Ts("globals.messages.errorFetching",
-				"name", "{globals.terms.campaign}", "error", pqErrMsg(err)))
-	}
-	if single && len(out.Results) == 0 {
-		return echo.NewHTTPError(http.StatusBadRequest,
-			app.i18n.Ts("campaigns.notFound", "name", "{globals.terms.campaign}"))
-	}
-	if len(out.Results) == 0 {
+	var out models.PageResults
+	if len(res) == 0 {
 		out.Results = []models.Campaign{}
 		return c.JSON(http.StatusOK, okResp{out})
 	}
 
-	for i := 0; i < len(out.Results); i++ {
-		// Replace null tags.
-		if out.Results[i].Tags == nil {
-			out.Results[i].Tags = make(pq.StringArray, 0)
-		}
-
-		if noBody {
-			out.Results[i].Body = ""
-		}
-	}
-
-	// Lazy load stats.
-	if err := out.Results.LoadStats(app.queries.GetCampaignStats); err != nil {
-		app.log.Printf("error fetching campaign stats: %v", err)
-		return echo.NewHTTPError(http.StatusInternalServerError,
-			app.i18n.Ts("globals.messages.errorFetching",
-				"name", "{globals.terms.campaign}", "error", pqErrMsg(err)))
-	}
-
-	if single {
-		return c.JSON(http.StatusOK, okResp{out.Results[0]})
-	}
-
 	// Meta.
-	out.Total = out.Results[0].Total
+	out.Results = res
+	out.Total = res[0].Total
 	out.Page = pg.Page
 	out.PerPage = pg.PerPage
+
+	return c.JSON(http.StatusOK, okResp{out})
+}
+
+// handleGetCampaign handles retrieval of campaigns.
+func handleGetCampaign(c echo.Context) error {
+	var (
+		app       = c.Get("app").(*App)
+		id, _     = strconv.Atoi(c.Param("id"))
+		noBody, _ = strconv.ParseBool(c.QueryParam("no_body"))
+	)
+
+	out, err := app.core.GetCampaign(id, "")
+	if err != nil {
+		return err
+	}
+
+	if noBody {
+		out.Body = ""
+	}
 
 	return c.JSON(http.StatusOK, okResp{out})
 }
@@ -170,17 +118,9 @@ func handlePreviewCampaign(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidID"))
 	}
 
-	var camp models.Campaign
-	if err := app.queries.GetCampaignForPreview.Get(&camp, id, tplID); err != nil {
-		if err == sql.ErrNoRows {
-			return echo.NewHTTPError(http.StatusBadRequest,
-				app.i18n.Ts("globals.messages.notFound", "name", "{globals.terms.campaign}"))
-		}
-
-		app.log.Printf("error fetching campaign: %v", err)
-		return echo.NewHTTPError(http.StatusInternalServerError,
-			app.i18n.Ts("globals.messages.errorFetching",
-				"name", "{globals.terms.campaign}", "error", pqErrMsg(err)))
+	camp, err := app.core.GetCampaignForPreview(id, tplID)
+	if err != nil {
+		return err
 	}
 
 	// There's a body in the request to preview instead of the body in the DB.
@@ -274,45 +214,12 @@ func handleCreateCampaign(c echo.Context) error {
 		o = c
 	}
 
-	uu, err := uuid.NewV4()
+	out, err := app.core.CreateCampaign(o.Campaign, o.ListIDs)
 	if err != nil {
-		app.log.Printf("error generating UUID: %v", err)
-		return echo.NewHTTPError(http.StatusInternalServerError,
-			app.i18n.Ts("globals.messages.errorUUID", "error", err.Error()))
+		return err
 	}
 
-	// Insert and read ID.
-	var newID int
-	if err := app.queries.CreateCampaign.Get(&newID,
-		uu,
-		o.Type,
-		o.Name,
-		o.Subject,
-		o.FromEmail,
-		o.Body,
-		o.AltBody,
-		o.ContentType,
-		o.SendAt,
-		o.Headers,
-		pq.StringArray(normalizeTags(o.Tags)),
-		o.Messenger,
-		o.TemplateID,
-		o.ListIDs,
-	); err != nil {
-		if err == sql.ErrNoRows {
-			return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("campaigns.noSubs"))
-		}
-
-		app.log.Printf("error creating campaign: %v", err)
-		return echo.NewHTTPError(http.StatusInternalServerError,
-			app.i18n.Ts("globals.messages.errorCreating",
-				"name", "{globals.terms.campaign}", "error", pqErrMsg(err)))
-	}
-
-	// Hand over to the GET handler to return the last insertion.
-	return handleGetCampaigns(copyEchoCtx(c, map[string]string{
-		"id": fmt.Sprintf("%d", newID),
-	}))
+	return c.JSON(http.StatusOK, okResp{out})
 }
 
 // handleUpdateCampaign handles campaign modification.
@@ -328,17 +235,9 @@ func handleUpdateCampaign(c echo.Context) error {
 
 	}
 
-	var cm models.Campaign
-	if err := app.queries.GetCampaign.Get(&cm, id, nil); err != nil {
-		if err == sql.ErrNoRows {
-			return echo.NewHTTPError(http.StatusInternalServerError,
-				app.i18n.Ts("globals.messages.notFound", "name", "{globals.terms.campaign}"))
-		}
-
-		app.log.Printf("error fetching campaign: %v", err)
-		return echo.NewHTTPError(http.StatusInternalServerError,
-			app.i18n.Ts("globals.messages.errorFetching",
-				"name", "{globals.terms.campaign}", "error", pqErrMsg(err)))
+	cm, err := app.core.GetCampaign(id, "")
+	if err != nil {
+		return err
 	}
 
 	if isCampaignalMutable(cm.Status) {
@@ -359,28 +258,12 @@ func handleUpdateCampaign(c echo.Context) error {
 		o = c
 	}
 
-	_, err := app.queries.UpdateCampaign.Exec(cm.ID,
-		o.Name,
-		o.Subject,
-		o.FromEmail,
-		o.Body,
-		o.AltBody,
-		o.ContentType,
-		o.SendAt,
-		o.SendLater,
-		o.Headers,
-		pq.StringArray(normalizeTags(o.Tags)),
-		o.Messenger,
-		o.TemplateID,
-		o.ListIDs)
+	out, err := app.core.UpdateCampaign(id, o.Campaign, o.ListIDs, o.SendLater)
 	if err != nil {
-		app.log.Printf("error updating campaign: %v", err)
-		return echo.NewHTTPError(http.StatusInternalServerError,
-			app.i18n.Ts("globals.messages.errorUpdating",
-				"name", "{globals.terms.campaign}", "error", pqErrMsg(err)))
+		return err
 	}
 
-	return handleGetCampaigns(c)
+	return c.JSON(http.StatusOK, okResp{out})
 }
 
 // handleUpdateCampaignStatus handles campaign status modification.
@@ -394,73 +277,20 @@ func handleUpdateCampaignStatus(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidID"))
 	}
 
-	var cm models.Campaign
-	if err := app.queries.GetCampaign.Get(&cm, id, nil); err != nil {
-		if err == sql.ErrNoRows {
-			return echo.NewHTTPError(http.StatusBadRequest,
-				app.i18n.Ts("globals.message.notFound", "name", "{globals.terms.campaign}"))
-		}
-
-		app.log.Printf("error fetching campaign: %v", err)
-		return echo.NewHTTPError(http.StatusInternalServerError,
-			app.i18n.Ts("globals.messages.errorFetching",
-				"name", "{globals.terms.campaign}", "error", pqErrMsg(err)))
+	var o struct {
+		Status string `json:"status"`
 	}
 
-	// Incoming params.
-	var o campaignReq
 	if err := c.Bind(&o); err != nil {
 		return err
 	}
 
-	errMsg := ""
-	switch o.Status {
-	case models.CampaignStatusDraft:
-		if cm.Status != models.CampaignStatusScheduled {
-			errMsg = app.i18n.T("campaigns.onlyScheduledAsDraft")
-		}
-	case models.CampaignStatusScheduled:
-		if cm.Status != models.CampaignStatusDraft {
-			errMsg = app.i18n.T("campaigns.onlyDraftAsScheduled")
-		}
-		if !cm.SendAt.Valid {
-			errMsg = app.i18n.T("campaigns.needsSendAt")
-		}
-
-	case models.CampaignStatusRunning:
-		if cm.Status != models.CampaignStatusPaused && cm.Status != models.CampaignStatusDraft {
-			errMsg = app.i18n.T("campaigns.onlyPausedDraft")
-		}
-	case models.CampaignStatusPaused:
-		if cm.Status != models.CampaignStatusRunning {
-			errMsg = app.i18n.T("campaigns.onlyActivePause")
-		}
-	case models.CampaignStatusCancelled:
-		if cm.Status != models.CampaignStatusRunning && cm.Status != models.CampaignStatusPaused {
-			errMsg = app.i18n.T("campaigns.onlyActiveCancel")
-		}
-	}
-
-	if len(errMsg) > 0 {
-		return echo.NewHTTPError(http.StatusBadRequest, errMsg)
-	}
-
-	res, err := app.queries.UpdateCampaignStatus.Exec(cm.ID, o.Status)
+	out, err := app.core.UpdateCampaignStatus(id, o.Status)
 	if err != nil {
-		app.log.Printf("error updating campaign status: %v", err)
-
-		return echo.NewHTTPError(http.StatusInternalServerError,
-			app.i18n.Ts("globals.messages.errorUpdating",
-				"name", "{globals.terms.campaign}", "error", pqErrMsg(err)))
+		return err
 	}
 
-	if n, _ := res.RowsAffected(); n == 0 {
-		return echo.NewHTTPError(http.StatusBadRequest,
-			app.i18n.Ts("globals.messages.notFound",
-				"name", "{globals.terms.campaign}", "error", pqErrMsg(err)))
-	}
-
-	return handleGetCampaigns(c)
+	return c.JSON(http.StatusOK, okResp{out})
 }
 
 // handleDeleteCampaign handles campaign deletion.
@@ -475,26 +305,8 @@ func handleDeleteCampaign(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidID"))
 	}
 
-	var cm models.Campaign
-	if err := app.queries.GetCampaign.Get(&cm, id, nil); err != nil {
-		if err == sql.ErrNoRows {
-			return echo.NewHTTPError(http.StatusBadRequest,
-				app.i18n.Ts("globals.messages.notFound",
-					"name", "{globals.terms.campaign}", "error", pqErrMsg(err)))
-		}
-
-		app.log.Printf("error fetching campaign: %v", err)
-		return echo.NewHTTPError(http.StatusInternalServerError,
-			app.i18n.Ts("globals.messages.errorFetching",
-				"name", "{globals.terms.campaign}", "error", pqErrMsg(err)))
-	}
-
-	if _, err := app.queries.DeleteCampaign.Exec(cm.ID); err != nil {
-		app.log.Printf("error deleting campaign: %v", err)
-		return echo.NewHTTPError(http.StatusInternalServerError,
-			app.i18n.Ts("globals.messages.errorDeleting",
-				"name", "{globals.terms.campaign}", "error", pqErrMsg(err)))
-
+	if err := app.core.DeleteCampaign(id); err != nil {
+		return err
 	}
 
 	return c.JSON(http.StatusOK, okResp{true})
@@ -504,19 +316,14 @@ func handleDeleteCampaign(c echo.Context) error {
 func handleGetRunningCampaignStats(c echo.Context) error {
 	var (
 		app = c.Get("app").(*App)
-		out []campaignStats
 	)
 
-	if err := app.queries.GetCampaignStatus.Select(&out, models.CampaignStatusRunning); err != nil {
-		if err == sql.ErrNoRows {
-			return c.JSON(http.StatusOK, okResp{[]struct{}{}})
-		}
+	out, err := app.core.GetRunningCampaignStats()
+	if err != nil {
+		return err
+	}
 
-		app.log.Printf("error fetching campaign stats: %v", err)
-		return echo.NewHTTPError(http.StatusInternalServerError,
-			app.i18n.Ts("globals.messages.errorFetching",
-				"name", "{globals.terms.campaign}", "error", pqErrMsg(err)))
-	} else if len(out) == 0 {
+	if len(out) == 0 {
 		return c.JSON(http.StatusOK, okResp{[]struct{}{}})
 	}
 
@@ -577,29 +384,16 @@ func handleTestCampaign(c echo.Context) error {
 	for i := 0; i < len(req.SubscriberEmails); i++ {
 		req.SubscriberEmails[i] = strings.ToLower(strings.TrimSpace(req.SubscriberEmails[i]))
 	}
-	var subs models.Subscribers
-	if err := app.queries.GetSubscribersByEmails.Select(&subs, req.SubscriberEmails); err != nil {
-		app.log.Printf("error fetching subscribers: %v", err)
-		return echo.NewHTTPError(http.StatusInternalServerError,
-			app.i18n.Ts("globals.messages.errorFetching",
-				"name", "{globals.terms.subscribers}", "error", pqErrMsg(err)))
-	} else if len(subs) == 0 {
-		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("campaigns.noKnownSubsToTest"))
+
+	subs, err := app.core.GetSubscribersByEmail(req.SubscriberEmails)
+	if err != nil {
+		return err
 	}
 
 	// The campaign.
-	var camp models.Campaign
-	if err := app.queries.GetCampaignForPreview.Get(&camp, campID, tplID); err != nil {
-		if err == sql.ErrNoRows {
-			return echo.NewHTTPError(http.StatusBadRequest,
-				app.i18n.Ts("globals.messages.notFound",
-					"name", "{globals.terms.campaign}"))
-		}
-
-		app.log.Printf("error fetching campaign: %v", err)
-		return echo.NewHTTPError(http.StatusInternalServerError,
-			app.i18n.Ts("globals.messages.errorFetching",
-				"name", "{globals.terms.campaign}", "error", pqErrMsg(err)))
+	camp, err := app.core.GetCampaignForPreview(campID, tplID)
+	if err != nil {
+		return err
 	}
 
 	// Override certain values from the DB with incoming values.
@@ -647,38 +441,24 @@ func handleGetCampaignViewAnalytics(c echo.Context) error {
 			app.i18n.Ts("globals.messages.missingFields", "name", "`id`"))
 	}
 
-	// Pick campaign view counts or click counts.
-	var stmt *sqlx.Stmt
-	switch typ {
-	case "views":
-		stmt = app.queries.GetCampaignViewCounts
-	case "clicks":
-		stmt = app.queries.GetCampaignClickCounts
-	case "bounces":
-		stmt = app.queries.GetCampaignBounceCounts
-	case "links":
-		out := make([]campTopLinks, 0)
-		if err := app.queries.GetCampaignLinkCounts.Select(&out, pq.Int64Array(ids), from, to); err != nil {
-			app.log.Printf("error fetching campaign %s: %v", typ, err)
-			return echo.NewHTTPError(http.StatusInternalServerError,
-				app.i18n.Ts("globals.messages.errorFetching",
-					"name", "{globals.terms.analytics}", "error", pqErrMsg(err)))
-		}
-		return c.JSON(http.StatusOK, okResp{out})
-	default:
-		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidData"))
-	}
-
 	if !strHasLen(from, 10, 30) || !strHasLen(to, 10, 30) {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("analytics.invalidDates"))
 	}
 
-	out := make([]campCountStats, 0)
-	if err := stmt.Select(&out, pq.Int64Array(ids), from, to); err != nil {
-		app.log.Printf("error fetching campaign %s: %v", typ, err)
-		return echo.NewHTTPError(http.StatusInternalServerError,
-			app.i18n.Ts("globals.messages.errorFetching",
-				"name", "{globals.terms.analytics}", "error", pqErrMsg(err)))
+	// Campaign link stats.
+	if typ == "links" {
+		out, err := app.core.GetCampaignAnalyticsLinks(ids, typ, from, to)
+		if err != nil {
+			return err
+		}
+
+		return c.JSON(http.StatusOK, okResp{out})
+	}
+
+	// View, click, bounce stats.
+	out, err := app.core.GetCampaignAnalyticsCounts(ids, typ, from, to)
+	if err != nil {
+		return err
 	}
 
 	return c.JSON(http.StatusOK, okResp{out})
@@ -766,13 +546,9 @@ func makeOptinCampaignMessage(o campaignReq, app *App) (campaignReq, error) {
 	}
 
 	// Fetch double opt-in lists from the given list IDs.
-	var lists []models.List
-	err := app.queries.GetListsByOptin.Select(&lists, models.ListOptinDouble, pq.Int64Array(o.ListIDs), nil)
+	lists, err := app.core.GetListsByOptin(o.ListIDs, models.ListOptinDouble)
 	if err != nil {
-		app.log.Printf("error fetching lists for opt-in: %s", pqErrMsg(err))
-		return o, echo.NewHTTPError(http.StatusInternalServerError,
-			app.i18n.Ts("globals.messages.errorFetching",
-				"name", "{globals.terms.list}", "error", pqErrMsg(err)))
+		return o, err
 	}
 
 	// No opt-in lists.
@@ -801,23 +577,4 @@ func makeOptinCampaignMessage(o campaignReq, app *App) (campaignReq, error) {
 
 	o.Body = b.String()
 	return o, nil
-}
-
-// makeSearchQuery cleans an optional search string and prepares the
-// query SQL statement (string interpolated) and returns the
-// search query string along with the SQL expression.
-func makeSearchQuery(q, orderBy, order, query string) (string, string) {
-	if q != "" {
-		q = `%` + string(regexFullTextQuery.ReplaceAll([]byte(q), []byte("&"))) + `%`
-	}
-
-	// Sort params.
-	if !strSliceContains(orderBy, campaignQuerySortFields) {
-		orderBy = "created_at"
-	}
-	if order != sortAsc && order != sortDesc {
-		order = sortDesc
-	}
-
-	return q, fmt.Sprintf(query, orderBy, order)
 }

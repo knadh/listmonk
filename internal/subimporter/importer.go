@@ -527,7 +527,7 @@ func (s *Session) LoadCSV(srcPath string, delim rune) error {
 		sub.Email = row["email"]
 		sub.Name = row["name"]
 
-		sub, err = s.im.ValidateFields(sub)
+		sub, err = s.im.validateFields(sub)
 		if err != nil {
 			s.log.Printf("skipping line %d: %s: %v", i, sub.Email, err)
 			continue
@@ -571,26 +571,6 @@ func (im *Importer) Stop() {
 	}
 }
 
-// ValidateFields validates incoming subscriber field values and returns sanitized fields.
-func (im *Importer) ValidateFields(s SubReq) (SubReq, error) {
-	if len(s.Email) > 1000 {
-		return s, errors.New(im.i18n.T("subscribers.invalidEmail"))
-	}
-
-	s.Name = strings.TrimSpace(s.Name)
-	if len(s.Name) == 0 || len(s.Name) > stdInputMaxLen {
-		return s, errors.New(im.i18n.T("subscribers.invalidName"))
-	}
-
-	em, err := im.SanitizeEmail(s.Email)
-	if err != nil {
-		return s, err
-	}
-	s.Email = em
-
-	return s, nil
-}
-
 // SanitizeEmail validates and sanitizes an e-mail string and returns the lowercased,
 // e-mail component of an e-mail string.
 func (im *Importer) SanitizeEmail(email string) (string, error) {
@@ -614,6 +594,26 @@ func (im *Importer) SanitizeEmail(email string) (string, error) {
 	}
 
 	return em.Address, nil
+}
+
+// validateFields validates incoming subscriber field values and returns sanitized fields.
+func (im *Importer) validateFields(s SubReq) (SubReq, error) {
+	if len(s.Email) > 1000 {
+		return s, errors.New(im.i18n.T("subscribers.invalidEmail"))
+	}
+
+	s.Name = strings.TrimSpace(s.Name)
+	if len(s.Name) == 0 || len(s.Name) > stdInputMaxLen {
+		return s, errors.New(im.i18n.T("subscribers.invalidName"))
+	}
+
+	em, err := im.SanitizeEmail(s.Email)
+	if err != nil {
+		return s, err
+	}
+	s.Email = strings.ToLower(em)
+
+	return s, nil
 }
 
 // mapCSVHeaders takes a list of headers obtained from a CSV file, a map of known headers,
