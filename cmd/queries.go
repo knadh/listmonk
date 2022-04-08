@@ -162,6 +162,7 @@ func (q *Queries) execSubscriberQueryTpl(exp, tpl string, listIDs []int64, db *s
 	if len(listIDs) == 0 {
 		listIDs = pq.Int64Array{}
 	}
+
 	// First argument is the boolean indicating if the query is a dry run.
 	a := append([]interface{}{false, pq.Int64Array(listIDs)}, args...)
 	if _, err := db.Exec(fmt.Sprintf(tpl, filterExp), a...); err != nil {

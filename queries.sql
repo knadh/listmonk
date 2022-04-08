@@ -282,8 +282,9 @@ SELECT subscribers.id,
         AND sl.subscriber_id = subscribers.id
     )
     WHERE sl.list_id = ALL($1::INT[]) AND id > $2
+    AND (CASE WHEN CARDINALITY($3::INT[]) > 0 THEN id=ANY($3) ELSE true END)
     %s
-    ORDER BY subscribers.id ASC LIMIT (CASE WHEN $3 = 0 THEN NULL ELSE $3 END);
+    ORDER BY subscribers.id ASC LIMIT (CASE WHEN $4 = 0 THEN NULL ELSE $4 END);
 
 -- name: query-subscribers-template
 -- raw: true
