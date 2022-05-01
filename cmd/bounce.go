@@ -33,7 +33,7 @@ func handleGetBounces(c echo.Context) error {
 		return c.JSON(http.StatusOK, okResp{out})
 	}
 
-	res, err := app.core.QueryBounces(campID, 0, source, orderBy, order, pg.Offset, pg.Limit)
+	res, total, err := app.core.QueryBounces(campID, 0, source, orderBy, order, pg.Offset, pg.Limit)
 	if err != nil {
 		return err
 	}
@@ -47,7 +47,7 @@ func handleGetBounces(c echo.Context) error {
 
 	// Meta.
 	out.Results = res
-	out.Total = res[0].Total
+	out.Total = total
 	out.Page = pg.Page
 	out.PerPage = pg.PerPage
 
@@ -65,7 +65,7 @@ func handleGetSubscriberBounces(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidID"))
 	}
 
-	out, err := app.core.QueryBounces(0, subID, "", "", "", 0, 1000)
+	out, _, err := app.core.QueryBounces(0, subID, "", "", "", 0, 1000)
 	if err != nil {
 		return err
 	}

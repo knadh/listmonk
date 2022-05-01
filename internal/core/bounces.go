@@ -11,8 +11,9 @@ import (
 
 var bounceQuerySortFields = []string{"email", "campaign_name", "source", "created_at"}
 
-// QueryBounces retrieves bounce entries based on the given params.
-func (c *Core) QueryBounces(campID, subID int, source, orderBy, order string, offset, limit int) ([]models.Bounce, error) {
+// QueryBounces retrieves paginated bounce entries based on the given params.
+// It also returns the total number of bounce records in the DB.
+func (c *Core) QueryBounces(campID, subID int, source, orderBy, order string, offset, limit int) ([]models.Bounce, int, error) {
 	if !strSliceContains(orderBy, bounceQuerySortFields) {
 		orderBy = "created_at"
 	}
@@ -24,11 +25,16 @@ func (c *Core) QueryBounces(campID, subID int, source, orderBy, order string, of
 	stmt := fmt.Sprintf(c.q.QueryBounces, orderBy, order)
 	if err := c.db.Select(&out, stmt, 0, campID, subID, source, offset, limit); err != nil {
 		c.log.Printf("error fetching bounces: %v", err)
-		return nil, echo.NewHTTPError(http.StatusInternalServerError,
+		return nil, 0, echo.NewHTTPError(http.StatusInternalServerError,
 			c.i18n.Ts("globals.messages.errorFetching", "name", "{globals.terms.bounce}", "error", pqErrMsg(err)))
 	}
 
-	return out, nil
+	total := 0
+	if len(out) > 0 {
+		total = out[0].Total
+	}
+
+	return out, total, nil
 }
 
 // GetBounce retrieves bounce entries based on the given params.
