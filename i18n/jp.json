@@ -440,7 +440,7 @@
     "settings.privacy.domainBlocklistHelp": "これらのドメインを持つメールアドレスは加入することができません。各行に一つドメインを入れてください。例: somesite.com",
     "settings.privacy.individualSubTracking": "加入者個別追跡",
     "settings.privacy.individualSubTrackingHelp": "加入者レベルのキャンペーンビューとクリックを追跡。無効にした場合、個々の加入者にリンクされることなく、ビューとクリックの追跡が継続されます。",
-    "settings.privacy.listUnsubHeader": "`リスト-登録解除` ヘッダー"を含める,
+    "settings.privacy.listUnsubHeader": "`リスト-登録解除` ヘッダー",
     "settings.privacy.listUnsubHeaderHelp": "メールクライアントがワンクリックで登録解除をできるように登録解除用のヘッダーを含める。",
     "settings.privacy.name": "プライバシー",
     "settings.restart": "再起動",
