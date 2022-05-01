@@ -49,7 +49,7 @@ func handleGetLists(c echo.Context) error {
 	}
 
 	// Full list query.
-	res, err := app.core.QueryLists(query, orderBy, order, pg.Offset, pg.Limit)
+	res, total, err := app.core.QueryLists(query, orderBy, order, pg.Offset, pg.Limit)
 	if err != nil {
 		return err
 	}
@@ -59,33 +59,15 @@ func handleGetLists(c echo.Context) error {
 			app.i18n.Ts("globals.messages.notFound", "name", "{globals.terms.list}"))
 	}
 
-	// Replace null tags.
-	for i, v := range res {
-		if v.Tags == nil {
-			res[i].Tags = make([]string, 0)
-		}
-
-		// Total counts.
-		for _, c := range v.SubscriberCounts {
-			res[i].SubscriberCount += c
-		}
-	}
-
 	if single {
 		return c.JSON(http.StatusOK, okResp{res[0]})
 	}
 
-	// Meta.
-	// TODO: add .query?
+	out.Query = query
 	out.Results = res
-	if len(res) > 0 {
-		out.Total = res[0].Total
-	}
+	out.Total = total
 	out.Page = pg.Page
 	out.PerPage = pg.PerPage
-	if out.PerPage == 0 {
-		out.PerPage = out.Total
-	}
 
 	return c.JSON(http.StatusOK, okResp{out})
 }

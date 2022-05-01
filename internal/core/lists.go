@@ -13,29 +13,58 @@ import (
 func (c *Core) GetLists(typ string) ([]models.List, error) {
 	out := []models.List{}
 
-	// TODO: remove orderBy
 	if err := c.q.GetLists.Select(&out, typ, "id"); err != nil {
 		c.log.Printf("error fetching lists: %v", err)
 		return nil, echo.NewHTTPError(http.StatusInternalServerError,
 			c.i18n.Ts("globals.messages.errorFetching", "name", "{globals.terms.lists}", "error", pqErrMsg(err)))
 	}
 
+	// Replace null tags.
+	for i, l := range out {
+		if l.Tags == nil {
+			out[i].Tags = []string{}
+		}
+
+		// Total counts.
+		for _, c := range l.SubscriberCounts {
+			out[i].SubscriberCount += c
+		}
+	}
+
 	return out, nil
 }
 
-// QueryLists gets multiple lists based on multiple query params.
-func (c *Core) QueryLists(searchStr, orderBy, order string, offset, limit int) ([]models.List, error) {
+// QueryLists gets multiple lists based on multiple query params. Along with the  paginated and sliced
+// results, the total number of lists in the DB is returned.
+func (c *Core) QueryLists(searchStr, orderBy, order string, offset, limit int) ([]models.List, int, error) {
 	out := []models.List{}
 
 	queryStr, stmt := makeSearchQuery(searchStr, orderBy, order, c.q.QueryLists)
 
 	if err := c.db.Select(&out, stmt, 0, "", queryStr, offset, limit); err != nil {
 		c.log.Printf("error fetching lists: %v", err)
-		return nil, echo.NewHTTPError(http.StatusInternalServerError,
+		return nil, 0, echo.NewHTTPError(http.StatusInternalServerError,
 			c.i18n.Ts("globals.messages.errorFetching", "name", "{globals.terms.lists}", "error", pqErrMsg(err)))
 	}
 
-	return out, nil
+	total := 0
+	if len(out) > 0 {
+		total = out[0].Total
+
+		// Replace null tags.
+		for i, l := range out {
+			if l.Tags == nil {
+				out[i].Tags = []string{}
+			}
+
+			// Total counts.
+			for _, c := range l.SubscriberCounts {
+				out[i].SubscriberCount += c
+			}
+		}
+	}
+
+	return out, total, nil
 }
 
 // GetList gets a list by its ID or UUID.
