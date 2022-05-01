@@ -60,7 +60,7 @@ func handleGetCampaigns(c echo.Context) error {
 		noBody, _ = strconv.ParseBool(c.QueryParam("no_body"))
 	)
 
-	res, err := app.core.QueryCampaigns(query, status, orderBy, order, pg.Offset, pg.Limit)
+	res, total, err := app.core.QueryCampaigns(query, status, orderBy, order, pg.Offset, pg.Limit)
 	if err != nil {
 		return err
 	}
@@ -78,8 +78,9 @@ func handleGetCampaigns(c echo.Context) error {
 	}
 
 	// Meta.
+	out.Query = query
 	out.Results = res
-	out.Total = res[0].Total
+	out.Total = total
 	out.Page = pg.Page
 	out.PerPage = pg.PerPage
 

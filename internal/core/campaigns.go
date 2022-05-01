@@ -17,9 +17,9 @@ const (
 	CampaignAnalyticsBounces = "bounces"
 )
 
-// QueryCampaigns retrieves campaigns optionally filtering them by
-// the given arbitrary query expression.
-func (c *Core) QueryCampaigns(searchStr string, statuses []string, orderBy, order string, offset, limit int) (models.Campaigns, error) {
+// QueryCampaigns retrieves paginated campaigns optionally filtering them by the given arbitrary
+// query expression. It also returns the total number of records in the DB.
+func (c *Core) QueryCampaigns(searchStr string, statuses []string, orderBy, order string, offset, limit int) (models.Campaigns, int, error) {
 	queryStr, stmt := makeSearchQuery(searchStr, orderBy, order, c.q.QueryCampaigns)
 
 	if statuses == nil {
@@ -30,7 +30,7 @@ func (c *Core) QueryCampaigns(searchStr string, statuses []string, orderBy, orde
 	var out models.Campaigns
 	if err := c.db.Select(&out, stmt, 0, pq.Array(statuses), queryStr, offset, limit); err != nil {
 		c.log.Printf("error fetching campaigns: %v", err)
-		return nil, echo.NewHTTPError(http.StatusInternalServerError,
+		return nil, 0, echo.NewHTTPError(http.StatusInternalServerError,
 			c.i18n.Ts("globals.messages.errorFetching", "name", "{globals.terms.campaign}", "error", pqErrMsg(err)))
 	}
 
@@ -44,11 +44,16 @@ func (c *Core) QueryCampaigns(searchStr string, statuses []string, orderBy, orde
 	// Lazy load stats.
 	if err := out.LoadStats(c.q.GetCampaignStats); err != nil {
 		c.log.Printf("error fetching campaign stats: %v", err)
-		return nil, echo.NewHTTPError(http.StatusInternalServerError,
+		return nil, 0, echo.NewHTTPError(http.StatusInternalServerError,
 			c.i18n.Ts("globals.messages.errorFetching", "name", "{globals.terms.campaigns}", "error", pqErrMsg(err)))
 	}
 
-	return out, nil
+	total := 0
+	if len(out) > 0 {
+		total = out[0].Total
+	}
+
+	return out, total, nil
 }
 
 // GetCampaign retrieves a campaign.
