@@ -133,7 +133,7 @@ export default class Utils {
   confirm = (msg, onConfirm, onCancel) => {
     Dialog.confirm({
       scroll: 'keep',
-      message: !msg ? this.i18n.t('globals.messages.confirm') : msg,
+      message: !msg ? this.i18n.t('globals.messages.confirm') : this.escapeHTML(msg),
       confirmText: this.i18n.t('globals.buttons.ok'),
       cancelText: this.i18n.t('globals.buttons.cancel'),
       onConfirm,
@@ -144,7 +144,7 @@ export default class Utils {
   prompt = (msg, inputAttrs, onConfirm, onCancel) => {
     Dialog.prompt({
       scroll: 'keep',
-      message: msg,
+      message: this.escapeHTML(msg),
       confirmText: this.i18n.t('globals.buttons.ok'),
       cancelText: this.i18n.t('globals.buttons.cancel'),
       inputAttrs: {
