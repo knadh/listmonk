@@ -50,6 +50,31 @@ func (c *Core) GetBounce(id int) (models.Bounce, error) {
 	return out[0], nil
 }
 
+// RecordBounce records a new bounce.
+func (c *Core) RecordBounce(b models.Bounce) error {
+	_, err := c.q.RecordBounce.Exec(b.SubscriberUUID,
+		b.Email,
+		b.CampaignUUID,
+		b.Type,
+		b.Source,
+		b.Meta,
+		b.CreatedAt,
+		c.constants.MaxBounceCount,
+		c.constants.BounceAction)
+
+	if err != nil {
+		// Ignore the error if it complained of no subscriber.
+		if pqErr, ok := err.(*pq.Error); ok && pqErr.Column == "subscriber_id" {
+			c.log.Printf("bounced subscriber (%s / %s) not found", b.SubscriberUUID, b.Email)
+			return nil
+		}
+
+		c.log.Printf("error recording bounce: %v", err)
+	}
+
+	return err
+}
+
 // DeleteBounce deletes a list.
 func (c *Core) DeleteBounce(id int) error {
 	return c.DeleteBounces([]int{id})

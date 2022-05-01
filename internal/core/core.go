@@ -36,6 +36,8 @@ type Core struct {
 // Constants represents constant config.
 type Constants struct {
 	SendOptinConfirmation bool
+	MaxBounceCount        int
+	BounceAction          string
 }
 
 // Hooks contains external function hooks that are required by the core package.

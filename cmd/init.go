@@ -603,12 +603,12 @@ func initNotifTemplates(path string, fs stuffbin.FileSystem, i *i18n.I18n, cs *c
 // for incoming bounce events.
 func initBounceManager(app *App) *bounce.Manager {
 	opt := bounce.Opt{
-		BounceCount:     ko.MustInt("bounce.count"),
-		BounceAction:    ko.MustString("bounce.action"),
 		WebhooksEnabled: ko.Bool("bounce.webhooks_enabled"),
 		SESEnabled:      ko.Bool("bounce.ses_enabled"),
 		SendgridEnabled: ko.Bool("bounce.sendgrid_enabled"),
 		SendgridKey:     ko.String("bounce.sendgrid_key"),
+
+		RecordBounceCB: app.core.RecordBounce,
 	}
 
 	// For now, only one mailbox is supported.

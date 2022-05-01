@@ -174,6 +174,8 @@ func main() {
 	app.core = core.New(&core.Opt{
 		Constants: core.Constants{
 			SendOptinConfirmation: app.constants.SendOptinConfirmation,
+			MaxBounceCount:        ko.MustInt("bounce.count"),
+			BounceAction:          ko.MustString("bounce.action"),
 		},
 		Queries: queries,
 		DB:      db,
