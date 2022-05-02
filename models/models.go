@@ -448,7 +448,7 @@ func (c *Campaign) CompileTemplate(f template.FuncMap) error {
 		for _, r := range regTplFuncs {
 			b = r.regExp.ReplaceAllString(b, r.replace)
 		}
-		bTpl, err := template.New(ContentTpl).Funcs(f).Parse(b)
+		bTpl, err := template/text
 		if err != nil {
 			return fmt.Errorf("error compiling alt plaintext message: %v", err)
 		}
