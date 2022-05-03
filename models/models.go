@@ -9,6 +9,7 @@ import (
 	"html/template"
 	"regexp"
 	"strings"
+	txttpl "text/template"
 	"time"
 
 	"github.com/jmoiron/sqlx"
@@ -218,7 +219,7 @@ type Campaign struct {
 	// TemplateBody is joined in from templates by the next-campaigns query.
 	TemplateBody string             `db:"template_body" json:"-"`
 	Tpl          *template.Template `json:"-"`
-	SubjectTpl   *template.Template `json:"-"`
+	SubjectTpl   *txttpl.Template   `json:"-"`
 	AltBodyTpl   *template.Template `json:"-"`
 
 	// Pseudofield for getting the total number of subscribers
@@ -436,7 +437,9 @@ func (c *Campaign) CompileTemplate(f template.FuncMap) error {
 		for _, r := range regTplFuncs {
 			subj = r.regExp.ReplaceAllString(subj, r.replace)
 		}
-		subjTpl, err := template.New(ContentTpl).Funcs(f).Parse(subj)
+
+		var txtFuncs map[string]interface{} = f
+		subjTpl, err := txttpl.New(ContentTpl).Funcs(txtFuncs).Parse(subj)
 		if err != nil {
 			return fmt.Errorf("error compiling subject: %v", err)
 		}

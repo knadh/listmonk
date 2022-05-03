@@ -436,9 +436,11 @@ func (m *Manager) TemplateFuncs(c *models.Campaign) template.FuncMap {
 			return template.HTML(safeHTML)
 		},
 	}
+
 	for k, v := range sprig.GenericFuncMap() {
 		f[k] = v
 	}
+
 	return f
 }
 
