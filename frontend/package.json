@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@tinymce/tinymce-vue": "^3",
-    "axios": "^0.21.1",
+    "axios": "^0.21.2",
     "buefy": "^0.9.10",
     "c3": "^0.7.20",
     "codeflask": "^1.4.1",
