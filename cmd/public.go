@@ -233,9 +233,8 @@ func handleOptinPage(c echo.Context) error {
 
 	// There are no lists to confirm.
 	if len(out.Lists) == 0 {
-		return c.Render(http.StatusInternalServerError, tplMessage,
-			makeMsgTpl(app.i18n.T("public.noSubTitle"), "",
-				app.i18n.Ts("public.noSubInfo")))
+		return c.Render(http.StatusOK, tplMessage,
+			makeMsgTpl(app.i18n.T("public.noSubTitle"), "", app.i18n.Ts("public.noSubInfo")))
 	}
 
 	// Confirm.
