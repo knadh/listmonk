@@ -353,8 +353,8 @@ func handleLinkRedirect(c echo.Context) error {
 		subUUID = ""
 	}
 
-	var url string
-	if err := app.core.RegisterCampaignLinkClick(linkUUID, campUUID, subUUID); err != nil {
+	url, err := app.core.RegisterCampaignLinkClick(linkUUID, campUUID, subUUID)
+	if err != nil {
 		e := err.(*echo.HTTPError)
 		return c.Render(e.Code, tplMessage, makeMsgTpl(app.i18n.T("public.errorTitle"), "", e.Error()))
 	}

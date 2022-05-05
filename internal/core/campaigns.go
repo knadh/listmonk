@@ -329,14 +329,16 @@ func (c *Core) RegisterCampaignView(campUUID, subUUID string) error {
 }
 
 // RegisterCampaignLinkClick registers a subscriber's link click on a campaign.
-func (c *Core) RegisterCampaignLinkClick(linkUUID, campUUID, subUUID string) error {
-	if _, err := c.q.RegisterLinkClick.Exec(linkUUID, campUUID, subUUID); err != nil {
+func (c *Core) RegisterCampaignLinkClick(linkUUID, campUUID, subUUID string) (string, error) {
+	var url string
+	if err := c.q.RegisterLinkClick.Get(&url, linkUUID, campUUID, subUUID); err != nil {
 		if pqErr, ok := err.(*pq.Error); ok && pqErr.Column == "link_id" {
-			return echo.NewHTTPError(http.StatusBadRequest, c.i18n.Ts("public.invalidLink"))
+			return "", echo.NewHTTPError(http.StatusBadRequest, c.i18n.Ts("public.invalidLink"))
 		}
 
 		c.log.Printf("error registering link click: %s", err)
-		return echo.NewHTTPError(http.StatusInternalServerError, c.i18n.Ts("public.errorProcessingRequest"))
+		return "", echo.NewHTTPError(http.StatusInternalServerError, c.i18n.Ts("public.errorProcessingRequest"))
 	}
-	return nil
+
+	return url, nil
 }
