@@ -9,7 +9,7 @@ import (
 
 	"github.com/knadh/listmonk/internal/subimporter"
 	"github.com/knadh/listmonk/models"
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 )
 
 // handleImportSubscribers handles the uploading and bulk importing of
@@ -22,7 +22,7 @@ func handleImportSubscribers(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("import.alreadyRunning"))
 	}
 
-	// Unmarsal the JSON params.
+	// Unmarshal the JSON params.
 	var opt subimporter.SessionOpt
 	if err := json.Unmarshal([]byte(c.FormValue("params")), &opt); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest,
@@ -95,7 +95,7 @@ func handleImportSubscribers(c echo.Context) error {
 		// keeping the global import state (failed / successful) etc. across
 		// multiple files becomes complex. Instead, it's just easier for the
 		// end user to concat multiple CSVs (if there are multiple in the first)
-		// place and uploada as one in the first place.
+		// place and upload as one in the first place.
 		dir, files, err := impSess.ExtractZIP(out.Name(), 1)
 		if err != nil {
 			return echo.NewHTTPError(http.StatusInternalServerError,

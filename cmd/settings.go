@@ -10,7 +10,7 @@ import (
 
 	"github.com/gofrs/uuid"
 	"github.com/jmoiron/sqlx/types"
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 )
 
 type settings struct {
@@ -45,6 +45,7 @@ type settings struct {
 	UploadFilesystemUploadPath string `json:"upload.filesystem.upload_path"`
 	UploadFilesystemUploadURI  string `json:"upload.filesystem.upload_uri"`
 	UploadS3URL                string `json:"upload.s3.url"`
+	UploadS3PublicURL          string `json:"upload.s3.public_url"`
 	UploadS3AwsAccessKeyID     string `json:"upload.s3.aws_access_key_id"`
 	UploadS3AwsDefaultRegion   string `json:"upload.s3.aws_default_region"`
 	UploadS3AwsSecretAccessKey string `json:"upload.s3.aws_secret_access_key,omitempty"`
@@ -68,7 +69,7 @@ type settings struct {
 		MaxMsgRetries int                 `json:"max_msg_retries"`
 		IdleTimeout   string              `json:"idle_timeout"`
 		WaitTimeout   string              `json:"wait_timeout"`
-		TLSEnabled    bool                `json:"tls_enabled"`
+		TLSType       string              `json:"tls_type"`
 		TLSSkipVerify bool                `json:"tls_skip_verify"`
 	} `json:"smtp"`
 
@@ -105,6 +106,11 @@ type settings struct {
 		TLSSkipVerify bool   `json:"tls_skip_verify"`
 		ScanInterval  string `json:"scan_interval"`
 	} `json:"bounce.mailboxes"`
+
+	AdminCustomCSS  string `json:"appearance.admin.custom_css"`
+	AdminCustomJS   string `json:"appearance.admin.custom_js"`
+	PublicCustomCSS string `json:"appearance.public.custom_css"`
+	PublicCustomJS  string `json:"appearance.public.custom_js"`
 }
 
 var (
@@ -161,7 +167,7 @@ func handleUpdateSettings(c echo.Context) error {
 			has = true
 		}
 
-		// Assign a UUID. The frontend only sends a password when the user explictly
+		// Assign a UUID. The frontend only sends a password when the user explicitly
 		// changes the password. In other cases, the existing password in the DB
 		// is copied while updating the settings and the UUID is used to match
 		// the incoming array of SMTP blocks with the array in the DB.
@@ -185,7 +191,7 @@ func handleUpdateSettings(c echo.Context) error {
 
 	// Bounce boxes.
 	for i, s := range set.BounceBoxes {
-		// Assign a UUID. The frontend only sends a password when the user explictly
+		// Assign a UUID. The frontend only sends a password when the user explicitly
 		// changes the password. In other cases, the existing password in the DB
 		// is copied while updating the settings and the UUID is used to match
 		// the incoming array of blocks with the array in the DB.
@@ -310,7 +316,7 @@ func getSettings(app *App) (settings, error) {
 				"name", "{globals.terms.settings}", "error", pqErrMsg(err)))
 	}
 
-	// Unmarshall the settings and filter out sensitive fields.
+	// Unmarshal the settings and filter out sensitive fields.
 	if err := json.Unmarshal([]byte(b), &out); err != nil {
 		return out, echo.NewHTTPError(http.StatusInternalServerError,
 			app.i18n.Ts("settings.errorEncoding", "error", err.Error()))

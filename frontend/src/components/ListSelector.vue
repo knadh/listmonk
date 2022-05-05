@@ -8,7 +8,7 @@
             :closable="true"
             :data-id="l.id"
             @close="removeList(l.id)" class="list">
-            {{ l.name }} <sup>{{ l.subscriptionStatus }}</sup>
+            {{ l.name }} <sup v-if="l.optin === 'double'">{{ l.subscriptionStatus }}</sup>
           </b-tag>
         </b-taglist>
       </div>
@@ -93,7 +93,7 @@ export default {
   computed: {
     // Return the list of unselected lists.
     filteredLists() {
-      // Get a map of IDs of the user subsciptions. eg: {1: true, 2: true};
+      // Get a map of IDs of the user subscriptions. eg: {1: true, 2: true};
       const subIDs = this.selectedItems.reduce((obj, item) => ({ ...obj, [item.id]: true }), {});
 
       // Filter lists from the global lists whose IDs are not in the user's

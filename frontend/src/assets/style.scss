@@ -1,6 +1,24 @@
 /* Import Bulma to set variables */
 @import "~bulma/sass/utilities/_all";
 
+/* import inter-regular */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 400;
+  src: local(''),
+       url('assets/fonts/Inter-Regular.woff2') format('woff2'),
+}
+
+/* import inter-600 */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 600;
+  src: local(''),
+       url('assets/fonts/Inter-Bold.woff2') format('woff2'),
+}
+
 $body-family: "Inter", "Helvetica Neue", sans-serif;
 $body-size: 15px;
 $background: $white-bis;
@@ -9,6 +27,7 @@ $primary: #0055d4;
 $green: #0db35e;
 $turquoise: $green;
 $red: #FF5722;
+
 $link: $primary;
 $input-placeholder-color: $grey-light;
 $grey-lightest: #eaeaea;
@@ -84,6 +103,10 @@ section {
       position: static;
     }
   }
+}
+
+.is-disabled {
+  opacity: 0.30;
 }
 
 .box {
@@ -230,6 +253,11 @@ body.is-noscroll {
   .tox .tox-statusbar {
     border: 0;
   }
+
+  .tox-tinymce--toolbar-sticky-on .tox-editor-header {
+    padding-top: 48px !important;
+  }
+
 }
 
 
@@ -296,6 +324,31 @@ body.is-noscroll {
     pointer-events: none;
     cursor: not-allowed;
     color: $grey-light;
+  }
+
+  td {
+    .fields {
+      font-size: $size-7;
+
+      p {
+        display: table-row;
+        border-bottom: 1px solid #ccc;
+        line-height: 0.775rem;
+      }
+
+      label {
+        font-weight: bold;
+        display: table-cell;
+        vertical-align: top;
+        text-align: right;
+        padding-bottom: 6px;
+      }
+      span {
+        display: inline-block;
+        margin-left: 10px;
+      }
+    }
+
   }
 }
 
@@ -567,8 +620,10 @@ section.dashboard {
 
 /* Lists page */
 section.lists {
-  td .tag {
-    min-width: 65px;
+  td {
+    .tag {
+      min-width: 65px;
+    }
   }
 }
 
@@ -635,24 +690,9 @@ section.campaigns {
         margin-top: 5px;
       }
 
-      p {
-        margin: 0 !important;
-      }
-
       &.lists ul {
         // font-size: $size-7;
         list-style-type: circle;
-      }
-
-      .fields {
-        font-size: $size-7;
-        label {
-          font-weight: bold;
-          text-align: right;
-          min-width: 50px;
-          margin-right: 10px;
-          display: inline-block;
-        }
       }
 
       &.draft {
@@ -778,6 +818,10 @@ section.analytics {
   }
   .box {
     margin-bottom: 30px;
+  }
+  .html-editor {
+    height: auto;
+    min-height: 350px;
   }
 }
 

@@ -44,6 +44,14 @@
       </div><!-- columns -->
     </form>
 
+    <p class="is-size-7 mt-2 has-text-grey-light">
+      <template v-if="settings['privacy.individual_tracking']">
+        {{ $t('analytics.isUnique') }}
+      </template>
+      <template v-else>{{ $t('analytics.nonUnique') }}</template>
+    </p>
+
+
     <section class="charts mt-5">
       <div class="chart columns" v-for="(v, k) in charts" :key="k">
         <div class="column is-9">
@@ -68,6 +76,7 @@
 
 <script>
 import Vue from 'vue';
+import { mapState } from 'vuex';
 import dayjs from 'dayjs';
 import c3 from 'c3';
 import { colors } from '../constants';
@@ -390,12 +399,16 @@ export default Vue.extend({
 
         this.charts[typ].chartFn(typ, camps, data);
 
-        if (this.charts[typ].donutFn) {
+        if (this.charts[typ].donutFn && this.settings['privacy.individual_tracking']) {
           this.charts[typ].donutFn(typ, camps, data);
         }
         this.charts[typ].loading = false;
       });
     },
+  },
+
+  computed: {
+    ...mapState(['settings']),
   },
 
   created() {

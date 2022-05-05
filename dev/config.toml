@@ -1,0 +1,28 @@
+# IMPORTANT: This configuration is meant for development only
+### DO NOT USE IN PRODUCTION ###
+
+[app]
+# Interface and port where the app will run its webserver.  The default value
+# of localhost will only listen to connections from the current machine. To
+# listen on all interfaces use '0.0.0.0'. To listen on the default web address
+# port, use port 80 (this will require running with elevated permissions).
+address = "0.0.0.0:9000"
+
+# BasicAuth authentication for the admin dashboard. This will eventually
+# be replaced with a better multi-user, role-based authentication system.
+# IMPORTANT: Leave both values empty to disable authentication on admin
+# only where an external authentication is already setup.
+admin_username = "listmonk"
+admin_password = "listmonk"
+
+# Database.
+[db]
+host = "db"
+port = 5432
+user = "listmonk-dev"
+password = "listmonk-dev"
+database = "listmonk-dev"
+ssl_mode = "disable"
+max_open = 25
+max_idle = 25
+max_lifetime = "300s"

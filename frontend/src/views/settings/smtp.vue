@@ -41,10 +41,10 @@
                 <b-field :label="$t('settings.mailserver.authProtocol')"
                   label-position="on-border">
                   <b-select v-model="item.auth_protocol" name="auth_protocol">
-                    <option value="none">none</option>
-                    <option value="cram">cram</option>
-                    <option value="plain">plain</option>
-                    <option value="login">login</option>
+                    <option value="login">LOGIN</option>
+                    <option value="cram">CRAM</option>
+                    <option value="plain">PLAIN</option>
+                    <option value="none">None</option>
                   </b-select>
                 </b-field>
               </div>
@@ -81,13 +81,17 @@
               <div class="column">
                 <b-field grouped>
                   <b-field :label="$t('settings.mailserver.tls')" expanded
-                    :message="$t('settings.mailserver.tlsHelp')">
-                    <b-switch v-model="item.tls_enabled" name="item.tls_enabled" />
+                    :message="$t('settings.mailserver.tlsHelp')" label-position="on-border">
+                    <b-select v-model="item.tls_type" name="items.tls_type">
+                      <option value="none">{{ $t('globals.states.off') }}</option>
+                      <option value="STARTTLS">STARTTLS</option>
+                      <option value="TLS">SSL/TLS</option>
+                    </b-select>
                   </b-field>
                   <b-field :label="$t('settings.mailserver.skipTLS')" expanded
                     :message="$t('settings.mailserver.skipTLSHelp')">
                     <b-switch v-model="item.tls_skip_verify"
-                      :disabled="!item.tls_enabled" name="item.tls_skip_verify" />
+                      :disabled="item.tls_type === 'none'" name="item.tls_skip_verify" />
                   </b-field>
                 </b-field>
               </div>
@@ -138,7 +142,7 @@
                   <b-icon icon="plus" />{{ $t('settings.smtp.setCustomHeaders') }}</a>
               </p>
               <b-field v-if="item.email_headers.length > 0 || item.showHeaders"
-                :label="$t('')" label-position="on-border"
+                label-position="on-border"
                 :message="$t('settings.smtp.customHeadersHelp')">
                 <b-input v-model="item.strEmailHeaders" name="email_headers" type="textarea"
                   placeholder='[{"X-Custom": "value"}, {"X-Custom2": "value"}]' />
@@ -188,7 +192,7 @@ export default Vue.extend({
         max_msg_retries: 2,
         idle_timeout: '15s',
         wait_timeout: '5s',
-        tls_enabled: true,
+        tls_type: 'STARTTLS',
         tls_skip_verify: false,
       });
 

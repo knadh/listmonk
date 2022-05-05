@@ -60,8 +60,8 @@ type Queries struct {
 	GetCampaignStatus        *sqlx.Stmt `query:"get-campaign-status"`
 	GetCampaignViewCounts    *sqlx.Stmt `query:"get-campaign-view-counts"`
 	GetCampaignClickCounts   *sqlx.Stmt `query:"get-campaign-click-counts"`
-	GetCampaignBounceCounts  *sqlx.Stmt `query:"get-campaign-bounce-counts"`
 	GetCampaignLinkCounts    *sqlx.Stmt `query:"get-campaign-link-counts"`
+	GetCampaignBounceCounts  *sqlx.Stmt `query:"get-campaign-bounce-counts"`
 	NextCampaigns            *sqlx.Stmt `query:"next-campaigns"`
 	NextCampaignSubscribers  *sqlx.Stmt `query:"next-campaign-subscribers"`
 	GetOneCampaignSubscriber *sqlx.Stmt `query:"get-one-campaign-subscriber"`
@@ -121,7 +121,7 @@ func connectDB(c dbConf) (*sqlx.DB, error) {
 	return db, nil
 }
 
-// compileSubscriberQueryTpl takes a arbitrary WHERE expressions
+// compileSubscriberQueryTpl takes an arbitrary WHERE expressions
 // to filter subscribers from the subscribers table and prepares a query
 // out of it using the raw `query-subscribers-template` query template.
 // While doing this, a readonly transaction is created and the query is
@@ -145,7 +145,7 @@ func (q *Queries) compileSubscriberQueryTpl(exp string, db *sqlx.DB) (string, er
 	return stmt, nil
 }
 
-// compileSubscriberQueryTpl takes a arbitrary WHERE expressions and a subscriber
+// compileSubscriberQueryTpl takes an arbitrary WHERE expressions and a subscriber
 // query template that depends on the filter (eg: delete by query, blocklist by query etc.)
 // combines and executes them.
 func (q *Queries) execSubscriberQueryTpl(exp, tpl string, listIDs []int64, db *sqlx.DB, args ...interface{}) error {
@@ -158,6 +158,7 @@ func (q *Queries) execSubscriberQueryTpl(exp, tpl string, listIDs []int64, db *s
 	if len(listIDs) == 0 {
 		listIDs = pq.Int64Array{}
 	}
+
 	// First argument is the boolean indicating if the query is a dry run.
 	a := append([]interface{}{false, pq.Int64Array(listIDs)}, args...)
 	if _, err := db.Exec(fmt.Sprintf(tpl, filterExp), a...); err != nil {

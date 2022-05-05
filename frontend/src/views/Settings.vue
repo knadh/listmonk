@@ -1,59 +1,63 @@
 <template>
-  <section class="settings">
-    <b-loading :is-full-page="true" v-if="loading.settings || isLoading" active />
-    <header class="columns page-header">
-      <div class="column is-half">
-        <h1 class="title is-4">{{ $t('settings.title') }}
-          <span class="has-text-grey-light">({{ serverConfig.version }})</span>
-        </h1>
-      </div>
-      <div class="column has-text-right">
-        <b-field expanded>
-          <b-button expanded :disabled="!hasFormChanged"
-            type="is-primary" icon-left="content-save-outline"
-            @click="onSubmit" class="isSaveEnabled" data-cy="btn-save">
-            {{ $t('globals.buttons.save') }}
-          </b-button>
-        </b-field>
-      </div>
-    </header>
-    <hr />
+  <form @submit.prevent="onSubmit">
+    <section class="settings">
+      <b-loading :is-full-page="true" v-if="loading.settings || isLoading" active />
+      <header class="columns page-header">
+        <div class="column is-half">
+          <h1 class="title is-4">{{ $t('settings.title') }}
+            <span class="has-text-grey-light">({{ serverConfig.version }})</span>
+          </h1>
+        </div>
+        <div class="column has-text-right">
+          <b-field expanded>
+            <b-button expanded :disabled="!hasFormChanged"
+              type="is-primary" icon-left="content-save-outline" native-type="submit"
+              class="isSaveEnabled" data-cy="btn-save">
+              {{ $t('globals.buttons.save') }}
+            </b-button>
+          </b-field>
+        </div>
+      </header>
+      <hr />
 
-    <section class="wrap">
-      <form @submit.prevent="onSubmit">
-        <b-tabs type="is-boxed" :animated="false">
-          <b-tab-item :label="$t('settings.general.name')" label-position="on-border">
-            <general-settings :form="form" :key="key" />
-          </b-tab-item><!-- general -->
+      <section class="wrap">
+          <b-tabs type="is-boxed" :animated="false" v-model="tab">
+            <b-tab-item :label="$t('settings.general.name')" label-position="on-border">
+              <general-settings :form="form" :key="key" />
+            </b-tab-item><!-- general -->
 
-          <b-tab-item :label="$t('settings.performance.name')">
-            <performance-settings :form="form" :key="key" />
-          </b-tab-item><!-- performance -->
+            <b-tab-item :label="$t('settings.performance.name')">
+              <performance-settings :form="form" :key="key" />
+            </b-tab-item><!-- performance -->
 
-          <b-tab-item :label="$t('settings.privacy.name')">
-            <privacy-settings :form="form" :key="key" />
-          </b-tab-item><!-- privacy -->
+            <b-tab-item :label="$t('settings.privacy.name')">
+              <privacy-settings :form="form" :key="key" />
+            </b-tab-item><!-- privacy -->
 
-          <b-tab-item :label="$t('settings.media.title')">
-            <media-settings :form="form" :key="key" />
-          </b-tab-item><!-- media -->
+            <b-tab-item :label="$t('settings.media.title')">
+              <media-settings :form="form" :key="key" />
+            </b-tab-item><!-- media -->
 
-          <b-tab-item :label="$t('settings.smtp.name')">
-            <smtp-settings :form="form" :key="key" />
-          </b-tab-item><!-- mail servers -->
+            <b-tab-item :label="$t('settings.smtp.name')">
+              <smtp-settings :form="form" :key="key" />
+            </b-tab-item><!-- mail servers -->
 
-          <b-tab-item :label="$t('settings.bounces.name')">
-            <bounce-settings :form="form" :key="key" />
-          </b-tab-item><!-- bounces -->
+            <b-tab-item :label="$t('settings.bounces.name')">
+              <bounce-settings :form="form" :key="key" />
+            </b-tab-item><!-- bounces -->
 
-          <b-tab-item :label="$t('settings.messengers.name')">
-            <messenger-settings :form="form" :key="key" />
-          </b-tab-item><!-- messengers -->
-        </b-tabs>
+            <b-tab-item :label="$t('settings.messengers.name')">
+              <messenger-settings :form="form" :key="key" />
+            </b-tab-item><!-- messengers -->
 
-      </form>
+            <b-tab-item :label="$t('settings.appearance.name')">
+              <appearance-settings :form="form" :key="key" />
+            </b-tab-item><!-- appearance -->
+          </b-tabs>
+
+      </section>
     </section>
-  </section>
+  </form>
 </template>
 
 <script>
@@ -66,6 +70,7 @@ import MediaSettings from './settings/media.vue';
 import SmtpSettings from './settings/smtp.vue';
 import BounceSettings from './settings/bounces.vue';
 import MessengerSettings from './settings/messengers.vue';
+import AppearanceSettings from './settings/appearance.vue';
 
 const dummyPassword = ' '.repeat(8);
 
@@ -78,6 +83,7 @@ export default Vue.extend({
     SmtpSettings,
     BounceSettings,
     MessengerSettings,
+    AppearanceSettings,
   },
 
   data() {
@@ -92,6 +98,7 @@ export default Vue.extend({
       // form is compared to detect changes.
       formCopy: '',
       form: {},
+      tab: 0,
     };
   },
 
@@ -224,14 +231,21 @@ export default Vue.extend({
 
   beforeRouteLeave(to, from, next) {
     if (this.hasFormChanged) {
-      this.$utils.confirm(this.$t('settings.messengers.messageDiscard'), () => next(true));
+      this.$utils.confirm(this.$t('globals.messages.confirmDiscard'), () => next(true));
       return;
     }
     next(true);
   },
 
   mounted() {
+    this.tab = this.$utils.getPref('settings.tab') || 0;
     this.getSettings();
+  },
+
+  watch: {
+    tab(t) {
+      this.$utils.setPref('settings.tab', t);
+    },
   },
 });
 </script>

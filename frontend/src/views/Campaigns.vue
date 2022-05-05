@@ -61,8 +61,11 @@
             <b-tooltip :label="$t('scheduled')" type="is-dark">
               <span class="is-size-7 has-text-grey scheduled">
                 <b-icon icon="alarm" size="is-small" />
-                {{ $utils.duration(Date(), props.row.sendAt, true) }}
-                <br />{{ $utils.niceDate(props.row.sendAt, true) }}
+                <span v-if="!isDone(props.row) && !isRunning(props.row)">
+                  {{ $utils.duration(new Date(), props.row.sendAt, true) }}
+                  <br />
+                </span>
+                {{ $utils.niceDate(props.row.sendAt, true) }}
               </span>
             </b-tooltip>
           </p>
@@ -99,20 +102,20 @@
         <div class="fields timestamps" :set="stats = getCampaignStats(props.row)">
           <p>
             <label>{{ $t('globals.fields.createdAt') }}</label>
-            {{ $utils.niceDate(props.row.createdAt, true) }}
+            <span>{{ $utils.niceDate(props.row.createdAt, true) }}</span>
           </p>
           <p v-if="stats.startedAt">
             <label>{{ $t('campaigns.startedAt') }}</label>
-            {{ $utils.niceDate(stats.startedAt, true) }}
+            <span>{{ $utils.niceDate(stats.startedAt, true) }}</span>
           </p>
           <p v-if="isDone(props.row)">
             <label>{{ $t('campaigns.ended') }}</label>
-            {{ $utils.niceDate(stats.updatedAt, true) }}
+            <span>{{ $utils.niceDate(stats.updatedAt, true) }}</span>
           </p>
           <p v-if="stats.startedAt && stats.updatedAt"
-            class="is-capitalized" title="Duration">
+            class="is-capitalized">
             <label><b-icon icon="alarm" size="is-small" /></label>
-            {{ $utils.duration(stats.startedAt, stats.updatedAt) }}
+            <span>{{ $utils.duration(stats.startedAt, stats.updatedAt) }}</span>
           </p>
         </div>
       </b-table-column>
@@ -121,26 +124,36 @@
         <div class="fields stats" :set="stats = getCampaignStats(props.row)">
           <p>
             <label>{{ $t('campaigns.views') }}</label>
-            {{ $utils.formatNumber(props.row.views) }}
+            <span>{{ $utils.formatNumber(props.row.views) }}</span>
           </p>
           <p>
             <label>{{ $t('campaigns.clicks') }}</label>
-            {{ $utils.formatNumber(props.row.clicks) }}
+            <span>{{ $utils.formatNumber(props.row.clicks) }}</span>
           </p>
           <p>
             <label>{{ $t('campaigns.sent') }}</label>
-            {{ $utils.formatNumber(stats.sent) }} / {{ $utils.formatNumber(stats.toSend) }}
+            <span>
+              {{ $utils.formatNumber(stats.sent) }} /
+              {{ $utils.formatNumber(stats.toSend) }}
+            </span>
           </p>
           <p>
             <label>{{ $t('globals.terms.bounces') }}</label>
-            <router-link :to="{name: 'bounces', query: { campaign_id: props.row.id }}">
-              {{ $utils.formatNumber(props.row.bounces) }}
-            </router-link>
+            <span>
+              <router-link :to="{name: 'bounces', query: { campaign_id: props.row.id }}">
+                {{ $utils.formatNumber(props.row.bounces) }}
+              </router-link>
+            </span>
           </p>
-          <p title="Speed" v-if="stats.rate">
+          <p v-if="stats.rate">
             <label><b-icon icon="speedometer" size="is-small"></b-icon></label>
             <span class="send-rate">
-              {{ stats.rate.toFixed(0) }} / min
+              <b-tooltip
+                :label="`${stats.netRate} / ${$t('campaigns.rateMinuteShort')} @
+                  ${$utils.duration(stats.startedAt, stats.updatedAt)}`"
+                type="is-dark">
+                {{ stats.rate.toFixed(0) }} / {{ $t('campaigns.rateMinuteShort') }}
+              </b-tooltip>
             </span>
           </p>
           <p v-if="isRunning(props.row.id)">
@@ -149,7 +162,9 @@
                 <b-loading :is-full-page="false" active />
               </span>
             </label>
-            <b-progress :value="stats.sent / stats.toSend * 100" size="is-small" />
+            <span>
+              <b-progress :value="stats.sent / stats.toSend * 100" size="is-small" />
+            </span>
           </p>
         </div>
       </b-table-column>
@@ -338,7 +353,7 @@ export default Vue.extend({
     },
 
     // Stats returns the campaign object with stats (sent, toSend etc.)
-    // if there's live stats availabe for running campaigns. Otherwise,
+    // if there's live stats available for running campaigns. Otherwise,
     // it returns the incoming campaign object that has the static stats
     // values.
     getCampaignStats(c) {

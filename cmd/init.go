@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"html/template"
@@ -32,8 +33,9 @@ import (
 	"github.com/knadh/listmonk/internal/messenger/email"
 	"github.com/knadh/listmonk/internal/messenger/postback"
 	"github.com/knadh/listmonk/internal/subimporter"
+	"github.com/knadh/listmonk/models"
 	"github.com/knadh/stuffbin"
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 	flag "github.com/spf13/pflag"
 )
 
@@ -66,6 +68,13 @@ type constants struct {
 	AdminUsername []byte `koanf:"admin_username"`
 	AdminPassword []byte `koanf:"admin_password"`
 
+	Appearance struct {
+		AdminCSS  []byte `koanf:"admin.custom_css"`
+		AdminJS   []byte `koanf:"admin.custom_js"`
+		PublicCSS []byte `koanf:"public.custom_css"`
+		PublicJS  []byte `koanf:"public.custom_js"`
+	}
+
 	UnsubURL      string
 	LinkTrackURL  string
 	ViewTrackURL  string
@@ -76,6 +85,11 @@ type constants struct {
 	BounceWebhooksEnabled bool
 	BounceSESEnabled      bool
 	BounceSendgridEnabled bool
+}
+
+type notifTpls struct {
+	tpls        *template.Template
+	contentType string
 }
 
 func initFlags() {
@@ -90,13 +104,14 @@ func initFlags() {
 	f.StringSlice("config", []string{"config.toml"},
 		"path to one or more config files (will be merged in order)")
 	f.Bool("install", false, "setup database (first time)")
-	f.Bool("idempotent", false, "make --install run only if the databse isn't already setup")
+	f.Bool("idempotent", false, "make --install run only if the database isn't already setup")
 	f.Bool("upgrade", false, "upgrade database to the current version")
-	f.Bool("version", false, "current version of the build")
+	f.Bool("version", false, "show current version of the build")
 	f.Bool("new-config", false, "generate sample config file")
 	f.String("static-dir", "", "(optional) path to directory with static files")
 	f.String("i18n-dir", "", "(optional) path to directory with i18n language files")
 	f.Bool("yes", false, "assume 'yes' to prompts during --install/upgrade")
+	f.Bool("passive", false, "run in passive mode where campaigns are not processed")
 	if err := f.Parse(os.Args[1:]); err != nil {
 		lo.Fatalf("error loading flags: %v", err)
 	}
@@ -114,13 +129,13 @@ func initConfigFiles(files []string, ko *koanf.Koanf) {
 			if os.IsNotExist(err) {
 				lo.Fatal("config file not found. If there isn't one yet, run --new-config to generate one.")
 			}
-			lo.Fatalf("error loadng config from file: %v.", err)
+			lo.Fatalf("error loading config from file: %v.", err)
 		}
 	}
 }
 
 // initFileSystem initializes the stuffbin FileSystem to provide
-// access to bunded static assets to the app.
+// access to bundled static assets to the app.
 func initFS(appDir, frontendDir, staticDir, i18nDir string) stuffbin.FileSystem {
 	var (
 		// stuffbin real_path:virtual_alias paths to map local assets on disk
@@ -187,7 +202,7 @@ func initFS(appDir, frontendDir, staticDir, i18nDir string) stuffbin.FileSystem 
 			// Default dir in cwd.
 			i18nDir = "i18n"
 		}
-		lo.Printf("will load i18n files from: %v", i18nDir)
+		lo.Printf("loading i18n files from: %v", i18nDir)
 		files = append(files, joinFSPaths(i18nDir, i18nFiles)...)
 	}
 
@@ -196,7 +211,7 @@ func initFS(appDir, frontendDir, staticDir, i18nDir string) stuffbin.FileSystem 
 			// Default dir in cwd.
 			staticDir = "static"
 		}
-		lo.Printf("will load static files from: %v", staticDir)
+		lo.Printf("loading static files from: %v", staticDir)
 		files = append(files, joinFSPaths(staticDir, staticFiles)...)
 	}
 
@@ -234,9 +249,8 @@ func initDB() *sqlx.DB {
 	return db
 }
 
-// initQueries loads named SQL queries from the queries file and optionally
-// prepares them.
-func initQueries(sqlFile string, db *sqlx.DB, fs stuffbin.FileSystem, prepareQueries bool) (goyesql.Queries, *Queries) {
+// readQueries reads named SQL queries from the SQL queries file into a query map.
+func readQueries(sqlFile string, db *sqlx.DB, fs stuffbin.FileSystem) goyesql.Queries {
 	// Load SQL queries.
 	qB, err := fs.Read(sqlFile)
 	if err != nil {
@@ -247,23 +261,38 @@ func initQueries(sqlFile string, db *sqlx.DB, fs stuffbin.FileSystem, prepareQue
 		lo.Fatalf("error parsing SQL queries: %v", err)
 	}
 
-	if !prepareQueries {
-		return qMap, nil
+	return qMap
+}
+
+// prepareQueries queries prepares a query map and returns a *Queries
+func prepareQueries(qMap goyesql.Queries, db *sqlx.DB, ko *koanf.Koanf) *Queries {
+	// The campaign view/click count queries have a COUNT(%s) placeholder that should either
+	// be substituted with * to pull non-unique rows when individual subscriber tracking is off
+	// as all subscriber_ids will be null, or with DISTINCT subscriber_id when tracking is on
+	// to only pull unique rows per subscriber.
+	sel := "*"
+	if ko.Bool("privacy.individual_tracking") {
+		sel = "DISTINCT subscriber_id"
 	}
 
-	// Prepare queries.
+	keys := []string{"get-campaign-view-counts", "get-campaign-click-counts", "get-campaign-link-counts"}
+	for _, k := range keys {
+		qMap[k].Query = fmt.Sprintf(qMap[k].Query, sel)
+	}
+
+	// Scan and prepare all queries.
 	var q Queries
 	if err := goyesqlx.ScanToStruct(&q, qMap, db.Unsafe()); err != nil {
 		lo.Fatalf("error preparing SQL queries: %v", err)
 	}
 
-	return qMap, &q
+	return &q
 }
 
-// initSettings loads settings from the DB.
-func initSettings(q *sqlx.Stmt) {
+// initSettings loads settings from the DB into the given Koanf map.
+func initSettings(query string, db *sqlx.DB, ko *koanf.Koanf) {
 	var s types.JSONText
-	if err := q.Get(&s); err != nil {
+	if err := db.Get(&s, query); err != nil {
 		lo.Fatalf("error reading settings from DB: %s", pqErrMsg(err))
 	}
 
@@ -285,7 +314,10 @@ func initConstants() *constants {
 		lo.Fatalf("error loading app config: %v", err)
 	}
 	if err := ko.Unmarshal("privacy", &c.Privacy); err != nil {
-		lo.Fatalf("error loading app config: %v", err)
+		lo.Fatalf("error loading app.privacy config: %v", err)
+	}
+	if err := ko.UnmarshalWithConf("appearance", &c.Appearance, koanf.UnmarshalConf{FlatPaths: true}); err != nil {
+		lo.Fatalf("error loading app.appearance config: %v", err)
 	}
 
 	c.RootURL = strings.TrimRight(c.RootURL, "/")
@@ -345,6 +377,10 @@ func initCampaignManager(q *Queries, cs *constants, app *App) *manager.Manager {
 		lo.Fatal("app.message_rate should be at least 1")
 	}
 
+	if ko.Bool("passive") {
+		lo.Println("running in passive mode. won't process campaigns.")
+	}
+
 	return manager.New(manager.Config{
 		BatchSize:             ko.Int("app.batch_size"),
 		Concurrency:           ko.Int("app.concurrency"),
@@ -361,6 +397,8 @@ func initCampaignManager(q *Queries, cs *constants, app *App) *manager.Manager {
 		SlidingWindow:         ko.Bool("app.message_sliding_window"),
 		SlidingWindowDuration: ko.Duration("app.message_sliding_window_duration"),
 		SlidingWindowRate:     ko.Int("app.message_sliding_window_rate"),
+		ScanInterval:          time.Second * 5,
+		ScanCampaigns:         !ko.Bool("passive"),
 	}, newManagerStore(q), campNotifCB, app.i18n, lo)
 }
 
@@ -391,7 +429,7 @@ func initSMTPMessenger(m *manager.Manager) messenger.Messenger {
 		lo.Fatalf("no SMTP servers found in config")
 	}
 
-	// Load the config for multipme SMTP servers.
+	// Load the config for multiple SMTP servers.
 	for _, item := range items {
 		if !item.Bool("enabled") {
 			continue
@@ -476,7 +514,7 @@ func initMediaStore() media.Store {
 		o.RootURL = ko.String("app.root_url")
 		o.UploadPath = filepath.Clean(o.UploadPath)
 		o.UploadURI = filepath.Clean(o.UploadURI)
-		up, err := filesystem.NewDiskStore(o)
+		up, err := filesystem.New(o)
 		if err != nil {
 			lo.Fatalf("error initializing filesystem upload provider %s", err)
 		}
@@ -491,7 +529,7 @@ func initMediaStore() media.Store {
 
 // initNotifTemplates compiles and returns e-mail notification templates that are
 // used for sending ad-hoc notifications to admins and subscribers.
-func initNotifTemplates(path string, fs stuffbin.FileSystem, i *i18n.I18n, cs *constants) *template.Template {
+func initNotifTemplates(path string, fs stuffbin.FileSystem, i *i18n.I18n, cs *constants) *notifTpls {
 	// Register utility functions that the e-mail templates can use.
 	funcs := template.FuncMap{
 		"RootURL": func() string {
@@ -505,11 +543,36 @@ func initNotifTemplates(path string, fs stuffbin.FileSystem, i *i18n.I18n, cs *c
 		},
 	}
 
-	tpl, err := stuffbin.ParseTemplatesGlob(funcs, fs, "/static/email-templates/*.html")
+	tpls, err := stuffbin.ParseTemplatesGlob(funcs, fs, "/static/email-templates/*.html")
 	if err != nil {
 		lo.Fatalf("error parsing e-mail notif templates: %v", err)
 	}
-	return tpl
+
+	html, err := fs.Read("/static/email-templates/base.html")
+	if err != nil {
+		lo.Fatalf("error reading static/email-templates/base.html: %v", err)
+	}
+
+	out := &notifTpls{
+		tpls:        tpls,
+		contentType: models.CampaignContentTypeHTML,
+	}
+
+	// Determine whether the notification templates are HTML or plaintext.
+	// Copy the first few (arbitrary) bytes of the template and check if has the <!doctype html> tag.
+	ln := 256
+	if len(html) < ln {
+		ln = len(html)
+	}
+	h := make([]byte, ln)
+	copy(h, html[0:ln])
+
+	if !bytes.Contains(bytes.ToLower(h), []byte("<!doctype html>")) {
+		out.contentType = models.CampaignContentTypePlain
+		lo.Println("system e-mail templates are plaintext")
+	}
+
+	return out
 }
 
 // initBounceManager initializes the bounce manager that scans mailboxes and listens to webhooks
@@ -583,15 +646,14 @@ func initHTTPServer(app *App) *echo.Echo {
 	fSrv := app.fs.FileServer()
 
 	// Public (subscriber) facing static files.
-	srv.GET("/public/*", echo.WrapHandler(fSrv))
+	srv.GET("/public/static/*", echo.WrapHandler(fSrv))
 
 	// Admin (frontend) facing static files.
 	srv.GET("/admin/static/*", echo.WrapHandler(fSrv))
 
 	// Public (subscriber) facing media upload files.
-	if ko.String("upload.provider") == "filesystem" {
-		srv.Static(ko.String("upload.filesystem.upload_uri"),
-			ko.String("upload.filesystem.upload_path"))
+	if ko.String("upload.provider") == "filesystem" && ko.String("upload.filesystem.upload_uri") != "" {
+		srv.Static(ko.String("upload.filesystem.upload_uri"), ko.String("upload.filesystem.upload_path"))
 	}
 
 	// Register all HTTP handlers.

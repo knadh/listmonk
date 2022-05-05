@@ -24,9 +24,10 @@ type postback struct {
 }
 
 type campaign struct {
-	UUID string   `db:"uuid" json:"uuid"`
-	Name string   `db:"name" json:"name"`
-	Tags []string `db:"tags" json:"tags"`
+	UUID    string         `db:"uuid" json:"uuid"`
+	Name    string         `db:"name" json:"name"`
+	Headers models.Headers `db:"headers" json:"headers"`
+	Tags    []string       `db:"tags" json:"tags"`
 }
 
 type recipient struct {
@@ -100,9 +101,10 @@ func (p *Postback) Push(m messenger.Message) error {
 
 	if m.Campaign != nil {
 		pb.Campaign = &campaign{
-			UUID: m.Campaign.UUID,
-			Name: m.Campaign.Name,
-			Tags: m.Campaign.Tags,
+			UUID:    m.Campaign.UUID,
+			Name:    m.Campaign.Name,
+			Headers: m.Campaign.Headers,
+			Tags:    m.Campaign.Tags,
 		}
 	}
 

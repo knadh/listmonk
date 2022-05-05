@@ -16,7 +16,7 @@ import (
 	"github.com/knadh/listmonk/internal/messenger"
 	"github.com/knadh/listmonk/internal/subimporter"
 	"github.com/knadh/listmonk/models"
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 	"github.com/lib/pq"
 )
 
@@ -233,9 +233,8 @@ func handleOptinPage(c echo.Context) error {
 
 	// There are no lists to confirm.
 	if len(out.Lists) == 0 {
-		return c.Render(http.StatusInternalServerError, tplMessage,
-			makeMsgTpl(app.i18n.T("public.noSubTitle"), "",
-				app.i18n.Ts("public.noSubInfo")))
+		return c.Render(http.StatusOK, tplMessage,
+			makeMsgTpl(app.i18n.T("public.noSubTitle"), "", app.i18n.Ts("public.noSubInfo")))
 	}
 
 	// Confirm.
@@ -437,7 +436,7 @@ func handleSelfExportSubscriberData(c echo.Context) error {
 
 	// Prepare the attachment e-mail.
 	var msg bytes.Buffer
-	if err := app.notifTpls.ExecuteTemplate(&msg, notifSubscriberData, data); err != nil {
+	if err := app.notifTpls.tpls.ExecuteTemplate(&msg, notifSubscriberData, data); err != nil {
 		app.log.Printf("error compiling notification template '%s': %v", notifSubscriberData, err)
 		return c.Render(http.StatusInternalServerError, tplMessage,
 			makeMsgTpl(app.i18n.T("public.errorTitle"), "",
@@ -447,10 +446,11 @@ func handleSelfExportSubscriberData(c echo.Context) error {
 	// Send the data as a JSON attachment to the subscriber.
 	const fname = "data.json"
 	if err := app.messengers[emailMsgr].Push(messenger.Message{
-		From:    app.constants.FromEmail,
-		To:      []string{data.Email},
-		Subject: "Your data",
-		Body:    msg.Bytes(),
+		ContentType: app.notifTpls.contentType,
+		From:        app.constants.FromEmail,
+		To:          []string{data.Email},
+		Subject:     "Your data",
+		Body:        msg.Bytes(),
 		Attachments: []messenger.Attachment{
 			{
 				Name:    fname,
