@@ -2,49 +2,97 @@
 <!doctype html>
 <html>
     <head>
-        <meta charset="UTF-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
         <base target="_blank">
+
+        <style>
+            body {
+                background-color: #F0F1F3;
+                font-family: 'Helvetica Neue', 'Segoe UI', Helvetica, sans-serif;
+                font-size: 15px;
+                line-height: 26px;
+                margin: 0;
+                color: #444;
+            }
+
+            .wrap {
+                background-color: #fff;
+                padding: 30px;
+                max-width: 525px;
+                margin: 0 auto;
+                border-radius: 5px;
+            }
+
+            .header {
+                border-bottom: 1px solid #eee;
+                padding-bottom: 15px;
+                margin-bottom: 15px;
+            }
+
+            .footer {
+                text-align: center;
+                font-size: 12px;
+                color: #888;
+            }
+                .footer a {
+                    color: #888;
+                }
+
+            .gutter {
+                padding: 30px;
+            }
+            .button {
+                background: #0055d4;
+                color: #fff !important;
+                display: inline-block;
+                border-radius: 3px;
+                padding: 10px 30px;
+                text-align: center;
+                text-decoration: none;
+                font-weight: bold;
+            }
+            .button:hover {
+                background: #222;
+                color: #fff;
+            }
+            img {
+                max-width: 100%;
+            }
+
+            a {
+                color: #0055d4;
+            }
+                a:hover {
+                    color: #111;
+                }
+            @media screen and (max-width: 600px) {
+                .wrap {
+                    max-width: auto;
+                }
+                .gutter {
+                    padding: 10px;
+                }
+            }
+        </style>
     </head>
-    <body style="background-color: #fafafa; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif; padding-top: 15px;">
-        <table border="0" cellspacing="0" width="100%">
-          <tr>
-            <td></td>
-            <td style="vertical-align: middle;" width="400">
-              <table style="background-color: white; border-radius: 12px; padding: 18px; border-spacing: 5px;" width="540">
-                <tr>
-                <td>
-                    <table style="border-collapse: collapse; border-spacing: 0; width: 100%; border-bottom: 1px solid #eee; padding-bottom: 15px; margin-bottom: 15px;">
-                        <tr>
-                            <td>
-                                {{ if ne LogoURL "" }}
-                                <img src="{{ LogoURL }}" alt="Tachyum" height="100" />
-                                {{ else }}
-                                <img src="/public/static/logo.svg" alt="{{ .Data.Title }}" />
-                                {{ end }}
-                            </td>
-                            <td style="font-size: 30px; line-height: 36px; font-weight: 300;">
-                                Mailing list
-                            </td>
-                        </tr>
-                    </table>
-                </td>
-            </tr>
-                
+<body style="background-color: #F0F1F3;">
+    <div class="gutter">&nbsp;</div>
+    <div class="wrap">
+        <div class="header">
+            {{ if ne LogoURL "" }}
+                <img src="{{ LogoURL }}" alt="listmonk" />
+            {{ end }}
+        </div>
 {{ end }}
 
 {{ define "footer" }}
-                </table>    
-            </td>
-            <td></td>
-        </tr>
-    </table>
+    </div>
     
-    <!-- <div class="footer">
+    <div class="footer">
         <p>Powered by <a href="https://listmonk.app" target="_blank">listmonk</a></p>
     </div>
-    <div class="gutter">&nbsp;</div> -->
+    <div class="gutter">&nbsp;</div>
 </body>
 </html>
 {{ end }}
