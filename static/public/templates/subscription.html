@@ -50,10 +50,10 @@
         var a = document.querySelector('input[name="data-action"]:checked').value,
             f = document.querySelector("#data-form");
         if (a == "export") {
-            f.action = "/newsletter/subscriptions/subscription/export/{{ .Data.SubUUID }}";
+            f.action = "/subscription/export/{{ .Data.SubUUID }}";
             return true;
         } else if (confirm("{{ L.T "public.privacyConfirmWipe" }}")) {
-            f.action = "/newsletter/subscriptions/subscription/wipe/{{ .Data.SubUUID }}";
+            f.action = "/subscription/wipe/{{ .Data.SubUUID }}";
             return true;
         }
         return false;
