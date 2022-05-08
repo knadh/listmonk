@@ -31,7 +31,7 @@ const routes = [
   },
   {
     path: '/lists/:id',
-    name: 'lists',
+    name: 'list',
     meta: { title: 'globals.terms.lists', group: 'lists' },
     component: () => import(/* webpackChunkName: "main" */ '../views/Lists.vue'),
   },
