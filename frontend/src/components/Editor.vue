@@ -216,6 +216,7 @@ export default {
           });
         },
 
+        browser_spellcheck: true,
         min_height: 500,
         toolbar_sticky: true,
         entity_encoding: 'raw',
