@@ -9,7 +9,6 @@ import (
 	"github.com/knadh/listmonk/internal/bounce/mailbox"
 	"github.com/knadh/listmonk/internal/bounce/webhooks"
 	"github.com/knadh/listmonk/models"
-	"github.com/lib/pq"
 )
 
 const (
@@ -27,9 +26,6 @@ type Mailbox interface {
 
 // Opt represents bounce processing options.
 type Opt struct {
-	BounceCount  int    `json:"count"`
-	BounceAction string `json:"action"`
-
 	MailboxEnabled  bool        `json:"mailbox_enabled"`
 	MailboxType     string      `json:"mailbox_type"`
 	Mailbox         mailbox.Opt `json:"mailbox"`
@@ -37,6 +33,8 @@ type Opt struct {
 	SESEnabled      bool        `json:"ses_enabled"`
 	SendgridEnabled bool        `json:"sendgrid_enabled"`
 	SendgridKey     string      `json:"sendgrid_key"`
+
+	RecordBounceCB func(models.Bounce) error
 }
 
 // Manager handles e-mail bounces.
@@ -106,27 +104,12 @@ func (m *Manager) Run() {
 				return
 			}
 
-			date := b.CreatedAt
-			if date.IsZero() {
-				date = time.Now()
+			if b.CreatedAt.IsZero() {
+				b.CreatedAt = time.Now()
 			}
 
-			_, err := m.queries.RecordQuery.Exec(b.SubscriberUUID,
-				b.Email,
-				b.CampaignUUID,
-				b.Type,
-				b.Source,
-				b.Meta,
-				date,
-				m.opt.BounceCount,
-				m.opt.BounceAction)
-			if err != nil {
-				// Ignore the error if it complained of no subscriber.
-				if pqErr, ok := err.(*pq.Error); ok && pqErr.Column == "subscriber_id" {
-					m.log.Printf("bounced subscriber (%s / %s) not found", b.SubscriberUUID, b.Email)
-					continue
-				}
-				m.log.Printf("error recording bounce: %v", err)
+			if err := m.opt.RecordBounceCB(b); err != nil {
+				continue
 			}
 		}
 	}
