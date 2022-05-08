@@ -28,7 +28,7 @@ type Queries struct {
 	ConfirmSubscriptionOptin        *sqlx.Stmt `query:"confirm-subscription-optin"`
 	UnsubscribeSubscribersFromLists *sqlx.Stmt `query:"unsubscribe-subscribers-from-lists"`
 	DeleteSubscribers               *sqlx.Stmt `query:"delete-subscribers"`
-	Unsubscribe                     *sqlx.Stmt `query:"unsubscribe"`
+	UnsubscribeByCampaign           *sqlx.Stmt `query:"unsubscribe-by-campaign"`
 	ExportSubscriberData            *sqlx.Stmt `query:"export-subscriber-data"`
 
 	// Non-prepared arbitrary subscriber queries.

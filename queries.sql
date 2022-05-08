@@ -174,7 +174,7 @@ UPDATE subscriber_lists SET status='confirmed', updated_at=NOW()
 UPDATE subscriber_lists SET status='unsubscribed', updated_at=NOW()
     WHERE (subscriber_id, list_id) = ANY(SELECT a, b FROM UNNEST($1::INT[]) a, UNNEST($2::INT[]) b);
 
--- name: unsubscribe
+-- name: unsubscribe-by-campaign
 -- Unsubscribes a subscriber given a campaign UUID (from all the lists in the campaign) and the subscriber UUID.
 -- If $3 is TRUE, then all subscriptions of the subscriber is blocklisted
 -- and all existing subscriptions, irrespective of lists, unsubscribed.
