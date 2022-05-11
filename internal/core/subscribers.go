@@ -237,21 +237,17 @@ func (c *Core) ExportSubscribers(query string, subIDs, listIDs []int, batchSize 
 
 // insertSubscriber inserts a subscriber and returns the ID. The first bool indicates if
 // it was a new subscriber, and the second bool indicates if the subscriber was sent an optin confirmation.
-// 1st bool = isNew?, 2nd bool = optinSent?
-func (c *Core) CreateSubscriber(sub models.Subscriber, listIDs []int, listUUIDs []string, preconfirm bool) (models.Subscriber, bool, bool, error) {
+// bool = optinSent?
+func (c *Core) CreateSubscriber(sub models.Subscriber, listIDs []int, listUUIDs []string, preconfirm bool) (models.Subscriber, bool, error) {
 	uu, err := uuid.NewV4()
 	if err != nil {
 		c.log.Printf("error generating UUID: %v", err)
-		return models.Subscriber{}, false, false, echo.NewHTTPError(http.StatusInternalServerError,
+		return models.Subscriber{}, false, echo.NewHTTPError(http.StatusInternalServerError,
 			c.i18n.Ts("globals.messages.errorUUID", "error", err.Error()))
 	}
 	sub.UUID = uu.String()
 
-	var (
-		isNew     = true
-		subStatus = models.SubscriptionStatusUnconfirmed
-	)
-
+	subStatus := models.SubscriptionStatusUnconfirmed
 	if preconfirm {
 		subStatus = models.SubscriptionStatusConfirmed
 	}
@@ -277,11 +273,12 @@ func (c *Core) CreateSubscriber(sub models.Subscriber, listIDs []int, listUUIDs 
 		pq.Array(listUUIDs),
 		subStatus); err != nil {
 		if pqErr, ok := err.(*pq.Error); ok && pqErr.Constraint == "subscribers_email_key" {
-			isNew = false
+			return models.Subscriber{}, false, echo.NewHTTPError(http.StatusConflict,
+				c.i18n.T("subscribers.emailExists"))
 		} else {
 			// return sub.Subscriber, errSubscriberExists
 			c.log.Printf("error inserting subscriber: %v", err)
-			return models.Subscriber{}, false, false, echo.NewHTTPError(http.StatusInternalServerError,
+			return models.Subscriber{}, false, echo.NewHTTPError(http.StatusInternalServerError,
 				c.i18n.Ts("globals.messages.errorCreating",
 					"name", "{globals.terms.subscriber}", "error", pqErrMsg(err)))
 		}
@@ -291,7 +288,7 @@ func (c *Core) CreateSubscriber(sub models.Subscriber, listIDs []int, listUUIDs 
 	// created, the id will be empty. Fetch the details by e-mail then.
 	out, err := c.GetSubscriber(sub.ID, "", sub.Email)
 	if err != nil {
-		return models.Subscriber{}, false, false, err
+		return models.Subscriber{}, false, err
 	}
 
 	hasOptin := false
@@ -301,7 +298,7 @@ func (c *Core) CreateSubscriber(sub models.Subscriber, listIDs []int, listUUIDs 
 		hasOptin = num > 0
 	}
 
-	return out, isNew, hasOptin, nil
+	return out, hasOptin, nil
 }
 
 // UpdateSubscriber updates a subscriber's properties.

@@ -320,16 +320,21 @@ func handleSubscriptionForm(c echo.Context) error {
 			makeMsgTpl(app.i18n.T("public.errorTitle"), "", app.i18n.T("subscribers.invalidName")))
 	}
 
+	msg := "public.subConfirmed"
+
 	// Insert the subscriber into the DB.
 	req.Status = models.SubscriberStatusEnabled
 	req.ListUUIDs = pq.StringArray(req.SubListUUIDs)
-	_, _, hasOptin, err := app.core.CreateSubscriber(req.SubReq.Subscriber, nil, req.ListUUIDs, false)
+	_, hasOptin, err := app.core.CreateSubscriber(req.SubReq.Subscriber, nil, req.ListUUIDs, false)
 	if err != nil {
+		if e, ok := err.(*echo.HTTPError); ok && e.Code == http.StatusConflict {
+			return c.Render(http.StatusOK, tplMessage, makeMsgTpl(app.i18n.T("public.subTitle"), "", app.i18n.Ts(msg)))
+		}
+
 		return c.Render(http.StatusInternalServerError, tplMessage,
 			makeMsgTpl(app.i18n.T("public.errorTitle"), "", fmt.Sprintf("%s", err.(*echo.HTTPError).Message)))
 	}
 
-	msg := "public.subConfirmed"
 	if hasOptin {
 		msg = "public.subOptinPending"
 	}

@@ -212,12 +212,9 @@ func handleCreateSubscriber(c echo.Context) error {
 	}
 
 	// Insert the subscriber into the DB.
-	sub, isNew, _, err := app.core.CreateSubscriber(req.Subscriber, req.Lists, req.ListUUIDs, req.PreconfirmSubs)
+	sub, _, err := app.core.CreateSubscriber(req.Subscriber, req.Lists, req.ListUUIDs, req.PreconfirmSubs)
 	if err != nil {
 		return err
-	}
-	if !isNew {
-		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("subscribers.emailExists"))
 	}
 
 	return c.JSON(http.StatusOK, okResp{sub})
