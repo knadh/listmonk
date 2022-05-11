@@ -135,7 +135,8 @@
                   <b-field v-if="form.headersStr !== '[]' || isHeadersVisible"
                     label-position="on-border" :message="$t('campaigns.customHeadersHelp')">
                     <b-input v-model="form.headersStr" name="headers" type="textarea"
-                      placeholder='[{"X-Custom": "value"}, {"X-Custom2": "value"}]' />
+                      placeholder='[{"X-Custom": "value"}, {"X-Custom2": "value"}]'
+                      :disabled="!canEdit" />
                   </b-field>
                 </div>
                 <hr />
