@@ -25,6 +25,25 @@
       :current-page="queryParams.page" :per-page="lists.perPage" :total="lists.total"
       backend-sorting @sort="onSort"
     >
+      <template #top-left>
+        <div class="columns">
+          <div class="column is-6">
+            <form @submit.prevent="getLists">
+              <div>
+                <b-field>
+                  <b-input v-model="queryParams.query" name="query" expanded
+                    icon="magnify" ref="query" data-cy="query" />
+                  <p class="controls">
+                    <b-button native-type="submit" type="is-primary" icon-left="magnify"
+                      data-cy="btn-query" />
+                  </p>
+                </b-field>
+              </div>
+            </form>
+          </div>
+        </div>
+      </template>
+
       <b-table-column v-slot="props" field="name" :label="$t('globals.fields.name')"
         header-class="cy-name" sortable width="25%"
         paginated backend-pagination pagination-position="both"
@@ -42,7 +61,7 @@
       </b-table-column>
 
       <b-table-column v-slot="props" field="type" :label="$t('globals.fields.type')"
-        header-class="cy-type" sortable>
+        header-class="cy-type" sortable width="15%">
         <div class="tags">
           <b-tag :class="props.row.type" :data-cy="`type-${props.row.type}`">
             {{ $t(`lists.types.${props.row.type}`) }}
@@ -73,6 +92,16 @@
         <router-link :to="`/subscribers/lists/${props.row.id}`">
           {{ $utils.formatNumber(props.row.subscriberCount) }}
         </router-link>
+      </b-table-column>
+
+      <b-table-column v-slot="props" field="subscriber_counts"
+        header-class="cy-subscribers" width="10%">
+        <div class="fields stats">
+          <p v-for="(count, status) in filterStatuses(props.row)" :key="status">
+            <label>{{ $tc(`subscribers.status.${status}`, count) }}</label>
+            <span :class="status">{{ $utils.formatNumber(count) }}</span>
+          </p>
+        </div>
       </b-table-column>
 
       <b-table-column v-slot="props" field="created_at" :label="$t('globals.fields.createdAt')"
@@ -146,6 +175,7 @@ export default Vue.extend({
       isFormVisible: false,
       queryParams: {
         page: 1,
+        query: '',
         orderBy: 'id',
         order: 'asc',
       },
@@ -189,9 +219,19 @@ export default Vue.extend({
       }
     },
 
+    filterStatuses(list) {
+      const out = { ...list.subscriberStatuses };
+      if (list.optin === 'single') {
+        delete out.unconfirmed;
+        delete out.confirmed;
+      }
+      return out;
+    },
+
     getLists() {
       this.$api.getLists({
         page: this.queryParams.page,
+        query: this.queryParams.query,
         order_by: this.queryParams.orderBy,
         order: this.queryParams.order,
       });

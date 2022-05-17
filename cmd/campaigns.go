@@ -16,13 +16,13 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/jmoiron/sqlx"
 	"github.com/knadh/listmonk/models"
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 	"github.com/lib/pq"
 	null "gopkg.in/volatiletech/null.v6"
 )
 
 // campaignReq is a wrapper over the Campaign model for receiving
-// campaign creation and updation data from APIs.
+// campaign creation and update data from APIs.
 type campaignReq struct {
 	models.Campaign
 
@@ -67,7 +67,8 @@ type campaignStats struct {
 	Sent      int       `db:"sent" json:"sent"`
 	Started   null.Time `db:"started_at" json:"started_at"`
 	UpdatedAt null.Time `db:"updated_at" json:"updated_at"`
-	Rate      float64   `json:"rate"`
+	Rate      int       `json:"rate"`
+	NetRate   int       `json:"net_rate"`
 }
 
 type campsWrap struct {
@@ -102,13 +103,13 @@ func handleGetCampaigns(c echo.Context) error {
 		noBody, _ = strconv.ParseBool(c.QueryParam("no_body"))
 	)
 
-	// Fetch one list.
+	// Fetch one campaign.
 	single := false
 	if id > 0 {
 		single = true
 	}
 
-	queryStr, stmt := makeCampaignQuery(query, orderBy, order, app.queries.QueryCampaigns)
+	queryStr, stmt := makeSearchQuery(query, orderBy, order, app.queries.QueryCampaigns)
 
 	// Unsafe to ignore scanning fields not present in models.Campaigns.
 	if err := db.Select(&out.Results, stmt, id, pq.StringArray(status), queryStr, pg.Offset, pg.Limit); err != nil {
@@ -160,8 +161,9 @@ func handleGetCampaigns(c echo.Context) error {
 // handlePreviewCampaign renders the HTML preview of a campaign body.
 func handlePreviewCampaign(c echo.Context) error {
 	var (
-		app   = c.Get("app").(*App)
-		id, _ = strconv.Atoi(c.Param("id"))
+		app      = c.Get("app").(*App)
+		id, _    = strconv.Atoi(c.Param("id"))
+		tplID, _ = strconv.Atoi(c.FormValue("template_id"))
 	)
 
 	if id < 1 {
@@ -169,8 +171,7 @@ func handlePreviewCampaign(c echo.Context) error {
 	}
 
 	var camp models.Campaign
-	err := app.queries.GetCampaignForPreview.Get(&camp, id)
-	if err != nil {
+	if err := app.queries.GetCampaignForPreview.Get(&camp, id, tplID); err != nil {
 		if err == sql.ErrNoRows {
 			return echo.NewHTTPError(http.StatusBadRequest,
 				app.i18n.Ts("globals.messages.notFound", "name", "{globals.terms.campaign}"))
@@ -203,6 +204,10 @@ func handlePreviewCampaign(c echo.Context) error {
 		app.log.Printf("error rendering message: %v", err)
 		return echo.NewHTTPError(http.StatusBadRequest,
 			app.i18n.Ts("templates.errorRendering", "error", err.Error()))
+	}
+
+	if camp.ContentType == models.CampaignContentTypePlain {
+		return c.String(http.StatusOK, string(msg.Body()))
 	}
 
 	return c.HTML(http.StatusOK, string(msg.Body()))
@@ -288,6 +293,7 @@ func handleCreateCampaign(c echo.Context) error {
 		o.AltBody,
 		o.ContentType,
 		o.SendAt,
+		o.Headers,
 		pq.StringArray(normalizeTags(o.Tags)),
 		o.Messenger,
 		o.TemplateID,
@@ -340,7 +346,7 @@ func handleUpdateCampaign(c echo.Context) error {
 	}
 
 	// Read the incoming params into the existing campaign fields from the DB.
-	// This allows updating of values that have been sent where as fields
+	// This allows updating of values that have been sent whereas fields
 	// that are not in the request retain the old values.
 	o := campaignReq{Campaign: cm}
 	if err := c.Bind(&o); err != nil {
@@ -362,6 +368,7 @@ func handleUpdateCampaign(c echo.Context) error {
 		o.ContentType,
 		o.SendAt,
 		o.SendLater,
+		o.Headers,
 		pq.StringArray(normalizeTags(o.Tags)),
 		o.Messenger,
 		o.TemplateID,
@@ -516,17 +523,21 @@ func handleGetRunningCampaignStats(c echo.Context) error {
 	// Compute rate.
 	for i, c := range out {
 		if c.Started.Valid && c.UpdatedAt.Valid {
-			diff := c.UpdatedAt.Time.Sub(c.Started.Time).Minutes()
-			if diff > 0 {
-				var (
-					sent = float64(c.Sent)
-					rate = sent / diff
-				)
-				if rate > sent || rate > float64(c.ToSend) {
-					rate = sent
-				}
-				out[i].Rate = rate
+			diff := int(c.UpdatedAt.Time.Sub(c.Started.Time).Minutes())
+			if diff < 1 {
+				diff = 1
 			}
+
+			rate := c.Sent / diff
+			if rate > c.Sent || rate > c.ToSend {
+				rate = c.Sent
+			}
+
+			// Rate since the starting of the campaign.
+			out[i].NetRate = rate
+
+			// Realtime running rate over the last minute.
+			out[i].Rate = app.manager.GetCampaignStats(c.ID).SendRate
 		}
 	}
 
@@ -539,6 +550,7 @@ func handleTestCampaign(c echo.Context) error {
 	var (
 		app       = c.Get("app").(*App)
 		campID, _ = strconv.Atoi(c.Param("id"))
+		tplID, _  = strconv.Atoi(c.FormValue("template_id"))
 		req       campaignReq
 	)
 
@@ -577,7 +589,7 @@ func handleTestCampaign(c echo.Context) error {
 
 	// The campaign.
 	var camp models.Campaign
-	if err := app.queries.GetCampaignForPreview.Get(&camp, campID); err != nil {
+	if err := app.queries.GetCampaignForPreview.Get(&camp, campID, tplID); err != nil {
 		if err == sql.ErrNoRows {
 			return echo.NewHTTPError(http.StatusBadRequest,
 				app.i18n.Ts("globals.messages.notFound",
@@ -598,6 +610,7 @@ func handleTestCampaign(c echo.Context) error {
 	camp.AltBody = req.AltBody
 	camp.Messenger = req.Messenger
 	camp.ContentType = req.ContentType
+	camp.Headers = req.Headers
 	camp.TemplateID = req.TemplateID
 
 	// Send the test messages.
@@ -671,7 +684,7 @@ func handleGetCampaignViewAnalytics(c echo.Context) error {
 	return c.JSON(http.StatusOK, okResp{out})
 }
 
-// sendTestMessage takes a campaign and a subsriber and sends out a sample campaign message.
+// sendTestMessage takes a campaign and a subscriber and sends out a sample campaign message.
 func sendTestMessage(sub models.Subscriber, camp *models.Campaign, app *App) error {
 	if err := camp.CompileTemplate(app.manager.TemplateFuncs(camp)); err != nil {
 		app.log.Printf("error compiling template: %v", err)
@@ -731,6 +744,10 @@ func validateCampaignFields(c campaignReq, app *App) (campaignReq, error) {
 		return c, errors.New(app.i18n.Ts("campaigns.fieldInvalidBody", "error", err.Error()))
 	}
 
+	if len(c.Headers) == 0 {
+		c.Headers = make([]map[string]string, 0)
+	}
+
 	return c, nil
 }
 
@@ -773,7 +790,7 @@ func makeOptinCampaignMessage(o campaignReq, app *App) (campaignReq, error) {
 
 	// Prepare sample opt-in message for the campaign.
 	var b bytes.Buffer
-	if err := app.notifTpls.ExecuteTemplate(&b, "optin-campaign", struct {
+	if err := app.notifTpls.tpls.ExecuteTemplate(&b, "optin-campaign", struct {
 		Lists        []models.List
 		OptinURLAttr template.HTMLAttr
 	}{lists, optinURLAttr}); err != nil {
@@ -786,9 +803,10 @@ func makeOptinCampaignMessage(o campaignReq, app *App) (campaignReq, error) {
 	return o, nil
 }
 
-// makeCampaignQuery cleans an optional campaign search string and prepares the
-// campaign SQL statement (string) and returns them.
-func makeCampaignQuery(q, orderBy, order, query string) (string, string) {
+// makeSearchQuery cleans an optional search string and prepares the
+// query SQL statement (string interpolated) and returns the
+// search query string along with the SQL expression.
+func makeSearchQuery(q, orderBy, order, query string) (string, string) {
 	if q != "" {
 		q = `%` + string(regexFullTextQuery.ReplaceAll([]byte(q), []byte("&"))) + `%`
 	}

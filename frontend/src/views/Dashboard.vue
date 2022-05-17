@@ -2,7 +2,7 @@
   <section class="dashboard content">
     <header class="columns">
       <div class="column is-two-thirds">
-        <h1 class="title is-5">{{ dayjs().format("ddd, DD MMM") }}</h1>
+        <h1 class="title is-5">{{ $utils.niceDate(new Date()) }}</h1>
       </div>
     </header>
 
@@ -60,7 +60,8 @@
                   <div class="column is-6">
                     <ul class="no has-text-grey">
                       <li v-for="(num, status) in counts.campaigns.byStatus" :key="status">
-                        <label>{{ num }}</label> {{ status }}
+                        <label :data-cy="`campaigns-${status}`">{{ num }}</label>
+                        {{ $t(`campaigns.status.${status}`) }}
                         <span v-if="status === 'running'" class="spinner is-tiny">
                           <b-loading :is-full-page="false" active />
                         </span>

@@ -78,6 +78,7 @@ CREATE TABLE campaigns (
     altbody          TEXT NULL,
     content_type     content_type NOT NULL DEFAULT 'richtext',
     send_at          TIMESTAMP WITH TIME ZONE,
+    headers          JSONB NOT NULL DEFAULT '[]',
     status           campaign_status NOT NULL DEFAULT 'draft',
     tags             VARCHAR(100)[],
 
@@ -174,7 +175,7 @@ INSERT INTO settings (key, value) VALUES
     ('app.root_url', '"http://localhost:9000"'),
     ('app.favicon_url', '""'),
     ('app.from_email', '"listmonk <noreply@listmonk.yoursite.com>"'),
-    ('app.logo_url', '"http://localhost:9000/public/static/logo.png"'),
+    ('app.logo_url', '""'),
     ('app.concurrency', '10'),
     ('app.message_rate', '10'),
     ('app.batch_size', '1000'),
@@ -198,6 +199,7 @@ INSERT INTO settings (key, value) VALUES
     ('upload.filesystem.upload_path', '"uploads"'),
     ('upload.filesystem.upload_uri', '"/uploads"'),
     ('upload.s3.url', '"https://ap-south-1.s3.amazonaws.com"'),
+    ('upload.s3.public_url', '""'),
     ('upload.s3.aws_access_key_id', '""'),
     ('upload.s3.aws_secret_access_key', '""'),
     ('upload.s3.aws_default_region', '"ap-south-1"'),
@@ -207,8 +209,8 @@ INSERT INTO settings (key, value) VALUES
     ('upload.s3.bucket_type', '"public"'),
     ('upload.s3.expiry', '"14d"'),
     ('smtp',
-        '[{"enabled":true, "host":"smtp.yoursite.com","port":25,"auth_protocol":"cram","username":"username","password":"password","hello_hostname":"","max_conns":10,"idle_timeout":"15s","wait_timeout":"5s","max_msg_retries":2,"tls_enabled":true,"tls_skip_verify":false,"email_headers":[]},
-          {"enabled":false, "host":"smtp2.yoursite.com","port":587,"auth_protocol":"plain","username":"username","password":"password","hello_hostname":"","max_conns":10,"idle_timeout":"15s","wait_timeout":"5s","max_msg_retries":2,"tls_enabled":false,"tls_skip_verify":false,"email_headers":[]}]'),
+        '[{"enabled":true, "host":"smtp.yoursite.com","port":25,"auth_protocol":"cram","username":"username","password":"password","hello_hostname":"","max_conns":10,"idle_timeout":"15s","wait_timeout":"5s","max_msg_retries":2,"tls_type":"STARTTLS","tls_skip_verify":false,"email_headers":[]},
+          {"enabled":false, "host":"smtp.gmail.com","port":465,"auth_protocol":"login","username":"username@gmail.com","password":"password","hello_hostname":"","max_conns":10,"idle_timeout":"15s","wait_timeout":"5s","max_msg_retries":2,"tls_type":"TLS","tls_skip_verify":false,"email_headers":[]}]'),
     ('messengers', '[]'),
     ('bounce.enabled', 'false'),
     ('bounce.webhooks_enabled', 'false'),
@@ -218,7 +220,11 @@ INSERT INTO settings (key, value) VALUES
     ('bounce.sendgrid_enabled', 'false'),
     ('bounce.sendgrid_key', '""'),
     ('bounce.mailboxes',
-        '[{"enabled":false, "type": "pop", "host":"pop.yoursite.com","port":995,"auth_protocol":"userpass","username":"username","password":"password","return_path": "bounce@listmonk.yoursite.com","scan_interval":"15m","tls_enabled":true,"tls_skip_verify":false}]');
+        '[{"enabled":false, "type": "pop", "host":"pop.yoursite.com","port":995,"auth_protocol":"userpass","username":"username","password":"password","return_path": "bounce@listmonk.yoursite.com","scan_interval":"15m","tls_enabled":true,"tls_skip_verify":false}]'),
+    ('appearance.admin.custom_css', '""'),
+    ('appearance.admin.custom_js', '""'),
+    ('appearance.public.custom_css', '""'),
+    ('appearance.public.custom_js', '""');
 
 -- bounces
 DROP TABLE IF EXISTS bounces CASCADE;

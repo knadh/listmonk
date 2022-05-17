@@ -15,6 +15,7 @@ import (
 	"github.com/knadh/listmonk/internal/i18n"
 	"github.com/knadh/listmonk/internal/messenger"
 	"github.com/knadh/listmonk/models"
+	"github.com/paulbellamy/ratecounter"
 )
 
 const (
@@ -39,6 +40,11 @@ type Store interface {
 	DeleteSubscriber(id int64) error
 }
 
+// CampStats contains campaign stats like per minute send rate.
+type CampStats struct {
+	SendRate int
+}
+
 // Manager handles the scheduling, processing, and queuing of campaigns
 // and message pushes.
 type Manager struct {
@@ -50,8 +56,9 @@ type Manager struct {
 	logger     *log.Logger
 
 	// Campaigns that are currently running.
-	camps    map[int]*models.Campaign
-	campsMut sync.RWMutex
+	camps     map[int]*models.Campaign
+	campRates map[int]*ratecounter.RateCounter
+	campsMut  sync.RWMutex
 
 	// Links generated using Track() are cached here so as to not query
 	// the database for the link UUID for every message sent. This has to
@@ -98,8 +105,7 @@ type Message struct {
 // Config has parameters for configuring the manager.
 type Config struct {
 	// Number of subscribers to pull from the DB in a single iteration.
-	BatchSize int
-
+	BatchSize             int
 	Concurrency           int
 	MessageRate           int
 	MaxSendErrors         int
@@ -115,6 +121,16 @@ type Config struct {
 	MessageURL            string
 	ViewTrackURL          string
 	UnsubHeader           bool
+
+	// Interval to scan the DB for active campaign checkpoints.
+	ScanInterval time.Duration
+
+	// ScanCampaigns indicates whether this instance of manager will scan the DB
+	// for active campaigns and process them.
+	// This can be used to run multiple instances of listmonk
+	// (exposed to the internet, private etc.) where only one does campaign
+	// processing while the others handle other kinds of traffic.
+	ScanCampaigns bool
 }
 
 type msgError struct {
@@ -144,6 +160,7 @@ func New(cfg Config, store Store, notifCB models.AdminNotifCallback, i *i18n.I18
 		logger:             l,
 		messengers:         make(map[string]messenger.Messenger),
 		camps:              make(map[int]*models.Campaign),
+		campRates:          make(map[int]*ratecounter.RateCounter),
 		links:              make(map[string]string),
 		subFetchQueue:      make(chan *models.Campaign, cfg.Concurrency),
 		campMsgQueue:       make(chan CampaignMessage, cfg.Concurrency*2),
@@ -228,14 +245,29 @@ func (m *Manager) HasRunningCampaigns() bool {
 	return len(m.camps) > 0
 }
 
+// GetCampaignStats returns campaign statistics.
+func (m *Manager) GetCampaignStats(id int) CampStats {
+	n := 0
+
+	m.campsMut.Lock()
+	if r, ok := m.campRates[id]; ok {
+		n = int(r.Rate())
+	}
+	m.campsMut.Unlock()
+
+	return CampStats{SendRate: n}
+}
+
 // Run is a blocking function (that should be invoked as a goroutine)
 // that scans the data source at regular intervals for pending campaigns,
 // and queues them for processing. The process queue fetches batches of
 // subscribers and pushes messages to them for each queued campaign
 // until all subscribers are exhausted, at which point, a campaign is marked
 // as "finished".
-func (m *Manager) Run(tick time.Duration) {
-	go m.scanCampaigns(tick)
+func (m *Manager) Run() {
+	if m.cfg.ScanCampaigns {
+		go m.scanCampaigns(m.cfg.ScanInterval)
+	}
 
 	// Spawn N message workers.
 	for i := 0; i < m.cfg.Concurrency; i++ {
@@ -308,6 +340,15 @@ func (m *Manager) worker() {
 				h.Set("List-Unsubscribe", `<`+msg.unsubURL+`>`)
 			}
 
+			// Attach any custom headers.
+			if len(msg.Campaign.Headers) > 0 {
+				for _, set := range msg.Campaign.Headers {
+					for hdr, val := range set {
+						h.Add(hdr, val)
+					}
+				}
+			}
+
 			out.Headers = h
 
 			if err := m.messengers[msg.Campaign.Messenger].Push(out); err != nil {
@@ -317,8 +358,15 @@ func (m *Manager) worker() {
 				select {
 				case m.campMsgErrorQueue <- msgError{camp: msg.Campaign, err: err}:
 				default:
+					continue
 				}
 			}
+
+			m.campsMut.Lock()
+			if r, ok := m.campRates[msg.Campaign.ID]; ok {
+				r.Incr(1)
+			}
+			m.campsMut.Unlock()
 
 		// Arbitrary message.
 		case msg, ok := <-m.msgQueue:
@@ -388,9 +436,11 @@ func (m *Manager) TemplateFuncs(c *models.Campaign) template.FuncMap {
 			return template.HTML(safeHTML)
 		},
 	}
+
 	for k, v := range sprig.GenericFuncMap() {
 		f[k] = v
 	}
+
 	return f
 }
 
@@ -477,6 +527,7 @@ func (m *Manager) addCampaign(c *models.Campaign) error {
 	// Add the campaign to the active map.
 	m.campsMut.Lock()
 	m.camps[c.ID] = c
+	m.campRates[c.ID] = ratecounter.NewRateCounter(time.Minute)
 	m.campsMut.Unlock()
 	return nil
 }
@@ -558,7 +609,7 @@ func (m *Manager) nextSubscribers(c *models.Campaign, batchSize int) (bool, erro
 	return true, nil
 }
 
-// isCampaignProcessing checks if the campaign is bing processed.
+// isCampaignProcessing checks if the campaign is being processed.
 func (m *Manager) isCampaignProcessing(id int) bool {
 	m.campsMut.RLock()
 	_, ok := m.camps[id]
@@ -569,6 +620,7 @@ func (m *Manager) isCampaignProcessing(id int) bool {
 func (m *Manager) exhaustCampaign(c *models.Campaign, status string) (*models.Campaign, error) {
 	m.campsMut.Lock()
 	delete(m.camps, c.ID)
+	delete(m.campRates, c.ID)
 	m.campsMut.Unlock()
 
 	// A status has been passed. Change the campaign's status

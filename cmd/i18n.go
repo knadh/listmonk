@@ -8,7 +8,7 @@ import (
 
 	"github.com/knadh/listmonk/internal/i18n"
 	"github.com/knadh/stuffbin"
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 )
 
 type i18nLang struct {

@@ -9,7 +9,7 @@
           <b-tag v-if="data.type === 'optin'" :class="data.type">
             {{ $t('lists.optin') }}
           </b-tag>
-          <span v-if="isEditing" class="has-text-grey-light is-size-7">
+          <span v-if="isEditing" class="has-text-grey-light is-size-7" :data-campaign-id="data.id">
             {{ $t('globals.fields.id') }}: {{ data.id }} /
             {{ $t('globals.fields.uuid') }}: {{ data.uuid }}
           </span>
@@ -22,7 +22,7 @@
         <div class="buttons">
           <b-field grouped v-if="isEditing && canEdit">
             <b-field expanded>
-              <b-button  expanded @click="onSubmit" :loading="loading.campaigns"
+              <b-button  expanded @click="() => onSubmit('update')" :loading="loading.campaigns"
                 type="is-primary" icon-left="content-save-outline" data-cy="btn-save">
                 {{ $t('globals.buttons.saveChanges') }}
               </b-button>
@@ -47,13 +47,13 @@
 
     <b-loading :active="loading.campaigns"></b-loading>
 
-    <b-tabs type="is-boxed" :animated="false" v-model="activeTab">
+    <b-tabs type="is-boxed" :animated="false" v-model="activeTab" @input="onTab">
       <b-tab-item :label="$tc('globals.terms.campaign')" label-position="on-border"
         icon="rocket-launch-outline">
         <section class="wrap">
           <div class="columns">
             <div class="column is-7">
-              <form @submit.prevent="onSubmit">
+              <form @submit.prevent="() => onSubmit(isNew ? 'create' : 'update')">
                 <b-field :label="$t('globals.fields.name')" label-position="on-border">
                   <b-input :maxlength="200" :ref="'focus'" v-model="form.name"
                     name="name" :disabled="!canEdit"
@@ -124,6 +124,20 @@
                     </b-field>
                   </div>
                 </div>
+
+                <div>
+                  <p class="has-text-right">
+                    <a href="#" class="is-size-7" @click.prevent="showHeaders"
+                      data-cy="btn-headers">
+                      <b-icon icon="plus" />{{ $t('settings.smtp.setCustomHeaders') }}
+                    </a>
+                  </p>
+                  <b-field v-if="form.headersStr !== '[]' || isHeadersVisible"
+                    label-position="on-border" :message="$t('campaigns.customHeadersHelp')">
+                    <b-input v-model="form.headersStr" name="headers" type="textarea"
+                      placeholder='[{"X-Custom": "value"}, {"X-Custom2": "value"}]' />
+                  </b-field>
+                </div>
                 <hr />
 
                 <b-field v-if="isNew">
@@ -140,12 +154,12 @@
                 <h3 class="title is-size-6">{{ $t('campaigns.sendTest') }}</h3>
                   <b-field :message="$t('campaigns.sendTestHelp')">
                     <b-taginput v-model="form.testEmails"
-                      :before-adding="$utils.validateEmail" :disabled="this.isNew"
+                      :before-adding="$utils.validateEmail" :disabled="isNew"
                       ellipsis icon="email-outline" :placeholder="$t('campaigns.testEmails')" />
                   </b-field>
                   <b-field>
-                    <b-button @click="sendTest" :loading="loading.campaigns" :disabled="this.isNew"
-                      type="is-primary" icon-left="email-outline">
+                    <b-button @click="() => onSubmit('test')" :loading="loading.campaigns"
+                      :disabled="isNew" type="is-primary" icon-left="email-outline">
                       {{ $t('campaigns.send') }}
                     </b-button>
                   </b-field>
@@ -160,6 +174,7 @@
           v-model="form.content"
           :id="data.id"
           :title="data.name"
+          :templateId="form.templateId"
           :contentType="data.contentType"
           :body="data.body"
           :disabled="!canEdit"
@@ -203,6 +218,7 @@ export default Vue.extend({
     return {
       isNew: false,
       isEditing: false,
+      isHeadersVisible: false,
       activeTab: 0,
 
       data: {},
@@ -215,6 +231,9 @@ export default Vue.extend({
         name: '',
         subject: '',
         fromEmail: '',
+        headersStr: '[]',
+        headers: [],
+        messenger: 'email',
         templateId: 0,
         lists: [],
         tags: [],
@@ -244,11 +263,45 @@ export default Vue.extend({
       this.form.altbody = null;
     },
 
-    onSubmit() {
-      if (this.isNew) {
-        this.createCampaign();
+    showHeaders() {
+      this.isHeadersVisible = !this.isHeadersVisible;
+    },
+
+    isUnsaved() {
+      return this.data.body !== this.form.content.body
+        || this.data.contentType !== this.form.content.contentType;
+    },
+
+    onTab(t) {
+      if (t === 1 && window.tinymce && window.tinymce.editors.length > 0) {
+        this.$nextTick(() => {
+          window.tinymce.editors[0].focus();
+        });
+      }
+    },
+
+    onSubmit(typ) {
+      if (this.form.headersStr && this.form.headersStr !== '[]') {
+        try {
+          this.form.headers = JSON.parse(this.form.headersStr);
+        } catch (e) {
+          this.$utils.toast(e.toString(), 'is-danger');
+          return;
+        }
       } else {
-        this.updateCampaign();
+        this.form.headers = [];
+      }
+
+      switch (typ) {
+        case 'create':
+          this.createCampaign();
+          break;
+        case 'test':
+          this.sendTest();
+          break;
+        default:
+          this.updateCampaign();
+          break;
       }
     },
 
@@ -258,6 +311,7 @@ export default Vue.extend({
         this.form = {
           ...this.form,
           ...data,
+          headersStr: JSON.stringify(data.headers, null, 4),
 
           // The structure that is populated by editor input event.
           content: { contentType: data.contentType, body: data.body },
@@ -279,6 +333,7 @@ export default Vue.extend({
         from_email: this.form.fromEmail,
         messenger: this.form.messenger,
         type: 'regular',
+        headers: this.form.headers,
         tags: this.form.tags,
         template_id: this.form.templateId,
         content_type: this.form.content.contentType,
@@ -300,9 +355,12 @@ export default Vue.extend({
         lists: this.form.lists.map((l) => l.id),
         from_email: this.form.fromEmail,
         content_type: 'richtext',
-        messenger: 'email',
+        messenger: this.form.messenger,
         type: 'regular',
         tags: this.form.tags,
+        send_later: this.form.sendLater,
+        send_at: this.form.sendLater ? this.form.sendAtDate : null,
+        headers: this.form.headers,
         template_id: this.form.templateId,
         // body: this.form.body,
       };
@@ -324,6 +382,7 @@ export default Vue.extend({
         tags: this.form.tags,
         send_later: this.form.sendLater,
         send_at: this.form.sendLater ? this.form.sendAtDate : null,
+        headers: this.form.headers,
         template_id: this.form.templateId,
         content_type: this.form.content.contentType,
         body: this.form.content.body,
@@ -347,12 +406,7 @@ export default Vue.extend({
 
     // Starts or schedule a campaign.
     startCampaign() {
-      let status = '';
-      if (this.canStart) {
-        status = 'running';
-      } else if (this.canSchedule) {
-        status = 'scheduled';
-      } else {
+      if (!this.canStart && !this.canSchedule) {
         return;
       }
 
@@ -361,6 +415,15 @@ export default Vue.extend({
           // First save the campaign.
           this.updateCampaign().then(() => {
             // Then start/schedule it.
+            let status = '';
+            if (this.canStart) {
+              status = 'running';
+            } else if (this.canSchedule) {
+              status = 'scheduled';
+            } else {
+              return;
+            }
+
             this.$api.changeCampaignStatus(this.data.id, status).then(() => {
               this.$router.push({ name: 'campaigns' });
             });
@@ -398,6 +461,14 @@ export default Vue.extend({
     },
   },
 
+  beforeRouteLeave(to, from, next) {
+    if (this.isUnsaved()) {
+      this.$utils.confirm(this.$t('globals.messages.confirmDiscard'), () => next(true));
+      return;
+    }
+    next(true);
+  },
+
   watch: {
     selectedLists() {
       this.form.lists = this.selectedLists;
@@ -405,6 +476,8 @@ export default Vue.extend({
   },
 
   mounted() {
+    window.onbeforeunload = () => this.isUnsaved() || null;
+
     this.form.fromEmail = this.settings['app.from_email'];
 
     const { id } = this.$route.params;

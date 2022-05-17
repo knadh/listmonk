@@ -44,6 +44,14 @@ check_dependencies() {
 	fi
 }
 
+check_existing_db_volume() {
+	info "checking for an existing docker db volume"
+	if docker volume inspect listmonk_listmonk-data >/dev/null 2>&1; then
+		error "listmonk-data volume already exists. Please use docker-compose down -v to remove old volumes for a fresh setup of PostgreSQL."
+		exit 1
+	fi
+}
+
 download() {
 	curl --fail --silent --location --output "$2" "$1"
 }
@@ -69,7 +77,7 @@ is_running() {
 }
 
 generate_password(){
-	echo $(tr -dc A-Za-z0-9 </dev/urandom | head -c 13 ; echo '')
+	echo $(LC_ALL=C tr -dc A-Za-z0-9 </dev/urandom | head -c 13 ; echo '')
 }
 
 get_config() {
@@ -124,6 +132,7 @@ show_output(){
 
 
 check_dependencies
+check_existing_db_volume
 get_config
 get_containers
 modify_config

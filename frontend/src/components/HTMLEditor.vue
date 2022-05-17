@@ -9,6 +9,10 @@ import { colors } from '../constants';
 export default {
   props: {
     value: String,
+    language: {
+      type: String,
+      default: 'html',
+    },
     disabled: Boolean,
   },
 
@@ -38,7 +42,7 @@ export default {
       this.$refs.htmlEditor.appendChild(el);
 
       this.flask = new CodeFlask(el.shadowRoot.getElementById('area'), {
-        language: 'html',
+        language: this.$props.language,
         lineNumbers: false,
         styleParent: el.shadowRoot,
         readonly: this.disabled,

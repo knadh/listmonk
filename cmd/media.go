@@ -10,7 +10,7 @@ import (
 	"github.com/disintegration/imaging"
 	"github.com/gofrs/uuid"
 	"github.com/knadh/listmonk/internal/media"
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 )
 
 const (
