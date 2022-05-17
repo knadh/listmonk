@@ -1,0 +1,50 @@
+{{ define "header" }}
+<!doctype html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+        <base target="_blank">
+    </head>
+    <body style="background-color: #fafafa; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif; padding-top: 15px;">
+        <table border="0" cellspacing="0" width="100%">
+          <tr>
+            <td></td>
+            <td style="vertical-align: middle;" width="400">
+              <table style="background-color: white; border-radius: 12px; padding: 18px; border-spacing: 5px;" width="540">
+                <tr>
+                <td>
+                    <table style="border-collapse: collapse; border-spacing: 0; width: 100%; border-bottom: 1px solid #eee; padding-bottom: 15px; margin-bottom: 15px;">
+                        <tr>
+                            <td>
+                                {{ if ne LogoURL "" }}
+                                <img src="{{ LogoURL }}" alt="Tachyum" height="100" />
+                                {{ else }}
+                                <img src="/public/static/logo.svg" alt="{{ .Data.Title }}" />
+                                {{ end }}
+                            </td>
+                            <td style="font-size: 30px; line-height: 36px; font-weight: 300;">
+                                Mailing list
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+                
+{{ end }}
+
+{{ define "footer" }}
+                </table>    
+            </td>
+            <td></td>
+        </tr>
+    </table>
+    
+    <!-- <div class="footer">
+        <p>Powered by <a href="https://listmonk.app" target="_blank">listmonk</a></p>
+    </div>
+    <div class="gutter">&nbsp;</div> -->
+</body>
+</html>
+{{ end }}

@@ -1,0 +1,65 @@
+{{ define "subscription" }}
+{{ template "header" .}}
+<section class="section">
+    <h2>{{ L.T "public.unsubTitle" }}</h2>
+    <p>{{ L.T "public.unsubHelp" }}</p>
+    <form method="post">
+        <div>
+            {{ if .Data.AllowBlocklist }}
+                <p>
+                    <input id="privacy-blocklist" type="checkbox" name="blocklist" value="true" />
+                    <label for="privacy-blocklist">{{ L.T "public.unsubFull" }}</label>
+                </p>
+            {{ end }}
+
+            <p>
+                <button type="submit" class="button" id="btn-unsub">{{ L.T "public.unsub" }}</button>
+            </p>
+        </div>
+    </form>
+</section>
+
+{{ if or .Data.AllowExport .Data.AllowWipe }}
+<form id="data-form" method="post" action="" onsubmit="return handleData()">
+    <section>
+        <h2>{{ L.T "public.privacyTitle" }}</h2>
+        {{ if .Data.AllowExport }}
+        <div class="row">
+            <input id="privacy-export" type="radio" name="data-action" value="export" required />
+            <label for="privacy-export"><strong>{{ L.T "public.privacyExport" }}</strong></label>
+            <br />
+            {{ L.T "public.privacyExportHelp" }}
+        </div>
+        {{ end }}
+
+        {{ if .Data.AllowWipe }}
+        <div class="row">
+            <input id="privacy-wipe" type="radio" name="data-action" value="wipe" required />
+            <label for="privacy-wipe"><strong>{{ L.T "public.privacyWipe" }}</strong></label>
+            <br />
+            {{ L.T "public.privacyWipeHelp" }}
+        </div>
+        {{ end }}
+        <p>
+            <input type="submit" value="{{ L.T "globals.buttons.continue" }}" class="button button-outline" />
+        </p>
+    </section>
+</form>
+<script>
+    function handleData() {
+        var a = document.querySelector('input[name="data-action"]:checked').value,
+            f = document.querySelector("#data-form");
+        if (a == "export") {
+            f.action = "/newsletter/subscriptions/subscription/export/{{ .Data.SubUUID }}";
+            return true;
+        } else if (confirm("{{ L.T "public.privacyConfirmWipe" }}")) {
+            f.action = "/newsletter/subscriptions/subscription/wipe/{{ .Data.SubUUID }}";
+            return true;
+        }
+        return false;
+    }
+</script>
+{{ end }}
+
+{{ template "footer" .}}
+{{ end }}
