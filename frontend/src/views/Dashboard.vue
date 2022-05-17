@@ -146,6 +146,7 @@
                     <div class="column is-8">
                       <div class="legend-container"></div>
                     </div>
+                  </div>
                 </div>
               </div>
             </article>
@@ -243,6 +244,53 @@ export default Vue.extend({
       });
     },
 
+    renderTimeseriesChart(label, data, el) {
+      const dates = ['x'];
+      const counts = [label];
+
+      dates.push(...data.map((d) => d.date));
+      counts.push(...data.map((d) => d.count));
+
+      const conf = {
+        bindto: el,
+        unload: true,
+        data: {
+          x: 'x',
+          type: 'spline',
+          columns: [
+            dates,
+            counts,
+          ],
+          color() {
+            return colors.primary;
+          },
+          empty: { label: { text: this.$t('globals.messages.emptyState') } },
+        },
+        axis: {
+          x: {
+            type: 'timeseries',
+            tick: {
+              format: ((d) => dayjs(d).format('DD MMM')),
+              rotate: -45,
+              multiline: false,
+              culling: { max: 20 },
+            },
+          },
+        },
+        legend: {
+          show: false,
+        },
+      };
+
+      if (data.length > 0) {
+        conf.data.columns.push([label, ...data.map((d) => d.count)]);
+      }
+
+      this.$nextTick(() => {
+        c3.generate(conf);
+      });
+    },
+
     renderPieChart(data, el) {
       const conf = {
         bindto: el,
@@ -305,7 +353,7 @@ export default Vue.extend({
       this.isChartsLoading = false;
       this.renderChart(this.$t('dashboard.campaignViews'), data.campaignViews, this.$refs['chart-views']);
       this.renderChart(this.$t('dashboard.linkClicks'), data.linkClicks, this.$refs['chart-clicks']);
-      this.renderChart(this.$t('dashboard.subscribersCount'), data.subscribers, this.$refs['chart-subscribers']);
+      this.renderTimeseriesChart(this.$t('dashboard.subscribersCount'), data.subscribers, this.$refs['chart-subscribers']);
       this.renderPieChart(data.domains, this.$refs['chart-domains']);
     });
   },

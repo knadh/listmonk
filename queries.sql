@@ -821,7 +821,7 @@ subscribersCount AS (
     FROM (
         with subscriberDates as (
           select
-            date_trunc('day', created_at)::DATE as date,
+            date_trunc('day', CASE WHEN created_at > (CURRENT_DATE - INTERVAL '2 months') THEN created_at ELSE (CURRENT_DATE - INTERVAL '2 months') END)::DATE as date,
             count(1)
           from subscribers
           group by 1
