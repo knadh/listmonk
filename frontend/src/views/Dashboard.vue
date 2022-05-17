@@ -141,7 +141,7 @@
                     {{ $t('dashboard.subscriberDomains') }}
                   </h3><br />
                   <div class="columns">
-                    <div class="column is-4">
+                    <div class="column">
                       <div ref="chart-domains"></div>
                     </div>
                     <div class="column is-8">
@@ -182,6 +182,15 @@
     flex-wrap: wrap;
     overflow: auto;
     height: 320px;
+    cursor: pointer;
+  }
+
+  .legend:hover > div {
+    opacity: 50%;
+  }
+
+  .legend:hover > div:hover {
+    opacity: 100%;
   }
 </style>
 
@@ -315,7 +324,10 @@ export default Vue.extend({
       this.$nextTick(() => {
         const chart = c3.generate(conf);
 
-        d3.select('.legend-container').insert('div', '.chart').attr('class', 'legend').selectAll('div')
+        d3.select('.legend-container')
+          .insert('div', '.chart')
+          .attr('class', 'legend')
+          .selectAll('div')
           .data([...data.map((d) => d.domain)])
           .enter()
           .append('div')
