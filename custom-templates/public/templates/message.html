@@ -1,0 +1,27 @@
+{{ define "message" }}
+    {{ template "header" .}}
+
+    <h2>{{ .Data.Title }}</h2>
+    <div>
+        {{ .Data.Message }}
+    </div>
+
+    <p>
+        <a href="" class="button" id="btn-back">{{ L.T "globals.buttons.back" }}</a>
+    </p>
+
+    <script>
+        (function() {
+            // If there's page history to go back to, show the back button.
+            if(history && history.length >= 3) {
+                var btn = document.getElementById("btn-back");
+                btn.style.display = 'inline-block';
+                btn.onclick = function(e) {
+                    history.go(history.length > 2 ? -2 : -1);
+                    e.preventDefault();
+                };
+            }
+        })();
+    </script>
+    {{ template "footer" .}}
+{{ end }}

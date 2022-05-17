@@ -14,7 +14,8 @@ RUN apk --no-cache add ca-certificates tzdata
 WORKDIR /listmonk
 COPY --from=base listmonk .
 COPY static static
+COPY custom-templates custom-templates
 COPY config.toml.sample config.toml
 COPY config-demo.toml .
-CMD ["./listmonk"]
+CMD ["./listmonk", "--static-dir=custom-templates"]
 EXPOSE 9000

@@ -1,0 +1,25 @@
+{{ define "campaign-status" }}
+{{ template "header" . }}
+<h2>{{ L.Ts "email.status.campaignUpdateTitle" }}</h2>
+<table width="100%">
+    <tr>
+        <td width="30%"><strong>{{ L.Ts "globals.terms.campaign" }}</strong></td>
+        <td><a href="{{ RootURL }}/admin/campaigns/{{ index . "ID" }}">{{ index . "Name" }}</a></td>
+    </tr>
+    <tr>
+        <td width="30%"><strong>{{ L.Ts "email.status.status" }}</strong></td>
+        <td>{{ index . "Status" }}</td>
+    </tr>
+    <tr>
+        <td width="30%"><strong>{{ L.Ts "email.status.campaignSent" }}</strong></td>
+        <td>{{ index . "Sent" }} / {{ index . "ToSend" }}</td>
+    </tr>
+    {{ if ne (index . "Reason") "" }}
+        <tr>
+            <td width="30%"><strong>{{ L.Ts "email.status.campaignReason" }}</strong></td>
+            <td>{{ index . "Reason" }}</td>
+        </tr>
+    {{ end }}
+</table>
+{{ template "footer" }}
+{{ end }}

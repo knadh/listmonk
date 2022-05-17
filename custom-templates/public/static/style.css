@@ -1,0 +1,185 @@
+@font-face {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 300;
+  src: url('https://www.tachyum.com/fonts/roboto-v29-latin-ext_latin_cyrillic-300.eot'); /* IE9 Compat Modes */
+  src: local(''),
+       url('https://www.tachyum.com/fonts/roboto-v29-latin-ext_latin_cyrillic-300.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+       url('https://www.tachyum.com/fonts/roboto-v29-latin-ext_latin_cyrillic-300.woff2') format('woff2'), /* Super Modern Browsers */
+       url('https://www.tachyum.com/fonts/roboto-v29-latin-ext_latin_cyrillic-300.woff') format('woff'), /* Modern Browsers */
+       url('https://www.tachyum.com/fonts/roboto-v29-latin-ext_latin_cyrillic-300.ttf') format('truetype'), /* Safari, Android, iOS */
+       url('https://www.tachyum.com/fonts/roboto-v29-latin-ext_latin_cyrillic-300.svg#Roboto') format('svg'); /* Legacy iOS */
+}
+@font-face {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 400;
+  src: url('https://www.tachyum.com/fonts/roboto-v29-latin-ext_latin_cyrillic-regular.eot'); /* IE9 Compat Modes */
+  src: local(''),
+       url('https://www.tachyum.com/fonts/roboto-v29-latin-ext_latin_cyrillic-regular.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+       url('https://www.tachyum.com/fonts/roboto-v29-latin-ext_latin_cyrillic-regular.woff2') format('woff2'), /* Super Modern Browsers */
+       url('https://www.tachyum.com/fonts/roboto-v29-latin-ext_latin_cyrillic-regular.woff') format('woff'), /* Modern Browsers */
+       url('https://www.tachyum.com/fonts/roboto-v29-latin-ext_latin_cyrillic-regular.ttf') format('truetype'), /* Safari, Android, iOS */
+       url('https://www.tachyum.com/fonts/roboto-v29-latin-ext_latin_cyrillic-regular.svg#Roboto') format('svg'); /* Legacy iOS */
+}
+* {
+  box-sizing: border-box;
+}
+html, body {
+  padding: 0;
+  margin: 0;
+  min-width: 320px;
+}
+body {
+  background: #fafafa;
+  font-family: Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  font-size: 16px;
+  font-weight: 300;
+  line-height: 26px;
+  color: #1f2228;
+}
+a {
+  color: #0047ba;
+}
+a:hover {
+  color: #1f2228;
+}
+label {
+  cursor: pointer;
+  color: #666;
+}
+h1,
+h2,
+h3,
+h4 {
+  font-weight: 400;
+}
+.section {
+  margin-bottom: 45px;
+}
+
+input[type="text"], input[type="email"], select {
+  padding: 10px 15px;
+  border: 1px solid #888;
+  border-radius: 3px;
+  width: 100%;
+  box-shadow: 2px 2px 0 #f3f3f3;
+  border: 1px solid #ddd;
+  font-size: 1em;
+}
+  input:focus {
+    border-color: #0047ba;
+  }
+
+input:focus::placeholder {
+  color: transparent;
+}
+
+.center {
+  text-align: center;
+}
+.button {
+  background: #0047ba;
+  padding: 8px 4px;
+  border-radius: 30px;
+  border: 0;
+  cursor: pointer;
+  text-decoration: none;
+  color: #ffff;
+  display: inline-block;
+  min-width: 150px;
+  font-size: 1.1em;
+  text-align: center;
+}
+.button:hover {
+  background: #00b5f0;
+  color: #fff;
+}
+.button.button-outline {
+  background: #fff;
+  border: 1px solid #0047ba;
+  color: #0047ba;
+}
+.button.button-outline:hover {
+  background-color: #0047ba;
+  color: #fff;
+}
+
+.container {
+  margin: 60px auto 15px auto;
+  max-width: 550px;  
+}
+
+.wrap {
+  background: #fff;
+  padding: 40px;
+  box-shadow: 2px 2px 0 #f3f3f3;
+  border-radius: 12px;
+  border: 1px solid #eee;
+}
+
+.header {
+  border-bottom: 1px solid #eee;
+  padding-bottom: 15px;
+  margin-bottom: 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.header .logo img {
+  width: auto;
+  max-width: 199px;
+}
+.header .logo {
+  display: flex;
+  flex-direction: column;
+  justify-items: center;
+}
+.header h1 {
+  font-weight: 300;
+}
+.unsub-all {
+  margin-top: 30px;
+  padding-top: 30px;
+  border-top: 1px solid #eee;
+}
+
+.row {
+  margin-bottom: 20px;
+}
+.form .lists {
+  margin-top: 45px;
+  list-style-type: none;
+  padding: 0;
+}
+  .form .nonce {
+    display: none;
+  }
+
+#btn-back {
+  display: none;
+}
+
+footer.container {
+  margin-top: 15px;
+  text-align: center;
+  color: #aaa;
+  font-size: 0.775em;
+  margin-top: 30px;
+  margin-bottom: 30px;
+}
+  footer a {
+    color: #aaa;
+    text-decoration: none;
+  }
+  footer a:hover {
+    color: #1f2228;
+  }
+
+@media screen and (max-width: 650px) {
+  .wrap {
+    margin: 0;
+    padding: 30px;
+    max-width: none;
+  }
+}

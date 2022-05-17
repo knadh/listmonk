@@ -1,0 +1,17 @@
+{{ define "optin-campaign" }}
+
+<p>{{ L.Ts "email.optin.confirmSubWelcome" }} {{ "{{" }}.Subscriber.FirstName {{ "}}" }}</p>
+<p>{{ L.Ts "email.optin.confirmSubInfo" }}</p>
+<ul>
+    {{ range $i, $l := .Lists }}
+        {{ if eq .Type "public" }}
+            <li>{{ .Name }}</li>
+        {{ else }}
+            <li>{{ L.Ts "email.optin.privateList" }}</li>
+        {{ end }}
+    {{ end }}
+</ul>
+<p>
+    <a style="background-color: #0047ba; color: white; font-size: 24px; padding: 6px 16px; text-transform: uppercase; text-decoration: none; border-radius: 100px;" {{ .OptinURLAttr }}>{{ L.Ts "email.optin.confirmSub" }}</a>
+</p>
+{{ end }}

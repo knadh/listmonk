@@ -1,0 +1,40 @@
+{{ define "header" }}
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />	
+	<title>{{ .Data.Title }}</title>
+	<meta name="description" content="{{ .Data.Description }}" />
+	<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+	<link href="/newsletter/subscriptions/public/static/style.css" rel="stylesheet" type="text/css" />
+	<link href="/newsletter/subscriptions/public/custom.css" rel="stylesheet" type="text/css">
+	<script src="/newsletter/subscriptions/public/custom.js" async defer></script>
+
+	{{ if ne .FaviconURL "" }}
+		<link rel="shortcut icon" href="{{ .FaviconURL }}" type="image/x-icon" />
+	{{ else }}
+		<link rel="shortcut icon" href="/newsletter/subscriptions/public/static/favicon.png" type="image/x-icon" />
+	{{ end }}
+</head>
+<body>
+    <div class="container wrap">
+		<header class="header">
+			<div class="logo">
+				{{ if ne .LogoURL "" }}
+					<img src="{{ .LogoURL }}" alt="{{ .Data.Title }}" />
+				{{ else }}
+					<img src="/newsletter/subscriptions/public/static/logo.svg" alt="{{ .Data.Title }}" />
+				{{ end }}
+			</div>
+			<h1>
+				Mailing list
+			</h1>
+		</header>
+{{ end }}
+
+{{ define "footer" }}
+	</div>
+	
+</body>
+</html>
+{{ end }}
