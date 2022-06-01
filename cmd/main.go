@@ -125,7 +125,11 @@ func init() {
 	if ko.Bool("install") {
 		// Save the version of the last listed migration.
 		install(migList[len(migList)-1].version, db, fs, !ko.Bool("yes"), ko.Bool("idempotent"))
-		// os.Exit(0)
+
+		// stop execution if not run-through
+		if !ko.Bool("run-through"){
+			os.Exit(0)
+		}
 	}
 
 	// Check if the DB schema is installed.
@@ -135,9 +139,15 @@ func init() {
 		lo.Fatal("the database does not appear to be setup. Run --install.")
 	}
 
-	if ko.Bool("upgrade") {
+	// Upgrade mode?
+	// if run with install and idempotent, at least check for upgrade
+	if ko.Bool("upgrade") || (ko.Bool("install") && ko.Bool("idempotent")) {
 		upgrade(db, fs, !ko.Bool("yes"))
-		os.Exit(0)
+
+		// stop execution if not run-through
+		if !ko.Bool("run-through"){
+			os.Exit(0)
+		}
 	}
 
 	// Before the queries are prepared, see if there are pending upgrades.
