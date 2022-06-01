@@ -139,9 +139,7 @@ func init() {
 		lo.Fatal("the database does not appear to be setup. Run --install.")
 	}
 
-	// Upgrade mode?
-	// if run with install and idempotent, at least check for upgrade
-	if ko.Bool("upgrade") || (ko.Bool("install") && ko.Bool("idempotent")) {
+	if ko.Bool("upgrade") {
 		upgrade(db, fs, !ko.Bool("yes"))
 
 		// stop execution if not run-through
