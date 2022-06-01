@@ -125,7 +125,7 @@ func init() {
 	if ko.Bool("install") {
 		// Save the version of the last listed migration.
 		install(migList[len(migList)-1].version, db, fs, !ko.Bool("yes"), ko.Bool("idempotent"))
-		os.Exit(0)
+		// os.Exit(0)
 	}
 
 	// Check if the DB schema is installed.

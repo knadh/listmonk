@@ -51,7 +51,8 @@ func install(lastVer string, db *sqlx.DB, fs stuffbin.FileSystem, prompt, idempo
 			}
 		} else {
 			lo.Println("skipping install as database appears to be already setup")
-			os.Exit(0)
+			return;
+			// os.Exit(0)
 		}
 	}
 
