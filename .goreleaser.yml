@@ -28,6 +28,9 @@ builds:
 
 archives:
   - format: tar.gz
+    format_overrides:
+      - goos: windows
+        format: zip
     files:
       - README.md
       - LICENSE
