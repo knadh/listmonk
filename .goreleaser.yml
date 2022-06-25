@@ -18,6 +18,7 @@ builds:
       - netbsd
     goarch:
       - amd64
+      - arm64
     ldflags:
       - -s -w -X "main.buildString={{ .Tag }} ({{ .ShortCommit }} {{ .Date }})" -X "main.versionString={{ .Tag }}"
 
@@ -32,9 +33,19 @@ archives:
       - LICENSE
 
 dockers:
-  -
-    goos: linux
+  - goos: linux
     goarch: amd64
+    ids:
+    - listmonk
+    image_templates:
+    - "listmonk/listmonk:latest"
+    - "listmonk/listmonk:{{ .Tag }}"
+    dockerfile: Dockerfile
+    extra_files:
+    - config.toml.sample
+    - config-demo.toml
+  - goos: linux
+    goarch: arm64
     ids:
     - listmonk
     image_templates:
