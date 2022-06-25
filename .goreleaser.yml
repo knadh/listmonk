@@ -24,7 +24,7 @@ builds:
 
     hooks:
       # stuff executables with static assets.
-      post: make pack-bin BIN={{ .Path }}
+      post: ["make pack-bin BIN={{ .Path }}"]
 
 archives:
   - format: tar.gz
@@ -36,31 +36,31 @@ archives:
       - LICENSE
 
 dockers:
-  - goos: linux
+  - image_templates: ["listmonk/listmonk:{{ .Tag }}-amd64"]
+    use: buildx
+    build_flag_templates: [--platform=linux/amd64]
+    goos: linux
     goarch: amd64
-    ids:
-      - listmonk
-    use: buildx
-    build_flag_templates:
-      - --platform=linux/amd64
-    image_templates:
-      - "listmonk/listmonk:latest"
-      - "listmonk/listmonk:{{ .Tag }}"
     dockerfile: Dockerfile
     extra_files:
       - config.toml.sample
       - config-demo.toml
-  - goos: linux
+  - image_templates: ["listmonk/listmonk:{{ .Tag }}-arm64"]
+    use: buildx
+    build_flag_templates: [--platform=linux/arm64]
+    goos: linux
     goarch: arm64
-    ids:
-      - listmonk
-    use: buildx
-    build_flag_templates:
-      - --platform=linux/arm64
-    image_templates:
-      - "listmonk/listmonk:latest"
-      - "listmonk/listmonk:{{ .Tag }}"
     dockerfile: Dockerfile
     extra_files:
       - config.toml.sample
       - config-demo.toml
+
+docker_manifests:
+  - name_template: listmonk/listmonk:{{ .Tag }}
+    image_templates:
+      - "listmonk/listmonk:{{ .Tag }}-amd64"
+      - "listmonk/listmonk:{{ .Tag }}-arm64"
+  - name_template: listmonk/listmonk:latest
+    image_templates:
+      - "listmonk/listmonk:{{ .Tag }}-amd64"
+      - "listmonk/listmonk:{{ .Tag }}-arm64"
