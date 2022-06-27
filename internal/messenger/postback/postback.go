@@ -119,14 +119,15 @@ func (p *Postback) Push(m messenger.Message) error {
 	}
 
 	if len(m.Attachments) > 0 {
-		a := make([]attachment, 0, len(m.Attachments))
-		for i := 0; i < len(m.Attachments); i++ {
-			a[i] = attachment{
-				Name:    m.Attachments[i].Name,
-				Header:  m.Attachments[i].Header,
-				Content: make([]byte, len(m.Attachments[i].Content)),
+		files := make([]attachment, 0, len(m.Attachments))
+		for _, f := range m.Attachments {
+			a := attachment{
+				Name:    f.Name,
+				Header:  f.Header,
+				Content: make([]byte, len(f.Content)),
 			}
-			copy(a[i].Content, m.Attachments[i].Content)
+			copy(a.Content, f.Content)
+			files = append(files, a)
 		}
 	}
 
