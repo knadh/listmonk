@@ -24,7 +24,7 @@ require (
 	github.com/mattn/go-colorable v0.1.12 // indirect
 	github.com/mitchellh/mapstructure v1.4.2 // indirect
 	github.com/niemeyer/pretty v0.0.0-20200227124842-a10e7caefd8e // indirect
-	github.com/paulbellamy/ratecounter v0.2.0 // indirect
+	github.com/paulbellamy/ratecounter v0.2.0
 	github.com/pelletier/go-toml v1.9.4 // indirect
 	github.com/rhnvrm/simples3 v0.8.2
 	github.com/spf13/cast v1.4.1 // indirect
