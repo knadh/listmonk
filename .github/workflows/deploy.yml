@@ -1,0 +1,37 @@
+name: deploy
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.18
+
+      - name: Prepare Dependencies
+        run: |
+          mkdir build
+          cp Dockerfile build/Dockerfile
+          cp config.toml.sample build/config.toml.sample
+          make dist
+          cp listmonk build/listmonk
+
+      - name: Push
+        uses: s0/git-publish-subdir-action@develop
+        env:
+          REPO: self
+          BRANCH: dist # The branch name where you want to push the assets
+          FOLDER: build # The directory where your assets are generated
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # GitHub will automatically add this - you don't need to bother getting a token
+          MESSAGE: "Build: ({sha}) – {msg}" # The commit message
