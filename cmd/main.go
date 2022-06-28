@@ -116,6 +116,11 @@ func init() {
 		lo.Fatalf("error loading config from env: %v", err)
 	}
 
+	// Ensure that the config is valid.
+	if err := validateConf(ko); err != nil {
+		lo.Fatalf("error validating config: %v", err)
+	}
+
 	// Connect to the database, load the filesystem to read SQL queries.
 	db = initDB()
 	fs = initFS(appDir, frontendDir, ko.String("static-dir"), ko.String("i18n-dir"))
@@ -247,4 +252,19 @@ func main() {
 		// Signal the close.
 		closerWait <- true
 	})
+}
+
+// Validate the config from config files and environment variables.
+func validateConf(ko *koanf.Koanf) error {
+	confCases := []string{
+		"db.host",
+	}
+	for _, c := range confCases {
+		if ko.Exists(c) {
+			continue
+		}
+		return fmt.Errorf("config error: missing %s", c)
+	}
+
+	return nil
 }

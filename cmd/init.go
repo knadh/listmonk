@@ -128,7 +128,8 @@ func initConfigFiles(files []string, ko *koanf.Koanf) {
 		lo.Printf("reading config: %s", f)
 		if err := ko.Load(file.Provider(f), toml.Parser()); err != nil {
 			if os.IsNotExist(err) {
-				lo.Fatal("config file not found. If there isn't one yet, run --new-config to generate one.")
+				lo.Print("config file not found. If there isn't one yet, run --new-config to generate one.")
+				return
 			}
 			lo.Fatalf("error loading config from file: %v.", err)
 		}
