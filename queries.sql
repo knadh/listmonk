@@ -833,18 +833,9 @@ views AS (
           WHERE TIMEZONE('UTC', created_at)::DATE BETWEEN (SELECT from_date FROM viewDates) AND (SELECT to_date FROM viewDates)
           GROUP by date ORDER BY date
     ) row
-),
-domains AS (
-    SELECT JSON_AGG(ROW_TO_JSON(row))
-    FROM (
-        SELECT split_part(email, '@', 2) as domain, count(*)
-          FROM subscribers
-          GROUP by domain ORDER BY count DESC
-    ) row
 )
 SELECT JSON_BUILD_OBJECT('link_clicks', COALESCE((SELECT * FROM clicks), '[]'),
-                        'campaign_views', COALESCE((SELECT * FROM views), '[]'),
-                        'domains', COALESCE((SELECT * FROM domains), '[]')
+                        'campaign_views', COALESCE((SELECT * FROM views), '[]')
                         );
 
 
@@ -866,6 +857,25 @@ FROM (
         date,
         sum(count) over (order by date asc rows between unbounded preceding and current row) as count
     from subscriberDates
+) row
+
+
+-- name: get-dashboard-domain-stats
+SELECT JSON_AGG(ROW_TO_JSON(row))
+FROM (
+    SELECT split_part(email, '@', 2) as domain, count(*)
+    FROM subscribers
+    GROUP by domain ORDER BY count DESC
+) row
+
+
+-- name: get-dashboard-domain-stats-by-list
+SELECT JSON_AGG(ROW_TO_JSON(row))
+FROM (
+    SELECT split_part(email, '@', 2) as domain, count(*)
+    FROM subscribers JOIN subscriber_lists ON id = subscriber_lists.subscriber_id
+    WHERE subscriber_lists.list_id = $1
+    GROUP by domain ORDER BY count DESC
 ) row
 
 

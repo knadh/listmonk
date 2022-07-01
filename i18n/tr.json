@@ -87,6 +87,7 @@
     "campaigns.trackLink": "Track link",
     "campaigns.views": "Görüntülenme",
     "dashboard.campaignViews": "Kampanya görüntülenme Sayısı",
+    "dashboard.domains.all": "All subscribers",
     "dashboard.linkClicks": "Linklerin tıklanması",
     "dashboard.messagesSent": "Mesaj gönderildi",
     "dashboard.orphanSubs": "Sahipsiz",

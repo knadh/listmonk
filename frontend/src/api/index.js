@@ -108,6 +108,9 @@ export const getDashboardCounts = () => http.get('/api/dashboard/counts',
 export const getDashboardSubscriberCounts = (id) => http.get(`/api/dashboard/counts/subscribers/${id}`,
   { loading: models.dashboard });
 
+export const getDashboardDomainStats = (id) => http.get(id ? `/api/dashboard/domains/${id}` : '/api/dashboard/domains',
+  { loading: models.dashboard });
+
 export const getDashboardCharts = () => http.get('/api/dashboard/charts',
   { loading: models.dashboard });
 

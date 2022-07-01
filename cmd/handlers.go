@@ -66,6 +66,8 @@ func initHTTPHandlers(e *echo.Echo, app *App) {
 	g.GET("/api/dashboard/charts", handleGetDashboardCharts)
 	g.GET("/api/dashboard/counts", handleGetDashboardCounts)
 	g.GET("/api/dashboard/counts/subscribers/:list_id", handleGetDashboardSubscribersCount)
+	g.GET("/api/dashboard/domains", handleGetDashboardDomainsCount)
+	g.GET("/api/dashboard/domains/:list_id", handleGetDashboardDomainsCount)
 
 	g.GET("/api/settings", handleGetSettings)
 	g.PUT("/api/settings", handleUpdateSettings)

@@ -87,6 +87,7 @@
     "campaigns.trackLink": "Track link",
     "campaigns.views": "Просмотры",
     "dashboard.campaignViews": "Просмотров компании",
+    "dashboard.domains.all": "All subscribers",
     "dashboard.linkClicks": "Кликов по ссылкам",
     "dashboard.messagesSent": "Отправлено сообщений",
     "dashboard.orphanSubs": "Подписчиков не в писках",

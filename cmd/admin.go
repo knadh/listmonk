@@ -88,6 +88,29 @@ func handleGetDashboardSubscribersCount(c echo.Context) error {
 	return c.JSON(http.StatusOK, okResp{out})
 }
 
+// handleGetDashboardDomainsCount returns subscriber e-mail domains chart data points to render on the dashboard.
+func handleGetDashboardDomainsCount(c echo.Context) error {
+	var (
+		app = c.Get("app").(*App)
+		list_id = c.Param("list_id")
+		out types.JSONText
+	)
+	if list_id != "" {
+		if err := app.queries.GetDashboardDomainsByList.Get(&out, list_id); err != nil {
+			return echo.NewHTTPError(http.StatusInternalServerError,
+				app.i18n.Ts("globals.messages.errorFetching", "name", "dashboard domain stats", "error", pqErrMsg(err)))
+		}
+	} else {
+		if err := app.queries.GetDashboardDomains.Get(&out); err != nil {
+			return echo.NewHTTPError(http.StatusInternalServerError,
+				app.i18n.Ts("globals.messages.errorFetching", "name", "dashboard domain stats", "error", pqErrMsg(err)))
+		}
+	}
+
+
+	return c.JSON(http.StatusOK, okResp{out})
+}
+
 // handleGetDashboardCounts returns stats counts to show on the dashboard.
 func handleGetDashboardCounts(c echo.Context) error {
 	var (
