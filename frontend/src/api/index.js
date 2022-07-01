@@ -105,6 +105,9 @@ export const reloadApp = () => http.post('/api/admin/reload');
 export const getDashboardCounts = () => http.get('/api/dashboard/counts',
   { loading: models.dashboard });
 
+export const getDashboardSubscriberCounts = (id) => http.get(`/api/dashboard/counts/subscribers/${id}`,
+  { loading: models.dashboard });
+
 export const getDashboardCharts = () => http.get('/api/dashboard/charts',
   { loading: models.dashboard });
 

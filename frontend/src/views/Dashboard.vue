@@ -131,7 +131,38 @@
               </div>
               <div class="columns">
                 <div class="column">
-                  <h3 class="title is-size-6">{{ $t('dashboard.subscribersCount') }}</h3><br />
+                  <div class="columns is-vcentered">
+                    <div class="column">
+                      <h3 class="title is-size-6">
+                        {{ $t('dashboard.subscribersCount') }}
+                      </h3>
+                    </div>
+                    <div class="column has-text-right">
+                      <b-dropdown
+                        aria-role="list"
+                        class="has-text-left"
+                        v-model="currentList"
+                        @change="getSubscriberCount"
+                        >
+                        <template #trigger="{ active }">
+                          <b-button
+                            :label="currentList.name"
+                            :icon-right="active ? 'menu-up' : 'menu-down'" />
+                        </template>
+
+                        <template>
+                          <b-dropdown-item
+                            v-for="list in this.lists"
+                            :key="list.id"
+                            :value="list"
+                            aria-role="listitem"
+                          >
+                            {{ list.name }}
+                          </b-dropdown-item>
+                        </template>
+                      </b-dropdown>
+                    </div>
+                  </div>
                   <div ref="chart-subscribers"></div>
                 </div>
               </div>
@@ -213,6 +244,11 @@ export default Vue.extend({
         campaigns: {},
         messages: 0,
       },
+      lists: [],
+      currentList: {
+        id: -1,
+        name: this.$t('globals.messages.emptyState'),
+      },
     };
   },
 
@@ -266,7 +302,6 @@ export default Vue.extend({
         unload: true,
         data: {
           x: 'x',
-          type: 'spline',
           columns: [
             dates,
             counts,
@@ -292,9 +327,6 @@ export default Vue.extend({
         },
       };
 
-      if (data.length > 0) {
-        conf.data.columns.push([label, ...data.map((d) => d.count)]);
-      }
 
       this.$nextTick(() => {
         c3.generate(conf);
@@ -346,6 +378,12 @@ export default Vue.extend({
           });
       });
     },
+
+    getSubscriberCount(list) {
+      this.$api.getDashboardSubscriberCounts(list.id).then((data) => {
+        this.renderTimeseriesChart(this.$t('dashboard.subscribersCount'), data, this.$refs['chart-subscribers']);
+      });
+    },
   },
 
   computed: {
@@ -366,8 +404,15 @@ export default Vue.extend({
       this.isChartsLoading = false;
       this.renderChart(this.$t('dashboard.campaignViews'), data.campaignViews, this.$refs['chart-views']);
       this.renderChart(this.$t('dashboard.linkClicks'), data.linkClicks, this.$refs['chart-clicks']);
-      this.renderTimeseriesChart(this.$t('dashboard.subscribersCount'), data.subscribers, this.$refs['chart-subscribers']);
       this.renderPieChart(data.domains, this.$refs['chart-domains']);
+    });
+
+    this.$api.getLists({ minimal: true, per_page: 'all' }).then((data) => {
+      this.lists = data.results;
+      if (this.lists.length > 0) {
+        [this.currentList] = this.lists;
+        this.getSubscriberCount(this.lists[0]);
+      }
     });
   },
 });

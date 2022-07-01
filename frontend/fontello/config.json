@@ -567,6 +567,34 @@
       ]
     },
     {
+      "uid": "11bf5482e88e2fbf71de4e7a0716e575",
+      "css": "menu-up",
+      "code": 983904,
+      "src": "custom_icons",
+      "selected": true,
+      "svg": {
+        "path": "M291 625L500 416 709 625H291Z",
+        "width": 1000
+      },
+      "search": [
+        "menu-up"
+      ]
+    },
+    {
+      "uid": "82b55ae11022c20d06c56808acc74e84",
+      "css": "menu-down",
+      "code": 983901,
+      "src": "custom_icons",
+      "selected": true,
+      "svg": {
+        "path": "M291 416L500 625 709 416H291Z",
+        "width": 1000
+      },
+      "search": [
+        "menu-down"
+      ]
+    },
+    {
       "uid": "f4ad3f6d071a0bfb3a8452b514ed0892",
       "css": "vector-square",
       "code": 983041,
@@ -12523,20 +12551,6 @@
       ]
     },
     {
-      "uid": "82b55ae11022c20d06c56808acc74e84",
-      "css": "menu-down",
-      "code": 983901,
-      "src": "custom_icons",
-      "selected": false,
-      "svg": {
-        "path": "M291 416L500 625 709 416H291Z",
-        "width": 1000
-      },
-      "search": [
-        "menu-down"
-      ]
-    },
-    {
       "uid": "4a41f7a13e33d39045610cd371b03a43",
       "css": "menu-left",
       "code": 983902,
@@ -12562,20 +12576,6 @@
       },
       "search": [
         "menu-right"
-      ]
-    },
-    {
-      "uid": "11bf5482e88e2fbf71de4e7a0716e575",
-      "css": "menu-up",
-      "code": 983904,
-      "src": "custom_icons",
-      "selected": false,
-      "svg": {
-        "path": "M291 625L500 416 709 625H291Z",
-        "width": 1000
-      },
-      "search": [
-        "menu-up"
       ]
     },
     {

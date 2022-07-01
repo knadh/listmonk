@@ -834,25 +834,6 @@ views AS (
           GROUP by date ORDER BY date
     ) row
 ),
-subscribersCount AS (
-    SELECT JSON_AGG(ROW_TO_JSON(row))
-    FROM (
-        with subscriberDates as (
-            with limits as (
-                SELECT max(created_at) as before_date, INTERVAL '2 months' as time_window from subscribers
-            )
-          select
-            date_trunc('day', CASE WHEN created_at > (select before_date - time_window from limits) THEN created_at ELSE (select before_date - time_window from limits) END)::DATE as date,
-            count(1)
-          from subscribers
-          group by 1
-        )
-        select
-          date,
-          sum(count) over (order by date asc rows between unbounded preceding and current row) as count
-        from subscriberDates
-    ) row
-),
 domains AS (
     SELECT JSON_AGG(ROW_TO_JSON(row))
     FROM (
@@ -863,8 +844,30 @@ domains AS (
 )
 SELECT JSON_BUILD_OBJECT('link_clicks', COALESCE((SELECT * FROM clicks), '[]'),
                         'campaign_views', COALESCE((SELECT * FROM views), '[]'),
-                        'subscribers', COALESCE((SELECT * FROM subscribersCount), '[]'),
-                        'domains', COALESCE((SELECT * FROM domains), '[]'));
+                        'domains', COALESCE((SELECT * FROM domains), '[]')
+                        );
+
+
+-- name: get-dashboard-subscriber-count
+SELECT JSON_AGG(ROW_TO_JSON(row))
+FROM (
+    with subscriberDates as (
+        with limits as (
+            SELECT max(created_at) as before_date, INTERVAL '2 months' as time_window from subscriber_lists
+        )
+        select
+        date_trunc('day', CASE WHEN created_at > (select before_date - time_window from limits) THEN created_at ELSE (select before_date - time_window from limits) END)::DATE as date,
+        count(1)
+        from subscriber_lists
+        where list_id = $1
+        group by 1
+    )
+    select
+        date,
+        sum(count) over (order by date asc rows between unbounded preceding and current row) as count
+    from subscriberDates
+) row
+
 
 -- name: get-dashboard-counts
 WITH subs AS (

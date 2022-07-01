@@ -24,6 +24,10 @@ module.exports = {
   },
 
   devServer: {
+    watchOptions: {
+      aggregateTimeout: 200,
+      poll: 1000,
+    },
     port: process.env.LISTMONK_FRONTEND_PORT || 8080,
     proxy: {
       '^/$': {

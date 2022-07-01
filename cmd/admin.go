@@ -57,7 +57,7 @@ func handleGetServerConfig(c echo.Context) error {
 	return c.JSON(http.StatusOK, okResp{out})
 }
 
-// handleGetDashboardCharts returns chart data points to render ont he dashboard.
+// handleGetDashboardCharts returns chart data points to render on the dashboard.
 func handleGetDashboardCharts(c echo.Context) error {
 	var (
 		app = c.Get("app").(*App)
@@ -67,6 +67,22 @@ func handleGetDashboardCharts(c echo.Context) error {
 	if err := app.queries.GetDashboardCharts.Get(&out); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			app.i18n.Ts("globals.messages.errorFetching", "name", "dashboard charts", "error", pqErrMsg(err)))
+	}
+
+	return c.JSON(http.StatusOK, okResp{out})
+}
+
+// handleGetDashboardSubscribersCount returns subscriber count chart data points to render on the dashboard.
+func handleGetDashboardSubscribersCount(c echo.Context) error {
+	var (
+		app = c.Get("app").(*App)
+		list_id =c.Param("list_id")
+		out types.JSONText
+	)
+
+	if err := app.queries.GetDashboardSubscribersCount.Get(&out, list_id); err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError,
+			app.i18n.Ts("globals.messages.errorFetching", "name", "dashboard subscriber count", "error", pqErrMsg(err)))
 	}
 
 	return c.JSON(http.StatusOK, okResp{out})
