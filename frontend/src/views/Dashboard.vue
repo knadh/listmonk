@@ -131,17 +131,84 @@
               </div>
               <div class="columns">
                 <div class="column">
-                  <h3 class="title is-size-6">{{ $t('dashboard.subscribersCount') }}</h3><br />
+                  <div class="columns is-vcentered">
+                    <div class="column">
+                      <h3 class="title is-size-6">
+                        {{ $t('dashboard.subscribersCount') }}
+                      </h3>
+                    </div>
+                    <div class="column has-text-right">
+                      <b-dropdown
+                        aria-role="list"
+                        class="has-text-left"
+                        v-model="currentLists.subscribers"
+                        @change="getSubscriberCount"
+                        >
+                        <template #trigger="{ active }">
+                          <b-button
+                            :label="currentLists.subscribers.name"
+                            :icon-right="active ? 'menu-up' : 'menu-down'" />
+                        </template>
+
+                        <template>
+                          <b-dropdown-item
+                            v-for="list in this.lists"
+                            :key="list.id"
+                            :value="list"
+                            aria-role="listitem"
+                          >
+                            {{ list.name }}
+                          </b-dropdown-item>
+                        </template>
+                      </b-dropdown>
+                    </div>
+                  </div>
                   <div ref="chart-subscribers"></div>
                 </div>
               </div>
               <div class="columns">
                 <div class="column">
-                  <h3 class="title is-size-6">
-                    {{ $t('dashboard.subscriberDomains') }}
-                  </h3><br />
+                  <div class="columns is-vcentered">
+                    <div class="column">
+                      <h3 class="title is-size-6">
+                        {{ $t('dashboard.subscriberDomains') }}
+                      </h3>
+                    </div>
+                    <div class="column has-text-right">
+                      <b-dropdown
+                        aria-role="list"
+                        class="has-text-left"
+                        v-model="currentLists.domains"
+                        @change="getDomainStats"
+                        >
+                        <template #trigger="{ active }">
+                          <b-button
+                            :label="currentLists.domains.name"
+                            :icon-right="active ? 'menu-up' : 'menu-down'" />
+                        </template>
+
+                        <b-dropdown-item
+                            :value="{ id: undefined, name: $t('dashboard.domains.all') }"
+                            aria-role="listitem"
+                          >
+                            {{ $t('dashboard.domains.all') }}
+                        </b-dropdown-item>
+
+                        <template>
+                          <b-dropdown-item
+                            v-for="list in this.lists"
+                            :key="list.id"
+                            :value="list"
+                            aria-role="listitem"
+                          >
+                            {{ list.name }}
+                          </b-dropdown-item>
+                        </template>
+                      </b-dropdown>
+                    </div>
+                  </div>
                   <div class="columns">
-                    <div class="column is-4">
+                    <div class="column">
                       <div ref="chart-domains"></div>
                     </div>
                     <div class="column is-8">
@@ -182,6 +249,15 @@
     flex-wrap: wrap;
     overflow: auto;
     height: 320px;
+    cursor: pointer;
+  }
+
+  .legend:hover > div {
+    opacity: 50%;
+  }
+
+  .legend:hover > div:hover {
+    opacity: 100%;
   }
 </style>
 
@@ -203,6 +279,17 @@ export default Vue.extend({
         subscribers: {},
         campaigns: {},
         messages: 0,
+      },
+      lists: [],
+      currentLists: {
+        subscribers: {
+          id: -1,
+          name: this.$t('globals.messages.emptyState'),
+        },
+        domains: {
+          id: undefined,
+          name: this.$t('dashboard.domains.all'),
+        },
       },
     };
   },
@@ -257,7 +344,6 @@ export default Vue.extend({
         unload: true,
         data: {
           x: 'x',
-          type: 'spline',
           columns: [
             dates,
             counts,
@@ -283,9 +369,6 @@ export default Vue.extend({
         },
       };
 
-      if (data.length > 0) {
-        conf.data.columns.push([label, ...data.map((d) => d.count)]);
-      }
 
       this.$nextTick(() => {
         c3.generate(conf);
@@ -315,7 +398,11 @@ export default Vue.extend({
       this.$nextTick(() => {
         const chart = c3.generate(conf);
 
-        d3.select('.legend-container').insert('div', '.chart').attr('class', 'legend').selectAll('div')
+        d3.select('.legend-container')
+          .html('')
+          .insert('div', '.chart')
+          .attr('class', 'legend')
+          .selectAll('div')
           .data([...data.map((d) => d.domain)])
           .enter()
           .append('div')
@@ -332,6 +419,18 @@ export default Vue.extend({
             event.target.classList.toggle('hidden');
             chart.toggle(event.target.dataset.id);
           });
+      });
+    },
+
+    getSubscriberCount(list) {
+      this.$api.getDashboardSubscriberCounts(list.id).then((data) => {
+        this.renderTimeseriesChart(this.$t('dashboard.subscribersCount'), data, this.$refs['chart-subscribers']);
+      });
+    },
+
+    getDomainStats(list) {
+      this.$api.getDashboardDomainStats(list ? list.id : null).then((data) => {
+        this.renderPieChart(data, this.$refs['chart-domains']);
       });
     },
   },
@@ -354,9 +453,17 @@ export default Vue.extend({
       this.isChartsLoading = false;
       this.renderChart(this.$t('dashboard.campaignViews'), data.campaignViews, this.$refs['chart-views']);
       this.renderChart(this.$t('dashboard.linkClicks'), data.linkClicks, this.$refs['chart-clicks']);
-      this.renderTimeseriesChart(this.$t('dashboard.subscribersCount'), data.subscribers, this.$refs['chart-subscribers']);
-      this.renderPieChart(data.domains, this.$refs['chart-domains']);
     });
+
+    this.$api.getLists({ minimal: true, per_page: 'all' }).then((data) => {
+      this.lists = data.results;
+      if (this.lists.length > 0) {
+        [this.currentLists.subscribers] = this.lists;
+        this.getSubscriberCount(this.lists[0]);
+      }
+    });
+
+    this.getDomainStats();
   },
 });
 </script>

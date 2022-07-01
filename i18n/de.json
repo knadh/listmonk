@@ -87,6 +87,7 @@
     "campaigns.trackLink": "Track Link",
     "campaigns.views": "Ansichten",
     "dashboard.campaignViews": "Kampagnenansichten",
+    "dashboard.domains.all": "All subscribers",
     "dashboard.linkClicks": "Linkklicks",
     "dashboard.messagesSent": "Nachrichten gesendet",
     "dashboard.orphanSubs": "Verwaiste",

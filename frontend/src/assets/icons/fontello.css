@@ -79,4 +79,6 @@
 .mdi-chart-bar:before { content: '\e824'; } /* '' */
 .mdi-email-bounce:before { content: '\e825'; } /* '' */
 .mdi-speedometer:before { content: '\e826'; } /* '' */
+.mdi-menu-down:before { content: '󰍝'; } /* '\f035d' */
+.mdi-menu-up:before { content: '󰍠'; } /* '\f0360' */
 .mdi-logout-variant:before { content: '󰗽'; } /* '\f05fd' */

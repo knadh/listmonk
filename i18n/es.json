@@ -87,6 +87,7 @@
     "campaigns.trackLink": "Enlace de seguimiento (Track link)",
     "campaigns.views": "Vistas",
     "dashboard.campaignViews": "Vista de campañas",
+    "dashboard.domains.all": "All subscribers",
     "dashboard.linkClicks": "Vinculos cliqueados",
     "dashboard.messagesSent": "Mensajes enviados",
     "dashboard.orphanSubs": "Huérfanos",
