@@ -59,8 +59,8 @@ func handleSendTxMessage(c echo.Context) error {
 
 	// Optional headers.
 	if len(m.Headers) != 0 {
-		msg.Headers = make(textproto.MIMEHeader)
-		for _, set := range msg.Campaign.Headers {
+		msg.Headers = make(textproto.MIMEHeader, len(m.Headers))
+		for _, set := range m.Headers {
 			for hdr, val := range set {
 				msg.Headers.Add(hdr, val)
 			}
