@@ -41,7 +41,7 @@ describe('Templates', () => {
   });
 
 
-  it('Previews templates', () => {
+  it('Previews campaign templates', () => {
     // Edited one sould have a bare body.
     cy.get('tbody [data-cy=btn-preview').eq(0).click();
     cy.wait(500);
@@ -57,6 +57,24 @@ describe('Templates', () => {
     cy.get('.modal-card-body iframe').iframe(() => {
       cy.get('.wrap p').first().contains('Hi there');
       cy.get('.footer a').first().contains('Unsubscribe');
+    });
+    cy.get('.modal-card-foot button').click();
+  });
+
+  it('Previews tx templates', () => {
+    // Edited one sould have a bare body.
+    cy.get('tbody tr:nth-child(2) [data-cy=btn-preview').click();
+    cy.wait(500);
+    cy.get('.modal-card-body iframe').iframe(() => {
+      cy.get('strong').first().contains('Order number');
+    });
+    cy.get('.modal-card-foot button').click();
+
+    // Cloned one should have the full template.
+    cy.get('tbody tr:nth-child(4) [data-cy=btn-preview').click();
+    cy.wait(500);
+    cy.get('.modal-card-body iframe').iframe(() => {
+      cy.get('strong').first().contains('Order number');
     });
     cy.get('.modal-card-foot button').click();
   });

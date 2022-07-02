@@ -60,6 +60,7 @@
     <campaign-preview v-if="previewItem"
       type='template'
       :title="previewItem.name"
+      :templateType="previewItem.type"
       :body="form.body"
       @close="closePreview"></campaign-preview>
   </section>
@@ -99,7 +100,7 @@ export default Vue.extend({
 
   methods: {
     previewTemplate() {
-      this.previewItem = this.data;
+      this.previewItem = this.form;
     },
 
     closePreview() {

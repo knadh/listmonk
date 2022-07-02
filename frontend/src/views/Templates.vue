@@ -110,6 +110,7 @@
     <campaign-preview v-if="previewItem"
       type='template'
       :id="previewItem.id"
+      :templateType="previewItem.type"
       :title="previewItem.name"
       @close="closePreview"></campaign-preview>
   </section>

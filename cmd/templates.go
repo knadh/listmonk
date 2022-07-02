@@ -61,58 +61,82 @@ func handleGetTemplates(c echo.Context) error {
 // handlePreviewTemplate renders the HTML preview of a template.
 func handlePreviewTemplate(c echo.Context) error {
 	var (
-		app = c.Get("app").(*App)
-
+		app   = c.Get("app").(*App)
 		id, _ = strconv.Atoi(c.Param("id"))
-		body  = c.FormValue("body")
-		typ   = c.FormValue("typ")
 	)
 
-	if typ == "" {
-		typ = models.TemplateTypeCampaign
+	tpl := models.Template{
+		Type: c.FormValue("template_type"),
+		Body: c.FormValue("body"),
 	}
 
-	if body != "" {
-		if typ == models.TemplateTypeCampaign && !regexpTplTag.MatchString(body) {
+	// Body is posted.
+	if tpl.Body != "" {
+		if tpl.Type == "" {
+			tpl.Type = models.TemplateTypeCampaign
+		}
+
+		if tpl.Type == models.TemplateTypeCampaign && !regexpTplTag.MatchString(tpl.Body) {
 			return echo.NewHTTPError(http.StatusBadRequest,
 				app.i18n.Ts("templates.placeholderHelp", "placeholder", tplTag))
 		}
 	} else {
+		// There is no body. Fetch the template.
 		if id < 1 {
 			return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidID"))
 		}
 
-		tpl, err := app.core.GetTemplate(id, false)
+		t, err := app.core.GetTemplate(id, false)
 		if err != nil {
 			return err
 		}
 
-		body = tpl.Body
+		tpl = t
 	}
 
-	// Compile the template.
-	camp := models.Campaign{
-		UUID:         dummyUUID,
-		Name:         app.i18n.T("templates.dummyName"),
-		Subject:      app.i18n.T("templates.dummySubject"),
-		FromEmail:    "dummy-campaign@listmonk.app",
-		TemplateBody: body,
-		Body:         dummyTpl,
+	// Compile the campaign template.
+	var out []byte
+	if tpl.Type == models.TemplateTypeCampaign {
+		camp := models.Campaign{
+			UUID:         dummyUUID,
+			Name:         app.i18n.T("templates.dummyName"),
+			Subject:      app.i18n.T("templates.dummySubject"),
+			FromEmail:    "dummy-campaign@listmonk.app",
+			TemplateBody: tpl.Body,
+			Body:         dummyTpl,
+		}
+
+		if err := camp.CompileTemplate(app.manager.TemplateFuncs(&camp)); err != nil {
+			return echo.NewHTTPError(http.StatusBadRequest,
+				app.i18n.Ts("templates.errorCompiling", "error", err.Error()))
+		}
+
+		// Render the message body.
+		msg, err := app.manager.NewCampaignMessage(&camp, dummySubscriber)
+		if err != nil {
+			return echo.NewHTTPError(http.StatusBadRequest,
+				app.i18n.Ts("templates.errorRendering", "error", err.Error()))
+		}
+		out = msg.Body()
+	} else {
+		// Compile transactional template.
+		if err := tpl.Compile(app.manager.GenericTemplateFuncs()); err != nil {
+			return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+		}
+
+		m := models.TxMessage{
+			Subject: tpl.Subject,
+		}
+
+		// Render the message.
+		if err := m.Render(dummySubscriber, &tpl); err != nil {
+			return echo.NewHTTPError(http.StatusBadRequest,
+				app.i18n.Ts("globals.messages.errorFetching", "name"))
+		}
+		out = m.Body
 	}
 
-	if err := camp.CompileTemplate(app.manager.TemplateFuncs(&camp)); err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest,
-			app.i18n.Ts("templates.errorCompiling", "error", err.Error()))
-	}
-
-	// Render the message body.
-	msg, err := app.manager.NewCampaignMessage(&camp, dummySubscriber)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest,
-			app.i18n.Ts("templates.errorRendering", "error", err.Error()))
-	}
-
-	return c.HTML(http.StatusOK, string(msg.Body()))
+	return c.HTML(http.StatusOK, string(out))
 }
 
 // handleCreateTemplate handles template creation.
