@@ -434,7 +434,8 @@ func initTxTemplates(m *manager.Manager, app *App) {
 
 	for _, t := range tpls {
 		if err := t.Compile(app.manager.GenericTemplateFuncs()); err != nil {
-			lo.Fatalf("error compiling transactional template %d: %v", t.ID, err)
+			lo.Printf("error compiling transactional template %d: %v", t.ID, err)
+			continue
 		}
 		m.CacheTpl(t.ID, &t)
 	}
