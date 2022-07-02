@@ -1,6 +1,7 @@
 package core
 
 import (
+	"database/sql"
 	"net/http"
 
 	"github.com/knadh/listmonk/models"
@@ -74,8 +75,7 @@ func (c *Core) SetDefaultTemplate(id int) error {
 // DeleteTemplate deletes a given template.
 func (c *Core) DeleteTemplate(id int) error {
 	var delID int
-	if err := c.q.DeleteTemplate.Get(&delID, id); err != nil {
-		// TODO: Fix this. Deletes but always throws a "no result set" error.
+	if err := c.q.DeleteTemplate.Get(&delID, id); err != nil && err != sql.ErrNoRows {
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			c.i18n.Ts("globals.messages.errorDeleting", "name", "{globals.terms.template}", "error", pqErrMsg(err)))
 	}

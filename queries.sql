@@ -776,10 +776,12 @@ WITH tpl AS (
     DELETE FROM templates WHERE id = $1 AND (SELECT COUNT(id) FROM templates) > 1 AND is_default = false RETURNING id
 ),
 def AS (
-    SELECT id FROM templates WHERE is_default = true LIMIT 1
+    SELECT id FROM templates WHERE is_default = true AND type='campaign' LIMIT 1
+),
+up AS (
+    UPDATE campaigns SET template_id = (SELECT id FROM def) WHERE (SELECT id FROM tpl) > 0 AND template_id = $1
 )
-UPDATE campaigns SET template_id = (SELECT id FROM def) WHERE (SELECT id FROM tpl) > 0 AND template_id = $1
-    RETURNING (SELECT id FROM tpl);
+SELECT id FROM tpl;
 
 
 -- media

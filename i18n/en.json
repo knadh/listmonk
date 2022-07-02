@@ -502,7 +502,7 @@
     "subscribers.status.unconfirmed": "Unconfirmed",
     "subscribers.status.unsubscribed": "Unsubscribed",
     "subscribers.subscribersDeleted": "{num} subscriber(s) deleted",
-    "templates.cantDeleteDefault": "Cannot delete default template",
+    "templates.cantDeleteDefault": "Cannot delete non-existent or default template",
     "templates.default": "Default",
     "templates.dummyName": "Dummy campaign",
     "templates.dummySubject": "Dummy campaign subject",
