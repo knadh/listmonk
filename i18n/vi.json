@@ -204,6 +204,7 @@
     "globals.terms.tags": "Thẻ",
     "globals.terms.template": "Template | Templates",
     "globals.terms.templates": "Mẫu",
+    "globals.terms.tx": "Transactional | Transactional",
     "globals.terms.year": "Year | Years",
     "import.alreadyRunning": "Quá trình nhập đang chạy. Chờ quá trình hoàn tất hoặc dừng trước khi thử lại.",
     "import.blocklist": "Danh sách chặn",
@@ -513,6 +514,7 @@
     "templates.placeholderHelp": "Trình giữ chỗ {placeholder} sẽ xuất hiện chính xác một lần trong mẫu.",
     "templates.preview": "Xem trước",
     "templates.rawHTML": "HTML thô",
+    "templates.subject": "Subject",
     "users.login": "Đăng nhập",
     "users.logout": "Đăng xuất"
 }

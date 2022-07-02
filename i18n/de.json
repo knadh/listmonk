@@ -204,6 +204,7 @@
     "globals.terms.tags": "Tags",
     "globals.terms.template": "Vorlage | Vorlagen",
     "globals.terms.templates": "Vorlagen",
+    "globals.terms.tx": "Transactional | Transactional",
     "globals.terms.year": "Jahr | Jahre",
     "import.alreadyRunning": "Bitte warte bis der aktuelle Importvorgang beendet wurde.",
     "import.blocklist": "Sperrliste",
@@ -513,6 +514,7 @@
     "templates.placeholderHelp": "Der Platzhalter \"{placeholder}\" darf nur einmal im Template vorkommen.",
     "templates.preview": "Vorschau",
     "templates.rawHTML": "HTML",
+    "templates.subject": "Subject",
     "users.login": "Anmelden",
     "users.logout": "Abmelden"
 }

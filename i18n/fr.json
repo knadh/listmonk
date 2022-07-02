@@ -204,6 +204,7 @@
     "globals.terms.tags": "Étiquettes",
     "globals.terms.template": "Modèle | Modèles",
     "globals.terms.templates": "Modèles",
+    "globals.terms.tx": "Transactional | Transactional",
     "globals.terms.year": "Année | Années",
     "import.alreadyRunning": "Une importation est déjà en cours. Attendez qu'elle se termine ou arrêtez-la avant de réessayer.",
     "import.blocklist": "Bloquer les adresses importées",
@@ -513,6 +514,7 @@
     "templates.placeholderHelp": "L'espace réservé {placeholder} doit apparaître exactement une fois dans le modèle.",
     "templates.preview": "Aperçu",
     "templates.rawHTML": "HTML brut",
+    "templates.subject": "Subject",
     "users.login": "Connecter",
     "users.logout": "Déconnecter"
 }

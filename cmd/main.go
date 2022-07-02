@@ -189,6 +189,7 @@ func main() {
 	app.manager = initCampaignManager(app.queries, app.constants, app)
 	app.importer = initImporter(app.queries, db, app)
 	app.notifTpls = initNotifTemplates("/email-templates/*.html", fs, app.i18n, app.constants)
+	initTxTemplates(app.manager, app)
 
 	if ko.Bool("bounce.enabled") {
 		app.bounce = initBounceManager(app)

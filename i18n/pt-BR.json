@@ -204,6 +204,7 @@
     "globals.terms.tags": "Tags",
     "globals.terms.template": "Modelo | Modelos",
     "globals.terms.templates": "Modelos",
+    "globals.terms.tx": "Transactional | Transactional",
     "globals.terms.year": "Year | Years",
     "import.alreadyRunning": "Uma importação já está em execução. Aguarde até que termine ou pare-a antes de tentar novamente.",
     "import.blocklist": "Lista de bloqueio",
@@ -513,6 +514,7 @@
     "templates.placeholderHelp": "O palavra reservada {placeholder} deve aparecer exatamente uma vez no modelo.",
     "templates.preview": "Pré-visualizar",
     "templates.rawHTML": "Código HTML",
+    "templates.subject": "Subject",
     "users.login": "Login",
     "users.logout": "Logout"
 }

@@ -204,6 +204,7 @@
     "globals.terms.tags": "Tags",
     "globals.terms.template": "Template | Templates",
     "globals.terms.templates": "Templates",
+    "globals.terms.tx": "Transactional | Transactional",
     "globals.terms.year": "Year | Years",
     "import.alreadyRunning": "An import is already running. Wait for it to finish or stop it before trying again.",
     "import.blocklist": "Blocklist",
@@ -513,6 +514,7 @@
     "templates.placeholderHelp": "The placeholder {placeholder} should appear exactly once in the template.",
     "templates.preview": "Preview",
     "templates.rawHTML": "Raw HTML",
+    "templates.subject": "Subject",
     "users.login": "Login",
     "users.logout": "Logout"
 }

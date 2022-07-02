@@ -204,6 +204,7 @@
     "globals.terms.tags": "Značky",
     "globals.terms.template": "Šablona | Šablony",
     "globals.terms.templates": "Šablony",
+    "globals.terms.tx": "Transactional | Transactional",
     "globals.terms.year": "Year | Years",
     "import.alreadyRunning": "Import již běží. Počkejte na jeho dokončení nebo jej zastavte před dalším pokusem.",
     "import.blocklist": "Seznam blokovaných",
@@ -513,6 +514,7 @@
     "templates.placeholderHelp": "Zástupný symbol {placeholder} by se měl v šabloně objevit právě jednou.",
     "templates.preview": "Náhled",
     "templates.rawHTML": "Kód HTML",
+    "templates.subject": "Subject",
     "users.login": "Login",
     "users.logout": "Logout"
 }

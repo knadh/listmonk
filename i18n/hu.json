@@ -204,6 +204,7 @@
     "globals.terms.tags": "Címkék",
     "globals.terms.template": "Sablon | Sablonok",
     "globals.terms.templates": "Sablonok",
+    "globals.terms.tx": "Transactional | Transactional",
     "globals.terms.year": "Year | Years",
     "import.alreadyRunning": "Már fut az importálás. Várja meg, amíg befejeződik, vagy állítsa le, mielőtt újra próbálkozna.",
     "import.blocklist": "Tiltólista",
@@ -513,6 +514,7 @@
     "templates.placeholderHelp": "A {placeholder} helyőrzőnek pontosan egyszer kell megjelennie a sablonban.",
     "templates.preview": "Előnézet",
     "templates.rawHTML": "Raw HTML",
+    "templates.subject": "Subject",
     "users.login": "Belépés",
     "users.logout": "Kijelentkezés"
 }

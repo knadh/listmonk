@@ -204,6 +204,7 @@
     "globals.terms.tags": "Labels",
     "globals.terms.template": "Sjabloon | Sjablonen",
     "globals.terms.templates": "Sjablonen",
+    "globals.terms.tx": "Transactional | Transactional",
     "globals.terms.year": "Jaar | Jaren",
     "import.alreadyRunning": "Er is al een importeeractie bezig. Wacht tot deze gedaan is of annuleer voor het opnieuw te proberen.",
     "import.blocklist": "Geblokkeerd",
@@ -513,6 +514,7 @@
     "templates.placeholderHelp": "De plaatshouder {placeholder} moet exact een keer voorkomen in de template.",
     "templates.preview": "Voorbeeld",
     "templates.rawHTML": "HTML code",
+    "templates.subject": "Subject",
     "users.login": "Inloggen",
     "users.logout": "Uitloggen"
 }

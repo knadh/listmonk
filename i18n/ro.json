@@ -204,6 +204,7 @@
     "globals.terms.tags": "Etichete",
     "globals.terms.template": "Șablon | Șabloane",
     "globals.terms.templates": "Șabloane",
+    "globals.terms.tx": "Transactional | Transactional",
     "globals.terms.year": "Year | Years",
     "import.alreadyRunning": "Un import rulează deja. Așteptă să se termine sau oprește-l înainte de a încerca din nou.",
     "import.blocklist": "Lista de blocați",
@@ -513,6 +514,7 @@
     "templates.placeholderHelp": "Substituentul {placeholder} ar trebui să apară exact o dată în șablon.",
     "templates.preview": "Previzualizare",
     "templates.rawHTML": "HTML brut",
+    "templates.subject": "Subject",
     "users.login": "Login",
     "users.logout": "Logout"
 }

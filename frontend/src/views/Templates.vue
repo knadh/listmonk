@@ -19,10 +19,26 @@
       default-sort="createdAt">
       <b-table-column v-slot="props" field="name" :label="$t('globals.fields.name')"
         :td-attrs="$utils.tdID" sortable>
-        <a :href="props.row.id" @click.prevent="showEditForm(props.row)">
+        <a href="#" @click.prevent="showEditForm(props.row)">
           {{ props.row.name }}
         </a>
         <b-tag v-if="props.row.isDefault">{{ $t('templates.default') }}</b-tag>
+
+        <p class="is-size-7 has-text-grey" v-if="props.row.type === 'tx'">
+          {{ props.row.subject }}
+          </p>
+      </b-table-column>
+
+      <b-table-column v-slot="props" field="type"
+        :label="$t('globals.fields.type')" sortable>
+        <b-tag v-if="props.row.type === 'campaign'"
+          :class="props.row.type" :data-cy="`type-${props.row.type}`">
+          {{ $tc('globals.terms.campaign', 1) }}
+        </b-tag>
+        <b-tag v-else
+          :class="props.row.type" :data-cy="`type-${props.row.type}`">
+          {{ $tc('globals.terms.tx', 1) }}
+        </b-tag>
       </b-table-column>
 
       <b-table-column v-slot="props" field="createdAt"
@@ -55,7 +71,7 @@
               <b-icon icon="file-multiple-outline" size="is-small" />
             </b-tooltip>
           </a>
-          <a v-if="!props.row.isDefault" href="#"
+          <a v-if="!props.row.isDefault && props.row.type !== 'tx'" href="#"
             @click.prevent="$utils.confirm(null, () => makeTemplateDefault(props.row))"
             data-cy="btn-set-default">
             <b-tooltip :label="$t('templates.makeDefault')" type="is-dark">
@@ -132,7 +148,7 @@ export default Vue.extend({
 
     // Show the new form.
     showNewForm() {
-      this.curItem = {};
+      this.curItem = { type: 'campaign' };
       this.isFormVisible = true;
       this.isEditing = false;
     },
@@ -150,7 +166,7 @@ export default Vue.extend({
     },
 
     cloneTemplate(name, t) {
-      const data = { name, body: t.body };
+      const data = { name, body: t.body, type: t.type };
       this.$api.createTemplate(data).then((d) => {
         this.$api.getTemplates();
         this.$emit('finished');

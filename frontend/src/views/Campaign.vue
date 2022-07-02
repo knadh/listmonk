@@ -84,7 +84,10 @@
                 <b-field :label="$tc('globals.terms.template')" label-position="on-border">
                   <b-select :placeholder="$tc('globals.terms.template')" v-model="form.templateId"
                     name="template" :disabled="!canEdit" required>
-                    <option v-for="t in templates" :value="t.id" :key="t.id">{{ t.name }}</option>
+                    <template v-for="t in templates">
+                      <option v-if="t.type === 'campaign'"
+                        :value="t.id" :key="t.id">{{ t.name }}</option>
+                    </template>
                   </b-select>
                 </b-field>
 

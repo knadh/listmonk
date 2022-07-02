@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"regexp"
 	"strconv"
+	"strings"
 
 	"github.com/knadh/listmonk/models"
 	"github.com/labstack/echo/v4"
@@ -48,7 +49,7 @@ func handleGetTemplates(c echo.Context) error {
 		return c.JSON(http.StatusOK, okResp{out})
 	}
 
-	out, err := app.core.GetTemplates(noBody)
+	out, err := app.core.GetTemplates("", noBody)
 	if err != nil {
 		return err
 	}
@@ -63,10 +64,15 @@ func handlePreviewTemplate(c echo.Context) error {
 
 		id, _ = strconv.Atoi(c.Param("id"))
 		body  = c.FormValue("body")
+		typ   = c.FormValue("typ")
 	)
 
+	if typ == "" {
+		typ = models.TemplateTypeCampaign
+	}
+
 	if body != "" {
-		if !regexpTplTag.MatchString(body) {
+		if typ == models.TemplateTypeCampaign && !regexpTplTag.MatchString(body) {
 			return echo.NewHTTPError(http.StatusBadRequest,
 				app.i18n.Ts("templates.placeholderHelp", "placeholder", tplTag))
 		}
@@ -120,16 +126,33 @@ func handleCreateTemplate(c echo.Context) error {
 	}
 
 	if err := validateTemplate(o, app); err != nil {
-		return err
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	out, err := app.core.CreateTemplate(o.Name, []byte(o.Body))
+	// Subject is only relevant for fixed tx templates. For campaigns,
+	// the subject changes per campaign and is on models.Campaign.
+	if o.Type == models.TemplateTypeCampaign {
+		o.Subject = ""
+	}
+
+	// Compile the template and validate.
+	if err := o.Compile(app.manager.GenericTemplateFuncs()); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	// Create the template the in the DB.
+	out, err := app.core.CreateTemplate(o.Name, o.Type, o.Subject, []byte(o.Body))
 	if err != nil {
 		return err
 	}
 
-	return c.JSON(http.StatusOK, okResp{out})
+	// If it's a transactional template, cache it in the manager
+	// to be used for arbitrary incoming tx message pushes.
+	if o.Type == models.TemplateTypeTx {
+		app.manager.CacheTpl(out.ID, &o)
+	}
 
+	return c.JSON(http.StatusOK, okResp{out})
 }
 
 // handleUpdateTemplate handles template modification.
@@ -152,9 +175,25 @@ func handleUpdateTemplate(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	out, err := app.core.UpdateTemplate(id, o.Name, []byte(o.Body))
+	// Subject is only relevant for fixed tx templates. For campaigns,
+	// the subject changes per campaign and is on models.Campaign.
+	if o.Type == models.TemplateTypeCampaign {
+		o.Subject = ""
+	}
+
+	// Compile the template and validate.
+	if err := o.Compile(app.manager.GenericTemplateFuncs()); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	out, err := app.core.UpdateTemplate(id, o.Name, o.Type, o.Subject, []byte(o.Body))
 	if err != nil {
 		return err
+	}
+
+	// If it's a transactional template, cache it.
+	if o.Type == models.TemplateTypeTx {
+		app.manager.CacheTpl(out.ID, &o)
 	}
 
 	return c.JSON(http.StatusOK, okResp{out})
@@ -194,18 +233,26 @@ func handleDeleteTemplate(c echo.Context) error {
 		return err
 	}
 
+	// Delete cached template.
+	app.manager.DeleteTpl(id)
+
 	return c.JSON(http.StatusOK, okResp{true})
 }
 
-// validateTemplate validates template fields.
+// compileTemplate validates template fields.
 func validateTemplate(o models.Template, app *App) error {
 	if !strHasLen(o.Name, 1, stdInputMaxLen) {
 		return errors.New(app.i18n.T("campaigns.fieldInvalidName"))
 	}
 
-	if !regexpTplTag.MatchString(o.Body) {
+	if o.Type == models.TemplateTypeCampaign && !regexpTplTag.MatchString(o.Body) {
 		return echo.NewHTTPError(http.StatusBadRequest,
 			app.i18n.Ts("templates.placeholderHelp", "placeholder", tplTag))
+	}
+
+	if o.Type == models.TemplateTypeTx && strings.TrimSpace(o.Subject) == "" {
+		return echo.NewHTTPError(http.StatusBadRequest,
+			app.i18n.Ts("globals.messages.missingFields", "name", "subject"))
 	}
 
 	return nil

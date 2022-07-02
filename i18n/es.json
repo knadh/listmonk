@@ -204,6 +204,7 @@
     "globals.terms.tags": "Etiqueta",
     "globals.terms.template": "Plantilla | Plantillas",
     "globals.terms.templates": "Plantillas",
+    "globals.terms.tx": "Transactional | Transactional",
     "globals.terms.year": "Year | Years",
     "import.alreadyRunning": "Se está ejecutándo una importación. Espere a que termine o deténgala antes de intentar otra vez.",
     "import.blocklist": "Lista de bloqueados",
@@ -513,6 +514,7 @@
     "templates.placeholderHelp": "El marcador {placeholder} debe aparecer exactamente una vez en la plantilla.",
     "templates.preview": "Vista pewliminar",
     "templates.rawHTML": "HTML crudo",
+    "templates.subject": "Subject",
     "users.login": "Entrar",
     "users.logout": "Salir"
 }

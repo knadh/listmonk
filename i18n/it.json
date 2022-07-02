@@ -204,6 +204,7 @@
     "globals.terms.tags": "Etichette",
     "globals.terms.template": "Modello | Modelli",
     "globals.terms.templates": "Modelli",
+    "globals.terms.tx": "Transactional | Transactional",
     "globals.terms.year": "Year | Years",
     "import.alreadyRunning": "Un'importazione è già in corso. Aspetta che finisca o interrompila prima di riprovare.",
     "import.blocklist": "Lista degli indirizzi bloccati",
@@ -513,6 +514,7 @@
     "templates.placeholderHelp": "Il segnaposto {placeholder} deve apparire esattamente una volta nel modello.",
     "templates.preview": "Anteprima",
     "templates.rawHTML": "HTML semplice",
+    "templates.subject": "Subject",
     "users.login": "Login",
     "users.logout": "Logout"
 }

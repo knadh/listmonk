@@ -204,6 +204,7 @@
     "globals.terms.tags": "タグ",
     "globals.terms.template": "テンプレート | テンプレート",
     "globals.terms.templates": "テンプレート",
+    "globals.terms.tx": "Transactional | Transactional",
     "globals.terms.year": "都市 | 都市",
     "import.alreadyRunning": "インポートはすでに実行されています。終わるまで待つか、停止してから再試行してください。",
     "import.blocklist": "ブロックリスト",
@@ -513,6 +514,7 @@
     "templates.placeholderHelp": "プレースホルダー{プレースホルダー}はテンプレートに一度だけ表示される必要があります。",
     "templates.preview": "プレビュー",
     "templates.rawHTML": "Raw HTML",
+    "templates.subject": "Subject",
     "users.login": "ログイン",
     "users.logout": "ログアウト"
 }

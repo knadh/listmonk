@@ -60,6 +60,9 @@ type Manager struct {
 	campRates map[int]*ratecounter.RateCounter
 	campsMut  sync.RWMutex
 
+	tpls    map[int]*models.Template
+	tplsMut sync.RWMutex
+
 	// Links generated using Track() are cached here so as to not query
 	// the database for the link UUID for every message sent. This has to
 	// be locked as it may be used externally when previewing campaigns.
@@ -77,6 +80,8 @@ type Manager struct {
 	// sending further messages.
 	slidingWindowNumMsg int
 	slidingWindowStart  time.Time
+
+	tplFuncs template.FuncMap
 }
 
 // CampaignMessage represents an instance of campaign message to be pushed out,
@@ -152,7 +157,7 @@ func New(cfg Config, store Store, notifCB models.AdminNotifCallback, i *i18n.I18
 		cfg.MessageRate = 1
 	}
 
-	return &Manager{
+	m := &Manager{
 		cfg:                cfg,
 		store:              store,
 		i18n:               i,
@@ -161,6 +166,7 @@ func New(cfg Config, store Store, notifCB models.AdminNotifCallback, i *i18n.I18
 		messengers:         make(map[string]messenger.Messenger),
 		camps:              make(map[int]*models.Campaign),
 		campRates:          make(map[int]*ratecounter.RateCounter),
+		tpls:               make(map[int]*models.Template),
 		links:              make(map[string]string),
 		subFetchQueue:      make(chan *models.Campaign, cfg.Concurrency),
 		campMsgQueue:       make(chan CampaignMessage, cfg.Concurrency*2),
@@ -169,6 +175,9 @@ func New(cfg Config, store Store, notifCB models.AdminNotifCallback, i *i18n.I18
 		campMsgErrorCounts: make(map[int]int),
 		slidingWindowStart: time.Now(),
 	}
+	m.tplFuncs = m.makeGnericFuncMap()
+
+	return m
 }
 
 // NewCampaignMessage creates and returns a CampaignMessage that is made available
@@ -217,7 +226,7 @@ func (m *Manager) PushMessage(msg Message) error {
 	return nil
 }
 
-// PushCampaignMessage pushes a campaign messages to be sent out by the workers.
+// PushCampaignMessage pushes a campaign messages into a queue to be sent out by the workers.
 // It times out if the queue is busy.
 func (m *Manager) PushCampaignMessage(msg CampaignMessage) error {
 	t := time.NewTicker(pushTimeout)
@@ -296,6 +305,33 @@ func (m *Manager) Run() {
 			m.sendNotif(newC, newC.Status, "")
 		}
 	}
+}
+
+// CacheTpl caches a template for ad-hoc use. This is currently only used by tx templates.
+func (m *Manager) CacheTpl(id int, tpl *models.Template) {
+	m.tplsMut.Lock()
+	m.tpls[id] = tpl
+	m.tplsMut.Unlock()
+}
+
+// DeleteTpl deletes a cached template.
+func (m *Manager) DeleteTpl(id int) {
+	m.tplsMut.Lock()
+	delete(m.tpls, id)
+	m.tplsMut.Unlock()
+}
+
+// GetTpl returns a cached template.
+func (m *Manager) GetTpl(id int) (*models.Template, error) {
+	m.tplsMut.RLock()
+	tpl, ok := m.tpls[id]
+	m.tplsMut.RUnlock()
+
+	if !ok {
+		return nil, fmt.Errorf("template %d not found", id)
+	}
+
+	return tpl, nil
 }
 
 // worker is a blocking function that perpetually listents to events (message) on different
@@ -423,25 +459,17 @@ func (m *Manager) TemplateFuncs(c *models.Campaign) template.FuncMap {
 		"MessageURL": func(msg *CampaignMessage) string {
 			return fmt.Sprintf(m.cfg.MessageURL, c.UUID, msg.Subscriber.UUID)
 		},
-		"Date": func(layout string) string {
-			if layout == "" {
-				layout = time.ANSIC
-			}
-			return time.Now().Format(layout)
-		},
-		"L": func() *i18n.I18n {
-			return m.i18n
-		},
-		"Safe": func(safeHTML string) template.HTML {
-			return template.HTML(safeHTML)
-		},
 	}
 
-	for k, v := range sprig.GenericFuncMap() {
+	for k, v := range m.tplFuncs {
 		f[k] = v
 	}
 
 	return f
+}
+
+func (m *Manager) GenericTemplateFuncs() template.FuncMap {
+	return m.tplFuncs
 }
 
 // Close closes and exits the campaign manager.
@@ -750,4 +778,27 @@ func (m *CampaignMessage) AltBody() []byte {
 	out := make([]byte, len(m.altBody))
 	copy(out, m.altBody)
 	return out
+}
+
+func (m *Manager) makeGnericFuncMap() template.FuncMap {
+	f := template.FuncMap{
+		"Date": func(layout string) string {
+			if layout == "" {
+				layout = time.ANSIC
+			}
+			return time.Now().Format(layout)
+		},
+		"L": func() *i18n.I18n {
+			return m.i18n
+		},
+		"Safe": func(safeHTML string) template.HTML {
+			return template.HTML(safeHTML)
+		},
+	}
+
+	for k, v := range sprig.GenericFuncMap() {
+		f[k] = v
+	}
+
+	return f
 }

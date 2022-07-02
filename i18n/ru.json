@@ -204,6 +204,7 @@
     "globals.terms.tags": "Теги",
     "globals.terms.template": "Шаблон | Шаблоны",
     "globals.terms.templates": "Шаблоны",
+    "globals.terms.tx": "Transactional | Transactional",
     "globals.terms.year": "Year | Years",
     "import.alreadyRunning": "Импорт уже выполняется. Подождите, пока он закончит, или остановите его, прежде чем пытаться снова. ",
     "import.blocklist": "Список блокировки",
@@ -513,6 +514,7 @@
     "templates.placeholderHelp": "Заполнитель {placeholder} должен присутствовать в шаблоне в одном экземпляре.",
     "templates.preview": "Предпросмотр",
     "templates.rawHTML": "Необработанный HTML",
+    "templates.subject": "Subject",
     "users.login": "Login",
     "users.logout": "Logout"
 }

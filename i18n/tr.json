@@ -204,6 +204,7 @@
     "globals.terms.tags": "Tag(lar)",
     "globals.terms.template": "Taslak | Taslaklar",
     "globals.terms.templates": "Taslaklar",
+    "globals.terms.tx": "Transactional | Transactional",
     "globals.terms.year": "Year | Years",
     "import.alreadyRunning": "Bir içe aktarım halen sürüyor. Yeniden denemek için durdurun veya yeniden denemek için bekleyin.",
     "import.blocklist": "Engelli listesi",
@@ -513,6 +514,7 @@
     "templates.placeholderHelp": "Yer tutucu {placeholder} taslak içinde sadece bir kere olmalıdır.",
     "templates.preview": "Önizleme",
     "templates.rawHTML": "Ham HTML",
+    "templates.subject": "Subject",
     "users.login": "Login",
     "users.logout": "Logout"
 }

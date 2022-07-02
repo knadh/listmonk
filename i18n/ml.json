@@ -204,6 +204,7 @@
     "globals.terms.tags": "ടാഗുകൾ",
     "globals.terms.template": "ടെംപ്ലേറ്റ് | ടെംപ്ലേറ്റുകൾ",
     "globals.terms.templates": "ടെംപ്ലേറ്റുകൾ",
+    "globals.terms.tx": "Transactional | Transactional",
     "globals.terms.year": "Year | Years",
     "import.alreadyRunning": "ഒരു ഇമ്പോർട്ട് ഇപ്പോൾ നടന്നുകൊണ്ടിരിക്കുന്നു. വീണ്ടും ശ്രമിക്കുന്നതിന് മുമ്പ് കാത്തിരിക്കുകയോ നടന്നുകൊണ്ടിരിക്കുന്ന ഇമ്പോർട്ട് നിർത്തുകയോ ചെയ്യുക.",
     "import.blocklist": "തടയുന്ന പട്ടിക",
@@ -513,6 +514,7 @@
     "templates.placeholderHelp": "{placeholder} എന്ന പ്ലെയ്‌സ്‌ഹോൾഡർ ടെംപ്ലേറ്റിൽ ഒരിക്കലെങ്കിലും വരണം.",
     "templates.preview": "പ്രിവ്യൂ",
     "templates.rawHTML": "എച്. ടീ. എം. എൽ",
+    "templates.subject": "Subject",
     "users.login": "Login",
     "users.logout": "Logout"
 }

@@ -746,24 +746,26 @@ DELETE FROM users WHERE $1 != 1 AND id=$1;
 -- templates
 -- name: get-templates
 -- Only if the second param ($2) is true, body is returned.
-SELECT id, name, (CASE WHEN $2 = false THEN body ELSE '' END) as body,
+SELECT id, name, type, subject, (CASE WHEN $2 = false THEN body ELSE '' END) as body,
     is_default, created_at, updated_at
-    FROM templates WHERE $1 = 0 OR id = $1
+    FROM templates WHERE ($1 = 0 OR id = $1) AND ($3 = '' OR type = $3::template_type)
     ORDER BY created_at;
 
 -- name: create-template
-INSERT INTO templates (name, body) VALUES($1, $2) RETURNING id;
+INSERT INTO templates (name, type, subject, body) VALUES($1, $2, $3, $4) RETURNING id;
 
 -- name: update-template
 UPDATE templates SET
     name=(CASE WHEN $2 != '' THEN $2 ELSE name END),
-    body=(CASE WHEN $3 != '' THEN $3 ELSE body END),
+    type=(CASE WHEN $3 != '' THEN $3::template_type ELSE type END),
+    subject=(CASE WHEN $4 != '' THEN $4 ELSE name END),
+    body=(CASE WHEN $5 != '' THEN $5 ELSE body END),
     updated_at=NOW()
 WHERE id = $1;
 
 -- name: set-default-template
 WITH u AS (
-    UPDATE templates SET is_default=true WHERE id=$1 RETURNING id
+    UPDATE templates SET is_default=true WHERE id=$1 AND type='campaign' RETURNING id
 )
 UPDATE templates SET is_default=false WHERE id != $1;
 

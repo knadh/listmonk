@@ -204,6 +204,7 @@
     "globals.terms.tags": "Tagi",
     "globals.terms.template": "Szablon | Szablony",
     "globals.terms.templates": "Szablony",
+    "globals.terms.tx": "Transactional | Transactional",
     "globals.terms.year": "Year | Years",
     "import.alreadyRunning": "Importowanie jest już uruchomione. Poczekaj, aż się zakończy, albo zatrzymaj je przed ponowną próbą.",
     "import.blocklist": "Lista zablokowanych",
@@ -513,6 +514,7 @@
     "templates.placeholderHelp": "Symbol zastępczy {placeholder} powinien występować dokładnie raz w szablonie.",
     "templates.preview": "Podgląd",
     "templates.rawHTML": "Surowy HTML",
+    "templates.subject": "Subject",
     "users.login": "Zaloguj",
     "users.logout": "Wyloguj"
 }

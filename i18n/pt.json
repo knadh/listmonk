@@ -204,6 +204,7 @@
     "globals.terms.tags": "Etiquetas",
     "globals.terms.template": "Modelo | Modelos",
     "globals.terms.templates": "Modelo",
+    "globals.terms.tx": "Transactional | Transactional",
     "globals.terms.year": "Year | Years",
     "import.alreadyRunning": "Uma importação já está em curso. Aguarda que termine ou cancela-a antes de tentares novamente.",
     "import.blocklist": "Lista de bloqueio",
@@ -513,6 +514,7 @@
     "templates.placeholderHelp": "O placeholder {placeholder} deve aparecer exatamente uma vez no template.",
     "templates.preview": "Pré-visualização",
     "templates.rawHTML": "HTML Simples",
+    "templates.subject": "Subject",
     "users.login": "Login",
     "users.logout": "Logout"
 }

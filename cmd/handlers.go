@@ -138,6 +138,8 @@ func initHTTPHandlers(e *echo.Echo, app *App) {
 	g.PUT("/api/templates/:id/default", handleTemplateSetDefault)
 	g.DELETE("/api/templates/:id", handleDeleteTemplate)
 
+	g.POST("/api/tx", handleSendTxMessage)
+
 	if app.constants.BounceWebhooksEnabled {
 		// Private authenticated bounce endpoint.
 		g.POST("/webhooks/bounce", handleBounceWebhook)
