@@ -126,7 +126,7 @@ func handleCreateTemplate(c echo.Context) error {
 	}
 
 	if err := validateTemplate(o, app); err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+		return err
 	}
 
 	// Subject is only relevant for fixed tx templates. For campaigns,
@@ -172,7 +172,7 @@ func handleUpdateTemplate(c echo.Context) error {
 	}
 
 	if err := validateTemplate(o, app); err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+		return err
 	}
 
 	// Subject is only relevant for fixed tx templates. For campaigns,

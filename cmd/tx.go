@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 	"net/textproto"
 
@@ -30,7 +31,8 @@ func handleSendTxMessage(c echo.Context) error {
 	// Get the cached tx template.
 	tpl, err := app.manager.GetTpl(m.TemplateID)
 	if err != nil {
-		return err
+		return echo.NewHTTPError(http.StatusBadRequest,
+			app.i18n.Ts("globals.messages.notFound", "name", fmt.Sprintf("template %d", m.TemplateID)))
 	}
 
 	// Get the subscriber.
@@ -41,7 +43,8 @@ func handleSendTxMessage(c echo.Context) error {
 
 	// Render the message.
 	if err := m.Render(sub, tpl); err != nil {
-		return err
+		return echo.NewHTTPError(http.StatusBadRequest,
+			app.i18n.Ts("globals.messages.errorFetching", "name"))
 	}
 
 	// Prepare the final message.
