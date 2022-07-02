@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"html/template"
 	"net/http"
 	"regexp"
 	"strconv"
@@ -129,14 +130,19 @@ func handleCreateTemplate(c echo.Context) error {
 		return err
 	}
 
+	var f template.FuncMap
+
 	// Subject is only relevant for fixed tx templates. For campaigns,
 	// the subject changes per campaign and is on models.Campaign.
 	if o.Type == models.TemplateTypeCampaign {
 		o.Subject = ""
+		f = app.manager.TemplateFuncs(nil)
+	} else {
+		f = app.manager.GenericTemplateFuncs()
 	}
 
 	// Compile the template and validate.
-	if err := o.Compile(app.manager.GenericTemplateFuncs()); err != nil {
+	if err := o.Compile(f); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
@@ -175,14 +181,19 @@ func handleUpdateTemplate(c echo.Context) error {
 		return err
 	}
 
+	var f template.FuncMap
+
 	// Subject is only relevant for fixed tx templates. For campaigns,
 	// the subject changes per campaign and is on models.Campaign.
 	if o.Type == models.TemplateTypeCampaign {
 		o.Subject = ""
+		f = app.manager.TemplateFuncs(nil)
+	} else {
+		f = app.manager.GenericTemplateFuncs()
 	}
 
 	// Compile the template and validate.
-	if err := o.Compile(app.manager.GenericTemplateFuncs()); err != nil {
+	if err := o.Compile(f); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
