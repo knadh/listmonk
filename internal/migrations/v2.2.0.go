@@ -23,7 +23,10 @@ func V2_2_0(db *sqlx.DB, fs stuffbin.FileSystem, ko *koanf.Koanf) error {
 		return err
 	}
 
-	if _, err := db.Exec(`ALTER TABLE templates ADD COLUMN IF NOT EXISTS "subject" TEXT NOT NULL`); err != nil {
+	if _, err := db.Exec(`ALTER TABLE templates ADD COLUMN IF NOT EXISTS subject TEXT NOT NULL DEFAULT ''`); err != nil {
+		return err
+	}
+	if _, err := db.Exec(`ALTER TABLE templates ALTER COLUMN subject DROP DEFAULT`); err != nil {
 		return err
 	}
 
