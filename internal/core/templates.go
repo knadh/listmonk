@@ -47,8 +47,8 @@ func (c *Core) CreateTemplate(name, typ, subject string, body []byte) (models.Te
 }
 
 // UpdateTemplate updates a given template.
-func (c *Core) UpdateTemplate(id int, name, typ, subject string, body []byte) (models.Template, error) {
-	res, err := c.q.UpdateTemplate.Exec(id, name, typ, subject, body)
+func (c *Core) UpdateTemplate(id int, name, subject string, body []byte) (models.Template, error) {
+	res, err := c.q.UpdateTemplate.Exec(id, name, subject, body)
 	if err != nil {
 		return models.Template{}, echo.NewHTTPError(http.StatusInternalServerError,
 			c.i18n.Ts("globals.messages.errorUpdating", "name", "{globals.terms.template}", "error", pqErrMsg(err)))

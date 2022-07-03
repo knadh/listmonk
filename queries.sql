@@ -757,9 +757,8 @@ INSERT INTO templates (name, type, subject, body) VALUES($1, $2, $3, $4) RETURNI
 -- name: update-template
 UPDATE templates SET
     name=(CASE WHEN $2 != '' THEN $2 ELSE name END),
-    type=(CASE WHEN $3 != '' THEN $3::template_type ELSE type END),
-    subject=(CASE WHEN $4 != '' THEN $4 ELSE name END),
-    body=(CASE WHEN $5 != '' THEN $5 ELSE body END),
+    subject=(CASE WHEN $3 != '' THEN $3 ELSE name END),
+    body=(CASE WHEN $4 != '' THEN $4 ELSE body END),
     updated_at=NOW()
 WHERE id = $1;
 

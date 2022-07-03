@@ -221,7 +221,7 @@ func handleUpdateTemplate(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	out, err := app.core.UpdateTemplate(id, o.Name, o.Type, o.Subject, []byte(o.Body))
+	out, err := app.core.UpdateTemplate(id, o.Name, o.Subject, []byte(o.Body))
 	if err != nil {
 		return err
 	}

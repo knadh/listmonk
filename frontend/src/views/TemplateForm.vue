@@ -20,7 +20,7 @@
             </div>
             <div class="column is-3">
               <b-field :label="$t('globals.fields.type')" label-position="on-border">
-                <b-select v-model="form.type" expanded>
+                <b-select v-model="form.type" :disabled="isEditing" expanded>
                   <option value="campaign">{{ $tc('globals.terms.campaign') }}</option>
                   <option value="tx">{{ $tc('globals.terms.tx') }}</option>
                 </b-select>
@@ -31,7 +31,7 @@
             <div class="column is-12">
               <b-field :label="$t('templates.subject')" label-position="on-border">
                 <b-input :maxlength="200" :ref="'focus'" v-model="form.subject" name="name"
-                    :placeholder="$t('templates.subject')" required />
+                  :placeholder="$t('templates.subject')" required />
               </b-field>
             </div>
           </div>
