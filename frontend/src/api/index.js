@@ -111,6 +111,9 @@ export const getDashboardSubscriberCounts = (id) => http.get(`/api/dashboard/cou
 export const getDashboardDomainStats = (id) => http.get(id ? `/api/dashboard/domains/${id}` : '/api/dashboard/domains',
   { loading: models.dashboard });
 
+export const getDashboardCountryStats = (id) => http.get(id ? `/api/dashboard/countries/${id}` : '/api/dashboard/countries',
+  { loading: models.dashboard });
+
 export const getDashboardCharts = () => http.get('/api/dashboard/charts',
   { loading: models.dashboard });
 

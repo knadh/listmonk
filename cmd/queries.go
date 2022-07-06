@@ -17,6 +17,8 @@ type Queries struct {
 	GetDashboardSubscribersCount *sqlx.Stmt `query:"get-dashboard-subscriber-count"`
 	GetDashboardDomains *sqlx.Stmt `query:"get-dashboard-domain-stats"`
 	GetDashboardDomainsByList *sqlx.Stmt `query:"get-dashboard-domain-stats-by-list"`
+	GetDashboardCountryStats *sqlx.Stmt `query:"get-country-stats"`
+	GetDashboardCountryStatsByList *sqlx.Stmt `query:"get-country-stats-by-list"`
 
 	InsertSubscriber                *sqlx.Stmt `query:"insert-subscriber"`
 	UpsertSubscriber                *sqlx.Stmt `query:"upsert-subscriber"`

@@ -217,6 +217,57 @@
                   </div>
                 </div>
               </div>
+              <div class="columns">
+                <div class="column">
+                  <div class="columns is-vcentered">
+                    <div class="column">
+                      <h3 class="title is-size-6">
+                        {{ $t('dashboard.subscriberCountries') }}
+                      </h3>
+                    </div>
+                    <div class="column has-text-right">
+                      <b-dropdown
+                        aria-role="list"
+                        class="has-text-left"
+                        v-model="currentLists.countries"
+                        @change="getCountryStats"
+                        >
+                        <template #trigger="{ active }">
+                          <b-button
+                            :label="currentLists.countries.name"
+                            :icon-right="active ? 'menu-up' : 'menu-down'" />
+                        </template>
+
+                        <b-dropdown-item
+                            :value="{ id: undefined, name: $t('dashboard.countries.all') }"
+                            aria-role="listitem"
+                          >
+                            {{ $t('dashboard.countries.all') }}
+                        </b-dropdown-item>
+
+                        <template>
+                          <b-dropdown-item
+                            v-for="list in this.lists"
+                            :key="list.id"
+                            :value="list"
+                            aria-role="listitem"
+                          >
+                            {{ list.name }}
+                          </b-dropdown-item>
+                        </template>
+                      </b-dropdown>
+                    </div>
+                  </div>
+                  <div class="columns">
+                    <div class="column">
+                      <div ref="chart-countries"></div>
+                    </div>
+                    <div class="column is-8">
+                      <div class="legend-countries"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </article>
           </div>
         </div>
@@ -289,6 +340,10 @@ export default Vue.extend({
         domains: {
           id: undefined,
           name: this.$t('dashboard.domains.all'),
+        },
+        countries: {
+          id: undefined,
+          name: this.$t('dashboard.countries.all'),
         },
       },
     };
@@ -375,19 +430,19 @@ export default Vue.extend({
       });
     },
 
-    renderPieChart(data, el) {
+    renderPieChart(data, el, legendSelector = '.legend-container') {
       const conf = {
         bindto: el,
         unload: true,
         data: {
           type: 'pie',
           labels: 'true',
-          columns: [...data.map((d) => [d.domain, d.count])],
+          columns: [...data.map((d) => [d.label, d.count])],
           empty: { label: { text: this.$t('globals.messages.emptyState') } },
         },
         tooltip: {
           format: {
-            value: (value) => `${value} addresses`,
+            value: (value) => `${value} subscribers`,
           },
         },
         legend: {
@@ -398,12 +453,14 @@ export default Vue.extend({
       this.$nextTick(() => {
         const chart = c3.generate(conf);
 
-        d3.select('.legend-container')
+        console.log(data);
+
+        d3.select(legendSelector)
           .html('')
           .insert('div', '.chart')
           .attr('class', 'legend')
           .selectAll('div')
-          .data([...data.map((d) => d.domain)])
+          .data([...data.map((d) => d.label)])
           .enter()
           .append('div')
           .attr('data-id', (id) => id)
@@ -430,7 +487,13 @@ export default Vue.extend({
 
     getDomainStats(list) {
       this.$api.getDashboardDomainStats(list ? list.id : null).then((data) => {
-        this.renderPieChart(data, this.$refs['chart-domains']);
+        this.renderPieChart(data.map((d) => ({ label: d.domain, count: d.count })), this.$refs['chart-domains']);
+      });
+    },
+
+    getCountryStats(list) {
+      this.$api.getDashboardCountryStats(list ? list.id : null).then((data) => {
+        this.renderPieChart(data.map((d) => ({ label: d.country ? d.country : 'N/A', count: d.count })), this.$refs['chart-countries'], '.legend-countries');
       });
     },
   },
@@ -464,6 +527,7 @@ export default Vue.extend({
     });
 
     this.getDomainStats();
+    this.getCountryStats();
   },
 });
 </script>
