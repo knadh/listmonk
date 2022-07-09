@@ -453,6 +453,7 @@
     "settings.smtp.retries": "Retries",
     "settings.smtp.retriesHelp": "Number of times to retry when a message fails.",
     "settings.smtp.setCustomHeaders": "Set custom headers",
+    "settings.smtp.testConnection": "Test connection",
     "settings.title": "Settings",
     "settings.updateAvailable": "A new update {version} is available.",
     "subscribers.advancedQuery": "Advanced",

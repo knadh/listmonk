@@ -150,6 +150,13 @@
             </div>
           </div>
         </div><!-- second container column -->
+        <div class="columns">
+          <div class="column has-text-right">
+            <b-button class="is-primary" @click.prevent="testConnection(item)">
+              {{ $t('settings.smtp.testConnection') }}
+            </b-button>
+          </div>
+        </div>
       </div><!-- block -->
     </div><!-- mail-servers -->
 
@@ -210,6 +217,10 @@ export default Vue.extend({
       const s = this.data.smtp[i];
       s.showHeaders = true;
       this.data.smtp.splice(i, 1, s);
+    },
+
+    testConnection(c) {
+      alert(c);
     },
   },
 });
