@@ -453,8 +453,6 @@ export default Vue.extend({
       this.$nextTick(() => {
         const chart = c3.generate(conf);
 
-        console.log(data);
-
         d3.select(legendSelector)
           .html('')
           .insert('div', '.chart')
