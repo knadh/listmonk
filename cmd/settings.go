@@ -1,6 +1,8 @@
 package main
 
 import (
+	"bytes"
+	"io/ioutil"
 	"net/http"
 	"regexp"
 	"strings"
@@ -8,6 +10,11 @@ import (
 	"time"
 
 	"github.com/gofrs/uuid"
+	"github.com/knadh/koanf"
+	"github.com/knadh/koanf/parsers/json"
+	"github.com/knadh/koanf/providers/rawbytes"
+	"github.com/knadh/listmonk/internal/messenger"
+	"github.com/knadh/listmonk/internal/messenger/email"
 	"github.com/knadh/listmonk/models"
 	"github.com/labstack/echo/v4"
 )
@@ -191,5 +198,64 @@ func handleUpdateSettings(c echo.Context) error {
 // handleGetLogs returns the log entries stored in the log buffer.
 func handleGetLogs(c echo.Context) error {
 	app := c.Get("app").(*App)
+	return c.JSON(http.StatusOK, okResp{app.bufLog.Lines()})
+}
+
+// handleTestSMTPSettings returns the log entries stored in the log buffer.
+func handleTestSMTPSettings(c echo.Context) error {
+	app := c.Get("app").(*App)
+
+	// Copy the raw JSON post body.
+	reqBody, err := ioutil.ReadAll(c.Request().Body)
+	if err != nil {
+		app.log.Printf("error reading SMTP test: %v", err)
+		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.Ts("globals.messages.internalError"))
+	}
+
+	// Load the JSON into koanf to parse SMTP settings properly including timestrings.
+	ko := koanf.New(".")
+	if err := ko.Load(rawbytes.Provider(reqBody), json.Parser()); err != nil {
+		app.log.Printf("error unmarshalling SMTP test request: %v", err)
+		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.Ts("globals.messages.internalError"))
+	}
+
+	req := email.Server{}
+	if err := ko.UnmarshalWithConf("", &req, koanf.UnmarshalConf{Tag: "json"}); err != nil {
+		app.log.Printf("error scanning SMTP test request: %v", err)
+		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.Ts("globals.messages.internalError"))
+	}
+
+	to := ko.String("email")
+	if to == "" {
+		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.Ts("globals.messages.missingFields", "name", "email"))
+	}
+
+	// Initialize a new SMTP pool.
+	req.MaxConns = 1
+	req.IdleTimeout = time.Second * 2
+	req.PoolWaitTimeout = time.Second * 2
+	msgr, err := email.New(req)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest,
+			app.i18n.Ts("globals.messages.errorCreating", "name", "SMTP", "error", err.Error()))
+	}
+
+	var b bytes.Buffer
+	if err := app.notifTpls.tpls.ExecuteTemplate(&b, "smtp-test", nil); err != nil {
+		app.log.Printf("error compiling notification template '%s': %v", "smtp-test", err)
+		return err
+	}
+
+	m := messenger.Message{}
+	m.ContentType = app.notifTpls.contentType
+	m.From = app.constants.FromEmail
+	m.To = []string{to}
+	m.Subject = app.i18n.T("settings.smtp.testConnection")
+	m.Body = b.Bytes()
+	if err := msgr.Push(m); err != nil {
+		app.log.Printf("error sending SMTP test (%s): %v", m.Subject, err)
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
 	return c.JSON(http.StatusOK, okResp{app.bufLog.Lines()})
 }
