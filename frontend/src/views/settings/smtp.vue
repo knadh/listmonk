@@ -134,29 +134,63 @@
                 </b-field>
               </div>
             </div>
+
+            <div class="columns">
+              <div class="column">
+                <p v-if="item.email_headers.length === 0 && !item.showHeaders">
+                  <a href="#" class="is-size-7" @click.prevent="() => showSMTPHeaders(n)">
+                    <b-icon icon="plus" />{{ $t('settings.smtp.setCustomHeaders') }}</a>
+                </p>
+                <b-field v-if="item.email_headers.length > 0 || item.showHeaders"
+                  label-position="on-border"
+                  :message="$t('settings.smtp.customHeadersHelp')">
+                  <b-input v-model="item.strEmailHeaders" name="email_headers" type="textarea"
+                    placeholder='[{"X-Custom": "value"}, {"X-Custom2": "value"}]' />
+                </b-field>
+              </div>
+            </div>
             <hr />
 
-            <div>
-              <p v-if="item.email_headers.length === 0 && !item.showHeaders">
-                <a href="#" class="is-size-7" @click.prevent="() => showSMTPHeaders(n)">
-                  <b-icon icon="plus" />{{ $t('settings.smtp.setCustomHeaders') }}</a>
-              </p>
-              <b-field v-if="item.email_headers.length > 0 || item.showHeaders"
-                label-position="on-border"
-                :message="$t('settings.smtp.customHeadersHelp')">
-                <b-input v-model="item.strEmailHeaders" name="email_headers" type="textarea"
-                  placeholder='[{"X-Custom": "value"}, {"X-Custom2": "value"}]' />
-              </b-field>
-            </div>
+            <form @submit.prevent="() => doSMTPTest(item)">
+              <div class="columns">
+                <template v-if="smtpTestItem === n">
+                  <div class="column is-5">
+                    <strong>{{ $t('settings.general.fromEmail') }}</strong>
+                    <br />
+                    {{ settings['app.from_email'] }}
+                  </div>
+                  <div class="column is-4">
+                    <b-field :label="$t('settings.smtp.toEmail')" label-position="on-border">
+                      <b-input type="email" required v-model="testEmail"
+                        :ref="'testEmailTo'" placeholder="email@site.com"
+                        :custom-class="`test-email-${n}`" />
+                    </b-field>
+                  </div>
+                </template>
+                <div class="column has-text-right">
+                  <b-button v-if="smtpTestItem === n" class="is-primary"
+                    :disabled="isTestEnabled(item)" @click.prevent="() => doSMTPTest(item)">
+                    {{ $t('settings.smtp.sendTest') }}
+                  </b-button>
+                  <a href="#" v-else class="is-primary" @click.prevent="showTestForm(n)">
+                    <b-icon icon="rocket-launch-outline" /> {{ $t('settings.smtp.testConnection') }}
+                  </a>
+                </div>
+                <div class="columns">
+                  <div class="column">
+                  </div>
+                </div>
+              </div>
+              <div v-if="errMsg && smtpTestItem === n">
+                <b-field class="mt-4" type="is-danger">
+                  <b-input v-model="errMsg" type="textarea"
+                    custom-class="has-text-danger is-size-6" readonly />
+                </b-field>
+              </div>
+            </form><!-- smtp test -->
+
           </div>
         </div><!-- second container column -->
-        <div class="columns">
-          <div class="column has-text-right">
-            <b-button class="is-primary" @click.prevent="testConnection(item)">
-              {{ $t('settings.smtp.testConnection') }}
-            </b-button>
-          </div>
-        </div>
       </div><!-- block -->
     </div><!-- mail-servers -->
 
@@ -168,6 +202,7 @@
 
 <script>
 import Vue from 'vue';
+import { mapState } from 'vuex';
 import { regDuration } from '../../constants';
 
 export default Vue.extend({
@@ -181,6 +216,11 @@ export default Vue.extend({
     return {
       data: this.form,
       regDuration,
+      // Index of the SMTP block item in the array to show the
+      // test form in.
+      smtpTestItem: null,
+      testEmail: '',
+      errMsg: '',
     };
   },
 
@@ -219,9 +259,48 @@ export default Vue.extend({
       this.data.smtp.splice(i, 1, s);
     },
 
-    testConnection(c) {
-      alert(c);
+    testConnection() {
+      let em = this.settings['app.from_email'].replace('>', '').split('<');
+      if (em.length > 1) {
+        em = `<${em[em.length - 1]}>`;
+      }
     },
+
+    doSMTPTest(item) {
+      this.errMsg = '';
+      this.$api.testSMTP({ ...item, email: this.testEmail }).then(() => {
+        this.$utils.toast(this.$t('campaigns.testSent'));
+      }).catch((err) => {
+        if (err.response?.data?.message) {
+          this.errMsg = err.response.data.message;
+        }
+      });
+    },
+
+    showTestForm(n) {
+      this.smtpTestItem = n;
+      this.testItem = this.form.smtp[n];
+      this.errMsg = '';
+
+      this.$nextTick(() => {
+        document.querySelector(`.test-email-${n}`).focus();
+      });
+    },
+
+    isTestEnabled(item) {
+      if (!item.host || !item.port) {
+        return true;
+      }
+      if (item.auth_protocol !== 'none' && !item.password.trim()) {
+        return true;
+      }
+
+      return false;
+    },
+  },
+
+  computed: {
+    ...mapState(['settings']),
   },
 });
 </script>

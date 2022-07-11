@@ -277,6 +277,9 @@ export const getSettings = async () => http.get('/api/settings',
 export const updateSettings = async (data) => http.put('/api/settings', data,
   { loading: models.settings });
 
+export const testSMTP = async (data) => http.post('/api/settings/smtp/test', data,
+  { loading: models.settings, disableToast: true });
+
 export const getLogs = async () => http.get('/api/logs',
   { loading: models.logs, camelCase: false });
 
