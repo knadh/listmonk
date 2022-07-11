@@ -828,6 +828,10 @@ section.analytics {
     height: auto;
     min-height: 350px;
   }
+  .smtp-shortcuts a {
+    margin-right: 15px;
+    display: inline-block;
+  }
 }
 
 /* Logs */
@@ -1033,6 +1037,10 @@ section.analytics {
 @media screen and (max-width: 850px) {
   .page-header .buttons {
     display: block;
+  }
+
+  .b-tabs .tab-content {
+    padding: 15px 0 0 0;
   }
 }
 

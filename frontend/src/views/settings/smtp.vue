@@ -52,7 +52,7 @@
                 <b-field grouped>
                   <b-field :label="$t('settings.mailserver.username')"
                     label-position="on-border" expanded>
-                    <b-input v-model="item.username"
+                    <b-input v-model="item.username" :custom-class="`smtp-username-${n}`"
                       :disabled="item.auth_protocol === 'none'"
                       name="username" placeholder="mysmtp" :maxlength="200" />
                   </b-field>
@@ -68,6 +68,15 @@
                 </b-field>
               </div>
             </div><!-- auth -->
+            <div class="smtp-shortcuts is-size-7">
+              <a href="" @click.prevent="() => fillSettings(n, 'gmail')">Gmail</a>
+              <a href="" @click.prevent="() => fillSettings(n, 'ses')">Amazon SES</a>
+              <a href="" @click.prevent="() => fillSettings(n, 'mailgun')">Mailgun</a>
+              <a href="" @click.prevent="() => fillSettings(n, 'mailjet')">Mailjet</a>
+              <a href="" @click.prevent="() => fillSettings(n, 'sendgrid')">Sendgrid</a>
+              <a href="" @click.prevent="() => fillSettings(n, 'postmark')">Postmark</a>
+              <a href="" @click.prevent="() => fillSettings(n, 'mailersend')">MailerSend</a>
+            </div>
             <hr />
 
             <div class="columns">
@@ -205,6 +214,27 @@ import Vue from 'vue';
 import { mapState } from 'vuex';
 import { regDuration } from '../../constants';
 
+const smtpTemplates = {
+  gmail: {
+    host: 'smtp.gmail.com', port: 465, auth_protocol: 'login', tls_type: 'TLS',
+  },
+  ses: {
+    host: 'email-smtp.YOUR-REGION.amazonaws.com', port: 465, auth_protocol: 'login', tls_type: 'TLS',
+  },
+  mailjet: {
+    host: 'in-v3.mailjet.com', port: 465, auth_protocol: 'cram', tls_type: 'TLS',
+  },
+  mailgun: {
+    host: 'smtp.mailgun.org', port: 465, auth_protocol: 'login', tls_type: 'TLS',
+  },
+  sendgrid: {
+    host: 'smtp.sendgrid.net', port: 465, auth_protocol: 'login', tls_type: 'TLS',
+  },
+  postmark: {
+    host: 'smtp.postmarkapp.com', port: 587, auth_protocol: 'cram', tls_type: 'STARTTLS',
+  },
+};
+
 export default Vue.extend({
   props: {
     form: {
@@ -296,6 +326,21 @@ export default Vue.extend({
       }
 
       return false;
+    },
+
+    fillSettings(n, key) {
+      this.data.smtp.splice(n, 1, {
+        ...this.data.smtp[n],
+        ...smtpTemplates[key],
+        username: '',
+        password: '',
+        hello_hostname: '',
+        tls_skip_verify: false,
+      });
+
+      this.$nextTick(() => {
+        document.querySelector(`.smtp-username-${n}`).focus();
+      });
     },
   },
 
