@@ -96,12 +96,12 @@ func handleUploadMedia(c echo.Context) error {
 	}
 
 	// Write to the DB.
-	// TODO: cleanup
-	if _, err := app.core.InsertMedia(fName, thumbfName, app.constants.MediaProvider, app.media); err != nil {
+	m, err := app.core.InsertMedia(fName, thumbfName, app.constants.MediaProvider, app.media)
+	if err != nil {
 		cleanUp = true
 		return err
 	}
-	return c.JSON(http.StatusOK, okResp{true})
+	return c.JSON(http.StatusOK, okResp{m})
 }
 
 // handleGetMedia handles retrieval of uploaded media.
