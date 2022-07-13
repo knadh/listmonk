@@ -126,6 +126,7 @@
     "globals.buttons.deleteAll": "Delete all",
     "globals.buttons.edit": "Изменить",
     "globals.buttons.enabled": "Включено",
+    "globals.buttons.insert": "Insert",
     "globals.buttons.learnMore": "Подпробней",
     "globals.buttons.more": "More",
     "globals.buttons.new": "Новое",
