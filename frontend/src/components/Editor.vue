@@ -60,6 +60,24 @@
           </footer>
         </div>
       </b-modal>
+
+      <b-modal scroll="keep" :width="750"
+        :aria-modal="true" :active.sync="isInsertHTMLVisible">
+        <div>
+          <section expanded class="modal-card-body preview">
+            <html-editor v-model="insertHTMLSnippet" />
+          </section>
+          <footer class="modal-card-foot has-text-right">
+            <b-button @click="onFormatRichtextHTML">{{ $t('campaigns.formatHTML') }}</b-button>
+            <b-button @click="() => { this.isInsertHTMLVisible = false; }">
+              {{ $t('globals.buttons.close') }}
+            </b-button>
+            <b-button @click="onInsertHTML" class="is-primary">
+              {{ $t('globals.buttons.insert') }}
+            </b-button>
+          </footer>
+        </div>
+      </b-modal>
     </template>
 
     <!-- raw html editor //-->
@@ -173,6 +191,8 @@ export default {
       isReady: false,
       isRichtextReady: false,
       isRichtextSourceVisible: false,
+      isInsertHTMLVisible: false,
+      insertHTMLSnippet: '',
       isTrackLink: false,
       richtextConf: {},
       richTextSourceBody: '',
@@ -214,6 +234,12 @@ export default {
             tooltip: 'Source code',
             onAction: this.onRichtextViewSource,
           });
+
+          editor.ui.registry.addButton('insert-html', {
+            icon: 'code-sample',
+            tooltip: 'Insert HTML',
+            onAction: this.onOpenInsertHTML,
+          });
         },
 
         browser_spellcheck: true,
@@ -229,7 +255,7 @@ export default {
         toolbar: `undo redo | formatselect styleselect fontsizeselect |
                   bold italic underline strikethrough forecolor backcolor subscript superscript |
                   alignleft aligncenter alignright alignjustify |
-                  bullist numlist table image | outdent indent | link hr removeformat |
+                  bullist numlist table image insert-html | outdent indent | link hr removeformat |
                   html fullscreen help`,
         fontsize_formats: '10px 11px 12px 14px 15px 16px 18px 24px 36px',
         skin: false,
@@ -285,10 +311,18 @@ export default {
       return u;
     },
 
-
     onRichtextViewSource() {
       this.richTextSourceBody = this.form.body;
       this.isRichtextSourceVisible = true;
+    },
+
+    onOpenInsertHTML() {
+      this.isInsertHTMLVisible = true;
+    },
+
+    onInsertHTML() {
+      this.isInsertHTMLVisible = false;
+      window.tinymce.editors[0].execCommand('mceInsertContent', false, this.insertHTMLSnippet);
     },
 
     onFormatRichtextHTML() {

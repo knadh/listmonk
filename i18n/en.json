@@ -116,6 +116,7 @@
     "forms.selectHelp": "Select lists to add to the form.",
     "forms.title": "Forms",
     "globals.buttons.add": "Add",
+    "globals.buttons.insert": "Insert",
     "globals.buttons.addNew": "Add new",
     "globals.buttons.back": "Back",
     "globals.buttons.cancel": "Cancel",
