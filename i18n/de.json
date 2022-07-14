@@ -457,7 +457,7 @@
     "settings.smtp.sendTest": "E-mail senden",
     "settings.smtp.setCustomHeaders": "Benutzerdefinierten Header verwenden",
     "settings.smtp.testConnection": "Verbindung testen",
-    "settings.smtp.toEmail": "An E-mail",
+    "settings.smtp.toEmail": "Empfänger E-mail",
     "settings.title": "Einstellungen",
     "settings.updateAvailable": "Ein neues Update auf {version} ist verfügbar.",
     "subscribers.advancedQuery": "Erweitert",
@@ -518,7 +518,7 @@
     "templates.placeholderHelp": "Der Platzhalter \"{placeholder}\" darf nur einmal im Template vorkommen.",
     "templates.preview": "Vorschau",
     "templates.rawHTML": "HTML",
-    "templates.subject": "Subject",
+    "templates.subject": "Betreff",
     "users.login": "Anmelden",
     "users.logout": "Abmelden"
 }
