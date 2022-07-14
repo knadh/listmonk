@@ -2,7 +2,7 @@
 # on how you can achieve the same. It is not intented to run out of the box
 # and you must edit the below configurations to suit your needs.
 
-version: "3.7"
+version: "3.6"
 
 x-app-defaults: &app-defaults
   restart: unless-stopped
