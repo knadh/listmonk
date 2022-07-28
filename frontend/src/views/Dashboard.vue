@@ -317,7 +317,7 @@ import Vue from 'vue';
 import c3 from 'c3';
 import * as d3 from 'd3';
 import dayjs from 'dayjs';
-import { colors } from '../constants';
+import { colors, countryCodes } from '../constants';
 
 export default Vue.extend({
   data() {
@@ -458,7 +458,7 @@ export default Vue.extend({
           .insert('div', '.chart')
           .attr('class', 'legend')
           .selectAll('div')
-          .data([...data.map((d) => d.label)])
+          .data([...data.sort((a, b) => b.count - a.count).map((d) => d.label)])
           .enter()
           .append('div')
           .attr('data-id', (id) => id)
@@ -491,7 +491,7 @@ export default Vue.extend({
 
     getCountryStats(list) {
       this.$api.getDashboardCountryStats(list ? list.id : null).then((data) => {
-        this.renderPieChart(data.map((d) => ({ label: d.country ? d.country : 'N/A', count: d.count })), this.$refs['chart-countries'], '.legend-countries');
+        this.renderPieChart(data.map((d) => ({ label: d.country ? (countryCodes[d.country] || d.country) : 'Missing', count: d.count })), this.$refs['chart-countries'], '.legend-countries');
       });
     },
   },
