@@ -6,6 +6,7 @@ import (
 	"sort"
 	"syscall"
 	"time"
+	"strconv"
 
 	"github.com/jmoiron/sqlx/types"
 	"github.com/labstack/echo/v4"
@@ -76,11 +77,18 @@ func handleGetDashboardCharts(c echo.Context) error {
 func handleGetDashboardSubscribersCount(c echo.Context) error {
 	var (
 		app = c.Get("app").(*App)
-		list_id =c.Param("list_id")
+		list_id = c.Param("list_id")
+		months = c.QueryParam("months")
 		out types.JSONText
 	)
 
-	if err := app.queries.GetDashboardSubscribersCount.Get(&out, list_id); err != nil {
+	nrMonths, err := strconv.Atoi(months)
+	interval := "2 months"
+	if err == nil {
+		interval = strconv.Itoa(nrMonths) + " months"
+	}
+	
+	if err := app.queries.GetDashboardSubscribersCount.Get(&out, list_id, interval); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			app.i18n.Ts("globals.messages.errorFetching", "name", "dashboard subscriber count", "error", pqErrMsg(err)))
 	}
