@@ -8,3 +8,6 @@ config.toml
 node_modules
 listmonk
 dist/*
+frontend/.env
+
+data/*

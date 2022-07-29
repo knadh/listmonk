@@ -844,10 +844,10 @@ SELECT JSON_AGG(ROW_TO_JSON(row))
 FROM (
     with subscriberDates as (
         with limits as (
-            SELECT max(created_at) as before_date, INTERVAL '2 months' as time_window from subscriber_lists
+            SELECT max(created_at) as before_date from subscriber_lists
         )
         select
-        date_trunc('day', CASE WHEN created_at > (select before_date - time_window from limits) THEN created_at ELSE (select before_date - time_window from limits) END)::DATE as date,
+        date_trunc('day', CASE WHEN created_at > (select before_date - $2::interval from limits) THEN created_at ELSE (select before_date - $2::interval from limits) END)::DATE as date,
         count(1)
         from subscriber_lists
         where list_id = $1

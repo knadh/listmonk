@@ -588,7 +588,7 @@ section.dashboard {
     padding: 10px;
   }
 
-  .counts .column {
+  .counts .column:not(.no-padding) {
     padding: 30px;
   }
 

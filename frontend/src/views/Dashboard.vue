@@ -137,12 +137,12 @@
                         {{ $t('dashboard.subscribersCount') }}
                       </h3>
                     </div>
-                    <div class="column has-text-right">
+                    <div class="column is-vcentered has-text-right">
                       <b-dropdown
                         aria-role="list"
                         class="has-text-left"
                         v-model="currentLists.subscribers"
-                        @change="getSubscriberCount"
+                        @change="getSubscriberCountByList"
                         >
                         <template #trigger="{ active }">
                           <b-button
@@ -164,8 +164,33 @@
                     </div>
                   </div>
                   <div ref="chart-subscribers"></div>
+                  <template>
+                  <div>
+                    <b-field label="Select time window (months back)">
+                      <div class="columns">
+                        <b-field grouped class="column is-vcentered is-2 no-padding">
+                          <b-numberinput
+                            v-model="subscribersMonthsWindow"
+                            @input="getSubscriberCountByMonths"
+                            min="1"
+                            controls-position="compact"
+                            controls-alignment="left"
+                            editable="false"
+                            style="width: 100%"
+                          >
+                          </b-numberinput>
+                        </b-field>
+                      </div>
+                    </b-field>
+                  </div>
+                  </template>
                 </div>
               </div>
+            </article>
+          </div>
+          <div class="tile is-parent relative">
+            <b-loading v-if="isChartsLoading" active :is-full-page="false" />
+            <article class="tile is-child notification charts">
               <div class="columns">
                 <div class="column">
                   <div class="columns is-vcentered">
@@ -281,6 +306,7 @@ export default Vue.extend({
         messages: 0,
       },
       lists: [],
+      subscribersMonthsWindow: 2,
       currentLists: {
         subscribers: {
           id: -1,
@@ -422,10 +448,18 @@ export default Vue.extend({
       });
     },
 
-    getSubscriberCount(list) {
-      this.$api.getDashboardSubscriberCounts(list.id).then((data) => {
+    getSubscriberCount(list, months) {
+      this.$api.getDashboardSubscriberCounts(list.id, months).then((data) => {
         this.renderTimeseriesChart(this.$t('dashboard.subscribersCount'), data, this.$refs['chart-subscribers']);
       });
+    },
+
+    getSubscriberCountByList(list) {
+      this.getSubscriberCount(list, this.subscribersMonthsWindow);
+    },
+
+    getSubscriberCountByMonths(months) {
+      this.getSubscriberCount(this.currentLists.subscribers, months);
     },
 
     getDomainStats(list) {
