@@ -30,5 +30,15 @@ func V2_2_0(db *sqlx.DB, fs stuffbin.FileSystem, ko *koanf.Koanf) error {
 		return err
 	}
 
+	// Insert transactional template.
+	txTpl, err := fs.Get("/static/email-templates/sample-tx.tpl")
+	if err != nil {
+		return err
+	}
+	if _, err := db.Exec(`INSERT INTO templates (name, type, subject, body) VALUES($1, $2, $3, $4)`,
+		"Sample transactional template", "tx", "Welcome {{ .Subscriber.Name }}", txTpl.ReadBytes()); err != nil {
+		return err
+	}
+
 	return nil
 }
