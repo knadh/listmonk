@@ -76,7 +76,6 @@
               <a href="" @click.prevent="() => fillSettings(n, 'mailjet')">Mailjet</a>
               <a href="" @click.prevent="() => fillSettings(n, 'sendgrid')">Sendgrid</a>
               <a href="" @click.prevent="() => fillSettings(n, 'postmark')">Postmark</a>
-              <a href="" @click.prevent="() => fillSettings(n, 'mailersend')">MailerSend</a>
             </div>
             <hr />
 
