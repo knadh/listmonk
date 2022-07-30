@@ -569,27 +569,28 @@ u AS (
 )
 SELECT * FROM camps;
 
--- name: get-campaign-view-counts
--- raw: true
--- %s = * or DISTINCT subscriber_id (prepared based on based on individual tracking=on/off). Prepared on boot.
+-- name: get-campaign-analytics-unique-counts
 WITH intval AS (
     -- For intervals < a week, aggregate counts hourly, otherwise daily.
     SELECT CASE WHEN (EXTRACT (EPOCH FROM ($3::TIMESTAMP - $2::TIMESTAMP)) / 86400) >= 7 THEN 'day' ELSE 'hour' END
-)
-SELECT campaign_id, COUNT(%s) AS "count", DATE_TRUNC((SELECT * FROM intval), created_at) AS "timestamp"
-    FROM campaign_views
+),
+uniqIDs AS (
+    SELECT DISTINCT ON(subscriber_id) subscriber_id, campaign_id, DATE_TRUNC((SELECT * FROM intval), created_at) AS "timestamp"
+    FROM %s
     WHERE campaign_id=ANY($1) AND created_at >= $2 AND created_at <= $3
-    GROUP BY campaign_id, "timestamp" ORDER BY "timestamp" ASC;
+    ORDER BY subscriber_id, "timestamp"
+)
+SELECT COUNT(*) AS "count", campaign_id, "timestamp"
+    FROM uniqIDs GROUP BY campaign_id, "timestamp";
 
--- name: get-campaign-click-counts
+-- name: get-campaign-analytics-counts
 -- raw: true
--- %s = * or DISTINCT subscriber_id (prepared based on based on individual tracking=on/off). Prepared on boot.
 WITH intval AS (
     -- For intervals < a week, aggregate counts hourly, otherwise daily.
     SELECT CASE WHEN (EXTRACT (EPOCH FROM ($3::TIMESTAMP - $2::TIMESTAMP)) / 86400) >= 7 THEN 'day' ELSE 'hour' END
 )
-SELECT campaign_id, COUNT(%s) AS "count", DATE_TRUNC((SELECT * FROM intval), created_at) AS "timestamp"
-    FROM link_clicks
+SELECT campaign_id, COUNT(*) AS "count", DATE_TRUNC((SELECT * FROM intval), created_at) AS "timestamp"
+    FROM %s
     WHERE campaign_id=ANY($1) AND created_at >= $2 AND created_at <= $3
     GROUP BY campaign_id, "timestamp" ORDER BY "timestamp" ASC;
 
