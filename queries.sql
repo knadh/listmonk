@@ -55,7 +55,7 @@ SELECT id as subscriber_id,
 WITH sub AS (
     INSERT INTO subscribers (uuid, email, name, status, attribs)
     VALUES($1, $2, $3, $4, $5)
-    returning id, status
+    RETURNING id, status
 ),
 listIDs AS (
     SELECT id FROM lists WHERE
@@ -128,12 +128,17 @@ WITH s AS (
 ),
 d AS (
     DELETE FROM subscriber_lists WHERE subscriber_id = $1 AND list_id != ALL($6)
+),
+listIDs AS (
+    SELECT id FROM lists WHERE
+        (CASE WHEN CARDINALITY($6::INT[]) > 0 THEN id=ANY($6)
+              ELSE uuid=ANY($7::UUID[]) END)
 )
 INSERT INTO subscriber_lists (subscriber_id, list_id, status)
     VALUES(
         (SELECT id FROM s),
-        UNNEST($6),
-        (CASE WHEN $4='blocklisted' THEN 'unsubscribed'::subscription_status ELSE $7::subscription_status END)
+        UNNEST(ARRAY(SELECT id FROM listIDs)),
+        (CASE WHEN $4='blocklisted' THEN 'unsubscribed'::subscription_status ELSE $8::subscription_status END)
     )
     ON CONFLICT (subscriber_id, list_id) DO UPDATE
     SET status = (CASE WHEN $4='blocklisted' THEN 'unsubscribed'::subscription_status ELSE subscriber_lists.status END);

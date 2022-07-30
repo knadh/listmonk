@@ -212,7 +212,7 @@ func handleCreateSubscriber(c echo.Context) error {
 	}
 
 	// Insert the subscriber into the DB.
-	sub, _, err := app.core.CreateSubscriber(req.Subscriber, req.Lists, req.ListUUIDs, req.PreconfirmSubs)
+	sub, _, err := app.core.InsertSubscriber(req.Subscriber, req.Lists, req.ListUUIDs, req.PreconfirmSubs)
 	if err != nil {
 		return err
 	}
@@ -251,7 +251,7 @@ func handleUpdateSubscriber(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("subscribers.invalidName"))
 	}
 
-	out, err := app.core.UpdateSubscriber(id, req.Subscriber, req.Lists, req.PreconfirmSubs)
+	out, err := app.core.UpdateSubscriber(id, req.Subscriber, req.Lists, nil, req.PreconfirmSubs)
 	if err != nil {
 		return err
 	}

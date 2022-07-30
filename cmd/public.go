@@ -325,9 +325,19 @@ func handleSubscriptionForm(c echo.Context) error {
 	// Insert the subscriber into the DB.
 	req.Status = models.SubscriberStatusEnabled
 	req.ListUUIDs = pq.StringArray(req.SubListUUIDs)
-	_, hasOptin, err := app.core.CreateSubscriber(req.SubReq.Subscriber, nil, req.ListUUIDs, false)
+	_, hasOptin, err := app.core.InsertSubscriber(req.SubReq.Subscriber, nil, req.ListUUIDs, false)
 	if err != nil {
+		// Subscriber already exists. Update subscriptions.
 		if e, ok := err.(*echo.HTTPError); ok && e.Code == http.StatusConflict {
+			sub, err := app.core.GetSubscriber(0, "", req.Email)
+			if err != nil {
+				return err
+			}
+
+			if _, err := app.core.UpdateSubscriber(sub.ID, sub, nil, req.ListUUIDs, false); err != nil {
+				return err
+			}
+
 			return c.Render(http.StatusOK, tplMessage, makeMsgTpl(app.i18n.T("public.subTitle"), "", app.i18n.Ts(msg)))
 		}
 

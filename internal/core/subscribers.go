@@ -235,10 +235,10 @@ func (c *Core) ExportSubscribers(query string, subIDs, listIDs []int, batchSize 
 	}, nil
 }
 
-// insertSubscriber inserts a subscriber and returns the ID. The first bool indicates if
+// InsertSubscriber inserts a subscriber and returns the ID. The first bool indicates if
 // it was a new subscriber, and the second bool indicates if the subscriber was sent an optin confirmation.
 // bool = optinSent?
-func (c *Core) CreateSubscriber(sub models.Subscriber, listIDs []int, listUUIDs []string, preconfirm bool) (models.Subscriber, bool, error) {
+func (c *Core) InsertSubscriber(sub models.Subscriber, listIDs []int, listUUIDs []string, preconfirm bool) (models.Subscriber, bool, error) {
 	uu, err := uuid.NewV4()
 	if err != nil {
 		c.log.Printf("error generating UUID: %v", err)
@@ -302,7 +302,7 @@ func (c *Core) CreateSubscriber(sub models.Subscriber, listIDs []int, listUUIDs 
 }
 
 // UpdateSubscriber updates a subscriber's properties.
-func (c *Core) UpdateSubscriber(id int, sub models.Subscriber, listIDs []int, preconfirm bool) (models.Subscriber, error) {
+func (c *Core) UpdateSubscriber(id int, sub models.Subscriber, listIDs []int, listUUIDs []string, preconfirm bool) (models.Subscriber, error) {
 	subStatus := models.SubscriptionStatusUnconfirmed
 	if preconfirm {
 		subStatus = models.SubscriptionStatusConfirmed
@@ -326,6 +326,7 @@ func (c *Core) UpdateSubscriber(id int, sub models.Subscriber, listIDs []int, pr
 		sub.Status,
 		json.RawMessage(attribs),
 		pq.Array(listIDs),
+		pq.Array(listUUIDs),
 		subStatus)
 	if err != nil {
 		c.log.Printf("error updating subscriber: %v", err)
