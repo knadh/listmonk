@@ -62,6 +62,7 @@
                     <b-input v-model="item.password"
                       :disabled="item.auth_protocol === 'none'"
                       name="password" type="password"
+                      :custom-class="`password-${n}`"
                       :placeholder="$t('settings.mailserver.passwordHelp')"
                       :maxlength="200" />
                   </b-field>
@@ -160,7 +161,7 @@
             </div>
             <hr />
 
-            <form @submit.prevent="() => doSMTPTest(item)">
+            <form @submit.prevent="() => doSMTPTest(item, n)">
               <div class="columns">
                 <template v-if="smtpTestItem === n">
                   <div class="column is-5">
@@ -178,7 +179,7 @@
                 </template>
                 <div class="column has-text-right">
                   <b-button v-if="smtpTestItem === n" class="is-primary"
-                    :disabled="isTestEnabled(item)" @click.prevent="() => doSMTPTest(item)">
+                    @click.prevent="() => doSMTPTest(item, n)">
                     {{ $t('settings.smtp.sendTest') }}
                   </b-button>
                   <a href="#" v-else class="is-primary" @click.prevent="showTestForm(n)">
@@ -296,7 +297,18 @@ export default Vue.extend({
       }
     },
 
-    doSMTPTest(item) {
+    doSMTPTest(item, n) {
+      if (!this.isTestEnabled(item)) {
+        this.$utils.toast(this.$t('settings.smtp.testEnterEmail'), 'is-danger');
+        this.$nextTick(() => {
+          const i = document.querySelector(`.password-${n}`);
+          i.focus();
+          i.select();
+        });
+        return;
+      }
+
+
       this.errMsg = '';
       this.$api.testSMTP({ ...item, email: this.testEmail }).then(() => {
         this.$utils.toast(this.$t('campaigns.testSent'));
@@ -319,13 +331,13 @@ export default Vue.extend({
 
     isTestEnabled(item) {
       if (!item.host || !item.port) {
-        return true;
+        return false;
       }
       if (item.auth_protocol !== 'none' && !item.password.trim()) {
-        return true;
+        return false;
       }
 
-      return false;
+      return true;
     },
 
     fillSettings(n, key) {
