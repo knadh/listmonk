@@ -283,19 +283,25 @@ func readQueries(sqlFile string, db *sqlx.DB, fs stuffbin.FileSystem) goyesql.Qu
 
 // prepareQueries queries prepares a query map and returns a *Queries
 func prepareQueries(qMap goyesql.Queries, db *sqlx.DB, ko *koanf.Koanf) *models.Queries {
-	// The campaign view/click count queries have a COUNT(%s) placeholder that should either
-	// be substituted with * to pull non-unique rows when individual subscriber tracking is off
-	// as all subscriber_ids will be null, or with DISTINCT subscriber_id when tracking is on
-	// to only pull unique rows per subscriber.
-	sel := "*"
+	var (
+		countQuery = "get-campaign-analytics-counts"
+		linkSel    = "*"
+	)
 	if ko.Bool("privacy.individual_tracking") {
-		sel = "DISTINCT subscriber_id"
+		countQuery = "get-campaign-analytics-unique-counts"
+		linkSel = "DISTINCT subscriber_id"
 	}
 
-	keys := []string{"get-campaign-view-counts", "get-campaign-click-counts", "get-campaign-link-counts"}
-	for _, k := range keys {
-		qMap[k].Query = fmt.Sprintf(qMap[k].Query, sel)
+	// These don't exist in the SQL file but are in the queries struct to be prepared.
+	qMap["get-campaign-view-counts"] = &goyesql.Query{
+		Query: fmt.Sprintf(qMap[countQuery].Query, "campaign_views"),
+		Tags:  map[string]string{"name": "get-campaign-view-counts"},
 	}
+	qMap["get-campaign-click-counts"] = &goyesql.Query{
+		Query: fmt.Sprintf(qMap[countQuery].Query, "link_clicks"),
+		Tags:  map[string]string{"name": "get-campaign-click-counts"},
+	}
+	qMap["get-campaign-link-counts"].Query = fmt.Sprintf(qMap["get-campaign-link-counts"].Query, linkSel)
 
 	// Scan and prepare all queries.
 	var q models.Queries

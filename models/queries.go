@@ -50,16 +50,22 @@ type Queries struct {
 	UpdateListsDate *sqlx.Stmt `query:"update-lists-date"`
 	DeleteLists     *sqlx.Stmt `query:"delete-lists"`
 
-	CreateCampaign           *sqlx.Stmt `query:"create-campaign"`
-	QueryCampaigns           string     `query:"query-campaigns"`
-	GetCampaign              *sqlx.Stmt `query:"get-campaign"`
-	GetCampaignForPreview    *sqlx.Stmt `query:"get-campaign-for-preview"`
-	GetCampaignStats         *sqlx.Stmt `query:"get-campaign-stats"`
-	GetCampaignStatus        *sqlx.Stmt `query:"get-campaign-status"`
-	GetCampaignViewCounts    *sqlx.Stmt `query:"get-campaign-view-counts"`
-	GetCampaignClickCounts   *sqlx.Stmt `query:"get-campaign-click-counts"`
-	GetCampaignLinkCounts    *sqlx.Stmt `query:"get-campaign-link-counts"`
-	GetCampaignBounceCounts  *sqlx.Stmt `query:"get-campaign-bounce-counts"`
+	CreateCampaign        *sqlx.Stmt `query:"create-campaign"`
+	QueryCampaigns        string     `query:"query-campaigns"`
+	GetCampaign           *sqlx.Stmt `query:"get-campaign"`
+	GetCampaignForPreview *sqlx.Stmt `query:"get-campaign-for-preview"`
+	GetCampaignStats      *sqlx.Stmt `query:"get-campaign-stats"`
+	GetCampaignStatus     *sqlx.Stmt `query:"get-campaign-status"`
+
+	// These two queries are read as strings and based on settings.individual_tracking=on/off,
+	// are interpolated and copied to view and click counts. Same query, different tables.
+	GetCampaignAnalyticsCounts       string     `query:"get-campaign-analytics-counts"`
+	GetCampaignAnalyticsCountsUnique string     `query:"get-campaign-analytics-unique-counts"`
+	GetCampaignViewCounts            *sqlx.Stmt `query:"get-campaign-view-counts"`
+	GetCampaignClickCounts           *sqlx.Stmt `query:"get-campaign-click-counts"`
+	GetCampaignLinkCounts            *sqlx.Stmt `query:"get-campaign-link-counts"`
+	GetCampaignBounceCounts          *sqlx.Stmt `query:"get-campaign-bounce-counts"`
+
 	NextCampaigns            *sqlx.Stmt `query:"next-campaigns"`
 	NextCampaignSubscribers  *sqlx.Stmt `query:"next-campaign-subscribers"`
 	GetOneCampaignSubscriber *sqlx.Stmt `query:"get-one-campaign-subscriber"`
