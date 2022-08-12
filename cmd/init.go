@@ -586,6 +586,9 @@ func initNotifTemplates(path string, fs stuffbin.FileSystem, i *i18n.I18n, cs *c
 		"L": func() *i18n.I18n {
 			return i
 		},
+		"safe": func(s string) template.HTML {
+			return template.HTML(s)
+		},
 	}
 
 	tpls, err := stuffbin.ParseTemplatesGlob(funcs, fs, "/static/email-templates/*.html")
