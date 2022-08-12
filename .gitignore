@@ -3,8 +3,10 @@ frontend/.cache/
 frontend/yarn.lock
 frontend/build/
 .vscode/
+.idea/
 
 config.toml
 node_modules
-listmonk
+listmonk*
+cmd/listmonk*
 dist/*
