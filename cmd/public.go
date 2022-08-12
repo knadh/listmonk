@@ -209,14 +209,15 @@ func handleOptinPage(c echo.Context) error {
 	}
 
 	// Get the list of subscription lists where the subscriber hasn't confirmed.
-	lists, err := app.core.GetSubscriberLists(0, subUUID, nil, out.ListUUIDs, models.SubscriptionStatusUnconfirmed, "")
+	var err error
+	out.Lists, err = app.core.GetSubscriberLists(0, subUUID, nil, out.ListUUIDs, models.SubscriptionStatusUnconfirmed, "")
 	if err != nil {
 		return c.Render(http.StatusInternalServerError, tplMessage,
 			makeMsgTpl(app.i18n.T("public.errorTitle"), "", app.i18n.Ts("public.errorFetchingLists")))
 	}
 
 	// There are no lists to confirm.
-	if len(lists) == 0 {
+	if len(out.Lists) == 0 {
 		return c.Render(http.StatusOK, tplMessage,
 			makeMsgTpl(app.i18n.T("public.noSubTitle"), "", app.i18n.Ts("public.noSubInfo")))
 	}
