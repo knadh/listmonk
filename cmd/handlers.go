@@ -141,6 +141,9 @@ func initHTTPHandlers(e *echo.Echo, app *App) {
 
 	g.POST("/api/tx", handleSendTxMessage)
 
+	g.GET("/api/public/lists", handleGetLists)
+	g.POST("/api/public/subscription", handleSubscriptionForm)
+
 	if app.constants.BounceWebhooksEnabled {
 		// Private authenticated bounce endpoint.
 		g.POST("/webhooks/bounce", handleBounceWebhook)

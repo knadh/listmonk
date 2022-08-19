@@ -264,6 +264,10 @@ func handleSubscriptionFormPage(c echo.Context) error {
 	out.Title = app.i18n.T("public.sub")
 	out.Lists = lists
 
+	if c.Request().Header.Get(echo.HeaderAccept) == "application/json" {
+		return c.JSON(http.StatusInternalServerError, makeMsgTpl(out.Title, "success", "subscribed"))
+	}
+
 	return c.Render(http.StatusOK, "subscription-form", out)
 }
 
@@ -283,14 +287,22 @@ func handleSubscriptionForm(c echo.Context) error {
 		return err
 	}
 
+	isJsonRequest := c.Request().Header.Get(echo.HeaderAccept) == "application/json"
+
 	// If there's a nonce value, a bot could've filled the form.
 	if c.FormValue("nonce") != "" {
+		if isJsonRequest {
+			return c.JSON(http.StatusBadRequest, app.i18n.T("public.invalidFeature"))
+		}
 		return c.Render(http.StatusOK, tplMessage,
 			makeMsgTpl(app.i18n.T("public.errorTitle"), "", app.i18n.T("public.invalidFeature")))
 
 	}
 
 	if len(req.SubListUUIDs) == 0 {
+		if isJsonRequest {
+			return c.JSON(http.StatusBadRequest, app.i18n.T("public.noListsSelected"))
+		}
 		return c.Render(http.StatusBadRequest, tplMessage,
 			makeMsgTpl(app.i18n.T("public.errorTitle"), "", app.i18n.T("public.noListsSelected")))
 	}
@@ -303,12 +315,19 @@ func handleSubscriptionForm(c echo.Context) error {
 
 	// Validate fields.
 	if len(req.Email) > 1000 {
+		if isJsonRequest {
+			return c.JSON(http.StatusBadRequest, app.i18n.T("subscribers.invalidEmail"))
+		}
 		return c.Render(http.StatusBadRequest, tplMessage,
 			makeMsgTpl(app.i18n.T("public.errorTitle"), "", app.i18n.T("subscribers.invalidEmail")))
 	}
 
 	em, err := app.importer.SanitizeEmail(req.Email)
 	if err != nil {
+		if isJsonRequest {
+			return c.JSON(http.StatusBadRequest,
+				makeMsgTpl(app.i18n.T("public.errorTitle"), "", err.Error()))
+		}
 		return c.Render(http.StatusBadRequest, tplMessage,
 			makeMsgTpl(app.i18n.T("public.errorTitle"), "", err.Error()))
 	}
@@ -316,6 +335,10 @@ func handleSubscriptionForm(c echo.Context) error {
 
 	req.Name = strings.TrimSpace(req.Name)
 	if len(req.Name) == 0 || len(req.Name) > stdInputMaxLen {
+		if isJsonRequest {
+			return c.JSON(http.StatusBadRequest,
+				makeMsgTpl(app.i18n.T("public.errorTitle"), "", app.i18n.T("subscribers.invalidName")))
+		}
 		return c.Render(http.StatusBadRequest, tplMessage,
 			makeMsgTpl(app.i18n.T("public.errorTitle"), "", app.i18n.T("subscribers.invalidName")))
 	}
@@ -338,7 +361,15 @@ func handleSubscriptionForm(c echo.Context) error {
 				return err
 			}
 
+			if isJsonRequest {
+				return c.JSON(http.StatusOK, okResp{Data: app.i18n.Ts(msg)})
+			}
+
 			return c.Render(http.StatusOK, tplMessage, makeMsgTpl(app.i18n.T("public.subTitle"), "", app.i18n.Ts(msg)))
+		}
+
+		if isJsonRequest {
+			return c.JSON(http.StatusInternalServerError, err.(*echo.HTTPError).Message)
 		}
 
 		return c.Render(http.StatusInternalServerError, tplMessage,
@@ -347,6 +378,10 @@ func handleSubscriptionForm(c echo.Context) error {
 
 	if hasOptin {
 		msg = "public.subOptinPending"
+	}
+
+	if isJsonRequest {
+		return c.JSON(http.StatusOK, okResp{Data: makeMsgTpl(app.i18n.T("public.subTitle"), "", app.i18n.Ts(msg))})
 	}
 
 	return c.Render(http.StatusOK, tplMessage, makeMsgTpl(app.i18n.T("public.subTitle"), "", app.i18n.Ts(msg)))
