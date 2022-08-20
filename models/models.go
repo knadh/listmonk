@@ -600,6 +600,8 @@ func (m *TxMessage) Render(sub Subscriber, tpl *Template) error {
 		}
 		m.Subject = b.String()
 		b.Reset()
+	} else {
+		m.Subject = tpl.Subject
 	}
 
 	return nil
