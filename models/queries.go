@@ -126,7 +126,7 @@ func (q *Queries) CompileSubscriberQueryTpl(exp string, db *sqlx.DB) (string, er
 // compileSubscriberQueryTpl takes an arbitrary WHERE expressions and a subscriber
 // query template that depends on the filter (eg: delete by query, blocklist by query etc.)
 // combines and executes them.
-func (q *Queries) ExecSubscriberQueryTpl(exp, tpl string, listIDs []int, db *sqlx.DB, args ...interface{}) error {
+func (q *Queries) ExecSubQueryTpl(exp, tpl string, listIDs []int, db *sqlx.DB, args ...interface{}) error {
 	// Perform a dry run.
 	filterExp, err := q.CompileSubscriberQueryTpl(exp, db)
 	if err != nil {
