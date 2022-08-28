@@ -14,7 +14,6 @@ import (
 
 	"github.com/knadh/listmonk/internal/i18n"
 	"github.com/knadh/listmonk/internal/messenger"
-	"github.com/knadh/listmonk/internal/subimporter"
 	"github.com/knadh/listmonk/models"
 	"github.com/labstack/echo/v4"
 	"github.com/lib/pq"
@@ -86,6 +85,35 @@ func (t *tplRenderer) Render(w io.Writer, name string, data interface{}, c echo.
 		Data:       data,
 		L:          c.Get("app").(*App).i18n,
 	})
+}
+
+// handleGetPublicLists returns the list of public lists with minimal fields
+// required to submit a subscription.
+func handleGetPublicLists(c echo.Context) error {
+	var (
+		app = c.Get("app").(*App)
+	)
+
+	// Get all public lists.
+	lists, err := app.core.GetLists(models.ListTypePublic)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("public.errorFetchingLists"))
+	}
+
+	type list struct {
+		UUID string `json:"uuid"`
+		Name string `json:"name"`
+	}
+
+	out := make([]list, 0, len(lists))
+	for _, l := range lists {
+		out = append(out, list{
+			UUID: l.UUID,
+			Name: l.Name,
+		})
+	}
+
+	return c.JSON(http.StatusOK, out)
 }
 
 // handleViewCampaignMessage renders the HTML view of a campaign message.
@@ -272,84 +300,44 @@ func handleSubscriptionFormPage(c echo.Context) error {
 func handleSubscriptionForm(c echo.Context) error {
 	var (
 		app = c.Get("app").(*App)
-		req struct {
-			subimporter.SubReq
-			SubListUUIDs []string `form:"l"`
-		}
 	)
-
-	// Get and validate fields.
-	if err := c.Bind(&req); err != nil {
-		return err
-	}
 
 	// If there's a nonce value, a bot could've filled the form.
 	if c.FormValue("nonce") != "" {
-		return c.Render(http.StatusOK, tplMessage,
-			makeMsgTpl(app.i18n.T("public.errorTitle"), "", app.i18n.T("public.invalidFeature")))
+		return echo.NewHTTPError(http.StatusBadGateway, app.i18n.T("public.invalidFeature"))
 
 	}
 
-	if len(req.SubListUUIDs) == 0 {
-		return c.Render(http.StatusBadRequest, tplMessage,
-			makeMsgTpl(app.i18n.T("public.errorTitle"), "", app.i18n.T("public.noListsSelected")))
-	}
-
-	// If there's no name, use the name bit from the e-mail.
-	req.Name = strings.TrimSpace(req.Name)
-	if req.Name == "" {
-		req.Name = strings.Split(req.Email, "@")[0]
-	}
-
-	// Validate fields.
-	if len(req.Email) > 1000 {
-		return c.Render(http.StatusBadRequest, tplMessage,
-			makeMsgTpl(app.i18n.T("public.errorTitle"), "", app.i18n.T("subscribers.invalidEmail")))
-	}
-
-	em, err := app.importer.SanitizeEmail(req.Email)
+	hasOptin, err := processSubForm(c)
 	if err != nil {
-		return c.Render(http.StatusBadRequest, tplMessage,
-			makeMsgTpl(app.i18n.T("public.errorTitle"), "", err.Error()))
-	}
-	req.Email = em
+		e, ok := err.(*echo.HTTPError)
+		if !ok {
+			return e
+		}
 
-	req.Name = strings.TrimSpace(req.Name)
-	if len(req.Name) == 0 || len(req.Name) > stdInputMaxLen {
-		return c.Render(http.StatusBadRequest, tplMessage,
-			makeMsgTpl(app.i18n.T("public.errorTitle"), "", app.i18n.T("subscribers.invalidName")))
+		return c.Render(e.Code, tplMessage,
+			makeMsgTpl(app.i18n.T("public.errorTitle"), "", fmt.Sprintf("%s", e.Message)))
 	}
 
 	msg := "public.subConfirmed"
-
-	// Insert the subscriber into the DB.
-	req.Status = models.SubscriberStatusEnabled
-	req.ListUUIDs = pq.StringArray(req.SubListUUIDs)
-	_, hasOptin, err := app.core.InsertSubscriber(req.SubReq.Subscriber, nil, req.ListUUIDs, false)
-	if err != nil {
-		// Subscriber already exists. Update subscriptions.
-		if e, ok := err.(*echo.HTTPError); ok && e.Code == http.StatusConflict {
-			sub, err := app.core.GetSubscriber(0, "", req.Email)
-			if err != nil {
-				return err
-			}
-
-			if _, err := app.core.UpdateSubscriber(sub.ID, sub, nil, req.ListUUIDs, false); err != nil {
-				return err
-			}
-
-			return c.Render(http.StatusOK, tplMessage, makeMsgTpl(app.i18n.T("public.subTitle"), "", app.i18n.Ts(msg)))
-		}
-
-		return c.Render(http.StatusInternalServerError, tplMessage,
-			makeMsgTpl(app.i18n.T("public.errorTitle"), "", fmt.Sprintf("%s", err.(*echo.HTTPError).Message)))
-	}
-
 	if hasOptin {
 		msg = "public.subOptinPending"
 	}
 
 	return c.Render(http.StatusOK, tplMessage, makeMsgTpl(app.i18n.T("public.subTitle"), "", app.i18n.Ts(msg)))
+}
+
+// handleSubscriptionForm handles subscription requests coming from public
+// API calls.
+func handlePublicSubscription(c echo.Context) error {
+	hasOptin, err := processSubForm(c)
+	if err != nil {
+		return err
+	}
+
+	return c.JSON(http.StatusOK, okResp{struct {
+		HasOptin bool `json:"has_optin"`
+	}{hasOptin}})
 }
 
 // handleLinkRedirect redirects a link UUID to its original underlying link
@@ -496,4 +484,77 @@ func drawTransparentImage(h, w int) []byte {
 	)
 	_ = png.Encode(out, img)
 	return out.Bytes()
+}
+
+// processSubForm processes an incoming form/public API subscription request.
+// The bool indicates whether there was subscription to an optin list so that
+// an appropriate message can be shown.
+func processSubForm(c echo.Context) (bool, error) {
+	var (
+		app = c.Get("app").(*App)
+		req struct {
+			Name          string   `form:"name" json:"name"`
+			Email         string   `form:"email" json:"email"`
+			FormListUUIDs []string `form:"l" json:"list_uuids"`
+		}
+	)
+
+	// Get and validate fields.
+	if err := c.Bind(&req); err != nil {
+		return false, err
+	}
+
+	if len(req.FormListUUIDs) == 0 {
+		return false, echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("public.noListsSelected"))
+	}
+
+	// If there's no name, use the name bit from the e-mail.
+	req.Name = strings.TrimSpace(req.Name)
+	if req.Name == "" {
+		req.Name = strings.Split(req.Email, "@")[0]
+	}
+
+	// Validate fields.
+	if len(req.Email) > 1000 {
+		return false, echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("subscribers.invalidEmail"))
+	}
+
+	em, err := app.importer.SanitizeEmail(req.Email)
+	if err != nil {
+		return false, echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+	req.Email = em
+
+	req.Name = strings.TrimSpace(req.Name)
+	if len(req.Name) == 0 || len(req.Name) > stdInputMaxLen {
+		return false, echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("subscribers.invalidName"))
+	}
+
+	listUUIDs := pq.StringArray(req.FormListUUIDs)
+
+	// Insert the subscriber into the DB.
+	_, hasOptin, err := app.core.InsertSubscriber(models.Subscriber{
+		Name:   req.Name,
+		Email:  req.Email,
+		Status: models.SubscriberStatusEnabled,
+	}, nil, listUUIDs, false)
+	if err != nil {
+		// Subscriber already exists. Update subscriptions.
+		if e, ok := err.(*echo.HTTPError); ok && e.Code == http.StatusConflict {
+			sub, err := app.core.GetSubscriber(0, "", req.Email)
+			if err != nil {
+				return false, err
+			}
+
+			if _, err := app.core.UpdateSubscriber(sub.ID, sub, nil, listUUIDs, false); err != nil {
+				return false, err
+			}
+
+			return false, nil
+		}
+
+		return false, echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("%s", err.(*echo.HTTPError).Message))
+	}
+
+	return hasOptin, nil
 }

@@ -149,6 +149,10 @@ func initHTTPHandlers(e *echo.Echo, app *App) {
 		e.POST("/webhooks/service/:service", handleBounceWebhook)
 	}
 
+	// Public API endpoints.
+	e.GET("/api/public/lists", handleGetPublicLists)
+	e.POST("/api/public/subscription", handlePublicSubscription)
+
 	// /public/static/* file server is registered in initHTTPServer().
 	// Public subscriber facing views.
 	e.GET("/subscription/form", handleSubscriptionFormPage)
