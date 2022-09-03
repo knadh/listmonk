@@ -289,3 +289,12 @@ export const getLang = async (lang) => http.get(`/api/lang/${lang}`,
 export const logout = async () => http.get('/api/logout', {
   auth: { username: 'wrong', password: 'wrong' },
 });
+
+export const deleteGCCampaignAnalytics = async (typ, beforeDate) => http.delete(`/api/maintenance/analytics/${typ}`,
+  { loading: models.maintenance, params: { before_date: beforeDate } });
+
+export const deleteGCSubscribers = async (typ) => http.delete(`/api/maintenance/subscribers/${typ}`,
+  { loading: models.maintenance });
+
+export const deleteGCSubscriptions = async (beforeDate) => http.delete('/api/maintenance/subscriptions/unconfirmed',
+  { loading: models.maintenance, params: { before_date: beforeDate } });

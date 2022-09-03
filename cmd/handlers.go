@@ -139,6 +139,10 @@ func initHTTPHandlers(e *echo.Echo, app *App) {
 	g.PUT("/api/templates/:id/default", handleTemplateSetDefault)
 	g.DELETE("/api/templates/:id", handleDeleteTemplate)
 
+	g.DELETE("/api/maintenance/subscribers/:type", handleGCSubscribers)
+	g.DELETE("/api/maintenance/analytics/:type", handleGCCampaignAnalytics)
+	g.DELETE("/api/maintenance/subscriptions/unconfirmed", handleGCSubscriptions)
+
 	g.POST("/api/tx", handleSendTxMessage)
 
 	if app.constants.BounceWebhooksEnabled {
