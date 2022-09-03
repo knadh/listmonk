@@ -40,6 +40,7 @@
   /* text-shadow: 1px 1px 1px rgba(127, 127, 127, 0.3); */
 }
 
+
 .mdi-view-dashboard-variant-outline:before { content: '\e800'; } /* '' */
 .mdi-format-list-bulleted-square:before { content: '\e801'; } /* '' */
 .mdi-newspaper-variant-outline:before { content: '\e802'; } /* '' */
@@ -80,3 +81,4 @@
 .mdi-email-bounce:before { content: '\e825'; } /* '' */
 .mdi-speedometer:before { content: '\e826'; } /* '' */
 .mdi-logout-variant:before { content: '󰗽'; } /* '\f05fd' */
+.mdi-wrench-outline:before { content: '󰯠'; } /* '\f0be0' */

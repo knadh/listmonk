@@ -147,6 +147,13 @@ INSERT INTO subscriber_lists (subscriber_id, list_id, status)
 -- Delete one or more subscribers by ID or UUID.
 DELETE FROM subscribers WHERE CASE WHEN ARRAY_LENGTH($1::INT[], 1) > 0 THEN id = ANY($1) ELSE uuid = ANY($2::UUID[]) END;
 
+-- name: delete-blocklisted-subscribers
+DELETE FROM subscribers WHERE status = 'blocklisted';
+
+-- name: delete-orphan-subscribers
+DELETE FROM subscribers a WHERE NOT EXISTS
+    (SELECT 1 FROM subscriber_lists b WHERE b.subscriber_id = a.id);
+
 -- name: blocklist-subscribers
 WITH b AS (
     UPDATE subscribers SET status='blocklisted', updated_at=NOW()
@@ -195,6 +202,13 @@ UPDATE subscriber_lists SET status = 'unsubscribed' WHERE
     subscriber_id = (SELECT id FROM sub) AND status != 'unsubscribed' AND
     -- If $3 is false, unsubscribe from the campaign's lists, otherwise all lists.
     CASE WHEN $3 IS FALSE THEN list_id = ANY(SELECT list_id FROM lists) ELSE list_id != 0 END;
+
+-- name: delete-unconfirmed-subscriptions
+WITH optins AS (
+    SELECT id FROM lists WHERE optin = 'double'
+)
+DELETE FROM subscriber_lists
+    WHERE status = 'unconfirmed' AND list_id IN (SELECT id FROM optins) AND created_at < $1;
 
 -- privacy
 -- name: export-subscriber-data
@@ -669,6 +683,12 @@ u AS (
     WHERE (SELECT COUNT(id) FROM subs) > 0 AND id=$1
 )
 SELECT * FROM subs;
+
+-- name: delete-campaign-views
+DELETE FROM campaign_views WHERE created_at < $1;
+
+-- name: delete-campaign-link-clicks
+DELETE FROM link_clicks WHERE created_at < $1;
 
 -- name: get-one-campaign-subscriber
 SELECT * FROM subscribers

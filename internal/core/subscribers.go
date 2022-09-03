@@ -432,3 +432,29 @@ func (c *Core) DeleteSubscriberBounces(id int, uuid string) error {
 
 	return nil
 }
+
+// DeleteOrphanSubscribers deletes orphan subscriber records (subscribers without lists).
+func (c *Core) DeleteOrphanSubscribers() (int, error) {
+	res, err := c.q.DeleteOrphanSubscribers.Exec()
+	if err != nil {
+		c.log.Printf("error deleting orphan subscribers: %v", err)
+		return 0, echo.NewHTTPError(http.StatusInternalServerError,
+			c.i18n.Ts("globals.messages.errorDeleting", "name", "{globals.terms.subscribers}", "error", pqErrMsg(err)))
+	}
+
+	n, _ := res.RowsAffected()
+	return int(n), nil
+}
+
+// DeleteBlocklistedSubscribers deletes blocklisted subscribers.
+func (c *Core) DeleteBlocklistedSubscribers() (int, error) {
+	res, err := c.q.DeleteBlocklistedSubscribers.Exec()
+	if err != nil {
+		c.log.Printf("error deleting blocklisted subscribers: %v", err)
+		return 0, echo.NewHTTPError(http.StatusInternalServerError,
+			c.i18n.Ts("globals.messages.errorDeleting", "name", "{globals.terms.subscribers}", "error", pqErrMsg(err)))
+	}
+
+	n, _ := res.RowsAffected()
+	return int(n), nil
+}

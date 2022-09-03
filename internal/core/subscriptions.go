@@ -2,6 +2,7 @@ package core
 
 import (
 	"net/http"
+	"time"
 
 	"github.com/labstack/echo/v4"
 	"github.com/lib/pq"
@@ -90,4 +91,18 @@ func (c *Core) UnsubscribeListsByQuery(query string, sourceListIDs, targetListID
 	}
 
 	return nil
+}
+
+// DeleteUnconfirmedSubscriptions sets list subscriptions to 'ubsubscribed' by a given arbitrary query expression.
+// sourceListIDs is the list of list IDs to filter the subscriber query with.
+func (c *Core) DeleteUnconfirmedSubscriptions(beforeDate time.Time) (int, error) {
+	res, err := c.q.DeleteUnconfirmedSubscriptions.Exec(beforeDate)
+	if err != nil {
+		c.log.Printf("error deleting unconfirmed subscribers: %v", err)
+		return 0, echo.NewHTTPError(http.StatusInternalServerError,
+			c.i18n.Ts("globals.messages.errorDeleting", "name", "{globals.terms.subscribers}", "error", pqErrMsg(err)))
+	}
+
+	n, _ := res.RowsAffected()
+	return int(n), nil
 }

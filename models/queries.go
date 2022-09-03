@@ -25,9 +25,12 @@ type Queries struct {
 	BlocklistSubscribers            *sqlx.Stmt `query:"blocklist-subscribers"`
 	AddSubscribersToLists           *sqlx.Stmt `query:"add-subscribers-to-lists"`
 	DeleteSubscriptions             *sqlx.Stmt `query:"delete-subscriptions"`
+	DeleteUnconfirmedSubscriptions  *sqlx.Stmt `query:"delete-unconfirmed-subscriptions"`
 	ConfirmSubscriptionOptin        *sqlx.Stmt `query:"confirm-subscription-optin"`
 	UnsubscribeSubscribersFromLists *sqlx.Stmt `query:"unsubscribe-subscribers-from-lists"`
 	DeleteSubscribers               *sqlx.Stmt `query:"delete-subscribers"`
+	DeleteBlocklistedSubscribers    *sqlx.Stmt `query:"delete-blocklisted-subscribers"`
+	DeleteOrphanSubscribers         *sqlx.Stmt `query:"delete-orphan-subscribers"`
 	UnsubscribeByCampaign           *sqlx.Stmt `query:"unsubscribe-by-campaign"`
 	ExportSubscriberData            *sqlx.Stmt `query:"export-subscriber-data"`
 
@@ -65,6 +68,8 @@ type Queries struct {
 	GetCampaignClickCounts           *sqlx.Stmt `query:"get-campaign-click-counts"`
 	GetCampaignLinkCounts            *sqlx.Stmt `query:"get-campaign-link-counts"`
 	GetCampaignBounceCounts          *sqlx.Stmt `query:"get-campaign-bounce-counts"`
+	DeleteCampaignViews              *sqlx.Stmt `query:"delete-campaign-views"`
+	DeleteCampaignLinkClicks         *sqlx.Stmt `query:"delete-campaign-link-clicks"`
 
 	NextCampaigns            *sqlx.Stmt `query:"next-campaigns"`
 	NextCampaignSubscribers  *sqlx.Stmt `query:"next-campaign-subscribers"`

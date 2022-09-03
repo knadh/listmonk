@@ -3,6 +3,7 @@ package core
 import (
 	"database/sql"
 	"net/http"
+	"time"
 
 	"github.com/gofrs/uuid"
 	"github.com/jmoiron/sqlx"
@@ -341,4 +342,24 @@ func (c *Core) RegisterCampaignLinkClick(linkUUID, campUUID, subUUID string) (st
 	}
 
 	return url, nil
+}
+
+// DeleteCampaignViews deletes campaign views older than a given date.
+func (c *Core) DeleteCampaignViews(before time.Time) error {
+	if _, err := c.q.DeleteCampaignViews.Exec(before); err != nil {
+		c.log.Printf("error deleting campaign views: %s", err)
+		return echo.NewHTTPError(http.StatusInternalServerError, c.i18n.Ts("public.errorProcessingRequest"))
+	}
+
+	return nil
+}
+
+// DeleteCampaignLinkClicks deletes campaign views older than a given date.
+func (c *Core) DeleteCampaignLinkClicks(before time.Time) error {
+	if _, err := c.q.DeleteCampaignLinkClicks.Exec(before); err != nil {
+		c.log.Printf("error deleting campaign link clicks: %s", err)
+		return echo.NewHTTPError(http.StatusInternalServerError, c.i18n.Ts("public.errorProcessingRequest"))
+	}
+
+	return nil
 }
