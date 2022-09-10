@@ -248,6 +248,7 @@ func handleOptinPage(c echo.Context) error {
 		return c.Render(http.StatusOK, tplMessage,
 			makeMsgTpl(app.i18n.T("public.noSubTitle"), "", app.i18n.Ts("public.noSubInfo")))
 	}
+	out.Lists = lists
 
 	// Confirm.
 	if confirm {
