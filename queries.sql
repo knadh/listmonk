@@ -811,7 +811,7 @@ SELECT id FROM tpl;
 
 -- media
 -- name: insert-media
-INSERT INTO media (uuid, filename, thumb, provider, created_at) VALUES($1, $2, $3, $4, NOW()) RETURNING id;
+INSERT INTO media (uuid, filename, thumb, provider, meta, created_at) VALUES($1, $2, $3, $4, $5, NOW()) RETURNING id;
 
 -- name: get-all-media
 SELECT * FROM media WHERE provider=$1 ORDER BY created_at DESC;

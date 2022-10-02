@@ -8,6 +8,7 @@ import (
 	"strconv"
 
 	"github.com/disintegration/imaging"
+	"github.com/knadh/listmonk/models"
 	"github.com/labstack/echo/v4"
 )
 
@@ -78,7 +79,7 @@ func handleUploadMedia(c echo.Context) error {
 	}()
 
 	// Create thumbnail from file.
-	thumbFile, err := createThumbnail(file)
+	thumbFile, width, height, err := processImage(file)
 	if err != nil {
 		cleanUp = true
 		app.log.Printf("error resizing image: %v", err)
@@ -96,7 +97,11 @@ func handleUploadMedia(c echo.Context) error {
 	}
 
 	// Write to the DB.
-	m, err := app.core.InsertMedia(fName, thumbfName, app.constants.MediaProvider, app.media)
+	meta := models.JSON{
+		"width":  width,
+		"height": height,
+	}
+	m, err := app.core.InsertMedia(fName, thumbfName, meta, app.constants.MediaProvider, app.media)
 	if err != nil {
 		cleanUp = true
 		return err
@@ -150,17 +155,18 @@ func handleDeleteMedia(c echo.Context) error {
 	return c.JSON(http.StatusOK, okResp{true})
 }
 
-// createThumbnail reads the file object and returns a smaller image
-func createThumbnail(file *multipart.FileHeader) (*bytes.Reader, error) {
+// processImage reads the image file and returns thumbnail bytes and
+// the original image's width, and height.
+func processImage(file *multipart.FileHeader) (*bytes.Reader, int, int, error) {
 	src, err := file.Open()
 	if err != nil {
-		return nil, err
+		return nil, 0, 0, err
 	}
 	defer src.Close()
 
 	img, err := imaging.Decode(src)
 	if err != nil {
-		return nil, err
+		return nil, 0, 0, err
 	}
 
 	// Encode the image into a byte slice as PNG.
@@ -169,7 +175,9 @@ func createThumbnail(file *multipart.FileHeader) (*bytes.Reader, error) {
 		out   bytes.Buffer
 	)
 	if err := imaging.Encode(&out, thumb, imaging.PNG); err != nil {
-		return nil, err
+		return nil, 0, 0, err
 	}
-	return bytes.NewReader(out.Bytes()), nil
+
+	b := img.Bounds().Max
+	return bytes.NewReader(out.Bytes()), b.X, b.Y, nil
 }

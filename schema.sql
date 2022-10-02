@@ -139,6 +139,7 @@ CREATE TABLE media (
     provider         TEXT NOT NULL DEFAULT '',
     filename         TEXT NOT NULL,
     thumb            TEXT NOT NULL,
+    meta             JSONB NOT NULL DEFAULT '{}',
     created_at       TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 

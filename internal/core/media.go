@@ -5,6 +5,7 @@ import (
 
 	"github.com/gofrs/uuid"
 	"github.com/knadh/listmonk/internal/media"
+	"github.com/knadh/listmonk/models"
 	"github.com/labstack/echo/v4"
 )
 
@@ -45,7 +46,7 @@ func (c *Core) GetMedia(id int, uuid string, s media.Store) (media.Media, error)
 }
 
 // InsertMedia inserts a new media file into the DB.
-func (c *Core) InsertMedia(fileName, thumbName string, provider string, s media.Store) (media.Media, error) {
+func (c *Core) InsertMedia(fileName, thumbName string, meta models.JSON, provider string, s media.Store) (media.Media, error) {
 	uu, err := uuid.NewV4()
 	if err != nil {
 		c.log.Printf("error generating UUID: %v", err)
@@ -55,7 +56,7 @@ func (c *Core) InsertMedia(fileName, thumbName string, provider string, s media.
 
 	// Write to the DB.
 	var newID int
-	if err := c.q.InsertMedia.Get(&newID, uu, fileName, thumbName, provider); err != nil {
+	if err := c.q.InsertMedia.Get(&newID, uu, fileName, thumbName, provider, meta); err != nil {
 		c.log.Printf("error inserting uploaded file to db: %v", err)
 		return media.Media{}, echo.NewHTTPError(http.StatusInternalServerError,
 			c.i18n.Ts("globals.messages.errorCreating", "name", "{globals.terms.media}", "error", pqErrMsg(err)))
