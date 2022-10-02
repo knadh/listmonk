@@ -513,7 +513,7 @@ func easyjsonDf11841fDecodeGithubComKnadhListmonkInternalMessengerPostback1(in *
 				in.Skip()
 			} else {
 				in.Delim('{')
-				out.Attribs = make(models.SubscriberAttribs)
+				out.Attribs = make(models.JSON)
 				for !in.IsDelim('}') {
 					key := string(in.String())
 					in.WantColon()

@@ -536,7 +536,7 @@ func (s *Session) LoadCSV(srcPath string, delim rune) error {
 		// JSON attributes.
 		if len(row["attributes"]) > 0 {
 			var (
-				attribs models.SubscriberAttribs
+				attribs models.JSON
 				b       = []byte(row["attributes"])
 			)
 			if err := json.Unmarshal(b, &attribs); err != nil {

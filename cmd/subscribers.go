@@ -53,7 +53,7 @@ var (
 		Email:   "demo@listmonk.app",
 		Name:    "Demo Subscriber",
 		UUID:    dummyUUID,
-		Attribs: models.SubscriberAttribs{"city": "Bengaluru"},
+		Attribs: models.JSON{"city": "Bengaluru"},
 	}
 
 	subQuerySortFields = []string{"email", "name", "created_at", "updated_at"}

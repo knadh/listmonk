@@ -157,12 +157,12 @@ type User struct {
 type Subscriber struct {
 	Base
 
-	UUID    string            `db:"uuid" json:"uuid"`
-	Email   string            `db:"email" json:"email" form:"email"`
-	Name    string            `db:"name" json:"name" form:"name"`
-	Attribs SubscriberAttribs `db:"attribs" json:"attribs"`
-	Status  string            `db:"status" json:"status"`
-	Lists   types.JSONText    `db:"lists" json:"lists"`
+	UUID    string         `db:"uuid" json:"uuid"`
+	Email   string         `db:"email" json:"email" form:"email"`
+	Name    string         `db:"name" json:"name" form:"name"`
+	Attribs JSON           `db:"attribs" json:"attribs"`
+	Status  string         `db:"status" json:"status"`
+	Lists   types.JSONText `db:"lists" json:"lists"`
 }
 type subLists struct {
 	SubscriberID int            `db:"subscriber_id"`
@@ -178,8 +178,8 @@ type SubscriberExportProfile struct {
 	LinkClicks    json.RawMessage `db:"link_clicks" json:"link_clicks,omitempty"`
 }
 
-// SubscriberAttribs is the map of key:value attributes of a subscriber.
-type SubscriberAttribs map[string]interface{}
+// JSON is is the wrapper for reading and writing arbitrary JSONB fields from the DB.
+type JSON map[string]interface{}
 
 // StringIntMap is used to define DB Scan()s.
 type StringIntMap map[string]int
@@ -398,14 +398,14 @@ func (subs Subscribers) LoadLists(stmt *sqlx.Stmt) error {
 }
 
 // Value returns the JSON marshalled SubscriberAttribs.
-func (s SubscriberAttribs) Value() (driver.Value, error) {
+func (s JSON) Value() (driver.Value, error) {
 	return json.Marshal(s)
 }
 
 // Scan unmarshals JSONB from the DB.
-func (s SubscriberAttribs) Scan(src interface{}) error {
+func (s JSON) Scan(src interface{}) error {
 	if src == nil {
-		s = make(SubscriberAttribs)
+		s = make(JSON)
 		return nil
 	}
 

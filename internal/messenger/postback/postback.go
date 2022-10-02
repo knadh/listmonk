@@ -37,7 +37,7 @@ type recipient struct {
 	UUID    string                   `json:"uuid"`
 	Email   string                   `json:"email"`
 	Name    string                   `json:"name"`
-	Attribs models.SubscriberAttribs `json:"attribs"`
+	Attribs models.JSON `json:"attribs"`
 	Status  string                   `json:"status"`
 }
 
