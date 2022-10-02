@@ -1,0 +1,37 @@
+FROM alpine:latest
+RUN apk --no-cache add ca-certificates tzdata
+WORKDIR /listmonk
+COPY listmonk .
+
+ARG LISTMONK_db__host
+ENV LISTMONK_db__host=${LISTMONK_db__host}
+
+ARG LISTMONK_db__password
+ENV LISTMONK_db__password=${LISTMONK_db__password}
+
+ARG LISTMONK_app__admin_password
+ENV LISTMONK_app__admin_password=${LISTMONK_app__admin_password}
+
+# Optional arguments
+
+ARG LISTMONK_app__address=0.0.0.0:9000
+ENV LISTMONK_app__address=${LISTMONK_app__address}
+
+ARG LISTMONK_app__admin_username=admin
+ENV LISTMONK_app__admin_username=${LISTMONK_app__admin_username}
+
+ARG LISTMONK_db__port=5432
+ENV LISTMONK_db__port=${LISTMONK_db__port}
+
+ARG LISTMONK_db__user=listmonk
+ENV LISTMONK_db__user=${LISTMONK_db__user}
+
+ARG LISTMONK_db__database=listmonk
+ENV LISTMONK_db__database=${LISTMONK_db__database}
+
+ARG LISTMONK_db__ssl_mode=disable
+ENV LISTMONK_db__ssl_mode=${LISTMONK_db__ssl_mode}
+
+EXPOSE 9000
+CMD ./listmonk --install --config="" --yes && ./listmonk --config=""
+
