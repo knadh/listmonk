@@ -6,7 +6,6 @@ import (
 	"sort"
 	"syscall"
 	"time"
-	"strconv"
 
 	"github.com/labstack/echo/v4"
 )
@@ -74,21 +73,14 @@ func handleGetDashboardCharts(c echo.Context) error {
 // handleGetDashboardSubscribersCount returns subscriber count chart data points to render on the dashboard.
 func handleGetDashboardSubscribersCount(c echo.Context) error {
 	var (
-		app = c.Get("app").(*App)
+		app     = c.Get("app").(*App)
 		list_id = c.Param("list_id")
-		months = c.QueryParam("months")
-		out types.JSONText
+		months  = c.QueryParam("months")
 	)
 
-	nrMonths, err := strconv.Atoi(months)
-	interval := "2 months"
-	if err == nil {
-		interval = strconv.Itoa(nrMonths) + " months"
-	}
-	
-	if err := app.queries.GetDashboardSubscribersCount.Get(&out, list_id, interval); err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError,
-			app.i18n.Ts("globals.messages.errorFetching", "name", "dashboard subscriber count", "error", pqErrMsg(err)))
+	out, err := app.core.GetDashboardSubscribersCount(list_id, months)
+	if err != nil {
+		return err
 	}
 
 	return c.JSON(http.StatusOK, okResp{out})
@@ -97,22 +89,14 @@ func handleGetDashboardSubscribersCount(c echo.Context) error {
 // handleGetDashboardDomainsCount returns subscriber e-mail domains chart data points to render on the dashboard.
 func handleGetDashboardDomainsCount(c echo.Context) error {
 	var (
-		app = c.Get("app").(*App)
+		app     = c.Get("app").(*App)
 		list_id = c.Param("list_id")
-		out types.JSONText
 	)
-	if list_id != "" {
-		if err := app.queries.GetDashboardDomainsByList.Get(&out, list_id); err != nil {
-			return echo.NewHTTPError(http.StatusInternalServerError,
-				app.i18n.Ts("globals.messages.errorFetching", "name", "dashboard domain stats", "error", pqErrMsg(err)))
-		}
-	} else {
-		if err := app.queries.GetDashboardDomains.Get(&out); err != nil {
-			return echo.NewHTTPError(http.StatusInternalServerError,
-				app.i18n.Ts("globals.messages.errorFetching", "name", "dashboard domain stats", "error", pqErrMsg(err)))
-		}
-	}
 
+	out, err := app.core.GetDashboardDomainsCount(list_id)
+	if err != nil {
+		return err
+	}
 
 	return c.JSON(http.StatusOK, okResp{out})
 }
