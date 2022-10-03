@@ -525,14 +525,14 @@ body.is-noscroll {
     color: $grey;
   }
 
-  &.private, &.scheduled, &.paused {
+  &.private, &.scheduled, &.paused, &.tx {
     $color: #ed7b00;
     color: $color;
     background: #fff7e6;
     border: 1px solid lighten($color, 37%);
     box-shadow: 1px 1px 0 lighten($color, 37%);
   }
-  &.public, &.running, &.list {
+  &.public, &.running, &.list, &.campaign {
     $color: $primary;
     color: lighten($color, 20%);;
     background: #e6f7ff;
@@ -804,6 +804,11 @@ section.analytics {
 }
 
 /* Template form */
+.templates {
+  td .tag {
+    min-width: 100px;
+  }
+}
 .template-modal {
   .template-modal-content {
     height: 95vh;
@@ -826,6 +831,10 @@ section.analytics {
   .html-editor {
     height: auto;
     min-height: 350px;
+  }
+  .smtp-shortcuts a {
+    margin-right: 15px;
+    display: inline-block;
   }
 }
 
@@ -1032,6 +1041,10 @@ section.analytics {
 @media screen and (max-width: 850px) {
   .page-header .buttons {
     display: block;
+  }
+
+  .b-tabs .tab-content {
+    padding: 15px 0 0 0;
   }
 }
 

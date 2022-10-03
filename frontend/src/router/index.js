@@ -31,7 +31,7 @@ const routes = [
   },
   {
     path: '/lists/:id',
-    name: 'lists',
+    name: 'list',
     meta: { title: 'globals.terms.lists', group: 'lists' },
     component: () => import(/* webpackChunkName: "main" */ '../views/Lists.vue'),
   },
@@ -106,6 +106,12 @@ const routes = [
     name: 'logs',
     meta: { title: 'logs.title', group: 'settings' },
     component: () => import(/* webpackChunkName: "main" */ '../views/Logs.vue'),
+  },
+  {
+    path: '/settings/maintenance',
+    name: 'maintenance',
+    meta: { title: 'logs.title', group: 'settings' },
+    component: () => import(/* webpackChunkName: "main" */ '../views/Maintenance.vue'),
   },
 ];
 

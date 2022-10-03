@@ -58,7 +58,7 @@ export default class Utils {
     }
 
     const d = dayjs(stamp);
-    const day = this.i18n.t(`globals.days.${d.day()}`);
+    const day = this.i18n.t(`globals.days.${d.day() + 1}`);
     const month = this.i18n.t(`globals.months.${d.month() + 1}`);
     let out = d.format(`[${day},] DD [${month}] YYYY`);
     if (showTime) {
@@ -141,12 +141,14 @@ export default class Utils {
     });
   };
 
-  prompt = (msg, inputAttrs, onConfirm, onCancel) => {
+  prompt = (msg, inputAttrs, onConfirm, onCancel, params) => {
+    const p = params || {};
+
     Dialog.prompt({
       scroll: 'keep',
       message: this.escapeHTML(msg),
-      confirmText: this.i18n.t('globals.buttons.ok'),
-      cancelText: this.i18n.t('globals.buttons.cancel'),
+      confirmText: p.confirmText || this.i18n.t('globals.buttons.ok'),
+      cancelText: p.cancelText || this.i18n.t('globals.buttons.cancel'),
       inputAttrs: {
         type: 'string',
         maxlength: 200,

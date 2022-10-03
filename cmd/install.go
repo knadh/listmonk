@@ -109,20 +109,17 @@ func install(lastVer string, db *sqlx.DB, fs stuffbin.FileSystem, prompt, idempo
 		lo.Fatalf("error creating subscriber: %v", err)
 	}
 
-	// Default template.
-	tplBody, err := fs.Get("/static/email-templates/default.tpl")
+	// Default campaign template.
+	campTpl, err := fs.Get("/static/email-templates/default.tpl")
 	if err != nil {
 		lo.Fatalf("error reading default e-mail template: %v", err)
 	}
 
-	var tplID int
-	if err := q.CreateTemplate.Get(&tplID,
-		"Default template",
-		string(tplBody.ReadBytes()),
-	); err != nil {
-		lo.Fatalf("error creating default template: %v", err)
+	var campTplID int
+	if err := q.CreateTemplate.Get(&campTplID, "Default campaign template", models.TemplateTypeCampaign, "", campTpl.ReadBytes()); err != nil {
+		lo.Fatalf("error creating default campaign template: %v", err)
 	}
-	if _, err := q.SetDefaultTemplate.Exec(tplID); err != nil {
+	if _, err := q.SetDefaultTemplate.Exec(campTplID); err != nil {
 		lo.Fatalf("error setting default template: %v", err)
 	}
 
@@ -146,10 +143,20 @@ func install(lastVer string, db *sqlx.DB, fs stuffbin.FileSystem, prompt, idempo
 		json.RawMessage("[]"),
 		pq.StringArray{"test-campaign"},
 		emailMsgr,
-		1,
+		campTplID,
 		pq.Int64Array{1},
 	); err != nil {
 		lo.Fatalf("error creating sample campaign: %v", err)
+	}
+
+	// Sample tx template.
+	txTpl, err := fs.Get("/static/email-templates/sample-tx.tpl")
+	if err != nil {
+		lo.Fatalf("error reading default e-mail template: %v", err)
+	}
+
+	if _, err := q.CreateTemplate.Exec("Sample transactional template", models.TemplateTypeTx, "Welcome {{ .Subscriber.Name }}", txTpl.ReadBytes()); err != nil {
+		lo.Fatalf("error creating sample transactional template: %v", err)
 	}
 
 	lo.Printf("setup complete")

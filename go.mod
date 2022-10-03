@@ -15,16 +15,15 @@ require (
 	github.com/knadh/go-pop3 v0.3.0
 	github.com/knadh/goyesql/v2 v2.1.2
 	github.com/knadh/koanf v1.2.3
-	github.com/knadh/smtppool v0.4.0
+	github.com/knadh/smtppool v1.0.0
 	github.com/knadh/stuffbin v1.1.0
-	github.com/labstack/echo/v4 v4.6.1
-	github.com/labstack/gommon v0.3.1 // indirect
+	github.com/labstack/echo/v4 v4.9.0
 	github.com/lib/pq v1.10.3
 	github.com/mailru/easyjson v0.7.7
 	github.com/mattn/go-colorable v0.1.12 // indirect
 	github.com/mitchellh/mapstructure v1.4.2 // indirect
 	github.com/niemeyer/pretty v0.0.0-20200227124842-a10e7caefd8e // indirect
-	github.com/paulbellamy/ratecounter v0.2.0 // indirect
+	github.com/paulbellamy/ratecounter v0.2.0
 	github.com/pelletier/go-toml v1.9.4 // indirect
 	github.com/rhnvrm/simples3 v0.8.2
 	github.com/spf13/cast v1.4.1 // indirect

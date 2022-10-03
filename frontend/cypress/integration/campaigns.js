@@ -196,7 +196,7 @@ describe('Campaigns', () => {
         cy.wait(250);
 
         // Verify the changes.
-        (function (n) {
+        (function(n) {
           cy.location('pathname').then((p) => {
             cy.request(`${apiUrl}/api/campaigns/${p.split('/').at(-1)}`).should((response) => {
               const { data } = response.body;

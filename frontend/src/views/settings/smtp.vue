@@ -52,7 +52,7 @@
                 <b-field grouped>
                   <b-field :label="$t('settings.mailserver.username')"
                     label-position="on-border" expanded>
-                    <b-input v-model="item.username"
+                    <b-input v-model="item.username" :custom-class="`smtp-username-${n}`"
                       :disabled="item.auth_protocol === 'none'"
                       name="username" placeholder="mysmtp" :maxlength="200" />
                   </b-field>
@@ -62,12 +62,21 @@
                     <b-input v-model="item.password"
                       :disabled="item.auth_protocol === 'none'"
                       name="password" type="password"
+                      :custom-class="`password-${n}`"
                       :placeholder="$t('settings.mailserver.passwordHelp')"
                       :maxlength="200" />
                   </b-field>
                 </b-field>
               </div>
             </div><!-- auth -->
+            <div class="smtp-shortcuts is-size-7">
+              <a href="" @click.prevent="() => fillSettings(n, 'gmail')">Gmail</a>
+              <a href="" @click.prevent="() => fillSettings(n, 'ses')">Amazon SES</a>
+              <a href="" @click.prevent="() => fillSettings(n, 'mailgun')">Mailgun</a>
+              <a href="" @click.prevent="() => fillSettings(n, 'mailjet')">Mailjet</a>
+              <a href="" @click.prevent="() => fillSettings(n, 'sendgrid')">Sendgrid</a>
+              <a href="" @click.prevent="() => fillSettings(n, 'postmark')">Postmark</a>
+            </div>
             <hr />
 
             <div class="columns">
@@ -134,20 +143,61 @@
                 </b-field>
               </div>
             </div>
+
+            <div class="columns">
+              <div class="column">
+                <p v-if="item.email_headers.length === 0 && !item.showHeaders">
+                  <a href="#" class="is-size-7" @click.prevent="() => showSMTPHeaders(n)">
+                    <b-icon icon="plus" />{{ $t('settings.smtp.setCustomHeaders') }}</a>
+                </p>
+                <b-field v-if="item.email_headers.length > 0 || item.showHeaders"
+                  label-position="on-border"
+                  :message="$t('settings.smtp.customHeadersHelp')">
+                  <b-input v-model="item.strEmailHeaders" name="email_headers" type="textarea"
+                    placeholder='[{"X-Custom": "value"}, {"X-Custom2": "value"}]' />
+                </b-field>
+              </div>
+            </div>
             <hr />
 
-            <div>
-              <p v-if="item.email_headers.length === 0 && !item.showHeaders">
-                <a href="#" class="is-size-7" @click.prevent="() => showSMTPHeaders(n)">
-                  <b-icon icon="plus" />{{ $t('settings.smtp.setCustomHeaders') }}</a>
-              </p>
-              <b-field v-if="item.email_headers.length > 0 || item.showHeaders"
-                label-position="on-border"
-                :message="$t('settings.smtp.customHeadersHelp')">
-                <b-input v-model="item.strEmailHeaders" name="email_headers" type="textarea"
-                  placeholder='[{"X-Custom": "value"}, {"X-Custom2": "value"}]' />
-              </b-field>
-            </div>
+            <form @submit.prevent="() => doSMTPTest(item, n)">
+              <div class="columns">
+                <template v-if="smtpTestItem === n">
+                  <div class="column is-5">
+                    <strong>{{ $t('settings.general.fromEmail') }}</strong>
+                    <br />
+                    {{ settings['app.from_email'] }}
+                  </div>
+                  <div class="column is-4">
+                    <b-field :label="$t('settings.smtp.toEmail')" label-position="on-border">
+                      <b-input type="email" required v-model="testEmail"
+                        :ref="'testEmailTo'" placeholder="email@site.com"
+                        :custom-class="`test-email-${n}`" />
+                    </b-field>
+                  </div>
+                </template>
+                <div class="column has-text-right">
+                  <b-button v-if="smtpTestItem === n" class="is-primary"
+                    @click.prevent="() => doSMTPTest(item, n)">
+                    {{ $t('settings.smtp.sendTest') }}
+                  </b-button>
+                  <a href="#" v-else class="is-primary" @click.prevent="showTestForm(n)">
+                    <b-icon icon="rocket-launch-outline" /> {{ $t('settings.smtp.testConnection') }}
+                  </a>
+                </div>
+                <div class="columns">
+                  <div class="column">
+                  </div>
+                </div>
+              </div>
+              <div v-if="errMsg && smtpTestItem === n">
+                <b-field class="mt-4" type="is-danger">
+                  <b-input v-model="errMsg" type="textarea"
+                    custom-class="has-text-danger is-size-6" readonly />
+                </b-field>
+              </div>
+            </form><!-- smtp test -->
+
           </div>
         </div><!-- second container column -->
       </div><!-- block -->
@@ -161,7 +211,29 @@
 
 <script>
 import Vue from 'vue';
+import { mapState } from 'vuex';
 import { regDuration } from '../../constants';
+
+const smtpTemplates = {
+  gmail: {
+    host: 'smtp.gmail.com', port: 465, auth_protocol: 'login', tls_type: 'TLS',
+  },
+  ses: {
+    host: 'email-smtp.YOUR-REGION.amazonaws.com', port: 465, auth_protocol: 'login', tls_type: 'TLS',
+  },
+  mailjet: {
+    host: 'in-v3.mailjet.com', port: 465, auth_protocol: 'cram', tls_type: 'TLS',
+  },
+  mailgun: {
+    host: 'smtp.mailgun.org', port: 465, auth_protocol: 'login', tls_type: 'TLS',
+  },
+  sendgrid: {
+    host: 'smtp.sendgrid.net', port: 465, auth_protocol: 'login', tls_type: 'TLS',
+  },
+  postmark: {
+    host: 'smtp.postmarkapp.com', port: 587, auth_protocol: 'cram', tls_type: 'STARTTLS',
+  },
+};
 
 export default Vue.extend({
   props: {
@@ -174,6 +246,11 @@ export default Vue.extend({
     return {
       data: this.form,
       regDuration,
+      // Index of the SMTP block item in the array to show the
+      // test form in.
+      smtpTestItem: null,
+      testEmail: '',
+      errMsg: '',
     };
   },
 
@@ -211,6 +288,75 @@ export default Vue.extend({
       s.showHeaders = true;
       this.data.smtp.splice(i, 1, s);
     },
+
+    testConnection() {
+      let em = this.settings['app.from_email'].replace('>', '').split('<');
+      if (em.length > 1) {
+        em = `<${em[em.length - 1]}>`;
+      }
+    },
+
+    doSMTPTest(item, n) {
+      if (!this.isTestEnabled(item)) {
+        this.$utils.toast(this.$t('settings.smtp.testEnterEmail'), 'is-danger');
+        this.$nextTick(() => {
+          const i = document.querySelector(`.password-${n}`);
+          i.focus();
+          i.select();
+        });
+        return;
+      }
+
+
+      this.errMsg = '';
+      this.$api.testSMTP({ ...item, email: this.testEmail }).then(() => {
+        this.$utils.toast(this.$t('campaigns.testSent'));
+      }).catch((err) => {
+        if (err.response?.data?.message) {
+          this.errMsg = err.response.data.message;
+        }
+      });
+    },
+
+    showTestForm(n) {
+      this.smtpTestItem = n;
+      this.testItem = this.form.smtp[n];
+      this.errMsg = '';
+
+      this.$nextTick(() => {
+        document.querySelector(`.test-email-${n}`).focus();
+      });
+    },
+
+    isTestEnabled(item) {
+      if (!item.host || !item.port) {
+        return false;
+      }
+      if (item.auth_protocol !== 'none' && !item.password.trim()) {
+        return false;
+      }
+
+      return true;
+    },
+
+    fillSettings(n, key) {
+      this.data.smtp.splice(n, 1, {
+        ...this.data.smtp[n],
+        ...smtpTemplates[key],
+        username: '',
+        password: '',
+        hello_hostname: '',
+        tls_skip_verify: false,
+      });
+
+      this.$nextTick(() => {
+        document.querySelector(`.smtp-username-${n}`).focus();
+      });
+    },
+  },
+
+  computed: {
+    ...mapState(['settings']),
   },
 });
 </script>

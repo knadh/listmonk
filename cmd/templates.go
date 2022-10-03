@@ -2,10 +2,11 @@ package main
 
 import (
 	"errors"
-	"fmt"
+	"html/template"
 	"net/http"
 	"regexp"
 	"strconv"
+	"strings"
 
 	"github.com/knadh/listmonk/models"
 	"github.com/labstack/echo/v4"
@@ -34,33 +35,24 @@ var (
 func handleGetTemplates(c echo.Context) error {
 	var (
 		app = c.Get("app").(*App)
-		out []models.Template
 
 		id, _     = strconv.Atoi(c.Param("id"))
-		single    = false
 		noBody, _ = strconv.ParseBool(c.QueryParam("no_body"))
 	)
 
 	// Fetch one list.
 	if id > 0 {
-		single = true
+		out, err := app.core.GetTemplate(id, noBody)
+		if err != nil {
+			return err
+		}
+
+		return c.JSON(http.StatusOK, okResp{out})
 	}
 
-	err := app.queries.GetTemplates.Select(&out, id, noBody)
+	out, err := app.core.GetTemplates("", noBody)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError,
-			app.i18n.Ts("globals.messages.errorFetching",
-				"name", "{globals.terms.templates}", "error", pqErrMsg(err)))
-	}
-	if single && len(out) == 0 {
-		return echo.NewHTTPError(http.StatusBadRequest,
-			app.i18n.Ts("globals.messages.notFound", "name", "{globals.terms.template}"))
-	}
-
-	if len(out) == 0 {
-		return c.JSON(http.StatusOK, okResp{[]struct{}{}})
-	} else if single {
-		return c.JSON(http.StatusOK, okResp{out[0]})
+		return err
 	}
 
 	return c.JSON(http.StatusOK, okResp{out})
@@ -71,58 +63,80 @@ func handlePreviewTemplate(c echo.Context) error {
 	var (
 		app   = c.Get("app").(*App)
 		id, _ = strconv.Atoi(c.Param("id"))
-		body  = c.FormValue("body")
-
-		tpls []models.Template
 	)
 
-	if body != "" {
-		if !regexpTplTag.MatchString(body) {
+	tpl := models.Template{
+		Type: c.FormValue("template_type"),
+		Body: c.FormValue("body"),
+	}
+
+	// Body is posted.
+	if tpl.Body != "" {
+		if tpl.Type == "" {
+			tpl.Type = models.TemplateTypeCampaign
+		}
+
+		if tpl.Type == models.TemplateTypeCampaign && !regexpTplTag.MatchString(tpl.Body) {
 			return echo.NewHTTPError(http.StatusBadRequest,
 				app.i18n.Ts("templates.placeholderHelp", "placeholder", tplTag))
 		}
 	} else {
+		// There is no body. Fetch the template.
 		if id < 1 {
 			return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidID"))
 		}
 
-		err := app.queries.GetTemplates.Select(&tpls, id, false)
+		t, err := app.core.GetTemplate(id, false)
 		if err != nil {
-			return echo.NewHTTPError(http.StatusInternalServerError,
-				app.i18n.Ts("globals.messages.errorFetching",
-					"name", "{globals.terms.templates}", "error", pqErrMsg(err)))
+			return err
 		}
 
-		if len(tpls) == 0 {
+		tpl = t
+	}
+
+	// Compile the campaign template.
+	var out []byte
+	if tpl.Type == models.TemplateTypeCampaign {
+		camp := models.Campaign{
+			UUID:         dummyUUID,
+			Name:         app.i18n.T("templates.dummyName"),
+			Subject:      app.i18n.T("templates.dummySubject"),
+			FromEmail:    "dummy-campaign@listmonk.app",
+			TemplateBody: tpl.Body,
+			Body:         dummyTpl,
+		}
+
+		if err := camp.CompileTemplate(app.manager.TemplateFuncs(&camp)); err != nil {
 			return echo.NewHTTPError(http.StatusBadRequest,
-				app.i18n.Ts("globals.messages.notFound", "name", "{globals.terms.template}"))
+				app.i18n.Ts("templates.errorCompiling", "error", err.Error()))
 		}
-		body = tpls[0].Body
+
+		// Render the message body.
+		msg, err := app.manager.NewCampaignMessage(&camp, dummySubscriber)
+		if err != nil {
+			return echo.NewHTTPError(http.StatusBadRequest,
+				app.i18n.Ts("templates.errorRendering", "error", err.Error()))
+		}
+		out = msg.Body()
+	} else {
+		// Compile transactional template.
+		if err := tpl.Compile(app.manager.GenericTemplateFuncs()); err != nil {
+			return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+		}
+
+		m := models.TxMessage{
+			Subject: tpl.Subject,
+		}
+
+		// Render the message.
+		if err := m.Render(dummySubscriber, &tpl); err != nil {
+			return echo.NewHTTPError(http.StatusBadRequest,
+				app.i18n.Ts("globals.messages.errorFetching", "name"))
+		}
+		out = m.Body
 	}
 
-	// Compile the template.
-	camp := models.Campaign{
-		UUID:         dummyUUID,
-		Name:         app.i18n.T("templates.dummyName"),
-		Subject:      app.i18n.T("templates.dummySubject"),
-		FromEmail:    "dummy-campaign@listmonk.app",
-		TemplateBody: body,
-		Body:         dummyTpl,
-	}
-
-	if err := camp.CompileTemplate(app.manager.TemplateFuncs(&camp)); err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest,
-			app.i18n.Ts("templates.errorCompiling", "error", err.Error()))
-	}
-
-	// Render the message body.
-	msg, err := app.manager.NewCampaignMessage(&camp, dummySubscriber)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest,
-			app.i18n.Ts("templates.errorRendering", "error", err.Error()))
-	}
-
-	return c.HTML(http.StatusOK, string(msg.Body()))
+	return c.HTML(http.StatusOK, string(out))
 }
 
 // handleCreateTemplate handles template creation.
@@ -140,20 +154,35 @@ func handleCreateTemplate(c echo.Context) error {
 		return err
 	}
 
-	// Insert and read ID.
-	var newID int
-	if err := app.queries.CreateTemplate.Get(&newID,
-		o.Name,
-		o.Body); err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError,
-			app.i18n.Ts("globals.messages.errorCreating",
-				"name", "{globals.terms.template}", "error", pqErrMsg(err)))
+	var f template.FuncMap
+
+	// Subject is only relevant for fixed tx templates. For campaigns,
+	// the subject changes per campaign and is on models.Campaign.
+	if o.Type == models.TemplateTypeCampaign {
+		o.Subject = ""
+		f = app.manager.TemplateFuncs(nil)
+	} else {
+		f = app.manager.GenericTemplateFuncs()
 	}
 
-	// Hand over to the GET handler to return the last insertion.
-	return handleGetTemplates(copyEchoCtx(c, map[string]string{
-		"id": fmt.Sprintf("%d", newID),
-	}))
+	// Compile the template and validate.
+	if err := o.Compile(f); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	// Create the template the in the DB.
+	out, err := app.core.CreateTemplate(o.Name, o.Type, o.Subject, []byte(o.Body))
+	if err != nil {
+		return err
+	}
+
+	// If it's a transactional template, cache it in the manager
+	// to be used for arbitrary incoming tx message pushes.
+	if o.Type == models.TemplateTypeTx {
+		app.manager.CacheTpl(out.ID, &o)
+	}
+
+	return c.JSON(http.StatusOK, okResp{out})
 }
 
 // handleUpdateTemplate handles template modification.
@@ -173,22 +202,37 @@ func handleUpdateTemplate(c echo.Context) error {
 	}
 
 	if err := validateTemplate(o, app); err != nil {
+		return err
+	}
+
+	var f template.FuncMap
+
+	// Subject is only relevant for fixed tx templates. For campaigns,
+	// the subject changes per campaign and is on models.Campaign.
+	if o.Type == models.TemplateTypeCampaign {
+		o.Subject = ""
+		f = app.manager.TemplateFuncs(nil)
+	} else {
+		f = app.manager.GenericTemplateFuncs()
+	}
+
+	// Compile the template and validate.
+	if err := o.Compile(f); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	res, err := app.queries.UpdateTemplate.Exec(id, o.Name, o.Body)
+	out, err := app.core.UpdateTemplate(id, o.Name, o.Subject, []byte(o.Body))
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError,
-			app.i18n.Ts("globals.messages.errorUpdating",
-				"name", "{globals.terms.template}", "error", pqErrMsg(err)))
+		return err
 	}
 
-	if n, _ := res.RowsAffected(); n == 0 {
-		return echo.NewHTTPError(http.StatusBadRequest,
-			app.i18n.Ts("globals.messages.notFound", "name", "{globals.terms.template}"))
+	// If it's a transactional template, cache it.
+	if o.Type == models.TemplateTypeTx {
+		app.manager.CacheTpl(out.ID, &o)
 	}
 
-	return handleGetTemplates(c)
+	return c.JSON(http.StatusOK, okResp{out})
+
 }
 
 // handleTemplateSetDefault handles template modification.
@@ -202,11 +246,8 @@ func handleTemplateSetDefault(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidID"))
 	}
 
-	_, err := app.queries.SetDefaultTemplate.Exec(id)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError,
-			app.i18n.Ts("globals.messages.errorUpdating",
-				"name", "{globals.terms.template}", "error", pqErrMsg(err)))
+	if err := app.core.SetDefaultTemplate(id); err != nil {
+		return err
 	}
 
 	return handleGetTemplates(c)
@@ -223,30 +264,30 @@ func handleDeleteTemplate(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidID"))
 	}
 
-	var delID int
-	err := app.queries.DeleteTemplate.Get(&delID, id)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError,
-			app.i18n.Ts("globals.messages.errorDeleting",
-				"name", "{globals.terms.template}", "error", pqErrMsg(err)))
+	if err := app.core.DeleteTemplate(id); err != nil {
+		return err
 	}
-	if delID == 0 {
-		return echo.NewHTTPError(http.StatusBadRequest,
-			app.i18n.T("templates.cantDeleteDefault"))
-	}
+
+	// Delete cached template.
+	app.manager.DeleteTpl(id)
 
 	return c.JSON(http.StatusOK, okResp{true})
 }
 
-// validateTemplate validates template fields.
+// compileTemplate validates template fields.
 func validateTemplate(o models.Template, app *App) error {
 	if !strHasLen(o.Name, 1, stdInputMaxLen) {
 		return errors.New(app.i18n.T("campaigns.fieldInvalidName"))
 	}
 
-	if !regexpTplTag.MatchString(o.Body) {
+	if o.Type == models.TemplateTypeCampaign && !regexpTplTag.MatchString(o.Body) {
 		return echo.NewHTTPError(http.StatusBadRequest,
 			app.i18n.Ts("templates.placeholderHelp", "placeholder", tplTag))
+	}
+
+	if o.Type == models.TemplateTypeTx && strings.TrimSpace(o.Subject) == "" {
+		return echo.NewHTTPError(http.StatusBadRequest,
+			app.i18n.Ts("globals.messages.missingFields", "name", "subject"))
 	}
 
 	return nil

@@ -84,7 +84,10 @@
                 <b-field :label="$tc('globals.terms.template')" label-position="on-border">
                   <b-select :placeholder="$tc('globals.terms.template')" v-model="form.templateId"
                     name="template" :disabled="!canEdit" required>
-                    <option v-for="t in templates" :value="t.id" :key="t.id">{{ t.name }}</option>
+                    <template v-for="t in templates">
+                      <option v-if="t.type === 'campaign'"
+                        :value="t.id" :key="t.id">{{ t.name }}</option>
+                    </template>
                   </b-select>
                 </b-field>
 
@@ -135,7 +138,8 @@
                   <b-field v-if="form.headersStr !== '[]' || isHeadersVisible"
                     label-position="on-border" :message="$t('campaigns.customHeadersHelp')">
                     <b-input v-model="form.headersStr" name="headers" type="textarea"
-                      placeholder='[{"X-Custom": "value"}, {"X-Custom2": "value"}]' />
+                      placeholder='[{"X-Custom": "value"}, {"X-Custom2": "value"}]'
+                      :disabled="!canEdit" />
                   </b-field>
                 </div>
                 <hr />
