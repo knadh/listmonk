@@ -48,6 +48,23 @@
           :all="lists.results"
         ></list-selector>
 
+        <div class="columns mb-5">
+          <div class="column is-7">
+            <b-field :message="$t('subscribers.preconfirmHelp')">
+                <b-checkbox v-model="form.preconfirm"
+                  :native-value="true" :disabled="!hasOptinList">
+                  {{ $t('subscribers.preconfirm') }}
+                </b-checkbox>
+            </b-field>
+          </div>
+          <div class="column is-5 has-text-right" v-if="isEditing">
+            <a href="" @click.prevent="sendOptinConfirmation"
+              :class="{'is-disabled': !hasOptinList}">
+              <b-icon icon="email-outline" size="is-small" />
+              {{ $t('subscribers.sendOptinConfirm') }}</a>
+          </div>
+        </div>
+
         <b-field :label="$t('subscribers.attribs')" label-position="on-border"
           :message="$t('subscribers.attribsHelp') + ' ' + egAttribs">
           <div>
@@ -124,7 +141,12 @@ export default Vue.extend({
     return {
       // Binds form input values. This is populated by subscriber props passed
       // from the parent component in mounted().
-      form: { lists: [], strAttribs: '{}', status: 'enabled' },
+      form: {
+        lists: [],
+        strAttribs: '{}',
+        status: 'enabled',
+        preconfirm: false,
+      },
       isBounceVisible: false,
       bounces: [],
       visibleMeta: {},
@@ -165,6 +187,18 @@ export default Vue.extend({
     },
 
     onSubmit() {
+      // If there is no name, auto-generate one from the e-mail.
+      if (!this.form.name) {
+        let name = '';
+        [name] = this.form.email.toLowerCase().split('@');
+
+        if (name.includes('.')) {
+          this.form.name = name.split('.').map((c) => this.$utils.titleCase(c)).join(' ');
+        } else {
+          this.form.name = this.$utils.titleCase(name);
+        }
+      }
+
       if (this.isEditing) {
         this.updateSubscriber();
         return;
@@ -187,6 +221,7 @@ export default Vue.extend({
         name: this.form.name,
         status: this.form.status,
         attribs,
+        preconfirm_subscriptions: this.form.preconfirm,
 
         // List IDs.
         lists: this.form.lists.map((l) => l.id),
@@ -213,6 +248,7 @@ export default Vue.extend({
         email: this.form.email,
         name: this.form.name,
         status: this.form.status,
+        preconfirm_subscriptions: this.form.preconfirm,
         attribs,
 
         // List IDs.
@@ -223,6 +259,12 @@ export default Vue.extend({
         this.$emit('finished');
         this.$parent.close();
         this.$utils.toast(this.$t('globals.messages.updated', { name: d.name }));
+      });
+    },
+
+    sendOptinConfirmation() {
+      this.$api.sendSubscriberOptin(this.form.id).then(() => {
+        this.$utils.toast(this.$t('subscribers.sentOptinConfirm'));
       });
     },
 
@@ -247,6 +289,10 @@ export default Vue.extend({
 
   computed: {
     ...mapState(['lists', 'loading']),
+
+    hasOptinList() {
+      return this.form.lists.some((l) => l.optin === 'double');
+    },
   },
 
   mounted() {

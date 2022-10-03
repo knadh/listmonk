@@ -57,6 +57,7 @@
             }
                 .footer a {
                     color: #888;
+                    margin-right: 5px;
                 }
 
             .gutter {
@@ -65,6 +66,7 @@
 
             img {
                 max-width: 100%;
+                height: auto;
             }
 
             a {
@@ -93,6 +95,7 @@
         <p>
             {{ L.T "email.unsubHelp" }}
             <a href="{{ UnsubscribeURL }}" style="color: #888;">{{ L.T "email.unsub" }}</a>
+            <a href="{{ MessageURL }}" style="color: #888;">{{ L.T "email.viewInBrowser" }}</a>
         </p>
         <p>Powered by <a href="https://listmonk.app" target="_blank" style="color: #888;">listmonk</a></p>
     </div>

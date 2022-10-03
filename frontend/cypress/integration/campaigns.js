@@ -1,4 +1,5 @@
 const apiUrl = Cypress.env('apiUrl');
+const headers = '[{"X-Custom": "Custom-Value"}]';
 
 describe('Campaigns', () => {
   it('Opens campaigns page', () => {
@@ -38,6 +39,10 @@ describe('Campaigns', () => {
     cy.wait(100);
     cy.get('body').click(1, 1);
 
+    // Add custom headers.
+    cy.get('[data-cy=btn-headers]').click();
+    cy.get('textarea[name=headers]').invoke('val', headers).trigger('input');
+
     // Switch to content tab.
     cy.get('.b-tabs nav a').eq(1).click();
 
@@ -70,6 +75,7 @@ describe('Campaigns', () => {
       expect(data.lists[0].id).to.equal(1);
       expect(data.tags.length).to.equal(1);
       expect(data.tags[0]).to.equal('new-tag');
+      expect(data.headers[0]['X-Custom']).to.equal('Custom-Value');
     });
 
     cy.get('tbody td[data-label=Status] .tag.scheduled');
@@ -108,6 +114,9 @@ describe('Campaigns', () => {
       cy.get('button[data-cy=btn-preview]').click();
       cy.wait(200);
       cy.get("#iframe").then(($f) => {
+        if (c === 'plain') {
+          return;
+        }
         const doc = $f.contents();
         expect(doc.find('.wrap').text().trim().replace(/(\s|\n)+/, ' ')).equal(plainBody);
       });
@@ -178,17 +187,33 @@ describe('Campaigns', () => {
           cy.get('input[name=tags]').type(`tag${i}{enter}`);
         }
 
+        // Add headers.
+        cy.get('[data-cy=btn-headers]').click();
+        cy.get('textarea[name=headers]').invoke('val', `[{"X-Header-${n}": "Value-${n}"}]`).trigger('input');
+
         // Hit 'Continue'.
         cy.get('button[data-cy=btn-continue]').click();
         cy.wait(250);
 
+        // Verify the changes.
+        (function(n) {
+          cy.location('pathname').then((p) => {
+            cy.request(`${apiUrl}/api/campaigns/${p.split('/').at(-1)}`).should((response) => {
+              const { data } = response.body;
+              expect(data.status).to.equal('draft');
+              expect(data.name).to.equal(`name${n}`);
+              expect(data.subject).to.equal(`subject${n}`);
+              expect(data.content_type).to.equal('richtext');
+              expect(data.altbody).to.equal(null);
+              expect(data.send_at).to.equal(null);
+              expect(data.headers[0][`X-Header-${n}`]).to.equal(`Value-${n}`);
+            });
+          });
+        })(n);
+
+
         // Select content type.
         cy.get(`label[data-cy=check-${c}]`).click();
-
-        // If it's not richtext, there's a "you'll lose formatting" prompt.
-        if (c !== 'richtext') {
-          cy.get('.modal button.is-primary').click();
-        }
 
         // Insert content.
         const htmlBody = `<strong>hello${n}</strong> \{\{ .Subscriber.Name \}\} from {\{ .Subscriber.Attribs.city \}\}`;
@@ -216,6 +241,9 @@ describe('Campaigns', () => {
         cy.get('button[data-cy=btn-preview]').click();
         cy.wait(200);
         cy.get("#iframe").then(($f) => {
+          if (c === 'plain') {
+            return;
+          }
           const doc = $f.contents();
           expect(doc.find('.wrap').text().trim()).equal(plainBody);
         });

@@ -247,7 +247,7 @@ export default Vue.extend({
       );
     },
 
-    // Returns true if an import has finished (failed or sucessful).
+    // Returns true if an import has finished (failed or successful).
     isDone() {
       if (this.status.status === 'finished'
         || this.status.status === 'stopped'

@@ -31,6 +31,9 @@ var migList = []migFunc{
 	{"v0.9.0", migrations.V0_9_0},
 	{"v1.0.0", migrations.V1_0_0},
 	{"v2.0.0", migrations.V2_0_0},
+	{"v2.1.0", migrations.V2_1_0},
+	{"v2.2.0", migrations.V2_2_0},
+	{"v2.3.0", migrations.V2_3_0},
 }
 
 // upgrade upgrades the database to the current version by running SQL migration files
@@ -111,7 +114,7 @@ func getPendingMigrations(db *sqlx.DB) (string, []migFunc, error) {
 	}
 
 	// Iterate through the migration versions and get everything above the last
-	// last upgraded semver.
+	// upgraded semver.
 	var toRun []migFunc
 	for i, m := range migList {
 		if semver.Compare(m.version, lastVer) > 0 {

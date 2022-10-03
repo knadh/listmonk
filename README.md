@@ -2,7 +2,7 @@
 
 [![listmonk-logo](https://user-images.githubusercontent.com/547147/134940003-1de03d83-8c7b-459b-8056-baa8d5f3b448.png)](https://listmonk.app)
 
-listmonk is a standalone, self-hosted, newsletter and mailing list manager. It is fast, feature-rich, and packed into a single binary. It uses a PostgreSQL database as its data store.
+listmonk is a standalone, self-hosted, newsletter and mailing list manager. It is fast, feature-rich, and packed into a single binary. It uses a PostgreSQL (⩾ v9.4) database as its data store.
 
 [![listmonk-dashboard](https://user-images.githubusercontent.com/547147/134939475-e0391111-f762-44cb-b056-6cb0857755e3.png)](https://listmonk.app)
 
@@ -31,7 +31,7 @@ sh -c "$(curl -fsSL https://raw.githubusercontent.com/knadh/listmonk/master/inst
 ```
 Visit `http://localhost:9000`.
 
-**NOTE**: Always exmaine the contents of shell scripts before executing them.
+**NOTE**: Always examine the contents of shell scripts before executing them.
 
 See [installation docs](https://listmonk.app/docs/installation).
 
@@ -45,9 +45,6 @@ __________________
 
 See [installation docs](https://listmonk.app/docs/installation).
 __________________
-
-### Heroku 
-[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/knadh/listmonk-heroku)
 
 
 ## Developers

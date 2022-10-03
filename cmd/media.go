@@ -8,9 +8,8 @@ import (
 	"strconv"
 
 	"github.com/disintegration/imaging"
-	"github.com/gofrs/uuid"
-	"github.com/knadh/listmonk/internal/media"
-	"github.com/labstack/echo"
+	"github.com/knadh/listmonk/models"
+	"github.com/labstack/echo/v4"
 )
 
 const (
@@ -80,7 +79,7 @@ func handleUploadMedia(c echo.Context) error {
 	}()
 
 	// Create thumbnail from file.
-	thumbFile, err := createThumbnail(file)
+	thumbFile, width, height, err := processImage(file)
 	if err != nil {
 		cleanUp = true
 		app.log.Printf("error resizing image: %v", err)
@@ -97,40 +96,38 @@ func handleUploadMedia(c echo.Context) error {
 			app.i18n.Ts("media.errorSavingThumbnail", "error", err.Error()))
 	}
 
-	uu, err := uuid.NewV4()
-	if err != nil {
-		app.log.Printf("error generating UUID: %v", err)
-		return echo.NewHTTPError(http.StatusInternalServerError,
-			app.i18n.Ts("globals.messages.errorUUID", "error", err.Error()))
-	}
-
 	// Write to the DB.
-	if _, err := app.queries.InsertMedia.Exec(uu, fName, thumbfName, app.constants.MediaProvider); err != nil {
-		cleanUp = true
-		app.log.Printf("error inserting uploaded file to db: %v", err)
-		return echo.NewHTTPError(http.StatusInternalServerError,
-			app.i18n.Ts("globals.messages.errorCreating",
-				"name", "{globals.terms.media}", "error", pqErrMsg(err)))
+	meta := models.JSON{
+		"width":  width,
+		"height": height,
 	}
-	return c.JSON(http.StatusOK, okResp{true})
+	m, err := app.core.InsertMedia(fName, thumbfName, meta, app.constants.MediaProvider, app.media)
+	if err != nil {
+		cleanUp = true
+		return err
+	}
+	return c.JSON(http.StatusOK, okResp{m})
 }
 
 // handleGetMedia handles retrieval of uploaded media.
 func handleGetMedia(c echo.Context) error {
 	var (
-		app = c.Get("app").(*App)
-		out = []media.Media{}
+		app   = c.Get("app").(*App)
+		id, _ = strconv.Atoi(c.Param("id"))
 	)
 
-	if err := app.queries.GetMedia.Select(&out, app.constants.MediaProvider); err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError,
-			app.i18n.Ts("globals.messages.errorFetching",
-				"name", "{globals.terms.media}", "error", pqErrMsg(err)))
+	// Fetch one list.
+	if id > 0 {
+		out, err := app.core.GetMedia(id, "", app.media)
+		if err != nil {
+			return err
+		}
+		return c.JSON(http.StatusOK, okResp{out})
 	}
 
-	for i := 0; i < len(out); i++ {
-		out[i].URL = app.media.Get(out[i].Filename)
-		out[i].ThumbURL = app.media.Get(out[i].Thumb)
+	out, err := app.core.GetAllMedia(app.constants.MediaProvider, app.media)
+	if err != nil {
+		return err
 	}
 
 	return c.JSON(http.StatusOK, okResp{out})
@@ -147,29 +144,29 @@ func handleDeleteMedia(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidID"))
 	}
 
-	var m media.Media
-	if err := app.queries.DeleteMedia.Get(&m, id); err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError,
-			app.i18n.Ts("globals.messages.errorDeleting",
-				"name", "{globals.terms.media}", "error", pqErrMsg(err)))
+	fname, err := app.core.DeleteMedia(id)
+	if err != nil {
+		return err
 	}
 
-	app.media.Delete(m.Filename)
-	app.media.Delete(thumbPrefix + m.Filename)
+	app.media.Delete(fname)
+	app.media.Delete(thumbPrefix + fname)
+
 	return c.JSON(http.StatusOK, okResp{true})
 }
 
-// createThumbnail reads the file object and returns a smaller image
-func createThumbnail(file *multipart.FileHeader) (*bytes.Reader, error) {
+// processImage reads the image file and returns thumbnail bytes and
+// the original image's width, and height.
+func processImage(file *multipart.FileHeader) (*bytes.Reader, int, int, error) {
 	src, err := file.Open()
 	if err != nil {
-		return nil, err
+		return nil, 0, 0, err
 	}
 	defer src.Close()
 
 	img, err := imaging.Decode(src)
 	if err != nil {
-		return nil, err
+		return nil, 0, 0, err
 	}
 
 	// Encode the image into a byte slice as PNG.
@@ -178,7 +175,9 @@ func createThumbnail(file *multipart.FileHeader) (*bytes.Reader, error) {
 		out   bytes.Buffer
 	)
 	if err := imaging.Encode(&out, thumb, imaging.PNG); err != nil {
-		return nil, err
+		return nil, 0, 0, err
 	}
-	return bytes.NewReader(out.Bytes()), nil
+
+	b := img.Bounds().Max
+	return bytes.NewReader(out.Bytes()), b.X, b.Y, nil
 }

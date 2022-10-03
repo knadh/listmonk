@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"html/template"
 	"io"
 	"log"
 	"os"
@@ -18,11 +17,13 @@ import (
 	"github.com/knadh/koanf/providers/env"
 	"github.com/knadh/listmonk/internal/bounce"
 	"github.com/knadh/listmonk/internal/buflog"
+	"github.com/knadh/listmonk/internal/core"
 	"github.com/knadh/listmonk/internal/i18n"
 	"github.com/knadh/listmonk/internal/manager"
 	"github.com/knadh/listmonk/internal/media"
 	"github.com/knadh/listmonk/internal/messenger"
 	"github.com/knadh/listmonk/internal/subimporter"
+	"github.com/knadh/listmonk/models"
 	"github.com/knadh/stuffbin"
 )
 
@@ -33,9 +34,10 @@ const (
 // App contains the "global" components that are
 // passed around, especially through HTTP handlers.
 type App struct {
+	core       *core.Core
 	fs         stuffbin.FileSystem
 	db         *sqlx.DB
-	queries    *Queries
+	queries    *models.Queries
 	constants  *constants
 	manager    *manager.Manager
 	importer   *subimporter.Importer
@@ -43,7 +45,7 @@ type App struct {
 	media      media.Store
 	i18n       *i18n.I18n
 	bounce     *bounce.Manager
-	notifTpls  *template.Template
+	notifTpls  *notifTpls
 	log        *log.Logger
 	bufLog     *buflog.BufLog
 
@@ -68,7 +70,7 @@ var (
 	ko      = koanf.New(".")
 	fs      stuffbin.FileSystem
 	db      *sqlx.DB
-	queries *Queries
+	queries *models.Queries
 
 	// Compile-time variables.
 	buildString   string
@@ -141,11 +143,16 @@ func init() {
 	// Before the queries are prepared, see if there are pending upgrades.
 	checkUpgrade(db)
 
-	// Load the SQL queries from the filesystem.
-	_, queries := initQueries(queryFilePath, db, fs, true)
+	// Read the SQL queries from the queries file.
+	qMap := readQueries(queryFilePath, db, fs)
 
 	// Load settings from DB.
-	initSettings(queries.GetSettings)
+	if q, ok := qMap["get-settings"]; ok {
+		initSettings(q.Query, db, ko)
+	}
+
+	// Prepare queries.
+	queries = prepareQueries(qMap, db, ko)
 }
 
 func main() {
@@ -164,10 +171,25 @@ func main() {
 	// Load i18n language map.
 	app.i18n = initI18n(app.constants.Lang, fs)
 
-	_, app.queries = initQueries(queryFilePath, db, fs, true)
+	app.core = core.New(&core.Opt{
+		Constants: core.Constants{
+			SendOptinConfirmation: app.constants.SendOptinConfirmation,
+			MaxBounceCount:        ko.MustInt("bounce.count"),
+			BounceAction:          ko.MustString("bounce.action"),
+		},
+		Queries: queries,
+		DB:      db,
+		I18n:    app.i18n,
+		Log:     lo,
+	}, &core.Hooks{
+		SendOptinConfirmation: sendOptinConfirmationHook(app),
+	})
+
+	app.queries = queries
 	app.manager = initCampaignManager(app.queries, app.constants, app)
 	app.importer = initImporter(app.queries, db, app)
 	app.notifTpls = initNotifTemplates("/email-templates/*.html", fs, app.i18n, app.constants)
+	initTxTemplates(app.manager, app)
 
 	if ko.Bool("bounce.enabled") {
 		app.bounce = initBounceManager(app)
@@ -189,7 +211,7 @@ func main() {
 
 	// Start the campaign workers. The campaign batches (fetch from DB, push out
 	// messages) get processed at the specified interval.
-	go app.manager.Run(time.Second * 5)
+	go app.manager.Run()
 
 	// Start the app server.
 	srv := initHTTPServer(app)

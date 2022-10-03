@@ -82,7 +82,8 @@
 
         <template #top-left>
           <div class="actions">
-            <a class="a" href='' @click.prevent="exportSubscribers">
+            <a class="a" href='' @click.prevent="exportSubscribers"
+             data-cy="btn-export-subscribers">
               <b-icon icon="cloud-download-outline" size="is-small" />
               {{ $t('subscribers.export') }}
             </a>
@@ -133,7 +134,9 @@
                 v-bind:key="l.id" style="padding-right:0.5em;">
                 <b-tag :class="l.subscriptionStatus" size="is-small" :key="l.id">
                   {{ l.name }}
-                  <sup>{{ $t('subscribers.status.'+ l.subscriptionStatus) }}</sup>
+                  <sup v-if="l.optin === 'double' || l.subscriptionStatus == 'unsubscribed'">
+                    {{ $t(`subscribers.status.${l.subscriptionStatus}`) }}
+                  </sup>
                 </b-tag>
               </router-link>
             </template>
@@ -396,10 +399,22 @@ export default Vue.extend({
     },
 
     exportSubscribers() {
-      this.$utils.confirm(this.$t('subscribers.confirmExport', { num: this.subscribers.total }), () => {
+      const num = !this.bulk.all && this.bulk.checked.length > 0
+        ? this.bulk.checked.length : this.subscribers.total;
+
+      this.$utils.confirm(this.$t('subscribers.confirmExport', { num }), () => {
         const q = new URLSearchParams();
         q.append('query', this.queryParams.queryExp);
-        q.append('list_id', this.queryParams.listID);
+
+        if (this.queryParams.listID) {
+          q.append('list_id', this.queryParams.listID);
+        }
+
+        // Export selected subscribers.
+        if (!this.bulk.all && this.bulk.checked.length > 0) {
+          this.bulk.checked.map((s) => q.append('id', s.id));
+        }
+
         document.location.href = `${uris.exportSubscribers}?${q.toString()}`;
       });
     },
@@ -439,6 +454,7 @@ export default Vue.extend({
       const data = {
         action,
         query: this.fullQueryExp,
+        list_ids: this.queryParams.listID ? [this.queryParams.listID] : null,
         target_list_ids: lists.map((l) => l.id),
       };
 

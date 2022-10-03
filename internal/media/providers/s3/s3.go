@@ -1,7 +1,7 @@
 package s3
 
 import (
-	"errors"
+	"fmt"
 	"io"
 	"strings"
 	"time"
@@ -13,6 +13,7 @@ import (
 // Opt represents AWS S3 specific params
 type Opt struct {
 	URL        string        `koanf:"url"`
+	PublicURL  string        `koanf:"public_url"`
 	AccessKey  string        `koanf:"aws_access_key_id"`
 	SecretKey  string        `koanf:"aws_secret_access_key"`
 	Region     string        `koanf:"aws_default_region"`
@@ -31,25 +32,21 @@ type Client struct {
 // NewS3Store initialises store for S3 provider. It takes in the AWS configuration
 // and sets up the `simples3` client to interact with AWS APIs for all bucket operations.
 func NewS3Store(opt Opt) (media.Store, error) {
-	var (
-		cl  *simples3.S3
-		err error
-	)
+	var cl *simples3.S3
 	if opt.URL == "" {
-		return nil, errors.New("Invalid AWS URL in settings.")
+		opt.URL = fmt.Sprintf("https://s3.%s.amazonaws.com", opt.Region)
 	}
 	opt.URL = strings.TrimRight(opt.URL, "/")
 
-	// Use Access Key/Secret Key if specified in config.
-	if opt.AccessKey != "" && opt.SecretKey != "" {
-		cl = simples3.New(opt.Region, opt.AccessKey, opt.SecretKey)
-	} else {
+	if opt.AccessKey == "" && opt.SecretKey == "" {
 		// fallback to IAM role if no access key/secret key is provided.
-		cl, err = simples3.NewUsingIAM(opt.Region)
-		if err != nil {
-			return nil, err
-		}
+		cl, _ = simples3.NewUsingIAM(opt.Region)
 	}
+
+	if cl == nil {
+		cl = simples3.New(opt.Region, opt.AccessKey, opt.SecretKey)
+	}
+
 	cl.SetEndpoint(opt.URL)
 
 	return &Client{
@@ -61,7 +58,7 @@ func NewS3Store(opt Opt) (media.Store, error) {
 // Put takes in the filename, the content type and file object itself and uploads to S3.
 func (c *Client) Put(name string, cType string, file io.ReadSeeker) (string, error) {
 	// Upload input parameters
-	upParams := simples3.UploadInput{
+	p := simples3.UploadInput{
 		Bucket:      c.opts.Bucket,
 		ContentType: cType,
 		FileName:    name,
@@ -70,8 +67,13 @@ func (c *Client) Put(name string, cType string, file io.ReadSeeker) (string, err
 		// Paths inside the bucket should not start with /.
 		ObjectKey: c.makeBucketPath(name),
 	}
-	// Perform an upload.
-	if _, err := c.s3.FileUpload(upParams); err != nil {
+
+	if c.opts.BucketType == "public" {
+		p.ACL = "public-read"
+	}
+
+	// Upload.
+	if _, err := c.s3.FilePut(p); err != nil {
 		return "", err
 	}
 	return name, nil
@@ -118,5 +120,9 @@ func (c *Client) makeBucketPath(name string) string {
 }
 
 func (c *Client) makeFileURL(name string) string {
+	if c.opts.PublicURL != "" {
+		return c.opts.PublicURL + "/" + c.makeBucketPath(name)
+	}
+
 	return c.opts.URL + "/" + c.opts.Bucket + "/" + c.makeBucketPath(name)
 }

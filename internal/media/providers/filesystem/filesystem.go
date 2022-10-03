@@ -32,8 +32,8 @@ type Client struct {
 // on the filesystem.
 var fnameRegexp = regexp.MustCompile(`(.+?)_([0-9]+)$`)
 
-// NewDiskStore initialises store for Filesystem provider.
-func NewDiskStore(opts Opts) (media.Store, error) {
+// New initialises store for Filesystem provider.
+func New(opts Opts) (media.Store, error) {
 	return &Client{
 		opts: opts,
 	}, nil

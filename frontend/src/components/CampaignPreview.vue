@@ -11,7 +11,9 @@
         <section expanded class="modal-card-body preview">
           <b-loading :active="isLoading" :is-full-page="false"></b-loading>
           <form v-if="body" method="post" :action="previewURL" target="iframe" ref="form">
+            <input type="hidden" name="template_id" :value="templateId" />
             <input type="hidden" name="content_type" :value="contentType" />
+            <input type="hidden" name="template_type" :value="templateType" />
             <input type="hidden" name="body" :value="body" />
           </form>
 
@@ -42,8 +44,16 @@ export default {
 
     // campaign | template.
     type: String,
+
+    // campaign | tx.
+    templateType: String,
+
     body: String,
     contentType: String,
+    templateId: {
+      type: Number,
+      default: 0,
+    },
   },
 
   data() {

@@ -11,6 +11,8 @@ x-app-defaults: &app-defaults
     - "9000:9000"
   networks:
     - listmonk
+  environment:
+    - TZ=Etc/UTC
 
 x-db-defaults: &db-defaults
   image: postgres:13

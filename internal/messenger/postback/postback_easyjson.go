@@ -8,6 +8,7 @@ import (
 	easyjson "github.com/mailru/easyjson"
 	jlexer "github.com/mailru/easyjson/jlexer"
 	jwriter "github.com/mailru/easyjson/jwriter"
+	textproto "net/textproto"
 )
 
 // suppress unused package warning
@@ -76,6 +77,29 @@ func easyjsonDf11841fDecodeGithubComKnadhListmonkInternalMessengerPostback(in *j
 				}
 				easyjsonDf11841fDecodeGithubComKnadhListmonkInternalMessengerPostback2(in, out.Campaign)
 			}
+		case "attachments":
+			if in.IsNull() {
+				in.Skip()
+				out.Attachments = nil
+			} else {
+				in.Delim('[')
+				if out.Attachments == nil {
+					if !in.IsDelim(']') {
+						out.Attachments = make([]attachment, 0, 1)
+					} else {
+						out.Attachments = []attachment{}
+					}
+				} else {
+					out.Attachments = (out.Attachments)[:0]
+				}
+				for !in.IsDelim(']') {
+					var v2 attachment
+					easyjsonDf11841fDecodeGithubComKnadhListmonkInternalMessengerPostback3(in, &v2)
+					out.Attachments = append(out.Attachments, v2)
+					in.WantComma()
+				}
+				in.Delim(']')
+			}
 		default:
 			in.SkipRecursive()
 		}
@@ -112,11 +136,11 @@ func easyjsonDf11841fEncodeGithubComKnadhListmonkInternalMessengerPostback(out *
 			out.RawString("null")
 		} else {
 			out.RawByte('[')
-			for v2, v3 := range in.Recipients {
-				if v2 > 0 {
+			for v3, v4 := range in.Recipients {
+				if v3 > 0 {
 					out.RawByte(',')
 				}
-				easyjsonDf11841fEncodeGithubComKnadhListmonkInternalMessengerPostback1(out, v3)
+				easyjsonDf11841fEncodeGithubComKnadhListmonkInternalMessengerPostback1(out, v4)
 			}
 			out.RawByte(']')
 		}
@@ -128,6 +152,22 @@ func easyjsonDf11841fEncodeGithubComKnadhListmonkInternalMessengerPostback(out *
 			out.RawString("null")
 		} else {
 			easyjsonDf11841fEncodeGithubComKnadhListmonkInternalMessengerPostback2(out, *in.Campaign)
+		}
+	}
+	{
+		const prefix string = ",\"attachments\":"
+		out.RawString(prefix)
+		if in.Attachments == nil && (out.Flags&jwriter.NilSliceAsEmpty) == 0 {
+			out.RawString("null")
+		} else {
+			out.RawByte('[')
+			for v5, v6 := range in.Attachments {
+				if v5 > 0 {
+					out.RawByte(',')
+				}
+				easyjsonDf11841fEncodeGithubComKnadhListmonkInternalMessengerPostback3(out, v6)
+			}
+			out.RawByte(']')
 		}
 	}
 	out.RawByte('}')
@@ -156,6 +196,129 @@ func (v *postback) UnmarshalJSON(data []byte) error {
 func (v *postback) UnmarshalEasyJSON(l *jlexer.Lexer) {
 	easyjsonDf11841fDecodeGithubComKnadhListmonkInternalMessengerPostback(l, v)
 }
+func easyjsonDf11841fDecodeGithubComKnadhListmonkInternalMessengerPostback3(in *jlexer.Lexer, out *attachment) {
+	isTopLevel := in.IsStart()
+	if in.IsNull() {
+		if isTopLevel {
+			in.Consumed()
+		}
+		in.Skip()
+		return
+	}
+	in.Delim('{')
+	for !in.IsDelim('}') {
+		key := in.UnsafeFieldName(false)
+		in.WantColon()
+		if in.IsNull() {
+			in.Skip()
+			in.WantComma()
+			continue
+		}
+		switch key {
+		case "name":
+			out.Name = string(in.String())
+		case "header":
+			if in.IsNull() {
+				in.Skip()
+			} else {
+				in.Delim('{')
+				out.Header = make(textproto.MIMEHeader)
+				for !in.IsDelim('}') {
+					key := string(in.String())
+					in.WantColon()
+					var v7 []string
+					if in.IsNull() {
+						in.Skip()
+						v7 = nil
+					} else {
+						in.Delim('[')
+						if v7 == nil {
+							if !in.IsDelim(']') {
+								v7 = make([]string, 0, 4)
+							} else {
+								v7 = []string{}
+							}
+						} else {
+							v7 = (v7)[:0]
+						}
+						for !in.IsDelim(']') {
+							var v8 string
+							v8 = string(in.String())
+							v7 = append(v7, v8)
+							in.WantComma()
+						}
+						in.Delim(']')
+					}
+					(out.Header)[key] = v7
+					in.WantComma()
+				}
+				in.Delim('}')
+			}
+		case "content":
+			if in.IsNull() {
+				in.Skip()
+				out.Content = nil
+			} else {
+				out.Content = in.Bytes()
+			}
+		default:
+			in.SkipRecursive()
+		}
+		in.WantComma()
+	}
+	in.Delim('}')
+	if isTopLevel {
+		in.Consumed()
+	}
+}
+func easyjsonDf11841fEncodeGithubComKnadhListmonkInternalMessengerPostback3(out *jwriter.Writer, in attachment) {
+	out.RawByte('{')
+	first := true
+	_ = first
+	{
+		const prefix string = ",\"name\":"
+		out.RawString(prefix[1:])
+		out.String(string(in.Name))
+	}
+	{
+		const prefix string = ",\"header\":"
+		out.RawString(prefix)
+		if in.Header == nil && (out.Flags&jwriter.NilMapAsEmpty) == 0 {
+			out.RawString(`null`)
+		} else {
+			out.RawByte('{')
+			v10First := true
+			for v10Name, v10Value := range in.Header {
+				if v10First {
+					v10First = false
+				} else {
+					out.RawByte(',')
+				}
+				out.String(string(v10Name))
+				out.RawByte(':')
+				if v10Value == nil && (out.Flags&jwriter.NilSliceAsEmpty) == 0 {
+					out.RawString("null")
+				} else {
+					out.RawByte('[')
+					for v11, v12 := range v10Value {
+						if v11 > 0 {
+							out.RawByte(',')
+						}
+						out.String(string(v12))
+					}
+					out.RawByte(']')
+				}
+			}
+			out.RawByte('}')
+		}
+	}
+	{
+		const prefix string = ",\"content\":"
+		out.RawString(prefix)
+		out.Base64Bytes(in.Content)
+	}
+	out.RawByte('}')
+}
 func easyjsonDf11841fDecodeGithubComKnadhListmonkInternalMessengerPostback2(in *jlexer.Lexer, out *campaign) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
@@ -175,10 +338,49 @@ func easyjsonDf11841fDecodeGithubComKnadhListmonkInternalMessengerPostback2(in *
 			continue
 		}
 		switch key {
+		case "from_email":
+			out.FromEmail = string(in.String())
 		case "uuid":
 			out.UUID = string(in.String())
 		case "name":
 			out.Name = string(in.String())
+		case "headers":
+			if in.IsNull() {
+				in.Skip()
+				out.Headers = nil
+			} else {
+				in.Delim('[')
+				if out.Headers == nil {
+					if !in.IsDelim(']') {
+						out.Headers = make(models.Headers, 0, 8)
+					} else {
+						out.Headers = models.Headers{}
+					}
+				} else {
+					out.Headers = (out.Headers)[:0]
+				}
+				for !in.IsDelim(']') {
+					var v15 map[string]string
+					if in.IsNull() {
+						in.Skip()
+					} else {
+						in.Delim('{')
+						v15 = make(map[string]string)
+						for !in.IsDelim('}') {
+							key := string(in.String())
+							in.WantColon()
+							var v16 string
+							v16 = string(in.String())
+							(v15)[key] = v16
+							in.WantComma()
+						}
+						in.Delim('}')
+					}
+					out.Headers = append(out.Headers, v15)
+					in.WantComma()
+				}
+				in.Delim(']')
+			}
 		case "tags":
 			if in.IsNull() {
 				in.Skip()
@@ -195,9 +397,9 @@ func easyjsonDf11841fDecodeGithubComKnadhListmonkInternalMessengerPostback2(in *
 					out.Tags = (out.Tags)[:0]
 				}
 				for !in.IsDelim(']') {
-					var v4 string
-					v4 = string(in.String())
-					out.Tags = append(out.Tags, v4)
+					var v17 string
+					v17 = string(in.String())
+					out.Tags = append(out.Tags, v17)
 					in.WantComma()
 				}
 				in.Delim(']')
@@ -217,8 +419,13 @@ func easyjsonDf11841fEncodeGithubComKnadhListmonkInternalMessengerPostback2(out 
 	first := true
 	_ = first
 	{
-		const prefix string = ",\"uuid\":"
+		const prefix string = ",\"from_email\":"
 		out.RawString(prefix[1:])
+		out.String(string(in.FromEmail))
+	}
+	{
+		const prefix string = ",\"uuid\":"
+		out.RawString(prefix)
 		out.String(string(in.UUID))
 	}
 	{
@@ -227,17 +434,49 @@ func easyjsonDf11841fEncodeGithubComKnadhListmonkInternalMessengerPostback2(out 
 		out.String(string(in.Name))
 	}
 	{
+		const prefix string = ",\"headers\":"
+		out.RawString(prefix)
+		if in.Headers == nil && (out.Flags&jwriter.NilSliceAsEmpty) == 0 {
+			out.RawString("null")
+		} else {
+			out.RawByte('[')
+			for v18, v19 := range in.Headers {
+				if v18 > 0 {
+					out.RawByte(',')
+				}
+				if v19 == nil && (out.Flags&jwriter.NilMapAsEmpty) == 0 {
+					out.RawString(`null`)
+				} else {
+					out.RawByte('{')
+					v20First := true
+					for v20Name, v20Value := range v19 {
+						if v20First {
+							v20First = false
+						} else {
+							out.RawByte(',')
+						}
+						out.String(string(v20Name))
+						out.RawByte(':')
+						out.String(string(v20Value))
+					}
+					out.RawByte('}')
+				}
+			}
+			out.RawByte(']')
+		}
+	}
+	{
 		const prefix string = ",\"tags\":"
 		out.RawString(prefix)
 		if in.Tags == nil && (out.Flags&jwriter.NilSliceAsEmpty) == 0 {
 			out.RawString("null")
 		} else {
 			out.RawByte('[')
-			for v5, v6 := range in.Tags {
-				if v5 > 0 {
+			for v21, v22 := range in.Tags {
+				if v21 > 0 {
 					out.RawByte(',')
 				}
-				out.String(string(v6))
+				out.String(string(v22))
 			}
 			out.RawByte(']')
 		}
@@ -274,19 +513,19 @@ func easyjsonDf11841fDecodeGithubComKnadhListmonkInternalMessengerPostback1(in *
 				in.Skip()
 			} else {
 				in.Delim('{')
-				out.Attribs = make(models.SubscriberAttribs)
+				out.Attribs = make(models.JSON)
 				for !in.IsDelim('}') {
 					key := string(in.String())
 					in.WantColon()
-					var v7 interface{}
-					if m, ok := v7.(easyjson.Unmarshaler); ok {
+					var v23 interface{}
+					if m, ok := v23.(easyjson.Unmarshaler); ok {
 						m.UnmarshalEasyJSON(in)
-					} else if m, ok := v7.(json.Unmarshaler); ok {
+					} else if m, ok := v23.(json.Unmarshaler); ok {
 						_ = m.UnmarshalJSON(in.Raw())
 					} else {
-						v7 = in.Interface()
+						v23 = in.Interface()
 					}
-					(out.Attribs)[key] = v7
+					(out.Attribs)[key] = v23
 					in.WantComma()
 				}
 				in.Delim('}')
@@ -329,21 +568,21 @@ func easyjsonDf11841fEncodeGithubComKnadhListmonkInternalMessengerPostback1(out 
 			out.RawString(`null`)
 		} else {
 			out.RawByte('{')
-			v8First := true
-			for v8Name, v8Value := range in.Attribs {
-				if v8First {
-					v8First = false
+			v24First := true
+			for v24Name, v24Value := range in.Attribs {
+				if v24First {
+					v24First = false
 				} else {
 					out.RawByte(',')
 				}
-				out.String(string(v8Name))
+				out.String(string(v24Name))
 				out.RawByte(':')
-				if m, ok := v8Value.(easyjson.Marshaler); ok {
+				if m, ok := v24Value.(easyjson.Marshaler); ok {
 					m.MarshalEasyJSON(out)
-				} else if m, ok := v8Value.(json.Marshaler); ok {
+				} else if m, ok := v24Value.(json.Marshaler); ok {
 					out.Raw(m.MarshalJSON())
 				} else {
-					out.Raw(json.Marshal(v8Value))
+					out.Raw(json.Marshal(v24Value))
 				}
 			}
 			out.RawByte('}')

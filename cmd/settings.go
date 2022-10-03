@@ -1,7 +1,8 @@
 package main
 
 import (
-	"encoding/json"
+	"bytes"
+	"io/ioutil"
 	"net/http"
 	"regexp"
 	"strings"
@@ -9,103 +10,14 @@ import (
 	"time"
 
 	"github.com/gofrs/uuid"
-	"github.com/jmoiron/sqlx/types"
-	"github.com/labstack/echo"
+	"github.com/knadh/koanf"
+	"github.com/knadh/koanf/parsers/json"
+	"github.com/knadh/koanf/providers/rawbytes"
+	"github.com/knadh/listmonk/internal/messenger"
+	"github.com/knadh/listmonk/internal/messenger/email"
+	"github.com/knadh/listmonk/models"
+	"github.com/labstack/echo/v4"
 )
-
-type settings struct {
-	AppRootURL            string   `json:"app.root_url"`
-	AppLogoURL            string   `json:"app.logo_url"`
-	AppFaviconURL         string   `json:"app.favicon_url"`
-	AppFromEmail          string   `json:"app.from_email"`
-	AppNotifyEmails       []string `json:"app.notify_emails"`
-	EnablePublicSubPage   bool     `json:"app.enable_public_subscription_page"`
-	SendOptinConfirmation bool     `json:"app.send_optin_confirmation"`
-	CheckUpdates          bool     `json:"app.check_updates"`
-	AppLang               string   `json:"app.lang"`
-
-	AppBatchSize     int `json:"app.batch_size"`
-	AppConcurrency   int `json:"app.concurrency"`
-	AppMaxSendErrors int `json:"app.max_send_errors"`
-	AppMessageRate   int `json:"app.message_rate"`
-
-	AppMessageSlidingWindow         bool   `json:"app.message_sliding_window"`
-	AppMessageSlidingWindowDuration string `json:"app.message_sliding_window_duration"`
-	AppMessageSlidingWindowRate     int    `json:"app.message_sliding_window_rate"`
-
-	PrivacyIndividualTracking bool     `json:"privacy.individual_tracking"`
-	PrivacyUnsubHeader        bool     `json:"privacy.unsubscribe_header"`
-	PrivacyAllowBlocklist     bool     `json:"privacy.allow_blocklist"`
-	PrivacyAllowExport        bool     `json:"privacy.allow_export"`
-	PrivacyAllowWipe          bool     `json:"privacy.allow_wipe"`
-	PrivacyExportable         []string `json:"privacy.exportable"`
-	DomainBlocklist           []string `json:"privacy.domain_blocklist"`
-
-	UploadProvider             string `json:"upload.provider"`
-	UploadFilesystemUploadPath string `json:"upload.filesystem.upload_path"`
-	UploadFilesystemUploadURI  string `json:"upload.filesystem.upload_uri"`
-	UploadS3URL                string `json:"upload.s3.url"`
-	UploadS3AwsAccessKeyID     string `json:"upload.s3.aws_access_key_id"`
-	UploadS3AwsDefaultRegion   string `json:"upload.s3.aws_default_region"`
-	UploadS3AwsSecretAccessKey string `json:"upload.s3.aws_secret_access_key,omitempty"`
-	UploadS3Bucket             string `json:"upload.s3.bucket"`
-	UploadS3BucketDomain       string `json:"upload.s3.bucket_domain"`
-	UploadS3BucketPath         string `json:"upload.s3.bucket_path"`
-	UploadS3BucketType         string `json:"upload.s3.bucket_type"`
-	UploadS3Expiry             string `json:"upload.s3.expiry"`
-
-	SMTP []struct {
-		UUID          string              `json:"uuid"`
-		Enabled       bool                `json:"enabled"`
-		Host          string              `json:"host"`
-		HelloHostname string              `json:"hello_hostname"`
-		Port          int                 `json:"port"`
-		AuthProtocol  string              `json:"auth_protocol"`
-		Username      string              `json:"username"`
-		Password      string              `json:"password,omitempty"`
-		EmailHeaders  []map[string]string `json:"email_headers"`
-		MaxConns      int                 `json:"max_conns"`
-		MaxMsgRetries int                 `json:"max_msg_retries"`
-		IdleTimeout   string              `json:"idle_timeout"`
-		WaitTimeout   string              `json:"wait_timeout"`
-		TLSEnabled    bool                `json:"tls_enabled"`
-		TLSSkipVerify bool                `json:"tls_skip_verify"`
-	} `json:"smtp"`
-
-	Messengers []struct {
-		UUID          string `json:"uuid"`
-		Enabled       bool   `json:"enabled"`
-		Name          string `json:"name"`
-		RootURL       string `json:"root_url"`
-		Username      string `json:"username"`
-		Password      string `json:"password,omitempty"`
-		MaxConns      int    `json:"max_conns"`
-		Timeout       string `json:"timeout"`
-		MaxMsgRetries int    `json:"max_msg_retries"`
-	} `json:"messengers"`
-
-	BounceEnabled        bool   `json:"bounce.enabled"`
-	BounceEnableWebhooks bool   `json:"bounce.webhooks_enabled"`
-	BounceCount          int    `json:"bounce.count"`
-	BounceAction         string `json:"bounce.action"`
-	SESEnabled           bool   `json:"bounce.ses_enabled"`
-	SendgridEnabled      bool   `json:"bounce.sendgrid_enabled"`
-	SendgridKey          string `json:"bounce.sendgrid_key"`
-	BounceBoxes          []struct {
-		UUID          string `json:"uuid"`
-		Enabled       bool   `json:"enabled"`
-		Type          string `json:"type"`
-		Host          string `json:"host"`
-		Port          int    `json:"port"`
-		AuthProtocol  string `json:"auth_protocol"`
-		ReturnPath    string `json:"return_path"`
-		Username      string `json:"username"`
-		Password      string `json:"password,omitempty"`
-		TLSEnabled    bool   `json:"tls_enabled"`
-		TLSSkipVerify bool   `json:"tls_skip_verify"`
-		ScanInterval  string `json:"scan_interval"`
-	} `json:"bounce.mailboxes"`
-}
 
 var (
 	reAlphaNum = regexp.MustCompile(`[^a-z0-9\-]`)
@@ -115,7 +27,7 @@ var (
 func handleGetSettings(c echo.Context) error {
 	app := c.Get("app").(*App)
 
-	s, err := getSettings(app)
+	s, err := app.core.GetSettings()
 	if err != nil {
 		return err
 	}
@@ -140,7 +52,7 @@ func handleGetSettings(c echo.Context) error {
 func handleUpdateSettings(c echo.Context) error {
 	var (
 		app = c.Get("app").(*App)
-		set settings
+		set models.Settings
 	)
 
 	// Unmarshal and marshal the fields once to sanitize the settings blob.
@@ -149,7 +61,7 @@ func handleUpdateSettings(c echo.Context) error {
 	}
 
 	// Get the existing settings.
-	cur, err := getSettings(app)
+	cur, err := app.core.GetSettings()
 	if err != nil {
 		return err
 	}
@@ -161,7 +73,7 @@ func handleUpdateSettings(c echo.Context) error {
 			has = true
 		}
 
-		// Assign a UUID. The frontend only sends a password when the user explictly
+		// Assign a UUID. The frontend only sends a password when the user explicitly
 		// changes the password. In other cases, the existing password in the DB
 		// is copied while updating the settings and the UUID is used to match
 		// the incoming array of SMTP blocks with the array in the DB.
@@ -185,7 +97,7 @@ func handleUpdateSettings(c echo.Context) error {
 
 	// Bounce boxes.
 	for i, s := range set.BounceBoxes {
-		// Assign a UUID. The frontend only sends a password when the user explictly
+		// Assign a UUID. The frontend only sends a password when the user explicitly
 		// changes the password. In other cases, the existing password in the DB
 		// is copied while updating the settings and the UUID is used to match
 		// the incoming array of blocks with the array in the DB.
@@ -257,18 +169,9 @@ func handleUpdateSettings(c echo.Context) error {
 	}
 	set.DomainBlocklist = doms
 
-	// Marshal settings.
-	b, err := json.Marshal(set)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError,
-			app.i18n.Ts("settings.errorEncoding", "error", err.Error()))
-	}
-
 	// Update the settings in the DB.
-	if _, err := app.queries.UpdateSettings.Exec(b); err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError,
-			app.i18n.Ts("globals.messages.errorUpdating",
-				"name", "{globals.terms.settings}", "error", pqErrMsg(err)))
+	if err := app.core.UpdateSettings(set); err != nil {
+		return err
 	}
 
 	// If there are any active campaigns, don't do an auto reload and
@@ -298,23 +201,61 @@ func handleGetLogs(c echo.Context) error {
 	return c.JSON(http.StatusOK, okResp{app.bufLog.Lines()})
 }
 
-func getSettings(app *App) (settings, error) {
-	var (
-		b   types.JSONText
-		out settings
-	)
+// handleTestSMTPSettings returns the log entries stored in the log buffer.
+func handleTestSMTPSettings(c echo.Context) error {
+	app := c.Get("app").(*App)
 
-	if err := app.queries.GetSettings.Get(&b); err != nil {
-		return out, echo.NewHTTPError(http.StatusInternalServerError,
-			app.i18n.Ts("globals.messages.errorFetching",
-				"name", "{globals.terms.settings}", "error", pqErrMsg(err)))
+	// Copy the raw JSON post body.
+	reqBody, err := ioutil.ReadAll(c.Request().Body)
+	if err != nil {
+		app.log.Printf("error reading SMTP test: %v", err)
+		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.Ts("globals.messages.internalError"))
 	}
 
-	// Unmarshall the settings and filter out sensitive fields.
-	if err := json.Unmarshal([]byte(b), &out); err != nil {
-		return out, echo.NewHTTPError(http.StatusInternalServerError,
-			app.i18n.Ts("settings.errorEncoding", "error", err.Error()))
+	// Load the JSON into koanf to parse SMTP settings properly including timestrings.
+	ko := koanf.New(".")
+	if err := ko.Load(rawbytes.Provider(reqBody), json.Parser()); err != nil {
+		app.log.Printf("error unmarshalling SMTP test request: %v", err)
+		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.Ts("globals.messages.internalError"))
 	}
 
-	return out, nil
+	req := email.Server{}
+	if err := ko.UnmarshalWithConf("", &req, koanf.UnmarshalConf{Tag: "json"}); err != nil {
+		app.log.Printf("error scanning SMTP test request: %v", err)
+		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.Ts("globals.messages.internalError"))
+	}
+
+	to := ko.String("email")
+	if to == "" {
+		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.Ts("globals.messages.missingFields", "name", "email"))
+	}
+
+	// Initialize a new SMTP pool.
+	req.MaxConns = 1
+	req.IdleTimeout = time.Second * 2
+	req.PoolWaitTimeout = time.Second * 2
+	msgr, err := email.New(req)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest,
+			app.i18n.Ts("globals.messages.errorCreating", "name", "SMTP", "error", err.Error()))
+	}
+
+	var b bytes.Buffer
+	if err := app.notifTpls.tpls.ExecuteTemplate(&b, "smtp-test", nil); err != nil {
+		app.log.Printf("error compiling notification template '%s': %v", "smtp-test", err)
+		return err
+	}
+
+	m := messenger.Message{}
+	m.ContentType = app.notifTpls.contentType
+	m.From = app.constants.FromEmail
+	m.To = []string{to}
+	m.Subject = app.i18n.T("settings.smtp.testConnection")
+	m.Body = b.Bytes()
+	if err := msgr.Push(m); err != nil {
+		app.log.Printf("error sending SMTP test (%s): %v", m.Subject, err)
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
+	return c.JSON(http.StatusOK, okResp{app.bufLog.Lines()})
 }

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"html/template"
@@ -32,8 +33,10 @@ import (
 	"github.com/knadh/listmonk/internal/messenger/email"
 	"github.com/knadh/listmonk/internal/messenger/postback"
 	"github.com/knadh/listmonk/internal/subimporter"
+	"github.com/knadh/listmonk/models"
 	"github.com/knadh/stuffbin"
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
+	"github.com/lib/pq"
 	flag "github.com/spf13/pflag"
 )
 
@@ -66,6 +69,13 @@ type constants struct {
 	AdminUsername []byte `koanf:"admin_username"`
 	AdminPassword []byte `koanf:"admin_password"`
 
+	Appearance struct {
+		AdminCSS  []byte `koanf:"admin.custom_css"`
+		AdminJS   []byte `koanf:"admin.custom_js"`
+		PublicCSS []byte `koanf:"public.custom_css"`
+		PublicJS  []byte `koanf:"public.custom_js"`
+	}
+
 	UnsubURL      string
 	LinkTrackURL  string
 	ViewTrackURL  string
@@ -76,6 +86,11 @@ type constants struct {
 	BounceWebhooksEnabled bool
 	BounceSESEnabled      bool
 	BounceSendgridEnabled bool
+}
+
+type notifTpls struct {
+	tpls        *template.Template
+	contentType string
 }
 
 func initFlags() {
@@ -90,13 +105,14 @@ func initFlags() {
 	f.StringSlice("config", []string{"config.toml"},
 		"path to one or more config files (will be merged in order)")
 	f.Bool("install", false, "setup database (first time)")
-	f.Bool("idempotent", false, "make --install run only if the databse isn't already setup")
+	f.Bool("idempotent", false, "make --install run only if the database isn't already setup")
 	f.Bool("upgrade", false, "upgrade database to the current version")
-	f.Bool("version", false, "current version of the build")
+	f.Bool("version", false, "show current version of the build")
 	f.Bool("new-config", false, "generate sample config file")
 	f.String("static-dir", "", "(optional) path to directory with static files")
 	f.String("i18n-dir", "", "(optional) path to directory with i18n language files")
 	f.Bool("yes", false, "assume 'yes' to prompts during --install/upgrade")
+	f.Bool("passive", false, "run in passive mode where campaigns are not processed")
 	if err := f.Parse(os.Args[1:]); err != nil {
 		lo.Fatalf("error loading flags: %v", err)
 	}
@@ -114,13 +130,13 @@ func initConfigFiles(files []string, ko *koanf.Koanf) {
 			if os.IsNotExist(err) {
 				lo.Fatal("config file not found. If there isn't one yet, run --new-config to generate one.")
 			}
-			lo.Fatalf("error loadng config from file: %v.", err)
+			lo.Fatalf("error loading config from file: %v.", err)
 		}
 	}
 }
 
 // initFileSystem initializes the stuffbin FileSystem to provide
-// access to bunded static assets to the app.
+// access to bundled static assets to the app.
 func initFS(appDir, frontendDir, staticDir, i18nDir string) stuffbin.FileSystem {
 	var (
 		// stuffbin real_path:virtual_alias paths to map local assets on disk
@@ -187,7 +203,7 @@ func initFS(appDir, frontendDir, staticDir, i18nDir string) stuffbin.FileSystem 
 			// Default dir in cwd.
 			i18nDir = "i18n"
 		}
-		lo.Printf("will load i18n files from: %v", i18nDir)
+		lo.Printf("loading i18n files from: %v", i18nDir)
 		files = append(files, joinFSPaths(i18nDir, i18nFiles)...)
 	}
 
@@ -196,7 +212,7 @@ func initFS(appDir, frontendDir, staticDir, i18nDir string) stuffbin.FileSystem 
 			// Default dir in cwd.
 			staticDir = "static"
 		}
-		lo.Printf("will load static files from: %v", staticDir)
+		lo.Printf("loading static files from: %v", staticDir)
 		files = append(files, joinFSPaths(staticDir, staticFiles)...)
 	}
 
@@ -221,22 +237,37 @@ func initFS(appDir, frontendDir, staticDir, i18nDir string) stuffbin.FileSystem 
 // initDB initializes the main DB connection pool and parse and loads the app's
 // SQL queries into a prepared query map.
 func initDB() *sqlx.DB {
-	var dbCfg dbConf
-	if err := ko.Unmarshal("db", &dbCfg); err != nil {
+	var c struct {
+		Host        string        `koanf:"host"`
+		Port        int           `koanf:"port"`
+		User        string        `koanf:"user"`
+		Password    string        `koanf:"password"`
+		DBName      string        `koanf:"database"`
+		SSLMode     string        `koanf:"ssl_mode"`
+		MaxOpen     int           `koanf:"max_open"`
+		MaxIdle     int           `koanf:"max_idle"`
+		MaxLifetime time.Duration `koanf:"max_lifetime"`
+	}
+	if err := ko.Unmarshal("db", &c); err != nil {
 		lo.Fatalf("error loading db config: %v", err)
 	}
 
-	lo.Printf("connecting to db: %s:%d/%s", dbCfg.Host, dbCfg.Port, dbCfg.DBName)
-	db, err := connectDB(dbCfg)
+	lo.Printf("connecting to db: %s:%d/%s", c.Host, c.Port, c.DBName)
+	db, err := sqlx.Connect("postgres",
+		fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=%s", c.Host, c.Port, c.User, c.Password, c.DBName, c.SSLMode))
 	if err != nil {
 		lo.Fatalf("error connecting to DB: %v", err)
 	}
+
+	db.SetMaxOpenConns(c.MaxOpen)
+	db.SetMaxIdleConns(c.MaxIdle)
+	db.SetConnMaxLifetime(c.MaxLifetime)
+
 	return db
 }
 
-// initQueries loads named SQL queries from the queries file and optionally
-// prepares them.
-func initQueries(sqlFile string, db *sqlx.DB, fs stuffbin.FileSystem, prepareQueries bool) (goyesql.Queries, *Queries) {
+// readQueries reads named SQL queries from the SQL queries file into a query map.
+func readQueries(sqlFile string, db *sqlx.DB, fs stuffbin.FileSystem) goyesql.Queries {
 	// Load SQL queries.
 	qB, err := fs.Read(sqlFile)
 	if err != nil {
@@ -247,24 +278,52 @@ func initQueries(sqlFile string, db *sqlx.DB, fs stuffbin.FileSystem, prepareQue
 		lo.Fatalf("error parsing SQL queries: %v", err)
 	}
 
-	if !prepareQueries {
-		return qMap, nil
+	return qMap
+}
+
+// prepareQueries queries prepares a query map and returns a *Queries
+func prepareQueries(qMap goyesql.Queries, db *sqlx.DB, ko *koanf.Koanf) *models.Queries {
+	var (
+		countQuery = "get-campaign-analytics-counts"
+		linkSel    = "*"
+	)
+	if ko.Bool("privacy.individual_tracking") {
+		countQuery = "get-campaign-analytics-unique-counts"
+		linkSel = "DISTINCT subscriber_id"
 	}
 
-	// Prepare queries.
-	var q Queries
+	// These don't exist in the SQL file but are in the queries struct to be prepared.
+	qMap["get-campaign-view-counts"] = &goyesql.Query{
+		Query: fmt.Sprintf(qMap[countQuery].Query, "campaign_views"),
+		Tags:  map[string]string{"name": "get-campaign-view-counts"},
+	}
+	qMap["get-campaign-click-counts"] = &goyesql.Query{
+		Query: fmt.Sprintf(qMap[countQuery].Query, "link_clicks"),
+		Tags:  map[string]string{"name": "get-campaign-click-counts"},
+	}
+	qMap["get-campaign-link-counts"].Query = fmt.Sprintf(qMap["get-campaign-link-counts"].Query, linkSel)
+
+	// Scan and prepare all queries.
+	var q models.Queries
 	if err := goyesqlx.ScanToStruct(&q, qMap, db.Unsafe()); err != nil {
 		lo.Fatalf("error preparing SQL queries: %v", err)
 	}
 
-	return qMap, &q
+	return &q
 }
 
-// initSettings loads settings from the DB.
-func initSettings(q *sqlx.Stmt) {
+// initSettings loads settings from the DB into the given Koanf map.
+func initSettings(query string, db *sqlx.DB, ko *koanf.Koanf) {
 	var s types.JSONText
-	if err := q.Get(&s); err != nil {
-		lo.Fatalf("error reading settings from DB: %s", pqErrMsg(err))
+	if err := db.Get(&s, query); err != nil {
+		msg := err.Error()
+		if err, ok := err.(*pq.Error); ok {
+			if err.Detail != "" {
+				msg = fmt.Sprintf("%s. %s", err, err.Detail)
+			}
+		}
+
+		lo.Fatalf("error reading settings from DB: %s", msg)
 	}
 
 	// Setting keys are dot separated, eg: app.favicon_url. Unflatten them into
@@ -285,7 +344,10 @@ func initConstants() *constants {
 		lo.Fatalf("error loading app config: %v", err)
 	}
 	if err := ko.Unmarshal("privacy", &c.Privacy); err != nil {
-		lo.Fatalf("error loading app config: %v", err)
+		lo.Fatalf("error loading app.privacy config: %v", err)
+	}
+	if err := ko.UnmarshalWithConf("appearance", &c.Appearance, koanf.UnmarshalConf{FlatPaths: true}); err != nil {
+		lo.Fatalf("error loading app.appearance config: %v", err)
 	}
 
 	c.RootURL = strings.TrimRight(c.RootURL, "/")
@@ -333,7 +395,7 @@ func initI18n(lang string, fs stuffbin.FileSystem) *i18n.I18n {
 }
 
 // initCampaignManager initializes the campaign manager.
-func initCampaignManager(q *Queries, cs *constants, app *App) *manager.Manager {
+func initCampaignManager(q *models.Queries, cs *constants, app *App) *manager.Manager {
 	campNotifCB := func(subject string, data interface{}) error {
 		return app.sendNotification(cs.NotifyEmails, subject, notifTplCampaign, data)
 	}
@@ -343,6 +405,10 @@ func initCampaignManager(q *Queries, cs *constants, app *App) *manager.Manager {
 	}
 	if ko.Int("app.message_rate") < 1 {
 		lo.Fatal("app.message_rate should be at least 1")
+	}
+
+	if ko.Bool("passive") {
+		lo.Println("running in passive mode. won't process campaigns.")
 	}
 
 	return manager.New(manager.Config{
@@ -361,11 +427,28 @@ func initCampaignManager(q *Queries, cs *constants, app *App) *manager.Manager {
 		SlidingWindow:         ko.Bool("app.message_sliding_window"),
 		SlidingWindowDuration: ko.Duration("app.message_sliding_window_duration"),
 		SlidingWindowRate:     ko.Int("app.message_sliding_window_rate"),
+		ScanInterval:          time.Second * 5,
+		ScanCampaigns:         !ko.Bool("passive"),
 	}, newManagerStore(q), campNotifCB, app.i18n, lo)
 }
 
+func initTxTemplates(m *manager.Manager, app *App) {
+	tpls, err := app.core.GetTemplates(models.TemplateTypeTx, false)
+	if err != nil {
+		lo.Fatalf("error loading transactional templates: %v", err)
+	}
+
+	for _, t := range tpls {
+		if err := t.Compile(app.manager.GenericTemplateFuncs()); err != nil {
+			lo.Printf("error compiling transactional template %d: %v", t.ID, err)
+			continue
+		}
+		m.CacheTpl(t.ID, &t)
+	}
+}
+
 // initImporter initializes the bulk subscriber importer.
-func initImporter(q *Queries, db *sqlx.DB, app *App) *subimporter.Importer {
+func initImporter(q *models.Queries, db *sqlx.DB, app *App) *subimporter.Importer {
 	return subimporter.New(
 		subimporter.Options{
 			DomainBlocklist:    app.constants.Privacy.DomainBlocklist,
@@ -391,7 +474,7 @@ func initSMTPMessenger(m *manager.Manager) messenger.Messenger {
 		lo.Fatalf("no SMTP servers found in config")
 	}
 
-	// Load the config for multipme SMTP servers.
+	// Load the config for multiple SMTP servers.
 	for _, item := range items {
 		if !item.Bool("enabled") {
 			continue
@@ -476,7 +559,7 @@ func initMediaStore() media.Store {
 		o.RootURL = ko.String("app.root_url")
 		o.UploadPath = filepath.Clean(o.UploadPath)
 		o.UploadURI = filepath.Clean(o.UploadURI)
-		up, err := filesystem.NewDiskStore(o)
+		up, err := filesystem.New(o)
 		if err != nil {
 			lo.Fatalf("error initializing filesystem upload provider %s", err)
 		}
@@ -491,7 +574,7 @@ func initMediaStore() media.Store {
 
 // initNotifTemplates compiles and returns e-mail notification templates that are
 // used for sending ad-hoc notifications to admins and subscribers.
-func initNotifTemplates(path string, fs stuffbin.FileSystem, i *i18n.I18n, cs *constants) *template.Template {
+func initNotifTemplates(path string, fs stuffbin.FileSystem, i *i18n.I18n, cs *constants) *notifTpls {
 	// Register utility functions that the e-mail templates can use.
 	funcs := template.FuncMap{
 		"RootURL": func() string {
@@ -503,25 +586,53 @@ func initNotifTemplates(path string, fs stuffbin.FileSystem, i *i18n.I18n, cs *c
 		"L": func() *i18n.I18n {
 			return i
 		},
+		"Safe": func(safeHTML string) template.HTML {
+			return template.HTML(safeHTML)
+		},
 	}
 
-	tpl, err := stuffbin.ParseTemplatesGlob(funcs, fs, "/static/email-templates/*.html")
+	tpls, err := stuffbin.ParseTemplatesGlob(funcs, fs, "/static/email-templates/*.html")
 	if err != nil {
 		lo.Fatalf("error parsing e-mail notif templates: %v", err)
 	}
-	return tpl
+
+	html, err := fs.Read("/static/email-templates/base.html")
+	if err != nil {
+		lo.Fatalf("error reading static/email-templates/base.html: %v", err)
+	}
+
+	out := &notifTpls{
+		tpls:        tpls,
+		contentType: models.CampaignContentTypeHTML,
+	}
+
+	// Determine whether the notification templates are HTML or plaintext.
+	// Copy the first few (arbitrary) bytes of the template and check if has the <!doctype html> tag.
+	ln := 256
+	if len(html) < ln {
+		ln = len(html)
+	}
+	h := make([]byte, ln)
+	copy(h, html[0:ln])
+
+	if !bytes.Contains(bytes.ToLower(h), []byte("<!doctype html")) {
+		out.contentType = models.CampaignContentTypePlain
+		lo.Println("system e-mail templates are plaintext")
+	}
+
+	return out
 }
 
 // initBounceManager initializes the bounce manager that scans mailboxes and listens to webhooks
 // for incoming bounce events.
 func initBounceManager(app *App) *bounce.Manager {
 	opt := bounce.Opt{
-		BounceCount:     ko.MustInt("bounce.count"),
-		BounceAction:    ko.MustString("bounce.action"),
 		WebhooksEnabled: ko.Bool("bounce.webhooks_enabled"),
 		SESEnabled:      ko.Bool("bounce.ses_enabled"),
 		SendgridEnabled: ko.Bool("bounce.sendgrid_enabled"),
 		SendgridKey:     ko.String("bounce.sendgrid_key"),
+
+		RecordBounceCB: app.core.RecordBounce,
 	}
 
 	// For now, only one mailbox is supported.
@@ -583,15 +694,14 @@ func initHTTPServer(app *App) *echo.Echo {
 	fSrv := app.fs.FileServer()
 
 	// Public (subscriber) facing static files.
-	srv.GET("/public/*", echo.WrapHandler(fSrv))
+	srv.GET("/public/static/*", echo.WrapHandler(fSrv))
 
 	// Admin (frontend) facing static files.
 	srv.GET("/admin/static/*", echo.WrapHandler(fSrv))
 
 	// Public (subscriber) facing media upload files.
-	if ko.String("upload.provider") == "filesystem" {
-		srv.Static(ko.String("upload.filesystem.upload_uri"),
-			ko.String("upload.filesystem.upload_path"))
+	if ko.String("upload.provider") == "filesystem" && ko.String("upload.filesystem.upload_uri") != "" {
+		srv.Static(ko.String("upload.filesystem.upload_uri"), ko.String("upload.filesystem.upload_path"))
 	}
 
 	// Register all HTTP handlers.

@@ -1,19 +1,16 @@
 package main
 
 import (
-	"bytes"
 	"crypto/rand"
 	"fmt"
 	"path/filepath"
 	"regexp"
 	"strconv"
 	"strings"
-
-	"github.com/lib/pq"
 )
 
 var (
-	tagRegexpSpaces = regexp.MustCompile(`[\s]+`)
+	regexpSpaces = regexp.MustCompile(`[\s]+`)
 )
 
 // inArray checks if a string is present in a list of strings.
@@ -32,40 +29,13 @@ func makeFilename(fName string) string {
 	if name == "" {
 		name, _ = generateRandomString(10)
 	}
+	// replace whitespace with "-"
+	name = regexpSpaces.ReplaceAllString(name, "-")
 	return filepath.Base(name)
 }
 
-// Given an error, pqErrMsg will try to return pq error details
-// if it's a pq error.
-func pqErrMsg(err error) string {
-	if err, ok := err.(*pq.Error); ok {
-		if err.Detail != "" {
-			return fmt.Sprintf("%s. %s", err, err.Detail)
-		}
-	}
-	return err.Error()
-}
-
-// normalizeTags takes a list of string tags and normalizes them by
-// lowercasing and removing all special characters except for dashes.
-func normalizeTags(tags []string) []string {
-	var (
-		out  []string
-		dash = []byte("-")
-	)
-
-	for _, t := range tags {
-		rep := tagRegexpSpaces.ReplaceAll(bytes.TrimSpace([]byte(t)), dash)
-
-		if len(rep) > 0 {
-			out = append(out, string(rep))
-		}
-	}
-	return out
-}
-
 // makeMsgTpl takes a page title, heading, and message and returns
-// a msgTpl that can be rendered as a HTML view. This is used for
+// a msgTpl that can be rendered as an HTML view. This is used for
 // rendering arbitrary HTML views with error and success messages.
 func makeMsgTpl(pageTitle, heading, msg string) msgTpl {
 	if heading == "" {
@@ -81,10 +51,10 @@ func makeMsgTpl(pageTitle, heading, msg string) msgTpl {
 // parseStringIDs takes a slice of numeric string IDs and
 // parses each number into an int64 and returns a slice of the
 // resultant values.
-func parseStringIDs(s []string) ([]int64, error) {
-	vals := make([]int64, 0, len(s))
+func parseStringIDs(s []string) ([]int, error) {
+	vals := make([]int, 0, len(s))
 	for _, v := range s {
-		i, err := strconv.ParseInt(v, 10, 64)
+		i, err := strconv.Atoi(v)
 		if err != nil {
 			return nil, err
 		}

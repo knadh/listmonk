@@ -8,7 +8,7 @@ html, body {
 }
 body {
   background: #f9f9f9;
-  font-family: "Open Sans", "Helvetica Neue", sans-serif;
+  font-family: "Inter", "Open Sans", "Helvetica Neue", sans-serif;
   font-size: 16px;
   line-height: 26px;
   color: #111;
@@ -45,6 +45,10 @@ input[type="text"], input[type="email"], select {
   input:focus {
     border-color: #0055d4;
   }
+
+input:focus::placeholder {
+  color: transparent;
+}
 
 .center {
   text-align: center;
@@ -116,6 +120,10 @@ input[type="text"], input[type="email"], select {
     display: none;
   }
 
+#btn-back {
+  display: none;
+}
+
 footer.container {
   margin-top: 15px;
   text-align: center;
@@ -136,5 +144,6 @@ footer.container {
   .wrap {
     margin: 0;
     padding: 30px;
+    max-width: none;
   }
 }
