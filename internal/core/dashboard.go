@@ -64,3 +64,21 @@ func (c *Core) GetDashboardDomainsCount(list_id string) (types.JSONText, error) 
 
 	return out, nil
 }
+
+// handleGetDashboardCountries returns subscriber country stats counts to show on the dashboard.
+func (c *Core) GetDashboardCountries(list_id string) (types.JSONText, error) {
+	var out types.JSONText
+	if list_id != "" {
+		if err := c.q.GetDashboardCountryStatsByList.Get(&out, list_id); err != nil {
+			return nil, echo.NewHTTPError(http.StatusInternalServerError,
+				c.i18n.Ts("globals.messages.errorFetching", "name", "dashboard country stats", "error", pqErrMsg(err)))
+		}
+	} else {
+		if err := c.q.GetDashboardCountryStats.Get(&out); err != nil {
+			return nil, echo.NewHTTPError(http.StatusInternalServerError,
+				c.i18n.Ts("globals.messages.errorFetching", "name", "dashboard country stats", "error", pqErrMsg(err)))
+		}
+	}
+
+	return out, nil
+}

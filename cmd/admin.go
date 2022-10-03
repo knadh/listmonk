@@ -118,22 +118,14 @@ func handleGetDashboardCounts(c echo.Context) error {
 // handleGetDashboardCountries returns subscriber country stats counts to show on the dashboard.
 func handleGetDashboardCountries(c echo.Context) error {
 	var (
-		app = c.Get("app").(*App)
+		app     = c.Get("app").(*App)
 		list_id = c.Param("list_id")
-		out types.JSONText
 	)
-	if list_id != "" {
-		if err := app.queries.GetDashboardCountryStatsByList.Get(&out, list_id); err != nil {
-			return echo.NewHTTPError(http.StatusInternalServerError,
-				app.i18n.Ts("globals.messages.errorFetching", "name", "dashboard country stats", "error", pqErrMsg(err)))
-		}
-	} else {
-		if err := app.queries.GetDashboardCountryStats.Get(&out); err != nil {
-			return echo.NewHTTPError(http.StatusInternalServerError,
-				app.i18n.Ts("globals.messages.errorFetching", "name", "dashboard country stats", "error", pqErrMsg(err)))
-		}
-	}
 
+	out, err := app.core.GetDashboardCountries(list_id)
+	if err != nil {
+		return err
+	}
 
 	return c.JSON(http.StatusOK, okResp{out})
 }
