@@ -134,7 +134,7 @@
                 v-bind:key="l.id" style="padding-right:0.5em;">
                 <b-tag :class="l.subscriptionStatus" size="is-small" :key="l.id">
                   {{ l.name }}
-                  <sup v-if="l.optin === 'double'">
+                  <sup v-if="l.optin === 'double' || l.subscriptionStatus == 'unsubscribed'">
                     {{ $t(`subscribers.status.${l.subscriptionStatus}`) }}
                   </sup>
                 </b-tag>

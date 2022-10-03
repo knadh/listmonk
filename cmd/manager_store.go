@@ -9,10 +9,10 @@ import (
 // runnerDB implements runner.DataSource over the primary
 // database.
 type runnerDB struct {
-	queries *Queries
+	queries *models.Queries
 }
 
-func newManagerStore(q *Queries) *runnerDB {
+func newManagerStore(q *models.Queries) *runnerDB {
 	return &runnerDB{
 		queries: q,
 	}

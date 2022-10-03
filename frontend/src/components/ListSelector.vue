@@ -5,7 +5,7 @@
           <b-tag v-for="l in selectedItems"
             :key="l.id"
             :class="l.subscriptionStatus"
-            :closable="true"
+            :closable="!$props.disabled"
             :data-id="l.id"
             @close="removeList(l.id)" class="list">
             {{ l.name }} <sup v-if="l.optin === 'double'">{{ l.subscriptionStatus }}</sup>
@@ -21,7 +21,7 @@
         :placeholder="placeholder"
         clearable
         dropdown-position="top"
-        :disabled="all.length === 0"
+        :disabled="all.length === 0 || $props.disabled"
         :keep-first="true"
         :clear-on-select="true"
         :open-on-focus="true"

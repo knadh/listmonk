@@ -69,6 +69,10 @@
         data-cy="all-settings" icon="cog-outline" :label="$t('menu.settings')">
       </b-menu-item>
 
+      <b-menu-item :to="{name: 'maintenance'}" tag="router-link" :active="activeItem.maintenance"
+        data-cy="maintenance" icon="wrench-outline" :label="$t('menu.maintenance')">
+      </b-menu-item>
+
       <b-menu-item :to="{name: 'logs'}" tag="router-link" :active="activeItem.logs"
         data-cy="logs" icon="newspaper-variant-outline" :label="$t('menu.logs')">
       </b-menu-item>

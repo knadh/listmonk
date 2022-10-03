@@ -412,6 +412,7 @@ export default Vue.extend({
         template_id: c.templateId,
         body: c.body,
         altbody: c.altbody,
+        headers: c.headers,
       };
       this.$api.createCampaign(data).then((d) => {
         this.$router.push({ name: 'campaign', params: { id: d.id } });

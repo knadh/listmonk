@@ -71,6 +71,7 @@ func initHTTPHandlers(e *echo.Echo, app *App) {
 
 	g.GET("/api/settings", handleGetSettings)
 	g.PUT("/api/settings", handleUpdateSettings)
+	g.POST("/api/settings/smtp/test", handleTestSMTPSettings)
 	g.POST("/api/admin/reload", handleReloadApp)
 	g.GET("/api/logs", handleGetLogs)
 
@@ -89,6 +90,7 @@ func initHTTPHandlers(e *echo.Echo, app *App) {
 	g.DELETE("/api/subscribers", handleDeleteSubscribers)
 
 	g.GET("/api/bounces", handleGetBounces)
+	g.GET("/api/bounces/:id", handleGetBounces)
 	g.DELETE("/api/bounces", handleDeleteBounces)
 	g.DELETE("/api/bounces/:id", handleDeleteBounces)
 
@@ -114,7 +116,7 @@ func initHTTPHandlers(e *echo.Echo, app *App) {
 
 	g.GET("/api/campaigns", handleGetCampaigns)
 	g.GET("/api/campaigns/running/stats", handleGetRunningCampaignStats)
-	g.GET("/api/campaigns/:id", handleGetCampaigns)
+	g.GET("/api/campaigns/:id", handleGetCampaign)
 	g.GET("/api/campaigns/analytics/:type", handleGetCampaignViewAnalytics)
 	g.GET("/api/campaigns/:id/preview", handlePreviewCampaign)
 	g.POST("/api/campaigns/:id/preview", handlePreviewCampaign)
@@ -127,6 +129,7 @@ func initHTTPHandlers(e *echo.Echo, app *App) {
 	g.DELETE("/api/campaigns/:id", handleDeleteCampaign)
 
 	g.GET("/api/media", handleGetMedia)
+	g.GET("/api/media/:id", handleGetMedia)
 	g.POST("/api/media", handleUploadMedia)
 	g.DELETE("/api/media/:id", handleDeleteMedia)
 
@@ -139,6 +142,12 @@ func initHTTPHandlers(e *echo.Echo, app *App) {
 	g.PUT("/api/templates/:id/default", handleTemplateSetDefault)
 	g.DELETE("/api/templates/:id", handleDeleteTemplate)
 
+	g.DELETE("/api/maintenance/subscribers/:type", handleGCSubscribers)
+	g.DELETE("/api/maintenance/analytics/:type", handleGCCampaignAnalytics)
+	g.DELETE("/api/maintenance/subscriptions/unconfirmed", handleGCSubscriptions)
+
+	g.POST("/api/tx", handleSendTxMessage)
+
 	if app.constants.BounceWebhooksEnabled {
 		// Private authenticated bounce endpoint.
 		g.POST("/webhooks/bounce", handleBounceWebhook)
@@ -146,6 +155,10 @@ func initHTTPHandlers(e *echo.Echo, app *App) {
 		// Public bounce endpoints for webservices like SES.
 		e.POST("/webhooks/service/:service", handleBounceWebhook)
 	}
+
+	// Public API endpoints.
+	e.GET("/api/public/lists", handleGetPublicLists)
+	e.POST("/api/public/subscription", handlePublicSubscription)
 
 	// /public/static/* file server is registered in initHTTPServer().
 	// Public subscriber facing views.
@@ -267,19 +280,17 @@ func subscriberExists(next echo.HandlerFunc, params ...string) echo.HandlerFunc 
 			subUUID = c.Param("subUUID")
 		)
 
-		var exists bool
-		if err := app.queries.SubscriberExists.Get(&exists, 0, subUUID); err != nil {
+		if _, err := app.core.GetSubscriber(0, subUUID, ""); err != nil {
+			if er, ok := err.(*echo.HTTPError); ok && er.Code == http.StatusBadRequest {
+				return c.Render(http.StatusNotFound, tplMessage,
+					makeMsgTpl(app.i18n.T("public.notFoundTitle"), "", er.Message.(string)))
+			}
+
 			app.log.Printf("error checking subscriber existence: %v", err)
 			return c.Render(http.StatusInternalServerError, tplMessage,
-				makeMsgTpl(app.i18n.T("public.errorTitle"), "",
-					app.i18n.T("public.errorProcessingRequest")))
+				makeMsgTpl(app.i18n.T("public.errorTitle"), "", app.i18n.T("public.errorProcessingRequest")))
 		}
 
-		if !exists {
-			return c.Render(http.StatusNotFound, tplMessage,
-				makeMsgTpl(app.i18n.T("public.notFoundTitle"), "",
-					app.i18n.T("public.subNotFound")))
-		}
 		return next(c)
 	}
 }
@@ -321,24 +332,4 @@ func getPagination(q url.Values, perPage int) pagination {
 		Offset:  page * perPage,
 		Limit:   perPage,
 	}
-}
-
-// copyEchoCtx returns a copy of the the current echo.Context in a request
-// with the given params set for the active handler to proxy the request
-// to another handler without mutating its context.
-func copyEchoCtx(c echo.Context, params map[string]string) echo.Context {
-	var (
-		keys = make([]string, 0, len(params))
-		vals = make([]string, 0, len(params))
-	)
-	for k, v := range params {
-		keys = append(keys, k)
-		vals = append(vals, v)
-	}
-
-	b := c.Echo().NewContext(c.Request(), c.Response())
-	b.Set("app", c.Get("app").(*App))
-	b.SetParamNames(keys...)
-	b.SetParamValues(vals...)
-	return b
 }

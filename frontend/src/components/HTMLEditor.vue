@@ -55,6 +55,10 @@ export default {
 
       // Set the initial value.
       this.flask.updateCode(body);
+
+      this.$nextTick(() => {
+        document.querySelector('code-flask').shadowRoot.querySelector('textarea').focus();
+      });
     },
   },
 

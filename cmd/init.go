@@ -36,6 +36,7 @@ import (
 	"github.com/knadh/listmonk/models"
 	"github.com/knadh/stuffbin"
 	"github.com/labstack/echo/v4"
+	"github.com/lib/pq"
 	flag "github.com/spf13/pflag"
 )
 
@@ -236,16 +237,32 @@ func initFS(appDir, frontendDir, staticDir, i18nDir string) stuffbin.FileSystem 
 // initDB initializes the main DB connection pool and parse and loads the app's
 // SQL queries into a prepared query map.
 func initDB() *sqlx.DB {
-	var dbCfg dbConf
-	if err := ko.Unmarshal("db", &dbCfg); err != nil {
+	var c struct {
+		Host        string        `koanf:"host"`
+		Port        int           `koanf:"port"`
+		User        string        `koanf:"user"`
+		Password    string        `koanf:"password"`
+		DBName      string        `koanf:"database"`
+		SSLMode     string        `koanf:"ssl_mode"`
+		MaxOpen     int           `koanf:"max_open"`
+		MaxIdle     int           `koanf:"max_idle"`
+		MaxLifetime time.Duration `koanf:"max_lifetime"`
+	}
+	if err := ko.Unmarshal("db", &c); err != nil {
 		lo.Fatalf("error loading db config: %v", err)
 	}
 
-	lo.Printf("connecting to db: %s:%d/%s", dbCfg.Host, dbCfg.Port, dbCfg.DBName)
-	db, err := connectDB(dbCfg)
+	lo.Printf("connecting to db: %s:%d/%s", c.Host, c.Port, c.DBName)
+	db, err := sqlx.Connect("postgres",
+		fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=%s", c.Host, c.Port, c.User, c.Password, c.DBName, c.SSLMode))
 	if err != nil {
 		lo.Fatalf("error connecting to DB: %v", err)
 	}
+
+	db.SetMaxOpenConns(c.MaxOpen)
+	db.SetMaxIdleConns(c.MaxIdle)
+	db.SetConnMaxLifetime(c.MaxLifetime)
+
 	return db
 }
 
@@ -265,23 +282,29 @@ func readQueries(sqlFile string, db *sqlx.DB, fs stuffbin.FileSystem) goyesql.Qu
 }
 
 // prepareQueries queries prepares a query map and returns a *Queries
-func prepareQueries(qMap goyesql.Queries, db *sqlx.DB, ko *koanf.Koanf) *Queries {
-	// The campaign view/click count queries have a COUNT(%s) placeholder that should either
-	// be substituted with * to pull non-unique rows when individual subscriber tracking is off
-	// as all subscriber_ids will be null, or with DISTINCT subscriber_id when tracking is on
-	// to only pull unique rows per subscriber.
-	sel := "*"
+func prepareQueries(qMap goyesql.Queries, db *sqlx.DB, ko *koanf.Koanf) *models.Queries {
+	var (
+		countQuery = "get-campaign-analytics-counts"
+		linkSel    = "*"
+	)
 	if ko.Bool("privacy.individual_tracking") {
-		sel = "DISTINCT subscriber_id"
+		countQuery = "get-campaign-analytics-unique-counts"
+		linkSel = "DISTINCT subscriber_id"
 	}
 
-	keys := []string{"get-campaign-view-counts", "get-campaign-click-counts", "get-campaign-link-counts"}
-	for _, k := range keys {
-		qMap[k].Query = fmt.Sprintf(qMap[k].Query, sel)
+	// These don't exist in the SQL file but are in the queries struct to be prepared.
+	qMap["get-campaign-view-counts"] = &goyesql.Query{
+		Query: fmt.Sprintf(qMap[countQuery].Query, "campaign_views"),
+		Tags:  map[string]string{"name": "get-campaign-view-counts"},
 	}
+	qMap["get-campaign-click-counts"] = &goyesql.Query{
+		Query: fmt.Sprintf(qMap[countQuery].Query, "link_clicks"),
+		Tags:  map[string]string{"name": "get-campaign-click-counts"},
+	}
+	qMap["get-campaign-link-counts"].Query = fmt.Sprintf(qMap["get-campaign-link-counts"].Query, linkSel)
 
 	// Scan and prepare all queries.
-	var q Queries
+	var q models.Queries
 	if err := goyesqlx.ScanToStruct(&q, qMap, db.Unsafe()); err != nil {
 		lo.Fatalf("error preparing SQL queries: %v", err)
 	}
@@ -293,7 +316,14 @@ func prepareQueries(qMap goyesql.Queries, db *sqlx.DB, ko *koanf.Koanf) *Queries
 func initSettings(query string, db *sqlx.DB, ko *koanf.Koanf) {
 	var s types.JSONText
 	if err := db.Get(&s, query); err != nil {
-		lo.Fatalf("error reading settings from DB: %s", pqErrMsg(err))
+		msg := err.Error()
+		if err, ok := err.(*pq.Error); ok {
+			if err.Detail != "" {
+				msg = fmt.Sprintf("%s. %s", err, err.Detail)
+			}
+		}
+
+		lo.Fatalf("error reading settings from DB: %s", msg)
 	}
 
 	// Setting keys are dot separated, eg: app.favicon_url. Unflatten them into
@@ -365,7 +395,7 @@ func initI18n(lang string, fs stuffbin.FileSystem) *i18n.I18n {
 }
 
 // initCampaignManager initializes the campaign manager.
-func initCampaignManager(q *Queries, cs *constants, app *App) *manager.Manager {
+func initCampaignManager(q *models.Queries, cs *constants, app *App) *manager.Manager {
 	campNotifCB := func(subject string, data interface{}) error {
 		return app.sendNotification(cs.NotifyEmails, subject, notifTplCampaign, data)
 	}
@@ -402,8 +432,23 @@ func initCampaignManager(q *Queries, cs *constants, app *App) *manager.Manager {
 	}, newManagerStore(q), campNotifCB, app.i18n, lo)
 }
 
+func initTxTemplates(m *manager.Manager, app *App) {
+	tpls, err := app.core.GetTemplates(models.TemplateTypeTx, false)
+	if err != nil {
+		lo.Fatalf("error loading transactional templates: %v", err)
+	}
+
+	for _, t := range tpls {
+		if err := t.Compile(app.manager.GenericTemplateFuncs()); err != nil {
+			lo.Printf("error compiling transactional template %d: %v", t.ID, err)
+			continue
+		}
+		m.CacheTpl(t.ID, &t)
+	}
+}
+
 // initImporter initializes the bulk subscriber importer.
-func initImporter(q *Queries, db *sqlx.DB, app *App) *subimporter.Importer {
+func initImporter(q *models.Queries, db *sqlx.DB, app *App) *subimporter.Importer {
 	return subimporter.New(
 		subimporter.Options{
 			DomainBlocklist:    app.constants.Privacy.DomainBlocklist,
@@ -541,6 +586,9 @@ func initNotifTemplates(path string, fs stuffbin.FileSystem, i *i18n.I18n, cs *c
 		"L": func() *i18n.I18n {
 			return i
 		},
+		"Safe": func(safeHTML string) template.HTML {
+			return template.HTML(safeHTML)
+		},
 	}
 
 	tpls, err := stuffbin.ParseTemplatesGlob(funcs, fs, "/static/email-templates/*.html")
@@ -567,7 +615,7 @@ func initNotifTemplates(path string, fs stuffbin.FileSystem, i *i18n.I18n, cs *c
 	h := make([]byte, ln)
 	copy(h, html[0:ln])
 
-	if !bytes.Contains(bytes.ToLower(h), []byte("<!doctype html>")) {
+	if !bytes.Contains(bytes.ToLower(h), []byte("<!doctype html")) {
 		out.contentType = models.CampaignContentTypePlain
 		lo.Println("system e-mail templates are plaintext")
 	}
@@ -579,12 +627,12 @@ func initNotifTemplates(path string, fs stuffbin.FileSystem, i *i18n.I18n, cs *c
 // for incoming bounce events.
 func initBounceManager(app *App) *bounce.Manager {
 	opt := bounce.Opt{
-		BounceCount:     ko.MustInt("bounce.count"),
-		BounceAction:    ko.MustString("bounce.action"),
 		WebhooksEnabled: ko.Bool("bounce.webhooks_enabled"),
 		SESEnabled:      ko.Bool("bounce.ses_enabled"),
 		SendgridEnabled: ko.Bool("bounce.sendgrid_enabled"),
 		SendgridKey:     ko.String("bounce.sendgrid_key"),
+
+		RecordBounceCB: app.core.RecordBounce,
 	}
 
 	// For now, only one mailbox is supported.
