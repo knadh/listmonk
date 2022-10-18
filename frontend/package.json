@@ -34,7 +34,7 @@
     "@vue/cli-service": "~4.5.13",
     "@vue/eslint-config-airbnb": "^5.3.0",
     "babel-eslint": "^10.1.0",
-    "cypress": "9.5.2",
+    "cypress": "10.10.0",
     "cypress-file-upload": "^5.0.2",
     "eslint": "^7.27.0",
     "eslint-plugin-import": "^2.23.3",
