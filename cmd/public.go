@@ -48,10 +48,14 @@ type publicTpl struct {
 
 type unsubTpl struct {
 	publicTpl
-	SubUUID        string
-	AllowBlocklist bool
-	AllowExport    bool
-	AllowWipe      bool
+	Subscriber       models.Subscriber
+	Subscriptions    []models.Subscription
+	SubUUID          string
+	AllowBlocklist   bool
+	AllowExport      bool
+	AllowWipe        bool
+	AllowPreferences bool
+	ShowManage       bool
 }
 
 type optinTpl struct {
@@ -175,36 +179,149 @@ func handleViewCampaignMessage(c echo.Context) error {
 // campaigns link to.
 func handleSubscriptionPage(c echo.Context) error {
 	var (
-		app          = c.Get("app").(*App)
-		campUUID     = c.Param("campUUID")
-		subUUID      = c.Param("subUUID")
-		unsub        = c.Request().Method == http.MethodPost
-		blocklist, _ = strconv.ParseBool(c.FormValue("blocklist"))
-		out          = unsubTpl{}
+		app           = c.Get("app").(*App)
+		subUUID       = c.Param("subUUID")
+		showManage, _ = strconv.ParseBool(c.FormValue("manage"))
+		out           = unsubTpl{}
 	)
 	out.SubUUID = subUUID
 	out.Title = app.i18n.T("public.unsubscribeTitle")
 	out.AllowBlocklist = app.constants.Privacy.AllowBlocklist
 	out.AllowExport = app.constants.Privacy.AllowExport
 	out.AllowWipe = app.constants.Privacy.AllowWipe
+	out.AllowPreferences = app.constants.Privacy.AllowPreferences
 
-	// Unsubscribe.
-	if unsub {
-		// Is blocklisting allowed?
-		if !app.constants.Privacy.AllowBlocklist {
-			blocklist = false
+	if app.constants.Privacy.AllowPreferences {
+		out.ShowManage = showManage
+	}
+
+	// Get the subscriber's lists.
+	subs, err := app.core.GetSubscriptions(0, subUUID, false)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("public.errorFetchingLists"))
+	}
+
+	s, err := app.core.GetSubscriber(0, subUUID, "")
+	if err != nil {
+		return c.Render(http.StatusInternalServerError, tplMessage,
+			makeMsgTpl(app.i18n.T("public.errorTitle"), "", app.i18n.Ts("public.errorProcessingRequest")))
+	}
+	out.Subscriber = s
+
+	if s.Status == models.SubscriberStatusBlockListed {
+		return c.Render(http.StatusOK, tplMessage,
+			makeMsgTpl(app.i18n.T("public.noSubTitle"), "", app.i18n.Ts("public.blocklisted")))
+	}
+
+	// Filter out unrelated private lists.
+	if showManage {
+		out.Subscriptions = make([]models.Subscription, 0, len(subs))
+		for _, s := range subs {
+			if s.Type == models.ListTypePrivate {
+				if s.SubscriptionStatus.IsZero() {
+					continue
+				}
+
+				s.Name = app.i18n.T("public.subPrivateList")
+			}
+
+			out.Subscriptions = append(out.Subscriptions, s)
 		}
+	}
 
+	return c.Render(http.StatusOK, "subscription", out)
+}
+
+// handleSubscriptionPage renders the subscription management page and
+// handles unsubscriptions. This is the view that {{ UnsubscribeURL }} in
+// campaigns link to.
+func handleSubscriptionPrefs(c echo.Context) error {
+	var (
+		app      = c.Get("app").(*App)
+		campUUID = c.Param("campUUID")
+		subUUID  = c.Param("subUUID")
+
+		req struct {
+			Name      string   `form:"name" json:"name"`
+			ListUUIDs []string `form:"l" json:"list_uuids"`
+			Blocklist bool     `form:"blocklist" json:"blocklist"`
+			Manage    bool     `form:"manage" json:"manage"`
+		}
+	)
+
+	// Read the form.
+	if err := c.Bind(&req); err != nil {
+		return c.Render(http.StatusBadRequest, tplMessage,
+			makeMsgTpl(app.i18n.T("public.errorTitle"), "", app.i18n.T("globals.messages.invalidData")))
+	}
+
+	// Simple unsubscribe.
+	blocklist := app.constants.Privacy.AllowBlocklist && req.Blocklist
+	if !req.Manage || blocklist {
 		if err := app.core.UnsubscribeByCampaign(subUUID, campUUID, blocklist); err != nil {
 			return c.Render(http.StatusInternalServerError, tplMessage,
-				makeMsgTpl(app.i18n.T("public.errorTitle"), "", app.i18n.Ts("public.errorProcessingRequest")))
+				makeMsgTpl(app.i18n.T("public.errorTitle"), "", app.i18n.T("public.errorProcessingRequest")))
 		}
 
 		return c.Render(http.StatusOK, tplMessage,
 			makeMsgTpl(app.i18n.T("public.unsubbedTitle"), "", app.i18n.T("public.unsubbedInfo")))
 	}
 
-	return c.Render(http.StatusOK, "subscription", out)
+	// Is preference management enabled?
+	if !app.constants.Privacy.AllowPreferences {
+		return c.Render(http.StatusBadRequest, tplMessage,
+			makeMsgTpl(app.i18n.T("public.errorTitle"), "", app.i18n.T("public.invalidFeature")))
+	}
+
+	// Manage preferences.
+	req.Name = strings.TrimSpace(req.Name)
+	if req.Name == "" || len(req.Name) > 256 {
+		return c.Render(http.StatusBadRequest, tplMessage,
+			makeMsgTpl(app.i18n.T("public.errorTitle"), "", app.i18n.T("subscribers.invalidName")))
+	}
+
+	// Get the subscriber from the DB.
+	sub, err := app.core.GetSubscriber(0, subUUID, "")
+	if err != nil {
+		return c.Render(http.StatusInternalServerError, tplMessage,
+			makeMsgTpl(app.i18n.T("public.errorTitle"), "", app.i18n.Ts("globals.messages.pFound",
+				"name", app.i18n.T("globals.terms.subscriber"))))
+	}
+	sub.Name = req.Name
+
+	// Update name.
+	if _, err := app.core.UpdateSubscriber(sub.ID, sub); err != nil {
+		return c.Render(http.StatusInternalServerError, tplMessage,
+			makeMsgTpl(app.i18n.T("public.errorTitle"), "", app.i18n.T("public.errorProcessingRequest")))
+	}
+
+	// Get the subscriber's lists and whatever is not sent in the request (unchecked),
+	// unsubscribe them.
+	subs, err := app.core.GetSubscriptions(0, subUUID, false)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("public.errorFetchingLists"))
+	}
+	reqUUIDs := make(map[string]struct{})
+	for _, u := range req.ListUUIDs {
+		reqUUIDs[u] = struct{}{}
+	}
+
+	unsubUUIDs := make([]string, 0, len(req.ListUUIDs))
+	for _, s := range subs {
+		if _, ok := reqUUIDs[s.UUID]; !ok {
+			unsubUUIDs = append(unsubUUIDs, s.UUID)
+		}
+	}
+
+	// Unsubscribe from lists.
+	if err := app.core.UnsubscribeLists([]int{sub.ID}, nil, unsubUUIDs); err != nil {
+		return c.Render(http.StatusInternalServerError, tplMessage,
+			makeMsgTpl(app.i18n.T("public.errorTitle"), "", app.i18n.T("public.errorProcessingRequest")))
+
+	}
+
+	return c.Render(http.StatusOK, tplMessage,
+		makeMsgTpl(app.i18n.T("globals.messages.done"), "", app.i18n.T("public.prefsSaved")))
 }
 
 // handleOptinPage renders the double opt-in confirmation page that subscribers
@@ -306,7 +423,6 @@ func handleSubscriptionForm(c echo.Context) error {
 	// If there's a nonce value, a bot could've filled the form.
 	if c.FormValue("nonce") != "" {
 		return echo.NewHTTPError(http.StatusBadGateway, app.i18n.T("public.invalidFeature"))
-
 	}
 
 	hasOptin, err := processSubForm(c)
@@ -547,7 +663,7 @@ func processSubForm(c echo.Context) (bool, error) {
 				return false, err
 			}
 
-			if _, err := app.core.UpdateSubscriber(sub.ID, sub, nil, listUUIDs, false); err != nil {
+			if _, err := app.core.UpdateSubscriberWithLists(sub.ID, sub, nil, listUUIDs, false, false); err != nil {
 				return false, err
 			}
 

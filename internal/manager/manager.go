@@ -451,6 +451,9 @@ func (m *Manager) TemplateFuncs(c *models.Campaign) template.FuncMap {
 		"UnsubscribeURL": func(msg *CampaignMessage) string {
 			return msg.unsubURL
 		},
+		"ManageURL": func(msg *CampaignMessage) string {
+			return msg.unsubURL + "?manage=true"
+		},
 		"OptinURL": func(msg *CampaignMessage) string {
 			// Add list IDs.
 			// TODO: Show private lists list on optin e-mail

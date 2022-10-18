@@ -49,6 +49,14 @@ func initHTTPHandlers(e *echo.Echo, app *App) {
 		g = e.Group("", middleware.BasicAuth(basicAuth))
 	}
 
+	e.HTTPErrorHandler = func(err error, c echo.Context) {
+		// Generic, non-echo error. Log it.
+		if _, ok := err.(*echo.HTTPError); !ok {
+			app.log.Println(err.Error())
+		}
+		e.DefaultHTTPErrorHandler(err, c)
+	}
+
 	// Admin JS app views.
 	// /admin/static/* file server is registered in initHTTPServer().
 	e.GET("/", func(c echo.Context) error {
@@ -163,7 +171,7 @@ func initHTTPHandlers(e *echo.Echo, app *App) {
 	e.POST("/subscription/form", handleSubscriptionForm)
 	e.GET("/subscription/:campUUID/:subUUID", noIndex(validateUUID(subscriberExists(handleSubscriptionPage),
 		"campUUID", "subUUID")))
-	e.POST("/subscription/:campUUID/:subUUID", validateUUID(subscriberExists(handleSubscriptionPage),
+	e.POST("/subscription/:campUUID/:subUUID", validateUUID(subscriberExists(handleSubscriptionPrefs),
 		"campUUID", "subUUID"))
 	e.GET("/subscription/optin/:subUUID", noIndex(validateUUID(subscriberExists(handleOptinPage), "subUUID")))
 	e.POST("/subscription/optin/:subUUID", validateUUID(subscriberExists(handleOptinPage), "subUUID"))

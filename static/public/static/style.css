@@ -50,6 +50,10 @@ input:focus::placeholder {
   color: transparent;
 }
 
+input[disabled] {
+  opacity: 0.5;
+}
+
 .center {
   text-align: center;
 }
@@ -111,8 +115,7 @@ input:focus::placeholder {
 .row {
   margin-bottom: 20px;
 }
-.form .lists {
-  margin-top: 45px;
+.lists {
   list-style-type: none;
   padding: 0;
 }

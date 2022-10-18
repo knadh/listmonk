@@ -24,6 +24,7 @@ type Settings struct {
 	PrivacyIndividualTracking bool     `json:"privacy.individual_tracking"`
 	PrivacyUnsubHeader        bool     `json:"privacy.unsubscribe_header"`
 	PrivacyAllowBlocklist     bool     `json:"privacy.allow_blocklist"`
+	PrivacyAllowPreferences   bool     `json:"privacy.allow_preferences"`
 	PrivacyAllowExport        bool     `json:"privacy.allow_export"`
 	PrivacyAllowWipe          bool     `json:"privacy.allow_wipe"`
 	PrivacyExportable         []string `json:"privacy.exportable"`

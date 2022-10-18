@@ -116,7 +116,7 @@ var regTplFuncs = []regTplFunc{
 	},
 
 	{
-		regExp:  regexp.MustCompile(`{{(\s+)?(TrackView|UnsubscribeURL|OptinURL|MessageURL)(\s+)?}}`),
+		regExp:  regexp.MustCompile(`{{(\s+)?(TrackView|UnsubscribeURL|ManageURL|OptinURL|MessageURL)(\s+)?}}`),
 		replace: `{{ $2 . }}`,
 	},
 }
@@ -167,6 +167,13 @@ type Subscriber struct {
 type subLists struct {
 	SubscriberID int            `db:"subscriber_id"`
 	Lists        types.JSONText `db:"lists"`
+}
+
+// Subscription represents a list attached to a subscriber.
+type Subscription struct {
+	List
+	SubscriptionStatus    null.String `db:"subscription_status" json:"subscription_status"`
+	SubscriptionCreatedAt null.String `db:"subscription_created_at" json:"subscription_created_at"`
 }
 
 // SubscriberExportProfile represents a subscriber's collated data in JSON for export.

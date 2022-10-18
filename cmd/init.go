@@ -60,6 +60,7 @@ type constants struct {
 	DBBatchSize           int      `koanf:"batch_size"`
 	Privacy               struct {
 		IndividualTracking bool            `koanf:"individual_tracking"`
+		AllowPreferences   bool            `koanf:"allow_preferences"`
 		AllowBlocklist     bool            `koanf:"allow_blocklist"`
 		AllowExport        bool            `koanf:"allow_export"`
 		AllowWipe          bool            `koanf:"allow_wipe"`

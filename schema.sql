@@ -197,6 +197,7 @@ INSERT INTO settings (key, value) VALUES
     ('privacy.allow_blocklist', 'true'),
     ('privacy.allow_export', 'true'),
     ('privacy.allow_wipe', 'true'),
+    ('privacy.allow_preferences', 'true'),
     ('privacy.exportable', '["profile", "subscriptions", "campaign_views", "link_clicks"]'),
     ('privacy.domain_blocklist', '[]'),
     ('upload.provider', '"filesystem"'),
