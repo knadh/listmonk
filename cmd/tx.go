@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"net/textproto"
@@ -38,7 +39,12 @@ func handleSendTxMessage(c echo.Context) error {
 	// Get the subscriber.
 	sub, err := app.core.GetSubscriber(m.SubscriberID, "", m.SubscriberEmail)
 	if err != nil {
-		return err
+		var httpErr *echo.HTTPError
+		// If subscriber email is defined but unknown (StatusBadRequest), we can continue
+		if (errors.As(err, &httpErr) && httpErr.Code != http.StatusBadRequest) || m.SubscriberEmail == "" {
+			return err
+		}
+		sub.Email = m.SubscriberEmail
 	}
 
 	// Render the message.
