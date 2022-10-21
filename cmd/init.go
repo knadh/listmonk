@@ -443,7 +443,8 @@ func initTxTemplates(m *manager.Manager, app *App) {
 			lo.Printf("error compiling transactional template %d: %v", t.ID, err)
 			continue
 		}
-		m.CacheTpl(t.ID, &t)
+		var copy models.Template = t
+		m.CacheTpl(t.ID, &copy)
 	}
 }
 
