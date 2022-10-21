@@ -67,4 +67,94 @@ describe('Forms', () => {
       }
     });
   });
+
+  it('Unsubscribes', () => {
+    // Add all lists to the dummy campaign.
+    cy.request('PUT', `${apiUrl}/api/campaigns/1`, { 'lists': [2] });
+
+    cy.request('GET', `${apiUrl}/api/subscribers`).then((response) => {
+      let subUUID = response.body.data.results[0].uuid;
+
+      cy.request('GET', `${apiUrl}/api/campaigns`).then((response) => {
+        let campUUID = response.body.data.results[0].uuid;
+        cy.loginAndVisit(`${apiUrl}/subscription/${campUUID}/${subUUID}`);
+      });
+    });
+
+    cy.wait(500);
+
+    // Unsubscribe from one list.
+    cy.get('button').click();
+    cy.request('GET', `${apiUrl}/api/subscribers`).then((response) => {
+      const { data } = response.body;
+      expect(data.results[0].lists.find((s) => s.id === 2).subscription_status).to.equal('unsubscribed');
+      expect(data.results[0].lists.find((s) => s.id === 3).subscription_status).to.equal('unconfirmed');
+    });
+
+    // Go back.
+    cy.url().then((u) => {
+      cy.loginAndVisit(u);
+    });
+
+    // Unsubscribe from all.
+    cy.get('#privacy-blocklist').click();
+    cy.get('button').click();
+
+    cy.request('GET', `${apiUrl}/api/subscribers`).then((response) => {
+      const { data } = response.body;
+      expect(data.results[0].status).to.equal('blocklisted');
+      expect(data.results[0].lists.find((s) => s.id === 2).subscription_status).to.equal('unsubscribed');
+      expect(data.results[0].lists.find((s) => s.id === 3).subscription_status).to.equal('unsubscribed');
+    });
+  });
+
+  it('Manages subscription preferences', () => {
+    cy.request('GET', `${apiUrl}/api/subscribers`).then((response) => {
+      let subUUID = response.body.data.results[1].uuid;
+
+      cy.request('GET', `${apiUrl}/api/campaigns`).then((response) => {
+        let campUUID = response.body.data.results[0].uuid;
+        cy.loginAndVisit(`${apiUrl}/subscription/${campUUID}/${subUUID}?manage=1`);
+      });
+    });
+
+    //   cy.wait(500);
+
+    // Change name and unsubscribe from one list.
+    cy.get('input[name=name]').clear().type('new-name');
+    cy.get('ul.lists input:first').click();
+    cy.get('button:first').click();
+
+    cy.request('GET', `${apiUrl}/api/subscribers`).then((response) => {
+      const { data } = response.body;
+      expect(data.results[1].name).to.equal('new-name');
+      expect(data.results[1].lists.find((s) => s.id === 2).subscription_status).to.equal('unsubscribed');
+      expect(data.results[1].lists.find((s) => s.id === 3).subscription_status).to.equal('unconfirmed');
+    });
+
+    //   // Unsubscribe from one list.
+    //   cy.get('button').click();
+    //   cy.request('GET', `${apiUrl}/api/subscribers`).then((response) => {
+    //     const { data } = response.body;
+    //     expect(data.results[0].lists.find((s) => s.id === 2).subscription_status).to.equal('unsubscribed');
+    //     expect(data.results[0].lists.find((s) => s.id === 3).subscription_status).to.equal('unconfirmed');
+    //   });
+
+    //   // Go back.
+    //   cy.url().then((u) => {
+    //     cy.loginAndVisit(u);
+    //   });
+
+    //   // Unsubscribe from all.
+    //   cy.get('#privacy-blocklist').click();
+    //   cy.get('button').click();
+
+    //   cy.request('GET', `${apiUrl}/api/subscribers`).then((response) => {
+    //     const { data } = response.body;
+    //     expect(data.results[0].status).to.equal('blocklisted');
+    //     expect(data.results[0].lists.find((s) => s.id === 2).subscription_status).to.equal('unsubscribed');
+    //     expect(data.results[0].lists.find((s) => s.id === 3).subscription_status).to.equal('unsubscribed');
+    //   });
+  });
+
 });
