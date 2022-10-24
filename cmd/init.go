@@ -439,12 +439,12 @@ func initTxTemplates(m *manager.Manager, app *App) {
 	}
 
 	for _, t := range tpls {
-		if err := t.Compile(app.manager.GenericTemplateFuncs()); err != nil {
-			lo.Printf("error compiling transactional template %d: %v", t.ID, err)
+		tpl := t
+		if err := tpl.Compile(app.manager.GenericTemplateFuncs()); err != nil {
+			lo.Printf("error compiling transactional template %d: %v", tpl.ID, err)
 			continue
 		}
-		var copy models.Template = t
-		m.CacheTpl(t.ID, &copy)
+		m.CacheTpl(tpl.ID, &tpl)
 	}
 }
 
