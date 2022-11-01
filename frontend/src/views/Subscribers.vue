@@ -450,13 +450,17 @@ export default Vue.extend({
       this.$utils.confirm(this.$t('subscribers.confirmDelete', { num: this.numSelectedSubscribers }), fn);
     },
 
-    bulkChangeLists(action, lists) {
+    bulkChangeLists(action, preconfirm, lists) {
       const data = {
         action,
         query: this.fullQueryExp,
         list_ids: this.queryParams.listID ? [this.queryParams.listID] : null,
         target_list_ids: lists.map((l) => l.id),
       };
+
+      if (preconfirm) {
+        data.status = 'confirmed';
+      }
 
       let fn = null;
       if (!this.bulk.all && this.bulk.checked.length > 0) {

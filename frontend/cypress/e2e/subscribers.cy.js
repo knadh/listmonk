@@ -74,7 +74,7 @@ describe('Subscribers', () => {
   it('Does bulk subscriber list add and remove', () => {
     const cases = [
       // radio: action to perform, rows: table rows to select and perform on: [expected statuses of those rows after thea action]
-      { radio: 'check-list-add', lists: [0, 1], rows: { 0: ['unconfirmed', 'unconfirmed'] } },
+      { radio: 'check-list-add', lists: [0, 1], rows: { 0: ['confirmed', 'confirmed'] } },
       { radio: 'check-list-unsubscribe', lists: [0, 1], rows: { 0: ['unsubscribed', 'unsubscribed'], 1: ['unsubscribed'] } },
       { radio: 'check-list-remove', lists: [0, 1], rows: { 1: [] } },
       { radio: 'check-list-add', lists: [0, 1], rows: { 0: ['unsubscribed', 'unsubscribed'], 1: ['unconfirmed', 'unconfirmed'] } },
@@ -100,6 +100,11 @@ describe('Subscribers', () => {
 
       // Select the radio option in the modal.
       cy.get(`[data-cy=${c.radio}] .check`).click();
+
+      // For the first test, check the optin preconfirm box.
+      if (n === 0) {
+        cy.get('[data-cy=preconfirm]').click();
+      }
 
       // Save.
       cy.get('.modal button.is-primary').click();
