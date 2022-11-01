@@ -331,21 +331,23 @@ body.is-noscroll {
       font-size: $size-7;
 
       p {
-        display: table-row;
-        border-bottom: 1px solid #ccc;
         line-height: 0.775rem;
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
       }
 
       label {
         font-weight: bold;
-        display: table-cell;
-        vertical-align: top;
-        text-align: right;
+        text-align: left;
         padding-bottom: 6px;
+        min-width: 100px;
       }
       span {
         display: inline-block;
-        margin-left: 10px;
+      }
+      [class*=" mdi-"]::before {
+        margin-left: 0;
       }
     }
 
