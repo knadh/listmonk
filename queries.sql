@@ -226,7 +226,7 @@ sub AS (
     UPDATE subscribers SET status = (CASE WHEN $3 IS TRUE THEN 'blocklisted' ELSE status END)
     WHERE uuid = $2 RETURNING id
 )
-UPDATE subscriber_lists SET status = 'unsubscribed' WHERE
+UPDATE subscriber_lists SET status = 'unsubscribed', updated_at=NOW() WHERE
     subscriber_id = (SELECT id FROM sub) AND status != 'unsubscribed' AND
     -- If $3 is false, unsubscribe from the campaign's lists, otherwise all lists.
     CASE WHEN $3 IS FALSE THEN list_id = ANY(SELECT list_id FROM lists) ELSE list_id != 0 END;
