@@ -144,6 +144,7 @@
     "globals.days.6": "Vie",
     "globals.days.7": "Sáb",
     "globals.fields.createdAt": "Creado",
+    "globals.fields.description": "Description",
     "globals.fields.id": "ID",
     "globals.fields.name": "Nombre",
     "globals.fields.status": "Estado",

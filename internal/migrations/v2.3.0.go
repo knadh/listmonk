@@ -12,7 +12,12 @@ func V2_3_0(db *sqlx.DB, fs stuffbin.FileSystem, ko *koanf.Koanf) error {
 		return err
 	}
 
-	// Insert appearance related settings.
+	// Add `description` field to lists.
+	if _, err := db.Exec(`ALTER TABLE lists ADD COLUMN IF NOT EXISTS "description" TEXT NOT NULL DEFAULT ''`); err != nil {
+		return err
+	}
+
+	// Insert new preference settings.
 	if _, err := db.Exec(`
 		INSERT INTO settings (key, value) VALUES
  			('privacy.allow_preferences', 'false')

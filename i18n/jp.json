@@ -144,6 +144,7 @@
     "globals.days.6": "金",
     "globals.days.7": "土",
     "globals.fields.createdAt": "作成済み",
+    "globals.fields.description": "Description",
     "globals.fields.id": "ID",
     "globals.fields.name": "名前",
     "globals.fields.status": "ステータス",

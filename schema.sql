@@ -33,6 +33,7 @@ CREATE TABLE lists (
     type            list_type NOT NULL,
     optin           list_optin NOT NULL DEFAULT 'single',
     tags            VARCHAR(100)[],
+    description     TEXT NOT NULL DEFAULT '',
 
     created_at      TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at      TIMESTAMP WITH TIME ZONE DEFAULT NOW()

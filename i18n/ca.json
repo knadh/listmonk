@@ -143,6 +143,7 @@
     "globals.days.6": "dv.",
     "globals.days.7": "ds.",
     "globals.fields.createdAt": "Creat",
+    "globals.fields.description": "Description",
     "globals.fields.id": "ID",
     "globals.fields.name": "Nom",
     "globals.fields.status": "Estat",

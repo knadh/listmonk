@@ -144,6 +144,7 @@
     "globals.days.6": "Cts",
     "globals.days.7": "Sat",
     "globals.fields.createdAt": "Yaratılma",
+    "globals.fields.description": "Description",
     "globals.fields.id": "ID",
     "globals.fields.name": "İsim",
     "globals.fields.status": "Durum",

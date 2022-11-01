@@ -38,6 +38,11 @@
           <b-taginput v-model="form.tags" name="tags" ellipsis
             icon="tag-outline" :placeholder="$t('globals.terms.tags')"></b-taginput>
         </b-field>
+
+        <b-field :label="$t('globals.fields.description')" label-position="on-border">
+          <b-input :maxlength="2000" v-model="form.description" name="description" type="textarea"
+            :placeholder="$t('globals.fields.description')"></b-input>
+        </b-field>
       </section>
       <footer class="modal-card-foot has-text-right">
         <b-button @click="$parent.close()">{{ $t('globals.buttons.close') }}</b-button>

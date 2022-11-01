@@ -144,6 +144,7 @@
     "globals.days.6": "Thứ 7",
     "globals.days.7": "Sat",
     "globals.fields.createdAt": "Đã tạo",
+    "globals.fields.description": "Description",
     "globals.fields.id": "ID",
     "globals.fields.name": "Tên",
     "globals.fields.status": "Trạng thái",

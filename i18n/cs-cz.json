@@ -144,6 +144,7 @@
     "globals.days.6": "So",
     "globals.days.7": "Sat",
     "globals.fields.createdAt": "Vytvořeno",
+    "globals.fields.description": "Description",
     "globals.fields.id": "ID",
     "globals.fields.name": "Jméno",
     "globals.fields.status": "Stav",

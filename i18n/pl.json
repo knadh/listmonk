@@ -144,6 +144,7 @@
     "globals.days.6": "Sob",
     "globals.days.7": "Sat",
     "globals.fields.createdAt": "Utworzone",
+    "globals.fields.description": "Description",
     "globals.fields.id": "ID",
     "globals.fields.name": "Nazwa",
     "globals.fields.status": "Status",

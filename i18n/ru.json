@@ -144,6 +144,7 @@
     "globals.days.6": "Сб",
     "globals.days.7": "Sat",
     "globals.fields.createdAt": "Создано",
+    "globals.fields.description": "Description",
     "globals.fields.id": "ID",
     "globals.fields.name": "Имя",
     "globals.fields.status": "Статус",

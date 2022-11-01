@@ -144,6 +144,7 @@
     "globals.days.6": "Szombat",
     "globals.days.7": "Sat",
     "globals.fields.createdAt": "Létrehozva",
+    "globals.fields.description": "Description",
     "globals.fields.id": "ID",
     "globals.fields.name": "Név",
     "globals.fields.status": "Státusz",

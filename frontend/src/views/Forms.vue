@@ -47,7 +47,7 @@
       <template v-for="l in publicLists"><span v-if="l.uuid in selected" :key="l.id" :set="id = l.uuid.substr(0, 5)">
         &lt;p&gt;
           &lt;input id=&quot;{{ id }}&quot; type=&quot;checkbox&quot; name=&quot;l&quot; checked value=&quot;{{ l.uuid }}&quot; /&gt;
-          &lt;label for=&quot;{{ id }}&quot;&gt;{{ l.name }}&lt;/label&gt;
+          &lt;label for=&quot;{{ id }}&quot;&gt;{{ l.name }}&lt;/label&gt;<template v-if="l.description">&lt;br /&gt;&lt;span&gt;{{ l.description }}&lt;/span&gt;</template>
         &lt;/p&gt;</span></template>
 
         &lt;p&gt;&lt;input type=&quot;submit&quot; value=&quot;{{ $t('public.sub') }}&quot; /&gt;&lt;/p&gt;

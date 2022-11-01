@@ -144,6 +144,7 @@
     "globals.days.6": "星期五",
     "globals.days.7": "星期六",
     "globals.fields.createdAt": "已創建",
+    "globals.fields.description": "Description",
     "globals.fields.id": "身份標識",
     "globals.fields.name": "姓名",
     "globals.fields.status": "狀態",

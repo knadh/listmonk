@@ -21,7 +21,7 @@ a:hover {
 }
 label {
   cursor: pointer;
-  color: #666;
+  color: #444;
 }
 h1,
 h2,
@@ -118,7 +118,18 @@ input[disabled] {
 .lists {
   list-style-type: none;
   padding: 0;
+  margin-bottom: 30px;
 }
+  .lists li {
+    margin: 0 0 5px 0;    
+  }
+  .lists .description {
+    margin: 0 0 15px 0;
+    font-size: 0.875em;
+    line-height: 1.3rem;
+    color: #888;
+    margin-left: 25px;
+  }
   .form .nonce {
     display: none;
   }

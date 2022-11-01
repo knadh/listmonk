@@ -22,6 +22,9 @@
                     <li>
                         <input checked="true" id="l-{{ $l.UUID}}" type="checkbox" name="l" value="{{ $l.UUID }}" >
                         <label for="l-{{ $l.UUID}}">{{ $l.Name }}</label>
+                        {{ if ne $l.Description "" }}
+                            <p class="description">{{ $l.Description }}</p>
+                        {{ end }}
                     </li>
                 {{ end }}
             </ul>
