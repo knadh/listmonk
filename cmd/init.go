@@ -82,6 +82,7 @@ type constants struct {
 	ViewTrackURL  string
 	OptinURL      string
 	MessageURL    string
+	ArchiveURL    string
 	MediaProvider string
 
 	BounceWebhooksEnabled bool
@@ -370,6 +371,9 @@ func initConstants() *constants {
 	// url.com/link/{campaign_uuid}/{subscriber_uuid}
 	c.MessageURL = fmt.Sprintf("%s/campaign/%%s/%%s", c.RootURL)
 
+	// url.com/archive
+	c.ArchiveURL = c.RootURL + "/archive"
+
 	// url.com/campaign/{campaign_uuid}/{subscriber_uuid}/px.png
 	c.ViewTrackURL = fmt.Sprintf("%s/campaign/%%s/%%s/px.png", c.RootURL)
 
@@ -424,6 +428,7 @@ func initCampaignManager(q *models.Queries, cs *constants, app *App) *manager.Ma
 		LinkTrackURL:          cs.LinkTrackURL,
 		ViewTrackURL:          cs.ViewTrackURL,
 		MessageURL:            cs.MessageURL,
+		ArchiveURL:            cs.ArchiveURL,
 		UnsubHeader:           ko.Bool("privacy.unsubscribe_header"),
 		SlidingWindow:         ko.Bool("app.message_sliding_window"),
 		SlidingWindowDuration: ko.Duration("app.message_sliding_window_duration"),

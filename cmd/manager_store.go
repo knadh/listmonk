@@ -38,7 +38,7 @@ func (r *runnerDB) NextSubscribers(campID, limit int) ([]models.Subscriber, erro
 // GetCampaign fetches a campaign from the database.
 func (r *runnerDB) GetCampaign(campID int) (*models.Campaign, error) {
 	var out = &models.Campaign{}
-	err := r.queries.GetCampaign.Get(out, campID, nil)
+	err := r.queries.GetCampaign.Get(out, campID, nil, "default")
 	return out, err
 }
 

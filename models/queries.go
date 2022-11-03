@@ -61,6 +61,7 @@ type Queries struct {
 	GetCampaignForPreview *sqlx.Stmt `query:"get-campaign-for-preview"`
 	GetCampaignStats      *sqlx.Stmt `query:"get-campaign-stats"`
 	GetCampaignStatus     *sqlx.Stmt `query:"get-campaign-status"`
+	GetArchivedCampaigns  *sqlx.Stmt `query:"get-archived-campaigns"`
 
 	// These two queries are read as strings and based on settings.individual_tracking=on/off,
 	// are interpolated and copied to view and click counts. Same query, different tables.
@@ -79,6 +80,7 @@ type Queries struct {
 	UpdateCampaign           *sqlx.Stmt `query:"update-campaign"`
 	UpdateCampaignStatus     *sqlx.Stmt `query:"update-campaign-status"`
 	UpdateCampaignCounts     *sqlx.Stmt `query:"update-campaign-counts"`
+	UpdateCampaignArchive    *sqlx.Stmt `query:"update-campaign-archive"`
 	RegisterCampaignView     *sqlx.Stmt `query:"register-campaign-view"`
 	DeleteCampaign           *sqlx.Stmt `query:"delete-campaign"`
 

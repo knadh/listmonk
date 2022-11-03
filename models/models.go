@@ -232,26 +232,30 @@ type Campaign struct {
 	Base
 	CampaignMeta
 
-	UUID        string         `db:"uuid" json:"uuid"`
-	Type        string         `db:"type" json:"type"`
-	Name        string         `db:"name" json:"name"`
-	Subject     string         `db:"subject" json:"subject"`
-	FromEmail   string         `db:"from_email" json:"from_email"`
-	Body        string         `db:"body" json:"body"`
-	AltBody     null.String    `db:"altbody" json:"altbody"`
-	SendAt      null.Time      `db:"send_at" json:"send_at"`
-	Status      string         `db:"status" json:"status"`
-	ContentType string         `db:"content_type" json:"content_type"`
-	Tags        pq.StringArray `db:"tags" json:"tags"`
-	Headers     Headers        `db:"headers" json:"headers"`
-	TemplateID  int            `db:"template_id" json:"template_id"`
-	Messenger   string         `db:"messenger" json:"messenger"`
+	UUID              string          `db:"uuid" json:"uuid"`
+	Type              string          `db:"type" json:"type"`
+	Name              string          `db:"name" json:"name"`
+	Subject           string          `db:"subject" json:"subject"`
+	FromEmail         string          `db:"from_email" json:"from_email"`
+	Body              string          `db:"body" json:"body"`
+	AltBody           null.String     `db:"altbody" json:"altbody"`
+	SendAt            null.Time       `db:"send_at" json:"send_at"`
+	Status            string          `db:"status" json:"status"`
+	ContentType       string          `db:"content_type" json:"content_type"`
+	Tags              pq.StringArray  `db:"tags" json:"tags"`
+	Headers           Headers         `db:"headers" json:"headers"`
+	TemplateID        int             `db:"template_id" json:"template_id"`
+	Messenger         string          `db:"messenger" json:"messenger"`
+	Archive           bool            `db:"archive" json:"archive"`
+	ArchiveTemplateID int             `db:"archive_template_id" json:"archive_template_id"`
+	ArchiveMeta       json.RawMessage `db:"archive_meta" json:"archive_meta"`
 
 	// TemplateBody is joined in from templates by the next-campaigns query.
-	TemplateBody string             `db:"template_body" json:"-"`
-	Tpl          *template.Template `json:"-"`
-	SubjectTpl   *txttpl.Template   `json:"-"`
-	AltBodyTpl   *template.Template `json:"-"`
+	TemplateBody        string             `db:"template_body" json:"-"`
+	ArchiveTemplateBody string             `db:"archive_template_body" json:"-"`
+	Tpl                 *template.Template `json:"-"`
+	SubjectTpl          *txttpl.Template   `json:"-"`
+	AltBodyTpl          *template.Template `json:"-"`
 
 	// Pseudofield for getting the total number of subscribers
 	// in searches and queries.
@@ -472,6 +476,26 @@ func (camps Campaigns) LoadStats(stmt *sqlx.Stmt) error {
 // CompileTemplate compiles a campaign body template into its base
 // template and sets the resultant template to Campaign.Tpl.
 func (c *Campaign) CompileTemplate(f template.FuncMap) error {
+	// If the subject line has a template string, compile it.
+	if strings.Contains(c.Subject, "{{") {
+		subj := c.Subject
+		for _, r := range regTplFuncs {
+			subj = r.regExp.ReplaceAllString(subj, r.replace)
+		}
+
+		var txtFuncs map[string]interface{} = f
+		subjTpl, err := txttpl.New(ContentTpl).Funcs(txtFuncs).Parse(subj)
+		if err != nil {
+			return fmt.Errorf("error compiling subject: %v", err)
+		}
+		c.SubjectTpl = subjTpl
+	}
+
+	// No template or body. Nothing to compile.
+	if c.TemplateBody == "" || c.Body == "" {
+		return nil
+	}
+
 	// Compile the base template.
 	body := c.TemplateBody
 	for _, r := range regTplFuncs {
@@ -508,21 +532,6 @@ func (c *Campaign) CompileTemplate(f template.FuncMap) error {
 		return fmt.Errorf("error inserting child template: %v", err)
 	}
 	c.Tpl = out
-
-	// If the subject line has a template string, compile it.
-	if strings.Contains(c.Subject, "{{") {
-		subj := c.Subject
-		for _, r := range regTplFuncs {
-			subj = r.regExp.ReplaceAllString(subj, r.replace)
-		}
-
-		var txtFuncs map[string]interface{} = f
-		subjTpl, err := txttpl.New(ContentTpl).Funcs(txtFuncs).Parse(subj)
-		if err != nil {
-			return fmt.Errorf("error compiling subject: %v", err)
-		}
-		c.SubjectTpl = subjTpl
-	}
 
 	if strings.Contains(c.AltBody.String, "{{") {
 		b := c.AltBody.String
