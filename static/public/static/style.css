@@ -134,6 +134,20 @@ input[disabled] {
     display: none;
   }
 
+.archive {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+  .archive .date {
+    display: block;
+    color: #666;
+    font-size: 0.875em;
+  }
+  .archive li {
+    margin-bottom: 10px;
+  }
+
 #btn-back {
   display: none;
 }

@@ -139,7 +139,6 @@ func handleViewCampaignMessage(c echo.Context) error {
 			}
 		}
 
-		app.log.Printf("error fetching campaign: %v", err)
 		return c.Render(http.StatusInternalServerError, tplMessage,
 			makeMsgTpl(app.i18n.T("public.errorTitle"), "", app.i18n.Ts("public.errorFetchingCampaign")))
 	}

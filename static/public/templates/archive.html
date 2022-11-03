@@ -1,0 +1,21 @@
+{{ define "archive" }}
+{{ template "header" .}}
+<section>
+    <h2>{{ L.T "public.archiveTitle" }}</h2>
+
+    <ul class="archive">
+        {{ range $c := .Data.Campaigns }}
+            <li>
+                <a href="{{ $c.URL }}">{{ $c.Subject }}</a>
+                <span class="date">{{ $c.CreatedAt.Time.Format "Mon, 02 Jan 2006" }}</span>
+            </li>
+        {{ end }}
+    </ul>
+
+    {{ if not .Data.Campaigns }}
+        {{ L.T "public.archiveEmpty" }}
+    {{ end }}
+</section>
+
+{{ template "footer" .}}
+{{ end }}

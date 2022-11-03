@@ -100,6 +100,11 @@ CREATE TABLE campaigns (
     max_subscriber_id  INT NOT NULL DEFAULT 0,
     last_subscriber_id INT NOT NULL DEFAULT 0,
 
+    -- Publishing.
+    archive             BOOLEAN NOT NULL DEFAULT false,
+    archive_template_id INTEGER REFERENCES templates(id) ON DELETE SET DEFAULT DEFAULT 1,
+    archive_meta        JSONB NOT NULL DEFAULT '{}',
+
     started_at       TIMESTAMP WITH TIME ZONE,
     created_at       TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at       TIMESTAMP WITH TIME ZONE DEFAULT NOW()

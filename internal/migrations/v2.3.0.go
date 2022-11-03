@@ -17,6 +17,18 @@ func V2_3_0(db *sqlx.DB, fs stuffbin.FileSystem, ko *koanf.Koanf) error {
 		return err
 	}
 
+	// Add archive publishing field to campaigns.
+	if _, err := db.Exec(`ALTER TABLE campaigns
+		ADD COLUMN IF NOT EXISTS archive BOOLEAN NOT NULL DEFAULT false,
+		ADD COLUMN IF NOT EXISTS archive_meta JSONB NOT NULL DEFAULT '{}',
+		ADD COLUMN IF NOT EXISTS archive_template_id INTEGER REFERENCES templates(id) ON DELETE SET DEFAULT DEFAULT 1
+		`); err != nil {
+		return err
+	}
+	// if _, err := db.Exec(`ALTER TABLE campaigns ADD COLUMN IF NOT EXISTS "publish_meta" JSONB NOT NULL DEFAULT '{}'`); err != nil {
+	// 	return err
+	// }
+
 	// Insert new preference settings.
 	if _, err := db.Exec(`
 		INSERT INTO settings (key, value) VALUES

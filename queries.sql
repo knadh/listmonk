@@ -473,8 +473,8 @@ counts AS (
     AND subscribers.status='enabled'
 ),
 camp AS (
-    INSERT INTO campaigns (uuid, type, name, subject, from_email, body, altbody, content_type, send_at, headers, tags, messenger, template_id, to_send, max_subscriber_id)
-        SELECT $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, (SELECT id FROM tpl), (SELECT to_send FROM counts), (SELECT max_sub_id FROM counts)
+    INSERT INTO campaigns (uuid, type, name, subject, from_email, body, altbody, content_type, send_at, headers, tags, messenger, template_id, to_send, max_subscriber_id, archive, archive_template_id, archive_meta)
+        SELECT $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, (SELECT id FROM tpl), (SELECT to_send FROM counts), (SELECT max_sub_id FROM counts), $15, $16, $17
         RETURNING id
 )
 INSERT INTO campaign_lists (campaign_id, list_id, list_name)
@@ -491,7 +491,7 @@ INSERT INTO campaign_lists (campaign_id, list_id, list_name)
 SELECT  c.id, c.uuid, c.name, c.subject, c.from_email,
         c.messenger, c.started_at, c.to_send, c.sent, c.type,
         c.body, c.altbody, c.send_at, c.headers, c.status, c.content_type, c.tags,
-        c.template_id, c.created_at, c.updated_at,
+        c.template_id, c.archive, c.archive_template_id, c.archive_meta, c.created_at, c.updated_at,
         COUNT(*) OVER () AS total,
         (
             SELECT COALESCE(ARRAY_TO_JSON(ARRAY_AGG(l)), '[]') FROM (
@@ -510,8 +510,16 @@ ORDER BY %s %s OFFSET $4 LIMIT (CASE WHEN $5 = 0 THEN NULL ELSE $5 END);
 SELECT campaigns.*,
     COALESCE(templates.body, (SELECT body FROM templates WHERE is_default = true LIMIT 1)) AS template_body
     FROM campaigns
-    LEFT JOIN templates ON (templates.id = campaigns.template_id)
+    LEFT JOIN templates ON (
+        CASE WHEN $3 = 'default' THEN templates.id = campaigns.template_id
+        ELSE templates.id = campaigns.archive_template_id END
+    )
     WHERE CASE WHEN $1 > 0 THEN campaigns.id = $1 ELSE uuid = $2 END;
+
+-- name: get-archived-campaigns
+SELECT COUNT(*) OVER () AS total, id, uuid, subject, archive_meta, created_at FROM campaigns
+    WHERE archive=true AND type='regular' AND status=ANY('{running, paused, finished}')
+    ORDER by created_at DESC OFFSET $1 LIMIT $2;
 
 -- name: get-campaign-stats
 -- This query is used to lazy load campaign stats (views, counts, list of lists) given a list of campaign IDs.
@@ -748,6 +756,9 @@ WITH camp AS (
         tags=$11::VARCHAR(100)[],
         messenger=$12,
         template_id=$13,
+        archive=$15,
+        archive_template_id=$16,
+        archive_meta=$17,
         updated_at=NOW()
     WHERE id = $1 RETURNING id
 ),
@@ -769,6 +780,14 @@ WHERE id=$1;
 
 -- name: update-campaign-status
 UPDATE campaigns SET status=$2, updated_at=NOW() WHERE id = $1;
+
+-- name: update-campaign-archive
+UPDATE campaigns SET
+    archive=$2,
+    archive_template_id=(CASE WHEN $3 > 0 THEN $3 ELSE archive_template_id END),
+    archive_meta=(CASE WHEN $4::TEXT != '' THEN $4::JSONB ELSE archive_meta END),
+    updated_at=NOW()
+    WHERE id=$1;
 
 -- name: delete-campaign
 DELETE FROM campaigns WHERE id=$1;
@@ -1009,3 +1028,4 @@ WITH sub AS (
     SELECT id FROM subscribers WHERE CASE WHEN $1 > 0 THEN id = $1 ELSE uuid = $2 END
 )
 DELETE FROM bounces WHERE subscriber_id = (SELECT id FROM sub);
+
