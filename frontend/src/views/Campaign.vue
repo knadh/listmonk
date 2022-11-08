@@ -531,7 +531,7 @@ export default Vue.extend({
     },
 
     canArchive() {
-      return this.data.status !== 'cancelled';
+      return this.data.status !== 'cancelled' && this.data.type !== 'optin';
     },
 
     selectedLists() {
