@@ -15,6 +15,10 @@
     {{ if not .Data.Campaigns }}
         {{ L.T "public.archiveEmpty" }}
     {{ end }}
+
+    {{ if gt .Data.TotalPages 1 }}
+        <div class="pagination">{{ .Data.Pagination }}</div>
+    {{ end }}
 </section>
 
 {{ template "footer" .}}

@@ -3,11 +3,10 @@ package main
 import (
 	"crypto/subtle"
 	"net/http"
-	"net/url"
 	"path"
 	"regexp"
-	"strconv"
 
+	"github.com/knadh/paginator"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
@@ -35,6 +34,14 @@ type pagination struct {
 var (
 	reUUID     = regexp.MustCompile("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$")
 	reLangCode = regexp.MustCompile("[^a-zA-Z_0-9\\-]")
+
+	paginate = paginator.New(paginator.Opt{
+		DefaultPerPage: 20,
+		MaxPerPage:     50,
+		NumPageNums:    10,
+		PageParam:      "page",
+		PerPageParam:   "per_page",
+	})
 )
 
 // registerHandlers registers HTTP handlers.
@@ -309,36 +316,5 @@ func noIndex(next echo.HandlerFunc, params ...string) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		c.Response().Header().Set("X-Robots-Tag", "noindex")
 		return next(c)
-	}
-}
-
-// getPagination takes form values and extracts pagination values from it.
-func getPagination(q url.Values, perPage int) pagination {
-	var (
-		page, _ = strconv.Atoi(q.Get("page"))
-		pp      = q.Get("per_page")
-	)
-
-	if pp == "all" {
-		// No limit.
-		perPage = 0
-	} else {
-		ppi, _ := strconv.Atoi(pp)
-		if ppi > 0 {
-			perPage = ppi
-		}
-	}
-
-	if page < 1 {
-		page = 0
-	} else {
-		page--
-	}
-
-	return pagination{
-		Page:    page + 1,
-		PerPage: perPage,
-		Offset:  page * perPage,
-		Limit:   perPage,
 	}
 }
