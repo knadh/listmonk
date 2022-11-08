@@ -13,14 +13,15 @@ import (
 func handleGetLists(c echo.Context) error {
 	var (
 		app = c.Get("app").(*App)
-		out models.PageResults
+		pg  = app.paginator.NewFromURL(c.Request().URL.Query())
 
-		pg         = getPagination(c.QueryParams(), 20)
 		query      = strings.TrimSpace(c.FormValue("query"))
 		orderBy    = c.FormValue("order_by")
 		order      = c.FormValue("order")
 		minimal, _ = strconv.ParseBool(c.FormValue("minimal"))
 		listID, _  = strconv.Atoi(c.Param("id"))
+
+		out models.PageResults
 	)
 
 	// Fetch one list.

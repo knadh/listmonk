@@ -16,6 +16,7 @@ require (
 	github.com/knadh/goyesql/v2 v2.1.2
 	github.com/knadh/koanf v1.2.3
 	github.com/knadh/smtppool v1.0.1
+	github.com/knadh/paginator v0.0.0-20210310070812-ae09d514e148 // indirect
 	github.com/knadh/stuffbin v1.1.0
 	github.com/labstack/echo/v4 v4.9.0
 	github.com/lib/pq v1.10.3

@@ -148,6 +148,20 @@ input[disabled] {
     margin-bottom: 10px;
   }
 
+.pagination {
+  margin-top: 30px;
+  text-align: center;
+}
+  .pg-page {
+    display: inline-block;
+    padding: 0 10px;
+    text-decoration: none;
+  }
+  .pg-page.pg-selected {
+    text-decoration: underline;
+    font-weight: bold;
+  }
+
 #btn-back {
   display: none;
 }

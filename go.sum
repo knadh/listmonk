@@ -82,6 +82,8 @@ github.com/knadh/goyesql/v2 v2.1.2 h1:XQrGiXSyeaRchdJE7odfzmodn3eAyhD5D6SxAkU2+4
 github.com/knadh/goyesql/v2 v2.1.2/go.mod h1:is+wK/XQBukYK3DdKfpJRyDH9U/ZTMyX2u6DFijjRnI=
 github.com/knadh/koanf v1.2.3 h1:2Rkr0YhhYk+4QEOm800Q3Pu0Wi87svTxM6uuEb4WhYw=
 github.com/knadh/koanf v1.2.3/go.mod h1:xpPTwMhsA/aaQLAilyCCqfpEiY1gpa160AiCuWHJUjY=
+github.com/knadh/paginator v0.0.0-20210310070812-ae09d514e148 h1:5KojMX5qCcq89QLyhjZPRh8zoFfmUiPaEzaxMCzSPLA=
+github.com/knadh/paginator v0.0.0-20210310070812-ae09d514e148/go.mod h1:80FK5OPRRQQKEK75ahG+92/MdX/lu4dE8loTzJRVcCQ=
 github.com/knadh/smtppool v1.0.0 h1:1c8A7+nD8WdMMzvd3yY5aoY9QBgyGTA+Iq1IdlgKGJw=
 github.com/knadh/smtppool v1.0.0/go.mod h1:3DJHouXAgPDBz0kC50HukOsdapYSwIEfJGwuip46oCA=
 github.com/knadh/smtppool v1.0.1 h1:gNASLB4x4W5jhVHRApwr9d2xSpsuannAFJVt/bVR8pA=

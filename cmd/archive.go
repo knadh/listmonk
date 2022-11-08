@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"html/template"
 	"net/http"
 
 	"github.com/knadh/listmonk/internal/manager"
@@ -22,7 +23,7 @@ type campArchive struct {
 func handleGetCampaignArchives(c echo.Context) error {
 	var (
 		app = c.Get("app").(*App)
-		pg  = getPagination(c.QueryParams(), 50)
+		pg  = app.paginator.NewFromURL(c.Request().URL.Query())
 	)
 
 	camps, total, err := getCampaignArchives(pg.Offset, pg.Limit, app)
@@ -49,23 +50,23 @@ func handleGetCampaignArchives(c echo.Context) error {
 func handleCampaignArchivesPage(c echo.Context) error {
 	var (
 		app = c.Get("app").(*App)
-		pg  = getPagination(c.QueryParams(), 50)
+		pg  = app.paginator.NewFromURL(c.Request().URL.Query())
 	)
 
 	out, total, err := getCampaignArchives(pg.Offset, pg.Limit, app)
 	if err != nil {
 		return err
 	}
+	pg.SetTotal(total)
 
 	title := app.i18n.T("public.archiveTitle")
 	return c.Render(http.StatusOK, "archive", struct {
 		Title       string
 		Description string
 		Campaigns   []campArchive
-		Total       int
-		Page        int
-		PerPage     int
-	}{title, title, out, total, pg.Page, pg.PerPage})
+		TotalPages  int
+		Pagination  template.HTML
+	}{title, title, out, pg.TotalPages, template.HTML(pg.HTML("?page=%d"))})
 }
 
 // handleCampaignArchivePage renders the public campaign archives page.
@@ -137,7 +138,8 @@ func compileArchiveCampaigns(camps []models.Campaign, app *App) ([]manager.Campa
 	)
 
 	out := make([]manager.CampaignMessage, 0, len(camps))
-	for _, camp := range camps {
+	for _, c := range camps {
+		camp := c
 		if err := camp.CompileTemplate(app.manager.TemplateFuncs(&camp)); err != nil {
 			app.log.Printf("error compiling template: %v", err)
 			return nil, echo.NewHTTPError(http.StatusInternalServerError, app.i18n.T("public.errorFetchingCampaign"))

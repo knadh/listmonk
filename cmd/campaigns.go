@@ -52,7 +52,7 @@ var (
 func handleGetCampaigns(c echo.Context) error {
 	var (
 		app = c.Get("app").(*App)
-		pg  = getPagination(c.QueryParams(), 20)
+		pg  = app.paginator.NewFromURL(c.Request().URL.Query())
 
 		status    = c.QueryParams()["status"]
 		query     = strings.TrimSpace(c.FormValue("query"))

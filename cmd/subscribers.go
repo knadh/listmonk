@@ -84,7 +84,7 @@ func handleGetSubscriber(c echo.Context) error {
 func handleQuerySubscribers(c echo.Context) error {
 	var (
 		app = c.Get("app").(*App)
-		pg  = getPagination(c.QueryParams(), 30)
+		pg  = app.paginator.NewFromURL(c.Request().URL.Query())
 
 		// The "WHERE ?" bit.
 		query   = sanitizeSQLExp(c.FormValue("query"))
