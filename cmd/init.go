@@ -707,18 +707,25 @@ func initHTTPServer(app *App) *echo.Echo {
 	}
 
 	// Register all HTTP handlers.
-	initHTTPHandlers(srv, app)
-
-	// Start the server.
-	go func() {
-		if err := srv.Start(ko.String("app.address")); err != nil {
-			if strings.Contains(err.Error(), "Server closed") {
-				lo.Println("HTTP server shut down")
-			} else {
-				lo.Fatalf("error starting HTTP server: %v", err)
-			}
-		}
-	}()
+    initHTTPHandlers(srv, app)
+    port := ko.String("app.port")
+    if os.Getenv("ASPNETCORE_PORT") != "" { // get enviroment variable that set by ACNM
+        port = os.Getenv("ASPNETCORE_PORT")
+        lo.Println("port retrieved from aspnetcore")
+    } else {
+        lo.Println("Could not find aspnet core port via IIS")
+    }
+    // Start the server.
+    lo.Println("HTTP starting on: " + "app.address" + ":" + port)
+    go func() {
+        if err := srv.Start(ko.String("app.address") + ":" + port); err != nil {
+            if strings.Contains(err.Error(), "Server closed") {
+                lo.Println("HTTP server shut down")
+            } else {
+                lo.Fatalf("error starting HTTP server: %v", err)
+            }
+        }
+    }()
 
 	return srv
 }
