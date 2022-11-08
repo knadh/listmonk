@@ -248,6 +248,7 @@ func initDB() *sqlx.DB {
 		MaxOpen     int           `koanf:"max_open"`
 		MaxIdle     int           `koanf:"max_idle"`
 		MaxLifetime time.Duration `koanf:"max_lifetime"`
+		Options     string        `koanf:"options"`
 	}
 	if err := ko.Unmarshal("db", &c); err != nil {
 		lo.Fatalf("error loading db config: %v", err)
@@ -255,7 +256,7 @@ func initDB() *sqlx.DB {
 
 	lo.Printf("connecting to db: %s:%d/%s", c.Host, c.Port, c.DBName)
 	db, err := sqlx.Connect("postgres",
-		fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=%s", c.Host, c.Port, c.User, c.Password, c.DBName, c.SSLMode))
+		fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=%s options=%s", c.Host, c.Port, c.User, c.Password, c.DBName, c.SSLMode, c.Options))
 	if err != nil {
 		lo.Fatalf("error connecting to DB: %v", err)
 	}
