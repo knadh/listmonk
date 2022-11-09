@@ -77,12 +77,19 @@ func handleCampaignArchivePage(c echo.Context) error {
 	)
 
 	pubCamp, err := app.core.GetArchivedCampaign(0, uuid)
-	if err != nil {
+	if err != nil || pubCamp.Type != models.CampaignTypeRegular {
+		notFound := false
 		if er, ok := err.(*echo.HTTPError); ok {
 			if er.Code == http.StatusBadRequest {
-				return c.Render(http.StatusNotFound, tplMessage,
-					makeMsgTpl(app.i18n.T("public.notFoundTitle"), "", app.i18n.T("public.campaignNotFound")))
+				notFound = true
 			}
+		} else if pubCamp.Type != models.CampaignTypeRegular {
+			notFound = true
+		}
+
+		if notFound {
+			return c.Render(http.StatusNotFound, tplMessage,
+				makeMsgTpl(app.i18n.T("public.notFoundTitle"), "", app.i18n.T("public.campaignNotFound")))
 		}
 
 		return c.Render(http.StatusInternalServerError, tplMessage,
