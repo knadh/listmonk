@@ -38,7 +38,13 @@ SELECT * FROM lists
 WITH subs AS (
     SELECT subscriber_id, JSON_AGG(
         ROW_TO_JSON(
-            (SELECT l FROM (SELECT subscriber_lists.status AS subscription_status, lists.*) l)
+            (SELECT l FROM (
+                SELECT
+                    subscriber_lists.status AS subscription_status,
+                    subscriber_lists.created_at AS subscription_created_at,
+                    subscriber_lists.updated_at AS subscription_updated_at,
+                    lists.*
+            ) l)
         )
     ) AS lists FROM lists
     LEFT JOIN subscriber_lists ON (subscriber_lists.list_id = lists.id)
