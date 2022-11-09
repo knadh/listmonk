@@ -16,6 +16,12 @@
         {{ L.T "public.archiveEmpty" }}
     {{ end }}
 
+    {{ if .EnablePublicSubPage }}
+        <p class="right">
+            <a href="{{ .RootURL }}/subscription/form">Subscribe</a>
+        </p>
+    {{ end }}
+
     {{ if gt .Data.TotalPages 1 }}
         <div class="pagination">{{ .Data.Pagination }}</div>
     {{ end }}
