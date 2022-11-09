@@ -220,7 +220,9 @@ type List struct {
 	SubscriberID     int            `db:"subscriber_id" json:"-"`
 
 	// This is only relevant when querying the lists of a subscriber.
-	SubscriptionStatus string `db:"subscription_status" json:"subscription_status,omitempty"`
+	SubscriptionStatus    string    `db:"subscription_status" json:"subscription_status,omitempty"`
+	SubscriptionCreatedAt null.Time `db:"subscription_created_at" json:"subscription_created_at,omitempty"`
+	SubscriptionUpdatedAt null.Time `db:"subscription_updated_at" json:"subscription_updated_at,omitempty"`
 
 	// Pseudofield for getting the total number of subscribers
 	// in searches and queries.
