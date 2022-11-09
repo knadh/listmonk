@@ -10,8 +10,8 @@
             </b-field>
             <b-field v-if="form.smtp.length > 1">
               <a @click.prevent="$utils.confirm(null, () => removeSMTP(n))"
-                href="#" class="is-size-7" data-cy="btn-delete-smtp">
-                <b-icon icon="trash-can-outline" size="is-small" />
+                href="#"  data-cy="btn-delete-smtp">
+                <b-icon icon="trash-can-outline" />
                 {{ $t('globals.buttons.delete') }}
               </a>
             </b-field>
@@ -147,7 +147,7 @@
             <div class="columns">
               <div class="column">
                 <p v-if="item.email_headers.length === 0 && !item.showHeaders">
-                  <a href="#" class="is-size-7" @click.prevent="() => showSMTPHeaders(n)">
+                  <a href="#" @click.prevent="() => showSMTPHeaders(n)">
                     <b-icon icon="plus" />{{ $t('settings.smtp.setCustomHeaders') }}</a>
                 </p>
                 <b-field v-if="item.email_headers.length > 0 || item.showHeaders"

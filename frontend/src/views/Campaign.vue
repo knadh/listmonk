@@ -130,8 +130,7 @@
 
                 <div>
                   <p class="has-text-right">
-                    <a href="#" class="is-size-7" @click.prevent="showHeaders"
-                      data-cy="btn-headers">
+                    <a href="#" @click.prevent="showHeaders" data-cy="btn-headers">
                       <b-icon icon="plus" />{{ $t('settings.smtp.setCustomHeaders') }}
                     </a>
                   </p>
