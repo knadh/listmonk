@@ -15,6 +15,7 @@ body {
 }
 a {
   color: #0055d4;
+  text-decoration-color: #abcbfb;
 }
 a:hover {
   color: #111;
@@ -56,6 +57,9 @@ input[disabled] {
 
 .center {
   text-align: center;
+}
+.right {
+  text-align: right;
 }
 .button {
   background: #0055d4;
@@ -145,7 +149,7 @@ input[disabled] {
     font-size: 0.875em;
   }
   .archive li {
-    margin-bottom: 10px;
+    margin-bottom: 15px;
   }
 
 .pagination {

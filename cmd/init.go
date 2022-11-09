@@ -692,10 +692,12 @@ func initHTTPServer(app *App) *echo.Echo {
 		lo.Fatalf("error parsing public templates: %v", err)
 	}
 	srv.Renderer = &tplRenderer{
-		templates:  tpl,
-		RootURL:    app.constants.RootURL,
-		LogoURL:    app.constants.LogoURL,
-		FaviconURL: app.constants.FaviconURL}
+		templates:           tpl,
+		RootURL:             app.constants.RootURL,
+		LogoURL:             app.constants.LogoURL,
+		FaviconURL:          app.constants.FaviconURL,
+		EnablePublicSubPage: app.constants.EnablePublicSubPage,
+	}
 
 	// Initialize the static file server.
 	fSrv := app.fs.FileServer()

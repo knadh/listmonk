@@ -1,5 +1,5 @@
 {{ define "subscription-form" }}
-{{ template "header" .}}
+{{ template "header" . }}
 <section>
     <h2>{{ L.T "public.subTitle" }}</h2>
 
@@ -30,6 +30,9 @@
             </ul>
             <p>
                 <button type="submit" class="button">{{ L.T "public.sub" }}</button>
+                <p class="right">
+                    <a href="{{ .RootURL }}/archive">{{ L.T "public.archiveTitle" }}</a>
+                </p>
             </p>
         </div>
     </form>

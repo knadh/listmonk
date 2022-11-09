@@ -25,20 +25,22 @@ const (
 
 // tplRenderer wraps a template.tplRenderer for echo.
 type tplRenderer struct {
-	templates  *template.Template
-	RootURL    string
-	LogoURL    string
-	FaviconURL string
+	templates           *template.Template
+	RootURL             string
+	LogoURL             string
+	FaviconURL          string
+	EnablePublicSubPage bool
 }
 
 // tplData is the data container that is injected
 // into public templates for accessing data.
 type tplData struct {
-	RootURL    string
-	LogoURL    string
-	FaviconURL string
-	Data       interface{}
-	L          *i18n.I18n
+	RootURL             string
+	LogoURL             string
+	FaviconURL          string
+	EnablePublicSubPage bool
+	Data                interface{}
+	L                   *i18n.I18n
 }
 
 type publicTpl struct {
@@ -83,11 +85,12 @@ var (
 // Render executes and renders a template for echo.
 func (t *tplRenderer) Render(w io.Writer, name string, data interface{}, c echo.Context) error {
 	return t.templates.ExecuteTemplate(w, name, tplData{
-		RootURL:    t.RootURL,
-		LogoURL:    t.LogoURL,
-		FaviconURL: t.FaviconURL,
-		Data:       data,
-		L:          c.Get("app").(*App).i18n,
+		RootURL:             t.RootURL,
+		LogoURL:             t.LogoURL,
+		FaviconURL:          t.FaviconURL,
+		EnablePublicSubPage: t.EnablePublicSubPage,
+		Data:                data,
+		L:                   c.Get("app").(*App).i18n,
 	})
 }
 
