@@ -6,6 +6,7 @@ import (
 	"html/template"
 	"net/http"
 
+	"github.com/gorilla/feeds"
 	"github.com/knadh/listmonk/internal/manager"
 	"github.com/knadh/listmonk/models"
 	"github.com/labstack/echo/v4"
@@ -44,6 +45,42 @@ func handleGetCampaignArchives(c echo.Context) error {
 	out.PerPage = pg.PerPage
 
 	return c.JSON(200, okResp{out})
+}
+
+// handleGetCampaignArchivesFeed renders the public campaign archives RSS feed.
+func handleGetCampaignArchivesFeed(c echo.Context) error {
+	var (
+		app = c.Get("app").(*App)
+		pg  = app.paginator.NewFromURL(c.Request().URL.Query())
+	)
+
+	camps, _, err := getCampaignArchives(pg.Offset, pg.Limit, app)
+	if err != nil {
+		return err
+	}
+
+	out := make([]*feeds.Item, 0, len(camps))
+	for _, c := range camps {
+		out = append(out, &feeds.Item{
+			Title:   c.Subject,
+			Link:    &feeds.Link{Href: c.URL},
+			Created: c.CreatedAt.Time,
+		})
+	}
+
+	feed := &feeds.Feed{
+		Title:       app.constants.SiteName,
+		Link:        &feeds.Link{Href: app.constants.RootURL},
+		Description: app.i18n.T("public.archiveTitle"),
+		Items:       out,
+	}
+
+	if err := feed.WriteRss(c.Response().Writer); err != nil {
+		app.log.Printf("error generating archive RSS feed: %v", err)
+		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("public.errorProcessingRequest"))
+	}
+
+	return nil
 }
 
 // handleCampaignArchivesPage renders the public campaign archives page.
