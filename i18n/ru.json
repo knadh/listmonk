@@ -370,6 +370,8 @@
     "settings.general.adminNotifEmailsHelp": "Список адресов электронной почты, разделенных запятыми, на которые следует отправлять уведомления администратора, такие как обновления импорта, завершение кампании, сбой и т.д. ",
     "settings.general.checkUpdates": "Проверьте наличие обновлений",
     "settings.general.checkUpdatesHelp": "Периодически проверяйте новые выпуски приложений и уведомляйте об этом.",
+    "settings.general.enablePublicArchive": "Enable public mailing list archive page",
+    "settings.general.enablePublicArchiveHelp": "Publish campaigns on which archiving is enabled on the public website.",
     "settings.general.enablePublicSubPage": "Включить публичную страницу подписки",
     "settings.general.enablePublicSubPageHelp": "Показать страницу общедоступной подписки со всеми общедоступными списками, на которые можно подписаться.",
     "settings.general.faviconURL": "URL-адрес фавикона",

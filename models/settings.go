@@ -9,6 +9,7 @@ type Settings struct {
 	AppFromEmail          string   `json:"app.from_email"`
 	AppNotifyEmails       []string `json:"app.notify_emails"`
 	EnablePublicSubPage   bool     `json:"app.enable_public_subscription_page"`
+	EnablePublicArchive   bool     `json:"app.enable_public_archive"`
 	SendOptinConfirmation bool     `json:"app.send_optin_confirmation"`
 	CheckUpdates          bool     `json:"app.check_updates"`
 	AppLang               string   `json:"app.lang"`

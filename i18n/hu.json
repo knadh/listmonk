@@ -370,6 +370,8 @@
     "settings.general.adminNotifEmailsHelp": "Azon e-mail címek vesszővel elválasztott listája, amelyekre az adminisztrátori értesítéseket kell küldeni, például az importálási frissítésekről, a kampány befejezéséről, a sikertelenségről stb.",
     "settings.general.checkUpdates": "Frissítések keresése ",
     "settings.general.checkUpdatesHelp": "Rendszeresen ellenőrizze az új alkalmazáskiadásokat, és értesítéseket.",
+    "settings.general.enablePublicArchive": "Enable public mailing list archive page",
+    "settings.general.enablePublicArchiveHelp": "Publish campaigns on which archiving is enabled on the public website.",
     "settings.general.enablePublicSubPage": "Nyilvános feliratkozási oldal engedélyezése ",
     "settings.general.enablePublicSubPageHelp": "Nyilvános feliratkozási oldal megjelenítése az összes nyilvános listával a feliratkozáshoz.",
     "settings.general.faviconURL": "Favicon URL",

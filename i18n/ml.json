@@ -370,6 +370,8 @@
     "settings.general.adminNotifEmailsHelp": "ഇംപോർട്ട് ചെയ്തതിലുള്ള വിവരങ്ങൾ, ക്യാമ്പേയ്ൻ പൂർത്തീകരണം, പ്രശ്നങ്ങൾ എന്നിങ്ങനെയുള്ള പ്രധാനപ്പെട്ട കാര്യനിര്‍വ്വാഹകർക്കുള്ള അറിയിപ്പിനായുള്ള കോമാ ഉപയോഗിച്ച് വേർതിരിച്ച ഇ-മെയിൽ വിലാസങ്ങൾ.",
     "settings.general.checkUpdates": "Check for updates",
     "settings.general.checkUpdatesHelp": "Periodically check for new app releases and notify.",
+    "settings.general.enablePublicArchive": "Enable public mailing list archive page",
+    "settings.general.enablePublicArchiveHelp": "Publish campaigns on which archiving is enabled on the public website.",
     "settings.general.enablePublicSubPage": "Enable public subscription page",
     "settings.general.enablePublicSubPageHelp": "Show a public subscription page with all the public lists for people to subscribe.",
     "settings.general.faviconURL": "ഫാവ് ഐക്കൺ യൂ. ആർ. എൽ",

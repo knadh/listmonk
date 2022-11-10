@@ -370,6 +370,8 @@
     "settings.general.adminNotifEmailsHelp": "Danh sách địa chỉ e-mail được phân tách bằng dấu phẩy mà các thông báo của quản trị viên như cập nhật nhập, hoàn thành chiến dịch, thất bại, v.v. sẽ được gửi đến.",
     "settings.general.checkUpdates": "Kiểm tra cập nhật",
     "settings.general.checkUpdatesHelp": "Kiểm tra định kỳ các bản phát hành ứng dụng mới và thông báo.",
+    "settings.general.enablePublicArchive": "Enable public mailing list archive page",
+    "settings.general.enablePublicArchiveHelp": "Publish campaigns on which archiving is enabled on the public website.",
     "settings.general.enablePublicSubPage": "Bật trang đăng ký công khai",
     "settings.general.enablePublicSubPageHelp": "Hiển thị trang đăng ký công khai với tất cả danh sách công khai để mọi người đăng ký.",
     "settings.general.faviconURL": "Favicon URL",

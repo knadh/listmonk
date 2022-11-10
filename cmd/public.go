@@ -31,6 +31,7 @@ type tplRenderer struct {
 	LogoURL             string
 	FaviconURL          string
 	EnablePublicSubPage bool
+	EnablePublicArchive bool
 }
 
 // tplData is the data container that is injected
@@ -41,6 +42,7 @@ type tplData struct {
 	LogoURL             string
 	FaviconURL          string
 	EnablePublicSubPage bool
+	EnablePublicArchive bool
 	Data                interface{}
 	L                   *i18n.I18n
 }
@@ -92,6 +94,7 @@ func (t *tplRenderer) Render(w io.Writer, name string, data interface{}, c echo.
 		LogoURL:             t.LogoURL,
 		FaviconURL:          t.FaviconURL,
 		EnablePublicSubPage: t.EnablePublicSubPage,
+		EnablePublicArchive: t.EnablePublicArchive,
 		Data:                data,
 		L:                   c.Get("app").(*App).i18n,
 	})

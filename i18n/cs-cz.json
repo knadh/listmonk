@@ -370,6 +370,8 @@
     "settings.general.adminNotifEmailsHelp": "Seznam e-mailových adres oddělených čárkami, na které by se měla odeslat oznámení administrátora, jako jsou aktualizace importu, dokončení kampaní, selhání atd.",
     "settings.general.checkUpdates": "Kontrola aktualizací",
     "settings.general.checkUpdatesHelp": "Pravidelně kontrolovat nová vydání aplikace a upozornit.",
+    "settings.general.enablePublicArchive": "Enable public mailing list archive page",
+    "settings.general.enablePublicArchiveHelp": "Publish campaigns on which archiving is enabled on the public website.",
     "settings.general.enablePublicSubPage": "Povolit veřejnou stránku odběru",
     "settings.general.enablePublicSubPageHelp": "Zobrazit veřejnou stránku odběru se všemi veřejnými seznamy pro lidi k odběru.",
     "settings.general.faviconURL": "Adresa URL ikony favicon",

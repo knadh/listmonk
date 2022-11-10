@@ -369,6 +369,8 @@
     "settings.general.adminNotifEmailsHelp": "Llista d'adreces de correu electrònic separades per comes a les quals s'han d'enviar notificacions d'administrador, com ara actualitzacions d'importació, finalització de campanya, errors, etc.",
     "settings.general.checkUpdates": "Busca actualitzacions",
     "settings.general.checkUpdatesHelp": "Comprova periòdicament si hi ha noves versions d'aplicacions i notifica-ho.",
+    "settings.general.enablePublicArchive": "Enable public mailing list archive page",
+    "settings.general.enablePublicArchiveHelp": "Publish campaigns on which archiving is enabled on the public website.",
     "settings.general.enablePublicSubPage": "Activa la pàgina de subscripció pública",
     "settings.general.enablePublicSubPageHelp": "Mostra una pàgina de subscripció pública amb totes les llistes públiques perquè la gent es subscrigui.",
     "settings.general.faviconURL": "Favicon URL",
