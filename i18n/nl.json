@@ -384,6 +384,7 @@
     "settings.general.rootURLHelp": "Publieke URL van de installatie (geen trailing slash).",
     "settings.general.sendOptinConfirm": "Verzend opt-in bevestiging",
     "settings.general.sendOptinConfirmHelp": "Verzend een opt-in bevestigingsmail als abonnees inschrijven via het publieke formulier of als ze door een administrator worden toegevoegd.",
+    "settings.general.siteName": "Site name",
     "settings.invalidMessengerName": "Ongeldige messenger naam.",
     "settings.mailserver.authProtocol": "Authenticatieprotocol",
     "settings.mailserver.host": "Host",

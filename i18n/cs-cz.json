@@ -384,6 +384,7 @@
     "settings.general.rootURLHelp": "Veřejná adresa URL instalace (bez koncového lomítka).",
     "settings.general.sendOptinConfirm": "Odeslat souhlas s odběrem",
     "settings.general.sendOptinConfirmHelp": "Odeslat e-mail se souhlasem po přihlášení nebo přidání nových odběratelů na admin formuláři.",
+    "settings.general.siteName": "Site name",
     "settings.invalidMessengerName": "Neplatné jméno kurýra.",
     "settings.mailserver.authProtocol": "Ověřovací protokol",
     "settings.mailserver.host": "Hostitel",

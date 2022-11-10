@@ -384,6 +384,7 @@
     "settings.general.rootURLHelp": "安裝的公共URL（沒有尾部斜杠）。",
     "settings.general.sendOptinConfirm": "發送選擇加入確認",
     "settings.general.sendOptinConfirmHelp": "當訂閱者通過公共表單註冊或由管理員添加時，發送選擇加入確認電子郵件。",
+    "settings.general.siteName": "Site name",
     "settings.invalidMessengerName": "信使名稱無效。",
     "settings.mailserver.authProtocol": "身份驗證協議",
     "settings.mailserver.host": "主機",

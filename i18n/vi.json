@@ -384,6 +384,7 @@
     "settings.general.rootURLHelp": "URL công khai của cài đặt (không có dấu gạch chéo).",
     "settings.general.sendOptinConfirm": "Gửi xác nhận chọn tham gia",
     "settings.general.sendOptinConfirmHelp": "Gửi e-mail xác nhận chọn tham gia khi người đăng ký đăng ký qua biểu mẫu công khai hoặc khi họ được thêm bởi quản trị viên.",
+    "settings.general.siteName": "Site name",
     "settings.invalidMessengerName": "Tên người đưa tin không hợp lệ.",
     "settings.mailserver.authProtocol": "Giao thức xác thực",
     "settings.mailserver.host": "Host",

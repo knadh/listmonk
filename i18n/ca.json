@@ -383,6 +383,7 @@
     "settings.general.rootURLHelp": "URL públic de la instal·lació (sense barra inclinada).",
     "settings.general.sendOptinConfirm": "Envia opt-in de confirmació",
     "settings.general.sendOptinConfirmHelp": "Envia un correu electrònic de confirmació de l'opt-in quan els subscriptors s'inscriguin mitjançant el formulari públic o quan l'administrador els afegeixi.",
+    "settings.general.siteName": "Site name",
     "settings.invalidMessengerName": "Nom de canal no vàlid",
     "settings.mailserver.authProtocol": "Protocol d'autenticació",
     "settings.mailserver.host": "Host",

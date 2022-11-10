@@ -384,6 +384,7 @@
     "settings.general.rootURLHelp": "インストール先の公開URL (末尾のスラッシュは不必要).",
     "settings.general.sendOptinConfirm": "オプトインの確認を送信",
     "settings.general.sendOptinConfirmHelp": "加入者が公開フォームからサインアップしたとき、又は管理者によって追加されたときに、オプトイン確認メールを送信。",
+    "settings.general.siteName": "Site name",
     "settings.invalidMessengerName": "無効なメッセンジャー名.",
     "settings.mailserver.authProtocol": "認証プロトコル",
     "settings.mailserver.host": "ホスト",

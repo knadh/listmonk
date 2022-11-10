@@ -384,6 +384,7 @@
     "settings.general.rootURLHelp": "Public URL of the installation (no trailing slash).",
     "settings.general.sendOptinConfirm": "Jelentkezési visszaigazolás küldése ",
     "settings.general.sendOptinConfirmHelp": "Feliratkozást megerősítő e-mail küldése, amikor az előfizetők a nyilvános űrlapon keresztül regisztrálnak, vagy amikor az adminisztrátor hozzáadja őket.",
+    "settings.general.siteName": "Site name",
     "settings.invalidMessengerName": "Érvénytelen üzenetküldő név.",
     "settings.mailserver.authProtocol": "Auth protokoll",
     "settings.mailserver.host": "Host",

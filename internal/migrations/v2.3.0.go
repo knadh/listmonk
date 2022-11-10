@@ -25,13 +25,11 @@ func V2_3_0(db *sqlx.DB, fs stuffbin.FileSystem, ko *koanf.Koanf) error {
 		`); err != nil {
 		return err
 	}
-	// if _, err := db.Exec(`ALTER TABLE campaigns ADD COLUMN IF NOT EXISTS "publish_meta" JSONB NOT NULL DEFAULT '{}'`); err != nil {
-	// 	return err
-	// }
 
 	// Insert new preference settings.
 	if _, err := db.Exec(`
 		INSERT INTO settings (key, value) VALUES
+ 			('app.site_name', '"Mailing list"'),
  			('privacy.allow_preferences', 'false')
  			ON CONFLICT DO NOTHING;
 	`); err != nil {

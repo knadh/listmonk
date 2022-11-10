@@ -2,6 +2,7 @@ package models
 
 // Settings represents the app settings stored in the DB.
 type Settings struct {
+	AppSiteName           string   `json:"app.site_name"`
 	AppRootURL            string   `json:"app.root_url"`
 	AppLogoURL            string   `json:"app.logo_url"`
 	AppFaviconURL         string   `json:"app.favicon_url"`

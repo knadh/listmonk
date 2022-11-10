@@ -49,6 +49,7 @@ const (
 
 // constants contains static, constant config values required by the app.
 type constants struct {
+	SiteName              string   `koanf:"site_name"`
 	RootURL               string   `koanf:"root_url"`
 	LogoURL               string   `koanf:"logo_url"`
 	FaviconURL            string   `koanf:"favicon_url"`
@@ -693,6 +694,7 @@ func initHTTPServer(app *App) *echo.Echo {
 	}
 	srv.Renderer = &tplRenderer{
 		templates:           tpl,
+		SiteName:            app.constants.SiteName,
 		RootURL:             app.constants.RootURL,
 		LogoURL:             app.constants.LogoURL,
 		FaviconURL:          app.constants.FaviconURL,
