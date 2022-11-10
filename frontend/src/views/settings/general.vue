@@ -1,7 +1,7 @@
 <template>
   <div class="items">
     <b-field :label="$t('settings.general.siteName')" label-position="on-border">
-      <b-input v-model="data['app.site_name']" name="app.root_url"
+      <b-input v-model="data['app.site_name']" name="app.site_name"
           :label="$t('settings.general.siteName')" :maxlength="300" required />
     </b-field>
 
