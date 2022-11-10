@@ -9,6 +9,7 @@ require (
 	github.com/fsnotify/fsnotify v1.5.1 // indirect
 	github.com/gofrs/uuid v4.0.0+incompatible
 	github.com/google/uuid v1.3.0 // indirect
+	github.com/gorilla/feeds v1.1.1 // indirect
 	github.com/huandu/xstrings v1.3.2 // indirect
 	github.com/imdario/mergo v0.3.12 // indirect
 	github.com/jmoiron/sqlx v1.3.4

@@ -140,7 +140,7 @@ input[disabled] {
 
 .archive {
   list-style-type: none;
-  margin: 0;
+  margin: 25px 0 0 0;
   padding: 0;
 }
   .archive .date {
@@ -150,6 +150,16 @@ input[disabled] {
   }
   .archive li {
     margin-bottom: 15px;
+  }
+  .feed {
+    margin-right: 15px;
+  }
+
+.home-options {
+  margin-top: 30px;
+}
+  .home-options a {
+    margin: 0 7px;
   }
 
 .pagination {
