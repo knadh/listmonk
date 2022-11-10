@@ -384,6 +384,7 @@
     "settings.general.rootURLHelp": "Öffentliche URL der Installation (ohne Slash am Ende).",
     "settings.general.sendOptinConfirm": "Sende Opt-In Bestätigung",
     "settings.general.sendOptinConfirmHelp": "When new subscribers signup or are added via the admin form, send an opt-in confirmation e-mail.",
+    "settings.general.siteName": "Site name",
     "settings.invalidMessengerName": "Der Name des Messengers ist ungültig",
     "settings.mailserver.authProtocol": "Autentifizierungsprotokoll",
     "settings.mailserver.host": "Server",

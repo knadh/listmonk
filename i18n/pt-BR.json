@@ -384,6 +384,7 @@
     "settings.general.rootURLHelp": "URL público da instalação (sem barra final).",
     "settings.general.sendOptinConfirm": "Enviar confirmação opt-in",
     "settings.general.sendOptinConfirmHelp": "Quando novo assinante se cadastrar ou for adicionado pelo admin, enviar e-mail de confirmação opt-in.",
+    "settings.general.siteName": "Site name",
     "settings.invalidMessengerName": "Nome de mensageiro inválido.",
     "settings.mailserver.authProtocol": "Protocolo Autenticação",
     "settings.mailserver.host": "Host",

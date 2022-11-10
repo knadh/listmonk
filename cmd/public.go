@@ -26,6 +26,7 @@ const (
 // tplRenderer wraps a template.tplRenderer for echo.
 type tplRenderer struct {
 	templates           *template.Template
+	SiteName            string
 	RootURL             string
 	LogoURL             string
 	FaviconURL          string
@@ -35,6 +36,7 @@ type tplRenderer struct {
 // tplData is the data container that is injected
 // into public templates for accessing data.
 type tplData struct {
+	SiteName            string
 	RootURL             string
 	LogoURL             string
 	FaviconURL          string
@@ -85,6 +87,7 @@ var (
 // Render executes and renders a template for echo.
 func (t *tplRenderer) Render(w io.Writer, name string, data interface{}, c echo.Context) error {
 	return t.templates.ExecuteTemplate(w, name, tplData{
+		SiteName:            t.SiteName,
 		RootURL:             t.RootURL,
 		LogoURL:             t.LogoURL,
 		FaviconURL:          t.FaviconURL,

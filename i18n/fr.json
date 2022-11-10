@@ -384,6 +384,7 @@
     "settings.general.rootURLHelp": "URL publique de l'installation (sans slash final)",
     "settings.general.sendOptinConfirm": "Envoyez une confirmation d'adhésion",
     "settings.general.sendOptinConfirmHelp": "Envoyer un e-mail de confirmation d'adhésion quand de nouvelles personnes s'abonnent ou sont ajoutées par l'administrateur.",
+    "settings.general.siteName": "Site name",
     "settings.invalidMessengerName": "Nom de messagerie invalide",
     "settings.mailserver.authProtocol": "Protocole d'authentification",
     "settings.mailserver.host": "Hôte",

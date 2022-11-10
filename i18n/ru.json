@@ -384,6 +384,7 @@
     "settings.general.rootURLHelp": "Публичный URL текущего портала (без конечного слэша).",
     "settings.general.sendOptinConfirm": "Отправьте подтверждение об отказе от участия",
     "settings.general.sendOptinConfirmHelp": "Когда новые подписчики подписываются или добавляются через форму администратора, отправьте письмо с подтверждением подписки.",
+    "settings.general.siteName": "Site name",
     "settings.invalidMessengerName": "Неверное имя мессенджера.",
     "settings.mailserver.authProtocol": "Протокол авторизации",
     "settings.mailserver.host": "Хост",

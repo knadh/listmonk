@@ -384,6 +384,7 @@
     "settings.general.rootURLHelp": "Publiczny URL instalacji (bez slasha na końcu)",
     "settings.general.sendOptinConfirm": "Wyślij potwierdzenie opt-in",
     "settings.general.sendOptinConfirmHelp": "Gdy nowi subskrybenci się zapiszą albo zostaną dodanie przez formularz admina wysyłaj maila opt-in z żądaniem potwierdzenia.",
+    "settings.general.siteName": "Site name",
     "settings.invalidMessengerName": "Nieprawidłowa nazwa komunikatora.",
     "settings.mailserver.authProtocol": "Protokół autoryzacji",
     "settings.mailserver.host": "Host",

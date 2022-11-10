@@ -384,6 +384,7 @@
     "settings.general.rootURLHelp": "ഇൻസ്റ്റാളേഷന്റെ പൊതു യൂ. ആർ. എൽ (അവസാനത്തെ സ്ലാഷ് ആവശ്യമില്ല).",
     "settings.general.sendOptinConfirm": "Send opt-in confirmation",
     "settings.general.sendOptinConfirmHelp": "When new subscribers signup or are added via the admin form, send an opt-in confirmation e-mail.",
+    "settings.general.siteName": "Site name",
     "settings.invalidMessengerName": "സന്ദേശവാഹകന്റെ പേര് അസാധുവാണ്",
     "settings.mailserver.authProtocol": "പ്രാമാണീകരണ പ്രോട്ടോക്കോൾ",
     "settings.mailserver.host": "ഹോസ്റ്റ്",

@@ -384,6 +384,7 @@
     "settings.general.rootURLHelp": "Adresa URL publică a instalării (fără bară finală).",
     "settings.general.sendOptinConfirm": "Trimite confirmarea de înscriere",
     "settings.general.sendOptinConfirmHelp": "Trimite un e-mail de confirmare de înscriere atunci când abonații se înscriu prin formularul public sau când sunt adăugați de către administrator.",
+    "settings.general.siteName": "Site name",
     "settings.invalidMessengerName": "Numele mesagerului nu este valid.",
     "settings.mailserver.authProtocol": "Protocol de autentificare",
     "settings.mailserver.host": "Gazdă",

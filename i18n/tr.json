@@ -384,6 +384,7 @@
     "settings.general.rootURLHelp": "Kurulumun genel URL'si (bölme çizgisi yok).",
     "settings.general.sendOptinConfirm": "Send opt-in confirmation",
     "settings.general.sendOptinConfirmHelp": "When new subscribers signup or are added via the admin form, send an opt-in confirmation e-mail.",
+    "settings.general.siteName": "Site name",
     "settings.invalidMessengerName": "Geçersiz messenger adı.",
     "settings.mailserver.authProtocol": "Protokol",
     "settings.mailserver.host": "İstemci",

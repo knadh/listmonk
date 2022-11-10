@@ -1,9 +1,14 @@
 <template>
   <div class="items">
+    <b-field :label="$t('settings.general.siteName')" label-position="on-border">
+      <b-input v-model="data['app.site_name']" name="app.root_url"
+          :label="$t('settings.general.siteName')" :maxlength="300" required />
+    </b-field>
+
     <b-field :label="$t('settings.general.rootURL')" label-position="on-border"
       :message="$t('settings.general.rootURLHelp')">
       <b-input v-model="data['app.root_url']" name="app.root_url"
-          placeholder='https://listmonk.yoursite.com' :maxlength="300" />
+          placeholder='https://listmonk.yoursite.com' :maxlength="300" required />
     </b-field>
 
     <div class="columns">
