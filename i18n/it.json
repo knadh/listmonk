@@ -370,6 +370,8 @@
     "settings.general.adminNotifEmailsHelp": "Lista indirizzi mail separati da virgole ai quali saranno inviate notifiche di amministrazione come gli aggiornamenti di importazione, la fine della campagna, eventuali problemi ecc.",
     "settings.general.checkUpdates": "Controlla le attualizazioni.",
     "settings.general.checkUpdatesHelp": "Rutinariamente controllare se ci sono nuove versioni dell'app e notificami.",
+    "settings.general.enablePublicArchive": "Enable public mailing list archive page",
+    "settings.general.enablePublicArchiveHelp": "Publish campaigns on which archiving is enabled on the public website.",
     "settings.general.enablePublicSubPage": "Attiva la pagina di iscrizione pubblica",
     "settings.general.enablePublicSubPageHelp": "Visualizza una pagina di iscrizione pubblica con tutte le liste pubbliche a cui è possibile iscriversi.",
     "settings.general.faviconURL": "URL della favicon",

@@ -56,6 +56,7 @@ type constants struct {
 	FromEmail             string   `koanf:"from_email"`
 	NotifyEmails          []string `koanf:"notify_emails"`
 	EnablePublicSubPage   bool     `koanf:"enable_public_subscription_page"`
+	EnablePublicArchive   bool     `koanf:"enable_public_archive"`
 	SendOptinConfirmation bool     `koanf:"send_optin_confirmation"`
 	Lang                  string   `koanf:"lang"`
 	DBBatchSize           int      `koanf:"batch_size"`
@@ -699,6 +700,7 @@ func initHTTPServer(app *App) *echo.Echo {
 		LogoURL:             app.constants.LogoURL,
 		FaviconURL:          app.constants.FaviconURL,
 		EnablePublicSubPage: app.constants.EnablePublicSubPage,
+		EnablePublicArchive: app.constants.EnablePublicArchive,
 	}
 
 	// Initialize the static file server.

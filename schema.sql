@@ -194,6 +194,7 @@ INSERT INTO settings (key, value) VALUES
     ('app.message_sliding_window', 'false'),
     ('app.message_sliding_window_duration', '"1h"'),
     ('app.message_sliding_window_rate', '10000'),
+    ('app.enable_public_archive', 'true'),
     ('app.enable_public_subscription_page', 'true'),
     ('app.send_optin_confirmation', 'true'),
     ('app.check_updates', 'true'),

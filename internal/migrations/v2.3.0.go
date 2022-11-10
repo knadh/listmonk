@@ -30,6 +30,7 @@ func V2_3_0(db *sqlx.DB, fs stuffbin.FileSystem, ko *koanf.Koanf) error {
 	if _, err := db.Exec(`
 		INSERT INTO settings (key, value) VALUES
  			('app.site_name', '"Mailing list"'),
+ 			('app.enable_public_archive', 'true'),
  			('privacy.allow_preferences', 'false')
  			ON CONFLICT DO NOTHING;
 	`); err != nil {

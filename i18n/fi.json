@@ -370,6 +370,8 @@
     "settings.general.adminNotifEmailsHelp": "Comma separated list of e-mail addresses to which admin notifications such as import updates, campaign completion, failure etc. should be sent.",
     "settings.general.checkUpdates": "Check for updates",
     "settings.general.checkUpdatesHelp": "Periodically check for new app releases and notify.",
+    "settings.general.enablePublicArchive": "Enable public mailing list archive page",
+    "settings.general.enablePublicArchiveHelp": "Publish campaigns on which archiving is enabled on the public website.",
     "settings.general.enablePublicSubPage": "Enable public subscription page",
     "settings.general.enablePublicSubPageHelp": "Show a public subscription page with all the public lists for people to subscribe.",
     "settings.general.faviconURL": "Favicon URL",

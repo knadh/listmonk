@@ -44,14 +44,21 @@
 
     <hr />
     <div class="columns">
-      <div class="column is-6">
+      <div class="column is-4">
         <b-field :label="$t('settings.general.enablePublicSubPage')"
           :message="$t('settings.general.enablePublicSubPageHelp')">
           <b-switch v-model="data['app.enable_public_subscription_page']"
               name="app.enable_public_subscription_page" />
         </b-field>
       </div>
-      <div class="column is-6">
+      <div class="column is-4">
+        <b-field :label="$t('settings.general.enablePublicArchive')"
+          :message="$t('settings.general.enablePublicArchiveHelp')">
+          <b-switch v-model="data['app.enable_public_archive']"
+              name="app.enable_public_archive" />
+        </b-field>
+      </div>
+      <div class="column is-4">
         <b-field :label="$t('settings.general.sendOptinConfirm')"
           :message="$t('settings.general.sendOptinConfirmHelp')">
           <b-switch v-model="data['app.send_optin_confirmation']"

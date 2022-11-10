@@ -370,6 +370,8 @@
     "settings.general.adminNotifEmailsHelp": "Lista separată prin virgulă a adreselor de e-mail către care ar trebui trimise notificări de administrator, cum ar fi actualizări de import, finalizarea campaniei, eșec etc.",
     "settings.general.checkUpdates": "Verifică actualizări",
     "settings.general.checkUpdatesHelp": "Verifică periodic lansările de aplicații noi și notifică.",
+    "settings.general.enablePublicArchive": "Enable public mailing list archive page",
+    "settings.general.enablePublicArchiveHelp": "Publish campaigns on which archiving is enabled on the public website.",
     "settings.general.enablePublicSubPage": "Activează pagina de abonament public",
     "settings.general.enablePublicSubPageHelp": "Afișează o pagină de abonament publică cu toate listele publice pentru ca oamenii să se aboneze.",
     "settings.general.faviconURL": "URL favicon",

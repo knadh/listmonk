@@ -370,6 +370,8 @@
     "settings.general.adminNotifEmailsHelp": "Kommagescheiden lijst van e-mailadressen waar admin notificaties zoals importeerupdates, campagne voltooiing, fouten enz. naar moeten worden verzonden.",
     "settings.general.checkUpdates": "Controleer op updates",
     "settings.general.checkUpdatesHelp": "Controleer regelmatig voor nieuwe app releases en verwittig.",
+    "settings.general.enablePublicArchive": "Enable public mailing list archive page",
+    "settings.general.enablePublicArchiveHelp": "Publish campaigns on which archiving is enabled on the public website.",
     "settings.general.enablePublicSubPage": "Publieke inschrijvingspagina inschakelen.",
     "settings.general.enablePublicSubPageHelp": "Laat een publieke inschrijvingspagina zien met alle publieke lijsten waarmee mensen zich kunnen inschrijven.",
     "settings.general.faviconURL": "Favicon URL",

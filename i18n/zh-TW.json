@@ -370,6 +370,8 @@
     "settings.general.adminNotifEmailsHelp": "應向其發送管理通知（例如導入更新、活動完成、失敗等）的電子郵件地址的逗號分隔列表。",
     "settings.general.checkUpdates": "檢查更新",
     "settings.general.checkUpdatesHelp": "定期檢查新的應用程序版本並通知。",
+    "settings.general.enablePublicArchive": "Enable public mailing list archive page",
+    "settings.general.enablePublicArchiveHelp": "Publish campaigns on which archiving is enabled on the public website.",
     "settings.general.enablePublicSubPage": "啟用公共訂閱頁面",
     "settings.general.enablePublicSubPageHelp": "顯示一個公共訂閱頁面，其中包含供人們訂閱的所有公共列表。",
     "settings.general.faviconURL": "網站圖標網址",

@@ -370,6 +370,8 @@
     "settings.general.adminNotifEmailsHelp": "インポートの更新、キャンペーンの完了、失敗など管理者通知を送信するメールアドレスのカンマ区切りリスト",
     "settings.general.checkUpdates": "アップデートの確認",
     "settings.general.checkUpdatesHelp": "定期的に新しいアプリのリリースを確認し、通知する。",
+    "settings.general.enablePublicArchive": "Enable public mailing list archive page",
+    "settings.general.enablePublicArchiveHelp": "Publish campaigns on which archiving is enabled on the public website.",
     "settings.general.enablePublicSubPage": "公開サブスクリプションページを有効にする。",
     "settings.general.enablePublicSubPageHelp": "全ての公開リストを含む公開サブスクリプションページを表示し人々が加入できるようにする。",
     "settings.general.faviconURL": "ファビコンURL",

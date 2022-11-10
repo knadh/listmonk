@@ -370,6 +370,8 @@
     "settings.general.adminNotifEmailsHelp": "İçe aktarma güncellemeleri, kampanya tamamlama, başarısızlık gibi yönetici bildirimlerinin gönderilmesi gereken e-posta adreslerinin virgülle ayrılmış listesi.",
     "settings.general.checkUpdates": "Check for updates",
     "settings.general.checkUpdatesHelp": "Periodically check for new app releases and notify.",
+    "settings.general.enablePublicArchive": "Enable public mailing list archive page",
+    "settings.general.enablePublicArchiveHelp": "Publish campaigns on which archiving is enabled on the public website.",
     "settings.general.enablePublicSubPage": "Erişime açık üyelik sayfasını etkinleştir",
     "settings.general.enablePublicSubPageHelp": "Kişilerin abone olması için tüm genel listeleri içeren genel bir abonelik sayfası gösterin.",
     "settings.general.faviconURL": "Favicon URL",

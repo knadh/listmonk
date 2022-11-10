@@ -370,6 +370,8 @@
     "settings.general.adminNotifEmailsHelp": "Lista de correos electrónicos separados por comas, a donde las notificaciones como actualizaciones de importación, campañas completadas, fallas, etc. deben ser enviadas.",
     "settings.general.checkUpdates": "Revisa las actualizaciones",
     "settings.general.checkUpdatesHelp": "Periódicamente buscar nuevas actualizaciones y notificarme.",
+    "settings.general.enablePublicArchive": "Enable public mailing list archive page",
+    "settings.general.enablePublicArchiveHelp": "Publish campaigns on which archiving is enabled on the public website.",
     "settings.general.enablePublicSubPage": "Habilitar pagina publica de subscripción",
     "settings.general.enablePublicSubPageHelp": "Muestra una página con todas las listas públicas para subscribirse.",
     "settings.general.faviconURL": "URL del Favicon",

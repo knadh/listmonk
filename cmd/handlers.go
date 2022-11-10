@@ -172,7 +172,10 @@ func initHTTPHandlers(e *echo.Echo, app *App) {
 	// Public API endpoints.
 	e.GET("/api/public/lists", handleGetPublicLists)
 	e.POST("/api/public/subscription", handlePublicSubscription)
-	e.GET("/api/public/archive", handleGetCampaignArchives)
+
+	if app.constants.EnablePublicArchive {
+		e.GET("/api/public/archive", handleGetCampaignArchives)
+	}
 
 	// /public/static/* file server is registered in initHTTPServer().
 	// Public subscriber facing views.
@@ -195,9 +198,11 @@ func initHTTPHandlers(e *echo.Echo, app *App) {
 	e.GET("/campaign/:campUUID/:subUUID/px.png", noIndex(validateUUID(handleRegisterCampaignView,
 		"campUUID", "subUUID")))
 
-	e.GET("/archive", handleCampaignArchivesPage)
-	e.GET("/archive.xml", handleGetCampaignArchivesFeed)
-	e.GET("/archive/:uuid", handleCampaignArchivePage)
+	if app.constants.EnablePublicArchive {
+		e.GET("/archive", handleCampaignArchivesPage)
+		e.GET("/archive.xml", handleGetCampaignArchivesFeed)
+		e.GET("/archive/:uuid", handleCampaignArchivePage)
+	}
 
 	e.GET("/public/custom.css", serveCustomApperance("public.custom_css"))
 	e.GET("/public/custom.js", serveCustomApperance("public.custom_js"))

@@ -30,9 +30,12 @@
             </ul>
             <p>
                 <button type="submit" class="button">{{ L.T "public.sub" }}</button>
-                <p class="right">
-                    <a href="{{ .RootURL }}/archive">{{ L.T "public.archiveTitle" }}</a>
-                </p>
+
+                {{ if .EnablePublicArchive }}
+                    <p class="right">
+                        <a href="{{ .RootURL }}/archive">{{ L.T "public.archiveTitle" }}</a>
+                    </p>
+                {{ end }}
             </p>
         </div>
     </form>

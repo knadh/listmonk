@@ -370,6 +370,8 @@
     "settings.general.adminNotifEmailsHelp": "Lista maili oddzielona przecinkami do adminów, którym przesyłać informacje o importach, zakończonych kampaniach, błędach itd. ",
     "settings.general.checkUpdates": "Sprawdź czy są aktualizacje",
     "settings.general.checkUpdatesHelp": "Regularnie sprawdzaj czy są aktualizacje i powiadamiaj o tym.",
+    "settings.general.enablePublicArchive": "Enable public mailing list archive page",
+    "settings.general.enablePublicArchiveHelp": "Publish campaigns on which archiving is enabled on the public website.",
     "settings.general.enablePublicSubPage": "Włącz publiczną stronę subskrypcji",
     "settings.general.enablePublicSubPageHelp": "Pokaż publiczną stronę do zapisu na subskrypcje publicznych list.",
     "settings.general.faviconURL": "URL Favicony",

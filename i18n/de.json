@@ -370,6 +370,8 @@
     "settings.general.adminNotifEmailsHelp": "Kommagetrennte Liste von E-Mail Adressen, welche Admin Benachrichtigungen erhalten sollen. Dies können Importupdates, Fertigstellung von Kampagnen, Fehler usw. sein",
     "settings.general.checkUpdates": "Suche nach Aktualisierungen",
     "settings.general.checkUpdatesHelp": "Prüfe regelmäßig nach Aktualisierungen und benachrichtige mich.",
+    "settings.general.enablePublicArchive": "Enable public mailing list archive page",
+    "settings.general.enablePublicArchiveHelp": "Publish campaigns on which archiving is enabled on the public website.",
     "settings.general.enablePublicSubPage": "Aktiviere eine öffentliche Abonnement Seite",
     "settings.general.enablePublicSubPageHelp": "Zeige eine öffentliche Abonnement Seite mit allen öffentlichen Listen, die Personen abonnieren können.",
     "settings.general.faviconURL": "Favicon URL",
