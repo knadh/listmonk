@@ -193,7 +193,8 @@
     </b-table>
 
     <!-- Manage list modal -->
-    <b-modal scroll="keep" :aria-modal="true" :active.sync="isBulkListFormVisible" :width="450">
+    <b-modal scroll="keep" :aria-modal="true" :active.sync="isBulkListFormVisible"
+      :width="500" class="has-overflow">
       <subscriber-bulk-list :numSubscribers="this.numSelectedSubscribers"
         @finished="bulkChangeLists" />
     </b-modal>
