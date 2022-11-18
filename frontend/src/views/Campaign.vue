@@ -204,7 +204,17 @@
         <section class="wrap">
           <b-field :label="$t('campaigns.archiveEnable')" data-cy="btn-archive"
             :message="$t('campaigns.archiveHelp')">
-              <b-switch data-cy="btn-archive" v-model="form.archive" :disabled="!canArchive" />
+            <div class="columns">
+              <div class="column">
+                <b-switch data-cy="btn-archive" v-model="form.archive" :disabled="!canArchive" />
+              </div>
+              <div class="column is-12">
+                <a :href="`${settings['app.root_url']}/archive/${data.uuid}`" target="_blank"
+                  :class="{'has-text-grey-light': !form.archive}">
+                  <b-icon icon="link-variant" />
+                </a>
+              </div>
+            </div>
           </b-field>
 
           <b-field :label="$tc('globals.terms.template')" label-position="on-border">
