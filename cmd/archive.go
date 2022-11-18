@@ -17,6 +17,7 @@ type campArchive struct {
 	UUID      string    `json:"uuid"`
 	Subject   string    `json:"subject"`
 	CreatedAt null.Time `json:"created_at"`
+	SendAt    null.Time `json:"send_at"`
 	URL       string    `json:"url"`
 }
 
@@ -169,6 +170,7 @@ func getCampaignArchives(offset, limit int, app *App) ([]campArchive, int, error
 			UUID:      camp.UUID,
 			Subject:   camp.Subject,
 			CreatedAt: camp.CreatedAt,
+			SendAt:    camp.SendAt,
 			URL:       app.constants.ArchiveURL + "/" + camp.UUID,
 		})
 	}

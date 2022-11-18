@@ -517,7 +517,7 @@ SELECT campaigns.*,
     WHERE CASE WHEN $1 > 0 THEN campaigns.id = $1 ELSE uuid = $2 END;
 
 -- name: get-archived-campaigns
-SELECT COUNT(*) OVER () AS total, id, uuid, subject, archive_meta, created_at FROM campaigns
+SELECT COUNT(*) OVER () AS total, id, uuid, subject, archive_meta, created_at, send_at FROM campaigns
     WHERE archive=true AND type='regular' AND status=ANY('{running, paused, finished}')
     ORDER by created_at DESC OFFSET $1 LIMIT $2;
 
