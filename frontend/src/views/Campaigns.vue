@@ -424,6 +424,9 @@ export default Vue.extend({
         headers: c.headers,
         send_later: sendLater,
         send_at: sendAt,
+        archive: c.archive,
+        archive_template_id: c.archiveTemplateId,
+        archive_meta: c.archiveMeta,
       };
 
       this.$api.createCampaign(data).then((d) => {
