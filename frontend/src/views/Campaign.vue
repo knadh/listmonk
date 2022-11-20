@@ -217,16 +217,25 @@
             </div>
           </b-field>
 
-          <b-field :label="$tc('globals.terms.template')" label-position="on-border">
-            <b-select :placeholder="$tc('globals.terms.template')" v-model="form.archiveTemplateId"
-              name="template" :disabled="!canArchive || !form.archive" required>
-              <template v-for="t in templates">
-                <option v-if="t.type === 'campaign'"
-                  :value="t.id" :key="t.id">{{ t.name }}</option>
-              </template>
-            </b-select>
-          </b-field>
+          <div class="columns">
+            <div class="column is-8">
+              <b-field :label="$tc('globals.terms.template')" label-position="on-border">
+                <b-select :placeholder="$tc('globals.terms.template')"
+                  v-model="form.archiveTemplateId" name="template"
+                  :disabled="!canArchive || !form.archive" required>
+                  <template v-for="t in templates">
+                    <option v-if="t.type === 'campaign'"
+                      :value="t.id" :key="t.id">{{ t.name }}</option>
+                  </template>
+                </b-select>
+              </b-field>
+            </div>
 
+            <div class="column has-text-right">
+              <a v-if="!this.form.archiveMetaStr || this.form.archiveMetaStr === '{}'"
+                class="button" href="#" @click.prevent="onFillArchiveMeta">{}</a>
+            </div>
+          </div>
           <b-field :label="$t('campaigns.archiveMeta')"
             :message="$t('campaigns.archiveMetaHelp')" label-position="on-border">
             <b-input v-model="form.archiveMetaStr" name="archive_meta" type="textarea"
@@ -331,6 +340,11 @@ export default Vue.extend({
       }
     },
 
+    onFillArchiveMeta() {
+      const archiveStr = `{"email": "email@domain.com", "name": "${this.$t('globals.fields.name')}", "attribs": {}}`;
+      this.form.archiveMetaStr = this.$utils.getPref('campaign.archiveMetaStr') || JSON.stringify(JSON.parse(archiveStr), null, 4);
+    },
+
     onSubmit(typ) {
       // Validate custom JSON headers.
       if (this.form.headersStr && this.form.headersStr !== '[]') {
@@ -354,11 +368,6 @@ export default Vue.extend({
         }
       } else {
         this.form.archiveMeta = {};
-      }
-
-      // Cache the campaign archive metadata for the next one.
-      if (this.isEditing) {
-        this.$utils.setPref('campaign.archiveMetaStr', this.form.archiveMetaStr);
       }
 
       switch (typ) {
@@ -386,11 +395,6 @@ export default Vue.extend({
           // The structure that is populated by editor input event.
           content: { contentType: data.contentType, body: data.body },
         };
-
-        if (this.form.archiveMetaStr === '{}') {
-          const archiveStr = `{"email": "email@domain.com", "name": "${this.$t('globals.fields.name')}", "attribs": {}}`;
-          this.form.archiveMetaStr = this.$utils.getPref('campaign.archiveMetaStr') || JSON.stringify(JSON.parse(archiveStr), null, 4);
-        }
 
         if (data.sendAt !== null) {
           this.form.sendLater = true;
