@@ -82,11 +82,12 @@ func (c *Core) GetList(id int, uuid string) (models.List, error) {
 			c.i18n.Ts("globals.messages.errorFetching", "name", "{globals.terms.lists}", "error", pqErrMsg(err)))
 	}
 
-	if len(out) == 1 {
-		return out[0], nil
+	if len(out) == 0 {
+		return models.List{}, echo.NewHTTPError(http.StatusBadRequest,
+			c.i18n.Ts("globals.messages.notFound", "name", "{globals.terms.list}"))
 	}
 
-	return models.List{}, nil
+	return out[0], nil
 }
 
 // GetListsByOptin returns lists by optin type.

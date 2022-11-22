@@ -30,6 +30,14 @@ func handleGetLists(c echo.Context) error {
 		single = true
 	}
 
+	if single {
+		out, err := app.core.GetList(listID, "")
+		if err != nil {
+			return err
+		}
+		return c.JSON(http.StatusOK, okResp{out})
+	}
+
 	// Minimal query simply returns the list of all lists without JOIN subscriber counts. This is fast.
 	if !single && minimal {
 		res, err := app.core.GetLists("")
