@@ -9,12 +9,16 @@ import (
 	"html/template"
 	"regexp"
 	"strings"
+	txttpl "text/template"
+	"time"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/jmoiron/sqlx/types"
 	"github.com/lib/pq"
 	"github.com/yuin/goldmark"
-
+	"github.com/yuin/goldmark/extension"
+	"github.com/yuin/goldmark/parser"
+	"github.com/yuin/goldmark/renderer/html"
 	null "gopkg.in/volatiletech/null.v6"
 )
 
@@ -61,7 +65,30 @@ const (
 
 	// ContentTpl is the name of the compiled message.
 	ContentTpl = "content"
+
+	// Headers attached to e-mails for bounce tracking.
+	EmailHeaderSubscriberUUID = "X-Listmonk-Subscriber"
+	EmailHeaderCampaignUUID   = "X-Listmonk-Campaign"
+
+	// Standard e-mail headers.
+	EmailHeaderDate        = "Date"
+	EmailHeaderFrom        = "From"
+	EmailHeaderSubject     = "Subject"
+	EmailHeaderMessageId   = "Message-Id"
+	EmailHeaderDeliveredTo = "Delivered-To"
+	EmailHeaderReceived    = "Received"
+
+	BounceTypeHard = "hard"
+	BounceTypeSoft = "soft"
+
+	// Templates.
+	TemplateTypeCampaign = "campaign"
+	TemplateTypeTx       = "tx"
 )
+
+// Headers represents an array of string maps used to represent SMTP, HTTP headers etc.
+// similar to url.Values{}
+type Headers []map[string]string
 
 // regTplFunc represents contains a regular expression for wrapping and
 // substituting a Go template function from the user's shorthand to a full
@@ -71,16 +98,25 @@ type regTplFunc struct {
 	replace string
 }
 
-// Regular expression for matching {{ Track "http://link.com" }} in the template
-// and substituting it with {{ Track "http://link.com" .Campaign.UUID .Subscriber.UUID }}
-// before compilation. This string gimmick is to make linking easier for users.
 var regTplFuncs = []regTplFunc{
-	regTplFunc{
-		regExp:  regexp.MustCompile("{{(\\s+)?TrackLink\\s+?(\"|`)(.+?)(\"|`)(\\s+)?}}"),
-		replace: `{{ TrackLink "$3" . }}`,
+	// Regular expression for matching {{ TrackLink "http://link.com" }} in the template
+	// and substituting it with {{ Track "http://link.com" . }} (the dot context)
+	// before compilation. This is to make linking easier for users.
+	{
+		regExp:  regexp.MustCompile("{{(\\s+)?TrackLink(\\s+)?(.+?)(\\s+)?}}"),
+		replace: `{{ TrackLink $3 . }}`,
 	},
-	regTplFunc{
-		regExp:  regexp.MustCompile(`{{(\s+)?(TrackView|UnsubscribeURL|OptinURL|MessageURL)(\s+)?}}`),
+
+	// Convert the shorthand https://google.com@TrackLink to {{ TrackLink ... }}.
+	// This is for WYSIWYG editors that encode and break quotes {{ "" }} when inserted
+	// inside <a href="{{ TrackLink "https://these-quotes-break" }}>.
+	{
+		regExp:  regexp.MustCompile(`(https?://.+?)@TrackLink`),
+		replace: `{{ TrackLink "$1" . }}`,
+	},
+
+	{
+		regExp:  regexp.MustCompile(`{{(\s+)?(TrackView|UnsubscribeURL|ManageURL|OptinURL|MessageURL)(\s+)?}}`),
 		replace: `{{ $2 . }}`,
 	},
 }
@@ -88,6 +124,16 @@ var regTplFuncs = []regTplFunc{
 // AdminNotifCallback is a callback function that's called
 // when a campaign's status changes.
 type AdminNotifCallback func(subject string, data interface{}) error
+
+// PageResults is a generic HTTP response container for paginated results of list of items.
+type PageResults struct {
+	Results interface{} `json:"results"`
+
+	Query   string `json:"query"`
+	Total   int    `json:"total"`
+	PerPage int    `json:"per_page"`
+	Page    int    `json:"page"`
+}
 
 // Base holds common fields shared across models.
 type Base struct {
@@ -111,25 +157,39 @@ type User struct {
 type Subscriber struct {
 	Base
 
-	UUID        string            `db:"uuid" json:"uuid"`
-	Email       string            `db:"email" json:"email"`
-	Name        string            `db:"name" json:"name"`
-	Attribs     SubscriberAttribs `db:"attribs" json:"attribs"`
-	Status      string            `db:"status" json:"status"`
-	CampaignIDs pq.Int64Array     `db:"campaigns" json:"-"`
-	Lists       types.JSONText    `db:"lists" json:"lists"`
-
-	// Pseudofield for getting the total number of subscribers
-	// in searches and queries.
-	Total int `db:"total" json:"-"`
+	UUID    string         `db:"uuid" json:"uuid"`
+	Email   string         `db:"email" json:"email" form:"email"`
+	Name    string         `db:"name" json:"name" form:"name"`
+	Attribs JSON           `db:"attribs" json:"attribs"`
+	Status  string         `db:"status" json:"status"`
+	Lists   types.JSONText `db:"lists" json:"lists"`
 }
 type subLists struct {
 	SubscriberID int            `db:"subscriber_id"`
 	Lists        types.JSONText `db:"lists"`
 }
 
-// SubscriberAttribs is the map of key:value attributes of a subscriber.
-type SubscriberAttribs map[string]interface{}
+// Subscription represents a list attached to a subscriber.
+type Subscription struct {
+	List
+	SubscriptionStatus    null.String `db:"subscription_status" json:"subscription_status"`
+	SubscriptionCreatedAt null.String `db:"subscription_created_at" json:"subscription_created_at"`
+}
+
+// SubscriberExportProfile represents a subscriber's collated data in JSON for export.
+type SubscriberExportProfile struct {
+	Email         string          `db:"email" json:"-"`
+	Profile       json.RawMessage `db:"profile" json:"profile,omitempty"`
+	Subscriptions json.RawMessage `db:"subscriptions" json:"subscriptions,omitempty"`
+	CampaignViews json.RawMessage `db:"campaign_views" json:"campaign_views,omitempty"`
+	LinkClicks    json.RawMessage `db:"link_clicks" json:"link_clicks,omitempty"`
+}
+
+// JSON is is the wrapper for reading and writing arbitrary JSONB fields from the DB.
+type JSON map[string]interface{}
+
+// StringIntMap is used to define DB Scan()s.
+type StringIntMap map[string]int
 
 // Subscribers represents a slice of Subscriber.
 type Subscribers []Subscriber
@@ -149,16 +209,20 @@ type SubscriberExport struct {
 type List struct {
 	Base
 
-	UUID            string         `db:"uuid" json:"uuid"`
-	Name            string         `db:"name" json:"name"`
-	Type            string         `db:"type" json:"type"`
-	Optin           string         `db:"optin" json:"optin"`
-	Tags            pq.StringArray `db:"tags" json:"tags"`
-	SubscriberCount int            `db:"subscriber_count" json:"subscriber_count"`
-	SubscriberID    int            `db:"subscriber_id" json:"-"`
+	UUID             string         `db:"uuid" json:"uuid"`
+	Name             string         `db:"name" json:"name"`
+	Type             string         `db:"type" json:"type"`
+	Optin            string         `db:"optin" json:"optin"`
+	Tags             pq.StringArray `db:"tags" json:"tags"`
+	Description      string         `db:"description" json:"description"`
+	SubscriberCount  int            `db:"-" json:"subscriber_count"`
+	SubscriberCounts StringIntMap   `db:"subscriber_statuses" json:"subscriber_statuses"`
+	SubscriberID     int            `db:"subscriber_id" json:"-"`
 
 	// This is only relevant when querying the lists of a subscriber.
-	SubscriptionStatus string `db:"subscription_status" json:"subscription_status,omitempty"`
+	SubscriptionStatus    string    `db:"subscription_status" json:"subscription_status,omitempty"`
+	SubscriptionCreatedAt null.Time `db:"subscription_created_at" json:"subscription_created_at,omitempty"`
+	SubscriptionUpdatedAt null.Time `db:"subscription_updated_at" json:"subscription_updated_at,omitempty"`
 
 	// Pseudofield for getting the total number of subscribers
 	// in searches and queries.
@@ -170,25 +234,30 @@ type Campaign struct {
 	Base
 	CampaignMeta
 
-	UUID        string         `db:"uuid" json:"uuid"`
-	Type        string         `db:"type" json:"type"`
-	Name        string         `db:"name" json:"name"`
-	Subject     string         `db:"subject" json:"subject"`
-	FromEmail   string         `db:"from_email" json:"from_email"`
-	Body        string         `db:"body" json:"body"`
-	AltBody     null.String    `db:"altbody" json:"altbody"`
-	SendAt      null.Time      `db:"send_at" json:"send_at"`
-	Status      string         `db:"status" json:"status"`
-	ContentType string         `db:"content_type" json:"content_type"`
-	Tags        pq.StringArray `db:"tags" json:"tags"`
-	TemplateID  int            `db:"template_id" json:"template_id"`
-	Messenger   string         `db:"messenger" json:"messenger"`
+	UUID              string          `db:"uuid" json:"uuid"`
+	Type              string          `db:"type" json:"type"`
+	Name              string          `db:"name" json:"name"`
+	Subject           string          `db:"subject" json:"subject"`
+	FromEmail         string          `db:"from_email" json:"from_email"`
+	Body              string          `db:"body" json:"body"`
+	AltBody           null.String     `db:"altbody" json:"altbody"`
+	SendAt            null.Time       `db:"send_at" json:"send_at"`
+	Status            string          `db:"status" json:"status"`
+	ContentType       string          `db:"content_type" json:"content_type"`
+	Tags              pq.StringArray  `db:"tags" json:"tags"`
+	Headers           Headers         `db:"headers" json:"headers"`
+	TemplateID        int             `db:"template_id" json:"template_id"`
+	Messenger         string          `db:"messenger" json:"messenger"`
+	Archive           bool            `db:"archive" json:"archive"`
+	ArchiveTemplateID int             `db:"archive_template_id" json:"archive_template_id"`
+	ArchiveMeta       json.RawMessage `db:"archive_meta" json:"archive_meta"`
 
 	// TemplateBody is joined in from templates by the next-campaigns query.
-	TemplateBody string             `db:"template_body" json:"-"`
-	Tpl          *template.Template `json:"-"`
-	SubjectTpl   *template.Template `json:"-"`
-	AltBodyTpl   *template.Template `json:"-"`
+	TemplateBody        string             `db:"template_body" json:"-"`
+	ArchiveTemplateBody string             `db:"archive_template_body" json:"-"`
+	Tpl                 *template.Template `json:"-"`
+	SubjectTpl          *txttpl.Template   `json:"-"`
+	AltBodyTpl          *template.Template `json:"-"`
 
 	// Pseudofield for getting the total number of subscribers
 	// in searches and queries.
@@ -200,6 +269,7 @@ type CampaignMeta struct {
 	CampaignID int `db:"campaign_id" json:"-"`
 	Views      int `db:"views" json:"views"`
 	Clicks     int `db:"clicks" json:"clicks"`
+	Bounces    int `db:"bounces" json:"bounces"`
 
 	// This is a list of {list_id, name} pairs unlike Subscriber.Lists[]
 	// because lists can be deleted after a campaign is finished, resulting
@@ -213,6 +283,28 @@ type CampaignMeta struct {
 	Sent      int       `db:"sent" json:"sent"`
 }
 
+type CampaignStats struct {
+	ID        int       `db:"id" json:"id"`
+	Status    string    `db:"status" json:"status"`
+	ToSend    int       `db:"to_send" json:"to_send"`
+	Sent      int       `db:"sent" json:"sent"`
+	Started   null.Time `db:"started_at" json:"started_at"`
+	UpdatedAt null.Time `db:"updated_at" json:"updated_at"`
+	Rate      int       `json:"rate"`
+	NetRate   int       `json:"net_rate"`
+}
+
+type CampaignAnalyticsCount struct {
+	CampaignID int       `db:"campaign_id" json:"campaign_id"`
+	Count      int       `db:"count" json:"count"`
+	Timestamp  time.Time `db:"timestamp" json:"timestamp"`
+}
+
+type CampaignAnalyticsLink struct {
+	URL   string `db:"url" json:"url"`
+	Count int    `db:"count" json:"count"`
+}
+
 // Campaigns represents a slice of Campaigns.
 type Campaigns []Campaign
 
@@ -220,10 +312,72 @@ type Campaigns []Campaign
 type Template struct {
 	Base
 
-	Name      string `db:"name" json:"name"`
+	Name string `db:"name" json:"name"`
+	// Subject is only for type=tx.
+	Subject   string `db:"subject" json:"subject"`
+	Type      string `db:"type" json:"type"`
 	Body      string `db:"body" json:"body,omitempty"`
 	IsDefault bool   `db:"is_default" json:"is_default"`
+
+	// Only relevant to tx (transactional) templates.
+	SubjectTpl *txttpl.Template   `json:"-"`
+	Tpl        *template.Template `json:"-"`
 }
+
+// Bounce represents a single bounce event.
+type Bounce struct {
+	ID        int             `db:"id" json:"id"`
+	Type      string          `db:"type" json:"type"`
+	Source    string          `db:"source" json:"source"`
+	Meta      json.RawMessage `db:"meta" json:"meta"`
+	CreatedAt time.Time       `db:"created_at" json:"created_at"`
+
+	// One of these should be provided.
+	Email          string `db:"email" json:"email,omitempty"`
+	SubscriberUUID string `db:"subscriber_uuid" json:"subscriber_uuid,omitempty"`
+	SubscriberID   int    `db:"subscriber_id" json:"subscriber_id,omitempty"`
+
+	CampaignUUID string           `db:"campaign_uuid" json:"campaign_uuid,omitempty"`
+	Campaign     *json.RawMessage `db:"campaign" json:"campaign"`
+
+	// Pseudofield for getting the total number of bounces
+	// in searches and queries.
+	Total int `db:"total" json:"-"`
+}
+
+// TxMessage represents an e-mail campaign.
+type TxMessage struct {
+	SubscriberEmail string `json:"subscriber_email"`
+	SubscriberID    int    `json:"subscriber_id"`
+
+	TemplateID  int                    `json:"template_id"`
+	Data        map[string]interface{} `json:"data"`
+	FromEmail   string                 `json:"from_email"`
+	Headers     Headers                `json:"headers"`
+	ContentType string                 `json:"content_type"`
+	Messenger   string                 `json:"messenger"`
+
+	Subject    string             `json:"-"`
+	Body       []byte             `json:"-"`
+	Tpl        *template.Template `json:"-"`
+	SubjectTpl *txttpl.Template   `json:"-"`
+}
+
+// markdown is a global instance of Markdown parser and renderer.
+var markdown = goldmark.New(
+	goldmark.WithParserOptions(
+		parser.WithAutoHeadingID(),
+	),
+	goldmark.WithRendererOptions(
+		html.WithXHTML(),
+		html.WithUnsafe(),
+	),
+	goldmark.WithExtensions(
+		extension.Table,
+		extension.Strikethrough,
+		extension.TaskList,
+	),
+)
 
 // GetIDs returns the list of subscriber IDs.
 func (subs Subscribers) GetIDs() []int {
@@ -258,16 +412,34 @@ func (subs Subscribers) LoadLists(stmt *sqlx.Stmt) error {
 }
 
 // Value returns the JSON marshalled SubscriberAttribs.
-func (s SubscriberAttribs) Value() (driver.Value, error) {
+func (s JSON) Value() (driver.Value, error) {
 	return json.Marshal(s)
 }
 
-// Scan unmarshals JSON into SubscriberAttribs.
-func (s SubscriberAttribs) Scan(src interface{}) error {
+// Scan unmarshals JSONB from the DB.
+func (s JSON) Scan(src interface{}) error {
+	if src == nil {
+		s = make(JSON)
+		return nil
+	}
+
 	if data, ok := src.([]byte); ok {
 		return json.Unmarshal(data, &s)
 	}
-	return fmt.Errorf("Could not not decode type %T -> %T", src, s)
+	return fmt.Errorf("could not not decode type %T -> %T", src, s)
+}
+
+// Scan unmarshals JSONB from the DB.
+func (s StringIntMap) Scan(src interface{}) error {
+	if src == nil {
+		s = make(StringIntMap)
+		return nil
+	}
+
+	if data, ok := src.([]byte); ok {
+		return json.Unmarshal(data, &s)
+	}
+	return fmt.Errorf("could not not decode type %T -> %T", src, s)
 }
 
 // GetIDs returns the list of campaign IDs.
@@ -296,6 +468,7 @@ func (camps Campaigns) LoadStats(stmt *sqlx.Stmt) error {
 			camps[i].Lists = c.Lists
 			camps[i].Views = c.Views
 			camps[i].Clicks = c.Clicks
+			camps[i].Bounces = c.Bounces
 		}
 	}
 
@@ -305,6 +478,26 @@ func (camps Campaigns) LoadStats(stmt *sqlx.Stmt) error {
 // CompileTemplate compiles a campaign body template into its base
 // template and sets the resultant template to Campaign.Tpl.
 func (c *Campaign) CompileTemplate(f template.FuncMap) error {
+	// If the subject line has a template string, compile it.
+	if strings.Contains(c.Subject, "{{") {
+		subj := c.Subject
+		for _, r := range regTplFuncs {
+			subj = r.regExp.ReplaceAllString(subj, r.replace)
+		}
+
+		var txtFuncs map[string]interface{} = f
+		subjTpl, err := txttpl.New(ContentTpl).Funcs(txtFuncs).Parse(subj)
+		if err != nil {
+			return fmt.Errorf("error compiling subject: %v", err)
+		}
+		c.SubjectTpl = subjTpl
+	}
+
+	// No template or body. Nothing to compile.
+	if c.TemplateBody == "" || c.Body == "" {
+		return nil
+	}
+
 	// Compile the base template.
 	body := c.TemplateBody
 	for _, r := range regTplFuncs {
@@ -318,7 +511,7 @@ func (c *Campaign) CompileTemplate(f template.FuncMap) error {
 	// If the format is markdown, convert Markdown to HTML.
 	if c.ContentType == CampaignContentTypeMarkdown {
 		var b bytes.Buffer
-		if err := goldmark.Convert([]byte(c.Body), &b); err != nil {
+		if err := markdown.Convert([]byte(c.Body), &b); err != nil {
 			return err
 		}
 		body = b.String()
@@ -330,6 +523,7 @@ func (c *Campaign) CompileTemplate(f template.FuncMap) error {
 	for _, r := range regTplFuncs {
 		body = r.regExp.ReplaceAllString(body, r.replace)
 	}
+
 	msgTpl, err := template.New(ContentTpl).Funcs(f).Parse(body)
 	if err != nil {
 		return fmt.Errorf("error compiling message: %v", err)
@@ -341,19 +535,6 @@ func (c *Campaign) CompileTemplate(f template.FuncMap) error {
 	}
 	c.Tpl = out
 
-	// If the subject line has a template string, compile it.
-	if strings.Contains(c.Subject, "{{") {
-		subj := c.Subject
-		for _, r := range regTplFuncs {
-			subj = r.regExp.ReplaceAllString(subj, r.replace)
-		}
-		subjTpl, err := template.New(ContentTpl).Funcs(f).Parse(subj)
-		if err != nil {
-			return fmt.Errorf("error compiling subject: %v", err)
-		}
-		c.SubjectTpl = subjTpl
-	}
-
 	if strings.Contains(c.AltBody.String, "{{") {
 		b := c.AltBody.String
 		for _, r := range regTplFuncs {
@@ -364,6 +545,82 @@ func (c *Campaign) CompileTemplate(f template.FuncMap) error {
 			return fmt.Errorf("error compiling alt plaintext message: %v", err)
 		}
 		c.AltBodyTpl = bTpl
+	}
+
+	return nil
+}
+
+// ConvertContent converts a campaign's body from one format to another,
+// for example, Markdown to HTML.
+func (c *Campaign) ConvertContent(from, to string) (string, error) {
+	body := c.Body
+	for _, r := range regTplFuncs {
+		body = r.regExp.ReplaceAllString(body, r.replace)
+	}
+
+	// If the format is markdown, convert Markdown to HTML.
+	var out string
+	if from == CampaignContentTypeMarkdown &&
+		(to == CampaignContentTypeHTML || to == CampaignContentTypeRichtext) {
+		var b bytes.Buffer
+		if err := markdown.Convert([]byte(c.Body), &b); err != nil {
+			return out, err
+		}
+		out = b.String()
+	} else {
+		return out, errors.New("unknown formats to convert")
+	}
+
+	return out, nil
+}
+
+// Compile compiles a template body and subject (only for tx templates) and
+// caches the templat references to be executed later.
+func (t *Template) Compile(f template.FuncMap) error {
+	tpl, err := template.New(BaseTpl).Funcs(f).Parse(t.Body)
+	if err != nil {
+		return fmt.Errorf("error compiling transactional template: %v", err)
+	}
+	t.Tpl = tpl
+
+	// If the subject line has a template string, compile it.
+	if strings.Contains(t.Subject, "{{") {
+		subj := t.Subject
+
+		subjTpl, err := txttpl.New(BaseTpl).Funcs(txttpl.FuncMap(f)).Parse(subj)
+		if err != nil {
+			return fmt.Errorf("error compiling subject: %v", err)
+		}
+		t.SubjectTpl = subjTpl
+	}
+
+	return nil
+}
+
+func (m *TxMessage) Render(sub Subscriber, tpl *Template) error {
+	data := struct {
+		Subscriber Subscriber
+		Tx         *TxMessage
+	}{sub, m}
+
+	// Render the body.
+	b := bytes.Buffer{}
+	if err := tpl.Tpl.ExecuteTemplate(&b, BaseTpl, data); err != nil {
+		return err
+	}
+	m.Body = make([]byte, b.Len())
+	copy(m.Body, b.Bytes())
+	b.Reset()
+
+	// If the subject is also a template, render that.
+	if tpl.SubjectTpl != nil {
+		if err := tpl.SubjectTpl.ExecuteTemplate(&b, BaseTpl, data); err != nil {
+			return err
+		}
+		m.Subject = b.String()
+		b.Reset()
+	} else {
+		m.Subject = tpl.Subject
 	}
 
 	return nil
@@ -395,4 +652,41 @@ func (s Subscriber) LastName() string {
 	}
 
 	return s.Name
+}
+
+// Scan implements the sql.Scanner interface.
+func (h *Headers) Scan(src interface{}) error {
+	var b []byte
+	switch src := src.(type) {
+	case []byte:
+		b = src
+	case string:
+		b = []byte(src)
+	case nil:
+		return nil
+	}
+
+	if err := json.Unmarshal(b, h); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// Value implements the driver.Valuer interface.
+func (h Headers) Value() (driver.Value, error) {
+	if h == nil {
+		return nil, nil
+	}
+
+	if n := len(h); n > 0 {
+		b, err := json.Marshal(h)
+		if err != nil {
+			return nil, err
+		}
+
+		return b, nil
+	}
+
+	return "[]", nil
 }

@@ -6,7 +6,9 @@
           {{ $t('globals.fields.id') }}: {{ data.id }} /
           {{ $t('globals.fields.uuid') }}: {{ data.uuid }}
         </p>
-        <b-tag v-if="isEditing" :class="[data.type, 'is-pulled-right']">{{ data.type }}</b-tag>
+        <b-tag v-if="isEditing" :class="[data.type, 'is-pulled-right']">
+          {{ $t(`lists.types.${data.type}`) }}
+        </b-tag>
         <h4 v-if="isEditing">{{ data.name }}</h4>
         <h4 v-else>{{ $t('lists.newList') }}</h4>
       </header>
@@ -36,11 +38,16 @@
           <b-taginput v-model="form.tags" name="tags" ellipsis
             icon="tag-outline" :placeholder="$t('globals.terms.tags')"></b-taginput>
         </b-field>
+
+        <b-field :label="$t('globals.fields.description')" label-position="on-border">
+          <b-input :maxlength="2000" v-model="form.description" name="description" type="textarea"
+            :placeholder="$t('globals.fields.description')"></b-input>
+        </b-field>
       </section>
       <footer class="modal-card-foot has-text-right">
         <b-button @click="$parent.close()">{{ $t('globals.buttons.close') }}</b-button>
         <b-button native-type="submit" type="is-primary"
-          :loading="loading.lists">{{ $t('globals.buttons.save') }}</b-button>
+          :loading="loading.lists" data-cy="btn-save">{{ $t('globals.buttons.save') }}</b-button>
       </footer>
     </div>
   </form>
@@ -84,11 +91,7 @@ export default Vue.extend({
       this.$api.createList(this.form).then((data) => {
         this.$emit('finished');
         this.$parent.close();
-        this.$buefy.toast.open({
-          message: this.$t('globals.messages.created', { name: data.name }),
-          type: 'is-success',
-          queue: false,
-        });
+        this.$utils.toast(this.$t('globals.messages.created', { name: data.name }));
       });
     },
 
@@ -96,11 +99,7 @@ export default Vue.extend({
       this.$api.updateList({ id: this.data.id, ...this.form }).then((data) => {
         this.$emit('finished');
         this.$parent.close();
-        this.$buefy.toast.open({
-          message: this.$t('globals.messages.updated', { name: data.name }),
-          type: 'is-success',
-          queue: false,
-        });
+        this.$utils.toast(this.$t('globals.messages.updated', { name: data.name }));
       });
     },
   },

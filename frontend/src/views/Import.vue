@@ -3,16 +3,17 @@
     <h1 class="title is-4">{{ $t('import.title') }}</h1>
     <b-loading :active="isLoading"></b-loading>
 
-    <section v-if="isFree()" class="wrap-small">
+    <section v-if="isFree()" class="wrap">
       <form @submit.prevent="onSubmit" class="box">
         <div>
           <div class="columns">
             <div class="column">
-              <b-field :label="$t('import.mode')">
+              <b-field :label="$t('import.mode')" :addons="false">
                 <div>
                   <b-radio v-model="form.mode" name="mode"
                     native-value="subscribe"
                     data-cy="check-subscribe">{{ $t('import.subscribe') }}</b-radio>
+                  <br />
                   <b-radio v-model="form.mode" name="mode"
                     native-value="blocklist"
                     data-cy="check-blocklist">{{ $t('import.blocklist') }}</b-radio>
@@ -20,19 +21,48 @@
               </b-field>
             </div>
             <div class="column">
+              <b-field :label="$t('globals.fields.status')" :addons="false">
+                <template v-if="form.mode === 'subscribe'">
+                  <b-radio
+                    v-model="form.subStatus"
+                    name="subStatus"
+                    native-value="unconfirmed"
+                    data-cy="check-unconfirmed">
+                    {{ $t('subscribers.status.unconfirmed') }}
+                  </b-radio>
+                  <b-radio
+                    v-model="form.subStatus"
+                    name="subStatus"
+                    native-value="confirmed"
+                    data-cy="check-confirmed">
+                    {{ $t('subscribers.status.confirmed') }}
+                  </b-radio>
+                </template>
+
+                <b-radio v-else
+                  v-model="form.subStatus"
+                  name="subStatus"
+                  native-value="unsubscribed"
+                  data-cy="check-unsubscribed">
+                  {{ $t('subscribers.status.unsubscribed') }}
+                </b-radio>
+              </b-field>
+            </div>
+
+            <div class="column">
               <b-field v-if="form.mode === 'subscribe'"
                 :label="$t('import.overwrite')"
                 :message="$t('import.overwriteHelp')">
                 <div>
-                  <b-switch v-model="form.overwrite" name="overwrite" />
+                  <b-switch v-model="form.overwrite" name="overwrite" data-cy="overwrite" />
                 </div>
               </b-field>
             </div>
+
             <div class="column">
               <b-field :label="$t('import.csvDelim')" :message="$t('import.csvDelimHelp')"
                 class="delimiter">
-                <b-input v-model="form.delim" name="delim"
-                  placeholder="," maxlength="1" required />
+                <b-input v-model="form.delim" name="delim" placeholder="," maxlength="1" required />
               </b-field>
             </div>
           </div>
@@ -153,6 +183,7 @@ export default Vue.extend({
     return {
       form: {
         mode: 'subscribe',
+        subStatus: 'unconfirmed',
         delim: ',',
         lists: [],
         overwrite: true,
@@ -168,6 +199,19 @@ export default Vue.extend({
       logs: '',
       pollID: null,
     };
+  },
+
+  watch: {
+    'form.mode': function formMode() {
+      // Select the appropriate status radio whenever mode changes.
+      this.$nextTick(() => {
+        if (this.form.mode === 'subscribe') {
+          this.form.subStatus = 'unconfirmed';
+        } else {
+          this.form.subStatus = 'unsubscribed';
+        }
+      });
+    },
   },
 
   methods: {
@@ -203,7 +247,7 @@ export default Vue.extend({
       );
     },
 
-    // Returns true if an import has finished (failed or sucessful).
+    // Returns true if an import has finished (failed or successful).
     isDone() {
       if (this.status.status === 'finished'
         || this.status.status === 'stopped'
@@ -269,6 +313,7 @@ export default Vue.extend({
       const params = new FormData();
       params.set('params', JSON.stringify({
         mode: this.form.mode,
+        subscription_status: this.form.subStatus,
         delim: this.form.delim,
         lists: this.form.lists.map((l) => l.id),
         overwrite: this.form.overwrite,
@@ -278,11 +323,7 @@ export default Vue.extend({
       // Post.
       this.$api.importSubscribers(params).then(() => {
         // On file upload, show a confirmation.
-        this.$buefy.toast.open({
-          message: this.$t('import.importStarted'),
-          type: 'is-success',
-          queue: false,
-        });
+        this.$utils.toast(this.$t('import.importStarted'));
 
         // Start polling status.
         this.pollStatus();
@@ -307,6 +348,13 @@ export default Vue.extend({
 
   mounted() {
     this.pollStatus();
+
+    const ids = this.$utils.parseQueryIDs(this.$route.query.list_id);
+    if (ids.length > 0 && this.lists.results) {
+      this.$nextTick(() => {
+        this.form.lists = this.lists.results.filter((l) => ids.indexOf(l.id) > -1);
+      });
+    }
   },
 });
 </script>

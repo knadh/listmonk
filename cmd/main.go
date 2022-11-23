@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"html/template"
 	"io"
 	"log"
 	"os"
@@ -16,12 +15,16 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/knadh/koanf"
 	"github.com/knadh/koanf/providers/env"
+	"github.com/knadh/listmonk/internal/bounce"
 	"github.com/knadh/listmonk/internal/buflog"
+	"github.com/knadh/listmonk/internal/core"
 	"github.com/knadh/listmonk/internal/i18n"
 	"github.com/knadh/listmonk/internal/manager"
 	"github.com/knadh/listmonk/internal/media"
 	"github.com/knadh/listmonk/internal/messenger"
 	"github.com/knadh/listmonk/internal/subimporter"
+	"github.com/knadh/listmonk/models"
+	"github.com/knadh/paginator"
 	"github.com/knadh/stuffbin"
 )
 
@@ -32,16 +35,19 @@ const (
 // App contains the "global" components that are
 // passed around, especially through HTTP handlers.
 type App struct {
+	core       *core.Core
 	fs         stuffbin.FileSystem
 	db         *sqlx.DB
-	queries    *Queries
+	queries    *models.Queries
 	constants  *constants
 	manager    *manager.Manager
 	importer   *subimporter.Importer
 	messengers map[string]messenger.Messenger
 	media      media.Store
 	i18n       *i18n.I18n
-	notifTpls  *template.Template
+	bounce     *bounce.Manager
+	paginator  *paginator.Paginator
+	notifTpls  *notifTpls
 	log        *log.Logger
 	bufLog     *buflog.BufLog
 
@@ -66,10 +72,17 @@ var (
 	ko      = koanf.New(".")
 	fs      stuffbin.FileSystem
 	db      *sqlx.DB
-	queries *Queries
+	queries *models.Queries
 
+	// Compile-time variables.
 	buildString   string
 	versionString string
+
+	// If these are set in build ldflags and static assets (*.sql, config.toml.sample. ./frontend)
+	// are not embedded (in make dist), these paths are looked up. The default values before, when not
+	// overridden by build flags, are relative to the CWD at runtime.
+	appDir      string = "."
+	frontendDir string = "frontend"
 )
 
 func init() {
@@ -85,11 +98,12 @@ func init() {
 
 	// Generate new config.
 	if ko.Bool("new-config") {
-		if err := newConfigFile(); err != nil {
+		path := ko.Strings("config")[0]
+		if err := newConfigFile(path); err != nil {
 			lo.Println(err)
 			os.Exit(1)
 		}
-		lo.Println("generated config.toml. Edit and run --install")
+		lo.Printf("generated %s. Edit and run --install", path)
 		os.Exit(0)
 	}
 
@@ -106,13 +120,13 @@ func init() {
 
 	// Connect to the database, load the filesystem to read SQL queries.
 	db = initDB()
-	fs = initFS(ko.String("static-dir"), ko.String("i18n-dir"))
+	fs = initFS(appDir, frontendDir, ko.String("static-dir"), ko.String("i18n-dir"))
 
 	// Installer mode? This runs before the SQL queries are loaded and prepared
 	// as the installer needs to work on an empty DB.
 	if ko.Bool("install") {
 		// Save the version of the last listed migration.
-		install(migList[len(migList)-1].version, db, fs, !ko.Bool("yes"))
+		install(migList[len(migList)-1].version, db, fs, !ko.Bool("yes"), ko.Bool("idempotent"))
 		os.Exit(0)
 	}
 
@@ -131,11 +145,16 @@ func init() {
 	// Before the queries are prepared, see if there are pending upgrades.
 	checkUpgrade(db)
 
-	// Load the SQL queries from the filesystem.
-	_, queries := initQueries(queryFilePath, db, fs, true)
+	// Read the SQL queries from the queries file.
+	qMap := readQueries(queryFilePath, db, fs)
 
 	// Load settings from DB.
-	initSettings(queries)
+	if q, ok := qMap["get-settings"]; ok {
+		initSettings(q.Query, db, ko)
+	}
+
+	// Prepare queries.
+	queries = prepareQueries(qMap, db, ko)
 }
 
 func main() {
@@ -149,15 +168,43 @@ func main() {
 		messengers: make(map[string]messenger.Messenger),
 		log:        lo,
 		bufLog:     bufLog,
+
+		paginator: paginator.New(paginator.Opt{
+			DefaultPerPage: 20,
+			MaxPerPage:     50,
+			NumPageNums:    10,
+			PageParam:      "page",
+			PerPageParam:   "per_page",
+		}),
 	}
 
 	// Load i18n language map.
 	app.i18n = initI18n(app.constants.Lang, fs)
 
-	_, app.queries = initQueries(queryFilePath, db, fs, true)
+	app.core = core.New(&core.Opt{
+		Constants: core.Constants{
+			SendOptinConfirmation: app.constants.SendOptinConfirmation,
+			MaxBounceCount:        ko.MustInt("bounce.count"),
+			BounceAction:          ko.MustString("bounce.action"),
+		},
+		Queries: queries,
+		DB:      db,
+		I18n:    app.i18n,
+		Log:     lo,
+	}, &core.Hooks{
+		SendOptinConfirmation: sendOptinConfirmationHook(app),
+	})
+
+	app.queries = queries
 	app.manager = initCampaignManager(app.queries, app.constants, app)
 	app.importer = initImporter(app.queries, db, app)
 	app.notifTpls = initNotifTemplates("/email-templates/*.html", fs, app.i18n, app.constants)
+	initTxTemplates(app.manager, app)
+
+	if ko.Bool("bounce.enabled") {
+		app.bounce = initBounceManager(app)
+		go app.bounce.Run()
+	}
 
 	// Initialize the default SMTP (`email`) messenger.
 	app.messengers[emailMsgr] = initSMTPMessenger(app.manager)
@@ -174,13 +221,15 @@ func main() {
 
 	// Start the campaign workers. The campaign batches (fetch from DB, push out
 	// messages) get processed at the specified interval.
-	go app.manager.Run(time.Second * 5)
+	go app.manager.Run()
 
 	// Start the app server.
 	srv := initHTTPServer(app)
 
 	// Star the update checker.
-	go checkUpdates(versionString, time.Hour*24, app)
+	if ko.Bool("app.check_updates") {
+		go checkUpdates(versionString, time.Hour*24, app)
+	}
 
 	// Wait for the reload signal with a callback to gracefully shut down resources.
 	// The `wait` channel is passed to awaitReload to wait for the callback to finish

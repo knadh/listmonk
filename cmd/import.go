@@ -8,16 +8,9 @@ import (
 	"strings"
 
 	"github.com/knadh/listmonk/internal/subimporter"
-	"github.com/labstack/echo"
+	"github.com/knadh/listmonk/models"
+	"github.com/labstack/echo/v4"
 )
-
-// reqImport represents file upload import params.
-type reqImport struct {
-	Mode      string `json:"mode"`
-	Overwrite bool   `json:"overwrite"`
-	Delim     string `json:"delim"`
-	ListIDs   []int  `json:"lists"`
-}
 
 // handleImportSubscribers handles the uploading and bulk importing of
 // a ZIP file of one or more CSV files.
@@ -29,18 +22,35 @@ func handleImportSubscribers(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("import.alreadyRunning"))
 	}
 
-	// Unmarsal the JSON params.
-	var r reqImport
-	if err := json.Unmarshal([]byte(c.FormValue("params")), &r); err != nil {
+	// Unmarshal the JSON params.
+	var opt subimporter.SessionOpt
+	if err := json.Unmarshal([]byte(c.FormValue("params")), &opt); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest,
 			app.i18n.Ts("import.invalidParams", "error", err.Error()))
 	}
 
-	if r.Mode != subimporter.ModeSubscribe && r.Mode != subimporter.ModeBlocklist {
+	// Validate mode.
+	if opt.Mode != subimporter.ModeSubscribe && opt.Mode != subimporter.ModeBlocklist {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("import.invalidMode"))
 	}
 
-	if len(r.Delim) != 1 {
+	// If no status is specified, pick a default one.
+	if opt.SubStatus == "" {
+		switch opt.Mode {
+		case subimporter.ModeSubscribe:
+			opt.SubStatus = models.SubscriptionStatusUnconfirmed
+		case subimporter.ModeBlocklist:
+			opt.SubStatus = models.SubscriptionStatusUnsubscribed
+		}
+	}
+
+	if opt.SubStatus != models.SubscriptionStatusUnconfirmed &&
+		opt.SubStatus != models.SubscriptionStatusConfirmed &&
+		opt.SubStatus != models.SubscriptionStatusUnsubscribed {
+		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("import.invalidSubStatus"))
+	}
+
+	if len(opt.Delim) != 1 {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("import.invalidDelim"))
 	}
 
@@ -69,7 +79,8 @@ func handleImportSubscribers(c echo.Context) error {
 	}
 
 	// Start the importer session.
-	impSess, err := app.importer.NewSession(file.Filename, r.Mode, r.Overwrite, r.ListIDs)
+	opt.Filename = file.Filename
+	impSess, err := app.importer.NewSession(opt)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			app.i18n.Ts("import.errorStarting", "error", err.Error()))
@@ -77,20 +88,20 @@ func handleImportSubscribers(c echo.Context) error {
 	go impSess.Start()
 
 	if strings.HasSuffix(strings.ToLower(file.Filename), ".csv") {
-		go impSess.LoadCSV(out.Name(), rune(r.Delim[0]))
+		go impSess.LoadCSV(out.Name(), rune(opt.Delim[0]))
 	} else {
 		// Only 1 CSV from the ZIP is considered. If multiple files have
 		// to be processed, counting the net number of lines (to track progress),
 		// keeping the global import state (failed / successful) etc. across
 		// multiple files becomes complex. Instead, it's just easier for the
 		// end user to concat multiple CSVs (if there are multiple in the first)
-		// place and uploada as one in the first place.
+		// place and upload as one in the first place.
 		dir, files, err := impSess.ExtractZIP(out.Name(), 1)
 		if err != nil {
 			return echo.NewHTTPError(http.StatusInternalServerError,
 				app.i18n.Ts("import.errorProcessingZIP", "error", err.Error()))
 		}
-		go impSess.LoadCSV(dir+"/"+files[0], rune(r.Delim[0]))
+		go impSess.LoadCSV(dir+"/"+files[0], rune(opt.Delim[0]))
 	}
 
 	return c.JSON(http.StatusOK, okResp{app.importer.GetStats()})

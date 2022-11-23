@@ -11,9 +11,11 @@ x-app-defaults: &app-defaults
     - "9000:9000"
   networks:
     - listmonk
+  environment:
+    - TZ=Etc/UTC
 
 x-db-defaults: &db-defaults
-  image: postgres:11
+  image: postgres:13
   ports:
     - "9432:5432"
   networks:
@@ -23,10 +25,16 @@ x-db-defaults: &db-defaults
     - POSTGRES_USER=listmonk
     - POSTGRES_DB=listmonk
   restart: unless-stopped
+  healthcheck:
+    test: ["CMD-SHELL", "pg_isready -U listmonk"]
+    interval: 10s
+    timeout: 5s
+    retries: 6
 
 services:
   db:
     <<: *db-defaults
+    container_name: listmonk_db
     volumes:
       - type: volume
         source: listmonk-data
@@ -34,14 +42,19 @@ services:
 
   app:
     <<: *app-defaults
+    container_name: listmonk_app
     depends_on:
       - db
+    volumes:
+      - ./config.toml:/listmonk/config.toml
 
   demo-db:
+    container_name: listmonk_demo_db
     <<: *db-defaults
 
   demo-app:
     <<: *app-defaults
+    container_name: listmonk_demo_app
     command: [sh, -c, "yes | ./listmonk --install --config config-demo.toml && ./listmonk --config config-demo.toml"]
     depends_on:
       - demo-db

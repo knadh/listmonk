@@ -1,0 +1,18 @@
+{{ define "home" }}
+{{ template "header" .}}
+
+<section class="center">
+	<a href="admin" class="button">{{ L.T "users.login" }}</a>
+
+	<div class="home-options">
+		{{ if .EnablePublicSubPage }}
+			<a href="{{ .RootURL }}/subscription/form">{{ L.T "public.sub" }}</a>
+		{{ end }}
+		{{ if .EnablePublicArchive }}
+		    <a href="{{ .RootURL }}/archive">{{ L.T "public.archiveTitle" }}</a>
+		{{ end }}
+	</div>
+</section>
+
+{{ template "footer" .}}
+{{ end }}

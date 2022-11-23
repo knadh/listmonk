@@ -36,7 +36,7 @@ func checkUpdates(curVersion string, interval time.Duration, app *App) {
 	ticker := time.NewTicker(interval)
 	defer ticker.Stop()
 
-	for ; true; <-ticker.C {
+	for range ticker.C {
 		resp, err := http.Get(updateCheckURL)
 		if err != nil {
 			app.log.Printf("error checking for remote update: %v", err)

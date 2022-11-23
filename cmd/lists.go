@@ -1,84 +1,83 @@
 package main
 
 import (
-	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 
-	"github.com/gofrs/uuid"
 	"github.com/knadh/listmonk/models"
-	"github.com/lib/pq"
-
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 )
 
-type listsWrap struct {
-	Results []models.List `json:"results"`
-
-	Total   int `json:"total"`
-	PerPage int `json:"per_page"`
-	Page    int `json:"page"`
-}
-
-var (
-	listQuerySortFields = []string{"name", "type", "subscriber_count", "created_at", "updated_at"}
-)
-
-// handleGetLists handles retrieval of lists.
+// handleGetLists retrieves lists with additional metadata like subscriber counts. This may be slow.
 func handleGetLists(c echo.Context) error {
 	var (
 		app = c.Get("app").(*App)
-		out listsWrap
+		pg  = app.paginator.NewFromURL(c.Request().URL.Query())
 
-		pg        = getPagination(c.QueryParams(), 20, 50)
-		orderBy   = c.FormValue("order_by")
-		order     = c.FormValue("order")
-		listID, _ = strconv.Atoi(c.Param("id"))
-		single    = false
+		query      = strings.TrimSpace(c.FormValue("query"))
+		orderBy    = c.FormValue("order_by")
+		order      = c.FormValue("order")
+		minimal, _ = strconv.ParseBool(c.FormValue("minimal"))
+		listID, _  = strconv.Atoi(c.Param("id"))
+
+		out models.PageResults
 	)
 
 	// Fetch one list.
+	single := false
 	if listID > 0 {
 		single = true
 	}
 
-	// Sort params.
-	if !strSliceContains(orderBy, listQuerySortFields) {
-		orderBy = "created_at"
-	}
-	if order != sortAsc && order != sortDesc {
-		order = sortAsc
+	if single {
+		out, err := app.core.GetList(listID, "")
+		if err != nil {
+			return err
+		}
+		return c.JSON(http.StatusOK, okResp{out})
 	}
 
-	if err := db.Select(&out.Results, fmt.Sprintf(app.queries.QueryLists, orderBy, order), listID, pg.Offset, pg.Limit); err != nil {
-		app.log.Printf("error fetching lists: %v", err)
-		return echo.NewHTTPError(http.StatusInternalServerError,
-			app.i18n.Ts("globals.messages.errorFetching",
-				"name", "{globals.terms.lists}", "error", pqErrMsg(err)))
+	// Minimal query simply returns the list of all lists without JOIN subscriber counts. This is fast.
+	if !single && minimal {
+		res, err := app.core.GetLists("")
+		if err != nil {
+			return err
+		}
+		if len(res) == 0 {
+			return c.JSON(http.StatusOK, okResp{[]struct{}{}})
+		}
+
+		// Meta.
+		out.Results = res
+		out.Total = len(res)
+		out.Page = 1
+		out.PerPage = out.Total
+
+		return c.JSON(http.StatusOK, okResp{out})
 	}
-	if single && len(out.Results) == 0 {
+
+	// Full list query.
+	res, total, err := app.core.QueryLists(query, orderBy, order, pg.Offset, pg.Limit)
+	if err != nil {
+		return err
+	}
+
+	if single && len(res) == 0 {
 		return echo.NewHTTPError(http.StatusBadRequest,
 			app.i18n.Ts("globals.messages.notFound", "name", "{globals.terms.list}"))
 	}
-	if len(out.Results) == 0 {
-		return c.JSON(http.StatusOK, okResp{[]struct{}{}})
-	}
-
-	// Replace null tags.
-	for i, v := range out.Results {
-		if v.Tags == nil {
-			out.Results[i].Tags = make(pq.StringArray, 0)
-		}
-	}
 
 	if single {
-		return c.JSON(http.StatusOK, okResp{out.Results[0]})
+		return c.JSON(http.StatusOK, okResp{res[0]})
 	}
 
-	// Meta.
-	out.Total = out.Results[0].Total
+	out.Query = query
+	out.Results = res
+	out.Total = total
 	out.Page = pg.Page
 	out.PerPage = pg.PerPage
+
 	return c.JSON(http.StatusOK, okResp{out})
 }
 
@@ -86,44 +85,24 @@ func handleGetLists(c echo.Context) error {
 func handleCreateList(c echo.Context) error {
 	var (
 		app = c.Get("app").(*App)
-		o   = models.List{}
+		l   = models.List{}
 	)
 
-	if err := c.Bind(&o); err != nil {
+	if err := c.Bind(&l); err != nil {
 		return err
 	}
 
 	// Validate.
-	if !strHasLen(o.Name, 1, stdInputMaxLen) {
+	if !strHasLen(l.Name, 1, stdInputMaxLen) {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("lists.invalidName"))
 	}
 
-	uu, err := uuid.NewV4()
+	out, err := app.core.CreateList(l)
 	if err != nil {
-		app.log.Printf("error generating UUID: %v", err)
-		return echo.NewHTTPError(http.StatusInternalServerError,
-			app.i18n.Ts("globals.messages.errorUUID", "error", err.Error()))
+		return err
 	}
 
-	// Insert and read ID.
-	var newID int
-	o.UUID = uu.String()
-	if err := app.queries.CreateList.Get(&newID,
-		o.UUID,
-		o.Name,
-		o.Type,
-		o.Optin,
-		pq.StringArray(normalizeTags(o.Tags))); err != nil {
-		app.log.Printf("error creating list: %v", err)
-		return echo.NewHTTPError(http.StatusInternalServerError,
-			app.i18n.Ts("globals.messages.errorCreating",
-				"name", "{globals.terms.list}", "error", pqErrMsg(err)))
-	}
-
-	// Hand over to the GET handler to return the last insertion.
-	return handleGetLists(copyEchoCtx(c, map[string]string{
-		"id": fmt.Sprintf("%d", newID),
-	}))
+	return c.JSON(http.StatusOK, okResp{out})
 }
 
 // handleUpdateList handles list modification.
@@ -138,35 +117,30 @@ func handleUpdateList(c echo.Context) error {
 	}
 
 	// Incoming params.
-	var o models.List
-	if err := c.Bind(&o); err != nil {
+	var l models.List
+	if err := c.Bind(&l); err != nil {
 		return err
 	}
 
-	res, err := app.queries.UpdateList.Exec(id,
-		o.Name, o.Type, o.Optin, pq.StringArray(normalizeTags(o.Tags)))
+	// Validate.
+	if !strHasLen(l.Name, 1, stdInputMaxLen) {
+		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("lists.invalidName"))
+	}
+
+	out, err := app.core.UpdateList(id, l)
 	if err != nil {
-		app.log.Printf("error updating list: %v", err)
-		return echo.NewHTTPError(http.StatusInternalServerError,
-			app.i18n.Ts("globals.messages.errorUpdating",
-				"name", "{globals.terms.list}", "error", pqErrMsg(err)))
+		return err
 	}
 
-	if n, _ := res.RowsAffected(); n == 0 {
-		return echo.NewHTTPError(http.StatusBadRequest,
-			app.i18n.Ts("globals.messages.notFound", "name", "{globals.terms.list}"))
-	}
-
-	return handleGetLists(c)
+	return c.JSON(http.StatusOK, okResp{out})
 }
 
-// handleDeleteLists handles deletion deletion,
-// either a single one (ID in the URI), or a list.
+// handleDeleteLists handles list deletion, either a single one (ID in the URI), or a list.
 func handleDeleteLists(c echo.Context) error {
 	var (
 		app   = c.Get("app").(*App)
 		id, _ = strconv.ParseInt(c.Param("id"), 10, 64)
-		ids   pq.Int64Array
+		ids   []int
 	)
 
 	if id < 1 && len(ids) == 0 {
@@ -174,14 +148,11 @@ func handleDeleteLists(c echo.Context) error {
 	}
 
 	if id > 0 {
-		ids = append(ids, id)
+		ids = append(ids, int(id))
 	}
 
-	if _, err := app.queries.DeleteLists.Exec(ids); err != nil {
-		app.log.Printf("error deleting lists: %v", err)
-		return echo.NewHTTPError(http.StatusInternalServerError,
-			app.i18n.Ts("globals.messages.errorDeleting",
-				"name", "{globals.terms.list}", "error", pqErrMsg(err)))
+	if err := app.core.DeleteLists(ids); err != nil {
+		return err
 	}
 
 	return c.JSON(http.StatusOK, okResp{true})

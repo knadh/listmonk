@@ -1,14 +1,33 @@
 /* Import Bulma to set variables */
 @import "~bulma/sass/utilities/_all";
 
+/* import inter-regular */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 400;
+  src: local(''),
+       url('assets/fonts/Inter-Regular.woff2') format('woff2'),
+}
+
+/* import inter-600 */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 600;
+  src: local(''),
+       url('assets/fonts/Inter-Bold.woff2') format('woff2'),
+}
+
 $body-family: "Inter", "Helvetica Neue", sans-serif;
 $body-size: 15px;
 $background: $white-bis;
 $body-background-color: $white-bis;
-$primary: #7f2aff;
-$green: #4caf50;
+$primary: #0055d4;
+$green: #0db35e;
 $turquoise: $green;
-$red: #ff5722;
+$red: #FF5722;
+
 $link: $primary;
 $input-placeholder-color: $grey-light;
 $grey-lightest: #eaeaea;
@@ -27,13 +46,12 @@ $menu-item-active-color: $primary;
 
 /* Buefy */
 $modal-background-background-color: rgba(0, 0, 0, .30);
-$speed-slow: 25ms !default;
-$speed-slower: 50ms !default;
 
-/* Import full Bulma and Buefy to override styles. */
-// @import "~bulma";
-@import "./buefy";
+/* Import full Bulma and Buefy */
+@import "~bulma";
+@import "~buefy/src/scss/buefy";
 
+/* Custom style overrides */
 html, body {
   height: 100%;
 }
@@ -57,14 +75,16 @@ ul.no {
   position: relative;
 }
 
+.content pre {
+  white-space: pre-wrap;
+}
+
 section {
   &.wrap {
     max-width: 1100px;
   }
-  &.wrap-small {
-    max-width: 900px;
-  }
 }
+
 .spinner.is-tiny {
   display: inline-block;
   height: 10px;
@@ -82,12 +102,22 @@ section {
       left: 0;
       position: static;
     }
-  }    
+  }
+}
+
+.is-disabled {
+  opacity: 0.30;
 }
 
 .box {
-  box-shadow: 0 0 2px $grey-lighter;
+  background: $white;
+  box-shadow: 2px 2px 0 #f3f3f3;
+  border: 1px solid #e6e6e6;
 }
+  .box hr {
+    background-color: #efefef;
+  }
+
 
 /* Two column sidebar+body layout */
 #app {
@@ -159,6 +189,13 @@ section {
   }
 }
 
+/* Fix for sidebar jumping on modals */
+body.is-noscroll {
+  position: static;
+  overflow-y: visible;
+  width: auto;
+}
+
 /* Global notices */
 .global-notices {
   margin-bottom: 30px;
@@ -188,50 +225,83 @@ section {
   border: 1px solid $grey-lighter;
   border-radius: 2px;
 }
-.quill-editor {
-  background: #fff;
-  &.fullscreen {
-    position: fixed;
-    top: 10px;
-    right: 10px;
-    bottom: 10px;
-    left: 10px;
-    z-index: 100;
+
+.plain-editor textarea {
+  height: 65vh;
+}
+
+.alt-body textarea {
+  height: 30vh;
+}
+
+
+.editor {
+  margin-bottom: 30px;
+
+  .tox-tinymce {
+    box-shadow: 2px 2px 0 #f3f3f3;
+    border: 1px solid #e6e6e6;
+    border-radius: 3px;
+  
+    .tox-toolbar__primary {
+      border-color: #e6e6e6 !important;
+    }
   }
-  .ql-fullscreen:after {
-    content: "⤢";
-    font-weight: 600;
-    font-size: 1.2rem;
-    line-height: 0.95rem;
+  .tox-statusbar__branding {
+    display: none;
   }
-  .ql-toolbar.ql-snow .ql-picker.ql-size {
-    .ql-picker-item[data-value="11px"]::before {
-      content: 'Small';
-      font-size: 11px !important;
+  .tox .tox-statusbar {
+    border: 0;
+  }
+
+  .tox-tinymce--toolbar-sticky-on .tox-editor-header {
+    padding-top: 48px !important;
+  }
+
+}
+
+
+.tox.tox-silver-sink {
+  z-index: 850;
+
+  .tox-dialog-wrap {
+    z-index: 900;
+  }
+  .tox-dialog {
+    @extend .box;
+  }
+
+  .tox-track-link {
+    display: block;
+    cursor: pointer;
+
+    margin: 5px 0 10px 0;
+    input {
+      margin-right: 5px;
     }
-    .ql-picker-item[data-value="13px"]::before {
-      content: 'Normal';
-      font-size: 13px !important;
-    }
-    .ql-picker-item[data-value="22px"]::before {
-      content: 'Big';
-      font-size: 20px !important;
-    }
-    .ql-picker-item[data-value="32px"]::before {
-      content: 'Huge';
-      font-size: 32px !important;
-    }
+  }
+
+  .tox-button {
+    border-radius: 4px;
+  }
+  .tox-button:not(.tox-button--secondary):not(.tox-button--naked) {
+    background: $primary;
+  }
+
+  .tox-textfield {
+    box-shadow: 2px 2px 0 $white-ter;
+    border: 1px solid $grey-lighter;
   }
 }
 
-.editor {
-  margin-bottom: 30px;  
-}
-  .plain-editor textarea {
-    height: 65vh;
-  }
-  .alt-body textarea {
-    height: 30vh;
+.tox, .tox-tinymce, .tox-tinymce-aux, .tox .tox-button, .tox .tox-button-link, .tox .tox-dialog__title,
+  .tox .tox-textfield,
+  .tox .tox-toolbar-textfield,
+  .tox .tox-listboxfield .tox-listbox--select,
+  .tox .tox-textarea,
+  .tox .tox-selectfield select {
+    /* All TinyMCE components */
+    font-family: $body-family !important;
   }
 
 /* Table colors and padding */
@@ -244,15 +314,71 @@ section {
     padding: 15px 10px;
     border-color: $grey-lightest;
   }
-  .actions a {
+
+  .actions a, .actions .a {
     margin: 0 10px;
     display: inline-block;
+  }
+  .actions a[data-disabled],
+  .actions .icon[data-disabled] {
+    pointer-events: none;
+    cursor: not-allowed;
+    color: $grey-light;
+  }
+
+  td {
+    .fields {
+      font-size: $size-7;
+
+      p {
+        line-height: 0.775rem;
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+      }
+
+      label {
+        font-weight: bold;
+        text-align: left;
+        padding-bottom: 6px;
+        min-width: 100px;
+      }
+      span {
+        display: inline-block;
+      }
+      [class*=" mdi-"]::before {
+        margin-left: 0;
+      }
+    }
+
   }
 }
 
 /* Modal */
 .modal {
-  z-index: 100;
+  z-index: 950;
+
+  &.has-overflow {
+    overflow: auto !important;
+    .modal-content {
+      overflow: visible !important;
+    }
+    .modal-card {
+      overflow: visible !important;
+    }
+    .modal-card-body {
+      overflow: visible !important;
+    }
+  }
+}
+.modal-background {
+  background: rgba(255, 255, 255, 0.7);
+}
+.modal-content, .modal.dialog .modal-card {
+  background: $white;
+  box-shadow: 2px 2px 3px #e4e4e4;
+  border: 1px solid #e5e5e5;
+  padding: 0;
 }
 .modal-card-head {
   display: block;
@@ -265,23 +391,94 @@ section {
 }
 
 
-/* Fix for input colours */
-.button.is-primary {
-  background: $primary;
-  &:hover {
-    background: darken($primary, 15%);
-  }
-  &:disabled {
-    background: $grey-light;
+/* Table */
+.b-table .level-left {
+  min-width: 60%;
+  display: block;
+
+  .actions .a {
+    display: inline-block;
+    margin-right: 30px;
   }
 }
 
-.autocomplete .dropdown-content {
-  background-color: $white-ter;
+
+/* Fix for input colours */
+.button {
+  &.is-primary {
+    background: $primary;
+
+    &:hover {
+      background: darken($primary, 15%);
+    }
+    &:disabled {
+      background: $grey-light;
+    }
+  }
+
+  &:not(.is-small) {
+    height: auto;
+    padding: 10px 20px;
+  }
+}
+
+.has-addons {
+  .controls .button.is-primary {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+  }
+
+  .input:hover {
+    box-shadow: none;
+  }
+}
+
+.autocomplete {
+  .dropdown-content {
+    background-color: $white-bis;
+    border: 1px solid $primary;
+  }
+  a.dropdown-item {
+    font-size: $size-6;
+    &:hover, &.is-hovered {
+      background-color: $grey-lightest;
+      color: $primary;
+    }
+  }
+  .dropdown-menu {
+    top: 92%;
+  }
+  .dropdown-menu.is-opened-top {
+    top: auto;
+    bottom: 92%;
+  }
 }
 
 .input, .taginput .taginput-container.is-focusable, .textarea {
-  box-shadow: inset 2px 2px 0px $white-ter;
+  box-shadow: 2px 2px 0 $white-ter;
+  border: 1px solid $grey-lighter;
+}
+
+.select:not(.is-multiple) {
+  height: auto;
+}
+
+.input, .select select {
+  height: auto;
+  padding: 10px 12px;
+}
+  .control.has-icons-left .icon.is-left {
+    height: 3rem;
+  }
+
+.taginput .taginput-container .autocomplete {
+  input {
+    padding: 16px 32px 17px 32px;
+  }
+
+  .control.has-icons-left .icon.is-left {
+    height: 2rem;
+  }
 }
 
 /* Form fields */
@@ -301,25 +498,28 @@ section {
   }
 
   label {
-    color: $grey;
+    color: $grey-dark;
   }
 
   .help {
-    color: $grey-light;
+    color: $grey;
   }
 }
 .has-numberinput .field, .field.is-grouped {
   margin-bottom: 0;
 }
+.b-numberinput.field.is-grouped div.control {
+  flex-grow: 0;
+}
 
 /* Tabs */
 .b-tabs .tab-content {
-  padding-top: 2rem;
+  padding-top: 3rem;
 }
 
 /* Tags */
 .tag {
-  min-width: 75px;
+  min-width: 85px;
 
   &.is-small {
     font-size: 0.65rem;
@@ -330,40 +530,41 @@ section {
   }
 
   &:not(body) {
+    font-size: 0.85em;
     $color: $grey-lighter;
     border: 1px solid $color;
     box-shadow: 1px 1px 0 $color;
     color: $grey;
   }
 
-  &.private, &.scheduled, &.paused {
+  &.private, &.scheduled, &.paused, &.tx {
     $color: #ed7b00;
     color: $color;
     background: #fff7e6;
     border: 1px solid lighten($color, 37%);
     box-shadow: 1px 1px 0 lighten($color, 37%);
   }
-  &.public, &.running {
-    $color: #1890ff;
-    color: $color;
+  &.public, &.running, &.list, &.campaign {
+    $color: $primary;
+    color: lighten($color, 20%);;
     background: #e6f7ff;
-    border: 1px solid lighten($color, 37%);
-    box-shadow: 1px 1px 0 lighten($color, 25%);
+    border: 1px solid lighten($color, 42%);
+    box-shadow: 1px 1px 0 lighten($color, 42%);
   }
   &.finished, &.enabled {
-    $color: #50ab24;
+    $color: $green;
     color: $color;
     background: #f6ffed;
     border: 1px solid lighten($color, 45%);
     box-shadow: 1px 1px 0 lighten($color, 45%);
   }
   &.blocklisted, &.cancelled {
-    $color: #f5222d;
+    $color: $red;
     color: $color;
     background: #fff1f0;
     border: 1px solid lighten($color, 30%);
     box-shadow: 1px 1px 0 lighten($color, 30%);
-  } 
+  }
 
   sup {
     font-weight: $weight-semibold;
@@ -375,16 +576,32 @@ section {
   &.confirmed sup {
     color: #52c41a;
   }
-  
+
   &:not(body) .icon:first-child:last-child {
     margin-right: 1px;
   }
+}
+
+/* Page header */
+.page-header {
+  .buttons {
+    justify-content: flex-end;
+  }
+}
+
+.page-404 h1 {
+  font-size: 100px;
 }
 
 /* Dashboard */
 section.dashboard {
   .title {
     margin-bottom: 0.5rem;
+  }
+
+  .tile.notification {
+    @extend .box;
+    padding: 10px;
   }
 
   .counts .column {
@@ -419,8 +636,10 @@ section.dashboard {
 
 /* Lists page */
 section.lists {
-  td .tag {
-    min-width: 65px;
+  td {
+    .tag {
+      min-width: 65px;
+    }
   }
 }
 
@@ -430,13 +649,23 @@ section.lists {
 }
 
 /* Subscribers page */
-.subscribers-controls {
-  padding-bottom: 15px;
+.subscribers {
+  .subscribers-controls .buttons {
+    margin-top: 15px;
+  }
+
+  .toggle-advanced {
+    margin-top: 10px;
+  }
+
+  .b-table {
+    margin-top: 25px;
+  }
 }
-.subscribers-bulk {
-  .actions a {
-    display: inline-block;
-    margin-right: 30px;
+
+.bounces {
+  pre {
+    padding: 5px 10px;
   }
 }
 
@@ -457,51 +686,29 @@ section.import {
 /* Campaigns page */
 section.campaigns {
   table tbody {
-    tr.running {
-      background: lighten(#1890ff, 43%);
-      td {
-        border-bottom: 1px solid lighten(#1890ff, 30%);
-      }
-
-      .spinner .loading-overlay .loading-icon::after {
+    .spinner {
+      margin-left: 10px;
+      .loading-overlay .loading-icon::after {
         border-bottom-color: lighten(#1890ff, 30%);
         border-left-color: lighten(#1890ff, 30%);
       }
     }
 
-    td {
-      &.status .spinner {
-        margin-left: 10px;
+    tr.running {
+      background: lighten(#1890ff, 43%);
+      td {
+        border-bottom: 1px solid lighten(#1890ff, 30%);
       }
+    }
+
+    td {
       .tags {
         margin-top: 5px;
       }
 
-      p {
-        margin: 0 !important;
-      }
-
       &.lists ul {
-        font-size: $size-7;
+        // font-size: $size-7;
         list-style-type: circle;
-
-        a {
-          color: $grey-dark;
-          &:hover {
-            color: $primary;
-          }
-        }
-      }
-
-      .fields {
-        font-size: $size-7;
-        label {
-          font-weight: bold;
-          text-align: right;
-          min-width: 50px;
-          margin-right: 10px;
-          display: inline-block;
-        }
       }
 
       &.draft {
@@ -518,10 +725,30 @@ section.campaigns {
   }
 }
 
+section.analytics {
+  .charts {
+    position: relative;
+    min-height: 100px;
+  }
+
+  .chart {
+    margin-bottom: 45px;
+  }
+
+  .donut-container {
+    position: relative;
+  }
+  .donut {
+    bottom: 0px;
+    right: 0px;
+    position: absolute !important;
+  }
+}
+
 /* Campaign / template preview popup */
 .preview {
   padding: 0;
-  
+
   /* Contain the spinner background in the content area. */
   position: relative;
 
@@ -532,13 +759,6 @@ section.campaigns {
     min-height: 500px;
     padding: 0;
     margin: 0 0 -5px 0;
-  }
-}
-
-/* Campaign */
-section.campaign {
-  header .buttons {
-    justify-content: flex-end;
   }
 }
 
@@ -596,6 +816,11 @@ section.campaign {
 }
 
 /* Template form */
+.templates {
+  td .tag {
+    min-width: 100px;
+  }
+}
 .template-modal {
   .template-modal-content {
     height: 95vh;
@@ -615,6 +840,14 @@ section.campaign {
   .box {
     margin-bottom: 30px;
   }
+  .html-editor {
+    height: auto;
+    min-height: 350px;
+  }
+  .smtp-shortcuts a {
+    margin-right: 15px;
+    display: inline-block;
+  }
 }
 
 /* Logs */
@@ -622,11 +855,22 @@ section.campaign {
   .lines {
     height: 70vh;
     overflow-y: scroll;
+    font-family: monospace;
+    font-size: 0.90rem;
 
-    .stamp {
+    padding: 15px;
+    border: 1px solid $grey-lightest;
+
+    .line {
+      display: block;
+      margin-bottom: 2px;
+    }
+
+    .timestamp {
       color: $primary;
       display: inline-block;
-      min-width: 160px;
+      min-width: 175px;
+      margin-right: 5px;
     }
 
     .line:hover {
@@ -637,6 +881,10 @@ section.campaign {
 
 /* C3 charting lib */
 .c3 {
+  .c3-text.c3-empty {
+    font-family: $body-family;
+    font-size: $size-6;
+  }
   .c3-chart-lines .c3-line {
     stroke-width: 2px;
   }
@@ -654,11 +902,10 @@ section.campaign {
   }
 
   .c3-tooltip {
-    border: 0;
-    background-color: #fff;
+    @extend .box;
+    padding: 10px;
     empty-cells: show;
-    box-shadow: none;
-    opacity: 0.9;
+    opacity: 0.95;
 
     tr {
       border: 0;
@@ -681,47 +928,45 @@ section.campaign {
 }
 .slide-leave-active, .slide-leave-to {
   transition: none;
-  display: none;  
+  display: none;
 }
 
 
 /* Toasts */
 .notices {
-  @keyframes scale {
-    0% {
-      scale: 1;
-    }
-    50% {
-      scale: 1.3;
-    }
-    100% {
-      scale: 1;
-    }
-  }
   .toast {
-    animation: scale 300ms ease-in-out;
-  }
-}
+    @extend .box;
+    border-left: 15px solid $grey;
+    border-radius: 3px;
+    padding: 20px;
 
-@media screen and (max-width: 1450px) and (min-width: 769px) {
-  section.campaigns {
-    /* Fold the stats labels until the card view */
-    table tbody td {
-      .fields {
-        label {
-          margin: 0;
-          display: block;
-          text-align: left;
-        }
-        p {
-          margin-bottom: 10px !important;
-        }
-      }
+    &.is-danger {
+      background: $white;
+      border-left-color: $red;
+      color: $grey-dark;
+    }
+    &.is-success {
+      background: $white;
+      border-left-color: $green;
+      color: $grey-dark;
     }
   }
 }
 
-@media screen and (max-width: 1023px) {
+@media screen and (max-width: 1500px) {
+  .b-table {
+    .top.level {
+      display: block;
+    }
+  }
+  .b-table .level-left {
+    display: block;
+    width: 100%;
+    min-width: 0;
+  }
+}
+
+@media screen and (max-width: 1100px) {
   html, body {
     overflow-x: auto;
   }
@@ -747,6 +992,7 @@ section.campaign {
 
   /* Hide sidebar menu captions on mobile */
   .b-sidebar .sidebar-content.is-mini-mobile {
+    max-width: 90px;
     .menu-list {
       li {
         margin-bottom: 30px;
@@ -767,20 +1013,57 @@ section.campaign {
   }
 
   td .tags {
-    display: block;
-    text-align: right;
-
     .tag:not(:last-child) {
       margin-right: 0;
     }
   }
-}
 
-@media screen and (max-width: 840px) {
   section.dashboard label {
     min-width: auto;
   }
-  .table-mobile-sort {
-    margin-top: 15px;
+
+  /* Tabs */
+  nav.tabs.is-boxed ul {
+    display: block;
+    text-align: left;
+    flex-grow: 1;
+
+    li {
+      a {
+        justify-content: left;
+        border: 1px solid $grey-lighter !important;
+      }
+
+      &.is-active a {
+        border-bottom: 1px solid $grey-lighter !important;
+        padding-left: 30px;
+      }
+    }
+  }
+
+  /* Table top-left controls */
+  .b-table .level-left {
+    .actions .a {
+      display: block;
+      margin: 0 0 5px 0;
+    }
+  }
+}
+
+@media screen and (max-width: 850px) {
+  .page-header .buttons {
+    display: block;
+  }
+
+  .b-tabs .tab-content {
+    padding: 15px 0 0 0;
+  }
+}
+
+/* On big sizes, keep the header buttons small and non-expanded. */
+@media screen and (min-width: 769px) {
+  .page-header .button {
+    display: inline-block;
+    width: auto;
   }
 }

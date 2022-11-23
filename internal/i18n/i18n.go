@@ -1,6 +1,6 @@
 // i18n is a simple package that translates strings using a language map.
-// It mimicks some functionality of the vue-i18n library so that the same JSON
-// language map may be used in the JS frontent and the Go backend.
+// It mimics some functionality of the vue-i18n library so that the same JSON
+// language map may be used in the JS frontend and the Go backend.
 package i18n
 
 import (
@@ -85,7 +85,7 @@ func (i *I18n) T(key string) string {
 }
 
 // Ts returns the translation for the given key similar to vue i18n's t()
-// and subsitutes the params in the given map in the translated value.
+// and substitutes the params in the given map in the translated value.
 // In the language values, the substitutions are represented as: {key}
 // The params and values are received as a pairs of succeeding strings.
 // That is, the number of these arguments should be an even number.

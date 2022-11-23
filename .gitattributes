@@ -1,1 +1,3 @@
 frontend/* linguist-vendored
+VERSION export-subst
+* text=auto eol=lf

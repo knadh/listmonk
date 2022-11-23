@@ -1,33 +1,39 @@
 <a href="https://zerodha.tech"><img src="https://zerodha.tech/static/images/github-badge.svg" align="right" /></a>
 
-![listmonk](https://user-images.githubusercontent.com/547147/89733021-43fbf700-da70-11ea-82e4-e98cb5010257.png)
+[![listmonk-logo](https://user-images.githubusercontent.com/547147/134940003-1de03d83-8c7b-459b-8056-baa8d5f3b448.png)](https://listmonk.app)
 
-listmonk is a standalone, self-hosted, newsletter and mailing list manager. It is fast, feature-rich, and packed into a single binary. It uses a PostgreSQL database as its data store.
+listmonk is a standalone, self-hosted, newsletter and mailing list manager. It is fast, feature-rich, and packed into a single binary. It uses a PostgreSQL (⩾ v9.4) database as its data store.
 
-[![listmonk-dashboard](https://user-images.githubusercontent.com/547147/89733057-87566580-da70-11ea-8160-855f6f046a55.png)](https://listmonk.app)
-Visit [listmonk.app](https://listmonk.app)
+[![listmonk-dashboard](https://user-images.githubusercontent.com/547147/134939475-e0391111-f762-44cb-b056-6cb0857755e3.png)](https://listmonk.app)
+
+Visit [listmonk.app](https://listmonk.app) for more info. Check out the [**live demo**](https://demo.listmonk.app).
 
 ## Installation
 
 ### Docker
 
-The latest image is available on DockerHub at `listmonk/listmonk:latest`. Use the sample [docker-compose.yml](https://github.com/knadh/listmonk/blob/master/docker-compose.yml) to run listmonk and Postgres DB with docker-compose as follows:
+The latest image is available on DockerHub at [`listmonk/listmonk:latest`](https://hub.docker.com/r/listmonk/listmonk/tags?page=1&ordering=last_updated&name=latest). Use the sample [docker-compose.yml](https://github.com/knadh/listmonk/blob/master/docker-compose.yml) to run manually or use the helper script. 
 
 #### Demo
 
 ```bash
-mkdir listmonk-demo
-sh -c "$(curl -sSL https://raw.githubusercontent.com/knadh/listmonk/master/install-demo.sh)"
+mkdir listmonk-demo && cd listmonk-demo
+sh -c "$(curl -fsSL https://raw.githubusercontent.com/knadh/listmonk/master/install-demo.sh)"
 ```
 
-The demo does not persist Postgres after the containers are removed. DO NOT use this demo setup in production.
+DO NOT use this demo setup in production.
 
 #### Production
-- `docker-compose up db` to run the Postgres DB.
-- `docker-compose run --rm app ./listmonk --install` to setup the DB (or `--upgrade` to upgrade an existing DB)
-- Run `docker-compose up app` and visit `http://localhost:9000`.
 
-More information on [docs](https://listmonk.app/docs).
+```bash
+mkdir listmonk && cd listmonk
+sh -c "$(curl -fsSL https://raw.githubusercontent.com/knadh/listmonk/master/install-prod.sh)"
+```
+Visit `http://localhost:9000`.
+
+**NOTE**: Always examine the contents of shell scripts before executing them.
+
+See [installation docs](https://listmonk.app/docs/installation).
 
 __________________
 
@@ -37,17 +43,8 @@ __________________
 - `./listmonk --install` to setup the Postgres DB (or `--upgrade` to upgrade an existing DB. Upgrades are idempotent and running them multiple times have no side effects).
 - Run `./listmonk` and visit `http://localhost:9000`.
 
+See [installation docs](https://listmonk.app/docs/installation).
 __________________
-
-### Heroku 
-
-Using the [Nginx buildpack](https://github.com/heroku/heroku-buildpack-nginx) can be used to deploy listmonk on Heroku and use Nginx as a proxy to setup basicauth. 
-This one-click [Heroku deploy button](https://github.com/bumi/listmonk-heroku) provides an automated default deployment.
-
-[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/bumi/listmonk-heroku)
-
-Please note that [configuration options](https://listmonk.app/docs/configuration) must be set using [environment configuration variables](https://devcenter.heroku.com/articles/config-vars).
-
 
 
 ## Developers

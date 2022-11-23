@@ -24,6 +24,7 @@ import (
 	"sync"
 
 	"github.com/gofrs/uuid"
+	"github.com/knadh/listmonk/internal/i18n"
 	"github.com/knadh/listmonk/models"
 	"github.com/lib/pq"
 )
@@ -50,20 +51,24 @@ const (
 
 // Importer represents the bulk CSV subscriber import system.
 type Importer struct {
-	opt Options
-	db  *sql.DB
+	opt  Options
+	db   *sql.DB
+	i18n *i18n.I18n
 
 	stop   chan bool
 	status Status
 	sync.RWMutex
 }
 
-// Options represents inport options.
+// Options represents import options.
 type Options struct {
 	UpsertStmt         *sql.Stmt
 	BlocklistStmt      *sql.Stmt
 	UpdateListDateStmt *sql.Stmt
 	NotifCB            models.AdminNotifCallback
+
+	// Lookup table for blocklisted domains.
+	DomainBlocklist map[string]bool
 }
 
 // Session represents a single import session.
@@ -72,12 +77,20 @@ type Session struct {
 	subQueue chan SubReq
 	log      *log.Logger
 
-	mode      string
-	overwrite bool
-	listIDs   []int
+	opt SessionOpt
 }
 
-// Status reporesents statistics from an ongoing import session.
+// SessionOpt represents the options for an importer session.
+type SessionOpt struct {
+	Filename  string `json:"filename"`
+	Mode      string `json:"mode"`
+	SubStatus string `json:"subscription_status"`
+	Overwrite bool   `json:"overwrite"`
+	Delim     string `json:"delim"`
+	ListIDs   []int  `json:"lists"`
+}
+
+// Status represents statistics from an ongoing import session.
 type Status struct {
 	Name     string `json:"name"`
 	Total    int    `json:"total"`
@@ -115,39 +128,38 @@ var (
 )
 
 // New returns a new instance of Importer.
-func New(opt Options, db *sql.DB) *Importer {
+func New(opt Options, db *sql.DB, i *i18n.I18n) *Importer {
 	im := Importer{
 		opt:    opt,
-		stop:   make(chan bool, 1),
 		db:     db,
+		i18n:   i,
 		status: Status{Status: StatusNone, logBuf: bytes.NewBuffer(nil)},
+		stop:   make(chan bool, 1),
 	}
 	return &im
 }
 
 // NewSession returns an new instance of Session. It takes the name
 // of the uploaded file, but doesn't do anything with it but retains it for stats.
-func (im *Importer) NewSession(fName, mode string, overWrite bool, listIDs []int) (*Session, error) {
+func (im *Importer) NewSession(opt SessionOpt) (*Session, error) {
 	if im.getStatus() != StatusNone {
 		return nil, errors.New("an import is already running")
 	}
 
 	im.Lock()
 	im.status = Status{Status: StatusImporting,
-		Name:   fName,
+		Name:   opt.Filename,
 		logBuf: bytes.NewBuffer(nil)}
 	im.Unlock()
 
 	s := &Session{
-		im:        im,
-		log:       log.New(im.status.logBuf, "", log.Ldate|log.Ltime|log.Lshortfile),
-		subQueue:  make(chan SubReq, commitBatchSize),
-		mode:      mode,
-		overwrite: overWrite,
-		listIDs:   listIDs,
+		im:       im,
+		log:      log.New(im.status.logBuf, "", log.Ldate|log.Ltime|log.Lshortfile),
+		subQueue: make(chan SubReq, commitBatchSize),
+		opt:      opt,
 	}
 
-	s.log.Printf("processing '%s'", fName)
+	s.log.Printf("processing '%s'", opt.Filename)
 	return s, nil
 }
 
@@ -235,10 +247,10 @@ func (s *Session) Start() {
 		total = 0
 		cur   = 0
 
-		listIDs = make(pq.Int64Array, len(s.listIDs))
+		listIDs = make(pq.Int64Array, len(s.opt.ListIDs))
 	)
 
-	for i, v := range s.listIDs {
+	for i, v := range s.opt.ListIDs {
 		listIDs[i] = int64(v)
 	}
 
@@ -251,7 +263,7 @@ func (s *Session) Start() {
 				continue
 			}
 
-			if s.mode == ModeSubscribe {
+			if s.opt.Mode == ModeSubscribe {
 				stmt = tx.Stmt(s.im.opt.UpsertStmt)
 			} else {
 				stmt = tx.Stmt(s.im.opt.BlocklistStmt)
@@ -265,9 +277,9 @@ func (s *Session) Start() {
 			break
 		}
 
-		if s.mode == ModeSubscribe {
-			_, err = stmt.Exec(uu, sub.Email, sub.Name, sub.Attribs, listIDs, s.overwrite)
-		} else if s.mode == ModeBlocklist {
+		if s.opt.Mode == ModeSubscribe {
+			_, err = stmt.Exec(uu, sub.Email, sub.Name, sub.Attribs, listIDs, s.opt.SubStatus, s.opt.Overwrite)
+		} else if s.opt.Mode == ModeBlocklist {
 			_, err = stmt.Exec(uu, sub.Email, sub.Name, sub.Attribs)
 		}
 		if err != nil {
@@ -512,18 +524,19 @@ func (s *Session) LoadCSV(srcPath string, delim rune) error {
 		}
 
 		sub := SubReq{}
-		// Lowercase to ensure uniqueness in the DB.
-		sub.Email = strings.ToLower(strings.TrimSpace(row["email"]))
+		sub.Email = row["email"]
 		sub.Name = row["name"]
-		if err := ValidateFields(sub); err != nil {
-			s.log.Printf("skipping line %d: %v", i, err)
+
+		sub, err = s.im.validateFields(sub)
+		if err != nil {
+			s.log.Printf("skipping line %d: %s: %v", i, sub.Email, err)
 			continue
 		}
 
 		// JSON attributes.
 		if len(row["attributes"]) > 0 {
 			var (
-				attribs models.SubscriberAttribs
+				attribs models.JSON
 				b       = []byte(row["attributes"])
 			)
 			if err := json.Unmarshal(b, &attribs); err != nil {
@@ -558,6 +571,51 @@ func (im *Importer) Stop() {
 	}
 }
 
+// SanitizeEmail validates and sanitizes an e-mail string and returns the lowercased,
+// e-mail component of an e-mail string.
+func (im *Importer) SanitizeEmail(email string) (string, error) {
+	email = strings.ToLower(strings.TrimSpace(email))
+
+	// Since `mail.ParseAddress` parses an email address which can also contain optional name component
+	// here we check if incoming email string is same as the parsed email.Address. So this eliminates
+	// any valid email address with name and also valid address with empty name like `<abc@example.com>`.
+	em, err := mail.ParseAddress(email)
+	if err != nil || em.Address != email {
+		return "", errors.New(im.i18n.T("subscribers.invalidEmail"))
+	}
+
+	// Check if the e-mail's domain is blocklisted.
+	d := strings.Split(em.Address, "@")
+	if len(d) == 2 {
+		_, ok := im.opt.DomainBlocklist[d[1]]
+		if ok {
+			return "", errors.New(im.i18n.T("subscribers.domainBlocklisted"))
+		}
+	}
+
+	return em.Address, nil
+}
+
+// validateFields validates incoming subscriber field values and returns sanitized fields.
+func (im *Importer) validateFields(s SubReq) (SubReq, error) {
+	if len(s.Email) > 1000 {
+		return s, errors.New(im.i18n.T("subscribers.invalidEmail"))
+	}
+
+	s.Name = strings.TrimSpace(s.Name)
+	if len(s.Name) == 0 || len(s.Name) > stdInputMaxLen {
+		return s, errors.New(im.i18n.T("subscribers.invalidName"))
+	}
+
+	em, err := im.SanitizeEmail(s.Email)
+	if err != nil {
+		return s, err
+	}
+	s.Email = strings.ToLower(em)
+
+	return s, nil
+}
+
 // mapCSVHeaders takes a list of headers obtained from a CSV file, a map of known headers,
 // and returns a new map with each of the headers in the known map mapped by the position (0-n)
 // in the given CSV list.
@@ -576,20 +634,6 @@ func (s *Session) mapCSVHeaders(csvHdrs []string, knownHdrs map[string]bool) map
 	}
 
 	return hdrKeys
-}
-
-// ValidateFields validates incoming subscriber field values.
-func ValidateFields(s SubReq) error {
-	if len(s.Email) > 1000 {
-		return errors.New(`e-mail too long`)
-	}
-	if !IsEmail(s.Email) {
-		return errors.New(`invalid e-mail "` + s.Email + `"`)
-	}
-	if len(s.Name) == 0 || len(s.Name) > stdInputMaxLen {
-		return errors.New(`invalid or empty name "` + s.Name + `"`)
-	}
-	return nil
 }
 
 // countLines counts the number of line breaks in a file. This does not
@@ -614,15 +658,4 @@ func countLines(r io.Reader) (int, error) {
 			return count, err
 		}
 	}
-}
-
-// IsEmail checks whether the given string is a valid e-mail address.
-func IsEmail(email string) bool {
-	// Since `mail.ParseAddress` parses an email address which can also contain optional name component
-	// here we check if incoming email string is same as the parsed email.Address. So this eliminates
-	// any valid email address with name and also valid address with empty name like `<abc@example.com>`.
-	if em, err := mail.ParseAddress(email); err != nil || em.Address != email {
-		return false
-	}
-	return true
 }

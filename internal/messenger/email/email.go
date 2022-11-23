@@ -11,14 +11,17 @@ import (
 	"github.com/knadh/smtppool"
 )
 
-const emName = "email"
+const (
+	emName        = "email"
+	hdrReturnPath = "Return-Path"
+)
 
 // Server represents an SMTP server's credentials.
 type Server struct {
 	Username      string            `json:"username"`
 	Password      string            `json:"password"`
 	AuthProtocol  string            `json:"auth_protocol"`
-	TLSEnabled    bool              `json:"tls_enabled"`
+	TLSType       string            `json:"tls_type"`
 	TLSSkipVerify bool              `json:"tls_skip_verify"`
 	EmailHeaders  map[string]string `json:"email_headers"`
 
@@ -34,7 +37,7 @@ type Emailer struct {
 	servers []*Server
 }
 
-// New returns an SMTP e-mail Messenger backend with a the given SMTP servers.
+// New returns an SMTP e-mail Messenger backend with the given SMTP servers.
 func New(servers ...Server) (*Emailer, error) {
 	e := &Emailer{
 		servers: make([]*Server, 0, len(servers)),
@@ -57,12 +60,17 @@ func New(servers ...Server) (*Emailer, error) {
 		s.Opt.Auth = auth
 
 		// TLS config.
-		if s.TLSEnabled {
+		if s.TLSType != "none" {
 			s.TLSConfig = &tls.Config{}
 			if s.TLSSkipVerify {
 				s.TLSConfig.InsecureSkipVerify = s.TLSSkipVerify
 			} else {
 				s.TLSConfig.ServerName = s.Host
+			}
+
+			// SSL/TLS, not STARTTLS.
+			if s.TLSType == "TLS" {
+				s.Opt.SSL = true
 			}
 		}
 
@@ -120,16 +128,22 @@ func (e *Emailer) Push(m messenger.Message) error {
 	}
 
 	em.Headers = textproto.MIMEHeader{}
-	// Attach e-mail level headers.
-	if len(m.Headers) > 0 {
-		em.Headers = m.Headers
-	}
 
 	// Attach SMTP level headers.
-	if len(srv.EmailHeaders) > 0 {
-		for k, v := range srv.EmailHeaders {
-			em.Headers.Set(k, v)
-		}
+	for k, v := range srv.EmailHeaders {
+		em.Headers.Set(k, v)
+	}
+
+	// Attach e-mail level headers.
+	for k, v := range m.Headers {
+		em.Headers.Set(k, v[0])
+	}
+
+	// If the `Return-Path` header is set, it should be set as the
+	// the SMTP envelope sender (via the Sender field of the email struct).
+	if sender := em.Headers.Get(hdrReturnPath); sender != "" {
+		em.Sender = sender
+		em.Headers.Del(hdrReturnPath)
 	}
 
 	switch m.ContentType {

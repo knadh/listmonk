@@ -1,12 +1,12 @@
 import { ToastProgrammatic as Toast } from 'buefy';
 import axios from 'axios';
-import humps from 'humps';
 import qs from 'qs';
 import store from '../store';
 import { models } from '../constants';
+import Utils from '../utils';
 
 const http = axios.create({
-  baseURL: process.env.BASE_URL,
+  baseURL: process.env.VUE_APP_ROOT_URL || '/',
   withCredentials: false,
   responseType: 'json',
 
@@ -15,6 +15,7 @@ const http = axios.create({
   paramsSerializer: (params) => qs.stringify(params, { arrayFormat: 'repeat' }),
 });
 
+const utils = new Utils();
 
 // Intercept requests to set the 'loading' state of a model.
 http.interceptors.request.use((config) => {
@@ -34,10 +35,25 @@ http.interceptors.response.use((resp) => {
 
   let data = {};
   if (typeof resp.data.data === 'object') {
-    data = { ...resp.data.data };
-    if (!resp.config.preserveCase) {
-      // Transform field case.
-      data = humps.camelizeKeys(resp.data.data);
+    if (resp.data.data.constructor === Object) {
+      data = { ...resp.data.data };
+    } else {
+      data = [...resp.data.data];
+    }
+
+    // Transform keys to camelCase.
+    switch (typeof resp.config.camelCase) {
+      case 'function':
+        data = utils.camelKeys(data, resp.config.camelCase);
+        break;
+      case 'boolean':
+        if (resp.config.camelCase) {
+          data = utils.camelKeys(data);
+        }
+        break;
+      default:
+        data = utils.camelKeys(data);
+        break;
     }
   } else {
     data = resp.data.data;
@@ -67,6 +83,8 @@ http.interceptors.response.use((resp) => {
       message: msg,
       type: 'is-danger',
       queue: false,
+      position: 'is-top',
+      pauseOnHover: true,
     });
   }
 
@@ -92,7 +110,14 @@ export const getDashboardCharts = () => http.get('/api/dashboard/charts',
 
 // Lists.
 export const getLists = (params) => http.get('/api/lists',
-  { params, loading: models.lists, store: models.lists });
+  {
+    params: (!params ? { per_page: 'all' } : params),
+    loading: models.lists,
+    store: models.lists,
+  });
+
+export const getList = async (id) => http.get(`/api/lists/${id}`,
+  { loading: models.list });
 
 export const createList = (data) => http.post('/api/lists', data,
   { loading: models.lists });
@@ -105,12 +130,35 @@ export const deleteList = (id) => http.delete(`/api/lists/${id}`,
 
 // Subscribers.
 export const getSubscribers = async (params) => http.get('/api/subscribers',
-  { params, loading: models.subscribers, store: models.subscribers });
+  {
+    params,
+    loading: models.subscribers,
+    store: models.subscribers,
+    camelCase: (keyPath) => !keyPath.startsWith('.results.*.attribs'),
+  });
+
+export const getSubscriber = async (id) => http.get(`/api/subscribers/${id}`,
+  { loading: models.subscribers });
+
+export const getSubscriberBounces = async (id) => http.get(`/api/subscribers/${id}/bounces`,
+  { loading: models.bounces });
+
+export const deleteSubscriberBounces = async (id) => http.delete(`/api/subscribers/${id}/bounces`,
+  { loading: models.bounces });
+
+export const deleteBounce = async (id) => http.delete(`/api/bounces/${id}`,
+  { loading: models.bounces });
+
+export const deleteBounces = async (params) => http.delete('/api/bounces',
+  { params, loading: models.bounces });
 
 export const createSubscriber = (data) => http.post('/api/subscribers', data,
   { loading: models.subscribers });
 
 export const updateSubscriber = (data) => http.put(`/api/subscribers/${data.id}`, data,
+  { loading: models.subscribers });
+
+export const sendSubscriberOptin = (id) => http.post(`/api/subscribers/${id}/optin`, {},
   { loading: models.subscribers });
 
 export const deleteSubscriber = (id) => http.delete(`/api/subscribers/${id}`,
@@ -140,20 +188,45 @@ export const importSubscribers = (data) => http.post('/api/import/subscribers', 
 export const getImportStatus = () => http.get('/api/import/subscribers');
 
 export const getImportLogs = async () => http.get('/api/import/subscribers/logs',
-  { preserveCase: true });
+  { camelCase: false });
 
 export const stopImport = () => http.delete('/api/import/subscribers');
 
-// Campaigns.
-export const getCampaigns = async (params) => http.get('/api/campaigns',
-  { params, loading: models.campaigns, store: models.campaigns });
+// Bounces.
+export const getBounces = async (params) => http.get('/api/bounces',
+  { params, loading: models.bounces });
 
-export const getCampaign = async (id) => http.get(`/api/campaigns/${id}`,
-  { loading: models.campaigns });
+// Campaigns.
+export const getCampaigns = async (params) => http.get('/api/campaigns', {
+  params,
+  loading: models.campaigns,
+  store: models.campaigns,
+  camelCase: (keyPath) => !keyPath.startsWith('.results.*.headers'),
+});
+
+export const getCampaign = async (id) => http.get(`/api/campaigns/${id}`, {
+  loading: models.campaigns,
+  camelCase: (keyPath) => !keyPath.startsWith('.headers'),
+});
 
 export const getCampaignStats = async () => http.get('/api/campaigns/running/stats', {});
 
 export const createCampaign = async (data) => http.post('/api/campaigns', data,
+  { loading: models.campaigns });
+
+export const getCampaignViewCounts = async (params) => http.get('/api/campaigns/analytics/views',
+  { params, loading: models.campaigns });
+
+export const getCampaignClickCounts = async (params) => http.get('/api/campaigns/analytics/clicks',
+  { params, loading: models.campaigns });
+
+export const getCampaignBounceCounts = async (params) => http.get('/api/campaigns/analytics/bounces',
+  { params, loading: models.campaigns });
+
+export const getCampaignLinkCounts = async (params) => http.get('/api/campaigns/analytics/links',
+  { params, loading: models.campaigns });
+
+export const convertCampaignContent = async (data) => http.post(`/api/campaigns/${data.id}/content`, data,
   { loading: models.campaigns });
 
 export const testCampaign = async (data) => http.post(`/api/campaigns/${data.id}/test`, data,
@@ -164,6 +237,9 @@ export const updateCampaign = async (id, data) => http.put(`/api/campaigns/${id}
 
 export const changeCampaignStatus = async (id, status) => http.put(`/api/campaigns/${id}/status`,
   { status }, { loading: models.campaigns });
+
+export const updateCampaignArchive = async (id, data) => http.put(`/api/campaigns/${id}/archive`, data,
+  { loading: models.campaigns });
 
 export const deleteCampaign = async (id) => http.delete(`/api/campaigns/${id}`,
   { loading: models.campaigns });
@@ -196,16 +272,32 @@ export const deleteTemplate = async (id) => http.delete(`/api/templates/${id}`,
 
 // Settings.
 export const getServerConfig = async () => http.get('/api/config',
-  { loading: models.serverConfig, store: models.serverConfig, preserveCase: true });
+  { loading: models.serverConfig, store: models.serverConfig, camelCase: false });
 
 export const getSettings = async () => http.get('/api/settings',
-  { loading: models.settings, store: models.settings, preserveCase: true });
+  { loading: models.settings, store: models.settings, camelCase: false });
 
 export const updateSettings = async (data) => http.put('/api/settings', data,
   { loading: models.settings });
 
+export const testSMTP = async (data) => http.post('/api/settings/smtp/test', data,
+  { loading: models.settings, disableToast: true });
+
 export const getLogs = async () => http.get('/api/logs',
-  { loading: models.logs });
+  { loading: models.logs, camelCase: false });
 
 export const getLang = async (lang) => http.get(`/api/lang/${lang}`,
-  { loading: models.lang, preserveCase: true });
+  { loading: models.lang, camelCase: false });
+
+export const logout = async () => http.get('/api/logout', {
+  auth: { username: 'wrong', password: 'wrong' },
+});
+
+export const deleteGCCampaignAnalytics = async (typ, beforeDate) => http.delete(`/api/maintenance/analytics/${typ}`,
+  { loading: models.maintenance, params: { before_date: beforeDate } });
+
+export const deleteGCSubscribers = async (typ) => http.delete(`/api/maintenance/subscribers/${typ}`,
+  { loading: models.maintenance });
+
+export const deleteGCSubscriptions = async (beforeDate) => http.delete('/api/maintenance/subscriptions/unconfirmed',
+  { loading: models.maintenance, params: { before_date: beforeDate } });

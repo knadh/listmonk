@@ -8,7 +8,6 @@ import (
 	"path/filepath"
 	"regexp"
 	"strconv"
-	"strings"
 
 	"github.com/knadh/listmonk/internal/media"
 )
@@ -33,8 +32,8 @@ type Client struct {
 // on the filesystem.
 var fnameRegexp = regexp.MustCompile(`(.+?)_([0-9]+)$`)
 
-// NewDiskStore initialises store for Filesystem provider.
-func NewDiskStore(opts Opts) (media.Store, error) {
+// New initialises store for Filesystem provider.
+func New(opts Opts) (media.Store, error) {
 	return &Client{
 		opts: opts,
 	}, nil
@@ -43,13 +42,7 @@ func NewDiskStore(opts Opts) (media.Store, error) {
 // Put accepts the filename, the content type and file object itself and stores the file in disk.
 func (c *Client) Put(filename string, cType string, src io.ReadSeeker) (string, error) {
 	var out *os.File
-	// There's no explicit name. Use the one posted in the HTTP request.
-	if filename == "" {
-		filename = strings.TrimSpace(filename)
-		if filename == "" {
-			filename, _ = generateRandomString(10)
-		}
-	}
+
 	// Get the directory path
 	dir := getDir(c.opts.UploadPath)
 	filename = assertUniqueFilename(dir, filename)
