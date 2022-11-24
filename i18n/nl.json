@@ -15,7 +15,7 @@
     "bounces.view": "Zie bounces",
     "campaigns.addAltText": "Voeg alternatieve tekst zonder opmaak toe",
     "campaigns.archive": "Archiveren",
-    "campaigns.archiveEnable": "Publiceren naar publiek archief.",
+    "campaigns.archiveEnable": "Publiceren naar publiek archief",
     "campaigns.archiveHelp": "Publiceer (lopende, gepauzeerde, afgeronde) het campange bericht naar het publiek archief.",
     "campaigns.archiveMeta": "Campagne metadata",
     "campaigns.archiveMetaHelp": "Dummy subscriber data to use in the public message including name, email, and any optional attributes used in the campaign message or template.",
