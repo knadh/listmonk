@@ -542,7 +542,7 @@
   "templates.fieldInvalidName": "Hyd annilys ar gyfer enw.",
   "templates.makeDefault": "Rhagosod",
   "templates.newTemplate": "Templed newydd",
-  "templates.placeholderHelp": "Dylai'r ddalfan {dalfan} ond ymddangos unwaith yn y templed.",
+  "templates.placeholderHelp": "Dylai'r ddalfan {placeholder} ond ymddangos unwaith yn y templed.",
   "templates.preview": "Rhagolwg",
   "templates.rawHTML": "HTML crai",
   "templates.subject": "Pwnc",
