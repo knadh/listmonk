@@ -74,20 +74,29 @@ func (c *Core) GetList(id int, uuid string) (models.List, error) {
 		uu = uuid
 	}
 
-	var out []models.List
+	var res []models.List
 	queryStr, stmt := makeSearchQuery("", "", "", c.q.QueryLists)
-	if err := c.db.Select(&out, stmt, id, uu, queryStr, 0, 1); err != nil {
+	if err := c.db.Select(&res, stmt, id, uu, queryStr, 0, 1); err != nil {
 		c.log.Printf("error fetching lists: %v", err)
 		return models.List{}, echo.NewHTTPError(http.StatusInternalServerError,
 			c.i18n.Ts("globals.messages.errorFetching", "name", "{globals.terms.lists}", "error", pqErrMsg(err)))
 	}
 
-	if len(out) == 0 {
+	if len(res) == 0 {
 		return models.List{}, echo.NewHTTPError(http.StatusBadRequest,
 			c.i18n.Ts("globals.messages.notFound", "name", "{globals.terms.list}"))
 	}
 
-	return out[0], nil
+	out := res[0]
+	if out.Tags == nil {
+		out.Tags = []string{}
+	}
+	// Total counts.
+	for _, c := range out.SubscriberCounts {
+		out.SubscriberCount += c
+	}
+
+	return out, nil
 }
 
 // GetListsByOptin returns lists by optin type.
