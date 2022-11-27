@@ -400,7 +400,7 @@ WITH ls AS (
         CASE
             WHEN $1 > 0 THEN id = $1
             WHEN $2 != '' THEN uuid = $2::UUID
-            WHEN $3 != '' THEN name ILIKE $3
+            WHEN $3 != '' THEN to_tsvector(name) @@ to_tsquery ($3)
             ELSE true
         END
     OFFSET $4 LIMIT (CASE WHEN $5 = 0 THEN NULL ELSE $5 END)
@@ -503,7 +503,7 @@ SELECT  c.id, c.uuid, c.name, c.subject, c.from_email,
 FROM campaigns c
 WHERE ($1 = 0 OR id = $1)
     AND status=ANY(CASE WHEN CARDINALITY($2::campaign_status[]) != 0 THEN $2::campaign_status[] ELSE ARRAY[status] END)
-    AND ($3 = '' OR CONCAT(name, subject) ILIKE $3)
+    AND ($3 = '' OR TO_TSVECTOR(CONCAT(name, ' ', subject)) @@ TO_TSQUERY($3))
 ORDER BY %s %s OFFSET $4 LIMIT (CASE WHEN $5 = 0 THEN NULL ELSE $5 END);
 
 -- name: get-campaign
