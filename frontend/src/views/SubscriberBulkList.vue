@@ -32,6 +32,14 @@
           :selected="form.lists"
           :all="lists.results"
         ></list-selector>
+
+        <b-field :message="$t('subscribers.preconfirmHelp')">
+            <b-checkbox v-model="form.preconfirm" data-cy="preconfirm"
+              :native-value="true" :disabled="!hasOptinList">
+              {{ $t('subscribers.preconfirm') }}
+            </b-checkbox>
+        </b-field>
+
       </section>
 
       <footer class="modal-card-foot has-text-right">
@@ -63,19 +71,24 @@ export default Vue.extend({
       form: {
         action: 'add',
         lists: [],
+        preconfirm: false,
       },
     };
   },
 
   methods: {
     onSubmit() {
-      this.$emit('finished', this.form.action, this.form.lists);
+      this.$emit('finished', this.form.action, this.form.preconfirm, this.form.lists);
       this.$parent.close();
     },
   },
 
   computed: {
     ...mapState(['lists', 'loading']),
+
+    hasOptinList() {
+      return this.form.lists.some((l) => l.optin === 'double');
+    },
   },
 });
 </script>

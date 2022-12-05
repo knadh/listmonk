@@ -3,11 +3,10 @@ package main
 import (
 	"crypto/subtle"
 	"net/http"
-	"net/url"
 	"path"
 	"regexp"
-	"strconv"
 
+	"github.com/knadh/paginator"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
@@ -35,6 +34,14 @@ type pagination struct {
 var (
 	reUUID     = regexp.MustCompile("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$")
 	reLangCode = regexp.MustCompile("[^a-zA-Z_0-9\\-]")
+
+	paginate = paginator.New(paginator.Opt{
+		DefaultPerPage: 20,
+		MaxPerPage:     50,
+		NumPageNums:    10,
+		PageParam:      "page",
+		PerPageParam:   "per_page",
+	})
 )
 
 // registerHandlers registers HTTP handlers.
@@ -47,6 +54,14 @@ func initHTTPHandlers(e *echo.Echo, app *App) {
 		g = e.Group("")
 	} else {
 		g = e.Group("", middleware.BasicAuth(basicAuth))
+	}
+
+	e.HTTPErrorHandler = func(err error, c echo.Context) {
+		// Generic, non-echo error. Log it.
+		if _, ok := err.(*echo.HTTPError); !ok {
+			app.log.Println(err.Error())
+		}
+		e.DefaultHTTPErrorHandler(err, c)
 	}
 
 	// Admin JS app views.
@@ -126,6 +141,7 @@ func initHTTPHandlers(e *echo.Echo, app *App) {
 	g.POST("/api/campaigns", handleCreateCampaign)
 	g.PUT("/api/campaigns/:id", handleUpdateCampaign)
 	g.PUT("/api/campaigns/:id/status", handleUpdateCampaignStatus)
+	g.PUT("/api/campaigns/:id/archive", handleUpdateCampaignArchive)
 	g.DELETE("/api/campaigns/:id", handleDeleteCampaign)
 
 	g.GET("/api/media", handleGetMedia)
@@ -160,13 +176,17 @@ func initHTTPHandlers(e *echo.Echo, app *App) {
 	e.GET("/api/public/lists", handleGetPublicLists)
 	e.POST("/api/public/subscription", handlePublicSubscription)
 
+	if app.constants.EnablePublicArchive {
+		e.GET("/api/public/archive", handleGetCampaignArchives)
+	}
+
 	// /public/static/* file server is registered in initHTTPServer().
 	// Public subscriber facing views.
 	e.GET("/subscription/form", handleSubscriptionFormPage)
 	e.POST("/subscription/form", handleSubscriptionForm)
 	e.GET("/subscription/:campUUID/:subUUID", noIndex(validateUUID(subscriberExists(handleSubscriptionPage),
 		"campUUID", "subUUID")))
-	e.POST("/subscription/:campUUID/:subUUID", validateUUID(subscriberExists(handleSubscriptionPage),
+	e.POST("/subscription/:campUUID/:subUUID", validateUUID(subscriberExists(handleSubscriptionPrefs),
 		"campUUID", "subUUID"))
 	e.GET("/subscription/optin/:subUUID", noIndex(validateUUID(subscriberExists(handleOptinPage), "subUUID")))
 	e.POST("/subscription/optin/:subUUID", validateUUID(subscriberExists(handleOptinPage), "subUUID"))
@@ -180,6 +200,12 @@ func initHTTPHandlers(e *echo.Echo, app *App) {
 		"campUUID", "subUUID")))
 	e.GET("/campaign/:campUUID/:subUUID/px.png", noIndex(validateUUID(handleRegisterCampaignView,
 		"campUUID", "subUUID")))
+
+	if app.constants.EnablePublicArchive {
+		e.GET("/archive", handleCampaignArchivesPage)
+		e.GET("/archive.xml", handleGetCampaignArchivesFeed)
+		e.GET("/archive/:uuid", handleCampaignArchivePage)
+	}
 
 	e.GET("/public/custom.css", serveCustomApperance("public.custom_css"))
 	e.GET("/public/custom.js", serveCustomApperance("public.custom_js"))
@@ -300,36 +326,5 @@ func noIndex(next echo.HandlerFunc, params ...string) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		c.Response().Header().Set("X-Robots-Tag", "noindex")
 		return next(c)
-	}
-}
-
-// getPagination takes form values and extracts pagination values from it.
-func getPagination(q url.Values, perPage int) pagination {
-	var (
-		page, _ = strconv.Atoi(q.Get("page"))
-		pp      = q.Get("per_page")
-	)
-
-	if pp == "all" {
-		// No limit.
-		perPage = 0
-	} else {
-		ppi, _ := strconv.Atoi(pp)
-		if ppi > 0 {
-			perPage = ppi
-		}
-	}
-
-	if page < 1 {
-		page = 0
-	} else {
-		page--
-	}
-
-	return pagination{
-		Page:    page + 1,
-		PerPage: perPage,
-		Offset:  page * perPage,
-		Limit:   perPage,
 	}
 }

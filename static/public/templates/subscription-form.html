@@ -1,5 +1,5 @@
 {{ define "subscription-form" }}
-{{ template "header" .}}
+{{ template "header" . }}
 <section>
     <h2>{{ L.T "public.subTitle" }}</h2>
 
@@ -15,17 +15,27 @@
                 <label>{{ L.T "public.subName" }}</label>
                 <input name="name" type="text" placeholder="{{ L.T "public.subName" }}" >
             </p>
+            <br />
             <ul class="lists">
                 <h2>{{ L.T "globals.terms.lists" }}</h2>
                 {{ range $i, $l := .Data.Lists }}
                     <li>
                         <input checked="true" id="l-{{ $l.UUID}}" type="checkbox" name="l" value="{{ $l.UUID }}" >
                         <label for="l-{{ $l.UUID}}">{{ $l.Name }}</label>
+                        {{ if ne $l.Description "" }}
+                            <p class="description">{{ $l.Description }}</p>
+                        {{ end }}
                     </li>
                 {{ end }}
             </ul>
             <p>
                 <button type="submit" class="button">{{ L.T "public.sub" }}</button>
+
+                {{ if .EnablePublicArchive }}
+                    <p class="right">
+                        <a href="{{ .RootURL }}/archive">{{ L.T "public.archiveTitle" }}</a>
+                    </p>
+                {{ end }}
             </p>
         </div>
     </form>

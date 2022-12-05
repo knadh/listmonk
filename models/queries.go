@@ -23,8 +23,10 @@ type Queries struct {
 	GetSubscriber                   *sqlx.Stmt `query:"get-subscriber"`
 	GetSubscribersByEmails          *sqlx.Stmt `query:"get-subscribers-by-emails"`
 	GetSubscriberLists              *sqlx.Stmt `query:"get-subscriber-lists"`
+	GetSubscriptions                *sqlx.Stmt `query:"get-subscriptions"`
 	GetSubscriberListsLazy          *sqlx.Stmt `query:"get-subscriber-lists-lazy"`
 	UpdateSubscriber                *sqlx.Stmt `query:"update-subscriber"`
+	UpdateSubscriberWithLists       *sqlx.Stmt `query:"update-subscriber-with-lists"`
 	BlocklistSubscribers            *sqlx.Stmt `query:"blocklist-subscribers"`
 	AddSubscribersToLists           *sqlx.Stmt `query:"add-subscribers-to-lists"`
 	DeleteSubscriptions             *sqlx.Stmt `query:"delete-subscriptions"`
@@ -62,6 +64,7 @@ type Queries struct {
 	GetCampaignForPreview *sqlx.Stmt `query:"get-campaign-for-preview"`
 	GetCampaignStats      *sqlx.Stmt `query:"get-campaign-stats"`
 	GetCampaignStatus     *sqlx.Stmt `query:"get-campaign-status"`
+	GetArchivedCampaigns  *sqlx.Stmt `query:"get-archived-campaigns"`
 
 	// These two queries are read as strings and based on settings.individual_tracking=on/off,
 	// are interpolated and copied to view and click counts. Same query, different tables.
@@ -80,6 +83,7 @@ type Queries struct {
 	UpdateCampaign           *sqlx.Stmt `query:"update-campaign"`
 	UpdateCampaignStatus     *sqlx.Stmt `query:"update-campaign-status"`
 	UpdateCampaignCounts     *sqlx.Stmt `query:"update-campaign-counts"`
+	UpdateCampaignArchive    *sqlx.Stmt `query:"update-campaign-archive"`
 	RegisterCampaignView     *sqlx.Stmt `query:"register-campaign-view"`
 	DeleteCampaign           *sqlx.Stmt `query:"delete-campaign"`
 

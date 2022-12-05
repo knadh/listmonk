@@ -49,7 +49,7 @@
 
     <b-tabs type="is-boxed" :animated="false" v-model="activeTab" @input="onTab">
       <b-tab-item :label="$tc('globals.terms.campaign')" label-position="on-border"
-        icon="rocket-launch-outline">
+        value="campaign" icon="rocket-launch-outline">
         <section class="wrap">
           <div class="columns">
             <div class="column is-7">
@@ -130,8 +130,7 @@
 
                 <div>
                   <p class="has-text-right">
-                    <a href="#" class="is-size-7" @click.prevent="showHeaders"
-                      data-cy="btn-headers">
+                    <a href="#" @click.prevent="showHeaders" data-cy="btn-headers">
                       <b-icon icon="plus" />{{ $t('settings.smtp.setCustomHeaders') }}
                     </a>
                   </p>
@@ -173,7 +172,7 @@
         </section>
       </b-tab-item><!-- campaign -->
 
-      <b-tab-item :label="$t('campaigns.content')" icon="text" :disabled="isNew">
+      <b-tab-item :label="$t('campaigns.content')" icon="text" :disabled="isNew" value="content">
         <editor
           v-model="form.content"
           :id="data.id"
@@ -199,6 +198,58 @@
             type="textarea" :disabled="!canEdit" />
         </div>
       </b-tab-item><!-- content -->
+
+      <b-tab-item :label="$t('campaigns.archive')" icon="newspaper-variant-outline"
+        value="archive" :disabled="isNew">
+        <section class="wrap">
+          <b-field :label="$t('campaigns.archiveEnable')" data-cy="btn-archive"
+            :message="$t('campaigns.archiveHelp')">
+            <div class="columns">
+              <div class="column">
+                <b-switch data-cy="btn-archive" v-model="form.archive" :disabled="!canArchive" />
+              </div>
+              <div class="column is-12">
+                <a :href="`${settings['app.root_url']}/archive/${data.uuid}`" target="_blank"
+                  :class="{'has-text-grey-light': !form.archive}">
+                  <b-icon icon="link-variant" />
+                </a>
+              </div>
+            </div>
+          </b-field>
+
+          <div class="columns">
+            <div class="column is-8">
+              <b-field :label="$tc('globals.terms.template')" label-position="on-border">
+                <b-select :placeholder="$tc('globals.terms.template')"
+                  v-model="form.archiveTemplateId" name="template"
+                  :disabled="!canArchive || !form.archive" required>
+                  <template v-for="t in templates">
+                    <option v-if="t.type === 'campaign'"
+                      :value="t.id" :key="t.id">{{ t.name }}</option>
+                  </template>
+                </b-select>
+              </b-field>
+            </div>
+
+            <div class="column has-text-right">
+              <a v-if="!this.form.archiveMetaStr || this.form.archiveMetaStr === '{}'"
+                class="button" href="#" @click.prevent="onFillArchiveMeta">{}</a>
+            </div>
+          </div>
+          <b-field :label="$t('campaigns.archiveMeta')"
+            :message="$t('campaigns.archiveMetaHelp')" label-position="on-border">
+            <b-input v-model="form.archiveMetaStr" name="archive_meta" type="textarea"
+              data-cy="archive-meta" :disabled="!canArchive || !form.archive" rows="20" />
+          </b-field>
+
+          <b-field v-if="!canEdit && canArchive">
+            <b-button @click="onUpdateCampaignArchive" :loading="loading.campaigns"
+              type="is-primary" icon-left="content-save-outline" data-cy="btn-archive-save">
+              {{ $t('globals.buttons.saveChanges') }}
+            </b-button>
+          </b-field>
+        </section>
+      </b-tab-item><!-- archive -->
     </b-tabs>
   </section>
 </template>
@@ -211,6 +262,8 @@ import htmlToPlainText from 'textversionjs';
 
 import ListSelector from '../components/ListSelector.vue';
 import Editor from '../components/Editor.vue';
+
+const TABS = ['campaign', 'content', 'archive'];
 
 export default Vue.extend({
   components: {
@@ -248,7 +301,9 @@ export default Vue.extend({
         // Parsed Date() version of send_at from the API.
         sendAtDate: null,
         sendLater: false,
-
+        archive: false,
+        archiveMetaStr: '{}',
+        archiveMeta: {},
         testEmails: [],
       },
     };
@@ -277,14 +332,21 @@ export default Vue.extend({
     },
 
     onTab(t) {
-      if (t === 1 && window.tinymce && window.tinymce.editors.length > 0) {
+      const tab = TABS[t];
+      if (tab === 'content' && window.tinymce && window.tinymce.editors.length > 0) {
         this.$nextTick(() => {
           window.tinymce.editors[0].focus();
         });
       }
     },
 
+    onFillArchiveMeta() {
+      const archiveStr = `{"email": "email@domain.com", "name": "${this.$t('globals.fields.name')}", "attribs": {}}`;
+      this.form.archiveMetaStr = this.$utils.getPref('campaign.archiveMetaStr') || JSON.stringify(JSON.parse(archiveStr), null, 4);
+    },
+
     onSubmit(typ) {
+      // Validate custom JSON headers.
       if (this.form.headersStr && this.form.headersStr !== '[]') {
         try {
           this.form.headers = JSON.parse(this.form.headersStr);
@@ -294,6 +356,18 @@ export default Vue.extend({
         }
       } else {
         this.form.headers = [];
+      }
+
+      // Validate archive JSON body.
+      if (this.form.archive && this.form.archiveMetaStr) {
+        try {
+          this.form.archiveMeta = JSON.parse(this.form.archiveMetaStr);
+        } catch (e) {
+          this.$utils.toast(e.toString(), 'is-danger');
+          return;
+        }
+      } else {
+        this.form.archiveMeta = {};
       }
 
       switch (typ) {
@@ -316,6 +390,7 @@ export default Vue.extend({
           ...this.form,
           ...data,
           headersStr: JSON.stringify(data.headers, null, 4),
+          archiveMetaStr: data.archiveMeta ? JSON.stringify(data.archiveMeta, null, 4) : '{}',
 
           // The structure that is populated by editor input event.
           content: { contentType: data.contentType, body: data.body },
@@ -391,6 +466,9 @@ export default Vue.extend({
         content_type: this.form.content.contentType,
         body: this.form.content.body,
         altbody: this.form.content.contentType !== 'plain' ? this.form.altbody : null,
+        archive: this.form.archive,
+        archive_template_id: this.form.archiveTemplateId,
+        archive_meta: this.form.archiveMeta,
       };
 
       let typMsg = 'globals.messages.updated';
@@ -406,6 +484,20 @@ export default Vue.extend({
           resolve();
         });
       });
+    },
+
+    onUpdateCampaignArchive() {
+      if (this.isEditing && this.canEdit) {
+        return;
+      }
+
+      const data = {
+        archive: this.form.archive,
+        archive_template_id: this.form.archiveTemplateId,
+        archive_meta: JSON.parse(this.form.archiveMetaStr),
+      };
+
+      this.$api.updateCampaignArchive(this.data.id, data);
     },
 
     // Starts or schedule a campaign.
@@ -452,6 +544,10 @@ export default Vue.extend({
       return this.data.status === 'draft' && !this.data.sendAt;
     },
 
+    canArchive() {
+      return this.data.status !== 'cancelled' && this.data.type !== 'optin';
+    },
+
     selectedLists() {
       if (this.selListIDs.length === 0 || !this.lists.results) {
         return [];
@@ -482,11 +578,11 @@ export default Vue.extend({
   mounted() {
     window.onbeforeunload = () => this.isUnsaved() || null;
 
+    // Fill default form fields.
     this.form.fromEmail = this.settings['app.from_email'];
 
-    const { id } = this.$route.params;
-
     // New campaign.
+    const { id } = this.$route.params;
     if (id === 'new') {
       this.isNew = true;
 

@@ -18,6 +18,12 @@
           name="privacy.allow_blocklist" />
     </b-field>
 
+    <b-field :label="$t('settings.privacy.allowPrefs')"
+      :message="$t('settings.privacy.allowPrefsHelp')">
+      <b-switch v-model="data['privacy.allow_preferences']"
+          name="privacy.allow_blocklist" />
+    </b-field>
+
     <b-field :label="$t('settings.privacy.allowExport')"
       :message="$t('settings.privacy.allowExportHelp')">
       <b-switch v-model="data['privacy.allow_export']"

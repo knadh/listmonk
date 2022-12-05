@@ -26,7 +26,7 @@ describe('Templates', () => {
 
     cy.get('[data-cy=btn-save]').click();
 
-    cy.wait(250);
+    cy.wait(1000);
 
     // Verify the changes.
     cy.request(`${apiUrl}/api/settings`).should((response) => {

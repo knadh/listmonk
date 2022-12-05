@@ -260,6 +260,7 @@
 </template>
 
 <script>
+import dayjs from 'dayjs';
 import Vue from 'vue';
 import { mapState } from 'vuex';
 import CampaignPreview from '../components/CampaignPreview.vue';
@@ -400,6 +401,14 @@ export default Vue.extend({
     },
 
     cloneCampaign(name, c) {
+      const now = this.$utils.getDate();
+      const sendLater = !!c.sendAt;
+      let sendAt = null;
+      if (sendLater) {
+        sendAt = dayjs(c.sendAt).isAfter(now) ? c.sendAt : now.add(7, 'day');
+      }
+
+
       const data = {
         name,
         subject: c.subject,
@@ -413,7 +422,13 @@ export default Vue.extend({
         body: c.body,
         altbody: c.altbody,
         headers: c.headers,
+        send_later: sendLater,
+        send_at: sendAt,
+        archive: c.archive,
+        archive_template_id: c.archiveTemplateId,
+        archive_meta: c.archiveMeta,
       };
+
       this.$api.createCampaign(data).then((d) => {
         this.$router.push({ name: 'campaign', params: { id: d.id } });
       });

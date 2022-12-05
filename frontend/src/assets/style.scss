@@ -331,21 +331,23 @@ body.is-noscroll {
       font-size: $size-7;
 
       p {
-        display: table-row;
-        border-bottom: 1px solid #ccc;
         line-height: 0.775rem;
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
       }
 
       label {
         font-weight: bold;
-        display: table-cell;
-        vertical-align: top;
-        text-align: right;
+        text-align: left;
         padding-bottom: 6px;
+        min-width: 100px;
       }
       span {
         display: inline-block;
-        margin-left: 10px;
+      }
+      [class*=" mdi-"]::before {
+        margin-left: 0;
       }
     }
 
@@ -355,6 +357,19 @@ body.is-noscroll {
 /* Modal */
 .modal {
   z-index: 950;
+
+  &.has-overflow {
+    overflow: auto !important;
+    .modal-content {
+      overflow: visible !important;
+    }
+    .modal-card {
+      overflow: visible !important;
+    }
+    .modal-card-body {
+      overflow: visible !important;
+    }
+  }
 }
 .modal-background {
   background: rgba(255, 255, 255, 0.7);
@@ -374,6 +389,7 @@ body.is-noscroll {
 .modal .modal-close.is-large {
   display: none;
 }
+
 
 /* Table */
 .b-table .level-left {
