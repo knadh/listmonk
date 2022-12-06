@@ -309,7 +309,6 @@ export default Vue.extend({
       this.getBounces();
     }
 
-
     this.$nextTick(() => {
       this.$refs.focus.focus();
     });

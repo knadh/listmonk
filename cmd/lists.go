@@ -13,20 +13,29 @@ import (
 func handleGetLists(c echo.Context) error {
 	var (
 		app = c.Get("app").(*App)
-		out models.PageResults
+		pg  = app.paginator.NewFromURL(c.Request().URL.Query())
 
-		pg         = getPagination(c.QueryParams(), 20)
 		query      = strings.TrimSpace(c.FormValue("query"))
 		orderBy    = c.FormValue("order_by")
 		order      = c.FormValue("order")
 		minimal, _ = strconv.ParseBool(c.FormValue("minimal"))
 		listID, _  = strconv.Atoi(c.Param("id"))
+
+		out models.PageResults
 	)
 
 	// Fetch one list.
 	single := false
 	if listID > 0 {
 		single = true
+	}
+
+	if single {
+		out, err := app.core.GetList(listID, "")
+		if err != nil {
+			return err
+		}
+		return c.JSON(http.StatusOK, okResp{out})
 	}
 
 	// Minimal query simply returns the list of all lists without JOIN subscriber counts. This is fast.

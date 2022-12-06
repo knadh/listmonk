@@ -74,19 +74,29 @@ func (c *Core) GetList(id int, uuid string) (models.List, error) {
 		uu = uuid
 	}
 
-	var out []models.List
+	var res []models.List
 	queryStr, stmt := makeSearchQuery("", "", "", c.q.QueryLists)
-	if err := c.db.Select(&out, stmt, id, uu, queryStr, 0, 1); err != nil {
+	if err := c.db.Select(&res, stmt, id, uu, queryStr, 0, 1); err != nil {
 		c.log.Printf("error fetching lists: %v", err)
 		return models.List{}, echo.NewHTTPError(http.StatusInternalServerError,
 			c.i18n.Ts("globals.messages.errorFetching", "name", "{globals.terms.lists}", "error", pqErrMsg(err)))
 	}
 
-	if len(out) == 1 {
-		return out[0], nil
+	if len(res) == 0 {
+		return models.List{}, echo.NewHTTPError(http.StatusBadRequest,
+			c.i18n.Ts("globals.messages.notFound", "name", "{globals.terms.list}"))
 	}
 
-	return models.List{}, nil
+	out := res[0]
+	if out.Tags == nil {
+		out.Tags = []string{}
+	}
+	// Total counts.
+	for _, c := range out.SubscriberCounts {
+		out.SubscriberCount += c
+	}
+
+	return out, nil
 }
 
 // GetListsByOptin returns lists by optin type.
@@ -120,7 +130,7 @@ func (c *Core) CreateList(l models.List) (models.List, error) {
 	// Insert and read ID.
 	var newID int
 	l.UUID = uu.String()
-	if err := c.q.CreateList.Get(&newID, l.UUID, l.Name, l.Type, l.Optin, pq.StringArray(normalizeTags(l.Tags))); err != nil {
+	if err := c.q.CreateList.Get(&newID, l.UUID, l.Name, l.Type, l.Optin, pq.StringArray(normalizeTags(l.Tags)), l.Description); err != nil {
 		c.log.Printf("error creating list: %v", err)
 		return models.List{}, echo.NewHTTPError(http.StatusInternalServerError,
 			c.i18n.Ts("globals.messages.errorCreating", "name", "{globals.terms.list}", "error", pqErrMsg(err)))
@@ -131,7 +141,7 @@ func (c *Core) CreateList(l models.List) (models.List, error) {
 
 // UpdateList updates a given list.
 func (c *Core) UpdateList(id int, l models.List) (models.List, error) {
-	res, err := c.q.UpdateList.Exec(id, l.Name, l.Type, l.Optin, pq.StringArray(normalizeTags(l.Tags)))
+	res, err := c.q.UpdateList.Exec(id, l.Name, l.Type, l.Optin, pq.StringArray(normalizeTags(l.Tags)), l.Description)
 	if err != nil {
 		c.log.Printf("error updating list: %v", err)
 		return models.List{}, echo.NewHTTPError(http.StatusInternalServerError,

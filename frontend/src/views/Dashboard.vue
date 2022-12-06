@@ -301,7 +301,6 @@
   </section>
 </template>
 
-
 <style lang="css">
   @import "~c3/c3.css";
   .legend span {
@@ -449,7 +448,6 @@ export default Vue.extend({
           show: false,
         },
       };
-
 
       this.$nextTick(() => {
         c3.generate(conf);

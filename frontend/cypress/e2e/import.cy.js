@@ -62,7 +62,9 @@ describe('Import', () => {
   });
 
   it('Imports subscribers incorrectly', () => {
+    cy.wait(1000);
     cy.resetDB();
+    cy.wait(1000);
     cy.loginAndVisit('/subscribers/import');
 
     cy.get('.list-selector input').click();

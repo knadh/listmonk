@@ -125,6 +125,7 @@ type Config struct {
 	OptinURL              string
 	MessageURL            string
 	ViewTrackURL          string
+	ArchiveURL            string
 	UnsubHeader           bool
 
 	// Interval to scan the DB for active campaign checkpoints.
@@ -451,6 +452,9 @@ func (m *Manager) TemplateFuncs(c *models.Campaign) template.FuncMap {
 		"UnsubscribeURL": func(msg *CampaignMessage) string {
 			return msg.unsubURL
 		},
+		"ManageURL": func(msg *CampaignMessage) string {
+			return msg.unsubURL + "?manage=true"
+		},
 		"OptinURL": func(msg *CampaignMessage) string {
 			// Add list IDs.
 			// TODO: Show private lists list on optin e-mail
@@ -458,6 +462,9 @@ func (m *Manager) TemplateFuncs(c *models.Campaign) template.FuncMap {
 		},
 		"MessageURL": func(msg *CampaignMessage) string {
 			return fmt.Sprintf(m.cfg.MessageURL, c.UUID, msg.Subscriber.UUID)
+		},
+		"ArchiveURL": func() string {
+			return m.cfg.ArchiveURL
 		},
 	}
 

@@ -15,13 +15,14 @@ body {
 }
 a {
   color: #0055d4;
+  text-decoration-color: #abcbfb;
 }
 a:hover {
   color: #111;
 }
 label {
   cursor: pointer;
-  color: #666;
+  color: #444;
 }
 h1,
 h2,
@@ -50,8 +51,15 @@ input:focus::placeholder {
   color: transparent;
 }
 
+input[disabled] {
+  opacity: 0.5;
+}
+
 .center {
   text-align: center;
+}
+.right {
+  text-align: right;
 }
 .button {
   background: #0055d4;
@@ -111,13 +119,61 @@ input:focus::placeholder {
 .row {
   margin-bottom: 20px;
 }
-.form .lists {
-  margin-top: 45px;
+.lists {
   list-style-type: none;
   padding: 0;
+  margin-bottom: 30px;
 }
+  .lists li {
+    margin: 0 0 5px 0;    
+  }
+  .lists .description {
+    margin: 0 0 15px 0;
+    font-size: 0.875em;
+    line-height: 1.3rem;
+    color: #888;
+    margin-left: 25px;
+  }
   .form .nonce {
     display: none;
+  }
+
+.archive {
+  list-style-type: none;
+  margin: 25px 0 0 0;
+  padding: 0;
+}
+  .archive .date {
+    display: block;
+    color: #666;
+    font-size: 0.875em;
+  }
+  .archive li {
+    margin-bottom: 15px;
+  }
+  .feed {
+    margin-right: 15px;
+  }
+
+.home-options {
+  margin-top: 30px;
+}
+  .home-options a {
+    margin: 0 7px;
+  }
+
+.pagination {
+  margin-top: 30px;
+  text-align: center;
+}
+  .pg-page {
+    display: inline-block;
+    padding: 0 10px;
+    text-decoration: none;
+  }
+  .pg-page.pg-selected {
+    text-decoration: underline;
+    font-weight: bold;
   }
 
 #btn-back {

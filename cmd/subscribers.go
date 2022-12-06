@@ -84,7 +84,7 @@ func handleGetSubscriber(c echo.Context) error {
 func handleQuerySubscribers(c echo.Context) error {
 	var (
 		app = c.Get("app").(*App)
-		pg  = getPagination(c.QueryParams(), 30)
+		pg  = app.paginator.NewFromURL(c.Request().URL.Query())
 
 		// The "WHERE ?" bit.
 		query   = sanitizeSQLExp(c.FormValue("query"))
@@ -251,7 +251,7 @@ func handleUpdateSubscriber(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("subscribers.invalidName"))
 	}
 
-	out, err := app.core.UpdateSubscriber(id, req.Subscriber, req.Lists, nil, req.PreconfirmSubs)
+	out, err := app.core.UpdateSubscriberWithLists(id, req.Subscriber, req.Lists, nil, req.PreconfirmSubs, true)
 	if err != nil {
 		return err
 	}
@@ -364,7 +364,7 @@ func handleManageSubscriberLists(c echo.Context) error {
 	case "remove":
 		err = app.core.DeleteSubscriptions(subIDs, req.TargetListIDs)
 	case "unsubscribe":
-		err = app.core.UnsubscribeLists(subIDs, req.TargetListIDs)
+		err = app.core.UnsubscribeLists(subIDs, req.TargetListIDs, nil)
 	default:
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("subscribers.invalidAction"))
 	}

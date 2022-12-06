@@ -7,7 +7,6 @@
     </p>
     <br />
 
-
     <div class="box">
       <h4 class="is-size-5">{{ $t('globals.terms.subscribers') }}</h4><br />
       <div class="columns">
