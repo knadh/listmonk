@@ -493,11 +493,6 @@ func (c *Campaign) CompileTemplate(f template.FuncMap) error {
 		c.SubjectTpl = subjTpl
 	}
 
-	// No template or body. Nothing to compile.
-	if c.TemplateBody == "" || c.Body == "" {
-		return nil
-	}
-
 	// Compile the base template.
 	body := c.TemplateBody
 	for _, r := range regTplFuncs {
