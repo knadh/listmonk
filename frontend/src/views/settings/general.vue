@@ -1,9 +1,14 @@
 <template>
   <div class="items">
+    <b-field :label="$t('settings.general.siteName')" label-position="on-border">
+      <b-input v-model="data['app.site_name']" name="app.site_name"
+          :label="$t('settings.general.siteName')" :maxlength="300" required />
+    </b-field>
+
     <b-field :label="$t('settings.general.rootURL')" label-position="on-border"
       :message="$t('settings.general.rootURLHelp')">
       <b-input v-model="data['app.root_url']" name="app.root_url"
-          placeholder='https://listmonk.yoursite.com' :maxlength="300" />
+          placeholder='https://listmonk.yoursite.com' :maxlength="300" required />
     </b-field>
 
     <div class="columns">
@@ -39,14 +44,21 @@
 
     <hr />
     <div class="columns">
-      <div class="column is-6">
+      <div class="column is-4">
         <b-field :label="$t('settings.general.enablePublicSubPage')"
           :message="$t('settings.general.enablePublicSubPageHelp')">
           <b-switch v-model="data['app.enable_public_subscription_page']"
               name="app.enable_public_subscription_page" />
         </b-field>
       </div>
-      <div class="column is-6">
+      <div class="column is-4">
+        <b-field :label="$t('settings.general.enablePublicArchive')"
+          :message="$t('settings.general.enablePublicArchiveHelp')">
+          <b-switch v-model="data['app.enable_public_archive']"
+              name="app.enable_public_archive" />
+        </b-field>
+      </div>
+      <div class="column is-4">
         <b-field :label="$t('settings.general.sendOptinConfirm')"
           :message="$t('settings.general.sendOptinConfirmHelp')">
           <b-switch v-model="data['app.send_optin_confirmation']"

@@ -51,6 +51,7 @@ describe('Lists', () => {
       cy.get('select[name=type]').select('public');
       cy.get('select[name=optin]').select('double');
       cy.get('input[name=tags]').clear().type(`tag${n}{enter}`);
+      cy.get('textarea[name=description]').clear().type(`desc${n}`);
       cy.get('[data-cy=btn-save]').click();
       cy.wait(100);
     });
@@ -94,6 +95,7 @@ describe('Lists', () => {
         cy.get('select[name=type]').select(t);
         cy.get('select[name=optin]').select(o);
         cy.get('input[name=tags]').type(`tag${n}{enter}${t}{enter}${o}{enter}`);
+        cy.get('textarea[name=description]').clear().type(`desc-${t}-${n}`);
         cy.get('[data-cy=btn-save]').click();
         cy.wait(200);
 
@@ -132,5 +134,23 @@ describe('Lists', () => {
 
     cy.sortTable('thead th.cy-updated_at', [3, 4, 5, 6]);
     cy.sortTable('thead th.cy-updated_at', [6, 5, 4, 3]);
+  });
+
+  it('Opens forms page', () => {
+    const apiUrl = Cypress.env('apiUrl');
+    cy.loginAndVisit(`${apiUrl}/subscription/form`);
+    cy.get('ul li').its('length').should('eq', 2);
+
+    const cases = [
+      { 'name': 'list-public-single-2', 'description': 'desc-public-2' },
+      { 'name': 'list-public-double-3', 'description': 'desc-public-3' }
+    ];
+
+    cases.forEach((c, n) => {
+      cy.get('ul li').eq(n).then(($el) => {
+        cy.wrap($el).get('label').contains(c.name);
+        cy.wrap($el).get('.description').contains(c.description);
+      });
+    });
   });
 });

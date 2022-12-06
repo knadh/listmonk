@@ -33,6 +33,7 @@ CREATE TABLE lists (
     type            list_type NOT NULL,
     optin           list_optin NOT NULL DEFAULT 'single',
     tags            VARCHAR(100)[],
+    description     TEXT NOT NULL DEFAULT '',
 
     created_at      TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at      TIMESTAMP WITH TIME ZONE DEFAULT NOW()
@@ -98,6 +99,11 @@ CREATE TABLE campaigns (
     sent               INT NOT NULL DEFAULT 0,
     max_subscriber_id  INT NOT NULL DEFAULT 0,
     last_subscriber_id INT NOT NULL DEFAULT 0,
+
+    -- Publishing.
+    archive             BOOLEAN NOT NULL DEFAULT false,
+    archive_template_id INTEGER REFERENCES templates(id) ON DELETE SET DEFAULT DEFAULT 1,
+    archive_meta        JSONB NOT NULL DEFAULT '{}',
 
     started_at       TIMESTAMP WITH TIME ZONE,
     created_at       TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
@@ -176,6 +182,7 @@ CREATE TABLE settings (
 );
 DROP INDEX IF EXISTS idx_settings_key; CREATE INDEX idx_settings_key ON settings(key);
 INSERT INTO settings (key, value) VALUES
+    ('app.site_name', '"Mailing list"'),
     ('app.root_url', '"http://localhost:9000"'),
     ('app.favicon_url', '""'),
     ('app.from_email', '"listmonk <noreply@listmonk.yoursite.com>"'),
@@ -187,6 +194,7 @@ INSERT INTO settings (key, value) VALUES
     ('app.message_sliding_window', 'false'),
     ('app.message_sliding_window_duration', '"1h"'),
     ('app.message_sliding_window_rate', '10000'),
+    ('app.enable_public_archive', 'true'),
     ('app.enable_public_subscription_page', 'true'),
     ('app.send_optin_confirmation', 'true'),
     ('app.check_updates', 'true'),
@@ -197,6 +205,7 @@ INSERT INTO settings (key, value) VALUES
     ('privacy.allow_blocklist', 'true'),
     ('privacy.allow_export', 'true'),
     ('privacy.allow_wipe', 'true'),
+    ('privacy.allow_preferences', 'true'),
     ('privacy.exportable', '["profile", "subscriptions", "campaign_views", "link_clicks"]'),
     ('privacy.domain_blocklist', '[]'),
     ('upload.provider', '"filesystem"'),

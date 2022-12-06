@@ -12,7 +12,6 @@
     </section>
 </template>
 
-
 <script>
 // Regexp for splitting log lines in the following format to
 // [timestamp] [file] [message].

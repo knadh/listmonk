@@ -15,7 +15,6 @@ const i18n = new VueI18n();
 Vue.use(Buefy, {});
 Vue.config.productionTip = false;
 
-
 // Setup the router.
 router.beforeEach((to, from, next) => {
   if (to.matched.length === 0) {

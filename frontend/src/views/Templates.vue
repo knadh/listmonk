@@ -41,6 +41,10 @@
         </b-tag>
       </b-table-column>
 
+      <b-table-column v-slot="props" field="id" :label="$t('globals.fields.id')" sortable>
+        {{ props.row.id }}
+      </b-table-column>
+
       <b-table-column v-slot="props" field="createdAt"
         :label="$t('globals.fields.createdAt')" sortable>
         {{ $utils.niceDate(props.row.createdAt) }}

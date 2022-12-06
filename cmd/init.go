@@ -49,17 +49,20 @@ const (
 
 // constants contains static, constant config values required by the app.
 type constants struct {
+	SiteName              string   `koanf:"site_name"`
 	RootURL               string   `koanf:"root_url"`
 	LogoURL               string   `koanf:"logo_url"`
 	FaviconURL            string   `koanf:"favicon_url"`
 	FromEmail             string   `koanf:"from_email"`
 	NotifyEmails          []string `koanf:"notify_emails"`
 	EnablePublicSubPage   bool     `koanf:"enable_public_subscription_page"`
+	EnablePublicArchive   bool     `koanf:"enable_public_archive"`
 	SendOptinConfirmation bool     `koanf:"send_optin_confirmation"`
 	Lang                  string   `koanf:"lang"`
 	DBBatchSize           int      `koanf:"batch_size"`
 	Privacy               struct {
 		IndividualTracking bool            `koanf:"individual_tracking"`
+		AllowPreferences   bool            `koanf:"allow_preferences"`
 		AllowBlocklist     bool            `koanf:"allow_blocklist"`
 		AllowExport        bool            `koanf:"allow_export"`
 		AllowWipe          bool            `koanf:"allow_wipe"`
@@ -81,6 +84,7 @@ type constants struct {
 	ViewTrackURL  string
 	OptinURL      string
 	MessageURL    string
+	ArchiveURL    string
 	MediaProvider string
 
 	BounceWebhooksEnabled bool
@@ -369,6 +373,9 @@ func initConstants() *constants {
 	// url.com/link/{campaign_uuid}/{subscriber_uuid}
 	c.MessageURL = fmt.Sprintf("%s/campaign/%%s/%%s", c.RootURL)
 
+	// url.com/archive
+	c.ArchiveURL = c.RootURL + "/archive"
+
 	// url.com/campaign/{campaign_uuid}/{subscriber_uuid}/px.png
 	c.ViewTrackURL = fmt.Sprintf("%s/campaign/%%s/%%s/px.png", c.RootURL)
 
@@ -423,6 +430,7 @@ func initCampaignManager(q *models.Queries, cs *constants, app *App) *manager.Ma
 		LinkTrackURL:          cs.LinkTrackURL,
 		ViewTrackURL:          cs.ViewTrackURL,
 		MessageURL:            cs.MessageURL,
+		ArchiveURL:            cs.ArchiveURL,
 		UnsubHeader:           ko.Bool("privacy.unsubscribe_header"),
 		SlidingWindow:         ko.Bool("app.message_sliding_window"),
 		SlidingWindowDuration: ko.Duration("app.message_sliding_window_duration"),
@@ -439,11 +447,12 @@ func initTxTemplates(m *manager.Manager, app *App) {
 	}
 
 	for _, t := range tpls {
-		if err := t.Compile(app.manager.GenericTemplateFuncs()); err != nil {
-			lo.Printf("error compiling transactional template %d: %v", t.ID, err)
+		tpl := t
+		if err := tpl.Compile(app.manager.GenericTemplateFuncs()); err != nil {
+			lo.Printf("error compiling transactional template %d: %v", tpl.ID, err)
 			continue
 		}
-		m.CacheTpl(t.ID, &t)
+		m.CacheTpl(tpl.ID, &tpl)
 	}
 }
 
@@ -685,10 +694,14 @@ func initHTTPServer(app *App) *echo.Echo {
 		lo.Fatalf("error parsing public templates: %v", err)
 	}
 	srv.Renderer = &tplRenderer{
-		templates:  tpl,
-		RootURL:    app.constants.RootURL,
-		LogoURL:    app.constants.LogoURL,
-		FaviconURL: app.constants.FaviconURL}
+		templates:           tpl,
+		SiteName:            app.constants.SiteName,
+		RootURL:             app.constants.RootURL,
+		LogoURL:             app.constants.LogoURL,
+		FaviconURL:          app.constants.FaviconURL,
+		EnablePublicSubPage: app.constants.EnablePublicSubPage,
+		EnablePublicArchive: app.constants.EnablePublicArchive,
+	}
 
 	// Initialize the static file server.
 	fSrv := app.fs.FileServer()

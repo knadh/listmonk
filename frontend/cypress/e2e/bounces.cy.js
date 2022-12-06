@@ -13,7 +13,7 @@ describe('Bounces', () => {
     cy.get('[data-cy=btn-bounce-count] .plus').click();
 
     cy.get('[data-cy=btn-save]').click();
-    cy.wait(1000);
+    cy.wait(2000);
   });
 
 

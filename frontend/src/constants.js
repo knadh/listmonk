@@ -27,7 +27,6 @@ export const uris = Object.freeze({
   static: `${baseURL}/static`,
 });
 
-
 // Keys used in Vuex store.
 export const storeKeys = Object.freeze({
   models: 'models',

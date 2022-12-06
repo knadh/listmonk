@@ -11,7 +11,10 @@ import (
 	"github.com/knadh/smtppool"
 )
 
-const emName = "email"
+const (
+	emName        = "email"
+	hdrReturnPath = "Return-Path"
+)
 
 // Server represents an SMTP server's credentials.
 type Server struct {
@@ -125,16 +128,22 @@ func (e *Emailer) Push(m messenger.Message) error {
 	}
 
 	em.Headers = textproto.MIMEHeader{}
-	// Attach e-mail level headers.
-	if len(m.Headers) > 0 {
-		em.Headers = m.Headers
-	}
 
 	// Attach SMTP level headers.
-	if len(srv.EmailHeaders) > 0 {
-		for k, v := range srv.EmailHeaders {
-			em.Headers.Set(k, v)
-		}
+	for k, v := range srv.EmailHeaders {
+		em.Headers.Set(k, v)
+	}
+
+	// Attach e-mail level headers.
+	for k, v := range m.Headers {
+		em.Headers.Set(k, v[0])
+	}
+
+	// If the `Return-Path` header is set, it should be set as the
+	// the SMTP envelope sender (via the Sender field of the email struct).
+	if sender := em.Headers.Get(hdrReturnPath); sender != "" {
+		em.Sender = sender
+		em.Headers.Del(hdrReturnPath)
 	}
 
 	switch m.ContentType {

@@ -32,7 +32,6 @@ http.interceptors.response.use((resp) => {
     store.commit('setLoading', { model: resp.config.loading, status: false });
   }
 
-
   let data = {};
   if (typeof resp.data.data === 'object') {
     if (resp.data.data.constructor === Object) {
@@ -251,6 +250,9 @@ export const updateCampaign = async (id, data) => http.put(`/api/campaigns/${id}
 
 export const changeCampaignStatus = async (id, status) => http.put(`/api/campaigns/${id}/status`,
   { status }, { loading: models.campaigns });
+
+export const updateCampaignArchive = async (id, data) => http.put(`/api/campaigns/${id}/archive`, data,
+  { loading: models.campaigns });
 
 export const deleteCampaign = async (id) => http.delete(`/api/campaigns/${id}`,
   { loading: models.campaigns });

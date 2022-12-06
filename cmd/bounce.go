@@ -15,7 +15,7 @@ import (
 func handleGetBounces(c echo.Context) error {
 	var (
 		app = c.Get("app").(*App)
-		pg  = getPagination(c.QueryParams(), 50)
+		pg  = app.paginator.NewFromURL(c.Request().URL.Query())
 
 		id, _     = strconv.Atoi(c.Param("id"))
 		campID, _ = strconv.Atoi(c.QueryParam("campaign_id"))
