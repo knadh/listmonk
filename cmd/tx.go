@@ -75,6 +75,9 @@ func handleSendTxMessage(c echo.Context) error {
 
 	if err := app.manager.PushMessage(msg); err != nil {
 		app.log.Printf("error sending message (%s): %v", msg.Subject, err)
+		if errors.Is(err, manager.ErrTimeout) {
+			return echo.NewHTTPError(http.StatusTooManyRequests, err.Error())
+		}
 		return err
 	}
 

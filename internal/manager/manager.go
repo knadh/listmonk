@@ -28,6 +28,10 @@ const (
 	dummyUUID = "00000000-0000-0000-0000-000000000000"
 )
 
+var (
+	ErrTimeout = errors.New("message push timed out")
+)
+
 // Store represents a data backend, such as a database,
 // that provides subscriber and campaign records.
 type Store interface {
@@ -170,7 +174,7 @@ func New(cfg Config, store Store, notifCB models.AdminNotifCallback, i *i18n.I18
 		links:              make(map[string]string),
 		subFetchQueue:      make(chan *models.Campaign, cfg.Concurrency),
 		campMsgQueue:       make(chan CampaignMessage, cfg.Concurrency*2),
-		msgQueue:           make(chan Message, cfg.Concurrency),
+		msgQueue:           make(chan Message, cfg.Concurrency*100),
 		campMsgErrorQueue:  make(chan msgError, cfg.MaxSendErrors),
 		campMsgErrorCounts: make(map[int]int),
 		slidingWindowStart: time.Now(),
@@ -221,7 +225,7 @@ func (m *Manager) PushMessage(msg Message) error {
 	case m.msgQueue <- msg:
 	case <-t.C:
 		m.logger.Printf("message push timed out: '%s'", msg.Subject)
-		return errors.New("message push timed out")
+		return ErrTimeout
 	}
 	return nil
 }
@@ -236,7 +240,7 @@ func (m *Manager) PushCampaignMessage(msg CampaignMessage) error {
 	case m.campMsgQueue <- msg:
 	case <-t.C:
 		m.logger.Printf("message push timed out: '%s'", msg.Subject())
-		return errors.New("message push timed out")
+		return ErrTimeout
 	}
 	return nil
 }
