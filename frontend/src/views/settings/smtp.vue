@@ -69,6 +69,16 @@
                 </b-field>
               </div>
             </div><!-- auth -->
+            <div class="is-size-7">
+              <div class="column">
+                <b-field label="Daily Rate Limit. 0 = no limit" label-position="on-border"
+                  message="Maximum number of messages sent per day. 0 = no limit">
+                  <b-numberinput v-model="item.daily_rate_limit" name="port" type="is-light"
+                      controls-position="compact"
+                      placeholder="0" min="0" />
+                </b-field>
+              </div>
+            </div>
             <div class="smtp-shortcuts is-size-7">
               <a href="" @click.prevent="() => fillSettings(n, 'gmail')">Gmail</a>
               <a href="" @click.prevent="() => fillSettings(n, 'ses')">Amazon SES</a>
@@ -261,6 +271,7 @@ export default Vue.extend({
         host: '',
         hello_hostname: '',
         port: 587,
+        daily_rate_limit: 0,
         auth_protocol: 'none',
         username: '',
         password: '',

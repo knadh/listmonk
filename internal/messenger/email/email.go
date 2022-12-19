@@ -7,6 +7,10 @@ import (
 	"net/smtp"
 	"net/textproto"
 
+	"golang.org/x/time/rate"
+	"time"
+	"math"
+
 	"github.com/knadh/listmonk/internal/messenger"
 	"github.com/knadh/smtppool"
 )
@@ -25,10 +29,13 @@ type Server struct {
 	TLSSkipVerify bool              `json:"tls_skip_verify"`
 	EmailHeaders  map[string]string `json:"email_headers"`
 
+	DailyRateLimit int `json:"daily_rate_limit"`
+
 	// Rest of the options are embedded directly from the smtppool lib.
 	// The JSON tag is for config unmarshal to work.
 	smtppool.Opt `json:",squash"`
 
+	limiter *rate.Limiter
 	pool *smtppool.Pool
 }
 
@@ -79,6 +86,13 @@ func New(servers ...Server) (*Emailer, error) {
 			return nil, err
 		}
 
+		limit := s.DailyRateLimit
+		if limit == 0 {
+			limit = math.MaxInt64
+		}
+		limiter := rate.NewLimiter(rate.Every(24*time.Hour), limit)
+
+		s.limiter = limiter
 		s.pool = pool
 		e.servers = append(e.servers, &s)
 	}
@@ -99,10 +113,17 @@ func (e *Emailer) Push(m messenger.Message) error {
 		ln  = len(e.servers)
 		srv *Server
 	)
-	if ln > 1 {
-		srv = e.servers[rand.Intn(ln)]
-	} else {
-		srv = e.servers[0]
+
+	for {
+		if ln > 1 {
+			srv = e.servers[rand.Intn(ln)]
+			if (srv.limiter.Allow()) {
+				break;
+			}
+		} else {
+			srv = e.servers[0]
+			break;
+		}
 	}
 
 	// Are there attachments?

@@ -62,6 +62,7 @@ type Settings struct {
 		WaitTimeout   string              `json:"wait_timeout"`
 		TLSType       string              `json:"tls_type"`
 		TLSSkipVerify bool                `json:"tls_skip_verify"`
+		DailyRateLimit int    				    `json:"daily_rate_limit"`
 	} `json:"smtp"`
 
 	Messengers []struct {
