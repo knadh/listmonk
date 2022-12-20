@@ -99,7 +99,7 @@
     "email.data.title": "Deine Daten",
     "email.optin.confirmSub": "Abonnement bestätigen",
     "email.optin.confirmSubHelp": "Bestätige dein Abonnement mit einem Klick auf den nachfolgenden Knopf.",
-    "email.optin.confirmSubInfo": "Du hast dich erfolgreich für folgende Listen angemeldet:",
+    "email.optin.confirmSubInfo": "Du hast dich für folgende Listen angemeldet:",
     "email.optin.confirmSubTitle": "Abonnement bestätigen",
     "email.optin.confirmSubWelcome": "Hallo",
     "email.optin.privateList": "Private Liste",
