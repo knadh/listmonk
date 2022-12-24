@@ -175,6 +175,7 @@ func main() {
 			NumPageNums:    10,
 			PageParam:      "page",
 			PerPageParam:   "per_page",
+			AllowAll:       true,
 		}),
 	}
 

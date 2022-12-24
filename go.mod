@@ -16,7 +16,7 @@ require (
 	github.com/knadh/go-pop3 v0.3.0
 	github.com/knadh/goyesql/v2 v2.1.2
 	github.com/knadh/koanf v1.2.3
-	github.com/knadh/paginator v0.0.0-20210310070812-ae09d514e148
+	github.com/knadh/paginator v1.0.0
 	github.com/knadh/smtppool v1.0.1
 	github.com/knadh/stuffbin v1.1.0
 	github.com/kr/pretty v0.3.1 // indirect
