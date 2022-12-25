@@ -170,6 +170,7 @@
     "globals.messages.errorUpdating": "Ошибка обновления {name}: {error}",
     "globals.messages.internalError": "Внутренняя ошибка сервера",
     "globals.messages.invalidData": "Неверные данные",
+    "globals.messages.invalidFields": "Invalid fields: {name}",
     "globals.messages.invalidID": "Неверный ID",
     "globals.messages.invalidUUID": "Неверный UUID",
     "globals.messages.missingFields": "Отсутствующее поле (поля): {name}",

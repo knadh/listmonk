@@ -171,6 +171,7 @@
     "globals.messages.errorUpdating": "Eroare actualizare {nume}: {eroare}",
     "globals.messages.internalError": "Eroare server intern",
     "globals.messages.invalidData": "Date invalide",
+    "globals.messages.invalidFields": "Invalid fields: {name}",
     "globals.messages.invalidID": "ID(uri) invalide",
     "globals.messages.invalidUUID": "UUID(uri) invalide",
     "globals.messages.missingFields": "Camuri lipsă: {nume}",

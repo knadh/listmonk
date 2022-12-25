@@ -170,6 +170,7 @@
     "globals.messages.errorUpdating": "Error updating {name}: {error}",
     "globals.messages.internalError": "Internal server error",
     "globals.messages.invalidData": "Invalid data",
+    "globals.messages.invalidFields": "Invalid fields: {name}",
     "globals.messages.invalidID": "Invalid ID(s)",
     "globals.messages.invalidUUID": "Invalid UUID(s)",
     "globals.messages.missingFields": "Missing field(s): {name}",

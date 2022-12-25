@@ -171,6 +171,7 @@
     "globals.messages.errorUpdating": "{name}更新エラー: {error}",
     "globals.messages.internalError": "内部サーバーエラー",
     "globals.messages.invalidData": "無効なデータ",
+    "globals.messages.invalidFields": "Invalid fields: {name}",
     "globals.messages.invalidID": "無効なID",
     "globals.messages.invalidUUID": "無効なUUID",
     "globals.messages.missingFields": "フィールドがありません: {name}",

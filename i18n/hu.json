@@ -171,6 +171,7 @@
     "globals.messages.errorUpdating": "Hiba a frissítés során {name}: {error}",
     "globals.messages.internalError": "Belső Szerverhiba",
     "globals.messages.invalidData": "Érvénytelen adat",
+    "globals.messages.invalidFields": "Invalid fields: {name}",
     "globals.messages.invalidID": "Érvénytelen ID(s)",
     "globals.messages.invalidUUID": "Érvénytelen UUID(s)",
     "globals.messages.missingFields": "Hiányzó mező(k): {name}",

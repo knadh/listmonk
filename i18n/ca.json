@@ -170,6 +170,7 @@
     "globals.messages.errorUpdating": "Error en actualitzar {name}: {error}",
     "globals.messages.internalError": "Error del servidor intern",
     "globals.messages.invalidData": "Dades no vàlides",
+    "globals.messages.invalidFields": "Invalid fields: {name}",
     "globals.messages.invalidID": "ID(s) no vàlid",
     "globals.messages.invalidUUID": "UUID(s) no vàlid",
     "globals.messages.missingFields": "Falten camps: {name}",

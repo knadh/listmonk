@@ -171,6 +171,7 @@
     "globals.messages.errorUpdating": "Fout bij updaten {name}: {error}",
     "globals.messages.internalError": "Interne serverfout",
     "globals.messages.invalidData": "Ongeldige data",
+    "globals.messages.invalidFields": "Invalid fields: {name}",
     "globals.messages.invalidID": "Ongeldige ID(s)",
     "globals.messages.invalidUUID": "Ongeldige UUID(s)",
     "globals.messages.missingFields": "Ontbrekend(e) veld(en): {name}",

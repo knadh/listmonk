@@ -170,6 +170,7 @@
     "globals.messages.errorUpdating": "更新 {name} 时出错：{error}",
     "globals.messages.internalError": "内部服务器错误",
     "globals.messages.invalidData": "无效数据",
+    "globals.messages.invalidFields": "Invalid fields: {name}",
     "globals.messages.invalidID": "ID 无效",
     "globals.messages.invalidUUID": "无效的 UUID",
     "globals.messages.missingFields": "缺少字段：{name}",

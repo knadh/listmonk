@@ -170,6 +170,7 @@
     "globals.messages.errorUpdating": "{name} പുതുക്കുന്നതിൽ പിശകുണ്ടായി: {error}",
     "globals.messages.internalError": "സേർവറിനു തകരാറുപറ്റി",
     "globals.messages.invalidData": "അസാധുവായ വിവരം",
+    "globals.messages.invalidFields": "Invalid fields: {name}",
     "globals.messages.invalidID": "ഐഡി അസാധുവാണ്",
     "globals.messages.invalidUUID": "യുയുഐഡി അസാധുവാണ്",
     "globals.messages.missingFields": "വിട്ടുപോയ ഫീൽഡ്(കൾ): {name}",

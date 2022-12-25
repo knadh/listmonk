@@ -171,6 +171,7 @@
     "globals.messages.errorUpdating": "Lỗi khi cập nhật {name}: {error}",
     "globals.messages.internalError": "Lỗi máy chủ nội bộ",
     "globals.messages.invalidData": "Dữ liệu không hợp lệ",
+    "globals.messages.invalidFields": "Invalid fields: {name}",
     "globals.messages.invalidID": "ID(s) không hợp lệ",
     "globals.messages.invalidUUID": " UUID(s) không hợp lệ",
     "globals.messages.missingFields": "Lỗi field(s): {name}",

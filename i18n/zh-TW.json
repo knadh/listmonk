@@ -171,6 +171,7 @@
     "globals.messages.errorUpdating": "更新{name} 時出錯：{error}",
     "globals.messages.internalError": "內部服務器錯誤",
     "globals.messages.invalidData": "無效數據",
+    "globals.messages.invalidFields": "Invalid fields: {name}",
     "globals.messages.invalidID": "ID 無效",
     "globals.messages.invalidUUID": "無效的UUID",
     "globals.messages.missingFields": "缺少字段：{name}",

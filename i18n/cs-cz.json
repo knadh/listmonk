@@ -170,6 +170,7 @@
     "globals.messages.errorUpdating": "Chyba při aktualizaci {name}: {error}",
     "globals.messages.internalError": "Interní chyba serveru",
     "globals.messages.invalidData": "Neplatná data",
+    "globals.messages.invalidFields": "Invalid fields: {name}",
     "globals.messages.invalidID": "Neplatné ID",
     "globals.messages.invalidUUID": "Neplatné UUID",
     "globals.messages.missingFields": "Chybějící pole: {name}",

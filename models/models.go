@@ -347,6 +347,10 @@ type Bounce struct {
 
 // TxMessage represents an e-mail campaign.
 type TxMessage struct {
+	SubscriberEmails []string `json:"subscriber_emails"`
+	SubscriberIDs    []int    `json:"subscriber_ids"`
+
+	// Deprecated.
 	SubscriberEmail string `json:"subscriber_email"`
 	SubscriberID    int    `json:"subscriber_id"`
 
