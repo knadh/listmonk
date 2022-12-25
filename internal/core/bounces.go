@@ -3,6 +3,7 @@ package core
 import (
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/knadh/listmonk/models"
 	"github.com/labstack/echo/v4"
@@ -22,7 +23,7 @@ func (c *Core) QueryBounces(campID, subID int, source, orderBy, order string, of
 	}
 
 	out := []models.Bounce{}
-	stmt := fmt.Sprintf(c.q.QueryBounces, orderBy, order)
+	stmt := strings.ReplaceAll(c.q.QueryBounces, "%order%", orderBy+" "+order)
 	if err := c.db.Select(&out, stmt, 0, campID, subID, source, offset, limit); err != nil {
 		c.log.Printf("error fetching bounces: %v", err)
 		return nil, 0, echo.NewHTTPError(http.StatusInternalServerError,

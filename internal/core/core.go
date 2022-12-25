@@ -99,7 +99,9 @@ func makeSearchQuery(searchStr, orderBy, order, query string) (string, string) {
 		order = SortDesc
 	}
 
-	return searchStr, fmt.Sprintf(query, orderBy, order)
+	query = strings.ReplaceAll(query, "%order%", orderBy+" "+order)
+
+	return searchStr, query
 }
 
 // strSliceContains checks if a string is present in the string slice.

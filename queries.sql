@@ -295,8 +295,8 @@ SELECT subscribers.* FROM subscribers
         AND subscriber_lists.subscriber_id = subscribers.id
     )
     WHERE (CARDINALITY($1) = 0 OR subscriber_lists.list_id = ANY($1::INT[]))
-    %s
-    ORDER BY %s %s OFFSET $2 LIMIT (CASE WHEN $3 < 1 THEN NULL ELSE $3 END);
+    %query%
+    ORDER BY %order% OFFSET $2 LIMIT (CASE WHEN $3 < 1 THEN NULL ELSE $3 END);
 
 -- name: query-subscribers-count
 -- Replica of query-subscribers for obtaining the results count.
@@ -331,7 +331,7 @@ SELECT subscribers.id,
     )
     WHERE sl.list_id = ALL($1::INT[]) AND id > $2
     AND (CASE WHEN CARDINALITY($3::INT[]) > 0 THEN id=ANY($3) ELSE true END)
-    %s
+    %query%
     ORDER BY subscribers.id ASC LIMIT (CASE WHEN $4 < 1 THEN NULL ELSE $4 END);
 
 -- name: query-subscribers-template
@@ -403,6 +403,7 @@ WITH ls AS (
             WHEN $3 != '' THEN to_tsvector(name) @@ to_tsquery ($3)
             ELSE true
         END
+    ORDER BY %order%
     OFFSET $4 LIMIT (CASE WHEN $5 < 1 THEN NULL ELSE $5 END)
 ),
 counts AS (
@@ -413,7 +414,7 @@ counts AS (
     ) row GROUP BY list_id
 )
 SELECT ls.*, subscriber_statuses FROM ls
-    LEFT JOIN counts ON (counts.list_id = ls.id) ORDER BY %s %s;
+    LEFT JOIN counts ON (counts.list_id = ls.id) ORDER BY %order%;
 
 
 -- name: get-lists-by-optin
@@ -504,7 +505,7 @@ FROM campaigns c
 WHERE ($1 = 0 OR id = $1)
     AND status=ANY(CASE WHEN CARDINALITY($2::campaign_status[]) != 0 THEN $2::campaign_status[] ELSE ARRAY[status] END)
     AND ($3 = '' OR TO_TSVECTOR(CONCAT(name, ' ', subject)) @@ TO_TSQUERY($3))
-ORDER BY %s %s OFFSET $4 LIMIT (CASE WHEN $5 < 1 THEN NULL ELSE $5 END);
+ORDER BY %order% OFFSET $4 LIMIT (CASE WHEN $5 < 1 THEN NULL ELSE $5 END);
 
 -- name: get-campaign
 SELECT campaigns.*,
@@ -1018,7 +1019,7 @@ WHERE ($1 = 0 OR bounces.id = $1)
     AND ($2 = 0 OR bounces.campaign_id = $2)
     AND ($3 = 0 OR bounces.subscriber_id = $3)
     AND ($4 = '' OR bounces.source = $4)
-ORDER BY %s %s OFFSET $5 LIMIT $6;
+ORDER BY %order% OFFSET $5 LIMIT $6;
 
 -- name: delete-bounces
 DELETE FROM bounces WHERE CARDINALITY($1::INT[]) = 0 OR id = ANY($1);
