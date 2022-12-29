@@ -119,7 +119,7 @@ func (s *SES) ProcessBounce(b []byte) (models.Bounce, error) {
 		return bounce, fmt.Errorf("error unmarshalling SES notification: %v", err)
 	}
 
-	if m.EventType != "Bounce" {
+	if !(m.EventType == "Bounce" || m.NotifType == "Bounce") {
 		return bounce, errors.New("notification type is not bounce")
 	}
 
