@@ -46,6 +46,7 @@ type sesNotif struct {
 type sesTimestamp time.Time
 
 type sesMail struct {
+	EventType string `json:"eventType"`
 	NotifType string `json:"notificationType"`
 	Bounce    struct {
 		BounceType string `json:"bounceType"`
@@ -118,7 +119,7 @@ func (s *SES) ProcessBounce(b []byte) (models.Bounce, error) {
 		return bounce, fmt.Errorf("error unmarshalling SES notification: %v", err)
 	}
 
-	if m.NotifType != "Bounce" {
+	if m.EventType != "Bounce" {
 		return bounce, errors.New("notification type is not bounce")
 	}
 
