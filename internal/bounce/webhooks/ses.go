@@ -118,6 +118,10 @@ func (s *SES) ProcessBounce(b []byte) (models.Bounce, error) {
 		return bounce, fmt.Errorf("error unmarshalling SES notification: %v", err)
 	}
 
+	if m.NotifType != "Bounce" {
+		return bounce, errors.New("notification type is not bounce")
+	}
+
 	if len(m.Mail.Destination) == 0 {
 		return bounce, errors.New("no destination e-mails found in SES notification")
 	}
