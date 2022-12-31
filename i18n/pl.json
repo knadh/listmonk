@@ -170,6 +170,7 @@
     "globals.messages.errorUpdating": "Błąd podczas aktualizacji {name}: {error}",
     "globals.messages.internalError": "Błąd serwera",
     "globals.messages.invalidData": "Nieprawidłowe dane",
+    "globals.messages.invalidFields": "Nieprawidłowe pola: {name}",
     "globals.messages.invalidID": "Nieprawidłowy iD",
     "globals.messages.invalidUUID": "Nieprawidłowy UUID",
     "globals.messages.missingFields": "Brakujące pole(a): {name}",
