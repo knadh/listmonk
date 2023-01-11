@@ -1,0 +1,308 @@
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-126-0
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext
+        query: '"SELECT * FROM subscribers WHERE CASE WHEN $1 > 0 THEN id = $1 WHEN $2 != '''' THEN uuid = $2::UUID WHEN $3 != '''' THEN email = $3 END;"'
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-126-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.NumInput
+        type: SQL_DB
+    type: int
+    int: 3
+    error: []
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-126-2
+spec:
+    metadata:
+        arguments: '[{ 1 0} { 2 59558b84-1575-4dc9-b7d8-93b0b7b54849} { 3 }]'
+        name: SQL
+        operation: QueryContext
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-126-3
+spec:
+    metadata:
+        name: SQL
+        operation: QueryContext.Close
+        type: SQL_DB
+    type: table
+    table:
+        cols:
+            - name: id
+              type: int64
+              precision: 0
+              scale: 0
+            - name: uuid
+              type: '[]uint8'
+              precision: 0
+              scale: 0
+            - name: email
+              type: string
+              precision: 0
+              scale: 0
+            - name: name
+              type: string
+              precision: 0
+              scale: 0
+            - name: attribs
+              type: '[]uint8'
+              precision: 0
+              scale: 0
+            - name: status
+              type: '[]uint8'
+              precision: 0
+              scale: 0
+            - name: created_at
+              type: time.Time
+              precision: 0
+              scale: 0
+            - name: updated_at
+              type: time.Time
+              precision: 0
+              scale: 0
+        rows:
+            - '[`1` | `[53 57 53 53 56 98 56 52 45 49 53 55 53 45 52 100 99 57 45 98 55 100 56 45 57 51 98 48 98 55 98 53 52 56 52 57]` | `john@example.com` | `John Doe` | `[123 34 99 105 116 121 34 58 32 34 66 101 110 103 97 108 117 114 117 34 44 32 34 103 111 111 100 34 58 32 116 114 117 101 44 32 34 116 121 112 101 34 58 32 34 107 110 111 119 110 34 125]` | `[101 110 97 98 108 101 100]` | `"2022-12-22T09:02:16.916089Z"` | `"2022-12-22T10:33:00.217771Z"` | ]'
+            - '[`1` | `[53 57 53 53 56 98 56 52 45 49 53 55 53 45 52 100 99 57 45 98 55 100 56 45 57 51 98 48 98 55 98 53 52 56 52 57]` | `john@example.com` | `John Doe` | `[123 34 99 105 116 121 34 58 32 34 66 101 110 103 97 108 117 114 117 34 44 32 34 103 111 111 100 34 58 32 116 114 117 101 44 32 34 116 121 112 101 34 58 32 34 107 110 111 119 110 34 125]` | `[101 110 97 98 108 101 100]` | `"2022-12-22T09:02:16.916089Z"` | `"2022-12-22T10:33:00.217771Z"` | ]'
+    int: 0
+    error:
+        - nil
+        - EOF
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-126-4
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.Close
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-126-5
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext
+        query: '"WITH subs AS ( SELECT subscriber_id, JSON_AGG( ROW_TO_JSON( (SELECT l FROM (SELECT subscriber_lists.status AS subscription_status, lists.*) l) ) ) AS lists FROM lists LEFT JOIN subscriber_lists ON (subscriber_lists.list_id = lists.id) WHERE subscriber_lists.subscriber_id = ANY($1) GROUP BY subscriber_id ) SELECT id as subscriber_id, COALESCE(s.lists, ''[]'') AS lists FROM (SELECT id FROM UNNEST($1) AS id) x LEFT JOIN subs AS s ON (s.subscriber_id = id) ORDER BY ARRAY_POSITION($1, id);"'
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-126-6
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.NumInput
+        type: SQL_DB
+    type: int
+    int: 1
+    error: []
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-126-7
+spec:
+    metadata:
+        arguments: '[{ 1 {1}}]'
+        name: SQL
+        operation: QueryContext
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-126-8
+spec:
+    metadata:
+        name: SQL
+        operation: QueryContext.Close
+        type: SQL_DB
+    type: table
+    table:
+        cols:
+            - name: subscriber_id
+              type: int64
+              precision: 0
+              scale: 0
+            - name: lists
+              type: '[]uint8'
+              precision: 0
+              scale: 0
+        rows:
+            - '[`1` | `[91 123 34 115 117 98 115 99 114 105 112 116 105 111 110 95 115 116 97 116 117 115 34 58 34 117 110 115 117 98 115 99 114 105 98 101 100 34 44 34 105 100 34 58 49 44 34 117 117 105 100 34 58 34 52 50 49 99 102 51 53 56 45 102 54 56 51 45 52 53 101 55 45 97 52 50 55 45 57 99 101 55 100 50 98 102 50 97 57 101 34 44 34 110 97 109 101 34 58 34 68 101 102 97 117 108 116 32 108 105 115 116 34 44 34 116 121 112 101 34 58 34 112 117 98 108 105 99 34 44 34 111 112 116 105 110 34 58 34 115 105 110 103 108 101 34 44 34 116 97 103 115 34 58 91 34 116 101 115 116 34 93 44 34 99 114 101 97 116 101 100 95 97 116 34 58 34 50 48 50 50 45 49 50 45 50 50 84 48 57 58 48 50 58 49 54 46 57 49 52 53 55 56 43 48 48 58 48 48 34 44 34 117 112 100 97 116 101 100 95 97 116 34 58 34 50 48 50 50 45 49 50 45 50 50 84 49 48 58 51 50 58 50 55 46 54 51 52 56 50 51 43 48 48 58 48 48 34 125 93]` | ]'
+            - '[`1` | `[91 123 34 115 117 98 115 99 114 105 112 116 105 111 110 95 115 116 97 116 117 115 34 58 34 117 110 115 117 98 115 99 114 105 98 101 100 34 44 34 105 100 34 58 49 44 34 117 117 105 100 34 58 34 52 50 49 99 102 51 53 56 45 102 54 56 51 45 52 53 101 55 45 97 52 50 55 45 57 99 101 55 100 50 98 102 50 97 57 101 34 44 34 110 97 109 101 34 58 34 68 101 102 97 117 108 116 32 108 105 115 116 34 44 34 116 121 112 101 34 58 34 112 117 98 108 105 99 34 44 34 111 112 116 105 110 34 58 34 115 105 110 103 108 101 34 44 34 116 97 103 115 34 58 91 34 116 101 115 116 34 93 44 34 99 114 101 97 116 101 100 95 97 116 34 58 34 50 48 50 50 45 49 50 45 50 50 84 48 57 58 48 50 58 49 54 46 57 49 52 53 55 56 43 48 48 58 48 48 34 44 34 117 112 100 97 116 101 100 95 97 116 34 58 34 50 48 50 50 45 49 50 45 50 50 84 49 48 58 51 50 58 50 55 46 54 51 52 56 50 51 43 48 48 58 48 48 34 125 93]` | ]'
+    int: 0
+    error:
+        - nil
+        - EOF
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-126-9
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.Close
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-126-10
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext
+        query: '"WITH sub AS ( SELECT id FROM subscribers WHERE CASE WHEN $1 > 0 THEN id = $1 ELSE uuid = $2 END ) SELECT * FROM lists LEFT JOIN subscriber_lists ON (lists.id = subscriber_lists.list_id) WHERE subscriber_id = (SELECT id FROM sub) AND (CASE WHEN CARDINALITY($3::INT[]) > 0 THEN id = ANY($3::INT[]) WHEN CARDINALITY($4::UUID[]) > 0 THEN uuid = ANY($4::UUID[]) ELSE TRUE END) AND (CASE WHEN $5 != '''' THEN subscriber_lists.status = $5::subscription_status END) AND (CASE WHEN $6 != '''' THEN lists.optin = $6::list_optin ELSE TRUE END) ORDER BY id;"'
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-126-11
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.NumInput
+        type: SQL_DB
+    type: int
+    int: 6
+    error: []
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-126-12
+spec:
+    metadata:
+        arguments: '[{ 1 0} { 2 59558b84-1575-4dc9-b7d8-93b0b7b54849} { 3 {}} { 4 {}} { 5 unconfirmed} { 6 }]'
+        name: SQL
+        operation: QueryContext
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-126-13
+spec:
+    metadata:
+        name: SQL
+        operation: QueryContext.Close
+        type: SQL_DB
+    type: table
+    table:
+        cols:
+            - name: id
+              type: <nil>
+              precision: 0
+              scale: 0
+            - name: uuid
+              type: <nil>
+              precision: 0
+              scale: 0
+            - name: name
+              type: <nil>
+              precision: 0
+              scale: 0
+            - name: type
+              type: <nil>
+              precision: 0
+              scale: 0
+            - name: optin
+              type: <nil>
+              precision: 0
+              scale: 0
+            - name: tags
+              type: <nil>
+              precision: 0
+              scale: 0
+            - name: created_at
+              type: <nil>
+              precision: 0
+              scale: 0
+            - name: updated_at
+              type: <nil>
+              precision: 0
+              scale: 0
+            - name: subscriber_id
+              type: <nil>
+              precision: 0
+              scale: 0
+            - name: list_id
+              type: <nil>
+              precision: 0
+              scale: 0
+            - name: status
+              type: <nil>
+              precision: 0
+              scale: 0
+            - name: created_at
+              type: <nil>
+              precision: 0
+              scale: 0
+            - name: updated_at
+              type: <nil>
+              precision: 0
+              scale: 0
+        rows:
+            - '[`<nil>` | `<nil>` | `<nil>` | `<nil>` | `<nil>` | `<nil>` | `<nil>` | `<nil>` | `<nil>` | `<nil>` | `<nil>` | `<nil>` | `<nil>` | ]'
+    int: 0
+    error:
+        - EOF
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-126-14
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.Close
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil

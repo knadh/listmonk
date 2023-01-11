@@ -1,0 +1,49 @@
+version: api.keploy.io/v1beta2
+kind: Http
+name: test-55
+spec:
+    metadata: {}
+    req:
+        method: GET
+        proto_major: 1
+        proto_minor: 1
+        url: /api/campaigns?query=qwer&order_by=created_at&order=DESC
+        header:
+            Accept: application/json, text/plain, */*
+            Accept-Encoding: gzip, deflate, br
+            Accept-Language: en-GB,en
+            Authorization: Basic bGlzdG1vbms6bGlzdG1vbms=
+            Connection: keep-alive
+            Cookie: connect.sid=s%3AdxWsE0jhYYsXQwFQKZJhtK_5Jli7MPB1.Wjbj0YQ3J7yJE1Zx21NQAWPtrz1f8i73j9FAnlvbrSg
+            Referer: http://localhost:9000/admin/campaigns/analytics
+            Sec-Fetch-Dest: empty
+            Sec-Fetch-Mode: cors
+            Sec-Fetch-Site: same-origin
+            Sec-Gpc: "1"
+            User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36
+        body: ""
+        body_type: ""
+    resp:
+        status_code: 200
+        header:
+            Content-Type: application/json; charset=UTF-8
+        body: |
+            {"data":{"results":[{"id":11,"created_at":"2022-12-16T10:51:51.484671Z","updated_at":"2022-12-17T07:49:57.829176Z","views":0,"clicks":0,"bounces":0,"lists":[{"id":11,"name":"qwerty"}],"started_at":null,"to_send":0,"sent":0,"uuid":"b345b9fb-de0a-4b0a-a71d-6b9f1aa00f36","type":"optin","name":"Copy of Opt-in to qwerty","subject":"Confirm subscription(s) to qwerty","from_email":"listmonk \u003cnoreply@listmonk.yoursite.com\u003e","body":"\n\n\u003cp\u003eHi {{.Subscriber.FirstName }}\u003c/p\u003e\n\u003cp\u003eYou have been added to the following lists:\u003c/p\u003e\n\u003cul\u003e\n    \n        \n            \u003cli\u003eqwerty\u003c/li\u003e\n        \n    \n\u003c/ul\u003e\n\u003cp\u003e\n    \u003ca class=\"button\" href=\"{{ OptinURL }}l=f79a73f7-1687-4951-adbf-3cfa79e7b9ad\"\u003eConfirm subscription\u003c/a\u003e\n\u003c/p\u003e\n","altbody":null,"send_at":null,"status":"cancelled","content_type":"richtext","tags":[],"headers":[],"template_id":1,"messenger":"email","archive":false,"archive_template_id":0,"archive_meta":null},{"id":10,"created_at":"2022-12-16T10:50:37.517643Z","updated_at":"2022-12-16T10:52:04.912655Z","views":0,"clicks":0,"bounces":0,"lists":[{"id":11,"name":"qwerty"}],"started_at":null,"to_send":0,"sent":0,"uuid":"cb747361-e0db-41cf-9160-41c96f6888d0","type":"optin","name":"Opt-in to qwerty","subject":"Confirm subscription(s) to qwerty","from_email":"listmonk \u003cnoreply@listmonk.yoursite.com\u003e","body":"\n\n\u003cp\u003eHi {{.Subscriber.FirstName }}\u003c/p\u003e\n\u003cp\u003eYou have been added to the following lists:\u003c/p\u003e\n\u003cul\u003e\n    \n        \n            \u003cli\u003eqwerty\u003c/li\u003e\n        \n    \n\u003c/ul\u003e\n\u003cp\u003e\n    \u003ca class=\"button\" href=\"{{ OptinURL }}l=f79a73f7-1687-4951-adbf-3cfa79e7b9ad\"\u003eConfirm subscription\u003c/a\u003e\n\u003c/p\u003e\n","altbody":null,"send_at":null,"status":"cancelled","content_type":"richtext","tags":[],"headers":[],"template_id":1,"messenger":"email","archive":false,"archive_template_id":0,"archive_meta":null},{"id":9,"created_at":"2022-12-16T08:34:21.182088Z","updated_at":"2022-12-16T08:35:00.164904Z","views":0,"clicks":0,"bounces":0,"lists":[{"id":1,"name":"Default list"},{"id":10,"name":"Sarthak"}],"started_at":null,"to_send":0,"sent":0,"uuid":"51539192-9b61-4080-b328-c8c936d8c149","type":"regular","name":"qwerty","subject":"keploy","from_email":"sarthak@keploy.io","body":"\u003cp\u003etest\u003c/p\u003e","altbody":"test\n","send_at":null,"status":"cancelled","content_type":"richtext","tags":["wasd"],"headers":[],"template_id":1,"messenger":"email","archive":false,"archive_template_id":0,"archive_meta":null}],"query":"qwer","total":3,"per_page":20,"page":1}}
+        body_type: ""
+        status_message: ""
+        proto_major: 1
+        proto_minor: 1
+    objects:
+        - type: error
+          data: ""
+    mocks:
+        - test-55-0
+        - test-55-1
+        - test-55-2
+        - test-55-3
+        - test-55-4
+        - test-55-5
+        - test-55-6
+    assertions:
+        noise: []
+    created: 1671391890

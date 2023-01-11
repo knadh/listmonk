@@ -1,0 +1,75 @@
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-195-0
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext
+        query: '"WITH campLists AS ( SELECT lists.id AS list_id, campaign_id, optin FROM lists INNER JOIN campaign_lists ON (campaign_lists.list_id = lists.id) WHERE lists.id = ANY($14::INT[]) ), tpl AS ( SELECT (CASE WHEN $13 = 0 THEN id ELSE $13 END) AS id FROM templates WHERE is_default IS TRUE ), counts AS ( SELECT COALESCE(COUNT(id), 0) as to_send, COALESCE(MAX(id), 0) as max_sub_id FROM subscribers LEFT JOIN campLists ON (campLists.campaign_id = ANY($14::INT[])) LEFT JOIN subscriber_lists ON ( subscriber_lists.status != ''unsubscribed'' AND subscribers.id = subscriber_lists.subscriber_id AND subscriber_lists.list_id = campLists.list_id AND (CASE WHEN campLists.optin = ''double'' THEN subscriber_lists.status = ''confirmed'' ELSE true END) ) WHERE subscriber_lists.list_id=ANY($14::INT[]) AND subscribers.status=''enabled'' ), camp AS ( INSERT INTO campaigns (uuid, type, name, subject, from_email, body, altbody, content_type, send_at, headers, tags, messenger, template_id, to_send, max_subscriber_id, archive, archive_template_id, archive_meta) SELECT $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, (SELECT id FROM tpl), (SELECT to_send FROM counts), (SELECT max_sub_id FROM counts), $15, (CASE WHEN $16 = 0 THEN (SELECT id FROM tpl) ELSE $16 END), $17 RETURNING id ) INSERT INTO campaign_lists (campaign_id, list_id, list_name) (SELECT (SELECT id FROM camp), id, name FROM lists WHERE id=ANY($14::INT[])) RETURNING (SELECT id FROM camp);"'
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-195-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.NumInput
+        type: SQL_DB
+    type: int
+    int: 17
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-195-2
+spec:
+    metadata:
+        arguments: '[{ 1 a619b593-2abb-4ac6-b021-bf49c315dabf} { 2 regular} { 3 qwertt2} { 4 keploy} { 5 ritik@keploy.io} { 6 } { 7 <nil>} { 8 richtext} { 9 <nil>} { 10 []} { 11 <nil>} { 12 email} { 13 1} { 14 {11,10,5}} { 15 false} { 16 1} { 17 [123 125]}]'
+        name: SQL
+        operation: QueryContext
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-195-3
+spec:
+    metadata:
+        name: SQL
+        operation: QueryContext.Close
+        type: SQL_DB
+    type: table
+    table:
+        cols:
+            - name: id
+              type: <nil>
+              precision: 0
+              scale: 0
+        rows:
+            - '[`<nil>` | ]'
+    int: 0
+    error:
+        - EOF
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-195-4
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.Close
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil

@@ -1,0 +1,114 @@
+version: api.keploy.io/v1beta1
+kind: Generic
+name: test-35-0
+spec:
+    metadata:
+        name: SQL
+        operation: BeginTx
+        options: '{0 true}'
+        type: SQL_DB
+    objects:
+        - type: '*keploy.KError'
+          data: H4sIAAAAAAAA/+L638jKyPS/hYGBgfV/EwMjIyAAAP//ngbw8hEAAAA=
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-35-1
+spec:
+    metadata:
+        arguments: '[{ 1 true} { 2 {}}]'
+        name: SQL
+        operation: ExecContext
+        query: '"SELECT subscribers.id FROM subscribers LEFT JOIN subscriber_lists ON ( (CASE WHEN CARDINALITY($2::INT[]) > 0 THEN true ELSE false END) AND subscriber_lists.subscriber_id = subscribers.id ) WHERE subscriber_lists.list_id = ALL($2::INT[])  LIMIT (CASE WHEN $1 THEN 1 END)"'
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-35-2
+spec:
+    metadata:
+        arguments: '[{ 1 true} { 2 {}}]'
+        name: SQL
+        operation: ExecContext.LastInsertId
+        query: '"SELECT subscribers.id FROM subscribers LEFT JOIN subscriber_lists ON ( (CASE WHEN CARDINALITY($2::INT[]) > 0 THEN true ELSE false END) AND subscriber_lists.subscriber_id = subscribers.id ) WHERE subscriber_lists.list_id = ALL($2::INT[])  LIMIT (CASE WHEN $1 THEN 1 END)"'
+        type: SQL_DB
+    type: int
+    int: 0
+    error:
+        - LastInsertId is not supported by this driver
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-35-3
+spec:
+    metadata:
+        arguments: '[{ 1 true} { 2 {}}]'
+        name: SQL
+        operation: ExecContext.RowsAffected
+        query: '"SELECT subscribers.id FROM subscribers LEFT JOIN subscriber_lists ON ( (CASE WHEN CARDINALITY($2::INT[]) > 0 THEN true ELSE false END) AND subscriber_lists.subscriber_id = subscribers.id ) WHERE subscriber_lists.list_id = ALL($2::INT[])  LIMIT (CASE WHEN $1 THEN 1 END)"'
+        type: SQL_DB
+    type: int
+    int: 1
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: Generic
+name: test-35-4
+spec:
+    metadata:
+        name: SQL
+        operation: BeginTx.Rollback
+        type: SQL_DB
+    objects:
+        - type: '*keploy.KError'
+          data: H4sIAAAAAAAA/+L638jKyPS/hYGBgfV/EwMjIyAAAP//ngbw8hEAAAA=
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-35-5
+spec:
+    metadata:
+        arguments: '[{ 1 false} { 2 {}}]'
+        name: SQL
+        operation: ExecContext
+        query: '"WITH subs AS (SELECT subscribers.id FROM subscribers LEFT JOIN subscriber_lists ON ( (CASE WHEN CARDINALITY($2::INT[]) > 0 THEN true ELSE false END) AND subscriber_lists.subscriber_id = subscribers.id ) WHERE subscriber_lists.list_id = ALL($2::INT[])  LIMIT (CASE WHEN $1 THEN 1 END)), b AS ( UPDATE subscribers SET status=''blocklisted'', updated_at=NOW() WHERE id = ANY(SELECT id FROM subs) ) UPDATE subscriber_lists SET status=''unsubscribed'', updated_at=NOW() WHERE subscriber_id = ANY(SELECT id FROM subs);"'
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-35-6
+spec:
+    metadata:
+        arguments: '[{ 1 false} { 2 {}}]'
+        name: SQL
+        operation: ExecContext.LastInsertId
+        query: '"WITH subs AS (SELECT subscribers.id FROM subscribers LEFT JOIN subscriber_lists ON ( (CASE WHEN CARDINALITY($2::INT[]) > 0 THEN true ELSE false END) AND subscriber_lists.subscriber_id = subscribers.id ) WHERE subscriber_lists.list_id = ALL($2::INT[])  LIMIT (CASE WHEN $1 THEN 1 END)), b AS ( UPDATE subscribers SET status=''blocklisted'', updated_at=NOW() WHERE id = ANY(SELECT id FROM subs) ) UPDATE subscriber_lists SET status=''unsubscribed'', updated_at=NOW() WHERE subscriber_id = ANY(SELECT id FROM subs);"'
+        type: SQL_DB
+    type: int
+    int: 0
+    error:
+        - LastInsertId is not supported by this driver
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-35-7
+spec:
+    metadata:
+        arguments: '[{ 1 false} { 2 {}}]'
+        name: SQL
+        operation: ExecContext.RowsAffected
+        query: '"WITH subs AS (SELECT subscribers.id FROM subscribers LEFT JOIN subscriber_lists ON ( (CASE WHEN CARDINALITY($2::INT[]) > 0 THEN true ELSE false END) AND subscriber_lists.subscriber_id = subscribers.id ) WHERE subscriber_lists.list_id = ALL($2::INT[])  LIMIT (CASE WHEN $1 THEN 1 END)), b AS ( UPDATE subscribers SET status=''blocklisted'', updated_at=NOW() WHERE id = ANY(SELECT id FROM subs) ) UPDATE subscriber_lists SET status=''unsubscribed'', updated_at=NOW() WHERE subscriber_id = ANY(SELECT id FROM subs);"'
+        type: SQL_DB
+    type: int
+    int: 3
+    error:
+        - nil

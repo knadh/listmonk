@@ -1,0 +1,44 @@
+version: api.keploy.io/v1beta2
+kind: Http
+name: test-14
+spec:
+    metadata: {}
+    req:
+        method: GET
+        proto_major: 1
+        proto_minor: 1
+        url: /api/lists?page=1&query=de&order_by=id&order=asc
+        header:
+            Accept: application/json, text/plain, */*
+            Accept-Encoding: gzip, deflate, br
+            Accept-Language: en-GB,en
+            Authorization: Basic bGlzdG1vbms6bGlzdG1vbms=
+            Connection: keep-alive
+            Cookie: connect.sid=s%3AdxWsE0jhYYsXQwFQKZJhtK_5Jli7MPB1.Wjbj0YQ3J7yJE1Zx21NQAWPtrz1f8i73j9FAnlvbrSg
+            Referer: http://localhost:9000/admin/lists
+            Sec-Fetch-Dest: empty
+            Sec-Fetch-Mode: cors
+            Sec-Fetch-Site: same-origin
+            Sec-Gpc: "1"
+            User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36
+        body: ""
+        body_type: ""
+    resp:
+        status_code: 200
+        header:
+            Content-Type: application/json; charset=UTF-8
+        body: |
+            {"data":{"results":[{"id":1,"created_at":"2022-10-20T07:36:12.378176Z","updated_at":"2022-12-16T07:46:00.477233Z","uuid":"0ceef2ef-fb69-41b8-9047-d7ec2dd26aa7","name":"Default list","type":"public","optin":"double","tags":["test","fff"],"description":"","subscriber_count":2,"subscriber_statuses":{"confirmed":1,"unconfirmed":1},"subscription_created_at":null,"subscription_updated_at":null}],"query":"de","total":1,"per_page":20,"page":1}}
+        body_type: ""
+        status_message: ""
+        proto_major: 1
+        proto_minor: 1
+    objects:
+        - type: error
+          data: ""
+    mocks:
+        - test-14-0
+        - test-14-1
+    assertions:
+        noise: []
+    created: 1671362802

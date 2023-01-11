@@ -1,0 +1,74 @@
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-9-0
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext
+        query: '"WITH subs AS ( SELECT COUNT(*) AS num, status FROM subscribers GROUP BY status ) SELECT JSON_BUILD_OBJECT(''subscribers'', JSON_BUILD_OBJECT( ''total'', (SELECT SUM(num) FROM subs), ''blocklisted'', (SELECT num FROM subs WHERE status=''blocklisted''), ''orphans'', ( SELECT COUNT(id) FROM subscribers LEFT JOIN subscriber_lists ON (subscribers.id = subscriber_lists.subscriber_id) WHERE subscriber_lists.subscriber_id IS NULL ) ), ''lists'', JSON_BUILD_OBJECT( ''total'', (SELECT COUNT(*) FROM lists), ''private'', (SELECT COUNT(*) FROM lists WHERE type=''private''), ''public'', (SELECT COUNT(*) FROM lists WHERE type=''public''), ''optin_single'', (SELECT COUNT(*) FROM lists WHERE optin=''single''), ''optin_double'', (SELECT COUNT(*) FROM lists WHERE optin=''double'') ), ''campaigns'', JSON_BUILD_OBJECT( ''total'', (SELECT COUNT(*) FROM campaigns), ''by_status'', ( SELECT JSON_OBJECT_AGG (status, num) FROM (SELECT status, COUNT(*) AS num FROM campaigns GROUP BY status) r ) ), ''messages'', (SELECT SUM(sent) AS messages FROM campaigns));"'
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-9-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.NumInput
+        type: SQL_DB
+    type: int
+    int: 0
+    error: []
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-9-2
+spec:
+    metadata:
+        arguments: '[]'
+        name: SQL
+        operation: QueryContext
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-9-3
+spec:
+    metadata:
+        name: SQL
+        operation: QueryContext.Close
+        type: SQL_DB
+    type: table
+    table:
+        cols:
+            - name: json_build_object
+              type: '[]uint8'
+              precision: 0
+              scale: 0
+        rows:
+            - '[`[123 34 115 117 98 115 99 114 105 98 101 114 115 34 32 58 32 123 34 116 111 116 97 108 34 32 58 32 51 44 32 34 98 108 111 99 107 108 105 115 116 101 100 34 32 58 32 110 117 108 108 44 32 34 111 114 112 104 97 110 115 34 32 58 32 48 125 44 32 34 108 105 115 116 115 34 32 58 32 123 34 116 111 116 97 108 34 32 58 32 53 44 32 34 112 114 105 118 97 116 101 34 32 58 32 49 44 32 34 112 117 98 108 105 99 34 32 58 32 52 44 32 34 111 112 116 105 110 95 115 105 110 103 108 101 34 32 58 32 50 44 32 34 111 112 116 105 110 95 100 111 117 98 108 101 34 32 58 32 51 125 44 32 34 99 97 109 112 97 105 103 110 115 34 32 58 32 123 34 116 111 116 97 108 34 32 58 32 55 44 32 34 98 121 95 115 116 97 116 117 115 34 32 58 32 123 32 34 99 97 110 99 101 108 108 101 100 34 32 58 32 51 44 32 34 102 105 110 105 115 104 101 100 34 32 58 32 52 32 125 125 44 32 34 109 101 115 115 97 103 101 115 34 32 58 32 49 125]` | ]'
+    int: 0
+    error:
+        - nil
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-9-4
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.Close
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil

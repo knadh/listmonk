@@ -1,0 +1,45 @@
+version: api.keploy.io/v1beta2
+kind: Http
+name: test-111
+spec:
+    metadata: {}
+    req:
+        method: GET
+        proto_major: 1
+        proto_minor: 1
+        url: /subscription/form
+        header:
+            Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8
+            Accept-Encoding: gzip, deflate, br
+            Authorization: Basic bGlzdG1vbms6bGlzdG1vbms=
+            Connection: keep-alive
+            Cookie: connect.sid=s%3AdxWsE0jhYYsXQwFQKZJhtK_5Jli7MPB1.Wjbj0YQ3J7yJE1Zx21NQAWPtrz1f8i73j9FAnlvbrSg
+            Postman-Token: bb00a14a-ee26-46f6-865a-e2d5d25992ed
+            Sec-Fetch-Dest: iframe
+            Sec-Fetch-Mode: navigate
+            Sec-Fetch-Site: same-origin
+            Sec-Gpc: '"1"'
+            Upgrade-Insecure-Requests: '"1"'
+        body: ""
+        body_type: ""
+    resp:
+        status_code: 200
+        header:
+            Content-Type: text/html; charset=UTF-8
+        body: "\n\n<!DOCTYPE html>\n<html>\n<head>\n\t<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" />\t\n\t<title>Subscribe - Mailing list</title>\n\t<meta name=\"description\" content=\"\" />\n\t<meta name=\"viewport\" content=\"width=device-width, initial-scale=1, minimum-scale=1\" />\n\n\t\n\t\t<link rel=\"alternate\" type=\"application/rss+xml\" title=\"Mailing list archive - Mailing list\"\n\t\t\thref=\"http://localhost:9000/archive.xml\" />\n\t\n\n\t<link href=\"/public/static/style.css?v2.3.0\" rel=\"stylesheet\" type=\"text/css\" />\n\t<link href=\"/public/custom.css\" rel=\"stylesheet\" type=\"text/css\">\n\t<script src=\"/public/custom.js\" async defer></script>\n\n\t\n\t\t<link rel=\"shortcut icon\" href=\"/public/static/favicon.png\" type=\"image/x-icon\" />\n\t\n</head>\n<body>\n    <div class=\"container wrap\">\n\t\t<header class=\"header\">\n\t\t\t<div class=\"logo\">\n\t\t\t\t<a href=\"http://localhost:9000/subscription/form\">\n\t\t\t\t\n\t\t\t\t\t<img src=\"/public/static/logo.svg\" alt=\"Subscribe\" />\n\t\t\t\t\n\t\t\t\t</a>\n\t\t\t</div>\n\t\t</header>\n\n<section>\n    <h2>Subscribe</h2>\n\n    <form method=\"post\" action=\"\" class=\"form\">\n        <div>\n            <p>\n                <label for=\"email\">E-mail</label>\n                <input id=\"email\" name=\"email\" required=\"true\" type=\"email\" placeholder=\"E-mail\" autofocus=\"true\" >\n\n                <input name=\"nonce\" class=\"nonce\" value=\"\" />\n            </p>\n            <p>\n                <label for=\"name\">Name (optional)</label>\n                <input id=\"name\" name=\"name\" type=\"text\" placeholder=\"Name (optional)\" >\n            </p>\n            <br />\n            <ul class=\"lists\">\n                <h2>Lists</h2>\n                \n                    <li>\n                        <input checked=\"true\" id=\"l-0ceef2ef-fb69-41b8-9047-d7ec2dd26aa7\" type=\"checkbox\" name=\"l\" value=\"0ceef2ef-fb69-41b8-9047-d7ec2dd26aa7\" >\n                        <label for=\"l-0ceef2ef-fb69-41b8-9047-d7ec2dd26aa7\">Default list</label>\n                        \n                    </li>\n                \n                    <li>\n                        <input checked=\"true\" id=\"l-0c6252b0-f1af-4b32-ae47-5f00948d64a0\" type=\"checkbox\" name=\"l\" value=\"0c6252b0-f1af-4b32-ae47-5f00948d64a0\" >\n                        <label for=\"l-0c6252b0-f1af-4b32-ae47-5f00948d64a0\">Ritik</label>\n                        \n                    </li>\n                \n                    <li>\n                        <input checked=\"true\" id=\"l-21915090-6dce-40ed-b682-0ce419f0125a\" type=\"checkbox\" name=\"l\" value=\"21915090-6dce-40ed-b682-0ce419f0125a\" >\n                        <label for=\"l-21915090-6dce-40ed-b682-0ce419f0125a\">Sarthak</label>\n                        \n                    </li>\n                \n                    <li>\n                        <input checked=\"true\" id=\"l-f79a73f7-1687-4951-adbf-3cfa79e7b9ad\" type=\"checkbox\" name=\"l\" value=\"f79a73f7-1687-4951-adbf-3cfa79e7b9ad\" >\n                        <label for=\"l-f79a73f7-1687-4951-adbf-3cfa79e7b9ad\">qwerty</label>\n                        \n                    </li>\n                \n                    <li>\n                        <input checked=\"true\" id=\"l-f3d33c9c-f214-4006-8f13-9fe9ca5cabb1\" type=\"checkbox\" name=\"l\" value=\"f3d33c9c-f214-4006-8f13-9fe9ca5cabb1\" >\n                        <label for=\"l-f3d33c9c-f214-4006-8f13-9fe9ca5cabb1\">poiuyt</label>\n                        \n                    </li>\n                \n            </ul>\n            <p>\n                <button type=\"submit\" class=\"button\">Subscribe</button>\n\n                \n                    <p class=\"right\">\n                        <a href=\"http://localhost:9000/archive\">Mailing list archive</a>\n                    </p>\n                \n            </p>\n        </div>\n    </form>\n</section>\n\n\n\t</div>\n\t\n\t<footer class=\"container\">\n\t\tPowered by <a target=\"_blank\" href=\"https://listmonk.app\">listmonk</a>\n\t</footer>\n</body>\n</html>\n\n"
+        body_type: ""
+        status_message: ""
+        proto_major: 1
+        proto_minor: 1
+    objects:
+        - type: error
+          data: ""
+    mocks:
+        - test-111-0
+        - test-111-1
+        - test-111-2
+        - test-111-3
+        - test-111-4
+    assertions:
+        noise: []
+    created: 1671394594

@@ -1,0 +1,53 @@
+version: api.keploy.io/v1beta2
+kind: Http
+name: test-2
+spec:
+    metadata: {}
+    req:
+        method: GET
+        proto_major: 1
+        proto_minor: 1
+        url: /api/subscribers?list_id=&query=&page=1&order_by=id&order=desc
+        header:
+            Accept: application/json, text/plain, */*
+            Accept-Encoding: gzip, deflate, br
+            Accept-Language: en-GB,en
+            Authorization: Basic bGlzdG1vbms6bGlzdG1vbms=
+            Connection: keep-alive
+            Cookie: connect.sid=s%3AdxWsE0jhYYsXQwFQKZJhtK_5Jli7MPB1.Wjbj0YQ3J7yJE1Zx21NQAWPtrz1f8i73j9FAnlvbrSg
+            Referer: http://localhost:9000/admin/subscribers
+            Sec-Fetch-Dest: empty
+            Sec-Fetch-Mode: cors
+            Sec-Fetch-Site: same-origin
+            Sec-Gpc: "1"
+            User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36
+        body: ""
+        body_type: ""
+    resp:
+        status_code: 200
+        header:
+            Content-Type: application/json; charset=UTF-8
+        body: |
+            {"data":{"results":[{"id":22,"created_at":"2022-12-16T08:11:38.778558Z","updated_at":"2022-12-16T08:11:38.778558Z","uuid":"57cae344-b3ae-468f-824e-db75af885759","email":"sarthak@keploy.io","name":"Sarthak","attribs":{},"status":"enabled","lists":[{"subscription_status":"confirmed","id":1,"uuid":"0ceef2ef-fb69-41b8-9047-d7ec2dd26aa7","name":"Default list","type":"public","optin":"double","tags":["test","fff"],"created_at":"2022-10-20T07:36:12.378176+00:00","updated_at":"2022-12-16T07:46:00.477233+00:00"},{"subscription_status":"confirmed","id":5,"uuid":"0c6252b0-f1af-4b32-ae47-5f00948d64a0","name":"Ritik","type":"public","optin":"single","tags":null,"created_at":"2022-11-09T06:51:19.581244+00:00","updated_at":"2022-12-16T10:50:27.647233+00:00"}]},{"id":18,"created_at":"2022-11-09T06:52:16.4999Z","updated_at":"2022-12-16T08:11:08.804329Z","uuid":"6f7b7e63-6126-43ba-a75f-47534a087984","email":"gouravkrox@gmail.com","name":"gourav","attribs":{},"status":"enabled","lists":[{"subscription_status":"unconfirmed","id":7,"uuid":"192470fa-1865-4249-ae26-81644dbb2a29","name":"tests","type":"private","optin":"single","tags":["testall"],"created_at":"2022-11-24T06:39:48.247188+00:00","updated_at":"2022-12-06T11:10:55.866024+00:00"}]},{"id":17,"created_at":"2022-11-09T06:42:20.82068Z","updated_at":"2022-12-14T09:21:42.242559Z","uuid":"402e0587-c50b-43ee-b00f-14c53e4a51ed","email":"iamskp@gmail.com","name":"Shashank","attribs":{},"status":"enabled","lists":[{"subscription_status":"unconfirmed","id":1,"uuid":"0ceef2ef-fb69-41b8-9047-d7ec2dd26aa7","name":"Default list","type":"public","optin":"double","tags":["test","fff"],"created_at":"2022-10-20T07:36:12.378176+00:00","updated_at":"2022-12-16T07:46:00.477233+00:00"}]}],"query":"","total":3,"per_page":20,"page":1}}
+        body_type: ""
+        status_message: ""
+        proto_major: 1
+        proto_minor: 1
+    objects:
+        - type: error
+          data: ""
+    mocks:
+        - test-2-0
+        - test-2-1
+        - test-2-2
+        - test-2-3
+        - test-2-4
+        - test-2-5
+        - test-2-6
+        - test-2-7
+        - test-2-8
+        - test-2-9
+        - test-2-10
+    assertions:
+        noise: []
+    created: 1671360964

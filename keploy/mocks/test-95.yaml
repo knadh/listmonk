@@ -1,0 +1,98 @@
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-95-0
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext
+        query: '"SELECT * FROM media WHERE provider=$1 ORDER BY created_at DESC;"'
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-95-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.NumInput
+        type: SQL_DB
+    type: int
+    int: 1
+    error: []
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-95-2
+spec:
+    metadata:
+        arguments: '[{ 1 filesystem}]'
+        name: SQL
+        operation: QueryContext
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-95-3
+spec:
+    metadata:
+        name: SQL
+        operation: QueryContext.Close
+        type: SQL_DB
+    type: table
+    table:
+        cols:
+            - name: id
+              type: <nil>
+              precision: 0
+              scale: 0
+            - name: uuid
+              type: <nil>
+              precision: 0
+              scale: 0
+            - name: provider
+              type: <nil>
+              precision: 0
+              scale: 0
+            - name: filename
+              type: <nil>
+              precision: 0
+              scale: 0
+            - name: thumb
+              type: <nil>
+              precision: 0
+              scale: 0
+            - name: meta
+              type: <nil>
+              precision: 0
+              scale: 0
+            - name: created_at
+              type: <nil>
+              precision: 0
+              scale: 0
+        rows:
+            - '[`<nil>` | `<nil>` | `<nil>` | `<nil>` | `<nil>` | `<nil>` | `<nil>` | ]'
+    int: 0
+    error:
+        - EOF
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-95-4
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.Close
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil

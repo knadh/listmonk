@@ -2,6 +2,8 @@ package main
 
 import (
 	"bytes"
+	"context"
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"html/template"
@@ -14,6 +16,9 @@ import (
 
 	"github.com/jmoiron/sqlx"
 	"github.com/jmoiron/sqlx/types"
+	"github.com/keploy/go-sdk/integrations/kecho/v4"
+	"github.com/keploy/go-sdk/integrations/ksql/v2"
+	"github.com/keploy/go-sdk/keploy"
 	"github.com/knadh/goyesql/v2"
 	goyesqlx "github.com/knadh/goyesql/v2/sqlx"
 	"github.com/knadh/koanf"
@@ -117,6 +122,12 @@ func initFlags() {
 	f.String("i18n-dir", "", "(optional) path to directory with i18n language files")
 	f.Bool("yes", false, "assume 'yes' to prompts during --install/upgrade")
 	f.Bool("passive", false, "run in passive mode where campaigns are not processed")
+
+	if keploy.GetMode() == keploy.MODE_TEST {
+		f.ParseErrorsWhitelist = flag.ParseErrorsWhitelist{
+			UnknownFlags: true,
+		}
+	}
 	if err := f.Parse(os.Args[1:]); err != nil {
 		lo.Fatalf("error loading flags: %v", err)
 	}
@@ -240,7 +251,7 @@ func initFS(appDir, frontendDir, staticDir, i18nDir string) stuffbin.FileSystem 
 
 // initDB initializes the main DB connection pool and parse and loads the app's
 // SQL queries into a prepared query map.
-func initDB() *sqlx.DB {
+func initDB(ctx context.Context) *sqlx.DB {
 	var c struct {
 		Host        string        `koanf:"host"`
 		Port        int           `koanf:"port"`
@@ -257,13 +268,31 @@ func initDB() *sqlx.DB {
 		lo.Fatalf("error loading db config: %v", err)
 	}
 
+	checkRegistered := false
+
+	// Iterate over the array and check if the string is present
+	for _, s := range sql.Drivers() {
+		if s == "keploy" {
+			checkRegistered = true
+			break
+		}
+	}
+
+	if !checkRegistered {
+		driver := ksql.Driver{Driver: pq.Driver{}}
+		sql.Register("keploy", &driver)
+	}
+
 	lo.Printf("connecting to db: %s:%d/%s", c.Host, c.Port, c.DBName)
-	db, err := sqlx.Connect("postgres",
+	db, err := sqlx.ConnectContext(ctx, "keploy",
 		fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=%s %s", c.Host, c.Port, c.User, c.Password, c.DBName, c.SSLMode, c.Params))
 	if err != nil {
 		lo.Fatalf("error connecting to DB: %v", err)
 	}
 
+	if keploy.GetMode() != keploy.MODE_OFF {
+		c.MaxIdle = 0
+	}
 	db.SetMaxOpenConns(c.MaxOpen)
 	db.SetMaxIdleConns(c.MaxIdle)
 	db.SetConnMaxLifetime(c.MaxLifetime)
@@ -287,7 +316,7 @@ func readQueries(sqlFile string, db *sqlx.DB, fs stuffbin.FileSystem) goyesql.Qu
 }
 
 // prepareQueries queries prepares a query map and returns a *Queries
-func prepareQueries(qMap goyesql.Queries, db *sqlx.DB, ko *koanf.Koanf) *models.Queries {
+func prepareQueries(ctx context.Context, qMap goyesql.Queries, db *sqlx.DB, ko *koanf.Koanf) *models.Queries {
 	var (
 		countQuery = "get-campaign-analytics-counts"
 		linkSel    = "*"
@@ -310,7 +339,7 @@ func prepareQueries(qMap goyesql.Queries, db *sqlx.DB, ko *koanf.Koanf) *models.
 
 	// Scan and prepare all queries.
 	var q models.Queries
-	if err := goyesqlx.ScanToStruct(&q, qMap, db.Unsafe()); err != nil {
+	if err := goyesqlx.ScanWithContext(ctx, &q, qMap, db.Unsafe()); err != nil {
 		lo.Fatalf("error preparing SQL queries: %v", err)
 	}
 
@@ -318,9 +347,9 @@ func prepareQueries(qMap goyesql.Queries, db *sqlx.DB, ko *koanf.Koanf) *models.
 }
 
 // initSettings loads settings from the DB into the given Koanf map.
-func initSettings(query string, db *sqlx.DB, ko *koanf.Koanf) {
+func initSettings(ctx context.Context, query string, db *sqlx.DB, ko *koanf.Koanf) {
 	var s types.JSONText
-	if err := db.Get(&s, query); err != nil {
+	if err := db.GetContext(ctx, &s, query); err != nil {
 		msg := err.Error()
 		if err, ok := err.(*pq.Error); ok {
 			if err.Detail != "" {
@@ -441,8 +470,8 @@ func initCampaignManager(q *models.Queries, cs *constants, app *App) *manager.Ma
 	}, newManagerStore(q), campNotifCB, app.i18n, lo)
 }
 
-func initTxTemplates(m *manager.Manager, app *App) {
-	tpls, err := app.core.GetTemplates(models.TemplateTypeTx, false)
+func initTxTemplates(ctx context.Context, m *manager.Manager, app *App) {
+	tpls, err := app.core.GetTemplates(ctx, models.TemplateTypeTx, false)
 	if err != nil {
 		lo.Fatalf("error loading transactional templates: %v", err)
 	}
@@ -673,9 +702,10 @@ func initBounceManager(app *App) *bounce.Manager {
 }
 
 // initHTTPServer sets up and runs the app's main HTTP server and blocks forever.
-func initHTTPServer(app *App) *echo.Echo {
+func initHTTPServer(app *App, k *keploy.Keploy) *echo.Echo {
 	// Initialize the HTTP server.
 	var srv = echo.New()
+	srv.Use(kecho.EchoMiddlewareV4(k))
 	srv.HideBanner = true
 
 	// Register app (*App) to be injected into all HTTP handlers.
@@ -741,6 +771,11 @@ func awaitReload(sigChan chan os.Signal, closerWait chan bool, closer func()) ch
 
 	// Respawn a new process and exit the running one.
 	respawn := func() {
+		// during test, do not stop the process to complete the test-runs
+		if keploy.GetMode() == keploy.MODE_TEST {
+			return
+		}
+
 		if err := syscall.Exec(os.Args[0], os.Args, os.Environ()); err != nil {
 			lo.Fatalf("error spawning process: %v", err)
 		}

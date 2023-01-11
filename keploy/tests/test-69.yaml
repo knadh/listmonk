@@ -1,0 +1,69 @@
+version: api.keploy.io/v1beta2
+kind: Http
+name: test-69
+spec:
+    metadata: {}
+    req:
+        method: PUT
+        proto_major: 1
+        proto_minor: 1
+        url: /api/campaigns/1
+        header:
+            Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8
+            Accept-Encoding: gzip, deflate, br
+            Authorization: Basic bGlzdG1vbms6bGlzdG1vbms=
+            Connection: keep-alive
+            Content-Length: "257"
+            Content-Type: application/json
+            Cookie: connect.sid=s%3AdxWsE0jhYYsXQwFQKZJhtK_5Jli7MPB1.Wjbj0YQ3J7yJE1Zx21NQAWPtrz1f8i73j9FAnlvbrSg
+            Postman-Token: c1bebff1-e8ad-4ed0-ae55-258c694120f8
+            Sec-Fetch-Dest: iframe
+            Sec-Fetch-Mode: navigate
+            Sec-Fetch-Site: same-origin
+            Sec-Gpc: '"1"'
+            Upgrade-Insecure-Requests: '"1"'
+        body: '{"name":"qwertt2","subject":"keploy","lists":[1],"from_email":"ritik@keploy.io","messenger":"email","type":"regular","tags":[],"send_later":false,"send_at":null,"headers":[],"template_id":1,"content_type":"richtext","body":"<p>greetings</p>","altbody":null}'
+        body_type: ""
+    resp:
+        status_code: 200
+        header:
+            Content-Type: application/json; charset=UTF-8
+        body: |
+            {"data":{"id":1,"created_at":"2023-01-06T07:39:21.468161Z","updated_at":"2023-01-09T08:14:32.896793Z","views":0,"clicks":0,"bounces":0,"lists":[{"id":1,"name":"Default list"}],"started_at":null,"to_send":0,"sent":0,"uuid":"0d76174b-f4ec-4547-8726-d3c337848831","type":"regular","name":"qwertt2","subject":"keploy","from_email":"ritik@keploy.io","body":"\u003cp\u003egreetings\u003c/p\u003e","altbody":null,"send_at":null,"status":"draft","content_type":"richtext","tags":[],"headers":[],"template_id":1,"messenger":"email","archive":false,"archive_template_id":2,"archive_meta":{"name":"Subscriber"}}}
+        body_type: ""
+        status_message: ""
+        proto_major: 1
+        proto_minor: 1
+    objects:
+        - type: error
+          data: ""
+    mocks:
+        - test-69-0
+        - test-69-1
+        - test-69-2
+        - test-69-3
+        - test-69-4
+        - test-69-5
+        - test-69-6
+        - test-69-7
+        - test-69-8
+        - test-69-9
+        - test-69-10
+        - test-69-11
+        - test-69-12
+        - test-69-13
+        - test-69-14
+        - test-69-15
+        - test-69-16
+        - test-69-17
+        - test-69-18
+        - test-69-19
+        - test-69-20
+        - test-69-21
+        - test-69-22
+        - test-69-23
+        - test-69-24
+        - test-69-25
+    assertions:
+        noise: []
+    created: 1671392378

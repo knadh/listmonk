@@ -1,0 +1,173 @@
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-160-0
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext
+        query: '"INSERT INTO media (uuid, filename, thumb, provider, meta, created_at) VALUES($1, $2, $3, $4, $5, NOW()) RETURNING id;"'
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-160-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.NumInput
+        type: SQL_DB
+    type: int
+    int: 5
+    error: []
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-160-2
+spec:
+    metadata:
+        arguments: '[{ 1 ae70345a-71a7-47c6-b144-817ba5c80478} { 2 Tesla.jpg} { 3 thumb_Tesla.jpg} { 4 filesystem} { 5 [123 34 104 101 105 103 104 116 34 58 55 57 53 44 34 119 105 100 116 104 34 58 49 50 48 48 125]}]'
+        name: SQL
+        operation: QueryContext
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-160-3
+spec:
+    metadata:
+        name: SQL
+        operation: QueryContext.Close
+        type: SQL_DB
+    type: table
+    table:
+        cols:
+            - name: id
+              type: int64
+              precision: 0
+              scale: 0
+        rows:
+            - '[`10` | ]'
+    int: 0
+    error:
+        - nil
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-160-4
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.Close
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-160-5
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext
+        query: '"SELECT * FROM media WHERE CASE WHEN $1 > 0 THEN id = $1 ELSE uuid = $2 END;"'
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-160-6
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.NumInput
+        type: SQL_DB
+    type: int
+    int: 2
+    error: []
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-160-7
+spec:
+    metadata:
+        arguments: '[{ 1 10} { 2 <nil>}]'
+        name: SQL
+        operation: QueryContext
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-160-8
+spec:
+    metadata:
+        name: SQL
+        operation: QueryContext.Close
+        type: SQL_DB
+    type: table
+    table:
+        cols:
+            - name: id
+              type: int64
+              precision: 0
+              scale: 0
+            - name: uuid
+              type: '[]uint8'
+              precision: 0
+              scale: 0
+            - name: provider
+              type: string
+              precision: 0
+              scale: 0
+            - name: filename
+              type: string
+              precision: 0
+              scale: 0
+            - name: thumb
+              type: string
+              precision: 0
+              scale: 0
+            - name: meta
+              type: '[]uint8'
+              precision: 0
+              scale: 0
+            - name: created_at
+              type: time.Time
+              precision: 0
+              scale: 0
+        rows:
+            - '[`10` | `[97 101 55 48 51 52 53 97 45 55 49 97 55 45 52 55 99 54 45 98 49 52 52 45 56 49 55 98 97 53 99 56 48 52 55 56]` | `filesystem` | `Tesla.jpg` | `thumb_Tesla.jpg` | `[123 34 119 105 100 116 104 34 58 32 49 50 48 48 44 32 34 104 101 105 103 104 116 34 58 32 55 57 53 125]` | `"2022-12-23T09:04:33.357174Z"` | ]'
+    int: 0
+    error:
+        - nil
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-160-9
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.Close
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil

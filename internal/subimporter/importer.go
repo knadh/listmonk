@@ -9,6 +9,7 @@ package subimporter
 import (
 	"archive/zip"
 	"bytes"
+	"context"
 	"database/sql"
 	"encoding/csv"
 	"encoding/json"
@@ -239,7 +240,7 @@ func (im *Importer) sendNotif(status string) error {
 // Start is a blocking function that selects on a channel queue until all
 // subscriber entries in the import session are imported. It should be
 // invoked as a goroutine.
-func (s *Session) Start() {
+func (s *Session) Start(ctx context.Context) {
 	var (
 		tx    *sql.Tx
 		stmt  *sql.Stmt
@@ -257,16 +258,16 @@ func (s *Session) Start() {
 	for sub := range s.subQueue {
 		if cur == 0 {
 			// New transaction batch.
-			tx, err = s.im.db.Begin()
+			tx, err = s.im.db.BeginTx(ctx, nil)
 			if err != nil {
 				s.log.Printf("error creating DB transaction: %v", err)
 				continue
 			}
 
 			if s.opt.Mode == ModeSubscribe {
-				stmt = tx.Stmt(s.im.opt.UpsertStmt)
+				stmt = tx.StmtContext(ctx, s.im.opt.UpsertStmt)
 			} else {
-				stmt = tx.Stmt(s.im.opt.BlocklistStmt)
+				stmt = tx.StmtContext(ctx, s.im.opt.BlocklistStmt)
 			}
 		}
 
@@ -278,9 +279,9 @@ func (s *Session) Start() {
 		}
 
 		if s.opt.Mode == ModeSubscribe {
-			_, err = stmt.Exec(uu, sub.Email, sub.Name, sub.Attribs, listIDs, s.opt.SubStatus, s.opt.Overwrite)
+			_, err = stmt.ExecContext(ctx, uu, sub.Email, sub.Name, sub.Attribs, listIDs, s.opt.SubStatus, s.opt.Overwrite)
 		} else if s.opt.Mode == ModeBlocklist {
-			_, err = stmt.Exec(uu, sub.Email, sub.Name, sub.Attribs)
+			_, err = stmt.ExecContext(ctx, uu, sub.Email, sub.Name, sub.Attribs)
 		}
 		if err != nil {
 			s.log.Printf("error executing insert: %v", err)
@@ -308,7 +309,7 @@ func (s *Session) Start() {
 	if cur == 0 {
 		s.im.setStatus(StatusFinished)
 		s.log.Printf("imported finished")
-		if _, err := s.im.opt.UpdateListDateStmt.Exec(listIDs); err != nil {
+		if _, err := s.im.opt.UpdateListDateStmt.ExecContext(ctx, listIDs); err != nil {
 			s.log.Printf("error updating lists date: %v", err)
 		}
 		s.im.sendNotif(StatusFinished)
@@ -327,7 +328,7 @@ func (s *Session) Start() {
 	s.im.incrementImportCount(cur)
 	s.im.setStatus(StatusFinished)
 	s.log.Printf("imported finished")
-	if _, err := s.im.opt.UpdateListDateStmt.Exec(listIDs); err != nil {
+	if _, err := s.im.opt.UpdateListDateStmt.ExecContext(ctx, listIDs); err != nil {
 		s.log.Printf("error updating lists date: %v", err)
 	}
 	s.im.sendNotif(StatusFinished)

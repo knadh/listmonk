@@ -1,0 +1,47 @@
+version: api.keploy.io/v1beta2
+kind: Http
+name: test-10
+spec:
+    metadata: {}
+    req:
+        method: GET
+        proto_major: 1
+        proto_minor: 1
+        url: /api/settings
+        header:
+            Accept: application/json, text/plain, */*
+            Accept-Encoding: gzip, deflate, br
+            Accept-Language: en-GB,en
+            Authorization: Basic bGlzdG1vbms6bGlzdG1vbms=
+            Connection: keep-alive
+            Cookie: connect.sid=s%3AdxWsE0jhYYsXQwFQKZJhtK_5Jli7MPB1.Wjbj0YQ3J7yJE1Zx21NQAWPtrz1f8i73j9FAnlvbrSg
+            Referer: http://localhost:9000/admin/settings
+            Sec-Fetch-Dest: empty
+            Sec-Fetch-Mode: cors
+            Sec-Fetch-Site: same-origin
+            Sec-Gpc: "1"
+            User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36
+        body: ""
+        body_type: ""
+    resp:
+        status_code: 200
+        header:
+            Content-Type: application/json; charset=UTF-8
+        body: |
+            {"data":{"app.site_name":"","app.root_url":"http://localhost:9000","app.logo_url":"","app.favicon_url":"","app.from_email":"listmonk \u003cnoreply@listmonk.yoursite.com\u003e","app.notify_emails":["admin1@mysite.com","admin2@mysite.com"],"app.enable_public_subscription_page":true,"app.enable_public_archive":false,"app.send_optin_confirmation":true,"app.check_updates":true,"app.lang":"en","app.batch_size":1000,"app.concurrency":10,"app.max_send_errors":1000,"app.message_rate":10,"app.message_sliding_window":false,"app.message_sliding_window_duration":"1h","app.message_sliding_window_rate":10000,"privacy.individual_tracking":false,"privacy.unsubscribe_header":true,"privacy.allow_blocklist":true,"privacy.allow_preferences":false,"privacy.allow_export":true,"privacy.allow_wipe":true,"privacy.exportable":["profile","subscriptions","campaign_views","link_clicks"],"privacy.domain_blocklist":[],"upload.provider":"filesystem","upload.filesystem.upload_path":"uploads","upload.filesystem.upload_uri":"/uploads","upload.s3.url":"https://ap-south-1.s3.amazonaws.com","upload.s3.public_url":"","upload.s3.aws_access_key_id":"","upload.s3.aws_default_region":"ap-south-1","upload.s3.bucket":"","upload.s3.bucket_domain":"","upload.s3.bucket_path":"/","upload.s3.bucket_type":"public","upload.s3.expiry":"14d","smtp":[{"uuid":"","enabled":true,"host":"smtp.yoursite.com","hello_hostname":"","port":25,"auth_protocol":"cram","username":"username","email_headers":[],"max_conns":10,"max_msg_retries":2,"idle_timeout":"15s","wait_timeout":"5s","tls_type":"STARTTLS","tls_skip_verify":false},{"uuid":"","enabled":false,"host":"smtp.gmail.com","hello_hostname":"","port":465,"auth_protocol":"login","username":"username@gmail.com","email_headers":[],"max_conns":10,"max_msg_retries":2,"idle_timeout":"15s","wait_timeout":"5s","tls_type":"TLS","tls_skip_verify":false}],"messengers":[],"bounce.enabled":false,"bounce.webhooks_enabled":false,"bounce.count":2,"bounce.action":"blocklist","bounce.ses_enabled":false,"bounce.sendgrid_enabled":false,"bounce.sendgrid_key":"","bounce.mailboxes":[{"uuid":"","enabled":false,"type":"pop","host":"pop.yoursite.com","port":995,"auth_protocol":"userpass","return_path":"bounce@listmonk.yoursite.com","username":"username","tls_enabled":true,"tls_skip_verify":false,"scan_interval":"15m"}],"appearance.admin.custom_css":"","appearance.admin.custom_js":"","appearance.public.custom_css":"","appearance.public.custom_js":""}}
+        body_type: ""
+        status_message: ""
+        proto_major: 1
+        proto_minor: 1
+    objects:
+        - type: error
+          data: ""
+    mocks:
+        - test-10-0
+        - test-10-1
+        - test-10-2
+        - test-10-3
+        - test-10-4
+    assertions:
+        noise: []
+    created: 1671362194

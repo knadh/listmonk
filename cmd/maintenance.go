@@ -21,9 +21,9 @@ func handleGCSubscribers(c echo.Context) error {
 
 	switch typ {
 	case "blocklisted":
-		n, err = app.core.DeleteBlocklistedSubscribers()
+		n, err = app.core.DeleteBlocklistedSubscribers(c.Request().Context())
 	case "orphan":
-		n, err = app.core.DeleteOrphanSubscribers()
+		n, err = app.core.DeleteOrphanSubscribers(c.Request().Context())
 	default:
 		err = echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidData"))
 	}
@@ -48,7 +48,7 @@ func handleGCSubscriptions(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidData"))
 	}
 
-	n, err := app.core.DeleteUnconfirmedSubscriptions(t)
+	n, err := app.core.DeleteUnconfirmedSubscriptions(c.Request().Context(), t)
 	if err != nil {
 		return err
 	}
@@ -72,14 +72,14 @@ func handleGCCampaignAnalytics(c echo.Context) error {
 
 	switch typ {
 	case "all":
-		if err := app.core.DeleteCampaignViews(t); err != nil {
+		if err := app.core.DeleteCampaignViews(c.Request().Context(), t); err != nil {
 			return err
 		}
-		err = app.core.DeleteCampaignLinkClicks(t)
+		err = app.core.DeleteCampaignLinkClicks(c.Request().Context(), t)
 	case "views":
-		err = app.core.DeleteCampaignViews(t)
+		err = app.core.DeleteCampaignViews(c.Request().Context(), t)
 	case "clicks":
-		err = app.core.DeleteCampaignLinkClicks(t)
+		err = app.core.DeleteCampaignLinkClicks(c.Request().Context(), t)
 	default:
 		err = echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidData"))
 	}

@@ -1,0 +1,74 @@
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-14-0
+spec:
+    metadata:
+        arguments: '[{ 1 0} { 2 } { 3 %de%} { 4 0} { 5 20}]'
+        name: SQL
+        operation: QueryContext
+        query: "\"WITH ls AS ( \tSELECT COUNT(*) OVER () AS total, lists.* FROM lists WHERE CASE WHEN $1 > 0 THEN id = $1 WHEN $2 != '' THEN uuid = $2::UUID WHEN $3 != '' THEN name ILIKE $3 ELSE true END OFFSET $4 LIMIT (CASE WHEN $5 = 0 THEN NULL ELSE $5 END) ), counts AS ( SELECT list_id, JSON_OBJECT_AGG(status, subscriber_count) AS subscriber_statuses FROM ( SELECT COUNT(*) as subscriber_count, list_id, status FROM subscriber_lists WHERE ($1 = 0 OR list_id = $1) GROUP BY list_id, status ) row GROUP BY list_id ) SELECT ls.*, subscriber_statuses FROM ls LEFT JOIN counts ON (counts.list_id = ls.id) ORDER BY created_at asc;\""
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-14-1
+spec:
+    metadata:
+        name: SQL
+        operation: QueryContext.Close
+        type: SQL_DB
+    type: table
+    table:
+        cols:
+            - name: total
+              type: int64
+              precision: 0
+              scale: 0
+            - name: id
+              type: int64
+              precision: 0
+              scale: 0
+            - name: uuid
+              type: '[]uint8'
+              precision: 0
+              scale: 0
+            - name: name
+              type: string
+              precision: 0
+              scale: 0
+            - name: type
+              type: '[]uint8'
+              precision: 0
+              scale: 0
+            - name: optin
+              type: '[]uint8'
+              precision: 0
+              scale: 0
+            - name: tags
+              type: '[]uint8'
+              precision: 0
+              scale: 0
+            - name: created_at
+              type: time.Time
+              precision: 0
+              scale: 0
+            - name: updated_at
+              type: time.Time
+              precision: 0
+              scale: 0
+            - name: subscriber_statuses
+              type: '[]uint8'
+              precision: 0
+              scale: 0
+        rows:
+            - '[`1` | `1` | `[48 99 101 101 102 50 101 102 45 102 98 54 57 45 52 49 98 56 45 57 48 52 55 45 100 55 101 99 50 100 100 50 54 97 97 55]` | `Default list` | `[112 117 98 108 105 99]` | `[100 111 117 98 108 101]` | `[123 116 101 115 116 44 102 102 102 125]` | `"2022-10-20T07:36:12.378176Z"` | `"2022-12-16T07:46:00.477233Z"` | `[123 32 34 99 111 110 102 105 114 109 101 100 34 32 58 32 49 44 32 34 117 110 99 111 110 102 105 114 109 101 100 34 32 58 32 49 32 125]` | ]'
+            - '[`1` | `1` | `[48 99 101 101 102 50 101 102 45 102 98 54 57 45 52 49 98 56 45 57 48 52 55 45 100 55 101 99 50 100 100 50 54 97 97 55]` | `Default list` | `[112 117 98 108 105 99]` | `[100 111 117 98 108 101]` | `[123 116 101 115 116 44 102 102 102 125]` | `"2022-10-20T07:36:12.378176Z"` | `"2022-12-16T07:46:00.477233Z"` | `[123 32 34 99 111 110 102 105 114 109 101 100 34 32 58 32 49 44 32 34 117 110 99 111 110 102 105 114 109 101 100 34 32 58 32 49 32 125]` | ]'
+    int: 0
+    error:
+        - nil
+        - EOF
+        - nil

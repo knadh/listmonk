@@ -1,0 +1,58 @@
+version: api.keploy.io/v1beta2
+kind: Http
+name: test-65
+spec:
+    metadata: {}
+    req:
+        method: POST
+        proto_major: 1
+        proto_minor: 1
+        url: /api/campaigns
+        header:
+            Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8
+            Accept-Encoding: gzip, deflate, br
+            Authorization: Basic bGlzdG1vbms6bGlzdG1vbms=
+            Connection: keep-alive
+            Content-Length: "216"
+            Content-Type: application/json
+            Cookie: connect.sid=s%3AdxWsE0jhYYsXQwFQKZJhtK_5Jli7MPB1.Wjbj0YQ3J7yJE1Zx21NQAWPtrz1f8i73j9FAnlvbrSg
+            Postman-Token: ee3c3891-849d-42a5-ada2-ddd76556e634
+            Sec-Fetch-Dest: iframe
+            Sec-Fetch-Mode: navigate
+            Sec-Fetch-Site: same-origin
+            Sec-Gpc: '"1"'
+            Upgrade-Insecure-Requests: '"1"'
+        body: '{"name":"qwertt2","subject":"keploy","lists":[1],"from_email":"ritik@keploy.io","content_type":"richtext","messenger":"email","type":"regular","tags":[],"send_later":false,"send_at":null,"headers":[],"template_id":1}'
+        body_type: ""
+    resp:
+        status_code: 200
+        header:
+            Content-Type: application/json; charset=UTF-8
+        body: |
+            {"data":{"id":3,"created_at":"2023-01-09T08:06:49.412158Z","updated_at":"2023-01-09T08:06:49.412158Z","views":0,"clicks":0,"bounces":0,"lists":[{"id":1,"name":"Default list"}],"started_at":null,"to_send":1,"sent":0,"uuid":"2eeae127-440e-4f2d-a724-49e435d6cc28","type":"regular","name":"qwertt2","subject":"keploy","from_email":"ritik@keploy.io","body":"","altbody":null,"send_at":null,"status":"draft","content_type":"richtext","tags":[],"headers":[],"template_id":1,"messenger":"email","archive":false,"archive_template_id":1,"archive_meta":{}}}
+        body_type: ""
+        status_message: ""
+        proto_major: 1
+        proto_minor: 1
+    objects:
+        - type: error
+          data: ""
+    mocks:
+        - test-65-0
+        - test-65-1
+        - test-65-2
+        - test-65-3
+        - test-65-4
+        - test-65-5
+        - test-65-6
+        - test-65-7
+        - test-65-8
+        - test-65-9
+        - test-65-10
+        - test-65-11
+        - test-65-12
+        - test-65-13
+        - test-65-14
+    assertions:
+        noise: []
+    created: 1671392364

@@ -85,7 +85,7 @@ func handleImportSubscribers(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			app.i18n.Ts("import.errorStarting", "error", err.Error()))
 	}
-	go impSess.Start()
+	go impSess.Start(c.Request().Context())
 
 	if strings.HasSuffix(strings.ToLower(file.Filename), ".csv") {
 		go impSess.LoadCSV(out.Name(), rune(opt.Delim[0]))

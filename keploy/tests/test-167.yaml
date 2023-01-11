@@ -1,0 +1,45 @@
+version: api.keploy.io/v1beta2
+kind: Http
+name: test-167
+spec:
+    metadata: {}
+    req:
+        method: GET
+        proto_major: 1
+        proto_minor: 1
+        url: /api/bounces/1
+        header:
+            Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8
+            Accept-Encoding: gzip, deflate, br
+            Authorization: Basic bGlzdG1vbms6bGlzdG1vbms=
+            Connection: keep-alive
+            Content-Length: "77"
+            Content-Type: application/json
+            Cookie: connect.sid=s%3AdxWsE0jhYYsXQwFQKZJhtK_5Jli7MPB1.Wjbj0YQ3J7yJE1Zx21NQAWPtrz1f8i73j9FAnlvbrSg
+            Postman-Token: bd45fd63-8922-4928-98a5-f55a550e3369
+            Sec-Fetch-Dest: iframe
+            Sec-Fetch-Mode: navigate
+            Sec-Fetch-Site: same-origin
+            Sec-Gpc: '"1"'
+            Upgrade-Insecure-Requests: '"1"'
+        body: "{\n    \"source\": \"api\", \n    \"type\": \"hard\",\n    \"email\": \"john@example.com\"\n}"
+        body_type: ""
+    resp:
+        status_code: 200
+        header:
+            Content-Type: application/json; charset=UTF-8
+        body: |
+            {"data":{"id":1,"type":"hard","source":"api","meta":{},"created_at":"2022-12-27T11:57:06.390803Z","email":"john@example.com","subscriber_uuid":"10d06e26-41f6-4115-9135-cafb0bf9ad7e","subscriber_id":1,"campaign":null}}
+        body_type: ""
+        status_message: ""
+        proto_major: 1
+        proto_minor: 1
+    objects:
+        - type: error
+          data: ""
+    mocks:
+        - test-167-0
+        - test-167-1
+    assertions:
+        noise: []
+    created: 1672143294

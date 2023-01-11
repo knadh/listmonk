@@ -8,3 +8,5 @@ config.toml
 node_modules
 listmonk
 dist/*
+coverage.tmp.txt
+coverage.txt

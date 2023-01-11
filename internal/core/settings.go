@@ -1,22 +1,28 @@
 package core
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 
+	// "github.com/jmoiron/sqlx"
 	"github.com/jmoiron/sqlx/types"
 	"github.com/knadh/listmonk/models"
 	"github.com/labstack/echo/v4"
 )
 
 // GetSettings returns settings from the DB.
-func (c *Core) GetSettings() (models.Settings, error) {
+func (c *Core) GetSettings(ctx context.Context) (models.Settings, error) {
 	var (
 		b   types.JSONText
 		out models.Settings
 	)
 
-	if err := c.q.GetSettings.Get(&b); err != nil {
+	// xyz, _ := sqlx.PreparexContext(ctx, c.db, `SELECT JSON_OBJECT_AGG(key, value) AS settings
+	// FROM (
+	//     SELECT * FROM settings ORDER BY key
+	// ) t;`)
+	if err := c.q.GetSettings.GetContext(ctx, &b); err != nil {
 		return out, echo.NewHTTPError(http.StatusInternalServerError,
 			c.i18n.Ts("globals.messages.errorFetching",
 				"name", "{globals.terms.settings}", "error", pqErrMsg(err)))
@@ -32,7 +38,7 @@ func (c *Core) GetSettings() (models.Settings, error) {
 }
 
 // UpdateSettings updates settings.
-func (c *Core) UpdateSettings(s models.Settings) error {
+func (c *Core) UpdateSettings(ctx context.Context, s models.Settings) error {
 	// Marshal settings.
 	b, err := json.Marshal(s)
 	if err != nil {
@@ -41,7 +47,7 @@ func (c *Core) UpdateSettings(s models.Settings) error {
 	}
 
 	// Update the settings in the DB.
-	if _, err := c.q.UpdateSettings.Exec(b); err != nil {
+	if _, err := c.q.UpdateSettings.ExecContext(ctx, b); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			c.i18n.Ts("globals.messages.errorUpdating", "name", "{globals.terms.settings}", "error", pqErrMsg(err)))
 	}

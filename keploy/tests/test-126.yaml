@@ -1,0 +1,62 @@
+version: api.keploy.io/v1beta2
+kind: Http
+name: test-126
+spec:
+    metadata: {}
+    req:
+        method: GET
+        proto_major: 1
+        proto_minor: 1
+        url: /subscription/optin/59558b84-1575-4dc9-b7d8-93b0b7b54849
+        header:
+            Accept: '*/*'
+            Accept-Encoding: gzip, deflate, br
+            Connection: keep-alive
+            Content-Type: application/x-www-form-urlencoded
+            Cookie: csrftoken=KHNn1HMfuB56B2HJvlQg3GX7IKDMR5wg; ds_user_id=12608305791; datr=G_cBY-eiHYOpLvtb_4EfpTZj; mid=YxTHAAAEAAEft1yRGZ-XcZQjkBE9; ig_did=C161811E-DBDC-48E1-8FC1-E0EC6572E0BE; dpr=2; shbid="15172\05412608305791\0541702918136:01f7382caa12901419faebce28a97c3ad17d4b5f85ed268adc3424e2e497e3d9ec8f88bc"; shbts="1671382136\05412608305791\0541702918136:01f74529f76471e79f2870e6c1647b43688027683d1488d4d1a8dc3fea7f9cdf14f634c1"; sessionid=12608305791%3AFmTiK1wAd8CZEH%3A27%3AAYe7qWTQNnomrpzcqANQ3MTaVPF3cg2Bj87tWxUyTA; rur="ODN\05412608305791\0541702918318:01f735ef083f80aaf4cfa26b4c3290a171f44c309b9b1c47315a5fd79e5e64e0fc85dde7"
+            Postman-Token: 1462c7f6-7c28-48ec-9e01-5f846cfa6742
+            Sec-Fetch-Dest: empty
+            Sec-Fetch-Mode: cors
+            Sec-Fetch-Site: same-origin
+            Sec-Gpc: "1"
+            User-Agent: PostmanRuntime/7.30.0
+            X-Asbd-Id: "198387"
+            X-Csrftoken: KHNn1HMfuB56B2HJvlQg3GX7IKDMR5wg
+            X-Ig-App-Id: "936619743392459"
+            X-Ig-Www-Claim: hmac.AR2VKO-G2ncZYzOuT3PVyMnX3o6DqqN6lX4Z7P1llWZ-NA-I
+            X-Instagram-Ajax: "1006757535"
+            X-Requested-With: XMLHttpRequest
+        body: ""
+        body_type: ""
+    resp:
+        status_code: 200
+        header:
+            Content-Type: text/html; charset=UTF-8
+            X-Robots-Tag: noindex
+        body: "\n    \n<!DOCTYPE html>\n<html>\n<head>\n\t<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" />\t\n\t<title>No subscriptions - Mailing list</title>\n\t<meta name=\"description\" content=\"\" />\n\t<meta name=\"viewport\" content=\"width=device-width, initial-scale=1, minimum-scale=1\" />\n\n\t\n\t\t<link rel=\"alternate\" type=\"application/rss+xml\" title=\"Mailing list archive - Mailing list\"\n\t\t\thref=\"http://localhost:9000/archive.xml\" />\n\t\n\n\t<link href=\"/public/static/style.css?v2.3.0\" rel=\"stylesheet\" type=\"text/css\" />\n\t<link href=\"/public/custom.css\" rel=\"stylesheet\" type=\"text/css\">\n\t<script src=\"/public/custom.js\" async defer></script>\n\n\t\n\t\t<link rel=\"shortcut icon\" href=\"/public/static/favicon.png\" type=\"image/x-icon\" />\n\t\n</head>\n<body>\n    <div class=\"container wrap\">\n\t\t<header class=\"header\">\n\t\t\t<div class=\"logo\">\n\t\t\t\t<a href=\"http://localhost:9000/subscription/form\">\n\t\t\t\t\n\t\t\t\t\t<img src=\"/public/static/logo.svg\" alt=\"No subscriptions\" />\n\t\t\t\t\n\t\t\t\t</a>\n\t\t\t</div>\n\t\t</header>\n\n\n    <h2>No subscriptions</h2>\n    <div>\n        There are no subscriptions to confirm.\n    </div>\n\n    <p>\n        <a href=\"\" class=\"button\" id=\"btn-back\">Back</a>\n    </p>\n\n    <script>\n        (function() {\n            \n            if(history && history.length >= 3) {\n                var btn = document.getElementById(\"btn-back\");\n                btn.style.display = 'inline-block';\n                btn.onclick = function(e) {\n                    history.go(history.length > 2 ? -2 : -1);\n                    e.preventDefault();\n                };\n            }\n        })();\n    </script>\n    \n\t</div>\n\t\n\t<footer class=\"container\">\n\t\tPowered by <a target=\"_blank\" href=\"https://listmonk.app\">listmonk</a>\n\t</footer>\n</body>\n</html>\n\n"
+        body_type: ""
+        status_message: ""
+        proto_major: 1
+        proto_minor: 1
+    objects:
+        - type: error
+          data: ""
+    mocks:
+        - test-126-0
+        - test-126-1
+        - test-126-2
+        - test-126-3
+        - test-126-4
+        - test-126-5
+        - test-126-6
+        - test-126-7
+        - test-126-8
+        - test-126-9
+        - test-126-10
+        - test-126-11
+        - test-126-12
+        - test-126-13
+        - test-126-14
+    assertions:
+        noise: []
+    created: 1671705255

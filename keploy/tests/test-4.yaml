@@ -1,0 +1,40 @@
+version: api.keploy.io/v1beta2
+kind: Http
+name: test-4
+spec:
+    metadata: {}
+    req:
+        method: GET
+        proto_major: 1
+        proto_minor: 1
+        url: /api/config
+        header:
+            Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8
+            Accept-Encoding: gzip, deflate, br
+            Authorization: Basic bGlzdG1vbms6bGlzdG1vbms=
+            Connection: keep-alive
+            Cookie: connect.sid=s%3AdxWsE0jhYYsXQwFQKZJhtK_5Jli7MPB1.Wjbj0YQ3J7yJE1Zx21NQAWPtrz1f8i73j9FAnlvbrSg
+            Postman-Token: bdb6ae5f-33ab-493f-82d6-f1bcfbfb3327
+            Sec-Fetch-Dest: iframe
+            Sec-Fetch-Mode: navigate
+            Sec-Fetch-Site: same-origin
+            Sec-Gpc: '"1"'
+            Upgrade-Insecure-Requests: '"1"'
+        body: ""
+        body_type: ""
+    resp:
+        status_code: 200
+        header:
+            Content-Type: application/json; charset=UTF-8
+        body: |
+            {"data":{"messengers":["email"],"langs":[{"code":"ca","name":"Català (ca)"},{"code":"cs-cz","name":"čeština (cs)"},{"code":"cy","name":"Cymraeg (cy)"},{"code":"de","name":"Deutsch (de)"},{"code":"en","name":"English (en)"},{"code":"es","name":"Español (es)"},{"code":"fi","name":"Suomi (fi)"},{"code":"fr","name":"Français (fr)"},{"code":"hu","name":"Hungary (hu)"},{"code":"it","name":"Italiano (it)"},{"code":"jp","name":"日本語 (jp)"},{"code":"ml","name":"മലയാളം (ml)"},{"code":"nl","name":"Nederlands (nl)"},{"code":"pl","name":"Polski (pl)"},{"code":"pt","name":"Portuguese (pt)"},{"code":"pt-BR","name":"Português Brasileiro (pt-BR)"},{"code":"ro","name":"Română (ro)"},{"code":"ru","name":"Русский (ru)"},{"code":"sk-sk","name":"slovenčina (sk)"},{"code":"tr","name":"Turkish (tr)"},{"code":"vi","name":"Vietnamese (vi)"},{"code":"zh-CN","name":"简体中文 (zh-CN)"},{"code":"zh-TW","name":"繁體中文(zh-TW)"}],"lang":"en","update":null,"needs_restart":false,"version":"v0.0.0"}}
+        body_type: ""
+        status_message: ""
+        proto_major: 1
+        proto_minor: 1
+    objects:
+        - type: error
+          data: ""
+    assertions:
+        noise: []
+    created: 1671361419

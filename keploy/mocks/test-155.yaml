@@ -1,0 +1,385 @@
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-155-0
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext
+        query: '"WITH sub AS ( INSERT INTO subscribers (uuid, email, name, status, attribs) VALUES($1, $2, $3, $4, $5) RETURNING id, status ), listIDs AS ( SELECT id FROM lists WHERE (CASE WHEN CARDINALITY($6::INT[]) > 0 THEN id=ANY($6) ELSE uuid=ANY($7::UUID[]) END) ), subs AS ( INSERT INTO subscriber_lists (subscriber_id, list_id, status) VALUES( (SELECT id FROM sub), UNNEST(ARRAY(SELECT id FROM listIDs)), (CASE WHEN $4=''blocklisted'' THEN ''unsubscribed''::subscription_status ELSE $8::subscription_status END) ) ON CONFLICT (subscriber_id, list_id) DO UPDATE SET updated_at=NOW(), status=( CASE WHEN $4=''blocklisted'' OR (SELECT status FROM sub)=''blocklisted'' THEN ''unsubscribed''::subscription_status ELSE $8::subscription_status END ) ) SELECT id from sub;"'
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-155-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.NumInput
+        type: SQL_DB
+    type: int
+    int: 8
+    error: []
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-155-2
+spec:
+    metadata:
+        arguments: '[{ 1 ef39ddc0-0768-4527-8cf3-e58dc3a44a8c} { 2 rocksarthak45@gmail.com} { 3 Sarthak} { 4 enabled} { 5 [110 117 108 108]} { 6 {}} { 7 {"421cf358-f683-45e7-a427-9ce7d2bf2a9e","7b5f913d-9d75-413e-9a62-9929a3c45a1b"}} { 8 unconfirmed}]'
+        name: SQL
+        operation: QueryContext
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-155-3
+spec:
+    metadata:
+        name: SQL
+        operation: QueryContext.Close
+        type: SQL_DB
+    type: table
+    table:
+        cols:
+            - name: id
+              type: int64
+              precision: 0
+              scale: 0
+        rows:
+            - '[`4` | ]'
+    int: 0
+    error:
+        - nil
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-155-4
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.Close
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-155-5
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext
+        query: '"SELECT * FROM subscribers WHERE CASE WHEN $1 > 0 THEN id = $1 WHEN $2 != '''' THEN uuid = $2::UUID WHEN $3 != '''' THEN email = $3 END;"'
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-155-6
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.NumInput
+        type: SQL_DB
+    type: int
+    int: 3
+    error: []
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-155-7
+spec:
+    metadata:
+        arguments: '[{ 1 4} { 2 <nil>} { 3 rocksarthak45@gmail.com}]'
+        name: SQL
+        operation: QueryContext
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-155-8
+spec:
+    metadata:
+        name: SQL
+        operation: QueryContext.Close
+        type: SQL_DB
+    type: table
+    table:
+        cols:
+            - name: id
+              type: int64
+              precision: 0
+              scale: 0
+            - name: uuid
+              type: '[]uint8'
+              precision: 0
+              scale: 0
+            - name: email
+              type: string
+              precision: 0
+              scale: 0
+            - name: name
+              type: string
+              precision: 0
+              scale: 0
+            - name: attribs
+              type: '[]uint8'
+              precision: 0
+              scale: 0
+            - name: status
+              type: '[]uint8'
+              precision: 0
+              scale: 0
+            - name: created_at
+              type: time.Time
+              precision: 0
+              scale: 0
+            - name: updated_at
+              type: time.Time
+              precision: 0
+              scale: 0
+        rows:
+            - '[`4` | `[101 102 51 57 100 100 99 48 45 48 55 54 56 45 52 53 50 55 45 56 99 102 51 45 101 53 56 100 99 51 97 52 52 97 56 99]` | `rocksarthak45@gmail.com` | `Sarthak` | `[110 117 108 108]` | `[101 110 97 98 108 101 100]` | `"2022-12-22T12:46:38.557437Z"` | `"2022-12-22T12:46:38.557437Z"` | ]'
+            - '[`4` | `[101 102 51 57 100 100 99 48 45 48 55 54 56 45 52 53 50 55 45 56 99 102 51 45 101 53 56 100 99 51 97 52 52 97 56 99]` | `rocksarthak45@gmail.com` | `Sarthak` | `[110 117 108 108]` | `[101 110 97 98 108 101 100]` | `"2022-12-22T12:46:38.557437Z"` | `"2022-12-22T12:46:38.557437Z"` | ]'
+    int: 0
+    error:
+        - nil
+        - EOF
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-155-9
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.Close
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-155-10
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext
+        query: '"WITH subs AS ( SELECT subscriber_id, JSON_AGG( ROW_TO_JSON( (SELECT l FROM (SELECT subscriber_lists.status AS subscription_status, lists.*) l) ) ) AS lists FROM lists LEFT JOIN subscriber_lists ON (subscriber_lists.list_id = lists.id) WHERE subscriber_lists.subscriber_id = ANY($1) GROUP BY subscriber_id ) SELECT id as subscriber_id, COALESCE(s.lists, ''[]'') AS lists FROM (SELECT id FROM UNNEST($1) AS id) x LEFT JOIN subs AS s ON (s.subscriber_id = id) ORDER BY ARRAY_POSITION($1, id);"'
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-155-11
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.NumInput
+        type: SQL_DB
+    type: int
+    int: 1
+    error: []
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-155-12
+spec:
+    metadata:
+        arguments: '[{ 1 {4}}]'
+        name: SQL
+        operation: QueryContext
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-155-13
+spec:
+    metadata:
+        name: SQL
+        operation: QueryContext.Close
+        type: SQL_DB
+    type: table
+    table:
+        cols:
+            - name: subscriber_id
+              type: int64
+              precision: 0
+              scale: 0
+            - name: lists
+              type: '[]uint8'
+              precision: 0
+              scale: 0
+        rows:
+            - '[`4` | `[91 123 34 115 117 98 115 99 114 105 112 116 105 111 110 95 115 116 97 116 117 115 34 58 34 117 110 99 111 110 102 105 114 109 101 100 34 44 34 105 100 34 58 50 44 34 117 117 105 100 34 58 34 55 98 53 102 57 49 51 100 45 57 100 55 53 45 52 49 51 101 45 57 97 54 50 45 57 57 50 57 97 51 99 52 53 97 49 98 34 44 34 110 97 109 101 34 58 34 79 112 116 45 105 110 32 108 105 115 116 34 44 34 116 121 112 101 34 58 34 112 117 98 108 105 99 34 44 34 111 112 116 105 110 34 58 34 100 111 117 98 108 101 34 44 34 116 97 103 115 34 58 91 34 116 101 115 116 34 93 44 34 99 114 101 97 116 101 100 95 97 116 34 58 34 50 48 50 50 45 49 50 45 50 50 84 48 57 58 48 50 58 49 54 46 57 49 53 53 49 51 43 48 48 58 48 48 34 44 34 117 112 100 97 116 101 100 95 97 116 34 58 34 50 48 50 50 45 49 50 45 50 50 84 48 57 58 48 50 58 49 54 46 57 49 53 53 49 51 43 48 48 58 48 48 34 125 44 32 123 34 115 117 98 115 99 114 105 112 116 105 111 110 95 115 116 97 116 117 115 34 58 34 117 110 99 111 110 102 105 114 109 101 100 34 44 34 105 100 34 58 49 44 34 117 117 105 100 34 58 34 52 50 49 99 102 51 53 56 45 102 54 56 51 45 52 53 101 55 45 97 52 50 55 45 57 99 101 55 100 50 98 102 50 97 57 101 34 44 34 110 97 109 101 34 58 34 68 101 102 97 117 108 116 32 108 105 115 116 34 44 34 116 121 112 101 34 58 34 112 117 98 108 105 99 34 44 34 111 112 116 105 110 34 58 34 115 105 110 103 108 101 34 44 34 116 97 103 115 34 58 91 34 116 101 115 116 34 93 44 34 99 114 101 97 116 101 100 95 97 116 34 58 34 50 48 50 50 45 49 50 45 50 50 84 48 57 58 48 50 58 49 54 46 57 49 52 53 55 56 43 48 48 58 48 48 34 44 34 117 112 100 97 116 101 100 95 97 116 34 58 34 50 48 50 50 45 49 50 45 50 50 84 49 48 58 51 50 58 50 55 46 54 51 52 56 50 51 43 48 48 58 48 48 34 125 93]` | ]'
+            - '[`4` | `[91 123 34 115 117 98 115 99 114 105 112 116 105 111 110 95 115 116 97 116 117 115 34 58 34 117 110 99 111 110 102 105 114 109 101 100 34 44 34 105 100 34 58 50 44 34 117 117 105 100 34 58 34 55 98 53 102 57 49 51 100 45 57 100 55 53 45 52 49 51 101 45 57 97 54 50 45 57 57 50 57 97 51 99 52 53 97 49 98 34 44 34 110 97 109 101 34 58 34 79 112 116 45 105 110 32 108 105 115 116 34 44 34 116 121 112 101 34 58 34 112 117 98 108 105 99 34 44 34 111 112 116 105 110 34 58 34 100 111 117 98 108 101 34 44 34 116 97 103 115 34 58 91 34 116 101 115 116 34 93 44 34 99 114 101 97 116 101 100 95 97 116 34 58 34 50 48 50 50 45 49 50 45 50 50 84 48 57 58 48 50 58 49 54 46 57 49 53 53 49 51 43 48 48 58 48 48 34 44 34 117 112 100 97 116 101 100 95 97 116 34 58 34 50 48 50 50 45 49 50 45 50 50 84 48 57 58 48 50 58 49 54 46 57 49 53 53 49 51 43 48 48 58 48 48 34 125 44 32 123 34 115 117 98 115 99 114 105 112 116 105 111 110 95 115 116 97 116 117 115 34 58 34 117 110 99 111 110 102 105 114 109 101 100 34 44 34 105 100 34 58 49 44 34 117 117 105 100 34 58 34 52 50 49 99 102 51 53 56 45 102 54 56 51 45 52 53 101 55 45 97 52 50 55 45 57 99 101 55 100 50 98 102 50 97 57 101 34 44 34 110 97 109 101 34 58 34 68 101 102 97 117 108 116 32 108 105 115 116 34 44 34 116 121 112 101 34 58 34 112 117 98 108 105 99 34 44 34 111 112 116 105 110 34 58 34 115 105 110 103 108 101 34 44 34 116 97 103 115 34 58 91 34 116 101 115 116 34 93 44 34 99 114 101 97 116 101 100 95 97 116 34 58 34 50 48 50 50 45 49 50 45 50 50 84 48 57 58 48 50 58 49 54 46 57 49 52 53 55 56 43 48 48 58 48 48 34 44 34 117 112 100 97 116 101 100 95 97 116 34 58 34 50 48 50 50 45 49 50 45 50 50 84 49 48 58 51 50 58 50 55 46 54 51 52 56 50 51 43 48 48 58 48 48 34 125 93]` | ]'
+    int: 0
+    error:
+        - nil
+        - EOF
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-155-14
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.Close
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-155-15
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext
+        query: '"WITH sub AS ( SELECT id FROM subscribers WHERE CASE WHEN $1 > 0 THEN id = $1 ELSE uuid = $2 END ) SELECT * FROM lists LEFT JOIN subscriber_lists ON (lists.id = subscriber_lists.list_id) WHERE subscriber_id = (SELECT id FROM sub) AND (CASE WHEN CARDINALITY($3::INT[]) > 0 THEN id = ANY($3::INT[]) WHEN CARDINALITY($4::UUID[]) > 0 THEN uuid = ANY($4::UUID[]) ELSE TRUE END) AND (CASE WHEN $5 != '''' THEN subscriber_lists.status = $5::subscription_status END) AND (CASE WHEN $6 != '''' THEN lists.optin = $6::list_optin ELSE TRUE END) ORDER BY id;"'
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-155-16
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.NumInput
+        type: SQL_DB
+    type: int
+    int: 6
+    error: []
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-155-17
+spec:
+    metadata:
+        arguments: '[{ 1 4} { 2 <nil>} { 3 {}} { 4 {}} { 5 unconfirmed} { 6 double}]'
+        name: SQL
+        operation: QueryContext
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-155-18
+spec:
+    metadata:
+        name: SQL
+        operation: QueryContext.Close
+        type: SQL_DB
+    type: table
+    table:
+        cols:
+            - name: id
+              type: int64
+              precision: 0
+              scale: 0
+            - name: uuid
+              type: '[]uint8'
+              precision: 0
+              scale: 0
+            - name: name
+              type: string
+              precision: 0
+              scale: 0
+            - name: type
+              type: '[]uint8'
+              precision: 0
+              scale: 0
+            - name: optin
+              type: '[]uint8'
+              precision: 0
+              scale: 0
+            - name: tags
+              type: '[]uint8'
+              precision: 0
+              scale: 0
+            - name: created_at
+              type: time.Time
+              precision: 0
+              scale: 0
+            - name: updated_at
+              type: time.Time
+              precision: 0
+              scale: 0
+            - name: subscriber_id
+              type: int64
+              precision: 0
+              scale: 0
+            - name: list_id
+              type: int64
+              precision: 0
+              scale: 0
+            - name: status
+              type: '[]uint8'
+              precision: 0
+              scale: 0
+            - name: created_at
+              type: time.Time
+              precision: 0
+              scale: 0
+            - name: updated_at
+              type: time.Time
+              precision: 0
+              scale: 0
+        rows:
+            - '[`2` | `[55 98 53 102 57 49 51 100 45 57 100 55 53 45 52 49 51 101 45 57 97 54 50 45 57 57 50 57 97 51 99 52 53 97 49 98]` | `Opt-in list` | `[112 117 98 108 105 99]` | `[100 111 117 98 108 101]` | `[123 116 101 115 116 125]` | `"2022-12-22T09:02:16.915513Z"` | `"2022-12-22T09:02:16.915513Z"` | `4` | `2` | `[117 110 99 111 110 102 105 114 109 101 100]` | `"2022-12-22T12:46:38.557437Z"` | `"2022-12-22T12:46:38.557437Z"` | ]'
+            - '[`2` | `[55 98 53 102 57 49 51 100 45 57 100 55 53 45 52 49 51 101 45 57 97 54 50 45 57 57 50 57 97 51 99 52 53 97 49 98]` | `Opt-in list` | `[112 117 98 108 105 99]` | `[100 111 117 98 108 101]` | `[123 116 101 115 116 125]` | `"2022-12-22T09:02:16.915513Z"` | `"2022-12-22T09:02:16.915513Z"` | `4` | `2` | `[117 110 99 111 110 102 105 114 109 101 100]` | `"2022-12-22T12:46:38.557437Z"` | `"2022-12-22T12:46:38.557437Z"` | ]'
+    int: 0
+    error:
+        - nil
+        - EOF
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-155-19
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.Close
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil

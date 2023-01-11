@@ -1,6 +1,7 @@
 package bounce
 
 import (
+	"context"
 	"errors"
 	"log"
 	"time"
@@ -34,7 +35,7 @@ type Opt struct {
 	SendgridEnabled bool        `json:"sendgrid_enabled"`
 	SendgridKey     string      `json:"sendgrid_key"`
 
-	RecordBounceCB func(models.Bounce) error
+	RecordBounceCB func(context.Context, models.Bounce) error
 }
 
 // Manager handles e-mail bounces.
@@ -92,7 +93,7 @@ func New(opt Opt, q *Queries, lo *log.Logger) (*Manager, error) {
 
 // Run is a blocking function that listens for bounce events from webhooks and or mailboxes
 // and executes them on the DB.
-func (m *Manager) Run() {
+func (m *Manager) Run(ctx context.Context) {
 	if m.opt.MailboxEnabled {
 		go m.runMailboxScanner()
 	}
@@ -108,7 +109,7 @@ func (m *Manager) Run() {
 				b.CreatedAt = time.Now()
 			}
 
-			if err := m.opt.RecordBounceCB(b); err != nil {
+			if err := m.opt.RecordBounceCB(ctx, b); err != nil {
 				continue
 			}
 		}

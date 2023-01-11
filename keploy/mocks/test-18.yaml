@@ -1,0 +1,209 @@
+version: api.keploy.io/v1beta1
+kind: Generic
+name: test-18-0
+spec:
+    metadata:
+        name: SQL
+        operation: BeginTx
+        options: '{0 true}'
+        type: SQL_DB
+    objects:
+        - type: '*keploy.KError'
+          data: H4sIAAAAAAAA/+L638jKyPS/hYGBgfV/EwMjIyAAAP//ngbw8hEAAAA=
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-18-1
+spec:
+    metadata:
+        arguments: '[{ 1 {}}]'
+        name: SQL
+        operation: QueryContext
+        query: '"SELECT COUNT(*) AS total FROM subscribers LEFT JOIN subscriber_lists ON ( (CASE WHEN CARDINALITY($1::INT[]) > 0 THEN true ELSE false END) AND subscriber_lists.subscriber_id = subscribers.id ) WHERE (CARDINALITY($1) = 0 OR subscriber_lists.list_id = ANY($1::INT[]))  AND subscribers.name LIKE ''%Sarthak%'';"'
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-18-2
+spec:
+    metadata:
+        name: SQL
+        operation: QueryContext.Close
+        type: SQL_DB
+    type: table
+    table:
+        cols:
+            - name: total
+              type: int64
+              precision: 0
+              scale: 0
+        rows:
+            - '[`1` | ]'
+    int: 0
+    error:
+        - nil
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-18-3
+spec:
+    metadata:
+        arguments: '[{ 1 {}} { 2 0} { 3 30}]'
+        name: SQL
+        operation: QueryContext
+        query: '"SELECT subscribers.* FROM subscribers LEFT JOIN subscriber_lists ON ( (CASE WHEN CARDINALITY($1::INT[]) > 0 THEN true ELSE false END) AND subscriber_lists.subscriber_id = subscribers.id ) WHERE (CARDINALITY($1) = 0 OR subscriber_lists.list_id = ANY($1::INT[]))  AND subscribers.name LIKE ''%Sarthak%'' ORDER BY subscribers.id desc OFFSET $2 LIMIT (CASE WHEN $3 = 0 THEN NULL ELSE $3 END);"'
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-18-4
+spec:
+    metadata:
+        name: SQL
+        operation: QueryContext.Close
+        type: SQL_DB
+    type: table
+    table:
+        cols:
+            - name: id
+              type: int64
+              precision: 0
+              scale: 0
+            - name: uuid
+              type: '[]uint8'
+              precision: 0
+              scale: 0
+            - name: email
+              type: string
+              precision: 0
+              scale: 0
+            - name: name
+              type: string
+              precision: 0
+              scale: 0
+            - name: attribs
+              type: '[]uint8'
+              precision: 0
+              scale: 0
+            - name: status
+              type: '[]uint8'
+              precision: 0
+              scale: 0
+            - name: created_at
+              type: time.Time
+              precision: 0
+              scale: 0
+            - name: updated_at
+              type: time.Time
+              precision: 0
+              scale: 0
+        rows:
+            - '[`22` | `[53 55 99 97 101 51 52 52 45 98 51 97 101 45 52 54 56 102 45 56 50 52 101 45 100 98 55 53 97 102 56 56 53 55 53 57]` | `sarthak@keploy.io` | `Sarthak` | `[123 125]` | `[101 110 97 98 108 101 100]` | `"2022-12-16T08:11:38.778558Z"` | `"2022-12-16T08:11:38.778558Z"` | ]'
+            - '[`22` | `[53 55 99 97 101 51 52 52 45 98 51 97 101 45 52 54 56 102 45 56 50 52 101 45 100 98 55 53 97 102 56 56 53 55 53 57]` | `sarthak@keploy.io` | `Sarthak` | `[123 125]` | `[101 110 97 98 108 101 100]` | `"2022-12-16T08:11:38.778558Z"` | `"2022-12-16T08:11:38.778558Z"` | ]'
+    int: 0
+    error:
+        - nil
+        - EOF
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-18-5
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext
+        query: '"WITH subs AS ( SELECT subscriber_id, JSON_AGG( ROW_TO_JSON( (SELECT l FROM (SELECT subscriber_lists.status AS subscription_status, lists.*) l) ) ) AS lists FROM lists LEFT JOIN subscriber_lists ON (subscriber_lists.list_id = lists.id) WHERE subscriber_lists.subscriber_id = ANY($1) GROUP BY subscriber_id ) SELECT id as subscriber_id, COALESCE(s.lists, ''[]'') AS lists FROM (SELECT id FROM UNNEST($1) AS id) x LEFT JOIN subs AS s ON (s.subscriber_id = id) ORDER BY ARRAY_POSITION($1, id);"'
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-18-6
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.NumInput
+        type: SQL_DB
+    type: int
+    int: 1
+    error: []
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-18-7
+spec:
+    metadata:
+        arguments: '[{ 1 {22}}]'
+        name: SQL
+        operation: QueryContext
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-18-8
+spec:
+    metadata:
+        name: SQL
+        operation: QueryContext.Close
+        type: SQL_DB
+    type: table
+    table:
+        cols:
+            - name: subscriber_id
+              type: int64
+              precision: 0
+              scale: 0
+            - name: lists
+              type: '[]uint8'
+              precision: 0
+              scale: 0
+        rows:
+            - '[`22` | `[91 123 34 115 117 98 115 99 114 105 112 116 105 111 110 95 115 116 97 116 117 115 34 58 34 99 111 110 102 105 114 109 101 100 34 44 34 105 100 34 58 49 44 34 117 117 105 100 34 58 34 48 99 101 101 102 50 101 102 45 102 98 54 57 45 52 49 98 56 45 57 48 52 55 45 100 55 101 99 50 100 100 50 54 97 97 55 34 44 34 110 97 109 101 34 58 34 68 101 102 97 117 108 116 32 108 105 115 116 34 44 34 116 121 112 101 34 58 34 112 117 98 108 105 99 34 44 34 111 112 116 105 110 34 58 34 100 111 117 98 108 101 34 44 34 116 97 103 115 34 58 91 34 116 101 115 116 34 44 34 102 102 102 34 93 44 34 99 114 101 97 116 101 100 95 97 116 34 58 34 50 48 50 50 45 49 48 45 50 48 84 48 55 58 51 54 58 49 50 46 51 55 56 49 55 54 43 48 48 58 48 48 34 44 34 117 112 100 97 116 101 100 95 97 116 34 58 34 50 48 50 50 45 49 50 45 49 54 84 48 55 58 52 54 58 48 48 46 52 55 55 50 51 51 43 48 48 58 48 48 34 125 44 32 123 34 115 117 98 115 99 114 105 112 116 105 111 110 95 115 116 97 116 117 115 34 58 34 99 111 110 102 105 114 109 101 100 34 44 34 105 100 34 58 53 44 34 117 117 105 100 34 58 34 48 99 54 50 53 50 98 48 45 102 49 97 102 45 52 98 51 50 45 97 101 52 55 45 53 102 48 48 57 52 56 100 54 52 97 48 34 44 34 110 97 109 101 34 58 34 82 105 116 105 107 34 44 34 116 121 112 101 34 58 34 112 117 98 108 105 99 34 44 34 111 112 116 105 110 34 58 34 115 105 110 103 108 101 34 44 34 116 97 103 115 34 58 110 117 108 108 44 34 99 114 101 97 116 101 100 95 97 116 34 58 34 50 48 50 50 45 49 49 45 48 57 84 48 54 58 53 49 58 49 57 46 53 56 49 50 52 52 43 48 48 58 48 48 34 44 34 117 112 100 97 116 101 100 95 97 116 34 58 34 50 48 50 50 45 49 50 45 49 54 84 49 48 58 53 48 58 50 55 46 54 52 55 50 51 51 43 48 48 58 48 48 34 125 93]` | ]'
+            - '[`22` | `[91 123 34 115 117 98 115 99 114 105 112 116 105 111 110 95 115 116 97 116 117 115 34 58 34 99 111 110 102 105 114 109 101 100 34 44 34 105 100 34 58 49 44 34 117 117 105 100 34 58 34 48 99 101 101 102 50 101 102 45 102 98 54 57 45 52 49 98 56 45 57 48 52 55 45 100 55 101 99 50 100 100 50 54 97 97 55 34 44 34 110 97 109 101 34 58 34 68 101 102 97 117 108 116 32 108 105 115 116 34 44 34 116 121 112 101 34 58 34 112 117 98 108 105 99 34 44 34 111 112 116 105 110 34 58 34 100 111 117 98 108 101 34 44 34 116 97 103 115 34 58 91 34 116 101 115 116 34 44 34 102 102 102 34 93 44 34 99 114 101 97 116 101 100 95 97 116 34 58 34 50 48 50 50 45 49 48 45 50 48 84 48 55 58 51 54 58 49 50 46 51 55 56 49 55 54 43 48 48 58 48 48 34 44 34 117 112 100 97 116 101 100 95 97 116 34 58 34 50 48 50 50 45 49 50 45 49 54 84 48 55 58 52 54 58 48 48 46 52 55 55 50 51 51 43 48 48 58 48 48 34 125 44 32 123 34 115 117 98 115 99 114 105 112 116 105 111 110 95 115 116 97 116 117 115 34 58 34 99 111 110 102 105 114 109 101 100 34 44 34 105 100 34 58 53 44 34 117 117 105 100 34 58 34 48 99 54 50 53 50 98 48 45 102 49 97 102 45 52 98 51 50 45 97 101 52 55 45 53 102 48 48 57 52 56 100 54 52 97 48 34 44 34 110 97 109 101 34 58 34 82 105 116 105 107 34 44 34 116 121 112 101 34 58 34 112 117 98 108 105 99 34 44 34 111 112 116 105 110 34 58 34 115 105 110 103 108 101 34 44 34 116 97 103 115 34 58 110 117 108 108 44 34 99 114 101 97 116 101 100 95 97 116 34 58 34 50 48 50 50 45 49 49 45 48 57 84 48 54 58 53 49 58 49 57 46 53 56 49 50 52 52 43 48 48 58 48 48 34 44 34 117 112 100 97 116 101 100 95 97 116 34 58 34 50 48 50 50 45 49 50 45 49 54 84 49 48 58 53 48 58 50 55 46 54 52 55 50 51 51 43 48 48 58 48 48 34 125 93]` | ]'
+    int: 0
+    error:
+        - nil
+        - EOF
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-18-9
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.Close
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: Generic
+name: test-18-10
+spec:
+    metadata:
+        name: SQL
+        operation: BeginTx.Rollback
+        type: SQL_DB
+    objects:
+        - type: '*keploy.KError'
+          data: H4sIAAAAAAAA/+L638jKyPS/hYGBgfV/EwMjIyAAAP//ngbw8hEAAAA=

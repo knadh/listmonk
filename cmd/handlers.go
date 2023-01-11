@@ -303,7 +303,7 @@ func subscriberExists(next echo.HandlerFunc, params ...string) echo.HandlerFunc 
 			subUUID = c.Param("subUUID")
 		)
 
-		if _, err := app.core.GetSubscriber(0, subUUID, ""); err != nil {
+		if _, err := app.core.GetSubscriber(c.Request().Context(), 0, subUUID, ""); err != nil {
 			if er, ok := err.(*echo.HTTPError); ok && er.Code == http.StatusBadRequest {
 				return c.Render(http.StatusNotFound, tplMessage,
 					makeMsgTpl(app.i18n.T("public.notFoundTitle"), "", er.Message.(string)))

@@ -1,0 +1,49 @@
+version: api.keploy.io/v1beta2
+kind: Http
+name: test-178
+spec:
+    metadata: {}
+    req:
+        method: DELETE
+        proto_major: 1
+        proto_minor: 1
+        url: /api/maintenance/subscribers/orphan
+        header:
+            Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8
+            Accept-Encoding: gzip, deflate, br
+            Authorization: Basic bGlzdG1vbms6bGlzdG1vbms=
+            Connection: keep-alive
+            Content-Length: "186"
+            Content-Type: multipart/form-data; boundary=--------------------------955410225211689484999325
+            Cookie: connect.sid=s%3AdxWsE0jhYYsXQwFQKZJhtK_5Jli7MPB1.Wjbj0YQ3J7yJE1Zx21NQAWPtrz1f8i73j9FAnlvbrSg
+            Postman-Token: 8436a736-6c7a-435d-a167-5ebb65e44ad9
+            Sec-Fetch-Dest: iframe
+            Sec-Fetch-Mode: navigate
+            Sec-Fetch-Site: same-origin
+            Sec-Gpc: '"1"'
+            Upgrade-Insecure-Requests: '"1"'
+        body: LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLTk1NTQxMDIyNTIxMTY4OTQ4NDk5OTMyNQ0KQ29udGVudC1EaXNwb3NpdGlvbjogZm9ybS1kYXRhOyBuYW1lPSJiZWZvcmVfZGF0ZSINCg0KMjAyMi0xMi0yOFQwNTowNDowNVoNCi0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS05NTU0MTAyMjUyMTE2ODk0ODQ5OTkzMjUtLQ0K
+        body_type: ""
+    resp:
+        status_code: 200
+        header:
+            Content-Type: application/json; charset=UTF-8
+        body: |
+            {"data":{"count":0}}
+        body_type: ""
+        status_message: ""
+        proto_major: 1
+        proto_minor: 1
+    objects:
+        - type: error
+          data: ""
+    mocks:
+        - test-178-0
+        - test-178-1
+        - test-178-2
+        - test-178-3
+        - test-178-4
+        - test-178-5
+    assertions:
+        noise: []
+    created: 1672220836

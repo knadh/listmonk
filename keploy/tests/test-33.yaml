@@ -1,0 +1,59 @@
+version: api.keploy.io/v1beta2
+kind: Http
+name: test-33
+spec:
+    metadata: {}
+    req:
+        method: GET
+        proto_major: 1
+        proto_minor: 1
+        url: /api/subscribers/export
+        header:
+            Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8
+            Accept-Encoding: gzip, deflate, br
+            Authorization: Basic bGlzdG1vbms6bGlzdG1vbms=
+            Connection: keep-alive
+            Content-Length: "37"
+            Content-Type: application/json
+            Cookie: connect.sid=s%3AdxWsE0jhYYsXQwFQKZJhtK_5Jli7MPB1.Wjbj0YQ3J7yJE1Zx21NQAWPtrz1f8i73j9FAnlvbrSg
+            Postman-Token: 309bebc8-10d8-4ad9-a820-3139f8ca3854
+            Sec-Fetch-Dest: iframe
+            Sec-Fetch-Mode: navigate
+            Sec-Fetch-Site: same-origin
+            Sec-Gpc: '"1"'
+            Upgrade-Insecure-Requests: '"1"'
+        body: '{"email":"jain.ritik.1001@gmail.com"}'
+        body_type: ""
+    resp:
+        status_code: 200
+        header:
+            Cache-Control: no-cache
+            Content-Disposition: attachment; filename=subscribers.csv
+            Content-Encoding: gzip
+            Content-Transfer-Encoding: binary
+            Content-Type: text/csv
+            Vary: Accept-Encoding
+        body: "\x1F�\b\0\0\0\0\0\x02�|��j�0\x10F�~\n��F�~G�*p�����ȖS�q\x1Cl����{\tMiiCv�ǁ9�R�^��ǃ8��\x04缎�䴉-s.����9�w�E9����\x03EJހWڃ5���\r`�\x19�\x18�\tV엲���.O�������2�S�y\x15/�\"\x1D9\x1ER/4j\rJ\x0165���Vyi���\x7F!\"����� \x1AT��j\r��H��i�\tU�:N�Z��\x13X\x1F\x06\b�&�#9\x1EBp�\x1A����y�M�tX�师���O#\r��\x18��� ��s���\r�B݅�\"A\x1C\x1A\x04\e�\x01\x18YCO&�!����\x03�G��y��BT_��9�W�>B\x18��ѭT߉�-\0\0��9D\x1E��\x01\0\0"
+        body_type: ""
+        status_message: ""
+        proto_major: 1
+        proto_minor: 1
+    objects:
+        - type: error
+          data: ""
+    mocks:
+        - test-33-0
+        - test-33-1
+        - test-33-2
+        - test-33-3
+        - test-33-4
+        - test-33-5
+        - test-33-6
+        - test-33-7
+        - test-33-8
+        - test-33-9
+        - test-33-10
+        - test-33-11
+    assertions:
+        noise: []
+    created: 1671389714

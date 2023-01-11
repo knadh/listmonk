@@ -1,0 +1,271 @@
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-77-0
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext
+        query: '"SELECT campaigns.*, COALESCE(templates.body, (SELECT body FROM templates WHERE is_default = true LIMIT 1)) AS template_body FROM campaigns LEFT JOIN templates ON ( CASE WHEN $3 = ''default'' THEN templates.id = campaigns.template_id ELSE templates.id = campaigns.archive_template_id END ) WHERE CASE WHEN $1 > 0 THEN campaigns.id = $1 ELSE uuid = $2 END;"'
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-77-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.NumInput
+        type: SQL_DB
+    type: int
+    int: 3
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-77-2
+spec:
+    metadata:
+        arguments: '[{ 1 3} { 2 <nil>} { 3 default}]'
+        name: SQL
+        operation: QueryContext
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-77-3
+spec:
+    metadata:
+        name: SQL
+        operation: QueryContext.Close
+        type: SQL_DB
+    type: table
+    table:
+        cols:
+            - name: id
+              type: int64
+              precision: 0
+              scale: 0
+            - name: uuid
+              type: '[]uint8'
+              precision: 0
+              scale: 0
+            - name: name
+              type: string
+              precision: 0
+              scale: 0
+            - name: subject
+              type: string
+              precision: 0
+              scale: 0
+            - name: from_email
+              type: string
+              precision: 0
+              scale: 0
+            - name: body
+              type: string
+              precision: 0
+              scale: 0
+            - name: altbody
+              type: <nil>
+              precision: 0
+              scale: 0
+            - name: content_type
+              type: '[]uint8'
+              precision: 0
+              scale: 0
+            - name: send_at
+              type: <nil>
+              precision: 0
+              scale: 0
+            - name: headers
+              type: '[]uint8'
+              precision: 0
+              scale: 0
+            - name: status
+              type: '[]uint8'
+              precision: 0
+              scale: 0
+            - name: tags
+              type: <nil>
+              precision: 0
+              scale: 0
+            - name: type
+              type: '[]uint8'
+              precision: 0
+              scale: 0
+            - name: messenger
+              type: string
+              precision: 0
+              scale: 0
+            - name: template_id
+              type: int64
+              precision: 0
+              scale: 0
+            - name: to_send
+              type: int64
+              precision: 0
+              scale: 0
+            - name: sent
+              type: int64
+              precision: 0
+              scale: 0
+            - name: max_subscriber_id
+              type: int64
+              precision: 0
+              scale: 0
+            - name: last_subscriber_id
+              type: int64
+              precision: 0
+              scale: 0
+            - name: archive
+              type: bool
+              precision: 0
+              scale: 0
+            - name: archive_template_id
+              type: int64
+              precision: 0
+              scale: 0
+            - name: archive_meta
+              type: '[]uint8'
+              precision: 0
+              scale: 0
+            - name: started_at
+              type: time.Time
+              precision: 0
+              scale: 0
+            - name: created_at
+              type: time.Time
+              precision: 0
+              scale: 0
+            - name: updated_at
+              type: time.Time
+              precision: 0
+              scale: 0
+            - name: template_body
+              type: string
+              precision: 0
+              scale: 0
+        rows:
+            - "[`3` | `[50 101 101 97 101 49 50 55 45 52 52 48 101 45 52 102 50 100 45 97 55 50 52 45 52 57 101 52 51 53 100 54 99 99 50 56]` | `qwertt2` | `keploy` | `ritik@keploy.io` | `` | `<nil>` | `[114 105 99 104 116 101 120 116]` | `<nil>` | `[91 93]` | `[102 105 110 105 115 104 101 100]` | `<nil>` | `[114 101 103 117 108 97 114]` | `email` | `1` | `1` | `1` | `1` | `1` | `false` | `1` | `[123 125]` | `\"2023-01-09T08:10:46.533011Z\"` | `\"2023-01-09T08:06:49.412158Z\"` | `\"2023-01-09T08:10:46.650564Z\"` | `<!doctype html>\n<html>\n    <head>\n        <title>{{ .Campaign.Subject }}</title>\n        <meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\">\n        <meta name=\"viewport\" content=\"width=device-width, initial-scale=1, minimum-scale=1\">\n        <base target=\"_blank\">\n        <style>\n            body {\n                background-color: #F0F1F3;\n                font-family: 'Helvetica Neue', 'Segoe UI', Helvetica, sans-serif;\n                font-size: 15px;\n                line-height: 26px;\n                margin: 0;\n                color: #444;\n            }\n\n            pre {\n                background: #f4f4f4f4;\n                padding: 2px;\n            }\n\n            table {\n                width: 100%;\n                border: 1px solid #ddd;\n            }\n            table td {\n                border-color: #ddd;\n                padding: 5px;\n            }\n\n            .wrap {\n                background-color: #fff;\n                padding: 30px;\n                max-width: 525px;\n                margin: 0 auto;\n                border-radius: 5px;\n            }\n\n            .button {\n                background: #0055d4;\n                border-radius: 3px;\n                text-decoration: none !important;\n                color: #fff !important;\n                font-weight: bold;\n                padding: 10px 30px;\n                display: inline-block;\n            }\n            .button:hover {\n                background: #111;\n            }\n\n            .footer {\n                text-align: center;\n                font-size: 12px;\n                color: #888;\n            }\n                .footer a {\n                    color: #888;\n                    margin-right: 5px;\n                }\n\n            .gutter {\n                padding: 30px;\n            }\n\n            img {\n                max-width: 100%;\n                height: auto;\n            }\n\n            a {\n                color: #0055d4;\n            }\n                a:hover {\n                    color: #111;\n                }\n            @media screen and (max-width: 600px) {\n                .wrap {\n                    max-width: auto;\n                }\n                .gutter {\n                    padding: 10px;\n                }\n            }\n        </style>\n    </head>\n<body style=\"background-color: #F0F1F3;font-family: 'Helvetica Neue', 'Segoe UI', Helvetica, sans-serif;font-size: 15px;line-height: 26px;margin: 0;color: #444;\">\n    <div class=\"gutter\" style=\"padding: 30px;\">&nbsp;</div>\n    <div class=\"wrap\" style=\"background-color: #fff;padding: 30px;max-width: 525px;margin: 0 auto;border-radius: 5px;\">\n        {{ template \"content\" . }}\n    </div>\n    \n    <div class=\"footer\" style=\"text-align: center;font-size: 12px;color: #888;\">\n        <p>\n            {{ L.T \"email.unsubHelp\" }}\n            <a href=\"{{ UnsubscribeURL }}\" style=\"color: #888;\">{{ L.T \"email.unsub\" }}</a>\n            <a href=\"{{ MessageURL }}\" style=\"color: #888;\">{{ L.T \"email.viewInBrowser\" }}</a>\n        </p>\n        <p>Powered by <a href=\"https://listmonk.app\" target=\"_blank\" style=\"color: #888;\">listmonk</a></p>\n    </div>\n    <div class=\"gutter\" style=\"padding: 30px;\">&nbsp;{{ TrackView }}</div>\n</body>\n</html>\n` | ]"
+            - "[`3` | `[50 101 101 97 101 49 50 55 45 52 52 48 101 45 52 102 50 100 45 97 55 50 52 45 52 57 101 52 51 53 100 54 99 99 50 56]` | `qwertt2` | `keploy` | `ritik@keploy.io` | `` | `<nil>` | `[114 105 99 104 116 101 120 116]` | `<nil>` | `[91 93]` | `[102 105 110 105 115 104 101 100]` | `<nil>` | `[114 101 103 117 108 97 114]` | `email` | `1` | `1` | `1` | `1` | `1` | `false` | `1` | `[123 125]` | `\"2023-01-09T08:10:46.533011Z\"` | `\"2023-01-09T08:06:49.412158Z\"` | `\"2023-01-09T08:10:46.650564Z\"` | `<!doctype html>\n<html>\n    <head>\n        <title>{{ .Campaign.Subject }}</title>\n        <meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\">\n        <meta name=\"viewport\" content=\"width=device-width, initial-scale=1, minimum-scale=1\">\n        <base target=\"_blank\">\n        <style>\n            body {\n                background-color: #F0F1F3;\n                font-family: 'Helvetica Neue', 'Segoe UI', Helvetica, sans-serif;\n                font-size: 15px;\n                line-height: 26px;\n                margin: 0;\n                color: #444;\n            }\n\n            pre {\n                background: #f4f4f4f4;\n                padding: 2px;\n            }\n\n            table {\n                width: 100%;\n                border: 1px solid #ddd;\n            }\n            table td {\n                border-color: #ddd;\n                padding: 5px;\n            }\n\n            .wrap {\n                background-color: #fff;\n                padding: 30px;\n                max-width: 525px;\n                margin: 0 auto;\n                border-radius: 5px;\n            }\n\n            .button {\n                background: #0055d4;\n                border-radius: 3px;\n                text-decoration: none !important;\n                color: #fff !important;\n                font-weight: bold;\n                padding: 10px 30px;\n                display: inline-block;\n            }\n            .button:hover {\n                background: #111;\n            }\n\n            .footer {\n                text-align: center;\n                font-size: 12px;\n                color: #888;\n            }\n                .footer a {\n                    color: #888;\n                    margin-right: 5px;\n                }\n\n            .gutter {\n                padding: 30px;\n            }\n\n            img {\n                max-width: 100%;\n                height: auto;\n            }\n\n            a {\n                color: #0055d4;\n            }\n                a:hover {\n                    color: #111;\n                }\n            @media screen and (max-width: 600px) {\n                .wrap {\n                    max-width: auto;\n                }\n                .gutter {\n                    padding: 10px;\n                }\n            }\n        </style>\n    </head>\n<body style=\"background-color: #F0F1F3;font-family: 'Helvetica Neue', 'Segoe UI', Helvetica, sans-serif;font-size: 15px;line-height: 26px;margin: 0;color: #444;\">\n    <div class=\"gutter\" style=\"padding: 30px;\">&nbsp;</div>\n    <div class=\"wrap\" style=\"background-color: #fff;padding: 30px;max-width: 525px;margin: 0 auto;border-radius: 5px;\">\n        {{ template \"content\" . }}\n    </div>\n    \n    <div class=\"footer\" style=\"text-align: center;font-size: 12px;color: #888;\">\n        <p>\n            {{ L.T \"email.unsubHelp\" }}\n            <a href=\"{{ UnsubscribeURL }}\" style=\"color: #888;\">{{ L.T \"email.unsub\" }}</a>\n            <a href=\"{{ MessageURL }}\" style=\"color: #888;\">{{ L.T \"email.viewInBrowser\" }}</a>\n        </p>\n        <p>Powered by <a href=\"https://listmonk.app\" target=\"_blank\" style=\"color: #888;\">listmonk</a></p>\n    </div>\n    <div class=\"gutter\" style=\"padding: 30px;\">&nbsp;{{ TrackView }}</div>\n</body>\n</html>\n` | ]"
+    int: 0
+    error:
+        - nil
+        - EOF
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-77-4
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.Close
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-77-5
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext
+        query: '"WITH lists AS ( SELECT campaign_id, JSON_AGG(JSON_BUILD_OBJECT(''id'', list_id, ''name'', list_name)) AS lists FROM campaign_lists WHERE campaign_id = ANY($1) GROUP BY campaign_id ), views AS ( SELECT campaign_id, COUNT(campaign_id) as num FROM campaign_views WHERE campaign_id = ANY($1) GROUP BY campaign_id ), clicks AS ( SELECT campaign_id, COUNT(campaign_id) as num FROM link_clicks WHERE campaign_id = ANY($1) GROUP BY campaign_id ), bounces AS ( SELECT campaign_id, COUNT(campaign_id) as num FROM bounces WHERE campaign_id = ANY($1) GROUP BY campaign_id ) SELECT id as campaign_id, COALESCE(v.num, 0) AS views, COALESCE(c.num, 0) AS clicks, COALESCE(b.num, 0) AS bounces, COALESCE(l.lists, ''[]'') AS lists FROM (SELECT id FROM UNNEST($1) AS id) x LEFT JOIN lists AS l ON (l.campaign_id = id) LEFT JOIN views AS v ON (v.campaign_id = id) LEFT JOIN clicks AS c ON (c.campaign_id = id) LEFT JOIN bounces AS b ON (b.campaign_id = id) ORDER BY ARRAY_POSITION($1, id);"'
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-77-6
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.NumInput
+        type: SQL_DB
+    type: int
+    int: 1
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-77-7
+spec:
+    metadata:
+        arguments: '[{ 1 {3}}]'
+        name: SQL
+        operation: QueryContext
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-77-8
+spec:
+    metadata:
+        name: SQL
+        operation: QueryContext.Close
+        type: SQL_DB
+    type: table
+    table:
+        cols:
+            - name: campaign_id
+              type: int64
+              precision: 0
+              scale: 0
+            - name: views
+              type: int64
+              precision: 0
+              scale: 0
+            - name: clicks
+              type: int64
+              precision: 0
+              scale: 0
+            - name: bounces
+              type: int64
+              precision: 0
+              scale: 0
+            - name: lists
+              type: '[]uint8'
+              precision: 0
+              scale: 0
+        rows:
+            - '[`3` | `0` | `0` | `0` | `[91 123 34 105 100 34 32 58 32 49 44 32 34 110 97 109 101 34 32 58 32 34 68 101 102 97 117 108 116 32 108 105 115 116 34 125 93]` | ]'
+            - '[`3` | `0` | `0` | `0` | `[91 123 34 105 100 34 32 58 32 49 44 32 34 110 97 109 101 34 32 58 32 34 68 101 102 97 117 108 116 32 108 105 115 116 34 125 93]` | ]'
+    int: 0
+    error:
+        - nil
+        - EOF
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-77-9
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.Close
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil

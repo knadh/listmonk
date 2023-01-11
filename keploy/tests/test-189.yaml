@@ -1,0 +1,49 @@
+version: api.keploy.io/v1beta2
+kind: Http
+name: test-189
+spec:
+    metadata: {}
+    req:
+        method: GET
+        proto_major: 1
+        proto_minor: 1
+        url: /api/campaigns?page=1&query=&order_by=created_at&order=desc
+        header:
+            Accept: application/json, text/plain, */*
+            Accept-Encoding: gzip, deflate, br
+            Accept-Language: en-GB,en
+            Authorization: Basic bGlzdG1vbms6bGlzdG1vbms=
+            Connection: keep-alive
+            Cookie: connect.sid=s%3AdxWsE0jhYYsXQwFQKZJhtK_5Jli7MPB1.Wjbj0YQ3J7yJE1Zx21NQAWPtrz1f8i73j9FAnlvbrSg
+            Referer: http://localhost:9000/admin/campaigns
+            Sec-Fetch-Dest: empty
+            Sec-Fetch-Mode: cors
+            Sec-Fetch-Site: same-origin
+            Sec-Gpc: "1"
+            User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36
+        body: ""
+        body_type: ""
+    resp:
+        status_code: 200
+        header:
+            Content-Type: application/json; charset=UTF-8
+        body: |
+            {"data":{"results":[{"id":2,"created_at":"2022-12-28T10:13:02.138276Z","updated_at":"2022-12-28T10:15:39.079876Z","views":0,"clicks":0,"bounces":0,"lists":[{"id":1,"name":"Default list"}],"started_at":"2022-12-28T10:15:38.722532Z","to_send":1,"sent":1,"uuid":"d8461f53-58aa-49c8-a3ec-826039279863","type":"regular","name":"User-interview","subject":"test coverage","from_email":"ritik@keploy.io","body":"\u003cp\u003eGreeting everyone, Starting the program to get user feedback. Please join the event at 26-Jan 5:00pm.\u003c/p\u003e","altbody":null,"send_at":null,"status":"finished","content_type":"richtext","tags":[],"headers":[],"template_id":1,"messenger":"email","archive":false,"archive_template_id":0,"archive_meta":null},{"id":1,"created_at":"2022-12-27T11:03:00.58117Z","updated_at":"2022-12-27T11:03:00.58117Z","views":0,"clicks":0,"bounces":0,"lists":[{"id":1,"name":"Default list"}],"started_at":null,"to_send":0,"sent":0,"uuid":"735dd8cc-f50a-4805-80e4-ea6bcc5d29af","type":"regular","name":"Test campaign","subject":"Welcome to listmonk","from_email":"No Reply \u003cnoreply@yoursite.com\u003e","body":"\u003ch3\u003eHi {{ .Subscriber.FirstName }}!\u003c/h3\u003e\n\t\t\u003cp\u003eThis is a test e-mail campaign. Your second name is {{ .Subscriber.LastName }} and you are from {{ .Subscriber.Attribs.city }}.\u003c/p\u003e\n\t\t\u003cp\u003eHere is a \u003ca href=\"https://listmonk.app@TrackLink\"\u003etracked link\u003c/a\u003e.\u003c/p\u003e\n\t\t\u003cp\u003eUse the link icon in the editor toolbar or when writing raw HTML or Markdown,\n\t\t\tsimply suffix @TrackLink to the end of a URL to turn it into a tracking link. Example:\u003c/p\u003e\n\t\t\u003cpre\u003e\u0026lt;a href=\u0026quot;https:/\u0026zwnj;/listmonk.app\u0026#064;TrackLink\u0026quot;\u0026gt;\u0026lt;/a\u0026gt;\u003c/pre\u003e\n\t\t\u003cp\u003eFor help, refer to the \u003ca href=\"https://listmonk.app/docs\"\u003edocumentation\u003c/a\u003e.\u003c/p\u003e\n\t\t","altbody":null,"send_at":null,"status":"draft","content_type":"richtext","tags":["test-campaign"],"headers":[],"template_id":1,"messenger":"email","archive":false,"archive_template_id":0,"archive_meta":null}],"query":"","total":2,"per_page":20,"page":1}}
+        body_type: ""
+        status_message: ""
+        proto_major: 1
+        proto_minor: 1
+    objects:
+        - type: error
+          data: ""
+    mocks:
+        - test-189-0
+        - test-189-1
+        - test-189-2
+        - test-189-3
+        - test-189-4
+        - test-189-5
+        - test-189-6
+    assertions:
+        noise: []
+    created: 1672222540

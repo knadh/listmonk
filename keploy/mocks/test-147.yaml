@@ -1,0 +1,80 @@
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-147-0
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext
+        query: '"WITH view AS ( SELECT campaigns.id as campaign_id, subscribers.id AS subscriber_id FROM campaigns LEFT JOIN subscribers ON (CASE WHEN $2::TEXT != '''' THEN subscribers.uuid = $2::UUID ELSE FALSE END) WHERE campaigns.uuid = $1 ) INSERT INTO campaign_views (campaign_id, subscriber_id) VALUES((SELECT campaign_id FROM view), (SELECT subscriber_id FROM view));"'
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-147-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.NumInput
+        type: SQL_DB
+    type: int
+    int: 2
+    error: []
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-147-2
+spec:
+    metadata:
+        arguments: '[{ 1 e6152472-56ca-4e3e-b086-ea8bfb70c0c3} { 2 }]'
+        name: SQL
+        operation: ExecContext
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-147-3
+spec:
+    metadata:
+        arguments: '[{ 1 e6152472-56ca-4e3e-b086-ea8bfb70c0c3} { 2 }]'
+        name: SQL
+        operation: ExecContext.LastInsertId
+        type: SQL_DB
+    type: int
+    int: 0
+    error:
+        - LastInsertId is not supported by this driver
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-147-4
+spec:
+    metadata:
+        arguments: '[{ 1 e6152472-56ca-4e3e-b086-ea8bfb70c0c3} { 2 }]'
+        name: SQL
+        operation: ExecContext.RowsAffected
+        type: SQL_DB
+    type: int
+    int: 1
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-147-5
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.Close
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil

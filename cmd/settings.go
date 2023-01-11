@@ -27,7 +27,7 @@ var (
 func handleGetSettings(c echo.Context) error {
 	app := c.Get("app").(*App)
 
-	s, err := app.core.GetSettings()
+	s, err := app.core.GetSettings(c.Request().Context())
 	if err != nil {
 		return err
 	}
@@ -61,7 +61,7 @@ func handleUpdateSettings(c echo.Context) error {
 	}
 
 	// Get the existing settings.
-	cur, err := app.core.GetSettings()
+	cur, err := app.core.GetSettings(c.Request().Context())
 	if err != nil {
 		return err
 	}
@@ -170,7 +170,7 @@ func handleUpdateSettings(c echo.Context) error {
 	set.DomainBlocklist = doms
 
 	// Update the settings in the DB.
-	if err := app.core.UpdateSettings(set); err != nil {
+	if err := app.core.UpdateSettings(c.Request().Context(), set); err != nil {
 		return err
 	}
 

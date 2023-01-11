@@ -1,0 +1,17 @@
+CGO_ENABLED=0 go build -o listmonk -ldflags="-s -w -X 'main.buildString="v0.0.0" (#54f5d27 2023-01-11T06:12:22+0000)' -X 'main.versionString="v0.0.0"' -X 'main.frontendDir=frontend/dist'" cmd/*.go
+./listmonk
+
+💡⚡️ Keploy created new mocking context in off mode  for listmonk-app-1.
+ If you dont see any logs about your dependencies below, your dependency/s are NOT wrapped.
+2023/01/11 11:42:25 main.go:140: v0.0.0 (#54f5d27 2023-01-11T06:12:22+0000)
+2023/01/11 11:42:25 init.go:143: reading config: config.toml
+2023/01/11 11:42:25 init.go:286: connecting to db: localhost:9432/listmonk
+2023/01/11 11:42:25 init.go:199: unable to initialize embedded filesystem (no ID found in the file). Using local filesystem
+2023/01/11 11:42:25 init.go:221: loading i18n files from: i18n
+2023/01/11 11:42:25 init.go:230: loading static files from: static
+ Called ExecContext with mode:  off
+mode in main init: off
+2023/01/11 11:42:25 init.go:605: media upload provider: filesystem
+2023/01/11 11:42:25 bounce.go:84: error initializing sendgrid webhooks: asn1: structure error: tags don't match (16 vs {class:2 tag:22 length:43 isCompound:false}) {optional:false explicit:false application:false private:false defaultValue:<nil> tag:<nil> stringType:0 timeType:0 set:false omitEmpty:false} publicKeyInfo @2
+2023/01/11 11:42:25 init.go:529: loaded email (SMTP) messenger: username@smtp.yoursite.com
+⇨ http server started on 127.0.0.1:9000

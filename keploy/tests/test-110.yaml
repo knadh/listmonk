@@ -1,0 +1,46 @@
+version: api.keploy.io/v1beta2
+kind: Http
+name: test-110
+spec:
+    metadata: {}
+    req:
+        method: GET
+        proto_major: 1
+        proto_minor: 1
+        url: /api/public/lists
+        header:
+            Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8
+            Accept-Encoding: gzip, deflate, br
+            Authorization: Basic bGlzdG1vbms6bGlzdG1vbms=
+            Connection: keep-alive
+            Cookie: connect.sid=s%3AdxWsE0jhYYsXQwFQKZJhtK_5Jli7MPB1.Wjbj0YQ3J7yJE1Zx21NQAWPtrz1f8i73j9FAnlvbrSg
+            Postman-Token: b5cd695a-0b41-4572-a73b-2185764d9df5
+            Sec-Fetch-Dest: iframe
+            Sec-Fetch-Mode: navigate
+            Sec-Fetch-Site: same-origin
+            Sec-Gpc: '"1"'
+            Upgrade-Insecure-Requests: '"1"'
+        body: ""
+        body_type: ""
+    resp:
+        status_code: 200
+        header:
+            Content-Type: application/json; charset=UTF-8
+        body: |
+            [{"uuid":"0ceef2ef-fb69-41b8-9047-d7ec2dd26aa7","name":"Default list"},{"uuid":"0c6252b0-f1af-4b32-ae47-5f00948d64a0","name":"Ritik"},{"uuid":"21915090-6dce-40ed-b682-0ce419f0125a","name":"Sarthak"},{"uuid":"f79a73f7-1687-4951-adbf-3cfa79e7b9ad","name":"qwerty"},{"uuid":"f3d33c9c-f214-4006-8f13-9fe9ca5cabb1","name":"poiuyt"}]
+        body_type: ""
+        status_message: ""
+        proto_major: 1
+        proto_minor: 1
+    objects:
+        - type: error
+          data: ""
+    mocks:
+        - test-110-0
+        - test-110-1
+        - test-110-2
+        - test-110-3
+        - test-110-4
+    assertions:
+        noise: []
+    created: 1671394190

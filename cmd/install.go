@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -17,7 +18,7 @@ import (
 
 // install runs the first time setup of creating and
 // migrating the database and creating the super user.
-func install(lastVer string, db *sqlx.DB, fs stuffbin.FileSystem, prompt, idempotent bool) {
+func install(ctx context.Context, lastVer string, db *sqlx.DB, fs stuffbin.FileSystem, prompt, idempotent bool) {
 	qMap := readQueries(queryFilePath, db, fs)
 
 	fmt.Println("")
@@ -44,7 +45,7 @@ func install(lastVer string, db *sqlx.DB, fs stuffbin.FileSystem, prompt, idempo
 
 	// If idempotence is on, check if the DB is already setup.
 	if idempotent {
-		if _, err := db.Exec("SELECT count(*) FROM settings"); err != nil {
+		if _, err := db.ExecContext(ctx, "SELECT count(*) FROM settings"); err != nil {
 			// If "settings" doesn't exist, assume it's a fresh install.
 			if pqErr, ok := err.(*pq.Error); ok && pqErr.Code != "42P01" {
 				lo.Fatalf("error checking existing DB schema: %v", err)
@@ -56,19 +57,19 @@ func install(lastVer string, db *sqlx.DB, fs stuffbin.FileSystem, prompt, idempo
 	}
 
 	// Migrate the tables.
-	if err := installSchema(lastVer, db, fs); err != nil {
+	if err := installSchema(ctx, lastVer, db, fs); err != nil {
 		lo.Fatalf("error migrating DB schema: %v", err)
 	}
 
 	// Load the queries.
-	q := prepareQueries(qMap, db, ko)
+	q := prepareQueries(ctx, qMap, db, ko)
 
 	// Sample list.
 	var (
 		defList   int
 		optinList int
 	)
-	if err := q.CreateList.Get(&defList,
+	if err := q.CreateList.GetContext(ctx, &defList,
 		uuid.Must(uuid.NewV4()),
 		"Default list",
 		models.ListTypePrivate,
@@ -79,7 +80,7 @@ func install(lastVer string, db *sqlx.DB, fs stuffbin.FileSystem, prompt, idempo
 		lo.Fatalf("error creating list: %v", err)
 	}
 
-	if err := q.CreateList.Get(&optinList, uuid.Must(uuid.NewV4()),
+	if err := q.CreateList.GetContext(ctx, &optinList, uuid.Must(uuid.NewV4()),
 		"Opt-in list",
 		models.ListTypePublic,
 		models.ListOptinDouble,
@@ -90,7 +91,7 @@ func install(lastVer string, db *sqlx.DB, fs stuffbin.FileSystem, prompt, idempo
 	}
 
 	// Sample subscriber.
-	if _, err := q.UpsertSubscriber.Exec(
+	if _, err := q.UpsertSubscriber.ExecContext(ctx,
 		uuid.Must(uuid.NewV4()),
 		"john@example.com",
 		"John Doe",
@@ -100,7 +101,7 @@ func install(lastVer string, db *sqlx.DB, fs stuffbin.FileSystem, prompt, idempo
 		true); err != nil {
 		lo.Fatalf("Error creating subscriber: %v", err)
 	}
-	if _, err := q.UpsertSubscriber.Exec(
+	if _, err := q.UpsertSubscriber.ExecContext(ctx,
 		uuid.Must(uuid.NewV4()),
 		"anon@example.com",
 		"Anon Doe",
@@ -118,10 +119,10 @@ func install(lastVer string, db *sqlx.DB, fs stuffbin.FileSystem, prompt, idempo
 	}
 
 	var campTplID int
-	if err := q.CreateTemplate.Get(&campTplID, "Default campaign template", models.TemplateTypeCampaign, "", campTpl.ReadBytes()); err != nil {
+	if err := q.CreateTemplate.GetContext(ctx, &campTplID, "Default campaign template", models.TemplateTypeCampaign, "", campTpl.ReadBytes()); err != nil {
 		lo.Fatalf("error creating default campaign template: %v", err)
 	}
-	if _, err := q.SetDefaultTemplate.Exec(campTplID); err != nil {
+	if _, err := q.SetDefaultTemplate.ExecContext(ctx, campTplID); err != nil {
 		lo.Fatalf("error setting default template: %v", err)
 	}
 
@@ -137,7 +138,7 @@ func install(lastVer string, db *sqlx.DB, fs stuffbin.FileSystem, prompt, idempo
 	}
 
 	// Sample campaign.
-	if _, err := q.CreateCampaign.Exec(uuid.Must(uuid.NewV4()),
+	if _, err := q.CreateCampaign.ExecContext(ctx, uuid.Must(uuid.NewV4()),
 		models.CampaignTypeRegular,
 		"Test campaign",
 		"Welcome to listmonk",
@@ -171,7 +172,7 @@ func install(lastVer string, db *sqlx.DB, fs stuffbin.FileSystem, prompt, idempo
 		lo.Fatalf("error reading default e-mail template: %v", err)
 	}
 
-	if _, err := q.CreateTemplate.Exec("Sample transactional template", models.TemplateTypeTx, "Welcome {{ .Subscriber.Name }}", txTpl.ReadBytes()); err != nil {
+	if _, err := q.CreateTemplate.ExecContext(ctx, "Sample transactional template", models.TemplateTypeTx, "Welcome {{ .Subscriber.Name }}", txTpl.ReadBytes()); err != nil {
 		lo.Fatalf("error creating sample transactional template: %v", err)
 	}
 
@@ -180,24 +181,24 @@ func install(lastVer string, db *sqlx.DB, fs stuffbin.FileSystem, prompt, idempo
 }
 
 // installSchema executes the SQL schema and creates the necessary tables and types.
-func installSchema(curVer string, db *sqlx.DB, fs stuffbin.FileSystem) error {
+func installSchema(ctx context.Context, curVer string, db *sqlx.DB, fs stuffbin.FileSystem) error {
 	q, err := fs.Read("/schema.sql")
 	if err != nil {
 		return err
 	}
 
-	if _, err := db.Exec(string(q)); err != nil {
+	if _, err := db.ExecContext(ctx, string(q)); err != nil {
 		return err
 	}
 
 	// Insert the current migration version.
-	return recordMigrationVersion(curVer, db)
+	return recordMigrationVersion(ctx, curVer, db)
 }
 
 // recordMigrationVersion inserts the given version (of DB migration) into the
 // `migrations` array in the settings table.
-func recordMigrationVersion(ver string, db *sqlx.DB) error {
-	_, err := db.Exec(fmt.Sprintf(`INSERT INTO settings (key, value)
+func recordMigrationVersion(ctx context.Context, ver string, db *sqlx.DB) error {
+	_, err := db.ExecContext(ctx, fmt.Sprintf(`INSERT INTO settings (key, value)
 	VALUES('migrations', '["%s"]'::JSONB)
 	ON CONFLICT (key) DO UPDATE SET value = settings.value || EXCLUDED.value`, ver))
 	return err
@@ -227,8 +228,8 @@ func newConfigFile(path string) error {
 }
 
 // checkSchema checks if the DB schema is installed.
-func checkSchema(db *sqlx.DB) (bool, error) {
-	if _, err := db.Exec(`SELECT id FROM templates LIMIT 1`); err != nil {
+func checkSchema(ctx context.Context, db *sqlx.DB) (bool, error) {
+	if _, err := db.ExecContext(ctx, `SELECT id FROM templates LIMIT 1`); err != nil {
 		if isTableNotExistErr(err) {
 			return false, nil
 		}

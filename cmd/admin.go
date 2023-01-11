@@ -62,7 +62,7 @@ func handleGetDashboardCharts(c echo.Context) error {
 		app = c.Get("app").(*App)
 	)
 
-	out, err := app.core.GetDashboardCharts()
+	out, err := app.core.GetDashboardCharts(c.Request().Context())
 	if err != nil {
 		return err
 	}
@@ -76,7 +76,7 @@ func handleGetDashboardCounts(c echo.Context) error {
 		app = c.Get("app").(*App)
 	)
 
-	out, err := app.core.GetDashboardCounts()
+	out, err := app.core.GetDashboardCounts(c.Request().Context())
 	if err != nil {
 		return err
 	}

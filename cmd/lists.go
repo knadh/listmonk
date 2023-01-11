@@ -31,7 +31,7 @@ func handleGetLists(c echo.Context) error {
 	}
 
 	if single {
-		out, err := app.core.GetList(listID, "")
+		out, err := app.core.GetList(c.Request().Context(), listID, "")
 		if err != nil {
 			return err
 		}
@@ -40,7 +40,7 @@ func handleGetLists(c echo.Context) error {
 
 	// Minimal query simply returns the list of all lists without JOIN subscriber counts. This is fast.
 	if !single && minimal {
-		res, err := app.core.GetLists("")
+		res, err := app.core.GetLists(c.Request().Context(), "")
 		if err != nil {
 			return err
 		}
@@ -58,7 +58,7 @@ func handleGetLists(c echo.Context) error {
 	}
 
 	// Full list query.
-	res, total, err := app.core.QueryLists(query, orderBy, order, pg.Offset, pg.Limit)
+	res, total, err := app.core.QueryLists(c.Request().Context(), query, orderBy, order, pg.Offset, pg.Limit)
 	if err != nil {
 		return err
 	}
@@ -97,7 +97,7 @@ func handleCreateList(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("lists.invalidName"))
 	}
 
-	out, err := app.core.CreateList(l)
+	out, err := app.core.CreateList(c.Request().Context(), l)
 	if err != nil {
 		return err
 	}
@@ -127,7 +127,7 @@ func handleUpdateList(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("lists.invalidName"))
 	}
 
-	out, err := app.core.UpdateList(id, l)
+	out, err := app.core.UpdateList(c.Request().Context(), id, l)
 	if err != nil {
 		return err
 	}
@@ -151,7 +151,7 @@ func handleDeleteLists(c echo.Context) error {
 		ids = append(ids, int(id))
 	}
 
-	if err := app.core.DeleteLists(ids); err != nil {
+	if err := app.core.DeleteLists(c.Request().Context(), ids); err != nil {
 		return err
 	}
 

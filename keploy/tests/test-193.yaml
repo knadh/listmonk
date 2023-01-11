@@ -1,0 +1,71 @@
+version: api.keploy.io/v1beta2
+kind: Http
+name: test-193
+spec:
+    metadata: {}
+    req:
+        method: PUT
+        proto_major: 1
+        proto_minor: 1
+        url: /api/subscribers/2
+        header:
+            Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8
+            Accept-Encoding: gzip, deflate, br
+            Authorization: Basic bGlzdG1vbms6bGlzdG1vbms=
+            Connection: keep-alive
+            Content-Length: "215"
+            Content-Type: application/json
+            Cookie: connect.sid=s%3AdxWsE0jhYYsXQwFQKZJhtK_5Jli7MPB1.Wjbj0YQ3J7yJE1Zx21NQAWPtrz1f8i73j9FAnlvbrSg
+            Postman-Token: b48b6e9c-b2a0-430e-8836-cfd8adc31b43
+            Sec-Fetch-Dest: iframe
+            Sec-Fetch-Mode: navigate
+            Sec-Fetch-Site: same-origin
+            Sec-Gpc: '"1"'
+            Upgrade-Insecure-Requests: '"1"'
+        body: |-
+            {
+                "id": 2,
+                "email": "anon@example.com",
+                "name": "Anon Doe",
+                "attribs": {
+                    "city": "Bengaluru",
+                    "good": true,
+                    "type": "unknown"
+                },
+                "status": "enabled",
+                "lists": []
+            }
+        body_type: ""
+    resp:
+        status_code: 200
+        header:
+            Content-Type: application/json; charset=UTF-8
+        body: |
+            {"data":{"id":2,"created_at":"2023-01-06T07:39:21.465857Z","updated_at":"2023-01-07T08:32:14.491287Z","uuid":"3d0317cf-584d-48c9-b53f-5ddb2b441510","email":"anon@example.com","name":"Anon Doe","attribs":{"city":"Bengaluru","good":true,"type":"unknown"},"status":"enabled","lists":[]}}
+        body_type: ""
+        status_message: ""
+        proto_major: 1
+        proto_minor: 1
+    objects:
+        - type: error
+          data: ""
+    mocks:
+        - test-193-0
+        - test-193-1
+        - test-193-2
+        - test-193-3
+        - test-193-4
+        - test-193-5
+        - test-193-6
+        - test-193-7
+        - test-193-8
+        - test-193-9
+        - test-193-10
+        - test-193-11
+        - test-193-12
+        - test-193-13
+        - test-193-14
+        - test-193-15
+    assertions:
+        noise: []
+    created: 1673080334

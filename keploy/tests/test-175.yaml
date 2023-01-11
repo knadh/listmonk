@@ -1,0 +1,49 @@
+version: api.keploy.io/v1beta2
+kind: Http
+name: test-175
+spec:
+    metadata: {}
+    req:
+        method: DELETE
+        proto_major: 1
+        proto_minor: 1
+        url: /api/maintenance/analytics/views
+        header:
+            Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8
+            Accept-Encoding: gzip, deflate, br
+            Authorization: Basic bGlzdG1vbms6bGlzdG1vbms=
+            Connection: keep-alive
+            Content-Length: "186"
+            Content-Type: multipart/form-data; boundary=--------------------------142821430655147751359834
+            Cookie: connect.sid=s%3AdxWsE0jhYYsXQwFQKZJhtK_5Jli7MPB1.Wjbj0YQ3J7yJE1Zx21NQAWPtrz1f8i73j9FAnlvbrSg
+            Postman-Token: 640601f2-395b-478b-bace-dd7609d14d24
+            Sec-Fetch-Dest: iframe
+            Sec-Fetch-Mode: navigate
+            Sec-Fetch-Site: same-origin
+            Sec-Gpc: '"1"'
+            Upgrade-Insecure-Requests: '"1"'
+        body: LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLTE0MjgyMTQzMDY1NTE0Nzc1MTM1OTgzNA0KQ29udGVudC1EaXNwb3NpdGlvbjogZm9ybS1kYXRhOyBuYW1lPSJiZWZvcmVfZGF0ZSINCg0KMjAyMi0xMi0yOFQwNTowNDowNVoNCi0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0xNDI4MjE0MzA2NTUxNDc3NTEzNTk4MzQtLQ0K
+        body_type: ""
+    resp:
+        status_code: 200
+        header:
+            Content-Type: application/json; charset=UTF-8
+        body: |
+            {"data":true}
+        body_type: ""
+        status_message: ""
+        proto_major: 1
+        proto_minor: 1
+    objects:
+        - type: error
+          data: ""
+    mocks:
+        - test-175-0
+        - test-175-1
+        - test-175-2
+        - test-175-3
+        - test-175-4
+        - test-175-5
+    assertions:
+        noise: []
+    created: 1672220791

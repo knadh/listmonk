@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"encoding/csv"
 	"encoding/json"
 	"errors"
@@ -10,6 +11,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/keploy/go-sdk/integrations/kclock"
 	"github.com/knadh/listmonk/models"
 	"github.com/labstack/echo/v4"
 )
@@ -72,7 +74,7 @@ func handleGetSubscriber(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidID"))
 	}
 
-	out, err := app.core.GetSubscriber(id, "", "")
+	out, err := app.core.GetSubscriber(c.Request().Context(), id, "", "")
 	if err != nil {
 		return err
 	}
@@ -99,7 +101,7 @@ func handleQuerySubscribers(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidID"))
 	}
 
-	res, total, err := app.core.QuerySubscribers(query, listIDs, order, orderBy, pg.Offset, pg.Limit)
+	res, total, err := app.core.QuerySubscribers(c.Request().Context(), query, listIDs, order, orderBy, pg.Offset, pg.Limit)
 	if err != nil {
 		return err
 	}
@@ -135,7 +137,7 @@ func handleExportSubscribers(c echo.Context) error {
 	}
 
 	// Get the batched export iterator.
-	exp, err := app.core.ExportSubscribers(query, subIDs, listIDs, app.constants.DBBatchSize)
+	exp, err := app.core.ExportSubscribers(c.Request().Context(), query, subIDs, listIDs, app.constants.DBBatchSize)
 	if err != nil {
 		return err
 	}
@@ -212,7 +214,7 @@ func handleCreateSubscriber(c echo.Context) error {
 	}
 
 	// Insert the subscriber into the DB.
-	sub, _, err := app.core.InsertSubscriber(req.Subscriber, req.Lists, req.ListUUIDs, req.PreconfirmSubs)
+	sub, _, err := app.core.InsertSubscriber(c.Request().Context(), req.Subscriber, req.Lists, req.ListUUIDs, req.PreconfirmSubs)
 	if err != nil {
 		return err
 	}
@@ -251,7 +253,7 @@ func handleUpdateSubscriber(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("subscribers.invalidName"))
 	}
 
-	out, err := app.core.UpdateSubscriberWithLists(id, req.Subscriber, req.Lists, nil, req.PreconfirmSubs, true)
+	out, err := app.core.UpdateSubscriberWithLists(c.Request().Context(), id, req.Subscriber, req.Lists, nil, req.PreconfirmSubs, true)
 	if err != nil {
 		return err
 	}
@@ -271,12 +273,12 @@ func handleSubscriberSendOptin(c echo.Context) error {
 	}
 
 	// Fetch the subscriber.
-	out, err := app.core.GetSubscriber(id, "", "")
+	out, err := app.core.GetSubscriber(c.Request().Context(), id, "", "")
 	if err != nil {
 		return err
 	}
 
-	if _, err := sendOptinConfirmationHook(app)(out, nil); err != nil {
+	if _, err := sendOptinConfirmationHook(app)(c.Request().Context(), out, nil); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, app.i18n.T("subscribers.errorSendingOptin"))
 	}
 
@@ -315,7 +317,7 @@ func handleBlocklistSubscribers(c echo.Context) error {
 		subIDs = req.SubscriberIDs
 	}
 
-	if err := app.core.BlocklistSubscribers(subIDs); err != nil {
+	if err := app.core.BlocklistSubscribers(c.Request().Context(), subIDs); err != nil {
 		return err
 	}
 
@@ -360,11 +362,11 @@ func handleManageSubscriberLists(c echo.Context) error {
 	var err error
 	switch req.Action {
 	case "add":
-		err = app.core.AddSubscriptions(subIDs, req.TargetListIDs, req.Status)
+		err = app.core.AddSubscriptions(c.Request().Context(), subIDs, req.TargetListIDs, req.Status)
 	case "remove":
-		err = app.core.DeleteSubscriptions(subIDs, req.TargetListIDs)
+		err = app.core.DeleteSubscriptions(c.Request().Context(), subIDs, req.TargetListIDs)
 	case "unsubscribe":
-		err = app.core.UnsubscribeLists(subIDs, req.TargetListIDs, nil)
+		err = app.core.UnsubscribeLists(c.Request().Context(), subIDs, req.TargetListIDs, nil)
 	default:
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("subscribers.invalidAction"))
 	}
@@ -406,11 +408,11 @@ func handleDeleteSubscribers(c echo.Context) error {
 		subIDs = i
 	}
 
-	if err := app.core.DeleteSubscribers(subIDs, nil); err != nil {
+	if err := app.core.DeleteSubscribers(c.Request().Context(), subIDs, nil); err != nil {
 		return err
 	}
 
-	return c.JSON(http.StatusOK, okResp{true})
+	return c.JSON(http.StatusOK, okResp{kclock.Now(c.Request().Context())})
 }
 
 // handleDeleteSubscribersByQuery bulk deletes based on an
@@ -425,7 +427,7 @@ func handleDeleteSubscribersByQuery(c echo.Context) error {
 		return err
 	}
 
-	if err := app.core.DeleteSubscribersByQuery(req.Query, req.ListIDs); err != nil {
+	if err := app.core.DeleteSubscribersByQuery(c.Request().Context(), req.Query, req.ListIDs); err != nil {
 		return err
 	}
 
@@ -444,7 +446,7 @@ func handleBlocklistSubscribersByQuery(c echo.Context) error {
 		return err
 	}
 
-	if err := app.core.BlocklistSubscribersByQuery(req.Query, req.ListIDs); err != nil {
+	if err := app.core.BlocklistSubscribersByQuery(c.Request().Context(), req.Query, req.ListIDs); err != nil {
 		return err
 	}
 
@@ -471,11 +473,11 @@ func handleManageSubscriberListsByQuery(c echo.Context) error {
 	var err error
 	switch req.Action {
 	case "add":
-		err = app.core.AddSubscriptionsByQuery(req.Query, req.ListIDs, req.TargetListIDs)
+		err = app.core.AddSubscriptionsByQuery(c.Request().Context(), req.Query, req.ListIDs, req.TargetListIDs)
 	case "remove":
-		err = app.core.DeleteSubscriptionsByQuery(req.Query, req.ListIDs, req.TargetListIDs)
+		err = app.core.DeleteSubscriptionsByQuery(c.Request().Context(), req.Query, req.ListIDs, req.TargetListIDs)
 	case "unsubscribe":
-		err = app.core.UnsubscribeListsByQuery(req.Query, req.ListIDs, req.TargetListIDs)
+		err = app.core.UnsubscribeListsByQuery(c.Request().Context(), req.Query, req.ListIDs, req.TargetListIDs)
 	default:
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("subscribers.invalidAction"))
 	}
@@ -499,7 +501,7 @@ func handleDeleteSubscriberBounces(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidID"))
 	}
 
-	if err := app.core.DeleteSubscriberBounces(id, ""); err != nil {
+	if err := app.core.DeleteSubscriberBounces(c.Request().Context(), id, ""); err != nil {
 		return err
 	}
 
@@ -524,7 +526,7 @@ func handleExportSubscriberData(c echo.Context) error {
 	// Get the subscriber's data. A single query that gets the profile,
 	// list subscriptions, campaign views, and link clicks. Names of
 	// private lists are replaced with "Private list".
-	_, b, err := exportSubscriberData(id, "", app.constants.Privacy.Exportable, app)
+	_, b, err := exportSubscriberData(c.Request().Context(), id, "", app.constants.Privacy.Exportable, app)
 	if err != nil {
 		app.log.Printf("error exporting subscriber data: %s", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
@@ -541,8 +543,8 @@ func handleExportSubscriberData(c echo.Context) error {
 // subscriptions, campaign_views, link_clicks (if they're enabled in the config)
 // and returns a formatted, indented JSON payload. Either takes a numeric id
 // and an empty subUUID or takes 0 and a string subUUID.
-func exportSubscriberData(id int, subUUID string, exportables map[string]bool, app *App) (models.SubscriberExportProfile, []byte, error) {
-	data, err := app.core.GetSubscriberProfileForExport(id, subUUID)
+func exportSubscriberData(ctx context.Context, id int, subUUID string, exportables map[string]bool, app *App) (models.SubscriberExportProfile, []byte, error) {
+	data, err := app.core.GetSubscriberProfileForExport(ctx, id, subUUID)
 	if err != nil {
 		return data, nil, err
 	}
@@ -608,9 +610,9 @@ func getQueryInts(param string, qp url.Values) ([]int, error) {
 // sendOptinConfirmationHook returns an enclosed callback that sends optin confirmation e-mails.
 // This is plugged into the 'core' package to send optin confirmations when a new subscriber is
 // created via `core.CreateSubscriber()`.
-func sendOptinConfirmationHook(app *App) func(sub models.Subscriber, listIDs []int) (int, error) {
-	return func(sub models.Subscriber, listIDs []int) (int, error) {
-		lists, err := app.core.GetSubscriberLists(sub.ID, "", listIDs, nil, models.SubscriptionStatusUnconfirmed, models.ListOptinDouble)
+func sendOptinConfirmationHook(app *App) func(ctx context.Context, sub models.Subscriber, listIDs []int) (int, error) {
+	return func(ctx context.Context, sub models.Subscriber, listIDs []int) (int, error) {
+		lists, err := app.core.GetSubscriberLists(ctx, sub.ID, "", listIDs, nil, models.SubscriptionStatusUnconfirmed, models.ListOptinDouble)
 		if err != nil {
 			return 0, err
 		}

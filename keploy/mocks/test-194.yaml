@@ -1,0 +1,160 @@
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-194-0
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext
+        query: '"UPDATE lists SET name=(CASE WHEN $2 != '''' THEN $2 ELSE name END), type=(CASE WHEN $3 != '''' THEN $3::list_type ELSE type END), optin=(CASE WHEN $4 != '''' THEN $4::list_optin ELSE optin END), tags=$5::VARCHAR(100)[], description=(CASE WHEN $6 != '''' THEN $6 ELSE description END), updated_at=NOW() WHERE id = $1;"'
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-194-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.NumInput
+        type: SQL_DB
+    type: int
+    int: 6
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-194-2
+spec:
+    metadata:
+        arguments: '[{ 1 2} { 2 Opt-in list} { 3 public} { 4 double} { 5 {"test"}} { 6 }]'
+        name: SQL
+        operation: ExecContext
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-194-3
+spec:
+    metadata:
+        arguments: '[{ 1 2} { 2 Opt-in list} { 3 public} { 4 double} { 5 {"test"}} { 6 }]'
+        name: SQL
+        operation: ExecContext.LastInsertId
+        type: SQL_DB
+    type: int
+    int: 0
+    error:
+        - LastInsertId is not supported by this driver
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-194-4
+spec:
+    metadata:
+        arguments: '[{ 1 2} { 2 Opt-in list} { 3 public} { 4 double} { 5 {"test"}} { 6 }]'
+        name: SQL
+        operation: ExecContext.RowsAffected
+        type: SQL_DB
+    type: int
+    int: 1
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-194-5
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.Close
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-194-6
+spec:
+    metadata:
+        arguments: '[{ 1 2} { 2 <nil>} { 3 } { 4 0} { 5 1}]'
+        name: SQL
+        operation: QueryContext
+        query: "\"WITH ls AS ( \tSELECT COUNT(*) OVER () AS total, lists.* FROM lists WHERE CASE WHEN $1 > 0 THEN id = $1 WHEN $2 != '' THEN uuid = $2::UUID WHEN $3 != '' THEN to_tsvector(name) @@ to_tsquery ($3) ELSE true END ORDER BY created_at desc OFFSET $4 LIMIT (CASE WHEN $5 < 1 THEN NULL ELSE $5 END) ), counts AS ( SELECT list_id, JSON_OBJECT_AGG(status, subscriber_count) AS subscriber_statuses FROM ( SELECT COUNT(*) as subscriber_count, list_id, status FROM subscriber_lists WHERE ($1 = 0 OR list_id = $1) GROUP BY list_id, status ) row GROUP BY list_id ) SELECT ls.*, subscriber_statuses FROM ls LEFT JOIN counts ON (counts.list_id = ls.id) ORDER BY created_at desc;\""
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-194-7
+spec:
+    metadata:
+        name: SQL
+        operation: QueryContext.Close
+        type: SQL_DB
+    type: table
+    table:
+        cols:
+            - name: total
+              type: int64
+              precision: 0
+              scale: 0
+            - name: id
+              type: int64
+              precision: 0
+              scale: 0
+            - name: uuid
+              type: '[]uint8'
+              precision: 0
+              scale: 0
+            - name: name
+              type: string
+              precision: 0
+              scale: 0
+            - name: type
+              type: '[]uint8'
+              precision: 0
+              scale: 0
+            - name: optin
+              type: '[]uint8'
+              precision: 0
+              scale: 0
+            - name: tags
+              type: '[]uint8'
+              precision: 0
+              scale: 0
+            - name: description
+              type: string
+              precision: 0
+              scale: 0
+            - name: created_at
+              type: time.Time
+              precision: 0
+              scale: 0
+            - name: updated_at
+              type: time.Time
+              precision: 0
+              scale: 0
+            - name: subscriber_statuses
+              type: <nil>
+              precision: 0
+              scale: 0
+        rows:
+            - '[`1` | `2` | `[56 54 56 50 53 55 98 54 45 55 57 52 53 45 52 49 53 102 45 56 51 99 57 45 52 102 56 56 48 98 102 55 48 55 100 98]` | `Opt-in list` | `[112 117 98 108 105 99]` | `[100 111 117 98 108 101]` | `[123 116 101 115 116 125]` | `` | `"2023-01-06T07:39:21.463894Z"` | `"2023-01-07T08:47:33.929849Z"` | `<nil>` | ]'
+            - '[`1` | `2` | `[56 54 56 50 53 55 98 54 45 55 57 52 53 45 52 49 53 102 45 56 51 99 57 45 52 102 56 56 48 98 102 55 48 55 100 98]` | `Opt-in list` | `[112 117 98 108 105 99]` | `[100 111 117 98 108 101]` | `[123 116 101 115 116 125]` | `` | `"2023-01-06T07:39:21.463894Z"` | `"2023-01-07T08:47:33.929849Z"` | `<nil>` | ]'
+    int: 0
+    error:
+        - nil
+        - EOF
+        - nil

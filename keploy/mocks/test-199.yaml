@@ -1,0 +1,99 @@
+version: api.keploy.io/v1beta2
+kind: SQL
+name: test-199-0
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext
+        query: '"SELECT COUNT(*) OVER () AS total, id, uuid, subject, archive_meta, created_at, send_at FROM campaigns WHERE archive=true AND type=''regular'' AND status=ANY(''{running, paused, finished}'') ORDER by created_at DESC OFFSET $1 LIMIT $2;"'
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: test-199-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.NumInput
+        type: SQL_DB
+    type: int
+    int: 2
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: test-199-2
+spec:
+    metadata:
+        arguments: '[{ 1 0} { 2 20}]'
+        name: SQL
+        operation: QueryContext
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: test-199-3
+spec:
+    metadata:
+        name: SQL
+        operation: QueryContext.Close
+        type: SQL_DB
+    type: table
+    table:
+        cols:
+            - name: total
+              type: <nil>
+              precision: 0
+              scale: 0
+            - name: id
+              type: <nil>
+              precision: 0
+              scale: 0
+            - name: uuid
+              type: <nil>
+              precision: 0
+              scale: 0
+            - name: subject
+              type: <nil>
+              precision: 0
+              scale: 0
+            - name: archive_meta
+              type: <nil>
+              precision: 0
+              scale: 0
+            - name: created_at
+              type: <nil>
+              precision: 0
+              scale: 0
+            - name: send_at
+              type: <nil>
+              precision: 0
+              scale: 0
+        rows:
+            - '[`<nil>` | `<nil>` | `<nil>` | `<nil>` | `<nil>` | `<nil>` | `<nil>` | ]'
+    int: 0
+    error:
+        - EOF
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: test-199-4
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.Close
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil

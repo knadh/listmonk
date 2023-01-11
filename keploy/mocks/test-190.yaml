@@ -1,0 +1,181 @@
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-190-0
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext
+        query: '"INSERT INTO templates (name, type, subject, body) VALUES($1, $2, $3, $4) RETURNING id;"'
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-190-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.NumInput
+        type: SQL_DB
+    type: int
+    int: 4
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-190-2
+spec:
+    metadata:
+        arguments: '[{ 1 Sample transactional template} { 2 tx} { 3 Welcome {{ .Subscriber.Name }}} { 4 [60 33 100 111 99 116 121 112 101 32 104 116 109 108 62 10 60 104 116 109 108 62 10 32 32 32 32 60 104 101 97 100 62 10 32 32 32 32 32 32 32 32 60 109 101 116 97 32 104 116 116 112 45 101 113 117 105 118 61 34 67 111 110 116 101 110 116 45 84 121 112 101 34 32 99 111 110 116 101 110 116 61 34 116 101 120 116 47 104 116 109 108 59 32 99 104 97 114 115 101 116 61 117 116 102 45 56 34 62 10 32 32 32 32 32 32 32 32 60 109 101 116 97 32 110 97 109 101 61 34 118 105 101 119 112 111 114 116 34 32 99 111 110 116 101 110 116 61 34 119 105 100 116 104 61 100 101 118 105 99 101 45 119 105 100 116 104 44 32 105 110 105 116 105 97 108 45 115 99 97 108 101 61 49 44 32 109 105 110 105 109 117 109 45 115 99 97 108 101 61 49 34 62 10 32 32 32 32 32 32 32 32 60 98 97 115 101 32 116 97 114 103 101 116 61 34 95 98 108 97 110 107 34 62 10 10 32 32 32 32 32 32 32 32 60 115 116 121 108 101 62 10 32 32 32 32 32 32 32 32 32 32 32 32 98 111 100 121 32 123 10 32 32 32 32 32 32 32 32 32 32 32 32 32 32 32 32 98 97 99 107 103 114 111 117 110 100 45 99 111 108 111 114 58 32 35 70 48 70 49 70 51 59 10 32 32 32 32 32 32 32 32 32 32 32 32 32 32 32 32 102 111 110 116 45 102 97 109 105 108 121 58 32 39 72 101 108 118 101 116 105 99 97 32 78 101 117 101 39 44 32 39 83 101 103 111 101 32 85 73 39 44 32 72 101 108 118 101 116 105 99 97 44 32 115 97 110 115 45 115 101 114 105 102 59 10 32 32 32 32 32 32 32 32 32 32 32 32 32 32 32 32 102 111 110 116 45 115 105 122 101 58 32 49 53 112 120 59 10 32 32 32 32 32 32 32 32 32 32 32 32 32 32 32 32 108 105 110 101 45 104 101 105 103 104 116 58 32 50 54 112 120 59 10 32 32 32 32 32 32 32 32 32 32 32 32 32 32 32 32 109 97 114 103 105 110 58 32 48 59 10 32 32 32 32 32 32 32 32 32 32 32 32 32 32 32 32 99 111 108 111 114 58 32 35 52 52 52 59 10 32 32 32 32 32 32 32 32 32 32 32 32 125 10 10 32 32 32 32 32 32 32 32 32 32 32 32 112 114 101 32 123 10 32 32 32 32 32 32 32 32 32 32 32 32 32 32 32 32 98 97 99 107 103 114 111 117 110 100 58 32 35 102 52 102 52 102 52 102 52 59 10 32 32 32 32 32 32 32 32 32 32 32 32 32 32 32 32 112 97 100 100 105 110 103 58 32 50 112 120 59 10 32 32 32 32 32 32 32 32 32 32 32 32 125 10 10 32 32 32 32 32 32 32 32 32 32 32 32 116 97 98 108 101 32 123 10 32 32 32 32 32 32 32 32 32 32 32 32 32 32 32 32 119 105 100 116 104 58 32 49 48 48 37 59 10 32 32 32 32 32 32 32 32 32 32 32 32 32 32 32 32 98 111 114 100 101 114 58 32 49 112 120 32 115 111 108 105 100 32 35 100 100 100 59 10 32 32 32 32 32 32 32 32 32 32 32 32 125 10 32 32 32 32 32 32 32 32 32 32 32 32 116 97 98 108 101 32 116 100 32 123 10 32 32 32 32 32 32 32 32 32 32 32 32 32 32 32 32 98 111 114 100 101 114 45 99 111 108 111 114 58 32 35 100 100 100 59 10 32 32 32 32 32 32 32 32 32 32 32 32 32 32 32 32 112 97 100 100 105 110 103 58 32 53 112 120 59 10 32 32 32 32 32 32 32 32 32 32 32 32 125 10 10 32 32 32 32 32 32 32 32 32 32 32 32 46 119 114 97 112 32 123 10 32 32 32 32 32 32 32 32 32 32 32 32 32 32 32 32 98 97 99 107 103 114 111 117 110 100 45 99 111 108 111 114 58 32 35 102 102 102 59 10 32 32 32 32 32 32 32 32 32 32 32 32 32 32 32 32 112 97 100 100 105 110 103 58 32 51 48 112 120 59 10 32 32 32 32 32 32 32 32 32 32 32 32 32 32 32 32 109 97 120 45 119 105 100 116 104 58 32 53 50 53 112 120 59 10 32 32 32 32 32 32 32 32 32 32 32 32 32 32 32 32 109 97 114 103 105 110 58 32 48 32 97 117 116 111 59 10 32 32 32 32 32 32 32 32 32 32 32 32 32 32 32 32 98 111 114 100 101 114 45 114 97 100 105 117 115 58 32 53 112 120 59 10 32 32 32 32 32 32 32 32 32 32 32 32 125 10 10 32 32 32 32 32 32 32 32 32 32 32 32 46 98 117 116 116 111 110 32 123 10 32 32 32 32 32 32 32 32 32 32 32 32 32 32 32 32 98 97 99 107 103 114 111 117 110 100 58 32 35 48 48 53 53 100 52 59 10 32 32 32 32 32 32 32 32 32 32 32 32 32 32 32 32 98 111 114 100 101 114 45 114 97 100 105 117 115 58 32 51 112 120 59 10 32 32 32 32 32 32 32 32 32 32 32 32 32 32 32 32 116 101 120 116 45 100 101 99 111 114 97 116 105 111 110 58 32 110 111 110 101 32 33 105 109 112 111 114 116 97 110 116 59 10 32 32 32 32 32 32 32 32 32 32 32 32 32 32 32 32 99 111 108 111 114 58 32 35 102 102 102 32 33 105 109 112 111 114 116 97 110 116 59 10 32 32 32 32 32 32 32 32 32 32 32 32 32 32 32 32 102 111 110 116 45 119 101 105 103 104 116 58 32 98 111 108 100 59 10 32 32 32 32 32 32 32 32 32 32 32 32 32 32 32 32 112 97 100 100 105 110 103 58 32 49 48 112 120 32 51 48 112 120 59 10 32 32 32 32 32 32 32 32 32 32 32 32 32 32 32 32 100 105 115 112 108 97 121 58 32 105 110 108 105 110 101 45 98 108 111 99 107 59 10 32 32 32 32 32 32 32 32 32 32 32 32 125 10 32 32 32 32 32 32 32 32 32 32 32 32 46 98 117 116 116 111 110 58 104 111 118 101 114 32 123 10 32 32 32 32 32 32 32 32 32 32 32 32 32 32 32 32 98 97 99 107 103 114 111 117 110 100 58 32 35 49 49 49 59 10 32 32 32 32 32 32 32 32 32 32 32 32 125 10 10 32 32 32 32 32 32 32 32 32 32 32 32 46 102 111 111 116 101 114 32 123 10 32 32 32 32 32 32 32 32 32 32 32 32 32 32 32 32 116 101 120 116 45 97 108 105 103 110 58 32 99 101 110 116 101 114 59 10 32 32 32 32 32 32 32 32 32 32 32 32 32 32 32 32 102 111 110 116 45 115 105 122 101 58 32 49 50 112 120 59 10 32 32 32 32 32 32 32 32 32 32 32 32 32 32 32 32 99 111 108 111 114 58 32 35 56 56 56 59 10 32 32 32 32 32 32 32 32 32 32 32 32 125 10 32 32 32 32 32 32 32 32 32 32 32 32 32 32 32 32 46 102 111 111 116 101 114 32 97 32 123 10 32 32 32 32 32 32 32 32 32 32 32 32 32 32 32 32 32 32 32 32 99 111 108 111 114 58 32 35 56 56 56 59 10 32 32 32 32 32 32 32 32 32 32 32 32 32 32 32 32 32 32 32 32 109 97 114 103 105 110 45 114 105 103 104 116 58 32 53 112 120 59 10 32 32 32 32 32 32 32 32 32 32 32 32 32 32 32 32 125 10 10 32 32 32 32 32 32 32 32 32 32 32 32 46 103 117 116 116 101 114 32 123 10 32 32 32 32 32 32 32 32 32 32 32 32 32 32 32 32 112 97 100 100 105 110 103 58 32 51 48 112 120 59 10 32 32 32 32 32 32 32 32 32 32 32 32 125 10 10 32 32 32 32 32 32 32 32 32 32 32 32 105 109 103 32 123 10 32 32 32 32 32 32 32 32 32 32 32 32 32 32 32 32 109 97 120 45 119 105 100 116 104 58 32 49 48 48 37 59 10 32 32 32 32 32 32 32 32 32 32 32 32 32 32 32 32 104 101 105 103 104 116 58 32 97 117 116 111 59 10 32 32 32 32 32 32 32 32 32 32 32 32 125 10 10 32 32 32 32 32 32 32 32 32 32 32 32 97 32 123 10 32 32 32 32 32 32 32 32 32 32 32 32 32 32 32 32 99 111 108 111 114 58 32 35 48 48 53 53 100 52 59 10 32 32 32 32 32 32 32 32 32 32 32 32 125 10 32 32 32 32 32 32 32 32 32 32 32 32 32 32 32 32 97 58 104 111 118 101 114 32 123 10 32 32 32 32 32 32 32 32 32 32 32 32 32 32 32 32 32 32 32 32 99 111 108 111 114 58 32 35 49 49 49 59 10 32 32 32 32 32 32 32 32 32 32 32 32 32 32 32 32 125 10 32 32 32 32 32 32 32 32 32 32 32 32 64 109 101 100 105 97 32 115 99 114 101 101 110 32 97 110 100 32 40 109 97 120 45 119 105 100 116 104 58 32 54 48 48 112 120 41 32 123 10 32 32 32 32 32 32 32 32 32 32 32 32 32 32 32 32 46 119 114 97 112 32 123 10 32 32 32 32 32 32 32 32 32 32 32 32 32 32 32 32 32 32 32 32 109 97 120 45 119 105 100 116 104 58 32 97 117 116 111 59 10 32 32 32 32 32 32 32 32 32 32 32 32 32 32 32 32 125 10 32 32 32 32 32 32 32 32 32 32 32 32 32 32 32 32 46 103 117 116 116 101 114 32 123 10 32 32 32 32 32 32 32 32 32 32 32 32 32 32 32 32 32 32 32 32 112 97 100 100 105 110 103 58 32 49 48 112 120 59 10 32 32 32 32 32 32 32 32 32 32 32 32 32 32 32 32 125 10 32 32 32 32 32 32 32 32 32 32 32 32 125 10 32 32 32 32 32 32 32 32 60 47 115 116 121 108 101 62 10 32 32 32 32 60 47 104 101 97 100 62 10 60 98 111 100 121 32 115 116 121 108 101 61 34 98 97 99 107 103 114 111 117 110 100 45 99 111 108 111 114 58 32 35 70 48 70 49 70 51 59 102 111 110 116 45 102 97 109 105 108 121 58 32 39 72 101 108 118 101 116 105 99 97 32 78 101 117 101 39 44 32 39 83 101 103 111 101 32 85 73 39 44 32 72 101 108 118 101 116 105 99 97 44 32 115 97 110 115 45 115 101 114 105 102 59 102 111 110 116 45 115 105 122 101 58 32 49 53 112 120 59 108 105 110 101 45 104 101 105 103 104 116 58 32 50 54 112 120 59 109 97 114 103 105 110 58 32 48 59 99 111 108 111 114 58 32 35 52 52 52 59 34 62 10 32 32 32 32 60 100 105 118 32 99 108 97 115 115 61 34 103 117 116 116 101 114 34 32 115 116 121 108 101 61 34 112 97 100 100 105 110 103 58 32 51 48 112 120 59 34 62 38 110 98 115 112 59 60 47 100 105 118 62 10 32 32 32 32 60 100 105 118 32 99 108 97 115 115 61 34 119 114 97 112 34 32 115 116 121 108 101 61 34 98 97 99 107 103 114 111 117 110 100 45 99 111 108 111 114 58 32 35 102 102 102 59 112 97 100 100 105 110 103 58 32 51 48 112 120 59 109 97 120 45 119 105 100 116 104 58 32 53 50 53 112 120 59 109 97 114 103 105 110 58 32 48 32 97 117 116 111 59 98 111 114 100 101 114 45 114 97 100 105 117 115 58 32 53 112 120 59 34 62 10 32 32 32 32 32 32 32 32 60 112 62 72 101 108 108 111 32 123 123 32 46 83 117 98 115 99 114 105 98 101 114 46 78 97 109 101 32 125 125 60 47 112 62 10 32 32 32 32 32 32 32 32 60 112 62 10 32 32 32 32 32 32 32 32 32 32 32 32 60 115 116 114 111 110 103 62 79 114 100 101 114 32 110 117 109 98 101 114 58 32 60 47 115 116 114 111 110 103 62 32 123 123 32 46 84 120 46 68 97 116 97 46 111 114 100 101 114 95 105 100 32 125 125 60 98 114 32 47 62 10 32 32 32 32 32 32 32 32 32 32 32 32 60 115 116 114 111 110 103 62 83 104 105 112 112 105 110 103 32 100 97 116 101 58 32 60 47 115 116 114 111 110 103 62 32 123 123 32 46 84 120 46 68 97 116 97 46 115 104 105 112 112 105 110 103 95 100 97 116 101 32 125 125 60 98 114 32 47 62 10 32 32 32 32 32 32 32 32 60 47 112 62 10 32 32 32 32 32 32 32 32 60 98 114 32 47 62 10 32 32 32 32 32 32 32 32 60 112 62 10 32 32 32 32 32 32 32 32 32 32 32 32 84 114 97 110 115 97 99 116 105 111 110 97 108 32 116 101 109 112 108 97 116 101 115 32 115 117 112 112 111 114 116 115 32 97 114 98 105 116 114 97 114 121 32 112 97 114 97 109 101 116 101 114 115 46 10 32 32 32 32 32 32 32 32 32 32 32 32 82 101 110 100 101 114 32 116 104 101 109 32 117 115 105 110 103 32 60 99 111 100 101 62 46 84 120 46 68 97 116 97 46 89 111 117 114 80 97 114 97 109 78 97 109 101 60 47 99 111 100 101 62 46 32 70 111 114 32 109 111 114 101 32 105 110 102 111 114 109 97 116 105 111 110 44 10 32 32 32 32 32 32 32 32 32 32 32 32 115 101 101 32 116 104 101 32 116 114 97 110 115 97 99 116 105 111 110 97 108 32 109 97 105 108 105 110 103 32 60 97 32 104 114 101 102 61 34 104 116 116 112 115 58 47 47 108 105 115 116 109 111 110 107 46 97 112 112 47 100 111 99 115 47 116 114 97 110 115 97 99 116 105 111 110 97 108 34 62 100 111 99 117 109 101 110 116 97 116 105 111 110 60 47 97 62 46 10 32 32 32 32 32 32 32 32 60 47 112 62 10 32 32 32 32 60 47 100 105 118 62 10 32 32 32 32 10 32 32 32 32 60 100 105 118 32 99 108 97 115 115 61 34 102 111 111 116 101 114 34 32 115 116 121 108 101 61 34 116 101 120 116 45 97 108 105 103 110 58 32 99 101 110 116 101 114 59 102 111 110 116 45 115 105 122 101 58 32 49 50 112 120 59 99 111 108 111 114 58 32 35 56 56 56 59 34 62 10 32 32 32 32 32 32 32 32 60 112 62 80 111 119 101 114 101 100 32 98 121 32 60 97 32 104 114 101 102 61 34 104 116 116 112 115 58 47 47 108 105 115 116 109 111 110 107 46 97 112 112 34 32 116 97 114 103 101 116 61 34 95 98 108 97 110 107 34 32 115 116 121 108 101 61 34 99 111 108 111 114 58 32 35 56 56 56 59 34 62 108 105 115 116 109 111 110 107 60 47 97 62 60 47 112 62 10 32 32 32 32 60 47 100 105 118 62 10 60 47 98 111 100 121 62 10 60 47 104 116 109 108 62 10]}]'
+        name: SQL
+        operation: QueryContext
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-190-3
+spec:
+    metadata:
+        name: SQL
+        operation: QueryContext.Close
+        type: SQL_DB
+    type: table
+    table:
+        cols:
+            - name: id
+              type: int64
+              precision: 0
+              scale: 0
+        rows:
+            - '[`3` | ]'
+    int: 0
+    error:
+        - nil
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-190-4
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.Close
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-190-5
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext
+        query: '"SELECT id, name, type, subject, (CASE WHEN $2 = false THEN body ELSE '''' END) as body, is_default, created_at, updated_at FROM templates WHERE ($1 = 0 OR id = $1) AND ($3 = '''' OR type = $3::template_type) ORDER BY created_at;"'
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-190-6
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.NumInput
+        type: SQL_DB
+    type: int
+    int: 3
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-190-7
+spec:
+    metadata:
+        arguments: '[{ 1 3} { 2 false} { 3 }]'
+        name: SQL
+        operation: QueryContext
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-190-8
+spec:
+    metadata:
+        name: SQL
+        operation: QueryContext.Close
+        type: SQL_DB
+    type: table
+    table:
+        cols:
+            - name: id
+              type: int64
+              precision: 0
+              scale: 0
+            - name: name
+              type: string
+              precision: 0
+              scale: 0
+            - name: type
+              type: '[]uint8'
+              precision: 0
+              scale: 0
+            - name: subject
+              type: string
+              precision: 0
+              scale: 0
+            - name: body
+              type: string
+              precision: 0
+              scale: 0
+            - name: is_default
+              type: bool
+              precision: 0
+              scale: 0
+            - name: created_at
+              type: time.Time
+              precision: 0
+              scale: 0
+            - name: updated_at
+              type: time.Time
+              precision: 0
+              scale: 0
+        rows:
+            - "[`3` | `Sample transactional template` | `[116 120]` | `Welcome {{ .Subscriber.Name }}` | `<!doctype html>\n<html>\n    <head>\n        <meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\">\n        <meta name=\"viewport\" content=\"width=device-width, initial-scale=1, minimum-scale=1\">\n        <base target=\"_blank\">\n\n        <style>\n            body {\n                background-color: #F0F1F3;\n                font-family: 'Helvetica Neue', 'Segoe UI', Helvetica, sans-serif;\n                font-size: 15px;\n                line-height: 26px;\n                margin: 0;\n                color: #444;\n            }\n\n            pre {\n                background: #f4f4f4f4;\n                padding: 2px;\n            }\n\n            table {\n                width: 100%;\n                border: 1px solid #ddd;\n            }\n            table td {\n                border-color: #ddd;\n                padding: 5px;\n            }\n\n            .wrap {\n                background-color: #fff;\n                padding: 30px;\n                max-width: 525px;\n                margin: 0 auto;\n                border-radius: 5px;\n            }\n\n            .button {\n                background: #0055d4;\n                border-radius: 3px;\n                text-decoration: none !important;\n                color: #fff !important;\n                font-weight: bold;\n                padding: 10px 30px;\n                display: inline-block;\n            }\n            .button:hover {\n                background: #111;\n            }\n\n            .footer {\n                text-align: center;\n                font-size: 12px;\n                color: #888;\n            }\n                .footer a {\n                    color: #888;\n                    margin-right: 5px;\n                }\n\n            .gutter {\n                padding: 30px;\n            }\n\n            img {\n                max-width: 100%;\n                height: auto;\n            }\n\n            a {\n                color: #0055d4;\n            }\n                a:hover {\n                    color: #111;\n                }\n            @media screen and (max-width: 600px) {\n                .wrap {\n                    max-width: auto;\n                }\n                .gutter {\n                    padding: 10px;\n                }\n            }\n        </style>\n    </head>\n<body style=\"background-color: #F0F1F3;font-family: 'Helvetica Neue', 'Segoe UI', Helvetica, sans-serif;font-size: 15px;line-height: 26px;margin: 0;color: #444;\">\n    <div class=\"gutter\" style=\"padding: 30px;\">&nbsp;</div>\n    <div class=\"wrap\" style=\"background-color: #fff;padding: 30px;max-width: 525px;margin: 0 auto;border-radius: 5px;\">\n        <p>Hello {{ .Subscriber.Name }}</p>\n        <p>\n            <strong>Order number: </strong> {{ .Tx.Data.order_id }}<br />\n            <strong>Shipping date: </strong> {{ .Tx.Data.shipping_date }}<br />\n        </p>\n        <br />\n        <p>\n            Transactional templates supports arbitrary parameters.\n            Render them using <code>.Tx.Data.YourParamName</code>. For more information,\n            see the transactional mailing <a href=\"https://listmonk.app/docs/transactional\">documentation</a>.\n        </p>\n    </div>\n    \n    <div class=\"footer\" style=\"text-align: center;font-size: 12px;color: #888;\">\n        <p>Powered by <a href=\"https://listmonk.app\" target=\"_blank\" style=\"color: #888;\">listmonk</a></p>\n    </div>\n</body>\n</html>\n` | `false` | `\"2022-12-28T11:19:30.592141Z\"` | `\"2022-12-28T11:19:30.592141Z\"` | ]"
+            - "[`3` | `Sample transactional template` | `[116 120]` | `Welcome {{ .Subscriber.Name }}` | `<!doctype html>\n<html>\n    <head>\n        <meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\">\n        <meta name=\"viewport\" content=\"width=device-width, initial-scale=1, minimum-scale=1\">\n        <base target=\"_blank\">\n\n        <style>\n            body {\n                background-color: #F0F1F3;\n                font-family: 'Helvetica Neue', 'Segoe UI', Helvetica, sans-serif;\n                font-size: 15px;\n                line-height: 26px;\n                margin: 0;\n                color: #444;\n            }\n\n            pre {\n                background: #f4f4f4f4;\n                padding: 2px;\n            }\n\n            table {\n                width: 100%;\n                border: 1px solid #ddd;\n            }\n            table td {\n                border-color: #ddd;\n                padding: 5px;\n            }\n\n            .wrap {\n                background-color: #fff;\n                padding: 30px;\n                max-width: 525px;\n                margin: 0 auto;\n                border-radius: 5px;\n            }\n\n            .button {\n                background: #0055d4;\n                border-radius: 3px;\n                text-decoration: none !important;\n                color: #fff !important;\n                font-weight: bold;\n                padding: 10px 30px;\n                display: inline-block;\n            }\n            .button:hover {\n                background: #111;\n            }\n\n            .footer {\n                text-align: center;\n                font-size: 12px;\n                color: #888;\n            }\n                .footer a {\n                    color: #888;\n                    margin-right: 5px;\n                }\n\n            .gutter {\n                padding: 30px;\n            }\n\n            img {\n                max-width: 100%;\n                height: auto;\n            }\n\n            a {\n                color: #0055d4;\n            }\n                a:hover {\n                    color: #111;\n                }\n            @media screen and (max-width: 600px) {\n                .wrap {\n                    max-width: auto;\n                }\n                .gutter {\n                    padding: 10px;\n                }\n            }\n        </style>\n    </head>\n<body style=\"background-color: #F0F1F3;font-family: 'Helvetica Neue', 'Segoe UI', Helvetica, sans-serif;font-size: 15px;line-height: 26px;margin: 0;color: #444;\">\n    <div class=\"gutter\" style=\"padding: 30px;\">&nbsp;</div>\n    <div class=\"wrap\" style=\"background-color: #fff;padding: 30px;max-width: 525px;margin: 0 auto;border-radius: 5px;\">\n        <p>Hello {{ .Subscriber.Name }}</p>\n        <p>\n            <strong>Order number: </strong> {{ .Tx.Data.order_id }}<br />\n            <strong>Shipping date: </strong> {{ .Tx.Data.shipping_date }}<br />\n        </p>\n        <br />\n        <p>\n            Transactional templates supports arbitrary parameters.\n            Render them using <code>.Tx.Data.YourParamName</code>. For more information,\n            see the transactional mailing <a href=\"https://listmonk.app/docs/transactional\">documentation</a>.\n        </p>\n    </div>\n    \n    <div class=\"footer\" style=\"text-align: center;font-size: 12px;color: #888;\">\n        <p>Powered by <a href=\"https://listmonk.app\" target=\"_blank\" style=\"color: #888;\">listmonk</a></p>\n    </div>\n</body>\n</html>\n` | `false` | `\"2022-12-28T11:19:30.592141Z\"` | `\"2022-12-28T11:19:30.592141Z\"` | ]"
+    int: 0
+    error:
+        - nil
+        - EOF
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-190-9
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.Close
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil

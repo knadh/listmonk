@@ -1,0 +1,80 @@
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-46-0
+spec:
+    metadata:
+        arguments: '[{ 1 0} { 2 } { 3 } { 4 0} { 5 20}]'
+        name: SQL
+        operation: QueryContext
+        query: "\"WITH ls AS ( \tSELECT COUNT(*) OVER () AS total, lists.* FROM lists WHERE CASE WHEN $1 > 0 THEN id = $1 WHEN $2 != '' THEN uuid = $2::UUID WHEN $3 != '' THEN name ILIKE $3 ELSE true END OFFSET $4 LIMIT (CASE WHEN $5 = 0 THEN NULL ELSE $5 END) ), counts AS ( SELECT list_id, JSON_OBJECT_AGG(status, subscriber_count) AS subscriber_statuses FROM ( SELECT COUNT(*) as subscriber_count, list_id, status FROM subscriber_lists WHERE ($1 = 0 OR list_id = $1) GROUP BY list_id, status ) row GROUP BY list_id ) SELECT ls.*, subscriber_statuses FROM ls LEFT JOIN counts ON (counts.list_id = ls.id) ORDER BY created_at desc;\""
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-46-1
+spec:
+    metadata:
+        name: SQL
+        operation: QueryContext.Close
+        type: SQL_DB
+    type: table
+    table:
+        cols:
+            - name: total
+              type: int64
+              precision: 0
+              scale: 0
+            - name: id
+              type: int64
+              precision: 0
+              scale: 0
+            - name: uuid
+              type: '[]uint8'
+              precision: 0
+              scale: 0
+            - name: name
+              type: string
+              precision: 0
+              scale: 0
+            - name: type
+              type: '[]uint8'
+              precision: 0
+              scale: 0
+            - name: optin
+              type: '[]uint8'
+              precision: 0
+              scale: 0
+            - name: tags
+              type: '[]uint8'
+              precision: 0
+              scale: 0
+            - name: created_at
+              type: time.Time
+              precision: 0
+              scale: 0
+            - name: updated_at
+              type: time.Time
+              precision: 0
+              scale: 0
+            - name: subscriber_statuses
+              type: <nil>
+              precision: 0
+              scale: 0
+        rows:
+            - '[`4` | `11` | `[102 55 57 97 55 51 102 55 45 49 54 56 55 45 52 57 53 49 45 97 100 98 102 45 51 99 102 97 55 57 101 55 98 57 97 100]` | `qwerty` | `[112 117 98 108 105 99]` | `[115 105 110 103 108 101]` | `[123 119 97 115 100 125]` | `"2022-12-16T08:10:37.863884Z"` | `"2022-12-18T11:26:24.970648Z"` | `<nil>` | ]'
+            - '[`4` | `10` | `[50 49 57 49 53 48 57 48 45 54 100 99 101 45 52 48 101 100 45 98 54 56 50 45 48 99 101 52 49 57 102 48 49 50 53 97]` | `Sarthak` | `[112 117 98 108 105 99]` | `[100 111 117 98 108 101]` | `<nil>` | `"2022-12-06T11:17:23.574221Z"` | `"2022-12-06T11:17:23.574221Z"` | `<nil>` | ]'
+            - '[`4` | `5` | `[48 99 54 50 53 50 98 48 45 102 49 97 102 45 52 98 51 50 45 97 101 52 55 45 53 102 48 48 57 52 56 100 54 52 97 48]` | `Ritik` | `[112 117 98 108 105 99]` | `[115 105 110 103 108 101]` | `<nil>` | `"2022-11-09T06:51:19.581244Z"` | `"2022-12-16T10:50:27.647233Z"` | `<nil>` | ]'
+            - '[`4` | `1` | `[48 99 101 101 102 50 101 102 45 102 98 54 57 45 52 49 98 56 45 57 48 52 55 45 100 55 101 99 50 100 100 50 54 97 97 55]` | `Default list` | `[112 117 98 108 105 99]` | `[100 111 117 98 108 101]` | `[123 116 101 115 116 44 102 102 102 125]` | `"2022-10-20T07:36:12.378176Z"` | `"2022-12-16T07:46:00.477233Z"` | `<nil>` | ]'
+            - '[`4` | `1` | `[48 99 101 101 102 50 101 102 45 102 98 54 57 45 52 49 98 56 45 57 48 52 55 45 100 55 101 99 50 100 100 50 54 97 97 55]` | `Default list` | `[112 117 98 108 105 99]` | `[100 111 117 98 108 101]` | `[123 116 101 115 116 44 102 102 102 125]` | `"2022-10-20T07:36:12.378176Z"` | `"2022-12-16T07:46:00.477233Z"` | `<nil>` | ]'
+    int: 0
+    error:
+        - nil
+        - nil
+        - nil
+        - nil
+        - EOF
+        - nil

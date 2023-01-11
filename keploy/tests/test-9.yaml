@@ -1,0 +1,46 @@
+version: api.keploy.io/v1beta2
+kind: Http
+name: test-9
+spec:
+    metadata: {}
+    req:
+        method: GET
+        proto_major: 1
+        proto_minor: 1
+        url: /api/dashboard/counts
+        header:
+            Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8
+            Accept-Encoding: gzip, deflate, br
+            Authorization: Basic bGlzdG1vbms6bGlzdG1vbms=
+            Connection: keep-alive
+            Cookie: connect.sid=s%3AdxWsE0jhYYsXQwFQKZJhtK_5Jli7MPB1.Wjbj0YQ3J7yJE1Zx21NQAWPtrz1f8i73j9FAnlvbrSg
+            Postman-Token: aa2768fb-8211-464e-bb92-868fe308f9e4
+            Sec-Fetch-Dest: iframe
+            Sec-Fetch-Mode: navigate
+            Sec-Fetch-Site: same-origin
+            Sec-Gpc: '"1"'
+            Upgrade-Insecure-Requests: '"1"'
+        body: ""
+        body_type: ""
+    resp:
+        status_code: 200
+        header:
+            Content-Type: application/json; charset=UTF-8
+        body: |
+            {"data":{"subscribers":{"total":3,"blocklisted":null,"orphans":0},"lists":{"total":5,"private":1,"public":4,"optin_single":2,"optin_double":3},"campaigns":{"total":7,"by_status":{"cancelled":3,"finished":4}},"messages":1}}
+        body_type: ""
+        status_message: ""
+        proto_major: 1
+        proto_minor: 1
+    objects:
+        - type: error
+          data: ""
+    mocks:
+        - test-9-0
+        - test-9-1
+        - test-9-2
+        - test-9-3
+        - test-9-4
+    assertions:
+        noise: []
+    created: 1671362077

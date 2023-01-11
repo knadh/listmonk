@@ -1,0 +1,46 @@
+version: api.keploy.io/v1beta2
+kind: Http
+name: test-161
+spec:
+    metadata: {}
+    req:
+        method: POST
+        proto_major: 1
+        proto_minor: 1
+        url: /api/campaigns/1/content
+        url_params:
+            id: "1"
+        header:
+            Accept: application/json, text/plain, */*
+            Accept-Encoding: gzip, deflate, br
+            Accept-Language: en-GB,en
+            Authorization: Basic bGlzdG1vbms6bGlzdG1vbms=
+            Connection: keep-alive
+            Content-Length: "522"
+            Content-Type: application/json
+            Cookie: connect.sid=s%3AdxWsE0jhYYsXQwFQKZJhtK_5Jli7MPB1.Wjbj0YQ3J7yJE1Zx21NQAWPtrz1f8i73j9FAnlvbrSg
+            Origin: http://localhost:9000
+            Referer: http://localhost:9000/admin/campaigns/1
+            Sec-Fetch-Dest: empty
+            Sec-Fetch-Mode: cors
+            Sec-Fetch-Site: same-origin
+            Sec-Gpc: "1"
+            User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36
+        body: '{"id":1,"body":"### Hi {{ .Subscriber.FirstName }}!\n\nThis is a test e-mail campaign. Your second name is {{ .Subscriber.LastName }} and you are from {{ .Subscriber.Attribs.city }}.\n\nHere is a [tracked link](https://listmonk.app@TrackLink).\n\nUse the link icon in the editor toolbar or when writing raw HTML or Markdown, simply suffix @TrackLink to the end of a URL to turn it into a tracking link. Example:\n\nFor help, refer to the [documentation](https://listmonk.app/docs).\n\nritik","from":"markdown","to":"html"}'
+        body_type: ""
+    resp:
+        status_code: 200
+        header:
+            Content-Type: application/json; charset=UTF-8
+        body: |
+            {"data":"\u003ch3 id=\"hi--subscriberfirstname-\"\u003eHi {{ .Subscriber.FirstName }}!\u003c/h3\u003e\n\u003cp\u003eThis is a test e-mail campaign. Your second name is {{ .Subscriber.LastName }} and you are from {{ .Subscriber.Attribs.city }}.\u003c/p\u003e\n\u003cp\u003eHere is a \u003ca href=\"https://listmonk.app@TrackLink\"\u003etracked link\u003c/a\u003e.\u003c/p\u003e\n\u003cp\u003eUse the link icon in the editor toolbar or when writing raw HTML or Markdown, simply suffix @TrackLink to the end of a URL to turn it into a tracking link. Example:\u003c/p\u003e\n\u003cp\u003eFor help, refer to the \u003ca href=\"https://listmonk.app/docs\"\u003edocumentation\u003c/a\u003e.\u003c/p\u003e\n\u003cp\u003eritik\u003c/p\u003e\n"}
+        body_type: ""
+        status_message: ""
+        proto_major: 1
+        proto_minor: 1
+    objects:
+        - type: error
+          data: ""
+    assertions:
+        noise: []
+    created: 1671789054

@@ -101,7 +101,7 @@ func handleUploadMedia(c echo.Context) error {
 		"width":  width,
 		"height": height,
 	}
-	m, err := app.core.InsertMedia(fName, thumbfName, meta, app.constants.MediaProvider, app.media)
+	m, err := app.core.InsertMedia(c.Request().Context(), fName, thumbfName, meta, app.constants.MediaProvider, app.media)
 	if err != nil {
 		cleanUp = true
 		return err
@@ -118,14 +118,14 @@ func handleGetMedia(c echo.Context) error {
 
 	// Fetch one list.
 	if id > 0 {
-		out, err := app.core.GetMedia(id, "", app.media)
+		out, err := app.core.GetMedia(c.Request().Context(), id, "", app.media)
 		if err != nil {
 			return err
 		}
 		return c.JSON(http.StatusOK, okResp{out})
 	}
 
-	out, err := app.core.GetAllMedia(app.constants.MediaProvider, app.media)
+	out, err := app.core.GetAllMedia(c.Request().Context(), app.constants.MediaProvider, app.media)
 	if err != nil {
 		return err
 	}
@@ -144,7 +144,7 @@ func handleDeleteMedia(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidID"))
 	}
 
-	fname, err := app.core.DeleteMedia(id)
+	fname, err := app.core.DeleteMedia(c.Request().Context(), id)
 	if err != nil {
 		return err
 	}

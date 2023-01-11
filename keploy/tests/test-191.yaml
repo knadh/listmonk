@@ -1,0 +1,43 @@
+version: api.keploy.io/v1beta2
+kind: Http
+name: test-191
+spec:
+    metadata: {}
+    req:
+        method: GET
+        proto_major: 1
+        proto_minor: 1
+        url: /api/lists/1
+        header:
+            Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8
+            Accept-Encoding: gzip, deflate, br
+            Authorization: Basic bGlzdG1vbms6bGlzdG1vbms=
+            Connection: keep-alive
+            Cookie: connect.sid=s%3AdxWsE0jhYYsXQwFQKZJhtK_5Jli7MPB1.Wjbj0YQ3J7yJE1Zx21NQAWPtrz1f8i73j9FAnlvbrSg
+            Postman-Token: 2cf23cda-8779-43ef-83f9-8c1b1376bb8a
+            Sec-Fetch-Dest: iframe
+            Sec-Fetch-Mode: navigate
+            Sec-Fetch-Site: same-origin
+            Sec-Gpc: '"1"'
+            Upgrade-Insecure-Requests: '"1"'
+        body: ""
+        body_type: ""
+    resp:
+        status_code: 200
+        header:
+            Content-Type: application/json; charset=UTF-8
+        body: |
+            {"data":{"id":1,"created_at":"2023-01-06T07:39:21.462994Z","updated_at":"2023-01-06T07:39:21.462994Z","uuid":"2d4e321d-e5e8-42df-9fc5-5cb5d6225862","name":"Default list","type":"private","optin":"single","tags":["test"],"description":"","subscriber_count":1,"subscriber_statuses":{"unconfirmed":1},"subscription_created_at":null,"subscription_updated_at":null}}
+        body_type: ""
+        status_message: ""
+        proto_major: 1
+        proto_minor: 1
+    objects:
+        - type: error
+          data: ""
+    mocks:
+        - test-191-0
+        - test-191-1
+    assertions:
+        noise: []
+    created: 1672999813

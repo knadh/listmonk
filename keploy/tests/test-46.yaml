@@ -1,0 +1,45 @@
+version: api.keploy.io/v1beta2
+kind: Http
+name: test-46
+spec:
+    metadata: {}
+    req:
+        method: GET
+        proto_major: 1
+        proto_minor: 1
+        url: /api/lists
+        header:
+            Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8
+            Accept-Encoding: gzip, deflate, br
+            Authorization: Basic bGlzdG1vbms6bGlzdG1vbms=
+            Connection: keep-alive
+            Content-Length: "76"
+            Content-Type: application/json
+            Cookie: connect.sid=s%3AdxWsE0jhYYsXQwFQKZJhtK_5Jli7MPB1.Wjbj0YQ3J7yJE1Zx21NQAWPtrz1f8i73j9FAnlvbrSg
+            Postman-Token: db701dbf-cdd4-43ab-9a8c-b59f38acc330
+            Sec-Fetch-Dest: iframe
+            Sec-Fetch-Mode: navigate
+            Sec-Fetch-Site: same-origin
+            Sec-Gpc: '"1"'
+            Upgrade-Insecure-Requests: '"1"'
+        body: '{"action":"unsubscribe","list_ids":null,"target_list_ids":[5],"ids":[23,22]}'
+        body_type: ""
+    resp:
+        status_code: 200
+        header:
+            Content-Type: application/json; charset=UTF-8
+        body: |
+            {"data":{"results":[{"id":11,"created_at":"2022-12-16T08:10:37.863884Z","updated_at":"2022-12-18T11:26:24.970648Z","uuid":"f79a73f7-1687-4951-adbf-3cfa79e7b9ad","name":"qwerty","type":"public","optin":"single","tags":["wasd"],"description":"","subscriber_count":0,"subscriber_statuses":{},"subscription_created_at":null,"subscription_updated_at":null},{"id":10,"created_at":"2022-12-06T11:17:23.574221Z","updated_at":"2022-12-06T11:17:23.574221Z","uuid":"21915090-6dce-40ed-b682-0ce419f0125a","name":"Sarthak","type":"public","optin":"double","tags":[],"description":"","subscriber_count":0,"subscriber_statuses":{},"subscription_created_at":null,"subscription_updated_at":null},{"id":5,"created_at":"2022-11-09T06:51:19.581244Z","updated_at":"2022-12-16T10:50:27.647233Z","uuid":"0c6252b0-f1af-4b32-ae47-5f00948d64a0","name":"Ritik","type":"public","optin":"single","tags":[],"description":"","subscriber_count":0,"subscriber_statuses":{},"subscription_created_at":null,"subscription_updated_at":null},{"id":1,"created_at":"2022-10-20T07:36:12.378176Z","updated_at":"2022-12-16T07:46:00.477233Z","uuid":"0ceef2ef-fb69-41b8-9047-d7ec2dd26aa7","name":"Default list","type":"public","optin":"double","tags":["test","fff"],"description":"","subscriber_count":0,"subscriber_statuses":{},"subscription_created_at":null,"subscription_updated_at":null}],"query":"","total":4,"per_page":20,"page":1}}
+        body_type: ""
+        status_message: ""
+        proto_major: 1
+        proto_minor: 1
+    objects:
+        - type: error
+          data: ""
+    mocks:
+        - test-46-0
+        - test-46-1
+    assertions:
+        noise: []
+    created: 1671391383

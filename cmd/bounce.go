@@ -5,8 +5,8 @@ import (
 	"io/ioutil"
 	"net/http"
 	"strconv"
-	"time"
 
+	"github.com/keploy/go-sdk/integrations/kclock"
 	"github.com/knadh/listmonk/models"
 	"github.com/labstack/echo/v4"
 )
@@ -26,14 +26,14 @@ func handleGetBounces(c echo.Context) error {
 
 	// Fetch one bounce.
 	if id > 0 {
-		out, err := app.core.GetBounce(id)
+		out, err := app.core.GetBounce(c.Request().Context(), id)
 		if err != nil {
 			return err
 		}
 		return c.JSON(http.StatusOK, okResp{out})
 	}
 
-	res, total, err := app.core.QueryBounces(campID, 0, source, orderBy, order, pg.Offset, pg.Limit)
+	res, total, err := app.core.QueryBounces(c.Request().Context(), campID, 0, source, orderBy, order, pg.Offset, pg.Limit)
 	if err != nil {
 		return err
 	}
@@ -65,7 +65,7 @@ func handleGetSubscriberBounces(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidID"))
 	}
 
-	out, _, err := app.core.QueryBounces(0, subID, "", "", "", 0, 1000)
+	out, _, err := app.core.QueryBounces(c.Request().Context(), 0, subID, "", "", "", 0, 1000)
 	if err != nil {
 		return err
 	}
@@ -104,7 +104,7 @@ func handleDeleteBounces(c echo.Context) error {
 		IDs = i
 	}
 
-	if err := app.core.DeleteBounces(IDs); err != nil {
+	if err := app.core.DeleteBounces(c.Request().Context(), IDs); err != nil {
 		return err
 	}
 
@@ -146,7 +146,7 @@ func handleBounceWebhook(c echo.Context) error {
 		}
 
 		if b.CreatedAt.Year() == 0 {
-			b.CreatedAt = time.Now()
+			b.CreatedAt = kclock.Now(c.Request().Context())
 		}
 
 		bounces = append(bounces, b)

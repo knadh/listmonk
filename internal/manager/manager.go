@@ -2,6 +2,7 @@ package manager
 
 import (
 	"bytes"
+	"context"
 	"errors"
 	"fmt"
 	"html/template"
@@ -12,6 +13,7 @@ import (
 	"time"
 
 	"github.com/Masterminds/sprig/v3"
+	"github.com/keploy/go-sdk/keploy"
 	"github.com/knadh/listmonk/internal/i18n"
 	"github.com/knadh/listmonk/internal/messenger"
 	"github.com/knadh/listmonk/models"
@@ -31,13 +33,13 @@ const (
 // Store represents a data backend, such as a database,
 // that provides subscriber and campaign records.
 type Store interface {
-	NextCampaigns(excludeIDs []int64) ([]*models.Campaign, error)
-	NextSubscribers(campID, limit int) ([]models.Subscriber, error)
-	GetCampaign(campID int) (*models.Campaign, error)
-	UpdateCampaignStatus(campID int, status string) error
-	CreateLink(url string) (string, error)
-	BlocklistSubscriber(id int64) error
-	DeleteSubscriber(id int64) error
+	NextCampaigns(ctx context.Context, excludeIDs []int64) ([]*models.Campaign, error)
+	NextSubscribers(ctx context.Context, campID, limit int) ([]models.Subscriber, error)
+	GetCampaign(ctx context.Context, campID int) (*models.Campaign, error)
+	UpdateCampaignStatus(ctx context.Context, campID int, status string) error
+	CreateLink(ctx context.Context, url string) (string, error)
+	BlocklistSubscriber(ctx context.Context, id int64) error
+	DeleteSubscriber(ctx context.Context, id int64) error
 }
 
 // CampStats contains campaign stats like per minute send rate.
@@ -274,9 +276,9 @@ func (m *Manager) GetCampaignStats(id int) CampStats {
 // subscribers and pushes messages to them for each queued campaign
 // until all subscribers are exhausted, at which point, a campaign is marked
 // as "finished".
-func (m *Manager) Run() {
+func (m *Manager) Run(ctx context.Context) {
 	if m.cfg.ScanCampaigns {
-		go m.scanCampaigns(m.cfg.ScanInterval)
+		go m.scanCampaigns(ctx, m.cfg.ScanInterval)
 	}
 
 	// Spawn N message workers.
@@ -286,7 +288,7 @@ func (m *Manager) Run() {
 
 	// Fetch the next set of subscribers for a campaign and process them.
 	for c := range m.subFetchQueue {
-		has, err := m.nextSubscribers(c, m.cfg.BatchSize)
+		has, err := m.nextSubscribers(ctx, c, m.cfg.BatchSize)
 		if err != nil {
 			m.logger.Printf("error processing campaign batch (%s): %v", c.Name, err)
 			continue
@@ -298,7 +300,7 @@ func (m *Manager) Run() {
 		} else if m.isCampaignProcessing(c.ID) {
 			// There are no more subscribers. Either the campaign status
 			// has changed or all subscribers have been processed.
-			newC, err := m.exhaustCampaign(c, "")
+			newC, err := m.exhaustCampaign(ctx, c, "")
 			if err != nil {
 				m.logger.Printf("error exhausting campaign (%s): %v", c.Name, err)
 				continue
@@ -430,7 +432,7 @@ func (m *Manager) worker() {
 
 // TemplateFuncs returns the template functions to be applied into
 // compiled campaign templates.
-func (m *Manager) TemplateFuncs(c *models.Campaign) template.FuncMap {
+func (m *Manager) TemplateFuncs(ctx context.Context, c *models.Campaign) template.FuncMap {
 	f := template.FuncMap{
 		"TrackLink": func(url string, msg *CampaignMessage) string {
 			subUUID := msg.Subscriber.UUID
@@ -438,7 +440,7 @@ func (m *Manager) TemplateFuncs(c *models.Campaign) template.FuncMap {
 				subUUID = dummyUUID
 			}
 
-			return m.trackLink(url, msg.Campaign.UUID, subUUID)
+			return m.trackLink(ctx, url, msg.Campaign.UUID, subUUID)
 		},
 		"TrackView": func(msg *CampaignMessage) template.HTML {
 			subUUID := msg.Subscriber.UUID
@@ -488,7 +490,7 @@ func (m *Manager) Close() {
 
 // scanCampaigns is a blocking function that periodically scans the data source
 // for campaigns to process and dispatches them to the manager.
-func (m *Manager) scanCampaigns(tick time.Duration) {
+func (m *Manager) scanCampaigns(ctx context.Context, tick time.Duration) {
 	t := time.NewTicker(tick)
 	defer t.Stop()
 
@@ -496,14 +498,14 @@ func (m *Manager) scanCampaigns(tick time.Duration) {
 		select {
 		// Periodically scan the data source for campaigns to process.
 		case <-t.C:
-			campaigns, err := m.store.NextCampaigns(m.getPendingCampaignIDs())
+			campaigns, err := m.store.NextCampaigns(ctx, m.getPendingCampaignIDs())
 			if err != nil {
 				m.logger.Printf("error fetching campaigns: %v", err)
 				continue
 			}
 
 			for _, c := range campaigns {
-				if err := m.addCampaign(c); err != nil {
+				if err := m.addCampaign(ctx, c); err != nil {
 					m.logger.Printf("error processing campaign (%s): %v", c.Name, err)
 					continue
 				}
@@ -516,6 +518,9 @@ func (m *Manager) scanCampaigns(tick time.Duration) {
 				case m.subFetchQueue <- c:
 				default:
 				}
+			}
+			if keploy.GetMode() != keploy.MODE_OFF {
+				t.Stop()
 			}
 
 			// Aggregate errors from sending messages to check against the error threshold
@@ -535,7 +540,7 @@ func (m *Manager) scanCampaigns(tick time.Duration) {
 					m.cfg.MaxSendErrors, e.camp.Name)
 
 				if m.isCampaignProcessing(e.camp.ID) {
-					m.exhaustCampaign(e.camp, models.CampaignStatusPaused)
+					m.exhaustCampaign(ctx, e.camp, models.CampaignStatusPaused)
 				}
 				delete(m.campMsgErrorCounts, e.camp.ID)
 
@@ -547,15 +552,15 @@ func (m *Manager) scanCampaigns(tick time.Duration) {
 }
 
 // addCampaign adds a campaign to the process queue.
-func (m *Manager) addCampaign(c *models.Campaign) error {
+func (m *Manager) addCampaign(ctx context.Context, c *models.Campaign) error {
 	// Validate messenger.
 	if _, ok := m.messengers[c.Messenger]; !ok {
-		m.store.UpdateCampaignStatus(c.ID, models.CampaignStatusCancelled)
+		m.store.UpdateCampaignStatus(ctx, c.ID, models.CampaignStatusCancelled)
 		return fmt.Errorf("unknown messenger %s on campaign %s", c.Messenger, c.Name)
 	}
 
 	// Load the template.
-	if err := c.CompileTemplate(m.TemplateFuncs(c)); err != nil {
+	if err := c.CompileTemplate(m.TemplateFuncs(ctx, c)); err != nil {
 		return err
 	}
 
@@ -583,9 +588,9 @@ func (m *Manager) getPendingCampaignIDs() []int64 {
 // It returns a bool indicating whether any subscribers were processed
 // in the current batch or not. A false indicates that all subscribers
 // have been processed, or that a campaign has been paused or cancelled.
-func (m *Manager) nextSubscribers(c *models.Campaign, batchSize int) (bool, error) {
+func (m *Manager) nextSubscribers(ctx context.Context, c *models.Campaign, batchSize int) (bool, error) {
 	// Fetch a batch of subscribers.
-	subs, err := m.store.NextSubscribers(c.ID, batchSize)
+	subs, err := m.store.NextSubscribers(ctx, c.ID, batchSize)
 	if err != nil {
 		return false, fmt.Errorf("error fetching campaign subscribers (%s): %v", c.Name, err)
 	}
@@ -652,7 +657,7 @@ func (m *Manager) isCampaignProcessing(id int) bool {
 	return ok
 }
 
-func (m *Manager) exhaustCampaign(c *models.Campaign, status string) (*models.Campaign, error) {
+func (m *Manager) exhaustCampaign(ctx context.Context, c *models.Campaign, status string) (*models.Campaign, error) {
 	m.campsMut.Lock()
 	delete(m.camps, c.ID)
 	delete(m.campRates, c.ID)
@@ -661,7 +666,7 @@ func (m *Manager) exhaustCampaign(c *models.Campaign, status string) (*models.Ca
 	// A status has been passed. Change the campaign's status
 	// without further checks.
 	if status != "" {
-		if err := m.store.UpdateCampaignStatus(c.ID, status); err != nil {
+		if err := m.store.UpdateCampaignStatus(ctx, c.ID, status); err != nil {
 			m.logger.Printf("error updating campaign (%s) status to %s: %v", c.Name, status, err)
 		} else {
 			m.logger.Printf("set campaign (%s) to %s", c.Name, status)
@@ -670,7 +675,7 @@ func (m *Manager) exhaustCampaign(c *models.Campaign, status string) (*models.Ca
 	}
 
 	// Fetch the up-to-date campaign status from the source.
-	cm, err := m.store.GetCampaign(c.ID)
+	cm, err := m.store.GetCampaign(ctx, c.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -678,7 +683,7 @@ func (m *Manager) exhaustCampaign(c *models.Campaign, status string) (*models.Ca
 	// If a running campaign has exhausted subscribers, it's finished.
 	if cm.Status == models.CampaignStatusRunning {
 		cm.Status = models.CampaignStatusFinished
-		if err := m.store.UpdateCampaignStatus(c.ID, models.CampaignStatusFinished); err != nil {
+		if err := m.store.UpdateCampaignStatus(ctx, c.ID, models.CampaignStatusFinished); err != nil {
 			m.logger.Printf("error finishing campaign (%s): %v", c.Name, err)
 		} else {
 			m.logger.Printf("campaign (%s) finished", c.Name)
@@ -692,7 +697,7 @@ func (m *Manager) exhaustCampaign(c *models.Campaign, status string) (*models.Ca
 
 // trackLink register a URL and return its UUID to be used in message templates
 // for tracking links.
-func (m *Manager) trackLink(url, campUUID, subUUID string) string {
+func (m *Manager) trackLink(ctx context.Context, url, campUUID, subUUID string) string {
 	url = strings.ReplaceAll(url, "&amp;", "&")
 
 	m.linksMut.RLock()
@@ -703,7 +708,7 @@ func (m *Manager) trackLink(url, campUUID, subUUID string) string {
 	m.linksMut.RUnlock()
 
 	// Register link.
-	uu, err := m.store.CreateLink(url)
+	uu, err := m.store.CreateLink(ctx, url)
 	if err != nil {
 		m.logger.Printf("error registering tracking for link '%s': %v", url, err)
 

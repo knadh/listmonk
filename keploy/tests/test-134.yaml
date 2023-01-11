@@ -1,0 +1,40 @@
+version: api.keploy.io/v1beta2
+kind: Http
+name: test-134
+spec:
+    metadata: {}
+    req:
+        method: GET
+        proto_major: 1
+        proto_minor: 1
+        url: /public/custom.css
+        header:
+            Accept: text/css,*/*;q=0.1
+            Accept-Encoding: gzip, deflate, br
+            Accept-Language: en-GB,en
+            Authorization: Basic bGlzdG1vbms6bGlzdG1vbms=
+            Connection: keep-alive
+            Cookie: connect.sid=s%3AdxWsE0jhYYsXQwFQKZJhtK_5Jli7MPB1.Wjbj0YQ3J7yJE1Zx21NQAWPtrz1f8i73j9FAnlvbrSg
+            Referer: http://localhost:9000/subscription/e6152472-56ca-4e3e-b086-ea8bfb70c0c3/59558b84-1575-4dc9-b7d8-93b0b7b54849
+            Sec-Fetch-Dest: style
+            Sec-Fetch-Mode: no-cors
+            Sec-Fetch-Site: same-origin
+            Sec-Gpc: "1"
+            User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36
+        body: ""
+        body_type: ""
+    resp:
+        status_code: 200
+        header:
+            Content-Type: text/css; charset=utf-8
+        body: ""
+        body_type: ""
+        status_message: ""
+        proto_major: 1
+        proto_minor: 1
+    objects:
+        - type: error
+          data: ""
+    assertions:
+        noise: []
+    created: 1671710930

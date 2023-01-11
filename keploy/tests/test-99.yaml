@@ -1,0 +1,46 @@
+version: api.keploy.io/v1beta2
+kind: Http
+name: test-99
+spec:
+    metadata: {}
+    req:
+        method: GET
+        proto_major: 1
+        proto_minor: 1
+        url: /api/templates/1
+        header:
+            Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8
+            Accept-Encoding: gzip, deflate, br
+            Authorization: Basic bGlzdG1vbms6bGlzdG1vbms=
+            Connection: keep-alive
+            Cookie: connect.sid=s%3AdxWsE0jhYYsXQwFQKZJhtK_5Jli7MPB1.Wjbj0YQ3J7yJE1Zx21NQAWPtrz1f8i73j9FAnlvbrSg
+            Postman-Token: 27ac9672-7f17-4ae7-8a7c-a64e589210d1
+            Sec-Fetch-Dest: iframe
+            Sec-Fetch-Mode: navigate
+            Sec-Fetch-Site: same-origin
+            Sec-Gpc: '"1"'
+            Upgrade-Insecure-Requests: '"1"'
+        body: ""
+        body_type: ""
+    resp:
+        status_code: 200
+        header:
+            Content-Type: application/json; charset=UTF-8
+        body: |
+            {"data":{"id":1,"created_at":"2022-10-20T07:36:12.383748Z","updated_at":"2022-10-20T07:36:12.383748Z","name":"Default campaign template","subject":"","type":"campaign","body":"\u003c!doctype html\u003e\n\u003chtml\u003e\n    \u003chead\u003e\n        \u003cmeta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\"\u003e\n        \u003cmeta name=\"viewport\" content=\"width=device-width, initial-scale=1, minimum-scale=1\"\u003e\n        \u003cbase target=\"_blank\"\u003e\n\n        \u003cstyle\u003e\n            body {\n                background-color: #F0F1F3;\n                font-family: 'Helvetica Neue', 'Segoe UI', Helvetica, sans-serif;\n                font-size: 15px;\n                line-height: 26px;\n                margin: 0;\n                color: #444;\n            }\n\n            pre {\n                background: #f4f4f4f4;\n                padding: 2px;\n            }\n\n            table {\n                width: 100%;\n                border: 1px solid #ddd;\n            }\n            table td {\n                border-color: #ddd;\n                padding: 5px;\n            }\n\n            .wrap {\n                background-color: #fff;\n                padding: 30px;\n                max-width: 525px;\n                margin: 0 auto;\n                border-radius: 5px;\n            }\n\n            .button {\n                background: #0055d4;\n                border-radius: 3px;\n                text-decoration: none !important;\n                color: #fff !important;\n                font-weight: bold;\n                padding: 10px 30px;\n                display: inline-block;\n            }\n            .button:hover {\n                background: #111;\n            }\n\n            .footer {\n                text-align: center;\n                font-size: 12px;\n                color: #888;\n            }\n                .footer a {\n                    color: #888;\n                    margin-right: 5px;\n                }\n\n            .gutter {\n                padding: 30px;\n            }\n\n            img {\n                max-width: 100%;\n                height: auto;\n            }\n\n            a {\n                color: #0055d4;\n            }\n                a:hover {\n                    color: #111;\n                }\n            @media screen and (max-width: 600px) {\n                .wrap {\n                    max-width: auto;\n                }\n                .gutter {\n                    padding: 10px;\n                }\n            }\n        \u003c/style\u003e\n    \u003c/head\u003e\n\u003cbody style=\"background-color: #F0F1F3;font-family: 'Helvetica Neue', 'Segoe UI', Helvetica, sans-serif;font-size: 15px;line-height: 26px;margin: 0;color: #444;\"\u003e\n    \u003cdiv class=\"gutter\" style=\"padding: 30px;\"\u003e\u0026nbsp;\u003c/div\u003e\n    \u003cdiv class=\"wrap\" style=\"background-color: #fff;padding: 30px;max-width: 525px;margin: 0 auto;border-radius: 5px;\"\u003e\n        {{ template \"content\" . }}\n    \u003c/div\u003e\n    \n    \u003cdiv class=\"footer\" style=\"text-align: center;font-size: 12px;color: #888;\"\u003e\n        \u003cp\u003e\n            {{ L.T \"email.unsubHelp\" }}\n            \u003ca href=\"{{ UnsubscribeURL }}\" style=\"color: #888;\"\u003e{{ L.T \"email.unsub\" }}\u003c/a\u003e\n            \u003ca href=\"{{ MessageURL }}\" style=\"color: #888;\"\u003e{{ L.T \"email.viewInBrowser\" }}\u003c/a\u003e\n        \u003c/p\u003e\n        \u003cp\u003ePowered by \u003ca href=\"https://listmonk.app\" target=\"_blank\" style=\"color: #888;\"\u003elistmonk\u003c/a\u003e\u003c/p\u003e\n    \u003c/div\u003e\n    \u003cdiv class=\"gutter\" style=\"padding: 30px;\"\u003e\u0026nbsp;{{ TrackView }}\u003c/div\u003e\n\u003c/body\u003e\n\u003c/html\u003e\n","is_default":true}}
+        body_type: ""
+        status_message: ""
+        proto_major: 1
+        proto_minor: 1
+    objects:
+        - type: error
+          data: ""
+    mocks:
+        - test-99-0
+        - test-99-1
+        - test-99-2
+        - test-99-3
+        - test-99-4
+    assertions:
+        noise: []
+    created: 1671393566

@@ -2,6 +2,7 @@ package models
 
 import (
 	"bytes"
+	"context"
 	"database/sql/driver"
 	"encoding/json"
 	"errors"
@@ -324,6 +325,11 @@ type Template struct {
 	Tpl        *template.Template `json:"-"`
 }
 
+type BounceCtx struct {
+	Bounce Bounce
+	Ctx    context.Context
+}
+
 // Bounce represents a single bounce event.
 type Bounce struct {
 	ID        int             `db:"id" json:"id"`
@@ -395,9 +401,9 @@ func (subs Subscribers) GetIDs() []int {
 
 // LoadLists lazy loads the lists for all the subscribers
 // in the Subscribers slice and attaches them to their []Lists property.
-func (subs Subscribers) LoadLists(stmt *sqlx.Stmt) error {
+func (subs Subscribers) LoadLists(ctx context.Context, stmt *sqlx.Stmt) error {
 	var sl []subLists
-	err := stmt.Select(&sl, pq.Array(subs.GetIDs()))
+	err := stmt.SelectContext(ctx, &sl, pq.Array(subs.GetIDs()))
 	if err != nil {
 		return err
 	}
@@ -411,7 +417,6 @@ func (subs Subscribers) LoadLists(stmt *sqlx.Stmt) error {
 			subs[i].Lists = s.Lists
 		}
 	}
-
 	return nil
 }
 
@@ -457,9 +462,9 @@ func (camps Campaigns) GetIDs() []int {
 }
 
 // LoadStats lazy loads campaign stats onto a list of campaigns.
-func (camps Campaigns) LoadStats(stmt *sqlx.Stmt) error {
+func (camps Campaigns) LoadStats(ctx context.Context, stmt *sqlx.Stmt) error {
 	var meta []CampaignMeta
-	if err := stmt.Select(&meta, pq.Array(camps.GetIDs())); err != nil {
+	if err := stmt.SelectContext(ctx, &meta, pq.Array(camps.GetIDs())); err != nil {
 		return err
 	}
 

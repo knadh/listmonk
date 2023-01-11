@@ -1,0 +1,49 @@
+version: api.keploy.io/v1beta2
+kind: Http
+name: test-147
+spec:
+    metadata: {}
+    req:
+        method: GET
+        proto_major: 1
+        proto_minor: 1
+        url: /campaign/e6152472-56ca-4e3e-b086-ea8bfb70c0c3/00000000-0000-0000-0000-000000000000/px.png
+        header:
+            Accept: image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8
+            Accept-Encoding: gzip, deflate, br
+            Accept-Language: en-GB,en
+            Authorization: Basic bGlzdG1vbms6bGlzdG1vbms=
+            Connection: keep-alive
+            Cookie: connect.sid=s%3AdxWsE0jhYYsXQwFQKZJhtK_5Jli7MPB1.Wjbj0YQ3J7yJE1Zx21NQAWPtrz1f8i73j9FAnlvbrSg
+            Referer: http://localhost:9000/campaign/e6152472-56ca-4e3e-b086-ea8bfb70c0c3/59558b84-1575-4dc9-b7d8-93b0b7b54849
+            Sec-Fetch-Dest: image
+            Sec-Fetch-Mode: no-cors
+            Sec-Fetch-Site: same-origin
+            Sec-Gpc: "1"
+            User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36
+        body: ""
+        body_type: ""
+    resp:
+        status_code: 200
+        header:
+            Cache-Control: no-cache
+            Content-Type: image/png
+            X-Robots-Tag: noindex
+        body: "�PNG\r\n\x1A\n\0\0\0\rIHDR\0\0\0\x0E\0\0\0\x03\b\x06\0\0\0��>\x0F\0\0\0\x12IDATx�bb \x13�_# \0\0��\x03W\0\a�F~�\0\0\0\0IEND�B`�"
+        body_type: ""
+        status_message: ""
+        proto_major: 1
+        proto_minor: 1
+    objects:
+        - type: error
+          data: ""
+    mocks:
+        - test-147-0
+        - test-147-1
+        - test-147-2
+        - test-147-3
+        - test-147-4
+        - test-147-5
+    assertions:
+        noise: []
+    created: 1671711540

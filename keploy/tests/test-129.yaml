@@ -1,0 +1,59 @@
+version: api.keploy.io/v1beta2
+kind: Http
+name: test-129
+spec:
+    metadata: {}
+    req:
+        method: GET
+        proto_major: 1
+        proto_minor: 1
+        url: /subscription/optin/1d63a2c5-015b-4ddd-ac39-632ae9d57496
+        header:
+            Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8
+            Accept-Encoding: gzip, deflate, br
+            Accept-Language: en-GB,en
+            Authorization: Basic bGlzdG1vbms6bGlzdG1vbms=
+            Cache-Control: max-age=0
+            Connection: keep-alive
+            Cookie: connect.sid=s%3AdxWsE0jhYYsXQwFQKZJhtK_5Jli7MPB1.Wjbj0YQ3J7yJE1Zx21NQAWPtrz1f8i73j9FAnlvbrSg
+            Sec-Fetch-Dest: document
+            Sec-Fetch-Mode: navigate
+            Sec-Fetch-Site: none
+            Sec-Fetch-User: ?1
+            Sec-Gpc: "1"
+            Upgrade-Insecure-Requests: "1"
+            User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36
+        body: ""
+        body_type: ""
+    resp:
+        status_code: 200
+        header:
+            Content-Type: text/html; charset=UTF-8
+            X-Robots-Tag: noindex
+        body: "\n\n<!DOCTYPE html>\n<html>\n<head>\n\t<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" />\t\n\t<title>Confirm subscription - Mailing list</title>\n\t<meta name=\"description\" content=\"\" />\n\t<meta name=\"viewport\" content=\"width=device-width, initial-scale=1, minimum-scale=1\" />\n\n\t\n\t\t<link rel=\"alternate\" type=\"application/rss+xml\" title=\"Mailing list archive - Mailing list\"\n\t\t\thref=\"http://localhost:9000/archive.xml\" />\n\t\n\n\t<link href=\"/public/static/style.css?v2.3.0\" rel=\"stylesheet\" type=\"text/css\" />\n\t<link href=\"/public/custom.css\" rel=\"stylesheet\" type=\"text/css\">\n\t<script src=\"/public/custom.js\" async defer></script>\n\n\t\n\t\t<link rel=\"shortcut icon\" href=\"/public/static/favicon.png\" type=\"image/x-icon\" />\n\t\n</head>\n<body>\n    <div class=\"container wrap\">\n\t\t<header class=\"header\">\n\t\t\t<div class=\"logo\">\n\t\t\t\t<a href=\"http://localhost:9000/subscription/form\">\n\t\t\t\t\n\t\t\t\t\t<img src=\"/public/static/logo.svg\" alt=\"Confirm subscription\" />\n\t\t\t\t\n\t\t\t\t</a>\n\t\t\t</div>\n\t\t</header>\n\n<section>\n    <h2>Confirm</h2>\n    <p>\n        You have been added to the following lists:\n    </p>\n\n    <form method=\"post\">\n        <ul>\n            \n                <input type=\"hidden\" name=\"l\" value=\"421cf358-f683-45e7-a427-9ce7d2bf2a9e\" />\n                \n                    <li>Default list</li>\n                \n            \n                <input type=\"hidden\" name=\"l\" value=\"7b5f913d-9d75-413e-9a62-9929a3c45a1b\" />\n                \n                    <li>Opt-in list</li>\n                \n            \n        </ul>\n        <p>\n            <input type=\"hidden\" name=\"confirm\" value=\"true\" />\n            <button type=\"submit\" class=\"button\" id=\"btn-unsub\">\n                Confirm subscription\n            </button>\n        </p>\n    </form>\n</section>\n\n\n\t</div>\n\t\n\t<footer class=\"container\">\n\t\tPowered by <a target=\"_blank\" href=\"https://listmonk.app\">listmonk</a>\n\t</footer>\n</body>\n</html>\n\n"
+        body_type: ""
+        status_message: ""
+        proto_major: 1
+        proto_minor: 1
+    objects:
+        - type: error
+          data: ""
+    mocks:
+        - test-129-0
+        - test-129-1
+        - test-129-2
+        - test-129-3
+        - test-129-4
+        - test-129-5
+        - test-129-6
+        - test-129-7
+        - test-129-8
+        - test-129-9
+        - test-129-10
+        - test-129-11
+        - test-129-12
+        - test-129-13
+        - test-129-14
+    assertions:
+        noise: []
+    created: 1671708478

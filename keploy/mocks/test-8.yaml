@@ -1,0 +1,74 @@
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-8-0
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext
+        query: '"WITH clicks AS ( SELECT JSON_AGG(ROW_TO_JSON(row)) FROM ( WITH viewDates AS ( SELECT TIMEZONE(''UTC'', created_at)::DATE AS to_date, TIMEZONE(''UTC'', created_at)::DATE - INTERVAL ''30 DAY'' AS from_date FROM link_clicks ORDER BY id DESC LIMIT 1 ) SELECT COUNT(*) AS count, created_at::DATE as date FROM link_clicks WHERE TIMEZONE(''UTC'', created_at)::DATE BETWEEN (SELECT from_date FROM viewDates) AND (SELECT to_date FROM viewDates) GROUP by date ORDER BY date ) row ), views AS ( SELECT JSON_AGG(ROW_TO_JSON(row)) FROM ( WITH viewDates AS ( SELECT TIMEZONE(''UTC'', created_at)::DATE AS to_date, TIMEZONE(''UTC'', created_at)::DATE - INTERVAL ''30 DAY'' AS from_date FROM campaign_views ORDER BY id DESC LIMIT 1 ) SELECT COUNT(*) AS count, created_at::DATE as date FROM campaign_views WHERE TIMEZONE(''UTC'', created_at)::DATE BETWEEN (SELECT from_date FROM viewDates) AND (SELECT to_date FROM viewDates) GROUP by date ORDER BY date ) row ) SELECT JSON_BUILD_OBJECT(''link_clicks'', COALESCE((SELECT * FROM clicks), ''[]''), ''campaign_views'', COALESCE((SELECT * FROM views), ''[]''));"'
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-8-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.NumInput
+        type: SQL_DB
+    type: int
+    int: 0
+    error: []
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-8-2
+spec:
+    metadata:
+        arguments: '[]'
+        name: SQL
+        operation: QueryContext
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-8-3
+spec:
+    metadata:
+        name: SQL
+        operation: QueryContext.Close
+        type: SQL_DB
+    type: table
+    table:
+        cols:
+            - name: json_build_object
+              type: '[]uint8'
+              precision: 0
+              scale: 0
+        rows:
+            - '[`[123 34 108 105 110 107 95 99 108 105 99 107 115 34 32 58 32 91 93 44 32 34 99 97 109 112 97 105 103 110 95 118 105 101 119 115 34 32 58 32 91 93 125]` | ]'
+    int: 0
+    error:
+        - nil
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-8-4
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.Close
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil

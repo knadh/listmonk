@@ -1,0 +1,82 @@
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-58-0
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext
+        query: '"WITH intval AS ( SELECT CASE WHEN (EXTRACT (EPOCH FROM ($3::TIMESTAMP - $2::TIMESTAMP)) / 86400) >= 7 THEN ''day'' ELSE ''hour'' END ) SELECT campaign_id, COUNT(*) AS "count", DATE_TRUNC((SELECT * FROM intval), created_at) AS "timestamp" FROM campaign_views WHERE campaign_id=ANY($1) AND created_at >= $2 AND created_at <= $3 GROUP BY campaign_id, "timestamp" ORDER BY "timestamp" ASC;"'
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-58-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.NumInput
+        type: SQL_DB
+    type: int
+    int: 3
+    error: []
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-58-2
+spec:
+    metadata:
+        arguments: '[{ 1 {9}} { 2 2022-12-11T18:30:00.863Z} { 3 2022-12-19T18:29:00.863Z}]'
+        name: SQL
+        operation: QueryContext
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-58-3
+spec:
+    metadata:
+        name: SQL
+        operation: QueryContext.Close
+        type: SQL_DB
+    type: table
+    table:
+        cols:
+            - name: campaign_id
+              type: <nil>
+              precision: 0
+              scale: 0
+            - name: count
+              type: <nil>
+              precision: 0
+              scale: 0
+            - name: timestamp
+              type: <nil>
+              precision: 0
+              scale: 0
+        rows:
+            - '[`<nil>` | `<nil>` | `<nil>` | ]'
+    int: 0
+    error:
+        - EOF
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-58-4
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.Close
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil

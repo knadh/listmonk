@@ -1,0 +1,81 @@
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-170-0
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext
+        query: '"DELETE FROM bounces WHERE CARDINALITY($1::INT[]) = 0 OR id = ANY($1);"'
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-170-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.NumInput
+        type: SQL_DB
+    type: int
+    int: 1
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-170-2
+spec:
+    metadata:
+        arguments: '[{ 1 {2}}]'
+        name: SQL
+        operation: ExecContext
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-170-3
+spec:
+    metadata:
+        arguments: '[{ 1 {2}}]'
+        name: SQL
+        operation: ExecContext.LastInsertId
+        type: SQL_DB
+    type: int
+    int: 0
+    error:
+        - LastInsertId is not supported by this driver
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-170-4
+spec:
+    metadata:
+        arguments: '[{ 1 {2}}]'
+        name: SQL
+        operation: ExecContext.RowsAffected
+        type: SQL_DB
+    type: int
+    int: 1
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-170-5
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.Close
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil

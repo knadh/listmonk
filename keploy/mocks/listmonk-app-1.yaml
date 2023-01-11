@@ -1,0 +1,2667 @@
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: Ping
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        arguments: '[]'
+        name: SQL
+        operation: ExecContext
+        query: '"SELECT id FROM templates LIMIT 1"'
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        arguments: '[]'
+        name: SQL
+        operation: ExecContext.LastInsertId
+        query: '"SELECT id FROM templates LIMIT 1"'
+        type: SQL_DB
+    type: int
+    int: 0
+    error:
+        - LastInsertId is not supported by this driver
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        arguments: '[]'
+        name: SQL
+        operation: ExecContext.RowsAffected
+        query: '"SELECT id FROM templates LIMIT 1"'
+        type: SQL_DB
+    type: int
+    int: 1
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        arguments: '[]'
+        name: SQL
+        operation: QueryContext
+        query: |-
+            "
+            		SELECT COALESCE(
+            			(SELECT value->>-1 FROM settings WHERE key='migrations'),
+            		'v0.0.0')"
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: QueryContext.Close
+        type: SQL_DB
+    type: table
+    table:
+        cols:
+            - name: coalesce
+              type: string
+              precision: 0
+              scale: 0
+        rows:
+            - '[`v2.3.0` | ]'
+    int: 0
+    error:
+        - nil
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        arguments: '[]'
+        name: SQL
+        operation: QueryContext
+        query: '"SELECT JSON_OBJECT_AGG(key, value) AS settings FROM ( SELECT * FROM settings ORDER BY key ) t;"'
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: QueryContext.Close
+        type: SQL_DB
+    type: table
+    table:
+        cols:
+            - name: settings
+              type: '[]uint8'
+              precision: 0
+              scale: 0
+        rows:
+            - '[`[123 32 34 97 112 112 46 98 97 116 99 104 95 115 105 122 101 34 32 58 32 49 48 48 48 44 32 34 97 112 112 46 99 104 101 99 107 95 117 112 100 97 116 101 115 34 32 58 32 116 114 117 101 44 32 34 97 112 112 46 99 111 110 99 117 114 114 101 110 99 121 34 32 58 32 49 48 44 32 34 97 112 112 101 97 114 97 110 99 101 46 97 100 109 105 110 46 99 117 115 116 111 109 95 99 115 115 34 32 58 32 34 34 44 32 34 97 112 112 101 97 114 97 110 99 101 46 97 100 109 105 110 46 99 117 115 116 111 109 95 106 115 34 32 58 32 34 34 44 32 34 97 112 112 101 97 114 97 110 99 101 46 112 117 98 108 105 99 46 99 117 115 116 111 109 95 99 115 115 34 32 58 32 34 34 44 32 34 97 112 112 101 97 114 97 110 99 101 46 112 117 98 108 105 99 46 99 117 115 116 111 109 95 106 115 34 32 58 32 34 34 44 32 34 97 112 112 46 101 110 97 98 108 101 95 112 117 98 108 105 99 95 97 114 99 104 105 118 101 34 32 58 32 116 114 117 101 44 32 34 97 112 112 46 101 110 97 98 108 101 95 112 117 98 108 105 99 95 115 117 98 115 99 114 105 112 116 105 111 110 95 112 97 103 101 34 32 58 32 116 114 117 101 44 32 34 97 112 112 46 102 97 118 105 99 111 110 95 117 114 108 34 32 58 32 34 34 44 32 34 97 112 112 46 102 114 111 109 95 101 109 97 105 108 34 32 58 32 34 108 105 115 116 109 111 110 107 32 60 110 111 114 101 112 108 121 64 108 105 115 116 109 111 110 107 46 121 111 117 114 115 105 116 101 46 99 111 109 62 34 44 32 34 97 112 112 46 108 97 110 103 34 32 58 32 34 101 110 34 44 32 34 97 112 112 46 108 111 103 111 95 117 114 108 34 32 58 32 34 34 44 32 34 97 112 112 46 109 97 120 95 115 101 110 100 95 101 114 114 111 114 115 34 32 58 32 49 48 48 48 44 32 34 97 112 112 46 109 101 115 115 97 103 101 95 114 97 116 101 34 32 58 32 49 48 44 32 34 97 112 112 46 109 101 115 115 97 103 101 95 115 108 105 100 105 110 103 95 119 105 110 100 111 119 34 32 58 32 102 97 108 115 101 44 32 34 97 112 112 46 109 101 115 115 97 103 101 95 115 108 105 100 105 110 103 95 119 105 110 100 111 119 95 100 117 114 97 116 105 111 110 34 32 58 32 34 49 104 34 44 32 34 97 112 112 46 109 101 115 115 97 103 101 95 115 108 105 100 105 110 103 95 119 105 110 100 111 119 95 114 97 116 101 34 32 58 32 49 48 48 48 48 44 32 34 97 112 112 46 110 111 116 105 102 121 95 101 109 97 105 108 115 34 32 58 32 91 34 97 100 109 105 110 49 64 109 121 115 105 116 101 46 99 111 109 34 44 32 34 97 100 109 105 110 50 64 109 121 115 105 116 101 46 99 111 109 34 93 44 32 34 97 112 112 46 114 111 111 116 95 117 114 108 34 32 58 32 34 104 116 116 112 58 47 47 108 111 99 97 108 104 111 115 116 58 57 48 48 48 34 44 32 34 97 112 112 46 115 101 110 100 95 111 112 116 105 110 95 99 111 110 102 105 114 109 97 116 105 111 110 34 32 58 32 116 114 117 101 44 32 34 97 112 112 46 115 105 116 101 95 110 97 109 101 34 32 58 32 34 77 97 105 108 105 110 103 32 108 105 115 116 34 44 32 34 98 111 117 110 99 101 46 97 99 116 105 111 110 34 32 58 32 34 98 108 111 99 107 108 105 115 116 34 44 32 34 98 111 117 110 99 101 46 99 111 117 110 116 34 32 58 32 50 44 32 34 98 111 117 110 99 101 46 101 110 97 98 108 101 100 34 32 58 32 116 114 117 101 44 32 34 98 111 117 110 99 101 46 109 97 105 108 98 111 120 101 115 34 32 58 32 91 123 34 104 111 115 116 34 58 32 34 112 111 112 46 121 111 117 114 115 105 116 101 46 99 111 109 34 44 32 34 112 111 114 116 34 58 32 57 57 53 44 32 34 116 121 112 101 34 58 32 34 112 111 112 34 44 32 34 117 117 105 100 34 58 32 34 55 49 52 52 55 102 48 51 45 97 97 97 55 45 52 48 100 99 45 97 48 53 54 45 98 52 50 56 51 101 102 102 55 57 100 97 34 44 32 34 101 110 97 98 108 101 100 34 58 32 102 97 108 115 101 44 32 34 112 97 115 115 119 111 114 100 34 58 32 34 112 97 115 115 119 111 114 100 34 44 32 34 117 115 101 114 110 97 109 101 34 58 32 34 117 115 101 114 110 97 109 101 34 44 32 34 114 101 116 117 114 110 95 112 97 116 104 34 58 32 34 98 111 117 110 99 101 64 108 105 115 116 109 111 110 107 46 121 111 117 114 115 105 116 101 46 99 111 109 34 44 32 34 116 108 115 95 101 110 97 98 108 101 100 34 58 32 116 114 117 101 44 32 34 97 117 116 104 95 112 114 111 116 111 99 111 108 34 58 32 34 117 115 101 114 112 97 115 115 34 44 32 34 115 99 97 110 95 105 110 116 101 114 118 97 108 34 58 32 34 49 53 109 34 44 32 34 116 108 115 95 115 107 105 112 95 118 101 114 105 102 121 34 58 32 102 97 108 115 101 125 93 44 32 34 98 111 117 110 99 101 46 115 101 110 100 103 114 105 100 95 101 110 97 98 108 101 100 34 32 58 32 116 114 117 101 44 32 34 98 111 117 110 99 101 46 115 101 110 100 103 114 105 100 95 107 101 121 34 32 58 32 34 108 105 115 116 109 111 110 107 34 44 32 34 98 111 117 110 99 101 46 115 101 115 95 101 110 97 98 108 101 100 34 32 58 32 116 114 117 101 44 32 34 98 111 117 110 99 101 46 119 101 98 104 111 111 107 115 95 101 110 97 98 108 101 100 34 32 58 32 116 114 117 101 44 32 34 109 101 115 115 101 110 103 101 114 115 34 32 58 32 91 93 44 32 34 109 105 103 114 97 116 105 111 110 115 34 32 58 32 91 34 118 50 46 51 46 48 34 93 44 32 34 112 114 105 118 97 99 121 46 97 108 108 111 119 95 98 108 111 99 107 108 105 115 116 34 32 58 32 116 114 117 101 44 32 34 112 114 105 118 97 99 121 46 97 108 108 111 119 95 101 120 112 111 114 116 34 32 58 32 116 114 117 101 44 32 34 112 114 105 118 97 99 121 46 97 108 108 111 119 95 112 114 101 102 101 114 101 110 99 101 115 34 32 58 32 116 114 117 101 44 32 34 112 114 105 118 97 99 121 46 97 108 108 111 119 95 119 105 112 101 34 32 58 32 116 114 117 101 44 32 34 112 114 105 118 97 99 121 46 100 111 109 97 105 110 95 98 108 111 99 107 108 105 115 116 34 32 58 32 91 93 44 32 34 112 114 105 118 97 99 121 46 101 120 112 111 114 116 97 98 108 101 34 32 58 32 91 34 112 114 111 102 105 108 101 34 44 32 34 115 117 98 115 99 114 105 112 116 105 111 110 115 34 44 32 34 99 97 109 112 97 105 103 110 95 118 105 101 119 115 34 44 32 34 108 105 110 107 95 99 108 105 99 107 115 34 93 44 32 34 112 114 105 118 97 99 121 46 105 110 100 105 118 105 100 117 97 108 95 116 114 97 99 107 105 110 103 34 32 58 32 102 97 108 115 101 44 32 34 112 114 105 118 97 99 121 46 117 110 115 117 98 115 99 114 105 98 101 95 104 101 97 100 101 114 34 32 58 32 116 114 117 101 44 32 34 115 109 116 112 34 32 58 32 91 123 34 104 111 115 116 34 58 32 34 115 109 116 112 46 121 111 117 114 115 105 116 101 46 99 111 109 34 44 32 34 112 111 114 116 34 58 32 50 53 44 32 34 117 117 105 100 34 58 32 34 102 55 54 100 99 55 56 54 45 100 50 55 102 45 52 55 99 98 45 56 49 53 102 45 52 99 54 48 48 50 100 99 54 100 57 56 34 44 32 34 101 110 97 98 108 101 100 34 58 32 116 114 117 101 44 32 34 112 97 115 115 119 111 114 100 34 58 32 34 112 97 115 115 119 111 114 100 34 44 32 34 116 108 115 95 116 121 112 101 34 58 32 34 83 84 65 82 84 84 76 83 34 44 32 34 117 115 101 114 110 97 109 101 34 58 32 34 117 115 101 114 110 97 109 101 34 44 32 34 109 97 120 95 99 111 110 110 115 34 58 32 49 48 44 32 34 105 100 108 101 95 116 105 109 101 111 117 116 34 58 32 34 49 53 115 34 44 32 34 119 97 105 116 95 116 105 109 101 111 117 116 34 58 32 34 53 115 34 44 32 34 97 117 116 104 95 112 114 111 116 111 99 111 108 34 58 32 34 99 114 97 109 34 44 32 34 101 109 97 105 108 95 104 101 97 100 101 114 115 34 58 32 91 93 44 32 34 104 101 108 108 111 95 104 111 115 116 110 97 109 101 34 58 32 34 34 44 32 34 109 97 120 95 109 115 103 95 114 101 116 114 105 101 115 34 58 32 50 44 32 34 116 108 115 95 115 107 105 112 95 118 101 114 105 102 121 34 58 32 102 97 108 115 101 125 44 32 123 34 104 111 115 116 34 58 32 34 115 109 116 112 46 103 109 97 105 108 46 99 111 109 34 44 32 34 112 111 114 116 34 58 32 52 54 53 44 32 34 117 117 105 100 34 58 32 34 48 49 56 54 48 53 57 53 45 52 102 55 101 45 52 98 100 55 45 97 51 54 48 45 98 55 56 50 53 54 52 56 102 50 102 55 34 44 32 34 101 110 97 98 108 101 100 34 58 32 102 97 108 115 101 44 32 34 112 97 115 115 119 111 114 100 34 58 32 34 112 97 115 115 119 111 114 100 34 44 32 34 116 108 115 95 116 121 112 101 34 58 32 34 84 76 83 34 44 32 34 117 115 101 114 110 97 109 101 34 58 32 34 117 115 101 114 110 97 109 101 64 103 109 97 105 108 46 99 111 109 34 44 32 34 109 97 120 95 99 111 110 110 115 34 58 32 49 48 44 32 34 105 100 108 101 95 116 105 109 101 111 117 116 34 58 32 34 49 53 115 34 44 32 34 119 97 105 116 95 116 105 109 101 111 117 116 34 58 32 34 53 115 34 44 32 34 97 117 116 104 95 112 114 111 116 111 99 111 108 34 58 32 34 108 111 103 105 110 34 44 32 34 101 109 97 105 108 95 104 101 97 100 101 114 115 34 58 32 91 93 44 32 34 104 101 108 108 111 95 104 111 115 116 110 97 109 101 34 58 32 34 34 44 32 34 109 97 120 95 109 115 103 95 114 101 116 114 105 101 115 34 58 32 50 44 32 34 116 108 115 95 115 107 105 112 95 118 101 114 105 102 121 34 58 32 102 97 108 115 101 125 93 44 32 34 117 112 108 111 97 100 46 102 105 108 101 115 121 115 116 101 109 46 117 112 108 111 97 100 95 112 97 116 104 34 32 58 32 34 117 112 108 111 97 100 115 34 44 32 34 117 112 108 111 97 100 46 102 105 108 101 115 121 115 116 101 109 46 117 112 108 111 97 100 95 117 114 105 34 32 58 32 34 47 117 112 108 111 97 100 115 34 44 32 34 117 112 108 111 97 100 46 112 114 111 118 105 100 101 114 34 32 58 32 34 102 105 108 101 115 121 115 116 101 109 34 44 32 34 117 112 108 111 97 100 46 115 51 46 97 119 115 95 97 99 99 101 115 115 95 107 101 121 95 105 100 34 32 58 32 34 34 44 32 34 117 112 108 111 97 100 46 115 51 46 97 119 115 95 100 101 102 97 117 108 116 95 114 101 103 105 111 110 34 32 58 32 34 97 112 45 115 111 117 116 104 45 49 34 44 32 34 117 112 108 111 97 100 46 115 51 46 97 119 115 95 115 101 99 114 101 116 95 97 99 99 101 115 115 95 107 101 121 34 32 58 32 34 34 44 32 34 117 112 108 111 97 100 46 115 51 46 98 117 99 107 101 116 34 32 58 32 34 34 44 32 34 117 112 108 111 97 100 46 115 51 46 98 117 99 107 101 116 95 100 111 109 97 105 110 34 32 58 32 34 34 44 32 34 117 112 108 111 97 100 46 115 51 46 98 117 99 107 101 116 95 112 97 116 104 34 32 58 32 34 47 34 44 32 34 117 112 108 111 97 100 46 115 51 46 98 117 99 107 101 116 95 116 121 112 101 34 32 58 32 34 112 117 98 108 105 99 34 44 32 34 117 112 108 111 97 100 46 115 51 46 101 120 112 105 114 121 34 32 58 32 34 49 52 100 34 44 32 34 117 112 108 111 97 100 46 115 51 46 112 117 98 108 105 99 95 117 114 108 34 32 58 32 34 34 44 32 34 117 112 108 111 97 100 46 115 51 46 117 114 108 34 32 58 32 34 104 116 116 112 115 58 47 47 97 112 45 115 111 117 116 104 45 49 46 115 51 46 97 109 97 122 111 110 97 119 115 46 99 111 109 34 32 125]` | ]'
+    int: 0
+    error:
+        - nil
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext
+        query: '"WITH clicks AS ( SELECT JSON_AGG(ROW_TO_JSON(row)) FROM ( WITH viewDates AS ( SELECT TIMEZONE(''UTC'', created_at)::DATE AS to_date, TIMEZONE(''UTC'', created_at)::DATE - INTERVAL ''30 DAY'' AS from_date FROM link_clicks ORDER BY id DESC LIMIT 1 ) SELECT COUNT(*) AS count, created_at::DATE as date FROM link_clicks WHERE TIMEZONE(''UTC'', created_at)::DATE BETWEEN (SELECT from_date FROM viewDates) AND (SELECT to_date FROM viewDates) GROUP by date ORDER BY date ) row ), views AS ( SELECT JSON_AGG(ROW_TO_JSON(row)) FROM ( WITH viewDates AS ( SELECT TIMEZONE(''UTC'', created_at)::DATE AS to_date, TIMEZONE(''UTC'', created_at)::DATE - INTERVAL ''30 DAY'' AS from_date FROM campaign_views ORDER BY id DESC LIMIT 1 ) SELECT COUNT(*) AS count, created_at::DATE as date FROM campaign_views WHERE TIMEZONE(''UTC'', created_at)::DATE BETWEEN (SELECT from_date FROM viewDates) AND (SELECT to_date FROM viewDates) GROUP by date ORDER BY date ) row ) SELECT JSON_BUILD_OBJECT(''link_clicks'', COALESCE((SELECT * FROM clicks), ''[]''), ''campaign_views'', COALESCE((SELECT * FROM views), ''[]''));"'
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.Close
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext
+        query: '"WITH subs AS ( SELECT COUNT(*) AS num, status FROM subscribers GROUP BY status ) SELECT JSON_BUILD_OBJECT(''subscribers'', JSON_BUILD_OBJECT( ''total'', (SELECT SUM(num) FROM subs), ''blocklisted'', (SELECT num FROM subs WHERE status=''blocklisted''), ''orphans'', ( SELECT COUNT(id) FROM subscribers LEFT JOIN subscriber_lists ON (subscribers.id = subscriber_lists.subscriber_id) WHERE subscriber_lists.subscriber_id IS NULL ) ), ''lists'', JSON_BUILD_OBJECT( ''total'', (SELECT COUNT(*) FROM lists), ''private'', (SELECT COUNT(*) FROM lists WHERE type=''private''), ''public'', (SELECT COUNT(*) FROM lists WHERE type=''public''), ''optin_single'', (SELECT COUNT(*) FROM lists WHERE optin=''single''), ''optin_double'', (SELECT COUNT(*) FROM lists WHERE optin=''double'') ), ''campaigns'', JSON_BUILD_OBJECT( ''total'', (SELECT COUNT(*) FROM campaigns), ''by_status'', ( SELECT JSON_OBJECT_AGG (status, num) FROM (SELECT status, COUNT(*) AS num FROM campaigns GROUP BY status) r ) ), ''messages'', (SELECT SUM(sent) AS messages FROM campaigns));"'
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.Close
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext
+        query: '"WITH sub AS ( INSERT INTO subscribers (uuid, email, name, status, attribs) VALUES($1, $2, $3, $4, $5) RETURNING id, status ), listIDs AS ( SELECT id FROM lists WHERE (CASE WHEN CARDINALITY($6::INT[]) > 0 THEN id=ANY($6) ELSE uuid=ANY($7::UUID[]) END) ), subs AS ( INSERT INTO subscriber_lists (subscriber_id, list_id, status) VALUES( (SELECT id FROM sub), UNNEST(ARRAY(SELECT id FROM listIDs)), (CASE WHEN $4=''blocklisted'' THEN ''unsubscribed''::subscription_status ELSE $8::subscription_status END) ) ON CONFLICT (subscriber_id, list_id) DO UPDATE SET updated_at=NOW(), status=( CASE WHEN $4=''blocklisted'' OR (SELECT status FROM sub)=''blocklisted'' THEN ''unsubscribed''::subscription_status ELSE $8::subscription_status END ) ) SELECT id from sub;"'
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.Close
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext
+        query: '"WITH sub AS ( INSERT INTO subscribers as s (uuid, email, name, attribs, status) VALUES($1, $2, $3, $4, ''enabled'') ON CONFLICT (email) DO UPDATE SET name=(CASE WHEN $7 THEN $3 ELSE s.name END), attribs=(CASE WHEN $7 THEN $4 ELSE s.attribs END), updated_at=NOW() RETURNING uuid, id ), subs AS ( INSERT INTO subscriber_lists (subscriber_id, list_id, status) VALUES((SELECT id FROM sub), UNNEST($5::INT[]), $6) ON CONFLICT (subscriber_id, list_id) DO UPDATE SET updated_at=NOW(), status=(CASE WHEN $7 THEN $6 ELSE subscriber_lists.status END) ) SELECT uuid, id from sub;"'
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.Close
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext
+        query: '"WITH sub AS ( INSERT INTO subscribers (uuid, email, name, attribs, status) VALUES($1, $2, $3, $4, ''blocklisted'') ON CONFLICT (email) DO UPDATE SET status=''blocklisted'', updated_at=NOW() RETURNING id ) UPDATE subscriber_lists SET status=''unsubscribed'', updated_at=NOW() WHERE subscriber_id = (SELECT id FROM sub);"'
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.Close
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext
+        query: '"SELECT * FROM subscribers WHERE CASE WHEN $1 > 0 THEN id = $1 WHEN $2 != '''' THEN uuid = $2::UUID WHEN $3 != '''' THEN email = $3 END;"'
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.Close
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext
+        query: '"SELECT * FROM subscribers WHERE email=ANY($1);"'
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.Close
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext
+        query: '"WITH sub AS ( SELECT id FROM subscribers WHERE CASE WHEN $1 > 0 THEN id = $1 ELSE uuid = $2 END ) SELECT * FROM lists LEFT JOIN subscriber_lists ON (lists.id = subscriber_lists.list_id) WHERE subscriber_id = (SELECT id FROM sub) AND (CASE WHEN CARDINALITY($3::INT[]) > 0 THEN id = ANY($3::INT[]) WHEN CARDINALITY($4::UUID[]) > 0 THEN uuid = ANY($4::UUID[]) ELSE TRUE END) AND (CASE WHEN $5 != '''' THEN subscriber_lists.status = $5::subscription_status ELSE TRUE END) AND (CASE WHEN $6 != '''' THEN lists.optin = $6::list_optin ELSE TRUE END) ORDER BY id;"'
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.Close
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext
+        query: '"WITH sub AS ( SELECT id FROM subscribers WHERE CASE WHEN $1 > 0 THEN id = $1 ELSE uuid = $2 END ) SELECT lists.*, subscriber_lists.status as subscription_status, subscriber_lists.created_at as subscription_created_at FROM lists LEFT JOIN subscriber_lists ON (subscriber_lists.list_id = lists.id AND subscriber_lists.subscriber_id = (SELECT id FROM sub)) WHERE CASE WHEN $3 = TRUE THEN TRUE ELSE subscriber_lists.status IS NOT NULL END ORDER BY subscriber_lists.status;"'
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.Close
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext
+        query: '"WITH subs AS ( SELECT subscriber_id, JSON_AGG( ROW_TO_JSON( (SELECT l FROM ( SELECT subscriber_lists.status AS subscription_status, subscriber_lists.created_at AS subscription_created_at, subscriber_lists.updated_at AS subscription_updated_at, lists.* ) l) ) ) AS lists FROM lists LEFT JOIN subscriber_lists ON (subscriber_lists.list_id = lists.id) WHERE subscriber_lists.subscriber_id = ANY($1) GROUP BY subscriber_id ) SELECT id as subscriber_id, COALESCE(s.lists, ''[]'') AS lists FROM (SELECT id FROM UNNEST($1) AS id) x LEFT JOIN subs AS s ON (s.subscriber_id = id) ORDER BY ARRAY_POSITION($1, id);"'
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.Close
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext
+        query: '"UPDATE subscribers SET email=(CASE WHEN $2 != '''' THEN $2 ELSE email END), name=(CASE WHEN $3 != '''' THEN $3 ELSE name END), status=(CASE WHEN $4 != '''' THEN $4::subscriber_status ELSE status END), attribs=(CASE WHEN $5 != '''' THEN $5::JSONB ELSE attribs END), updated_at=NOW() WHERE id = $1;"'
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.Close
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext
+        query: '"WITH s AS ( UPDATE subscribers SET email=(CASE WHEN $2 != '''' THEN $2 ELSE email END), name=(CASE WHEN $3 != '''' THEN $3 ELSE name END), status=(CASE WHEN $4 != '''' THEN $4::subscriber_status ELSE status END), attribs=(CASE WHEN $5 != '''' THEN $5::JSONB ELSE attribs END), updated_at=NOW() WHERE id = $1 RETURNING id ), listIDs AS ( SELECT id FROM lists WHERE (CASE WHEN CARDINALITY($6::INT[]) > 0 THEN id=ANY($6) ELSE uuid=ANY($7::UUID[]) END) ), d AS ( DELETE FROM subscriber_lists WHERE $9 = TRUE AND subscriber_id = $1 AND list_id != ALL(SELECT id FROM listIDs) ) INSERT INTO subscriber_lists (subscriber_id, list_id, status) VALUES( (SELECT id FROM s), UNNEST(ARRAY(SELECT id FROM listIDs)), (CASE WHEN $4=''blocklisted'' THEN ''unsubscribed''::subscription_status ELSE $8::subscription_status END) ) ON CONFLICT (subscriber_id, list_id) DO UPDATE SET status = (CASE WHEN $4=''blocklisted'' THEN ''unsubscribed''::subscription_status ELSE subscriber_lists.status END);"'
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.Close
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext
+        query: '"WITH b AS ( UPDATE subscribers SET status=''blocklisted'', updated_at=NOW() WHERE id = ANY($1::INT[]) ) UPDATE subscriber_lists SET status=''unsubscribed'', updated_at=NOW() WHERE subscriber_id = ANY($1::INT[]);"'
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.Close
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext
+        query: '"INSERT INTO subscriber_lists (subscriber_id, list_id, status) (SELECT a, b, (CASE WHEN $3 != '''' THEN $3::subscription_status ELSE ''unconfirmed'' END) FROM UNNEST($1::INT[]) a, UNNEST($2::INT[]) b) ON CONFLICT (subscriber_id, list_id) DO UPDATE SET status=(CASE WHEN $3 != '''' THEN $3::subscription_status ELSE subscriber_lists.status END);"'
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.Close
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext
+        query: '"DELETE FROM subscriber_lists WHERE (subscriber_id, list_id) = ANY(SELECT a, b FROM UNNEST($1::INT[]) a, UNNEST($2::INT[]) b);"'
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.Close
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext
+        query: '"WITH optins AS ( SELECT id FROM lists WHERE optin = ''double'' ) DELETE FROM subscriber_lists WHERE status = ''unconfirmed'' AND list_id IN (SELECT id FROM optins) AND created_at < $1;"'
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.Close
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext
+        query: '"WITH subID AS ( SELECT id FROM subscribers WHERE uuid = $1::UUID ), listIDs AS ( SELECT id FROM lists WHERE uuid = ANY($2::UUID[]) ) UPDATE subscriber_lists SET status=''confirmed'', updated_at=NOW() WHERE subscriber_id = (SELECT id FROM subID) AND list_id = ANY(SELECT id FROM listIDs);"'
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.Close
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext
+        query: '"WITH listIDs AS ( SELECT ARRAY( SELECT id FROM lists WHERE (CASE WHEN CARDINALITY($2::INT[]) > 0 THEN id=ANY($2) ELSE uuid=ANY($3::UUID[]) END) ) id ) UPDATE subscriber_lists SET status=''unsubscribed'', updated_at=NOW() WHERE (subscriber_id, list_id) = ANY(SELECT a, b FROM UNNEST($1::INT[]) a, UNNEST((SELECT id FROM listIDs)) b);"'
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.Close
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext
+        query: '"DELETE FROM subscribers WHERE CASE WHEN ARRAY_LENGTH($1::INT[], 1) > 0 THEN id = ANY($1) ELSE uuid = ANY($2::UUID[]) END;"'
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.Close
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext
+        query: '"DELETE FROM subscribers WHERE status = ''blocklisted'';"'
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.Close
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext
+        query: '"DELETE FROM subscribers a WHERE NOT EXISTS (SELECT 1 FROM subscriber_lists b WHERE b.subscriber_id = a.id);"'
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.Close
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext
+        query: '"WITH lists AS ( SELECT list_id FROM campaign_lists LEFT JOIN campaigns ON (campaign_lists.campaign_id = campaigns.id) WHERE campaigns.uuid = $1 ), sub AS ( UPDATE subscribers SET status = (CASE WHEN $3 IS TRUE THEN ''blocklisted'' ELSE status END) WHERE uuid = $2 RETURNING id ) UPDATE subscriber_lists SET status = ''unsubscribed'', updated_at=NOW() WHERE subscriber_id = (SELECT id FROM sub) AND status != ''unsubscribed'' AND CASE WHEN $3 IS FALSE THEN list_id = ANY(SELECT list_id FROM lists) ELSE list_id != 0 END;"'
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.Close
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext
+        query: '"WITH prof AS ( SELECT id, uuid, email, name, attribs, status, created_at, updated_at FROM subscribers WHERE CASE WHEN $1 > 0 THEN id = $1 ELSE uuid = $2 END ), subs AS ( SELECT subscriber_lists.status AS subscription_status, (CASE WHEN lists.type = ''private'' THEN ''Private list'' ELSE lists.name END) as name, lists.type, subscriber_lists.created_at FROM lists LEFT JOIN subscriber_lists ON (subscriber_lists.list_id = lists.id) WHERE subscriber_lists.subscriber_id = (SELECT id FROM prof) ), views AS ( SELECT subject as campaign, COUNT(subscriber_id) as views FROM campaign_views LEFT JOIN campaigns ON (campaigns.id = campaign_views.campaign_id) WHERE subscriber_id = (SELECT id FROM prof) GROUP BY campaigns.id ORDER BY campaigns.id ), clicks AS ( SELECT url, COUNT(subscriber_id) as clicks FROM link_clicks LEFT JOIN links ON (links.id = link_clicks.link_id) WHERE subscriber_id = (SELECT id FROM prof) GROUP BY links.id ORDER BY links.id ) SELECT (SELECT email FROM prof) as email, COALESCE((SELECT JSON_AGG(t) FROM prof t), ''{}'') AS profile, COALESCE((SELECT JSON_AGG(t) FROM subs t), ''[]'') AS subscriptions, COALESCE((SELECT JSON_AGG(t) FROM views t), ''[]'') AS campaign_views, COALESCE((SELECT JSON_AGG(t) FROM clicks t), ''[]'') AS link_clicks;"'
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.Close
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext
+        query: '"INSERT INTO lists (uuid, name, type, optin, tags, description) VALUES($1, $2, $3, $4, $5, $6) RETURNING id;"'
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.Close
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext
+        query: '"SELECT * FROM lists WHERE (CASE WHEN $1 = '''' THEN 1=1 ELSE type=$1::list_type END) ORDER BY CASE WHEN $2 = ''id'' THEN id END, CASE WHEN $2 = ''name'' THEN name END;"'
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.Close
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext
+        query: '"SELECT * FROM lists WHERE (CASE WHEN $1 != '''' THEN optin=$1::list_optin ELSE TRUE END) AND (CASE WHEN $2::INT[] IS NOT NULL THEN id = ANY($2::INT[]) WHEN $3::UUID[] IS NOT NULL THEN uuid = ANY($3::UUID[]) END) ORDER BY name;"'
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.Close
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext
+        query: '"UPDATE lists SET name=(CASE WHEN $2 != '''' THEN $2 ELSE name END), type=(CASE WHEN $3 != '''' THEN $3::list_type ELSE type END), optin=(CASE WHEN $4 != '''' THEN $4::list_optin ELSE optin END), tags=$5::VARCHAR(100)[], description=(CASE WHEN $6 != '''' THEN $6 ELSE description END), updated_at=NOW() WHERE id = $1;"'
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.Close
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext
+        query: '"UPDATE lists SET updated_at=NOW() WHERE id = ANY($1);"'
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.Close
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext
+        query: '"DELETE FROM lists WHERE id = ALL($1);"'
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.Close
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext
+        query: '"WITH campLists AS ( SELECT lists.id AS list_id, campaign_id, optin FROM lists INNER JOIN campaign_lists ON (campaign_lists.list_id = lists.id) WHERE lists.id = ANY($14::INT[]) ), tpl AS ( SELECT (CASE WHEN $13 = 0 THEN id ELSE $13 END) AS id FROM templates WHERE is_default IS TRUE ), counts AS ( SELECT COALESCE(COUNT(id), 0) as to_send, COALESCE(MAX(id), 0) as max_sub_id FROM subscribers LEFT JOIN campLists ON (campLists.campaign_id = ANY($14::INT[])) LEFT JOIN subscriber_lists ON ( subscriber_lists.status != ''unsubscribed'' AND subscribers.id = subscriber_lists.subscriber_id AND subscriber_lists.list_id = campLists.list_id AND (CASE WHEN campLists.optin = ''double'' THEN subscriber_lists.status = ''confirmed'' ELSE true END) ) WHERE subscriber_lists.list_id=ANY($14::INT[]) AND subscribers.status=''enabled'' ), camp AS ( INSERT INTO campaigns (uuid, type, name, subject, from_email, body, altbody, content_type, send_at, headers, tags, messenger, template_id, to_send, max_subscriber_id, archive, archive_template_id, archive_meta) SELECT $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, (SELECT id FROM tpl), (SELECT to_send FROM counts), (SELECT max_sub_id FROM counts), $15, (CASE WHEN $16 = 0 THEN (SELECT id FROM tpl) ELSE $16 END), $17 RETURNING id ) INSERT INTO campaign_lists (campaign_id, list_id, list_name) (SELECT (SELECT id FROM camp), id, name FROM lists WHERE id=ANY($14::INT[])) RETURNING (SELECT id FROM camp);"'
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.Close
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext
+        query: '"SELECT campaigns.*, COALESCE(templates.body, (SELECT body FROM templates WHERE is_default = true LIMIT 1)) AS template_body FROM campaigns LEFT JOIN templates ON ( CASE WHEN $3 = ''default'' THEN templates.id = campaigns.template_id ELSE templates.id = campaigns.archive_template_id END ) WHERE CASE WHEN $1 > 0 THEN campaigns.id = $1 ELSE uuid = $2 END;"'
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.Close
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext
+        query: "\"SELECT campaigns.*, COALESCE(templates.body, (SELECT body FROM templates WHERE is_default = true LIMIT 1)) AS template_body, ( \tSELECT COALESCE(ARRAY_TO_JSON(ARRAY_AGG(l)), '[]') FROM ( \t\tSELECT COALESCE(campaign_lists.list_id, 0) AS id, campaign_lists.list_name AS name FROM campaign_lists WHERE campaign_lists.campaign_id = campaigns.id \t) l ) AS lists FROM campaigns LEFT JOIN templates ON (templates.id = (CASE WHEN $2=0 THEN campaigns.template_id ELSE $2 END)) WHERE campaigns.id = $1;\""
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.Close
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext
+        query: '"WITH lists AS ( SELECT campaign_id, JSON_AGG(JSON_BUILD_OBJECT(''id'', list_id, ''name'', list_name)) AS lists FROM campaign_lists WHERE campaign_id = ANY($1) GROUP BY campaign_id ), views AS ( SELECT campaign_id, COUNT(campaign_id) as num FROM campaign_views WHERE campaign_id = ANY($1) GROUP BY campaign_id ), clicks AS ( SELECT campaign_id, COUNT(campaign_id) as num FROM link_clicks WHERE campaign_id = ANY($1) GROUP BY campaign_id ), bounces AS ( SELECT campaign_id, COUNT(campaign_id) as num FROM bounces WHERE campaign_id = ANY($1) GROUP BY campaign_id ) SELECT id as campaign_id, COALESCE(v.num, 0) AS views, COALESCE(c.num, 0) AS clicks, COALESCE(b.num, 0) AS bounces, COALESCE(l.lists, ''[]'') AS lists FROM (SELECT id FROM UNNEST($1) AS id) x LEFT JOIN lists AS l ON (l.campaign_id = id) LEFT JOIN views AS v ON (v.campaign_id = id) LEFT JOIN clicks AS c ON (c.campaign_id = id) LEFT JOIN bounces AS b ON (b.campaign_id = id) ORDER BY ARRAY_POSITION($1, id);"'
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.Close
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext
+        query: '"SELECT id, status, to_send, sent, started_at, updated_at FROM campaigns WHERE status=$1;"'
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.Close
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext
+        query: '"SELECT COUNT(*) OVER () AS total, id, uuid, subject, archive_meta, created_at, send_at FROM campaigns WHERE archive=true AND type=''regular'' AND status=ANY(''{running, paused, finished}'') ORDER by created_at DESC OFFSET $1 LIMIT $2;"'
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.Close
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext
+        query: '"WITH intval AS ( SELECT CASE WHEN (EXTRACT (EPOCH FROM ($3::TIMESTAMP - $2::TIMESTAMP)) / 86400) >= 7 THEN ''day'' ELSE ''hour'' END ) SELECT campaign_id, COUNT(*) AS "count", DATE_TRUNC((SELECT * FROM intval), created_at) AS "timestamp" FROM campaign_views WHERE campaign_id=ANY($1) AND created_at >= $2 AND created_at <= $3 GROUP BY campaign_id, "timestamp" ORDER BY "timestamp" ASC;"'
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.Close
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext
+        query: '"WITH intval AS ( SELECT CASE WHEN (EXTRACT (EPOCH FROM ($3::TIMESTAMP - $2::TIMESTAMP)) / 86400) >= 7 THEN ''day'' ELSE ''hour'' END ) SELECT campaign_id, COUNT(*) AS "count", DATE_TRUNC((SELECT * FROM intval), created_at) AS "timestamp" FROM link_clicks WHERE campaign_id=ANY($1) AND created_at >= $2 AND created_at <= $3 GROUP BY campaign_id, "timestamp" ORDER BY "timestamp" ASC;"'
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.Close
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext
+        query: '"SELECT COUNT(*) AS "count", url FROM link_clicks LEFT JOIN links ON (link_clicks.link_id = links.id) WHERE campaign_id=ANY($1) AND link_clicks.created_at >= $2 AND link_clicks.created_at <= $3 GROUP BY links.url ORDER BY "count" DESC LIMIT 50;"'
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.Close
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext
+        query: '"WITH intval AS ( SELECT CASE WHEN (EXTRACT (EPOCH FROM ($3::TIMESTAMP - $2::TIMESTAMP)) / 86400) >= 7 THEN ''day'' ELSE ''hour'' END ) SELECT campaign_id, COUNT(*) AS "count", DATE_TRUNC((SELECT * FROM intval), created_at) AS "timestamp" FROM bounces WHERE campaign_id=ANY($1) AND created_at >= $2 AND created_at <= $3 GROUP BY campaign_id, "timestamp" ORDER BY "timestamp" ASC;"'
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.Close
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext
+        query: '"DELETE FROM campaign_views WHERE created_at < $1;"'
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.Close
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext
+        query: '"DELETE FROM link_clicks WHERE created_at < $1;"'
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.Close
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext
+        query: '"WITH camps AS ( SELECT campaigns.*, COALESCE(templates.body, (SELECT body FROM templates WHERE is_default = true LIMIT 1)) AS template_body FROM campaigns LEFT JOIN templates ON (templates.id = campaigns.template_id) WHERE (status=''running'' OR (status=''scheduled'' AND NOW() >= campaigns.send_at)) AND NOT(campaigns.id = ANY($1::INT[])) ), campLists AS ( SELECT lists.id AS list_id, campaign_id, optin FROM lists INNER JOIN campaign_lists ON (campaign_lists.list_id = lists.id) WHERE campaign_lists.campaign_id = ANY(SELECT id FROM camps) ), counts AS ( SELECT id AS campaign_id, COUNT(DISTINCT(subscriber_lists.subscriber_id)) AS to_send, COALESCE(MAX(subscriber_lists.subscriber_id), 0) AS max_subscriber_id FROM camps LEFT JOIN campLists ON (campLists.campaign_id = camps.id) LEFT JOIN subscriber_lists ON ( subscriber_lists.list_id = campLists.list_id AND (CASE WHEN camps.type = ''optin'' THEN subscriber_lists.status = ''unconfirmed'' AND campLists.optin = ''double'' WHEN campLists.optin = ''double'' THEN subscriber_lists.status = ''confirmed'' ELSE subscriber_lists.status != ''unsubscribed'' END) ) GROUP BY camps.id ), u AS ( UPDATE campaigns AS ca SET to_send = co.to_send, status = (CASE WHEN status != ''running'' THEN ''running'' ELSE status END), max_subscriber_id = co.max_subscriber_id, started_at=(CASE WHEN ca.started_at IS NULL THEN NOW() ELSE ca.started_at END) FROM (SELECT * FROM counts) co WHERE ca.id = co.campaign_id ) SELECT * FROM camps;"'
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.Close
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext
+        query: '"WITH camps AS ( SELECT last_subscriber_id, max_subscriber_id, type FROM campaigns WHERE id = $1 AND status=''running'' ), campLists AS ( SELECT lists.id AS list_id, optin FROM lists LEFT JOIN campaign_lists ON (campaign_lists.list_id = lists.id) WHERE campaign_lists.campaign_id = $1 ), subIDs AS ( SELECT DISTINCT ON (subscriber_lists.subscriber_id) subscriber_id, list_id, status FROM subscriber_lists WHERE list_id = ANY((SELECT ARRAY_AGG(list_id) FROM campLists)::INT[]) AND status != ''unsubscribed'' AND subscriber_id > (SELECT last_subscriber_id FROM camps) AND subscriber_id <= (SELECT max_subscriber_id FROM camps) ORDER BY subscriber_id LIMIT $2 ), subs AS ( SELECT subscribers.* FROM subIDs LEFT JOIN campLists ON (campLists.list_id = subIDs.list_id) INNER JOIN subscribers ON ( subscribers.status != ''blocklisted'' AND subscribers.id = subIDs.subscriber_id AND (CASE WHEN (SELECT type FROM camps) = ''optin'' THEN subIDs.status = ''unconfirmed'' AND campLists.optin = ''double'' WHEN campLists.optin = ''double'' THEN subIDs.status = ''confirmed'' ELSE subIDs.status != ''unsubscribed'' END) ) ), u AS ( UPDATE campaigns SET last_subscriber_id = (SELECT MAX(id) FROM subs), sent = sent + (SELECT COUNT(id) FROM subs), updated_at = NOW() WHERE (SELECT COUNT(id) FROM subs) > 0 AND id=$1 ) SELECT * FROM subs;"'
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.Close
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext
+        query: '"SELECT * FROM subscribers LEFT JOIN subscriber_lists ON (subscribers.id = subscriber_lists.subscriber_id AND subscriber_lists.status != ''unsubscribed'') WHERE subscriber_lists.list_id=ANY( SELECT list_id FROM campaign_lists where campaign_id=$1 AND list_id IS NOT NULL ) ORDER BY RANDOM() LIMIT 1;"'
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.Close
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext
+        query: '"WITH camp AS ( UPDATE campaigns SET name=$2, subject=$3, from_email=$4, body=$5, altbody=(CASE WHEN $6 = '''' THEN NULL ELSE $6 END), content_type=$7::content_type, send_at=$8::TIMESTAMP WITH TIME ZONE, status=(CASE WHEN NOT $9 THEN ''draft'' ELSE status END), headers=$10, tags=$11::VARCHAR(100)[], messenger=$12, template_id=$13, archive=$15, archive_template_id=$16, archive_meta=$17, updated_at=NOW() WHERE id = $1 RETURNING id ), d AS ( DELETE FROM campaign_lists WHERE campaign_id = $1 AND NOT(list_id = ANY($14)) ) INSERT INTO campaign_lists (campaign_id, list_id, list_name) (SELECT $1 as campaign_id, id, name FROM lists WHERE id=ANY($14::INT[])) ON CONFLICT (campaign_id, list_id) DO UPDATE SET list_name = EXCLUDED.list_name;"'
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.Close
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext
+        query: '"UPDATE campaigns SET status=$2, updated_at=NOW() WHERE id = $1;"'
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.Close
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext
+        query: '"UPDATE campaigns SET to_send=(CASE WHEN $2 != 0 THEN $2 ELSE to_send END), sent=(CASE WHEN $3 != 0 THEN $3 ELSE sent END), last_subscriber_id=(CASE WHEN $4 != 0 THEN $4 ELSE last_subscriber_id END), updated_at=NOW() WHERE id=$1;"'
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.Close
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext
+        query: '"UPDATE campaigns SET archive=$2, archive_template_id=(CASE WHEN $3 > 0 THEN $3 ELSE archive_template_id END), archive_meta=(CASE WHEN $4::TEXT != '''' THEN $4::JSONB ELSE archive_meta END), updated_at=NOW() WHERE id=$1;"'
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.Close
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext
+        query: '"WITH view AS ( SELECT campaigns.id as campaign_id, subscribers.id AS subscriber_id FROM campaigns LEFT JOIN subscribers ON (CASE WHEN $2::TEXT != '''' THEN subscribers.uuid = $2::UUID ELSE FALSE END) WHERE campaigns.uuid = $1 ) INSERT INTO campaign_views (campaign_id, subscriber_id) VALUES((SELECT campaign_id FROM view), (SELECT subscriber_id FROM view));"'
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.Close
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext
+        query: '"DELETE FROM campaigns WHERE id=$1;"'
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.Close
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext
+        query: '"INSERT INTO media (uuid, filename, thumb, provider, meta, created_at) VALUES($1, $2, $3, $4, $5, NOW()) RETURNING id;"'
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.Close
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext
+        query: '"SELECT * FROM media WHERE provider=$1 ORDER BY created_at DESC;"'
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.Close
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext
+        query: '"SELECT * FROM media WHERE CASE WHEN $1 > 0 THEN id = $1 ELSE uuid = $2 END;"'
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.Close
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext
+        query: '"DELETE FROM media WHERE id=$1 RETURNING filename;"'
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.Close
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext
+        query: '"INSERT INTO templates (name, type, subject, body) VALUES($1, $2, $3, $4) RETURNING id;"'
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.Close
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext
+        query: '"SELECT id, name, type, subject, (CASE WHEN $2 = false THEN body ELSE '''' END) as body, is_default, created_at, updated_at FROM templates WHERE ($1 = 0 OR id = $1) AND ($3 = '''' OR type = $3::template_type) ORDER BY created_at;"'
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.Close
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext
+        query: '"UPDATE templates SET name=(CASE WHEN $2 != '''' THEN $2 ELSE name END), subject=(CASE WHEN $3 != '''' THEN $3 ELSE name END), body=(CASE WHEN $4 != '''' THEN $4 ELSE body END), updated_at=NOW() WHERE id = $1;"'
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.Close
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext
+        query: '"WITH u AS ( UPDATE templates SET is_default=true WHERE id=$1 AND type=''campaign'' RETURNING id ) UPDATE templates SET is_default=false WHERE id != $1;"'
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.Close
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext
+        query: '"WITH tpl AS ( DELETE FROM templates WHERE id = $1 AND (SELECT COUNT(id) FROM templates) > 1 AND is_default = false RETURNING id ), def AS ( SELECT id FROM templates WHERE is_default = true AND type=''campaign'' LIMIT 1 ), up AS ( UPDATE campaigns SET template_id = (SELECT id FROM def) WHERE (SELECT id FROM tpl) > 0 AND template_id = $1 ) SELECT id FROM tpl;"'
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.Close
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext
+        query: '"INSERT INTO links (uuid, url) VALUES($1, $2) ON CONFLICT (url) DO UPDATE SET url=EXCLUDED.url RETURNING uuid;"'
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.Close
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext
+        query: '"WITH link AS( SELECT id, url FROM links WHERE uuid = $1 ) INSERT INTO link_clicks (campaign_id, subscriber_id, link_id) VALUES( (SELECT id FROM campaigns WHERE uuid = $2), (SELECT id FROM subscribers WHERE (CASE WHEN $3::TEXT != '''' THEN subscribers.uuid = $3::UUID ELSE FALSE END) ), (SELECT id FROM link) ) RETURNING (SELECT url FROM link);"'
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.Close
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext
+        query: '"SELECT JSON_OBJECT_AGG(key, value) AS settings FROM ( SELECT * FROM settings ORDER BY key ) t;"'
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.Close
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext
+        query: '"UPDATE settings AS s SET value = c.value FROM(SELECT * FROM JSONB_EACH($1)) AS c(key, value) WHERE s.key = c.key;"'
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.Close
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext
+        query: '"WITH sub AS ( SELECT id, status FROM subscribers WHERE CASE WHEN $1 != '''' THEN uuid = $1::UUID ELSE email = $2 END ), camp AS ( SELECT id FROM campaigns WHERE $3 != '''' AND uuid = $3::UUID ), bounce AS ( INSERT INTO bounces (subscriber_id, campaign_id, type, source, meta, created_at) SELECT (SELECT id FROM sub), (SELECT id FROM camp), $4, $5, $6, $7 WHERE NOT EXISTS (SELECT 1 WHERE (SELECT status FROM sub) = ''blocklisted'') ), num AS ( SELECT COUNT(*) + 1 AS num FROM bounces WHERE subscriber_id = (SELECT id FROM sub) ), block1 AS ( UPDATE subscribers SET status=''blocklisted'' WHERE $9 = ''blocklist'' AND (SELECT num FROM num) >= $8 AND id = (SELECT id FROM sub) AND (SELECT status FROM sub) != ''blocklisted'' ), block2 AS ( UPDATE subscriber_lists SET status=''unsubscribed'' WHERE $9 = ''blocklist'' AND (SELECT num FROM num) >= $8 AND subscriber_id = (SELECT id FROM sub) AND (SELECT status FROM sub) != ''blocklisted'' ) DELETE FROM subscribers WHERE $9 = ''delete'' AND (SELECT num FROM num) >= $8 AND id = (SELECT id FROM sub);"'
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.Close
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext
+        query: '"DELETE FROM bounces WHERE CARDINALITY($1::INT[]) = 0 OR id = ANY($1);"'
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.Close
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext
+        query: '"WITH sub AS ( SELECT id FROM subscribers WHERE CASE WHEN $1 > 0 THEN id = $1 ELSE uuid = $2 END ) DELETE FROM bounces WHERE subscriber_id = (SELECT id FROM sub);"'
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.Close
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext
+        query: '"SELECT id, name, type, subject, (CASE WHEN $2 = false THEN body ELSE '''' END) as body, is_default, created_at, updated_at FROM templates WHERE ($1 = 0 OR id = $1) AND ($3 = '''' OR type = $3::template_type) ORDER BY created_at;"'
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.NumInput
+        type: SQL_DB
+    type: int
+    int: 3
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        arguments: '[{ 1 0} { 2 false} { 3 tx}]'
+        name: SQL
+        operation: QueryContext
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: QueryContext.Close
+        type: SQL_DB
+    type: table
+    table:
+        cols:
+            - name: id
+              type: int64
+              precision: 0
+              scale: 0
+            - name: name
+              type: string
+              precision: 0
+              scale: 0
+            - name: type
+              type: '[]uint8'
+              precision: 0
+              scale: 0
+            - name: subject
+              type: string
+              precision: 0
+              scale: 0
+            - name: body
+              type: string
+              precision: 0
+              scale: 0
+            - name: is_default
+              type: bool
+              precision: 0
+              scale: 0
+            - name: created_at
+              type: time.Time
+              precision: 0
+              scale: 0
+            - name: updated_at
+              type: time.Time
+              precision: 0
+              scale: 0
+        rows:
+            - "[`3` | `Sample transactional template` | `[116 120]` | `Welcome {{ .Subscriber.Name }}` | `<!doctype html>\n<html>\n    <head>\n        <meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\">\n        <meta name=\"viewport\" content=\"width=device-width, initial-scale=1, minimum-scale=1\">\n        <base target=\"_blank\">\n\n        <style>\n            body {\n                background-color: #F0F1F3;\n                font-family: 'Helvetica Neue', 'Segoe UI', Helvetica, sans-serif;\n                font-size: 15px;\n                line-height: 26px;\n                margin: 0;\n                color: #444;\n            }\n\n            pre {\n                background: #f4f4f4f4;\n                padding: 2px;\n            }\n\n            table {\n                width: 100%;\n                border: 1px solid #ddd;\n            }\n            table td {\n                border-color: #ddd;\n                padding: 5px;\n            }\n\n            .wrap {\n                background-color: #fff;\n                padding: 30px;\n                max-width: 525px;\n                margin: 0 auto;\n                border-radius: 5px;\n            }\n\n            .button {\n                background: #0055d4;\n                border-radius: 3px;\n                text-decoration: none !important;\n                color: #fff !important;\n                font-weight: bold;\n                padding: 10px 30px;\n                display: inline-block;\n            }\n            .button:hover {\n                background: #111;\n            }\n\n            .footer {\n                text-align: center;\n                font-size: 12px;\n                color: #888;\n            }\n                .footer a {\n                    color: #888;\n                    margin-right: 5px;\n                }\n\n            .gutter {\n                padding: 30px;\n            }\n\n            img {\n                max-width: 100%;\n                height: auto;\n            }\n\n            a {\n                color: #0055d4;\n            }\n                a:hover {\n                    color: #111;\n                }\n            @media screen and (max-width: 600px) {\n                .wrap {\n                    max-width: auto;\n                }\n                .gutter {\n                    padding: 10px;\n                }\n            }\n        </style>\n    </head>\n<body style=\"background-color: #F0F1F3;font-family: 'Helvetica Neue', 'Segoe UI', Helvetica, sans-serif;font-size: 15px;line-height: 26px;margin: 0;color: #444;\">\n    <div class=\"gutter\" style=\"padding: 30px;\">&nbsp;</div>\n    <div class=\"wrap\" style=\"background-color: #fff;padding: 30px;max-width: 525px;margin: 0 auto;border-radius: 5px;\">\n        <p>Hello {{ .Subscriber.Name }}</p>\n        <p>\n            <strong>Order number: </strong> {{ .Tx.Data.order_id }}<br />\n            <strong>Shipping date: </strong> {{ .Tx.Data.shipping_date }}<br />\n        </p>\n        <br />\n        <p>\n            Transactional templates supports arbitrary parameters.\n            Render them using <code>.Tx.Data.YourParamName</code>. For more information,\n            see the transactional mailing <a href=\"https://listmonk.app/docs/transactional\">documentation</a>.\n        </p>\n    </div>\n    \n    <div class=\"footer\" style=\"text-align: center;font-size: 12px;color: #888;\">\n        <p>Powered by <a href=\"https://listmonk.app\" target=\"_blank\" style=\"color: #888;\">listmonk</a></p>\n    </div>\n</body>\n</html>\n` | `false` | `\"2023-01-06T07:39:21.469805Z\"` | `\"2023-01-06T07:39:21.469805Z\"` | ]"
+            - "[`3` | `Sample transactional template` | `[116 120]` | `Welcome {{ .Subscriber.Name }}` | `<!doctype html>\n<html>\n    <head>\n        <meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\">\n        <meta name=\"viewport\" content=\"width=device-width, initial-scale=1, minimum-scale=1\">\n        <base target=\"_blank\">\n\n        <style>\n            body {\n                background-color: #F0F1F3;\n                font-family: 'Helvetica Neue', 'Segoe UI', Helvetica, sans-serif;\n                font-size: 15px;\n                line-height: 26px;\n                margin: 0;\n                color: #444;\n            }\n\n            pre {\n                background: #f4f4f4f4;\n                padding: 2px;\n            }\n\n            table {\n                width: 100%;\n                border: 1px solid #ddd;\n            }\n            table td {\n                border-color: #ddd;\n                padding: 5px;\n            }\n\n            .wrap {\n                background-color: #fff;\n                padding: 30px;\n                max-width: 525px;\n                margin: 0 auto;\n                border-radius: 5px;\n            }\n\n            .button {\n                background: #0055d4;\n                border-radius: 3px;\n                text-decoration: none !important;\n                color: #fff !important;\n                font-weight: bold;\n                padding: 10px 30px;\n                display: inline-block;\n            }\n            .button:hover {\n                background: #111;\n            }\n\n            .footer {\n                text-align: center;\n                font-size: 12px;\n                color: #888;\n            }\n                .footer a {\n                    color: #888;\n                    margin-right: 5px;\n                }\n\n            .gutter {\n                padding: 30px;\n            }\n\n            img {\n                max-width: 100%;\n                height: auto;\n            }\n\n            a {\n                color: #0055d4;\n            }\n                a:hover {\n                    color: #111;\n                }\n            @media screen and (max-width: 600px) {\n                .wrap {\n                    max-width: auto;\n                }\n                .gutter {\n                    padding: 10px;\n                }\n            }\n        </style>\n    </head>\n<body style=\"background-color: #F0F1F3;font-family: 'Helvetica Neue', 'Segoe UI', Helvetica, sans-serif;font-size: 15px;line-height: 26px;margin: 0;color: #444;\">\n    <div class=\"gutter\" style=\"padding: 30px;\">&nbsp;</div>\n    <div class=\"wrap\" style=\"background-color: #fff;padding: 30px;max-width: 525px;margin: 0 auto;border-radius: 5px;\">\n        <p>Hello {{ .Subscriber.Name }}</p>\n        <p>\n            <strong>Order number: </strong> {{ .Tx.Data.order_id }}<br />\n            <strong>Shipping date: </strong> {{ .Tx.Data.shipping_date }}<br />\n        </p>\n        <br />\n        <p>\n            Transactional templates supports arbitrary parameters.\n            Render them using <code>.Tx.Data.YourParamName</code>. For more information,\n            see the transactional mailing <a href=\"https://listmonk.app/docs/transactional\">documentation</a>.\n        </p>\n    </div>\n    \n    <div class=\"footer\" style=\"text-align: center;font-size: 12px;color: #888;\">\n        <p>Powered by <a href=\"https://listmonk.app\" target=\"_blank\" style=\"color: #888;\">listmonk</a></p>\n    </div>\n</body>\n</html>\n` | `false` | `\"2023-01-06T07:39:21.469805Z\"` | `\"2023-01-06T07:39:21.469805Z\"` | ]"
+    int: 0
+    error:
+        - nil
+        - EOF
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.Close
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext
+        query: '"WITH camps AS ( SELECT campaigns.*, COALESCE(templates.body, (SELECT body FROM templates WHERE is_default = true LIMIT 1)) AS template_body FROM campaigns LEFT JOIN templates ON (templates.id = campaigns.template_id) WHERE (status=''running'' OR (status=''scheduled'' AND NOW() >= campaigns.send_at)) AND NOT(campaigns.id = ANY($1::INT[])) ), campLists AS ( SELECT lists.id AS list_id, campaign_id, optin FROM lists INNER JOIN campaign_lists ON (campaign_lists.list_id = lists.id) WHERE campaign_lists.campaign_id = ANY(SELECT id FROM camps) ), counts AS ( SELECT id AS campaign_id, COUNT(DISTINCT(subscriber_lists.subscriber_id)) AS to_send, COALESCE(MAX(subscriber_lists.subscriber_id), 0) AS max_subscriber_id FROM camps LEFT JOIN campLists ON (campLists.campaign_id = camps.id) LEFT JOIN subscriber_lists ON ( subscriber_lists.list_id = campLists.list_id AND (CASE WHEN camps.type = ''optin'' THEN subscriber_lists.status = ''unconfirmed'' AND campLists.optin = ''double'' WHEN campLists.optin = ''double'' THEN subscriber_lists.status = ''confirmed'' ELSE subscriber_lists.status != ''unsubscribed'' END) ) GROUP BY camps.id ), u AS ( UPDATE campaigns AS ca SET to_send = co.to_send, status = (CASE WHEN status != ''running'' THEN ''running'' ELSE status END), max_subscriber_id = co.max_subscriber_id, started_at=(CASE WHEN ca.started_at IS NULL THEN NOW() ELSE ca.started_at END) FROM (SELECT * FROM counts) co WHERE ca.id = co.campaign_id ) SELECT * FROM camps;"'
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.NumInput
+        type: SQL_DB
+    type: int
+    int: 1
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        arguments: '[{ 1 {}}]'
+        name: SQL
+        operation: QueryContext
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: QueryContext.Close
+        type: SQL_DB
+    type: table
+    table:
+        cols:
+            - name: id
+              type: <nil>
+              precision: 0
+              scale: 0
+            - name: uuid
+              type: <nil>
+              precision: 0
+              scale: 0
+            - name: name
+              type: <nil>
+              precision: 0
+              scale: 0
+            - name: subject
+              type: <nil>
+              precision: 0
+              scale: 0
+            - name: from_email
+              type: <nil>
+              precision: 0
+              scale: 0
+            - name: body
+              type: <nil>
+              precision: 0
+              scale: 0
+            - name: altbody
+              type: <nil>
+              precision: 0
+              scale: 0
+            - name: content_type
+              type: <nil>
+              precision: 0
+              scale: 0
+            - name: send_at
+              type: <nil>
+              precision: 0
+              scale: 0
+            - name: headers
+              type: <nil>
+              precision: 0
+              scale: 0
+            - name: status
+              type: <nil>
+              precision: 0
+              scale: 0
+            - name: tags
+              type: <nil>
+              precision: 0
+              scale: 0
+            - name: type
+              type: <nil>
+              precision: 0
+              scale: 0
+            - name: messenger
+              type: <nil>
+              precision: 0
+              scale: 0
+            - name: template_id
+              type: <nil>
+              precision: 0
+              scale: 0
+            - name: to_send
+              type: <nil>
+              precision: 0
+              scale: 0
+            - name: sent
+              type: <nil>
+              precision: 0
+              scale: 0
+            - name: max_subscriber_id
+              type: <nil>
+              precision: 0
+              scale: 0
+            - name: last_subscriber_id
+              type: <nil>
+              precision: 0
+              scale: 0
+            - name: archive
+              type: <nil>
+              precision: 0
+              scale: 0
+            - name: archive_template_id
+              type: <nil>
+              precision: 0
+              scale: 0
+            - name: archive_meta
+              type: <nil>
+              precision: 0
+              scale: 0
+            - name: started_at
+              type: <nil>
+              precision: 0
+              scale: 0
+            - name: created_at
+              type: <nil>
+              precision: 0
+              scale: 0
+            - name: updated_at
+              type: <nil>
+              precision: 0
+              scale: 0
+            - name: template_body
+              type: <nil>
+              precision: 0
+              scale: 0
+        rows:
+            - '[`<nil>` | `<nil>` | `<nil>` | `<nil>` | `<nil>` | `<nil>` | `<nil>` | `<nil>` | `<nil>` | `<nil>` | `<nil>` | `<nil>` | `<nil>` | `<nil>` | `<nil>` | `<nil>` | `<nil>` | `<nil>` | `<nil>` | `<nil>` | `<nil>` | `<nil>` | `<nil>` | `<nil>` | `<nil>` | `<nil>` | ]'
+    int: 0
+    error:
+        - EOF
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.Close
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext
+        query: '"WITH camps AS ( SELECT last_subscriber_id, max_subscriber_id, type FROM campaigns WHERE id = $1 AND status=''running'' ), campLists AS ( SELECT lists.id AS list_id, optin FROM lists LEFT JOIN campaign_lists ON (campaign_lists.list_id = lists.id) WHERE campaign_lists.campaign_id = $1 ), subIDs AS ( SELECT DISTINCT ON (subscriber_lists.subscriber_id) subscriber_id, list_id, status FROM subscriber_lists WHERE list_id = ANY((SELECT ARRAY_AGG(list_id) FROM campLists)::INT[]) AND status != ''unsubscribed'' AND subscriber_id > (SELECT last_subscriber_id FROM camps) AND subscriber_id <= (SELECT max_subscriber_id FROM camps) ORDER BY subscriber_id LIMIT $2 ), subs AS ( SELECT subscribers.* FROM subIDs LEFT JOIN campLists ON (campLists.list_id = subIDs.list_id) INNER JOIN subscribers ON ( subscribers.status != ''blocklisted'' AND subscribers.id = subIDs.subscriber_id AND (CASE WHEN (SELECT type FROM camps) = ''optin'' THEN subIDs.status = ''unconfirmed'' AND campLists.optin = ''double'' WHEN campLists.optin = ''double'' THEN subIDs.status = ''confirmed'' ELSE subIDs.status != ''unsubscribed'' END) ) ), u AS ( UPDATE campaigns SET last_subscriber_id = (SELECT MAX(id) FROM subs), sent = sent + (SELECT COUNT(id) FROM subs), updated_at = NOW() WHERE (SELECT COUNT(id) FROM subs) > 0 AND id=$1 ) SELECT * FROM subs;"'
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.NumInput
+        type: SQL_DB
+    type: int
+    int: 2
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        arguments: '[{ 1 3} { 2 1000}]'
+        name: SQL
+        operation: QueryContext
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: QueryContext.Close
+        type: SQL_DB
+    type: table
+    table:
+        cols:
+            - name: id
+              type: int64
+              precision: 0
+              scale: 0
+            - name: uuid
+              type: '[]uint8'
+              precision: 0
+              scale: 0
+            - name: email
+              type: string
+              precision: 0
+              scale: 0
+            - name: name
+              type: string
+              precision: 0
+              scale: 0
+            - name: attribs
+              type: '[]uint8'
+              precision: 0
+              scale: 0
+            - name: status
+              type: '[]uint8'
+              precision: 0
+              scale: 0
+            - name: created_at
+              type: time.Time
+              precision: 0
+              scale: 0
+            - name: updated_at
+              type: time.Time
+              precision: 0
+              scale: 0
+        rows:
+            - '[`1` | `[49 55 101 54 55 48 51 56 45 56 53 48 101 45 52 53 55 99 45 57 55 49 97 45 49 51 97 54 55 101 56 48 56 49 97 101]` | `john@example.com` | `John Doe` | `[123 34 99 105 116 121 34 58 32 34 66 101 110 103 97 108 117 114 117 34 44 32 34 103 111 111 100 34 58 32 116 114 117 101 44 32 34 116 121 112 101 34 58 32 34 107 110 111 119 110 34 125]` | `[101 110 97 98 108 101 100]` | `"2023-01-06T07:39:21.464483Z"` | `"2023-01-06T07:39:21.464483Z"` | ]'
+            - '[`1` | `[49 55 101 54 55 48 51 56 45 56 53 48 101 45 52 53 55 99 45 57 55 49 97 45 49 51 97 54 55 101 56 48 56 49 97 101]` | `john@example.com` | `John Doe` | `[123 34 99 105 116 121 34 58 32 34 66 101 110 103 97 108 117 114 117 34 44 32 34 103 111 111 100 34 58 32 116 114 117 101 44 32 34 116 121 112 101 34 58 32 34 107 110 111 119 110 34 125]` | `[101 110 97 98 108 101 100]` | `"2023-01-06T07:39:21.464483Z"` | `"2023-01-06T07:39:21.464483Z"` | ]'
+    int: 0
+    error:
+        - nil
+        - EOF
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.Close
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext
+        query: '"WITH camps AS ( SELECT last_subscriber_id, max_subscriber_id, type FROM campaigns WHERE id = $1 AND status=''running'' ), campLists AS ( SELECT lists.id AS list_id, optin FROM lists LEFT JOIN campaign_lists ON (campaign_lists.list_id = lists.id) WHERE campaign_lists.campaign_id = $1 ), subIDs AS ( SELECT DISTINCT ON (subscriber_lists.subscriber_id) subscriber_id, list_id, status FROM subscriber_lists WHERE list_id = ANY((SELECT ARRAY_AGG(list_id) FROM campLists)::INT[]) AND status != ''unsubscribed'' AND subscriber_id > (SELECT last_subscriber_id FROM camps) AND subscriber_id <= (SELECT max_subscriber_id FROM camps) ORDER BY subscriber_id LIMIT $2 ), subs AS ( SELECT subscribers.* FROM subIDs LEFT JOIN campLists ON (campLists.list_id = subIDs.list_id) INNER JOIN subscribers ON ( subscribers.status != ''blocklisted'' AND subscribers.id = subIDs.subscriber_id AND (CASE WHEN (SELECT type FROM camps) = ''optin'' THEN subIDs.status = ''unconfirmed'' AND campLists.optin = ''double'' WHEN campLists.optin = ''double'' THEN subIDs.status = ''confirmed'' ELSE subIDs.status != ''unsubscribed'' END) ) ), u AS ( UPDATE campaigns SET last_subscriber_id = (SELECT MAX(id) FROM subs), sent = sent + (SELECT COUNT(id) FROM subs), updated_at = NOW() WHERE (SELECT COUNT(id) FROM subs) > 0 AND id=$1 ) SELECT * FROM subs;"'
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.NumInput
+        type: SQL_DB
+    type: int
+    int: 2
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        arguments: '[{ 1 3} { 2 1000}]'
+        name: SQL
+        operation: QueryContext
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: QueryContext.Close
+        type: SQL_DB
+    type: table
+    table:
+        cols:
+            - name: id
+              type: <nil>
+              precision: 0
+              scale: 0
+            - name: uuid
+              type: <nil>
+              precision: 0
+              scale: 0
+            - name: email
+              type: <nil>
+              precision: 0
+              scale: 0
+            - name: name
+              type: <nil>
+              precision: 0
+              scale: 0
+            - name: attribs
+              type: <nil>
+              precision: 0
+              scale: 0
+            - name: status
+              type: <nil>
+              precision: 0
+              scale: 0
+            - name: created_at
+              type: <nil>
+              precision: 0
+              scale: 0
+            - name: updated_at
+              type: <nil>
+              precision: 0
+              scale: 0
+        rows:
+            - '[`<nil>` | `<nil>` | `<nil>` | `<nil>` | `<nil>` | `<nil>` | `<nil>` | `<nil>` | ]'
+    int: 0
+    error:
+        - EOF
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.Close
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext
+        query: '"SELECT campaigns.*, COALESCE(templates.body, (SELECT body FROM templates WHERE is_default = true LIMIT 1)) AS template_body FROM campaigns LEFT JOIN templates ON ( CASE WHEN $3 = ''default'' THEN templates.id = campaigns.template_id ELSE templates.id = campaigns.archive_template_id END ) WHERE CASE WHEN $1 > 0 THEN campaigns.id = $1 ELSE uuid = $2 END;"'
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.NumInput
+        type: SQL_DB
+    type: int
+    int: 3
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        arguments: '[{ 1 3} { 2 <nil>} { 3 default}]'
+        name: SQL
+        operation: QueryContext
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: QueryContext.Close
+        type: SQL_DB
+    type: table
+    table:
+        cols:
+            - name: id
+              type: int64
+              precision: 0
+              scale: 0
+            - name: uuid
+              type: '[]uint8'
+              precision: 0
+              scale: 0
+            - name: name
+              type: string
+              precision: 0
+              scale: 0
+            - name: subject
+              type: string
+              precision: 0
+              scale: 0
+            - name: from_email
+              type: string
+              precision: 0
+              scale: 0
+            - name: body
+              type: string
+              precision: 0
+              scale: 0
+            - name: altbody
+              type: <nil>
+              precision: 0
+              scale: 0
+            - name: content_type
+              type: '[]uint8'
+              precision: 0
+              scale: 0
+            - name: send_at
+              type: <nil>
+              precision: 0
+              scale: 0
+            - name: headers
+              type: '[]uint8'
+              precision: 0
+              scale: 0
+            - name: status
+              type: '[]uint8'
+              precision: 0
+              scale: 0
+            - name: tags
+              type: <nil>
+              precision: 0
+              scale: 0
+            - name: type
+              type: '[]uint8'
+              precision: 0
+              scale: 0
+            - name: messenger
+              type: string
+              precision: 0
+              scale: 0
+            - name: template_id
+              type: int64
+              precision: 0
+              scale: 0
+            - name: to_send
+              type: int64
+              precision: 0
+              scale: 0
+            - name: sent
+              type: int64
+              precision: 0
+              scale: 0
+            - name: max_subscriber_id
+              type: int64
+              precision: 0
+              scale: 0
+            - name: last_subscriber_id
+              type: int64
+              precision: 0
+              scale: 0
+            - name: archive
+              type: bool
+              precision: 0
+              scale: 0
+            - name: archive_template_id
+              type: int64
+              precision: 0
+              scale: 0
+            - name: archive_meta
+              type: '[]uint8'
+              precision: 0
+              scale: 0
+            - name: started_at
+              type: time.Time
+              precision: 0
+              scale: 0
+            - name: created_at
+              type: time.Time
+              precision: 0
+              scale: 0
+            - name: updated_at
+              type: time.Time
+              precision: 0
+              scale: 0
+            - name: template_body
+              type: string
+              precision: 0
+              scale: 0
+        rows:
+            - "[`3` | `[50 101 101 97 101 49 50 55 45 52 52 48 101 45 52 102 50 100 45 97 55 50 52 45 52 57 101 52 51 53 100 54 99 99 50 56]` | `qwertt2` | `keploy` | `ritik@keploy.io` | `` | `<nil>` | `[114 105 99 104 116 101 120 116]` | `<nil>` | `[91 93]` | `[114 117 110 110 105 110 103]` | `<nil>` | `[114 101 103 117 108 97 114]` | `email` | `1` | `1` | `1` | `1` | `1` | `false` | `1` | `[123 125]` | `\"2023-01-09T08:10:46.533011Z\"` | `\"2023-01-09T08:06:49.412158Z\"` | `\"2023-01-09T08:10:46.580493Z\"` | `<!doctype html>\n<html>\n    <head>\n        <title>{{ .Campaign.Subject }}</title>\n        <meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\">\n        <meta name=\"viewport\" content=\"width=device-width, initial-scale=1, minimum-scale=1\">\n        <base target=\"_blank\">\n        <style>\n            body {\n                background-color: #F0F1F3;\n                font-family: 'Helvetica Neue', 'Segoe UI', Helvetica, sans-serif;\n                font-size: 15px;\n                line-height: 26px;\n                margin: 0;\n                color: #444;\n            }\n\n            pre {\n                background: #f4f4f4f4;\n                padding: 2px;\n            }\n\n            table {\n                width: 100%;\n                border: 1px solid #ddd;\n            }\n            table td {\n                border-color: #ddd;\n                padding: 5px;\n            }\n\n            .wrap {\n                background-color: #fff;\n                padding: 30px;\n                max-width: 525px;\n                margin: 0 auto;\n                border-radius: 5px;\n            }\n\n            .button {\n                background: #0055d4;\n                border-radius: 3px;\n                text-decoration: none !important;\n                color: #fff !important;\n                font-weight: bold;\n                padding: 10px 30px;\n                display: inline-block;\n            }\n            .button:hover {\n                background: #111;\n            }\n\n            .footer {\n                text-align: center;\n                font-size: 12px;\n                color: #888;\n            }\n                .footer a {\n                    color: #888;\n                    margin-right: 5px;\n                }\n\n            .gutter {\n                padding: 30px;\n            }\n\n            img {\n                max-width: 100%;\n                height: auto;\n            }\n\n            a {\n                color: #0055d4;\n            }\n                a:hover {\n                    color: #111;\n                }\n            @media screen and (max-width: 600px) {\n                .wrap {\n                    max-width: auto;\n                }\n                .gutter {\n                    padding: 10px;\n                }\n            }\n        </style>\n    </head>\n<body style=\"background-color: #F0F1F3;font-family: 'Helvetica Neue', 'Segoe UI', Helvetica, sans-serif;font-size: 15px;line-height: 26px;margin: 0;color: #444;\">\n    <div class=\"gutter\" style=\"padding: 30px;\">&nbsp;</div>\n    <div class=\"wrap\" style=\"background-color: #fff;padding: 30px;max-width: 525px;margin: 0 auto;border-radius: 5px;\">\n        {{ template \"content\" . }}\n    </div>\n    \n    <div class=\"footer\" style=\"text-align: center;font-size: 12px;color: #888;\">\n        <p>\n            {{ L.T \"email.unsubHelp\" }}\n            <a href=\"{{ UnsubscribeURL }}\" style=\"color: #888;\">{{ L.T \"email.unsub\" }}</a>\n            <a href=\"{{ MessageURL }}\" style=\"color: #888;\">{{ L.T \"email.viewInBrowser\" }}</a>\n        </p>\n        <p>Powered by <a href=\"https://listmonk.app\" target=\"_blank\" style=\"color: #888;\">listmonk</a></p>\n    </div>\n    <div class=\"gutter\" style=\"padding: 30px;\">&nbsp;{{ TrackView }}</div>\n</body>\n</html>\n` | ]"
+    int: 0
+    error:
+        - nil
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.Close
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext
+        query: '"UPDATE campaigns SET status=$2, updated_at=NOW() WHERE id = $1;"'
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.NumInput
+        type: SQL_DB
+    type: int
+    int: 2
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        arguments: '[{ 1 3} { 2 finished}]'
+        name: SQL
+        operation: ExecContext
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        arguments: '[{ 1 3} { 2 finished}]'
+        name: SQL
+        operation: ExecContext.LastInsertId
+        type: SQL_DB
+    type: int
+    int: 0
+    error:
+        - LastInsertId is not supported by this driver
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        arguments: '[{ 1 3} { 2 finished}]'
+        name: SQL
+        operation: ExecContext.RowsAffected
+        type: SQL_DB
+    type: int
+    int: 1
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: listmonk-app-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.Close
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil

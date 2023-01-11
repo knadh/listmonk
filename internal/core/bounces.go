@@ -1,6 +1,7 @@
 package core
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"strings"
@@ -14,7 +15,7 @@ var bounceQuerySortFields = []string{"email", "campaign_name", "source", "create
 
 // QueryBounces retrieves paginated bounce entries based on the given params.
 // It also returns the total number of bounce records in the DB.
-func (c *Core) QueryBounces(campID, subID int, source, orderBy, order string, offset, limit int) ([]models.Bounce, int, error) {
+func (c *Core) QueryBounces(ctx context.Context, campID, subID int, source, orderBy, order string, offset, limit int) ([]models.Bounce, int, error) {
 	if !strSliceContains(orderBy, bounceQuerySortFields) {
 		orderBy = "created_at"
 	}
@@ -24,7 +25,7 @@ func (c *Core) QueryBounces(campID, subID int, source, orderBy, order string, of
 
 	out := []models.Bounce{}
 	stmt := strings.ReplaceAll(c.q.QueryBounces, "%order%", orderBy+" "+order)
-	if err := c.db.Select(&out, stmt, 0, campID, subID, source, offset, limit); err != nil {
+	if err := c.db.SelectContext(ctx, &out, stmt, 0, campID, subID, source, offset, limit); err != nil {
 		c.log.Printf("error fetching bounces: %v", err)
 		return nil, 0, echo.NewHTTPError(http.StatusInternalServerError,
 			c.i18n.Ts("globals.messages.errorFetching", "name", "{globals.terms.bounce}", "error", pqErrMsg(err)))
@@ -39,10 +40,10 @@ func (c *Core) QueryBounces(campID, subID int, source, orderBy, order string, of
 }
 
 // GetBounce retrieves bounce entries based on the given params.
-func (c *Core) GetBounce(id int) (models.Bounce, error) {
+func (c *Core) GetBounce(ctx context.Context, id int) (models.Bounce, error) {
 	var out []models.Bounce
 	stmt := fmt.Sprintf(c.q.QueryBounces, "id", SortAsc)
-	if err := c.db.Select(&out, stmt, id, 0, 0, "", 0, 1); err != nil {
+	if err := c.db.SelectContext(ctx, &out, stmt, id, 0, 0, "", 0, 1); err != nil {
 		c.log.Printf("error fetching bounces: %v", err)
 		return models.Bounce{}, echo.NewHTTPError(http.StatusInternalServerError,
 			c.i18n.Ts("globals.messages.errorFetching", "name", "{globals.terms.bounce}", "error", pqErrMsg(err)))
@@ -58,8 +59,8 @@ func (c *Core) GetBounce(id int) (models.Bounce, error) {
 }
 
 // RecordBounce records a new bounce.
-func (c *Core) RecordBounce(b models.Bounce) error {
-	_, err := c.q.RecordBounce.Exec(b.SubscriberUUID,
+func (c *Core) RecordBounce(ctx context.Context, b models.Bounce) error {
+	_, err := c.q.RecordBounce.ExecContext(ctx, b.SubscriberUUID,
 		b.Email,
 		b.CampaignUUID,
 		b.Type,
@@ -83,13 +84,13 @@ func (c *Core) RecordBounce(b models.Bounce) error {
 }
 
 // DeleteBounce deletes a list.
-func (c *Core) DeleteBounce(id int) error {
-	return c.DeleteBounces([]int{id})
+func (c *Core) DeleteBounce(ctx context.Context, id int) error {
+	return c.DeleteBounces(ctx, []int{id})
 }
 
 // DeleteBounces deletes multiple lists.
-func (c *Core) DeleteBounces(ids []int) error {
-	if _, err := c.q.DeleteBounces.Exec(pq.Array(ids)); err != nil {
+func (c *Core) DeleteBounces(ctx context.Context, ids []int) error {
+	if _, err := c.q.DeleteBounces.ExecContext(ctx, pq.Array(ids)); err != nil {
 		c.log.Printf("error deleting lists: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			c.i18n.Ts("globals.messages.errorDeleting", "name", "{globals.terms.list}", "error", pqErrMsg(err)))

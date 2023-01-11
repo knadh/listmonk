@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"strings"
 
@@ -38,7 +39,7 @@ var migList = []migFunc{
 
 // upgrade upgrades the database to the current version by running SQL migration files
 // for all version from the last known version to the current one.
-func upgrade(db *sqlx.DB, fs stuffbin.FileSystem, prompt bool) {
+func upgrade(ctx context.Context, db *sqlx.DB, fs stuffbin.FileSystem, prompt bool) {
 	if prompt {
 		var ok string
 		fmt.Printf("** IMPORTANT: Take a backup of the database before upgrading.\n")
@@ -52,7 +53,7 @@ func upgrade(db *sqlx.DB, fs stuffbin.FileSystem, prompt bool) {
 		}
 	}
 
-	_, toRun, err := getPendingMigrations(db)
+	_, toRun, err := getPendingMigrations(ctx, db)
 	if err != nil {
 		lo.Fatalf("error checking migrations: %v", err)
 	}
@@ -72,7 +73,7 @@ func upgrade(db *sqlx.DB, fs stuffbin.FileSystem, prompt bool) {
 
 		// Record the migration version in the settings table. There was no
 		// settings table until v0.7.0, so ignore the no-table errors.
-		if err := recordMigrationVersion(m.version, db); err != nil {
+		if err := recordMigrationVersion(ctx, m.version, db); err != nil {
 			if isTableNotExistErr(err) {
 				continue
 			}
@@ -85,8 +86,8 @@ func upgrade(db *sqlx.DB, fs stuffbin.FileSystem, prompt bool) {
 
 // checkUpgrade checks if the current database schema matches the expected
 // binary version.
-func checkUpgrade(db *sqlx.DB) {
-	lastVer, toRun, err := getPendingMigrations(db)
+func checkUpgrade(ctx context.Context, db *sqlx.DB) {
+	lastVer, toRun, err := getPendingMigrations(ctx, db)
 	if err != nil {
 		lo.Fatalf("error checking migrations: %v", err)
 	}
@@ -107,8 +108,8 @@ func checkUpgrade(db *sqlx.DB) {
 
 // getPendingMigrations gets the pending migrations by comparing the last
 // recorded migration in the DB against all migrations listed in `migrations`.
-func getPendingMigrations(db *sqlx.DB) (string, []migFunc, error) {
-	lastVer, err := getLastMigrationVersion()
+func getPendingMigrations(ctx context.Context, db *sqlx.DB) (string, []migFunc, error) {
+	lastVer, err := getLastMigrationVersion(ctx)
 	if err != nil {
 		return "", nil, err
 	}
@@ -128,9 +129,9 @@ func getPendingMigrations(db *sqlx.DB) (string, []migFunc, error) {
 
 // getLastMigrationVersion returns the last migration semver recorded in the DB.
 // If there isn't any, `v0.0.0` is returned.
-func getLastMigrationVersion() (string, error) {
+func getLastMigrationVersion(ctx context.Context) (string, error) {
 	var v string
-	if err := db.Get(&v, `
+	if err := db.GetContext(ctx, &v, `
 		SELECT COALESCE(
 			(SELECT value->>-1 FROM settings WHERE key='migrations'),
 		'v0.0.0')`); err != nil {

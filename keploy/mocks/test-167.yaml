@@ -1,0 +1,78 @@
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-167-0
+spec:
+    metadata:
+        arguments: '[{ 1 1} { 2 0} { 3 0} { 4 } { 5 0} { 6 1}]'
+        name: SQL
+        operation: QueryContext
+        query: '"SELECT COUNT(*) OVER () AS total, bounces.id, bounces.type, bounces.source, bounces.meta, bounces.created_at, bounces.subscriber_id, subscribers.uuid AS subscriber_uuid, subscribers.email AS email, subscribers.email AS email, ( CASE WHEN bounces.campaign_id IS NOT NULL THEN JSON_BUILD_OBJECT(''id'', bounces.campaign_id, ''name'', campaigns.name) ELSE NULL END ) AS campaign FROM bounces LEFT JOIN subscribers ON (subscribers.id = bounces.subscriber_id) LEFT JOIN campaigns ON (campaigns.id = bounces.campaign_id) WHERE ($1 = 0 OR bounces.id = $1) AND ($2 = 0 OR bounces.campaign_id = $2) AND ($3 = 0 OR bounces.subscriber_id = $3) AND ($4 = '''' OR bounces.source = $4) ORDER BY id asc OFFSET $5 LIMIT $6;"'
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-167-1
+spec:
+    metadata:
+        name: SQL
+        operation: QueryContext.Close
+        type: SQL_DB
+    type: table
+    table:
+        cols:
+            - name: total
+              type: int64
+              precision: 0
+              scale: 0
+            - name: id
+              type: int64
+              precision: 0
+              scale: 0
+            - name: type
+              type: '[]uint8'
+              precision: 0
+              scale: 0
+            - name: source
+              type: string
+              precision: 0
+              scale: 0
+            - name: meta
+              type: '[]uint8'
+              precision: 0
+              scale: 0
+            - name: created_at
+              type: time.Time
+              precision: 0
+              scale: 0
+            - name: subscriber_id
+              type: int64
+              precision: 0
+              scale: 0
+            - name: subscriber_uuid
+              type: '[]uint8'
+              precision: 0
+              scale: 0
+            - name: email
+              type: string
+              precision: 0
+              scale: 0
+            - name: email
+              type: string
+              precision: 0
+              scale: 0
+            - name: campaign
+              type: <nil>
+              precision: 0
+              scale: 0
+        rows:
+            - '[`1` | `1` | `[104 97 114 100]` | `api` | `[123 125]` | `"2022-12-27T11:57:06.390803Z"` | `1` | `[49 48 100 48 54 101 50 54 45 52 49 102 54 45 52 49 49 53 45 57 49 51 53 45 99 97 102 98 48 98 102 57 97 100 55 101]` | `john@example.com` | `john@example.com` | `<nil>` | ]'
+            - '[`1` | `1` | `[104 97 114 100]` | `api` | `[123 125]` | `"2022-12-27T11:57:06.390803Z"` | `1` | `[49 48 100 48 54 101 50 54 45 52 49 102 54 45 52 49 49 53 45 57 49 51 53 45 99 97 102 98 48 98 102 57 97 100 55 101]` | `john@example.com` | `john@example.com` | `<nil>` | ]'
+    int: 0
+    error:
+        - nil
+        - EOF
+        - nil

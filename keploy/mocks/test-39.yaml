@@ -1,0 +1,52 @@
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-39-0
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext
+        query: '"INSERT INTO subscriber_lists (subscriber_id, list_id, status) (SELECT a, b, (CASE WHEN $3 != '''' THEN $3::subscription_status ELSE ''unconfirmed'' END) FROM UNNEST($1::INT[]) a, UNNEST($2::INT[]) b) ON CONFLICT (subscriber_id, list_id) DO UPDATE SET status=(CASE WHEN $3 != '''' THEN $3::subscription_status ELSE subscriber_lists.status END);"'
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-39-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.NumInput
+        type: SQL_DB
+    type: int
+    int: 3
+    error: []
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-39-2
+spec:
+    metadata:
+        arguments: '[{ 1 {23}} { 2 {11}} { 3 }]'
+        name: SQL
+        operation: ExecContext
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - 'pq: insert or update on table "subscriber_lists" violates foreign key constraint "subscriber_lists_subscriber_id_fkey"'
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-39-3
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.Close
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil

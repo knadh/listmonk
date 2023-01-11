@@ -1,0 +1,81 @@
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-29-0
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext
+        query: '"WITH listIDs AS ( SELECT ARRAY( SELECT id FROM lists WHERE (CASE WHEN CARDINALITY($2::INT[]) > 0 THEN id=ANY($2) ELSE uuid=ANY($3::UUID[]) END) ) id ) UPDATE subscriber_lists SET status=''unsubscribed'', updated_at=NOW() WHERE (subscriber_id, list_id) = ANY(SELECT a, b FROM UNNEST($1::INT[]) a, UNNEST((SELECT id FROM listIDs)) b);"'
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-29-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.NumInput
+        type: SQL_DB
+    type: int
+    int: 3
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-29-2
+spec:
+    metadata:
+        arguments: '[{ 1 {1}} { 2 {2}} { 3 <nil>}]'
+        name: SQL
+        operation: ExecContext
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-29-3
+spec:
+    metadata:
+        arguments: '[{ 1 {1}} { 2 {2}} { 3 <nil>}]'
+        name: SQL
+        operation: ExecContext.LastInsertId
+        type: SQL_DB
+    type: int
+    int: 0
+    error:
+        - LastInsertId is not supported by this driver
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-29-4
+spec:
+    metadata:
+        arguments: '[{ 1 {1}} { 2 {2}} { 3 <nil>}]'
+        name: SQL
+        operation: ExecContext.RowsAffected
+        type: SQL_DB
+    type: int
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-29-5
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.Close
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil

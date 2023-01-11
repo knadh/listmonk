@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"html/template"
 	"net/http"
@@ -28,7 +29,7 @@ func handleGetCampaignArchives(c echo.Context) error {
 		pg  = app.paginator.NewFromURL(c.Request().URL.Query())
 	)
 
-	camps, total, err := getCampaignArchives(pg.Offset, pg.Limit, app)
+	camps, total, err := getCampaignArchives(c.Request().Context(), pg.Offset, pg.Limit, app)
 	if err != nil {
 		return err
 	}
@@ -55,7 +56,7 @@ func handleGetCampaignArchivesFeed(c echo.Context) error {
 		pg  = app.paginator.NewFromURL(c.Request().URL.Query())
 	)
 
-	camps, _, err := getCampaignArchives(pg.Offset, pg.Limit, app)
+	camps, _, err := getCampaignArchives(c.Request().Context(), pg.Offset, pg.Limit, app)
 	if err != nil {
 		return err
 	}
@@ -91,7 +92,7 @@ func handleCampaignArchivesPage(c echo.Context) error {
 		pg  = app.paginator.NewFromURL(c.Request().URL.Query())
 	)
 
-	out, total, err := getCampaignArchives(pg.Offset, pg.Limit, app)
+	out, total, err := getCampaignArchives(c.Request().Context(), pg.Offset, pg.Limit, app)
 	if err != nil {
 		return err
 	}
@@ -114,7 +115,7 @@ func handleCampaignArchivePage(c echo.Context) error {
 		uuid = c.Param("uuid")
 	)
 
-	pubCamp, err := app.core.GetArchivedCampaign(0, uuid)
+	pubCamp, err := app.core.GetArchivedCampaign(c.Request().Context(), 0, uuid)
 	if err != nil || pubCamp.Type != models.CampaignTypeRegular {
 		notFound := false
 		if er, ok := err.(*echo.HTTPError); ok {
@@ -134,7 +135,7 @@ func handleCampaignArchivePage(c echo.Context) error {
 			makeMsgTpl(app.i18n.T("public.errorTitle"), "", app.i18n.Ts("public.errorFetchingCampaign")))
 	}
 
-	out, err := compileArchiveCampaigns([]models.Campaign{pubCamp}, app)
+	out, err := compileArchiveCampaigns(c.Request().Context(), []models.Campaign{pubCamp}, app)
 	if err != nil {
 		return c.Render(http.StatusInternalServerError, tplMessage,
 			makeMsgTpl(app.i18n.T("public.errorTitle"), "", app.i18n.Ts("public.errorFetchingCampaign")))
@@ -152,13 +153,13 @@ func handleCampaignArchivePage(c echo.Context) error {
 	return c.HTML(http.StatusOK, string(msg.Body()))
 }
 
-func getCampaignArchives(offset, limit int, app *App) ([]campArchive, int, error) {
-	pubCamps, total, err := app.core.GetArchivedCampaigns(offset, limit)
+func getCampaignArchives(ctx context.Context, offset, limit int, app *App) ([]campArchive, int, error) {
+	pubCamps, total, err := app.core.GetArchivedCampaigns(ctx, offset, limit)
 	if err != nil {
 		return []campArchive{}, total, echo.NewHTTPError(http.StatusInternalServerError, app.i18n.T("public.errorFetchingCampaign"))
 	}
 
-	msgs, err := compileArchiveCampaigns(pubCamps, app)
+	msgs, err := compileArchiveCampaigns(ctx, pubCamps, app)
 	if err != nil {
 		return []campArchive{}, total, err
 	}
@@ -178,7 +179,7 @@ func getCampaignArchives(offset, limit int, app *App) ([]campArchive, int, error
 	return out, total, nil
 }
 
-func compileArchiveCampaigns(camps []models.Campaign, app *App) ([]manager.CampaignMessage, error) {
+func compileArchiveCampaigns(ctx context.Context, camps []models.Campaign, app *App) ([]manager.CampaignMessage, error) {
 	var (
 		b = bytes.Buffer{}
 	)
@@ -186,7 +187,7 @@ func compileArchiveCampaigns(camps []models.Campaign, app *App) ([]manager.Campa
 	out := make([]manager.CampaignMessage, 0, len(camps))
 	for _, c := range camps {
 		camp := c
-		if err := camp.CompileTemplate(app.manager.TemplateFuncs(&camp)); err != nil {
+		if err := camp.CompileTemplate(app.manager.TemplateFuncs(ctx, &camp)); err != nil {
 			app.log.Printf("error compiling template: %v", err)
 			return nil, echo.NewHTTPError(http.StatusInternalServerError, app.i18n.T("public.errorFetchingCampaign"))
 		}

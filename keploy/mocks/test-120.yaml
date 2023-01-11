@@ -1,0 +1,166 @@
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-120-0
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext
+        query: "\"SELECT campaigns.*, COALESCE(templates.body, (SELECT body FROM templates WHERE is_default = true LIMIT 1)) AS template_body, ( \tSELECT COALESCE(ARRAY_TO_JSON(ARRAY_AGG(l)), '[]') FROM ( \t\tSELECT COALESCE(campaign_lists.list_id, 0) AS id, campaign_lists.list_name AS name FROM campaign_lists WHERE campaign_lists.campaign_id = campaigns.id \t) l ) AS lists FROM campaigns LEFT JOIN templates ON (templates.id = (CASE WHEN $2=0 THEN campaigns.template_id ELSE $2 END)) WHERE campaigns.id = $1;\""
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-120-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.NumInput
+        type: SQL_DB
+    type: int
+    int: 2
+    error: []
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-120-2
+spec:
+    metadata:
+        arguments: '[{ 1 13} { 2 1}]'
+        name: SQL
+        operation: QueryContext
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-120-3
+spec:
+    metadata:
+        name: SQL
+        operation: QueryContext.Close
+        type: SQL_DB
+    type: table
+    table:
+        cols:
+            - name: id
+              type: int64
+              precision: 0
+              scale: 0
+            - name: uuid
+              type: '[]uint8'
+              precision: 0
+              scale: 0
+            - name: name
+              type: string
+              precision: 0
+              scale: 0
+            - name: subject
+              type: string
+              precision: 0
+              scale: 0
+            - name: from_email
+              type: string
+              precision: 0
+              scale: 0
+            - name: body
+              type: string
+              precision: 0
+              scale: 0
+            - name: altbody
+              type: <nil>
+              precision: 0
+              scale: 0
+            - name: content_type
+              type: '[]uint8'
+              precision: 0
+              scale: 0
+            - name: send_at
+              type: <nil>
+              precision: 0
+              scale: 0
+            - name: headers
+              type: '[]uint8'
+              precision: 0
+              scale: 0
+            - name: status
+              type: '[]uint8'
+              precision: 0
+              scale: 0
+            - name: tags
+              type: <nil>
+              precision: 0
+              scale: 0
+            - name: type
+              type: '[]uint8'
+              precision: 0
+              scale: 0
+            - name: messenger
+              type: string
+              precision: 0
+              scale: 0
+            - name: template_id
+              type: int64
+              precision: 0
+              scale: 0
+            - name: to_send
+              type: int64
+              precision: 0
+              scale: 0
+            - name: sent
+              type: int64
+              precision: 0
+              scale: 0
+            - name: max_subscriber_id
+              type: int64
+              precision: 0
+              scale: 0
+            - name: last_subscriber_id
+              type: int64
+              precision: 0
+              scale: 0
+            - name: started_at
+              type: <nil>
+              precision: 0
+              scale: 0
+            - name: created_at
+              type: time.Time
+              precision: 0
+              scale: 0
+            - name: updated_at
+              type: time.Time
+              precision: 0
+              scale: 0
+            - name: template_body
+              type: string
+              precision: 0
+              scale: 0
+            - name: lists
+              type: '[]uint8'
+              precision: 0
+              scale: 0
+        rows:
+            - "[`13` | `[102 51 99 49 48 51 48 101 45 52 49 56 53 45 52 100 56 97 45 57 99 53 102 45 102 50 53 51 55 100 102 57 52 98 56 52]` | `Copy of qwertt2` | `keploy` | `ritik@keploy.io` | `<p>greetings</p>` | `<nil>` | `[114 105 99 104 116 101 120 116]` | `<nil>` | `[91 93]` | `[114 117 110 110 105 110 103]` | `<nil>` | `[114 101 103 117 108 97 114]` | `email` | `1` | `0` | `0` | `0` | `0` | `<nil>` | `\"2022-12-18T19:39:56.33525Z\"` | `\"2022-12-18T20:25:49.473191Z\"` | `<!doctype html>\n<html>\n    <head>\n        <meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\">\n        <meta name=\"viewport\" content=\"width=device-width, initial-scale=1, minimum-scale=1\">\n        <base target=\"_blank\">\n\n        <style>\n            body {\n                background-color: #F0F1F3;\n                font-family: 'Helvetica Neue', 'Segoe UI', Helvetica, sans-serif;\n                font-size: 15px;\n                line-height: 26px;\n                margin: 0;\n                color: #444;\n            }\n\n            pre {\n                background: #f4f4f4f4;\n                padding: 2px;\n            }\n\n            table {\n                width: 100%;\n                border: 1px solid #ddd;\n            }\n            table td {\n                border-color: #ddd;\n                padding: 5px;\n            }\n\n            .wrap {\n                background-color: #fff;\n                padding: 30px;\n                max-width: 525px;\n                margin: 0 auto;\n                border-radius: 5px;\n            }\n\n            .button {\n                background: #0055d4;\n                border-radius: 3px;\n                text-decoration: none !important;\n                color: #fff !important;\n                font-weight: bold;\n                padding: 10px 30px;\n                display: inline-block;\n            }\n            .button:hover {\n                background: #111;\n            }\n\n            .footer {\n                text-align: center;\n                font-size: 12px;\n                color: #888;\n            }\n                .footer a {\n                    color: #888;\n                    margin-right: 5px;\n                }\n\n            .gutter {\n                padding: 30px;\n            }\n\n            img {\n                max-width: 100%;\n                height: auto;\n            }\n\n            a {\n                color: #0055d4;\n            }\n                a:hover {\n                    color: #111;\n                }\n            @media screen and (max-width: 600px) {\n                .wrap {\n                    max-width: auto;\n                }\n                .gutter {\n                    padding: 10px;\n                }\n            }\n        </style>\n    </head>\n<body style=\"background-color: #F0F1F3;font-family: 'Helvetica Neue', 'Segoe UI', Helvetica, sans-serif;font-size: 15px;line-height: 26px;margin: 0;color: #444;\">\n    <div class=\"gutter\" style=\"padding: 30px;\">&nbsp; qwrty</div>\n    <div class=\"wrap\" style=\"background-color: #fff;padding: 30px;max-width: 525px;margin: 0 auto;border-radius: 5px;\">\n        {{ template \"content\" . }}\n    </div>\n    \n    <div class=\"footer\" style=\"text-align: center;font-size: 12px;color: #888;\">\n        <p>\n            {{ L.T \"email.unsubHelp\" }}qwerty\n            <a href=\"{{ UnsubscribeURL }}\" style=\"color: #888;\">{{ L.T \"email.unsub\" }}</a>\n            <a href=\"{{ MessageURL }}\" style=\"color: #888;\">{{ L.T \"email.viewInBrowser\" }}</a>\n        </p>\n        <p>Powered by <a href=\"https://listmonk.app\" target=\"_blank\" style=\"color: #888;\">listmonk</a></p>\n    </div>\n    <div class=\"gutter\" style=\"padding: 30px;\">&nbsp;{{ TrackView }}</div>\n</body>\n</html>\n` | `[91 123 34 105 100 34 58 53 44 34 110 97 109 101 34 58 34 82 105 116 105 107 34 125 44 123 34 105 100 34 58 49 48 44 34 110 97 109 101 34 58 34 83 97 114 116 104 97 107 34 125 44 123 34 105 100 34 58 49 49 44 34 110 97 109 101 34 58 34 113 119 101 114 116 121 34 125 93]` | ]"
+    int: 0
+    error:
+        - nil
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-120-4
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.Close
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil

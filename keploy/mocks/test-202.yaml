@@ -1,0 +1,53 @@
+version: api.keploy.io/v1beta2
+kind: SQL
+name: test-202-0
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext
+        query: '"SELECT campaigns.*, COALESCE(templates.body, (SELECT body FROM templates WHERE is_default = true LIMIT 1)) AS template_body FROM campaigns LEFT JOIN templates ON ( CASE WHEN $3 = ''default'' THEN templates.id = campaigns.template_id ELSE templates.id = campaigns.archive_template_id END ) WHERE CASE WHEN $1 > 0 THEN campaigns.id = $1 ELSE uuid = $2 END;"'
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: test-202-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.NumInput
+        type: SQL_DB
+    type: int
+    int: 3
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: test-202-2
+spec:
+    metadata:
+        arguments: '[{ 1 0} { 2 123} { 3 archive}]'
+        name: SQL
+        operation: QueryContext
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - 'pq: invalid input syntax for type uuid: "123"'
+---
+version: api.keploy.io/v1beta2
+kind: SQL
+name: test-202-3
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.Close
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil

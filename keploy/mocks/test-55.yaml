@@ -1,0 +1,227 @@
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-55-0
+spec:
+    metadata:
+        arguments: '[{ 1 0} { 2 {}} { 3 %qwer%} { 4 0} { 5 20}]'
+        name: SQL
+        operation: QueryContext
+        query: '"SELECT  c.id, c.uuid, c.name, c.subject, c.from_email, c.messenger, c.started_at, c.to_send, c.sent, c.type, c.body, c.altbody, c.send_at, c.headers, c.status, c.content_type, c.tags, c.template_id, c.created_at, c.updated_at, COUNT(*) OVER () AS total, ( SELECT COALESCE(ARRAY_TO_JSON(ARRAY_AGG(l)), ''[]'') FROM ( SELECT COALESCE(campaign_lists.list_id, 0) AS id, campaign_lists.list_name AS name FROM campaign_lists WHERE campaign_lists.campaign_id = c.id ) l ) AS lists FROM campaigns c WHERE ($1 = 0 OR id = $1) AND status=ANY(CASE WHEN CARDINALITY($2::campaign_status[]) != 0 THEN $2::campaign_status[] ELSE ARRAY[status] END) AND ($3 = '''' OR CONCAT(name, subject) ILIKE $3) ORDER BY created_at desc OFFSET $4 LIMIT (CASE WHEN $5 = 0 THEN NULL ELSE $5 END);"'
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-55-1
+spec:
+    metadata:
+        name: SQL
+        operation: QueryContext.Close
+        type: SQL_DB
+    type: table
+    table:
+        cols:
+            - name: id
+              type: int64
+              precision: 0
+              scale: 0
+            - name: uuid
+              type: '[]uint8'
+              precision: 0
+              scale: 0
+            - name: name
+              type: string
+              precision: 0
+              scale: 0
+            - name: subject
+              type: string
+              precision: 0
+              scale: 0
+            - name: from_email
+              type: string
+              precision: 0
+              scale: 0
+            - name: messenger
+              type: string
+              precision: 0
+              scale: 0
+            - name: started_at
+              type: <nil>
+              precision: 0
+              scale: 0
+            - name: to_send
+              type: int64
+              precision: 0
+              scale: 0
+            - name: sent
+              type: int64
+              precision: 0
+              scale: 0
+            - name: type
+              type: '[]uint8'
+              precision: 0
+              scale: 0
+            - name: body
+              type: string
+              precision: 0
+              scale: 0
+            - name: altbody
+              type: string
+              precision: 0
+              scale: 0
+            - name: send_at
+              type: <nil>
+              precision: 0
+              scale: 0
+            - name: headers
+              type: '[]uint8'
+              precision: 0
+              scale: 0
+            - name: status
+              type: '[]uint8'
+              precision: 0
+              scale: 0
+            - name: content_type
+              type: '[]uint8'
+              precision: 0
+              scale: 0
+            - name: tags
+              type: '[]uint8'
+              precision: 0
+              scale: 0
+            - name: template_id
+              type: int64
+              precision: 0
+              scale: 0
+            - name: created_at
+              type: time.Time
+              precision: 0
+              scale: 0
+            - name: updated_at
+              type: time.Time
+              precision: 0
+              scale: 0
+            - name: total
+              type: int64
+              precision: 0
+              scale: 0
+            - name: lists
+              type: '[]uint8'
+              precision: 0
+              scale: 0
+        rows:
+            - "[`11` | `[98 51 52 53 98 57 102 98 45 100 101 48 97 45 52 98 48 97 45 97 55 49 100 45 54 98 57 102 49 97 97 48 48 102 51 54]` | `Copy of Opt-in to qwerty` | `Confirm subscription(s) to qwerty` | `listmonk <noreply@listmonk.yoursite.com>` | `email` | `<nil>` | `0` | `0` | `[111 112 116 105 110]` | `\n\n<p>Hi {{.Subscriber.FirstName }}</p>\n<p>You have been added to the following lists:</p>\n<ul>\n    \n        \n            <li>qwerty</li>\n        \n    \n</ul>\n<p>\n    <a class=\"button\" href=\"{{ OptinURL }}l=f79a73f7-1687-4951-adbf-3cfa79e7b9ad\">Confirm subscription</a>\n</p>\n` | `<nil>` | `<nil>` | `[91 93]` | `[99 97 110 99 101 108 108 101 100]` | `[114 105 99 104 116 101 120 116]` | `<nil>` | `1` | `\"2022-12-16T10:51:51.484671Z\"` | `\"2022-12-17T07:49:57.829176Z\"` | `3` | `[91 123 34 105 100 34 58 49 49 44 34 110 97 109 101 34 58 34 113 119 101 114 116 121 34 125 93]` | ]"
+            - "[`10` | `[99 98 55 52 55 51 54 49 45 101 48 100 98 45 52 49 99 102 45 57 49 54 48 45 52 49 99 57 54 102 54 56 56 56 100 48]` | `Opt-in to qwerty` | `Confirm subscription(s) to qwerty` | `listmonk <noreply@listmonk.yoursite.com>` | `email` | `<nil>` | `0` | `0` | `[111 112 116 105 110]` | `\n\n<p>Hi {{.Subscriber.FirstName }}</p>\n<p>You have been added to the following lists:</p>\n<ul>\n    \n        \n            <li>qwerty</li>\n        \n    \n</ul>\n<p>\n    <a class=\"button\" href=\"{{ OptinURL }}l=f79a73f7-1687-4951-adbf-3cfa79e7b9ad\">Confirm subscription</a>\n</p>\n` | `<nil>` | `<nil>` | `[91 93]` | `[99 97 110 99 101 108 108 101 100]` | `[114 105 99 104 116 101 120 116]` | `<nil>` | `1` | `\"2022-12-16T10:50:37.517643Z\"` | `\"2022-12-16T10:52:04.912655Z\"` | `3` | `[91 123 34 105 100 34 58 49 49 44 34 110 97 109 101 34 58 34 113 119 101 114 116 121 34 125 93]` | ]"
+            - |-
+              [`9` | `[53 49 53 51 57 49 57 50 45 57 98 54 49 45 52 48 56 48 45 98 51 50 56 45 99 56 99 57 51 54 100 56 99 49 52 57]` | `qwerty` | `keploy` | `sarthak@keploy.io` | `email` | `<nil>` | `0` | `0` | `[114 101 103 117 108 97 114]` | `<p>test</p>` | `test
+              ` | `<nil>` | `[91 93]` | `[99 97 110 99 101 108 108 101 100]` | `[114 105 99 104 116 101 120 116]` | `[123 119 97 115 100 125]` | `1` | `"2022-12-16T08:34:21.182088Z"` | `"2022-12-16T08:35:00.164904Z"` | `3` | `[91 123 34 105 100 34 58 49 44 34 110 97 109 101 34 58 34 68 101 102 97 117 108 116 32 108 105 115 116 34 125 44 123 34 105 100 34 58 49 48 44 34 110 97 109 101 34 58 34 83 97 114 116 104 97 107 34 125 93]` | ]
+            - |-
+              [`9` | `[53 49 53 51 57 49 57 50 45 57 98 54 49 45 52 48 56 48 45 98 51 50 56 45 99 56 99 57 51 54 100 56 99 49 52 57]` | `qwerty` | `keploy` | `sarthak@keploy.io` | `email` | `<nil>` | `0` | `0` | `[114 101 103 117 108 97 114]` | `<p>test</p>` | `test
+              ` | `<nil>` | `[91 93]` | `[99 97 110 99 101 108 108 101 100]` | `[114 105 99 104 116 101 120 116]` | `[123 119 97 115 100 125]` | `1` | `"2022-12-16T08:34:21.182088Z"` | `"2022-12-16T08:35:00.164904Z"` | `3` | `[91 123 34 105 100 34 58 49 44 34 110 97 109 101 34 58 34 68 101 102 97 117 108 116 32 108 105 115 116 34 125 44 123 34 105 100 34 58 49 48 44 34 110 97 109 101 34 58 34 83 97 114 116 104 97 107 34 125 93]` | ]
+    int: 0
+    error:
+        - nil
+        - nil
+        - nil
+        - EOF
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-55-2
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext
+        query: '"WITH lists AS ( SELECT campaign_id, JSON_AGG(JSON_BUILD_OBJECT(''id'', list_id, ''name'', list_name)) AS lists FROM campaign_lists WHERE campaign_id = ANY($1) GROUP BY campaign_id ), views AS ( SELECT campaign_id, COUNT(campaign_id) as num FROM campaign_views WHERE campaign_id = ANY($1) GROUP BY campaign_id ), clicks AS ( SELECT campaign_id, COUNT(campaign_id) as num FROM link_clicks WHERE campaign_id = ANY($1) GROUP BY campaign_id ), bounces AS ( SELECT campaign_id, COUNT(campaign_id) as num FROM bounces WHERE campaign_id = ANY($1) GROUP BY campaign_id ) SELECT id as campaign_id, COALESCE(v.num, 0) AS views, COALESCE(c.num, 0) AS clicks, COALESCE(b.num, 0) AS bounces, COALESCE(l.lists, ''[]'') AS lists FROM (SELECT id FROM UNNEST($1) AS id) x LEFT JOIN lists AS l ON (l.campaign_id = id) LEFT JOIN views AS v ON (v.campaign_id = id) LEFT JOIN clicks AS c ON (c.campaign_id = id) LEFT JOIN bounces AS b ON (b.campaign_id = id) ORDER BY ARRAY_POSITION($1, id);"'
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-55-3
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.NumInput
+        type: SQL_DB
+    type: int
+    int: 1
+    error: []
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-55-4
+spec:
+    metadata:
+        arguments: '[{ 1 {11,10,9}}]'
+        name: SQL
+        operation: QueryContext
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-55-5
+spec:
+    metadata:
+        name: SQL
+        operation: QueryContext.Close
+        type: SQL_DB
+    type: table
+    table:
+        cols:
+            - name: campaign_id
+              type: int64
+              precision: 0
+              scale: 0
+            - name: views
+              type: int64
+              precision: 0
+              scale: 0
+            - name: clicks
+              type: int64
+              precision: 0
+              scale: 0
+            - name: bounces
+              type: int64
+              precision: 0
+              scale: 0
+            - name: lists
+              type: '[]uint8'
+              precision: 0
+              scale: 0
+        rows:
+            - '[`11` | `0` | `0` | `0` | `[91 123 34 105 100 34 32 58 32 49 49 44 32 34 110 97 109 101 34 32 58 32 34 113 119 101 114 116 121 34 125 93]` | ]'
+            - '[`10` | `0` | `0` | `0` | `[91 123 34 105 100 34 32 58 32 49 49 44 32 34 110 97 109 101 34 32 58 32 34 113 119 101 114 116 121 34 125 93]` | ]'
+            - '[`9` | `0` | `0` | `0` | `[91 123 34 105 100 34 32 58 32 49 44 32 34 110 97 109 101 34 32 58 32 34 68 101 102 97 117 108 116 32 108 105 115 116 34 125 44 32 123 34 105 100 34 32 58 32 49 48 44 32 34 110 97 109 101 34 32 58 32 34 83 97 114 116 104 97 107 34 125 93]` | ]'
+            - '[`9` | `0` | `0` | `0` | `[91 123 34 105 100 34 32 58 32 49 44 32 34 110 97 109 101 34 32 58 32 34 68 101 102 97 117 108 116 32 108 105 115 116 34 125 44 32 123 34 105 100 34 32 58 32 49 48 44 32 34 110 97 109 101 34 32 58 32 34 83 97 114 116 104 97 107 34 125 93]` | ]'
+    int: 0
+    error:
+        - nil
+        - nil
+        - nil
+        - EOF
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-55-6
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.Close
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil

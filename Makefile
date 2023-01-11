@@ -43,7 +43,8 @@ $(BIN): $(shell find . -type f -name "*.go")
 # Run the backend in dev mode. The frontend assets in dev mode are loaded from disk from frontend/dist.
 .PHONY: run
 run:
-	CGO_ENABLED=0 go run -ldflags="-s -w -X 'main.buildString=${BUILDSTR}' -X 'main.versionString=${VERSION}' -X 'main.frontendDir=frontend/dist'" cmd/*.go
+	CGO_ENABLED=0 go build -o ${BIN} -ldflags="-s -w -X 'main.buildString=${BUILDSTR}' -X 'main.versionString=${VERSION}' -X 'main.frontendDir=frontend/dist'" cmd/*.go
+	./listmonk
 
 # Build the JS frontend into frontend/dist.
 $(FRONTEND_DIST): $(FRONTEND_DEPS)
@@ -62,7 +63,13 @@ run-frontend:
 # Run Go tests.
 .PHONY: test
 test:
-	go test ./...
+#	go test ./...
+	mkdir uploads
+	CGO_ENABLED=0 export KEPLOY_MODE="test" && go test -coverpkg=./... -coverprofile=coverage.tmp.txt -covermode=atomic ./... -buildString '${BUILDSTR}' -versionString ${VERSION}
+#	the files with inmemory state are excluded. Since the state are not mocked therefore, testrun fails.
+	cat coverage.tmp.txt | grep -v -e "cmd/import.go" -e "cmd/tx.go" | grep -v -e "migrations" > coverage.txt
+	go tool cover -func coverage.txt
+	rm -r uploads
 
 # Bundle all static assets including the JS frontend into the ./listmonk binary
 # using stuffbin (installed with make deps).

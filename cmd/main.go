@@ -7,12 +7,14 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"strings"
 	"sync"
 	"syscall"
 	"time"
 
 	"github.com/jmoiron/sqlx"
+	"github.com/keploy/go-sdk/keploy"
 	"github.com/knadh/koanf"
 	"github.com/knadh/koanf/providers/env"
 	"github.com/knadh/listmonk/internal/bounce"
@@ -83,9 +85,50 @@ var (
 	// overridden by build flags, are relative to the CWD at runtime.
 	appDir      string = "."
 	frontendDir string = "frontend"
+	kApp        *keploy.Keploy
 )
 
+// MakeFunctionRunOnRootFolder changes current directory to root when test file is executed
+func MakeFunctionRunOnRootFolder() {
+	ospath, err := os.Getwd()
+	if err != nil {
+		lo.Println("failed to get current directory path", err)
+	}
+	// already in root directory
+	if !strings.Contains(ospath, "listmonk/cmd") {
+		return
+	}
+
+	// get the absolute path of listmonk root directory
+	dir, err := filepath.Abs("../")
+	if err != nil {
+		lo.Println("failed to get root directory path of listmonk", err)
+	}
+
+	// change current direstory to root
+	err = os.Chdir(dir)
+	if err != nil {
+		lo.Println("failed to change current directory path to root listmonk", err)
+	}
+}
+
 func init() {
+	MakeFunctionRunOnRootFolder()
+	kApp = keploy.New(keploy.Config{
+		App: keploy.AppConfig{
+			Name:    "listmonk-app-1",
+			Port:    "9000",
+			Timeout: time.Hour,
+			Delay:   6 * time.Second,
+			Filter: keploy.Filter{
+				RejectUrlRegex: []string{"^/admin", "^/public/static", "/logs$", "^/api/import/subscribers"},
+			},
+		},
+		Server: keploy.ServerConfig{
+			URL:        "http://localhost:6789/api",
+			AsyncCalls: true,
+		},
+	})
 	initFlags()
 
 	// Display version.
@@ -119,42 +162,44 @@ func init() {
 	}
 
 	// Connect to the database, load the filesystem to read SQL queries.
-	db = initDB()
+	db = initDB(kApp.Ctx)
 	fs = initFS(appDir, frontendDir, ko.String("static-dir"), ko.String("i18n-dir"))
 
 	// Installer mode? This runs before the SQL queries are loaded and prepared
 	// as the installer needs to work on an empty DB.
 	if ko.Bool("install") {
 		// Save the version of the last listed migration.
-		install(migList[len(migList)-1].version, db, fs, !ko.Bool("yes"), ko.Bool("idempotent"))
+		install(kApp.Ctx, migList[len(migList)-1].version, db, fs, !ko.Bool("yes"), ko.Bool("idempotent"))
 		os.Exit(0)
 	}
 
 	// Check if the DB schema is installed.
-	if ok, err := checkSchema(db); err != nil {
+	if ok, err := checkSchema(kApp.Ctx, db); err != nil {
 		log.Fatalf("error checking schema in DB: %v", err)
 	} else if !ok {
 		lo.Fatal("the database does not appear to be setup. Run --install.")
 	}
 
 	if ko.Bool("upgrade") {
-		upgrade(db, fs, !ko.Bool("yes"))
+		upgrade(kApp.Ctx, db, fs, !ko.Bool("yes"))
 		os.Exit(0)
 	}
 
 	// Before the queries are prepared, see if there are pending upgrades.
-	checkUpgrade(db)
+	checkUpgrade(kApp.Ctx, db)
 
 	// Read the SQL queries from the queries file.
 	qMap := readQueries(queryFilePath, db, fs)
 
 	// Load settings from DB.
 	if q, ok := qMap["get-settings"]; ok {
-		initSettings(q.Query, db, ko)
+		initSettings(kApp.Ctx, q.Query, db, ko)
 	}
 
 	// Prepare queries.
-	queries = prepareQueries(qMap, db, ko)
+	queries = prepareQueries(kApp.Ctx, qMap, db, ko)
+	fmt.Println("mode in main init:", keploy.GetMode())
+
 }
 
 func main() {
@@ -200,11 +245,11 @@ func main() {
 	app.manager = initCampaignManager(app.queries, app.constants, app)
 	app.importer = initImporter(app.queries, db, app)
 	app.notifTpls = initNotifTemplates("/email-templates/*.html", fs, app.i18n, app.constants)
-	initTxTemplates(app.manager, app)
+	initTxTemplates(kApp.Ctx, app.manager, app)
 
 	if ko.Bool("bounce.enabled") {
 		app.bounce = initBounceManager(app)
-		go app.bounce.Run()
+		go app.bounce.Run(kApp.Ctx)
 	}
 
 	// Initialize the default SMTP (`email`) messenger.
@@ -222,14 +267,18 @@ func main() {
 
 	// Start the campaign workers. The campaign batches (fetch from DB, push out
 	// messages) get processed at the specified interval.
-	go app.manager.Run()
+	go app.manager.Run(kApp.Ctx)
 
 	// Start the app server.
-	srv := initHTTPServer(app)
+	srv := initHTTPServer(app, kApp)
 
-	// Star the update checker.
+	// Start the update checker.
 	if ko.Bool("app.check_updates") {
-		go checkUpdates(versionString, time.Hour*24, app)
+		interval := time.Hour * 24
+		if keploy.GetMode() != keploy.MODE_OFF {
+			interval = time.Second * 6
+		}
+		go checkUpdates(versionString, interval, app)
 	}
 
 	// Wait for the reload signal with a callback to gracefully shut down resources.
@@ -240,8 +289,13 @@ func main() {
 
 	closerWait := make(chan bool)
 	<-awaitReload(app.sigChan, closerWait, func() {
+		// during test, dont stop the server so that running testrun do not fail
+		if keploy.GetMode() == keploy.MODE_TEST {
+			return
+		}
+
 		// Stop the HTTP server.
-		ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+		ctx, cancel := context.WithTimeout(kApp.Ctx, 1*time.Second)
 		defer cancel()
 		srv.Shutdown(ctx)
 

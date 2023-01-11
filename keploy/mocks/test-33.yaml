@@ -1,0 +1,238 @@
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-33-0
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext
+        query: '"SELECT subscribers.id, subscribers.uuid, subscribers.email, subscribers.name, subscribers.status, subscribers.attribs, subscribers.created_at, subscribers.updated_at FROM subscribers LEFT JOIN subscriber_lists sl ON ( (CASE WHEN CARDINALITY($1::INT[]) > 0 THEN true ELSE false END) AND sl.subscriber_id = subscribers.id ) WHERE sl.list_id = ALL($1::INT[]) AND id > $2 AND (CASE WHEN CARDINALITY($3::INT[]) > 0 THEN id=ANY($3) ELSE true END)  ORDER BY subscribers.id ASC LIMIT (CASE WHEN $4 = 0 THEN NULL ELSE $4 END);"'
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-33-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.Close
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-33-2
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext
+        query: '"SELECT subscribers.id, subscribers.uuid, subscribers.email, subscribers.name, subscribers.status, subscribers.attribs, subscribers.created_at, subscribers.updated_at FROM subscribers LEFT JOIN subscriber_lists sl ON ( (CASE WHEN CARDINALITY($1::INT[]) > 0 THEN true ELSE false END) AND sl.subscriber_id = subscribers.id ) WHERE sl.list_id = ALL($1::INT[]) AND id > $2 AND (CASE WHEN CARDINALITY($3::INT[]) > 0 THEN id=ANY($3) ELSE true END)  ORDER BY subscribers.id ASC LIMIT (CASE WHEN $4 = 0 THEN NULL ELSE $4 END);"'
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-33-3
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.NumInput
+        type: SQL_DB
+    type: int
+    int: 4
+    error: []
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-33-4
+spec:
+    metadata:
+        arguments: '[{ 1 {}} { 2 0} { 3 {}} { 4 1000}]'
+        name: SQL
+        operation: QueryContext
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-33-5
+spec:
+    metadata:
+        name: SQL
+        operation: QueryContext.Close
+        type: SQL_DB
+    type: table
+    table:
+        cols:
+            - name: id
+              type: int64
+              precision: 0
+              scale: 0
+            - name: uuid
+              type: '[]uint8'
+              precision: 0
+              scale: 0
+            - name: email
+              type: string
+              precision: 0
+              scale: 0
+            - name: name
+              type: string
+              precision: 0
+              scale: 0
+            - name: status
+              type: '[]uint8'
+              precision: 0
+              scale: 0
+            - name: attribs
+              type: '[]uint8'
+              precision: 0
+              scale: 0
+            - name: created_at
+              type: time.Time
+              precision: 0
+              scale: 0
+            - name: updated_at
+              type: time.Time
+              precision: 0
+              scale: 0
+        rows:
+            - '[`18` | `[54 102 55 98 55 101 54 51 45 54 49 50 54 45 52 51 98 97 45 97 55 53 102 45 52 55 53 51 52 97 48 56 55 57 56 52]` | `gouravkrox@gmail.com` | `gourav kumar` | `[101 110 97 98 108 101 100]` | `[123 125]` | `"2022-11-09T06:52:16.4999Z"` | `"2022-12-18T11:37:13.217523Z"` | ]'
+            - '[`22` | `[53 55 99 97 101 51 52 52 45 98 51 97 101 45 52 54 56 102 45 56 50 52 101 45 100 98 55 53 97 102 56 56 53 55 53 57]` | `sarthak@keploy.io` | `Sarthak` | `[101 110 97 98 108 101 100]` | `[123 125]` | `"2022-12-16T08:11:38.778558Z"` | `"2022-12-16T08:11:38.778558Z"` | ]'
+            - '[`23` | `[48 50 99 56 100 52 48 55 45 98 102 57 48 45 52 56 99 102 45 97 48 97 50 45 100 55 51 101 51 102 101 53 98 48 97 49]` | `jain.ritik.1001@gmail.com` | `Ritik` | `[101 110 97 98 108 101 100]` | `[123 125]` | `"2022-12-18T11:37:37.157Z"` | `"2022-12-18T11:37:37.157Z"` | ]'
+            - '[`23` | `[48 50 99 56 100 52 48 55 45 98 102 57 48 45 52 56 99 102 45 97 48 97 50 45 100 55 51 101 51 102 101 53 98 48 97 49]` | `jain.ritik.1001@gmail.com` | `Ritik` | `[101 110 97 98 108 101 100]` | `[123 125]` | `"2022-12-18T11:37:37.157Z"` | `"2022-12-18T11:37:37.157Z"` | ]'
+    int: 0
+    error:
+        - nil
+        - nil
+        - nil
+        - EOF
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-33-6
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.Close
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-33-7
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext
+        query: '"SELECT subscribers.id, subscribers.uuid, subscribers.email, subscribers.name, subscribers.status, subscribers.attribs, subscribers.created_at, subscribers.updated_at FROM subscribers LEFT JOIN subscriber_lists sl ON ( (CASE WHEN CARDINALITY($1::INT[]) > 0 THEN true ELSE false END) AND sl.subscriber_id = subscribers.id ) WHERE sl.list_id = ALL($1::INT[]) AND id > $2 AND (CASE WHEN CARDINALITY($3::INT[]) > 0 THEN id=ANY($3) ELSE true END)  ORDER BY subscribers.id ASC LIMIT (CASE WHEN $4 = 0 THEN NULL ELSE $4 END);"'
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-33-8
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.NumInput
+        type: SQL_DB
+    type: int
+    int: 4
+    error: []
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-33-9
+spec:
+    metadata:
+        arguments: '[{ 1 {}} { 2 23} { 3 {}} { 4 1000}]'
+        name: SQL
+        operation: QueryContext
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-33-10
+spec:
+    metadata:
+        name: SQL
+        operation: QueryContext.Close
+        type: SQL_DB
+    type: table
+    table:
+        cols:
+            - name: id
+              type: <nil>
+              precision: 0
+              scale: 0
+            - name: uuid
+              type: <nil>
+              precision: 0
+              scale: 0
+            - name: email
+              type: <nil>
+              precision: 0
+              scale: 0
+            - name: name
+              type: <nil>
+              precision: 0
+              scale: 0
+            - name: status
+              type: <nil>
+              precision: 0
+              scale: 0
+            - name: attribs
+              type: <nil>
+              precision: 0
+              scale: 0
+            - name: created_at
+              type: <nil>
+              precision: 0
+              scale: 0
+            - name: updated_at
+              type: <nil>
+              precision: 0
+              scale: 0
+        rows:
+            - '[`<nil>` | `<nil>` | `<nil>` | `<nil>` | `<nil>` | `<nil>` | `<nil>` | `<nil>` | ]'
+    int: 0
+    error:
+        - EOF
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-33-11
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.Close
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil

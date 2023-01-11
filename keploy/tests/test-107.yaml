@@ -1,0 +1,53 @@
+version: api.keploy.io/v1beta2
+kind: Http
+name: test-107
+spec:
+    metadata: {}
+    req:
+        method: PUT
+        proto_major: 1
+        proto_minor: 1
+        url: /api/templates/2/default
+        header:
+            Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8
+            Accept-Encoding: gzip, deflate, br
+            Authorization: Basic bGlzdG1vbms6bGlzdG1vbms=
+            Connection: keep-alive
+            Content-Length: "0"
+            Cookie: connect.sid=s%3AdxWsE0jhYYsXQwFQKZJhtK_5Jli7MPB1.Wjbj0YQ3J7yJE1Zx21NQAWPtrz1f8i73j9FAnlvbrSg
+            Postman-Token: 24c68689-5663-41a9-a804-c5afccee1d77
+            Sec-Fetch-Dest: iframe
+            Sec-Fetch-Mode: navigate
+            Sec-Fetch-Site: same-origin
+            Sec-Gpc: '"1"'
+            Upgrade-Insecure-Requests: '"1"'
+        body: ""
+        body_type: ""
+    resp:
+        status_code: 200
+        header:
+            Content-Type: application/json; charset=UTF-8
+        body: |
+            {"data":{"id":2,"created_at":"2022-10-20T07:36:12.389662Z","updated_at":"2022-10-20T07:36:12.389662Z","name":"Sample transactional template","subject":"Welcome {{ .Subscriber.Name }}","type":"tx","body":"\u003c!doctype html\u003e\n\u003chtml\u003e\n    \u003chead\u003e\n        \u003cmeta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\"\u003e\n        \u003cmeta name=\"viewport\" content=\"width=device-width, initial-scale=1, minimum-scale=1\"\u003e\n        \u003cbase target=\"_blank\"\u003e\n\n        \u003cstyle\u003e\n            body {\n                background-color: #F0F1F3;\n                font-family: 'Helvetica Neue', 'Segoe UI', Helvetica, sans-serif;\n                font-size: 15px;\n                line-height: 26px;\n                margin: 0;\n                color: #444;\n            }\n\n            pre {\n                background: #f4f4f4f4;\n                padding: 2px;\n            }\n\n            table {\n                width: 100%;\n                border: 1px solid #ddd;\n            }\n            table td {\n                border-color: #ddd;\n                padding: 5px;\n            }\n\n            .wrap {\n                background-color: #fff;\n                padding: 30px;\n                max-width: 525px;\n                margin: 0 auto;\n                border-radius: 5px;\n            }\n\n            .button {\n                background: #0055d4;\n                border-radius: 3px;\n                text-decoration: none !important;\n                color: #fff !important;\n                font-weight: bold;\n                padding: 10px 30px;\n                display: inline-block;\n            }\n            .button:hover {\n                background: #111;\n            }\n\n            .footer {\n                text-align: center;\n                font-size: 12px;\n                color: #888;\n            }\n                .footer a {\n                    color: #888;\n                    margin-right: 5px;\n                }\n\n            .gutter {\n                padding: 30px;\n            }\n\n            img {\n                max-width: 100%;\n                height: auto;\n            }\n\n            a {\n                color: #0055d4;\n            }\n                a:hover {\n                    color: #111;\n                }\n            @media screen and (max-width: 600px) {\n                .wrap {\n                    max-width: auto;\n                }\n                .gutter {\n                    padding: 10px;\n                }\n            }\n        \u003c/style\u003e\n    \u003c/head\u003e\n\u003cbody style=\"background-color: #F0F1F3;font-family: 'Helvetica Neue', 'Segoe UI', Helvetica, sans-serif;font-size: 15px;line-height: 26px;margin: 0;color: #444;\"\u003e\n    \u003cdiv class=\"gutter\" style=\"padding: 30px;\"\u003e\u0026nbsp;\u003c/div\u003e\n    \u003cdiv class=\"wrap\" style=\"background-color: #fff;padding: 30px;max-width: 525px;margin: 0 auto;border-radius: 5px;\"\u003e\n        \u003cp\u003eHello {{ .Subscriber.Name }}\u003c/p\u003e\n        \u003cp\u003e\n            \u003cstrong\u003eOrder number: \u003c/strong\u003e {{ .Tx.Data.order_id }}\u003cbr /\u003e\n            \u003cstrong\u003eShipping date: \u003c/strong\u003e {{ .Tx.Data.shipping_date }}\u003cbr /\u003e\n        \u003c/p\u003e\n        \u003cbr /\u003e\n        \u003cp\u003e\n            Transactional templates supports arbitrary parameters.\n            Render them using \u003ccode\u003e.Tx.Data.YourParamName\u003c/code\u003e. For more information,\n            see the transactional mailing \u003ca href=\"https://listmonk.app/docs/transactional\"\u003edocumentation\u003c/a\u003e.\n        \u003c/p\u003e\n    \u003c/div\u003e\n    \n    \u003cdiv class=\"footer\" style=\"text-align: center;font-size: 12px;color: #888;\"\u003e\n        \u003cp\u003ePowered by \u003ca href=\"https://listmonk.app\" target=\"_blank\" style=\"color: #888;\"\u003elistmonk\u003c/a\u003e\u003c/p\u003e\n    \u003c/div\u003e\n\u003c/body\u003e\n\u003c/html\u003e\n","is_default":false}}
+        body_type: ""
+        status_message: ""
+        proto_major: 1
+        proto_minor: 1
+    objects:
+        - type: error
+          data: ""
+    mocks:
+        - test-107-0
+        - test-107-1
+        - test-107-2
+        - test-107-3
+        - test-107-4
+        - test-107-5
+        - test-107-6
+        - test-107-7
+        - test-107-8
+        - test-107-9
+        - test-107-10
+    assertions:
+        noise: []
+    created: 1671394072

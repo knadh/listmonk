@@ -1,0 +1,58 @@
+version: api.keploy.io/v1beta2
+kind: Http
+name: test-34
+spec:
+    metadata: {}
+    req:
+        method: POST
+        proto_major: 1
+        proto_minor: 1
+        url: /api/subscribers/23/optin
+        header:
+            Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8
+            Accept-Encoding: gzip, deflate, br
+            Authorization: Basic bGlzdG1vbms6bGlzdG1vbms=
+            Connection: keep-alive
+            Content-Length: "37"
+            Content-Type: application/json
+            Cookie: connect.sid=s%3AdxWsE0jhYYsXQwFQKZJhtK_5Jli7MPB1.Wjbj0YQ3J7yJE1Zx21NQAWPtrz1f8i73j9FAnlvbrSg
+            Postman-Token: 541e6733-f903-41bd-b25e-03f8f026b442
+            Sec-Fetch-Dest: iframe
+            Sec-Fetch-Mode: navigate
+            Sec-Fetch-Site: same-origin
+            Sec-Gpc: '"1"'
+            Upgrade-Insecure-Requests: '"1"'
+        body: '{"email":"jain.ritik.1001@gmail.com"}'
+        body_type: ""
+    resp:
+        status_code: 200
+        header:
+            Content-Type: application/json; charset=UTF-8
+        body: |
+            {"data":true}
+        body_type: ""
+        status_message: ""
+        proto_major: 1
+        proto_minor: 1
+    objects:
+        - type: error
+          data: ""
+    mocks:
+        - test-34-0
+        - test-34-1
+        - test-34-2
+        - test-34-3
+        - test-34-4
+        - test-34-5
+        - test-34-6
+        - test-34-7
+        - test-34-8
+        - test-34-9
+        - test-34-10
+        - test-34-11
+        - test-34-12
+        - test-34-13
+        - test-34-14
+    assertions:
+        noise: []
+    created: 1671389943

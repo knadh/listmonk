@@ -1,0 +1,65 @@
+version: api.keploy.io/v1beta2
+kind: Http
+name: test-49
+spec:
+    metadata: {}
+    req:
+        method: GET
+        proto_major: 1
+        proto_minor: 1
+        url: /api/campaigns/1
+        header:
+            Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8
+            Accept-Encoding: gzip, deflate, br
+            Authorization: Basic bGlzdG1vbms6bGlzdG1vbms=
+            Connection: keep-alive
+            Content-Length: "204"
+            Content-Type: application/json
+            Cookie: connect.sid=s%3AdxWsE0jhYYsXQwFQKZJhtK_5Jli7MPB1.Wjbj0YQ3J7yJE1Zx21NQAWPtrz1f8i73j9FAnlvbrSg
+            Postman-Token: 02f00156-f79f-4184-a7ba-6cbb7e52db7c
+            Sec-Fetch-Dest: iframe
+            Sec-Fetch-Mode: navigate
+            Sec-Fetch-Site: same-origin
+            Sec-Gpc: '"1"'
+            Upgrade-Insecure-Requests: '"1"'
+        body: |-
+            {
+                "id": 2,
+                "name": "Opt-in list",
+                "type": "public",
+                "optin": "double",
+                "tags": [
+                    "test"
+                ],
+                "description": "",
+                "subscriber_count": 0,
+                "subscriber_statuses": {}
+            }
+        body_type: ""
+    resp:
+        status_code: 200
+        header:
+            Content-Type: application/json; charset=UTF-8
+        body: |
+            {"data":{"id":1,"created_at":"2023-01-06T07:39:21.468161Z","updated_at":"2023-01-06T07:39:21.468161Z","views":0,"clicks":0,"bounces":0,"lists":[{"id":1,"name":"Default list"}],"started_at":null,"to_send":0,"sent":0,"uuid":"0d76174b-f4ec-4547-8726-d3c337848831","type":"regular","name":"Test campaign","subject":"Welcome to listmonk","from_email":"No Reply \u003cnoreply@yoursite.com\u003e","body":"\u003ch3\u003eHi {{ .Subscriber.FirstName }}!\u003c/h3\u003e\n\t\t\u003cp\u003eThis is a test e-mail campaign. Your second name is {{ .Subscriber.LastName }} and you are from {{ .Subscriber.Attribs.city }}.\u003c/p\u003e\n\t\t\u003cp\u003eHere is a \u003ca href=\"https://listmonk.app@TrackLink\"\u003etracked link\u003c/a\u003e.\u003c/p\u003e\n\t\t\u003cp\u003eUse the link icon in the editor toolbar or when writing raw HTML or Markdown,\n\t\t\tsimply suffix @TrackLink to the end of a URL to turn it into a tracking link. Example:\u003c/p\u003e\n\t\t\u003cpre\u003e\u0026lt;a href=\u0026quot;https:/\u0026zwnj;/listmonk.app\u0026#064;TrackLink\u0026quot;\u0026gt;\u0026lt;/a\u0026gt;\u003c/pre\u003e\n\t\t\u003cp\u003eFor help, refer to the \u003ca href=\"https://listmonk.app/docs\"\u003edocumentation\u003c/a\u003e.\u003c/p\u003e\n\t\t","altbody":null,"send_at":null,"status":"draft","content_type":"richtext","tags":["test-campaign"],"headers":[],"template_id":1,"messenger":"email","archive":false,"archive_template_id":2,"archive_meta":{"name":"Subscriber"}}}
+        body_type: ""
+        status_message: ""
+        proto_major: 1
+        proto_minor: 1
+    objects:
+        - type: error
+          data: ""
+    mocks:
+        - test-49-0
+        - test-49-1
+        - test-49-2
+        - test-49-3
+        - test-49-4
+        - test-49-5
+        - test-49-6
+        - test-49-7
+        - test-49-8
+        - test-49-9
+    assertions:
+        noise: []
+    created: 1671391758

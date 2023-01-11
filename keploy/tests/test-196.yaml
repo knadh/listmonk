@@ -1,0 +1,52 @@
+version: api.keploy.io/v1beta2
+kind: Http
+name: test-196
+spec:
+    metadata: {}
+    req:
+        method: PUT
+        proto_major: 1
+        proto_minor: 1
+        url: /api/campaigns/3
+        header:
+            Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8
+            Accept-Encoding: gzip, deflate, br
+            Authorization: Basic bGlzdG1vbms6bGlzdG1vbms=
+            Connection: keep-alive
+            Content-Length: "257"
+            Content-Type: application/json
+            Cookie: connect.sid=s%3AdxWsE0jhYYsXQwFQKZJhtK_5Jli7MPB1.Wjbj0YQ3J7yJE1Zx21NQAWPtrz1f8i73j9FAnlvbrSg
+            Postman-Token: 859737c5-72b1-4437-8c73-8a14cecee7c0
+            Sec-Fetch-Dest: iframe
+            Sec-Fetch-Mode: navigate
+            Sec-Fetch-Site: same-origin
+            Sec-Gpc: '"1"'
+            Upgrade-Insecure-Requests: '"1"'
+        body: '{"name":"qwertt2","subject":"keploy","lists":[1],"from_email":"ritik@keploy.io","messenger":"email","type":"regular","tags":[],"send_later":false,"send_at":null,"headers":[],"template_id":1,"content_type":"richtext","body":"<p>greetings</p>","altbody":null}'
+        body_type: ""
+    resp:
+        status_code: 400
+        header:
+            Content-Type: application/json; charset=UTF-8
+        body: Cannot update a running or a finished campaign.
+        body_type: ""
+        status_message: ""
+        proto_major: 1
+        proto_minor: 1
+    objects:
+        - type: error
+          data: ""
+    mocks:
+        - test-196-0
+        - test-196-1
+        - test-196-2
+        - test-196-3
+        - test-196-4
+        - test-196-5
+        - test-196-6
+        - test-196-7
+        - test-196-8
+        - test-196-9
+    assertions:
+        noise: []
+    created: 1673252064

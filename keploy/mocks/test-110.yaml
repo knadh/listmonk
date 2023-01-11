@@ -1,0 +1,112 @@
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-110-0
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext
+        query: '"SELECT * FROM lists WHERE (CASE WHEN $1 = '''' THEN 1=1 ELSE type=$1::list_type END) ORDER BY CASE WHEN $2 = ''id'' THEN id END, CASE WHEN $2 = ''name'' THEN name END;"'
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-110-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.NumInput
+        type: SQL_DB
+    type: int
+    int: 2
+    error: []
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-110-2
+spec:
+    metadata:
+        arguments: '[{ 1 public} { 2 id}]'
+        name: SQL
+        operation: QueryContext
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-110-3
+spec:
+    metadata:
+        name: SQL
+        operation: QueryContext.Close
+        type: SQL_DB
+    type: table
+    table:
+        cols:
+            - name: id
+              type: int64
+              precision: 0
+              scale: 0
+            - name: uuid
+              type: '[]uint8'
+              precision: 0
+              scale: 0
+            - name: name
+              type: string
+              precision: 0
+              scale: 0
+            - name: type
+              type: '[]uint8'
+              precision: 0
+              scale: 0
+            - name: optin
+              type: '[]uint8'
+              precision: 0
+              scale: 0
+            - name: tags
+              type: '[]uint8'
+              precision: 0
+              scale: 0
+            - name: created_at
+              type: time.Time
+              precision: 0
+              scale: 0
+            - name: updated_at
+              type: time.Time
+              precision: 0
+              scale: 0
+        rows:
+            - '[`1` | `[48 99 101 101 102 50 101 102 45 102 98 54 57 45 52 49 98 56 45 57 48 52 55 45 100 55 101 99 50 100 100 50 54 97 97 55]` | `Default list` | `[112 117 98 108 105 99]` | `[100 111 117 98 108 101]` | `[123 116 101 115 116 44 102 102 102 125]` | `"2022-10-20T07:36:12.378176Z"` | `"2022-12-16T07:46:00.477233Z"` | ]'
+            - '[`5` | `[48 99 54 50 53 50 98 48 45 102 49 97 102 45 52 98 51 50 45 97 101 52 55 45 53 102 48 48 57 52 56 100 54 52 97 48]` | `Ritik` | `[112 117 98 108 105 99]` | `[115 105 110 103 108 101]` | `<nil>` | `"2022-11-09T06:51:19.581244Z"` | `"2022-12-16T10:50:27.647233Z"` | ]'
+            - '[`10` | `[50 49 57 49 53 48 57 48 45 54 100 99 101 45 52 48 101 100 45 98 54 56 50 45 48 99 101 52 49 57 102 48 49 50 53 97]` | `Sarthak` | `[112 117 98 108 105 99]` | `[100 111 117 98 108 101]` | `<nil>` | `"2022-12-06T11:17:23.574221Z"` | `"2022-12-06T11:17:23.574221Z"` | ]'
+            - '[`11` | `[102 55 57 97 55 51 102 55 45 49 54 56 55 45 52 57 53 49 45 97 100 98 102 45 51 99 102 97 55 57 101 55 98 57 97 100]` | `qwerty` | `[112 117 98 108 105 99]` | `[115 105 110 103 108 101]` | `[123 119 97 115 100 125]` | `"2022-12-16T08:10:37.863884Z"` | `"2022-12-18T11:26:24.970648Z"` | ]'
+            - '[`12` | `[102 51 100 51 51 99 57 99 45 102 50 49 52 45 52 48 48 54 45 56 102 49 51 45 57 102 101 57 99 97 53 99 97 98 98 49]` | `poiuyt` | `[112 117 98 108 105 99]` | `[100 111 117 98 108 101]` | `[123 102 103 104 106 125]` | `"2022-12-18T19:25:08.026439Z"` | `"2022-12-18T19:25:08.026439Z"` | ]'
+            - '[`12` | `[102 51 100 51 51 99 57 99 45 102 50 49 52 45 52 48 48 54 45 56 102 49 51 45 57 102 101 57 99 97 53 99 97 98 98 49]` | `poiuyt` | `[112 117 98 108 105 99]` | `[100 111 117 98 108 101]` | `[123 102 103 104 106 125]` | `"2022-12-18T19:25:08.026439Z"` | `"2022-12-18T19:25:08.026439Z"` | ]'
+    int: 0
+    error:
+        - nil
+        - nil
+        - nil
+        - nil
+        - nil
+        - EOF
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-110-4
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.Close
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil

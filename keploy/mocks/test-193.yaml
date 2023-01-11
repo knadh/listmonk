@@ -1,0 +1,269 @@
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-193-0
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext
+        query: '"WITH s AS ( UPDATE subscribers SET email=(CASE WHEN $2 != '''' THEN $2 ELSE email END), name=(CASE WHEN $3 != '''' THEN $3 ELSE name END), status=(CASE WHEN $4 != '''' THEN $4::subscriber_status ELSE status END), attribs=(CASE WHEN $5 != '''' THEN $5::JSONB ELSE attribs END), updated_at=NOW() WHERE id = $1 RETURNING id ), listIDs AS ( SELECT id FROM lists WHERE (CASE WHEN CARDINALITY($6::INT[]) > 0 THEN id=ANY($6) ELSE uuid=ANY($7::UUID[]) END) ), d AS ( DELETE FROM subscriber_lists WHERE $9 = TRUE AND subscriber_id = $1 AND list_id != ALL(SELECT id FROM listIDs) ) INSERT INTO subscriber_lists (subscriber_id, list_id, status) VALUES( (SELECT id FROM s), UNNEST(ARRAY(SELECT id FROM listIDs)), (CASE WHEN $4=''blocklisted'' THEN ''unsubscribed''::subscription_status ELSE $8::subscription_status END) ) ON CONFLICT (subscriber_id, list_id) DO UPDATE SET status = (CASE WHEN $4=''blocklisted'' THEN ''unsubscribed''::subscription_status ELSE subscriber_lists.status END);"'
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-193-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.NumInput
+        type: SQL_DB
+    type: int
+    int: 9
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-193-2
+spec:
+    metadata:
+        arguments: '[{ 1 2} { 2 anon@example.com} { 3 Anon Doe} { 4 enabled} { 5 [123 34 99 105 116 121 34 58 34 66 101 110 103 97 108 117 114 117 34 44 34 103 111 111 100 34 58 116 114 117 101 44 34 116 121 112 101 34 58 34 117 110 107 110 111 119 110 34 125]} { 6 {}} { 7 <nil>} { 8 unconfirmed} { 9 true}]'
+        name: SQL
+        operation: ExecContext
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-193-3
+spec:
+    metadata:
+        arguments: '[{ 1 2} { 2 anon@example.com} { 3 Anon Doe} { 4 enabled} { 5 [123 34 99 105 116 121 34 58 34 66 101 110 103 97 108 117 114 117 34 44 34 103 111 111 100 34 58 116 114 117 101 44 34 116 121 112 101 34 58 34 117 110 107 110 111 119 110 34 125]} { 6 {}} { 7 <nil>} { 8 unconfirmed} { 9 true}]'
+        name: SQL
+        operation: ExecContext.LastInsertId
+        type: SQL_DB
+    type: int
+    int: 0
+    error:
+        - LastInsertId is not supported by this driver
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-193-4
+spec:
+    metadata:
+        arguments: '[{ 1 2} { 2 anon@example.com} { 3 Anon Doe} { 4 enabled} { 5 [123 34 99 105 116 121 34 58 34 66 101 110 103 97 108 117 114 117 34 44 34 103 111 111 100 34 58 116 114 117 101 44 34 116 121 112 101 34 58 34 117 110 107 110 111 119 110 34 125]} { 6 {}} { 7 <nil>} { 8 unconfirmed} { 9 true}]'
+        name: SQL
+        operation: ExecContext.RowsAffected
+        type: SQL_DB
+    type: int
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-193-5
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.Close
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-193-6
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext
+        query: '"SELECT * FROM subscribers WHERE CASE WHEN $1 > 0 THEN id = $1 WHEN $2 != '''' THEN uuid = $2::UUID WHEN $3 != '''' THEN email = $3 END;"'
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-193-7
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.NumInput
+        type: SQL_DB
+    type: int
+    int: 3
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-193-8
+spec:
+    metadata:
+        arguments: '[{ 1 2} { 2 <nil>} { 3 anon@example.com}]'
+        name: SQL
+        operation: QueryContext
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-193-9
+spec:
+    metadata:
+        name: SQL
+        operation: QueryContext.Close
+        type: SQL_DB
+    type: table
+    table:
+        cols:
+            - name: id
+              type: int64
+              precision: 0
+              scale: 0
+            - name: uuid
+              type: '[]uint8'
+              precision: 0
+              scale: 0
+            - name: email
+              type: string
+              precision: 0
+              scale: 0
+            - name: name
+              type: string
+              precision: 0
+              scale: 0
+            - name: attribs
+              type: '[]uint8'
+              precision: 0
+              scale: 0
+            - name: status
+              type: '[]uint8'
+              precision: 0
+              scale: 0
+            - name: created_at
+              type: time.Time
+              precision: 0
+              scale: 0
+            - name: updated_at
+              type: time.Time
+              precision: 0
+              scale: 0
+        rows:
+            - '[`2` | `[51 100 48 51 49 55 99 102 45 53 56 52 100 45 52 56 99 57 45 98 53 51 102 45 53 100 100 98 50 98 52 52 49 53 49 48]` | `anon@example.com` | `Anon Doe` | `[123 34 99 105 116 121 34 58 32 34 66 101 110 103 97 108 117 114 117 34 44 32 34 103 111 111 100 34 58 32 116 114 117 101 44 32 34 116 121 112 101 34 58 32 34 117 110 107 110 111 119 110 34 125]` | `[101 110 97 98 108 101 100]` | `"2023-01-06T07:39:21.465857Z"` | `"2023-01-07T08:32:14.491287Z"` | ]'
+            - '[`2` | `[51 100 48 51 49 55 99 102 45 53 56 52 100 45 52 56 99 57 45 98 53 51 102 45 53 100 100 98 50 98 52 52 49 53 49 48]` | `anon@example.com` | `Anon Doe` | `[123 34 99 105 116 121 34 58 32 34 66 101 110 103 97 108 117 114 117 34 44 32 34 103 111 111 100 34 58 32 116 114 117 101 44 32 34 116 121 112 101 34 58 32 34 117 110 107 110 111 119 110 34 125]` | `[101 110 97 98 108 101 100]` | `"2023-01-06T07:39:21.465857Z"` | `"2023-01-07T08:32:14.491287Z"` | ]'
+    int: 0
+    error:
+        - nil
+        - EOF
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-193-10
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.Close
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-193-11
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext
+        query: '"WITH subs AS ( SELECT subscriber_id, JSON_AGG( ROW_TO_JSON( (SELECT l FROM ( SELECT subscriber_lists.status AS subscription_status, subscriber_lists.created_at AS subscription_created_at, subscriber_lists.updated_at AS subscription_updated_at, lists.* ) l) ) ) AS lists FROM lists LEFT JOIN subscriber_lists ON (subscriber_lists.list_id = lists.id) WHERE subscriber_lists.subscriber_id = ANY($1) GROUP BY subscriber_id ) SELECT id as subscriber_id, COALESCE(s.lists, ''[]'') AS lists FROM (SELECT id FROM UNNEST($1) AS id) x LEFT JOIN subs AS s ON (s.subscriber_id = id) ORDER BY ARRAY_POSITION($1, id);"'
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-193-12
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.NumInput
+        type: SQL_DB
+    type: int
+    int: 1
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-193-13
+spec:
+    metadata:
+        arguments: '[{ 1 {2}}]'
+        name: SQL
+        operation: QueryContext
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-193-14
+spec:
+    metadata:
+        name: SQL
+        operation: QueryContext.Close
+        type: SQL_DB
+    type: table
+    table:
+        cols:
+            - name: subscriber_id
+              type: int64
+              precision: 0
+              scale: 0
+            - name: lists
+              type: '[]uint8'
+              precision: 0
+              scale: 0
+        rows:
+            - '[`2` | `[91 93]` | ]'
+            - '[`2` | `[91 93]` | ]'
+    int: 0
+    error:
+        - nil
+        - EOF
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-193-15
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.Close
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil

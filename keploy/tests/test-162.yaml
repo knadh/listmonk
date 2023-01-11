@@ -1,0 +1,60 @@
+version: api.keploy.io/v1beta2
+kind: Http
+name: test-162
+spec:
+    metadata: {}
+    req:
+        method: POST
+        proto_major: 1
+        proto_minor: 1
+        url: /api/campaigns/12/test
+        header:
+            Accept: application/json, text/plain, */*
+            Accept-Encoding: gzip, deflate, br
+            Accept-Language: en-GB,en
+            Authorization: Basic bGlzdG1vbms6bGlzdG1vbms=
+            Connection: keep-alive
+            Content-Length: "559"
+            Content-Type: application/json
+            Cookie: connect.sid=s%3AdxWsE0jhYYsXQwFQKZJhtK_5Jli7MPB1.Wjbj0YQ3J7yJE1Zx21NQAWPtrz1f8i73j9FAnlvbrSg
+            Origin: http://localhost:9000
+            Referer: http://localhost:9000/admin/campaigns/12
+            Sec-Fetch-Dest: empty
+            Sec-Fetch-Mode: cors
+            Sec-Fetch-Site: same-origin
+            Sec-Gpc: "1"
+            User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36
+        body: '{"id":12,"name":"sample-optin","subject":"sample-optin","lists":[3],"from_email":"ritik@keploy.io","messenger":"email","type":"regular","headers":[],"tags":[],"template_id":1,"content_type":"richtext","body":"\n\n<p>Hi {{.Subscriber.FirstName }}</p>\n<p>You have been added to the following lists:</p>\n<ul>\n    \n        \n            <li>Private list</li>\n        \n    \n</ul>\n<p>\n    <a class=\"button\" href=\"{{ OptinURL }}l=df69e33d-e1f4-4f9b-a53b-9e059396cf3a\">Confirm subscription</a>\n</p>\n","altbody":null,"subscribers":["sarthak@keploy.io"]}'
+        body_type: ""
+    resp:
+        status_code: 200
+        header:
+            Content-Type: application/json; charset=UTF-8
+        body: |
+            {"data":true}
+        body_type: ""
+        status_message: ""
+        proto_major: 1
+        proto_minor: 1
+    objects:
+        - type: error
+          data: ""
+    mocks:
+        - test-162-0
+        - test-162-1
+        - test-162-2
+        - test-162-3
+        - test-162-4
+        - test-162-5
+        - test-162-6
+        - test-162-7
+        - test-162-8
+        - test-162-9
+        - test-162-10
+        - test-162-11
+        - test-162-12
+        - test-162-13
+        - test-162-14
+    assertions:
+        noise: []
+    created: 1671793142

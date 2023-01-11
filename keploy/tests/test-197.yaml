@@ -1,0 +1,67 @@
+version: api.keploy.io/v1beta2
+kind: Http
+name: test-197
+spec:
+    metadata: {}
+    req:
+        method: GET
+        proto_major: 1
+        proto_minor: 1
+        url: /campaign/2eeae127-440e-4f2d-a724-49e435d6cc28/3d0317cf-584d-48c9-b53f-5ddb2b441510
+        header:
+            Accept: '*/*'
+            Accept-Encoding: gzip, deflate, br
+            Connection: keep-alive
+            Content-Type: application/x-www-form-urlencoded
+            Cookie: csrftoken=KHNn1HMfuB56B2HJvlQg3GX7IKDMR5wg; ds_user_id=12608305791; datr=G_cBY-eiHYOpLvtb_4EfpTZj; mid=YxTHAAAEAAEft1yRGZ-XcZQjkBE9; ig_did=C161811E-DBDC-48E1-8FC1-E0EC6572E0BE; dpr=2; shbid="15172\05412608305791\0541702918136:01f7382caa12901419faebce28a97c3ad17d4b5f85ed268adc3424e2e497e3d9ec8f88bc"; shbts="1671382136\05412608305791\0541702918136:01f74529f76471e79f2870e6c1647b43688027683d1488d4d1a8dc3fea7f9cdf14f634c1"; sessionid=12608305791%3AFmTiK1wAd8CZEH%3A27%3AAYe7qWTQNnomrpzcqANQ3MTaVPF3cg2Bj87tWxUyTA; rur="ODN\05412608305791\0541702918318:01f735ef083f80aaf4cfa26b4c3290a171f44c309b9b1c47315a5fd79e5e64e0fc85dde7"
+            Postman-Token: 6453ed40-d40c-4192-a201-e9737b1eb8d5
+            Sec-Fetch-Dest: empty
+            Sec-Fetch-Mode: cors
+            Sec-Fetch-Site: same-origin
+            Sec-Gpc: "1"
+            User-Agent: PostmanRuntime/7.30.0
+            X-Asbd-Id: "198387"
+            X-Csrftoken: KHNn1HMfuB56B2HJvlQg3GX7IKDMR5wg
+            X-Ig-App-Id: "936619743392459"
+            X-Ig-Www-Claim: hmac.AR2VKO-G2ncZYzOuT3PVyMnX3o6DqqN6lX4Z7P1llWZ-NA-I
+            X-Instagram-Ajax: "1006757535"
+            X-Requested-With: XMLHttpRequest
+        body: ""
+        body_type: ""
+    resp:
+        status_code: 200
+        header:
+            Content-Type: text/html; charset=UTF-8
+            X-Robots-Tag: noindex
+        body: "<!doctype html>\n<html>\n    <head>\n        <title>keploy</title>\n        <meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\">\n        <meta name=\"viewport\" content=\"width=device-width, initial-scale=1, minimum-scale=1\">\n        <base target=\"_blank\">\n        <style>\n            body {\n                background-color: #F0F1F3;\n                font-family: 'Helvetica Neue', 'Segoe UI', Helvetica, sans-serif;\n                font-size: 15px;\n                line-height: 26px;\n                margin: 0;\n                color: #444;\n            }\n\n            pre {\n                background: #f4f4f4f4;\n                padding: 2px;\n            }\n\n            table {\n                width: 100%;\n                border: 1px solid #ddd;\n            }\n            table td {\n                border-color: #ddd;\n                padding: 5px;\n            }\n\n            .wrap {\n                background-color: #fff;\n                padding: 30px;\n                max-width: 525px;\n                margin: 0 auto;\n                border-radius: 5px;\n            }\n\n            .button {\n                background: #0055d4;\n                border-radius: 3px;\n                text-decoration: none !important;\n                color: #fff !important;\n                font-weight: bold;\n                padding: 10px 30px;\n                display: inline-block;\n            }\n            .button:hover {\n                background: #111;\n            }\n\n            .footer {\n                text-align: center;\n                font-size: 12px;\n                color: #888;\n            }\n                .footer a {\n                    color: #888;\n                    margin-right: 5px;\n                }\n\n            .gutter {\n                padding: 30px;\n            }\n\n            img {\n                max-width: 100%;\n                height: auto;\n            }\n\n            a {\n                color: #0055d4;\n            }\n                a:hover {\n                    color: #111;\n                }\n            @media screen and (max-width: 600px) {\n                .wrap {\n                    max-width: auto;\n                }\n                .gutter {\n                    padding: 10px;\n                }\n            }\n        </style>\n    </head>\n<body style=\"background-color: #F0F1F3;font-family: 'Helvetica Neue', 'Segoe UI', Helvetica, sans-serif;font-size: 15px;line-height: 26px;margin: 0;color: #444;\">\n    <div class=\"gutter\" style=\"padding: 30px;\">&nbsp;</div>\n    <div class=\"wrap\" style=\"background-color: #fff;padding: 30px;max-width: 525px;margin: 0 auto;border-radius: 5px;\">\n        \n    </div>\n    \n    <div class=\"footer\" style=\"text-align: center;font-size: 12px;color: #888;\">\n        <p>\n            Don&#39;t want to receive these e-mails?\n            <a href=\"http://localhost:9000/subscription/2eeae127-440e-4f2d-a724-49e435d6cc28/3d0317cf-584d-48c9-b53f-5ddb2b441510\" style=\"color: #888;\">Unsubscribe</a>\n            <a href=\"http://localhost:9000/campaign/2eeae127-440e-4f2d-a724-49e435d6cc28/3d0317cf-584d-48c9-b53f-5ddb2b441510\" style=\"color: #888;\">View in browser</a>\n        </p>\n        <p>Powered by <a href=\"https://listmonk.app\" target=\"_blank\" style=\"color: #888;\">listmonk</a></p>\n    </div>\n    <div class=\"gutter\" style=\"padding: 30px;\">&nbsp;<img src=\"http://localhost:9000/campaign/2eeae127-440e-4f2d-a724-49e435d6cc28/00000000-0000-0000-0000-000000000000/px.png\" alt=\"\" /></div>\n</body>\n</html>\n"
+        body_type: ""
+        status_message: ""
+        proto_major: 1
+        proto_minor: 1
+    objects:
+        - type: error
+          data: ""
+    mocks:
+        - test-197-0
+        - test-197-1
+        - test-197-2
+        - test-197-3
+        - test-197-4
+        - test-197-5
+        - test-197-6
+        - test-197-7
+        - test-197-8
+        - test-197-9
+        - test-197-10
+        - test-197-11
+        - test-197-12
+        - test-197-13
+        - test-197-14
+        - test-197-15
+        - test-197-16
+        - test-197-17
+        - test-197-18
+        - test-197-19
+    assertions:
+        noise: []
+    created: 1673256731

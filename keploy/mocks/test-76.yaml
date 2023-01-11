@@ -1,0 +1,78 @@
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-76-0
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext
+        query: '"SELECT COUNT(*) AS "count", url FROM link_clicks LEFT JOIN links ON (link_clicks.link_id = links.id) WHERE campaign_id=ANY($1) AND link_clicks.created_at >= $2 AND link_clicks.created_at <= $3 GROUP BY links.url ORDER BY "count" DESC LIMIT 50;"'
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-76-1
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.NumInput
+        type: SQL_DB
+    type: int
+    int: 3
+    error: []
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-76-2
+spec:
+    metadata:
+        arguments: '[{ 1 {12}} { 2 2022-12-11T18:30:00.752Z} { 3 2022-12-19T18:29:00.752Z}]'
+        name: SQL
+        operation: QueryContext
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-76-3
+spec:
+    metadata:
+        name: SQL
+        operation: QueryContext.Close
+        type: SQL_DB
+    type: table
+    table:
+        cols:
+            - name: count
+              type: <nil>
+              precision: 0
+              scale: 0
+            - name: url
+              type: <nil>
+              precision: 0
+              scale: 0
+        rows:
+            - '[`<nil>` | `<nil>` | ]'
+    int: 0
+    error:
+        - EOF
+        - nil
+---
+version: api.keploy.io/v1beta1
+kind: SQL
+name: test-76-4
+spec:
+    metadata:
+        name: SQL
+        operation: PrepareContext.Close
+        type: SQL_DB
+    type: error
+    int: 0
+    error:
+        - nil

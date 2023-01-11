@@ -1,0 +1,70 @@
+version: api.keploy.io/v1beta2
+kind: Http
+name: test-192
+spec:
+    metadata: {}
+    req:
+        method: PUT
+        proto_major: 1
+        proto_minor: 1
+        url: /api/subscribers/2
+        header:
+            Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8
+            Accept-Encoding: gzip, deflate, br
+            Authorization: Basic bGlzdG1vbms6bGlzdG1vbms=
+            Connection: keep-alive
+            Content-Length: "1167"
+            Content-Type: application/json
+            Cookie: connect.sid=s%3AdxWsE0jhYYsXQwFQKZJhtK_5Jli7MPB1.Wjbj0YQ3J7yJE1Zx21NQAWPtrz1f8i73j9FAnlvbrSg
+            Postman-Token: d50080b6-7d5c-4931-8784-b97cad21900d
+            Sec-Fetch-Dest: iframe
+            Sec-Fetch-Mode: navigate
+            Sec-Fetch-Site: same-origin
+            Sec-Gpc: '"1"'
+            Upgrade-Insecure-Requests: '"1"'
+        body: |-
+            {
+                            "id": 2,
+                            "email": "anon@example.com",
+                            "name": "Anon Doe",
+                            "attribs": {
+                                "city": "Bengaluru",
+                                "good": true,
+                                "type": "unknown"
+                            },
+                            "status": "enabled",
+                            "lists": [
+                                {
+                                    "subscription_status": "unconfirmed",
+                                    "subscription_created_at": "2023-01-06T07:39:21.465857+00:00",
+                                    "subscription_updated_at": "2023-01-06T07:39:21.465857+00:00",
+                                    "id": 2,
+                                    "uuid": "868257b6-7945-415f-83c9-4f880bf707db",
+                                    "name": "Opt-in list",
+                                    "type": "public",
+                                    "optin": "double",
+                                    "tags": [
+                                        "test"
+                                    ],
+                                    "description": "",
+                                    "created_at": "2023-01-06T07:39:21.463894+00:00",
+                                    "updated_at": "2023-01-06T07:39:21.463894+00:00"
+                                }
+                            ]
+                        }
+        body_type: ""
+    resp:
+        status_code: 400
+        header:
+            Content-Type: application/json; charset=UTF-8
+        body: 'Unmarshal type error: expected=int'
+        body_type: ""
+        status_message: ""
+        proto_major: 1
+        proto_minor: 1
+    objects:
+        - type: error
+          data: ""
+    assertions:
+        noise: []
+    created: 1673080308

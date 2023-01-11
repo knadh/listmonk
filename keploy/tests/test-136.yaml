@@ -1,0 +1,62 @@
+version: api.keploy.io/v1beta2
+kind: Http
+name: test-136
+spec:
+    metadata: {}
+    req:
+        method: POST
+        proto_major: 1
+        proto_minor: 1
+        url: /subscription/export/59558b84-1575-4dc9-b7d8-93b0b7b54849
+        header:
+            Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8
+            Accept-Encoding: gzip, deflate, br
+            Accept-Language: en-GB,en
+            Authorization: Basic bGlzdG1vbms6bGlzdG1vbms=
+            Cache-Control: max-age=0
+            Connection: keep-alive
+            Content-Length: "18"
+            Content-Type: application/x-www-form-urlencoded
+            Cookie: connect.sid=s%3AdxWsE0jhYYsXQwFQKZJhtK_5Jli7MPB1.Wjbj0YQ3J7yJE1Zx21NQAWPtrz1f8i73j9FAnlvbrSg
+            Origin: http://localhost:9000
+            Referer: http://localhost:9000/subscription/e6152472-56ca-4e3e-b086-ea8bfb70c0c3/59558b84-1575-4dc9-b7d8-93b0b7b54849
+            Sec-Fetch-Dest: document
+            Sec-Fetch-Mode: navigate
+            Sec-Fetch-Site: same-origin
+            Sec-Fetch-User: ?1
+            Sec-Gpc: "1"
+            Upgrade-Insecure-Requests: "1"
+            User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36
+        body: data-action=export
+        body_type: ""
+    resp:
+        status_code: 500
+        header:
+            Content-Type: text/html; charset=UTF-8
+        body: "\n    \n<!DOCTYPE html>\n<html>\n<head>\n\t<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" />\t\n\t<title>Error - Mailing list</title>\n\t<meta name=\"description\" content=\"\" />\n\t<meta name=\"viewport\" content=\"width=device-width, initial-scale=1, minimum-scale=1\" />\n\n\t\n\t\t<link rel=\"alternate\" type=\"application/rss+xml\" title=\"Mailing list archive - Mailing list\"\n\t\t\thref=\"http://localhost:9000/archive.xml\" />\n\t\n\n\t<link href=\"/public/static/style.css?v2.3.0\" rel=\"stylesheet\" type=\"text/css\" />\n\t<link href=\"/public/custom.css\" rel=\"stylesheet\" type=\"text/css\">\n\t<script src=\"/public/custom.js\" async defer></script>\n\n\t\n\t\t<link rel=\"shortcut icon\" href=\"/public/static/favicon.png\" type=\"image/x-icon\" />\n\t\n</head>\n<body>\n    <div class=\"container wrap\">\n\t\t<header class=\"header\">\n\t\t\t<div class=\"logo\">\n\t\t\t\t<a href=\"http://localhost:9000/subscription/form\">\n\t\t\t\t\n\t\t\t\t\t<img src=\"/public/static/logo.svg\" alt=\"Error\" />\n\t\t\t\t\n\t\t\t\t</a>\n\t\t\t</div>\n\t\t</header>\n\n\n    <h2>Error</h2>\n    <div>\n        Error processing request. Please retry.\n    </div>\n\n    <p>\n        <a href=\"\" class=\"button\" id=\"btn-back\">Back</a>\n    </p>\n\n    <script>\n        (function() {\n            \n            if(history && history.length >= 3) {\n                var btn = document.getElementById(\"btn-back\");\n                btn.style.display = 'inline-block';\n                btn.onclick = function(e) {\n                    history.go(history.length > 2 ? -2 : -1);\n                    e.preventDefault();\n                };\n            }\n        })();\n    </script>\n    \n\t</div>\n\t\n\t<footer class=\"container\">\n\t\tPowered by <a target=\"_blank\" href=\"https://listmonk.app\">listmonk</a>\n\t</footer>\n</body>\n</html>\n\n"
+        body_type: ""
+        status_message: ""
+        proto_major: 1
+        proto_minor: 1
+    objects:
+        - type: error
+          data: ""
+    mocks:
+        - test-136-0
+        - test-136-1
+        - test-136-2
+        - test-136-3
+        - test-136-4
+        - test-136-5
+        - test-136-6
+        - test-136-7
+        - test-136-8
+        - test-136-9
+        - test-136-10
+        - test-136-11
+        - test-136-12
+        - test-136-13
+        - test-136-14
+    assertions:
+        noise: []
+    created: 1671710972
