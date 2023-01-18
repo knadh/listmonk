@@ -144,6 +144,7 @@ func initHTTPHandlers(e *echo.Echo, app *App) {
 	g.DELETE("/api/maintenance/subscriptions/unconfirmed", handleGCSubscriptions)
 
 	g.POST("/api/tx", handleSendTxMessage)
+	g.POST("/api/custom/txsync", handleSendTxMessageSync)
 
 	if app.constants.BounceWebhooksEnabled {
 		// Private authenticated bounce endpoint.
