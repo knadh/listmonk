@@ -62,10 +62,16 @@ func handleGetCampaignArchivesFeed(c echo.Context) error {
 
 	out := make([]*feeds.Item, 0, len(camps))
 	for _, c := range camps {
+		pubDate := c.CreatedAt.Time
+
+		if c.SendAt.Valid {
+			pubDate = c.SendAt.Time
+		}
+
 		out = append(out, &feeds.Item{
 			Title:   c.Subject,
 			Link:    &feeds.Link{Href: c.URL},
-			Created: c.CreatedAt.Time,
+			Created: pubDate,
 		})
 	}
 
