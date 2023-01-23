@@ -44,6 +44,7 @@ func handleGetSettings(c echo.Context) error {
 	}
 	s.UploadS3AwsSecretAccessKey = ""
 	s.SendgridKey = ""
+	s.SecurityCaptchaSecret = ""
 
 	return c.JSON(http.StatusOK, okResp{s})
 }
@@ -157,6 +158,9 @@ func handleUpdateSettings(c echo.Context) error {
 	}
 	if set.SendgridKey == "" {
 		set.SendgridKey = cur.SendgridKey
+	}
+	if set.SecurityCaptchaSecret == "" {
+		set.SecurityCaptchaSecret = cur.SecurityCaptchaSecret
 	}
 
 	// Domain blocklist.

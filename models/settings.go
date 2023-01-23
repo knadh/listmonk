@@ -32,6 +32,10 @@ type Settings struct {
 	PrivacyExportable         []string `json:"privacy.exportable"`
 	DomainBlocklist           []string `json:"privacy.domain_blocklist"`
 
+	SecurityEnableCaptcha bool   `json:"security.enable_captcha"`
+	SecurityCaptchaKey    string `json:"security.captcha_key"`
+	SecurityCaptchaSecret string `json:"security.captcha_secret"`
+
 	UploadProvider             string `json:"upload.provider"`
 	UploadFilesystemUploadPath string `json:"upload.filesystem.upload_path"`
 	UploadFilesystemUploadURI  string `json:"upload.filesystem.upload_uri"`
