@@ -411,16 +411,7 @@ func (m *Manager) worker() {
 				return
 			}
 
-			err := m.messengers[msg.Messenger].Push(messenger.Message{
-				From:        msg.From,
-				To:          msg.To,
-				Subject:     msg.Subject,
-				ContentType: msg.ContentType,
-				Body:        msg.Body,
-				AltBody:     msg.AltBody,
-				Subscriber:  msg.Subscriber,
-				Campaign:    msg.Campaign,
-			})
+			err := m.messengers[msg.Messenger].Push(msg.Message)
 			if err != nil {
 				m.logger.Printf("error sending message '%s': %v", msg.Subject, err)
 			}
