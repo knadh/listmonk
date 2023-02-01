@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/knadh/listmonk/internal/manager"
+	"github.com/knadh/listmonk/internal/messenger"
 	"github.com/knadh/listmonk/models"
 	"github.com/labstack/echo/v4"
 )
@@ -85,6 +86,13 @@ func handleSendTxMessage(c echo.Context) error {
 		msg.ContentType = m.ContentType
 		msg.Messenger = m.Messenger
 		msg.Body = m.Body
+		for _, attch := range m.Attachments {
+			msg.Attachments = append(msg.Attachments, messenger.Attachment{
+				Name:    attch.Name,
+				Content: attch.Content,
+				Header:  messenger.MakeAttachmentHeader(attch.Name, "base64"),
+			})
+		}
 
 		// Optional headers.
 		if len(m.Headers) != 0 {
