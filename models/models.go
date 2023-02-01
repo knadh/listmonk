@@ -361,10 +361,18 @@ type TxMessage struct {
 	ContentType string                 `json:"content_type"`
 	Messenger   string                 `json:"messenger"`
 
+	Attachments []Attachment `json:"attachments"`
+
 	Subject    string             `json:"-"`
 	Body       []byte             `json:"-"`
 	Tpl        *template.Template `json:"-"`
 	SubjectTpl *txttpl.Template   `json:"-"`
+}
+
+// Attachment is used by TxMessage, consists of FileName and file Content in bytes
+type Attachment struct {
+	Name    string `json:"name"`
+	Content []byte `json:"content"`
 }
 
 // markdown is a global instance of Markdown parser and renderer.
