@@ -95,8 +95,8 @@ func (e *Emailer) Name() string {
 func emailAddressMatchesAllowlist(emailAddress string, allowedFromAddresses []string) bool {
 	domain := strings.Split(emailAddress, "@")[1]
 
-	for _, allowedAddress := range allowedFromAddresses {
-		if emailAddress == allowedAddress || domain == allowedAddress {
+	for _, allowed := range allowedFromAddresses {
+		if emailAddress == allowed || domain == allowed {
 			return true
 		}
 	}
