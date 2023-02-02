@@ -16,6 +16,12 @@ import (
 
 const emName = "email"
 
+// define error messages
+var (
+	ErrEmailNoSMTPServerForFrom = errors.New("no applicable SMTP server for FROM address")
+	ErrEmailInvalidFromAddress  = errors.New("invalid FROM email address")
+)
+
 // Server represents an SMTP server's credentials.
 type Server struct {
 	Username             string            `json:"username"`
@@ -106,7 +112,7 @@ func emailAddressMatchesAllowlist(emailAddress string, allowedFromAddresses []st
 func applicableServers(servers []*Server, fromAddress string) (applServers []*Server, err error) {
 	parsedFromAddress, err := mail.ParseAddress(fromAddress)
 	if err != nil {
-		return applServers, errors.New("invalid FROM email address")
+		return applServers, ErrEmailInvalidFromAddress
 	}
 
 	for _, smtpServer := range servers {
@@ -134,7 +140,7 @@ func (e *Emailer) Push(m messenger.Message) error {
 	if ln > 0 {
 		srv = applicableServers[rand.Intn(ln)]
 	} else {
-		return errors.New("no applicable SMTP server for FROM address")
+		return ErrEmailNoSMTPServerForFrom
 	}
 
 	// Are there attachments?

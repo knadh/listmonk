@@ -7,6 +7,7 @@ import (
 	"net/textproto"
 
 	"github.com/knadh/listmonk/internal/messenger"
+	"github.com/knadh/listmonk/internal/messenger/email"
 	"github.com/knadh/listmonk/models"
 	"github.com/labstack/echo/v4"
 )
@@ -75,10 +76,15 @@ func handleSendTxMessageSync(c echo.Context) error {
 	err = app.messengers[m.Messenger].Push(msg)
 	if err != nil {
 		app.log.Printf("error sending message '%s': %v", msg.Subject, err)
-		if (err.Error() == "timed out waiting for free conn in pool") {
+
+		switch err.Error() {
+		case "timed out waiting for free conn in pool":
 			return echo.NewHTTPError(http.StatusTooManyRequests, err.Error())
+		case email.ErrEmailInvalidFromAddress.Error(), email.ErrEmailNoSMTPServerForFrom.Error():
+			return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+		default:
+			return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 		}
-		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
 	return c.JSON(http.StatusOK, okResp{true})
