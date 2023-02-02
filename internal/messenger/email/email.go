@@ -131,12 +131,10 @@ func (e *Emailer) Push(m messenger.Message) error {
 		srv *Server
 	)
 
-	if ln == 0 {
-		return errors.New("no applicable SMTP server for FROM address")
-	} else if ln > 1 {
+	if ln > 0 {
 		srv = applicableServers[rand.Intn(ln)]
 	} else {
-		srv = applicableServers[0]
+		return errors.New("no applicable SMTP server for FROM address")
 	}
 
 	// Are there attachments?
