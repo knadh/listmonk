@@ -2,10 +2,13 @@ package email
 
 import (
 	"crypto/tls"
+	"errors"
 	"fmt"
 	"math/rand"
+	"net/mail"
 	"net/smtp"
 	"net/textproto"
+	"strings"
 
 	"github.com/knadh/listmonk/internal/messenger"
 	"github.com/knadh/smtppool"
@@ -15,12 +18,13 @@ const emName = "email"
 
 // Server represents an SMTP server's credentials.
 type Server struct {
-	Username      string            `json:"username"`
-	Password      string            `json:"password"`
-	AuthProtocol  string            `json:"auth_protocol"`
-	TLSType       string            `json:"tls_type"`
-	TLSSkipVerify bool              `json:"tls_skip_verify"`
-	EmailHeaders  map[string]string `json:"email_headers"`
+	Username             string            `json:"username"`
+	Password             string            `json:"password"`
+	AuthProtocol         string            `json:"auth_protocol"`
+	TLSType              string            `json:"tls_type"`
+	TLSSkipVerify        bool              `json:"tls_skip_verify"`
+	EmailHeaders         map[string]string `json:"email_headers"`
+	AllowedFromAddresses []string          `json:"allowed_from_addresses"`
 
 	// Rest of the options are embedded directly from the smtppool lib.
 	// The JSON tag is for config unmarshal to work.
@@ -88,15 +92,48 @@ func (e *Emailer) Name() string {
 	return emName
 }
 
+func emailAddressMatchesAllowlist(emailAddress string, allowedFromAddresses []string) bool {
+	domain := strings.Split(emailAddress, "@")[1]
+
+	for _, allowedAddress := range allowedFromAddresses {
+		if emailAddress == allowedAddress || domain == allowedAddress {
+			return true
+		}
+	}
+	return false
+}
+
+func applicableServers(servers []*Server, fromAddress string) (applServers []*Server, err error) {
+	parsedFromAddress, err := mail.ParseAddress(fromAddress)
+	if err != nil {
+		return applServers, errors.New("invalid FROM email address")
+	}
+
+	for _, smtpServer := range servers {
+		if len(smtpServer.AllowedFromAddresses) == 0 || emailAddressMatchesAllowlist(parsedFromAddress.Address, smtpServer.AllowedFromAddresses) {
+			applServers = append(applServers, smtpServer)
+		}
+	}
+	return
+}
+
 // Push pushes a message to the server.
 func (e *Emailer) Push(m messenger.Message) error {
+	applicableServers, err := applicableServers(e.servers, m.From)
+	if err != nil {
+		return err
+	}
+
 	// If there are more than one SMTP servers, send to a random
 	// one from the list.
 	var (
-		ln  = len(e.servers)
+		ln  = len(applicableServers)
 		srv *Server
 	)
-	if ln > 1 {
+
+	if ln == 0 {
+		return errors.New("no applicable SMTP server for FROM address")
+	} else if ln > 1 {
 		srv = e.servers[rand.Intn(ln)]
 	} else {
 		srv = e.servers[0]

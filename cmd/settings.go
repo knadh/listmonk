@@ -90,6 +90,8 @@ func handleUpdateSettings(c echo.Context) error {
 				}
 			}
 		}
+
+		// todo: check that there is at least one smtp without allowed from-address constraints
 	}
 	if !has {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("settings.errorNoSMTP"))
@@ -230,10 +232,11 @@ func handleTestSMTPSettings(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.Ts("globals.messages.missingFields", "name", "email"))
 	}
 
-	// Initialize a new SMTP pool.
+	// Initialize a new SMTP pool. Ignore allow list for from-addresses.
 	req.MaxConns = 1
 	req.IdleTimeout = time.Second * 2
 	req.PoolWaitTimeout = time.Second * 2
+	req.AllowedFromAddresses = []string{}
 	msgr, err := email.New(req)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest,

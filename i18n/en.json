@@ -468,6 +468,8 @@
     "settings.smtp.testConnection": "Test connection",
     "settings.smtp.testEnterEmail": "Enter password to test",
     "settings.smtp.toEmail": "To e-mail",
+    "settings.smtp.allowedFromAddresses": "Allowed FROM addresses/domains for this server (leave empty to allow all)",
+    "settings.smtp.allowedFromAddressesHelp": "Comma separated list of allowed FROM e-mail addresses/domains this SMTP server may be used for. Leave empty to allow all FROM addresses/domains for this SMTP server.",
     "settings.title": "Settings",
     "settings.updateAvailable": "A new update {version} is available.",
     "subscribers.advancedQuery": "Advanced",
