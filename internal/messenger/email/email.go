@@ -39,6 +39,21 @@ type Server struct {
 	pool *smtppool.Pool
 }
 
+func (s *Server) allowsFromAddress(emailAddress string) bool {
+	// leave empty to allow all
+	if len(s.AllowedFromAddresses) == 0 {
+		return true
+	}
+
+	domain := strings.Split(emailAddress, "@")[1]
+	for _, allowed := range s.AllowedFromAddresses {
+		if emailAddress == allowed || domain == allowed {
+			return true
+		}
+	}
+	return false
+}
+
 // Emailer is the SMTP e-mail messenger.
 type Emailer struct {
 	servers []*Server
@@ -98,17 +113,6 @@ func (e *Emailer) Name() string {
 	return emName
 }
 
-func emailAddressMatchesAllowlist(emailAddress string, allowedFromAddresses []string) bool {
-	domain := strings.Split(emailAddress, "@")[1]
-
-	for _, allowed := range allowedFromAddresses {
-		if emailAddress == allowed || domain == allowed {
-			return true
-		}
-	}
-	return false
-}
-
 func applicableServers(servers []*Server, fromAddress string) (applServers []*Server, err error) {
 	parsedFromAddress, err := mail.ParseAddress(fromAddress)
 	if err != nil {
@@ -116,7 +120,7 @@ func applicableServers(servers []*Server, fromAddress string) (applServers []*Se
 	}
 
 	for _, smtpServer := range servers {
-		if len(smtpServer.AllowedFromAddresses) == 0 || emailAddressMatchesAllowlist(parsedFromAddress.Address, smtpServer.AllowedFromAddresses) {
+		if smtpServer.allowsFromAddress(parsedFromAddress.Address) {
 			applServers = append(applServers, smtpServer)
 		}
 	}
