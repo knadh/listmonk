@@ -44,12 +44,12 @@ func handleSendTxMessage(c echo.Context) error {
 		}
 
 		// Compile the template and validate.
+		tpl = &dbTpl
 		if err := tpl.Compile(app.manager.GenericTemplateFuncs()); err != nil {
 			return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 		}
 
-		app.manager.CacheTpl(m.TemplateID, &dbTpl)
-		tpl = &dbTpl
+		app.manager.CacheTpl(m.TemplateID, tpl)
 	}
 
 	// Get the subscriber.
