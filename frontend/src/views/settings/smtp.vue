@@ -144,6 +144,17 @@
               </div>
             </div>
 
+            <b-field :label="$t('settings.smtp.allowedFromAddresses')" label-position="on-border"
+              :message="$t('settings.smtp.allowedFromAddressesHelp')">
+              <b-taginput
+                v-model="item.allowed_from_addresses"
+                name="allowed_from_addresses"
+                :before-adding="(v) => v.match(/^([^\s@]+?@)?([^\s@]+?)$/)"
+                placeholder='you@yoursite.com'
+              />
+            </b-field>
+            <hr />
+
             <div class="columns">
               <div class="column">
                 <p v-if="item.email_headers.length === 0 && !item.showHeaders">
