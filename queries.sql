@@ -771,7 +771,7 @@ DELETE FROM users WHERE $1 != 1 AND id=$1;
 
 -- templates
 -- name: get-templates
--- Only if the second param ($2) is true, body is returned.
+-- Only if the second param ($2) is false, body is returned.
 SELECT id, name, type, subject, (CASE WHEN $2 = false THEN body ELSE '' END) as body,
     is_default, created_at, updated_at
     FROM templates WHERE ($1 = 0 OR id = $1) AND ($3 = '' OR type = $3::template_type)

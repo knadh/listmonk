@@ -556,7 +556,7 @@ func (c *Campaign) ConvertContent(from, to string) (string, error) {
 }
 
 // Compile compiles a template body and subject (only for tx templates) and
-// caches the templat references to be executed later.
+// caches the template references to be executed later.
 func (t *Template) Compile(f template.FuncMap) error {
 	tpl, err := template.New(BaseTpl).Funcs(f).Parse(t.Body)
 	if err != nil {

@@ -2,7 +2,6 @@ package main
 
 import (
 	"errors"
-	"fmt"
 	"net/http"
 	"net/textproto"
 
@@ -29,11 +28,28 @@ func handleSendTxMessage(c echo.Context) error {
 		m = r
 	}
 
-	// Get the cached tx template.
-	tpl, err := app.manager.GetTpl(m.TemplateID)
+	// Extract latest tx template from DB.
+	dbTpl, err := app.core.GetTemplate(m.TemplateID, true)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest,
-			app.i18n.Ts("globals.messages.notFound", "name", fmt.Sprintf("template %d", m.TemplateID)))
+		return err
+	}
+
+	// Compare with cached tx template and update cache if outdated.
+	tpl, err := app.manager.GetTpl(m.TemplateID)
+	if err != nil || tpl.UpdatedAt != dbTpl.UpdatedAt {
+		// Extract full tx template from DB.
+		dbTpl, err := app.core.GetTemplate(m.TemplateID, false)
+		if err != nil {
+			return err
+		}
+
+		// Compile the template and validate.
+		if err := tpl.Compile(app.manager.GenericTemplateFuncs()); err != nil {
+			return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+		}
+
+		app.manager.CacheTpl(m.TemplateID, &dbTpl)
+		tpl = &dbTpl
 	}
 
 	// Get the subscriber.
