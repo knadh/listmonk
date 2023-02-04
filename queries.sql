@@ -689,30 +689,27 @@ campLists AS (
     WHERE campaign_lists.campaign_id = $1
 ),
 subIDs AS (
-    SELECT DISTINCT ON (subscriber_lists.subscriber_id) subscriber_id, list_id, status FROM subscriber_lists
+    SELECT DISTINCT ON (sl.subscriber_id) sl.subscriber_id, sl.list_id, sl.status FROM subscriber_lists sl
+    INNER JOIN subscribers ON (subscribers.id = sl.subscriber_id AND subscribers.status!='blocklisted')
     WHERE
         -- ARRAY_AGG is 20x faster instead of a simple SELECT because the query planner
         -- understands the CTE's cardinality after the scalar array conversion. Huh.
-        list_id = ANY((SELECT ARRAY_AGG(list_id) FROM campLists)::INT[]) AND
-        status != 'unsubscribed' AND
-        subscriber_id > (SELECT last_subscriber_id FROM camps) AND
-        subscriber_id <= (SELECT max_subscriber_id FROM camps)
-    ORDER BY subscriber_id LIMIT $2
+        sl.list_id = ANY((SELECT ARRAY_AGG(list_id) FROM campLists)::INT[]) AND
+        sl.status != 'unsubscribed' AND
+        sl.subscriber_id > (SELECT last_subscriber_id FROM camps) AND
+        sl.subscriber_id <= (SELECT max_subscriber_id FROM camps)
+    ORDER BY sl.subscriber_id LIMIT $2
 ),
 subs AS (
     SELECT subscribers.* FROM subIDs
     LEFT JOIN campLists ON (campLists.list_id = subIDs.list_id)
     INNER JOIN subscribers ON (
-        subscribers.status != 'blocklisted' AND
         subscribers.id = subIDs.subscriber_id AND
-
         (CASE
             -- For optin campaigns, only e-mail 'unconfirmed' subscribers.
             WHEN (SELECT type FROM camps) = 'optin' THEN subIDs.status = 'unconfirmed' AND campLists.optin = 'double'
-
             -- For regular campaigns with double optin lists, only e-mail 'confirmed' subscribers.
             WHEN campLists.optin = 'double' THEN subIDs.status = 'confirmed'
-
             -- For regular campaigns with non-double optin lists, e-mail everyone
             -- except unsubscribed subscribers.
             ELSE subIDs.status != 'unsubscribed'
