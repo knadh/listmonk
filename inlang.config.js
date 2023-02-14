@@ -12,7 +12,7 @@ export async function defineConfig(env) {
 
     return {
         referenceLanguage: "en",
-        languages: await getLanguages(),
+        languages: await getLanguages(env),
         readResources: (args) =>
             plugin.readResources({ ...args, ...env, pluginConfig }),
         writeResources: (args) =>
