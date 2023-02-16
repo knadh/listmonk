@@ -373,7 +373,7 @@
     "settings.general.adminNotifEmailsHelp": "Liste d'adresses e-mail (séparées par des virgules) auxquelles les notifications d'admin telles que les mises à jour d'importation, fins de campagnes, échecs, etc. seront envoyées.",
     "settings.general.checkUpdates": "Vérifier les mises à jour",
     "settings.general.checkUpdatesHelp": "Vérifier régulièrement si de nouvelles applications sont disponibles et notifier-les.",
-    "settings.general.enablePublicArchive": "Enable public mailing list archive page",
+    "settings.general.enablePublicArchive": "Activer la page publiques des emails archivés",
     "settings.general.enablePublicArchiveHelp": "Publier les campagnes pour lesquelles l'archivage est activé sur le site web public.",
     "settings.general.enablePublicSubPage": "Activer la page d'abonnement publique",
     "settings.general.enablePublicSubPageHelp": "Afficher une page d'abonnement publique avec toutes les listes publiques auxquelles les personnes peuvent s'abonner.",
