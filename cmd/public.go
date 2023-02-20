@@ -574,7 +574,7 @@ func handleSelfExportSubscriberData(c echo.Context) error {
 		ContentType: app.notifTpls.contentType,
 		From:        app.constants.FromEmail,
 		To:          []string{data.Email},
-		Subject:     "Your data",
+		Subject:     app.i18n.Ts("email.data.title"),
 		Body:        msg.Bytes(),
 		Attachments: []messenger.Attachment{
 			{
