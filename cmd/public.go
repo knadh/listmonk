@@ -227,11 +227,7 @@ func handleSubscriptionPage(c echo.Context) error {
 		out.Subscriptions = make([]models.Subscription, 0, len(subs))
 		for _, s := range subs {
 			if s.Type == models.ListTypePrivate {
-				if s.SubscriptionStatus.IsZero() {
-					continue
-				}
-
-				s.Name = app.i18n.T("public.subPrivateList")
+				continue
 			}
 
 			out.Subscriptions = append(out.Subscriptions, s)
