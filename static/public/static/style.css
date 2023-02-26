@@ -122,7 +122,6 @@ input[disabled] {
 .lists {
   list-style-type: none;
   padding: 0;
-  margin: 40px 0;
 }
   .lists li {
     margin: 0 0 5px 0;    
