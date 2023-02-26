@@ -31,11 +31,10 @@ require (
 	github.com/rhnvrm/simples3 v0.8.2
 	github.com/spf13/cast v1.4.1 // indirect
 	github.com/spf13/pflag v1.0.5
-	github.com/yuin/goldmark v1.4.1
+	github.com/yuin/goldmark v1.4.13
 	golang.org/x/crypto v0.0.0-20211202192323-5770296d904e // indirect
-	golang.org/x/image v0.0.0-20210628002857-a66eb6448b8d // indirect
-	golang.org/x/mod v0.5.1
-	golang.org/x/net v0.0.0-20211209124913-491a49abca63 // indirect
+	golang.org/x/image v0.5.0 // indirect
+	golang.org/x/mod v0.6.0-dev.0.20220419223038-86c51ed26bb4
 	golang.org/x/sys v0.1.0 // indirect
 	gopkg.in/check.v1 v1.0.0-20200227125254-8fa46927fb4f // indirect
 	gopkg.in/volatiletech/null.v6 v6.0.0-20170828023728-0bef4e07ae1b
