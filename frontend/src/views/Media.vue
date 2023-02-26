@@ -16,7 +16,7 @@
               v-model="form.files"
               drag-drop
               multiple
-              accept=".png,.jpg,.jpeg,.gif"
+              accept=".png,.jpg,.jpeg,.gif,.svg"
               expanded>
               <div class="has-text-centered section">
                 <p>

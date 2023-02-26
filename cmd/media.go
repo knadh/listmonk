@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"image"
 	"mime/multipart"
 	"net/http"
 	"path/filepath"
@@ -10,6 +11,8 @@ import (
 	"github.com/disintegration/imaging"
 	"github.com/knadh/listmonk/models"
 	"github.com/labstack/echo/v4"
+	"github.com/srwiley/oksvg"
+	"github.com/srwiley/rasterx"
 )
 
 const (
@@ -19,9 +22,18 @@ const (
 
 // validMimes is the list of image types allowed to be uploaded.
 var (
-	validMimes = []string{"image/jpg", "image/jpeg", "image/png", "image/gif"}
-	validExts  = []string{".jpg", ".jpeg", ".png", ".gif"}
+	validMimes = []string{"image/jpg", "image/jpeg", "image/png", "image/gif", "image/svg+xml"}
+	validExts  = []string{".jpg", ".jpeg", ".png", ".gif", ".svg"}
 )
+
+//return .png if the original file ends with .svf
+func addPrefixIfNeeded(fname string) string {
+	suffix := ""
+	if filepath.Ext(fname) == ".svg" {
+		suffix = ".png"
+	}
+	return suffix
+}
 
 // handleUploadMedia handles media file uploads.
 func handleUploadMedia(c echo.Context) error {
@@ -88,7 +100,7 @@ func handleUploadMedia(c echo.Context) error {
 	}
 
 	// Upload thumbnail.
-	thumbfName, err := app.media.Put(thumbPrefix+fName, typ, thumbFile)
+	thumbfName, err := app.media.Put(thumbPrefix+fName+addPrefixIfNeeded(fName), typ, thumbFile)
 	if err != nil {
 		cleanUp = true
 		app.log.Printf("error saving thumbnail: %v", err)
@@ -150,9 +162,23 @@ func handleDeleteMedia(c echo.Context) error {
 	}
 
 	app.media.Delete(fname)
-	app.media.Delete(thumbPrefix + fname)
+	app.media.Delete(thumbPrefix + fname + addPrefixIfNeeded(fname))
 
 	return c.JSON(http.StatusOK, okResp{true})
+}
+
+// generate a png thumbnail of src
+func getSVGThumb(src multipart.File) (image.Image, error) {
+	svg, err := oksvg.ReadIconStream(src)
+	if err != nil {
+		return nil, err
+	}
+	width := float64(thumbnailSize)
+	height := width * svg.ViewBox.H / svg.ViewBox.W // keep aspect ratio
+	svg.SetTarget(0, 0, float64(thumbnailSize), height)
+	rgba := image.NewRGBA(image.Rect(0, 0, int(width), int(height)))
+	svg.Draw(rasterx.NewDasher(int(width), int(height), rasterx.NewScannerGV(int(width), int(height), rgba, rgba.Bounds())), 1)
+	return rgba.SubImage(rgba.Rect.Bounds()), err
 }
 
 // processImage reads the image file and returns thumbnail bytes and
@@ -164,7 +190,13 @@ func processImage(file *multipart.FileHeader) (*bytes.Reader, int, int, error) {
 	}
 	defer src.Close()
 
-	img, err := imaging.Decode(src)
+	var img image.Image
+	ext := filepath.Ext(file.Filename)
+	if ext == ".svg" {
+		img, err = getSVGThumb(src)
+	} else {
+		img, err = imaging.Decode(src)
+	}
 	if err != nil {
 		return nil, 0, 0, err
 	}
