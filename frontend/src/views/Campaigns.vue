@@ -408,7 +408,6 @@ export default Vue.extend({
         sendAt = dayjs(c.sendAt).isAfter(now) ? c.sendAt : now.add(7, 'day');
       }
 
-
       const data = {
         name,
         subject: c.subject,
