@@ -29,6 +29,7 @@ import (
 	"github.com/knadh/koanf/providers/posflag"
 	"github.com/knadh/listmonk/internal/bounce"
 	"github.com/knadh/listmonk/internal/bounce/mailbox"
+	"github.com/knadh/listmonk/internal/captcha"
 	"github.com/knadh/listmonk/internal/i18n"
 	"github.com/knadh/listmonk/internal/manager"
 	"github.com/knadh/listmonk/internal/media"
@@ -74,6 +75,11 @@ type constants struct {
 		Exportable         map[string]bool `koanf:"-"`
 		DomainBlocklist    map[string]bool `koanf:"-"`
 	} `koanf:"privacy"`
+	Security struct {
+		EnableCaptcha bool   `koanf:"enable_captcha"`
+		CaptchaKey    string `koanf:"captcha_key"`
+		CaptchaSecret string `koanf:"captcha_secret"`
+	} `koanf:"security"`
 	AdminUsername []byte `koanf:"admin_username"`
 	AdminPassword []byte `koanf:"admin_password"`
 
@@ -379,6 +385,9 @@ func initConstants() *constants {
 	}
 	if err := ko.Unmarshal("privacy", &c.Privacy); err != nil {
 		lo.Fatalf("error loading app.privacy config: %v", err)
+	}
+	if err := ko.Unmarshal("security", &c.Security); err != nil {
+		lo.Fatalf("error loading app.security config: %v", err)
 	}
 	if err := ko.UnmarshalWithConf("appearance", &c.Appearance, koanf.UnmarshalConf{FlatPaths: true}); err != nil {
 		lo.Fatalf("error loading app.appearance config: %v", err)
@@ -763,6 +772,12 @@ func initHTTPServer(app *App, k *keploy.Keploy) *echo.Echo {
 	}()
 
 	return srv
+}
+
+func initCaptcha() *captcha.Captcha {
+	return captcha.New(captcha.Opt{
+		CaptchaSecret: ko.String("security.captcha_secret"),
+	})
 }
 
 func awaitReload(sigChan chan os.Signal, closerWait chan bool, closer func()) chan bool {

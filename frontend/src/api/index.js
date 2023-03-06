@@ -32,7 +32,6 @@ http.interceptors.response.use((resp) => {
     store.commit('setLoading', { model: resp.config.loading, status: false });
   }
 
-
   let data = {};
   if (typeof resp.data.data === 'object') {
     if (resp.data.data.constructor === Object) {

@@ -79,7 +79,8 @@ type msgTpl struct {
 
 type subFormTpl struct {
 	publicTpl
-	Lists []models.List
+	Lists      []models.List
+	CaptchaKey string
 }
 
 var (
@@ -226,11 +227,7 @@ func handleSubscriptionPage(c echo.Context) error {
 		out.Subscriptions = make([]models.Subscription, 0, len(subs))
 		for _, s := range subs {
 			if s.Type == models.ListTypePrivate {
-				if s.SubscriptionStatus.IsZero() {
-					continue
-				}
-
-				s.Name = app.i18n.T("public.subPrivateList")
+				continue
 			}
 
 			out.Subscriptions = append(out.Subscriptions, s)
@@ -418,6 +415,10 @@ func handleSubscriptionFormPage(c echo.Context) error {
 	out.Title = app.i18n.T("public.sub")
 	out.Lists = lists
 
+	if app.constants.Security.EnableCaptcha {
+		out.CaptchaKey = app.constants.Security.CaptchaKey
+	}
+
 	return c.Render(http.StatusOK, "subscription-form", out)
 }
 
@@ -431,6 +432,19 @@ func handleSubscriptionForm(c echo.Context) error {
 	// If there's a nonce value, a bot could've filled the form.
 	if c.FormValue("nonce") != "" {
 		return echo.NewHTTPError(http.StatusBadGateway, app.i18n.T("public.invalidFeature"))
+	}
+
+	// Process CAPTCHA.
+	if app.constants.Security.EnableCaptcha {
+		err, ok := app.captcha.Verify(c.FormValue("h-captcha-response"))
+		if err != nil {
+			app.log.Printf("Captcha request failed: %v", err)
+		}
+
+		if !ok {
+			return c.Render(http.StatusBadRequest, tplMessage,
+				makeMsgTpl(app.i18n.T("public.errorTitle"), "", app.i18n.T("public.invalidCaptcha")))
+		}
 	}
 
 	hasOptin, err := processSubForm(c)
@@ -556,7 +570,7 @@ func handleSelfExportSubscriberData(c echo.Context) error {
 		ContentType: app.notifTpls.contentType,
 		From:        app.constants.FromEmail,
 		To:          []string{data.Email},
-		Subject:     "Your data",
+		Subject:     app.i18n.Ts("email.data.title"),
 		Body:        msg.Bytes(),
 		Attachments: []messenger.Attachment{
 			{

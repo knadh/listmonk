@@ -18,7 +18,7 @@
                 </p>
 
                 {{ if .Data.AllowPreferences }}
-                    <a href="?manage=true">Manage preferences</a>
+                    <a href="?manage=true">{{ L.T "public.managePrefs" }}</a>
                 {{ end }}
             </div>
         </form>
@@ -32,7 +32,8 @@
                 <input type="text" name="name" value="{{ .Data.Subscriber.Name }}" maxlength="256" required />
 
                 {{ if .Data.Subscriptions }}
-                    <p><label>{{ L.T "public.managePrefsUnsub" }}</label></p>
+                    <br /><br />
+                    <h3>{{ L.T "public.managePrefsUnsub" }}</h3>
                     <ul class="lists">
                         {{ range $i, $l := .Data.Subscriptions }}
                             {{ if ne $l.SubscriptionStatus.Value "unsubscribed" }}

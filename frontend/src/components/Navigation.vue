@@ -84,7 +84,6 @@
   </b-menu-list>
 </template>
 
-
 <script>
 export default {
   name: 'navigation',

@@ -81,8 +81,9 @@ func (c *Client) Put(name string, cType string, file io.ReadSeeker) (string, err
 
 // Get accepts the filename of the object stored and retrieves from S3.
 func (c *Client) Get(name string) string {
-	// Generate a private S3 pre-signed URL if it's a private bucket.
-	if c.opts.BucketType == "private" {
+	// Generate a private S3 pre-signed URL if it's a private bucket, and there
+	// is no public URL provided.
+	if c.opts.BucketType == "private" && c.opts.PublicURL == "" {
 		u := c.s3.GeneratePresignedURL(simples3.PresignedInput{
 			Bucket:        c.opts.Bucket,
 			ObjectKey:     c.makeBucketPath(name),
@@ -93,7 +94,8 @@ func (c *Client) Get(name string) string {
 		return u
 	}
 
-	// Generate a public S3 URL if it's a public bucket.
+	// Generate a public S3 URL if it's a public bucket or a public URL is
+	// provided.
 	return c.makeFileURL(name)
 }
 

@@ -307,7 +307,6 @@ export default Vue.extend({
         return;
       }
 
-
       this.errMsg = '';
       this.$api.testSMTP({ ...item, email: this.testEmail }).then(() => {
         this.$utils.toast(this.$t('campaigns.testSent'));

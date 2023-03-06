@@ -19,6 +19,7 @@ import (
 	"github.com/knadh/koanf/providers/env"
 	"github.com/knadh/listmonk/internal/bounce"
 	"github.com/knadh/listmonk/internal/buflog"
+	"github.com/knadh/listmonk/internal/captcha"
 	"github.com/knadh/listmonk/internal/core"
 	"github.com/knadh/listmonk/internal/i18n"
 	"github.com/knadh/listmonk/internal/manager"
@@ -49,6 +50,7 @@ type App struct {
 	i18n       *i18n.I18n
 	bounce     *bounce.Manager
 	paginator  *paginator.Paginator
+	captcha    *captcha.Captcha
 	notifTpls  *notifTpls
 	log        *log.Logger
 	bufLog     *buflog.BufLog
@@ -213,6 +215,7 @@ func main() {
 		messengers: make(map[string]messenger.Messenger),
 		log:        lo,
 		bufLog:     bufLog,
+		captcha:    initCaptcha(),
 
 		paginator: paginator.New(paginator.Opt{
 			DefaultPerPage: 20,

@@ -17,7 +17,7 @@ require (
 	github.com/knadh/goyesql/v2 v2.2.0
 	github.com/knadh/koanf v1.2.3
 	github.com/knadh/paginator v1.0.0
-	github.com/knadh/smtppool v1.0.1
+	github.com/knadh/smtppool v1.0.2
 	github.com/knadh/stuffbin v1.1.0
 	github.com/kr/pretty v0.3.1 // indirect
 	github.com/labstack/echo/v4 v4.9.0
@@ -31,6 +31,9 @@ require (
 	github.com/yuin/goldmark v1.4.1
 	golang.org/x/image v0.0.0-20210628002857-a66eb6448b8d // indirect
 	golang.org/x/mod v0.5.1
+	golang.org/x/net v0.0.0-20211209124913-491a49abca63 // indirect
+	golang.org/x/sys v0.1.0 // indirect
+	gopkg.in/check.v1 v1.0.0-20200227125254-8fa46927fb4f // indirect
 	gopkg.in/volatiletech/null.v6 v6.0.0-20170828023728-0bef4e07ae1b
 )
 
