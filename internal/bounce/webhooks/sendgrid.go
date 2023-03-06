@@ -20,6 +20,10 @@ type sendgridNotif struct {
 	Email     string `json:"email"`
 	Timestamp int64  `json:"timestamp"`
 	Event     string `json:"event"`
+
+	// SendGrid flattens all X-headers and adds them to the bounce
+	// event notification.
+	CampaignUUID string `json:"XListmonkCampaign"`
 }
 
 // Sendgrid handles Sendgrid/SNS webhook notifications including confirming SNS topic subscription
@@ -62,14 +66,15 @@ func (s *Sendgrid) ProcessBounce(sig, timestamp string, b []byte) ([]models.Boun
 		}
 
 		tstamp := time.Unix(n.Timestamp, 0)
-		b := models.Bounce{
-			Email:     strings.ToLower(n.Email),
-			Type:      models.BounceTypeHard,
-			Meta:      json.RawMessage(b),
-			Source:    "sendgrid",
-			CreatedAt: tstamp,
+		bn := models.Bounce{
+			CampaignUUID: n.CampaignUUID,
+			Email:        strings.ToLower(n.Email),
+			Type:         models.BounceTypeHard,
+			Meta:         json.RawMessage(b),
+			Source:       "sendgrid",
+			CreatedAt:    tstamp,
 		}
-		out = append(out, b)
+		out = append(out, bn)
 	}
 
 	return out, nil

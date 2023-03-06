@@ -51,7 +51,6 @@
       <template v-else>{{ $t('analytics.nonUnique') }}</template>
     </p>
 
-
     <section class="charts mt-5">
       <div class="chart columns" v-for="(v, k) in charts" :key="k">
         <div class="column is-9">

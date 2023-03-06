@@ -8,7 +8,6 @@
       {{ $t('forms.noPublicLists') }}
     </p>
 
-
     <div class="columns" v-else-if="publicLists.length > 0">
       <div class="column is-4">
         <h4>{{ $t('forms.publicLists') }}</h4>

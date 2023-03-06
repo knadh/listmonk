@@ -137,7 +137,6 @@
   </section>
 </template>
 
-
 <style lang="css">
   @import "~c3/c3.css";
 </style>

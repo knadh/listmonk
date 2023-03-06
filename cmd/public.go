@@ -227,11 +227,7 @@ func handleSubscriptionPage(c echo.Context) error {
 		out.Subscriptions = make([]models.Subscription, 0, len(subs))
 		for _, s := range subs {
 			if s.Type == models.ListTypePrivate {
-				if s.SubscriptionStatus.IsZero() {
-					continue
-				}
-
-				s.Name = app.i18n.T("public.subPrivateList")
+				continue
 			}
 
 			out.Subscriptions = append(out.Subscriptions, s)
@@ -574,7 +570,7 @@ func handleSelfExportSubscriberData(c echo.Context) error {
 		ContentType: app.notifTpls.contentType,
 		From:        app.constants.FromEmail,
 		To:          []string{data.Email},
-		Subject:     "Your data",
+		Subject:     app.i18n.Ts("email.data.title"),
 		Body:        msg.Bytes(),
 		Attachments: []messenger.Attachment{
 			{

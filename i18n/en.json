@@ -124,6 +124,8 @@
     "globals.buttons.addNew": "Add new",
     "globals.buttons.back": "Back",
     "globals.buttons.cancel": "Cancel",
+    "globals.buttons.clear": "Clear",
+    "globals.buttons.clearAll": "Clear all",
     "globals.buttons.clone": "Clone",
     "globals.buttons.close": "Close",
     "globals.buttons.continue": "Continue",
