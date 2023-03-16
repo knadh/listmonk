@@ -32,14 +32,25 @@ archives:
       - LICENSE
 
 dockers:
-  -
-    goos: linux
+  - goos: linux
     goarch: amd64
     ids:
     - listmonk
     image_templates:
     - "listmonk/listmonk:latest"
     - "listmonk/listmonk:{{ .Tag }}"
+    - "ghcr.io/knadh/{{ .ProjectName }}:latest"
+    - "ghcr.io/knadh/{{ .ProjectName }}:{{ .Tag }}"
+    build_flag_templates:
+    - --platform=linux/amd64
+    - --label=org.opencontainers.image.title={{ .ProjectName }}
+    - --label=org.opencontainers.image.description={{ .ProjectName }}
+    - --label=org.opencontainers.image.url=https://github.com/knadh/{{ .ProjectName }}
+    - --label=org.opencontainers.image.source=https://github.com/knadh/{{ .ProjectName }}
+    - --label=org.opencontainers.image.version={{ .Version }}
+    - --label=org.opencontainers.image.created={{ time "2006-01-02T15:04:05Z07:00" }}
+    - --label=org.opencontainers.image.revision={{ .FullCommit }}
+    - --label=org.opencontainers.image.licenses=AGPL-3.0
     dockerfile: Dockerfile
     extra_files:
     - config.toml.sample
