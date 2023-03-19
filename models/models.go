@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"html/template"
+	"net/textproto"
 	"regexp"
 	"strings"
 	txttpl "text/template"
@@ -361,7 +362,8 @@ type TxMessage struct {
 	ContentType string                 `json:"content_type"`
 	Messenger   string                 `json:"messenger"`
 
-	Attachments []Attachment `json:"attachments"`
+	// File attachments added from multi-part form data.
+	Attachments []TxAttachment `json:"-"`
 
 	Subject    string             `json:"-"`
 	Body       []byte             `json:"-"`
@@ -369,10 +371,11 @@ type TxMessage struct {
 	SubjectTpl *txttpl.Template   `json:"-"`
 }
 
-// Attachment is used by TxMessage, consists of FileName and file Content in bytes
-type Attachment struct {
-	Name    string `json:"name"`
-	Content []byte `json:"content"`
+// TxAttachment is used by TxMessage, consists of FileName and file Content in bytes
+type TxAttachment struct {
+	Name    string
+	Header  textproto.MIMEHeader
+	Content []byte
 }
 
 // markdown is a global instance of Markdown parser and renderer.
