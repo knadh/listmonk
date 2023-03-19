@@ -774,8 +774,11 @@ section.analytics {
       margin: 10px;
       max-height: 90px;
       overflow: hidden;
-
       position: relative;
+
+      img {
+        max-width: 120px;
+      }
 
       .caption {
         background-color: rgba($white, .70);
