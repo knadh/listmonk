@@ -1,12 +1,15 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"net/textproto"
 	"strings"
 
 	"github.com/knadh/listmonk/internal/manager"
+	"github.com/knadh/listmonk/internal/messenger"
 	"github.com/knadh/listmonk/models"
 	"github.com/labstack/echo/v4"
 )
@@ -18,7 +21,48 @@ func handleSendTxMessage(c echo.Context) error {
 		m   models.TxMessage
 	)
 
-	if err := c.Bind(&m); err != nil {
+	// If it's a multipart form, there may be file attachments.
+	if strings.HasPrefix(c.Request().Header.Get("Content-Type"), "multipart/form-data") {
+		form, err := c.MultipartForm()
+		if err != nil {
+			return echo.NewHTTPError(http.StatusBadRequest,
+				app.i18n.Ts("globals.messages.invalidFields", "name", err.Error()))
+		}
+
+		data, ok := form.Value["data"]
+		if !ok || len(data) != 1 {
+			return echo.NewHTTPError(http.StatusBadRequest,
+				app.i18n.Ts("globals.messages.invalidFields", "name", "data"))
+		}
+
+		// Parse the JSON data.
+		if err := json.Unmarshal([]byte(data[0]), &m); err != nil {
+			return echo.NewHTTPError(http.StatusBadRequest,
+				app.i18n.Ts("globals.messages.invalidFields", "name", fmt.Sprintf("data: %s", err.Error())))
+		}
+
+		// Attach files.
+		for _, f := range form.File["file"] {
+			file, err := f.Open()
+			if err != nil {
+				return echo.NewHTTPError(http.StatusInternalServerError,
+					app.i18n.Ts("globals.messages.invalidFields", "name", fmt.Sprintf("file: %s", err.Error())))
+			}
+			defer file.Close()
+
+			b, err := ioutil.ReadAll(file)
+			if err != nil {
+				return echo.NewHTTPError(http.StatusInternalServerError,
+					app.i18n.Ts("globals.messages.invalidFields", "name", fmt.Sprintf("file: %s", err.Error())))
+			}
+
+			m.Attachments = append(m.Attachments, models.TxAttachment{
+				Name:    f.Filename,
+				Header:  messenger.MakeAttachmentHeader(f.Filename, "base64"),
+				Content: b,
+			})
+		}
+	} else if err := c.Bind(&m); err != nil {
 		return err
 	}
 
@@ -85,6 +129,13 @@ func handleSendTxMessage(c echo.Context) error {
 		msg.ContentType = m.ContentType
 		msg.Messenger = m.Messenger
 		msg.Body = m.Body
+		for _, a := range m.Attachments {
+			msg.Attachments = append(msg.Attachments, messenger.Attachment{
+				Name:    a.Name,
+				Header:  a.Header,
+				Content: a.Content,
+			})
+		}
 
 		// Optional headers.
 		if len(m.Headers) != 0 {
