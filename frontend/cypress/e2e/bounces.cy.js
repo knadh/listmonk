@@ -7,7 +7,7 @@ describe('Bounces', () => {
     cy.resetDB();
 
     cy.loginAndVisit('/settings');
-    cy.get('.b-tabs nav a').eq(5).click();
+    cy.get('.b-tabs nav a').eq(6).click();
     cy.get('[data-cy=btn-enable-bounce] .switch').click();
     cy.get('[data-cy=btn-enable-bounce-webhook] .switch').click();
     cy.get('[data-cy=btn-bounce-count] .plus').click();

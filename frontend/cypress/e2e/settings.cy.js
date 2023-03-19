@@ -19,7 +19,7 @@ describe('Templates', () => {
       .click();
 
     // Enable / disable SMTP and delete one.
-    cy.get('.b-tabs nav a').eq(4).click();
+    cy.get('.b-tabs nav a').eq(5).click();
     cy.get('.tab-item:visible [data-cy=btn-enable-smtp]').eq(1).click();
     cy.get('.tab-item:visible [data-cy=btn-delete-smtp]').first().click();
     cy.get('.modal button.is-primary').click();
