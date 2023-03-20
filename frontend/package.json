@@ -27,11 +27,11 @@
     "vuex": "^3.6.2"
   },
   "devDependencies": {
-    "@vue/cli-plugin-babel": "~4.5.13",
-    "@vue/cli-plugin-eslint": "~4.5.13",
-    "@vue/cli-plugin-router": "~4.5.13",
-    "@vue/cli-plugin-vuex": "~4.5.13",
-    "@vue/cli-service": "~4.5.13",
+    "@vue/cli-plugin-babel": "~5.0.8",
+    "@vue/cli-plugin-eslint": "~5.0.8",
+    "@vue/cli-plugin-router": "~5.0.8",
+    "@vue/cli-plugin-vuex": "~5.0.8",
+    "@vue/cli-service": "~5.0.8",
     "@vue/eslint-config-airbnb": "^5.3.0",
     "babel-eslint": "^10.1.0",
     "cypress": "10.10.0",
