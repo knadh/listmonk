@@ -50,6 +50,10 @@ __________________
 ## Developers
 listmonk is a free and open source software licensed under AGPLv3. If you are interested in contributing, refer to the [developer setup](https://listmonk.app/docs/developer-setup). The backend is written in Go and the frontend is Vue with Buefy for UI. 
 
+## Translations
+Contribute translations directly with PRs or via inlang https://inlang.com/editor/github.com/knadh/listmonk
 
 ## License
 listmonk is licensed under the AGPL v3 license.
+
+
