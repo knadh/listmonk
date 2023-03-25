@@ -1,0 +1,3016 @@
+openapi: 3.0.0
+
+servers:
+  - description: Listmonk Developement Server
+    url: http://localhost:9000/api
+
+info:
+  version: "1.0.0"
+  title: Listmonk
+  description: The API collection for listmonk
+  license:
+    name: AGPL-3.0 license
+    url: https://github.com/knadh/listmonk/blob/master/LICENSE
+
+paths:
+  /health:
+    get:
+      tags:
+        - Miscellaneous
+      description: healthcheck endpoint that returns a 200 response.
+      responses:
+        "200":
+          description: response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: boolean
+
+  /config:
+    get:
+      tags:
+        - Miscellaneous
+      description: returns general server config.
+      responses:
+        "200":
+          description: response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServerConfig"
+
+  "/lang/{lang}":
+    get:
+      tags:
+        - Miscellaneous
+      description: returns the JSON language pack given the language code
+      parameters:
+        - in: path
+          name: lang
+          required: true
+          description: JSON language pack required
+          schema:
+            type: string
+      responses:
+        "200":
+          description: response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LanguagePack"
+
+  /dashboard/charts:
+    get:
+      tags:
+        - Miscellaneous
+      description: returns chart data points to render on the dashboard.
+      responses:
+        "200":
+          description: response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      link_clicks:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            count:
+                              type: number
+                            date:
+                              type: string
+                      campaign_views:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            count:
+                              type: number
+                            date:
+                              type: string
+
+  /dashboard/counts:
+    get:
+      tags:
+        - Miscellaneous
+      description: returns stats counts to show on the dashboard
+      responses:
+        "200":
+          description: response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardCount"
+
+  /settings:
+    get:
+      tags:
+        - Settings
+      description: returns settings from DB
+      responses:
+        "200":
+          description: response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Settings"
+
+  /admin/reload:
+    post:
+      tags:
+        - Admin
+      description: restarts the app
+      responses:
+        "200":
+          description: response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: boolean
+
+  /logs:
+    get:
+      tags:
+        - Logs
+      description: returns the log entries stored in the log buffer
+      responses:
+        "200":
+          description: response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: string
+
+  /subscribers:
+    get:
+      tags:
+        - Subscribers
+      description: returns all subscribers.
+      parameters:
+        - in: query
+          name: page
+          description: number of records to skip
+          schema:
+            type: integer
+            format: int32
+        - in: query
+          name: per_page
+          description: max number of records to return per page
+          schema:
+            type: integer
+            format: int32
+
+      responses:
+        "200":
+          description: response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      results:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/Subscriber"
+                      query:
+                        type: string
+                      total:
+                        type: number
+                      per_page:
+                        type: number
+                      page:
+                        type: number
+
+    post:
+      description: handles creation of new subscriber
+      tags:
+        - Subscribers
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SubscriberRegistrationInfo"
+
+      responses:
+        "200":
+          description: response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Subscriber"
+
+  "/subscribers/{subscriberId}":
+    get:
+      description: handles the retrieval of a single subscriber by ID.
+      tags:
+        - Subscribers
+      parameters:
+        - in: path
+          name: subscriberId
+          required: True
+          description: The id value of the subscriber you want to get.
+          schema:
+            type: integer
+
+      responses:
+        "200":
+          description: Gets a single subscriber.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Subscriber"
+
+  /subscribers/lists:
+    put:
+      description: handles bulk addition or removal of subscribers
+      tags:
+        - Subscribers
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                ids:
+                  type: number
+                  description: The ids of the subscribers to be modified.
+                action:
+                  type: string
+                  enum: [add, remove, unsubscribe]
+                  description: Whether to add, remove, or unsubscribe the users.
+                target_list_ids:
+                  type: number
+                  description: The ids of the lists to be modified.
+                status:
+                  type: string
+                  enum: [confirmed, unconfirmed, unsubscribed]
+                  description: confirmed, unconfirmed, or unsubscribed status.
+
+      responses:
+        "200":
+          description: response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: boolean
+
+  "/subscribers/{id}/blocklist":
+    put:
+      description: handles the blocklisting of one or more subscribers.
+      tags:
+        - Subscribers
+      parameters:
+        - in: path
+          name: id
+          required: True
+          description: The id value of the subscriber you want to blocklist.
+          schema:
+            type: integer
+            format: int32
+
+      responses:
+        "200":
+          description: response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: boolean
+
+  "/subscribers/{id}":
+    delete:
+      description: handles subscriber deletion based on id
+      tags:
+        - Subscribers
+      parameters:
+        - in: path
+          name: id
+          required: True
+          description: The id value of the subscriber you want to get.
+          schema:
+            type: integer
+
+      responses:
+        "200":
+          description: response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: boolean
+
+  "/subscribers/{id}/export":
+    get:
+      description: retrieves a subscriber's profile
+      tags:
+        - Subscribers
+      parameters:
+        - in: path
+          name: id
+          required: true
+          description: The id value of subscriber profile you want to export
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SubscriberData"
+
+  "/subscribers/{id}/bounces":
+    get:
+      description: retrieves a subscriber's bounce records
+      tags:
+        - Subscribers
+      parameters:
+        - in: path
+          name: id
+          required: true
+          description: subscriber id
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+
+    delete:
+      description: deletes a subscriber's bounce records
+      tags:
+        - Subscribers
+      parameters:
+        - in: path
+          name: id
+          required: true
+          description: subscriber id
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: boolean
+
+  "/subscribers/{id}/optin":
+    post:
+      description: sends an optin confirmation e-mail to a subscriber.
+      tags:
+        - Subscribers
+      parameters:
+        - in: path
+          name: id
+          required: true
+          description: sends an optin confirmation e-mail to a subscriber
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: boolean
+
+  "/subscribers/query/delete":
+    post:
+      description: bulk deletes based on an arbitrary SQL expression.
+      tags:
+        - Subscribers
+      requestBody:
+        description: Arbitrary SQL expression.
+        content:
+          text/plain:
+            schema:
+              type: string
+      responses:
+        "200":
+          description: response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: boolean
+
+  "/subscribers/query/blocklist":
+    put:
+      description: bulk blocklists subscribers based on an arbitrary SQL expression.
+      tags:
+        - Subscribers
+      requestBody:
+        description: Arbitrary SQL expression.
+        content:
+          text/plain:
+            schema:
+              type: string
+      responses:
+        "200":
+          description: response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: boolean
+
+  "/subscribers/query/lists":
+    put:
+      description: bulk adds/removes/unsubscribes subscribers from one or more lists based on an arbitrary SQL expression.
+      tags:
+        - Subscribers
+      requestBody:
+        description: Arbitrary SQL expression.
+        content:
+          text/plain:
+            schema:
+              type: string
+      responses:
+        "200":
+          description: response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: boolean
+
+  /bounces:
+    get:
+      description: handles retrieval of bounce records.
+      tags:
+        - Bounces
+      responses:
+        "200":
+          description: response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      results:
+                        type: array
+                      query:
+                        type: string
+                      total:
+                        type: number
+                      per_page:
+                        type: number
+                      page:
+                        type: number
+    delete:
+      description: handles retrieval of bounce records.
+      tags:
+        - Bounces
+      responses:
+        "200":
+          description: response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: boolean
+
+  "/bounces/{id}":
+    get:
+      description: handles retrieval of bounce record by id
+      tags:
+        - Bounces
+      responses:
+        "200":
+          description: response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SubscriberData"
+
+    delete:
+      description: handles bounce deletion, either a single one (ID in the URI), or a list.
+      tags:
+        - Bounces
+      responses:
+        "200":
+          description: response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: boolean
+
+  /lists:
+    get:
+      description: retrieves lists with additional metadata like subscriber counts. This may be slow.
+      tags:
+        - Lists
+      parameters:
+        - in: query
+          name: query
+          description: Optional string to search a list by name.
+          schema:
+            type: string
+        - in: query
+          name: order_by
+          description: Field to sort results by. name|status|created_at|updated_at
+          schema:
+            type: string
+        - in: query
+          name: order
+          description: ASC|DESC Sort by ascending or descending order.
+          schema:
+            type: string
+        - in: query
+          name: page
+          description: Page number for paginated results.
+          schema:
+            type: number
+        - in: query
+          name: per_page
+          description: Results to return per page. Setting this to all skips pagination and returns all results
+          schema:
+            type: number
+      responses:
+        "200":
+          description: response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      results:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/List"
+                      total:
+                        type: number
+                      per_page:
+                        type: number
+                      page:
+                        type: number
+
+    post:
+      description: handles list creation
+      tags:
+        - Lists
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ListRegistrationInfo"
+      responses:
+        "200":
+          description: response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/List"
+
+  "/lists/{list_id}":
+    get:
+      description: retrieves lists with additional metadata like subscriber counts. This may be slow.
+      tags:
+        - Lists
+      parameters:
+        - in: path
+          name: list_id
+          required: True
+          description: The id value of the list you want to get.
+          schema:
+            type: number
+
+      responses:
+        "200":
+          description: response.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/List"
+    put:
+      description: handles list modification
+      tags:
+        - Lists
+      parameters:
+        - in: path
+          name: list_id
+          required: True
+          description: The id value of the list you want to update
+          schema:
+            type: number
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                type:
+                  type: string
+                optin:
+                  type: string
+                tags:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        "200":
+          description: response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/List"
+    delete:
+      description: handles list deletion, either a single one (ID in the URI), or a list.
+      tags:
+        - Lists
+      parameters:
+        - in: path
+          name: id
+          required: True
+          description: The id value of the lists you want to de;ete.
+          schema:
+            type: integer
+
+      responses:
+        "200":
+          description: response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: boolean
+
+  /import/subscribers:
+    get:
+      description: returns import statistics.
+      tags:
+        - Import
+      responses:
+        "200":
+          description: response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ImportStatus"
+
+    post:
+      description: handles the uploading and bulk importing of a ZIP file of one or more CSV files.
+      tags:
+        - Import
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                params:
+                  type: string
+                file:
+                  type: string
+      responses:
+        "200":
+          description: response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ImportStatus"
+
+    delete:
+      description: sends a stop signal to the importer.
+      tags:
+        - Import
+      responses:
+        "200":
+          description: response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ImportStatus"
+
+  /import/subscribers/logs:
+    get:
+      description: returns import statistics
+      tags:
+        - Import
+      responses:
+        "200":
+          description: response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: string
+
+  /campaigns:
+    get:
+      description: handles retrieval of campaigns
+      parameters:
+        - in: query
+          name: page
+          description: Page number for paginated results
+          schema:
+            type: integer
+            format: int32
+        - in: query
+          name: per_page
+          description: max number of records to return per page
+          schema:
+            type: integer
+            format: int32
+      tags:
+        - Campaigns
+      responses:
+        "200":
+          description: response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      results:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/Campaign"
+                      query:
+                        type: string
+                      total:
+                        type: number
+                      per_page:
+                        type: number
+                      page:
+                        type: number
+
+    post:
+      description: handles campaign creation
+      tags:
+        - Campaigns
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CampaignRegistrationInfo"
+
+      responses:
+        "200":
+          description: response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NewCampaign"
+
+  "/campaigns/{campaign_id}":
+    get:
+      description: handles retrieval of campaigns.
+      tags:
+        - Campaigns
+      parameters:
+        - in: path
+          name: campaign_id
+          required: True
+          description: The id value of the campaign you want to get.
+          schema:
+            type: number
+
+      responses:
+        "200":
+          description: response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Campaign"
+    delete:
+      description: deletes specified campaign
+      tags:
+        - Campaigns
+      parameters:
+        - in: path
+          name: campaign_id
+          required: True
+          description: The id value of the campaign you want to get.
+          schema:
+            type: number
+      responses:
+        "200":
+          description: response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: boolean
+
+  /campaigns/running/stats:
+    get:
+      description: returns stats of a given set of campaign IDs.
+      tags:
+        - Campaigns
+      parameters:
+        - in: query
+          name: campaign_id
+          description: The id values of the campaigns whose stat you want to get.
+          schema:
+            type: number
+      responses:
+        "200":
+          description: response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: string
+
+  "/campaigns/{campaign_id}/preview":
+    get:
+      description: renders the HTML preview of a campaign body
+      tags:
+        - Campaigns
+      parameters:
+        - in: path
+          name: campaign_id
+          required: True
+          description: The id value of the campaign you want to get the preview of
+          schema:
+            type: number
+      responses:
+        "200":
+          description: response
+          content:
+            text/html:
+              schema:
+                type: string
+                example: <h3>Hi John!</h3><p>This is a test e-mail campaign. Your second name is Doe and you are from Bengaluru</p>
+
+  "/campaigns/{campaign_id}/status":
+    put:
+      description: handles campaign status modification
+      tags:
+        - Campaigns
+      parameters:
+        - in: path
+          name: campaign_id
+          required: True
+          description: The id value of the campaign you want to get the preview of
+          schema:
+            type: number
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                  enum: [scheduled, running, paused, cancelled]
+      responses:
+        "200":
+          description: response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Campaign"
+
+  "/media":
+    get:
+      description: handles retrieval of uploaded media.
+      tags:
+        - Media
+      responses:
+        "200":
+          description: response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/MediaFileObject"
+    post:
+      description: handles media file uploads.
+      tags:
+        - Media
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: string
+              format: binary
+      responses:
+        "200":
+          description: response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MediaFileObject"
+
+  "/media/{media_id}":
+    get:
+      description: handles retrieval of uploaded media.
+      tags:
+        - Media
+      parameters:
+        - in: path
+          name: id
+          required: true
+          description: media file id
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MediaFileObject"
+
+    delete:
+      description: handles deletion of uploaded media.
+      tags:
+        - Media
+      parameters:
+        - in: path
+          name: media_id
+          required: True
+          description: The id value of the list you want to delete.
+          schema:
+            type: number
+      responses:
+        "200":
+          description: response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: boolean
+
+  /templates:
+    get:
+      description: handles retrieval of templates
+      tags:
+        - Templates
+      responses:
+        "200":
+          description: response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Template"
+
+  "/templates/{template_id}":
+    get:
+      description: handles retrieval of templates
+      tags:
+        - Templates
+      parameters:
+        - in: path
+          name: template_id
+          required: True
+          schema:
+            type: number
+          description: The id value of the template you want to get.
+      responses:
+        "200":
+          description: response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Template"
+
+    delete:
+      description: handles deletion of templates
+      tags:
+        - Templates
+
+      parameters:
+        - in: path
+          name: template_id
+          required: True
+          description: The id value of the template you want to delete.
+          schema:
+            type: number
+      responses:
+        "200":
+          description: response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: boolean
+
+  "/templates/{template_id}/preview":
+    get:
+      description: renders the HTML preview of a template.
+      tags:
+        - Templates
+      parameters:
+        - in: path
+          name: template_id
+          required: True
+          schema:
+            type: number
+          description: The id value of the template you want to get.
+      responses:
+        "200":
+          description: response
+          content:
+            text/html:
+              schema:
+                type: string
+                example: <p>Hi there</p>
+
+  "/templates/{template_id}/default":
+    put:
+      description: handles template modification.
+      tags:
+        - Templates
+      parameters:
+        - in: path
+          name: template_id
+          required: True
+          description: The id value of the template you want to set to the default template.
+          schema:
+            type: number
+      responses:
+        "200":
+          description: response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Template"
+
+  /transactional:
+    post:
+      tags:
+        - Transactional
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TransactionalMessage"
+
+      responses:
+        "200":
+          description: response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: boolean
+
+  "/maintenance/subscribers/{type}":
+    delete:
+      description: garbage collects (deletes) orphaned or blocklisted subscribers.
+      tags:
+        - Maintenance
+      parameters:
+        - in: path
+          name: type
+          schema:
+            type: string
+          required: true
+      responses:
+        "200":
+          description: response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      count:
+                        type: integer
+
+  "/maintenance/analytics/{type}":
+    delete:
+      description: garbage collects (deletes) campaign analytics.
+      tags:
+        - Maintenance
+      parameters:
+        - in: path
+          name: type
+          schema:
+            type: string
+          required: true
+      responses:
+        "200":
+          description: response
+
+  "/maintenance/subscriptions/unconfirmed":
+    delete:
+      description: garbage collects (deletes) orphaned or blocklisted subscribers.
+      tags:
+        - Maintenance
+      parameters:
+        - in: path
+          name: type
+          schema:
+            type: string
+          required: true
+      responses:
+        "200":
+          description: response
+
+  "/public/lists":
+    get:
+      description: returns the list of public lists with minimal fields
+      tags:
+        - Public
+      responses:
+        "200":
+          description: response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    uuid:
+                      type: string
+                    name:
+                      type: string
+
+components:
+  schemas:
+    LanguagePack:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            _.code:
+              type: string
+            _.name:
+              type: string
+            admin.errorMarshallingConfig:
+              type: string
+            analytics.count:
+              type: string
+            analytics.fromDate:
+              type: string
+            analytics.invalidDates:
+              type: string
+            analytics.isUnique:
+              type: string
+            analytics.links:
+              type: string
+            analytics.nonUnique:
+              type: string
+            analytics.title:
+              type: string
+            analytics.toDate:
+              type: string
+            bounces.source:
+              type: string
+            bounces.unknownService:
+              type: string
+            bounces.view:
+              type: string
+            campaigns.addAltText:
+              type: string
+            campaigns.archive:
+              type: string
+            campaigns.archiveEnable:
+              type: string
+            campaigns.archiveHelp:
+              type: string
+            campaigns.archiveMeta:
+              type: string
+            campaigns.archiveMetaHelp:
+              type: string
+            campaigns.cantUpdate:
+              type: string
+            campaigns.clicks:
+              type: string
+            campaigns.confirmDelete:
+              type: string
+            campaigns.confirmSchedule:
+              type: string
+            campaigns.confirmSwitchFormat:
+              type: string
+            campaigns.content:
+              type: string
+            campaigns.contentHelp:
+              type: string
+            campaigns.continue:
+              type: string
+            campaigns.copyOf:
+              type: string
+            campaigns.customHeadersHelp:
+              type: string
+            campaigns.dateAndTime:
+              type: string
+            campaigns.ended:
+              type: string
+            campaigns.errorSendTest:
+              type: string
+            campaigns.fieldInvalidBody:
+              type: string
+            campaigns.fieldInvalidFromEmail:
+              type: string
+            campaigns.fieldInvalidListIDs:
+              type: string
+            campaigns.fieldInvalidMessenger:
+              type: string
+            campaigns.fieldInvalidName:
+              type: string
+            campaigns.fieldInvalidSendAt:
+              type: string
+            campaigns.fieldInvalidSubject:
+              type: string
+            campaigns.formatHTML:
+              type: string
+            campaigns.fromAddress:
+              type: string
+            campaigns.fromAddressPlaceholder:
+              type: string
+            campaigns.invalid:
+              type: string
+            campaigns.invalidCustomHeaders:
+              type: string
+            campaigns.markdown:
+              type: string
+            campaigns.needsSendAt:
+              type: string
+            campaigns.newCampaign:
+              type: string
+            campaigns.noKnownSubsToTest:
+              type: string
+            campaigns.noOptinLists:
+              type: string
+            campaigns.noSubs:
+              type: string
+            campaigns.noSubsToTest:
+              type: string
+            campaigns.notFound:
+              type: string
+            campaigns.onlyActiveCancel:
+              type: string
+            campaigns.onlyActivePause:
+              type: string
+            campaigns.onlyDraftAsScheduled:
+              type: string
+            campaigns.onlyPausedDraft:
+              type: string
+            campaigns.onlyScheduledAsDraft:
+              type: string
+            campaigns.pause:
+              type: string
+            campaigns.plainText:
+              type: string
+            campaigns.preview:
+              type: string
+            campaigns.progress:
+              type: string
+            campaigns.queryPlaceholder:
+              type: string
+            campaigns.rateMinuteShort:
+              type: string
+            campaigns.rawHTML:
+              type: string
+            campaigns.removeAltText:
+              type: string
+            campaigns.richText:
+              type: string
+            campaigns.schedule:
+              type: string
+            campaigns.scheduled:
+              type: string
+            campaigns.send:
+              type: string
+            campaigns.sendLater:
+              type: string
+            campaigns.sendTest:
+              type: string
+            campaigns.sendTestHelp:
+              type: string
+            campaigns.sendToLists:
+              type: string
+            campaigns.sent:
+              type: string
+            campaigns.start:
+              type: string
+            campaigns.started:
+              type: string
+            campaigns.startedAt:
+              type: string
+            campaigns.stats:
+              type: string
+            campaigns.status.cancelled:
+              type: string
+            campaigns.status.draft:
+              type: string
+            campaigns.status.finished:
+              type: string
+            campaigns.status.paused:
+              type: string
+            campaigns.status.running:
+              type: string
+            campaigns.status.scheduled:
+              type: string
+            campaigns.statusChanged:
+              type: string
+            campaigns.subject:
+              type: string
+            campaigns.testEmails:
+              type: string
+            campaigns.testSent:
+              type: string
+            campaigns.timestamps:
+              type: string
+            campaigns.trackLink:
+              type: string
+            campaigns.views:
+              type: string
+            dashboard.campaignViews:
+              type: string
+            dashboard.linkClicks:
+              type: string
+            dashboard.messagesSent:
+              type: string
+            dashboard.orphanSubs:
+              type: string
+            email.data.info:
+              type: string
+            email.data.title:
+              type: string
+            email.optin.confirmSub:
+              type: string
+            email.optin.confirmSubHelp:
+              type: string
+            email.optin.confirmSubInfo:
+              type: string
+            email.optin.confirmSubTitle:
+              type: string
+            email.optin.confirmSubWelcome:
+              type: string
+            email.optin.privateList:
+              type: string
+            email.status.campaignReason:
+              type: string
+            email.status.campaignSent:
+              type: string
+            email.status.campaignUpdateTitle:
+              type: string
+            email.status.importFile:
+              type: string
+            email.status.importRecords:
+              type: string
+            email.status.importTitle:
+              type: string
+            email.status.status:
+              type: string
+            email.unsub:
+              type: string
+            email.unsubHelp:
+              type: string
+            email.viewInBrowser:
+              type: string
+            forms.formHTML:
+              type: string
+            forms.formHTMLHelp:
+              type: string
+            forms.noPublicLists:
+              type: string
+            forms.publicLists:
+              type: string
+            forms.publicSubPage:
+              type: string
+            forms.selectHelp:
+              type: string
+            forms.title:
+              type: string
+            globals.buttons.add:
+              type: string
+            globals.buttons.addNew:
+              type: string
+            globals.buttons.back:
+              type: string
+            globals.buttons.cancel:
+              type: string
+            globals.buttons.clone:
+              type: string
+            globals.buttons.close:
+              type: string
+            globals.buttons.continue:
+              type: string
+            globals.buttons.delete:
+              type: string
+            globals.buttons.deleteAll:
+              type: string
+            globals.buttons.edit:
+              type: string
+            globals.buttons.enabled:
+              type: string
+            globals.buttons.insert:
+              type: string
+            globals.buttons.learnMore:
+              type: string
+            globals.buttons.more:
+              type: string
+            globals.buttons.new:
+              type: string
+            globals.buttons.ok:
+              type: string
+            globals.buttons.remove:
+              type: string
+            globals.buttons.save:
+              type: string
+            globals.buttons.saveChanges:
+              type: string
+            globals.days.0:
+              type: string
+            globals.days.1:
+              type: string
+            globals.days.2:
+              type: string
+            globals.days.3:
+              type: string
+            globals.days.4:
+              type: string
+            globals.days.5:
+              type: string
+            globals.days.6:
+              type: string
+            globals.days.7:
+              type: string
+            globals.fields.createdAt:
+              type: string
+            globals.fields.description:
+              type: string
+            globals.fields.id:
+              type: string
+            globals.fields.name:
+              type: string
+            globals.fields.status:
+              type: string
+            globals.fields.type:
+              type: string
+            globals.fields.updatedAt:
+              type: string
+            globals.fields.uuid:
+              type: string
+            globals.messages.confirm:
+              type: string
+            globals.messages.confirmDiscard:
+              type: string
+            globals.messages.created:
+              type: string
+            globals.messages.deleted:
+              type: string
+            globals.messages.deletedCount:
+              type: string
+            globals.messages.done:
+              type: string
+            globals.messages.emptyState:
+              type: string
+            globals.messages.errorCreating:
+              type: string
+            globals.messages.errorDeleting:
+              type: string
+            globals.messages.errorFetching:
+              type: string
+            globals.messages.errorInvalidIDs:
+              type: string
+            globals.messages.errorUUID:
+              type: string
+            globals.messages.errorUpdating:
+              type: string
+            globals.messages.internalError:
+              type: string
+            globals.messages.invalidData:
+              type: string
+            globals.messages.invalidID:
+              type: string
+            globals.messages.invalidUUID:
+              type: string
+            globals.messages.missingFields:
+              type: string
+            globals.messages.notFound:
+              type: string
+            globals.messages.passwordChange:
+              type: string
+            globals.messages.updated:
+              type: string
+            globals.months.1:
+              type: string
+            globals.months.10:
+              type: string
+            globals.months.11:
+              type: string
+            globals.months.12:
+              type: string
+            globals.months.2:
+              type: string
+            globals.months.3:
+              type: string
+            globals.months.4:
+              type: string
+            globals.months.5:
+              type: string
+            globals.months.6:
+              type: string
+            globals.months.7:
+              type: string
+            globals.months.8:
+              type: string
+            globals.months.9:
+              type: string
+            globals.states.off:
+              type: string
+            globals.terms.all:
+              type: string
+            globals.terms.analytics:
+              type: string
+            globals.terms.bounce:
+              type: string
+            globals.terms.bounces:
+              type: string
+            globals.terms.campaign:
+              type: string
+            globals.terms.campaigns:
+              type: string
+            globals.terms.dashboard:
+              type: string
+            globals.terms.day:
+              type: string
+            globals.terms.hour:
+              type: string
+            globals.terms.list:
+              type: string
+            globals.terms.lists:
+              type: string
+            globals.terms.media:
+              type: string
+            globals.terms.messenger:
+              type: string
+            globals.terms.messengers:
+              type: string
+            globals.terms.minute:
+              type: string
+            globals.terms.month:
+              type: string
+            globals.terms.second:
+              type: string
+            globals.terms.settings:
+              type: string
+            globals.terms.subscriber:
+              type: string
+            globals.terms.subscribers:
+              type: string
+            globals.terms.subscriptions:
+              type: string
+            globals.terms.tag:
+              type: string
+            globals.terms.tags:
+              type: string
+            globals.terms.template:
+              type: string
+            globals.terms.templates:
+              type: string
+            globals.terms.tx:
+              type: string
+            globals.terms.year:
+              type: string
+            import.alreadyRunning:
+              type: string
+            import.blocklist:
+              type: string
+            import.csvDelim:
+              type: string
+            import.csvDelimHelp:
+              type: string
+            import.csvExample:
+              type: string
+            import.csvFile:
+              type: string
+            import.csvFileHelp:
+              type: string
+            import.errorCopyingFile:
+              type: string
+            import.errorProcessingZIP:
+              type: string
+            import.errorStarting:
+              type: string
+            import.importDone:
+              type: string
+            import.importStarted:
+              type: string
+            import.instructions:
+              type: string
+            import.instructionsHelp:
+              type: string
+            import.invalidDelim:
+              type: string
+            import.invalidFile:
+              type: string
+            import.invalidMode:
+              type: string
+            import.invalidParams:
+              type: string
+            import.invalidSubStatus:
+              type: string
+            import.listSubHelp:
+              type: string
+            import.mode:
+              type: string
+            import.overwrite:
+              type: string
+            import.overwriteHelp:
+              type: string
+            import.recordsCount:
+              type: string
+            import.stopImport:
+              type: string
+            import.subscribe:
+              type: string
+            import.title:
+              type: string
+            import.upload:
+              type: string
+            lists.confirmDelete:
+              type: string
+            lists.confirmSub:
+              type: string
+            lists.invalidName:
+              type: string
+            lists.newList:
+              type: string
+            lists.optin:
+              type: string
+            lists.optinHelp:
+              type: string
+            lists.optinTo:
+              type: string
+            lists.optins.double:
+              type: string
+            lists.optins.single:
+              type: string
+            lists.sendCampaign:
+              type: string
+            lists.sendOptinCampaign:
+              type: string
+            lists.type:
+              type: string
+            lists.typeHelp:
+              type: string
+            lists.types.private:
+              type: string
+            lists.types.public:
+              type: string
+            logs.title:
+              type: string
+            maintenance.help:
+              type: string
+            maintenance.maintenance.unconfirmedOptins:
+              type: string
+            maintenance.olderThan:
+              type: string
+            maintenance.title:
+              type: string
+            maintenance.unconfirmedSubs:
+              type: string
+            media.errorReadingFile:
+              type: string
+            media.errorResizing:
+              type: string
+            media.errorSavingThumbnail:
+              type: string
+            media.errorUploading:
+              type: string
+            media.invalidFile:
+              type: string
+            media.title:
+              type: string
+            media.unsupportedFileType:
+              type: string
+            media.upload:
+              type: string
+            media.uploadHelp:
+              type: string
+            media.uploadImage:
+              type: string
+            menu.allCampaigns:
+              type: string
+            menu.allLists:
+              type: string
+            menu.allSubscribers:
+              type: string
+            menu.dashboard:
+              type: string
+            menu.forms:
+              type: string
+            menu.import:
+              type: string
+            menu.logs:
+              type: string
+            menu.maintenance:
+              type: string
+            menu.media:
+              type: string
+            menu.newCampaign:
+              type: string
+            menu.settings:
+              type: string
+            public.archiveEmpty:
+              type: string
+            public.archiveTitle:
+              type: string
+            public.blocklisted:
+              type: string
+            public.campaignNotFound:
+              type: string
+            public.confirmOptinSubTitle:
+              type: string
+            public.confirmSub:
+              type: string
+            public.confirmSubInfo:
+              type: string
+            public.confirmSubTitle:
+              type: string
+            public.dataRemoved:
+              type: string
+            public.dataRemovedTitle:
+              type: string
+            public.dataSent:
+              type: string
+            public.dataSentTitle:
+              type: string
+            public.errorFetchingCampaign:
+              type: string
+            public.errorFetchingEmail:
+              type: string
+            public.errorFetchingLists:
+              type: string
+            public.errorProcessingRequest:
+              type: string
+            public.errorTitle:
+              type: string
+            public.invalidFeature:
+              type: string
+            public.invalidLink:
+              type: string
+            public.managePrefs:
+              type: string
+            public.managePrefsUnsub:
+              type: string
+            public.noListsAvailable:
+              type: string
+            public.noListsSelected:
+              type: string
+            public.noSubInfo:
+              type: string
+            public.noSubTitle:
+              type: string
+            public.notFoundTitle:
+              type: string
+            public.prefsSaved:
+              type: string
+            public.privacyConfirmWipe:
+              type: string
+            public.privacyExport:
+              type: string
+            public.privacyExportHelp:
+              type: string
+            public.privacyTitle:
+              type: string
+            public.privacyWipe:
+              type: string
+            public.privacyWipeHelp:
+              type: string
+            public.sub:
+              type: string
+            public.subConfirmed:
+              type: string
+            public.subConfirmedTitle:
+              type: string
+            public.subName:
+              type: string
+            public.subNotFound:
+              type: string
+            public.subOptinPending:
+              type: string
+            public.subPrivateList:
+              type: string
+            public.subTitle:
+              type: string
+            public.unsub:
+              type: string
+            public.unsubFull:
+              type: string
+            public.unsubHelp:
+              type: string
+            public.unsubTitle:
+              type: string
+            public.unsubbedInfo:
+              type: string
+            public.unsubbedTitle:
+              type: string
+            public.unsubscribeTitle:
+              type: string
+            settings.appearance.adminHelp:
+              type: string
+            settings.appearance.adminName:
+              type: string
+            settings.appearance.customCSS:
+              type: string
+            settings.appearance.customJS:
+              type: string
+            settings.appearance.name:
+              type: string
+            settings.appearance.publicHelp:
+              type: string
+            settings.appearance.publicName:
+              type: string
+            settings.bounces.action:
+              type: string
+            settings.bounces.blocklist:
+              type: string
+            settings.bounces.count:
+              type: string
+            settings.bounces.countHelp:
+              type: string
+            settings.bounces.delete:
+              type: string
+            settings.bounces.enable:
+              type: string
+            settings.bounces.enableMailbox:
+              type: string
+            settings.bounces.enableSES:
+              type: string
+            settings.bounces.enableSendgrid:
+              type: string
+            settings.bounces.enableWebhooks:
+              type: string
+            settings.bounces.enabled:
+              type: string
+            settings.bounces.folder:
+              type: string
+            settings.bounces.folderHelp:
+              type: string
+            settings.bounces.invalidScanInterval:
+              type: string
+            settings.bounces.name:
+              type: string
+            settings.bounces.scanInterval:
+              type: string
+            settings.bounces.scanIntervalHelp:
+              type: string
+            settings.bounces.sendgridKey:
+              type: string
+            settings.bounces.type:
+              type: string
+            settings.bounces.username:
+              type: string
+            settings.confirmRestart:
+              type: string
+            settings.duplicateMessengerName:
+              type: string
+            settings.errorEncoding:
+              type: string
+            settings.errorNoSMTP:
+              type: string
+            settings.general.adminNotifEmails:
+              type: string
+            settings.general.adminNotifEmailsHelp:
+              type: string
+            settings.general.checkUpdates:
+              type: string
+            settings.general.checkUpdatesHelp:
+              type: string
+            settings.general.enablePublicArchive:
+              type: string
+            settings.general.enablePublicArchiveHelp:
+              type: string
+            settings.general.enablePublicSubPage:
+              type: string
+            settings.general.enablePublicSubPageHelp:
+              type: string
+            settings.general.faviconURL:
+              type: string
+            settings.general.faviconURLHelp:
+              type: string
+            settings.general.fromEmail:
+              type: string
+            settings.general.fromEmailHelp:
+              type: string
+            settings.general.language:
+              type: string
+            settings.general.logoURL:
+              type: string
+            settings.general.logoURLHelp:
+              type: string
+            settings.general.name:
+              type: string
+            settings.general.rootURL:
+              type: string
+            settings.general.rootURLHelp:
+              type: string
+            settings.general.sendOptinConfirm:
+              type: string
+            settings.general.sendOptinConfirmHelp:
+              type: string
+            settings.general.siteName:
+              type: string
+            settings.invalidMessengerName:
+              type: string
+            settings.mailserver.authProtocol:
+              type: string
+            settings.mailserver.host:
+              type: string
+            settings.mailserver.hostHelp:
+              type: string
+            settings.mailserver.idleTimeout:
+              type: string
+            settings.mailserver.idleTimeoutHelp:
+              type: string
+            settings.mailserver.maxConns:
+              type: string
+            settings.mailserver.maxConnsHelp:
+              type: string
+            settings.mailserver.password:
+              type: string
+            settings.mailserver.passwordHelp:
+              type: string
+            settings.mailserver.port:
+              type: string
+            settings.mailserver.portHelp:
+              type: string
+            settings.mailserver.skipTLS:
+              type: string
+            settings.mailserver.skipTLSHelp:
+              type: string
+            settings.mailserver.tls:
+              type: string
+            settings.mailserver.tlsHelp:
+              type: string
+            settings.mailserver.username:
+              type: string
+            settings.mailserver.waitTimeout:
+              type: string
+            settings.mailserver.waitTimeoutHelp:
+              type: string
+            settings.media.provider:
+              type: string
+            settings.media.s3.bucket:
+              type: string
+            settings.media.s3.bucketPath:
+              type: string
+            settings.media.s3.bucketPathHelp:
+              type: string
+            settings.media.s3.bucketType:
+              type: string
+            settings.media.s3.bucketTypePrivate:
+              type: string
+            settings.media.s3.bucketTypePublic:
+              type: string
+            settings.media.s3.key:
+              type: string
+            settings.media.s3.publicURL:
+              type: string
+            settings.media.s3.publicURLHelp:
+              type: string
+            settings.media.s3.region:
+              type: string
+            settings.media.s3.secret:
+              type: string
+            settings.media.s3.uploadExpiry:
+              type: string
+            settings.media.s3.uploadExpiryHelp:
+              type: string
+            settings.media.s3.url:
+              type: string
+            settings.media.s3.urlHelp:
+              type: string
+            settings.media.title:
+              type: string
+            settings.media.upload.path:
+              type: string
+            settings.media.upload.pathHelp:
+              type: string
+            settings.media.upload.uri:
+              type: string
+            settings.media.upload.uriHelp:
+              type: string
+            settings.messengers.maxConns:
+              type: string
+            settings.messengers.maxConnsHelp:
+              type: string
+            settings.messengers.messageSaved:
+              type: string
+            settings.messengers.name:
+              type: string
+            settings.messengers.nameHelp:
+              type: string
+            settings.messengers.password:
+              type: string
+            settings.messengers.retries:
+              type: string
+            settings.messengers.retriesHelp:
+              type: string
+            settings.messengers.skipTLSHelp:
+              type: string
+            settings.messengers.timeout:
+              type: string
+            settings.messengers.timeoutHelp:
+              type: string
+            settings.messengers.url:
+              type: string
+            settings.messengers.urlHelp:
+              type: string
+            settings.messengers.username:
+              type: string
+            settings.needsRestart:
+              type: string
+            settings.performance.batchSize:
+              type: string
+            settings.performance.batchSizeHelp:
+              type: string
+            settings.performance.concurrency:
+              type: string
+            settings.performance.concurrencyHelp:
+              type: string
+            settings.performance.maxErrThreshold:
+              type: string
+            settings.performance.maxErrThresholdHelp:
+              type: string
+            settings.performance.messageRate:
+              type: string
+            settings.performance.messageRateHelp:
+              type: string
+            settings.performance.name:
+              type: string
+            settings.performance.slidingWindow:
+              type: string
+            settings.performance.slidingWindowDuration:
+              type: string
+            settings.performance.slidingWindowDurationHelp:
+              type: string
+            settings.performance.slidingWindowHelp:
+              type: string
+            settings.performance.slidingWindowRate:
+              type: string
+            settings.performance.slidingWindowRateHelp:
+              type: string
+            settings.privacy.allowBlocklist:
+              type: string
+            settings.privacy.allowBlocklistHelp:
+              type: string
+            settings.privacy.allowExport:
+              type: string
+            settings.privacy.allowExportHelp:
+              type: string
+            settings.privacy.allowPrefs:
+              type: string
+            settings.privacy.allowPrefsHelp:
+              type: string
+            settings.privacy.allowWipe:
+              type: string
+            settings.privacy.allowWipeHelp:
+              type: string
+            settings.privacy.domainBlocklist:
+              type: string
+            settings.privacy.domainBlocklistHelp:
+              type: string
+            settings.privacy.individualSubTracking:
+              type: string
+            settings.privacy.individualSubTrackingHelp:
+              type: string
+            settings.privacy.listUnsubHeader:
+              type: string
+            settings.privacy.listUnsubHeaderHelp:
+              type: string
+            settings.privacy.name:
+              type: string
+            settings.restart:
+              type: string
+            settings.smtp.customHeaders:
+              type: string
+            settings.smtp.customHeadersHelp:
+              type: string
+            settings.smtp.enabled:
+              type: string
+            settings.smtp.heloHost:
+              type: string
+            settings.smtp.heloHostHelp:
+              type: string
+            settings.smtp.name:
+              type: string
+            settings.smtp.retries:
+              type: string
+            settings.smtp.retriesHelp:
+              type: string
+            settings.smtp.sendTest:
+              type: string
+            settings.smtp.setCustomHeaders:
+              type: string
+            settings.smtp.testConnection:
+              type: string
+            settings.smtp.testEnterEmail:
+              type: string
+            settings.smtp.toEmail:
+              type: string
+            settings.title:
+              type: string
+            settings.updateAvailable:
+              type: string
+            subscribers.advancedQuery:
+              type: string
+            subscribers.advancedQueryHelp:
+              type: string
+            subscribers.attribs:
+              type: string
+            subscribers.attribsHelp:
+              type: string
+            subscribers.blocklistedHelp:
+              type: string
+            subscribers.confirmBlocklist:
+              type: string
+            subscribers.confirmDelete:
+              type: string
+            subscribers.confirmExport:
+              type: string
+            subscribers.domainBlocklisted:
+              type: string
+            subscribers.downloadData:
+              type: string
+            subscribers.email:
+              type: string
+            subscribers.emailExists:
+              type: string
+            subscribers.errorBlocklisting:
+              type: string
+            subscribers.errorNoIDs:
+              type: string
+            subscribers.errorNoListsGiven:
+              type: string
+            subscribers.errorPreparingQuery:
+              type: string
+            subscribers.errorSendingOptin:
+              type: string
+            subscribers.export:
+              type: string
+            subscribers.invalidAction:
+              type: string
+            subscribers.invalidEmail:
+              type: string
+            subscribers.invalidJSON:
+              type: string
+            subscribers.invalidName:
+              type: string
+            subscribers.listChangeApplied:
+              type: string
+            subscribers.lists:
+              type: string
+            subscribers.listsHelp:
+              type: string
+            subscribers.listsPlaceholder:
+              type: string
+            subscribers.manageLists:
+              type: string
+            subscribers.markUnsubscribed:
+              type: string
+            subscribers.newSubscriber:
+              type: string
+            subscribers.numSelected:
+              type: string
+            subscribers.optinSubject:
+              type: string
+            subscribers.preconfirm:
+              type: string
+            subscribers.preconfirmHelp:
+              type: string
+            subscribers.query:
+              type: string
+            subscribers.queryPlaceholder:
+              type: string
+            subscribers.reset:
+              type: string
+            subscribers.selectAll:
+              type: string
+            subscribers.sendOptinConfirm:
+              type: string
+            subscribers.sentOptinConfirm:
+              type: string
+            subscribers.status.blocklisted:
+              type: string
+            subscribers.status.confirmed:
+              type: string
+            subscribers.status.enabled:
+              type: string
+            subscribers.status.subscribed:
+              type: string
+            subscribers.status.unconfirmed:
+              type: string
+            subscribers.status.unsubscribed:
+              type: string
+            subscribers.subscribersDeleted:
+              type: string
+            templates.cantDeleteDefault:
+              type: string
+            templates.default:
+              type: string
+            templates.dummyName:
+              type: string
+            templates.dummySubject:
+              type: string
+            templates.errorCompiling:
+              type: string
+            templates.errorRendering:
+              type: string
+            templates.fieldInvalidName:
+              type: string
+            templates.makeDefault:
+              type: string
+            templates.newTemplate:
+              type: string
+            templates.placeholderHelp:
+              type: string
+            templates.preview:
+              type: string
+            templates.rawHTML:
+              type: string
+            templates.subject:
+              type: string
+            users.login:
+              type: string
+            users.logout:
+              type: string
+
+    ServerConfig:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            messengers:
+              type: array
+              items:
+                type: string
+            langs:
+              type: array
+              items:
+                type: object
+                properties:
+                  code:
+                    type: string
+                  name:
+                    type: string
+            lang:
+              type: string
+            update:
+              type: string
+            needs_restart:
+              type: boolean
+            version:
+              type: string
+
+    DashboardCount:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            subscribers:
+              type: object
+              properties:
+                total:
+                  type: number
+                blocklisted:
+                  type: object
+
+                orphans:
+                  type: number
+            lists:
+              type: object
+              properties:
+                total:
+                  type: number
+                private:
+                  type: number
+                public:
+                  type: number
+                optin_single:
+                  type: number
+                optin_double:
+                  type: number
+            campaigns:
+              type: object
+              properties:
+                total:
+                  type: number
+                by_status:
+                  type: object
+                  properties:
+                    draft:
+                      type: number
+            messages:
+              type: number
+
+    SMTPSettings:
+      type: object
+      properties:
+        uuid:
+          type: string
+        enabled:
+          type: boolean
+        host:
+          type: string
+        hello_hostname:
+          type: string
+        port:
+          type: number
+        auth_protocol:
+          type: string
+        username:
+          type: string
+        email_headers:
+          type: array
+          items:
+            type: object
+        max_conns:
+          type: number
+        max_msg_retries:
+          type: number
+        idle_timeout:
+          type: string
+        wait_timeout:
+          type: string
+        tls_type:
+          type: string
+        tls_skip_verify:
+          type: boolean
+
+    MailBoxBounces:
+      type: object
+      properties:
+        uuid:
+          type: string
+        enabled:
+          type: boolean
+        type:
+          type: string
+        host:
+          type: string
+        port:
+          type: number
+        auth_protocol:
+          type: string
+        return_path:
+          type: string
+        username:
+          type: string
+        tls_enabled:
+          type: boolean
+        tls_skip_verify:
+          type: boolean
+        scan_interval:
+          type: string
+
+    Settings:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            app.site_name:
+              type: string
+            app.root_url:
+              type: string
+            app.logo_url:
+              type: string
+            app.favicon_url:
+              type: string
+            app.from_email:
+              type: string
+            app.notify_emails:
+              type: array
+              items:
+                type: string
+            app.enable_public_subscription_page:
+              type: boolean
+            app.enable_public_archive:
+              type: boolean
+            app.send_optin_confirmation:
+              type: boolean
+            app.check_updates:
+              type: boolean
+            app.lang:
+              type: string
+            app.batch_size:
+              type: number
+            app.concurrency:
+              type: number
+            app.max_send_errors:
+              type: number
+            app.message_rate:
+              type: number
+            app.message_sliding_window:
+              type: boolean
+            app.message_sliding_window_duration:
+              type: string
+            app.message_sliding_window_rate:
+              type: number
+            privacy.individual_tracking:
+              type: boolean
+            privacy.unsubscribe_header:
+              type: boolean
+            privacy.allow_blocklist:
+              type: boolean
+            privacy.allow_preferences:
+              type: boolean
+            privacy.allow_export:
+              type: boolean
+            privacy.allow_wipe:
+              type: boolean
+            privacy.exportable:
+              type: array
+              items:
+                type: string
+            privacy.domain_blocklist:
+              type: array
+              items:
+                type: object
+            upload.provider:
+              type: string
+            upload.filesystem.upload_path:
+              type: string
+            upload.filesystem.upload_uri:
+              type: string
+            upload.s3.url:
+              type: string
+            upload.s3.public_url:
+              type: string
+            upload.s3.aws_access_key_id:
+              type: string
+            upload.s3.aws_default_region:
+              type: string
+            upload.s3.bucket:
+              type: string
+            upload.s3.bucket_domain:
+              type: string
+            upload.s3.bucket_path:
+              type: string
+            upload.s3.bucket_type:
+              type: string
+            upload.s3.expiry:
+              type: string
+            smtp:
+              type: array
+              items:
+                $ref: "#/components/schemas/SMTPSettings"
+            messengers:
+              type: array
+              items:
+                type: object
+            bounce.enabled:
+              type: boolean
+            bounce.webhooks_enabled:
+              type: boolean
+            bounce.count:
+              type: number
+            bounce.action:
+              type: string
+            bounce.ses_enabled:
+              type: boolean
+            bounce.sendgrid_enabled:
+              type: boolean
+            bounce.sendgrid_key:
+              type: string
+            bounce.mailboxes:
+              type: array
+              items:
+                $ref: "#/components/schemas/MailBoxBounces"
+            appearance.admin.custom_css:
+              type: string
+            appearance.admin.custom_js:
+              type: string
+            appearance.public.custom_css:
+              type: string
+            appearance.public.custom_js:
+              type: string
+
+    SubscriberProfile:
+      type: object
+      properties:
+        id:
+          type: number
+        uuid:
+          type: string
+        email:
+          type: string
+        name:
+          type: string
+        attribs:
+          type: object
+          properties:
+            city:
+              type: string
+            good:
+              type: boolean
+            type:
+              type: string
+        status:
+          type: string
+        created_at:
+          type: string
+        updated_at:
+          type: string
+
+    Subscriptions:
+      type: object
+      properties:
+        subscription_status:
+          type: string
+        name:
+          type: string
+        type:
+          type: string
+        created_at:
+          type: string
+
+    SubscriberData:
+      type: object
+      properties:
+        profile:
+          type: array
+          items:
+            $ref: "#/components/schemas/SubscriberProfile"
+        subscriptions:
+          type: array
+          items:
+            $ref: "#/components/schemas/Subscriptions"
+        campaign_views:
+          type: array
+          items:
+            type: object
+        link_clicks:
+          type: array
+          items:
+            type: object
+
+    Subscriber:
+      type: object
+      properties:
+        id:
+          type: number
+        created_at:
+          type: string
+        updated_at:
+          type: string
+        uuid:
+          type: string
+        email:
+          type: string
+        name:
+          type: string
+        attribs:
+          type: object
+          properties:
+            city:
+              type: string
+            good:
+              type: boolean
+            type:
+              type: string
+        status:
+          type: string
+        lists:
+          type: array
+          items:
+            type: object
+            properties:
+              subscription_status:
+                type: string
+              id:
+                type: number
+              uuid:
+                type: string
+              name:
+                type: string
+              type:
+                type: string
+              tags:
+                type: array
+                items:
+                  type: string
+              created_at:
+                type: string
+              updated_at:
+                type: string
+
+      description: ok
+
+    SubscriberRegistrationInfo:
+      type: object
+      properties:
+        email:
+          type: string
+        name:
+          type: string
+        status:
+          type: string
+        lists:
+          type: array
+          items:
+            type: number
+        attribs:
+          type: object
+          properties:
+            city:
+              type: string
+            projects:
+              type: number
+            stack:
+              type: object
+              properties:
+                languages:
+                  type: array
+                  items:
+                    type: string
+
+    Bounce:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            results:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: number
+                  type:
+                    type: string
+                  source:
+                    type: string
+                  meta:
+                    type: object
+
+                  created_at:
+                    type: string
+                  email:
+                    type: string
+                  subscriber_uuid:
+                    type: string
+                  subscriber_id:
+                    type: number
+                  campaign:
+                    type: object
+                    properties:
+                      id:
+                        type: number
+                      name:
+                        type: string
+            query:
+              type: string
+            total:
+              type: number
+            per_page:
+              type: number
+            page:
+              type: number
+
+    List:
+      type: object
+      properties:
+        id:
+          type: number
+        created_at:
+          type: string
+        updated_at:
+          type: string
+        uuid:
+          type: string
+        name:
+          type: string
+        type:
+          type: string
+        optin:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+        subscriber_count:
+          type: number
+
+    ListRegistrationInfo:
+      type: object
+      properties:
+        name:
+          type: string
+        type:
+          type: string
+          enum: [public, private]
+        optin:
+          type: string
+          enum: [single, double]
+        tags:
+          type: array
+          items:
+            type: string
+
+    ImportStatus:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            name:
+              type: string
+            total:
+              type: number
+            imported:
+              type: number
+            status:
+              type: string
+
+    Campaign:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            id:
+              type: number
+            created_at:
+              type: string
+            updated_at:
+              type: string
+            CampaignID:
+              type: number
+            views:
+              type: number
+            clicks:
+              type: number
+            lists:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: number
+                  name:
+                    type: string
+            started_at:
+              type: string
+            to_send:
+              type: number
+            sent:
+              type: number
+            uuid:
+              type: string
+            type:
+              type: string
+              enum: [regular, optin]
+            name:
+              type: string
+            subject:
+              type: string
+            from_email:
+              type: string
+            body:
+              type: string
+            send_at:
+              type: string
+            status:
+              type: string
+            content_type:
+              type: string
+              enum: [richtext, html, markdown, plain]
+            tags:
+              type: array
+              items:
+                type: string
+            template_id:
+              type: number
+            messenger:
+              type: string
+
+    NewCampaign:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            id:
+              type: number
+            created_at:
+              type: string
+            updated_at:
+              type: string
+            views:
+              type: number
+            clicks:
+              type: number
+            bounces:
+              type: number
+            lists:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: number
+                  name:
+                    type: string
+            started_at:
+              type: string
+            to_send:
+              type: number
+            sent:
+              type: number
+            uuid:
+              type: string
+            type:
+              type: string
+            name:
+              type: string
+            subject:
+              type: string
+            from_email:
+              type: string
+            body:
+              type: string
+            altbody:
+              type: string
+            send_at:
+              type: string
+            status:
+              type: string
+            content_type:
+              type: string
+            tags:
+              type: array
+              items:
+                type: string
+            template_id:
+              type: number
+            messenger:
+              type: string
+
+    CampaignRegistrationInfo:
+      type: object
+      properties:
+        name:
+          type: string
+        subject:
+          type: string
+        lists:
+          type: array
+          items:
+            type: number
+        from_email:
+          type: string
+        type:
+          type: string
+        content-type:
+          type: string
+        body:
+          type: string
+        altbody:
+          type: string
+        send_at:
+          type: string
+        messenger:
+          type: string
+        template_id:
+          type: number
+        tags:
+          type: array
+          items:
+            type: string
+
+    MediaFileObject:
+      type: object
+      properties:
+        id:
+          type: number
+        uuid:
+          type: string
+        filename:
+          type: string
+        created_at:
+          type: string
+        thumb_uri:
+          type: string
+        uri:
+          type: string
+
+    Template:
+      type: object
+      properties:
+        id:
+          type: number
+        created_at:
+          type: string
+        updated_at:
+          type: string
+        name:
+          type: string
+        body:
+          type: string
+        type:
+          type: string
+        is_default:
+          type: boolean
+
+    TransactionalMessage:
+      type: object
+      properties:
+        subscriber_email:
+          type: string
+        subscriber_id:
+          type: number
+        template_id:
+          type: number
+        from_email:
+          type: string
+        data:
+          type: object
+        headers:
+          type: array
+          items:
+            type: object
