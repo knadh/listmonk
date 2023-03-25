@@ -166,28 +166,19 @@ func handleCampaignArchivePageLatest(c echo.Context) error {
 		app  = c.Get("app").(*App)
 	)
 
-	pubCamps, _, err := app.core.GetArchivedCampaigns(0, 1)
-	if err != nil || len(pubCamps) == 0 {
-		return c.Render(http.StatusInternalServerError, tplMessage,
-			makeMsgTpl(app.i18n.T("public.errorTitle"), "", app.i18n.Ts("public.errorFetchingCampaign")))
-	}
-
-	out, err := compileArchiveCampaigns(pubCamps, app)
+	camps, _, err := getCampaignArchives(0, 1, true, app)
 	if err != nil {
-		return c.Render(http.StatusInternalServerError, tplMessage,
-			makeMsgTpl(app.i18n.T("public.errorTitle"), "", app.i18n.Ts("public.errorFetchingCampaign")))
+		return err
 	}
 
-	// Render the message body.
-	camp := out[0].Campaign
-	msg, err := app.manager.NewCampaignMessage(camp, out[0].Subscriber)
-	if err != nil {
-		app.log.Printf("error rendering message: %v", err)
-		return c.Render(http.StatusInternalServerError, tplMessage,
-			makeMsgTpl(app.i18n.T("public.errorTitle"), "", app.i18n.Ts("public.errorFetchingCampaign")))
+	if len(camps) == 0 {
+		return c.Render(http.StatusNotFound, tplMessage,
+			makeMsgTpl(app.i18n.T("public.notFoundTitle"), "", app.i18n.T("public.campaignNotFound")))
 	}
 
-	return c.HTML(http.StatusOK, string(msg.Body()))
+	camp := camps[0]
+
+	return c.HTML(http.StatusOK, camp.Content)
 }
 
 func getCampaignArchives(offset, limit int, render bool, app *App) ([]campArchive, int, error) {
