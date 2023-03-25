@@ -1,0 +1,937 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="..">
+      
+      
+        <link rel="next" href="../upgrade/">
+      
+      <link rel="icon" href="../images/favicon.png">
+      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-9.1.4">
+    
+    
+      
+        <title>Installation - listmonk / Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.240905d7.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.a0c5b2b5.min.css">
+      
+      
+
+    
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Inter";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../static/style.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="white" data-md-color-accent="red">
+  
+    
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#installation" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="listmonk / Documentation" class="md-header__button md-logo" aria-label="listmonk / Documentation" data-md-component="logo">
+      
+  <img src="../images/favicon.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            listmonk / Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Installation
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="listmonk / Documentation" class="md-nav__button md-logo" aria-label="listmonk / Documentation" data-md-component="logo">
+      
+  <img src="../images/favicon.png" alt="logo">
+
+    </a>
+    listmonk / Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        Introduction
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          Installation
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        Installation
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#binary" class="md-nav__link">
+    Binary
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#docker" class="md-nav__link">
+    Docker
+  </a>
+  
+    <nav class="md-nav" aria-label="Docker">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#demo" class="md-nav__link">
+    Demo
+  </a>
+  
+    <nav class="md-nav" aria-label="Demo">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#easy-docker-install" class="md-nav__link">
+    Easy Docker install
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#manual-docker-install" class="md-nav__link">
+    Manual Docker install
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#production" class="md-nav__link">
+    Production
+  </a>
+  
+    <nav class="md-nav" aria-label="Production">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#easy-docker-install_1" class="md-nav__link">
+    Easy Docker install
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#manual-docker-install_1" class="md-nav__link">
+    Manual Docker install
+  </a>
+  
+    <nav class="md-nav" aria-label="Manual Docker install">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#mounting-a-custom-configtoml" class="md-nav__link">
+    Mounting a custom config.toml
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#compiling-from-source" class="md-nav__link">
+    Compiling from source
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#release-candidate-rc" class="md-nav__link">
+    Release candidate (RC)
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3rd-party-hosting" class="md-nav__link">
+    3rd party hosting
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../upgrade/" class="md-nav__link">
+        Upgrade
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../configuration/" class="md-nav__link">
+        Configuration
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../developer-setup/" class="md-nav__link">
+        Developer setup
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../concepts/" class="md-nav__link">
+        Concepts
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../querying-and-segmentation/" class="md-nav__link">
+        Querying and segmenting subscribers
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../templating/" class="md-nav__link">
+        Templating
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../bounces/" class="md-nav__link">
+        Bounce processing
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../messengers/" class="md-nav__link">
+        Messengers
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../i18n/" class="md-nav__link">
+        Internationalization
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../external-integration/" class="md-nav__link">
+        Integrating with external systems
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../apis/apis/" class="md-nav__link">
+        API
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../apis/subscribers/" class="md-nav__link">
+        API / Subscribers
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../apis/lists/" class="md-nav__link">
+        API / Lists
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../apis/import/" class="md-nav__link">
+        API / Import
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../apis/campaigns/" class="md-nav__link">
+        API / Campaigns
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../apis/media/" class="md-nav__link">
+        API / Media
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../apis/templates/" class="md-nav__link">
+        API / Templates
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../apis/transactional/" class="md-nav__link">
+        API / Transactional
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#binary" class="md-nav__link">
+    Binary
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#docker" class="md-nav__link">
+    Docker
+  </a>
+  
+    <nav class="md-nav" aria-label="Docker">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#demo" class="md-nav__link">
+    Demo
+  </a>
+  
+    <nav class="md-nav" aria-label="Demo">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#easy-docker-install" class="md-nav__link">
+    Easy Docker install
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#manual-docker-install" class="md-nav__link">
+    Manual Docker install
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#production" class="md-nav__link">
+    Production
+  </a>
+  
+    <nav class="md-nav" aria-label="Production">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#easy-docker-install_1" class="md-nav__link">
+    Easy Docker install
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#manual-docker-install_1" class="md-nav__link">
+    Manual Docker install
+  </a>
+  
+    <nav class="md-nav" aria-label="Manual Docker install">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#mounting-a-custom-configtoml" class="md-nav__link">
+    Mounting a custom config.toml
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#compiling-from-source" class="md-nav__link">
+    Compiling from source
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#release-candidate-rc" class="md-nav__link">
+    Release candidate (RC)
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3rd-party-hosting" class="md-nav__link">
+    3rd party hosting
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+<h1 id="installation">Installation<a class="headerlink" href="#installation" title="Permanent link">&para;</a></h1>
+<p>listmonk requires Postgres ⩾ v9.4.</p>
+<h2 id="binary">Binary<a class="headerlink" href="#binary" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Download the <a href="https://github.com/knadh/listmonk/releases">latest release</a> and extract the listmonk binary.</li>
+<li><code>./listmonk --new-config</code> to generate config.toml. Then, edit the file.</li>
+<li><code>./listmonk --install</code> to install the tables in the Postgres DB.</li>
+<li>Run <code>./listmonk</code> and visit <code>http://localhost:9000</code>.</li>
+</ul>
+<h2 id="docker">Docker<a class="headerlink" href="#docker" title="Permanent link">&para;</a></h2>
+<p>The latest image is available on DockerHub at <code>listmonk/listmonk:latest</code></p>
+<p>Use the sample <a href="https://github.com/knadh/listmonk/blob/master/docker-compose.yml">docker-compose.yml</a> to run listmonk and Postgres DB with docker-compose as follows:</p>
+<h3 id="demo">Demo<a class="headerlink" href="#demo" title="Permanent link">&para;</a></h3>
+<h4 id="easy-docker-install">Easy Docker install<a class="headerlink" href="#easy-docker-install" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code>mkdir<span class="w"> </span>listmonk-demo
+sh<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;</span><span class="k">$(</span>curl<span class="w"> </span>-fsSL<span class="w"> </span>https://raw.githubusercontent.com/knadh/listmonk/master/install-demo.sh<span class="k">)</span><span class="s2">&quot;</span>
+</code></pre></div>
+<h4 id="manual-docker-install">Manual Docker install<a class="headerlink" href="#manual-docker-install" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code>wget<span class="w"> </span>-O<span class="w"> </span>docker-compose.yml<span class="w"> </span>https://raw.githubusercontent.com/knadh/listmonk/master/docker-compose.yml
+docker-compose<span class="w"> </span>up<span class="w"> </span>-d<span class="w"> </span>demo-db<span class="w"> </span>demo-app
+</code></pre></div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>The demo does not persist Postgres after the containers are removed. <strong>DO NOT</strong> use this demo setup in production.</p>
+</div>
+<h3 id="production">Production<a class="headerlink" href="#production" title="Permanent link">&para;</a></h3>
+<h4 id="easy-docker-install_1">Easy Docker install<a class="headerlink" href="#easy-docker-install_1" title="Permanent link">&para;</a></h4>
+<p>This setup is recommended if you want to <em>quickly</em> setup <code>listmonk</code> in production.</p>
+<div class="highlight"><pre><span></span><code>mkdir<span class="w"> </span>listmonk
+sh<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;</span><span class="k">$(</span>curl<span class="w"> </span>-fsSL<span class="w"> </span>https://raw.githubusercontent.com/knadh/listmonk/master/install-prod.sh<span class="k">)</span><span class="s2">&quot;</span>
+</code></pre></div>
+<p>The above shell script performs the following actions:</p>
+<ul>
+<li>Downloads <code>docker-compose.yml</code> and generates a <code>config.toml</code>.</li>
+<li>Runs a Postgres container and installs the database schema.</li>
+<li>Runs the <code>listmonk</code> container.</li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>It's recommended to examine the contents of the shell script, before running in your environment.</p>
+</div>
+<h4 id="manual-docker-install_1">Manual Docker install<a class="headerlink" href="#manual-docker-install_1" title="Permanent link">&para;</a></h4>
+<p>The following workflow is recommended to setup <code>listmonk</code> manually using <code>docker-compose</code>. You are encouraged to customise the contents of <code>docker-compose.yml</code> to your needs. The overall setup looks like:</p>
+<ul>
+<li><code>docker-compose up db</code> to run the Postgres DB.</li>
+<li><code>docker-compose run --rm app ./listmonk --install</code> to setup the DB (or <code>--upgrade</code> to upgrade an existing DB).</li>
+<li>Copy <code>config.toml.sample</code> to your directory and make the following changes:<ul>
+<li><code>app.address</code> =&gt; <code>0.0.0.0:9000</code> (Port forwarding on Docker will work only if the app is advertising on all interfaces.)</li>
+<li><code>db.host</code> =&gt; <code>listmonk_db</code> (Container Name of the DB container)</li>
+</ul>
+</li>
+<li>Run <code>docker-compose up app</code> and visit <code>http://localhost:9000</code>.</li>
+</ul>
+<h5 id="mounting-a-custom-configtoml">Mounting a custom config.toml<a class="headerlink" href="#mounting-a-custom-configtoml" title="Permanent link">&para;</a></h5>
+<p>To mount a local <code>config.toml</code> file, add the following section to <code>docker-compose.yml</code>:</p>
+<div class="highlight"><pre><span></span><code>  app:
+    &lt;&lt;: *app-defaults
+    depends_on:
+      - db
+    volumes:
+    - ./path/on/your/host/config.toml:/listmonk/config.toml
+</code></pre></div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Some common changes done inside <code>config.toml</code> for Docker based setups:</p>
+<ul>
+<li>Change <code>app.address</code> to <code>0.0.0.0:9000</code>.</li>
+<li>Change <code>db.host</code> to <code>listmonk_db</code>.</li>
+</ul>
+</div>
+<p>Here's a sample <code>config.toml</code> you can use:</p>
+<div class="highlight"><pre><span></span><code><span class="k">[app]</span>
+<span class="n">address</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;0.0.0.0:9000&quot;</span>
+<span class="n">admin_username</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;listmonk&quot;</span>
+<span class="n">admin_password</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;listmonk&quot;</span>
+
+<span class="c1"># Database.</span>
+<span class="k">[db]</span>
+<span class="n">host</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;listmonk_db&quot;</span>
+<span class="n">port</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">5432</span>
+<span class="n">user</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;listmonk&quot;</span>
+<span class="n">password</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;listmonk&quot;</span>
+<span class="n">database</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;listmonk&quot;</span>
+<span class="n">ssl_mode</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;disable&quot;</span>
+<span class="n">max_open</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">25</span>
+<span class="n">max_idle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">25</span>
+<span class="n">max_lifetime</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;300s&quot;</span>
+</code></pre></div>
+<p>Mount the local <code>config.toml</code> inside the container at <code>listmonk/config.toml</code>.</p>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<ul>
+<li>See <a href="../configuration">configuring with environment variables</a> for variables like <code>app.admin_password</code> and <code>db.password</code></li>
+<li>Ensure that both <code>app</code> and <code>db</code> containers are in running. If the containers are not running, restart them <code>docker-compose restart app db</code>.</li>
+<li>Refer to <a href="https://yasoob.me/posts/setting-up-listmonk-opensource-newsletter-mailing/">this tutorial</a> for setting up a production instance with Docker + Nginx + LetsEncrypt SSL.</li>
+</ul>
+</div>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>The example <code>docker-compose.yml</code> file works with Docker Engine 18.06.0+ and <code>docker-compose</code> which supports file format 3.7.</p>
+</div>
+<h2 id="compiling-from-source">Compiling from source<a class="headerlink" href="#compiling-from-source" title="Permanent link">&para;</a></h2>
+<p>To compile the latest unreleased version (<code>master</code> branch):</p>
+<ol>
+<li>Make sure <code>go</code>, <code>nodejs</code>, and <code>yarn</code> are installed on your system.</li>
+<li><code>git clone git@github.com:knadh/listmonk.git</code></li>
+<li><code>cd listmonk &amp;&amp; make dist</code>. This will generate the <code>listmonk binary</code>.</li>
+</ol>
+<h2 id="release-candidate-rc">Release candidate (RC)<a class="headerlink" href="#release-candidate-rc" title="Permanent link">&para;</a></h2>
+<p>The <code>master</code> branch with bleeding edge changes is periodically built and published as <code>listmonk/listmonk:rc</code> on DockerHub. To run the latest pre-release version, replace all instances of <code>listmonk/listmonk:latest</code> with <code>listmonk/listmonk:rc</code> in the docker-compose.yml file and follow the Docker installation steps above. While it is generally safe to run release candidate versions, they may have issues that only get resolved in a general release.</p>
+<h2 id="3rd-party-hosting">3rd party hosting<a class="headerlink" href="#3rd-party-hosting" title="Permanent link">&para;</a></h2>
+<p><a href="https://railway.app/new/template/listmonk"><img src="https://camo.githubusercontent.com/081df3dd8cff37aab35044727b02b94a8e948052487a8c6253e190f5940d776d/68747470733a2f2f7261696c7761792e6170702f627574746f6e2e737667" alt="One-click deploy on Raleway" style="max-height: 32px;" /></a>
+<br />
+<a href="https://www.pikapods.com/pods?run=listmonk"><img src="https://www.pikapods.com/static/run-button.svg" alt="Deploy on PikaPod" /></a>
+<a href ="https://github.com/paulrudy/listmonk-on-fly">Tutorial for deploying on Fly.io</a></p>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2019-2023, Kailash Nadh.
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    <script id="__config" type="application/json">{"base": "..", "features": [], "search": "../assets/javascripts/workers/search.208ed371.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.19047be9.min.js"></script>
+      
+    
+  </body>
+</html>

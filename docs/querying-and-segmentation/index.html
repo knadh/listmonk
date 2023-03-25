@@ -1,0 +1,824 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="../concepts/">
+      
+      
+        <link rel="next" href="../templating/">
+      
+      <link rel="icon" href="../images/favicon.png">
+      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-9.1.4">
+    
+    
+      
+        <title>Querying and segmenting subscribers - listmonk / Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.240905d7.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.a0c5b2b5.min.css">
+      
+      
+
+    
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Inter";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../static/style.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="white" data-md-color-accent="red">
+  
+    
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#querying-and-segmenting-subscribers" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="listmonk / Documentation" class="md-header__button md-logo" aria-label="listmonk / Documentation" data-md-component="logo">
+      
+  <img src="../images/favicon.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            listmonk / Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Querying and segmenting subscribers
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="listmonk / Documentation" class="md-nav__button md-logo" aria-label="listmonk / Documentation" data-md-component="logo">
+      
+  <img src="../images/favicon.png" alt="logo">
+
+    </a>
+    listmonk / Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        Introduction
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../installation/" class="md-nav__link">
+        Installation
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../upgrade/" class="md-nav__link">
+        Upgrade
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../configuration/" class="md-nav__link">
+        Configuration
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../developer-setup/" class="md-nav__link">
+        Developer setup
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../concepts/" class="md-nav__link">
+        Concepts
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          Querying and segmenting subscribers
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        Querying and segmenting subscribers
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#database-fields" class="md-nav__link">
+    Database fields
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sample-attributes" class="md-nav__link">
+    Sample attributes
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sample-sql-query-expressions" class="md-nav__link">
+    Sample SQL query expressions
+  </a>
+  
+    <nav class="md-nav" aria-label="Sample SQL query expressions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#find-a-subscriber-by-e-mail" class="md-nav__link">
+    Find a subscriber by e-mail
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#find-a-subscriber-by-name" class="md-nav__link">
+    Find a subscriber by name
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#multiple-conditions" class="md-nav__link">
+    Multiple conditions
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#querying-attributes" class="md-nav__link">
+    Querying attributes
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#querying-nested-attributes" class="md-nav__link">
+    Querying nested attributes
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../templating/" class="md-nav__link">
+        Templating
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../bounces/" class="md-nav__link">
+        Bounce processing
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../messengers/" class="md-nav__link">
+        Messengers
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../i18n/" class="md-nav__link">
+        Internationalization
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../external-integration/" class="md-nav__link">
+        Integrating with external systems
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../apis/apis/" class="md-nav__link">
+        API
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../apis/subscribers/" class="md-nav__link">
+        API / Subscribers
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../apis/lists/" class="md-nav__link">
+        API / Lists
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../apis/import/" class="md-nav__link">
+        API / Import
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../apis/campaigns/" class="md-nav__link">
+        API / Campaigns
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../apis/media/" class="md-nav__link">
+        API / Media
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../apis/templates/" class="md-nav__link">
+        API / Templates
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../apis/transactional/" class="md-nav__link">
+        API / Transactional
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#database-fields" class="md-nav__link">
+    Database fields
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sample-attributes" class="md-nav__link">
+    Sample attributes
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sample-sql-query-expressions" class="md-nav__link">
+    Sample SQL query expressions
+  </a>
+  
+    <nav class="md-nav" aria-label="Sample SQL query expressions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#find-a-subscriber-by-e-mail" class="md-nav__link">
+    Find a subscriber by e-mail
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#find-a-subscriber-by-name" class="md-nav__link">
+    Find a subscriber by name
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#multiple-conditions" class="md-nav__link">
+    Multiple conditions
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#querying-attributes" class="md-nav__link">
+    Querying attributes
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#querying-nested-attributes" class="md-nav__link">
+    Querying nested attributes
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+<h1 id="querying-and-segmenting-subscribers">Querying and segmenting subscribers<a class="headerlink" href="#querying-and-segmenting-subscribers" title="Permanent link">&para;</a></h1>
+<p>listmonk allows the writing of partial Postgres SQL expressions to query, filter, and segment subscribers.</p>
+<h2 id="database-fields">Database fields<a class="headerlink" href="#database-fields" title="Permanent link">&para;</a></h2>
+<p>These are the fields in the subscriber database that can be queried.</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>subscribers.uuid</code></td>
+<td>The randomly generated unique ID of the subscriber</td>
+</tr>
+<tr>
+<td><code>subscribers.email</code></td>
+<td>E-mail ID of the subscriber</td>
+</tr>
+<tr>
+<td><code>subscribers.name</code></td>
+<td>Name of the subscriber</td>
+</tr>
+<tr>
+<td><code>subscribers.status</code></td>
+<td>Status of the subscriber (enabled, disabled, blocklisted)</td>
+</tr>
+<tr>
+<td><code>subscribers.attribs</code></td>
+<td>Map of arbitrary attributes represented as JSON. Accessed via the <code>-&gt;</code> and <code>-&gt;&gt;</code> Postgres operator.</td>
+</tr>
+<tr>
+<td><code>subscribers.created_at</code></td>
+<td>Timestamp when the subscriber was first added</td>
+</tr>
+<tr>
+<td><code>subscribers.updated_at</code></td>
+<td>Timestamp when the subscriber was modified</td>
+</tr>
+</tbody>
+</table>
+<h2 id="sample-attributes">Sample attributes<a class="headerlink" href="#sample-attributes" title="Permanent link">&para;</a></h2>
+<p>Here's a sample JSON map of attributes assigned to an imaginary subscriber.</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;city&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Bengaluru&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;likes_tea&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;spoken_languages&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;English&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;Malayalam&quot;</span><span class="p">],</span>
+<span class="w">  </span><span class="nt">&quot;projects&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;stack&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;frameworks&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;echo&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;go&quot;</span><span class="p">],</span>
+<span class="w">    </span><span class="nt">&quot;languages&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;go&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;python&quot;</span><span class="p">],</span>
+<span class="w">    </span><span class="nt">&quot;preferred_language&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;go&quot;</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<p><img alt="listmonk screenshot" src="../images/edit-subscriber.png" /></p>
+<h2 id="sample-sql-query-expressions">Sample SQL query expressions<a class="headerlink" href="#sample-sql-query-expressions" title="Permanent link">&para;</a></h2>
+<p><img alt="listmonk" src="../images/query-subscribers.png" /></p>
+<h4 id="find-a-subscriber-by-e-mail">Find a subscriber by e-mail<a class="headerlink" href="#find-a-subscriber-by-e-mail" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><span class="c1">-- Exact match</span>
+<span class="n">subscribers</span><span class="p">.</span><span class="n">email</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;some@domain.com&#39;</span>
+
+<span class="c1">-- Partial match to find e-mails that end in @domain.com.</span>
+<span class="n">subscribers</span><span class="p">.</span><span class="n">email</span><span class="w"> </span><span class="k">LIKE</span><span class="w"> </span><span class="s1">&#39;%@domain.com&#39;</span>
+</code></pre></div>
+<h4 id="find-a-subscriber-by-name">Find a subscriber by name<a class="headerlink" href="#find-a-subscriber-by-name" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><span class="c1">-- Find all subscribers whose name start with John.</span>
+<span class="n">subscribers</span><span class="p">.</span><span class="n">email</span><span class="w"> </span><span class="k">LIKE</span><span class="w"> </span><span class="s1">&#39;John%&#39;</span>
+</code></pre></div>
+<h4 id="multiple-conditions">Multiple conditions<a class="headerlink" href="#multiple-conditions" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><span class="c1">-- Find all Johns who have been blocklisted.</span>
+<span class="n">subscribers</span><span class="p">.</span><span class="n">email</span><span class="w"> </span><span class="k">LIKE</span><span class="w"> </span><span class="s1">&#39;John%&#39;</span><span class="w"> </span><span class="k">AND</span><span class="w"> </span><span class="n">status</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;blocklisted&#39;</span>
+</code></pre></div>
+<h4 id="querying-attributes">Querying attributes<a class="headerlink" href="#querying-attributes" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><span class="c1">-- The -&gt;&gt; operator returns the value as text. Find all subscribers</span>
+<span class="c1">-- who live in Bengaluru and have done more than 3 projects.</span>
+<span class="c1">-- Here &#39;projects&#39; is cast into an integer so that we can apply the</span>
+<span class="c1">-- numerical operator &gt;</span>
+<span class="n">subscribers</span><span class="p">.</span><span class="n">attribs</span><span class="o">-&gt;&gt;</span><span class="s1">&#39;city&#39;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;Bengaluru&#39;</span><span class="w"> </span><span class="k">AND</span>
+<span class="w">    </span><span class="p">(</span><span class="n">subscribers</span><span class="p">.</span><span class="n">attribs</span><span class="o">-&gt;&gt;</span><span class="s1">&#39;projects&#39;</span><span class="p">)::</span><span class="nb">INT</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">3</span>
+</code></pre></div>
+<h4 id="querying-nested-attributes">Querying nested attributes<a class="headerlink" href="#querying-nested-attributes" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><span class="c1">-- Find all blocklisted subscribers who like to drink tea, can code Python</span>
+<span class="c1">-- and prefer coding Go.</span>
+<span class="c1">--</span>
+<span class="c1">-- The -&gt; operator returns the value as a structure. Here, the &quot;languages&quot; field</span>
+<span class="c1">-- The ? operator checks for the existence of a value in a list.</span>
+<span class="n">subscribers</span><span class="p">.</span><span class="n">status</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;blocklisted&#39;</span><span class="w"> </span><span class="k">AND</span>
+<span class="w">    </span><span class="p">(</span><span class="n">subscribers</span><span class="p">.</span><span class="n">attribs</span><span class="o">-&gt;&gt;</span><span class="s1">&#39;likes_tea&#39;</span><span class="p">)::</span><span class="nb">BOOLEAN</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">true</span><span class="w"> </span><span class="k">AND</span>
+<span class="w">    </span><span class="n">subscribers</span><span class="p">.</span><span class="n">attribs</span><span class="o">-&gt;</span><span class="s1">&#39;stack&#39;</span><span class="o">-&gt;</span><span class="s1">&#39;languages&#39;</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="s1">&#39;python&#39;</span><span class="w"> </span><span class="k">AND</span>
+<span class="w">    </span><span class="n">subscribers</span><span class="p">.</span><span class="n">attribs</span><span class="o">-&gt;</span><span class="s1">&#39;stack&#39;</span><span class="o">-&gt;&gt;</span><span class="s1">&#39;preferred_language&#39;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;go&#39;</span>
+</code></pre></div>
+<p>To learn how to write SQL expressions to do advancd querying on JSON attributes, refer to the Postgres <a href="https://www.postgresql.org/docs/11/functions-json.html">JSONB documentation</a>.</p>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2019-2023, Kailash Nadh.
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    <script id="__config" type="application/json">{"base": "..", "features": [], "search": "../assets/javascripts/workers/search.208ed371.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.19047be9.min.js"></script>
+      
+    
+  </body>
+</html>

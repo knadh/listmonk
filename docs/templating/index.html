@@ -1,0 +1,1064 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="../querying-and-segmentation/">
+      
+      
+        <link rel="next" href="../bounces/">
+      
+      <link rel="icon" href="../images/favicon.png">
+      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-9.1.4">
+    
+    
+      
+        <title>Templating - listmonk / Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.240905d7.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.a0c5b2b5.min.css">
+      
+      
+
+    
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Inter";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../static/style.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="white" data-md-color-accent="red">
+  
+    
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#templating" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="listmonk / Documentation" class="md-header__button md-logo" aria-label="listmonk / Documentation" data-md-component="logo">
+      
+  <img src="../images/favicon.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            listmonk / Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Templating
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="listmonk / Documentation" class="md-nav__button md-logo" aria-label="listmonk / Documentation" data-md-component="logo">
+      
+  <img src="../images/favicon.png" alt="logo">
+
+    </a>
+    listmonk / Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        Introduction
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../installation/" class="md-nav__link">
+        Installation
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../upgrade/" class="md-nav__link">
+        Upgrade
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../configuration/" class="md-nav__link">
+        Configuration
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../developer-setup/" class="md-nav__link">
+        Developer setup
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../concepts/" class="md-nav__link">
+        Concepts
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../querying-and-segmentation/" class="md-nav__link">
+        Querying and segmenting subscribers
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          Templating
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        Templating
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#campaign-templates" class="md-nav__link">
+    Campaign templates
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#transactional-templates" class="md-nav__link">
+    Transactional templates
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#template-expressions" class="md-nav__link">
+    Template expressions
+  </a>
+  
+    <nav class="md-nav" aria-label="Template expressions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#subscriber-fields" class="md-nav__link">
+    Subscriber fields
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#functions" class="md-nav__link">
+    Functions
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sprig-functions" class="md-nav__link">
+    Sprig functions
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-template" class="md-nav__link">
+    Example template
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-campaign-body" class="md-nav__link">
+    Example campaign body
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#system-templates" class="md-nav__link">
+    System templates
+  </a>
+  
+    <nav class="md-nav" aria-label="System templates">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#public-pages" class="md-nav__link">
+    Public pages
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#system-e-mails" class="md-nav__link">
+    System e-mails
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../bounces/" class="md-nav__link">
+        Bounce processing
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../messengers/" class="md-nav__link">
+        Messengers
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../i18n/" class="md-nav__link">
+        Internationalization
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../external-integration/" class="md-nav__link">
+        Integrating with external systems
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../apis/apis/" class="md-nav__link">
+        API
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../apis/subscribers/" class="md-nav__link">
+        API / Subscribers
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../apis/lists/" class="md-nav__link">
+        API / Lists
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../apis/import/" class="md-nav__link">
+        API / Import
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../apis/campaigns/" class="md-nav__link">
+        API / Campaigns
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../apis/media/" class="md-nav__link">
+        API / Media
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../apis/templates/" class="md-nav__link">
+        API / Templates
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../apis/transactional/" class="md-nav__link">
+        API / Transactional
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#campaign-templates" class="md-nav__link">
+    Campaign templates
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#transactional-templates" class="md-nav__link">
+    Transactional templates
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#template-expressions" class="md-nav__link">
+    Template expressions
+  </a>
+  
+    <nav class="md-nav" aria-label="Template expressions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#subscriber-fields" class="md-nav__link">
+    Subscriber fields
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#functions" class="md-nav__link">
+    Functions
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sprig-functions" class="md-nav__link">
+    Sprig functions
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-template" class="md-nav__link">
+    Example template
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-campaign-body" class="md-nav__link">
+    Example campaign body
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#system-templates" class="md-nav__link">
+    System templates
+  </a>
+  
+    <nav class="md-nav" aria-label="System templates">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#public-pages" class="md-nav__link">
+    Public pages
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#system-e-mails" class="md-nav__link">
+    System e-mails
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+<h1 id="templating">Templating<a class="headerlink" href="#templating" title="Permanent link">&para;</a></h1>
+<p>A template is a re-usable HTML design that can be used across campaigns and transactional messages. Most commonly, templates have standard header and footer areas with logos and branding elements, where campaign content is inserted in the middle. listmonk supports Go template expressions that lets you create powerful, dynamic HTML templates.</p>
+<p>listmonk supports <a href="https://gowebexamples.com/templates/">Go template</a> expressions that lets you create powerful, dynamic HTML templates. It also integrates 100+ useful <a href="https://masterminds.github.io/sprig/">Sprig template functions</a>.</p>
+<h2 id="campaign-templates">Campaign templates<a class="headerlink" href="#campaign-templates" title="Permanent link">&para;</a></h2>
+<p>Campaign templates are used in an e-mail campaigns. These template are created and managed on the UI under <code>Campaigns -&gt; Templates</code>, and are selected when creating new campaigns.</p>
+<h2 id="transactional-templates">Transactional templates<a class="headerlink" href="#transactional-templates" title="Permanent link">&para;</a></h2>
+<p>Transactional templates are used for sending arbitrary transactional messages using the transactional API. These template are created and managed on the UI under <code>Campaigns -&gt; Templates</code>.</p>
+<h2 id="template-expressions">Template expressions<a class="headerlink" href="#template-expressions" title="Permanent link">&para;</a></h2>
+<p>There are several template functions and expressions that can be used in campaign and template bodies. They are written in the form <code>{{ .Subscriber.Email }}</code>, that is, an expression between double curly braces <code>{{</code> and <code>}}</code>.</p>
+<h3 id="subscriber-fields">Subscriber fields<a class="headerlink" href="#subscriber-fields" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Expression</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>{{ .Subscriber.UUID }}</code></td>
+<td>The randomly generated unique ID of the subscriber</td>
+</tr>
+<tr>
+<td><code>{{ .Subscriber.Email }}</code></td>
+<td>E-mail ID of the subscriber</td>
+</tr>
+<tr>
+<td><code>{{ .Subscriber.Name }}</code></td>
+<td>Name of the subscriber</td>
+</tr>
+<tr>
+<td><code>{{ .Subscriber.FirstName }}</code></td>
+<td>First name of the subscriber (automatically extracted from the name)</td>
+</tr>
+<tr>
+<td><code>{{ .Subscriber.LastName }}</code></td>
+<td>Last name of the subscriber (automatically extracted from the name)</td>
+</tr>
+<tr>
+<td><code>{{ .Subscriber.Status }}</code></td>
+<td>Status of the subscriber (enabled, disabled, blocklisted)</td>
+</tr>
+<tr>
+<td><code>{{ .Subscriber.Attribs }}</code></td>
+<td>Map of arbitrary attributes. Fields can be accessed with <code>.</code>, eg: <code>.Subscriber.Attribs.city</code></td>
+</tr>
+<tr>
+<td><code>{{ .Subscriber.CreatedAt }}</code></td>
+<td>Timestamp when the subscriber was first added</td>
+</tr>
+<tr>
+<td><code>{{ .Subscriber.UpdatedAt }}</code></td>
+<td>Timestamp when the subscriber was modified</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>Expression</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>{{ .Campaign.UUID }}</code></td>
+<td>The randomly generated unique ID of the campaign</td>
+</tr>
+<tr>
+<td><code>{{ .Campaign.Name }}</code></td>
+<td>Internal name of the campaign</td>
+</tr>
+<tr>
+<td><code>{{ .Campaign.Subject }}</code></td>
+<td>E-mail subject of the campaign</td>
+</tr>
+<tr>
+<td><code>{{ .Campaign.FromEmail }}</code></td>
+<td>The e-mail address from which the campaign is being sent</td>
+</tr>
+</tbody>
+</table>
+<h3 id="functions">Functions<a class="headerlink" href="#functions" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Function</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>{{ Date "2006-01-01" }}</code></td>
+<td>Prints the current datetime for the given format expressed as a <a href="https://yourbasic.org/golang/format-parse-string-time-date-example/">Go date layout</a></td>
+</tr>
+<tr>
+<td><code>{{ TrackLink "https://link.com" }}</code></td>
+<td>Takes a URL and generates a tracking URL over it. For use in campaign bodies and templates.</td>
+</tr>
+<tr>
+<td><code>https://link.com@TrackLink</code></td>
+<td>Shorthand for <code>TrackLink</code>. Eg: <code>&lt;a href="https://link.com@TrackLink"&gt;Link&lt;/a&gt;</code></td>
+</tr>
+<tr>
+<td><code>{{ TrackView }}</code></td>
+<td>Inserts a single tracking pixel. Should only be used once, ideally in the template footer.</td>
+</tr>
+<tr>
+<td><code>{{ UnsubscribeURL }}</code></td>
+<td>Unsubscription and Manage preferences URL. Ideal for use in the template footer.</td>
+</tr>
+<tr>
+<td><code>{{ MessageURL }}</code></td>
+<td>URL to view the hosted version of an e-mail message.</td>
+</tr>
+<tr>
+<td><code>{{ OptinURL }}</code></td>
+<td>URL to the double-optin confirmation page.</td>
+</tr>
+<tr>
+<td><code>{{ Safe "&lt;!-- comment --&gt;" }}</code></td>
+<td>Add any HTML code as it is.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="sprig-functions">Sprig functions<a class="headerlink" href="#sprig-functions" title="Permanent link">&para;</a></h3>
+<p>listmonk integrates the Sprig library that offers 100+ utility functions for working with strings, numbers, dates etc. that can be used in templating. Refer to the <a href="https://masterminds.github.io/sprig/">Sprig documentation</a> for the full list of functions.</p>
+<h3 id="example-template">Example template<a class="headerlink" href="#example-template" title="Permanent link">&para;</a></h3>
+<p>The expression <code>{{ template "content" . }}</code> should appear exactly once in every template denoting the spot where an e-mail's content is inserted. Here's a sample HTML e-mail that has a fixed header and footer that inserts the content in the middle.</p>
+<div class="highlight"><pre><span></span><code><span class="cp">&lt;!DOCTYPE html&gt;</span>
+<span class="p">&lt;</span><span class="nt">html</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="nt">head</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">style</span><span class="p">&gt;</span>
+<span class="w">      </span><span class="nt">body</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">background</span><span class="p">:</span><span class="w"> </span><span class="mh">#eee</span><span class="p">;</span>
+<span class="w">        </span><span class="k">font-family</span><span class="p">:</span><span class="w"> </span><span class="n">Arial</span><span class="p">,</span><span class="w"> </span><span class="kc">sans-serif</span><span class="p">;</span>
+<span class="w">        </span><span class="k">font-size</span><span class="p">:</span><span class="w"> </span><span class="mi">6</span><span class="kt">px</span><span class="p">;</span>
+<span class="w">        </span><span class="k">color</span><span class="p">:</span><span class="w"> </span><span class="mh">#111</span><span class="p">;</span>
+<span class="w">      </span><span class="p">}</span>
+<span class="w">      </span><span class="nt">header</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">border-bottom</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="kt">px</span><span class="w"> </span><span class="kc">solid</span><span class="w"> </span><span class="mh">#ddd</span><span class="p">;</span>
+<span class="w">        </span><span class="k">padding-bottom</span><span class="p">:</span><span class="w"> </span><span class="mi">30</span><span class="kt">px</span><span class="p">;</span>
+<span class="w">        </span><span class="k">margin-bottom</span><span class="p">:</span><span class="w"> </span><span class="mi">30</span><span class="kt">px</span><span class="p">;</span>
+<span class="w">      </span><span class="p">}</span>
+<span class="w">      </span><span class="p">.</span><span class="nc">container</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">background</span><span class="p">:</span><span class="w"> </span><span class="mh">#fff</span><span class="p">;</span>
+<span class="w">        </span><span class="k">width</span><span class="p">:</span><span class="w"> </span><span class="mi">450</span><span class="kt">px</span><span class="p">;</span>
+<span class="w">        </span><span class="k">margin</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="kc">auto</span><span class="p">;</span>
+<span class="w">        </span><span class="k">padding</span><span class="p">:</span><span class="w"> </span><span class="mi">30</span><span class="kt">px</span><span class="p">;</span>
+<span class="w">      </span><span class="p">}</span>
+<span class="w">    </span><span class="p">&lt;/</span><span class="nt">style</span><span class="p">&gt;</span>
+  <span class="p">&lt;/</span><span class="nt">head</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="nt">body</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">section</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;container&quot;</span><span class="p">&gt;</span>
+      <span class="p">&lt;</span><span class="nt">header</span><span class="p">&gt;</span>
+        <span class="cm">&lt;!-- This will appear in the header of all e-mails.</span>
+<span class="cm">             The subscriber&#39;s name will be automatically inserted here. //--&gt;</span>
+        Hi {{ .Subscriber.FirstName }}!
+      <span class="p">&lt;/</span><span class="nt">header</span><span class="p">&gt;</span>
+
+      <span class="cm">&lt;!-- This is where the e-mail body will be inserted //--&gt;</span>
+      <span class="p">&lt;</span><span class="nt">div</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;content&quot;</span><span class="p">&gt;</span>
+        {{ template &quot;content&quot; . }}
+      <span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+
+      <span class="p">&lt;</span><span class="nt">footer</span><span class="p">&gt;</span>
+        Copyright 2019. All rights Reserved.
+      <span class="p">&lt;/</span><span class="nt">footer</span><span class="p">&gt;</span>
+
+      <span class="cm">&lt;!-- The tracking pixel will be inserted here //--&gt;</span>
+      {{ TrackView }}
+    <span class="p">&lt;/</span><span class="nt">section</span><span class="p">&gt;</span>
+  <span class="p">&lt;/</span><span class="nt">body</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">html</span><span class="p">&gt;</span>
+</code></pre></div>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>For use with plaintext campaigns, create a template with no HTML content and just the placeholder <code>{{ template "content" . }}</code></p>
+</div>
+<h3 id="example-campaign-body">Example campaign body<a class="headerlink" href="#example-campaign-body" title="Permanent link">&para;</a></h3>
+<p>Campaign bodies can be composed using the built-in WYSIWYG editor or as raw HTML documents. Assuming that the subscriber has a set of <a href="../querying-and-segmentation#sample-attributes">attributes defined</a>, this example shows how to render those values in a campaign.</p>
+<div class="highlight"><pre><span></span><code>Hey, did you notice how the template showed your first name?
+Your last name is {{.Subscriber.LastName }}.
+
+You have done {{ .Subscriber.Attribs.projects }} projects.
+
+
+{{ if eq .Subscriber.Attribs.city &quot;Bengaluru&quot; }}
+  You live in Bangalore!
+{{ else }}
+  Where do you live?
+{{ end }}
+
+
+Here is a link for you to click that will be tracked.
+&lt;a href=&quot;{{ TrackLink &quot;https://google.com&quot; }}&quot;&gt;Google&lt;/a&gt;
+</code></pre></div>
+<p>The above example uses an <code>if</code> condition to show one of two messages depending on the value of a subscriber attribute. Many such dynamic expressions are possible with Go templating expressions.</p>
+<h2 id="system-templates">System templates<a class="headerlink" href="#system-templates" title="Permanent link">&para;</a></h2>
+<p>System templates are used for rendering public user facing pages such as the subscription management page, and in automatically generated system e-mails such as the opt-in confirmation e-mail. These are bundled into listmonk but can be customized by copying the <a href="https://github.com/knadh/listmonk/tree/master/static">static directory</a> locally, and passing its path to listmonk with the <code>./listmonk --static-dir=your/custom/path</code> flag.</p>
+<h3 id="public-pages">Public pages<a class="headerlink" href="#public-pages" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>/static/public/</th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>index.html</code></td>
+<td>Base template with the header and footer that all pages use.</td>
+</tr>
+<tr>
+<td><code>home.html</code></td>
+<td>Landing page on the root domain with the login button.</td>
+</tr>
+<tr>
+<td><code>message.html</code></td>
+<td>Generic success / failure message page.</td>
+</tr>
+<tr>
+<td><code>optin.html</code></td>
+<td>Opt-in confirmation page.</td>
+</tr>
+<tr>
+<td><code>subscription.html</code></td>
+<td>Subscription management page with options for data export and wipe.</td>
+</tr>
+<tr>
+<td><code>subscription-form.html</code></td>
+<td>List selection and subscription form page.</td>
+</tr>
+</tbody>
+</table>
+<p>To edit the appearance of the public pages using CSS and Javascript, head to Settings &gt; Appearance &gt; Public:</p>
+<p><img alt="image" src="https://user-images.githubusercontent.com/55474996/153739792-93074af6-d1dd-40aa-8cde-c02ea4bbb67b.png" /></p>
+<h3 id="system-e-mails">System e-mails<a class="headerlink" href="#system-e-mails" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>/static/email-templates/</th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>base.html</code></td>
+<td>Base template with the header and footer that all system generated e-mails use.</td>
+</tr>
+<tr>
+<td><code>campaign-status.html</code></td>
+<td>E-mail notification that is sent to admins on campaign start, completion etc.</td>
+</tr>
+<tr>
+<td><code>import-status.html</code></td>
+<td>E-mail notification that is sent to admins on finish of an import job.</td>
+</tr>
+<tr>
+<td><code>subscriber-data.html</code></td>
+<td>E-mail that is sent to subscribers when they request a full dump of their private data.</td>
+</tr>
+<tr>
+<td><code>subscriber-optin.html</code></td>
+<td>Automatic opt-in confirmation e-mail that is sent to an unconfirmed subscriber when they are added.</td>
+</tr>
+<tr>
+<td><code>subscriber-optin-campaign.html</code></td>
+<td>E-mail content that's inserted into a campaign body when starting an opt-in campaign from the lists page.</td>
+</tr>
+<tr>
+<td><code>default.tpl</code></td>
+<td>Default campaign template that is created in Campaigns -&gt; Templates when listmonk is first installed. This is not used after that.</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>To turn system e-mail templates to plaintext, remove <code>&lt;!doctype html&gt;</code> from base.html and remove all HTML tags from the templates while retaining the Go templating code.</p>
+</div>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2019-2023, Kailash Nadh.
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    <script id="__config" type="application/json">{"base": "..", "features": [], "search": "../assets/javascripts/workers/search.208ed371.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.19047be9.min.js"></script>
+      
+    
+  </body>
+</html>
