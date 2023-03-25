@@ -518,9 +518,15 @@ SELECT campaigns.*,
     WHERE CASE WHEN $1 > 0 THEN campaigns.id = $1 ELSE uuid = $2 END;
 
 -- name: get-archived-campaigns
-SELECT COUNT(*) OVER () AS total, id, uuid, subject, archive_meta, created_at, send_at FROM campaigns
-    WHERE archive=true AND type='regular' AND status=ANY('{running, paused, finished}')
-    ORDER by created_at DESC OFFSET $1 LIMIT $2;
+SELECT COUNT(*) OVER () AS total, campaigns.*,
+    COALESCE(templates.body, (SELECT body FROM templates WHERE is_default = true LIMIT 1)) AS template_body
+    FROM campaigns
+    LEFT JOIN templates ON (
+        CASE WHEN $3 = 'default' THEN templates.id = campaigns.template_id
+        ELSE templates.id = campaigns.archive_template_id END
+    )
+    WHERE campaigns.archive=true AND campaigns.type='regular' AND campaigns.status=ANY('{running, paused, finished}')
+    ORDER by campaigns.created_at DESC OFFSET $1 LIMIT $2;
 
 -- name: get-campaign-stats
 -- This query is used to lazy load campaign stats (views, counts, list of lists) given a list of campaign IDs.
