@@ -10,9 +10,8 @@ require (
 	github.com/gofrs/uuid v4.0.0+incompatible
 	github.com/gorilla/feeds v1.1.1
 	github.com/huandu/xstrings v1.4.0 // indirect
-	github.com/imdario/mergo v0.3.14 // indirect
 	github.com/jmoiron/sqlx v1.3.5
-	github.com/keploy/go-sdk v0.8.2
+	github.com/keploy/go-sdk v0.8.3
 	github.com/knadh/go-pop3 v0.3.0
 	github.com/knadh/goyesql/v2 v2.2.0
 	github.com/knadh/koanf v1.2.3
@@ -30,7 +29,6 @@ require (
 	github.com/spf13/cast v1.5.0 // indirect
 	github.com/spf13/pflag v1.0.5
 	github.com/yuin/goldmark v1.5.4
-	golang.org/x/crypto v0.7.0 // indirect
 	golang.org/x/image v0.6.0 // indirect
 	golang.org/x/mod v0.9.0
 	gopkg.in/volatiletech/null.v6 v6.0.0-20170828023728-0bef4e07ae1b
