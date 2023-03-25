@@ -1,0 +1,58 @@
+site_name: listmonk / Documentation
+theme:
+  name: material
+  # custom_dir: "mkdocs-material/material"
+  logo: "images/favicon.png"
+  favicon: "images/favicon.png"
+  language: "en"
+  font:
+    text: 'Inter'
+    weights: 400
+  direction: 'ltr'
+  extra:
+  search:
+    language: 'en'
+  feature:
+    tabs: true
+
+  palette:
+    primary: "white"
+    accent: "red"
+
+site_dir: _out
+docs_dir: content
+
+markdown_extensions:
+  - admonition
+  - pymdownx.highlight
+  - pymdownx.superfences
+  - toc:
+      permalink: true
+
+extra_css:
+  - "static/style.css"
+
+copyright: "Copyright &copy; 2019-2023, Kailash Nadh."
+
+nav:
+  - "Introduction": index.md
+  - "Installation": installation.md
+  - "Upgrade": upgrade.md
+  - "Configuration": configuration.md
+  - "Developer setup": developer-setup.md
+  - "Concepts": concepts.md
+  - "Querying and segmenting subscribers": querying-and-segmentation.md
+  - "Templating": templating.md
+  - "Bounce processing": bounces.md
+  - "Messengers": "messengers.md"
+  - "Internationalization": "i18n.md"
+  - "Integrating with external systems": external-integration.md
+  - "API": apis/apis.md
+  - "API / Subscribers": apis/subscribers.md
+  - "API / Lists": apis/lists.md
+  - "API / Import": apis/import.md
+  - "API / Campaigns": apis/campaigns.md
+  - "API / Media": apis/media.md
+  - "API / Templates": apis/templates.md
+  - "API / Transactional": apis/transactional.md
+  

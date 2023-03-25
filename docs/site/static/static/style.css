@@ -1,0 +1,280 @@
+body {
+  background: #fdfdfd;
+  font-family: "Inter", "Helvetica Neue", "Segoe UI", sans-serif;
+  font-size: 17px;
+  font-weight: 400;
+  line-height: 30px;
+  color: #444;
+  overflow-x: hidden;
+}
+
+
+h1,
+h2,
+h3,
+h4,
+h5 {
+  font-weight: 600;
+  margin: 5px 0 15px 0;
+  color: #111;
+}
+h1 {
+  font-size: 2.5em;
+  line-height: 1.2em;
+  letter-spacing: -0.01em;
+}
+h2 {
+  font-size: 2em;
+  line-height: 1.4em;
+}
+h3 {
+  font-size: 1.6em;
+  line-height: 1.6em;
+}
+strong {
+  font-weight: 600;
+}
+section:not(:last-child) {
+  margin-bottom: 100px;
+}
+a {
+  color: #0055d4;
+  text-decoration: none;
+}
+a:hover {
+  color: #111;
+}
+::selection {
+  background: #111;
+  color: #fff;
+}
+pre {
+  background: #fafafa;
+  padding: 5px;
+  border-radius: 3px;
+  overflow-x: scroll;
+}
+code {
+  background: #fafafa;
+  padding: 5px;
+  border-radius: 3px;
+}
+img {
+  max-width: 100%;
+}
+
+/* Helpers */
+.center {
+  text-align: center;
+}
+.small, code, pre {
+  font-size: 13px;
+  line-height: 20px;
+  color:  #333;
+}
+
+.box {
+  background: #fff;
+  border-radius: 6px;
+  border: 1px solid #e6e6e6;
+  box-shadow: 1px 1px 4px #e6e6e6;
+  padding: 30px;
+}
+
+img.box {
+  display: inline-block;
+  padding: 0;
+}
+
+figcaption {
+  color:  #888;
+  font-size: 0.9em;
+}
+
+.button {
+  background: #0055d4;
+  display: inline-block;
+  text-align: center;
+  font-weight: 600;
+
+  color: #fff;
+  border-radius: 100px;
+  padding: 10px 15px;
+  min-width: 150px;
+}
+.button:hover {
+  background: #111;
+  color: #fff;
+}
+.notice {
+  background: #fafafa;
+  border-left: 4px solid #ddd;
+  color: #666;
+  padding: 5px 15px;
+}
+
+
+/* Layout */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+.header {
+  margin: 30px 0 60px 0;
+  text-align: left;
+}
+
+.logo img {
+  width: 125px;
+  height: auto;
+}
+
+nav {
+  text-align: right;
+}
+  nav .item:not(:first-child) {
+    margin: 0 0 0 40px;
+  }
+  .github-btn {
+    min-width: 135px;
+    min-height: 38px;
+    float: right;
+    margin-left: 30px;
+  }
+
+
+.splash .hero {
+  margin-bottom: 60px;
+}
+  .splash .title {
+    max-width: 700px;
+    margin: 0 auto 30px auto;
+    font-size: 3em;
+  }
+  .splash .sub {
+    font-weight: 400;
+    color: #666;
+  }
+  .splash .confetti {
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+  .splash .demo {
+    margin-top: 30px;
+  }
+
+.confetti {
+  position: relative;
+}
+  .confetti .s1, .confetti .s2, .confetti .s3 {
+    position: absolute;
+  }
+  .confetti.light .s1, .confetti.light .s2, .confetti.light .s3 {
+    opacity: 0.30;
+  }
+  .confetti .s1 {
+    left: -35px;
+    top: 20%;
+    z-index: 10;
+  }
+  .confetti .s2 {
+    z-index: 30;
+    right: 20%;
+    top: -12px;
+  }
+  .confetti .s3 {
+    z-index: 30;
+    left: 15%;
+    bottom: 0;
+  }
+  .confetti .box {
+    position: relative;
+    z-index: 20;
+  }
+
+#download {
+  background: #f9f9f9;
+  padding: 160px 0 90px 0;
+  margin-top: -90px;
+}
+  #download .install-steps li {
+    margin-bottom: 15px;
+  }
+  #download .download-links a:not(:last-child) {
+    display: inline-block;
+    margin-right: 15px;
+  }
+  #download .box {
+    min-height: 630px;
+  }
+
+.feature {
+}
+  .feature h2 {
+    margin-bottom: 1em;
+    text-align: center;
+  }
+  .feature img {
+    margin-bottom: 1em;
+  }
+  .feature p {
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 750px;
+  }
+
+.banner {
+  padding-top: 90px;
+}
+
+.footer {
+  border-top: 1px solid #eee;
+  padding-top: 30px;
+  margin: 90px 0 30px 0;
+  color: #777;
+}
+
+@media screen and (max-width: 720px) {
+  body {
+    /*font-size: 16px;*/
+  }
+  .header {
+    margin-bottom: 15px;
+    text-align: center;
+  }
+  .header .columns {
+    margin-bottom: 10px;
+  }
+
+  .box {
+    padding: 15px;
+  }
+
+  .splash .title {
+    font-size: 2.1em;
+    line-height: 1.3em;
+  }
+
+  .splash .sub {
+    font-size: 1.3em;
+    line-height: 1.5em;
+  }
+
+  nav {
+    text-align: center;
+  }
+
+  .github-btn {
+    float: none;
+    margin: 15px 0 0 0;
+  }
+
+  section:not(:last-child) {
+    margin-bottom: 45px;
+  }
+}
+@media screen and (max-width: 540px) {
+  .container {
+    padding: 0 15px;
+  }
+}
