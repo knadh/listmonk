@@ -378,6 +378,8 @@
     "settings.general.enablePublicArchiveHelp": "Publish campaigns on which archiving is enabled on the public website.",
     "settings.general.enablePublicSubPage": "Publieke inschrijvingspagina inschakelen.",
     "settings.general.enablePublicSubPageHelp": "Laat een publieke inschrijvingspagina zien met alle publieke lijsten waarmee mensen zich kunnen inschrijven.",
+    "settings.general.enableRssContent": "Enable full content in RSS feed",
+    "settings.general.enableRssContentHelp": "Include the full e-mail content in the RSS feed. If disabled, only the title and link elements will be included.",
     "settings.general.faviconURL": "Favicon URL",
     "settings.general.faviconURLHelp": "(Optional) volledige URL naar het favicon om te laten zien op user-facing pagina's zoals de uitschrijfpagina.",
     "settings.general.fromEmail": "Standaard afzender e-mail",

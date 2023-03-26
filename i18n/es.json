@@ -379,6 +379,8 @@
     "settings.general.enablePublicArchiveHelp": "Publish campaigns on which archiving is enabled on the public website.",
     "settings.general.enablePublicSubPage": "Habilitar pagina publica de suscripción",
     "settings.general.enablePublicSubPageHelp": "Muestra una página con todas las listas públicas para suscribirse.",
+    "settings.general.enableRssContent": "Enable full content in RSS feed",
+    "settings.general.enableRssContentHelp": "Include the full e-mail content in the RSS feed. If disabled, only the title and link elements will be included.",
     "settings.general.faviconURL": "URL del Favicon",
     "settings.general.faviconURLHelp": "(Opcional) URL completa del Favicon estático que debe mostrarse de cara a los usuarios en páginas como la página para darse de baja",
     "settings.general.fromEmail": "Correo electrónico predeterminado del remitente",

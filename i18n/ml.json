@@ -378,6 +378,8 @@
     "settings.general.enablePublicArchiveHelp": "പൊതു വെബ്‌സൈറ്റിൽ ആർക്കൈവിംഗ് പ്രവർത്തനക്ഷമമാക്കിയ കാമ്പെയ്‌നുകൾ പ്രസിദ്ധീകരിക്കുക.",
     "settings.general.enablePublicSubPage": "പൊതു സബ്‌സ്‌ക്രിപ്‌ഷൻ താൾ പ്രവർത്തനക്ഷമമാക്കുക",
     "settings.general.enablePublicSubPageHelp": "ആളുകൾക്ക് വരിക്കാരാകാനുള്ള എല്ലാ പൊതു ലിസ്റ്റുകളുമുള്ള പൊതുവായ ഒരു താൾ കാണിക്കുക.",
+    "settings.general.enableRssContent": "Enable full content in RSS feed",
+    "settings.general.enableRssContentHelp": "Include the full e-mail content in the RSS feed. If disabled, only the title and link elements will be included.",
     "settings.general.faviconURL": "ഫാവ് ഐക്കൺ യൂ. ആർ. എൽ",
     "settings.general.faviconURLHelp": "(ഐച്ഛികം) വരിക്കാരനല്ലാതാകാനുള്ള പേജുപോലുള്ള പൊതുവായ പേജുകളിൽ കാണിക്കുന്നതിനുവേണ്ടിയുള്ള ഫാവ് ഐക്കണിന്റെ പൂർണ്ണ വെബ് വിലാസം.",
     "settings.general.fromEmail": "സ്ഥിരസ്ഥിതി `from` ഇ-മെയിൽ",

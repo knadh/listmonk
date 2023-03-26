@@ -379,6 +379,8 @@
     "settings.general.enablePublicArchiveHelp": "公開ウエブサイトに公開アーカイブOK設定されたキャンペーンを発行する。",
     "settings.general.enablePublicSubPage": "公開サブスクリプションページを有効にする。",
     "settings.general.enablePublicSubPageHelp": "全ての公開リストを含む公開サブスクリプションページを表示し人々が加入できるようにする。",
+    "settings.general.enableRssContent": "Enable full content in RSS feed",
+    "settings.general.enableRssContentHelp": "Include the full e-mail content in the RSS feed. If disabled, only the title and link elements will be included.",
     "settings.general.faviconURL": "ファビコンURL",
     "settings.general.faviconURLHelp": "(任意) 登録解除ページなどのユーザー向けビューに表示される静的ファビコンの完全なURL",
     "settings.general.fromEmail": "メールの`送り主`をデフォルトにする ",

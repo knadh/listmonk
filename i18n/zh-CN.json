@@ -378,6 +378,8 @@
     "settings.general.enablePublicArchiveHelp": "在公共网站上发布启用存档的活动。",
     "settings.general.enablePublicSubPage": "启用公共订阅页面",
     "settings.general.enablePublicSubPageHelp": "显示一个公共订阅页面，其中包含供人们订阅的所有公共列表。",
+    "settings.general.enableRssContent": "Enable full content in RSS feed",
+    "settings.general.enableRssContentHelp": "Include the full e-mail content in the RSS feed. If disabled, only the title and link elements will be included.",
     "settings.general.faviconURL": "网站图标网址",
     "settings.general.faviconURLHelp": "（可选）要在面向用户的视图（例如退订页面）上显示的静态网站图标的完整 URL。",
     "settings.general.fromEmail": "默认“发件人”电子邮件",

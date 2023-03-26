@@ -378,6 +378,8 @@
     "settings.general.enablePublicArchiveHelp": "Publicar campanhas nas quais o arquivamento está ativado no site público.",
     "settings.general.enablePublicSubPage": "Habilitar a página pública de inscrição",
     "settings.general.enablePublicSubPageHelp": "Habilitar a página pública de inscrição com todas as listas públicas para as pessoas se inscreverem.",
+    "settings.general.enableRssContent": "Enable full content in RSS feed",
+    "settings.general.enableRssContentHelp": "Include the full e-mail content in the RSS feed. If disabled, only the title and link elements will be included.",
     "settings.general.faviconURL": "URL do Favicon",
     "settings.general.faviconURLHelp": "(Opcional) URL completo do favicon estático para ser visualizado pelo usuário, como a página de cancelamento de inscrição.",
     "settings.general.fromEmail": "E-mail `de` padrão",
