@@ -54,9 +54,10 @@ func handleGetCampaignArchivesFeed(c echo.Context) error {
 	var (
 		app = c.Get("app").(*App)
 		pg  = app.paginator.NewFromURL(c.Request().URL.Query())
+		render = app.constants.EnableRssContent
 	)
 
-	camps, _, err := getCampaignArchives(pg.Offset, pg.Limit, true, app)
+	camps, _, err := getCampaignArchives(pg.Offset, pg.Limit, render, app)
 	if err != nil {
 		return err
 	}
