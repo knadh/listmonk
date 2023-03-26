@@ -12,6 +12,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/Masterminds/sprig/v3"
 	"github.com/jmoiron/sqlx"
 	"github.com/jmoiron/sqlx/types"
 	"github.com/knadh/goyesql/v2"
@@ -602,12 +603,22 @@ func initNotifTemplates(path string, fs stuffbin.FileSystem, i *i18n.I18n, cs *c
 		"LogoURL": func() string {
 			return cs.LogoURL
 		},
+		"Date": func(layout string) string {
+			if layout == "" {
+				layout = time.ANSIC
+			}
+			return time.Now().Format(layout)
+		},
 		"L": func() *i18n.I18n {
 			return i
 		},
 		"Safe": func(safeHTML string) template.HTML {
 			return template.HTML(safeHTML)
 		},
+	}
+
+	for k, v := range sprig.GenericFuncMap() {
+		funcs[k] = v
 	}
 
 	tpls, err := stuffbin.ParseTemplatesGlob(funcs, fs, "/static/email-templates/*.html")
