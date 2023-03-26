@@ -3,7 +3,7 @@ name: publish-github-pages
 on:
   push:
     branches:
-      - docs
+      - master
     paths:
       - 'docs/**'
   workflow_dispatch:
