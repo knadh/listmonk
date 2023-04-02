@@ -9,7 +9,7 @@ Method   | Endpoint                                                             
 `GET`    | [/api/subscribers](#get-apisubscribers_1)                             | Gets subscribers filtered by an arbitrary SQL expression.
 `POST`   | [/api/subscribers](#post-apisubscribers)                              | Creates a new subscriber.
 `PUT`    | [/api/subscribers/lists](#put-apisubscriberslists)                    | Modify subscribers' list memberships.
-`PUT`    | /api/subscribers/:`id`                                                | Updates a subscriber by ID.
+`PUT`    | [/api/subscribers/:`id`](#put-apisubscribersid)                       | Updates a subscriber by ID.
 `PUT`    | [/api/subscribers/:`id`/blocklist](#put-apisubscribersidblocklist)    | Blocklists a single subscriber.
 `PUT`    | /api/subscribers/blocklist                                            | Blocklists one or more subscribers.
 `PUT`    | [/api/subscribers/query/blocklist](#put-apisubscribersqueryblocklist) | Blocklists subscribers with an arbitrary SQL expression.
@@ -349,6 +349,15 @@ curl -u "username:username" -X PUT 'http://localhost:9000/api/subscribers/lists'
 } 
 ```
 
+#### **`PUT`** /api/subscribers/:`id`
+
+Updates a single subscriber.
+
+##### Parameters 
+
+Parameters are the same as [POST /api/subscribers](#post-apisubscribers) used for subscriber creation. 
+
+> Please note that this is a `PUT` request, so all the parameters have to be set. For example if you don't provide `lists`, the subscriber will be deleted from all the lists he was previously signed on.
 
 #### **`PUT`** /api/subscribers/:`id`/blocklist
 Blocklists a single subscriber.
