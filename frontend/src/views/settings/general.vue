@@ -43,47 +43,54 @@
     </b-field>
 
     <hr />
-    <div class="columns">
-      <div class="column is-4">
-        <b-field :label="$t('settings.general.enablePublicSubPage')"
-          :message="$t('settings.general.enablePublicSubPageHelp')">
-          <b-switch v-model="data['app.enable_public_subscription_page']"
-              name="app.enable_public_subscription_page" />
-        </b-field>
+
+    <div>
+      <h2 class="is-size-4 mb-5">{{ $tc('globals.terms.subscriptions', 2) }}</h2>
+      <div class="columns">
+        <div class="column is-4">
+          <b-field :label="$t('settings.general.enablePublicSubPage')"
+            :message="$t('settings.general.enablePublicSubPageHelp')">
+            <b-switch v-model="data['app.enable_public_subscription_page']"
+                name="app.enable_public_subscription_page" />
+          </b-field>
+        </div>
+        <div class="column is-4">
+          <b-field :label="$t('settings.general.sendOptinConfirm')"
+            :message="$t('settings.general.sendOptinConfirmHelp')">
+            <b-switch v-model="data['app.send_optin_confirmation']"
+                name="app.send_optin_confirmation" />
+          </b-field>
+        </div>
       </div>
-      <div class="column is-4">
-        <b-field :label="$t('settings.general.enablePublicArchive')"
-          :message="$t('settings.general.enablePublicArchiveHelp')">
-          <b-switch v-model="data['app.enable_public_archive']"
-              name="app.enable_public_archive" />
-        </b-field>
-      </div>
-      <div class="column is-4">
-        <b-field :label="$t('settings.general.enableRssContent')"
-          :message="$t('settings.general.enableRssContentHelp')">
-          <b-switch v-model="data['app.enable_rss_content']"
-              name="app.enable_rss_content" />
-        </b-field>
+    </div>
+    <hr />
+
+    <div>
+      <h2 class="is-size-4 mb-5">{{ $t('campaigns.archive') }}</h2>
+      <div class="columns">
+        <div class="column is-4">
+          <b-field :label="$t('settings.general.enablePublicArchive')"
+            :message="$t('settings.general.enablePublicArchiveHelp')">
+            <b-switch v-model="data['app.enable_public_archive']"
+                name="app.enable_public_archive" />
+          </b-field>
+        </div>
+        <div class="column is-4">
+          <b-field :label="$t('settings.general.enableRssContent')"
+            :message="$t('settings.general.enableRssContentHelp')">
+            <b-switch v-model="data['app.enable_rss_content']"
+                name="app.enable_rss_content" />
+          </b-field>
+        </div>
       </div>
     </div>
 
     <hr />
-    <div class="columns">
-      <div class="column is-4">
-        <b-field :label="$t('settings.general.sendOptinConfirm')"
-          :message="$t('settings.general.sendOptinConfirmHelp')">
-          <b-switch v-model="data['app.send_optin_confirmation']"
-              name="app.send_optin_confirmation" />
-        </b-field>
-      </div>
-      <div class="column is-4">
-        <b-field :label="$t('settings.general.checkUpdates')"
-          :message="$t('settings.general.checkUpdatesHelp')">
-          <b-switch v-model="data['app.check_updates']"
-              name="app.check_updates" />
-        </b-field>
-      </div>
-    </div>
+    <b-field :label="$t('settings.general.checkUpdates')"
+      :message="$t('settings.general.checkUpdatesHelp')">
+      <b-switch v-model="data['app.check_updates']"
+          name="app.check_updates" />
+    </b-field>
 
     <hr />
     <b-field :label="$t('settings.general.language')" label-position="on-border" :addons="false">
