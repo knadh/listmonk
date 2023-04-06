@@ -58,7 +58,7 @@ type constants struct {
 	NotifyEmails          []string `koanf:"notify_emails"`
 	EnablePublicSubPage   bool     `koanf:"enable_public_subscription_page"`
 	EnablePublicArchive   bool     `koanf:"enable_public_archive"`
-	EnableRssContent      bool     `koanf:"enable_rss_content"`
+	EnablePublicArchiveRSSContent      bool     `koanf:"enable_public_archive_rss_content"`
 	SendOptinConfirmation bool     `koanf:"send_optin_confirmation"`
 	Lang                  string   `koanf:"lang"`
 	DBBatchSize           int      `koanf:"batch_size"`

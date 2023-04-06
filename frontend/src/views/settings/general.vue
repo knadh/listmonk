@@ -76,10 +76,10 @@
           </b-field>
         </div>
         <div class="column is-4">
-          <b-field :label="$t('settings.general.enableRssContent')"
-            :message="$t('settings.general.enableRssContentHelp')">
-            <b-switch v-model="data['app.enable_rss_content']"
-                name="app.enable_rss_content" />
+          <b-field :label="$t('settings.general.enablePublicArchiveRSSContent')"
+            :message="$t('settings.general.enablePublicArchiveRSSContentHelp')">
+            <b-switch v-model="data['app.enable_public_archive_rss_content']"
+                name="app.enable_public_archive_rss_content" />
           </b-field>
         </div>
       </div>
