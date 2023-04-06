@@ -23,41 +23,41 @@ var app = new Vue({
 
 		loadBaseLang(url) {
 			return fetch(url).then(response => response.json()).then(data => {
-					// Retain the base values.
-					Object.assign(this.base, data);
+				// Retain the base values.
+				Object.assign(this.base, data);
 
-					// Get the sorted keys from the language map.
-					const keys = [];
-					const visibleKeys = {};
-					let head = null;
-					Object.entries(this.base).sort((a, b) => a[0].localeCompare(b[0])).forEach((v) => {
-						const h = v[0].split('.')[0];
-						keys.push({
-							"key": v[0],
-							"head": (head !== h ? h : null) // eg: campaigns on `campaigns.something.else`
-						});
-
-						visibleKeys[v[0]] = true;
-						head = h;
+				// Get the sorted keys from the language map.
+				const keys = [];
+				const visibleKeys = {};
+				let head = null;
+				Object.entries(this.base).sort((a, b) => a[0].localeCompare(b[0])).forEach((v) => {
+					const h = v[0].split('.')[0];
+					keys.push({
+						"key": v[0],
+						"head": (head !== h ? h : null) // eg: campaigns on `campaigns.something.else`
 					});
 
-					this.keys = keys;
-					this.visibleKeys = visibleKeys;
-					this.values = { ...this.base };
+					visibleKeys[v[0]] = true;
+					head = h;
+				});
 
-					// Is there cached localStorage data?
-					if(localStorage.data) {
-						try {
-							this.loadData(JSON.parse(localStorage.data));
-						} catch(e) {
-							console.log("Bad JSON in localStorage: " + e.toString());
-						}
-						return;
+				this.keys = keys;
+				this.visibleKeys = visibleKeys;
+				this.values = { ...this.base };
+
+				// Is there cached localStorage data?
+				if (localStorage.data) {
+					try {
+						this.populateData(JSON.parse(localStorage.data));
+					} catch (e) {
+						console.log("Bad JSON in localStorage: " + e.toString());
 					}
+					return;
+				}
 			});
 		},
 
-		loadData(data) {
+		populateData(data) {
 			// Filter out all keys from data except for the base ones
 			// in the base language.
 			const vals = this.keys.reduce((a, key) => {
@@ -67,6 +67,15 @@ var app = new Vue({
 
 			this.values = vals;
 			this.saveData();
+		},
+
+		loadLanguage(lang) {
+			return fetch(BASEURL + lang + ".json").then(response => response.json()).then(data => {
+				this.populateData(data);
+			}).catch((e) => {
+				console.log(e);
+				alert("error fetching file: " + e.toString());
+			});
 		},
 
 		saveData() {
@@ -87,7 +96,7 @@ var app = new Vue({
 				this.rawData = JSON.stringify(this.values, Object.keys(this.values).sort(), 4);
 			} else {
 				try {
-					this.loadData(JSON.parse(this.rawData));
+					this.populateData(JSON.parse(this.rawData));
 				} catch (e) {
 					alert("error parsing JSON: " + e.toString());
 					return false;
@@ -98,16 +107,37 @@ var app = new Vue({
 		},
 
 		onLoadLanguage() {
-			if(!confirm("Loading this language will overwrite your local changes. Continue?")) {
+			if (!confirm("Loading this language will overwrite your local changes. Continue?")) {
 				return false;
 			}
 
-			fetch(BASEURL + this.loadLang + ".json").then(response => response.json()).then(data => {
-				this.loadData(data);
-			}).catch((e) => {
-					console.log(e);
-					alert("error fetching file: " + e.toString());
-			});
+			this.loadLanguage(this.loadLang);
+		},
+
+		onNewLang() {
+			if (!confirm("Creating a new language will overwrite your local changes. Continue?")) {
+				return false;
+			}
+
+			let data = { ...this.base };
+			data["_.code"] = "iso-code-here"
+			data["_.name"] = "New language"
+			this.populateData(data);
+		},
+
+		onDownloadJSON() {
+			// Create a Blob using the content, mimeType, and optional encoding
+			const blob = new Blob([JSON.stringify(this.values, Object.keys(this.values).sort(), 4)], { type: "" });
+
+			// Create an anchor element with a download attribute
+			const link = document.createElement('a');
+			link.download = `${this.values["_.code"]}.json`;
+			link.href = URL.createObjectURL(blob);
+
+			// Append the link to the DOM, click it to start the download, and remove it
+			document.body.appendChild(link);
+			link.click();
+			document.body.removeChild(link);
 		}
 	},
 
@@ -128,10 +158,10 @@ var app = new Vue({
 				if (v === "pending") {
 					visible = !this.isDone(k.key);
 				} else if (v === "complete") {
-						visible = this.isDone(k.key);
+					visible = this.isDone(k.key);
 				}
 
-				if(visible) {
+				if (visible) {
 					visibleKeys[k.key] = true;
 				}
 			});
@@ -145,7 +175,7 @@ var app = new Vue({
 			let n = 0;
 
 			this.keys.forEach(k => {
-				if(this.values[k.key] !== this.base[k.key]) {
+				if (this.values[k.key] !== this.base[k.key]) {
 					n++;
 				}
 			});

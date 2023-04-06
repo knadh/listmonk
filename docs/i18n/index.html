@@ -390,6 +390,26 @@
     Contributing a new language
   </a>
   
+    <nav class="md-nav" aria-label="Contributing a new language">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#using-the-basic-editor" class="md-nav__link">
+    Using the basic editor
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#using-inlang-external-service" class="md-nav__link">
+    Using InLang (external service)
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
     </ul>
@@ -580,6 +600,26 @@
     Contributing a new language
   </a>
   
+    <nav class="md-nav" aria-label="Contributing a new language">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#using-the-basic-editor" class="md-nav__link">
+    Using the basic editor
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#using-inlang-external-service" class="md-nav__link">
+    Using InLang (external service)
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
     </ul>
@@ -618,13 +658,20 @@
 <h2 id="customizing-languages">Customizing languages<a class="headerlink" href="#customizing-languages" title="Permanent link">&para;</a></h2>
 <p>To customize an existing language or to load a new language, put one or more <code>.json</code> language files in a directory, and pass the directory path to listmonk with the<br /><code>--i18n-dir=/path/to/dir</code> flag.</p>
 <h2 id="contributing-a-new-language">Contributing a new language<a class="headerlink" href="#contributing-a-new-language" title="Permanent link">&para;</a></h2>
+<h3 id="using-the-basic-editor">Using the basic editor<a class="headerlink" href="#using-the-basic-editor" title="Permanent link">&para;</a></h3>
 <ul>
 <li>Visit <a href="https://listmonk.app/i18n">https://listmonk.app/i18n</a></li>
-<li>To make changes to an existing language, use the "Load language" option on the top right.</li>
-<li>To create a new language, use the "Load language" option on the top right and select "Default".</li>
-<li>Translate the text in the input fields on the UI.</li>
-<li>Once done, use the <code>Switch to raw JSON</code> and copy the JSON data and save it to a file named <code>xx.json</code>, where <code>xx</code> is the two letter code of the language.</li>
-<li>Send a pull request to add the file to the <a href="https://github.com/knadh/listmonk/tree/master/i18n">i18n directory on the GitHub repo</a>. If you are not familiar with pull requests, share the file by creating a new "issue"  (comment) on the <a href="https://github.com/knadh/listmonk/issues">GitHub issues page</a></li>
+<li>Click on <code>Createa new language</code>, or to make changes to an existing language, use <code>Load language</code>.</li>
+<li>Translate the text in the text fields on the UI.</li>
+<li>Once done, use the <code>Download raw JSON</code> to download the language file.</li>
+<li>Send a pull request to add the file to the <a href="https://github.com/knadh/listmonk/tree/master/i18n">i18n directory on the GitHub repo</a>. </li>
+</ul>
+<h3 id="using-inlang-external-service">Using InLang (external service)<a class="headerlink" href="#using-inlang-external-service" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Visit <a href="https://inlang.com/editor/github.com/knadh/listmonk">https://inlang.com/editor/github.com/knadh/listmonk</a></li>
+<li>To make changes and push them, you need to log in to GitHub using OAuth and fork the project from the UI.</li>
+<li>Translate the text in the input fields on the UI. You can use the filters to see only the necessary translations.</li>
+<li>Once you're done, push the changes from the UI and click on "Open a pull request." This will take you to GitHub, where you can write a PR message.</li>
 </ul>
 
 

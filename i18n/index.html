@@ -13,7 +13,11 @@
 			<h1 class="title">{{ values["_.name"] }}</h1>
 			<div class="controls">
 				<div class="import block">
-					<a v-if="!isRawVisible" href="#" @click.prevent="onToggleRaw">Switch to raw JSON</a>
+					<a href="#" @click.prevent="onToggleRaw">
+						<template v-if="!isRawVisible">Switch to raw JSON</template>
+						<template v-else>Switch to editor</template>
+					</a>
+					<a href="#" @click.prevent="onDownloadJSON">Download raw JSON</a>
 					<a v-else href="#" @click.prevent="onToggleRaw">Switch to editor</a>
 				</div>
 
@@ -33,11 +37,12 @@
 				</div>
 
 				<div class="selector block">
-					Load language
+					Load existing language
 					<select v-model="loadLang" @change="onLoadLanguage">
 						<option value="en">Default (en)</option>
 						<option value="ca"> Català (ca) </option>
 						<option value="cs-cz"> čeština (cs) </option>
+						<option value="cy"> Cymraeg (cy) </option>
 						<option value="de"> Deutsch (de) </option>
 						<option value="es"> Español (es) </option>
 						<option value="fi"> Suomi (fi) </option>
@@ -52,11 +57,16 @@
 						<option value="pt-BR"> Português Brasileiro (pt-BR) </option>
 						<option value="ro"> Română (ro) </option>
 						<option value="ru"> Русский (ru) </option>
+						<option value="se"> Svenska (se) </option>
+						<option value="sk"> slovenčina (sk) </option>
 						<option value="tr"> Turkish (tr) </option>
 						<option value="vi"> Vietnamese (vi) </option>
 						<option value="zh-CN"> 简体中文 (zh-CN) </option>
 						<option value="zh-TW"> 繁體中文(zh-TW) </option>
 					</select>
+
+					&nbsp;&nbsp;&nbsp;
+					<a href="#" @click.prevent="onNewLang">+ Create new language</a>
 				</div>
 			</div>
 		</header>
