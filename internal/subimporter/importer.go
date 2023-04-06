@@ -590,7 +590,15 @@ func (im *Importer) SanitizeEmail(email string) (string, error) {
 		_, ok := im.opt.DomainBlocklist[d[1]]
 		if ok {
 			return "", errors.New(im.i18n.T("subscribers.domainBlocklisted"))
-		}
+		} else {
+            // Check if subdomains are blocked via a wildcard
+            for blocked := range im.opt.DomainBlocklist {
+                suffix, found := strings.CutPrefix(blocked, "*.")
+                if found && (strings.HasSuffix(d[1], "." + suffix) || d[1] == suffix) {
+                    return "", errors.New(im.i18n.T("subscribers.domainBlocklisted"))
+                }
+            }
+        }
 	}
 
 	return em.Address, nil
