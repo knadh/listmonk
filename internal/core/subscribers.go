@@ -287,7 +287,7 @@ func (c *Core) InsertSubscriber(sub models.Subscriber, listIDs []int, listUUIDs 
 		}
 	}
 
-	// Fetch the subscriber'out full data. If the subscriber already existed and wasn't
+	// Fetch the subscriber's full data. If the subscriber already existed and wasn't
 	// created, the id will be empty. Fetch the details by e-mail then.
 	out, err := c.GetSubscriber(sub.ID, "", sub.Email)
 	if err != nil {
@@ -377,6 +377,11 @@ func (c *Core) UpdateSubscriberWithLists(id int, sub models.Subscriber, listIDs 
 	out, err := c.GetSubscriber(sub.ID, "", sub.Email)
 	if err != nil {
 		return models.Subscriber{}, err
+	}
+
+	if !preconfirm && c.constants.SendOptinConfirmation {
+		// Send a confirmation e-mail (if there are any double opt-in lists).
+		c.h.SendOptinConfirmation(out, listIDs)
 	}
 
 	return out, nil

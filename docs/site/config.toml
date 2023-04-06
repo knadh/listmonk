@@ -1,0 +1,6 @@
+baseurl = "https://listmonk.app/"
+languageCode = "en-us"
+title = "listmonk - Free and open source self-hosted newsletter, mailing list manager, and transactional mails"
+
+[taxonomies]
+  tag = "tags"

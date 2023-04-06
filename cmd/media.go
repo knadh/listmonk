@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"path/filepath"
 	"strconv"
+	"strings"
 
 	"github.com/disintegration/imaging"
 	"github.com/knadh/listmonk/models"
@@ -39,7 +40,7 @@ func handleUploadMedia(c echo.Context) error {
 	}
 
 	// Validate file extension.
-	ext := filepath.Ext(file.Filename)
+	ext := strings.ToLower(filepath.Ext(file.Filename))
 	if ok := inArray(ext, validExts); !ok {
 		return echo.NewHTTPError(http.StatusBadRequest,
 			app.i18n.Ts("media.unsupportedFileType", "type", ext))
