@@ -12,6 +12,10 @@ h1, h2, h3, h4, h5 {
 	margin: 0 0 15px 0;
 }
 
+a {
+	color: #0055d4;
+}
+
 .container {
 	padding: 30px;
 }
@@ -20,6 +24,10 @@ h1, h2, h3, h4, h5 {
 	align-items: center;
 	margin-bottom: 30px;
 }
+	.header a {
+		display: inline-block;
+		margin-right: 15px;
+	}
 	.header .controls {
 		display: flex;
 	}
