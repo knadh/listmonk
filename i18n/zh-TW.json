@@ -267,6 +267,7 @@
     "maintenance.help": "Some actions may take a while to complete depending on the amount of data.",
     "maintenance.maintenance.unconfirmedOptins": "Unconfirmed opt-in subscriptions",
     "maintenance.olderThan": "Older than",
+    "maintenance.orphanHelp": "孤儿 = 没有列表的订户",
     "maintenance.title": "Maintenance",
     "maintenance.unconfirmedSubs": "Unconfirmed subscriptions older than {name} days.",
     "media.errorReadingFile": "讀取文件時出錯：{error}",

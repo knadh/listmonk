@@ -266,6 +266,7 @@
     "maintenance.help": "Некоторые действия могут занять продолжительное время в зависимости от объёма данных.",
     "maintenance.maintenance.unconfirmedOptins": "Неподтверждённые подписки",
     "maintenance.olderThan": "Старше чем",
+    "maintenance.orphanHelp": "Сироты = подписчики без списков",
     "maintenance.title": "Обслуживание",
     "maintenance.unconfirmedSubs": "Неподтверждённые подписки старше чем {name} дней.",
     "media.errorReadingFile": "Ошибка чтения файла: {error}",

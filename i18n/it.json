@@ -267,6 +267,7 @@
     "maintenance.help": "Alqune azzione possono impiegare un po di tempo dovuto alla quantita di dati da processare.",
     "maintenance.maintenance.unconfirmedOptins": "Iscrizioni `opt-in` da confermare",
     "maintenance.olderThan": "Anteriore da",
+    "maintenance.orphanHelp": "Orfani = abbonati senza liste",
     "maintenance.title": "Manutenzione",
     "maintenance.unconfirmedSubs": "Iscrizioni `opt-in` da confermare in attesa da piú di {name} giorni.",
     "media.errorReadingFile": "Errore di lettura del file: {error}",

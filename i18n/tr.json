@@ -267,6 +267,7 @@
     "maintenance.help": "Veri miktarına bağlı olarak bazı eylemlerin tamamlanması biraz zaman alabilir.",
     "maintenance.maintenance.unconfirmedOptins": "Onaylanmamış katılım abonelikleri",
     "maintenance.olderThan": "Daha eski",
+    "maintenance.orphanHelp": "Yetimler = listesi olmayan aboneler",
     "maintenance.title": "Bakım",
     "maintenance.unconfirmedSubs": "{name} günden daha eski onaylanmamış abonelikler.",
     "media.errorReadingFile": "Dosyayı okurken hata oluştu: {error}",

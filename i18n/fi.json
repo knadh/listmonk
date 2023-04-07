@@ -267,6 +267,7 @@
     "maintenance.help": "Some actions may take a while to complete depending on the amount of data.",
     "maintenance.maintenance.unconfirmedOptins": "Unconfirmed opt-in subscriptions",
     "maintenance.olderThan": "Older than",
+    "maintenance.orphanHelp": "Orvot = tilaajat, joilla ei ole luetteloita",
     "maintenance.title": "Maintenance",
     "maintenance.unconfirmedSubs": "Unconfirmed subscriptions older than {name} days.",
     "media.errorReadingFile": "Error reading file: {error}",

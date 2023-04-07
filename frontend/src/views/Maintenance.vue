@@ -11,7 +11,7 @@
       <h4 class="is-size-5">{{ $t('globals.terms.subscribers') }}</h4><br />
       <div class="columns">
         <div class="column is-4">
-          <b-field label="Data" message="Orpans = subscribers with no lists">
+          <b-field label="Data" message="$t('maintenance.orphanHelp')">
             <b-select v-model="subscriberType" expanded>
               <option value="orphan">{{ $t('dashboard.orphanSubs') }}</option>
               <option value="blocklisted">{{ $t('subscribers.status.blocklisted') }}</option>

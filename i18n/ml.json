@@ -266,6 +266,7 @@
     "maintenance.help": "ഡാറ്റയുടെ അളവ് അനുസരിച്ച് ചില പ്രവർത്തനങ്ങൾ പൂർത്തിയാക്കാൻ കുറച്ച് സമയമെടുത്തേക്കാം.",
     "maintenance.maintenance.unconfirmedOptins": "സ്ഥിരീകരിക്കാത്ത ഓപ്റ്റ്-ഇൻ വരിക്കാർ",
     "maintenance.olderThan": "അതിലും പഴയ",
+    "maintenance.orphanHelp": "അനാഥർ = ലിസ്റ്റുകളില്ലാത്ത വരിക്കാർ",
     "maintenance.title": "അറ്റകുറ്റപ്പണി",
     "maintenance.unconfirmedSubs": "{name} ദിവസത്തിലധികം പഴക്കമുള്ള സ്ഥിരീകരിക്കാത്ത സബ്‌സ്‌ക്രിപ്‌ഷനുകൾ.",
     "media.errorReadingFile": "ഫയൽ വായിക്കാനായില്ല: {error}",

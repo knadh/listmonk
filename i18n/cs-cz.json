@@ -266,6 +266,7 @@
     "maintenance.help": "Některé operace mohou trvat déle v závislosti na množství dat.",
     "maintenance.maintenance.unconfirmedOptins": "Nepotvrzené opt-in přihlášení",
     "maintenance.olderThan": "Starší než",
+    "maintenance.orphanHelp": "Sirotci = předplatitelé bez seznamů",
     "maintenance.title": "Údržba",
     "maintenance.unconfirmedSubs": "Nepotvrzená přihlášení starší než {name} dnů.",
     "media.errorReadingFile": "Chyba při čtení souboru: {error}",

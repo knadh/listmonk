@@ -266,6 +266,7 @@
     "maintenance.help": "根据数据量，某些操作可能需要一段时间才能完成。",
     "maintenance.maintenance.unconfirmedOptins": "未经确认的选择加入订阅",
     "maintenance.olderThan": "早于",
+    "maintenance.orphanHelp": "孤儿 = 没有列表的订户",
     "maintenance.title": "维护",
     "maintenance.unconfirmedSubs": "超过 {name} 天的未确认订阅。",
     "media.errorReadingFile": "读取文件时出错：{error}",

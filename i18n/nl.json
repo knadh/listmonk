@@ -266,6 +266,7 @@
     "maintenance.help": "Sommige acties duren mogelijk even voordat ze afgerond zijn afhankelijk van de hoeveelheid data.",
     "maintenance.maintenance.unconfirmedOptins": "Onbevestigde opt-in abonnementen ",
     "maintenance.olderThan": "Ouder dan",
+    "maintenance.orphanHelp": "Orphans = abonnees zonder lijsten",
     "maintenance.title": "Onderhoud",
     "maintenance.unconfirmedSubs": "Onbevestigde abonnementen ouder dan {name} dagen.",
     "media.errorReadingFile": "Fout bij lezen bestand: {error}",

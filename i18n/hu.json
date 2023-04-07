@@ -266,6 +266,7 @@
     "maintenance.help": "Az adatmennyiségtől függően egyes műveletek több időt is igénybe vehetnek.",
     "maintenance.maintenance.unconfirmedOptins": "Megerősítésre vár",
     "maintenance.olderThan": "Régebbi mint",
+    "maintenance.orphanHelp": "Árvák = előfizetők listák nélkül",
     "maintenance.title": "Karbantartás",
     "maintenance.unconfirmedSubs": "{name} napja megerősítésre vár.",
     "media.errorReadingFile": "Hiba a fájl olvasásakor: {error}",
