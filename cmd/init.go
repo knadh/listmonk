@@ -70,7 +70,7 @@ type constants struct {
 		AllowExport        bool            `koanf:"allow_export"`
 		AllowWipe          bool            `koanf:"allow_wipe"`
 		Exportable         map[string]bool `koanf:"-"`
-		DomainBlocklist    map[string]bool `koanf:"-"`
+		DomainBlocklist    []string        `koanf:"-"`
 	} `koanf:"privacy"`
 	Security struct {
 		EnableCaptcha bool   `koanf:"enable_captcha"`
@@ -370,7 +370,7 @@ func initConstants() *constants {
 	c.Lang = ko.String("app.lang")
 	c.Privacy.Exportable = maps.StringSliceToLookupMap(ko.Strings("privacy.exportable"))
 	c.MediaProvider = ko.String("upload.provider")
-	c.Privacy.DomainBlocklist = maps.StringSliceToLookupMap(ko.Strings("privacy.domain_blocklist"))
+	c.Privacy.DomainBlocklist = ko.Strings("privacy.domain_blocklist")
 
 	// Static URLS.
 	// url.com/subscription/{campaign_uuid}/{subscriber_uuid}

@@ -24,6 +24,7 @@ import (
 	"sync"
 
 	"github.com/gofrs/uuid"
+	"github.com/knadh/koanf/maps"
 	"github.com/knadh/listmonk/internal/i18n"
 	"github.com/knadh/listmonk/models"
 	"github.com/lib/pq"
@@ -51,9 +52,10 @@ const (
 
 // Importer represents the bulk CSV subscriber import system.
 type Importer struct {
-	opt  Options
-	db   *sql.DB
-	i18n *i18n.I18n
+	opt             Options
+	db              *sql.DB
+	i18n            *i18n.I18n
+	domainBlocklist map[string]bool
 
 	stop   chan bool
 	status Status
@@ -68,7 +70,7 @@ type Options struct {
 	NotifCB            models.AdminNotifCallback
 
 	// Lookup table for blocklisted domains.
-	DomainBlocklist map[string]bool
+	DomainBlocklist []string
 }
 
 // Session represents a single import session.
@@ -130,11 +132,12 @@ var (
 // New returns a new instance of Importer.
 func New(opt Options, db *sql.DB, i *i18n.I18n) *Importer {
 	im := Importer{
-		opt:    opt,
-		db:     db,
-		i18n:   i,
-		status: Status{Status: StatusNone, logBuf: bytes.NewBuffer(nil)},
-		stop:   make(chan bool, 1),
+		opt:             opt,
+		db:              db,
+		i18n:            i,
+		domainBlocklist: maps.StringSliceToLookupMap(opt.DomainBlocklist),
+		status:          Status{Status: StatusNone, logBuf: bytes.NewBuffer(nil)},
+		stop:            make(chan bool, 1),
 	}
 	return &im
 }
@@ -587,7 +590,7 @@ func (im *Importer) SanitizeEmail(email string) (string, error) {
 	// Check if the e-mail's domain is blocklisted.
 	d := strings.Split(em.Address, "@")
 	if len(d) == 2 {
-		_, ok := im.opt.DomainBlocklist[d[1]]
+		_, ok := im.domainBlocklist[d[1]]
 		if ok {
 			return "", errors.New(im.i18n.T("subscribers.domainBlocklisted"))
 		}
