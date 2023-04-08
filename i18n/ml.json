@@ -377,6 +377,8 @@
     "settings.general.checkUpdatesHelp": "പുതിയ ആപ്പ് റിലീസുകൾക്കായി ഇടയ്ക്കിടെ പരിശോധിച്ച് അറിയിക്കുക.",
     "settings.general.enablePublicArchive": "പൊതു മെയിലിംഗ് ലിസ്റ്റ് ആർക്കൈവ് പ്രവർത്തനക്ഷമമാക്കുക",
     "settings.general.enablePublicArchiveHelp": "പൊതു വെബ്‌സൈറ്റിൽ ആർക്കൈവിംഗ് പ്രവർത്തനക്ഷമമാക്കിയ കാമ്പെയ്‌നുകൾ പ്രസിദ്ധീകരിക്കുക.",
+    "settings.general.enablePublicArchiveRSSContent": "Show full content in RSS feed",
+    "settings.general.enablePublicArchiveRSSContentHelp": "Show full e-mail content in the RSS feed. If disabled, only the title and link elements are shown.",
     "settings.general.enablePublicSubPage": "പൊതു സബ്‌സ്‌ക്രിപ്‌ഷൻ താൾ പ്രവർത്തനക്ഷമമാക്കുക",
     "settings.general.enablePublicSubPageHelp": "ആളുകൾക്ക് വരിക്കാരാകാനുള്ള എല്ലാ പൊതു ലിസ്റ്റുകളുമുള്ള പൊതുവായ ഒരു താൾ കാണിക്കുക.",
     "settings.general.faviconURL": "ഫാവ് ഐക്കൺ യൂ. ആർ. എൽ",

@@ -378,6 +378,8 @@
     "settings.general.checkUpdatesHelp": "Rutinariamente controllare se ci sono nuove versioni dell'app e notificami.",
     "settings.general.enablePublicArchive": "Abilita la pagina publica di archivio delle mail",
     "settings.general.enablePublicArchiveHelp": "Rendere pubbliche le campagne in qui l'archivio pubblico nella pagina web è stato abilitato.",
+    "settings.general.enablePublicArchiveRSSContent": "Show full content in RSS feed",
+    "settings.general.enablePublicArchiveRSSContentHelp": "Show full e-mail content in the RSS feed. If disabled, only the title and link elements are shown.",
     "settings.general.enablePublicSubPage": "Attiva la pagina di iscrizione pubblica",
     "settings.general.enablePublicSubPageHelp": "Visualizza una pagina di iscrizione pubblica con tutte le liste pubbliche a cui è possibile iscriversi.",
     "settings.general.faviconURL": "URL della favicon",

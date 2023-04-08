@@ -377,6 +377,8 @@
     "settings.general.checkUpdatesHelp": "Pravidelne kontrolovať nové vydání aplikácie a upozorniť.",
     "settings.general.enablePublicArchive": "Zapnúť verejný archív",
     "settings.general.enablePublicArchiveHelp": "Zverejniť kampane, pre ktoré je povolená archivácia na verejnej webstránke.",
+    "settings.general.enablePublicArchiveRSSContent": "Show full content in RSS feed",
+    "settings.general.enablePublicArchiveRSSContentHelp": "Show full e-mail content in the RSS feed. If disabled, only the title and link elements are shown.",
     "settings.general.enablePublicSubPage": "Povoliť verejnú stránku odberu",
     "settings.general.enablePublicSubPageHelp": "Zobraziť verejnú stránku odberu so všetkými verejnými zoznamami pre ľudí k odberu.",
     "settings.general.faviconURL": "URL adresa faviconu",

@@ -378,6 +378,8 @@
     "settings.general.checkUpdatesHelp": "Periódicamente buscar nuevas actualizaciones y notificarme.",
     "settings.general.enablePublicArchive": "Habilitar la página de archivo público de listas de correo",
     "settings.general.enablePublicArchiveHelp": "Publicar en la web pública campañas en las que el archivo público está habilitado.",
+    "settings.general.enablePublicArchiveRSSContent": "Show full content in RSS feed",
+    "settings.general.enablePublicArchiveRSSContentHelp": "Show full e-mail content in the RSS feed. If disabled, only the title and link elements are shown.",
     "settings.general.enablePublicSubPage": "Habilitar pagina pública de suscripción",
     "settings.general.enablePublicSubPageHelp": "Muestra una página con todas las listas públicas para suscribirse.",
     "settings.general.faviconURL": "URL del Favicon",

@@ -377,6 +377,8 @@
     "settings.general.checkUpdatesHelp": "定期检查新的应用程序版本并通知。",
     "settings.general.enablePublicArchive": "Enable public mailing list archive page",
     "settings.general.enablePublicArchiveHelp": "在公共网站上发布启用存档的活动。",
+    "settings.general.enablePublicArchiveRSSContent": "Show full content in RSS feed",
+    "settings.general.enablePublicArchiveRSSContentHelp": "Show full e-mail content in the RSS feed. If disabled, only the title and link elements are shown.",
     "settings.general.enablePublicSubPage": "启用公共订阅页面",
     "settings.general.enablePublicSubPageHelp": "显示一个公共订阅页面，其中包含供人们订阅的所有公共列表。",
     "settings.general.faviconURL": "网站图标网址",

@@ -196,6 +196,7 @@ INSERT INTO settings (key, value) VALUES
     ('app.message_sliding_window_rate', '10000'),
     ('app.enable_public_archive', 'true'),
     ('app.enable_public_subscription_page', 'true'),
+    ('app.enable_public_archive_rss_content', 'true'),
     ('app.send_optin_confirmation', 'true'),
     ('app.check_updates', 'true'),
     ('app.notify_emails', '["admin1@mysite.com", "admin2@mysite.com"]'),

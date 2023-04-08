@@ -2,17 +2,18 @@ package models
 
 // Settings represents the app settings stored in the DB.
 type Settings struct {
-	AppSiteName           string   `json:"app.site_name"`
-	AppRootURL            string   `json:"app.root_url"`
-	AppLogoURL            string   `json:"app.logo_url"`
-	AppFaviconURL         string   `json:"app.favicon_url"`
-	AppFromEmail          string   `json:"app.from_email"`
-	AppNotifyEmails       []string `json:"app.notify_emails"`
-	EnablePublicSubPage   bool     `json:"app.enable_public_subscription_page"`
-	EnablePublicArchive   bool     `json:"app.enable_public_archive"`
-	SendOptinConfirmation bool     `json:"app.send_optin_confirmation"`
-	CheckUpdates          bool     `json:"app.check_updates"`
-	AppLang               string   `json:"app.lang"`
+	AppSiteName                   string   `json:"app.site_name"`
+	AppRootURL                    string   `json:"app.root_url"`
+	AppLogoURL                    string   `json:"app.logo_url"`
+	AppFaviconURL                 string   `json:"app.favicon_url"`
+	AppFromEmail                  string   `json:"app.from_email"`
+	AppNotifyEmails               []string `json:"app.notify_emails"`
+	EnablePublicSubPage           bool     `json:"app.enable_public_subscription_page"`
+	EnablePublicArchive           bool     `json:"app.enable_public_archive"`
+	EnablePublicArchiveRSSContent bool     `json:"app.enable_public_archive_rss_content"`
+	SendOptinConfirmation         bool     `json:"app.send_optin_confirmation"`
+	CheckUpdates                  bool     `json:"app.check_updates"`
+	AppLang                       string   `json:"app.lang"`
 
 	AppBatchSize     int `json:"app.batch_size"`
 	AppConcurrency   int `json:"app.concurrency"`

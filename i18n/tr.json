@@ -378,6 +378,8 @@
     "settings.general.checkUpdatesHelp": "Yeni uygulama sürümlerini periyodik olarak kontrol edin ve bilgilendirin.",
     "settings.general.enablePublicArchive": "Genel posta listesi arşiv sayfasını etkinleştirin",
     "settings.general.enablePublicArchiveHelp": "Arşivlemenin etkinleştirildiği kampanyaları kamuya açık web sitesinde yayınlayın.",
+    "settings.general.enablePublicArchiveRSSContent": "Show full content in RSS feed",
+    "settings.general.enablePublicArchiveRSSContentHelp": "Show full e-mail content in the RSS feed. If disabled, only the title and link elements are shown.",
     "settings.general.enablePublicSubPage": "Erişime açık üyelik sayfasını etkinleştir",
     "settings.general.enablePublicSubPageHelp": "Kişilerin abone olması için tüm genel listeleri içeren genel bir abonelik sayfası gösterin.",
     "settings.general.faviconURL": "Favicon URL'si",

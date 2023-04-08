@@ -16,6 +16,7 @@ import (
 type campArchive struct {
 	UUID      string    `json:"uuid"`
 	Subject   string    `json:"subject"`
+	Content   string    `json:"content"`
 	CreatedAt null.Time `json:"created_at"`
 	SendAt    null.Time `json:"send_at"`
 	URL       string    `json:"url"`
@@ -28,7 +29,7 @@ func handleGetCampaignArchives(c echo.Context) error {
 		pg  = app.paginator.NewFromURL(c.Request().URL.Query())
 	)
 
-	camps, total, err := getCampaignArchives(pg.Offset, pg.Limit, app)
+	camps, total, err := getCampaignArchives(pg.Offset, pg.Limit, false, app)
 	if err != nil {
 		return err
 	}
@@ -51,11 +52,12 @@ func handleGetCampaignArchives(c echo.Context) error {
 // handleGetCampaignArchivesFeed renders the public campaign archives RSS feed.
 func handleGetCampaignArchivesFeed(c echo.Context) error {
 	var (
-		app = c.Get("app").(*App)
-		pg  = app.paginator.NewFromURL(c.Request().URL.Query())
+		app             = c.Get("app").(*App)
+		pg              = app.paginator.NewFromURL(c.Request().URL.Query())
+		showFullContent = app.constants.EnablePublicArchiveRSSContent
 	)
 
-	camps, _, err := getCampaignArchives(pg.Offset, pg.Limit, app)
+	camps, _, err := getCampaignArchives(pg.Offset, pg.Limit, showFullContent, app)
 	if err != nil {
 		return err
 	}
@@ -71,6 +73,7 @@ func handleGetCampaignArchivesFeed(c echo.Context) error {
 		out = append(out, &feeds.Item{
 			Title:   c.Subject,
 			Link:    &feeds.Link{Href: c.URL},
+			Content: c.Content,
 			Created: pubDate,
 		})
 	}
@@ -97,7 +100,7 @@ func handleCampaignArchivesPage(c echo.Context) error {
 		pg  = app.paginator.NewFromURL(c.Request().URL.Query())
 	)
 
-	out, total, err := getCampaignArchives(pg.Offset, pg.Limit, app)
+	out, total, err := getCampaignArchives(pg.Offset, pg.Limit, false, app)
 	if err != nil {
 		return err
 	}
@@ -158,7 +161,28 @@ func handleCampaignArchivePage(c echo.Context) error {
 	return c.HTML(http.StatusOK, string(msg.Body()))
 }
 
-func getCampaignArchives(offset, limit int, app *App) ([]campArchive, int, error) {
+// handleCampaignArchivePageLatest renders the latest public campaign.
+func handleCampaignArchivePageLatest(c echo.Context) error {
+	var (
+		app = c.Get("app").(*App)
+	)
+
+	camps, _, err := getCampaignArchives(0, 1, true, app)
+	if err != nil {
+		return err
+	}
+
+	if len(camps) == 0 {
+		return c.Render(http.StatusNotFound, tplMessage,
+			makeMsgTpl(app.i18n.T("public.notFoundTitle"), "", app.i18n.T("public.campaignNotFound")))
+	}
+
+	camp := camps[0]
+
+	return c.HTML(http.StatusOK, camp.Content)
+}
+
+func getCampaignArchives(offset, limit int, renderBody bool, app *App) ([]campArchive, int, error) {
 	pubCamps, total, err := app.core.GetArchivedCampaigns(offset, limit)
 	if err != nil {
 		return []campArchive{}, total, echo.NewHTTPError(http.StatusInternalServerError, app.i18n.T("public.errorFetchingCampaign"))
@@ -172,13 +196,24 @@ func getCampaignArchives(offset, limit int, app *App) ([]campArchive, int, error
 	out := make([]campArchive, 0, len(msgs))
 	for _, m := range msgs {
 		camp := m.Campaign
-		out = append(out, campArchive{
+
+		archive := campArchive{
 			UUID:      camp.UUID,
 			Subject:   camp.Subject,
 			CreatedAt: camp.CreatedAt,
 			SendAt:    camp.SendAt,
 			URL:       app.constants.ArchiveURL + "/" + camp.UUID,
-		})
+		}
+
+		if renderBody {
+			msg, err := app.manager.NewCampaignMessage(camp, m.Subscriber)
+			if err != nil {
+				return []campArchive{}, total, err
+			}
+			archive.Content = string(msg.Body())
+		}
+
+		out = append(out, archive)
 	}
 
 	return out, total, nil
