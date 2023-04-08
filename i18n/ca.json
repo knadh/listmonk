@@ -266,6 +266,7 @@
     "maintenance.help": "Algunes accions poden trigar una estona a completar-se en funció de la quantitat de dades.",
     "maintenance.maintenance.unconfirmedOptins": "Subscripcions opt-in no confirmades",
     "maintenance.olderThan": "Més antic de",
+    "maintenance.orphanHelp": "Orfes = subscriptors sense llistes",
     "maintenance.title": "Manteniment",
     "maintenance.unconfirmedSubs": "Subscripcions no confirmades més antigues de {name} dies.",
     "media.errorReadingFile": "Error en llegir el fitxer: {error}",

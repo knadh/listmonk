@@ -266,6 +266,7 @@
     "maintenance.help": "Efallai y bydd yn cymryd amser i gwblhau rhai gweithredoedd yn dibynnu ar nifer y data.",
     "maintenance.maintenance.unconfirmedOptins": "Tanysgrifiadau optio i mewn sydd heb eu cadarnhau",
     "maintenance.olderThan": "Cyn",
+    "maintenance.orphanHelp": "Plant amddifad = tanysgrifwyr heb restrau",
     "maintenance.title": "Cynnal a chadw",
     "maintenance.unconfirmedSubs": "Tanysgrifiadau sydd heb eu cadarnhau a wnaed dros {name} diwrnod yn ôl.",
     "media.errorReadingFile": "Gwall wrth ddarllen ffeil: {error}",

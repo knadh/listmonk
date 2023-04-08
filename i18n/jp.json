@@ -267,6 +267,7 @@
     "maintenance.help": "データ量によりアクション完了するまでの時間が変わります。",
     "maintenance.maintenance.unconfirmedOptins": "未確認オプトインサブスクリプション",
     "maintenance.olderThan": "より古い",
+    "maintenance.orphanHelp": "孤児 = リストのない加入者",
     "maintenance.title": "メンテナンス",
     "maintenance.unconfirmedSubs": "{name}より古い未確認サブスクリプション",
     "media.errorReadingFile": "ファイル読み込みエラー: {error}",

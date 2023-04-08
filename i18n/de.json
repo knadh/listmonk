@@ -266,6 +266,7 @@
     "maintenance.help": "Je nach Datenmenge kann es eine Weile dauern, bis einige Aktionen abgeschlossen sind.",
     "maintenance.maintenance.unconfirmedOptins": "Unbestätigte Opt-in-Abonnements",
     "maintenance.olderThan": "Älter als",
+    "maintenance.orphanHelp": "Waisen = Abonnenten ohne Listen",
     "maintenance.title": "Wartung",
     "maintenance.unconfirmedSubs": "Unbestätigte Abonnements älter als {name} Tage.",
     "media.errorReadingFile": "Fehler beim Lesen der Datei: {error}",

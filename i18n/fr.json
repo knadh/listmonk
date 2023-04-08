@@ -267,6 +267,7 @@
     "maintenance.help": "Certaines actions peuvent prendre un certain temps, en fonction de la quantité de données.",
     "maintenance.maintenance.unconfirmedOptins": "Abonnements sélectionnés non-confirmés",
     "maintenance.olderThan": "Plus vieux que",
+    "maintenance.orphanHelp": "Orphelins = abonnés sans listes",
     "maintenance.title": "Maintenance",
     "maintenance.unconfirmedSubs": "Abonnements non confirmés datant de plus de {name} jours.",
     "media.errorReadingFile": "Erreur de lecture du fichier : {error}",
