@@ -17,12 +17,12 @@ import (
 	"github.com/jmoiron/sqlx/types"
 	"github.com/knadh/goyesql/v2"
 	goyesqlx "github.com/knadh/goyesql/v2/sqlx"
-	"github.com/knadh/koanf"
 	"github.com/knadh/koanf/maps"
 	"github.com/knadh/koanf/parsers/toml"
 	"github.com/knadh/koanf/providers/confmap"
 	"github.com/knadh/koanf/providers/file"
 	"github.com/knadh/koanf/providers/posflag"
+	"github.com/knadh/koanf/v2"
 	"github.com/knadh/listmonk/internal/bounce"
 	"github.com/knadh/listmonk/internal/bounce/mailbox"
 	"github.com/knadh/listmonk/internal/captcha"
@@ -51,19 +51,19 @@ const (
 
 // constants contains static, constant config values required by the app.
 type constants struct {
-	SiteName              string   `koanf:"site_name"`
-	RootURL               string   `koanf:"root_url"`
-	LogoURL               string   `koanf:"logo_url"`
-	FaviconURL            string   `koanf:"favicon_url"`
-	FromEmail             string   `koanf:"from_email"`
-	NotifyEmails          []string `koanf:"notify_emails"`
-	EnablePublicSubPage   bool     `koanf:"enable_public_subscription_page"`
-	EnablePublicArchive   bool     `koanf:"enable_public_archive"`
-	EnablePublicArchiveRSSContent      bool     `koanf:"enable_public_archive_rss_content"`
-	SendOptinConfirmation bool     `koanf:"send_optin_confirmation"`
-	Lang                  string   `koanf:"lang"`
-	DBBatchSize           int      `koanf:"batch_size"`
-	Privacy               struct {
+	SiteName                      string   `koanf:"site_name"`
+	RootURL                       string   `koanf:"root_url"`
+	LogoURL                       string   `koanf:"logo_url"`
+	FaviconURL                    string   `koanf:"favicon_url"`
+	FromEmail                     string   `koanf:"from_email"`
+	NotifyEmails                  []string `koanf:"notify_emails"`
+	EnablePublicSubPage           bool     `koanf:"enable_public_subscription_page"`
+	EnablePublicArchive           bool     `koanf:"enable_public_archive"`
+	EnablePublicArchiveRSSContent bool     `koanf:"enable_public_archive_rss_content"`
+	SendOptinConfirmation         bool     `koanf:"send_optin_confirmation"`
+	Lang                          string   `koanf:"lang"`
+	DBBatchSize                   int      `koanf:"batch_size"`
+	Privacy                       struct {
 		IndividualTracking bool            `koanf:"individual_tracking"`
 		AllowPreferences   bool            `koanf:"allow_preferences"`
 		AllowBlocklist     bool            `koanf:"allow_blocklist"`

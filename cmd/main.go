@@ -13,8 +13,8 @@ import (
 	"time"
 
 	"github.com/jmoiron/sqlx"
-	"github.com/knadh/koanf"
 	"github.com/knadh/koanf/providers/env"
+	"github.com/knadh/koanf/v2"
 	"github.com/knadh/listmonk/internal/bounce"
 	"github.com/knadh/listmonk/internal/buflog"
 	"github.com/knadh/listmonk/internal/captcha"

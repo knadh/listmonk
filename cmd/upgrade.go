@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	"github.com/jmoiron/sqlx"
-	"github.com/knadh/koanf"
+	"github.com/knadh/koanf/v2"
 	"github.com/knadh/listmonk/internal/migrations"
 	"github.com/knadh/stuffbin"
 	"github.com/lib/pq"
