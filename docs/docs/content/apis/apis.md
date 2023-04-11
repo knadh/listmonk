@@ -4,9 +4,11 @@ All features that are available on the listmonk dashboard are also available as 
 
 API requests require BasicAuth authentication with the admin credentials.
 
-!!! warning "Work in progress"
+> The API section is a work in progress. There may be API calls that are yet to be documented. Please consider contributing to docs.
 
-> The API section is a work in progress. There are a large number of API calls that are yet to be documented.
+## OpenAPI (Swagger) spec
+
+The auto-generated OpenAPI (Swagger) specification site for the APIs are available at [**listmonk.app/docs/swagger**](https://listmonk.app/docs/swagger/)
 
 ## Response structure
 
