@@ -44,6 +44,12 @@ jobs:
       - name: Copy i18n site
         run: cp -R docs/i18n docs/publish
 
+      - name: Generate Swagger UI
+        uses: Legion2/swagger-ui-action@v1
+        with:
+          spec-file: ./docs/swagger/collections.yaml
+          output: ./docs/publish/swagger
+
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
         with:
