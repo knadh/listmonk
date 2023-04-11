@@ -20,7 +20,7 @@
       </header>
       <hr />
 
-      <section class="wrap">
+      <section class="wrap" v-if="form">
           <b-tabs type="is-boxed" :animated="false" v-model="tab">
             <b-tab-item :label="$t('settings.general.name')" label-position="on-border">
               <general-settings :form="form" :key="key" />
@@ -103,7 +103,7 @@ export default Vue.extend({
       // formCopy is a stringified copy of the original settings against which
       // form is compared to detect changes.
       formCopy: '',
-      form: {},
+      form: null,
       tab: 0,
     };
   },

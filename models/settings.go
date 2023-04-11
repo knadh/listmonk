@@ -81,14 +81,16 @@ type Settings struct {
 		MaxMsgRetries int    `json:"max_msg_retries"`
 	} `json:"messengers"`
 
-	BounceEnabled        bool   `json:"bounce.enabled"`
-	BounceEnableWebhooks bool   `json:"bounce.webhooks_enabled"`
-	BounceCount          int    `json:"bounce.count"`
-	BounceAction         string `json:"bounce.action"`
-	SESEnabled           bool   `json:"bounce.ses_enabled"`
-	SendgridEnabled      bool   `json:"bounce.sendgrid_enabled"`
-	SendgridKey          string `json:"bounce.sendgrid_key"`
-	BounceBoxes          []struct {
+	BounceEnabled        bool `json:"bounce.enabled"`
+	BounceEnableWebhooks bool `json:"bounce.webhooks_enabled"`
+	BounceActions        map[string]struct {
+		Count  int    `json:"count"`
+		Action string `json:"action"`
+	} `json:"bounce.actions"`
+	SESEnabled      bool   `json:"bounce.ses_enabled"`
+	SendgridEnabled bool   `json:"bounce.sendgrid_enabled"`
+	SendgridKey     string `json:"bounce.sendgrid_key"`
+	BounceBoxes     []struct {
 		UUID          string `json:"uuid"`
 		Enabled       bool   `json:"enabled"`
 		Type          string `json:"type"`
