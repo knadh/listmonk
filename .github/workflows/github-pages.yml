@@ -48,7 +48,7 @@ jobs:
         uses: Legion2/swagger-ui-action@v1
         with:
           spec-file: ./docs/swagger/collections.yaml
-          output: ./docs/publish/swagger
+          output: ./docs/publish/docs/swagger
 
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
