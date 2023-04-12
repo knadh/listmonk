@@ -13,8 +13,8 @@ import (
 	"time"
 
 	"github.com/jmoiron/sqlx"
-	"github.com/knadh/koanf"
 	"github.com/knadh/koanf/providers/env"
+	"github.com/knadh/koanf/v2"
 	"github.com/knadh/listmonk/internal/bounce"
 	"github.com/knadh/listmonk/internal/buflog"
 	"github.com/knadh/listmonk/internal/captcha"
@@ -184,18 +184,21 @@ func main() {
 
 	// Load i18n language map.
 	app.i18n = initI18n(app.constants.Lang, fs)
-
-	app.core = core.New(&core.Opt{
+	cOpt := &core.Opt{
 		Constants: core.Constants{
 			SendOptinConfirmation: app.constants.SendOptinConfirmation,
-			MaxBounceCount:        ko.MustInt("bounce.count"),
-			BounceAction:          ko.MustString("bounce.action"),
 		},
 		Queries: queries,
 		DB:      db,
 		I18n:    app.i18n,
 		Log:     lo,
-	}, &core.Hooks{
+	}
+
+	if err := ko.Unmarshal("bounce.actions", &cOpt.Constants.BounceActions); err != nil {
+		lo.Fatalf("error unmarshalling bounce config: %v", err)
+	}
+
+	app.core = core.New(cOpt, &core.Hooks{
 		SendOptinConfirmation: sendOptinConfirmationHook(app),
 	})
 

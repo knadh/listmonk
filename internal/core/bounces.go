@@ -59,6 +59,11 @@ func (c *Core) GetBounce(id int) (models.Bounce, error) {
 
 // RecordBounce records a new bounce.
 func (c *Core) RecordBounce(b models.Bounce) error {
+	action, ok := c.constants.BounceActions[b.Type]
+	if !ok {
+		return echo.NewHTTPError(http.StatusBadRequest, c.i18n.Ts("globals.messages.invalidData")+": "+b.Type)
+	}
+
 	_, err := c.q.RecordBounce.Exec(b.SubscriberUUID,
 		b.Email,
 		b.CampaignUUID,
@@ -66,8 +71,8 @@ func (c *Core) RecordBounce(b models.Bounce) error {
 		b.Source,
 		b.Meta,
 		b.CreatedAt,
-		c.constants.MaxBounceCount,
-		c.constants.BounceAction)
+		action.Count,
+		action.Action)
 
 	if err != nil {
 		// Ignore the error if it complained of no subscriber.

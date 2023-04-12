@@ -1,8 +1,0 @@
-- [ ] Add a "running campaigns" widget on the dashboard
-- [ ] Add more analytics and stats
-- [ ] Add bounce tracking
-- [ ] Pause campaigns on % errors in addition to an absolute numbers
-- [ ] Support DB migrations for easy upgrades
-- [ ] Add materialized views for analytics and stats (and more?)
-- [ ] Add user management and permissions
-- [ ] Add tests

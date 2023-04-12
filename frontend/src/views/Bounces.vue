@@ -51,6 +51,12 @@
         </router-link>
       </b-table-column>
 
+      <b-table-column v-slot="props" field="type" :label="$t('globals.fields.type')" sortable>
+        <router-link :to="{ name: 'bounces', query: { source: props.row.type } }">
+          {{ $t(`bounces.${props.row.type}`) }}
+        </router-link>
+      </b-table-column>
+
       <b-table-column v-slot="props" field="created_at"
         :label="$t('globals.fields.createdAt')" sortable>
         {{ $utils.niceDate(props.row.createdAt, true) }}

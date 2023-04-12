@@ -163,7 +163,6 @@ paths:
                   data:
                     type: boolean
 
-
   /admin/reload:
     post:
       tags:
@@ -203,7 +202,6 @@ paths:
       tags:
         - Subscribers
       description: returns all subscribers.
-      operationId: getSubscribers
       parameters:
         - in: query
           name: page
@@ -608,7 +606,7 @@ paths:
             type: string
         - in: query
           name: order
-          description: ASC|DESCSort by ascending or descending order.
+          description: ASC|DESC Sort by ascending or descending order.
           schema:
             type: string
         - in: query
@@ -766,7 +764,7 @@ paths:
                   type: string
       responses:
         "200":
-          description: "response"
+          description: response
           content:
             application/json:
               schema:
@@ -778,7 +776,7 @@ paths:
         - Import
       responses:
         "200":
-          description: "response"
+          description: response
           content:
             application/json:
               schema:
@@ -880,6 +878,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Campaign"
+
     put:
       tags:
         - Campaigns
@@ -990,7 +989,7 @@ paths:
             text/html:
               schema:
                 type: string
-                example: <h3>Hi John!</h3>This is a test e-mail campaign. Your second name is Doe and you are from Bengaluru
+                example: <h3>Hi John!</h3><p>This is a test e-mail campaign. Your second name is Doe and you are from Bengaluru</p>
 
   "/campaigns/{campaign_id}/status":
     put:
@@ -1020,6 +1019,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Campaign"
+
 
   "/campaigns/{campaign_id}/content":
     post:
@@ -2630,7 +2630,6 @@ components:
           type: string
         email:
           type: string
-
 
     MailBoxBounces:
       type: object

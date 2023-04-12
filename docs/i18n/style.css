@@ -1,0 +1,114 @@
+* {
+	box-sizing: border-box;
+}
+
+body {
+	font-family: Inter, "Helvetica Neue", "Segoe UI", sans-serif;
+	font-size: 16px;
+	line-height: 24px;
+}
+
+h1, h2, h3, h4, h5 {
+	margin: 0 0 15px 0;
+}
+
+a {
+	color: #0055d4;
+}
+
+.container {
+	padding: 30px;
+}
+
+.header {
+	align-items: center;
+	margin-bottom: 30px;
+}
+	.header a {
+		display: inline-block;
+		margin-right: 15px;
+	}
+	.header .controls {
+		display: flex;
+	}
+		.header .controls .pending {
+			color: #ff3300;
+		}
+		.header .controls .complete {
+			color: #05a200;
+		}
+	.header .title {
+		margin: 0 0 15px 0;
+	}
+	.header .block {
+		margin: 0 45px 0 0;
+	}
+	.header .view label {
+		cursor: pointer;
+		margin-right: 10px;
+		display: inline-block;
+	}
+
+#app {
+	display: none;
+}
+
+.data .key,
+.data .base {
+	display: block;
+	color: #777;
+	display: block;
+}
+	.data .item {
+		padding: 15px;
+		clear: both;
+	}
+		.data .item:hover {
+			background: #eee;
+		}
+		.data .item.done .num {
+			color: #05a200;
+		}
+		.data .item.done .num::after {
+			content: '✓';
+			font-weight: bold;
+		}
+
+	.data .controls {
+		display: flex;
+	}
+	.data .fields {
+		flex-grow: 1;
+	}
+	.data .num {
+		margin-right: 15px;
+		min-width: 50px;
+	}
+	.data .key {
+		color: #aaa;
+		font-size: 0.875em;
+	}
+	.data input {
+		width: 100%;
+		border: 1px solid #ddd;
+		padding: 5px;
+		display: block;
+		margin: 3px 0;
+
+	}
+	.data input:focus {
+		border-color: #666;
+	}
+	.data p {
+		margin: 0 0 3px 0;
+	}
+	.data .head {
+		margin: 0 0 15px 0;
+	}
+
+.raw textarea {
+	border: 1px solid #ddd;
+	padding: 5px;
+	width: 100%;
+	height: 90vh;
+}

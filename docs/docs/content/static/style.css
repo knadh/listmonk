@@ -1,0 +1,100 @@
+body[data-md-color-primary="white"] .md-header[data-md-state="shadow"] {
+  background: #fff;
+  box-shadow: none;
+  color: #333;
+
+  box-shadow: 1px 1px 3px #ddd;
+}
+
+.md-typeset .md-typeset__table table {
+  border: 1px solid #ddd;
+  box-shadow: 2px 2px 0 #f3f3f3;
+  overflow: inherit;
+}
+
+body[data-md-color-primary="white"] .md-search__input {
+  background: #f6f6f6;
+  color: #333;
+}
+
+body[data-md-color-primary="white"]
+  .md-sidebar--secondary
+  .md-sidebar__scrollwrap {
+  background: #f6f6f6;
+  padding: 10px 0;
+}
+
+body[data-md-color-primary="white"] .md-nav__item--active {
+  font-weight: 600;
+  color: inherit;
+}
+body[data-md-color-primary="white"] .md-nav__item--active a {
+  color: #0055d4;
+}
+body[data-md-color-primary="white"] .md-nav__item a:hover {
+  color: #0055d4;
+}
+
+body[data-md-color-primary="white"] thead,
+body[data-md-color-primary="white"] .md-typeset table:not([class]) th {
+  background: #f6f6f6;
+  border: 0;
+  color: inherit;
+  font-weight: 600;
+}
+table td span {
+  font-size: 0.85em;
+  color: #bbb;
+  display: block;
+}
+
+.md-typeset h1, .md-typeset h2 {
+  font-weight: 500;
+}
+
+body[data-md-color-primary="white"] .md-typeset h1 {
+  margin: 4rem 0 0 0;
+  color: inherit;
+  border-top: 1px solid #ddd;
+  padding-top: 2rem;
+}
+body[data-md-color-primary="white"] .md-typeset h2 {
+  border-top: 1px solid #eee;
+  padding-top: 2rem;
+}
+
+body[data-md-color-primary="white"] .md-content h1:first-child {
+  margin: 0 0 3rem 0;
+  padding: 0;
+  border: 0;
+}
+
+body[data-md-color-primary="white"] .md-typeset code {
+  word-break: normal;
+}
+
+li img {
+  background: #fff;
+  border-radius: 6px;
+  border: 1px solid #e6e6e6;
+  box-shadow: 1px 1px 4px #e6e6e6;
+  padding: 5px;
+  margin-top: 10px;
+}
+
+/* This hack places the #anchor-links correctly
+by accommodating for the fixed-header's height */
+:target:before {
+  content: "";
+  display: block;
+  height: 120px;
+  margin-top: -120px;
+}
+
+.md-typeset a {
+  color: #0055d4;
+}
+.md-typeset a:hover {
+  color: #666 !important;
+  text-decoration: underline;
+}

@@ -140,7 +140,7 @@ func (c *Core) GetCampaignForPreview(id, tplID int) (models.Campaign, error) {
 // GetArchivedCampaigns retrieves campaigns with a template body.
 func (c *Core) GetArchivedCampaigns(offset, limit int) (models.Campaigns, int, error) {
 	var out models.Campaigns
-	if err := c.q.GetArchivedCampaigns.Select(&out, offset, limit); err != nil {
+	if err := c.q.GetArchivedCampaigns.Select(&out, offset, limit, campaignTplArchive); err != nil {
 		c.log.Printf("error fetching public campaigns: %v", err)
 		return models.Campaigns{}, 0, echo.NewHTTPError(http.StatusInternalServerError,
 			c.i18n.Ts("globals.messages.errorFetching", "name", "{globals.terms.campaign}", "error", pqErrMsg(err)))

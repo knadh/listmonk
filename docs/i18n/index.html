@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>listmonk i18n translation editor</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link rel="preconnect" href="https://fonts.gstatic.com">
+	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet"> 
+	<link rel="stylesheet" type="text/css" href="style.css" />
+</head>
+<body>
+	<div id="app" class="container">
+		<header class="header">
+			<h1 class="title">{{ values["_.name"] }}</h1>
+			<div class="controls">
+				<div class="import block">
+					<a href="#" @click.prevent="onToggleRaw">
+						<template v-if="!isRawVisible">Switch to raw JSON</template>
+						<template v-else>Switch to editor</template>
+					</a>
+					<a href="#" @click.prevent="onDownloadJSON">Download raw JSON</a>
+					<a v-else href="#" @click.prevent="onToggleRaw">Switch to editor</a>
+				</div>
+
+				<div class="view block">
+					<label for="view-all" class="all">
+						<input v-model="view" name="view" id="view-all" type="radio" value="all" checked="true" />
+						All ({{ keys.length }})
+					</label>
+					<label for="view-pending" class="pending">
+						<input v-model="view" name="view" id="view-pending" type="radio" value="pending" />
+						Pending ({{ keys.length - completed }})
+					</label>
+					<label for="view-complete" class="complete">
+						<input v-model="view" name="view" id="view-complete" type="radio" value="complete" />
+						Complete ({{ completed }})
+					</label>
+				</div>
+
+				<div class="selector block">
+					Load existing language
+					<select v-model="loadLang" @change="onLoadLanguage">
+						<option value="en">Default (en)</option>
+						<option value="ca"> Català (ca) </option>
+						<option value="cs-cz"> čeština (cs) </option>
+						<option value="cy"> Cymraeg (cy) </option>
+						<option value="de"> Deutsch (de) </option>
+						<option value="es"> Español (es) </option>
+						<option value="fi"> Suomi (fi) </option>
+						<option value="fr"> Français (fr) </option>
+						<option value="hu"> Hungary (hu) </option>
+						<option value="it"> Italiano (it) </option>
+						<option value="jp"> 日本語 (jp) </option>
+						<option value="ml"> മലയാളം (ml) </option>
+						<option value="nl"> Nederlands (nl) </option>
+						<option value="pl"> Polski (pl) </option>
+						<option value="pt"> Portuguese (pt) </option>
+						<option value="pt-BR"> Português Brasileiro (pt-BR) </option>
+						<option value="ro"> Română (ro) </option>
+						<option value="ru"> Русский (ru) </option>
+						<option value="se"> Svenska (se) </option>
+						<option value="sk"> slovenčina (sk) </option>
+						<option value="tr"> Turkish (tr) </option>
+						<option value="vi"> Vietnamese (vi) </option>
+						<option value="zh-CN"> 简体中文 (zh-CN) </option>
+						<option value="zh-TW"> 繁體中文(zh-TW) </option>
+					</select>
+
+					&nbsp;&nbsp;&nbsp;
+					<a href="#" @click.prevent="onNewLang">+ Create new language</a>
+				</div>
+			</div>
+		</header>
+
+		<p>
+			Changes are stored in the browser's localStorage until the cache is cleared.
+			To edit an existing language, load it and edit the fields.
+			To create a new language, load the default language and edit the fields.
+			Once done, copy the raw JSON and send a PR to the
+			<a href="https://github.com/knadh/listmonk/tree/i18n/i18n" target="_blank">repo</a>.
+		</p>
+
+		<div v-if="!isRawVisible" class="data">
+	    <div :class="{'item': true, 'done': isDone(k.key)}" v-for="(k, i) in keys" v-if="isItemVisible(k.key)">
+		  	<h3 class="head" v-if="k.head">{{ k.head }}</h3>
+
+		  	<div class="controls">
+			  	<div class="num">{{ i + 1 }}.</div>
+			  	<div class="fields">
+			    	<span class="base">{{ base[k.key] }}</span>
+			    	<input type="text" v-model="values[k.key]" @blur="saveData" />
+				    <label class="key">{{ k.key }}</label>
+				  </div>
+				</div>
+	    </div>
+		</div><!-- data --> 
+
+		<div v-else class="raw">
+			<textarea v-model="rawData"></textarea>
+		</div><!-- raw -->
+	</div>
+	<h4 id="loading">Loading ...</h4>
+
+	<script src="vue.min.js"></script>
+	<script src="main.js"></script>
+</body>
+</html>

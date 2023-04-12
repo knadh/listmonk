@@ -51,9 +51,11 @@ const (
 
 // Importer represents the bulk CSV subscriber import system.
 type Importer struct {
-	opt  Options
-	db   *sql.DB
-	i18n *i18n.I18n
+	opt                   Options
+	db                    *sql.DB
+	i18n                  *i18n.I18n
+	domainBlocklist       map[string]bool
+	hasBlocklistWildcards bool
 
 	stop   chan bool
 	status Status
@@ -68,7 +70,7 @@ type Options struct {
 	NotifCB            models.AdminNotifCallback
 
 	// Lookup table for blocklisted domains.
-	DomainBlocklist map[string]bool
+	DomainBlocklist []string
 }
 
 // Session represents a single import session.
@@ -130,12 +132,27 @@ var (
 // New returns a new instance of Importer.
 func New(opt Options, db *sql.DB, i *i18n.I18n) *Importer {
 	im := Importer{
-		opt:    opt,
-		db:     db,
-		i18n:   i,
-		status: Status{Status: StatusNone, logBuf: bytes.NewBuffer(nil)},
-		stop:   make(chan bool, 1),
+		opt:             opt,
+		db:              db,
+		i18n:            i,
+		domainBlocklist: make(map[string]bool, len(opt.DomainBlocklist)),
+		status:          Status{Status: StatusNone, logBuf: bytes.NewBuffer(nil)},
+		stop:            make(chan bool, 1),
 	}
+
+	// Domain blocklist.
+	for _, d := range opt.DomainBlocklist {
+		im.domainBlocklist[d] = true
+
+		// Domains with *. as the subdomain prefix, strip that
+		// and add the full domain to the blocklist as welll.
+		// eg: *.example.com => example.com
+		if strings.Contains(d, "*.") {
+			im.hasBlocklistWildcards = true
+			im.domainBlocklist[strings.TrimPrefix(d, "*.")] = true
+		}
+	}
+
 	return &im
 }
 
@@ -584,13 +601,31 @@ func (im *Importer) SanitizeEmail(email string) (string, error) {
 		return "", errors.New(im.i18n.T("subscribers.invalidEmail"))
 	}
 
-	// Check if the e-mail's domain is blocklisted.
+	// Check if the e-mail's domain is blocklisted. The e-mail domain and blocklist config
+	// are always lowercase.
 	d := strings.Split(em.Address, "@")
 	if len(d) == 2 {
-		_, ok := im.opt.DomainBlocklist[d[1]]
-		if ok {
+		domain := d[1]
+
+		// Check the domain as-is.
+		if _, ok := im.domainBlocklist[domain]; ok {
 			return "", errors.New(im.i18n.T("subscribers.domainBlocklisted"))
 		}
+
+		// If there are wildcards in the blocklist and the email domain has a subdomain, check that.
+		if im.hasBlocklistWildcards && strings.Count(domain, ".") > 1 {
+			parts := strings.Split(domain, ".")
+
+			// Replace the first part of the subdomain with * and check if that exists in the blocklist.
+			// Eg: test.mail.example.com => *.mail.example.com
+			parts[0] = "*"
+			domain = strings.Join(parts, ".")
+
+			if _, ok := im.domainBlocklist[domain]; ok {
+				return "", errors.New(im.i18n.T("subscribers.domainBlocklisted"))
+			}
+		}
+
 	}
 
 	return em.Address, nil

@@ -79,8 +79,9 @@ const (
 	EmailHeaderDeliveredTo = "Delivered-To"
 	EmailHeaderReceived    = "Received"
 
-	BounceTypeHard = "hard"
-	BounceTypeSoft = "soft"
+	BounceTypeHard      = "hard"
+	BounceTypeSoft      = "soft"
+	BounceTypeComplaint = "complaint"
 
 	// Templates.
 	TemplateTypeCampaign = "campaign"

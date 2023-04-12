@@ -1,0 +1,20 @@
+# Upgrade
+
+Some versions may require changes to the database. These changes or database "migrations" are applied automatically and safely, but, it is recommended to take a backup of the Postgres database before running the `--upgrade` option, especially if you have made customizations to the database tables.
+
+## Binary
+- Download the [latest release](https://github.com/knadh/listmonk/releases) and extract the listmonk binary.
+- `./listmonk --upgrade` to upgrade an existing DB. Upgrades are idempotent and running them multiple times have no side effects.
+- Run `./listmonk` and visit `http://localhost:9000`.
+
+## Docker
+
+- `docker-compose pull` to pull the latest version from DockerHub.
+- `docker-compose run --rm app ./listmonk --upgrade` to upgrade an existing DB.
+- Run `docker-compose up app db` and visit `http://localhost:9000`.
+
+## Railway
+- Head to your dashboard, and select your Listmonk project.
+- Select the GitHub deployment service.
+- In the Deployment tab, head to the latest deployment, click on the three vertical dots to the right, and select "Redeploy".
+- ![Railway Redeploy option](https://user-images.githubusercontent.com/55474996/226517149-6dc512d5-f862-46f7-a57d-5e55b781ff53.png)

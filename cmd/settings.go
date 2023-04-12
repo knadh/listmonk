@@ -10,9 +10,9 @@ import (
 	"time"
 
 	"github.com/gofrs/uuid"
-	"github.com/knadh/koanf"
 	"github.com/knadh/koanf/parsers/json"
 	"github.com/knadh/koanf/providers/rawbytes"
+	"github.com/knadh/koanf/v2"
 	"github.com/knadh/listmonk/internal/messenger"
 	"github.com/knadh/listmonk/internal/messenger/email"
 	"github.com/knadh/listmonk/models"
