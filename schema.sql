@@ -144,6 +144,7 @@ CREATE TABLE media (
     uuid uuid        NOT NULL UNIQUE,
     provider         TEXT NOT NULL DEFAULT '',
     filename         TEXT NOT NULL,
+    content_type     TEXT NOT NULL DEFAULT 'application/octet-stream',
     thumb            TEXT NOT NULL,
     meta             JSONB NOT NULL DEFAULT '{}',
     created_at       TIMESTAMP WITH TIME ZONE DEFAULT NOW()
@@ -213,6 +214,8 @@ INSERT INTO settings (key, value) VALUES
     ('security.captcha_key', '""'),
     ('security.captcha_secret', '""'),
     ('upload.provider', '"filesystem"'),
+    ('upload.max_file_size', '5000'),
+    ('upload.extensions', '["jpg","jpeg","png","gif","svg"]'),
     ('upload.filesystem.upload_path', '"uploads"'),
     ('upload.filesystem.upload_uri', '"/uploads"'),
     ('upload.s3.url', '"https://ap-south-1.s3.amazonaws.com"'),

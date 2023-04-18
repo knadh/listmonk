@@ -9,23 +9,17 @@ import (
 	"strings"
 
 	"github.com/disintegration/imaging"
+	"github.com/h2non/filetype"
 	"github.com/knadh/listmonk/models"
 	"github.com/labstack/echo/v4"
 )
 
 const (
 	thumbPrefix   = "thumb_"
-	thumbnailSize = 120
+	thumbnailSize = 250
 )
 
-// validMimes is the list of image types allowed to be uploaded.
-var (
-	validMimes = []string{"image/jpg", "image/jpeg", "image/png", "image/gif", "image/svg+xml"}
-	validExts  = []string{".jpg", ".jpeg", ".png", ".gif", ".svg"}
-
-	// Vector extensions that don't need to be resized for thumbnails.
-	vectorExts = []string{".svg"}
-)
+var vectorExts = []string{"svg"}
 
 // handleUploadMedia handles media file uploads.
 func handleUploadMedia(c echo.Context) error {
@@ -39,23 +33,6 @@ func handleUploadMedia(c echo.Context) error {
 			app.i18n.Ts("media.invalidFile", "error", err.Error()))
 	}
 
-	// Validate file extension.
-	ext := strings.ToLower(filepath.Ext(file.Filename))
-	if ok := inArray(ext, validExts); !ok {
-		return echo.NewHTTPError(http.StatusBadRequest,
-			app.i18n.Ts("media.unsupportedFileType", "type", ext))
-	}
-
-	// Validate file's mime.
-	typ := file.Header.Get("Content-type")
-	if ok := inArray(typ, validMimes); !ok {
-		return echo.NewHTTPError(http.StatusBadRequest,
-			app.i18n.Ts("media.unsupportedFileType", "type", typ))
-	}
-
-	// Generate filename
-	fName := makeFilename(file.Filename)
-
 	// Read file contents in memory
 	src, err := file.Open()
 	if err != nil {
@@ -64,8 +41,40 @@ func handleUploadMedia(c echo.Context) error {
 	}
 	defer src.Close()
 
+	// Read the first 261 bytes of the file and detect the type.
+	hdr := make([]byte, 261)
+	if _, err := src.Read(hdr); err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError,
+			app.i18n.Ts("media.errorReadingFile", "error", err.Error()))
+	}
+	src.Seek(0, 0)
+
+	var (
+		// Naive check for content type and extension.
+		ext         = strings.ToLower(filepath.Ext(file.Filename))
+		contentType = file.Header.Get("Content-type")
+		isImage     = false
+	)
+
+	// Try to get content type and extension from the actual file contents.
+	kind, err := filetype.Match(hdr)
+	if err == nil {
+		ext = kind.Extension
+		contentType = kind.MIME.Value
+		isImage = kind.MIME.Type == "image"
+	}
+
+	// Validate file extension.
+	if !inArray("*", app.constants.MediaUpload.Extensions) {
+		if ok := inArray(ext, app.constants.MediaUpload.Extensions); !ok {
+			return echo.NewHTTPError(http.StatusBadRequest,
+				app.i18n.Ts("media.unsupportedFileType", "type", ext))
+		}
+	}
+
 	// Upload the file.
-	fName, err = app.media.Put(fName, typ, src)
+	fName := makeFilename(file.Filename)
+	fName, err = app.media.Put(fName, contentType, src)
 	if err != nil {
 		app.log.Printf("error uploading file: %v", err)
 		cleanUp = true
@@ -73,22 +82,25 @@ func handleUploadMedia(c echo.Context) error {
 			app.i18n.Ts("media.errorUploading", "error", err.Error()))
 	}
 
+	var (
+		thumbfName = ""
+		width      = 0
+		height     = 0
+	)
 	defer func() {
 		// If any of the subroutines in this function fail,
 		// the uploaded image should be removed.
 		if cleanUp {
 			app.media.Delete(fName)
-			app.media.Delete(thumbPrefix + fName)
+
+			if thumbfName != "" {
+				app.media.Delete(thumbfName)
+			}
 		}
 	}()
 
 	// Create thumbnail from file for non-vector formats.
-	var (
-		thumbfName = fName
-		width      = 0
-		height     = 0
-	)
-	if !inArray(ext, vectorExts) {
+	if isImage && !inArray(ext, vectorExts) {
 		thumbFile, w, h, err := processImage(file)
 		if err != nil {
 			cleanUp = true
@@ -100,7 +112,7 @@ func handleUploadMedia(c echo.Context) error {
 		height = h
 
 		// Upload thumbnail.
-		tf, err := app.media.Put(thumbPrefix+fName, typ, thumbFile)
+		tf, err := app.media.Put(thumbPrefix+fName, contentType, thumbFile)
 		if err != nil {
 			cleanUp = true
 			app.log.Printf("error saving thumbnail: %v", err)
@@ -115,7 +127,7 @@ func handleUploadMedia(c echo.Context) error {
 		"width":  width,
 		"height": height,
 	}
-	m, err := app.core.InsertMedia(fName, thumbfName, meta, app.constants.MediaProvider, app.media)
+	m, err := app.core.InsertMedia(fName, thumbfName, contentType, meta, app.constants.MediaUpload.Provider, app.media)
 	if err != nil {
 		cleanUp = true
 		return err
@@ -139,7 +151,7 @@ func handleGetMedia(c echo.Context) error {
 		return c.JSON(http.StatusOK, okResp{out})
 	}
 
-	out, err := app.core.GetAllMedia(app.constants.MediaProvider, app.media)
+	out, err := app.core.GetAllMedia(app.constants.MediaUpload.Provider, app.media)
 	if err != nil {
 		return err
 	}

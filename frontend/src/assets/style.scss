@@ -775,9 +775,31 @@ section.analytics {
       max-height: 90px;
       overflow: hidden;
       position: relative;
+      min-width: 250px;
+      min-height: 250px;
+      text-align: center;
+
+      .link {
+        display: block;
+      }
+
+      .ext {
+        display: block;
+        margin-top: 60px;
+        font-size: 2rem;
+        text-transform: uppercase;
+      }
+
+      .filename {
+        display: inline-block;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        color: $grey;
+      }
 
       img {
-        max-width: 120px;
+        max-width: 250px;
       }
 
       .caption {
@@ -786,7 +808,7 @@ section.analytics {
         bottom: 0;
         left: 0;
         right: 0;
-        padding: 2px 5px;
+        padding: 5px;
 
         white-space: nowrap;
         overflow: hidden;

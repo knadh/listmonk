@@ -16,7 +16,7 @@
               v-model="form.files"
               drag-drop
               multiple
-              accept=".png,.jpg,.jpeg,.gif,.svg"
+              xaccept=".png,.jpg,.jpeg,.gif,.svg"
               expanded>
               <div class="has-text-centered section">
                 <p>
@@ -47,10 +47,14 @@
 
         <div class="thumbs">
           <div v-for="m in group.items" :key="m.id" class="box thumb">
-            <a @click="(e) => onMediaSelect(m, e)" :href="m.url" target="_blank">
-              <img :src="m.thumbUrl" :title="m.filename" />
+            <a @click="(e) => onMediaSelect(m, e)" :href="m.url" target="_blank" class="link">
+              <img v-if="m.thumbUrl" :src="m.thumbUrl" :title="m.filename" />
+              <template v-else>
+                <span class="ext">{{ m.filename.split(".").pop() }}</span><br />
+                <span class="filename is-size-6" :title="m.filename">{{ m.filename }}</span>
+              </template>
             </a>
-            <span class="caption is-size-7" :title="m.filename">{{ m.filename }}</span>
+            <span v-if="m.thumbUrl" class="caption is-size-6" :title="m.filename">{{ m.filename }}</span>
 
             <div class="actions has-text-right">
               <a :href="m.url" target="_blank">

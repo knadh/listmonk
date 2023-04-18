@@ -1,11 +1,23 @@
 <template>
   <div class="items">
-    <b-field :label="$t('settings.media.provider')" label-position="on-border">
-      <b-select v-model="data['upload.provider']" name="upload.provider">
-        <option value="filesystem">filesystem</option>
-        <option value="s3">s3</option>
-      </b-select>
-    </b-field>
+    <div class="columns">
+      <div class="column">
+        <b-field :label="$t('settings.media.provider')" label-position="on-border">
+          <b-select v-model="data['upload.provider']" name="upload.provider">
+            <option value="filesystem">filesystem</option>
+            <option value="s3">s3</option>
+          </b-select>
+        </b-field>
+      </div>
+      <div class="column is-10">
+        <b-field :label="$t('settings.media.upload.extensions')" label-position="on-border"
+          expanded>
+          <b-taginput v-model="data['upload.extensions']" name="tags" ellipsis
+            icon="tag-outline" placeholder="jpg, png, gif .."></b-taginput>
+        </b-field>
+      </div>
+    </div>
+    <hr />
 
     <div class="block" v-if="data['upload.provider'] === 'filesystem'">
       <b-field :label="$t('settings.media.upload.path')" label-position="on-border"
@@ -126,6 +138,7 @@ export default Vue.extend({
     return {
       data: this.form,
       regDuration,
+      extensions: [],
     };
   },
 

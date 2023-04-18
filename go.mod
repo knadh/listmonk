@@ -9,6 +9,7 @@ require (
 	github.com/gofrs/uuid v4.0.0+incompatible
 	github.com/google/uuid v1.3.0 // indirect
 	github.com/gorilla/feeds v1.1.1
+	github.com/h2non/filetype v1.1.3 // indirect
 	github.com/huandu/xstrings v1.4.0 // indirect
 	github.com/imdario/mergo v0.3.14 // indirect
 	github.com/jmoiron/sqlx v1.3.5

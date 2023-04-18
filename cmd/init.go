@@ -86,13 +86,17 @@ type constants struct {
 		PublicJS  []byte `koanf:"public.custom_js"`
 	}
 
-	UnsubURL      string
-	LinkTrackURL  string
-	ViewTrackURL  string
-	OptinURL      string
-	MessageURL    string
-	ArchiveURL    string
-	MediaProvider string
+	UnsubURL     string
+	LinkTrackURL string
+	ViewTrackURL string
+	OptinURL     string
+	MessageURL   string
+	ArchiveURL   string
+
+	MediaUpload struct {
+		Provider   string
+		Extensions []string
+	}
 
 	BounceWebhooksEnabled bool
 	BounceSESEnabled      bool
@@ -368,7 +372,8 @@ func initConstants() *constants {
 	c.RootURL = strings.TrimRight(c.RootURL, "/")
 	c.Lang = ko.String("app.lang")
 	c.Privacy.Exportable = maps.StringSliceToLookupMap(ko.Strings("privacy.exportable"))
-	c.MediaProvider = ko.String("upload.provider")
+	c.MediaUpload.Provider = ko.String("upload.provider")
+	c.MediaUpload.Extensions = ko.Strings("upload.extensions")
 	c.Privacy.DomainBlocklist = ko.Strings("privacy.domain_blocklist")
 
 	// Static URLS.
