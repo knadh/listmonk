@@ -123,6 +123,46 @@ paths:
               schema:
                 $ref: "#/components/schemas/Settings"
 
+    put:
+      tags:
+        - Settings
+      description: update settings
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Settings"
+      responses:
+        "200":
+          description: response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: boolean
+  
+  /settings/smtp/test:
+    post: 
+      tags:
+        - Settings 
+      requestBody:
+        content:
+          application/json: 
+            schema:
+              $ref: "#/components/schemas/SMTPTest"
+      responses:
+        "200":
+          description: response 
+          content:
+            application/json:
+              schema:
+                type: object 
+                properties:
+                  data:
+                    type: boolean
+
   /admin/reload:
     post:
       tags:
@@ -531,7 +571,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/SubscriberData"
+                $ref: "#/components/schemas/Bounce"
 
     delete:
       description: handles bounce deletion, either a single one (ID in the URI), or a list.
@@ -838,6 +878,25 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Campaign"
+
+    put:
+      tags:
+        - Campaigns
+      parameters:
+        - in: path
+          name: campaign_id
+          required: true
+          description: the id value of campaign you want to update
+          schema:
+            type: number
+      responses:
+        "200":
+          description: response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CampaignUpdate"
+
     delete:
       description: deletes specified campaign
       tags:
@@ -903,6 +962,33 @@ paths:
             text/html:
               schema:
                 type: string
+                example: <h3>Hi John!</h3>This is a   e-mail campaign. Your second name is Doe and you are from Bengaluru
+
+  "/campaigns/{campaign_id}/text":
+    get:
+      description: renders the HTML preview of a campaign body
+      tags:
+        - Campaigns
+      parameters:
+        - in: path
+          name: id
+          required: True
+          description: The id value of the campaign you want to get the preview of
+          schema:
+            type: number
+        - in: path
+          name: template_id
+          required: True
+          description: The id of the template you want to get the preview of
+          schema:
+            type: number
+      responses:
+        "200":
+          description: response
+          content:
+            text/html:
+              schema:
+                type: string
                 example: <h3>Hi John!</h3><p>This is a test e-mail campaign. Your second name is Doe and you are from Bengaluru</p>
 
   "/campaigns/{campaign_id}/status":
@@ -933,6 +1019,62 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Campaign"
+
+
+  "/campaigns/{campaign_id}/content":
+    post:
+      description: handles campaign content (body) format conversions.
+      tags:
+        - Campaigns
+      parameters:
+        - in: path
+          name: campaign_id
+          required: true
+          schema:
+            type: number
+
+      responses:
+        "200":
+          description: response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: string
+
+  "/campaigns/{campaign_id}/test":
+    post:
+      description: handles sending of campaign message to arbitrary subscribers for testing
+      tags:
+        - Campaigns
+      parameters:
+        - in: path
+          name: campaign_id
+          required: true
+          schema:
+            type: number
+        - in: path
+          name: template_id
+          required: true
+          schema:
+            type: number
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CampaignRegistrationInfo"
+      responses:
+        "200":
+          description: response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: boolean
 
   "/media":
     get:
@@ -1173,6 +1315,13 @@ paths:
       responses:
         "200":
           description: response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: boolean
 
   "/maintenance/subscriptions/unconfirmed":
     delete:
@@ -1207,6 +1356,28 @@ paths:
                     uuid:
                       type: string
                     name:
+                      type: string
+
+  "/public/subscription":
+    post:
+      description: handles subscription requests coming from public API calls.
+      tags:
+        - Public
+      responses:
+        "200":
+          description: response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  name:
+                    type: string
+                  email:
+                    type: string
+                  list_uuids:
+                    type: array
+                    items:
                       type: string
 
 components:
@@ -2420,6 +2591,46 @@ components:
         tls_skip_verify:
           type: boolean
 
+    SMTPTest:
+      type: object
+      properties:
+        uuid:
+          type: string
+        enabled:
+          type: boolean
+        host:
+          type: string
+        hello_hostname:
+          type: string
+        port:
+          type: number
+        auth_protocol:
+          type: string
+        username:
+          type: string
+        email_headers:
+          type: array
+          items:
+            type: object
+        max_conns:
+          type: number
+        max_msg_retries:
+          type: number
+        idle_timeout:
+          type: string
+        wait_timeout:
+          type: string
+        tls_type:
+          type: string
+        tls_skip_verify:
+          type: boolean
+        strEmailHeaders:
+          type: string
+        password:
+          type: string
+        email:
+          type: string
+
     MailBoxBounces:
       type: object
       properties:
@@ -2962,6 +3173,50 @@ components:
           type: array
           items:
             type: string
+
+    CampaignUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+        subject:
+          type: string
+        lists:
+          type: array
+          items:
+            type: number
+        from_email:
+          type: string
+        messenger:
+          type: string
+        type:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+        send_later:
+          type: boolean
+        send_at:
+          type: object
+        headers:
+          type: array
+          items:
+            type: object
+        template_id:
+          type: number
+        content_type:
+          type: string
+        body:
+          type: string
+        altbody:
+          type: string
+        archive:
+          type: boolean
+        archive_template_id:
+          type: number
+        archive_meta:
+          type: object
 
     MediaFileObject:
       type: object
