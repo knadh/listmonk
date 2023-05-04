@@ -161,6 +161,7 @@ func install(lastVer string, db *sqlx.DB, fs stuffbin.FileSystem, prompt, idempo
 		false,
 		archiveTplID,
 		`{"name": "Subscriber"}`,
+		nil,
 	); err != nil {
 		lo.Fatalf("error creating sample campaign: %v", err)
 	}

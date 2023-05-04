@@ -840,6 +840,19 @@ section.analytics {
   }
 }
 
+.modal .media-files {
+  .thumb {
+    min-width: 175px;
+    width: 175px;
+    min-height: 175px;
+  }
+
+  .gallery {
+    padding-left: 0;
+    padding-right: 0;
+  }
+}
+
 /* Template form */
 .templates {
   td .tag {

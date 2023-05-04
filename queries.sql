@@ -475,8 +475,15 @@ counts AS (
 ),
 camp AS (
     INSERT INTO campaigns (uuid, type, name, subject, from_email, body, altbody, content_type, send_at, headers, tags, messenger, template_id, to_send, max_subscriber_id, archive, archive_template_id, archive_meta)
-        SELECT $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, (SELECT id FROM tpl), (SELECT to_send FROM counts), (SELECT max_sub_id FROM counts), $15, (CASE WHEN $16 = 0 THEN (SELECT id FROM tpl) ELSE $16 END), $17
+        SELECT $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12,
+            (SELECT id FROM tpl), (SELECT to_send FROM counts),
+            (SELECT max_sub_id FROM counts), $15,
+            (CASE WHEN $16 = 0 THEN (SELECT id FROM tpl) ELSE $16 END), $17
         RETURNING id
+),
+med AS (
+    INSERT INTO campaign_media (campaign_id, media_id, filename)
+        (SELECT (SELECT id FROM camp), id, filename FROM media WHERE id=ANY($18::INT[]))
 )
 INSERT INTO campaign_lists (campaign_id, list_id, list_name)
     (SELECT (SELECT id FROM camp), id, name FROM lists WHERE id=ANY($14::INT[]))
@@ -492,7 +499,8 @@ INSERT INTO campaign_lists (campaign_id, list_id, list_name)
 SELECT  c.id, c.uuid, c.name, c.subject, c.from_email,
         c.messenger, c.started_at, c.to_send, c.sent, c.type,
         c.body, c.altbody, c.send_at, c.headers, c.status, c.content_type, c.tags,
-        c.template_id, c.archive, c.archive_template_id, c.archive_meta, c.created_at, c.updated_at,
+        c.template_id, c.archive, c.archive_template_id, c.archive_meta,
+        c.created_at, c.updated_at,
         COUNT(*) OVER () AS total,
         (
             SELECT COALESCE(ARRAY_TO_JSON(ARRAY_AGG(l)), '[]') FROM (
@@ -536,7 +544,12 @@ SELECT COUNT(*) OVER () AS total, campaigns.*,
 WITH lists AS (
     SELECT campaign_id, JSON_AGG(JSON_BUILD_OBJECT('id', list_id, 'name', list_name)) AS lists FROM campaign_lists
     WHERE campaign_id = ANY($1) GROUP BY campaign_id
-), views AS (
+),
+media AS (
+    SELECT campaign_id, JSON_AGG(JSON_BUILD_OBJECT('id', media_id, 'filename', filename)) AS media FROM campaign_media
+    WHERE campaign_id = ANY($1) GROUP BY campaign_id
+),
+views AS (
     SELECT campaign_id, COUNT(campaign_id) as num FROM campaign_views
     WHERE campaign_id = ANY($1)
     GROUP BY campaign_id
@@ -555,9 +568,11 @@ SELECT id as campaign_id,
     COALESCE(v.num, 0) AS views,
     COALESCE(c.num, 0) AS clicks,
     COALESCE(b.num, 0) AS bounces,
-    COALESCE(l.lists, '[]') AS lists
+    COALESCE(l.lists, '[]') AS lists,
+    COALESCE(m.media, '[]') AS media
 FROM (SELECT id FROM UNNEST($1) AS id) x
 LEFT JOIN lists AS l ON (l.campaign_id = id)
+LEFT JOIN media AS m ON (m.campaign_id = id)
 LEFT JOIN views AS v ON (v.campaign_id = id)
 LEFT JOIN clicks AS c ON (c.campaign_id = id)
 LEFT JOIN bounces AS b ON (b.campaign_id = id)
@@ -769,9 +784,17 @@ WITH camp AS (
         updated_at=NOW()
     WHERE id = $1 RETURNING id
 ),
-d AS (
+clists AS (
     -- Reset list relationships
     DELETE FROM campaign_lists WHERE campaign_id = $1 AND NOT(list_id = ANY($14))
+),
+med AS (
+    DELETE FROM campaign_media WHERE campaign_id = $1 AND NOT(media_id = ANY($18)) RETURNING media_id
+),
+medi AS (
+    INSERT INTO campaign_media (campaign_id, media_id, filename)
+        (SELECT $1 AS campaign_id, id, filename FROM media WHERE id=ANY($18::INT[]))
+        ON CONFLICT (campaign_id, media_id) DO NOTHING
 )
 INSERT INTO campaign_lists (campaign_id, list_id, list_name)
     (SELECT $1 as campaign_id, id, name FROM lists WHERE id=ANY($14::INT[]))

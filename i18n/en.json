@@ -17,6 +17,8 @@
     "bounces.unknownService": "Unknown service.",
     "bounces.view": "View bounces",
     "campaigns.addAltText": "Add alternate plain text message",
+    "campaigns.addAttachments": "Add attachments",
+    "campaigns.attachments": "Attachments",
     "campaigns.archive": "Archive",
     "campaigns.archiveEnable": "Publish to public archive",
     "campaigns.archiveHelp": "Publish (running, paused, finished) the campaign message on the public archive.",

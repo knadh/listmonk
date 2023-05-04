@@ -11,7 +11,7 @@ func V2_5_0(db *sqlx.DB, fs stuffbin.FileSystem, ko *koanf.Koanf) error {
 	// Insert new preference settings.
 	if _, err := db.Exec(`
 		INSERT INTO settings (key, value) VALUES
- 			('upload.extensions', '["jpg","jpeg","png","gif","svg"]'),
+ 			('upload.extensions', '["jpg","jpeg","png","gif","svg","*"]'),
  			('app.enable_public_archive_rss_content', 'false'),
  			('bounce.actions', '{"soft": {"count": 2, "action": "none"}, "hard": {"count": 2, "action": "blocklist"}, "complaint" : {"count": 2, "action": "blocklist"}}')
  			ON CONFLICT DO NOTHING;
@@ -31,6 +31,23 @@ func V2_5_0(db *sqlx.DB, fs stuffbin.FileSystem, ko *koanf.Koanf) error {
 				ELSE 'image/' || LOWER(SUBSTRING(filename FROM '.([^.]+)$'))
 			END;
 
+	`); err != nil {
+		return err
+	}
+
+	if _, err := db.Exec(`
+		DROP TABLE IF EXISTS campaign_media CASCADE;
+		CREATE TABLE campaign_media (
+		    campaign_id  INTEGER REFERENCES campaigns(id) ON DELETE CASCADE ON UPDATE CASCADE,
+
+		    -- Media items may be deleted, so media_id is nullable
+		    -- and a copy of the original name is maintained here.
+		    media_id     INTEGER NULL REFERENCES media(id) ON DELETE SET NULL ON UPDATE CASCADE,
+
+		    filename     TEXT NOT NULL DEFAULT ''
+		);
+		CREATE UNIQUE INDEX ON campaign_media (campaign_id, media_id);
+		DROP INDEX IF EXISTS idx_camp_media_camp_id; CREATE INDEX idx_camp_media_camp_id ON campaign_media(campaign_id);
 	`); err != nil {
 		return err
 	}

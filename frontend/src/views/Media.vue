@@ -54,7 +54,9 @@
                 <span class="filename is-size-6" :title="m.filename">{{ m.filename }}</span>
               </template>
             </a>
-            <span v-if="m.thumbUrl" class="caption is-size-6" :title="m.filename">{{ m.filename }}</span>
+            <span v-if="m.thumbUrl" class="caption is-size-6" :title="m.filename">
+              {{ m.filename }}
+            </span>
 
             <div class="actions has-text-right">
               <a :href="m.url" target="_blank">
@@ -69,7 +71,6 @@
         <hr />
       </div>
     </section>
-
   </section>
 </template>
 
@@ -83,6 +84,7 @@ export default Vue.extend({
 
   props: {
     isModal: Boolean,
+    type: String,
   },
 
   data() {
@@ -165,6 +167,10 @@ export default Vue.extend({
       let lastStamp = '';
       let lastIndex = 0;
       this.media.forEach((m) => {
+        if (this.$props.type === 'image' && !m.thumbUrl) {
+          return;
+        }
+
         const stamp = dayjs(m.createdAt).format('MMM YYYY');
         if (stamp !== lastStamp) {
           out.push({ title: stamp, items: [] });

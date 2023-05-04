@@ -155,7 +155,7 @@ func (c *Core) GetArchivedCampaigns(offset, limit int) (models.Campaigns, int, e
 }
 
 // CreateCampaign creates a new campaign.
-func (c *Core) CreateCampaign(o models.Campaign, listIDs []int) (models.Campaign, error) {
+func (c *Core) CreateCampaign(o models.Campaign, listIDs []int, mediaIDs []int) (models.Campaign, error) {
 	uu, err := uuid.NewV4()
 	if err != nil {
 		c.log.Printf("error generating UUID: %v", err)
@@ -183,6 +183,7 @@ func (c *Core) CreateCampaign(o models.Campaign, listIDs []int) (models.Campaign
 		o.Archive,
 		o.ArchiveTemplateID,
 		o.ArchiveMeta,
+		pq.Array(mediaIDs),
 	); err != nil {
 		if err == sql.ErrNoRows {
 			return models.Campaign{}, echo.NewHTTPError(http.StatusBadRequest, c.i18n.T("campaigns.noSubs"))
@@ -202,7 +203,7 @@ func (c *Core) CreateCampaign(o models.Campaign, listIDs []int) (models.Campaign
 }
 
 // UpdateCampaign updates a campaign.
-func (c *Core) UpdateCampaign(id int, o models.Campaign, listIDs []int, sendLater bool) (models.Campaign, error) {
+func (c *Core) UpdateCampaign(id int, o models.Campaign, listIDs []int, mediaIDs []int, sendLater bool) (models.Campaign, error) {
 	_, err := c.q.UpdateCampaign.Exec(id,
 		o.Name,
 		o.Subject,
@@ -219,7 +220,8 @@ func (c *Core) UpdateCampaign(id int, o models.Campaign, listIDs []int, sendLate
 		pq.Array(listIDs),
 		o.Archive,
 		o.ArchiveTemplateID,
-		o.ArchiveMeta)
+		o.ArchiveMeta,
+		pq.Array(mediaIDs))
 	if err != nil {
 		c.log.Printf("error updating campaign: %v", err)
 		return models.Campaign{}, echo.NewHTTPError(http.StatusInternalServerError,
