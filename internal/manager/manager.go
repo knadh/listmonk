@@ -101,7 +101,6 @@ type CampaignMessage struct {
 // Message represents a generic message to be pushed to a messenger.
 type Message struct {
 	messenger.Message
-	Subscriber models.Subscriber
 
 	// Messenger is the messenger backend to use: email|postback.
 	Messenger string
