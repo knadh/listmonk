@@ -50,13 +50,12 @@
             <a @click="(e) => onMediaSelect(m, e)" :href="m.url" target="_blank" class="link">
               <img v-if="m.thumbUrl" :src="m.thumbUrl" :title="m.filename" />
               <template v-else>
-                <span class="ext">{{ m.filename.split(".").pop() }}</span><br />
-                <span class="filename is-size-6" :title="m.filename">{{ m.filename }}</span>
+                <span class="ext" :title="m.filename">{{ m.filename.split(".").pop() }}</span><br />
               </template>
+              <span class="caption is-size-5" :title="m.filename">
+                {{ m.filename }}
+              </span>
             </a>
-            <span v-if="m.thumbUrl" class="caption is-size-6" :title="m.filename">
-              {{ m.filename }}
-            </span>
 
             <div class="actions has-text-right">
               <a :href="m.url" target="_blank">

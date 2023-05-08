@@ -9,7 +9,6 @@ import (
 	"strings"
 
 	"github.com/disintegration/imaging"
-	"github.com/h2non/filetype"
 	"github.com/knadh/listmonk/models"
 	"github.com/labstack/echo/v4"
 )
@@ -19,7 +18,10 @@ const (
 	thumbnailSize = 250
 )
 
-var vectorExts = []string{"svg"}
+var (
+	vectorExts = []string{"svg"}
+	imageExts  = []string{"gif", "png", "jpg", "jpeg"}
+)
 
 // handleUploadMedia handles media file uploads.
 func handleUploadMedia(c echo.Context) error {
@@ -51,18 +53,9 @@ func handleUploadMedia(c echo.Context) error {
 
 	var (
 		// Naive check for content type and extension.
-		ext         = strings.ToLower(filepath.Ext(file.Filename))
-		contentType = file.Header.Get("Content-type")
-		isImage     = false
+		ext         = strings.TrimPrefix(strings.ToLower(filepath.Ext(file.Filename)), ".")
+		contentType = file.Header.Get("Content-Type")
 	)
-
-	// Try to get content type and extension from the actual file contents.
-	kind, err := filetype.Match(hdr)
-	if err == nil {
-		ext = kind.Extension
-		contentType = kind.MIME.Value
-		isImage = kind.MIME.Type == "image"
-	}
 
 	// Validate file extension.
 	if !inArray("*", app.constants.MediaUpload.Extensions) {
@@ -100,7 +93,8 @@ func handleUploadMedia(c echo.Context) error {
 	}()
 
 	// Create thumbnail from file for non-vector formats.
-	if isImage && !inArray(ext, vectorExts) {
+	isImage := inArray(ext, imageExts)
+	if isImage {
 		thumbFile, w, h, err := processImage(file)
 		if err != nil {
 			cleanUp = true
@@ -121,11 +115,17 @@ func handleUploadMedia(c echo.Context) error {
 		}
 		thumbfName = tf
 	}
+	if inArray(ext, vectorExts) {
+		thumbfName = fName
+	}
 
 	// Write to the DB.
-	meta := models.JSON{
-		"width":  width,
-		"height": height,
+	meta := models.JSON{}
+	if isImage {
+		meta = models.JSON{
+			"width":  width,
+			"height": height,
+		}
 	}
 	m, err := app.core.InsertMedia(fName, thumbfName, contentType, meta, app.constants.MediaUpload.Provider, app.media)
 	if err != nil {

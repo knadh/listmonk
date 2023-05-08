@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -80,8 +79,6 @@ func (r *runnerDB) GetAttachment(mediaID int) (models.Attachment, error) {
 		return models.Attachment{}, err
 	}
 
-	fmt.Println(m.URL)
-
 	resp, err := r.h.Get(m.URL)
 	if err != nil {
 		return models.Attachment{}, err
@@ -101,7 +98,7 @@ func (r *runnerDB) GetAttachment(mediaID int) (models.Attachment, error) {
 	return models.Attachment{
 		Name:    m.Filename,
 		Content: body,
-		Header:  manager.MakeAttachmentHeader(m.Filename, "base64"),
+		Header:  manager.MakeAttachmentHeader(m.Filename, "base64", m.ContentType),
 	}, nil
 }
 

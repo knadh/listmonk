@@ -725,6 +725,8 @@ section.campaigns {
   }
 }
 
+.campaign 
+
 section.analytics {
   .charts {
     position: relative;
@@ -775,7 +777,7 @@ section.analytics {
       max-height: 90px;
       overflow: hidden;
       position: relative;
-      min-width: 250px;
+      width: 250px;
       min-height: 250px;
       text-align: center;
 
@@ -804,11 +806,12 @@ section.analytics {
 
       .caption {
         background-color: rgba($white, .70);
+        color: $grey;
         position: absolute;
         bottom: 0;
         left: 0;
         right: 0;
-        padding: 5px;
+        padding: 5px 15px;
 
         white-space: nowrap;
         overflow: hidden;

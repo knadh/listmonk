@@ -795,7 +795,8 @@ clists AS (
     DELETE FROM campaign_lists WHERE campaign_id = $1 AND NOT(list_id = ANY($14))
 ),
 med AS (
-    DELETE FROM campaign_media WHERE campaign_id = $1 AND NOT(media_id = ANY($18)) RETURNING media_id
+    DELETE FROM campaign_media WHERE campaign_id = $1
+    AND media_id IS NULL or NOT(media_id = ANY($18)) RETURNING media_id
 ),
 medi AS (
     INSERT INTO campaign_media (campaign_id, media_id, filename)

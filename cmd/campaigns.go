@@ -439,6 +439,11 @@ func handleTestCampaign(c echo.Context) error {
 	camp.ContentType = req.ContentType
 	camp.Headers = req.Headers
 	camp.TemplateID = req.TemplateID
+	for _, id := range req.MediaIDs {
+		if id > 0 {
+			camp.MediaIDs = append(camp.MediaIDs, int64(id))
+		}
+	}
 
 	// Send the test messages.
 	for _, s := range subs {

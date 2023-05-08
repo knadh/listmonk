@@ -576,7 +576,7 @@ func handleSelfExportSubscriberData(c echo.Context) error {
 			{
 				Name:    fname,
 				Content: b,
-				Header:  manager.MakeAttachmentHeader(fname, "base64"),
+				Header:  manager.MakeAttachmentHeader(fname, "base64", "application/json"),
 			},
 		},
 	}); err != nil {

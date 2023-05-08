@@ -57,10 +57,11 @@ func handleSendTxMessage(c echo.Context) error {
 
 			m.Attachments = append(m.Attachments, models.Attachment{
 				Name:    f.Filename,
-				Header:  manager.MakeAttachmentHeader(f.Filename, "base64"),
+				Header:  manager.MakeAttachmentHeader(f.Filename, "base64", f.Header.Get("Content-Type")),
 				Content: b,
 			})
 		}
+
 	} else if err := c.Bind(&m); err != nil {
 		return err
 	}

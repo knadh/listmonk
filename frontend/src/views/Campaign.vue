@@ -478,6 +478,7 @@ export default Vue.extend({
         body: this.form.content.body,
         altbody: this.form.content.contentType !== 'plain' ? this.form.altbody : null,
         subscribers: this.form.testEmails,
+        media: this.form.media.map((m) => m.id),
       };
 
       this.$api.testCampaign(data).then(() => {

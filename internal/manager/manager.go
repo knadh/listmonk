@@ -233,6 +233,11 @@ func (m *Manager) PushCampaignMessage(msg CampaignMessage) error {
 	t := time.NewTicker(pushTimeout)
 	defer t.Stop()
 
+	// Load any media/attachments.
+	if err := m.attachMedia(msg.Campaign); err != nil {
+		return err
+	}
+
 	select {
 	case m.campMsgQueue <- msg:
 	case <-t.C:
@@ -365,6 +370,7 @@ func (m *Manager) worker() {
 				AltBody:     msg.altBody,
 				Subscriber:  msg.Subscriber,
 				Campaign:    msg.Campaign,
+				Attachments: msg.Campaign.Attachments,
 			}
 
 			h := textproto.MIMEHeader{}
@@ -551,13 +557,8 @@ func (m *Manager) addCampaign(c *models.Campaign) error {
 	}
 
 	// Load any media/attachments.
-	for _, mid := range []int64(c.MediaIDs) {
-		a, err := m.store.GetAttachment(int(mid))
-		if err != nil {
-			return fmt.Errorf("error fetching attachment %d on campaign %s: %v", mid, c.Name, err)
-		}
-
-		c.Attachments = append(c.Attachments, a)
+	if err := m.attachMedia(c); err != nil {
+		return err
 	}
 
 	// Add the campaign to the active map.
@@ -813,16 +814,34 @@ func (m *Manager) makeGnericFuncMap() template.FuncMap {
 	return f
 }
 
+func (m *Manager) attachMedia(c *models.Campaign) error {
+	// Load any media/attachments.
+	for _, mid := range []int64(c.MediaIDs) {
+		a, err := m.store.GetAttachment(int(mid))
+		if err != nil {
+			return fmt.Errorf("error fetching attachment %d on campaign %s: %v", mid, c.Name, err)
+		}
+
+		c.Attachments = append(c.Attachments, a)
+	}
+
+	return nil
+}
+
 // MakeAttachmentHeader is a helper function that returns a
 // textproto.MIMEHeader tailored for attachments, primarily
 // email. If no encoding is given, base64 is assumed.
-func MakeAttachmentHeader(filename, encoding string) textproto.MIMEHeader {
+func MakeAttachmentHeader(filename, encoding, contentType string) textproto.MIMEHeader {
 	if encoding == "" {
 		encoding = "base64"
 	}
+	if contentType == "" {
+		contentType = "application/octet-stream"
+	}
+
 	h := textproto.MIMEHeader{}
 	h.Set("Content-Disposition", "attachment; filename="+filename)
-	h.Set("Content-Type", "application/json; name=\""+filename+"\"")
+	h.Set("Content-Type", fmt.Sprintf("%s; name=\""+filename+"\"", contentType))
 	h.Set("Content-Transfer-Encoding", encoding)
 	return h
 }
