@@ -4,6 +4,7 @@ import (
 	"crypto/rand"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -59,9 +60,15 @@ func (c *Client) Put(filename string, cType string, src io.ReadSeeker) (string, 
 	return filename, nil
 }
 
-// Get accepts a filename and retrieves the full path from disk.
-func (c *Client) Get(name string) string {
+// GetURL accepts a filename and retrieves the full path from disk.
+func (c *Client) GetURL(name string) string {
 	return fmt.Sprintf("%s%s/%s", c.opts.RootURL, c.opts.UploadURI, name)
+}
+
+// GetBlob accepts a URL, reads the file, and returns the blob.
+func (c *Client) GetBlob(url string) ([]byte, error) {
+	b, err := ioutil.ReadFile(filepath.Join(getDir(c.opts.UploadPath), filepath.Base(url)))
+	return b, err
 }
 
 // Delete accepts a filename and removes it from disk.
