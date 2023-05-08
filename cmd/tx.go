@@ -9,7 +9,6 @@ import (
 	"strings"
 
 	"github.com/knadh/listmonk/internal/manager"
-	"github.com/knadh/listmonk/internal/messenger"
 	"github.com/knadh/listmonk/models"
 	"github.com/labstack/echo/v4"
 )
@@ -56,9 +55,9 @@ func handleSendTxMessage(c echo.Context) error {
 					app.i18n.Ts("globals.messages.invalidFields", "name", fmt.Sprintf("file: %s", err.Error())))
 			}
 
-			m.Attachments = append(m.Attachments, models.TxAttachment{
+			m.Attachments = append(m.Attachments, models.Attachment{
 				Name:    f.Filename,
-				Header:  messenger.MakeAttachmentHeader(f.Filename, "base64"),
+				Header:  manager.MakeAttachmentHeader(f.Filename, "base64"),
 				Content: b,
 			})
 		}
@@ -121,7 +120,7 @@ func handleSendTxMessage(c echo.Context) error {
 		}
 
 		// Prepare the final message.
-		msg := manager.Message{}
+		msg := models.Message{}
 		msg.Subscriber = sub
 		msg.To = []string{sub.Email}
 		msg.From = m.FromEmail
@@ -130,7 +129,7 @@ func handleSendTxMessage(c echo.Context) error {
 		msg.Messenger = m.Messenger
 		msg.Body = m.Body
 		for _, a := range m.Attachments {
-			msg.Attachments = append(msg.Attachments, messenger.Attachment{
+			msg.Attachments = append(msg.Attachments, models.Attachment{
 				Name:    a.Name,
 				Header:  a.Header,
 				Content: a.Content,

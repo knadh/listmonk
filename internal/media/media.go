@@ -24,5 +24,6 @@ type Media struct {
 type Store interface {
 	Put(string, string, io.ReadSeeker) (string, error)
 	Delete(string) error
-	Get(string) string
+	GetURL(string) string
+	GetBlob(string) ([]byte, error)
 }

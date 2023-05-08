@@ -13,7 +13,6 @@ import (
 	"github.com/knadh/koanf/parsers/json"
 	"github.com/knadh/koanf/providers/rawbytes"
 	"github.com/knadh/koanf/v2"
-	"github.com/knadh/listmonk/internal/messenger"
 	"github.com/knadh/listmonk/internal/messenger/email"
 	"github.com/knadh/listmonk/models"
 	"github.com/labstack/echo/v4"
@@ -250,7 +249,7 @@ func handleTestSMTPSettings(c echo.Context) error {
 		return err
 	}
 
-	m := messenger.Message{}
+	m := models.Message{}
 	m.ContentType = app.notifTpls.contentType
 	m.From = app.constants.FromEmail
 	m.To = []string{to}

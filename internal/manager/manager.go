@@ -13,7 +13,6 @@ import (
 
 	"github.com/Masterminds/sprig/v3"
 	"github.com/knadh/listmonk/internal/i18n"
-	"github.com/knadh/listmonk/internal/messenger"
 	"github.com/knadh/listmonk/models"
 	"github.com/paulbellamy/ratecounter"
 )
@@ -40,6 +39,15 @@ type Store interface {
 	DeleteSubscriber(id int64) error
 }
 
+// Messenger is an interface for a generic messaging backend,
+// for instance, e-mail, SMS etc.
+type Messenger interface {
+	Name() string
+	Push(models.Message) error
+	Flush() error
+	Close() error
+}
+
 // CampStats contains campaign stats like per minute send rate.
 type CampStats struct {
 	SendRate int
@@ -51,7 +59,7 @@ type Manager struct {
 	cfg        Config
 	store      Store
 	i18n       *i18n.I18n
-	messengers map[string]messenger.Messenger
+	messengers map[string]Messenger
 	notifCB    models.AdminNotifCallback
 	logger     *log.Logger
 
@@ -73,7 +81,7 @@ type Manager struct {
 	campMsgQueue       chan CampaignMessage
 	campMsgErrorQueue  chan msgError
 	campMsgErrorCounts map[int]int
-	msgQueue           chan Message
+	msgQueue           chan models.Message
 
 	// Sliding window keeps track of the total number of messages sent in a period
 	// and on reaching the specified limit, waits until the window is over before
@@ -96,15 +104,6 @@ type CampaignMessage struct {
 	body     []byte
 	altBody  []byte
 	unsubURL string
-}
-
-// Message represents a generic message to be pushed to a messenger.
-type Message struct {
-	messenger.Message
-	Subscriber models.Subscriber
-
-	// Messenger is the messenger backend to use: email|postback.
-	Messenger string
 }
 
 // Config has parameters for configuring the manager.
@@ -164,14 +163,14 @@ func New(cfg Config, store Store, notifCB models.AdminNotifCallback, i *i18n.I18
 		i18n:               i,
 		notifCB:            notifCB,
 		logger:             l,
-		messengers:         make(map[string]messenger.Messenger),
+		messengers:         make(map[string]Messenger),
 		camps:              make(map[int]*models.Campaign),
 		campRates:          make(map[int]*ratecounter.RateCounter),
 		tpls:               make(map[int]*models.Template),
 		links:              make(map[string]string),
 		subFetchQueue:      make(chan *models.Campaign, cfg.Concurrency),
 		campMsgQueue:       make(chan CampaignMessage, cfg.Concurrency*2),
-		msgQueue:           make(chan Message, cfg.Concurrency),
+		msgQueue:           make(chan models.Message, cfg.Concurrency),
 		campMsgErrorQueue:  make(chan msgError, cfg.MaxSendErrors),
 		campMsgErrorCounts: make(map[int]int),
 		slidingWindowStart: time.Now(),
@@ -203,7 +202,7 @@ func (m *Manager) NewCampaignMessage(c *models.Campaign, s models.Subscriber) (C
 }
 
 // AddMessenger adds a Messenger messaging backend to the manager.
-func (m *Manager) AddMessenger(msg messenger.Messenger) error {
+func (m *Manager) AddMessenger(msg Messenger) error {
 	id := msg.Name()
 	if _, ok := m.messengers[id]; ok {
 		return fmt.Errorf("messenger '%s' is already loaded", id)
@@ -214,7 +213,7 @@ func (m *Manager) AddMessenger(msg messenger.Messenger) error {
 
 // PushMessage pushes an arbitrary non-campaign Message to be sent out by the workers.
 // It times out if the queue is busy.
-func (m *Manager) PushMessage(msg Message) error {
+func (m *Manager) PushMessage(msg models.Message) error {
 	t := time.NewTicker(pushTimeout)
 	defer t.Stop()
 
@@ -356,7 +355,7 @@ func (m *Manager) worker() {
 			numMsg++
 
 			// Outgoing message.
-			out := messenger.Message{
+			out := models.Message{
 				From:        msg.from,
 				To:          []string{msg.to},
 				Subject:     msg.subject,
@@ -411,7 +410,7 @@ func (m *Manager) worker() {
 				return
 			}
 
-			err := m.messengers[msg.Messenger].Push(msg.Message)
+			err := m.messengers[msg.Messenger].Push(msg)
 			if err != nil {
 				m.logger.Printf("error sending message '%s': %v", msg.Subject, err)
 			}
@@ -801,4 +800,18 @@ func (m *Manager) makeGnericFuncMap() template.FuncMap {
 	}
 
 	return f
+}
+
+// MakeAttachmentHeader is a helper function that returns a
+// textproto.MIMEHeader tailored for attachments, primarily
+// email. If no encoding is given, base64 is assumed.
+func MakeAttachmentHeader(filename, encoding string) textproto.MIMEHeader {
+	if encoding == "" {
+		encoding = "base64"
+	}
+	h := textproto.MIMEHeader{}
+	h.Set("Content-Disposition", "attachment; filename="+filename)
+	h.Set("Content-Type", "application/json; name=\""+filename+"\"")
+	h.Set("Content-Transfer-Encoding", encoding)
+	return h
 }

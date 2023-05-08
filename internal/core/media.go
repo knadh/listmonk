@@ -19,8 +19,8 @@ func (c *Core) GetAllMedia(provider string, s media.Store) ([]media.Media, error
 	}
 
 	for i := 0; i < len(out); i++ {
-		out[i].URL = s.Get(out[i].Filename)
-		out[i].ThumbURL = s.Get(out[i].Thumb)
+		out[i].URL = s.GetURL(out[i].Filename)
+		out[i].ThumbURL = s.GetURL(out[i].Thumb)
 	}
 
 	return out, nil
@@ -39,8 +39,8 @@ func (c *Core) GetMedia(id int, uuid string, s media.Store) (media.Media, error)
 			c.i18n.Ts("globals.messages.errorFetching", "name", "{globals.terms.media}", "error", pqErrMsg(err)))
 	}
 
-	out.URL = s.Get(out.Filename)
-	out.ThumbURL = s.Get(out.Thumb)
+	out.URL = s.GetURL(out.Filename)
+	out.ThumbURL = s.GetURL(out.Thumb)
 
 	return out, nil
 }

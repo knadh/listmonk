@@ -13,7 +13,7 @@ import (
 	"strings"
 
 	"github.com/knadh/listmonk/internal/i18n"
-	"github.com/knadh/listmonk/internal/messenger"
+	"github.com/knadh/listmonk/internal/manager"
 	"github.com/knadh/listmonk/models"
 	"github.com/labstack/echo/v4"
 	"github.com/lib/pq"
@@ -566,17 +566,17 @@ func handleSelfExportSubscriberData(c echo.Context) error {
 
 	// Send the data as a JSON attachment to the subscriber.
 	const fname = "data.json"
-	if err := app.messengers[emailMsgr].Push(messenger.Message{
+	if err := app.messengers[emailMsgr].Push(models.Message{
 		ContentType: app.notifTpls.contentType,
 		From:        app.constants.FromEmail,
 		To:          []string{data.Email},
 		Subject:     app.i18n.Ts("email.data.title"),
 		Body:        msg.Bytes(),
-		Attachments: []messenger.Attachment{
+		Attachments: []models.Attachment{
 			{
 				Name:    fname,
 				Content: b,
-				Header:  messenger.MakeAttachmentHeader(fname, "base64"),
+				Header:  manager.MakeAttachmentHeader(fname, "base64"),
 			},
 		},
 	}); err != nil {

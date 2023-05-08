@@ -154,11 +154,11 @@ paths:
               $ref: "#/components/schemas/SMTPTest"
       responses:
         "200":
-          description: response
+          description: response 
           content:
             application/json:
               schema:
-                type: object
+                type: object 
                 properties:
                   data:
                     type: boolean

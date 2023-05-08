@@ -3,6 +3,8 @@ package s3
 import (
 	"fmt"
 	"io"
+	"io/ioutil"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -80,7 +82,7 @@ func (c *Client) Put(name string, cType string, file io.ReadSeeker) (string, err
 }
 
 // Get accepts the filename of the object stored and retrieves from S3.
-func (c *Client) Get(name string) string {
+func (c *Client) GetURL(name string) string {
 	// Generate a private S3 pre-signed URL if it's a private bucket, and there
 	// is no public URL provided.
 	if c.opts.BucketType == "private" && c.opts.PublicURL == "" {
@@ -97,6 +99,25 @@ func (c *Client) Get(name string) string {
 	// Generate a public S3 URL if it's a public bucket or a public URL is
 	// provided.
 	return c.makeFileURL(name)
+}
+
+// GetBlob reads a file from S3 and returns the raw bytes.
+func (c *Client) GetBlob(url string) ([]byte, error) {
+	file, err := c.s3.FileDownload(simples3.DownloadInput{
+		Bucket:    c.opts.Bucket,
+		ObjectKey: c.makeBucketPath(filepath.Base(url)),
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	b, err := ioutil.ReadAll(file)
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+
+	return b, nil
 }
 
 // Delete accepts the filename of the object and deletes from S3.
