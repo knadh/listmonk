@@ -31,7 +31,6 @@ import (
 	"github.com/knadh/listmonk/internal/media"
 	"github.com/knadh/listmonk/internal/media/providers/filesystem"
 	"github.com/knadh/listmonk/internal/media/providers/s3"
-	"github.com/knadh/listmonk/internal/messenger"
 	"github.com/knadh/listmonk/internal/messenger/email"
 	"github.com/knadh/listmonk/internal/messenger/postback"
 	"github.com/knadh/listmonk/internal/subimporter"
@@ -484,7 +483,7 @@ func initImporter(q *models.Queries, db *sqlx.DB, app *App) *subimporter.Importe
 }
 
 // initSMTPMessenger initializes the SMTP messenger.
-func initSMTPMessenger(m *manager.Manager) messenger.Messenger {
+func initSMTPMessenger(m *manager.Manager) manager.Messenger {
 	var (
 		mapKeys = ko.MapKeys("smtp")
 		servers = make([]email.Server, 0, len(mapKeys))
@@ -526,13 +525,13 @@ func initSMTPMessenger(m *manager.Manager) messenger.Messenger {
 
 // initPostbackMessengers initializes and returns all the enabled
 // HTTP postback messenger backends.
-func initPostbackMessengers(m *manager.Manager) []messenger.Messenger {
+func initPostbackMessengers(m *manager.Manager) []manager.Messenger {
 	items := ko.Slices("messengers")
 	if len(items) == 0 {
 		return nil
 	}
 
-	var out []messenger.Messenger
+	var out []manager.Messenger
 	for _, item := range items {
 		if !item.Bool("enabled") {
 			continue

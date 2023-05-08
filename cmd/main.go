@@ -22,7 +22,6 @@ import (
 	"github.com/knadh/listmonk/internal/i18n"
 	"github.com/knadh/listmonk/internal/manager"
 	"github.com/knadh/listmonk/internal/media"
-	"github.com/knadh/listmonk/internal/messenger"
 	"github.com/knadh/listmonk/internal/subimporter"
 	"github.com/knadh/listmonk/models"
 	"github.com/knadh/paginator"
@@ -43,7 +42,7 @@ type App struct {
 	constants  *constants
 	manager    *manager.Manager
 	importer   *subimporter.Importer
-	messengers map[string]messenger.Messenger
+	messengers map[string]manager.Messenger
 	media      media.Store
 	i18n       *i18n.I18n
 	bounce     *bounce.Manager
@@ -167,7 +166,7 @@ func main() {
 		db:         db,
 		constants:  initConstants(),
 		media:      initMediaStore(),
-		messengers: make(map[string]messenger.Messenger),
+		messengers: make(map[string]manager.Messenger),
 		log:        lo,
 		bufLog:     bufLog,
 		captcha:    initCaptcha(),

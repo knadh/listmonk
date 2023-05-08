@@ -347,6 +347,34 @@ type Bounce struct {
 	Total int `db:"total" json:"-"`
 }
 
+// Message is the message pushed to a Messenger.
+type Message struct {
+	From        string
+	To          []string
+	Subject     string
+	ContentType string
+	Body        []byte
+	AltBody     []byte
+	Headers     textproto.MIMEHeader
+	Attachments []Attachment
+
+	Subscriber Subscriber
+
+	// Campaign is generally the same instance for a large number of subscribers.
+	Campaign *Campaign
+
+	// Messenger is the messenger backend to use: email|postback.
+	Messenger string
+}
+
+// Attachment represents a file or blob attachment that can be
+// sent along with a message by a Messenger.
+type Attachment struct {
+	Name    string
+	Header  textproto.MIMEHeader
+	Content []byte
+}
+
 // TxMessage represents an e-mail campaign.
 type TxMessage struct {
 	SubscriberEmails []string `json:"subscriber_emails"`
@@ -364,19 +392,12 @@ type TxMessage struct {
 	Messenger   string                 `json:"messenger"`
 
 	// File attachments added from multi-part form data.
-	Attachments []TxAttachment `json:"-"`
+	Attachments []Attachment `json:"-"`
 
 	Subject    string             `json:"-"`
 	Body       []byte             `json:"-"`
 	Tpl        *template.Template `json:"-"`
 	SubjectTpl *txttpl.Template   `json:"-"`
-}
-
-// TxAttachment is used by TxMessage, consists of FileName and file Content in bytes
-type TxAttachment struct {
-	Name    string
-	Header  textproto.MIMEHeader
-	Content []byte
 }
 
 // markdown is a global instance of Markdown parser and renderer.
