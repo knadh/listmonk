@@ -9,8 +9,8 @@ import (
 
 	"github.com/gofrs/uuid"
 	"github.com/knadh/listmonk/internal/core"
+	"github.com/knadh/listmonk/internal/manager"
 	"github.com/knadh/listmonk/internal/media"
-	"github.com/knadh/listmonk/internal/messenger"
 	"github.com/knadh/listmonk/models"
 	"github.com/lib/pq"
 )
@@ -101,7 +101,7 @@ func (r *runnerDB) GetAttachment(mediaID int) (models.Attachment, error) {
 	return models.Attachment{
 		Name:    m.Filename,
 		Content: body,
-		Header:  messenger.MakeAttachmentHeader(m.Filename, "base64"),
+		Header:  manager.MakeAttachmentHeader(m.Filename, "base64"),
 	}, nil
 }
 
