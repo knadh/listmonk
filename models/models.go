@@ -261,6 +261,12 @@ type Campaign struct {
 	SubjectTpl          *txttpl.Template   `json:"-"`
 	AltBodyTpl          *template.Template `json:"-"`
 
+	// List of media (attachment) IDs obtained from the next-campaign query
+	// while sending a campaign.
+	MediaIDs pq.Int64Array `json:"-" db:"media_id"`
+	// Fetched bodies of the attachments.
+	Attachments []Attachment `json:"-" db:"-"`
+
 	// Pseudofield for getting the total number of subscribers
 	// in searches and queries.
 	Total int `db:"total" json:"-"`

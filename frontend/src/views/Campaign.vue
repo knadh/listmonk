@@ -195,10 +195,7 @@
             <b-field v-if="isAttachFieldVisible" :label="$t('campaigns.attachments')"
               label-position="on-border" expanded>
               <b-taginput v-model="form.media" name="media" ellipsis icon="tag-outline"
-                ref="media" field="filename" @focus="onOpenAttach" />
-                <span class="icon is-right">
-                  <i class="mdi mdi-alert-circle mdi-24px"></i>
-                </span>
+                ref="media" field="filename" @focus="onOpenAttach" :disabled="!canEdit" />
             </b-field>
           </div>
           <div class="column has-text-right">

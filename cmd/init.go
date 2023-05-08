@@ -453,7 +453,7 @@ func initCampaignManager(q *models.Queries, cs *constants, app *App) *manager.Ma
 		SlidingWindowRate:     ko.Int("app.message_sliding_window_rate"),
 		ScanInterval:          time.Second * 5,
 		ScanCampaigns:         !ko.Bool("passive"),
-	}, newManagerStore(q), campNotifCB, app.i18n, lo)
+	}, newManagerStore(q, app.core, app.media), campNotifCB, app.i18n, lo)
 }
 
 func initTxTemplates(m *manager.Manager, app *App) {

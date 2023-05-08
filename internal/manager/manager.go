@@ -33,6 +33,7 @@ type Store interface {
 	NextCampaigns(excludeIDs []int64) ([]*models.Campaign, error)
 	NextSubscribers(campID, limit int) ([]models.Subscriber, error)
 	GetCampaign(campID int) (*models.Campaign, error)
+	GetAttachment(mediaID int) (models.Attachment, error)
 	UpdateCampaignStatus(campID int, status string) error
 	CreateLink(url string) (string, error)
 	BlocklistSubscriber(id int64) error
@@ -547,6 +548,16 @@ func (m *Manager) addCampaign(c *models.Campaign) error {
 	// Load the template.
 	if err := c.CompileTemplate(m.TemplateFuncs(c)); err != nil {
 		return err
+	}
+
+	// Load any media/attachments.
+	for _, mid := range []int64(c.MediaIDs) {
+		a, err := m.store.GetAttachment(int(mid))
+		if err != nil {
+			return fmt.Errorf("error fetching attachment %d on campaign %s: %v", mid, c.Name, err)
+		}
+
+		c.Attachments = append(c.Attachments, a)
 	}
 
 	// Add the campaign to the active map.

@@ -617,6 +617,12 @@ campLists AS (
     INNER JOIN campaign_lists ON (campaign_lists.list_id = lists.id)
     WHERE campaign_lists.campaign_id = ANY(SELECT id FROM camps)
 ),
+campMedia AS (
+    -- Get the list_ids and their optin statuses for the campaigns found in the previous step.
+    SELECT campaign_id, ARRAY_AGG(campaign_media.media_id)::INT[] AS media_id FROM campaign_media
+    WHERE campaign_id = ANY(SELECT id FROM camps) AND media_id IS NOT NULL
+    GROUP BY campaign_id
+),
 counts AS (
     -- For each campaign above, get the total number of subscribers and the max_subscriber_id
     -- across all its lists.
@@ -651,7 +657,7 @@ u AS (
     FROM (SELECT * FROM counts) co
     WHERE ca.id = co.campaign_id
 )
-SELECT * FROM camps;
+SELECT camps.*, campMedia.media_id FROM camps LEFT JOIN campMedia ON (campMedia.campaign_id = camps.id);
 
 -- name: get-campaign-analytics-unique-counts
 WITH intval AS (

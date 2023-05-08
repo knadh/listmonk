@@ -1,7 +1,16 @@
 package main
 
 import (
+	"fmt"
+	"io"
+	"io/ioutil"
+	"net/http"
+	"time"
+
 	"github.com/gofrs/uuid"
+	"github.com/knadh/listmonk/internal/core"
+	"github.com/knadh/listmonk/internal/media"
+	"github.com/knadh/listmonk/internal/messenger"
 	"github.com/knadh/listmonk/models"
 	"github.com/lib/pq"
 )
@@ -10,11 +19,27 @@ import (
 // database.
 type runnerDB struct {
 	queries *models.Queries
+	core    *core.Core
+	med     media.Store
+	h       *http.Client
 }
 
-func newManagerStore(q *models.Queries) *runnerDB {
+func newManagerStore(q *models.Queries, c *core.Core, m media.Store) *runnerDB {
+	timeout := time.Second * 10
+
 	return &runnerDB{
 		queries: q,
+		core:    c,
+		med:     m,
+		h: &http.Client{
+			Timeout: timeout,
+			Transport: &http.Transport{
+				MaxIdleConnsPerHost:   10,
+				MaxConnsPerHost:       10,
+				ResponseHeaderTimeout: timeout,
+				IdleConnTimeout:       timeout,
+			},
+		},
 	}
 }
 
@@ -46,6 +71,38 @@ func (r *runnerDB) GetCampaign(campID int) (*models.Campaign, error) {
 func (r *runnerDB) UpdateCampaignStatus(campID int, status string) error {
 	_, err := r.queries.UpdateCampaignStatus.Exec(campID, status)
 	return err
+}
+
+// GetAttachment fetches a media attachment blob.
+func (r *runnerDB) GetAttachment(mediaID int) (models.Attachment, error) {
+	m, err := r.core.GetMedia(mediaID, "", r.med)
+	if err != nil {
+		return models.Attachment{}, err
+	}
+
+	fmt.Println(m.URL)
+
+	resp, err := r.h.Get(m.URL)
+	if err != nil {
+		return models.Attachment{}, err
+	}
+
+	defer func() {
+		// Drain and close the body to let the Transport reuse the connection
+		io.Copy(ioutil.Discard, resp.Body)
+		resp.Body.Close()
+	}()
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return models.Attachment{}, err
+	}
+
+	return models.Attachment{
+		Name:    m.Filename,
+		Content: body,
+		Header:  messenger.MakeAttachmentHeader(m.Filename, "base64"),
+	}, nil
 }
 
 // CreateLink registers a URL with a UUID for tracking clicks and returns the UUID.
