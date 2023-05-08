@@ -142,14 +142,14 @@ paths:
                 properties:
                   data:
                     type: boolean
-  
+
   /settings/smtp/test:
-    post: 
+    post:
       tags:
-        - Settings 
+        - Settings
       requestBody:
         content:
-          application/json: 
+          application/json:
             schema:
               $ref: "#/components/schemas/SMTPTest"
       responses:
@@ -215,6 +215,11 @@ paths:
           schema:
             type: integer
             format: int32
+        - in: query
+          name: query
+          description: query subscribers with an SQL expression.
+          schema:
+            type: string
 
       responses:
         "200":
@@ -407,6 +412,8 @@ paths:
                 properties:
                   data:
                     type: array
+                    items:
+                      $ref: "#/components/schemas/Bounce"
 
     delete:
       description: deletes a subscriber's bounce records
@@ -537,6 +544,8 @@ paths:
                     properties:
                       results:
                         type: array
+                        items:
+                          $ref: "#/components/schemas/Bounce"
                       query:
                         type: string
                       total:
@@ -563,6 +572,13 @@ paths:
   "/bounces/{id}":
     get:
       description: handles retrieval of bounce record by id
+      parameters:
+        - in: path
+          name: id
+          required: true
+          description: The id value of the bounce you want to retreive.
+          schema:
+            type: integer
       tags:
         - Bounces
       responses:
@@ -575,6 +591,13 @@ paths:
 
     delete:
       description: handles bounce deletion, either a single one (ID in the URI), or a list.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          description: The id value of the bounce you want to delete.
+          schema:
+            type: integer
       tags:
         - Bounces
       responses:
@@ -667,7 +690,7 @@ paths:
         - in: path
           name: list_id
           required: True
-          description: The id value of the list you want to get.
+          description: The id value of the list you want to retreive.
           schema:
             type: number
 
@@ -718,9 +741,9 @@ paths:
         - Lists
       parameters:
         - in: path
-          name: id
+          name: list_id
           required: True
-          description: The id value of the lists you want to de;ete.
+          description: The id value of the lists you want to delete.
           schema:
             type: integer
 
@@ -971,7 +994,7 @@ paths:
         - Campaigns
       parameters:
         - in: path
-          name: id
+          name: campaign_id
           required: True
           description: The id value of the campaign you want to get the preview of
           schema:
@@ -1019,7 +1042,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Campaign"
-
 
   "/campaigns/{campaign_id}/content":
     post:
@@ -1118,7 +1140,7 @@ paths:
         - Media
       parameters:
         - in: path
-          name: id
+          name: media_id
           required: true
           description: media file id
           schema:
@@ -2954,14 +2976,6 @@ components:
                         type: number
                       name:
                         type: string
-            query:
-              type: string
-            total:
-              type: number
-            per_page:
-              type: number
-            page:
-              type: number
 
     List:
       type: object
