@@ -1,7 +1,9 @@
 name: goreleaser
 
-on: workflow_dispatch
-
+on:
+  push:
+    tags:
+      - "v*" # Will trigger only if tag is pushed matching pattern `v*` (Eg: `v0.1.0`)
 
 jobs:
   goreleaser:
