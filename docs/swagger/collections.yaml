@@ -40,7 +40,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ServerConfig"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/ServerConfig"
 
   "/lang/{lang}":
     get:
@@ -60,7 +63,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/LanguagePack"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/LanguagePack"
 
   /dashboard/charts:
     get:
@@ -108,7 +114,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/DashboardCount"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/DashboardCount"
 
   /settings:
     get:
@@ -121,7 +130,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Settings"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Settings"
 
     put:
       tags:
@@ -261,7 +273,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Subscriber"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Subscriber"
 
   "/subscribers/{subscriberId}":
     get:
@@ -282,7 +297,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Subscriber"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Subscriber"
 
   /subscribers/lists:
     put:
@@ -587,7 +605,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Bounce"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Bounce"
 
     delete:
       description: handles bounce deletion, either a single one (ID in the URI), or a list.
@@ -679,7 +700,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/List"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/List"
 
   "/lists/{list_id}":
     get:
@@ -700,7 +724,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/List"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/List"
     put:
       description: handles list modification
       tags:
@@ -734,7 +761,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/List"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/List"
     delete:
       description: handles list deletion, either a single one (ID in the URI), or a list.
       tags:
@@ -769,7 +799,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ImportStatus"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/ImportStatus"
 
     post:
       description: handles the uploading and bulk importing of a ZIP file of one or more CSV files.
@@ -791,7 +824,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ImportStatus"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/ImportStatus"
 
     delete:
       description: sends a stop signal to the importer.
@@ -803,7 +839,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ImportStatus"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/ImportStatus"
 
   /import/subscribers/logs:
     get:
@@ -879,7 +918,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/NewCampaign"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/NewCampaign"
 
   "/campaigns/{campaign_id}":
     get:
@@ -900,7 +942,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Campaign"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Campaign"
 
     put:
       tags:
@@ -918,7 +963,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/CampaignUpdate"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/CampaignUpdate"
 
     delete:
       description: deletes specified campaign
@@ -1041,7 +1089,11 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Campaign"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Campaign"
+
 
   "/campaigns/{campaign_id}/content":
     post:
@@ -1131,7 +1183,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/MediaFileObject"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/MediaFileObject"
 
   "/media/{media_id}":
     get:
@@ -1151,7 +1206,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/MediaFileObject"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/MediaFileObject"
 
     delete:
       description: handles deletion of uploaded media.
@@ -1211,7 +1269,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Template"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Template"
 
     delete:
       description: handles deletion of templates
@@ -1359,6 +1420,13 @@ paths:
       responses:
         "200":
           description: response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: integer
 
   "/public/lists":
     get:
