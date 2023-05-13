@@ -50,7 +50,7 @@ When configuring auth proxies and web application firewalls, use this table.
 
 ## Media Uploads
 
-### Filesystem
+### Filesystem with docker
 
 When configuring `docker` volume mounts for using filesystem media uploads, you can follow either of two approaches.
 
@@ -82,3 +82,9 @@ volumes:
 ```
 
 The files will be available inside `/data/uploads` directory on the host machine.
+
+### Filesystem without docker
+
+If you run the binary directly without docker, follow this approach.
+
+In the same directory as the listmonk binary, create a folder named `uploads` and make sure it is writable by the user that runs listmonk. Uploads will be stored in the `uploads` folder.
