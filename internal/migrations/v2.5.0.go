@@ -36,8 +36,7 @@ func V2_5_0(db *sqlx.DB, fs stuffbin.FileSystem, ko *koanf.Koanf) error {
 	}
 
 	if _, err := db.Exec(`
-		DROP TABLE IF EXISTS campaign_media CASCADE;
-		CREATE TABLE campaign_media (
+		CREATE TABLE IF NOT EXISTS campaign_media (
 		    campaign_id  INTEGER REFERENCES campaigns(id) ON DELETE CASCADE ON UPDATE CASCADE,
 
 		    -- Media items may be deleted, so media_id is nullable
@@ -46,8 +45,8 @@ func V2_5_0(db *sqlx.DB, fs stuffbin.FileSystem, ko *koanf.Koanf) error {
 
 		    filename     TEXT NOT NULL DEFAULT ''
 		);
-		CREATE UNIQUE INDEX ON campaign_media (campaign_id, media_id);
-		DROP INDEX IF EXISTS idx_camp_media_camp_id; CREATE INDEX idx_camp_media_camp_id ON campaign_media(campaign_id);
+		CREATE UNIQUE INDEX IF NOT EXISTS idx_camp_media_id ON campaign_media (campaign_id, media_id);
+		CREATE INDEX IF NOT EXISTS idx_camp_media_camp_id ON campaign_media(campaign_id);
 	`); err != nil {
 		return err
 	}
