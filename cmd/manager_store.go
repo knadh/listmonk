@@ -1,10 +1,7 @@
 package main
 
 import (
-	"io"
-	"io/ioutil"
 	"net/http"
-	"time"
 
 	"github.com/gofrs/uuid"
 	"github.com/knadh/listmonk/internal/core"
@@ -19,26 +16,15 @@ import (
 type store struct {
 	queries *models.Queries
 	core    *core.Core
-	med     media.Store
+	media   media.Store
 	h       *http.Client
 }
 
 func newManagerStore(q *models.Queries, c *core.Core, m media.Store) *store {
-	timeout := time.Second * 10
-
 	return &store{
 		queries: q,
 		core:    c,
-		med:     m,
-		h: &http.Client{
-			Timeout: timeout,
-			Transport: &http.Transport{
-				MaxIdleConnsPerHost:   10,
-				MaxConnsPerHost:       10,
-				ResponseHeaderTimeout: timeout,
-				IdleConnTimeout:       timeout,
-			},
-		},
+		media:   m,
 	}
 }
 
@@ -74,30 +60,19 @@ func (s *store) UpdateCampaignStatus(campID int, status string) error {
 
 // GetAttachment fetches a media attachment blob.
 func (s *store) GetAttachment(mediaID int) (models.Attachment, error) {
-	m, err := s.core.GetMedia(mediaID, "", s.med)
+	m, err := s.core.GetMedia(mediaID, "", s.media)
 	if err != nil {
 		return models.Attachment{}, err
 	}
 
-	resp, err := s.h.Get(m.URL)
-	if err != nil {
-		return models.Attachment{}, err
-	}
-
-	defer func() {
-		// Drain and close the body to let the Transport reuse the connection
-		io.Copy(ioutil.Discard, resp.Body)
-		resp.Body.Close()
-	}()
-
-	body, err := ioutil.ReadAll(resp.Body)
+	b, err := s.media.GetBlob(m.URL)
 	if err != nil {
 		return models.Attachment{}, err
 	}
 
 	return models.Attachment{
 		Name:    m.Filename,
-		Content: body,
+		Content: b,
 		Header:  manager.MakeAttachmentHeader(m.Filename, "base64", m.ContentType),
 	}, nil
 }

@@ -12,7 +12,7 @@ describe('Campaigns', () => {
     cy.get('tbody td[data-label=Status]').should('have.length', 1);
   });
 
-  it('Create campaign', () => {
+  it('Creates campaign', () => {
     cy.get('a[data-cy=btn-new]').click();
 
     // Fill fields.

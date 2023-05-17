@@ -43,14 +43,6 @@ func handleUploadMedia(c echo.Context) error {
 	}
 	defer src.Close()
 
-	// Read the first 261 bytes of the file and detect the type.
-	hdr := make([]byte, 261)
-	if _, err := src.Read(hdr); err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError,
-			app.i18n.Ts("media.errorReadingFile", "error", err.Error()))
-	}
-	src.Seek(0, 0)
-
 	var (
 		// Naive check for content type and extension.
 		ext         = strings.TrimPrefix(strings.ToLower(filepath.Ext(file.Filename)), ".")
