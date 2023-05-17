@@ -186,14 +186,14 @@
         <div class="columns">
           <div class="column is-6">
             <p v-if="!isAttachFieldVisible" class="is-size-6 has-text-grey">
-              <a href="#" @click.prevent="onShowAttachField()">
+              <a href="#" @click.prevent="onShowAttachField()" data-cy="btn-attach">
                 <b-icon icon="file-upload-outline" size="is-small" />
                 {{  $t('campaigns.addAttachments') }}
               </a>
             </p>
 
             <b-field v-if="isAttachFieldVisible" :label="$t('campaigns.attachments')"
-              label-position="on-border" expanded>
+              label-position="on-border" expanded data-cy="media">
               <b-taginput v-model="form.media" name="media" ellipsis icon="tag-outline"
                 ref="media" field="filename" @focus="onOpenAttach" :disabled="!canEdit" />
             </b-field>
