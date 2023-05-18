@@ -37,19 +37,20 @@ type Settings struct {
 	SecurityCaptchaKey    string `json:"security.captcha_key"`
 	SecurityCaptchaSecret string `json:"security.captcha_secret"`
 
-	UploadProvider             string `json:"upload.provider"`
-	UploadFilesystemUploadPath string `json:"upload.filesystem.upload_path"`
-	UploadFilesystemUploadURI  string `json:"upload.filesystem.upload_uri"`
-	UploadS3URL                string `json:"upload.s3.url"`
-	UploadS3PublicURL          string `json:"upload.s3.public_url"`
-	UploadS3AwsAccessKeyID     string `json:"upload.s3.aws_access_key_id"`
-	UploadS3AwsDefaultRegion   string `json:"upload.s3.aws_default_region"`
-	UploadS3AwsSecretAccessKey string `json:"upload.s3.aws_secret_access_key,omitempty"`
-	UploadS3Bucket             string `json:"upload.s3.bucket"`
-	UploadS3BucketDomain       string `json:"upload.s3.bucket_domain"`
-	UploadS3BucketPath         string `json:"upload.s3.bucket_path"`
-	UploadS3BucketType         string `json:"upload.s3.bucket_type"`
-	UploadS3Expiry             string `json:"upload.s3.expiry"`
+	UploadProvider             string   `json:"upload.provider"`
+	UploadExtensions           []string `json:"upload.extensions"`
+	UploadFilesystemUploadPath string   `json:"upload.filesystem.upload_path"`
+	UploadFilesystemUploadURI  string   `json:"upload.filesystem.upload_uri"`
+	UploadS3URL                string   `json:"upload.s3.url"`
+	UploadS3PublicURL          string   `json:"upload.s3.public_url"`
+	UploadS3AwsAccessKeyID     string   `json:"upload.s3.aws_access_key_id"`
+	UploadS3AwsDefaultRegion   string   `json:"upload.s3.aws_default_region"`
+	UploadS3AwsSecretAccessKey string   `json:"upload.s3.aws_secret_access_key,omitempty"`
+	UploadS3Bucket             string   `json:"upload.s3.bucket"`
+	UploadS3BucketDomain       string   `json:"upload.s3.bucket_domain"`
+	UploadS3BucketPath         string   `json:"upload.s3.bucket_path"`
+	UploadS3BucketType         string   `json:"upload.s3.bucket_type"`
+	UploadS3Expiry             string   `json:"upload.s3.expiry"`
 
 	SMTP []struct {
 		UUID          string              `json:"uuid"`

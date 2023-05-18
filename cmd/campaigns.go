@@ -32,6 +32,8 @@ type campaignReq struct {
 	// to the outside world.
 	ListIDs []int `json:"lists"`
 
+	MediaIDs []int `json:"media"`
+
 	// This is only relevant to campaign test requests.
 	SubscriberEmails pq.StringArray `json:"subscribers"`
 }
@@ -220,7 +222,7 @@ func handleCreateCampaign(c echo.Context) error {
 		o.ArchiveTemplateID = o.TemplateID
 	}
 
-	out, err := app.core.CreateCampaign(o.Campaign, o.ListIDs)
+	out, err := app.core.CreateCampaign(o.Campaign, o.ListIDs, o.MediaIDs)
 	if err != nil {
 		return err
 	}
@@ -264,7 +266,7 @@ func handleUpdateCampaign(c echo.Context) error {
 		o = c
 	}
 
-	out, err := app.core.UpdateCampaign(id, o.Campaign, o.ListIDs, o.SendLater)
+	out, err := app.core.UpdateCampaign(id, o.Campaign, o.ListIDs, o.MediaIDs, o.SendLater)
 	if err != nil {
 		return err
 	}
@@ -437,6 +439,11 @@ func handleTestCampaign(c echo.Context) error {
 	camp.ContentType = req.ContentType
 	camp.Headers = req.Headers
 	camp.TemplateID = req.TemplateID
+	for _, id := range req.MediaIDs {
+		if id > 0 {
+			camp.MediaIDs = append(camp.MediaIDs, int64(id))
+		}
+	}
 
 	// Send the test messages.
 	for _, s := range subs {

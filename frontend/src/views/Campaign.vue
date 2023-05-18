@@ -130,7 +130,7 @@
 
                 <div>
                   <p class="has-text-right">
-                    <a href="#" @click.prevent="showHeaders" data-cy="btn-headers">
+                    <a href="#" @click.prevent="onShowHeaders" data-cy="btn-headers">
                       <b-icon icon="plus" />{{ $t('settings.smtp.setCustomHeaders') }}
                     </a>
                   </p>
@@ -183,17 +183,36 @@
           :disabled="!canEdit"
         />
 
+        <div class="columns">
+          <div class="column is-6">
+            <p v-if="!isAttachFieldVisible" class="is-size-6 has-text-grey">
+              <a href="#" @click.prevent="onShowAttachField()" data-cy="btn-attach">
+                <b-icon icon="file-upload-outline" size="is-small" />
+                {{  $t('campaigns.addAttachments') }}
+              </a>
+            </p>
+
+            <b-field v-if="isAttachFieldVisible" :label="$t('campaigns.attachments')"
+              label-position="on-border" expanded data-cy="media">
+              <b-taginput v-model="form.media" name="media" ellipsis icon="tag-outline"
+                ref="media" field="filename" @focus="onOpenAttach" :disabled="!canEdit" />
+            </b-field>
+          </div>
+          <div class="column has-text-right">
+            <p v-if="canEdit && form.content.contentType !== 'plain'"
+              class="is-size-6 has-text-grey">
+              <a v-if="form.altbody === null" href="#" @click.prevent="onAddAltBody">
+                <b-icon icon="text" size="is-small" /> {{ $t('campaigns.addAltText') }}
+              </a>
+              <a v-else href="#" @click.prevent="$utils.confirm(null, onRemoveAltBody)">
+                <b-icon icon="trash-can-outline" size="is-small" />
+                {{ $t('campaigns.removeAltText') }}
+              </a>
+            </p>
+          </div>
+        </div>
+
         <div v-if="canEdit && form.content.contentType !== 'plain'" class="alt-body">
-          <p class="is-size-6 has-text-grey has-text-right">
-            <a v-if="form.altbody === null" href="#" @click.prevent="addAltBody">
-              <b-icon icon="text" size="is-small" /> {{ $t('campaigns.addAltText') }}
-            </a>
-            <a v-else href="#" @click.prevent="$utils.confirm(null, removeAltBody)">
-              <b-icon icon="trash-can-outline" size="is-small" />
-              {{ $t('campaigns.removeAltText') }}
-            </a>
-          </p>
-          <br />
           <b-input v-if="form.altbody !== null" v-model="form.altbody"
             type="textarea" :disabled="!canEdit" />
         </div>
@@ -251,6 +270,14 @@
         </section>
       </b-tab-item><!-- archive -->
     </b-tabs>
+
+    <b-modal scroll="keep" :aria-modal="true" :active.sync="isAttachModalOpen" :width="900">
+      <div class="modal-card content" style="width: auto">
+        <section expanded class="modal-card-body">
+          <media is-modal @selected="onAttachSelect" />
+        </section>
+      </div>
+    </b-modal>
   </section>
 </template>
 
@@ -262,6 +289,7 @@ import htmlToPlainText from 'textversionjs';
 
 import ListSelector from '../components/ListSelector.vue';
 import Editor from '../components/Editor.vue';
+import Media from './Media.vue';
 
 const TABS = ['campaign', 'content', 'archive'];
 
@@ -269,6 +297,7 @@ export default Vue.extend({
   components: {
     ListSelector,
     Editor,
+    Media,
   },
 
   data() {
@@ -276,6 +305,8 @@ export default Vue.extend({
       isNew: false,
       isEditing: false,
       isHeadersVisible: false,
+      isAttachFieldVisible: false,
+      isAttachModalOpen: false,
       activeTab: 0,
 
       data: {},
@@ -297,6 +328,7 @@ export default Vue.extend({
         sendAt: null,
         content: { contentType: 'richtext', body: '' },
         altbody: null,
+        media: [],
 
         // Parsed Date() version of send_at from the API.
         sendAtDate: null,
@@ -314,16 +346,35 @@ export default Vue.extend({
       return dayjs(s).format('YYYY-MM-DD HH:mm');
     },
 
-    addAltBody() {
+    onAddAltBody() {
       this.form.altbody = htmlToPlainText(this.form.content.body);
     },
 
-    removeAltBody() {
+    onRemoveAltBody() {
       this.form.altbody = null;
     },
 
-    showHeaders() {
+    onShowHeaders() {
       this.isHeadersVisible = !this.isHeadersVisible;
+    },
+
+    onShowAttachField() {
+      this.isAttachFieldVisible = true;
+      this.$nextTick(() => {
+        this.$refs.media.focus();
+      });
+    },
+
+    onOpenAttach() {
+      this.isAttachModalOpen = true;
+    },
+
+    onAttachSelect(o) {
+      if (this.form.media.some((m) => m.id === o.id)) {
+        return;
+      }
+
+      this.form.media.push(o);
     },
 
     isUnsaved() {
@@ -395,6 +446,14 @@ export default Vue.extend({
           // The structure that is populated by editor input event.
           content: { contentType: data.contentType, body: data.body },
         };
+        this.isAttachFieldVisible = this.form.media.length > 0;
+
+        this.form.media = this.form.media.map((f) => {
+          if (!f.id) {
+            return { ...f, filename: `❌ ${f.filename}` };
+          }
+          return f;
+        });
 
         if (data.sendAt !== null) {
           this.form.sendLater = true;
@@ -419,6 +478,7 @@ export default Vue.extend({
         body: this.form.content.body,
         altbody: this.form.content.contentType !== 'plain' ? this.form.altbody : null,
         subscribers: this.form.testEmails,
+        media: this.form.media.map((m) => m.id),
       };
 
       this.$api.testCampaign(data).then(() => {
@@ -441,6 +501,7 @@ export default Vue.extend({
         send_at: this.form.sendLater ? this.form.sendAtDate : null,
         headers: this.form.headers,
         template_id: this.form.templateId,
+        media: this.form.media.map((m) => m.id),
         // body: this.form.body,
       };
 
@@ -469,6 +530,7 @@ export default Vue.extend({
         archive: this.form.archive,
         archive_template_id: this.form.archiveTemplateId,
         archive_meta: this.form.archiveMeta,
+        media: this.form.media.map((m) => m.id),
       };
 
       let typMsg = 'globals.messages.updated';

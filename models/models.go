@@ -261,6 +261,12 @@ type Campaign struct {
 	SubjectTpl          *txttpl.Template   `json:"-"`
 	AltBodyTpl          *template.Template `json:"-"`
 
+	// List of media (attachment) IDs obtained from the next-campaign query
+	// while sending a campaign.
+	MediaIDs pq.Int64Array `json:"-" db:"media_id"`
+	// Fetched bodies of the attachments.
+	Attachments []Attachment `json:"-" db:"-"`
+
 	// Pseudofield for getting the total number of subscribers
 	// in searches and queries.
 	Total int `db:"total" json:"-"`
@@ -279,6 +285,7 @@ type CampaignMeta struct {
 	// campaign-list associations with a historical record of id + name that persist
 	// even after a list is deleted.
 	Lists types.JSONText `db:"lists" json:"lists"`
+	Media types.JSONText `db:"media" json:"media"`
 
 	StartedAt null.Time `db:"started_at" json:"started_at"`
 	ToSend    int       `db:"to_send" json:"to_send"`
@@ -506,6 +513,7 @@ func (camps Campaigns) LoadStats(stmt *sqlx.Stmt) error {
 			camps[i].Views = c.Views
 			camps[i].Clicks = c.Clicks
 			camps[i].Bounces = c.Bounces
+			camps[i].Media = c.Media
 		}
 	}
 

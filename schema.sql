@@ -144,10 +144,25 @@ CREATE TABLE media (
     uuid uuid        NOT NULL UNIQUE,
     provider         TEXT NOT NULL DEFAULT '',
     filename         TEXT NOT NULL,
+    content_type     TEXT NOT NULL DEFAULT 'application/octet-stream',
     thumb            TEXT NOT NULL,
     meta             JSONB NOT NULL DEFAULT '{}',
     created_at       TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
+
+-- campaign_media
+DROP TABLE IF EXISTS campaign_media CASCADE;
+CREATE TABLE campaign_media (
+    campaign_id  INTEGER REFERENCES campaigns(id) ON DELETE CASCADE ON UPDATE CASCADE,
+
+    -- Media items may be deleted, so media_id is nullable
+    -- and a copy of the original name is maintained here.
+    media_id     INTEGER NULL REFERENCES media(id) ON DELETE SET NULL ON UPDATE CASCADE,
+
+    filename     TEXT NOT NULL DEFAULT ''
+);
+DROP INDEX IF EXISTS idx_camp_media_id; CREATE UNIQUE INDEX idx_camp_media_id ON campaign_media (campaign_id, media_id);
+DROP INDEX IF EXISTS idx_camp_media_camp_id; CREATE INDEX idx_camp_media_camp_id ON campaign_media(campaign_id);
 
 -- links
 DROP TABLE IF EXISTS links CASCADE;
@@ -213,6 +228,8 @@ INSERT INTO settings (key, value) VALUES
     ('security.captcha_key', '""'),
     ('security.captcha_secret', '""'),
     ('upload.provider', '"filesystem"'),
+    ('upload.max_file_size', '5000'),
+    ('upload.extensions', '["jpg","jpeg","png","gif","svg","*"]'),
     ('upload.filesystem.upload_path', '"uploads"'),
     ('upload.filesystem.upload_uri', '"/uploads"'),
     ('upload.s3.url', '"https://ap-south-1.s3.amazonaws.com"'),

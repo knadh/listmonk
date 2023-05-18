@@ -162,6 +162,10 @@ func handleUpdateSettings(c echo.Context) error {
 		set.SecurityCaptchaSecret = cur.SecurityCaptchaSecret
 	}
 
+	for n, v := range set.UploadExtensions {
+		set.UploadExtensions[n] = strings.ToLower(strings.TrimPrefix(strings.TrimSpace(v), "."))
+	}
+
 	// Domain blocklist.
 	doms := make([]string, 0)
 	for _, d := range set.DomainBlocklist {

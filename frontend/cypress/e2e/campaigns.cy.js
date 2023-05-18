@@ -12,8 +12,41 @@ describe('Campaigns', () => {
     cy.get('tbody td[data-label=Status]').should('have.length', 1);
   });
 
+  it('Creates campaign', () => {
+    cy.get('a[data-cy=btn-new]').click();
+
+    // Fill fields.
+    cy.get('input[name=name]').clear().type('new-attach');
+    cy.get('input[name=subject]').clear().type('new-subject');
+    cy.get('input[name=from_email]').clear().type('new <from@email>');
+    cy.get('.list-selector input').click();
+    cy.get('.list-selector .autocomplete a').eq(0).click();
+
+    cy.get('button[data-cy=btn-continue]').click();
+    cy.wait(500);
+
+    cy.get('a[data-cy=btn-attach]').click();
+    cy.get('input[type=file]').attachFile('example.json');
+    cy.get('.modal button.is-primary').click();
+    cy.get('.modal .thumb a.link').click();
+    cy.get('button[data-cy=btn-save]').click();
+    cy.wait(500);
+
+    // Re-open and check that the file still exists.
+    cy.loginAndVisit('/campaigns');
+    cy.get('td[data-label=Status] a').eq(0).click();
+    cy.get('.b-tabs nav a').eq(1).click();
+    cy.get('div.field[data-cy=media]').contains('example');
+
+    // Start.
+    cy.get('button[data-cy=btn-start]').click();
+    cy.get('.modal button.is-primary').click();
+    cy.wait(500);
+    cy.get('tbody tr').eq(0).get('td[data-label=Status] .tag.running');
+  });
+
   it('Edits campaign', () => {
-    cy.get('td[data-label=Status] a').click();
+    cy.get('td[data-label=Status] a').eq(1).click();
 
     // Fill fields.
     cy.get('input[name=name]').clear().type('new-name');
@@ -196,7 +229,7 @@ describe('Campaigns', () => {
         cy.wait(250);
 
         // Verify the changes.
-        (function(n) {
+        (function (n) {
           cy.location('pathname').then((p) => {
             cy.request(`${apiUrl}/api/campaigns/${p.split('/').at(-1)}`).should((response) => {
               const { data } = response.body;
