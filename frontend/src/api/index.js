@@ -244,8 +244,8 @@ export const deleteCampaign = async (id) => http.delete(`/api/campaigns/${id}`,
   { loading: models.campaigns });
 
 // Media.
-export const getMedia = async () => http.get('/api/media',
-  { loading: models.media, store: models.media });
+export const getMedia = async (params) => http.get('/api/media',
+  { params, loading: models.media, store: models.media });
 
 export const uploadMedia = (data) => http.post('/api/media', data,
   { loading: models.media });

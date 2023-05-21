@@ -19,6 +19,8 @@ type Media struct {
 	Provider    string      `json:"provider"`
 	Meta        models.JSON `db:"meta" json:"meta"`
 	URL         string      `json:"url"`
+
+	Total int `db:"total" json:"-"`
 }
 
 // Store represents functions to store and retrieve media (files).

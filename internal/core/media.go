@@ -1,7 +1,9 @@
 package core
 
 import (
+	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/gofrs/uuid"
 	"github.com/knadh/listmonk/internal/media"
@@ -10,24 +12,34 @@ import (
 	"gopkg.in/volatiletech/null.v6"
 )
 
-// GetAllMedia returns all uploaded media.
-func (c *Core) GetAllMedia(provider string, s media.Store) ([]media.Media, error) {
+// QueryMedia returns media entries optionally filtered by a query string.
+func (c *Core) QueryMedia(provider string, s media.Store, query string, offset, limit int) ([]media.Media, int, error) {
 	out := []media.Media{}
-	if err := c.q.GetAllMedia.Select(&out, provider); err != nil {
-		return out, echo.NewHTTPError(http.StatusInternalServerError,
+
+	if query != "" {
+		query = strings.ToLower(query)
+	}
+
+	if err := c.q.QueryMedia.Select(&out, fmt.Sprintf("%%%s%%", query), provider, offset, limit); err != nil {
+		return out, 0, echo.NewHTTPError(http.StatusInternalServerError,
 			c.i18n.Ts("globals.messages.errorFetching",
 				"name", "{globals.terms.media}", "error", pqErrMsg(err)))
 	}
 
-	for i := 0; i < len(out); i++ {
-		out[i].URL = s.GetURL(out[i].Filename)
+	total := 0
+	if len(out) > 0 {
+		total = out[0].Total
 
-		if out[i].Thumb != "" {
-			out[i].ThumbURL = null.String{Valid: true, String: s.GetURL(out[i].Thumb)}
+		for i := 0; i < len(out); i++ {
+			out[i].URL = s.GetURL(out[i].Filename)
+
+			if out[i].Thumb != "" {
+				out[i].ThumbURL = null.String{Valid: true, String: s.GetURL(out[i].Thumb)}
+			}
 		}
 	}
 
-	return out, nil
+	return out, total, nil
 }
 
 // GetMedia returns a media item.

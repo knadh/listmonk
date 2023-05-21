@@ -131,6 +131,8 @@ func handleUploadMedia(c echo.Context) error {
 func handleGetMedia(c echo.Context) error {
 	var (
 		app   = c.Get("app").(*App)
+		pg    = app.paginator.NewFromURL(c.Request().URL.Query())
+		query = c.FormValue("query")
 		id, _ = strconv.Atoi(c.Param("id"))
 	)
 
@@ -143,9 +145,16 @@ func handleGetMedia(c echo.Context) error {
 		return c.JSON(http.StatusOK, okResp{out})
 	}
 
-	out, err := app.core.GetAllMedia(app.constants.MediaUpload.Provider, app.media)
+	res, total, err := app.core.QueryMedia(app.constants.MediaUpload.Provider, app.media, query, pg.Offset, pg.Limit)
 	if err != nil {
 		return err
+	}
+
+	out := models.PageResults{
+		Results: res,
+		Total:   total,
+		Page:    pg.Page,
+		PerPage: pg.PerPage,
 	}
 
 	return c.JSON(http.StatusOK, okResp{out})

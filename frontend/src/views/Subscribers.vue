@@ -166,7 +166,7 @@
             {{ $utils.niceDate(props.row.updatedAt) }}
         </b-table-column>
 
-        <b-table-column v-slot="props" label="Actions" cell-class="actions" align="right">
+        <b-table-column v-slot="props" cell-class="actions" align="right">
           <div>
             <a :href="`/api/subscribers/${props.row.id}/export`" data-cy="btn-download">
               <b-tooltip :label="$t('subscribers.downloadData')" type="is-dark">

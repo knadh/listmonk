@@ -766,93 +766,20 @@ section.analytics {
 
 /* Media gallery */
 .media-files {
-  .thumbs {
-    display: flex;
-    flex-wrap: wrap;
-    flex-direction: column;
-    flex-flow: row wrap;
-
-    .thumb {
-      margin: 10px;
-      max-height: 90px;
-      overflow: hidden;
-      position: relative;
-      width: 250px;
-      min-height: 250px;
-      text-align: center;
-
-      .link {
-        display: block;
-      }
-
-      .ext {
-        display: block;
-        margin-top: 60px;
-        font-size: 2rem;
-        text-transform: uppercase;
-      }
-
-      .filename {
-        display: inline-block;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        color: $grey;
-      }
-
-      img {
-        max-width: 250px;
-      }
-
-      .caption {
-        background-color: rgba($white, .70);
-        color: $grey;
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        padding: 5px 15px;
-
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-      }
-
-      .actions {
-        background-color: rgba($white, .70);
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        padding: 2px 5px;
-        display: none;
-
-        a {
-          margin-left: 10px;
-        }
-      }
-
-      &:hover .actions {
-        display: block;
-      }
-    }
-
-    .box {
-      padding: 10px;
-    }
-  }
-}
-
-.modal .media-files {
-  .thumb {
-    min-width: 175px;
-    width: 175px;
-    min-height: 175px;
+  img {
+    max-width: 125px;
   }
 
-  .gallery {
-    padding-left: 0;
-    padding-right: 0;
+  .thumb.box {
+    display: inline-block;
+    padding: 5px;
+    min-width: 140px;
+    max-height: 140px;
+    overflow: hidden;
+    text-align: center;
+  }
+  .ext {
+    text-transform: uppercase;
   }
 }
 

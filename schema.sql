@@ -164,6 +164,7 @@ CREATE TABLE campaign_media (
 DROP INDEX IF EXISTS idx_camp_media_id; CREATE UNIQUE INDEX idx_camp_media_id ON campaign_media (campaign_id, media_id);
 DROP INDEX IF EXISTS idx_camp_media_camp_id; CREATE INDEX idx_camp_media_camp_id ON campaign_media(campaign_id);
 
+
 -- links
 DROP TABLE IF EXISTS links CASCADE;
 CREATE TABLE links (
