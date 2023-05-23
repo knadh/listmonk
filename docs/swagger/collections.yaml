@@ -130,26 +130,7 @@ paths:
                 type: object
                 properties:
                   data:
-                    type: object
-                    properties:
-                      link_clicks:
-                        type: array
-                        items:
-                          type: object
-                          properties:
-                            count:
-                              type: integer
-                            date:
-                              type: string
-                      campaign_views:
-                        type: array
-                        items:
-                          type: object
-                          properties:
-                            count:
-                              type: integer
-                            date:
-                              type: string
+                    $ref: "#/components/schemas/DashboardChart"
 
   /dashboard/counts:
     get:
@@ -325,7 +306,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/SubscriberRegistrationInfo"
+              $ref: "#/components/schemas/NewSubscriber"
 
       responses:
         "200":
@@ -337,6 +318,29 @@ paths:
                 properties:
                   data:
                     $ref: "#/components/schemas/Subscriber"
+
+    delete:
+      description: handles subscribers deletion
+      operationId: deleteSubscriberByList
+      tags:
+        - Subscribers
+      parameters:
+        - in: query
+          name: id
+          required: true
+          description: subscriber id/s to be deleted
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: boolean
 
   "/subscribers/{id}":
     get:
@@ -355,6 +359,35 @@ paths:
       responses:
         "200":
           description: gets a single subscriber.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Subscriber"
+
+    put:
+      description: modify subscriber data
+      operationId: updateSubscriberById
+      tags:
+        - Subscribers
+      parameters:
+        - in: path
+          name: id
+          required: true
+          description: The id of subscriber to update
+          schema:
+            type: integer
+      requestBody:
+        description: new subscriber info
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateSubscriber"
+      responses:
+        "200":
+          description: returns updated subscriber.
           content:
             application/json:
               schema:
@@ -398,27 +431,61 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                ids:
-                  type: array
-                  description: The ids of the subscribers to be modified.
-                  items:
-                    type: integer
-                action:
-                  type: string
-                  enum: [add, remove, unsubscribe]
-                  description: Whether to add, remove, or unsubscribe the users.
-                target_list_ids:
-                  type: integer
-                  description: The ids of the lists to be modified.
-                  items:
-                    type: integer
-                status:
-                  type: string
-                  enum: [confirmed, unconfirmed, unsubscribed]
-                  description: confirmed, unconfirmed, or unsubscribed status.
+              $ref: "#/components/schemas/SubscriberQueryRequest"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: boolean
 
+  "/subscribers/lists/{id}":
+    put:
+      description: handles bulk addition or removal of subscribers for a specified list id
+      operationId: manageSubscriberListById
+      tags:
+        - Subscribers
+      requestBody:
+        description: The list of subscribers to add or remove
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SubscriberQueryRequest"
+      parameters:
+        - in: path
+          name: id
+          required: true
+          description: The id of list you want to update
+          schema:
+            type: integer
+            format: int32
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: boolean
+
+  "/subscribers/blocklist":
+    put:
+      description: handles blocklisting of subscriber list
+      operationId: manageBlocklistBySubscriberList
+      tags:
+        - Subscribers
+      requestBody:
+        description: The list of subscribers to blocklist
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SubscriberQueryRequest"
       responses:
         "200":
           description: OK
@@ -436,6 +503,12 @@ paths:
       operationId: manageBlocklistSubscribersById
       tags:
         - Subscribers
+      requestBody:
+        description: The id of subscriber to add or remove
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SubscriberQueryRequest"
       parameters:
         - in: path
           name: id
@@ -471,6 +544,15 @@ paths:
             type: integer
       responses:
         "200":
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+            Content-Disposition:
+              schema:
+                type: string
+                example: attachment; filename="data.json"
+
           description: subscriber data object
           content:
             application/json:
@@ -562,6 +644,10 @@ paths:
           text/plain:
             schema:
               type: string
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SubscriberQueryRequest"
+
       responses:
         "200":
           description: OK
@@ -585,6 +671,10 @@ paths:
           text/plain:
             schema:
               type: string
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SubscriberQueryRequest"
+
       responses:
         "200":
           description: OK
@@ -608,6 +698,10 @@ paths:
           text/plain:
             schema:
               type: string
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SubscriberQueryRequest"
+
       responses:
         "200":
           description: OK
@@ -625,6 +719,36 @@ paths:
       operationId: getBounces
       tags:
         - Bounces
+      requestBody:
+        description: output parameters form
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                source:
+                  type: string
+                order_by:
+                  type: string
+                order:
+                  type: string
+      parameters:
+        - in: query
+          name: campaign_id
+          description: bounce record retrieval of particular campaign
+          schema:
+            type: integer
+        - in: query
+          name: page
+          description: total number of pages
+          schema:
+            type: integer
+        - in: query
+          name: per_page
+          description: number of items per page
+          schema:
+            type: integer
       responses:
         "200":
           description: list of bounce records
@@ -653,6 +777,17 @@ paths:
       operationId: deleteBounces
       tags:
         - Bounces
+      parameters:
+        - in: query
+          name: all
+          description: flag for multiple bounce record deletion
+          schema:
+            type: boolean
+        - in: query
+          name: id
+          description: list of bounce ids to delete
+          schema:
+            type: string
       responses:
         "200":
           description: OK
@@ -719,30 +854,34 @@ paths:
         - Lists
       parameters:
         - in: query
-          name: query
-          description: Optional string to search a list by name.
-          schema:
-            type: string
-        - in: query
-          name: order_by
-          description: Field to sort results by. name|status|created_at|updated_at
-          schema:
-            type: string
-        - in: query
-          name: order
-          description: ASC|DESC Sort by ascending or descending order.
-          schema:
-            type: string
-        - in: query
           name: page
-          description: Page number for paginated results.
+          description: total number of pages
           schema:
             type: integer
         - in: query
           name: per_page
-          description: Results to return per page. Setting this to all skips pagination and returns all results
+          description: number of items per page
           schema:
             type: integer
+      requestBody:
+        required: true
+        description: output parameters form
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                query:
+                  description: Optional string to search a list by name.
+                  type: string
+                order_by:
+                  description: Field to sort results by. name|status|created_at|updated_at
+                  type: string
+                order:
+                  description: ASC|DESC Sort by ascending or descending order.
+                  type: string
+                minimal:
+                  type: boolean
       responses:
         "200":
           description: list of metadata
@@ -775,7 +914,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/ListRegistrationInfo"
+              $ref: "#/components/schemas/NewList"
       responses:
         "200":
           description: updated list object
@@ -828,18 +967,7 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                name:
-                  type: string
-                type:
-                  type: string
-                optin:
-                  type: string
-                tags:
-                  type: array
-                  items:
-                    type: string
+              $ref: "#/components/schemas/List"
       responses:
         "200":
           description: updated list object
@@ -957,17 +1085,46 @@ paths:
       operationId: getCampaigns
       parameters:
         - in: query
+          name: status
+          description: status flag of campaign
+          schema:
+            type: array
+            items:
+              type: string
+              enum: [scheduled, running, paused, cancelled]
+        - in: query
+          name: no_body
+          description: boolean flag for response with/without body
+          schema:
+            type: boolean
+        - in: query
           name: page
-          description: Page number for paginated results
+          description: total number of pages
           schema:
             type: integer
-            format: int32
         - in: query
           name: per_page
-          description: max number of records to return per page
+          description: number of items per page
           schema:
             type: integer
-            format: int32
+      requestBody:
+        required: true
+        description: output parameters form
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                query:
+                  description: Optional string to search a list by name.
+                  type: string
+                order_by:
+                  description: Field to sort results by. name|status|created_at|updated_at
+                  type: string
+                order:
+                  description: ASC|DESC Sort by ascending or descending order.
+                  type: string
+
       tags:
         - Campaigns
       responses:
@@ -1004,7 +1161,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/CampaignRegistrationInfo"
+              $ref: "#/components/schemas/CampaignRequest"
 
       responses:
         "200":
@@ -1015,9 +1172,9 @@ paths:
                 type: object
                 properties:
                   data:
-                    $ref: "#/components/schemas/NewCampaign"
+                    $ref: "#/components/schemas/CampaignUpdate"
 
-  "/campaigns/{campaign_id}":
+  "/campaigns/{id}":
     get:
       description: handles retrieval of campaigns.
       operationId: getCampaignById
@@ -1025,12 +1182,17 @@ paths:
         - Campaigns
       parameters:
         - in: path
-          name: campaign_id
+          name: id
           required: true
           description: The id value of the campaign you want to get.
           schema:
             type: integer
-
+        - in: query
+          name: no_body
+          required: false
+          description: boolean flag for response with/without body
+          schema:
+            type: boolean
       responses:
         "200":
           description: campaign object
@@ -1049,11 +1211,17 @@ paths:
         - Campaigns
       parameters:
         - in: path
-          name: campaign_id
+          name: id
           required: true
           description: the id value of campaign you want to update
           schema:
             type: integer
+      requestBody:
+        description: updated campaign fields
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CampaignRequest"
       responses:
         "200":
           description: updated campaign object
@@ -1072,7 +1240,7 @@ paths:
         - Campaigns
       parameters:
         - in: path
-          name: campaign_id
+          name: id
           required: true
           description: The id value of the campaign you want to get.
           schema:
@@ -1094,12 +1262,6 @@ paths:
       operationId: getRunningCampaignStats
       tags:
         - Campaigns
-      parameters:
-        - in: query
-          name: campaign_id
-          description: The id values of the campaigns whose stat you want to get.
-          schema:
-            type: integer
       responses:
         "200":
           description: list of stats for given set of campaign ids
@@ -1111,9 +1273,53 @@ paths:
                   data:
                     type: array
                     items:
-                      type: string
+                      $ref: "#/components/schemas/CampaignStats"
 
-  "/campaigns/{campaign_id}/preview":
+  "/campaigns/analytics/{type}":
+    get:
+      description: retrieves view counts for a campaign.
+      operationId: getCampaignAnalytics
+      tags:
+        - Campaigns
+      parameters:
+        - in: path
+          required: true
+          name: type
+          description: type of stats, either links, view, click or bounce
+          schema:
+            type: string
+            enum: [links, views, clicks, bounces]
+        - in: query
+          required: true
+          name: from
+          description: start value of date range
+          schema:
+            type: string
+        - in: query
+          required: true
+          name: to
+          description: end value of date range
+          schema:
+            type: string
+        - in: query
+          name: id
+          description: campaign id/s to retrive view counts
+          schema:
+            type: string
+      responses:
+        "200":
+          description: list of stats for given set of campaign ids
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/CampaignAnalyticsCount"
+
+  "/campaigns/{id}/preview":
     get:
       description: renders the HTML preview of a campaign body
       operationId: previewCampaignById
@@ -1121,11 +1327,22 @@ paths:
         - Campaigns
       parameters:
         - in: path
-          name: campaign_id
+          name: id
           required: true
           description: The id value of the campaign you want to get the preview of
           schema:
             type: integer
+      requestBody:
+        required: true
+        description: template id
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                template_id:
+                  description: template id
+                  type: integer
       responses:
         "200":
           description: HTML Preview of requested campaign
@@ -1135,23 +1352,72 @@ paths:
                 type: string
                 example: <h3>Hi John!</h3>This is a   e-mail campaign. Your second name is Doe and you are from Bengaluru
 
-  "/campaigns/{campaign_id}/text":
+    post:
+      description: renders the HTML preview of a campaign body
+      operationId: updatePreviewCampaignById
+      tags:
+        - Campaigns
+      parameters:
+        - in: path
+          name: id
+          required: true
+          description: The id value of the campaign you want to get the preview of
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        description: template id, body and content type
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                template_id:
+                  description: template id
+                  type: integer
+                content_type:
+                  description: content type
+                  type: string
+                body:
+                  description: template body
+                  type: string
+      responses:
+        "200":
+          description: HTML Preview of requested campaign
+          content:
+            text/html:
+              schema:
+                type: string
+                example: <h3>Hi John!</h3>This is a   e-mail campaign. Your second name is Doe and you are from Bengaluru
+
+  "/campaigns/{id}/text":
     post:
       description: renders the HTML preview of a campaign body
       operationId: previewCampaignTextById
       tags:
         - Campaigns
+      requestBody:
+        required: true
+        description: template id, content type and campaign body
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                template_id:
+                  description: template id
+                  type: integer
+                content_type:
+                  description: content type
+                  type: string
+                body:
+                  description: campaign body
+                  type: string
       parameters:
         - in: path
-          name: campaign_id
+          name: id
           required: true
           description: The id value of the campaign you want to get the preview of
-          schema:
-            type: integer
-        - in: query
-          name: template_id
-          required: true
-          description: The id of the template you want to get the preview of
           schema:
             type: integer
       responses:
@@ -1163,7 +1429,7 @@ paths:
                 type: string
                 example: <h3>Hi John!</h3><p>This is a test e-mail campaign. Your second name is Doe and you are from Bengaluru</p>
 
-  "/campaigns/{campaign_id}/status":
+  "/campaigns/{id}/status":
     put:
       description: handles campaign status modification
       operationId: updateCampaignStatusById
@@ -1171,7 +1437,7 @@ paths:
         - Campaigns
       parameters:
         - in: path
-          name: campaign_id
+          name: id
           required: true
           description: The id value of the campaign you want to get the preview of
           schema:
@@ -1197,15 +1463,58 @@ paths:
                   data:
                     $ref: "#/components/schemas/Campaign"
 
-  "/campaigns/{campaign_id}/content":
+  "/campaigns/{id}/archive":
+    put:
+      description: handles campaign status modification
+      operationId: updateCampaignArchiveById
+      tags:
+        - Campaigns
+      parameters:
+        - in: path
+          name: id
+          required: true
+          description: The id value of the campaign you want to get the preview of
+          schema:
+            type: integer
+      requestBody:
+        description: archive campaign related parameters
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                archive:
+                  type: boolean
+                archive_template_id:
+                  type: integer
+                archive_meta:
+                  type: object
+      responses:
+        "200":
+          description: response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: boolean
+
+  "/campaigns/{id}/content":
     post:
       description: handles campaign content (body) format conversions.
       operationId: createCampaignContentById
       tags:
         - Campaigns
+      requestBody:
+        description: updated campaign content
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CampaignContentRequest"
       parameters:
         - in: path
-          name: campaign_id
+          name: id
           description: ID of campaign that you choose to create content
           required: true
           schema:
@@ -1222,7 +1531,7 @@ paths:
                   data:
                     type: string
 
-  "/campaigns/{campaign_id}/test":
+  "/campaigns/{id}/test":
     post:
       description: handles sending of campaign message to arbitrary subscribers for testing
       operationId: testCampaignById
@@ -1230,22 +1539,25 @@ paths:
         - Campaigns
       parameters:
         - in: path
-          name: campaign_id
+          name: id
           description: ID of campaign that you want to test
           required: true
           schema:
             type: integer
-        - in: query
-          name: template_id
-          description: ID of campaign template that you want to test with
-          required: true
-          schema:
-            type: integer
       requestBody:
+        required: true
+        description: template id
         content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                template_id:
+                  description: template id
+                  type: integer
           application/json:
             schema:
-              $ref: "#/components/schemas/CampaignRegistrationInfo"
+              $ref: "#/components/schemas/CampaignRequest"
       responses:
         "200":
           description: response
@@ -1298,7 +1610,7 @@ paths:
                   data:
                     $ref: "#/components/schemas/MediaFileObject"
 
-  "/media/{media_id}":
+  "/media/{id}":
     get:
       description: handles retrieval of uploaded media.
       operationId: getMediaById
@@ -1306,7 +1618,7 @@ paths:
         - Media
       parameters:
         - in: path
-          name: media_id
+          name: id
           required: true
           description: media file id
           schema:
@@ -1329,7 +1641,7 @@ paths:
         - Media
       parameters:
         - in: path
-          name: media_id
+          name: id
           required: true
           description: The id value of the list you want to delete.
           schema:
@@ -1351,6 +1663,13 @@ paths:
       operationId: getTemplates
       tags:
         - Templates
+      parameters:
+        - in: query
+          name: no_body
+          description: boolean flag for response with/without body
+          required: true
+          schema:
+            type: boolean
       responses:
         "200":
           description: response
@@ -1364,7 +1683,7 @@ paths:
                     items:
                       $ref: "#/components/schemas/Template"
 
-  "/templates/{template_id}":
+  "/templates/{id}":
     get:
       description: handles retrieval of templates
       operationId: getTemplateById
@@ -1372,11 +1691,17 @@ paths:
         - Templates
       parameters:
         - in: path
-          name: template_id
+          name: id
           required: true
           schema:
             type: integer
           description: The id value of the template you want to get.
+        - in: query
+          name: no_body
+          description: boolean flag for response with/without body
+          required: false
+          schema:
+            type: boolean
       responses:
         "200":
           description: response
@@ -1396,7 +1721,7 @@ paths:
 
       parameters:
         - in: path
-          name: template_id
+          name: id
           required: true
           description: The id value of the template you want to delete.
           schema:
@@ -1412,15 +1737,58 @@ paths:
                   data:
                     type: boolean
 
-  "/templates/{template_id}/preview":
+  /templates/preview:
+    post:
+      description: get the HTML preview of a template.
+      operationId: previewTemplate
+      tags:
+        - Templates
+      requestBody:
+        required: true
+        description: template parameters
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                template_type:
+                  description: type of template
+                  type: string
+                body:
+                  description: template body
+                  type: string
+      responses:
+        "200":
+          description: response
+          content:
+            text/html:
+              schema:
+                type: string
+                example: <p>Hi there</p>
+
+  "/templates/{id}/preview":
     get:
       description: renders the HTML preview of a template.
       operationId: previewTemplateById
       tags:
         - Templates
+      requestBody:
+        description: template parameters
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                template_type:
+                  description: type of template
+                  type: string
+                body:
+                  description: template body
+                  type: string
       parameters:
         - in: path
-          name: template_id
+          name: id
           required: true
           schema:
             type: integer
@@ -1434,7 +1802,7 @@ paths:
                 type: string
                 example: <p>Hi there</p>
 
-  "/templates/{template_id}/default":
+  "/templates/{id}/default":
     put:
       description: handles template modification.
       operationId: updateTemplateById
@@ -1442,7 +1810,7 @@ paths:
         - Templates
       parameters:
         - in: path
-          name: template_id
+          name: id
           required: true
           description: The id value of the template you want to set to the default template.
           schema:
@@ -1455,7 +1823,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/Template"
 
-  /transactional:
+  /tx:
     post:
       tags:
         - Transactional
@@ -1467,7 +1835,6 @@ paths:
           application/json:
             schema:
               $ref: "#/components/schemas/TransactionalMessage"
-
       responses:
         "200":
           description: OK
@@ -1512,6 +1879,17 @@ paths:
       operationId: deleteCampaignAnalyticsByType
       tags:
         - Maintenance
+      requestBody:
+        description: date parameter
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                before_date:
+                  type: string
+                  format: date
       parameters:
         - in: path
           name: type
@@ -1536,6 +1914,17 @@ paths:
       operationId: deleteUnconfirmedSubscriptions
       tags:
         - Maintenance
+      requestBody:
+        required: true
+        description: date parameter
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                before_date:
+                  type: string
+                  format: date
       responses:
         "200":
           description: response
@@ -1545,7 +1934,10 @@ paths:
                 type: object
                 properties:
                   data:
-                    type: integer
+                    type: object
+                    properties:
+                      count:
+                        type: integer
 
   "/public/lists":
     get:
@@ -1574,6 +1966,22 @@ paths:
       operationId: handlePublicSubscription
       tags:
         - Public
+      requestBody:
+        description: subscription request parameters
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                email:
+                  type: string
+                list_uuids:
+                  type: array
+                  items:
+                    type: string
+
       responses:
         "200":
           description: response
@@ -1582,14 +1990,8 @@ paths:
               schema:
                 type: object
                 properties:
-                  name:
-                    type: string
-                  email:
-                    type: string
-                  list_uuids:
-                    type: array
-                    items:
-                      type: string
+                  has_optin:
+                    type: boolean
 
 components:
   schemas:
@@ -2726,6 +3128,28 @@ components:
             version:
               type: string
 
+    DashboardChart:
+      type: object
+      properties:
+        link_clicks:
+          type: array
+          items:
+            type: object
+            properties:
+              count:
+                type: integer
+              date:
+                type: string
+        campaign_views:
+          type: array
+          items:
+            type: object
+            properties:
+              count:
+                type: integer
+              date:
+                type: string
+
     DashboardCount:
       type: object
       properties:
@@ -2739,7 +3163,6 @@ components:
                   type: integer
                 blocklisted:
                   type: object
-
                 orphans:
                   type: integer
             lists:
@@ -3030,6 +3453,8 @@ components:
     SubscriberData:
       type: object
       properties:
+        email:
+          type: string
         profile:
           type: array
           items:
@@ -3097,9 +3522,7 @@ components:
               updated_at:
                 type: string
 
-      description: ok
-
-    SubscriberRegistrationInfo:
+    NewSubscriber:
       type: object
       properties:
         email:
@@ -3112,6 +3535,12 @@ components:
           type: array
           items:
             type: integer
+        list_uuids:
+          type: array
+          items:
+            type: string
+        preconfirm_subscriptions:
+          type: boolean
         attribs:
           type: object
           properties:
@@ -3126,6 +3555,64 @@ components:
                   type: array
                   items:
                     type: string
+
+    UpdateSubscriber:
+      type: object
+      properties:
+        email:
+          type: string
+        name:
+          type: string
+        status:
+          type: string
+        lists:
+          type: array
+          items:
+            type: integer
+        list_uuids:
+          type: array
+          items:
+            type: string
+        preconfirm_subscriptions:
+          type: boolean
+        attribs:
+          type: object
+          properties:
+            city:
+              type: string
+            projects:
+              type: integer
+            stack:
+              type: object
+              properties:
+                languages:
+                  type: array
+                  items:
+                    type: string
+
+    SubscriberQueryRequest:
+      type: object
+      properties:
+        query:
+          type: string
+        ids:
+          type: array
+          description: The ids of the subscribers to be modified.
+          items:
+            type: integer
+        action:
+          type: string
+          enum: [add, remove, unsubscribe]
+          description: Whether to add, remove, or unsubscribe the users.
+        target_list_ids:
+          type: integer
+          description: The ids of the lists to be modified.
+          items:
+            type: integer
+        status:
+          type: string
+          enum: [confirmed, unconfirmed, unsubscribed]
+          description: confirmed, unconfirmed, or unsubscribed status.
 
     Bounce:
       type: object
@@ -3143,7 +3630,6 @@ components:
                 type: string
               meta:
                 type: object
-
               created_at:
                 type: string
               email:
@@ -3159,6 +3645,10 @@ components:
                     type: integer
                   name:
                     type: string
+              campaign_uuid:
+                type: string
+              total:
+                type: integer
 
     List:
       type: object
@@ -3184,7 +3674,7 @@ components:
         subscriber_count:
           type: integer
 
-    ListRegistrationInfo:
+    NewList:
       type: object
       properties:
         name:
@@ -3274,7 +3764,7 @@ components:
         messenger:
           type: string
 
-    NewCampaign:
+    CampaignContentRequest:
       type: object
       properties:
         id:
@@ -3283,11 +3773,11 @@ components:
           type: string
         updated_at:
           type: string
+        CampaignID:
+          type: integer
         views:
           type: integer
         clicks:
-          type: integer
-        bounces:
           type: integer
         lists:
           type: array
@@ -3308,6 +3798,7 @@ components:
           type: string
         type:
           type: string
+          enum: [regular, optin]
         name:
           type: string
         subject:
@@ -3316,14 +3807,13 @@ components:
           type: string
         body:
           type: string
-        altbody:
-          type: string
         send_at:
           type: string
         status:
           type: string
         content_type:
           type: string
+          enum: [richtext, html, markdown, plain]
         tags:
           type: array
           items:
@@ -3332,8 +3822,12 @@ components:
           type: integer
         messenger:
           type: string
+        from:
+          type: string
+        to:
+          type: string
 
-    CampaignRegistrationInfo:
+    CampaignRequest:
       type: object
       properties:
         name:
@@ -3343,27 +3837,30 @@ components:
         lists:
           type: array
           items:
-            type: integer
+            type: number
         from_email:
           type: string
-        type:
-          type: string
-        content-type:
-          type: string
-        body:
-          type: string
-        altbody:
-          type: string
-        send_at:
+        content_type:
           type: string
         messenger:
           type: string
-        template_id:
-          type: integer
+        type:
+          type: string
         tags:
           type: array
           items:
             type: string
+        send_later:
+          type: boolean
+        send_at:
+          type: object
+          properties:
+            headers:
+              type: array
+              items:
+                type: object
+            template_id:
+              type: number
 
     CampaignUpdate:
       type: object
@@ -3409,6 +3906,39 @@ components:
         archive_meta:
           type: object
 
+    CampaignStats:
+      type: object
+      properties:
+        id:
+          type: integer
+        status:
+          type: string
+        to_send:
+          type: integer
+        sent:
+          type: integer
+        started_at:
+          type: string
+          format: date
+        updated_at:
+          type: string
+          format: date
+        rate:
+          type: integer
+        net_rate:
+          type: integer
+
+    CampaignAnalyticsCount:
+      type: object
+      properties:
+        campaign_id:
+          type: integer
+        count:
+          type: integer
+        timestamp:
+          type: string
+          format: date-time
+
     MediaFileObject:
       type: object
       properties:
@@ -3420,7 +3950,7 @@ components:
           type: string
         created_at:
           type: string
-        thumb_uri:
+        thumb_url:
           type: string
         uri:
           type: string
@@ -3460,3 +3990,7 @@ components:
           type: array
           items:
             type: object
+        messenger:
+          type: string
+        content_type:
+          type: string
