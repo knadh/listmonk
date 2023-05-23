@@ -24,7 +24,7 @@ builds:
       - 6
       - 7
     ldflags:
-      - -s -w -X "main.buildString={{ .Tag }} {{ .Release.Goos }}/{{ .Release.Goarch }} ({{ .ShortCommit }} {{ .Date }})" -X "main.versionString={{ .Tag }}"
+      - -s -w -X "main.buildString={{ .Tag }} ({{ .ShortCommit }} {{ .Date }}, {{ .Os }}/{{ .Arch }})" -X "main.versionString={{ .Tag }}"
 
     hooks:
       # stuff executables with static assets.
