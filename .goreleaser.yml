@@ -24,7 +24,7 @@ builds:
       - 6
       - 7
     ldflags:
-      - -s -w -X "main.buildString={{ .Tag }} ({{ .ShortCommit }} {{ .Date }})" -X "main.versionString={{ .Tag }}"
+      - -s -w -X "main.buildString={{ .Tag }} {{ .Release.Goos }}/{{ .Release.Goarch }} ({{ .ShortCommit }} {{ .Date }})" -X "main.versionString={{ .Tag }}"
 
     hooks:
       # stuff executables with static assets.
@@ -37,15 +37,16 @@ archives:
       - LICENSE
 
 dockers:
-  - goos: linux
+  - use: buildx
+    goos: linux
     goarch: amd64
     ids:
     - listmonk
     image_templates:
-    - "listmonk/listmonk:latest"
-    - "listmonk/listmonk:{{ .Tag }}"
-    - "ghcr.io/knadh/{{ .ProjectName }}:latest"
-    - "ghcr.io/knadh/{{ .ProjectName }}:{{ .Tag }}"
+    - "listmonk/{{ .ProjectName }}:latest-amd64"
+    - "listmonk/{{ .ProjectName }}:{{ .Tag }}-amd64"
+    - "ghcr.io/knadh/{{ .ProjectName }}:latest-amd64"
+    - "ghcr.io/knadh/{{ .ProjectName }}:{{ .Tag }}-amd64"
     build_flag_templates:
     - --platform=linux/amd64
     - --label=org.opencontainers.image.title={{ .ProjectName }}
@@ -60,3 +61,103 @@ dockers:
     extra_files:
     - config.toml.sample
     - config-demo.toml
+  - use: buildx
+    goos: linux
+    goarch: arm64
+    ids:
+    - listmonk
+    image_templates:
+    - "listmonk/{{ .ProjectName }}:latest-arm64v8"
+    - "listmonk/{{ .ProjectName }}:{{ .Tag }}-arm64v8"
+    - "ghcr.io/knadh/{{ .ProjectName }}:latest-arm64v8"
+    - "ghcr.io/knadh/{{ .ProjectName }}:{{ .Tag }}-arm64v8"
+    build_flag_templates:
+    - --platform=linux/arm64/v8
+    - --label=org.opencontainers.image.title={{ .ProjectName }}
+    - --label=org.opencontainers.image.description={{ .ProjectName }}
+    - --label=org.opencontainers.image.url=https://github.com/knadh/{{ .ProjectName }}
+    - --label=org.opencontainers.image.source=https://github.com/knadh/{{ .ProjectName }}
+    - --label=org.opencontainers.image.version={{ .Version }}
+    - --label=org.opencontainers.image.created={{ time "2006-01-02T15:04:05Z07:00" }}
+    - --label=org.opencontainers.image.revision={{ .FullCommit }}
+    - --label=org.opencontainers.image.licenses=AGPL-3.0
+    dockerfile: Dockerfile
+    extra_files:
+    - config.toml.sample
+    - config-demo.toml
+  - use: buildx
+    goos: linux
+    goarch: arm
+    goarm: 6
+    ids:
+    - listmonk
+    image_templates:
+    - "listmonk/{{ .ProjectName }}:latest-armv6"
+    - "listmonk/{{ .ProjectName }}:{{ .Tag }}-armv6"
+    - "ghcr.io/knadh/{{ .ProjectName }}:latest-armv6"
+    - "ghcr.io/knadh/{{ .ProjectName }}:{{ .Tag }}-armv6"
+    build_flag_templates:
+    - --platform=linux/arm/v6
+    - --label=org.opencontainers.image.title={{ .ProjectName }}
+    - --label=org.opencontainers.image.description={{ .ProjectName }}
+    - --label=org.opencontainers.image.url=https://github.com/knadh/{{ .ProjectName }}
+    - --label=org.opencontainers.image.source=https://github.com/knadh/{{ .ProjectName }}
+    - --label=org.opencontainers.image.version={{ .Version }}
+    - --label=org.opencontainers.image.created={{ time "2006-01-02T15:04:05Z07:00" }}
+    - --label=org.opencontainers.image.revision={{ .FullCommit }}
+    - --label=org.opencontainers.image.licenses=AGPL-3.0
+    dockerfile: Dockerfile
+    extra_files:
+    - config.toml.sample
+    - config-demo.toml
+  - use: buildx
+    goos: linux
+    goarch: arm
+    goarm: 7
+    ids:
+    - listmonk
+    image_templates:
+    - "listmonk/{{ .ProjectName }}:latest-armv7"
+    - "listmonk/{{ .ProjectName }}:{{ .Tag }}-armv7"
+    - "ghcr.io/knadh/{{ .ProjectName }}:latest-armv7"
+    - "ghcr.io/knadh/{{ .ProjectName }}:{{ .Tag }}-armv7"
+    build_flag_templates:
+    - --platform=linux/arm/v7
+    - --label=org.opencontainers.image.title={{ .ProjectName }}
+    - --label=org.opencontainers.image.description={{ .ProjectName }}
+    - --label=org.opencontainers.image.url=https://github.com/knadh/{{ .ProjectName }}
+    - --label=org.opencontainers.image.source=https://github.com/knadh/{{ .ProjectName }}
+    - --label=org.opencontainers.image.version={{ .Version }}
+    - --label=org.opencontainers.image.created={{ time "2006-01-02T15:04:05Z07:00" }}
+    - --label=org.opencontainers.image.revision={{ .FullCommit }}
+    - --label=org.opencontainers.image.licenses=AGPL-3.0
+    dockerfile: Dockerfile
+    extra_files:
+    - config.toml.sample
+    - config-demo.toml
+
+docker_manifests:
+  - name_template: listmonk/{{ .ProjectName }}:latest
+    image_templates:
+      - listmonk/{{ .ProjectName }}:latest-amd64
+      - listmonk/{{ .ProjectName }}:latest-arm64v8
+      - listmonk/{{ .ProjectName }}:latest-armv6
+      - listmonk/{{ .ProjectName }}:latest-armv7
+  - name_template: listmonk/{{ .ProjectName }}:{{ .Tag }}
+    image_templates:
+      - listmonk/{{ .ProjectName }}:{{ .Tag }}-amd64
+      - listmonk/{{ .ProjectName }}:{{ .Tag }}-arm64v8
+      - listmonk/{{ .ProjectName }}:{{ .Tag }}-armv6
+      - listmonk/{{ .ProjectName }}:{{ .Tag }}-armv7
+  - name_template: ghcr.io/knadh/{{ .ProjectName }}:latest
+    image_templates:
+      - ghcr.io/knadh/{{ .ProjectName }}:latest-amd64
+      - ghcr.io/knadh/{{ .ProjectName }}:latest-arm64v8
+      - ghcr.io/knadh/{{ .ProjectName }}:latest-armv6
+      - ghcr.io/knadh/{{ .ProjectName }}:latest-armv7
+  - name_template: ghcr.io/knadh/{{ .ProjectName }}:{{ .Tag }}
+    image_templates:
+      - ghcr.io/knadh/{{ .ProjectName }}:{{ .Tag }}-amd64
+      - ghcr.io/knadh/{{ .ProjectName }}:{{ .Tag }}-arm64v8
+      - ghcr.io/knadh/{{ .ProjectName }}:{{ .Tag }}-armv6
+      - ghcr.io/knadh/{{ .ProjectName }}:{{ .Tag }}-armv7
