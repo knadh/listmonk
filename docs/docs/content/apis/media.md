@@ -23,7 +23,7 @@ curl -u "username:username" -X GET 'http://localhost:9000/api/media' \
             "uuid": "ec7b45ce-1408-4e5c-924e-965326a20287",
             "filename": "Media file",
             "created_at": "2020-04-08T22:43:45.080058+01:00",
-            "thumb_uri": "/uploads/image_thumb.jpg",
+            "thumb_url": "/uploads/image_thumb.jpg",
             "uri": "/uploads/image.jpg"
         }
     ]
