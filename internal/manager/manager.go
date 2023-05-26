@@ -395,8 +395,8 @@ func (m *Manager) worker() {
 			out.Headers = h
 
 			if err := m.messengers[msg.Campaign.Messenger].Push(out); err != nil {
-				m.logger.Printf("error sending message in campaign %s: subscriber %s: %v",
-					msg.Campaign.Name, msg.Subscriber.UUID, err)
+				m.logger.Printf("error sending message in campaign %s: subscriber %d: %v",
+					msg.Campaign.Name, msg.Subscriber.ID, err)
 
 				select {
 				case m.campMsgErrorQueue <- msgError{camp: msg.Campaign, err: err}:
