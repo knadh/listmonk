@@ -89,7 +89,7 @@ func handleReloadApp(c echo.Context) error {
 	app := c.Get("app").(*App)
 	go func() {
 		<-time.After(time.Millisecond * 500)
-		app.sigChan <- syscall.SIGHUP
+		app.chReload <- syscall.SIGHUP
 	}()
 	return c.JSON(http.StatusOK, okResp{true})
 }

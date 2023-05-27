@@ -133,6 +133,24 @@ export default Vue.extend({
       };
       http.send();
     },
+
+    listenEvents() {
+      const reMatchLog = /(.+?)\.go:\d+:(.+?)$/im;
+      const evtSource = new EventSource(uris.errorEvents, { withCredentials: true });
+      let numEv = 0;
+      evtSource.onmessage = (e) => {
+        if (numEv > 50) {
+          return;
+        }
+        numEv += 1;
+
+        const d = JSON.parse(e.data);
+        if (d && d.type === 'error') {
+          const msg = reMatchLog.exec(d.message.trim());
+          this.$utils.toast(msg[2], 'is-danger', null, true);
+        }
+      };
+    },
   },
 
   computed: {
@@ -155,6 +173,8 @@ export default Vue.extend({
     window.addEventListener('resize', () => {
       this.windowWidth = window.innerWidth;
     });
+
+    this.listenEvents();
   },
 });
 </script>

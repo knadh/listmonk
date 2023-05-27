@@ -19,6 +19,7 @@ import (
 	"github.com/knadh/listmonk/internal/buflog"
 	"github.com/knadh/listmonk/internal/captcha"
 	"github.com/knadh/listmonk/internal/core"
+	"github.com/knadh/listmonk/internal/events"
 	"github.com/knadh/listmonk/internal/i18n"
 	"github.com/knadh/listmonk/internal/manager"
 	"github.com/knadh/listmonk/internal/media"
@@ -48,12 +49,13 @@ type App struct {
 	bounce     *bounce.Manager
 	paginator  *paginator.Paginator
 	captcha    *captcha.Captcha
+	events     *events.Events
 	notifTpls  *notifTpls
 	log        *log.Logger
 	bufLog     *buflog.BufLog
 
 	// Channel for passing reload signals.
-	sigChan chan os.Signal
+	chReload chan os.Signal
 
 	// Global variable that stores the state indicating that a restart is required
 	// after a settings update.
@@ -66,8 +68,9 @@ type App struct {
 
 var (
 	// Buffered log writer for storing N lines of log entries for the UI.
-	bufLog = buflog.New(5000)
-	lo     = log.New(io.MultiWriter(os.Stdout, bufLog), "",
+	evStream = events.New()
+	bufLog   = buflog.New(5000)
+	lo       = log.New(io.MultiWriter(os.Stdout, bufLog, evStream.ErrWriter()), "",
 		log.Ldate|log.Ltime|log.Lshortfile)
 
 	ko      = koanf.New(".")
@@ -170,6 +173,7 @@ func main() {
 		log:        lo,
 		bufLog:     bufLog,
 		captcha:    initCaptcha(),
+		events:     evStream,
 
 		paginator: paginator.New(paginator.Opt{
 			DefaultPerPage: 20,
@@ -240,11 +244,11 @@ func main() {
 	// Wait for the reload signal with a callback to gracefully shut down resources.
 	// The `wait` channel is passed to awaitReload to wait for the callback to finish
 	// within N seconds, or do a force reload.
-	app.sigChan = make(chan os.Signal)
-	signal.Notify(app.sigChan, syscall.SIGHUP)
+	app.chReload = make(chan os.Signal)
+	signal.Notify(app.chReload, syscall.SIGHUP)
 
 	closerWait := make(chan bool)
-	<-awaitReload(app.sigChan, closerWait, func() {
+	<-awaitReload(app.chReload, closerWait, func() {
 		// Stop the HTTP server.
 		ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
 		defer cancel()
