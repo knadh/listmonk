@@ -177,7 +177,7 @@ func main() {
 
 		paginator: paginator.New(paginator.Opt{
 			DefaultPerPage: 20,
-			MaxPerPage:     50,
+			MaxPerPage:     100000,
 			NumPageNums:    10,
 			PageParam:      "page",
 			PerPageParam:   "per_page",
