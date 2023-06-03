@@ -9,7 +9,6 @@ require (
 	github.com/gofrs/uuid v4.0.0+incompatible
 	github.com/google/uuid v1.3.0 // indirect
 	github.com/gorilla/feeds v1.1.1
-	github.com/h2non/filetype v1.1.3 // indirect
 	github.com/huandu/xstrings v1.4.0 // indirect
 	github.com/imdario/mergo v0.3.14 // indirect
 	github.com/jmoiron/sqlx v1.3.5
@@ -24,7 +23,7 @@ require (
 	github.com/knadh/koanf/providers/posflag v0.1.0
 	github.com/knadh/koanf/providers/rawbytes v0.1.0
 	github.com/knadh/koanf/v2 v2.0.1
-	github.com/knadh/paginator v1.0.0
+	github.com/knadh/paginator v1.0.1
 	github.com/knadh/smtppool v1.0.2
 	github.com/knadh/stuffbin v1.1.0
 	github.com/kr/pretty v0.3.1 // indirect
