@@ -283,12 +283,12 @@ Creates a new subscriber.
 
 Name                     | Parameter type   | Data type  | Required/Optional | Description
 -------------------------|------------------|------------|-------------------|----------------------------
-email                    | Request body     | String     | Required          | The email address of the new susbcriber.
+email                    | Request body     | String     | Required          | The email address of the new subscriber.
 name                     | Request body     | String     | Required          | The name of the new subscriber. 
 status                   | Request body     | String     | Required          | The status of the new subscriber. Can be enabled, disabled or blocklisted. 
 lists                    | Request body     | Numbers    | Optional          | Array of list IDs to subscribe to (marked as `unconfirmed` by default).
 attribs                  | Request body     | json       | Optional          | JSON list containing new subscriber's attributes.
-preconfirm_subscriptions | Request body     | Bool       | Optional          | If `true`, marks subscriptsions as `confirmed` and no-optin e-mails are sent for double opt-in lists.
+preconfirm_subscriptions | Request body     | Bool       | Optional          | If `true`, marks subscriptions as `confirmed` and no-optin e-mails are sent for double opt-in lists.
 
 ##### Example Request
 ```shell
@@ -325,12 +325,12 @@ Modify subscribers list memberships.
 
 ##### Parameters
 
-Name              | Paramter type | Data type | Required/Optional  | Description
-------------------|---------------|-----------|--------------------|-------------------------------------------------------
-`ids`             | Request body  | Numbers   | Required           | The ids of the subscribers to be modified.
-`action`          | Request body  | String    | Required           | Wether to `add`, `remove`, or `unsubscribe` the users.
-`target_list_ids` | Request body  | Numbers   | Required           | The ids of the lists to be modified.
-`status`          | Request body  | String    | Required for `add` | `confirmed`, `unconfirmed`, or `unsubscribed` status.
+Name              | Parameter type | Data type | Required/Optional  | Description
+------------------|----------------|-----------|--------------------|-------------------------------------------------------
+`ids`             | Request body   | Numbers   | Required           | The ids of the subscribers to be modified.
+`action`          | Request body   | String    | Required           | Whether to `add`, `remove`, or `unsubscribe` the users.
+`target_list_ids` | Request body   | Numbers   | Required           | The ids of the lists to be modified.
+`status`          | Request body   | String    | Required for `add` | `confirmed`, `unconfirmed`, or `unsubscribed` status.
 
 ##### Example Request
 

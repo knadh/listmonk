@@ -65,7 +65,7 @@ func (c *Core) GetCampaign(id int, uuid string) (models.Campaign, error) {
 	return c.getCampaign(id, uuid, campaignTplDefault)
 }
 
-// GetArchivedCampaign retreives a campaign with the archive template body.
+// GetArchivedCampaign retrieves a campaign with the archive template body.
 func (c *Core) GetArchivedCampaign(id int, uuid string) (models.Campaign, error) {
 	out, err := c.getCampaign(id, uuid, campaignTplArchive)
 	if err != nil {
