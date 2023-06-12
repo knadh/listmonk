@@ -8,6 +8,7 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/knadh/listmonk/internal/bounce/mailbox"
 	"github.com/knadh/listmonk/internal/bounce/webhooks"
+	"github.com/knadh/listmonk/internal/core"
 	"github.com/knadh/listmonk/models"
 )
 
@@ -43,6 +44,7 @@ type Manager struct {
 	mailbox  Mailbox
 	SES      *webhooks.SES
 	Sendgrid *webhooks.Sendgrid
+	Msg91    *webhooks.Msg91
 	queries  *Queries
 	opt      Opt
 	log      *log.Logger
@@ -55,7 +57,7 @@ type Queries struct {
 }
 
 // New returns a new instance of the bounce manager.
-func New(opt Opt, q *Queries, lo *log.Logger) (*Manager, error) {
+func New(opt Opt, q *Queries, core *core.Core, lo *log.Logger) (*Manager, error) {
 	m := &Manager{
 		opt:     opt,
 		queries: q,
@@ -72,8 +74,8 @@ func New(opt Opt, q *Queries, lo *log.Logger) (*Manager, error) {
 			return nil, errors.New("unknown bounce mailbox type")
 		}
 	}
-
 	if opt.WebhooksEnabled {
+		m.Msg91 = webhooks.NewMSG91(core)
 		if opt.SESEnabled {
 			m.SES = webhooks.NewSES()
 		}

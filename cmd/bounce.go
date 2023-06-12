@@ -111,6 +111,10 @@ func handleDeleteBounces(c echo.Context) error {
 	return c.JSON(http.StatusOK, okResp{true})
 }
 
+type testmsg91 struct {
+	Message string `json:"message"`
+}
+
 // handleBounceWebhook renders the HTML preview of a template.
 func handleBounceWebhook(c echo.Context) error {
 	var (
@@ -119,7 +123,6 @@ func handleBounceWebhook(c echo.Context) error {
 
 		bounces []models.Bounce
 	)
-
 	// Read the request body instead of using c.Bind() to read to save the entire raw request as meta.
 	rawReq, err := ioutil.ReadAll(c.Request().Body)
 	if err != nil {
@@ -187,6 +190,22 @@ func handleBounceWebhook(c echo.Context) error {
 		bs, err := app.bounce.Sendgrid.ProcessBounce(sig, ts, rawReq)
 		if err != nil {
 			app.log.Printf("error processing sendgrid notification: %v", err)
+			return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidData"))
+		}
+		bounces = append(bounces, bs...)
+		// MSG91.
+	case service == "msg91" && app.constants.BounceWebhooksEnabled:
+		//pass test case
+		tstMessage := &testmsg91{}
+		err := json.Unmarshal(rawReq, tstMessage)
+		if err == nil && tstMessage.Message != "" {
+			//this means msg91 is testing the hook
+			return c.JSON(http.StatusOK, okResp{true})
+		}
+		// msg91 sends multiple bounces.
+		bs, err := app.bounce.Msg91.ProcessBounce(rawReq)
+		if err != nil {
+			app.log.Printf("error processing msg91 notification: %v", err)
 			return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidData"))
 		}
 		bounces = append(bounces, bs...)

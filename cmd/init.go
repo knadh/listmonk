@@ -689,7 +689,7 @@ func initBounceManager(app *App) *bounce.Manager {
 
 	b, err := bounce.New(opt, &bounce.Queries{
 		RecordQuery: app.queries.RecordBounce,
-	}, app.log)
+	}, app.core, app.log)
 	if err != nil {
 		lo.Fatalf("error initializing bounce manager: %v", err)
 	}
@@ -702,6 +702,7 @@ func initHTTPServer(app *App) *echo.Echo {
 	// Initialize the HTTP server.
 	var srv = echo.New()
 	srv.HideBanner = true
+	srv.Debug = true
 
 	// Register app (*App) to be injected into all HTTP handlers.
 	srv.Use(func(next echo.HandlerFunc) echo.HandlerFunc {
