@@ -75,7 +75,7 @@ func New(opt Opt, q *Queries, core *core.Core, lo *log.Logger) (*Manager, error)
 		}
 	}
 	if opt.WebhooksEnabled {
-		m.Msg91 = webhooks.NewMSG91(core)
+		m.Msg91 = webhooks.NewMSG91(core, lo)
 		if opt.SESEnabled {
 			m.SES = webhooks.NewSES()
 		}

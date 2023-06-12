@@ -3,6 +3,7 @@ package webhooks
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"strings"
 	"time"
 
@@ -46,13 +47,15 @@ type reciever struct {
 // requests and bounce notifications.
 type Msg91 struct {
 	core *core.Core
+	log  *log.Logger
 }
 
 // NewMSG91 returns a new Msg91 instance.
-func NewMSG91(c *core.Core) *Msg91 {
+func NewMSG91(c *core.Core, lo *log.Logger) *Msg91 {
 
 	return &Msg91{
 		core: c,
+		log:  lo,
 	}
 }
 
@@ -68,14 +71,16 @@ func (s *Msg91) ProcessBounce(b []byte) ([]models.Bounce, error) {
 
 	for _, e := range notifs.Data.OutBoundEmail.To {
 		if strings.ToLower(notifs.Data.Event.Title) != "bounced" {
+			s.log.Printf("level:INFO, msg: non bounce type delivery skipped , type:%v", notifs.Data.Event.Title)
 			continue
 		}
-		s, err := s.core.GetSubscriber(0, "", e.EMail)
+		sub, err := s.core.GetSubscriber(0, "", e.EMail)
 		if err != nil {
+			s.log.Printf("level:ERROR, msg: failed to get subscriber , email:%v", e.EMail)
 			return nil, err
 		}
 		bn := models.Bounce{
-			SubscriberUUID: s.UUID,
+			SubscriberUUID: sub.UUID,
 			Email:          strings.ToLower(e.EMail),
 			Type:           "hard",
 			Meta:           json.RawMessage(b),
