@@ -44,6 +44,8 @@ So:
 3. Please do not nitpick and generate unnecessary discussions that waste time.
 4. Please make sure you have searched the docs and issues before asking support questions.
 5. **Please remember, FOSS project maintainers owe you nothing** (unless you have an explicit agreement with them, of course) including their time in responding to your messages or providing free customer support. If you want to be heard, please be respectful and establish goodwill.
-6. If these are unacceptable to you a) you don't have to use the project b) you can always fork the project and change it to your liking while adhering to the terms of the license. That is the beauty of FOSS, afterall.
+6. If these are unacceptable to you
+   - a) you don't have to use the project
+   - b) you can always fork the project and change it to your liking while adhering to the terms of the license. That is the beauty of FOSS, afterall.
 
 Thank you!
