@@ -144,7 +144,7 @@ func getLastMigrationVersion() (string, error) {
 	return v, nil
 }
 
-// isPqNoTableErr checks if the given error represents a Postgres/pq
+// isTableNotExistErr checks if the given error represents a Postgres/pq
 // "table does not exist" error.
 func isTableNotExistErr(err error) bool {
 	if p, ok := err.(*pq.Error); ok {

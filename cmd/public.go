@@ -237,7 +237,7 @@ func handleSubscriptionPage(c echo.Context) error {
 	return c.Render(http.StatusOK, "subscription", out)
 }
 
-// handleSubscriptionPage renders the subscription management page and
+// handleSubscriptionPrefs renders the subscription management page and
 // handles unsubscriptions. This is the view that {{ UnsubscribeURL }} in
 // campaigns link to.
 func handleSubscriptionPrefs(c echo.Context) error {
@@ -466,7 +466,7 @@ func handleSubscriptionForm(c echo.Context) error {
 	return c.Render(http.StatusOK, tplMessage, makeMsgTpl(app.i18n.T("public.subTitle"), "", app.i18n.Ts(msg)))
 }
 
-// handleSubscriptionForm handles subscription requests coming from public
+// handlePublicSubscription handles subscription requests coming from public
 // API calls.
 func handlePublicSubscription(c echo.Context) error {
 	hasOptin, err := processSubForm(c)
