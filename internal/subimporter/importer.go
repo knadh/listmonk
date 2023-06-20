@@ -145,7 +145,7 @@ func New(opt Options, db *sql.DB, i *i18n.I18n) *Importer {
 		im.domainBlocklist[d] = true
 
 		// Domains with *. as the subdomain prefix, strip that
-		// and add the full domain to the blocklist as welll.
+		// and add the full domain to the blocklist as well.
 		// eg: *.example.com => example.com
 		if strings.Contains(d, "*.") {
 			im.hasBlocklistWildcards = true

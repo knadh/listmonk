@@ -47,7 +47,7 @@ func New(o Opt) *Captcha {
 		}}
 }
 
-// Verify veries a CAPTCHA request.
+// Verify verifies a CAPTCHA request.
 func (c *Captcha) Verify(token string) (error, bool) {
 	resp, err := c.client.PostForm(rootURL, url.Values{
 		"secret":   {c.o.CaptchaSecret},

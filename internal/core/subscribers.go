@@ -439,7 +439,7 @@ func (c *Core) DeleteSubscribersByQuery(query string, listIDs []int) error {
 	return err
 }
 
-// UnsubscribeByCampaign unsubscibers a given subscriber from lists in a given campaign.
+// UnsubscribeByCampaign unsubscribes a given subscriber from lists in a given campaign.
 func (c *Core) UnsubscribeByCampaign(subUUID, campUUID string, blocklist bool) error {
 	if _, err := c.q.UnsubscribeByCampaign.Exec(campUUID, subUUID, blocklist); err != nil {
 		c.log.Printf("error unsubscribing: %v", err)
