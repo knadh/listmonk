@@ -2,14 +2,17 @@ package main
 
 import (
 	"bytes"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"regexp"
+	"runtime"
 	"strings"
 	"syscall"
 	"time"
 
 	"github.com/gofrs/uuid"
+	"github.com/jmoiron/sqlx/types"
 	"github.com/knadh/koanf/parsers/json"
 	"github.com/knadh/koanf/providers/rawbytes"
 	"github.com/knadh/koanf/v2"
@@ -17,6 +20,27 @@ import (
 	"github.com/knadh/listmonk/models"
 	"github.com/labstack/echo/v4"
 )
+
+type aboutHost struct {
+	OS        string `json:"os"`
+	OSRelease string `json:"os_release"`
+	Machine   string `json:"arch"`
+	Hostname  string `json:"hostname"`
+}
+type aboutSystem struct {
+	NumCPU  int    `json:"num_cpu"`
+	AllocMB uint64 `json:"memory_alloc_mb"`
+	OSMB    uint64 `json:"memory_from_os_mb"`
+}
+type about struct {
+	Version   string         `json:"version"`
+	Build     string         `json:"build"`
+	GoVersion string         `json:"go_version"`
+	GoArch    string         `json:"go_arch"`
+	Database  types.JSONText `json:"database"`
+	System    aboutSystem    `json:"system"`
+	Host      aboutHost      `json:"host"`
+}
 
 var (
 	reAlphaNum = regexp.MustCompile(`[^a-z0-9\-]`)
@@ -265,4 +289,25 @@ func handleTestSMTPSettings(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, okResp{app.bufLog.Lines()})
+}
+
+func handleGetAboutInfo(c echo.Context) error {
+	app := c.Get("app").(*App)
+
+	var (
+		mem     runtime.MemStats
+		utsname syscall.Utsname
+	)
+
+	runtime.ReadMemStats(&mem)
+
+	if err := syscall.Uname(&utsname); err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("error getting system info: %v", err))
+	}
+
+	out := app.about
+	out.System.AllocMB = mem.Alloc / 1024 / 1024
+	out.System.OSMB = mem.Sys / 1024 / 1024
+
+	return c.JSON(http.StatusOK, out)
 }

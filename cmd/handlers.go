@@ -86,6 +86,7 @@ func initHTTPHandlers(e *echo.Echo, app *App) {
 	g.POST("/api/settings/smtp/test", handleTestSMTPSettings)
 	g.POST("/api/admin/reload", handleReloadApp)
 	g.GET("/api/logs", handleGetLogs)
+	g.GET("/api/about", handleGetAboutInfo)
 
 	g.GET("/api/subscribers/:id", handleGetSubscriber)
 	g.GET("/api/subscribers/:id/export", handleExportSubscriberData)

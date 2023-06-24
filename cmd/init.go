@@ -8,6 +8,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"syscall"
 	"time"
@@ -695,6 +696,45 @@ func initBounceManager(app *App) *bounce.Manager {
 	}
 
 	return b
+}
+
+func initAbout(q *models.Queries, db *sqlx.DB) about {
+	var (
+		mem     runtime.MemStats
+		utsname syscall.Utsname
+	)
+
+	// Memory / alloc stats.
+	runtime.ReadMemStats(&mem)
+
+	// OS info.
+	if err := syscall.Uname(&utsname); err != nil {
+		lo.Printf("WARNING: error getting system info: %v", err)
+	}
+
+	// DB dbv.
+	info := types.JSONText(`{}`)
+	if err := db.QueryRow(q.GetDBInfo).Scan(&info); err != nil {
+		lo.Printf("WARNING: error getting database version: %v", err)
+	}
+
+	return about{
+		Version:   versionString,
+		Build:     buildString,
+		GoArch:    runtime.GOARCH,
+		GoVersion: runtime.Version(),
+		Database:  info,
+		System: aboutSystem{
+			NumCPU: runtime.NumCPU(),
+		},
+		Host: aboutHost{
+			OS:        int8ToStr(utsname.Sysname[:]),
+			OSRelease: int8ToStr(utsname.Release[:]),
+			Machine:   int8ToStr(utsname.Machine[:]),
+			Hostname:  int8ToStr(utsname.Nodename[:]),
+		},
+	}
+
 }
 
 // initHTTPServer sets up and runs the app's main HTTP server and blocks forever.
