@@ -366,6 +366,7 @@
     "settings.bounces.enableSES": "SES'i etkinleştirin",
     "settings.bounces.enableSendgrid": "SendGrid'i etkinleştirin",
     "settings.bounces.enableWebhooks": "Sıçrama web kancalarını etkinleştirin",
+    "settings.bounces.enablePostmark": "Postmark'i etkinleştirin",
     "settings.bounces.enabled": "Etkinleştir",
     "settings.bounces.folder": "Dizin",
     "settings.bounces.folderHelp": "Taranacak IMAP klasörünün adı. Örn: Gelen Kutusu.",

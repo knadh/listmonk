@@ -2703,6 +2703,8 @@ components:
               type: string
             settings.bounces.enableSendgrid:
               type: string
+            settings.bounces.enablePostmark:
+              type: string
             settings.bounces.enableWebhooks:
               type: string
             settings.bounces.enabled:
@@ -3398,6 +3400,8 @@ components:
           type: boolean
         bounce.sendgrid_key:
           type: string
+        bounce.postmark_enabled:
+          type: boolean
         bounce.mailboxes:
           type: array
           items:

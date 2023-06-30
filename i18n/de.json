@@ -365,6 +365,7 @@
     "settings.bounces.enableSES": "SES aktivieren",
     "settings.bounces.enableSendgrid": "SendGrid aktivieren",
     "settings.bounces.enableWebhooks": "Bounce-Webhooks aktivieren",
+    "settings.bounces.enablePostmark": "Postmark aktivieren",
     "settings.bounces.enabled": "Aktiviert",
     "settings.bounces.folder": "Ordner",
     "settings.bounces.folderHelp": "Name des zu scannenden IMAP-Ordners. z.B.: Inbox.",

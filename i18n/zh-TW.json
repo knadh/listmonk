@@ -366,6 +366,7 @@
     "settings.bounces.enableSES": "啟用SES",
     "settings.bounces.enableSendgrid": "啟用SendGrid",
     "settings.bounces.enableWebhooks": "啟用反彈webhooks",
+    "settings.bounces.enablePostmark": "啟用Postmark",
     "settings.bounces.enabled": "已啟用",
     "settings.bounces.folder": "文件夾",
     "settings.bounces.folderHelp": "要掃描的IMAP 文件夾的名稱。例如：收件箱。",

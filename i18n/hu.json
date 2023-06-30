@@ -365,6 +365,7 @@
     "settings.bounces.enableSES": "SES",
     "settings.bounces.enableSendgrid": "SendGrid",
     "settings.bounces.enableWebhooks": "Visszapattanó webhook",
+    "settings.bounces.enablePostmark": "Postmark",
     "settings.bounces.enabled": "Engedélyezve",
     "settings.bounces.folder": "Mappa",
     "settings.bounces.folderHelp": "A vizsgálandó IMAP mappa neve. Például: 'Inbox'",

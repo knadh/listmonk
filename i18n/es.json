@@ -366,6 +366,7 @@
     "settings.bounces.enableSES": "Activar SES",
     "settings.bounces.enableSendgrid": "Activar SendGrid",
     "settings.bounces.enableWebhooks": "Activar webhooks de rebotes",
+    "settings.bounces.enablePostmark": "Activar Postmark",
     "settings.bounces.enabled": "Activado",
     "settings.bounces.folder": "Carpeta",
     "settings.bounces.folderHelp": "Nombre de la carpeta IMAP a escanear, por ejemplo: Entrada.",

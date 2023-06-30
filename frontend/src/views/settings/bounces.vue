@@ -73,6 +73,15 @@
               </b-field>
             </div>
           </div>
+          <div class="columns">
+            <div class="column">
+              <b-field :label="$t('settings.bounces.enablePostmark')">
+                <b-switch v-model="data['bounce.postmark_enabled']"
+                  name="postmark_enabled" :native-value="true"
+                  data-cy="btn-enable-bounce-postmark" />
+              </b-field>
+            </div>
+          </div>
       </div>
     </div>
 

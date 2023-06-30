@@ -365,6 +365,7 @@
     "settings.bounces.enableSES": "SES inschakelen",
     "settings.bounces.enableSendgrid": "SendGrid inschakelen",
     "settings.bounces.enableWebhooks": "Bounce webhooks inschakelen",
+    "settings.bounces.enablePostmark": "Postmark inschakelen",
     "settings.bounces.enabled": "Ingeschakeld",
     "settings.bounces.folder": "Map",
     "settings.bounces.folderHelp": "Naam van de IMAP map om te scannen. Bv.: Inbox.",

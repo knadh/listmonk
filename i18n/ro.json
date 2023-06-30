@@ -366,6 +366,7 @@
     "settings.bounces.enableSES": "Activați SES",
     "settings.bounces.enableSendgrid": "Activați SendGrid",
     "settings.bounces.enableWebhooks": "Activați webhooks bounce",
+    "settings.bounces.enablePostmark": "Activați Postmark",
     "settings.bounces.enabled": "Activat",
     "settings.bounces.folder": "Director",
     "settings.bounces.folderHelp": "Numele folderului IMAP pentru a scana. De exemplu: Inbox.",

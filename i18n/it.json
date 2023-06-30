@@ -366,6 +366,7 @@
     "settings.bounces.enableSES": "Attiva SES",
     "settings.bounces.enableSendgrid": "Attiva SendGrid",
     "settings.bounces.enableWebhooks": "Attiva bounce webhooks",
+    "settings.bounces.enablePostmark": "Attiva Postmark",
     "settings.bounces.enabled": "Attivato",
     "settings.bounces.folder": "Cartella",
     "settings.bounces.folderHelp": "Nome della cartella IMAP da analizzare. Ad esempio: Posta in arrivo.",
