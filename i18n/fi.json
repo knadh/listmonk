@@ -365,6 +365,7 @@
     "settings.bounces.enableMailbox": "Ota käyttöön bounce-postilaatikko",
     "settings.bounces.enableSES": "Ota käyttöön SES",
     "settings.bounces.enableSendgrid": "Ota käyttöön SendGrid",
+    "settings.bounces.enablePostmark": "Ota käyttöön Postmark",
     "settings.bounces.enableWebhooks": "Ota käyttöön palautusten webhookit",
     "settings.bounces.enabled": "Käytössä",
     "settings.bounces.folder": "Kansio",

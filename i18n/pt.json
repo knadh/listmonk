@@ -365,6 +365,7 @@
     "settings.bounces.enableSES": "Ligar SES",
     "settings.bounces.enableSendgrid": "Ligar SendGrid",
     "settings.bounces.enableWebhooks": "Ligar webhooks de bounces",
+    "settings.bounces.enablePostmark": "Ligar Postmark",
     "settings.bounces.enabled": "Ligado",
     "settings.bounces.folder": "Pasta",
     "settings.bounces.folderHelp": "Nome da pasta IMAP para procurar. E.g.: Inbox.",

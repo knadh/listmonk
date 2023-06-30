@@ -365,6 +365,7 @@
     "settings.bounces.enableSES": "Povolit SES",
     "settings.bounces.enableSendgrid": "Povolit SendGrid",
     "settings.bounces.enableWebhooks": "Povolit webhooky v případě nedoručitelnosti",
+    "settings.bounces.enablePostmark": "Povolit Postmark",
     "settings.bounces.enabled": "Povoleno",
     "settings.bounces.folder": "Složka",
     "settings.bounces.folderHelp": "Název složky IMAP ke skenování. Např.: Došlá pošta.",

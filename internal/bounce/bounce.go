@@ -33,6 +33,7 @@ type Opt struct {
 	SESEnabled      bool        `json:"ses_enabled"`
 	SendgridEnabled bool        `json:"sendgrid_enabled"`
 	SendgridKey     string      `json:"sendgrid_key"`
+	PostmarkEnabled bool        `json:"postmark_enabled"`
 
 	RecordBounceCB func(models.Bounce) error
 }
@@ -43,6 +44,7 @@ type Manager struct {
 	mailbox  Mailbox
 	SES      *webhooks.SES
 	Sendgrid *webhooks.Sendgrid
+	Postmark *webhooks.Postmark
 	queries  *Queries
 	opt      Opt
 	log      *log.Logger
@@ -84,6 +86,9 @@ func New(opt Opt, q *Queries, lo *log.Logger) (*Manager, error) {
 			} else {
 				m.Sendgrid = sg
 			}
+		}
+		if opt.PostmarkEnabled {
+			m.Postmark = webhooks.NewPostmark()
 		}
 	}
 

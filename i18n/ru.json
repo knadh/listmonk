@@ -365,6 +365,7 @@
     "settings.bounces.enableSES": "Включить SES",
     "settings.bounces.enableSendgrid": "Включить SendGrid",
     "settings.bounces.enableWebhooks": "Включить веб-крючки отскока",
+    "settings.bounces.enablePostmark": "Включить Postmark",
     "settings.bounces.enabled": "Включено",
     "settings.bounces.folder": "Папка",
     "settings.bounces.folderHelp": "Имя папки IMAP для сканирования. Например: Входящие.",

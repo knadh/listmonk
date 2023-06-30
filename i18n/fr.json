@@ -366,6 +366,7 @@
     "settings.bounces.enableSES": "Activer SES",
     "settings.bounces.enableSendgrid": "Activer SendGrid",
     "settings.bounces.enableWebhooks": "Activez les 'webhooks' de rebond",
+    "settings.bounces.enablePostmark": "Activer Postmark",
     "settings.bounces.enabled": "Activer",
     "settings.bounces.folder": "Dossier",
     "settings.bounces.folderHelp": "Nom du dossier IMAP à scanner. Exple : InBox.",

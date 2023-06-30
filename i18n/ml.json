@@ -365,6 +365,7 @@
     "settings.bounces.enableSES": "SES പ്രവർത്തനക്ഷമമാക്കുക",
     "settings.bounces.enableSendgrid": "SendGrid പ്രവർത്തനക്ഷമമാക്കുക",
     "settings.bounces.enableWebhooks": "ബൗൺസ് വെബ്‌ഹുക്കുകൾ പ്രവർത്തനക്ഷമമാക്കുക",
+    "settings.bounces.enablePostmark": "Postmark പ്രവർത്തനക്ഷമമാക്കുക",
     "settings.bounces.enabled": "പ്രവർത്തനക്ഷമമാക്കി",
     "settings.bounces.folder": "ഫോൾഡർ",
     "settings.bounces.folderHelp": "സ്കാൻ ചെയ്യാനുള്ള IMAP ഫോൾഡറിന്റെ പേര്. ഉദാ: ഇൻബോക്സ്.",

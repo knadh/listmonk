@@ -365,6 +365,7 @@
     "settings.bounces.enableSES": "Galluogi SES",
     "settings.bounces.enableSendgrid": "Galluogi SendGrid",
     "settings.bounces.enableWebhooks": "Galluogi bachau gwe sydd wedi sboncio'n ôl",
+    "settings.bounces.enablePostmark": "Galluogi Postmark",
     "settings.bounces.enabled": "Wedi galluogi",
     "settings.bounces.folder": "Ffolder",
     "settings.bounces.folderHelp": "Enw'r ffolder IMAP i'w sganio. ee: blwch derbyn.",

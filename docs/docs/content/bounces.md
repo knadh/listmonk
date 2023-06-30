@@ -18,12 +18,12 @@ Some mail servers may also return the bounce to the `Reply-To` address, which ca
 The bounce webhook API can be used to record bounce events with custom scripting. This could be by reading a mailbox, a database, or mail server logs.
 
 | Method | Endpoint         | Description            |
-|--------|------------------|------------------------|
+| ------ | ---------------- | ---------------------- |
 | `POST` | /webhooks/bounce | Record a bounce event. |
 
 
 | Name              | Data type | Required/Optional | Description                                                                          |
-|-------------------|-----------|-------------------|--------------------------------------------------------------------------------------|
+| ----------------- | --------- | ----------------- | ------------------------------------------------------------------------------------ |
 | `subscriber_uuid` | String    | Optional          | The UUID of the subscriber. Either this or `email` is required.                      |
 | `email`           | String    | Optional          | The e-mail of the subscriber. Either this or `subscriber_uuid` is required.          |
 | `campaign_uuid`   | String    | Optional          | UUID of the campaign for which the bounce happened.                                  |
@@ -46,7 +46,7 @@ listmonk supports receiving bounce webhook events from the following SMTP provid
 |-----------------------------|------------------|-----------|
 | `https://listmonk.yoursite.com/webhooks/service/ses`      | Amazon (AWS) SES | You can use these [Mautic steps](https://docs.mautic.org/en/channels/emails/bounce-management#amazon-webhook) as a general guide, but use your listmonk's endpoint instead. <ul>  <li>When creating the *topic* select "standard" instead of the preselected "FIFO". You can put a name and leave everything else at default.</li>  <li>When creating a *subscription* choose HTTPS for "Protocol", and leave *"Enable raw message delivery"* UNCHECKED.</li>  <li>On the _"SES -> verified identities"_ page, make sure to check **"[include original headers](https://github.com/knadh/listmonk/issues/720#issuecomment-1046877192)"**.</li>  <li>The Mautic screenshot suggests you should turn off _email feedback forwarding_, but that's completely optional depending on whether you want want email notifications.</li></ul>   |
 | `https://listmonk.yoursite.com/webhooks/service/sendgrid` | Sendgrid / Twilio Signed event webhook         | [More info](https://docs.sendgrid.com/for-developers/tracking-events/getting-started-event-webhook-security-features) |
-
+| `https://listmonk.yoursite.com/webhooks/service/postmark` | Postmark webhook                       | [More info](https://postmarkapp.com/developer/webhooks/webhooks-overview)      
 
 
 ## Verification

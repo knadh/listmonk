@@ -11,6 +11,10 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
+type postmarkNotif struct {
+	RecordType string `json:"RecordType"`
+}
+
 // handleGetBounces handles retrieval of bounce records.
 func handleGetBounces(c echo.Context) error {
 	var (
@@ -190,6 +194,27 @@ func handleBounceWebhook(c echo.Context) error {
 			return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidData"))
 		}
 		bounces = append(bounces, bs...)
+
+	// Postmark.
+	case service == "postmark" && app.constants.BouncePostmarkEnabled:
+		var notif postmarkNotif
+		if err := json.Unmarshal(rawReq, &notif); err != nil {
+			app.log.Printf("error unmarshalling postmark notification: %v", err)
+			return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidData"))
+		}
+
+		switch notif.RecordType {
+		case "Bounce":
+			b, err := app.bounce.Postmark.ProcessBounce(rawReq)
+			if err != nil {
+				app.log.Printf("error processing postmark notification: %v", err)
+				return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidData"))
+			}
+			bounces = append(bounces, b)
+
+		default:
+			return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidData"))
+		}
 
 	default:
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.Ts("bounces.unknownService"))
