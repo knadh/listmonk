@@ -45,6 +45,7 @@ nav:
   - "Templating": templating.md
   - "Bounce processing": bounces.md
   - "Messengers": "messengers.md"
+  - "Archives": "archives.md"
   - "Internationalization": "i18n.md"
   - "Integrating with external systems": external-integration.md
   - "API": apis/apis.md
