@@ -9,17 +9,17 @@
       
       
       
-        <link rel="prev" href="../configuration/">
+        <link rel="prev" href="../messengers/">
       
       
-        <link rel="next" href="../concepts/">
+        <link rel="next" href="../i18n/">
       
       <link rel="icon" href="../images/favicon.png">
       <meta name="generator" content="mkdocs-1.4.3, mkdocs-material-9.1.18">
     
     
       
-        <title>Developer setup - listmonk / Documentation</title>
+        <title>Archives - listmonk / Documentation</title>
       
     
     
@@ -69,7 +69,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#developer-setup" class="md-skip">
+        <a href="#archives" class="md-skip">
           Skip to content
         </a>
       
@@ -103,7 +103,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Developer setup
+              Archives
             
           </span>
         </div>
@@ -248,66 +248,11 @@
 
   
   
-    
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          Developer setup
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../developer-setup/" class="md-nav__link">
         Developer setup
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#pre-requisites" class="md-nav__link">
-    Pre-requisites
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#first-time-setup" class="md-nav__link">
-    First time setup
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#running-the-dev-environment" class="md-nav__link">
-    Running the dev environment
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -393,11 +338,21 @@
 
   
   
+    
   
-    <li class="md-nav__item">
-      <a href="../archives/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         Archives
       </a>
+      
     </li>
   
 
@@ -572,35 +527,6 @@
     
   
   
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#pre-requisites" class="md-nav__link">
-    Pre-requisites
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#first-time-setup" class="md-nav__link">
-    First time setup
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#running-the-dev-environment" class="md-nav__link">
-    Running the dev environment
-  </a>
-  
-</li>
-      
-    </ul>
-  
 </nav>
                   </div>
                 </div>
@@ -614,31 +540,29 @@
                   
 
 
-<h1 id="developer-setup">Developer setup<a class="headerlink" href="#developer-setup" title="Permanent link">&para;</a></h1>
-<p>The app has two distinct components, the Go backend and the VueJS frontend. In the dev environment, both are run independently.</p>
-<h3 id="pre-requisites">Pre-requisites<a class="headerlink" href="#pre-requisites" title="Permanent link">&para;</a></h3>
-<ul>
-<li><code>go</code></li>
-<li><code>nodejs</code> (if you are working on the frontend) and <code>yarn</code></li>
-<li>Postgres database. If there is no local installation, the demo docker DB can be used for development (<code>docker-compose up demo-db</code>)</li>
-</ul>
-<h3 id="first-time-setup">First time setup<a class="headerlink" href="#first-time-setup" title="Permanent link">&para;</a></h3>
-<p><code>git clone https://github.com/knadh/listmonk.git</code>. The project uses go.mod, so it's best to clone it outside the Go src path.</p>
-<ol>
-<li>Copy <code>config.toml.sample</code> as <code>config.toml</code> and add your config.</li>
-<li><code>make dist</code> to build the listmonk binary. Once the binary is built, run <code>./listmonk --install</code> to run the DB setup. For subsequent dev runs, use <code>make run</code>.</li>
-</ol>
-<blockquote>
-<p><a href="https://github.com/mailhog/MailHog">mailhog</a> is an excellent standalone mock SMTP server (with a UI) for testing and dev.</p>
-</blockquote>
-<h3 id="running-the-dev-environment">Running the dev environment<a class="headerlink" href="#running-the-dev-environment" title="Permanent link">&para;</a></h3>
-<ol>
-<li>Run <code>make run</code> to start the listmonk dev server on <code>:9000</code>.</li>
-<li>Run <code>make run-frontend</code> to start the Vue frontend in dev mode using yarn on <code>:8080</code>. All <code>/api/*</code> calls are proxied to the app running on <code>:9000</code>. Refer to the <a href="https://github.com/knadh/listmonk/blob/master/frontend/README.md">frontend README</a> for an overview on how the frontend is structured.</li>
-<li>Visit <code>http://localhost:8080</code></li>
-</ol>
-<h1 id="production-build">Production build<a class="headerlink" href="#production-build" title="Permanent link">&para;</a></h1>
-<p>Run <code>make dist</code> to build the Go binary, build the Javascript frontend, and embed the static assets producing a single self-contained binary, <code>listmonk</code></p>
+<h1 id="archives">Archives<a class="headerlink" href="#archives" title="Permanent link">&para;</a></h1>
+<p>A global public archive is maintained on the public web interface. It can be
+enabled under Settings -&gt; Settings -&gt; General -&gt; Enable public mailing list
+archive.</p>
+<p>To make a campaign available in the public archive (provided it has been
+enabled in the settings as described above), enable the option
+'Publish to public archive' under Campaigns -&gt; Create new -&gt; Archive.</p>
+<p>When using template variables that depend on subscriber data (such as any
+template variable referencing <code>.Subscriber</code>), such data must be supplied
+as 'Campaign metadata', which is a JSON object that will be used in place
+of <code>.Subscriber</code> when rendering the archive template and content.</p>
+<p>When individual subscriber tracking is enabled, TrackLink requires that a UUID
+of an existing user is provided as part of the campaign metadata. Any clicks on
+a TrackLink from the archived campaign will be counted towards that subscriber.</p>
+<p>As an example:</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;UUID&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;5a837423-a186-5623-9a87-82691cbe3631&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;email&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;example@example.com&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Reader&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;attribs&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{}</span>
+<span class="p">}</span>
+</code></pre></div>
+<p><img alt="Archive campaign" src="../images/archived-campaign-metadata.png" /></p>
 
 
 
