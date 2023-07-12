@@ -169,7 +169,15 @@ INSERT INTO subscriber_lists (subscriber_id, list_id, status)
         (CASE WHEN $4='blocklisted' THEN 'unsubscribed'::subscription_status ELSE $8::subscription_status END)
     )
     ON CONFLICT (subscriber_id, list_id) DO UPDATE
-    SET status = (CASE WHEN $4='blocklisted' THEN 'unsubscribed'::subscription_status ELSE subscriber_lists.status END);
+    SET status = (
+        CASE
+            WHEN $4='blocklisted' THEN 'unsubscribed'::subscription_status
+            -- When subscriber is edited from the admin form, retain the status. Otherwise, a blocklisted
+            -- subscriber when being re-enabled, their subscription statuses change.
+            WHEN $9 = TRUE THEN subscriber_lists.status
+            ELSE $8::subscription_status
+        END
+    );
 
 -- name: delete-subscribers
 -- Delete one or more subscribers by ID or UUID.
