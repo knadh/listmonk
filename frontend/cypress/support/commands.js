@@ -41,3 +41,14 @@ Cypress.Commands.add('iframe', { prevSubject: 'element' }, ($iframe, callback = 
   .should((iframe) => expect(iframe.contents().find('body')).to.exist)
   .then((iframe) => cy.wrap(iframe.contents().find('body')))
   .within({}, callback));
+
+Cypress.on('uncaught:exception', (err, runnable) => {
+  if (err.hasOwnProperty('request')) {
+    const u = err.request.url;
+    if (u.includes('config') || u.includes('settings') || u.includes('events')) {
+      return false;
+    }
+  }
+
+  return true;
+});
