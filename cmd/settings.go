@@ -10,6 +10,7 @@ import (
 	"strings"
 	"syscall"
 	"time"
+	"unicode/utf8"
 
 	"github.com/gofrs/uuid"
 	"github.com/jmoiron/sqlx/types"
@@ -20,6 +21,8 @@ import (
 	"github.com/knadh/listmonk/models"
 	"github.com/labstack/echo/v4"
 )
+
+const pwdMask = "•"
 
 type aboutHost struct {
 	OS        string `json:"os"`
@@ -57,17 +60,17 @@ func handleGetSettings(c echo.Context) error {
 
 	// Empty out passwords.
 	for i := 0; i < len(s.SMTP); i++ {
-		s.SMTP[i].Password = ""
+		s.SMTP[i].Password = strings.Repeat(pwdMask, utf8.RuneCountInString(s.SMTP[i].Password))
 	}
 	for i := 0; i < len(s.BounceBoxes); i++ {
-		s.BounceBoxes[i].Password = ""
+		s.BounceBoxes[i].Password = strings.Repeat(pwdMask, utf8.RuneCountInString(s.BounceBoxes[i].Password))
 	}
 	for i := 0; i < len(s.Messengers); i++ {
-		s.Messengers[i].Password = ""
+		s.Messengers[i].Password = strings.Repeat(pwdMask, utf8.RuneCountInString(s.Messengers[i].Password))
 	}
-	s.UploadS3AwsSecretAccessKey = ""
-	s.SendgridKey = ""
-	s.SecurityCaptchaSecret = ""
+	s.UploadS3AwsSecretAccessKey = strings.Repeat(pwdMask, utf8.RuneCountInString(s.UploadS3AwsSecretAccessKey))
+	s.SendgridKey = strings.Repeat(pwdMask, utf8.RuneCountInString(s.SendgridKey))
+	s.SecurityCaptchaSecret = strings.Repeat(pwdMask, utf8.RuneCountInString(s.SecurityCaptchaSecret))
 
 	return c.JSON(http.StatusOK, okResp{s})
 }
