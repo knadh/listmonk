@@ -71,6 +71,7 @@
       </div>
     </section><!-- control -->
 
+    <br />
     <b-table
       :data="subscribers.results"
       :loading="loading.subscribers"
@@ -200,7 +201,7 @@
     </b-modal>
 
     <!-- Add / edit form modal -->
-    <b-modal scroll="keep" :aria-modal="true" :active.sync="isFormVisible" :width="600"
+    <b-modal scroll="keep" :aria-modal="true" :active.sync="isFormVisible" :width="800"
       @close="onFormClose">
       <subscriber-form :data="curItem" :isEditing="isEditing"
         @finished="querySubscribers"></subscriber-form>

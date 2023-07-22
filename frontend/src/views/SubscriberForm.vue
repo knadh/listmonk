@@ -47,7 +47,6 @@
           :selected="form.lists"
           :all="lists.results"
         ></list-selector>
-
         <div class="columns mb-5">
           <div class="column is-7">
             <b-field :message="$t('subscribers.preconfirmHelp')">
@@ -65,9 +64,9 @@
           </div>
         </div>
 
-        <b-field :label="$t('subscribers.attribs')" label-position="on-border"
-          :message="$t('subscribers.attribsHelp') + ' ' + egAttribs">
+        <b-field :message="$t('subscribers.attribsHelp') + ' ' + egAttribs" class="mb-5">
           <div>
+            <h5>{{ $t('subscribers.attribs') }}</h5>
             <b-input v-model="form.strAttribs" name="attribs" type="textarea" />
             <a href="https://listmonk.app/docs/concepts"
               target="_blank" rel="noopener noreferrer" class="is-size-7">
@@ -75,6 +74,41 @@
             </a>
           </div>
         </b-field>
+
+        <div>
+          <h5>{{ $tc('globals.terms.subscriptions', 2) }} ({{ data.lists.length }})</h5>
+          <div class="mb-5">
+            <b-table :data="data.lists" hoverable default-sort="createdAt" class="subscriptions"
+            >
+              <b-table-column v-slot="props" field="name"
+                :label="$tc('globals.terms.list', 1)">
+                <div>
+                  <router-link :to="`/lists/${props.row.id}`">
+                    {{ props.row.name }}
+                  </router-link>
+                  <br />
+                  <b-tag :class="props.row.optin" :data-cy="`optin-${props.row.optin}`">
+                    <b-icon :icon="props.row.optin === 'double' ?
+                      'account-check-outline' : 'account-off-outline'" size="is-small" />
+                    {{ ' ' }}
+                    {{ $t(`lists.optins.${props.row.optin}`) }}
+                  </b-tag>{{ ' ' }}
+                </div>
+              </b-table-column>
+              <b-table-column v-slot="props" field="status" :label="$t('globals.fields.status')">
+                {{ props.row.optin === 'double' ? props.row.subscriptionStatus : '-' }}
+              </b-table-column>
+              <b-table-column v-slot="props" field="createdAt"
+                :label="$t('globals.fields.createdAt')">
+                {{ $utils.niceDate(props.row.subscriptionCreatedAt, true) }}
+              </b-table-column>
+              <b-table-column v-slot="props" field="updatedAt"
+                :label="$t('globals.fields.updatedAt')">
+                {{ $utils.niceDate(props.row.subscriptionCreatedAt, true) }}
+              </b-table-column>
+            </b-table>
+          </div>
+        </div>
 
         <div class="bounces" v-show="bounces.length > 0">
           <a href="#" class="is-size-6" disabed="true"

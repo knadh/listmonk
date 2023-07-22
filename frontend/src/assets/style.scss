@@ -657,9 +657,14 @@ section.lists {
   .toggle-advanced {
     margin-top: 10px;
   }
+}
 
-  .b-table {
-    margin-top: 25px;
+.b-table.subscriptions {
+  overflow-y: scroll;
+  max-height: 250px;
+
+  thead th, tbody td {
+    padding: 10px;
   }
 }
 
