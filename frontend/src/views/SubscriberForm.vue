@@ -75,39 +75,41 @@
           </div>
         </b-field>
 
-        <div>
+        <div class="mb-5" v-if="data.lists">
           <h5>{{ $tc('globals.terms.subscriptions', 2) }} ({{ data.lists.length }})</h5>
-          <div class="mb-5">
-            <b-table :data="data.lists" hoverable default-sort="createdAt" class="subscriptions"
-            >
-              <b-table-column v-slot="props" field="name"
-                :label="$tc('globals.terms.list', 1)">
-                <div>
-                  <router-link :to="`/lists/${props.row.id}`">
-                    {{ props.row.name }}
-                  </router-link>
-                  <br />
-                  <b-tag :class="props.row.optin" :data-cy="`optin-${props.row.optin}`">
-                    <b-icon :icon="props.row.optin === 'double' ?
-                      'account-check-outline' : 'account-off-outline'" size="is-small" />
-                    {{ ' ' }}
-                    {{ $t(`lists.optins.${props.row.optin}`) }}
-                  </b-tag>{{ ' ' }}
-                </div>
-              </b-table-column>
-              <b-table-column v-slot="props" field="status" :label="$t('globals.fields.status')">
-                {{ props.row.optin === 'double' ? props.row.subscriptionStatus : '-' }}
-              </b-table-column>
-              <b-table-column v-slot="props" field="createdAt"
-                :label="$t('globals.fields.createdAt')">
-                {{ $utils.niceDate(props.row.subscriptionCreatedAt, true) }}
-              </b-table-column>
-              <b-table-column v-slot="props" field="updatedAt"
-                :label="$t('globals.fields.updatedAt')">
-                {{ $utils.niceDate(props.row.subscriptionCreatedAt, true) }}
-              </b-table-column>
-            </b-table>
-          </div>
+          <b-table :data="data.lists" hoverable default-sort="createdAt" class="subscriptions"
+          >
+            <b-table-column v-slot="props" field="name"
+              :label="$tc('globals.terms.list', 1)">
+              <div>
+                <router-link :to="`/lists/${props.row.id}`">
+                  {{ props.row.name }}
+                </router-link>
+                <br />
+                <b-tag :class="props.row.optin" :data-cy="`optin-${props.row.optin}`">
+                  <b-icon :icon="props.row.optin === 'double' ?
+                    'account-check-outline' : 'account-off-outline'" size="is-small" />
+                  {{ ' ' }}
+                  {{ $t(`lists.optins.${props.row.optin}`) }}
+                </b-tag>{{ ' ' }}
+              </div>
+            </b-table-column>
+            <b-table-column v-slot="props" field="status" :label="$t('globals.fields.status')">
+              {{ props.row.optin === 'double' ? props.row.subscriptionStatus : '-' }}
+              <template v-if="props.row.optin === 'double'
+                && props.row.subscriptionMeta.optinIp">
+                <br /><span class="is-size-7">{{ props.row.subscriptionMeta.optinIp }}</span>
+              </template>
+            </b-table-column>
+            <b-table-column v-slot="props" field="createdAt"
+              :label="$t('globals.fields.createdAt')">
+              {{ $utils.niceDate(props.row.subscriptionCreatedAt, true) }}
+            </b-table-column>
+            <b-table-column v-slot="props" field="updatedAt"
+              :label="$t('globals.fields.updatedAt')">
+              {{ $utils.niceDate(props.row.subscriptionCreatedAt, true) }}
+            </b-table-column>
+          </b-table>
         </div>
 
         <div class="bounces" v-show="bounces.length > 0">

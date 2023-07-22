@@ -492,6 +492,8 @@
     "settings.privacy.listUnsubHeader": "Cynnwys y pennawd 'Dad-danysgrifio o'r rhestr'",
     "settings.privacy.listUnsubHeaderHelp": "Cynnwys penynnau dad-danysgrifio sy'n caniatáu i ddefnyddwyr dad-danysgrifio drwy glicio un botwm.",
     "settings.privacy.name": "Preifatrwydd",
+    "settings.privacy.recordOptinIP": "Record opt-in IP address",
+    "settings.privacy.recordOptinIPHelp": "Record IP address of double opt-ins in subscriber attributes.",
     "settings.restart": "Ailgychwyn",
     "settings.security.captchaKey": "hCaptcha.com SiteKey",
     "settings.security.captchaKeyHelp": "Visit www.hcaptcha.com to obtain the key and secret.",

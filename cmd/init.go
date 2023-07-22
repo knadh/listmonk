@@ -69,6 +69,7 @@ type constants struct {
 		AllowBlocklist     bool            `koanf:"allow_blocklist"`
 		AllowExport        bool            `koanf:"allow_export"`
 		AllowWipe          bool            `koanf:"allow_wipe"`
+		RecordOptinIP      bool            `koanf:"record_optin_ip"`
 		Exportable         map[string]bool `koanf:"-"`
 		DomainBlocklist    []string        `koanf:"-"`
 	} `koanf:"privacy"`

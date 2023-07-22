@@ -492,6 +492,8 @@
     "settings.privacy.listUnsubHeader": "Zahrnout záhlaví `List-Unsubscribe`",
     "settings.privacy.listUnsubHeaderHelp": "Zahrnout záhlaví zrušení odběrů, která umožňují e-mailovým klientům, aby povolili uživatelům zrušit odběr jediným klepnutím.",
     "settings.privacy.name": "Soukromí",
+    "settings.privacy.recordOptinIP": "Record opt-in IP address",
+    "settings.privacy.recordOptinIPHelp": "Record IP address of double opt-ins in subscriber attributes.",
     "settings.restart": "Restart",
     "settings.security.captchaKey": "hCaptcha.com SiteKey",
     "settings.security.captchaKeyHelp": "Visit www.hcaptcha.com to obtain the key and secret.",

@@ -492,6 +492,8 @@
     "settings.privacy.listUnsubHeader": "Включать заголовок `List-Unsubscribe`",
     "settings.privacy.listUnsubHeaderHelp": "Включать заголовок отписки",
     "settings.privacy.name": "Конфиденциальност",
+    "settings.privacy.recordOptinIP": "Record opt-in IP address",
+    "settings.privacy.recordOptinIPHelp": "Record IP address of double opt-ins in subscriber attributes.",
     "settings.restart": "Перезапустить",
     "settings.security.captchaKey": "hCaptcha.com ключ сайта",
     "settings.security.captchaKeyHelp": "Посетите www.hcaptcha.com для получения ключа сайта и секретного ключа.",

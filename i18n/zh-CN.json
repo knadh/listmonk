@@ -492,6 +492,8 @@
     "settings.privacy.listUnsubHeader": "包括 `List-Unsubscribe` 标头",
     "settings.privacy.listUnsubHeaderHelp": "包括允许电子邮件客户端允许用户通过单击取消订阅的取消订阅标题",
     "settings.privacy.name": "隐私",
+    "settings.privacy.recordOptinIP": "Record opt-in IP address",
+    "settings.privacy.recordOptinIPHelp": "Record IP address of double opt-ins in subscriber attributes.",
     "settings.restart": "重新开始",
     "settings.security.captchaKey": "hCaptcha.com SiteKey",
     "settings.security.captchaKeyHelp": "Visit www.hcaptcha.com to obtain the key and secret.",

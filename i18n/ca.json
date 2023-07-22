@@ -492,6 +492,8 @@
     "settings.privacy.listUnsubHeader": "Inclou la capçalera `List-Unsubscribe`",
     "settings.privacy.listUnsubHeaderHelp": "Inclou capçaleres de cancel·lació de subscripció que permetin als clients de correu electrònic permetre als usuaris donar-se de baixa amb un sol clic.",
     "settings.privacy.name": "Privadesa",
+    "settings.privacy.recordOptinIP": "Record opt-in IP address",
+    "settings.privacy.recordOptinIPHelp": "Record IP address of double opt-ins in subscriber attributes.",
     "settings.restart": "Reinicia",
     "settings.security.captchaKey": "hCaptcha.com SiteKey",
     "settings.security.captchaKeyHelp": "Visit www.hcaptcha.com to obtain the key and secret.",

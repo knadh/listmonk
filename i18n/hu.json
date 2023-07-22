@@ -492,6 +492,8 @@
     "settings.privacy.listUnsubHeader": "`List-Unsubscribe` fejléc",
     "settings.privacy.listUnsubHeaderHelp": "Ha be van kapcsolva, egyes e-mail kliensek lehetővé teszik az egykattintásos leiratkozást.",
     "settings.privacy.name": "Adatvédelem",
+    "settings.privacy.recordOptinIP": "Record opt-in IP address",
+    "settings.privacy.recordOptinIPHelp": "Record IP address of double opt-ins in subscriber attributes.",
     "settings.restart": "Újraindítás",
     "settings.security.captchaKey": "hCaptcha.com kulcs",
     "settings.security.captchaKeyHelp": "Kulcs és jelszó igénylése a hcaptcha.com oldalon.",

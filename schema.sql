@@ -43,6 +43,7 @@ DROP TABLE IF EXISTS subscriber_lists CASCADE;
 CREATE TABLE subscriber_lists (
     subscriber_id      INTEGER REFERENCES subscribers(id) ON DELETE CASCADE ON UPDATE CASCADE,
     list_id            INTEGER NULL REFERENCES lists(id) ON DELETE CASCADE ON UPDATE CASCADE,
+    meta               JSONB NOT NULL DEFAULT '{}',
     status             subscription_status NOT NULL DEFAULT 'unconfirmed',
 
     created_at         TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
@@ -225,6 +226,7 @@ INSERT INTO settings (key, value) VALUES
     ('privacy.allow_preferences', 'true'),
     ('privacy.exportable', '["profile", "subscriptions", "campaign_views", "link_clicks"]'),
     ('privacy.domain_blocklist', '[]'),
+    ('privacy.record_optin_ip', 'false'),
     ('security.enable_captcha', 'false'),
     ('security.captcha_key', '""'),
     ('security.captcha_secret', '""'),

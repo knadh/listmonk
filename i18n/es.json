@@ -493,6 +493,8 @@
     "settings.privacy.listUnsubHeader": "Incluir el encabezado para `darse de baja` de la lista",
     "settings.privacy.listUnsubHeaderHelp": "Incluye los encabezados de darse de baja para habilitar a los clientes de correo para permitir a los usuarios darse de baja con un solo clic.",
     "settings.privacy.name": "Privacidad",
+    "settings.privacy.recordOptinIP": "Record opt-in IP address",
+    "settings.privacy.recordOptinIPHelp": "Record IP address of double opt-ins in subscriber attributes.",
     "settings.restart": "Reiniciar",
     "settings.security.captchaKey": "hCaptcha.com SiteKey",
     "settings.security.captchaKeyHelp": "Visite www.hcaptcha.com para conseguir la SiteKey y el secret.",

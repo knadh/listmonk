@@ -493,6 +493,8 @@
     "settings.privacy.listUnsubHeader": "`リスト-登録解除` ヘッダー",
     "settings.privacy.listUnsubHeaderHelp": "メールクライアントがワンクリックで登録解除をできるように登録解除用のヘッダーを含める。",
     "settings.privacy.name": "プライバシー",
+    "settings.privacy.recordOptinIP": "Record opt-in IP address",
+    "settings.privacy.recordOptinIPHelp": "Record IP address of double opt-ins in subscriber attributes.",
     "settings.restart": "再起動",
     "settings.security.captchaKey": "hCaptcha.com SiteKey",
     "settings.security.captchaKeyHelp": "Visit www.hcaptcha.com to obtain the key and secret.",

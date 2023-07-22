@@ -492,6 +492,8 @@
     "settings.privacy.listUnsubHeader": "Inkludiere `List-Unsubscribe` (von Liste abmelden) Header",
     "settings.privacy.listUnsubHeaderHelp": "Inkludiere Header zum einfachen Abmelden in den E-Mails. Erlaubt es, den E-Mail Clients der Nutzer eine \",Ein Klick\"-Abmeldung anzubieten.",
     "settings.privacy.name": "Privatsphäre",
+    "settings.privacy.recordOptinIP": "Record opt-in IP address",
+    "settings.privacy.recordOptinIPHelp": "Record IP address of double opt-ins in subscriber attributes.",
     "settings.restart": "Neustarten",
     "settings.security.captchaKey": "hCaptcha.com SiteKey",
     "settings.security.captchaKeyHelp": "Visit www.hcaptcha.com to obtain the key and secret.",

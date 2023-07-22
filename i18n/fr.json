@@ -493,6 +493,8 @@
     "settings.privacy.listUnsubHeader": "Inclure l'en-tête de désabonnement simplifié (via certaines messageries)",
     "settings.privacy.listUnsubHeaderHelp": "Inclure des en-têtes de désabonnement qui permettent aux utilisateurs de se désabonner en un seul clic depuis leur client de messagerie.",
     "settings.privacy.name": "Vie privée",
+    "settings.privacy.recordOptinIP": "Record opt-in IP address",
+    "settings.privacy.recordOptinIPHelp": "Record IP address of double opt-ins in subscriber attributes.",
     "settings.restart": "Redémarrer",
     "settings.security.captchaKey": "hCaptcha.com SiteKey",
     "settings.security.captchaKeyHelp": "Allez sur www.hcaptcha.com pour obtenir une clef et son secret.",

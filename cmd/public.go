@@ -374,7 +374,16 @@ func handleOptinPage(c echo.Context) error {
 
 	// Confirm.
 	if confirm {
-		if err := app.core.ConfirmOptionSubscription(subUUID, out.ListUUIDs); err != nil {
+		meta := models.JSON{}
+		if app.constants.Privacy.RecordOptinIP {
+			if h := c.Request().Header.Get("X-Forwarded-For"); h != "" {
+				meta["optin_ip"] = h
+			} else if h := c.Request().RemoteAddr; h != "" {
+				meta["optin_ip"] = strings.Split(h, ":")[0]
+			}
+		}
+
+		if err := app.core.ConfirmOptionSubscription(subUUID, out.ListUUIDs, meta); err != nil {
 			app.log.Printf("error unsubscribing: %v", err)
 			return c.Render(http.StatusInternalServerError, tplMessage,
 				makeMsgTpl(app.i18n.T("public.errorTitle"), "", app.i18n.Ts("public.errorProcessingRequest")))

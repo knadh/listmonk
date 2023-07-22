@@ -43,6 +43,7 @@ WITH subs AS (
                     subscriber_lists.status AS subscription_status,
                     subscriber_lists.created_at AS subscription_created_at,
                     subscriber_lists.updated_at AS subscription_updated_at,
+                    subscriber_lists.meta AS subscription_meta,
                     lists.*
             ) l)
         )
@@ -64,7 +65,10 @@ SELECT id as subscriber_id,
 WITH sub AS (
     SELECT id FROM subscribers WHERE CASE WHEN $1 > 0 THEN id = $1 ELSE uuid = $2 END
 )
-SELECT lists.*, subscriber_lists.status as subscription_status, subscriber_lists.created_at as subscription_created_at
+SELECT lists.*,
+    subscriber_lists.status as subscription_status,
+    subscriber_lists.created_at as subscription_created_at,
+    subscriber_lists.meta as subscription_meta
     FROM lists LEFT JOIN subscriber_lists
     ON (subscriber_lists.list_id = lists.id AND subscriber_lists.subscriber_id = (SELECT id FROM sub))
     WHERE CASE WHEN $3 = TRUE THEN TRUE ELSE subscriber_lists.status IS NOT NULL END
@@ -214,7 +218,7 @@ WITH subID AS (
 listIDs AS (
     SELECT id FROM lists WHERE uuid = ANY($2::UUID[])
 )
-UPDATE subscriber_lists SET status='confirmed', updated_at=NOW()
+UPDATE subscriber_lists SET status='confirmed', meta=meta || $3, updated_at=NOW()
     WHERE subscriber_id = (SELECT id FROM subID) AND list_id = ANY(SELECT id FROM listIDs);
 
 -- name: unsubscribe-subscribers-from-lists

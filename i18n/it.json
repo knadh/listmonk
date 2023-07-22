@@ -493,6 +493,8 @@
     "settings.privacy.listUnsubHeader": "Includere l'intestazione `List-Unsubscribe`",
     "settings.privacy.listUnsubHeaderHelp": "Includere intestazioni di annullamento dell'iscrizione che consentono agli utenti di annullare l'iscrizione con un clic dal proprio client di posta elettronica.",
     "settings.privacy.name": "Privacy",
+    "settings.privacy.recordOptinIP": "Record opt-in IP address",
+    "settings.privacy.recordOptinIPHelp": "Record IP address of double opt-ins in subscriber attributes.",
     "settings.restart": "Riavviare",
     "settings.security.captchaKey": "hCaptcha.com SiteKey",
     "settings.security.captchaKeyHelp": "Visita www.hcaptcha.com per ottenere la SiteKey anche il secret.",

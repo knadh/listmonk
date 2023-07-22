@@ -492,6 +492,8 @@
     "settings.privacy.listUnsubHeader": "Voeg `List-Unsubscribe` header toe",
     "settings.privacy.listUnsubHeaderHelp": "Voeg header toe zodat e-mailprogramma's gebruikers zich kunnen laten uitschrijven in een klik.",
     "settings.privacy.name": "Privacy",
+    "settings.privacy.recordOptinIP": "Record opt-in IP address",
+    "settings.privacy.recordOptinIPHelp": "Record IP address of double opt-ins in subscriber attributes.",
     "settings.restart": "Herstarten",
     "settings.security.captchaKey": "hCaptcha.com SiteKey",
     "settings.security.captchaKeyHelp": "Visit www.hcaptcha.com to obtain the key and secret.",

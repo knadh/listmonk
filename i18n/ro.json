@@ -493,6 +493,8 @@
     "settings.privacy.listUnsubHeader": "Includeți antetul \"Listă-Dezabonare\"",
     "settings.privacy.listUnsubHeaderHelp": "Include anteturi de dezabonare care permit clienților de e-mail să permită utilizatorilor să se dezaboneze printr-un singur clic.",
     "settings.privacy.name": "Confidențialitate",
+    "settings.privacy.recordOptinIP": "Record opt-in IP address",
+    "settings.privacy.recordOptinIPHelp": "Record IP address of double opt-ins in subscriber attributes.",
     "settings.restart": "Repornește",
     "settings.security.captchaKey": "hCaptcha.com SiteKey",
     "settings.security.captchaKeyHelp": "Vizitați www.hcaptcha.com pentru a obține cheia și secretul.",

@@ -492,6 +492,8 @@
     "settings.privacy.listUnsubHeader": "Dodawaj nagłówek `List-Unsubscribe`",
     "settings.privacy.listUnsubHeaderHelp": "Dodaj nagłówki do wypisania się z subskrypcji. Niektóre programy pocztowe umożliwiają wypisanie się jednym kliknięciem.",
     "settings.privacy.name": "Prywatność",
+    "settings.privacy.recordOptinIP": "Record opt-in IP address",
+    "settings.privacy.recordOptinIPHelp": "Record IP address of double opt-ins in subscriber attributes.",
     "settings.restart": "Restart",
     "settings.security.captchaKey": "hCaptcha.com SiteKey",
     "settings.security.captchaKeyHelp": "Wejdź na www.hcaptcha.com w celu pobrania klucza i sekretu.",

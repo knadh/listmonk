@@ -493,6 +493,8 @@
     "settings.privacy.listUnsubHeader": " `List-Unsubscribe` Başlık bilgisini ekle",
     "settings.privacy.listUnsubHeaderHelp": "E-posta istemcilerinin kullanıcıların tek bir tıklamayla abonelikten çıkmalarına olanak tanıyan abonelik iptal başlıklarını ekleyin.",
     "settings.privacy.name": "Gizlilik",
+    "settings.privacy.recordOptinIP": "Record opt-in IP address",
+    "settings.privacy.recordOptinIPHelp": "Record IP address of double opt-ins in subscriber attributes.",
     "settings.restart": "Yeniden başlat",
     "settings.security.captchaKey": "hCaptcha.com SiteKey",
     "settings.security.captchaKeyHelp": "Visit www.hcaptcha.com to obtain the key and secret.",

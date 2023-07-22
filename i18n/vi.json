@@ -493,6 +493,8 @@
     "settings.privacy.listUnsubHeader": "Bao gồm tiêu đề `Danh sách-Hủy đăng ký`",
     "settings.privacy.listUnsubHeaderHelp": "Bao gồm các tiêu đề hủy đăng ký cho phép ứng dụng e-mail cho phép người dùng hủy đăng ký chỉ bằng một cú nhấp chuột.",
     "settings.privacy.name": "Sự riêng tư",
+    "settings.privacy.recordOptinIP": "Record opt-in IP address",
+    "settings.privacy.recordOptinIPHelp": "Record IP address of double opt-ins in subscriber attributes.",
     "settings.restart": "Khởi động lại",
     "settings.security.captchaKey": "hCaptcha.com SiteKey",
     "settings.security.captchaKeyHelp": "Visit www.hcaptcha.com to obtain the key and secret.",

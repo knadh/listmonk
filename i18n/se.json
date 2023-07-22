@@ -492,6 +492,8 @@
     "settings.privacy.listUnsubHeader": "Include `List-Unsubscribe` header",
     "settings.privacy.listUnsubHeaderHelp": "Include unsubscription headers that allow e-mail clients to allow users to unsubscribe in a single click.",
     "settings.privacy.name": "Privacy",
+    "settings.privacy.recordOptinIP": "Record opt-in IP address",
+    "settings.privacy.recordOptinIPHelp": "Record IP address of double opt-ins in subscriber attributes.",
     "settings.restart": "Restart",
     "settings.security.captchaKey": "hCaptcha.com SiteKey",
     "settings.security.captchaKeyHelp": "Visit www.hcaptcha.com to obtain the key and secret.",

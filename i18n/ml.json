@@ -492,6 +492,8 @@
     "settings.privacy.listUnsubHeader": "`List-Unsubscribe` തലക്കെട്ട് കൂട്ടിച്ചേർക്കുക",
     "settings.privacy.listUnsubHeaderHelp": "ഒറ്റ ക്ലിക്കിലൂടെ വരിക്കാനല്ലാതാക്കാൻ ഇ-മെയിൽ ക്ലൈന്റിൽ വരിക്കാരനല്ലാതാക്കാനുള്ള തലക്കെട്ട് കൂട്ടിച്ചേർക്കുക.",
     "settings.privacy.name": "സ്വകാര്യത",
+    "settings.privacy.recordOptinIP": "Record opt-in IP address",
+    "settings.privacy.recordOptinIPHelp": "Record IP address of double opt-ins in subscriber attributes.",
     "settings.restart": "പുനരാരംഭിയ്ക്കുക",
     "settings.security.captchaKey": "hCaptcha.com SiteKey",
     "settings.security.captchaKeyHelp": "Visit www.hcaptcha.com to obtain the key and secret.",
