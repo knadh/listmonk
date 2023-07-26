@@ -44,6 +44,7 @@ $sidebar-width: 240px;
 $menu-item-active-background-color: $white-bis;
 $menu-item-active-color: $primary;
 
+
 /* Buefy */
 $modal-background-background-color: rgba(0, 0, 0, .30);
 
@@ -107,6 +108,14 @@ section {
 
 .is-disabled {
   opacity: 0.30;
+}
+
+.b-checkbox.checkbox:hover input[type="checkbox"]:not(:disabled) + .check.is-primary:hover {
+  border-color: $primary;
+}
+.b-checkbox.checkbox input[type="checkbox"]:checked + .check.is-primary {
+  border-color: $primary;
+  background-color: $primary;
 }
 
 .box {
