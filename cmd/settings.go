@@ -297,16 +297,8 @@ func handleTestSMTPSettings(c echo.Context) error {
 func handleGetAboutInfo(c echo.Context) error {
 	app := c.Get("app").(*App)
 
-	var (
-		mem     runtime.MemStats
-		utsname syscall.Utsname
-	)
-
+	var mem runtime.MemStats
 	runtime.ReadMemStats(&mem)
-
-	if err := syscall.Uname(&utsname); err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("error getting system info: %v", err))
-	}
 
 	out := app.about
 	out.System.AllocMB = mem.Alloc / 1024 / 1024
