@@ -62,7 +62,6 @@ func handleUploadMedia(c echo.Context) error {
 	fName, err = app.media.Put(fName, contentType, src)
 	if err != nil {
 		app.log.Printf("error uploading file: %v", err)
-		cleanUp = true
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			app.i18n.Ts("media.errorUploading", "error", err.Error()))
 	}
