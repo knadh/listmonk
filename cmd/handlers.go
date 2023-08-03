@@ -13,7 +13,7 @@ import (
 
 const (
 	// stdInputMaxLen is the maximum allowed length for a standard input field.
-	stdInputMaxLen = 200
+	stdInputMaxLen = 2000
 
 	sortAsc  = "asc"
 	sortDesc = "desc"
