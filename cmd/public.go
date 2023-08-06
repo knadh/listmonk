@@ -302,18 +302,22 @@ func handleSubscriptionPrefs(c echo.Context) error {
 
 	// Get the subscriber's lists and whatever is not sent in the request (unchecked),
 	// unsubscribe them.
-	subs, err := app.core.GetSubscriptions(0, subUUID, false)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("public.errorFetchingLists"))
-	}
 	reqUUIDs := make(map[string]struct{})
 	for _, u := range req.ListUUIDs {
 		reqUUIDs[u] = struct{}{}
 	}
 
+	subs, err := app.core.GetSubscriptions(0, subUUID, false)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("public.errorFetchingLists"))
+	}
+
 	unsubUUIDs := make([]string, 0, len(req.ListUUIDs))
 	for _, s := range subs {
-		if _, ok := reqUUIDs[s.UUID]; ok {
+		if s.Type == models.ListTypePrivate {
+			continue
+		}
+		if _, ok := reqUUIDs[s.UUID]; !ok {
 			unsubUUIDs = append(unsubUUIDs, s.UUID)
 		}
 	}

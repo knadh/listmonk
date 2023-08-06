@@ -560,14 +560,14 @@ body.is-noscroll {
     border: 1px solid lighten($color, 42%);
     box-shadow: 1px 1px 0 lighten($color, 42%);
   }
-  &.finished, &.enabled {
+  &.finished, &.enabled, &.status-confirmed {
     $color: $green;
     color: $color;
     background: #f6ffed;
     border: 1px solid lighten($color, 45%);
     box-shadow: 1px 1px 0 lighten($color, 45%);
   }
-  &.blocklisted, &.cancelled {
+  &.blocklisted, &.cancelled, &.status-unsubscribed {
     $color: $red;
     color: $color;
     background: #fff1f0;
@@ -590,6 +590,7 @@ body.is-noscroll {
     margin-right: 1px;
   }
 }
+
 
 /* Page header */
 .page-header {
@@ -674,6 +675,10 @@ section.lists {
 
   thead th, tbody td {
     padding: 10px;
+  }
+
+  td.status .tag {
+    width: 100%;
   }
 }
 

@@ -94,17 +94,23 @@
                 </b-tag>{{ ' ' }}
               </div>
             </b-table-column>
-            <b-table-column v-slot="props" field="status" :label="$t('globals.fields.status')">
-              {{ props.row.optin === 'double' ? props.row.subscriptionStatus : '-' }}
+
+            <b-table-column v-slot="props" field="status" cell-class="status"
+              :label="$t('globals.fields.status')">
+              <b-tag :class="`status-${props.row.subscriptionStatus}`">
+                {{ $t(`subscribers.status.${props.row.subscriptionStatus}`) }}
+              </b-tag>
               <template v-if="props.row.optin === 'double'
                 && props.row.subscriptionMeta.optinIp">
                 <br /><span class="is-size-7">{{ props.row.subscriptionMeta.optinIp }}</span>
               </template>
             </b-table-column>
+
             <b-table-column v-slot="props" field="createdAt"
               :label="$t('globals.fields.createdAt')">
               {{ $utils.niceDate(props.row.subscriptionCreatedAt, true) }}
             </b-table-column>
+
             <b-table-column v-slot="props" field="updatedAt"
               :label="$t('globals.fields.updatedAt')">
               {{ $utils.niceDate(props.row.subscriptionCreatedAt, true) }}
