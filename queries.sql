@@ -466,7 +466,7 @@ WITH campLists AS (
     WHERE lists.id = ANY($14::INT[])
 ),
 tpl AS (
-    -- If there's no template_id given, use the defualt template.
+    -- If there's no template_id given, use the default template.
     SELECT (CASE WHEN $13 = 0 THEN id ELSE $13 END) AS id FROM templates WHERE is_default IS TRUE
 ),
 counts AS (
