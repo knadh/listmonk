@@ -101,11 +101,6 @@ func strSliceContains(str string, sl []string) bool {
 	return false
 }
 
-func int8ToStr(bs []int8) string {
-	b := make([]byte, len(bs))
-	for i, v := range bs {
-		b[i] = byte(v)
-	}
-
+func trimNullBytes(b []byte) string {
 	return string(bytes.Trim(b, "\x00"))
 }

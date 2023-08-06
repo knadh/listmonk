@@ -24,10 +24,9 @@ import (
 const pwdMask = "•"
 
 type aboutHost struct {
-	OS        string `json:"os"`
-	OSRelease string `json:"os_release"`
-	Machine   string `json:"arch"`
-	Hostname  string `json:"hostname"`
+	OS       string `json:"os"`
+	Machine  string `json:"arch"`
+	Hostname string `json:"hostname"`
 }
 type aboutSystem struct {
 	NumCPU  int    `json:"num_cpu"`
