@@ -313,7 +313,7 @@ func handleSubscriptionPrefs(c echo.Context) error {
 
 	unsubUUIDs := make([]string, 0, len(req.ListUUIDs))
 	for _, s := range subs {
-		if _, ok := reqUUIDs[s.UUID]; !ok {
+		if _, ok := reqUUIDs[s.UUID]; ok {
 			unsubUUIDs = append(unsubUUIDs, s.UUID)
 		}
 	}
