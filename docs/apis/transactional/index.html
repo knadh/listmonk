@@ -13,7 +13,7 @@
       
       
       <link rel="icon" href="../../images/favicon.png">
-      <meta name="generator" content="mkdocs-1.5.0, mkdocs-material-9.1.21">
+      <meta name="generator" content="mkdocs-1.5.2, mkdocs-material-9.1.21">
     
     
       
@@ -550,6 +550,13 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#file-attachments" class="md-nav__link">
+    File Attachments
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -618,6 +625,13 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#file-attachments" class="md-nav__link">
+    File Attachments
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -656,7 +670,7 @@
 </tbody>
 </table>
 <h2 id="post-apitx">POST /api/tx<a class="headerlink" href="#post-apitx" title="Permanent link">&para;</a></h2>
-<p>Send a transactional message to a subscriber using a predefined transactional template.</p>
+<p>Send a transactional message to one or multiple subscribers using a predefined transactional template.</p>
 <h5 id="parameters">Parameters<a class="headerlink" href="#parameters" title="Permanent link">&para;</a></h5>
 <table>
 <thead>
@@ -679,6 +693,18 @@
 <td style="text-align: left;">Number</td>
 <td style="text-align: left;">Optional</td>
 <td style="text-align: left;">ID of the subscriber. Either this or <code>subscriber_email</code> should be passed.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>subscriber_emails</code></td>
+<td style="text-align: left;">[]String</td>
+<td style="text-align: left;">Optional</td>
+<td style="text-align: left;">E-mails of the subscribers. This is an alternative to <code>subscriber_email</code> for multiple recipients. <code>["email1@example.com", "emailX@example.com"]</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>subscriber_ids</code></td>
+<td style="text-align: left;">[]Number</td>
+<td style="text-align: left;">Optional</td>
+<td style="text-align: left;">IDs of the subscribers. This is an alternative to <code>subscriber_id</code> for multiple recipients. <code>[1,2,3]</code></td>
 </tr>
 <tr>
 <td style="text-align: left;"><code>template_id</code></td>
@@ -734,6 +760,17 @@
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
 <span class="w">    </span><span class="nt">&quot;data&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
 <span class="p">}</span>
+</code></pre></div>
+<h3 id="file-attachments">File Attachments<a class="headerlink" href="#file-attachments" title="Permanent link">&para;</a></h3>
+<p>To include file attachments in a transactional message, use Content-Type <code>multipart/form-data</code>.
+Use the parameters described above as a JSON object via the <code>data</code> form key and include an arbitrary number of attachments via the <code>file</code> key.</p>
+<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-u<span class="w"> </span><span class="s2">&quot;username:password&quot;</span><span class="w"> </span><span class="s2">&quot;http://localhost:9000/api/tx&quot;</span><span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="se">\</span>
+-F<span class="w"> </span><span class="s1">&#39;data=\&quot;{</span>
+<span class="s1">    \&quot;subscriber_email\&quot;: \&quot;user@test.com\&quot;,</span>
+<span class="s1">    \&quot;template_id\&quot;: 4</span>
+<span class="s1">}&quot;&#39;</span><span class="w"> </span><span class="se">\</span>
+-F<span class="w"> </span><span class="s1">&#39;file=@&quot;/path/to/attachment.pdf&quot;&#39;</span><span class="w"> </span><span class="se">\</span>
+-F<span class="w"> </span><span class="s1">&#39;file=@&quot;/path/to/attachment2.pdf&quot;&#39;</span>
 </code></pre></div>
 
 
