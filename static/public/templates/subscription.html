@@ -3,7 +3,7 @@
 <section class="section">
     {{ if not .Data.ShowManage }}
         <h2>{{ L.T "public.unsubTitle" }}</h2>
-        <form method="post">
+        <form method="post" class="unsub-form">
             <div>
                 {{ if .Data.AllowBlocklist }}
                     <p>{{ L.T "public.unsubHelp" }}</p>
@@ -23,7 +23,7 @@
             </div>
         </form>
     {{ else }}
-        <form method="post">
+        <form method="post" class="manage-form">
             <div>
                 <input type="hidden" name="manage" value="true" />
 
@@ -62,7 +62,7 @@
 </section>
 
 {{ if or .Data.AllowExport .Data.AllowWipe }}
-<form id="data-form" method="post" action="" onsubmit="return handleData()">
+<form id="data-form" class="data-form" method="post" action="" onsubmit="return handleData()">
     <section>
         <h2>{{ L.T "public.privacyTitle" }}</h2>
         {{ if .Data.AllowExport }}
