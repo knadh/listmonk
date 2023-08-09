@@ -5,19 +5,22 @@ on:
     tags:
       - "v*" # Will trigger only if tag is pushed matching pattern `v*` (Eg: `v0.1.0`)
 
+permissions:
+  contents: write
+
 jobs:
   goreleaser:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
       - name: Set up Go
-        uses: actions/setup-go@v2
+        uses: actions/setup-go@v4
         with:
-          go-version: 1.19
+          go-version: "1.20"
 
       - name: Login to Docker Registry
         uses: docker/login-action@v2
