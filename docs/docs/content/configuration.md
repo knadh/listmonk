@@ -52,7 +52,11 @@ When configuring auth proxies and web application firewalls, use this table.
 
 ### Filesystem
 
-When configuring `docker` volume mounts for using filesystem media uploads, you can follow either of two approaches.
+When configuring `docker` volume mounts for using filesystem media uploads, you can follow either of two approaches. [The second option may be necessary if](https://github.com/knadh/listmonk/issues/1169#issuecomment-1674475945) your setup requires you to use `sudo` for docker commands. 
+
+After making any changes you will need to run `sudo docker-compose stop ; sudo docker-compose up`. 
+
+And under `https://listmonk.mysite.com/admin/settings` you put `/listmonk/uploads`. 
 
 #### Using volumes
 
@@ -77,8 +81,22 @@ volumes:
 #### Using bind mounts
 
 ```yml
+  app:
     volumes:
-      - /data/uploads:/listmonk/uploads
+      - ./path/on/your/host/:/path/inside/container
+```
+Eg:
+```yml
+  app:
+    volumes:
+      - ./data/uploads:/listmonk/uploads
+```
+The files will be available inside `/data/uploads` directory on the host machine.
+
+To use the default `uploads` folder:
+```yml
+  app:
+    volumes:
+      - ./listmonk/uploads:/listmonk/uploads
 ```
 
-The files will be available inside `/data/uploads` directory on the host machine.
