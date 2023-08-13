@@ -1,8 +1,8 @@
 # Installation
 
-Listmonk requires Postgres ⩾ 12.
+listmonk requires Postgres ⩾ 12.
 
-See the "tutorials" section at the bottom for detailed guides. 
+See the "[Tutorials](#tutorials)" section at the bottom for detailed guides. 
 
 ## Binary
 - Download the [latest release](https://github.com/knadh/listmonk/releases) and extract the listmonk binary.
