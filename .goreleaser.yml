@@ -12,9 +12,12 @@ builds:
   - binary: listmonk
     main: ./cmd
     goos:
+      - linux
+      # There is no added benefit in building
+      # the additional OSes for this project.
+      # if ever needed, uncomment and add
       # - windows
       # - darwin
-      - linux
       # - freebsd
       # - openbsd
       # - netbsd
@@ -25,7 +28,6 @@ builds:
     goarm:
       - 6
       - 7
-      # - 8
     ldflags:
       - -s -w -X "main.buildString={{ .Tag }} ({{ .ShortCommit }} {{ .Date }}, {{ .Os }}/{{ .Arch }})" -X "main.versionString={{ .Tag }}"
 
