@@ -40,6 +40,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/lib/pq"
 	flag "github.com/spf13/pflag"
+	"github.com/zcalusic/sysinfo" // to replace syscall info
 )
 
 const (
@@ -69,7 +70,6 @@ type constants struct {
 		AllowBlocklist     bool            `koanf:"allow_blocklist"`
 		AllowExport        bool            `koanf:"allow_export"`
 		AllowWipe          bool            `koanf:"allow_wipe"`
-		RecordOptinIP      bool            `koanf:"record_optin_ip"`
 		Exportable         map[string]bool `koanf:"-"`
 		DomainBlocklist    []string        `koanf:"-"`
 	} `koanf:"privacy"`
@@ -126,6 +126,7 @@ func initFlags() {
 	f.Bool("upgrade", false, "upgrade database to the current version")
 	f.Bool("version", false, "show current version of the build")
 	f.Bool("new-config", false, "generate sample config file")
+	f.Bool("continue-after-install", false, "(optional) do not exit after install but instead start listmonk")
 	f.String("static-dir", "", "(optional) path to directory with static files")
 	f.String("i18n-dir", "", "(optional) path to directory with i18n language files")
 	f.Bool("yes", false, "assume 'yes' to prompts during --install/upgrade")
@@ -702,20 +703,40 @@ func initBounceManager(app *App) *bounce.Manager {
 func initAbout(q *models.Queries, db *sqlx.DB) about {
 	var (
 		mem runtime.MemStats
+		si  sysinfo.SysInfo
 	)
+
+	si.GetSysInfo() // OS info.
+	// Previously used Utsname for OS Info but Utsname does not work multi-arch (so do not use it):
+	// [ref=https://stackoverflow.com/questions/29415909/cannot-get-uname-by-golang]
+
+	_, err := json.MarshalIndent(&si, "", "  ")
+	if err != nil {
+		// just to check if it works
+		lo.Printf("WARNING: error getting system info: %v", err)
+	}
 
 	// Memory / alloc stats.
 	runtime.ReadMemStats(&mem)
 
+	// DB dbv.
 	info := types.JSONText(`{}`)
 	if err := db.QueryRow(q.GetDBInfo).Scan(&info); err != nil {
 		lo.Printf("WARNING: error getting database version: %v", err)
 	}
 
-	hostname, err := os.Hostname()
-	if err != nil {
-		lo.Printf("WARNING: error getting hostname: %v", err)
-	}
+	// grabbing universal arch system info now
+	system_hostname, _ := os.Hostname()
+	system_os := runtime.GOOS
+
+	// the next 2 could be empty depending on the arch. either we use
+	// a different lib now or we simply agree that linux is okay. we could
+	// also use this in the future:
+	// https://stackoverflow.com/a/19847868
+	// -> writing our own function and then grabbing the info depending on arch
+	// but this is still better than NON-working Utsname
+	system_release := si.OS.Release
+	system_machine := si.Node.MachineID
 
 	return about{
 		Version:   versionString,
@@ -727,9 +748,10 @@ func initAbout(q *models.Queries, db *sqlx.DB) about {
 			NumCPU: runtime.NumCPU(),
 		},
 		Host: aboutHost{
-			OS:       runtime.GOOS,
-			Machine:  runtime.GOARCH,
-			Hostname: hostname,
+			OS:        system_os,
+			OSRelease: system_release,
+			Machine:   system_machine,
+			Hostname:  system_hostname,
 		},
 	}
 
