@@ -870,7 +870,9 @@
 </table>
 <h2 id="media-uploads">Media Uploads<a class="headerlink" href="#media-uploads" title="Permanent link">&para;</a></h2>
 <h3 id="filesystem">Filesystem<a class="headerlink" href="#filesystem" title="Permanent link">&para;</a></h3>
-<p>When configuring <code>docker</code> volume mounts for using filesystem media uploads, you can follow either of two approaches.</p>
+<p>When configuring <code>docker</code> volume mounts for using filesystem media uploads, you can follow either of two approaches. <a href="https://github.com/knadh/listmonk/issues/1169#issuecomment-1674475945">The second option may be necessary if</a> your setup requires you to use <code>sudo</code> for docker commands. </p>
+<p>After making any changes you will need to run <code>sudo docker-compose stop ; sudo docker-compose up</code>. </p>
+<p>And under <code>https://listmonk.mysite.com/admin/settings</code> you put <code>/listmonk/uploads</code>. </p>
 <h4 id="using-volumes">Using volumes<a class="headerlink" href="#using-volumes" title="Permanent link">&para;</a></h4>
 <p>Using <code>docker volumes</code>, you can specify the name of volume and destination for the files to be uploaded inside the container.</p>
 <div class="highlight"><pre><span></span><code>app:
@@ -887,10 +889,21 @@ volumes:
 <p>This volume is managed by <code>docker</code> itself, and you can see find the host path with <code>docker volume inspect listmonk_listmonk-uploads</code>.</p>
 </div>
 <h4 id="using-bind-mounts">Using bind mounts<a class="headerlink" href="#using-bind-mounts" title="Permanent link">&para;</a></h4>
-<div class="highlight"><pre><span></span><code>    volumes:
-      - /data/uploads:/listmonk/uploads
+<p><div class="highlight"><pre><span></span><code>  app:
+    volumes:
+      - ./path/on/your/host/:/path/inside/container
 </code></pre></div>
-<p>The files will be available inside <code>/data/uploads</code> directory on the host machine.</p>
+Eg:
+<div class="highlight"><pre><span></span><code>  app:
+    volumes:
+      - ./data/uploads:/listmonk/uploads
+</code></pre></div>
+The files will be available inside <code>/data/uploads</code> directory on the host machine.</p>
+<p>To use the default <code>uploads</code> folder:
+<div class="highlight"><pre><span></span><code>  app:
+    volumes:
+      - ./listmonk/uploads:/listmonk/uploads
+</code></pre></div></p>
 
 
 
