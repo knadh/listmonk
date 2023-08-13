@@ -700,14 +700,14 @@
 <tr>
 <th>Endpoint</th>
 <th>Description</th>
-<th></th>
+<th>More info</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td><code>https://listmonk.yoursite.com/webhooks/service/ses</code></td>
 <td>Amazon (AWS) SES</td>
-<td>You can use these <a href="https://docs.mautic.org/en/channels/emails/bounce-management#amazon-webhook">Mautic steps</a> as a general guide, but use your listmonk's endpoint instead. <br> * When creating the <em>topic</em> select "standard" instead of the preselected "FIFO". You can put a name and leave everything else at default.  <br><em> When creating a </em>subscription<em> choose HTTPS for "Protocol", and leave </em>"Enable raw message delivery"<em> UNCHECKED. <br> * On the <em>"SES -&gt; verified identities"</em> page, make sure to check </em><em>"<a href="https://github.com/knadh/listmonk/issues/720#issuecomment-1046877192">include original headers</a>"</em>*. <br> * The Mautic screenshot suggests you should turn off <em>email feedback forwarding</em>, but that's completely optional depending on whether you want want email notifications.</td>
+<td>You can use these <a href="https://docs.mautic.org/en/channels/emails/bounce-management#amazon-webhook">Mautic steps</a> as a general guide, but use your listmonk's endpoint instead. <ul>  <li>When creating the <em>topic</em> select "standard" instead of the preselected "FIFO". You can put a name and leave everything else at default.</li>  <li>When creating a <em>subscription</em> choose HTTPS for "Protocol", and leave <em>"Enable raw message delivery"</em> UNCHECKED.</li>  <li>On the <em>"SES -&gt; verified identities"</em> page, make sure to check <strong>"<a href="https://github.com/knadh/listmonk/issues/720#issuecomment-1046877192">include original headers</a>"</strong>.</li>  <li>The Mautic screenshot suggests you should turn off <em>email feedback forwarding</em>, but that's completely optional depending on whether you want want email notifications.</li></ul></td>
 </tr>
 <tr>
 <td><code>https://listmonk.yoursite.com/webhooks/service/sendgrid</code></td>
