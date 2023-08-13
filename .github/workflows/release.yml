@@ -5,6 +5,8 @@ on:
     tags:
       - "v*" # Will trigger only if tag is pushed matching pattern `v*` (Eg: `v0.1.0`)
 
+permissions: write-all
+
 jobs:
   goreleaser:
     runs-on: ubuntu-latest
