@@ -1,8 +1,8 @@
 env:
   - GO111MODULE=on
   - CGO_ENABLED=0
-  - GITHUB_ORG=activenode
-  - DOCKER_ORG=activenode
+  - GITHUB_ORG=knadh
+  - DOCKER_ORG=listmonk
 
 before:
   hooks:
