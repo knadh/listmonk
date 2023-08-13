@@ -18,7 +18,7 @@ jobs:
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
-        
+
       - name: Set up Go
         uses: actions/setup-go@v4
         with:
