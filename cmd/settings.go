@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"regexp"
@@ -24,9 +25,10 @@ import (
 const pwdMask = "•"
 
 type aboutHost struct {
-	OS       string `json:"os"`
-	Machine  string `json:"arch"`
-	Hostname string `json:"hostname"`
+	OS        string `json:"os"`
+	OSRelease string `json:"os_release"`
+	Machine   string `json:"arch"`
+	Hostname  string `json:"hostname"`
 }
 type aboutSystem struct {
 	NumCPU  int    `json:"num_cpu"`
@@ -262,6 +264,17 @@ func handleTestSMTPSettings(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.Ts("globals.messages.missingFields", "name", "email"))
 	}
 
+	password := ko.String("password")
+	// now we have to check if the password only contains •••••••••••••••• chars because
+	// then we want to load the stored password instead.
+	// but currently this is not yet supported so at least we need to inform the user to avoid
+	// confusion:
+	if password == strings.Repeat(pwdMask, utf8.RuneCountInString(password)) {
+		errStr := "Doing a Test connection with a pre-existing/saved password is currently not supported. You can only test the connection for a new password (without saving it before)"
+		app.log.Printf(errStr)
+		return echo.NewHTTPError(http.StatusInternalServerError, errStr)
+	}
+
 	// Initialize a new SMTP pool.
 	req.MaxConns = 1
 	req.IdleTimeout = time.Second * 2
@@ -293,12 +306,18 @@ func handleTestSMTPSettings(c echo.Context) error {
 }
 
 func handleGetAboutInfo(c echo.Context) error {
+	app := c.Get("app").(*App)
+
 	var (
-		app = c.Get("app").(*App)
-		mem runtime.MemStats
+		mem     runtime.MemStats
+		utsname syscall.Utsname
 	)
 
 	runtime.ReadMemStats(&mem)
+
+	if err := syscall.Uname(&utsname); err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("error getting system info: %v", err))
+	}
 
 	out := app.about
 	out.System.AllocMB = mem.Alloc / 1024 / 1024
