@@ -1122,6 +1122,22 @@ WITH sub AS (
 DELETE FROM bounces WHERE subscriber_id = (SELECT id FROM sub);
 
 
+-- name: get-country-stats
+SELECT JSON_AGG(ROW_TO_JSON(row))
+FROM (
+    SELECT (TRIM('"' FROM upper((attribs -> 'country') :: text))) as country, count(1) FROM subscribers GROUP BY 1
+) row
+
+-- name: get-country-stats-by-list
+SELECT JSON_AGG(ROW_TO_JSON(row))
+FROM (
+    with subs as (
+        SELECT * FROM subscribers JOIN subscriber_lists ON id = subscriber_lists.subscriber_id WHERE subscriber_lists.list_id = $1
+    )
+    SELECT (TRIM('"' FROM upper((attribs -> 'country') :: text))) as country, count(1) FROM subs GROUP BY 1
+) row
+
+
 -- name: get-db-info
 SELECT JSON_BUILD_OBJECT('version', (SELECT VERSION()),
                         'size_mb', (SELECT ROUND(pg_database_size('listmonk')/(1024^2)))) AS info;
