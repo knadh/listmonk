@@ -7,7 +7,7 @@ import (
 	"net/smtp"
 	"net/textproto"
 
-	"github.com/knadh/listmonk/internal/messenger"
+	"github.com/knadh/listmonk/models"
 	"github.com/knadh/smtppool"
 )
 
@@ -92,7 +92,7 @@ func (e *Emailer) Name() string {
 }
 
 // Push pushes a message to the server.
-func (e *Emailer) Push(m messenger.Message) error {
+func (e *Emailer) Push(m models.Message) error {
 	// If there are more than one SMTP servers, send to a random
 	// one from the list.
 	var (

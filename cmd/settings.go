@@ -5,19 +5,43 @@ import (
 	"io/ioutil"
 	"net/http"
 	"regexp"
+	"runtime"
 	"strings"
 	"syscall"
 	"time"
+	"unicode/utf8"
 
 	"github.com/gofrs/uuid"
-	"github.com/knadh/koanf"
+	"github.com/jmoiron/sqlx/types"
 	"github.com/knadh/koanf/parsers/json"
 	"github.com/knadh/koanf/providers/rawbytes"
-	"github.com/knadh/listmonk/internal/messenger"
+	"github.com/knadh/koanf/v2"
 	"github.com/knadh/listmonk/internal/messenger/email"
 	"github.com/knadh/listmonk/models"
 	"github.com/labstack/echo/v4"
 )
+
+const pwdMask = "•"
+
+type aboutHost struct {
+	OS       string `json:"os"`
+	Machine  string `json:"arch"`
+	Hostname string `json:"hostname"`
+}
+type aboutSystem struct {
+	NumCPU  int    `json:"num_cpu"`
+	AllocMB uint64 `json:"memory_alloc_mb"`
+	OSMB    uint64 `json:"memory_from_os_mb"`
+}
+type about struct {
+	Version   string         `json:"version"`
+	Build     string         `json:"build"`
+	GoVersion string         `json:"go_version"`
+	GoArch    string         `json:"go_arch"`
+	Database  types.JSONText `json:"database"`
+	System    aboutSystem    `json:"system"`
+	Host      aboutHost      `json:"host"`
+}
 
 var (
 	reAlphaNum = regexp.MustCompile(`[^a-z0-9\-]`)
@@ -34,16 +58,17 @@ func handleGetSettings(c echo.Context) error {
 
 	// Empty out passwords.
 	for i := 0; i < len(s.SMTP); i++ {
-		s.SMTP[i].Password = ""
+		s.SMTP[i].Password = strings.Repeat(pwdMask, utf8.RuneCountInString(s.SMTP[i].Password))
 	}
 	for i := 0; i < len(s.BounceBoxes); i++ {
-		s.BounceBoxes[i].Password = ""
+		s.BounceBoxes[i].Password = strings.Repeat(pwdMask, utf8.RuneCountInString(s.BounceBoxes[i].Password))
 	}
 	for i := 0; i < len(s.Messengers); i++ {
-		s.Messengers[i].Password = ""
+		s.Messengers[i].Password = strings.Repeat(pwdMask, utf8.RuneCountInString(s.Messengers[i].Password))
 	}
-	s.UploadS3AwsSecretAccessKey = ""
-	s.SendgridKey = ""
+	s.UploadS3AwsSecretAccessKey = strings.Repeat(pwdMask, utf8.RuneCountInString(s.UploadS3AwsSecretAccessKey))
+	s.SendgridKey = strings.Repeat(pwdMask, utf8.RuneCountInString(s.SendgridKey))
+	s.SecurityCaptchaSecret = strings.Repeat(pwdMask, utf8.RuneCountInString(s.SecurityCaptchaSecret))
 
 	return c.JSON(http.StatusOK, okResp{s})
 }
@@ -158,6 +183,13 @@ func handleUpdateSettings(c echo.Context) error {
 	if set.SendgridKey == "" {
 		set.SendgridKey = cur.SendgridKey
 	}
+	if set.SecurityCaptchaSecret == "" {
+		set.SecurityCaptchaSecret = cur.SecurityCaptchaSecret
+	}
+
+	for n, v := range set.UploadExtensions {
+		set.UploadExtensions[n] = strings.ToLower(strings.TrimPrefix(strings.TrimSpace(v), "."))
+	}
 
 	// Domain blocklist.
 	doms := make([]string, 0)
@@ -189,7 +221,7 @@ func handleUpdateSettings(c echo.Context) error {
 	// No running campaigns. Reload the app.
 	go func() {
 		<-time.After(time.Millisecond * 500)
-		app.sigChan <- syscall.SIGHUP
+		app.chReload <- syscall.SIGHUP
 	}()
 
 	return c.JSON(http.StatusOK, okResp{true})
@@ -246,7 +278,7 @@ func handleTestSMTPSettings(c echo.Context) error {
 		return err
 	}
 
-	m := messenger.Message{}
+	m := models.Message{}
 	m.ContentType = app.notifTpls.contentType
 	m.From = app.constants.FromEmail
 	m.To = []string{to}
@@ -258,4 +290,19 @@ func handleTestSMTPSettings(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, okResp{app.bufLog.Lines()})
+}
+
+func handleGetAboutInfo(c echo.Context) error {
+	var (
+		app = c.Get("app").(*App)
+		mem runtime.MemStats
+	)
+
+	runtime.ReadMemStats(&mem)
+
+	out := app.about
+	out.System.AllocMB = mem.Alloc / 1024 / 1024
+	out.System.OSMB = mem.Sys / 1024 / 1024
+
+	return c.JSON(http.StatusOK, out)
 }

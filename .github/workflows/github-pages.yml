@@ -1,0 +1,61 @@
+name: publish-github-pages
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - 'docs/**'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true  # Fetch Hugo themes
+          fetch-depth: 0    # Fetch all history for .GitInfo and .Lastmod
+
+      - uses: actions/setup-python@v2
+        with:
+          python-version: 3.x
+      - run: pip install mkdocs-material
+
+      - name: Setup Hugo
+        uses: peaceiris/actions-hugo@v2
+        with:
+          hugo-version: '0.68.3'
+
+      # Build the main site to the docs/publish directory. This will be the root (/) in gh-pages.
+      # The -d (output) path is relative to the -s (source) path
+      - name: Build main site
+        run: hugo -s docs/site -d ../publish --gc --minify
+
+      # Build the mkdocs documentation in the docs/publish/docs dir. This will be at (/docs)
+      # The -d (output) path is relative to the -f (source) path
+      - name: Build docs site
+        run: mkdocs build -f docs/docs/mkdocs.yml -d ../publish/docs
+
+      # Copy the static i18n app to the publish directory. This will be at (/i18n)
+      - name: Copy i18n site
+        run: cp -R docs/i18n docs/publish
+
+      - name: Generate Swagger UI
+        uses: Legion2/swagger-ui-action@v1
+        with:
+          spec-file: ./docs/swagger/collections.yaml
+          output: ./docs/publish/docs/swagger
+
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: gh-pages
+          publish_dir: ./docs/publish
+          cname: listmonk.app
+          user_name: 'github-actions[bot]'
+          user_email: 'github-actions[bot]@users.noreply.github.com'

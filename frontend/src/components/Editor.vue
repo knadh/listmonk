@@ -102,7 +102,7 @@
     <b-modal scroll="keep" :aria-modal="true" :active.sync="isMediaVisible" :width="900">
       <div class="modal-card content" style="width: auto">
         <section expanded class="modal-card-body">
-          <media isModal @selected="onMediaSelect" />
+          <media is-modal @selected="onMediaSelect" />
         </section>
       </div>
     </b-modal>

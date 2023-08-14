@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="45.041653mm"
+   height="9.8558731mm"
+   viewBox="0 0 45.041653 9.8558733"
+   version="1.1"
+   id="svg8"
+   sodipodi:docname="listmonk.src.svg"
+   inkscape:version="1.0 (9f2f71dc58, 2020-08-02)">
+  <defs
+     id="defs2" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="1"
+     inkscape:cx="742.82396"
+     inkscape:cy="-93.302628"
+     inkscape:document-units="mm"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     inkscape:window-width="1863"
+     inkscape:window-height="1025"
+     inkscape:window-x="57"
+     inkscape:window-y="27"
+     inkscape:window-maximized="1"
+     fit-margin-top="0"
+     fit-margin-left="0"
+     fit-margin-right="0"
+     fit-margin-bottom="0"
+     inkscape:document-rotation="0" />
+  <metadata
+     id="metadata5">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-12.438455,-21.535559)">
+    <path
+       style="fill:#ffcc00;fill-opacity:1;stroke:none;stroke-width:2.11094689;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m 16.660914,21.535559 a 4.2220837,4.2220837 0 0 0 -4.222459,4.222437 4.2220837,4.2220837 0 0 0 0.490699,1.968681 c 0.649637,-1.386097 2.059696,-2.343758 3.73176,-2.343758 1.672279,0 3.082188,0.958029 3.731731,2.344413 a 4.2220837,4.2220837 0 0 0 0.490039,-1.969336 4.2220837,4.2220837 0 0 0 -4.22177,-4.222437 z"
+       id="circle920"
+       inkscape:connector-curvature="0"
+       inkscape:export-filename="/home/kailash/Site/listmonk/static/logo.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <flowRoot
+       xml:space="preserve"
+       id="flowRoot935"
+       style="font-style:normal;font-weight:normal;font-size:40px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
+       transform="matrix(0.27888442,0,0,0.27888442,92.852428,101.67857)"><flowRegion
+         id="flowRegion937"><rect
+           id="rect939"
+           width="338"
+           height="181"
+           x="-374"
+           y="-425.36423" /></flowRegion><flowPara
+         id="flowPara941" /></flowRoot>
+    <text
+       id="text874-8"
+       y="30.29347"
+       x="23.133614"
+       style="font-style:normal;font-variant:normal;font-weight:500;font-stretch:normal;font-size:8.70789px;line-height:1.25;font-family:'IBM Plex Sans';-inkscape-font-specification:'IBM Plex Sans, Medium';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.0459737"
+       xml:space="preserve"
+       inkscape:export-filename="/home/kailash/Site/listmonk/static/logo.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96"><tspan
+         style="font-style:normal;font-variant:normal;font-weight:600;font-stretch:normal;font-size:8.70789px;font-family:Inter;-inkscape-font-specification:'Inter Semi-Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;stroke-width:0.0459737"
+         y="30.29347"
+         x="23.133614"
+         id="tspan872-0"
+         sodipodi:role="line">listmonk</tspan></text>
+    <circle
+       r="3.1873188"
+       cy="27.647591"
+       cx="16.66629"
+       id="circle876-1"
+       style="fill:none;fill-opacity:1;stroke:#7f2aff;stroke-width:1.11304522;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       inkscape:export-filename="/home/kailash/Site/listmonk/static/logo.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <path
+       inkscape:connector-curvature="0"
+       id="path878-0"
+       d="m 16.666291,24.813242 a 3.1873187,3.8372081 0 0 0 -3.187196,3.837044 3.1873187,3.8372081 0 0 0 0.07347,0.79818 3.1873187,3.8372081 0 0 1 3.113724,-3.027362 3.1873187,3.8372081 0 0 1 3.113721,3.038883 3.1873187,3.8372081 0 0 0 0.07347,-0.809701 3.1873187,3.8372081 0 0 0 -3.187196,-3.837044 z"
+       style="fill:#7f2aff;fill-opacity:1;stroke:none;stroke-width:1.22125876;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       inkscape:export-filename="/home/kailash/Site/listmonk/static/logo.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <path
+       style="fill:#ffcc00;fill-opacity:1;stroke:none;stroke-width:1.06017;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m 139.94612,-53.327122 a 2.1703097,2.0716912 0 0 0 -2.17051,2.071864 2.1703097,2.0716912 0 0 0 0.25224,0.965993 c 0.33394,-0.680131 1.05876,-1.150035 1.91827,-1.150035 0.85961,0 1.58436,0.470085 1.91825,1.150356 a 2.1703097,2.0716912 0 0 0 0.2519,-0.966314 2.1703097,2.0716912 0 0 0 -2.17015,-2.071864 z"
+       id="path1200"
+       inkscape:connector-curvature="0"
+       inkscape:export-filename="/home/kailash/Site/listmonk/static/logo.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <text
+       id="text1204"
+       y="-46.771812"
+       x="116.91617"
+       style="font-style:normal;font-variant:normal;font-weight:500;font-stretch:normal;font-size:8.70789px;line-height:1.25;font-family:'IBM Plex Sans';-inkscape-font-specification:'IBM Plex Sans, Medium';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.0459737"
+       xml:space="preserve"
+       inkscape:export-filename="/home/kailash/Site/listmonk/static/logo.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96"><tspan
+         style="font-style:normal;font-variant:normal;font-weight:600;font-stretch:normal;font-size:8.70789px;font-family:Inter;-inkscape-font-specification:'Inter Semi-Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;stroke-width:0.0459737"
+         y="-46.771812"
+         x="116.91617"
+         id="tspan1202"
+         sodipodi:role="line">listmonk</tspan></text>
+    <text
+       id="text1214"
+       y="-23.851294"
+       x="127.87717"
+       style="font-style:normal;font-variant:normal;font-weight:500;font-stretch:normal;font-size:6.82489px;line-height:1.25;font-family:'IBM Plex Sans';-inkscape-font-specification:'IBM Plex Sans, Medium';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.0360324"
+       xml:space="preserve"
+       inkscape:export-filename="/home/kailash/Site/listmonk/static/logo.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96"><tspan
+         style="font-style:normal;font-variant:normal;font-weight:600;font-stretch:normal;font-size:6.82489px;font-family:Inter;-inkscape-font-specification:'Inter Semi-Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;stroke-width:0.0360324"
+         y="-23.851294"
+         x="127.87717"
+         id="tspan1212"
+         sodipodi:role="line">listmonk</tspan></text>
+    <circle
+       style="fill:#ffcc00;fill-opacity:1;stroke:none;stroke-width:2.5729"
+       id="path1216"
+       cx="203.43507"
+       cy="-21.854498"
+       r="3.8091576" />
+    <g
+       id="g1239"
+       transform="matrix(1.2398232,0,0,1.2398232,25.599078,-34.522694)">
+      <rect
+         style="fill:#7f2aff;fill-opacity:1;stroke:none;stroke-width:0.91563"
+         id="rect1218"
+         width="3.7532511"
+         height="0.89233136"
+         x="77.048592"
+         y="4.6184554" />
+      <rect
+         style="fill:#7f2aff;fill-opacity:1;stroke:none;stroke-width:0.91563"
+         id="rect1220"
+         width="3.7532511"
+         height="0.89233136"
+         x="77.048592"
+         y="6.1939058" />
+      <rect
+         style="fill:#7f2aff;fill-opacity:1;stroke:none;stroke-width:0.91563"
+         id="rect1226"
+         width="3.7532511"
+         height="0.89233136"
+         x="77.048592"
+         y="7.7760162" />
+    </g>
+    <ellipse
+       style="fill:#ffcc00;fill-opacity:1;stroke:none;stroke-width:1.5875"
+       id="path1247"
+       cx="139.2197"
+       cy="-74.271935"
+       rx="2.1283948"
+       ry="1.9833959" />
+    <text
+       id="text1245"
+       y="-71.648537"
+       x="115.96989"
+       style="font-style:normal;font-variant:normal;font-weight:500;font-stretch:normal;font-size:8.70789px;line-height:1.25;font-family:'IBM Plex Sans';-inkscape-font-specification:'IBM Plex Sans, Medium';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.0459737"
+       xml:space="preserve"
+       inkscape:export-filename="/home/kailash/Site/listmonk/static/logo.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96"><tspan
+         style="font-style:normal;font-variant:normal;font-weight:600;font-stretch:normal;font-size:8.70789px;font-family:Inter;-inkscape-font-specification:'Inter Semi-Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;stroke-width:0.0459737"
+         y="-71.648537"
+         x="115.96989"
+         id="tspan1243"
+         sodipodi:role="line">listmonk</tspan></text>
+    <text
+       id="text1042"
+       y="-18.770809"
+       x="210.12352"
+       style="font-style:normal;font-variant:normal;font-weight:500;font-stretch:normal;font-size:8.70789px;line-height:1.25;font-family:'IBM Plex Sans';-inkscape-font-specification:'IBM Plex Sans, Medium';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;letter-spacing:-0.0529167px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.0459737"
+       xml:space="preserve"
+       inkscape:export-filename="/home/kailash/Site/listmonk/static/logo.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96"><tspan
+         style="font-style:normal;font-variant:normal;font-weight:600;font-stretch:normal;font-size:8.70789px;font-family:'Fira Sans';-inkscape-font-specification:'Fira Sans Semi-Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;stroke-width:0.0459737"
+         y="-18.770809"
+         x="210.12352"
+         id="tspan1040"
+         sodipodi:role="line">listmonk</tspan></text>
+    <circle
+       style="fill:none;fill-opacity:1;stroke:#ffcc00;stroke-width:1.73982;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="circle1737"
+       cx="203.74388"
+       cy="-1.1837244"
+       r="3.1489604" />
+    <text
+       id="text1741"
+       y="2.24283"
+       x="210.38811"
+       style="font-style:normal;font-variant:normal;font-weight:500;font-stretch:normal;font-size:8.70789px;line-height:1.25;font-family:'IBM Plex Sans';-inkscape-font-specification:'IBM Plex Sans, Medium';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;letter-spacing:-0.0529167px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.0459737"
+       xml:space="preserve"
+       inkscape:export-filename="/home/kailash/Site/listmonk/static/logo.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96"><tspan
+         style="font-style:normal;font-variant:normal;font-weight:600;font-stretch:normal;font-size:8.70789px;font-family:'Fira Sans';-inkscape-font-specification:'Fira Sans Semi-Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;stroke-width:0.0459737"
+         y="2.24283"
+         x="210.38811"
+         id="tspan1739"
+         sodipodi:role="line">listmonk</tspan></text>
+  </g>
+</svg>

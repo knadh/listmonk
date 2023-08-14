@@ -110,7 +110,7 @@ const routes = [
   {
     path: '/settings/maintenance',
     name: 'maintenance',
-    meta: { title: 'logs.title', group: 'settings' },
+    meta: { title: 'maintenance.title', group: 'settings' },
     component: () => import(/* webpackChunkName: "main" */ '../views/Maintenance.vue'),
   },
 ];

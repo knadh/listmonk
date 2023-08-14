@@ -43,6 +43,7 @@ DROP TABLE IF EXISTS subscriber_lists CASCADE;
 CREATE TABLE subscriber_lists (
     subscriber_id      INTEGER REFERENCES subscribers(id) ON DELETE CASCADE ON UPDATE CASCADE,
     list_id            INTEGER NULL REFERENCES lists(id) ON DELETE CASCADE ON UPDATE CASCADE,
+    meta               JSONB NOT NULL DEFAULT '{}',
     status             subscription_status NOT NULL DEFAULT 'unconfirmed',
 
     created_at         TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
@@ -144,10 +145,26 @@ CREATE TABLE media (
     uuid uuid        NOT NULL UNIQUE,
     provider         TEXT NOT NULL DEFAULT '',
     filename         TEXT NOT NULL,
+    content_type     TEXT NOT NULL DEFAULT 'application/octet-stream',
     thumb            TEXT NOT NULL,
     meta             JSONB NOT NULL DEFAULT '{}',
     created_at       TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
+
+-- campaign_media
+DROP TABLE IF EXISTS campaign_media CASCADE;
+CREATE TABLE campaign_media (
+    campaign_id  INTEGER REFERENCES campaigns(id) ON DELETE CASCADE ON UPDATE CASCADE,
+
+    -- Media items may be deleted, so media_id is nullable
+    -- and a copy of the original name is maintained here.
+    media_id     INTEGER NULL REFERENCES media(id) ON DELETE SET NULL ON UPDATE CASCADE,
+
+    filename     TEXT NOT NULL DEFAULT ''
+);
+DROP INDEX IF EXISTS idx_camp_media_id; CREATE UNIQUE INDEX idx_camp_media_id ON campaign_media (campaign_id, media_id);
+DROP INDEX IF EXISTS idx_camp_media_camp_id; CREATE INDEX idx_camp_media_camp_id ON campaign_media(campaign_id);
+
 
 -- links
 DROP TABLE IF EXISTS links CASCADE;
@@ -196,6 +213,7 @@ INSERT INTO settings (key, value) VALUES
     ('app.message_sliding_window_rate', '10000'),
     ('app.enable_public_archive', 'true'),
     ('app.enable_public_subscription_page', 'true'),
+    ('app.enable_public_archive_rss_content', 'true'),
     ('app.send_optin_confirmation', 'true'),
     ('app.check_updates', 'true'),
     ('app.notify_emails', '["admin1@mysite.com", "admin2@mysite.com"]'),
@@ -208,7 +226,13 @@ INSERT INTO settings (key, value) VALUES
     ('privacy.allow_preferences', 'true'),
     ('privacy.exportable', '["profile", "subscriptions", "campaign_views", "link_clicks"]'),
     ('privacy.domain_blocklist', '[]'),
+    ('privacy.record_optin_ip', 'false'),
+    ('security.enable_captcha', 'false'),
+    ('security.captcha_key', '""'),
+    ('security.captcha_secret', '""'),
     ('upload.provider', '"filesystem"'),
+    ('upload.max_file_size', '5000'),
+    ('upload.extensions', '["jpg","jpeg","png","gif","svg","*"]'),
     ('upload.filesystem.upload_path', '"uploads"'),
     ('upload.filesystem.upload_uri', '"/uploads"'),
     ('upload.s3.url', '"https://ap-south-1.s3.amazonaws.com"'),
@@ -227,8 +251,7 @@ INSERT INTO settings (key, value) VALUES
     ('messengers', '[]'),
     ('bounce.enabled', 'false'),
     ('bounce.webhooks_enabled', 'false'),
-    ('bounce.count', '2'),
-    ('bounce.action', '"blocklist"'),
+    ('bounce.actions', '{"soft": {"count": 2, "action": "none"}, "hard": {"count": 2, "action": "blocklist"}, "complaint" : {"count": 2, "action": "delete"}}'),
     ('bounce.ses_enabled', 'false'),
     ('bounce.sendgrid_enabled', 'false'),
     ('bounce.sendgrid_key', '""'),

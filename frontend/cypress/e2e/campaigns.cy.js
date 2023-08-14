@@ -12,8 +12,42 @@ describe('Campaigns', () => {
     cy.get('tbody td[data-label=Status]').should('have.length', 1);
   });
 
+  it('Creates campaign', () => {
+    cy.get('a[data-cy=btn-new]').click();
+
+    // Fill fields.
+    cy.get('input[name=name]').clear().type('new-attach');
+    cy.get('input[name=subject]').clear().type('new-subject');
+    cy.get('input[name=from_email]').clear().type('new <from@email>');
+    cy.get('.list-selector input').click();
+    cy.get('.list-selector .autocomplete a').eq(0).click();
+
+    cy.get('button[data-cy=btn-continue]').click();
+    cy.wait(500);
+
+    cy.get('a[data-cy=btn-attach]').click();
+    cy.get('input[type=file]').attachFile('example.json');
+    cy.get('.modal button.is-primary:eq(0)').click();
+    cy.wait(500);
+    cy.get('.modal td[data-label=Name] a.link').click();
+    cy.get('button[data-cy=btn-save]').click();
+    cy.wait(500);
+
+    // Re-open and check that the file still exists.
+    cy.loginAndVisit('/campaigns');
+    cy.get('td[data-label=Status] a').eq(0).click();
+    cy.get('.b-tabs nav a').eq(1).click();
+    cy.get('div.field[data-cy=media]').contains('example');
+
+    // Start.
+    cy.get('button[data-cy=btn-start]').click();
+    cy.get('.modal button.is-primary:eq(0)').click();
+    cy.wait(500);
+    cy.get('tbody tr').eq(0).get('td[data-label=Status] .tag.running');
+  });
+
   it('Edits campaign', () => {
-    cy.get('td[data-label=Status] a').click();
+    cy.get('td[data-label=Status] a').eq(1).click();
 
     // Fill fields.
     cy.get('input[name=name]').clear().type('new-name');
@@ -48,7 +82,7 @@ describe('Campaigns', () => {
 
     // Switch format to plain text.
     cy.get('label[data-cy=check-plain]').click();
-    cy.get('.modal button.is-primary').click();
+    cy.get('.modal button.is-primary:eq(0)').click();
 
     // Enter body value.
     cy.get('textarea[name=content]').clear().type('new-content');
@@ -56,7 +90,7 @@ describe('Campaigns', () => {
 
     // Schedule.
     cy.get('button[data-cy=btn-schedule]').click();
-    cy.get('.modal button.is-primary').click();
+    cy.get('.modal button.is-primary:eq(0)').click();
 
     cy.wait(250);
 
@@ -108,11 +142,11 @@ describe('Campaigns', () => {
 
       // Switch format.
       cy.get(`label[data-cy=check-${c}]`).click();
-      cy.get('.modal button.is-primary').click();
+      cy.get('.modal button.is-primary:eq(0)').click();
 
       // Check content.
       cy.get('button[data-cy=btn-preview]').click();
-      cy.wait(200);
+      cy.wait(500);
       cy.get("#iframe").then(($f) => {
         if (c === 'plain') {
           return;
@@ -131,7 +165,7 @@ describe('Campaigns', () => {
       // Clone the campaign.
       cy.get('[data-cy=btn-clone]').first().click();
       cy.get('.modal input').clear().type(`clone${n}`).click();
-      cy.get('.modal button.is-primary').click();
+      cy.get('.modal button.is-primary:eq(0)').click();
       cy.wait(250);
       cy.clickMenu('all-campaigns');
       cy.wait(100);
@@ -154,7 +188,7 @@ describe('Campaigns', () => {
     // Delete all visible lists.
     cy.get('tbody tr').each(() => {
       cy.get('tbody a[data-cy=btn-delete]').first().click();
-      cy.get('.modal button.is-primary').click();
+      cy.get('.modal button.is-primary:eq(0)').click();
     });
 
     // Confirm deletion.
@@ -196,7 +230,7 @@ describe('Campaigns', () => {
         cy.wait(250);
 
         // Verify the changes.
-        (function(n) {
+        (function (n) {
           cy.location('pathname').then((p) => {
             cy.request(`${apiUrl}/api/campaigns/${p.split('/').at(-1)}`).should((response) => {
               const { data } = response.body;
@@ -220,12 +254,13 @@ describe('Campaigns', () => {
         const plainBody = `hello${n} Demo Subscriber from Bengaluru`;
         const markdownBody = `**hello${n}** Demo Subscriber from Bengaluru`;
 
+        cy.log(`format = ${c}`)
         if (c === 'richtext') {
           cy.window().then((win) => {
             win.tinymce.editors[0].setContent(htmlBody);
             win.tinymce.editors[0].save();
           });
-          cy.wait(200);
+          cy.wait(500);
         } else if (c === 'html') {
           cy.get('code-flask').shadow().find('.codeflask textarea').invoke('val', htmlBody).trigger('input');
         } else if (c === 'markdown') {
@@ -239,7 +274,7 @@ describe('Campaigns', () => {
 
         // Preview and match the body.
         cy.get('button[data-cy=btn-preview]').click();
-        cy.wait(200);
+        cy.wait(1000);
         cy.get("#iframe").then(($f) => {
           if (c === 'plain') {
             return;
@@ -251,7 +286,7 @@ describe('Campaigns', () => {
         cy.get('.modal-card-foot button').click();
 
         cy.clickMenu('all-campaigns');
-        cy.wait(250);
+        cy.wait(500);
 
         // Verify the newly created campaign in the table.
         cy.get('tbody td[data-label="Name"]').first().contains(`name${n}`);
@@ -283,13 +318,13 @@ describe('Campaigns', () => {
   it('Starts and cancels campaigns', () => {
     for (let n = 1; n <= 2; n++) {
       cy.get(`tbody tr:nth-child(${n}) [data-cy=btn-start]`).click();
-      cy.get('.modal button.is-primary').click();
+      cy.get('.modal button.is-primary:eq(0)').click();
       cy.wait(250);
       cy.get(`tbody tr:nth-child(${n}) td[data-label=Status] .tag.running`);
 
       if (n > 1) {
         cy.get(`tbody tr:nth-child(${n}) [data-cy=btn-cancel]`).click();
-        cy.get('.modal button.is-primary').click();
+        cy.get('.modal button.is-primary:eq(0)').click();
         cy.wait(250);
         cy.get(`tbody tr:nth-child(${n}) td[data-label=Status] .tag.cancelled`);
       }

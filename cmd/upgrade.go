@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	"github.com/jmoiron/sqlx"
-	"github.com/knadh/koanf"
+	"github.com/knadh/koanf/v2"
 	"github.com/knadh/listmonk/internal/migrations"
 	"github.com/knadh/stuffbin"
 	"github.com/lib/pq"
@@ -34,6 +34,8 @@ var migList = []migFunc{
 	{"v2.1.0", migrations.V2_1_0},
 	{"v2.2.0", migrations.V2_2_0},
 	{"v2.3.0", migrations.V2_3_0},
+	{"v2.4.0", migrations.V2_4_0},
+	{"v2.5.0", migrations.V2_5_0},
 }
 
 // upgrade upgrades the database to the current version by running SQL migration files
@@ -142,7 +144,7 @@ func getLastMigrationVersion() (string, error) {
 	return v, nil
 }
 
-// isPqNoTableErr checks if the given error represents a Postgres/pq
+// isTableNotExistErr checks if the given error represents a Postgres/pq
 // "table does not exist" error.
 func isTableNotExistErr(err error) bool {
 	if p, ok := err.(*pq.Error); ok {

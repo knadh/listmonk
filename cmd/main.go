@@ -13,15 +13,16 @@ import (
 	"time"
 
 	"github.com/jmoiron/sqlx"
-	"github.com/knadh/koanf"
 	"github.com/knadh/koanf/providers/env"
+	"github.com/knadh/koanf/v2"
 	"github.com/knadh/listmonk/internal/bounce"
 	"github.com/knadh/listmonk/internal/buflog"
+	"github.com/knadh/listmonk/internal/captcha"
 	"github.com/knadh/listmonk/internal/core"
+	"github.com/knadh/listmonk/internal/events"
 	"github.com/knadh/listmonk/internal/i18n"
 	"github.com/knadh/listmonk/internal/manager"
 	"github.com/knadh/listmonk/internal/media"
-	"github.com/knadh/listmonk/internal/messenger"
 	"github.com/knadh/listmonk/internal/subimporter"
 	"github.com/knadh/listmonk/models"
 	"github.com/knadh/paginator"
@@ -42,17 +43,20 @@ type App struct {
 	constants  *constants
 	manager    *manager.Manager
 	importer   *subimporter.Importer
-	messengers map[string]messenger.Messenger
+	messengers map[string]manager.Messenger
 	media      media.Store
 	i18n       *i18n.I18n
 	bounce     *bounce.Manager
 	paginator  *paginator.Paginator
+	captcha    *captcha.Captcha
+	events     *events.Events
 	notifTpls  *notifTpls
+	about      about
 	log        *log.Logger
 	bufLog     *buflog.BufLog
 
 	// Channel for passing reload signals.
-	sigChan chan os.Signal
+	chReload chan os.Signal
 
 	// Global variable that stores the state indicating that a restart is required
 	// after a settings update.
@@ -65,8 +69,9 @@ type App struct {
 
 var (
 	// Buffered log writer for storing N lines of log entries for the UI.
-	bufLog = buflog.New(5000)
-	lo     = log.New(io.MultiWriter(os.Stdout, bufLog), "",
+	evStream = events.New()
+	bufLog   = buflog.New(5000)
+	lo       = log.New(io.MultiWriter(os.Stdout, bufLog, evStream.ErrWriter()), "",
 		log.Ldate|log.Ltime|log.Lshortfile)
 
 	ko      = koanf.New(".")
@@ -165,9 +170,11 @@ func main() {
 		db:         db,
 		constants:  initConstants(),
 		media:      initMediaStore(),
-		messengers: make(map[string]messenger.Messenger),
+		messengers: make(map[string]manager.Messenger),
 		log:        lo,
 		bufLog:     bufLog,
+		captcha:    initCaptcha(),
+		events:     evStream,
 
 		paginator: paginator.New(paginator.Opt{
 			DefaultPerPage: 20,
@@ -175,23 +182,27 @@ func main() {
 			NumPageNums:    10,
 			PageParam:      "page",
 			PerPageParam:   "per_page",
+			AllowAll:       true,
 		}),
 	}
 
 	// Load i18n language map.
 	app.i18n = initI18n(app.constants.Lang, fs)
-
-	app.core = core.New(&core.Opt{
+	cOpt := &core.Opt{
 		Constants: core.Constants{
 			SendOptinConfirmation: app.constants.SendOptinConfirmation,
-			MaxBounceCount:        ko.MustInt("bounce.count"),
-			BounceAction:          ko.MustString("bounce.action"),
 		},
 		Queries: queries,
 		DB:      db,
 		I18n:    app.i18n,
 		Log:     lo,
-	}, &core.Hooks{
+	}
+
+	if err := ko.Unmarshal("bounce.actions", &cOpt.Constants.BounceActions); err != nil {
+		lo.Fatalf("error unmarshalling bounce config: %v", err)
+	}
+
+	app.core = core.New(cOpt, &core.Hooks{
 		SendOptinConfirmation: sendOptinConfirmationHook(app),
 	})
 
@@ -219,6 +230,9 @@ func main() {
 		app.manager.AddMessenger(m)
 	}
 
+	// Load system information.
+	app.about = initAbout(queries, db)
+
 	// Start the campaign workers. The campaign batches (fetch from DB, push out
 	// messages) get processed at the specified interval.
 	go app.manager.Run()
@@ -234,11 +248,11 @@ func main() {
 	// Wait for the reload signal with a callback to gracefully shut down resources.
 	// The `wait` channel is passed to awaitReload to wait for the callback to finish
 	// within N seconds, or do a force reload.
-	app.sigChan = make(chan os.Signal)
-	signal.Notify(app.sigChan, syscall.SIGHUP)
+	app.chReload = make(chan os.Signal)
+	signal.Notify(app.chReload, syscall.SIGHUP)
 
 	closerWait := make(chan bool)
-	<-awaitReload(app.sigChan, closerWait, func() {
+	<-awaitReload(app.chReload, closerWait, func() {
 		// Stop the HTTP server.
 		ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
 		defer cancel()
