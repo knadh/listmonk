@@ -20,7 +20,7 @@
       </header>
       <hr />
 
-      <section class="wrap">
+      <section class="wrap" v-if="form">
           <b-tabs type="is-boxed" :animated="false" v-model="tab">
             <b-tab-item :label="$t('settings.general.name')" label-position="on-border">
               <general-settings :form="form" :key="key" />
@@ -33,6 +33,10 @@
             <b-tab-item :label="$t('settings.privacy.name')">
               <privacy-settings :form="form" :key="key" />
             </b-tab-item><!-- privacy -->
+
+            <b-tab-item :label="$t('settings.security.name')">
+              <security-settings :form="form" :key="key" />
+            </b-tab-item><!-- security -->
 
             <b-tab-item :label="$t('settings.media.title')">
               <media-settings :form="form" :key="key" />
@@ -66,19 +70,19 @@ import { mapState } from 'vuex';
 import GeneralSettings from './settings/general.vue';
 import PerformanceSettings from './settings/performance.vue';
 import PrivacySettings from './settings/privacy.vue';
+import SecuritySettings from './settings/security.vue';
 import MediaSettings from './settings/media.vue';
 import SmtpSettings from './settings/smtp.vue';
 import BounceSettings from './settings/bounces.vue';
 import MessengerSettings from './settings/messengers.vue';
 import AppearanceSettings from './settings/appearance.vue';
 
-const dummyPassword = ' '.repeat(8);
-
 export default Vue.extend({
   components: {
     GeneralSettings,
     PerformanceSettings,
     PrivacySettings,
+    SecuritySettings,
     MediaSettings,
     SmtpSettings,
     BounceSettings,
@@ -97,7 +101,7 @@ export default Vue.extend({
       // formCopy is a stringified copy of the original settings against which
       // form is compared to detect changes.
       formCopy: '',
-      form: {},
+      form: null,
       tab: 0,
     };
   },
@@ -107,10 +111,13 @@ export default Vue.extend({
       const form = JSON.parse(JSON.stringify(this.form));
 
       // SMTP boxes.
+      let hasDummy = '';
       for (let i = 0; i < form.smtp.length; i += 1) {
         // If it's the dummy UI password placeholder, ignore it.
-        if (form.smtp[i].password === dummyPassword) {
+        if (this.isDummy(form.smtp[i].password)) {
           form.smtp[i].password = '';
+        } else if (this.hasDummy(form.smtp[i].password)) {
+          hasDummy = `smtp #${i + 1}`;
         }
 
         if (form.smtp[i].strEmailHeaders && form.smtp[i].strEmailHeaders !== '[]') {
@@ -123,24 +130,43 @@ export default Vue.extend({
       // Bounces boxes.
       for (let i = 0; i < form['bounce.mailboxes'].length; i += 1) {
         // If it's the dummy UI password placeholder, ignore it.
-        if (form['bounce.mailboxes'][i].password === dummyPassword) {
+        if (this.isDummy(form['bounce.mailboxes'][i].password)) {
           form['bounce.mailboxes'][i].password = '';
+        } else if (this.hasDummy(form['bounce.mailboxes'][i].password)) {
+          hasDummy = `bounce #${i + 1}`;
         }
       }
 
-      if (form['upload.s3.aws_secret_access_key'] === dummyPassword) {
+      if (this.isDummy(form['upload.s3.aws_secret_access_key'])) {
         form['upload.s3.aws_secret_access_key'] = '';
+      } else if (this.hasDummy(form['upload.s3.aws_secret_access_key'])) {
+        hasDummy = 's3';
       }
 
-      if (form['bounce.sendgrid_key'] === dummyPassword) {
+      if (this.isDummy(form['bounce.sendgrid_key'])) {
         form['bounce.sendgrid_key'] = '';
+      } else if (this.hasDummy(form['bounce.sendgrid_key'])) {
+        hasDummy = 'sendgrid';
+      }
+
+      if (this.isDummy(form['security.captcha_secret'])) {
+        form['security.captcha_secret'] = '';
+      } else if (this.hasDummy(form['security.captcha_secret'])) {
+        hasDummy = 'captcha';
       }
 
       for (let i = 0; i < form.messengers.length; i += 1) {
         // If it's the dummy UI password placeholder, ignore it.
-        if (form.messengers[i].password === dummyPassword) {
+        if (this.isDummy(form.messengers[i].password)) {
           form.messengers[i].password = '';
+        } else if (this.hasDummy(form.messengers[i].password)) {
+          hasDummy = `messenger #${i + 1}`;
         }
+      }
+
+      if (hasDummy) {
+        this.$utils.toast(this.$t('globals.messages.passwordChangeFull', { name: hasDummy }), 'is-danger');
+        return false;
       }
 
       // Domain blocklist array from multi-line strings.
@@ -171,6 +197,8 @@ export default Vue.extend({
       }, () => {
         this.isLoading = false;
       });
+
+      return false;
     },
 
     getSettings() {
@@ -181,28 +209,7 @@ export default Vue.extend({
         // Serialize the `email_headers` array map to display on the form.
         for (let i = 0; i < d.smtp.length; i += 1) {
           d.smtp[i].strEmailHeaders = JSON.stringify(d.smtp[i].email_headers, null, 4);
-
-          // The backend doesn't send passwords, so add a dummy so that
-          // the password looks filled on the UI.
-          d.smtp[i].password = dummyPassword;
         }
-
-        for (let i = 0; i < d['bounce.mailboxes'].length; i += 1) {
-          // The backend doesn't send passwords, so add a dummy so that
-          // the password looks filled on the UI.
-          d['bounce.mailboxes'][i].password = dummyPassword;
-        }
-
-        for (let i = 0; i < d.messengers.length; i += 1) {
-          // The backend doesn't send passwords, so add a dummy so that it
-          // the password looks filled on the UI.
-          d.messengers[i].password = dummyPassword;
-        }
-
-        if (d['upload.provider'] === 's3') {
-          d['upload.s3.aws_secret_access_key'] = dummyPassword;
-        }
-        d['bounce.sendgrid_key'] = dummyPassword;
 
         // Domain blocklist array to multi-line string.
         d['privacy.domain_blocklist'] = d['privacy.domain_blocklist'].join('\n');
@@ -215,6 +222,14 @@ export default Vue.extend({
           this.isLoading = false;
         });
       });
+    },
+
+    isDummy(pwd) {
+      return !pwd || (pwd.match(/•/g) || []).length === pwd.length;
+    },
+
+    hasDummy(pwd) {
+      return pwd.includes('•');
     },
   },
 

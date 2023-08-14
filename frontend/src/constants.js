@@ -22,6 +22,7 @@ export const uris = Object.freeze({
   previewTemplate: `${rootURL}/api/templates/:id/preview`,
   previewRawTemplate: `${rootURL}/api/templates/preview`,
   exportSubscribers: `${rootURL}/api/subscribers/export`,
+  errorEvents: `${rootURL}/api/events?type=error`,
   base: `${baseURL}/static`,
   root: rootURL,
   static: `${baseURL}/static`,

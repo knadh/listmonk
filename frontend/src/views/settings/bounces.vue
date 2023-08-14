@@ -1,26 +1,37 @@
 <template>
   <div>
     <div class="columns mb-6">
-      <div class="column">
+      <div class="column is-3">
         <b-field :label="$t('settings.bounces.enable')" data-cy="btn-enable-bounce">
           <b-switch v-model="data['bounce.enabled']" name="bounce.enabled" />
         </b-field>
       </div>
-      <div class="column" :class="{'disabled': !data['bounce.enabled']}">
-        <b-field :label="$t('settings.bounces.count')" label-position="on-border"
-          :message="$t('settings.bounces.countHelp')" data-cy="btn-bounce-count">
-          <b-numberinput v-model="data['bounce.count']"
-            name="bounce.count" type="is-light"
-            controls-position="compact" placeholder="3" min="1" max="1000" />
-        </b-field>
-      </div>
-      <div class="column" :class="{'disabled': !data['bounce.enabled']}">
-        <b-field :label="$t('settings.bounces.action')" label-position="on-border">
-          <b-select name="bounce.action" v-model="data['bounce.action']">
-            <option value="blocklist">{{ $t('settings.bounces.blocklist') }}</option>
-            <option value="delete">{{ $t('settings.bounces.delete') }}</option>
-          </b-select>
-        </b-field>
+      <div class="column">
+        <div v-for="typ in bounceTypes" :key="typ" class="columns">
+          <div class="column is-2" :class="{'disabled': !data['bounce.enabled']}"
+            :label="$t('settings.bounces.count')" label-position="on-border">
+            {{  $t(`bounces.${typ}`)  }}
+          </div>
+          <div class="column is-4" :class="{'disabled': !data['bounce.enabled']}">
+            <b-field :label="$t('settings.bounces.count')" label-position="on-border"
+              :message="$t('settings.bounces.countHelp')" data-cy="btn-bounce-count">
+              <b-numberinput v-model="data['bounce.actions'][typ]['count']"
+                name="bounce.count" type="is-light"
+                controls-position="compact" placeholder="3" min="1" max="1000" />
+            </b-field>
+          </div>
+          <div class="column is-4" :class="{'disabled': !data['bounce.enabled']}">
+            <b-field :label="$t('settings.bounces.action')" label-position="on-border">
+              <b-select name="bounce.action" v-model="data['bounce.actions'][typ]['action']"
+                expanded>
+                <option value="none">{{ $t('globals.terms.none') }}</option>
+                <option value="unsubscribe">{{ $t('email.unsub') }}</option>
+                <option value="blocklist">{{ $t('settings.bounces.blocklist') }}</option>
+                <option value="delete">{{ $t('globals.buttons.delete') }}</option>
+              </b-select>
+            </b-field>
+          </div>
+        </div>
       </div>
     </div><!-- columns -->
 
@@ -182,6 +193,7 @@ export default Vue.extend({
 
   data() {
     return {
+      bounceTypes: ['soft', 'hard', 'complaint'],
       data: this.form,
       regDuration,
     };

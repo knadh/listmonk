@@ -1,0 +1,17 @@
+<ul id="github" class="no">
+    {{ range .Page.Site.Data.github }}
+        <li class="row">
+            <div class="col2">
+                <span class="date">{{ dateFormat "Jan 2006" (substr .updated_at 0 10) }}</span>
+            </div>
+            <div class="col3">
+                <a href="{{ .url }}">{{ .name }}</a>
+            </div>
+            <div class="col7 last">
+                <span class="desc">{{ .description }}</span>
+            </div>
+            <div class="clear"> </div>
+        </li>
+    {{ end }}
+</ul>
+<div class="clear"> </div>

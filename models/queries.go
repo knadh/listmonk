@@ -90,8 +90,8 @@ type Queries struct {
 	DeleteCampaign           *sqlx.Stmt `query:"delete-campaign"`
 
 	InsertMedia *sqlx.Stmt `query:"insert-media"`
-	GetAllMedia *sqlx.Stmt `query:"get-all-media"`
 	GetMedia    *sqlx.Stmt `query:"get-media"`
+	QueryMedia  *sqlx.Stmt `query:"query-media"`
 	DeleteMedia *sqlx.Stmt `query:"delete-media"`
 
 	CreateTemplate     *sqlx.Stmt `query:"create-template"`
@@ -111,6 +111,7 @@ type Queries struct {
 	QueryBounces              string     `query:"query-bounces"`
 	DeleteBounces             *sqlx.Stmt `query:"delete-bounces"`
 	DeleteBouncesBySubscriber *sqlx.Stmt `query:"delete-bounces-by-subscriber"`
+	GetDBInfo                 string     `query:"get-db-info"`
 }
 
 // CompileSubscriberQueryTpl takes an arbitrary WHERE expressions

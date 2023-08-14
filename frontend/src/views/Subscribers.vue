@@ -71,6 +71,7 @@
       </div>
     </section><!-- control -->
 
+    <br />
     <b-table
       :data="subscribers.results"
       :loading="loading.subscribers"
@@ -191,7 +192,7 @@
             {{ $utils.niceDate(props.row.updatedAt) }}
         </b-table-column>
 
-        <b-table-column v-slot="props" label="Actions" cell-class="actions" align="right">
+        <b-table-column v-slot="props" cell-class="actions" align="right">
           <div>
             <a :href="`/api/subscribers/${props.row.id}/export`" data-cy="btn-download">
               <b-tooltip :label="$t('subscribers.downloadData')" type="is-dark">
@@ -225,7 +226,7 @@
     </b-modal>
 
     <!-- Add / edit form modal -->
-    <b-modal scroll="keep" :aria-modal="true" :active.sync="isFormVisible" :width="600"
+    <b-modal scroll="keep" :aria-modal="true" :active.sync="isFormVisible" :width="800"
       @close="onFormClose">
       <subscriber-form :data="curItem" :isEditing="isEditing"
         @finished="querySubscribers"></subscriber-form>

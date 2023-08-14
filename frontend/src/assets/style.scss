@@ -44,6 +44,7 @@ $sidebar-width: 240px;
 $menu-item-active-background-color: $white-bis;
 $menu-item-active-color: $primary;
 
+
 /* Buefy */
 $modal-background-background-color: rgba(0, 0, 0, .30);
 
@@ -107,6 +108,14 @@ section {
 
 .is-disabled {
   opacity: 0.30;
+}
+
+.b-checkbox.checkbox:hover input[type="checkbox"]:not(:disabled) + .check.is-primary:hover {
+  border-color: $primary;
+}
+.b-checkbox.checkbox input[type="checkbox"]:checked + .check.is-primary {
+  border-color: $primary;
+  background-color: $primary;
 }
 
 .box {
@@ -555,14 +564,14 @@ body.is-noscroll {
     border: 1px solid lighten($color, 42%);
     box-shadow: 1px 1px 0 lighten($color, 42%);
   }
-  &.finished, &.enabled {
+  &.finished, &.enabled, &.status-confirmed {
     $color: $green;
     color: $color;
     background: #f6ffed;
     border: 1px solid lighten($color, 45%);
     box-shadow: 1px 1px 0 lighten($color, 45%);
   }
-  &.blocklisted, &.cancelled {
+  &.blocklisted, &.cancelled, &.status-unsubscribed {
     $color: $red;
     color: $color;
     background: #fff1f0;
@@ -585,6 +594,7 @@ body.is-noscroll {
     margin-right: 1px;
   }
 }
+
 
 /* Page header */
 .page-header {
@@ -661,9 +671,18 @@ section.lists {
   .toggle-advanced {
     margin-top: 10px;
   }
+}
 
-  .b-table {
-    margin-top: 25px;
+.b-table.subscriptions {
+  overflow-y: scroll;
+  max-height: 250px;
+
+  thead th, tbody td {
+    padding: 10px;
+  }
+
+  td.status .tag {
+    width: 100%;
   }
 }
 
@@ -729,6 +748,8 @@ section.campaigns {
   }
 }
 
+.campaign 
+
 section.analytics {
   .charts {
     position: relative;
@@ -768,54 +789,20 @@ section.analytics {
 
 /* Media gallery */
 .media-files {
-  .thumbs {
-    display: flex;
-    flex-wrap: wrap;
-    flex-direction: column;
-    flex-flow: row wrap;
+  img {
+    max-width: 125px;
+  }
 
-    .thumb {
-      margin: 10px;
-      max-height: 90px;
-      overflow: hidden;
-
-      position: relative;
-
-      .caption {
-        background-color: rgba($white, .70);
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        padding: 2px 5px;
-
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-      }
-
-      .actions {
-        background-color: rgba($white, .70);
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        padding: 2px 5px;
-        display: none;
-
-        a {
-          margin-left: 10px;
-        }
-      }
-
-      &:hover .actions {
-        display: block;
-      }
-    }
-
-    .box {
-      padding: 10px;
-    }
+  .thumb.box {
+    display: inline-block;
+    padding: 5px;
+    min-width: 140px;
+    max-height: 140px;
+    overflow: hidden;
+    text-align: center;
+  }
+  .ext {
+    text-transform: uppercase;
   }
 }
 

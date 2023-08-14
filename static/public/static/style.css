@@ -122,7 +122,6 @@ input[disabled] {
 .lists {
   list-style-type: none;
   padding: 0;
-  margin-bottom: 30px;
 }
   .lists li {
     margin: 0 0 5px 0;    
@@ -136,6 +135,9 @@ input[disabled] {
   }
   .form .nonce {
     display: none;
+  }
+  .form .captcha {
+    margin-top: 30px;
   }
 
 .archive {

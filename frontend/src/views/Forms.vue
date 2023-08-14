@@ -48,7 +48,12 @@
           &lt;input id=&quot;{{ id }}&quot; type=&quot;checkbox&quot; name=&quot;l&quot; checked value=&quot;{{ l.uuid }}&quot; /&gt;
           &lt;label for=&quot;{{ id }}&quot;&gt;{{ l.name }}&lt;/label&gt;<template v-if="l.description">&lt;br /&gt;&lt;span&gt;{{ l.description }}&lt;/span&gt;</template>
         &lt;/p&gt;</span></template>
-
+        <template v-if="this.settings['security.enable_captcha']">
+        &lt;div class=&quot;captcha&quot;&gt;
+            &lt;div class=&quot;h-captcha&quot; data-sitekey=&quot;{{ this.settings['security.captcha_key'] }}&quot;&gt;&lt;/div&gt;
+            &lt;script src=&quot;https://js.hcaptcha.com/1/api.js&quot; async defer&gt;&lt;/script&gt;
+        &lt;/div&gt;
+        </template>
         &lt;p&gt;&lt;input type=&quot;submit&quot; value=&quot;{{ $t('public.sub') }}&quot; /&gt;&lt;/p&gt;
     &lt;/div&gt;
 &lt;/form&gt;</pre>

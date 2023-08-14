@@ -6,16 +6,16 @@
     <form method="post" action="" class="form">
         <div>
             <p>
-                <label>{{ L.T "subscribers.email" }}</label>
-                <input name="email" required="true" type="email" placeholder="{{ L.T "subscribers.email" }}" autofocus="true" >
+                <label for="email">{{ L.T "subscribers.email" }}</label>
+                <input id="email" name="email" required="true" type="email" placeholder="{{ L.T "subscribers.email" }}" autofocus="true" >
 
                 <input name="nonce" class="nonce" value="" />
             </p>
             <p>
-                <label>{{ L.T "public.subName" }}</label>
-                <input name="name" type="text" placeholder="{{ L.T "public.subName" }}" >
+                <label for="name">{{ L.T "public.subName" }}</label>
+                <input id="name" name="name" type="text" placeholder="{{ L.T "public.subName" }}" >
             </p>
-            <br />
+
             <ul class="lists">
                 <h2>{{ L.T "globals.terms.lists" }}</h2>
                 {{ range $i, $l := .Data.Lists }}
@@ -28,6 +28,13 @@
                     </li>
                 {{ end }}
             </ul>
+
+            {{ if .Data.CaptchaKey }}
+                <div class="captcha">
+                    <div class="h-captcha" data-sitekey="{{ .Data.CaptchaKey }}"></div>
+                    <script src="https://js.hcaptcha.com/1/api.js" async defer></script>
+                </div>
+            {{ end }}
             <p>
                 <button type="submit" class="button">{{ L.T "public.sub" }}</button>
 

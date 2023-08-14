@@ -3,7 +3,7 @@ package main
 import (
 	"bytes"
 
-	"github.com/knadh/listmonk/internal/manager"
+	"github.com/knadh/listmonk/models"
 )
 
 const (
@@ -32,7 +32,7 @@ func (app *App) sendNotification(toEmails []string, subject, tplName string, dat
 		return err
 	}
 
-	m := manager.Message{}
+	m := models.Message{}
 	m.ContentType = app.notifTpls.contentType
 	m.From = app.constants.FromEmail
 	m.To = toEmails

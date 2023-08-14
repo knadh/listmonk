@@ -3,7 +3,7 @@
 <section class="section">
     {{ if not .Data.ShowManage }}
         <h2>{{ L.T "public.unsubTitle" }}</h2>
-        <form method="post">
+        <form method="post" class="unsub-form">
             <div>
                 {{ if .Data.AllowBlocklist }}
                     <p>{{ L.T "public.unsubHelp" }}</p>
@@ -18,12 +18,12 @@
                 </p>
 
                 {{ if .Data.AllowPreferences }}
-                    <a href="?manage=true">Manage preferences</a>
+                    <a href="?manage=true">{{ L.T "public.managePrefs" }}</a>
                 {{ end }}
             </div>
         </form>
     {{ else }}
-        <form method="post">
+        <form method="post" class="manage-form">
             <div>
                 <input type="hidden" name="manage" value="true" />
 
@@ -32,7 +32,8 @@
                 <input type="text" name="name" value="{{ .Data.Subscriber.Name }}" maxlength="256" required />
 
                 {{ if .Data.Subscriptions }}
-                    <p><label>{{ L.T "public.managePrefsUnsub" }}</label></p>
+                    <br /><br />
+                    <h3>{{ L.T "public.managePrefsUnsub" }}</h3>
                     <ul class="lists">
                         {{ range $i, $l := .Data.Subscriptions }}
                             {{ if ne $l.SubscriptionStatus.Value "unsubscribed" }}
@@ -61,7 +62,7 @@
 </section>
 
 {{ if or .Data.AllowExport .Data.AllowWipe }}
-<form id="data-form" method="post" action="" onsubmit="return handleData()">
+<form id="data-form" class="data-form" method="post" action="" onsubmit="return handleData()">
     <section>
         <h2>{{ L.T "public.privacyTitle" }}</h2>
         {{ if .Data.AllowExport }}

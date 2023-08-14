@@ -1,8 +1,8 @@
 ---
-name: Bug report
-about: Report an issue that you have identified to be a bug
+name: Possible bug. Needs investigation.
+about: Report an issue that could be a bug but is not confirmed yet and needs investigation.
 title: ''
-labels: bug
+labels: ''
 assignees: ''
 
 ---

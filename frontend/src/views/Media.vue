@@ -16,7 +16,7 @@
               v-model="form.files"
               drag-drop
               multiple
-              accept=".png,.jpg,.jpeg,.gif"
+              xaccept=".png,.jpg,.jpeg,.gif,.svg"
               expanded>
               <div class="has-text-centered section">
                 <p>
@@ -41,44 +41,86 @@
       </form>
     </section>
 
-    <section class="section gallery">
-      <div v-for="group in items" :key="group.title">
-        <h3 class="title is-5">{{ group.title }}</h3>
+    <section class="wrap gallery mt-6">
+      <b-table :data="media.results" :hoverable="true" :loading="loading.media"
+        default-sort="createdAt" :paginated="true" backend-pagination pagination-position="both"
+        @page-change="onPageChange"
+        :current-page="media.page" :per-page="media.perPage" :total="media.total">
 
-        <div class="thumbs">
-          <div v-for="m in group.items" :key="m.id" class="box thumb">
-            <a @click="(e) => onMediaSelect(m, e)" :href="m.url" target="_blank">
-              <img :src="m.thumbUrl" :title="m.filename" />
-            </a>
-            <span class="caption is-size-7" :title="m.filename">{{ m.filename }}</span>
-
-            <div class="actions has-text-right">
-              <a :href="m.url" target="_blank">
-                  <b-icon icon="arrow-top-right" size="is-small" />
-              </a>
-              <a href="#" @click.prevent="$utils.confirm(null, () => deleteMedia(m.id))">
-                  <b-icon icon="trash-can-outline" size="is-small" />
-              </a>
+        <template #top-left>
+          <div class="columns">
+            <div class="column is-6">
+              <form @submit.prevent="onQueryMedia">
+                <div>
+                  <b-field>
+                    <b-input v-model="queryParams.query" name="query" expanded
+                      icon="magnify" ref="query" data-cy="query" />
+                    <p class="controls">
+                      <b-button native-type="submit" type="is-primary" icon-left="magnify"
+                        data-cy="btn-query" />
+                    </p>
+                  </b-field>
+                </div>
+              </form>
             </div>
           </div>
-        </div>
-        <hr />
-      </div>
-    </section>
+        </template>
 
+        <b-table-column v-slot="props" field="name" width="40%"
+          :label="$t('globals.fields.name')">
+          <a @click="(e) => onMediaSelect(props.row, e)" :href="props.row.url"
+              target="_blank" class="link" :title="props.row.filename">
+            {{ props.row.filename }}
+          </a>
+        </b-table-column>
+
+        <b-table-column v-slot="props" field="thumb" width="30%">
+          <a @click="(e) => onMediaSelect(props.row, e)" :href="props.row.url"
+            target="_blank" class="thumb box">
+            <img v-if="props.row.thumbUrl" :src="props.row.thumbUrl" :title="props.row.filename" />
+            <span v-else class="ext">
+              {{ props.row.filename.split(".").pop() }}
+            </span>
+          </a>
+        </b-table-column>
+
+        <b-table-column v-slot="props" field="created_at" width="25%"
+          :label="$t('globals.fields.createdAt')" sortable>
+          {{ $utils.niceDate(props.row.createdAt, true) }}
+        </b-table-column>
+
+        <b-table-column v-slot="props" field="actions" width="5%" cell-class="has-text-right">
+          <a href="" @click.prevent="$utils.confirm(null, () => onDeleteMedia(props.row.id))"
+            data-cy="btn-delete">
+            <b-tooltip :label="$t('globals.buttons.delete')" type="is-dark">
+              <b-icon icon="trash-can-outline" size="is-small" />
+            </b-tooltip>
+          </a>
+        </b-table-column>
+
+        <template #empty v-if="!loading.media">
+          <empty-placeholder />
+        </template>
+      </b-table>
+    </section>
   </section>
 </template>
 
 <script>
 import Vue from 'vue';
 import { mapState } from 'vuex';
-import dayjs from 'dayjs';
+import EmptyPlaceholder from '../components/EmptyPlaceholder.vue';
 
 export default Vue.extend({
+  components: {
+    EmptyPlaceholder,
+  },
+
   name: 'Media',
 
   props: {
     isModal: Boolean,
+    type: String,
   },
 
   data() {
@@ -88,12 +130,29 @@ export default Vue.extend({
       },
       toUpload: 0,
       uploaded: 0,
+
+      queryParams: {
+        page: 1,
+        query: '',
+      },
     };
   },
 
   methods: {
     removeUploadFile(i) {
       this.form.files.splice(i, 1);
+    },
+
+    getMedia() {
+      this.$api.getMedia({
+        page: this.queryParams.page,
+        query: this.queryParams.query,
+      });
+    },
+
+    onQueryMedia() {
+      this.queryParams.page = 1;
+      this.getMedia();
     },
 
     onMediaSelect(m, e) {
@@ -122,9 +181,9 @@ export default Vue.extend({
       }
     },
 
-    deleteMedia(id) {
+    onDeleteMedia(id) {
       this.$api.deleteMedia(id).then(() => {
-        this.$api.getMedia();
+        this.getMedia();
       });
     },
 
@@ -135,8 +194,13 @@ export default Vue.extend({
         this.uploaded = 0;
         this.form.files = [];
 
-        this.$api.getMedia();
+        this.getMedia();
       }
+    },
+
+    onPageChange(p) {
+      this.queryParams.page = p;
+      this.getMedia();
     },
   },
 
@@ -148,29 +212,6 @@ export default Vue.extend({
         return true;
       }
       return false;
-    },
-
-    // Filters the list of media items by months into:
-    // [{"title": "Jan 2020", items: [...]}, ...]
-    items() {
-      const out = [];
-      if (!this.media || !(this.media instanceof Array)) {
-        return out;
-      }
-
-      let lastStamp = '';
-      let lastIndex = 0;
-      this.media.forEach((m) => {
-        const stamp = dayjs(m.createdAt).format('MMM YYYY');
-        if (stamp !== lastStamp) {
-          out.push({ title: stamp, items: [] });
-          lastStamp = stamp;
-          lastIndex = out.length;
-        }
-
-        out[lastIndex - 1].items.push(m);
-      });
-      return out;
     },
   },
 

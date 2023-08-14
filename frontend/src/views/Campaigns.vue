@@ -426,6 +426,7 @@ export default Vue.extend({
         archive: c.archive,
         archive_template_id: c.archiveTemplateId,
         archive_meta: c.archiveMeta,
+        media: c.media.map((m) => m.id),
       };
 
       this.$api.createCampaign(data).then((d) => {

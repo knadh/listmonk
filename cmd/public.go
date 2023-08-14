@@ -13,7 +13,7 @@ import (
 	"strings"
 
 	"github.com/knadh/listmonk/internal/i18n"
-	"github.com/knadh/listmonk/internal/messenger"
+	"github.com/knadh/listmonk/internal/manager"
 	"github.com/knadh/listmonk/models"
 	"github.com/labstack/echo/v4"
 	"github.com/lib/pq"
@@ -79,7 +79,8 @@ type msgTpl struct {
 
 type subFormTpl struct {
 	publicTpl
-	Lists []models.List
+	Lists      []models.List
+	CaptchaKey string
 }
 
 var (
@@ -226,11 +227,7 @@ func handleSubscriptionPage(c echo.Context) error {
 		out.Subscriptions = make([]models.Subscription, 0, len(subs))
 		for _, s := range subs {
 			if s.Type == models.ListTypePrivate {
-				if s.SubscriptionStatus.IsZero() {
-					continue
-				}
-
-				s.Name = app.i18n.T("public.subPrivateList")
+				continue
 			}
 
 			out.Subscriptions = append(out.Subscriptions, s)
@@ -240,7 +237,7 @@ func handleSubscriptionPage(c echo.Context) error {
 	return c.Render(http.StatusOK, "subscription", out)
 }
 
-// handleSubscriptionPage renders the subscription management page and
+// handleSubscriptionPrefs renders the subscription management page and
 // handles unsubscriptions. This is the view that {{ UnsubscribeURL }} in
 // campaigns link to.
 func handleSubscriptionPrefs(c echo.Context) error {
@@ -305,17 +302,21 @@ func handleSubscriptionPrefs(c echo.Context) error {
 
 	// Get the subscriber's lists and whatever is not sent in the request (unchecked),
 	// unsubscribe them.
-	subs, err := app.core.GetSubscriptions(0, subUUID, false)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("public.errorFetchingLists"))
-	}
 	reqUUIDs := make(map[string]struct{})
 	for _, u := range req.ListUUIDs {
 		reqUUIDs[u] = struct{}{}
 	}
 
+	subs, err := app.core.GetSubscriptions(0, subUUID, false)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("public.errorFetchingLists"))
+	}
+
 	unsubUUIDs := make([]string, 0, len(req.ListUUIDs))
 	for _, s := range subs {
+		if s.Type == models.ListTypePrivate {
+			continue
+		}
 		if _, ok := reqUUIDs[s.UUID]; !ok {
 			unsubUUIDs = append(unsubUUIDs, s.UUID)
 		}
@@ -377,7 +378,16 @@ func handleOptinPage(c echo.Context) error {
 
 	// Confirm.
 	if confirm {
-		if err := app.core.ConfirmOptionSubscription(subUUID, out.ListUUIDs); err != nil {
+		meta := models.JSON{}
+		if app.constants.Privacy.RecordOptinIP {
+			if h := c.Request().Header.Get("X-Forwarded-For"); h != "" {
+				meta["optin_ip"] = h
+			} else if h := c.Request().RemoteAddr; h != "" {
+				meta["optin_ip"] = strings.Split(h, ":")[0]
+			}
+		}
+
+		if err := app.core.ConfirmOptionSubscription(subUUID, out.ListUUIDs, meta); err != nil {
 			app.log.Printf("error unsubscribing: %v", err)
 			return c.Render(http.StatusInternalServerError, tplMessage,
 				makeMsgTpl(app.i18n.T("public.errorTitle"), "", app.i18n.Ts("public.errorProcessingRequest")))
@@ -418,6 +428,10 @@ func handleSubscriptionFormPage(c echo.Context) error {
 	out.Title = app.i18n.T("public.sub")
 	out.Lists = lists
 
+	if app.constants.Security.EnableCaptcha {
+		out.CaptchaKey = app.constants.Security.CaptchaKey
+	}
+
 	return c.Render(http.StatusOK, "subscription-form", out)
 }
 
@@ -431,6 +445,19 @@ func handleSubscriptionForm(c echo.Context) error {
 	// If there's a nonce value, a bot could've filled the form.
 	if c.FormValue("nonce") != "" {
 		return echo.NewHTTPError(http.StatusBadGateway, app.i18n.T("public.invalidFeature"))
+	}
+
+	// Process CAPTCHA.
+	if app.constants.Security.EnableCaptcha {
+		err, ok := app.captcha.Verify(c.FormValue("h-captcha-response"))
+		if err != nil {
+			app.log.Printf("Captcha request failed: %v", err)
+		}
+
+		if !ok {
+			return c.Render(http.StatusBadRequest, tplMessage,
+				makeMsgTpl(app.i18n.T("public.errorTitle"), "", app.i18n.T("public.invalidCaptcha")))
+		}
 	}
 
 	hasOptin, err := processSubForm(c)
@@ -452,7 +479,7 @@ func handleSubscriptionForm(c echo.Context) error {
 	return c.Render(http.StatusOK, tplMessage, makeMsgTpl(app.i18n.T("public.subTitle"), "", app.i18n.Ts(msg)))
 }
 
-// handleSubscriptionForm handles subscription requests coming from public
+// handlePublicSubscription handles subscription requests coming from public
 // API calls.
 func handlePublicSubscription(c echo.Context) error {
 	hasOptin, err := processSubForm(c)
@@ -552,17 +579,17 @@ func handleSelfExportSubscriberData(c echo.Context) error {
 
 	// Send the data as a JSON attachment to the subscriber.
 	const fname = "data.json"
-	if err := app.messengers[emailMsgr].Push(messenger.Message{
+	if err := app.messengers[emailMsgr].Push(models.Message{
 		ContentType: app.notifTpls.contentType,
 		From:        app.constants.FromEmail,
 		To:          []string{data.Email},
-		Subject:     "Your data",
+		Subject:     app.i18n.Ts("email.data.title"),
 		Body:        msg.Bytes(),
-		Attachments: []messenger.Attachment{
+		Attachments: []models.Attachment{
 			{
 				Name:    fname,
 				Content: b,
-				Header:  messenger.MakeAttachmentHeader(fname, "base64"),
+				Header:  manager.MakeAttachmentHeader(fname, "base64", "application/json"),
 			},
 		},
 	}); err != nil {

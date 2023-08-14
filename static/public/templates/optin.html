@@ -6,7 +6,7 @@
         {{ L.T "public.confirmSubInfo" }}
     </p>
 
-    <form method="post">
+    <form method="post" class="optin-form">
         <ul>
             {{ range $i, $l := .Data.Lists }}
                 <input type="hidden" name="l" value="{{ $l.UUID }}" />

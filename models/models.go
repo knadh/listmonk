@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"html/template"
+	"net/textproto"
 	"regexp"
 	"strings"
 	txttpl "text/template"
@@ -78,8 +79,9 @@ const (
 	EmailHeaderDeliveredTo = "Delivered-To"
 	EmailHeaderReceived    = "Received"
 
-	BounceTypeHard = "hard"
-	BounceTypeSoft = "soft"
+	BounceTypeHard      = "hard"
+	BounceTypeSoft      = "soft"
+	BounceTypeComplaint = "complaint"
 
 	// Templates.
 	TemplateTypeCampaign = "campaign"
@@ -172,8 +174,9 @@ type subLists struct {
 // Subscription represents a list attached to a subscriber.
 type Subscription struct {
 	List
-	SubscriptionStatus    null.String `db:"subscription_status" json:"subscription_status"`
-	SubscriptionCreatedAt null.String `db:"subscription_created_at" json:"subscription_created_at"`
+	SubscriptionStatus    null.String     `db:"subscription_status" json:"subscription_status"`
+	SubscriptionCreatedAt null.String     `db:"subscription_created_at" json:"subscription_created_at"`
+	Meta                  json.RawMessage `db:"meta" json:"meta"`
 }
 
 // SubscriberExportProfile represents a subscriber's collated data in JSON for export.
@@ -259,6 +262,12 @@ type Campaign struct {
 	SubjectTpl          *txttpl.Template   `json:"-"`
 	AltBodyTpl          *template.Template `json:"-"`
 
+	// List of media (attachment) IDs obtained from the next-campaign query
+	// while sending a campaign.
+	MediaIDs pq.Int64Array `json:"-" db:"media_id"`
+	// Fetched bodies of the attachments.
+	Attachments []Attachment `json:"-" db:"-"`
+
 	// Pseudofield for getting the total number of subscribers
 	// in searches and queries.
 	Total int `db:"total" json:"-"`
@@ -277,6 +286,7 @@ type CampaignMeta struct {
 	// campaign-list associations with a historical record of id + name that persist
 	// even after a list is deleted.
 	Lists types.JSONText `db:"lists" json:"lists"`
+	Media types.JSONText `db:"media" json:"media"`
 
 	StartedAt null.Time `db:"started_at" json:"started_at"`
 	ToSend    int       `db:"to_send" json:"to_send"`
@@ -345,8 +355,40 @@ type Bounce struct {
 	Total int `db:"total" json:"-"`
 }
 
+// Message is the message pushed to a Messenger.
+type Message struct {
+	From        string
+	To          []string
+	Subject     string
+	ContentType string
+	Body        []byte
+	AltBody     []byte
+	Headers     textproto.MIMEHeader
+	Attachments []Attachment
+
+	Subscriber Subscriber
+
+	// Campaign is generally the same instance for a large number of subscribers.
+	Campaign *Campaign
+
+	// Messenger is the messenger backend to use: email|postback.
+	Messenger string
+}
+
+// Attachment represents a file or blob attachment that can be
+// sent along with a message by a Messenger.
+type Attachment struct {
+	Name    string
+	Header  textproto.MIMEHeader
+	Content []byte
+}
+
 // TxMessage represents an e-mail campaign.
 type TxMessage struct {
+	SubscriberEmails []string `json:"subscriber_emails"`
+	SubscriberIDs    []int    `json:"subscriber_ids"`
+
+	// Deprecated.
 	SubscriberEmail string `json:"subscriber_email"`
 	SubscriberID    int    `json:"subscriber_id"`
 
@@ -356,6 +398,9 @@ type TxMessage struct {
 	Headers     Headers                `json:"headers"`
 	ContentType string                 `json:"content_type"`
 	Messenger   string                 `json:"messenger"`
+
+	// File attachments added from multi-part form data.
+	Attachments []Attachment `json:"-"`
 
 	Subject    string             `json:"-"`
 	Body       []byte             `json:"-"`
@@ -469,6 +514,7 @@ func (camps Campaigns) LoadStats(stmt *sqlx.Stmt) error {
 			camps[i].Views = c.Views
 			camps[i].Clicks = c.Clicks
 			camps[i].Bounces = c.Bounces
+			camps[i].Media = c.Media
 		}
 	}
 
@@ -491,11 +537,6 @@ func (c *Campaign) CompileTemplate(f template.FuncMap) error {
 			return fmt.Errorf("error compiling subject: %v", err)
 		}
 		c.SubjectTpl = subjTpl
-	}
-
-	// No template or body. Nothing to compile.
-	if c.TemplateBody == "" || c.Body == "" {
-		return nil
 	}
 
 	// Compile the base template.

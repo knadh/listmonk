@@ -160,11 +160,11 @@ export default class Utils {
     });
   };
 
-  toast = (msg, typ, duration) => {
+  toast = (msg, typ, duration, queue) => {
     Toast.open({
       message: this.escapeHTML(msg),
       type: !typ ? 'is-success' : typ,
-      queue: false,
+      queue,
       duration: duration || 3000,
       position: 'is-top',
       pauseOnHover: true,

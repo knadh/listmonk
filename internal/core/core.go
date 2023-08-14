@@ -36,8 +36,10 @@ type Core struct {
 // Constants represents constant config.
 type Constants struct {
 	SendOptinConfirmation bool
-	MaxBounceCount        int
-	BounceAction          string
+	BounceActions         map[string]struct {
+		Count  int
+		Action string
+	}
 }
 
 // Hooks contains external function hooks that are required by the core package.
@@ -99,7 +101,9 @@ func makeSearchQuery(searchStr, orderBy, order, query string) (string, string) {
 		order = SortDesc
 	}
 
-	return searchStr, fmt.Sprintf(query, orderBy, order)
+	query = strings.ReplaceAll(query, "%order%", orderBy+" "+order)
+
+	return searchStr, query
 }
 
 // strSliceContains checks if a string is present in the string slice.

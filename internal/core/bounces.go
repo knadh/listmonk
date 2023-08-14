@@ -3,6 +3,7 @@ package core
 import (
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/knadh/listmonk/models"
 	"github.com/labstack/echo/v4"
@@ -22,7 +23,7 @@ func (c *Core) QueryBounces(campID, subID int, source, orderBy, order string, of
 	}
 
 	out := []models.Bounce{}
-	stmt := fmt.Sprintf(c.q.QueryBounces, orderBy, order)
+	stmt := strings.ReplaceAll(c.q.QueryBounces, "%order%", orderBy+" "+order)
 	if err := c.db.Select(&out, stmt, 0, campID, subID, source, offset, limit); err != nil {
 		c.log.Printf("error fetching bounces: %v", err)
 		return nil, 0, echo.NewHTTPError(http.StatusInternalServerError,
@@ -58,6 +59,11 @@ func (c *Core) GetBounce(id int) (models.Bounce, error) {
 
 // RecordBounce records a new bounce.
 func (c *Core) RecordBounce(b models.Bounce) error {
+	action, ok := c.constants.BounceActions[b.Type]
+	if !ok {
+		return echo.NewHTTPError(http.StatusBadRequest, c.i18n.Ts("globals.messages.invalidData")+": "+b.Type)
+	}
+
 	_, err := c.q.RecordBounce.Exec(b.SubscriberUUID,
 		b.Email,
 		b.CampaignUUID,
@@ -65,8 +71,8 @@ func (c *Core) RecordBounce(b models.Bounce) error {
 		b.Source,
 		b.Meta,
 		b.CreatedAt,
-		c.constants.MaxBounceCount,
-		c.constants.BounceAction)
+		action.Count,
+		action.Action)
 
 	if err != nil {
 		// Ignore the error if it complained of no subscriber.

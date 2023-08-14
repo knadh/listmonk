@@ -10,11 +10,11 @@ import (
 	"net/textproto"
 	"time"
 
-	"github.com/knadh/listmonk/internal/messenger"
 	"github.com/knadh/listmonk/models"
 )
 
 // postback is the payload that's posted as JSON to the HTTP Postback server.
+//
 //easyjson:json
 type postback struct {
 	Subject     string       `json:"subject"`
@@ -34,11 +34,11 @@ type campaign struct {
 }
 
 type recipient struct {
-	UUID    string                   `json:"uuid"`
-	Email   string                   `json:"email"`
-	Name    string                   `json:"name"`
+	UUID    string      `json:"uuid"`
+	Email   string      `json:"email"`
+	Name    string      `json:"name"`
 	Attribs models.JSON `json:"attribs"`
-	Status  string                   `json:"status"`
+	Status  string      `json:"status"`
 }
 
 type attachment struct {
@@ -94,7 +94,7 @@ func (p *Postback) Name() string {
 }
 
 // Push pushes a message to the server.
-func (p *Postback) Push(m messenger.Message) error {
+func (p *Postback) Push(m models.Message) error {
 	pb := postback{
 		Subject:     m.Subject,
 		ContentType: m.ContentType,
