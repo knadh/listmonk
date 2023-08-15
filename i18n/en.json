@@ -508,7 +508,7 @@
     "settings.smtp.sendTest": "Send e-mail",
     "settings.smtp.setCustomHeaders": "Set custom headers",
     "settings.smtp.testConnection": "Test connection",
-    "settings.smtp.testEnterEmail": "Enter password to test",
+    "settings.smtp.testEnterEmail": "Re-enter password to test",
     "settings.smtp.toEmail": "To e-mail",
     "settings.title": "Settings",
     "settings.updateAvailable": "A new update {version} is available.",
