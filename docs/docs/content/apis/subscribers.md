@@ -8,6 +8,7 @@ Method   | Endpoint                                                             
 `GET`    | [/api/subscribers](#get-apisubscriberslist_id)                        | Gets subscribers in one or more lists.
 `GET`    | [/api/subscribers](#get-apisubscribers_1)                             | Gets subscribers filtered by an arbitrary SQL expression.
 `POST`   | [/api/subscribers](#post-apisubscribers)                              | Creates a new subscriber.
+`POST`   | [/api/subscribers](#post-apisubscriberspublic)                        | Unauthenticated API that enables public subscription.
 `PUT`    | [/api/subscribers/lists](#put-apisubscriberslists)                    | Modify subscribers' list memberships.
 `PUT`    | [/api/subscribers/:`id`](#put-apisubscribersid)                       | Updates a subscriber by ID.
 `PUT`    | [/api/subscribers/:`id`/blocklist](#put-apisubscribersidblocklist)    | Blocklists a single subscriber.
@@ -23,7 +24,7 @@ Gets all subscribers.
 
 ##### Example Request
 ```shell
-curl 'http://localhost:9000/api/subscribers?page=1&per_page=100' 
+curl -u 'username:password' 'http://localhost:9000/api/subscribers?page=1&per_page=100' 
 ```
 
 To skip pagination and retrieve all records, pass `per_page=all`.
@@ -117,7 +118,7 @@ Name     | Parameter type |Data type       | Required/Optional |  Description
 
 ##### Example Request
 ```shell
-curl 'http://localhost:9000/api/subscribers/1' 
+curl -u 'username:password' 'http://localhost:9000/api/subscribers/1' 
 ```
 
 ##### Example Response
@@ -167,7 +168,7 @@ Name      | Parameter type  | Data type   | Required/Optional   | Description
 
 ##### Example Request
 ```shell
-curl 'http://localhost:9000/api/subscribers?list_id=1&list_id=2&page=1&per_page=100'
+curl -u 'username:password' 'http://localhost:9000/api/subscribers?list_id=1&list_id=2&page=1&per_page=100'
 ```
 
 To skip pagination and retrieve all records, pass `per_page=all`.
@@ -220,7 +221,7 @@ Gets subscribers with an SQL expression.
 
 ##### Example Request
 ```shell
-curl -X GET 'http://localhost:9000/api/subscribers' \
+curl -u 'username:password' -X GET 'http://localhost:9000/api/subscribers' \
     --url-query 'page=1' \
     --url-query 'per_page=100' \
     --url-query "query=subscribers.name LIKE 'Test%' AND subscribers.attribs->>'city' = 'Bengaluru'"
@@ -292,7 +293,7 @@ preconfirm_subscriptions | Request body     | Bool       | Optional          | I
 
 ##### Example Request
 ```shell
-curl 'http://localhost:9000/api/subscribers' -H 'Content-Type: application/json' \
+curl -u 'username:password' 'http://localhost:9000/api/subscribers' -H 'Content-Type: application/json' \
     --data '{"email":"subsriber@domain.com","name":"The Subscriber","status":"enabled","lists":[1],"attribs":{"city":"Bengaluru","projects":3,"stack":{"languages":["go","python"]}}}'
 ```
 
@@ -319,6 +320,43 @@ curl 'http://localhost:9000/api/subscribers' -H 'Content-Type: application/json'
 ```
 
 
+#### **`POST`** /api/public/subscription
+
+This is a public, unauthenticated API meant for directly integrating forms for public subscription. The API supports both
+form encoded or a JSON encoded body. 
+
+##### Parameters 
+
+Name                     | Parameter type   | Data type  | Required/Optional | Description
+-------------------------|------------------|------------|-------------------|----------------------------
+email                    | Request body     | String     | Required          | The email address of the subscriber.
+name                     | Request body     | String     | Optional          | The name of the new subscriber. 
+list_uuids               | Request body     | Strings    | Required          | Array of list UUIDs.
+
+##### Example JSON Request
+```shell
+curl -u 'http://localhost:9000/api/public/subscription' -H 'Content-Type: application/json' \
+    --data '{"email":"subsriber@domain.com","name":"The Subscriber", "lists": ["eb420c55-4cfb-4972-92ba-c93c34ba475d", "0c554cfb-eb42-4972-92ba-c93c34ba475d"]}'
+```
+
+##### Example Form Request
+```shell
+curl -u 'http://localhost:9000/api/public/subscription' \
+    -d 'email=subsriber@domain.com' -d 'name=The Subscriber' -d 'l=eb420c55-4cfb-4972-92ba-c93c34ba475d' -d 'l=0c554cfb-eb42-4972-92ba-c93c34ba475d'
+```
+
+Notice that in form request, there param is `l` that is repeated for multiple lists, and not `lists` like in JSON.
+
+##### Example Response
+
+```json
+{
+  "data": true
+}
+```
+
+
+
 #### **`PUT`** /api/subscribers/lists
 
 Modify subscribers list memberships.
@@ -337,7 +375,7 @@ Name              | Parameter type | Data type | Required/Optional  | Descriptio
 To subscribe users 1, 2, and 3 to lists 4, 5, and 6:
 
 ```shell
-curl -u "username:username" -X PUT 'http://localhost:9000/api/subscribers/lists' \
+curl -u 'username:password' -X PUT 'http://localhost:9000/api/subscribers/lists' \
 --data-raw '{"ids": [1, 2, 3], "action": "add", "target_list_ids": [4, 5, 6], "status": "confirmed"}'
 ```
 
@@ -371,7 +409,7 @@ Name  | Parameter type | Data type  | Required/Optional | Description
 ##### Example Request 
 
 ```shell
-curl -u "username:username" -X PUT 'http://localhost:9000/api/subscribers/9/blocklist'
+curl -u 'username:password' -X PUT 'http://localhost:9000/api/subscribers/9/blocklist'
 ```
 
 ##### Example Response 
@@ -387,7 +425,7 @@ Blocklists subscribers with an arbitrary sql expression.
 
 ##### Example Request
 ``` shell
-curl -u "username:username" -X PUT 'http://localhost:9000/api/subscribers/query/blocklist' \
+curl -u 'username:password' -X PUT 'http://localhost:9000/api/subscribers/query/blocklist' \
 --data-raw '"query=subscribers.name LIKE '\''John Doe'\'' AND subscribers.attribs->>'\''city'\'' = '\''Bengaluru'\''"'
 ```
 
@@ -414,7 +452,7 @@ Name    | Parameter type   | Data type   | Required/Optional  |  Description
 ##### Example  Request 
 
 ``` shell
-curl -u "username:username" -X DELETE 'http://localhost:9000/api/subscribers/9'
+curl -u 'username:password' -X DELETE 'http://localhost:9000/api/subscribers/9'
 ```
 
 ##### Example Response 
@@ -437,7 +475,7 @@ id      | Query parameters    | Number         |  Required             | The id 
 ##### Example Request
 
 ``` shell
-curl -u "username:username" -X DELETE 'http://localhost:9000/api/subscribers?id=10&id=11'
+curl -u 'username:password' -X DELETE 'http://localhost:9000/api/subscribers?id=10&id=11'
 ```
 
 ##### Example Response 
@@ -455,7 +493,7 @@ Deletes subscribers with an arbitrary SQL expression.
 
 ##### Example Request
 ``` shell
-curl -u "username:username" -X POST 'http://localhost:9000/api/subscribers/query/delete' \
+curl -u 'username:password' -X POST 'http://localhost:9000/api/subscribers/query/delete' \
 --data-raw '"query=subscribers.name LIKE '\''John Doe'\'' AND subscribers.attribs->>'\''city'\'' = '\''Bengaluru'\''"'
 ```
 

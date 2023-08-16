@@ -482,6 +482,14 @@ func handleSubscriptionForm(c echo.Context) error {
 // handlePublicSubscription handles subscription requests coming from public
 // API calls.
 func handlePublicSubscription(c echo.Context) error {
+	var (
+		app = c.Get("app").(*App)
+	)
+
+	if !app.constants.EnablePublicSubPage {
+		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("public.invalidFeature"))
+	}
+
 	hasOptin, err := processSubForm(c)
 	if err != nil {
 		return err
