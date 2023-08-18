@@ -100,10 +100,12 @@ type constants struct {
 		Extensions []string
 	}
 
-	BounceWebhooksEnabled bool
-	BounceSESEnabled      bool
-	BounceSendgridEnabled bool
-	BouncePostmarkEnabled bool
+	BounceWebhooksEnabled  bool
+	BounceSESEnabled       bool
+	BounceSendgridEnabled  bool
+	BouncePostmarkEnabled  bool
+	BouncePostmarkUsername string
+	BouncePostmarkPassword string
 }
 
 type notifTpls struct {
@@ -402,6 +404,8 @@ func initConstants() *constants {
 	c.BounceSESEnabled = ko.Bool("bounce.ses_enabled")
 	c.BounceSendgridEnabled = ko.Bool("bounce.sendgrid_enabled")
 	c.BouncePostmarkEnabled = ko.Bool("bounce.postmark_enabled")
+	c.BouncePostmarkUsername = ko.String("bounce.postmark_username")
+	c.BouncePostmarkPassword = ko.String("bounce.postmark_password")
 	return &c
 }
 
@@ -666,11 +670,13 @@ func initNotifTemplates(path string, fs stuffbin.FileSystem, i *i18n.I18n, cs *c
 // for incoming bounce events.
 func initBounceManager(app *App) *bounce.Manager {
 	opt := bounce.Opt{
-		WebhooksEnabled: ko.Bool("bounce.webhooks_enabled"),
-		SESEnabled:      ko.Bool("bounce.ses_enabled"),
-		SendgridEnabled: ko.Bool("bounce.sendgrid_enabled"),
-		SendgridKey:     ko.String("bounce.sendgrid_key"),
-		PostmarkEnabled: ko.Bool("bounce.postmark_enabled"),
+		WebhooksEnabled:  ko.Bool("bounce.webhooks_enabled"),
+		SESEnabled:       ko.Bool("bounce.ses_enabled"),
+		SendgridEnabled:  ko.Bool("bounce.sendgrid_enabled"),
+		SendgridKey:      ko.String("bounce.sendgrid_key"),
+		PostmarkEnabled:  ko.Bool("bounce.postmark_enabled"),
+		PostmarkUsername: ko.String("bounce.postmark_username"),
+		PostmarkPassword: ko.String("bounce.postmark_password"),
 
 		RecordBounceCB: app.core.RecordBounce,
 	}

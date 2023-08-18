@@ -89,11 +89,13 @@ type Settings struct {
 		Count  int    `json:"count"`
 		Action string `json:"action"`
 	} `json:"bounce.actions"`
-	SESEnabled      bool   `json:"bounce.ses_enabled"`
-	SendgridEnabled bool   `json:"bounce.sendgrid_enabled"`
-	SendgridKey     string `json:"bounce.sendgrid_key"`
-	PostmarkEnabled bool   `json:"bounce.postmark_enabled"`
-	BounceBoxes     []struct {
+	SESEnabled       bool   `json:"bounce.ses_enabled"`
+	SendgridEnabled  bool   `json:"bounce.sendgrid_enabled"`
+	SendgridKey      string `json:"bounce.sendgrid_key"`
+	PostmarkEnabled  bool   `json:"bounce.postmark_enabled"`
+	PostmarkUsername string `json:"bounce.postmark_username"`
+	PostmarkPassword string `json:"bounce.postmark_password"`
+	BounceBoxes      []struct {
 		UUID          string `json:"uuid"`
 		Enabled       bool   `json:"enabled"`
 		Type          string `json:"type"`
