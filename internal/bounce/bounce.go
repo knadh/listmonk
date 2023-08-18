@@ -26,14 +26,16 @@ type Mailbox interface {
 
 // Opt represents bounce processing options.
 type Opt struct {
-	MailboxEnabled  bool        `json:"mailbox_enabled"`
-	MailboxType     string      `json:"mailbox_type"`
-	Mailbox         mailbox.Opt `json:"mailbox"`
-	WebhooksEnabled bool        `json:"webhooks_enabled"`
-	SESEnabled      bool        `json:"ses_enabled"`
-	SendgridEnabled bool        `json:"sendgrid_enabled"`
-	SendgridKey     string      `json:"sendgrid_key"`
-	PostmarkEnabled bool        `json:"postmark_enabled"`
+	MailboxEnabled   bool        `json:"mailbox_enabled"`
+	MailboxType      string      `json:"mailbox_type"`
+	Mailbox          mailbox.Opt `json:"mailbox"`
+	WebhooksEnabled  bool        `json:"webhooks_enabled"`
+	SESEnabled       bool        `json:"ses_enabled"`
+	SendgridEnabled  bool        `json:"sendgrid_enabled"`
+	SendgridKey      string      `json:"sendgrid_key"`
+	PostmarkEnabled  bool        `json:"postmark_enabled"`
+	PostmarkUsername string      `json:"postmark_username"`
+	PostmarkPassword string      `json:"postmark_password"`
 
 	RecordBounceCB func(models.Bounce) error
 }
@@ -88,7 +90,7 @@ func New(opt Opt, q *Queries, lo *log.Logger) (*Manager, error) {
 			}
 		}
 		if opt.PostmarkEnabled {
-			m.Postmark = webhooks.NewPostmark()
+			m.Postmark = webhooks.NewPostmark(opt.PostmarkUsername, opt.PostmarkPassword)
 		}
 	}
 

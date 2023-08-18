@@ -168,6 +168,19 @@ func initHTTPHandlers(e *echo.Echo, app *App) {
 		// Private authenticated bounce endpoint.
 		g.POST("/webhooks/bounce", handleBounceWebhook)
 
+		// Group of private handlers with BasicAuth specifically for Postmark.
+		var gPostmark *echo.Group
+
+		if len(app.constants.BouncePostmarkUsername) == 0 ||
+			len(app.constants.BouncePostmarkPassword) == 0 {
+			gPostmark = e.Group("")
+		} else {
+			gPostmark = e.Group("", middleware.BasicAuth(postmarkBasicAuth))
+		}
+
+		// Public bounce endpoint for Postmark.
+		gPostmark.POST("/webhooks/service/postmark", handleBounceWebhook)
+
 		// Public bounce endpoints for webservices like SES.
 		e.POST("/webhooks/service/:service", handleBounceWebhook)
 	}
@@ -277,6 +290,23 @@ func basicAuth(username, password string, c echo.Context) (bool, error) {
 
 	if subtle.ConstantTimeCompare([]byte(username), app.constants.AdminUsername) == 1 &&
 		subtle.ConstantTimeCompare([]byte(password), app.constants.AdminPassword) == 1 {
+		return true, nil
+	}
+	return false, nil
+}
+
+// postmarkBasicAuth middleware does an HTTP BasicAuth authentication for postmark bounce handlers.
+func postmarkBasicAuth(username, password string, c echo.Context) (bool, error) {
+	app := c.Get("app").(*App)
+
+	// Auth is disabled.
+	if len(app.constants.BouncePostmarkUsername) == 0 &&
+		len(app.constants.BouncePostmarkPassword) == 0 {
+		return true, nil
+	}
+
+	if subtle.ConstantTimeCompare([]byte(username), []byte(app.constants.BouncePostmarkUsername)) == 1 &&
+		subtle.ConstantTimeCompare([]byte(password), []byte(app.constants.BouncePostmarkPassword)) == 1 {
 		return true, nil
 	}
 	return false, nil

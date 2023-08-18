@@ -35,11 +35,16 @@ type postmarkBounceNotif struct {
 
 // Postmark handles webhook notifications (mainly bounce notifications).
 type Postmark struct {
+	Username string
+	Password string
 }
 
 // NewPostmark returns a new Postmark instance.
-func NewPostmark() *Postmark {
-	return &Postmark{}
+func NewPostmark(username string, password string) *Postmark {
+	return &Postmark{
+		Username: username,
+		Password: password,
+	}
 }
 
 // ProcessBounce processes Postmark bounce notifications and returns one object.
