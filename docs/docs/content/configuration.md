@@ -100,3 +100,13 @@ To use the default `uploads` folder:
       - ./listmonk/uploads:/listmonk/uploads
 ```
 
+
+## Time zone
+
+To change listmonk's time zone (logs, etc.) edit `docker-compose.yml`:
+```
+environment:
+    - TZ=Etc/UTC
+```
+with any Timezone listed [here](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones). Then run `sudo docker-compose stop ; sudo docker-compose up` after making changes.
+
