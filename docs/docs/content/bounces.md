@@ -2,7 +2,7 @@
 
 Enable bounce processing in Settings -> Bounces. POP3 bounce scanning and APIs only become available once the setting is enabled.
 
-### POP3 bounce mailbox
+## POP3 bounce mailbox
 Configure the bounce mailbox in Settings -> Bounces. Either the "From" e-mail that is set on a campaign (or in settings) should have a POP3 mailbox behind it to receive bounce e-mails, or you should configure a dedicated POP3 mailbox and add that address as the `Return-Path` (envelope sender) header in Settings -> SMTP -> Custom headers box. For example:
 
 ```
@@ -14,7 +14,7 @@ Configure the bounce mailbox in Settings -> Bounces. Either the "From" e-mail th
 
 Some mail servers may also return the bounce to the `Reply-To` address, which can also be added to the header settings.
 
-### Webhook API
+## Webhook API
 The bounce webhook API can be used to record bounce events with custom scripting. This could be by reading a mailbox, a database, or mail server logs.
 
 | Method | Endpoint         | Description            |
@@ -39,10 +39,26 @@ curl -u 'username:password' -X POST localhost:9000/webhooks/bounce \
 
 ```
 
-### External webhooks
+## External webhooks
 listmonk supports receiving bounce webhook events from the following SMTP providers.
 
 | Endpoint                    | Description      | More info |
 |-----------------------------|------------------|-----------|
 | `https://listmonk.yoursite.com/webhooks/service/ses`      | Amazon (AWS) SES | You can use these [Mautic steps](https://docs.mautic.org/en/channels/emails/bounce-management#amazon-webhook) as a general guide, but use your listmonk's endpoint instead. <ul>  <li>When creating the *topic* select "standard" instead of the preselected "FIFO". You can put a name and leave everything else at default.</li>  <li>When creating a *subscription* choose HTTPS for "Protocol", and leave *"Enable raw message delivery"* UNCHECKED.</li>  <li>On the _"SES -> verified identities"_ page, make sure to check **"[include original headers](https://github.com/knadh/listmonk/issues/720#issuecomment-1046877192)"**.</li>  <li>The Mautic screenshot suggests you should turn off _email feedback forwarding_, but that's completely optional depending on whether you want want email notifications.</li></ul>   |
 | `https://listmonk.yoursite.com/webhooks/service/sendgrid` | Sendgrid / Twilio Signed event webhook         | [More info](https://docs.sendgrid.com/for-developers/tracking-events/getting-started-event-webhook-security-features) |
+
+
+
+## Verification
+
+You can use Amazon's test emails to make sure everything's working: https://docs.aws.amazon.com/ses/latest/dg/send-an-email-from-console.html
+```
+success@simulator.amazonses.com
+bounce@simulator.amazonses.com
+complaint@simulator.amazonses.com
+suppressionlist@simulator.amazonses.com
+```
+They all count as _hard_ bounces. 
+
+Exporting bounces: https://github.com/knadh/listmonk/issues/863
+
