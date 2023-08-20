@@ -274,6 +274,13 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#downgrade" class="md-nav__link">
+    Downgrade
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -599,6 +606,13 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#downgrade" class="md-nav__link">
+    Downgrade
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -633,8 +647,37 @@
 <li>Head to your dashboard, and select your Listmonk project.</li>
 <li>Select the GitHub deployment service.</li>
 <li>In the Deployment tab, head to the latest deployment, click on the three vertical dots to the right, and select "Redeploy".</li>
-<li><img alt="Railway Redeploy option" src="https://user-images.githubusercontent.com/55474996/226517149-6dc512d5-f862-46f7-a57d-5e55b781ff53.png" /></li>
 </ul>
+<p><img alt="Railway Redeploy option" src="https://user-images.githubusercontent.com/55474996/226517149-6dc512d5-f862-46f7-a57d-5e55b781ff53.png" /></p>
+<h2 id="downgrade">Downgrade<a class="headerlink" href="#downgrade" title="Permanent link">&para;</a></h2>
+<p>To restore a previous version, you have to restore the DB for that particular version. DBs that have been upgraded with a particular version shouldn't be used with older versions. There may be DB changes that a new version brings that are incompatible with previous versions.</p>
+<p><strong>General steps:</strong></p>
+<ol>
+<li>Stop listmonk.</li>
+<li>Restore your pre-upgrade database.</li>
+<li>If you're using docker-compose, edit <code>docker-compose.yml</code> and change <code>listmonk:latest</code> to <code>listmonk:v2.4.0</code> <em>(for example)</em>.</li>
+<li>Restart.</li>
+</ol>
+<p><strong>Example with docker:</strong></p>
+<ol>
+<li>Stop listmonk (app):
+<div class="highlight"><pre><span></span><code>sudo docker container stop listmonk_app
+</code></pre></div></li>
+<li>Restore your pre-upgrade db (required) <em>(be careful, this will wipe your existing DB)</em>:
+<div class="highlight"><pre><span></span><code>psql -h 127.0.0.1 -p 9432 -U listmonk
+drop schema public cascade;
+create schema public;
+\q
+psql -h 127.0.0.1 -p 9432 -U listmonk -W listmonk &lt; listmonk-preupgrade-db.sql
+</code></pre></div></li>
+<li>Edit the <code>docker-compose.yml</code>:
+<div class="highlight"><pre><span></span><code>x-app-defaults: &amp;app-defaults
+  restart: unless-stopped
+  image: listmonk/listmonk:v2.4.0
+</code></pre></div></li>
+<li>Restart:
+<code>sudo docker-compose up -d app db nginx certbot</code></li>
+</ol>
 
 
 
