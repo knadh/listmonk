@@ -364,6 +364,13 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#verification" class="md-nav__link">
+    Verification
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -599,6 +606,13 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#verification" class="md-nav__link">
+    Verification
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -616,14 +630,14 @@
 
 <h1 id="bounce-processing">Bounce processing<a class="headerlink" href="#bounce-processing" title="Permanent link">&para;</a></h1>
 <p>Enable bounce processing in Settings -&gt; Bounces. POP3 bounce scanning and APIs only become available once the setting is enabled.</p>
-<h3 id="pop3-bounce-mailbox">POP3 bounce mailbox<a class="headerlink" href="#pop3-bounce-mailbox" title="Permanent link">&para;</a></h3>
+<h2 id="pop3-bounce-mailbox">POP3 bounce mailbox<a class="headerlink" href="#pop3-bounce-mailbox" title="Permanent link">&para;</a></h2>
 <p>Configure the bounce mailbox in Settings -&gt; Bounces. Either the "From" e-mail that is set on a campaign (or in settings) should have a POP3 mailbox behind it to receive bounce e-mails, or you should configure a dedicated POP3 mailbox and add that address as the <code>Return-Path</code> (envelope sender) header in Settings -&gt; SMTP -&gt; Custom headers box. For example:</p>
 <div class="highlight"><pre><span></span><code>[
     {&quot;Return-Path&quot;: &quot;your-bounce-inbox@site.com&quot;}
 ]
 </code></pre></div>
 <p>Some mail servers may also return the bounce to the <code>Reply-To</code> address, which can also be added to the header settings.</p>
-<h3 id="webhook-api">Webhook API<a class="headerlink" href="#webhook-api" title="Permanent link">&para;</a></h3>
+<h2 id="webhook-api">Webhook API<a class="headerlink" href="#webhook-api" title="Permanent link">&para;</a></h2>
 <p>The bounce webhook API can be used to record bounce events with custom scripting. This could be by reading a mailbox, a database, or mail server logs.</p>
 <table>
 <thead>
@@ -693,7 +707,7 @@
 <span class="w">    </span>-H<span class="w"> </span><span class="s2">&quot;Content-Type: application/json&quot;</span><span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--data<span class="w"> </span><span class="s1">&#39;{&quot;email&quot;: &quot;user1@mail.com&quot;, &quot;campaign_uuid&quot;: &quot;9f86b50d-5711-41c8-ab03-bc91c43d711b&quot;, &quot;source&quot;: &quot;api&quot;, &quot;type&quot;: &quot;hard&quot;, &quot;meta&quot;: &quot;{\&quot;additional\&quot;: \&quot;info\&quot;}}&#39;</span>
 </code></pre></div>
-<h3 id="external-webhooks">External webhooks<a class="headerlink" href="#external-webhooks" title="Permanent link">&para;</a></h3>
+<h2 id="external-webhooks">External webhooks<a class="headerlink" href="#external-webhooks" title="Permanent link">&para;</a></h2>
 <p>listmonk supports receiving bounce webhook events from the following SMTP providers.</p>
 <table>
 <thead>
@@ -716,6 +730,15 @@
 </tr>
 </tbody>
 </table>
+<h2 id="verification">Verification<a class="headerlink" href="#verification" title="Permanent link">&para;</a></h2>
+<p>You can use Amazon's test emails to make sure everything's working: https://docs.aws.amazon.com/ses/latest/dg/send-an-email-from-console.html
+<div class="highlight"><pre><span></span><code>success@simulator.amazonses.com
+bounce@simulator.amazonses.com
+complaint@simulator.amazonses.com
+suppressionlist@simulator.amazonses.com
+</code></pre></div>
+They all count as <em>hard</em> bounces. </p>
+<p>Exporting bounces: https://github.com/knadh/listmonk/issues/863</p>
 
 
 
