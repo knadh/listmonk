@@ -356,6 +356,13 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#time-zone" class="md-nav__link">
+    Time zone
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -733,6 +740,13 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#time-zone" class="md-nav__link">
+    Time zone
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -904,6 +918,12 @@ The files will be available inside <code>/data/uploads</code> directory on the h
     volumes:
       - ./listmonk/uploads:/listmonk/uploads
 </code></pre></div></p>
+<h2 id="time-zone">Time zone<a class="headerlink" href="#time-zone" title="Permanent link">&para;</a></h2>
+<p>To change listmonk's time zone (logs, etc.) edit <code>docker-compose.yml</code>:
+<div class="highlight"><pre><span></span><code>environment:
+    - TZ=Etc/UTC
+</code></pre></div>
+with any Timezone listed <a href="https://en.wikipedia.org/wiki/List_of_tz_database_time_zones">here</a>. Then run <code>sudo docker-compose stop ; sudo docker-compose up</code> after making changes.</p>
 
 
 
