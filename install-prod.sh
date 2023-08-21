@@ -44,6 +44,17 @@ check_dependencies() {
 	fi
 }
 
+configure_sed(){
+	# Detect the platform
+	if [[ "$(uname)" == "Darwin" ]]; then
+		# macOS sed
+		SED_INPLACE="-i ''"
+	else
+		# Assume GNU sed
+		SED_INPLACE="-i"
+	fi
+}
+
 check_existing_db_volume() {
 	info "checking for an existing docker db volume"
 	if docker volume inspect listmonk_listmonk-data >/dev/null 2>&1; then
@@ -96,15 +107,15 @@ modify_config(){
 
 	info "modifying config.toml"
 	# Replace `db.host=localhost` with `db.host=db` in config file.
-	sed -i "s/host = \"localhost\"/host = \"listmonk_db\"/g" config.toml
+	sed $SED_INPLACE "s/host = \"localhost\"/host = \"listmonk_db\"/g" config.toml
 	# Replace `db.password=listmonk` with `db.password={{db_password}}` in config file.
 	# Note that `password` is wrapped with `\b`. This ensures that `admin_password` doesn't match this pattern instead.
-	sed -i "s/\bpassword\b = \"listmonk\"/password = \"$db_password\"/g" config.toml
+	sed $SED_INPLACE "s/\bpassword\b = \"listmonk\"/password = \"$db_password\"/g" config.toml
 	# Replace `app.address=localhost:9000` with `app.address=0.0.0.0:9000` in config file.
-	sed -i "s/address = \"localhost:9000\"/address = \"0.0.0.0:9000\"/g" config.toml
+	sed $SED_INPLACE "s/address = \"localhost:9000\"/address = \"0.0.0.0:9000\"/g" config.toml
 
 	info "modifying docker-compose.yml"
-	sed -i "s/POSTGRES_PASSWORD=listmonk/POSTGRES_PASSWORD=$db_password/g" docker-compose.yml
+	sed $SED_INPLACE "s/POSTGRES_PASSWORD=listmonk/POSTGRES_PASSWORD=$db_password/g" docker-compose.yml
 }
 
 run_migrations(){
@@ -132,6 +143,7 @@ show_output(){
 
 
 check_dependencies
+configure_sed
 check_existing_db_volume
 get_config
 get_containers
