@@ -69,7 +69,7 @@ func handleGetSettings(c echo.Context) error {
 	s.UploadS3AwsSecretAccessKey = strings.Repeat(pwdMask, utf8.RuneCountInString(s.UploadS3AwsSecretAccessKey))
 	s.SendgridKey = strings.Repeat(pwdMask, utf8.RuneCountInString(s.SendgridKey))
 	s.SecurityCaptchaSecret = strings.Repeat(pwdMask, utf8.RuneCountInString(s.SecurityCaptchaSecret))
-	s.PostmarkPassword = strings.Repeat(pwdMask, utf8.RuneCountInString(s.PostmarkPassword))
+	s.BouncePostmark.Password = strings.Repeat(pwdMask, utf8.RuneCountInString(s.BouncePostmark.Password))
 
 	return c.JSON(http.StatusOK, okResp{s})
 }
@@ -184,11 +184,11 @@ func handleUpdateSettings(c echo.Context) error {
 	if set.SendgridKey == "" {
 		set.SendgridKey = cur.SendgridKey
 	}
-	if set.PostmarkUsername == "" {
-		set.PostmarkUsername = cur.PostmarkUsername
+	if set.BouncePostmark.Username == "" {
+		set.BouncePostmark.Username = cur.BouncePostmark.Username
 	}
-	if set.PostmarkPassword == "" {
-		set.PostmarkPassword = cur.PostmarkPassword
+	if set.BouncePostmark.Password == "" {
+		set.BouncePostmark.Password = cur.BouncePostmark.Password
 	}
 	if set.SecurityCaptchaSecret == "" {
 		set.SecurityCaptchaSecret = cur.SecurityCaptchaSecret

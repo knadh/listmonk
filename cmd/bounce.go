@@ -195,37 +195,8 @@ func handleBounceWebhook(c echo.Context) error {
 		}
 		bounces = append(bounces, bs...)
 
-	default:
-		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.Ts("bounces.unknownService"))
-	}
-
-	// Record bounces if any.
-	for _, b := range bounces {
-		if err := app.bounce.Record(b); err != nil {
-			app.log.Printf("error recording bounce: %v", err)
-		}
-	}
-
-	return c.JSON(http.StatusOK, okResp{true})
-}
-
-// handlePostmarkBounceWebhook renders the HTML preview of a template.
-func handlePostmarkBounceWebhook(c echo.Context) error {
-	var (
-		app = c.Get("app").(*App)
-
-		bounces []models.Bounce
-	)
-
-	// Read the request body instead of using c.Bind() to read to save the entire raw request as meta.
-	rawReq, err := ioutil.ReadAll(c.Request().Body)
-	if err != nil {
-		app.log.Printf("error reading ses notification body: %v", err)
-		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.Ts("globals.messages.internalError"))
-	}
-
 	// Postmark.
-	if app.constants.BouncePostmarkEnabled {
+	case service == "postmark" && app.constants.BouncePostmarkEnabled:
 		var notif postmarkNotif
 		if err := json.Unmarshal(rawReq, &notif); err != nil {
 			app.log.Printf("error unmarshalling postmark notification: %v", err)
@@ -244,7 +215,8 @@ func handlePostmarkBounceWebhook(c echo.Context) error {
 		default:
 			return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidData"))
 		}
-	} else {
+
+	default:
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.Ts("bounces.unknownService"))
 	}
 

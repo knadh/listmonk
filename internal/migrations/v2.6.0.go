@@ -9,13 +9,7 @@ import (
 // V2_6_0 performs the DB migrations.
 func V2_6_0(db *sqlx.DB, fs stuffbin.FileSystem, ko *koanf.Koanf) error {
 	// Insert new preference settings.
-	if _, err := db.Exec(`
-		INSERT INTO settings (key, value) VALUES
-			('bounce.postmark_enabled', 'false'),
-			('bounce.postmark_username', '""'),
-			('bounce.postmark_password', '""')
- 			ON CONFLICT DO NOTHING;
-	`); err != nil {
+	if _, err := db.Exec(`INSERT INTO settings (key, value) VALUES ('bounce.postmark', '{"enabled": false, "username": "", "password": ""}') ON CONFLICT DO NOTHING;`); err != nil {
 		return err
 	}
 

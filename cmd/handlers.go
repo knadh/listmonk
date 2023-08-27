@@ -168,19 +168,6 @@ func initHTTPHandlers(e *echo.Echo, app *App) {
 		// Private authenticated bounce endpoint.
 		g.POST("/webhooks/bounce", handleBounceWebhook)
 
-		// Group of private handlers with BasicAuth specifically for Postmark.
-		var gPostmark *echo.Group
-
-		if len(app.constants.BouncePostmarkUsername) == 0 ||
-			len(app.constants.BouncePostmarkPassword) == 0 {
-			gPostmark = e.Group("")
-		} else {
-			gPostmark = e.Group("", middleware.BasicAuth(postmarkBasicAuth))
-		}
-
-		// Public bounce endpoint for Postmark.
-		gPostmark.POST("/webhooks/service/postmark", handleBounceWebhook)
-
 		// Public bounce endpoints for webservices like SES.
 		e.POST("/webhooks/service/:service", handleBounceWebhook)
 	}

@@ -81,6 +81,7 @@ func New(opt Opt, q *Queries, lo *log.Logger) (*Manager, error) {
 		if opt.SESEnabled {
 			m.SES = webhooks.NewSES()
 		}
+
 		if opt.SendgridEnabled {
 			sg, err := webhooks.NewSendgrid(opt.SendgridKey)
 			if err != nil {
@@ -89,6 +90,7 @@ func New(opt Opt, q *Queries, lo *log.Logger) (*Manager, error) {
 				m.Sendgrid = sg
 			}
 		}
+
 		if opt.PostmarkEnabled {
 			m.Postmark = webhooks.NewPostmark(opt.PostmarkUsername, opt.PostmarkPassword)
 		}

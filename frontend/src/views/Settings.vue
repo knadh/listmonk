@@ -155,9 +155,9 @@ export default Vue.extend({
         hasDummy = 'captcha';
       }
 
-      if (this.isDummy(form['bounce.postmark_password'])) {
-        form['bounce.postmark_password'] = '';
-      } else if (this.hasDummy(form['bounce.postmark_password'])) {
+      if (this.isDummy(form['bounce.postmark'].password)) {
+        form['bounce.postmark'].password = '';
+      } else if (this.hasDummy(form['bounce.postmark'].password)) {
         hasDummy = 'postmark';
       }
 
