@@ -2,6 +2,8 @@
 
 listmonk requires Postgres ⩾ 12.
 
+See the "[Tutorials](#tutorials)" section at the bottom for detailed guides. 
+
 ## Binary
 - Download the [latest release](https://github.com/knadh/listmonk/releases) and extract the listmonk binary.
 - `./listmonk --new-config` to generate config.toml. Then, edit the file.
@@ -129,8 +131,15 @@ The `master` branch with bleeding edge changes is periodically built and publish
 
 ## 3rd party hosting
 
-
 <a href="https://railway.app/new/template/listmonk"><img src="https://camo.githubusercontent.com/081df3dd8cff37aab35044727b02b94a8e948052487a8c6253e190f5940d776d/68747470733a2f2f7261696c7761792e6170702f627574746f6e2e737667" alt="One-click deploy on Raleway" style="max-height: 32px;" /></a>
 <br />
 <a href="https://www.pikapods.com/pods?run=listmonk"><img src="https://www.pikapods.com/static/run-button.svg" alt="Deploy on PikaPod" /></a>
-<a href ="https://github.com/paulrudy/listmonk-on-fly">Tutorial for deploying on Fly.io</a>
+
+
+## Tutorials
+
+* [Tutorial for deploying on **Fly.io**](https://github.com/paulrudy/listmonk-on-fly)
+* [Complete Listmonk setup guide. Step-by-step tutorial for installation and all basic functions. **Amazon EC2 & SES**](https://gist.github.com/MaximilianKohler/e5158fcfe6de80a9069926a67afcae11)
+* [Step-by-step guide on how install and set up Listmonk on a server (**AWS Lightsail**)](https://github.com/knadh/listmonk/issues/1208)
+* [Informal step-by-step on how to get started with Listmonk using **Railway**](https://github.com/knadh/listmonk/issues/120#issuecomment-1421838533)
+* [**Binary** install on your PC](https://www.youtube.com/watch?v=fAOBqgR9Yfo). Discussions of limitations: [[1](https://github.com/knadh/listmonk/issues/862#issuecomment-1307328228)][[2](https://github.com/knadh/listmonk/issues/248#issuecomment-1320806990)]. 
