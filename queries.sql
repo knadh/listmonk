@@ -1082,4 +1082,4 @@ DELETE FROM bounces WHERE subscriber_id = (SELECT id FROM sub);
 
 -- name: get-db-info
 SELECT JSON_BUILD_OBJECT('version', (SELECT VERSION()),
-                        'size_mb', (SELECT ROUND(pg_database_size('listmonk')/(1024^2)))) AS info;
+                        'size_mb', (SELECT ROUND(pg_database_size((SELECT CURRENT_DATABASE()))/(1024^2)))) AS info;
