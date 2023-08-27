@@ -331,9 +331,9 @@ export default Vue.extend({
       this.queryParams.page = 1;
 
       if (this.$utils.validateEmail(q)) {
-        this.queryParams.queryExp = `email = '${q}'`;
+        this.queryParams.queryExp = `email = '${q.toLowerCase()}'`;
       } else {
-        this.queryParams.queryExp = `(name ~* '${q}' OR email ~* '${q}')`;
+        this.queryParams.queryExp = `(name ~* '${q}' OR email ~* '${q.toLowerCase()}')`;
       }
     },
 
