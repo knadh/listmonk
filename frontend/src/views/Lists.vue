@@ -231,7 +231,7 @@ export default Vue.extend({
     getLists() {
       this.$api.queryLists({
         page: this.queryParams.page,
-        query: this.queryParams.query,
+        query: this.queryParams.query.replace(/[^\p{L}\p{N}\s]/gu, ''),
         order_by: this.queryParams.orderBy,
         order: this.queryParams.order,
       }).then((resp) => {
