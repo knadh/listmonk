@@ -51,7 +51,7 @@ listmonk supports receiving bounce webhook events from the following SMTP provid
 
 ## Verification
 
-You can use Amazon's test emails to make sure everything's working: https://docs.aws.amazon.com/ses/latest/dg/send-an-email-from-console.html
+If you're using Amazon SES you can use Amazon's test emails to make sure everything's working: [https://docs.aws.amazon.com/ses/latest/dg/send-an-email-from-console.html](https://docs.aws.amazon.com/ses/latest/dg/send-an-email-from-console.html)
 ```
 success@simulator.amazonses.com
 bounce@simulator.amazonses.com
@@ -60,5 +60,7 @@ suppressionlist@simulator.amazonses.com
 ```
 They all count as _hard_ bounces. 
 
-Exporting bounces: https://github.com/knadh/listmonk/issues/863
+
+**Exporting bounces**: [https://github.com/knadh/listmonk/issues/863](https://github.com/knadh/listmonk/issues/863)
+
 
