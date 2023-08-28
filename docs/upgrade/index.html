@@ -16,7 +16,7 @@
       
       
       <link rel="icon" href="../images/favicon.png">
-      <meta name="generator" content="mkdocs-1.5.2, mkdocs-material-9.2.4">
+      <meta name="generator" content="mkdocs-1.5.2, mkdocs-material-9.2.5">
     
     
       
@@ -738,9 +738,9 @@
 </ul>
 <h2 id="docker">Docker<a class="headerlink" href="#docker" title="Permanent link">&para;</a></h2>
 <ul>
-<li><code>docker-compose pull</code> to pull the latest version from DockerHub.</li>
-<li><code>docker-compose run --rm app ./listmonk --upgrade</code> to upgrade an existing DB.</li>
-<li>Run <code>docker-compose up app db</code> and visit <code>http://localhost:9000</code>.</li>
+<li><code>docker compose pull</code> to pull the latest version from DockerHub.</li>
+<li><code>docker compose run --rm app ./listmonk --upgrade</code> to upgrade an existing DB.</li>
+<li>Run <code>docker compose up app db</code> and visit <code>http://localhost:9000</code>.</li>
 </ul>
 <h2 id="railway">Railway<a class="headerlink" href="#railway" title="Permanent link">&para;</a></h2>
 <ul>
@@ -755,13 +755,13 @@
 <ol>
 <li>Stop listmonk.</li>
 <li>Restore your pre-upgrade database.</li>
-<li>If you're using docker-compose, edit <code>docker-compose.yml</code> and change <code>listmonk:latest</code> to <code>listmonk:v2.4.0</code> <em>(for example)</em>.</li>
+<li>If you're using <code>docker compose</code>, edit <code>docker-compose.yml</code> and change <code>listmonk:latest</code> to <code>listmonk:v2.4.0</code> <em>(for example)</em>.</li>
 <li>Restart.</li>
 </ol>
 <p><strong>Example with docker:</strong></p>
 <ol>
 <li>Stop listmonk (app):
-<div class="highlight"><pre><span></span><code>sudo docker container stop listmonk_app
+<div class="highlight"><pre><span></span><code>sudo docker stop listmonk_app
 </code></pre></div></li>
 <li>Restore your pre-upgrade db (required) <em>(be careful, this will wipe your existing DB)</em>:
 <div class="highlight"><pre><span></span><code>psql -h 127.0.0.1 -p 9432 -U listmonk
@@ -776,7 +776,7 @@ psql -h 127.0.0.1 -p 9432 -U listmonk -W listmonk &lt; listmonk-preupgrade-db.sq
   image: listmonk/listmonk:v2.4.0
 </code></pre></div></li>
 <li>Restart:
-<code>sudo docker-compose up -d app db nginx certbot</code></li>
+<code>sudo docker compose up -d app db nginx certbot</code></li>
 </ol>
 
 

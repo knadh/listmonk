@@ -16,7 +16,7 @@
       
       
       <link rel="icon" href="../images/favicon.png">
-      <meta name="generator" content="mkdocs-1.5.2, mkdocs-material-9.2.4">
+      <meta name="generator" content="mkdocs-1.5.2, mkdocs-material-9.2.5">
     
     
       
@@ -914,7 +914,7 @@
 </ul>
 <h2 id="docker">Docker<a class="headerlink" href="#docker" title="Permanent link">&para;</a></h2>
 <p>The latest image is available on DockerHub at <code>listmonk/listmonk:latest</code></p>
-<p>Use the sample <a href="https://github.com/knadh/listmonk/blob/master/docker-compose.yml">docker-compose.yml</a> to run listmonk and Postgres DB with docker-compose as follows:</p>
+<p>Use the sample <a href="https://github.com/knadh/listmonk/blob/master/docker-compose.yml">docker-compose.yml</a> to run listmonk and Postgres DB with <code>docker compose</code> as follows:</p>
 <h3 id="demo">Demo<a class="headerlink" href="#demo" title="Permanent link">&para;</a></h3>
 <h4 id="easy-docker-install">Easy Docker install<a class="headerlink" href="#easy-docker-install" title="Permanent link">&para;</a></h4>
 <div class="highlight"><pre><span></span><code>mkdir<span class="w"> </span>listmonk-demo
@@ -922,7 +922,7 @@ sh<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;</spa
 </code></pre></div>
 <h4 id="manual-docker-install">Manual Docker install<a class="headerlink" href="#manual-docker-install" title="Permanent link">&para;</a></h4>
 <div class="highlight"><pre><span></span><code>wget<span class="w"> </span>-O<span class="w"> </span>docker-compose.yml<span class="w"> </span>https://raw.githubusercontent.com/knadh/listmonk/master/docker-compose.yml
-docker-compose<span class="w"> </span>up<span class="w"> </span>-d<span class="w"> </span>demo-db<span class="w"> </span>demo-app
+docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> </span>-d<span class="w"> </span>demo-db<span class="w"> </span>demo-app
 </code></pre></div>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
@@ -945,16 +945,16 @@ sh<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;</spa
 <p>It's recommended to examine the contents of the shell script, before running in your environment.</p>
 </div>
 <h4 id="manual-docker-install_1">Manual Docker install<a class="headerlink" href="#manual-docker-install_1" title="Permanent link">&para;</a></h4>
-<p>The following workflow is recommended to setup <code>listmonk</code> manually using <code>docker-compose</code>. You are encouraged to customise the contents of <code>docker-compose.yml</code> to your needs. The overall setup looks like:</p>
+<p>The following workflow is recommended to setup <code>listmonk</code> manually using <code>docker compose</code>. You are encouraged to customise the contents of <code>docker-compose.yml</code> to your needs. The overall setup looks like:</p>
 <ul>
-<li><code>docker-compose up db</code> to run the Postgres DB.</li>
-<li><code>docker-compose run --rm app ./listmonk --install</code> to setup the DB (or <code>--upgrade</code> to upgrade an existing DB).</li>
+<li><code>docker compose up db</code> to run the Postgres DB.</li>
+<li><code>docker compose run --rm app ./listmonk --install</code> to setup the DB (or <code>--upgrade</code> to upgrade an existing DB).</li>
 <li>Copy <code>config.toml.sample</code> to your directory and make the following changes:<ul>
 <li><code>app.address</code> =&gt; <code>0.0.0.0:9000</code> (Port forwarding on Docker will work only if the app is advertising on all interfaces.)</li>
 <li><code>db.host</code> =&gt; <code>listmonk_db</code> (Container Name of the DB container)</li>
 </ul>
 </li>
-<li>Run <code>docker-compose up app</code> and visit <code>http://localhost:9000</code>.</li>
+<li>Run <code>docker compose up app</code> and visit <code>http://localhost:9000</code>.</li>
 </ul>
 <h5 id="mounting-a-custom-configtoml">Mounting a custom config.toml<a class="headerlink" href="#mounting-a-custom-configtoml" title="Permanent link">&para;</a></h5>
 <p>To mount a local <code>config.toml</code> file, add the following section to <code>docker-compose.yml</code>:</p>
@@ -996,13 +996,13 @@ sh<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;</spa
 <p class="admonition-title">Tip</p>
 <ul>
 <li>See <a href="../configuration">configuring with environment variables</a> for variables like <code>app.admin_password</code> and <code>db.password</code></li>
-<li>Ensure that both <code>app</code> and <code>db</code> containers are in running. If the containers are not running, restart them <code>docker-compose restart app db</code>.</li>
+<li>Ensure that both <code>app</code> and <code>db</code> containers are in running. If the containers are not running, restart them <code>docker compose restart app db</code>.</li>
 <li>Refer to <a href="https://yasoob.me/posts/setting-up-listmonk-opensource-newsletter-mailing/">this tutorial</a> for setting up a production instance with Docker + Nginx + LetsEncrypt SSL.</li>
 </ul>
 </div>
 <div class="admonition info">
 <p class="admonition-title">Info</p>
-<p>The example <code>docker-compose.yml</code> file works with Docker Engine 18.06.0+ and <code>docker-compose</code> which supports file format 3.7.</p>
+<p>The example <code>docker-compose.yml</code> file works with Docker Engine 24.0.5+ and Docker Compose version v2.20.2+.</p>
 </div>
 <h2 id="compiling-from-source">Compiling from source<a class="headerlink" href="#compiling-from-source" title="Permanent link">&para;</a></h2>
 <p>To compile the latest unreleased version (<code>master</code> branch):</p>
