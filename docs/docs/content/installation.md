@@ -15,7 +15,7 @@ See the "[Tutorials](#tutorials)" section at the bottom for detailed guides.
 
 The latest image is available on DockerHub at `listmonk/listmonk:latest`
 
-Use the sample [docker-compose.yml](https://github.com/knadh/listmonk/blob/master/docker-compose.yml) to run listmonk and Postgres DB with docker-compose as follows:
+Use the sample [docker-compose.yml](https://github.com/knadh/listmonk/blob/master/docker-compose.yml) to run listmonk and Postgres DB with `docker compose` as follows:
 
 ### Demo
 
@@ -30,7 +30,7 @@ sh -c "$(curl -fsSL https://raw.githubusercontent.com/knadh/listmonk/master/inst
 
 ```bash
 wget -O docker-compose.yml https://raw.githubusercontent.com/knadh/listmonk/master/docker-compose.yml
-docker-compose up -d demo-db demo-app
+docker compose up -d demo-db demo-app
 ```
 
 !!! warning
@@ -58,14 +58,14 @@ The above shell script performs the following actions:
 
 #### Manual Docker install
 
-The following workflow is recommended to setup `listmonk` manually using `docker-compose`. You are encouraged to customise the contents of `docker-compose.yml` to your needs. The overall setup looks like:
+The following workflow is recommended to setup `listmonk` manually using `docker compose`. You are encouraged to customise the contents of `docker-compose.yml` to your needs. The overall setup looks like:
 
-- `docker-compose up db` to run the Postgres DB.
-- `docker-compose run --rm app ./listmonk --install` to setup the DB (or `--upgrade` to upgrade an existing DB).
+- `docker compose up db` to run the Postgres DB.
+- `docker compose run --rm app ./listmonk --install` to setup the DB (or `--upgrade` to upgrade an existing DB).
 - Copy `config.toml.sample` to your directory and make the following changes:
     - `app.address` => `0.0.0.0:9000` (Port forwarding on Docker will work only if the app is advertising on all interfaces.)
     - `db.host` => `listmonk_db` (Container Name of the DB container)
-- Run `docker-compose up app` and visit `http://localhost:9000`.
+- Run `docker compose up app` and visit `http://localhost:9000`.
 
 ##### Mounting a custom config.toml
 
@@ -111,11 +111,11 @@ Mount the local `config.toml` inside the container at `listmonk/config.toml`.
 
 !!! tip
     - See [configuring with environment variables](../configuration) for variables like `app.admin_password` and `db.password`
-    - Ensure that both `app` and `db` containers are in running. If the containers are not running, restart them `docker-compose restart app db`.
+    - Ensure that both `app` and `db` containers are in running. If the containers are not running, restart them `docker compose restart app db`.
     - Refer to [this tutorial](https://yasoob.me/posts/setting-up-listmonk-opensource-newsletter-mailing/) for setting up a production instance with Docker + Nginx + LetsEncrypt SSL.
 
 !!! info
-    The example `docker-compose.yml` file works with Docker Engine 18.06.0+ and `docker-compose` which supports file format 3.7.
+    The example `docker-compose.yml` file works with Docker Engine 24.0.5+ and Docker Compose version v2.20.2+.
 
 ## Compiling from source
 
