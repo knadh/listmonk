@@ -1,6 +1,7 @@
 package main
 
 import (
+	"crypto/subtle"
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
@@ -9,6 +10,7 @@ import (
 
 	"github.com/knadh/listmonk/models"
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 )
 
 type postmarkNotif struct {
@@ -196,7 +198,15 @@ func handleBounceWebhook(c echo.Context) error {
 		bounces = append(bounces, bs...)
 
 	// Postmark.
-	case service == "postmark" && app.constants.BouncePostmarkEnabled:
+	case service == "postmark" && app.constants.BouncePostmark.Enabled:
+		basicAuthMiddleware := middleware.BasicAuth(postmarkBasicAuth)
+
+		if err := basicAuthMiddleware(func(c echo.Context) error {
+			return nil
+		})(c); err != nil {
+			return err
+		}
+
 		var notif postmarkNotif
 		if err := json.Unmarshal(rawReq, &notif); err != nil {
 			app.log.Printf("error unmarshalling postmark notification: %v", err)
@@ -252,4 +262,21 @@ func validateBounceFields(b models.Bounce, app *App) (models.Bounce, error) {
 	}
 
 	return b, nil
+}
+
+func postmarkBasicAuth(username, password string, c echo.Context) (bool, error) {
+	app := c.Get("app").(*App)
+
+	// Auth is disabled.
+	if len(app.constants.BouncePostmark.Username) == 0 &&
+		len(app.constants.BouncePostmark.Password) == 0 {
+		return true, nil
+	}
+
+	if subtle.ConstantTimeCompare([]byte(username), []byte(app.constants.BouncePostmark.Username)) == 1 &&
+		subtle.ConstantTimeCompare([]byte(password), []byte(app.constants.BouncePostmark.Password)) == 1 {
+		return true, nil
+	}
+
+	return false, nil
 }

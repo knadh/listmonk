@@ -100,12 +100,14 @@ type constants struct {
 		Extensions []string
 	}
 
-	BounceWebhooksEnabled  bool
-	BounceSESEnabled       bool
-	BounceSendgridEnabled  bool
-	BouncePostmarkEnabled  bool
-	BouncePostmarkUsername string
-	BouncePostmarkPassword string
+	BounceWebhooksEnabled bool
+	BounceSESEnabled      bool
+	BounceSendgridEnabled bool
+	BouncePostmark        struct {
+		Enabled  bool
+		Username string
+		Password string
+	}
 }
 
 type notifTpls struct {
@@ -403,9 +405,10 @@ func initConstants() *constants {
 	c.BounceWebhooksEnabled = ko.Bool("bounce.webhooks_enabled")
 	c.BounceSESEnabled = ko.Bool("bounce.ses_enabled")
 	c.BounceSendgridEnabled = ko.Bool("bounce.sendgrid_enabled")
-	c.BouncePostmarkEnabled = ko.Bool("bounce.postmark_enabled")
-	c.BouncePostmarkUsername = ko.String("bounce.postmark_username")
-	c.BouncePostmarkPassword = ko.String("bounce.postmark_password")
+	c.BouncePostmark.Enabled = ko.Bool("bounce.postmark.enabled")
+	c.BouncePostmark.Username = ko.String("bounce.postmark.username")
+	c.BouncePostmark.Password = ko.String("bounce.postmark.password")
+
 	return &c
 }
 

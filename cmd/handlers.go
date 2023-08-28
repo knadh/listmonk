@@ -282,23 +282,6 @@ func basicAuth(username, password string, c echo.Context) (bool, error) {
 	return false, nil
 }
 
-// postmarkBasicAuth middleware does an HTTP BasicAuth authentication for postmark bounce handlers.
-func postmarkBasicAuth(username, password string, c echo.Context) (bool, error) {
-	app := c.Get("app").(*App)
-
-	// Auth is disabled.
-	if len(app.constants.BouncePostmarkUsername) == 0 &&
-		len(app.constants.BouncePostmarkPassword) == 0 {
-		return true, nil
-	}
-
-	if subtle.ConstantTimeCompare([]byte(username), []byte(app.constants.BouncePostmarkUsername)) == 1 &&
-		subtle.ConstantTimeCompare([]byte(password), []byte(app.constants.BouncePostmarkPassword)) == 1 {
-		return true, nil
-	}
-	return false, nil
-}
-
 // validateUUID middleware validates the UUID string format for a given set of params.
 func validateUUID(next echo.HandlerFunc, params ...string) echo.HandlerFunc {
 	return func(c echo.Context) error {
