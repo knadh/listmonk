@@ -9,9 +9,9 @@ Some versions may require changes to the database. These changes or database "mi
 
 ## Docker
 
-- `docker-compose pull` to pull the latest version from DockerHub.
-- `docker-compose run --rm app ./listmonk --upgrade` to upgrade an existing DB.
-- Run `docker-compose up app db` and visit `http://localhost:9000`.
+- `docker compose pull` to pull the latest version from DockerHub.
+- `docker compose run --rm app ./listmonk --upgrade` to upgrade an existing DB.
+- Run `docker compose up app db` and visit `http://localhost:9000`.
 
 ## Railway
 - Head to your dashboard, and select your Listmonk project.
@@ -28,14 +28,14 @@ To restore a previous version, you have to restore the DB for that particular ve
 
 1. Stop listmonk.
 2. Restore your pre-upgrade database.
-3. If you're using docker-compose, edit `docker-compose.yml` and change `listmonk:latest` to `listmonk:v2.4.0` _(for example)_.
+3. If you're using `docker compose`, edit `docker-compose.yml` and change `listmonk:latest` to `listmonk:v2.4.0` _(for example)_.
 4. Restart.
 
 **Example with docker:**
 
 1. Stop listmonk (app):
 ```
-sudo docker container stop listmonk_app
+sudo docker stop listmonk_app
 ```
 2. Restore your pre-upgrade db (required) _(be careful, this will wipe your existing DB)_:
 ```
@@ -52,5 +52,5 @@ x-app-defaults: &app-defaults
   image: listmonk/listmonk:v2.4.0
 ```
 4. Restart:
-`sudo docker-compose up -d app db nginx certbot`
+`sudo docker compose up -d app db nginx certbot`
 

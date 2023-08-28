@@ -89,13 +89,13 @@ release:
 .PHONY: build-dev-docker
 build-dev-docker: build ## Build docker containers for the entire suite (Front/Core/PG).
 	cd dev; \
-	docker-compose build ; \
+	docker compose build ; \
 
 # Spin a local docker suite for local development.
 .PHONY: dev-docker
 dev-docker: build-dev-docker ## Build and spawns docker containers for the entire suite (Front/Core/PG).
 	cd dev; \
-	docker-compose up
+	docker compose up
 
 # Run the backend in docker-dev mode. The frontend assets in dev mode are loaded from disk from frontend/dist.
 .PHONY: run-backend-docker
@@ -106,10 +106,10 @@ run-backend-docker:
 .PHONY: rm-dev-docker
 rm-dev-docker: build ## Delete the docker containers including DB volumes.
 	cd dev; \
-	docker-compose down -v ; \
+	docker compose down -v ; \
 
 # Setup the db for local dev docker suite.
 .PHONY: init-dev-docker
 init-dev-docker: build-dev-docker ## Delete the docker containers including DB volumes.
 	cd dev; \
-	docker-compose run --rm backend sh -c "make dist && ./listmonk --install --idempotent --yes --config dev/config.toml"
+	docker compose run --rm backend sh -c "make dist && ./listmonk --install --idempotent --yes --config dev/config.toml"

@@ -9,7 +9,7 @@ To generate a new sample configuration file, run `--listmonk --new-config`
 Variables in config.toml can also be provided as environment variables prefixed by `LISTMONK_` with periods replaced by `__` (double underscore). Example:
 
 | **Environment variable**       | Example value  |
-|--------------------------------|----------------|
+| ------------------------------ | -------------- |
 | `LISTMONK_app__address`        | "0.0.0.0:9000" |
 | `LISTMONK_app__admin_username` | listmonk       |
 | `LISTMONK_app__admin_password` | listmonk       |
@@ -31,7 +31,7 @@ When configuring auth proxies and web application firewalls, use this table.
 #### Private admin endpoints.
 
 | Methods | Route              | Description             |
-|---------|--------------------|-------------------------|
+| ------- | ------------------ | ----------------------- |
 | `*`     | `/api/*`           | Admin APIs              |
 | `GET`   | `/admin/*`         | Admin UI and HTML pages |
 | `POST`  | `/webhooks/bounce` | Admin bounce webhook    |
@@ -40,7 +40,7 @@ When configuring auth proxies and web application firewalls, use this table.
 #### Public endpoints to expose to the internet.
 
 | Methods     | Route                 | Description                                   |
-|-------------|-----------------------|-----------------------------------------------|
+| ----------- | --------------------- | --------------------------------------------- |
 | `GET, POST` | `/subscription/*`     | HTML subscription pages                       |
 | `GET, `     | `/link/*`             | Tracked link redirection                      |
 | `GET`       | `/campaign/*`         | Pixel tracking image                          |
@@ -54,7 +54,7 @@ When configuring auth proxies and web application firewalls, use this table.
 
 When configuring `docker` volume mounts for using filesystem media uploads, you can follow either of two approaches. [The second option may be necessary if](https://github.com/knadh/listmonk/issues/1169#issuecomment-1674475945) your setup requires you to use `sudo` for docker commands. 
 
-After making any changes you will need to run `sudo docker-compose stop ; sudo docker-compose up`. 
+After making any changes you will need to run `sudo docker compose stop ; sudo docker compose up`. 
 
 And under `https://listmonk.mysite.com/admin/settings` you put `/listmonk/uploads`. 
 
