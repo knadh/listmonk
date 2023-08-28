@@ -1,7 +1,7 @@
 #!/usr/bin/env sh
 set -eu
 
-# Listmonk production setup using `docker-compose`.
+# Listmonk production setup using `docker compose`.
 # See https://listmonk.app/docs/installation/ for detailed installation steps.
 
 printf '\n'
@@ -38,17 +38,12 @@ check_dependencies() {
 		error "docker is not installed."
 		exit 1
 	fi
-
-	if ! exists docker-compose; then
-		error "docker-compose is not installed."
-		exit 1
-	fi
 }
 
 check_existing_db_volume() {
 	info "checking for an existing docker db volume"
 	if docker volume inspect listmonk_listmonk-data >/dev/null 2>&1; then
-		error "listmonk-data volume already exists. Please use docker-compose down -v to remove old volumes for a fresh setup of PostgreSQL."
+		error "listmonk-data volume already exists. Please use docker compose down -v to remove old volumes for a fresh setup of PostgreSQL."
 		exit 1
 	fi
 }
@@ -110,14 +105,14 @@ modify_config(){
 
 run_migrations(){
 	info "running migrations"
-	docker-compose up -d db
+	docker compose up -d db
 	while ! is_healthy listmonk_db; do sleep 3; done
-	docker-compose run --rm app ./listmonk --install
+	docker compose run --rm app ./listmonk --install
 }
 
 start_services(){
 	info "starting app"
-	docker-compose up -d app db
+	docker compose up -d app db
 }
 
 show_output(){
