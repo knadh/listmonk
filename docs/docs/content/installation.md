@@ -15,6 +15,9 @@ See the "[Tutorials](#tutorials)" section at the bottom for detailed guides.
 
 The latest image is available on DockerHub at `listmonk/listmonk:latest`
 
+!!! note
+    Listmonk's docs and scripts use `docker compose`, which is compatible with the latest version of docker. If you installed docker and docker-compose from your Linux distribution, you probably have an older version and will need to use the `docker-compose` command instead, or you'll need to update docker manually. [More info](https://gist.github.com/MaximilianKohler/e5158fcfe6de80a9069926a67afcae11#docker-update).
+
 Use the sample [docker-compose.yml](https://github.com/knadh/listmonk/blob/master/docker-compose.yml) to run listmonk and Postgres DB with `docker compose` as follows:
 
 ### Demo
