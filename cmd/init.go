@@ -103,9 +103,7 @@ type constants struct {
 	BounceWebhooksEnabled bool
 	BounceSESEnabled      bool
 	BounceSendgridEnabled bool
-	BouncePostmark        struct {
-		Enabled bool
-	}
+	BouncePostmarkEnabled bool
 }
 
 type notifTpls struct {
@@ -403,7 +401,7 @@ func initConstants() *constants {
 	c.BounceWebhooksEnabled = ko.Bool("bounce.webhooks_enabled")
 	c.BounceSESEnabled = ko.Bool("bounce.ses_enabled")
 	c.BounceSendgridEnabled = ko.Bool("bounce.sendgrid_enabled")
-	c.BouncePostmark.Enabled = ko.Bool("bounce.postmark.enabled")
+	c.BouncePostmarkEnabled = ko.Bool("bounce.postmark.enabled")
 
 	return &c
 }

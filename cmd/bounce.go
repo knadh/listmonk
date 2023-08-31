@@ -192,7 +192,7 @@ func handleBounceWebhook(c echo.Context) error {
 		bounces = append(bounces, bs...)
 
 	// Postmark.
-	case service == "postmark" && app.constants.BouncePostmark.Enabled:
+	case service == "postmark" && app.constants.BouncePostmarkEnabled:
 		bs, err := app.bounce.Postmark.ProcessBounce(rawReq, c)
 		if err != nil {
 			app.log.Printf("error processing postmark notification: %v", err)
