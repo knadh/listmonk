@@ -365,6 +365,7 @@
     "settings.bounces.enableSES": "Zapnúť SES",
     "settings.bounces.enableSendgrid": "Zapnúť SendGrid",
     "settings.bounces.enableWebhooks": "Zapnúť webhooky pre nedoručiteľné",
+    "settings.bounces.enablePostmark": "Zapnúť Postmark",
     "settings.bounces.enabled": "Zapnuté",
     "settings.bounces.folder": "Priečinok",
     "settings.bounces.folderHelp": "Názov kontrolovaného priečinku IMAP. Napríklad INBOX.",

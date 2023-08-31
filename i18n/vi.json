@@ -366,6 +366,7 @@
     "settings.bounces.enableSES": "Bật SES",
     "settings.bounces.enableSendgrid": "Bật SendGrid",
     "settings.bounces.enableWebhooks": "Bật webhook bị trả lại",
+    "settings.bounces.enablePostmark": "Bật Postmark",
     "settings.bounces.enabled": "Đã bật",
     "settings.bounces.folder": "Thư mục",
     "settings.bounces.folderHelp": "Tên của thư mục IMAP để quét. Vd: Hộp thư đến.",

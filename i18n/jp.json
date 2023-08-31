@@ -366,6 +366,7 @@
     "settings.bounces.enableSES": "SESを有効にする",
     "settings.bounces.enableSendgrid": "SendGridを有効にする",
     "settings.bounces.enableWebhooks": "バウンスウェブフックを有効にする",
+    "settings.bounces.enablePostmark": "Postmarkを有効にする",
     "settings.bounces.enabled": "有効",
     "settings.bounces.folder": "フォルダ",
     "settings.bounces.folderHelp": "スキャンするIMAPフォルダの名前。 例: Inbox.",

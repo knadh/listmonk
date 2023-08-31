@@ -103,6 +103,7 @@ type constants struct {
 	BounceWebhooksEnabled bool
 	BounceSESEnabled      bool
 	BounceSendgridEnabled bool
+	BouncePostmarkEnabled bool
 }
 
 type notifTpls struct {
@@ -400,6 +401,8 @@ func initConstants() *constants {
 	c.BounceWebhooksEnabled = ko.Bool("bounce.webhooks_enabled")
 	c.BounceSESEnabled = ko.Bool("bounce.ses_enabled")
 	c.BounceSendgridEnabled = ko.Bool("bounce.sendgrid_enabled")
+	c.BouncePostmarkEnabled = ko.Bool("bounce.postmark.enabled")
+
 	return &c
 }
 
@@ -668,7 +671,15 @@ func initBounceManager(app *App) *bounce.Manager {
 		SESEnabled:      ko.Bool("bounce.ses_enabled"),
 		SendgridEnabled: ko.Bool("bounce.sendgrid_enabled"),
 		SendgridKey:     ko.String("bounce.sendgrid_key"),
-
+		Postmark: struct {
+			Enabled  bool
+			Username string
+			Password string
+		}{
+			ko.Bool("bounce.postmark.enabled"),
+			ko.String("bounce.postmark.username"),
+			ko.String("bounce.postmark.password"),
+		},
 		RecordBounceCB: app.core.RecordBounce,
 	}
 

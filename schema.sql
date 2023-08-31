@@ -255,6 +255,7 @@ INSERT INTO settings (key, value) VALUES
     ('bounce.ses_enabled', 'false'),
     ('bounce.sendgrid_enabled', 'false'),
     ('bounce.sendgrid_key', '""'),
+    ('bounce.postmark', '{"enabled": false, "username": "", "password": ""}'),
     ('bounce.mailboxes',
         '[{"enabled":false, "type": "pop", "host":"pop.yoursite.com","port":995,"auth_protocol":"userpass","username":"username","password":"password","return_path": "bounce@listmonk.yoursite.com","scan_interval":"15m","tls_enabled":true,"tls_skip_verify":false}]'),
     ('appearance.admin.custom_css', '""'),

@@ -92,7 +92,12 @@ type Settings struct {
 	SESEnabled      bool   `json:"bounce.ses_enabled"`
 	SendgridEnabled bool   `json:"bounce.sendgrid_enabled"`
 	SendgridKey     string `json:"bounce.sendgrid_key"`
-	BounceBoxes     []struct {
+	BouncePostmark  struct {
+		Enabled  bool   `json:"enabled"`
+		Username string `json:"username"`
+		Password string `json:"password"`
+	} `json:"bounce.postmark"`
+	BounceBoxes []struct {
 		UUID          string `json:"uuid"`
 		Enabled       bool   `json:"enabled"`
 		Type          string `json:"type"`

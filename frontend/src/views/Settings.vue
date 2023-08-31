@@ -155,6 +155,12 @@ export default Vue.extend({
         hasDummy = 'captcha';
       }
 
+      if (this.isDummy(form['bounce.postmark'].password)) {
+        form['bounce.postmark'].password = '';
+      } else if (this.hasDummy(form['bounce.postmark'].password)) {
+        hasDummy = 'postmark';
+      }
+
       for (let i = 0; i < form.messengers.length; i += 1) {
         // If it's the dummy UI password placeholder, ignore it.
         if (this.isDummy(form.messengers[i].password)) {
