@@ -2,7 +2,6 @@ package webhooks
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"strings"
 	"time"
@@ -10,7 +9,7 @@ import (
 	"github.com/knadh/listmonk/models"
 )
 
-type postmarkBounceNotif struct {
+type notif struct {
 	RecordType    string            `json:"RecordType"`
 	MessageStream string            `json:"MessageStream"`
 	ID            int               `json:"ID"`
@@ -48,22 +47,20 @@ func NewPostmark(username string, password string) *Postmark {
 }
 
 // ProcessBounce processes Postmark bounce notifications and returns one object.
-func (s *Postmark) ProcessBounce(b []byte) (models.Bounce, error) {
-	var (
-		bounce models.Bounce
-		m      postmarkBounceNotif
-	)
-	if err := json.Unmarshal(b, &m); err != nil {
-		return bounce, fmt.Errorf("error unmarshalling postmark notification: %v", err)
+func (s *Postmark) ProcessBounce(b []byte) ([]models.Bounce, error) {
+	var n notif
+	if err := json.Unmarshal(b, &n); err != nil {
+		return nil, fmt.Errorf("error unmarshalling postmark notification: %v", err)
 	}
 
-	if m.RecordType != "Bounce" {
-		return bounce, errors.New("notification type is not bounce")
+	// Ignore non-bounce messages.
+	if n.RecordType != "Bounce" {
+		return nil, nil
 	}
 
 	supportedBounceType := true
 	typ := models.BounceTypeHard
-	switch m.Type {
+	switch n.Type {
 	case "HardBounce", "BadEmailAddress", "ManuallyDeactivated":
 		typ = models.BounceTypeHard
 	case "SoftBounce", "Transient", "DnsError", "SpamNotification", "VirusNotification", "DMARCPolicy":
@@ -75,23 +72,21 @@ func (s *Postmark) ProcessBounce(b []byte) (models.Bounce, error) {
 	}
 
 	if !supportedBounceType {
-		return bounce, fmt.Errorf("unsupported bounce type: %v", m.Type)
+		return nil, fmt.Errorf("unsupported bounce type: %v", n.Type)
 	}
 
 	// Look for the campaign ID in headers.
 	campUUID := ""
-	for k, v := range m.Metadata {
-		if k == "X-Listmonk-Campaign" {
-			campUUID = v
-			break
-		}
+	if v, ok := n.Metadata["X-Listmonk-Campaign"]; ok {
+		campUUID = v
 	}
-	return models.Bounce{
-		Email:        strings.ToLower(m.Email),
+
+	return []models.Bounce{{
+		Email:        strings.ToLower(n.Email),
 		CampaignUUID: campUUID,
 		Type:         typ,
 		Source:       "postmark",
 		Meta:         json.RawMessage(b),
-		CreatedAt:    m.BouncedAt,
-	}, nil
+		CreatedAt:    n.BouncedAt,
+	}}, nil
 }

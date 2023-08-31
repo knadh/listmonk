@@ -13,10 +13,6 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 )
 
-type postmarkNotif struct {
-	RecordType string `json:"RecordType"`
-}
-
 var (
 	postmarkAuthHandler = middleware.BasicAuth(postmarkBasicAuth)(func(c echo.Context) error {
 		return nil
@@ -209,24 +205,12 @@ func handleBounceWebhook(c echo.Context) error {
 			return err
 		}
 
-		var notif postmarkNotif
-		if err := json.Unmarshal(rawReq, &notif); err != nil {
-			app.log.Printf("error unmarshalling postmark notification: %v", err)
+		bs, err := app.bounce.Postmark.ProcessBounce(rawReq)
+		if err != nil {
+			app.log.Printf("error processing postmark notification: %v", err)
 			return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidData"))
 		}
-
-		switch notif.RecordType {
-		case "Bounce":
-			b, err := app.bounce.Postmark.ProcessBounce(rawReq)
-			if err != nil {
-				app.log.Printf("error processing postmark notification: %v", err)
-				return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidData"))
-			}
-			bounces = append(bounces, b)
-
-		default:
-			return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidData"))
-		}
+		bounces = append(bounces, bs...)
 
 	default:
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.Ts("bounces.unknownService"))
