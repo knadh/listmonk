@@ -17,6 +17,12 @@ type postmarkNotif struct {
 	RecordType string `json:"RecordType"`
 }
 
+var (
+	postmarkAuthHandler = middleware.BasicAuth(postmarkBasicAuth)(func(c echo.Context) error {
+		return nil
+	})
+)
+
 // handleGetBounces handles retrieval of bounce records.
 func handleGetBounces(c echo.Context) error {
 	var (
@@ -199,11 +205,7 @@ func handleBounceWebhook(c echo.Context) error {
 
 	// Postmark.
 	case service == "postmark" && app.constants.BouncePostmark.Enabled:
-		basicAuthMiddleware := middleware.BasicAuth(postmarkBasicAuth)
-
-		if err := basicAuthMiddleware(func(c echo.Context) error {
-			return nil
-		})(c); err != nil {
+		if err := postmarkAuthHandler(c); err != nil {
 			return err
 		}
 
