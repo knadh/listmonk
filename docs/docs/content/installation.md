@@ -141,8 +141,8 @@ The `master` branch with bleeding edge changes is periodically built and publish
 
 ## Tutorials
 
-* [Tutorial for deploying on **Fly.io**](https://github.com/paulrudy/listmonk-on-fly)
+* [Informal step-by-step on how to get started with Listmonk using **Railway**](https://github.com/knadh/listmonk/issues/120#issuecomment-1421838533)
 * [Complete Listmonk setup guide. Step-by-step tutorial for installation and all basic functions. **Amazon EC2 & SES**](https://gist.github.com/MaximilianKohler/e5158fcfe6de80a9069926a67afcae11)
 * [Step-by-step guide on how install and set up Listmonk on a server (**AWS Lightsail**)](https://github.com/knadh/listmonk/issues/1208)
-* [Informal step-by-step on how to get started with Listmonk using **Railway**](https://github.com/knadh/listmonk/issues/120#issuecomment-1421838533)
 * [**Binary** install on your PC](https://www.youtube.com/watch?v=fAOBqgR9Yfo). Discussions of limitations: [[1](https://github.com/knadh/listmonk/issues/862#issuecomment-1307328228)][[2](https://github.com/knadh/listmonk/issues/248#issuecomment-1320806990)]. 
+* [Tutorial for deploying on **Fly.io**](https://github.com/paulrudy/listmonk-on-fly) -- Currently [not working](https://github.com/knadh/listmonk/issues/984#issuecomment-1694545255)
