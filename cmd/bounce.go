@@ -1,7 +1,6 @@
 package main
 
 import (
-	"crypto/subtle"
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
@@ -10,13 +9,6 @@ import (
 
 	"github.com/knadh/listmonk/models"
 	"github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
-)
-
-var (
-	postmarkAuthHandler = middleware.BasicAuth(postmarkBasicAuth)(func(c echo.Context) error {
-		return nil
-	})
 )
 
 // handleGetBounces handles retrieval of bounce records.
@@ -201,13 +193,13 @@ func handleBounceWebhook(c echo.Context) error {
 
 	// Postmark.
 	case service == "postmark" && app.constants.BouncePostmark.Enabled:
-		if err := postmarkAuthHandler(c); err != nil {
-			return err
-		}
-
-		bs, err := app.bounce.Postmark.ProcessBounce(rawReq)
+		bs, err := app.bounce.Postmark.ProcessBounce(rawReq, c)
 		if err != nil {
 			app.log.Printf("error processing postmark notification: %v", err)
+			if _, ok := err.(*echo.HTTPError); ok {
+				return err
+			}
+
 			return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidData"))
 		}
 		bounces = append(bounces, bs...)
@@ -248,21 +240,4 @@ func validateBounceFields(b models.Bounce, app *App) (models.Bounce, error) {
 	}
 
 	return b, nil
-}
-
-func postmarkBasicAuth(username, password string, c echo.Context) (bool, error) {
-	app := c.Get("app").(*App)
-
-	// Auth is disabled.
-	if len(app.constants.BouncePostmark.Username) == 0 &&
-		len(app.constants.BouncePostmark.Password) == 0 {
-		return true, nil
-	}
-
-	if subtle.ConstantTimeCompare([]byte(username), []byte(app.constants.BouncePostmark.Username)) == 1 &&
-		subtle.ConstantTimeCompare([]byte(password), []byte(app.constants.BouncePostmark.Password)) == 1 {
-		return true, nil
-	}
-
-	return false, nil
 }

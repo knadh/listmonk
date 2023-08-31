@@ -1,15 +1,18 @@
 package webhooks
 
 import (
+	"crypto/subtle"
 	"encoding/json"
 	"fmt"
 	"strings"
 	"time"
 
 	"github.com/knadh/listmonk/models"
+	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 )
 
-type notif struct {
+type postmarkNotif struct {
 	RecordType    string            `json:"RecordType"`
 	MessageStream string            `json:"MessageStream"`
 	ID            int               `json:"ID"`
@@ -34,21 +37,25 @@ type notif struct {
 
 // Postmark handles webhook notifications (mainly bounce notifications).
 type Postmark struct {
-	Username string
-	Password string
+	authHandler echo.HandlerFunc
 }
 
-// NewPostmark returns a new Postmark instance.
-func NewPostmark(username string, password string) *Postmark {
+func NewPostmark(username, password string) *Postmark {
 	return &Postmark{
-		Username: username,
-		Password: password,
+		authHandler: middleware.BasicAuth(makePostmarkAuthHandler(username, password))(func(c echo.Context) error {
+			return nil
+		}),
 	}
 }
 
 // ProcessBounce processes Postmark bounce notifications and returns one object.
-func (s *Postmark) ProcessBounce(b []byte) ([]models.Bounce, error) {
-	var n notif
+func (p *Postmark) ProcessBounce(b []byte, c echo.Context) ([]models.Bounce, error) {
+	// Do basicauth.
+	if err := p.authHandler(c); err != nil {
+		return nil, err
+	}
+
+	var n postmarkNotif
 	if err := json.Unmarshal(b, &n); err != nil {
 		return nil, fmt.Errorf("error unmarshalling postmark notification: %v", err)
 	}
@@ -89,4 +96,23 @@ func (s *Postmark) ProcessBounce(b []byte) ([]models.Bounce, error) {
 		Meta:         json.RawMessage(b),
 		CreatedAt:    n.BouncedAt,
 	}}, nil
+}
+
+func makePostmarkAuthHandler(cfgUser, cfgPassword string) func(username, password string, c echo.Context) (bool, error) {
+	var (
+		u = []byte(cfgUser)
+		p = []byte(cfgPassword)
+	)
+
+	return func(username, password string, c echo.Context) (bool, error) {
+		if len(u) == 0 || len(p) == 0 {
+			return true, nil
+		}
+
+		if subtle.ConstantTimeCompare([]byte(username), u) == 1 && subtle.ConstantTimeCompare([]byte(password), p) == 1 {
+			return true, nil
+		}
+
+		return false, nil
+	}
 }
