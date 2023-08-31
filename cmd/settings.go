@@ -184,9 +184,6 @@ func handleUpdateSettings(c echo.Context) error {
 	if set.SendgridKey == "" {
 		set.SendgridKey = cur.SendgridKey
 	}
-	if set.BouncePostmark.Username == "" {
-		set.BouncePostmark.Username = cur.BouncePostmark.Username
-	}
 	if set.BouncePostmark.Password == "" {
 		set.BouncePostmark.Password = cur.BouncePostmark.Password
 	}
