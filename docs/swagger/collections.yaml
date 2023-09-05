@@ -2521,6 +2521,8 @@ components:
               type: string
             lists.types.public:
               type: string
+            lists.errorPreparingQuery:
+              type: string
             logs.title:
               type: string
             maintenance.help:

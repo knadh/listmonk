@@ -406,27 +406,21 @@ SELECT * FROM lists WHERE (CASE WHEN $1 = '' THEN 1=1 ELSE type=$1::list_type EN
     ORDER BY CASE WHEN $2 = 'id' THEN id END, CASE WHEN $2 = 'name' THEN name END;
 
 -- name: query-lists
-WITH ls AS (
-	SELECT COUNT(*) OVER () AS total, lists.* FROM lists
-    WHERE
-        CASE
-            WHEN $1 > 0 THEN id = $1
-            WHEN $2 != '' THEN uuid = $2::UUID
-            WHEN $3 != '' THEN to_tsvector(name) @@ to_tsquery ($3)
-            ELSE true
-        END
-    ORDER BY %order%
-    OFFSET $4 LIMIT (CASE WHEN $5 < 1 THEN NULL ELSE $5 END)
-),
-counts AS (
-    SELECT list_id, JSON_OBJECT_AGG(status, subscriber_count) AS subscriber_statuses FROM (
-        SELECT COUNT(*) as subscriber_count, list_id, status FROM subscriber_lists
-        WHERE ($1 = 0 OR list_id = $1)
-        GROUP BY list_id, status
-    ) row GROUP BY list_id
-)
-SELECT ls.*, subscriber_statuses FROM ls
-    LEFT JOIN counts ON (counts.list_id = ls.id) ORDER BY %order%;
+-- raw: true
+-- Unprepared statement for issuring arbitrary WHERE conditions for
+-- searching lists. While the results are sliced using offset+limit,
+-- there's a COUNT() OVER() that still returns the total result count
+-- for pagination in the frontend, albeit being a field that'll repeat
+-- with every resultant row.
+-- %s = arbitrary expression, %s = order by field, %s = order direction
+SELECT lists.* FROM lists
+    %query%
+    ORDER BY %order% OFFSET $1 LIMIT (CASE WHEN $2 < 1 THEN NULL ELSE $2 END);
+
+-- name: query-lists-count
+-- Replica of query-subscribers for obtaining the results count.
+SELECT COUNT(*) AS total FROM lists
+    %s;
 
 
 -- name: get-lists-by-optin

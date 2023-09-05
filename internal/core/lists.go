@@ -1,7 +1,11 @@
 package core
 
 import (
+	"context"
+	"database/sql"
+	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/gofrs/uuid"
 	"github.com/knadh/listmonk/models"
@@ -36,32 +40,50 @@ func (c *Core) GetLists(typ string) ([]models.List, error) {
 
 // QueryLists gets multiple lists based on multiple query params. Along with the  paginated and sliced
 // results, the total number of lists in the DB is returned.
-func (c *Core) QueryLists(searchStr, orderBy, order string, offset, limit int) ([]models.List, int, error) {
-	out := []models.List{}
+func (c *Core) QueryLists(query, orderBy, order string, offset, limit int) ([]models.List, int, error) {
+	// There's an arbitrary query condition.
+	cond := ""
+	if query != "" {
+		cond = " WHERE " + query
+	}
 
-	queryStr, stmt := makeSearchQuery(searchStr, orderBy, order, c.q.QueryLists)
+	// Sort params.
+	if !strSliceContains(orderBy, subQuerySortFields) {
+		orderBy = "lists.id"
+	}
+	if order != SortAsc && order != SortDesc {
+		order = SortDesc
+	}
 
-	if err := c.db.Select(&out, stmt, 0, "", queryStr, offset, limit); err != nil {
-		c.log.Printf("error fetching lists: %v", err)
+	// Create a readonly transaction that just does COUNT() to obtain the count of results
+	// and to ensure that the arbitrary query is indeed readonly.
+	stmt := fmt.Sprintf(c.q.QueryListsCount, cond)
+	tx, err := c.db.BeginTxx(context.Background(), &sql.TxOptions{ReadOnly: true})
+	if err != nil {
+		c.log.Printf("error preparing subscriber query: %v", err)
+		return nil, 0, echo.NewHTTPError(http.StatusBadRequest, c.i18n.Ts("lists.errorPreparingQuery", "error", pqErrMsg(err)))
+	}
+	defer tx.Rollback()
+
+	// Execute the readonly query and get the count of results.
+	total := 0
+	if err := tx.Get(&total, stmt); err != nil {
 		return nil, 0, echo.NewHTTPError(http.StatusInternalServerError,
 			c.i18n.Ts("globals.messages.errorFetching", "name", "{globals.terms.lists}", "error", pqErrMsg(err)))
 	}
 
-	total := 0
-	if len(out) > 0 {
-		total = out[0].Total
+	// No results.
+	if total == 0 {
+		return []models.List{}, 0, nil
+	}
 
-		// Replace null tags.
-		for i, l := range out {
-			if l.Tags == nil {
-				out[i].Tags = []string{}
-			}
-
-			// Total counts.
-			for _, c := range l.SubscriberCounts {
-				out[i].SubscriberCount += c
-			}
-		}
+	// Run the query again and fetch the actual data. stmt is the raw SQL query.
+	var out []models.List
+	stmt = strings.ReplaceAll(c.q.QueryLists, "%query%", cond)
+	stmt = strings.ReplaceAll(stmt, "%order%", orderBy+" "+order)
+	if err := tx.Select(&out, stmt, offset, limit); err != nil {
+		return nil, 0, echo.NewHTTPError(http.StatusInternalServerError,
+			c.i18n.Ts("globals.messages.errorFetching", "name", "{globals.terms.lists}", "error", pqErrMsg(err)))
 	}
 
 	return out, total, nil
