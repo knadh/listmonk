@@ -91,14 +91,19 @@ func (c *Core) QueryLists(query, orderBy, order string, offset, limit int) ([]mo
 
 // GetList gets a list by its ID or UUID.
 func (c *Core) GetList(id int, uuid string) (models.List, error) {
-	var uu interface{}
-	if uuid != "" {
-		uu = uuid
+	tx, err := c.db.BeginTxx(context.Background(), &sql.TxOptions{ReadOnly: true})
+	if err != nil {
+		c.log.Printf("error preparing subscriber query: %v", err)
+		return models.List{}, echo.NewHTTPError(http.StatusBadRequest, c.i18n.Ts("lists.errorPreparingQuery", "error", pqErrMsg(err)))
 	}
 
+	orderBy := "lists.id"
+	order := SortDesc
+
 	var res []models.List
-	queryStr, stmt := makeSearchQuery("", "", "", c.q.QueryLists)
-	if err := c.db.Select(&res, stmt, id, uu, queryStr, 0, 1); err != nil {
+	stmt := strings.ReplaceAll(c.q.QueryLists, "%query%", "")
+	stmt = strings.ReplaceAll(stmt, "%order%", orderBy+" "+order)
+	if err := tx.Select(&res, stmt, 0, 1); err != nil {
 		c.log.Printf("error fetching lists: %v", err)
 		return models.List{}, echo.NewHTTPError(http.StatusInternalServerError,
 			c.i18n.Ts("globals.messages.errorFetching", "name", "{globals.terms.lists}", "error", pqErrMsg(err)))
