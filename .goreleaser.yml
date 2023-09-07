@@ -13,14 +13,11 @@ builds:
     main: ./cmd
     goos:
       - linux
-      # There is no added benefit in building
-      # the additional OSes for this project.
-      # if ever needed, uncomment and add
-      # - windows
-      # - darwin
-      # - freebsd
-      # - openbsd
-      # - netbsd
+      - windows
+      - darwin
+      - freebsd
+      - openbsd
+      - netbsd
     goarch:
       - amd64
       - arm64
