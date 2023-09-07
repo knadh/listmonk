@@ -41,6 +41,10 @@ jobs:
         run: |
           make dist
 
+      - name: Check Docker Version
+        run: |
+          docker version
+
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v4
         with:
