@@ -90,7 +90,7 @@ func (c *Core) UnsubscribeLists(subIDs, listIDs []int, listUUIDs []string) error
 	return nil
 }
 
-// UnsubscribeListsByQuery sets list subscriptions to 'ubsubscribed' by a given arbitrary query expression.
+// UnsubscribeListsByQuery sets list subscriptions to 'unsubscribed' by a given arbitrary query expression.
 // sourceListIDs is the list of list IDs to filter the subscriber query with.
 func (c *Core) UnsubscribeListsByQuery(query string, sourceListIDs, targetListIDs []int) error {
 	if sourceListIDs == nil {
@@ -99,7 +99,7 @@ func (c *Core) UnsubscribeListsByQuery(query string, sourceListIDs, targetListID
 
 	err := c.q.ExecSubQueryTpl(sanitizeSQLExp(query), c.q.UnsubscribeSubscribersFromListsByQuery, sourceListIDs, c.db, pq.Array(targetListIDs))
 	if err != nil {
-		c.log.Printf("error unsubscriging from lists by query: %v", err)
+		c.log.Printf("error unsubscribing from lists by query: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			c.i18n.Ts("globals.messages.errorUpdating", "name", "{globals.terms.subscribers}", "error", pqErrMsg(err)))
 	}
@@ -107,7 +107,7 @@ func (c *Core) UnsubscribeListsByQuery(query string, sourceListIDs, targetListID
 	return nil
 }
 
-// DeleteUnconfirmedSubscriptions sets list subscriptions to 'ubsubscribed' by a given arbitrary query expression.
+// DeleteUnconfirmedSubscriptions sets list subscriptions to 'unsubscribed' by a given arbitrary query expression.
 // sourceListIDs is the list of list IDs to filter the subscriber query with.
 func (c *Core) DeleteUnconfirmedSubscriptions(beforeDate time.Time) (int, error) {
 	res, err := c.q.DeleteUnconfirmedSubscriptions.Exec(beforeDate)

@@ -8,7 +8,7 @@
     <br />
 
     <div class="box">
-      <h4 class="is-size-5">{{ $t('globals.terms.subscribers') }}</h4><br />
+      <h4 class="is-size-4">{{ $t('globals.terms.subscribers') }}</h4><br />
       <div class="columns">
         <div class="column is-4">
           <b-field label="Data" message="$t('maintenance.orphanHelp')">
@@ -20,7 +20,8 @@
         </div>
         <div class="column is-5"></div>
         <div class="column">
-          <b-field label=".">
+          <br />
+          <b-field>
             <b-button class="is-primary" :loading="loading.maintenance"
               @click="deleteSubscribers" expanded>{{ $t('globals.buttons.delete') }}</b-button>
           </b-field>
@@ -28,8 +29,8 @@
       </div>
     </div><!-- subscribers -->
 
-    <div class="box">
-      <h4 class="is-size-5">{{ $tc('globals.terms.subscriptions', 2) }}</h4><br />
+    <div class="box mt-6">
+      <h4 class="is-size-4">{{ $tc('globals.terms.subscriptions', 2) }}</h4><br />
       <div class="columns">
         <div class="column is-4">
           <b-field label="Data">
@@ -50,7 +51,8 @@
         </div>
         <div class="column is-1"></div>
         <div class="column">
-          <b-field label=".">
+          <br />
+          <b-field>
             <b-button class="is-primary" :loading="loading.maintenance"
               @click="deleteSubscriptions" expanded>{{ $t('globals.buttons.delete') }}</b-button>
           </b-field>
@@ -59,7 +61,7 @@
     </div><!-- subscriptions -->
 
     <div class="box mt-6">
-      <h4 class="is-size-5">{{ $t('globals.terms.analytics') }}</h4><br />
+      <h4 class="is-size-4">{{ $t('globals.terms.analytics') }}</h4><br />
       <div class="columns">
         <div class="column is-4">
           <b-field label="Data">
@@ -82,7 +84,8 @@
         </div>
         <div class="column is-1"></div>
         <div class="column">
-          <b-field label=".">
+          <br />
+          <b-field>
             <b-button expanded class="is-primary" :loading="loading.maintenance"
               @click="deleteAnalytics">{{ $t('globals.buttons.delete') }}</b-button>
           </b-field>

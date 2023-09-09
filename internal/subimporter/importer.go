@@ -145,7 +145,7 @@ func New(opt Options, db *sql.DB, i *i18n.I18n) *Importer {
 		im.domainBlocklist[d] = true
 
 		// Domains with *. as the subdomain prefix, strip that
-		// and add the full domain to the blocklist as welll.
+		// and add the full domain to the blocklist as well.
 		// eg: *.example.com => example.com
 		if strings.Contains(d, "*.") {
 			im.hasBlocklistWildcards = true
@@ -159,7 +159,7 @@ func New(opt Options, db *sql.DB, i *i18n.I18n) *Importer {
 // NewSession returns an new instance of Session. It takes the name
 // of the uploaded file, but doesn't do anything with it but retains it for stats.
 func (im *Importer) NewSession(opt SessionOpt) (*Session, error) {
-	if im.getStatus() != StatusNone {
+	if !im.isDone() {
 		return nil, errors.New("an import is already running")
 	}
 

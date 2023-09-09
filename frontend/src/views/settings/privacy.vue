@@ -36,6 +36,12 @@
           name="privacy.allow_wipe" />
     </b-field>
 
+    <b-field :label="$t('settings.privacy.recordOptinIP')"
+      :message="$t('settings.privacy.recordOptinIPHelp')">
+      <b-switch v-model="data['privacy.record_optin_ip']"
+          name="privacy.record_optin_ip" />
+    </b-field>
+
     <b-field :label="$t('settings.privacy.domainBlocklist')"
       :message="$t('settings.privacy.domainBlocklistHelp')">
       <b-input type="textarea"

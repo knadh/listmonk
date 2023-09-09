@@ -301,6 +301,7 @@ export default Vue.extend({
         this.$utils.toast(this.$t('settings.smtp.testEnterEmail'), 'is-danger');
         this.$nextTick(() => {
           const i = document.querySelector(`.password-${n}`);
+          this.data.smtp[n].password = '';
           i.focus();
           i.select();
         });
@@ -331,7 +332,7 @@ export default Vue.extend({
       if (!item.host || !item.port) {
         return false;
       }
-      if (item.auth_protocol !== 'none' && !item.password.trim()) {
+      if (item.auth_protocol !== 'none' && item.password.includes('•')) {
         return false;
       }
 

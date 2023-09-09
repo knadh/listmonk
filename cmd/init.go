@@ -8,6 +8,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"syscall"
 	"time"
@@ -68,6 +69,7 @@ type constants struct {
 		AllowBlocklist     bool            `koanf:"allow_blocklist"`
 		AllowExport        bool            `koanf:"allow_export"`
 		AllowWipe          bool            `koanf:"allow_wipe"`
+		RecordOptinIP      bool            `koanf:"record_optin_ip"`
 		Exportable         map[string]bool `koanf:"-"`
 		DomainBlocklist    []string        `koanf:"-"`
 	} `koanf:"privacy"`
@@ -101,6 +103,7 @@ type constants struct {
 	BounceWebhooksEnabled bool
 	BounceSESEnabled      bool
 	BounceSendgridEnabled bool
+	BouncePostmarkEnabled bool
 }
 
 type notifTpls struct {
@@ -398,6 +401,8 @@ func initConstants() *constants {
 	c.BounceWebhooksEnabled = ko.Bool("bounce.webhooks_enabled")
 	c.BounceSESEnabled = ko.Bool("bounce.ses_enabled")
 	c.BounceSendgridEnabled = ko.Bool("bounce.sendgrid_enabled")
+	c.BouncePostmarkEnabled = ko.Bool("bounce.postmark.enabled")
+
 	return &c
 }
 
@@ -666,7 +671,15 @@ func initBounceManager(app *App) *bounce.Manager {
 		SESEnabled:      ko.Bool("bounce.ses_enabled"),
 		SendgridEnabled: ko.Bool("bounce.sendgrid_enabled"),
 		SendgridKey:     ko.String("bounce.sendgrid_key"),
-
+		Postmark: struct {
+			Enabled  bool
+			Username string
+			Password string
+		}{
+			ko.Bool("bounce.postmark.enabled"),
+			ko.String("bounce.postmark.username"),
+			ko.String("bounce.postmark.password"),
+		},
 		RecordBounceCB: app.core.RecordBounce,
 	}
 
@@ -695,6 +708,42 @@ func initBounceManager(app *App) *bounce.Manager {
 	}
 
 	return b
+}
+
+func initAbout(q *models.Queries, db *sqlx.DB) about {
+	var (
+		mem runtime.MemStats
+	)
+
+	// Memory / alloc stats.
+	runtime.ReadMemStats(&mem)
+
+	info := types.JSONText(`{}`)
+	if err := db.QueryRow(q.GetDBInfo).Scan(&info); err != nil {
+		lo.Printf("WARNING: error getting database version: %v", err)
+	}
+
+	hostname, err := os.Hostname()
+	if err != nil {
+		lo.Printf("WARNING: error getting hostname: %v", err)
+	}
+
+	return about{
+		Version:   versionString,
+		Build:     buildString,
+		GoArch:    runtime.GOARCH,
+		GoVersion: runtime.Version(),
+		Database:  info,
+		System: aboutSystem{
+			NumCPU: runtime.NumCPU(),
+		},
+		Host: aboutHost{
+			OS:       runtime.GOOS,
+			Machine:  runtime.GOARCH,
+			Hostname: hostname,
+		},
+	}
+
 }
 
 // initHTTPServer sets up and runs the app's main HTTP server and blocks forever.

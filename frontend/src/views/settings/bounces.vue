@@ -73,6 +73,33 @@
               </b-field>
             </div>
           </div>
+          <div class="columns">
+            <div class="column is-3">
+              <b-field :label="$t('settings.bounces.enablePostmark')">
+                <b-switch v-model="data['bounce.postmark'].enabled"
+                  name="postmark_enabled" :native-value="true"
+                  data-cy="btn-enable-bounce-postmark" />
+              </b-field>
+            </div>
+            <div class="column">
+              <b-field :label="$t('settings.bounces.postmarkUsername')"
+                :message="$t('settings.bounces.postmarkUsernameHelp')">
+                <b-input v-model="data['bounce.postmark'].username" type="text"
+                  :disabled="!data['bounce.postmark'].enabled"
+                  name="postmark_username"
+                  data-cy="btn-enable-bounce-postmark" />
+              </b-field>
+            </div>
+            <div class="column">
+              <b-field :label="$t('settings.bounces.postmarkPassword')"
+                :message="$t('globals.messages.passwordChange')">
+                <b-input v-model="data['bounce.postmark'].password" type="password"
+                  :disabled="!data['bounce.postmark'].enabled"
+                  name="postmark_password"
+                  data-cy="btn-enable-bounce-postmark" />
+              </b-field>
+            </div>
+          </div>
       </div>
     </div>
 

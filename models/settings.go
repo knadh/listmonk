@@ -31,6 +31,7 @@ type Settings struct {
 	PrivacyAllowExport        bool     `json:"privacy.allow_export"`
 	PrivacyAllowWipe          bool     `json:"privacy.allow_wipe"`
 	PrivacyExportable         []string `json:"privacy.exportable"`
+	PrivacyRecordOptinIP      bool     `json:"privacy.record_optin_ip"`
 	DomainBlocklist           []string `json:"privacy.domain_blocklist"`
 
 	SecurityEnableCaptcha bool   `json:"security.enable_captcha"`
@@ -91,7 +92,12 @@ type Settings struct {
 	SESEnabled      bool   `json:"bounce.ses_enabled"`
 	SendgridEnabled bool   `json:"bounce.sendgrid_enabled"`
 	SendgridKey     string `json:"bounce.sendgrid_key"`
-	BounceBoxes     []struct {
+	BouncePostmark  struct {
+		Enabled  bool   `json:"enabled"`
+		Username string `json:"username"`
+		Password string `json:"password"`
+	} `json:"bounce.postmark"`
+	BounceBoxes []struct {
 		UUID          string `json:"uuid"`
 		Enabled       bool   `json:"enabled"`
 		Type          string `json:"type"`

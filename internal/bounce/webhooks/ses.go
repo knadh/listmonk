@@ -49,7 +49,10 @@ type sesMail struct {
 	EventType string `json:"eventType"`
 	NotifType string `json:"notificationType"`
 	Bounce    struct {
-		BounceType string `json:"bounceType"`
+		BounceType        string `json:"bounceType"`
+		BouncedRecipients []struct {
+			Status string `json:"status"`
+		} `json:"bouncedRecipients"`
 	} `json:"bounce"`
 	Mail struct {
 		Timestamp        sesTimestamp        `json:"timestamp"`
@@ -131,6 +134,12 @@ func (s *SES) ProcessBounce(b []byte) (models.Bounce, error) {
 	typ := models.BounceTypeSoft
 	if m.Bounce.BounceType == "Permanent" {
 		typ = models.BounceTypeHard
+	}
+	if m.Bounce.BounceType == "Transient" && len(m.Bounce.BouncedRecipients) > 0 {
+		// "Invalid domain" bounce.
+		if m.Bounce.BouncedRecipients[0].Status == "5.4.4" {
+			typ = models.BounceTypeHard
+		}
 	}
 	if m.NotifType == "Complaint" {
 		typ = models.BounceTypeComplaint

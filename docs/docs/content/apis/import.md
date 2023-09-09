@@ -1,11 +1,11 @@
 # API / Import
 
-Method     |  Endpoint                                                            |  Description 
------------|----------------------------------------------------------------------|--------------
-`GET`      | [api/import/subscribers](#get-apiimportsubscribers)                  | Gets a import statistics. 
-`GET`      | [api/import/subscribers/logs](#get-apiimportsubscriberslogs)         | Get a import statistics .
-`POST`     | [api/import/subscribers](#post-apiimportsubscribers)                 | Upload a ZIP file or CSV file to bulk import subscribers. 
-`DELETE`   | [api/import/subscribers](#delete-apiimportsubscribers)               | Stops and deletes a import.
+Method   | Endpoint                                                     | Description
+---------|--------------------------------------------------------------|----------------------------------------------------------
+`GET`    | [api/import/subscribers](#get-apiimportsubscribers)          | Gets a import statistics.
+`GET`    | [api/import/subscribers/logs](#get-apiimportsubscriberslogs) | Get a import statistics .
+`POST`   | [api/import/subscribers](#post-apiimportsubscribers)         | Upload a ZIP file or CSV file to bulk import subscribers.
+`DELETE` | [api/import/subscribers](#delete-apiimportsubscribers)       | Stops and deletes a import.
 
 
 #### **`GET`** api/import/subscribers
@@ -51,10 +51,10 @@ Post a CSV (optionally zipped) file to do a bulk import. The request should be a
 
 ##### Parameters
 
-Name     | Parameter type | Data type       | Required/Optional |  Description
----------|----------------|----------------|-------------------|-----------------------
-`params` | Request body | String         | Required          | Stringified JSON with import params
-`file` | Request body | File         | Required          | File to upload
+Name     | Parameter type | Data type | Required/Optional | Description
+---------|----------------|-----------|-------------------|------------------------------------
+`params` | Request body   | String    | Required          | Stringified JSON with import params
+`file`   | Request body   | File      | Required          | File to upload
 
 ***params*** (JSON string)
 

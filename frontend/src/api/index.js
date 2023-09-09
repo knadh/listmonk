@@ -115,6 +115,12 @@ export const getLists = (params) => http.get('/api/lists',
     store: models.lists,
   });
 
+export const queryLists = (params) => http.get('/api/lists',
+  {
+    params: (!params ? { per_page: 'all' } : params),
+    loading: models.lists,
+  });
+
 export const getList = async (id) => http.get(`/api/lists/${id}`,
   { loading: models.list });
 

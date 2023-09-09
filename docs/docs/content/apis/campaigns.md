@@ -1,16 +1,16 @@
 # API / Campaigns
 
-Method |   Endpoint                                                                | Description                  
--------|---------------------------------------------------------------------------|-----------------------------
-`GET`  | [/api/campaigns](#get-apicampaigns)                                       |  Gets all campaigns.
-`GET`  | [/api/campaigns/:`campaign_id`](#get-apicampaignscampaign_id)                |  Gets a single campaign.
-`GET`  | [/api/campaigns/:`campaign_id`/preview](#get-apicampaignscampaign_idpreview)  |  Gets the HTML preview of a campaign body.
-`GET`  | [/api/campaigns/running/stats](#get-apicampaignsrunningstats)              |  Gets the stats of a given set of campaigns.
-`POST` | [/api/campaigns](#post-apicampaigns)                                       |  Creates a new campaign.
-`POST` | /api/campaigns/:`campaign_id`/test                         |  Posts campaign message to arbitrary subscribers for testing.
-`PUT`  | /api/campaigns/:`campaign_id`                                                |  Modifies a campaign.
-`PUT`  | [/api/campaigns/:`campaign_id`/status](#put-apicampaignscampaign_idstatus)   |  Start / pause / cancel / schedule a campaign.
-`DELETE`  | [/api/campaigns/:`campaign_id`](#delete-apicampaignscampaign_id)          |  Deletes a campaign. 
+Method   | Endpoint                                                                     | Description
+---------|------------------------------------------------------------------------------|-------------------------------------------------------------
+`GET`    | [/api/campaigns](#get-apicampaigns)                                          | Gets all campaigns.
+`GET`    | [/api/campaigns/:`campaign_id`](#get-apicampaignscampaign_id)                | Gets a single campaign.
+`GET`    | [/api/campaigns/:`campaign_id`/preview](#get-apicampaignscampaign_idpreview) | Gets the HTML preview of a campaign body.
+`GET`    | [/api/campaigns/running/stats](#get-apicampaignsrunningstats)                | Gets the stats of a given set of campaigns.
+`POST`   | [/api/campaigns](#post-apicampaigns)                                         | Creates a new campaign.
+`POST`   | /api/campaigns/:`campaign_id`/test                                           | Posts campaign message to arbitrary subscribers for testing.
+`PUT`    | /api/campaigns/:`campaign_id`                                                | Modifies a campaign.
+`PUT`    | [/api/campaigns/:`campaign_id`/status](#put-apicampaignscampaign_idstatus)   | Start / pause / cancel / schedule a campaign.
+`DELETE` | [/api/campaigns/:`campaign_id`](#delete-apicampaignscampaign_id)             | Deletes a campaign.
 
 #### ```GET``` /api/campaigns
 
@@ -83,9 +83,9 @@ Name    | Type   | Required/Optional   | Description
 Gets a single campaign.
 
 ##### Parameters 
-Name        | Parameter Type    | Data Type    | Required/Optional    | Description
-------------|-------------------|--------------|----------------------|-----------------------------
-`campaign_id` | Path Parameter    | Number       | Required             | The id  value of the campaign you want to get.
+Name          | Parameter Type | Data Type | Required/Optional | Description
+--------------|----------------|-----------|-------------------|-----------------------------------------------
+`campaign_id` | Path Parameter | Number    | Required          | The id  value of the campaign you want to get.
 
 
 ##### Example Request
@@ -142,9 +142,9 @@ Gets the html preview of a campaign body.
 
 ##### Parameters 
 
-Name        | Parameter Type    | Data Type    | Required/Optional    | Description
-------------|-------------------|--------------|----------------------|-----------------------------
-`campaign_id` | Path Parameter    | Number       | Required             | The id value of the campaign to be previewed.
+Name          | Parameter Type | Data Type | Required/Optional | Description
+--------------|----------------|-----------|-------------------|----------------------------------------------
+`campaign_id` | Path Parameter | Number    | Required          | The id value of the campaign to be previewed.
 
 
 ##### Example Request
@@ -166,9 +166,9 @@ Gets the running stat of a given set of campaigns.
 
 ##### Parameters
 
-Name        | Parameter Type   | Data Type  | Required/Optional   | Description
-------------|------------------|------------|---------------------|--------------------------------
-campaign_id | Query Parameters | Number     | Required            | The id values of the campaigns whose stat you want to get.
+Name        | Parameter Type   | Data Type | Required/Optional | Description
+------------|------------------|-----------|-------------------|-----------------------------------------------------------
+campaign_id | Query Parameters | Number    | Required          | The id values of the campaigns whose stat you want to get.
 
 
 ##### Example Request
@@ -259,10 +259,10 @@ Modifies a campaign status to start, pause, cancel, or schedule a campaign.
 
 ##### Parameters 
 
-Name              |  Parameter Type         | Data Type                 |    Required/Optional | Description
-------------------|-------------------------|---------------------------|----------------------|-----------------------------
-`campaign_id`      | Path Parameter          | Number                    | Required             | The id value of the campaign whose status is to be modified.
-`status`            | Request Body            | String                    | Required             | `scheduled`, `running`, `paused`, `cancelled`.                        
+Name          | Parameter Type | Data Type | Required/Optional | Description
+--------------|----------------|-----------|-------------------|-------------------------------------------------------------
+`campaign_id` | Path Parameter | Number    | Required          | The id value of the campaign whose status is to be modified.
+`status`      | Request Body   | String    | Required          | `scheduled`, `running`, `paused`, `cancelled`.
 
 
 ###### Note: 
@@ -324,9 +324,9 @@ Deletes a campaign, only scheduled campaigns that have not yet been started can 
 
 ##### Parameters
 
-Name     |  Parameter Type    | Data Type      | Required/Optional   | Description
----------|--------------------|----------------|---------------------|------------------------------
-`campaign_id`| Path Parameter   | Number         | Required            | The id value of the campaign you want to delete.
+Name          | Parameter Type | Data Type | Required/Optional | Description
+--------------|----------------|-----------|-------------------|-------------------------------------------------
+`campaign_id` | Path Parameter | Number    | Required          | The id value of the campaign you want to delete.
 
 
 ##### Example Request

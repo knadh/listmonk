@@ -191,6 +191,19 @@ func handleBounceWebhook(c echo.Context) error {
 		}
 		bounces = append(bounces, bs...)
 
+	// Postmark.
+	case service == "postmark" && app.constants.BouncePostmarkEnabled:
+		bs, err := app.bounce.Postmark.ProcessBounce(rawReq, c)
+		if err != nil {
+			app.log.Printf("error processing postmark notification: %v", err)
+			if _, ok := err.(*echo.HTTPError); ok {
+				return err
+			}
+
+			return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidData"))
+		}
+		bounces = append(bounces, bs...)
+
 	default:
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.Ts("bounces.unknownService"))
 	}
