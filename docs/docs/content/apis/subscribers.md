@@ -8,7 +8,7 @@ Method   | Endpoint                                                             
 `GET`    | [/api/subscribers](#get-apisubscriberslist_id)                        | Gets subscribers in one or more lists.
 `GET`    | [/api/subscribers](#get-apisubscribers_1)                             | Gets subscribers filtered by an arbitrary SQL expression.
 `POST`   | [/api/subscribers](#post-apisubscribers)                              | Creates a new subscriber.
-`POST`   | [/api/subscribers](#post-apisubscriberspublic)                        | Unauthenticated API that enables public subscription.
+`POST`   | [/api/public/subscription]([#post-apipublicsubscription))             | Unauthenticated API that enables public subscription.
 `PUT`    | [/api/subscribers/lists](#put-apisubscriberslists)                    | Modify subscribers' list memberships.
 `PUT`    | [/api/subscribers/:`id`](#put-apisubscribersid)                       | Updates a subscriber by ID.
 `PUT`    | [/api/subscribers/:`id`/blocklist](#put-apisubscribersidblocklist)    | Blocklists a single subscriber.
@@ -322,8 +322,7 @@ curl -u 'username:password' 'http://localhost:9000/api/subscribers' -H 'Content-
 
 #### **`POST`** /api/public/subscription
 
-This is a public, unauthenticated API meant for directly integrating forms for public subscription. The API supports both
-form encoded or a JSON encoded body. 
+This is a public, unauthenticated API meant for directly integrating forms for public subscription. The API supports both form encoded or a JSON encoded body. 
 
 ##### Parameters 
 
@@ -335,8 +334,8 @@ list_uuids               | Request body     | Strings    | Required          | A
 
 ##### Example JSON Request
 ```shell
-curl -u 'http://localhost:9000/api/public/subscription' -H 'Content-Type: application/json' \
-    --data '{"email":"subsriber@domain.com","name":"The Subscriber", "lists": ["eb420c55-4cfb-4972-92ba-c93c34ba475d", "0c554cfb-eb42-4972-92ba-c93c34ba475d"]}'
+curl 'http://localhost:9000/api/public/subscription' -H 'Content-Type: application/json' \
+    --data '{"email":"subsriber@domain.com","name":"The Subscriber","list_uuids": ["eb420c55-4cfb-4972-92ba-c93c34ba475d", "0c554cfb-eb42-4972-92ba-c93c34ba475d"]}'
 ```
 
 ##### Example Form Request
