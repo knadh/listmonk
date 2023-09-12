@@ -16,7 +16,7 @@
       
       
       <link rel="icon" href="../../images/favicon.png">
-      <meta name="generator" content="mkdocs-1.5.2, mkdocs-material-9.2.6">
+      <meta name="generator" content="mkdocs-1.5.2, mkdocs-material-9.3.1">
     
     
       
@@ -24,7 +24,7 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.0e669242.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.046329b4.min.css">
       
         
         <link rel="stylesheet" href="../../assets/stylesheets/palette.85d0ee34.min.css">
@@ -1528,7 +1528,7 @@
 </tr>
 <tr>
 <td><code>POST</code></td>
-<td><a href="#post-apisubscriberspublic">/api/subscribers</a></td>
+<td><a href="#post-apipublicsubscription">/api/public/subscription</a></td>
 <td>Unauthenticated API that enables public subscription.</td>
 </tr>
 <tr>
@@ -1914,8 +1914,7 @@
 <span class="p">}</span>
 </code></pre></div>
 <h4 id="post-apipublicsubscription"><strong><code>POST</code></strong> /api/public/subscription<a class="headerlink" href="#post-apipublicsubscription" title="Permanent link">&para;</a></h4>
-<p>This is a public, unauthenticated API meant for directly integrating forms for public subscription. The API supports both
-form encoded or a JSON encoded body. </p>
+<p>This is a public, unauthenticated API meant for directly integrating forms for public subscription. The API supports both form encoded or a JSON encoded body. </p>
 <h5 id="parameters_3">Parameters<a class="headerlink" href="#parameters_3" title="Permanent link">&para;</a></h5>
 <table>
 <thead>
@@ -1952,8 +1951,8 @@ form encoded or a JSON encoded body. </p>
 </tbody>
 </table>
 <h5 id="example-json-request">Example JSON Request<a class="headerlink" href="#example-json-request" title="Permanent link">&para;</a></h5>
-<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-u<span class="w"> </span><span class="s1">&#39;http://localhost:9000/api/public/subscription&#39;</span><span class="w"> </span>-H<span class="w"> </span><span class="s1">&#39;Content-Type: application/json&#39;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>--data<span class="w"> </span><span class="s1">&#39;{&quot;email&quot;:&quot;subsriber@domain.com&quot;,&quot;name&quot;:&quot;The Subscriber&quot;, &quot;lists&quot;: [&quot;eb420c55-4cfb-4972-92ba-c93c34ba475d&quot;, &quot;0c554cfb-eb42-4972-92ba-c93c34ba475d&quot;]}&#39;</span>
+<div class="highlight"><pre><span></span><code>curl<span class="w"> </span><span class="s1">&#39;http://localhost:9000/api/public/subscription&#39;</span><span class="w"> </span>-H<span class="w"> </span><span class="s1">&#39;Content-Type: application/json&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--data<span class="w"> </span><span class="s1">&#39;{&quot;email&quot;:&quot;subsriber@domain.com&quot;,&quot;name&quot;:&quot;The Subscriber&quot;,&quot;list_uuids&quot;: [&quot;eb420c55-4cfb-4972-92ba-c93c34ba475d&quot;, &quot;0c554cfb-eb42-4972-92ba-c93c34ba475d&quot;]}&#39;</span>
 </code></pre></div>
 <h5 id="example-form-request">Example Form Request<a class="headerlink" href="#example-form-request" title="Permanent link">&para;</a></h5>
 <div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-u<span class="w"> </span><span class="s1">&#39;http://localhost:9000/api/public/subscription&#39;</span><span class="w"> </span><span class="se">\</span>
@@ -2191,7 +2190,7 @@ form encoded or a JSON encoded body. </p>
     <script id="__config" type="application/json">{"base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.dfff1995.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.78eede0e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.dff1b7c8.min.js"></script>
       
     
   </body>
