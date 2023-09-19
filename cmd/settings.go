@@ -121,6 +121,8 @@ func handleUpdateSettings(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("settings.errorNoSMTP"))
 	}
 
+	set.AppRootURL = strings.TrimRight(set.AppRootURL, "/")
+
 	// Bounce boxes.
 	for i, s := range set.BounceBoxes {
 		// Assign a UUID. The frontend only sends a password when the user explicitly
