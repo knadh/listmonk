@@ -1,4 +1,5 @@
 {
+    "$schema":"https://inlang.com/schema/project-settings",
     "sourceLanguageTag": "en",
     "languageTags": ["ca", "cs-cz", "cy", "de", "en", "es", "fi", "fr", "hu", "it", "jp", "ml", "nl", "pl", "pt-BR", "pt", "ro", "ru", "se", "sk", "tr", "vi", "zh-CN", "zh-TW"],
     "modules": [
