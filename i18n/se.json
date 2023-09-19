@@ -438,7 +438,7 @@
     "settings.media.s3.region": "Region",
     "settings.media.s3.secret": "AWS access secret",
     "settings.media.s3.uploadExpiry": "Upload expiry",
-    "settings.media.s3.uploadExpiryHelp": "(Optional) Specify TTL (in seconds) for the generated presigned URL. Only applicable for private buckets (s, m, h, d for seconds, minutes, hours, days).",
+    "settings.media.s3.uploadExpiryHelp": "(Optional) Specify TTL for the generated presigned URL. Only applicable for private buckets (s, m, h, d for seconds, minutes, hours, days).",
     "settings.media.s3.url": "S3 backend URL",
     "settings.media.s3.urlHelp": "Only change if using a custom S3 compatible backend like Minio.",
     "settings.media.title": "Media uploads",

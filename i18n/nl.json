@@ -438,7 +438,7 @@
     "settings.media.s3.region": "Regio",
     "settings.media.s3.secret": "AWS access secret",
     "settings.media.s3.uploadExpiry": "Upload vervaldatum",
-    "settings.media.s3.uploadExpiryHelp": "(Optioneel) TTL (in seconden) voor de gegenereerde, getekende URL. Enkel van toepassing voor privébuckets (s, m, h, d voor seconden, minuten, uren, dagen).",
+    "settings.media.s3.uploadExpiryHelp": "(Optioneel) TTL voor de gegenereerde, getekende URL. Enkel van toepassing voor privébuckets (s, m, h, d voor seconden, minuten, uren, dagen).",
     "settings.media.s3.url": "S3 backend URL",
     "settings.media.s3.urlHelp": "Enkel veranderen als je een custom S3-compatibele backend gebruikt zoals Minio.",
     "settings.media.title": "Media uploads",

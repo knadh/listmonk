@@ -439,7 +439,7 @@
     "settings.media.s3.region": "地區",
     "settings.media.s3.secret": "AWS訪問密鑰",
     "settings.media.s3.uploadExpiry": "上傳到期",
-    "settings.media.s3.uploadExpiryHelp": "（可選）為生成的預簽名UR 指定TTL（以秒為單位）。僅適用於私有存儲桶（s、m、h、d 表示秒、分鐘、小時、天）。",
+    "settings.media.s3.uploadExpiryHelp": "（可選）為生成的預簽名UR 指定TTL。僅適用於私有存儲桶（s、m、h、d 表示秒、分鐘、小時、天）。",
     "settings.media.s3.url": "S3後端URL",
     "settings.media.s3.urlHelp": "只有在使用像Minio這樣的自定義S3兼容後端時才進行更改。",
     "settings.media.title": "媒體上傳",

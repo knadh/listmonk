@@ -439,7 +439,7 @@
     "settings.media.s3.region": "Alue",
     "settings.media.s3.secret": "AWS-käyttösalaisuus",
     "settings.media.s3.uploadExpiry": "Latauksen vanheneminen",
-    "settings.media.s3.uploadExpiryHelp": "(Valinnainen) Määritä TTL-arvo (sekunteina) luodulle ennalta määritettävälle URL-osoitteelle. Sovelletaan vain yksityisiin säilöihin (s, m, h, d sekunteina, minuutteina, tunteina, päivinä).",
+    "settings.media.s3.uploadExpiryHelp": "(Valinnainen) Määritä TTL-arvo luodulle ennalta määritettävälle URL-osoitteelle. Sovelletaan vain yksityisiin säilöihin (s, m, h, d sekunteina, minuutteina, tunteina, päivinä).",
     "settings.media.s3.url": "S3-avaruuden URL-osoite",
     "settings.media.s3.urlHelp": "Voit muuttaa vain, jos käytät mukautettua S3-yhteensopivaa taustajärjestelmää, kuten Minio.",
     "settings.media.title": "Median lataukset",

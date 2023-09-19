@@ -438,7 +438,7 @@
     "settings.media.s3.region": "Regió",
     "settings.media.s3.secret": "Secret d'accés AWS",
     "settings.media.s3.uploadExpiry": "Caducitat de la càrrega",
-    "settings.media.s3.uploadExpiryHelp": "(Opcional) Especifica TTL (en segons) per a l'URL presignada generada. Només aplicable a contenidors privats (s, m, h, d per a segons, minuts, hores, dies).",
+    "settings.media.s3.uploadExpiryHelp": "(Opcional) Especifica TTL per a l'URL presignada generada. Només aplicable a contenidors privats (s, m, h, d per a segons, minuts, hores, dies).",
     "settings.media.s3.url": "URL del backend S3",
     "settings.media.s3.urlHelp": "Canvia només si fas servir un backend personalitzat compatible amb S3 com Minio.",
     "settings.media.title": "Càrrega de mèdia",

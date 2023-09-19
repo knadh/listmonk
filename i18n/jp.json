@@ -439,7 +439,7 @@
     "settings.media.s3.region": "地域",
     "settings.media.s3.secret": "AWS シークレットアクセス",
     "settings.media.s3.uploadExpiry": "アップロードの有効期限",
-    "settings.media.s3.uploadExpiryHelp": "(任意) 生成されたプリサインURLのTTLを（秒で）特定。プライベートバケットのみ適用可能。 (秒はs, 分はm, 時間はh, 日はd).",
+    "settings.media.s3.uploadExpiryHelp": "(任意) 生成されたプリサインURLのTTLを 特定。プライベートバケットのみ適用可能。 (秒はs, 分はm, 時間はh, 日はd).",
     "settings.media.s3.url": "S3バックエンドURL",
     "settings.media.s3.urlHelp": "MinioのようなS3互換のカスタムバックエンドを使用する場合のみ変更。",
     "settings.media.title": "メディアアップロード",

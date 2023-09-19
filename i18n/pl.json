@@ -438,7 +438,7 @@
     "settings.media.s3.region": "Region",
     "settings.media.s3.secret": "Sekret dostępu AWS",
     "settings.media.s3.uploadExpiry": "Wygaśnięcie przesyłania",
-    "settings.media.s3.uploadExpiryHelp": "(Opcjonalne) Zdefiniuj TTL (w sekundach) dla wygenerowanego podpisanego URL. Tylko dla prywatnych komór (bucketów) (s, m, h, d dla sekund, minut, godzin, dni).",
+    "settings.media.s3.uploadExpiryHelp": "(Opcjonalne) Zdefiniuj TTL dla wygenerowanego podpisanego URL. Tylko dla prywatnych komór (bucketów) (s, m, h, d dla sekund, minut, godzin, dni).",
     "settings.media.s3.url": "Adres URL dla S3 backend",
     "settings.media.s3.urlHelp": "Zmień tylko, jeśli używasz niestandardowego backendu kompatybilnego z S3, takiego jak Minio.",
     "settings.media.title": "Wysyłka mediów",

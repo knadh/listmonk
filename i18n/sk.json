@@ -438,7 +438,7 @@
     "settings.media.s3.region": "Región",
     "settings.media.s3.secret": "Prístupové tajomstvo AWS",
     "settings.media.s3.uploadExpiry": "Expirácia nahrávania",
-    "settings.media.s3.uploadExpiryHelp": "(Voliteľné) Uveďte TTL (v sekundách) pre generovanú vopred podpísanú adresu URL. Vhodné len pre súkromné buckety (s, m, h, d pre sekundy, minúty, hodiny, dni).",
+    "settings.media.s3.uploadExpiryHelp": "(Voliteľné) Uveďte TTL pre generovanú vopred podpísanú adresu URL. Vhodné len pre súkromné buckety (s, m, h, d pre sekundy, minúty, hodiny, dni).",
     "settings.media.s3.url": "Adresa URL pre S3 backend",
     "settings.media.s3.urlHelp": "Dá sa nastaviť ak používateľ S3 kompatibilný backend ako napr. Minio.",
     "settings.media.title": "Nahrávanie médií",

@@ -438,7 +438,7 @@
     "settings.media.s3.region": "Регион",
     "settings.media.s3.secret": "Секретаня фраза AWS",
     "settings.media.s3.uploadExpiry": "Срок жизни выгрузки",
-    "settings.media.s3.uploadExpiryHelp": "(Необязательно) Укажите TTL (в секундах) сгенерированного подписанного URL. Применимо только для приватных bucket (s, m, h, d соответствует секундам, минутам, часам и дням).",
+    "settings.media.s3.uploadExpiryHelp": "(Необязательно) Укажите TTL сгенерированного подписанного URL. Применимо только для приватных bucket (s, m, h, d соответствует секундам, минутам, часам и дням).",
     "settings.media.s3.url": "URL бэкенда S3",
     "settings.media.s3.urlHelp": "Измените только в случае использования бэкенда, совместимого с S3, например, Minio.",
     "settings.media.title": "Выгрузки медиа",

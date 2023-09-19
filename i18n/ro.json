@@ -439,7 +439,7 @@
     "settings.media.s3.region": "Regiune",
     "settings.media.s3.secret": "Secret de acces AWS",
     "settings.media.s3.uploadExpiry": "Încărcarea expirării",
-    "settings.media.s3.uploadExpiryHelp": "(Opțional) Specifică TTL (în secunde) pentru adresa URL presemnată generată. Se aplică numai pentru bucketurile private (s, m, h, d pentru secunde, minute, ore, zile).",
+    "settings.media.s3.uploadExpiryHelp": "(Opțional) Specifică TTL pentru adresa URL presemnată generată. Se aplică numai pentru bucketurile private (s, m, h, d pentru secunde, minute, ore, zile).",
     "settings.media.s3.url": "S3 backend URL-ul",
     "settings.media.s3.urlHelp": "Schimbă numai dacă folosești un backend personalizat compatibil S3, cum ar fi Minio.",
     "settings.media.title": "Încărcări media",

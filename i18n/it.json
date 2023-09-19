@@ -439,7 +439,7 @@
     "settings.media.s3.region": "Regione",
     "settings.media.s3.secret": "Segreto d'acceso AWS",
     "settings.media.s3.uploadExpiry": "Caricamento scaduto",
-    "settings.media.s3.uploadExpiryHelp": "(Facoltativo) Specifica il TTL (in secondi) per l'URL predefinito generato. Applicabile solo per i buckets privati (s, m, h, d per i secondi, minuti, ore e giorni).",
+    "settings.media.s3.uploadExpiryHelp": "(Facoltativo) Specifica il TTL per l'URL predefinito generato. Applicabile solo per i buckets privati (s, m, h, d per i secondi, minuti, ore e giorni).",
     "settings.media.s3.url": "URL backend S3",
     "settings.media.s3.urlHelp": "Modifficare soltanto se stai utilizando uno backend compatibile con S3, ad essempio Minio.",
     "settings.media.title": "Caricamento dei media",

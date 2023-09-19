@@ -438,7 +438,7 @@
     "settings.media.s3.region": "Oblast",
     "settings.media.s3.secret": "Přístupový tajný údaj AWS",
     "settings.media.s3.uploadExpiry": "Uplynulá platnost odeslání",
-    "settings.media.s3.uploadExpiryHelp": "(Volitelné) Uveďte TTL (v sekundách) pro generovanou předem přihlášenou adresu URL. Vhodné pouze pro soukromé sektory (s, m, h, d pro sekundy, minuty, hodiny, dny).",
+    "settings.media.s3.uploadExpiryHelp": "(Volitelné) Uveďte TTL pro generovanou předem přihlášenou adresu URL. Vhodné pouze pro soukromé sektory (s, m, h, d pro sekundy, minuty, hodiny, dny).",
     "settings.media.s3.url": "Adresa URL pro S3 backend",
     "settings.media.s3.urlHelp": "Lze změnit, pouze pokud se použije S3 kompatibilní backend, jako je Minio.",
     "settings.media.title": "Odeslání médií",
