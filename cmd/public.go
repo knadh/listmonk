@@ -200,16 +200,6 @@ func handleSubscriptionPage(c echo.Context) error {
 	out.AllowWipe = app.constants.Privacy.AllowWipe
 	out.AllowPreferences = app.constants.Privacy.AllowPreferences
 
-	if app.constants.Privacy.AllowPreferences {
-		out.ShowManage = showManage
-	}
-
-	// Get the subscriber's lists.
-	subs, err := app.core.GetSubscriptions(0, subUUID, false)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("public.errorFetchingLists"))
-	}
-
 	s, err := app.core.GetSubscriber(0, subUUID, "")
 	if err != nil {
 		return c.Render(http.StatusInternalServerError, tplMessage,
@@ -222,8 +212,17 @@ func handleSubscriptionPage(c echo.Context) error {
 			makeMsgTpl(app.i18n.T("public.noSubTitle"), "", app.i18n.Ts("public.blocklisted")))
 	}
 
-	// Filter out unrelated private lists.
-	if showManage {
+	// Only show preference management if it's enabled in settings.
+	if app.constants.Privacy.AllowPreferences {
+		out.ShowManage = showManage
+	}
+	if out.ShowManage {
+		// Get the subscriber's lists.
+		subs, err := app.core.GetSubscriptions(0, subUUID, false)
+		if err != nil {
+			return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("public.errorFetchingLists"))
+		}
+
 		out.Subscriptions = make([]models.Subscription, 0, len(subs))
 		for _, s := range subs {
 			if s.Type == models.ListTypePrivate {
