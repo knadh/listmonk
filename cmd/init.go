@@ -605,33 +605,7 @@ func initMediaStore() media.Store {
 // initNotifTemplates compiles and returns e-mail notification templates that are
 // used for sending ad-hoc notifications to admins and subscribers.
 func initNotifTemplates(path string, fs stuffbin.FileSystem, i *i18n.I18n, cs *constants) *notifTpls {
-	// Register utility functions that the e-mail templates can use.
-	funcs := template.FuncMap{
-		"RootURL": func() string {
-			return cs.RootURL
-		},
-		"LogoURL": func() string {
-			return cs.LogoURL
-		},
-		"Date": func(layout string) string {
-			if layout == "" {
-				layout = time.ANSIC
-			}
-			return time.Now().Format(layout)
-		},
-		"L": func() *i18n.I18n {
-			return i
-		},
-		"Safe": func(safeHTML string) template.HTML {
-			return template.HTML(safeHTML)
-		},
-	}
-
-	for k, v := range sprig.GenericFuncMap() {
-		funcs[k] = v
-	}
-
-	tpls, err := stuffbin.ParseTemplatesGlob(funcs, fs, "/static/email-templates/*.html")
+	tpls, err := stuffbin.ParseTemplatesGlob(initTplFuncs(i, cs), fs, "/static/email-templates/*.html")
 	if err != nil {
 		lo.Fatalf("error parsing e-mail notif templates: %v", err)
 	}
@@ -760,11 +734,7 @@ func initHTTPServer(app *App) *echo.Echo {
 		}
 	})
 
-	// Parse and load user facing templates.
-	tpl, err := stuffbin.ParseTemplatesGlob(template.FuncMap{
-		"L": func() *i18n.I18n {
-			return app.i18n
-		}}, app.fs, "/public/templates/*.html")
+	tpl, err := stuffbin.ParseTemplatesGlob(initTplFuncs(app.i18n, app.constants), app.fs, "/public/templates/*.html")
 	if err != nil {
 		lo.Fatalf("error parsing public templates: %v", err)
 	}
@@ -857,4 +827,33 @@ func joinFSPaths(root string, paths []string) []string {
 	}
 
 	return out
+}
+
+func initTplFuncs(i *i18n.I18n, cs *constants) template.FuncMap {
+	funcs := template.FuncMap{
+		"RootURL": func() string {
+			return cs.RootURL
+		},
+		"LogoURL": func() string {
+			return cs.LogoURL
+		},
+		"Date": func(layout string) string {
+			if layout == "" {
+				layout = time.ANSIC
+			}
+			return time.Now().Format(layout)
+		},
+		"L": func() *i18n.I18n {
+			return i
+		},
+		"Safe": func(safeHTML string) template.HTML {
+			return template.HTML(safeHTML)
+		},
+	}
+
+	for k, v := range sprig.GenericFuncMap() {
+		funcs[k] = v
+	}
+
+	return funcs
 }
