@@ -575,6 +575,7 @@ func initMediaStore() media.Store {
 	case "s3":
 		var o s3.Opt
 		ko.Unmarshal("upload.s3", &o)
+
 		up, err := s3.NewS3Store(o)
 		if err != nil {
 			lo.Fatalf("error initializing s3 upload provider %s", err)

@@ -40,6 +40,11 @@ func NewS3Store(opt Opt) (media.Store, error) {
 	}
 	opt.URL = strings.TrimRight(opt.URL, "/")
 
+	// Default (and max S3 expiry) is 7 days.
+	if opt.Expiry.Seconds() < 1 {
+		opt.Expiry = time.Duration(167) * time.Hour
+	}
+
 	if opt.AccessKey == "" && opt.SecretKey == "" {
 		// fallback to IAM role if no access key/secret key is provided.
 		cl, _ = simples3.NewUsingIAM(opt.Region)

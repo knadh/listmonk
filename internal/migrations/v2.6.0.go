@@ -13,5 +13,10 @@ func V2_6_0(db *sqlx.DB, fs stuffbin.FileSystem, ko *koanf.Koanf) error {
 		return err
 	}
 
+	// Fix incorrect "d" (day) time prefix in S3 expiry settings.
+	if _, err := db.Exec(`UPDATE settings SET value = '"167h"'  WHERE key = 'upload.s3.expiry' AND value = '"14d"'`); err != nil {
+		return err
+	}
+
 	return nil
 }
