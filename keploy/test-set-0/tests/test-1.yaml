@@ -1,0 +1,44 @@
+version: api.keploy.io/v1beta2
+kind: Http
+name: test-1
+spec:
+    metadata: {}
+    req:
+        method: GET
+        proto_major: 1
+        proto_minor: 1
+        url: http://localhost:9000/api/subscribers?page=1&per_page=100
+        url_params:
+            page: "1"
+            per_page: "100"
+        header:
+            Accept: '*/*'
+            Authorization: Basic bGlzdG1vbms6bGlzdG1vbms=
+            Host: localhost:9000
+            User-Agent: curl/7.81.0
+        body: ""
+        body_type: ""
+    resp:
+        status_code: 200
+        header:
+            Content-Type: application/json; charset=UTF-8
+            Date: Mon, 25 Sep 2023 10:53:25 GMT
+        body: |
+            {"data":{"results":[{"id":10,"created_at":"2023-09-21T03:20:36.402094Z","updated_at":"2023-09-21T03:20:36.402094Z","uuid":"eab1f8c7-3386-4998-ba67-fea935b01497","email":"subsriber3@domain.com","name":"The Subscriber","attribs":{"city":"Bengaluru","projects":3,"stack":{"languages":["go","python"]}},"status":"enabled","lists":[{"subscription_status":"unconfirmed","subscription_created_at":"2023-09-21T03:20:36.402094+00:00","subscription_updated_at":"2023-09-21T03:20:36.402094+00:00","subscription_meta":{},"id":1,"uuid":"35ae6a52-a7df-44b3-a28c-a0bf86245fd9","name":"Default list","type":"private","optin":"single","tags":["test"],"description":"","created_at":"2023-09-20T10:36:36.369954+00:00","updated_at":"2023-09-20T10:36:36.369954+00:00"}]},{"id":9,"created_at":"2023-09-21T03:01:58.1818Z","updated_at":"2023-09-21T03:01:58.1818Z","uuid":"95fa8a54-77ad-47a9-b9d4-5a549b6c1748","email":"subsriber2@domain.com","name":"The Subscriber","attribs":{"city":"Bengaluru","projects":3,"stack":{"languages":["go","python"]}},"status":"enabled","lists":[{"subscription_status":"unconfirmed","subscription_created_at":"2023-09-21T03:01:58.1818+00:00","subscription_updated_at":"2023-09-21T03:01:58.1818+00:00","subscription_meta":{},"id":1,"uuid":"35ae6a52-a7df-44b3-a28c-a0bf86245fd9","name":"Default list","type":"private","optin":"single","tags":["test"],"description":"","created_at":"2023-09-20T10:36:36.369954+00:00","updated_at":"2023-09-20T10:36:36.369954+00:00"}]},{"id":6,"created_at":"2023-09-20T12:18:25.580474Z","updated_at":"2023-09-20T12:18:25.580474Z","uuid":"a065531c-d0ff-445a-aefc-36aa55b548d6","email":"subsriber1@domain.com","name":"The Subscriber","attribs":{"city":"Bengaluru","projects":3,"stack":{"languages":["go","python"]}},"status":"enabled","lists":[{"subscription_status":"unconfirmed","subscription_created_at":"2023-09-20T12:18:25.580474+00:00","subscription_updated_at":"2023-09-20T12:18:25.580474+00:00","subscription_meta":{},"id":1,"uuid":"35ae6a52-a7df-44b3-a28c-a0bf86245fd9","name":"Default list","type":"private","optin":"single","tags":["test"],"description":"","created_at":"2023-09-20T10:36:36.369954+00:00","updated_at":"2023-09-20T10:36:36.369954+00:00"}]},{"id":3,"created_at":"2023-09-20T11:56:10.988441Z","updated_at":"2023-09-20T11:56:10.988441Z","uuid":"40d1c4bf-81fa-4a79-97f4-84c91165e37c","email":"subsriber@domain.com","name":"The Subscriber","attribs":{"city":"Bengaluru","projects":3,"stack":{"languages":["go","python"]}},"status":"enabled","lists":[{"subscription_status":"unconfirmed","subscription_created_at":"2023-09-20T11:56:10.988441+00:00","subscription_updated_at":"2023-09-20T11:56:10.988441+00:00","subscription_meta":{},"id":1,"uuid":"35ae6a52-a7df-44b3-a28c-a0bf86245fd9","name":"Default list","type":"private","optin":"single","tags":["test"],"description":"","created_at":"2023-09-20T10:36:36.369954+00:00","updated_at":"2023-09-20T10:36:36.369954+00:00"}]},{"id":2,"created_at":"2023-09-20T10:36:36.37341Z","updated_at":"2023-09-20T10:36:36.37341Z","uuid":"a81250b3-d1ee-46ad-9325-8645cb772f68","email":"anon@example.com","name":"Anon Doe","attribs":{"city":"Bengaluru","good":true,"type":"unknown"},"status":"enabled","lists":[{"subscription_status":"unconfirmed","subscription_created_at":"2023-09-20T10:36:36.37341+00:00","subscription_updated_at":"2023-09-20T10:36:36.37341+00:00","subscription_meta":{},"id":2,"uuid":"86e36156-ff03-4cc9-8b27-fd391f7e77cc","name":"Opt-in list","type":"public","optin":"double","tags":["test"],"description":"","created_at":"2023-09-20T10:36:36.370595+00:00","updated_at":"2023-09-20T10:36:36.370595+00:00"}]},{"id":1,"created_at":"2023-09-20T10:36:36.37103Z","updated_at":"2023-09-20T10:36:36.37103Z","uuid":"61270bf1-d711-4473-9d74-6f8761f052b9","email":"john@example.com","name":"John Doe","attribs":{"city":"Bengaluru","good":true,"type":"known"},"status":"enabled","lists":[{"subscription_status":"unconfirmed","subscription_created_at":"2023-09-20T10:36:36.37103+00:00","subscription_updated_at":"2023-09-20T10:36:36.37103+00:00","subscription_meta":{},"id":1,"uuid":"35ae6a52-a7df-44b3-a28c-a0bf86245fd9","name":"Default list","type":"private","optin":"single","tags":["test"],"description":"","created_at":"2023-09-20T10:36:36.369954+00:00","updated_at":"2023-09-20T10:36:36.369954+00:00"}]}],"query":"","total":6,"per_page":100,"page":1}}
+        body_type: ""
+        status_message: ""
+        proto_major: 0
+        proto_minor: 0
+    objects: []
+    assertions:
+        noise:
+            - body.data.results.lists.subscription_created_at
+            - body.data.results.lists.updated_at
+            - body.data.results.lists.created_at
+            - body.data.results.attribs.type
+            - header.Date
+            - body.data.results.updated_at
+            - body.data.results.attribs.good
+            - body.data.results.created_at
+            - body.data.results.lists.subscription_updated_at
+    created: 1695639206

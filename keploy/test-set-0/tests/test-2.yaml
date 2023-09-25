@@ -1,0 +1,43 @@
+version: api.keploy.io/v1beta2
+kind: Http
+name: test-2
+spec:
+    metadata: {}
+    req:
+        method: GET
+        proto_major: 1
+        proto_minor: 1
+        url: http://localhost:9000/api/lists?page=1&per_page=100
+        url_params:
+            page: "1"
+            per_page: "100"
+        header:
+            Accept: '*/*'
+            Authorization: Basic bGlzdG1vbms6bGlzdG1vbms=
+            Host: localhost:9000
+            User-Agent: curl/7.81.0
+        body: ""
+        body_type: ""
+    resp:
+        status_code: 200
+        header:
+            Content-Length: "772"
+            Content-Type: application/json; charset=UTF-8
+            Date: Mon, 25 Sep 2023 10:53:45 GMT
+        body: |
+            {"data":{"results":[{"id":2,"created_at":"2023-09-20T10:36:36.370595Z","updated_at":"2023-09-20T10:36:36.370595Z","uuid":"86e36156-ff03-4cc9-8b27-fd391f7e77cc","name":"Opt-in list","type":"public","optin":"double","tags":["test"],"description":"","subscriber_count":1,"subscriber_statuses":{"unconfirmed":1},"subscription_created_at":null,"subscription_updated_at":null},{"id":1,"created_at":"2023-09-20T10:36:36.369954Z","updated_at":"2023-09-20T10:36:36.369954Z","uuid":"35ae6a52-a7df-44b3-a28c-a0bf86245fd9","name":"Default list","type":"private","optin":"single","tags":["test"],"description":"","subscriber_count":5,"subscriber_statuses":{"unconfirmed":5},"subscription_created_at":null,"subscription_updated_at":null}],"query":"","total":2,"per_page":100,"page":1}}
+        body_type: ""
+        status_message: ""
+        proto_major: 0
+        proto_minor: 0
+    objects: []
+    assertions:
+        noise:
+            - body.data.results.created_at
+            - body.data.results.tags
+            - body.data.results.type
+            - body.data.results.updated_at
+            - body.data.results.name
+            - header.Date
+            - body.data.results.optin
+    created: 1695639226

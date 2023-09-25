@@ -1,0 +1,35 @@
+version: api.keploy.io/v1beta2
+kind: Http
+name: test-3
+spec:
+    metadata: {}
+    req:
+        method: POST
+        proto_major: 1
+        proto_minor: 1
+        url: http://localhost:9000/api/public/subscription
+        header:
+            Accept: '*/*'
+            Content-Length: "151"
+            Content-Type: application/json
+            Host: localhost:9000
+            User-Agent: curl/7.81.0
+        body: '{"email":"subsriber@domain.com","name":"The Subscriber","list_uuids": ["eb420c55-4cfb-4972-92ba-c93c34ba475d", "0c554cfb-eb42-4972-92ba-c93c34ba475d"]}'
+        body_type: ""
+    resp:
+        status_code: 200
+        header:
+            Content-Length: "29"
+            Content-Type: application/json; charset=UTF-8
+            Date: Mon, 25 Sep 2023 10:59:55 GMT
+        body: |
+            {"data":{"has_optin":false}}
+        body_type: ""
+        status_message: ""
+        proto_major: 0
+        proto_minor: 0
+    objects: []
+    assertions:
+        noise:
+            - header.Date
+    created: 1695639595
