@@ -497,15 +497,9 @@
     "settings.privacy.recordOptinIP": "Grabar dirección IP de inscripción",
     "settings.privacy.recordOptinIPHelp": "Registrar la dirección IP de doble inscripción en los atributos del suscriptor.",
     "settings.restart": "Reiniciar",
-<<<<<<< HEAD
-    "settings.security.captchaKey": "hCaptcha.com SiteKey",
-    "settings.security.captchaKeyHelp": "Visite www.hcaptcha.com para conseguir la SiteKey y el secret.",
-    "settings.security.captchaSecret": "hCaptcha.com secret",
-=======
-    "settings.security.captchaKey": "Clave de sitio hCaptcha.com",
-    "settings.security.captchaKeyHelp": "Visite www.hcaptcha.com para conseguir la SiteKey y el secret.",
-    "settings.security.captchaSecret": "Secreto hCaptcha.com",
->>>>>>> master
+    "settings.security.captchaKey": "Clave de sitio hCaptcha.com (SiteKey)",
+    "settings.security.captchaKeyHelp": "Visite www.hcaptcha.com para conseguir la Clave del sitio (SiteKey) y el Secreto (secret).",
+    "settings.security.captchaSecret": "Secreto hCaptcha.com (secret)",
     "settings.security.enableCaptcha": "Habilitar CAPTCHA",
     "settings.security.enableCaptchaHelp": "Habilitar CAPTCHA en el formulario público de suscripción.",
     "settings.security.name": "Seguridad",
