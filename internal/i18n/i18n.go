@@ -90,8 +90,9 @@ func (i *I18n) T(key string) string {
 // The params and values are received as a pairs of succeeding strings.
 // That is, the number of these arguments should be an even number.
 // eg: Ts("globals.message.notFound",
-//         "name", "campaigns",
-//         "error", err)
+//
+//	"name", "campaigns",
+//	"error", err)
 func (i *I18n) Ts(key string, params ...string) string {
 	if len(params)%2 != 0 {
 		return key + `: Invalid arguments`
@@ -139,7 +140,7 @@ func (i *I18n) getSingular(s string) string {
 	return strings.TrimSpace(strings.Split(s, "|")[0])
 }
 
-// getSingular returns the plural term from the vuei18n pipe separated value.
+// getPlural returns the plural term from the vuei18n pipe separated value.
 // singular term | plural term
 func (i *I18n) getPlural(s string) string {
 	if !strings.Contains(s, "|") {

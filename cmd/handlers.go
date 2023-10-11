@@ -13,7 +13,7 @@ import (
 
 const (
 	// stdInputMaxLen is the maximum allowed length for a standard input field.
-	stdInputMaxLen = 200
+	stdInputMaxLen = 2000
 
 	sortAsc  = "asc"
 	sortDesc = "desc"
@@ -86,6 +86,7 @@ func initHTTPHandlers(e *echo.Echo, app *App) {
 	g.POST("/api/settings/smtp/test", handleTestSMTPSettings)
 	g.POST("/api/admin/reload", handleReloadApp)
 	g.GET("/api/logs", handleGetLogs)
+	g.GET("/api/about", handleGetAboutInfo)
 
 	g.GET("/api/subscribers/:id", handleGetSubscriber)
 	g.GET("/api/subscribers/:id/export", handleExportSubscriberData)

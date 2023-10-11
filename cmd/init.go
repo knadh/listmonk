@@ -8,6 +8,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"syscall"
 	"time"
@@ -68,6 +69,7 @@ type constants struct {
 		AllowBlocklist     bool            `koanf:"allow_blocklist"`
 		AllowExport        bool            `koanf:"allow_export"`
 		AllowWipe          bool            `koanf:"allow_wipe"`
+		RecordOptinIP      bool            `koanf:"record_optin_ip"`
 		Exportable         map[string]bool `koanf:"-"`
 		DomainBlocklist    []string        `koanf:"-"`
 	} `koanf:"privacy"`
@@ -101,6 +103,7 @@ type constants struct {
 	BounceWebhooksEnabled bool
 	BounceSESEnabled      bool
 	BounceSendgridEnabled bool
+	BouncePostmarkEnabled bool
 }
 
 type notifTpls struct {
@@ -398,6 +401,8 @@ func initConstants() *constants {
 	c.BounceWebhooksEnabled = ko.Bool("bounce.webhooks_enabled")
 	c.BounceSESEnabled = ko.Bool("bounce.ses_enabled")
 	c.BounceSendgridEnabled = ko.Bool("bounce.sendgrid_enabled")
+	c.BouncePostmarkEnabled = ko.Bool("bounce.postmark.enabled")
+
 	return &c
 }
 
@@ -570,6 +575,7 @@ func initMediaStore() media.Store {
 	case "s3":
 		var o s3.Opt
 		ko.Unmarshal("upload.s3", &o)
+
 		up, err := s3.NewS3Store(o)
 		if err != nil {
 			lo.Fatalf("error initializing s3 upload provider %s", err)
@@ -600,33 +606,7 @@ func initMediaStore() media.Store {
 // initNotifTemplates compiles and returns e-mail notification templates that are
 // used for sending ad-hoc notifications to admins and subscribers.
 func initNotifTemplates(path string, fs stuffbin.FileSystem, i *i18n.I18n, cs *constants) *notifTpls {
-	// Register utility functions that the e-mail templates can use.
-	funcs := template.FuncMap{
-		"RootURL": func() string {
-			return cs.RootURL
-		},
-		"LogoURL": func() string {
-			return cs.LogoURL
-		},
-		"Date": func(layout string) string {
-			if layout == "" {
-				layout = time.ANSIC
-			}
-			return time.Now().Format(layout)
-		},
-		"L": func() *i18n.I18n {
-			return i
-		},
-		"Safe": func(safeHTML string) template.HTML {
-			return template.HTML(safeHTML)
-		},
-	}
-
-	for k, v := range sprig.GenericFuncMap() {
-		funcs[k] = v
-	}
-
-	tpls, err := stuffbin.ParseTemplatesGlob(funcs, fs, "/static/email-templates/*.html")
+	tpls, err := stuffbin.ParseTemplatesGlob(initTplFuncs(i, cs), fs, "/static/email-templates/*.html")
 	if err != nil {
 		lo.Fatalf("error parsing e-mail notif templates: %v", err)
 	}
@@ -666,7 +646,15 @@ func initBounceManager(app *App) *bounce.Manager {
 		SESEnabled:      ko.Bool("bounce.ses_enabled"),
 		SendgridEnabled: ko.Bool("bounce.sendgrid_enabled"),
 		SendgridKey:     ko.String("bounce.sendgrid_key"),
-
+		Postmark: struct {
+			Enabled  bool
+			Username string
+			Password string
+		}{
+			ko.Bool("bounce.postmark.enabled"),
+			ko.String("bounce.postmark.username"),
+			ko.String("bounce.postmark.password"),
+		},
 		RecordBounceCB: app.core.RecordBounce,
 	}
 
@@ -697,6 +685,42 @@ func initBounceManager(app *App) *bounce.Manager {
 	return b
 }
 
+func initAbout(q *models.Queries, db *sqlx.DB) about {
+	var (
+		mem runtime.MemStats
+	)
+
+	// Memory / alloc stats.
+	runtime.ReadMemStats(&mem)
+
+	info := types.JSONText(`{}`)
+	if err := db.QueryRow(q.GetDBInfo).Scan(&info); err != nil {
+		lo.Printf("WARNING: error getting database version: %v", err)
+	}
+
+	hostname, err := os.Hostname()
+	if err != nil {
+		lo.Printf("WARNING: error getting hostname: %v", err)
+	}
+
+	return about{
+		Version:   versionString,
+		Build:     buildString,
+		GoArch:    runtime.GOARCH,
+		GoVersion: runtime.Version(),
+		Database:  info,
+		System: aboutSystem{
+			NumCPU: runtime.NumCPU(),
+		},
+		Host: aboutHost{
+			OS:       runtime.GOOS,
+			Machine:  runtime.GOARCH,
+			Hostname: hostname,
+		},
+	}
+
+}
+
 // initHTTPServer sets up and runs the app's main HTTP server and blocks forever.
 func initHTTPServer(app *App) *echo.Echo {
 	// Initialize the HTTP server.
@@ -711,11 +735,7 @@ func initHTTPServer(app *App) *echo.Echo {
 		}
 	})
 
-	// Parse and load user facing templates.
-	tpl, err := stuffbin.ParseTemplatesGlob(template.FuncMap{
-		"L": func() *i18n.I18n {
-			return app.i18n
-		}}, app.fs, "/public/templates/*.html")
+	tpl, err := stuffbin.ParseTemplatesGlob(initTplFuncs(app.i18n, app.constants), app.fs, "/public/templates/*.html")
 	if err != nil {
 		lo.Fatalf("error parsing public templates: %v", err)
 	}
@@ -808,4 +828,33 @@ func joinFSPaths(root string, paths []string) []string {
 	}
 
 	return out
+}
+
+func initTplFuncs(i *i18n.I18n, cs *constants) template.FuncMap {
+	funcs := template.FuncMap{
+		"RootURL": func() string {
+			return cs.RootURL
+		},
+		"LogoURL": func() string {
+			return cs.LogoURL
+		},
+		"Date": func(layout string) string {
+			if layout == "" {
+				layout = time.ANSIC
+			}
+			return time.Now().Format(layout)
+		},
+		"L": func() *i18n.I18n {
+			return i
+		},
+		"Safe": func(safeHTML string) template.HTML {
+			return template.HTML(safeHTML)
+		},
+	}
+
+	for k, v := range sprig.GenericFuncMap() {
+		funcs[k] = v
+	}
+
+	return funcs
 }

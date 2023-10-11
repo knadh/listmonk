@@ -1,1 +1,32 @@
-{"version":"v2.4.0","date":"2023-03-20T13:54:12Z","url":"https://github.com/knadh/listmonk/releases/tag/v2.4.0","assets":[{"name":"darwin","url":"https://github.com/knadh/listmonk/releases/download/v2.4.0/listmonk_2.4.0_darwin_amd64.tar.gz"},{"name":"freebsd","url":"https://github.com/knadh/listmonk/releases/download/v2.4.0/listmonk_2.4.0_freebsd_amd64.tar.gz"},{"name":"linux","url":"https://github.com/knadh/listmonk/releases/download/v2.4.0/listmonk_2.4.0_linux_amd64.tar.gz"},{"name":"netbsd","url":"https://github.com/knadh/listmonk/releases/download/v2.4.0/listmonk_2.4.0_netbsd_amd64.tar.gz"},{"name":"openbsd","url":"https://github.com/knadh/listmonk/releases/download/v2.4.0/listmonk_2.4.0_openbsd_amd64.tar.gz"},{"name":"windows","url":"https://github.com/knadh/listmonk/releases/download/v2.4.0/listmonk_2.4.0_windows_amd64.tar.gz"}]}
+{
+    "version": "v2.5.1",
+    "date": "2023-08-11T13:54:12Z",
+    "url": "https://github.com/knadh/listmonk/releases/tag/v2.5.1",
+    "assets":
+    [
+        {
+            "name": "darwin",
+            "url": "https://github.com/knadh/listmonk/releases/download/v2.5.1/listmonk_2.5.1_darwin_amd64.tar.gz"
+        },
+        {
+            "name": "freebsd",
+            "url": "https://github.com/knadh/listmonk/releases/download/v2.5.1/listmonk_2.5.1_freebsd_amd64.tar.gz"
+        },
+        {
+            "name": "linux",
+            "url": "https://github.com/knadh/listmonk/releases/download/v2.5.1/listmonk_2.5.1_linux_amd64.tar.gz"
+        },
+        {
+            "name": "netbsd",
+            "url": "https://github.com/knadh/listmonk/releases/download/v2.5.1/listmonk_2.5.1_netbsd_amd64.tar.gz"
+        },
+        {
+            "name": "openbsd",
+            "url": "https://github.com/knadh/listmonk/releases/download/v2.5.1/listmonk_2.5.1_openbsd_amd64.tar.gz"
+        },
+        {
+            "name": "windows",
+            "url": "https://github.com/knadh/listmonk/releases/download/v2.5.1/listmonk_2.5.1_windows_amd64.tar.gz"
+        }
+    ]
+}

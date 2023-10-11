@@ -35,7 +35,7 @@ SystemCallArchitectures=native
 # Only enable a reasonable set of system calls.
 # see: https://www.freedesktop.org/software/systemd/man/systemd.exec.html#SystemCallFilter=
 SystemCallFilter=@system-service
-SystemCallFilter=~@privileged @resources
+SystemCallFilter=~@privileged
 # ProtectSystem=strict, which is implied by DynamicUser=True, already disabled write calls
 # to the entire filesystem hierarchy, leaving only /dev/, /proc/, and /sys/ writable.
 # listmonk doesn’t need access to those so might as well disable them.

@@ -106,6 +106,7 @@ type Queries struct {
 	QueryBounces              string     `query:"query-bounces"`
 	DeleteBounces             *sqlx.Stmt `query:"delete-bounces"`
 	DeleteBouncesBySubscriber *sqlx.Stmt `query:"delete-bounces-by-subscriber"`
+	GetDBInfo                 string     `query:"get-db-info"`
 }
 
 // CompileSubscriberQueryTpl takes an arbitrary WHERE expressions

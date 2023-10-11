@@ -2703,6 +2703,8 @@ components:
               type: string
             settings.bounces.enableSendgrid:
               type: string
+            settings.bounces.enablePostmark:
+              type: string
             settings.bounces.enableWebhooks:
               type: string
             settings.bounces.enabled:
@@ -2720,6 +2722,12 @@ components:
             settings.bounces.scanIntervalHelp:
               type: string
             settings.bounces.sendgridKey:
+              type: string
+            settings.bounces.postmarkUsername:
+              type: string
+            settings.bounces.postmarkUsernameHelp:
+              type: string
+            settings.bounces.postmarkPassword:
               type: string
             settings.bounces.type:
               type: string
@@ -3397,6 +3405,12 @@ components:
         bounce.sendgrid_enabled:
           type: boolean
         bounce.sendgrid_key:
+          type: string
+        bounce.postmark_enabled:
+          type: boolean
+        bounce.postmark_username:
+          type: string
+        bounce.postmark_password:
           type: string
         bounce.mailboxes:
           type: array
