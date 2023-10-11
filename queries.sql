@@ -43,6 +43,7 @@ WITH subs AS (
                     subscriber_lists.status AS subscription_status,
                     subscriber_lists.created_at AS subscription_created_at,
                     subscriber_lists.updated_at AS subscription_updated_at,
+                    subscriber_lists.meta AS subscription_meta,
                     lists.*
             ) l)
         )
@@ -64,7 +65,10 @@ SELECT id as subscriber_id,
 WITH sub AS (
     SELECT id FROM subscribers WHERE CASE WHEN $1 > 0 THEN id = $1 ELSE uuid = $2 END
 )
-SELECT lists.*, subscriber_lists.status as subscription_status, subscriber_lists.created_at as subscription_created_at
+SELECT lists.*,
+    subscriber_lists.status as subscription_status,
+    subscriber_lists.created_at as subscription_created_at,
+    subscriber_lists.meta as subscription_meta
     FROM lists LEFT JOIN subscriber_lists
     ON (subscriber_lists.list_id = lists.id AND subscriber_lists.subscriber_id = (SELECT id FROM sub))
     WHERE CASE WHEN $3 = TRUE THEN TRUE ELSE subscriber_lists.status IS NOT NULL END
@@ -169,7 +173,15 @@ INSERT INTO subscriber_lists (subscriber_id, list_id, status)
         (CASE WHEN $4='blocklisted' THEN 'unsubscribed'::subscription_status ELSE $8::subscription_status END)
     )
     ON CONFLICT (subscriber_id, list_id) DO UPDATE
-    SET status = (CASE WHEN $4='blocklisted' THEN 'unsubscribed'::subscription_status ELSE subscriber_lists.status END);
+    SET status = (
+        CASE
+            WHEN $4='blocklisted' THEN 'unsubscribed'::subscription_status
+            -- When subscriber is edited from the admin form, retain the status. Otherwise, a blocklisted
+            -- subscriber when being re-enabled, their subscription statuses change.
+            WHEN $9 = TRUE THEN subscriber_lists.status
+            ELSE $8::subscription_status
+        END
+    );
 
 -- name: delete-subscribers
 -- Delete one or more subscribers by ID or UUID.
@@ -206,7 +218,7 @@ WITH subID AS (
 listIDs AS (
     SELECT id FROM lists WHERE uuid = ANY($2::UUID[])
 )
-UPDATE subscriber_lists SET status='confirmed', updated_at=NOW()
+UPDATE subscriber_lists SET status='confirmed', meta=meta || $3, updated_at=NOW()
     WHERE subscriber_id = (SELECT id FROM subID) AND list_id = ANY(SELECT id FROM listIDs);
 
 -- name: unsubscribe-subscribers-from-lists
@@ -454,7 +466,7 @@ WITH campLists AS (
     WHERE lists.id = ANY($14::INT[])
 ),
 tpl AS (
-    -- If there's no template_id given, use the defualt template.
+    -- If there's no template_id given, use the default template.
     SELECT (CASE WHEN $13 = 0 THEN id ELSE $13 END) AS id FROM templates WHERE is_default IS TRUE
 ),
 counts AS (
@@ -1067,3 +1079,7 @@ WITH sub AS (
 )
 DELETE FROM bounces WHERE subscriber_id = (SELECT id FROM sub);
 
+
+-- name: get-db-info
+SELECT JSON_BUILD_OBJECT('version', (SELECT VERSION()),
+                        'size_mb', (SELECT ROUND(pg_database_size((SELECT CURRENT_DATABASE()))/(1024^2)))) AS info;

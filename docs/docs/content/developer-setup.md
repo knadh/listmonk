@@ -5,7 +5,7 @@ The app has two distinct components, the Go backend and the VueJS frontend. In t
 ### Pre-requisites
 - `go`
 - `nodejs` (if you are working on the frontend) and `yarn`
-- Postgres database. If there is no local installation, the demo docker DB can be used for development (`docker-compose up demo-db`)
+- Postgres database. If there is no local installation, the demo docker DB can be used for development (`docker compose up demo-db`)
 
 
 ### First time setup

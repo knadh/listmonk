@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"crypto/rand"
 	"fmt"
 	"path/filepath"
@@ -98,4 +99,8 @@ func strSliceContains(str string, sl []string) bool {
 	}
 
 	return false
+}
+
+func trimNullBytes(b []byte) string {
+	return string(bytes.Trim(b, "\x00"))
 }

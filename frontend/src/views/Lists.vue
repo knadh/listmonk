@@ -173,6 +173,7 @@ export default Vue.extend({
       curItem: null,
       isEditing: false,
       isFormVisible: false,
+      lists: [],
       queryParams: {
         page: 1,
         query: '',
@@ -228,11 +229,13 @@ export default Vue.extend({
     },
 
     getLists() {
-      this.$api.getLists({
+      this.$api.queryLists({
         page: this.queryParams.page,
-        query: this.queryParams.query,
+        query: this.queryParams.query.replace(/[^\p{L}\p{N}\s]/gu, ''),
         order_by: this.queryParams.orderBy,
         order: this.queryParams.order,
+      }).then((resp) => {
+        this.lists = resp;
       });
     },
 
@@ -268,7 +271,7 @@ export default Vue.extend({
   },
 
   computed: {
-    ...mapState(['loading', 'lists', 'settings']),
+    ...mapState(['loading', 'settings']),
   },
 
   mounted() {

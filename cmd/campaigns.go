@@ -538,10 +538,6 @@ func validateCampaignFields(c campaignReq, app *App) (campaignReq, error) {
 		return c, errors.New(app.i18n.T("campaigns.fieldInvalidSubject"))
 	}
 
-	// if !hasLen(c.Body, 1, bodyMaxLen) {
-	// 	return c,errors.New("invalid length for `body`")
-	// }
-
 	// If there's a "send_at" date, it should be in the future.
 	if c.SendAt.Valid {
 		if c.SendAt.Time.Before(time.Now()) {

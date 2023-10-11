@@ -259,7 +259,7 @@ func handleUpdateSubscriber(c echo.Context) error {
 	return c.JSON(http.StatusOK, okResp{out})
 }
 
-// handleGetSubscriberSendOptin sends an optin confirmation e-mail to a subscriber.
+// handleSubscriberSendOptin sends an optin confirmation e-mail to a subscriber.
 func handleSubscriberSendOptin(c echo.Context) error {
 	var (
 		app   = c.Get("app").(*App)

@@ -174,8 +174,9 @@ type subLists struct {
 // Subscription represents a list attached to a subscriber.
 type Subscription struct {
 	List
-	SubscriptionStatus    null.String `db:"subscription_status" json:"subscription_status"`
-	SubscriptionCreatedAt null.String `db:"subscription_created_at" json:"subscription_created_at"`
+	SubscriptionStatus    null.String     `db:"subscription_status" json:"subscription_status"`
+	SubscriptionCreatedAt null.String     `db:"subscription_created_at" json:"subscription_created_at"`
+	Meta                  json.RawMessage `db:"meta" json:"meta"`
 }
 
 // SubscriberExportProfile represents a subscriber's collated data in JSON for export.

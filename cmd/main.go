@@ -51,6 +51,7 @@ type App struct {
 	captcha    *captcha.Captcha
 	events     *events.Events
 	notifTpls  *notifTpls
+	about      about
 	log        *log.Logger
 	bufLog     *buflog.BufLog
 
@@ -228,6 +229,9 @@ func main() {
 	for _, m := range app.messengers {
 		app.manager.AddMessenger(m)
 	}
+
+	// Load system information.
+	app.about = initAbout(queries, db)
 
 	// Start the campaign workers. The campaign batches (fetch from DB, push out
 	// messages) get processed at the specified interval.
