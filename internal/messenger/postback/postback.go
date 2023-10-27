@@ -129,6 +129,7 @@ func (p *Postback) Push(m models.Message) error {
 			copy(a.Content, f.Content)
 			files = append(files, a)
 		}
+		pb.Attachments = files
 	}
 
 	b, err := pb.MarshalJSON()
