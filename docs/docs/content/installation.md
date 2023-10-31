@@ -25,7 +25,7 @@ Use the sample [docker-compose.yml](https://github.com/knadh/listmonk/blob/maste
 #### Easy Docker install
 
 ```bash
-mkdir listmonk-demo
+mkdir listmonk-demo && cd listmonk-demo
 sh -c "$(curl -fsSL https://raw.githubusercontent.com/knadh/listmonk/master/install-demo.sh)"
 ```
 
@@ -46,7 +46,7 @@ docker compose up -d demo-db demo-app
 This setup is recommended if you want to _quickly_ setup `listmonk` in production.
 
 ```bash
-mkdir listmonk
+mkdir listmonk && cd listmonk
 sh -c "$(curl -fsSL https://raw.githubusercontent.com/knadh/listmonk/master/install-prod.sh)"
 ```
 
