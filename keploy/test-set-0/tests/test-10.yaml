@@ -1,0 +1,43 @@
+version: api.keploy.io/v1beta2
+kind: Http
+name: test-10
+spec:
+    metadata: {}
+    req:
+        method: GET
+        proto_major: 1
+        proto_minor: 1
+        url: http://localhost:9000/api/import/subscribers
+        header:
+            Accept: '*/*'
+            Authorization: Basic bGlzdG1vbms6bGlzdG1vbms=
+            Host: localhost:9000
+            User-Agent: curl/7.81.0
+        body: ""
+        body_type: ""
+        timestamp: 2023-11-03T03:07:40.226434676Z
+    resp:
+        status_code: 200
+        header:
+            Content-Length: "60"
+            Content-Type: application/json; charset=UTF-8
+            Date: Fri, 03 Nov 2023 03:07:40 GMT
+        body: |
+            {"data":{"name":"","total":0,"imported":0,"status":"none"}}
+        body_type: ""
+        status_message: ""
+        proto_major: 0
+        proto_minor: 0
+        timestamp: 2023-11-03T03:07:42.612274231Z
+    objects: []
+    assertions:
+        noise:
+            - header.Date
+    created: 1698980862
+curl: |
+    curl --request GET \
+      --url http://localhost:9000/api/import/subscribers \
+      --header 'Authorization: Basic bGlzdG1vbms6bGlzdG1vbms=' \
+      --header 'User-Agent: curl/7.81.0' \
+      --header 'Accept: */*' \
+      --header 'Host: localhost:9000' \

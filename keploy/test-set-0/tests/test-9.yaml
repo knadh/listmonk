@@ -1,0 +1,39 @@
+version: api.keploy.io/v1beta2
+kind: Http
+name: test-9
+spec:
+    metadata: {}
+    req:
+        method: PUT
+        proto_major: 1
+        proto_minor: 1
+        url: http://localhost:9000/api/lists/5
+        header:
+            Accept: '*/*'
+            Authorization: Basic bGlzdG1vbms6bGlzdG1vbms=
+            Content-Length: "257"
+            Content-Type: multipart/form-data; boundary=------------------------4240582b5838762f
+            Host: localhost:9000
+            User-Agent: curl/7.81.0
+        body: "--------------------------4240582b5838762f\r\nContent-Disposition: form-data; name=\"name\"\r\n\r\nmodified test list\r\n--------------------------4240582b5838762f\r\nContent-Disposition: form-data; name=\"type\"\r\n\r\nprivate\r\n--------------------------4240582b5838762f--\r\n"
+        body_type: ""
+        timestamp: 2023-11-03T03:07:09.160668734Z
+    resp:
+        status_code: 400
+        header:
+            Content-Length: "27"
+            Content-Type: application/json; charset=UTF-8
+            Date: Fri, 03 Nov 2023 03:07:09 GMT
+        body: |
+            {"message":"Invalid name"}
+        body_type: ""
+        status_message: ""
+        proto_major: 0
+        proto_minor: 0
+        timestamp: 2023-11-03T03:07:11.189043557Z
+    objects: []
+    assertions:
+        noise:
+            - header.Date
+    created: 1698980831
+curl: "curl --request PUT \\\n  --url http://localhost:9000/api/lists/5 \\\n  --header 'Authorization: Basic bGlzdG1vbms6bGlzdG1vbms=' \\\n  --header 'User-Agent: curl/7.81.0' \\\n  --header 'Accept: */*' \\\n  --header 'Content-Type: multipart/form-data; boundary=------------------------4240582b5838762f' \\\n  --header 'Host: localhost:9000' \\\n  --data '--------------------------4240582b5838762f\r\nContent-Disposition: form-data; name=\"name\"\r\n\r\nmodified test list\r\n--------------------------4240582b5838762f\r\nContent-Disposition: form-data; name=\"type\"\r\n\r\nprivate\r\n--------------------------4240582b5838762f--\r\n'"

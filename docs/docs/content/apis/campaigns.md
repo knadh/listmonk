@@ -208,6 +208,7 @@ Creates a new campaign.
 | `messenger`    | String    | Optional          | `email` or a custom messenger defined in the settings. If left empty, `email` is used.                 |
 | `template_id`  | Number    | Optional          | ID of the template to use. If left empty, the default template is used.                                |
 | `tags`         | []String  | Optional          | Array of string tags to mark the campaign.                                                             |
+| `headers`      | []Map     | Optional          | Array of key-value pairs to be sent as SMTP headers. eg: `[{"x-custom-header": "value"}]`.             |
 
 
 
@@ -263,7 +264,6 @@ Name          | Parameter Type | Data Type | Required/Optional | Description
 --------------|----------------|-----------|-------------------|-------------------------------------------------------------
 `campaign_id` | Path Parameter | Number    | Required          | The id value of the campaign whose status is to be modified.
 `status`      | Request Body   | String    | Required          | `scheduled`, `running`, `paused`, `cancelled`.
-
 
 ###### Note: 
  > * Only "scheduled" campaigns can be saved as "draft".

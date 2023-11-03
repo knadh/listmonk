@@ -1,0 +1,50 @@
+version: api.keploy.io/v1beta2
+kind: Http
+name: test-8
+spec:
+    metadata: {}
+    req:
+        method: GET
+        proto_major: 1
+        proto_minor: 1
+        url: http://localhost:9000/api/lists?page=1&per_page=100
+        url_params:
+            page: "1"
+            per_page: "100"
+        header:
+            Accept: '*/*'
+            Authorization: Basic bGlzdG1vbms6bGlzdG1vbms=
+            Host: localhost:9000
+            User-Agent: curl/7.81.0
+        body: ""
+        body_type: ""
+        timestamp: 2023-11-03T03:06:23.046582343Z
+    resp:
+        status_code: 200
+        header:
+            Content-Length: "1485"
+            Content-Type: application/json; charset=UTF-8
+            Date: Fri, 03 Nov 2023 03:06:23 GMT
+        body: |
+            {"data":{"results":[{"id":4,"created_at":"2023-10-28T05:44:41.190181Z","updated_at":"2023-10-28T05:44:41.190181Z","uuid":"7fc53e79-8734-4c4e-a43b-a890809b8ff6","name":"shivani@mail.com","type":"private","optin":"single","tags":[],"description":"","subscriber_count":1,"subscriber_statuses":{"unconfirmed":1},"subscription_created_at":null,"subscription_updated_at":null},{"id":3,"created_at":"2023-10-27T19:06:44.682439Z","updated_at":"2023-10-27T19:06:44.682439Z","uuid":"3e6e3bfa-d9d2-4bed-a014-c16497bfdcb7","name":"Ritik Jain","type":"private","optin":"single","tags":[],"description":"","subscriber_count":2,"subscriber_statuses":{"unconfirmed":2},"subscription_created_at":null,"subscription_updated_at":null},{"id":2,"created_at":"2023-10-27T06:49:09.177856Z","updated_at":"2023-10-27T06:49:09.177856Z","uuid":"b1349b44-3ed0-4f9c-bc85-58f2a9e8cc97","name":"Opt-in list","type":"public","optin":"double","tags":["test"],"description":"","subscriber_count":5,"subscriber_statuses":{"unconfirmed":5},"subscription_created_at":null,"subscription_updated_at":null},{"id":1,"created_at":"2023-10-27T06:49:09.177178Z","updated_at":"2023-10-27T06:49:09.177178Z","uuid":"c5977ddf-bfd4-438f-aaa1-baf6fde450b0","name":"Default list","type":"private","optin":"single","tags":["test"],"description":"","subscriber_count":8,"subscriber_statuses":{"unconfirmed":7,"unsubscribed":1},"subscription_created_at":null,"subscription_updated_at":null}],"query":"","total":4,"per_page":100,"page":1}}
+        body_type: ""
+        status_message: ""
+        proto_major: 0
+        proto_minor: 0
+        timestamp: 2023-11-03T03:06:25.777419593Z
+    objects: []
+    assertions:
+        noise:
+            - header.Content-Length
+            - body.data.results.tags
+            - header.Date
+            - body.data.results.created_at
+            - body.data.results.updated_at
+    created: 1698980785
+curl: |
+    curl --request GET \
+      --url http://localhost:9000/api/lists?page=1&per_page=100 \
+      --header 'Accept: */*' \
+      --header 'Host: localhost:9000' \
+      --header 'Authorization: Basic bGlzdG1vbms6bGlzdG1vbms=' \
+      --header 'User-Agent: curl/7.81.0' \

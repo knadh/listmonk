@@ -1,0 +1,891 @@
+version: api.keploy.io/v1beta1
+name: report-1
+status: PASSED
+success: 11
+failure: 0
+total: 11
+tests:
+    - kind: Http
+      name: report-1
+      status: PASSED
+      started: 1698980906
+      completed: 1698980906
+      test_case_path: /home/ritikjain.linux/keploy-workspace/listmonk/keploy/test-set-0
+      mock_path: ""
+      test_case_id: test-1
+      req:
+        method: GET
+        proto_major: 1
+        proto_minor: 1
+        url: http://localhost:9000/api/subscribers?page=1&per_page=100
+        url_params:
+            page: "1"
+            per_page: "100"
+        header:
+            Accept: '*/*'
+            Authorization: Basic bGlzdG1vbms6bGlzdG1vbms=
+            Host: localhost:9000
+            User-Agent: curl/7.81.0
+        body: ""
+        body_type: ""
+        timestamp: 0001-01-01T00:00:00Z
+      resp:
+        status_code: 200
+        header:
+            Content-Type: application/json; charset=UTF-8
+            Date: Fri, 03 Nov 2023 03:03:46 GMT
+        body: |
+            {"data":{"results":[{"id":34,"created_at":"2023-10-31T02:55:44.80833Z","updated_at":"2023-10-31T02:55:44.80833Z","uuid":"d61cb842-435d-42d6-aec4-8ae6556d192f","email":"subsriber9@domain.com","name":"The Subscriber","attribs":{"city":"Bengaluru","projects":3,"stack":{"languages":["go","python"]}},"status":"enabled","lists":[{"subscription_status":"unconfirmed","subscription_created_at":"2023-10-31T02:55:44.80833+00:00","subscription_updated_at":"2023-10-31T02:55:44.80833+00:00","subscription_meta":{},"id":1,"uuid":"c5977ddf-bfd4-438f-aaa1-baf6fde450b0","name":"Default list","type":"private","optin":"single","tags":["test"],"description":"","created_at":"2023-10-27T06:49:09.177178+00:00","updated_at":"2023-10-27T06:49:09.177178+00:00"}]},{"id":31,"created_at":"2023-10-29T05:16:30.631645Z","updated_at":"2023-10-29T05:16:30.631645Z","uuid":"5ce53cad-3c4b-4136-b996-a9b0f5dd7b6c","email":"subsriber@domain.com","name":"The Subscriber","attribs":{"city":"Bengaluru","projects":3,"stack":{"languages":["go","python"]}},"status":"enabled","lists":[{"subscription_status":"unconfirmed","subscription_created_at":"2023-10-29T05:16:30.631645+00:00","subscription_updated_at":"2023-10-29T05:16:30.631645+00:00","subscription_meta":{},"id":1,"uuid":"c5977ddf-bfd4-438f-aaa1-baf6fde450b0","name":"Default list","type":"private","optin":"single","tags":["test"],"description":"","created_at":"2023-10-27T06:49:09.177178+00:00","updated_at":"2023-10-27T06:49:09.177178+00:00"}]},{"id":29,"created_at":"2023-10-29T04:21:06.53724Z","updated_at":"2023-10-29T04:21:06.53724Z","uuid":"88ac4997-6937-4d9b-aebd-3ecd0735a21e","email":"subsriber123@domain.com","name":"The Subscriber","attribs":{"city":"Bengaluru","projects":3,"stack":{"languages":["go","python"]}},"status":"enabled","lists":[{"subscription_status":"unconfirmed","subscription_created_at":"2023-10-29T04:21:06.53724+00:00","subscription_updated_at":"2023-10-29T04:21:06.53724+00:00","subscription_meta":{},"id":1,"uuid":"c5977ddf-bfd4-438f-aaa1-baf6fde450b0","name":"Default list","type":"private","optin":"single","tags":["test"],"description":"","created_at":"2023-10-27T06:49:09.177178+00:00","updated_at":"2023-10-27T06:49:09.177178+00:00"}]},{"id":25,"created_at":"2023-10-28T23:47:03.970302Z","updated_at":"2023-10-28T23:47:03.970302Z","uuid":"d64800da-84d4-4b5b-8196-7f27fcba82aa","email":"fs@f.com","name":"f","attribs":{},"status":"enabled","lists":[{"subscription_status":"unconfirmed","subscription_created_at":"2023-10-28T23:47:03.970302+00:00","subscription_updated_at":"2023-10-28T23:47:03.970302+00:00","subscription_meta":{},"id":4,"uuid":"7fc53e79-8734-4c4e-a43b-a890809b8ff6","name":"shivani@mail.com","type":"private","optin":"single","tags":null,"description":"","created_at":"2023-10-28T05:44:41.190181+00:00","updated_at":"2023-10-28T05:44:41.190181+00:00"}]},{"id":23,"created_at":"2023-10-28T10:49:37.302097Z","updated_at":"2023-10-28T10:49:37.302097Z","uuid":"809feb06-7231-476f-a2f6-d2fe656730cf","email":"assw@q.com","name":"xyz","attribs":{},"status":"enabled","lists":[{"subscription_status":"unconfirmed","subscription_created_at":"2023-10-28T10:49:37.302097+00:00","subscription_updated_at":"2023-10-28T10:49:37.302097+00:00","subscription_meta":{},"id":2,"uuid":"b1349b44-3ed0-4f9c-bc85-58f2a9e8cc97","name":"Opt-in list","type":"public","optin":"double","tags":["test"],"description":"","created_at":"2023-10-27T06:49:09.177856+00:00","updated_at":"2023-10-27T06:49:09.177856+00:00"}]},{"id":22,"created_at":"2023-10-28T08:37:51.115157Z","updated_at":"2023-10-28T08:37:51.115157Z","uuid":"135f707a-dc29-4dbf-a303-5c591fba79a9","email":"ss@s.com","name":"xyz","attribs":{},"status":"enabled","lists":[{"subscription_status":"unconfirmed","subscription_created_at":"2023-10-28T08:37:51.115157+00:00","subscription_updated_at":"2023-10-28T08:37:51.115157+00:00","subscription_meta":{},"id":3,"uuid":"3e6e3bfa-d9d2-4bed-a014-c16497bfdcb7","name":"Ritik Jain","type":"private","optin":"single","tags":null,"description":"","created_at":"2023-10-27T19:06:44.682439+00:00","updated_at":"2023-10-27T19:06:44.682439+00:00"}]},{"id":21,"created_at":"2023-10-28T08:25:12.805493Z","updated_at":"2023-10-28T08:25:12.805493Z","uuid":"f835ee66-c2bf-45fd-af84-3e42c5bccdfc","email":"s@m.com","name":"sasiion","attribs":{},"status":"enabled","lists":[{"subscription_status":"unconfirmed","subscription_created_at":"2023-10-28T08:25:12.805493+00:00","subscription_updated_at":"2023-10-28T08:25:12.805493+00:00","subscription_meta":{},"id":1,"uuid":"c5977ddf-bfd4-438f-aaa1-baf6fde450b0","name":"Default list","type":"private","optin":"single","tags":["test"],"description":"","created_at":"2023-10-27T06:49:09.177178+00:00","updated_at":"2023-10-27T06:49:09.177178+00:00"}]},{"id":20,"created_at":"2023-10-28T08:04:46.290153Z","updated_at":"2023-10-28T08:04:46.290153Z","uuid":"59d16718-aca1-4b7d-978d-ab096a5deacb","email":"s@s.mail","name":"s","attribs":{},"status":"enabled","lists":[{"subscription_status":"unconfirmed","subscription_created_at":"2023-10-28T08:04:46.290153+00:00","subscription_updated_at":"2023-10-28T08:04:46.290153+00:00","subscription_meta":{},"id":2,"uuid":"b1349b44-3ed0-4f9c-bc85-58f2a9e8cc97","name":"Opt-in list","type":"public","optin":"double","tags":["test"],"description":"","created_at":"2023-10-27T06:49:09.177856+00:00","updated_at":"2023-10-27T06:49:09.177856+00:00"}]},{"id":19,"created_at":"2023-10-28T07:52:22.11335Z","updated_at":"2023-10-28T07:52:22.11335Z","uuid":"e302939d-aedd-4aa2-81c5-1acc94d242ed","email":"api@m.coma","name":"z","attribs":{},"status":"enabled","lists":[{"subscription_status":"unconfirmed","subscription_created_at":"2023-10-28T07:52:22.11335+00:00","subscription_updated_at":"2023-10-28T07:52:22.11335+00:00","subscription_meta":{},"id":4,"uuid":"7fc53e79-8734-4c4e-a43b-a890809b8ff6","name":"shivani@mail.com","type":"private","optin":"single","tags":null,"description":"","created_at":"2023-10-28T05:44:41.190181+00:00","updated_at":"2023-10-28T05:44:41.190181+00:00"}]},{"id":17,"created_at":"2023-10-28T07:40:43.724624Z","updated_at":"2023-10-28T07:40:43.724624Z","uuid":"9fc59f2e-031e-4471-92d8-58d7d04d7855","email":"riti@k.com","name":"xyz","attribs":{},"status":"enabled","lists":[]},{"id":16,"created_at":"2023-10-28T07:12:56.659462Z","updated_at":"2023-10-28T07:12:56.659462Z","uuid":"971f2c6c-9168-4458-8052-17f8ddebde82","email":"balavighnesh16@gmail.com","name":"Bala","attribs":{},"status":"enabled","lists":[]},{"id":15,"created_at":"2023-10-28T06:47:11.554193Z","updated_at":"2023-10-28T06:47:11.554193Z","uuid":"54b1565c-f69b-4cc9-9cc6-7e5215ea1dc9","email":"api@m.com","name":"x","attribs":{},"status":"enabled","lists":[{"subscription_status":"unconfirmed","subscription_created_at":"2023-10-28T06:47:11.554193+00:00","subscription_updated_at":"2023-10-28T06:47:11.554193+00:00","subscription_meta":{},"id":2,"uuid":"b1349b44-3ed0-4f9c-bc85-58f2a9e8cc97","name":"Opt-in list","type":"public","optin":"double","tags":["test"],"description":"","created_at":"2023-10-27T06:49:09.177856+00:00","updated_at":"2023-10-27T06:49:09.177856+00:00"}]},{"id":14,"created_at":"2023-10-28T06:36:35.86808Z","updated_at":"2023-10-28T06:36:35.86808Z","uuid":"b229699b-a16c-4bb3-84d8-ff632cfa8289","email":"shilvaraj2@mail.com","name":"shilvraj","attribs":{},"status":"enabled","lists":[]},{"id":13,"created_at":"2023-10-28T06:27:26.68797Z","updated_at":"2023-10-28T06:27:26.68797Z","uuid":"f468abb2-15f3-48f0-93cb-e845823ccf50","email":"kaustubhsharma105@gmail.com","name":"kaustubh","attribs":{},"status":"enabled","lists":[]},{"id":12,"created_at":"2023-10-28T06:17:29.546591Z","updated_at":"2023-10-28T06:17:29.546591Z","uuid":"9d3b6a5f-a818-4f66-b67f-146cc6c257dd","email":"ujwal@m.com","name":"ujwal","attribs":{},"status":"enabled","lists":[]},{"id":11,"created_at":"2023-10-28T06:07:44.634508Z","updated_at":"2023-10-28T06:07:44.634508Z","uuid":"1a5ec4d7-c19a-4c03-93a7-c95be9184d22","email":"shubhankar@m.copm","name":"shubhankar","attribs":{},"status":"enabled","lists":[]},{"id":10,"created_at":"2023-10-28T05:53:53.897419Z","updated_at":"2023-10-28T05:53:53.897419Z","uuid":"1f552aa3-017d-4843-93de-a608aee5884e","email":"rafique@mail.com","name":"rafique","attribs":{},"status":"enabled","lists":[]},{"id":9,"created_at":"2023-10-28T05:31:03.46229Z","updated_at":"2023-10-28T05:31:03.46229Z","uuid":"df7480f1-fe50-4c6f-bd44-396d44f7e1bd","email":"arjun/@ga.com","name":"arjun","attribs":{},"status":"enabled","lists":[]},{"id":8,"created_at":"2023-10-28T04:46:14.955116Z","updated_at":"2023-10-28T04:46:14.955116Z","uuid":"4d1ce9e5-02cb-408b-8109-9849a5c56947","email":"swastik@m.com","name":"swastik","attribs":{},"status":"enabled","lists":[{"subscription_status":"unconfirmed","subscription_created_at":"2023-10-28T04:46:14.955116+00:00","subscription_updated_at":"2023-10-28T04:46:14.955116+00:00","subscription_meta":{},"id":2,"uuid":"b1349b44-3ed0-4f9c-bc85-58f2a9e8cc97","name":"Opt-in list","type":"public","optin":"double","tags":["test"],"description":"","created_at":"2023-10-27T06:49:09.177856+00:00","updated_at":"2023-10-27T06:49:09.177856+00:00"}]},{"id":7,"created_at":"2023-10-27T19:14:32.834405Z","updated_at":"2023-10-27T19:14:32.834405Z","uuid":"39eb2d56-fdc5-475e-bbb9-faae5f280a96","email":"sd@s.com","name":"Sd","attribs":{},"status":"enabled","lists":[{"subscription_status":"unconfirmed","subscription_created_at":"2023-10-27T19:14:32.834405+00:00","subscription_updated_at":"2023-10-27T19:14:32.834405+00:00","subscription_meta":{},"id":3,"uuid":"3e6e3bfa-d9d2-4bed-a014-c16497bfdcb7","name":"Ritik Jain","type":"private","optin":"single","tags":null,"description":"","created_at":"2023-10-27T19:06:44.682439+00:00","updated_at":"2023-10-27T19:06:44.682439+00:00"}]},{"id":6,"created_at":"2023-10-27T19:07:06.034296Z","updated_at":"2023-10-27T19:07:06.034296Z","uuid":"5447c1be-0d88-4009-ab07-657cb3c4970f","email":"f@f.com","name":"f","attribs":{},"status":"enabled","lists":[{"subscription_status":"unconfirmed","subscription_created_at":"2023-10-27T19:07:06.034296+00:00","subscription_updated_at":"2023-10-27T19:07:06.034296+00:00","subscription_meta":{},"id":1,"uuid":"c5977ddf-bfd4-438f-aaa1-baf6fde450b0","name":"Default list","type":"private","optin":"single","tags":["test"],"description":"","created_at":"2023-10-27T06:49:09.177178+00:00","updated_at":"2023-10-27T06:49:09.177178+00:00"}]},{"id":5,"created_at":"2023-10-27T18:32:26.837302Z","updated_at":"2023-10-27T18:32:26.837302Z","uuid":"105c5635-48dc-4ebb-9721-5a5320903c8a","email":"d@gmail.com","name":"d@gmail.com","attribs":{},"status":"enabled","lists":[{"subscription_status":"unconfirmed","subscription_created_at":"2023-10-27T18:32:26.837302+00:00","subscription_updated_at":"2023-10-27T18:32:26.837302+00:00","subscription_meta":{},"id":1,"uuid":"c5977ddf-bfd4-438f-aaa1-baf6fde450b0","name":"Default list","type":"private","optin":"single","tags":["test"],"description":"","created_at":"2023-10-27T06:49:09.177178+00:00","updated_at":"2023-10-27T06:49:09.177178+00:00"}]},{"id":2,"created_at":"2023-10-27T06:49:09.179627Z","updated_at":"2023-10-27T06:49:09.179627Z","uuid":"ca90acb8-99f2-4974-8050-f258a3205013","email":"anon@example.com","name":"Anon Doe","attribs":{"city":"Bengaluru","good":true,"type":"unknown"},"status":"enabled","lists":[{"subscription_status":"unconfirmed","subscription_created_at":"2023-10-27T06:49:09.179627+00:00","subscription_updated_at":"2023-10-27T06:49:09.179627+00:00","subscription_meta":{},"id":2,"uuid":"b1349b44-3ed0-4f9c-bc85-58f2a9e8cc97","name":"Opt-in list","type":"public","optin":"double","tags":["test"],"description":"","created_at":"2023-10-27T06:49:09.177856+00:00","updated_at":"2023-10-27T06:49:09.177856+00:00"}]},{"id":1,"created_at":"2023-10-27T06:49:09.178449Z","updated_at":"2023-11-03T02:58:43.30528Z","uuid":"1d69593c-bf88-4045-8fa4-1f8f15519a79","email":"john@example.com","name":"John Doe","attribs":{"city":"Bengaluru","good":true,"type":"known"},"status":"blocklisted","lists":[{"subscription_status":"unsubscribed","subscription_created_at":"2023-10-27T06:49:09.178449+00:00","subscription_updated_at":"2023-11-03T02:58:43.30528+00:00","subscription_meta":{},"id":1,"uuid":"c5977ddf-bfd4-438f-aaa1-baf6fde450b0","name":"Default list","type":"private","optin":"single","tags":["test"],"description":"","created_at":"2023-10-27T06:49:09.177178+00:00","updated_at":"2023-10-27T06:49:09.177178+00:00"}]}],"query":"","total":24,"per_page":100,"page":1}}
+        body_type: ""
+        status_message: ""
+        proto_major: 0
+        proto_minor: 0
+        timestamp: 0001-01-01T00:00:00Z
+      noise:
+        - header.Date
+        - body.data.results.lists.subscription_updated_at
+        - body.data.results.lists.subscription_created_at
+        - body.data.results.attribs.type
+        - body.data.results.id
+        - body.data.results.updated_at
+        - body.data.results.created_at
+        - body.data.results.attribs.good
+        - body.data.total
+        - body.data.results.lists.created_at
+        - body.data.results.lists.updated_at
+      result:
+        status_code:
+            normal: true
+            expected: 200
+            actual: 200
+        headers_result:
+            - normal: true
+              expected:
+                key: Content-Type
+                value:
+                    - application/json; charset=UTF-8
+              actual:
+                key: Content-Type
+                value:
+                    - application/json; charset=UTF-8
+            - normal: true
+              expected:
+                key: Date
+                value:
+                    - Fri, 03 Nov 2023 03:03:46 GMT
+              actual:
+                key: Date
+                value:
+                    - Fri, 03 Nov 2023 03:08:26 GMT
+        body_result:
+            - normal: true
+              type: JSON
+              expected: |
+                {"data":{"results":[{"id":34,"created_at":"2023-10-31T02:55:44.80833Z","updated_at":"2023-10-31T02:55:44.80833Z","uuid":"d61cb842-435d-42d6-aec4-8ae6556d192f","email":"subsriber9@domain.com","name":"The Subscriber","attribs":{"city":"Bengaluru","projects":3,"stack":{"languages":["go","python"]}},"status":"enabled","lists":[{"subscription_status":"unconfirmed","subscription_created_at":"2023-10-31T02:55:44.80833+00:00","subscription_updated_at":"2023-10-31T02:55:44.80833+00:00","subscription_meta":{},"id":1,"uuid":"c5977ddf-bfd4-438f-aaa1-baf6fde450b0","name":"Default list","type":"private","optin":"single","tags":["test"],"description":"","created_at":"2023-10-27T06:49:09.177178+00:00","updated_at":"2023-10-27T06:49:09.177178+00:00"}]},{"id":31,"created_at":"2023-10-29T05:16:30.631645Z","updated_at":"2023-10-29T05:16:30.631645Z","uuid":"5ce53cad-3c4b-4136-b996-a9b0f5dd7b6c","email":"subsriber@domain.com","name":"The Subscriber","attribs":{"city":"Bengaluru","projects":3,"stack":{"languages":["go","python"]}},"status":"enabled","lists":[{"subscription_status":"unconfirmed","subscription_created_at":"2023-10-29T05:16:30.631645+00:00","subscription_updated_at":"2023-10-29T05:16:30.631645+00:00","subscription_meta":{},"id":1,"uuid":"c5977ddf-bfd4-438f-aaa1-baf6fde450b0","name":"Default list","type":"private","optin":"single","tags":["test"],"description":"","created_at":"2023-10-27T06:49:09.177178+00:00","updated_at":"2023-10-27T06:49:09.177178+00:00"}]},{"id":29,"created_at":"2023-10-29T04:21:06.53724Z","updated_at":"2023-10-29T04:21:06.53724Z","uuid":"88ac4997-6937-4d9b-aebd-3ecd0735a21e","email":"subsriber123@domain.com","name":"The Subscriber","attribs":{"city":"Bengaluru","projects":3,"stack":{"languages":["go","python"]}},"status":"enabled","lists":[{"subscription_status":"unconfirmed","subscription_created_at":"2023-10-29T04:21:06.53724+00:00","subscription_updated_at":"2023-10-29T04:21:06.53724+00:00","subscription_meta":{},"id":1,"uuid":"c5977ddf-bfd4-438f-aaa1-baf6fde450b0","name":"Default list","type":"private","optin":"single","tags":["test"],"description":"","created_at":"2023-10-27T06:49:09.177178+00:00","updated_at":"2023-10-27T06:49:09.177178+00:00"}]},{"id":25,"created_at":"2023-10-28T23:47:03.970302Z","updated_at":"2023-10-28T23:47:03.970302Z","uuid":"d64800da-84d4-4b5b-8196-7f27fcba82aa","email":"fs@f.com","name":"f","attribs":{},"status":"enabled","lists":[{"subscription_status":"unconfirmed","subscription_created_at":"2023-10-28T23:47:03.970302+00:00","subscription_updated_at":"2023-10-28T23:47:03.970302+00:00","subscription_meta":{},"id":4,"uuid":"7fc53e79-8734-4c4e-a43b-a890809b8ff6","name":"shivani@mail.com","type":"private","optin":"single","tags":null,"description":"","created_at":"2023-10-28T05:44:41.190181+00:00","updated_at":"2023-10-28T05:44:41.190181+00:00"}]},{"id":23,"created_at":"2023-10-28T10:49:37.302097Z","updated_at":"2023-10-28T10:49:37.302097Z","uuid":"809feb06-7231-476f-a2f6-d2fe656730cf","email":"assw@q.com","name":"xyz","attribs":{},"status":"enabled","lists":[{"subscription_status":"unconfirmed","subscription_created_at":"2023-10-28T10:49:37.302097+00:00","subscription_updated_at":"2023-10-28T10:49:37.302097+00:00","subscription_meta":{},"id":2,"uuid":"b1349b44-3ed0-4f9c-bc85-58f2a9e8cc97","name":"Opt-in list","type":"public","optin":"double","tags":["test"],"description":"","created_at":"2023-10-27T06:49:09.177856+00:00","updated_at":"2023-10-27T06:49:09.177856+00:00"}]},{"id":22,"created_at":"2023-10-28T08:37:51.115157Z","updated_at":"2023-10-28T08:37:51.115157Z","uuid":"135f707a-dc29-4dbf-a303-5c591fba79a9","email":"ss@s.com","name":"xyz","attribs":{},"status":"enabled","lists":[{"subscription_status":"unconfirmed","subscription_created_at":"2023-10-28T08:37:51.115157+00:00","subscription_updated_at":"2023-10-28T08:37:51.115157+00:00","subscription_meta":{},"id":3,"uuid":"3e6e3bfa-d9d2-4bed-a014-c16497bfdcb7","name":"Ritik Jain","type":"private","optin":"single","tags":null,"description":"","created_at":"2023-10-27T19:06:44.682439+00:00","updated_at":"2023-10-27T19:06:44.682439+00:00"}]},{"id":21,"created_at":"2023-10-28T08:25:12.805493Z","updated_at":"2023-10-28T08:25:12.805493Z","uuid":"f835ee66-c2bf-45fd-af84-3e42c5bccdfc","email":"s@m.com","name":"sasiion","attribs":{},"status":"enabled","lists":[{"subscription_status":"unconfirmed","subscription_created_at":"2023-10-28T08:25:12.805493+00:00","subscription_updated_at":"2023-10-28T08:25:12.805493+00:00","subscription_meta":{},"id":1,"uuid":"c5977ddf-bfd4-438f-aaa1-baf6fde450b0","name":"Default list","type":"private","optin":"single","tags":["test"],"description":"","created_at":"2023-10-27T06:49:09.177178+00:00","updated_at":"2023-10-27T06:49:09.177178+00:00"}]},{"id":20,"created_at":"2023-10-28T08:04:46.290153Z","updated_at":"2023-10-28T08:04:46.290153Z","uuid":"59d16718-aca1-4b7d-978d-ab096a5deacb","email":"s@s.mail","name":"s","attribs":{},"status":"enabled","lists":[{"subscription_status":"unconfirmed","subscription_created_at":"2023-10-28T08:04:46.290153+00:00","subscription_updated_at":"2023-10-28T08:04:46.290153+00:00","subscription_meta":{},"id":2,"uuid":"b1349b44-3ed0-4f9c-bc85-58f2a9e8cc97","name":"Opt-in list","type":"public","optin":"double","tags":["test"],"description":"","created_at":"2023-10-27T06:49:09.177856+00:00","updated_at":"2023-10-27T06:49:09.177856+00:00"}]},{"id":19,"created_at":"2023-10-28T07:52:22.11335Z","updated_at":"2023-10-28T07:52:22.11335Z","uuid":"e302939d-aedd-4aa2-81c5-1acc94d242ed","email":"api@m.coma","name":"z","attribs":{},"status":"enabled","lists":[{"subscription_status":"unconfirmed","subscription_created_at":"2023-10-28T07:52:22.11335+00:00","subscription_updated_at":"2023-10-28T07:52:22.11335+00:00","subscription_meta":{},"id":4,"uuid":"7fc53e79-8734-4c4e-a43b-a890809b8ff6","name":"shivani@mail.com","type":"private","optin":"single","tags":null,"description":"","created_at":"2023-10-28T05:44:41.190181+00:00","updated_at":"2023-10-28T05:44:41.190181+00:00"}]},{"id":17,"created_at":"2023-10-28T07:40:43.724624Z","updated_at":"2023-10-28T07:40:43.724624Z","uuid":"9fc59f2e-031e-4471-92d8-58d7d04d7855","email":"riti@k.com","name":"xyz","attribs":{},"status":"enabled","lists":[]},{"id":16,"created_at":"2023-10-28T07:12:56.659462Z","updated_at":"2023-10-28T07:12:56.659462Z","uuid":"971f2c6c-9168-4458-8052-17f8ddebde82","email":"balavighnesh16@gmail.com","name":"Bala","attribs":{},"status":"enabled","lists":[]},{"id":15,"created_at":"2023-10-28T06:47:11.554193Z","updated_at":"2023-10-28T06:47:11.554193Z","uuid":"54b1565c-f69b-4cc9-9cc6-7e5215ea1dc9","email":"api@m.com","name":"x","attribs":{},"status":"enabled","lists":[{"subscription_status":"unconfirmed","subscription_created_at":"2023-10-28T06:47:11.554193+00:00","subscription_updated_at":"2023-10-28T06:47:11.554193+00:00","subscription_meta":{},"id":2,"uuid":"b1349b44-3ed0-4f9c-bc85-58f2a9e8cc97","name":"Opt-in list","type":"public","optin":"double","tags":["test"],"description":"","created_at":"2023-10-27T06:49:09.177856+00:00","updated_at":"2023-10-27T06:49:09.177856+00:00"}]},{"id":14,"created_at":"2023-10-28T06:36:35.86808Z","updated_at":"2023-10-28T06:36:35.86808Z","uuid":"b229699b-a16c-4bb3-84d8-ff632cfa8289","email":"shilvaraj2@mail.com","name":"shilvraj","attribs":{},"status":"enabled","lists":[]},{"id":13,"created_at":"2023-10-28T06:27:26.68797Z","updated_at":"2023-10-28T06:27:26.68797Z","uuid":"f468abb2-15f3-48f0-93cb-e845823ccf50","email":"kaustubhsharma105@gmail.com","name":"kaustubh","attribs":{},"status":"enabled","lists":[]},{"id":12,"created_at":"2023-10-28T06:17:29.546591Z","updated_at":"2023-10-28T06:17:29.546591Z","uuid":"9d3b6a5f-a818-4f66-b67f-146cc6c257dd","email":"ujwal@m.com","name":"ujwal","attribs":{},"status":"enabled","lists":[]},{"id":11,"created_at":"2023-10-28T06:07:44.634508Z","updated_at":"2023-10-28T06:07:44.634508Z","uuid":"1a5ec4d7-c19a-4c03-93a7-c95be9184d22","email":"shubhankar@m.copm","name":"shubhankar","attribs":{},"status":"enabled","lists":[]},{"id":10,"created_at":"2023-10-28T05:53:53.897419Z","updated_at":"2023-10-28T05:53:53.897419Z","uuid":"1f552aa3-017d-4843-93de-a608aee5884e","email":"rafique@mail.com","name":"rafique","attribs":{},"status":"enabled","lists":[]},{"id":9,"created_at":"2023-10-28T05:31:03.46229Z","updated_at":"2023-10-28T05:31:03.46229Z","uuid":"df7480f1-fe50-4c6f-bd44-396d44f7e1bd","email":"arjun/@ga.com","name":"arjun","attribs":{},"status":"enabled","lists":[]},{"id":8,"created_at":"2023-10-28T04:46:14.955116Z","updated_at":"2023-10-28T04:46:14.955116Z","uuid":"4d1ce9e5-02cb-408b-8109-9849a5c56947","email":"swastik@m.com","name":"swastik","attribs":{},"status":"enabled","lists":[{"subscription_status":"unconfirmed","subscription_created_at":"2023-10-28T04:46:14.955116+00:00","subscription_updated_at":"2023-10-28T04:46:14.955116+00:00","subscription_meta":{},"id":2,"uuid":"b1349b44-3ed0-4f9c-bc85-58f2a9e8cc97","name":"Opt-in list","type":"public","optin":"double","tags":["test"],"description":"","created_at":"2023-10-27T06:49:09.177856+00:00","updated_at":"2023-10-27T06:49:09.177856+00:00"}]},{"id":7,"created_at":"2023-10-27T19:14:32.834405Z","updated_at":"2023-10-27T19:14:32.834405Z","uuid":"39eb2d56-fdc5-475e-bbb9-faae5f280a96","email":"sd@s.com","name":"Sd","attribs":{},"status":"enabled","lists":[{"subscription_status":"unconfirmed","subscription_created_at":"2023-10-27T19:14:32.834405+00:00","subscription_updated_at":"2023-10-27T19:14:32.834405+00:00","subscription_meta":{},"id":3,"uuid":"3e6e3bfa-d9d2-4bed-a014-c16497bfdcb7","name":"Ritik Jain","type":"private","optin":"single","tags":null,"description":"","created_at":"2023-10-27T19:06:44.682439+00:00","updated_at":"2023-10-27T19:06:44.682439+00:00"}]},{"id":6,"created_at":"2023-10-27T19:07:06.034296Z","updated_at":"2023-10-27T19:07:06.034296Z","uuid":"5447c1be-0d88-4009-ab07-657cb3c4970f","email":"f@f.com","name":"f","attribs":{},"status":"enabled","lists":[{"subscription_status":"unconfirmed","subscription_created_at":"2023-10-27T19:07:06.034296+00:00","subscription_updated_at":"2023-10-27T19:07:06.034296+00:00","subscription_meta":{},"id":1,"uuid":"c5977ddf-bfd4-438f-aaa1-baf6fde450b0","name":"Default list","type":"private","optin":"single","tags":["test"],"description":"","created_at":"2023-10-27T06:49:09.177178+00:00","updated_at":"2023-10-27T06:49:09.177178+00:00"}]},{"id":5,"created_at":"2023-10-27T18:32:26.837302Z","updated_at":"2023-10-27T18:32:26.837302Z","uuid":"105c5635-48dc-4ebb-9721-5a5320903c8a","email":"d@gmail.com","name":"d@gmail.com","attribs":{},"status":"enabled","lists":[{"subscription_status":"unconfirmed","subscription_created_at":"2023-10-27T18:32:26.837302+00:00","subscription_updated_at":"2023-10-27T18:32:26.837302+00:00","subscription_meta":{},"id":1,"uuid":"c5977ddf-bfd4-438f-aaa1-baf6fde450b0","name":"Default list","type":"private","optin":"single","tags":["test"],"description":"","created_at":"2023-10-27T06:49:09.177178+00:00","updated_at":"2023-10-27T06:49:09.177178+00:00"}]},{"id":2,"created_at":"2023-10-27T06:49:09.179627Z","updated_at":"2023-10-27T06:49:09.179627Z","uuid":"ca90acb8-99f2-4974-8050-f258a3205013","email":"anon@example.com","name":"Anon Doe","attribs":{"city":"Bengaluru","good":true,"type":"unknown"},"status":"enabled","lists":[{"subscription_status":"unconfirmed","subscription_created_at":"2023-10-27T06:49:09.179627+00:00","subscription_updated_at":"2023-10-27T06:49:09.179627+00:00","subscription_meta":{},"id":2,"uuid":"b1349b44-3ed0-4f9c-bc85-58f2a9e8cc97","name":"Opt-in list","type":"public","optin":"double","tags":["test"],"description":"","created_at":"2023-10-27T06:49:09.177856+00:00","updated_at":"2023-10-27T06:49:09.177856+00:00"}]},{"id":1,"created_at":"2023-10-27T06:49:09.178449Z","updated_at":"2023-11-03T02:58:43.30528Z","uuid":"1d69593c-bf88-4045-8fa4-1f8f15519a79","email":"john@example.com","name":"John Doe","attribs":{"city":"Bengaluru","good":true,"type":"known"},"status":"blocklisted","lists":[{"subscription_status":"unsubscribed","subscription_created_at":"2023-10-27T06:49:09.178449+00:00","subscription_updated_at":"2023-11-03T02:58:43.30528+00:00","subscription_meta":{},"id":1,"uuid":"c5977ddf-bfd4-438f-aaa1-baf6fde450b0","name":"Default list","type":"private","optin":"single","tags":["test"],"description":"","created_at":"2023-10-27T06:49:09.177178+00:00","updated_at":"2023-10-27T06:49:09.177178+00:00"}]}],"query":"","total":24,"per_page":100,"page":1}}
+              actual: |
+                {"data":{"results":[{"id":34,"created_at":"2023-10-31T02:55:44.80833Z","updated_at":"2023-10-31T02:55:44.80833Z","uuid":"d61cb842-435d-42d6-aec4-8ae6556d192f","email":"subsriber9@domain.com","name":"The Subscriber","attribs":{"city":"Bengaluru","projects":3,"stack":{"languages":["go","python"]}},"status":"enabled","lists":[{"subscription_status":"unconfirmed","subscription_created_at":"2023-10-31T02:55:44.80833+00:00","subscription_updated_at":"2023-10-31T02:55:44.80833+00:00","subscription_meta":{},"id":1,"uuid":"c5977ddf-bfd4-438f-aaa1-baf6fde450b0","name":"Default list","type":"private","optin":"single","tags":["test"],"description":"","created_at":"2023-10-27T06:49:09.177178+00:00","updated_at":"2023-10-27T06:49:09.177178+00:00"}]},{"id":31,"created_at":"2023-10-29T05:16:30.631645Z","updated_at":"2023-10-29T05:16:30.631645Z","uuid":"5ce53cad-3c4b-4136-b996-a9b0f5dd7b6c","email":"subsriber@domain.com","name":"The Subscriber","attribs":{"city":"Bengaluru","projects":3,"stack":{"languages":["go","python"]}},"status":"enabled","lists":[{"subscription_status":"unconfirmed","subscription_created_at":"2023-10-29T05:16:30.631645+00:00","subscription_updated_at":"2023-10-29T05:16:30.631645+00:00","subscription_meta":{},"id":1,"uuid":"c5977ddf-bfd4-438f-aaa1-baf6fde450b0","name":"Default list","type":"private","optin":"single","tags":["test"],"description":"","created_at":"2023-10-27T06:49:09.177178+00:00","updated_at":"2023-10-27T06:49:09.177178+00:00"}]},{"id":29,"created_at":"2023-10-29T04:21:06.53724Z","updated_at":"2023-10-29T04:21:06.53724Z","uuid":"88ac4997-6937-4d9b-aebd-3ecd0735a21e","email":"subsriber123@domain.com","name":"The Subscriber","attribs":{"city":"Bengaluru","projects":3,"stack":{"languages":["go","python"]}},"status":"enabled","lists":[{"subscription_status":"unconfirmed","subscription_created_at":"2023-10-29T04:21:06.53724+00:00","subscription_updated_at":"2023-10-29T04:21:06.53724+00:00","subscription_meta":{},"id":1,"uuid":"c5977ddf-bfd4-438f-aaa1-baf6fde450b0","name":"Default list","type":"private","optin":"single","tags":["test"],"description":"","created_at":"2023-10-27T06:49:09.177178+00:00","updated_at":"2023-10-27T06:49:09.177178+00:00"}]},{"id":25,"created_at":"2023-10-28T23:47:03.970302Z","updated_at":"2023-10-28T23:47:03.970302Z","uuid":"d64800da-84d4-4b5b-8196-7f27fcba82aa","email":"fs@f.com","name":"f","attribs":{},"status":"enabled","lists":[{"subscription_status":"unconfirmed","subscription_created_at":"2023-10-28T23:47:03.970302+00:00","subscription_updated_at":"2023-10-28T23:47:03.970302+00:00","subscription_meta":{},"id":4,"uuid":"7fc53e79-8734-4c4e-a43b-a890809b8ff6","name":"shivani@mail.com","type":"private","optin":"single","tags":null,"description":"","created_at":"2023-10-28T05:44:41.190181+00:00","updated_at":"2023-10-28T05:44:41.190181+00:00"}]},{"id":23,"created_at":"2023-10-28T10:49:37.302097Z","updated_at":"2023-10-28T10:49:37.302097Z","uuid":"809feb06-7231-476f-a2f6-d2fe656730cf","email":"assw@q.com","name":"xyz","attribs":{},"status":"enabled","lists":[{"subscription_status":"unconfirmed","subscription_created_at":"2023-10-28T10:49:37.302097+00:00","subscription_updated_at":"2023-10-28T10:49:37.302097+00:00","subscription_meta":{},"id":2,"uuid":"b1349b44-3ed0-4f9c-bc85-58f2a9e8cc97","name":"Opt-in list","type":"public","optin":"double","tags":["test"],"description":"","created_at":"2023-10-27T06:49:09.177856+00:00","updated_at":"2023-10-27T06:49:09.177856+00:00"}]},{"id":22,"created_at":"2023-10-28T08:37:51.115157Z","updated_at":"2023-10-28T08:37:51.115157Z","uuid":"135f707a-dc29-4dbf-a303-5c591fba79a9","email":"ss@s.com","name":"xyz","attribs":{},"status":"enabled","lists":[{"subscription_status":"unconfirmed","subscription_created_at":"2023-10-28T08:37:51.115157+00:00","subscription_updated_at":"2023-10-28T08:37:51.115157+00:00","subscription_meta":{},"id":3,"uuid":"3e6e3bfa-d9d2-4bed-a014-c16497bfdcb7","name":"Ritik Jain","type":"private","optin":"single","tags":null,"description":"","created_at":"2023-10-27T19:06:44.682439+00:00","updated_at":"2023-10-27T19:06:44.682439+00:00"}]},{"id":21,"created_at":"2023-10-28T08:25:12.805493Z","updated_at":"2023-10-28T08:25:12.805493Z","uuid":"f835ee66-c2bf-45fd-af84-3e42c5bccdfc","email":"s@m.com","name":"sasiion","attribs":{},"status":"enabled","lists":[{"subscription_status":"unconfirmed","subscription_created_at":"2023-10-28T08:25:12.805493+00:00","subscription_updated_at":"2023-10-28T08:25:12.805493+00:00","subscription_meta":{},"id":1,"uuid":"c5977ddf-bfd4-438f-aaa1-baf6fde450b0","name":"Default list","type":"private","optin":"single","tags":["test"],"description":"","created_at":"2023-10-27T06:49:09.177178+00:00","updated_at":"2023-10-27T06:49:09.177178+00:00"}]},{"id":20,"created_at":"2023-10-28T08:04:46.290153Z","updated_at":"2023-10-28T08:04:46.290153Z","uuid":"59d16718-aca1-4b7d-978d-ab096a5deacb","email":"s@s.mail","name":"s","attribs":{},"status":"enabled","lists":[{"subscription_status":"unconfirmed","subscription_created_at":"2023-10-28T08:04:46.290153+00:00","subscription_updated_at":"2023-10-28T08:04:46.290153+00:00","subscription_meta":{},"id":2,"uuid":"b1349b44-3ed0-4f9c-bc85-58f2a9e8cc97","name":"Opt-in list","type":"public","optin":"double","tags":["test"],"description":"","created_at":"2023-10-27T06:49:09.177856+00:00","updated_at":"2023-10-27T06:49:09.177856+00:00"}]},{"id":19,"created_at":"2023-10-28T07:52:22.11335Z","updated_at":"2023-10-28T07:52:22.11335Z","uuid":"e302939d-aedd-4aa2-81c5-1acc94d242ed","email":"api@m.coma","name":"z","attribs":{},"status":"enabled","lists":[{"subscription_status":"unconfirmed","subscription_created_at":"2023-10-28T07:52:22.11335+00:00","subscription_updated_at":"2023-10-28T07:52:22.11335+00:00","subscription_meta":{},"id":4,"uuid":"7fc53e79-8734-4c4e-a43b-a890809b8ff6","name":"shivani@mail.com","type":"private","optin":"single","tags":null,"description":"","created_at":"2023-10-28T05:44:41.190181+00:00","updated_at":"2023-10-28T05:44:41.190181+00:00"}]},{"id":17,"created_at":"2023-10-28T07:40:43.724624Z","updated_at":"2023-10-28T07:40:43.724624Z","uuid":"9fc59f2e-031e-4471-92d8-58d7d04d7855","email":"riti@k.com","name":"xyz","attribs":{},"status":"enabled","lists":[]},{"id":16,"created_at":"2023-10-28T07:12:56.659462Z","updated_at":"2023-10-28T07:12:56.659462Z","uuid":"971f2c6c-9168-4458-8052-17f8ddebde82","email":"balavighnesh16@gmail.com","name":"Bala","attribs":{},"status":"enabled","lists":[]},{"id":15,"created_at":"2023-10-28T06:47:11.554193Z","updated_at":"2023-10-28T06:47:11.554193Z","uuid":"54b1565c-f69b-4cc9-9cc6-7e5215ea1dc9","email":"api@m.com","name":"x","attribs":{},"status":"enabled","lists":[{"subscription_status":"unconfirmed","subscription_created_at":"2023-10-28T06:47:11.554193+00:00","subscription_updated_at":"2023-10-28T06:47:11.554193+00:00","subscription_meta":{},"id":2,"uuid":"b1349b44-3ed0-4f9c-bc85-58f2a9e8cc97","name":"Opt-in list","type":"public","optin":"double","tags":["test"],"description":"","created_at":"2023-10-27T06:49:09.177856+00:00","updated_at":"2023-10-27T06:49:09.177856+00:00"}]},{"id":14,"created_at":"2023-10-28T06:36:35.86808Z","updated_at":"2023-10-28T06:36:35.86808Z","uuid":"b229699b-a16c-4bb3-84d8-ff632cfa8289","email":"shilvaraj2@mail.com","name":"shilvraj","attribs":{},"status":"enabled","lists":[]},{"id":13,"created_at":"2023-10-28T06:27:26.68797Z","updated_at":"2023-10-28T06:27:26.68797Z","uuid":"f468abb2-15f3-48f0-93cb-e845823ccf50","email":"kaustubhsharma105@gmail.com","name":"kaustubh","attribs":{},"status":"enabled","lists":[]},{"id":12,"created_at":"2023-10-28T06:17:29.546591Z","updated_at":"2023-10-28T06:17:29.546591Z","uuid":"9d3b6a5f-a818-4f66-b67f-146cc6c257dd","email":"ujwal@m.com","name":"ujwal","attribs":{},"status":"enabled","lists":[]},{"id":11,"created_at":"2023-10-28T06:07:44.634508Z","updated_at":"2023-10-28T06:07:44.634508Z","uuid":"1a5ec4d7-c19a-4c03-93a7-c95be9184d22","email":"shubhankar@m.copm","name":"shubhankar","attribs":{},"status":"enabled","lists":[]},{"id":10,"created_at":"2023-10-28T05:53:53.897419Z","updated_at":"2023-10-28T05:53:53.897419Z","uuid":"1f552aa3-017d-4843-93de-a608aee5884e","email":"rafique@mail.com","name":"rafique","attribs":{},"status":"enabled","lists":[]},{"id":9,"created_at":"2023-10-28T05:31:03.46229Z","updated_at":"2023-10-28T05:31:03.46229Z","uuid":"df7480f1-fe50-4c6f-bd44-396d44f7e1bd","email":"arjun/@ga.com","name":"arjun","attribs":{},"status":"enabled","lists":[]},{"id":8,"created_at":"2023-10-28T04:46:14.955116Z","updated_at":"2023-10-28T04:46:14.955116Z","uuid":"4d1ce9e5-02cb-408b-8109-9849a5c56947","email":"swastik@m.com","name":"swastik","attribs":{},"status":"enabled","lists":[{"subscription_status":"unconfirmed","subscription_created_at":"2023-10-28T04:46:14.955116+00:00","subscription_updated_at":"2023-10-28T04:46:14.955116+00:00","subscription_meta":{},"id":2,"uuid":"b1349b44-3ed0-4f9c-bc85-58f2a9e8cc97","name":"Opt-in list","type":"public","optin":"double","tags":["test"],"description":"","created_at":"2023-10-27T06:49:09.177856+00:00","updated_at":"2023-10-27T06:49:09.177856+00:00"}]},{"id":7,"created_at":"2023-10-27T19:14:32.834405Z","updated_at":"2023-10-27T19:14:32.834405Z","uuid":"39eb2d56-fdc5-475e-bbb9-faae5f280a96","email":"sd@s.com","name":"Sd","attribs":{},"status":"enabled","lists":[{"subscription_status":"unconfirmed","subscription_created_at":"2023-10-27T19:14:32.834405+00:00","subscription_updated_at":"2023-10-27T19:14:32.834405+00:00","subscription_meta":{},"id":3,"uuid":"3e6e3bfa-d9d2-4bed-a014-c16497bfdcb7","name":"Ritik Jain","type":"private","optin":"single","tags":null,"description":"","created_at":"2023-10-27T19:06:44.682439+00:00","updated_at":"2023-10-27T19:06:44.682439+00:00"}]},{"id":6,"created_at":"2023-10-27T19:07:06.034296Z","updated_at":"2023-10-27T19:07:06.034296Z","uuid":"5447c1be-0d88-4009-ab07-657cb3c4970f","email":"f@f.com","name":"f","attribs":{},"status":"enabled","lists":[{"subscription_status":"unconfirmed","subscription_created_at":"2023-10-27T19:07:06.034296+00:00","subscription_updated_at":"2023-10-27T19:07:06.034296+00:00","subscription_meta":{},"id":1,"uuid":"c5977ddf-bfd4-438f-aaa1-baf6fde450b0","name":"Default list","type":"private","optin":"single","tags":["test"],"description":"","created_at":"2023-10-27T06:49:09.177178+00:00","updated_at":"2023-10-27T06:49:09.177178+00:00"}]},{"id":5,"created_at":"2023-10-27T18:32:26.837302Z","updated_at":"2023-10-27T18:32:26.837302Z","uuid":"105c5635-48dc-4ebb-9721-5a5320903c8a","email":"d@gmail.com","name":"d@gmail.com","attribs":{},"status":"enabled","lists":[{"subscription_status":"unconfirmed","subscription_created_at":"2023-10-27T18:32:26.837302+00:00","subscription_updated_at":"2023-10-27T18:32:26.837302+00:00","subscription_meta":{},"id":1,"uuid":"c5977ddf-bfd4-438f-aaa1-baf6fde450b0","name":"Default list","type":"private","optin":"single","tags":["test"],"description":"","created_at":"2023-10-27T06:49:09.177178+00:00","updated_at":"2023-10-27T06:49:09.177178+00:00"}]},{"id":2,"created_at":"2023-10-27T06:49:09.179627Z","updated_at":"2023-10-27T06:49:09.179627Z","uuid":"ca90acb8-99f2-4974-8050-f258a3205013","email":"anon@example.com","name":"Anon Doe","attribs":{"city":"Bengaluru","good":true,"type":"unknown"},"status":"enabled","lists":[{"subscription_status":"unconfirmed","subscription_created_at":"2023-10-27T06:49:09.179627+00:00","subscription_updated_at":"2023-10-27T06:49:09.179627+00:00","subscription_meta":{},"id":2,"uuid":"b1349b44-3ed0-4f9c-bc85-58f2a9e8cc97","name":"Opt-in list","type":"public","optin":"double","tags":["test"],"description":"","created_at":"2023-10-27T06:49:09.177856+00:00","updated_at":"2023-10-27T06:49:09.177856+00:00"}]},{"id":1,"created_at":"2023-10-27T06:49:09.178449Z","updated_at":"2023-11-03T02:58:43.30528Z","uuid":"1d69593c-bf88-4045-8fa4-1f8f15519a79","email":"john@example.com","name":"John Doe","attribs":{"city":"Bengaluru","good":true,"type":"known"},"status":"blocklisted","lists":[{"subscription_status":"unsubscribed","subscription_created_at":"2023-10-27T06:49:09.178449+00:00","subscription_updated_at":"2023-11-03T02:58:43.30528+00:00","subscription_meta":{},"id":1,"uuid":"c5977ddf-bfd4-438f-aaa1-baf6fde450b0","name":"Default list","type":"private","optin":"single","tags":["test"],"description":"","created_at":"2023-10-27T06:49:09.177178+00:00","updated_at":"2023-10-27T06:49:09.177178+00:00"}]}],"query":"","total":24,"per_page":100,"page":1}}
+        dep_result: []
+    - kind: Http
+      name: report-1
+      status: PASSED
+      started: 1698980906
+      completed: 1698980906
+      test_case_path: /home/ritikjain.linux/keploy-workspace/listmonk/keploy/test-set-0
+      mock_path: ""
+      test_case_id: test-2
+      req:
+        method: GET
+        proto_major: 1
+        proto_minor: 1
+        url: http://localhost:9000/api/subscribers/1
+        header:
+            Accept: '*/*'
+            Authorization: Basic bGlzdG1vbms6bGlzdG1vbms=
+            Host: localhost:9000
+            User-Agent: curl/7.81.0
+        body: ""
+        body_type: ""
+        timestamp: 0001-01-01T00:00:00Z
+      resp:
+        status_code: 200
+        header:
+            Content-Length: "706"
+            Content-Type: application/json; charset=UTF-8
+            Date: Fri, 03 Nov 2023 03:04:07 GMT
+        body: |
+            {"data":{"id":1,"created_at":"2023-10-27T06:49:09.178449Z","updated_at":"2023-11-03T02:58:43.30528Z","uuid":"1d69593c-bf88-4045-8fa4-1f8f15519a79","email":"john@example.com","name":"John Doe","attribs":{"city":"Bengaluru","good":true,"type":"known"},"status":"blocklisted","lists":[{"subscription_status":"unsubscribed","subscription_created_at":"2023-10-27T06:49:09.178449+00:00","subscription_updated_at":"2023-11-03T02:58:43.30528+00:00","subscription_meta":{},"id":1,"uuid":"c5977ddf-bfd4-438f-aaa1-baf6fde450b0","name":"Default list","type":"private","optin":"single","tags":["test"],"description":"","created_at":"2023-10-27T06:49:09.177178+00:00","updated_at":"2023-10-27T06:49:09.177178+00:00"}]}}
+        body_type: ""
+        status_message: ""
+        proto_major: 0
+        proto_minor: 0
+        timestamp: 0001-01-01T00:00:00Z
+      noise:
+        - body.data.created_at
+        - body.data.updated_at
+        - header.Date
+        - body.data.lists.subscription_updated_at
+        - body.data.lists.subscription_created_at
+        - body.data.lists.created_at
+        - body.data.lists.updated_at
+      result:
+        status_code:
+            normal: true
+            expected: 200
+            actual: 200
+        headers_result:
+            - normal: true
+              expected:
+                key: Content-Length
+                value:
+                    - "706"
+              actual:
+                key: Content-Length
+                value:
+                    - "706"
+            - normal: true
+              expected:
+                key: Content-Type
+                value:
+                    - application/json; charset=UTF-8
+              actual:
+                key: Content-Type
+                value:
+                    - application/json; charset=UTF-8
+            - normal: true
+              expected:
+                key: Date
+                value:
+                    - Fri, 03 Nov 2023 03:04:07 GMT
+              actual:
+                key: Date
+                value:
+                    - Fri, 03 Nov 2023 03:08:26 GMT
+        body_result:
+            - normal: true
+              type: JSON
+              expected: |
+                {"data":{"id":1,"created_at":"2023-10-27T06:49:09.178449Z","updated_at":"2023-11-03T02:58:43.30528Z","uuid":"1d69593c-bf88-4045-8fa4-1f8f15519a79","email":"john@example.com","name":"John Doe","attribs":{"city":"Bengaluru","good":true,"type":"known"},"status":"blocklisted","lists":[{"subscription_status":"unsubscribed","subscription_created_at":"2023-10-27T06:49:09.178449+00:00","subscription_updated_at":"2023-11-03T02:58:43.30528+00:00","subscription_meta":{},"id":1,"uuid":"c5977ddf-bfd4-438f-aaa1-baf6fde450b0","name":"Default list","type":"private","optin":"single","tags":["test"],"description":"","created_at":"2023-10-27T06:49:09.177178+00:00","updated_at":"2023-10-27T06:49:09.177178+00:00"}]}}
+              actual: |
+                {"data":{"id":1,"created_at":"2023-10-27T06:49:09.178449Z","updated_at":"2023-11-03T02:58:43.30528Z","uuid":"1d69593c-bf88-4045-8fa4-1f8f15519a79","email":"john@example.com","name":"John Doe","attribs":{"city":"Bengaluru","good":true,"type":"known"},"status":"blocklisted","lists":[{"subscription_status":"unsubscribed","subscription_created_at":"2023-10-27T06:49:09.178449+00:00","subscription_updated_at":"2023-11-03T02:58:43.30528+00:00","subscription_meta":{},"id":1,"uuid":"c5977ddf-bfd4-438f-aaa1-baf6fde450b0","name":"Default list","type":"private","optin":"single","tags":["test"],"description":"","created_at":"2023-10-27T06:49:09.177178+00:00","updated_at":"2023-10-27T06:49:09.177178+00:00"}]}}
+        dep_result: []
+    - kind: Http
+      name: report-1
+      status: PASSED
+      started: 1698980906
+      completed: 1698980906
+      test_case_path: /home/ritikjain.linux/keploy-workspace/listmonk/keploy/test-set-0
+      mock_path: ""
+      test_case_id: test-3
+      req:
+        method: POST
+        proto_major: 1
+        proto_minor: 1
+        url: http://localhost:9000/api/subscribers
+        header:
+            Accept: '*/*'
+            Authorization: Basic bGlzdG1vbms6bGlzdG1vbms=
+            Content-Length: "169"
+            Content-Type: application/json
+            Host: localhost:9000
+            User-Agent: curl/7.81.0
+        body: '{"email":"subsriber@domain.com","name":"The Subscriber","status":"enabled","lists":[1],"attribs":{"city":"Bengaluru","projects":3,"stack":{"languages":["go","python"]}}}'
+        body_type: ""
+        timestamp: 0001-01-01T00:00:00Z
+      resp:
+        status_code: 409
+        header:
+            Content-Length: "37"
+            Content-Type: application/json; charset=UTF-8
+            Date: Fri, 03 Nov 2023 03:04:34 GMT
+        body: |
+            {"message":"E-mail already exists."}
+        body_type: ""
+        status_message: ""
+        proto_major: 0
+        proto_minor: 0
+        timestamp: 0001-01-01T00:00:00Z
+      noise:
+        - header.Date
+      result:
+        status_code:
+            normal: true
+            expected: 409
+            actual: 409
+        headers_result:
+            - normal: true
+              expected:
+                key: Date
+                value:
+                    - Fri, 03 Nov 2023 03:04:34 GMT
+              actual:
+                key: Date
+                value:
+                    - Fri, 03 Nov 2023 03:08:26 GMT
+            - normal: true
+              expected:
+                key: Content-Length
+                value:
+                    - "37"
+              actual:
+                key: Content-Length
+                value:
+                    - "37"
+            - normal: true
+              expected:
+                key: Content-Type
+                value:
+                    - application/json; charset=UTF-8
+              actual:
+                key: Content-Type
+                value:
+                    - application/json; charset=UTF-8
+        body_result:
+            - normal: true
+              type: JSON
+              expected: |
+                {"message":"E-mail already exists."}
+              actual: |
+                {"message":"E-mail already exists."}
+        dep_result: []
+    - kind: Http
+      name: report-1
+      status: PASSED
+      started: 1698980906
+      completed: 1698980906
+      test_case_path: /home/ritikjain.linux/keploy-workspace/listmonk/keploy/test-set-0
+      mock_path: ""
+      test_case_id: test-4
+      req:
+        method: POST
+        proto_major: 1
+        proto_minor: 1
+        url: http://localhost:9000/api/subscribers
+        header:
+            Accept: '*/*'
+            Authorization: Basic bGlzdG1vbms6bGlzdG1vbms=
+            Content-Length: "172"
+            Content-Type: application/json
+            Host: localhost:9000
+            User-Agent: curl/7.81.0
+        body: '{"email":"subsriber123@domain.com","name":"The Subscriber","status":"enabled","lists":[1],"attribs":{"city":"Bengaluru","projects":3,"stack":{"languages":["go","python"]}}}'
+        body_type: ""
+        timestamp: 0001-01-01T00:00:00Z
+      resp:
+        status_code: 409
+        header:
+            Content-Length: "37"
+            Content-Type: application/json; charset=UTF-8
+            Date: Fri, 03 Nov 2023 03:04:47 GMT
+        body: |
+            {"message":"E-mail already exists."}
+        body_type: ""
+        status_message: ""
+        proto_major: 0
+        proto_minor: 0
+        timestamp: 0001-01-01T00:00:00Z
+      noise:
+        - header.Date
+      result:
+        status_code:
+            normal: true
+            expected: 409
+            actual: 409
+        headers_result:
+            - normal: true
+              expected:
+                key: Content-Length
+                value:
+                    - "37"
+              actual:
+                key: Content-Length
+                value:
+                    - "37"
+            - normal: true
+              expected:
+                key: Content-Type
+                value:
+                    - application/json; charset=UTF-8
+              actual:
+                key: Content-Type
+                value:
+                    - application/json; charset=UTF-8
+            - normal: true
+              expected:
+                key: Date
+                value:
+                    - Fri, 03 Nov 2023 03:04:47 GMT
+              actual:
+                key: Date
+                value:
+                    - Fri, 03 Nov 2023 03:08:26 GMT
+        body_result:
+            - normal: true
+              type: JSON
+              expected: |
+                {"message":"E-mail already exists."}
+              actual: |
+                {"message":"E-mail already exists."}
+        dep_result: []
+    - kind: Http
+      name: report-1
+      status: PASSED
+      started: 1698980906
+      completed: 1698980906
+      test_case_path: /home/ritikjain.linux/keploy-workspace/listmonk/keploy/test-set-0
+      mock_path: ""
+      test_case_id: test-5
+      req:
+        method: POST
+        proto_major: 1
+        proto_minor: 1
+        url: http://localhost:9000/api/subscribers
+        header:
+            Accept: '*/*'
+            Authorization: Basic bGlzdG1vbms6bGlzdG1vbms=
+            Content-Length: "175"
+            Content-Type: application/json
+            Host: localhost:9000
+            User-Agent: curl/7.81.0
+        body: '{"email":"subsriber123456@domain.com","name":"The Subscriber","status":"enabled","lists":[1],"attribs":{"city":"Bengaluru","projects":3,"stack":{"languages":["go","python"]}}}'
+        body_type: ""
+        timestamp: 0001-01-01T00:00:00Z
+      resp:
+        status_code: 200
+        header:
+            Content-Length: "744"
+            Content-Type: application/json; charset=UTF-8
+            Date: Fri, 03 Nov 2023 03:04:54 GMT
+        body: |
+            {"data":{"id":41,"created_at":"2023-11-03T03:04:54.660042Z","updated_at":"2023-11-03T03:04:54.660042Z","uuid":"21dc0f45-c761-4ab0-bcb5-7546954a799e","email":"subsriber123456@domain.com","name":"The Subscriber","attribs":{"city":"Bengaluru","projects":3,"stack":{"languages":["go","python"]}},"status":"enabled","lists":[{"subscription_status":"unconfirmed","subscription_created_at":"2023-11-03T03:04:54.660042+00:00","subscription_updated_at":"2023-11-03T03:04:54.660042+00:00","subscription_meta":{},"id":1,"uuid":"c5977ddf-bfd4-438f-aaa1-baf6fde450b0","name":"Default list","type":"private","optin":"single","tags":["test"],"description":"","created_at":"2023-10-27T06:49:09.177178+00:00","updated_at":"2023-10-27T06:49:09.177178+00:00"}]}}
+        body_type: ""
+        status_message: ""
+        proto_major: 0
+        proto_minor: 0
+        timestamp: 0001-01-01T00:00:00Z
+      noise:
+        - header.Date
+        - body.data.id
+        - body.data.lists.subscription_updated_at
+        - body.data.updated_at
+        - body.data.created_at
+        - body.data.lists.updated_at
+        - body.data.lists.subscription_created_at
+        - body.data.lists.created_at
+        - body.data.attribs.stack.languages
+      result:
+        status_code:
+            normal: true
+            expected: 200
+            actual: 200
+        headers_result:
+            - normal: true
+              expected:
+                key: Content-Length
+                value:
+                    - "744"
+              actual:
+                key: Content-Length
+                value:
+                    - "744"
+            - normal: true
+              expected:
+                key: Content-Type
+                value:
+                    - application/json; charset=UTF-8
+              actual:
+                key: Content-Type
+                value:
+                    - application/json; charset=UTF-8
+            - normal: true
+              expected:
+                key: Date
+                value:
+                    - Fri, 03 Nov 2023 03:04:54 GMT
+              actual:
+                key: Date
+                value:
+                    - Fri, 03 Nov 2023 03:08:26 GMT
+        body_result:
+            - normal: true
+              type: JSON
+              expected: |
+                {"data":{"id":41,"created_at":"2023-11-03T03:04:54.660042Z","updated_at":"2023-11-03T03:04:54.660042Z","uuid":"21dc0f45-c761-4ab0-bcb5-7546954a799e","email":"subsriber123456@domain.com","name":"The Subscriber","attribs":{"city":"Bengaluru","projects":3,"stack":{"languages":["go","python"]}},"status":"enabled","lists":[{"subscription_status":"unconfirmed","subscription_created_at":"2023-11-03T03:04:54.660042+00:00","subscription_updated_at":"2023-11-03T03:04:54.660042+00:00","subscription_meta":{},"id":1,"uuid":"c5977ddf-bfd4-438f-aaa1-baf6fde450b0","name":"Default list","type":"private","optin":"single","tags":["test"],"description":"","created_at":"2023-10-27T06:49:09.177178+00:00","updated_at":"2023-10-27T06:49:09.177178+00:00"}]}}
+              actual: |
+                {"data":{"id":41,"created_at":"2023-11-03T03:04:54.660042Z","updated_at":"2023-11-03T03:04:54.660042Z","uuid":"21dc0f45-c761-4ab0-bcb5-7546954a799e","email":"subsriber123456@domain.com","name":"The Subscriber","attribs":{"city":"Bengaluru","projects":3,"stack":{"languages":["go","python"]}},"status":"enabled","lists":[{"subscription_status":"unconfirmed","subscription_created_at":"2023-11-03T03:04:54.660042+00:00","subscription_updated_at":"2023-11-03T03:04:54.660042+00:00","subscription_meta":{},"id":1,"uuid":"c5977ddf-bfd4-438f-aaa1-baf6fde450b0","name":"Default list","type":"private","optin":"single","tags":["test"],"description":"","created_at":"2023-10-27T06:49:09.177178+00:00","updated_at":"2023-10-27T06:49:09.177178+00:00"}]}}
+        dep_result: []
+    - kind: Http
+      name: report-1
+      status: PASSED
+      started: 1698980906
+      completed: 1698980906
+      test_case_path: /home/ritikjain.linux/keploy-workspace/listmonk/keploy/test-set-0
+      mock_path: ""
+      test_case_id: test-6
+      req:
+        method: PUT
+        proto_major: 1
+        proto_minor: 1
+        url: http://localhost:9000/api/subscribers/lists
+        header:
+            Accept: '*/*'
+            Authorization: Basic bGlzdG1vbms6bGlzdG1vbms=
+            Content-Length: "88"
+            Content-Type: application/x-www-form-urlencoded
+            Host: localhost:9000
+            User-Agent: curl/7.81.0
+        body: '{"ids": [1, 2, 3], "action": "add", "target_list_ids": [4, 5, 6], "status": "confirmed"}'
+        body_type: ""
+        timestamp: 0001-01-01T00:00:00Z
+      resp:
+        status_code: 400
+        header:
+            Content-Length: "28"
+            Content-Type: application/json; charset=UTF-8
+            Date: Fri, 03 Nov 2023 03:05:17 GMT
+        body: |
+            {"message":"No IDs given."}
+        body_type: ""
+        status_message: ""
+        proto_major: 0
+        proto_minor: 0
+        timestamp: 0001-01-01T00:00:00Z
+      noise:
+        - header.Date
+      result:
+        status_code:
+            normal: true
+            expected: 400
+            actual: 400
+        headers_result:
+            - normal: true
+              expected:
+                key: Content-Length
+                value:
+                    - "28"
+              actual:
+                key: Content-Length
+                value:
+                    - "28"
+            - normal: true
+              expected:
+                key: Content-Type
+                value:
+                    - application/json; charset=UTF-8
+              actual:
+                key: Content-Type
+                value:
+                    - application/json; charset=UTF-8
+            - normal: true
+              expected:
+                key: Date
+                value:
+                    - Fri, 03 Nov 2023 03:05:17 GMT
+              actual:
+                key: Date
+                value:
+                    - Fri, 03 Nov 2023 03:08:26 GMT
+        body_result:
+            - normal: true
+              type: JSON
+              expected: |
+                {"message":"No IDs given."}
+              actual: |
+                {"message":"No IDs given."}
+        dep_result: []
+    - kind: Http
+      name: report-1
+      status: PASSED
+      started: 1698980906
+      completed: 1698980906
+      test_case_path: /home/ritikjain.linux/keploy-workspace/listmonk/keploy/test-set-0
+      mock_path: ""
+      test_case_id: test-7
+      req:
+        method: DELETE
+        proto_major: 1
+        proto_minor: 1
+        url: http://localhost:9000/api/subscribers/19
+        header:
+            Accept: '*/*'
+            Authorization: Basic bGlzdG1vbms6bGlzdG1vbms=
+            Host: localhost:9000
+            User-Agent: curl/7.81.0
+        body: ""
+        body_type: ""
+        timestamp: 0001-01-01T00:00:00Z
+      resp:
+        status_code: 200
+        header:
+            Content-Length: "14"
+            Content-Type: application/json; charset=UTF-8
+            Date: Fri, 03 Nov 2023 03:05:47 GMT
+        body: |
+            {"data":true}
+        body_type: ""
+        status_message: ""
+        proto_major: 0
+        proto_minor: 0
+        timestamp: 0001-01-01T00:00:00Z
+      noise:
+        - header.Date
+      result:
+        status_code:
+            normal: true
+            expected: 200
+            actual: 200
+        headers_result:
+            - normal: true
+              expected:
+                key: Date
+                value:
+                    - Fri, 03 Nov 2023 03:05:47 GMT
+              actual:
+                key: Date
+                value:
+                    - Fri, 03 Nov 2023 03:08:26 GMT
+            - normal: true
+              expected:
+                key: Content-Length
+                value:
+                    - "14"
+              actual:
+                key: Content-Length
+                value:
+                    - "14"
+            - normal: true
+              expected:
+                key: Content-Type
+                value:
+                    - application/json; charset=UTF-8
+              actual:
+                key: Content-Type
+                value:
+                    - application/json; charset=UTF-8
+        body_result:
+            - normal: true
+              type: JSON
+              expected: |
+                {"data":true}
+              actual: |
+                {"data":true}
+        dep_result: []
+    - kind: Http
+      name: report-1
+      status: PASSED
+      started: 1698980906
+      completed: 1698980906
+      test_case_path: /home/ritikjain.linux/keploy-workspace/listmonk/keploy/test-set-0
+      mock_path: ""
+      test_case_id: test-8
+      req:
+        method: GET
+        proto_major: 1
+        proto_minor: 1
+        url: http://localhost:9000/api/lists?page=1&per_page=100
+        url_params:
+            page: "1"
+            per_page: "100"
+        header:
+            Accept: '*/*'
+            Authorization: Basic bGlzdG1vbms6bGlzdG1vbms=
+            Host: localhost:9000
+            User-Agent: curl/7.81.0
+        body: ""
+        body_type: ""
+        timestamp: 0001-01-01T00:00:00Z
+      resp:
+        status_code: 200
+        header:
+            Content-Length: "1485"
+            Content-Type: application/json; charset=UTF-8
+            Date: Fri, 03 Nov 2023 03:06:23 GMT
+        body: |
+            {"data":{"results":[{"id":4,"created_at":"2023-10-28T05:44:41.190181Z","updated_at":"2023-10-28T05:44:41.190181Z","uuid":"7fc53e79-8734-4c4e-a43b-a890809b8ff6","name":"shivani@mail.com","type":"private","optin":"single","tags":[],"description":"","subscriber_count":1,"subscriber_statuses":{"unconfirmed":1},"subscription_created_at":null,"subscription_updated_at":null},{"id":3,"created_at":"2023-10-27T19:06:44.682439Z","updated_at":"2023-10-27T19:06:44.682439Z","uuid":"3e6e3bfa-d9d2-4bed-a014-c16497bfdcb7","name":"Ritik Jain","type":"private","optin":"single","tags":[],"description":"","subscriber_count":2,"subscriber_statuses":{"unconfirmed":2},"subscription_created_at":null,"subscription_updated_at":null},{"id":2,"created_at":"2023-10-27T06:49:09.177856Z","updated_at":"2023-10-27T06:49:09.177856Z","uuid":"b1349b44-3ed0-4f9c-bc85-58f2a9e8cc97","name":"Opt-in list","type":"public","optin":"double","tags":["test"],"description":"","subscriber_count":5,"subscriber_statuses":{"unconfirmed":5},"subscription_created_at":null,"subscription_updated_at":null},{"id":1,"created_at":"2023-10-27T06:49:09.177178Z","updated_at":"2023-10-27T06:49:09.177178Z","uuid":"c5977ddf-bfd4-438f-aaa1-baf6fde450b0","name":"Default list","type":"private","optin":"single","tags":["test"],"description":"","subscriber_count":8,"subscriber_statuses":{"unconfirmed":7,"unsubscribed":1},"subscription_created_at":null,"subscription_updated_at":null}],"query":"","total":4,"per_page":100,"page":1}}
+        body_type: ""
+        status_message: ""
+        proto_major: 0
+        proto_minor: 0
+        timestamp: 0001-01-01T00:00:00Z
+      noise:
+        - header.Content-Length
+        - body.data.results.tags
+        - header.Date
+        - body.data.results.created_at
+        - body.data.results.updated_at
+      result:
+        status_code:
+            normal: true
+            expected: 200
+            actual: 200
+        headers_result:
+            - normal: true
+              expected:
+                key: Content-Length
+                value:
+                    - "1485"
+              actual:
+                key: Content-Length
+                value:
+                    - "1485"
+            - normal: true
+              expected:
+                key: Content-Type
+                value:
+                    - application/json; charset=UTF-8
+              actual:
+                key: Content-Type
+                value:
+                    - application/json; charset=UTF-8
+            - normal: true
+              expected:
+                key: Date
+                value:
+                    - Fri, 03 Nov 2023 03:06:23 GMT
+              actual:
+                key: Date
+                value:
+                    - Fri, 03 Nov 2023 03:08:26 GMT
+        body_result:
+            - normal: true
+              type: JSON
+              expected: |
+                {"data":{"results":[{"id":4,"created_at":"2023-10-28T05:44:41.190181Z","updated_at":"2023-10-28T05:44:41.190181Z","uuid":"7fc53e79-8734-4c4e-a43b-a890809b8ff6","name":"shivani@mail.com","type":"private","optin":"single","tags":[],"description":"","subscriber_count":1,"subscriber_statuses":{"unconfirmed":1},"subscription_created_at":null,"subscription_updated_at":null},{"id":3,"created_at":"2023-10-27T19:06:44.682439Z","updated_at":"2023-10-27T19:06:44.682439Z","uuid":"3e6e3bfa-d9d2-4bed-a014-c16497bfdcb7","name":"Ritik Jain","type":"private","optin":"single","tags":[],"description":"","subscriber_count":2,"subscriber_statuses":{"unconfirmed":2},"subscription_created_at":null,"subscription_updated_at":null},{"id":2,"created_at":"2023-10-27T06:49:09.177856Z","updated_at":"2023-10-27T06:49:09.177856Z","uuid":"b1349b44-3ed0-4f9c-bc85-58f2a9e8cc97","name":"Opt-in list","type":"public","optin":"double","tags":["test"],"description":"","subscriber_count":5,"subscriber_statuses":{"unconfirmed":5},"subscription_created_at":null,"subscription_updated_at":null},{"id":1,"created_at":"2023-10-27T06:49:09.177178Z","updated_at":"2023-10-27T06:49:09.177178Z","uuid":"c5977ddf-bfd4-438f-aaa1-baf6fde450b0","name":"Default list","type":"private","optin":"single","tags":["test"],"description":"","subscriber_count":8,"subscriber_statuses":{"unconfirmed":7,"unsubscribed":1},"subscription_created_at":null,"subscription_updated_at":null}],"query":"","total":4,"per_page":100,"page":1}}
+              actual: |
+                {"data":{"results":[{"id":4,"created_at":"2023-10-28T05:44:41.190181Z","updated_at":"2023-10-28T05:44:41.190181Z","uuid":"7fc53e79-8734-4c4e-a43b-a890809b8ff6","name":"shivani@mail.com","type":"private","optin":"single","tags":[],"description":"","subscriber_count":1,"subscriber_statuses":{"unconfirmed":1},"subscription_created_at":null,"subscription_updated_at":null},{"id":3,"created_at":"2023-10-27T19:06:44.682439Z","updated_at":"2023-10-27T19:06:44.682439Z","uuid":"3e6e3bfa-d9d2-4bed-a014-c16497bfdcb7","name":"Ritik Jain","type":"private","optin":"single","tags":[],"description":"","subscriber_count":2,"subscriber_statuses":{"unconfirmed":2},"subscription_created_at":null,"subscription_updated_at":null},{"id":2,"created_at":"2023-10-27T06:49:09.177856Z","updated_at":"2023-10-27T06:49:09.177856Z","uuid":"b1349b44-3ed0-4f9c-bc85-58f2a9e8cc97","name":"Opt-in list","type":"public","optin":"double","tags":["test"],"description":"","subscriber_count":5,"subscriber_statuses":{"unconfirmed":5},"subscription_created_at":null,"subscription_updated_at":null},{"id":1,"created_at":"2023-10-27T06:49:09.177178Z","updated_at":"2023-10-27T06:49:09.177178Z","uuid":"c5977ddf-bfd4-438f-aaa1-baf6fde450b0","name":"Default list","type":"private","optin":"single","tags":["test"],"description":"","subscriber_count":8,"subscriber_statuses":{"unconfirmed":7,"unsubscribed":1},"subscription_created_at":null,"subscription_updated_at":null}],"query":"","total":4,"per_page":100,"page":1}}
+        dep_result: []
+    - kind: Http
+      name: report-1
+      status: PASSED
+      started: 1698980906
+      completed: 1698980906
+      test_case_path: /home/ritikjain.linux/keploy-workspace/listmonk/keploy/test-set-0
+      mock_path: ""
+      test_case_id: test-9
+      req:
+        method: PUT
+        proto_major: 1
+        proto_minor: 1
+        url: http://localhost:9000/api/lists/5
+        header:
+            Accept: '*/*'
+            Authorization: Basic bGlzdG1vbms6bGlzdG1vbms=
+            Content-Length: "257"
+            Content-Type: multipart/form-data; boundary=------------------------4240582b5838762f
+            Host: localhost:9000
+            User-Agent: curl/7.81.0
+        body: "--------------------------4240582b5838762f\r\nContent-Disposition: form-data; name=\"name\"\r\n\r\nmodified test list\r\n--------------------------4240582b5838762f\r\nContent-Disposition: form-data; name=\"type\"\r\n\r\nprivate\r\n--------------------------4240582b5838762f--\r\n"
+        body_type: ""
+        timestamp: 0001-01-01T00:00:00Z
+      resp:
+        status_code: 400
+        header:
+            Content-Length: "27"
+            Content-Type: application/json; charset=UTF-8
+            Date: Fri, 03 Nov 2023 03:07:09 GMT
+        body: |
+            {"message":"Invalid name"}
+        body_type: ""
+        status_message: ""
+        proto_major: 0
+        proto_minor: 0
+        timestamp: 0001-01-01T00:00:00Z
+      noise:
+        - header.Date
+      result:
+        status_code:
+            normal: true
+            expected: 400
+            actual: 400
+        headers_result:
+            - normal: true
+              expected:
+                key: Content-Length
+                value:
+                    - "27"
+              actual:
+                key: Content-Length
+                value:
+                    - "27"
+            - normal: true
+              expected:
+                key: Content-Type
+                value:
+                    - application/json; charset=UTF-8
+              actual:
+                key: Content-Type
+                value:
+                    - application/json; charset=UTF-8
+            - normal: true
+              expected:
+                key: Date
+                value:
+                    - Fri, 03 Nov 2023 03:07:09 GMT
+              actual:
+                key: Date
+                value:
+                    - Fri, 03 Nov 2023 03:08:26 GMT
+        body_result:
+            - normal: true
+              type: JSON
+              expected: |
+                {"message":"Invalid name"}
+              actual: |
+                {"message":"Invalid name"}
+        dep_result: []
+    - kind: Http
+      name: report-1
+      status: PASSED
+      started: 1698980906
+      completed: 1698980906
+      test_case_path: /home/ritikjain.linux/keploy-workspace/listmonk/keploy/test-set-0
+      mock_path: ""
+      test_case_id: test-10
+      req:
+        method: GET
+        proto_major: 1
+        proto_minor: 1
+        url: http://localhost:9000/api/import/subscribers
+        header:
+            Accept: '*/*'
+            Authorization: Basic bGlzdG1vbms6bGlzdG1vbms=
+            Host: localhost:9000
+            User-Agent: curl/7.81.0
+        body: ""
+        body_type: ""
+        timestamp: 0001-01-01T00:00:00Z
+      resp:
+        status_code: 200
+        header:
+            Content-Length: "60"
+            Content-Type: application/json; charset=UTF-8
+            Date: Fri, 03 Nov 2023 03:07:40 GMT
+        body: |
+            {"data":{"name":"","total":0,"imported":0,"status":"none"}}
+        body_type: ""
+        status_message: ""
+        proto_major: 0
+        proto_minor: 0
+        timestamp: 0001-01-01T00:00:00Z
+      noise:
+        - header.Date
+      result:
+        status_code:
+            normal: true
+            expected: 200
+            actual: 200
+        headers_result:
+            - normal: true
+              expected:
+                key: Content-Type
+                value:
+                    - application/json; charset=UTF-8
+              actual:
+                key: Content-Type
+                value:
+                    - application/json; charset=UTF-8
+            - normal: true
+              expected:
+                key: Date
+                value:
+                    - Fri, 03 Nov 2023 03:07:40 GMT
+              actual:
+                key: Date
+                value:
+                    - Fri, 03 Nov 2023 03:08:26 GMT
+            - normal: true
+              expected:
+                key: Content-Length
+                value:
+                    - "60"
+              actual:
+                key: Content-Length
+                value:
+                    - "60"
+        body_result:
+            - normal: true
+              type: JSON
+              expected: |
+                {"data":{"name":"","total":0,"imported":0,"status":"none"}}
+              actual: |
+                {"data":{"name":"","total":0,"imported":0,"status":"none"}}
+        dep_result: []
+    - kind: Http
+      name: report-1
+      status: PASSED
+      started: 1698980906
+      completed: 1698980906
+      test_case_path: /home/ritikjain.linux/keploy-workspace/listmonk/keploy/test-set-0
+      mock_path: ""
+      test_case_id: test-11
+      req:
+        method: GET
+        proto_major: 1
+        proto_minor: 1
+        url: http://localhost:9000/api/campaigns?page=1&per_page=100
+        url_params:
+            page: "1"
+            per_page: "100"
+        header:
+            Accept: '*/*'
+            Authorization: Basic bGlzdG1vbms6bGlzdG1vbms=
+            Host: localhost:9000
+            User-Agent: curl/7.81.0
+        body: ""
+        body_type: ""
+        timestamp: 0001-01-01T00:00:00Z
+      resp:
+        status_code: 200
+        header:
+            Content-Type: application/json; charset=UTF-8
+            Date: Fri, 03 Nov 2023 03:08:01 GMT
+        body: |
+            {"data":{"results":[{"id":3,"created_at":"2023-10-29T05:21:00.725321Z","updated_at":"2023-10-29T05:21:00.725321Z","views":0,"clicks":0,"bounces":0,"lists":[{"id":1,"name":"Default list"}],"media":[],"started_at":null,"to_send":5,"sent":0,"uuid":"0aadbf8e-b4d5-4ce1-9c3c-30080c2abba4","type":"regular","name":"Test campaign","subject":"Hello, world","from_email":"listmonk \u003cnoreply@listmonk.yoursite.com\u003e","body":"","altbody":null,"send_at":null,"status":"draft","content_type":"richtext","tags":["test"],"headers":[],"template_id":1,"messenger":"email","archive":false,"archive_template_id":1,"archive_meta":{}},{"id":2,"created_at":"2023-10-27T19:29:57.972866Z","updated_at":"2023-10-27T19:30:00.360103Z","views":0,"clicks":0,"bounces":0,"lists":[{"id":2,"name":"Opt-in list"}],"media":[],"started_at":null,"to_send":0,"sent":0,"uuid":"731e7b58-0e7b-4bc3-9738-146a740e1559","type":"regular","name":"ritik","subject":"ritik","from_email":"listmonk \u003cnoreply@listmonk.yoursite.com\u003e","body":"","altbody":null,"send_at":null,"status":"draft","content_type":"richtext","tags":[],"headers":[],"template_id":1,"messenger":"email","archive":false,"archive_template_id":1,"archive_meta":{}},{"id":1,"created_at":"2023-10-27T06:49:09.181995Z","updated_at":"2023-10-27T19:29:41.125794Z","views":0,"clicks":0,"bounces":0,"lists":[{"id":1,"name":"Default list"}],"media":[],"started_at":null,"to_send":0,"sent":0,"uuid":"4e01588d-48f0-4e4d-8ae5-ed753b063960","type":"regular","name":"Test campaign","subject":"Welcome to listmonk","from_email":"No Reply \u003cnoreply@yoursite.com\u003e","body":"\u003ch3\u003eHi {{ .Subscriber.FirstName }}!\u003c/h3\u003e\n\t\t\u003cp\u003eThis is a test e-mail campaign. Your second name is {{ .Subscriber.LastName }} and you are from {{ .Subscriber.Attribs.city }}.\u003c/p\u003e\n\t\t\u003cp\u003eHere is a \u003ca href=\"https://listmonk.app@TrackLink\"\u003etracked link\u003c/a\u003e.\u003c/p\u003e\n\t\t\u003cp\u003eUse the link icon in the editor toolbar or when writing raw HTML or Markdown,\n\t\t\tsimply suffix @TrackLink to the end of a URL to turn it into a tracking link. Example:\u003c/p\u003e\n\t\t\u003cpre\u003e\u0026lt;a href=\u0026quot;https:/\u0026zwnj;/listmonk.app\u0026#064;TrackLink\u0026quot;\u0026gt;\u0026lt;/a\u0026gt;\u003c/pre\u003e\n\t\t\u003cp\u003eFor help, refer to the \u003ca href=\"https://listmonk.app/docs\"\u003edocumentation\u003c/a\u003e.\u003c/p\u003e\n\t\t","altbody":null,"send_at":null,"status":"draft","content_type":"richtext","tags":["test-campaign"],"headers":[],"template_id":1,"messenger":"email","archive":false,"archive_template_id":2,"archive_meta":{}}],"query":"","total":3,"per_page":100,"page":1}}
+        body_type: ""
+        status_message: ""
+        proto_major: 0
+        proto_minor: 0
+        timestamp: 0001-01-01T00:00:00Z
+      noise:
+        - body.data.results.status
+        - header.Date
+        - body.data.results.tags
+        - body.data.results.content_type
+        - body.data.results.type
+        - body.data.results.archive
+        - body.data.results.updated_at
+        - body.data.results.messenger
+        - body.data.results.created_at
+        - body.data.results.subject
+      result:
+        status_code:
+            normal: true
+            expected: 200
+            actual: 200
+        headers_result:
+            - normal: true
+              expected:
+                key: Content-Type
+                value:
+                    - application/json; charset=UTF-8
+              actual:
+                key: Content-Type
+                value:
+                    - application/json; charset=UTF-8
+            - normal: true
+              expected:
+                key: Date
+                value:
+                    - Fri, 03 Nov 2023 03:08:01 GMT
+              actual:
+                key: Date
+                value:
+                    - Fri, 03 Nov 2023 03:08:26 GMT
+        body_result:
+            - normal: true
+              type: JSON
+              expected: |
+                {"data":{"results":[{"id":3,"created_at":"2023-10-29T05:21:00.725321Z","updated_at":"2023-10-29T05:21:00.725321Z","views":0,"clicks":0,"bounces":0,"lists":[{"id":1,"name":"Default list"}],"media":[],"started_at":null,"to_send":5,"sent":0,"uuid":"0aadbf8e-b4d5-4ce1-9c3c-30080c2abba4","type":"regular","name":"Test campaign","subject":"Hello, world","from_email":"listmonk \u003cnoreply@listmonk.yoursite.com\u003e","body":"","altbody":null,"send_at":null,"status":"draft","content_type":"richtext","tags":["test"],"headers":[],"template_id":1,"messenger":"email","archive":false,"archive_template_id":1,"archive_meta":{}},{"id":2,"created_at":"2023-10-27T19:29:57.972866Z","updated_at":"2023-10-27T19:30:00.360103Z","views":0,"clicks":0,"bounces":0,"lists":[{"id":2,"name":"Opt-in list"}],"media":[],"started_at":null,"to_send":0,"sent":0,"uuid":"731e7b58-0e7b-4bc3-9738-146a740e1559","type":"regular","name":"ritik","subject":"ritik","from_email":"listmonk \u003cnoreply@listmonk.yoursite.com\u003e","body":"","altbody":null,"send_at":null,"status":"draft","content_type":"richtext","tags":[],"headers":[],"template_id":1,"messenger":"email","archive":false,"archive_template_id":1,"archive_meta":{}},{"id":1,"created_at":"2023-10-27T06:49:09.181995Z","updated_at":"2023-10-27T19:29:41.125794Z","views":0,"clicks":0,"bounces":0,"lists":[{"id":1,"name":"Default list"}],"media":[],"started_at":null,"to_send":0,"sent":0,"uuid":"4e01588d-48f0-4e4d-8ae5-ed753b063960","type":"regular","name":"Test campaign","subject":"Welcome to listmonk","from_email":"No Reply \u003cnoreply@yoursite.com\u003e","body":"\u003ch3\u003eHi {{ .Subscriber.FirstName }}!\u003c/h3\u003e\n\t\t\u003cp\u003eThis is a test e-mail campaign. Your second name is {{ .Subscriber.LastName }} and you are from {{ .Subscriber.Attribs.city }}.\u003c/p\u003e\n\t\t\u003cp\u003eHere is a \u003ca href=\"https://listmonk.app@TrackLink\"\u003etracked link\u003c/a\u003e.\u003c/p\u003e\n\t\t\u003cp\u003eUse the link icon in the editor toolbar or when writing raw HTML or Markdown,\n\t\t\tsimply suffix @TrackLink to the end of a URL to turn it into a tracking link. Example:\u003c/p\u003e\n\t\t\u003cpre\u003e\u0026lt;a href=\u0026quot;https:/\u0026zwnj;/listmonk.app\u0026#064;TrackLink\u0026quot;\u0026gt;\u0026lt;/a\u0026gt;\u003c/pre\u003e\n\t\t\u003cp\u003eFor help, refer to the \u003ca href=\"https://listmonk.app/docs\"\u003edocumentation\u003c/a\u003e.\u003c/p\u003e\n\t\t","altbody":null,"send_at":null,"status":"draft","content_type":"richtext","tags":["test-campaign"],"headers":[],"template_id":1,"messenger":"email","archive":false,"archive_template_id":2,"archive_meta":{}}],"query":"","total":3,"per_page":100,"page":1}}
+              actual: |
+                {"data":{"results":[{"id":3,"created_at":"2023-10-29T05:21:00.725321Z","updated_at":"2023-10-29T05:21:00.725321Z","views":0,"clicks":0,"bounces":0,"lists":[{"id":1,"name":"Default list"}],"media":[],"started_at":null,"to_send":5,"sent":0,"uuid":"0aadbf8e-b4d5-4ce1-9c3c-30080c2abba4","type":"regular","name":"Test campaign","subject":"Hello, world","from_email":"listmonk \u003cnoreply@listmonk.yoursite.com\u003e","body":"","altbody":null,"send_at":null,"status":"draft","content_type":"richtext","tags":["test"],"headers":[],"template_id":1,"messenger":"email","archive":false,"archive_template_id":1,"archive_meta":{}},{"id":2,"created_at":"2023-10-27T19:29:57.972866Z","updated_at":"2023-10-27T19:30:00.360103Z","views":0,"clicks":0,"bounces":0,"lists":[{"id":2,"name":"Opt-in list"}],"media":[],"started_at":null,"to_send":0,"sent":0,"uuid":"731e7b58-0e7b-4bc3-9738-146a740e1559","type":"regular","name":"ritik","subject":"ritik","from_email":"listmonk \u003cnoreply@listmonk.yoursite.com\u003e","body":"","altbody":null,"send_at":null,"status":"draft","content_type":"richtext","tags":[],"headers":[],"template_id":1,"messenger":"email","archive":false,"archive_template_id":1,"archive_meta":{}},{"id":1,"created_at":"2023-10-27T06:49:09.181995Z","updated_at":"2023-10-27T19:29:41.125794Z","views":0,"clicks":0,"bounces":0,"lists":[{"id":1,"name":"Default list"}],"media":[],"started_at":null,"to_send":0,"sent":0,"uuid":"4e01588d-48f0-4e4d-8ae5-ed753b063960","type":"regular","name":"Test campaign","subject":"Welcome to listmonk","from_email":"No Reply \u003cnoreply@yoursite.com\u003e","body":"\u003ch3\u003eHi {{ .Subscriber.FirstName }}!\u003c/h3\u003e\n\t\t\u003cp\u003eThis is a test e-mail campaign. Your second name is {{ .Subscriber.LastName }} and you are from {{ .Subscriber.Attribs.city }}.\u003c/p\u003e\n\t\t\u003cp\u003eHere is a \u003ca href=\"https://listmonk.app@TrackLink\"\u003etracked link\u003c/a\u003e.\u003c/p\u003e\n\t\t\u003cp\u003eUse the link icon in the editor toolbar or when writing raw HTML or Markdown,\n\t\t\tsimply suffix @TrackLink to the end of a URL to turn it into a tracking link. Example:\u003c/p\u003e\n\t\t\u003cpre\u003e\u0026lt;a href=\u0026quot;https:/\u0026zwnj;/listmonk.app\u0026#064;TrackLink\u0026quot;\u0026gt;\u0026lt;/a\u0026gt;\u003c/pre\u003e\n\t\t\u003cp\u003eFor help, refer to the \u003ca href=\"https://listmonk.app/docs\"\u003edocumentation\u003c/a\u003e.\u003c/p\u003e\n\t\t","altbody":null,"send_at":null,"status":"draft","content_type":"richtext","tags":["test-campaign"],"headers":[],"template_id":1,"messenger":"email","archive":false,"archive_template_id":2,"archive_meta":{}}],"query":"","total":3,"per_page":100,"page":1}}
+        dep_result: []
+test_set: test-set-0

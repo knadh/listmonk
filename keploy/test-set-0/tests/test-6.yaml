@@ -1,6 +1,6 @@
 version: api.keploy.io/v1beta2
 kind: Http
-name: test-5
+name: test-6
 spec:
     metadata: {}
     req:
@@ -15,22 +15,33 @@ spec:
             Content-Type: application/x-www-form-urlencoded
             Host: localhost:9000
             User-Agent: curl/7.81.0
-        body: '{"ids": [1, 2, 3], "action": "add", "target_list_ids": [1, 2, 3], "status": "confirmed"}'
+        body: '{"ids": [1, 2, 3], "action": "add", "target_list_ids": [4, 5, 6], "status": "confirmed"}'
         body_type: ""
+        timestamp: 2023-11-03T03:05:17.060435617Z
     resp:
         status_code: 400
         header:
             Content-Length: "28"
             Content-Type: application/json; charset=UTF-8
-            Date: Mon, 25 Sep 2023 11:01:22 GMT
+            Date: Fri, 03 Nov 2023 03:05:17 GMT
         body: |
             {"message":"No IDs given."}
         body_type: ""
         status_message: ""
         proto_major: 0
         proto_minor: 0
+        timestamp: 2023-11-03T03:05:19.980912702Z
     objects: []
     assertions:
         noise:
             - header.Date
-    created: 1695639682
+    created: 1698980719
+curl: |-
+    curl --request PUT \
+      --url http://localhost:9000/api/subscribers/lists \
+      --header 'Host: localhost:9000' \
+      --header 'Authorization: Basic bGlzdG1vbms6bGlzdG1vbms=' \
+      --header 'User-Agent: curl/7.81.0' \
+      --header 'Accept: */*' \
+      --header 'Content-Type: application/x-www-form-urlencoded' \
+      --data '{"ids": [1, 2, 3], "action": "add", "target_list_ids": [4, 5, 6], "status": "confirmed"}'

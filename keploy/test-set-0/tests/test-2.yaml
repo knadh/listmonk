@@ -7,10 +7,7 @@ spec:
         method: GET
         proto_major: 1
         proto_minor: 1
-        url: http://localhost:9000/api/lists?page=1&per_page=100
-        url_params:
-            page: "1"
-            per_page: "100"
+        url: http://localhost:9000/api/subscribers/1
         header:
             Accept: '*/*'
             Authorization: Basic bGlzdG1vbms6bGlzdG1vbms=
@@ -18,26 +15,35 @@ spec:
             User-Agent: curl/7.81.0
         body: ""
         body_type: ""
+        timestamp: 2023-11-03T03:04:07.055305186Z
     resp:
         status_code: 200
         header:
-            Content-Length: "772"
+            Content-Length: "706"
             Content-Type: application/json; charset=UTF-8
-            Date: Mon, 25 Sep 2023 10:53:45 GMT
+            Date: Fri, 03 Nov 2023 03:04:07 GMT
         body: |
-            {"data":{"results":[{"id":2,"created_at":"2023-09-20T10:36:36.370595Z","updated_at":"2023-09-20T10:36:36.370595Z","uuid":"86e36156-ff03-4cc9-8b27-fd391f7e77cc","name":"Opt-in list","type":"public","optin":"double","tags":["test"],"description":"","subscriber_count":1,"subscriber_statuses":{"unconfirmed":1},"subscription_created_at":null,"subscription_updated_at":null},{"id":1,"created_at":"2023-09-20T10:36:36.369954Z","updated_at":"2023-09-20T10:36:36.369954Z","uuid":"35ae6a52-a7df-44b3-a28c-a0bf86245fd9","name":"Default list","type":"private","optin":"single","tags":["test"],"description":"","subscriber_count":5,"subscriber_statuses":{"unconfirmed":5},"subscription_created_at":null,"subscription_updated_at":null}],"query":"","total":2,"per_page":100,"page":1}}
+            {"data":{"id":1,"created_at":"2023-10-27T06:49:09.178449Z","updated_at":"2023-11-03T02:58:43.30528Z","uuid":"1d69593c-bf88-4045-8fa4-1f8f15519a79","email":"john@example.com","name":"John Doe","attribs":{"city":"Bengaluru","good":true,"type":"known"},"status":"blocklisted","lists":[{"subscription_status":"unsubscribed","subscription_created_at":"2023-10-27T06:49:09.178449+00:00","subscription_updated_at":"2023-11-03T02:58:43.30528+00:00","subscription_meta":{},"id":1,"uuid":"c5977ddf-bfd4-438f-aaa1-baf6fde450b0","name":"Default list","type":"private","optin":"single","tags":["test"],"description":"","created_at":"2023-10-27T06:49:09.177178+00:00","updated_at":"2023-10-27T06:49:09.177178+00:00"}]}}
         body_type: ""
         status_message: ""
         proto_major: 0
         proto_minor: 0
+        timestamp: 2023-11-03T03:04:09.521778611Z
     objects: []
     assertions:
         noise:
-            - body.data.results.created_at
-            - body.data.results.tags
-            - body.data.results.type
-            - body.data.results.updated_at
-            - body.data.results.name
+            - body.data.created_at
+            - body.data.updated_at
             - header.Date
-            - body.data.results.optin
-    created: 1695639226
+            - body.data.lists.subscription_updated_at
+            - body.data.lists.subscription_created_at
+            - body.data.lists.created_at
+            - body.data.lists.updated_at
+    created: 1698980649
+curl: |
+    curl --request GET \
+      --url http://localhost:9000/api/subscribers/1 \
+      --header 'Host: localhost:9000' \
+      --header 'Authorization: Basic bGlzdG1vbms6bGlzdG1vbms=' \
+      --header 'User-Agent: curl/7.81.0' \
+      --header 'Accept: */*' \
