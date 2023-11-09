@@ -16,7 +16,7 @@
       
       
       <link rel="icon" href="../../images/favicon.png">
-      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.4.7">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.4.8">
     
     
       
@@ -1237,13 +1237,48 @@
 <div class="highlight"><pre><span></span><code><span class="w"> </span>curl<span class="w"> </span>-u<span class="w"> </span><span class="s2">&quot;username:password&quot;</span><span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span><span class="s1">&#39;http://localhost:9000/api/campaigns?page=1&amp;per_page=100&#39;</span>
 </code></pre></div>
 <h5 id="parameters">Parameters<a class="headerlink" href="#parameters" title="Permanent link">&para;</a></h5>
-<p>Name    | Type   | Required/Optional   | Description
---------|--------------------|-------------|---------------------|---------------------
-<code>query</code> | string      | Optional            |  Optional string to search a list by name.
-<code>order_by</code> | string      | Optional            |  Field to sort results by. <code>name|status|created_at|updated_at</code>
-<code>order</code> | string      | Optional            |  <code>ASC|DESC</code>Sort by ascending or descending order.
-<code>page</code> | number      | Optional            |  Page number for paginated results.
-<code>per_page</code> | number      | Optional            |  Results to return per page. Setting this to <code>all</code> skips pagination and returns all results.</p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Required/Optional</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>query</code></td>
+<td>string</td>
+<td>Optional</td>
+<td>Optional string to search a list by name.</td>
+</tr>
+<tr>
+<td><code>order_by</code></td>
+<td>string</td>
+<td>Optional</td>
+<td>Field to sort results by. Options: <code>name</code>, <code>status</code>, <code>created_at</code>, <code>updated_at</code>.</td>
+</tr>
+<tr>
+<td><code>order</code></td>
+<td>string</td>
+<td>Optional</td>
+<td>Sort order: <code>ASC</code> for ascending, <code>DESC</code> for descending.</td>
+</tr>
+<tr>
+<td><code>page</code></td>
+<td>number</td>
+<td>Optional</td>
+<td>Page number for paginated results.</td>
+</tr>
+<tr>
+<td><code>per_page</code></td>
+<td>number</td>
+<td>Optional</td>
+<td>Results to return per page. Setting this to <code>all</code> skips pagination and returns all results.</td>
+</tr>
+</tbody>
+</table>
 <h5 id="example-response">Example Response<a class="headerlink" href="#example-response" title="Permanent link">&para;</a></h5>
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
 <span class="w">    </span><span class="nt">&quot;data&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
@@ -1692,7 +1727,7 @@ This is a test e-mail campaign. Your second name is Doe and you are from Bengalu
     <script id="__config" type="application/json">{"base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.f886a092.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.aecac24b.min.js"></script>
+      <script src="../../assets/javascripts/bundle.81fa17fe.min.js"></script>
       
     
   </body>
