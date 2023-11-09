@@ -23,13 +23,13 @@ Gets all campaigns.
 ```
 
 ##### Parameters
-Name    | Type   | Required/Optional   | Description
---------|--------------------|-------------|---------------------|---------------------
-`query` | string      | Optional            |  Optional string to search a list by name.
-`order_by` | string      | Optional            |  Field to sort results by. `name|status|created_at|updated_at`
-`order` | string      | Optional            |  `ASC|DESC`Sort by ascending or descending order.
-`page` | number      | Optional            |  Page number for paginated results.
-`per_page` | number      | Optional            |  Results to return per page. Setting this to `all` skips pagination and returns all results.
+| Name      | Type   | Required/Optional | Description |
+|-----------|--------|-------------------|-------------|
+| `query`   | string | Optional          | Optional string to search a list by name. |
+| `order_by`| string | Optional          | Field to sort results by. Options: `name`, `status`, `created_at`, `updated_at`. |
+| `order`   | string | Optional          | Sort order: `ASC` for ascending, `DESC` for descending. |
+| `page`    | number | Optional          | Page number for paginated results. |
+| `per_page`| number | Optional          | Results to return per page. Setting this to `all` skips pagination and returns all results. |
 
 
 ##### Example Response
