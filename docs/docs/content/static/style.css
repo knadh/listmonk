@@ -107,3 +107,6 @@ by accommodating for the fixed-header's height */
   box-shadow: 0 4px 3px #eee;
   transition: none;
 }
+.md-header__topic:first-child {
+  font-weight: normal;
+}

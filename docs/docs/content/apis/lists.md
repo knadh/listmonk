@@ -1,31 +1,37 @@
 # API / Lists
-Method      | Endpoint                                             | Description
-------------|------------------------------------------------------|----------------------------------------------
-`GET`       | [/api/lists](#get-apilists)                          | Gets all lists.
-`GET`       | [/api/lists/:`list_id`](#get-apilistslist_id)        | Gets a single list.
-`POST`      | [/api/lists](#post-apilists)                         | Creates a new list.
-`PUT`       | /api/lists/:`list_id`                                | Modifies a list.
-`DELETE`    | [/api/lists/:`list_id`](#put-apilistslist_id)        | Deletes a list.
 
+| Method | Endpoint                                        | Description               |
+|:-------|:------------------------------------------------|:--------------------------|
+| GET    | [/api/lists](#get-apilists)                     | Retrieve all lists.       |
+| GET    | [/api/lists/{list_id}](#get-apilistslist_id)    | Retrieve a specific list. |
+| POST   | [/api/lists](#post-apilists)                    | Create a new list.        |
+| PUT    | [/api/lists/{list_id}](#put-apilistslist_id)    | Update a list.            |
+| DELETE | [/api/lists/{list_id}](#delete-apilistslist_id) | Delete a list.            |
 
-#### **`GET`** /api/lists
-Gets lists.
+______________________________________________________________________
+
+#### GET /api/lists
+
+Retrieve lists.
 
 ##### Parameters
-Name       | Type   | Required/Optional  | Description
------------|--------|--------------------|-----------------------------------------
-`query`    | string | Optional           | Optional string to search a list by name.
-`order_by` | string | Optional           | Field to sort results by. `name|status|created_at|updated_at`
-`order`    | string | Optional           | `ASC|DESC`Sort by ascending or descending order.
-`page`     | number | Optional           | Page number for paginated results.
-`per_page` | number | Optional           | Results to return per page. Setting this to `all` skips pagination and returns all results.
+
+| Name     | Type      | Required | Description                                                |
+|:---------|:----------|:---------|:-----------------------------------------------------------|
+| query    | string    |          | string for list name search.                               |
+| order_by | string    |          | Sort field. Options: name, status, created_at, updated_at. |
+| order    | string    |          | Sorting order. Options: ASC, DESC.                         |
+| page     | number    |          | Page number for pagination.                                |
+| per_page | number    |          | Results per page. Set to 'all' to return all results.      |
 
 ##### Example Request
+
 ```shell
 curl -u "username:username" -X GET 'http://localhost:9000/api/lists?page=1&per_page=100'
 ```
 
 ##### Example Response
+
 ```json
 {
     "data": {
@@ -62,20 +68,26 @@ curl -u "username:username" -X GET 'http://localhost:9000/api/lists?page=1&per_p
 }
 ```
 
-#### **`GET`** /api/lists/:`list_id`
-Gets a single list.
+______________________________________________________________________
+
+#### GET /api/lists/{list_id}
+
+Retrieve a specific list.
 
 ##### Parameters
-Name      | Parameter type     | Data type   | Required/Optional   | Description
-----------|--------------------|-------------|---------------------|---------------------
-`list_id` | Path parameter     | number      | Required            |  The id value of the list you want to get.
+
+| Name    | Type      | Required | Description                 |
+|:--------|:----------|:---------|:----------------------------|
+| list_id | number    | Yes      | ID of the list to retrieve. |
 
 ##### Example Request
-``` shell
+
+```shell
 curl -u "username:username" -X GET 'http://localhost:9000/api/lists/5'
 ```
 
 ##### Example Response
+
 ```json
 {
     "data": {
@@ -92,23 +104,29 @@ curl -u "username:username" -X GET 'http://localhost:9000/api/lists/5'
 }
 ```
 
-#### **`POST`** /api/lists
-Creates a new list.
+______________________________________________________________________
+
+#### POST /api/lists
+
+Create a new list.
 
 ##### Parameters
-Name    | Parameter type  | Data type   | Required/Optional  | Description
---------|-----------------|-------------|--------------------|----------------
-name    | Request body    | string      | Required           | The new list name.  
-type    | Request body    | string      | Required           | List type, can be set to `private` or `public`.
-optin   | Request body    | string      | Required           | `single` or `double` optin.
-tags    | Request body    | string[]    | Optional           | The tags associated with the list.
+
+| Name  | Type      | Required | Description                             |
+|:------|:----------|:---------|:----------------------------------------|
+| name  | string    | Yes      | Name of the new list.                   |
+| type  | string    | Yes      | Type of list. Options: private, public. |
+| optin | string    | Yes      | Opt-in type. Options: single, double.   |
+| tags  | string\[\]  |          | Associated tags for a list.             |
 
 ##### Example Request
-``` shell
+
+```shell
 curl -u "username:username" -X POST 'http://localhost:9000/api/lists'
 ```
 
 ##### Example Response
+
 ```json
 {
     "data": {
@@ -125,19 +143,24 @@ curl -u "username:username" -X POST 'http://localhost:9000/api/lists'
 null
 ```
 
-#### **`PUT`** /api/lists/`list_id`
-Modifies a list.
+______________________________________________________________________
+
+#### PUT /api/lists/{list_id}
+
+Update a list.
 
 ##### Parameters
-Name      |  Parameter type    | Data type    | Required/Optional     | Description
-----------|--------------------|--------------|-----------------------|-------------------------
-`list_id` | Path parameter     | number       | Required              | The id of the list to be modified.
-name      | Request body       | string       | Optional              | The name which the old name will be modified to.
-type      | Request body       | string       | Optional              | List type, can be set to `private` or `public`.
-optin     | Request body       | string       | Optional              | `single` or `double` optin.
-tags      | Request body       | string[]     | Optional              | The tags associated with the list.
+
+| Name    | Type      | Required | Description                             |
+|:--------|:----------|:---------|:----------------------------------------|
+| list_id | number    | Yes      | ID of the list to update.               |
+| name    | string    |          | New name for the list.                  |
+| type    | string    |          | Type of list. Options: private, public. |
+| optin   | string    |          | Opt-in type. Options: single, double.   |
+| tags    | string\[\]  |          | Associated tags for the list.           |
 
 ##### Example Request
+
 ```shell
 curl -u "username:username" -X PUT 'http://localhost:9000/api/lists/5' \
 --form 'name=modified test list' \
@@ -145,7 +168,8 @@ curl -u "username:username" -X PUT 'http://localhost:9000/api/lists/5' \
 ```
 
 ##### Example Response
-``` json
+
+```json
 {
     "data": {
         "id": 5,
@@ -158,5 +182,31 @@ curl -u "username:username" -X PUT 'http://localhost:9000/api/lists/5' \
         "tags": [],
         "subscriber_count": 0
     }
+}
+```
+
+______________________________________________________________________
+
+#### DELETE /api/lists/{list_id}
+
+Delete a specific subscriber.
+
+##### Parameters
+
+| Name    | Type      | Required | Description               |
+|:--------|:----------|:---------|:--------------------------|
+| list_id | Number    | Yes      | ID of the list to delete. |
+
+##### Example Request
+
+```shell
+curl -u 'username:password' -X DELETE 'http://localhost:9000/api/lists/1'
+```
+
+##### Example Response
+
+```json
+{
+    "data": true
 }
 ```
