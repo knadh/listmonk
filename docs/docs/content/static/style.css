@@ -103,3 +103,7 @@ by accommodating for the fixed-header's height */
   margin: 60px 0;
   display: block;
 }
+.md-header--shadow {
+  box-shadow: 0 4px 3px #eee;
+  transition: none;
+}
