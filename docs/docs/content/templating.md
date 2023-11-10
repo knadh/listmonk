@@ -109,7 +109,7 @@ The expression `{{ template "content" . }}` should appear exactly once in every 
 
 ### Example campaign body
 
-Campaign bodies can be composed using the built-in WYSIWYG editor or as raw HTML documents. Assuming that the subscriber has a set of [attributes defined](../querying-and-segmentation#sample-attributes), this example shows how to render those values in a campaign.
+Campaign bodies can be composed using the built-in WYSIWYG editor or as raw HTML documents. Assuming that the subscriber has a set of [attributes defined](querying-and-segmentation.md#sample-attributes), this example shows how to render those values in a campaign.
 
 ```
 Hey, did you notice how the template showed your first name?

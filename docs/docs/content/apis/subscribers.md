@@ -342,7 +342,7 @@ ______________________________________________________________________
 
 Blocklist subscribers based on SQL expression.
 
-> Refer to the [querying and segmentation](/querying-and-segmentation#querying-and-segmenting-subscribers) section for more information on how to query subscribers with SQL expressions.
+> Refer to the [querying and segmentation](../querying-and-segmentation.md#querying-and-segmenting-subscribers) section for more information on how to query subscribers with SQL expressions.
 
 ##### Example Request
 
