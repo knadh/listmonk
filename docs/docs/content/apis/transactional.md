@@ -1,30 +1,32 @@
 # API / Transactional
 
-| Method | Endpoint | Description |
-|:-------|:---------|:------------|
-| `POST` | /api/tx  |             |
+| Method | Endpoint | Description                    |
+|:-------|:---------|:-------------------------------|
+| POST   | /api/tx  | Send transactional messages    |
 
+______________________________________________________________________
 
-## POST /api/tx
-Send a transactional message to one or multiple subscribers using a predefined transactional template.
+#### POST /api/tx
 
+Allows sending transactional messages to one or more subscribers via a preconfigured transactional template.
 
 ##### Parameters
-| Name                | Data Type | Optional | Description                                                                                                                                      |
-|:--------------------|:----------|:--------|:-------------------------------------------------------------------------------------------------------------------------------------------------|
-| `subscriber_email`  | String    | Optional | E-mail of the subscriber. Either this or `subscriber_id` should be passed.                                                                       |
-| `subscriber_id`     | Number    | Optional | ID of the subscriber. Either this or `subscriber_email` should be passed.                                                                        |
-| `subscriber_emails` | []String  | Optional | E-mails of the subscribers. This is an alternative to `subscriber_email` for multiple recipients. `["email1@example.com", "emailX@example.com"]` |
-| `subscriber_ids`    | []Number  | Optional | IDs of the subscribers. This is an alternative to `subscriber_id` for multiple recipients. `[1,2,3]`                                              |
-| `template_id`       | Number    | Required | ID of the transactional template to use in the message.                                                                                          |
-| `from_email`        | String    | Optional | Optional `from` email. eg: `Company <email@company.com>`                                                                                         |
-| `data`              | Map       | Optional | Optional data in `{}` nested map. Available in the template as `{{ .Tx.Data.* }}`                                                                |
-| `headers`           | []Map     | Optional | Optional array of mail headers. `[{"key": "value"}, {"key": "value"}]`                                                                           |
-| `messenger`         | String    | Optional | Messenger to use to send the message. Default value is `email`.                                                                                  |
-| `content_type`      | String    | Optional | `html`, `markdown`, `plain`                                                                                                                      |
 
+| Name              | Type      | Required | Description                                                                |
+|:------------------|:----------|:---------|:---------------------------------------------------------------------------|
+| subscriber_email  | string    |          | Email of the subscriber. Can substitute with `subscriber_id`.              |
+| subscriber_id     | number    |          | Subscriber's ID can substitute with `subscriber_email`.                    |
+| subscriber_emails | string\[\]  |          | Multiple subscriber emails as alternative to `subscriber_email`.           |
+| subscriber_ids    | number\[\]  |          | Multiple subscriber IDs as an alternative to `subscriber_id`.              |
+| template_id       | number    | Yes      | ID of the transactional template to be used for the message.               |
+| from_email        | string    |          | Optional sender email.                                                     |
+| data              | JSON      |          | Optional nested JSON map. Available in the template as `{{ .Tx.Data.* }}`. |
+| headers           | JSON\[\]    |          | Optional array of email headers.                                           |
+| messenger         | string    |          | Messenger to send the message. Default is `email`.                         |
+| content_type      | string    |          | Email format options include `html`, `markdown`, and `plain`.              |
 
-##### Request
+##### Example
+
 ```shell
 curl -u "username:password" "http://localhost:9000/api/tx" -X POST \
      -H 'Content-Type: application/json; charset=utf-8' \
@@ -38,16 +40,19 @@ curl -u "username:password" "http://localhost:9000/api/tx" -X POST \
 EOF
 ```
 
-##### Response
-``` json
+##### Example response
+
+```json
 {
     "data": true
 }
 ```
 
-### File Attachments
-To include file attachments in a transactional message, use Content-Type `multipart/form-data`.
-Use the parameters described above as a JSON object via the `data` form key and include an arbitrary number of attachments via the `file` key.
+______________________________________________________________________
+
+#### File Attachments
+
+To include file attachments in a transactional message, use the `multipart/form-data` Content-Type. Use `data` param for the parameters described above as a JSON object. Include any number of attachments via the `file` param.
 
 ```shell
 curl -u "username:password" "http://localhost:9000/api/tx" -X POST \
@@ -58,4 +63,3 @@ curl -u "username:password" "http://localhost:9000/api/tx" -X POST \
 -F 'file=@"/path/to/attachment.pdf"' \
 -F 'file=@"/path/to/attachment2.pdf"'
 ```
-

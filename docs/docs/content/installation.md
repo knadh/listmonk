@@ -113,7 +113,7 @@ max_lifetime = "300s"
 Mount the local `config.toml` inside the container at `listmonk/config.toml`.
 
 !!! tip
-    - See [configuring with environment variables](../configuration) for variables like `app.admin_password` and `db.password`
+    - See [configuring with environment variables](configuration.md) for variables like `app.admin_password` and `db.password`
     - Ensure that both `app` and `db` containers are in running. If the containers are not running, restart them `docker compose restart app db`.
     - Refer to [this tutorial](https://yasoob.me/posts/setting-up-listmonk-opensource-newsletter-mailing/) for setting up a production instance with Docker + Nginx + LetsEncrypt SSL.
 

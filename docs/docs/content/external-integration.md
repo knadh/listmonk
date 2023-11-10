@@ -4,7 +4,7 @@ In many environments, a mailing list manager's subscriber database is not run in
 
 ## Using APIs
 
-The [subscriber APIs](../apis/subscribers) offers several APIs to manipulate the subscribers database, like addition, updation, and deletion. For bulk synchronisation, a CSV can be generated (and optionally zipped) and posted to the import API.
+The [subscriber APIs](apis/subscribers.md) offers several APIs to manipulate the subscribers database, like addition, updation, and deletion. For bulk synchronisation, a CSV can be generated (and optionally zipped) and posted to the import API.
 
 ## Interacting directly with the DB
 
