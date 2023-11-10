@@ -350,19 +350,18 @@
       
         <li class="md-nav__item">
   <a href="#media-uploads" class="md-nav__link">
-    Media Uploads
+    Media uploads
   </a>
   
-    <nav class="md-nav" aria-label="Media Uploads">
+    <nav class="md-nav" aria-label="Media uploads">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#filesystem" class="md-nav__link">
-    Filesystem
+  <a href="#using-filesystem" class="md-nav__link">
+    Using filesystem
   </a>
   
-    <nav class="md-nav" aria-label="Filesystem">
-      <ul class="md-nav__list">
+</li>
         
           <li class="md-nav__item">
   <a href="#using-volumes" class="md-nav__link">
@@ -375,11 +374,6 @@
   <a href="#using-bind-mounts" class="md-nav__link">
     Using bind mounts
   </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
         
@@ -802,19 +796,18 @@
       
         <li class="md-nav__item">
   <a href="#media-uploads" class="md-nav__link">
-    Media Uploads
+    Media uploads
   </a>
   
-    <nav class="md-nav" aria-label="Media Uploads">
+    <nav class="md-nav" aria-label="Media uploads">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#filesystem" class="md-nav__link">
-    Filesystem
+  <a href="#using-filesystem" class="md-nav__link">
+    Using filesystem
   </a>
   
-    <nav class="md-nav" aria-label="Filesystem">
-      <ul class="md-nav__list">
+</li>
         
           <li class="md-nav__item">
   <a href="#using-volumes" class="md-nav__link">
@@ -827,11 +820,6 @@
   <a href="#using-bind-mounts" class="md-nav__link">
     Using bind mounts
   </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
         
@@ -915,7 +903,7 @@
 </tbody>
 </table>
 <h3 id="customizing-system-templates">Customizing system templates<a class="headerlink" href="#customizing-system-templates" title="Permanent link">&para;</a></h3>
-<p><a href="../templating/#system-templates">Read this</a></p>
+<p>See <a href="../templating/#system-templates">system templates</a>.</p>
 <h3 id="http-routes">HTTP routes<a class="headerlink" href="#http-routes" title="Permanent link">&para;</a></h3>
 <p>When configuring auth proxies and web application firewalls, use this table.</p>
 <h4 id="private-admin-endpoints">Private admin endpoints.<a class="headerlink" href="#private-admin-endpoints" title="Permanent link">&para;</a></h4>
@@ -982,8 +970,8 @@
 </tr>
 </tbody>
 </table>
-<h2 id="media-uploads">Media Uploads<a class="headerlink" href="#media-uploads" title="Permanent link">&para;</a></h2>
-<h3 id="filesystem">Filesystem<a class="headerlink" href="#filesystem" title="Permanent link">&para;</a></h3>
+<h2 id="media-uploads">Media uploads<a class="headerlink" href="#media-uploads" title="Permanent link">&para;</a></h2>
+<h4 id="using-filesystem">Using filesystem<a class="headerlink" href="#using-filesystem" title="Permanent link">&para;</a></h4>
 <p>When configuring <code>docker</code> volume mounts for using filesystem media uploads, you can follow either of two approaches. <a href="https://github.com/knadh/listmonk/issues/1169#issuecomment-1674475945">The second option may be necessary if</a> your setup requires you to use <code>sudo</code> for docker commands. </p>
 <p>After making any changes you will need to run <code>sudo docker compose stop ; sudo docker compose up</code>. </p>
 <p>And under <code>https://listmonk.mysite.com/admin/settings</code> you put <code>/listmonk/uploads</code>. </p>
@@ -1066,7 +1054,7 @@ with any Timezone listed <a href="https://en.wikipedia.org/wiki/List_of_tz_datab
     </div>
     
     
-    <script id="__config" type="application/json">{"base": "..", "features": [], "search": "../assets/javascripts/workers/search.f886a092.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    <script id="__config" type="application/json">{"base": "..", "features": ["content.code.copy"], "search": "../assets/javascripts/workers/search.f886a092.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
       <script src="../assets/javascripts/bundle.81fa17fe.min.js"></script>

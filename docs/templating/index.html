@@ -1030,7 +1030,7 @@
 <p>For use with plaintext campaigns, create a template with no HTML content and just the placeholder <code>{{ template "content" . }}</code></p>
 </div>
 <h3 id="example-campaign-body">Example campaign body<a class="headerlink" href="#example-campaign-body" title="Permanent link">&para;</a></h3>
-<p>Campaign bodies can be composed using the built-in WYSIWYG editor or as raw HTML documents. Assuming that the subscriber has a set of <a href="../querying-and-segmentation#sample-attributes">attributes defined</a>, this example shows how to render those values in a campaign.</p>
+<p>Campaign bodies can be composed using the built-in WYSIWYG editor or as raw HTML documents. Assuming that the subscriber has a set of <a href="../querying-and-segmentation/#sample-attributes">attributes defined</a>, this example shows how to render those values in a campaign.</p>
 <div class="highlight"><pre><span></span><code>Hey, did you notice how the template showed your first name?
 Your last name is {{.Subscriber.LastName }}.
 
@@ -1172,7 +1172,7 @@ Here is a link for you to click that will be tracked.
     </div>
     
     
-    <script id="__config" type="application/json">{"base": "..", "features": [], "search": "../assets/javascripts/workers/search.f886a092.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    <script id="__config" type="application/json">{"base": "..", "features": ["content.code.copy"], "search": "../assets/javascripts/workers/search.f886a092.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
       <script src="../assets/javascripts/bundle.81fa17fe.min.js"></script>

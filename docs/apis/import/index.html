@@ -549,10 +549,10 @@
       
         <li class="md-nav__item">
   <a href="#get-apiimportsubscribers" class="md-nav__link">
-    GET api/import/subscribers
+    GET /api/import/subscribers
   </a>
   
-    <nav class="md-nav" aria-label="GET api/import/subscribers">
+    <nav class="md-nav" aria-label="GET /api/import/subscribers">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -576,10 +576,10 @@
       
         <li class="md-nav__item">
   <a href="#get-apiimportsubscriberslogs" class="md-nav__link">
-    GET api/import/subscribers/logs
+    GET /api/import/subscribers/logs
   </a>
   
-    <nav class="md-nav" aria-label="GET api/import/subscribers/logs">
+    <nav class="md-nav" aria-label="GET /api/import/subscribers/logs">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -603,10 +603,10 @@
       
         <li class="md-nav__item">
   <a href="#post-apiimportsubscribers" class="md-nav__link">
-    POST api/import/subscribers
+    POST /api/import/subscribers
   </a>
   
-    <nav class="md-nav" aria-label="POST api/import/subscribers">
+    <nav class="md-nav" aria-label="POST /api/import/subscribers">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -623,10 +623,10 @@
       
         <li class="md-nav__item">
   <a href="#delete-apiimportsubscribers" class="md-nav__link">
-    DELETE api/import/subscribers
+    DELETE /api/import/subscribers
   </a>
   
-    <nav class="md-nav" aria-label="DELETE api/import/subscribers">
+    <nav class="md-nav" aria-label="DELETE /api/import/subscribers">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -760,10 +760,10 @@
       
         <li class="md-nav__item">
   <a href="#get-apiimportsubscribers" class="md-nav__link">
-    GET api/import/subscribers
+    GET /api/import/subscribers
   </a>
   
-    <nav class="md-nav" aria-label="GET api/import/subscribers">
+    <nav class="md-nav" aria-label="GET /api/import/subscribers">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -787,10 +787,10 @@
       
         <li class="md-nav__item">
   <a href="#get-apiimportsubscriberslogs" class="md-nav__link">
-    GET api/import/subscribers/logs
+    GET /api/import/subscribers/logs
   </a>
   
-    <nav class="md-nav" aria-label="GET api/import/subscribers/logs">
+    <nav class="md-nav" aria-label="GET /api/import/subscribers/logs">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -814,10 +814,10 @@
       
         <li class="md-nav__item">
   <a href="#post-apiimportsubscribers" class="md-nav__link">
-    POST api/import/subscribers
+    POST /api/import/subscribers
   </a>
   
-    <nav class="md-nav" aria-label="POST api/import/subscribers">
+    <nav class="md-nav" aria-label="POST /api/import/subscribers">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -834,10 +834,10 @@
       
         <li class="md-nav__item">
   <a href="#delete-apiimportsubscribers" class="md-nav__link">
-    DELETE api/import/subscribers
+    DELETE /api/import/subscribers
   </a>
   
-    <nav class="md-nav" aria-label="DELETE api/import/subscribers">
+    <nav class="md-nav" aria-label="DELETE /api/import/subscribers">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -885,29 +885,30 @@
 </thead>
 <tbody>
 <tr>
-<td><code>GET</code></td>
-<td><a href="#get-apiimportsubscribers">api/import/subscribers</a></td>
-<td>Gets a import statistics.</td>
+<td>GET</td>
+<td><a href="#get-apiimportsubscribers">/api/import/subscribers</a></td>
+<td>Retrieve import statistics.</td>
 </tr>
 <tr>
-<td><code>GET</code></td>
-<td><a href="#get-apiimportsubscriberslogs">api/import/subscribers/logs</a></td>
-<td>Get a import statistics .</td>
+<td>GET</td>
+<td><a href="#get-apiimportsubscriberslogs">/api/import/subscribers/logs</a></td>
+<td>Retrieve import logs.</td>
 </tr>
 <tr>
-<td><code>POST</code></td>
-<td><a href="#post-apiimportsubscribers">api/import/subscribers</a></td>
-<td>Upload a ZIP file or CSV file to bulk import subscribers.</td>
+<td>POST</td>
+<td><a href="#post-apiimportsubscribers">/api/import/subscribers</a></td>
+<td>Upload a file for bulk subscriber import.</td>
 </tr>
 <tr>
-<td><code>DELETE</code></td>
-<td><a href="#delete-apiimportsubscribers">api/import/subscribers</a></td>
-<td>Stops and deletes a import.</td>
+<td>DELETE</td>
+<td><a href="#delete-apiimportsubscribers">/api/import/subscribers</a></td>
+<td>Stop and remove an import.</td>
 </tr>
 </tbody>
 </table>
-<h4 id="get-apiimportsubscribers"><strong><code>GET</code></strong> api/import/subscribers<a class="headerlink" href="#get-apiimportsubscribers" title="Permanent link">&para;</a></h4>
-<p>Gets import status.</p>
+<hr />
+<h4 id="get-apiimportsubscribers">GET /api/import/subscribers<a class="headerlink" href="#get-apiimportsubscribers" title="Permanent link">&para;</a></h4>
+<p>Retrieve the status of an import.</p>
 <h5 id="example-request">Example Request<a class="headerlink" href="#example-request" title="Permanent link">&para;</a></h5>
 <div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-u<span class="w"> </span><span class="s2">&quot;username:username&quot;</span><span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span><span class="s1">&#39;http://localhost:9000/api/import/subscribers&#39;</span>
 </code></pre></div>
@@ -921,8 +922,9 @@
 <span class="w">    </span><span class="p">}</span>
 <span class="p">}</span>
 </code></pre></div>
-<h4 id="get-apiimportsubscriberslogs"><strong><code>GET</code></strong> api/import/subscribers/logs<a class="headerlink" href="#get-apiimportsubscriberslogs" title="Permanent link">&para;</a></h4>
-<p>Gets import logs.</p>
+<hr />
+<h4 id="get-apiimportsubscriberslogs">GET /api/import/subscribers/logs<a class="headerlink" href="#get-apiimportsubscriberslogs" title="Permanent link">&para;</a></h4>
+<p>Retrieve logs related to imports.</p>
 <h5 id="example-request_1">Example Request<a class="headerlink" href="#example-request_1" title="Permanent link">&para;</a></h5>
 <div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-u<span class="w"> </span><span class="s2">&quot;username:username&quot;</span><span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span><span class="s1">&#39;http://localhost:9000/api/import/subscribers/logs&#39;</span>
 </code></pre></div>
@@ -931,37 +933,35 @@
 <span class="w">    </span><span class="nt">&quot;data&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2020/04/08 21:55:20 processing &#39;import.csv&#39;\n2020/04/08 21:55:21 imported finished\n&quot;</span>
 <span class="p">}</span>
 </code></pre></div>
-<h4 id="post-apiimportsubscribers"><strong><code>POST</code></strong> api/import/subscribers<a class="headerlink" href="#post-apiimportsubscribers" title="Permanent link">&para;</a></h4>
-<p>Post a CSV (optionally zipped) file to do a bulk import. The request should be a multipart form POST.</p>
+<hr />
+<h4 id="post-apiimportsubscribers">POST /api/import/subscribers<a class="headerlink" href="#post-apiimportsubscribers" title="Permanent link">&para;</a></h4>
+<p>Send a CSV (optionally ZIP compressed) file to import subscribers. Use a multipart form POST.</p>
 <h5 id="parameters">Parameters<a class="headerlink" href="#parameters" title="Permanent link">&para;</a></h5>
 <table>
 <thead>
 <tr>
-<th>Name</th>
-<th>Parameter type</th>
-<th>Data type</th>
-<th>Required/Optional</th>
-<th>Description</th>
+<th style="text-align: left;">Name</th>
+<th style="text-align: left;">Type</th>
+<th style="text-align: left;">Required</th>
+<th style="text-align: left;">Description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><code>params</code></td>
-<td>Request body</td>
-<td>String</td>
-<td>Required</td>
-<td>Stringified JSON with import params</td>
+<td style="text-align: left;">params</td>
+<td style="text-align: left;">JSON string</td>
+<td style="text-align: left;">Yes</td>
+<td style="text-align: left;">Stringified JSON with import parameters.</td>
 </tr>
 <tr>
-<td><code>file</code></td>
-<td>Request body</td>
-<td>File</td>
-<td>Required</td>
-<td>File to upload</td>
+<td style="text-align: left;">file</td>
+<td style="text-align: left;">File</td>
+<td style="text-align: left;">Yes</td>
+<td style="text-align: left;">File for upload.</td>
 </tr>
 </tbody>
 </table>
-<p><strong><em>params</em></strong> (JSON string)</p>
+<p><strong><code>params</code></strong> (JSON string)</p>
 <div class="highlight"><pre><span></span><code><span class="w">    </span><span class="p">{</span>
 <span class="w">        </span><span class="nt">&quot;mode&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;subscribe&quot;</span><span class="p">,</span><span class="w"> </span><span class="c1">// subscribe or blocklist</span>
 <span class="w">        </span><span class="nt">&quot;delim&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;,&quot;</span><span class="p">,</span><span class="w">        </span><span class="c1">// delimiter in the uploaded file</span>
@@ -969,8 +969,9 @@
 <span class="w">        </span><span class="nt">&quot;overwrite&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">    </span><span class="c1">// overwrite existing entries or skip them?</span>
 <span class="w">    </span><span class="p">}</span>
 </code></pre></div>
-<h4 id="delete-apiimportsubscribers"><strong><code>DELETE</code></strong> api/import/subscribers<a class="headerlink" href="#delete-apiimportsubscribers" title="Permanent link">&para;</a></h4>
-<p>Stops and deletes an import.</p>
+<hr />
+<h4 id="delete-apiimportsubscribers">DELETE /api/import/subscribers<a class="headerlink" href="#delete-apiimportsubscribers" title="Permanent link">&para;</a></h4>
+<p>Stop and delete an ongoing import.</p>
 <h5 id="example-request_2">Example Request<a class="headerlink" href="#example-request_2" title="Permanent link">&para;</a></h5>
 <div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-u<span class="w"> </span><span class="s2">&quot;username:username&quot;</span><span class="w"> </span>-X<span class="w"> </span>DELETE<span class="w"> </span><span class="s1">&#39;http://localhost:9000/api/import/subscribers&#39;</span><span class="w"> </span>
 </code></pre></div>
@@ -1026,7 +1027,7 @@
     </div>
     
     
-    <script id="__config" type="application/json">{"base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.f886a092.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    <script id="__config" type="application/json">{"base": "../..", "features": ["content.code.copy"], "search": "../../assets/javascripts/workers/search.f886a092.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
       <script src="../../assets/javascripts/bundle.81fa17fe.min.js"></script>

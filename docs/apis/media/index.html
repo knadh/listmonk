@@ -648,10 +648,10 @@
       
         <li class="md-nav__item">
   <a href="#delete-apimediamedia_id" class="md-nav__link">
-    DELETE /api/media/:media_id
+    DELETE /api/media/{media_id}
   </a>
   
-    <nav class="md-nav" aria-label="DELETE /api/media/:media_id">
+    <nav class="md-nav" aria-label="DELETE /api/media/{media_id}">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -815,10 +815,10 @@
       
         <li class="md-nav__item">
   <a href="#delete-apimediamedia_id" class="md-nav__link">
-    DELETE /api/media/:media_id
+    DELETE /api/media/{media_id}
   </a>
   
-    <nav class="md-nav" aria-label="DELETE /api/media/:media_id">
+    <nav class="md-nav" aria-label="DELETE /api/media/{media_id}">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -873,24 +873,25 @@
 </thead>
 <tbody>
 <tr>
-<td><code>GET</code></td>
+<td>GET</td>
 <td><a href="#get-apimedia">/api/media</a></td>
-<td>Gets an uploaded media file.</td>
+<td>Get uploaded media file</td>
 </tr>
 <tr>
-<td><code>POST</code></td>
+<td>POST</td>
 <td><a href="#post-apimedia">/api/media</a></td>
-<td>Uploads a media file.</td>
+<td>Upload media file</td>
 </tr>
 <tr>
-<td><code>DELETE</code></td>
-<td><a href="#delete-apimediamedia_id">/api/media/:<code>media_id</code></a></td>
-<td>Deletes uploaded media files.</td>
+<td>DELETE</td>
+<td><a href="#delete-apimediamedia_id">/api/media/{media_id}</a></td>
+<td>Delete uploaded media file</td>
 </tr>
 </tbody>
 </table>
-<h4 id="get-apimedia"><strong><code>GET</code></strong> /api/media<a class="headerlink" href="#get-apimedia" title="Permanent link">&para;</a></h4>
-<p>Gets an uploaded media file.</p>
+<hr />
+<h4 id="get-apimedia">GET /api/media<a class="headerlink" href="#get-apimedia" title="Permanent link">&para;</a></h4>
+<p>Get an uploaded media file.</p>
 <h5 id="example-request">Example Request<a class="headerlink" href="#example-request" title="Permanent link">&para;</a></h5>
 <div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-u<span class="w"> </span><span class="s2">&quot;username:username&quot;</span><span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span><span class="s1">&#39;http://localhost:9000/api/media&#39;</span><span class="w"> </span><span class="se">\</span>
 --header<span class="w"> </span><span class="s1">&#39;Content-Type: multipart/form-data; boundary=--------------------------093715978792575906250298&#39;</span>
@@ -909,74 +910,25 @@
 <span class="w">    </span><span class="p">]</span>
 <span class="p">}</span>
 </code></pre></div>
-<p>Response definitions
-The following table describes each item in the response.</p>
-<table>
-<thead>
-<tr>
-<th style="text-align: center;">Response item</th>
-<th style="text-align: left;">Description</th>
-<th style="text-align: center;">Data type</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align: center;">data</td>
-<td style="text-align: left;">Array of the media file objects, which contains an information about the uploaded media files</td>
-<td style="text-align: center;">array</td>
-</tr>
-<tr>
-<td style="text-align: center;">id</td>
-<td style="text-align: left;">Media file object ID</td>
-<td style="text-align: center;">number (int)</td>
-</tr>
-<tr>
-<td style="text-align: center;">uuid</td>
-<td style="text-align: left;">Media file uuid</td>
-<td style="text-align: center;">string (uuid)</td>
-</tr>
-<tr>
-<td style="text-align: center;">filename</td>
-<td style="text-align: left;">Name of the media file</td>
-<td style="text-align: center;">string</td>
-</tr>
-<tr>
-<td style="text-align: center;">created_at</td>
-<td style="text-align: left;">Date and time, when the media file object was created</td>
-<td style="text-align: center;">String (localDateTime)</td>
-</tr>
-<tr>
-<td style="text-align: center;">thumb_uri</td>
-<td style="text-align: left;">The thumbnail URI of the media file</td>
-<td style="text-align: center;">string</td>
-</tr>
-<tr>
-<td style="text-align: center;">uri</td>
-<td style="text-align: left;">URI of the media file</td>
-<td style="text-align: center;">string</td>
-</tr>
-</tbody>
-</table>
-<h4 id="post-apimedia"><strong><code>POST</code></strong> /api/media<a class="headerlink" href="#post-apimedia" title="Permanent link">&para;</a></h4>
-<p>Uploads a media file.</p>
+<hr />
+<h4 id="post-apimedia">POST /api/media<a class="headerlink" href="#post-apimedia" title="Permanent link">&para;</a></h4>
+<p>Upload a media file.</p>
 <h5 id="parameters">Parameters<a class="headerlink" href="#parameters" title="Permanent link">&para;</a></h5>
 <table>
 <thead>
 <tr>
-<th>Name</th>
-<th>Parameter Type</th>
-<th>Data Type</th>
-<th>Required/Optional</th>
+<th>Field</th>
+<th>Type</th>
+<th>Required</th>
 <th>Description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td>file</td>
-<td>Request body</td>
-<td>Media file</td>
-<td>Required</td>
-<td>The media file to be uploaded.</td>
+<td>File</td>
+<td>Yes</td>
+<td>Media file to upload</td>
 </tr>
 </tbody>
 </table>
@@ -986,7 +938,7 @@ The following table describes each item in the response.</p>
 --form<span class="w"> </span><span class="s1">&#39;file=@/path/to/image.jpg&#39;</span>
 </code></pre></div>
 <h5 id="example-response_1">Example Response<a class="headerlink" href="#example-response_1" title="Permanent link">&para;</a></h5>
-<p><div class="highlight"><pre><span></span><code><span class="p">{</span>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
 <span class="w">    </span><span class="nt">&quot;data&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">        </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
 <span class="w">        </span><span class="nt">&quot;uuid&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ec7b45ce-1408-4e5c-924e-965326a20287&quot;</span><span class="p">,</span>
@@ -997,43 +949,25 @@ The following table describes each item in the response.</p>
 <span class="w">    </span><span class="p">}</span>
 <span class="p">}</span>
 </code></pre></div>
-Response definitions</p>
-<table>
-<thead>
-<tr>
-<th style="text-align: center;">Response item</th>
-<th style="text-align: center;">Description</th>
-<th style="text-align: center;">Data type</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align: center;">data</td>
-<td style="text-align: center;">True means that the media file was successfully uploaded</td>
-<td style="text-align: center;">boolean</td>
-</tr>
-</tbody>
-</table>
-<h4 id="delete-apimediamedia_id"><strong><code>DELETE</code></strong> /api/media/:<code>media_id</code><a class="headerlink" href="#delete-apimediamedia_id" title="Permanent link">&para;</a></h4>
-<p>Deletes an uploaded media file.</p>
+<hr />
+<h4 id="delete-apimediamedia_id">DELETE /api/media/{media_id}<a class="headerlink" href="#delete-apimediamedia_id" title="Permanent link">&para;</a></h4>
+<p>Delete an uploaded media file.</p>
 <h5 id="parameters_1">Parameters<a class="headerlink" href="#parameters_1" title="Permanent link">&para;</a></h5>
 <table>
 <thead>
 <tr>
-<th>Name</th>
-<th>Parameter Type</th>
-<th>Data Type</th>
-<th>Required/Optional</th>
+<th>Field</th>
+<th>Type</th>
+<th>Required</th>
 <th>Description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><code>Media_id</code></td>
-<td>Path Parameter</td>
-<td>Number</td>
-<td>Required</td>
-<td>The id of the media file you want to delete.</td>
+<td>media_id</td>
+<td>number</td>
+<td>Yes</td>
+<td>ID of media file to delete</td>
 </tr>
 </tbody>
 </table>
@@ -1045,23 +979,6 @@ Response definitions</p>
 <span class="w">    </span><span class="nt">&quot;data&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
 <span class="p">}</span>
 </code></pre></div>
-<p>Response definitions</p>
-<table>
-<thead>
-<tr>
-<th style="text-align: center;">Response item</th>
-<th style="text-align: center;">Description</th>
-<th style="text-align: center;">Data type</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align: center;">data</td>
-<td style="text-align: center;">True means that the media file was successfully deleted</td>
-<td style="text-align: center;">boolean</td>
-</tr>
-</tbody>
-</table>
 
 
 
@@ -1104,7 +1021,7 @@ Response definitions</p>
     </div>
     
     
-    <script id="__config" type="application/json">{"base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.f886a092.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    <script id="__config" type="application/json">{"base": "../..", "features": ["content.code.copy"], "search": "../../assets/javascripts/workers/search.f886a092.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
       <script src="../../assets/javascripts/bundle.81fa17fe.min.js"></script>

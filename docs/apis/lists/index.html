@@ -564,10 +564,10 @@
       
         <li class="md-nav__item">
   <a href="#get-apilistslist_id" class="md-nav__link">
-    GET /api/lists/:list_id
+    GET /api/lists/{list_id}
   </a>
   
-    <nav class="md-nav" aria-label="GET /api/lists/:list_id">
+    <nav class="md-nav" aria-label="GET /api/lists/{list_id}">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -632,10 +632,10 @@
       
         <li class="md-nav__item">
   <a href="#put-apilistslist_id" class="md-nav__link">
-    PUT /api/lists/list_id
+    PUT /api/lists/{list_id}
   </a>
   
-    <nav class="md-nav" aria-label="PUT /api/lists/list_id">
+    <nav class="md-nav" aria-label="PUT /api/lists/{list_id}">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -654,6 +654,40 @@
         
           <li class="md-nav__item">
   <a href="#example-response_3" class="md-nav__link">
+    Example Response
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#delete-apilistslist_id" class="md-nav__link">
+    DELETE /api/lists/{list_id}
+  </a>
+  
+    <nav class="md-nav" aria-label="DELETE /api/lists/{list_id}">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_4" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-request_4" class="md-nav__link">
+    Example Request
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-response_4" class="md-nav__link">
     Example Response
   </a>
   
@@ -829,10 +863,10 @@
       
         <li class="md-nav__item">
   <a href="#get-apilistslist_id" class="md-nav__link">
-    GET /api/lists/:list_id
+    GET /api/lists/{list_id}
   </a>
   
-    <nav class="md-nav" aria-label="GET /api/lists/:list_id">
+    <nav class="md-nav" aria-label="GET /api/lists/{list_id}">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -897,10 +931,10 @@
       
         <li class="md-nav__item">
   <a href="#put-apilistslist_id" class="md-nav__link">
-    PUT /api/lists/list_id
+    PUT /api/lists/{list_id}
   </a>
   
-    <nav class="md-nav" aria-label="PUT /api/lists/list_id">
+    <nav class="md-nav" aria-label="PUT /api/lists/{list_id}">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -919,6 +953,40 @@
         
           <li class="md-nav__item">
   <a href="#example-response_3" class="md-nav__link">
+    Example Response
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#delete-apilistslist_id" class="md-nav__link">
+    DELETE /api/lists/{list_id}
+  </a>
+  
+    <nav class="md-nav" aria-label="DELETE /api/lists/{list_id}">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_4" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-request_4" class="md-nav__link">
+    Example Request
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-response_4" class="md-nav__link">
     Example Response
   </a>
   
@@ -948,81 +1016,82 @@
 <table>
 <thead>
 <tr>
-<th>Method</th>
-<th>Endpoint</th>
-<th>Description</th>
+<th style="text-align: left;">Method</th>
+<th style="text-align: left;">Endpoint</th>
+<th style="text-align: left;">Description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><code>GET</code></td>
-<td><a href="#get-apilists">/api/lists</a></td>
-<td>Gets all lists.</td>
+<td style="text-align: left;">GET</td>
+<td style="text-align: left;"><a href="#get-apilists">/api/lists</a></td>
+<td style="text-align: left;">Retrieve all lists.</td>
 </tr>
 <tr>
-<td><code>GET</code></td>
-<td><a href="#get-apilistslist_id">/api/lists/:<code>list_id</code></a></td>
-<td>Gets a single list.</td>
+<td style="text-align: left;">GET</td>
+<td style="text-align: left;"><a href="#get-apilistslist_id">/api/lists/{list_id}</a></td>
+<td style="text-align: left;">Retrieve a specific list.</td>
 </tr>
 <tr>
-<td><code>POST</code></td>
-<td><a href="#post-apilists">/api/lists</a></td>
-<td>Creates a new list.</td>
+<td style="text-align: left;">POST</td>
+<td style="text-align: left;"><a href="#post-apilists">/api/lists</a></td>
+<td style="text-align: left;">Create a new list.</td>
 </tr>
 <tr>
-<td><code>PUT</code></td>
-<td>/api/lists/:<code>list_id</code></td>
-<td>Modifies a list.</td>
+<td style="text-align: left;">PUT</td>
+<td style="text-align: left;"><a href="#put-apilistslist_id">/api/lists/{list_id}</a></td>
+<td style="text-align: left;">Update a list.</td>
 </tr>
 <tr>
-<td><code>DELETE</code></td>
-<td><a href="#put-apilistslist_id">/api/lists/:<code>list_id</code></a></td>
-<td>Deletes a list.</td>
+<td style="text-align: left;">DELETE</td>
+<td style="text-align: left;"><a href="#delete-apilistslist_id">/api/lists/{list_id}</a></td>
+<td style="text-align: left;">Delete a list.</td>
 </tr>
 </tbody>
 </table>
-<h4 id="get-apilists"><strong><code>GET</code></strong> /api/lists<a class="headerlink" href="#get-apilists" title="Permanent link">&para;</a></h4>
-<p>Gets lists.</p>
+<hr />
+<h4 id="get-apilists">GET /api/lists<a class="headerlink" href="#get-apilists" title="Permanent link">&para;</a></h4>
+<p>Retrieve lists.</p>
 <h5 id="parameters">Parameters<a class="headerlink" href="#parameters" title="Permanent link">&para;</a></h5>
 <table>
 <thead>
 <tr>
-<th>Name</th>
-<th>Type</th>
-<th>Required/Optional</th>
-<th>Description</th>
+<th style="text-align: left;">Name</th>
+<th style="text-align: left;">Type</th>
+<th style="text-align: left;">Required</th>
+<th style="text-align: left;">Description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><code>query</code></td>
-<td>string</td>
-<td>Optional</td>
-<td>Optional string to search a list by name.</td>
+<td style="text-align: left;">query</td>
+<td style="text-align: left;">string</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">string for list name search.</td>
 </tr>
 <tr>
-<td><code>order_by</code></td>
-<td>string</td>
-<td>Optional</td>
-<td>Field to sort results by. <code>name|status|created_at|updated_at</code></td>
+<td style="text-align: left;">order_by</td>
+<td style="text-align: left;">string</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">Sort field. Options: name, status, created_at, updated_at.</td>
 </tr>
 <tr>
-<td><code>order</code></td>
-<td>string</td>
-<td>Optional</td>
-<td><code>ASC|DESC</code>Sort by ascending or descending order.</td>
+<td style="text-align: left;">order</td>
+<td style="text-align: left;">string</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">Sorting order. Options: ASC, DESC.</td>
 </tr>
 <tr>
-<td><code>page</code></td>
-<td>number</td>
-<td>Optional</td>
-<td>Page number for paginated results.</td>
+<td style="text-align: left;">page</td>
+<td style="text-align: left;">number</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">Page number for pagination.</td>
 </tr>
 <tr>
-<td><code>per_page</code></td>
-<td>number</td>
-<td>Optional</td>
-<td>Results to return per page. Setting this to <code>all</code> skips pagination and returns all results.</td>
+<td style="text-align: left;">per_page</td>
+<td style="text-align: left;">number</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">Results per page. Set to 'all' to return all results.</td>
 </tr>
 </tbody>
 </table>
@@ -1064,26 +1133,25 @@
 <span class="w">    </span><span class="p">}</span>
 <span class="p">}</span>
 </code></pre></div>
-<h4 id="get-apilistslist_id"><strong><code>GET</code></strong> /api/lists/:<code>list_id</code><a class="headerlink" href="#get-apilistslist_id" title="Permanent link">&para;</a></h4>
-<p>Gets a single list.</p>
+<hr />
+<h4 id="get-apilistslist_id">GET /api/lists/{list_id}<a class="headerlink" href="#get-apilistslist_id" title="Permanent link">&para;</a></h4>
+<p>Retrieve a specific list.</p>
 <h5 id="parameters_1">Parameters<a class="headerlink" href="#parameters_1" title="Permanent link">&para;</a></h5>
 <table>
 <thead>
 <tr>
-<th>Name</th>
-<th>Parameter type</th>
-<th>Data type</th>
-<th>Required/Optional</th>
-<th>Description</th>
+<th style="text-align: left;">Name</th>
+<th style="text-align: left;">Type</th>
+<th style="text-align: left;">Required</th>
+<th style="text-align: left;">Description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><code>list_id</code></td>
-<td>Path parameter</td>
-<td>number</td>
-<td>Required</td>
-<td>The id value of the list you want to get.</td>
+<td style="text-align: left;">list_id</td>
+<td style="text-align: left;">number</td>
+<td style="text-align: left;">Yes</td>
+<td style="text-align: left;">ID of the list to retrieve.</td>
 </tr>
 </tbody>
 </table>
@@ -1105,47 +1173,43 @@
 <span class="w">    </span><span class="p">}</span>
 <span class="p">}</span>
 </code></pre></div>
-<h4 id="post-apilists"><strong><code>POST</code></strong> /api/lists<a class="headerlink" href="#post-apilists" title="Permanent link">&para;</a></h4>
-<p>Creates a new list.</p>
+<hr />
+<h4 id="post-apilists">POST /api/lists<a class="headerlink" href="#post-apilists" title="Permanent link">&para;</a></h4>
+<p>Create a new list.</p>
 <h5 id="parameters_2">Parameters<a class="headerlink" href="#parameters_2" title="Permanent link">&para;</a></h5>
 <table>
 <thead>
 <tr>
-<th>Name</th>
-<th>Parameter type</th>
-<th>Data type</th>
-<th>Required/Optional</th>
-<th>Description</th>
+<th style="text-align: left;">Name</th>
+<th style="text-align: left;">Type</th>
+<th style="text-align: left;">Required</th>
+<th style="text-align: left;">Description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>name</td>
-<td>Request body</td>
-<td>string</td>
-<td>Required</td>
-<td>The new list name.</td>
+<td style="text-align: left;">name</td>
+<td style="text-align: left;">string</td>
+<td style="text-align: left;">Yes</td>
+<td style="text-align: left;">Name of the new list.</td>
 </tr>
 <tr>
-<td>type</td>
-<td>Request body</td>
-<td>string</td>
-<td>Required</td>
-<td>List type, can be set to <code>private</code> or <code>public</code>.</td>
+<td style="text-align: left;">type</td>
+<td style="text-align: left;">string</td>
+<td style="text-align: left;">Yes</td>
+<td style="text-align: left;">Type of list. Options: private, public.</td>
 </tr>
 <tr>
-<td>optin</td>
-<td>Request body</td>
-<td>string</td>
-<td>Required</td>
-<td><code>single</code> or <code>double</code> optin.</td>
+<td style="text-align: left;">optin</td>
+<td style="text-align: left;">string</td>
+<td style="text-align: left;">Yes</td>
+<td style="text-align: left;">Opt-in type. Options: single, double.</td>
 </tr>
 <tr>
-<td>tags</td>
-<td>Request body</td>
-<td>string[]</td>
-<td>Optional</td>
-<td>The tags associated with the list.</td>
+<td style="text-align: left;">tags</td>
+<td style="text-align: left;">string[]</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">Associated tags for a list.</td>
 </tr>
 </tbody>
 </table>
@@ -1167,54 +1231,49 @@
 <span class="p">}</span>
 <span class="kc">null</span>
 </code></pre></div>
-<h4 id="put-apilistslist_id"><strong><code>PUT</code></strong> /api/lists/<code>list_id</code><a class="headerlink" href="#put-apilistslist_id" title="Permanent link">&para;</a></h4>
-<p>Modifies a list.</p>
+<hr />
+<h4 id="put-apilistslist_id">PUT /api/lists/{list_id}<a class="headerlink" href="#put-apilistslist_id" title="Permanent link">&para;</a></h4>
+<p>Update a list.</p>
 <h5 id="parameters_3">Parameters<a class="headerlink" href="#parameters_3" title="Permanent link">&para;</a></h5>
 <table>
 <thead>
 <tr>
-<th>Name</th>
-<th>Parameter type</th>
-<th>Data type</th>
-<th>Required/Optional</th>
-<th>Description</th>
+<th style="text-align: left;">Name</th>
+<th style="text-align: left;">Type</th>
+<th style="text-align: left;">Required</th>
+<th style="text-align: left;">Description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><code>list_id</code></td>
-<td>Path parameter</td>
-<td>number</td>
-<td>Required</td>
-<td>The id of the list to be modified.</td>
+<td style="text-align: left;">list_id</td>
+<td style="text-align: left;">number</td>
+<td style="text-align: left;">Yes</td>
+<td style="text-align: left;">ID of the list to update.</td>
 </tr>
 <tr>
-<td>name</td>
-<td>Request body</td>
-<td>string</td>
-<td>Optional</td>
-<td>The name which the old name will be modified to.</td>
+<td style="text-align: left;">name</td>
+<td style="text-align: left;">string</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">New name for the list.</td>
 </tr>
 <tr>
-<td>type</td>
-<td>Request body</td>
-<td>string</td>
-<td>Optional</td>
-<td>List type, can be set to <code>private</code> or <code>public</code>.</td>
+<td style="text-align: left;">type</td>
+<td style="text-align: left;">string</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">Type of list. Options: private, public.</td>
 </tr>
 <tr>
-<td>optin</td>
-<td>Request body</td>
-<td>string</td>
-<td>Optional</td>
-<td><code>single</code> or <code>double</code> optin.</td>
+<td style="text-align: left;">optin</td>
+<td style="text-align: left;">string</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">Opt-in type. Options: single, double.</td>
 </tr>
 <tr>
-<td>tags</td>
-<td>Request body</td>
-<td>string[]</td>
-<td>Optional</td>
-<td>The tags associated with the list.</td>
+<td style="text-align: left;">tags</td>
+<td style="text-align: left;">string[]</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">Associated tags for the list.</td>
 </tr>
 </tbody>
 </table>
@@ -1236,6 +1295,36 @@
 <span class="w">        </span><span class="nt">&quot;tags&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span>
 <span class="w">        </span><span class="nt">&quot;subscriber_count&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span>
 <span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<hr />
+<h4 id="delete-apilistslist_id">DELETE /api/lists/{list_id}<a class="headerlink" href="#delete-apilistslist_id" title="Permanent link">&para;</a></h4>
+<p>Delete a specific subscriber.</p>
+<h5 id="parameters_4">Parameters<a class="headerlink" href="#parameters_4" title="Permanent link">&para;</a></h5>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Name</th>
+<th style="text-align: left;">Type</th>
+<th style="text-align: left;">Required</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">list_id</td>
+<td style="text-align: left;">Number</td>
+<td style="text-align: left;">Yes</td>
+<td style="text-align: left;">ID of the list to delete.</td>
+</tr>
+</tbody>
+</table>
+<h5 id="example-request_4">Example Request<a class="headerlink" href="#example-request_4" title="Permanent link">&para;</a></h5>
+<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-u<span class="w"> </span><span class="s1">&#39;username:password&#39;</span><span class="w"> </span>-X<span class="w"> </span>DELETE<span class="w"> </span><span class="s1">&#39;http://localhost:9000/api/lists/1&#39;</span>
+</code></pre></div>
+<h5 id="example-response_4">Example Response<a class="headerlink" href="#example-response_4" title="Permanent link">&para;</a></h5>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;data&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
 <span class="p">}</span>
 </code></pre></div>
 
@@ -1280,7 +1369,7 @@
     </div>
     
     
-    <script id="__config" type="application/json">{"base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.f886a092.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    <script id="__config" type="application/json">{"base": "../..", "features": ["content.code.copy"], "search": "../../assets/javascripts/workers/search.f886a092.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
       <script src="../../assets/javascripts/bundle.81fa17fe.min.js"></script>

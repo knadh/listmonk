@@ -703,7 +703,7 @@
 <h1 id="integrating-with-external-systems">Integrating with external systems<a class="headerlink" href="#integrating-with-external-systems" title="Permanent link">&para;</a></h1>
 <p>In many environments, a mailing list manager's subscriber database is not run independently but as a part of an existing customer database or a CRM. There are multiple ways of keeping listmonk in sync with external systems.</p>
 <h2 id="using-apis">Using APIs<a class="headerlink" href="#using-apis" title="Permanent link">&para;</a></h2>
-<p>The <a href="../apis/subscribers">subscriber APIs</a> offers several APIs to manipulate the subscribers database, like addition, updation, and deletion. For bulk synchronisation, a CSV can be generated (and optionally zipped) and posted to the import API.</p>
+<p>The <a href="../apis/subscribers/">subscriber APIs</a> offers several APIs to manipulate the subscribers database, like addition, updation, and deletion. For bulk synchronisation, a CSV can be generated (and optionally zipped) and posted to the import API.</p>
 <h2 id="interacting-directly-with-the-db">Interacting directly with the DB<a class="headerlink" href="#interacting-directly-with-the-db" title="Permanent link">&para;</a></h2>
 <p>listmonk uses tables with simple schemas to represent subscribers (<code>subscribers</code>), lists (<code>lists</code>), and subscriptions (<code>subscriber_lists</code>). It is easy to add, update, and delete subscriber information directly with the database tables for advanced usecases. See the <a href="https://github.com/knadh/listmonk/blob/master/schema.sql">table schemas</a> for more information.</p>
 
@@ -748,7 +748,7 @@
     </div>
     
     
-    <script id="__config" type="application/json">{"base": "..", "features": [], "search": "../assets/javascripts/workers/search.f886a092.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    <script id="__config" type="application/json">{"base": "..", "features": ["content.code.copy"], "search": "../assets/javascripts/workers/search.f886a092.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
       <script src="../assets/javascripts/bundle.81fa17fe.min.js"></script>

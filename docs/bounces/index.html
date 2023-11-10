@@ -759,46 +759,46 @@
 <thead>
 <tr>
 <th>Name</th>
-<th>Data type</th>
-<th>Required/Optional</th>
+<th>Type</th>
+<th>Required</th>
 <th>Description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><code>subscriber_uuid</code></td>
-<td>String</td>
-<td>Optional</td>
+<td>subscriber_uuid</td>
+<td>string</td>
+<td></td>
 <td>The UUID of the subscriber. Either this or <code>email</code> is required.</td>
 </tr>
 <tr>
-<td><code>email</code></td>
-<td>String</td>
-<td>Optional</td>
+<td>email</td>
+<td>string</td>
+<td></td>
 <td>The e-mail of the subscriber. Either this or <code>subscriber_uuid</code> is required.</td>
 </tr>
 <tr>
-<td><code>campaign_uuid</code></td>
-<td>String</td>
-<td>Optional</td>
+<td>campaign_uuid</td>
+<td>string</td>
+<td></td>
 <td>UUID of the campaign for which the bounce happened.</td>
 </tr>
 <tr>
-<td><code>source</code></td>
-<td>String</td>
-<td>Required</td>
+<td>source</td>
+<td>string</td>
+<td>Yes</td>
 <td>A string indicating the source, eg: <code>api</code>, <code>my_script</code> etc.</td>
 </tr>
 <tr>
-<td><code>type</code></td>
-<td>String</td>
-<td>Required</td>
+<td>type</td>
+<td>string</td>
+<td>Yes</td>
 <td><code>hard</code> or <code>soft</code> bounce. Currently, this has no effect on how the bounce is treated.</td>
 </tr>
 <tr>
-<td><code>meta</code></td>
-<td>String</td>
-<td>Optional</td>
+<td>meta</td>
+<td>string</td>
+<td></td>
 <td>An optional escaped JSON string with arbitrary metadata about the bounce event.</td>
 </tr>
 </tbody>
@@ -812,26 +812,26 @@
 <table>
 <thead>
 <tr>
-<th>Endpoint</th>
-<th>Description</th>
-<th>More info</th>
+<th style="text-align: left;">Endpoint</th>
+<th style="text-align: left;">Description</th>
+<th style="text-align: left;">More info</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><code>https://listmonk.yoursite.com/webhooks/service/ses</code></td>
-<td>Amazon (AWS) SES</td>
-<td>You can use these <a href="https://docs.mautic.org/en/channels/emails/bounce-management#amazon-webhook">Mautic steps</a> as a general guide, but use your listmonk's endpoint instead. <ul>  <li>When creating the <em>topic</em> select "standard" instead of the preselected "FIFO". You can put a name and leave everything else at default.</li>  <li>When creating a <em>subscription</em> choose HTTPS for "Protocol", and leave <em>"Enable raw message delivery"</em> UNCHECKED.</li>  <li>On the <em>"SES -&gt; verified identities"</em> page, make sure to check <strong>"<a href="https://github.com/knadh/listmonk/issues/720#issuecomment-1046877192">include original headers</a>"</strong>.</li>  <li>The Mautic screenshot suggests you should turn off <em>email feedback forwarding</em>, but that's completely optional depending on whether you want want email notifications.</li></ul></td>
+<td style="text-align: left;"><code>https://listmonk.yoursite.com/webhooks/service/ses</code></td>
+<td style="text-align: left;">Amazon (AWS) SES</td>
+<td style="text-align: left;">You can use these <a href="https://docs.mautic.org/en/channels/emails/bounce-management#amazon-webhook">Mautic steps</a> as a general guide, but use your listmonk's endpoint instead. <ul>  <li>When creating the <em>topic</em> select "standard" instead of the preselected "FIFO". You can put a name and leave everything else at default.</li>  <li>When creating a <em>subscription</em> choose HTTPS for "Protocol", and leave <em>"Enable raw message delivery"</em> UNCHECKED.</li>  <li>On the <em>"SES -&gt; verified identities"</em> page, make sure to check <strong>"<a href="https://github.com/knadh/listmonk/issues/720#issuecomment-1046877192">include original headers</a>"</strong>.</li>  <li>The Mautic screenshot suggests you should turn off <em>email feedback forwarding</em>, but that's completely optional depending on whether you want want email notifications.</li></ul></td>
 </tr>
 <tr>
-<td><code>https://listmonk.yoursite.com/webhooks/service/sendgrid</code></td>
-<td>Sendgrid / Twilio Signed event webhook</td>
-<td><a href="https://docs.sendgrid.com/for-developers/tracking-events/getting-started-event-webhook-security-features">More info</a></td>
+<td style="text-align: left;"><code>https://listmonk.yoursite.com/webhooks/service/sendgrid</code></td>
+<td style="text-align: left;">Sendgrid / Twilio Signed event webhook</td>
+<td style="text-align: left;"><a href="https://docs.sendgrid.com/for-developers/tracking-events/getting-started-event-webhook-security-features">More info</a></td>
 </tr>
 <tr>
-<td><code>https://listmonk.yoursite.com/webhooks/service/postmark</code></td>
-<td>Postmark webhook</td>
-<td><a href="https://postmarkapp.com/developer/webhooks/webhooks-overview">More info</a></td>
+<td style="text-align: left;"><code>https://listmonk.yoursite.com/webhooks/service/postmark</code></td>
+<td style="text-align: left;">Postmark webhook</td>
+<td style="text-align: left;"><a href="https://postmarkapp.com/developer/webhooks/webhooks-overview">More info</a></td>
 </tr>
 </tbody>
 </table>
@@ -886,7 +886,7 @@ They all count as <em>hard</em> bounces. </p>
     </div>
     
     
-    <script id="__config" type="application/json">{"base": "..", "features": [], "search": "../assets/javascripts/workers/search.f886a092.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    <script id="__config" type="application/json">{"base": "..", "features": ["content.code.copy"], "search": "../assets/javascripts/workers/search.f886a092.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
       <script src="../assets/javascripts/bundle.81fa17fe.min.js"></script>

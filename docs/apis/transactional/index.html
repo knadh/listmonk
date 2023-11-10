@@ -637,28 +637,28 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#request" class="md-nav__link">
-    Request
+  <a href="#example" class="md-nav__link">
+    Example
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#response" class="md-nav__link">
-    Response
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#file-attachments" class="md-nav__link">
-    File Attachments
+  <a href="#example-response" class="md-nav__link">
+    Example response
   </a>
   
 </li>
         
       </ul>
     </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#file-attachments" class="md-nav__link">
+    File Attachments
+  </a>
   
 </li>
       
@@ -712,28 +712,28 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#request" class="md-nav__link">
-    Request
+  <a href="#example" class="md-nav__link">
+    Example
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#response" class="md-nav__link">
-    Response
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#file-attachments" class="md-nav__link">
-    File Attachments
+  <a href="#example-response" class="md-nav__link">
+    Example response
   </a>
   
 </li>
         
       </ul>
     </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#file-attachments" class="md-nav__link">
+    File Attachments
+  </a>
   
 </li>
       
@@ -763,88 +763,89 @@
 </thead>
 <tbody>
 <tr>
-<td style="text-align: left;"><code>POST</code></td>
+<td style="text-align: left;">POST</td>
 <td style="text-align: left;">/api/tx</td>
-<td style="text-align: left;"></td>
+<td style="text-align: left;">Send transactional messages</td>
 </tr>
 </tbody>
 </table>
-<h2 id="post-apitx">POST /api/tx<a class="headerlink" href="#post-apitx" title="Permanent link">&para;</a></h2>
-<p>Send a transactional message to one or multiple subscribers using a predefined transactional template.</p>
+<hr />
+<h4 id="post-apitx">POST /api/tx<a class="headerlink" href="#post-apitx" title="Permanent link">&para;</a></h4>
+<p>Allows sending transactional messages to one or more subscribers via a preconfigured transactional template.</p>
 <h5 id="parameters">Parameters<a class="headerlink" href="#parameters" title="Permanent link">&para;</a></h5>
 <table>
 <thead>
 <tr>
 <th style="text-align: left;">Name</th>
-<th style="text-align: left;">Data Type</th>
-<th style="text-align: left;">Optional</th>
+<th style="text-align: left;">Type</th>
+<th style="text-align: left;">Required</th>
 <th style="text-align: left;">Description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td style="text-align: left;"><code>subscriber_email</code></td>
-<td style="text-align: left;">String</td>
-<td style="text-align: left;">Optional</td>
-<td style="text-align: left;">E-mail of the subscriber. Either this or <code>subscriber_id</code> should be passed.</td>
+<td style="text-align: left;">subscriber_email</td>
+<td style="text-align: left;">string</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">Email of the subscriber. Can substitute with <code>subscriber_id</code>.</td>
 </tr>
 <tr>
-<td style="text-align: left;"><code>subscriber_id</code></td>
-<td style="text-align: left;">Number</td>
-<td style="text-align: left;">Optional</td>
-<td style="text-align: left;">ID of the subscriber. Either this or <code>subscriber_email</code> should be passed.</td>
+<td style="text-align: left;">subscriber_id</td>
+<td style="text-align: left;">number</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">Subscriber's ID can substitute with <code>subscriber_email</code>.</td>
 </tr>
 <tr>
-<td style="text-align: left;"><code>subscriber_emails</code></td>
-<td style="text-align: left;">[]String</td>
-<td style="text-align: left;">Optional</td>
-<td style="text-align: left;">E-mails of the subscribers. This is an alternative to <code>subscriber_email</code> for multiple recipients. <code>["email1@example.com", "emailX@example.com"]</code></td>
+<td style="text-align: left;">subscriber_emails</td>
+<td style="text-align: left;">string[]</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">Multiple subscriber emails as alternative to <code>subscriber_email</code>.</td>
 </tr>
 <tr>
-<td style="text-align: left;"><code>subscriber_ids</code></td>
-<td style="text-align: left;">[]Number</td>
-<td style="text-align: left;">Optional</td>
-<td style="text-align: left;">IDs of the subscribers. This is an alternative to <code>subscriber_id</code> for multiple recipients. <code>[1,2,3]</code></td>
+<td style="text-align: left;">subscriber_ids</td>
+<td style="text-align: left;">number[]</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">Multiple subscriber IDs as an alternative to <code>subscriber_id</code>.</td>
 </tr>
 <tr>
-<td style="text-align: left;"><code>template_id</code></td>
-<td style="text-align: left;">Number</td>
-<td style="text-align: left;">Required</td>
-<td style="text-align: left;">ID of the transactional template to use in the message.</td>
+<td style="text-align: left;">template_id</td>
+<td style="text-align: left;">number</td>
+<td style="text-align: left;">Yes</td>
+<td style="text-align: left;">ID of the transactional template to be used for the message.</td>
 </tr>
 <tr>
-<td style="text-align: left;"><code>from_email</code></td>
-<td style="text-align: left;">String</td>
-<td style="text-align: left;">Optional</td>
-<td style="text-align: left;">Optional <code>from</code> email. eg: <code>Company &lt;email@company.com&gt;</code></td>
+<td style="text-align: left;">from_email</td>
+<td style="text-align: left;">string</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">Optional sender email.</td>
 </tr>
 <tr>
-<td style="text-align: left;"><code>data</code></td>
-<td style="text-align: left;">Map</td>
-<td style="text-align: left;">Optional</td>
-<td style="text-align: left;">Optional data in <code>{}</code> nested map. Available in the template as <code>{{ .Tx.Data.* }}</code></td>
+<td style="text-align: left;">data</td>
+<td style="text-align: left;">JSON</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">Optional nested JSON map. Available in the template as <code>{{ .Tx.Data.* }}</code>.</td>
 </tr>
 <tr>
-<td style="text-align: left;"><code>headers</code></td>
-<td style="text-align: left;">[]Map</td>
-<td style="text-align: left;">Optional</td>
-<td style="text-align: left;">Optional array of mail headers. <code>[{"key": "value"}, {"key": "value"}]</code></td>
+<td style="text-align: left;">headers</td>
+<td style="text-align: left;">JSON[]</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">Optional array of email headers.</td>
 </tr>
 <tr>
-<td style="text-align: left;"><code>messenger</code></td>
-<td style="text-align: left;">String</td>
-<td style="text-align: left;">Optional</td>
-<td style="text-align: left;">Messenger to use to send the message. Default value is <code>email</code>.</td>
+<td style="text-align: left;">messenger</td>
+<td style="text-align: left;">string</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">Messenger to send the message. Default is <code>email</code>.</td>
 </tr>
 <tr>
-<td style="text-align: left;"><code>content_type</code></td>
-<td style="text-align: left;">String</td>
-<td style="text-align: left;">Optional</td>
-<td style="text-align: left;"><code>html</code>, <code>markdown</code>, <code>plain</code></td>
+<td style="text-align: left;">content_type</td>
+<td style="text-align: left;">string</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">Email format options include <code>html</code>, <code>markdown</code>, and <code>plain</code>.</td>
 </tr>
 </tbody>
 </table>
-<h5 id="request">Request<a class="headerlink" href="#request" title="Permanent link">&para;</a></h5>
+<h5 id="example">Example<a class="headerlink" href="#example" title="Permanent link">&para;</a></h5>
 <div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-u<span class="w"> </span><span class="s2">&quot;username:password&quot;</span><span class="w"> </span><span class="s2">&quot;http://localhost:9000/api/tx&quot;</span><span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="se">\</span>
 <span class="w">     </span>-H<span class="w"> </span><span class="s1">&#39;Content-Type: application/json; charset=utf-8&#39;</span><span class="w"> </span><span class="se">\</span>
 <span class="w">     </span>--data-binary<span class="w"> </span>@-<span class="w"> </span><span class="s">&lt;&lt; EOF</span>
@@ -856,14 +857,14 @@
 <span class="s">    }</span>
 <span class="s">EOF</span>
 </code></pre></div>
-<h5 id="response">Response<a class="headerlink" href="#response" title="Permanent link">&para;</a></h5>
+<h5 id="example-response">Example response<a class="headerlink" href="#example-response" title="Permanent link">&para;</a></h5>
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
 <span class="w">    </span><span class="nt">&quot;data&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
 <span class="p">}</span>
 </code></pre></div>
-<h3 id="file-attachments">File Attachments<a class="headerlink" href="#file-attachments" title="Permanent link">&para;</a></h3>
-<p>To include file attachments in a transactional message, use Content-Type <code>multipart/form-data</code>.
-Use the parameters described above as a JSON object via the <code>data</code> form key and include an arbitrary number of attachments via the <code>file</code> key.</p>
+<hr />
+<h4 id="file-attachments">File Attachments<a class="headerlink" href="#file-attachments" title="Permanent link">&para;</a></h4>
+<p>To include file attachments in a transactional message, use the <code>multipart/form-data</code> Content-Type. Use <code>data</code> param for the parameters described above as a JSON object. Include any number of attachments via the <code>file</code> param.</p>
 <div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-u<span class="w"> </span><span class="s2">&quot;username:password&quot;</span><span class="w"> </span><span class="s2">&quot;http://localhost:9000/api/tx&quot;</span><span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="se">\</span>
 -F<span class="w"> </span><span class="s1">&#39;data=\&quot;{</span>
 <span class="s1">    \&quot;subscriber_email\&quot;: \&quot;user@test.com\&quot;,</span>
@@ -914,7 +915,7 @@ Use the parameters described above as a JSON object via the <code>data</code> fo
     </div>
     
     
-    <script id="__config" type="application/json">{"base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.f886a092.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    <script id="__config" type="application/json">{"base": "../..", "features": ["content.code.copy"], "search": "../../assets/javascripts/workers/search.f886a092.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
       <script src="../../assets/javascripts/bundle.81fa17fe.min.js"></script>
