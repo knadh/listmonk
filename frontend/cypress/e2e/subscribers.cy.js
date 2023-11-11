@@ -234,9 +234,9 @@ describe('Subscribers', () => {
   });
 
   it('Sorts subscribers', () => {
-    const asc = [3, 4, 5, 6, 7, 8];
-    const desc = [8, 7, 6, 5, 4, 3];
-    const cases = ['cy-status', 'cy-email', 'cy-name', 'cy-created_at', 'cy-updated_at'];
+    let asc = [3, 4, 5, 6, 7, 8];
+    let desc = [8, 7, 6, 5, 4, 3];
+    let cases = ['cy-email', 'cy-name', 'cy-created_at', 'cy-updated_at'];
 
     cases.forEach((c) => {
       cy.sortTable(`thead th.${c}`, asc);
@@ -244,6 +244,19 @@ describe('Subscribers', () => {
       cy.sortTable(`thead th.${c}`, desc);
       cy.wait(250);
     });
+
+
+    asc = [4, 6, 8, 3, 5, 7];
+    desc = [7, 5, 3, 8, 6, 4];
+    cases = ['cy-status'];
+
+    cases.forEach((c) => {
+      cy.sortTable(`thead th.${c}`, asc);
+      cy.wait(250);
+      cy.sortTable(`thead th.${c}`, desc);
+      cy.wait(250);
+    });
+
   });
 });
 
@@ -339,7 +352,7 @@ describe('Domain blocklist', () => {
     cy.get('.b-tabs nav a').eq(2).click();
     cy.get('textarea[name="privacy.domain_blocklist"]').clear();
     cy.get('[data-cy=btn-save]').click();
-    cy.wait(1000);
+    cy.wait(3000);
 
     // Add banned domain.
     cy.request({

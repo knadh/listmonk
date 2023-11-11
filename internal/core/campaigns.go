@@ -24,7 +24,7 @@ const (
 // QueryCampaigns retrieves paginated campaigns optionally filtering them by the given arbitrary
 // query expression. It also returns the total number of records in the DB.
 func (c *Core) QueryCampaigns(searchStr string, statuses []string, orderBy, order string, offset, limit int) (models.Campaigns, int, error) {
-	queryStr, stmt := makeSearchQuery(searchStr, orderBy, order, c.q.QueryCampaigns)
+	queryStr, stmt := makeSearchQuery(searchStr, orderBy, order, c.q.QueryCampaigns, campQuerySortFields)
 
 	if statuses == nil {
 		statuses = []string{}

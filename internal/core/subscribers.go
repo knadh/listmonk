@@ -14,10 +14,6 @@ import (
 	"github.com/lib/pq"
 )
 
-var (
-	subQuerySortFields = []string{"email", "name", "created_at", "updated_at"}
-)
-
 // GetSubscriber fetches a subscriber by one of the given params.
 func (c *Core) GetSubscriber(id int, uuid, email string) (models.Subscriber, error) {
 	var uu interface{}

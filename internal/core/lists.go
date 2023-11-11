@@ -39,7 +39,7 @@ func (c *Core) GetLists(typ string) ([]models.List, error) {
 func (c *Core) QueryLists(searchStr, orderBy, order string, offset, limit int) ([]models.List, int, error) {
 	out := []models.List{}
 
-	queryStr, stmt := makeSearchQuery(searchStr, orderBy, order, c.q.QueryLists)
+	queryStr, stmt := makeSearchQuery(searchStr, orderBy, order, c.q.QueryLists, listQuerySortFields)
 
 	if err := c.db.Select(&out, stmt, 0, "", queryStr, offset, limit); err != nil {
 		c.log.Printf("error fetching lists: %v", err)
@@ -75,7 +75,7 @@ func (c *Core) GetList(id int, uuid string) (models.List, error) {
 	}
 
 	var res []models.List
-	queryStr, stmt := makeSearchQuery("", "", "", c.q.QueryLists)
+	queryStr, stmt := makeSearchQuery("", "", "", c.q.QueryLists, nil)
 	if err := c.db.Select(&res, stmt, id, uu, queryStr, 0, 1); err != nil {
 		c.log.Printf("error fetching lists: %v", err)
 		return models.List{}, echo.NewHTTPError(http.StatusInternalServerError,
