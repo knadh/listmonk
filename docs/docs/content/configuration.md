@@ -97,7 +97,7 @@ To use the default `uploads` folder:
 ```yml
   app:
     volumes:
-      - ./listmonk/uploads:/listmonk/uploads
+      - ./uploads:/listmonk/uploads
 ```
 
 
