@@ -16,7 +16,7 @@
 <p>
     <a href="{{ .OptinURL }}" class="button">{{ L.Ts "email.optin.confirmSub" }}</a>
 </p>
-<a href="{{ .UnsubURL }}">{{ L.T "email.unsub" }}</a>
+<a href="{{ .UnsubURL }}?manage=true">{{ L.T "email.unsub" }}</a>
 
 {{ template "footer" }}
 {{ end }}
