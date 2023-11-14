@@ -1,20 +1,22 @@
 # API / Campaigns
 
-Method   | Endpoint                                                                     | Description
----------|------------------------------------------------------------------------------|-------------------------------------------------------------
-`GET`    | [/api/campaigns](#get-apicampaigns)                                          | Gets all campaigns.
-`GET`    | [/api/campaigns/:`campaign_id`](#get-apicampaignscampaign_id)                | Gets a single campaign.
-`GET`    | [/api/campaigns/:`campaign_id`/preview](#get-apicampaignscampaign_idpreview) | Gets the HTML preview of a campaign body.
-`GET`    | [/api/campaigns/running/stats](#get-apicampaignsrunningstats)                | Gets the stats of a given set of campaigns.
-`POST`   | [/api/campaigns](#post-apicampaigns)                                         | Creates a new campaign.
-`POST`   | /api/campaigns/:`campaign_id`/test                                           | Posts campaign message to arbitrary subscribers for testing.
-`PUT`    | /api/campaigns/:`campaign_id`                                                | Modifies a campaign.
-`PUT`    | [/api/campaigns/:`campaign_id`/status](#put-apicampaignscampaign_idstatus)   | Start / pause / cancel / schedule a campaign.
-`DELETE` | [/api/campaigns/:`campaign_id`](#delete-apicampaignscampaign_id)             | Deletes a campaign.
+| Method | Endpoint                                                                    | Description                               |
+|:-------|:----------------------------------------------------------------------------|:------------------------------------------|
+| GET    | [/api/campaigns](#get-apicampaigns)                                         | Retrieve all campaigns.                   |
+| GET    | [/api/campaigns/{campaign_id}](#get-apicampaignscampaign_id)                | Retrieve a specific campaign.             |
+| GET    | [/api/campaigns/{campaign_id}/preview](#get-apicampaignscampaign_idpreview) | Retrieve preview of a campaign.           |
+| GET    | [/api/campaigns/running/stats](#get-apicampaignsrunningstats)               | Retrieve stats of specified campaigns.    |
+| POST   | [/api/campaigns](#post-apicampaigns)                                        | Create a new campaign.                    |
+| POST   | [/api/campaigns/{campaign_id}/test](#post-apicampaignscampaign_idtest)      | Test campaign with arbitrary subscribers. |
+| PUT    | [/api/campaigns/{campaign_id}](#put-apicampaignscampaign_id)                | Update a campaign.                        |
+| PUT    | [/api/campaigns/{campaign_id}/status](#put-apicampaignscampaign_idstatus)   | Change status of a campaign.              |
+| DELETE | [/api/campaigns/{campaign_id}](#delete-apicampaignscampaign_id)             | Delete a campaign.                        |
 
-#### ```GET``` /api/campaigns
+______________________________________________________________________
 
-Gets all campaigns.
+#### GET /api/campaigns
+
+Retrieve all campaigns.
 
 ##### Example Request
 
@@ -23,18 +25,18 @@ Gets all campaigns.
 ```
 
 ##### Parameters
-Name    | Type   | Required/Optional   | Description
---------|--------------------|-------------|---------------------|---------------------
-`query` | string      | Optional            |  Optional string to search a list by name.
-`order_by` | string      | Optional            |  Field to sort results by. `name|status|created_at|updated_at`
-`order` | string      | Optional            |  `ASC|DESC`Sort by ascending or descending order.
-`page` | number      | Optional            |  Page number for paginated results.
-`per_page` | number      | Optional            |  Results to return per page. Setting this to `all` skips pagination and returns all results.
 
+| Name     | Type   | Required | Description                                                          |
+|:---------|:-------|:---------|:---------------------------------------------------------------------|
+| order    | string |          | Sorting order: ASC for ascending, DESC for descending.               |
+| order_by | string |          | Result sorting field. Options: name, status, created_at, updated_at. |
+| query    | string |          | SQL query expression to filter subscribers.                          |
+| page     | number |          | Page number for paginated results.                                   |
+| per_page | number |          | Results per page. Set as 'all' for all results.                      |
 
 ##### Example Response
 
-``` json
+```json
 {
     "data": {
         "results": [
@@ -42,7 +44,6 @@ Name    | Type   | Required/Optional   | Description
                 "id": 1,
                 "created_at": "2020-03-14T17:36:41.29451+01:00",
                 "updated_at": "2020-03-14T17:36:41.29451+01:00",
-                "CampaignID": 0,
                 "views": 0,
                 "clicks": 0,
                 "lists": [
@@ -78,31 +79,32 @@ Name    | Type   | Required/Optional   | Description
 }
 ```
 
-#### ```GET``` /api/campaigns/:`campaign_id`
+______________________________________________________________________
 
-Gets a single campaign.
+#### GET /api/campaigns/{campaign_id}
 
-##### Parameters 
-Name          | Parameter Type | Data Type | Required/Optional | Description
---------------|----------------|-----------|-------------------|-----------------------------------------------
-`campaign_id` | Path Parameter | Number    | Required          | The id  value of the campaign you want to get.
+Retrieve a specific campaign.
 
+##### Parameters
+
+| Name        | Type      | Required | Description  |
+|:------------|:----------|:---------|:-------------|
+| campaign_id | number    | Yes      | Campaign ID. |
 
 ##### Example Request
 
-``` shell
+```shell
 curl -u "username:password" -X GET 'http://localhost:9000/api/campaigns/1'
 ```
 
 ##### Example Response
 
-``` json
+```json
 {
     "data": {
         "id": 1,
         "created_at": "2020-03-14T17:36:41.29451+01:00",
         "updated_at": "2020-03-14T17:36:41.29451+01:00",
-        "CampaignID": 0,
         "views": 0,
         "clicks": 0,
         "lists": [
@@ -132,20 +134,17 @@ curl -u "username:password" -X GET 'http://localhost:9000/api/campaigns/1'
 }
 ```
 
+______________________________________________________________________
 
- 
+#### GET /api/campaigns/{campaign_id}/preview
 
+Preview a specific campaign.
 
-#### ```GET``` /api/campaigns/:`campaign_id`/preview 
+##### Parameters
 
-Gets the html preview of a campaign body.
-
-##### Parameters 
-
-Name          | Parameter Type | Data Type | Required/Optional | Description
---------------|----------------|-----------|-------------------|----------------------------------------------
-`campaign_id` | Path Parameter | Number    | Required          | The id value of the campaign to be previewed.
-
+| Name        | Type      | Required | Description             |
+|:------------|:----------|:---------|:------------------------|
+| campaign_id | number    | Yes      | Campaign ID to preview. |
 
 ##### Example Request
 
@@ -155,71 +154,69 @@ curl -u "username:password" -X GET 'http://localhost:9000/api/campaigns/1/previe
 
 ##### Example Response
 
-``` html
+```html
 <h3>Hi John!</h3>
 This is a test e-mail campaign. Your second name is Doe and you are from Bengaluru.
 ```
 
-#### ```GET``` /api/campaigns/running/stats
+______________________________________________________________________
 
-Gets the running stat of a given set of campaigns.
+#### GET /api/campaigns/running/stats
+
+Retrieve stats of specified campaigns.
 
 ##### Parameters
 
-Name        | Parameter Type   | Data Type | Required/Optional | Description
-------------|------------------|-----------|-------------------|-----------------------------------------------------------
-campaign_id | Query Parameters | Number    | Required          | The id values of the campaigns whose stat you want to get.
-
+| Name        | Type      | Required | Description                    |
+|:------------|:----------|:---------|:-------------------------------|
+| campaign_id | number    | Yes      | Campaign IDs to get stats for. |
 
 ##### Example Request
 
-``` shell
+```shell
 curl -u "username:password" -X GET 'http://localhost:9000/api/campaigns/running/stats?campaign_id=1'
 ```
 
 ##### Example Response
 
-``` json
+```json
 {
     "data": []
 }
 ```
 
+______________________________________________________________________
 
+#### POST /api/campaigns
 
+Create a new campaign.
 
+##### Parameters
 
-### ```POST ``` /api/campaigns
+| Name         | Type      | Required | Description                                                                             |
+|:-------------|:----------|:---------|:----------------------------------------------------------------------------------------|
+| name         | string    | Yes      | Campaign name.                                                                          |
+| subject      | string    | Yes      | Campaign email subject.                                                                 |
+| lists        | number\[\]  | Yes      | List IDs to send campaign to.                                                           |
+| from_email   | string    |          | 'From' email in campaign emails. Defaults to value from settings if not provided.       |
+| type         | string    | Yes      | Campaign type: 'regular' or 'optin'.                                                    |
+| content_type | string    | Yes      | Content type: 'richtext', 'html', 'markdown', 'plain'.                                  |
+| body         | string    | Yes      | Content body of campaign.                                                               |
+| altbody      | string    |          | Alternate plain text body for HTML (and richtext) emails.                               |
+| send_at      | string    |          | Timestamp to schedule campaign. Format: 'YYYY-MM-DDTHH:MM:SS'.                          |
+| messenger    | string    |          | 'email' or a custom messenger defined in settings. Defaults to 'email' if not provided. |
+| template_id  | number    |          | Template ID to use. Defaults to default template if not provided.                       |
+| tags         | string\[\]  |          | Tags to mark campaign.                                                                  |
+| headers      | JSON      |          | Key-value pairs to send as SMTP headers. Example: \[{"x-custom-header": "value"}\].       |
 
-Creates a new campaign.
-
-#### Parameters
-| Name           | Data type | Required/Optional | Description                                                                                            |
-|----------------|-----------|-------------------|--------------------------------------------------------------------------------------------------------|
-| `name`         | String    | Required          | Name of the campaign.                                                                                  |
-| `subject`      | String    | Required          | (E-mail) subject of the campaign.                                                                      |
-| `lists`        | []Number  | Required          | Array of list IDs to send the campaign to.                                                             |
-| `from_email`   | String    | Optional          | `From` e-mail to show on the campaign e-mails. If left empty, the default value from settings is used. |
-| `type`         | String    | Required          | `regular` or `optin` campaign.                                                                         |
-| `content_type` | String    | Required          | `richtext`, `html`, `markdown`, `plain`                                                                |
-| `body`         | String    | Required          | Campaign content body.                                                                                 |
-| `altbody`      | String    | Optional          | Alternate plain text body for HTML (and richtext) e-mails.                                             |
-| `send_at`      | String    | Optional          | A timestamp to schedule the campaign at. Eg: `2021-12-25T06:00:00` (YYYY-MM-DDTHH:MM:SS)               |
-| `messenger`    | String    | Optional          | `email` or a custom messenger defined in the settings. If left empty, `email` is used.                 |
-| `template_id`  | Number    | Optional          | ID of the template to use. If left empty, the default template is used.                                |
-| `tags`         | []String  | Optional          | Array of string tags to mark the campaign.                                                             |
-| `headers`      | []Map     | Optional          | Array of key-value pairs to be sent as SMTP headers. eg: `[{"x-custom-header": "value"}]`.             |
-
-
-
-
-#### Example request
+##### Example request
 
 ```shell
 curl -u "username:password" 'http://localhost:9000/api/campaigns' -X POST -H 'Content-Type: application/json;charset=utf-8' --data-raw '{"name":"Test campaign","subject":"Hello, world","lists":[1],"from_email":"listmonk <noreply@listmonk.yoursite.com>","content_type":"richtext","messenger":"email","type":"regular","tags":["test"],"template_id":1}'
 ```
 
-#### Example response
+##### Example response
+
 ```json
 {
     "data": {
@@ -253,24 +250,55 @@ curl -u "username:password" 'http://localhost:9000/api/campaigns' -X POST -H 'Co
 }
 ```
 
+______________________________________________________________________
 
-#### ```PUT``` /api/campaigns/:`campaign_id`/status
+#### POST /api/campaigns/{campaign_id}/test
 
-Modifies a campaign status to start, pause, cancel, or schedule a campaign.
+Test campaign with arbitrary subscribers.
 
-##### Parameters 
+Use the same parameters in [POST /api/campaigns](#post-apicampaigns) in addition to the below parameters.
 
-Name          | Parameter Type | Data Type | Required/Optional | Description
---------------|----------------|-----------|-------------------|-------------------------------------------------------------
-`campaign_id` | Path Parameter | Number    | Required          | The id value of the campaign whose status is to be modified.
-`status`      | Request Body   | String    | Required          | `scheduled`, `running`, `paused`, `cancelled`.
+##### Parameters
 
-###### Note: 
- > * Only "scheduled" campaigns can be saved as "draft".
-  * Only "draft" campaigns can be "scheduled".
-  * Only "paused" campaigns and "draft" campaigns can be started.
-  * Only "running" campaigns can be "cancelled" and "paused".
+| Name        | Type     | Required | Description                                        |
+|:------------|:---------|:---------|:---------------------------------------------------|
+| subscribers | string\[\] | Yes      | List of subscriber e-mails to send the message to. |
 
+______________________________________________________________________
+
+#### PUT /api/campaigns/{campaign_id}
+
+Update a campaign.
+
+> Refer to parameters from [POST /api/campaigns](#post-apicampaigns)
+
+______________________________________________________________________
+
+#### PUT /api/campaigns/{campaign_id}
+
+Update a specific campaign.
+
+> Refer to parameters from [POST /api/campaigns](#post-apicampaigns)
+
+______________________________________________________________________
+
+#### PUT /api/campaigns/{campaign_id}/status
+
+Change status of a campaign.
+
+##### Parameters
+
+| Name        | Type      | Required | Description                                                             |
+|:------------|:----------|:---------|:------------------------------------------------------------------------|
+| campaign_id | number    | Yes      | Campaign ID to change status.                                           |
+| status      | string    | Yes      | New status for campaign: 'scheduled', 'running', 'paused', 'cancelled'. |
+
+##### Note
+
+> - Only 'scheduled' campaigns can change status to 'draft'.
+> - Only 'draft' campaigns can change status to 'scheduled'.
+> - Only 'paused' and 'draft' campaigns can start ('running' status).
+> - Only 'running' campaigns can change status to 'cancelled' and 'paused'.
 
 ##### Example Request
 
@@ -288,7 +316,6 @@ curl -u "username:password" -X PUT 'http://localhost:9000/api/campaigns/1/status
         "id": 1,
         "created_at": "2020-03-14T17:36:41.29451+01:00",
         "updated_at": "2020-04-08T19:35:17.331867+01:00",
-        "CampaignID": 0,
         "views": 0,
         "clicks": 0,
         "lists": [
@@ -318,16 +345,17 @@ curl -u "username:password" -X PUT 'http://localhost:9000/api/campaigns/1/status
 }
 ```
 
-#### ```DELETE``` /api/campaigns/:`campaign_id`
+______________________________________________________________________
 
-Deletes a campaign, only scheduled campaigns that have not yet been started can be deleted.  
+#### DELETE /api/campaigns/{campaign_id}
+
+Delete a campaign.
 
 ##### Parameters
 
-Name          | Parameter Type | Data Type | Required/Optional | Description
---------------|----------------|-----------|-------------------|-------------------------------------------------
-`campaign_id` | Path Parameter | Number    | Required          | The id value of the campaign you want to delete.
-
+| Name        | Type      | Required | Description            |
+|:------------|:----------|:---------|:-----------------------|
+| campaign_id | number    | Yes      | Campaign ID to delete. |
 
 ##### Example Request
 

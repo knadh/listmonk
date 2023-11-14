@@ -8,7 +8,7 @@ Messengers support optional BasicAuth authentication. `Plain text` format for ca
 
 When a campaign starts, listmonk POSTs messages in the following format to the selected messenger's endpoint. The endpoint should return a `200 OK` response in case of a successful request.
 
-The address required to broadcast the message, for instance, a phone number or an FCM ID, is expected to be stored and relayed as [subscriber attributes](../concepts/#attributes). 
+The address required to broadcast the message, for instance, a phone number or an FCM ID, is expected to be stored and relayed as [subscriber attributes](concepts.md/#attributes). 
 
 ```json
 {

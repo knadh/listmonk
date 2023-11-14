@@ -1,26 +1,31 @@
 # API / Templates
 
-Method   | Endpoint                                                                     | Description
----------|------------------------------------------------------------------------------|-----------------------------------------
-`GET`    | [/api/templates](#get-apitemplates)                                          | Gets all templates.
-`GET`    | [/api/templates/:`template_id`](#get-apitemplatestemplate_id)                | Gets a single template.
-`GET`    | [/api/templates/:`template_id`/preview](#get-apitemplatestemplate_idpreview) | Gets the HTML preview of a template.
-`POST`   | /api/templates/preview                                                       |
-`POST`   | /api/templates                                                               | Creates a template.
-`PUT`    | /api/templates/:`template_id`                                                | Modifies a template.
-`PUT`    | [/api/templates/:`template_id`/default](#put-apitemplatestemplate_iddefault) | Sets a template to the default template.
-`DELETE` | [/api/templates/:`template_id`](#delete-apitemplatestemplate_id)             | Deletes a template.
+| Method | Endpoint                                                                      | Description                    |
+|:-------|:------------------------------------------------------------------------------|:-------------------------------|
+| GET    | [/api/templates](#get-apitemplates)                                           | Retrieve all templates         |
+| GET    | [/api/templates/{template_id}](#get-apitemplates-template_id)                 | Retrieve a template            |
+| GET    | [/api/templates/{template_id}/preview](#get-apitemplates-template_id-preview) | Retrieve template HTML preview |
+| POST   | [/api/templates](#post-apitemplates)                                          | Create a template              |
+| POST   | /api/templates/preview                                                        | Render and preview a template  |
+| PUT    | [/api/templates/{template_id}](#put-apitemplatestemplate_id)                  | Update a template              |
+| PUT    | [/api/templates/{template_id}/default](#put-apitemplates-template_id-default) | Set default template           |
+| DELETE | [/api/templates/{template_id}](#delete-apitemplates-template_id)              | Delete a template              |
 
-#### **`GET`** /api/templates
-Gets all templates.
+______________________________________________________________________
+
+#### GET /api/templates
+
+Retrieve all templates.
 
 ##### Example Request
- ```shell
- curl -u "username:username" -X GET 'http://localhost:9000/api/templates'
- ```
+
+```shell
+curl -u "username:username" -X GET 'http://localhost:9000/api/templates'
+```
 
 ##### Example Response
-``` json
+
+```json
 {
     "data": [
         {
@@ -36,20 +41,26 @@ Gets all templates.
 }
 ```
 
-#### **`GET`** /api/templates/:`template_id`
-Gets a single template.
+______________________________________________________________________
+
+#### GET /api/templates/{template_id}
+
+Retrieve a specific template.
 
 ##### Parameters
-Name          | Parameter Type | Data Type | Required/Optional | Description
---------------|----------------|-----------|-------------------|----------------------------------------------
-`template_id` | Path Parameter | Number    | Required          | The id value of the template you want to get.
+
+| Name        | Type      | Required | Description                    |
+|:------------|:----------|:---------|:-------------------------------|
+| template_id | number    | Yes      | ID of the template to retrieve |
 
 ##### Example Request
-``` shell
+
+```shell
 curl -u "username:username" -X GET 'http://localhost:9000/api/templates/1'
 ```
 
 ##### Example Response
+
 ```json
 {
     "data": {
@@ -64,21 +75,27 @@ curl -u "username:username" -X GET 'http://localhost:9000/api/templates/1'
 }
 ```
 
-#### **`GET`** /api/templates/:`template_id`/preview
-Gets the HTML preview of a template body.
+______________________________________________________________________
+
+#### GET /api/templates/{template_id}/preview
+
+Retrieve the HTML preview of a template.
 
 ##### Parameters
-Name          | Parameter Type | Data  Type | Required/Optional | Description
---------------|----------------|------------|-------------------|-----------------------------------------------------------------
-`template_id` | Path Parameter | Number     | Required          | The id value of the template whose html preview you want to get.
+
+| Name        | Type      | Required | Description                   |
+|:------------|:----------|:---------|:------------------------------|
+| template_id | number    | Yes      | ID of the template to preview |
 
 ##### Example Request
-``` shell
+
+```shell
 curl -u "username:username" -X GET 'http://localhost:9000/api/templates/1/preview'
 ```
 
 ##### Example Response
-``` html
+
+```html
 <p>Hi there</p>
 <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis et elit ac elit sollicitudin condimentum non a magna.
 	Sed tempor mauris in facilisis vehicula. Aenean nisl urna, accumsan ac tincidunt vitae, interdum cursus massa.
@@ -93,22 +110,81 @@ curl -u "username:username" -X GET 'http://localhost:9000/api/templates/1/previe
 <p>Here is a link to <a href="https://listmonk.app" target="_blank">listmonk</a>.</p>
 ```
 
-#### **`PUT`** /api/templates/:`template_id`/default
-Sets a template to the default template.
+______________________________________________________________________
+
+#### POST /api/templates
+
+Create a template.
 
 ##### Parameters
-Name          | Parameter Type | Data Type | Required/Optional | Description
---------------|----------------|-----------|-------------------|----------------------------------------------------------------------
-`template_id` | Path Parameter | Number    | Required          | The id value of the template you want to set to the default template.
 
+| Name    | Type      | Required | Description                                   |
+|:--------|:----------|:---------|:----------------------------------------------|
+| name    | string    | Yes      | Name of the template                          |
+| type    | string    | Yes      | Type of the template (`campaign` or `tx`)     |
+| subject | string    |          | Subject line for the template (only for `tx`) |
+| body    | string    | Yes      | HTML body of the template                     |
 
 ##### Example Request
-``` shell
+
+```shell
+curl -u "username:password" -X POST 'http://localhost:9000/api/templates' \
+-H 'Content-Type: application/json' \
+-d '{
+    "name": "New template",
+    "type": "campaign",
+    "subject": "Your Weekly Newsletter",
+    "body": "<h1>Header</h1><p>Content goes here</p>"
+}'
+```
+
+##### Example Response
+
+```json
+{
+    "data": [
+        {
+            "id": 1,
+            "created_at": "2020-03-14T17:36:41.288578+01:00",
+            "updated_at": "2020-03-14T17:36:41.288578+01:00",
+            "name": "Default template",
+            "body": "{{ template \"content\" . }}",
+            "type": "campaign",
+            "is_default": true
+        }
+    ]
+}
+```
+
+______________________________________________________________________
+
+#### PUT /api/templates/{template_id}
+
+Update a template.
+
+> Refer to parameters from [POST /api/templates](#post-apitemplates)
+
+______________________________________________________________________
+
+#### PUT /api/templates/{template_id}/default
+
+Set a template as the default.
+
+##### Parameters
+
+| Name        | Type      | Required | Description                          |
+|:------------|:----------|:---------|:-------------------------------------|
+| template_id | number    | Yes      | ID of the template to set as default |
+
+##### Example Request
+
+```shell
 curl -u "username:username" -X PUT 'http://localhost:9000/api/templates/1/default'
 ```
 
 ##### Example Response
-``` json
+
+```json
 {
     "data": {
         "id": 1,
@@ -122,22 +198,26 @@ curl -u "username:username" -X PUT 'http://localhost:9000/api/templates/1/defaul
 }
 ```
 
+______________________________________________________________________
 
-#### **`DELETE`** /api/templates/:`template_id`
-Deletes a template.
+#### DELETE /api/templates/{template_id}
+
+Delete a template.
 
 ##### Parameters
-Name          | Parameter Type | Data Type | Required/Optional | Description
---------------|----------------|-----------|-------------------|-------------------------------------------------
-`template_id` | Path Parameter | Number    | Required          | The id value of the template you want to delete.
 
+| Name        | Type      | Required | Description                  |
+|:------------|:----------|:---------|:-----------------------------|
+| template_id | number    | Yes      | ID of the template to delete |
 
 ##### Example Request
-``` shell
+
+```shell
 curl -u "username:username" -X DELETE 'http://localhost:9000/api/templates/35'
 ```
 
 ##### Example Response
+
 ```json
 {
     "data": true

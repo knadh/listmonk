@@ -22,7 +22,7 @@ Variables in config.toml can also be provided as environment variables prefixed 
 
 
 ### Customizing system templates
-[Read this](../templating/#system-templates)
+See [system templates](templating.md#system-templates).
 
 
 ### HTTP routes
@@ -48,9 +48,9 @@ When configuring auth proxies and web application firewalls, use this table.
 | `POST`      | `/webhooks/service/*` | Bounce webhook endpoints for AWS and Sendgrid |
 
 
-## Media Uploads
+## Media uploads
 
-### Filesystem
+#### Using filesystem
 
 When configuring `docker` volume mounts for using filesystem media uploads, you can follow either of two approaches. [The second option may be necessary if](https://github.com/knadh/listmonk/issues/1169#issuecomment-1674475945) your setup requires you to use `sudo` for docker commands. 
 
@@ -97,7 +97,7 @@ To use the default `uploads` folder:
 ```yml
   app:
     volumes:
-      - ./listmonk/uploads:/listmonk/uploads
+      - ./uploads:/listmonk/uploads
 ```
 
 

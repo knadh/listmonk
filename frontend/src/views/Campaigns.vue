@@ -347,7 +347,7 @@ export default Vue.extend({
     getCampaigns() {
       this.$api.getCampaigns({
         page: this.queryParams.page,
-        query: this.queryParams.query,
+        query: this.queryParams.query.replace(/[^\p{L}\p{N}\s]/gu, ' '),
         order_by: this.queryParams.orderBy,
         order: this.queryParams.order,
       });

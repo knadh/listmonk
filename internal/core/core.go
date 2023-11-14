@@ -57,9 +57,11 @@ type Opt struct {
 }
 
 var (
-	regexFullTextQuery = regexp.MustCompile(`\s+`)
-	regexpSpaces       = regexp.MustCompile(`[\s]+`)
-	querySortFields    = []string{"name", "status", "created_at", "updated_at"}
+	regexFullTextQuery  = regexp.MustCompile(`\s+`)
+	regexpSpaces        = regexp.MustCompile(`[\s]+`)
+	campQuerySortFields = []string{"name", "status", "created_at", "updated_at"}
+	subQuerySortFields  = []string{"email", "status", "name", "created_at", "updated_at"}
+	listQuerySortFields = []string{"name", "status", "created_at", "updated_at", "subscriber_count"}
 )
 
 // New returns a new instance of the core.
@@ -88,7 +90,7 @@ func pqErrMsg(err error) string {
 // makeSearchQuery cleans an optional search string and prepares the
 // query SQL statement (string interpolated) and returns the
 // search query string along with the SQL expression.
-func makeSearchQuery(searchStr, orderBy, order, query string) (string, string) {
+func makeSearchQuery(searchStr, orderBy, order, query string, querySortFields []string) (string, string) {
 	if searchStr != "" {
 		searchStr = `%` + string(regexFullTextQuery.ReplaceAll([]byte(searchStr), []byte("&"))) + `%`
 	}

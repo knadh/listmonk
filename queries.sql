@@ -178,6 +178,7 @@ INSERT INTO subscriber_lists (subscriber_id, list_id, status)
             WHEN $4='blocklisted' THEN 'unsubscribed'::subscription_status
             -- When subscriber is edited from the admin form, retain the status. Otherwise, a blocklisted
             -- subscriber when being re-enabled, their subscription statuses change.
+            WHEN subscriber_lists.status = 'confirmed' THEN 'confirmed'
             WHEN $9 = TRUE THEN subscriber_lists.status
             ELSE $8::subscription_status
         END
@@ -415,15 +416,16 @@ WITH ls AS (
             WHEN $3 != '' THEN to_tsvector(name) @@ to_tsquery ($3)
             ELSE true
         END
-    ORDER BY %order%
     OFFSET $4 LIMIT (CASE WHEN $5 < 1 THEN NULL ELSE $5 END)
 ),
 counts AS (
-    SELECT list_id, JSON_OBJECT_AGG(status, subscriber_count) AS subscriber_statuses FROM (
-        SELECT COUNT(*) as subscriber_count, list_id, status FROM subscriber_lists
+    SELECT list_id, JSON_OBJECT_AGG(status, num) AS subscriber_statuses, SUM(num) AS subscriber_count
+    FROM (
+        SELECT list_id, status, COUNT(*) as num
+        FROM subscriber_lists
         WHERE ($1 = 0 OR list_id = $1)
         GROUP BY list_id, status
-    ) row GROUP BY list_id
+    ) AS subquery GROUP BY list_id
 )
 SELECT ls.*, subscriber_statuses FROM ls
     LEFT JOIN counts ON (counts.list_id = ls.id) ORDER BY %order%;
