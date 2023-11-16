@@ -2,7 +2,7 @@ package main
 
 import (
 	"bytes"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"regexp"
 	"runtime"
@@ -244,7 +244,7 @@ func handleTestSMTPSettings(c echo.Context) error {
 	app := c.Get("app").(*App)
 
 	// Copy the raw JSON post body.
-	reqBody, err := ioutil.ReadAll(c.Request().Body)
+	reqBody, err := io.ReadAll(c.Request().Body)
 	if err != nil {
 		app.log.Printf("error reading SMTP test: %v", err)
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.Ts("globals.messages.internalError"))

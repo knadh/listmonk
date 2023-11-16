@@ -3,7 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/textproto"
 	"strings"
@@ -49,7 +49,7 @@ func handleSendTxMessage(c echo.Context) error {
 			}
 			defer file.Close()
 
-			b, err := ioutil.ReadAll(file)
+			b, err := io.ReadAll(file)
 			if err != nil {
 				return echo.NewHTTPError(http.StatusInternalServerError,
 					app.i18n.Ts("globals.messages.invalidFields", "name", fmt.Sprintf("file: %s", err.Error())))

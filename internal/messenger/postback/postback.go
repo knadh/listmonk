@@ -5,7 +5,6 @@ import (
 	"encoding/base64"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"net/textproto"
 	"time"
@@ -197,7 +196,7 @@ func (p *Postback) exec(method, rURL string, reqBody []byte, headers http.Header
 	}
 	defer func() {
 		// Drain and close the body to let the Transport reuse the connection
-		io.Copy(ioutil.Discard, r.Body)
+		io.Copy(io.Discard, r.Body)
 		r.Body.Close()
 	}()
 
