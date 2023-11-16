@@ -4,7 +4,6 @@ import (
 	"crypto/rand"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -67,7 +66,7 @@ func (c *Client) GetURL(name string) string {
 
 // GetBlob accepts a URL, reads the file, and returns the blob.
 func (c *Client) GetBlob(url string) ([]byte, error) {
-	b, err := ioutil.ReadFile(filepath.Join(getDir(c.opts.UploadPath), filepath.Base(url)))
+	b, err := os.ReadFile(filepath.Join(getDir(c.opts.UploadPath), filepath.Base(url)))
 	return b, err
 }
 

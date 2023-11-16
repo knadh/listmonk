@@ -2,7 +2,7 @@ package main
 
 import (
 	"encoding/json"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"strconv"
 	"time"
@@ -121,7 +121,7 @@ func handleBounceWebhook(c echo.Context) error {
 	)
 
 	// Read the request body instead of using c.Bind() to read to save the entire raw request as meta.
-	rawReq, err := ioutil.ReadAll(c.Request().Body)
+	rawReq, err := io.ReadAll(c.Request().Body)
 	if err != nil {
 		app.log.Printf("error reading ses notification body: %v", err)
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.Ts("globals.messages.internalError"))
