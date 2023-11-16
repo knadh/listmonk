@@ -291,6 +291,7 @@ Modify subscriber list memberships.
 
 ```shell
 curl -u 'username:password' -X PUT 'http://localhost:9000/api/subscribers/lists' \
+-H 'Content-Type: application/json' \
 --data-raw '{"ids": [1, 2, 3], "action": "add", "target_list_ids": [4, 5, 6], "status": "confirmed"}'
 ```
 
