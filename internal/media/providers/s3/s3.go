@@ -3,7 +3,6 @@ package s3
 import (
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/url"
 	"path/filepath"
 	"strings"
@@ -123,7 +122,7 @@ func (c *Client) GetBlob(uurl string) ([]byte, error) {
 		return nil, err
 	}
 
-	b, err := ioutil.ReadAll(file)
+	b, err := io.ReadAll(file)
 	if err != nil {
 		return nil, err
 	}

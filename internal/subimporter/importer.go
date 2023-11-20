@@ -15,7 +15,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	"net/mail"
 	"os"
@@ -377,7 +376,7 @@ func (s *Session) ExtractZIP(srcPath string, maxCSVs int) (string, []string, err
 	defer z.Close()
 
 	// Create a temporary directory to extract the files.
-	dir, err := ioutil.TempDir("", "listmonk")
+	dir, err := os.MkdirTemp("", "listmonk")
 	if err != nil {
 		s.log.Printf("error creating temporary directory for extracting ZIP: %v", err)
 		return "", nil, err

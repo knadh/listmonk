@@ -2,7 +2,7 @@ package main
 
 import (
 	"encoding/json"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"regexp"
 	"time"
@@ -48,7 +48,7 @@ func checkUpdates(curVersion string, interval time.Duration, app *App) {
 			continue
 		}
 
-		b, err := ioutil.ReadAll(resp.Body)
+		b, err := io.ReadAll(resp.Body)
 		if err != nil {
 			app.log.Printf("error reading remote update payload: %v", err)
 			continue

@@ -8,7 +8,7 @@ import (
 	"encoding/pem"
 	"errors"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/url"
 	"regexp"
@@ -239,7 +239,7 @@ func (s *SES) getCert(certURL string) (*x509.Certificate, error) {
 		return nil, fmt.Errorf("invalid SNS certificate URL: %v", u.Host)
 	}
 
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, err
 	}
