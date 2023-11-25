@@ -69,6 +69,7 @@ func initHTTPHandlers(e *echo.Echo, app *App) {
 	e.GET("/", func(c echo.Context) error {
 		return c.Render(http.StatusOK, "home", publicTpl{Title: "listmonk"})
 	})
+
 	g.GET(path.Join(adminRoot, ""), handleAdminPage)
 	g.GET(path.Join(adminRoot, "/custom.css"), serveCustomApperance("admin.custom_css"))
 	g.GET(path.Join(adminRoot, "/custom.js"), serveCustomApperance("admin.custom_js"))
@@ -213,6 +214,18 @@ func initHTTPHandlers(e *echo.Echo, app *App) {
 
 	// Public health API endpoint.
 	e.GET("/health", handleHealthCheck)
+
+	// 404 pages.
+	e.RouteNotFound("/*", func(c echo.Context) error {
+		return c.Render(http.StatusNotFound, tplMessage,
+			makeMsgTpl("404 - "+app.i18n.T("public.notFoundTitle"), "", ""))
+	})
+	e.RouteNotFound("/api/*", func(c echo.Context) error {
+		return echo.NewHTTPError(http.StatusNotFound, "404 unknown endpoint")
+	})
+	e.RouteNotFound("/admin/*", func(c echo.Context) error {
+		return echo.NewHTTPError(http.StatusNotFound, "404 page not found")
+	})
 }
 
 // handleAdminPage is the root handler that renders the Javascript admin frontend.
