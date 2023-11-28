@@ -16,7 +16,7 @@
       
       
       <link rel="icon" href="../images/favicon.png">
-      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.4.10">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.4.14">
     
     
       
@@ -197,6 +197,7 @@
   
   
   
+  
     <li class="md-nav__item">
       <a href=".." class="md-nav__link">
         
@@ -216,6 +217,7 @@
   
   
     
+  
   
   
     <li class="md-nav__item md-nav__item--active">
@@ -352,6 +354,15 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#changing-the-port" class="md-nav__link">
+    <span class="md-ellipsis">
+      Changing the port
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -416,6 +427,7 @@
   
   
   
+  
     <li class="md-nav__item">
       <a href="../upgrade/" class="md-nav__link">
         
@@ -432,6 +444,7 @@
     
       
       
+  
   
   
   
@@ -454,6 +467,7 @@
   
   
   
+  
     <li class="md-nav__item">
       <a href="../developer-setup/" class="md-nav__link">
         
@@ -470,6 +484,7 @@
     
       
       
+  
   
   
   
@@ -492,6 +507,7 @@
   
   
   
+  
     <li class="md-nav__item">
       <a href="../querying-and-segmentation/" class="md-nav__link">
         
@@ -508,6 +524,7 @@
     
       
       
+  
   
   
   
@@ -530,6 +547,7 @@
   
   
   
+  
     <li class="md-nav__item">
       <a href="../bounces/" class="md-nav__link">
         
@@ -546,6 +564,7 @@
     
       
       
+  
   
   
   
@@ -568,6 +587,7 @@
   
   
   
+  
     <li class="md-nav__item">
       <a href="../archives/" class="md-nav__link">
         
@@ -584,6 +604,7 @@
     
       
       
+  
   
   
   
@@ -606,6 +627,7 @@
   
   
   
+  
     <li class="md-nav__item">
       <a href="../external-integration/" class="md-nav__link">
         
@@ -622,6 +644,7 @@
     
       
       
+  
   
   
   
@@ -644,6 +667,7 @@
   
   
   
+  
     <li class="md-nav__item">
       <a href="../apis/subscribers/" class="md-nav__link">
         
@@ -660,6 +684,7 @@
     
       
       
+  
   
   
   
@@ -682,6 +707,7 @@
   
   
   
+  
     <li class="md-nav__item">
       <a href="../apis/import/" class="md-nav__link">
         
@@ -698,6 +724,7 @@
     
       
       
+  
   
   
   
@@ -720,6 +747,7 @@
   
   
   
+  
     <li class="md-nav__item">
       <a href="../apis/media/" class="md-nav__link">
         
@@ -739,6 +767,7 @@
   
   
   
+  
     <li class="md-nav__item">
       <a href="../apis/templates/" class="md-nav__link">
         
@@ -755,6 +784,7 @@
     
       
       
+  
   
   
   
@@ -883,6 +913,15 @@
   <a href="#mounting-a-custom-configtoml" class="md-nav__link">
     <span class="md-ellipsis">
       Mounting a custom config.toml
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#changing-the-port" class="md-nav__link">
+    <span class="md-ellipsis">
+      Changing the port
     </span>
   </a>
   
@@ -1060,6 +1099,13 @@ sh<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;</spa
 <p class="admonition-title">Info</p>
 <p>The example <code>docker-compose.yml</code> file works with Docker Engine 24.0.5+ and Docker Compose version v2.20.2+.</p>
 </div>
+<h5 id="changing-the-port">Changing the port<a class="headerlink" href="#changing-the-port" title="Permanent link">&para;</a></h5>
+<p>To change the port for listmonk:</p>
+<ul>
+<li>Ensure no other container of listmonk app is running. You can check with <code>docker ps | grep listmonk</code>.</li>
+<li>Change <a href="https://github.com/knadh/listmonk/blob/master/docker-compose.yml#L11">L11</a> to <code>custom-port:9000</code> Eg: <code>3876:9000</code>. This will expose the port 3876 on your local network to the container's network interface on port 9000. </li>
+<li>For NGINX setup, if you're running NGINX on your local machine, you can proxy_pass to the <code>&lt;MACHINE_IP&gt;:3876</code>. You can also run NGINX as a docker container within the listmonk's container (for that you need to add a service <code>nginx</code> in the docker-compose.yml). If you do that, then proxy_pass will be set to <code>http://app:9000</code>. Docker's network will resolve the DNS for <code>app</code> and directly speak to port 9000 (which the app is exposing within its own network).</li>
+</ul>
 <h2 id="compiling-from-source">Compiling from source<a class="headerlink" href="#compiling-from-source" title="Permanent link">&para;</a></h2>
 <p>To compile the latest unreleased version (<code>master</code> branch):</p>
 <ol>
@@ -1126,7 +1172,7 @@ sh<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;</spa
     <script id="__config" type="application/json">{"base": "..", "features": ["content.code.copy"], "search": "../assets/javascripts/workers/search.f886a092.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
-      <script src="../assets/javascripts/bundle.6c14ae12.min.js"></script>
+      <script src="../assets/javascripts/bundle.cd18aaf1.min.js"></script>
       
     
   </body>
