@@ -120,6 +120,17 @@ Mount the local `config.toml` inside the container at `listmonk/config.toml`.
 !!! info
     The example `docker-compose.yml` file works with Docker Engine 24.0.5+ and Docker Compose version v2.20.2+.
 
+##### Changing the port
+
+To change the port for listmonk:
+
+- Ensure no other container of listmonk app is running. You can check with `docker ps | grep listmonk`.
+- Change [L11](https://github.com/knadh/listmonk/blob/master/docker-compose.yml#L11) to `custom-port:9000` Eg: `3876:9000`. This will expose the port 3876 on your local network to the container's network interface on port 9000. 
+- For NGINX setup, if you're running NGINX on your local machine, you can proxy_pass to the `<MACHINE_IP>:3876`. You can also run NGINX as a docker container within the listmonk's container (for that you need to add a service `nginx` in the docker-compose.yml). If you do that, then proxy_pass will be set to `http://app:9000`. Docker's network will resolve the DNS for `app` and directly speak to port 9000 (which the app is exposing within its own network).
+            
+
+
+
 ## Compiling from source
 
 To compile the latest unreleased version (`master` branch):
