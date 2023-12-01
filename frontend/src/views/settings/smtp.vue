@@ -70,6 +70,7 @@
               </div>
             </div><!-- auth -->
             <div class="smtp-shortcuts is-size-7">
+              <a href="" @click.prevent="() => fillSettings(n, 'fe')">Forward Email</a>
               <a href="" @click.prevent="() => fillSettings(n, 'gmail')">Gmail</a>
               <a href="" @click.prevent="() => fillSettings(n, 'ses')">Amazon SES</a>
               <a href="" @click.prevent="() => fillSettings(n, 'mailgun')">Mailgun</a>
@@ -215,6 +216,9 @@ import { mapState } from 'vuex';
 import { regDuration } from '../../constants';
 
 const smtpTemplates = {
+  fe: {
+    host: 'smtp.forwardemail.net', port: 465, auth_protocol: 'login', tls_type: 'TLS',
+  },
   gmail: {
     host: 'smtp.gmail.com', port: 465, auth_protocol: 'login', tls_type: 'TLS',
   },
