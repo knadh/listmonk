@@ -7,6 +7,10 @@ Some versions may require changes to the database. These changes or database "mi
 - `./listmonk --upgrade` to upgrade an existing DB. Upgrades are idempotent and running them multiple times have no side effects.
 - Run `./listmonk` and visit `http://localhost:9000`.
 
+If you installed listmonk as a service, you will need to stop it before overwriting the binary. Something like `sudo systemctl stop listmonk` or `sudo service listmonk stop` should work. Then overwrite the binary with the new version, then run `./listmonk --upgrade, and `start` it back with the same commands.
+
+If it's not running as a service, `pkill -9 listmonk` will stop the listmonk process.
+
 ## Docker
 
 - `docker compose pull` to pull the latest version from DockerHub.
