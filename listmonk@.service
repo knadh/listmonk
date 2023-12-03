@@ -1,6 +1,6 @@
 [Unit]
 Description=listmonk mailing list and newsletter manager (%I)
-ConditionPathExists=/etc/listmonk/%i.toml
+ConditionPathExists=/etc/listmonk/config.toml
 Wants=network.target
 # The PostgreSQL database may not be on the same host but if it
 # is listmonk should wait for it to start up.
@@ -8,11 +8,12 @@ After=postgresql.service
 
 [Service]
 Type=simple
+PermissionsStartOnly=true
 EnvironmentFile=-/etc/default/listmonk
 EnvironmentFile=-/etc/default/listmonk-%i
-ExecStartPre=/usr/bin/mkdir -p "${HOME}/uploads"
-ExecStartPre=/usr/bin/listmonk --config /etc/listmonk/%i.toml --upgrade --yes
-ExecStart=/usr/bin/listmonk --config /etc/listmonk/%i.toml $SYSTEMD_LISTMONK_ARGS
+ExecStartPre=/usr/bin/mkdir -p "listmonk/uploads"
+ExecStartPre=/usr/bin/listmonk --config /etc/listmonk/config.toml --upgrade --yes
+ExecStart=/usr/bin/listmonk --config /etc/listmonk/config.toml $SYSTEMD_LISTMONK_ARGS
 Restart=on-failure
 
 # Create dynamic users for listmonk service instances
@@ -32,18 +33,25 @@ NoNewPrivileges=True
 CapabilityBoundingSet=
 # listmonk only executes native code with no need for any other ABIs.
 SystemCallArchitectures=native
+
 # Only enable a reasonable set of system calls.
 # see: https://www.freedesktop.org/software/systemd/man/systemd.exec.html#SystemCallFilter=
-SystemCallFilter=@system-service
-SystemCallFilter=~@privileged
+# may give dump error https://mumaritc.hashnode.dev/how-to-install-listmonk-using-binary-on-ubuntu-2204
+# SystemCallFilter=@system-service
+# SystemCallFilter=~@privileged
+
 # ProtectSystem=strict, which is implied by DynamicUser=True, already disabled write calls
 # to the entire filesystem hierarchy, leaving only /dev/, /proc/, and /sys/ writable.
 # listmonk doesn’t need access to those so might as well disable them.
 PrivateDevices=True
 ProtectControlGroups=True
 ProtectKernelTunables=True
+
 # Make /home/, /root/, and /run/user/ inaccessible.
+# If you set ExecStartPre=/usr/bin/mkdir -p "listmonk/uploads" to a directory in /home/ or /root/ it will cause uploads to fail 
+# See https://github.com/knadh/listmonk/issues/843#issuecomment-1836023524
 ProtectHome=True
+
 # listmonk doesn’t handle any specific device nodes.
 DeviceAllow=False
 # listmonk doesn’t make use of linux namespaces.
