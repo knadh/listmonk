@@ -383,6 +383,10 @@ func (c *Core) GetCampaignAnalyticsLinks(campIDs []int, typ, fromDate, toDate st
 // RegisterCampaignView registers a subscriber's view on a campaign.
 func (c *Core) RegisterCampaignView(campUUID, subUUID string) error {
 	if _, err := c.q.RegisterCampaignView.Exec(campUUID, subUUID); err != nil {
+		if pqErr, ok := err.(*pq.Error); ok && pqErr.Column == "campaign_id" {
+			return nil
+		}
+
 		c.log.Printf("error registering campaign view: %s", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			c.i18n.Ts("globals.messages.errorUpdating", "name", "{globals.terms.campaign}", "error", pqErrMsg(err)))
