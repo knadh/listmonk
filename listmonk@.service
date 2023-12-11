@@ -21,9 +21,10 @@ TimeoutStopSec=10
 Restart=on-failure
 RestartSec=5
 
-# To enable a static dir, uncomment the ExecStart line below after creating the dir and fetching the files with:
+# To enable a static dir, add the following 
+# --static-dir /etc/listmonk/static
+# to the end of the ExecStart line above after creating the dir and fetching the files with:
 # wget -O - https://github.com/knadh/listmonk/archive/master.tar.gz | tar xz --strip=2 "listmonk-master/static"
-# ExecStart=/usr/bin/listmonk --static-dir /etc/listmonk/static
 
 # Create dynamic users for listmonk service instances
 # but create a state directory for uploads in /var/lib/private/%i.
