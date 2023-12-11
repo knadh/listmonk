@@ -1,6 +1,9 @@
+# This service template is designed to have the ability to run more than one instance of listmonk with different configurations but the same service unit.
+# It may not work with older OS's with older systemd versions.
+
 [Unit]
 Description=listmonk mailing list and newsletter manager (%I)
-ConditionPathExists=/etc/listmonk/config.toml
+ConditionPathExists=/etc/listmonk/%i.toml
 Wants=network.target
 # The PostgreSQL database may not be on the same host but if it
 # is listmonk should wait for it to start up.
@@ -11,12 +14,16 @@ Type=simple
 PermissionsStartOnly=true
 EnvironmentFile=-/etc/default/listmonk
 EnvironmentFile=-/etc/default/listmonk-%i
-ExecStartPre=/usr/bin/mkdir -p "/listmonk/uploads"
-ExecStartPre=/usr/bin/listmonk --config /etc/listmonk/config.toml --upgrade --yes
-ExecStart=/usr/bin/listmonk --config /etc/listmonk/config.toml $SYSTEMD_LISTMONK_ARGS
+ExecStartPre=/usr/bin/mkdir -p "/etc/listmonk/uploads"
+ExecStartPre=/usr/bin/listmonk --config /etc/listmonk/%i.toml --upgrade --yes
+ExecStart=/usr/bin/listmonk --config /etc/listmonk/%i.toml $SYSTEMD_LISTMONK_ARGS
 TimeoutStopSec=10
 Restart=on-failure
 RestartSec=5
+
+# To enable a static dir, uncomment the ExecStart line below after creating the dir and fetching the files with:
+# wget -O - https://github.com/knadh/listmonk/archive/master.tar.gz | tar xz --strip=2 "listmonk-master/static"
+# ExecStart=/usr/bin/listmonk --static-dir /etc/listmonk/static
 
 # Create dynamic users for listmonk service instances
 # but create a state directory for uploads in /var/lib/private/%i.
