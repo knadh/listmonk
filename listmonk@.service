@@ -11,10 +11,12 @@ Type=simple
 PermissionsStartOnly=true
 EnvironmentFile=-/etc/default/listmonk
 EnvironmentFile=-/etc/default/listmonk-%i
-ExecStartPre=/usr/bin/mkdir -p "listmonk/uploads"
+ExecStartPre=/usr/bin/mkdir -p "/listmonk/uploads"
 ExecStartPre=/usr/bin/listmonk --config /etc/listmonk/config.toml --upgrade --yes
 ExecStart=/usr/bin/listmonk --config /etc/listmonk/config.toml $SYSTEMD_LISTMONK_ARGS
+TimeoutStopSec=10
 Restart=on-failure
+RestartSec=5
 
 # Create dynamic users for listmonk service instances
 # but create a state directory for uploads in /var/lib/private/%i.
