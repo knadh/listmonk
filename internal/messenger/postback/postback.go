@@ -17,6 +17,7 @@ import (
 //easyjson:json
 type postback struct {
 	Subject     string       `json:"subject"`
+	FromEmail   string       `json:"from_email"`
 	ContentType string       `json:"content_type"`
 	Body        string       `json:"body"`
 	Recipients  []recipient  `json:"recipients"`
@@ -96,6 +97,7 @@ func (p *Postback) Name() string {
 func (p *Postback) Push(m models.Message) error {
 	pb := postback{
 		Subject:     m.Subject,
+		FromEmail:   m.From,
 		ContentType: m.ContentType,
 		Body:        string(m.Body),
 		Recipients: []recipient{{
