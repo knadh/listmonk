@@ -24,6 +24,14 @@ RestartSec=5
 # to the end of the ExecStart line above after creating the dir and fetching the files with:
 # mkdir -p /etc/listmonk/static ; wget -O - https://github.com/knadh/listmonk/archive/master.tar.gz | tar xz -C /etc/listmonk/static --strip=2 "listmonk-master/static"
 
+# Set user to run listmonk service as (instead of root), and folders it can write to.
+# Can use "DynamicUser=" instead, if your systemd version is >= 232.
+# https://www.freedesktop.org/software/systemd/man/latest/systemd.exec.html#DynamicUser=
+#User=
+#StateDirectory=/etc/listmonk
+#LogsDirectory=/etc/listmonk
+#CacheDirectory=/etc/listmonk/cache
+
 # Use systemd’s ability to disable security-sensitive features
 # that listmonk does not explicitly need.
 # NoNewPrivileges should be enabled by DynamicUser=yes but systemd-analyze
@@ -35,12 +43,11 @@ CapabilityBoundingSet=
 # listmonk only executes native code with no need for any other ABIs.
 SystemCallArchitectures=native
 
-
 # Make /home/, /root/, and /run/user/ inaccessible.
+# ProtectSystem=strict and ProtectHome=read-only are implied by DynamicUser=True
 # If you set ExecStartPre=/usr/bin/mkdir -p "listmonk/uploads" to a directory in /home/ or /root/ it will cause uploads to fail 
 # See https://github.com/knadh/listmonk/issues/843#issuecomment-1836023524
 ProtectHome=True
-
 
 # Make sure files created by listmonk are only readable by itself and
 # others in the listmonk system group.
