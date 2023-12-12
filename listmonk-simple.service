@@ -31,6 +31,7 @@ RestartSec=5
 #StateDirectory=/etc/listmonk
 #LogsDirectory=/etc/listmonk
 #CacheDirectory=/etc/listmonk/cache
+#Environment=HOME=/usr/bin
 
 # Use systemd’s ability to disable security-sensitive features
 # that listmonk does not explicitly need.
