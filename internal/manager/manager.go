@@ -28,11 +28,12 @@ const (
 // Store represents a data backend, such as a database,
 // that provides subscriber and campaign records.
 type Store interface {
-	NextCampaigns(excludeIDs []int64) ([]*models.Campaign, error)
+	NextCampaigns(currentIDs []int64, sentCounts []int64) ([]*models.Campaign, error)
 	NextSubscribers(campID, limit int) ([]models.Subscriber, error)
 	GetCampaign(campID int) (*models.Campaign, error)
 	GetAttachment(mediaID int) (models.Attachment, error)
 	UpdateCampaignStatus(campID int, status string) error
+	UpdateCampaignCounts(campID int, toSend int, sent int, lastSubID int) error
 	CreateLink(url string) (string, error)
 	BlocklistSubscriber(id int64) error
 	DeleteSubscriber(id int64) error
@@ -165,9 +166,9 @@ func New(cfg Config, store Store, notifCB models.AdminNotifCallback, i *i18n.I18
 		pipes:        make(map[int]*pipe),
 		tpls:         make(map[int]*models.Template),
 		links:        make(map[string]string),
-		nextPipes:    make(chan *pipe, cfg.Concurrency),
-		campMsgQ:     make(chan CampaignMessage, cfg.Concurrency*2),
-		msgQ:         make(chan models.Message, cfg.Concurrency),
+		nextPipes:    make(chan *pipe, 1000),
+		campMsgQ:     make(chan CampaignMessage, cfg.Concurrency*cfg.MessageRate*2),
+		msgQ:         make(chan models.Message, cfg.Concurrency*cfg.MessageRate*2),
 		slidingStart: time.Now(),
 	}
 	m.tplFuncs = m.makeGnericFuncMap()
@@ -275,7 +276,10 @@ func (m *Manager) Run() {
 
 		if has {
 			// There are more subscribers to fetch. Queue again.
-			m.nextPipes <- p
+			select {
+			case m.nextPipes <- p:
+			default:
+			}
 		} else {
 			// Mark the pseudo counter that's added in makePipe() that is used
 			// to force a wait on a pipe.
@@ -388,7 +392,8 @@ func (m *Manager) scanCampaigns(tick time.Duration) {
 		select {
 		// Periodically scan the data source for campaigns to process.
 		case <-t.C:
-			campaigns, err := m.store.NextCampaigns(m.getRunningCampaignIDs())
+			ids, counts := m.getCurrentCampaigns()
+			campaigns, err := m.store.NextCampaigns(ids, counts)
 			if err != nil {
 				m.log.Printf("error fetching campaigns: %v", err)
 				continue
@@ -488,7 +493,12 @@ func (m *Manager) worker() {
 				if err != nil {
 					msg.pipe.OnError()
 				} else {
+					id := uint64(msg.Subscriber.ID)
+					if id > msg.pipe.lastID.Load() {
+						msg.pipe.lastID.Store(uint64(msg.Subscriber.ID))
+					}
 					msg.pipe.rate.Incr(1)
+					msg.pipe.sent.Add(1)
 				}
 			}
 
@@ -516,6 +526,29 @@ func (m *Manager) getRunningCampaignIDs() []int64 {
 	}
 	m.pipesMut.RUnlock()
 	return ids
+}
+
+// getCurrentCampaigns returns the IDs of campaigns currently being processed
+// and their sent counts.
+func (m *Manager) getCurrentCampaigns() ([]int64, []int64) {
+	// Needs to return an empty slice in case there are no campaigns.
+	m.pipesMut.RLock()
+	defer m.pipesMut.RUnlock()
+
+	var (
+		ids    = make([]int64, 0, len(m.pipes))
+		counts = make([]int64, 0, len(m.pipes))
+	)
+	for _, p := range m.pipes {
+		ids = append(ids, int64(p.camp.ID))
+
+		// Get the sent counts for campaigns and reset them to 0
+		// as in the database, they're stored cumulatively (sent += $newSent).
+		counts = append(counts, p.sent.Load())
+		p.sent.Store(0)
+	}
+
+	return ids, counts
 }
 
 // isCampaignProcessing checks if the campaign is being processed.

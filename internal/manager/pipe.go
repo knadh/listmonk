@@ -14,8 +14,10 @@ type pipe struct {
 	camp       *models.Campaign
 	rate       *ratecounter.RateCounter
 	wg         *sync.WaitGroup
-	stopped    atomic.Bool
+	sent       atomic.Int64
+	lastID     atomic.Uint64
 	errors     atomic.Uint64
+	stopped    atomic.Bool
 	withErrors atomic.Bool
 
 	m *Manager
@@ -181,6 +183,11 @@ func (p *pipe) cleanup() {
 		delete(p.m.pipes, p.camp.ID)
 		p.m.pipesMut.Unlock()
 	}()
+
+	// Update campaign's "sent" count.
+	if err := p.m.store.UpdateCampaignCounts(p.camp.ID, 0, int(p.sent.Load()), int(p.lastID.Load())); err != nil {
+		p.m.log.Printf("error updating campaign counts (%s): %v", p.camp.Name, err)
+	}
 
 	// The campaign was auto-paused due to errors.
 	if p.withErrors.Load() {
