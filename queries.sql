@@ -616,7 +616,7 @@ SELECT id, status, to_send, sent, started_at, updated_at
 -- that is, the total number of subscribers to be processed across all lists of a campaign.
 -- Thus, it has a sideaffect.
 -- In addition, it finds the max_subscriber_id, the upper limit across all lists of
--- a campaign. This is used to fetch and slice subscribers for the campaign in next-subscriber-campaigns.
+-- a campaign. This is used to fetch and slice subscribers for the campaign in next-campaign-subscribers.
 WITH camps AS (
     -- Get all running campaigns and their template bodies (if the template's deleted, the default template body instead)
     SELECT campaigns.*, COALESCE(templates.body, (SELECT body FROM templates WHERE is_default = true LIMIT 1)) AS template_body
@@ -660,6 +660,12 @@ counts AS (
         END)
     )
     GROUP BY camps.id
+),
+updateCounts AS (
+    WITH uc (campaign_id, sent_count) AS (SELECT * FROM unnest($1::INT[], $2::INT[]))
+    UPDATE campaigns
+    SET sent = sent + uc.sent_count
+    FROM uc WHERE campaigns.id = uc.campaign_id
 ),
 u AS (
     -- For each campaign, update the to_send count and set the max_subscriber_id.
@@ -762,9 +768,7 @@ subs AS (
 ),
 u AS (
     UPDATE campaigns
-    SET last_subscriber_id = (SELECT MAX(id) FROM subs),
-        sent = sent + (SELECT COUNT(id) FROM subs),
-        updated_at = NOW()
+    SET last_subscriber_id = (SELECT MAX(id) FROM subs), updated_at = NOW()
     WHERE (SELECT COUNT(id) FROM subs) > 0 AND id=$1
 )
 SELECT * FROM subs;
@@ -824,8 +828,8 @@ INSERT INTO campaign_lists (campaign_id, list_id, list_name)
 -- name: update-campaign-counts
 UPDATE campaigns SET
     to_send=(CASE WHEN $2 != 0 THEN $2 ELSE to_send END),
-    sent=(CASE WHEN $3 != 0 THEN $3 ELSE sent END),
-    last_subscriber_id=(CASE WHEN $4 != 0 THEN $4 ELSE last_subscriber_id END),
+    sent=sent+$3,
+    last_subscriber_id=(CASE WHEN $4 > 0 THEN $4 ELSE to_send END),
     updated_at=NOW()
 WHERE id=$1;
 
