@@ -1,0 +1,60 @@
+# A simpler version of the service template with wider compatibility for older OS's
+
+[Unit]
+Description=listmonk email service
+ConditionPathExists=/etc/listmonk/config.toml
+Wants=network.target
+# The PostgreSQL database may not be on the same host but if it
+# is listmonk should wait for it to start up.
+After=postgresql.service
+
+[Service]
+Type=simple
+PermissionsStartOnly=true
+WorkingDirectory=/usr/bin
+ExecStartPre=/usr/bin/mkdir -p "/etc/listmonk/uploads"
+ExecStartPre=/usr/bin/listmonk --config /etc/listmonk/config.toml --upgrade --yes
+ExecStart=/usr/bin/listmonk --config /etc/listmonk/config.toml
+TimeoutStopSec=10
+Restart=on-failure
+RestartSec=5
+
+# To enable a static dir, add the following 
+# --static-dir /etc/listmonk/static
+# to the end of the ExecStart line above after creating the dir and fetching the files with:
+# mkdir -p /etc/listmonk/static ; wget -O - https://github.com/knadh/listmonk/archive/master.tar.gz | tar xz -C /etc/listmonk/static --strip=2 "listmonk-master/static"
+
+# Set user to run listmonk service as (instead of root), and folders it can write to.
+# Can use "DynamicUser=" instead, if your systemd version is >= 232.
+# https://www.freedesktop.org/software/systemd/man/latest/systemd.exec.html#DynamicUser=
+#User=
+#StateDirectory=/etc/listmonk
+#LogsDirectory=/etc/listmonk
+#CacheDirectory=/etc/listmonk/cache
+#Environment=HOME=/usr/bin
+
+# Use systemd’s ability to disable security-sensitive features
+# that listmonk does not explicitly need.
+# NoNewPrivileges should be enabled by DynamicUser=yes but systemd-analyze
+# still recommended to explicitly enable it.
+NoNewPrivileges=True
+# listmonk doesn’t need any capabilities as defined by the linux kernel
+# see: https://man7.org/linux/man-pages/man7/capabilities.7.html
+CapabilityBoundingSet=
+# listmonk only executes native code with no need for any other ABIs.
+SystemCallArchitectures=native
+
+# Make /home/, /root/, and /run/user/ inaccessible.
+# ProtectSystem=strict and ProtectHome=read-only are implied by DynamicUser=True
+# If you set ExecStartPre=/usr/bin/mkdir -p "listmonk/uploads" to a directory in /home/ or /root/ it will cause uploads to fail 
+# See https://github.com/knadh/listmonk/issues/843#issuecomment-1836023524
+ProtectHome=True
+
+# Make sure files created by listmonk are only readable by itself and
+# others in the listmonk system group.
+UMask=0027
+# listmonk only needs to support the IPv4 and IPv6 address families.
+RestrictAddressFamilies=AF_INET AF_INET6
+
+[Install]
+WantedBy=multi-user.target
