@@ -298,6 +298,10 @@ func handleUpdateCampaignStatus(c echo.Context) error {
 		return err
 	}
 
+	if o.Status == models.CampaignStatusPaused || o.Status == models.CampaignStatusCancelled {
+		app.manager.StopCampaign(id)
+	}
+
 	return c.JSON(http.StatusOK, okResp{out})
 }
 
