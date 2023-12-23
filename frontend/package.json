@@ -35,7 +35,7 @@
     "@vue/cli-plugin-vuex": "~5.0.8",
     "@vue/cli-service": "~5.0.8",
     "@vue/eslint-config-airbnb": "^5.3.0",
-    "cypress": "10.10.0",
+    "cypress": "13.6.1",
     "cypress-file-upload": "^5.0.2",
     "eslint": "^7.27.0",
     "eslint-plugin-import": "^2.23.3",

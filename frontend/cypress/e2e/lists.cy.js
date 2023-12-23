@@ -4,7 +4,6 @@ describe('Lists', () => {
     cy.loginAndVisit('/lists');
   });
 
-
   it('Counts subscribers in default lists', () => {
     cy.get('tbody td[data-label=Subscribers]').contains('1');
   });
