@@ -185,15 +185,15 @@ func initFS(appDir, frontendDir, staticDir, i18nDir string) stuffbin.FileSystem 
 		}
 	)
 
-	// Get the executable's path.
-	path, err := os.Executable()
+	// Get the executable's execPath.
+	execPath, err := os.Executable()
 	if err != nil {
 		lo.Fatalf("error getting executable path: %v", err)
 	}
 
 	// Load embedded files in the executable.
 	hasEmbed := true
-	fs, err := stuffbin.UnStuff(path)
+	fs, err := stuffbin.UnStuff(execPath)
 	if err != nil {
 		hasEmbed = false
 
@@ -229,7 +229,18 @@ func initFS(appDir, frontendDir, staticDir, i18nDir string) stuffbin.FileSystem 
 		if staticDir == "" {
 			// Default dir in cwd.
 			staticDir = "static"
+		} else {
+			// There is a custom static directory. Any paths that aren't in it, exclude.
+			sf := []string{}
+			for _, def := range staticFiles {
+				s := strings.Split(def, ":")[0]
+				if _, err := os.Stat(path.Join(staticDir, s)); err == nil {
+					sf = append(sf, def)
+				}
+			}
+			staticFiles = sf
 		}
+
 		lo.Printf("loading static files from: %v", staticDir)
 		files = append(files, joinFSPaths(staticDir, staticFiles)...)
 	}
