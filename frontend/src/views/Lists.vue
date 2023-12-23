@@ -237,6 +237,10 @@ export default Vue.extend({
       }).then((resp) => {
         this.lists = resp;
       });
+
+      // Also fetch the minimal lists for the global store that appears
+      // in dropdown menus on other pages like import and campaigns.
+      this.$api.getLists({ minimal: true, per_page: 'all' });
     },
 
     deleteList(list) {
