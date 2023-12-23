@@ -16,7 +16,10 @@ func handleGetLists(c echo.Context) error {
 		pg  = app.paginator.NewFromURL(c.Request().URL.Query())
 
 		query      = strings.TrimSpace(c.FormValue("query"))
+		tags       = c.QueryParams()["tag"]
 		orderBy    = c.FormValue("order_by")
+		typ        = c.FormValue("type")
+		optin      = c.FormValue("optin")
 		order      = c.FormValue("order")
 		minimal, _ = strconv.ParseBool(c.FormValue("minimal"))
 		listID, _  = strconv.Atoi(c.Param("id"))
@@ -58,7 +61,7 @@ func handleGetLists(c echo.Context) error {
 	}
 
 	// Full list query.
-	res, total, err := app.core.QueryLists(query, orderBy, order, pg.Offset, pg.Limit)
+	res, total, err := app.core.QueryLists(query, typ, optin, tags, orderBy, order, pg.Offset, pg.Limit)
 	if err != nil {
 		return err
 	}

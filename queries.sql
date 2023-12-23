@@ -408,15 +408,17 @@ SELECT * FROM lists WHERE (CASE WHEN $1 = '' THEN 1=1 ELSE type=$1::list_type EN
 
 -- name: query-lists
 WITH ls AS (
-	SELECT COUNT(*) OVER () AS total, lists.* FROM lists
-    WHERE
-        CASE
-            WHEN $1 > 0 THEN id = $1
-            WHEN $2 != '' THEN uuid = $2::UUID
-            WHEN $3 != '' THEN to_tsvector(name) @@ to_tsquery ($3)
-            ELSE true
-        END
-    OFFSET $4 LIMIT (CASE WHEN $5 < 1 THEN NULL ELSE $5 END)
+	SELECT COUNT(*) OVER () AS total, lists.* FROM lists WHERE
+    CASE
+        WHEN $1 > 0 THEN id = $1
+        WHEN $2 != '' THEN uuid = $2::UUID
+        WHEN $3 != '' THEN to_tsvector(name) @@ to_tsquery ($3)
+        ELSE TRUE
+    END
+    AND ($4 = '' OR type = $4::list_type)
+    AND ($5 = '' OR optin = $5::list_optin)
+    AND (CARDINALITY($6::VARCHAR(100)[]) = 0 OR $6 <@ tags)
+    OFFSET $7 LIMIT (CASE WHEN $8 < 1 THEN NULL ELSE $8 END)
 ),
 counts AS (
     SELECT list_id, JSON_OBJECT_AGG(status, num) AS subscriber_statuses, SUM(num) AS subscriber_count
@@ -525,9 +527,10 @@ SELECT  c.id, c.uuid, c.name, c.subject, c.from_email,
     ) AS lists
 FROM campaigns c
 WHERE ($1 = 0 OR id = $1)
-    AND status=ANY(CASE WHEN CARDINALITY($2::campaign_status[]) != 0 THEN $2::campaign_status[] ELSE ARRAY[status] END)
-    AND ($3 = '' OR TO_TSVECTOR(CONCAT(name, ' ', subject)) @@ TO_TSQUERY($3))
-ORDER BY %order% OFFSET $4 LIMIT (CASE WHEN $5 < 1 THEN NULL ELSE $5 END);
+    AND (CARDINALITY($2::campaign_status[]) = 0 OR status = ANY($2))
+    AND (CARDINALITY($3::VARCHAR(100)[]) = 0 OR $3 <@ tags)
+    AND ($4 = '' OR TO_TSVECTOR(CONCAT(name, ' ', subject)) @@ TO_TSQUERY($4))
+ORDER BY %order% OFFSET $5 LIMIT (CASE WHEN $6 < 1 THEN NULL ELSE $6 END);
 
 -- name: get-campaign
 SELECT campaigns.*,

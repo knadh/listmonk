@@ -26,13 +26,15 @@ Retrieve all campaigns.
 
 ##### Parameters
 
-| Name     | Type   | Required | Description                                                          |
-|:---------|:-------|:---------|:---------------------------------------------------------------------|
-| order    | string |          | Sorting order: ASC for ascending, DESC for descending.               |
-| order_by | string |          | Result sorting field. Options: name, status, created_at, updated_at. |
-| query    | string |          | SQL query expression to filter subscribers.                          |
-| page     | number |          | Page number for paginated results.                                   |
-| per_page | number |          | Results per page. Set as 'all' for all results.                      |
+| Name     | Type     | Required | Description                                                          |
+|:---------|:---------|:---------|:---------------------------------------------------------------------|
+| order    | string   |          | Sorting order: ASC for ascending, DESC for descending.               |
+| order_by | string   |          | Result sorting field. Options: name, status, created_at, updated_at. |
+| query    | string   |          | SQL query expression to filter campaigns.                            |
+| status   | []string |          | Status to filter campaigns. Repeat in the query for multiple values. |
+| tags     | []string |          | Tags to filter campaigns. Repeat in the query for multiple values.   |
+| page     | number   |          | Page number for paginated results.                                   |
+| per_page | number   |          | Results per page. Set as 'all' for all results.                      |
 
 ##### Example Response
 

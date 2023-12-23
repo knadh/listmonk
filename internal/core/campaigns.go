@@ -23,16 +23,20 @@ const (
 
 // QueryCampaigns retrieves paginated campaigns optionally filtering them by the given arbitrary
 // query expression. It also returns the total number of records in the DB.
-func (c *Core) QueryCampaigns(searchStr string, statuses []string, orderBy, order string, offset, limit int) (models.Campaigns, int, error) {
+func (c *Core) QueryCampaigns(searchStr string, statuses, tags []string, orderBy, order string, offset, limit int) (models.Campaigns, int, error) {
 	queryStr, stmt := makeSearchQuery(searchStr, orderBy, order, c.q.QueryCampaigns, campQuerySortFields)
 
 	if statuses == nil {
 		statuses = []string{}
 	}
 
+	if tags == nil {
+		tags = []string{}
+	}
+
 	// Unsafe to ignore scanning fields not present in models.Campaigns.
 	var out models.Campaigns
-	if err := c.db.Select(&out, stmt, 0, pq.Array(statuses), queryStr, offset, limit); err != nil {
+	if err := c.db.Select(&out, stmt, 0, pq.StringArray(statuses), pq.StringArray(tags), queryStr, offset, limit); err != nil {
 		c.log.Printf("error fetching campaigns: %v", err)
 		return nil, 0, echo.NewHTTPError(http.StatusInternalServerError,
 			c.i18n.Ts("globals.messages.errorFetching", "name", "{globals.terms.campaign}", "error", pqErrMsg(err)))

@@ -36,12 +36,16 @@ func (c *Core) GetLists(typ string) ([]models.List, error) {
 
 // QueryLists gets multiple lists based on multiple query params. Along with the  paginated and sliced
 // results, the total number of lists in the DB is returned.
-func (c *Core) QueryLists(searchStr, orderBy, order string, offset, limit int) ([]models.List, int, error) {
+func (c *Core) QueryLists(searchStr, typ, optin string, tags []string, orderBy, order string, offset, limit int) ([]models.List, int, error) {
 	out := []models.List{}
 
 	queryStr, stmt := makeSearchQuery(searchStr, orderBy, order, c.q.QueryLists, listQuerySortFields)
 
-	if err := c.db.Select(&out, stmt, 0, "", queryStr, offset, limit); err != nil {
+	if tags == nil {
+		tags = []string{}
+	}
+
+	if err := c.db.Select(&out, stmt, 0, "", queryStr, typ, optin, pq.StringArray(tags), offset, limit); err != nil {
 		c.log.Printf("error fetching lists: %v", err)
 		return nil, 0, echo.NewHTTPError(http.StatusInternalServerError,
 			c.i18n.Ts("globals.messages.errorFetching", "name", "{globals.terms.lists}", "error", pqErrMsg(err)))
@@ -76,7 +80,7 @@ func (c *Core) GetList(id int, uuid string) (models.List, error) {
 
 	var res []models.List
 	queryStr, stmt := makeSearchQuery("", "", "", c.q.QueryLists, nil)
-	if err := c.db.Select(&res, stmt, id, uu, queryStr, 0, 1); err != nil {
+	if err := c.db.Select(&res, stmt, id, uu, queryStr, "", "", pq.StringArray{}, 0, 1); err != nil {
 		c.log.Printf("error fetching lists: %v", err)
 		return models.List{}, echo.NewHTTPError(http.StatusInternalServerError,
 			c.i18n.Ts("globals.messages.errorFetching", "name", "{globals.terms.lists}", "error", pqErrMsg(err)))

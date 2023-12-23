@@ -16,13 +16,15 @@ Retrieve lists.
 
 ##### Parameters
 
-| Name     | Type      | Required | Description                                                |
-|:---------|:----------|:---------|:-----------------------------------------------------------|
-| query    | string    |          | string for list name search.                               |
-| order_by | string    |          | Sort field. Options: name, status, created_at, updated_at. |
-| order    | string    |          | Sorting order. Options: ASC, DESC.                         |
-| page     | number    |          | Page number for pagination.                                |
-| per_page | number    |          | Results per page. Set to 'all' to return all results.      |
+| Name     | Type     | Required | Description                                                      |
+|:---------|:---------|:---------|:-----------------------------------------------------------------|
+| query    | string   |          | string for list name search.                                     |
+| status   | []string |          | Status to filter lists. Repeat in the query for multiple values. |
+| tags     | []string |          | Tags to filter lists. Repeat in the query for multiple values.   |
+| order_by | string   |          | Sort field. Options: name, status, created_at, updated_at.       |
+| order    | string   |          | Sorting order. Options: ASC, DESC.                               |
+| page     | number   |          | Page number for pagination.                                      |
+| per_page | number   |          | Results per page. Set to 'all' to return all results.            |
 
 ##### Example Request
 

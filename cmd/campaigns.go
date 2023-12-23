@@ -57,13 +57,14 @@ func handleGetCampaigns(c echo.Context) error {
 		pg  = app.paginator.NewFromURL(c.Request().URL.Query())
 
 		status    = c.QueryParams()["status"]
+		tags      = c.QueryParams()["tag"]
 		query     = strings.TrimSpace(c.FormValue("query"))
 		orderBy   = c.FormValue("order_by")
 		order     = c.FormValue("order")
 		noBody, _ = strconv.ParseBool(c.QueryParam("no_body"))
 	)
 
-	res, total, err := app.core.QueryCampaigns(query, status, orderBy, order, pg.Offset, pg.Limit)
+	res, total, err := app.core.QueryCampaigns(query, status, tags, orderBy, order, pg.Offset, pg.Limit)
 	if err != nil {
 		return err
 	}
