@@ -24,13 +24,15 @@ Retrieve all subscribers.
 
 ##### Query parameters
 
-| Name     | Type   | Required | Description                                                          |
-|:---------|:-------|:---------|:---------------------------------------------------------------------|
-| query    | string |          | Subscriber search term by name.                                            |
-| order_by | string |          | Result sorting field. Options: name, status, created_at, updated_at. |
-| order    | string |          | Sorting order: ASC for ascending, DESC for descending.               |
-| page     | number |          | Page number for paginated results.                                   |
-| per_page | number |          | Results per page. Set as 'all' for all results.                      |
+| Name                | Type   | Required | Description                                                           |
+|:--------------------|:-------|:---------|:----------------------------------------------------------------------|
+| query               | string |          | Subscriber search by SQL expression.                                  |
+| list_id             | int[]  |          | ID of lists to filter by. Repeat in the query for multiple values.    |
+| subscription_status | string |          | Subscription status to filter by if there are one or more `list_id`s. |
+| order_by            | string |          | Result sorting field. Options: name, status, created_at, updated_at.  |
+| order               | string |          | Sorting order: ASC for ascending, DESC for descending.                |
+| page                | number |          | Page number for paginated results.                                    |
+| per_page            | number |          | Results per page. Set as 'all' for all results.                       |
 
 ##### Example Request
 

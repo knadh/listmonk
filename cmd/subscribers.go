@@ -87,10 +87,11 @@ func handleQuerySubscribers(c echo.Context) error {
 		pg  = app.paginator.NewFromURL(c.Request().URL.Query())
 
 		// The "WHERE ?" bit.
-		query   = sanitizeSQLExp(c.FormValue("query"))
-		orderBy = c.FormValue("order_by")
-		order   = c.FormValue("order")
-		out     models.PageResults
+		query     = sanitizeSQLExp(c.FormValue("query"))
+		subStatus = c.FormValue("subscription_status")
+		orderBy   = c.FormValue("order_by")
+		order     = c.FormValue("order")
+		out       models.PageResults
 	)
 
 	// Limit the subscribers to specific lists?
@@ -99,7 +100,7 @@ func handleQuerySubscribers(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidID"))
 	}
 
-	res, total, err := app.core.QuerySubscribers(query, listIDs, order, orderBy, pg.Offset, pg.Limit)
+	res, total, err := app.core.QuerySubscribers(query, listIDs, subStatus, order, orderBy, pg.Offset, pg.Limit)
 	if err != nil {
 		return err
 	}

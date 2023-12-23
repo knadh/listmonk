@@ -251,6 +251,7 @@ export default Vue.extend({
         page: 1,
         orderBy: 'id',
         order: 'desc',
+        subStatus: null,
       },
     };
   },
@@ -357,6 +358,7 @@ export default Vue.extend({
           list_id: this.queryParams.listID,
           query: this.queryParams.queryExp,
           page: this.queryParams.page,
+          subscription_status: this.queryParams.subStatus,
           order_by: this.queryParams.orderBy,
           order: this.queryParams.order,
         }).then(() => {
@@ -514,6 +516,10 @@ export default Vue.extend({
     } else {
       // Get subscribers on load.
       this.querySubscribers();
+    }
+
+    if (this.$route.query.subscription_status) {
+      this.queryParams.subStatus = this.$route.query.subscription_status;
     }
   },
 });

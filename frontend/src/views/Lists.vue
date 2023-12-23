@@ -99,7 +99,10 @@
         <div class="fields stats">
           <p v-for="(count, status) in filterStatuses(props.row)" :key="status">
             <label>{{ $tc(`subscribers.status.${status}`, count) }}</label>
-            <span :class="status">{{ $utils.formatNumber(count) }}</span>
+            <router-link :to="`/subscribers/lists/${props.row.id}?subscription_status=${status}`"
+              :class="status">
+              {{ $utils.formatNumber(count) }}
+            </router-link>
           </p>
         </div>
       </b-table-column>
