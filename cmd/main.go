@@ -87,7 +87,7 @@ var (
 	// are not embedded (in make dist), these paths are looked up. The default values before, when not
 	// overridden by build flags, are relative to the CWD at runtime.
 	appDir      string = "."
-	frontendDir string = "frontend"
+	frontendDir string = "frontend/dist"
 )
 
 func init() {
