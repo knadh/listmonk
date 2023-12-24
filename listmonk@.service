@@ -26,6 +26,9 @@ RestartSec=5
 # to the end of the ExecStart line above after creating the dir and fetching the files with:
 # mkdir -p /etc/listmonk/static ; wget -O - https://github.com/knadh/listmonk/archive/master.tar.gz | tar xz -C /etc/listmonk/static --strip=2 "listmonk-master/static"
 
+# To enable a log file that persists after restarts, replace the ExecStart= line with:
+# ExecStart=/bin/bash -ce "exec /usr/bin/listmonk --config /etc/listmonk/config.toml --static-dir /etc/listmonk/static >>/etc/listmonk/listmonk.log 2>&1"
+
 # Create dynamic users for listmonk service instances
 # but create a state directory for uploads in /var/lib/private/%i.
 DynamicUser=True
