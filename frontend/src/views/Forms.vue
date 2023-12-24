@@ -1,6 +1,8 @@
 <template>
   <section class="forms content relative">
-    <h1 class="title is-4">{{ $t('forms.title') }}</h1>
+    <h1 class="title is-4">
+      {{ $t('forms.title') }}
+    </h1>
     <hr />
 
     <b-loading v-if="loading.lists" :active="loading.lists" :is-full-page="false" />
@@ -16,8 +18,9 @@
         <b-loading :active="loading.lists" :is-full-page="false" />
         <ul class="no" data-cy="lists">
           <li v-for="l in publicLists" :key="l.id">
-            <b-checkbox v-model="checked"
-              :native-value="l.uuid">{{ l.name }}</b-checkbox>
+            <b-checkbox v-model="checked" :native-value="l.uuid">
+              {{ l.name }}
+            </b-checkbox>
           </li>
         </ul>
 
@@ -25,8 +28,10 @@
           <hr />
           <h4>{{ $t('forms.publicSubPage') }}</h4>
           <p>
-            <a :href="`${settings['app.root_url']}/subscription/form`"
-              target="_blank" data-cy="url">{{ settings['app.root_url'] }}/subscription/form</a>
+            <a :href="`${settings['app.root_url']}/subscription/form`" target="_blank" rel="noopener noreferer"
+              data-cy="url">
+              {{ settings['app.root_url'] }}/subscription/form
+            </a>
           </p>
         </template>
       </div>
@@ -38,11 +43,11 @@
 
         <!-- eslint-disable max-len -->
         <pre v-if="checked.length > 0">&lt;form method=&quot;post&quot; action=&quot;{{ settings['app.root_url'] }}/subscription/form&quot; class=&quot;listmonk-form&quot;&gt;
-    &lt;div&gt;
-        &lt;h3&gt;Subscribe&lt;/h3&gt;
-        &lt;input type=&quot;hidden&quot; name=&quot;nonce&quot; /&gt;
-        &lt;p&gt;&lt;input type=&quot;email&quot; name=&quot;email&quot; required placeholder=&quot;{{ $t('subscribers.email') }}&quot; /&gt;&lt;/p&gt;
-        &lt;p&gt;&lt;input type=&quot;text&quot; name=&quot;name&quot; placeholder=&quot;{{ $t('public.subName') }}&quot; /&gt;&lt;/p&gt;
+          &lt;div&gt;
+          &lt;h3&gt;Subscribe&lt;/h3&gt;
+          &lt;input type=&quot;hidden&quot; name=&quot;nonce&quot; /&gt;
+          &lt;p&gt;&lt;input type=&quot;email&quot; name=&quot;email&quot; required placeholder=&quot;{{ $t('subscribers.email') }}&quot; /&gt;&lt;/p&gt;
+          &lt;p&gt;&lt;input type=&quot;text&quot; name=&quot;name&quot; placeholder=&quot;{{ $t('public.subName') }}&quot; /&gt;&lt;/p&gt;
       <template v-for="l in publicLists"><span v-if="l.uuid in selected" :key="l.id" :set="id = l.uuid.substr(0, 5)">
         &lt;p&gt;
           &lt;input id=&quot;{{ id }}&quot; type=&quot;checkbox&quot; name=&quot;l&quot; checked value=&quot;{{ l.uuid }}&quot; /&gt;
@@ -59,7 +64,6 @@
 &lt;/form&gt;</pre>
       </div>
     </div><!-- columns -->
-
   </section>
 </template>
 

@@ -1,5 +1,5 @@
 /* Import Bulma to set variables */
-@import "~bulma/sass/utilities/_all";
+@import "../node_modules/bulma/sass/utilities/_all";
 
 /* import inter-regular */
 @font-face {
@@ -49,8 +49,8 @@ $menu-item-active-color: $primary;
 $modal-background-background-color: rgba(0, 0, 0, .30);
 
 /* Import full Bulma and Buefy */
-@import "~bulma";
-@import "~buefy/src/scss/buefy";
+@import "bulma";
+@import "buefy/src/scss/buefy";
 
 /* Custom style overrides */
 html, body {

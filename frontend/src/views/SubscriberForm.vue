@@ -5,8 +5,12 @@
         <b-tag v-if="isEditing" :class="[data.status, 'is-pulled-right']">
           {{ $t(`subscribers.status.${data.status}`) }}
         </b-tag>
-        <h4 v-if="isEditing">{{ data.name }}</h4>
-        <h4 v-else>{{ $t('subscribers.newSubscriber') }}</h4>
+        <h4 v-if="isEditing">
+          {{ data.name }}
+        </h4>
+        <h4 v-else>
+          {{ $t('subscribers.newSubscriber') }}
+        </h4>
 
         <p v-if="isEditing" class="has-text-grey is-size-7">
           {{ $t('globals.fields.id') }}: <span data-cy="id">{{ data.id }}</span> /
@@ -17,48 +21,42 @@
       <section expanded class="modal-card-body">
         <b-field :label="$t('subscribers.email')" label-position="on-border">
           <b-input :maxlength="200" v-model="form.email" name="email" :ref="'focus'"
-            :placeholder="$t('subscribers.email')" required></b-input>
+            :placeholder="$t('subscribers.email')" required />
         </b-field>
 
         <div class="columns">
           <div class="column is-8">
             <b-field :label="$t('globals.fields.name')" label-position="on-border">
-              <b-input :maxlength="200" v-model="form.name" name="name"
-                :placeholder="$t('globals.fields.name')"></b-input>
+              <b-input :maxlength="200" v-model="form.name" name="name" :placeholder="$t('globals.fields.name')" />
             </b-field>
           </div>
           <div class="column is-4">
             <b-field :label="$t('globals.fields.status')" label-position="on-border"
               :message="$t('subscribers.blocklistedHelp')">
-              <b-select v-model="form.status" name="status"
-                :placeholder="$t('globals.fields.status')" required expanded>
-                <option value="enabled">{{ $t('subscribers.status.enabled') }}</option>
-                <option value="blocklisted">{{ $t('subscribers.status.blocklisted') }}</option>
+              <b-select v-model="form.status" name="status" :placeholder="$t('globals.fields.status')" required expanded>
+                <option value="enabled">
+                  {{ $t('subscribers.status.enabled') }}
+                </option>
+                <option value="blocklisted">
+                  {{ $t('subscribers.status.blocklisted') }}
+                </option>
               </b-select>
             </b-field>
           </div>
         </div>
 
-        <list-selector
-          :label="$t('subscribers.lists')"
-          :placeholder="$t('subscribers.listsPlaceholder')"
-          :message="$t('subscribers.listsHelp')"
-          v-model="form.lists"
-          :selected="form.lists"
-          :all="lists.results"
-        ></list-selector>
+        <list-selector :label="$t('subscribers.lists')" :placeholder="$t('subscribers.listsPlaceholder')"
+          :message="$t('subscribers.listsHelp')" v-model="form.lists" :selected="form.lists" :all="lists.results" />
         <div class="columns mb-5">
           <div class="column is-7">
             <b-field :message="$t('subscribers.preconfirmHelp')">
-                <b-checkbox v-model="form.preconfirm"
-                  :native-value="true" :disabled="!hasOptinList">
-                  {{ $t('subscribers.preconfirm') }}
-                </b-checkbox>
+              <b-checkbox v-model="form.preconfirm" :native-value="true" :disabled="!hasOptinList">
+                {{ $t('subscribers.preconfirm') }}
+              </b-checkbox>
             </b-field>
           </div>
           <div class="column is-5 has-text-right" v-if="isEditing">
-            <a href="" @click.prevent="sendOptinConfirmation"
-              :class="{'is-disabled': !hasOptinList}">
+            <a href="#" @click.prevent="sendOptinConfirmation" :class="{ 'is-disabled': !hasOptinList }">
               <b-icon icon="email-outline" size="is-small" />
               {{ $t('subscribers.sendOptinConfirm') }}</a>
           </div>
@@ -68,8 +66,7 @@
           <div>
             <h5>{{ $t('subscribers.attribs') }}</h5>
             <b-input v-model="form.strAttribs" name="attribs" type="textarea" />
-            <a href="https://listmonk.app/docs/concepts"
-              target="_blank" rel="noopener noreferrer" class="is-size-7">
+            <a href="https://listmonk.app/docs/concepts" target="_blank" rel="noopener noreferrer" class="is-size-7">
               {{ $t('globals.buttons.learnMore') }} <b-icon icon="link-variant" size="is-small" />
             </a>
           </div>
@@ -77,85 +74,81 @@
 
         <div class="mb-5" v-if="data.lists">
           <h5>{{ $tc('globals.terms.subscriptions', 2) }} ({{ data.lists.length }})</h5>
-          <b-table :data="data.lists" hoverable default-sort="createdAt" class="subscriptions"
-          >
-            <b-table-column v-slot="props" field="name"
-              :label="$tc('globals.terms.list', 1)">
+          <b-table :data="data.lists" hoverable default-sort="createdAt" class="subscriptions">
+            <b-table-column v-slot="props" field="name" :label="$tc('globals.terms.list', 1)">
               <div>
                 <router-link :to="`/lists/${props.row.id}`">
                   {{ props.row.name }}
                 </router-link>
                 <br />
                 <b-tag :class="props.row.optin" :data-cy="`optin-${props.row.optin}`">
-                  <b-icon :icon="props.row.optin === 'double' ?
-                    'account-check-outline' : 'account-off-outline'" size="is-small" />
+                  <b-icon :icon="props.row.optin === 'double' ? 'account-check-outline' : 'account-off-outline'"
+                    size="is-small" />
                   {{ ' ' }}
                   {{ $t(`lists.optins.${props.row.optin}`) }}
                 </b-tag>{{ ' ' }}
               </div>
             </b-table-column>
 
-            <b-table-column v-slot="props" field="status" cell-class="status"
-              :label="$t('globals.fields.status')">
+            <b-table-column v-slot="props" field="status" cell-class="status" :label="$t('globals.fields.status')">
               <b-tag :class="`status-${props.row.subscriptionStatus}`">
                 {{ $t(`subscribers.status.${props.row.subscriptionStatus}`) }}
               </b-tag>
-              <template v-if="props.row.optin === 'double'
-                && props.row.subscriptionMeta.optinIp">
+              <template v-if="props.row.optin === 'double' && props.row.subscriptionMeta.optinIp">
                 <br /><span class="is-size-7">{{ props.row.subscriptionMeta.optinIp }}</span>
               </template>
             </b-table-column>
 
-            <b-table-column v-slot="props" field="createdAt"
-              :label="$t('globals.fields.createdAt')">
+            <b-table-column v-slot="props" field="createdAt" :label="$t('globals.fields.createdAt')">
               {{ $utils.niceDate(props.row.subscriptionCreatedAt, true) }}
             </b-table-column>
 
-            <b-table-column v-slot="props" field="updatedAt"
-              :label="$t('globals.fields.updatedAt')">
+            <b-table-column v-slot="props" field="updatedAt" :label="$t('globals.fields.updatedAt')">
               {{ $utils.niceDate(props.row.subscriptionCreatedAt, true) }}
             </b-table-column>
           </b-table>
         </div>
 
         <div class="bounces" v-show="bounces.length > 0">
-          <a href="#" class="is-size-6" disabed="true"
-            @click.prevent="toggleBounces">
-            <b-icon icon="email-bounce"></b-icon>
+          <a href="#" class="is-size-6" disabed="true" @click.prevent="toggleBounces">
+            <b-icon icon="email-bounce" />
             {{ $t('bounces.view') }} ({{ bounces.length }})
           </a>
-          <a href="#" class="is-size-6 is-pulled-right" disabed="true"
-            @click.prevent="deleteBounces" v-if="isBounceVisible">
-            <b-icon icon="trash-can-outline"></b-icon>
+          <a href="#" class="is-size-6 is-pulled-right" disabed="true" @click.prevent="deleteBounces"
+            v-if="isBounceVisible">
+            <b-icon icon="trash-can-outline" />
             {{ $t('globals.buttons.delete') }}
           </a>
 
           <div v-if="isBounceVisible" class="mt-4">
             <ol class="is-size-7">
               <li v-for="b in bounces" :key="b.id" class="mb-2">
-                  <div v-if="b.campaign">
-                    <router-link :to="{ name: 'bounces', query: { campaign_id: b.campaign.id } }">
-                      {{ b.campaign.name }}
-                    </router-link>
-                  </div>
-                  {{ $utils.niceDate(b.createdAt, true) }}
-                  <span class="is-pulled-right">
-                    <a href="#" @click.prevent="toggleMeta(b.id)">
-                      {{ b.source }}
-                      <b-icon :icon="visibleMeta[b.id] ? 'arrow-up' : 'arrow-down'" />
-                    </a>
-                  </span>
-                  <span class="is-clearfix"></span>
-                  <pre v-if="visibleMeta[b.id]">{{ b.meta }}</pre>
+                <div v-if="b.campaign">
+                  <router-link :to="{ name: 'bounces', query: { campaign_id: b.campaign.id } }">
+                    {{ b.campaign.name }}
+                  </router-link>
+                </div>
+                {{ $utils.niceDate(b.createdAt, true) }}
+                <span class="is-pulled-right">
+                  <a href="#" @click.prevent="toggleMeta(b.id)">
+                    {{ b.source }}
+                    <b-icon :icon="visibleMeta[b.id] ? 'arrow-up' : 'arrow-down'" />
+                  </a>
+                </span>
+                <span class="is-clearfix" />
+                <pre v-if="visibleMeta[b.id]">{{ b.meta }}</pre>
               </li>
             </ol>
           </div>
         </div>
       </section>
       <footer class="modal-card-foot has-text-right">
-        <b-button @click="$parent.close()">{{ $t('globals.buttons.close') }}</b-button>
-        <b-button native-type="submit" type="is-primary"
-          :loading="loading.subscribers">{{ $t('globals.buttons.save') }}</b-button>
+        <b-button @click="$parent.close()">
+          {{ $t('globals.buttons.close') }}
+        </b-button>
+        <b-button native-type="submit" type="is-primary" :loading="loading.subscribers">
+          {{ $t('globals.buttons.save') }}
+        </b-button>
       </footer>
     </div>
   </form>
@@ -174,7 +167,7 @@ export default Vue.extend({
   props: {
     data: {
       type: Object,
-      default: () => {},
+      default: () => { },
     },
     isEditing: Boolean,
   },
@@ -316,8 +309,12 @@ export default Vue.extend({
       try {
         attribs = JSON.parse(str);
       } catch (e) {
-        this.$utils.toast(`${this.$t('subscribers.invalidJSON')}: ${e.toString()}`,
-          'is-danger', 3000);
+        this.$utils.toast(
+          `${this.$t('subscribers.invalidJSON')}: ${e.toString()}`,
+          'is-danger',
+
+          3000,
+        );
         return null;
       }
       if (attribs instanceof Array) {

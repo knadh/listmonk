@@ -2,14 +2,14 @@
   <section class="campaigns">
     <header class="columns page-header">
       <div class="column is-10">
-        <h1 class="title is-4">{{ $t('globals.terms.campaigns') }}
+        <h1 class="title is-4">
+          {{ $t('globals.terms.campaigns') }}
           <span v-if="!isNaN(campaigns.total)">({{ campaigns.total }})</span>
         </h1>
       </div>
       <div class="column has-text-right">
         <b-field expanded>
-          <b-button expanded :to="{name: 'campaign', params:{id: 'new'}}"
-            tag="router-link" class="btn-new"
+          <b-button expanded :to="{ name: 'campaign', params: { id: 'new' } }" tag="router-link" class="btn-new"
             type="is-primary" icon-left="plus" data-cy="btn-new">
             {{ $t('globals.buttons.new') }}
           </b-button>
@@ -17,14 +17,9 @@
       </div>
     </header>
 
-    <b-table
-      :data="campaigns.results"
-      :loading="loading.campaigns"
-      :row-class="highlightedRow"
-      paginated backend-pagination pagination-position="both" @page-change="onPageChange"
-      :current-page="queryParams.page" :per-page="campaigns.perPage" :total="campaigns.total"
-      hoverable backend-sorting @sort="onSort">
-
+    <b-table :data="campaigns.results" :loading="loading.campaigns" :row-class="highlightedRow" paginated
+      backend-pagination pagination-position="both" @page-change="onPageChange" :current-page="queryParams.page"
+      :per-page="campaigns.perPage" :total="campaigns.total" hoverable backend-sorting @sort="onSort">
       <template #top-left>
         <div class="columns">
           <div class="column is-6">
@@ -43,12 +38,11 @@
         </div>
       </template>
 
-      <b-table-column v-slot="props" cell-class="status" field="status"
-        :label="$t('globals.fields.status')" width="10%" sortable
-        :td-attrs="$utils.tdID" header-class="cy-status">
+      <b-table-column v-slot="props" cell-class="status" field="status" :label="$t('globals.fields.status')" width="10%"
+        sortable :td-attrs="$utils.tdID" header-class="cy-status">
         <div>
           <p>
-            <router-link :to="{ name: 'campaign', params: { 'id': props.row.id }}">
+            <router-link :to="{ name: 'campaign', params: { id: props.row.id } }">
               <b-tag :class="props.row.status">
                 {{ $t(`campaigns.status.${props.row.status}`) }}
               </b-tag>
@@ -71,50 +65,53 @@
           </p>
         </div>
       </b-table-column>
-      <b-table-column v-slot="props" field="name" :label="$t('globals.fields.name')" width="25%"
-        sortable header-class="cy-name">
+      <b-table-column v-slot="props" field="name" :label="$t('globals.fields.name')" width="25%" sortable
+        header-class="cy-name">
         <div>
           <p>
             <b-tag v-if="props.row.type === 'optin'" class="is-small">
               {{ $t('lists.optin') }}
             </b-tag>
-            <router-link :to="{ name: 'campaign', params: { 'id': props.row.id }}">
-              {{ props.row.name }}</router-link>
+            <router-link :to="{ name: 'campaign', params: { id: props.row.id } }">
+              {{ props.row.name }}
+            </router-link>
           </p>
-          <p class="is-size-7 has-text-grey">{{ props.row.subject }}</p>
+          <p class="is-size-7 has-text-grey">
+            {{ props.row.subject }}
+          </p>
           <b-taglist>
-              <b-tag class="is-small" v-for="t in props.row.tags" :key="t">{{ t }}</b-tag>
+            <b-tag class="is-small" v-for="t in props.row.tags" :key="t">
+              {{ t }}
+            </b-tag>
           </b-taglist>
         </div>
       </b-table-column>
-      <b-table-column v-slot="props" cell-class="lists" field="lists"
-        :label="$t('globals.terms.lists')" width="15%">
+      <b-table-column v-slot="props" cell-class="lists" field="lists" :label="$t('globals.terms.lists')" width="15%">
         <ul>
           <li v-for="l in props.row.lists" :key="l.id">
-            <router-link :to="{name: 'subscribers_list', params: { listID: l.id }}">
+            <router-link :to="{ name: 'subscribers_list', params: { listID: l.id } }">
               {{ l.name }}
             </router-link>
           </li>
         </ul>
       </b-table-column>
-      <b-table-column v-slot="props" field="created_at" :label="$t('campaigns.timestamps')"
-        width="19%" sortable header-class="cy-timestamp">
+      <b-table-column v-slot="props" field="created_at" :label="$t('campaigns.timestamps')" width="19%" sortable
+        header-class="cy-timestamp">
         <div class="fields timestamps" :set="stats = getCampaignStats(props.row)">
           <p>
-            <label>{{ $t('globals.fields.createdAt') }}</label>
+            <label for="#">{{ $t('globals.fields.createdAt') }}</label>
             <span>{{ $utils.niceDate(props.row.createdAt, true) }}</span>
           </p>
           <p v-if="stats.startedAt">
-            <label>{{ $t('campaigns.startedAt') }}</label>
+            <label for="#">{{ $t('campaigns.startedAt') }}</label>
             <span>{{ $utils.niceDate(stats.startedAt, true) }}</span>
           </p>
           <p v-if="isDone(props.row)">
-            <label>{{ $t('campaigns.ended') }}</label>
+            <label for="#">{{ $t('campaigns.ended') }}</label>
             <span>{{ $utils.niceDate(stats.updatedAt, true) }}</span>
           </p>
-          <p v-if="stats.startedAt && stats.updatedAt"
-            class="is-capitalized">
-            <label><b-icon icon="alarm" size="is-small" /></label>
+          <p v-if="stats.startedAt && stats.updatedAt" class="is-capitalized">
+            <label for="#"><b-icon icon="alarm" size="is-small" /></label>
             <span>{{ $utils.duration(stats.startedAt, stats.updatedAt) }}</span>
           </p>
         </div>
@@ -123,41 +120,40 @@
       <b-table-column v-slot="props" field="stats" :label="$t('campaigns.stats')" width="15%">
         <div class="fields stats" :set="stats = getCampaignStats(props.row)">
           <p>
-            <label>{{ $t('campaigns.views') }}</label>
+            <label for="#">{{ $t('campaigns.views') }}</label>
             <span>{{ $utils.formatNumber(props.row.views) }}</span>
           </p>
           <p>
-            <label>{{ $t('campaigns.clicks') }}</label>
+            <label for="#">{{ $t('campaigns.clicks') }}</label>
             <span>{{ $utils.formatNumber(props.row.clicks) }}</span>
           </p>
           <p>
-            <label>{{ $t('campaigns.sent') }}</label>
+            <label for="#">{{ $t('campaigns.sent') }}</label>
             <span>
               {{ $utils.formatNumber(stats.sent) }} /
               {{ $utils.formatNumber(stats.toSend) }}
             </span>
           </p>
           <p>
-            <label>{{ $t('globals.terms.bounces') }}</label>
+            <label for="#">{{ $t('globals.terms.bounces') }}</label>
             <span>
-              <router-link :to="{name: 'bounces', query: { campaign_id: props.row.id }}">
+              <router-link :to="{ name: 'bounces', query: { campaign_id: props.row.id } }">
                 {{ $utils.formatNumber(props.row.bounces) }}
               </router-link>
             </span>
           </p>
           <p v-if="stats.rate">
-            <label><b-icon icon="speedometer" size="is-small"></b-icon></label>
+            <label for="#"><b-icon icon="speedometer" size="is-small" /></label>
             <span class="send-rate">
-              <b-tooltip
-                :label="`${stats.netRate} / ${$t('campaigns.rateMinuteShort')} @
-                  ${$utils.duration(stats.startedAt, stats.updatedAt)}`"
-                type="is-dark">
+              <b-tooltip :label="`${stats.netRate} / ${$t('campaigns.rateMinuteShort')} @
+                                ${$utils.duration(stats.startedAt, stats.updatedAt)}`" type="is-dark">
                 {{ stats.rate.toFixed(0) }} / {{ $t('campaigns.rateMinuteShort') }}
               </b-tooltip>
             </span>
           </p>
           <p v-if="isRunning(props.row.id)">
-            <label>{{ $t('campaigns.progress') }}
+            <label for="#">
+              {{ $t('campaigns.progress') }}
               <span class="spinner is-tiny">
                 <b-loading :is-full-page="false" active />
               </span>
@@ -172,76 +168,78 @@
       <b-table-column v-slot="props" cell-class="actions" width="15%" align="right">
         <div>
           <!-- start / pause / resume / scheduled -->
-          <a href="" v-if="canStart(props.row)"
-            @click.prevent="$utils.confirm(null,
-              () => changeCampaignStatus(props.row, 'running'))" data-cy="btn-start">
+          <a v-if="canStart(props.row)" href="#"
+            @click.prevent="$utils.confirm(null, () => changeCampaignStatus(props.row, 'running'))" data-cy="btn-start"
+            :aria-label="$t('campaigns.start')">
             <b-tooltip :label="$t('campaigns.start')" type="is-dark">
               <b-icon icon="rocket-launch-outline" size="is-small" />
             </b-tooltip>
           </a>
-          <a href="" v-if="canPause(props.row)"
-            @click.prevent="$utils.confirm(null,
-              () => changeCampaignStatus(props.row, 'paused'))" data-cy="btn-pause">
+          <a v-if="canPause(props.row)" href="#"
+            @click.prevent="$utils.confirm(null, () => changeCampaignStatus(props.row, 'paused'))" data-cy="btn-pause"
+            :aria-label="$t('campaigns.pause')">
             <b-tooltip :label="$t('campaigns.pause')" type="is-dark">
               <b-icon icon="pause-circle-outline" size="is-small" />
             </b-tooltip>
           </a>
-          <a href="" v-if="canResume(props.row)"
-            @click.prevent="$utils.confirm(null,
-              () => changeCampaignStatus(props.row, 'running'))" data-cy="btn-resume">
+          <a v-if="canResume(props.row)" href="#"
+            @click.prevent="$utils.confirm(null, () => changeCampaignStatus(props.row, 'running'))" data-cy="btn-resume"
+            :aria-label="$t('campaigns.send')">
             <b-tooltip :label="$t('campaigns.send')" type="is-dark">
               <b-icon icon="rocket-launch-outline" size="is-small" />
             </b-tooltip>
           </a>
-          <a href="" v-if="canSchedule(props.row)"
-            @click.prevent="$utils.confirm($t('campaigns.confirmSchedule'),
-              () => changeCampaignStatus(props.row, 'scheduled'))" data-cy="btn-schedule">
+          <a v-if="canSchedule(props.row)" href="#"
+            @click.prevent="$utils.confirm($t('campaigns.confirmSchedule'), () => changeCampaignStatus(props.row, 'scheduled'))"
+            data-cy="btn-schedule" :aria-label="$t('campaigns.schedule')">
             <b-tooltip :label="$t('campaigns.schedule')" type="is-dark">
               <b-icon icon="clock-start" size="is-small" />
             </b-tooltip>
           </a>
 
           <!-- placeholder for finished campaigns -->
-          <a v-if="!canCancel(props.row)
-            && !canSchedule(props.row) && !canStart(props.row)" data-disabled>
+          <a v-if="!canCancel(props.row) && !canSchedule(props.row) && !canStart(props.row)" href="#" data-disabled
+            aria-label=" ">
             <b-icon icon="rocket-launch-outline" size="is-small" />
           </a>
 
-          <a href="" v-if="canCancel(props.row)"
-            @click.prevent="$utils.confirm(null,
-              () => changeCampaignStatus(props.row, 'cancelled'))"
-              data-cy="btn-cancel">
+          <a v-if="canCancel(props.row)" href="#"
+            @click.prevent="$utils.confirm(null, () => changeCampaignStatus(props.row, 'cancelled'))" data-cy="btn-cancel"
+            :aria-label="$t('globals.buttons.cancel')">
             <b-tooltip :label="$t('globals.buttons.cancel')" type="is-dark">
               <b-icon icon="cancel" size="is-small" />
             </b-tooltip>
           </a>
-          <a v-else data-disabled>
+          <a v-else href="#" data-disabled aria-label=" ">
             <b-icon icon="cancel" size="is-small" />
           </a>
 
-          <a href="" @click.prevent="previewCampaign(props.row)" data-cy="btn-preview">
+          <a href="#" @click.prevent="previewCampaign(props.row)" data-cy="btn-preview"
+            :aria-label="$t('campaigns.preview')">
             <b-tooltip :label="$t('campaigns.preview')" type="is-dark">
               <b-icon icon="file-find-outline" size="is-small" />
             </b-tooltip>
           </a>
-          <a href="" @click.prevent="$utils.prompt($t('globals.buttons.clone'),
-              { placeholder: $t('globals.fields.name'),
-                value: $t('campaigns.copyOf', { name: props.row.name }) },
-                (name) => cloneCampaign(name, props.row))"
-              data-cy="btn-clone">
+          <a href="#" @click.prevent="$utils.prompt($t('globals.buttons.clone'),
+            {
+              placeholder: $t('globals.fields.name'),
+              value: $t('campaigns.copyOf', { name: props.row.name }),
+            },
+            (name) => cloneCampaign(name, props.row))" data-cy="btn-clone"
+            :aria-label="$t('globals.buttons.clone')">
             <b-tooltip :label="$t('globals.buttons.clone')" type="is-dark">
               <b-icon icon="file-multiple-outline" size="is-small" />
             </b-tooltip>
           </a>
-          <router-link :to="{ name: 'campaignAnalytics', query: { 'id': props.row.id }}">
+          <router-link :to="{ name: 'campaignAnalytics', query: { id: props.row.id } }">
             <b-tooltip :label="$t('globals.terms.analytics')" type="is-dark">
               <b-icon icon="chart-bar" size="is-small" />
             </b-tooltip>
           </router-link>
-          <a href=""
-            @click.prevent="$utils.confirm($t('campaigns.confirmDelete', { name: props.row.name }),
-            () => deleteCampaign(props.row))" data-cy="btn-delete">
-              <b-icon icon="trash-can-outline" size="is-small" />
+          <a href="#"
+            @click.prevent="$utils.confirm($t('campaigns.confirmDelete', { name: props.row.name }), () => deleteCampaign(props.row))"
+            data-cy="btn-delete" :aria-label="$t('globals.buttons.delete')">
+            <b-icon icon="trash-can-outline" size="is-small" />
           </a>
         </div>
       </b-table-column>
@@ -251,11 +249,8 @@
       </template>
     </b-table>
 
-    <campaign-preview v-if="previewItem"
-      type='campaign'
-      :id="previewItem.id"
-      :title="previewItem.name"
-      @close="closePreview"></campaign-preview>
+    <campaign-preview v-if="previewItem" type="campaign" :id="previewItem.id" :title="previewItem.name"
+      @close="closePreview" />
   </section>
 </template>
 

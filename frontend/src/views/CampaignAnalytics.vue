@@ -1,16 +1,17 @@
 <template>
   <section class="analytics content relative">
-    <h1 class="title is-4">{{ $t('analytics.title') }}</h1>
+    <h1 class="title is-4">
+      {{ $t('analytics.title') }}
+    </h1>
     <hr />
 
     <form @submit.prevent="onSubmit">
       <div class="columns">
         <div class="column is-6">
           <b-field :label="$t('globals.terms.campaigns')" label-position="on-border">
-            <b-taginput v-model="form.campaigns" :data="queriedCampaigns" name="campaigns" ellipsis
-              icon="tag-outline" :placeholder="$t('globals.terms.campaigns')"
-              autocomplete :allow-new="false" :before-adding="isCampaignSelected"
-              @typing="queryCampaigns" field="name" :loading="isSearchLoading"></b-taginput>
+            <b-taginput v-model="form.campaigns" :data="queriedCampaigns" name="campaigns" ellipsis icon="tag-outline"
+              :placeholder="$t('globals.terms.campaigns')" autocomplete :allow-new="false"
+              :before-adding="isCampaignSelected" @typing="queryCampaigns" field="name" :loading="isSearchLoading" />
           </b-field>
         </div>
 
@@ -18,19 +19,13 @@
           <div class="columns">
             <div class="column is-6">
               <b-field data-cy="from" :label="$t('analytics.fromDate')" label-position="on-border">
-                <b-datetimepicker
-                  v-model="form.from"
-                  icon="calendar-clock"
-                  :timepicker="{ hourFormat: '24' }"
+                <b-datetimepicker v-model="form.from" icon="calendar-clock" :timepicker="{ hourFormat: '24' }"
                   :datetime-formatter="formatDateTime" @input="onFromDateChange" />
               </b-field>
             </div>
             <div class="column is-6">
               <b-field data-cy="to" :label="$t('analytics.toDate')" label-position="on-border">
-                <b-datetimepicker
-                  v-model="form.to"
-                  icon="calendar-clock"
-                  :timepicker="{ hourFormat: '24' }"
+                <b-datetimepicker v-model="form.to" icon="calendar-clock" :timepicker="{ hourFormat: '24' }"
                   :datetime-formatter="formatDateTime" @input="onToDateChange" />
               </b-field>
             </div>
@@ -38,8 +33,8 @@
         </div><!-- columns -->
 
         <div class="column is-1">
-          <b-button native-type="submit" type="is-primary" icon-left="magnify"
-            :disabled="form.campaigns.length === 0" data-cy="btn-search"></b-button>
+          <b-button native-type="submit" type="is-primary" icon-left="magnify" :disabled="form.campaigns.length === 0"
+            data-cy="btn-search" />
         </div>
       </div><!-- columns -->
     </form>
@@ -48,7 +43,9 @@
       <template v-if="settings['privacy.individual_tracking']">
         {{ $t('analytics.isUnique') }}
       </template>
-      <template v-else>{{ $t('analytics.nonUnique') }}</template>
+      <template v-else>
+        {{ $t('analytics.nonUnique') }}
+      </template>
     </p>
 
     <section class="charts mt-5">
@@ -59,10 +56,10 @@
             {{ v.name }}
             <span class="has-text-grey-light">({{ $utils.niceNumber(counts[k]) }})</span>
           </h4>
-          <div :ref="`chart-${k}`" :id="`chart-${k}`"></div>
+          <div :ref="`chart-${k}`" :id="`chart-${k}`" />
         </div>
         <div class="column is-2 donut-container">
-          <div :ref="`donut-${k}`" :id="`donut-${k}`" class="donut"></div>
+          <div :ref="`donut-${k}`" :id="`donut-${k}`" class="donut" />
         </div>
       </div>
     </section>
@@ -70,14 +67,14 @@
 </template>
 
 <style lang="css">
-  @import "~c3/c3.css";
+@import "c3/c3.css";
 </style>
 
 <script>
+import c3 from 'c3';
+import dayjs from 'dayjs';
 import Vue from 'vue';
 import { mapState } from 'vuex';
-import dayjs from 'dayjs';
-import c3 from 'c3';
 import { colors } from '../constants';
 
 const chartColorRed = '#ee7d5b';

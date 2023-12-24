@@ -5,52 +5,48 @@
       <div class="column is-6">
         <b-field label="Format">
           <div>
-            <b-radio v-model="form.radioFormat"
-              @input="onFormatChange" :disabled="disabled" name="format"
-              native-value="richtext"
-              data-cy="check-richtext">{{ $t('campaigns.richText') }}</b-radio>
+            <b-radio v-model="form.radioFormat" @input="onFormatChange" :disabled="disabled" name="format"
+              native-value="richtext" data-cy="check-richtext">
+              {{ $t('campaigns.richText') }}
+            </b-radio>
 
-            <b-radio v-model="form.radioFormat"
-              @input="onFormatChange" :disabled="disabled" name="format"
-              native-value="html"
-              data-cy="check-html">{{ $t('campaigns.rawHTML') }}</b-radio>
+            <b-radio v-model="form.radioFormat" @input="onFormatChange" :disabled="disabled" name="format"
+              native-value="html" data-cy="check-html">
+              {{ $t('campaigns.rawHTML') }}
+            </b-radio>
 
-            <b-radio v-model="form.radioFormat"
-              @input="onFormatChange" :disabled="disabled" name="format"
-              native-value="markdown"
-              data-cy="check-markdown">{{ $t('campaigns.markdown') }}</b-radio>
+            <b-radio v-model="form.radioFormat" @input="onFormatChange" :disabled="disabled" name="format"
+              native-value="markdown" data-cy="check-markdown">
+              {{ $t('campaigns.markdown') }}
+            </b-radio>
 
-            <b-radio v-model="form.radioFormat"
-              @input="onFormatChange" :disabled="disabled" name="format"
-              native-value="plain"
-              data-cy="check-plain">{{ $t('campaigns.plainText') }}</b-radio>
+            <b-radio v-model="form.radioFormat" @input="onFormatChange" :disabled="disabled" name="format"
+              native-value="plain" data-cy="check-plain">
+              {{ $t('campaigns.plainText') }}
+            </b-radio>
           </div>
         </b-field>
       </div>
       <div class="column is-6 has-text-right">
-          <b-button @click="onTogglePreview" type="is-primary"
-            icon-left="file-find-outline" data-cy="btn-preview">
-            {{ $t('campaigns.preview') }}
-          </b-button>
+        <b-button @click="onTogglePreview" type="is-primary" icon-left="file-find-outline" data-cy="btn-preview">
+          {{ $t('campaigns.preview') }}
+        </b-button>
       </div>
     </div>
 
     <!-- wsywig //-->
     <template v-if="isRichtextReady && form.format === 'richtext'">
-      <tiny-mce
-        v-model="form.body"
-        :disabled="disabled"
-        :init="richtextConf"
-      />
+      <tiny-mce v-model="form.body" :disabled="disabled" :init="richtextConf" />
 
-      <b-modal scroll="keep" :width="1200"
-        :aria-modal="true" :active.sync="isRichtextSourceVisible">
+      <b-modal scroll="keep" :width="1200" :aria-modal="true" :active.sync="isRichtextSourceVisible">
         <div>
           <section expanded class="modal-card-body preview">
             <html-editor v-model="richTextSourceBody" />
           </section>
           <footer class="modal-card-foot has-text-right">
-            <b-button @click="onFormatRichtextHTML">{{ $t('campaigns.formatHTML') }}</b-button>
+            <b-button @click="onFormatRichtextHTML">
+              {{ $t('campaigns.formatHTML') }}
+            </b-button>
             <b-button @click="() => { this.isRichtextSourceVisible = false; }">
               {{ $t('globals.buttons.close') }}
             </b-button>
@@ -61,14 +57,15 @@
         </div>
       </b-modal>
 
-      <b-modal scroll="keep" :width="750"
-        :aria-modal="true" :active.sync="isInsertHTMLVisible">
+      <b-modal scroll="keep" :width="750" :aria-modal="true" :active.sync="isInsertHTMLVisible">
         <div>
           <section expanded class="modal-card-body preview">
             <html-editor v-model="insertHTMLSnippet" />
           </section>
           <footer class="modal-card-foot has-text-right">
-            <b-button @click="onFormatRichtextHTML">{{ $t('campaigns.formatHTML') }}</b-button>
+            <b-button @click="onFormatRichtextHTML">
+              {{ $t('campaigns.formatHTML') }}
+            </b-button>
             <b-button @click="() => { this.isInsertHTMLVisible = false; }">
               {{ $t('globals.buttons.close') }}
             </b-button>
@@ -84,19 +81,12 @@
     <html-editor v-if="form.format === 'html'" v-model="form.body" />
 
     <!-- plain text / markdown editor //-->
-    <b-input v-if="form.format === 'plain' || form.format === 'markdown'"
-      v-model="form.body" @input="onEditorChange"
+    <b-input v-if="form.format === 'plain' || form.format === 'markdown'" v-model="form.body" @input="onEditorChange"
       type="textarea" name="content" ref="plainEditor" class="plain-editor" />
 
     <!-- campaign preview //-->
-    <campaign-preview v-if="isPreviewing"
-      @close="onTogglePreview"
-      type="campaign"
-      :id="id"
-      :title="title"
-      :contentType="form.format"
-      :templateId="templateId"
-      :body="form.body"></campaign-preview>
+    <campaign-preview v-if="isPreviewing" @close="onTogglePreview" type="campaign" :id="id" :title="title"
+      :content-type="form.format" :template-id="templateId" :body="form.body" />
 
     <!-- image picker -->
     <b-modal scroll="keep" :aria-modal="true" :active.sync="isMediaVisible" :width="900">
@@ -110,17 +100,16 @@
 </template>
 
 <script>
-import { mapState } from 'vuex';
-import TurndownService from 'turndown';
 import { indent } from 'indent.js';
+import TurndownService from 'turndown';
+import { mapState } from 'vuex';
 
+import TinyMce from '@tinymce/tinymce-vue';
 import 'tinymce';
 import 'tinymce/icons/default';
-import 'tinymce/themes/silver';
-import 'tinymce/skins/ui/oxide/skin.css';
 import 'tinymce/plugins/anchor';
-import 'tinymce/plugins/autoresize';
 import 'tinymce/plugins/autolink';
+import 'tinymce/plugins/autoresize';
 import 'tinymce/plugins/charmap';
 import 'tinymce/plugins/colorpicker';
 import 'tinymce/plugins/contextmenu';
@@ -140,12 +129,13 @@ import 'tinymce/plugins/textcolor';
 import 'tinymce/plugins/visualblocks';
 import 'tinymce/plugins/visualchars';
 import 'tinymce/plugins/wordcount';
-import TinyMce from '@tinymce/tinymce-vue';
+import 'tinymce/skins/ui/oxide/skin.css';
+import 'tinymce/themes/silver';
 
+import { colors, uris } from '../constants';
+import Media from '../views/Media.vue';
 import CampaignPreview from './CampaignPreview.vue';
 import HTMLEditor from './HTMLEditor.vue';
-import Media from '../views/Media.vue';
-import { colors, uris } from '../constants';
 
 const turndown = new TurndownService();
 
@@ -172,15 +162,12 @@ export default {
   },
 
   props: {
-    id: Number,
-    title: String,
-    body: String,
-    contentType: String,
-    templateId: {
-      type: Number,
-      default: 0,
-    },
-    disabled: Boolean,
+    id: { type: Number, default: 0 },
+    title: { type: String, default: '' },
+    body: { type: String, default: '' },
+    contentType: { type: String, default: '' },
+    templateId: { type: Number, default: 0 },
+    disabled: { type: Boolean, default: false },
   },
 
   data() {

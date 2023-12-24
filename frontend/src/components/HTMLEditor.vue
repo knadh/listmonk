@@ -1,5 +1,5 @@
 <template>
-  <div ref="htmlEditor" id="html-editor" class="html-editor"></div>
+  <div ref="htmlEditor" id="html-editor" class="html-editor" />
 </template>
 
 <script>
@@ -8,11 +8,8 @@ import { colors } from '../constants';
 
 export default {
   props: {
-    value: String,
-    language: {
-      type: String,
-      default: 'html',
-    },
+    value: { type: String, default: '' },
+    language: { type: String, default: 'html' },
     disabled: Boolean,
   },
 

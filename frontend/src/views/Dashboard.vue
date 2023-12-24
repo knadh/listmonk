@@ -2,7 +2,9 @@
   <section class="dashboard content">
     <header class="columns">
       <div class="column is-two-thirds">
-        <h1 class="title is-5">{{ $utils.niceDate(new Date()) }}</h1>
+        <h1 class="title is-5">
+          {{ $utils.niceDate(new Date()) }}
+        </h1>
       </div>
     </header>
 
@@ -26,19 +28,19 @@
                   <div class="column is-6">
                     <ul class="no has-text-grey">
                       <li>
-                        <label>{{ $utils.niceNumber(counts.lists.public) }}</label>
+                        <label for="#">{{ $utils.niceNumber(counts.lists.public) }}</label>
                         {{ $t('lists.types.public') }}
                       </li>
                       <li>
-                        <label>{{ $utils.niceNumber(counts.lists.private) }}</label>
+                        <label for="#">{{ $utils.niceNumber(counts.lists.private) }}</label>
                         {{ $t('lists.types.private') }}
                       </li>
                       <li>
-                        <label>{{ $utils.niceNumber(counts.lists.optinSingle) }}</label>
+                        <label for="#">{{ $utils.niceNumber(counts.lists.optinSingle) }}</label>
                         {{ $t('lists.optins.single') }}
                       </li>
                       <li>
-                        <label>{{ $utils.niceNumber(counts.lists.optinDouble) }}</label>
+                        <label for="#">{{ $utils.niceNumber(counts.lists.optinDouble) }}</label>
                         {{ $t('lists.optins.double') }}
                       </li>
                     </ul>
@@ -60,7 +62,7 @@
                   <div class="column is-6">
                     <ul class="no has-text-grey">
                       <li v-for="(num, status) in counts.campaigns.byStatus" :key="status">
-                        <label :data-cy="`campaigns-${status}`">{{ num }}</label>
+                        <label for="#" :data-cy="`campaigns-${status}`">{{ num }}</label>
                         {{ $t(`campaigns.status.${status}`) }}
                         <span v-if="status === 'running'" class="spinner is-tiny">
                           <b-loading :is-full-page="false" active />
@@ -89,11 +91,11 @@
                   <div class="column is-6">
                     <ul class="no has-text-grey">
                       <li>
-                        <label>{{ $utils.niceNumber(counts.subscribers.blocklisted) }}</label>
+                        <label for="#">{{ $utils.niceNumber(counts.subscribers.blocklisted) }}</label>
                         {{ $t('subscribers.status.blocklisted') }}
                       </li>
                       <li>
-                        <label>{{ $utils.niceNumber(counts.subscribers.orphans) }}</label>
+                        <label for="#">{{ $utils.niceNumber(counts.subscribers.orphans) }}</label>
                         {{ $t('dashboard.orphanSubs') }}
                       </li>
                     </ul>
@@ -119,14 +121,16 @@
             <article class="tile is-child notification charts">
               <div class="columns">
                 <div class="column is-6">
-                  <h3 class="title is-size-6">{{ $t('dashboard.campaignViews') }}</h3><br />
-                  <div ref="chart-views"></div>
+                  <h3 class="title is-size-6">
+                    {{ $t('dashboard.campaignViews') }}
+                  </h3><br />
+                  <div ref="chart-views" />
                 </div>
                 <div class="column is-6">
                   <h3 class="title is-size-6 has-text-right">
                     {{ $t('dashboard.linkClicks') }}
                   </h3><br />
-                  <div ref="chart-clicks"></div>
+                  <div ref="chart-clicks" />
                 </div>
               </div>
             </article>
@@ -138,13 +142,13 @@
 </template>
 
 <style lang="css">
-  @import "~c3/c3.css";
+@import "c3/c3.css";
 </style>
 
 <script>
-import Vue from 'vue';
 import c3 from 'c3';
 import dayjs from 'dayjs';
+import Vue from 'vue';
 import { colors } from '../constants';
 
 export default Vue.extend({

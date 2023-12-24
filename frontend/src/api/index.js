@@ -6,7 +6,7 @@ import { models } from '../constants';
 import Utils from '../utils';
 
 const http = axios.create({
-  baseURL: process.env.VUE_APP_ROOT_URL || '/',
+  baseURL: import.meta.env.VUE_APP_ROOT_URL || '/',
   withCredentials: false,
   responseType: 'json',
 
@@ -95,111 +95,176 @@ http.interceptors.response.use((resp) => {
 // store: modelName (set's the API response in the global store. eg: store.lists: { ... } )
 
 // Health check endpoint that does not throw a toast.
-export const getHealth = () => http.get('/api/health',
-  { disableToast: true });
+export const getHealth = () => http.get(
+  '/api/health',
+  { disableToast: true },
+);
 
 export const reloadApp = () => http.post('/api/admin/reload');
 
 // Dashboard
-export const getDashboardCounts = () => http.get('/api/dashboard/counts',
-  { loading: models.dashboard });
+export const getDashboardCounts = () => http.get(
+  '/api/dashboard/counts',
+  { loading: models.dashboard },
+);
 
-export const getDashboardCharts = () => http.get('/api/dashboard/charts',
-  { loading: models.dashboard });
+export const getDashboardCharts = () => http.get(
+  '/api/dashboard/charts',
+  { loading: models.dashboard },
+);
 
 // Lists.
-export const getLists = (params) => http.get('/api/lists',
+export const getLists = (params) => http.get(
+  '/api/lists',
   {
     params: (!params ? { per_page: 'all' } : params),
     loading: models.lists,
     store: models.lists,
-  });
+  },
+);
 
-export const queryLists = (params) => http.get('/api/lists',
+export const queryLists = (params) => http.get(
+  '/api/lists',
   {
     params: (!params ? { per_page: 'all' } : params),
     loading: models.lists,
-  });
+  },
+);
 
-export const getList = async (id) => http.get(`/api/lists/${id}`,
-  { loading: models.list });
+export const getList = async (id) => http.get(
+  `/api/lists/${id}`,
+  { loading: models.list },
+);
 
-export const createList = (data) => http.post('/api/lists', data,
-  { loading: models.lists });
+export const createList = (data) => http.post(
+  '/api/lists',
+  data,
+  { loading: models.lists },
+);
 
-export const updateList = (data) => http.put(`/api/lists/${data.id}`, data,
-  { loading: models.lists });
+export const updateList = (data) => http.put(
+  `/api/lists/${data.id}`,
+  data,
+  { loading: models.lists },
+);
 
-export const deleteList = (id) => http.delete(`/api/lists/${id}`,
-  { loading: models.lists });
+export const deleteList = (id) => http.delete(
+  `/api/lists/${id}`,
+  { loading: models.lists },
+);
 
 // Subscribers.
-export const getSubscribers = async (params) => http.get('/api/subscribers',
+export const getSubscribers = async (params) => http.get(
+  '/api/subscribers',
   {
     params,
     loading: models.subscribers,
     store: models.subscribers,
     camelCase: (keyPath) => !keyPath.startsWith('.results.*.attribs'),
-  });
+  },
+);
 
-export const getSubscriber = async (id) => http.get(`/api/subscribers/${id}`,
-  { loading: models.subscribers });
+export const getSubscriber = async (id) => http.get(
+  `/api/subscribers/${id}`,
+  { loading: models.subscribers },
+);
 
-export const getSubscriberBounces = async (id) => http.get(`/api/subscribers/${id}/bounces`,
-  { loading: models.bounces });
+export const getSubscriberBounces = async (id) => http.get(
+  `/api/subscribers/${id}/bounces`,
+  { loading: models.bounces },
+);
 
-export const deleteSubscriberBounces = async (id) => http.delete(`/api/subscribers/${id}/bounces`,
-  { loading: models.bounces });
+export const deleteSubscriberBounces = async (id) => http.delete(
+  `/api/subscribers/${id}/bounces`,
+  { loading: models.bounces },
+);
 
-export const deleteBounce = async (id) => http.delete(`/api/bounces/${id}`,
-  { loading: models.bounces });
+export const deleteBounce = async (id) => http.delete(
+  `/api/bounces/${id}`,
+  { loading: models.bounces },
+);
 
-export const deleteBounces = async (params) => http.delete('/api/bounces',
-  { params, loading: models.bounces });
+export const deleteBounces = async (params) => http.delete(
+  '/api/bounces',
+  { params, loading: models.bounces },
+);
 
-export const createSubscriber = (data) => http.post('/api/subscribers', data,
-  { loading: models.subscribers });
+export const createSubscriber = (data) => http.post(
+  '/api/subscribers',
+  data,
+  { loading: models.subscribers },
+);
 
-export const updateSubscriber = (data) => http.put(`/api/subscribers/${data.id}`, data,
-  { loading: models.subscribers });
+export const updateSubscriber = (data) => http.put(
+  `/api/subscribers/${data.id}`,
+  data,
+  { loading: models.subscribers },
+);
 
-export const sendSubscriberOptin = (id) => http.post(`/api/subscribers/${id}/optin`, {},
-  { loading: models.subscribers });
+export const sendSubscriberOptin = (id) => http.post(
+  `/api/subscribers/${id}/optin`,
+  {},
+  { loading: models.subscribers },
+);
 
-export const deleteSubscriber = (id) => http.delete(`/api/subscribers/${id}`,
-  { loading: models.subscribers });
+export const deleteSubscriber = (id) => http.delete(
+  `/api/subscribers/${id}`,
+  { loading: models.subscribers },
+);
 
-export const addSubscribersToLists = (data) => http.put('/api/subscribers/lists', data,
-  { loading: models.subscribers });
+export const addSubscribersToLists = (data) => http.put(
+  '/api/subscribers/lists',
+  data,
+  { loading: models.subscribers },
+);
 
-export const addSubscribersToListsByQuery = (data) => http.put('/api/subscribers/query/lists',
-  data, { loading: models.subscribers });
+export const addSubscribersToListsByQuery = (data) => http.put(
+  '/api/subscribers/query/lists',
+  data,
 
-export const blocklistSubscribers = (data) => http.put('/api/subscribers/blocklist', data,
-  { loading: models.subscribers });
+  { loading: models.subscribers },
+);
 
-export const blocklistSubscribersByQuery = (data) => http.put('/api/subscribers/query/blocklist', data,
-  { loading: models.subscribers });
+export const blocklistSubscribers = (data) => http.put(
+  '/api/subscribers/blocklist',
+  data,
+  { loading: models.subscribers },
+);
 
-export const deleteSubscribers = (params) => http.delete('/api/subscribers',
-  { params, loading: models.subscribers });
+export const blocklistSubscribersByQuery = (data) => http.put(
+  '/api/subscribers/query/blocklist',
+  data,
+  { loading: models.subscribers },
+);
 
-export const deleteSubscribersByQuery = (data) => http.post('/api/subscribers/query/delete', data,
-  { loading: models.subscribers });
+export const deleteSubscribers = (params) => http.delete(
+  '/api/subscribers',
+  { params, loading: models.subscribers },
+);
+
+export const deleteSubscribersByQuery = (data) => http.post(
+  '/api/subscribers/query/delete',
+  data,
+  { loading: models.subscribers },
+);
 
 // Subscriber import.
 export const importSubscribers = (data) => http.post('/api/import/subscribers', data);
 
 export const getImportStatus = () => http.get('/api/import/subscribers');
 
-export const getImportLogs = async () => http.get('/api/import/subscribers/logs',
-  { camelCase: false });
+export const getImportLogs = async () => http.get(
+  '/api/import/subscribers/logs',
+  { camelCase: false },
+);
 
 export const stopImport = () => http.delete('/api/import/subscribers');
 
 // Bounces.
-export const getBounces = async (params) => http.get('/api/bounces',
-  { params, loading: models.bounces });
+export const getBounces = async (params) => http.get(
+  '/api/bounces',
+  { params, loading: models.bounces },
+);
 
 // Campaigns.
 export const getCampaigns = async (params) => http.get('/api/campaigns', {
@@ -216,93 +281,162 @@ export const getCampaign = async (id) => http.get(`/api/campaigns/${id}`, {
 
 export const getCampaignStats = async () => http.get('/api/campaigns/running/stats', {});
 
-export const createCampaign = async (data) => http.post('/api/campaigns', data,
-  { loading: models.campaigns });
+export const createCampaign = async (data) => http.post(
+  '/api/campaigns',
+  data,
+  { loading: models.campaigns },
+);
 
-export const getCampaignViewCounts = async (params) => http.get('/api/campaigns/analytics/views',
-  { params, loading: models.campaigns });
+export const getCampaignViewCounts = async (params) => http.get(
+  '/api/campaigns/analytics/views',
+  { params, loading: models.campaigns },
+);
 
-export const getCampaignClickCounts = async (params) => http.get('/api/campaigns/analytics/clicks',
-  { params, loading: models.campaigns });
+export const getCampaignClickCounts = async (params) => http.get(
+  '/api/campaigns/analytics/clicks',
+  { params, loading: models.campaigns },
+);
 
-export const getCampaignBounceCounts = async (params) => http.get('/api/campaigns/analytics/bounces',
-  { params, loading: models.campaigns });
+export const getCampaignBounceCounts = async (params) => http.get(
+  '/api/campaigns/analytics/bounces',
+  { params, loading: models.campaigns },
+);
 
-export const getCampaignLinkCounts = async (params) => http.get('/api/campaigns/analytics/links',
-  { params, loading: models.campaigns });
+export const getCampaignLinkCounts = async (params) => http.get(
+  '/api/campaigns/analytics/links',
+  { params, loading: models.campaigns },
+);
 
-export const convertCampaignContent = async (data) => http.post(`/api/campaigns/${data.id}/content`, data,
-  { loading: models.campaigns });
+export const convertCampaignContent = async (data) => http.post(
+  `/api/campaigns/${data.id}/content`,
+  data,
+  { loading: models.campaigns },
+);
 
-export const testCampaign = async (data) => http.post(`/api/campaigns/${data.id}/test`, data,
-  { loading: models.campaigns });
+export const testCampaign = async (data) => http.post(
+  `/api/campaigns/${data.id}/test`,
+  data,
+  { loading: models.campaigns },
+);
 
-export const updateCampaign = async (id, data) => http.put(`/api/campaigns/${id}`, data,
-  { loading: models.campaigns });
+export const updateCampaign = async (id, data) => http.put(
+  `/api/campaigns/${id}`,
+  data,
+  { loading: models.campaigns },
+);
 
-export const changeCampaignStatus = async (id, status) => http.put(`/api/campaigns/${id}/status`,
-  { status }, { loading: models.campaigns });
+export const changeCampaignStatus = async (id, status) => http.put(
+  `/api/campaigns/${id}/status`,
+  { status },
 
-export const updateCampaignArchive = async (id, data) => http.put(`/api/campaigns/${id}/archive`, data,
-  { loading: models.campaigns });
+  { loading: models.campaigns },
+);
 
-export const deleteCampaign = async (id) => http.delete(`/api/campaigns/${id}`,
-  { loading: models.campaigns });
+export const updateCampaignArchive = async (id, data) => http.put(
+  `/api/campaigns/${id}/archive`,
+  data,
+  { loading: models.campaigns },
+);
+
+export const deleteCampaign = async (id) => http.delete(
+  `/api/campaigns/${id}`,
+  { loading: models.campaigns },
+);
 
 // Media.
-export const getMedia = async (params) => http.get('/api/media',
-  { params, loading: models.media, store: models.media });
+export const getMedia = async (params) => http.get(
+  '/api/media',
+  { params, loading: models.media, store: models.media },
+);
 
-export const uploadMedia = (data) => http.post('/api/media', data,
-  { loading: models.media });
+export const uploadMedia = (data) => http.post(
+  '/api/media',
+  data,
+  { loading: models.media },
+);
 
-export const deleteMedia = (id) => http.delete(`/api/media/${id}`,
-  { loading: models.media });
+export const deleteMedia = (id) => http.delete(
+  `/api/media/${id}`,
+  { loading: models.media },
+);
 
 // Templates.
-export const createTemplate = async (data) => http.post('/api/templates', data,
-  { loading: models.templates });
+export const createTemplate = async (data) => http.post(
+  '/api/templates',
+  data,
+  { loading: models.templates },
+);
 
-export const getTemplates = async () => http.get('/api/templates',
-  { loading: models.templates, store: models.templates });
+export const getTemplates = async () => http.get(
+  '/api/templates',
+  { loading: models.templates, store: models.templates },
+);
 
-export const updateTemplate = async (data) => http.put(`/api/templates/${data.id}`, data,
-  { loading: models.templates });
+export const updateTemplate = async (data) => http.put(
+  `/api/templates/${data.id}`,
+  data,
+  { loading: models.templates },
+);
 
-export const makeTemplateDefault = async (id) => http.put(`/api/templates/${id}/default`, {},
-  { loading: models.templates });
+export const makeTemplateDefault = async (id) => http.put(
+  `/api/templates/${id}/default`,
+  {},
+  { loading: models.templates },
+);
 
-export const deleteTemplate = async (id) => http.delete(`/api/templates/${id}`,
-  { loading: models.templates });
+export const deleteTemplate = async (id) => http.delete(
+  `/api/templates/${id}`,
+  { loading: models.templates },
+);
 
 // Settings.
-export const getServerConfig = async () => http.get('/api/config',
-  { loading: models.serverConfig, store: models.serverConfig, camelCase: false });
+export const getServerConfig = async () => http.get(
+  '/api/config',
+  { loading: models.serverConfig, store: models.serverConfig, camelCase: false },
+);
 
-export const getSettings = async () => http.get('/api/settings',
-  { loading: models.settings, store: models.settings, camelCase: false });
+export const getSettings = async () => http.get(
+  '/api/settings',
+  { loading: models.settings, store: models.settings, camelCase: false },
+);
 
-export const updateSettings = async (data) => http.put('/api/settings', data,
-  { loading: models.settings });
+export const updateSettings = async (data) => http.put(
+  '/api/settings',
+  data,
+  { loading: models.settings },
+);
 
-export const testSMTP = async (data) => http.post('/api/settings/smtp/test', data,
-  { loading: models.settings, disableToast: true });
+export const testSMTP = async (data) => http.post(
+  '/api/settings/smtp/test',
+  data,
+  { loading: models.settings, disableToast: true },
+);
 
-export const getLogs = async () => http.get('/api/logs',
-  { loading: models.logs, camelCase: false });
+export const getLogs = async () => http.get(
+  '/api/logs',
+  { loading: models.logs, camelCase: false },
+);
 
-export const getLang = async (lang) => http.get(`/api/lang/${lang}`,
-  { loading: models.lang, camelCase: false });
+export const getLang = async (lang) => http.get(
+  `/api/lang/${lang}`,
+  { loading: models.lang, camelCase: false },
+);
 
 export const logout = async () => http.get('/api/logout', {
   auth: { username: 'wrong', password: 'wrong' },
 });
 
-export const deleteGCCampaignAnalytics = async (typ, beforeDate) => http.delete(`/api/maintenance/analytics/${typ}`,
-  { loading: models.maintenance, params: { before_date: beforeDate } });
+export const deleteGCCampaignAnalytics = async (typ, beforeDate) => http.delete(
+  `/api/maintenance/analytics/${typ}`,
+  { loading: models.maintenance, params: { before_date: beforeDate } },
+);
 
-export const deleteGCSubscribers = async (typ) => http.delete(`/api/maintenance/subscribers/${typ}`,
-  { loading: models.maintenance });
+export const deleteGCSubscribers = async (typ) => http.delete(
+  `/api/maintenance/subscribers/${typ}`,
+  { loading: models.maintenance },
+);
 
-export const deleteGCSubscriptions = async (beforeDate) => http.delete('/api/maintenance/subscriptions/unconfirmed',
-  { loading: models.maintenance, params: { before_date: beforeDate } });
+export const deleteGCSubscriptions = async (beforeDate) => http.delete(
+  '/api/maintenance/subscriptions/unconfirmed',
+  { loading: models.maintenance, params: { before_date: beforeDate } },
+);

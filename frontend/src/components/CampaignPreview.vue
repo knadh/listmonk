@@ -1,7 +1,6 @@
 <template>
   <div>
-    <b-modal scroll="keep" @close="close"
-      :aria-modal="true" :active="isVisible">
+    <b-modal scroll="keep" @close="close" :aria-modal="true" :active="isVisible">
       <div>
         <div class="modal-card" style="width: auto">
           <header class="modal-card-head">
@@ -9,7 +8,7 @@
           </header>
         </div>
         <section expanded class="modal-card-body preview">
-          <b-loading :active="isLoading" :is-full-page="false"></b-loading>
+          <b-loading :active="isLoading" :is-full-page="false" />
           <form v-if="body" method="post" :action="previewURL" target="iframe" ref="form">
             <input type="hidden" name="template_id" :value="templateId" />
             <input type="hidden" name="content_type" :value="contentType" />
@@ -17,14 +16,13 @@
             <input type="hidden" name="body" :value="body" />
           </form>
 
-          <iframe id="iframe" name="iframe" ref="iframe"
-            :title="title"
-            :src="body ? 'about:blank' : previewURL"
-            @load="onLoaded"
-          ></iframe>
+          <iframe id="iframe" name="iframe" ref="iframe" :title="title" :src="body ? 'about:blank' : previewURL"
+            @load="onLoaded" />
         </section>
         <footer class="modal-card-foot has-text-right">
-          <b-button @click="close">{{ $t('globals.buttons.close') }}</b-button>
+          <b-button @click="close">
+            {{ $t('globals.buttons.close') }}
+          </b-button>
         </footer>
       </div>
     </b-modal>
@@ -39,21 +37,18 @@ export default {
 
   props: {
     // Template or campaign ID.
-    id: Number,
-    title: String,
+    id: { type: Number, default: 0 },
+    title: { type: String, default: '' },
 
     // campaign | template.
-    type: String,
+    type: { type: String, default: '' },
 
     // campaign | tx.
-    templateType: String,
+    templateType: { type: String, default: '' },
 
-    body: String,
-    contentType: String,
-    templateId: {
-      type: Number,
-      default: 0,
-    },
+    body: { type: String, default: '' },
+    contentType: { type: String, default: '' },
+    templateId: { type: Number, default: 0 },
   },
 
   data() {

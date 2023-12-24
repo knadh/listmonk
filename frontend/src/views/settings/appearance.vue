@@ -7,13 +7,11 @@
         </div>
 
         <b-field :label="$t('settings.appearance.customCSS')" label-position="on-border">
-          <html-editor v-model="data['appearance.admin.custom_css']" name="body"
-          language="css" />
+          <html-editor v-model="data['appearance.admin.custom_css']" name="body" language="css" />
         </b-field>
 
         <b-field :label="$t('settings.appearance.customJS')" label-position="on-border">
-          <html-editor v-model="data['appearance.admin.custom_js']" name="body"
-          language="css" />
+          <html-editor v-model="data['appearance.admin.custom_js']" name="body" language="css" />
         </b-field>
       </b-tab-item><!-- admin -->
 
@@ -23,13 +21,11 @@
         </div>
 
         <b-field :label="$t('settings.appearance.customCSS')" label-position="on-border">
-          <html-editor v-model="data['appearance.public.custom_css']" name="body"
-          language="css" />
+          <html-editor v-model="data['appearance.public.custom_css']" name="body" language="css" />
         </b-field>
 
         <b-field :label="$t('settings.appearance.customJS')" label-position="on-border">
-          <html-editor v-model="data['appearance.public.custom_js']" name="body"
-          language="js" />
+          <html-editor v-model="data['appearance.public.custom_js']" name="body" language="js" />
         </b-field>
       </b-tab-item><!-- public -->
     </b-tabs>
@@ -48,7 +44,7 @@ export default Vue.extend({
 
   props: {
     form: {
-      type: Object,
+      type: Object, default: () => { },
     },
   },
 

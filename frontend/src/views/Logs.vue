@@ -1,8 +1,10 @@
 <template>
   <section class="logs content relative">
-    <h1 class="title is-4">{{ $t('logs.title') }}</h1>
+    <h1 class="title is-4">
+      {{ $t('logs.title') }}
+    </h1>
     <hr />
-    <log-view :loading="loading.logs" :lines="lines"></log-view>
+    <log-view :loading="loading.logs" :lines="lines" />
   </section>
 </template>
 
