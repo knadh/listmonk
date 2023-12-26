@@ -65,14 +65,13 @@ type Queries struct {
 
 	// These two queries are read as strings and based on settings.individual_tracking=on/off,
 	// are interpolated and copied to view and click counts. Same query, different tables.
-	GetCampaignAnalyticsCounts       string     `query:"get-campaign-analytics-counts"`
-	GetCampaignAnalyticsCountsUnique string     `query:"get-campaign-analytics-unique-counts"`
-	GetCampaignViewCounts            *sqlx.Stmt `query:"get-campaign-view-counts"`
-	GetCampaignClickCounts           *sqlx.Stmt `query:"get-campaign-click-counts"`
-	GetCampaignLinkCounts            *sqlx.Stmt `query:"get-campaign-link-counts"`
-	GetCampaignBounceCounts          *sqlx.Stmt `query:"get-campaign-bounce-counts"`
-	DeleteCampaignViews              *sqlx.Stmt `query:"delete-campaign-views"`
-	DeleteCampaignLinkClicks         *sqlx.Stmt `query:"delete-campaign-link-clicks"`
+	GetCampaignAnalyticsCounts string     `query:"get-campaign-analytics-counts"`
+	GetCampaignViewCounts      *sqlx.Stmt `query:"get-campaign-view-counts"`
+	GetCampaignClickCounts     *sqlx.Stmt `query:"get-campaign-click-counts"`
+	GetCampaignLinkCounts      *sqlx.Stmt `query:"get-campaign-link-counts"`
+	GetCampaignBounceCounts    *sqlx.Stmt `query:"get-campaign-bounce-counts"`
+	DeleteCampaignViews        *sqlx.Stmt `query:"delete-campaign-views"`
+	DeleteCampaignLinkClicks   *sqlx.Stmt `query:"delete-campaign-link-clicks"`
 
 	NextCampaigns            *sqlx.Stmt `query:"next-campaigns"`
 	NextCampaignSubscribers  *sqlx.Stmt `query:"next-campaign-subscribers"`

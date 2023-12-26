@@ -48,6 +48,10 @@ $menu-item-active-color: $primary;
 /* Buefy */
 $modal-background-background-color: rgba(0, 0, 0, .30);
 
+.line-chart {
+  min-height: 300px;
+}
+
 /* Import full Bulma and Buefy */
 @import "bulma";
 @import "buefy/src/scss/buefy";
@@ -744,8 +748,6 @@ section.campaigns {
   }
 }
 
-.campaign 
-
 section.analytics {
   .charts {
     position: relative;
@@ -753,17 +755,18 @@ section.analytics {
   }
 
   .chart {
-    margin-bottom: 45px;
+    margin-bottom: 100px;
+    max-width: 100%;
   }
 
   .donut-container {
     position: relative;
   }
-  .donut {
-    bottom: 0px;
-    right: 0px;
-    position: absolute !important;
-  }
+}
+
+.chart canvas {
+  height: 400px;
+  max-width: 100%;
 }
 
 /* Campaign / template preview popup */

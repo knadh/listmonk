@@ -124,13 +124,13 @@
                   <h3 class="title is-size-6">
                     {{ $t('dashboard.campaignViews') }}
                   </h3><br />
-                  <div ref="chart-views" />
+                  <chart type="line" v-if="campaignViews" :data="campaignViews" />
                 </div>
                 <div class="column is-6">
                   <h3 class="title is-size-6 has-text-right">
                     {{ $t('dashboard.linkClicks') }}
                   </h3><br />
-                  <div ref="chart-clicks" />
+                  <chart type="line" v-if="campaignClicks" :data="campaignClicks" />
                 </div>
               </div>
             </article>
@@ -141,22 +141,23 @@
   </section>
 </template>
 
-<style lang="css">
-@import "c3/c3.css";
-</style>
-
 <script>
-import c3 from 'c3';
 import dayjs from 'dayjs';
 import Vue from 'vue';
 import { colors } from '../constants';
+import Chart from '../components/Chart.vue';
 
 export default Vue.extend({
+  components: {
+    Chart,
+  },
+
   data() {
     return {
       isChartsLoading: true,
       isCountsLoading: true,
-
+      campaignViews: null,
+      campaignClicks: null,
       counts: {
         lists: {},
         subscribers: {},
@@ -167,41 +168,19 @@ export default Vue.extend({
   },
 
   methods: {
-    renderChart(label, data, el) {
-      const conf = {
-        bindto: el,
-        unload: true,
-        data: {
-          type: 'spline',
-          columns: [],
-          color() {
-            return colors.primary;
+    makeChart(data) {
+      return {
+        labels: data.map((d) => dayjs(d.date).format('DD MMM')),
+        datasets: [
+          {
+            data: [...data.map((d) => d.count)],
+            borderColor: colors.primary,
+            borderWidth: 2,
+            pointHoverBorderWidth: 5,
+            pointBorderWidth: 0.5,
           },
-          empty: { label: { text: this.$t('globals.messages.emptyState') } },
-        },
-        axis: {
-          x: {
-            type: 'category',
-            categories: data.map((d) => dayjs(d.date).format('DD MMM')),
-            tick: {
-              rotate: -45,
-              multiline: false,
-              culling: { max: 10 },
-            },
-          },
-        },
-        legend: {
-          show: false,
-        },
+        ],
       };
-
-      if (data.length > 0) {
-        conf.data.columns.push([label, ...data.map((d) => d.count)]);
-      }
-
-      this.$nextTick(() => {
-        c3.generate(conf);
-      });
     },
   },
 
@@ -221,8 +200,8 @@ export default Vue.extend({
     // Pull the charts.
     this.$api.getDashboardCharts().then((data) => {
       this.isChartsLoading = false;
-      this.renderChart(this.$t('dashboard.campaignViews'), data.campaignViews, this.$refs['chart-views']);
-      this.renderChart(this.$t('dashboard.linkClicks'), data.linkClicks, this.$refs['chart-clicks']);
+      this.campaignViews = this.makeChart(data.campaignViews);
+      this.campaignClicks = this.makeChart(data.linkClicks);
     });
   },
 });
