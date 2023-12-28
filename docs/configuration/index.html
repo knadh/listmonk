@@ -16,7 +16,7 @@
       
       
       <link rel="icon" href="../images/favicon.png">
-      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.2">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.3">
     
     
       
@@ -396,6 +396,39 @@
   <a href="#using-bind-mounts" class="md-nav__link">
     <span class="md-ellipsis">
       Using bind mounts
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#logs" class="md-nav__link">
+    <span class="md-ellipsis">
+      Logs
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Logs">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#docker" class="md-nav__link">
+    <span class="md-ellipsis">
+      Docker
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#binary" class="md-nav__link">
+    <span class="md-ellipsis">
+      Binary
     </span>
   </a>
   
@@ -892,6 +925,39 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#logs" class="md-nav__link">
+    <span class="md-ellipsis">
+      Logs
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Logs">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#docker" class="md-nav__link">
+    <span class="md-ellipsis">
+      Docker
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#binary" class="md-nav__link">
+    <span class="md-ellipsis">
+      Binary
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#time-zone" class="md-nav__link">
     <span class="md-ellipsis">
       Time zone
@@ -1071,6 +1137,20 @@ The files will be available inside <code>/data/uploads</code> directory on the h
     volumes:
       - ./uploads:/listmonk/uploads
 </code></pre></div></p>
+<h2 id="logs">Logs<a class="headerlink" href="#logs" title="Permanent link">&para;</a></h2>
+<h3 id="docker">Docker<a class="headerlink" href="#docker" title="Permanent link">&para;</a></h3>
+<p>https://docs.docker.com/engine/reference/commandline/logs/
+<div class="highlight"><pre><span></span><code>sudo docker logs -f
+sudo docker logs listmonk_app -t
+sudo docker logs listmonk_db -t
+sudo docker logs --help
+</code></pre></div>
+Container info: <code>sudo docker inspect listmonk_listmonk</code></p>
+<p>Docker logs to <code>/dev/stdout</code> and <code>/dev/stderr</code>. The logs are collected by the docker daemon and stored in your node's host path (by default). The same can be configured (/etc/docker/daemon.json) in your docker daemon settings to setup other logging drivers, logrotate policy and more, which you can read about <a href="https://docs.docker.com/config/containers/logging/configure/">here</a>.</p>
+<h3 id="binary">Binary<a class="headerlink" href="#binary" title="Permanent link">&para;</a></h3>
+<p>listmonk logs to <code>stdout</code>, which is usually not saved to any file. To save listmonk logs to a file use <code>./listmonk &gt; listmonk.log</code>.</p>
+<p>Settings -&gt; Logs in admin shows the last 1000 lines of the standard log output but gets erased when listmonk is restarted.</p>
+<p>For the <a href="https://github.com/knadh/listmonk/blob/master/listmonk%40.service">service file</a>, you can use <code>ExecStart=/bin/bash -ce "exec /usr/bin/listmonk --config /etc/listmonk/config.toml --static-dir /etc/listmonk/static &gt;&gt;/etc/listmonk/listmonk.log 2&gt;&amp;1"</code> to create a log file that persists after restarts. <a href="https://github.com/knadh/listmonk/issues/1462#issuecomment-1868501606">More info</a>.</p>
 <h2 id="time-zone">Time zone<a class="headerlink" href="#time-zone" title="Permanent link">&para;</a></h2>
 <p>To change listmonk's time zone (logs, etc.) edit <code>docker-compose.yml</code>:
 <div class="highlight"><pre><span></span><code>environment:
