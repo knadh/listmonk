@@ -100,6 +100,30 @@ To use the default `uploads` folder:
       - ./uploads:/listmonk/uploads
 ```
 
+## Logs
+
+### Docker
+
+https://docs.docker.com/engine/reference/commandline/logs/
+```
+sudo docker logs -f
+sudo docker logs listmonk_app -t
+sudo docker logs listmonk_db -t
+sudo docker logs --help
+```
+Container info: `sudo docker inspect listmonk_listmonk`
+
+Docker logs to `/dev/stdout` and `/dev/stderr`. The logs are collected by the docker daemon and stored in your node's host path (by default). The same can be configured (/etc/docker/daemon.json) in your docker daemon settings to setup other logging drivers, logrotate policy and more, which you can read about [here](https://docs.docker.com/config/containers/logging/configure/).
+
+### Binary
+
+listmonk logs to `stdout`, which is usually not saved to any file. To save listmonk logs to a file use `./listmonk > listmonk.log`.
+
+Settings -> Logs in admin shows the last 1000 lines of the standard log output but gets erased when listmonk is restarted.
+
+For the [service file](https://github.com/knadh/listmonk/blob/master/listmonk%40.service), you can use `ExecStart=/bin/bash -ce "exec /usr/bin/listmonk --config /etc/listmonk/config.toml --static-dir /etc/listmonk/static >>/etc/listmonk/listmonk.log 2>&1"` to create a log file that persists after restarts. [More info](https://github.com/knadh/listmonk/issues/1462#issuecomment-1868501606).
+
+
 
 ## Time zone
 
