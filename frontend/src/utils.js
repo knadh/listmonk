@@ -101,7 +101,7 @@ export default class Utils {
     }
 
     return out.toFixed(2) + pfx;
-  }
+  };
 
   formatNumber(v) {
     return this.intlNumFormat.format(v);
@@ -122,7 +122,7 @@ export default class Utils {
     }
 
     return ids.map((id) => parseInt(id, 10));
-  }
+  };
 
   // https://stackoverflow.com/a/12034334
   escapeHTML = (html) => html.replace(/[&<>"'`=/]/g, (s) => htmlEntities[s]);
@@ -178,7 +178,7 @@ export default class Utils {
   camelString = (str) => {
     const s = str.replace(/[-_\s]+(.)?/g, (match, chr) => (chr ? chr.toUpperCase() : ''));
     return s.substr(0, 1).toLowerCase() + s.substr(1);
-  }
+  };
 
   // camelKeys recursively camelCases all keys in a given object (array or {}).
   // For each key it traverses, it passes a dot separated key path to an optional testFunc() bool.
@@ -233,5 +233,5 @@ export default class Utils {
 
     p[key] = val;
     localStorage.setItem(prefKey, JSON.stringify(p));
-  }
+  };
 }

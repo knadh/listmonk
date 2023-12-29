@@ -5,7 +5,7 @@ beforeEach(() => {
     req.destroy();
   });
 
-  cy.intercept('GET', '/api/health/**', (req) => {
+  cy.intercept('GET', '/api/health', (req) => {
     req.reply({});
   });
 });

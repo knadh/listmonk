@@ -9,33 +9,25 @@
       </div>
       <div class="column has-text-right">
         <b-field expanded>
-          <b-button expanded type="is-primary" icon-left="plus" class="btn-new"
-            @click="showNewForm" data-cy="btn-new">
+          <b-button expanded type="is-primary" icon-left="plus" class="btn-new" @click="showNewForm" data-cy="btn-new">
             {{ $t('globals.buttons.new') }}
           </b-button>
         </b-field>
       </div>
     </header>
 
-    <b-table
-      :data="lists.results"
-      :loading="loading.lists"
-      hoverable default-sort="createdAt"
-      paginated backend-pagination pagination-position="both" @page-change="onPageChange"
-      :current-page="queryParams.page" :per-page="lists.perPage" :total="lists.total"
-      backend-sorting @sort="onSort"
-    >
+    <b-table :data="lists.results" :loading="loading.lists" hoverable default-sort="createdAt" paginated
+      backend-pagination pagination-position="both" @page-change="onPageChange" :current-page="queryParams.page"
+      :per-page="lists.perPage" :total="lists.total" backend-sorting @sort="onSort">
       <template #top-left>
         <div class="columns">
           <div class="column is-6">
             <form @submit.prevent="getLists">
               <div>
                 <b-field>
-                  <b-input v-model="queryParams.query" name="query" expanded
-                    icon="magnify" ref="query" data-cy="query" />
+                  <b-input v-model="queryParams.query" name="query" expanded icon="magnify" ref="query" data-cy="query" />
                   <p class="controls">
-                    <b-button native-type="submit" type="is-primary" icon-left="magnify"
-                      data-cy="btn-query" />
+                    <b-button native-type="submit" type="is-primary" icon-left="magnify" data-cy="btn-query" />
                   </p>
                 </b-field>
               </div>
@@ -44,24 +36,23 @@
         </div>
       </template>
 
-      <b-table-column v-slot="props" field="name" :label="$t('globals.fields.name')"
-        header-class="cy-name" sortable width="25%"
-        paginated backend-pagination pagination-position="both"
-        :td-attrs="$utils.tdID"
+      <b-table-column v-slot="props" field="name" :label="$t('globals.fields.name')" header-class="cy-name" sortable
+        width="25%" paginated backend-pagination pagination-position="both" :td-attrs="$utils.tdID"
         @page-change="onPageChange">
         <div>
-          <a :href="`/lists/${props.row.id}`"
-            @click.prevent="showEditForm(props.row)">
+          <a :href="`/lists/${props.row.id}`" @click.prevent="showEditForm(props.row)">
             {{ props.row.name }}
           </a>
           <b-taglist>
-              <b-tag class="is-small" v-for="t in props.row.tags" :key="t">{{ t }}</b-tag>
+            <b-tag class="is-small" v-for="t in props.row.tags" :key="t">
+              {{ t }}
+            </b-tag>
           </b-taglist>
         </div>
       </b-table-column>
 
-      <b-table-column v-slot="props" field="type" :label="$t('globals.fields.type')"
-        header-class="cy-type" sortable width="15%">
+      <b-table-column v-slot="props" field="type" :label="$t('globals.fields.type')" header-class="cy-type" sortable
+        width="15%">
         <div class="tags">
           <b-tag :class="props.row.type" :data-cy="`type-${props.row.type}`">
             {{ $t(`lists.types.${props.row.type}`) }}
@@ -69,15 +60,14 @@
           {{ ' ' }}
 
           <b-tag :class="props.row.optin" :data-cy="`optin-${props.row.optin}`">
-            <b-icon :icon="props.row.optin === 'double' ?
-              'account-check-outline' : 'account-off-outline'" size="is-small" />
+            <b-icon :icon="props.row.optin === 'double' ? 'account-check-outline' : 'account-off-outline'"
+              size="is-small" />
             {{ ' ' }}
             {{ $t(`lists.optins.${props.row.optin}`) }}
           </b-tag>{{ ' ' }}
 
-          <a v-if="props.row.optin === 'double'" class="is-size-7 send-optin"
-            href="#" @click="$utils.confirm(null, () => createOptinCampaign(props.row))"
-            data-cy="btn-send-optin-campaign">
+          <a v-if="props.row.optin === 'double'" class="is-size-7 send-optin" href="#"
+            @click="$utils.confirm(null, () => createOptinCampaign(props.row))" data-cy="btn-send-optin-campaign">
             <b-tooltip :label="$t('lists.sendOptinCampaign')" type="is-dark">
               <b-icon icon="rocket-launch-outline" size="is-small" />
               {{ $t('lists.sendOptinCampaign') }}
@@ -86,21 +76,18 @@
         </div>
       </b-table-column>
 
-      <b-table-column v-slot="props" field="subscriber_count"
-        :label="$t('globals.terms.subscribers')" header-class="cy-subscribers"
-        numeric sortable centered>
+      <b-table-column v-slot="props" field="subscriber_count" :label="$t('globals.terms.subscribers')"
+        header-class="cy-subscribers" numeric sortable centered>
         <router-link :to="`/subscribers/lists/${props.row.id}`">
           {{ $utils.formatNumber(props.row.subscriberCount) }}
         </router-link>
       </b-table-column>
 
-      <b-table-column v-slot="props" field="subscriber_counts"
-        header-class="cy-subscribers" width="10%">
+      <b-table-column v-slot="props" field="subscriber_counts" header-class="cy-subscribers" width="10%">
         <div class="fields stats">
           <p v-for="(count, status) in filterStatuses(props.row)" :key="status">
-            <label>{{ $tc(`subscribers.status.${status}`, count) }}</label>
-            <router-link :to="`/subscribers/lists/${props.row.id}?subscription_status=${status}`"
-              :class="status">
+            <label for="#">{{ $tc(`subscribers.status.${status}`, count) }}</label>
+            <router-link :to="`/subscribers/lists/${props.row.id}?subscription_status=${status}`" :class="status">
               {{ $utils.formatNumber(count) }}
             </router-link>
           </p>
@@ -109,11 +96,11 @@
 
       <b-table-column v-slot="props" field="created_at" :label="$t('globals.fields.createdAt')"
         header-class="cy-created_at" sortable>
-          {{ $utils.niceDate(props.row.createdAt) }}
+        {{ $utils.niceDate(props.row.createdAt) }}
       </b-table-column>
       <b-table-column v-slot="props" field="updated_at" :label="$t('globals.fields.updatedAt')"
         header-class="cy-updated_at" sortable>
-          {{ $utils.niceDate(props.row.updatedAt) }}
+        {{ $utils.niceDate(props.row.updatedAt) }}
       </b-table-column>
 
       <b-table-column v-slot="props" cell-class="actions" align="right">
@@ -124,20 +111,21 @@
             </b-tooltip>
           </router-link>
 
-          <a href="" @click.prevent="showEditForm(props.row)" data-cy="btn-edit">
+          <a href="#" @click.prevent="showEditForm(props.row)" data-cy="btn-edit"
+            :aria-label="$t('globals.buttons.edit')">
             <b-tooltip :label="$t('globals.buttons.edit')" type="is-dark">
               <b-icon icon="pencil-outline" size="is-small" />
             </b-tooltip>
           </a>
 
-          <router-link :to="{name: 'import', query: { list_id: props.row.id }}"
-            data-cy="btn-import">
+          <router-link :to="{ name: 'import', query: { list_id: props.row.id } }" data-cy="btn-import">
             <b-tooltip :label="$t('import.title')" type="is-dark">
               <b-icon icon="file-upload-outline" size="is-small" />
             </b-tooltip>
           </router-link>
 
-          <a href="" @click.prevent="deleteList(props.row)" data-cy="btn-delete">
+          <a href="#" @click.prevent="deleteList(props.row)" data-cy="btn-delete"
+            :aria-label="$t('globals.buttons.delete')">
             <b-tooltip :label="$t('globals.buttons.delete')" type="is-dark">
               <b-icon icon="trash-can-outline" size="is-small" />
             </b-tooltip>
@@ -146,14 +134,13 @@
       </b-table-column>
 
       <template #empty v-if="!loading.lists">
-          <empty-placeholder />
+        <empty-placeholder />
       </template>
     </b-table>
 
     <!-- Add / edit form modal -->
-    <b-modal scroll="keep" :aria-modal="true" :active.sync="isFormVisible" :width="600"
-      @close="onFormClose">
-      <list-form :data="curItem" :isEditing="isEditing" @finished="formFinished"></list-form>
+    <b-modal scroll="keep" :aria-modal="true" :active.sync="isFormVisible" :width="600" @close="onFormClose">
+      <list-form :data="curItem" :is-editing="isEditing" @finished="formFinished" />
     </b-modal>
   </section>
 </template>
@@ -161,8 +148,8 @@
 <script>
 import Vue from 'vue';
 import { mapState } from 'vuex';
-import ListForm from './ListForm.vue';
 import EmptyPlaceholder from '../components/EmptyPlaceholder.vue';
+import ListForm from './ListForm.vue';
 
 export default Vue.extend({
   components: {

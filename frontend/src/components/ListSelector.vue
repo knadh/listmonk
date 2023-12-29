@@ -1,34 +1,19 @@
 <template>
   <div class="field list-selector">
-      <div :class="['list-tags', ...classes]">
-        <b-taglist>
-          <b-tag v-for="l in selectedItems"
-            :key="l.id"
-            :class="l.subscriptionStatus"
-            :closable="!$props.disabled"
-            :data-id="l.id"
-            @close="removeList(l.id)" class="list">
-            {{ l.name }} <sup v-if="l.optin === 'double'">{{ l.subscriptionStatus }}</sup>
-          </b-tag>
-        </b-taglist>
-      </div>
+    <div :class="['list-tags', ...classes]">
+      <b-taglist>
+        <b-tag v-for="l in selectedItems" :key="l.id" :class="l.subscriptionStatus" :closable="!$props.disabled"
+          :data-id="l.id" @close="removeList(l.id)" class="list">
+          {{ l.name }} <sup v-if="l.optin === 'double'">{{ l.subscriptionStatus }}</sup>
+        </b-tag>
+      </b-taglist>
+    </div>
 
-    <b-field :message="message"
-      :label="label  + (selectedItems ? ` (${selectedItems.length})` : '')"
+    <b-field :message="message" :label="label + (selectedItems ? ` (${selectedItems.length})` : '')"
       label-position="on-border">
-      <b-autocomplete
-        v-model="query"
-        :placeholder="placeholder"
-        clearable
-        dropdown-position="top"
-        :disabled="all.length === 0 || $props.disabled"
-        :keep-first="true"
-        :clear-on-select="true"
-        :open-on-focus="true"
-        :data="filteredLists"
-        @select="selectList"
-        field="name">
-      </b-autocomplete>
+      <b-autocomplete v-model="query" :placeholder="placeholder" clearable dropdown-position="top"
+        :disabled="all.length === 0 || $props.disabled" :keep-first="true" :clear-on-select="true" :open-on-focus="true"
+        :data="filteredLists" @select="selectList" field="name" />
     </b-field>
   </div>
 </template>
@@ -40,9 +25,9 @@ export default {
   name: 'ListSelector',
 
   props: {
-    label: String,
-    placeholder: String,
-    message: String,
+    label: { type: String, default: '' },
+    placeholder: { type: String, default: '' },
+    message: { type: String, default: '' },
     required: Boolean,
     disabled: Boolean,
     classes: {

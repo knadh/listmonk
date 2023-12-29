@@ -2,7 +2,8 @@
   <section class="subscribers">
     <header class="columns page-header">
       <div class="column is-10">
-        <h1 class="title is-4">{{ $t('globals.terms.subscribers') }}
+        <h1 class="title is-4">
+          {{ $t('globals.terms.subscribers') }}
           <span v-if="!isNaN(subscribers.total)">
             (<span data-cy="count">{{ subscribers.total }}</span>)
           </span>
@@ -13,8 +14,7 @@
       </div>
       <div class="column has-text-right">
         <b-field expanded>
-          <b-button expanded type="is-primary" icon-left="plus"
-            @click="showNewForm" data-cy="btn-new" class="btn-new">
+          <b-button expanded type="is-primary" icon-left="plus" @click="showNewForm" data-cy="btn-new" class="btn-new">
             {{ $t('globals.buttons.new') }}
           </b-button>
         </b-field>
@@ -29,32 +29,29 @@
               <b-field addons>
                 <b-input @input="onSimpleQueryInput" v-model="queryInput" expanded
                   :placeholder="$t('subscribers.queryPlaceholder')" icon="magnify" ref="query"
-                  :disabled="isSearchAdvanced" data-cy="search"></b-input>
+                  :disabled="isSearchAdvanced" data-cy="search" />
                 <p class="controls">
-                  <b-button native-type="submit" type="is-primary" icon-left="magnify"
-                    :disabled="isSearchAdvanced" data-cy="btn-search"></b-button>
+                  <b-button native-type="submit" type="is-primary" icon-left="magnify" :disabled="isSearchAdvanced"
+                    data-cy="btn-search" />
                 </p>
               </b-field>
 
               <div v-if="isSearchAdvanced">
-                <b-input v-model="queryParams.queryExp"
-                  @keydown.native.enter="onAdvancedQueryEnter"
-                  type="textarea" ref="queryExp"
-                  placeholder="subscribers.name LIKE '%user%' or subscribers.status='blocklisted'"
-                  data-cy="query">
-                </b-input>
+                <b-input v-model="queryParams.queryExp" @keydown.native.enter="onAdvancedQueryEnter" type="textarea"
+                  ref="queryExp" placeholder="subscribers.name LIKE '%user%' or subscribers.status='blocklisted'"
+                  data-cy="query" />
                 <span class="is-size-6 has-text-grey">
                   {{ $t('subscribers.advancedQueryHelp') }}.{{ ' ' }}
-                  <a href="https://listmonk.app/docs/querying-and-segmentation"
-                    target="_blank" rel="noopener noreferrer">
+                  <a href="https://listmonk.app/docs/querying-and-segmentation" target="_blank" rel="noopener noreferrer">
                     {{ $t('globals.buttons.learnMore') }}.
                   </a>
                 </span>
                 <div class="buttons">
-                  <b-button native-type="submit" type="is-primary"
-                    icon-left="magnify" data-cy="btn-query">{{ $t('subscribers.query') }}</b-button>
-                  <b-button @click.prevent="toggleAdvancedSearch" icon-left="cancel"
-                    data-cy="btn-query-reset">
+                  <b-button native-type="submit" type="is-primary" icon-left="magnify" data-cy="btn-query">
+                    {{
+                      $t('subscribers.query') }}
+                  </b-button>
+                  <b-button @click.prevent="toggleAdvancedSearch" icon-left="cancel" data-cy="btn-query-reset">
                     {{ $t('subscribers.reset') }}
                   </b-button>
                 </div>
@@ -72,139 +69,122 @@
     </section><!-- control -->
 
     <br />
-    <b-table
-      :data="subscribers.results"
-      :loading="loading.subscribers"
-      @check-all="onTableCheck" @check="onTableCheck"
-      :checked-rows.sync="bulk.checked"
-      paginated backend-pagination pagination-position="both" @page-change="onPageChange"
-      :current-page="queryParams.page" :per-page="subscribers.perPage" :total="subscribers.total"
-      hoverable checkable backend-sorting @sort="onSort">
-
-        <template #top-left>
-          <div class="actions">
-            <a class="a" href='' @click.prevent="exportSubscribers"
-             data-cy="btn-export-subscribers">
-              <b-icon icon="cloud-download-outline" size="is-small" />
-              {{ $t('subscribers.export') }}
+    <b-table :data="subscribers.results" :loading="loading.subscribers" @check-all="onTableCheck" @check="onTableCheck"
+      :checked-rows.sync="bulk.checked" paginated backend-pagination pagination-position="both"
+      @page-change="onPageChange" :current-page="queryParams.page" :per-page="subscribers.perPage"
+      :total="subscribers.total" hoverable checkable backend-sorting @sort="onSort">
+      <template #top-left>
+        <div class="actions">
+          <a class="a" href="#" @click.prevent="exportSubscribers" data-cy="btn-export-subscribers">
+            <b-icon icon="cloud-download-outline" size="is-small" />
+            {{ $t('subscribers.export') }}
+          </a>
+          <template v-if="bulk.checked.length > 0">
+            <a class="a" href="#" @click.prevent="showBulkListForm" data-cy="btn-manage-lists">
+              <b-icon icon="format-list-bulleted-square" size="is-small" /> Manage lists
             </a>
-            <template v-if="bulk.checked.length > 0">
-              <a class="a" href='' @click.prevent="showBulkListForm" data-cy="btn-manage-lists">
-                <b-icon icon="format-list-bulleted-square" size="is-small" /> Manage lists
-              </a>
-              <a class="a" href='' @click.prevent="deleteSubscribers"
-                data-cy="btn-delete-subscribers">
-                <b-icon icon="trash-can-outline" size="is-small" /> Delete
-              </a>
-              <a class="a" href='' @click.prevent="blocklistSubscribers"
-                data-cy="btn-manage-blocklist">
-                <b-icon icon="account-off-outline" size="is-small" /> Blocklist
-              </a>
-              <span class="a">
-                {{ $t('subscribers.numSelected', { num: numSelectedSubscribers }) }}
-                <span v-if="!bulk.all && subscribers.total > subscribers.perPage">
-                  &mdash;
-                  <a href="" @click.prevent="selectAllSubscribers">
-                    {{ $t('subscribers.selectAll', { num: subscribers.total }) }}
-                  </a>
-                </span>
+            <a class="a" href="#" @click.prevent="deleteSubscribers" data-cy="btn-delete-subscribers">
+              <b-icon icon="trash-can-outline" size="is-small" /> Delete
+            </a>
+            <a class="a" href="#" @click.prevent="blocklistSubscribers" data-cy="btn-manage-blocklist">
+              <b-icon icon="account-off-outline" size="is-small" /> Blocklist
+            </a>
+            <span class="a">
+              {{ $t('subscribers.numSelected', { num: numSelectedSubscribers }) }}
+              <span v-if="!bulk.all && subscribers.total > subscribers.perPage">
+                &mdash;
+                <a href="#" @click.prevent="selectAllSubscribers">
+                  {{ $t('subscribers.selectAll', { num: subscribers.total }) }}
+                </a>
               </span>
-            </template>
-          </div>
-        </template>
+            </span>
+          </template>
+        </div>
+      </template>
 
-        <b-table-column v-slot="props" field="status" :label="$t('globals.fields.status')"
-          header-class="cy-status" :td-attrs="$utils.tdID" sortable>
-          <a :href="`/subscribers/${props.row.id}`"
-            @click.prevent="showEditForm(props.row)">
-            <b-tag :class="props.row.status">
-              {{ $t(`subscribers.status.${props.row.status}`) }}
-            </b-tag>
+      <b-table-column v-slot="props" field="status" :label="$t('globals.fields.status')" header-class="cy-status"
+        :td-attrs="$utils.tdID" sortable>
+        <a :href="`/subscribers/${props.row.id}`" @click.prevent="showEditForm(props.row)">
+          <b-tag :class="props.row.status">
+            {{ $t(`subscribers.status.${props.row.status}`) }}
+          </b-tag>
+        </a>
+      </b-table-column>
+
+      <b-table-column v-slot="props" field="email" :label="$t('subscribers.email')" header-class="cy-email" sortable>
+        <a :href="`/subscribers/${props.row.id}`" @click.prevent="showEditForm(props.row)">
+          {{ props.row.email }}
+        </a>
+        <b-taglist>
+          <template v-for="l in props.row.lists">
+            <router-link :to="`/subscribers/lists/${l.id}`" :key="l.id" style="padding-right:0.5em;">
+              <b-tag :class="l.subscriptionStatus" size="is-small" :key="l.id">
+                {{ l.name }}
+                <sup v-if="l.optin === 'double' || l.subscriptionStatus == 'unsubscribed'">
+                  {{ $t(`subscribers.status.${l.subscriptionStatus}`) }}
+                </sup>
+              </b-tag>
+            </router-link>
+          </template>
+        </b-taglist>
+      </b-table-column>
+
+      <b-table-column v-slot="props" field="name" :label="$t('globals.fields.name')" header-class="cy-name" sortable>
+        <a :href="`/subscribers/${props.row.id}`" @click.prevent="showEditForm(props.row)">
+          {{ props.row.name }}
+        </a>
+      </b-table-column>
+
+      <b-table-column v-slot="props" field="lists" :label="$t('globals.terms.lists')" header-class="cy-lists" centered>
+        {{ listCount(props.row.lists) }}
+      </b-table-column>
+
+      <b-table-column v-slot="props" field="created_at" :label="$t('globals.fields.createdAt')"
+        header-class="cy-created_at" sortable>
+        {{ $utils.niceDate(props.row.createdAt) }}
+      </b-table-column>
+
+      <b-table-column v-slot="props" field="updated_at" :label="$t('globals.fields.updatedAt')"
+        header-class="cy-updated_at" sortable>
+        {{ $utils.niceDate(props.row.updatedAt) }}
+      </b-table-column>
+
+      <b-table-column v-slot="props" cell-class="actions" align="right">
+        <div>
+          <a :href="`/api/subscribers/${props.row.id}/export`" data-cy="btn-download"
+            :aria-label="$t('subscribers.downloadData')">
+            <b-tooltip :label="$t('subscribers.downloadData')" type="is-dark">
+              <b-icon icon="cloud-download-outline" size="is-small" />
+            </b-tooltip>
           </a>
-        </b-table-column>
-
-        <b-table-column v-slot="props" field="email" :label="$t('subscribers.email')"
-          header-class="cy-email" sortable>
-          <a :href="`/subscribers/${props.row.id}`"
-            @click.prevent="showEditForm(props.row)">
-            {{ props.row.email }}
+          <a :href="`/subscribers/${props.row.id}`" @click.prevent="showEditForm(props.row)" data-cy="btn-edit"
+            :aria-label="$t('globals.buttons.edit')">
+            <b-tooltip :label="$t('globals.buttons.edit')" type="is-dark">
+              <b-icon icon="pencil-outline" size="is-small" />
+            </b-tooltip>
           </a>
-          <b-taglist>
-            <template v-for="l in props.row.lists">
-              <router-link :to="`/subscribers/lists/${l.id}`"
-                v-bind:key="l.id" style="padding-right:0.5em;">
-                <b-tag :class="l.subscriptionStatus" size="is-small" :key="l.id">
-                  {{ l.name }}
-                  <sup v-if="l.optin === 'double' || l.subscriptionStatus == 'unsubscribed'">
-                    {{ $t(`subscribers.status.${l.subscriptionStatus}`) }}
-                  </sup>
-                </b-tag>
-              </router-link>
-            </template>
-          </b-taglist>
-        </b-table-column>
-
-        <b-table-column v-slot="props" field="name" :label="$t('globals.fields.name')"
-           header-class="cy-name" sortable>
-          <a :href="`/subscribers/${props.row.id}`"
-            @click.prevent="showEditForm(props.row)">
-            {{ props.row.name }}
+          <a href="#" @click.prevent="deleteSubscriber(props.row)" data-cy="btn-delete"
+            :aria-label="$t('globals.buttons.delete')">
+            <b-tooltip :label="$t('globals.buttons.delete')" type="is-dark">
+              <b-icon icon="trash-can-outline" size="is-small" />
+            </b-tooltip>
           </a>
-        </b-table-column>
+        </div>
+      </b-table-column>
 
-        <b-table-column v-slot="props" field="lists" :label="$t('globals.terms.lists')"
-          header-class="cy-lists" centered>
-          {{ listCount(props.row.lists) }}
-        </b-table-column>
-
-        <b-table-column v-slot="props" field="created_at" :label="$t('globals.fields.createdAt')"
-          header-class="cy-created_at" sortable>
-            {{ $utils.niceDate(props.row.createdAt) }}
-        </b-table-column>
-
-        <b-table-column v-slot="props" field="updated_at" :label="$t('globals.fields.updatedAt')"
-          header-class="cy-updated_at" sortable>
-            {{ $utils.niceDate(props.row.updatedAt) }}
-        </b-table-column>
-
-        <b-table-column v-slot="props" cell-class="actions" align="right">
-          <div>
-            <a :href="`/api/subscribers/${props.row.id}/export`" data-cy="btn-download">
-              <b-tooltip :label="$t('subscribers.downloadData')" type="is-dark">
-                <b-icon icon="cloud-download-outline" size="is-small" />
-              </b-tooltip>
-            </a>
-            <a :href="`/subscribers/${props.row.id}`"
-              @click.prevent="showEditForm(props.row)" data-cy="btn-edit">
-              <b-tooltip :label="$t('globals.buttons.edit')" type="is-dark">
-                <b-icon icon="pencil-outline" size="is-small" />
-              </b-tooltip>
-            </a>
-            <a href='' @click.prevent="deleteSubscriber(props.row)" data-cy="btn-delete">
-              <b-tooltip :label="$t('globals.buttons.delete')" type="is-dark">
-                <b-icon icon="trash-can-outline" size="is-small" />
-              </b-tooltip>
-            </a>
-          </div>
-        </b-table-column>
-
-        <template #empty v-if="!loading.subscribers">
-          <empty-placeholder />
-        </template>
+      <template #empty v-if="!loading.subscribers">
+        <empty-placeholder />
+      </template>
     </b-table>
 
     <!-- Manage list modal -->
-    <b-modal scroll="keep" :aria-modal="true" :active.sync="isBulkListFormVisible"
-      :width="500" class="has-overflow">
-      <subscriber-bulk-list :numSubscribers="this.numSelectedSubscribers"
-        @finished="bulkChangeLists" />
+    <b-modal scroll="keep" :aria-modal="true" :active.sync="isBulkListFormVisible" :width="500" class="has-overflow">
+      <subscriber-bulk-list :num-subscribers="this.numSelectedSubscribers" @finished="bulkChangeLists" />
     </b-modal>
 
     <!-- Add / edit form modal -->
-    <b-modal scroll="keep" :aria-modal="true" :active.sync="isFormVisible" :width="800"
-      @close="onFormClose">
-      <subscriber-form :data="curItem" :isEditing="isEditing"
-        @finished="querySubscribers"></subscriber-form>
+    <b-modal scroll="keep" :aria-modal="true" :active.sync="isFormVisible" :width="800" @close="onFormClose">
+      <subscriber-form :data="curItem" :is-editing="isEditing" @finished="querySubscribers" />
     </b-modal>
   </section>
 </template>
@@ -212,10 +192,10 @@
 <script>
 import Vue from 'vue';
 import { mapState } from 'vuex';
-import SubscriberForm from './SubscriberForm.vue';
-import SubscriberBulkList from './SubscriberBulkList.vue';
 import EmptyPlaceholder from '../components/EmptyPlaceholder.vue';
 import { uris } from '../constants';
+import SubscriberBulkList from './SubscriberBulkList.vue';
+import SubscriberForm from './SubscriberForm.vue';
 
 export default Vue.extend({
   components: {
@@ -445,8 +425,10 @@ export default Vue.extend({
           }).then(() => {
             this.querySubscribers();
 
-            this.$utils.toast(this.$t('subscribers.subscribersDeleted',
-              { num: this.numSelectedSubscribers }));
+            this.$utils.toast(this.$t(
+              'subscribers.subscribersDeleted',
+              { num: this.numSelectedSubscribers },
+            ));
           });
         };
       }
