@@ -227,6 +227,10 @@ export default {
             tooltip: 'Insert HTML',
             onAction: this.onOpenInsertHTML,
           });
+
+          editor.on('CloseWindow', () => {
+            editor.selection.getNode().scrollIntoView(false);
+          });
         },
 
         browser_spellcheck: true,
