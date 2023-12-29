@@ -270,8 +270,6 @@ import Editor from '../components/Editor.vue';
 import ListSelector from '../components/ListSelector.vue';
 import Media from './Media.vue';
 
-const TABS = ['campaign', 'content', 'archive'];
-
 export default Vue.extend({
   components: {
     ListSelector,
@@ -286,7 +284,7 @@ export default Vue.extend({
       isHeadersVisible: false,
       isAttachFieldVisible: false,
       isAttachModalOpen: false,
-      activeTab: 0,
+      activeTab: 'campaign',
 
       data: {},
 
@@ -361,13 +359,15 @@ export default Vue.extend({
         || this.data.contentType !== this.form.content.contentType;
     },
 
-    onTab(t) {
-      const tab = TABS[t];
+    onTab(tab) {
       if (tab === 'content' && window.tinymce && window.tinymce.editors.length > 0) {
         this.$nextTick(() => {
           window.tinymce.editors[0].focus();
         });
       }
+
+      // this.$router.replace({ hash: `#${tab}` });
+      window.history.replaceState({}, '', `#${tab}`);
     },
 
     onFillArchiveMeta() {
@@ -662,8 +662,8 @@ export default Vue.extend({
     // Fetch campaign.
     if (this.isEditing) {
       this.getCampaign(id).then(() => {
-        if (this.$route.hash === '#content') {
-          this.activeTab = 1;
+        if (this.$route.hash !== '') {
+          this.activeTab = this.$route.hash.replace('#', '');
         }
       });
     } else {
