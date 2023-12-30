@@ -458,7 +458,7 @@ func handleManageSubscriberListsByQuery(c echo.Context) error {
 	var err error
 	switch req.Action {
 	case "add":
-		err = app.core.AddSubscriptionsByQuery(req.Query, req.ListIDs, req.TargetListIDs)
+		err = app.core.AddSubscriptionsByQuery(req.Query, req.ListIDs, req.TargetListIDs, req.Status)
 	case "remove":
 		err = app.core.DeleteSubscriptionsByQuery(req.Query, req.ListIDs, req.TargetListIDs)
 	case "unsubscribe":

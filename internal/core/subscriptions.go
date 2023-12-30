@@ -35,12 +35,12 @@ func (c *Core) AddSubscriptions(subIDs, listIDs []int, status string) error {
 
 // AddSubscriptionsByQuery adds list subscriptions to subscribers by a given arbitrary query expression.
 // sourceListIDs is the list of list IDs to filter the subscriber query with.
-func (c *Core) AddSubscriptionsByQuery(query string, sourceListIDs, targetListIDs []int) error {
+func (c *Core) AddSubscriptionsByQuery(query string, sourceListIDs, targetListIDs []int, status string) error {
 	if sourceListIDs == nil {
 		sourceListIDs = []int{}
 	}
 
-	err := c.q.ExecSubQueryTpl(sanitizeSQLExp(query), c.q.AddSubscribersToListsByQuery, sourceListIDs, c.db, pq.Array(targetListIDs))
+	err := c.q.ExecSubQueryTpl(sanitizeSQLExp(query), c.q.AddSubscribersToListsByQuery, sourceListIDs, c.db, pq.Array(targetListIDs), status)
 	if err != nil {
 		c.log.Printf("error adding subscriptions by query: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,

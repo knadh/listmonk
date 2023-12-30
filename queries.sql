@@ -386,8 +386,8 @@ UPDATE subscriber_lists SET status='unsubscribed', updated_at=NOW()
 -- name: add-subscribers-to-lists-by-query
 -- raw: true
 WITH subs AS (%s)
-INSERT INTO subscriber_lists (subscriber_id, list_id)
-    (SELECT a, b FROM UNNEST(ARRAY(SELECT id FROM subs)) a, UNNEST($3::INT[]) b)
+INSERT INTO subscriber_lists (subscriber_id, list_id, status)
+    (SELECT a, b, (CASE WHEN $4 != '' THEN $4::subscription_status ELSE 'unconfirmed' END) FROM UNNEST(ARRAY(SELECT id FROM subs)) a, UNNEST($3::INT[]) b)
     ON CONFLICT (subscriber_id, list_id) DO NOTHING;
 
 -- name: delete-subscriptions-by-query
