@@ -169,6 +169,9 @@ export default Vue.extend({
 
   methods: {
     makeChart(data) {
+      if (data.length === 0) {
+        return {};
+      }
       return {
         labels: data.map((d) => dayjs(d.date).format('DD MMM')),
         datasets: [
