@@ -47,7 +47,7 @@ type campaignContentReq struct {
 }
 
 var (
-	regexFromAddress = regexp.MustCompile(`(.+?)\s<(.+?)@(.+?)>`)
+	regexFromAddress = regexp.MustCompile(`((.+?)\s)?<(.+?)@(.+?)>`)
 )
 
 // handleGetCampaigns handles retrieval of campaigns.
