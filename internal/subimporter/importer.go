@@ -103,9 +103,9 @@ type Status struct {
 // SubReq is a wrapper over the Subscriber model.
 type SubReq struct {
 	models.Subscriber
-	Lists          pq.Int64Array  `json:"lists"`
-	ListUUIDs      pq.StringArray `json:"list_uuids"`
-	PreconfirmSubs bool           `json:"preconfirm_subscriptions"`
+	Lists          []int    `json:"lists"`
+	ListUUIDs      []string `json:"list_uuids"`
+	PreconfirmSubs bool     `json:"preconfirm_subscriptions"`
 }
 
 type importStatusTpl struct {
@@ -263,11 +263,11 @@ func (s *Session) Start() {
 		total = 0
 		cur   = 0
 
-		listIDs = make(pq.Int64Array, len(s.opt.ListIDs))
+		listIDs = make([]int, len(s.opt.ListIDs))
 	)
 
 	for i, v := range s.opt.ListIDs {
-		listIDs[i] = int64(v)
+		listIDs[i] = v
 	}
 
 	for sub := range s.subQueue {
@@ -294,7 +294,7 @@ func (s *Session) Start() {
 		}
 
 		if s.opt.Mode == ModeSubscribe {
-			_, err = stmt.Exec(uu, sub.Email, sub.Name, sub.Attribs, listIDs, s.opt.SubStatus, s.opt.Overwrite)
+			_, err = stmt.Exec(uu, sub.Email, sub.Name, sub.Attribs, pq.Array(listIDs), s.opt.SubStatus, s.opt.Overwrite)
 		} else if s.opt.Mode == ModeBlocklist {
 			_, err = stmt.Exec(uu, sub.Email, sub.Name, sub.Attribs)
 		}
@@ -324,7 +324,7 @@ func (s *Session) Start() {
 	if cur == 0 {
 		s.im.setStatus(StatusFinished)
 		s.log.Printf("imported finished")
-		if _, err := s.im.opt.UpdateListDateStmt.Exec(listIDs); err != nil {
+		if _, err := s.im.opt.UpdateListDateStmt.Exec(pq.Array(listIDs)); err != nil {
 			s.log.Printf("error updating lists date: %v", err)
 		}
 		s.im.sendNotif(StatusFinished)
@@ -343,7 +343,7 @@ func (s *Session) Start() {
 	s.im.incrementImportCount(cur)
 	s.im.setStatus(StatusFinished)
 	s.log.Printf("imported finished")
-	if _, err := s.im.opt.UpdateListDateStmt.Exec(listIDs); err != nil {
+	if _, err := s.im.opt.UpdateListDateStmt.Exec(pq.Array(listIDs)); err != nil {
 		s.log.Printf("error updating lists date: %v", err)
 	}
 	s.im.sendNotif(StatusFinished)
@@ -486,14 +486,10 @@ func (s *Session) LoadCSV(srcPath string, delim rune) error {
 	}
 
 	hdrKeys := s.mapCSVHeaders(csvHdr, csvHeaders)
-	// email, and name are required headers.
+	// email is a required header.
 	if _, ok := hdrKeys["email"]; !ok {
 		s.log.Printf("'email' column not found in '%s'", srcPath)
 		return errors.New("'email' column not found")
-	}
-	if _, ok := hdrKeys["name"]; !ok {
-		s.log.Printf("'name' column not found in '%s'", srcPath)
-		return errors.New("'name' column not found")
 	}
 
 	var (
@@ -541,9 +537,12 @@ func (s *Session) LoadCSV(srcPath string, delim rune) error {
 
 		sub := SubReq{}
 		sub.Email = row["email"]
-		sub.Name = row["name"]
 
-		sub, err = s.im.validateFields(sub)
+		if v, ok := row["name"]; ok {
+			sub.Name = v
+		}
+
+		sub, err = s.im.ValidateFields(sub)
 		if err != nil {
 			s.log.Printf("skipping line %d: %s: %v", i, sub.Email, err)
 			continue
@@ -630,15 +629,10 @@ func (im *Importer) SanitizeEmail(email string) (string, error) {
 	return em.Address, nil
 }
 
-// validateFields validates incoming subscriber field values and returns sanitized fields.
-func (im *Importer) validateFields(s SubReq) (SubReq, error) {
+// ValidateFields validates incoming subscriber field values and returns sanitized fields.
+func (im *Importer) ValidateFields(s SubReq) (SubReq, error) {
 	if len(s.Email) > 1000 {
 		return s, errors.New(im.i18n.T("subscribers.invalidEmail"))
-	}
-
-	s.Name = strings.TrimSpace(s.Name)
-	if len(s.Name) == 0 || len(s.Name) > stdInputMaxLen {
-		return s, errors.New(im.i18n.T("subscribers.invalidName"))
 	}
 
 	em, err := im.SanitizeEmail(s.Email)
@@ -646,6 +640,19 @@ func (im *Importer) validateFields(s SubReq) (SubReq, error) {
 		return s, err
 	}
 	s.Email = strings.ToLower(em)
+
+	// If there's no name, use the name part of the e-mail.
+	s.Name = strings.TrimSpace(s.Name)
+	if len(s.Name) == 0 {
+		name := strings.ToLower(strings.Split(s.Email, "@")[0])
+
+		parts := strings.Fields(strings.ReplaceAll(name, ".", " "))
+		for n, p := range parts {
+			parts[n] = strings.Title(p)
+		}
+
+		s.Name = strings.Join(parts, " ")
+	}
 
 	return s, nil
 }

@@ -10,6 +10,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/knadh/listmonk/internal/subimporter"
 	"github.com/knadh/listmonk/models"
 	"github.com/labstack/echo/v4"
 )
@@ -183,12 +184,7 @@ loop:
 func handleCreateSubscriber(c echo.Context) error {
 	var (
 		app = c.Get("app").(*App)
-		req struct {
-			models.Subscriber
-			Lists          []int    `json:"lists"`
-			ListUUIDs      []string `json:"list_uuids"`
-			PreconfirmSubs bool     `json:"preconfirm_subscriptions"`
-		}
+		req subimporter.SubReq
 	)
 
 	// Get and validate fields.
@@ -197,19 +193,9 @@ func handleCreateSubscriber(c echo.Context) error {
 	}
 
 	// Validate fields.
-	if len(req.Email) > 1000 {
-		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("subscribers.invalidEmail"))
-	}
-
-	em, err := app.importer.SanitizeEmail(req.Email)
+	req, err := app.importer.ValidateFields(req)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
-	}
-	req.Email = em
-
-	req.Name = strings.TrimSpace(req.Name)
-	if len(req.Name) == 0 || len(req.Name) > stdInputMaxLen {
-		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("subscribers.invalidName"))
 	}
 
 	// Insert the subscriber into the DB.
