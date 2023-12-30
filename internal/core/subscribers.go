@@ -272,14 +272,12 @@ func (c *Core) InsertSubscriber(sub models.Subscriber, listIDs []int, listUUIDs 
 		pq.Array(listUUIDs),
 		subStatus); err != nil {
 		if pqErr, ok := err.(*pq.Error); ok && pqErr.Constraint == "subscribers_email_key" {
-			return models.Subscriber{}, false, echo.NewHTTPError(http.StatusConflict,
-				c.i18n.T("subscribers.emailExists"))
+			return models.Subscriber{}, false, echo.NewHTTPError(http.StatusConflict, c.i18n.T("subscribers.emailExists"))
 		} else {
 			// return sub.Subscriber, errSubscriberExists
 			c.log.Printf("error inserting subscriber: %v", err)
 			return models.Subscriber{}, false, echo.NewHTTPError(http.StatusInternalServerError,
-				c.i18n.Ts("globals.messages.errorCreating",
-					"name", "{globals.terms.subscriber}", "error", pqErrMsg(err)))
+				c.i18n.Ts("globals.messages.errorCreating", "name", "{globals.terms.subscriber}", "error", pqErrMsg(err)))
 		}
 	}
 
@@ -337,7 +335,7 @@ func (c *Core) UpdateSubscriber(id int, sub models.Subscriber) (models.Subscribe
 // UpdateSubscriberWithLists updates a subscriber's properties.
 // If deleteLists is set to true, all existing subscriptions are deleted and only
 // the ones provided are added or retained.
-func (c *Core) UpdateSubscriberWithLists(id int, sub models.Subscriber, listIDs []int, listUUIDs []string, preconfirm, deleteLists bool) (models.Subscriber, error) {
+func (c *Core) UpdateSubscriberWithLists(id int, sub models.Subscriber, listIDs []int, listUUIDs []string, preconfirm, deleteLists bool) (models.Subscriber, bool, error) {
 	subStatus := models.SubscriptionStatusUnconfirmed
 	if preconfirm {
 		subStatus = models.SubscriptionStatusConfirmed
@@ -347,7 +345,7 @@ func (c *Core) UpdateSubscriberWithLists(id int, sub models.Subscriber, listIDs 
 	attribs := []byte("{}")
 	if len(sub.Attribs) > 0 {
 		if b, err := json.Marshal(sub.Attribs); err != nil {
-			return models.Subscriber{}, echo.NewHTTPError(http.StatusInternalServerError,
+			return models.Subscriber{}, false, echo.NewHTTPError(http.StatusInternalServerError,
 				c.i18n.Ts("globals.messages.errorUpdating",
 					"name", "{globals.terms.subscriber}", "error", err.Error()))
 		} else {
@@ -366,21 +364,23 @@ func (c *Core) UpdateSubscriberWithLists(id int, sub models.Subscriber, listIDs 
 		deleteLists)
 	if err != nil {
 		c.log.Printf("error updating subscriber: %v", err)
-		return models.Subscriber{}, echo.NewHTTPError(http.StatusInternalServerError,
+		return models.Subscriber{}, false, echo.NewHTTPError(http.StatusInternalServerError,
 			c.i18n.Ts("globals.messages.errorUpdating", "name", "{globals.terms.subscriber}", "error", pqErrMsg(err)))
 	}
 
 	out, err := c.GetSubscriber(sub.ID, "", sub.Email)
 	if err != nil {
-		return models.Subscriber{}, err
+		return models.Subscriber{}, false, err
 	}
 
+	hasOptin := false
 	if !preconfirm && c.constants.SendOptinConfirmation {
 		// Send a confirmation e-mail (if there are any double opt-in lists).
-		c.h.SendOptinConfirmation(out, listIDs)
+		num, _ := c.h.SendOptinConfirmation(out, listIDs)
+		hasOptin = num > 0
 	}
 
-	return out, nil
+	return out, hasOptin, nil
 }
 
 // BlocklistSubscribers blocklists the given list of subscribers.

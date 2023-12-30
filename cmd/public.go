@@ -705,11 +705,12 @@ func processSubForm(c echo.Context) (bool, error) {
 				return false, err
 			}
 
-			if _, err := app.core.UpdateSubscriberWithLists(sub.ID, sub, nil, listUUIDs, false, false); err != nil {
+			_, hasOptin, err := app.core.UpdateSubscriberWithLists(sub.ID, sub, nil, listUUIDs, false, false)
+			if err != nil {
 				return false, err
 			}
 
-			return false, nil
+			return hasOptin, nil
 		}
 
 		return false, echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("%s", err.(*echo.HTTPError).Message))
