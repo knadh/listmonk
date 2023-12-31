@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"crypto/subtle"
 	"net/http"
 	"path"
@@ -236,6 +237,8 @@ func handleAdminPage(c echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
+
+	b = bytes.ReplaceAll(b, []byte("asset_version"), []byte(app.constants.AssetVersion))
 
 	return c.HTMLBlob(http.StatusOK, b)
 }

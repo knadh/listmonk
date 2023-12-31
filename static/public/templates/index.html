@@ -12,14 +12,14 @@
 			href="{{ .RootURL }}/archive.xml" />
 	{{ end }}
 
-	<link href="/public/static/style.css?v2.3.0" rel="stylesheet" type="text/css" />
-	<link href="/public/custom.css" rel="stylesheet" type="text/css">
-	<script src="/public/custom.js" async defer></script>
+	<link href="/public/static/style.css?v={{ .AssetVersion }}" rel="stylesheet" type="text/css" />
+	<link href="/public/custom.css?v={{ .AssetVersion }}" rel="stylesheet" type="text/css">
+	<script src="/public/custom.js?v={{ .AssetVersion }}" async defer></script>
 
 	{{ if ne .FaviconURL "" }}
 		<link rel="shortcut icon" href="{{ .FaviconURL }}" type="image/x-icon" />
 	{{ else }}
-		<link rel="shortcut icon" href="/public/static/favicon.png" type="image/x-icon" />
+		<link rel="shortcut icon" href="/public/static/favicon.png?v={{ .AssetVersion }}" type="image/x-icon" />
 	{{ end }}
 </head>
 <body>
@@ -30,7 +30,7 @@
 				{{ if ne .LogoURL "" }}
 					<img src="{{ .LogoURL }}" alt="{{ .Data.Title }}" /></a>
 				{{ else }}
-					<img src="/public/static/logo.svg" alt="{{ .Data.Title }}" />
+					<img src="/public/static/logo.svg?v={{ .AssetVersion }}" alt="{{ .Data.Title }}" />
 				{{ end }}
 				</a>
 			</div>

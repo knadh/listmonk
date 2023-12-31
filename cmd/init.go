@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"crypto/md5"
 	"encoding/json"
 	"fmt"
 	"html/template"
@@ -94,6 +95,7 @@ type constants struct {
 	OptinURL     string
 	MessageURL   string
 	ArchiveURL   string
+	AssetVersion string
 
 	MediaUpload struct {
 		Provider   string
@@ -413,6 +415,9 @@ func initConstants() *constants {
 	c.BounceSESEnabled = ko.Bool("bounce.ses_enabled")
 	c.BounceSendgridEnabled = ko.Bool("bounce.sendgrid_enabled")
 	c.BouncePostmarkEnabled = ko.Bool("bounce.postmark.enabled")
+
+	b := md5.Sum([]byte(time.Now().String()))
+	c.AssetVersion = fmt.Sprintf("%x", b)[0:10]
 
 	return &c
 }
@@ -756,6 +761,7 @@ func initHTTPServer(app *App) *echo.Echo {
 		RootURL:             app.constants.RootURL,
 		LogoURL:             app.constants.LogoURL,
 		FaviconURL:          app.constants.FaviconURL,
+		AssetVersion:        app.constants.AssetVersion,
 		EnablePublicSubPage: app.constants.EnablePublicSubPage,
 		EnablePublicArchive: app.constants.EnablePublicArchive,
 	}

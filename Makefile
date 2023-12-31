@@ -13,6 +13,7 @@ FRONTEND_YARN_MODULES = frontend/node_modules
 FRONTEND_DIST = frontend/dist
 FRONTEND_DEPS = \
 	$(FRONTEND_YARN_MODULES) \
+	frontend/index.html \
 	frontend/package.json \
 	frontend/vite.config.js \
 	frontend/.eslintrc.js \
