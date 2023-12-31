@@ -13,8 +13,8 @@
         </h4>
 
         <p v-if="isEditing" class="has-text-grey is-size-7">
-          {{ $t('globals.fields.id') }}: <span data-cy="id">{{ data.id }}</span> /
-          {{ $t('globals.fields.uuid') }}: {{ data.uuid }}
+          {{ $t('globals.fields.id') }}: <span data-cy="id"><copy-text :text="`${data.id}`" /></span>
+          {{ $t('globals.fields.uuid') }}: <copy-text :text="data.uuid" />
         </p>
       </header>
 
@@ -72,7 +72,7 @@
           </div>
         </b-field>
 
-        <div class="mb-5" v-if="data.lists">
+        <div class="mb-5 mt-6" v-if="data.lists">
           <h5>{{ $tc('globals.terms.subscriptions', 2) }} ({{ data.lists.length }})</h5>
           <b-table :data="data.lists" hoverable default-sort="createdAt" class="subscriptions">
             <b-table-column v-slot="props" field="name" :label="$tc('globals.terms.list', 1)">
@@ -158,10 +158,12 @@
 import Vue from 'vue';
 import { mapState } from 'vuex';
 import ListSelector from '../components/ListSelector.vue';
+import CopyText from '../components/CopyText.vue';
 
 export default Vue.extend({
   components: {
     ListSelector,
+    CopyText,
   },
 
   props: {

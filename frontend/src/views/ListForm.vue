@@ -3,8 +3,8 @@
     <div class="modal-card content" style="width: auto">
       <header class="modal-card-head">
         <p v-if="isEditing" class="has-text-grey-light is-size-7">
-          {{ $t('globals.fields.id') }}: {{ data.id }} /
-          {{ $t('globals.fields.uuid') }}: {{ data.uuid }}
+          {{ $t('globals.fields.id') }}: <copy-text :text="`${data.id}`" />
+          {{ $t('globals.fields.uuid') }}: <copy-text :text="data.uuid" />
         </p>
         <b-tag v-if="isEditing" :class="[data.type, 'is-pulled-right']">
           {{ $t(`lists.types.${data.type}`) }}
@@ -69,9 +69,14 @@
 <script>
 import Vue from 'vue';
 import { mapState } from 'vuex';
+import CopyText from '../components/CopyText.vue';
 
 export default Vue.extend({
   name: 'ListForm',
+
+  components: {
+    CopyText,
+  },
 
   props: {
     data: { type: Object, default: () => ({}) },

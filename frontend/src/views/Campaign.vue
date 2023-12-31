@@ -10,8 +10,8 @@
             {{ $t('lists.optin') }}
           </b-tag>
           <span v-if="isEditing" class="has-text-grey-light is-size-7" :data-campaign-id="data.id">
-            {{ $t('globals.fields.id') }}: {{ data.id }} /
-            {{ $t('globals.fields.uuid') }}: {{ data.uuid }}
+            {{ $t('globals.fields.id') }}: <copy-text :text="`${data.id}`" />
+            {{ $t('globals.fields.uuid') }}: <copy-text :text="data.uuid" />
           </span>
         </p>
         <h4 v-if="isEditing" class="title is-4">
@@ -266,6 +266,7 @@ import htmlToPlainText from 'textversionjs';
 import Vue from 'vue';
 import { mapState } from 'vuex';
 
+import CopyText from '../components/CopyText.vue';
 import Editor from '../components/Editor.vue';
 import ListSelector from '../components/ListSelector.vue';
 import Media from './Media.vue';
@@ -275,6 +276,7 @@ export default Vue.extend({
     ListSelector,
     Editor,
     Media,
+    CopyText,
   },
 
   data() {

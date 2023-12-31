@@ -131,6 +131,19 @@ section {
     background-color: #efefef;
   }
 
+.copy-text {
+  color: inherit;
+  .icon {
+    visibility: hidden;
+  }
+
+  &:hover {
+    color: $primary;
+    .icon {
+      visibility: visible;
+    }
+  }
+}
 
 /* Two column sidebar+body layout */
 #app {
