@@ -153,9 +153,9 @@ The `master` branch with bleeding edge changes is periodically built and publish
 ## Tutorials
 
 * [Informal step-by-step on how to get started with Listmonk using **Railway**](https://github.com/knadh/listmonk/issues/120#issuecomment-1421838533)
-* [Quick setup on any cloud server using **docker and caddy**](https://github.com/samyogdhital/listmonk-caddy-reverse-proxy)
 * [Step-by-step tutorial for installation and all basic functions. **Amazon EC2, SES, docker & binary**](https://gist.github.com/MaximilianKohler/e5158fcfe6de80a9069926a67afcae11)
 * [Step-by-step guide on how to install and set up Listmonk on **AWS Lightsail with docker** (rameerez)](https://github.com/knadh/listmonk/issues/1208)
+* [Quick setup on any cloud server using **docker and caddy**](https://github.com/samyogdhital/listmonk-caddy-reverse-proxy)
 * [**Binary** install on Ubuntu 22.04 as a service](https://mumaritc.hashnode.dev/how-to-install-listmonk-using-binary-on-ubuntu-2204)
 * [**Binary** install on Ubuntu 18.04 as a service (Apache & Plesk)](https://devgypsy.com/post/2020-08-18-installing-listmonk-newsletter-manager/)
 * [**Binary and docker** on linux (techviewleo)](https://techviewleo.com/manage-mailing-list-and-newsletter-using-listmonk/)
