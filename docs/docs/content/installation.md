@@ -153,13 +153,14 @@ The `master` branch with bleeding edge changes is periodically built and publish
 ## Tutorials
 
 * [Informal step-by-step on how to get started with Listmonk using **Railway**](https://github.com/knadh/listmonk/issues/120#issuecomment-1421838533)
-* [Complete Listmonk setup guide. Step-by-step tutorial for installation and all basic functions. **Amazon EC2 & SES**](https://gist.github.com/MaximilianKohler/e5158fcfe6de80a9069926a67afcae11)
-* [Step-by-step guide on how to install and set up Listmonk on a server (rameerez, **AWS Lightsail & docker**)](https://github.com/knadh/listmonk/issues/1208)
+* [Step-by-step tutorial for installation and all basic functions. **Amazon EC2, SES, docker & binary**](https://gist.github.com/MaximilianKohler/e5158fcfe6de80a9069926a67afcae11)
+* [Step-by-step guide on how to install and set up Listmonk on **AWS Lightsail with docker** (rameerez)](https://github.com/knadh/listmonk/issues/1208)
+* [Quick setup on any cloud server using **docker and caddy**](https://github.com/samyogdhital/listmonk-caddy-reverse-proxy)
 * [**Binary** install on Ubuntu 22.04 as a service](https://mumaritc.hashnode.dev/how-to-install-listmonk-using-binary-on-ubuntu-2204)
 * [**Binary** install on Ubuntu 18.04 as a service (Apache & Plesk)](https://devgypsy.com/post/2020-08-18-installing-listmonk-newsletter-manager/)
 * [**Binary and docker** on linux (techviewleo)](https://techviewleo.com/manage-mailing-list-and-newsletter-using-listmonk/)
 * [**Binary** install on your PC](https://www.youtube.com/watch?v=fAOBqgR9Yfo). Discussions of limitations: [[1](https://github.com/knadh/listmonk/issues/862#issuecomment-1307328228)][[2](https://github.com/knadh/listmonk/issues/248#issuecomment-1320806990)].
-* [Install Listmonk with **Docker on Rocky Linux 8** (nginx, Let's Encrypt SSL)](https://wiki.crowncloud.net/?How_to_Install_Listmonk_with_Docker_on_Rocky_Linux_8)
+* [**Docker on Rocky Linux 8** (nginx, Let's Encrypt SSL)](https://wiki.crowncloud.net/?How_to_Install_Listmonk_with_Docker_on_Rocky_Linux_8)
 * [**Docker** with nginx reverse proxy, certbot SSL, and Gmail SMTP](https://www.maketecheasier.com/create-own-newsletter-with-listmonk/)
 * [Install Listmonk on Self-hosting with **Pre-Configured AMI Package at AWS** by Single Click](https://meetrix.io/articles/how-to-install-llama-2-on-aws-with-pre-configured-ami-package/)
 * [Tutorial for deploying on **Fly.io**](https://github.com/paulrudy/listmonk-on-fly) -- Currently [not working](https://github.com/knadh/listmonk/issues/984#issuecomment-1694545255)
