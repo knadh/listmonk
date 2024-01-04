@@ -28,10 +28,12 @@ func newManagerStore(q *models.Queries, c *core.Core, m media.Store) *store {
 	}
 }
 
-// NextCampaigns retrieves active campaigns ready to be processed.
-func (s *store) NextCampaigns(excludeIDs []int64) ([]*models.Campaign, error) {
+// NextCampaigns retrieves active campaigns ready to be processed excluding
+// campaigns that are also being processed. Additionally, it takes a map of campaignID:sentCount
+// of campaigns that are being processed and updates them in the DB.
+func (s *store) NextCampaigns(currentIDs []int64, sentCounts []int64) ([]*models.Campaign, error) {
 	var out []*models.Campaign
-	err := s.queries.NextCampaigns.Select(&out, pq.Int64Array(excludeIDs))
+	err := s.queries.NextCampaigns.Select(&out, pq.Int64Array(currentIDs), pq.Int64Array(sentCounts))
 	return out, err
 }
 
@@ -55,6 +57,12 @@ func (s *store) GetCampaign(campID int) (*models.Campaign, error) {
 // UpdateCampaignStatus updates a campaign's status.
 func (s *store) UpdateCampaignStatus(campID int, status string) error {
 	_, err := s.queries.UpdateCampaignStatus.Exec(campID, status)
+	return err
+}
+
+// UpdateCampaignStatus updates a campaign's status.
+func (s *store) UpdateCampaignCounts(campID int, toSend int, sent int, lastSubID int) error {
+	_, err := s.queries.UpdateCampaignCounts.Exec(campID, toSend, sent, lastSubID)
 	return err
 }
 
