@@ -15,7 +15,7 @@
       </h4><br />
       <div class="columns">
         <div class="column is-4">
-          <b-field label="Data" message="$t('maintenance.orphanHelp')">
+          <b-field label="Data" :message="$t('maintenance.orphanHelp')">
             <b-select v-model="subscriberType" expanded>
               <option value="orphan">
                 {{ $t('dashboard.orphanSubs') }}
