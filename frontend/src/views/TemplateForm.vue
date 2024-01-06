@@ -3,8 +3,8 @@
     <form @submit.prevent="onSubmit">
       <div class="modal-card content template-modal-content" style="width: auto">
         <header class="modal-card-head">
-          <b-button @click="previewTemplate" class="is-pulled-right" type="is-primary" icon-left="file-find-outline">
-            {{ $t('templates.preview') }}
+          <b-button @click="onTogglePreview" class="is-pulled-right" type="is-primary" icon-left="file-find-outline">
+            {{ $t('templates.preview') }} (F9)
           </b-button>
 
           <template v-if="isEditing">
@@ -71,7 +71,7 @@
       </div>
     </form>
     <campaign-preview v-if="previewItem" type="template" :title="previewItem.name" :template-type="previewItem.type"
-      :body="form.body" @close="closePreview" />
+      :body="form.body" @close="onTogglePreview" />
   </section>
 </template>
 
@@ -110,12 +110,15 @@ export default Vue.extend({
   },
 
   methods: {
-    previewTemplate() {
-      this.previewItem = this.form;
+    onTogglePreview() {
+      this.previewItem = !this.previewItem ? this.form : null;
     },
 
-    closePreview() {
-      this.previewItem = null;
+    onPreviewShortcut(e) {
+      if (e.key === 'F9') {
+        this.onTogglePreview();
+        e.preventDefault();
+      }
     },
 
     onSubmit() {
@@ -170,6 +173,12 @@ export default Vue.extend({
     this.$nextTick(() => {
       this.$refs.focus.focus();
     });
+
+    window.addEventListener('keydown', this.onPreviewShortcut);
+  },
+
+  beforeDestroy() {
+    window.removeEventListener('keydown', this.onPreviewShortcut);
   },
 });
 </script>

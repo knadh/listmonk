@@ -29,7 +29,7 @@
       </div>
       <div class="column is-6 has-text-right">
         <b-button @click="onTogglePreview" type="is-primary" icon-left="file-find-outline" data-cy="btn-preview">
-          {{ $t('campaigns.preview') }}
+          {{ $t('campaigns.preview') }} (F9)
         </b-button>
       </div>
     </div>
@@ -231,6 +231,13 @@ export default {
           editor.on('CloseWindow', () => {
             editor.selection.getNode().scrollIntoView(false);
           });
+
+          editor.on('keydown', (e) => {
+            if (e.key === 'F9') {
+              this.onTogglePreview();
+              e.preventDefault();
+            }
+          });
         },
 
         browser_spellcheck: true,
@@ -400,6 +407,13 @@ export default {
       this.runTinyMceImageCallback(media.url);
     },
 
+    onPreviewShortcut(e) {
+      if (e.key === 'F9') {
+        this.onTogglePreview();
+        e.preventDefault();
+      }
+    },
+
     beautifyHTML(str) {
       // Pad all tags with linebreaks.
       let s = this.trimLines(str.replace(/(<(?!(\/)?a|span)([^>]+)>)/ig, '\n$1\n'), true);
@@ -427,6 +441,12 @@ export default {
 
   mounted() {
     this.initRichtextEditor();
+
+    window.addEventListener('keydown', this.onPreviewShortcut);
+  },
+
+  beforeDestroy() {
+    window.removeEventListener('keydown', this.onPreviewShortcut);
   },
 
   computed: {
