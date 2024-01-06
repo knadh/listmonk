@@ -10,7 +10,7 @@
           <template v-if="isEditing">
             <h4>{{ data.name }}</h4>
             <p class="has-text-grey is-size-7">
-              {{ $t('globals.fields.id') }}: <span data-cy="id"><copy-text :text="data.id" /></span>
+              {{ $t('globals.fields.id') }}: <span data-cy="id"><copy-text :text="`${data.id}`" /></span>
             </p>
           </template>
           <h4 v-else>
