@@ -23,6 +23,8 @@
     "campaigns.archiveHelp": "Опубликовать (запущено, на паузе, завершено) сообщение кампании в общедоступном архиве.",
     "campaigns.archiveMeta": "Метаданные кампании",
     "campaigns.archiveMetaHelp": "Данные фиктивных подписчиков для использования в публичном сообщении, включая имя, электронную почту и любые дополнительные атрибуты, используемые в сообщении или шаблоне кампании.",
+    "campaigns.archiveSlug": "URL Slug",
+    "campaigns.archiveSlugHelp": "A short name for the page to be used in the public URL. eg: my-newsletter-edition-2",
     "campaigns.attachments": "Вложения",
     "campaigns.cantUpdate": "Не возможно обновить запущенную или завершённую кампанию.",
     "campaigns.clicks": "Клики",

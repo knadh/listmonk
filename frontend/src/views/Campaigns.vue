@@ -145,8 +145,10 @@
           <p v-if="stats.rate">
             <label for="#"><b-icon icon="speedometer" size="is-small" /></label>
             <span class="send-rate">
-              <b-tooltip :label="`${stats.netRate} / ${$t('campaigns.rateMinuteShort')} @
-                                ${$utils.duration(stats.startedAt, stats.updatedAt)}`" type="is-dark">
+              <b-tooltip
+                :label="`${stats.netRate} / ${$t('campaigns.rateMinuteShort')} @
+                                                                                          ${$utils.duration(stats.startedAt, stats.updatedAt)}`"
+                type="is-dark">
                 {{ stats.rate.toFixed(0) }} / {{ $t('campaigns.rateMinuteShort') }}
               </b-tooltip>
             </span>
@@ -225,8 +227,7 @@
               placeholder: $t('globals.fields.name'),
               value: $t('campaigns.copyOf', { name: props.row.name }),
             },
-            (name) => cloneCampaign(name, props.row))" data-cy="btn-clone"
-            :aria-label="$t('globals.buttons.clone')">
+            (name) => cloneCampaign(name, props.row))" data-cy="btn-clone" :aria-label="$t('globals.buttons.clone')">
             <b-tooltip :label="$t('globals.buttons.clone')" type="is-dark">
               <b-icon icon="file-multiple-outline" size="is-small" />
             </b-tooltip>
@@ -405,6 +406,7 @@ export default Vue.extend({
 
       const data = {
         name,
+        archive_slug: `${c.name}-2`,
         subject: c.subject,
         lists: c.lists.map((l) => l.id),
         type: c.type,

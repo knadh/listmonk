@@ -23,6 +23,8 @@
     "campaigns.archiveHelp": "Publicați (rulând, întrerupt, terminat) mesajul campaniei în arhiva publică.",
     "campaigns.archiveMeta": "Metadatele campaniei",
     "campaigns.archiveMetaHelp": "Datele abonaților inactivi de utilizat în mesajul public, inclusiv numele, e-mailul și orice atribute opționale utilizate în mesajul sau șablonul campaniei.",
+    "campaigns.archiveSlug": "URL Slug",
+    "campaigns.archiveSlugHelp": "A short name for the page to be used in the public URL. eg: my-newsletter-edition-2",
     "campaigns.attachments": "Fișiere atașate",
     "campaigns.cantUpdate": "Nu se poate actualiza o campanie care rulează sau s-a terminat.",
     "campaigns.clicks": "Click-uri",

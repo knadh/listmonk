@@ -23,6 +23,8 @@
     "campaigns.archiveHelp": "Zveřejnit (bežící, pozastavenou, dokončenou) zprávu kampaně ve veřejném archivu",
     "campaigns.archiveMeta": "Metadata kampaně",
     "campaigns.archiveMetaHelp": "Použít prázdná data přihlášených ve veřejné zpráve včetně jména, emailu a jiných volitelných atributů použitých ve zprávách kampaně nebo šablonách.",
+    "campaigns.archiveSlug": "URL Slug",
+    "campaigns.archiveSlugHelp": "A short name for the page to be used in the public URL. eg: my-newsletter-edition-2",
     "campaigns.attachments": "Přílohy",
     "campaigns.cantUpdate": "Nelze aktualizovat spuštěnou nebo dokončenou kampaň.",
     "campaigns.clicks": "Klepnutí",

@@ -23,6 +23,8 @@
     "campaigns.archiveHelp": "Розмістити лист кампанії (запущеної, призупиненої, завершеної) в загальнодоступному архіві.",
     "campaigns.archiveMeta": "Метадані кампанії",
     "campaigns.archiveMetaHelp": "Дані вигаданої підписни_ці для використання в загальнодоступному листі, зокрема ім'я (name), е-пошта (email) та будь-які необов'язкові атрибути, використані в листі чи шаблоні кампанії.",
+    "campaigns.archiveSlug": "URL Slug",
+    "campaigns.archiveSlugHelp": "A short name for the page to be used in the public URL. eg: my-newsletter-edition-2",
     "campaigns.attachments": "Вкладення",
     "campaigns.cantUpdate": "Неможливо оновити запущену чи завершену кампанію.",
     "campaigns.clicks": "Переходи",

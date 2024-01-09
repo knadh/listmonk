@@ -23,6 +23,8 @@
     "campaigns.archiveHelp": "Publiceer (lopende, gepauzeerde, afgeronde) het campange bericht naar het publiek archief.",
     "campaigns.archiveMeta": "Campagne metadata",
     "campaigns.archiveMetaHelp": "Dummy-abonneegegevens om te gebruiken in het openbare bericht, inclusief naam, e-mail en eventuele optionele attributen die worden gebruikt in het campagnebericht of de sjabloon.",
+    "campaigns.archiveSlug": "URL Slug",
+    "campaigns.archiveSlugHelp": "A short name for the page to be used in the public URL. eg: my-newsletter-edition-2",
     "campaigns.attachments": "Bijlagen",
     "campaigns.cantUpdate": "Kan een lopende of afgelopen campagne niet updaten.",
     "campaigns.clicks": "Kliks",

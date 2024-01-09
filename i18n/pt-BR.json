@@ -23,6 +23,8 @@
     "campaigns.archiveHelp": "Publicar (executando, pausada, finalizada) a mensagem da campanha no arquivo publico.",
     "campaigns.archiveMeta": "Metadados da campanha",
     "campaigns.archiveMetaHelp": "Dados de assinante fictício para utilizar na mensagem publica incluindo nome, email e qualquer atributo opcional usado na mensagem ou template da campanha.",
+    "campaigns.archiveSlug": "URL Slug",
+    "campaigns.archiveSlugHelp": "A short name for the page to be used in the public URL. eg: my-newsletter-edition-2",
     "campaigns.attachments": "Anexos",
     "campaigns.cantUpdate": "Não é possível atualizar uma campanha em execução ou finalizada.",
     "campaigns.clicks": "Cliques",

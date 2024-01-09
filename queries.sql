@@ -492,16 +492,16 @@ counts AS (
     AND subscribers.status='enabled'
 ),
 camp AS (
-    INSERT INTO campaigns (uuid, type, name, subject, from_email, body, altbody, content_type, send_at, headers, tags, messenger, template_id, to_send, max_subscriber_id, archive, archive_template_id, archive_meta)
+    INSERT INTO campaigns (uuid, type, name, subject, from_email, body, altbody, content_type, send_at, headers, tags, messenger, template_id, to_send, max_subscriber_id, archive, archive_slug, archive_template_id, archive_meta)
         SELECT $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12,
             (SELECT id FROM tpl), (SELECT to_send FROM counts),
-            (SELECT max_sub_id FROM counts), $15,
-            (CASE WHEN $16 = 0 THEN (SELECT id FROM tpl) ELSE $16 END), $17
+            (SELECT max_sub_id FROM counts), $15, $16,
+            (CASE WHEN $17 = 0 THEN (SELECT id FROM tpl) ELSE $17 END), $18
         RETURNING id
 ),
 med AS (
     INSERT INTO campaign_media (campaign_id, media_id, filename)
-        (SELECT (SELECT id FROM camp), id, filename FROM media WHERE id=ANY($18::INT[]))
+        (SELECT (SELECT id FROM camp), id, filename FROM media WHERE id=ANY($19::INT[]))
 )
 INSERT INTO campaign_lists (campaign_id, list_id, list_name)
     (SELECT (SELECT id FROM camp), id, name FROM lists WHERE id=ANY($14::INT[]))
@@ -517,7 +517,7 @@ INSERT INTO campaign_lists (campaign_id, list_id, list_name)
 SELECT  c.id, c.uuid, c.name, c.subject, c.from_email,
         c.messenger, c.started_at, c.to_send, c.sent, c.type,
         c.body, c.altbody, c.send_at, c.headers, c.status, c.content_type, c.tags,
-        c.template_id, c.archive, c.archive_template_id, c.archive_meta,
+        c.template_id, c.archive, c.archive_slug, c.archive_template_id, c.archive_meta,
         c.created_at, c.updated_at,
         COUNT(*) OVER () AS total,
         (
@@ -539,10 +539,14 @@ SELECT campaigns.*,
     COALESCE(templates.body, (SELECT body FROM templates WHERE is_default = true LIMIT 1)) AS template_body
     FROM campaigns
     LEFT JOIN templates ON (
-        CASE WHEN $3 = 'default' THEN templates.id = campaigns.template_id
+        CASE WHEN $4 = 'default' THEN templates.id = campaigns.template_id
         ELSE templates.id = campaigns.archive_template_id END
     )
-    WHERE CASE WHEN $1 > 0 THEN campaigns.id = $1 ELSE uuid = $2 END;
+    WHERE CASE
+            WHEN $1 > 0 THEN campaigns.id = $1
+            WHEN $3 != '' THEN campaigns.archive_slug = $3
+            ELSE uuid = $2
+          END;
 
 -- name: get-archived-campaigns
 SELECT COUNT(*) OVER () AS total, campaigns.*,
@@ -808,8 +812,9 @@ WITH camp AS (
         messenger=$12,
         template_id=$13,
         archive=$15,
-        archive_template_id=$16,
-        archive_meta=$17,
+        archive_slug=$16,
+        archive_template_id=$17,
+        archive_meta=$18,
         updated_at=NOW()
     WHERE id = $1 RETURNING id
 ),
@@ -819,11 +824,11 @@ clists AS (
 ),
 med AS (
     DELETE FROM campaign_media WHERE campaign_id = $1
-    AND media_id IS NULL or NOT(media_id = ANY($18)) RETURNING media_id
+    AND media_id IS NULL or NOT(media_id = ANY($19)) RETURNING media_id
 ),
 medi AS (
     INSERT INTO campaign_media (campaign_id, media_id, filename)
-        (SELECT $1 AS campaign_id, id, filename FROM media WHERE id=ANY($18::INT[]))
+        (SELECT $1 AS campaign_id, id, filename FROM media WHERE id=ANY($19::INT[]))
         ON CONFLICT (campaign_id, media_id) DO NOTHING
 )
 INSERT INTO campaign_lists (campaign_id, list_id, list_name)
@@ -844,8 +849,9 @@ UPDATE campaigns SET status=$2, updated_at=NOW() WHERE id = $1;
 -- name: update-campaign-archive
 UPDATE campaigns SET
     archive=$2,
-    archive_template_id=(CASE WHEN $3 > 0 THEN $3 ELSE archive_template_id END),
-    archive_meta=(CASE WHEN $4::TEXT != '' THEN $4::JSONB ELSE archive_meta END),
+    archive_slug=(CASE WHEN $3::TEXT = '' THEN NULL ELSE $3 END),
+    archive_template_id=(CASE WHEN $4 > 0 THEN $4 ELSE archive_template_id END),
+    archive_meta=(CASE WHEN $5::TEXT != '' THEN $5::JSONB ELSE archive_meta END),
     updated_at=NOW()
     WHERE id=$1;
 

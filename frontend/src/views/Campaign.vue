@@ -59,7 +59,7 @@
               <form @submit.prevent="() => onSubmit(isNew ? 'create' : 'update')">
                 <b-field :label="$t('globals.fields.name')" label-position="on-border">
                   <b-input :maxlength="200" :ref="'focus'" v-model="form.name" name="name" :disabled="!canEdit"
-                    :placeholder="$t('globals.fields.name')" required />
+                    :placeholder="$t('globals.fields.name')" required autofocus />
                 </b-field>
 
                 <b-field :label="$t('campaigns.subject')" label-position="on-border">
@@ -201,19 +201,32 @@
 
       <b-tab-item :label="$t('campaigns.archive')" icon="newspaper-variant-outline" value="archive" :disabled="isNew">
         <section class="wrap">
-          <b-field :label="$t('campaigns.archiveEnable')" data-cy="btn-archive" :message="$t('campaigns.archiveHelp')">
-            <div class="columns">
-              <div class="column">
-                <b-switch data-cy="btn-archive" v-model="form.archive" :disabled="!canArchive" />
-              </div>
-              <div class="column is-12">
-                <a :href="`${settings['app.root_url']}/archive/${data.uuid}`" target="_blank" rel="noopener noreferer"
-                  :class="{ 'has-text-grey-light': !form.archive }" aria-label="$t('campaigns.archive')">
-                  <b-icon icon="link-variant" />
-                </a>
-              </div>
+          <div class="columns">
+            <div class="column is-4">
+              <b-field :label="$t('campaigns.archiveEnable')" data-cy="btn-archive"
+                :message="$t('campaigns.archiveHelp')">
+                <div class="columns">
+                  <div class="column">
+                    <b-switch data-cy="btn-archive" v-model="form.archive" :disabled="!canArchive" />
+                  </div>
+                  <div class="column is-12">
+                    <a :href="`${settings['app.root_url']}/archive/${data.uuid}`" target="_blank" rel="noopener noreferer"
+                      :class="{ 'has-text-grey-light': !form.archive }" aria-label="$t('campaigns.archive')">
+                      <b-icon icon="link-variant" />
+                    </a>
+                  </div>
+                </div>
+              </b-field>
             </div>
-          </b-field>
+            <div class="column is-8 has-text-right">
+              <b-field v-if="!canEdit && canArchive">
+                <b-button @click="onUpdateCampaignArchive" :loading="loading.campaigns" type="is-primary"
+                  icon-left="content-save-outline" data-cy="btn-save">
+                  {{ $t('globals.buttons.saveChanges') }}
+                </b-button>
+              </b-field>
+            </div>
+          </div>
 
           <div class="columns">
             <div class="column is-8">
@@ -234,17 +247,17 @@
                 @click.prevent="onFillArchiveMeta">{}</a>
             </div>
           </div>
+          <b-field>
+            <b-field :label="$t('campaigns.archiveSlug')" label-position="on-border"
+              :message="$t('campaigns.archiveSlugHelp')">
+              <b-input :maxlength="200" :ref="'focus'" v-model="form.archiveSlug" name="archive_slug"
+                data-cy="archive-slug" :disabled="!canArchive || !form.archive" />
+            </b-field>
+          </b-field>
           <b-field :label="$t('campaigns.archiveMeta')" :message="$t('campaigns.archiveMetaHelp')"
             label-position="on-border">
             <b-input v-model="form.archiveMetaStr" name="archive_meta" type="textarea" data-cy="archive-meta"
               :disabled="!canArchive || !form.archive" rows="20" />
-          </b-field>
-
-          <b-field v-if="!canEdit && canArchive">
-            <b-button @click="onUpdateCampaignArchive" :loading="loading.campaigns" type="is-primary"
-              icon-left="content-save-outline" data-cy="btn-archive-save">
-              {{ $t('globals.buttons.saveChanges') }}
-            </b-button>
           </b-field>
         </section>
       </b-tab-item><!-- archive -->
@@ -295,6 +308,7 @@ export default Vue.extend({
 
       // Binds form input values.
       form: {
+        archiveSlug: null,
         name: '',
         subject: '',
         fromEmail: '',
@@ -470,6 +484,7 @@ export default Vue.extend({
 
     createCampaign() {
       const data = {
+        archiveSlug: this.form.subject,
         name: this.form.name,
         subject: this.form.subject,
         lists: this.form.lists.map((l) => l.id),
@@ -494,6 +509,7 @@ export default Vue.extend({
 
     async updateCampaign(typ) {
       const data = {
+        archive_slug: this.form.archiveSlug,
         name: this.form.name,
         subject: this.form.subject,
         lists: this.form.lists.map((l) => l.id),
@@ -523,6 +539,7 @@ export default Vue.extend({
       return new Promise((resolve) => {
         this.$api.updateCampaign(this.data.id, data).then((d) => {
           this.data = d;
+          this.form.archiveSlug = d.archiveSlug;
           this.$utils.toast(this.$t(typMsg, { name: d.name }));
           resolve();
         });
@@ -538,9 +555,12 @@ export default Vue.extend({
         archive: this.form.archive,
         archive_template_id: this.form.archiveTemplateId,
         archive_meta: JSON.parse(this.form.archiveMetaStr),
+        archive_slug: this.form.archiveSlug,
       };
 
-      this.$api.updateCampaignArchive(this.data.id, data);
+      this.$api.updateCampaignArchive(this.data.id, data).then((d) => {
+        this.form.archiveSlug = d.archiveSlug;
+      });
     },
 
     // Starts or schedule a campaign.

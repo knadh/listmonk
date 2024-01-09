@@ -103,6 +103,7 @@ CREATE TABLE campaigns (
 
     -- Publishing.
     archive             BOOLEAN NOT NULL DEFAULT false,
+    archive_slug        TEXT NULL UNIQUE,
     archive_template_id INTEGER REFERENCES templates(id) ON DELETE SET DEFAULT DEFAULT 1,
     archive_meta        JSONB NOT NULL DEFAULT '{}',
 

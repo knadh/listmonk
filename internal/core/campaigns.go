@@ -65,13 +65,13 @@ func (c *Core) QueryCampaigns(searchStr string, statuses, tags []string, orderBy
 }
 
 // GetCampaign retrieves a campaign.
-func (c *Core) GetCampaign(id int, uuid string) (models.Campaign, error) {
-	return c.getCampaign(id, uuid, campaignTplDefault)
+func (c *Core) GetCampaign(id int, uuid, archiveSlug string) (models.Campaign, error) {
+	return c.getCampaign(id, uuid, archiveSlug, campaignTplDefault)
 }
 
 // GetArchivedCampaign retrieves a campaign with the archive template body.
-func (c *Core) GetArchivedCampaign(id int, uuid string) (models.Campaign, error) {
-	out, err := c.getCampaign(id, uuid, campaignTplArchive)
+func (c *Core) GetArchivedCampaign(id int, uuid, archiveSlug string) (models.Campaign, error) {
+	out, err := c.getCampaign(id, uuid, archiveSlug, campaignTplArchive)
 	if err != nil {
 		return out, err
 	}
@@ -87,7 +87,7 @@ func (c *Core) GetArchivedCampaign(id int, uuid string) (models.Campaign, error)
 // getCampaign retrieves a campaign. If typlType=default, then the campaign's
 // template body is returned as "template_body". If tplType="archive",
 // the archive template is returned.
-func (c *Core) getCampaign(id int, uuid string, tplType string) (models.Campaign, error) {
+func (c *Core) getCampaign(id int, uuid, archiveSlug string, tplType string) (models.Campaign, error) {
 	// Unsafe to ignore scanning fields not present in models.Campaigns.
 	var uu interface{}
 	if uuid != "" {
@@ -95,7 +95,7 @@ func (c *Core) getCampaign(id int, uuid string, tplType string) (models.Campaign
 	}
 
 	var out models.Campaigns
-	if err := c.q.GetCampaign.Select(&out, id, uu, tplType); err != nil {
+	if err := c.q.GetCampaign.Select(&out, id, uu, archiveSlug, tplType); err != nil {
 		// if err := c.db.Select(&out, stmt, 0, pq.Array([]string{}), queryStr, 0, 1); err != nil {
 		c.log.Printf("error fetching campaign: %v", err)
 		return models.Campaign{}, echo.NewHTTPError(http.StatusInternalServerError,
@@ -185,6 +185,7 @@ func (c *Core) CreateCampaign(o models.Campaign, listIDs []int, mediaIDs []int) 
 		o.TemplateID,
 		pq.Array(listIDs),
 		o.Archive,
+		o.ArchiveSlug,
 		o.ArchiveTemplateID,
 		o.ArchiveMeta,
 		pq.Array(mediaIDs),
@@ -198,7 +199,7 @@ func (c *Core) CreateCampaign(o models.Campaign, listIDs []int, mediaIDs []int) 
 			c.i18n.Ts("globals.messages.errorCreating", "name", "{globals.terms.campaign}", "error", pqErrMsg(err)))
 	}
 
-	out, err := c.GetCampaign(newID, "")
+	out, err := c.GetCampaign(newID, "", "")
 	if err != nil {
 		return models.Campaign{}, err
 	}
@@ -223,6 +224,7 @@ func (c *Core) UpdateCampaign(id int, o models.Campaign, listIDs []int, mediaIDs
 		o.TemplateID,
 		pq.Array(listIDs),
 		o.Archive,
+		o.ArchiveSlug,
 		o.ArchiveTemplateID,
 		o.ArchiveMeta,
 		pq.Array(mediaIDs))
@@ -232,7 +234,7 @@ func (c *Core) UpdateCampaign(id int, o models.Campaign, listIDs []int, mediaIDs
 			c.i18n.Ts("globals.messages.errorUpdating", "name", "{globals.terms.campaign}", "error", pqErrMsg(err)))
 	}
 
-	out, err := c.GetCampaign(id, "")
+	out, err := c.GetCampaign(id, "", "")
 	if err != nil {
 		return models.Campaign{}, err
 	}
@@ -242,7 +244,7 @@ func (c *Core) UpdateCampaign(id int, o models.Campaign, listIDs []int, mediaIDs
 
 // UpdateCampaignStatus updates a campaign's status, eg: draft to running.
 func (c *Core) UpdateCampaignStatus(id int, status string) (models.Campaign, error) {
-	cm, err := c.GetCampaign(id, "")
+	cm, err := c.GetCampaign(id, "", "")
 	if err != nil {
 		return models.Campaign{}, err
 	}
@@ -297,8 +299,8 @@ func (c *Core) UpdateCampaignStatus(id int, status string) (models.Campaign, err
 }
 
 // UpdateCampaignArchive updates a campaign's archive properties.
-func (c *Core) UpdateCampaignArchive(id int, enabled bool, tplID int, meta models.JSON) error {
-	if _, err := c.q.UpdateCampaignArchive.Exec(id, enabled, tplID, meta); err != nil {
+func (c *Core) UpdateCampaignArchive(id int, enabled bool, tplID int, meta models.JSON, archiveSlug string) error {
+	if _, err := c.q.UpdateCampaignArchive.Exec(id, enabled, archiveSlug, tplID, meta); err != nil {
 		c.log.Printf("error updating campaign: %v", err)
 
 		return echo.NewHTTPError(http.StatusInternalServerError,

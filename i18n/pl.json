@@ -23,6 +23,8 @@
     "campaigns.archiveHelp": "Opublikuj (w trakcie, zatrzymane, zakończone) treść kampanii do publicznego archiwum.",
     "campaigns.archiveMeta": "Metadane kampanii",
     "campaigns.archiveMetaHelp": "Dane podstawione subskrybenta do użycia w publicznym archiwum. W tym nazwa, email, i dowolne opcjonalne atrybuty użyte w szablonie kampanii.",
+    "campaigns.archiveSlug": "URL Slug",
+    "campaigns.archiveSlugHelp": "A short name for the page to be used in the public URL. eg: my-newsletter-edition-2",
     "campaigns.attachments": "Załączniki",
     "campaigns.cantUpdate": "Nie można aktualizować aktywnej ani zakończonej kampanii",
     "campaigns.clicks": "Kliknięcia",

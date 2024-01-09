@@ -16,6 +16,7 @@ import (
 	"github.com/knadh/listmonk/models"
 	"github.com/labstack/echo/v4"
 	"github.com/lib/pq"
+	"gopkg.in/volatiletech/null.v6"
 )
 
 // campaignReq is a wrapper over the Campaign model for receiving
@@ -48,6 +49,7 @@ type campaignContentReq struct {
 
 var (
 	regexFromAddress = regexp.MustCompile(`((.+?)\s)?<(.+?)@(.+?)>`)
+	regexSlug        = regexp.MustCompile(`[^\p{L}\p{M}\p{N}]`)
 )
 
 // handleGetCampaigns handles retrieval of campaigns.
@@ -99,7 +101,7 @@ func handleGetCampaign(c echo.Context) error {
 		noBody, _ = strconv.ParseBool(c.QueryParam("no_body"))
 	)
 
-	out, err := app.core.GetCampaign(id, "")
+	out, err := app.core.GetCampaign(id, "", "")
 	if err != nil {
 		return err
 	}
@@ -244,7 +246,7 @@ func handleUpdateCampaign(c echo.Context) error {
 
 	}
 
-	cm, err := app.core.GetCampaign(id, "")
+	cm, err := app.core.GetCampaign(id, "", "")
 	if err != nil {
 		return err
 	}
@@ -314,9 +316,10 @@ func handleUpdateCampaignArchive(c echo.Context) error {
 	)
 
 	req := struct {
-		Archive    bool        `json:"archive"`
-		TemplateID int         `json:"archive_template_id"`
-		Meta       models.JSON `json:"archive_meta"`
+		Archive     bool        `json:"archive"`
+		TemplateID  int         `json:"archive_template_id"`
+		Meta        models.JSON `json:"archive_meta"`
+		ArchiveSlug string      `json:"archive_slug"`
 	}{}
 
 	// Get and validate fields.
@@ -324,11 +327,19 @@ func handleUpdateCampaignArchive(c echo.Context) error {
 		return err
 	}
 
-	if err := app.core.UpdateCampaignArchive(id, req.Archive, req.TemplateID, req.Meta); err != nil {
+	if req.ArchiveSlug != "" {
+		// Format the slug to be alpha-numeric-dash.
+		s := strings.ToLower(req.ArchiveSlug)
+		s = strings.TrimSpace(regexSlug.ReplaceAllString(s, " "))
+		s = regexpSpaces.ReplaceAllString(s, "-")
+		req.ArchiveSlug = s
+	}
+
+	if err := app.core.UpdateCampaignArchive(id, req.Archive, req.TemplateID, req.Meta, req.ArchiveSlug); err != nil {
 		return err
 	}
 
-	return c.JSON(http.StatusOK, okResp{true})
+	return c.JSON(http.StatusOK, okResp{req})
 }
 
 // handleDeleteCampaign handles campaign deletion.
@@ -570,6 +581,18 @@ func validateCampaignFields(c campaignReq, app *App) (campaignReq, error) {
 
 	if len(c.ArchiveMeta) == 0 {
 		c.ArchiveMeta = json.RawMessage("{}")
+	}
+
+	if c.ArchiveSlug.String != "" {
+		// Format the slug to be alpha-numeric-dash.
+		s := strings.ToLower(c.ArchiveSlug.String)
+		s = strings.TrimSpace(regexSlug.ReplaceAllString(s, " "))
+		s = regexpSpaces.ReplaceAllString(s, "-")
+
+		c.ArchiveSlug = null.NewString(s, true)
+	} else {
+		// If there's no slug set, set it to NULL in the DB.
+		c.ArchiveSlug.Valid = false
 	}
 
 	return c, nil

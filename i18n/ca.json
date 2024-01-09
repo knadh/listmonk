@@ -23,6 +23,8 @@
     "campaigns.archiveHelp": "Publica (en curs, aturada, finalitzada) el missatge de campanya a l'arxiu públic ",
     "campaigns.archiveMeta": "Metadades de la campanya",
     "campaigns.archiveMetaHelp": "Dades del subscriptor de prova per ser usat en el missatge públic que inclou nom, correu electrònic i qualsevol atribut opcional emprat en el missatge de campanya o plantilla.",
+    "campaigns.archiveSlug": "URL Slug",
+    "campaigns.archiveSlugHelp": "A short name for the page to be used in the public URL. eg: my-newsletter-edition-2",
     "campaigns.attachments": "Adjunts",
     "campaigns.cantUpdate": "No es pot actualitzar una campanya en curs o ja finalitzada.",
     "campaigns.clicks": "Clics",

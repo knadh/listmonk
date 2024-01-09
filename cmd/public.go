@@ -143,7 +143,7 @@ func handleViewCampaignMessage(c echo.Context) error {
 	)
 
 	// Get the campaign.
-	camp, err := app.core.GetCampaign(0, campUUID)
+	camp, err := app.core.GetCampaign(0, campUUID, "")
 	if err != nil {
 		if er, ok := err.(*echo.HTTPError); ok {
 			if er.Code == http.StatusBadRequest {
