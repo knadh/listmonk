@@ -453,7 +453,8 @@ func handleTestCampaign(c echo.Context) error {
 	// Send the test messages.
 	for _, s := range subs {
 		sub := s
-		if err := sendTestMessage(sub, &camp, app); err != nil {
+		c := camp
+		if err := sendTestMessage(sub, &c, app); err != nil {
 			app.log.Printf("error sending test message: %v", err)
 			return echo.NewHTTPError(http.StatusInternalServerError,
 				app.i18n.Ts("campaigns.errorSendTest", "error", err.Error()))
