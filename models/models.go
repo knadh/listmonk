@@ -252,6 +252,7 @@ type Campaign struct {
 	TemplateID        int             `db:"template_id" json:"template_id"`
 	Messenger         string          `db:"messenger" json:"messenger"`
 	Archive           bool            `db:"archive" json:"archive"`
+	ArchiveSlug       null.String     `db:"archive_slug" json:"archive_slug"`
 	ArchiveTemplateID int             `db:"archive_template_id" json:"archive_template_id"`
 	ArchiveMeta       json.RawMessage `db:"archive_meta" json:"archive_meta"`
 

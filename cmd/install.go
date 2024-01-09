@@ -158,6 +158,7 @@ func install(lastVer string, db *sqlx.DB, fs stuffbin.FileSystem, prompt, idempo
 		campTplID,
 		pq.Int64Array{1},
 		false,
+		"welcome-to-listmonk",
 		archiveTplID,
 		`{"name": "Subscriber"}`,
 		nil,

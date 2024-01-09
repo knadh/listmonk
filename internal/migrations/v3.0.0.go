@@ -18,5 +18,9 @@ func V3_0_0(db *sqlx.DB, fs stuffbin.FileSystem, ko *koanf.Koanf) error {
 		return err
 	}
 
+	if _, err := db.Exec(`ALTER TABLE campaigns ADD COLUMN IF NOT EXISTS archive_slug TEXT NULL UNIQUE`); err != nil {
+		return err
+	}
+
 	return nil
 }

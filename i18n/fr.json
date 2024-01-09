@@ -23,6 +23,8 @@
     "campaigns.archiveHelp": "Publier (en cours, en pause, terminé) le message de la campagne sur l'archive publique.",
     "campaigns.archiveMeta": "Métadonnées de la campagne",
     "campaigns.archiveMetaHelp": "Données d'abonné fictives à utiliser dans le message public, notamment le nom, l'adresse électronique et tout attribut facultatif utilisé dans le message ou le modèle de la campagne.",
+    "campaigns.archiveSlug": "URL Slug",
+    "campaigns.archiveSlugHelp": "A short name for the page to be used in the public URL. eg: my-newsletter-edition-2",
     "campaigns.attachments": "Pièces jointes",
     "campaigns.cantUpdate": "Impossible de mettre à jour une campagne en cours ou terminée.",
     "campaigns.clicks": "Clics",

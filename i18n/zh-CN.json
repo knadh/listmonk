@@ -23,6 +23,8 @@
     "campaigns.archiveHelp": "在公共档案中发布（运行、暂停、完成）活动消息。",
     "campaigns.archiveMeta": "活动元数据",
     "campaigns.archiveMetaHelp": "在公共消息中使用的模拟订阅者数据，包括姓名、电子邮件以及活动消息或模板中使用的任何可选属性。",
+    "campaigns.archiveSlug": "URL Slug",
+    "campaigns.archiveSlugHelp": "A short name for the page to be used in the public URL. eg: my-newsletter-edition-2",
     "campaigns.attachments": "附件",
     "campaigns.cantUpdate": "无法更新正在运行或已完成的广告系列。",
     "campaigns.clicks": "点击次数",

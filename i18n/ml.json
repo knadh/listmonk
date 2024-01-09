@@ -23,6 +23,8 @@
     "campaigns.archiveHelp": "പ്രചാരണ സന്ദേശം (റൺ ചെയ്യുന്ന, താൽക്കാലികമായി നിർത്തിയ, പൂർത്തിയായ) പൊതു ആർക്കൈവിൽ പ്രസിദ്ധീകരിക്കുക.",
     "campaigns.archiveMeta": "കാമ്പെയ്‌ൻ മെറ്റാഡാറ്റ",
     "campaigns.archiveMetaHelp": "പേര്, ഇമെയിൽ, പ്രചാരണ സന്ദേശത്തിലോ ടെംപ്ലേറ്റിലോ ഉപയോഗിക്കുന്ന ഏതെങ്കിലും ഓപ്ഷണൽ ആട്രിബ്യൂട്ടുകൾ എന്നിവയുൾപ്പെടെ പൊതു സന്ദേശത്തിൽ ഉപയോഗിക്കാനുള്ള ഡമ്മി സബ്സ്ക്രൈബർ ഡാറ്റ.",
+    "campaigns.archiveSlug": "URL Slug",
+    "campaigns.archiveSlugHelp": "A short name for the page to be used in the public URL. eg: my-newsletter-edition-2",
     "campaigns.attachments": "അറ്റാച്ച്മെന്റ്സ്",
     "campaigns.cantUpdate": "ഇപ്പോൾ നടന്നുകൊണ്ടിരിയ്ക്കുന്നതോ, അവസാനിച്ചതോ ആയ ക്യാമ്പേയ്ൻ പുതുക്കാനാകില്ല.",
     "campaigns.clicks": "ക്ലീക്കുകൾ",

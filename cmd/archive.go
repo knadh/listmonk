@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"html/template"
 	"net/http"
+	"net/url"
 
 	"github.com/gorilla/feeds"
 	"github.com/knadh/listmonk/internal/manager"
@@ -120,10 +121,19 @@ func handleCampaignArchivesPage(c echo.Context) error {
 func handleCampaignArchivePage(c echo.Context) error {
 	var (
 		app  = c.Get("app").(*App)
-		uuid = c.Param("uuid")
+		id   = c.Param("id")
+		uuid = ""
+		slug = ""
 	)
 
-	pubCamp, err := app.core.GetArchivedCampaign(0, uuid)
+	// ID can be the UUID or slug.
+	if reUUID.MatchString(id) {
+		uuid = id
+	} else {
+		slug = id
+	}
+
+	pubCamp, err := app.core.GetArchivedCampaign(0, uuid, slug)
 	if err != nil || pubCamp.Type != models.CampaignTypeRegular {
 		notFound := false
 		if er, ok := err.(*echo.HTTPError); ok {
@@ -202,7 +212,12 @@ func getCampaignArchives(offset, limit int, renderBody bool, app *App) ([]campAr
 			Subject:   camp.Subject,
 			CreatedAt: camp.CreatedAt,
 			SendAt:    camp.SendAt,
-			URL:       app.constants.ArchiveURL + "/" + camp.UUID,
+		}
+
+		if camp.ArchiveSlug.Valid {
+			archive.URL, _ = url.JoinPath(app.constants.ArchiveURL, camp.ArchiveSlug.String)
+		} else {
+			archive.URL, _ = url.JoinPath(app.constants.ArchiveURL, camp.UUID)
 		}
 
 		if renderBody {

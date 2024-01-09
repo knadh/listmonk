@@ -23,6 +23,8 @@
     "campaigns.archiveHelp": "公開アーカイブにキャンペーンメッセージを発行（実行中, 停止された, 終わりましたキャンペーン全部含めて）。",
     "campaigns.archiveMeta": "キャンペーンメタデータ",
     "campaigns.archiveMetaHelp": "キャンペーンのメッセージやテンプレートに使う偽データ（名やメールアドレスや設定）。",
+    "campaigns.archiveSlug": "URL Slug",
+    "campaigns.archiveSlugHelp": "A short name for the page to be used in the public URL. eg: my-newsletter-edition-2",
     "campaigns.attachments": "添付ファイル",
     "campaigns.cantUpdate": "実行中又は終了しているキャンペーンの更新はできません。",
     "campaigns.clicks": "クリック",

@@ -23,6 +23,8 @@
     "campaigns.archiveHelp": "Zverejniť (prebiehajúcu, pozastavenú, dokončenú) správu kampane vo verejnom archíve",
     "campaigns.archiveMeta": "Metadáta kampane",
     "campaigns.archiveMetaHelp": "Použíť prázdne dáta prihlásených vo verejnom archíve vrátane mena, emailu a iných voliteľných atribútov použitých v správach kampane aleebo šablónach.",
+    "campaigns.archiveSlug": "URL Slug",
+    "campaigns.archiveSlugHelp": "A short name for the page to be used in the public URL. eg: my-newsletter-edition-2",
     "campaigns.attachments": "Prílohy",
     "campaigns.cantUpdate": "Nedá sa aktualizovať spustená alebo dokončená kampaň.",
     "campaigns.clicks": "Kliknutia",

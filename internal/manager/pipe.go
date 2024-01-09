@@ -204,7 +204,7 @@ func (p *pipe) cleanup() {
 	// Fetch the up-to-date campaign status from the DB.
 	c, err := p.m.store.GetCampaign(p.camp.ID)
 	if err != nil {
-		p.m.log.Printf("error fetching campaign (%s) for ending", p.camp.Name)
+		p.m.log.Printf("error fetching campaign (%s) for ending: %v", p.camp.Name, err)
 		return
 	}
 

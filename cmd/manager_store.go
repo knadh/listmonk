@@ -50,7 +50,7 @@ func (s *store) NextSubscribers(campID, limit int) ([]models.Subscriber, error) 
 // GetCampaign fetches a campaign from the database.
 func (s *store) GetCampaign(campID int) (*models.Campaign, error) {
 	var out = &models.Campaign{}
-	err := s.queries.GetCampaign.Get(out, campID, nil, "default")
+	err := s.queries.GetCampaign.Get(out, campID, nil, nil, "default")
 	return out, err
 }
 

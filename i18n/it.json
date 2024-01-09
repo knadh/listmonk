@@ -23,6 +23,8 @@
     "campaigns.archiveHelp": "Pubblicare i messaggi delle campagne (avviate, pausate, finite) nel archivio pubblico.",
     "campaigns.archiveMeta": "Metadati della campagna",
     "campaigns.archiveMetaHelp": "Dati fittizi dell'iscritto da utilizzare nel messaggio pubblico, inclusi nome, e-mail ed eventuali attributi facoltativi utilizzati nel messaggio o nel modello della campagna.",
+    "campaigns.archiveSlug": "URL Slug",
+    "campaigns.archiveSlugHelp": "A short name for the page to be used in the public URL. eg: my-newsletter-edition-2",
     "campaigns.attachments": "Allegati",
     "campaigns.cantUpdate": "Impossibile aggiornare una campagna in corso o già effettuata.",
     "campaigns.clicks": "Click",

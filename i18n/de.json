@@ -23,6 +23,8 @@
     "campaigns.archiveHelp": "Veröffentliche die Nachricht (laufende, pausierte, beendete) der Kampagne im öffentlichen Archiv.",
     "campaigns.archiveMeta": "Kampagne Metadaten",
     "campaigns.archiveMetaHelp": "Dummy-Abonnentendaten, die in der öffentlichen Nachricht verwendet werden sollen, einschließlich Name, E-Mail und alle optionalen Attribute, die in der Kampagnennachricht oder -vorlage verwendet werden.",
+    "campaigns.archiveSlug": "URL Slug",
+    "campaigns.archiveSlugHelp": "A short name for the page to be used in the public URL. eg: my-newsletter-edition-2",
     "campaigns.attachments": "Anhänge",
     "campaigns.cantUpdate": "Eine laufende oder abgeschlossene Kampagne kann nicht geändert werden.",
     "campaigns.clicks": "Klicks",

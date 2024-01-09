@@ -23,6 +23,8 @@
     "campaigns.archiveHelp": "在公開歸檔中發送（運行中、暫停、已完成）的活動訊息。",
     "campaigns.archiveMeta": "活動中繼資料",
     "campaigns.archiveMetaHelp": "用於公開訊息的虛擬訂閱者資料，包括姓名、電子郵件和任何在活動訊息或範本中使用的選擇性屬性。",
+    "campaigns.archiveSlug": "URL Slug",
+    "campaigns.archiveSlugHelp": "A short name for the page to be used in the public URL. eg: my-newsletter-edition-2",
     "campaigns.attachments": "附件",
     "campaigns.cantUpdate": "無法更新正在運行或已完成的廣告系列。",
     "campaigns.clicks": "點擊次數",
