@@ -2,9 +2,8 @@
 
 | Method | Endpoint                                                                                | Description                                    |
 | ------ | --------------------------------------------------------------------------------------- | ---------------------------------------------- |
-| GET    | [/api/subscribers](#get-apisubscribers)                                                 | Retrieve all subscribers.                      |
+| GET    | [/api/subscribers](#get-apisubscribers)                                                 | Query and retrieve subscribers.                |
 | GET    | [/api/subscribers/{subscriber_id}](#get-apisubscriberssubscriber_id)                    | Retrieve a specific subscriber.                |
-| GET    | [/api/subscribers/lists/{list_id}](#get-apisubscriberslistslist_id)                     | Retrieve subscribers in a specific list.       |
 | POST   | [/api/subscribers](#post-apisubscribers)                                                | Create a new subscriber.                       |
 | POST   | [/api/public/subscription](#post-apipublicsubscription)                                 | Create a public subscription.                  |
 | PUT    | [/api/subscribers/lists](#put-apisubscriberslists)                                      | Modify subscriber list memberships.            |
@@ -184,13 +183,6 @@ curl -u 'username:password' 'http://localhost:9000/api/subscribers/1'
 
 ______________________________________________________________________
 
-#### GET /api/subscribers/lists/{list_id}
-
-Retrieve subscribers in a specific list.
-
-> Refer to the response structure in [GET /api/subscribers](#get-apisubscribers).
-
-______________________________________________________________________
 
 #### POST /api/subscribers
 
