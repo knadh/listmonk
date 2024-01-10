@@ -246,8 +246,8 @@
             </div>
 
             <div class="column has-text-right">
-              <a v-if="!this.form.archiveMetaStr || this.form.archiveMetaStr === '{}'" class="button" href="#"
-                @click.prevent="onFillArchiveMeta">{}</a>
+              <a v-if="!this.form.archiveMetaStr || this.form.archiveMetaStr === '{}'" class="button is-primary" href="#"
+                @click.prevent="onFillArchiveMeta" aria-label="{}"><b-icon icon="code" /></a>
             </div>
           </div>
           <b-field>
