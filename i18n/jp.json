@@ -93,6 +93,7 @@
     "campaigns.status.scheduled": "スケジュールされている",
     "campaigns.statusChanged": "\"{name}\" は {status}",
     "campaigns.subject": "件名",
+    "campaigns.templatingRef": "Templating reference",
     "campaigns.testDisabled": "使用禁止された",
     "campaigns.testEmails": "メール",
     "campaigns.testSent": "テストメッセージ送信済み",

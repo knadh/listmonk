@@ -93,6 +93,7 @@
     "campaigns.status.scheduled": "Aikataulutettu",
     "campaigns.statusChanged": "\"{name}\" on {status}",
     "campaigns.subject": "Aihe",
+    "campaigns.templatingRef": "Templating reference",
     "campaigns.testDisabled": "Enter password to test",
     "campaigns.testEmails": "Sähköpostit",
     "campaigns.testSent": "Testiviesti lähetetty",

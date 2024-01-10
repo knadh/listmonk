@@ -93,6 +93,7 @@
     "campaigns.status.scheduled": "Zaplanowana",
     "campaigns.statusChanged": "\"{name}\" jest {status}",
     "campaigns.subject": "Temat",
+    "campaigns.templatingRef": "Templating reference",
     "campaigns.testEmails": "E-maile",
     "campaigns.testSent": "Wiadomość testowa wysłana",
     "campaigns.timestamps": "Sygnatury czasowe",

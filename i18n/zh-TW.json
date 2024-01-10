@@ -93,6 +93,7 @@
     "campaigns.status.scheduled": "已安排",
     "campaigns.statusChanged": " “{name}”是{status}",
     "campaigns.subject": "主題",
+    "campaigns.templatingRef": "Templating reference",
     "campaigns.testDisabled": "Enter password to test",
     "campaigns.testEmails": "電子郵件",
     "campaigns.testSent": "已發送測試消息",

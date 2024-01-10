@@ -93,6 +93,7 @@
     "campaigns.status.scheduled": "Đã lên lịch",
     "campaigns.statusChanged": "\"{name}\" là {status}",
     "campaigns.subject": "Tiêu đề",
+    "campaigns.templatingRef": "Templating reference",
     "campaigns.testDisabled": "Enter password to test",
     "campaigns.testEmails": "Email",
     "campaigns.testSent": "Gửi tin nhắn thử",

@@ -182,7 +182,9 @@
             </b-field>
           </div>
           <div class="column has-text-right">
-            <p v-if="canEdit && form.content.contentType !== 'plain'" class="is-size-6 has-text-grey">
+            <a href="https://listmonk.app/docs/templating/#template-expressions" target="_blank" rel="noopener noreferer">
+              <b-icon icon="code" /> Templating reference</a>
+            <span v-if="canEdit && form.content.contentType !== 'plain'" class="is-size-6 has-text-grey ml-6">
               <a v-if="form.altbody === null" href="#" @click.prevent="onAddAltBody">
                 <b-icon icon="text" size="is-small" /> {{ $t('campaigns.addAltText') }}
               </a>
@@ -190,7 +192,8 @@
                 <b-icon icon="trash-can-outline" size="is-small" />
                 {{ $t('campaigns.removeAltText') }}
               </a>
-            </p>
+            </span>
+            </a>
           </div>
         </div>
 

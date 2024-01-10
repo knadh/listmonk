@@ -93,6 +93,7 @@
     "campaigns.status.scheduled": "Programada",
     "campaigns.statusChanged": "\"{name}\" està {status}",
     "campaigns.subject": "Assumpte",
+    "campaigns.templatingRef": "Templating reference",
     "campaigns.testEmails": "Adreces de correu electrònic",
     "campaigns.testSent": "S'ha enviat el missatge de prova",
     "campaigns.timestamps": "Segells de temps",

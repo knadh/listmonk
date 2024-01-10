@@ -93,6 +93,7 @@
     "campaigns.status.scheduled": "Wedi'i drefnu",
     "campaigns.statusChanged": "Mae “[enw]” {status}",
     "campaigns.subject": "Pwnc",
+    "campaigns.templatingRef": "Templating reference",
     "campaigns.testEmails": "E-byst",
     "campaigns.testSent": "Wedi anfon neges brawf",
     "campaigns.timestamps": "Stamp amser",

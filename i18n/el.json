@@ -93,6 +93,7 @@
     "campaigns.status.scheduled": "Προγραμματίστηκε",
     "campaigns.statusChanged": "Η εκστρατεία \"{name}\" έχει την κατάσταση {status}",
     "campaigns.subject": "Θέμα",
+    "campaigns.templatingRef": "Templating reference",
     "campaigns.testEmails": "Διευθύνσεις e-mail",
     "campaigns.testSent": "Το δοκιμαστικό μήνυμα στάλθηκε",
     "campaigns.timestamps": "Χρονοσήματα",

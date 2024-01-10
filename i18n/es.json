@@ -93,6 +93,7 @@
     "campaigns.status.scheduled": "Agendada",
     "campaigns.statusChanged": "\"{name}\" está {status}",
     "campaigns.subject": "Asunto",
+    "campaigns.templatingRef": "Templating reference",
     "campaigns.testDisabled": "Intoduce la contraseña (password) para probarla",
     "campaigns.testEmails": "Correos electrónicos de prueba",
     "campaigns.testSent": "Mensaje de prueba enviado",

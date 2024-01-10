@@ -93,6 +93,7 @@
     "campaigns.status.scheduled": "Programmata",
     "campaigns.statusChanged": "\"{name}\" e {status}",
     "campaigns.subject": "Oggetto",
+    "campaigns.templatingRef": "Templating reference",
     "campaigns.testEmails": "Emails di prova",
     "campaigns.testSent": "Messaggio di prova inviato",
     "campaigns.timestamps": "Marcatura temporale ",

@@ -93,6 +93,7 @@
     "campaigns.status.scheduled": "Naplánovaná",
     "campaigns.statusChanged": "\"{name}\" je {status}",
     "campaigns.subject": "Predmet",
+    "campaigns.templatingRef": "Templating reference",
     "campaigns.testEmails": "E-maily",
     "campaigns.testSent": "Testovacia správa odoslaná",
     "campaigns.timestamps": "Časové razítka",

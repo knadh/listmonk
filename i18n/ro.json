@@ -93,6 +93,7 @@
     "campaigns.status.scheduled": "Programat",
     "campaigns.statusChanged": "\"{name}\" este {status}",
     "campaigns.subject": "Subiect",
+    "campaigns.templatingRef": "Templating reference",
     "campaigns.testDisabled": "campaigns.testDisabled",
     "campaigns.testEmails": "E-mail-uri",
     "campaigns.testSent": "Mesaj de testare trimis",

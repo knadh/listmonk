@@ -93,6 +93,7 @@
     "campaigns.status.scheduled": "Scheduled",
     "campaigns.statusChanged": "\"{name}\" is {status}",
     "campaigns.subject": "Subject",
+    "campaigns.templatingRef": "Templating reference",
     "campaigns.testEmails": "E-mails",
     "campaigns.testSent": "Test message sent",
     "campaigns.timestamps": "Timestamps",

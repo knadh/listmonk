@@ -93,6 +93,7 @@
     "campaigns.status.scheduled": "Planlagt",
     "campaigns.statusChanged": "\"{name}\" er {status}",
     "campaigns.subject": "Emne",
+    "campaigns.templatingRef": "Templating reference",
     "campaigns.testEmails": "E-mails",
     "campaigns.testSent": "Testmeddelelse sendt",
     "campaigns.timestamps": "Tidsstempler",

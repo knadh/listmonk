@@ -93,6 +93,7 @@
     "campaigns.status.scheduled": "Agendada",
     "campaigns.statusChanged": "\"{name}\" está {status}",
     "campaigns.subject": "Assunto",
+    "campaigns.templatingRef": "Templating reference",
     "campaigns.testEmails": "E-mails de teste",
     "campaigns.testSent": "Mensagem de teste enviada",
     "campaigns.timestamps": "Carimbo de hora",

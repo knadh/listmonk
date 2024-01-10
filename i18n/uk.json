@@ -93,6 +93,7 @@
     "campaigns.status.scheduled": "Відкладені",
     "campaigns.statusChanged": "«{name}» — {status}",
     "campaigns.subject": "Тема",
+    "campaigns.templatingRef": "Templating reference",
     "campaigns.testEmails": "Адреси е-пошти",
     "campaigns.testSent": "Пробний лист надіслано",
     "campaigns.timestamps": "Історія",

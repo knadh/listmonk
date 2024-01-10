@@ -93,6 +93,7 @@
     "campaigns.status.scheduled": "Zamanlandı",
     "campaigns.statusChanged": "\"{name}\" durumu {status}",
     "campaigns.subject": "Konu",
+    "campaigns.templatingRef": "Templating reference",
     "campaigns.testDisabled": "Test etmek için parola girin",
     "campaigns.testEmails": "E-postalar",
     "campaigns.testSent": "Test mesajı gönderildi",

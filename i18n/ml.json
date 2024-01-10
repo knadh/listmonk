@@ -93,6 +93,7 @@
     "campaigns.status.scheduled": "ആസൂത്രണം ചെയ്തു",
     "campaigns.statusChanged": "\"{name}\"  {status} ആണ്",
     "campaigns.subject": "വിഷയം",
+    "campaigns.templatingRef": "Templating reference",
     "campaigns.testEmails": "ഈ-മെയിലുകൾ",
     "campaigns.testSent": "പരീക്ഷണ സന്ദേശം അയച്ചു",
     "campaigns.timestamps": "ടൈംസ്റ്റാമ്പുകൾ",

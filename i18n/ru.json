@@ -93,6 +93,7 @@
     "campaigns.status.scheduled": "Запланирована",
     "campaigns.statusChanged": "\"{name}\" {status}",
     "campaigns.subject": "Тема",
+    "campaigns.templatingRef": "Templating reference",
     "campaigns.testEmails": "Почта",
     "campaigns.testSent": "Тестовое сообщение отправлено",
     "campaigns.timestamps": "Метки времени",
