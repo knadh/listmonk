@@ -621,7 +621,7 @@ func sendOptinConfirmationHook(app *App) func(sub models.Subscriber, listIDs []i
 
 		// Send the e-mail.
 		if err := app.sendNotification([]string{sub.Email}, app.i18n.T("subscribers.optinSubject"), notifSubscriberOptin, out); err != nil {
-			app.log.Printf("error sending opt-in e-mail: %s", err)
+			app.log.Printf("error sending opt-in e-mail for subscriber %d (%s): %s", sub.ID, sub.UUID, err)
 			return 0, err
 		}
 
