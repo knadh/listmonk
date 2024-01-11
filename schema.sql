@@ -23,6 +23,8 @@ CREATE TABLE subscribers (
 );
 DROP INDEX IF EXISTS idx_subs_email; CREATE UNIQUE INDEX idx_subs_email ON subscribers(LOWER(email));
 DROP INDEX IF EXISTS idx_subs_status; CREATE INDEX idx_subs_status ON subscribers(status);
+DROP INDEX IF EXISTS idx_subs_created_at; CREATE INDEX idx_subs_created_at ON subscribers(created_at);
+DROP INDEX IF EXISTS idx_subs_updated_at; CREATE INDEX idx_subs_updated_at ON subscribers(updated_at);
 
 -- lists
 DROP TABLE IF EXISTS lists CASCADE;
@@ -38,6 +40,12 @@ CREATE TABLE lists (
     created_at      TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at      TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
+DROP INDEX IF EXISTS idx_lists_type; CREATE INDEX idx_lists_type ON lists(type);
+DROP INDEX IF EXISTS idx_lists_optin; CREATE INDEX idx_lists_optin ON lists(optin);
+DROP INDEX IF EXISTS idx_lists_name; CREATE INDEX idx_lists_name ON lists(name);
+DROP INDEX IF EXISTS idx_lists_created_at; CREATE INDEX idx_lists_created_at ON lists(created_at);
+DROP INDEX IF EXISTS idx_lists_updated_at; CREATE INDEX idx_lists_updated_at ON lists(updated_at);
+
 
 DROP TABLE IF EXISTS subscriber_lists CASCADE;
 CREATE TABLE subscriber_lists (
@@ -111,6 +119,11 @@ CREATE TABLE campaigns (
     created_at       TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at       TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
+DROP INDEX IF EXISTS idx_camps_status; CREATE INDEX idx_camps_status ON campaigns(status);
+DROP INDEX IF EXISTS idx_camps_name; CREATE INDEX idx_camps_name ON campaigns(name);
+DROP INDEX IF EXISTS idx_camps_created_at; CREATE INDEX idx_camps_created_at ON campaigns(created_at);
+DROP INDEX IF EXISTS idx_camps_updated_at; CREATE INDEX idx_camps_updated_at ON campaigns(updated_at);
+
 
 DROP TABLE IF EXISTS campaign_lists CASCADE;
 CREATE TABLE campaign_lists (
@@ -212,6 +225,8 @@ INSERT INTO settings (key, value) VALUES
     ('app.message_sliding_window', 'false'),
     ('app.message_sliding_window_duration', '"1h"'),
     ('app.message_sliding_window_rate', '10000'),
+    ('app.cache_slow_queries', 'false'),
+    ('app.cache_slow_queries_interval', '"0 3 * * *"'),
     ('app.enable_public_archive', 'true'),
     ('app.enable_public_subscription_page', 'true'),
     ('app.enable_public_archive_rss_content', 'true'),
@@ -279,3 +294,88 @@ DROP INDEX IF EXISTS idx_bounces_sub_id; CREATE INDEX idx_bounces_sub_id ON boun
 DROP INDEX IF EXISTS idx_bounces_camp_id; CREATE INDEX idx_bounces_camp_id ON bounces(campaign_id);
 DROP INDEX IF EXISTS idx_bounces_source; CREATE INDEX idx_bounces_source ON bounces(source);
 DROP INDEX IF EXISTS idx_bounces_date; CREATE INDEX idx_bounces_date ON bounces((TIMEZONE('UTC', created_at)::DATE));
+
+
+
+-- materialized views
+
+-- dashboard stats
+DROP MATERIALIZED VIEW IF EXISTS mat_dashboard_counts;
+CREATE MATERIALIZED VIEW mat_dashboard_counts AS
+    WITH subs AS (
+        SELECT COUNT(*) AS num, status FROM subscribers GROUP BY status
+    )
+    SELECT NOW() AS updated_at,
+        JSON_BUILD_OBJECT(
+            'subscribers', JSON_BUILD_OBJECT(
+                'total', (SELECT SUM(num) FROM subs),
+                'blocklisted', (SELECT num FROM subs WHERE status='blocklisted'),
+                'orphans', (
+                    SELECT COUNT(id) FROM subscribers
+                    LEFT JOIN subscriber_lists ON (subscribers.id = subscriber_lists.subscriber_id)
+                    WHERE subscriber_lists.subscriber_id IS NULL
+                )
+            ),
+            'lists', JSON_BUILD_OBJECT(
+                'total', (SELECT COUNT(*) FROM lists),
+                'private', (SELECT COUNT(*) FROM lists WHERE type='private'),
+                'public', (SELECT COUNT(*) FROM lists WHERE type='public'),
+                'optin_single', (SELECT COUNT(*) FROM lists WHERE optin='single'),
+                'optin_double', (SELECT COUNT(*) FROM lists WHERE optin='double')
+            ),
+            'campaigns', JSON_BUILD_OBJECT(
+                'total', (SELECT COUNT(*) FROM campaigns),
+                'by_status', (
+                    SELECT JSON_OBJECT_AGG (status, num) FROM
+                    (SELECT status, COUNT(*) AS num FROM campaigns GROUP BY status) r
+                )
+            ),
+            'messages', (SELECT SUM(sent) AS messages FROM campaigns)
+        ) AS data;
+DROP INDEX IF EXISTS mat_dashboard_stats_idx; CREATE UNIQUE INDEX mat_dashboard_stats_idx ON mat_dashboard_counts (updated_at);
+
+
+DROP MATERIALIZED VIEW IF EXISTS mat_dashboard_charts;
+CREATE MATERIALIZED VIEW mat_dashboard_charts AS
+    WITH clicks AS (
+        SELECT JSON_AGG(ROW_TO_JSON(row))
+        FROM (
+            WITH viewDates AS (
+              SELECT TIMEZONE('UTC', created_at)::DATE AS to_date,
+                     TIMEZONE('UTC', created_at)::DATE - INTERVAL '30 DAY' AS from_date
+                     FROM link_clicks ORDER BY id DESC LIMIT 1
+            )
+            SELECT COUNT(*) AS count, created_at::DATE as date FROM link_clicks
+              -- use > between < to force the use of the date index.
+              WHERE TIMEZONE('UTC', created_at)::DATE BETWEEN (SELECT from_date FROM viewDates) AND (SELECT to_date FROM viewDates)
+              GROUP by date ORDER BY date
+        ) row
+    ),
+    views AS (
+        SELECT JSON_AGG(ROW_TO_JSON(row))
+        FROM (
+            WITH viewDates AS (
+              SELECT TIMEZONE('UTC', created_at)::DATE AS to_date,
+                     TIMEZONE('UTC', created_at)::DATE - INTERVAL '30 DAY' AS from_date
+                     FROM campaign_views ORDER BY id DESC LIMIT 1
+            )
+            SELECT COUNT(*) AS count, created_at::DATE as date FROM campaign_views
+              -- use > between < to force the use of the date index.
+              WHERE TIMEZONE('UTC', created_at)::DATE BETWEEN (SELECT from_date FROM viewDates) AND (SELECT to_date FROM viewDates)
+              GROUP by date ORDER BY date
+        ) row
+    )
+    SELECT NOW() AS updated_at, JSON_BUILD_OBJECT('link_clicks', COALESCE((SELECT * FROM clicks), '[]'),
+                                  'campaign_views', COALESCE((SELECT * FROM views), '[]')
+                                ) AS data;
+DROP INDEX IF EXISTS mat_dashboard_charts_idx; CREATE UNIQUE INDEX mat_dashboard_charts_idx ON mat_dashboard_charts (updated_at);
+
+-- subscriber counts stats for lists
+DROP MATERIALIZED VIEW IF EXISTS mat_list_subscriber_stats;
+CREATE MATERIALIZED VIEW mat_list_subscriber_stats AS
+    SELECT NOW() AS updated_at, lists.id AS list_id, subscriber_lists.status, COUNT(*) AS subscriber_count FROM lists
+    LEFT JOIN subscriber_lists ON (subscriber_lists.list_id = lists.id)
+    GROUP BY lists.id, subscriber_lists.status
+    UNION ALL
+    SELECT NOW() AS updated_at, 0 AS list_id, NULL AS status, COUNT(*) AS subscriber_count FROM subscribers;
+DROP INDEX IF EXISTS mat_list_subscriber_stats_idx; CREATE UNIQUE INDEX mat_list_subscriber_stats_idx ON mat_list_subscriber_stats (list_id, status);

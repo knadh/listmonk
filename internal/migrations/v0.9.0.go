@@ -2,6 +2,7 @@ package migrations
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/knadh/koanf/v2"
@@ -9,7 +10,7 @@ import (
 )
 
 // V0_9_0 performs the DB migrations for v.0.9.0.
-func V0_9_0(db *sqlx.DB, fs stuffbin.FileSystem, ko *koanf.Koanf) error {
+func V0_9_0(db *sqlx.DB, fs stuffbin.FileSystem, ko *koanf.Koanf, lo *log.Logger) error {
 	if _, err := db.Exec(`
 		INSERT INTO settings (key, value) VALUES
 			('app.lang', '"en"'),

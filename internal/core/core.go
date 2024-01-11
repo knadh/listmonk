@@ -20,17 +20,21 @@ import (
 const (
 	SortAsc  = "asc"
 	SortDesc = "desc"
+
+	matDashboardCharts = "mat_dashboard_charts"
+	matDashboardCounts = "mat_dashboard_counts"
+	matListSubStats    = "mat_list_subscriber_stats"
 )
 
 // Core represents the listmonk core with all shared, global functions.
 type Core struct {
 	h *Hooks
 
-	constants Constants
-	i18n      *i18n.I18n
-	db        *sqlx.DB
-	q         *models.Queries
-	log       *log.Logger
+	consts Constants
+	i18n   *i18n.I18n
+	db     *sqlx.DB
+	q      *models.Queries
+	log    *log.Logger
 }
 
 // Constants represents constant config.
@@ -40,6 +44,7 @@ type Constants struct {
 		Count  int
 		Action string
 	}
+	CacheSlowQueries bool
 }
 
 // Hooks contains external function hooks that are required by the core package.
@@ -67,13 +72,47 @@ var (
 // New returns a new instance of the core.
 func New(o *Opt, h *Hooks) *Core {
 	return &Core{
-		h:         h,
-		constants: o.Constants,
-		i18n:      o.I18n,
-		db:        o.DB,
-		q:         o.Queries,
-		log:       o.Log,
+		h:      h,
+		consts: o.Constants,
+		i18n:   o.I18n,
+		db:     o.DB,
+		q:      o.Queries,
+		log:    o.Log,
 	}
+}
+
+// RefreshMatViews refreshes all materialized views.
+func (c *Core) RefreshMatViews(concurrent bool) error {
+	for _, v := range []string{matDashboardCharts, matDashboardCounts, matListSubStats} {
+		_ = c.RefreshMatView(v, true)
+	}
+	return nil
+}
+
+// RefreshMatView refreshes a Postgres materialized view.
+func (c *Core) RefreshMatView(name string, concurrent bool) error {
+	q := "REFRESH MATERIALIZED VIEW %s %s"
+	if concurrent {
+		q = fmt.Sprintf(q, "CONCURRENTLY", name)
+	} else {
+		q = fmt.Sprintf(q, "", name)
+	}
+
+	if _, err := c.db.Exec(q); err != nil {
+		c.log.Printf("error refreshing materialized view: %s: %v", name, err)
+		return err
+	}
+
+	return nil
+}
+
+// refreshCache refreshes a Postgres materialized view if caching is disabled.
+func (c *Core) refreshCache(name string, concurrent bool) error {
+	if c.consts.CacheSlowQueries {
+		return nil
+	}
+
+	return c.RefreshMatView(name, concurrent)
 }
 
 // Given an error, pqErrMsg will try to return pq error details

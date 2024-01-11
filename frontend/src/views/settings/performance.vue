@@ -51,6 +51,30 @@
         </div>
       </div>
     </div><!-- sliding window -->
+
+    <div>
+      <hr />
+      <div class="columns">
+        <div class="column is-4">
+          <b-field :label="$t('settings.performance.cacheSlowQueries')"
+            :message="$t('settings.performance.cacheSlowQueriesHelp')">
+            <b-switch v-model="data['app.cache_slow_queries']" name="app.cache_slow_queries" />
+          </b-field>
+        </div>
+        <div class="column is-4" :class="{ disabled: !data['app.cache_slow_queries'] }">
+          <b-field :label="$t('settings.maintenance.cron')">
+            <b-input v-model="data['app.cache_slow_queries_interval']" :disabled="!data['app.cache_slow_queries']"
+              placeholder="0 3 * * *" />
+          </b-field>
+        </div>
+        <div class="column">
+          <br /><br />
+          <a href="https://listmonk.app/docs/performance/query-caching" target="_blank" rel="noopener noreferer">
+            <b-icon icon="link-variant" /> {{ $t('globals.buttons.learnMore') }}
+          </a>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 

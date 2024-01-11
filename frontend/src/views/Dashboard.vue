@@ -137,6 +137,13 @@
           </div>
         </div>
       </div><!-- tile block -->
+      <p v-if="settings['app.cache_slow_queries']" class="has-text-grey">
+        *{{ $t('globals.messages.slowQueriesCached') }}
+        <a href="https://listmonk.app/docs/performance/query-caching" target="_blank" rel="noopener noreferer"
+          class="has-text-grey">
+          <b-icon icon="link-variant" /> {{ $t('globals.buttons.learnMore') }}
+        </a>
+      </p>
     </section>
   </section>
 </template>
@@ -144,6 +151,7 @@
 <script>
 import dayjs from 'dayjs';
 import Vue from 'vue';
+import { mapState } from 'vuex';
 import { colors } from '../constants';
 import Chart from '../components/Chart.vue';
 
@@ -188,6 +196,7 @@ export default Vue.extend({
   },
 
   computed: {
+    ...mapState(['settings']),
     dayjs() {
       return dayjs;
     },

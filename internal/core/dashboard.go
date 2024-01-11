@@ -9,6 +9,8 @@ import (
 
 // GetDashboardCharts returns chart data points to render on the dashboard.
 func (c *Core) GetDashboardCharts() (types.JSONText, error) {
+	_ = c.refreshCache(matDashboardCharts, false)
+
 	var out types.JSONText
 	if err := c.q.GetDashboardCharts.Get(&out); err != nil {
 		return nil, echo.NewHTTPError(http.StatusInternalServerError,
@@ -20,6 +22,8 @@ func (c *Core) GetDashboardCharts() (types.JSONText, error) {
 
 // GetDashboardCounts returns stats counts to show on the dashboard.
 func (c *Core) GetDashboardCounts() (types.JSONText, error) {
+	_ = c.refreshCache(matDashboardCounts, false)
+
 	var out types.JSONText
 	if err := c.q.GetDashboardCounts.Get(&out); err != nil {
 		return nil, echo.NewHTTPError(http.StatusInternalServerError,

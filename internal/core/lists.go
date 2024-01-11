@@ -37,14 +37,16 @@ func (c *Core) GetLists(typ string) ([]models.List, error) {
 // QueryLists gets multiple lists based on multiple query params. Along with the  paginated and sliced
 // results, the total number of lists in the DB is returned.
 func (c *Core) QueryLists(searchStr, typ, optin string, tags []string, orderBy, order string, offset, limit int) ([]models.List, int, error) {
-	out := []models.List{}
-
-	queryStr, stmt := makeSearchQuery(searchStr, orderBy, order, c.q.QueryLists, listQuerySortFields)
+	_ = c.refreshCache(matListSubStats, false)
 
 	if tags == nil {
 		tags = []string{}
 	}
 
+	var (
+		out            = []models.List{}
+		queryStr, stmt = makeSearchQuery(searchStr, orderBy, order, c.q.QueryLists, listQuerySortFields)
+	)
 	if err := c.db.Select(&out, stmt, 0, "", queryStr, typ, optin, pq.StringArray(tags), offset, limit); err != nil {
 		c.log.Printf("error fetching lists: %v", err)
 		return nil, 0, echo.NewHTTPError(http.StatusInternalServerError,

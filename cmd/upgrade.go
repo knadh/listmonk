@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"strings"
 
 	"github.com/jmoiron/sqlx"
@@ -18,7 +19,7 @@ import (
 // of logic to be performed before executing upgrades. fn is idempotent.
 type migFunc struct {
 	version string
-	fn      func(*sqlx.DB, stuffbin.FileSystem, *koanf.Koanf) error
+	fn      func(*sqlx.DB, stuffbin.FileSystem, *koanf.Koanf, *log.Logger) error
 }
 
 // migList is the list of available migList ordered by the semver.
@@ -69,7 +70,7 @@ func upgrade(db *sqlx.DB, fs stuffbin.FileSystem, prompt bool) {
 	// Execute migrations in succession.
 	for _, m := range toRun {
 		lo.Printf("running migration %s", m.version)
-		if err := m.fn(db, fs, ko); err != nil {
+		if err := m.fn(db, fs, ko, lo); err != nil {
 			lo.Fatalf("error running migration %s: %v", m.version, err)
 		}
 
