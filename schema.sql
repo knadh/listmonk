@@ -252,7 +252,7 @@ INSERT INTO settings (key, value) VALUES
     ('messengers', '[]'),
     ('bounce.enabled', 'false'),
     ('bounce.webhooks_enabled', 'false'),
-    ('bounce.actions', '{"soft": {"count": 2, "action": "none"}, "hard": {"count": 2, "action": "blocklist"}, "complaint" : {"count": 2, "action": "delete"}}'),
+    ('bounce.actions', '{"soft": {"count": 2, "action": "none"}, "hard": {"count": 1, "action": "blocklist"}, "complaint" : {"count": 1, "action": "blocklist"}}'),
     ('bounce.ses_enabled', 'false'),
     ('bounce.sendgrid_enabled', 'false'),
     ('bounce.sendgrid_key', '""'),
