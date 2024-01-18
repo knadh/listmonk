@@ -136,7 +136,7 @@ The above example uses an `if` condition to show one of two messages depending o
 System templates are used for rendering public user-facing pages such as the subscription management page, and in automatically generated system e-mails such as the opt-in confirmation e-mail. These are bundled into listmonk but can be customized by copying the [static directory](https://github.com/knadh/listmonk/tree/master/static) locally, and passing its path to listmonk with the `./listmonk --static-dir=your/custom/path` flag.
 
 You can fetch the static files with:<br>
-`mkdir -p /etc/listmonk/static ; wget -O - https://github.com/knadh/listmonk/archive/master.tar.gz | tar xz -C /etc/listmonk/static --strip=2 "listmonk-mast`
+`mkdir -p /home/ubuntu/listmonk/static ; wget -O - https://github.com/knadh/listmonk/archive/master.tar.gz | tar xz -C /home/ubuntu/listmonk/static --strip=2 "listmonk-master/static"`
 
 [Docker example](https://yasoob.me/posts/setting-up-listmonk-opensource-newsletter-mailing/#custom-static-files), [binary example](https://github.com/knadh/listmonk/blob/master/listmonk-simple.service).
 
