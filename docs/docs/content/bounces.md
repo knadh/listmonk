@@ -33,7 +33,7 @@ The bounce webhook API can be used to record bounce events with custom scripting
  
 
 ```shell
-curl -u 'username:password' -X POST localhost:9000/webhooks/bounce \
+curl -u 'username:password' -X POST 'http://localhost:9000/webhooks/bounce' \
 	-H "Content-Type: application/json" \
 	--data '{"email": "user1@mail.com", "campaign_uuid": "9f86b50d-5711-41c8-ab03-bc91c43d711b", "source": "api", "type": "hard", "meta": "{\"additional\": \"info\"}}'
 
@@ -42,25 +42,63 @@ curl -u 'username:password' -X POST localhost:9000/webhooks/bounce \
 ## External webhooks
 listmonk supports receiving bounce webhook events from the following SMTP providers.
 
-| Endpoint                                                  | Description                            | More info                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
-|:----------------------------------------------------------|:---------------------------------------|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `https://listmonk.yoursite.com/webhooks/service/ses`      | Amazon (AWS) SES                       | You can use these [Mautic steps](https://docs.mautic.org/en/channels/emails/bounce-management#amazon-webhook) as a general guide, but use your listmonk's endpoint instead. <ul>  <li>When creating the *topic* select "standard" instead of the preselected "FIFO". You can put a name and leave everything else at default.</li>  <li>When creating a *subscription* choose HTTPS for "Protocol", and leave *"Enable raw message delivery"* UNCHECKED.</li>  <li>On the _"SES -> verified identities"_ page, make sure to check **"[include original headers](https://github.com/knadh/listmonk/issues/720#issuecomment-1046877192)"**.</li>  <li>The Mautic screenshot suggests you should turn off _email feedback forwarding_, but that's completely optional depending on whether you want want email notifications.</li></ul> |
-| `https://listmonk.yoursite.com/webhooks/service/sendgrid` | Sendgrid / Twilio Signed event webhook | [More info](https://docs.sendgrid.com/for-developers/tracking-events/getting-started-event-webhook-security-features)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
-| `https://listmonk.yoursite.com/webhooks/service/postmark` | Postmark webhook                       | [More info](https://postmarkapp.com/developer/webhooks/webhooks-overview)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| Endpoint                                                  | Description                            | More info                                                                                                             |
+|:----------------------------------------------------------|:---------------------------------------|:----------------------------------------------------------------------------------------------------------------------|
+| `https://listmonk.yoursite.com/webhooks/service/ses`      | Amazon (AWS) SES                       | See below                                                                                                             |
+| `https://listmonk.yoursite.com/webhooks/service/sendgrid` | Sendgrid / Twilio Signed event webhook | [More info](https://docs.sendgrid.com/for-developers/tracking-events/getting-started-event-webhook-security-features) |
+| `https://listmonk.yoursite.com/webhooks/service/postmark` | Postmark webhook                       | [More info](https://postmarkapp.com/developer/webhooks/webhooks-overview)                                             |
 
+## Amazon Simple Email Service (SES)
 
-## Verification
+If using SES as your SMTP provider, automatic bounce processing is the recommended way to maintain your [sender reputation](https://docs.aws.amazon.com/ses/latest/dg/monitor-sender-reputation.html). The settings below are based on Amazon's [recommendations](https://docs.aws.amazon.com/ses/latest/dg/send-email-concepts-deliverability.html). Please note that your sending domain must be verified in SES before proceeding.
 
-If you're using Amazon SES you can use Amazon's test emails to make sure everything's working: [https://docs.aws.amazon.com/ses/latest/dg/send-an-email-from-console.html](https://docs.aws.amazon.com/ses/latest/dg/send-an-email-from-console.html)
+1. In listmonk settings, go to the "Bounces" tab and configure the following:
+    - Enable bounce processing: `Enabled`
+        - Soft:
+            - Bounce count: `2`
+            - Action: `None`
+        - Hard:
+            - Bounce count: `1`
+            - Action: `Blocklist`
+        - Complaint: 
+            - Bounce count: `1`
+            - Action: `Blocklist`
+    - Enable bounce webhooks: `Enabled`
+    - Enable SES: `Enabled`
+2. In the AWS console, go to [Simple Notification Service](https://console.aws.amazon.com/sns/) and create a new topic with the following settings:
+    - Type: `Standard`
+    - Name: `ses-bounces` (or any other name)
+3. Create a new subscription to that topic with the following settings:
+    - Protocol: `HTTPS`
+    - Endpoint: `https://listmonk.yoursite.com/webhooks/service/ses`
+    - Enable raw message delivery: `Disabled` (unchecked)
+4. SES will then make a request to your listmonk instance to confirm the subscription. After a page refresh, the subscription should have a status of "Confirmed". If not, your endpoint may be incorrect or not publicly accessible.
+5. In the AWS console, go to [Simple Email Service](https://console.aws.amazon.com/ses/) and click "Verified identities" in the left sidebar.
+6. Click your domain and go to the "Notifications" tab.
+7. Next to "Feedback notifications", click "Edit".
+8. For both "Bounce feedback" and "Complaint feedback", use the following settings:
+    - SNS topic: `ses-bounces` (or whatever you named it)
+    - Include original email headers: `Enabled` (checked)
+9. Bounce processing should now be working. You can test it with [SES simulator addresses](https://docs.aws.amazon.com/ses/latest/dg/send-an-email-from-console.html#send-email-simulator). Add them as subscribers, send them campaign previews, and ensure that the appropriate action was taken after the configured bounce count was reached.
+    - Soft bounce: `ooto@simulator.amazonses.com`
+    - Hard bounce: `bounce@simulator.amazonses.com`
+    - Complaint: `complaint@simulator.amazonses.com`
+10. You can optionally [disable email feedback forwarding](https://docs.aws.amazon.com/ses/latest/dg/monitor-sending-activity-using-notifications-email.html#monitor-sending-activity-using-notifications-email-disabling).
+
+## Exporting bounces
+
+Bounces can be exported via the JSON API:
+```shell
+curl -u 'username:passsword' 'http://localhost:9000/api/bounces'
 ```
-success@simulator.amazonses.com
-bounce@simulator.amazonses.com
-complaint@simulator.amazonses.com
-suppressionlist@simulator.amazonses.com
+
+Or by querying the database directly:
+```sql
+SELECT bounces.created_at,
+    bounces.subscriber_id,
+    subscribers.uuid AS subscriber_uuid,
+    subscribers.email AS email
+FROM bounces
+LEFT JOIN subscribers ON (subscribers.id = bounces.subscriber_id)
+ORDER BY bounces.created_at DESC LIMIT 1000;
 ```
-They all count as _hard_ bounces. 
-
-
-**Exporting bounces**: [https://github.com/knadh/listmonk/issues/863](https://github.com/knadh/listmonk/issues/863)
-
-
