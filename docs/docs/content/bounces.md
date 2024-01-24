@@ -83,7 +83,7 @@ If using SES as your SMTP provider, automatic bounce processing is the recommend
     - Soft bounce: `ooto@simulator.amazonses.com`
     - Hard bounce: `bounce@simulator.amazonses.com`
     - Complaint: `complaint@simulator.amazonses.com`
-10. You an optionally [disable email feedback forwarding](https://docs.aws.amazon.com/ses/latest/dg/monitor-sending-activity-using-notifications-email.html#monitor-sending-activity-using-notifications-email-disabling).
+10. You can optionally [disable email feedback forwarding](https://docs.aws.amazon.com/ses/latest/dg/monitor-sending-activity-using-notifications-email.html#monitor-sending-activity-using-notifications-email-disabling).
 
 ## Exporting bounces
 
