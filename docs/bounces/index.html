@@ -432,9 +432,18 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#verification" class="md-nav__link">
+  <a href="#amazon-simple-email-service-ses" class="md-nav__link">
     <span class="md-ellipsis">
-      Verification
+      Amazon Simple Email Service (SES)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#exporting-bounces" class="md-nav__link">
+    <span class="md-ellipsis">
+      Exporting bounces
     </span>
   </a>
   
@@ -742,9 +751,18 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#verification" class="md-nav__link">
+  <a href="#amazon-simple-email-service-ses" class="md-nav__link">
     <span class="md-ellipsis">
-      Verification
+      Amazon Simple Email Service (SES)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#exporting-bounces" class="md-nav__link">
+    <span class="md-ellipsis">
+      Exporting bounces
     </span>
   </a>
   
@@ -840,7 +858,7 @@
 </tr>
 </tbody>
 </table>
-<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-u<span class="w"> </span><span class="s1">&#39;username:password&#39;</span><span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>localhost:9000/webhooks/bounce<span class="w"> </span><span class="se">\</span>
+<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-u<span class="w"> </span><span class="s1">&#39;username:password&#39;</span><span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="s1">&#39;http://localhost:9000/webhooks/bounce&#39;</span><span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>-H<span class="w"> </span><span class="s2">&quot;Content-Type: application/json&quot;</span><span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--data<span class="w"> </span><span class="s1">&#39;{&quot;email&quot;: &quot;user1@mail.com&quot;, &quot;campaign_uuid&quot;: &quot;9f86b50d-5711-41c8-ab03-bc91c43d711b&quot;, &quot;source&quot;: &quot;api&quot;, &quot;type&quot;: &quot;hard&quot;, &quot;meta&quot;: &quot;{\&quot;additional\&quot;: \&quot;info\&quot;}}&#39;</span>
 </code></pre></div>
@@ -858,7 +876,7 @@
 <tr>
 <td style="text-align: left;"><code>https://listmonk.yoursite.com/webhooks/service/ses</code></td>
 <td style="text-align: left;">Amazon (AWS) SES</td>
-<td style="text-align: left;">You can use these <a href="https://docs.mautic.org/en/channels/emails/bounce-management#amazon-webhook">Mautic steps</a> as a general guide, but use your listmonk's endpoint instead. <ul>  <li>When creating the <em>topic</em> select "standard" instead of the preselected "FIFO". You can put a name and leave everything else at default.</li>  <li>When creating a <em>subscription</em> choose HTTPS for "Protocol", and leave <em>"Enable raw message delivery"</em> UNCHECKED.</li>  <li>On the <em>"SES -&gt; verified identities"</em> page, make sure to check <strong>"<a href="https://github.com/knadh/listmonk/issues/720#issuecomment-1046877192">include original headers</a>"</strong>.</li>  <li>The Mautic screenshot suggests you should turn off <em>email feedback forwarding</em>, but that's completely optional depending on whether you want want email notifications.</li></ul></td>
+<td style="text-align: left;">See below</td>
 </tr>
 <tr>
 <td style="text-align: left;"><code>https://listmonk.yoursite.com/webhooks/service/sendgrid</code></td>
@@ -872,15 +890,73 @@
 </tr>
 </tbody>
 </table>
-<h2 id="verification">Verification<a class="headerlink" href="#verification" title="Permanent link">&para;</a></h2>
-<p>If you're using Amazon SES you can use Amazon's test emails to make sure everything's working: <a href="https://docs.aws.amazon.com/ses/latest/dg/send-an-email-from-console.html">https://docs.aws.amazon.com/ses/latest/dg/send-an-email-from-console.html</a>
-<div class="highlight"><pre><span></span><code>success@simulator.amazonses.com
-bounce@simulator.amazonses.com
-complaint@simulator.amazonses.com
-suppressionlist@simulator.amazonses.com
-</code></pre></div>
-They all count as <em>hard</em> bounces. </p>
-<p><strong>Exporting bounces</strong>: <a href="https://github.com/knadh/listmonk/issues/863">https://github.com/knadh/listmonk/issues/863</a></p>
+<h2 id="amazon-simple-email-service-ses">Amazon Simple Email Service (SES)<a class="headerlink" href="#amazon-simple-email-service-ses" title="Permanent link">&para;</a></h2>
+<p>If using SES as your SMTP provider, automatic bounce processing is the recommended way to maintain your <a href="https://docs.aws.amazon.com/ses/latest/dg/monitor-sender-reputation.html">sender reputation</a>. The settings below are based on Amazon's <a href="https://docs.aws.amazon.com/ses/latest/dg/send-email-concepts-deliverability.html">recommendations</a>. Please note that your sending domain must be verified in SES before proceeding.</p>
+<ol>
+<li>In listmonk settings, go to the "Bounces" tab and configure the following:<ul>
+<li>Enable bounce processing: <code>Enabled</code><ul>
+<li>Soft:<ul>
+<li>Bounce count: <code>2</code></li>
+<li>Action: <code>None</code></li>
+</ul>
+</li>
+<li>Hard:<ul>
+<li>Bounce count: <code>1</code></li>
+<li>Action: <code>Blocklist</code></li>
+</ul>
+</li>
+<li>Complaint: <ul>
+<li>Bounce count: <code>1</code></li>
+<li>Action: <code>Blocklist</code></li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Enable bounce webhooks: <code>Enabled</code></li>
+<li>Enable SES: <code>Enabled</code></li>
+</ul>
+</li>
+<li>In the AWS console, go to <a href="https://console.aws.amazon.com/sns/">Simple Notification Service</a> and create a new topic with the following settings:<ul>
+<li>Type: <code>Standard</code></li>
+<li>Name: <code>ses-bounces</code> (or any other name)</li>
+</ul>
+</li>
+<li>Create a new subscription to that topic with the following settings:<ul>
+<li>Protocol: <code>HTTPS</code></li>
+<li>Endpoint: <code>https://listmonk.yoursite.com/webhooks/service/ses</code></li>
+<li>Enable raw message delivery: <code>Disabled</code> (unchecked)</li>
+</ul>
+</li>
+<li>SES will then make a request to your listmonk instance to confirm the subscription. After a page refresh, the subscription should have a status of "Confirmed". If not, your endpoint may be incorrect or not publicly accessible.</li>
+<li>In the AWS console, go to <a href="https://console.aws.amazon.com/ses/">Simple Email Service</a> and click "Verified identities" in the left sidebar.</li>
+<li>Click your domain and go to the "Notifications" tab.</li>
+<li>Next to "Feedback notifications", click "Edit".</li>
+<li>For both "Bounce feedback" and "Complaint feedback", use the following settings:<ul>
+<li>SNS topic: <code>ses-bounces</code> (or whatever you named it)</li>
+<li>Include original email headers: <code>Enabled</code> (checked)</li>
+</ul>
+</li>
+<li>Bounce processing should now be working. You can test it with <a href="https://docs.aws.amazon.com/ses/latest/dg/send-an-email-from-console.html#send-email-simulator">SES simulator addresses</a>. Add them as subscribers, send them campaign previews, and ensure that the appropriate action was taken after the configured bounce count was reached.<ul>
+<li>Soft bounce: <code>ooto@simulator.amazonses.com</code></li>
+<li>Hard bounce: <code>bounce@simulator.amazonses.com</code></li>
+<li>Complaint: <code>complaint@simulator.amazonses.com</code></li>
+</ul>
+</li>
+<li>You can optionally <a href="https://docs.aws.amazon.com/ses/latest/dg/monitor-sending-activity-using-notifications-email.html#monitor-sending-activity-using-notifications-email-disabling">disable email feedback forwarding</a>.</li>
+</ol>
+<h2 id="exporting-bounces">Exporting bounces<a class="headerlink" href="#exporting-bounces" title="Permanent link">&para;</a></h2>
+<p>Bounces can be exported via the JSON API:
+<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-u<span class="w"> </span><span class="s1">&#39;username:passsword&#39;</span><span class="w"> </span><span class="s1">&#39;http://localhost:9000/api/bounces&#39;</span>
+</code></pre></div></p>
+<p>Or by querying the database directly:
+<div class="highlight"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">bounces</span><span class="p">.</span><span class="n">created_at</span><span class="p">,</span>
+<span class="w">    </span><span class="n">bounces</span><span class="p">.</span><span class="n">subscriber_id</span><span class="p">,</span>
+<span class="w">    </span><span class="n">subscribers</span><span class="p">.</span><span class="n">uuid</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">subscriber_uuid</span><span class="p">,</span>
+<span class="w">    </span><span class="n">subscribers</span><span class="p">.</span><span class="n">email</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">email</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">bounces</span>
+<span class="k">LEFT</span><span class="w"> </span><span class="k">JOIN</span><span class="w"> </span><span class="n">subscribers</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="p">(</span><span class="n">subscribers</span><span class="p">.</span><span class="n">id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bounces</span><span class="p">.</span><span class="n">subscriber_id</span><span class="p">)</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">bounces</span><span class="p">.</span><span class="n">created_at</span><span class="w"> </span><span class="k">DESC</span><span class="w"> </span><span class="k">LIMIT</span><span class="w"> </span><span class="mi">1000</span><span class="p">;</span>
+</code></pre></div></p>
 
 
 
