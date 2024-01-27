@@ -24,11 +24,20 @@ body[data-md-color-primary="white"]
   padding: 10px 0;
 }
 
-body[data-md-color-primary="white"] .md-nav__item--active {
+.md-nav__item--section > .md-nav__link[for] {
+  color: #333;
+}
+.md-nav__item--section {
+  margin-bottom: 20px;
+}
+.md-nav__item--nested .md-nav__list {
+  margin-left: 20px;
+  border-left: 1px solid #ddd;
+}
+
+body[data-md-color-primary="white"] a.md-nav__link--active {
   font-weight: 600;
   color: inherit;
-}
-body[data-md-color-primary="white"] .md-nav__item--active a {
   color: #0055d4;
 }
 body[data-md-color-primary="white"] .md-nav__item a:hover {
