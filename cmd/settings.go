@@ -12,7 +12,7 @@ import (
 	"unicode/utf8"
 
 	"github.com/gdgvda/cron"
-	"github.com/gofrs/uuid"
+	"github.com/gofrs/uuid/v5"
 	"github.com/jmoiron/sqlx/types"
 	"github.com/knadh/koanf/parsers/json"
 	"github.com/knadh/koanf/providers/rawbytes"

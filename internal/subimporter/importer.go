@@ -22,7 +22,7 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/gofrs/uuid"
+	"github.com/gofrs/uuid/v5"
 	"github.com/knadh/listmonk/internal/i18n"
 	"github.com/knadh/listmonk/models"
 	"github.com/lib/pq"
