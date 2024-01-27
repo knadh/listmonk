@@ -150,6 +150,7 @@
     "globals.buttons.remove": "Вилучити",
     "globals.buttons.save": "Зберегти",
     "globals.buttons.saveChanges": "Зберегти зміни",
+    "globals.buttons.view": "View",
     "globals.days.0": "нд",
     "globals.days.1": "нд",
     "globals.days.2": "пн",

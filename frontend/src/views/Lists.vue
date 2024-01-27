@@ -80,6 +80,7 @@
         header-class="cy-subscribers" numeric sortable centered>
         <router-link :to="`/subscribers/lists/${props.row.id}`">
           {{ $utils.formatNumber(props.row.subscriberCount) }}
+          <span class="is-size-7 view">{{ $t('globals.buttons.view') }}</span>
         </router-link>
       </b-table-column>
 

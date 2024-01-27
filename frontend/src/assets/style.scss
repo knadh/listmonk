@@ -668,6 +668,15 @@ section.lists {
       min-width: 65px;
     }
   }
+
+  .view {
+    display: block;
+    color: $grey-light;
+
+    &:hover {
+      color: $primary;
+    }
+  }
 }
 
 /* List selector */
