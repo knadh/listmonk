@@ -54,6 +54,7 @@ nav:
     - "Internationalization": "i18n.md"
     - "Integrating with external systems": external-integration.md
   - "API":
+    - "Introduction": apis/apis.md
     - "Subscribers": apis/subscribers.md
     - "Lists": apis/lists.md
     - "Import": apis/import.md
@@ -61,5 +62,7 @@ nav:
     - "Media": apis/media.md
     - "Templates": apis/templates.md
     - "Transactional": apis/transactional.md
+  - "Maintenance":
+    - "Performance": maintenance/performance.md
   - "Contributions":
     - "Developer setup": developer-setup.md
