@@ -769,6 +769,7 @@ func initHTTPServer(app *App) *echo.Echo {
 		AssetVersion:        app.constants.AssetVersion,
 		EnablePublicSubPage: app.constants.EnablePublicSubPage,
 		EnablePublicArchive: app.constants.EnablePublicArchive,
+		IndividualTracking:  app.constants.Privacy.IndividualTracking,
 	}
 
 	// Initialize the static file server.

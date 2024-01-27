@@ -33,6 +33,7 @@ type tplRenderer struct {
 	AssetVersion        string
 	EnablePublicSubPage bool
 	EnablePublicArchive bool
+	IndividualTracking  bool
 }
 
 // tplData is the data container that is injected
@@ -45,6 +46,7 @@ type tplData struct {
 	AssetVersion        string
 	EnablePublicSubPage bool
 	EnablePublicArchive bool
+	IndividualTracking  bool
 	Data                interface{}
 	L                   *i18n.I18n
 }
@@ -99,6 +101,7 @@ func (t *tplRenderer) Render(w io.Writer, name string, data interface{}, c echo.
 		AssetVersion:        t.AssetVersion,
 		EnablePublicSubPage: t.EnablePublicSubPage,
 		EnablePublicArchive: t.EnablePublicArchive,
+		IndividualTracking:  t.IndividualTracking,
 		Data:                data,
 		L:                   c.Get("app").(*App).i18n,
 	})
