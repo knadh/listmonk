@@ -299,7 +299,6 @@ func handleTestSMTPSettings(c echo.Context) error {
 	m.Subject = app.i18n.T("settings.smtp.testConnection")
 	m.Body = b.Bytes()
 	if err := msgr.Push(m); err != nil {
-		app.log.Printf("error sending SMTP test (%s): %v", m.Subject, err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
