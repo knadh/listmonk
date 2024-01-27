@@ -26,11 +26,11 @@ require (
 	github.com/knadh/stuffbin v1.1.0
 	github.com/labstack/echo/v4 v4.11.4
 	github.com/lib/pq v1.10.9
-	github.com/mailru/easyjson v0.7.7
 	github.com/paulbellamy/ratecounter v0.2.0
 	github.com/rhnvrm/simples3 v0.8.3
 	github.com/spf13/pflag v1.0.5
 	github.com/yuin/goldmark v1.6.0
+	github.com/zerodha/easyjson v1.0.0
 	golang.org/x/mod v0.14.0
 	gopkg.in/volatiletech/null.v6 v6.0.0-20170828023728-0bef4e07ae1b
 )

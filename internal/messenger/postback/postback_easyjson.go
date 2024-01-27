@@ -5,9 +5,9 @@ package postback
 import (
 	json "encoding/json"
 	models "github.com/knadh/listmonk/models"
-	easyjson "github.com/mailru/easyjson"
-	jlexer "github.com/mailru/easyjson/jlexer"
-	jwriter "github.com/mailru/easyjson/jwriter"
+	easyjson "github.com/zerodha/easyjson"
+	jlexer "github.com/zerodha/easyjson/jlexer"
+	jwriter "github.com/zerodha/easyjson/jwriter"
 	textproto "net/textproto"
 )
 
@@ -182,7 +182,7 @@ func easyjsonDf11841fEncodeGithubComKnadhListmonkInternalMessengerPostback(out *
 
 // MarshalJSON supports json.Marshaler interface
 func (v postback) MarshalJSON() ([]byte, error) {
-	w := jwriter.Writer{}
+	w := jwriter.Writer{FloatFmt: ""}
 	easyjsonDf11841fEncodeGithubComKnadhListmonkInternalMessengerPostback(&w, v)
 	return w.Buffer.BuildBytes(), w.Error
 }
