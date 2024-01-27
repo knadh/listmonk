@@ -15,6 +15,7 @@ import (
 	"time"
 
 	"github.com/Masterminds/sprig/v3"
+	"github.com/gdgvda/cron"
 	"github.com/jmoiron/sqlx"
 	"github.com/jmoiron/sqlx/types"
 	"github.com/knadh/goyesql/v2"
@@ -28,6 +29,7 @@ import (
 	"github.com/knadh/listmonk/internal/bounce"
 	"github.com/knadh/listmonk/internal/bounce/mailbox"
 	"github.com/knadh/listmonk/internal/captcha"
+	"github.com/knadh/listmonk/internal/core"
 	"github.com/knadh/listmonk/internal/i18n"
 	"github.com/knadh/listmonk/internal/manager"
 	"github.com/knadh/listmonk/internal/media"
@@ -494,7 +496,7 @@ func initTxTemplates(m *manager.Manager, app *App) {
 }
 
 // initImporter initializes the bulk subscriber importer.
-func initImporter(q *models.Queries, db *sqlx.DB, app *App) *subimporter.Importer {
+func initImporter(q *models.Queries, db *sqlx.DB, core *core.Core, app *App) *subimporter.Importer {
 	return subimporter.New(
 		subimporter.Options{
 			DomainBlocklist:    app.constants.Privacy.DomainBlocklist,
@@ -502,6 +504,9 @@ func initImporter(q *models.Queries, db *sqlx.DB, app *App) *subimporter.Importe
 			BlocklistStmt:      q.UpsertBlocklistSubscriber.Stmt,
 			UpdateListDateStmt: q.UpdateListsDate.Stmt,
 			NotifCB: func(subject string, data interface{}) error {
+				// Refresh cached subscriber counts and stats.
+				core.RefreshMatViews(true)
+
 				app.sendNotification(app.constants.NotifyEmails, subject, notifTplImport, data)
 				return nil
 			},
@@ -801,6 +806,22 @@ func initCaptcha() *captcha.Captcha {
 	return captcha.New(captcha.Opt{
 		CaptchaSecret: ko.String("security.captcha_secret"),
 	})
+}
+
+func initCron(core *core.Core) {
+	c := cron.New()
+	_, err := c.Add(ko.MustString("app.cache_slow_queries_interval"), func() {
+		lo.Println("refreshing slow query cache")
+		_ = core.RefreshMatViews(true)
+		lo.Println("done refreshing slow query cache")
+	})
+	if err != nil {
+		lo.Printf("error initializing slow cache query cron: %v", err)
+		return
+	}
+
+	c.Start()
+	lo.Printf("IMPORTANT: database slow query caching is enabled. Aggregate numbers and stats will not be realtime. Next refresh at: %v", c.Entries()[0].Next)
 }
 
 func awaitReload(sigChan chan os.Signal, closerWait chan bool, closer func()) chan bool {

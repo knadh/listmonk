@@ -142,6 +142,14 @@
     <b-modal scroll="keep" :aria-modal="true" :active.sync="isFormVisible" :width="600" @close="onFormClose">
       <list-form :data="curItem" :is-editing="isEditing" @finished="formFinished" />
     </b-modal>
+
+    <p v-if="settings['app.cache_slow_queries']" class="has-text-grey">
+      *{{ $t('globals.messages.slowQueriesCached') }}
+      <a href="https://listmonk.app/docs/performance/query-caching" target="_blank" rel="noopener noreferer"
+        class="has-text-grey">
+        <b-icon icon="link-variant" /> {{ $t('globals.buttons.learnMore') }}
+      </a>
+    </p>
   </section>
 </template>
 

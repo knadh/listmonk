@@ -11,6 +11,7 @@ import (
 	"time"
 	"unicode/utf8"
 
+	"github.com/gdgvda/cron"
 	"github.com/gofrs/uuid"
 	"github.com/jmoiron/sqlx/types"
 	"github.com/knadh/koanf/parsers/json"
@@ -206,6 +207,13 @@ func handleUpdateSettings(c echo.Context) error {
 		}
 	}
 	set.DomainBlocklist = doms
+
+	// Validate slow query caching cron.
+	if set.CacheSlowQueries {
+		if _, err := cron.ParseStandard(set.CacheSlowQueriesInterval); err != nil {
+			return echo.NewHTTPError(http.StatusBadRequest, app.i18n.Ts("globals.messages.invalidData")+": slow query cron: "+err.Error())
+		}
+	}
 
 	// Update the settings in the DB.
 	if err := app.core.UpdateSettings(set); err != nil {

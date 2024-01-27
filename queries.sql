@@ -324,6 +324,12 @@ SELECT COUNT(*) AS total FROM subscribers
     )
     WHERE (CARDINALITY($1) = 0 OR subscriber_lists.list_id = ANY($1::INT[])) %s;
 
+-- name: query-subscribers-count-all
+-- Cached query for getting the "all" subscriber count without arbitrary conditions.
+SELECT SUM(subscriber_count) AS total FROM mat_list_subscriber_stats
+    WHERE list_id = ANY(CASE WHEN CARDINALITY($1::INT[]) > 0 THEN $1 ELSE '{0}' END)
+    AND ($2 = '' OR status = $2::subscription_status);
+
 -- name: query-subscribers-for-export
 -- raw: true
 -- Unprepared statement for issuring arbitrary WHERE conditions for
@@ -422,18 +428,15 @@ WITH ls AS (
     AND (CARDINALITY($6::VARCHAR(100)[]) = 0 OR $6 <@ tags)
     OFFSET $7 LIMIT (CASE WHEN $8 < 1 THEN NULL ELSE $8 END)
 ),
-counts AS (
-    SELECT list_id, JSON_OBJECT_AGG(status, num) AS subscriber_statuses, SUM(num) AS subscriber_count
-    FROM (
-        SELECT list_id, status, COUNT(*) as num
-        FROM subscriber_lists
-        WHERE ($1 = 0 OR list_id = $1)
-        GROUP BY list_id, status
-    ) AS subquery GROUP BY list_id
+statuses AS (
+    SELECT
+        list_id,
+        COALESCE(JSONB_OBJECT_AGG(status, subscriber_count) FILTER (WHERE status IS NOT NULL), '{}') AS subscriber_statuses
+    FROM mat_list_subscriber_stats
+    GROUP BY list_id
 )
-SELECT ls.*, subscriber_statuses FROM ls
-    LEFT JOIN counts ON (counts.list_id = ls.id) ORDER BY %order%;
-
+SELECT ls.*, COALESCE(ss.subscriber_statuses, '{}') AS subscriber_statuses
+    FROM ls LEFT JOIN statuses ss ON (ls.id = ss.list_id) ORDER BY %order%;
 
 -- name: get-lists-by-optin
 -- Can have a list of IDs or a list of UUIDs.
@@ -960,71 +963,13 @@ INSERT INTO link_clicks (campaign_id, subscriber_id, link_id) VALUES(
 ) RETURNING (SELECT url FROM link);
 
 -- name: get-dashboard-charts
-WITH clicks AS (
-    SELECT JSON_AGG(ROW_TO_JSON(row))
-    FROM (
-        WITH viewDates AS (
-          SELECT TIMEZONE('UTC', created_at)::DATE AS to_date,
-                 TIMEZONE('UTC', created_at)::DATE - INTERVAL '30 DAY' AS from_date
-                 FROM link_clicks ORDER BY id DESC LIMIT 1
-        )
-        SELECT COUNT(*) AS count, created_at::DATE as date FROM link_clicks
-          -- use > between < to force the use of the date index.
-          WHERE TIMEZONE('UTC', created_at)::DATE BETWEEN (SELECT from_date FROM viewDates) AND (SELECT to_date FROM viewDates)
-          GROUP by date ORDER BY date
-    ) row
-),
-views AS (
-    SELECT JSON_AGG(ROW_TO_JSON(row))
-    FROM (
-        WITH viewDates AS (
-          SELECT TIMEZONE('UTC', created_at)::DATE AS to_date,
-                 TIMEZONE('UTC', created_at)::DATE - INTERVAL '30 DAY' AS from_date
-                 FROM campaign_views ORDER BY id DESC LIMIT 1
-        )
-        SELECT COUNT(*) AS count, created_at::DATE as date FROM campaign_views
-          -- use > between < to force the use of the date index.
-          WHERE TIMEZONE('UTC', created_at)::DATE BETWEEN (SELECT from_date FROM viewDates) AND (SELECT to_date FROM viewDates)
-          GROUP by date ORDER BY date
-    ) row
-)
-SELECT JSON_BUILD_OBJECT('link_clicks', COALESCE((SELECT * FROM clicks), '[]'),
-                        'campaign_views', COALESCE((SELECT * FROM views), '[]'));
+SELECT data FROM mat_dashboard_charts;
 
 -- name: get-dashboard-counts
-WITH subs AS (
-    SELECT COUNT(*) AS num, status FROM subscribers GROUP BY status
-)
-SELECT JSON_BUILD_OBJECT('subscribers', JSON_BUILD_OBJECT(
-                            'total', (SELECT SUM(num) FROM subs),
-                            'blocklisted', (SELECT num FROM subs WHERE status='blocklisted'),
-                            'orphans', (
-                                SELECT COUNT(id) FROM subscribers
-                                LEFT JOIN subscriber_lists ON (subscribers.id = subscriber_lists.subscriber_id)
-                                WHERE subscriber_lists.subscriber_id IS NULL
-                            )
-                        ),
-                        'lists', JSON_BUILD_OBJECT(
-                            'total', (SELECT COUNT(*) FROM lists),
-                            'private', (SELECT COUNT(*) FROM lists WHERE type='private'),
-                            'public', (SELECT COUNT(*) FROM lists WHERE type='public'),
-                            'optin_single', (SELECT COUNT(*) FROM lists WHERE optin='single'),
-                            'optin_double', (SELECT COUNT(*) FROM lists WHERE optin='double')
-                        ),
-                        'campaigns', JSON_BUILD_OBJECT(
-                            'total', (SELECT COUNT(*) FROM campaigns),
-                            'by_status', (
-                                SELECT JSON_OBJECT_AGG (status, num) FROM
-                                (SELECT status, COUNT(*) AS num FROM campaigns GROUP BY status) r
-                            )
-                        ),
-                        'messages', (SELECT SUM(sent) AS messages FROM campaigns));
+SELECT data FROM mat_dashboard_counts;
 
 -- name: get-settings
-SELECT JSON_OBJECT_AGG(key, value) AS settings
-    FROM (
-        SELECT * FROM settings ORDER BY key
-    ) t;
+SELECT JSON_OBJECT_AGG(key, value) AS settings FROM (SELECT * FROM settings ORDER BY key) t;
 
 -- name: update-settings
 UPDATE settings AS s SET value = c.value

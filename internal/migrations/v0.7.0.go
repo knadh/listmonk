@@ -1,13 +1,15 @@
 package migrations
 
 import (
+	"log"
+
 	"github.com/jmoiron/sqlx"
 	"github.com/knadh/koanf/v2"
 	"github.com/knadh/stuffbin"
 )
 
 // V0_7_0 performs the DB migrations for v.0.7.0.
-func V0_7_0(db *sqlx.DB, fs stuffbin.FileSystem, ko *koanf.Koanf) error {
+func V0_7_0(db *sqlx.DB, fs stuffbin.FileSystem, ko *koanf.Koanf, lo *log.Logger) error {
 	// Check if the subscriber_status.blocklisted enum value exists. If not,
 	// it has to be created (for the change from blacklisted -> blocklisted).
 	var bl bool

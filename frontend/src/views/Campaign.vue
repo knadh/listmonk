@@ -183,7 +183,7 @@
           </div>
           <div class="column has-text-right">
             <a href="https://listmonk.app/docs/templating/#template-expressions" target="_blank" rel="noopener noreferer">
-              <b-icon icon="code" /> Templating reference</a>
+              <b-icon icon="code" /> {{ $t('campaigns.templatingRef') }}</a>
             <span v-if="canEdit && form.content.contentType !== 'plain'" class="is-size-6 has-text-grey ml-6">
               <a v-if="form.altbody === null" href="#" @click.prevent="onAddAltBody">
                 <b-icon icon="text" size="is-small" /> {{ $t('campaigns.addAltText') }}
@@ -193,7 +193,6 @@
                 {{ $t('campaigns.removeAltText') }}
               </a>
             </span>
-            </a>
           </div>
         </div>
 

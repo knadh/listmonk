@@ -88,19 +88,9 @@ func (c *Core) QuerySubscribers(query string, listIDs []int, subStatus string, o
 
 	// Create a readonly transaction that just does COUNT() to obtain the count of results
 	// and to ensure that the arbitrary query is indeed readonly.
-	stmt := fmt.Sprintf(c.q.QuerySubscribersCount, cond)
-	tx, err := c.db.BeginTxx(context.Background(), &sql.TxOptions{ReadOnly: true})
+	total, err := c.getSubscriberCount(cond, subStatus, listIDs)
 	if err != nil {
-		c.log.Printf("error preparing subscriber query: %v", err)
-		return nil, 0, echo.NewHTTPError(http.StatusBadRequest, c.i18n.Ts("subscribers.errorPreparingQuery", "error", pqErrMsg(err)))
-	}
-	defer tx.Rollback()
-
-	// Execute the readonly query and get the count of results.
-	total := 0
-	if err := tx.Get(&total, stmt, pq.Array(listIDs), subStatus); err != nil {
-		return nil, 0, echo.NewHTTPError(http.StatusInternalServerError,
-			c.i18n.Ts("globals.messages.errorFetching", "name", "{globals.terms.subscribers}", "error", pqErrMsg(err)))
+		return nil, 0, err
 	}
 
 	// No results.
@@ -110,8 +100,17 @@ func (c *Core) QuerySubscribers(query string, listIDs []int, subStatus string, o
 
 	// Run the query again and fetch the actual data. stmt is the raw SQL query.
 	var out models.Subscribers
+	stmt := fmt.Sprintf(c.q.QuerySubscribersCount, cond)
 	stmt = strings.ReplaceAll(c.q.QuerySubscribers, "%query%", cond)
 	stmt = strings.ReplaceAll(stmt, "%order%", orderBy+" "+order)
+
+	tx, err := c.db.BeginTxx(context.Background(), &sql.TxOptions{ReadOnly: true})
+	if err != nil {
+		c.log.Printf("error preparing subscriber query: %v", err)
+		return nil, 0, echo.NewHTTPError(http.StatusBadRequest, c.i18n.Ts("subscribers.errorPreparingQuery", "error", pqErrMsg(err)))
+	}
+	defer tx.Rollback()
+
 	if err := tx.Select(&out, stmt, pq.Array(listIDs), subStatus, offset, limit); err != nil {
 		return nil, 0, echo.NewHTTPError(http.StatusInternalServerError,
 			c.i18n.Ts("globals.messages.errorFetching", "name", "{globals.terms.subscribers}", "error", pqErrMsg(err)))
@@ -289,7 +288,7 @@ func (c *Core) InsertSubscriber(sub models.Subscriber, listIDs []int, listUUIDs 
 	}
 
 	hasOptin := false
-	if !preconfirm && c.constants.SendOptinConfirmation {
+	if !preconfirm && c.consts.SendOptinConfirmation {
 		// Send a confirmation e-mail (if there are any double opt-in lists).
 		num, _ := c.h.SendOptinConfirmation(out, listIDs)
 		hasOptin = num > 0
@@ -374,7 +373,7 @@ func (c *Core) UpdateSubscriberWithLists(id int, sub models.Subscriber, listIDs 
 	}
 
 	hasOptin := false
-	if !preconfirm && c.constants.SendOptinConfirmation {
+	if !preconfirm && c.consts.SendOptinConfirmation {
 		// Send a confirmation e-mail (if there are any double opt-in lists).
 		num, _ := c.h.SendOptinConfirmation(out, listIDs)
 		hasOptin = num > 0
@@ -501,4 +500,38 @@ func (c *Core) DeleteBlocklistedSubscribers() (int, error) {
 
 	n, _ := res.RowsAffected()
 	return int(n), nil
+}
+
+func (c *Core) getSubscriberCount(cond, subStatus string, listIDs []int) (int, error) {
+	// If there's no condition, it's a "get all" call which can probably be optionally pulled from cache.
+	if cond == "" {
+		_ = c.refreshCache(matListSubStats, false)
+
+		total := 0
+		if err := c.q.QuerySubscribersCountAll.Get(&total, pq.Array(listIDs), subStatus); err != nil {
+			return 0, echo.NewHTTPError(http.StatusInternalServerError,
+				c.i18n.Ts("globals.messages.errorFetching", "name", "{globals.terms.subscribers}", "error", pqErrMsg(err)))
+		}
+
+		return total, nil
+	}
+
+	// Create a readonly transaction that just does COUNT() to obtain the count of results
+	// and to ensure that the arbitrary query is indeed readonly.
+	stmt := fmt.Sprintf(c.q.QuerySubscribersCount, cond)
+	tx, err := c.db.BeginTxx(context.Background(), &sql.TxOptions{ReadOnly: true})
+	if err != nil {
+		c.log.Printf("error preparing subscriber query: %v", err)
+		return 0, echo.NewHTTPError(http.StatusBadRequest, c.i18n.Ts("subscribers.errorPreparingQuery", "error", pqErrMsg(err)))
+	}
+	defer tx.Rollback()
+
+	// Execute the readonly query and get the count of results.
+	total := 0
+	if err := tx.Get(&total, stmt, pq.Array(listIDs), subStatus); err != nil {
+		return 0, echo.NewHTTPError(http.StatusInternalServerError,
+			c.i18n.Ts("globals.messages.errorFetching", "name", "{globals.terms.subscribers}", "error", pqErrMsg(err)))
+	}
+
+	return total, nil
 }

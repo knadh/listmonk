@@ -147,7 +147,7 @@ describe('Subscribers', () => {
       // Get the ID from the header and proceed to fill the form.
       let id = 0;
       cy.get('[data-cy=id]').then(($el) => {
-        id = $el.text();
+        id = parseInt($el.text());
 
         cy.get('input[name=email]').clear().type(email);
         cy.get('input[name=name]').clear().type(name);
@@ -162,9 +162,11 @@ describe('Subscribers', () => {
     });
 
     // Confirm the edits on the table.
-    cy.wait(250);
+    cy.wait(500);
+    cy.log(rows);
     cy.get('tbody tr').each(($el) => {
-      cy.wrap($el).find('td[data-id]').invoke('attr', 'data-id').then((id) => {
+      cy.wrap($el).find('td[data-id]').invoke('attr', 'data-id').then((idStr) => {
+        const id = parseInt(idStr);
         cy.wrap($el).find('td[data-label=E-mail]').contains(rows[id].email.toLowerCase());
         cy.wrap($el).find('td[data-label=Name]').contains(rows[id].name);
         cy.wrap($el).find('td[data-label=Status]').contains(rows[id].status, { matchCase: false });
