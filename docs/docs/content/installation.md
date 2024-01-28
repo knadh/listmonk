@@ -5,7 +5,7 @@ listmonk requires Postgres ⩾ 12.
 See the "[Tutorials](#tutorials)" section at the bottom for detailed guides. 
 
 ## Binary
-- Download the [latest release](https://github.com/knadh/listmonk/releases) and extract the listmonk binary.
+- Download the [latest release](https://github.com/knadh/listmonk/releases) and extract the listmonk binary. `amd64` is the main one. It works for Intel and x86 CPUs.
 - `./listmonk --new-config` to generate config.toml. Then, edit the file.
 - `./listmonk --install` to install the tables in the Postgres DB.
 - Run `./listmonk` and visit `http://localhost:9000`.
