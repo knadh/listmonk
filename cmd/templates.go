@@ -130,8 +130,7 @@ func handlePreviewTemplate(c echo.Context) error {
 
 		// Render the message.
 		if err := m.Render(dummySubscriber, &tpl); err != nil {
-			return echo.NewHTTPError(http.StatusBadRequest,
-				app.i18n.Ts("globals.messages.errorFetching", "name"))
+			return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 		}
 		out = m.Body
 	}
