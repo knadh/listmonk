@@ -703,7 +703,7 @@ uniqIDs AS (
     ORDER BY subscriber_id, "timestamp"
 )
 SELECT COUNT(*) AS "count", campaign_id, "timestamp"
-    FROM uniqIDs GROUP BY campaign_id, "timestamp";
+    FROM uniqIDs GROUP BY campaign_id, "timestamp" ORDER BY "timestamp" ASC;
 
 -- name: get-campaign-analytics-counts
 -- raw: true
