@@ -477,7 +477,7 @@
     "settings.performance.batchSize": "Maint y swp",
     "settings.performance.batchSizeHelp": "Nifer y tanysgrifwyr y mae modd eu tynnu o'r gronfa ddata ar yr un pryd. Bydd pob iteriad yn tynnu tanysgrifwyr o'r gronfa ddata",
     "settings.performance.cacheSlowQueries": "Cadw ymholiadau cronfeydd data araf",
-    "settings.performance.cacheSlowQueriesHelp": "Enable this on large databases that have slowed down. Caches list subscriber counts, dashboard statistics etc.",
+    "settings.performance.cacheSlowQueriesHelp": "Gallwch onogi hyn ar sail cronfeydd data mawr sydd wedi arafu'n sylweddol. Mae'n casglu nifer y tanysgrifwyr mewn rhestrau, ystadegau'r ddelweddlyfr ac ati.",
     "settings.performance.concurrency": "Cydamseru",
     "settings.performance.concurrencyHelp": "Uchafswm nifer y gweithwyr (llinynnau) a fydd yn ceisio anfon negeseuon yr un pryd.",
     "settings.performance.maxErrThreshold": "Uchafswm nifer y gwallau",

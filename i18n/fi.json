@@ -478,7 +478,7 @@
     "settings.performance.batchSize": "Erän koko",
     "settings.performance.batchSizeHelp": "Tilaajien määrä kannasta, jotka haetaan yhdellä noutokerroilla. Jokaisella noudolla tilaajia haetaan kannasta, lähetetään viesti ja siirrytään seuraavaan noudon erään. Joten tämän arvon tulisi olla suurempi kuin maksimaalinen suorituskyky (monisäikeisyys * viestinopeus).",
     "settings.performance.cacheSlowQueries": "Tallenna hitaat tietokantakyselyt välimuistiin",
-    "settings.performance.cacheSlowQueriesHelp": "Enable this on large databases that have slowed down. Caches list subscriber counts, dashboard statistics etc.",
+    "settings.performance.cacheSlowQueriesHelp": "Ota tämä käyttöön ainoastaan suurille tietokannoille, jotka ovat selvästi hidastuneet. Käytön myötä esim. tilaajien määrät listoilla, kojelautatilastot jne. talletetaan välimuistiin.",
     "settings.performance.concurrency": "Monisuoritus",
     "settings.performance.concurrencyHelp": "Samanaikaisten työntekijöiden (säikeiden) enimmäismäärä, jotka yrittävät lähettää viestejä samanaikaisesti.",
     "settings.performance.maxErrThreshold": "Enimmäisvirhekynnys",

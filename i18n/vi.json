@@ -478,7 +478,7 @@
     "settings.performance.batchSize": "Kích thước lô",
     "settings.performance.batchSizeHelp": "Số lượng người đăng ký để lấy từ cơ sở dữ liệu trong một lần lặp lại. Mỗi lần lặp lại kéo người đăng ký từ cơ sở dữ liệu, gửi tin nhắn cho họ, sau đó chuyển sang lần lặp tiếp theo để kéo đợt tiếp theo. Điều này lý tưởng là phải cao hơn thông lượng tối đa có thể đạt được (đồng thời * message_rate).",
     "settings.performance.cacheSlowQueries": "Lưu vào bộ nhớ cache các truy vấn cơ sở dữ liệu chậm",
-    "settings.performance.cacheSlowQueriesHelp": "Enable this on large databases that have slowed down. Caches list subscriber counts, dashboard statistics etc.",
+    "settings.performance.cacheSlowQueriesHelp": "Chỉ bật tính năng này trên các cơ sở dữ liệu lớn đã bị chậm hiện tại. Lưu ý rằng tính năng này sẽ tạo bộ nhớ đệm cho số lượng người đăng ký danh sách, thống kê bảng điều khiển, v.v.",
     "settings.performance.concurrency": "Đồng thời",
     "settings.performance.concurrencyHelp": "Công nhân đồng thời tối đa (luồng) sẽ cố gắng gửi tin nhắn đồng thời.",
     "settings.performance.maxErrThreshold": "Ngưỡng lỗi tối đa",

@@ -477,7 +477,7 @@
     "settings.performance.batchSize": "ബാച്ചിന്റെ വലിപ്പം",
     "settings.performance.batchSizeHelp": "ഒരാവർത്തനത്തിൽ എത്ര വരിക്കാരെ ഡാറ്റാബേസിൽ നിന്നും എടുക്കണം. ഓരോ തവണയും വരിക്കാരെ ഡാറ്റാബേസിൽ നിന്നും എടുക്കുകയും അടുത്ത ആവർത്തനത്തിൽ അടുത്ത ബാച്ചിനെ എടുക്കുകയും അങ്ങനെ തുടരുകയും ചെയ്യും. ഈ മൂല്യം പരമാവധി ത്രൂപുട്ടിനേക്കാളും (concurrency * message_rate) കൂടുതലാകുന്നതാണ് നല്ലത്.",
     "settings.performance.cacheSlowQueries": "മാന്ദഹാരമൊന്നുംകൂടാതെ ഡാറ്റാബേസ് ചോദ്യങ്ങൾ സജ്ജീകരിക്കുക",
-    "settings.performance.cacheSlowQueriesHelp": "Enable this on large databases that have slowed down. Caches list subscriber counts, dashboard statistics etc.",
+    "settings.performance.cacheSlowQueriesHelp": "പ്രധാനമായി സ്ലോ ചെയ്യുന്ന വലിപ്പമുള്ള ഡാറ്റാബേസുകളിൽ മാത്രം ഇത് പ്രവർത്തിപ്പിക്കുക. തിരിച്ചിൽ ഔട്ട് ഗ്രന്ഥനായകന്റെ എണ്ണം, ഡാഷ്ബോർഡ് സ്റ്റാറ്റിസ്റ്റികൾ എന്നിവ സംരക്ഷിക്കുന്നു.",
     "settings.performance.concurrency": "കൺകറൻസി",
     "settings.performance.concurrencyHelp": "ഒരുമിച്ച് സന്ദേശമയക്കാൻ ശ്രമിക്കുന്നതിനുള്ള പരമാവധി സമാന്തര ജോലിക്കാർ (ത്രെഡുകൾ).",
     "settings.performance.maxErrThreshold": "പിശകുണ്ടാകാവുന്നതിന്റെ പരമാവധി പരിധി",

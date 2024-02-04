@@ -477,7 +477,7 @@
     "settings.performance.batchSize": "Tamanho do lote",
     "settings.performance.batchSizeHelp": "O número de inscritos para puxar do banco de dados em uma única iteração. Cada iteração puxa assinantes da base de dados, envia mensagens para eles, e então passa para a próxima iteração para puxar o próximo lote. O ideal é que isso seja mais alto do que o máximo possível de transferência (concorrência * taxa de mensagem).",
     "settings.performance.cacheSlowQueries": "Armazenar em cache consultas lentas do banco de dados",
-    "settings.performance.cacheSlowQueriesHelp": "Enable this on large databases that have slowed down. Caches list subscriber counts, dashboard statistics etc.",
+    "settings.performance.cacheSlowQueriesHelp": "Ative isso apenas em bancos de dados grandes que tenham desacelerado significativamente. Caches as contagens de assinantes de lista, estatísticas do painel, etc.",
     "settings.performance.concurrency": "Concorrência",
     "settings.performance.concurrencyHelp": "Máximo de trabalhador simultâneo (threads) que tentará enviar mensagens simultaneamente.",
     "settings.performance.maxErrThreshold": "Limite máximo de erros",

@@ -477,7 +477,7 @@
     "settings.performance.batchSize": "Velikost dávky",
     "settings.performance.batchSizeHelp": "Počet odběratelů ke stažení z databáze v jednotlivé iteraci. Každá iterace stáhne odběratele z databáze, odešle jim zprávy a pak se přesune na další iteraci, aby stáhla další dávku. Ideálně by měl být vyšší než je maximální dosažitelná propustnost (souběžnost * četnost_zpráv).",
     "settings.performance.cacheSlowQueries": "Ukládat pomalé dotazy do mezipaměti",
-    "settings.performance.cacheSlowQueriesHelp": "Enable this on large databases that have slowed down. Caches list subscriber counts, dashboard statistics etc.",
+    "settings.performance.cacheSlowQueriesHelp": "Povolte pouze na velkých databázích, které výrazně zpomalují. Ukládá do paměti počty předplatitelů seznamu, statistiky přístrojové desky atd.",
     "settings.performance.concurrency": "Souběžnost",
     "settings.performance.concurrencyHelp": "Maximální počet souběžných modulů worker (podprocesů), které se pokusí současně odeslat zprávy.",
     "settings.performance.maxErrThreshold": "Maximální prahová hodnota chyb",

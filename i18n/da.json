@@ -473,7 +473,7 @@
     "settings.performance.batchSize": "Batch størrelse",
     "settings.performance.batchSizeHelp": "Antallet af abonnenter, der skal trækkes fra databasen i en enkelt iteration. Hver iteration trækker abonnenter fra databasen, sender meddelelser til dem og går derefter videre til den næste iteration for at trække den næste batch. Dette bør ideelt set være højere end den maksimalt opnåelige gennemstrømning (samtidighed * message_rate).",
     "settings.performance.cacheSlowQueries": "Cache langsomme database forespørgsler",
-    "settings.performance.cacheSlowQueriesHelp": "Enable this on large databases that have slowed down. Caches list subscriber counts, dashboard statistics etc.",
+    "settings.performance.cacheSlowQueriesHelp": "Aktiver kun dette for store databaser, der er blevet markant langsommere. Cacher liste over abonnenter, dashboardstatistikker osv.",
     "settings.performance.concurrency": "Samtidighed",
     "settings.performance.concurrencyHelp": "Maksimalt antal samtidige arbejdere (tråde), der forsøger at sende meddelelser samtidigt.",
     "settings.performance.maxErrThreshold": "Maksimal fejltærskel",

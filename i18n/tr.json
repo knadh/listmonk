@@ -478,7 +478,7 @@
     "settings.performance.batchSize": "Batch büyüklüğü",
     "settings.performance.batchSizeHelp": "Veritabanından tek bir yinelemede çekilecek abone sayısı. Her yineleme, aboneleri veritabanından çeker, onlara mesajlar gönderir ve ardından bir sonraki grubu çekmek için bir sonraki yinelemeye geçer. Bu, ideal olarak elde edilebilecek maksimum iş hacminden (eşzamanlılık * ileti_ hızı) daha yüksek olmalıdır.",
     "settings.performance.cacheSlowQueries": "Yavaş veritabanı sorgularını önbelleğe al",
-    "settings.performance.cacheSlowQueriesHelp": "Enable this on large databases that have slowed down. Caches list subscriber counts, dashboard statistics etc.",
+    "settings.performance.cacheSlowQueriesHelp": "Sadece önemli ölçüde yavaşlayan büyük veritabanlarından etkinleştirin. Liste abone sayılarını, kontrol paneli istatistiklerini vb. önbelleğe alır.",
     "settings.performance.concurrency": "Çoklu bağlantı",
     "settings.performance.concurrencyHelp": "Aynı anda ileti göndermeyi deneyecek maksimum eşzamanlı worker (thread) sayısı.",
     "settings.performance.maxErrThreshold": "Maksimum hata eşiği",

@@ -477,7 +477,7 @@
     "settings.performance.batchSize": "Rozmiar paczki",
     "settings.performance.batchSizeHelp": "Liczba subskrybentów do pobrania z bazy danych przy jednej iteracji. Każda iteracja pobiera subskrybentów z bazy danych, wysyła do nich wiadomości, a następnie przechodzi do następnej iteracji. W idealnym przypadku powinno to być większe niż maksymalna przepustowość (liczba wątków * prędkość wysyłania wiadomości)",
     "settings.performance.cacheSlowQueries": "Buforuj wolne zapytania do bazy danych",
-    "settings.performance.cacheSlowQueriesHelp": "Enable this on large databases that have slowed down. Caches list subscriber counts, dashboard statistics etc.",
+    "settings.performance.cacheSlowQueriesHelp": "Włącz to tylko na dużych bazach danych, które znacząco zwolniły. Cachuje liczbę subskrybentów listy, statystyki pulpitu itp.",
     "settings.performance.concurrency": "Wielowątkowość",
     "settings.performance.concurrencyHelp": "Maksymalna liczba jednoczesnych workerów (wątków), która będzie wysyłała wiadomości jednocześnie.",
     "settings.performance.maxErrThreshold": "Maksymalny prób błędu",

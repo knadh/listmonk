@@ -477,7 +477,7 @@
     "settings.performance.batchSize": "Размер партии",
     "settings.performance.batchSizeHelp": "Количество подписчиков, которые нужно извлечь из базы данных за одну итерацию. Каждая итерация извлекает подписчиков из базы данных, отправляет им сообщения, а затем переходит к следующей итерации, чтобы получить следующую партию. В идеале это должно быть выше максимально достижимой пропускной способности (concurrency * message_rate). ",
     "settings.performance.cacheSlowQueries": "Кэшировать медленные запросы к базе данных",
-    "settings.performance.cacheSlowQueriesHelp": "Enable this on large databases that have slowed down. Caches list subscriber counts, dashboard statistics etc.",
+    "settings.performance.cacheSlowQueriesHelp": "Включайте это только на больших базах данных, которые значительно замедлились. Кешируются подсчеты абонентов, статистика панели инструментов и т. д.",
     "settings.performance.concurrency": "Параллельное выполнение",
     "settings.performance.concurrencyHelp": "Максимальное число одновременно работающих процессов, которые будут пытаться одновременно отправить сообщения.",
     "settings.performance.maxErrThreshold": "Порог максимального числа ошибок",

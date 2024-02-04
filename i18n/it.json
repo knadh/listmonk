@@ -473,7 +473,7 @@
     "settings.performance.batchSize": "Dimensione del lotto",
     "settings.performance.batchSizeHelp": "Numero di iscritti da estrarre dal database in una sola iterazione. Ogni iterazione estrae gli iscritti dal database, invia loro i messaggi, poi passa all'iterazione seguente per estrarre il lotto successivo. Idealmente questo valore dovrebbe essere superiore alla velocità massima possibile (Concorrenza x Frequenza del messaggio).",
     "settings.performance.cacheSlowQueries": "Memorizza nella cache le query lente del database",
-    "settings.performance.cacheSlowQueriesHelp": "Enable this on large databases that have slowed down. Caches list subscriber counts, dashboard statistics etc.",
+    "settings.performance.cacheSlowQueriesHelp": "Abilitare solo su database di grandi dimensioni che si sono significativamente rallentati. Caches conta degli iscritti alle liste, statistiche della dashboard, ecc.",
     "settings.performance.concurrency": "Simultanei",
     "settings.performance.concurrencyHelp": "Numero di worker (threads) simultanei massimo che invieranno i messaggi contemporaneamente.",
     "settings.performance.maxErrThreshold": "Soglia massima di errore",

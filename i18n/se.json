@@ -477,7 +477,7 @@
     "settings.performance.batchSize": "Batchstorlek",
     "settings.performance.batchSizeHelp": "Antalet prenumeranter som ska hämtas från databasen i en enda iteration. Varje iteration hämtar prenumeranter från databasen, skickar meddelanden till dem och fortsätter sedan till nästa iteration för att hämta nästa sats. Detta bör idealiskt vara högre än den maximala uppnåeliga genomströmningen (konkurrens * meddelanderate).",
     "settings.performance.cacheSlowQueries": "Cacha långa databasförfrågningar",
-    "settings.performance.cacheSlowQueriesHelp": "Enable this on large databases that have slowed down. Caches list subscriber counts, dashboard statistics etc.",
+    "settings.performance.cacheSlowQueriesHelp": "Aktivera endast detta på stora databaser som har blivit avsevärt långsamma. Cachar listprenumerant-räkningar, instrumentpanelstatistik etc.",
     "settings.performance.concurrency": "Konkurrens",
     "settings.performance.concurrencyHelp": "Maximalt antal samtidiga arbetsenheter (trådar) som försöker skicka meddelanden samtidigt.",
     "settings.performance.maxErrThreshold": "Maximalt feltröskelvärde",

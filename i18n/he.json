@@ -473,7 +473,7 @@
     "settings.performance.batchSize": "מס יחידות בפסה",
     "settings.performance.batchSizeHelp": "מס המנויים לשימוש מגרסת מסד הנתונים בשלב יחיד בלבד. שלב במסד הנתונים מושלם כולל מנויים מהמסד, שליחת הודעות אליהם והמשכת השלב המוסכמת לשלב הבא למשל מנויים נוספים ממסד הנתונים. הערך המומלץ מעלה מכותרת הרמות הנישפות המרבית (תנועה * קצב הודעות).",
     "settings.performance.cacheSlowQueries": "הקפאת שאילתות מסד הנתונים האיטיות במטמון",
-    "settings.performance.cacheSlowQueriesHelp": "Enable this on large databases that have slowed down. Caches list subscriber counts, dashboard statistics etc.",
+    "settings.performance.cacheSlowQueriesHelp": "רק להפעיל זאת על בסיסי נתונים גדולים שהם משתפצים באופן מוחלט. מחזיק במטמון ספירת מנויים ברשימה, תוצאות לוח מחוונים וכדומה.",
     "settings.performance.concurrency": "דרגת תוחלת",
     "settings.performance.concurrencyHelp": "שלב הפועל ביותר המטפלים מזמן אחד שירבים לשלח הודעות בתקופה יחידה.",
     "settings.performance.maxErrThreshold": "רמת ה-שגיא המרבית",

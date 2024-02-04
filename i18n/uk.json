@@ -473,7 +473,7 @@
     "settings.performance.batchSize": "Обсяг вибірки",
     "settings.performance.batchSizeHelp": "Скільком підписни_цям надсилати листи протягом одного запуску. В ідеалі значення має бути більшим, ніж добуток конкурентності й пропускної здатності.",
     "settings.performance.cacheSlowQueries": "Кешувати повільні запити до бази даних",
-    "settings.performance.cacheSlowQueriesHelp": "Enable this on large databases that have slowed down. Caches list subscriber counts, dashboard statistics etc.",
+    "settings.performance.cacheSlowQueriesHelp": "Увімкніть це тільки для великих баз даних, які значно уповільнилися. Кешує кількість підписників списку, статистику панелі приладів та інше.",
     "settings.performance.concurrency": "Конкурентність",
     "settings.performance.concurrencyHelp": "Максимум потоків, які намагаються надсилати листи водночас.",
     "settings.performance.maxErrThreshold": "Поріг помилок",

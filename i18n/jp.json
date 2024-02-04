@@ -478,7 +478,7 @@
     "settings.performance.batchSize": "バッチサイズ",
     "settings.performance.batchSizeHelp": "一回のイテレーションでデータベースから取得する加入者の数。各イテレーションではデータベースから加入者を取り出し、メッセージを送信した後、次のバッチを取り出すためのイテレーションに進みます。理想として達成可能な最大スループット (並行性 * メッセージ_レート)よりも高くなければなりません.",
     "settings.performance.cacheSlowQueries": "遅いデータベースクエリをキャッシュする",
-    "settings.performance.cacheSlowQueriesHelp": "Enable this on large databases that have slowed down. Caches list subscriber counts, dashboard statistics etc.",
+    "settings.performance.cacheSlowQueriesHelp": "これは、大規模なデータベースでかなり遅くなった場合にのみ有効にしてください。 リストの購読者数、ダッシュボードの統計などをキャッシュします。",
     "settings.performance.concurrency": "並行性",
     "settings.performance.concurrencyHelp": "同時にメッセージを送信しようとする並行ワーカー（スレッド）の最大数。",
     "settings.performance.maxErrThreshold": "最大エラーしきい値",

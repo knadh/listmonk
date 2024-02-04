@@ -477,7 +477,7 @@
     "settings.performance.batchSize": "Mida del lot",
     "settings.performance.batchSizeHelp": "El nombre de subscriptors que cal extreure de la base de dades en una sola iteració. Cada iteració extreu subscriptors de la base de dades, els envia missatges i després passa a la següent iteració per extreure el següent lot. Idealment, hauria de ser superior al rendiment màxim possible (concurrency * message_rate).",
     "settings.performance.cacheSlowQueries": "Memòria cau de consultes lentes a la base de dades",
-    "settings.performance.cacheSlowQueriesHelp": "Enable this on large databases that have slowed down. Caches list subscriber counts, dashboard statistics etc.",
+    "settings.performance.cacheSlowQueriesHelp": "Només habiliteu-ho en bases de dades grans que s'hagin tornat significativament més lentes. Emmagatzema en memòria el compte de subscriptors de llista, les estadístiques del tauler de comandament, etc.",
     "settings.performance.concurrency": "Concurrència",
     "settings.performance.concurrencyHelp": "Màxim treballador concurrent (fils) que intentarà enviar missatges simultàniament.",
     "settings.performance.maxErrThreshold": "Llindar d'error màxim",

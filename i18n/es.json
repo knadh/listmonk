@@ -478,7 +478,7 @@
     "settings.performance.batchSize": "Tamaño del lote",
     "settings.performance.batchSizeHelp": "Número de suscriptores a extraer de la base de datos en cada iteración individul. Cada iteración extrae suscriptores de la base de datos, envía mensajes a ellos y luego avanza a la siguiente iteración para obtener el siguiente lote. Este número idealmente debería ser mayor que el máximo rendimiento alcanzable (concurrencia * tasa de envíos)",
     "settings.performance.cacheSlowQueries": "Almacenar en caché las consultas lentas a la base de datos",
-    "settings.performance.cacheSlowQueriesHelp": "Enable this on large databases that have slowed down. Caches list subscriber counts, dashboard statistics etc.",
+    "settings.performance.cacheSlowQueriesHelp": "Solo habilitar esto en bases de datos grandes que se hayan ralentizado significativamente. Caché para los recuentos de suscriptores de listas, estadísticas del panel, etc.",
     "settings.performance.concurrency": "Concurrencia",
     "settings.performance.concurrencyHelp": "Número máximo de hilos que intentarán enviar mensajes de forma simultánea.",
     "settings.performance.maxErrThreshold": "Umbral máximo de errores.",

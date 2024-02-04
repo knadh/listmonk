@@ -475,7 +475,7 @@
     "settings.performance.batchSize": "Velikost serije",
     "settings.performance.batchSizeHelp": "Število naročnikov, ki jih je treba pridobiti iz baze podatkov v eni ponovitvi. Vsaka ponovitev potegne naročnike iz baze podatkov, jim pošlje sporočila in se nato premakne na naslednjo ponovitev, da potegne naslednji paket. To bi moralo biti idealno višje od največje dosegljive prepustnosti (sočasnost * stopnja_sporočila).",
     "settings.performance.cacheSlowQueries": "Predpomni počasne poizvedbe baze podatkov",
-    "settings.performance.cacheSlowQueriesHelp": "To omogočite samo v velikih zbirkah podatkov, ki so se močno upočasnile. Predpomnilniki števila naročnikov, statistika nadzorne plošče itd.",
+    "settings.performance.cacheSlowQueriesHelp": "To možnost omogočite samo na velikih bazah podatkov, ki so se bistveno upočasnile. Predpomni število naročnikov seznama, statistike nadzorne plošče, ipd.",
     "settings.performance.concurrency": "Sočasnost",
     "settings.performance.concurrencyHelp": "Največje število sočasnih delavcev (niti), ki bodo poskušale poslati sporočila hkrati.",
     "settings.performance.maxErrThreshold": "Največji prag napake",

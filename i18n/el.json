@@ -473,7 +473,7 @@
     "settings.performance.batchSize": "Μέγεθος παρτίδας",
     "settings.performance.batchSizeHelp": "Ο αριθμός των συνδρομητών που θα αντληθούν από τη βάση δεδομένων σε κάθε επανάληψη. Κάθε επανάληψη αντλεί συνδρομητές από τη βάση δεδομένων, στέλνει μηνύματα σε αυτούς και στη συνέχεια μεταβαίνει στην επόμενη επανάληψη για να αντλήσει την επόμενη παρτίδα. Αυτός ο αριθμός θα πρέπει ιδανικά να είναι υψηλότερος από τη μέγιστη επιτεύξιμη απόδοση (παραλληλισμός * ρυθμός μηνυμάτων).",
     "settings.performance.cacheSlowQueries": "Αποθηκεύστε αργές ερωτήσεις βάσης δεδομένων στην cache",
-    "settings.performance.cacheSlowQueriesHelp": "Enable this on large databases that have slowed down. Caches list subscriber counts, dashboard statistics etc.",
+    "settings.performance.cacheSlowQueriesHelp": "Ενεργοποιήστε αυτήν την επιλογή μόνο σε μεγάλες βάσεις δεδομένων που έχουν επιβραδυνθεί σημαντικά. Προσωρινή αποθήκευση μετρήσεων υπογραφορών λιστών, στατιστικών πίνακα κ.λπ.",
     "settings.performance.concurrency": "Παραλληλισμός",
     "settings.performance.concurrencyHelp": "Μέγιστος αριθμός νημάτων που θα προσπαθήσει να στείλει μηνύματα ταυτόχρονα.",
     "settings.performance.maxErrThreshold": "Μέγιστο όριο σφάλματος",

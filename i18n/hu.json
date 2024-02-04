@@ -477,7 +477,7 @@
     "settings.performance.batchSize": "Kötegméret",
     "settings.performance.batchSizeHelp": "Az adatbázisból egy kötegben lehívandó tagok száma. Az üzenetek kiküldése kötegegen történik. Ideális esetben nagyobb, mint a számított átviteli sebesség ('Egyidejűség' × 'Üzenet / másodperc').",
     "settings.performance.cacheSlowQueries": "Gyorsítótárazza a lassú adatbázis-lekérdezéseket",
-    "settings.performance.cacheSlowQueriesHelp": "Enable this on large databases that have slowed down. Caches list subscriber counts, dashboard statistics etc.",
+    "settings.performance.cacheSlowQueriesHelp": "Csak nagy adatbázisok esetén kapcsold be ezt, amik jelentősen lelassultak. Gyorsítótárazza a listák feliratkozói számát, a műszerfal statisztikákat stb.",
     "settings.performance.concurrency": "Egyidejűség",
     "settings.performance.concurrencyHelp": "Legfeljebb ennyi üzenetet próbál meg a rendszer egyszerre kiküldeni.",
     "settings.performance.maxErrThreshold": "Hibaküszöb",

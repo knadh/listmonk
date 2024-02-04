@@ -478,7 +478,7 @@
     "settings.performance.batchSize": "Taille du lot",
     "settings.performance.batchSizeHelp": "Le nombre d'abonné·es à extraire de la base de données en une seule itération. Chaque itération extrait les abonné·es de la base de données, leur envoie les messages, puis passe à l'itération suivante pour extraire le lot suivant. Idéalement cette valeur devrait être supérieure au débit maximum possible (Nb de threads * débit).",
     "settings.performance.cacheSlowQueries": "Mettre en cache les requêtes de base de données lentes",
-    "settings.performance.cacheSlowQueriesHelp": "Enable this on large databases that have slowed down. Caches list subscriber counts, dashboard statistics etc.",
+    "settings.performance.cacheSlowQueriesHelp": "Activez uniquement ceci sur les grandes bases de données qui ont considérablement ralenti. Met en cache les comptages des abonnés aux listes, les statistiques du tableau de bord, etc.",
     "settings.performance.concurrency": "Nombre de threads",
     "settings.performance.concurrencyHelp": "Nombre de workers (threads) concurrents maximum qui enverrons les messages simultanément.",
     "settings.performance.maxErrThreshold": "Seuil maximum d'erreurs",

@@ -478,7 +478,7 @@
     "settings.performance.batchSize": "Mărimea lotului",
     "settings.performance.batchSizeHelp": "Numărul de abonați care pot fi extrași din baza de date într-o singură iterație. Fiecare iterație atrage abonații din baza de date, le trimite mesaje și apoi trece la următoarea iterație pentru a extrage următorul lot. Acest lucru ar trebui să fie în mod ideal mai mare decât debitul maxim realizabil (concurență * rată_mesaj).",
     "settings.performance.cacheSlowQueries": "Memorare cache a interogărilor lente ale bazei de date",
-    "settings.performance.cacheSlowQueriesHelp": "Enable this on large databases that have slowed down. Caches list subscriber counts, dashboard statistics etc.",
+    "settings.performance.cacheSlowQueriesHelp": "Activează doar această opțiune pentru baze de date mari care s-au încetinit semnificativ. Creează cache pentru numărul de abonați la listă, statistici pentru panoul de control, etc.",
     "settings.performance.concurrency": "Concurență",
     "settings.performance.concurrencyHelp": "Lucrător simultan maxim (fire) care va încerca să trimită mesaje simultan.",
     "settings.performance.maxErrThreshold": "Pragul maxim de eroare",

@@ -477,7 +477,7 @@
     "settings.performance.batchSize": "批量大小",
     "settings.performance.batchSizeHelp": "在单次迭代中从数据库中提取的订阅者数量。每次迭代都会从数据库中提取订阅者，向他们发送消息，然后继续进行下一次迭代以提取下一批。理想情况下，这应该高于可实现的最大吞吐量（并发 * message_rate）。",
     "settings.performance.cacheSlowQueries": "缓存慢数据库查询",
-    "settings.performance.cacheSlowQueriesHelp": "Enable this on large databases that have slowed down. Caches list subscriber counts, dashboard statistics etc.",
+    "settings.performance.cacheSlowQueriesHelp": "只有在大型数据库且明显变慢的情况下才启用此项。它会缓存邮件列表订阅者计数、仪表盘统计数据等。",
     "settings.performance.concurrency": "并发",
     "settings.performance.concurrencyHelp": "将尝试同时发送消息的最大并发工作线程（线程）。",
     "settings.performance.maxErrThreshold": "最大误差阈值",

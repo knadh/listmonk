@@ -473,7 +473,7 @@
     "settings.performance.batchSize": "Durchlaufgröße",
     "settings.performance.batchSizeHelp": "Die Anzahl an Abonnenten, die in einem Durchlauf verarbeitet werden. Jeder Durchlauf holt die angegebene Anzahl an Abonnenten und schickt die Nachrichten. Idealerweise sollte dies höher sein als der maximal erreichbare Durchsatz (Anzahl Threads * Nachrichtenrate).",
     "settings.performance.cacheSlowQueries": "Langsame Datenbankabfragen zwischenspeichern",
-    "settings.performance.cacheSlowQueriesHelp": "Enable this on large databases that have slowed down. Caches list subscriber counts, dashboard statistics etc.",
+    "settings.performance.cacheSlowQueriesHelp": "Aktivieren Sie dies nur in großen Datenbanken, die signifikant verlangsamt wurden. Cachet Listen-Abonnentenanzahlen, Dashboard-Statistiken usw.",
     "settings.performance.concurrency": "Anzahl Threads",
     "settings.performance.concurrencyHelp": "Maximale Anzahl an Threads, welche versuchen Nachrichten versenden.",
     "settings.performance.maxErrThreshold": "Maximale Anzahl Fehler",
