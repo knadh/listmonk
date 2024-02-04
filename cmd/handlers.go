@@ -4,9 +4,12 @@ import (
 	"bytes"
 	"crypto/subtle"
 	"net/http"
+	"net/url"
 	"path"
 	"regexp"
+	"strings"
 
+	"github.com/knadh/listmonk/internal/oidc"
 	"github.com/knadh/paginator"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -50,11 +53,44 @@ func initHTTPHandlers(e *echo.Echo, app *App) {
 	// Group of private handlers with BasicAuth.
 	var g *echo.Group
 
-	if len(app.constants.AdminUsername) == 0 ||
-		len(app.constants.AdminPassword) == 0 {
-		g = e.Group("")
-	} else {
+	if len(app.constants.OIDC.ClientID) > 0 && len(app.constants.OIDC.ClientSecret) > 0 {
+		callbackURL, err := url.JoinPath(app.constants.RootURL, "/oidc/callback")
+		if err != nil {
+			panic(err)
+		}
+		oidcConfig := oidc.Config{
+			ProviderURL:  app.constants.OIDC.Provider,
+			ClientID:     app.constants.OIDC.ClientID,
+			ClientSecret: app.constants.OIDC.ClientSecret,
+			RedirectURL:  callbackURL,
+		}
+
+		// if admin username and password are set, enable basic auth for api access
+		if len(app.constants.AdminUsername) > 0 && len(app.constants.AdminPassword) > 0 {
+			basicAuthConfig := middleware.BasicAuthConfig{
+				// check if authorization header is present and is basic auth if not skip basic auth
+				Skipper: func(c echo.Context) bool {
+					auth := c.Request().Header.Get(echo.HeaderAuthorization)
+					l := len("basic")
+					if len(auth) > l+1 && strings.EqualFold(auth[:l], "basic") {
+						return false
+					}
+					return true
+				},
+				Validator: basicAuth,
+			}
+			// skip oidc if basic auth succeded
+			oidcConfig.Skipper = func(c echo.Context) bool {
+				return c.Get("userAuthenticated") != nil && c.Get("userAuthenticated").(bool)
+			}
+			g = e.Group("", middleware.BasicAuthWithConfig(basicAuthConfig), oidc.OIDCAuth(oidcConfig))
+		} else {
+			g = e.Group("", oidc.OIDCAuth(oidcConfig))
+		}
+	} else if len(app.constants.AdminUsername) > 0 && len(app.constants.AdminPassword) > 0 {
 		g = e.Group("", middleware.BasicAuth(basicAuth))
+	} else {
+		g = e.Group("")
 	}
 
 	e.HTTPErrorHandler = func(err error, c echo.Context) {
@@ -75,6 +111,12 @@ func initHTTPHandlers(e *echo.Echo, app *App) {
 	g.GET(path.Join(adminRoot, "/custom.css"), serveCustomApperance("admin.custom_css"))
 	g.GET(path.Join(adminRoot, "/custom.js"), serveCustomApperance("admin.custom_js"))
 	g.GET(path.Join(adminRoot, "/*"), handleAdminPage)
+
+	// oauth callback
+	g.GET("/oidc/callback", func(c echo.Context) error {
+		// never gets executed because of the middleware
+		return nil
+	})
 
 	// API endpoints.
 	g.GET("/api/health", handleHealthCheck)
@@ -285,14 +327,9 @@ func serveCustomApperance(name string) echo.HandlerFunc {
 func basicAuth(username, password string, c echo.Context) (bool, error) {
 	app := c.Get("app").(*App)
 
-	// Auth is disabled.
-	if len(app.constants.AdminUsername) == 0 &&
-		len(app.constants.AdminPassword) == 0 {
-		return true, nil
-	}
-
 	if subtle.ConstantTimeCompare([]byte(username), app.constants.AdminUsername) == 1 &&
 		subtle.ConstantTimeCompare([]byte(password), app.constants.AdminPassword) == 1 {
+		c.Set("userAuthenticated", true)
 		return true, nil
 	}
 	return false, nil
