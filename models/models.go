@@ -422,6 +422,12 @@ var markdown = goldmark.New(
 		extension.Table,
 		extension.Strikethrough,
 		extension.TaskList,
+		extension.NewTypographer(
+			extension.WithTypographicSubstitutions(extension.TypographicSubstitutions{
+				extension.LeftDoubleQuote:  []byte(`"`),
+				extension.RightDoubleQuote: []byte(`"`),
+			}),
+		),
 	),
 )
 
