@@ -1,1 +1,32 @@
-{"version":"v3.0.0","date":"2024-02-04T11:27:20Z","url":"https://github.com/knadh/listmonk/releases/tag/v3.0.0","assets":[{"name":"darwin","url":"https://github.com/knadh/listmonk/releases/download/v3.0.0/listmonk_3.0.0_darwin_amd64.tar.gz"},{"name":"darwin","url":"https://github.com/knadh/listmonk/releases/download/v3.0.0/listmonk_3.0.0_darwin_arm64.tar.gz"},{"name":"freebsd","url":"https://github.com/knadh/listmonk/releases/download/v3.0.0/listmonk_3.0.0_freebsd_amd64.tar.gz"},{"name":"freebsd","url":"https://github.com/knadh/listmonk/releases/download/v3.0.0/listmonk_3.0.0_freebsd_arm64.tar.gz"},{"name":"freebsd","url":"https://github.com/knadh/listmonk/releases/download/v3.0.0/listmonk_3.0.0_freebsd_armv6.tar.gz"},{"name":"freebsd","url":"https://github.com/knadh/listmonk/releases/download/v3.0.0/listmonk_3.0.0_freebsd_armv7.tar.gz"},{"name":"linux","url":"https://github.com/knadh/listmonk/releases/download/v3.0.0/listmonk_3.0.0_linux_amd64.tar.gz"},{"name":"linux","url":"https://github.com/knadh/listmonk/releases/download/v3.0.0/listmonk_3.0.0_linux_arm64.tar.gz"},{"name":"linux","url":"https://github.com/knadh/listmonk/releases/download/v3.0.0/listmonk_3.0.0_linux_armv6.tar.gz"},{"name":"linux","url":"https://github.com/knadh/listmonk/releases/download/v3.0.0/listmonk_3.0.0_linux_armv7.tar.gz"},{"name":"netbsd","url":"https://github.com/knadh/listmonk/releases/download/v3.0.0/listmonk_3.0.0_netbsd_amd64.tar.gz"},{"name":"netbsd","url":"https://github.com/knadh/listmonk/releases/download/v3.0.0/listmonk_3.0.0_netbsd_armv6.tar.gz"},{"name":"netbsd","url":"https://github.com/knadh/listmonk/releases/download/v3.0.0/listmonk_3.0.0_netbsd_armv7.tar.gz"},{"name":"openbsd","url":"https://github.com/knadh/listmonk/releases/download/v3.0.0/listmonk_3.0.0_openbsd_amd64.tar.gz"},{"name":"openbsd","url":"https://github.com/knadh/listmonk/releases/download/v3.0.0/listmonk_3.0.0_openbsd_arm64.tar.gz"},{"name":"openbsd","url":"https://github.com/knadh/listmonk/releases/download/v3.0.0/listmonk_3.0.0_openbsd_armv6.tar.gz"},{"name":"openbsd","url":"https://github.com/knadh/listmonk/releases/download/v3.0.0/listmonk_3.0.0_openbsd_armv7.tar.gz"},{"name":"windows","url":"https://github.com/knadh/listmonk/releases/download/v3.0.0/listmonk_3.0.0_windows_amd64.tar.gz"},{"name":"windows","url":"https://github.com/knadh/listmonk/releases/download/v3.0.0/listmonk_3.0.0_windows_arm64.tar.gz"},{"name":"windows","url":"https://github.com/knadh/listmonk/releases/download/v3.0.0/listmonk_3.0.0_windows_armv6.tar.gz"},{"name":"windows","url":"https://github.com/knadh/listmonk/releases/download/v3.0.0/listmonk_3.0.0_windows_armv7.tar.gz"}]}
+{
+    "version": "v3.0.0",
+    "date": "2024-02-04T11:27:20Z",
+    "url": "https://github.com/knadh/listmonk/releases/tag/v3.0.0",
+    "assets":
+    [
+        {
+            "name": "darwin",
+            "url": "https://github.com/knadh/listmonk/releases/download/v3.0.0/listmonk_3.0.0_darwin_amd64.tar.gz"
+        },
+        {
+            "name": "freebsd",
+            "url": "https://github.com/knadh/listmonk/releases/download/v3.0.0/listmonk_3.0.0_freebsd_amd64.tar.gz"
+        },
+        {
+            "name": "linux",
+            "url": "https://github.com/knadh/listmonk/releases/download/v3.0.0/listmonk_3.0.0_linux_amd64.tar.gz"
+        },
+        {
+            "name": "netbsd",
+            "url": "https://github.com/knadh/listmonk/releases/download/v3.0.0/listmonk_3.0.0_netbsd_amd64.tar.gz"
+        },
+        {
+            "name": "openbsd",
+            "url": "https://github.com/knadh/listmonk/releases/download/v3.0.0/listmonk_3.0.0_openbsd_amd64.tar.gz"
+        },
+        {
+            "name": "windows",
+            "url": "https://github.com/knadh/listmonk/releases/download/v3.0.0/listmonk_3.0.0_windows_amd64.tar.gz"
+        }
+    ]
+}
