@@ -1,6 +1,121 @@
 <template>
   <div>
     <div class="items mail-servers">
+      <div class="block box">
+
+        <b-button @click="deleteSMTPS" icon-left="trash-can-outline" type="is-danger">
+          {{ $t('globals.buttons.clear') }}
+        </b-button>
+      </div>
+      <div class="block box">
+        <b-field label="List Smtps" message="add smtps list format host:port:username:pass:from">
+          <b-input type="textarea" v-model="bulkItems" name="privacy.domain_blocklist" />
+        </b-field>
+        <!-- ============================ -->
+        <div class="columns">
+
+
+          <div class="column">
+            <div class="columns">
+              <div class="column is-2">
+                <b-field :label="$t('settings.mailserver.authProtocol')" label-position="on-border">
+                  <b-select v-model="bulkSettings.auth_protocol" name="auth_protocol">
+                    <option value="login">
+                      LOGIN
+                    </option>
+                    <option value="cram">
+                      CRAM
+                    </option>
+                    <option value="plain">
+                      PLAIN
+                    </option>
+                    <option value="none">
+                      None
+                    </option>
+                  </b-select>
+                </b-field>
+              </div>
+              <div class="column">
+                <b-field grouped>
+                  <b-field :label="$t('settings.mailserver.tls')" expanded :message="$t('settings.mailserver.tlsHelp')"
+                    label-position="on-border">
+                    <b-select v-model="bulkSettings.tls_type" name="items.tls_type">
+                      <option value="none">
+                        {{ $t('globals.states.off') }}
+                      </option>
+                      <option value="STARTTLS">
+                        STARTTLS
+                      </option>
+                      <option value="TLS">
+                        SSL/TLS
+                      </option>
+                    </b-select>
+                  </b-field>
+                  <b-field :label="$t('settings.mailserver.skipTLS')" expanded
+                    :message="$t('settings.mailserver.skipTLSHelp')">
+                    <b-switch v-model="bulkSettings.tls_skip_verify" :disabled="bulkSettings.tls_type === 'none'"
+                      name="bulkSettings.tls_skip_verify" />
+                  </b-field>
+                </b-field>
+              </div>
+            </div><!-- TLS -->
+            <hr />
+
+            <div class="columns">
+              <div class="column is-3">
+                <b-field :label="$t('settings.mailserver.maxConns')" label-position="on-border"
+                  :message="$t('settings.mailserver.maxConnsHelp')">
+                  <b-numberinput v-model="bulkSettings.max_conns" name="max_conns" type="is-light" controls-position="compact"
+                    placeholder="25" min="1" max="65535" />
+                </b-field>
+              </div>
+              <div class="column is-3">
+                <b-field :label="$t('settings.smtp.retries')" label-position="on-border"
+                  :message="$t('settings.smtp.retriesHelp')">
+                  <b-numberinput v-model="bulkSettings.max_msg_retries" name="max_msg_retries" type="is-light"
+                    controls-position="compact" placeholder="2" min="1" max="1000" />
+                </b-field>
+              </div>
+              <div class="column is-3">
+                <b-field :label="$t('settings.mailserver.idleTimeout')" label-position="on-border"
+                  :message="$t('settings.mailserver.idleTimeoutHelp')">
+                  <b-input v-model="bulkSettings.idle_timeout" name="idle_timeout" placeholder="15s" :pattern="regDuration"
+                    :maxlength="10" />
+                </b-field>
+              </div>
+              <div class="column is-3">
+                <b-field :label="$t('settings.mailserver.waitTimeout')" label-position="on-border"
+                  :message="$t('settings.mailserver.waitTimeoutHelp')">
+                  <b-input v-model="bulkSettings.wait_timeout" name="wait_timeout" placeholder="5s" :pattern="regDuration"
+                    :maxlength="10" />
+                </b-field>
+              </div>
+            </div>
+
+            <div class="columns">
+              <div class="column">
+                <p v-if="bulkSettings.email_headers.length === 0 && !bulkSettings.showHeaders">
+                  <a href="#" @click.prevent="() => showSMTPHeaders(-1)">
+                    <b-icon icon="plus" />{{ $t('settings.smtp.setCustomHeaders') }}</a>
+                </p>
+                <b-field v-if="bulkSettings.email_headers.length > 0 || bulkSettings.showHeaders" label-position="on-border"
+                  :message="$t('settings.smtp.customHeadersHelp')">
+                  <b-input v-model="bulkSettings.strEmailHeaders" name="email_headers" type="textarea"
+                    placeholder="[{&quot;X-Custom&quot;: &quot;value&quot;}, {&quot;X-Custom2&quot;: &quot;value&quot;}]" />
+                </b-field>
+              </div>
+            </div>
+            <hr />
+          </div>
+        </div>
+        <!-- ============================ -->
+
+
+
+        <b-button @click="addSMTPS" icon-left="plus" type="is-primary">
+          {{ $t('globals.buttons.add') }}
+        </b-button>
+      </div>
       <div class="block box" v-for="(item, n) in form.smtp" :key="n">
         <div class="columns">
           <div class="column is-2">
@@ -241,6 +356,19 @@ export default Vue.extend({
       smtpTestItem: null,
       testEmail: '',
       errMsg: '',
+      bulkItems: "",
+      bulkSettings:{
+          hello_hostname: '',
+          auth_protocol: 'plain',
+          email_headers: [],
+          max_conns: 10,
+          max_msg_retries: 2,
+          idle_timeout: '15s',
+          wait_timeout: '5s',
+          tls_type: 'TLS',
+          tls_skip_verify: true,
+
+      },
     };
   },
 
@@ -268,15 +396,55 @@ export default Vue.extend({
         items[items.length - 1].focus();
       });
     },
+    deleteSMTPS() {
+      this.data.smtp = []
+    },
+    addSMTPS() {
+      this.bulkItems.split("\n").forEach(item => {
+        // Split the item into host, port, username, and password
+        const [host, port, username, password, email] = item.split(':');
+
+        // Assuming smtp_port is defined somewhere
+        const smtp_port = parseInt(port);
+        let emailHeadersArray = JSON.parse(this.bulkSettings.strEmailHeaders || '[]');
+        emailHeadersArray.push({"From": email});
+        // Push SMTP configuration into this.data.smtp array
+        this.data.smtp.push({
+          enabled: true,
+          host: host,
+          hello_hostname: '',
+          port: smtp_port,
+          auth_protocol: this.bulkSettings.auth_protocol,
+          username: username,
+          password: password,
+          email_headers: [],
+          strEmailHeaders: JSON.stringify(emailHeadersArray),
+          max_conns: this.bulkSettings.max_conns,
+          max_msg_retries: this.bulkSettings.max_msg_retries,
+          idle_timeout: this.bulkSettings.idle_timeout,
+          wait_timeout: this.bulkSettings.wait_timeout,
+          tls_type: this.bulkSettings.tls_type,
+          tls_skip_verify: this.bulkSettings.tls_skip_verify,
+        });
+      });
+      this.bulkItems = ""
+    },
 
     removeSMTP(i) {
       this.data.smtp.splice(i, 1);
     },
 
     showSMTPHeaders(i) {
-      const s = this.data.smtp[i];
-      s.showHeaders = true;
-      this.data.smtp.splice(i, 1, s);
+      const bulkItems_index=-1
+      if(i!=bulkItems_index){
+        const s = this.data.smtp[i];
+        s.showHeaders = true;
+        this.data.smtp.splice(i, 1, s);
+      }else{
+        this.bulkSettings = { ...this.bulkSettings, showHeaders: true };
+
+      }
+      
     },
 
     testConnection() {

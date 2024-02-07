@@ -6,6 +6,7 @@ import (
 	"math/rand"
 	"net/smtp"
 	"net/textproto"
+	"regexp"
 
 	"github.com/knadh/listmonk/models"
 	"github.com/knadh/smtppool"
@@ -120,6 +121,16 @@ func (e *Emailer) Push(m models.Message) error {
 		}
 	}
 
+
+	fromEmail := srv.EmailHeaders["From"]
+
+	if fromEmail!=""{
+		re := regexp.MustCompile(`<([^<>]+)>`)
+		m.From = re.ReplaceAllString(m.From, "<"+fromEmail+">")
+	}
+	srv.EmailHeaders["From"]=m.From
+
+	
 	em := smtppool.Email{
 		From:        m.From,
 		To:          m.To,
@@ -128,8 +139,8 @@ func (e *Emailer) Push(m models.Message) error {
 	}
 
 	em.Headers = textproto.MIMEHeader{}
-
 	// Attach SMTP level headers.
+
 	for k, v := range srv.EmailHeaders {
 		em.Headers.Set(k, v)
 	}
@@ -138,6 +149,7 @@ func (e *Emailer) Push(m models.Message) error {
 	for k, v := range m.Headers {
 		em.Headers.Set(k, v[0])
 	}
+	
 
 	// If the `Return-Path` header is set, it should be set as the
 	// the SMTP envelope sender (via the Sender field of the email struct).
