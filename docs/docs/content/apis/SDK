@@ -1,0 +1,11 @@
+# SDKs and libraries
+
+Other developers have worked on integrating services with listmonk. Some of those SDKs and libraries are listed here.
+
+> This page is work in progress. If you know or have developed an integration to listmonk, please consider contributing to docs.
+
+## WordPress / WooCommerce integration
+
+In order to let people subscribe from your WordPress website, either through a form or through ticking a consent box during WooCommerce checkout, you can use a custom plugin developed by postduif. Installation instructions are available on the Github page. No programming knowledge required.
+
+* [WordPress - WooCommerce plugin: Integration for listmonk](https://github.com/post-duif/integration-listmonk-wordpress-plugin)
