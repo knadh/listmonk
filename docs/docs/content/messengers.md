@@ -38,6 +38,10 @@ The address required to broadcast the message, for instance, a phone number or a
 
 Following is a list of HTTP messenger servers that connect to various backends.
 
-| Name                                                                   | Backend      |
-|------------------------------------------------------------------------|------------------|
-| [listmonk-messenger](https://github.com/joeirimpan/listmonk-messenger) | AWS Pinpoint SMS |
+| Name                                                                                 | Backend          |
+|:-------------------------------------------------------------------------------------|:-----------------|
+| [listmonk-messenger](https://github.com/joeirimpan/listmonk-messenger)               | AWS Pinpoint SMS |
+| [listmonk-verimor-gateway](https://github.com/antandros/listmonk-verimor-gateway)    | Verimor          |
+| [listmonk-mailersend](https://github.com/tkawczynski/listmonk-mailersend)            | Mailersend       |
+| [listmonk-novu-messenger](https://github.com/Codepowercode/listmonk-novu-messenger)  | Novu             |
+| [listmonk-push-messenger](https://github.com/shyamkrishna21/listmonk-push-messenger) | Google FCM       |

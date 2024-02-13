@@ -55,6 +55,7 @@ nav:
     - "Integrating with external systems": external-integration.md
   - "API":
     - "Introduction": apis/apis.md
+    - "SDKs and libs": apis/sdks.md
     - "Subscribers": apis/subscribers.md
     - "Lists": apis/lists.md
     - "Import": apis/import.md
