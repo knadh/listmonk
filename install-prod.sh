@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bash
 set -eu
 
 # Listmonk production setup using `docker compose`.
@@ -10,7 +10,6 @@ RED="$(tput setaf 1 2>/dev/null || printf '')"
 BLUE="$(tput setaf 4 2>/dev/null || printf '')"
 GREEN="$(tput setaf 2 2>/dev/null || printf '')"
 NO_COLOR="$(tput sgr0 2>/dev/null || printf '')"
-SED_INPLACE=$(if [[ "$(uname)" == "Darwin" ]]; then echo "-i ''"; else echo "-i"; fi)
 
 info() {
   printf '%s\n' "${BLUE}> ${NO_COLOR} $*"
@@ -25,7 +24,18 @@ completed() {
 }
 
 exists() {
-  command -v "$1" 1>/dev/null 2>&1
+  command -v "$1" >/dev/null 2>&1
+}
+
+sed_inplace() {
+    local search_pattern="$1"
+    local replacement="$2"
+    local file="$3"
+    if [[ "$(uname)" == "Darwin" ]]; then
+        sed -i '' "s/${search_pattern}/${replacement}/g" "$file"
+    else
+        sed -i "s/${search_pattern}/${replacement}/g" "$file"
+    fi
 }
 
 check_dependencies() {
@@ -40,7 +50,7 @@ check_dependencies() {
 	fi
 
 	# Check for "docker compose" functionality.
-	if ! docker compose version > /dev/null 2>&1; then
+	if ! docker compose version >/dev/null 2>&1; then
 		echo "'docker compose' functionality is not available. Please update to a newer version of Docker. See https://docs.docker.com/engine/install/ for more details."
 		exit 1
 	fi
@@ -69,7 +79,7 @@ is_healthy() {
 }
 
 is_running() {
-	info "checking if "$1" is running"
+	info "checking if $1 is running"
 	status="$(docker inspect -f "{{.State.Status}}" "$1")"
 	if [ "$status" = "running" ]; then
 		return 0
@@ -79,7 +89,7 @@ is_running() {
 }
 
 generate_password(){
-	echo $(LC_ALL=C tr -dc A-Za-z0-9 </dev/urandom | head -c 13 ; echo '')
+	echo "$(LC_ALL=C tr -dc A-Za-z0-9 </dev/urandom | head -c 13 ; echo '')"
 }
 
 get_config() {
@@ -97,16 +107,12 @@ modify_config(){
 	db_password=$(generate_password)
 
 	info "modifying config.toml"
-	# Replace `db.host=localhost` with `db.host=db` in config file.
-	sed $SED_INPLACE "s/host = \"localhost\"/host = \"listmonk_db\"/g" config.toml
-	# Replace `db.password=listmonk` with `db.password={{db_password}}` in config file.
-	# Note that `password` is wrapped with `\b`. This ensures that `admin_password` doesn't match this pattern instead.
-	sed $SED_INPLACE "s/\bpassword\b = \"listmonk\"/password = \"$db_password\"/g" config.toml
-	# Replace `app.address=localhost:9000` with `app.address=0.0.0.0:9000` in config file.
-	sed $SED_INPLACE "s/address = \"localhost:9000\"/address = \"0.0.0.0:9000\"/g" config.toml
+	sed_inplace 'host = "localhost"' 'host = "listmonk_db"' config.toml
+	sed_inplace 'password = "listmonk"' "password = \"${db_password}\"" config.toml
+	sed_inplace 'address = "localhost:9000"' 'address = "0.0.0.0:9000"' config.toml
 
 	info "modifying docker-compose.yml"
-	sed $SED_INPLACE "s/POSTGRES_PASSWORD=listmonk/POSTGRES_PASSWORD=$db_password/g" docker-compose.yml
+	sed_inplace 'POSTGRES_PASSWORD=listmonk' "POSTGRES_PASSWORD=$db_password" docker-compose.yml
 }
 
 run_migrations(){
