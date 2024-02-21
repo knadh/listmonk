@@ -26,7 +26,7 @@ Use the sample [docker-compose.yml](https://github.com/knadh/listmonk/blob/maste
 
 ```bash
 mkdir listmonk-demo && cd listmonk-demo
-sh -c "$(curl -fsSL https://raw.githubusercontent.com/knadh/listmonk/master/install-demo.sh)"
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/knadh/listmonk/master/install-demo.sh)"
 ```
 
 #### Manual Docker install
@@ -47,7 +47,7 @@ This setup is recommended if you want to _quickly_ setup `listmonk` in productio
 
 ```bash
 mkdir listmonk && cd listmonk
-sh -c "$(curl -fsSL https://raw.githubusercontent.com/knadh/listmonk/master/install-prod.sh)"
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/knadh/listmonk/master/install-prod.sh)"
 ```
 
 The above shell script performs the following actions:

@@ -18,7 +18,7 @@ The latest image is available on DockerHub at [`listmonk/listmonk:latest`](https
 
 ```bash
 mkdir listmonk-demo && cd listmonk-demo
-sh -c "$(curl -fsSL https://raw.githubusercontent.com/knadh/listmonk/master/install-demo.sh)"
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/knadh/listmonk/master/install-demo.sh)"
 ```
 
 DO NOT use this demo setup in production.
@@ -27,7 +27,7 @@ DO NOT use this demo setup in production.
 
 ```bash
 mkdir listmonk && cd listmonk
-sh -c "$(curl -fsSL https://raw.githubusercontent.com/knadh/listmonk/master/install-prod.sh)"
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/knadh/listmonk/master/install-prod.sh)"
 ```
 Visit `http://localhost:9000`.
 
