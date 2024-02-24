@@ -163,6 +163,7 @@ func initHTTPHandlers(e *echo.Echo, app *App) {
 	g.DELETE("/api/maintenance/subscriptions/unconfirmed", handleGCSubscriptions)
 
 	g.POST("/api/tx", handleSendTxMessage)
+	g.POST("/api/tx/external", handleSendExternalTxMessage)
 
 	g.GET("/api/events", handleEventStream)
 
