@@ -112,6 +112,9 @@ export default Vue.extend({
       // SMTP boxes.
       let hasDummy = '';
       for (let i = 0; i < form.smtp.length; i += 1) {
+        // trim the host before saving
+        form.smtp[i].host = form.smtp[i].host?.trim();
+
         // If it's the dummy UI password placeholder, ignore it.
         if (this.isDummy(form.smtp[i].password)) {
           form.smtp[i].password = '';

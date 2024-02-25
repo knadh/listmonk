@@ -108,6 +108,10 @@ func handleUpdateSettings(c echo.Context) error {
 			set.SMTP[i].UUID = uuid.Must(uuid.NewV4()).String()
 		}
 
+		// Ensure the HOST is trimmed of any whitespace.
+		// This is a common mistake when copy-pasting SMTP settings.
+		set.SMTP[i].Host = strings.TrimSpace(s.Host)
+
 		// If there's no password coming in from the frontend, copy the existing
 		// password by matching the UUID.
 		if s.Password == "" {
