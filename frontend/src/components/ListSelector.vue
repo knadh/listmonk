@@ -4,7 +4,7 @@
       <b-taglist>
         <b-tag v-for="l in selectedItems" :key="l.id" :class="l.subscriptionStatus" :closable="!$props.disabled"
           :data-id="l.id" @close="removeList(l.id)" class="list">
-          {{ l.name }} <sup v-if="l.optin === 'double'">{{ l.subscriptionStatus }}</sup>
+          {{ l.name }} <sup v-if="l.optin === 'double'">{{ $t(`subscribers.status.${l.subscriptionStatus}`) }}</sup>
         </b-tag>
       </b-taglist>
     </div>
