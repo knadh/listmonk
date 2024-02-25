@@ -138,6 +138,10 @@ func handleUpdateSettings(c echo.Context) error {
 			set.BounceBoxes[i].UUID = uuid.Must(uuid.NewV4()).String()
 		}
 
+		// Ensure the HOST is trimmed of any whitespace.
+		// This is a common mistake when copy-pasting SMTP settings.
+		set.BounceBoxes[i].Host = strings.TrimSpace(s.Host)
+
 		if d, _ := time.ParseDuration(s.ScanInterval); d.Minutes() < 1 {
 			return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("settings.bounces.invalidScanInterval"))
 		}

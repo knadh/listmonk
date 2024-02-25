@@ -131,6 +131,9 @@ export default Vue.extend({
 
       // Bounces boxes.
       for (let i = 0; i < form['bounce.mailboxes'].length; i += 1) {
+        // trim the host before saving
+        form['bounce.mailboxes'][i].host = form['bounce.mailboxes'][i].host?.trim();
+
         // If it's the dummy UI password placeholder, ignore it.
         if (this.isDummy(form['bounce.mailboxes'][i].password)) {
           form['bounce.mailboxes'][i].password = '';
