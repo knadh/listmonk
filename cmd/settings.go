@@ -108,6 +108,10 @@ func handleUpdateSettings(c echo.Context) error {
 			set.SMTP[i].UUID = uuid.Must(uuid.NewV4()).String()
 		}
 
+		// Ensure the HOST is trimmed of any whitespace.
+		// This is a common mistake when copy-pasting SMTP settings.
+		set.SMTP[i].Host = strings.TrimSpace(s.Host)
+
 		// If there's no password coming in from the frontend, copy the existing
 		// password by matching the UUID.
 		if s.Password == "" {
@@ -133,6 +137,10 @@ func handleUpdateSettings(c echo.Context) error {
 		if s.UUID == "" {
 			set.BounceBoxes[i].UUID = uuid.Must(uuid.NewV4()).String()
 		}
+
+		// Ensure the HOST is trimmed of any whitespace.
+		// This is a common mistake when copy-pasting SMTP settings.
+		set.BounceBoxes[i].Host = strings.TrimSpace(s.Host)
 
 		if d, _ := time.ParseDuration(s.ScanInterval); d.Minutes() < 1 {
 			return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("settings.bounces.invalidScanInterval"))
