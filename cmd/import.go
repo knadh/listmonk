@@ -6,7 +6,6 @@ import (
 	"os"
 	"net/http"
 	"strings"
-
 	"github.com/knadh/listmonk/internal/subimporter"
 	"github.com/knadh/listmonk/models"
 	"github.com/labstack/echo/v4"
@@ -52,6 +51,10 @@ func handleImportSubscribers(c echo.Context) error {
 
 	if len(opt.Delim) != 1 {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("import.invalidDelim"))
+	}
+
+	if (opt.Merge && opt.Overwrite) {
+		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("import.mergeOverwriteConflict"))
 	}
 
 	file, err := c.FormFile("file")

@@ -87,6 +87,7 @@ type SessionOpt struct {
 	Mode      string `json:"mode"`
 	SubStatus string `json:"subscription_status"`
 	Overwrite bool   `json:"overwrite"`
+	Merge	  bool   `json:"merge"`
 	Delim     string `json:"delim"`
 	ListIDs   []int  `json:"lists"`
 }
@@ -294,7 +295,7 @@ func (s *Session) Start() {
 		}
 
 		if s.opt.Mode == ModeSubscribe {
-			_, err = stmt.Exec(uu, sub.Email, sub.Name, sub.Attribs, pq.Array(listIDs), s.opt.SubStatus, s.opt.Overwrite)
+			_, err = stmt.Exec(uu, sub.Email, sub.Name, sub.Attribs, pq.Array(listIDs), s.opt.SubStatus, s.opt.Overwrite, s.opt.Merge)
 		} else if s.opt.Mode == ModeBlocklist {
 			_, err = stmt.Exec(uu, sub.Email, sub.Name, sub.Attribs)
 		}

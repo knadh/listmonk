@@ -2481,6 +2481,12 @@ components:
               type: string
             import.overwriteHelp:
               type: string
+            import.merge:
+              type: string
+            import.mergeHelp:
+              type: string
+            mergeOverwriteConflict:
+              type: string
             import.recordsCount:
               type: string
             import.stopImport:

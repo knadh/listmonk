@@ -111,7 +111,11 @@ WITH sub AS (
     ON CONFLICT (email)
     DO UPDATE SET
         name=(CASE WHEN $7 THEN $3 ELSE s.name END),
-        attribs=(CASE WHEN $7 THEN $4 ELSE s.attribs END),
+        attribs=(CASE
+            WHEN $7 THEN $4
+            WHEN $8 THEN s.attribs || $4
+            ELSE s.attribs END
+        ),
         updated_at=NOW()
     RETURNING uuid, id
 ),

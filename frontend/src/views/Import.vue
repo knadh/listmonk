@@ -51,6 +51,15 @@
             </div>
 
             <div class="column">
+              <b-field v-if="form.mode === 'subscribe' && !form.overwrite" :label="$t('import.merge')"
+                :message="$t('import.mergeHelp')">
+                <div>
+                  <b-switch v-model="form.merge" name="merge" data-cy="merge" />
+                </div>
+              </b-field>
+            </div>
+
+            <div class="column">
               <b-field :label="$t('import.csvDelim')" :message="$t('import.csvDelimHelp')" class="delimiter">
                 <b-input v-model="form.delim" name="delim" placeholder="," maxlength="1" required />
               </b-field>
@@ -201,6 +210,11 @@ export default Vue.extend({
         }
       });
     },
+    'form.overwrite': function formOverwrite(newValue) {
+      if (newValue === true) {
+        this.form.merge = false; // Set merge to false when overwrite is true
+      }
+    },
   },
 
   methods: {
@@ -306,6 +320,7 @@ export default Vue.extend({
         delim: this.form.delim,
         lists: this.form.lists.map((l) => l.id),
         overwrite: this.form.overwrite,
+        merge: this.form.merge,
       }));
       params.set('file', this.form.file);
 
