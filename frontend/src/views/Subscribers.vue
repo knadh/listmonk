@@ -69,7 +69,7 @@
     </section><!-- control -->
 
     <br />
-    <b-table :data="subscribers.results" :loading="loading.subscribers" @check-all="onTableCheck" @check="onTableCheck"
+    <b-table :data="subscribers.results ?? []" :loading="loading.subscribers" @check-all="onTableCheck" @check="onTableCheck"
       :checked-rows.sync="bulk.checked" paginated backend-pagination pagination-position="both"
       @page-change="onPageChange" :current-page="queryParams.page" :per-page="subscribers.perPage"
       :total="subscribers.total" hoverable checkable backend-sorting @sort="onSort">
