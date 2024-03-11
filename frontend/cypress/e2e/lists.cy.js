@@ -31,7 +31,7 @@ describe('Lists', () => {
     const subs = [{ listID: 1, email: 'john@example.com' },
     { listID: 2, email: 'anon@example.com' }];
 
-    // Click on each list on the lists page, go the the subscribers page
+    // Click on each list on the lists page, go the subscribers page
     // for that list, and check the subscriber details.
     subs.forEach((s, n) => {
       cy.get('tbody td[data-label=Subscribers] a').eq(n).click();

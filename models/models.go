@@ -188,7 +188,7 @@ type SubscriberExportProfile struct {
 	LinkClicks    json.RawMessage `db:"link_clicks" json:"link_clicks,omitempty"`
 }
 
-// JSON is is the wrapper for reading and writing arbitrary JSONB fields from the DB.
+// JSON is the wrapper for reading and writing arbitrary JSONB fields from the DB.
 type JSON map[string]interface{}
 
 // StringIntMap is used to define DB Scan()s.
