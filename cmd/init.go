@@ -4,8 +4,10 @@ import (
 	"bytes"
 	"crypto/md5"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"html/template"
+	"net/http"
 	"os"
 	"path"
 	"path/filepath"
@@ -792,7 +794,7 @@ func initHTTPServer(app *App) *echo.Echo {
 	// Start the server.
 	go func() {
 		if err := srv.Start(ko.String("app.address")); err != nil {
-			if strings.Contains(err.Error(), "Server closed") {
+			if errors.Is(err, http.ErrServerClosed) {
 				lo.Println("HTTP server shut down")
 			} else {
 				lo.Fatalf("error starting HTTP server: %v", err)
