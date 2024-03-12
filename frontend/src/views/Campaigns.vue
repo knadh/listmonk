@@ -206,8 +206,8 @@
           </a>
 
           <a v-if="canCancel(props.row)" href="#"
-            @click.prevent="$utils.confirm(null, () => changeCampaignStatus(props.row, 'cancelled'))" data-cy="btn-cancel"
-            :aria-label="$t('globals.buttons.cancel')">
+            @click.prevent="$utils.confirm(null, () => changeCampaignStatus(props.row, 'cancelled'))"
+            data-cy="btn-cancel" :aria-label="$t('globals.buttons.cancel')">
             <b-tooltip :label="$t('globals.buttons.cancel')" type="is-dark">
               <b-icon icon="cancel" size="is-small" />
             </b-tooltip>
@@ -406,7 +406,6 @@ export default Vue.extend({
 
       const data = {
         name,
-        archive_slug: `${c.name}-2`,
         subject: c.subject,
         lists: c.lists.map((l) => l.id),
         type: c.type,
@@ -425,6 +424,10 @@ export default Vue.extend({
         archive_meta: c.archiveMeta,
         media: c.media.map((m) => m.id),
       };
+
+      if (c.archive) {
+        data.archive_slug = `${name.toLowerCase().replace(/[^a-z0-9]/g, '-')}-${Date.now().toString().slice(-4)}`;
+      }
 
       this.$api.createCampaign(data).then((d) => {
         this.$router.push({ name: 'campaign', params: { id: d.id } });
