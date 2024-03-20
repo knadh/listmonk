@@ -1,3 +1,6 @@
+# This service template is designed to have the ability to run more than one instance of listmonk with different configurations but the same service unit.
+# It may not work with older OS's with older systemd versions.
+
 [Unit]
 Description=listmonk mailing list and newsletter manager (%I)
 ConditionPathExists=/etc/listmonk/%i.toml
@@ -8,12 +11,23 @@ After=postgresql.service
 
 [Service]
 Type=simple
+PermissionsStartOnly=true
 EnvironmentFile=-/etc/default/listmonk
 EnvironmentFile=-/etc/default/listmonk-%i
-ExecStartPre=/usr/bin/mkdir -p "${HOME}/uploads"
+ExecStartPre=/usr/bin/mkdir -p "/etc/listmonk/uploads"
 ExecStartPre=/usr/bin/listmonk --config /etc/listmonk/%i.toml --upgrade --yes
 ExecStart=/usr/bin/listmonk --config /etc/listmonk/%i.toml $SYSTEMD_LISTMONK_ARGS
+TimeoutStopSec=10
 Restart=on-failure
+RestartSec=5
+
+# To enable a static dir, add the following 
+# --static-dir /etc/listmonk/static
+# to the end of the ExecStart line above after creating the dir and fetching the files with:
+# mkdir -p /etc/listmonk/static ; wget -O - https://github.com/knadh/listmonk/archive/master.tar.gz | tar xz -C /etc/listmonk/static --strip=2 "listmonk-master/static"
+
+# To enable a log file that persists after restarts, replace the ExecStart= line with:
+# ExecStart=/bin/bash -ce "exec /usr/bin/listmonk --config /etc/listmonk/config.toml --static-dir /etc/listmonk/static >>/etc/listmonk/listmonk.log 2>&1"
 
 # Create dynamic users for listmonk service instances
 # but create a state directory for uploads in /var/lib/private/%i.
@@ -32,18 +46,25 @@ NoNewPrivileges=True
 CapabilityBoundingSet=
 # listmonk only executes native code with no need for any other ABIs.
 SystemCallArchitectures=native
+
 # Only enable a reasonable set of system calls.
 # see: https://www.freedesktop.org/software/systemd/man/systemd.exec.html#SystemCallFilter=
-SystemCallFilter=@system-service
-SystemCallFilter=~@privileged
+# may give dump error https://mumaritc.hashnode.dev/how-to-install-listmonk-using-binary-on-ubuntu-2204
+# SystemCallFilter=@system-service
+# SystemCallFilter=~@privileged
+
 # ProtectSystem=strict, which is implied by DynamicUser=True, already disabled write calls
 # to the entire filesystem hierarchy, leaving only /dev/, /proc/, and /sys/ writable.
 # listmonk doesn’t need access to those so might as well disable them.
 PrivateDevices=True
 ProtectControlGroups=True
 ProtectKernelTunables=True
+
 # Make /home/, /root/, and /run/user/ inaccessible.
+# If you set ExecStartPre=/usr/bin/mkdir -p "listmonk/uploads" to a directory in /home/ or /root/ it will cause uploads to fail 
+# See https://github.com/knadh/listmonk/issues/843#issuecomment-1836023524
 ProtectHome=True
+
 # listmonk doesn’t handle any specific device nodes.
 DeviceAllow=False
 # listmonk doesn’t make use of linux namespaces.
