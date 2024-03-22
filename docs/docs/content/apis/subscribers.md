@@ -195,7 +195,7 @@ Create a new subscriber.
 | email                    | string    | Yes      | Subscriber's email address.                                                                          |
 | name                     | string    | Yes      | Subscriber's name.                                                                                   |
 | status                   | string    | Yes      | Subscriber's status: `enabled`, `disabled`, `blocklisted`.                                           |
-| lists                    | number\[\]  |          | List of list IDs to to subscribe to.                                                                 |
+| lists                    | number\[\]  |          | List of list IDs to subscribe to.                                                                    |
 | attribs                  | JSON      |          | Attributes of the new subscriber.                                                                    |
 | preconfirm_subscriptions | bool      |          | If true, subscriptions are marked as confirmed and no-optin emails are sent for double opt-in lists. |
 
