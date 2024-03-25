@@ -86,6 +86,12 @@ type constants struct {
 	AdminUsername []byte `koanf:"admin_username"`
 	AdminPassword []byte `koanf:"admin_password"`
 
+	OIDC struct {
+		ClientID     string `koanf:"client_id"`
+		ClientSecret string `koanf:"client_secret"`
+		Provider     string `koanf:"provider"`
+	} `koanf:"oidc"`
+
 	Appearance struct {
 		AdminCSS  []byte `koanf:"admin.custom_css"`
 		AdminJS   []byte `koanf:"admin.custom_js"`
@@ -381,6 +387,9 @@ func initConstants() *constants {
 	}
 	if err := ko.Unmarshal("privacy", &c.Privacy); err != nil {
 		lo.Fatalf("error loading app.privacy config: %v", err)
+	}
+	if err := ko.Unmarshal("oidc", &c.OIDC); err != nil {
+		lo.Fatalf("error loading app.oidc config: %v", err)
 	}
 	if err := ko.Unmarshal("security", &c.Security); err != nil {
 		lo.Fatalf("error loading app.security config: %v", err)
