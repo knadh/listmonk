@@ -27,7 +27,7 @@
                 <b-field :label="$t('settings.messengers.url')" label-position="on-border"
                   :message="$t('settings.messengers.urlHelp')">
                   <b-input v-model="item.root_url" name="root_url" placeholder="https://postback.messenger.net/path"
-                    :maxlength="200" />
+                    :maxlength="200" expanded type="url" pattern="https?://.*" />
                 </b-field>
               </div>
             </div><!-- host -->
