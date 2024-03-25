@@ -590,14 +590,20 @@ func handleSelfExportSubscriberData(c echo.Context) error {
 			makeMsgTpl(app.i18n.T("public.errorTitle"), "", app.i18n.Ts("public.errorProcessingRequest")))
 	}
 
+	var (
+		subject = app.i18n.Ts("email.data.title")
+		body    = msg.Bytes()
+	)
+	subject, body = getTplSubject(subject, body)
+
 	// Send the data as a JSON attachment to the subscriber.
 	const fname = "data.json"
 	if err := app.messengers[emailMsgr].Push(models.Message{
 		ContentType: app.notifTpls.contentType,
 		From:        app.constants.FromEmail,
 		To:          []string{data.Email},
-		Subject:     app.i18n.Ts("email.data.title"),
-		Body:        msg.Bytes(),
+		Subject:     subject,
+		Body:        body,
 		Attachments: []models.Attachment{
 			{
 				Name:    fname,
