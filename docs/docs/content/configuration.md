@@ -46,6 +46,7 @@ When configuring auth proxies and web application firewalls, use this table.
 | `GET`       | `/campaign/*`         | Pixel tracking image                          |
 | `GET`       | `/public/*`           | Static files for HTML subscription pages      |
 | `POST`      | `/webhooks/service/*` | Bounce webhook endpoints for AWS and Sendgrid |
+| `GET`       | `/uploads/*`          | The file upload path configured in media settings |
 
 
 ## Media uploads
