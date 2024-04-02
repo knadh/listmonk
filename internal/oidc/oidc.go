@@ -88,7 +88,7 @@ func (o *OIDC) HandleCallback(c echo.Context) error {
 		Path:     "/",
 	})
 
-	return c.Redirect(302, c.Request().URL.Query().Get("state"))
+	return c.Redirect(http.StatusTemporaryRedirect, c.Request().URL.Query().Get("state"))
 }
 
 func (o *OIDC) Middleware(next echo.HandlerFunc) echo.HandlerFunc {
@@ -98,14 +98,14 @@ func (o *OIDC) Middleware(next echo.HandlerFunc) echo.HandlerFunc {
 		}
 
 		rawIDTk, err := c.Cookie("id_token")
-		if err != http.ErrNoCookie {
-			return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
-		}
-
-		// Verify the token.
-		_, err = o.verifier.Verify(c.Request().Context(), rawIDTk.Value)
 		if err == nil {
-			return next(c)
+			// Verify the token.
+			_, err = o.verifier.Verify(c.Request().Context(), rawIDTk.Value)
+			if err == nil {
+				return next(c)
+			}
+		} else if err != http.ErrNoCookie {
+			return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 		}
 
 		// If the verification failed, redirect to the provider for auth.
@@ -120,7 +120,7 @@ func (o *OIDC) Middleware(next echo.HandlerFunc) echo.HandlerFunc {
 			SameSite: http.SameSiteStrictMode,
 			Path:     "/",
 		})
-		return c.Redirect(302, o.cfg.AuthCodeURL(c.Request().URL.RequestURI(), oidc.Nonce(nonce)))
+		return c.Redirect(http.StatusTemporaryRedirect, o.cfg.AuthCodeURL(c.Request().URL.RequestURI(), oidc.Nonce(nonce)))
 	}
 }
 
