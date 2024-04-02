@@ -40,6 +40,13 @@ type Settings struct {
 	SecurityCaptchaKey    string `json:"security.captcha_key"`
 	SecurityCaptchaSecret string `json:"security.captcha_secret"`
 
+	OIDC struct {
+		Enabled      bool   `json:"enabled"`
+		ProviderURL  string `json:"provider_url"`
+		ClientID     string `json:"client_id"`
+		ClientSecret string `json:"client_secret"`
+	} `json:"security.oidc"`
+
 	UploadProvider             string   `json:"upload.provider"`
 	UploadExtensions           []string `json:"upload.extensions"`
 	UploadFilesystemUploadPath string   `json:"upload.filesystem.upload_path"`

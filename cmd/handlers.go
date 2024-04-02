@@ -21,6 +21,8 @@ const (
 
 	sortAsc  = "asc"
 	sortDesc = "desc"
+
+	basicAuthd = "basicauthd"
 )
 
 type okResp struct {
@@ -53,22 +55,23 @@ func initHTTPHandlers(e *echo.Echo, app *App) {
 	// Group of private handlers with BasicAuth.
 	var g *echo.Group
 
-	if len(app.constants.OIDC.ClientID) > 0 && len(app.constants.OIDC.ClientSecret) > 0 {
-		callbackURL, err := url.JoinPath(app.constants.RootURL, "/oidc/callback")
+	if app.constants.Security.OIDC.Enabled {
+		cbURL, err := url.JoinPath(app.constants.RootURL, "/auth/oidc")
 		if err != nil {
-			panic(err)
+			lo.Fatalf("error preparing OIDC callback URL: %v", err)
 		}
-		oidcConfig := oidc.Config{
-			ProviderURL:  app.constants.OIDC.Provider,
-			ClientID:     app.constants.OIDC.ClientID,
-			ClientSecret: app.constants.OIDC.ClientSecret,
-			RedirectURL:  callbackURL,
+		oiCfg := oidc.Config{
+			ProviderURL:  app.constants.Security.OIDC.Provider,
+			ClientID:     app.constants.Security.OIDC.ClientID,
+			ClientSecret: app.constants.Security.OIDC.ClientSecret,
+			RedirectURL:  cbURL,
 		}
 
-		// if admin username and password are set, enable basic auth for api access
+		// If admin username and password are set in the config file,
+		// enable BasicAuth for /api/* handlers.
 		if len(app.constants.AdminUsername) > 0 && len(app.constants.AdminPassword) > 0 {
-			basicAuthConfig := middleware.BasicAuthConfig{
-				// check if authorization header is present and is basic auth if not skip basic auth
+			baCfg := middleware.BasicAuthConfig{
+				// If the Authorization header isn't BasicAuth (is OIDC), skip validation.
 				Skipper: func(c echo.Context) bool {
 					auth := c.Request().Header.Get(echo.HeaderAuthorization)
 					l := len("basic")
@@ -79,13 +82,15 @@ func initHTTPHandlers(e *echo.Echo, app *App) {
 				},
 				Validator: basicAuth,
 			}
-			// skip oidc if basic auth succeded
-			oidcConfig.Skipper = func(c echo.Context) bool {
-				return c.Get("userAuthenticated") != nil && c.Get("userAuthenticated").(bool)
+
+			// Skip OIDC check if the request is already BasicAuth'd.
+			oiCfg.Skipper = func(c echo.Context) bool {
+				return c.Get(basicAuthd) != nil && c.Get(basicAuthd).(bool)
 			}
-			g = e.Group("", middleware.BasicAuthWithConfig(basicAuthConfig), oidc.OIDCAuth(oidcConfig))
+
+			g = e.Group("", middleware.BasicAuthWithConfig(baCfg), oidc.OIDCAuth(oiCfg))
 		} else {
-			g = e.Group("", oidc.OIDCAuth(oidcConfig))
+			g = e.Group("", oidc.OIDCAuth(oiCfg))
 		}
 	} else if len(app.constants.AdminUsername) > 0 && len(app.constants.AdminPassword) > 0 {
 		g = e.Group("", middleware.BasicAuth(basicAuth))
@@ -112,9 +117,8 @@ func initHTTPHandlers(e *echo.Echo, app *App) {
 	g.GET(path.Join(adminRoot, "/custom.js"), serveCustomAppearance("admin.custom_js"))
 	g.GET(path.Join(adminRoot, "/*"), handleAdminPage)
 
-	// oauth callback
-	g.GET("/oidc/callback", func(c echo.Context) error {
-		// never gets executed because of the middleware
+	// OIDC oAuth callback. The execution is handled by the middleware.
+	g.GET("/auth/oidc", func(c echo.Context) error {
 		return nil
 	})
 
@@ -329,7 +333,8 @@ func basicAuth(username, password string, c echo.Context) (bool, error) {
 
 	if subtle.ConstantTimeCompare([]byte(username), app.constants.AdminUsername) == 1 &&
 		subtle.ConstantTimeCompare([]byte(password), app.constants.AdminPassword) == 1 {
-		c.Set("userAuthenticated", true)
+		// Mark the request as BasicAuth'd so that the OIDC check (if enabled) is skipped.
+		c.Set(basicAuthd, true)
 		return true, nil
 	}
 	return false, nil
