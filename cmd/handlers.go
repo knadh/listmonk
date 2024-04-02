@@ -23,6 +23,11 @@ const (
 	sortDesc = "desc"
 
 	basicAuthd = "basicauthd"
+
+	// URIs.
+	uriAdmin = "/admin"
+	uriOIDC  = "/auth/oidc"
+	uriAPI   = "/api"
 )
 
 type okResp struct {
@@ -52,11 +57,34 @@ var (
 
 // registerHandlers registers HTTP handlers.
 func initHTTPHandlers(e *echo.Echo, app *App) {
-	// Group of private handlers with BasicAuth.
-	var g *echo.Group
+	// Group for private handlers. Based on the config, BasicAuth|OIDC
+	// or no auth at all are applied.
+	g := e.Group("")
+
+	hasBasicAuth := len(app.constants.AdminUsername) > 0 && len(app.constants.AdminPassword) > 0
 
 	if app.constants.Security.OIDC.Enabled {
-		cbURL, err := url.JoinPath(app.constants.RootURL, "/auth/oidc")
+		if hasBasicAuth {
+			// If BasicAuth is also enabled, add a skipper that checks
+			// if the incoming Authorization header is set but is not BasicAuth.
+			baCfg := middleware.BasicAuthConfig{
+				Skipper: func(c echo.Context) bool {
+					h := c.Request().Header.Get(echo.HeaderAuthorization)
+
+					if len(h) > 10 && !strings.HasPrefix(h, "Basic") {
+						return true
+					}
+					return false
+				},
+				Validator: basicAuth,
+			}
+
+			// Attach the BasicAuth middleware.
+			g.Use(middleware.BasicAuthWithConfig(baCfg))
+		}
+
+		// Attach the OIDC auth middleware.
+		cbURL, err := url.JoinPath(app.constants.RootURL, uriOIDC)
 		if err != nil {
 			lo.Fatalf("error preparing OIDC callback URL: %v", err)
 		}
@@ -65,37 +93,16 @@ func initHTTPHandlers(e *echo.Echo, app *App) {
 			ClientID:     app.constants.Security.OIDC.ClientID,
 			ClientSecret: app.constants.Security.OIDC.ClientSecret,
 			RedirectURL:  cbURL,
+			Skipper: func(c echo.Context) bool {
+				// Skip OIDC check if the request is already BasicAuth'd.
+				return c.Get(basicAuthd) != nil
+			},
 		}
 
-		// If admin username and password are set in the config file,
-		// enable BasicAuth for /api/* handlers.
-		if len(app.constants.AdminUsername) > 0 && len(app.constants.AdminPassword) > 0 {
-			baCfg := middleware.BasicAuthConfig{
-				// If the Authorization header isn't BasicAuth (is OIDC), skip validation.
-				Skipper: func(c echo.Context) bool {
-					auth := c.Request().Header.Get(echo.HeaderAuthorization)
-					l := len("basic")
-					if len(auth) > l+1 && strings.EqualFold(auth[:l], "basic") {
-						return false
-					}
-					return true
-				},
-				Validator: basicAuth,
-			}
-
-			// Skip OIDC check if the request is already BasicAuth'd.
-			oiCfg.Skipper = func(c echo.Context) bool {
-				return c.Get(basicAuthd) != nil && c.Get(basicAuthd).(bool)
-			}
-
-			g = e.Group("", middleware.BasicAuthWithConfig(baCfg), oidc.OIDCAuth(oiCfg))
-		} else {
-			g = e.Group("", oidc.OIDCAuth(oiCfg))
-		}
-	} else if len(app.constants.AdminUsername) > 0 && len(app.constants.AdminPassword) > 0 {
-		g = e.Group("", middleware.BasicAuth(basicAuth))
-	} else {
-		g = e.Group("")
+		g.Use(oidc.OIDCAuth(oiCfg))
+	} else if hasBasicAuth {
+		// Only BasicAuth.
+		g.Use(middleware.BasicAuth(basicAuth))
 	}
 
 	e.HTTPErrorHandler = func(err error, c echo.Context) {
@@ -112,13 +119,13 @@ func initHTTPHandlers(e *echo.Echo, app *App) {
 		return c.Render(http.StatusOK, "home", publicTpl{Title: "listmonk"})
 	})
 
-	g.GET(path.Join(adminRoot, ""), handleAdminPage)
-	g.GET(path.Join(adminRoot, "/custom.css"), serveCustomApperance("admin.custom_css"))
-	g.GET(path.Join(adminRoot, "/custom.js"), serveCustomApperance("admin.custom_js"))
-	g.GET(path.Join(adminRoot, "/*"), handleAdminPage)
+	g.GET(path.Join(uriAdmin, ""), handleAdminPage)
+	g.GET(path.Join(uriAdmin, "/custom.css"), serveCustomApperance("admin.custom_css"))
+	g.GET(path.Join(uriAdmin, "/custom.js"), serveCustomApperance("admin.custom_js"))
+	g.GET(path.Join(uriAdmin, "/*"), handleAdminPage)
 
 	// OIDC oAuth callback. The execution is handled by the middleware.
-	g.GET("/auth/oidc", func(c echo.Context) error {
+	g.GET(uriOIDC, func(c echo.Context) error {
 		return nil
 	})
 
@@ -279,7 +286,7 @@ func initHTTPHandlers(e *echo.Echo, app *App) {
 func handleAdminPage(c echo.Context) error {
 	app := c.Get("app").(*App)
 
-	b, err := app.fs.Read(path.Join(adminRoot, "/index.html"))
+	b, err := app.fs.Read(path.Join(uriAdmin, "/index.html"))
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}

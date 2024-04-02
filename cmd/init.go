@@ -49,9 +49,6 @@ import (
 
 const (
 	queryFilePath = "queries.sql"
-
-	// Root URI of the admin frontend.
-	adminRoot = "/admin"
 )
 
 // constants contains static, constant config values required by the app.
