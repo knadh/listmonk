@@ -70,6 +70,7 @@ func handleGetSettings(c echo.Context) error {
 	s.UploadS3AwsSecretAccessKey = strings.Repeat(pwdMask, utf8.RuneCountInString(s.UploadS3AwsSecretAccessKey))
 	s.SendgridKey = strings.Repeat(pwdMask, utf8.RuneCountInString(s.SendgridKey))
 	s.SecurityCaptchaSecret = strings.Repeat(pwdMask, utf8.RuneCountInString(s.SecurityCaptchaSecret))
+	s.OIDC.ClientSecret = strings.Repeat(pwdMask, utf8.RuneCountInString(s.OIDC.ClientSecret))
 	s.BouncePostmark.Password = strings.Repeat(pwdMask, utf8.RuneCountInString(s.BouncePostmark.Password))
 
 	return c.JSON(http.StatusOK, okResp{s})
@@ -200,6 +201,9 @@ func handleUpdateSettings(c echo.Context) error {
 	}
 	if set.SecurityCaptchaSecret == "" {
 		set.SecurityCaptchaSecret = cur.SecurityCaptchaSecret
+	}
+	if set.OIDC.ClientSecret == "" {
+		set.OIDC.ClientSecret = cur.OIDC.ClientSecret
 	}
 
 	for n, v := range set.UploadExtensions {

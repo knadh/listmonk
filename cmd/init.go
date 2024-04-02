@@ -79,18 +79,19 @@ type constants struct {
 		DomainBlocklist    []string        `koanf:"-"`
 	} `koanf:"privacy"`
 	Security struct {
+		OIDC struct {
+			Enabled      bool   `koanf:"enabled"`
+			Provider     string `koanf:"provider_url"`
+			ClientID     string `koanf:"client_id"`
+			ClientSecret string `koanf:"client_secret"`
+		} `koanf:"oidc"`
+
 		EnableCaptcha bool   `koanf:"enable_captcha"`
 		CaptchaKey    string `koanf:"captcha_key"`
 		CaptchaSecret string `koanf:"captcha_secret"`
 	} `koanf:"security"`
 	AdminUsername []byte `koanf:"admin_username"`
 	AdminPassword []byte `koanf:"admin_password"`
-
-	OIDC struct {
-		ClientID     string `koanf:"client_id"`
-		ClientSecret string `koanf:"client_secret"`
-		Provider     string `koanf:"provider"`
-	} `koanf:"oidc"`
 
 	Appearance struct {
 		AdminCSS  []byte `koanf:"admin.custom_css"`
@@ -388,12 +389,10 @@ func initConstants() *constants {
 	if err := ko.Unmarshal("privacy", &c.Privacy); err != nil {
 		lo.Fatalf("error loading app.privacy config: %v", err)
 	}
-	if err := ko.Unmarshal("oidc", &c.OIDC); err != nil {
-		lo.Fatalf("error loading app.oidc config: %v", err)
-	}
 	if err := ko.Unmarshal("security", &c.Security); err != nil {
 		lo.Fatalf("error loading app.security config: %v", err)
 	}
+
 	if err := ko.UnmarshalWithConf("appearance", &c.Appearance, koanf.UnmarshalConf{FlatPaths: true}); err != nil {
 		lo.Fatalf("error loading app.appearance config: %v", err)
 	}
