@@ -26,7 +26,6 @@ const (
 
 	// URIs.
 	uriAdmin = "/admin"
-	uriOIDC  = "/auth/oidc"
 	uriAPI   = "/api"
 )
 
@@ -61,14 +60,33 @@ func initHTTPHandlers(e *echo.Echo, app *App) {
 	// or no auth at all are applied.
 	g := e.Group("")
 
+	const uriOIDC = "/auth/oidc"
 	hasBasicAuth := len(app.constants.AdminUsername) > 0 && len(app.constants.AdminPassword) > 0
 
 	if app.constants.Security.OIDC.Enabled {
+		cbURL, err := url.JoinPath(app.constants.RootURL, uriOIDC)
+		if err != nil {
+			lo.Fatalf("error preparing OIDC callback URL: %v", err)
+		}
+
+		oi := oidc.New(oidc.Config{
+			ProviderURL:  app.constants.Security.OIDC.Provider,
+			ClientID:     app.constants.Security.OIDC.ClientID,
+			ClientSecret: app.constants.Security.OIDC.ClientSecret,
+			RedirectURL:  cbURL,
+			Skipper: func(c echo.Context) bool {
+				// Skip OIDC check if the request is already BasicAuth'd.
+				// This context flag is set in basicAuth().
+				return c.Get(basicAuthd) != nil
+			},
+		})
+
+		// BasicAuth is also enabled.
 		if hasBasicAuth {
-			// If BasicAuth is also enabled, add a skipper that checks
-			// if the incoming Authorization header is set but is not BasicAuth.
 			baCfg := middleware.BasicAuthConfig{
 				Skipper: func(c echo.Context) bool {
+					// If BasicAuth is also enabled, add a skipper that checks
+					// if the incoming Authorization header is set but is not BasicAuth.
 					h := c.Request().Header.Get(echo.HeaderAuthorization)
 
 					if len(h) > 10 && !strings.HasPrefix(h, "Basic") {
@@ -83,25 +101,12 @@ func initHTTPHandlers(e *echo.Echo, app *App) {
 			g.Use(middleware.BasicAuthWithConfig(baCfg))
 		}
 
-		// Attach the OIDC auth middleware.
-		cbURL, err := url.JoinPath(app.constants.RootURL, uriOIDC)
-		if err != nil {
-			lo.Fatalf("error preparing OIDC callback URL: %v", err)
-		}
-		oiCfg := oidc.Config{
-			ProviderURL:  app.constants.Security.OIDC.Provider,
-			ClientID:     app.constants.Security.OIDC.ClientID,
-			ClientSecret: app.constants.Security.OIDC.ClientSecret,
-			RedirectURL:  cbURL,
-			Skipper: func(c echo.Context) bool {
-				// Skip OIDC check if the request is already BasicAuth'd.
-				return c.Get(basicAuthd) != nil
-			},
-		}
+		// Register the public OIDC redirect callback URI.
+		g.GET(uriOIDC, oi.HandleCallback)
 
-		g.Use(oidc.OIDCAuth(oiCfg))
+		// Attach the OIDC middleware.
+		g.Use(oi.Middleware)
 	} else if hasBasicAuth {
-		// Only BasicAuth.
 		g.Use(middleware.BasicAuth(basicAuth))
 	}
 
@@ -123,11 +128,6 @@ func initHTTPHandlers(e *echo.Echo, app *App) {
 	g.GET(path.Join(uriAdmin, "/custom.css"), serveCustomApperance("admin.custom_css"))
 	g.GET(path.Join(uriAdmin, "/custom.js"), serveCustomApperance("admin.custom_js"))
 	g.GET(path.Join(uriAdmin, "/*"), handleAdminPage)
-
-	// OIDC oAuth callback. The execution is handled by the middleware.
-	g.GET(uriOIDC, func(c echo.Context) error {
-		return nil
-	})
 
 	// API endpoints.
 	g.GET("/api/health", handleHealthCheck)
