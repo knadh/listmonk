@@ -108,6 +108,12 @@ const routes = [
     component: () => import('../views/Logs.vue'),
   },
   {
+    path: '/settings/users',
+    name: 'users',
+    meta: { title: 'globals.terms.users', group: 'settings' },
+    component: () => import('../views/Users.vue'),
+  },
+  {
     path: '/settings/maintenance',
     name: 'maintenance',
     meta: { title: 'maintenance.title', group: 'settings' },

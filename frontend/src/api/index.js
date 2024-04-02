@@ -440,3 +440,42 @@ export const deleteGCSubscriptions = async (beforeDate) => http.delete(
   '/api/maintenance/subscriptions/unconfirmed',
   { loading: models.maintenance, params: { before_date: beforeDate } },
 );
+
+// Users.
+export const getUsers = () => http.get(
+  '/api/users',
+  {
+    loading: models.users,
+    store: models.users,
+  },
+);
+
+export const queryUsers = () => http.get(
+  '/api/users',
+  {
+    loading: models.users,
+    store: models.users,
+  },
+);
+
+export const getUser = async (id) => http.get(
+  `/api/users/${id}`,
+  { loading: models.users },
+);
+
+export const createUser = (data) => http.post(
+  '/api/users',
+  data,
+  { loading: models.users },
+);
+
+export const updateUser = (data) => http.put(
+  `/api/users/${data.id}`,
+  data,
+  { loading: models.users },
+);
+
+export const deleteUser = (id) => http.delete(
+  `/api/users/${id}`,
+  { loading: models.users },
+);

@@ -40,10 +40,12 @@
 
     <b-menu-item :expanded="activeGroup.settings" :active="activeGroup.settings" data-cy="settings"
       @update:active="(state) => toggleGroup('settings', state)" icon="cog-outline" :label="$t('menu.settings')">
+      <b-menu-item :to="{ name: 'users' }" tag="router-link" :active="activeItem.users" data-cy="users"
+        icon="account-multiple" :label="$t('globals.terms.users')" />
       <b-menu-item :to="{ name: 'settings' }" tag="router-link" :active="activeItem.settings" data-cy="all-settings"
         icon="cog-outline" :label="$t('menu.settings')" />
-      <b-menu-item :to="{ name: 'maintenance' }" tag="router-link" :active="activeItem.maintenance" data-cy="maintenance"
-        icon="wrench-outline" :label="$t('menu.maintenance')" />
+      <b-menu-item :to="{ name: 'maintenance' }" tag="router-link" :active="activeItem.maintenance"
+        data-cy="maintenance" icon="wrench-outline" :label="$t('menu.maintenance')" />
       <b-menu-item :to="{ name: 'logs' }" tag="router-link" :active="activeItem.logs" data-cy="logs"
         icon="newspaper-variant-outline" :label="$t('menu.logs')" />
     </b-menu-item><!-- settings -->

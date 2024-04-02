@@ -148,11 +148,15 @@ type Base struct {
 type User struct {
 	Base
 
-	Email    string `json:"email"`
-	Name     string `json:"name"`
-	Password string `json:"-"`
-	Type     string `json:"type"`
-	Status   string `json:"status"`
+	Username      string      `db:"username" json:"username"`
+	Password      null.String `db:"password" json:"password,omitempty"`
+	PasswordLogin bool        `db:"password_login" json:"password_login"`
+	Email         string      `db:"email" json:"email"`
+	Name          string      `db:"name" json:"name"`
+	Status        string      `db:"status" json:"status"`
+	LoggedInAt    null.Time   `db:"loggedin_at" json:"loggedin_at"`
+
+	HasPassword bool `db:"-" json:"-"`
 }
 
 // Subscriber represents an e-mail subscriber.
