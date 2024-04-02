@@ -9,7 +9,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/knadh/listmonk/internal/oidc"
+	"github.com/knadh/listmonk/internal/auth"
 	"github.com/knadh/paginator"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -69,15 +69,17 @@ func initHTTPHandlers(e *echo.Echo, app *App) {
 			lo.Fatalf("error preparing OIDC callback URL: %v", err)
 		}
 
-		oi := oidc.New(oidc.Config{
-			ProviderURL:  app.constants.Security.OIDC.Provider,
-			ClientID:     app.constants.Security.OIDC.ClientID,
-			ClientSecret: app.constants.Security.OIDC.ClientSecret,
-			RedirectURL:  cbURL,
-			Skipper: func(c echo.Context) bool {
-				// Skip OIDC check if the request is already BasicAuth'd.
-				// This context flag is set in basicAuth().
-				return c.Get(basicAuthd) != nil
+		oi := auth.New(auth.Config{
+			OIDC: auth.OIDCConfig{
+				ProviderURL:  app.constants.Security.OIDC.Provider,
+				ClientID:     app.constants.Security.OIDC.ClientID,
+				ClientSecret: app.constants.Security.OIDC.ClientSecret,
+				RedirectURL:  cbURL,
+				Skipper: func(c echo.Context) bool {
+					// Skip OIDC check if the request is already BasicAuth'd.
+					// This context flag is set in basicAuth().
+					return c.Get(basicAuthd) != nil
+				},
 			},
 		})
 
@@ -218,6 +220,13 @@ func initHTTPHandlers(e *echo.Echo, app *App) {
 	g.POST("/api/tx", handleSendTxMessage)
 
 	g.GET("/api/events", handleEventStream)
+
+	g.GET("/api/users", handleGetUsers)
+	g.GET("/api/users/:id", handleGetUsers)
+	g.POST("/api/users", handleCreateUser)
+	g.PUT("/api/users/:id", handleUpdateUser)
+	g.DELETE("/api/users", handleDeleteUsers)
+	g.DELETE("/api/users/:id", handleDeleteUsers)
 
 	if app.constants.BounceWebhooksEnabled {
 		// Private authenticated bounce endpoint.
