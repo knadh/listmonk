@@ -873,28 +873,6 @@ WITH view AS (
 INSERT INTO campaign_views (campaign_id, subscriber_id)
     VALUES((SELECT campaign_id FROM view), (SELECT subscriber_id FROM view));
 
--- users
--- name: get-users
-SELECT * FROM users WHERE $1 = 0 OR id = $1 OFFSET $2 LIMIT $3;
-
--- name: create-user
-INSERT INTO users (email, name, password, type, status) VALUES($1, $2, $3, $4, $5) RETURNING id;
-
--- name: update-user
-UPDATE users SET
-    email=(CASE WHEN $2 != '' THEN $2 ELSE email END),
-    name=(CASE WHEN $3 != '' THEN $3 ELSE name END),
-    password=(CASE WHEN $4 != '' THEN $4 ELSE password END),
-    type=(CASE WHEN $5 != '' THEN $5::user_type ELSE type END),
-    status=(CASE WHEN $6 != '' THEN $6::user_status ELSE status END),
-    updated_at=NOW()
-WHERE id = $1;
-
--- name: delete-user
--- Delete a user, except for the primordial super admin.
-DELETE FROM users WHERE $1 != 1 AND id=$1;
-
-
 -- templates
 -- name: get-templates
 -- Only if the second param ($2) is true, body is returned.
@@ -1048,3 +1026,25 @@ DELETE FROM bounces WHERE subscriber_id = (SELECT id FROM sub);
 -- name: get-db-info
 SELECT JSON_BUILD_OBJECT('version', (SELECT VERSION()),
                         'size_mb', (SELECT ROUND(pg_database_size((SELECT CURRENT_DATABASE()))/(1024^2)))) AS info;
+
+-- name: create-user
+INSERT INTO users (username, password_login, password, email, name, status) VALUES($1, $2, $3, $4, $5, $6) RETURNING *;
+
+-- name: update-user
+UPDATE users SET
+    username=(CASE WHEN $2 != '' THEN $2 ELSE username END),
+    password_login=$3,
+    password=(CASE WHEN $3 = TRUE THEN (CASE WHEN $4 != '' THEN $4 ELSE password END) ELSE NULL END),
+    email=(CASE WHEN $5 != '' THEN $5 ELSE email END),
+    name=(CASE WHEN $6 != '' THEN $6 ELSE name END),
+    status=(CASE WHEN $7 != '' THEN $7::user_status ELSE status END)
+    WHERE id=$1;
+
+-- name: delete-users
+WITH u AS (
+    SELECT COUNT(*) AS num FROM users WHERE NOT(id = ANY($1)) AND status='super'
+)
+DELETE FROM users WHERE id = ALL($1) AND (SELECT num FROM u) > 0;
+
+-- name: get-users
+SELECT * FROM users WHERE $1=0 OR id=$1 ORDER BY created_at;

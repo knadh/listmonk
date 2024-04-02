@@ -7,6 +7,7 @@ DROP TYPE IF EXISTS campaign_type CASCADE; CREATE TYPE campaign_type AS ENUM ('r
 DROP TYPE IF EXISTS content_type CASCADE; CREATE TYPE content_type AS ENUM ('richtext', 'html', 'plain', 'markdown');
 DROP TYPE IF EXISTS bounce_type CASCADE; CREATE TYPE bounce_type AS ENUM ('soft', 'hard', 'complaint');
 DROP TYPE IF EXISTS template_type CASCADE; CREATE TYPE template_type AS ENUM ('campaign', 'tx');
+DROP TYPE IF EXISTS user_status CASCADE; CREATE TYPE user_status AS ENUM ('enabled', 'disabled', 'super');
 
 -- subscribers
 DROP TABLE IF EXISTS subscribers CASCADE;
@@ -296,7 +297,20 @@ DROP INDEX IF EXISTS idx_bounces_camp_id; CREATE INDEX idx_bounces_camp_id ON bo
 DROP INDEX IF EXISTS idx_bounces_source; CREATE INDEX idx_bounces_source ON bounces(source);
 DROP INDEX IF EXISTS idx_bounces_date; CREATE INDEX idx_bounces_date ON bounces((TIMEZONE('UTC', created_at)::DATE));
 
-
+-- users
+DROP TABLE IF EXISTS users CASCADE;
+CREATE TABLE users (
+    id               SERIAL PRIMARY KEY,
+    username         TEXT NOT NULL UNIQUE,
+    password_login   BOOLEAN NOT NULL DEFAULT false,
+    password         TEXT NULL,
+    email            TEXT NOT NULL UNIQUE,
+    name             TEXT NOT NULL,
+    status           user_status NOT NULL DEFAULT 'disabled',
+    loggedin_at      TIMESTAMP WITH TIME ZONE NULL,
+    created_at       TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at       TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
 
 -- materialized views
 

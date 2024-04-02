@@ -1,4 +1,4 @@
-package oidc
+package auth
 
 import (
 	"context"
@@ -14,48 +14,71 @@ import (
 	"golang.org/x/oauth2"
 )
 
-type Config struct {
-	ProviderURL  string
-	RedirectURL  string
-	ClientID     string
-	ClientSecret string
+// UserKey is the key on which the User profile is set on echo handlers.
+const UserKey = "auth_user"
+
+// User struct holds the email and name of the authenticatd user.
+// It's attached to the echo handler.
+type User struct {
+	Email   string `json:"name"`
+	Name    string `json:"email"`
+	Picture string `json:"picture"`
+}
+
+type OIDCConfig struct {
+	Enabled      bool   `json:"enabled"`
+	ProviderURL  string `json:"provider_url"`
+	RedirectURL  string `json:"redirect_url"`
+	ClientID     string `json:"client_id"`
+	ClientSecret string `json:"client_secret"`
 
 	// Skipper defines a function to skip middleware.
 	Skipper middleware.Skipper
 }
 
-type OIDC struct {
+type BasicAuthConfig struct {
+	Enabled  bool   `json:"enabled"`
+	Username string `json:"username"`
+	Password string `json:"password"`
+}
+
+type Config struct {
+	OIDC      OIDCConfig
+	BasicAuth BasicAuthConfig
+}
+
+type Auth struct {
 	cfg      oauth2.Config
 	verifier *oidc.IDTokenVerifier
 	skipper  middleware.Skipper
 }
 
-func New(cfg Config) *OIDC {
-	provider, err := oidc.NewProvider(context.Background(), cfg.ProviderURL)
+func New(cfg Config) *Auth {
+	provider, err := oidc.NewProvider(context.Background(), cfg.OIDC.ProviderURL)
 	if err != nil {
 		panic(err)
 	}
 	verifier := provider.Verifier(&oidc.Config{
-		ClientID: cfg.ClientID,
+		ClientID: cfg.OIDC.ClientID,
 	})
 
 	oidcConfig := oauth2.Config{
-		ClientID:     cfg.ClientID,
-		ClientSecret: cfg.ClientSecret,
+		ClientID:     cfg.OIDC.ClientID,
+		ClientSecret: cfg.OIDC.ClientSecret,
 		Endpoint:     provider.Endpoint(),
-		RedirectURL:  cfg.RedirectURL,
+		RedirectURL:  cfg.OIDC.RedirectURL,
 		Scopes:       []string{oidc.ScopeOpenID, "profile", "email"},
 	}
 
-	return &OIDC{
+	return &Auth{
 		verifier: verifier,
 		cfg:      oidcConfig,
-		skipper:  cfg.Skipper,
+		skipper:  cfg.OIDC.Skipper,
 	}
 }
 
 // HandleCallback is the HTTP handler that handles the post-OIDC provider redirect callback.
-func (o *OIDC) HandleCallback(c echo.Context) error {
+func (o *Auth) HandleCallback(c echo.Context) error {
 	tk, err := o.cfg.Exchange(c.Request().Context(), c.Request().URL.Query().Get("code"))
 	if err != nil {
 		return echo.NewHTTPError(http.StatusUnauthorized, fmt.Sprintf("error exchanging token: %v", err))
@@ -66,32 +89,32 @@ func (o *OIDC) HandleCallback(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusUnauthorized, "`id_token` missing.")
 	}
 
-	idTk, err := o.verifier.Verify(c.Request().Context(), rawIDTk)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusUnauthorized, fmt.Sprintf("error verifying ID token: %v", err))
-	}
+	// idTk, err := o.verifier.Verify(c.Request().Context(), rawIDTk)
+	// if err != nil {
+	// 	return echo.NewHTTPError(http.StatusUnauthorized, fmt.Sprintf("error verifying ID token: %v", err))
+	// }
 
-	nonce, err := c.Cookie("nonce")
-	if err != nil {
-		return echo.NewHTTPError(http.StatusUnauthorized, fmt.Sprintf("nonce cookie not found: %v", err))
-	}
+	// nonce, err := c.Cookie("nonce")
+	// if err != nil {
+	// 	return echo.NewHTTPError(http.StatusUnauthorized, fmt.Sprintf("nonce cookie not found: %v", err))
+	// }
 
-	if idTk.Nonce != nonce.Value {
-		return echo.NewHTTPError(http.StatusUnauthorized, "nonce did not match")
-	}
+	// if idTk.Nonce != nonce.Value {
+	// 	return echo.NewHTTPError(http.StatusUnauthorized, "nonce did not match")
+	// }
 
 	c.SetCookie(&http.Cookie{
 		Name:     "id_token",
 		Value:    rawIDTk,
 		Secure:   true,
-		SameSite: http.SameSiteStrictMode,
+		SameSite: http.SameSiteLaxMode,
 		Path:     "/",
 	})
 
 	return c.Redirect(http.StatusTemporaryRedirect, c.Request().URL.Query().Get("state"))
 }
 
-func (o *OIDC) Middleware(next echo.HandlerFunc) echo.HandlerFunc {
+func (o *Auth) Middleware(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		if o.skipper != nil && o.skipper(c) {
 			return next(c)
@@ -100,8 +123,16 @@ func (o *OIDC) Middleware(next echo.HandlerFunc) echo.HandlerFunc {
 		rawIDTk, err := c.Cookie("id_token")
 		if err == nil {
 			// Verify the token.
-			_, err = o.verifier.Verify(c.Request().Context(), rawIDTk.Value)
+			idTk, err := o.verifier.Verify(c.Request().Context(), rawIDTk.Value)
 			if err == nil {
+				var user User
+				if err := idTk.Claims(&user); err != nil {
+					return echo.NewHTTPError(http.StatusInternalServerError,
+						fmt.Sprintf("error verifying OIDC claim: %v", user))
+				}
+				fmt.Println(user)
+				c.Set(UserKey, user)
+
 				return next(c)
 			}
 		} else if err != http.ErrNoCookie {
@@ -117,7 +148,7 @@ func (o *OIDC) Middleware(next echo.HandlerFunc) echo.HandlerFunc {
 			Name:     "nonce",
 			Value:    nonce,
 			Secure:   true,
-			SameSite: http.SameSiteStrictMode,
+			SameSite: http.SameSiteLaxMode,
 			Path:     "/",
 		})
 		return c.Redirect(http.StatusTemporaryRedirect, o.cfg.AuthCodeURL(c.Request().URL.RequestURI(), oidc.Nonce(nonce)))
