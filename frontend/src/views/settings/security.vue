@@ -2,6 +2,33 @@
   <div class="items">
     <div class="columns">
       <div class="column is-4">
+        <b-field :label="$t('settings.security.enableOIDC')" :message="$t('settings.security.OIDCHelp')">
+          <b-switch v-model="data['security.oidc']['enabled']" name="security.oidc" />
+        </b-field>
+      </div>
+      <div class="column is-8">
+        <b-field :label="$t('settings.security.OIDCURL')" label-position="on-border">
+          <b-input v-model="data['security.oidc']['provider_url']" name="oidc.provider_url"
+            placeholder="https://login.yoursite.com" :disabled="!data['security.oidc']['enabled']" :maxlength="300"
+            required type="url" pattern="https?://.*" />
+        </b-field>
+        <b-field :label="$t('settings.security.OIDCClientID')" label-position="on-border">
+          <b-input v-model="data['security.oidc']['client_id']" name="oidc.client_id"
+            :disabled="!data['security.oidc']['enabled']" :maxlength="200" required />
+        </b-field>
+        <b-field :label="$t('settings.security.OIDCClientSecret')" label-position="on-border">
+          <b-input v-model="data['security.oidc']['client_secret']" name="oidc.client_secret" type="password"
+            :disabled="!data['security.oidc']['enabled']" :maxlength="200" required />
+        </b-field>
+        <p class="is-size-7">
+          <b-icon icon="warning-empty" /> {{ $t('settings.security.OIDCWarning') }}
+        </p>
+      </div>
+    </div>
+
+    <hr />
+    <div class="columns">
+      <div class="column is-4">
         <b-field :label="$t('settings.security.enableCaptcha')" :message="$t('settings.security.enableCaptchaHelp')">
           <b-switch v-model="data['security.enable_captcha']" name="security.captcha" />
         </b-field>
@@ -9,8 +36,8 @@
       <div class="column is-8">
         <b-field :label="$t('settings.security.captchaKey')" label-position="on-border"
           :message="$t('settings.security.captchaKeyHelp')">
-          <b-input v-model="data['security.captcha_key']" name="captcha_key" :disabled="!data['security.enable_captcha']"
-            :maxlength="200" required />
+          <b-input v-model="data['security.captcha_key']" name="captcha_key"
+            :disabled="!data['security.enable_captcha']" :maxlength="200" required />
         </b-field>
         <b-field :label="$t('settings.security.captchaSecret')" label-position="on-border">
           <b-input v-model="data['security.captcha_secret']" name="captcha_secret" type="password"
@@ -18,6 +45,7 @@
         </b-field>
       </div>
     </div>
+  </div>
   </div>
 </template>
 

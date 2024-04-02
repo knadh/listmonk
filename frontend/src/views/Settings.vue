@@ -160,6 +160,12 @@ export default Vue.extend({
         hasDummy = 'captcha';
       }
 
+      if (this.isDummy(form['security.oidc.client_secret'])) {
+        form['security.oidc.client_secret'] = '';
+      } else if (this.hasDummy(form['security.oidc.client_secret'])) {
+        hasDummy = 'oidc';
+      }
+
       if (this.isDummy(form['bounce.postmark'].password)) {
         form['bounce.postmark'].password = '';
       } else if (this.hasDummy(form['bounce.postmark'].password)) {
