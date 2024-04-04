@@ -38,7 +38,7 @@
     "eslint-plugin-import": "^2.23.3",
     "eslint-plugin-vue": "^9.19.2",
     "sass": "^1.34.0",
-    "vite": "^5.0.12",
+    "vite": "^5.0.13",
     "vue-eslint-parser": "^9.3.2",
     "vue-template-compiler": "^2.6.12"
   }
