@@ -124,6 +124,7 @@ type Config struct {
 	MessageURL            string
 	ViewTrackURL          string
 	ArchiveURL            string
+	RootURL	              string
 	UnsubHeader           bool
 
 	// Interval to scan the DB for active campaign checkpoints.
@@ -353,6 +354,9 @@ func (m *Manager) TemplateFuncs(c *models.Campaign) template.FuncMap {
 		"ArchiveURL": func() string {
 			return m.cfg.ArchiveURL
 		},
+		"RootURL": func() string {
+			return m.cfg.RootURL
+		}
 	}
 
 	for k, v := range m.tplFuncs {
