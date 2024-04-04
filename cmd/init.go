@@ -472,6 +472,7 @@ func initCampaignManager(q *models.Queries, cs *constants, app *App) *manager.Ma
 		ViewTrackURL:          cs.ViewTrackURL,
 		MessageURL:            cs.MessageURL,
 		ArchiveURL:            cs.ArchiveURL,
+		RootURL:               cs.RootURL,
 		UnsubHeader:           ko.Bool("privacy.unsubscribe_header"),
 		SlidingWindow:         ko.Bool("app.message_sliding_window"),
 		SlidingWindowDuration: ko.Duration("app.message_sliding_window_duration"),
