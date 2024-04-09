@@ -112,6 +112,7 @@ type Queries struct {
 	UpdateUser  *sqlx.Stmt `query:"update-user"`
 	DeleteUsers *sqlx.Stmt `query:"delete-users"`
 	GetUsers    *sqlx.Stmt `query:"get-users"`
+	LoginUser   *sqlx.Stmt `query:"login-user"`
 }
 
 // CompileSubscriberQueryTpl takes an arbitrary WHERE expressions

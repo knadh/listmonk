@@ -605,8 +605,9 @@
     "users.username": "Username",
     "users.usernameHelp": "Used with password login",
     "users.password": "Password",
+    "users.invalidLogin": "Invalid username or password",
     "users.passwordRepeat": "Repeat password",
-    "users.passwordEnable": "Enable password login",
+    "users.passwordEnable": "Enable logging in with password",
     "users.passwordMismatch": "Passwords don't match",
     "users.cantDelete": "User(s) couldn't be deleted. There has to be at least one 'super' user."
 }

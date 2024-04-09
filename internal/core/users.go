@@ -1,6 +1,7 @@
 package core
 
 import (
+	"database/sql"
 	"net/http"
 
 	"github.com/knadh/listmonk/models"
@@ -85,4 +86,20 @@ func (c *Core) DeleteUsers(ids []int) error {
 	}
 
 	return nil
+}
+
+// LoginUser attempts to log the given user_id in by matching the password.
+func (c *Core) LoginUser(username, password string) (models.User, error) {
+	var out models.User
+	if err := c.q.LoginUser.Get(&out, username, password); err != nil {
+		if err == sql.ErrNoRows {
+			return out, echo.NewHTTPError(http.StatusForbidden,
+				c.i18n.T("users.invalidLogin"))
+		}
+
+		return out, echo.NewHTTPError(http.StatusInternalServerError,
+			c.i18n.Ts("globals.messages.errorFetching", "name", "{globals.terms.users}", "error", pqErrMsg(err)))
+	}
+
+	return out, nil
 }
