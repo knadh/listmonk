@@ -156,3 +156,30 @@ func handleDeleteUsers(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, okResp{true})
 }
+
+// handleLoginUser logs a user in with a username and password.
+func handleLoginUser(c echo.Context) error {
+	var (
+		app = c.Get("app").(*App)
+	)
+
+	u := struct {
+		Username string `json:"username"`
+		Password string `json:"password"`
+	}{}
+
+	if !strHasLen(u.Username, 1, stdInputMaxLen) {
+		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.Ts("globals.messages.invalidFields", "name", "username"))
+	}
+
+	if !strHasLen(u.Password, 8, stdInputMaxLen) {
+		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.Ts("globals.messages.invalidFields", "name", "password"))
+	}
+
+	_, err := app.core.LoginUser(u.Username, u.Password)
+	if err != nil {
+		return err
+	}
+
+	return c.JSON(http.StatusOK, okResp{true})
+}

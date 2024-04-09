@@ -12,6 +12,8 @@ import (
 func V3_1_0(db *sqlx.DB, fs stuffbin.FileSystem, ko *koanf.Koanf, lo *log.Logger) error {
 	if _, err := db.Exec(`
 		DO $$
+		CREATE EXTENSION IF NOT EXISTS pgcrypto;
+
 		BEGIN
 			IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'user_status') THEN
 			CREATE TYPE user_status AS ENUM ('enabled', 'disabled', 'super');
