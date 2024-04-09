@@ -9,6 +9,8 @@ DROP TYPE IF EXISTS bounce_type CASCADE; CREATE TYPE bounce_type AS ENUM ('soft'
 DROP TYPE IF EXISTS template_type CASCADE; CREATE TYPE template_type AS ENUM ('campaign', 'tx');
 DROP TYPE IF EXISTS user_status CASCADE; CREATE TYPE user_status AS ENUM ('enabled', 'disabled', 'super');
 
+CREATE EXTENSION pgcrypto;
+
 -- subscribers
 DROP TABLE IF EXISTS subscribers CASCADE;
 CREATE TABLE subscribers (
