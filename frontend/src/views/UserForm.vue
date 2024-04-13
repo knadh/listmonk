@@ -1,0 +1,169 @@
+<template>
+  <form @submit.prevent="onSubmit">
+    <div class="modal-card content" style="width: auto">
+      <header class="modal-card-head">
+        <p v-if="isEditing" class="has-text-grey-light is-size-7">
+          {{ $t('globals.fields.id') }}: <copy-text :text="`${data.id}`" />
+        </p>
+        <h4 v-if="isEditing">
+          {{ data.name }}
+        </h4>
+        <h4 v-else>
+          {{ $t('users.newUser') }}
+        </h4>
+      </header>
+      <section expanded class="modal-card-body">
+        <div class="columns">
+          <div class="column is-8">
+            <b-field :label="$t('users.username')" label-position="on-border">
+              <b-input :maxlength="200" v-model="form.username" name="username" :ref="'focus'"
+                :placeholder="$t('users.username')" required :message="$t('users.usernameHelp')" autocomplete="off" />
+            </b-field>
+          </div>
+          <div class="column is-4">
+            <b-field :label="$t('globals.fields.status')" label-position="on-border">
+              <b-select v-model="form.status" name="status" required expanded>
+                <option value="enabled">
+                  {{ $t('users.status.enabled') }}
+                </option>
+                <option value="disabled">
+                  {{ $t('users.status.disabled') }}
+                </option>
+                <option value="super">
+                  {{ $t('users.status.super') }}
+                </option>
+              </b-select>
+            </b-field>
+          </div>
+        </div>
+
+        <b-field :label="$t('subscribers.email')" label-position="on-border">
+          <b-input :maxlength="200" v-model="form.email" name="email" :placeholder="$t('subscribers.email')" required />
+        </b-field>
+
+        <b-field :label="$t('globals.fields.name')" label-position="on-border">
+          <b-input :maxlength="200" v-model="form.name" name="name" :placeholder="$t('globals.fields.name')" />
+        </b-field>
+
+        <b-field>
+          <b-checkbox v-model="form.passwordLogin" :native-value="true">
+            {{ $t('users.passwordEnable') }}
+          </b-checkbox>
+        </b-field>
+
+        <div class="columns">
+          <div class="column is-6">
+            <b-field :label="$t('users.password')" label-position="on-border">
+              <b-input :disabled="!form.passwordLogin" minlength="8" :maxlength="200" v-model="form.password"
+                type="password" name="password" :placeholder="$t('users.password')"
+                :required="form.passwordLogin && !isEditing" />
+            </b-field>
+          </div>
+          <div class="column is-6">
+            <b-field :label="$t('users.passwordRepeat')" label-position="on-border">
+              <b-input :disabled="!form.passwordLogin" minlength="8" :maxlength="200" v-model="form.password2"
+                type="password" name="password" :required="form.passwordLogin && !isEditing && form.password" />
+            </b-field>
+          </div>
+        </div>
+      </section>
+      <footer class="modal-card-foot has-text-right">
+        <b-button @click="$parent.close()">
+          {{ $t('globals.buttons.close') }}
+        </b-button>
+        <b-button native-type="submit" type="is-primary" :loading="loading.lists" data-cy="btn-save">
+          {{ $t('globals.buttons.save') }}
+        </b-button>
+      </footer>
+    </div>
+  </form>
+</template>
+
+<script>
+import Vue from 'vue';
+import { mapState } from 'vuex';
+import CopyText from '../components/CopyText.vue';
+
+export default Vue.extend({
+  name: 'UserForm',
+
+  components: {
+    CopyText,
+  },
+
+  props: {
+    data: { type: Object, default: () => ({}) },
+    isEditing: { type: Boolean, default: false },
+  },
+
+  data() {
+    return {
+      // Binds form input values.
+      form: {
+        username: '',
+        email: '',
+        name: '',
+        password: '',
+        passwordLogin: false,
+        status: 'enabled',
+      },
+    };
+  },
+
+  methods: {
+    onSubmit() {
+      if (!this.form.passwordLogin) {
+        this.form.password = null;
+        this.form.password2 = null;
+      }
+
+      if (this.isEditing) {
+        if (this.form.passwordLogin && this.form.password && this.form.password !== this.form.password2) {
+          this.$utils.toast(this.$t('users.passwordMismatch'), 'is-danger');
+          return;
+        }
+
+        this.updateUser();
+        return;
+      }
+
+      if (this.form.passwordLogin && this.form.password !== this.form.password2) {
+        this.$utils.toast(this.$t('users.passwordMismatch'), 'is-danger');
+        return;
+      }
+
+      this.createUser();
+    },
+
+    createUser() {
+      const form = { ...this.form, password_login: this.form.passwordLogin };
+      this.$api.createUser(form).then((data) => {
+        this.$emit('finished');
+        this.$parent.close();
+        this.$utils.toast(this.$t('globals.messages.created', { name: data.name }));
+      });
+    },
+
+    updateUser() {
+      const form = { ...this.form, password_login: this.form.passwordLogin };
+      this.$api.updateUser({ id: this.data.id, ...form }).then((data) => {
+        this.$emit('finished');
+        this.$parent.close();
+        this.$utils.toast(this.$t('globals.messages.updated', { name: data.name }));
+      });
+    },
+  },
+
+  computed: {
+    ...mapState(['loading']),
+  },
+
+  mounted() {
+    this.form = { ...this.form, ...this.$props.data };
+
+    this.$nextTick(() => {
+      this.$refs.focus.focus();
+    });
+  },
+});
+</script>
