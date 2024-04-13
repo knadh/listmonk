@@ -570,7 +570,7 @@ body.is-noscroll {
     border: 1px solid lighten($color, 37%);
     box-shadow: 1px 1px 0 lighten($color, 37%);
   }
-  &.public, &.running, &.list, &.campaign {
+  &.public, &.running, &.list, &.campaign, &.super {
     $color: $primary;
     color: lighten($color, 20%);;
     background: #e6f7ff;
@@ -890,6 +890,14 @@ section.analytics {
     }
   }
 }
+
+/* Users */
+section.users {
+  td .tag {
+    min-width: 100px !important;
+  }
+}
+
 
 /* C3 charting lib */
 .c3 {
