@@ -44,7 +44,7 @@
       </b-table-column>
 
       <b-table-column v-slot="props" field="type" :label="$t('globals.fields.type')" sortable>
-        <router-link :to="{ name: 'bounces', query: { source: props.row.type } }">
+        <router-link :to="{ name: 'bounces', query: { type: props.row.type } }">
           {{ $t(`bounces.${props.row.type}`) }}
         </router-link>
       </b-table-column>
