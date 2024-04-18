@@ -117,7 +117,7 @@
         </a>
         <b-taglist>
           <template v-for="l in props.row.lists">
-            <router-link :to="`/subscribers/lists/${l.id}`" :key="l.id" style="padding-right:0.5em;">
+            <router-link :to="`/subscribers/lists/${l.id}`" :key="l.id" :title="l.description" style="padding-right:0.5em;">
               <b-tag :class="l.subscriptionStatus" size="is-small" :key="l.id">
                 {{ l.name }}
                 <sup v-if="l.optin === 'double' || l.subscriptionStatus == 'unsubscribed'">

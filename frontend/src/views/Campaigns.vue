@@ -89,7 +89,7 @@
       <b-table-column v-slot="props" cell-class="lists" field="lists" :label="$t('globals.terms.lists')" width="15%">
         <ul>
           <li v-for="l in props.row.lists" :key="l.id">
-            <router-link :to="{ name: 'subscribers_list', params: { listID: l.id } }">
+            <router-link :to="{ name: 'subscribers_list', params: { listID: l.id } }" :title="l.description">
               {{ l.name }}
             </router-link>
           </li>

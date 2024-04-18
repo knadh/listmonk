@@ -2,7 +2,7 @@
   <div class="field list-selector">
     <div :class="['list-tags', ...classes]">
       <b-taglist>
-        <b-tag v-for="l in selectedItems" :key="l.id" :class="l.subscriptionStatus" :closable="!$props.disabled"
+        <b-tag v-for="l in selectedItems" :key="l.id" :class="l.subscriptionStatus" :title="l.description" :closable="!$props.disabled"
           :data-id="l.id" @close="removeList(l.id)" class="list">
           {{ l.name }} <sup v-if="l.optin === 'double'">{{ $t(`subscribers.status.${l.subscriptionStatus}`) }}</sup>
         </b-tag>
