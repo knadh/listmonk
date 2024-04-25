@@ -432,7 +432,7 @@
     "settings.mailserver.waitTimeout": "Wait timeout",
     "settings.mailserver.waitTimeoutHelp": "Time to wait for new activity on a connection before closing it and removing it from the pool (s for second, m for minute).",
     "settings.mailserver.addressRegex": "E-mail Address Regex",
-    "settings.mailserver.addressRegexHelp": "When sending a campaign, each subscriber's email will be matched against this regular expression. If there's a match, we will guarantee this SMTP server is used. Useful for sending emails within closed systems.",
+    "settings.mailserver.addressRegexHelp": "When sending a campaign, each subscriber's email will be matched against this regular expression. If there's a match, we will guarantee this SMTP server is used, if there is not a match, we will not use this SMTP server. Useful for sending emails within closed systems.",
     "settings.maintenance.cron": "Cron interval",
     "settings.media.provider": "Provider",
     "settings.media.s3.bucket": "Bucket",

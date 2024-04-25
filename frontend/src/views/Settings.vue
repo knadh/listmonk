@@ -109,8 +109,6 @@ export default Vue.extend({
     onSubmit() {
       const form = JSON.parse(JSON.stringify(this.form));
 
-      console.log(form);
-
       // SMTP boxes.
       let hasDummy = '';
       for (let i = 0; i < form.smtp.length; i += 1) {

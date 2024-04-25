@@ -115,18 +115,27 @@ func (e *Emailer) Push(m models.Message) error {
 		srv *Server
 	)
 
+	choosable_servers := []*Server{}
+
 	for i := 0; i < ln; i++ {
+		if e.address_map[i] == nil {
+			choosable_servers = append(choosable_servers, e.servers[i])
+			continue
+		}
+
 		if e.address_map[i].MatchString(m.Subscriber.Email) {
 			srv = e.servers[i]
 			break
 		}
 	}
 
+	ln = len(choosable_servers)
+
 	if srv == nil {
 		if ln > 1 {
-			srv = e.servers[rand.Intn(ln)]
+			srv = choosable_servers[rand.Intn(ln)]
 		} else {
-			srv = e.servers[0]
+			srv = choosable_servers[0]
 		}
 	}
 
