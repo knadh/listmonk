@@ -71,6 +71,7 @@ type Settings struct {
 		WaitTimeout   string              `json:"wait_timeout"`
 		TLSType       string              `json:"tls_type"`
 		TLSSkipVerify bool                `json:"tls_skip_verify"`
+		AddressRegexp string              `json:"address_regexp"`
 	} `json:"smtp"`
 
 	Messengers []struct {

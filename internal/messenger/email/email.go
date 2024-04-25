@@ -6,6 +6,7 @@ import (
 	"math/rand"
 	"net/smtp"
 	"net/textproto"
+	"regexp"
 
 	"github.com/knadh/listmonk/models"
 	"github.com/knadh/smtppool"
@@ -24,6 +25,7 @@ type Server struct {
 	TLSType       string            `json:"tls_type"`
 	TLSSkipVerify bool              `json:"tls_skip_verify"`
 	EmailHeaders  map[string]string `json:"email_headers"`
+	AddressRegexp string            `json:"address_regexp"`
 
 	// Rest of the options are embedded directly from the smtppool lib.
 	// The JSON tag is for config unmarshal to work.
@@ -34,7 +36,8 @@ type Server struct {
 
 // Emailer is the SMTP e-mail messenger.
 type Emailer struct {
-	servers []*Server
+	servers     []*Server
+	address_map []*regexp.Regexp
 }
 
 // New returns an SMTP e-mail Messenger backend with the given SMTP servers.
@@ -81,6 +84,18 @@ func New(servers ...Server) (*Emailer, error) {
 
 		s.pool = pool
 		e.servers = append(e.servers, &s)
+
+		if len(s.AddressRegexp) > 0 {
+			address_regex, err := regexp.Compile(s.AddressRegexp)
+
+			if err != nil {
+				return nil, err
+			}
+
+			e.address_map = append(e.address_map, address_regex)
+		} else {
+			e.address_map = append(e.address_map, nil)
+		}
 	}
 
 	return e, nil
@@ -99,10 +114,20 @@ func (e *Emailer) Push(m models.Message) error {
 		ln  = len(e.servers)
 		srv *Server
 	)
-	if ln > 1 {
-		srv = e.servers[rand.Intn(ln)]
-	} else {
-		srv = e.servers[0]
+
+	for i := 0; i < ln; i++ {
+		if e.address_map[i].MatchString(m.Subscriber.Email) {
+			srv = e.servers[i]
+			break
+		}
+	}
+
+	if srv == nil {
+		if ln > 1 {
+			srv = e.servers[rand.Intn(ln)]
+		} else {
+			srv = e.servers[0]
+		}
 	}
 
 	// Are there attachments?

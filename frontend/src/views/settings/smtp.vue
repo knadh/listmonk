@@ -142,6 +142,15 @@
 
             <div class="columns">
               <div class="column">
+                <b-field :label="$t('settings.mailserver.addressRegex')" label-position="on-border"
+                  :message="$t('settings.mailserver.addressRegexHelp')">
+                  <b-input v-model="item.address_regexp" name="address_regexp" placeholder="(.*)@domain.com" />
+                </b-field>
+              </div>
+            </div>
+
+            <div class="columns">
+              <div class="column">
                 <p v-if="item.email_headers.length === 0 && !item.showHeaders">
                   <a href="#" @click.prevent="() => showSMTPHeaders(n)">
                     <b-icon icon="plus" />{{ $t('settings.smtp.setCustomHeaders') }}</a>
