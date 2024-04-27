@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"sync"
 
 	"github.com/coreos/go-oidc/v3/oidc"
 	"github.com/labstack/echo/v4"
@@ -48,6 +49,9 @@ type Config struct {
 }
 
 type Auth struct {
+	tokens map[string]struct{}
+	mut    sync.RWMutex
+
 	cfg      oauth2.Config
 	verifier *oidc.IDTokenVerifier
 	skipper  middleware.Skipper
@@ -77,8 +81,26 @@ func New(cfg Config) *Auth {
 	}
 }
 
-// HandleCallback is the HTTP handler that handles the post-OIDC provider redirect callback.
-func (o *Auth) HandleCallback(c echo.Context) error {
+// SetTokens remembers a list of string API tokens that are used for authenticating
+// API queries.
+func (o *Auth) SetTokens(tokens []string) {
+	o.mut.Lock()
+	defer o.mut.Unlock()
+
+	o.tokens = make(map[string]struct{}, len(tokens))
+	for _, t := range tokens {
+		o.tokens[t] = struct{}{}
+	}
+}
+
+// CheckToken validates an API token.
+func (o *Auth) CheckToken(token string) bool {
+	_, ok := o.tokens[token]
+	return ok
+}
+
+// HandleOIDCCallback is the HTTP handler that handles the post-OIDC provider redirect callback.
+func (o *Auth) HandleOIDCCallback(c echo.Context) error {
 	tk, err := o.cfg.Exchange(c.Request().Context(), c.Request().URL.Query().Get("code"))
 	if err != nil {
 		return echo.NewHTTPError(http.StatusUnauthorized, fmt.Sprintf("error exchanging token: %v", err))
