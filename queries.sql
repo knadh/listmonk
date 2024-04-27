@@ -1048,6 +1048,6 @@ SELECT * FROM users WHERE $1=0 OR id=$1 ORDER BY created_at;
 
 -- name: login-user
 WITH u AS (
-    SELECT * FROM users WHERE username=$1 AND status = 'enabled' AND password_login = TRUE
+    SELECT * FROM users WHERE username=$1 AND status != 'disabled' AND password_login = TRUE
 )
 SELECT * FROM u WHERE CRYPT($2, password) = password;

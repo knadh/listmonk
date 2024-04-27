@@ -104,7 +104,7 @@ func initHTTPHandlers(e *echo.Echo, app *App) {
 		}
 
 		// Register the public OIDC redirect callback URI.
-		g.GET(uriOIDC, oi.HandleCallback)
+		g.GET(uriOIDC, oi.HandleOIDCCallback)
 
 		// Attach the OIDC middleware.
 		g.Use(oi.Middleware)
