@@ -447,6 +447,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#helm-chart-for-kubernetes" class="md-nav__link">
+    <span class="md-ellipsis">
+      Helm chart for kubernetes
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#3rd-party-hosting" class="md-nav__link">
     <span class="md-ellipsis">
       3rd party hosting
@@ -1314,6 +1323,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#helm-chart-for-kubernetes" class="md-nav__link">
+    <span class="md-ellipsis">
+      Helm chart for kubernetes
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#3rd-party-hosting" class="md-nav__link">
     <span class="md-ellipsis">
       3rd party hosting
@@ -1468,6 +1486,18 @@ bash<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;</s
 </ol>
 <h2 id="release-candidate-rc">Release candidate (RC)<a class="headerlink" href="#release-candidate-rc" title="Permanent link">&para;</a></h2>
 <p>The <code>master</code> branch with bleeding edge changes is periodically built and published as <code>listmonk/listmonk:rc</code> on DockerHub. To run the latest pre-release version, replace all instances of <code>listmonk/listmonk:latest</code> with <code>listmonk/listmonk:rc</code> in the docker-compose.yml file and follow the Docker installation steps above. While it is generally safe to run release candidate versions, they may have issues that only get resolved in a general release.</p>
+<h2 id="helm-chart-for-kubernetes">Helm chart for kubernetes<a class="headerlink" href="#helm-chart-for-kubernetes" title="Permanent link">&para;</a></h2>
+<p><img alt="Version: 0.1.0" src="https://img.shields.io/badge/Version-0.1.0-informational?style=flat-square" /> <img alt="Type: application" src="https://img.shields.io/badge/Type-application-informational?style=flat-square" /> <img alt="AppVersion: 3.0.0" src="https://img.shields.io/badge/AppVersion-3.0.0-informational?style=flat-square" /></p>
+<p>A helm chart for easily installing listmonk on a kubernetes cluster is made available by community <a href="https://github.com/th0th/helm-charts/tree/main/charts/listmonk">here</a>.</p>
+<p>In order to use the helm chart, you can configure <code>values.yaml</code> according to your needs, and then run the following command:</p>
+<div class="highlight"><pre><span></span><code>$<span class="w"> </span>helm<span class="w"> </span>upgrade<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--create-namespace<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--install<span class="w"> </span>listmonk<span class="w"> </span>listmonk<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--namespace<span class="w"> </span>listmonk<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--repo<span class="w"> </span>https://th0th.github.io/helm-charts<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--values<span class="w"> </span>values.yaml<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--version<span class="w"> </span><span class="m">0</span>.1.0
+</code></pre></div>
 <h2 id="3rd-party-hosting">3rd party hosting<a class="headerlink" href="#3rd-party-hosting" title="Permanent link">&para;</a></h2>
 <p><a href="https://dash.elest.io/deploy?soft=Listmonk&id=237"><img height=33 src=https://github.com/elestio-examples/wordpress/raw/main/deploy-on-elestio.png alt="Deploy on Elestio" style="max-width: 150px;"></a>
 <br />
