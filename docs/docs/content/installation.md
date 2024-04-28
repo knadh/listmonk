@@ -143,6 +143,24 @@ To compile the latest unreleased version (`master` branch):
 
 The `master` branch with bleeding edge changes is periodically built and published as `listmonk/listmonk:rc` on DockerHub. To run the latest pre-release version, replace all instances of `listmonk/listmonk:latest` with `listmonk/listmonk:rc` in the docker-compose.yml file and follow the Docker installation steps above. While it is generally safe to run release candidate versions, they may have issues that only get resolved in a general release.
 
+## Helm chart for kubernetes
+
+![Version: 0.1.0](https://img.shields.io/badge/Version-0.1.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 3.0.0](https://img.shields.io/badge/AppVersion-3.0.0-informational?style=flat-square)
+
+A helm chart for easily installing listmonk on a kubernetes cluster is made available by community [here](https://github.com/th0th/helm-charts/tree/main/charts/listmonk).
+
+In order to use the helm chart, you can configure `values.yaml` according to your needs, and then run the following command:
+
+```shell
+$ helm upgrade \
+    --create-namespace \
+    --install listmonk listmonk \
+    --namespace listmonk \
+    --repo https://th0th.github.io/helm-charts \
+    --values values.yaml \
+    --version 0.1.0
+```
+
 ## 3rd party hosting
 
 <a href="https://dash.elest.io/deploy?soft=Listmonk&id=237"><img height=33 src=https://github.com/elestio-examples/wordpress/raw/main/deploy-on-elestio.png alt="Deploy on Elestio" style="max-width: 150px;"></a>
