@@ -15,8 +15,12 @@ func V3_1_0(db *sqlx.DB, fs stuffbin.FileSystem, ko *koanf.Koanf, lo *log.Logger
 		CREATE EXTENSION IF NOT EXISTS pgcrypto;
 
 		BEGIN
+			IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'user_type') THEN
+			CREATE TYPE user_type AS ENUM ('user', 'super', 'api');
+			END IF;
+
 			IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'user_status') THEN
-			CREATE TYPE user_status AS ENUM ('enabled', 'disabled', 'super');
+			CREATE TYPE user_status AS ENUM ('enabled', 'disabled');
 			END IF;
 		END$$;
 

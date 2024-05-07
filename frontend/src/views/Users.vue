@@ -36,35 +36,37 @@
         </div>
       </template>
 
+      <b-table-column v-slot="props" field="type" :label="$t('users.type')" sortable>
+        <b-tag :class="{ [props.row.type]: props.row.status === 'enabled' }">
+          {{ $t(`users.type.${props.row.type}`) }}
+        </b-tag>
+      </b-table-column>
       <b-table-column v-slot="props" field="username" :label="$t('users.username')" header-class="cy-username" sortable
         :td-attrs="$utils.tdID">
         <a :href="`/users/${props.row.id}`" @click.prevent="showEditForm(props.row)"
           :class="{ 'has-text-grey': props.row.status === 'disabled' }">
           {{ props.row.username }}
+          <div class="has-text-grey is-size-7">{{ props.row.name }}</div>
         </a>
       </b-table-column>
 
       <b-table-column v-slot="props" field="status" :label="$t('globals.fields.status')" header-class="cy-status"
         sortable :td-attrs="$utils.tdID">
-        <b-tag :class="{ 'is-small': true, [props.row.status]: true }">
+        <b-tag :class="{ [props.row.status]: true }">
           {{ $t(`users.status.${props.row.status}`) }}
         </b-tag>
-      </b-table-column>
-      <b-table-column v-slot="props" field="name" :label="$t('globals.fields.name')" header-class="cy-name" sortable
-        :td-attrs="$utils.tdID">
-        <div>
-          <a :href="`/users/${props.row.id}`" @click.prevent="showEditForm(props.row)">
-            {{ props.row.name }}
-          </a>
-        </div>
       </b-table-column>
 
       <b-table-column v-slot="props" field="name" :label="$t('subscribers.email')" header-class="cy-name" sortable
         :td-attrs="$utils.tdID">
         <div>
-          <a :href="`/users/${props.row.id}`" @click.prevent="showEditForm(props.row)">
+          <a v-if="props.row.email" :href="`/users/${props.row.id}`" @click.prevent="showEditForm(props.row)"
+            :class="{ 'has-text-grey': props.row.status === 'disabled' }">
             {{ props.row.email }}
           </a>
+          <template v-else>
+            —
+          </template>
         </div>
       </b-table-column>
 
@@ -118,6 +120,12 @@ import Vue from 'vue';
 import { mapState } from 'vuex';
 import EmptyPlaceholder from '../components/EmptyPlaceholder.vue';
 import UserForm from './UserForm.vue';
+
+const TYPE_ICONS = {
+  user: 'account-outline',
+  super: 'account-check-outline',
+  api: 'link-variant',
+};
 
 export default Vue.extend({
   components: {
@@ -201,6 +209,8 @@ export default Vue.extend({
         },
       );
     },
+
+    getTypeIcon: (typ) => TYPE_ICONS[typ],
   },
 
   computed: {
