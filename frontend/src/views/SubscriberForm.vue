@@ -33,7 +33,8 @@
           <div class="column is-4">
             <b-field :label="$t('globals.fields.status')" label-position="on-border"
               :message="$t('subscribers.blocklistedHelp')">
-              <b-select v-model="form.status" name="status" :placeholder="$t('globals.fields.status')" required expanded>
+              <b-select v-model="form.status" name="status" :placeholder="$t('globals.fields.status')" required
+                expanded>
                 <option value="enabled">
                   {{ $t('subscribers.status.enabled') }}
                 </option>

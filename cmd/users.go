@@ -2,12 +2,19 @@ package main
 
 import (
 	"net/http"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
 
+	"github.com/knadh/listmonk/internal/utils"
 	"github.com/knadh/listmonk/models"
 	"github.com/labstack/echo/v4"
+	"gopkg.in/volatiletech/null.v6"
+)
+
+var (
+	reUsername = regexp.MustCompile("^[a-zA-Z0-9_\\-\\.]+$")
 )
 
 // handleGetUsers retrieves users.
@@ -53,22 +60,33 @@ func handleCreateUser(c echo.Context) error {
 
 	u.Username = strings.TrimSpace(u.Username)
 	u.Name = strings.TrimSpace(u.Name)
-	u.Email = strings.TrimSpace(u.Email)
+	email := strings.TrimSpace(u.Email.String)
+
+	// Validate fields.
+	if !strHasLen(u.Username, 1, stdInputMaxLen) {
+		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.Ts("globals.messages.invalidFields", "name", "username"))
+	}
+	if !reUsername.MatchString(u.Username) {
+		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.Ts("globals.messages.invalidFields", "name", "username"))
+	}
+	if u.Type != models.UserTypeAPI {
+		if !utils.ValidateEmail(email) {
+			return echo.NewHTTPError(http.StatusBadRequest, app.i18n.Ts("globals.messages.invalidFields", "name", "email"))
+		}
+		if u.PasswordLogin {
+			if !strHasLen(u.Password.String, 8, stdInputMaxLen) {
+				return echo.NewHTTPError(http.StatusBadRequest, app.i18n.Ts("globals.messages.invalidFields", "name", "password"))
+			}
+		}
+
+		u.Email = null.String{String: email, Valid: true}
+	}
 
 	if u.Name == "" {
 		u.Name = u.Username
 	}
 
-	if !strHasLen(u.Username, 1, stdInputMaxLen) {
-		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.Ts("globals.messages.invalidFields", "name", "username"))
-	}
-
-	if u.PasswordLogin {
-		if !strHasLen(u.Password.String, 8, stdInputMaxLen) {
-			return echo.NewHTTPError(http.StatusBadRequest, app.i18n.Ts("globals.messages.invalidFields", "name", "password"))
-		}
-	}
-
+	// Create the user in the database.
 	out, err := app.core.CreateUser(u)
 	if err != nil {
 		return err
@@ -97,34 +115,49 @@ func handleUpdateUser(c echo.Context) error {
 	// Validate.
 	u.Username = strings.TrimSpace(u.Username)
 	u.Name = strings.TrimSpace(u.Name)
-	u.Email = strings.TrimSpace(u.Email)
+	email := strings.TrimSpace(u.Email.String)
 
-	if u.Name == "" {
-		u.Name = u.Username
-	}
-
+	// Validate fields.
 	if !strHasLen(u.Username, 1, stdInputMaxLen) {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.Ts("globals.messages.invalidFields", "name", "username"))
 	}
+	if !reUsername.MatchString(u.Username) {
+		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.Ts("globals.messages.invalidFields", "name", "username"))
+	}
 
-	if u.PasswordLogin {
-		if u.Password.String != "" {
+	if u.Type != models.UserTypeAPI {
+		if !utils.ValidateEmail(email) {
+			return echo.NewHTTPError(http.StatusBadRequest, app.i18n.Ts("globals.messages.invalidFields", "name", "email"))
+		}
+		if u.PasswordLogin && u.Password.String != "" {
 			if !strHasLen(u.Password.String, 8, stdInputMaxLen) {
 				return echo.NewHTTPError(http.StatusBadRequest, app.i18n.Ts("globals.messages.invalidFields", "name", "password"))
 			}
-		} else {
-			// Get the existing user for password validation.
-			user, err := app.core.GetUser(id)
-			if err != nil {
-				return err
-			}
 
-			// If password login is enabled, but there's no password in the DB and there's no incoming
-			// password, throw an error.
-			if !user.HasPassword {
-				return echo.NewHTTPError(http.StatusBadRequest, app.i18n.Ts("globals.messages.invalidFields", "name", "password"))
+			if u.Password.String != "" {
+				if !strHasLen(u.Password.String, 8, stdInputMaxLen) {
+					return echo.NewHTTPError(http.StatusBadRequest, app.i18n.Ts("globals.messages.invalidFields", "name", "password"))
+				}
+			} else {
+				// Get the existing user for password validation.
+				user, err := app.core.GetUser(id)
+				if err != nil {
+					return err
+				}
+
+				// If password login is enabled, but there's no password in the DB and there's no incoming
+				// password, throw an error.
+				if !user.HasPassword {
+					return echo.NewHTTPError(http.StatusBadRequest, app.i18n.Ts("globals.messages.invalidFields", "name", "password"))
+				}
 			}
 		}
+
+		u.Email = null.String{String: email, Valid: true}
+	}
+
+	if u.Name == "" {
+		u.Name = u.Username
 	}
 
 	out, err := app.core.UpdateUser(id, u)

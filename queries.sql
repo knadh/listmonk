@@ -1025,7 +1025,18 @@ SELECT JSON_BUILD_OBJECT('version', (SELECT VERSION()),
                         'size_mb', (SELECT ROUND(pg_database_size((SELECT CURRENT_DATABASE()))/(1024^2)))) AS info;
 
 -- name: create-user
-INSERT INTO users (username, password_login, password, email, name, status) VALUES($1, $2, (CASE WHEN $2 AND $3 != '' THEN CRYPT($3, GEN_SALT('bf')) ELSE NULL END), $4, $5, $6) RETURNING *;
+INSERT INTO users (username, password_login, password, email, name, type, status)
+    VALUES($1, $2, (
+        CASE
+            -- For user types with password_login enabled, bcrypt and store the hash of the password.
+            WHEN $6::user_type != 'api' AND $2 AND $3 != ''
+                THEN CRYPT($3, GEN_SALT('bf'))
+            WHEN $6 = 'api'
+            -- For APIs, store the password (token) as-is.
+                THEN $3
+            ELSE NULL
+        END
+    ), $4, $5, $6, $7) RETURNING *;
 
 -- name: update-user
 UPDATE users SET
@@ -1034,17 +1045,21 @@ UPDATE users SET
     password=(CASE WHEN $3 = TRUE THEN (CASE WHEN $4 != '' THEN CRYPT($4, GEN_SALT('bf')) ELSE password END) ELSE NULL END),
     email=(CASE WHEN $5 != '' THEN $5 ELSE email END),
     name=(CASE WHEN $6 != '' THEN $6 ELSE name END),
-    status=(CASE WHEN $7 != '' THEN $7::user_status ELSE status END)
+    type=(CASE WHEN $7 != '' THEN $7::user_type ELSE type END),
+    status=(CASE WHEN $8 != '' THEN $8::user_status ELSE status END)
     WHERE id=$1;
 
 -- name: delete-users
 WITH u AS (
-    SELECT COUNT(*) AS num FROM users WHERE NOT(id = ANY($1)) AND status='super'
+    SELECT COUNT(*) AS num FROM users WHERE NOT(id = ANY($1)) AND type='super'
 )
 DELETE FROM users WHERE id = ALL($1) AND (SELECT num FROM u) > 0;
 
 -- name: get-users
 SELECT * FROM users WHERE $1=0 OR id=$1 ORDER BY created_at;
+
+-- name: get-api-tokens
+SELECT username, password FROM users WHERE status='enabled' AND type='api';
 
 -- name: login-user
 WITH u AS (
