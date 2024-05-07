@@ -56,8 +56,9 @@ const (
 	ListOptinDouble = "double"
 
 	// User.
-	UserTypeSuperadmin = "superadmin"
+	UserTypeSuperadmin = "super"
 	UserTypeUser       = "user"
+	UserTypeAPI        = "api"
 	UserStatusEnabled  = "enabled"
 	UserStatusDisabled = "disabled"
 
@@ -151,8 +152,9 @@ type User struct {
 	Username      string      `db:"username" json:"username"`
 	Password      null.String `db:"password" json:"password,omitempty"`
 	PasswordLogin bool        `db:"password_login" json:"password_login"`
-	Email         string      `db:"email" json:"email"`
+	Email         null.String `db:"email" json:"email"`
 	Name          string      `db:"name" json:"name"`
+	Type          string      `db:"type" json:"type"`
 	Status        string      `db:"status" json:"status"`
 	LoggedInAt    null.Time   `db:"loggedin_at" json:"loggedin_at"`
 

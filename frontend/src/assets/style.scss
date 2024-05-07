@@ -563,21 +563,21 @@ body.is-noscroll {
     color: $grey;
   }
 
-  &.private, &.scheduled, &.paused, &.tx {
+  &.private, &.scheduled, &.paused, &.tx, &.api {
     $color: #ed7b00;
     color: $color;
     background: #fff7e6;
     border: 1px solid lighten($color, 37%);
     box-shadow: 1px 1px 0 lighten($color, 37%);
   }
-  &.public, &.running, &.list, &.campaign, &.super {
+  &.public, &.running, &.list, &.campaign, &.user {
     $color: $primary;
     color: lighten($color, 20%);;
     background: #e6f7ff;
     border: 1px solid lighten($color, 42%);
     box-shadow: 1px 1px 0 lighten($color, 42%);
   }
-  &.finished, &.enabled, &.status-confirmed {
+  &.finished, &.enabled, &.status-confirmed, &.super {
     $color: $green;
     color: $color;
     background: #f6ffed;
@@ -896,6 +896,15 @@ section.users {
   td .tag {
     min-width: 100px !important;
   }
+}
+.user-api-token .copy-text {
+  background: rgba($green, .1);
+  display: block;
+  width: 100%;
+  border-radius: 3px;
+  padding: 15px;
+  font-size: 1.2rem;
+  color: $green;
 }
 
 

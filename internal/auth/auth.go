@@ -3,6 +3,7 @@ package auth
 import (
 	"context"
 	"crypto/rand"
+	"crypto/subtle"
 	"encoding/base64"
 	"fmt"
 	"io"
@@ -49,8 +50,8 @@ type Config struct {
 }
 
 type Auth struct {
-	tokens map[string]struct{}
-	mut    sync.RWMutex
+	tokens map[string][]byte
+	sync.RWMutex
 
 	cfg      oauth2.Config
 	verifier *oidc.IDTokenVerifier
@@ -81,22 +82,25 @@ func New(cfg Config) *Auth {
 	}
 }
 
-// SetTokens remembers a list of string API tokens that are used for authenticating
-// API queries.
-func (o *Auth) SetTokens(tokens []string) {
-	o.mut.Lock()
-	defer o.mut.Unlock()
+// SetTokens caches tokens for authenticating API client calls.
+func (o *Auth) SetAPITokens(tokens map[string][]byte) {
+	o.Lock()
+	defer o.Unlock()
 
-	o.tokens = make(map[string]struct{}, len(tokens))
-	for _, t := range tokens {
-		o.tokens[t] = struct{}{}
+	o.tokens = make(map[string][]byte, len(tokens))
+	for user, token := range tokens {
+		o.tokens[user] = []byte{}
+		copy(o.tokens[user], token)
 	}
 }
 
-// CheckToken validates an API token.
-func (o *Auth) CheckToken(token string) bool {
-	_, ok := o.tokens[token]
-	return ok
+// CheckAPIToken validates an API user+token.
+func (o *Auth) CheckAPIToken(user string, token []byte) bool {
+	o.RLock()
+	t, ok := o.tokens[user]
+	o.RUnlock()
+
+	return ok && subtle.ConstantTimeCompare(t, token) == 1
 }
 
 // HandleOIDCCallback is the HTTP handler that handles the post-OIDC provider redirect callback.

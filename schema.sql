@@ -7,9 +7,10 @@ DROP TYPE IF EXISTS campaign_type CASCADE; CREATE TYPE campaign_type AS ENUM ('r
 DROP TYPE IF EXISTS content_type CASCADE; CREATE TYPE content_type AS ENUM ('richtext', 'html', 'plain', 'markdown');
 DROP TYPE IF EXISTS bounce_type CASCADE; CREATE TYPE bounce_type AS ENUM ('soft', 'hard', 'complaint');
 DROP TYPE IF EXISTS template_type CASCADE; CREATE TYPE template_type AS ENUM ('campaign', 'tx');
-DROP TYPE IF EXISTS user_status CASCADE; CREATE TYPE user_status AS ENUM ('enabled', 'disabled', 'super');
+DROP TYPE IF EXISTS user_type CASCADE; CREATE TYPE user_type AS ENUM ('user', 'super', 'api');
+DROP TYPE IF EXISTS user_status CASCADE; CREATE TYPE user_status AS ENUM ('enabled', 'disabled');
 
-CREATE EXTENSION pgcrypto;
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
 
 -- subscribers
 DROP TABLE IF EXISTS subscribers CASCADE;
@@ -308,6 +309,7 @@ CREATE TABLE users (
     password         TEXT NULL,
     email            TEXT NOT NULL UNIQUE,
     name             TEXT NOT NULL,
+    type             user_type NOT NULL DEFAULT 'user',
     status           user_status NOT NULL DEFAULT 'disabled',
     loggedin_at      TIMESTAMP WITH TIME ZONE NULL,
     created_at       TIMESTAMP WITH TIME ZONE DEFAULT NOW(),

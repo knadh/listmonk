@@ -4,9 +4,11 @@ import (
 	"database/sql"
 	"net/http"
 
+	"github.com/knadh/listmonk/internal/utils"
 	"github.com/knadh/listmonk/models"
 	"github.com/labstack/echo/v4"
 	"github.com/lib/pq"
+	"gopkg.in/volatiletech/null.v6"
 )
 
 // GetUsers retrieves all users.
@@ -21,9 +23,13 @@ func (c *Core) GetUsers() ([]models.User, error) {
 		if u.Password.String != "" {
 			u.HasPassword = true
 			u.PasswordLogin = true
-			u.Password.String = ""
-			u.Password.Valid = false
+			u.Password = null.String{}
+
 			out[n] = u
+		}
+
+		if u.Type == models.UserTypeAPI {
+			out[n].Email = null.String{}
 		}
 	}
 
@@ -50,9 +56,30 @@ func (c *Core) GetUser(id int) (models.User, error) {
 // CreateUser creates a new user.
 func (c *Core) CreateUser(u models.User) (models.User, error) {
 	var out models.User
-	if err := c.q.CreateUser.Get(&out, u.Username, u.PasswordLogin, u.Password, u.Email, u.Name, u.Status); err != nil {
+
+	// If it's an API user, generate a random token for password
+	// and set the e-mail to default.
+	if u.Type == models.UserTypeAPI {
+		// Generate a random admin password.
+		tk, err := utils.GenerateRandomString(32)
+		if err != nil {
+			return out, err
+		}
+
+		u.Email = null.String{String: u.Username + "@api", Valid: true}
+		u.PasswordLogin = false
+		u.Password = null.String{String: tk, Valid: true}
+	}
+
+	if err := c.q.CreateUser.Get(&out, u.Username, u.PasswordLogin, u.Password, u.Email, u.Name, u.Type, u.Status); err != nil {
 		return models.User{}, echo.NewHTTPError(http.StatusInternalServerError,
 			c.i18n.Ts("globals.messages.errorCreating", "name", "{globals.terms.user}", "error", pqErrMsg(err)))
+	}
+
+	// Hide the password field in the response except for when the user type is an API token,
+	// where the frontend shows the token on the UI just once.
+	if u.Type != models.UserTypeAPI {
+		u.Password = null.String{Valid: false}
 	}
 
 	return out, nil
@@ -60,7 +87,7 @@ func (c *Core) CreateUser(u models.User) (models.User, error) {
 
 // UpdateUser updates a given user.
 func (c *Core) UpdateUser(id int, u models.User) (models.User, error) {
-	res, err := c.q.UpdateUser.Exec(id, u.Username, u.PasswordLogin, u.Password, u.Email, u.Name, u.Status)
+	res, err := c.q.UpdateUser.Exec(id, u.Username, u.PasswordLogin, u.Password, u.Email, u.Name, u.Type, u.Status)
 	if err != nil {
 		return models.User{}, echo.NewHTTPError(http.StatusInternalServerError,
 			c.i18n.Ts("globals.messages.errorUpdating", "name", "{globals.terms.user}", "error", pqErrMsg(err)))
