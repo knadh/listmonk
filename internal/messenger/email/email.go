@@ -6,6 +6,7 @@ import (
 	"math/rand"
 	"net/smtp"
 	"net/textproto"
+	"strings"
 
 	"github.com/knadh/listmonk/models"
 	"github.com/knadh/smtppool"
@@ -14,6 +15,8 @@ import (
 const (
 	emName        = "email"
 	hdrReturnPath = "Return-Path"
+	hdrBcc        = "Bcc"
+	hdrCc         = "Cc"
 )
 
 // Server represents an SMTP server's credentials.
@@ -145,6 +148,22 @@ func (e *Emailer) Push(m models.Message) error {
 		em.Sender = sender
 		em.Headers.Del(hdrReturnPath)
 	}
+
+	// If the `Bcc` header is set, it should be set on the Envelope
+	if bcc := em.Headers.Get(hdrBcc); bcc != "" {
+		for _, part := range strings.Split(bcc, ",") {
+			em.Bcc = append(em.Bcc, strings.TrimSpace(part))
+		}
+		em.Headers.Del(hdrBcc)
+	}	
+
+	// If the `Cc` header is set, it should be set on the Envelope
+	if cc := em.Headers.Get(hdrCc); cc != "" {
+		for _, part := range strings.Split(cc, ",") {
+			em.Cc = append(em.Cc, strings.TrimSpace(part))
+		}
+		em.Headers.Del(hdrCc)
+	}	
 
 	switch m.ContentType {
 	case "plain":
