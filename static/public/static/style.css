@@ -34,7 +34,7 @@ h4 {
   margin-bottom: 45px;
 }
 
-input[type="text"], input[type="email"], select {
+input[type="text"], input[type="email"], input[type="password"], select {
   padding: 10px 15px;
   border: 1px solid #888;
   border-radius: 3px;
@@ -60,6 +60,9 @@ input[disabled] {
 }
 .right {
   text-align: right;
+}
+.error {
+  color: #FF5722;
 }
 .button {
   background: #0055d4;

@@ -23,7 +23,7 @@ func (c *Core) GetUsers() ([]models.User, error) {
 		if u.Password.String != "" {
 			u.HasPassword = true
 			u.PasswordLogin = true
-			u.Password = null.String{}
+			// u.Password = null.String{}
 
 			out[n] = u
 		}
@@ -36,18 +36,16 @@ func (c *Core) GetUsers() ([]models.User, error) {
 	return out, nil
 }
 
-// GetUser retrieves a specific user.
-func (c *Core) GetUser(id int) (models.User, error) {
+// GetUser retrieves a specific user based on any one given identifier.
+func (c *Core) GetUser(id int, username, email string) (models.User, error) {
 	var out models.User
-	if err := c.q.GetUsers.Get(&out, id); err != nil {
+	if err := c.q.GetUser.Get(&out, id, username, email); err != nil {
 		return out, echo.NewHTTPError(http.StatusInternalServerError,
 			c.i18n.Ts("globals.messages.errorFetching", "name", "{globals.terms.users}", "error", pqErrMsg(err)))
 	}
 	if out.Password.String != "" {
 		out.HasPassword = true
 		out.PasswordLogin = true
-		out.Password.String = ""
-		out.Password.Valid = false
 	}
 
 	return out, nil
@@ -98,7 +96,7 @@ func (c *Core) UpdateUser(id int, u models.User) (models.User, error) {
 			c.i18n.Ts("globals.messages.notFound", "name", "{globals.terms.user}"))
 	}
 
-	return c.GetUser(id)
+	return c.GetUser(id, "", "")
 }
 
 // DeleteUsers deletes a given user.

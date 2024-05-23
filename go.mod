@@ -30,6 +30,9 @@ require (
 	github.com/paulbellamy/ratecounter v0.2.0
 	github.com/rhnvrm/simples3 v0.8.3
 	github.com/spf13/pflag v1.0.5
+	github.com/vividvilla/simplesessions v0.2.0
+	github.com/vividvilla/simplesessions/stores/postgres v1.3.0
+	github.com/vividvilla/simplesessions/v2 v2.0.1
 	github.com/yuin/goldmark v1.6.0
 	github.com/zerodha/easyjson v1.0.0
 	golang.org/x/mod v0.17.0
@@ -72,3 +75,5 @@ require (
 )
 
 replace github.com/imdario/mergo => github.com/imdario/mergo v0.3.8
+
+replace github.com/vividvilla/simplesessions/v2 => /home/kailash/code/go/my/github.com/simplesessions

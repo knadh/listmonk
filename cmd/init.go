@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"crypto/md5"
+	"database/sql"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -28,6 +29,7 @@ import (
 	"github.com/knadh/koanf/providers/file"
 	"github.com/knadh/koanf/providers/posflag"
 	"github.com/knadh/koanf/v2"
+	"github.com/knadh/listmonk/internal/auth"
 	"github.com/knadh/listmonk/internal/bounce"
 	"github.com/knadh/listmonk/internal/bounce/mailbox"
 	"github.com/knadh/listmonk/internal/captcha"
@@ -904,4 +906,49 @@ func initTplFuncs(i *i18n.I18n, cs *constants) template.FuncMap {
 	}
 
 	return funcs
+}
+
+func initAuth(db *sql.DB, ko *koanf.Koanf, co *core.Core) *auth.Auth {
+	var oidcCfg auth.OIDCConfig
+
+	if ko.Bool("security.oidc.enabled") {
+		oidcCfg = auth.OIDCConfig{
+			ProviderURL:  ko.String("security.oidc.provider_url"),
+			ClientID:     ko.String("security.oidc.client_id"),
+			ClientSecret: ko.String("security.oidc.client_secret"),
+			RedirectURL:  ko.String("security.oidc.redirect_url"),
+			Skipper: func(c echo.Context) bool {
+				// Skip OIDC check if the request is already BasicAuth'd.
+				// This context flag is set in basicAuth().
+				return c.Get(basicAuthd) != nil
+			},
+		}
+	}
+
+	// Session manager callbacks for getting and setting cookies.
+	cb := &auth.Callbacks{
+		GetCookie: func(name string, r interface{}) (*http.Cookie, error) {
+			c := r.(echo.Context)
+			cookie, err := c.Cookie(name)
+			return cookie, err
+		},
+		SetCookie: func(cookie *http.Cookie, w interface{}) error {
+			c := w.(echo.Context)
+			c.SetCookie(cookie)
+			return nil
+		},
+		GetUser: func(id int) (models.User, error) {
+			return co.GetUser(id, "", "")
+		},
+	}
+
+	a, err := auth.New(auth.Config{
+		OIDC:     oidcCfg,
+		LoginURL: path.Join(uriAdmin, "/login"),
+	}, db, cb, lo)
+	if err != nil {
+		lo.Fatalf("error initializing auth: %v", err)
+	}
+
+	return a
 }

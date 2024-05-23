@@ -316,6 +316,14 @@ CREATE TABLE users (
     updated_at       TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
+-- user sessions
+CREATE TABLE sessions (
+    id TEXT NOT NULL PRIMARY KEY,
+    data jsonb DEFAULT '{}'::jsonb NOT NULL,
+    created_at timestamp without time zone DEFAULT now() NOT NULL
+);
+CREATE INDEX idx_sessions ON sessions (id, created_at);
+
 -- materialized views
 
 -- dashboard stats
