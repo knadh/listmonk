@@ -4,12 +4,9 @@ import (
 	"bytes"
 	"crypto/subtle"
 	"net/http"
-	"net/url"
 	"path"
 	"regexp"
-	"strings"
 
-	"github.com/knadh/listmonk/internal/auth"
 	"github.com/knadh/paginator"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -56,61 +53,11 @@ var (
 
 // registerHandlers registers HTTP handlers.
 func initHTTPHandlers(e *echo.Echo, app *App) {
-	// Group for private handlers. Based on the config, BasicAuth|OIDC
-	// or no auth at all are applied.
-	g := e.Group("")
-
-	const uriOIDC = "/auth/oidc"
-	hasBasicAuth := len(app.constants.AdminUsername) > 0 && len(app.constants.AdminPassword) > 0
-
-	if app.constants.Security.OIDC.Enabled {
-		cbURL, err := url.JoinPath(app.constants.RootURL, uriOIDC)
-		if err != nil {
-			lo.Fatalf("error preparing OIDC callback URL: %v", err)
-		}
-
-		oi := auth.New(auth.Config{
-			OIDC: auth.OIDCConfig{
-				ProviderURL:  app.constants.Security.OIDC.Provider,
-				ClientID:     app.constants.Security.OIDC.ClientID,
-				ClientSecret: app.constants.Security.OIDC.ClientSecret,
-				RedirectURL:  cbURL,
-				Skipper: func(c echo.Context) bool {
-					// Skip OIDC check if the request is already BasicAuth'd.
-					// This context flag is set in basicAuth().
-					return c.Get(basicAuthd) != nil
-				},
-			},
-		})
-
-		// BasicAuth is also enabled.
-		if hasBasicAuth {
-			baCfg := middleware.BasicAuthConfig{
-				Skipper: func(c echo.Context) bool {
-					// If BasicAuth is also enabled, add a skipper that checks
-					// if the incoming Authorization header is set but is not BasicAuth.
-					h := c.Request().Header.Get(echo.HeaderAuthorization)
-
-					if len(h) > 10 && !strings.HasPrefix(h, "Basic") {
-						return true
-					}
-					return false
-				},
-				Validator: basicAuth,
-			}
-
-			// Attach the BasicAuth middleware.
-			g.Use(middleware.BasicAuthWithConfig(baCfg))
-		}
-
-		// Register the public OIDC redirect callback URI.
-		g.GET(uriOIDC, oi.HandleOIDCCallback)
-
-		// Attach the OIDC middleware.
-		g.Use(oi.Middleware)
-	} else if hasBasicAuth {
-		g.Use(middleware.BasicAuth(basicAuth))
-	}
+	var (
+		// Group for private handlers. Based on the config, BasicAuth|OIDC
+		// or no auth at all are applied.
+		g = e.Group("", app.auth.Middleware)
+	)
 
 	e.HTTPErrorHandler = func(err error, c echo.Context) {
 		// Generic, non-echo error. Log it.
@@ -120,16 +67,26 @@ func initHTTPHandlers(e *echo.Echo, app *App) {
 		e.DefaultHTTPErrorHandler(err, c)
 	}
 
-	// Admin JS app views.
-	// /admin/static/* file server is registered in initHTTPServer().
+	// Landing page.
 	e.GET("/", func(c echo.Context) error {
 		return c.Render(http.StatusOK, "home", publicTpl{Title: "listmonk"})
 	})
 
+	// /admin/login* endpoints (unauthenticated).
+	e.GET(path.Join(uriAdmin, "/login"), handleLoginPage)
+	e.POST(path.Join(uriAdmin, "/login"), handleLoginPage)
+
 	g.GET(path.Join(uriAdmin, ""), handleAdminPage)
 	g.GET(path.Join(uriAdmin, "/custom.css"), serveCustomApperance("admin.custom_css"))
 	g.GET(path.Join(uriAdmin, "/custom.js"), serveCustomApperance("admin.custom_js"))
+	g.POST(path.Join(uriAdmin, "/logout"), handleLogoutPage)
 	g.GET(path.Join(uriAdmin, "/*"), handleAdminPage)
+
+	// Auth endpoints.
+	if app.constants.Security.OIDC.Enabled {
+		g.POST("/auth/oidc/login", handleOIDCLogin)
+		g.GET("/auth/oidc/finish", handleOIDCFinish)
+	}
 
 	// API endpoints.
 	g.GET("/api/health", handleHealthCheck)

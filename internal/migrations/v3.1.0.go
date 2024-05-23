@@ -36,6 +36,13 @@ func V3_1_0(db *sqlx.DB, fs stuffbin.FileSystem, ko *koanf.Koanf, lo *log.Logger
 		    created_at       TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
 		    updated_at       TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 		);
+
+		CREATE TABLE sessions IF NOT EXISTS sessions (
+		    id TEXT NOT NULL PRIMARY KEY,
+		    data jsonb DEFAULT '{}'::jsonb NOT NULL,
+		    created_at timestamp without time zone DEFAULT now() NOT NULL
+		);
+		CREATE INDEX IF NOT EXISTS idx_sessions ON sessions (id, created_at);
 	`); err != nil {
 		return err
 	}

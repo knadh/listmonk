@@ -5,7 +5,6 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/knadh/listmonk/internal/utils"
 	"github.com/knadh/listmonk/models"
@@ -31,10 +30,13 @@ func handleGetUsers(c echo.Context) error {
 	}
 
 	if single {
-		out, err := app.core.GetUser(userID)
+		out, err := app.core.GetUser(userID, "", "")
 		if err != nil {
 			return err
 		}
+
+		out.Password = null.String{}
+
 		return c.JSON(http.StatusOK, okResp{out})
 	}
 
@@ -42,6 +44,10 @@ func handleGetUsers(c echo.Context) error {
 	out, err := app.core.GetUsers()
 	if err != nil {
 		return err
+	}
+
+	for n := range out {
+		out[n].Password = null.String{}
 	}
 
 	return c.JSON(http.StatusOK, okResp{out})
@@ -63,7 +69,7 @@ func handleCreateUser(c echo.Context) error {
 	email := strings.TrimSpace(u.Email.String)
 
 	// Validate fields.
-	if !strHasLen(u.Username, 1, stdInputMaxLen) {
+	if !strHasLen(u.Username, 3, stdInputMaxLen) {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.Ts("globals.messages.invalidFields", "name", "username"))
 	}
 	if !reUsername.MatchString(u.Username) {
@@ -91,6 +97,7 @@ func handleCreateUser(c echo.Context) error {
 	if err != nil {
 		return err
 	}
+	out.Password = null.String{}
 
 	return c.JSON(http.StatusOK, okResp{out})
 }
@@ -118,7 +125,7 @@ func handleUpdateUser(c echo.Context) error {
 	email := strings.TrimSpace(u.Email.String)
 
 	// Validate fields.
-	if !strHasLen(u.Username, 1, stdInputMaxLen) {
+	if !strHasLen(u.Username, 3, stdInputMaxLen) {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.Ts("globals.messages.invalidFields", "name", "username"))
 	}
 	if !reUsername.MatchString(u.Username) {
@@ -140,7 +147,7 @@ func handleUpdateUser(c echo.Context) error {
 				}
 			} else {
 				// Get the existing user for password validation.
-				user, err := app.core.GetUser(id)
+				user, err := app.core.GetUser(id, "", "")
 				if err != nil {
 					return err
 				}
@@ -164,6 +171,7 @@ func handleUpdateUser(c echo.Context) error {
 	if err != nil {
 		return err
 	}
+	out.Password = null.String{}
 
 	return c.JSON(http.StatusOK, okResp{out})
 }
@@ -186,44 +194,6 @@ func handleDeleteUsers(c echo.Context) error {
 
 	if err := app.core.DeleteUsers(ids); err != nil {
 		return err
-	}
-
-	return c.JSON(http.StatusOK, okResp{true})
-}
-
-// handleLoginUser logs a user in with a username and password.
-func handleLoginUser(c echo.Context) error {
-	var (
-		app = c.Get("app").(*App)
-	)
-
-	u := struct {
-		Username string `json:"username"`
-		Password string `json:"password"`
-	}{}
-
-	if !strHasLen(u.Username, 1, stdInputMaxLen) {
-		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.Ts("globals.messages.invalidFields", "name", "username"))
-	}
-
-	if !strHasLen(u.Password, 8, stdInputMaxLen) {
-		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.Ts("globals.messages.invalidFields", "name", "password"))
-	}
-
-	start := time.Now()
-
-	_, err := app.core.LoginUser(u.Username, u.Password)
-	if err != nil {
-		return err
-	}
-
-	// While realistically the app will only have a tiny fraction of users and get operations
-	// on the user table will be instantatneous for IDs that exist or not, always respond after
-	// a minimum wait of 100ms (which is again, realistically, an order of magnitude or two more
-	// than what it wouldt take to complete the op) to simulate constant-time-comparison to address
-	// any possible timing attacks.
-	if ms := time.Now().Sub(start).Milliseconds(); ms < 100 {
-		time.Sleep(time.Duration(ms))
 	}
 
 	return c.JSON(http.StatusOK, okResp{true})

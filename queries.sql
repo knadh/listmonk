@@ -1055,6 +1055,16 @@ WITH u AS (
 )
 DELETE FROM users WHERE id = ALL($1) AND (SELECT num FROM u) > 0;
 
+-- name: get-user
+SELECT * FROM users WHERE
+    (
+        CASE
+            WHEN $1::INT != 0 THEN id = $1
+            WHEN $2::TEXT != '' THEN username = $2
+            WHEN $3::TEXT != '' THEN email = $3
+        END
+    ) AND status='enabled';
+
 -- name: get-users
 SELECT * FROM users WHERE $1=0 OR id=$1 ORDER BY created_at;
 

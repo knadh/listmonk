@@ -46,6 +46,7 @@ require (
 	github.com/golang-jwt/jwt v3.2.2+incompatible // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/google/uuid v1.3.0 // indirect
+	github.com/gorilla/securecookie v1.1.2 // indirect
 	github.com/huandu/xstrings v1.4.0 // indirect
 	github.com/imdario/mergo v0.3.14 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
@@ -61,6 +62,11 @@ require (
 	github.com/spf13/cast v1.5.0 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasttemplate v1.2.2 // indirect
+	github.com/vividvilla/simplesessions v0.2.0 // indirect
+	github.com/vividvilla/simplesessions/stores/postgres v1.3.0 // indirect
+	github.com/vividvilla/simplesessions/stores/securecookie v0.0.0-20210922122219-03358c1a8b2d // indirect
+	github.com/vividvilla/simplesessions/stores/securecookie/v2 v2.0.0 // indirect
+	github.com/vividvilla/simplesessions/v2 v2.0.1 // indirect
 	golang.org/x/crypto v0.18.0 // indirect
 	golang.org/x/image v0.10.0 // indirect
 	golang.org/x/net v0.20.0 // indirect
@@ -72,3 +78,4 @@ require (
 )
 
 replace github.com/imdario/mergo => github.com/imdario/mergo v0.3.8
+replace github.com/vividvilla/simplesessions/v2 => /home/kailash/code/go/my/github.com/simplesessions

@@ -1,0 +1,39 @@
+{{ define "admin-login" }}
+{{ template "header" .}}
+
+<section>
+	<h2>{{ .L.T "users.login"}}</h2>
+	{{ if .Data.PasswordEnabled }}
+	<form method="post" action="" class="form">
+		<div>
+			<input type="hidden" name="nonce" value="{{ .Data.Nonce }}" />
+			<input type="hidden" name="next" value="{{ .Data.NextURI }}" />
+			<p>
+				<label for="username">{{ .L.T "users.username" }}</label>
+				<input id="username" type="text" name="username" autofocus required minlength="3" />
+			</p>
+			<p>
+				<label for="password">{{ .L.T "users.password" }}</label>
+				<input id="password" type="password" name="password" required minlength="8" />
+			</p>
+
+			{{ if .Data.Error }}<p><span class="error">{{ .Data.Error }}</span></p>{{ end }}
+
+			<p><button class="button" type="submit">{{ .L.T "users.login" }}</button></p>
+		</div>
+	</form>
+	{{ end }}
+
+	{{ if .Data.OIDCEnabled }}
+	<form method="post" action="/oidc/login">
+		<div>
+			<input type="hidden" name="nonce" value="{{ .Data.Nonce }}" />
+			<p><button type="submit">{{ .L.T "users.loginOIDC" }}</button></p>
+		</div>
+	</form>
+	{{ end }}
+
+</section>
+
+{{ template "footer" .}}
+{{ end }}
