@@ -3,6 +3,9 @@ package utils
 import (
 	"crypto/rand"
 	"net/mail"
+	"net/url"
+	"path"
+	"strings"
 )
 
 // ValidateEmail validates whether the given string is a correctly formed e-mail address.
@@ -31,4 +34,20 @@ func GenerateRandomString(n int) (string, error) {
 	}
 
 	return string(bytes), nil
+}
+
+// SanitizeURI takes a URL or URI, removes the domain from it, returns only the URI.
+// This is used for cleaning "next" redirect URLs/URIs to prevent open redirects.
+func SanitizeURI(u string) string {
+	u = strings.TrimSpace(u)
+	if u == "" {
+		return "/"
+	}
+
+	p, err := url.Parse(u)
+	if err != nil || strings.Contains(p.Path, "..") {
+		return "/"
+	}
+
+	return path.Clean(p.Path)
 }

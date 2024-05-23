@@ -15,6 +15,7 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/knadh/koanf/providers/env"
 	"github.com/knadh/koanf/v2"
+	"github.com/knadh/listmonk/internal/auth"
 	"github.com/knadh/listmonk/internal/bounce"
 	"github.com/knadh/listmonk/internal/buflog"
 	"github.com/knadh/listmonk/internal/captcha"
@@ -44,6 +45,7 @@ type App struct {
 	manager    *manager.Manager
 	importer   *subimporter.Importer
 	messengers map[string]manager.Messenger
+	auth       *auth.Auth
 	media      media.Store
 	i18n       *i18n.I18n
 	bounce     *bounce.Manager
@@ -210,6 +212,7 @@ func main() {
 	app.queries = queries
 	app.manager = initCampaignManager(app.queries, app.constants, app)
 	app.importer = initImporter(app.queries, db, app.core, app)
+	app.auth = initAuth(db.DB, ko, app.core)
 	app.notifTpls = initNotifTemplates("/email-templates/*.html", fs, app.i18n, app.constants)
 	initTxTemplates(app.manager, app)
 
