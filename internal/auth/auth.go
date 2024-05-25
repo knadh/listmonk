@@ -9,7 +9,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"net/url"
 	"strings"
 	"sync"
 	"time"
@@ -23,8 +22,11 @@ import (
 	"golang.org/x/oauth2"
 )
 
-// UserKey is the key on which the User profile is set on echo handlers.
-const UserKey = "auth_user"
+const (
+	// UserKey is the key on which the User profile is set on echo handlers.
+	UserKey    = "auth_user"
+	SessionKey = "auth_session"
+)
 
 const (
 	sessTypeNative = "native"
@@ -51,7 +53,6 @@ type BasicAuthConfig struct {
 type Config struct {
 	OIDC      OIDCConfig
 	BasicAuth BasicAuthConfig
-	LoginURL  string
 }
 
 // Callbacks takes two callback functions required by simplesessions.
@@ -190,7 +191,9 @@ func (o *Auth) ExchangeOIDCToken(code, nonce string) (string, models.User, error
 }
 
 // Middleware is the HTTP middleware used for wrapping HTTP handlers registered on the echo router.
-// It authorizes token (BasicAuth/token) based and cookie based sessions.
+// It authorizes token (BasicAuth/token) based and cookie based sessions and on successful auth,
+// sets the authenticated User{} on the echo context on the key UserKey. On failure, it sets an Error{}
+// instead on the same key.
 func (o *Auth) Middleware(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		// It's an `Authorization` header request.
@@ -198,13 +201,15 @@ func (o *Auth) Middleware(next echo.HandlerFunc) echo.HandlerFunc {
 		if len(hdr) > 0 {
 			key, token, err := parseAuthHeader(hdr)
 			if err != nil {
-				return echo.NewHTTPError(http.StatusForbidden, err.Error())
+				c.Set(UserKey, echo.NewHTTPError(http.StatusForbidden, err.Error()))
+				return next(c)
 			}
 
 			// Validate the token.
 			user, ok := o.GetToken(key, token)
 			if !ok {
-				return echo.NewHTTPError(http.StatusForbidden, "invalid token:secret")
+				c.Set(UserKey, echo.NewHTTPError(http.StatusForbidden, "invalid token:secret"))
+				return next(c)
 			}
 
 			// Set the user details on the handler context.
@@ -213,18 +218,15 @@ func (o *Auth) Middleware(next echo.HandlerFunc) echo.HandlerFunc {
 		}
 
 		// It's a cookie based session.
-		user, err := o.validateSession(c)
+		sess, user, err := o.validateSession(c)
 		if err != nil {
-			u, _ := url.Parse(o.cfg.LoginURL)
-			q := url.Values{}
-			q.Set("next", c.Request().RequestURI)
-			u.RawQuery = q.Encode()
-
-			return c.Redirect(http.StatusTemporaryRedirect, u.String())
+			c.Set(UserKey, echo.NewHTTPError(http.StatusForbidden, "invalid session"))
+			return next(c)
 		}
 
 		// Set the user details on the handler context.
 		c.Set(UserKey, user)
+		c.Set(SessionKey, sess)
 		return next(c)
 	}
 }
@@ -254,39 +256,39 @@ func (o *Auth) SetSession(u models.User, oidcToken string, c echo.Context) error
 	return nil
 }
 
-func (o *Auth) validateSession(c echo.Context) (models.User, error) {
+func (o *Auth) validateSession(c echo.Context) (*simplesessions.Session, models.User, error) {
 	// Cookie session.
 	sess, err := o.sess.Acquire(c, c, nil)
 	if err != nil {
-		return models.User{}, echo.NewHTTPError(http.StatusForbidden, err.Error())
+		return nil, models.User{}, echo.NewHTTPError(http.StatusForbidden, err.Error())
 	}
 
 	// Get the session variables.
 	vars, err := sess.GetMulti("user_id", "oidc_token")
 	if err != nil {
-		return models.User{}, echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+		return nil, models.User{}, echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
 	// Validate the user ID in the session.
 	userID, err := o.sessStore.Int(vars["user_id"], nil)
 	if err != nil || userID < 1 {
 		o.log.Printf("error fetching session user ID: %v", err)
-		return models.User{}, echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+		return nil, models.User{}, echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
 	// If it's an OIDC session, validate the claim.
 	if vars["oidc_token"] != "" {
 		if !o.cfg.OIDC.Enabled {
-			return models.User{}, echo.NewHTTPError(http.StatusForbidden, "OIDC aut his not enabled.")
+			return nil, models.User{}, echo.NewHTTPError(http.StatusForbidden, "OIDC aut his not enabled.")
 		}
 		if _, err := o.verifyOIDC(vars["oidc_token"].(string), c); err != nil {
-			return models.User{}, err
+			return nil, models.User{}, err
 		}
 	}
 
 	// Fetch user details from the database.
 	user, err := o.cb.GetUser(userID)
-	return user, err
+	return sess, user, err
 }
 
 func (o *Auth) verifyOIDC(token string, c echo.Context) (models.User, error) {

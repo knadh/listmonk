@@ -5,9 +5,10 @@ import (
 	"strings"
 	"time"
 
+	"github.com/knadh/listmonk/internal/auth"
 	"github.com/knadh/listmonk/internal/utils"
 	"github.com/labstack/echo/v4"
-	"github.com/vividvilla/simplesessions"
+	"github.com/vividvilla/simplesessions/v2"
 )
 
 type loginTpl struct {
@@ -71,17 +72,16 @@ func handleLoginPage(c echo.Context) error {
 	return c.Render(http.StatusOK, "admin-login", out)
 }
 
-// handleLogoutPage logs a user out.
-func handleLogoutPage(c echo.Context) error {
+// handleLogout logs a user out.
+func handleLogout(c echo.Context) error {
 	var (
-		app  = c.Get("app").(*App)
-		sess = c.Get("session").(*simplesessions.Session)
+		sess = c.Get(auth.SessionKey).(*simplesessions.Session)
 	)
 
 	// Clear the session.
 	_ = sess.Clear()
 
-	return c.Redirect(http.StatusFound, app.constants.RootURL)
+	return c.JSON(http.StatusOK, okResp{true})
 }
 
 // doLogin logs a user in with a username and password.

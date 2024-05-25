@@ -59,6 +59,7 @@ type constants struct {
 	RootURL                       string   `koanf:"root_url"`
 	LogoURL                       string   `koanf:"logo_url"`
 	FaviconURL                    string   `koanf:"favicon_url"`
+	LoginURL                      string   `koanf:"login_url"`
 	FromEmail                     string   `koanf:"from_email"`
 	NotifyEmails                  []string `koanf:"notify_emails"`
 	EnablePublicSubPage           bool     `koanf:"enable_public_subscription_page"`
@@ -89,8 +90,6 @@ type constants struct {
 		CaptchaKey    string `koanf:"captcha_key"`
 		CaptchaSecret string `koanf:"captcha_secret"`
 	} `koanf:"security"`
-	AdminUsername []byte `koanf:"admin_username"`
-	AdminPassword []byte `koanf:"admin_password"`
 
 	Appearance struct {
 		AdminCSS  []byte `koanf:"admin.custom_css"`
@@ -397,6 +396,7 @@ func initConstants() *constants {
 	}
 
 	c.RootURL = strings.TrimRight(c.RootURL, "/")
+	c.LoginURL = path.Join(uriAdmin, "/login")
 	c.Lang = ko.String("app.lang")
 	c.Privacy.Exportable = maps.StringSliceToLookupMap(ko.Strings("privacy.exportable"))
 	c.MediaUpload.Provider = ko.String("upload.provider")
@@ -942,8 +942,7 @@ func initAuth(db *sql.DB, ko *koanf.Koanf, co *core.Core) *auth.Auth {
 	}
 
 	a, err := auth.New(auth.Config{
-		OIDC:     oidcCfg,
-		LoginURL: path.Join(uriAdmin, "/login"),
+		OIDC: oidcCfg,
 	}, db, cb, lo)
 	if err != nil {
 		lo.Fatalf("error initializing auth: %v", err)
