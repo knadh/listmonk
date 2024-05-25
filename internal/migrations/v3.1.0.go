@@ -11,9 +11,9 @@ import (
 // V3_1_0 performs the DB migrations.
 func V3_1_0(db *sqlx.DB, fs stuffbin.FileSystem, ko *koanf.Koanf, lo *log.Logger) error {
 	if _, err := db.Exec(`
-		DO $$
 		CREATE EXTENSION IF NOT EXISTS pgcrypto;
 
+		DO $$
 		BEGIN
 			IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'user_type') THEN
 			CREATE TYPE user_type AS ENUM ('user', 'super', 'api');
@@ -37,7 +37,7 @@ func V3_1_0(db *sqlx.DB, fs stuffbin.FileSystem, ko *koanf.Koanf, lo *log.Logger
 		    updated_at       TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 		);
 
-		CREATE TABLE sessions IF NOT EXISTS sessions (
+		CREATE TABLE IF NOT EXISTS sessions (
 		    id TEXT NOT NULL PRIMARY KEY,
 		    data jsonb DEFAULT '{}'::jsonb NOT NULL,
 		    created_at timestamp without time zone DEFAULT now() NOT NULL
@@ -49,10 +49,24 @@ func V3_1_0(db *sqlx.DB, fs stuffbin.FileSystem, ko *koanf.Koanf, lo *log.Logger
 
 	// Insert new preference settings.
 	if _, err := db.Exec(`
-		INSERT INTO settings (key, value) VALUES
-		('security.oidc', '{"enabled": false, "provider_url": "", "client_id": "", "client_secret": ""}'),
-		ON CONFLICT DO NOTHING;
+		INSERT INTO settings (key, value) VALUES('security.oidc', '{"enabled": false, "provider_url": "", "client_id": "", "client_secret": ""}') ON CONFLICT DO NOTHING;
 	`); err != nil {
+		return err
+	}
+
+	// Insert superuser.
+	// Create super admin.
+	var (
+		user     = ko.String("app.admin_username")
+		password = ko.String("app.admin_password")
+	)
+	if len(user) < 2 || len(password) < 8 {
+		lo.Fatal("admin_username should be min 3 chars and admin_password should be min 8 chars in the config file")
+	}
+
+	if _, err := db.Exec(`
+		INSERT INTO users (username, password_login, password, email, name, type, status) VALUES($1, true, CRYPT($2, GEN_SALT('bf')), $3, $4, 'super', 'enabled') ON CONFLICT DO NOTHING;
+	`, user, password, user+"@listmonk", user); err != nil {
 		return err
 	}
 
