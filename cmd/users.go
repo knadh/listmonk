@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/knadh/listmonk/internal/auth"
 	"github.com/knadh/listmonk/internal/utils"
 	"github.com/knadh/listmonk/models"
 	"github.com/labstack/echo/v4"
@@ -197,4 +198,15 @@ func handleDeleteUsers(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, okResp{true})
+}
+
+// handleGetUserProfile fetches the uesr profile for the currently logged in user.
+func handleGetUserProfile(c echo.Context) error {
+	var (
+		user = c.Get(auth.UserKey).(models.User)
+	)
+	user.Password.String = ""
+	user.Password.Valid = false
+
+	return c.JSON(http.StatusOK, okResp{user})
 }
