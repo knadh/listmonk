@@ -422,9 +422,7 @@ export const getLang = async (lang) => http.get(
   { loading: models.lang, camelCase: false },
 );
 
-export const logout = async () => http.get('/api/logout', {
-  auth: { username: 'wrong', password: 'wrong' },
-});
+export const logout = async () => http.post('/api/logout');
 
 export const deleteGCCampaignAnalytics = async (typ, beforeDate) => http.delete(
   `/api/maintenance/analytics/${typ}`,
@@ -477,5 +475,10 @@ export const updateUser = (data) => http.put(
 
 export const deleteUser = (id) => http.delete(
   `/api/users/${id}`,
+  { loading: models.users },
+);
+
+export const getUserProfile = () => http.get(
+  '/api/profile',
   { loading: models.users },
 );

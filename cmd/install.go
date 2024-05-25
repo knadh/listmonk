@@ -62,6 +62,18 @@ func install(lastVer string, db *sqlx.DB, fs stuffbin.FileSystem, prompt, idempo
 	// Load the queries.
 	q := prepareQueries(qMap, db, ko)
 
+	// Create super admin.
+	var (
+		user     = ko.String("app.admin_username")
+		password = ko.String("app.admin_password")
+	)
+	if len(user) < 2 || len(password) < 8 {
+		lo.Fatal("admin_username should be min 3 chars and admin_password should be min 8 chars")
+	}
+	if _, err := q.CreateUser.Exec(user, true, password, user+"@listmonk", user, "super", "enabled"); err != nil {
+		lo.Fatalf("error creating superadmin user: %v", err)
+	}
+
 	// Sample list.
 	var (
 		defList   int

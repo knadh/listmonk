@@ -12,9 +12,22 @@
       <template #end>
         <navigation v-if="isMobile" :is-mobile="isMobile" :active-item="activeItem" :active-group="activeGroup"
           @toggleGroup="toggleGroup" @doLogout="doLogout" />
-        <b-navbar-item v-else tag="div">
-          <a href="#" @click.prevent="doLogout">{{ $t('users.logout') }}</a>
-        </b-navbar-item>
+
+        <b-navbar-dropdown v-else>
+          <template #label>
+            <div class="avatar">
+              <img v-if="profile.avatar" src="profile.avatar" alt="" />
+              <span v-else>{{ profile.username[0].toUpperCase() }}</span>
+            </div>
+            {{ profile.username }}
+          </template>
+          <b-navbar-item href="#">
+            <a href="#" @click.prevent="doLogout"><b-icon icon="account-outline" /> {{ $t('users.account') }}</a>
+          </b-navbar-item>
+          <b-navbar-item href="#">
+            <a href="#" @click.prevent="doLogout"><b-icon icon="logout-variant" /> {{ $t('users.logout') }}</a>
+          </b-navbar-item>
+        </b-navbar-dropdown>
       </template>
     </b-navbar>
 
@@ -72,6 +85,7 @@ export default Vue.extend({
 
   data() {
     return {
+      profile: {},
       activeItem: {},
       activeGroup: {},
       windowWidth: window.innerWidth,
@@ -114,17 +128,9 @@ export default Vue.extend({
     },
 
     doLogout() {
-      const http = new XMLHttpRequest();
-
-      const u = uris.root.substr(-1) === '/' ? uris.root : `${uris.root}/`;
-      http.open('get', `${u}api/logout`, false, 'logout_non_user', 'logout_non_user');
-      http.onload = () => {
+      this.$api.logout().then(() => {
         document.location.href = uris.root;
-      };
-      http.onerror = () => {
-        document.location.href = uris.root;
-      };
-      http.send();
+      });
     },
 
     listenEvents() {
@@ -168,6 +174,9 @@ export default Vue.extend({
     });
 
     this.listenEvents();
+    this.$api.getUserProfile().then((d) => {
+      this.profile = d;
+    });
   },
 });
 </script>
