@@ -14,15 +14,17 @@
           @toggleGroup="toggleGroup" @doLogout="doLogout" />
 
         <b-navbar-dropdown v-else>
-          <template #label>
-            <div class="avatar">
-              <img v-if="profile.avatar" src="profile.avatar" alt="" />
+          <template v-if="profile" #label>
+            <div class="user-avatar">
+              <img v-if="profile.avatar" :src="profile.avatar" alt="" />
               <span v-else>{{ profile.username[0].toUpperCase() }}</span>
             </div>
             {{ profile.username }}
           </template>
           <b-navbar-item href="#">
-            <a href="#" @click.prevent="doLogout"><b-icon icon="account-outline" /> {{ $t('users.account') }}</a>
+            <router-link :to="`/user/profile`">
+              <b-icon icon="account-outline" /> {{ $t('users.profile') }}
+            </router-link>
           </b-navbar-item>
           <b-navbar-item href="#">
             <a href="#" @click.prevent="doLogout"><b-icon icon="logout-variant" /> {{ $t('users.logout') }}</a>
@@ -85,7 +87,7 @@ export default Vue.extend({
 
   data() {
     return {
-      profile: {},
+      profile: null,
       activeItem: {},
       activeGroup: {},
       windowWidth: window.innerWidth,

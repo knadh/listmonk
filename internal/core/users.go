@@ -99,6 +99,22 @@ func (c *Core) UpdateUser(id int, u models.User) (models.User, error) {
 	return c.GetUser(id, "", "")
 }
 
+// UpdateUserProfile updates the basic fields of a given uesr (name, email, password).
+func (c *Core) UpdateUserProfile(id int, u models.User) (models.User, error) {
+	res, err := c.q.UpdateUserProfile.Exec(id, u.Name, u.Email, u.PasswordLogin, u.Password)
+	if err != nil {
+		return models.User{}, echo.NewHTTPError(http.StatusInternalServerError,
+			c.i18n.Ts("globals.messages.errorUpdating", "name", "{globals.terms.user}", "error", pqErrMsg(err)))
+	}
+
+	if n, _ := res.RowsAffected(); n == 0 {
+		return models.User{}, echo.NewHTTPError(http.StatusBadRequest,
+			c.i18n.Ts("globals.messages.notFound", "name", "{globals.terms.user}"))
+	}
+
+	return c.GetUser(id, "", "")
+}
+
 // DeleteUsers deletes a given user.
 func (c *Core) DeleteUsers(ids []int) error {
 	res, err := c.q.DeleteUsers.Exec(pq.Array(ids))

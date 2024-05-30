@@ -482,3 +482,9 @@ export const getUserProfile = () => http.get(
   '/api/profile',
   { loading: models.users },
 );
+
+export const updateUserProfile = (data) => http.put(
+  '/api/profile',
+  data,
+  { loading: models.users },
+);

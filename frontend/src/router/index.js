@@ -96,6 +96,12 @@ const routes = [
     component: () => import('../views/Campaign.vue'),
   },
   {
+    path: '/user/profile',
+    name: 'userProfile',
+    meta: { title: 'users.profile', group: 'settings' },
+    component: () => import('../views/UserProfile.vue'),
+  },
+  {
     path: '/settings',
     name: 'settings',
     meta: { title: 'globals.terms.settings', group: 'settings' },

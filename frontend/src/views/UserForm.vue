@@ -74,7 +74,7 @@
             <div class="column is-6">
               <b-field :label="$t('users.passwordRepeat')" label-position="on-border">
                 <b-input :disabled="!form.passwordLogin" minlength="8" :maxlength="200" v-model="form.password2"
-                  type="password" name="password" :required="form.passwordLogin && !isEditing && form.password" />
+                  type="password" name="password2" :required="form.passwordLogin && !isEditing && form.password" />
               </b-field>
             </div>
           </div>
