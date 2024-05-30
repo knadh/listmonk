@@ -210,3 +210,39 @@ func handleGetUserProfile(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, okResp{user})
 }
+
+// handleUpdateUserProfile update's the current user's profile.
+func handleUpdateUserProfile(c echo.Context) error {
+	var (
+		app  = c.Get("app").(*App)
+		user = c.Get(auth.UserKey).(models.User)
+	)
+
+	u := models.User{}
+	if err := c.Bind(&u); err != nil {
+		return err
+	}
+	u.PasswordLogin = user.PasswordLogin
+	u.Name = strings.TrimSpace(u.Name)
+	email := strings.TrimSpace(u.Email.String)
+
+	// Validate fields.
+	if !utils.ValidateEmail(email) {
+		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.Ts("globals.messages.invalidFields", "name", "email"))
+	}
+	u.Email = null.String{String: email, Valid: true}
+
+	if u.PasswordLogin && u.Password.String != "" {
+		if !strHasLen(u.Password.String, 8, stdInputMaxLen) {
+			return echo.NewHTTPError(http.StatusBadRequest, app.i18n.Ts("globals.messages.invalidFields", "name", "password"))
+		}
+	}
+
+	out, err := app.core.UpdateUser(user.ID, u)
+	if err != nil {
+		return err
+	}
+	out.Password = null.String{}
+
+	return c.JSON(http.StatusOK, okResp{out})
+}

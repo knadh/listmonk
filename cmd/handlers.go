@@ -196,6 +196,7 @@ func initHTTPHandlers(e *echo.Echo, app *App) {
 	api.GET("/api/events", handleEventStream)
 
 	api.GET("/api/profile", handleGetUserProfile)
+	api.PUT("/api/profile", handleUpdateUserProfile)
 	api.GET("/api/users", handleGetUsers)
 	api.GET("/api/users/:id", handleGetUsers)
 	api.POST("/api/users", handleCreateUser)

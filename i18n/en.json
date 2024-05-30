@@ -596,7 +596,7 @@
     "users.login": "Login",
     "users.loginOIDC": "Login with OIDC",
     "users.logout": "Logout",
-    "users.account": "Account",
+    "users.profile": "Profile",
     "users.lastLogin": "Last login",
     "users.newUser": "New user",
     "users.type": "Type",

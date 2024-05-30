@@ -108,13 +108,14 @@ type Queries struct {
 	DeleteBouncesBySubscriber *sqlx.Stmt `query:"delete-bounces-by-subscriber"`
 	GetDBInfo                 string     `query:"get-db-info"`
 
-	CreateUser   *sqlx.Stmt `query:"create-user"`
-	UpdateUser   *sqlx.Stmt `query:"update-user"`
-	DeleteUsers  *sqlx.Stmt `query:"delete-users"`
-	GetUsers     *sqlx.Stmt `query:"get-users"`
-	GetUser      *sqlx.Stmt `query:"get-user"`
-	GetAPITokens *sqlx.Stmt `query:"get-api-tokens"`
-	LoginUser    *sqlx.Stmt `query:"login-user"`
+	CreateUser        *sqlx.Stmt `query:"create-user"`
+	UpdateUser        *sqlx.Stmt `query:"update-user"`
+	UpdateUserProfile *sqlx.Stmt `query:"update-user-profile"`
+	DeleteUsers       *sqlx.Stmt `query:"delete-users"`
+	GetUsers          *sqlx.Stmt `query:"get-users"`
+	GetUser           *sqlx.Stmt `query:"get-user"`
+	GetAPITokens      *sqlx.Stmt `query:"get-api-tokens"`
+	LoginUser         *sqlx.Stmt `query:"login-user"`
 }
 
 // CompileSubscriberQueryTpl takes an arbitrary WHERE expressions

@@ -1076,3 +1076,8 @@ WITH u AS (
     SELECT * FROM users WHERE username=$1 AND status != 'disabled' AND password_login = TRUE
 )
 SELECT * FROM u WHERE CRYPT($2, password) = password;
+
+-- name: update-user-profile
+UPDATE users SET name=$2, email=$3,
+    password=(CASE WHEN $4 = TRUE THEN (CASE WHEN $5 != '' THEN CRYPT($5, GEN_SALT('bf')) ELSE password END) ELSE NULL END)
+    WHERE id=$1;
