@@ -88,6 +88,10 @@ section {
   &.wrap {
     max-width: 1100px;
   }
+
+  &.section-mini {
+    max-width: 500px;
+  }
 }
 
 .spinner.is-tiny {
@@ -131,6 +135,26 @@ section {
     background-color: #efefef;
   }
 
+.user-avatar {
+  img {
+    display: inline-block;
+    border-radius: 100%;
+    width: 24px;
+    height: 24px;
+  }
+  span {
+    background-color: #ddd;
+    border-radius: 100%;
+    width: 24px;
+    height: 24px;
+    text-align: center;
+    display: inline-block;
+    margin-right: 10px;
+    font-size: 0.875rem;
+    line-height: 1.6;
+  }
+}
+
 .copy-text {
   color: inherit;
   .icon {
@@ -172,26 +196,6 @@ section {
 
 .navbar {
   box-shadow: 0 0 3px $grey-lighter;
-
-  .avatar {
-    img {
-      display: inline-block;
-      border-radius: 100%;
-      width: 24px;
-      height: 24px;
-    }
-    span {
-      background-color: #ddd;
-      border-radius: 100%;
-      width: 24px;
-      height: 24px;
-      text-align: center;
-      display: inline-block;
-      margin-right: 10px;
-      font-size: 0.875rem;
-      line-height: 1.6;
-    }
-  }
 }
 .navbar-brand {
   padding: 0 0 0 25px;
@@ -926,7 +930,6 @@ section.users {
   font-size: 1.2rem;
   color: $green;
 }
-
 
 /* C3 charting lib */
 .c3 {
