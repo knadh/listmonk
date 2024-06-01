@@ -2,6 +2,7 @@ package main
 
 import (
 	"net/http"
+	"net/url"
 	"strings"
 	"time"
 
@@ -15,11 +16,19 @@ type loginTpl struct {
 	Title       string
 	Description string
 
-	NextURI         string
-	Nonce           string
-	PasswordEnabled bool
-	OIDCEnabled     bool
-	Error           string
+	NextURI          string
+	Nonce            string
+	PasswordEnabled  bool
+	OIDCProvider     string
+	OIDCProviderLogo string
+	Error            string
+}
+
+var oidcProviders = map[string]bool{
+	"google.com":          true,
+	"microsoftonline.com": true,
+	"auth0.com":           true,
+	"github.com":          true,
 }
 
 // handleLoginPage renders the login page and handles the login form.
@@ -33,11 +42,33 @@ func handleLoginPage(c echo.Context) error {
 		next = uriAdmin
 	}
 
+	oidcProvider := ""
+	oidcProviderLogo := ""
+	if app.constants.Security.OIDC.Enabled {
+		oidcProviderLogo = "oidc.png"
+		u, err := url.Parse(app.constants.Security.OIDC.Provider)
+		if err == nil {
+			h := strings.Split(u.Hostname(), ".")
+
+			// Get the last two h for the root domain
+			if len(h) >= 2 {
+				oidcProvider = h[len(h)-2] + "." + h[len(h)-1]
+			} else {
+				oidcProvider = u.Hostname()
+			}
+
+			if _, ok := oidcProviders[oidcProvider]; ok {
+				oidcProviderLogo = oidcProvider + ".png"
+			}
+		}
+	}
+
 	out := loginTpl{
-		Title:           app.i18n.T("users.login"),
-		PasswordEnabled: true,
-		OIDCEnabled:     true,
-		NextURI:         next,
+		Title:            app.i18n.T("users.login"),
+		PasswordEnabled:  true,
+		OIDCProvider:     oidcProvider,
+		OIDCProviderLogo: oidcProviderLogo,
+		NextURI:          next,
 	}
 
 	// Login request.
