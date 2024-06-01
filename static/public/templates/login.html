@@ -1,7 +1,7 @@
 {{ define "admin-login" }}
 {{ template "header" .}}
 
-<section>
+<section class="login">
 	<h2>{{ .L.T "users.login"}}</h2>
 	{{ if .Data.PasswordEnabled }}
 	<form method="post" action="" class="form">
@@ -19,16 +19,19 @@
 
 			{{ if .Data.Error }}<p><span class="error">{{ .Data.Error }}</span></p>{{ end }}
 
-			<p><button class="button" type="submit">{{ .L.T "users.login" }}</button></p>
+			<p class="submit"><button class="button" type="submit">{{ .L.T "users.login" }}</button></p>
 		</div>
 	</form>
 	{{ end }}
 
-	{{ if .Data.OIDCEnabled }}
+	{{ if .Data.OIDCProvider }}
 	<form method="post" action="/oidc/login">
 		<div>
 			<input type="hidden" name="nonce" value="{{ .Data.Nonce }}" />
-			<p><button type="submit">{{ .L.T "users.loginOIDC" }}</button></p>
+			<p><button class="button button-outline" type="submit">
+				<img src="{{ .RootURL }}/public/static/auth/{{ .Data.OIDCProviderLogo }}" alt="" />
+				{{ .L.Ts "users.loginOIDC" "name" .Data.OIDCProvider }}
+			</button></p>
 		</div>
 	</form>
 	{{ end }}
