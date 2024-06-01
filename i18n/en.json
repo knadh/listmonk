@@ -596,7 +596,7 @@
     "templates.rawHTML": "Raw HTML",
     "templates.subject": "Subject",
     "users.login": "Login",
-    "users.loginOIDC": "Login with OIDC",
+    "users.loginOIDC": "Login with {name}",
     "users.logout": "Logout",
     "users.profile": "Profile",
     "users.lastLogin": "Last login",

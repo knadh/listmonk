@@ -87,7 +87,8 @@ input[disabled] {
   color: #0055d4;
 }
 .button.button-outline:hover {
-  background-color: #0055d4;
+  border-color: #333;
+  background-color: #333;
   color: #fff;
 }
 
@@ -179,6 +180,21 @@ input[disabled] {
   .pg-page.pg-selected {
     text-decoration: underline;
     font-weight: bold;
+  }
+
+.login .submit {
+  margin-top: 20px;
+}
+  .login button {
+    width: 100%;
+    vertical-align: middle;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .login button img {
+    max-width: 24px;
+    margin-right: 10px;
   }
 
 #btn-back {
