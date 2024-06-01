@@ -32,6 +32,8 @@ require (
 	github.com/spf13/pflag v1.0.5
 	github.com/yuin/goldmark v1.6.0
 	github.com/zerodha/easyjson v1.0.0
+	github.com/zerodha/simplesessions/stores/postgres/v3 v3.0.0
+	github.com/zerodha/simplesessions/v3 v3.0.0
 	golang.org/x/mod v0.14.0
 	golang.org/x/oauth2 v0.13.0
 	gopkg.in/volatiletech/null.v6 v6.0.0-20170828023728-0bef4e07ae1b
@@ -46,7 +48,6 @@ require (
 	github.com/golang-jwt/jwt v3.2.2+incompatible // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/google/uuid v1.3.0 // indirect
-	github.com/gorilla/securecookie v1.1.2 // indirect
 	github.com/huandu/xstrings v1.4.0 // indirect
 	github.com/imdario/mergo v0.3.14 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
@@ -62,11 +63,6 @@ require (
 	github.com/spf13/cast v1.5.0 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasttemplate v1.2.2 // indirect
-	github.com/vividvilla/simplesessions v0.2.0 // indirect
-	github.com/vividvilla/simplesessions/stores/postgres v1.3.0 // indirect
-	github.com/vividvilla/simplesessions/stores/securecookie v0.0.0-20210922122219-03358c1a8b2d // indirect
-	github.com/vividvilla/simplesessions/stores/securecookie/v2 v2.0.0 // indirect
-	github.com/vividvilla/simplesessions/v2 v2.0.1 // indirect
 	golang.org/x/crypto v0.18.0 // indirect
 	golang.org/x/image v0.10.0 // indirect
 	golang.org/x/net v0.20.0 // indirect
@@ -75,7 +71,7 @@ require (
 	golang.org/x/time v0.5.0 // indirect
 	google.golang.org/appengine v1.6.8 // indirect
 	google.golang.org/protobuf v1.31.0 // indirect
+	gopkg.in/yaml.v2 v2.3.0 // indirect
 )
 
 replace github.com/imdario/mergo => github.com/imdario/mergo v0.3.8
-replace github.com/vividvilla/simplesessions/v2 => /home/kailash/code/go/my/github.com/simplesessions

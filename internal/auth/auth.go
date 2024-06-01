@@ -17,8 +17,8 @@ import (
 	"github.com/knadh/listmonk/models"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-	"github.com/vividvilla/simplesessions/stores/postgres"
-	"github.com/vividvilla/simplesessions/v2"
+	"github.com/zerodha/simplesessions/stores/postgres/v3"
+	"github.com/zerodha/simplesessions/v3"
 	"golang.org/x/oauth2"
 )
 
@@ -107,8 +107,12 @@ func New(cfg Config, db *sql.DB, cb *Callbacks, lo *log.Logger) (*Auth, error) {
 
 	// Initialize session manager.
 	a.sess = simplesessions.New(simplesessions.Options{
-		IsHTTPOnlyCookie: true,
-		CookieLifetime:   time.Hour * 24 * 7,
+		EnableAutoCreate: false,
+		SessionIDLength:  64,
+		Cookie: simplesessions.CookieOptions{
+			IsHTTPOnly: true,
+			MaxAge:     time.Hour * 24 * 7,
+		},
 	})
 	st, err := postgres.New(postgres.Opt{}, db)
 	if err != nil {
@@ -116,8 +120,7 @@ func New(cfg Config, db *sql.DB, cb *Callbacks, lo *log.Logger) (*Auth, error) {
 	}
 	a.sessStore = st
 	a.sess.UseStore(st)
-	a.sess.RegisterGetCookie(cb.GetCookie)
-	a.sess.RegisterSetCookie(cb.SetCookie)
+	a.sess.SetCookieHooks(cb.GetCookie, cb.SetCookie)
 
 	// Prune dead sessions from the DB periodically.
 	go func() {
@@ -233,23 +236,19 @@ func (o *Auth) Middleware(next echo.HandlerFunc) echo.HandlerFunc {
 
 // SetSession creates and sets a session (post successful login/auth).
 func (o *Auth) SetSession(u models.User, oidcToken string, c echo.Context) error {
-	sess, err := o.sess.Acquire(c, c, nil)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, "error creating session")
-	}
-
-	// sess, err := simplesessions.NewSession(o.sess, c, c)
+	// sess, err := o.sess.Acquire(nil, c, c)
 	// if err != nil {
-	// 	o.log.Printf("error creating login session: %v", err)
 	// 	return echo.NewHTTPError(http.StatusInternalServerError, "error creating session")
 	// }
 
-	if err := sess.SetMulti(map[string]interface{}{"user_id": u.ID, "oidc_token": oidcToken}); err != nil {
-		o.log.Printf("error setting login session: %v", err)
+	sess, err := o.sess.NewSession(c, c)
+	if err != nil {
+		o.log.Printf("error creating login session: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, "error creating session")
 	}
-	if err := sess.Commit(); err != nil {
-		o.log.Printf("error committing login session: %v", err)
+
+	if err := sess.SetMulti(map[string]interface{}{"user_id": u.ID, "oidc_token": oidcToken}); err != nil {
+		o.log.Printf("error setting login session: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, "error creating session")
 	}
 
@@ -258,7 +257,7 @@ func (o *Auth) SetSession(u models.User, oidcToken string, c echo.Context) error
 
 func (o *Auth) validateSession(c echo.Context) (*simplesessions.Session, models.User, error) {
 	// Cookie session.
-	sess, err := o.sess.Acquire(c, c, nil)
+	sess, err := o.sess.Acquire(nil, c, c)
 	if err != nil {
 		return nil, models.User{}, echo.NewHTTPError(http.StatusForbidden, err.Error())
 	}
