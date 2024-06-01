@@ -8,7 +8,7 @@ import (
 	"github.com/knadh/listmonk/internal/auth"
 	"github.com/knadh/listmonk/internal/utils"
 	"github.com/labstack/echo/v4"
-	"github.com/vividvilla/simplesessions/v2"
+	"github.com/zerodha/simplesessions/v3"
 )
 
 type loginTpl struct {
@@ -79,7 +79,7 @@ func handleLogout(c echo.Context) error {
 	)
 
 	// Clear the session.
-	_ = sess.Clear()
+	_ = sess.Destroy()
 
 	return c.JSON(http.StatusOK, okResp{true})
 }
