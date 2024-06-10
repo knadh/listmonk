@@ -1,13 +1,5 @@
 FROM alpine:latest
 
-# Set the maintainer information
-LABEL org.opencontainers.image.title="listmonk"
-LABEL org.opencontainers.image.description="listmonk is a standalone, self-hosted, newsletter and mailing list manager. It is fast, feature-rich, and packed into a single binary."
-LABEL org.opencontainers.image.url="https://listmonk.app"
-LABEL org.opencontainers.image.documentation='https://listmonk.app'
-LABEL org.opencontainers.image.source='https://github.com/knadh/listmonk'
-LABEL org.opencontainers.image.licenses='AGPL-3.0'
-
 # Install dependencies
 RUN apk --no-cache add ca-certificates tzdata shadow su-exec
 

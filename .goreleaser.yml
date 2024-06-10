@@ -63,6 +63,7 @@ dockers:
     extra_files:
       - config.toml.sample
       - config-demo.toml
+      - docker-entrypoint.sh
   - use: buildx
     goos: linux
     goarch: arm64
@@ -87,6 +88,7 @@ dockers:
     extra_files:
       - config.toml.sample
       - config-demo.toml
+      - docker-entrypoint.sh
   - use: buildx
     goos: linux
     goarch: arm
@@ -112,6 +114,7 @@ dockers:
     extra_files:
       - config.toml.sample
       - config-demo.toml
+      - docker-entrypoint.sh
   - use: buildx
     goos: linux
     goarch: arm
@@ -137,6 +140,7 @@ dockers:
     extra_files:
       - config.toml.sample
       - config-demo.toml
+      - docker-entrypoint.sh
 
 docker_manifests:
   - name_template: "{{ .Env.DOCKER_ORG }}/{{ .ProjectName }}:latest"

@@ -26,7 +26,7 @@ create_user() {
     adduser -u ${UID} -G ${GROUP_NAME} -s /bin/sh -D ${USER_NAME}
   else
     existing_user=$(getent passwd ${UID} | cut -d: -f1)
-    export USER_NAME=${existing_group}
+    export USER_NAME=${existing_user}
   fi
 }
 
