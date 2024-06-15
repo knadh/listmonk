@@ -115,6 +115,9 @@ type constants struct {
 	BounceSESEnabled      bool
 	BounceSendgridEnabled bool
 	BouncePostmarkEnabled bool
+
+	PermissionsRaw json.RawMessage
+	Permissions    map[string]struct{}
 }
 
 type notifTpls struct {
@@ -176,6 +179,7 @@ func initFS(appDir, frontendDir, staticDir, i18nDir string) stuffbin.FileSystem 
 			"./config.toml.sample:config.toml.sample",
 			"./queries.sql:queries.sql",
 			"./schema.sql:schema.sql",
+			"./permissions.json:permissions.json",
 		}
 
 		frontendFiles = []string{
@@ -429,6 +433,28 @@ func initConstants() *constants {
 
 	b := md5.Sum([]byte(time.Now().String()))
 	c.AssetVersion = fmt.Sprintf("%x", b)[0:10]
+
+	pm, err := fs.Read("/permissions.json")
+	if err != nil {
+		lo.Fatalf("error reading permissions file: %v", err)
+	}
+	c.PermissionsRaw = pm
+
+	// Make a lookup map of permissions.
+	permGroups := []struct {
+		Group       string   `json:"group"`
+		Permissions []string `json:"permissions"`
+	}{}
+	if err := json.Unmarshal(pm, &permGroups); err != nil {
+		lo.Fatalf("error loading permissions file: %v", err)
+	}
+
+	c.Permissions = map[string]struct{}{}
+	for _, group := range permGroups {
+		for _, g := range group.Permissions {
+			c.Permissions[g] = struct{}{}
+		}
+	}
 
 	return &c
 }

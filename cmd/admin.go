@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"sort"
@@ -11,12 +12,13 @@ import (
 )
 
 type serverConfig struct {
-	Messengers   []string   `json:"messengers"`
-	Langs        []i18nLang `json:"langs"`
-	Lang         string     `json:"lang"`
-	Update       *AppUpdate `json:"update"`
-	NeedsRestart bool       `json:"needs_restart"`
-	Version      string     `json:"version"`
+	Messengers   []string        `json:"messengers"`
+	Langs        []i18nLang      `json:"langs"`
+	Lang         string          `json:"lang"`
+	Permissions  json.RawMessage `json:"permissions"`
+	Update       *AppUpdate      `json:"update"`
+	NeedsRestart bool            `json:"needs_restart"`
+	Version      string          `json:"version"`
 }
 
 // handleGetServerConfig returns general server config.
@@ -34,6 +36,7 @@ func handleGetServerConfig(c echo.Context) error {
 	}
 	out.Langs = langList
 	out.Lang = app.constants.Lang
+	out.Permissions = app.constants.PermissionsRaw
 
 	// Sort messenger names with `email` always as the first item.
 	var names []string

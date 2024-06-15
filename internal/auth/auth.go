@@ -234,6 +234,12 @@ func (o *Auth) Middleware(next echo.HandlerFunc) echo.HandlerFunc {
 	}
 }
 
+func (o *Auth) Perm(next echo.HandlerFunc, perm string) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		return next(c)
+	}
+}
+
 // SetSession creates and sets a session (post successful login/auth).
 func (o *Auth) SetSession(u models.User, oidcToken string, c echo.Context) error {
 	// sess, err := o.sess.Acquire(nil, c, c)

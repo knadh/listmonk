@@ -1081,3 +1081,15 @@ SELECT * FROM u WHERE CRYPT($2, password) = password;
 UPDATE users SET name=$2, email=$3,
     password=(CASE WHEN $4 = TRUE THEN (CASE WHEN $5 != '' THEN CRYPT($5, GEN_SALT('bf')) ELSE password END) ELSE NULL END)
     WHERE id=$1;
+
+-- name: get-roles
+SELECT * FROM roles ORDER BY created_at;
+
+-- name: create-role
+INSERT INTO roles (name, permissions, created_at, updated_at) VALUES($1, $2, NOW(), NOW()) RETURNING *;
+
+-- name: update-role
+UPDATE roles SET name=$2, permissions=$3 WHERE id=$1 RETURNING *;
+
+-- name: delete-role
+DELETE FROM roles WHERE id=$1;
