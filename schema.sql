@@ -316,6 +316,16 @@ CREATE TABLE users (
     updated_at       TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
+DROP TABLE IF EXISTS roles CASCADE;
+CREATE TABLE roles (
+    id               SERIAL PRIMARY KEY,
+    name             TEXT NOT NULL DEFAULT '',
+    permissions      TEXT[] NOT NULL DEFAULT '{}',
+    created_at       TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at       TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+DROP INDEX IF EXISTS idx_roles_name; CREATE UNIQUE INDEX idx_roles_name ON roles(LOWER(name));
+
 -- user sessions
 DROP TABLE IF EXISTS sessions CASCADE;
 CREATE TABLE sessions (

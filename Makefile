@@ -21,7 +21,7 @@ FRONTEND_DEPS = \
 
 BIN := listmonk
 STATIC := config.toml.sample \
-	schema.sql queries.sql \
+	schema.sql queries.sql permissions.json \
 	static/public:/public \
 	static/email-templates \
 	frontend/dist:/admin \

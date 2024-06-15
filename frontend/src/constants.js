@@ -9,6 +9,7 @@ export const models = Object.freeze({
   media: 'media',
   bounces: 'bounces',
   users: 'users',
+  roles: 'roles',
   settings: 'settings',
   logs: 'logs',
   maintenance: 'maintenance',

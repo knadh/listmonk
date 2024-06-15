@@ -37,6 +37,15 @@ func V3_1_0(db *sqlx.DB, fs stuffbin.FileSystem, ko *koanf.Koanf, lo *log.Logger
 		    updated_at       TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 		);
 
+		CREATE TABLE IF NOT EXISTS roles (
+		    id               SERIAL PRIMARY KEY,
+		    name             TEXT NOT NULL DEFAULT '',
+		    permissions      TEXT[] NOT NULL DEFAULT '{}',
+		    created_at       TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+		    updated_at       TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+		);
+		CREATE UNIQUE INDEX IF NOT EXISTS idx_roles_name ON roles(LOWER(name));
+
 		CREATE TABLE IF NOT EXISTS sessions (
 		    id TEXT NOT NULL PRIMARY KEY,
 		    data jsonb DEFAULT '{}'::jsonb NOT NULL,

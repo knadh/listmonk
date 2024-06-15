@@ -931,6 +931,22 @@ section.users {
   color: $green;
 }
 
+.permissions-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+
+  label {
+    flex: 1 1 45%;
+    max-width: 45%;
+    display: flex;
+  }
+}
+
+th.role-toggle-select a {
+  font-weight: normal;
+}
+
 /* C3 charting lib */
 .c3 {
   .c3-text.c3-empty {
