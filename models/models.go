@@ -165,6 +165,13 @@ type User struct {
 	HasPassword bool `db:"-" json:"-"`
 }
 
+type Role struct {
+	Base
+
+	Name        string         `db:"name" json:"name"`
+	Permissions pq.StringArray `db:"permissions" json:"permissions"`
+}
+
 // Subscriber represents an e-mail subscriber.
 type Subscriber struct {
 	Base

@@ -488,3 +488,25 @@ export const updateUserProfile = (data) => http.put(
   data,
   { loading: models.users },
 );
+
+export const getRoles = async () => http.get(
+  '/api/roles',
+  { loading: models.roles, store: models.roles },
+);
+
+export const createRole = (data) => http.post(
+  '/api/roles',
+  data,
+  { loading: models.roles },
+);
+
+export const updateRole = (data) => http.put(
+  `/api/roles/${data.id}`,
+  data,
+  { loading: models.roles },
+);
+
+export const deleteRole = (id) => http.delete(
+  `/api/roles/${id}`,
+  { loading: models.roles },
+);

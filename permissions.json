@@ -1,0 +1,74 @@
+[
+    {
+        "group": "lists",
+        "permissions":
+        [
+            "lists:get",
+            "lists:manage"
+        ]
+    },
+    {
+        "group": "subscribers",
+        "permissions":
+        [
+            "subscribers:get",
+            "subscribers:manage",
+            "subscribers:import",
+            "subscribers:sql_query",
+            "tx:send"
+        ]
+    },
+    {
+        "group": "campaigns",
+        "permissions":
+        [
+            "campaigns:get",
+            "campaigns:get_analytics",
+            "campaigns:manage"
+        ]
+    },
+    {
+        "group": "bounces",
+        "permissions":
+        [
+            "bounces:get",
+            "bounces:manage",
+            "webhooks:post_bounce"
+        ]
+    },
+    {
+        "group": "media",
+        "permissions":
+        [
+            "media:get",
+            "media:manage"
+        ]
+    },
+    {
+        "group": "templates",
+        "permissions":
+        [
+            "templates:get",
+            "templates:manage"
+        ]
+    },
+    {
+        "group": "users",
+        "permissions":
+        [
+            "users:get",
+            "users:manage",
+            "roles:get",
+            "roles:manage"
+        ]
+    },
+    {
+        "group": "admin",
+        "permissions":
+        [
+            "settings:get",
+            "settings:manage",
+            "maintenance:manage"
+        ]
+    }
+]

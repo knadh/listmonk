@@ -42,6 +42,7 @@ export default new Vuex.Store({
     [models.media]: (state) => state[models.media],
     [models.templates]: (state) => state[models.templates],
     [models.users]: (state) => state[models.users],
+    [models.roles]: (state) => state[models.roles],
     [models.settings]: (state) => state[models.settings],
     [models.serverConfig]: (state) => state[models.serverConfig],
     [models.logs]: (state) => state[models.logs],
