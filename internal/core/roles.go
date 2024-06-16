@@ -50,6 +50,9 @@ func (c *Core) UpdateRole(id int, r models.Role) (models.Role, error) {
 // DeleteRole deletes a given role.
 func (c *Core) DeleteRole(id int) error {
 	if _, err := c.q.DeleteRole.Exec(id); err != nil {
+		if pqErr, ok := err.(*pq.Error); ok && pqErr.Constraint == "users_role_id_fkey" {
+			return echo.NewHTTPError(http.StatusBadRequest, c.i18n.T("users.cantDeleteRole"))
+		}
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			c.i18n.Ts("globals.messages.errorDeleting", "name", "{users.role}", "error", pqErrMsg(err)))
 	}

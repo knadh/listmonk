@@ -293,6 +293,10 @@ func (o *Auth) validateSession(c echo.Context) (*simplesessions.Session, models.
 
 	// Fetch user details from the database.
 	user, err := o.cb.GetUser(userID)
+	if err != nil {
+		o.log.Printf("error fetching session user: %v", err)
+	}
+
 	return sess, user, err
 }
 

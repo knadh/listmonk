@@ -98,7 +98,9 @@ func handleCreateUser(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	out.Password = null.String{}
+	if out.Type != models.UserTypeAPI {
+		out.Password = null.String{}
+	}
 
 	return c.JSON(http.StatusOK, okResp{out})
 }
