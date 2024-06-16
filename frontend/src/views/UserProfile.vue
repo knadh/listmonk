@@ -64,7 +64,7 @@ export default Vue.extend({
         email: this.form.email,
       };
 
-      if (this.form.passwordLogin) {
+      if (this.form.passwordLogin && this.form.password) {
         if (this.form.password !== this.form.password2) {
           this.$utils.toast(this.$t('users.passwordMismatch'), 'is-danger');
           return;
