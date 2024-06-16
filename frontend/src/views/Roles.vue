@@ -19,7 +19,10 @@
     <b-table :data="roles" :loading="loading.roles" hoverable>
       <b-table-column v-slot="props" field="role" :label="$tc('users.role')" sortable>
         <a href="#" @click.prevent="showEditForm(props.row)">
-          {{ props.row.name }}
+          <b-tag v-if="props.row.id === 1" class="enabled">
+            {{ props.row.name }}
+          </b-tag>
+          <template v-else>{{ props.row.name }}</template>
         </a>
       </b-table-column>
 
@@ -34,7 +37,18 @@
       </b-table-column>
 
       <b-table-column v-slot="props" cell-class="actions" align="right">
-        <div>
+        <a href="#" @click.prevent="$utils.prompt($t('globals.buttons.clone'),
+          {
+            placeholder: $t('globals.fields.name'),
+            value: $t('campaigns.copyOf', { name: props.row.name }),
+          },
+          (name) => onCloneRole(name, props.row))" data-cy="btn-clone" :aria-label="$t('globals.buttons.clone')">
+          <b-tooltip :label="$t('globals.buttons.clone')" type="is-dark">
+            <b-icon icon="file-multiple-outline" size="is-small" />
+          </b-tooltip>
+        </a>
+
+        <template v-if="props.row.id !== 1">
           <a href="#" @click.prevent="showEditForm(props.row)" data-cy="btn-edit"
             :aria-label="$t('globals.buttons.edit')">
             <b-tooltip :label="$t('globals.buttons.edit')" type="is-dark">
@@ -42,13 +56,13 @@
             </b-tooltip>
           </a>
 
-          <a href="#" @click.prevent="deleteRole(props.row)" data-cy="btn-delete"
+          <a href="#" @click.prevent="onDeleteRole(props.row)" data-cy="btn-delete"
             :aria-label="$t('globals.buttons.delete')">
             <b-tooltip :label="$t('globals.buttons.delete')" type="is-dark">
               <b-icon icon="trash-can-outline" size="is-small" />
             </b-tooltip>
           </a>
-        </div>
+        </template>
       </b-table-column>
 
       <template #empty v-if="!loading.users">
@@ -108,7 +122,13 @@ export default Vue.extend({
       }
     },
 
-    deleteRole(item) {
+    onCloneRole(name, item) {
+      this.$api.createRole({ name, permissions: item.permissions }).then(() => {
+        this.$api.getRoles();
+      });
+    },
+
+    onDeleteRole(item) {
       this.$utils.confirm(
         this.$t('globals.messages.confirm'),
         () => {

@@ -1025,7 +1025,7 @@ SELECT JSON_BUILD_OBJECT('version', (SELECT VERSION()),
                         'size_mb', (SELECT ROUND(pg_database_size((SELECT CURRENT_DATABASE()))/(1024^2)))) AS info;
 
 -- name: create-user
-INSERT INTO users (username, password_login, password, email, name, type, status)
+INSERT INTO users (username, password_login, password, email, name, type, role_id, status)
     VALUES($1, $2, (
         CASE
             -- For user types with password_login enabled, bcrypt and store the hash of the password.
@@ -1036,9 +1036,12 @@ INSERT INTO users (username, password_login, password, email, name, type, status
                 THEN $3
             ELSE NULL
         END
-    ), $4, $5, $6, $7) RETURNING *;
+    ), $4, $5, $6, $7, $8) RETURNING *;
 
 -- name: update-user
+WITH u AS (
+    SELECT COUNT(*) AS num FROM users WHERE NOT(id = $1) AND role_id=1 AND status='enabled'
+)
 UPDATE users SET
     username=(CASE WHEN $2 != '' THEN $2 ELSE username END),
     password_login=$3,
@@ -1046,27 +1049,32 @@ UPDATE users SET
     email=(CASE WHEN $5 != '' THEN $5 ELSE email END),
     name=(CASE WHEN $6 != '' THEN $6 ELSE name END),
     type=(CASE WHEN $7 != '' THEN $7::user_type ELSE type END),
-    status=(CASE WHEN $8 != '' THEN $8::user_status ELSE status END)
-    WHERE id=$1;
+    role_id=(CASE WHEN $8 != 0 THEN $8 ELSE role_id END),
+    status=(CASE WHEN $9 != '' THEN $9::user_status ELSE status END)
+    WHERE id=$1 AND (SELECT num FROM u) > 0;
 
 -- name: delete-users
 WITH u AS (
-    SELECT COUNT(*) AS num FROM users WHERE NOT(id = ANY($1)) AND type='super'
+    SELECT COUNT(*) AS num FROM users WHERE NOT(id = ANY($1)) AND role_id=1 AND status='enabled'
 )
 DELETE FROM users WHERE id = ALL($1) AND (SELECT num FROM u) > 0;
 
 -- name: get-user
-SELECT * FROM users WHERE
+SELECT users.*, r.name as role_name, r.permissions FROM users
+    LEFT JOIN user_roles r ON (r.id = users.role_id)
+    WHERE
     (
         CASE
-            WHEN $1::INT != 0 THEN id = $1
+            WHEN $1::INT != 0 THEN users.id = $1
             WHEN $2::TEXT != '' THEN username = $2
             WHEN $3::TEXT != '' THEN email = $3
         END
-    ) AND status='enabled';
+    );
 
 -- name: get-users
-SELECT * FROM users WHERE $1=0 OR id=$1 ORDER BY created_at;
+SELECT users.*, r.name as role_name, r.permissions FROM users
+    LEFT JOIN user_roles r ON (r.id = users.role_id)
+    WHERE $1=0 OR users.id=$1 ORDER BY created_at;
 
 -- name: get-api-tokens
 SELECT username, password FROM users WHERE status='enabled' AND type='api';
@@ -1083,13 +1091,13 @@ UPDATE users SET name=$2, email=$3,
     WHERE id=$1;
 
 -- name: get-roles
-SELECT * FROM roles ORDER BY created_at;
+SELECT * FROM user_roles ORDER BY created_at;
 
 -- name: create-role
-INSERT INTO roles (name, permissions, created_at, updated_at) VALUES($1, $2, NOW(), NOW()) RETURNING *;
+INSERT INTO user_roles (name, permissions, created_at, updated_at) VALUES($1, $2, NOW(), NOW()) RETURNING *;
 
 -- name: update-role
-UPDATE roles SET name=$2, permissions=$3 WHERE id=$1 RETURNING *;
+UPDATE user_roles SET name=$2, permissions=$3 WHERE id=$1 RETURNING *;
 
 -- name: delete-role
-DELETE FROM roles WHERE id=$1;
+DELETE FROM user_roles WHERE id=$1;
