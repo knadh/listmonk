@@ -24,7 +24,7 @@ $body-size: 15px;
 $background: $white-bis;
 $body-background-color: $white-bis;
 $primary: #0055d4;
-$green: #0db35e;
+$green: #36995b;
 $turquoise: $green;
 $red: #FF5722;
 
@@ -569,21 +569,23 @@ body.is-noscroll {
 
 /* Tags */
 .tag {
-  min-width: 85px;
-
+  border-radius: 30px !important;
+  border: 0;
+  padding: 0 20px !important;
+  
   &.is-small {
     font-size: 0.65rem;
     background: $white-ter;
-    border: 1px solid $white-ter;
+    // border: 1px solid $white-ter;
     padding: 3px 5px;
     min-width: auto !important;
   }
-
+  
   &:not(body) {
+    background-color: #eee;
     font-size: 0.85em;
-    $color: $grey-lighter;
-    border: 1px solid $color;
-    box-shadow: 1px 1px 0 $color;
+    // border: 1px solid $color;
+    // box-shadow: 1px 1px 0 $color;
     color: $grey;
   }
 
@@ -591,29 +593,28 @@ body.is-noscroll {
     $color: #ed7b00;
     color: $color;
     background: #fff7e6;
-    border: 1px solid lighten($color, 37%);
-    box-shadow: 1px 1px 0 lighten($color, 37%);
+    // border: 1px solid lighten($color, 37%);
+    // box-shadow: 1px 1px 0 lighten($color, 37%);
   }
-  &.public, &.running, &.list, &.campaign, &.user {
+  &.public, &.running, &.list, &.campaign, &.user, &.primary {
     $color: $primary;
-    color: lighten($color, 20%);;
+    color: lighten($color, 20%);
     background: #e6f7ff;
-    border: 1px solid lighten($color, 42%);
-    box-shadow: 1px 1px 0 lighten($color, 42%);
+    // border: 1px solid lighten($color, 42%);
+    // box-shadow: 1px 1px 0 lighten($color, 42%);
   }
-  &.finished, &.enabled, &.status-confirmed, &.super {
-    $color: $green;
-    color: $color;
-    background: #f6ffed;
-    border: 1px solid lighten($color, 45%);
-    box-shadow: 1px 1px 0 lighten($color, 45%);
+  &.finished, &.enabled, &.status-confirmed {
+    color: $green;
+    background: #dcfce7;
+    // border: 1px solid lighten($color, 45%);
+    // box-shadow: 1px 1px 0 lighten($color, 45%);
   }
   &.blocklisted, &.cancelled, &.status-unsubscribed {
     $color: $red;
     color: $color;
     background: #fff1f0;
     border: 1px solid lighten($color, 30%);
-    box-shadow: 1px 1px 0 lighten($color, 30%);
+    // box-shadow: 1px 1px 0 lighten($color, 30%);
   }
 
   sup {
@@ -918,7 +919,7 @@ section.analytics {
 /* Users */
 section.users {
   td .tag {
-    min-width: 100px !important;
+    margin: 0 3px;
   }
 }
 .user-api-token .copy-text {
