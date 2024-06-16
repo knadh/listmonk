@@ -41,8 +41,13 @@
         <a :href="`/users/${props.row.id}`" @click.prevent="showEditForm(props.row)"
           :class="{ 'has-text-grey': props.row.status === 'disabled' }">
           {{ props.row.username }}
-          <div class="has-text-grey is-size-7">{{ props.row.name }}</div>
         </a>
+        <b-tag v-if="props.row.status === 'disabled'">
+          {{ $t(`users.status.${props.row.status}`) }}
+        </b-tag>
+        <div class="has-text-grey is-size-7">
+          {{ props.row.name }}
+        </div>
       </b-table-column>
 
       <b-table-column v-slot="props" field="status" :label="$tc('users.role')" header-class="cy-status" sortable
@@ -53,9 +58,6 @@
         <b-tag v-if="props.row.type === 'api'" class="primary">
           <b-icon icon="code" />
           {{ $t(`users.type.${props.row.type}`) }}
-        </b-tag>
-        <b-tag v-if="props.row.status === 'disabled'">
-          {{ $t(`users.status.${props.row.status}`) }}
         </b-tag>
       </b-table-column>
 
