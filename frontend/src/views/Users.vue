@@ -36,11 +36,6 @@
         </div>
       </template>
 
-      <b-table-column v-slot="props" field="type" :label="$t('users.type')" sortable>
-        <b-tag :class="{ [props.row.type]: props.row.status === 'enabled' }">
-          {{ $t(`users.type.${props.row.type}`) }}
-        </b-tag>
-      </b-table-column>
       <b-table-column v-slot="props" field="username" :label="$t('users.username')" header-class="cy-username" sortable
         :td-attrs="$utils.tdID">
         <a :href="`/users/${props.row.id}`" @click.prevent="showEditForm(props.row)"
@@ -50,9 +45,16 @@
         </a>
       </b-table-column>
 
-      <b-table-column v-slot="props" field="status" :label="$t('globals.fields.status')" header-class="cy-status"
-        sortable :td-attrs="$utils.tdID">
-        <b-tag :class="{ [props.row.status]: true }">
+      <b-table-column v-slot="props" field="status" :label="$tc('users.role')" header-class="cy-status" sortable
+        :td-attrs="$utils.tdID">
+        <b-tag :class="props.row.roleId === 1 ? 'enabled' : ''">
+          {{ props.row.roleName }}
+        </b-tag>
+        <b-tag v-if="props.row.type === 'api'" class="primary">
+          <b-icon icon="code" />
+          {{ $t(`users.type.${props.row.type}`) }}
+        </b-tag>
+        <b-tag v-if="props.row.status === 'disabled'">
           {{ $t(`users.status.${props.row.status}`) }}
         </b-tag>
       </b-table-column>
@@ -120,12 +122,6 @@ import Vue from 'vue';
 import { mapState } from 'vuex';
 import EmptyPlaceholder from '../components/EmptyPlaceholder.vue';
 import UserForm from './UserForm.vue';
-
-const TYPE_ICONS = {
-  user: 'account-outline',
-  super: 'account-check-outline',
-  api: 'link-variant',
-};
 
 export default Vue.extend({
   components: {
@@ -209,8 +205,6 @@ export default Vue.extend({
         },
       );
     },
-
-    getTypeIcon: (typ) => TYPE_ICONS[typ],
   },
 
   computed: {

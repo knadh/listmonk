@@ -14,9 +14,10 @@ import (
 	"github.com/lib/pq"
 )
 
-// install runs the first time setup of creating and
-// migrating the database and creating the super user.
+// install runs the first time setup of setting up the database.
 func install(lastVer string, db *sqlx.DB, fs stuffbin.FileSystem, prompt, idempotent bool) {
+	consts := initConstants()
+
 	qMap := readQueries(queryFilePath, db, fs)
 
 	fmt.Println("")
@@ -62,6 +63,16 @@ func install(lastVer string, db *sqlx.DB, fs stuffbin.FileSystem, prompt, idempo
 	// Load the queries.
 	q := prepareQueries(qMap, db, ko)
 
+	// Super admin role.
+	perms := []string{}
+	for p := range consts.Permissions {
+		perms = append(perms, p)
+	}
+
+	if _, err := q.CreateRole.Exec("Super Admin", pq.Array(perms)); err != nil {
+		lo.Fatalf("error creating super admin role: %v", err)
+	}
+
 	// Create super admin.
 	var (
 		user     = ko.String("app.admin_username")
@@ -70,7 +81,7 @@ func install(lastVer string, db *sqlx.DB, fs stuffbin.FileSystem, prompt, idempo
 	if len(user) < 2 || len(password) < 8 {
 		lo.Fatal("admin_username should be min 3 chars and admin_password should be min 8 chars")
 	}
-	if _, err := q.CreateUser.Exec(user, true, password, user+"@listmonk", user, "super", "enabled"); err != nil {
+	if _, err := q.CreateUser.Exec(user, true, password, user+"@listmonk", user, "user", 1, "enabled"); err != nil {
 		lo.Fatalf("error creating superadmin user: %v", err)
 	}
 

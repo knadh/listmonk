@@ -21,14 +21,11 @@
         <div class="columns">
           <div class="column is-6">
             <b-field :label="$t('users.type')" label-position="on-border">
-              <b-select v-model="form.type" name="status" required expanded>
-                <option v-if="hasType('user')" value="user">
+              <b-select v-model="form.type" name="status" required expanded :disabled="isEditing">
+                <option value="user">
                   {{ $t('users.type.user') }}
                 </option>
-                <option v-if="hasType('super')" value="super">
-                  {{ $t('users.type.super') }}
-                </option>
-                <option v-if="hasType('api')" value="api">
+                <option value="api">
                   {{ $t('users.type.api') }}
                 </option>
               </b-select>
@@ -47,6 +44,14 @@
             </b-field>
           </div>
         </div>
+
+        <b-field :label="$tc('users.role')" label-position="on-border">
+          <b-select v-model="form.roleId" name="role" required expanded>
+            <option v-for="r in roles" :value="r.id" :key="r.id">
+              {{ r.name }}
+            </option>
+          </b-select>
+        </b-field>
 
         <b-field v-if="form.type !== 'api'" :label="$t('subscribers.email')" label-position="on-border">
           <b-input :maxlength="200" v-model="form.email" name="email" :placeholder="$t('subscribers.email')" required />
@@ -155,7 +160,7 @@ export default Vue.extend({
     },
 
     createUser() {
-      const form = { ...this.form, password_login: this.form.passwordLogin };
+      const form = { ...this.form, password_login: this.form.passwordLogin, role_id: this.form.roleId };
       this.$api.createUser(form).then((data) => {
         this.$emit('finished');
         this.$utils.toast(this.$t('globals.messages.created', { name: data.name }));
@@ -166,12 +171,13 @@ export default Vue.extend({
           return;
         }
 
+        this.$emit('finished');
         this.$parent.close();
       });
     },
 
     updateUser() {
-      const form = { ...this.form, password_login: this.form.passwordLogin };
+      const form = { ...this.form, password_login: this.form.passwordLogin, role_id: this.form.roleId };
       this.$api.updateUser({ id: this.data.id, ...form }).then((data) => {
         this.$emit('finished');
         this.$parent.close();
@@ -187,11 +193,13 @@ export default Vue.extend({
   },
 
   computed: {
-    ...mapState(['loading']),
+    ...mapState(['loading', 'roles']),
   },
 
   mounted() {
     this.form = { ...this.form, ...this.$props.data };
+
+    this.$api.getRoles();
 
     this.$nextTick(() => {
       this.$refs.focus.focus();

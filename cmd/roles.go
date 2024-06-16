@@ -35,7 +35,7 @@ func handleCreateRole(c echo.Context) error {
 		return err
 	}
 
-	if err := validatePerms(r, app); err != nil {
+	if err := validateRole(r, app); err != nil {
 		return err
 	}
 
@@ -54,7 +54,7 @@ func handleUpdateRole(c echo.Context) error {
 		id, _ = strconv.Atoi(c.Param("id"))
 	)
 
-	if id < 1 {
+	if id < 2 {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidID"))
 	}
 
@@ -64,17 +64,12 @@ func handleUpdateRole(c echo.Context) error {
 		return err
 	}
 
-	if err := validatePerms(r, app); err != nil {
+	if err := validateRole(r, app); err != nil {
 		return err
 	}
 
 	// Validate.
 	r.Name = strings.TrimSpace(r.Name)
-
-	// Validate fields.
-	if !strHasLen(r.Name, 3, stdInputMaxLen) {
-		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.Ts("globals.messages.invalidFields", "name", "username"))
-	}
 
 	out, err := app.core.UpdateRole(id, r)
 	if err != nil {
@@ -102,7 +97,12 @@ func handleDeleteRole(c echo.Context) error {
 	return c.JSON(http.StatusOK, okResp{true})
 }
 
-func validatePerms(r models.Role, app *App) error {
+func validateRole(r models.Role, app *App) error {
+	// Validate fields.
+	if !strHasLen(r.Name, 3, stdInputMaxLen) {
+		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.Ts("globals.messages.invalidFields", "name", "name"))
+	}
+
 	for _, p := range r.Permissions {
 		if _, ok := app.constants.Permissions[p]; !ok {
 			return echo.NewHTTPError(http.StatusBadRequest, app.i18n.Ts("globals.messages.invalidFields", "name", "permission"))

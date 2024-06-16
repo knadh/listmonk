@@ -7,7 +7,7 @@ DROP TYPE IF EXISTS campaign_type CASCADE; CREATE TYPE campaign_type AS ENUM ('r
 DROP TYPE IF EXISTS content_type CASCADE; CREATE TYPE content_type AS ENUM ('richtext', 'html', 'plain', 'markdown');
 DROP TYPE IF EXISTS bounce_type CASCADE; CREATE TYPE bounce_type AS ENUM ('soft', 'hard', 'complaint');
 DROP TYPE IF EXISTS template_type CASCADE; CREATE TYPE template_type AS ENUM ('campaign', 'tx');
-DROP TYPE IF EXISTS user_type CASCADE; CREATE TYPE user_type AS ENUM ('user', 'super', 'api');
+DROP TYPE IF EXISTS user_type CASCADE; CREATE TYPE user_type AS ENUM ('user', 'api');
 DROP TYPE IF EXISTS user_status CASCADE; CREATE TYPE user_status AS ENUM ('enabled', 'disabled');
 
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
@@ -300,6 +300,17 @@ DROP INDEX IF EXISTS idx_bounces_camp_id; CREATE INDEX idx_bounces_camp_id ON bo
 DROP INDEX IF EXISTS idx_bounces_source; CREATE INDEX idx_bounces_source ON bounces(source);
 DROP INDEX IF EXISTS idx_bounces_date; CREATE INDEX idx_bounces_date ON bounces((TIMEZONE('UTC', created_at)::DATE));
 
+-- roles
+DROP TABLE IF EXISTS user_roles CASCADE;
+CREATE TABLE user_roles (
+    id               SERIAL PRIMARY KEY,
+    name             TEXT NOT NULL DEFAULT '',
+    permissions      TEXT[] NOT NULL DEFAULT '{}',
+    created_at       TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at       TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+DROP INDEX IF EXISTS idx_roles_name; CREATE UNIQUE INDEX idx_roles_name ON user_roles(LOWER(name));
+
 -- users
 DROP TABLE IF EXISTS users CASCADE;
 CREATE TABLE users (
@@ -310,21 +321,14 @@ CREATE TABLE users (
     email            TEXT NOT NULL UNIQUE,
     name             TEXT NOT NULL,
     type             user_type NOT NULL DEFAULT 'user',
+    role_id          INTEGER NOT NULL REFERENCES user_roles(id) ON DELETE RESTRICT,
     status           user_status NOT NULL DEFAULT 'disabled',
     loggedin_at      TIMESTAMP WITH TIME ZONE NULL,
     created_at       TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at       TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
 
-DROP TABLE IF EXISTS roles CASCADE;
-CREATE TABLE roles (
-    id               SERIAL PRIMARY KEY,
-    name             TEXT NOT NULL DEFAULT '',
-    permissions      TEXT[] NOT NULL DEFAULT '{}',
-    created_at       TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    updated_at       TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+    -- CONSTRAINT user_role_id FOREIGN KEY (role_id) REFERENCES user_roles (id) ON DELETE RESTRICT
 );
-DROP INDEX IF EXISTS idx_roles_name; CREATE UNIQUE INDEX idx_roles_name ON roles(LOWER(name));
 
 -- user sessions
 DROP TABLE IF EXISTS sessions CASCADE;

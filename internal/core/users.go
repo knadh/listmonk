@@ -69,7 +69,7 @@ func (c *Core) CreateUser(u models.User) (models.User, error) {
 		u.Password = null.String{String: tk, Valid: true}
 	}
 
-	if err := c.q.CreateUser.Get(&out, u.Username, u.PasswordLogin, u.Password, u.Email, u.Name, u.Type, u.Status); err != nil {
+	if err := c.q.CreateUser.Get(&out, u.Username, u.PasswordLogin, u.Password, u.Email, u.Name, u.Type, u.RoleID, u.Status); err != nil {
 		return models.User{}, echo.NewHTTPError(http.StatusInternalServerError,
 			c.i18n.Ts("globals.messages.errorCreating", "name", "{globals.terms.user}", "error", pqErrMsg(err)))
 	}
@@ -85,15 +85,14 @@ func (c *Core) CreateUser(u models.User) (models.User, error) {
 
 // UpdateUser updates a given user.
 func (c *Core) UpdateUser(id int, u models.User) (models.User, error) {
-	res, err := c.q.UpdateUser.Exec(id, u.Username, u.PasswordLogin, u.Password, u.Email, u.Name, u.Type, u.Status)
+	res, err := c.q.UpdateUser.Exec(id, u.Username, u.PasswordLogin, u.Password, u.Email, u.Name, u.Type, u.RoleID, u.Status)
 	if err != nil {
 		return models.User{}, echo.NewHTTPError(http.StatusInternalServerError,
 			c.i18n.Ts("globals.messages.errorUpdating", "name", "{globals.terms.user}", "error", pqErrMsg(err)))
 	}
 
 	if n, _ := res.RowsAffected(); n == 0 {
-		return models.User{}, echo.NewHTTPError(http.StatusBadRequest,
-			c.i18n.Ts("globals.messages.notFound", "name", "{globals.terms.user}"))
+		return models.User{}, echo.NewHTTPError(http.StatusBadRequest, c.i18n.T("users.needSuper"))
 	}
 
 	return c.GetUser(id, "", "")
@@ -123,7 +122,7 @@ func (c *Core) DeleteUsers(ids []int) error {
 			c.i18n.Ts("globals.messages.errorDeleting", "name", "{globals.terms.user}", "error", pqErrMsg(err)))
 	}
 	if num, err := res.RowsAffected(); err != nil || num == 0 {
-		return echo.NewHTTPError(http.StatusBadRequest, c.i18n.T("users.cantDelete"))
+		return echo.NewHTTPError(http.StatusBadRequest, c.i18n.T("users.needSuper"))
 	}
 
 	return nil

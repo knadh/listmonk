@@ -56,7 +56,6 @@ const (
 	ListOptinDouble = "double"
 
 	// User.
-	UserTypeSuperadmin = "super"
 	UserTypeUser       = "user"
 	UserTypeAPI        = "api"
 	UserStatusEnabled  = "enabled"
@@ -152,15 +151,19 @@ type User struct {
 	Username string `db:"username" json:"username"`
 
 	// For API users, this is the plaintext API token.
-	Password      null.String         `db:"password" json:"password,omitempty"`
-	PasswordLogin bool                `db:"password_login" json:"password_login"`
-	Email         null.String         `db:"email" json:"email"`
-	Name          string              `db:"name" json:"name"`
-	Type          string              `db:"type" json:"type"`
-	Status        string              `db:"status" json:"status"`
-	Avatar        null.String         `db:"-" json:"avatar"`
-	Permissions   map[string]struct{} `db:"-" json:"-"`
-	LoggedInAt    null.Time           `db:"loggedin_at" json:"loggedin_at"`
+	Password      null.String    `db:"password" json:"password,omitempty"`
+	PasswordLogin bool           `db:"password_login" json:"password_login"`
+	Email         null.String    `db:"email" json:"email"`
+	Name          string         `db:"name" json:"name"`
+	Type          string         `db:"type" json:"type"`
+	RoleID        int            `db:"role_id" json:"role_id"`
+	RoleName      string         `db:"role_name" json:"role_name"`
+	Permissions   pq.StringArray `db:"permissions" json:"permissions"`
+	Status        string         `db:"status" json:"status"`
+	Avatar        null.String    `db:"-" json:"avatar"`
+
+	PermissionsTbl map[string]struct{} `db:"-" json:"-"`
+	LoggedInAt     null.Time           `db:"loggedin_at" json:"loggedin_at"`
 
 	HasPassword bool `db:"-" json:"-"`
 }
