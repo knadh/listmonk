@@ -111,8 +111,8 @@ func initHTTPHandlers(e *echo.Echo, app *App) {
 	api.GET("/api/health", handleHealthCheck)
 	api.GET("/api/config", handleGetServerConfig)
 	api.GET("/api/lang/:lang", handleGetI18nLang)
-	api.GET("/api/dashboard/charts", pm(handleGetDashboardCharts, ""))
-	api.GET("/api/dashboard/counts", pm(handleGetDashboardCounts, ""))
+	api.GET("/api/dashboard/charts", handleGetDashboardCharts)
+	api.GET("/api/dashboard/counts", handleGetDashboardCounts)
 
 	api.GET("/api/settings", pm(handleGetSettings, "settings:get"))
 	api.PUT("/api/settings", pm(handleUpdateSettings, "settings:manage"))
@@ -120,7 +120,7 @@ func initHTTPHandlers(e *echo.Echo, app *App) {
 	api.POST("/api/admin/reload", pm(handleReloadApp, "settings:manage"))
 	api.GET("/api/logs", pm(handleGetLogs, "settings:get"))
 	api.GET("/api/events", pm(handleEventStream, "settings:get"))
-	api.GET("/api/about", pm(handleGetAboutInfo, ""))
+	api.GET("/api/about", handleGetAboutInfo)
 
 	api.GET("/api/subscribers", pm(handleQuerySubscribers, "subscribers:get"))
 	api.GET("/api/subscribers/:id", pm(handleGetSubscriber, "subscribers:get"))
@@ -190,9 +190,9 @@ func initHTTPHandlers(e *echo.Echo, app *App) {
 	api.PUT("/api/templates/:id/default", pm(handleTemplateSetDefault, "templates:manage"))
 	api.DELETE("/api/templates/:id", pm(handleDeleteTemplate, "templates:manage"))
 
-	api.DELETE("/api/maintenance/subscribers/:type", pm(handleGCSubscribers, "maintenance:manage"))
-	api.DELETE("/api/maintenance/analytics/:type", pm(handleGCCampaignAnalytics, "maintenance:manage"))
-	api.DELETE("/api/maintenance/subscriptions/unconfirmed", pm(handleGCSubscriptions, "maintenance:manage"))
+	api.DELETE("/api/maintenance/subscribers/:type", pm(handleGCSubscribers, "settings:maintain"))
+	api.DELETE("/api/maintenance/analytics/:type", pm(handleGCCampaignAnalytics, "settings:maintain"))
+	api.DELETE("/api/maintenance/subscriptions/unconfirmed", pm(handleGCSubscriptions, "settings:maintain"))
 
 	api.POST("/api/tx", pm(handleSendTxMessage, "tx:send"))
 
@@ -204,7 +204,7 @@ func initHTTPHandlers(e *echo.Echo, app *App) {
 	api.PUT("/api/users/:id", pm(handleUpdateUser, "users:manage"))
 	api.DELETE("/api/users", pm(handleDeleteUsers, "users:manage"))
 	api.DELETE("/api/users/:id", pm(handleDeleteUsers, "users:manage"))
-	api.POST("/api/logout", pm(handleLogout, ""))
+	api.POST("/api/logout", handleLogout)
 
 	api.GET("/api/roles", pm(handleGetRoles, "roles:get"))
 	api.POST("/api/roles", pm(handleCreateRole, "roles:manage"))
