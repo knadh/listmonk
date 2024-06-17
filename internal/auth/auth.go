@@ -26,6 +26,8 @@ const (
 	// UserKey is the key on which the User profile is set on echo handlers.
 	UserKey    = "auth_user"
 	SessionKey = "auth_session"
+
+	SuperAdminRole = 1
 )
 
 const (
@@ -236,6 +238,22 @@ func (o *Auth) Middleware(next echo.HandlerFunc) echo.HandlerFunc {
 
 func (o *Auth) Perm(next echo.HandlerFunc, perm string) echo.HandlerFunc {
 	return func(c echo.Context) error {
+		u, ok := c.Get(UserKey).(models.User)
+		if !ok {
+			c.Set(UserKey, echo.NewHTTPError(http.StatusForbidden, "invalid session"))
+			return next(c)
+		}
+
+		// If there's no permission set on the handler or if the current user is a super admin, do no checks.
+		if perm == "" || u.RoleID == SuperAdminRole {
+			return next(c)
+		}
+
+		// Check if the current handler's permission is in the user's permission map.
+		if _, ok := u.PermissionsMap[perm]; !ok {
+			return echo.NewHTTPError(http.StatusForbidden, fmt.Sprintf("permission denied (%s)", perm))
+		}
+
 		return next(c)
 	}
 }

@@ -1084,7 +1084,9 @@ SELECT username, password FROM users WHERE status='enabled' AND type='api';
 
 -- name: login-user
 WITH u AS (
-    SELECT * FROM users WHERE username=$1 AND status != 'disabled' AND password_login = TRUE
+    SELECT users.*, r.name as role_name, r.permissions FROM users
+        LEFT JOIN user_roles r ON (r.id = users.role_id)
+        WHERE username=$1 AND status != 'disabled' AND password_login = TRUE
 )
 SELECT * FROM u WHERE CRYPT($2, password) = password;
 
