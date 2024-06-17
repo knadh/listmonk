@@ -48,6 +48,11 @@ func (c *Core) GetUser(id int, username, email string) (models.User, error) {
 		out.PasswordLogin = true
 	}
 
+	out.PermissionsMap = make(map[string]struct{})
+	for _, p := range out.Permissions {
+		out.PermissionsMap[p] = struct{}{}
+	}
+
 	return out, nil
 }
 
@@ -139,6 +144,11 @@ func (c *Core) LoginUser(username, password string) (models.User, error) {
 
 		return out, echo.NewHTTPError(http.StatusInternalServerError,
 			c.i18n.Ts("globals.messages.errorFetching", "name", "{globals.terms.users}", "error", pqErrMsg(err)))
+	}
+
+	out.PermissionsMap = make(map[string]struct{})
+	for _, p := range out.Permissions {
+		out.PermissionsMap[p] = struct{}{}
 	}
 
 	return out, nil

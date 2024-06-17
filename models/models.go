@@ -162,7 +162,7 @@ type User struct {
 	Status        string         `db:"status" json:"status"`
 	Avatar        null.String    `db:"-" json:"avatar"`
 
-	PermissionsTbl map[string]struct{} `db:"-" json:"-"`
+	PermissionsMap map[string]struct{} `db:"-" json:"-"`
 	LoggedInAt     null.Time           `db:"loggedin_at" json:"loggedin_at"`
 
 	HasPassword bool `db:"-" json:"-"`
