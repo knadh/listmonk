@@ -14,7 +14,7 @@
           @toggleGroup="toggleGroup" @doLogout="doLogout" />
 
         <b-navbar-dropdown v-else>
-          <template v-if="profile" #label>
+          <template v-if="profile.username" #label>
             <div class="user-avatar">
               <img v-if="profile.avatar" :src="profile.avatar" alt="" />
               <span v-else>{{ profile.username[0].toUpperCase() }}</span>
@@ -87,7 +87,6 @@ export default Vue.extend({
 
   data() {
     return {
-      profile: null,
       activeItem: {},
       activeGroup: {},
       windowWidth: window.innerWidth,
@@ -155,7 +154,7 @@ export default Vue.extend({
   },
 
   computed: {
-    ...mapState(['serverConfig']),
+    ...mapState(['serverConfig', 'profile']),
 
     version() {
       return import.meta.env.VUE_APP_VERSION;
@@ -169,16 +168,15 @@ export default Vue.extend({
   mounted() {
     // Lists is required across different views. On app load, fetch the lists
     // and have them in the store.
-    this.$api.getLists({ minimal: true, per_page: 'all' });
+    if (this.$can('lists:get')) {
+      this.$api.getLists({ minimal: true, per_page: 'all' });
+    }
 
     window.addEventListener('resize', () => {
       this.windowWidth = window.innerWidth;
     });
 
     this.listenEvents();
-    this.$api.getUserProfile().then((d) => {
-      this.profile = d;
-    });
   },
 });
 </script>

@@ -93,7 +93,8 @@
         <b-button @click="$parent.close()">
           {{ $t('globals.buttons.close') }}
         </b-button>
-        <b-button v-if="!apiToken" native-type="submit" type="is-primary" :loading="loading.lists" data-cy="btn-save">
+        <b-button v-if="$can('users:manage') && !apiToken" native-type="submit" type="is-primary"
+          :loading="loading.lists" data-cy="btn-save">
           {{ $t('globals.buttons.save') }}
         </b-button>
       </footer>

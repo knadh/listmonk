@@ -8,7 +8,7 @@
         </h1>
       </div>
       <div class="column has-text-right">
-        <b-field expanded>
+        <b-field v-if="$can('users:manage')" expanded>
           <b-button expanded type="is-primary" icon-left="plus" class="btn-new" @click="showNewForm" data-cy="btn-new">
             {{ $t('globals.buttons.new') }}
           </b-button>
@@ -37,31 +37,33 @@
       </b-table-column>
 
       <b-table-column v-slot="props" cell-class="actions" align="right">
-        <a href="#" @click.prevent="$utils.prompt($t('globals.buttons.clone'),
-          {
-            placeholder: $t('globals.fields.name'),
-            value: $t('campaigns.copyOf', { name: props.row.name }),
-          },
-          (name) => onCloneRole(name, props.row))" data-cy="btn-clone" :aria-label="$t('globals.buttons.clone')">
-          <b-tooltip :label="$t('globals.buttons.clone')" type="is-dark">
-            <b-icon icon="file-multiple-outline" size="is-small" />
-          </b-tooltip>
-        </a>
-
-        <template v-if="props.row.id !== 1">
-          <a href="#" @click.prevent="showEditForm(props.row)" data-cy="btn-edit"
-            :aria-label="$t('globals.buttons.edit')">
-            <b-tooltip :label="$t('globals.buttons.edit')" type="is-dark">
-              <b-icon icon="pencil-outline" size="is-small" />
+        <template v-if="$can('roles:manage')">
+          <a href="#" @click.prevent="$utils.prompt($t('globals.buttons.clone'),
+            {
+              placeholder: $t('globals.fields.name'),
+              value: $t('campaigns.copyOf', { name: props.row.name }),
+            },
+            (name) => onCloneRole(name, props.row))" data-cy="btn-clone" :aria-label="$t('globals.buttons.clone')">
+            <b-tooltip :label="$t('globals.buttons.clone')" type="is-dark">
+              <b-icon icon="file-multiple-outline" size="is-small" />
             </b-tooltip>
           </a>
 
-          <a href="#" @click.prevent="onDeleteRole(props.row)" data-cy="btn-delete"
-            :aria-label="$t('globals.buttons.delete')">
-            <b-tooltip :label="$t('globals.buttons.delete')" type="is-dark">
-              <b-icon icon="trash-can-outline" size="is-small" />
-            </b-tooltip>
-          </a>
+          <template v-if="props.row.id !== 1">
+            <a href="#" @click.prevent="showEditForm(props.row)" data-cy="btn-edit"
+              :aria-label="$t('globals.buttons.edit')">
+              <b-tooltip :label="$t('globals.buttons.edit')" type="is-dark">
+                <b-icon icon="pencil-outline" size="is-small" />
+              </b-tooltip>
+            </a>
+
+            <a href="#" @click.prevent="onDeleteRole(props.row)" data-cy="btn-delete"
+              :aria-label="$t('globals.buttons.delete')">
+              <b-tooltip :label="$t('globals.buttons.delete')" type="is-dark">
+                <b-icon icon="trash-can-outline" size="is-small" />
+              </b-tooltip>
+            </a>
+          </template>
         </template>
       </b-table-column>
 

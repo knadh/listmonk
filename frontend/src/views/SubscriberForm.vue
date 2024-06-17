@@ -56,7 +56,7 @@
               </b-checkbox>
             </b-field>
           </div>
-          <div class="column is-5 has-text-right" v-if="isEditing">
+          <div v-if="$can('subscribers:manage') && isEditing" class="column is-5 has-text-right">
             <a href="#" @click.prevent="sendOptinConfirmation" :class="{ 'is-disabled': !hasOptinList }">
               <b-icon icon="email-outline" size="is-small" />
               {{ $t('subscribers.sendOptinConfirm') }}</a>
@@ -147,7 +147,8 @@
         <b-button @click="$parent.close()">
           {{ $t('globals.buttons.close') }}
         </b-button>
-        <b-button native-type="submit" type="is-primary" :loading="loading.subscribers">
+        <b-button v-if="$can('subscribers:manage')" native-type="submit" type="is-primary"
+          :loading="loading.subscribers">
           {{ $t('globals.buttons.save') }}
         </b-button>
       </footer>

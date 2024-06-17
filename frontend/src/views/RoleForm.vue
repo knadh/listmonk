@@ -141,7 +141,7 @@ export default Vue.extend({
       }, {});
 
       // It's the superadmin role. Disable the form.
-      if (this.$props.data.id === 1) {
+      if (this.$props.data.id === 1 || !this.$can('roles:manage')) {
         this.disabled = true;
       }
     } else {
