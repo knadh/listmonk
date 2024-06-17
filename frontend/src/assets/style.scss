@@ -584,37 +584,27 @@ body.is-noscroll {
   &:not(body) {
     background-color: #eee;
     font-size: 0.85em;
-    // border: 1px solid $color;
-    // box-shadow: 1px 1px 0 $color;
     color: $grey;
   }
 
   &.private, &.scheduled, &.paused, &.tx, &.api {
     $color: #ed7b00;
     color: $color;
-    background: #fff7e6;
-    // border: 1px solid lighten($color, 37%);
-    // box-shadow: 1px 1px 0 lighten($color, 37%);
+    background: lighten($color, 47);
   }
   &.public, &.running, &.list, &.campaign, &.user, &.primary {
     $color: $primary;
     color: lighten($color, 20%);
     background: #e6f7ff;
-    // border: 1px solid lighten($color, 42%);
-    // box-shadow: 1px 1px 0 lighten($color, 42%);
   }
   &.finished, &.enabled, &.status-confirmed {
     color: $green;
     background: #dcfce7;
-    // border: 1px solid lighten($color, 45%);
-    // box-shadow: 1px 1px 0 lighten($color, 45%);
   }
   &.blocklisted, &.cancelled, &.status-unsubscribed {
     $color: $red;
     color: $color;
     background: #fff1f0;
-    border: 1px solid lighten($color, 30%);
-    // box-shadow: 1px 1px 0 lighten($color, 30%);
   }
 
   sup {
@@ -717,6 +707,10 @@ section.lists {
 
   .toggle-advanced {
     margin-top: 10px;
+  }
+
+  .blocklisted {
+    color: red;
   }
 }
 
