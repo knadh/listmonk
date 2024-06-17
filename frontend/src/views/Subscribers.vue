@@ -103,19 +103,14 @@
         </div>
       </template>
 
-      <b-table-column v-slot="props" field="status" :label="$t('globals.fields.status')" header-class="cy-status"
-        :td-attrs="$utils.tdID" sortable>
-        <a :href="`/subscribers/${props.row.id}`" @click.prevent="showEditForm(props.row)">
-          <b-tag :class="props.row.status">
-            {{ $t(`subscribers.status.${props.row.status}`) }}
-          </b-tag>
-        </a>
-      </b-table-column>
-
       <b-table-column v-slot="props" field="email" :label="$t('subscribers.email')" header-class="cy-email" sortable>
-        <a :href="`/subscribers/${props.row.id}`" @click.prevent="showEditForm(props.row)">
+        <a :href="`/subscribers/${props.row.id}`" @click.prevent="showEditForm(props.row)"
+          :class="{ 'blocklisted': props.row.status === 'blocklisted' }">
           {{ props.row.email }}
         </a>
+        <b-tag v-if="props.row.status !== 'enabled'" :class="props.row.status">
+          {{ $t(`subscribers.status.${props.row.status}`) }}
+        </b-tag>
         <b-taglist>
           <template v-for="l in props.row.lists">
             <router-link :to="`/subscribers/lists/${l.id}`" :key="l.id" style="padding-right:0.5em;">
@@ -131,7 +126,8 @@
       </b-table-column>
 
       <b-table-column v-slot="props" field="name" :label="$t('globals.fields.name')" header-class="cy-name" sortable>
-        <a :href="`/subscribers/${props.row.id}`" @click.prevent="showEditForm(props.row)">
+        <a :href="`/subscribers/${props.row.id}`" @click.prevent="showEditForm(props.row)"
+          :class="{ 'blocklisted': props.row.status === 'blocklisted' }">
           {{ props.row.name }}
         </a>
       </b-table-column>
