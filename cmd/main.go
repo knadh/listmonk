@@ -250,6 +250,8 @@ func main() {
 	if ko.Bool("app.check_updates") {
 		go checkUpdates(versionString, time.Hour*24, app)
 	}
+	// 加载模板
+	reloadTemplates(queries)
 
 	// Wait for the reload signal with a callback to gracefully shut down resources.
 	// The `wait` channel is passed to awaitReload to wait for the callback to finish

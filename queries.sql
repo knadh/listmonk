@@ -931,6 +931,10 @@ up AS (
 )
 SELECT id FROM tpl;
 
+-- name: find-template-by-name
+SELECT name, type, subject, body, is_default, created_at, updated_at
+FROM templates
+WHERE name = $1;
 
 -- media
 -- name: insert-media

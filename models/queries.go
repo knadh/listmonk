@@ -94,6 +94,7 @@ type Queries struct {
 	UpdateTemplate     *sqlx.Stmt `query:"update-template"`
 	SetDefaultTemplate *sqlx.Stmt `query:"set-default-template"`
 	DeleteTemplate     *sqlx.Stmt `query:"delete-template"`
+	FindTemplateByName *sqlx.Stmt `query:"find-template-by-name"` // 根据名称查找模板（新增）
 
 	CreateLink        *sqlx.Stmt `query:"create-link"`
 	RegisterLinkClick *sqlx.Stmt `query:"register-link-click"`
