@@ -8,7 +8,7 @@
         </h1>
       </div>
       <div class="column has-text-right">
-        <b-field expanded>
+        <b-field v-if="$can('users:manage')" expanded>
           <b-button expanded type="is-primary" icon-left="plus" class="btn-new" @click="showNewForm" data-cy="btn-new">
             {{ $t('globals.buttons.new') }}
           </b-button>
@@ -91,14 +91,14 @@
 
       <b-table-column v-slot="props" cell-class="actions" align="right">
         <div>
-          <a href="#" @click.prevent="showEditForm(props.row)" data-cy="btn-edit"
+          <a v-if="$can('users:manage')" href="#" @click.prevent="showEditForm(props.row)" data-cy="btn-edit"
             :aria-label="$t('globals.buttons.edit')">
             <b-tooltip :label="$t('globals.buttons.edit')" type="is-dark">
               <b-icon icon="pencil-outline" size="is-small" />
             </b-tooltip>
           </a>
 
-          <a href="#" @click.prevent="deleteUser(props.row)" data-cy="btn-delete"
+          <a v-if="$can('users:manage')" href="#" @click.prevent="deleteUser(props.row)" data-cy="btn-delete"
             :aria-label="$t('globals.buttons.delete')">
             <b-tooltip :label="$t('globals.buttons.delete')" type="is-dark">
               <b-icon icon="trash-can-outline" size="is-small" />

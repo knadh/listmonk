@@ -6,9 +6,7 @@
       @{{ form.username }}
     </h1>
 
-    <b-tag :class="{ [form.type]: form.status === 'enabled' }">
-      {{ $t(`users.type.${form.type}`) }}
-    </b-tag>
+    <b-tag>{{ form.roleName }}</b-tag>
 
     <br /><br /><br />
     <form @submit.prevent="onSubmit">

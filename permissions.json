@@ -63,12 +63,12 @@
         ]
     },
     {
-        "group": "admin",
+        "group": "settings",
         "permissions":
         [
             "settings:get",
             "settings:manage",
-            "maintenance:manage"
+            "settings:maintain"
         ]
     }
 ]

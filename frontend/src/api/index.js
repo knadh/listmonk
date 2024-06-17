@@ -480,13 +480,13 @@ export const deleteUser = (id) => http.delete(
 
 export const getUserProfile = () => http.get(
   '/api/profile',
-  { loading: models.users },
+  { loading: models.users, store: models.profile },
 );
 
 export const updateUserProfile = (data) => http.put(
   '/api/profile',
   data,
-  { loading: models.users },
+  { loading: models.users, store: models.profile },
 );
 
 export const getRoles = async () => http.get(

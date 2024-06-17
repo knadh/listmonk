@@ -58,7 +58,8 @@
         <b-button @click="$parent.close()">
           {{ $t('globals.buttons.close') }}
         </b-button>
-        <b-button native-type="submit" type="is-primary" :loading="loading.lists" data-cy="btn-save">
+        <b-button v-if="$can('lists:manage')" native-type="submit" type="is-primary" :loading="loading.lists"
+          data-cy="btn-save">
           {{ $t('globals.buttons.save') }}
         </b-button>
       </footer>

@@ -23,7 +23,7 @@
       </div>
 
       <div class="column is-6">
-        <div class="buttons">
+        <div v-if="$can('campaigns:manage')" class="buttons">
           <b-field grouped v-if="isEditing && canEdit">
             <b-field expanded>
               <b-button expanded @click="() => onSubmit('update')" :loading="loading.campaigns" type="is-primary"
@@ -113,7 +113,8 @@
                       :message="form.sendAtDate ? $utils.duration(Date(), form.sendAtDate) : ''">
                       <b-datetimepicker v-model="form.sendAtDate" :disabled="!canEdit"
                         :placeholder="$t('campaigns.dateAndTime')" icon="calendar-clock"
-                        :timepicker="{ hourFormat: '24' }" :datetime-formatter="formatDateTime" horizontal-time-picker />
+                        :timepicker="{ hourFormat: '24' }" :datetime-formatter="formatDateTime"
+                        horizontal-time-picker />
                     </b-field>
                   </div>
                 </div>
@@ -140,7 +141,7 @@
                 </b-field>
               </form>
             </div>
-            <div class="column is-4 is-offset-1">
+            <div v-if="$can('campaigns:manage')" class="column is-4 is-offset-1">
               <br />
               <div class="box">
                 <h3 class="title is-size-6">
@@ -175,14 +176,15 @@
               </a>
             </p>
 
-            <b-field v-if="isAttachFieldVisible" :label="$t('campaigns.attachments')" label-position="on-border" expanded
-              data-cy="media">
+            <b-field v-if="isAttachFieldVisible" :label="$t('campaigns.attachments')" label-position="on-border"
+              expanded data-cy="media">
               <b-taginput v-model="form.media" name="media" ellipsis icon="tag-outline" ref="media" field="filename"
                 @focus="onOpenAttach" :disabled="!canEdit" />
             </b-field>
           </div>
           <div class="column has-text-right">
-            <a href="https://listmonk.app/docs/templating/#template-expressions" target="_blank" rel="noopener noreferer">
+            <a href="https://listmonk.app/docs/templating/#template-expressions" target="_blank"
+              rel="noopener noreferer">
               <b-icon icon="code" /> {{ $t('campaigns.templatingRef') }}</a>
             <span v-if="canEdit && form.content.contentType !== 'plain'" class="is-size-6 has-text-grey ml-6">
               <a v-if="form.altbody === null" href="#" @click.prevent="onAddAltBody">
@@ -212,8 +214,9 @@
                     <b-switch data-cy="btn-archive" v-model="form.archive" :disabled="!canArchive" />
                   </div>
                   <div class="column is-12">
-                    <a :href="`${settings['app.root_url']}/archive/${data.uuid}`" target="_blank" rel="noopener noreferer"
-                      :class="{ 'has-text-grey-light': !form.archive }" aria-label="$t('campaigns.archive')">
+                    <a :href="`${settings['app.root_url']}/archive/${data.uuid}`" target="_blank"
+                      rel="noopener noreferer" :class="{ 'has-text-grey-light': !form.archive }"
+                      aria-label="$t('campaigns.archive')">
                       <b-icon icon="link-variant" />
                     </a>
                   </div>
@@ -245,8 +248,8 @@
             </div>
 
             <div class="column has-text-right">
-              <a v-if="!this.form.archiveMetaStr || this.form.archiveMetaStr === '{}'" class="button is-primary" href="#"
-                @click.prevent="onFillArchiveMeta" aria-label="{}"><b-icon icon="code" /></a>
+              <a v-if="!this.form.archiveMetaStr || this.form.archiveMetaStr === '{}'" class="button is-primary"
+                href="#" @click.prevent="onFillArchiveMeta" aria-label="{}"><b-icon icon="code" /></a>
             </div>
           </div>
           <b-field>
@@ -596,7 +599,7 @@ export default Vue.extend({
   },
 
   computed: {
-    ...mapState(['settings', 'loading', 'lists', 'templates']),
+    ...mapState(['serverConfig', 'loading', 'lists', 'templates']),
 
     canEdit() {
       return this.isNew
@@ -624,7 +627,7 @@ export default Vue.extend({
     },
 
     messengers() {
-      return ['email', ...this.settings.messengers.map((m) => m.name)];
+      return ['email', ...this.serverConfig.messengers.map((m) => m.name)];
     },
   },
 
