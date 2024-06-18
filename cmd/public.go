@@ -66,6 +66,7 @@ type unsubTpl struct {
 	AllowWipe        bool
 	AllowPreferences bool
 	ShowManage       bool
+	Domain           string
 }
 
 type optinTpl struct {
@@ -198,6 +199,7 @@ func handleSubscriptionPage(c echo.Context) error {
 		subUUID       = c.Param("subUUID")
 		showManage, _ = strconv.ParseBool(c.FormValue("manage"))
 		out           = unsubTpl{}
+		domain        = c.QueryParam("domain")
 	)
 	out.SubUUID = subUUID
 	out.Title = app.i18n.T("public.unsubscribeTitle")
@@ -238,6 +240,9 @@ func handleSubscriptionPage(c echo.Context) error {
 			out.Subscriptions = append(out.Subscriptions, s)
 		}
 	}
+
+	// 将路由参数 type 的值传递给模板
+	out.Domain = domain
 
 	return c.Render(http.StatusOK, "subscription", out)
 }

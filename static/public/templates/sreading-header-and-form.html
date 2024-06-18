@@ -1,0 +1,40 @@
+{{ define "sreading-header" }}
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>{{ .Data.Title }} - {{ .SiteName }}</title>
+  <meta name="description" content="{{ .Data.Description }}" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+
+  {{ if .EnablePublicArchive }}
+  <link rel="alternate" type="application/rss+xml" title="{{ L.T "public.archiveTitle" }} - {{ .SiteName }}"
+  href="{{ .RootURL }}/archive.xml" />
+  {{ end }}
+
+  <link href="/public/static/style.css?v={{ .AssetVersion }}" rel="stylesheet" type="text/css" />
+  <link href="/public/custom.css?v={{ .AssetVersion }}" rel="stylesheet" type="text/css">
+  <script src="/public/custom.js?v={{ .AssetVersion }}" async defer></script>
+
+  <link rel="shortcut icon" href="/public/static/sreading-logo.svg" type="image/x-icon" />
+</head>
+<body>
+<div class="container wrap" style="text-align: center">
+  <header class="header">
+    <div class="logo">
+      <a href="https://www.sreading.org">
+        <img src="/public/static/sreading-logo-title.svg" alt="SReading" />
+      </a>
+    </div>
+  </header>
+  {{ end }}
+
+  {{ define "sreading-footer" }}
+</div>
+
+<footer class="container">
+  <a target="_blank" rel="noreferrer" href="https://www.sreading.org">SReading</a>
+</footer>
+</body>
+</html>
+{{ end }}
