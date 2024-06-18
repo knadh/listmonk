@@ -1,11 +1,11 @@
 name: publish-github-pages
 
 on:
-  push:
-    branches:
-      - master
-    paths:
-      - 'docs/**'
+#  push:
+#    branches:
+#      - master
+#    paths:
+#      - 'docs/**'
   workflow_dispatch:
 
 permissions:
