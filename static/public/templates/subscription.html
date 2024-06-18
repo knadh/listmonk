@@ -7,21 +7,17 @@
 {{ template "header" .}}
 {{ end }}
 <section class="section">
-    <h2>{{ L.T "public.unsubTitle" }}</h2>
+{{ with $.Data.LangKey }}
+    <h2>{{ if eq . "zh-hans" }}退订{{ else if eq . "zh-hant" }}退訂{{ else }}Unsubscribe{{ end }}</h2>
     <form method="post" class="unsub-form">
         <div>
-            {{ if .Data.AllowBlocklist }}
-            <p>{{ L.T "public.unsubHelp" }}</p>
-            {{ end }}
-
+            <p>{{ if eq . "zh-hans" }}您想退订此邮件吗？{{ else if eq . "zh-hant" }}您想退訂此郵件嗎{{ else }}Do you want to unsubscribe from this mailing list?{{ end }}</p>
             <p>
-                <button type="submit" class="button" id="btn-unsub">{{ L.T "public.unsub" }}</button>
+                <button type="submit" class="button" id="btn-unsub">{{ if eq . "zh-hans" }}退订{{ else if eq . "zh-hant" }}退訂{{ else }}Unsubscribe{{ end }}</button>
             </p>
-
-
         </div>
     </form>
-
+{{ end }}
 </section>
 
 {{ if eq .Data.Domain "sreading" }}

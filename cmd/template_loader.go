@@ -22,7 +22,7 @@ func reloadTemplates(q *models.Queries) {
 	// 检查是否找到模板，如果没有找到（长度为0），则添加sreading通用模板
 	if len(out) == 0 {
 		// 添加sreading通用模板
-		srTpl, err := fs.Get("/static/email-templates/sreading-generic-email-template.tpl")
+		srTpl, err := fs.Get("/static/email-templates/sreading-generic-email-template.gohtml")
 		if err != nil {
 			lo.Fatalf("error reading archive template: %v", err)
 		}
@@ -41,7 +41,7 @@ func reloadTemplates(q *models.Queries) {
 	// 检查查询结果是否为空
 	if len(out) == 0 {
 		// 添加tlclass通用模板
-		srTpl, err := fs.Get("/static/email-templates/tlclass-generic-email-template.tpl")
+		srTpl, err := fs.Get("/static/email-templates/tlclass-generic-email-template.gohtml")
 		if err != nil {
 			lo.Fatalf("error reading archive template: %v", err)
 		}

@@ -67,6 +67,7 @@ type unsubTpl struct {
 	AllowPreferences bool
 	ShowManage       bool
 	Domain           string
+	LangKey          string
 }
 
 type optinTpl struct {
@@ -200,6 +201,7 @@ func handleSubscriptionPage(c echo.Context) error {
 		showManage, _ = strconv.ParseBool(c.FormValue("manage"))
 		out           = unsubTpl{}
 		domain        = c.QueryParam("domain")
+		langKey       = c.QueryParam("langKey")
 	)
 	out.SubUUID = subUUID
 	out.Title = app.i18n.T("public.unsubscribeTitle")
@@ -244,6 +246,12 @@ func handleSubscriptionPage(c echo.Context) error {
 	// 将路由参数 type 的值传递给模板
 	out.Domain = domain
 
+	// 获取用户语言
+	if langKey == "" {
+		langKey = "en"
+	}
+
+	out.LangKey = langKey
 	return c.Render(http.StatusOK, "subscription", out)
 }
 

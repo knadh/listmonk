@@ -9,14 +9,15 @@
         style="
           padding: 10px 20px 7px 20px;
           display: flex;
-          background-image: url({{ RootURL }}/uploads/sr-head-background.png);
+          background-image: url({{ RootURL }}/uploads/gradient-background.png);
           background-size: contain;
         "
       >
         <div class="app-loading-new">
           <img
-            src="{{ RootURL }}/uploads/sreading-logo.svg"
-            alt="SVG Image"
+            src="{{ RootURL }}/uploads/sreading-logo-normal.png"
+            width="50px"
+            alt="SReading"
           />
         </div>
         <div style="padding-left: 10px; width: fit-content; text-align: left">
@@ -64,25 +65,36 @@
       <div style="font-size: 10px; padding: 20px 10px">
         <div>SReading 人工智能驱动的中文学习平台，让您从心所阅，轻松高效</div>
         <div>
-          在使用过程中发现任何问题，请您及时与我们联系。Email:
-          <a href="mailto:support@sreading.org">support@sreading.org</a>
+          {{ if eq .Subscriber.Attribs.langKey "zh-hans" }}在使用过程中发现任何问题，请您及时与我们联系。
+          {{ else if eq .Subscriber.Attribs.langKey "zh-hant" }}在使用過程中發現任何問題，請您及時與我們聯係。
+          {{ else }}Unsubscribe
+          {{ end }}
+          Email:<a href="mailto:support@sreading.org">support@sreading.org</a>
         </div>
         <div
           style="display: flex; justify-content: flex-end; align-items: center"
         >
           <a style="margin-right: 20px" href="mailto:support@sreading.org">
-            联系我们</a
-          ><a
+            {{ if eq .Subscriber.Attribs.langKey "zh-hans" }}联系我们
+            {{ else if eq .Subscriber.Attribs.langKey "zh-hant" }}聯係我們
+            {{ else }}Contact Us
+            {{ end }}
+            </a>
+          <a
             style="margin-right: 20px"
             href="https://www.sreading.org"
             target="_blank"
-            >在线使用</a
-          >
+            >
+            {{ if eq .Subscriber.Attribs.langKey "zh-hans" }}在线使用
+            {{ else if eq .Subscriber.Attribs.langKey "zh-hant" }}在綫使用
+            {{ else }}Use SReading
+            {{ end }}
+          </a>
           <a
             href="https://apps.apple.com/us/app/sreading/id6446602590?itsct=apps_box_badge&amp;itscg=30200"
             style="display: inline-block; overflow: hidden"
             ><img
-              src="https://tools.applemediaservices.com/api/badges/download-on-the-app-store/black/en-us?size=250x83&amp;releaseDate=1692316800"
+              src="{{ RootURL }}/uploads/app-store.png"
               alt="Download on the App Store"
               style="border-radius: 2px; height: 27px"
           /></a>
@@ -91,7 +103,7 @@
             ><img
               style="height: 40px"
               alt="Get it on Google Play"
-              src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png"
+              src="{{ RootURL }}/uploads/google-play.png"
           /></a>
         </div>
       </div>
@@ -108,16 +120,26 @@
         <img
           style="float: left; margin-left: 20px"
           height="40px"
-          src="{{ RootURL }}/uploads/penda.png"
+          src="{{ RootURL }}/uploads/panda-music.png"
         />
       </div>
-      <div style="text-align: center; font-size: small">©2023 SReading</div>
+      <div style="text-align: center; font-size: small">©2024 SReading</div>
     </div>
    <div class="footer" style="text-align: center;font-size: 12px;color: #888;">
            <p>
-               <a href="{{ UnsubscribeURL }}?domain=sreading" style="color: #888;">{{ L.T "email.unsub" }}</a>
+               <a href="{{ UnsubscribeURL }}?domain=sreading&langKey={{ .Subscriber.Attribs.langKey }}" style="color: #888;">
+                 {{ if eq .Subscriber.Attribs.langKey "zh-hans" }}退订
+                 {{ else if eq .Subscriber.Attribs.langKey "zh-hant" }}退訂
+                 {{ else }}Unsubscribe
+                 {{ end }}
+               </a>
                &nbsp;&nbsp;
-               <a href="{{ MessageURL }}" style="color: #888;">{{ L.T "email.viewInBrowser" }}</a>
+               <a href="{{ MessageURL }}" style="color: #888;">
+                 {{ if eq .Subscriber.Attribs.langKey "zh-hans" }}在浏览器中查看
+                 {{ else if eq .Subscriber.Attribs.langKey "zh-hant" }}在瀏覽器中查看
+                 {{ else }}View in browser
+                 {{ end }}
+               </a>
            </p>
        </div>
   </body>
