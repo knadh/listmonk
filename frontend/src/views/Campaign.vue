@@ -214,9 +214,8 @@
                     <b-switch data-cy="btn-archive" v-model="form.archive" :disabled="!canArchive" />
                   </div>
                   <div class="column is-12">
-                    <a :href="`${settings['app.root_url']}/archive/${data.uuid}`" target="_blank"
-                      rel="noopener noreferer" :class="{ 'has-text-grey-light': !form.archive }"
-                      aria-label="$t('campaigns.archive')">
+                    <a :href="`${serverConfig.root_url}/archive/${data.uuid}`" target="_blank" rel="noopener noreferer"
+                      :class="{ 'has-text-grey-light': !form.archive }" aria-label="$t('campaigns.archive')">
                       <b-icon icon="link-variant" />
                     </a>
                   </div>
@@ -649,7 +648,7 @@ export default Vue.extend({
     window.onbeforeunload = () => this.isUnsaved() || null;
 
     // Fill default form fields.
-    this.form.fromEmail = this.settings['app.from_email'];
+    this.form.fromEmail = this.serverConfig.from_email;
 
     // New campaign.
     const { id } = this.$route.params;

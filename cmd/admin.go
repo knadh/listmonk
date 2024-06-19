@@ -12,6 +12,8 @@ import (
 )
 
 type serverConfig struct {
+	RootURL      string          `json:"root_url"`
+	FromEmail    string          `json:"from_email"`
 	Messengers   []string        `json:"messengers"`
 	Langs        []i18nLang      `json:"langs"`
 	Lang         string          `json:"lang"`
@@ -25,8 +27,13 @@ type serverConfig struct {
 func handleGetServerConfig(c echo.Context) error {
 	var (
 		app = c.Get("app").(*App)
-		out = serverConfig{}
 	)
+	out := serverConfig{
+		RootURL:     app.constants.RootURL,
+		FromEmail:   app.constants.FromEmail,
+		Lang:        app.constants.Lang,
+		Permissions: app.constants.PermissionsRaw,
+	}
 
 	// Language list.
 	langList, err := getI18nLangList(app.constants.Lang, app)
@@ -35,8 +42,6 @@ func handleGetServerConfig(c echo.Context) error {
 			fmt.Sprintf("Error loading language list: %v", err))
 	}
 	out.Langs = langList
-	out.Lang = app.constants.Lang
-	out.Permissions = app.constants.PermissionsRaw
 
 	// Sort messenger names with `email` always as the first item.
 	var names []string
