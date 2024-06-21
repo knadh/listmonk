@@ -79,11 +79,12 @@ If using SES as your SMTP provider, automatic bounce processing is the recommend
 8. For both "Bounce feedback" and "Complaint feedback", use the following settings:
     - SNS topic: `ses-bounces` (or whatever you named it)
     - Include original email headers: `Enabled` (checked)
-9. Bounce processing should now be working. You can test it with [SES simulator addresses](https://docs.aws.amazon.com/ses/latest/dg/send-an-email-from-console.html#send-email-simulator). Add them as subscribers, send them campaign previews, and ensure that the appropriate action was taken after the configured bounce count was reached.
+9. Repeat steps 6-8 for any `Email address` identities you send from using listmonk
+10. Bounce processing should now be working. You can test it with [SES simulator addresses](https://docs.aws.amazon.com/ses/latest/dg/send-an-email-from-console.html#send-email-simulator). Add them as subscribers, send them campaign previews, and ensure that the appropriate action was taken after the configured bounce count was reached.
     - Soft bounce: `ooto@simulator.amazonses.com`
     - Hard bounce: `bounce@simulator.amazonses.com`
     - Complaint: `complaint@simulator.amazonses.com`
-10. You can optionally [disable email feedback forwarding](https://docs.aws.amazon.com/ses/latest/dg/monitor-sending-activity-using-notifications-email.html#monitor-sending-activity-using-notifications-email-disabling).
+11. You can optionally [disable email feedback forwarding](https://docs.aws.amazon.com/ses/latest/dg/monitor-sending-activity-using-notifications-email.html#monitor-sending-activity-using-notifications-email-disabling).
 
 ## Exporting bounces
 
