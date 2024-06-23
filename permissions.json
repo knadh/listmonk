@@ -3,8 +3,8 @@
         "group": "lists",
         "permissions":
         [
-            "lists:get",
-            "lists:manage"
+            "lists:get_all",
+            "lists:manage_all"
         ]
     },
     {

@@ -41,12 +41,15 @@ func V3_1_0(db *sqlx.DB, fs stuffbin.FileSystem, ko *koanf.Koanf, lo *log.Logger
 
 		CREATE TABLE IF NOT EXISTS user_roles (
 		    id               SERIAL PRIMARY KEY,
-		    name             TEXT NOT NULL DEFAULT '',
+		    parent_id        INTEGER NULL REFERENCES user_roles(id) ON DELETE CASCADE ON UPDATE CASCADE,
+		    list_id          INTEGER NULL REFERENCES lists(id) ON DELETE CASCADE ON UPDATE CASCADE,
 		    permissions      TEXT[] NOT NULL DEFAULT '{}',
+		    name             TEXT NULL,
 		    created_at       TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
 		    updated_at       TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 		);
-		CREATE UNIQUE INDEX IF NOT EXISTS idx_roles_name ON user_roles(LOWER(name));
+		CREATE UNIQUE INDEX IF NOT EXISTS user_roles_idx ON user_roles (parent_id, list_id);
+		CREATE UNIQUE INDEX IF NOT EXISTS user_roles_name_idx ON user_roles (name) WHERE name IS NOT NULL;
 
 		CREATE TABLE IF NOT EXISTS sessions (
 		    id TEXT NOT NULL PRIMARY KEY,

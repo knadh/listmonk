@@ -304,12 +304,15 @@ DROP INDEX IF EXISTS idx_bounces_date; CREATE INDEX idx_bounces_date ON bounces(
 DROP TABLE IF EXISTS user_roles CASCADE;
 CREATE TABLE user_roles (
     id               SERIAL PRIMARY KEY,
-    name             TEXT NOT NULL DEFAULT '',
+    parent_id        INTEGER NULL REFERENCES user_roles(id) ON DELETE CASCADE ON UPDATE CASCADE,
+    list_id          INTEGER NULL REFERENCES lists(id) ON DELETE CASCADE ON UPDATE CASCADE,
     permissions      TEXT[] NOT NULL DEFAULT '{}',
+    name             TEXT NULL,
     created_at       TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at       TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
-DROP INDEX IF EXISTS idx_roles_name; CREATE UNIQUE INDEX idx_roles_name ON user_roles(LOWER(name));
+CREATE UNIQUE INDEX user_roles_idx ON user_roles (parent_id, list_id);
+CREATE UNIQUE INDEX user_roles_name_idx ON user_roles (name) WHERE name IS NOT NULL;
 
 -- users
 DROP TABLE IF EXISTS users CASCADE;
@@ -326,8 +329,6 @@ CREATE TABLE users (
     loggedin_at      TIMESTAMP WITH TIME ZONE NULL,
     created_at       TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at       TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-
-    -- CONSTRAINT user_role_id FOREIGN KEY (role_id) REFERENCES user_roles (id) ON DELETE RESTRICT
 );
 
 -- user sessions

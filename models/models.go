@@ -168,11 +168,22 @@ type User struct {
 	HasPassword bool `db:"-" json:"-"`
 }
 
+type ListPermission struct {
+	ID          int            `json:"id"`
+	Name        string         `json:"name"`
+	Permissions pq.StringArray `json:"permissions"`
+}
+
 type Role struct {
 	Base
 
-	Name        string         `db:"name" json:"name"`
+	Name        null.String    `db:"name" json:"name"`
 	Permissions pq.StringArray `db:"permissions" json:"permissions"`
+
+	ListID   null.Int         `db:"list_id" json:"-"`
+	ParentID null.Int         `db:"parent_id" json:"-"`
+	ListsRaw json.RawMessage  `db:"list_permissions" json:"-"`
+	Lists    []ListPermission `db:"-" json:"lists"`
 }
 
 // Subscriber represents an e-mail subscriber.

@@ -69,7 +69,7 @@ func handleUpdateRole(c echo.Context) error {
 	}
 
 	// Validate.
-	r.Name = strings.TrimSpace(r.Name)
+	r.Name.String = strings.TrimSpace(r.Name.String)
 
 	out, err := app.core.UpdateRole(id, r)
 	if err != nil {
@@ -99,13 +99,21 @@ func handleDeleteRole(c echo.Context) error {
 
 func validateRole(r models.Role, app *App) error {
 	// Validate fields.
-	if !strHasLen(r.Name, 3, stdInputMaxLen) {
+	if !strHasLen(r.Name.String, 2, stdInputMaxLen) {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.Ts("globals.messages.invalidFields", "name", "name"))
 	}
 
 	for _, p := range r.Permissions {
 		if _, ok := app.constants.Permissions[p]; !ok {
 			return echo.NewHTTPError(http.StatusBadRequest, app.i18n.Ts("globals.messages.invalidFields", "name", "permission"))
+		}
+	}
+
+	for _, l := range r.Lists {
+		for _, p := range l.Permissions {
+			if p != "list:get" && p != "list:manage" {
+				return echo.NewHTTPError(http.StatusBadRequest, app.i18n.Ts("globals.messages.invalidFields", "name", "list permissions"))
+			}
 		}
 	}
 
