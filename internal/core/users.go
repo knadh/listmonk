@@ -2,6 +2,7 @@ package core
 
 import (
 	"database/sql"
+	"encoding/json"
 	"net/http"
 
 	"github.com/knadh/listmonk/internal/utils"
@@ -13,47 +14,19 @@ import (
 
 // GetUsers retrieves all users.
 func (c *Core) GetUsers() ([]models.User, error) {
-	out := []models.User{}
-	if err := c.q.GetUsers.Select(&out, 0); err != nil {
-		return nil, echo.NewHTTPError(http.StatusInternalServerError,
-			c.i18n.Ts("globals.messages.errorFetching", "name", "{globals.terms.users}", "error", pqErrMsg(err)))
-	}
-
-	for n, u := range out {
-		if u.Password.String != "" {
-			u.HasPassword = true
-			u.PasswordLogin = true
-			// u.Password = null.String{}
-
-			out[n] = u
-		}
-
-		if u.Type == models.UserTypeAPI {
-			out[n].Email = null.String{}
-		}
-	}
-
-	return out, nil
+	out, err := c.getUsers(0, "", "")
+	return out, err
 }
 
 // GetUser retrieves a specific user based on any one given identifier.
 func (c *Core) GetUser(id int, username, email string) (models.User, error) {
-	var out models.User
-	if err := c.q.GetUser.Get(&out, id, username, email); err != nil {
-		return out, echo.NewHTTPError(http.StatusInternalServerError,
+	out, err := c.getUsers(id, username, email)
+	if err != nil {
+		return models.User{}, echo.NewHTTPError(http.StatusInternalServerError,
 			c.i18n.Ts("globals.messages.errorFetching", "name", "{globals.terms.users}", "error", pqErrMsg(err)))
 	}
-	if out.Password.String != "" {
-		out.HasPassword = true
-		out.PasswordLogin = true
-	}
 
-	out.PermissionsMap = make(map[string]struct{})
-	for _, p := range out.Permissions {
-		out.PermissionsMap[p] = struct{}{}
-	}
-
-	return out, nil
+	return out[0], nil
 }
 
 // CreateUser creates a new user.
@@ -146,9 +119,56 @@ func (c *Core) LoginUser(username, password string) (models.User, error) {
 			c.i18n.Ts("globals.messages.errorFetching", "name", "{globals.terms.users}", "error", pqErrMsg(err)))
 	}
 
-	out.PermissionsMap = make(map[string]struct{})
-	for _, p := range out.Permissions {
-		out.PermissionsMap[p] = struct{}{}
+	return out, nil
+}
+
+func (c *Core) getUsers(id int, username, email string) ([]models.User, error) {
+	out := []models.User{}
+	if err := c.q.GetUsers.Select(&out, id, username, email); err != nil {
+		return nil, echo.NewHTTPError(http.StatusInternalServerError,
+			c.i18n.Ts("globals.messages.errorFetching", "name", "{globals.terms.users}", "error", pqErrMsg(err)))
+	}
+
+	for n, u := range out {
+		if u.Password.String != "" {
+			u.HasPassword = true
+			u.PasswordLogin = true
+		}
+
+		if u.Type == models.UserTypeAPI {
+			u.Email = null.String{}
+		}
+
+		// Unmarshall the raw list perms map.
+		var listPerms []models.ListPermission
+		if u.ListsPermsRaw != nil {
+			if err := json.Unmarshal(u.ListsPermsRaw, &listPerms); err != nil {
+				c.log.Printf("error unmarshalling list permissions for role %d: %v", u.ID, err)
+			}
+		}
+
+		u.Role.ID = u.RoleID
+		u.Role.Name = u.RoleName
+		u.Role.Permissions = u.RolePerms
+		u.Role.Lists = listPerms
+		u.RoleID = 0
+
+		// Prepare lookup maps.
+		u.PermissionsMap = make(map[string]struct{})
+		for _, p := range u.RolePerms {
+			u.PermissionsMap[p] = struct{}{}
+		}
+
+		u.ListPermissionsMap = make(map[int]map[string]struct{})
+		for _, p := range listPerms {
+			u.ListPermissionsMap[p.ID] = make(map[string]struct{})
+
+			for _, perm := range p.Permissions {
+				u.ListPermissionsMap[p.ID][perm] = struct{}{}
+			}
+		}
+
+		out[n] = u
 	}
 
 	return out, nil

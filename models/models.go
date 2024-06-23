@@ -151,21 +151,31 @@ type User struct {
 	Username string `db:"username" json:"username"`
 
 	// For API users, this is the plaintext API token.
-	Password      null.String    `db:"password" json:"password,omitempty"`
-	PasswordLogin bool           `db:"password_login" json:"password_login"`
-	Email         null.String    `db:"email" json:"email"`
-	Name          string         `db:"name" json:"name"`
-	Type          string         `db:"type" json:"type"`
-	RoleID        int            `db:"role_id" json:"role_id"`
-	RoleName      string         `db:"role_name" json:"role_name"`
-	Permissions   pq.StringArray `db:"permissions" json:"permissions"`
-	Status        string         `db:"status" json:"status"`
-	Avatar        null.String    `db:"-" json:"avatar"`
+	Password      null.String `db:"password" json:"password,omitempty"`
+	PasswordLogin bool        `db:"password_login" json:"password_login"`
+	Email         null.String `db:"email" json:"email"`
+	Name          string      `db:"name" json:"name"`
+	Type          string      `db:"type" json:"type"`
+	Status        string      `db:"status" json:"status"`
+	Avatar        null.String `db:"-" json:"avatar"`
+	LoggedInAt    null.Time   `db:"loggedin_at" json:"loggedin_at"`
 
-	PermissionsMap map[string]struct{} `db:"-" json:"-"`
-	LoggedInAt     null.Time           `db:"loggedin_at" json:"loggedin_at"`
+	// Filled post-retrieval.
+	Role struct {
+		ID          int              `db:"-" json:"id"`
+		Name        string           `db:"-" json:"name"`
+		Permissions []string         `db:"-" json:"permissions"`
+		Lists       []ListPermission `db:"-" json:"lists"`
+	} `db:"-" json:"role"`
 
-	HasPassword bool `db:"-" json:"-"`
+	RoleID        int             `db:"role_id" json:"role_id,omitempty"`
+	RoleName      string          `db:"role_name" json:"-"`
+	RolePerms     pq.StringArray  `db:"role_permissions" json:"-"`
+	ListsPermsRaw json.RawMessage `db:"list_permissions" json:"-"`
+
+	PermissionsMap     map[string]struct{}         `db:"-" json:"-"`
+	ListPermissionsMap map[int]map[string]struct{} `db:"-" json:"-"`
+	HasPassword        bool                        `db:"-" json:"-"`
 }
 
 type ListPermission struct {

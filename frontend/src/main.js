@@ -54,10 +54,10 @@ async function initConfig(app) {
     // one of campaigns:get, campaigns:manage etc. are present.
     if (perm.endsWith('*')) {
       const group = `${perm.split(':')[0]}:`;
-      return profile.permissions.some((p) => p.startsWith(group));
+      return profile.role.permissions.some((p) => p.startsWith(group));
     }
 
-    return profile.permissions.includes(perm);
+    return profile.role.permissions.includes(perm);
   };
 
   // Set the page title after i18n has loaded.
