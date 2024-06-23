@@ -1062,22 +1062,35 @@ WITH u AS (
 )
 DELETE FROM users WHERE id = ALL($1) AND (SELECT num FROM u) > 0;
 
--- name: get-user
-SELECT users.*, r.name as role_name, r.permissions FROM users
-    LEFT JOIN user_roles r ON (r.id = users.role_id)
+-- name: get-users
+WITH u AS (
+    SELECT * FROM users
     WHERE
     (
         CASE
             WHEN $1::INT != 0 THEN users.id = $1
             WHEN $2::TEXT != '' THEN username = $2
             WHEN $3::TEXT != '' THEN email = $3
+            ELSE TRUE
         END
-    );
+    )
+),
+role AS (
+    SELECT id, name, permissions FROM user_roles WHERE id IN (SELECT role_id FROM users)
+),
+listPerms AS (
+    SELECT ur.parent_id, JSONB_AGG(JSONB_BUILD_OBJECT('id', ur.list_id, 'name', lists.name, 'permissions', ur.permissions)) AS listPerms
+    FROM user_roles ur
+    LEFT JOIN lists ON(lists.id = ur.list_id)
+    WHERE ur.parent_id IS NOT NULL GROUP BY ur.parent_id
+),
+roleInfo AS (
+    SELECT role.id AS role_id, role.name AS role_name, role.permissions AS role_permissions, COALESCE(l.listPerms, '[]'::JSONB) AS "list_permissions"
+    FROM role
+    LEFT JOIN listPerms l ON role.id = l.parent_id
+)
+SELECT u.*, ri.* FROM u JOIN roleInfo ri ON u.role_id = ri.role_id;
 
--- name: get-users
-SELECT users.*, r.name as role_name, r.permissions FROM users
-    LEFT JOIN user_roles r ON (r.id = users.role_id)
-    WHERE $1=0 OR users.id=$1 ORDER BY created_at;
 
 -- name: get-api-tokens
 SELECT username, password FROM users WHERE status='enabled' AND type='api';
@@ -1099,14 +1112,14 @@ UPDATE users SET name=$2, email=$3,
 WITH mainroles AS (
     SELECT ur.* FROM user_roles ur WHERE ur.parent_id IS NULL
 ),
-listroles AS (
+listPerms AS (
     SELECT ur.parent_id, JSONB_AGG(JSONB_BUILD_OBJECT('id', ur.list_id, 'name', lists.name, 'permissions', ur.permissions)) AS listPerms
     FROM user_roles ur
     LEFT JOIN lists ON(lists.id = ur.list_id)
     WHERE ur.parent_id IS NOT NULL GROUP BY ur.parent_id
 )
 SELECT p.*, COALESCE(l.listPerms, '[]'::JSONB) AS "list_permissions" FROM mainroles p
-    LEFT JOIN listroles l ON p.id = l.parent_id;
+    LEFT JOIN listPerms l ON p.id = l.parent_id;
 
 -- name: create-role
 INSERT INTO user_roles (name, permissions, created_at, updated_at) VALUES($1, $2, NOW(), NOW()) RETURNING *;
