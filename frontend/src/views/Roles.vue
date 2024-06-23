@@ -125,8 +125,9 @@ export default Vue.extend({
     },
 
     onCloneRole(name, item) {
-      this.$api.createRole({ name, permissions: item.permissions }).then(() => {
+      this.$api.createRole({ name, permissions: item.permissions, lists: item.lists }).then(() => {
         this.$api.getRoles();
+        this.$utils.toast(this.$t('globals.messages.created', { name }));
       });
     },
 

@@ -117,10 +117,12 @@ type Queries struct {
 	GetAPITokens      *sqlx.Stmt `query:"get-api-tokens"`
 	LoginUser         *sqlx.Stmt `query:"login-user"`
 
-	CreateRole *sqlx.Stmt `query:"create-role"`
-	GetRoles   *sqlx.Stmt `query:"get-roles"`
-	UpdateRole *sqlx.Stmt `query:"update-role"`
-	DeleteRole *sqlx.Stmt `query:"delete-role"`
+	CreateRole            *sqlx.Stmt `query:"create-role"`
+	GetRoles              *sqlx.Stmt `query:"get-roles"`
+	UpdateRole            *sqlx.Stmt `query:"update-role"`
+	DeleteRole            *sqlx.Stmt `query:"delete-role"`
+	UpsertListPermissions *sqlx.Stmt `query:"upsert-list-permissions"`
+	DeleteListPermission  *sqlx.Stmt `query:"delete-list-permission"`
 }
 
 // CompileSubscriberQueryTpl takes an arbitrary WHERE expressions

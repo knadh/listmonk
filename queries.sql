@@ -1093,13 +1093,39 @@ UPDATE users SET name=$2, email=$3,
     WHERE id=$1;
 
 -- name: get-roles
-SELECT * FROM user_roles ORDER BY created_at;
+WITH mainroles AS (
+    SELECT ur.* FROM user_roles ur WHERE ur.parent_id IS NULL
+),
+listroles AS (
+    SELECT ur.parent_id, JSONB_AGG(JSONB_BUILD_OBJECT('id', ur.list_id, 'name', lists.name, 'permissions', ur.permissions)) AS listPerms
+    FROM user_roles ur
+    LEFT JOIN lists ON(lists.id = ur.list_id)
+    WHERE ur.parent_id IS NOT NULL GROUP BY ur.parent_id
+)
+SELECT p.*, COALESCE(l.listPerms, '[]'::JSONB) AS "list_permissions" FROM mainroles p
+    LEFT JOIN listroles l ON p.id = l.parent_id;
 
 -- name: create-role
 INSERT INTO user_roles (name, permissions, created_at, updated_at) VALUES($1, $2, NOW(), NOW()) RETURNING *;
 
+-- name: upsert-list-permissions
+WITH d AS (
+    -- Delete lists that aren't included.
+    DELETE FROM user_roles WHERE parent_id = $1 AND list_id != ALL($2::INT[])
+),
+p AS (
+    -- Get (list_id, perms[]), (list_id, perms[])
+    SELECT UNNEST($2) AS list_id, JSONB_ARRAY_ELEMENTS(TO_JSONB($3::TEXT[][])) AS perms
+)
+INSERT INTO user_roles (parent_id, list_id, permissions)
+    SELECT $1, list_id, ARRAY_REMOVE(ARRAY(SELECT JSONB_ARRAY_ELEMENTS_TEXT(perms)), '') FROM p
+    ON CONFLICT (parent_id, list_id) DO UPDATE SET permissions = EXCLUDED.permissions;
+
+-- name: delete-list-permission
+DELETE FROM user_roles WHERE parent_id=$1 AND list_id=$2;
+
 -- name: update-role
-UPDATE user_roles SET name=$2, permissions=$3 WHERE id=$1 RETURNING *;
+UPDATE user_roles SET name=$2, permissions=$3 WHERE id=$1 and parent_id IS NULL RETURNING *;
 
 -- name: delete-role
 DELETE FROM user_roles WHERE id=$1;

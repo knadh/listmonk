@@ -3,7 +3,7 @@
     <b-menu-item :to="{ name: 'dashboard' }" tag="router-link" :active="activeItem.dashboard"
       icon="view-dashboard-variant-outline" :label="$t('menu.dashboard')" /><!-- dashboard -->
 
-    <b-menu-item v-if="$can('lists:get')" :expanded="activeGroup.lists" :active="activeGroup.lists" data-cy="lists"
+    <b-menu-item v-if="$can('lists:get_all')" :expanded="activeGroup.lists" :active="activeGroup.lists" data-cy="lists"
       @update:active="(state) => toggleGroup('lists', state)" icon="format-list-bulleted-square"
       :label="$t('globals.terms.lists')">
       <b-menu-item :to="{ name: 'lists' }" tag="router-link" :active="activeItem.lists" data-cy="all-lists"
