@@ -198,7 +198,7 @@ export default Vue.extend({
   },
 
   mounted() {
-    this.form = { ...this.form, ...this.$props.data };
+    this.form = { ...this.form, ...this.$props.data, roleId: this.$props.data.role.id };
 
     this.$api.getRoles();
 

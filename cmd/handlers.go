@@ -155,11 +155,11 @@ func initHTTPHandlers(e *echo.Echo, app *App) {
 	api.POST("/api/import/subscribers", pm(handleImportSubscribers, "subscribers:import"))
 	api.DELETE("/api/import/subscribers", pm(handleStopImportSubscribers, "subscribers:import"))
 
-	api.GET("/api/lists", pm(handleGetLists, "lists:get"))
-	api.GET("/api/lists/:id", pm(handleGetLists, "lists:get"))
-	api.POST("/api/lists", pm(handleCreateList, "lists:manage"))
-	api.PUT("/api/lists/:id", pm(handleUpdateList, "lists:manage"))
-	api.DELETE("/api/lists/:id", pm(handleDeleteLists, "lists:manage"))
+	api.GET("/api/lists", pm(handleGetLists, "lists:get_all"))
+	api.GET("/api/lists/:id", pm(handleGetLists, "lists:get_all"))
+	api.POST("/api/lists", pm(handleCreateList, "lists:manage_all"))
+	api.PUT("/api/lists/:id", pm(handleUpdateList, "lists:manage_all"))
+	api.DELETE("/api/lists/:id", pm(handleDeleteLists, "lists:manage_all"))
 
 	api.GET("/api/campaigns", pm(handleGetCampaigns, "campaigns:get"))
 	api.GET("/api/campaigns/running/stats", pm(handleGetRunningCampaignStats, "campaigns:get"))

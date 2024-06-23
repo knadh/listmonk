@@ -52,8 +52,8 @@
 
       <b-table-column v-slot="props" field="status" :label="$tc('users.role')" header-class="cy-status" sortable
         :td-attrs="$utils.tdID">
-        <b-tag :class="props.row.roleId === 1 ? 'enabled' : ''">
-          {{ props.row.roleName }}
+        <b-tag :class="props.row.role.id === 1 ? 'enabled' : ''">
+          {{ props.row.role.name }}
         </b-tag>
         <b-tag v-if="props.row.type === 'api'" class="primary">
           <b-icon icon="code" />
