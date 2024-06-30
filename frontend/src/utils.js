@@ -235,3 +235,34 @@ export default class Utils {
     localStorage.setItem(prefKey, JSON.stringify(p));
   };
 }
+export function snakeString(str) {
+  return str.replace(/[A-Z]/g, (match, offset) => (offset ? '_' : '') + match.toLowerCase());
+}
+
+export function snakeKeys(obj, testFunc, keys) {
+  if (obj === null) {
+    return obj;
+  }
+
+  if (Array.isArray(obj)) {
+    return obj.map((o) => snakeKeys(o, testFunc, `${keys || ''}.*`));
+  }
+
+  if (obj.constructor === Object) {
+    return Object.keys(obj).reduce((result, key) => {
+      const keyPath = `${keys || ''}.${key}`;
+      let k = key;
+
+      // If there's no testfunc or if a function is defined and it returns true, convert.
+      if (testFunc === undefined || testFunc(keyPath)) {
+        k = snakeString(key);
+      }
+
+      return {
+        ...result,
+        [k]: snakeKeys(obj[key], testFunc, keyPath),
+      };
+    }, {});
+  }
+  return obj;
+}

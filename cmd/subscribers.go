@@ -628,3 +628,11 @@ func sendOptinConfirmationHook(app *App) func(sub models.Subscriber, listIDs []i
 		return len(lists), nil
 	}
 }
+
+// sendTxMessageHook returns an enclosed callback that sends tx e-mails.
+// This is plugged into the 'core' package to send welcome messages when a new subscriber is confirmed.
+func sendTxMessageHook(app *App) func(tx models.TxMessage) error {
+	return func(tx models.TxMessage) error {
+		return sendTxMessage(app, tx)
+	}
+}

@@ -222,6 +222,8 @@ type List struct {
 	SubscriberCounts StringIntMap   `db:"subscriber_statuses" json:"subscriber_statuses"`
 	SubscriberID     int            `db:"subscriber_id" json:"-"`
 
+	WelcomeTemplateID *int `db:"welcome_template_id" json:"welcome_template_id"`
+
 	// This is only relevant when querying the lists of a subscriber.
 	SubscriptionStatus    string    `db:"subscription_status" json:"subscription_status,omitempty"`
 	SubscriptionCreatedAt null.Time `db:"subscription_created_at" json:"subscription_created_at,omitempty"`

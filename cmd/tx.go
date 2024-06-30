@@ -66,6 +66,15 @@ func handleSendTxMessage(c echo.Context) error {
 		return err
 	}
 
+	err := sendTxMessage(app, m)
+	if err != nil {
+		return err
+	}
+
+	return c.JSON(http.StatusOK, okResp{true})
+}
+
+func sendTxMessage(app *App, m models.TxMessage) error {
 	// Validate input.
 	if r, err := validateTxMessage(m, app); err != nil {
 		return err
@@ -156,8 +165,7 @@ func handleSendTxMessage(c echo.Context) error {
 	if len(notFound) > 0 {
 		return echo.NewHTTPError(http.StatusBadRequest, strings.Join(notFound, "; "))
 	}
-
-	return c.JSON(http.StatusOK, okResp{true})
+	return nil
 }
 
 func validateTxMessage(m models.TxMessage, app *App) (models.TxMessage, error) {
