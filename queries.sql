@@ -1119,7 +1119,7 @@ listPerms AS (
     WHERE ur.parent_id IS NOT NULL GROUP BY ur.parent_id
 )
 SELECT p.*, COALESCE(l.listPerms, '[]'::JSONB) AS "list_permissions" FROM mainroles p
-    LEFT JOIN listPerms l ON p.id = l.parent_id;
+    LEFT JOIN listPerms l ON p.id = l.parent_id ORDER BY p.created_at;
 
 -- name: create-role
 INSERT INTO user_roles (name, permissions, created_at, updated_at) VALUES($1, $2, NOW(), NOW()) RETURNING *;
