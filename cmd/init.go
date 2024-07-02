@@ -18,6 +18,7 @@ import (
 
 	"github.com/Masterminds/sprig/v3"
 	"github.com/gdgvda/cron"
+	"github.com/go-playground/validator/v10"
 	"github.com/jmoiron/sqlx"
 	"github.com/jmoiron/sqlx/types"
 	"github.com/knadh/goyesql/v2"
@@ -788,6 +789,8 @@ func initHTTPServer(app *App) *echo.Echo {
 	if ko.String("upload.provider") == "filesystem" && ko.String("upload.filesystem.upload_uri") != "" {
 		srv.Static(ko.String("upload.filesystem.upload_uri"), ko.String("upload.filesystem.upload_path"))
 	}
+
+	srv.Validator = &CustomValidator{Validator: validator.New()}
 
 	// Register all HTTP handlers.
 	initHTTPHandlers(srv, app)

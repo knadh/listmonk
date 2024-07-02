@@ -8,35 +8,35 @@ type Settings struct {
 	AppFaviconURL                 string   `json:"app.favicon_url"`
 	AppFromEmail                  string   `json:"app.from_email"`
 	AppNotifyEmails               []string `json:"app.notify_emails"`
-	EnablePublicSubPage           bool     `json:"app.enable_public_subscription_page"`
-	EnablePublicArchive           bool     `json:"app.enable_public_archive"`
-	EnablePublicArchiveRSSContent bool     `json:"app.enable_public_archive_rss_content"`
-	SendOptinConfirmation         bool     `json:"app.send_optin_confirmation"`
-	CheckUpdates                  bool     `json:"app.check_updates"`
+	EnablePublicSubPage           *bool    `json:"app.enable_public_subscription_page"`
+	EnablePublicArchive           *bool    `json:"app.enable_public_archive"`
+	EnablePublicArchiveRSSContent *bool    `json:"app.enable_public_archive_rss_content"`
+	SendOptinConfirmation         *bool    `json:"app.send_optin_confirmation"`
+	CheckUpdates                  *bool    `json:"app.check_updates"`
 	AppLang                       string   `json:"app.lang"`
 
 	AppBatchSize             int    `json:"app.batch_size"`
 	AppConcurrency           int    `json:"app.concurrency"`
 	AppMaxSendErrors         int    `json:"app.max_send_errors"`
 	AppMessageRate           int    `json:"app.message_rate"`
-	CacheSlowQueries         bool   `json:"app.cache_slow_queries"`
+	CacheSlowQueries         *bool  `json:"app.cache_slow_queries"`
 	CacheSlowQueriesInterval string `json:"app.cache_slow_queries_interval"`
 
-	AppMessageSlidingWindow         bool   `json:"app.message_sliding_window"`
+	AppMessageSlidingWindow         *bool  `json:"app.message_sliding_window"`
 	AppMessageSlidingWindowDuration string `json:"app.message_sliding_window_duration"`
 	AppMessageSlidingWindowRate     int    `json:"app.message_sliding_window_rate"`
 
-	PrivacyIndividualTracking bool     `json:"privacy.individual_tracking"`
-	PrivacyUnsubHeader        bool     `json:"privacy.unsubscribe_header"`
-	PrivacyAllowBlocklist     bool     `json:"privacy.allow_blocklist"`
-	PrivacyAllowPreferences   bool     `json:"privacy.allow_preferences"`
-	PrivacyAllowExport        bool     `json:"privacy.allow_export"`
-	PrivacyAllowWipe          bool     `json:"privacy.allow_wipe"`
+	PrivacyIndividualTracking *bool    `json:"privacy.individual_tracking"`
+	PrivacyUnsubHeader        *bool    `json:"privacy.unsubscribe_header"`
+	PrivacyAllowBlocklist     *bool    `json:"privacy.allow_blocklist"`
+	PrivacyAllowPreferences   *bool    `json:"privacy.allow_preferences"`
+	PrivacyAllowExport        *bool    `json:"privacy.allow_export"`
+	PrivacyAllowWipe          *bool    `json:"privacy.allow_wipe"`
 	PrivacyExportable         []string `json:"privacy.exportable"`
-	PrivacyRecordOptinIP      bool     `json:"privacy.record_optin_ip"`
+	PrivacyRecordOptinIP      *bool    `json:"privacy.record_optin_ip"`
 	DomainBlocklist           []string `json:"privacy.domain_blocklist"`
 
-	SecurityEnableCaptcha bool   `json:"security.enable_captcha"`
+	SecurityEnableCaptcha *bool  `json:"security.enable_captcha"`
 	SecurityCaptchaKey    string `json:"security.captcha_key"`
 	SecurityCaptchaSecret string `json:"security.captcha_secret"`
 
@@ -57,62 +57,62 @@ type Settings struct {
 
 	SMTP []struct {
 		UUID          string              `json:"uuid"`
-		Enabled       bool                `json:"enabled"`
-		Host          string              `json:"host"`
+		Enabled       *bool               `json:"enabled" validate:"required"`
+		Host          string              `json:"host" validate:"required"`
 		HelloHostname string              `json:"hello_hostname"`
-		Port          int                 `json:"port"`
-		AuthProtocol  string              `json:"auth_protocol"`
-		Username      string              `json:"username"`
+		Port          int                 `json:"port" validate:"required"`
+		AuthProtocol  string              `json:"auth_protocol" validate:"required"`
+		Username      string              `json:"username" validate:"required"`
 		Password      string              `json:"password,omitempty"`
 		EmailHeaders  []map[string]string `json:"email_headers"`
-		MaxConns      int                 `json:"max_conns"`
-		MaxMsgRetries int                 `json:"max_msg_retries"`
-		IdleTimeout   string              `json:"idle_timeout"`
-		WaitTimeout   string              `json:"wait_timeout"`
-		TLSType       string              `json:"tls_type"`
-		TLSSkipVerify bool                `json:"tls_skip_verify"`
-	} `json:"smtp"`
+		MaxConns      int                 `json:"max_conns" validate:"required"`
+		MaxMsgRetries int                 `json:"max_msg_retries" validate:"required"`
+		IdleTimeout   string              `json:"idle_timeout" validate:"required"`
+		WaitTimeout   string              `json:"wait_timeout" validate:"required"`
+		TLSType       string              `json:"tls_type" validate:"required"`
+		TLSSkipVerify *bool               `json:"tls_skip_verify" validate:"required"`
+	} `json:"smtp" validate:"omitempty,dive"`
 
 	Messengers []struct {
 		UUID          string `json:"uuid"`
-		Enabled       bool   `json:"enabled"`
+		Enabled       *bool  `json:"enabled" validate:"required"`
 		Name          string `json:"name"`
-		RootURL       string `json:"root_url"`
-		Username      string `json:"username"`
+		RootURL       string `json:"root_url" validate:"required"`
+		Username      string `json:"username" validate:"required"`
 		Password      string `json:"password,omitempty"`
-		MaxConns      int    `json:"max_conns"`
-		Timeout       string `json:"timeout"`
-		MaxMsgRetries int    `json:"max_msg_retries"`
-	} `json:"messengers"`
+		MaxConns      int    `json:"max_conns" validate:"required"`
+		Timeout       string `json:"timeout" validate:"required"`
+		MaxMsgRetries int    `json:"max_msg_retries" validate:"required"`
+	} `json:"messengers" validate:"omitempty,dive"`
 
-	BounceEnabled        bool `json:"bounce.enabled"`
-	BounceEnableWebhooks bool `json:"bounce.webhooks_enabled"`
+	BounceEnabled        *bool `json:"bounce.enabled"`
+	BounceEnableWebhooks *bool `json:"bounce.webhooks_enabled"`
 	BounceActions        map[string]struct {
-		Count  int    `json:"count"`
-		Action string `json:"action"`
-	} `json:"bounce.actions"`
-	SESEnabled      bool   `json:"bounce.ses_enabled"`
-	SendgridEnabled bool   `json:"bounce.sendgrid_enabled"`
+		Count  int    `json:"count" validate:"required"`
+		Action string `json:"action" validate:"required"`
+	} `json:"bounce.actions" validate:"omitempty,dive"`
+	SESEnabled      *bool  `json:"bounce.ses_enabled"`
+	SendgridEnabled *bool  `json:"bounce.sendgrid_enabled"`
 	SendgridKey     string `json:"bounce.sendgrid_key"`
 	BouncePostmark  struct {
-		Enabled  bool   `json:"enabled"`
+		Enabled  *bool  `json:"enabled"`
 		Username string `json:"username"`
 		Password string `json:"password"`
 	} `json:"bounce.postmark"`
 	BounceBoxes []struct {
 		UUID          string `json:"uuid"`
-		Enabled       bool   `json:"enabled"`
-		Type          string `json:"type"`
-		Host          string `json:"host"`
-		Port          int    `json:"port"`
-		AuthProtocol  string `json:"auth_protocol"`
-		ReturnPath    string `json:"return_path"`
-		Username      string `json:"username"`
+		Enabled       *bool  `json:"enabled" validate:"required"`
+		Type          string `json:"type" validate:"required"`
+		Host          string `json:"host" validate:"required"`
+		Port          int    `json:"port" validate:"required"`
+		AuthProtocol  string `json:"auth_protocol" validate:"required"`
+		ReturnPath    string `json:"return_path" validate:"required"`
+		Username      string `json:"username" validate:"required"`
 		Password      string `json:"password,omitempty"`
-		TLSEnabled    bool   `json:"tls_enabled"`
-		TLSSkipVerify bool   `json:"tls_skip_verify"`
-		ScanInterval  string `json:"scan_interval"`
-	} `json:"bounce.mailboxes"`
+		TLSEnabled    *bool  `json:"tls_enabled" validate:"required"`
+		TLSSkipVerify *bool  `json:"tls_skip_verify" validate:"required"`
+		ScanInterval  string `json:"scan_interval" validate:"required"`
+	} `json:"bounce.mailboxes" validate:"omitempty,dive"`
 
 	AdminCustomCSS  string `json:"appearance.admin.custom_css"`
 	AdminCustomJS   string `json:"appearance.admin.custom_js"`
