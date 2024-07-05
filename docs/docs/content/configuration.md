@@ -127,7 +127,6 @@ Settings -> Logs in admin shows the last 1000 lines of the standard log output b
 For the [service file](https://github.com/knadh/listmonk/blob/master/listmonk%40.service), you can use `ExecStart=/bin/bash -ce "exec /usr/bin/listmonk --config /etc/listmonk/config.toml --static-dir /etc/listmonk/static >>/etc/listmonk/listmonk.log 2>&1"` to create a log file that persists after restarts. [More info](https://github.com/knadh/listmonk/issues/1462#issuecomment-1868501606).
 
 
-
 ## Time zone
 
 To change listmonk's time zone (logs, etc.) edit `docker-compose.yml`:
@@ -136,4 +135,7 @@ environment:
     - TZ=Etc/UTC
 ```
 with any Timezone listed [here](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones). Then run `sudo docker-compose stop ; sudo docker-compose up` after making changes.
+
+## SMTP Blocked Ports
+Some server hosts block SMTP ports (25, 465) so you have to get request to unblock them i.e. [Hetzner](https://docs.hetzner.com/cloud/servers/faq/#why-can-i-not-send-any-mails-from-my-server).
 
