@@ -202,7 +202,19 @@ func (o *Auth) ExchangeOIDCToken(code, nonce string) (string, models.User, error
 func (o *Auth) Middleware(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		// It's an `Authorization` header request.
-		hdr := c.Response().Header().Get("Authorization")
+		hdr := strings.TrimSpace(c.Request().Header.Get("Authorization"))
+
+		// If cookie is set, ignore BasicAuth. This is to preserve backwards compatibility
+		// in v3 -> v4 upgrade where the user browser sessions would still have old
+		// BasicAuth credentials, which no longer work in the new system which expects
+		// session cookies instead, which causes a redirect loop despite loggin in and session
+		// cookies being set.
+		//
+		// TODO: This should be removed in a future version.
+		if c := strings.TrimSpace(c.Request().Header.Get("Cookie")); strings.Contains(c, "session=") {
+			hdr = ""
+		}
+
 		if len(hdr) > 0 {
 			key, token, err := parseAuthHeader(hdr)
 			if err != nil {
@@ -213,7 +225,7 @@ func (o *Auth) Middleware(next echo.HandlerFunc) echo.HandlerFunc {
 			// Validate the token.
 			user, ok := o.GetToken(key, token)
 			if !ok {
-				c.Set(UserKey, echo.NewHTTPError(http.StatusForbidden, "invalid token:secret"))
+				c.Set(UserKey, echo.NewHTTPError(http.StatusForbidden, "invalid API credentials"))
 				return next(c)
 			}
 
