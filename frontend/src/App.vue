@@ -48,7 +48,8 @@
 
       <!-- body //-->
       <div class="main">
-        <div class="global-notices" v-if="serverConfig.needs_restart || serverConfig.update">
+        <div class="global-notices"
+          v-if="serverConfig.needs_restart || serverConfig.update || serverConfig.has_legacy_user">
           <div v-if="serverConfig.needs_restart" class="notification is-danger">
             {{ $t('settings.needsRestart') }}
             &mdash;
@@ -60,6 +61,14 @@
           <div v-if="serverConfig.update" class="notification is-success">
             {{ $t('settings.updateAvailable', { version: serverConfig.update.version }) }}
             <a :href="serverConfig.update.url" target="_blank" rel="noopener noreferer">View</a>
+          </div>
+          <div v-if="serverConfig.has_legacy_user" class="notification is-danger">
+            <b-icon icon="warning-empty" />
+            Remove the <code>admin_username</code> and <code>admin_password</code> fields from the TOML
+            configuration file. Starting this version, users are managed via the
+            <router-link :to="{ name: 'users' }">
+              Admin -> Settings -> Users
+            </router-link> dashboard.
           </div>
         </div>
 
