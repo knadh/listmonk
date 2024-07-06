@@ -98,13 +98,14 @@ type constants struct {
 		PublicJS  []byte `koanf:"public.custom_js"`
 	}
 
-	UnsubURL     string
-	LinkTrackURL string
-	ViewTrackURL string
-	OptinURL     string
-	MessageURL   string
-	ArchiveURL   string
-	AssetVersion string
+	HasLegacyUser bool
+	UnsubURL      string
+	LinkTrackURL  string
+	ViewTrackURL  string
+	OptinURL      string
+	MessageURL    string
+	ArchiveURL    string
+	AssetVersion  string
 
 	MediaUpload struct {
 		Provider   string
@@ -430,6 +431,8 @@ func initConstants() *constants {
 	c.BounceSESEnabled = ko.Bool("bounce.ses_enabled")
 	c.BounceSendgridEnabled = ko.Bool("bounce.sendgrid_enabled")
 	c.BouncePostmarkEnabled = ko.Bool("bounce.postmark.enabled")
+
+	c.HasLegacyUser = ko.Exists("app.admin_username") || ko.Exists("app.admin_password")
 
 	b := md5.Sum([]byte(time.Now().String()))
 	c.AssetVersion = fmt.Sprintf("%x", b)[0:10]
