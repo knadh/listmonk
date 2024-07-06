@@ -252,7 +252,7 @@ body.is-noscroll {
 }
 .notification {
   padding: 10px 15px;
-  border-left: 5px solid #eee;
+  border-left: 10px solid #eee;
 
   &.is-danger {
     background: $white-ter;
@@ -263,6 +263,11 @@ body.is-noscroll {
     background: $white-ter;
     color: $black;
     border-left-color: $green;
+  }
+  &.is-info {
+    background: $white-ter;
+    border-left-color: $primary;
+    color: $grey-dark;
   }
 }
 

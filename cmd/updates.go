@@ -10,18 +10,25 @@ import (
 	"golang.org/x/mod/semver"
 )
 
-const updateCheckURL = "https://api.github.com/repos/knadh/listmonk/releases/latest"
+const updateCheckURL = "https://update.listmonk.app/update.json"
 
-type remoteUpdateResp struct {
-	Version string `json:"tag_name"`
-	URL     string `json:"html_url"`
-}
-
-// AppUpdate contains information of a new update available to the app that
-// is sent to the frontend.
 type AppUpdate struct {
-	Version string `json:"version"`
-	URL     string `json:"url"`
+	Update struct {
+		ReleaseVersion string `json:"release_version"`
+		ReleaseDate    string `json:"release_date"`
+		URL            string `json:"url"`
+		Description    string `json:"description"`
+
+		// This is computed and set locally based on the local version.
+		IsNew bool `json:"is_new"`
+	} `json:"update"`
+	Messages []struct {
+		Date        string `json:"date"`
+		Title       string `json:"title"`
+		Description string `json:"description"`
+		URL         string `json:"url"`
+		Priority    string `json:"priority"`
+	} `json:"messages"`
 }
 
 var reSemver = regexp.MustCompile(`-(.*)`)
@@ -32,11 +39,12 @@ var reSemver = regexp.MustCompile(`-(.*)`)
 func checkUpdates(curVersion string, interval time.Duration, app *App) {
 	// Strip -* suffix.
 	curVersion = reSemver.ReplaceAllString(curVersion, "")
-	time.Sleep(time.Second * 1)
-	ticker := time.NewTicker(interval)
-	defer ticker.Stop()
 
-	for range ticker.C {
+	// Give a 15 minute buffer after app start in case the admin wants to disable
+	// update checks entirely and not make a request to upstream.
+	time.Sleep(time.Minute * 1)
+
+	for {
 		resp, err := http.Get(updateCheckURL)
 		if err != nil {
 			app.log.Printf("error checking for remote update: %v", err)
@@ -55,25 +63,25 @@ func checkUpdates(curVersion string, interval time.Duration, app *App) {
 		}
 		resp.Body.Close()
 
-		var up remoteUpdateResp
-		if err := json.Unmarshal(b, &up); err != nil {
+		var out AppUpdate
+		if err := json.Unmarshal(b, &out); err != nil {
 			app.log.Printf("error unmarshalling remote update payload: %v", err)
 			continue
 		}
 
 		// There is an update. Set it on the global app state.
-		if semver.IsValid(up.Version) {
-			v := reSemver.ReplaceAllString(up.Version, "")
+		if semver.IsValid(out.Update.ReleaseVersion) {
+			v := reSemver.ReplaceAllString(out.Update.ReleaseVersion, "")
 			if semver.Compare(v, curVersion) > 0 {
-				app.Lock()
-				app.update = &AppUpdate{
-					Version: up.Version,
-					URL:     up.URL,
-				}
-				app.Unlock()
-
-				app.log.Printf("new update %s found", up.Version)
+				out.Update.IsNew = true
+				app.log.Printf("new update %s found", out.Update.ReleaseVersion)
 			}
 		}
+
+		app.Lock()
+		app.update = &out
+		app.Unlock()
+
+		time.Sleep(interval)
 	}
 }
