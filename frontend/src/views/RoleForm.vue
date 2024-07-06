@@ -31,12 +31,11 @@
                     </option>
                   </template>
                 </b-select>
-
               </div>
               <div class="column">
-                <b-button @click="onAddListPerm" :disabled="!form.curList" class="is-primary" expanded>{{
-                  $t('globals.buttons.add')
-                  }}</b-button>
+                <b-button @click="onAddListPerm" :disabled="!form.curList" class="is-primary" expanded>
+                  {{ $t('globals.buttons.add') }}
+                </b-button>
               </div>
             </div>
             <span
@@ -77,7 +76,9 @@
         <div class="box">
           <div class="columns">
             <div class="column is-7">
-              <h5 class="mb-0">{{ $t('users.perms') }}</h5>
+              <h5 class="mb-0">
+                {{ $t('users.perms') }}
+              </h5>
             </div>
             <div class="column has-text-right" v-if="!disabled">
               <a href="#" @click.prevent="onToggleSelect">{{ $t('globals.buttons.toggleSelect') }}</a>
@@ -149,7 +150,7 @@ export default Vue.extend({
   methods: {
     onAddListPerm() {
       const list = this.lists.results.find((l) => l.id === this.form.curList);
-      this.form.lists.push({ id: list.id, name: list.name, permissions: ["list:get", "list:manage"] });
+      this.form.lists.push({ id: list.id, name: list.name, permissions: ['list:get', 'list:manage'] });
 
       this.form.curList = (this.filteredLists.length > 0) ? this.filteredLists[0].id : null;
     },
@@ -185,11 +186,11 @@ export default Vue.extend({
 
     createRole() {
       const lists = this.form.lists.reduce((acc, item) => {
-        acc.push({ id: item.id, permissions: item.permissions })
+        acc.push({ id: item.id, permissions: item.permissions });
         return acc;
       }, []);
 
-      const form = { name: this.form.name, permissions: this.form.permissions, lists: lists };
+      const form = { name: this.form.name, permissions: this.form.permissions, lists };
       this.$api.createRole(form).then((data) => {
         this.$emit('finished');
         this.$utils.toast(this.$t('globals.messages.created', { name: data.name }));
@@ -199,11 +200,13 @@ export default Vue.extend({
 
     updateRole() {
       const lists = this.form.lists.reduce((acc, item) => {
-        acc.push({ id: item.id, permissions: item.permissions })
+        acc.push({ id: item.id, permissions: item.permissions });
         return acc;
       }, []);
 
-      const form = { id: this.$props.data.id, name: this.form.name, permissions: this.form.permissions, lists: lists };
+      const form = {
+        id: this.$props.data.id, name: this.form.name, permissions: this.form.permissions, lists,
+      };
       this.$api.updateRole(form).then((data) => {
         this.$emit('finished');
         this.$parent.close();
