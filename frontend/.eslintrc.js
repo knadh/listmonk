@@ -21,6 +21,7 @@ module.exports = {
     'vue/max-attributes-per-line': 'off',
     'vue/html-indent': 'off',
     'vue/html-closing-bracket-newline': 'off',
+    'vue/singleline-html-element-content-newline': 'off',
     'vue/max-len': ['error', {
       code: 200,
       template: 200,
