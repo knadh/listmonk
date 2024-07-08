@@ -86,7 +86,7 @@
 
       <b-table-column v-slot="props" field="last_login" :label="$t('users.lastLogin')" header-class="cy-updated_at"
         sortable>
-        {{ props.row.loggedinAt ? $utils.niceDate(props.row.loggedinAt) : '—' }}
+        {{ props.row.loggedinAt ? $utils.niceDate(props.row.loggedinAt, true) : '—' }}
       </b-table-column>
 
       <b-table-column v-slot="props" cell-class="actions" align="right">

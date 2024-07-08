@@ -13,16 +13,21 @@
         <navigation v-if="isMobile" :is-mobile="isMobile" :active-item="activeItem" :active-group="activeGroup"
           @toggleGroup="toggleGroup" @doLogout="doLogout" />
 
-        <b-navbar-dropdown v-else>
+        <b-navbar-dropdown class="user" tag="div" right v-else>
           <template v-if="profile.username" #label>
-            <div class="user-avatar">
+            <span class="user-avatar">
               <img v-if="profile.avatar" :src="profile.avatar" alt="" />
               <span v-else>{{ profile.username[0].toUpperCase() }}</span>
-            </div>
-            {{ profile.username }}
+            </span>
           </template>
+
+          <b-navbar-item class="user-name" tag="router-link" to="/user/profile">
+            <strong>{{ profile.username }}</strong>
+            <div class="is-size-7">{{ profile.name }}</div>
+          </b-navbar-item>
+
           <b-navbar-item href="#">
-            <router-link :to="`/user/profile`">
+            <router-link to="/user/profile">
               <b-icon icon="account-outline" /> {{ $t('users.profile') }}
             </router-link>
           </b-navbar-item>
