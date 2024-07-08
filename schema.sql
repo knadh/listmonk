@@ -323,6 +323,7 @@ CREATE TABLE users (
     password         TEXT NULL,
     email            TEXT NOT NULL UNIQUE,
     name             TEXT NOT NULL,
+    avatar           TEXT NULL,
     type             user_type NOT NULL DEFAULT 'user',
     role_id          INTEGER NOT NULL REFERENCES user_roles(id) ON DELETE RESTRICT,
     status           user_status NOT NULL DEFAULT 'disabled',
