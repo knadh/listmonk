@@ -4,7 +4,7 @@
 <section class="login">
 	<h2>{{ .L.T "users.login"}}</h2>
 	{{ if .Data.PasswordEnabled }}
-	<form method="post" action="" class="form">
+	<form method="post" action="{{ .RootURL }}/admin/login" class="form">
 		<div>
 			<input type="hidden" name="nonce" value="{{ .Data.Nonce }}" />
 			<input type="hidden" name="next" value="{{ .Data.NextURI }}" />
@@ -25,9 +25,10 @@
 	{{ end }}
 
 	{{ if .Data.OIDCProvider }}
-	<form method="post" action="/oidc/login">
+	<form method="post" action="{{ .RootURL }}/auth/oidc">
 		<div>
 			<input type="hidden" name="nonce" value="{{ .Data.Nonce }}" />
+			<input type="hidden" name="next" value="{{ .Data.NextURI }}" />
 			<p><button class="button button-outline" type="submit">
 				<img src="{{ .RootURL }}/public/static/auth/{{ .Data.OIDCProviderLogo }}" alt="" />
 				{{ .L.Ts "users.loginOIDC" "name" .Data.OIDCProvider }}
