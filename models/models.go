@@ -157,7 +157,7 @@ type User struct {
 	Name          string      `db:"name" json:"name"`
 	Type          string      `db:"type" json:"type"`
 	Status        string      `db:"status" json:"status"`
-	Avatar        null.String `db:"-" json:"avatar"`
+	Avatar        null.String `db:"avatar" json:"avatar"`
 	LoggedInAt    null.Time   `db:"loggedin_at" json:"loggedin_at"`
 
 	// Filled post-retrieval.
