@@ -135,23 +135,38 @@ section {
     background-color: #efefef;
   }
 
+.navbar-item.user {
+  .navbar-link:not(.is-arrowless)::after {
+    margin-top: -0.6rem;
+  }
+
+  .user-name {
+    display: block;
+    min-width: 150px;
+  }
+}
+
 .user-avatar {
   img {
     display: inline-block;
     border-radius: 100%;
-    width: 24px;
-    height: 24px;
+    width: 32px;
+    height: 32px;
+    max-height: none;
   }
   span {
     background-color: #ddd;
     border-radius: 100%;
-    width: 24px;
-    height: 24px;
+    width: 32px;
+    height: 32px;
     text-align: center;
     display: inline-block;
-    margin-right: 10px;
     font-size: 0.875rem;
-    line-height: 1.6;
+    font-weight: bold;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
 }
 
@@ -167,6 +182,11 @@ section {
       visibility: visible;
     }
   }
+}
+
+.spaced-links a {
+  margin-right: 15px;
+  display: inline-block;
 }
 
 /* Two column sidebar+body layout */
@@ -879,10 +899,6 @@ section.analytics {
   .html-editor {
     height: auto;
     min-height: 350px;
-  }
-  .smtp-shortcuts a {
-    margin-right: 15px;
-    display: inline-block;
   }
 }
 

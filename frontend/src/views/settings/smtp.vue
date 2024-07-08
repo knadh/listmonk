@@ -66,7 +66,7 @@
                 </b-field>
               </div>
             </div><!-- auth -->
-            <div class="smtp-shortcuts is-size-7">
+            <div class="spaced-links is-size-7">
               <a href="#" @click.prevent="() => fillSettings(n, 'gmail')">Gmail</a>
               <a href="#" @click.prevent="() => fillSettings(n, 'ses')">Amazon SES</a>
               <a href="#" @click.prevent="() => fillSettings(n, 'mailgun')">Mailgun</a>

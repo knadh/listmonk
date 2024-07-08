@@ -6,13 +6,13 @@
       @{{ form.username }}
     </h1>
 
-    <b-tag>{{ form.roleName }}</b-tag>
+    <b-tag>{{ form.role.name }}</b-tag>
 
     <br /><br /><br />
     <form @submit.prevent="onSubmit">
       <b-field v-if="form.type !== 'api'" :label="$t('subscribers.email')" label-position="on-border">
-        <b-input :maxlength="200" v-model="form.email" name="email" :placeholder="$t('subscribers.email')" required
-          autofocus />
+        <b-input :maxlength="200" v-model="form.email" name="email" :placeholder="$t('subscribers.email')"
+          :disabled="!form.passwordLogin" required autofocus />
       </b-field>
 
       <b-field :label="$t('globals.fields.name')" label-position="on-border">

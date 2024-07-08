@@ -14,7 +14,7 @@
       </header>
       <section expanded class="modal-card-body">
         <b-field :label="$t('users.username')" label-position="on-border">
-          <b-input :maxlength="200" v-model="form.username" name="username" :ref="'focus'"
+          <b-input :maxlength="200" v-model="form.username" name="username" ref="focus" autofocus
             :placeholder="$t('users.username')" required :message="$t('users.usernameHelp')" autocomplete="off"
             pattern="[a-zA-Z0-9_\-\.]+$" />
         </b-field>
@@ -198,7 +198,7 @@ export default Vue.extend({
   },
 
   mounted() {
-    this.form = { ...this.form, ...this.$props.data, roleId: this.$props.data.role.id };
+    this.form = { ...this.form, ...this.$props.data };
 
     this.$api.getRoles();
 
