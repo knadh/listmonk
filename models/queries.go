@@ -111,6 +111,7 @@ type Queries struct {
 	CreateUser        *sqlx.Stmt `query:"create-user"`
 	UpdateUser        *sqlx.Stmt `query:"update-user"`
 	UpdateUserProfile *sqlx.Stmt `query:"update-user-profile"`
+	UpdateUserLogin   *sqlx.Stmt `query:"update-user-login"`
 	DeleteUsers       *sqlx.Stmt `query:"delete-users"`
 	GetUsers          *sqlx.Stmt `query:"get-users"`
 	GetAPITokens      *sqlx.Stmt `query:"get-api-tokens"`

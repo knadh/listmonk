@@ -941,15 +941,11 @@ func initAuth(db *sql.DB, ko *koanf.Koanf, co *core.Core) *auth.Auth {
 
 	if ko.Bool("security.oidc.enabled") {
 		oidcCfg = auth.OIDCConfig{
+			Enabled:      true,
 			ProviderURL:  ko.String("security.oidc.provider_url"),
 			ClientID:     ko.String("security.oidc.client_id"),
 			ClientSecret: ko.String("security.oidc.client_secret"),
-			RedirectURL:  ko.String("security.oidc.redirect_url"),
-			Skipper: func(c echo.Context) bool {
-				// Skip OIDC check if the request is already BasicAuth'd.
-				// This context flag is set in basicAuth().
-				return c.Get(basicAuthd) != nil
-			},
+			RedirectURL:  fmt.Sprintf("%s/auth/oidc", strings.TrimRight(ko.String("app.root_url"), "/")),
 		}
 	}
 
