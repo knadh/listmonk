@@ -16,7 +16,6 @@ import (
 	"github.com/coreos/go-oidc/v3/oidc"
 	"github.com/knadh/listmonk/models"
 	"github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
 	"github.com/zerodha/simplesessions/stores/postgres/v3"
 	"github.com/zerodha/simplesessions/v3"
 	"golang.org/x/oauth2"
@@ -35,15 +34,19 @@ const (
 	sessTypeOIDC   = "oidc"
 )
 
+type OIDCclaim struct {
+	Email         string `json:"email"`
+	EmailVerified bool   `json:"email_verified"`
+	Sub           string `json:"sub"`
+	Picture       string `json:"picture"`
+}
+
 type OIDCConfig struct {
 	Enabled      bool   `json:"enabled"`
 	ProviderURL  string `json:"provider_url"`
 	RedirectURL  string `json:"redirect_url"`
 	ClientID     string `json:"client_id"`
 	ClientSecret string `json:"client_secret"`
-
-	// Skipper defines a function to skip middleware.
-	Skipper middleware.Skipper
 }
 
 type BasicAuthConfig struct {
@@ -71,7 +74,6 @@ type Auth struct {
 	cfg       Config
 	oauthCfg  oauth2.Config
 	verifier  *oidc.IDTokenVerifier
-	skipper   middleware.Skipper
 	sess      *simplesessions.Manager
 	sessStore *postgres.Store
 	cb        *Callbacks
@@ -89,22 +91,21 @@ func New(cfg Config, db *sql.DB, cb *Callbacks, lo *log.Logger) (*Auth, error) {
 	if cfg.OIDC.Enabled {
 		provider, err := oidc.NewProvider(context.Background(), cfg.OIDC.ProviderURL)
 		if err != nil {
-			panic(err)
+			lo.Printf("error initializing OIDC OAuth provider: %v", err)
+		} else {
+
+			a.verifier = provider.Verifier(&oidc.Config{
+				ClientID: cfg.OIDC.ClientID,
+			})
+
+			a.oauthCfg = oauth2.Config{
+				ClientID:     cfg.OIDC.ClientID,
+				ClientSecret: cfg.OIDC.ClientSecret,
+				Endpoint:     provider.Endpoint(),
+				RedirectURL:  cfg.OIDC.RedirectURL,
+				Scopes:       []string{oidc.ScopeOpenID, "profile", "email"},
+			}
 		}
-
-		a.verifier = provider.Verifier(&oidc.Config{
-			ClientID: cfg.OIDC.ClientID,
-		})
-
-		a.oauthCfg = oauth2.Config{
-			ClientID:     cfg.OIDC.ClientID,
-			ClientSecret: cfg.OIDC.ClientSecret,
-			Endpoint:     provider.Endpoint(),
-			RedirectURL:  cfg.OIDC.RedirectURL,
-			Scopes:       []string{oidc.ScopeOpenID, "profile", "email"},
-		}
-
-		a.skipper = cfg.OIDC.Skipper
 	}
 
 	// Initialize session manager.
@@ -166,33 +167,32 @@ func (o *Auth) GetOIDCAuthURL(state, nonce string) string {
 
 // ExchangeOIDCToken takes an OIDC authorization code (recieved via redirect from the OIDC provider),
 // validates it, and returns an OIDC token for subsequent auth.
-func (o *Auth) ExchangeOIDCToken(code, nonce string) (string, models.User, error) {
-	var user models.User
-
+func (o *Auth) ExchangeOIDCToken(code, nonce string) (string, OIDCclaim, error) {
 	tk, err := o.oauthCfg.Exchange(context.TODO(), code)
 	if err != nil {
-		return "", user, echo.NewHTTPError(http.StatusUnauthorized, fmt.Sprintf("error exchanging token: %v", err))
+		return "", OIDCclaim{}, echo.NewHTTPError(http.StatusUnauthorized, fmt.Sprintf("error exchanging token: %v", err))
 	}
 
 	rawIDTk, ok := tk.Extra("id_token").(string)
 	if !ok {
-		return "", user, echo.NewHTTPError(http.StatusUnauthorized, "`id_token` missing.")
+		return "", OIDCclaim{}, echo.NewHTTPError(http.StatusUnauthorized, "`id_token` missing.")
 	}
 
 	idTk, err := o.verifier.Verify(context.TODO(), rawIDTk)
 	if err != nil {
-		return "", user, echo.NewHTTPError(http.StatusUnauthorized, fmt.Sprintf("error verifying ID token: %v", err))
+		return "", OIDCclaim{}, echo.NewHTTPError(http.StatusUnauthorized, fmt.Sprintf("error verifying ID token: %v", err))
 	}
 
 	if idTk.Nonce != nonce {
-		return "", user, echo.NewHTTPError(http.StatusUnauthorized, "nonce did not match")
+		return "", OIDCclaim{}, echo.NewHTTPError(http.StatusUnauthorized, "nonce did not match")
 	}
 
-	if err := idTk.Claims(&user); err != nil {
-		return "", user, errors.New("error getting user from OIDC")
+	var claims OIDCclaim
+	if err := idTk.Claims(&claims); err != nil {
+		return "", OIDCclaim{}, errors.New("error getting user from OIDC")
 	}
 
-	return rawIDTk, user, nil
+	return rawIDTk, claims, nil
 }
 
 // Middleware is the HTTP middleware used for wrapping HTTP handlers registered on the echo router.
@@ -272,11 +272,6 @@ func (o *Auth) Perm(next echo.HandlerFunc, perm string) echo.HandlerFunc {
 
 // SetSession creates and sets a session (post successful login/auth).
 func (o *Auth) SetSession(u models.User, oidcToken string, c echo.Context) error {
-	// sess, err := o.sess.Acquire(nil, c, c)
-	// if err != nil {
-	// 	return echo.NewHTTPError(http.StatusInternalServerError, "error creating session")
-	// }
-
 	sess, err := o.sess.NewSession(c, c)
 	if err != nil {
 		o.log.Printf("error creating login session: %v", err)
@@ -311,16 +306,6 @@ func (o *Auth) validateSession(c echo.Context) (*simplesessions.Session, models.
 		return nil, models.User{}, echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
-	// If it's an OIDC session, validate the claim.
-	if vars["oidc_token"] != "" {
-		if !o.cfg.OIDC.Enabled {
-			return nil, models.User{}, echo.NewHTTPError(http.StatusForbidden, "OIDC aut his not enabled.")
-		}
-		if _, err := o.verifyOIDC(vars["oidc_token"].(string), c); err != nil {
-			return nil, models.User{}, err
-		}
-	}
-
 	// Fetch user details from the database.
 	user, err := o.cb.GetUser(userID)
 	if err != nil {
@@ -328,24 +313,6 @@ func (o *Auth) validateSession(c echo.Context) (*simplesessions.Session, models.
 	}
 
 	return sess, user, err
-}
-
-func (o *Auth) verifyOIDC(token string, c echo.Context) (models.User, error) {
-	idTk, err := o.verifier.Verify(c.Request().Context(), token)
-	if err != nil {
-		return models.User{}, err
-	}
-
-	var user models.User
-	if err := idTk.Claims(&user); err != nil {
-		return user, echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("error verifying OIDC claim: %v", user))
-	}
-
-	if user.ID < 1 {
-		return user, echo.NewHTTPError(http.StatusForbidden, fmt.Sprintf("invalid user ID in OIDC: %v", user))
-	}
-
-	return user, err
 }
 
 // parseAuthHeader parses the Authorization header and returns the api_key and access_token.

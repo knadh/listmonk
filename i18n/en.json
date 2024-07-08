@@ -364,6 +364,7 @@
     "settings.security.OIDCURL": "Provider URL",
     "settings.security.OIDCClientID": "Client ID",
     "settings.security.OIDCClientSecret": "Client secret",
+    "settings.security.OIDCRedirectURL": "Redirect URL for oAuth provider",
     "settings.appearance.adminHelp": "Custom CSS to apply to the admin UI.",
     "settings.appearance.adminName": "Admin",
     "settings.appearance.customCSS": "Custom CSS",

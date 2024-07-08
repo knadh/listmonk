@@ -1104,9 +1104,12 @@ WITH u AS (
 SELECT * FROM u WHERE CRYPT($2, password) = password;
 
 -- name: update-user-profile
-UPDATE users SET name=$2, email=$3,
+UPDATE users SET name=$2, email=(CASE WHEN password_login THEN $3 ELSE email END),
     password=(CASE WHEN $4 = TRUE THEN (CASE WHEN $5 != '' THEN CRYPT($5, GEN_SALT('bf')) ELSE password END) ELSE NULL END)
     WHERE id=$1;
+
+-- name: update-user-login
+UPDATE users SET loggedin_at=NOW(), avatar=(CASE WHEN $2 != '' THEN $2 ELSE avatar END) WHERE id=$1;
 
 -- name: get-roles
 WITH mainroles AS (

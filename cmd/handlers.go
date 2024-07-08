@@ -232,8 +232,8 @@ func initHTTPHandlers(e *echo.Echo, app *App) {
 	p.POST(path.Join(uriAdmin, "/login"), handleLoginPage)
 
 	if app.constants.Security.OIDC.Enabled {
-		api.POST("/auth/oidc/login", handleOIDCLogin)
-		api.GET("/auth/oidc/finish", handleOIDCFinish)
+		p.POST("/auth/oidc", handleOIDCLogin)
+		p.GET("/auth/oidc", handleOIDCFinish)
 	}
 
 	// Public APIs.

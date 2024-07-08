@@ -3,7 +3,9 @@ package core
 import (
 	"database/sql"
 	"encoding/json"
+	"errors"
 	"net/http"
+	"strings"
 
 	"github.com/knadh/listmonk/internal/utils"
 	"github.com/knadh/listmonk/models"
@@ -20,7 +22,7 @@ func (c *Core) GetUsers() ([]models.User, error) {
 
 // GetUser retrieves a specific user based on any one given identifier.
 func (c *Core) GetUser(id int, username, email string) (models.User, error) {
-	out, err := c.getUsers(id, username, email)
+	out, err := c.getUsers(id, username, strings.ToLower(email))
 	if err != nil {
 		return models.User{}, echo.NewHTTPError(http.StatusInternalServerError,
 			c.i18n.Ts("globals.messages.errorFetching", "name", "{globals.terms.users}", "error", pqErrMsg(err)))
@@ -92,6 +94,16 @@ func (c *Core) UpdateUserProfile(id int, u models.User) (models.User, error) {
 	return c.GetUser(id, "", "")
 }
 
+// UpdateUserLogin updates a user's record post-login.
+func (c *Core) UpdateUserLogin(id int, avatar string) error {
+	if _, err := c.q.UpdateUserLogin.Exec(id, avatar); err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError,
+			c.i18n.Ts("globals.messages.errorUpdating", "name", "{globals.terms.user}", "error", pqErrMsg(err)))
+	}
+
+	return nil
+}
+
 // DeleteUsers deletes a given user.
 func (c *Core) DeleteUsers(ids []int) error {
 	res, err := c.q.DeleteUsers.Exec(pq.Array(ids))
@@ -127,6 +139,10 @@ func (c *Core) getUsers(id int, username, email string) ([]models.User, error) {
 	if err := c.q.GetUsers.Select(&out, id, username, email); err != nil {
 		return nil, echo.NewHTTPError(http.StatusInternalServerError,
 			c.i18n.Ts("globals.messages.errorFetching", "name", "{globals.terms.users}", "error", pqErrMsg(err)))
+	}
+
+	if len(out) == 0 {
+		return nil, errors.New("user not found")
 	}
 
 	for n, u := range out {

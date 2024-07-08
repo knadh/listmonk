@@ -229,10 +229,12 @@ func handleUpdateUserProfile(c echo.Context) error {
 	email := strings.TrimSpace(u.Email.String)
 
 	// Validate fields.
-	if !utils.ValidateEmail(email) {
-		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.Ts("globals.messages.invalidFields", "name", "email"))
+	if user.PasswordLogin {
+		if !utils.ValidateEmail(email) {
+			return echo.NewHTTPError(http.StatusBadRequest, app.i18n.Ts("globals.messages.invalidFields", "name", "email"))
+		}
+		u.Email = null.String{String: email, Valid: true}
 	}
-	u.Email = null.String{String: email, Valid: true}
 
 	if u.PasswordLogin && u.Password.String != "" {
 		if !strHasLen(u.Password.String, 8, stdInputMaxLen) {
