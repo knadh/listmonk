@@ -1,4 +1,4 @@
-FROM alpine:latest
+FROM --platform=$BUILDPLATFORM alpine:latest
 RUN apk --no-cache add ca-certificates tzdata
 WORKDIR /listmonk
 COPY listmonk .
