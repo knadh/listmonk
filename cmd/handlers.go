@@ -24,7 +24,6 @@ const (
 
 	// URIs.
 	uriAdmin = "/admin"
-	uriAPI   = "/api"
 )
 
 type okResp struct {
