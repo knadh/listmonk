@@ -64,30 +64,34 @@
             </b-button>
           </div>
 
-          <div v-if="serverConfig.update.update.is_new" class="notification is-success">
-            {{ $t('settings.updateAvailable', {
-              version: `${serverConfig.update.update.release_version}
-            (${$utils.getDate(serverConfig.update.update.release_date).format('DD MMM YY')})`,
-            }) }}
-            <a :href="serverConfig.update.update.url" target="_blank" rel="noopener noreferer">View</a>
-          </div>
-
-          <template v-if="serverConfig.update.messages && serverConfig.update.messages.length > 0">
-            <div v-for="m in serverConfig.update.messages" class="notification"
-              :class="{ [m.priority === 'high' ? 'is-danger' : 'is-info']: true }" :key="m.title">
-              <h3 class="is-size-5" v-if="m.title"><strong>{{ m.title }}</strong></h3>
-              <p v-if="m.description">{{ m.description }}</p>
-              <a v-if="m.url" :href="m.url" target="_blank" rel="noopener noreferer">View</a>
+          <template v-if="serverConfig.update">
+            <div v-if="serverConfig.update.update.is_new" class="notification is-success">
+              {{ $t('settings.updateAvailable', {
+                version: `${serverConfig.update.update.release_version}
+              (${$utils.getDate(serverConfig.update.update.release_date).format('DD MMM YY')})`,
+              }) }}
+              <a :href="serverConfig.update.update.url" target="_blank" rel="noopener noreferer">View</a>
             </div>
+
+            <template v-if="serverConfig.update.messages && serverConfig.update.messages.length > 0">
+              <div v-for="m in serverConfig.update.messages" class="notification"
+                :class="{ [m.priority === 'high' ? 'is-danger' : 'is-info']: true }" :key="m.title">
+                <h3 class="is-size-5" v-if="m.title"><strong>{{ m.title }}</strong></h3>
+                <p v-if="m.description">{{ m.description }}</p>
+                <a v-if="m.url" :href="m.url" target="_blank" rel="noopener noreferer">View</a>
+              </div>
+            </template>
           </template>
 
           <div v-if="serverConfig.has_legacy_user" class="notification is-danger">
             <b-icon icon="warning-empty" />
             Remove the <code>admin_username</code> and <code>admin_password</code> fields from the TOML
-            configuration file. Starting this version, users are managed via the
+            configuration file. If you are using APIs, create and use new credentials.
+            Users are now managed via the
             <router-link :to="{ name: 'users' }">
               Admin -> Settings -> Users
-            </router-link> dashboard.
+            </router-link> dashboard. <a href="https://listmonk.app/docs/migrating-users" target="_blank"
+              rel="noopener noreferer">Learn more.</a>
           </div>
         </div>
 
