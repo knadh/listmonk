@@ -47,6 +47,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/lib/pq"
 	flag "github.com/spf13/pflag"
+	"gopkg.in/volatiletech/null.v6"
 )
 
 const (
@@ -972,6 +973,28 @@ func initAuth(db *sql.DB, ko *koanf.Koanf, co *core.Core) *auth.Auth {
 	}, db, cb, lo)
 	if err != nil {
 		lo.Fatalf("error initializing auth: %v", err)
+	}
+
+	// If the legacy username+password is set in the TOML file, use that as an API
+	// access token in the auth module to preserve backwards compatibility for existing
+	// API integrations. The presence of these values show a red banner on the admin UI
+	// prompting the creation of new API credentials and the removal of values from
+	// the TOML config.
+	var (
+		username = ko.String("app.admin_username")
+		password = ko.String("app.admin_password")
+	)
+	if len(username) > 2 && len(password) > 6 {
+		u := models.User{
+			Username:      username,
+			Password:      null.String{Valid: true, String: password},
+			PasswordLogin: true,
+			HasPassword:   true,
+			Status:        models.UserStatusEnabled,
+			Type:          models.UserTypeAPI,
+		}
+		u.Role.ID = auth.SuperAdminRoleID
+		a.SetToken(username, u)
 	}
 
 	return a

@@ -26,7 +26,7 @@ const (
 	UserKey    = "auth_user"
 	SessionKey = "auth_session"
 
-	SuperAdminRole = 1
+	SuperAdminRoleID = 1
 )
 
 const (
@@ -85,6 +85,8 @@ func New(cfg Config, db *sql.DB, cb *Callbacks, lo *log.Logger) (*Auth, error) {
 		cfg: cfg,
 		cb:  cb,
 		log: lo,
+
+		tokens: map[string]models.User{},
 	}
 
 	// Initialize OIDC.
@@ -136,15 +138,11 @@ func New(cfg Config, db *sql.DB, cb *Callbacks, lo *log.Logger) (*Auth, error) {
 	return a, nil
 }
 
-// SetTokens caches tokens for authenticating API client calls.
-func (o *Auth) SetTokens(tokens map[string]models.User) {
+// SetToken caches tokens for authenticating API client calls.
+func (o *Auth) SetToken(apiKey string, u models.User) {
 	o.Lock()
-	defer o.Unlock()
-
-	o.tokens = make(map[string]models.User, len(tokens))
-	for userID, u := range tokens {
-		o.tokens[userID] = u
-	}
+	o.tokens[apiKey] = u
+	o.Unlock()
 }
 
 // GetToken validates an API user+token.
@@ -256,8 +254,8 @@ func (o *Auth) Perm(next echo.HandlerFunc, perm string) echo.HandlerFunc {
 			return next(c)
 		}
 
-		// If there's no permission set on the handler or if the current user is a super admin, do no checks.
-		if perm == "" || u.RoleID == SuperAdminRole {
+		// If the current user is a Super Admin user, do no checks.
+		if u.Role.ID == SuperAdminRoleID {
 			return next(c)
 		}
 
@@ -270,8 +268,8 @@ func (o *Auth) Perm(next echo.HandlerFunc, perm string) echo.HandlerFunc {
 	}
 }
 
-// SetSession creates and sets a session (post successful login/auth).
-func (o *Auth) SetSession(u models.User, oidcToken string, c echo.Context) error {
+// SaveSession creates and sets a session (post successful login/auth).
+func (o *Auth) SaveSession(u models.User, oidcToken string, c echo.Context) error {
 	sess, err := o.sess.NewSession(c, c)
 	if err != nil {
 		o.log.Printf("error creating login session: %v", err)
