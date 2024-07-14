@@ -102,7 +102,7 @@ func handleOIDCFinish(c echo.Context) error {
 	}
 
 	// Set the session.
-	if err := app.auth.SetSession(user, oidcToken, c); err != nil {
+	if err := app.auth.SaveSession(user, oidcToken, c); err != nil {
 		return renderLoginPage(c, err)
 	}
 
@@ -213,7 +213,7 @@ func doLogin(c echo.Context) error {
 	}
 
 	// Set the session.
-	if err := app.auth.SetSession(user, "", c); err != nil {
+	if err := app.auth.SaveSession(user, "", c); err != nil {
 		return err
 	}
 
