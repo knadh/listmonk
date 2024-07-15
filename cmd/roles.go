@@ -76,6 +76,11 @@ func handleUpdateRole(c echo.Context) error {
 		return err
 	}
 
+	// Cache the API token for validating API queries without hitting the DB every time.
+	if err := cacheAPIUsers(app.core, app.auth); err != nil {
+		return err
+	}
+
 	return c.JSON(http.StatusOK, okResp{out})
 }
 
@@ -91,6 +96,11 @@ func handleDeleteRole(c echo.Context) error {
 	}
 
 	if err := app.core.DeleteRole(int(id)); err != nil {
+		return err
+	}
+
+	// Cache the API token for validating API queries without hitting the DB every time.
+	if err := cacheAPIUsers(app.core, app.auth); err != nil {
 		return err
 	}
 

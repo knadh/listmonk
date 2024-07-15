@@ -1036,7 +1036,7 @@ INSERT INTO users (username, password_login, password, email, name, type, role_i
                 THEN $3
             ELSE NULL
         END
-    ), $4, $5, $6, $7, $8) RETURNING *;
+    ), $4, $5, $6, $7, $8) RETURNING id;
 
 -- name: update-user
 WITH u AS (

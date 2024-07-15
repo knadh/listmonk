@@ -33,7 +33,7 @@ func (c *Core) GetUser(id int, username, email string) (models.User, error) {
 
 // CreateUser creates a new user.
 func (c *Core) CreateUser(u models.User) (models.User, error) {
-	var out models.User
+	var id int
 
 	// If it's an API user, generate a random token for password
 	// and set the e-mail to default.
@@ -41,7 +41,7 @@ func (c *Core) CreateUser(u models.User) (models.User, error) {
 		// Generate a random admin password.
 		tk, err := utils.GenerateRandomString(32)
 		if err != nil {
-			return out, err
+			return models.User{}, err
 		}
 
 		u.Email = null.String{String: u.Username + "@api", Valid: true}
@@ -49,7 +49,7 @@ func (c *Core) CreateUser(u models.User) (models.User, error) {
 		u.Password = null.String{String: tk, Valid: true}
 	}
 
-	if err := c.q.CreateUser.Get(&out, u.Username, u.PasswordLogin, u.Password, u.Email, u.Name, u.Type, u.RoleID, u.Status); err != nil {
+	if err := c.q.CreateUser.Get(&id, u.Username, u.PasswordLogin, u.Password, u.Email, u.Name, u.Type, u.RoleID, u.Status); err != nil {
 		return models.User{}, echo.NewHTTPError(http.StatusInternalServerError,
 			c.i18n.Ts("globals.messages.errorCreating", "name", "{globals.terms.user}", "error", pqErrMsg(err)))
 	}
@@ -60,7 +60,8 @@ func (c *Core) CreateUser(u models.User) (models.User, error) {
 		u.Password = null.String{Valid: false}
 	}
 
-	return out, nil
+	out, err := c.GetUser(id, "", "")
+	return out, err
 }
 
 // UpdateUser updates a given user.
@@ -75,7 +76,9 @@ func (c *Core) UpdateUser(id int, u models.User) (models.User, error) {
 		return models.User{}, echo.NewHTTPError(http.StatusBadRequest, c.i18n.T("users.needSuper"))
 	}
 
-	return c.GetUser(id, "", "")
+	out, err := c.GetUser(id, "", "")
+
+	return out, err
 }
 
 // UpdateUserProfile updates the basic fields of a given uesr (name, email, password).
