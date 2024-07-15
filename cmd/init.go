@@ -994,7 +994,12 @@ func initAuth(db *sql.DB, ko *koanf.Koanf, co *core.Core) *auth.Auth {
 			Type:          models.UserTypeAPI,
 		}
 		u.Role.ID = auth.SuperAdminRoleID
-		a.SetToken(username, u)
+		a.CacheAPIUsers([]models.User{u})
+	}
+
+	// Load all API users.
+	if err := cacheAPIUsers(co, a); err != nil {
+		lo.Fatalf("error loading API users: %v", err)
 	}
 
 	return a

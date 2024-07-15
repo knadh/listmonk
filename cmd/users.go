@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/knadh/listmonk/internal/auth"
+	"github.com/knadh/listmonk/internal/core"
 	"github.com/knadh/listmonk/internal/utils"
 	"github.com/knadh/listmonk/models"
 	"github.com/labstack/echo/v4"
@@ -94,15 +95,20 @@ func handleCreateUser(c echo.Context) error {
 	}
 
 	// Create the user in the database.
-	out, err := app.core.CreateUser(u)
+	user, err := app.core.CreateUser(u)
 	if err != nil {
 		return err
 	}
-	if out.Type != models.UserTypeAPI {
-		out.Password = null.String{}
+	if user.Type != models.UserTypeAPI {
+		user.Password = null.String{}
 	}
 
-	return c.JSON(http.StatusOK, okResp{out})
+	// Cache the API token for validating API queries without hitting the DB every time.
+	if err := cacheAPIUsers(app.core, app.auth); err != nil {
+		return err
+	}
+
+	return c.JSON(http.StatusOK, okResp{user})
 }
 
 // handleUpdateUser handles user modification.
@@ -170,13 +176,21 @@ func handleUpdateUser(c echo.Context) error {
 		u.Name = u.Username
 	}
 
-	out, err := app.core.UpdateUser(id, u)
+	// Update the user in the DB.
+	user, err := app.core.UpdateUser(id, u)
 	if err != nil {
 		return err
 	}
-	out.Password = null.String{}
 
-	return c.JSON(http.StatusOK, okResp{out})
+	// Clear the pasword before sending outside.
+	user.Password = null.String{}
+
+	// Cache the API token for validating API queries without hitting the DB every time.
+	if err := cacheAPIUsers(app.core, app.auth); err != nil {
+		return err
+	}
+
+	return c.JSON(http.StatusOK, okResp{user})
 }
 
 // handleDeleteUsers handles user deletion, either a single one (ID in the URI), or a list.
@@ -196,6 +210,11 @@ func handleDeleteUsers(c echo.Context) error {
 	}
 
 	if err := app.core.DeleteUsers(ids); err != nil {
+		return err
+	}
+
+	// Cache the API token for validating API queries without hitting the DB every time.
+	if err := cacheAPIUsers(app.core, app.auth); err != nil {
 		return err
 	}
 
@@ -249,4 +268,21 @@ func handleUpdateUserProfile(c echo.Context) error {
 	out.Password = null.String{}
 
 	return c.JSON(http.StatusOK, okResp{out})
+}
+
+func cacheAPIUsers(co *core.Core, a *auth.Auth) error {
+	allUsers, err := co.GetUsers()
+	if err != nil {
+		return err
+	}
+
+	apiUsers := make([]models.User, 0, len(allUsers))
+	for _, u := range allUsers {
+		if u.Type == models.UserTypeAPI && u.Status == models.UserStatusEnabled {
+			apiUsers = append(apiUsers, u)
+		}
+	}
+
+	a.CacheAPIUsers(apiUsers)
+	return nil
 }

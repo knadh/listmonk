@@ -68,7 +68,7 @@ type Callbacks struct {
 }
 
 type Auth struct {
-	tokens map[string]models.User
+	apiUsers map[string]models.User
 	sync.RWMutex
 
 	cfg       Config
@@ -86,7 +86,7 @@ func New(cfg Config, db *sql.DB, cb *Callbacks, lo *log.Logger) (*Auth, error) {
 		cb:  cb,
 		log: lo,
 
-		tokens: map[string]models.User{},
+		apiUsers: map[string]models.User{},
 	}
 
 	// Initialize OIDC.
@@ -138,17 +138,21 @@ func New(cfg Config, db *sql.DB, cb *Callbacks, lo *log.Logger) (*Auth, error) {
 	return a, nil
 }
 
-// SetToken caches tokens for authenticating API client calls.
-func (o *Auth) SetToken(apiKey string, u models.User) {
+// CacheAPIUsers caches API users for authenticating requests.
+func (o *Auth) CacheAPIUsers(users []models.User) {
 	o.Lock()
-	o.tokens[apiKey] = u
+	o.apiUsers = map[string]models.User{}
+
+	for _, u := range users {
+		o.apiUsers[u.Username] = u
+	}
 	o.Unlock()
 }
 
-// GetToken validates an API user+token.
-func (o *Auth) GetToken(user string, token string) (models.User, bool) {
+// GetAPIToken validates an API user+token.
+func (o *Auth) GetAPIToken(user string, token string) (models.User, bool) {
 	o.RLock()
-	t, ok := o.tokens[user]
+	t, ok := o.apiUsers[user]
 	o.RUnlock()
 
 	if !ok || subtle.ConstantTimeCompare([]byte(t.Password.String), []byte(token)) != 1 {
@@ -221,7 +225,7 @@ func (o *Auth) Middleware(next echo.HandlerFunc) echo.HandlerFunc {
 			}
 
 			// Validate the token.
-			user, ok := o.GetToken(key, token)
+			user, ok := o.GetAPIToken(key, token)
 			if !ok {
 				c.Set(UserKey, echo.NewHTTPError(http.StatusForbidden, "invalid API credentials"))
 				return next(c)
