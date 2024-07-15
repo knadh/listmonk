@@ -199,6 +199,9 @@ export default Vue.extend({
 
   mounted() {
     this.form = { ...this.form, ...this.$props.data };
+    if (this.$props.data.role) {
+      this.form.roleId = this.$props.data.role.id;
+    }
 
     this.$api.getRoles();
 
