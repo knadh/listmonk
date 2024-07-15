@@ -15,7 +15,8 @@
 
       <section expanded class="modal-card-body">
         <b-field :label="$t('globals.fields.name')" label-position="on-border">
-          <b-input autofocus :disabled="disabled" :maxlength="200" v-model="form.name" name="name" ref="focus" required />
+          <b-input autofocus :disabled="disabled" :maxlength="200" v-model="form.name" name="name" ref="focus"
+            required />
         </b-field>
 
         <div v-if="!disabled" class="box">
@@ -139,7 +140,7 @@ export default Vue.extend({
       form: {
         curList: null,
         lists: [],
-        name: this.$t('users.newRole'),
+        name: null,
         permissions: {},
       },
       hasToggle: false,
