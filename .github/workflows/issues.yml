@@ -1,0 +1,19 @@
+name: "close-stale-issues-and-prs"
+on:
+  schedule:
+    - cron: "30 1 * * *"
+  workflow_dispatch:
+
+jobs:
+  stale:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/stale@v9
+        with:
+          days-before-stale: 90
+          stale-issue-message: ""
+          stale-pr-message: ""
+          stale-issue-label: "stale"
+          stale-pr-label: "stale"
+          debug-only: true
+          exempt-all-assignees: true
