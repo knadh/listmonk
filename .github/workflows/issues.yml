@@ -11,9 +11,8 @@ jobs:
       - uses: actions/stale@v9
         with:
           days-before-stale: 90
-          stale-issue-message: ""
-          stale-pr-message: ""
           stale-issue-label: "stale"
           stale-pr-label: "stale"
-          debug-only: true
+          debug-only: false
           exempt-all-assignees: true
+          operations-per-run: 1000
