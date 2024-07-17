@@ -974,6 +974,11 @@ func initAuth(db *sql.DB, ko *koanf.Koanf, co *core.Core) *auth.Auth {
 		lo.Fatalf("error initializing auth: %v", err)
 	}
 
+	// Cache all API users in-memory for token auth.
+	if err := cacheAPIUsers(co, a); err != nil {
+		lo.Fatalf("error loading API users: %v", err)
+	}
+
 	// If the legacy username+password is set in the TOML file, use that as an API
 	// access token in the auth module to preserve backwards compatibility for existing
 	// API integrations. The presence of these values show a red banner on the admin UI
@@ -993,12 +998,9 @@ func initAuth(db *sql.DB, ko *koanf.Koanf, co *core.Core) *auth.Auth {
 			Type:          models.UserTypeAPI,
 		}
 		u.Role.ID = auth.SuperAdminRoleID
-		a.CacheAPIUsers([]models.User{u})
-	}
+		a.CacheAPIUser(u)
 
-	// Load all API users.
-	if err := cacheAPIUsers(co, a); err != nil {
-		lo.Fatalf("error loading API users: %v", err)
+		lo.Println(`WARNING: Remove the admin_username and admin_password fields from the TOML configuration file. If you are using APIs, create and use new credentials. Users are now managed via the Admin -> Settings -> Users dashboard.`)
 	}
 
 	return a
