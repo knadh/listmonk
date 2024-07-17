@@ -138,7 +138,9 @@ func New(cfg Config, db *sql.DB, cb *Callbacks, lo *log.Logger) (*Auth, error) {
 	return a, nil
 }
 
-// CacheAPIUsers caches API users for authenticating requests.
+// CacheAPIUsers caches API users for authenticating requests. It wipes
+// the existing cache every time and is meant for syncing all API users
+// in the database in one shot.
 func (o *Auth) CacheAPIUsers(users []models.User) {
 	o.Lock()
 	o.apiUsers = map[string]models.User{}
@@ -146,6 +148,13 @@ func (o *Auth) CacheAPIUsers(users []models.User) {
 	for _, u := range users {
 		o.apiUsers[u.Username] = u
 	}
+	o.Unlock()
+}
+
+// CacheAPIUser caches an API user for authenticating requests.
+func (o *Auth) CacheAPIUser(u models.User) {
+	o.Lock()
+	o.apiUsers[u.Username] = u
 	o.Unlock()
 }
 
@@ -236,7 +245,7 @@ func (o *Auth) Middleware(next echo.HandlerFunc) echo.HandlerFunc {
 			return next(c)
 		}
 
-		// It's a cookie based session.
+		// Is it a cookie based session?
 		sess, user, err := o.validateSession(c)
 		if err != nil {
 			c.Set(UserKey, echo.NewHTTPError(http.StatusForbidden, "invalid session"))
