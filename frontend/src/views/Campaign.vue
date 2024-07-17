@@ -63,7 +63,7 @@
                 </b-field>
 
                 <b-field :label="$t('campaigns.subject')" label-position="on-border">
-                  <b-input :maxlength="200" v-model="form.subject" name="subject" :disabled="!canEdit"
+                  <b-input :maxlength="5000" v-model="form.subject" name="subject" :disabled="!canEdit"
                     :placeholder="$t('campaigns.subject')" required />
                 </b-field>
 

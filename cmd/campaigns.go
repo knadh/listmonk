@@ -551,7 +551,9 @@ func validateCampaignFields(c campaignReq, app *App) (campaignReq, error) {
 	if !strHasLen(c.Name, 1, stdInputMaxLen) {
 		return c, errors.New(app.i18n.T("campaigns.fieldInvalidName"))
 	}
-	if !strHasLen(c.Subject, 1, stdInputMaxLen) {
+
+	// Larger char limit for subject as it can contain {{ go templating }} logic.
+	if !strHasLen(c.Subject, 1, 5000) {
 		return c, errors.New(app.i18n.T("campaigns.fieldInvalidSubject"))
 	}
 
