@@ -16,3 +16,5 @@ jobs:
           debug-only: false
           exempt-all-assignees: true
           operations-per-run: 1000
+          stale-issue-message: "This issue has been marked 'stale' after 90 days of inactivity. If there is no further activity, it will be closed in 7 days."
+          stale-pr-message: "This PR has been marked 'stale' after 90 days of inactivity. If there is no further activity, it will be closed in 7 days."
