@@ -17,8 +17,8 @@
 
         <b-loading :active="loading.lists" :is-full-page="false" />
         <ul class="no" data-cy="lists">
-          <li v-for="l in publicLists" :key="l.id">
-            <b-checkbox v-model="checked" :native-value="l.uuid">
+          <li v-for="(l, i) in publicLists" :key="l.id">
+            <b-checkbox v-model="checked" :native-value="i">
               {{ l.name }}
             </b-checkbox>
           </li>
@@ -41,27 +41,7 @@
           {{ $t('forms.formHTMLHelp') }}
         </p>
 
-        <!-- eslint-disable max-len -->
-        <pre v-if="checked.length > 0">&lt;form method=&quot;post&quot; action=&quot;{{ settings['app.root_url'] }}/subscription/form&quot; class=&quot;listmonk-form&quot;&gt;
-          &lt;div&gt;
-          &lt;h3&gt;Subscribe&lt;/h3&gt;
-          &lt;input type=&quot;hidden&quot; name=&quot;nonce&quot; /&gt;
-          &lt;p&gt;&lt;input type=&quot;email&quot; name=&quot;email&quot; required placeholder=&quot;{{ $t('subscribers.email') }}&quot; /&gt;&lt;/p&gt;
-          &lt;p&gt;&lt;input type=&quot;text&quot; name=&quot;name&quot; placeholder=&quot;{{ $t('public.subName') }}&quot; /&gt;&lt;/p&gt;
-      <template v-for="l in publicLists"><span v-if="l.uuid in selected" :key="l.id" :set="id = l.uuid.substr(0, 5)">
-        &lt;p&gt;
-          &lt;input id=&quot;{{ id }}&quot; type=&quot;checkbox&quot; name=&quot;l&quot; checked value=&quot;{{ l.uuid }}&quot; /&gt;
-          &lt;label for=&quot;{{ id }}&quot;&gt;{{ l.name }}&lt;/label&gt;<template v-if="l.description">&lt;br /&gt;&lt;span&gt;{{ l.description }}&lt;/span&gt;</template>
-        &lt;/p&gt;</span></template>
-        <template v-if="this.settings['security.enable_captcha']">
-        &lt;div class=&quot;captcha&quot;&gt;
-            &lt;div class=&quot;h-captcha&quot; data-sitekey=&quot;{{ this.settings['security.captcha_key'] }}&quot;&gt;&lt;/div&gt;
-            &lt;script src=&quot;https://js.hcaptcha.com/1/api.js&quot; async defer&gt;&lt;/script&gt;
-        &lt;/div&gt;
-        </template>
-        &lt;p&gt;&lt;input type=&quot;submit&quot; value=&quot;{{ $t('public.sub') }}&quot; /&gt;&lt;/p&gt;
-    &lt;/div&gt;
-&lt;/form&gt;</pre>
+        <html-editor v-if="checked.length > 0" v-model="html" disabled />
       </div>
     </div><!-- columns -->
   </section>
@@ -70,19 +50,59 @@
 <script>
 import Vue from 'vue';
 import { mapState } from 'vuex';
+import HTMLEditor from '../components/HTMLEditor.vue';
 
 export default Vue.extend({
   name: 'ListForm',
 
+  components: {
+    'html-editor': HTMLEditor,
+  },
+
   data() {
     return {
       checked: [],
+      html: '',
     };
   },
 
   methods: {
-    getPublicLists(lists) {
-      return lists.filter((l) => l.type === 'public');
+    renderHTML() {
+      let h = `<form method="post" action="${this.settings['app.root_url']}/subscription/form" class="listmonk-form">\n`
+        + '  <div>\n'
+        + `    <h3>${this.$t('public.sub')}</h3>\n`
+        + '    <input type="hidden" name="nonce" />\n\n'
+        + `    <p><input type="email" name="email" required placeholder="${this.$t('subscribers.email')}" /></p>\n`
+        + `    <p><input type="text" name="name" placeholder="${this.$t('public.subName')}" /></p>\n\n`;
+
+      this.checked.forEach((i) => {
+        const l = this.publicLists[parseInt(i, 10)];
+
+        h += '    <p>\n'
+          + `      <input id="${l.uuid.substr(0, 5)}" type="checkbox" name="l" checked value="${l.uuid}" />\n`
+          + `      <label for="${l.uuid.substr(0, 5)}">${l.name}</label>\n`;
+
+        if (l.description) {
+          h += '      <br />\n'
+            + `      <span>${l.description}</span>\n`;
+        }
+
+        h += '    </p>\n';
+      });
+
+      // Captcha?
+      if (this.settings['security.enable_captcha']) {
+        h += '\n'
+          + `    <div class="h-captcha" data-sitekey="${this.settings['security.captcha_key']}"></div>\n`
+          + `    <${'script'} src="https://js.hcaptcha.com/1/api.js" async defer></${'script'}>\n`;
+      }
+
+      h += '\n'
+        + `    <input type="submit" value="${this.$t('public.sub')} " />\n`
+        + '  </div>\n'
+        + '</form>';
+
+      this.html = h;
     },
   },
 
@@ -95,13 +115,11 @@ export default Vue.extend({
       }
       return this.lists.results.filter((l) => l.type === 'public');
     },
+  },
 
-    selected() {
-      const sel = [];
-      this.checked.forEach((uuid) => {
-        sel[uuid] = true;
-      });
-      return sel;
+  watch: {
+    checked() {
+      this.renderHTML();
     },
   },
 });
