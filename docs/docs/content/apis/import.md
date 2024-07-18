@@ -16,7 +16,7 @@ Retrieve the status of an import.
 ##### Example Request
 
 ```shell
-curl -u "username:username" -X GET 'http://localhost:9000/api/import/subscribers'
+curl -u "username:password" -X GET 'http://localhost:9000/api/import/subscribers'
 ```
 
 ##### Example Response
@@ -41,7 +41,7 @@ Retrieve logs related to imports.
 ##### Example Request
 
 ```shell
-curl -u "username:username" -X GET 'http://localhost:9000/api/import/subscribers/logs'
+curl -u "username:password" -X GET 'http://localhost:9000/api/import/subscribers/logs'
 ```
 
 ##### Example Response
@@ -85,7 +85,7 @@ Stop and delete an ongoing import.
 ##### Example Request
 
 ```shell
-curl -u "username:username" -X DELETE 'http://localhost:9000/api/import/subscribers' 
+curl -u "username:password" -X DELETE 'http://localhost:9000/api/import/subscribers' 
 ```
 
 ##### Example Response
