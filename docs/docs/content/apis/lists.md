@@ -29,7 +29,7 @@ Retrieve lists.
 ##### Example Request
 
 ```shell
-curl -u "username:username" -X GET 'http://localhost:9000/api/lists?page=1&per_page=100'
+curl -u "username:password" -X GET 'http://localhost:9000/api/lists?page=1&per_page=100'
 ```
 
 ##### Example Response
@@ -85,7 +85,7 @@ Retrieve a specific list.
 ##### Example Request
 
 ```shell
-curl -u "username:username" -X GET 'http://localhost:9000/api/lists/5'
+curl -u "username:password" -X GET 'http://localhost:9000/api/lists/5'
 ```
 
 ##### Example Response
@@ -124,7 +124,7 @@ Create a new list.
 ##### Example Request
 
 ```shell
-curl -u "username:username" -X POST 'http://localhost:9000/api/lists'
+curl -u "username:password" -X POST 'http://localhost:9000/api/lists'
 ```
 
 ##### Example Response
@@ -164,7 +164,7 @@ Update a list.
 ##### Example Request
 
 ```shell
-curl -u "username:username" -X PUT 'http://localhost:9000/api/lists/5' \
+curl -u "username:password" -X PUT 'http://localhost:9000/api/lists/5' \
 --form 'name=modified test list' \
 --form 'type=private'
 ```
