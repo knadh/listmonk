@@ -1,4 +1,4 @@
-FROM alpine:latest
+FROM --platform=$BUILDPLATFORM alpine:latest
 
 # Install dependencies
 RUN apk --no-cache add ca-certificates tzdata shadow su-exec
