@@ -40,33 +40,29 @@ func checkUpdates(curVersion string, interval time.Duration, app *App) {
 	// Strip -* suffix.
 	curVersion = reSemver.ReplaceAllString(curVersion, "")
 
-	// Give a 15 minute buffer after app start in case the admin wants to disable
-	// update checks entirely and not make a request to upstream.
-	time.Sleep(time.Minute * 1)
-
-	for {
+	fnCheck := func() {
 		resp, err := http.Get(updateCheckURL)
 		if err != nil {
 			app.log.Printf("error checking for remote update: %v", err)
-			continue
+			return
 		}
 
 		if resp.StatusCode != 200 {
 			app.log.Printf("non 200 response on remote update check: %d", resp.StatusCode)
-			continue
+			return
 		}
 
 		b, err := io.ReadAll(resp.Body)
 		if err != nil {
 			app.log.Printf("error reading remote update payload: %v", err)
-			continue
+			return
 		}
 		resp.Body.Close()
 
 		var out AppUpdate
 		if err := json.Unmarshal(b, &out); err != nil {
 			app.log.Printf("error unmarshalling remote update payload: %v", err)
-			continue
+			return
 		}
 
 		// There is an update. Set it on the global app state.
@@ -81,7 +77,18 @@ func checkUpdates(curVersion string, interval time.Duration, app *App) {
 		app.Lock()
 		app.update = &out
 		app.Unlock()
+	}
 
-		time.Sleep(interval)
+	// Give a 15 minute buffer after app start in case the admin wants to disable
+	// update checks entirely and not make a request to upstream.
+	time.Sleep(time.Minute * 15)
+	fnCheck()
+
+	// Thereafter, check every $interval.
+	ticker := time.NewTicker(interval)
+	defer ticker.Stop()
+
+	for range ticker.C {
+		fnCheck()
 	}
 }
