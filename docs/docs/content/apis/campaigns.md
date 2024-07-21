@@ -205,7 +205,7 @@ Create a new campaign.
 | content_type | string    | Yes      | Content type: 'richtext', 'html', 'markdown', 'plain'.                                  |
 | body         | string    | Yes      | Content body of campaign.                                                               |
 | altbody      | string    |          | Alternate plain text body for HTML (and richtext) emails.                               |
-| send_at      | string    |          | Timestamp to schedule campaign. Format: 'YYYY-MM-DDTHH:MM:SS'.                          |
+| send_at      | string    |          | Timestamp to schedule campaign. Format: 'YYYY-MM-DDTHH:MM:SSZ'.                          |
 | messenger    | string    |          | 'email' or a custom messenger defined in settings. Defaults to 'email' if not provided. |
 | template_id  | number    |          | Template ID to use. Defaults to default template if not provided.                       |
 | tags         | string\[\]  |          | Tags to mark campaign.                                                                  |
