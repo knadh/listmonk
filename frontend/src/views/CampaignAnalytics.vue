@@ -247,7 +247,7 @@ export default Vue.extend({
     },
 
     onSubmit() {
-      this.$router.push({ query: { id: this.form.campaigns.map((c) => c.id) } });
+      this.$router.push({ query: { id: this.form.campaigns.map((c) => c.id), from: dayjs(this.form.from).unix(), to: dayjs(this.form.to).unix() } });
     },
 
     queryCampaigns(q) {
@@ -300,8 +300,11 @@ export default Vue.extend({
 
   created() {
     const now = dayjs().set('hour', 23).set('minute', 59).set('seconds', 0);
-    this.form.to = now.toDate();
-    this.form.from = now.subtract(7, 'day').set('hour', 0).set('minute', 0).toDate();
+    const weekAgo = now.subtract(7, 'day').set('hour', 0).set('minute', 0);
+    const from = this.$route.query.from ? dayjs.unix(this.$route.query.from) : weekAgo;
+    const to = this.$route.query.to ? dayjs.unix(this.$route.query.to) : now;
+    this.form.from = from.toDate();
+    this.form.to = to.toDate();
   },
 
   mounted() {
