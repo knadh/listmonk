@@ -88,7 +88,11 @@ func (c *Client) Put(name string, cType string, file io.ReadSeeker) (string, err
 	if _, err := c.s3.FilePut(p); err != nil {
 		return "", err
 	}
-	return name, nil
+
+	// Extract and return the file name from the object key.
+	_, fileName := filepath.Split(objectkey)
+
+	return fileName, nil
 }
 
 // assertUniqueObjectKey takes a S3 object key, checks if it exists in the S3 bucket.
