@@ -2,9 +2,17 @@ package media
 
 import (
 	"io"
+	"regexp"
 
 	"github.com/knadh/listmonk/models"
 	"gopkg.in/volatiletech/null.v6"
+)
+
+var (
+	// This matches filenames, sans extensions, of the format
+	// filename_(number). The number is to be incremented in case
+	// new file uploads conflict with existing filenames.
+	FnameRegexp = regexp.MustCompile(`(.+?)_([0-9]+)$`)
 )
 
 // Media represents an uploaded object.
