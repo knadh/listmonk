@@ -137,7 +137,7 @@ func handleExportSubscribers(c echo.Context) error {
 	}
 
 	// Filter by subscription status
-    subStatus := c.QueryParam("subscription_status")
+	subStatus := c.QueryParam("subscription_status")
 
 	// Get the batched export iterator.
 	exp, err := app.core.ExportSubscribers(query, subIDs, listIDs, subStatus, app.constants.DBBatchSize)
