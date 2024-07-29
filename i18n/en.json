@@ -624,6 +624,6 @@
     "users.passwordEnable": "Enable password login",
     "users.passwordMismatch": "Passwords don't match",
     "users.apiOneTimeToken": "Copy the API access token now. It will not be shown again.",
-    "users.needSuper": "User(s) couldn't updated. There has to be at least one 'super' user.",
+    "users.needSuper": "User(s) couldn't updated. There has to be at least one active Super Admin user.",
     "users.cantDeleteRole": "Cannot delete role that is in use."
 }
