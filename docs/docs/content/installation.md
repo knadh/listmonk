@@ -3,13 +3,14 @@
 listmonk requires Postgres ⩾ 12
 
 !!! Admin
-    Set environment variables `LISTMONK_ADMIN_USER` and `LISTMONK_ADMIN_PASSWORD` when installing listmonk to create the Super Admin user. If these are not set, listmonk generates a username and temporary password which are printed on the terminal output.
+    listmonk generates and prints admin credentials to the terminal during installation. This can be copied to login to the admin dashboard and later changed. To choose a custom username and password during installation,
+    set the environment variables `LISTMONK_ADMIN_USER` and `LISTMONK_ADMIN_PASSWORD` during installation.
 
 ## Binary
-- Download the [latest release](https://github.com/knadh/listmonk/releases) and extract the listmonk binary. `amd64` is the main one. It works for Intel and x86 CPUs.
-- `./listmonk --new-config` to generate config.toml. Then, edit the file.
-- `./listmonk --install` to install the tables in the Postgres DB. Copy the username and password from the terminal output.
-- Run `./listmonk` and visit `http://localhost:9000`.
+1. Download the [latest release](https://github.com/knadh/listmonk/releases) and extract the listmonk binary. `amd64` is the main one. It works for Intel and x86 CPUs.
+1. `./listmonk --new-config` to generate config.toml. Edit the file.
+1. `./listmonk --install` to install the tables in the Postgres DB. Copy the admin username and password from the terminal output (these can be changed from the admin UI later). To choose a custom username and password during installation, run: `LISTMONK_ADMIN_USER=myuser LISTMONK_ADMIN_PASSWORD=xxxxx ./listmonk --install`
+1. Run `./listmonk` and visit `http://localhost:9000`.
 
 
 ## Docker

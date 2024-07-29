@@ -13,8 +13,6 @@ Example:
 | **Environment variable**       | Example value  |
 | ------------------------------ | -------------- |
 | `LISTMONK_app__address`        | "0.0.0.0:9000" |
-| `LISTMONK_app__admin_username` | listmonk       |
-| `LISTMONK_app__admin_password` | listmonk       |
 | `LISTMONK_db__host`            | db             |
 | `LISTMONK_db__port`            | 9432           |
 | `LISTMONK_db__user`            | listmonk       |
@@ -141,8 +139,8 @@ with any Timezone listed [here](https://en.wikipedia.org/wiki/List_of_tz_databas
 ### Retries
 The `Settings -> SMTP -> Retries` denotes the number of times a message that fails at the moment of sending is retried silently using different connections from the SMTP pool. The messages that fail even after retries are the ones that are logged as errors and ignored.
 
-### Blocked Ports
-Some server hosts block SMTP ports (25, 465) so you have to get request to unblock them i.e. [Hetzner](https://docs.hetzner.com/cloud/servers/faq/#why-can-i-not-send-any-mails-from-my-server).
+## SMTP ports
+Some server hosts block outgoing SMTP ports (25, 465). You may have to contact your host to unblock them before being able to send e-mails. Eg: [Hetzner](https://docs.hetzner.com/cloud/servers/faq/#why-can-i-not-send-any-mails-from-my-server).
 
 
 ## Performance
