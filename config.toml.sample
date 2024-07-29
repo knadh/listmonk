@@ -5,18 +5,6 @@
 # port, use port 80 (this will require running with elevated permissions).
 address = "localhost:9000"
 
-# ###### IMPORTANT ######
-# Username and password are only used during installation (--install)
-# for creating the superadmin user in the database.
-#
-# After installation, login to the admin dashboard, update the superadmin's
-# user profile with the necessary details and remove these username and
-# password from here.
-#
-# Username should be min 3 chars and Password should be min 8 chars.
-admin_username = "listmonk"
-admin_password = "listmonk"
-
 # Database.
 [db]
 host = "localhost"

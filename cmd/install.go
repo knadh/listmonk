@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"regexp"
 	"strings"
 
 	"github.com/gofrs/uuid/v5"
@@ -304,13 +303,6 @@ func newConfigFile(path string) error {
 	b, err := fs.Read("config.toml.sample")
 	if err != nil {
 		return fmt.Errorf("error reading sample config (is binary stuffed?): %v", err)
-	}
-
-	// Generate a random admin password.
-	pwd, err := generateRandomString(16)
-	if err == nil {
-		b = regexp.MustCompile(`admin_password\s+?=\s+?(.*)`).
-			ReplaceAll(b, []byte(fmt.Sprintf(`admin_password = "%s"`, pwd)))
 	}
 
 	return os.WriteFile(path, b, 0644)

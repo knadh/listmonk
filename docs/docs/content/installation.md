@@ -1,13 +1,14 @@
 # Installation
 
-listmonk requires Postgres ⩾ 12.
+listmonk requires Postgres ⩾ 12
 
-See the "[Tutorials](#tutorials)" section at the bottom for detailed guides. 
+!!! Admin
+    Set environment variables `LISTMONK_ADMIN_USER` and `LISTMONK_ADMIN_PASSWORD` when installing listmonk to create the Super Admin user. If these are not set, listmonk generates a username and temporary password which are printed on the terminal output.
 
 ## Binary
 - Download the [latest release](https://github.com/knadh/listmonk/releases) and extract the listmonk binary. `amd64` is the main one. It works for Intel and x86 CPUs.
 - `./listmonk --new-config` to generate config.toml. Then, edit the file.
-- `./listmonk --install` to install the tables in the Postgres DB.
+- `./listmonk --install` to install the tables in the Postgres DB. Copy the username and password from the terminal output.
 - Run `./listmonk` and visit `http://localhost:9000`.
 
 
@@ -16,7 +17,7 @@ See the "[Tutorials](#tutorials)" section at the bottom for detailed guides.
 The latest image is available on DockerHub at `listmonk/listmonk:latest`
 
 !!! note
-    Listmonk's docs and scripts use `docker compose`, which is compatible with the latest version of docker. If you installed docker and docker-compose from your Linux distribution, you probably have an older version and will need to use the `docker-compose` command instead, or you'll need to update docker manually. [More info](https://gist.github.com/MaximilianKohler/e5158fcfe6de80a9069926a67afcae11#docker-update).
+    listmonk's docs and scripts use `docker compose`, which is compatible with the latest version of docker. If you installed docker and docker-compose from your Linux distribution, you probably have an older version and will need to use the `docker-compose` command instead, or you'll need to update docker manually. [More info](https://gist.github.com/MaximilianKohler/e5158fcfe6de80a9069926a67afcae11#docker-update).
 
 Use the sample [docker-compose.yml](https://github.com/knadh/listmonk/blob/master/docker-compose.yml) to run listmonk and Postgres DB with `docker compose` as follows:
 
@@ -61,7 +62,7 @@ The above shell script performs the following actions:
 
 #### Manual Docker install
 
-The following workflow is recommended to setup `listmonk` manually using `docker compose`. You are encouraged to customise the contents of `docker-compose.yml` to your needs. The overall setup looks like:
+The following workflow is recommended to setup `listmonk` manually using `docker compose`. You are encouraged to customise the contents of [`docker-compose.yml`](https://github.com/knadh/listmonk/blob/master/docker-compose.yml) to your needs. The overall setup looks like:
 
 - `docker compose up db` to run the Postgres DB.
 - `docker compose run --rm app ./listmonk --install` to setup the DB (or `--upgrade` to upgrade an existing DB).
@@ -94,8 +95,6 @@ Here's a sample `config.toml` you can use:
 ```toml
 [app]
 address = "0.0.0.0:9000"
-admin_username = "listmonk"
-admin_password = "listmonk"
 
 # Database.
 [db]
@@ -175,9 +174,9 @@ $ helm upgrade \
 
 ## Tutorials
 
-* [Informal step-by-step on how to get started with Listmonk using *Railway*](https://github.com/knadh/listmonk/issues/120#issuecomment-1421838533)
+* [Informal step-by-step on how to get started with listmonk using *Railway*](https://github.com/knadh/listmonk/issues/120#issuecomment-1421838533)
 * [Step-by-step tutorial for installation and all basic functions. *Amazon EC2, SES, docker & binary*](https://gist.github.com/MaximilianKohler/e5158fcfe6de80a9069926a67afcae11)
-* [Step-by-step guide on how to install and set up Listmonk on *AWS Lightsail with docker* (rameerez)](https://github.com/knadh/listmonk/issues/1208)
+* [Step-by-step guide on how to install and set up listmonk on *AWS Lightsail with docker* (rameerez)](https://github.com/knadh/listmonk/issues/1208)
 * [Quick setup on any cloud server using *docker and caddy*](https://github.com/samyogdhital/listmonk-caddy-reverse-proxy)
 * [*Binary* install on Ubuntu 22.04 as a service](https://mumaritc.hashnode.dev/how-to-install-listmonk-using-binary-on-ubuntu-2204)
 * [*Binary* install on Ubuntu 18.04 as a service (Apache & Plesk)](https://devgypsy.com/post/2020-08-18-installing-listmonk-newsletter-manager/)
