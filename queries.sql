@@ -1043,7 +1043,14 @@ INSERT INTO users (username, password_login, password, email, name, type, role_i
 
 -- name: update-user
 WITH u AS (
-    SELECT COUNT(*) AS num FROM users WHERE NOT(id = $1) AND role_id=1 AND status='enabled'
+    -- Edit is only allowed if there are more than 1 active super users or
+    -- if the only superadmin user's status/role isn't being changed.
+    SELECT
+        CASE
+            WHEN (SELECT COUNT(*) FROM users WHERE id != $1 AND status = 'enabled' AND type = 'user' AND role_id = 1) = 0  AND ($8 != 1 OR $9 != 'enabled')
+            THEN FALSE
+            ELSE TRUE
+        END AS canEdit
 )
 UPDATE users SET
     username=(CASE WHEN $2 != '' THEN $2 ELSE username END),
@@ -1054,7 +1061,7 @@ UPDATE users SET
     type=(CASE WHEN $7 != '' THEN $7::user_type ELSE type END),
     role_id=(CASE WHEN $8 != 0 THEN $8 ELSE role_id END),
     status=(CASE WHEN $9 != '' THEN $9::user_status ELSE status END)
-    WHERE id=$1 AND (SELECT num FROM u) > 0;
+    WHERE id=$1 AND (SELECT canEdit FROM u) = TRUE;
 
 -- name: delete-users
 WITH u AS (
