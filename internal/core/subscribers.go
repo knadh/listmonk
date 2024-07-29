@@ -175,7 +175,7 @@ func (c *Core) GetSubscriberProfileForExport(id int, uuid string) (models.Subscr
 // on the given criteria in an exportable form. The iterator function returned can be called
 // repeatedly until there are nil subscribers. It's an iterator because exports can be extremely
 // large and may have to be fetched in batches from the DB and streamed somewhere.
-func (c *Core) ExportSubscribers(query string, subIDs, listIDs []int, batchSize int) (func() ([]models.SubscriberExport, error), error) {
+func (c *Core) ExportSubscribers(query string, subIDs, listIDs []int, subStatus string, batchSize int) (func() ([]models.SubscriberExport, error), error) {
 	// There's an arbitrary query condition.
 	cond := ""
 	if query != "" {
@@ -219,7 +219,7 @@ func (c *Core) ExportSubscribers(query string, subIDs, listIDs []int, batchSize 
 	id := 0
 	return func() ([]models.SubscriberExport, error) {
 		var out []models.SubscriberExport
-		if err := tx.Select(&out, pq.Array(listIDs), id, pq.Array(subIDs), batchSize); err != nil {
+		if err := tx.Select(&out, pq.Array(listIDs), id, pq.Array(subIDs), subStatus, batchSize); err != nil {
 			c.log.Printf("error exporting subscribers by query: %v", err)
 			return nil, echo.NewHTTPError(http.StatusInternalServerError,
 				c.i18n.Ts("globals.messages.errorFetching", "name", "{globals.terms.subscribers}", "error", pqErrMsg(err)))

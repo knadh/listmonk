@@ -349,11 +349,12 @@ SELECT subscribers.id,
         -- Optional list filtering.
         (CASE WHEN CARDINALITY($1::INT[]) > 0 THEN true ELSE false END)
         AND subscriber_lists.subscriber_id = subscribers.id
+        AND ($4 = '' OR subscriber_lists.status = $4::subscription_status)
     )
     WHERE subscriber_lists.list_id = ALL($1::INT[]) AND id > $2
     AND (CASE WHEN CARDINALITY($3::INT[]) > 0 THEN id=ANY($3) ELSE true END)
     %query%
-    ORDER BY subscribers.id ASC LIMIT (CASE WHEN $4 < 1 THEN NULL ELSE $4 END);
+    ORDER BY subscribers.id ASC LIMIT (CASE WHEN $5 < 1 THEN NULL ELSE $5 END);
 
 -- name: query-subscribers-template
 -- raw: true
