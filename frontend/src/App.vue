@@ -86,11 +86,11 @@
           <div v-if="serverConfig.has_legacy_user" class="notification is-danger">
             <b-icon icon="warning-empty" />
             Remove the <code>admin_username</code> and <code>admin_password</code> fields from the TOML
-            configuration file. If you are using APIs, create and use new credentials.
-            Users are now managed via the
+            configuration file or environment variables. If you are using APIs, create and use new API credentials
+            before removing the them. Visit
             <router-link :to="{ name: 'users' }">
               Admin -> Settings -> Users
-            </router-link> dashboard. <a href="https://listmonk.app/docs/migrating-users" target="_blank"
+            </router-link> dashboard. <a href="https://listmonk.app/docs/upgrade/#upgrading-to-v4xx" target="_blank"
               rel="noopener noreferer">Learn more.</a>
           </div>
         </div>
