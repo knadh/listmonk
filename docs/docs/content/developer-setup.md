@@ -21,6 +21,7 @@ The app has two distinct components, the Go backend and the VueJS frontend. In t
 1. Run `make run` to start the listmonk dev server on `:9000`.
 2. Run `make run-frontend` to start the Vue frontend in dev mode using yarn on `:8080`. All `/api/*` calls are proxied to the app running on `:9000`. Refer to the [frontend README](https://github.com/knadh/listmonk/blob/master/frontend/README.md) for an overview on how the frontend is structured.
 3. Visit `http://localhost:8080`
+4. You can log in with the default username and password i.e listmonk/listmonk
 
 
 # Production build
