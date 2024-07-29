@@ -9,6 +9,7 @@ import (
 
 	"github.com/gofrs/uuid/v5"
 	"github.com/jmoiron/sqlx"
+	"github.com/knadh/listmonk/internal/utils"
 	"github.com/knadh/listmonk/models"
 	"github.com/knadh/stuffbin"
 	"github.com/lib/pq"
@@ -74,10 +75,14 @@ func install(lastVer string, db *sqlx.DB, fs stuffbin.FileSystem, prompt, idempo
 	installCampaign(campTplID, archiveTplID, q)
 
 	// Super admin role.
-	installUser(q)
+	user, password := installUser(q)
 
 	lo.Printf("setup complete")
 	lo.Printf(`run the program and access the dashboard at %s`, ko.MustString("app.address"))
+
+	if user != "" {
+		fmt.Printf("\n\033[31mIMPORTANT! CHANGE PASSWORD AFTER LOGGING IN\033[0m\nusername: \033[32m%s\033[0m and password: \033[32m%s\033[0m\n\n", user, password)
+	}
 }
 
 // installSchema executes the SQL schema and creates the necessary tables and types.
@@ -95,7 +100,7 @@ func installSchema(curVer string, db *sqlx.DB, fs stuffbin.FileSystem) error {
 	return recordMigrationVersion(curVer, db)
 }
 
-func installUser(q *models.Queries) {
+func installUser(q *models.Queries) (string, string) {
 	consts := initConstants()
 
 	// Super admin role.
@@ -110,15 +115,47 @@ func installUser(q *models.Queries) {
 
 	// Create super admin.
 	var (
-		user     = ko.String("app.admin_username")
-		password = ko.String("app.admin_password")
+		user     = os.Getenv("LISTMONK_ADMIN_USER")
+		password = os.Getenv("LISTMONK_ADMIN_PASSWORD")
+		typ      = "env"
 	)
-	if len(user) < 2 || len(password) < 8 {
-		lo.Fatal("admin_username should be min 3 chars and admin_password should be min 8 chars")
+
+	if user != "" {
+		// If the env vars are set, use those values
+		if len(user) < 2 || len(password) < 8 {
+			lo.Fatal("LISTMONK_ADMIN_USER should be min 3 chars and LISTMONK_ADMIN_PASSWORD should be min 8 chars")
+		}
+	} else if ko.Exists("app.admin_username") {
+		// Legacy admin/password are set in the config or env var. Use those.
+		user = ko.String("app.admin_username")
+		password = ko.String("app.admin_password")
+
+		if len(user) < 2 || len(password) < 8 {
+			lo.Fatal("admin_username should be min 3 chars and admin_password should be min 8 chars")
+		}
+		typ = "legacy config"
+	} else {
+		// None are set. Auto-generate.
+		user = "admin"
+		if p, err := utils.GenerateRandomString(12); err != nil {
+			lo.Fatal("error generating admin password")
+		} else {
+			password = p
+		}
+		typ = "auto-generated"
 	}
+
+	lo.Printf("creating admin user '%s'. Credential source is '%s'", user, typ)
+
 	if _, err := q.CreateUser.Exec(user, true, password, user+"@listmonk", user, "user", 1, "enabled"); err != nil {
 		lo.Fatalf("error creating superadmin user: %v", err)
 	}
+
+	if typ == "auto-generated" {
+		return user, password
+	}
+
+	return "", ""
 }
 
 func installLists(q *models.Queries) (int, int) {
