@@ -136,7 +136,7 @@ func handleExportSubscribers(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidID"))
 	}
 
-    // Filter by subscription status
+	// Filter by subscription status
     subStatus := c.QueryParam("subscription_status")
 
 	// Get the batched export iterator.
