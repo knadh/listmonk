@@ -84,11 +84,7 @@ func (c *Client) Put(name string, cType string, file io.ReadSeeker) (string, err
 	if _, err := c.s3.FilePut(p); err != nil {
 		return "", err
 	}
-
-	// Extract and return the file name from the object key.
-	_, fileName := filepath.Split(objectkey)
-
-	return fileName, nil
+	return name, nil
 }
 
 // Get accepts the filename of the object stored and retrieves from S3.
