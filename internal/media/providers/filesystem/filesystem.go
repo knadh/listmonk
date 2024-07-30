@@ -5,7 +5,6 @@ import (
 	"io"
 	"os"
 	"path/filepath"
-	"strconv"
 
 	"github.com/knadh/listmonk/internal/media"
 )
@@ -35,7 +34,6 @@ func (c *Client) Put(filename string, cType string, src io.ReadSeeker) (string, 
 
 	// Get the directory path
 	dir := getDir(c.opts.UploadPath)
-	filename = assertUniqueFilename(dir, filename)
 	o, err := os.OpenFile(filepath.Join(dir, filename), os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0664)
 	if err != nil {
 		return "", err
@@ -68,37 +66,6 @@ func (c *Client) Delete(file string) error {
 		return err
 	}
 	return nil
-}
-
-// assertUniqueFilename takes a file path and checks if it exists on the disk.
-// If it doesn't, it returns the same name. If it does, it adds a numeric suffix and returns the new name.
-//
-// Example:
-//
-//	If a file `uploads/my-image_1.jpg` already exists on the disk,
-//	the function would return `uploads/my-image_2.jpg` for a new file with the same name.
-func assertUniqueFilename(dir, fileName string) string {
-	var (
-		ext  = filepath.Ext(fileName)
-		base = fileName[0 : len(fileName)-len(ext)]
-		num  = 0
-	)
-
-	for {
-		// There's no name conflict.
-		if _, err := os.Stat(filepath.Join(dir, fileName)); os.IsNotExist(err) {
-			return fileName
-		}
-
-		// Does the name match the _(num) syntax?
-		r := media.FnameRegexp.FindAllStringSubmatch(fileName, -1)
-		if len(r) == 1 && len(r[0]) == 3 {
-			num, _ = strconv.Atoi(r[0][2])
-		}
-		num++
-
-		fileName = fmt.Sprintf("%s_%d%s", base, num, ext)
-	}
 }
 
 // getDir returns the current working directory path if no directory is specified,

@@ -5,7 +5,6 @@ import (
 	"io"
 	"net/url"
 	"path/filepath"
-	"strconv"
 	"strings"
 	"time"
 
@@ -68,9 +67,6 @@ func (c *Client) Put(name string, cType string, file io.ReadSeeker) (string, err
 	// Paths inside the bucket should not start with /.
 	objectkey := c.makeBucketPath(name)
 
-	// Make sure the object key is unique.
-	objectkey = c.assertUniqueObjectKey(objectkey)
-
 	// Upload input parameters
 	p := simples3.UploadInput{
 		Bucket:      c.opts.Bucket,
@@ -94,43 +90,6 @@ func (c *Client) Put(name string, cType string, file io.ReadSeeker) (string, err
 
 	return fileName, nil
 }
-
-// assertUniqueObjectKey takes a S3 object key, checks if it exists in the S3 bucket.
-// If it does, it adds a numeric suffix to the object key and returns the new key.
-//
-// Example:
-//
-//	If an object `uploads/my-image_1.jpg` already exists on S3 bucket,
-//	the function would return `uploads/my-image_2.jpg` for a new object with the same key.
-func (c *Client) assertUniqueObjectKey(key string) string {
-	var (
-		ext  = filepath.Ext(key)
-		base = key[0 : len(key)-len(ext)]
-		num  = 0
-	)
-
-	for {
-		// Get file details.
-		_, err := c.s3.FileDetails(simples3.DetailsInput{
-			Bucket:    c.opts.Bucket,
-			ObjectKey: key,
-		})
-
-		// File was not found, this key is unique return.
-		if err != nil {
-			return key
-		}
-
-		// Does the name match the _(num) syntax?
-		r := media.FnameRegexp.FindAllStringSubmatch(key, -1)
-		if len(r) == 1 && len(r[0]) == 3 {
-			num, _ = strconv.Atoi(r[0][2])
-		}
-		num++
-		key = fmt.Sprintf("%s_%d%s", base, num, ext)
-	}
-}
-
 
 // Get accepts the filename of the object stored and retrieves from S3.
 func (c *Client) GetURL(name string) string {

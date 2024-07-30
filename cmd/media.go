@@ -57,8 +57,14 @@ func handleUploadMedia(c echo.Context) error {
 		}
 	}
 
-	// Upload the file.
+	// Sanitize filename.
 	fName := makeFilename(file.Filename)
+
+	// Add a random suffix to the filename to ensure uniqueness.
+	suffix, _ := generateRandomString(6)
+	fName = appendSuffixToFilename(fName, suffix)
+
+	// Upload the file.
 	fName, err = app.media.Put(fName, contentType, src)
 	if err != nil {
 		app.log.Printf("error uploading file: %v", err)
