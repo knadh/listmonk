@@ -64,16 +64,15 @@ func NewS3Store(opt Opt) (media.Store, error) {
 
 // Put takes in the filename, the content type and file object itself and uploads to S3.
 func (c *Client) Put(name string, cType string, file io.ReadSeeker) (string, error) {
-	// Paths inside the bucket should not start with /.
-	objectkey := c.makeBucketPath(name)
-
 	// Upload input parameters
 	p := simples3.UploadInput{
 		Bucket:      c.opts.Bucket,
 		ContentType: cType,
 		FileName:    name,
 		Body:        file,
-		ObjectKey:   objectkey,
+
+		// Paths inside the bucket should not start with /.
+		ObjectKey: c.makeBucketPath(name),
 	}
 
 	if c.opts.BucketType == "public" {

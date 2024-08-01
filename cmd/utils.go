@@ -39,8 +39,7 @@ func makeFilename(fName string) string {
 func appendSuffixToFilename(filename, suffix string) string {
 	ext := filepath.Ext(filename)
 	name := strings.TrimSuffix(filename, ext)
-	newName := fmt.Sprintf("%s_%s%s", name, suffix, ext)
-	return newName
+	return fmt.Sprintf("%s_%s%s", name, suffix, ext)
 }
 
 // makeMsgTpl takes a page title, heading, and message and returns
