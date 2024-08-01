@@ -326,7 +326,7 @@ SELECT COUNT(*) AS total FROM subscribers
 
 -- name: query-subscribers-count-all
 -- Cached query for getting the "all" subscriber count without arbitrary conditions.
-SELECT SUM(subscriber_count) AS total FROM mat_list_subscriber_stats
+SELECT COALESCE(SUM(subscriber_count), 0) AS total FROM mat_list_subscriber_stats
     WHERE list_id = ANY(CASE WHEN CARDINALITY($1::INT[]) > 0 THEN $1 ELSE '{0}' END)
     AND ($2 = '' OR status = $2::subscription_status);
 
