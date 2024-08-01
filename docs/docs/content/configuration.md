@@ -139,3 +139,12 @@ with any Timezone listed [here](https://en.wikipedia.org/wiki/List_of_tz_databas
 ## SMTP Blocked Ports
 Some server hosts block SMTP ports (25, 465) so you have to get request to unblock them i.e. [Hetzner](https://docs.hetzner.com/cloud/servers/faq/#why-can-i-not-send-any-mails-from-my-server).
 
+## Performance
+
+### Batch size
+
+Each send cycle involves fetching records from the DB with an offset marker which is recorded in the campaigns table. The campaign stats use this metric to show an approximation of progress. By setting a lower number, the progress accuracy can increase.
+
+Under `Settings -> SMTP -> retries`, listmonk will attempt to retry any failed deliveries after the full batch has been sent. So increasing the batch size will increase the time between retries. This can be helpful if you're getting 4xx sending errors.
+
+
