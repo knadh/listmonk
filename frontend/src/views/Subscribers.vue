@@ -394,6 +394,10 @@ export default Vue.extend({
           q.append('list_id', this.queryParams.listID);
         }
 
+        if (this.queryParams.subStatus) {
+          q.append('subscription_status', this.queryParams.subStatus);
+        }
+
         // Export selected subscribers.
         if (!this.bulk.all && this.bulk.checked.length > 0) {
           this.bulk.checked.map((s) => q.append('id', s.id));
