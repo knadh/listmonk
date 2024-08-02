@@ -136,19 +136,17 @@ environment:
 ```
 with any Timezone listed [here](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones). Then run `sudo docker-compose stop ; sudo docker-compose up` after making changes.
 
-## SMTP Blocked Ports
+## SMTP
+
+### Retries
+The `Settings -> SMTP -> Retries` denotes the number of times a message that fails at the moment of sending is retried silently using different connections from the SMTP pool. The messages that fail even after retries are the ones that are logged as errors and ignored.
+
+### Blocked Ports
 Some server hosts block SMTP ports (25, 465) so you have to get request to unblock them i.e. [Hetzner](https://docs.hetzner.com/cloud/servers/faq/#why-can-i-not-send-any-mails-from-my-server).
+
 
 ## Performance
 
 ### Batch size
 
-You can tweak it when working with a large number of subscribers. Pulling bigger batches will use more memory, but reduce the number of DB queries, and will help achieve more throughput.
-
-Prior to v3.0, a send cycle involved fetching records from the DB with an offset marker which was recorded in the campaigns table. The campaign stats used this metric to show an approximation of progress. By setting a lower number, you could increase the progress accuracy. As of v3.0, every message is tracked granularly showing accurate progress. Batch size has no effect on the rate calculation.
-
-### Retries
-
-`Settings -> SMTP -> retries`. When a message is sent, if it fails, it's retried on a new connection immediately, before being marked as an error (if the retry also fails). There is no batching or delay in retries.
-
-
+The batch size parameter is useful when working with very large lists with millions of subscribers for maximising throughput. It is the number of subscribers that are fetched from the database sequentially in a single cycle (~5 seconds) when a campaign is running. Increasing the batch size uses more memory, but reduces the round trip to the database.
