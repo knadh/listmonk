@@ -16,7 +16,7 @@
       
       
       <link rel="icon" href="../images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.29">
+      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.31">
     
     
       
@@ -24,7 +24,7 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.76a95c52.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.3cba04c6.min.css">
       
         
         <link rel="stylesheet" href="../assets/stylesheets/palette.06af60db.min.css">
@@ -485,6 +485,39 @@
       SMTP Blocked Ports
     </span>
   </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#performance" class="md-nav__link">
+    <span class="md-ellipsis">
+      Performance
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Performance">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#batch-size" class="md-nav__link">
+    <span class="md-ellipsis">
+      Batch size
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#retries" class="md-nav__link">
+    <span class="md-ellipsis">
+      Retries
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1337,6 +1370,39 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#performance" class="md-nav__link">
+    <span class="md-ellipsis">
+      Performance
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Performance">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#batch-size" class="md-nav__link">
+    <span class="md-ellipsis">
+      Batch size
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#retries" class="md-nav__link">
+    <span class="md-ellipsis">
+      Retries
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1536,6 +1602,12 @@ Container info: <code>sudo docker inspect listmonk_listmonk</code></p>
 with any Timezone listed <a href="https://en.wikipedia.org/wiki/List_of_tz_database_time_zones">here</a>. Then run <code>sudo docker-compose stop ; sudo docker-compose up</code> after making changes.</p>
 <h2 id="smtp-blocked-ports">SMTP Blocked Ports<a class="headerlink" href="#smtp-blocked-ports" title="Permanent link">&para;</a></h2>
 <p>Some server hosts block SMTP ports (25, 465) so you have to get request to unblock them i.e. <a href="https://docs.hetzner.com/cloud/servers/faq/#why-can-i-not-send-any-mails-from-my-server">Hetzner</a>.</p>
+<h2 id="performance">Performance<a class="headerlink" href="#performance" title="Permanent link">&para;</a></h2>
+<h3 id="batch-size">Batch size<a class="headerlink" href="#batch-size" title="Permanent link">&para;</a></h3>
+<p>You can tweak it when working with a large number of subscribers. Pulling bigger batches will use more memory, but reduce the number of DB queries, and will help achieve more throughput.</p>
+<p>Prior to v3.0, a send cycle involved fetching records from the DB with an offset marker which was recorded in the campaigns table. The campaign stats used this metric to show an approximation of progress. By setting a lower number, you could increase the progress accuracy. As of v3.0, every message is tracked granularly showing accurate progress. Batch size has no effect on the rate calculation.</p>
+<h3 id="retries">Retries<a class="headerlink" href="#retries" title="Permanent link">&para;</a></h3>
+<p><code>Settings -&gt; SMTP -&gt; retries</code>. When a message is sent, if it fails, it's retried on a new connection immediately, before being marked as an error (if the retry also fails). There is no batching or delay in retries.</p>
 
 
 
