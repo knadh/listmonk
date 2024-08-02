@@ -506,10 +506,12 @@ camp AS (
 med AS (
     INSERT INTO campaign_media (campaign_id, media_id, filename)
         (SELECT (SELECT id FROM camp), id, filename FROM media WHERE id=ANY($19::INT[]))
+),
+insLists AS (
+    INSERT INTO campaign_lists (campaign_id, list_id, list_name)
+        SELECT (SELECT id FROM camp), id, name FROM lists WHERE id=ANY($14::INT[])
 )
-INSERT INTO campaign_lists (campaign_id, list_id, list_name)
-    (SELECT (SELECT id FROM camp), id, name FROM lists WHERE id=ANY($14::INT[]))
-    RETURNING (SELECT id FROM camp);
+SELECT id FROM camp;
 
 -- name: query-campaigns
 -- Here, 'lists' is returned as an aggregated JSON array from campaign_lists because
