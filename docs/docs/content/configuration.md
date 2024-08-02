@@ -139,3 +139,16 @@ with any Timezone listed [here](https://en.wikipedia.org/wiki/List_of_tz_databas
 ## SMTP Blocked Ports
 Some server hosts block SMTP ports (25, 465) so you have to get request to unblock them i.e. [Hetzner](https://docs.hetzner.com/cloud/servers/faq/#why-can-i-not-send-any-mails-from-my-server).
 
+## Performance
+
+### Batch size
+
+You can tweak it when working with a large number of subscribers. Pulling bigger batches will use more memory, but reduce the number of DB queries, and will help achieve more throughput.
+
+Prior to v3.0, a send cycle involved fetching records from the DB with an offset marker which was recorded in the campaigns table. The campaign stats used this metric to show an approximation of progress. By setting a lower number, you could increase the progress accuracy. As of v3.0, every message is tracked granularly showing accurate progress. Batch size has no effect on the rate calculation.
+
+### Retries
+
+`Settings -> SMTP -> retries`. When a message is sent, if it fails, it's retried on a new connection immediately, before being marked as an error (if the retry also fails). There is no batching or delay in retries.
+
+
