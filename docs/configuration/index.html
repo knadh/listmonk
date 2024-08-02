@@ -480,11 +480,35 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#smtp-blocked-ports" class="md-nav__link">
+  <a href="#smtp" class="md-nav__link">
     <span class="md-ellipsis">
-      SMTP Blocked Ports
+      SMTP
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="SMTP">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#retries" class="md-nav__link">
+    <span class="md-ellipsis">
+      Retries
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#blocked-ports" class="md-nav__link">
+    <span class="md-ellipsis">
+      Blocked Ports
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -502,15 +526,6 @@
   <a href="#batch-size" class="md-nav__link">
     <span class="md-ellipsis">
       Batch size
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#retries" class="md-nav__link">
-    <span class="md-ellipsis">
-      Retries
     </span>
   </a>
   
@@ -1362,11 +1377,35 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#smtp-blocked-ports" class="md-nav__link">
+  <a href="#smtp" class="md-nav__link">
     <span class="md-ellipsis">
-      SMTP Blocked Ports
+      SMTP
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="SMTP">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#retries" class="md-nav__link">
+    <span class="md-ellipsis">
+      Retries
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#blocked-ports" class="md-nav__link">
+    <span class="md-ellipsis">
+      Blocked Ports
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1384,15 +1423,6 @@
   <a href="#batch-size" class="md-nav__link">
     <span class="md-ellipsis">
       Batch size
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#retries" class="md-nav__link">
-    <span class="md-ellipsis">
-      Retries
     </span>
   </a>
   
@@ -1600,14 +1630,14 @@ Container info: <code>sudo docker inspect listmonk_listmonk</code></p>
     - TZ=Etc/UTC
 </code></pre></div>
 with any Timezone listed <a href="https://en.wikipedia.org/wiki/List_of_tz_database_time_zones">here</a>. Then run <code>sudo docker-compose stop ; sudo docker-compose up</code> after making changes.</p>
-<h2 id="smtp-blocked-ports">SMTP Blocked Ports<a class="headerlink" href="#smtp-blocked-ports" title="Permanent link">&para;</a></h2>
+<h2 id="smtp">SMTP<a class="headerlink" href="#smtp" title="Permanent link">&para;</a></h2>
+<h3 id="retries">Retries<a class="headerlink" href="#retries" title="Permanent link">&para;</a></h3>
+<p>The <code>Settings -&gt; SMTP -&gt; Retries</code> denotes the number of times a message that fails at the moment of sending is retried silently using different connections from the SMTP pool. The messages that fail even after retries are the ones that are logged as errors and ignored.</p>
+<h3 id="blocked-ports">Blocked Ports<a class="headerlink" href="#blocked-ports" title="Permanent link">&para;</a></h3>
 <p>Some server hosts block SMTP ports (25, 465) so you have to get request to unblock them i.e. <a href="https://docs.hetzner.com/cloud/servers/faq/#why-can-i-not-send-any-mails-from-my-server">Hetzner</a>.</p>
 <h2 id="performance">Performance<a class="headerlink" href="#performance" title="Permanent link">&para;</a></h2>
 <h3 id="batch-size">Batch size<a class="headerlink" href="#batch-size" title="Permanent link">&para;</a></h3>
-<p>You can tweak it when working with a large number of subscribers. Pulling bigger batches will use more memory, but reduce the number of DB queries, and will help achieve more throughput.</p>
-<p>Prior to v3.0, a send cycle involved fetching records from the DB with an offset marker which was recorded in the campaigns table. The campaign stats used this metric to show an approximation of progress. By setting a lower number, you could increase the progress accuracy. As of v3.0, every message is tracked granularly showing accurate progress. Batch size has no effect on the rate calculation.</p>
-<h3 id="retries">Retries<a class="headerlink" href="#retries" title="Permanent link">&para;</a></h3>
-<p><code>Settings -&gt; SMTP -&gt; retries</code>. When a message is sent, if it fails, it's retried on a new connection immediately, before being marked as an error (if the retry also fails). There is no batching or delay in retries.</p>
+<p>The batch size parameter is useful when working with very large lists with millions of subscribers for maximising throughput. It is the number of subscribers that are fetched from the database sequentially in a single cycle (~5 seconds) when a campaign is running. Increasing the batch size uses more memory, but reduces the round trip to the database.</p>
 
 
 
