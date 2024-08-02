@@ -506,7 +506,7 @@ med AS (
     INSERT INTO campaign_media (campaign_id, media_id, filename)
         (SELECT (SELECT id FROM camp), id, filename FROM media WHERE id=ANY($19::INT[]))
 ),
-camp_list AS (
+insLists AS (
     INSERT INTO campaign_lists (campaign_id, list_id, list_name)
         SELECT (SELECT id FROM camp), id, name FROM lists WHERE id=ANY($14::INT[])
 )
