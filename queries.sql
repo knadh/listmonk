@@ -1,4 +1,3 @@
-
 -- subscribers
 -- name: get-subscriber
 -- Get a single subscriber by id or UUID or email.
@@ -413,6 +412,10 @@ UPDATE subscriber_lists SET status='unsubscribed', updated_at=NOW()
 -- lists
 -- name: get-lists
 SELECT * FROM lists WHERE (CASE WHEN $1 = '' THEN 1=1 ELSE type=$1::list_type END)
+    AND CASE
+        -- Optional list IDs based on user permission.
+        WHEN $3::INT[] IS NULL THEN TRUE ELSE id = ANY($3)
+    END
     ORDER BY CASE WHEN $2 = 'id' THEN id END, CASE WHEN $2 = 'name' THEN name END;
 
 -- name: query-lists
@@ -427,7 +430,11 @@ WITH ls AS (
     AND ($4 = '' OR type = $4::list_type)
     AND ($5 = '' OR optin = $5::list_optin)
     AND (CARDINALITY($6::VARCHAR(100)[]) = 0 OR $6 <@ tags)
-    OFFSET $7 LIMIT (CASE WHEN $8 < 1 THEN NULL ELSE $8 END)
+    AND CASE
+        -- Optional list IDs based on user permission.
+        WHEN $7::INT[] IS NULL THEN TRUE ELSE id = ANY($7)
+    END
+    OFFSET $8 LIMIT (CASE WHEN $9 < 1 THEN NULL ELSE $9 END)
 ),
 statuses AS (
     SELECT

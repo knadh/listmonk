@@ -200,9 +200,7 @@ export default Vue.extend({
   mounted() {
     // Lists is required across different views. On app load, fetch the lists
     // and have them in the store.
-    if (this.$can('lists:get_all')) {
-      this.$api.getLists({ minimal: true, per_page: 'all' });
-    }
+    this.$api.getLists({ minimal: true, per_page: 'all' });
 
     window.addEventListener('resize', () => {
       this.windowWidth = window.innerWidth;
