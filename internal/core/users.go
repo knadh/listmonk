@@ -184,6 +184,14 @@ func (c *Core) getUsers(id int, username, email string) ([]models.User, error) {
 
 			for _, perm := range p.Permissions {
 				u.ListPermissionsMap[p.ID][perm] = struct{}{}
+
+				// List IDs with get / manage permissions.
+				if perm == "list:get" {
+					u.GetListIDs = append(u.GetListIDs, p.ID)
+				}
+				if perm == "list:manage" {
+					u.ManageListIDs = append(u.ManageListIDs, p.ID)
+				}
 			}
 		}
 

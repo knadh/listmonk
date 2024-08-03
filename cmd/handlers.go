@@ -121,7 +121,7 @@ func initHTTPHandlers(e *echo.Echo, app *App) {
 	api.GET("/api/events", pm(handleEventStream, "settings:get"))
 	api.GET("/api/about", handleGetAboutInfo)
 
-	api.GET("/api/subscribers", pm(handleQuerySubscribers, "subscribers:get"))
+	api.GET("/api/subscribers", pm(handleQuerySubscribers, "subscribers:get", "subscribers:get_by_list"))
 	api.GET("/api/subscribers/:id", pm(handleGetSubscriber, "subscribers:get"))
 	api.GET("/api/subscribers/:id/export", pm(handleExportSubscriberData, "subscribers:get"))
 	api.GET("/api/subscribers/:id/bounces", pm(handleGetSubscriberBounces, "bounces:get"))
@@ -154,11 +154,12 @@ func initHTTPHandlers(e *echo.Echo, app *App) {
 	api.POST("/api/import/subscribers", pm(handleImportSubscribers, "subscribers:import"))
 	api.DELETE("/api/import/subscribers", pm(handleStopImportSubscribers, "subscribers:import"))
 
-	api.GET("/api/lists", pm(handleGetLists, "lists:get_all"))
-	api.GET("/api/lists/:id", pm(handleGetLists, "lists:get_all"))
+	// Individual list permissions are applied directly within handleGetLists.
+	api.GET("/api/lists", handleGetLists)
+	api.GET("/api/lists/:id", listPerm(handleGetLists))
 	api.POST("/api/lists", pm(handleCreateList, "lists:manage_all"))
-	api.PUT("/api/lists/:id", pm(handleUpdateList, "lists:manage_all"))
-	api.DELETE("/api/lists/:id", pm(handleDeleteLists, "lists:manage_all"))
+	api.PUT("/api/lists/:id", listPerm(handleUpdateList))
+	api.DELETE("/api/lists/:id", listPerm(handleDeleteLists))
 
 	api.GET("/api/campaigns", pm(handleGetCampaigns, "campaigns:get"))
 	api.GET("/api/campaigns/running/stats", pm(handleGetRunningCampaignStats, "campaigns:get"))

@@ -11,6 +11,7 @@
         "group": "subscribers",
         "permissions":
         [
+            "subscribers:get_by_list",
             "subscribers:get",
             "subscribers:manage",
             "subscribers:import",

@@ -175,6 +175,8 @@ type User struct {
 
 	PermissionsMap     map[string]struct{}         `db:"-" json:"-"`
 	ListPermissionsMap map[int]map[string]struct{} `db:"-" json:"-"`
+	GetListIDs         []int                       `db:"-" json:"-"`
+	ManageListIDs      []int                       `db:"-" json:"-"`
 	HasPassword        bool                        `db:"-" json:"-"`
 }
 

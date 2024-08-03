@@ -44,7 +44,7 @@ async function initConfig(app) {
 
   // $can('permission:name') is used in the UI to chekc whether the logged in user
   // has a certain permission to toggle visibility of UI objects and UI functionality.
-  Vue.prototype.$can = (perm) => {
+  Vue.prototype.$can = (...perms) => {
     if (profile.role_id === 1) {
       return true;
     }
@@ -52,12 +52,14 @@ async function initConfig(app) {
     // If the perm ends with a wildcard, check whether at least one permission
     // in the group is present. Eg: campaigns:* will return true if at least
     // one of campaigns:get, campaigns:manage etc. are present.
-    if (perm.endsWith('*')) {
-      const group = `${perm.split(':')[0]}:`;
-      return profile.role.permissions.some((p) => p.startsWith(group));
-    }
+    return perms.some((perm) => {
+      if (perm.endsWith('*')) {
+        const group = `${perm.split(':')[0]}:`;
+        return profile.role.permissions.some((p) => p.startsWith(group));
+      }
 
-    return profile.role.permissions.includes(perm);
+      return profile.role.permissions.includes(perm);
+    });
   };
 
   // Set the page title after i18n has loaded.
