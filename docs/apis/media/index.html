@@ -837,13 +837,13 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#post-apimedia" class="md-nav__link">
+  <a href="#get-apimediamedia_id" class="md-nav__link">
     <span class="md-ellipsis">
-      POST /api/media
+      GET /api/media/{media_id}
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="POST /api/media">
+    <nav class="md-nav" aria-label="GET /api/media/{media_id}">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -879,13 +879,13 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#delete-apimediamedia_id" class="md-nav__link">
+  <a href="#post-apimedia" class="md-nav__link">
     <span class="md-ellipsis">
-      DELETE /api/media/{media_id}
+      POST /api/media
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="DELETE /api/media/{media_id}">
+    <nav class="md-nav" aria-label="POST /api/media">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -908,6 +908,48 @@
         
           <li class="md-nav__item">
   <a href="#example-response_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      Example Response
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#delete-apimediamedia_id" class="md-nav__link">
+    <span class="md-ellipsis">
+      DELETE /api/media/{media_id}
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="DELETE /api/media/{media_id}">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      Parameters
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-request_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      Example Request
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-response_3" class="md-nav__link">
     <span class="md-ellipsis">
       Example Response
     </span>
@@ -1182,13 +1224,13 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#post-apimedia" class="md-nav__link">
+  <a href="#get-apimediamedia_id" class="md-nav__link">
     <span class="md-ellipsis">
-      POST /api/media
+      GET /api/media/{media_id}
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="POST /api/media">
+    <nav class="md-nav" aria-label="GET /api/media/{media_id}">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -1224,13 +1266,13 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#delete-apimediamedia_id" class="md-nav__link">
+  <a href="#post-apimedia" class="md-nav__link">
     <span class="md-ellipsis">
-      DELETE /api/media/{media_id}
+      POST /api/media
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="DELETE /api/media/{media_id}">
+    <nav class="md-nav" aria-label="POST /api/media">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -1253,6 +1295,48 @@
         
           <li class="md-nav__item">
   <a href="#example-response_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      Example Response
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#delete-apimediamedia_id" class="md-nav__link">
+    <span class="md-ellipsis">
+      DELETE /api/media/{media_id}
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="DELETE /api/media/{media_id}">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      Parameters
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-request_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      Example Request
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-response_3" class="md-nav__link">
     <span class="md-ellipsis">
       Example Response
     </span>
@@ -1296,6 +1380,11 @@
 <td>Get uploaded media file</td>
 </tr>
 <tr>
+<td>GET</td>
+<td><a href="#get-apimediamedia_id">/api/media/{media_id}</a></td>
+<td>Get specific uploaded media file</td>
+</tr>
+<tr>
 <td>POST</td>
 <td><a href="#post-apimedia">/api/media</a></td>
 <td>Upload media file</td>
@@ -1329,9 +1418,50 @@
 <span class="p">}</span>
 </code></pre></div>
 <hr />
+<h4 id="get-apimediamedia_id">GET /api/media/{media_id}<a class="headerlink" href="#get-apimediamedia_id" title="Permanent link">&para;</a></h4>
+<p>Retrieve a specific media.</p>
+<h5 id="parameters">Parameters<a class="headerlink" href="#parameters" title="Permanent link">&para;</a></h5>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Name</th>
+<th style="text-align: left;">Type</th>
+<th style="text-align: left;">Required</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">media_id</td>
+<td style="text-align: left;">Number</td>
+<td style="text-align: left;">Yes</td>
+<td style="text-align: left;">Media ID.</td>
+</tr>
+</tbody>
+</table>
+<h5 id="example-request_1">Example Request<a class="headerlink" href="#example-request_1" title="Permanent link">&para;</a></h5>
+<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-u<span class="w"> </span><span class="s1">&#39;username:password&#39;</span><span class="w"> </span><span class="s1">&#39;http://localhost:9000/api/media/7&#39;</span><span class="w"> </span>
+</code></pre></div>
+<h5 id="example-response_1">Example Response<a class="headerlink" href="#example-response_1" title="Permanent link">&para;</a></h5>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;data&quot;</span><span class="p">:</span><span class="w"> </span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">7</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;uuid&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;62e32e97-d6ca-4441-923f-b62607000dd1&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;filename&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ResumeB.pdf&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;content_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;application/pdf&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;created_at&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2024-08-06T11:28:53.888257+05:30&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;thumb_url&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;provider&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;filesystem&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;meta&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{},</span>
+<span class="w">        </span><span class="nt">&quot;url&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;http://localhost:9000/uploads/ResumeB.pdf&quot;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<hr />
 <h4 id="post-apimedia">POST /api/media<a class="headerlink" href="#post-apimedia" title="Permanent link">&para;</a></h4>
 <p>Upload a media file.</p>
-<h5 id="parameters">Parameters<a class="headerlink" href="#parameters" title="Permanent link">&para;</a></h5>
+<h5 id="parameters_1">Parameters<a class="headerlink" href="#parameters_1" title="Permanent link">&para;</a></h5>
 <table>
 <thead>
 <tr>
@@ -1350,12 +1480,12 @@
 </tr>
 </tbody>
 </table>
-<h5 id="example-request_1">Example Request<a class="headerlink" href="#example-request_1" title="Permanent link">&para;</a></h5>
+<h5 id="example-request_2">Example Request<a class="headerlink" href="#example-request_2" title="Permanent link">&para;</a></h5>
 <div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-u<span class="w"> </span><span class="s2">&quot;username:password&quot;</span><span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="s1">&#39;http://localhost:9000/api/media&#39;</span><span class="w"> </span><span class="se">\</span>
 --header<span class="w"> </span><span class="s1">&#39;Content-Type: multipart/form-data; boundary=--------------------------183679989870526937212428&#39;</span><span class="w"> </span><span class="se">\</span>
 --form<span class="w"> </span><span class="s1">&#39;file=@/path/to/image.jpg&#39;</span>
 </code></pre></div>
-<h5 id="example-response_1">Example Response<a class="headerlink" href="#example-response_1" title="Permanent link">&para;</a></h5>
+<h5 id="example-response_2">Example Response<a class="headerlink" href="#example-response_2" title="Permanent link">&para;</a></h5>
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
 <span class="w">    </span><span class="nt">&quot;data&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">        </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
@@ -1370,7 +1500,7 @@
 <hr />
 <h4 id="delete-apimediamedia_id">DELETE /api/media/{media_id}<a class="headerlink" href="#delete-apimediamedia_id" title="Permanent link">&para;</a></h4>
 <p>Delete an uploaded media file.</p>
-<h5 id="parameters_1">Parameters<a class="headerlink" href="#parameters_1" title="Permanent link">&para;</a></h5>
+<h5 id="parameters_2">Parameters<a class="headerlink" href="#parameters_2" title="Permanent link">&para;</a></h5>
 <table>
 <thead>
 <tr>
@@ -1389,10 +1519,10 @@
 </tr>
 </tbody>
 </table>
-<h5 id="example-request_2">Example Request<a class="headerlink" href="#example-request_2" title="Permanent link">&para;</a></h5>
+<h5 id="example-request_3">Example Request<a class="headerlink" href="#example-request_3" title="Permanent link">&para;</a></h5>
 <div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-u<span class="w"> </span><span class="s2">&quot;username:password&quot;</span><span class="w"> </span>-X<span class="w"> </span>DELETE<span class="w"> </span><span class="s1">&#39;http://localhost:9000/api/media/1&#39;</span>
 </code></pre></div>
-<h5 id="example-response_2">Example Response<a class="headerlink" href="#example-response_2" title="Permanent link">&para;</a></h5>
+<h5 id="example-response_3">Example Response<a class="headerlink" href="#example-response_3" title="Permanent link">&para;</a></h5>
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
 <span class="w">    </span><span class="nt">&quot;data&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
 <span class="p">}</span>
