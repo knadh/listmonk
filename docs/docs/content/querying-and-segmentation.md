@@ -66,6 +66,13 @@ subscribers.email LIKE 'John%'
 subscribers.email LIKE 'John%' AND status = 'blocklisted'
 ```
 
+#### Querying subscribers who viewed the campaign email
+
+```sql
+-- Find all subscribers who viewed the campaign email.
+EXISTS(SELECT 1 FROM campaign_views WHERE campaign_views.subscriber_id=subscribers.id AND campaign_views.campaign_id=<put_id_of_campaign>)
+```
+
 #### Querying attributes
 
 ```sql
