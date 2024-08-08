@@ -1,0 +1,49 @@
+version: api.keploy.io/v1beta2
+kind: Http
+name: test-2
+spec:
+    metadata: {}
+    req:
+        method: GET
+        proto_major: 1
+        proto_minor: 1
+        url: http://localhost:9000/api/subscribers/1
+        header:
+            Accept: '*/*'
+            Authorization: Basic bGlzdG1vbms6bGlzdG1vbms=
+            Host: localhost:9000
+            User-Agent: curl/7.81.0
+        body: ""
+        body_type: ""
+        timestamp: 2023-11-03T03:04:07.055305186Z
+    resp:
+        status_code: 200
+        header:
+            Content-Length: "706"
+            Content-Type: application/json; charset=UTF-8
+            Date: Fri, 03 Nov 2023 03:04:07 GMT
+        body: |
+            {"data":{"id":1,"created_at":"2023-10-27T06:49:09.178449Z","updated_at":"2023-11-03T02:58:43.30528Z","uuid":"1d69593c-bf88-4045-8fa4-1f8f15519a79","email":"john@example.com","name":"John Doe","attribs":{"city":"Bengaluru","good":true,"type":"known"},"status":"blocklisted","lists":[{"subscription_status":"unsubscribed","subscription_created_at":"2023-10-27T06:49:09.178449+00:00","subscription_updated_at":"2023-11-03T02:58:43.30528+00:00","subscription_meta":{},"id":1,"uuid":"c5977ddf-bfd4-438f-aaa1-baf6fde450b0","name":"Default list","type":"private","optin":"single","tags":["test"],"description":"","created_at":"2023-10-27T06:49:09.177178+00:00","updated_at":"2023-10-27T06:49:09.177178+00:00"}]}}
+        body_type: ""
+        status_message: ""
+        proto_major: 0
+        proto_minor: 0
+        timestamp: 2023-11-03T03:04:09.521778611Z
+    objects: []
+    assertions:
+        noise:
+            - body.data.created_at
+            - body.data.updated_at
+            - header.Date
+            - body.data.lists.subscription_updated_at
+            - body.data.lists.subscription_created_at
+            - body.data.lists.created_at
+            - body.data.lists.updated_at
+    created: 1698980649
+curl: |
+    curl --request GET \
+      --url http://localhost:9000/api/subscribers/1 \
+      --header 'Host: localhost:9000' \
+      --header 'Authorization: Basic bGlzdG1vbms6bGlzdG1vbms=' \
+      --header 'User-Agent: curl/7.81.0' \
+      --header 'Accept: */*' \

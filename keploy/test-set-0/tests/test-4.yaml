@@ -1,0 +1,47 @@
+version: api.keploy.io/v1beta2
+kind: Http
+name: test-4
+spec:
+    metadata: {}
+    req:
+        method: POST
+        proto_major: 1
+        proto_minor: 1
+        url: http://localhost:9000/api/subscribers
+        header:
+            Accept: '*/*'
+            Authorization: Basic bGlzdG1vbms6bGlzdG1vbms=
+            Content-Length: "172"
+            Content-Type: application/json
+            Host: localhost:9000
+            User-Agent: curl/7.81.0
+        body: '{"email":"subsriber123@domain.com","name":"The Subscriber","status":"enabled","lists":[1],"attribs":{"city":"Bengaluru","projects":3,"stack":{"languages":["go","python"]}}}'
+        body_type: ""
+        timestamp: 2023-11-03T03:04:47.229569651Z
+    resp:
+        status_code: 409
+        header:
+            Content-Length: "37"
+            Content-Type: application/json; charset=UTF-8
+            Date: Fri, 03 Nov 2023 03:04:47 GMT
+        body: |
+            {"message":"E-mail already exists."}
+        body_type: ""
+        status_message: ""
+        proto_major: 0
+        proto_minor: 0
+        timestamp: 2023-11-03T03:04:50.19800127Z
+    objects: []
+    assertions:
+        noise:
+            - header.Date
+    created: 1698980690
+curl: |-
+    curl --request POST \
+      --url http://localhost:9000/api/subscribers \
+      --header 'Content-Type: application/json' \
+      --header 'Host: localhost:9000' \
+      --header 'Authorization: Basic bGlzdG1vbms6bGlzdG1vbms=' \
+      --header 'User-Agent: curl/7.81.0' \
+      --header 'Accept: */*' \
+      --data '{"email":"subsriber123@domain.com","name":"The Subscriber","status":"enabled","lists":[1],"attribs":{"city":"Bengaluru","projects":3,"stack":{"languages":["go","python"]}}}'
