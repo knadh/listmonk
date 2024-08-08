@@ -36,6 +36,13 @@ func makeFilename(fName string) string {
 	return filepath.Base(name)
 }
 
+// appendSuffixToFilename adds a string suffix to the filename while keeping the file extension.
+func appendSuffixToFilename(filename, suffix string) string {
+	ext := filepath.Ext(filename)
+	name := strings.TrimSuffix(filename, ext)
+	return fmt.Sprintf("%s_%s%s", name, suffix, ext)
+}
+
 // makeMsgTpl takes a page title, heading, and message and returns
 // a msgTpl that can be rendered as an HTML view. This is used for
 // rendering arbitrary HTML views with error and success messages.
