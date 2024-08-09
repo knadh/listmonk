@@ -63,6 +63,7 @@ nav:
     - "Media": apis/media.md
     - "Templates": apis/templates.md
     - "Transactional": apis/transactional.md
+    - "Bounces": apis/bounces.md
   - "Maintenance":
     - "Performance": maintenance/performance.md
   - "Contributions":
