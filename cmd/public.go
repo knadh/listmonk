@@ -730,3 +730,48 @@ func processSubForm(c echo.Context) (bool, error) {
 
 	return hasOptin, nil
 }
+
+func unsubscribeList(c echo.Context) error {
+	var (
+		app      = c.Get("app").(*App)
+		subUUID  = c.Param("subUUID")
+		listUUID = c.Param("listUUID")
+	)
+
+	// Get the subscriber ID from the UUID.
+	sub, err := app.core.GetSubscriber(0, subUUID, "")
+	if err != nil {
+		return c.String(http.StatusInternalServerError, "Error processing request")
+	}
+
+	// Unsubscribe from the list.
+	if err := app.core.UnsubscribeLists([]int{sub.ID}, nil, []string{listUUID}); err != nil {
+		return c.String(http.StatusInternalServerError, "Error processing request")
+	}
+
+	return c.String(http.StatusOK, "You have been unsubscribed successfully")
+}
+
+func handleListSubscriptionPage(c echo.Context) error {
+	var (
+		app      = c.Get("app").(*App)
+		subUUID  = c.Param("subUUID")
+		listUUID = c.Param("listUUID")
+	)
+
+	// Get the subscriber ID from the UUID.
+	sub, err := app.core.GetSubscriber(0, subUUID, "")
+	if err != nil {
+		return c.Render(http.StatusInternalServerError, tplMessage,
+			makeMsgTpl(app.i18n.T("public.errorTitle"), "", app.i18n.Ts("public.errorProcessingRequest")))
+	}
+
+	// Unsubscribe from the list.
+	if err := app.core.UnsubscribeLists([]int{sub.ID}, nil, []string{listUUID}); err != nil {
+		return c.Render(http.StatusInternalServerError, tplMessage,
+			makeMsgTpl(app.i18n.T("public.errorTitle"), "", app.i18n.T("public.errorProcessingRequest")))
+	}
+
+	return c.Render(http.StatusOK, tplMessage,
+		makeMsgTpl(app.i18n.T("public.unsubbedTitle"), "", app.i18n.T("public.unsubbedInfo")))
+}
