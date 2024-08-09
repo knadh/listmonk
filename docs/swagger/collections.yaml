@@ -1846,6 +1846,29 @@ paths:
                   data:
                     type: boolean
 
+  /tx/external:
+    post:
+      tags:
+        - Transactional
+      description: send message to anyone
+      operationId: transactWithAnyone
+      requestBody:
+        description: email message to recipient
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TransactionalMessage"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: boolean
+
   "/maintenance/subscribers/{type}":
     delete:
       description: garbage collects (deletes) orphaned or blocklisted subscribers.

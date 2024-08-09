@@ -409,6 +409,55 @@ type TxMessage struct {
 	SubjectTpl *txttpl.Template   `json:"-"`
 }
 
+// ExternalTxMessage represents an e-mail campaign to an external recipient.
+type ExternalTxMessage struct {
+	RecipientEmails []string `json:"recipient_emails"`
+
+	// Deprecated.
+	RecipientEmail string `json:"recipient_email"`
+
+	TemplateID  int                    `json:"template_id"`
+	Data        map[string]interface{} `json:"data"`
+	FromEmail   string                 `json:"from_email"`
+	Headers     Headers                `json:"headers"`
+	ContentType string                 `json:"content_type"`
+	Messenger   string                 `json:"messenger"`
+
+	// File attachments added from multi-part form data.
+	Attachments []Attachment `json:"-"`
+
+	Subject    string             `json:"-"`
+	Body       []byte             `json:"-"`
+	Tpl        *template.Template `json:"-"`
+	SubjectTpl *txttpl.Template   `json:"-"`
+}
+
+func (m ExternalTxMessage) MapToTxMessage() TxMessage {
+	txMessage := TxMessage{}
+	txMessage.SubscriberEmails = m.RecipientEmails
+	txMessage.SubscriberIDs = []int{}
+
+	// Deprecated.
+	txMessage.SubscriberEmail = m.RecipientEmail
+	txMessage.SubscriberID = 0
+
+	txMessage.TemplateID = m.TemplateID
+	txMessage.Data = m.Data
+	txMessage.FromEmail = m.FromEmail
+	txMessage.Headers = m.Headers
+	txMessage.ContentType = m.ContentType
+	txMessage.Messenger = m.Messenger
+
+	// File attachments added from multi-part form data.
+	txMessage.Attachments = m.Attachments
+
+	txMessage.Subject = m.Subject
+	txMessage.Body = m.Body
+	txMessage.Tpl = m.Tpl
+	txMessage.SubjectTpl = m.SubjectTpl
+	return txMessage
+}
+
 // markdown is a global instance of Markdown parser and renderer.
 var markdown = goldmark.New(
 	goldmark.WithParserOptions(
@@ -651,27 +700,45 @@ func (m *TxMessage) Render(sub Subscriber, tpl *Template) error {
 		Tx         *TxMessage
 	}{sub, m}
 
+	message, err := renderMessage(data, tpl)
+	if err != nil {
+		return err
+	}
+	m.Body = message
+
+	subject, err := renderSubject(data, tpl)
+	if err != nil {
+		return err
+	}
+	m.Subject = subject
+
+	return nil
+}
+
+func renderMessage(data any, tpl *Template) ([]byte, error) {
 	// Render the body.
 	b := bytes.Buffer{}
 	if err := tpl.Tpl.ExecuteTemplate(&b, BaseTpl, data); err != nil {
-		return err
+		return nil, err
 	}
-	m.Body = make([]byte, b.Len())
-	copy(m.Body, b.Bytes())
-	b.Reset()
+	message := make([]byte, b.Len())
+	copy(message, b.Bytes())
+	return message, nil
+}
 
+func renderSubject(data any, tpl *Template) (string, error) {
 	// If the subject is also a template, render that.
+	b := bytes.Buffer{}
+	subject := ""
 	if tpl.SubjectTpl != nil {
 		if err := tpl.SubjectTpl.ExecuteTemplate(&b, BaseTpl, data); err != nil {
-			return err
+			return "", err
 		}
-		m.Subject = b.String()
-		b.Reset()
+		subject = b.String()
 	} else {
-		m.Subject = tpl.Subject
+		subject = tpl.Subject
 	}
-
-	return nil
+	return subject, nil
 }
 
 // FirstName splits the name by spaces and returns the first chunk
@@ -737,4 +804,34 @@ func (h Headers) Value() (driver.Value, error) {
 	}
 
 	return "[]", nil
+}
+
+func CreateMailMessage(sub Subscriber, m TxMessage) Message {
+	msg := Message{}
+	msg.Subscriber = sub
+	msg.To = []string{sub.Email}
+	msg.From = m.FromEmail
+	msg.Subject = m.Subject
+	msg.ContentType = m.ContentType
+	msg.Messenger = m.Messenger
+	msg.Body = m.Body
+	for _, a := range m.Attachments {
+		msg.Attachments = append(msg.Attachments, Attachment{
+			Name:    a.Name,
+			Header:  a.Header,
+			Content: a.Content,
+		})
+	}
+
+	// Optional headers.
+	if len(m.Headers) != 0 {
+		msg.Headers = make(textproto.MIMEHeader, len(m.Headers))
+		for _, set := range m.Headers {
+			for hdr, val := range set {
+				msg.Headers.Add(hdr, val)
+			}
+		}
+	}
+
+	return msg
 }
