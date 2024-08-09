@@ -447,7 +447,7 @@ SELECT * FROM lists WHERE (CASE WHEN $1 != '' THEN optin=$1::list_optin ELSE TRU
     END) ORDER BY name;
 
 -- name: create-list
-INSERT INTO lists (uuid, name, type, optin, tags, description) VALUES($1, $2, $3, $4, $5, $6) RETURNING id;
+INSERT INTO lists (uuid, name, type, optin, tags, description, welcome_template_id) VALUES($1, $2, $3, $4, $5, $6, $7) RETURNING id;
 
 -- name: update-list
 UPDATE lists SET
@@ -456,6 +456,7 @@ UPDATE lists SET
     optin=(CASE WHEN $4 != '' THEN $4::list_optin ELSE optin END),
     tags=$5::VARCHAR(100)[],
     description=(CASE WHEN $6 != '' THEN $6 ELSE description END),
+    welcome_template_id=$7,
     updated_at=NOW()
 WHERE id = $1;
 

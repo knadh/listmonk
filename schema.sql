@@ -26,6 +26,21 @@ DROP INDEX IF EXISTS idx_subs_status; CREATE INDEX idx_subs_status ON subscriber
 DROP INDEX IF EXISTS idx_subs_created_at; CREATE INDEX idx_subs_created_at ON subscribers(created_at);
 DROP INDEX IF EXISTS idx_subs_updated_at; CREATE INDEX idx_subs_updated_at ON subscribers(updated_at);
 
+-- templates
+DROP TABLE IF EXISTS templates CASCADE;
+CREATE TABLE templates (
+                           id              SERIAL PRIMARY KEY,
+                           name            TEXT NOT NULL,
+                           type            template_type NOT NULL DEFAULT 'campaign',
+                           subject         TEXT NOT NULL,
+                           body            TEXT NOT NULL,
+                           is_default      BOOLEAN NOT NULL DEFAULT false,
+
+                           created_at      TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+                           updated_at      TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+CREATE UNIQUE INDEX ON templates (is_default) WHERE is_default = true;
+
 -- lists
 DROP TABLE IF EXISTS lists CASCADE;
 CREATE TABLE lists (
@@ -36,6 +51,8 @@ CREATE TABLE lists (
     optin           list_optin NOT NULL DEFAULT 'single',
     tags            VARCHAR(100)[],
     description     TEXT NOT NULL DEFAULT '',
+
+    welcome_template_id INTEGER NULL REFERENCES templates(id) ON DELETE SET NULL ON UPDATE CASCADE,
 
     created_at      TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at      TIMESTAMP WITH TIME ZONE DEFAULT NOW()
@@ -62,22 +79,6 @@ CREATE TABLE subscriber_lists (
 DROP INDEX IF EXISTS idx_sub_lists_sub_id; CREATE INDEX idx_sub_lists_sub_id ON subscriber_lists(subscriber_id);
 DROP INDEX IF EXISTS idx_sub_lists_list_id; CREATE INDEX idx_sub_lists_list_id ON subscriber_lists(list_id);
 DROP INDEX IF EXISTS idx_sub_lists_status; CREATE INDEX idx_sub_lists_status ON subscriber_lists(status);
-
--- templates
-DROP TABLE IF EXISTS templates CASCADE;
-CREATE TABLE templates (
-    id              SERIAL PRIMARY KEY,
-    name            TEXT NOT NULL,
-    type            template_type NOT NULL DEFAULT 'campaign',
-    subject         TEXT NOT NULL,
-    body            TEXT NOT NULL,
-    is_default      BOOLEAN NOT NULL DEFAULT false,
-
-    created_at      TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    updated_at      TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
-CREATE UNIQUE INDEX ON templates (is_default) WHERE is_default = true;
-
 
 -- campaigns
 DROP TABLE IF EXISTS campaigns CASCADE;
