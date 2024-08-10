@@ -43,6 +43,27 @@ func (c *Core) GetSubscriber(id int, uuid, email string) (models.Subscriber, err
 	return out[0], nil
 }
 
+// HasSubscriberLists checks if the given subscribers have at least one of the given lists.
+func (c *Core) HasSubscriberLists(subIDs []int, listIDs []int) (map[int]bool, error) {
+	res := []struct {
+		SubID int  `db:"subscriber_id"`
+		Has   bool `db:"has"`
+	}{}
+
+	if err := c.q.HasSubscriberLists.Select(&res, pq.Array(subIDs), pq.Array(listIDs)); err != nil {
+		c.log.Printf("error fetching subscriber: %v", err)
+		return nil, echo.NewHTTPError(http.StatusInternalServerError,
+			c.i18n.Ts("globals.messages.errorFetching", "name", "{globals.terms.subscriber}", "error", pqErrMsg(err)))
+	}
+
+	out := make(map[int]bool, len(res))
+	for _, r := range res {
+		out[r.SubID] = r.Has
+	}
+
+	return out, nil
+}
+
 // GetSubscribersByEmail fetches a subscriber by one of the given params.
 func (c *Core) GetSubscribersByEmail(emails []string) (models.Subscribers, error) {
 	var out models.Subscribers

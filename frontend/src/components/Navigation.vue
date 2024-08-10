@@ -15,7 +15,7 @@
     <b-menu-item v-if="$can('subscribers:*')" :expanded="activeGroup.subscribers" :active="activeGroup.subscribers"
       data-cy="subscribers" @update:active="(state) => toggleGroup('subscribers', state)" icon="account-multiple"
       :label="$t('globals.terms.subscribers')">
-      <b-menu-item v-if="$can('subscribers:get')" :to="{ name: 'subscribers' }" tag="router-link"
+      <b-menu-item v-if="$can('subscribers:get_all', 'subscribers:get')" :to="{ name: 'subscribers' }" tag="router-link"
         :active="activeItem.subscribers" data-cy="all-subscribers" icon="account-multiple"
         :label="$t('menu.allSubscribers')" />
       <b-menu-item v-if="$can('subscribers:import')" :to="{ name: 'import' }" tag="router-link"

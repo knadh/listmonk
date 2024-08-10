@@ -18,6 +18,7 @@ type Queries struct {
 	UpsertSubscriber                *sqlx.Stmt `query:"upsert-subscriber"`
 	UpsertBlocklistSubscriber       *sqlx.Stmt `query:"upsert-blocklist-subscriber"`
 	GetSubscriber                   *sqlx.Stmt `query:"get-subscriber"`
+	HasSubscriberLists               *sqlx.Stmt `query:"has-subscriber-list"`
 	GetSubscribersByEmails          *sqlx.Stmt `query:"get-subscribers-by-emails"`
 	GetSubscriberLists              *sqlx.Stmt `query:"get-subscriber-lists"`
 	GetSubscriptions                *sqlx.Stmt `query:"get-subscriptions"`

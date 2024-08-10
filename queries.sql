@@ -8,6 +8,16 @@ SELECT * FROM subscribers WHERE
         WHEN $3 != '' THEN email = $3
     END;
 
+-- name: has-subscriber-list
+-- Used for checking access permission by list.
+SELECT s.id AS subscriber_id,
+    CASE
+        WHEN EXISTS (SELECT 1 FROM subscriber_lists sl WHERE sl.subscriber_id = s.id AND sl.list_id = ANY($2))
+        THEN TRUE
+        ELSE FALSE
+    END AS has
+FROM subscribers s WHERE s.id = ANY($1);
+
 -- name: get-subscribers-by-emails
 -- Get subscribers by emails.
 SELECT * FROM subscribers WHERE email=ANY($1);

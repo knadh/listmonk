@@ -79,10 +79,15 @@
 
       <b-table-column v-slot="props" field="subscriber_count" :label="$t('globals.terms.subscribers')"
         header-class="cy-subscribers" numeric sortable centered>
-        <router-link :to="`/subscribers/lists/${props.row.id}`">
+        <template v-if="$can('subscribers:get_all', 'subscribers:get')">
+          <router-link :to="`/subscribers/lists/${props.row.id}`">
+            {{ $utils.formatNumber(props.row.subscriberCount) }}
+            <span class="is-size-7 view">{{ $t('globals.buttons.view') }}</span>
+          </router-link>
+        </template>
+        <template v-else>
           {{ $utils.formatNumber(props.row.subscriberCount) }}
-          <span class="is-size-7 view">{{ $t('globals.buttons.view') }}</span>
-        </router-link>
+        </template>
       </b-table-column>
 
       <b-table-column v-slot="props" field="subscriber_counts" header-class="cy-subscribers" width="10%">
