@@ -11,8 +11,8 @@
         "group": "subscribers",
         "permissions":
         [
-            "subscribers:get_by_list",
             "subscribers:get",
+            "subscribers:get_all",
             "subscribers:manage",
             "subscribers:import",
             "subscribers:sql_query",

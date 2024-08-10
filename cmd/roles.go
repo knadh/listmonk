@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
@@ -115,14 +116,14 @@ func validateRole(r models.Role, app *App) error {
 
 	for _, p := range r.Permissions {
 		if _, ok := app.constants.Permissions[p]; !ok {
-			return echo.NewHTTPError(http.StatusBadRequest, app.i18n.Ts("globals.messages.invalidFields", "name", "permission"))
+			return echo.NewHTTPError(http.StatusBadRequest, app.i18n.Ts("globals.messages.invalidFields", "name", fmt.Sprintf("permission: %s", p)))
 		}
 	}
 
 	for _, l := range r.Lists {
 		for _, p := range l.Permissions {
 			if p != "list:get" && p != "list:manage" {
-				return echo.NewHTTPError(http.StatusBadRequest, app.i18n.Ts("globals.messages.invalidFields", "name", "list permissions"))
+				return echo.NewHTTPError(http.StatusBadRequest, app.i18n.Ts("globals.messages.invalidFields", "name", fmt.Sprintf("list permission: %s", p)))
 			}
 		}
 	}

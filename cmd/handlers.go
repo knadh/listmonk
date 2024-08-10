@@ -121,9 +121,9 @@ func initHTTPHandlers(e *echo.Echo, app *App) {
 	api.GET("/api/events", pm(handleEventStream, "settings:get"))
 	api.GET("/api/about", handleGetAboutInfo)
 
-	api.GET("/api/subscribers", pm(handleQuerySubscribers, "subscribers:get", "subscribers:get_by_list"))
-	api.GET("/api/subscribers/:id", pm(handleGetSubscriber, "subscribers:get"))
-	api.GET("/api/subscribers/:id/export", pm(handleExportSubscriberData, "subscribers:get"))
+	api.GET("/api/subscribers", pm(handleQuerySubscribers, "subscribers:get_all", "subscribers:get"))
+	api.GET("/api/subscribers/:id", pm(handleGetSubscriber, "subscribers:get_all", "subscribers:get"))
+	api.GET("/api/subscribers/:id/export", pm(handleExportSubscriberData, "subscribers:get_all", "subscribers:get"))
 	api.GET("/api/subscribers/:id/bounces", pm(handleGetSubscriberBounces, "bounces:get"))
 	api.DELETE("/api/subscribers/:id/bounces", pm(handleDeleteSubscriberBounces, "bounces:manage"))
 	api.POST("/api/subscribers", pm(handleCreateSubscriber, "subscribers:manage"))
@@ -147,7 +147,7 @@ func initHTTPHandlers(e *echo.Echo, app *App) {
 	api.PUT("/api/subscribers/query/blocklist", pm(handleBlocklistSubscribersByQuery, "subscribers:manage"))
 	api.PUT("/api/subscribers/query/lists", pm(handleManageSubscriberListsByQuery, "subscribers:manage"))
 	api.GET("/api/subscribers/export",
-		pm(middleware.GzipWithConfig(middleware.GzipConfig{Level: 9})(handleExportSubscribers), "subscribers:get"))
+		pm(middleware.GzipWithConfig(middleware.GzipConfig{Level: 9})(handleExportSubscribers), "subscribers:get_all", "subscribers:get"))
 
 	api.GET("/api/import/subscribers", pm(handleGetImportSubscribers, "subscribers:import"))
 	api.GET("/api/import/subscribers/logs", pm(handleGetImportSubscriberStats, "subscribers:import"))

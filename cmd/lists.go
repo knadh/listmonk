@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
@@ -9,10 +8,6 @@ import (
 	"github.com/knadh/listmonk/internal/auth"
 	"github.com/knadh/listmonk/models"
 	"github.com/labstack/echo/v4"
-)
-
-var (
-	errListPerm = echo.NewHTTPError(http.StatusForbidden, fmt.Sprintf("list permission denied"))
 )
 
 // handleGetLists retrieves lists with additional metadata like subscriber counts.
@@ -33,9 +28,14 @@ func handleGetLists(c echo.Context) error {
 		out models.PageResults
 	)
 
+	var permittedIDs []int
+	if _, ok := user.PermissionsMap["lists:get_all"]; !ok {
+		permittedIDs = user.GetListIDs
+	}
+
 	// Minimal query simply returns the list of all lists without JOIN subscriber counts. This is fast.
 	if minimal {
-		res, err := app.core.GetLists("", user.GetListIDs)
+		res, err := app.core.GetLists("", permittedIDs)
 		if err != nil {
 			return err
 		}
@@ -53,7 +53,7 @@ func handleGetLists(c echo.Context) error {
 	}
 
 	// Full list query.
-	res, total, err := app.core.QueryLists(query, typ, optin, tags, orderBy, order, user.GetListIDs, pg.Offset, pg.Limit)
+	res, total, err := app.core.QueryLists(query, typ, optin, tags, orderBy, order, permittedIDs, pg.Offset, pg.Limit)
 	if err != nil {
 		return err
 	}
@@ -164,7 +164,8 @@ func handleDeleteLists(c echo.Context) error {
 func listPerm(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var (
-			u     = c.Get(auth.UserKey).(models.User)
+			app   = c.Get("app").(*App)
+			user  = c.Get(auth.UserKey).(models.User)
 			id, _ = strconv.Atoi(c.Param("id"))
 		)
 
@@ -179,15 +180,15 @@ func listPerm(next echo.HandlerFunc) echo.HandlerFunc {
 		}
 
 		// Check if the user has permissions for all lists or the specific list.
-		if _, ok := u.PermissionsMap[permAll]; ok {
+		if _, ok := user.PermissionsMap[permAll]; ok {
 			return next(c)
 		}
 		if id > 0 {
-			if _, ok := u.ListPermissionsMap[id][perm]; ok {
+			if _, ok := user.ListPermissionsMap[id][perm]; ok {
 				return next(c)
 			}
 		}
 
-		return errListPerm
+		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.Ts("globals.messages.globals.messages.permissionDenied", "name", "list"))
 	}
 }

@@ -180,6 +180,7 @@
     "globals.messages.errorCreating": "Error creating {name}: {error}",
     "globals.messages.errorDeleting": "Error deleting {name}: {error}",
     "globals.messages.errorFetching": "Error fetching {name}: {error}",
+    "globals.messages.permissionDenied": "Permission denied: {name}",
     "globals.messages.errorInvalidIDs": "One or more IDs are invalid: {error}",
     "globals.messages.errorUUID": "Error generating UUID: {error}",
     "globals.messages.errorUpdating": "Error updating {name}: {error}",

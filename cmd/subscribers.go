@@ -10,6 +10,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/knadh/listmonk/internal/auth"
 	"github.com/knadh/listmonk/internal/subimporter"
 	"github.com/knadh/listmonk/models"
 	"github.com/labstack/echo/v4"
@@ -67,10 +68,15 @@ func handleGetSubscriber(c echo.Context) error {
 	var (
 		app   = c.Get("app").(*App)
 		id, _ = strconv.Atoi(c.Param("id"))
+		user  = c.Get(auth.UserKey).(models.User)
 	)
 
 	if id < 1 {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidID"))
+	}
+
+	if err := hasSubPerm(user, []int{id}, app); err != nil {
+		return err
 	}
 
 	out, err := app.core.GetSubscriber(id, "", "")
@@ -84,8 +90,9 @@ func handleGetSubscriber(c echo.Context) error {
 // handleQuerySubscribers handles querying subscribers based on an arbitrary SQL expression.
 func handleQuerySubscribers(c echo.Context) error {
 	var (
-		app = c.Get("app").(*App)
-		pg  = app.paginator.NewFromURL(c.Request().URL.Query())
+		app  = c.Get("app").(*App)
+		user = c.Get(auth.UserKey).(models.User)
+		pg   = app.paginator.NewFromURL(c.Request().URL.Query())
 
 		// The "WHERE ?" bit.
 		query     = sanitizeSQLExp(c.FormValue("query"))
@@ -95,10 +102,10 @@ func handleQuerySubscribers(c echo.Context) error {
 		out       models.PageResults
 	)
 
-	// Limit the subscribers to specific lists?
-	listIDs, err := getQueryInts("list_id", c.QueryParams())
+	// Filter list IDs by permission.
+	listIDs, err := filterListQeryByPerm(c.QueryParams(), user, app)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidID"))
+		return err
 	}
 
 	res, total, err := app.core.QuerySubscribers(query, listIDs, subStatus, order, orderBy, pg.Offset, pg.Limit)
@@ -118,16 +125,17 @@ func handleQuerySubscribers(c echo.Context) error {
 // handleExportSubscribers handles querying subscribers based on an arbitrary SQL expression.
 func handleExportSubscribers(c echo.Context) error {
 	var (
-		app = c.Get("app").(*App)
+		app  = c.Get("app").(*App)
+		user = c.Get(auth.UserKey).(models.User)
 
 		// The "WHERE ?" bit.
 		query = sanitizeSQLExp(c.FormValue("query"))
 	)
 
-	// Limit the subscribers to specific lists?
-	listIDs, err := getQueryInts("list_id", c.QueryParams())
+	// Filter list IDs by permission.
+	listIDs, err := filterListQeryByPerm(c.QueryParams(), user, app)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidID"))
+		return err
 	}
 
 	// Export only specific subscriber IDs?
@@ -186,7 +194,9 @@ loop:
 // handleCreateSubscriber handles the creation of a new subscriber.
 func handleCreateSubscriber(c echo.Context) error {
 	var (
-		app = c.Get("app").(*App)
+		app  = c.Get("app").(*App)
+		user = c.Get(auth.UserKey).(models.User)
+
 		req subimporter.SubReq
 	)
 
@@ -201,8 +211,11 @@ func handleCreateSubscriber(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
+	// Filter lists against the current user's permitted lists.
+	listIDs := filterListsByPerm(req.Lists, user)
+
 	// Insert the subscriber into the DB.
-	sub, _, err := app.core.InsertSubscriber(req.Subscriber, req.Lists, req.ListUUIDs, req.PreconfirmSubs)
+	sub, _, err := app.core.InsertSubscriber(req.Subscriber, listIDs, nil, req.PreconfirmSubs)
 	if err != nil {
 		return err
 	}
@@ -213,7 +226,9 @@ func handleCreateSubscriber(c echo.Context) error {
 // handleUpdateSubscriber handles modification of a subscriber.
 func handleUpdateSubscriber(c echo.Context) error {
 	var (
-		app   = c.Get("app").(*App)
+		app  = c.Get("app").(*App)
+		user = c.Get(auth.UserKey).(models.User)
+
 		id, _ = strconv.Atoi(c.Param("id"))
 		req   struct {
 			models.Subscriber
@@ -241,7 +256,10 @@ func handleUpdateSubscriber(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("subscribers.invalidName"))
 	}
 
-	out, _, err := app.core.UpdateSubscriberWithLists(id, req.Subscriber, req.Lists, nil, req.PreconfirmSubs, true)
+	// Filter lists against the current user's permitted lists.
+	listIDs := filterListsByPerm(req.Lists, user)
+
+	out, _, err := app.core.UpdateSubscriberWithLists(id, req.Subscriber, listIDs, nil, req.PreconfirmSubs, true)
 	if err != nil {
 		return err
 	}
@@ -317,7 +335,9 @@ func handleBlocklistSubscribers(c echo.Context) error {
 // It takes either an ID in the URI, or a list of IDs in the request body.
 func handleManageSubscriberLists(c echo.Context) error {
 	var (
-		app    = c.Get("app").(*App)
+		app  = c.Get("app").(*App)
+		user = c.Get(auth.UserKey).(models.User)
+
 		pID    = c.Param("id")
 		subIDs []int
 	)
@@ -346,15 +366,18 @@ func handleManageSubscriberLists(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("subscribers.errorNoListsGiven"))
 	}
 
+	// Filter lists against the current user's permitted lists.
+	listIDs := filterListsByPerm(req.TargetListIDs, user)
+
 	// Action.
 	var err error
 	switch req.Action {
 	case "add":
-		err = app.core.AddSubscriptions(subIDs, req.TargetListIDs, req.Status)
+		err = app.core.AddSubscriptions(subIDs, listIDs, req.Status)
 	case "remove":
-		err = app.core.DeleteSubscriptions(subIDs, req.TargetListIDs)
+		err = app.core.DeleteSubscriptions(subIDs, listIDs)
 	case "unsubscribe":
-		err = app.core.UnsubscribeLists(subIDs, req.TargetListIDs, nil)
+		err = app.core.UnsubscribeLists(subIDs, listIDs, nil)
 	default:
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("subscribers.invalidAction"))
 	}
@@ -445,7 +468,9 @@ func handleBlocklistSubscribersByQuery(c echo.Context) error {
 // from one or more lists based on an arbitrary SQL expression.
 func handleManageSubscriberListsByQuery(c echo.Context) error {
 	var (
-		app = c.Get("app").(*App)
+		app  = c.Get("app").(*App)
+		user = c.Get(auth.UserKey).(models.User)
+
 		req subQueryReq
 	)
 
@@ -457,15 +482,19 @@ func handleManageSubscriberListsByQuery(c echo.Context) error {
 			app.i18n.T("subscribers.errorNoListsGiven"))
 	}
 
+	// Filter lists against the current user's permitted lists.
+	sourceListIDs := filterListsByPerm(req.ListIDs, user)
+	targetListIDs := filterListsByPerm(req.TargetListIDs, user)
+
 	// Action.
 	var err error
 	switch req.Action {
 	case "add":
-		err = app.core.AddSubscriptionsByQuery(req.Query, req.ListIDs, req.TargetListIDs, req.Status)
+		err = app.core.AddSubscriptionsByQuery(req.Query, sourceListIDs, targetListIDs, req.Status)
 	case "remove":
-		err = app.core.DeleteSubscriptionsByQuery(req.Query, req.ListIDs, req.TargetListIDs)
+		err = app.core.DeleteSubscriptionsByQuery(req.Query, sourceListIDs, targetListIDs)
 	case "unsubscribe":
-		err = app.core.UnsubscribeListsByQuery(req.Query, req.ListIDs, req.TargetListIDs)
+		err = app.core.UnsubscribeListsByQuery(req.Query, sourceListIDs, targetListIDs)
 	default:
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("subscribers.invalidAction"))
 	}
@@ -630,4 +659,68 @@ func sendOptinConfirmationHook(app *App) func(sub models.Subscriber, listIDs []i
 
 		return len(lists), nil
 	}
+}
+
+// hasSubPerm checks whether the current user has permission to access the given list
+// of subscriber IDs.
+func hasSubPerm(u models.User, subIDs []int, app *App) error {
+	if u.RoleID == auth.SuperAdminRoleID {
+		return nil
+	}
+
+	if _, ok := u.PermissionsMap["subscribers:get_all"]; ok {
+		return nil
+	}
+
+	res, err := app.core.HasSubscriberLists(subIDs, u.GetListIDs)
+	if err != nil {
+		return err
+	}
+
+	for id, has := range res {
+		if !has {
+			return echo.NewHTTPError(http.StatusForbidden, app.i18n.Ts("globals.messages.permissionDenied", "name", fmt.Sprintf("subscriber: %d", id)))
+		}
+	}
+
+	return nil
+}
+
+func filterListQeryByPerm(qp url.Values, user models.User, app *App) ([]int, error) {
+	var listIDs []int
+
+	// If there are incoming list query params, filter them by permission.
+	if qp.Has("list_id") {
+		ids, err := getQueryInts("list_id", qp)
+		if err != nil {
+			return nil, echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidID"))
+		}
+
+		listIDs = []int{}
+		for _, id := range ids {
+			if _, ok := user.ListPermissionsMap[id]; ok {
+				listIDs = append(listIDs, id)
+			}
+		}
+	} else {
+		// There are no incoming params. If the user doesn't have permission to get all subscribers,
+		// filter by the lists they have access to.
+		if _, ok := user.PermissionsMap["subscribers:get_all"]; !ok {
+			listIDs = user.GetListIDs
+		}
+	}
+
+	return listIDs, nil
+}
+
+// filterListsByPerm filters the given list IDs against the given user's permitted lists.
+func filterListsByPerm(listIDs []int, user models.User) []int {
+	out := make([]int, 0, len(listIDs))
+	for _, id := range listIDs {
+		if _, ok := user.ListPermissionsMap[id]; ok {
+			listIDs = append(listIDs, id)
+		}
+	}
+
+	return out
 }
