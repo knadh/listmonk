@@ -766,6 +766,18 @@ func handleListSubscriptionPage(c echo.Context) error {
 			makeMsgTpl(app.i18n.T("public.errorTitle"), "", app.i18n.Ts("public.errorProcessingRequest")))
 	}
 
+	// Check if the subscriber is already unsubscribed from the list
+	subscription, err := app.core.GetSubscriptions(0, listUUID, true)
+	if err != nil {
+		return c.Render(http.StatusInternalServerError, tplMessage,
+			makeMsgTpl(app.i18n.T("public.errorTitle"), "", app.i18n.T("public.errorProcessingRequest")))
+	}
+
+	if len(subscription) > 0 && subscription[0].SubscriptionStatus.String == models.SubscriptionStatusUnsubscribed {
+		return c.Render(http.StatusOK, tplMessage,
+			makeMsgTpl(app.i18n.T("public.unsubbedTitle"), "", app.i18n.T("public.unsubbedAlreadyInfo")))
+	}
+
 	// Unsubscribe from the list.
 	if err := app.core.UnsubscribeLists([]int{sub.ID}, nil, []string{listUUID}); err != nil {
 		return c.Render(http.StatusInternalServerError, tplMessage,
