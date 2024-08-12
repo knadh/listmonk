@@ -540,6 +540,15 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#querying-subscribers-who-viewed-the-campaign-email" class="md-nav__link">
+    <span class="md-ellipsis">
+      Querying subscribers who viewed the campaign email
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#querying-attributes" class="md-nav__link">
     <span class="md-ellipsis">
       Querying attributes
@@ -1188,6 +1197,15 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#querying-subscribers-who-viewed-the-campaign-email" class="md-nav__link">
+    <span class="md-ellipsis">
+      Querying subscribers who viewed the campaign email
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#querying-attributes" class="md-nav__link">
     <span class="md-ellipsis">
       Querying attributes
@@ -1298,6 +1316,10 @@
 <h4 id="multiple-conditions">Multiple conditions<a class="headerlink" href="#multiple-conditions" title="Permanent link">&para;</a></h4>
 <div class="highlight"><pre><span></span><code><span class="c1">-- Find all Johns who have been blocklisted.</span>
 <span class="n">subscribers</span><span class="p">.</span><span class="n">email</span><span class="w"> </span><span class="k">LIKE</span><span class="w"> </span><span class="s1">&#39;John%&#39;</span><span class="w"> </span><span class="k">AND</span><span class="w"> </span><span class="n">status</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;blocklisted&#39;</span>
+</code></pre></div>
+<h4 id="querying-subscribers-who-viewed-the-campaign-email">Querying subscribers who viewed the campaign email<a class="headerlink" href="#querying-subscribers-who-viewed-the-campaign-email" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><span class="c1">-- Find all subscribers who viewed the campaign email.</span>
+<span class="k">EXISTS</span><span class="p">(</span><span class="k">SELECT</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">campaign_views</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">campaign_views</span><span class="p">.</span><span class="n">subscriber_id</span><span class="o">=</span><span class="n">subscribers</span><span class="p">.</span><span class="n">id</span><span class="w"> </span><span class="k">AND</span><span class="w"> </span><span class="n">campaign_views</span><span class="p">.</span><span class="n">campaign_id</span><span class="o">=&lt;</span><span class="n">put_id_of_campaign</span><span class="o">&gt;</span><span class="p">)</span>
 </code></pre></div>
 <h4 id="querying-attributes">Querying attributes<a class="headerlink" href="#querying-attributes" title="Permanent link">&para;</a></h4>
 <div class="highlight"><pre><span></span><code><span class="c1">-- The -&gt;&gt; operator returns the value as text. Find all subscribers</span>
