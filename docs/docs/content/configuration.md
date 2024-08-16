@@ -10,17 +10,20 @@ Variables in config.toml can also be provided as environment variables prefixed 
 
 Example:
 
-| **Environment variable**       | Example value  |
-| ------------------------------ | -------------- |
-| `LISTMONK_app__address`        | "0.0.0.0:9000" |
-| `LISTMONK_app__admin_username` | listmonk       |
-| `LISTMONK_app__admin_password` | listmonk       |
-| `LISTMONK_db__host`            | db             |
-| `LISTMONK_db__port`            | 9432           |
-| `LISTMONK_db__user`            | listmonk       |
-| `LISTMONK_db__password`        | listmonk       |
-| `LISTMONK_db__database`        | listmonk       |
-| `LISTMONK_db__ssl_mode`        | disable        |
+| **Environment variable**            | Example value  |
+|-------------------------------------|----------------|
+| `LISTMONK_app__address`             | "0.0.0.0:9000" |
+| `LISTMONK_app__admin_username`      | listmonk       |
+| `LISTMONK_app__admin_password`      | listmonk       |
+| `LISTMONK_db__host`                 | db             |
+| `LISTMONK_db__port`                 | 9432           |
+| `LISTMONK_db__user`                 | listmonk       |
+| `LISTMONK_db__password`             | listmonk       |
+| `LISTMONK_db__database`             | listmonk       |
+| `LISTMONK_db__ssl_mode`             | disable        |
+| `LISTMONK_cors__enabled`            | false          |
+| `LISTMONK_cors__allowed_origins__0` | example.com    |
+| `LISTMONK_cors__allowed_origins__1` | another.com    |
 
 
 ### Customizing system templates

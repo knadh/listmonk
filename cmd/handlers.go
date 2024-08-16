@@ -3,13 +3,12 @@ package main
 import (
 	"bytes"
 	"crypto/subtle"
-	"net/http"
-	"path"
-	"regexp"
-
 	"github.com/knadh/paginator"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"net/http"
+	"path"
+	"regexp"
 )
 
 const (
@@ -63,6 +62,23 @@ func initHTTPHandlers(e *echo.Echo, app *App) {
 			app.log.Println(err.Error())
 		}
 		e.DefaultHTTPErrorHandler(err, c)
+	}
+
+	// CORS middleware
+	if ko.Bool("cors.enabled") {
+		var allowedOrigins = ko.Strings("cors.allowed_origins")
+		// If the allowed origins are not set, the middleware will not be used.
+		if len(allowedOrigins) > 0 {
+			e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
+				AllowOrigins: ko.Strings("cors.allowed_origins"),
+				AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept},
+			}))
+			app.log.Println("CORS middleware enabled")
+			app.log.Printf("Allowed origins: %v", allowedOrigins)
+		} else {
+			app.log.Println("CORS middleware not enabled as allowed origins are not set properly")
+		}
+
 	}
 
 	// Admin JS app views.
