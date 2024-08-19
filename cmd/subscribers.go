@@ -92,6 +92,7 @@ func handleQuerySubscribers(c echo.Context) error {
 		subStatus = c.FormValue("subscription_status")
 		orderBy   = c.FormValue("order_by")
 		order     = c.FormValue("order")
+		noLists   = c.FormValue("no_lists") == "true"
 		out       models.PageResults
 	)
 
@@ -101,7 +102,7 @@ func handleQuerySubscribers(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidID"))
 	}
 
-	res, total, err := app.core.QuerySubscribers(query, listIDs, subStatus, order, orderBy, pg.Offset, pg.Limit)
+	res, total, err := app.core.QuerySubscribers(query, listIDs, subStatus, order, orderBy, pg.Offset, pg.Limit, noLists)
 	if err != nil {
 		return err
 	}

@@ -32,6 +32,7 @@ Retrieve all subscribers.
 | order               | string |          | Sorting order: ASC for ascending, DESC for descending.                |
 | page                | number |          | Page number for paginated results.                                    |
 | per_page            | number |          | Results per page. Set as 'all' for all results.                       |
+| no_lists            | bool   |          | The lists to which the subscriber is registered are not displayed.    |
 
 ##### Example Request
 
