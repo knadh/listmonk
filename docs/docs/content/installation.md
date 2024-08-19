@@ -163,7 +163,7 @@ $ helm upgrade \
 
 ## 3rd party hosting
 
-<a href="https://dash.elest.io/deploy?soft=Listmonk&id=237"><img height=33 src=https://github.com/elestio-examples/wordpress/raw/main/deploy-on-elestio.png alt="Deploy on Elestio" style="max-width: 150px;"></a>
+<a href="https://dash.elest.io/deploy?soft=Listmonk&id=237"><img src="https://elest.io/images/logos/deploy-to-elestio-btn.png" alt="Deploy to Elestio" height="35" style="max-width: 150px;" /></a>
 <br />
 <a href="https://www.pikapods.com/pods?run=listmonk"><img src="https://www.pikapods.com/static/run-button.svg" alt="Deploy on PikaPod" style="max-width: 150px;" /></a>
 <br />
