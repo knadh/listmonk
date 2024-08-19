@@ -718,7 +718,7 @@ func filterListsByPerm(listIDs []int, user models.User) []int {
 	out := make([]int, 0, len(listIDs))
 	for _, id := range listIDs {
 		if _, ok := user.ListPermissionsMap[id]; ok {
-			listIDs = append(listIDs, id)
+			out = append(out, id)
 		}
 	}
 
