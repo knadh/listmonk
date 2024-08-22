@@ -4,14 +4,18 @@
 | ------ | --------------------------------------------------------------------------------------- | ---------------------------------------------- |
 | GET    | [/api/subscribers](#get-apisubscribers)                                                 | Query and retrieve subscribers.                |
 | GET    | [/api/subscribers/{subscriber_id}](#get-apisubscriberssubscriber_id)                    | Retrieve a specific subscriber.                |
+| GET    | [/api/subscribers/{subscriber_id}/export](#get-apisubscriberssubscriber_idexport)       | Export a specific subscriber.                  |
+| GET    | [/api/subscribers/{subscriber_id}/bounces](#get-apisubscriberssubscriber_idbounces)     | Retrieve a  subscriber bounce records.         |
 | POST   | [/api/subscribers](#post-apisubscribers)                                                | Create a new subscriber.                       |
+| POST   | [/api/subscribers/{subscriber_id}/optin](#post-apisubscriberssubscriber_idoptin)        | Sends optin confirmation email to subscribers. |
 | POST   | [/api/public/subscription](#post-apipublicsubscription)                                 | Create a public subscription.                  |
 | PUT    | [/api/subscribers/lists](#put-apisubscriberslists)                                      | Modify subscriber list memberships.            |
 | PUT    | [/api/subscribers/{subscriber_id}](#put-apisubscriberssubscriber_id)                    | Update a specific subscriber.                  |
 | PUT    | [/api/subscribers/{subscriber_id}/blocklist](#put-apisubscriberssubscriber_idblocklist) | Blocklist a specific subscriber.               |
-| PUT    | /api/subscribers/blocklist                                                              | Blocklist one or more subscribers.             |
+| PUT    | [/api/subscribers/blocklist](#put-apisubscribersblocklist)                              | Blocklist one or many subscribers.             |
 | PUT    | [/api/subscribers/query/blocklist](#put-apisubscribersqueryblocklist)                   | Blocklist subscribers based on SQL expression. |
 | DELETE | [/api/subscribers/{subscriber_id}](#delete-apisubscriberssubscriber_id)                 | Delete a specific subscriber.                  |
+| DELETE | [/api/subscribers/{subscriber_id}/bounces](#delete-apisubscriberssubscriber_idbounces)  | Delete a specific subscriber's bounce records. |
 | DELETE | [/api/subscribers](#delete-apisubscribers)                                              | Delete one or more subscribers.                |
 | POST   | [/api/subscribers/query/delete](#post-apisubscribersquerydelete)                        | Delete subscribers based on SQL expression.    |
 
@@ -180,9 +184,115 @@ curl -u 'username:password' 'http://localhost:9000/api/subscribers/1'
     }
 }
 ```
-
 ______________________________________________________________________
 
+#### GET /api/subscribers/{subscriber_id}/export
+
+Export a specific subscriber data that gives profile, list subscriptions, campaign views and link clicks information. Names of private lists are replaced with "Private list". 
+
+##### Parameters
+
+| Name          | Type      | Required | Description      |
+|:--------------|:----------|:---------|:-----------------|
+| subscriber_id | Number    | Yes      | Subscriber's ID. |
+
+##### Example Request
+
+```shell
+curl -u 'username:password' 'http://localhost:9000/api/subscribers/1/export' 
+```
+
+##### Example Response
+
+```json
+{
+  "profile": [
+    {
+      "id": 1,
+      "uuid": "c2cc0b31-b485-4d72-8ce8-b47081beadec",
+      "email": "john@example.com",
+      "name": "John Doe",
+      "attribs": {
+        "city": "Bengaluru",
+        "good": true,
+        "type": "known"
+      },
+      "status": "enabled",
+      "created_at": "2024-07-29T11:01:31.478677+05:30",
+      "updated_at": "2024-07-29T11:01:31.478677+05:30"
+    }
+  ],
+  "subscriptions": [
+    {
+      "subscription_status": "unconfirmed",
+      "name": "Private list",
+      "type": "private",
+      "created_at": "2024-07-29T11:01:31.478677+05:30"
+    }
+  ],
+  "campaign_views": [],
+  "link_clicks": []
+}
+```
+______________________________________________________________________
+
+#### GET /api/subscribers/{subscriber_id}/bounces
+
+Get a specific subscriber bounce records.
+##### Parameters
+
+| Name          | Type      | Required | Description      |
+|:--------------|:----------|:---------|:-----------------|
+| subscriber_id | Number    | Yes      | Subscriber's ID. |
+
+##### Example Request
+
+```shell
+curl -u 'username:password' 'http://localhost:9000/api/subscribers/1/bounces' 
+```
+
+##### Example Response
+
+```json
+{
+  "data": [
+    {
+      "id": 841706,
+      "type": "hard",
+      "source": "demo",
+      "meta": {
+        "some": "parameter"
+      },
+      "created_at": "2024-08-22T09:05:12.862877Z",
+      "email": "thomas.hobbes@example.com",
+      "subscriber_uuid": "137c0d83-8de6-44e2-a55f-d4238ab21969",
+      "subscriber_id": 99,
+      "campaign": {
+        "id": 2,
+        "name": "Welcome to listmonk"
+      }
+    },
+    {
+      "id": 841680,
+      "type": "hard",
+      "source": "demo",
+      "meta": {
+        "some": "parameter"
+      },
+      "created_at": "2024-08-19T14:07:53.141917Z",
+      "email": "thomas.hobbes@example.com",
+      "subscriber_uuid": "137c0d83-8de6-44e2-a55f-d4238ab21969",
+      "subscriber_id": 99,
+      "campaign": {
+        "id": 1,
+        "name": "Test campaign"
+      }
+    }
+  ]
+}
+```
+
+______________________________________________________________________
 
 #### POST /api/subscribers
 
@@ -228,6 +338,26 @@ curl -u 'username:password' 'http://localhost:9000/api/subscribers' -H 'Content-
 }
 ```
 
+______________________________________________________________________
+
+#### POST /api/subscribers/{subscribers_id}/optin
+
+Sends optin confirmation email to subscribers.
+
+##### Example Request
+
+```shell
+curl -u 'username:password' 'http://localhost:9000/api/subscribers/11/optin' -H 'Content-Type: application/json' \
+--data {}
+```
+
+##### Example Response
+
+```json
+{
+    "data": true
+} 
+```
 ______________________________________________________________________
 
 #### POST /api/public/subscription
@@ -333,6 +463,32 @@ curl -u 'username:password' -X PUT 'http://localhost:9000/api/subscribers/9/bloc
 
 ______________________________________________________________________
 
+#### PUT /api/subscribers/blocklist
+
+Blocklist multiple subscriber.
+
+##### Parameters
+
+| Name          | Type      | Required | Description      |
+|:--------------|:----------|:---------|:-----------------|
+| ids           | Number    | Yes      | Subscriber's ID. |
+
+##### Example Request
+
+```shell
+curl -u 'username:password' -X PUT 'http://localhost:8080/api/subscribers/blocklist' -H 'Content-Type: application/json' --data-raw '{"ids":[2,1]}'
+```
+
+##### Example Response
+
+```json
+{
+    "data": true
+} 
+```
+
+______________________________________________________________________
+
 #### PUT /api/subscribers/query/blocklist
 
 Blocklist subscribers based on SQL expression.
@@ -370,6 +526,32 @@ Delete a specific subscriber.
 
 ```shell
 curl -u 'username:password' -X DELETE 'http://localhost:9000/api/subscribers/9'
+```
+
+##### Example Response
+
+```json
+{
+    "data": true
+}
+```
+
+______________________________________________________________________
+
+#### DELETE /api/subscribers/{subscriber_id}/bounces
+
+Delete a subscriber's bounce records
+
+##### Parameters
+
+| Name | Type          | Required | Description                |
+|:-----|:--------------|:---------|:---------------------------|
+| id   | subscriber_id | Yes      | Subscriber's ID.           |
+
+##### Example Request
+
+```shell
+curl -u 'username:password' -X DELETE 'http://localhost:9000/api/subscribers/9/bounces'
 ```
 
 ##### Example Response
