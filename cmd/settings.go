@@ -67,6 +67,8 @@ func handleGetSettings(c echo.Context) error {
 	for i := 0; i < len(s.Messengers); i++ {
 		s.Messengers[i].Password = strings.Repeat(pwdMask, utf8.RuneCountInString(s.Messengers[i].Password))
 	}
+
+	s.ForwardemailKey = strings.Repeat(pwdMask, utf8.RuneCountInString(s.ForwardemailKey))
 	s.UploadS3AwsSecretAccessKey = strings.Repeat(pwdMask, utf8.RuneCountInString(s.UploadS3AwsSecretAccessKey))
 	s.SendgridKey = strings.Repeat(pwdMask, utf8.RuneCountInString(s.SendgridKey))
 	s.SecurityCaptchaSecret = strings.Repeat(pwdMask, utf8.RuneCountInString(s.SecurityCaptchaSecret))
@@ -195,6 +197,9 @@ func handleUpdateSettings(c echo.Context) error {
 	}
 	if set.SendgridKey == "" {
 		set.SendgridKey = cur.SendgridKey
+	}
+	if set.ForwardemailKey == "" {
+		set.ForwardemailKey = cur.ForwardemailKey
 	}
 	if set.BouncePostmark.Password == "" {
 		set.BouncePostmark.Password = cur.BouncePostmark.Password

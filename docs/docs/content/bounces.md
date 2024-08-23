@@ -42,11 +42,12 @@ curl -u curl -u 'api_username:access_token' -X POST 'http://localhost:9000/webho
 ## External webhooks
 listmonk supports receiving bounce webhook events from the following SMTP providers.
 
-| Endpoint                                                  | Description                            | More info                                                                                                             |
-|:----------------------------------------------------------|:---------------------------------------|:----------------------------------------------------------------------------------------------------------------------|
-| `https://listmonk.yoursite.com/webhooks/service/ses`      | Amazon (AWS) SES                       | See below                                                                                                             |
-| `https://listmonk.yoursite.com/webhooks/service/sendgrid` | Sendgrid / Twilio Signed event webhook | [More info](https://docs.sendgrid.com/for-developers/tracking-events/getting-started-event-webhook-security-features) |
-| `https://listmonk.yoursite.com/webhooks/service/postmark` | Postmark webhook                       | [More info](https://postmarkapp.com/developer/webhooks/webhooks-overview)                                             |
+| Endpoint                                                      | Description                            | More info                                                                                                             |
+|:--------------------------------------------------------------|:---------------------------------------|:----------------------------------------------------------------------------------------------------------------------|
+| `https://listmonk.yoursite.com/webhooks/service/ses`          | Amazon (AWS) SES                       | See below                                                                                                             |
+| `https://listmonk.yoursite.com/webhooks/service/sendgrid`     | Sendgrid / Twilio Signed event webhook | [More info](https://docs.sendgrid.com/for-developers/tracking-events/getting-started-event-webhook-security-features) |
+| `https://listmonk.yoursite.com/webhooks/service/postmark`     | Postmark webhook                       | [More info](https://postmarkapp.com/developer/webhooks/webhooks-overview)                                             |
+| `https://listmonk.yoursite.com/webhooks/service/forwardemail` | Forward Email webhook                   | [More info](https://forwardemail.net/en/faq#do-you-support-bounce-webhooks)                                                  |
 
 ## Amazon Simple Email Service (SES)
 

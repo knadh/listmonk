@@ -172,6 +172,12 @@ export default Vue.extend({
         hasDummy = 'postmark';
       }
 
+      if (this.isDummy(form['bounce.forwardemail_key'])) {
+        form['bounce.forwardemail_key'] = '';
+      } else if (this.hasDummy(form['bounce.forwardemail_key'])) {
+        hasDummy = 'forwardemail';
+      }
+
       for (let i = 0; i < form.messengers.length; i += 1) {
         // If it's the dummy UI password placeholder, ignore it.
         if (this.isDummy(form.messengers[i].password)) {

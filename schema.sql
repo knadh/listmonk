@@ -275,6 +275,8 @@ INSERT INTO settings (key, value) VALUES
     ('bounce.enabled', 'false'),
     ('bounce.webhooks_enabled', 'false'),
     ('bounce.actions', '{"soft": {"count": 2, "action": "none"}, "hard": {"count": 1, "action": "blocklist"}, "complaint" : {"count": 1, "action": "blocklist"}}'),
+    ('bounce.forwardemail_enabled', 'false'),
+    ('bounce.forwardemail_key', '""'),
     ('bounce.ses_enabled', 'false'),
     ('bounce.sendgrid_enabled', 'false'),
     ('bounce.sendgrid_key', '""'),

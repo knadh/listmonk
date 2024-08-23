@@ -26,14 +26,16 @@ type Mailbox interface {
 
 // Opt represents bounce processing options.
 type Opt struct {
-	MailboxEnabled  bool        `json:"mailbox_enabled"`
-	MailboxType     string      `json:"mailbox_type"`
-	Mailbox         mailbox.Opt `json:"mailbox"`
-	WebhooksEnabled bool        `json:"webhooks_enabled"`
-	SESEnabled      bool        `json:"ses_enabled"`
-	SendgridEnabled bool        `json:"sendgrid_enabled"`
-	SendgridKey     string      `json:"sendgrid_key"`
-	Postmark        struct {
+	MailboxEnabled      bool        `json:"mailbox_enabled"`
+	MailboxType         string      `json:"mailbox_type"`
+	Mailbox             mailbox.Opt `json:"mailbox"`
+	WebhooksEnabled     bool        `json:"webhooks_enabled"`
+	SESEnabled          bool        `json:"ses_enabled"`
+	SendgridEnabled     bool        `json:"sendgrid_enabled"`
+	SendgridKey         string      `json:"sendgrid_key"`
+	ForwardemailEnabled bool        `json:"forwardemail_enabled"`
+	ForwardemailKey     string      `json:"forwardemail_key"`
+	Postmark            struct {
 		Enabled  bool
 		Username string
 		Password string
@@ -44,14 +46,15 @@ type Opt struct {
 
 // Manager handles e-mail bounces.
 type Manager struct {
-	queue    chan models.Bounce
-	mailbox  Mailbox
-	SES      *webhooks.SES
-	Sendgrid *webhooks.Sendgrid
-	Postmark *webhooks.Postmark
-	queries  *Queries
-	opt      Opt
-	log      *log.Logger
+	queue        chan models.Bounce
+	mailbox      Mailbox
+	SES          *webhooks.SES
+	Sendgrid     *webhooks.Sendgrid
+	Postmark     *webhooks.Postmark
+	Forwardemail *webhooks.Forwardemail
+	queries      *Queries
+	opt          Opt
+	log          *log.Logger
 }
 
 // Queries contains the queries.
@@ -91,6 +94,11 @@ func New(opt Opt, q *Queries, lo *log.Logger) (*Manager, error) {
 			} else {
 				m.Sendgrid = sg
 			}
+		}
+
+		if opt.ForwardemailEnabled {
+			fe := webhooks.NewForwardemail([]byte(opt.ForwardemailKey))
+			m.Forwardemail = fe
 		}
 
 		if opt.Postmark.Enabled {

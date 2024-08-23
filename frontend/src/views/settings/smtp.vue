@@ -67,6 +67,7 @@
               </div>
             </div><!-- auth -->
             <div class="spaced-links is-size-7">
+              <a href="#" @click.prevent="() => fillSettings(n, 'forwardemail')">Forward Email</a>
               <a href="#" @click.prevent="() => fillSettings(n, 'gmail')">Gmail</a>
               <a href="#" @click.prevent="() => fillSettings(n, 'ses')">Amazon SES</a>
               <a href="#" @click.prevent="() => fillSettings(n, 'mailgun')">Mailgun</a>
@@ -219,6 +220,9 @@ const smtpTemplates = {
   },
   sendgrid: {
     host: 'smtp.sendgrid.net', port: 465, auth_protocol: 'login', tls_type: 'TLS',
+  },
+  forwardemail: {
+    host: 'smtp.forwardemail.net', port: 465, auth_protocol: 'login', tls_type: 'TLS',
   },
   postmark: {
     host: 'smtp.postmarkapp.com', port: 587, auth_protocol: 'cram', tls_type: 'STARTTLS',

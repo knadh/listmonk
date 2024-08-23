@@ -106,7 +106,9 @@ type Settings struct {
 		Username string `json:"username"`
 		Password string `json:"password"`
 	} `json:"bounce.postmark"`
-	BounceBoxes []struct {
+	ForwardemailEnabled bool   `json:"bounce.forwardemail_enabled"`
+	ForwardemailKey     string `json:"bounce.forwardemail_key"`
+	BounceBoxes         []struct {
 		UUID          string `json:"uuid"`
 		Enabled       bool   `json:"enabled"`
 		Type          string `json:"type"`
