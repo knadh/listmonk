@@ -6,13 +6,15 @@
 | GET    | [/api/campaigns/{campaign_id}](#get-apicampaignscampaign_id)                | Retrieve a specific campaign.             |
 | GET    | [/api/campaigns/{campaign_id}/preview](#get-apicampaignscampaign_idpreview) | Retrieve preview of a campaign.           |
 | GET    | [/api/campaigns/running/stats](#get-apicampaignsrunningstats)               | Retrieve stats of specified campaigns.    |
+| GET    | [/api/campaigns/analytics/{type}](#get-apicampaignsanalyticstype)           | Retrieve view counts for a  campaign.     |
 | POST   | [/api/campaigns](#post-apicampaigns)                                        | Create a new campaign.                    |
 | POST   | [/api/campaigns/{campaign_id}/test](#post-apicampaignscampaign_idtest)      | Test campaign with arbitrary subscribers. |
 | PUT    | [/api/campaigns/{campaign_id}](#put-apicampaignscampaign_id)                | Update a campaign.                        |
 | PUT    | [/api/campaigns/{campaign_id}/status](#put-apicampaignscampaign_idstatus)   | Change status of a campaign.              |
+| PUT    | [/api/campaigns/{campaign_id}/archive](#put-apicampaignscampaign_idarchive) | Publish campaign to public archive.       |
 | DELETE | [/api/campaigns/{campaign_id}](#delete-apicampaignscampaign_id)             | Delete a campaign.                        |
 
-______________________________________________________________________
+____________________________________________________________________________________________________________________________________
 
 #### GET /api/campaigns
 
@@ -189,6 +191,93 @@ curl -u "username:password" -X GET 'http://localhost:9000/api/campaigns/running/
 
 ______________________________________________________________________
 
+#### GET /api/campaigns/analytics/{type}
+
+Retrieve stats of specified campaigns.
+
+##### Parameters
+
+| Name        | Type      | Required | Description                                   |
+|:------------|:----------|:---------|:----------------------------------------------|
+| id          |number\[\] | Yes      | Campaign IDs to get stats for.                |
+| type        |string     | Yes      | Analytics type: views, links, clicks, bounces |
+| from        |string     | Yes      | Campaign IDs to get stats for.                |
+| to          |string     | Yes      | Campaign IDs to get stats for.                |
+
+
+##### Example Request
+
+```shell
+curl -u "username:password" -X GET 'http://localhost:9000/api/campaigns/analytics/views?id=1&from=2024-08-04&to=2024-08-12'
+```
+
+##### Example Response
+
+```json
+{
+  "data": [
+    {
+      "campaign_id": 1,
+      "count": 10,
+      "timestamp": "2024-08-04T00:00:00Z"
+    },
+    {
+      "campaign_id": 1,
+      "count": 14,
+      "timestamp": "2024-08-08T00:00:00Z"
+    },
+    {
+      "campaign_id": 1,
+      "count": 20,
+      "timestamp": "2024-08-09T00:00:00Z"
+    },
+    {
+      "campaign_id": 1,
+      "count": 21,
+      "timestamp": "2024-08-10T00:00:00Z"
+    },
+    {
+      "campaign_id": 1,
+      "count": 21,
+      "timestamp": "2024-08-11T00:00:00Z"
+    }
+  ]
+}
+```
+
+##### Example Request
+
+```shell
+curl -u "username:password" -X GET 'http://localhost:9000/api/campaigns/analytics/links?id=1&from=2024-08-04T18%3A30%3A00.624Z&to=2024-08-12T18%3A29%3A00.624Z'
+```
+
+##### Example Response
+
+```json
+{
+  "data": [
+    {
+      "url": "https://freethebears.org",
+      "count": 294
+    },
+    {
+      "url": "https://calmcode.io",
+      "count": 278
+    },
+    {
+      "url": "https://climate.nasa.gov",
+      "count": 261
+    },
+    {
+      "url": "https://www.storybreathing.com",
+      "count": 260
+    }
+  ]
+}
+```
+
+______________________________________________________________________
+
 #### POST /api/campaigns
 
 Create a new campaign.
@@ -344,6 +433,45 @@ curl -u "username:password" -X PUT 'http://localhost:9000/api/campaigns/1/status
         "template_id": 1,
         "messenger": "email"
     }
+}
+```
+
+______________________________________________________________________
+
+#### PUT /api/campaigns/{campaign_id}/archive
+
+Publish campaign to public archive.
+
+##### Parameters
+
+| Name               | Type       | Required | Description                                                              |
+|:-------------------|:-----------|:---------|:-------------------------------------------------------------------------|
+| campaign_id        | number     | Yes      | Campaign ID to publish to public archive.                                |
+| archive            | bool       | Yes      | State of the public archive.                                             |
+| archive_template_id| number     | No       | Archive template id. Defaults to 0.                                      |
+| archive_meta       | JSON string| No       | Optional Metadata to use in campaign message or template.Eg: name, email.|
+| archive_slug       | string     | No       | Name for page to be used in public archive URL                           |
+
+
+##### Example Request
+
+```shell
+
+curl -u "username:password" -X PUT 'http://localhost:8080/api/campaigns/33/archive' 
+--header 'Content-Type: application/json' 
+--data-raw '{"archive":true,"archive_template_id":1,"archive_meta":{},"archive_slug":"my-newsletter-old-edition"}'
+```
+
+##### Example Response
+
+```json
+{
+  "data": {
+    "archive": true,
+    "archive_template_id": 1,
+    "archive_meta": {},
+    "archive_slug": "my-newsletter-old-edition"
+  }
 }
 ```
 
