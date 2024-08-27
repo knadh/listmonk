@@ -10,6 +10,7 @@ A list of 3rd party client libraries and SDKs that have been written for listmon
 - [listmonk-api](https://github.com/Knuckles-Team/listmonk-api) — Python API client
 - [frappe_listmonk](https://github.com/anandology/frappe_listmonk) — Frappe framework integration for listmonk
 - [auto-newsletter-listmonk](https://github.com/chaddyc/auto-newsletter-listmonk) — Ghost CMS integration
+- [listmonk-newsletter](https://github.com/iloveitaly/listmonk-newsletter) - RSS to listmonk integration for email newsletters
 - [listmonk-crysctal](https://github.com/russ/listmonk-crystal) — Crystal lang API client
 - [terraform-provider-listmonk](https://github.com/Muravlev/terraform-provider-listmonk) — Manage listmonk templates in Terraform
 - [listmonk-php-client](https://github.com/arunnabraham/listmonk-php-client) — PHP API client
