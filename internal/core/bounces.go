@@ -41,7 +41,7 @@ func (c *Core) QueryBounces(campID, subID int, source, orderBy, order string, of
 // GetBounce retrieves bounce entries based on the given params.
 func (c *Core) GetBounce(id int) (models.Bounce, error) {
 	var out []models.Bounce
-	stmt := fmt.Sprintf(c.q.QueryBounces, "id", SortAsc)
+	stmt := strings.ReplaceAll(c.q.QueryBounces, "%order%", "id "+SortAsc)
 	if err := c.db.Select(&out, stmt, id, 0, 0, "", 0, 1); err != nil {
 		c.log.Printf("error fetching bounces: %v", err)
 		return models.Bounce{}, echo.NewHTTPError(http.StatusInternalServerError,
