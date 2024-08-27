@@ -43,6 +43,7 @@ services:
   app:
     <<: *app-defaults
     container_name: listmonk_app
+    hostname: listmonk.example.com # Recommend using FQDN for hostname
     depends_on:
       - db
     volumes:
