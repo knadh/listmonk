@@ -72,8 +72,8 @@ func initHTTPHandlers(e *echo.Echo, app *App) {
 	})
 
 	g.GET(path.Join(adminRoot, ""), handleAdminPage)
-	g.GET(path.Join(adminRoot, "/custom.css"), serveCustomApperance("admin.custom_css"))
-	g.GET(path.Join(adminRoot, "/custom.js"), serveCustomApperance("admin.custom_js"))
+	g.GET(path.Join(adminRoot, "/custom.css"), serveCustomAppearance("admin.custom_css"))
+	g.GET(path.Join(adminRoot, "/custom.js"), serveCustomAppearance("admin.custom_js"))
 	g.GET(path.Join(adminRoot, "/*"), handleAdminPage)
 
 	// API endpoints.
@@ -210,8 +210,8 @@ func initHTTPHandlers(e *echo.Echo, app *App) {
 		e.GET("/archive/latest", handleCampaignArchivePageLatest)
 	}
 
-	e.GET("/public/custom.css", serveCustomApperance("public.custom_css"))
-	e.GET("/public/custom.js", serveCustomApperance("public.custom_js"))
+	e.GET("/public/custom.css", serveCustomAppearance("public.custom_css"))
+	e.GET("/public/custom.js", serveCustomAppearance("public.custom_js"))
 
 	// Public health API endpoint.
 	e.GET("/health", handleHealthCheck)
@@ -248,9 +248,9 @@ func handleHealthCheck(c echo.Context) error {
 	return c.JSON(http.StatusOK, okResp{true})
 }
 
-// serveCustomApperance serves the given custom CSS/JS appearance blob
+// serveCustomAppearance serves the given custom CSS/JS appearance blob
 // meant for customizing public and admin pages from the admin settings UI.
-func serveCustomApperance(name string) echo.HandlerFunc {
+func serveCustomAppearance(name string) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var (
 			app = c.Get("app").(*App)
