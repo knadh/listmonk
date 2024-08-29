@@ -3,8 +3,8 @@ package main
 import (
 	"encoding/json"
 	"io"
-	"os"
 	"net/http"
+	"os"
 	"strings"
 
 	"github.com/knadh/listmonk/internal/subimporter"
