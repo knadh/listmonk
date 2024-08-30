@@ -155,7 +155,7 @@ func (e *Emailer) Push(m models.Message) error {
 			em.Bcc = append(em.Bcc, strings.TrimSpace(part))
 		}
 		em.Headers.Del(hdrBcc)
-	}	
+	}
 
 	// If the `Cc` header is set, it should be set on the Envelope
 	if cc := em.Headers.Get(hdrCc); cc != "" {
@@ -163,7 +163,7 @@ func (e *Emailer) Push(m models.Message) error {
 			em.Cc = append(em.Cc, strings.TrimSpace(part))
 		}
 		em.Headers.Del(hdrCc)
-	}	
+	}
 
 	switch m.ContentType {
 	case "plain":
