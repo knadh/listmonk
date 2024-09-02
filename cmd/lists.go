@@ -28,14 +28,19 @@ func handleGetLists(c echo.Context) error {
 		out models.PageResults
 	)
 
-	var permittedIDs []int
-	if _, ok := user.PermissionsMap["lists:get_all"]; !ok {
+	var (
+		permittedIDs []int
+		getAll       = false
+	)
+	if _, ok := user.PermissionsMap["lists:get_all"]; ok {
+		getAll = true
+	} else {
 		permittedIDs = user.GetListIDs
 	}
 
 	// Minimal query simply returns the list of all lists without JOIN subscriber counts. This is fast.
 	if minimal {
-		res, err := app.core.GetLists("", permittedIDs)
+		res, err := app.core.GetLists("", getAll, permittedIDs)
 		if err != nil {
 			return err
 		}
@@ -53,7 +58,7 @@ func handleGetLists(c echo.Context) error {
 	}
 
 	// Full list query.
-	res, total, err := app.core.QueryLists(query, typ, optin, tags, orderBy, order, permittedIDs, pg.Offset, pg.Limit)
+	res, total, err := app.core.QueryLists(query, typ, optin, tags, orderBy, order, getAll, permittedIDs, pg.Offset, pg.Limit)
 	if err != nil {
 		return err
 	}

@@ -424,7 +424,7 @@ UPDATE subscriber_lists SET status='unsubscribed', updated_at=NOW()
 SELECT * FROM lists WHERE (CASE WHEN $1 = '' THEN 1=1 ELSE type=$1::list_type END)
     AND CASE
         -- Optional list IDs based on user permission.
-        WHEN $3::INT[] IS NULL THEN TRUE ELSE id = ANY($3)
+        WHEN $3 = TRUE THEN TRUE ELSE id = ANY($4::INT[])
     END
     ORDER BY CASE WHEN $2 = 'id' THEN id END, CASE WHEN $2 = 'name' THEN name END;
 
@@ -442,9 +442,9 @@ WITH ls AS (
     AND (CARDINALITY($6::VARCHAR(100)[]) = 0 OR $6 <@ tags)
     AND CASE
         -- Optional list IDs based on user permission.
-        WHEN $7::INT[] IS NULL THEN TRUE ELSE id = ANY($7)
+        WHEN $7 = TRUE THEN TRUE ELSE id = ANY($8::INT[])
     END
-    OFFSET $8 LIMIT (CASE WHEN $9 < 1 THEN NULL ELSE $9 END)
+    OFFSET $9 LIMIT (CASE WHEN $10 < 1 THEN NULL ELSE $10 END)
 ),
 statuses AS (
     SELECT
