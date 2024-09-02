@@ -3,23 +3,22 @@
     <b-loading v-if="loading.users" :active="loading.users" :is-full-page="false" />
 
     <h1 class="title">
-      @{{ form.username }}
+      @{{ data.username }}
     </h1>
-
-    <b-tag>{{ form.role.name }}</b-tag>
+    <b-tag v-if="data.userRole">{{ data.userRole.name }}</b-tag>
 
     <br /><br /><br />
     <form @submit.prevent="onSubmit">
-      <b-field v-if="form.type !== 'api'" :label="$t('subscribers.email')" label-position="on-border">
+      <b-field v-if="data.type !== 'api'" :label="$t('subscribers.email')" label-position="on-border">
         <b-input :maxlength="200" v-model="form.email" name="email" :placeholder="$t('subscribers.email')"
-          :disabled="!form.passwordLogin" required autofocus />
+          :disabled="!data.passwordLogin" required autofocus />
       </b-field>
 
       <b-field :label="$t('globals.fields.name')" label-position="on-border">
         <b-input :maxlength="200" v-model="form.name" name="name" :placeholder="$t('globals.fields.name')" />
       </b-field>
 
-      <div v-if="form.passwordLogin" class="columns">
+      <div v-if="data.passwordLogin" class="columns">
         <div class="column is-6">
           <b-field :label="$t('users.password')" label-position="on-border">
             <b-input minlength="8" :maxlength="200" v-model="form.password" type="password" name="password"
@@ -52,6 +51,7 @@ export default Vue.extend({
   data() {
     return {
       form: {},
+      data: {},
     };
   },
 
@@ -62,7 +62,7 @@ export default Vue.extend({
         email: this.form.email,
       };
 
-      if (this.form.passwordLogin && this.form.password) {
+      if (this.data.passwordLogin && this.form.password) {
         if (this.form.password !== this.form.password2) {
           this.$utils.toast(this.$t('users.passwordMismatch'), 'is-danger');
           return;
@@ -75,14 +75,15 @@ export default Vue.extend({
       this.$api.updateUserProfile(params).then(() => {
         this.form.password = '';
         this.form.password2 = '';
-        this.$utils.toast(this.$t('globals.messages.updated', { name: this.form.username }));
+        this.$utils.toast(this.$t('globals.messages.updated', { name: this.data.username }));
       });
     },
   },
 
   mounted() {
     this.$api.getUserProfile().then((data) => {
-      this.form = data;
+      this.data = { ...data };
+      this.form = { name: data.name, email: data.email };
     });
   },
 

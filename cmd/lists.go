@@ -189,6 +189,6 @@ func listPerm(next echo.HandlerFunc) echo.HandlerFunc {
 			}
 		}
 
-		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.Ts("globals.messages.globals.messages.permissionDenied", "name", "list"))
+		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.Ts("globals.messages.permissionDenied", "name", "list"))
 	}
 }
