@@ -49,7 +49,7 @@ func (c *Core) CreateUser(u models.User) (models.User, error) {
 		u.Password = null.String{String: tk, Valid: true}
 	}
 
-	if err := c.q.CreateUser.Get(&id, u.Username, u.PasswordLogin, u.Password, u.Email, u.Name, u.Type, u.RoleID, u.Status); err != nil {
+	if err := c.q.CreateUser.Get(&id, u.Username, u.PasswordLogin, u.Password, u.Email, u.Name, u.Type, u.UserRoleID, u.ListRoleID, u.Status); err != nil {
 		return models.User{}, echo.NewHTTPError(http.StatusInternalServerError,
 			c.i18n.Ts("globals.messages.errorCreating", "name", "{globals.terms.user}", "error", pqErrMsg(err)))
 	}
@@ -66,7 +66,14 @@ func (c *Core) CreateUser(u models.User) (models.User, error) {
 
 // UpdateUser updates a given user.
 func (c *Core) UpdateUser(id int, u models.User) (models.User, error) {
-	res, err := c.q.UpdateUser.Exec(id, u.Username, u.PasswordLogin, u.Password, u.Email, u.Name, u.Type, u.RoleID, u.Status)
+	listRoleID := 0
+	if u.ListRoleID == nil {
+		listRoleID = -1
+	} else {
+		listRoleID = *u.ListRoleID
+	}
+
+	res, err := c.q.UpdateUser.Exec(id, u.Username, u.PasswordLogin, u.Password, u.Email, u.Name, u.Type, u.UserRoleID, listRoleID, u.Status)
 	if err != nil {
 		return models.User{}, echo.NewHTTPError(http.StatusInternalServerError,
 			c.i18n.Ts("globals.messages.errorUpdating", "name", "{globals.terms.user}", "error", pqErrMsg(err)))
@@ -149,6 +156,8 @@ func (c *Core) getUsers(id int, username, email string) ([]models.User, error) {
 	}
 
 	for n, u := range out {
+		u := u
+
 		if u.Password.String != "" {
 			u.HasPassword = true
 			u.PasswordLogin = true
@@ -158,39 +167,42 @@ func (c *Core) getUsers(id int, username, email string) ([]models.User, error) {
 			u.Email = null.String{}
 		}
 
-		// Unmarshall the raw list perms map.
-		var listPerms []models.ListPermission
-		if u.ListsPermsRaw != nil {
-			if err := json.Unmarshal(u.ListsPermsRaw, &listPerms); err != nil {
-				c.log.Printf("error unmarshalling list permissions for role %d: %v", u.ID, err)
-			}
-		}
-
-		u.Role.ID = u.RoleID
-		u.Role.Name = u.RoleName
-		u.Role.Permissions = u.RolePerms
-		u.Role.Lists = listPerms
-		u.RoleID = 0
+		u.UserRole.ID = u.UserRoleID
+		u.UserRole.Name = u.UserRoleName
+		u.UserRole.Permissions = u.UserRolePerms
+		u.UserRoleID = 0
 
 		// Prepare lookup maps.
+		u.ListPermissionsMap = make(map[int]map[string]struct{})
 		u.PermissionsMap = make(map[string]struct{})
-		for _, p := range u.RolePerms {
+		for _, p := range u.UserRolePerms {
 			u.PermissionsMap[p] = struct{}{}
 		}
 
-		u.ListPermissionsMap = make(map[int]map[string]struct{})
-		for _, p := range listPerms {
-			u.ListPermissionsMap[p.ID] = make(map[string]struct{})
-
-			for _, perm := range p.Permissions {
-				u.ListPermissionsMap[p.ID][perm] = struct{}{}
-
-				// List IDs with get / manage permissions.
-				if perm == "list:get" {
-					u.GetListIDs = append(u.GetListIDs, p.ID)
+		if u.ListRoleID != nil {
+			// Unmarshall the raw list perms map.
+			var listPerms []models.ListPermission
+			if u.ListsPermsRaw != nil {
+				if err := json.Unmarshal(*u.ListsPermsRaw, &listPerms); err != nil {
+					c.log.Printf("error unmarshalling list permissions for role %d: %v", u.ID, err)
 				}
-				if perm == "list:manage" {
-					u.ManageListIDs = append(u.ManageListIDs, p.ID)
+			}
+
+			u.ListRole = &models.ListRolePermissions{ID: *u.ListRoleID, Name: u.ListRoleName.String, Lists: listPerms}
+
+			for _, p := range listPerms {
+				u.ListPermissionsMap[p.ID] = make(map[string]struct{})
+
+				for _, perm := range p.Permissions {
+					u.ListPermissionsMap[p.ID][perm] = struct{}{}
+
+					// List IDs with get / manage permissions.
+					if perm == "list:get" {
+						u.GetListIDs = append(u.GetListIDs, p.ID)
+					}
+					if perm == "list:manage" {
+						u.ManageListIDs = append(u.ManageListIDs, p.ID)
+					}
 				}
 			}
 		}

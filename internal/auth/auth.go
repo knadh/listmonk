@@ -267,7 +267,7 @@ func (o *Auth) Perm(next echo.HandlerFunc, perms ...string) echo.HandlerFunc {
 		}
 
 		// If the current user is a Super Admin user, do no checks.
-		if u.Role.ID == SuperAdminRoleID {
+		if u.UserRole.ID == SuperAdminRoleID {
 			return next(c)
 		}
 

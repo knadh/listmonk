@@ -1045,7 +1045,7 @@ SELECT JSON_BUILD_OBJECT('version', (SELECT VERSION()),
                         'size_mb', (SELECT ROUND(pg_database_size((SELECT CURRENT_DATABASE()))/(1024^2)))) AS info;
 
 -- name: create-user
-INSERT INTO users (username, password_login, password, email, name, type, role_id, status)
+INSERT INTO users (username, password_login, password, email, name, type, user_role_id, list_role_id, status)
     VALUES($1, $2, (
         CASE
             -- For user types with password_login enabled, bcrypt and store the hash of the password.
@@ -1056,7 +1056,7 @@ INSERT INTO users (username, password_login, password, email, name, type, role_i
                 THEN $3
             ELSE NULL
         END
-    ), $4, $5, $6, $7, $8) RETURNING id;
+    ), $4, $5, $6, (SELECT id FROM roles WHERE id = $7 AND type = 'user'), (SELECT id FROM roles WHERE id = $8 AND type = 'list'), $9) RETURNING id;
 
 -- name: update-user
 WITH u AS (
@@ -1064,7 +1064,7 @@ WITH u AS (
     -- if the only superadmin user's status/role isn't being changed.
     SELECT
         CASE
-            WHEN (SELECT COUNT(*) FROM users WHERE id != $1 AND status = 'enabled' AND type = 'user' AND role_id = 1) = 0  AND ($8 != 1 OR $9 != 'enabled')
+            WHEN (SELECT COUNT(*) FROM users WHERE id != $1 AND status = 'enabled' AND type = 'user' AND user_role_id = 1) = 0  AND ($8 != 1 OR $10 != 'enabled')
             THEN FALSE
             ELSE TRUE
         END AS canEdit
@@ -1076,19 +1076,58 @@ UPDATE users SET
     email=(CASE WHEN $5 != '' THEN $5 ELSE email END),
     name=(CASE WHEN $6 != '' THEN $6 ELSE name END),
     type=(CASE WHEN $7 != '' THEN $7::user_type ELSE type END),
-    role_id=(CASE WHEN $8 != 0 THEN $8 ELSE role_id END),
-    status=(CASE WHEN $9 != '' THEN $9::user_status ELSE status END)
+    user_role_id=(CASE WHEN $8 != 0 THEN (SELECT id FROM roles WHERE id = $8 AND type = 'user') ELSE user_role_id END),
+    list_role_id=(
+        CASE
+            WHEN $9 < 0 THEN NULL
+            WHEN $9 > 0 THEN (SELECT id FROM roles WHERE id = $9 AND type = 'list')
+            ELSE list_role_id END
+    ),
+    status=(CASE WHEN $10 != '' THEN $10::user_status ELSE status END)
     WHERE id=$1 AND (SELECT canEdit FROM u) = TRUE;
 
 -- name: delete-users
 WITH u AS (
-    SELECT COUNT(*) AS num FROM users WHERE NOT(id = ANY($1)) AND role_id=1 AND status='enabled'
+    SELECT COUNT(*) AS num FROM users WHERE NOT(id = ANY($1)) AND user_role_id=1 AND status='enabled'
 )
 DELETE FROM users WHERE id = ALL($1) AND (SELECT num FROM u) > 0;
 
 -- name: get-users
-WITH u AS (
-    SELECT * FROM users
+WITH ur AS (
+    SELECT id, name, permissions FROM roles WHERE type = 'user' AND parent_id IS NULL
+),
+lr AS (
+    SELECT r.id, r.name, r.permissions, r.list_id, l.name AS list_name
+    FROM roles r
+    LEFT JOIN lists l ON r.list_id = l.id
+    WHERE r.type = 'list' AND r.parent_id IS NULL
+),
+lp AS (
+    SELECT lr.id AS list_role_id,
+        JSONB_AGG(
+            JSONB_BUILD_OBJECT(
+                'id', COALESCE(cr.list_id, lr.list_id),
+                'name', COALESCE(cl.name, lr.list_name),
+                'permissions', COALESCE(cr.permissions, lr.permissions)
+            )
+        ) AS list_role_perms
+    FROM lr
+    LEFT JOIN roles cr ON cr.parent_id = lr.id AND cr.type = 'list'
+    LEFT JOIN lists cl ON cr.list_id = cl.id
+    GROUP BY lr.id
+)
+SELECT 
+    users.*,
+    ur.id AS user_role_id,
+    ur.name AS user_role_name,
+    ur.permissions AS user_role_permissions,
+    lp.list_role_id,
+    lr.name AS list_role_name,
+    lp.list_role_perms
+FROM users
+    LEFT JOIN ur ON users.user_role_id = ur.id
+    LEFT JOIN lp ON users.list_role_id = lp.list_role_id
+    LEFT JOIN lr ON lp.list_role_id = lr.id
     WHERE
     (
         CASE
@@ -1097,23 +1136,7 @@ WITH u AS (
             WHEN $3::TEXT != '' THEN email = $3
             ELSE TRUE
         END
-    )
-),
-role AS (
-    SELECT id, name, permissions FROM user_roles WHERE id IN (SELECT role_id FROM users)
-),
-listPerms AS (
-    SELECT ur.parent_id, JSONB_AGG(JSONB_BUILD_OBJECT('id', ur.list_id, 'name', lists.name, 'permissions', ur.permissions)) AS listPerms
-    FROM user_roles ur
-    LEFT JOIN lists ON(lists.id = ur.list_id)
-    WHERE ur.parent_id IS NOT NULL GROUP BY ur.parent_id
-),
-roleInfo AS (
-    SELECT role.id AS role_id, role.name AS role_name, role.permissions AS role_permissions, COALESCE(l.listPerms, '[]'::JSONB) AS "list_permissions"
-    FROM role
-    LEFT JOIN listPerms l ON role.id = l.parent_id
-)
-SELECT u.*, ri.* FROM u JOIN roleInfo ri ON u.role_id = ri.role_id;
+    );
 
 
 -- name: get-api-tokens
@@ -1122,7 +1145,7 @@ SELECT username, password FROM users WHERE status='enabled' AND type='api';
 -- name: login-user
 WITH u AS (
     SELECT users.*, r.name as role_name, r.permissions FROM users
-        LEFT JOIN user_roles r ON (r.id = users.role_id)
+        LEFT JOIN roles r ON (r.id = users.user_role_id)
         WHERE username=$1 AND status != 'disabled' AND password_login = TRUE
 )
 SELECT * FROM u WHERE CRYPT($2, password) = password;
@@ -1135,40 +1158,54 @@ UPDATE users SET name=$2, email=(CASE WHEN password_login THEN $3 ELSE email END
 -- name: update-user-login
 UPDATE users SET loggedin_at=NOW(), avatar=(CASE WHEN $2 != '' THEN $2 ELSE avatar END) WHERE id=$1;
 
--- name: get-roles
+-- name: get-user-roles
 WITH mainroles AS (
-    SELECT ur.* FROM user_roles ur WHERE ur.parent_id IS NULL
+    SELECT ur.* FROM roles ur WHERE type = 'user' AND ur.parent_id IS NULL
 ),
 listPerms AS (
     SELECT ur.parent_id, JSONB_AGG(JSONB_BUILD_OBJECT('id', ur.list_id, 'name', lists.name, 'permissions', ur.permissions)) AS listPerms
-    FROM user_roles ur
+    FROM roles ur
     LEFT JOIN lists ON(lists.id = ur.list_id)
     WHERE ur.parent_id IS NOT NULL GROUP BY ur.parent_id
 )
 SELECT p.*, COALESCE(l.listPerms, '[]'::JSONB) AS "list_permissions" FROM mainroles p
     LEFT JOIN listPerms l ON p.id = l.parent_id ORDER BY p.created_at;
 
+-- name: get-list-roles
+WITH mainroles AS (
+    SELECT ur.* FROM roles ur WHERE type = 'list' AND ur.parent_id IS NULL
+),
+listPerms AS (
+    SELECT ur.parent_id, JSONB_AGG(JSONB_BUILD_OBJECT('id', ur.list_id, 'name', lists.name, 'permissions', ur.permissions)) AS listPerms
+    FROM roles ur
+    LEFT JOIN lists ON(lists.id = ur.list_id)
+    WHERE ur.parent_id IS NOT NULL GROUP BY ur.parent_id
+)
+SELECT p.*, COALESCE(l.listPerms, '[]'::JSONB) AS "list_permissions" FROM mainroles p
+    LEFT JOIN listPerms l ON p.id = l.parent_id ORDER BY p.created_at;
+
+
 -- name: create-role
-INSERT INTO user_roles (name, permissions, created_at, updated_at) VALUES($1, $2, NOW(), NOW()) RETURNING *;
+INSERT INTO roles (name, type, permissions, created_at, updated_at) VALUES($1, $2, $3, NOW(), NOW()) RETURNING *;
 
 -- name: upsert-list-permissions
 WITH d AS (
     -- Delete lists that aren't included.
-    DELETE FROM user_roles WHERE parent_id = $1 AND list_id != ALL($2::INT[])
+    DELETE FROM roles WHERE parent_id = $1 AND list_id != ALL($2::INT[])
 ),
 p AS (
     -- Get (list_id, perms[]), (list_id, perms[])
     SELECT UNNEST($2) AS list_id, JSONB_ARRAY_ELEMENTS(TO_JSONB($3::TEXT[][])) AS perms
 )
-INSERT INTO user_roles (parent_id, list_id, permissions)
-    SELECT $1, list_id, ARRAY_REMOVE(ARRAY(SELECT JSONB_ARRAY_ELEMENTS_TEXT(perms)), '') FROM p
+INSERT INTO roles (parent_id, list_id, permissions, type)
+    SELECT $1, list_id, ARRAY_REMOVE(ARRAY(SELECT JSONB_ARRAY_ELEMENTS_TEXT(perms)), ''), 'list' FROM p
     ON CONFLICT (parent_id, list_id) DO UPDATE SET permissions = EXCLUDED.permissions;
 
 -- name: delete-list-permission
-DELETE FROM user_roles WHERE parent_id=$1 AND list_id=$2;
+DELETE FROM roles WHERE parent_id=$1 AND list_id=$2;
 
 -- name: update-role
-UPDATE user_roles SET name=$2, permissions=$3 WHERE id=$1 and parent_id IS NULL RETURNING *;
+UPDATE roles SET name=$2, permissions=$3 WHERE id=$1 and parent_id IS NULL RETURNING *;
 
 -- name: delete-role
-DELETE FROM user_roles WHERE id=$1;
+DELETE FROM roles WHERE id=$1;

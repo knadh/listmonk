@@ -998,7 +998,7 @@ func initAuth(db *sql.DB, ko *koanf.Koanf, co *core.Core) *auth.Auth {
 			Status:        models.UserStatusEnabled,
 			Type:          models.UserTypeAPI,
 		}
-		u.Role.ID = auth.SuperAdminRoleID
+		u.UserRole.ID = auth.SuperAdminRoleID
 		a.CacheAPIUser(u)
 
 		lo.Println(`WARNING: Remove the admin_username and admin_password fields from the TOML configuration file. If you are using APIs, create and use new credentials. Users are now managed via the Admin -> Settings -> Users dashboard.`)

@@ -9,6 +9,7 @@ DROP TYPE IF EXISTS bounce_type CASCADE; CREATE TYPE bounce_type AS ENUM ('soft'
 DROP TYPE IF EXISTS template_type CASCADE; CREATE TYPE template_type AS ENUM ('campaign', 'tx');
 DROP TYPE IF EXISTS user_type CASCADE; CREATE TYPE user_type AS ENUM ('user', 'api');
 DROP TYPE IF EXISTS user_status CASCADE; CREATE TYPE user_status AS ENUM ('enabled', 'disabled');
+DROP TYPE IF EXISTS role_type CASCADE; CREATE TYPE role_type AS ENUM ('user', 'list');
 
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
 
@@ -301,18 +302,19 @@ DROP INDEX IF EXISTS idx_bounces_source; CREATE INDEX idx_bounces_source ON boun
 DROP INDEX IF EXISTS idx_bounces_date; CREATE INDEX idx_bounces_date ON bounces((TIMEZONE('UTC', created_at)::DATE));
 
 -- roles
-DROP TABLE IF EXISTS user_roles CASCADE;
-CREATE TABLE user_roles (
+DROP TABLE IF EXISTS roles CASCADE;
+CREATE TABLE roles (
     id               SERIAL PRIMARY KEY,
-    parent_id        INTEGER NULL REFERENCES user_roles(id) ON DELETE CASCADE ON UPDATE CASCADE,
+    type             role_type NOT NULL DEFAULT 'user',
+    parent_id        INTEGER NULL REFERENCES roles(id) ON DELETE CASCADE ON UPDATE CASCADE,
     list_id          INTEGER NULL REFERENCES lists(id) ON DELETE CASCADE ON UPDATE CASCADE,
     permissions      TEXT[] NOT NULL DEFAULT '{}',
     name             TEXT NULL,
     created_at       TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at       TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
-CREATE UNIQUE INDEX user_roles_idx ON user_roles (parent_id, list_id);
-CREATE UNIQUE INDEX user_roles_name_idx ON user_roles (name) WHERE name IS NOT NULL;
+CREATE UNIQUE INDEX roles_idx ON roles (parent_id, list_id);
+CREATE UNIQUE INDEX roles_name_idx ON roles (type, name) WHERE name IS NOT NULL;
 
 -- users
 DROP TABLE IF EXISTS users CASCADE;
@@ -325,7 +327,8 @@ CREATE TABLE users (
     name             TEXT NOT NULL,
     avatar           TEXT NULL,
     type             user_type NOT NULL DEFAULT 'user',
-    role_id          INTEGER NOT NULL REFERENCES user_roles(id) ON DELETE RESTRICT,
+    user_role_id     INTEGER NOT NULL REFERENCES roles(id) ON DELETE RESTRICT,
+    list_role_id     INTEGER NULL REFERENCES roles(id) ON DELETE CASCADE,
     status           user_status NOT NULL DEFAULT 'disabled',
     loggedin_at      TIMESTAMP WITH TIME ZONE NULL,
     created_at       TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
@@ -336,8 +339,8 @@ CREATE TABLE users (
 DROP TABLE IF EXISTS sessions CASCADE;
 CREATE TABLE sessions (
     id TEXT NOT NULL PRIMARY KEY,
-    data jsonb DEFAULT '{}'::jsonb NOT NULL,
-    created_at timestamp without time zone DEFAULT now() NOT NULL
+    data JSONB DEFAULT '{}'::jsonb NOT NULL,
+    created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT now() NOT NULL
 );
 DROP INDEX IF EXISTS idx_sessions; CREATE INDEX idx_sessions ON sessions (id, created_at);
 

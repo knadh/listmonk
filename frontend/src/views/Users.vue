@@ -47,18 +47,27 @@
         </b-tag>
         <div class="has-text-grey is-size-7">
           {{ props.row.name }}
+          <b-tag v-if="props.row.type === 'api'" class="is-small api">
+            <b-icon icon="code" />
+            {{ $t(`users.type.${props.row.type}`) }}
+          </b-tag>
         </div>
       </b-table-column>
 
       <b-table-column v-slot="props" field="status" :label="$tc('users.role')" header-class="cy-status" sortable
         :td-attrs="$utils.tdID">
-        <b-tag :class="props.row.role.id === 1 ? 'enabled' : ''">
-          {{ props.row.role.name }}
-        </b-tag>
-        <b-tag v-if="props.row.type === 'api'" class="primary">
-          <b-icon icon="code" />
-          {{ $t(`users.type.${props.row.type}`) }}
-        </b-tag>
+        <router-link :to="{ name: 'userRoles' }">
+          <b-tag :class="props.row.userRole.id === 1 ? 'enabled' : 'primary'">
+            <b-icon icon="account-outline" />
+            {{ props.row.userRole.name }}
+          </b-tag>
+        </router-link>
+        <router-link :to="{ name: 'listRoles' }">
+          <b-tag v-if="props.row.listRole">
+            <b-icon icon="newspaper-variant-outline" />
+            {{ props.row.listRole.name }}
+          </b-tag>
+        </router-link>
       </b-table-column>
 
       <b-table-column v-slot="props" field="name" :label="$t('subscribers.email')" header-class="cy-name" sortable

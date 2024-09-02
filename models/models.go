@@ -61,6 +61,10 @@ const (
 	UserStatusEnabled  = "enabled"
 	UserStatusDisabled = "disabled"
 
+	// Role.
+	RoleTypeUser = "user"
+	RoleTypeList = "list"
+
 	// BaseTpl is the name of the base template.
 	BaseTpl = "base"
 
@@ -160,18 +164,28 @@ type User struct {
 	Avatar        null.String `db:"avatar" json:"avatar"`
 	LoggedInAt    null.Time   `db:"loggedin_at" json:"loggedin_at"`
 
-	// Filled post-retrieval.
-	Role struct {
-		ID          int              `db:"-" json:"id"`
-		Name        string           `db:"-" json:"name"`
-		Permissions []string         `db:"-" json:"permissions"`
-		Lists       []ListPermission `db:"-" json:"lists"`
-	} `db:"-" json:"role"`
+	// Role struct {
+	// 	ID          int              `db:"-" json:"id"`
+	// 	Name        string           `db:"-" json:"name"`
+	// 	Permissions []string         `db:"-" json:"permissions"`
+	// 	Lists       []ListPermission `db:"-" json:"lists"`
+	// } `db:"-" json:"role"`
 
-	RoleID        int             `db:"role_id" json:"role_id,omitempty"`
-	RoleName      string          `db:"role_name" json:"-"`
-	RolePerms     pq.StringArray  `db:"role_permissions" json:"-"`
-	ListsPermsRaw json.RawMessage `db:"list_permissions" json:"-"`
+	// Filled post-retrieval.
+	UserRole struct {
+		ID          int      `db:"-" json:"id"`
+		Name        string   `db:"-" json:"name"`
+		Permissions []string `db:"-" json:"permissions"`
+	} `db:"-" json:"user_role"`
+
+	ListRole *ListRolePermissions `db:"-" json:"list_role"`
+
+	UserRoleID    int              `db:"user_role_id" json:"user_role_id,omitempty"`
+	UserRoleName  string           `db:"user_role_name" json:"-"`
+	ListRoleID    *int             `db:"list_role_id" json:"list_role_id,omitempty"`
+	ListRoleName  null.String      `db:"list_role_name" json:"-"`
+	UserRolePerms pq.StringArray   `db:"user_role_permissions" json:"-"`
+	ListsPermsRaw *json.RawMessage `db:"list_role_perms" json:"-"`
 
 	PermissionsMap     map[string]struct{}         `db:"-" json:"-"`
 	ListPermissionsMap map[int]map[string]struct{} `db:"-" json:"-"`
@@ -186,11 +200,29 @@ type ListPermission struct {
 	Permissions pq.StringArray `json:"permissions"`
 }
 
+type ListRolePermissions struct {
+	ID    int              `db:"-" json:"id"`
+	Name  string           `db:"-" json:"name"`
+	Lists []ListPermission `db:"-" json:"lists"`
+}
+
 type Role struct {
 	Base
 
+	Type        string         `db:"type" json:"type"`
 	Name        null.String    `db:"name" json:"name"`
 	Permissions pq.StringArray `db:"permissions" json:"permissions"`
+
+	ListID   null.Int         `db:"list_id" json:"-"`
+	ParentID null.Int         `db:"parent_id" json:"-"`
+	ListsRaw json.RawMessage  `db:"list_permissions" json:"-"`
+	Lists    []ListPermission `db:"-" json:"lists"`
+}
+
+type ListRole struct {
+	Base
+
+	Name null.String `db:"name" json:"name"`
 
 	ListID   null.Int         `db:"list_id" json:"-"`
 	ParentID null.Int         `db:"parent_id" json:"-"`
@@ -309,6 +341,7 @@ type Campaign struct {
 	// List of media (attachment) IDs obtained from the next-campaign query
 	// while sending a campaign.
 	MediaIDs pq.Int64Array `json:"-" db:"media_id"`
+
 	// Fetched bodies of the attachments.
 	Attachments []Attachment `json:"-" db:"-"`
 

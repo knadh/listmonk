@@ -9,7 +9,7 @@
           {{ data.name }}
         </h4>
         <h4 v-else>
-          {{ $t('users.newRole') }}
+          {{ type === 'user' ? $t('users.newUserRole') : $t('users.newListRole') }}
         </h4>
       </header>
 
@@ -19,13 +19,13 @@
             required />
         </b-field>
 
-        <div v-if="!disabled" class="box">
+        <div v-if="type === 'list'" class="box">
           <h5>{{ $t('users.listPerms') }}</h5>
           <div class="mb-5">
             <div class="columns">
               <div class="column is-9">
                 <b-select :placeholder="$tc('globals.terms.list')" v-model="form.curList" name="list"
-                  :disabled="disabled" expanded class="mb-3">
+                  :disabled="disabled || filteredLists.length < 1" expanded class="mb-3">
                   <template v-for="l in filteredLists">
                     <option :value="l.id" :key="l.id">
                       {{ l.name }}
@@ -74,7 +74,7 @@
           </b-table>
         </div>
 
-        <div class="box">
+        <template v-if="type === 'user'">
           <div class="columns">
             <div class="column is-7">
               <h5 class="mb-0">
@@ -99,7 +99,7 @@
               </div>
             </b-table-column>
           </b-table>
-        </div>
+        </template>
         <a href="https://listmonk.app/docs/roles-and-permissions" target="_blank" rel="noopener noreferrer">
           <b-icon icon="link-variant" /> {{ $t('globals.buttons.learnMore') }}
         </a>
@@ -132,6 +132,7 @@ export default Vue.extend({
   props: {
     data: { type: Object, default: () => ({}) },
     isEditing: { type: Boolean, default: false },
+    type: { type: String, default: 'user' },
   },
 
   data() {
@@ -186,13 +187,21 @@ export default Vue.extend({
     },
 
     createRole() {
-      const lists = this.form.lists.reduce((acc, item) => {
-        acc.push({ id: item.id, permissions: item.permissions });
-        return acc;
-      }, []);
+      let fn;
+      const form = { name: this.form.name };
 
-      const form = { name: this.form.name, permissions: this.form.permissions, lists };
-      this.$api.createRole(form).then((data) => {
+      if (this.$props.type === 'user') {
+        fn = this.$api.createUserRole;
+        form.permissions = this.form.permissions;
+      } else {
+        fn = this.$api.createListRole;
+        form.lists = this.form.lists.reduce((acc, item) => {
+          acc.push({ id: item.id, permissions: item.permissions });
+          return acc;
+        }, []);
+      }
+
+      fn(form).then((data) => {
         this.$emit('finished');
         this.$utils.toast(this.$t('globals.messages.created', { name: data.name }));
         this.$parent.close();
@@ -200,18 +209,24 @@ export default Vue.extend({
     },
 
     updateRole() {
-      const lists = this.form.lists.reduce((acc, item) => {
-        acc.push({ id: item.id, permissions: item.permissions });
-        return acc;
-      }, []);
+      let fn;
+      const form = { id: this.$props.data.id, name: this.form.name };
 
-      const form = {
-        id: this.$props.data.id, name: this.form.name, permissions: this.form.permissions, lists,
-      };
-      this.$api.updateRole(form).then((data) => {
+      if (this.$props.type === 'user') {
+        fn = this.$api.updateUserRole;
+        form.permissions = this.form.permissions;
+      } else {
+        fn = this.$api.updateListRole;
+        form.lists = this.form.lists.reduce((acc, item) => {
+          acc.push({ id: item.id, permissions: item.permissions });
+          return acc;
+        }, []);
+      }
+
+      fn(form).then((data) => {
         this.$emit('finished');
-        this.$parent.close();
         this.$utils.toast(this.$t('globals.messages.updated', { name: data.name }));
+        this.$parent.close();
       });
     },
   },
@@ -221,7 +236,7 @@ export default Vue.extend({
 
     // Return the list of unselected lists.
     filteredLists() {
-      if (!this.lists.results) {
+      if (!this.lists.results || this.type !== 'list') {
         return [];
       }
 

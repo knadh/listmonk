@@ -13,11 +13,6 @@
         </h4>
       </header>
       <section expanded class="modal-card-body">
-        <b-field :label="$t('users.username')" label-position="on-border">
-          <b-input :maxlength="200" v-model="form.username" name="username" ref="focus" autofocus
-            :placeholder="$t('users.username')" required :message="$t('users.usernameHelp')" autocomplete="off"
-            pattern="[a-zA-Z0-9_\-\.]+$" />
-        </b-field>
         <div class="columns">
           <div class="column is-6">
             <b-field :label="$t('users.type')" label-position="on-border">
@@ -45,12 +40,10 @@
           </div>
         </div>
 
-        <b-field :label="$tc('users.role')" label-position="on-border">
-          <b-select v-model="form.roleId" name="role" required expanded>
-            <option v-for="r in roles" :value="r.id" :key="r.id">
-              {{ r.name }}
-            </option>
-          </b-select>
+        <b-field :label="$t('users.username')" label-position="on-border">
+          <b-input :maxlength="200" v-model="form.username" name="username" ref="focus" autofocus
+            :placeholder="$t('users.username')" required :message="$t('users.usernameHelp')" autocomplete="off"
+            pattern="[a-zA-Z0-9_\-\.]+$" />
         </b-field>
 
         <b-field v-if="form.type !== 'api'" :label="$t('subscribers.email')" label-position="on-border">
@@ -62,28 +55,57 @@
         </b-field>
 
         <template v-if="form.type !== 'api'">
-          <b-field>
-            <b-checkbox v-model="form.passwordLogin" :native-value="true">
-              {{ $t('users.passwordEnable') }}
-            </b-checkbox>
-          </b-field>
+          <div class="box">
+            <b-field>
+              <b-checkbox v-model="form.passwordLogin" :native-value="true">
+                {{ $t('users.passwordEnable') }}
+              </b-checkbox>
+            </b-field>
 
-          <div class="columns">
-            <div class="column is-6">
-              <b-field :label="$t('users.password')" label-position="on-border">
-                <b-input :disabled="!form.passwordLogin" minlength="8" :maxlength="200" v-model="form.password"
-                  type="password" name="password" :placeholder="$t('users.password')"
-                  :required="form.passwordLogin && !isEditing" />
-              </b-field>
-            </div>
-            <div class="column is-6">
-              <b-field :label="$t('users.passwordRepeat')" label-position="on-border">
-                <b-input :disabled="!form.passwordLogin" minlength="8" :maxlength="200" v-model="form.password2"
-                  type="password" name="password2" :required="form.passwordLogin && !isEditing && form.password" />
-              </b-field>
+            <div class="columns">
+              <div class="column is-6">
+                <b-field :label="$t('users.password')" label-position="on-border">
+                  <b-input :disabled="!form.passwordLogin" minlength="8" :maxlength="200" v-model="form.password"
+                    type="password" name="password" :placeholder="$t('users.password')"
+                    :required="form.passwordLogin && !isEditing" />
+                </b-field>
+              </div>
+              <div class="column is-6">
+                <b-field :label="$t('users.passwordRepeat')" label-position="on-border">
+                  <b-input :disabled="!form.passwordLogin" minlength="8" :maxlength="200" v-model="form.password2"
+                    type="password" name="password2" :required="form.passwordLogin && !isEditing && form.password" />
+                </b-field>
+              </div>
             </div>
           </div>
         </template>
+
+        <h5>{{ $tc('users.roles') }}</h5>
+        <div class="box">
+          <div class="columns">
+            <div class="column is-6">
+              <b-field :label="$tc('users.userRole')" label-position="on-border">
+                <b-select v-model="form.userRoleId" name="role" required expanded>
+                  <option v-for="r in userRoles" :value="r.id" :key="r.id">
+                    {{ r.name }}
+                  </option>
+                </b-select>
+              </b-field>
+            </div>
+
+            <div class="column is-6">
+              <b-field :label="$tc('users.listRole', 0)" label-position="on-border">
+                <b-select v-model="form.listRoleId" name="role" expanded>
+                  <option value="">&mdash; {{ $t("globals.terms.none") }} &mdash;</option>
+                  <option v-for="r in listRoles" :value="r.id" :key="r.id">
+                    {{ r.name }}
+                  </option>
+                </b-select>
+              </b-field>
+            </div>
+          </div>
+        </div>
+
         <div v-if="apiToken" class="user-api-token">
           <p>{{ $t('users.apiOneTimeToken') }}</p>
           <copy-text :text="apiToken" />
@@ -161,7 +183,9 @@ export default Vue.extend({
     },
 
     createUser() {
-      const form = { ...this.form, password_login: this.form.passwordLogin, role_id: this.form.roleId };
+      const form = {
+        ...this.form, password_login: this.form.passwordLogin, user_role_id: this.form.userRoleId, list_role_id: this.form.listRoleId || null,
+      };
       this.$api.createUser(form).then((data) => {
         this.$emit('finished');
         this.$utils.toast(this.$t('globals.messages.created', { name: data.name }));
@@ -178,7 +202,9 @@ export default Vue.extend({
     },
 
     updateUser() {
-      const form = { ...this.form, password_login: this.form.passwordLogin, role_id: this.form.roleId };
+      const form = {
+        ...this.form, password_login: this.form.passwordLogin, user_role_id: this.form.userRoleId, list_role_id: this.form.listRoleId || null,
+      };
       this.$api.updateUser({ id: this.data.id, ...form }).then((data) => {
         this.$emit('finished');
         this.$parent.close();
@@ -194,16 +220,19 @@ export default Vue.extend({
   },
 
   computed: {
-    ...mapState(['loading', 'roles']),
+    ...mapState(['loading', 'userRoles', 'listRoles']),
   },
 
   mounted() {
     this.form = { ...this.form, ...this.$props.data };
-    if (this.$props.data.role) {
-      this.form.roleId = this.$props.data.role.id;
+    if (this.$props.data.userRole) {
+      this.form.userRoleId = this.$props.data.userRole.id;
     }
 
-    this.$api.getRoles();
+    this.form.listRoleId = this.$props.data.listRole ? this.$props.data.listRole.id : '';
+
+    this.$api.getUserRoles();
+    this.$api.getListRoles();
 
     this.$nextTick(() => {
       this.$refs.focus.focus();

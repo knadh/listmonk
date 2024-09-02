@@ -130,7 +130,7 @@ export default Vue.extend({
         return true;
       }
 
-      const list = this.profile.role.lists.find((l) => l.id === this.$props.data.id);
+      const list = this.profile.userRole.lists.find((l) => l.id === this.$props.data.id);
       return list && list.permissions.includes('list:manage');
     },
   },

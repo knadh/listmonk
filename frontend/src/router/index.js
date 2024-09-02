@@ -114,15 +114,21 @@ const routes = [
     component: () => import('../views/Logs.vue'),
   },
   {
-    path: '/settings/users',
+    path: '/users',
     name: 'users',
-    meta: { title: 'globals.terms.users', group: 'settings' },
+    meta: { title: 'globals.terms.users', group: 'users' },
     component: () => import('../views/Users.vue'),
   },
   {
-    path: '/settings/users/roles',
-    name: 'roles',
-    meta: { title: 'users.roles', group: 'settings' },
+    path: '/users/roles/users',
+    name: 'userRoles',
+    meta: { title: 'users.userRoles', group: 'users' },
+    component: () => import('../views/Roles.vue'),
+  },
+  {
+    path: '/users/roles/lists',
+    name: 'listRoles',
+    meta: { title: 'users.listRoles', group: 'users' },
     component: () => import('../views/Roles.vue'),
   },
   {

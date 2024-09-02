@@ -12,9 +12,20 @@ import (
 // GetRoles retrieves all roles.
 func (c *Core) GetRoles() ([]models.Role, error) {
 	out := []models.Role{}
-	if err := c.q.GetRoles.Select(&out); err != nil {
+	if err := c.q.GetUserRoles.Select(&out); err != nil {
 		return nil, echo.NewHTTPError(http.StatusInternalServerError,
-			c.i18n.Ts("globals.messages.errorFetching", "name", "{users.roles}", "error", pqErrMsg(err)))
+			c.i18n.Ts("globals.messages.errorFetching", "name", "role", "error", pqErrMsg(err)))
+	}
+
+	return out, nil
+}
+
+// GetListRoles retrieves all list roles.
+func (c *Core) GetListRoles() ([]models.ListRole, error) {
+	out := []models.ListRole{}
+	if err := c.q.GetListRoles.Select(&out); err != nil {
+		return nil, echo.NewHTTPError(http.StatusInternalServerError,
+			c.i18n.Ts("globals.messages.errorFetching", "name", "role", "error", pqErrMsg(err)))
 	}
 
 	// Unmarshall the nested list permissions, if any.
@@ -35,13 +46,25 @@ func (c *Core) GetRoles() ([]models.Role, error) {
 func (c *Core) CreateRole(r models.Role) (models.Role, error) {
 	var out models.Role
 
-	if err := c.q.CreateRole.Get(&out, r.Name, pq.Array(r.Permissions)); err != nil {
-		return models.Role{}, echo.NewHTTPError(http.StatusInternalServerError,
+	if err := c.q.CreateRole.Get(&out, r.Name, models.RoleTypeUser, pq.Array(r.Permissions)); err != nil {
+		return out, echo.NewHTTPError(http.StatusInternalServerError,
+			c.i18n.Ts("globals.messages.errorCreating", "name", "{users.role}", "error", pqErrMsg(err)))
+	}
+
+	return out, nil
+}
+
+// CreateListRole creates a new list role.
+func (c *Core) CreateListRole(r models.ListRole) (models.ListRole, error) {
+	var out models.ListRole
+
+	if err := c.q.CreateRole.Get(&out, r.Name, models.RoleTypeList, pq.Array([]string{})); err != nil {
+		return out, echo.NewHTTPError(http.StatusInternalServerError,
 			c.i18n.Ts("globals.messages.errorCreating", "name", "{users.role}", "error", pqErrMsg(err)))
 	}
 
 	if err := c.UpsertListPermissions(out.ID, r.Lists); err != nil {
-		return models.Role{}, echo.NewHTTPError(http.StatusInternalServerError,
+		return out, echo.NewHTTPError(http.StatusInternalServerError,
 			c.i18n.Ts("globals.messages.errorCreating", "name", "{users.role}", "error", pqErrMsg(err)))
 	}
 
@@ -89,22 +112,38 @@ func (c *Core) DeleteListPermission(roleID, listID int) error {
 	return nil
 }
 
-// UpdateRole updates a given role.
-func (c *Core) UpdateRole(id int, r models.Role) (models.Role, error) {
+// UpdateUserRole updates a given role.
+func (c *Core) UpdateUserRole(id int, r models.Role) (models.Role, error) {
 	var out models.Role
 
 	if err := c.q.UpdateRole.Get(&out, id, r.Name, pq.Array(r.Permissions)); err != nil {
-		return models.Role{}, echo.NewHTTPError(http.StatusInternalServerError,
-			c.i18n.Ts("globals.messages.errorUpdating", "name", "{users.role}", "error", pqErrMsg(err)))
+		return out, echo.NewHTTPError(http.StatusInternalServerError,
+			c.i18n.Ts("globals.messages.errorUpdating", "name", "{users.userRole}", "error", pqErrMsg(err)))
 	}
 
 	if out.ID == 0 {
-		return models.Role{}, echo.NewHTTPError(http.StatusBadRequest, c.i18n.Ts("globals.messages.notFound", "name", "{users.role}"))
+		return out, echo.NewHTTPError(http.StatusBadRequest, c.i18n.Ts("globals.messages.notFound", "name", "{users.userRole}"))
+	}
+
+	return out, nil
+}
+
+// UpdateListRole updates a given role.
+func (c *Core) UpdateListRole(id int, r models.ListRole) (models.ListRole, error) {
+	var out models.ListRole
+
+	if err := c.q.UpdateRole.Get(&out, id, r.Name, pq.Array([]string{})); err != nil {
+		return out, echo.NewHTTPError(http.StatusInternalServerError,
+			c.i18n.Ts("globals.messages.errorUpdating", "name", "{users.listRole}", "error", pqErrMsg(err)))
+	}
+
+	if out.ID == 0 {
+		return out, echo.NewHTTPError(http.StatusBadRequest, c.i18n.Ts("globals.messages.notFound", "name", "{users.listRole}"))
 	}
 
 	if err := c.UpsertListPermissions(out.ID, r.Lists); err != nil {
-		return models.Role{}, echo.NewHTTPError(http.StatusInternalServerError,
-			c.i18n.Ts("globals.messages.errorCreating", "name", "{users.role}", "error", pqErrMsg(err)))
+		return out, echo.NewHTTPError(http.StatusInternalServerError,
+			c.i18n.Ts("globals.messages.errorCreating", "name", "{users.listRole}", "error", pqErrMsg(err)))
 	}
 
 	return out, nil

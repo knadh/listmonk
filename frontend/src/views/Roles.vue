@@ -3,22 +3,22 @@
     <header class="columns page-header">
       <div class="column is-10">
         <h1 class="title is-4">
-          {{ $t('users.roles') }}
+          {{ $t(isUser ? 'users.userRoles' : 'users.listRoles') }}
           <span v-if="!isNaN(roles.length)">({{ roles.length }})</span>
         </h1>
       </div>
       <div class="column has-text-right">
         <b-field v-if="$can('users:manage')" expanded>
-          <b-button expanded type="is-primary" icon-left="plus" class="btn-new" @click="showNewForm" data-cy="btn-new">
+          <b-button expanded type="is-primary" icon-left="plus" class="btn-new" @click="showNewForm('user')"
+            data-cy="btn-new">
             {{ $t('globals.buttons.new') }}
           </b-button>
         </b-field>
       </div>
     </header>
-
-    <b-table :data="roles" :loading="loading.roles" hoverable>
+    <b-table :data="roles" :loading="isLoading()" hoverable>
       <b-table-column v-slot="props" field="role" :label="$tc('users.role')" sortable>
-        <a href="#" @click.prevent="showEditForm(props.row)">
+        <a href="#" @click.prevent="showEditForm(props.row, 'user')">
           <b-tag v-if="props.row.id === 1" class="enabled">
             {{ props.row.name }}
           </b-tag>
@@ -36,7 +36,7 @@
         {{ $utils.niceDate(props.row.updatedAt) }}
       </b-table-column>
 
-      <b-table-column v-slot="props" cell-class="actions" align="right">
+      <b-table-column v-slot="props" cell-class="actions has-text-right">
         <template v-if="$can('roles:manage')">
           <a href="#" @click.prevent="$utils.prompt($t('globals.buttons.clone'),
             {
@@ -50,7 +50,7 @@
           </a>
 
           <template v-if="props.row.id !== 1">
-            <a href="#" @click.prevent="showEditForm(props.row)" data-cy="btn-edit"
+            <a href="#" @click.prevent="showEditForm(props.row, 'user')" data-cy="btn-edit"
               :aria-label="$t('globals.buttons.edit')">
               <b-tooltip :label="$t('globals.buttons.edit')" type="is-dark">
                 <b-icon icon="pencil-outline" size="is-small" />
@@ -67,14 +67,14 @@
         </template>
       </b-table-column>
 
-      <template #empty v-if="!loading.users">
+      <template #empty v-if="!isLoading()">
         <empty-placeholder />
       </template>
     </b-table>
 
     <!-- Add / edit form modal -->
     <b-modal scroll="keep" :aria-modal="true" :active.sync="isFormVisible" :width="700" @close="onFormClose">
-      <role-form :data="curItem" :is-editing="isEditing" @finished="formFinished" />
+      <role-form :data="curItem" :type="curType" :is-editing="isEditing" @finished="formFinished" />
     </b-modal>
   </section>
 </template>
@@ -94,28 +94,41 @@ export default Vue.extend({
   data() {
     return {
       curItem: null,
+      curType: null,
       isEditing: false,
       isFormVisible: false,
     };
   },
 
   methods: {
+    isLoading() {
+      return this.curType === 'user' ? this.loading.userRoles : this.loading.listRoles;
+    },
+
+    fetchRoles() {
+      if (this.isUser) {
+        this.$api.getUserRoles();
+      } else {
+        this.$api.getListRoles();
+      }
+    },
+
     // Show the edit form.
     showEditForm(item) {
       this.curItem = item;
+      this.curType = this.isUser ? 'user' : 'list';
       this.isFormVisible = true;
       this.isEditing = true;
     },
 
     // Show the new form.
     showNewForm() {
-      this.curItem = {};
-      this.isFormVisible = true;
       this.isEditing = false;
+      this.isFormVisible = true;
     },
 
     formFinished() {
-      this.$api.getRoles();
+      this.fetchRoles();
     },
 
     onFormClose() {
@@ -125,8 +138,18 @@ export default Vue.extend({
     },
 
     onCloneRole(name, item) {
-      this.$api.createRole({ name, permissions: item.permissions, lists: item.lists }).then(() => {
-        this.$api.getRoles();
+      const form = { name };
+      let fn;
+      if (this.isUser) {
+        fn = this.$api.createUserRole;
+        form.permissions = item.permissions;
+      } else {
+        fn = this.$api.createListRole;
+        form.lists = item.lists;
+      }
+
+      fn(form).then(() => {
+        this.fetchRoles();
         this.$utils.toast(this.$t('globals.messages.created', { name }));
       });
     },
@@ -136,7 +159,7 @@ export default Vue.extend({
         this.$t('globals.messages.confirm'),
         () => {
           this.$api.deleteRole(item.id).then(() => {
-            this.$api.getRoles();
+            this.fetchRoles();
 
             this.$utils.toast(this.$t('globals.messages.deleted', { name: item.name }));
           });
@@ -147,11 +170,24 @@ export default Vue.extend({
   },
 
   computed: {
-    ...mapState(['loading', 'roles']),
+    ...mapState(['loading', 'userRoles', 'listRoles']),
+
+    isUser() {
+      return this.curType === 'user';
+    },
+
+    isList() {
+      return this.curType === 'list';
+    },
+
+    roles() {
+      return this.isUser ? this.userRoles : this.listRoles;
+    },
   },
 
   mounted() {
-    this.$api.getRoles();
+    this.curType = this.$route.name === 'userRoles' ? 'user' : 'list';
+    this.fetchRoles();
   },
 });
 </script>

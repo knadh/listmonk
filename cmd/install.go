@@ -108,7 +108,7 @@ func installUser(q *models.Queries) (string, string) {
 		perms = append(perms, p)
 	}
 
-	if _, err := q.CreateRole.Exec("Super Admin", pq.Array(perms)); err != nil {
+	if _, err := q.CreateRole.Exec("Super Admin", "user", pq.Array(perms)); err != nil {
 		lo.Fatalf("error creating super admin role: %v", err)
 	}
 
@@ -146,7 +146,7 @@ func installUser(q *models.Queries) (string, string) {
 
 	lo.Printf("creating admin user '%s'. Credential source is '%s'", user, typ)
 
-	if _, err := q.CreateUser.Exec(user, true, password, user+"@listmonk", user, "user", 1, "enabled"); err != nil {
+	if _, err := q.CreateUser.Exec(user, true, password, user+"@listmonk", user, "user", 1, nil, "enabled"); err != nil {
 		lo.Fatalf("error creating superadmin user: %v", err)
 	}
 

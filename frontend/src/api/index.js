@@ -489,24 +489,41 @@ export const updateUserProfile = (data) => http.put(
   { loading: models.users, store: models.profile },
 );
 
-export const getRoles = async () => http.get(
-  '/api/roles',
-  { loading: models.roles, store: models.roles },
+export const getUserRoles = async () => http.get(
+  '/api/roles/users',
+  { loading: models.userRoles, store: models.userRoles },
 );
 
-export const createRole = (data) => http.post(
-  '/api/roles',
-  data,
-  { loading: models.roles },
+export const getListRoles = async () => http.get(
+  '/api/roles/lists',
+  { loading: models.listRoles, store: models.listRoles },
 );
 
-export const updateRole = (data) => http.put(
-  `/api/roles/${data.id}`,
+export const createUserRole = (data) => http.post(
+  '/api/roles/users',
   data,
-  { loading: models.roles },
+  { loading: models.userRoles },
+);
+
+export const createListRole = (data) => http.post(
+  '/api/roles/lists',
+  data,
+  { loading: models.listRoles },
+);
+
+export const updateUserRole = (data) => http.put(
+  `/api/roles/users/${data.id}`,
+  data,
+  { loading: models.userRoles },
+);
+
+export const updateListRole = (data) => http.put(
+  `/api/roles/lists/${data.id}`,
+  data,
+  { loading: models.userRoles },
 );
 
 export const deleteRole = (id) => http.delete(
   `/api/roles/${id}`,
-  { loading: models.roles },
+  { loading: models.userRoles },
 );

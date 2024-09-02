@@ -665,7 +665,7 @@ func sendOptinConfirmationHook(app *App) func(sub models.Subscriber, listIDs []i
 // hasSubPerm checks whether the current user has permission to access the given list
 // of subscriber IDs.
 func hasSubPerm(u models.User, subIDs []int, app *App) error {
-	if u.RoleID == auth.SuperAdminRoleID {
+	if u.UserRoleID == auth.SuperAdminRoleID {
 		return nil
 	}
 

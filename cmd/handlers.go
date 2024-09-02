@@ -206,9 +206,12 @@ func initHTTPHandlers(e *echo.Echo, app *App) {
 	api.DELETE("/api/users/:id", pm(handleDeleteUsers, "users:manage"))
 	api.POST("/api/logout", handleLogout)
 
-	api.GET("/api/roles", pm(handleGetRoles, "roles:get"))
-	api.POST("/api/roles", pm(handleCreateRole, "roles:manage"))
-	api.PUT("/api/roles/:id", pm(handleUpdateRole, "roles:manage"))
+	api.GET("/api/roles/users", pm(handleGetUserRoles, "roles:get"))
+	api.GET("/api/roles/lists", pm(handleGeListRoles, "roles:get"))
+	api.POST("/api/roles/users", pm(handleCreateUserRole, "roles:manage"))
+	api.POST("/api/roles/lists", pm(handleCreateListRole, "roles:manage"))
+	api.PUT("/api/roles/users/:id", pm(handleUpdateUserRole, "roles:manage"))
+	api.PUT("/api/roles/lists/:id", pm(handleUpdateListRole, "roles:manage"))
 	api.DELETE("/api/roles/:id", pm(handleDeleteRole, "roles:manage"))
 
 	if app.constants.BounceWebhooksEnabled {

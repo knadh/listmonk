@@ -261,7 +261,7 @@ func handleUpdateUserProfile(c echo.Context) error {
 		}
 	}
 
-	out, err := app.core.UpdateUser(user.ID, u)
+	out, err := app.core.UpdateUserProfile(user.ID, u)
 	if err != nil {
 		return err
 	}

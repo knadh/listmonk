@@ -18,7 +18,7 @@ type Queries struct {
 	UpsertSubscriber                *sqlx.Stmt `query:"upsert-subscriber"`
 	UpsertBlocklistSubscriber       *sqlx.Stmt `query:"upsert-blocklist-subscriber"`
 	GetSubscriber                   *sqlx.Stmt `query:"get-subscriber"`
-	HasSubscriberLists               *sqlx.Stmt `query:"has-subscriber-list"`
+	HasSubscriberLists              *sqlx.Stmt `query:"has-subscriber-list"`
 	GetSubscribersByEmails          *sqlx.Stmt `query:"get-subscribers-by-emails"`
 	GetSubscriberLists              *sqlx.Stmt `query:"get-subscriber-lists"`
 	GetSubscriptions                *sqlx.Stmt `query:"get-subscriptions"`
@@ -119,7 +119,8 @@ type Queries struct {
 	LoginUser         *sqlx.Stmt `query:"login-user"`
 
 	CreateRole            *sqlx.Stmt `query:"create-role"`
-	GetRoles              *sqlx.Stmt `query:"get-roles"`
+	GetUserRoles          *sqlx.Stmt `query:"get-user-roles"`
+	GetListRoles          *sqlx.Stmt `query:"get-list-roles"`
 	UpdateRole            *sqlx.Stmt `query:"update-role"`
 	DeleteRole            *sqlx.Stmt `query:"delete-role"`
 	UpsertListPermissions *sqlx.Stmt `query:"upsert-list-permissions"`

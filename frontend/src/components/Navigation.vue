@@ -42,15 +42,22 @@
         :label="$t('globals.terms.analytics')" />
     </b-menu-item><!-- campaigns -->
 
+    <b-menu-item v-if="$can('users:*', 'roles:*')" :expanded="activeGroup.users" :active="activeGroup.users"
+      data-cy="users" @update:active="(state) => toggleGroup('users', state)" icon="account-multiple"
+      :label="$t('globals.terms.users')">
+      <b-menu-item v-if="$can('users:get')" :to="{ name: 'users' }" tag="router-link" :active="activeItem.users"
+        data-cy="users" icon="account-multiple" :label="$t('globals.terms.users')" />
+      <b-menu-item v-if="$can('roles:get')" :to="{ name: 'userRoles' }" tag="router-link" :active="activeItem.userRoles"
+        data-cy="userRoles" icon="newspaper-variant-outline" :label="$t('users.userRoles')" />
+      <b-menu-item v-if="$can('roles:get')" :to="{ name: 'listRoles' }" tag="router-link" :active="activeItem.listRoles"
+        data-cy="listRoles" icon="format-list-bulleted-square" :label="$t('users.listRoles')" />
+    </b-menu-item><!-- users -->
+
     <b-menu-item v-if="$can('settings:*')" :expanded="activeGroup.settings" :active="activeGroup.settings"
       data-cy="settings" @update:active="(state) => toggleGroup('settings', state)" icon="cog-outline"
       :label="$t('menu.settings')">
       <b-menu-item v-if="$can('settings:get')" :to="{ name: 'settings' }" tag="router-link"
         :active="activeItem.settings" data-cy="all-settings" icon="cog-outline" :label="$t('menu.settings')" />
-      <b-menu-item v-if="$can('users:get')" :to="{ name: 'users' }" tag="router-link" :active="activeItem.users"
-        data-cy="users" icon="account-multiple" :label="$t('globals.terms.users')" />
-      <b-menu-item v-if="$can('roles:get')" :to="{ name: 'roles' }" tag="router-link" :active="activeItem.roles"
-        data-cy="roles" icon="newspaper-variant-outline" :label="$t('users.roles')" />
       <b-menu-item v-if="$can('settings:maintain')" :to="{ name: 'maintenance' }" tag="router-link"
         :active="activeItem.maintenance" data-cy="maintenance" icon="wrench-outline" :label="$t('menu.maintenance')" />
       <b-menu-item v-if="$can('settings:get')" :to="{ name: 'logs' }" tag="router-link" :active="activeItem.logs"
