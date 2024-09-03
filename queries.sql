@@ -179,7 +179,6 @@ INSERT INTO subscriber_lists (subscriber_id, list_id, status)
             -- When subscriber is edited from the admin form, retain the status. Otherwise, a blocklisted
             -- subscriber when being re-enabled, their subscription statuses change.
             WHEN subscriber_lists.status = 'confirmed' THEN 'confirmed'
-            WHEN $9 = TRUE THEN subscriber_lists.status
             ELSE $8::subscription_status
         END
     );
