@@ -1083,7 +1083,8 @@ UPDATE users SET
             WHEN $9 > 0 THEN (SELECT id FROM roles WHERE id = $9 AND type = 'list')
             ELSE list_role_id END
     ),
-    status=(CASE WHEN $10 != '' THEN $10::user_status ELSE status END)
+    status=(CASE WHEN $10 != '' THEN $10::user_status ELSE status END),
+    updated_at=NOW()
     WHERE id=$1 AND (SELECT canEdit FROM u) = TRUE;
 
 -- name: delete-users
@@ -1136,7 +1137,8 @@ FROM users
             WHEN $3::TEXT != '' THEN email = $3
             ELSE TRUE
         END
-    );
+    )
+    ORDER BY users.created_at;
 
 
 -- name: get-api-tokens
