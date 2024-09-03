@@ -2,7 +2,7 @@
 
 [![listmonk](images/logo.svg)](https://listmonk.app)
 
-listmonk is a self-hosted, high performance mailing list and newsletter manager. It comes as a standalone binary and the only dependency is a Postgres database.
+listmonk is a self-hosted, high performance one-way mailing list and newsletter manager. It comes as a standalone binary and the only dependency is a Postgres database.
 
 [![listmonk screenshot](https://user-images.githubusercontent.com/547147/134939475-e0391111-f762-44cb-b056-6cb0857755e3.png)](https://listmonk.app)
 
