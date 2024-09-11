@@ -13,8 +13,8 @@ import (
 	"github.com/lib/pq"
 )
 
-// V3_1_0 performs the DB migrations.
-func V3_1_0(db *sqlx.DB, fs stuffbin.FileSystem, ko *koanf.Koanf, lo *log.Logger) error {
+// V4_0_0 performs the DB migrations.
+func V4_0_0(db *sqlx.DB, fs stuffbin.FileSystem, ko *koanf.Koanf, lo *log.Logger) error {
 	if _, err := db.Exec(`
 		CREATE EXTENSION IF NOT EXISTS pgcrypto;
 
