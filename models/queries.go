@@ -114,7 +114,7 @@ type Queries struct {
 // out of it using the raw `query-subscribers-template` query template.
 // While doing this, a readonly transaction is created and the query is
 // dry run on it to ensure that it is indeed readonly.
-func (q *Queries) CompileSubscriberQueryTpl(exp string, db *sqlx.DB) (string, error) {
+func (q *Queries) CompileSubscriberQueryTpl(exp string, db *sqlx.DB, subStatus string) (string, error) {
 	tx, err := db.BeginTxx(context.Background(), &sql.TxOptions{ReadOnly: true})
 	if err != nil {
 		return "", err
@@ -126,19 +126,18 @@ func (q *Queries) CompileSubscriberQueryTpl(exp string, db *sqlx.DB) (string, er
 		exp = " AND " + exp
 	}
 	stmt := fmt.Sprintf(q.QuerySubscribersTpl, exp)
-	if _, err := tx.Exec(stmt, true, pq.Int64Array{}); err != nil {
+	if _, err := tx.Exec(stmt, true, pq.Int64Array{}, subStatus); err != nil {
 		return "", err
 	}
-
 	return stmt, nil
 }
 
 // compileSubscriberQueryTpl takes an arbitrary WHERE expressions and a subscriber
 // query template that depends on the filter (eg: delete by query, blocklist by query etc.)
 // combines and executes them.
-func (q *Queries) ExecSubQueryTpl(exp, tpl string, listIDs []int, db *sqlx.DB, args ...interface{}) error {
+func (q *Queries) ExecSubQueryTpl(exp, tpl string, listIDs []int, db *sqlx.DB, subStatus string, args ...interface{}) error {
 	// Perform a dry run.
-	filterExp, err := q.CompileSubscriberQueryTpl(exp, db)
+	filterExp, err := q.CompileSubscriberQueryTpl(exp, db, subStatus)
 	if err != nil {
 		return err
 	}
@@ -148,10 +147,9 @@ func (q *Queries) ExecSubQueryTpl(exp, tpl string, listIDs []int, db *sqlx.DB, a
 	}
 
 	// First argument is the boolean indicating if the query is a dry run.
-	a := append([]interface{}{false, pq.Array(listIDs)}, args...)
+	a := append([]interface{}{false, pq.Array(listIDs), subStatus}, args...)
 	if _, err := db.Exec(fmt.Sprintf(tpl, filterExp), a...); err != nil {
 		return err
 	}
-
 	return nil
 }
