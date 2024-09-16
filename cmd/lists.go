@@ -176,12 +176,12 @@ func listPerm(next echo.HandlerFunc) echo.HandlerFunc {
 
 		// Define permissions based on HTTP read/write.
 		var (
-			permAll = "lists:manage_all"
-			perm    = "list:manage"
+			permAll = models.PermListManageAll
+			perm    = models.PermListManage
 		)
 		if c.Request().Method == http.MethodGet {
-			permAll = "lists:get_all"
-			perm = "list:get"
+			permAll = models.PermListGetAll
+			perm = models.PermListGet
 		}
 
 		// Check if the user has permissions for all lists or the specific list.

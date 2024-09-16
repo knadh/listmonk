@@ -213,7 +213,7 @@ func handleCreateSubscriber(c echo.Context) error {
 	}
 
 	// Filter lists against the current user's permitted lists.
-	listIDs := filterListsByPerm(req.Lists, user)
+	listIDs := user.FilterListsByPerm(req.Lists, false, true)
 
 	// Insert the subscriber into the DB.
 	sub, _, err := app.core.InsertSubscriber(req.Subscriber, listIDs, nil, req.PreconfirmSubs)
@@ -258,7 +258,7 @@ func handleUpdateSubscriber(c echo.Context) error {
 	}
 
 	// Filter lists against the current user's permitted lists.
-	listIDs := filterListsByPerm(req.Lists, user)
+	listIDs := user.FilterListsByPerm(req.Lists, false, true)
 
 	out, _, err := app.core.UpdateSubscriberWithLists(id, req.Subscriber, listIDs, nil, req.PreconfirmSubs, true)
 	if err != nil {
@@ -368,7 +368,7 @@ func handleManageSubscriberLists(c echo.Context) error {
 	}
 
 	// Filter lists against the current user's permitted lists.
-	listIDs := filterListsByPerm(req.TargetListIDs, user)
+	listIDs := user.FilterListsByPerm(req.TargetListIDs, false, true)
 
 	// Action.
 	var err error
@@ -484,8 +484,8 @@ func handleManageSubscriberListsByQuery(c echo.Context) error {
 	}
 
 	// Filter lists against the current user's permitted lists.
-	sourceListIDs := filterListsByPerm(req.ListIDs, user)
-	targetListIDs := filterListsByPerm(req.TargetListIDs, user)
+	sourceListIDs := user.FilterListsByPerm(req.ListIDs, false, true)
+	targetListIDs := user.FilterListsByPerm(req.TargetListIDs, false, true)
 
 	// Action.
 	var err error
@@ -669,7 +669,7 @@ func hasSubPerm(u models.User, subIDs []int, app *App) error {
 		return nil
 	}
 
-	if _, ok := u.PermissionsMap["subscribers:get_all"]; ok {
+	if _, ok := u.PermissionsMap[models.PermSubscribersGetAll]; ok {
 		return nil
 	}
 
@@ -697,31 +697,14 @@ func filterListQeryByPerm(qp url.Values, user models.User, app *App) ([]int, err
 			return nil, echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidID"))
 		}
 
-		listIDs = []int{}
-		for _, id := range ids {
-			if _, ok := user.ListPermissionsMap[id]; ok {
-				listIDs = append(listIDs, id)
-			}
-		}
+		listIDs = user.FilterListsByPerm(ids, true, true)
 	} else {
 		// There are no incoming params. If the user doesn't have permission to get all subscribers,
 		// filter by the lists they have access to.
-		if _, ok := user.PermissionsMap["subscribers:get_all"]; !ok {
+		if _, ok := user.PermissionsMap[models.PermSubscribersGetAll]; !ok {
 			listIDs = user.GetListIDs
 		}
 	}
 
 	return listIDs, nil
-}
-
-// filterListsByPerm filters the given list IDs against the given user's permitted lists.
-func filterListsByPerm(listIDs []int, user models.User) []int {
-	out := make([]int, 0, len(listIDs))
-	for _, id := range listIDs {
-		if _, ok := user.ListPermissionsMap[id]; ok {
-			listIDs = append(listIDs, id)
-		}
-	}
-
-	return out
 }

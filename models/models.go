@@ -814,3 +814,45 @@ func (h Headers) Value() (driver.Value, error) {
 
 	return "[]", nil
 }
+
+func (u *User) HasPerm(perm string) bool {
+	_, ok := u.PermissionsMap[perm]
+	return ok
+}
+
+// FilterListsByPerm returns list IDs filtered by either of the given perms.
+func (u *User) FilterListsByPerm(listIDs []int, get, manage bool) []int {
+	// If the user has full list management permission,
+	// no further checks are required.
+	if get {
+		if _, ok := u.PermissionsMap[PermListGetAll]; ok {
+			return listIDs
+		}
+	}
+	if manage {
+		if _, ok := u.PermissionsMap[PermListManageAll]; ok {
+			return listIDs
+		}
+	}
+
+	out := make([]int, 0, len(listIDs))
+
+	// Go through every list ID.
+	for _, id := range listIDs {
+		// Check if it exists in the map.
+		if l, ok := u.ListPermissionsMap[id]; ok {
+			// Check if any of the given permission exists for it.
+			if get {
+				if _, ok := l[PermListGet]; ok {
+					out = append(out, id)
+				}
+			} else if manage {
+				if _, ok := l[PermListManage]; ok {
+					out = append(out, id)
+				}
+			}
+		}
+	}
+
+	return out
+}
