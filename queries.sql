@@ -122,13 +122,15 @@ WITH sub AS (
         name=(CASE WHEN $7 THEN $3 ELSE s.name END),
         attribs=(CASE WHEN $7 THEN $4 ELSE s.attribs END),
         updated_at=NOW()
-    RETURNING uuid, id
+    RETURNING uuid, id, status
 ),
 subs AS (
     INSERT INTO subscriber_lists (subscriber_id, list_id, status)
-    VALUES((SELECT id FROM sub), UNNEST($5::INT[]), $6)
+    SELECT sub.id, listID, CASE WHEN sub.status = 'blocklisted' THEN 'unsubscribed' ELSE $6::subscription_status END
+    FROM sub, UNNEST($5::INT[]) AS listID
     ON CONFLICT (subscriber_id, list_id) DO UPDATE
-    SET updated_at=NOW(), status=(CASE WHEN $7 THEN $6 ELSE subscriber_lists.status END)
+    SET updated_at = NOW(),
+        status = CASE WHEN $7 THEN EXCLUDED.status ELSE subscriber_lists.status END
 )
 SELECT uuid, id from sub;
 
