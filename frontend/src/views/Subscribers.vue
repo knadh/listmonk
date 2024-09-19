@@ -375,6 +375,7 @@ export default Vue.extend({
           this.$api.blocklistSubscribersByQuery({
             query: this.queryParams.queryExp,
             list_ids: this.queryParams.listID ? [this.queryParams.listID] : null,
+            subscription_status: this.queryParams.subStatus,
           }).then(() => this.querySubscribers());
         };
       }
@@ -426,6 +427,7 @@ export default Vue.extend({
           this.$api.deleteSubscribersByQuery({
             query: this.queryParams.queryExp,
             list_ids: this.queryParams.listID ? [this.queryParams.listID] : null,
+            subscription_status: this.queryParams.subStatus,
           }).then(() => {
             this.querySubscribers();
 
@@ -460,6 +462,7 @@ export default Vue.extend({
       } else {
         // 'All' is selected, perform by query.
         data.query = this.queryParams.queryExp;
+        data.subscription_status = this.queryParams.subStatus;
         fn = this.$api.addSubscribersToListsByQuery;
       }
 
@@ -503,7 +506,6 @@ export default Vue.extend({
       // Get subscribers on load.
       this.querySubscribers();
     }
-
     if (this.$route.query.subscription_status) {
       this.queryParams.subStatus = this.$route.query.subscription_status;
     }

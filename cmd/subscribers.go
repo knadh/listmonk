@@ -22,12 +22,13 @@ const (
 // subQueryReq is a "catch all" struct for reading various
 // subscriber related requests.
 type subQueryReq struct {
-	Query         string `json:"query"`
-	ListIDs       []int  `json:"list_ids"`
-	TargetListIDs []int  `json:"target_list_ids"`
-	SubscriberIDs []int  `json:"ids"`
-	Action        string `json:"action"`
-	Status        string `json:"status"`
+	Query              string `json:"query"`
+	ListIDs            []int  `json:"list_ids"`
+	TargetListIDs      []int  `json:"target_list_ids"`
+	SubscriberIDs      []int  `json:"ids"`
+	Action             string `json:"action"`
+	Status             string `json:"status"`
+	SubscriptionStatus string `json:"subscription_status"`
 }
 
 // subProfileData represents a subscriber's collated data in JSON
@@ -415,7 +416,7 @@ func handleDeleteSubscribersByQuery(c echo.Context) error {
 		return err
 	}
 
-	if err := app.core.DeleteSubscribersByQuery(req.Query, req.ListIDs); err != nil {
+	if err := app.core.DeleteSubscribersByQuery(req.Query, req.ListIDs, req.SubscriptionStatus); err != nil {
 		return err
 	}
 
@@ -434,7 +435,7 @@ func handleBlocklistSubscribersByQuery(c echo.Context) error {
 		return err
 	}
 
-	if err := app.core.BlocklistSubscribersByQuery(req.Query, req.ListIDs); err != nil {
+	if err := app.core.BlocklistSubscribersByQuery(req.Query, req.ListIDs, req.SubscriptionStatus); err != nil {
 		return err
 	}
 
@@ -461,11 +462,11 @@ func handleManageSubscriberListsByQuery(c echo.Context) error {
 	var err error
 	switch req.Action {
 	case "add":
-		err = app.core.AddSubscriptionsByQuery(req.Query, req.ListIDs, req.TargetListIDs, req.Status)
+		err = app.core.AddSubscriptionsByQuery(req.Query, req.ListIDs, req.TargetListIDs, req.Status, req.SubscriptionStatus)
 	case "remove":
-		err = app.core.DeleteSubscriptionsByQuery(req.Query, req.ListIDs, req.TargetListIDs)
+		err = app.core.DeleteSubscriptionsByQuery(req.Query, req.ListIDs, req.TargetListIDs, req.SubscriptionStatus)
 	case "unsubscribe":
-		err = app.core.UnsubscribeListsByQuery(req.Query, req.ListIDs, req.TargetListIDs)
+		err = app.core.UnsubscribeListsByQuery(req.Query, req.ListIDs, req.TargetListIDs, req.SubscriptionStatus)
 	default:
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("subscribers.invalidAction"))
 	}
