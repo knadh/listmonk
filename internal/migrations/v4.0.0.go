@@ -15,6 +15,12 @@ import (
 
 // V4_0_0 performs the DB migrations.
 func V4_0_0(db *sqlx.DB, fs stuffbin.FileSystem, ko *koanf.Koanf, lo *log.Logger) error {
+	lo.Println("IMPORTANT: this upgrade might take a while if you have a large database. Please be patient ...")
+
+	if _, err := db.Exec(`CREATE INDEX IF NOT EXISTS idx_subs_id_status ON subscribers(id, status);`); err != nil {
+		return err
+	}
+
 	if _, err := db.Exec(`
 		CREATE EXTENSION IF NOT EXISTS pgcrypto;
 

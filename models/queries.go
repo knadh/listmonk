@@ -76,6 +76,7 @@ type Queries struct {
 	DeleteCampaignLinkClicks   *sqlx.Stmt `query:"delete-campaign-link-clicks"`
 
 	NextCampaigns            *sqlx.Stmt `query:"next-campaigns"`
+	GetRunningCampaign       *sqlx.Stmt `query:"get-running-campaign"`
 	NextCampaignSubscribers  *sqlx.Stmt `query:"next-campaign-subscribers"`
 	GetOneCampaignSubscriber *sqlx.Stmt `query:"get-one-campaign-subscriber"`
 	UpdateCampaign           *sqlx.Stmt `query:"update-campaign"`

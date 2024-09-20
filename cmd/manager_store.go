@@ -20,6 +20,14 @@ type store struct {
 	h       *http.Client
 }
 
+type runningCamp struct {
+	CampaignID       int    `db:"campaign_id"`
+	CampaignType     string `db:"campaign_type"`
+	LastSubscriberID int    `db:"last_subscriber_id"`
+	MaxSubscriberID  int    `db:"max_subscriber_id"`
+	ListID           int    `db:"list_id"`
+}
+
 func newManagerStore(q *models.Queries, c *core.Core, m media.Store) *store {
 	return &store{
 		queries: q,
@@ -42,8 +50,22 @@ func (s *store) NextCampaigns(currentIDs []int64, sentCounts []int64) ([]*models
 // and every batch takes the last ID of the last batch and fetches the next
 // batch above that.
 func (s *store) NextSubscribers(campID, limit int) ([]models.Subscriber, error) {
+	var camps []runningCamp
+	if err := s.queries.GetRunningCampaign.Select(&camps, campID); err != nil {
+		return nil, err
+	}
+
+	var listIDs []int
+	for _, c := range camps {
+		listIDs = append(listIDs, c.ListID)
+	}
+
+	if len(listIDs) == 0 {
+		return nil, nil
+	}
+
 	var out []models.Subscriber
-	err := s.queries.NextCampaignSubscribers.Select(&out, campID, limit)
+	err := s.queries.NextCampaignSubscribers.Select(&out, camps[0].CampaignID, camps[0].CampaignType, camps[0].LastSubscriberID, camps[0].MaxSubscriberID, pq.Array(listIDs), limit)
 	return out, err
 }
 
