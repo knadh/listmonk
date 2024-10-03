@@ -209,9 +209,7 @@ export default Vue.extend({
         out[c.id] = c;
         return out;
       }, {});
-
       const campIDs = Object.keys(camps);
-
       // datasets[] array for line chart.
       const lines = campIDs.map((id, n) => {
         const cId = parseInt(id, 10);
@@ -242,7 +240,6 @@ export default Vue.extend({
           data: points, backgroundColor: chartColors, borderWidth: 6,
         }],
       };
-
       return { points: { datasets: lines }, donut };
     },
 
@@ -269,7 +266,6 @@ export default Vue.extend({
 
     getData(typ, camps) {
       this.charts[typ].loading = true;
-
       // Call the HTTP API.
       this.charts[typ].fn({
         id: camps.map((c) => c.id),
