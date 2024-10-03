@@ -518,7 +518,7 @@
     "settings.smtp.heloHostHelp": "(Optional) Manche SMTP Server benötigen einen FQDN Hostnamen im HELO. Dieser kann hier gesetzt werden. Standard ist `localhost`.",
     "settings.smtp.name": "SMTP",
     "settings.smtp.retries": "Wiederholungen",
-    "settings.smtp.retriesHelp": "Maximale Anzahl an Wiederholungen, wenn eine Machricht fehlschlägt.",
+    "settings.smtp.retriesHelp": "Maximale Anzahl an Wiederholungen, wenn eine Nachricht fehlschlägt.",
     "settings.smtp.sendTest": "E-mail senden",
     "settings.smtp.setCustomHeaders": "Benutzerdefinierten Header verwenden",
     "settings.smtp.testConnection": "Verbindung testen",
