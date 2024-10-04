@@ -54,6 +54,11 @@ check_dependencies() {
 		echo "'docker compose' functionality is not available. Please update to a newer version of Docker. See https://docs.docker.com/engine/install/ for more details."
 		exit 1
 	fi
+
+	if ! docker compose ls >/dev/null; then
+		echo "no docker access - you might need to run this script with sudo or see https://docs.docker.com/engine/install/linux-postinstall/#manage-docker-as-a-non-root-user"
+		exit 1
+	fi
 }
 
 check_existing_db_volume() {
