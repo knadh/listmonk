@@ -226,7 +226,7 @@ func handleUpdateTemplate(c echo.Context) error {
 	}
 
 	// If it's a transactional template, cache it.
-	if o.Type == models.TemplateTypeTx {
+	if out.Type == models.TemplateTypeTx {
 		app.manager.CacheTpl(out.ID, &o)
 	}
 
