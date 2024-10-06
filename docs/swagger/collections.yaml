@@ -2703,6 +2703,8 @@ components:
               type: string
             settings.bounces.enableSendgrid:
               type: string
+            settings.bounces.enableForwardemail:
+              type: string
             settings.bounces.enablePostmark:
               type: string
             settings.bounces.enableWebhooks:
@@ -2722,6 +2724,8 @@ components:
             settings.bounces.scanIntervalHelp:
               type: string
             settings.bounces.sendgridKey:
+              type: string
+            settings.bounces.forwardemailKey:
               type: string
             settings.bounces.postmarkUsername:
               type: string
@@ -3405,6 +3409,10 @@ components:
         bounce.sendgrid_enabled:
           type: boolean
         bounce.sendgrid_key:
+          type: string
+        bounce.forwardemail_enabled:
+          type: boolean
+        bounce.forwardemail_key:
           type: string
         bounce.postmark_enabled:
           type: boolean
