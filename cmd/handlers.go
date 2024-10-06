@@ -196,6 +196,11 @@ func initHTTPHandlers(e *echo.Echo, app *App) {
 		"subUUID"))
 	e.POST("/subscription/wipe/:subUUID", validateUUID(subscriberExists(handleWipeSubscriberData),
 		"subUUID"))
+
+	// one-click unsubscribe from list
+	e.POST("/unsubscribe/:subUUID/:listUUID", unsubscribeList)
+	e.GET("/unsubscribe/:subUUID/:listUUID", noIndex(validateUUID(subscriberExists(handleListSubscriptionPage), "subUUID", "listUUID")))
+
 	e.GET("/link/:linkUUID/:campUUID/:subUUID", noIndex(validateUUID(handleLinkRedirect,
 		"linkUUID", "campUUID", "subUUID")))
 	e.GET("/campaign/:campUUID/:subUUID", noIndex(validateUUID(handleViewCampaignMessage,

@@ -66,7 +66,7 @@ func (c *Core) GetSubscribersByEmail(emails []string) (models.Subscribers, error
 }
 
 // QuerySubscribers queries and returns paginated subscrribers based on the given params including the total count.
-func (c *Core) QuerySubscribers(query string, listIDs []int, subStatus string, order, orderBy string, offset, limit int) (models.Subscribers, int, error) {
+func (c *Core) QuerySubscribers(query string, listIDs []int, subStatus string, order, orderBy string, offset, limit int, noLists bool) (models.Subscribers, int, error) {
 	// There's an arbitrary query condition.
 	cond := ""
 	if query != "" {
@@ -117,12 +117,13 @@ func (c *Core) QuerySubscribers(query string, listIDs []int, subStatus string, o
 	}
 
 	// Lazy load lists for each subscriber.
-	if err := out.LoadLists(c.q.GetSubscriberListsLazy); err != nil {
-		c.log.Printf("error fetching subscriber lists: %v", err)
-		return nil, 0, echo.NewHTTPError(http.StatusInternalServerError,
-			c.i18n.Ts("globals.messages.errorFetching", "name", "{globals.terms.subscribers}", "error", pqErrMsg(err)))
+	if !noLists {
+		if err := out.LoadLists(c.q.GetSubscriberListsLazy); err != nil {
+			c.log.Printf("error fetching subscriber lists: %v", err)
+			return nil, 0, echo.NewHTTPError(http.StatusInternalServerError,
+				c.i18n.Ts("globals.messages.errorFetching", "name", "{globals.terms.subscribers}", "error", pqErrMsg(err)))
+		}
 	}
-
 	return out, total, nil
 }
 

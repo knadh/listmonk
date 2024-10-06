@@ -353,6 +353,7 @@
     "public.unsubHelp": "Do you want to unsubscribe from this mailing list?",
     "public.unsubTitle": "Unsubscribe",
     "public.unsubbedInfo": "You have unsubscribed successfully.",
+    "public.unsubbedAlreadyInfo": "You have already unsubscribed successfully.",    
     "public.unsubbedTitle": "Unsubscribed",
     "public.unsubscribeTitle": "Unsubscribe from mailing list",
     "settings.appearance.adminHelp": "Custom CSS to apply to the admin UI.",

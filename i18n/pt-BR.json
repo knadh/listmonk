@@ -352,6 +352,7 @@
     "public.unsubHelp": "Deseja cancelar a inscrição desta lista de e-mail?",
     "public.unsubTitle": "Cancelar inscrição",
     "public.unsubbedInfo": "Você cancelou a inscrição com sucesso.",
+    "public.unsubbedAlreadyInfo": "Você já cancelou a inscrição com sucesso.",
     "public.unsubbedTitle": "Inscrição cancelada",
     "public.unsubscribeTitle": "Cancelar inscrição na lista de e-mails",
     "settings.appearance.adminHelp": "CSS customizado para aplicar na admin UI.",
