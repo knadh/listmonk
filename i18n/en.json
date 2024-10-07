@@ -276,6 +276,8 @@
     "lists.typeHelp": "Public lists are open to the world to subscribe and their names may appear on public pages such as the subscription management page.",
     "lists.types.private": "Private",
     "lists.types.public": "Public",
+    "lists.welcomeTemplate": "Welcome Template",
+    "lists.welcomeTemplateHelp": "If enabled, sends an e-mail to new confirmed subscribers using the selected template.",
     "logs.title": "Logs",
     "maintenance.help": "Some actions may take a while to complete depending on the amount of data.",
     "maintenance.maintenance.unconfirmedOptins": "Unconfirmed opt-in subscriptions",

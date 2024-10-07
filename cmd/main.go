@@ -205,6 +205,7 @@ func main() {
 
 	app.core = core.New(cOpt, &core.Hooks{
 		SendOptinConfirmation: sendOptinConfirmationHook(app),
+		SendTxMessage:         sendTxMessageHook(app),
 	})
 
 	app.queries = queries

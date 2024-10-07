@@ -74,6 +74,7 @@ func install(lastVer string, db *sqlx.DB, fs stuffbin.FileSystem, prompt, idempo
 		models.ListOptinSingle,
 		pq.StringArray{"test"},
 		"",
+		nil,
 	); err != nil {
 		lo.Fatalf("error creating list: %v", err)
 	}
@@ -84,6 +85,7 @@ func install(lastVer string, db *sqlx.DB, fs stuffbin.FileSystem, prompt, idempo
 		models.ListOptinDouble,
 		pq.StringArray{"test"},
 		"",
+		nil,
 	); err != nil {
 		lo.Fatalf("error creating list: %v", err)
 	}
