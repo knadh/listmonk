@@ -2487,6 +2487,8 @@ components:
               type: string
             import.subscribe:
               type: string
+            import.subscribeWarning:
+              type: string
             import.title:
               type: string
             import.upload:

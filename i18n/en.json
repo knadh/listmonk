@@ -259,6 +259,7 @@
     "import.recordsCount": "{num} / {total} records",
     "import.stopImport": "Stop import",
     "import.subscribe": "Subscribe",
+    "import.subscribeWarning":"Overwriting could lead to import unsubscribed emails as subscribed.",
     "import.title": "Import subscribers",
     "import.upload": "Upload",
     "lists.confirmDelete": "Are you sure? This does not delete subscribers.",
