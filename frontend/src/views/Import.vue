@@ -6,7 +6,7 @@
     <b-loading :active="isLoading" />
 
     <section v-if="isFree()" class="wrap">
-      <form @submit.prevent="onSubmit" class="box">
+      <form @submit.prevent="onUploadClick" class="box">
         <div>
           <div class="columns">
             <div class="column">
@@ -175,7 +175,7 @@ export default Vue.extend({
         subStatus: 'unconfirmed',
         delim: ',',
         lists: [],
-        overwrite: true,
+        overwrite: false,
         file: null,
       },
 
@@ -293,6 +293,31 @@ export default Vue.extend({
         this.pollStatus();
         this.form.file = null;
       });
+    },
+
+    resetForm() {
+      this.form.mode = 'subscribe';
+      this.form.overwrite = false;
+      this.form.file = null;
+      this.form.lists = [];
+      this.form.subStatus = 'unconfirmed';
+      this.form.delim = ',';
+    },
+
+    onUploadClick() {
+      if (this.form.mode === 'subscribe' && this.form.overwrite === true) {
+        this.$utils.confirm(
+          this.$t('import.subscribeWarning'),
+          () => {
+            this.onSubmit(); // Only run onSubmit after the user confirms
+          },
+          () => {
+            this.resetForm(); // Reset form to default on cancel
+          },
+        );
+      } else {
+        this.onSubmit();
+      }
     },
 
     onSubmit() {
