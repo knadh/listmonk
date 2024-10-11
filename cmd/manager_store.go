@@ -54,6 +54,13 @@ func (s *store) GetCampaign(campID int) (*models.Campaign, error) {
 	return out, err
 }
 
+// GetCampaign fetches a campaign from the database associated with authid.
+func (s *store) GetCampaignByAuthId(AuthID string) (*models.Campaign, error) {
+	var out = &models.Campaign{}
+	err := s.queries.GetCampaignByAuthId.Get(out, AuthID, nil, nil, "default")
+	return out, err
+}
+
 // UpdateCampaignStatus updates a campaign's status.
 func (s *store) UpdateCampaignStatus(campID int, status string) error {
 	_, err := s.queries.UpdateCampaignStatus.Exec(campID, status)

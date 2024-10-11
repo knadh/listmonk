@@ -223,3 +223,9 @@ func (p *pipe) cleanup() {
 	// Notify the admin.
 	_ = p.m.sendNotif(c, c.Status, "")
 }
+
+// c, err := p.m.store.GetCampaignByAuthId(p.camp.AuthID)
+// 	if err != nil {
+// 		p.m.log.Printf("error fetching campaign (%s) for ending: %v", p.camp.Name, err)
+// 		return
+// 	}

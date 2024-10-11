@@ -1,8 +1,7 @@
-# NOTE: This docker-compose.yml is meant to be just an example guideline
-# on how you can achieve the same. It is not intented to run out of the box
+# NOTE: This docker-compose.yml is an example setup.
+# It is not intented to run out of the box
 # and you must edit the below configurations to suit your needs.
-
-version: "3.7"
+# See https://listmonk.app/docs/installation/#manual-docker-install_1
 
 x-app-defaults: &app-defaults
   restart: unless-stopped
@@ -17,13 +16,13 @@ x-app-defaults: &app-defaults
 x-db-defaults: &db-defaults
   image: postgres:13-alpine
   ports:
-    - "9432:5432"
+    - "5432:5432"
   networks:
     - listmonk
   environment:
     - POSTGRES_PASSWORD=listmonk
     - POSTGRES_USER=listmonk
-    - POSTGRES_DB=listmonk
+    - POSTGRES_DB=postgres
   restart: unless-stopped
   healthcheck:
     test: ["CMD-SHELL", "pg_isready -U listmonk"]

@@ -138,6 +138,7 @@ func handleGetPublicLists(c echo.Context) error {
 
 // handleViewCampaignMessage renders the HTML view of a campaign message.
 // This is the view the {{ MessageURL }} template tag links to in e-mail campaigns.
+
 func handleViewCampaignMessage(c echo.Context) error {
 	var (
 		app      = c.Get("app").(*App)
@@ -188,6 +189,60 @@ func handleViewCampaignMessage(c echo.Context) error {
 
 	return c.HTML(http.StatusOK, string(msg.Body()))
 }
+
+/*
+func handleViewCampaignMessage(c echo.Context) error {
+	var (
+		app = c.Get("app").(*App)
+		//campUUID = c.Param("campUUID")
+		subUUID = c.Param("subUUID")
+		authid  = c.Param("authid")
+	)
+
+	// Get the campaign.
+	camp, err := app.core.GetCampaign(authid)
+	if err != nil {
+		if er, ok := err.(*echo.HTTPError); ok {
+			if er.Code == http.StatusBadRequest {
+				return c.Render(http.StatusNotFound, tplMessage,
+					makeMsgTpl(app.i18n.T("public.notFoundTitle"), "", app.i18n.T("public.campaignNotFound")))
+			}
+		}
+
+		return c.Render(http.StatusInternalServerError, tplMessage,
+			makeMsgTpl(app.i18n.T("public.errorTitle"), "", app.i18n.Ts("public.errorFetchingCampaign")))
+	}
+
+	// Get the subscriber.
+	sub, err := app.core.GetSubscriber(0, subUUID, "")
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return c.Render(http.StatusNotFound, tplMessage,
+				makeMsgTpl(app.i18n.T("public.notFoundTitle"), "", app.i18n.T("public.errorFetchingEmail")))
+		}
+
+		return c.Render(http.StatusInternalServerError, tplMessage,
+			makeMsgTpl(app.i18n.T("public.errorTitle"), "", app.i18n.Ts("public.errorFetchingCampaign")))
+	}
+
+	// Compile the template.
+	if err := camp.CompileTemplate(app.manager.TemplateFuncs(&camp)); err != nil {
+		app.log.Printf("error compiling template: %v", err)
+		return c.Render(http.StatusInternalServerError, tplMessage,
+			makeMsgTpl(app.i18n.T("public.errorTitle"), "", app.i18n.Ts("public.errorFetchingCampaign")))
+	}
+
+	// Render the message body.
+	msg, err := app.manager.NewCampaignMessage(&camp, sub)
+	if err != nil {
+		app.log.Printf("error rendering message: %v", err)
+		return c.Render(http.StatusInternalServerError, tplMessage,
+			makeMsgTpl(app.i18n.T("public.errorTitle"), "", app.i18n.Ts("public.errorFetchingCampaign")))
+	}
+
+	return c.HTML(http.StatusOK, string(msg.Body()))
+}
+*/
 
 // handleSubscriptionPage renders the subscription management page and
 // handles unsubscriptions. This is the view that {{ UnsubscribeURL }} in
@@ -669,6 +724,10 @@ func processSubForm(c echo.Context) (bool, error) {
 			FormListUUIDs []string `form:"l" json:"list_uuids"`
 		}
 	)
+	authID := c.Param("authid")
+	if authID == "" {
+		return false, echo.NewHTTPError(http.StatusBadRequest, "authid is required")
+	}
 
 	// Get and validate fields.
 	if err := c.Bind(&req); err != nil {
@@ -702,13 +761,12 @@ func processSubForm(c echo.Context) (bool, error) {
 	}
 
 	listUUIDs := pq.StringArray(req.FormListUUIDs)
-
 	// Insert the subscriber into the DB.
 	_, hasOptin, err := app.core.InsertSubscriber(models.Subscriber{
 		Name:   req.Name,
 		Email:  req.Email,
 		Status: models.SubscriberStatusEnabled,
-	}, nil, listUUIDs, false)
+	}, nil, listUUIDs, false, authID)
 	if err != nil {
 		// Subscriber already exists. Update subscriptions.
 		if e, ok := err.(*echo.HTTPError); ok && e.Code == http.StatusConflict {

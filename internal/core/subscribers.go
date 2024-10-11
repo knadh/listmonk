@@ -43,6 +43,31 @@ func (c *Core) GetSubscriber(id int, uuid, email string) (models.Subscriber, err
 	return out[0], nil
 }
 
+func (c *Core) GetSubscribersByAuthID(authid string) ([]models.Subscriber, error) {
+	// Create a slice to hold the subscribers
+	var out []models.Subscriber
+
+	// Query the database to get subscribers associated with the given authid
+	if err := c.q.GetSubscribersByAuthID.Select(&out, authid); err != nil {
+		c.log.Printf("error fetching subscribers for authid %s: %v", authid, err)
+		return nil, echo.NewHTTPError(http.StatusInternalServerError,
+			c.i18n.Ts("globals.messages.errorFetching",
+				"name", "{globals.terms.subscriber}", "error", pqErrMsg(err)))
+	}
+
+	// Log the number of subscribers found
+	c.log.Printf("Number of subscribers found for authid %s: %d", authid, len(out))
+
+	// Check if any subscribers were found
+	if len(out) == 0 {
+		return nil, echo.NewHTTPError(http.StatusNotFound,
+			c.i18n.Ts("globals.messages.notFound", "name",
+				fmt.Sprintf("{globals.terms.subscriber} for authid %s", authid)))
+	}
+
+	return out, nil
+}
+
 // GetSubscribersByEmail fetches a subscriber by one of the given params.
 func (c *Core) GetSubscribersByEmail(emails []string) (models.Subscribers, error) {
 	var out models.Subscribers
@@ -236,7 +261,7 @@ func (c *Core) ExportSubscribers(query string, subIDs, listIDs []int, subStatus 
 // InsertSubscriber inserts a subscriber and returns the ID. The first bool indicates if
 // it was a new subscriber, and the second bool indicates if the subscriber was sent an optin confirmation.
 // bool = optinSent?
-func (c *Core) InsertSubscriber(sub models.Subscriber, listIDs []int, listUUIDs []string, preconfirm bool) (models.Subscriber, bool, error) {
+func (c *Core) InsertSubscriber(sub models.Subscriber, listIDs []int, listUUIDs []string, preconfirm bool, authID string) (models.Subscriber, bool, error) {
 	uu, err := uuid.NewV4()
 	if err != nil {
 		c.log.Printf("error generating UUID: %v", err)
@@ -244,6 +269,8 @@ func (c *Core) InsertSubscriber(sub models.Subscriber, listIDs []int, listUUIDs 
 			c.i18n.Ts("globals.messages.errorUUID", "error", err.Error()))
 	}
 	sub.UUID = uu.String()
+
+	sub.AuthID = authID
 
 	subStatus := models.SubscriptionStatusUnconfirmed
 	if preconfirm {
@@ -269,7 +296,8 @@ func (c *Core) InsertSubscriber(sub models.Subscriber, listIDs []int, listUUIDs 
 		sub.Attribs,
 		pq.Array(listIDs),
 		pq.Array(listUUIDs),
-		subStatus); err != nil {
+		subStatus,
+		sub.AuthID); err != nil {
 		if pqErr, ok := err.(*pq.Error); ok && pqErr.Constraint == "subscribers_email_key" {
 			return models.Subscriber{}, false, echo.NewHTTPError(http.StatusConflict, c.i18n.T("subscribers.emailExists"))
 		} else {

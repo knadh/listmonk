@@ -34,6 +34,33 @@ func (c *Core) GetLists(typ string) ([]models.List, error) {
 	return out, nil
 }
 
+// get lists by authid
+// GetListsByAuthID gets all lists associated with a particular authid.
+func (c *Core) GetListsByAuthID(authid string) ([]models.List, error) {
+	out := []models.List{}
+
+	// Only pass authid to filter the lists
+	if err := c.q.GetListsByAuthID.Select(&out, authid); err != nil {
+		c.log.Printf("error fetching lists by authid: %v", err)
+		return nil, echo.NewHTTPError(http.StatusInternalServerError,
+			c.i18n.Ts("globals.messages.errorFetching", "name", "{globals.terms.lists}", "error", pqErrMsg(err)))
+	}
+
+	// Replace null tags and calculate subscriber count.
+	for i, l := range out {
+		if l.Tags == nil {
+			out[i].Tags = []string{}
+		}
+
+		// Total counts for subscribers.
+		for _, c := range l.SubscriberCounts {
+			out[i].SubscriberCount += c
+		}
+	}
+
+	return out, nil
+}
+
 // QueryLists gets multiple lists based on multiple query params. Along with the  paginated and sliced
 // results, the total number of lists in the DB is returned.
 func (c *Core) QueryLists(searchStr, typ, optin string, tags []string, orderBy, order string, offset, limit int) ([]models.List, int, error) {
@@ -118,7 +145,7 @@ func (c *Core) GetListsByOptin(ids []int, optinType string) ([]models.List, erro
 }
 
 // CreateList creates a new list.
-func (c *Core) CreateList(l models.List) (models.List, error) {
+func (c *Core) CreateList(l models.List, authID string) (models.List, error) {
 	uu, err := uuid.NewV4()
 	if err != nil {
 		c.log.Printf("error generating UUID: %v", err)
@@ -133,10 +160,12 @@ func (c *Core) CreateList(l models.List) (models.List, error) {
 		l.Optin = models.ListOptinSingle
 	}
 
+	l.UUID = uu.String()
+	l.AuthID = authID
 	// Insert and read ID.
 	var newID int
-	l.UUID = uu.String()
-	if err := c.q.CreateList.Get(&newID, l.UUID, l.Name, l.Type, l.Optin, pq.StringArray(normalizeTags(l.Tags)), l.Description); err != nil {
+
+	if err := c.q.CreateList.Get(&newID, l.UUID, l.Name, l.Type, l.Optin, pq.StringArray(normalizeTags(l.Tags)), l.Description, l.AuthID); err != nil {
 		c.log.Printf("error creating list: %v", err)
 		return models.List{}, echo.NewHTTPError(http.StatusInternalServerError,
 			c.i18n.Ts("globals.messages.errorCreating", "name", "{globals.terms.list}", "error", pqErrMsg(err)))

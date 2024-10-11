@@ -165,6 +165,7 @@ type Subscriber struct {
 	Attribs JSON           `db:"attribs" json:"attribs"`
 	Status  string         `db:"status" json:"status"`
 	Lists   types.JSONText `db:"lists" json:"lists"`
+	AuthID  string         `db:"authid" json:"auth_id"`
 }
 type subLists struct {
 	SubscriberID int            `db:"subscriber_id"`
@@ -229,7 +230,8 @@ type List struct {
 
 	// Pseudofield for getting the total number of subscribers
 	// in searches and queries.
-	Total int `db:"total" json:"-"`
+	Total  int    `db:"total" json:"-"`
+	AuthID string `db:"authid" json:"auth_id"`
 }
 
 // Campaign represents an e-mail campaign.
@@ -271,7 +273,14 @@ type Campaign struct {
 
 	// Pseudofield for getting the total number of subscribers
 	// in searches and queries.
-	Total int `db:"total" json:"-"`
+	Total     int    `db:"total" json:"-"`
+	AuthID    string `db:"authid" json:"auth_id"`
+	MusicID   string `json:"music_id"` // New field
+	Vendor    string `json:"vendor"`   // New field
+	Loop      int    `json:"loop"`     // New field
+	Voice     string `json:"voice"`    // New field
+	Language  string `json:"language"` // New field
+	FromPhone string `json:"from_phone"`
 }
 
 // CampaignMeta contains fields tracking a campaign's progress.

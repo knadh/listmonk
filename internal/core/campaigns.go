@@ -69,6 +69,26 @@ func (c *Core) GetCampaign(id int, uuid, archiveSlug string) (models.Campaign, e
 	return c.getCampaign(id, uuid, archiveSlug, campaignTplDefault)
 }
 
+// GetCampaign retrieves a campaign by authid.
+func (c *Core) GetCampaignByAuthId(authid string) (models.Campaigns, error) {
+	return c.getCampaignByAuthid(authid)
+}
+
+/*func (c *Core) GetArchivedCampaign(id int, uuid, archiveSlug string, authid string) (models.Campaign, error) {
+	out, err := c.getCampaign(authid)
+	if err != nil {
+		return out, err
+	}
+
+	if !out.Archive {
+		return models.Campaign{}, echo.NewHTTPError(http.StatusBadRequest,
+			c.i18n.Ts("globals.messages.notFound", "name", "{globals.terms.campaign}"))
+	}
+
+	return out, nil
+}
+*/
+
 // GetArchivedCampaign retrieves a campaign with the archive template body.
 func (c *Core) GetArchivedCampaign(id int, uuid, archiveSlug string) (models.Campaign, error) {
 	out, err := c.getCampaign(id, uuid, archiveSlug, campaignTplArchive)
@@ -113,7 +133,6 @@ func (c *Core) getCampaign(id int, uuid, archiveSlug string, tplType string) (mo
 			out[i].Tags = []string{}
 		}
 	}
-
 	// Lazy load stats.
 	if err := out.LoadStats(c.q.GetCampaignStats); err != nil {
 		c.log.Printf("error fetching campaign stats: %v", err)
@@ -123,6 +142,63 @@ func (c *Core) getCampaign(id int, uuid, archiveSlug string, tplType string) (mo
 
 	return out[0], nil
 }
+
+// getCampaignsByAuthid retrieves all campaigns associated with a given authid.
+func (c *Core) getCampaignByAuthid(authid string) (models.Campaigns, error) {
+	var out models.Campaigns
+	if err := c.q.GetCampaignByAuthId.Select(&out, authid); err != nil {
+		c.log.Printf("error fetching campaigns: %v", err)
+		return nil, echo.NewHTTPError(http.StatusInternalServerError,
+			c.i18n.Ts("globals.messages.errorFetching", "name", "{globals.terms.campaign}", "error", pqErrMsg(err)))
+	}
+
+	c.log.Printf("Campaigns fetched successfully. Number of campaigns: %d", len(out))
+
+	if len(out) == 0 {
+		c.log.Println("No campaigns found for the provided authid.")
+		return nil, echo.NewHTTPError(http.StatusBadRequest,
+			c.i18n.Ts("globals.messages.notFound", "name", "{globals.terms.campaign}"))
+	}
+
+	// Lazy load stats for each campaign
+	if err := out.LoadStats(c.q.GetCampaignStats); err != nil {
+		c.log.Printf("error fetching campaign stats: %v", err)
+		return nil, echo.NewHTTPError(http.StatusInternalServerError,
+			c.i18n.Ts("globals.messages.errorFetching", "name", "{globals.terms.campaign}", "error", pqErrMsg(err)))
+	}
+
+	c.log.Println("Campaign stats loaded successfully.")
+	return out, nil
+}
+
+/*
+func (c *Core) getCampaignByAuthid(authid string) (models.Campaign, error) {
+
+	var out models.Campaigns
+	if err := c.q.GetCampaignByAuthId.Select(&out, authid); err != nil {
+		c.log.Printf("error fetching campaign: %v", err)
+		return models.Campaign{}, echo.NewHTTPError(http.StatusInternalServerError,
+			c.i18n.Ts("globals.messages.errorFetching", "name", "{globals.terms.campaign}", "error", pqErrMsg(err)))
+	}
+
+	c.log.Printf("Campaign fetched successfully. Number of campaigns: %d", len(out))
+
+	if len(out) == 0 {
+		c.log.Println("No campaigns found.")
+		return models.Campaign{}, echo.NewHTTPError(http.StatusBadRequest,
+			c.i18n.Ts("globals.messages.notFound", "name", "{globals.terms.campaign}"))
+	}
+
+	if err := out.LoadStats(c.q.GetCampaignStats); err != nil {
+		c.log.Printf("error fetching campaign stats: %v", err)
+		return models.Campaign{}, echo.NewHTTPError(http.StatusInternalServerError,
+			c.i18n.Ts("globals.messages.errorFetching", "name", "{globals.terms.campaign}", "error", pqErrMsg(err)))
+	}
+
+	c.log.Println("Campaign stats loaded successfully.")
+	return out[0], nil
+}
+*/
 
 // GetCampaignForPreview retrieves a campaign with a template body.
 func (c *Core) GetCampaignForPreview(id, tplID int) (models.Campaign, error) {
@@ -159,7 +235,59 @@ func (c *Core) GetArchivedCampaigns(offset, limit int) (models.Campaigns, int, e
 }
 
 // CreateCampaign creates a new campaign.
-func (c *Core) CreateCampaign(o models.Campaign, listIDs []int, mediaIDs []int) (models.Campaign, error) {
+// func (c *Core) CreateCampaign(o models.Campaign, listIDs []int, mediaIDs []int, authID string) (models.Campaign, error) {
+// 	uu, err := uuid.NewV4()
+// 	if err != nil {
+// 		c.log.Printf("error generating UUID: %v", err)
+// 		return models.Campaign{}, echo.NewHTTPError(http.StatusInternalServerError,
+// 			c.i18n.Ts("globals.messages.errorUUID", "error", err.Error()))
+// 	}
+// 	o.AuthID = authID
+// 	// Insert and read ID.
+// 	var newID int
+// 	if err := c.q.CreateCampaign.Get(&newID,
+// 		uu,
+// 		o.Type,
+// 		o.Name,
+// 		o.Subject,
+// 		o.FromEmail,
+// 		o.Body,
+// 		o.AltBody,
+// 		o.ContentType,
+// 		o.SendAt,
+// 		o.Headers,
+// 		pq.StringArray(normalizeTags(o.Tags)),
+// 		o.Messenger,
+// 		o.TemplateID,
+// 		pq.Array(listIDs),
+// 		o.Archive,
+// 		o.ArchiveSlug,
+// 		o.ArchiveTemplateID,
+// 		o.ArchiveMeta,
+// 		pq.Array(mediaIDs),
+// 		o.AuthID); err != nil {
+// 		if err == sql.ErrNoRows {
+// 			return models.Campaign{}, echo.NewHTTPError(http.StatusBadRequest, c.i18n.T("campaigns.noSubs"))
+// 		}
+
+// 		c.log.Printf("error creating campaign: %v", err)
+// 		return models.Campaign{}, echo.NewHTTPError(http.StatusInternalServerError,
+// 			c.i18n.Ts("globals.messages.errorCreating", "name", "{globals.terms.campaign}", "error", pqErrMsg(err)))
+// 	}
+
+// 	out, err := c.GetCampaign(newID, "", "")
+// 	if err != nil {
+// 		return models.Campaign{}, err
+// 	}
+
+// 	return out, nil
+// }
+
+// CreateCampaign creates a new campaign with conditions based on messenger type (email, sms, voice).
+
+// CreateCampaign creates a new campaign, ensuring required fields like template_id and list_ids are provided.
+func (c *Core) CreateCampaign(o models.Campaign, listIDs []int, mediaIDs []int, authID string, voiceOption string) (models.Campaign, error) {
+	// Generate a UUID for the campaign
 	uu, err := uuid.NewV4()
 	if err != nil {
 		c.log.Printf("error generating UUID: %v", err)
@@ -167,29 +295,98 @@ func (c *Core) CreateCampaign(o models.Campaign, listIDs []int, mediaIDs []int) 
 			c.i18n.Ts("globals.messages.errorUUID", "error", err.Error()))
 	}
 
-	// Insert and read ID.
+	// Set AuthID
+	o.AuthID = authID
+
+	// Ensure that template_id and list_id are provided
+	if o.TemplateID == 0 {
+		return models.Campaign{}, echo.NewHTTPError(http.StatusBadRequest, "Template ID is required.")
+	}
+	if len(listIDs) == 0 {
+		return models.Campaign{}, echo.NewHTTPError(http.StatusBadRequest, "List ID is required.")
+	}
+
+	// Apply default values based on campaign type and voice option
+	switch o.Messenger {
+	case "voice":
+		switch voiceOption {
+		case "template":
+			// Template-based voice campaign requires template ID and list ID
+			// Template ID and list IDs are already validated as required, so no defaults here
+		case "music":
+			// Music-based voice campaign requires music ID
+			if o.MusicID == "" {
+				return models.Campaign{}, echo.NewHTTPError(http.StatusBadRequest, "Music ID is required for music-based voice campaigns.")
+			}
+		case "text-to-speech":
+			// Text-to-speech requires body, vendor, loop, voice, and language
+			if o.Body == "" {
+				return models.Campaign{}, echo.NewHTTPError(http.StatusBadRequest, "Body is required for TTS campaigns.")
+			}
+			if o.Vendor == "" {
+				o.Vendor = "aws"
+			}
+			if o.Loop == 0 {
+				o.Loop = 1 // Default loop count
+			}
+			if o.Voice == "" {
+				o.Voice = "woman"
+			}
+			if o.Language == "" {
+				o.Language = "en-US"
+			}
+		}
+	case "email":
+		// Email campaign requires subject, body, from_email
+		if o.Subject == "" {
+			return models.Campaign{}, echo.NewHTTPError(http.StatusBadRequest, "Subject is required for email campaigns.")
+		}
+		if o.Body == "" {
+			return models.Campaign{}, echo.NewHTTPError(http.StatusBadRequest, "Body is required for email campaigns.")
+		}
+		if o.FromEmail == "" {
+			return models.Campaign{}, echo.NewHTTPError(http.StatusBadRequest, "From email is required for email campaigns.")
+		}
+	case "sms":
+		// SMS campaign requires from, body
+		if o.FromPhone == "" {
+			return models.Campaign{}, echo.NewHTTPError(http.StatusBadRequest, "From email is required for SMS campaigns.")
+		}
+		if o.Body == "" {
+			return models.Campaign{}, echo.NewHTTPError(http.StatusBadRequest, "Body is required for SMS campaigns.")
+		}
+	}
+
+	// Insert the campaign into the database
 	var newID int
 	if err := c.q.CreateCampaign.Get(&newID,
-		uu,
-		o.Type,
-		o.Name,
-		o.Subject,
-		o.FromEmail,
-		o.Body,
-		o.AltBody,
-		o.ContentType,
-		o.SendAt,
-		o.Headers,
-		pq.StringArray(normalizeTags(o.Tags)),
-		o.Messenger,
-		o.TemplateID,
-		pq.Array(listIDs),
-		o.Archive,
-		o.ArchiveSlug,
-		o.ArchiveTemplateID,
-		o.ArchiveMeta,
-		pq.Array(mediaIDs),
-	); err != nil {
+		uu,                                    // campaign uuid
+		o.Type,                                // campaign type
+		o.Name,                                // campaign name
+		o.Subject,                             // campaign subject
+		o.FromEmail,                           // from email
+		o.Body,                                // body (text for TTS or email campaigns)
+		o.AltBody,                             // alternative body
+		o.ContentType,                         // content type (email campaigns)
+		o.SendAt,                              // send at date/time
+		o.Headers,                             // custom headers
+		pq.StringArray(normalizeTags(o.Tags)), // campaign tags
+		o.Messenger,                           // messenger type (voice, email, sms)
+		o.TemplateID,                          // template id (required)
+		pq.Array(listIDs),                     // list of IDs (required)
+		o.Archive,                             // archive flag
+		o.ArchiveSlug,                         // archive slug
+		o.ArchiveTemplateID,                   // archive template id
+		o.ArchiveMeta,                         // archive metadata
+		pq.Array(mediaIDs),                    // media ids for campaign
+		o.AuthID,                              // auth id
+		o.MusicID,                             // music id for voice campaigns
+		o.Vendor,                              // vendor for TTS campaigns
+		o.Loop,                                // loop count for TTS campaigns
+		o.Voice,                               // voice for TTS campaigns
+		o.Language,
+		o.FromPhone); // language for TTS campaigns
+	err != nil {
 		if err == sql.ErrNoRows {
 			return models.Campaign{}, echo.NewHTTPError(http.StatusBadRequest, c.i18n.T("campaigns.noSubs"))
 		}
@@ -199,6 +396,7 @@ func (c *Core) CreateCampaign(o models.Campaign, listIDs []int, mediaIDs []int) 
 			c.i18n.Ts("globals.messages.errorCreating", "name", "{globals.terms.campaign}", "error", pqErrMsg(err)))
 	}
 
+	// Fetch the newly created campaign
 	out, err := c.GetCampaign(newID, "", "")
 	if err != nil {
 		return models.Campaign{}, err
@@ -234,7 +432,7 @@ func (c *Core) UpdateCampaign(id int, o models.Campaign, listIDs []int, mediaIDs
 			c.i18n.Ts("globals.messages.errorUpdating", "name", "{globals.terms.campaign}", "error", pqErrMsg(err)))
 	}
 
-	out, err := c.GetCampaign(id, "", "")
+	out, err := c.GetCampaign(o.ID, "", "")
 	if err != nil {
 		return models.Campaign{}, err
 	}

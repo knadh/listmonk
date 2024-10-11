@@ -8,6 +8,10 @@ SELECT * FROM subscribers WHERE
         WHEN $2 != '' THEN uuid = $2::UUID
         WHEN $3 != '' THEN email = $3
     END;
+--name: get-subscriber-authid
+SELECT * 
+FROM subscribers 
+WHERE authid = $1;
 
 -- name: get-subscribers-by-emails
 -- Get subscribers by emails.
@@ -76,8 +80,8 @@ SELECT lists.*,
 
 -- name: insert-subscriber
 WITH sub AS (
-    INSERT INTO subscribers (uuid, email, name, status, attribs)
-    VALUES($1, $2, $3, $4, $5)
+    INSERT INTO subscribers (uuid, email, name, status, attribs, authid)
+    VALUES($1, $2, $3, $4, $5,$9)
     RETURNING id, status
 ),
 listIDs AS (
@@ -415,6 +419,10 @@ UPDATE subscriber_lists SET status='unsubscribed', updated_at=NOW()
 SELECT * FROM lists WHERE (CASE WHEN $1 = '' THEN 1=1 ELSE type=$1::list_type END)
     ORDER BY CASE WHEN $2 = 'id' THEN id END, CASE WHEN $2 = 'name' THEN name END;
 
+-- name: get-lists-authid
+SELECT * FROM lists WHERE authid = $1 ORDER BY id;
+
+
 -- name: query-lists
 WITH ls AS (
 	SELECT COUNT(*) OVER () AS total, lists.* FROM lists WHERE
@@ -447,7 +455,7 @@ SELECT * FROM lists WHERE (CASE WHEN $1 != '' THEN optin=$1::list_optin ELSE TRU
     END) ORDER BY name;
 
 -- name: create-list
-INSERT INTO lists (uuid, name, type, optin, tags, description) VALUES($1, $2, $3, $4, $5, $6) RETURNING id;
+INSERT INTO lists (uuid, name, type, optin, tags, description, authid) VALUES($1, $2, $3, $4, $5, $6, $7) RETURNING id;
 
 -- name: update-list
 UPDATE lists SET
@@ -496,11 +504,12 @@ counts AS (
     AND subscribers.status='enabled'
 ),
 camp AS (
-    INSERT INTO campaigns (uuid, type, name, subject, from_email, body, altbody, content_type, send_at, headers, tags, messenger, template_id, to_send, max_subscriber_id, archive, archive_slug, archive_template_id, archive_meta)
+    INSERT INTO campaigns (uuid, type, name, subject, from_email, body, altbody, content_type, send_at, headers, tags, messenger, template_id, to_send, max_subscriber_id, archive, archive_slug, archive_template_id, archive_meta, authid, music_id, vendor, loop, voice, language,fromphone)
         SELECT $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12,
             (SELECT id FROM tpl), (SELECT to_send FROM counts),
             (SELECT max_sub_id FROM counts), $15, $16,
-            (CASE WHEN $17 = 0 THEN (SELECT id FROM tpl) ELSE $17 END), $18
+            (CASE WHEN $17 = 0 THEN (SELECT id FROM tpl) ELSE $17 END), $18, $20,
+            $21, $22, $23, $24, $25, $26
         RETURNING id
 ),
 med AS (
@@ -539,6 +548,13 @@ WHERE ($1 = 0 OR id = $1)
     AND (CARDINALITY($3::VARCHAR(100)[]) = 0 OR $3 <@ tags)
     AND ($4 = '' OR TO_TSVECTOR(CONCAT(name, ' ', subject)) @@ TO_TSQUERY($4) OR CONCAT(c.name, ' ', c.subject) ILIKE $4)
 ORDER BY %order% OFFSET $5 LIMIT (CASE WHEN $6 < 1 THEN NULL ELSE $6 END);
+
+
+-- name: get-campaign-authid
+SELECT campaigns.*
+FROM campaigns
+WHERE  campaigns.authid = $1;
+
 
 -- name: get-campaign
 SELECT campaigns.*,

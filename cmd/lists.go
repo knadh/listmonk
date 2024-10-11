@@ -12,8 +12,9 @@ import (
 // handleGetLists retrieves lists with additional metadata like subscriber counts. This may be slow.
 func handleGetLists(c echo.Context) error {
 	var (
-		app = c.Get("app").(*App)
-		pg  = app.paginator.NewFromURL(c.Request().URL.Query())
+		app       = c.Get("app").(*App)
+		listID, _ = strconv.Atoi(c.Param("id"))
+		pg        = app.paginator.NewFromURL(c.Request().URL.Query())
 
 		query      = strings.TrimSpace(c.FormValue("query"))
 		tags       = c.QueryParams()["tag"]
@@ -22,7 +23,6 @@ func handleGetLists(c echo.Context) error {
 		optin      = c.FormValue("optin")
 		order      = c.FormValue("order")
 		minimal, _ = strconv.ParseBool(c.FormValue("minimal"))
-		listID, _  = strconv.Atoi(c.Param("id"))
 
 		out models.PageResults
 	)
@@ -84,12 +84,42 @@ func handleGetLists(c echo.Context) error {
 	return c.JSON(http.StatusOK, okResp{out})
 }
 
+// handleGetListsByAuthID handles retrieving lists associated with particular AuthID
+// handleGetListsByAuthID retrieves lists associated with a particular authid.
+func handleGetListsByAuthID(c echo.Context) error {
+	var (
+		app    = c.Get("app").(*App)
+		authID = c.Param("authid") // Assuming you are passing authid in the URL path
+		out    []models.List
+	)
+
+	// Fetch lists by authid
+	res, err := app.core.GetListsByAuthID(authID)
+	if err != nil {
+		return err
+	}
+
+	// Check if no lists were found
+	if len(res) == 0 {
+		return c.JSON(http.StatusOK, okResp{[]struct{}{}}) // Return empty response
+	}
+
+	out = res // Assign results
+
+	return c.JSON(http.StatusOK, okResp{out}) // Return lists as JSON
+}
+
 // handleCreateList handles list creation.
 func handleCreateList(c echo.Context) error {
 	var (
 		app = c.Get("app").(*App)
 		l   = models.List{}
 	)
+
+	authID := c.Param("authid")
+	if authID == "" {
+		return echo.NewHTTPError(http.StatusBadRequest, "authid is required")
+	}
 
 	if err := c.Bind(&l); err != nil {
 		return err
@@ -100,7 +130,7 @@ func handleCreateList(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("lists.invalidName"))
 	}
 
-	out, err := app.core.CreateList(l)
+	out, err := app.core.CreateList(l, authID)
 	if err != nil {
 		return err
 	}

@@ -82,6 +82,28 @@ func handleGetSubscriber(c echo.Context) error {
 	return c.JSON(http.StatusOK, okResp{out})
 }
 
+// handleGetSubscribersByAuthID handles the retrieval of all subscribers by AuthID.
+func handleGetSubscribersByAuthID(c echo.Context) error {
+	var (
+		app    = c.Get("app").(*App)
+		authid = c.Param("authid")
+	)
+
+	// Validate that the authid is not empty
+	if authid == "" {
+		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidAuthID"))
+	}
+
+	// Attempt to retrieve subscribers by AuthID
+	out, err := app.core.GetSubscribersByAuthID(authid)
+	if err != nil {
+		return err
+	}
+
+	// Return the subscribers data as JSON
+	return c.JSON(http.StatusOK, okResp{out})
+}
+
 // handleQuerySubscribers handles querying subscribers based on an arbitrary SQL expression.
 func handleQuerySubscribers(c echo.Context) error {
 	var (
@@ -191,6 +213,12 @@ func handleCreateSubscriber(c echo.Context) error {
 		req subimporter.SubReq
 	)
 
+	// Extract the authid from the URL
+	authID := c.Param("authid")
+	if authID == "" {
+		return echo.NewHTTPError(http.StatusBadRequest, "authid is required")
+	}
+
 	// Get and validate fields.
 	if err := c.Bind(&req); err != nil {
 		return err
@@ -203,7 +231,7 @@ func handleCreateSubscriber(c echo.Context) error {
 	}
 
 	// Insert the subscriber into the DB.
-	sub, _, err := app.core.InsertSubscriber(req.Subscriber, req.Lists, req.ListUUIDs, req.PreconfirmSubs)
+	sub, _, err := app.core.InsertSubscriber(req.Subscriber, req.Lists, req.ListUUIDs, req.PreconfirmSubs, authID)
 	if err != nil {
 		return err
 	}

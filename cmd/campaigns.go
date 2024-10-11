@@ -37,6 +37,7 @@ type campaignReq struct {
 
 	// This is only relevant to campaign test requests.
 	SubscriberEmails pq.StringArray `json:"subscribers"`
+	VoiceOption      string         `json:"voice_option"`
 }
 
 // campaignContentReq wraps params coming from API requests for converting
@@ -97,7 +98,7 @@ func handleGetCampaigns(c echo.Context) error {
 func handleGetCampaign(c echo.Context) error {
 	var (
 		app       = c.Get("app").(*App)
-		id, _     = strconv.Atoi(c.Param("id"))
+		id, err   = strconv.Atoi(c.Param("id"))
 		noBody, _ = strconv.ParseBool(c.QueryParam("no_body"))
 	)
 
@@ -112,6 +113,72 @@ func handleGetCampaign(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, okResp{out})
 }
+
+func handleGetCampaignByAuthId(c echo.Context) error {
+	var (
+		app       = c.Get("app").(*App)
+		noBody, _ = strconv.ParseBool(c.QueryParam("no_body"))
+		authid    = c.Param("authid")
+	)
+
+	// Attempt to retrieve the campaigns by AuthID
+	out, err := app.core.GetCampaignByAuthId(authid)
+
+	if err != nil {
+		// Log the error details
+		app.log.Printf("Error fetching campaigns with AuthID: %s Error: %v", authid, err)
+
+		// Return internal server error for other cases
+		return echo.NewHTTPError(http.StatusInternalServerError, "Error retrieving campaigns")
+	}
+
+	// Log successful retrieval of the campaigns
+	app.log.Printf("Successfully retrieved %d campaigns with AuthID: %s", len(out), authid)
+
+	// If the "no_body" query parameter is set, clear the body content from each campaign
+	if noBody {
+		app.log.Printf("NoBody flag is true, clearing the campaign body content")
+		for i := range out {
+			out[i].Body = "" // Clear the body for each campaign
+		}
+	}
+
+	// Return the campaigns data as JSON
+	return c.JSON(http.StatusOK, okResp{out})
+}
+
+/*
+func handleGetCampaignByAuthId(c echo.Context) error {
+	var (
+		app       = c.Get("app").(*App)
+		noBody, _ = strconv.ParseBool(c.QueryParam("no_body"))
+		authid    = c.Param("authid")
+	)
+
+	// Attempt to retrieve the campaign by AuthID
+	out, err := app.core.GetCampaignByAuthId(authid)
+
+	if err != nil {
+		// Log the error details
+		app.log.Printf("Error fetching campaign with AuthID: %s Error: %v", authid, err)
+
+		// Return internal server error for other cases
+		return echo.NewHTTPError(http.StatusInternalServerError, "Error retrieving campaign")
+	}
+
+	// Log successful retrieval of the campaign
+	app.log.Printf("Successfully retrieved campaign with AuthID: %s", authid)
+
+	// If the "no_body" query parameter is set, remove the body content from the response
+	if noBody {
+		app.log.Printf("NoBody flag is true, clearing the campaign body content")
+		out.Body = ""
+	}
+
+	// Return the campaign data as JSON
+	return c.JSON(http.StatusOK, okResp{out})
+}
+*/
 
 // handlePreviewCampaign renders the HTML preview of a campaign body.
 func handlePreviewCampaign(c echo.Context) error {
@@ -186,17 +253,25 @@ func handleCampaignContent(c echo.Context) error {
 
 // handleCreateCampaign handles campaign creation.
 // Newly created campaigns are always drafts.
+// handleCreateCampaign handles campaign creation.
+// Newly created campaigns are always drafts.
 func handleCreateCampaign(c echo.Context) error {
 	var (
 		app = c.Get("app").(*App)
 		o   campaignReq
 	)
 
+	// Extract the authid from the URL
+	authID := c.Param("authid")
+	if authID == "" {
+		return echo.NewHTTPError(http.StatusBadRequest, "authid is required")
+	}
+
 	if err := c.Bind(&o); err != nil {
 		return err
 	}
 
-	// If the campaign's 'opt-in', prepare a default message.
+	// Prepare default values and validate fields
 	if o.Type == models.CampaignTypeOptin {
 		op, err := makeOptinCampaignMessage(o, app)
 		if err != nil {
@@ -210,22 +285,66 @@ func handleCreateCampaign(c echo.Context) error {
 	if o.ContentType == "" {
 		o.ContentType = models.CampaignContentTypeRichtext
 	}
+
 	if o.Messenger == "" {
-		o.Messenger = "email"
+		o.Messenger = "email" // Default messenger
 	}
 
-	// Validate.
+	// Validate common campaign fields
 	if c, err := validateCampaignFields(o, app); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	} else {
 		o = c
 	}
 
+	// Initialize new fields for voice campaigns
+	if o.Messenger == "voice" {
+		if o.VoiceOption == "" {
+			return echo.NewHTTPError(http.StatusBadRequest, "Voice option is required for voice campaigns")
+		}
+
+		// Validate the voice option and set the appropriate fields
+		switch o.VoiceOption {
+		case "template":
+			// Handle template option (Ensure template ID is provided)
+			o.Body = "-" // Not required for template option
+		case "music":
+			// Handle music option
+			if o.MusicID == "" {
+				return echo.NewHTTPError(http.StatusBadRequest, "Music ID is required for music option.")
+			}
+			o.Body = "-" // Assuming Body is not required for music
+		case "text-to-speech":
+			// Handle text-to-speech option
+			if o.Body == "" {
+				return echo.NewHTTPError(http.StatusBadRequest, "Body text is required for text-to-speech option.")
+			}
+			// Set additional fields like Vendor and Language if needed
+			if o.Vendor == "" {
+				o.Vendor = "aws" // Default vendor
+			}
+			if o.Language == "" {
+				o.Language = "en-US" // Default language
+			}
+		default:
+			return echo.NewHTTPError(http.StatusBadRequest, "Invalid voice option provided.")
+		}
+	} else {
+		// If messenger is email or SMS, leave new fields empty
+		o.MusicID = "-"
+		o.Vendor = "-"
+		o.Loop = 0
+		o.Body = "-"
+		o.Language = "-"
+	}
+
+	// Check and set ArchiveTemplateID if not provided
 	if o.ArchiveTemplateID == 0 {
 		o.ArchiveTemplateID = o.TemplateID
 	}
 
-	out, err := app.core.CreateCampaign(o.Campaign, o.ListIDs, o.MediaIDs)
+	// Call CreateCampaign with the required parameters, including the voice option
+	out, err := app.core.CreateCampaign(o.Campaign, o.ListIDs, o.MediaIDs, authID, o.VoiceOption)
 	if err != nil {
 		return err
 	}
@@ -233,7 +352,7 @@ func handleCreateCampaign(c echo.Context) error {
 	return c.JSON(http.StatusOK, okResp{out})
 }
 
-// handleUpdateCampaign handles campaign modification.
+// handleUpdateCampaign handles campaign modification.o.AuthID = c.Param("authid")
 // Campaigns that are done cannot be modified.
 func handleUpdateCampaign(c echo.Context) error {
 	var (

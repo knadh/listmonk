@@ -18,6 +18,7 @@ type Queries struct {
 	UpsertSubscriber                *sqlx.Stmt `query:"upsert-subscriber"`
 	UpsertBlocklistSubscriber       *sqlx.Stmt `query:"upsert-blocklist-subscriber"`
 	GetSubscriber                   *sqlx.Stmt `query:"get-subscriber"`
+	GetSubscribersByAuthID          *sqlx.Stmt `query:"get-subscriber-authid"`
 	GetSubscribersByEmails          *sqlx.Stmt `query:"get-subscribers-by-emails"`
 	GetSubscriberLists              *sqlx.Stmt `query:"get-subscriber-lists"`
 	GetSubscriptions                *sqlx.Stmt `query:"get-subscriptions"`
@@ -48,17 +49,19 @@ type Queries struct {
 	DeleteSubscriptionsByQuery             string     `query:"delete-subscriptions-by-query"`
 	UnsubscribeSubscribersFromListsByQuery string     `query:"unsubscribe-subscribers-from-lists-by-query"`
 
-	CreateList      *sqlx.Stmt `query:"create-list"`
-	QueryLists      string     `query:"query-lists"`
-	GetLists        *sqlx.Stmt `query:"get-lists"`
-	GetListsByOptin *sqlx.Stmt `query:"get-lists-by-optin"`
-	UpdateList      *sqlx.Stmt `query:"update-list"`
-	UpdateListsDate *sqlx.Stmt `query:"update-lists-date"`
-	DeleteLists     *sqlx.Stmt `query:"delete-lists"`
+	CreateList       *sqlx.Stmt `query:"create-list"`
+	QueryLists       string     `query:"query-lists"`
+	GetLists         *sqlx.Stmt `query:"get-lists"`
+	GetListsByAuthID *sqlx.Stmt `query:"get-lists-authid"`
+	GetListsByOptin  *sqlx.Stmt `query:"get-lists-by-optin"`
+	UpdateList       *sqlx.Stmt `query:"update-list"`
+	UpdateListsDate  *sqlx.Stmt `query:"update-lists-date"`
+	DeleteLists      *sqlx.Stmt `query:"delete-lists"`
 
 	CreateCampaign        *sqlx.Stmt `query:"create-campaign"`
 	QueryCampaigns        string     `query:"query-campaigns"`
 	GetCampaign           *sqlx.Stmt `query:"get-campaign"`
+	GetCampaignByAuthId   *sqlx.Stmt `query:"get-campaign-authid"`
 	GetCampaignForPreview *sqlx.Stmt `query:"get-campaign-for-preview"`
 	GetCampaignStats      *sqlx.Stmt `query:"get-campaign-stats"`
 	GetCampaignStatus     *sqlx.Stmt `query:"get-campaign-status"`
