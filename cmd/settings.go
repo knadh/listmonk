@@ -13,6 +13,7 @@ import (
 
 	"github.com/gdgvda/cron"
 	"github.com/gofrs/uuid/v5"
+	"github.com/jinzhu/copier"
 	"github.com/jmoiron/sqlx/types"
 	"github.com/knadh/koanf/parsers/json"
 	"github.com/knadh/koanf/providers/rawbytes"
@@ -78,12 +79,16 @@ func handleGetSettings(c echo.Context) error {
 // handleUpdateSettings returns settings from the DB.
 func handleUpdateSettings(c echo.Context) error {
 	var (
-		app = c.Get("app").(*App)
-		set models.Settings
+		app      = c.Get("app").(*App)
+		req, set models.Settings
 	)
 
 	// Unmarshal and marshal the fields once to sanitize the settings blob.
-	if err := c.Bind(&set); err != nil {
+	if err := c.Bind(&req); err != nil {
+		return err
+	}
+
+	if err := c.Validate(req); err != nil {
 		return err
 	}
 
@@ -93,10 +98,13 @@ func handleUpdateSettings(c echo.Context) error {
 		return err
 	}
 
+	set = cur
+	copier.CopyWithOption(&set, &req, copier.Option{IgnoreEmpty: true})
+
 	// There should be at least one SMTP block that's enabled.
 	has := false
 	for i, s := range set.SMTP {
-		if s.Enabled {
+		if *s.Enabled {
 			has = true
 		}
 
@@ -157,6 +165,24 @@ func handleUpdateSettings(c echo.Context) error {
 		}
 	}
 
+	// handle bounce postmark
+	if set.BouncePostmark.Enabled == nil {
+		set.BouncePostmark.Enabled = cur.BouncePostmark.Enabled
+	}
+	if set.BouncePostmark.Username == "" {
+		set.BouncePostmark.Username = cur.BouncePostmark.Username
+	}
+	if set.BouncePostmark.Password == "" {
+		set.BouncePostmark.Password = cur.BouncePostmark.Password
+	}
+
+	// handle bounce actions
+	for name, action := range cur.BounceActions {
+		if _, ok := set.BounceActions[name]; !ok {
+			set.BounceActions[name] = action
+		}
+	}
+
 	// Validate and sanitize postback Messenger names. Duplicates are disallowed
 	// and "email" is a reserved name.
 	names := map[string]bool{emailMsgr: true}
@@ -188,20 +214,6 @@ func handleUpdateSettings(c echo.Context) error {
 		names[name] = true
 	}
 
-	// S3 password?
-	if set.UploadS3AwsSecretAccessKey == "" {
-		set.UploadS3AwsSecretAccessKey = cur.UploadS3AwsSecretAccessKey
-	}
-	if set.SendgridKey == "" {
-		set.SendgridKey = cur.SendgridKey
-	}
-	if set.BouncePostmark.Password == "" {
-		set.BouncePostmark.Password = cur.BouncePostmark.Password
-	}
-	if set.SecurityCaptchaSecret == "" {
-		set.SecurityCaptchaSecret = cur.SecurityCaptchaSecret
-	}
-
 	for n, v := range set.UploadExtensions {
 		set.UploadExtensions[n] = strings.ToLower(strings.TrimPrefix(strings.TrimSpace(v), "."))
 	}
@@ -217,7 +229,7 @@ func handleUpdateSettings(c echo.Context) error {
 	set.DomainBlocklist = doms
 
 	// Validate slow query caching cron.
-	if set.CacheSlowQueries {
+	if *set.CacheSlowQueries {
 		if _, err := cron.ParseStandard(set.CacheSlowQueriesInterval); err != nil {
 			return echo.NewHTTPError(http.StatusBadRequest, app.i18n.Ts("globals.messages.invalidData")+": slow query cron: "+err.Error())
 		}
