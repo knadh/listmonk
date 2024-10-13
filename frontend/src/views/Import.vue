@@ -93,12 +93,8 @@
         </h5>
         <p>{{ $t('import.instructionsHelp') }}</p>
         <br />
-        <blockquote className="csv-example">
-          <code className="csv-headers">
-              <span>email,</span>
-              <span>name,</span>
-              <span>attributes</span>
-            </code>
+        <blockquote class="csv-example">
+          <code class="csv-headers"> <span>email,</span> <span>name,</span> <span>attributes</span></code>
         </blockquote>
 
         <hr />
@@ -106,23 +102,8 @@
         <h5 class="title is-size-6">
           {{ $t('import.csvExample') }}
         </h5>
-        <blockquote className="csv-example">
-          <code className="csv-headers">
-              <span>email,</span>
-              <span>name,</span>
-              <span>attributes</span>
-            </code><br />
-          <code className="csv-row">
-              <span>user1@mail.com,</span>
-              <span>"User One",</span>
-              <span>"{""age"": 42, ""planet"": ""Mars""}"</span>
-            </code><br />
-          <code className="csv-row">
-              <span>user2@mail.com,</span>
-              <span>"User Two",</span>
-              <span>"{""age"": 24, ""job"": ""Time Traveller""}"</span>
-            </code>
-        </blockquote>
+
+        <pre class="csv-example" v-text="example" />
       </div>
     </section><!-- upload //-->
 
@@ -177,6 +158,7 @@ export default Vue.extend({
         lists: [],
         overwrite: false,
         file: null,
+        example: '',
       },
 
       // Initial page load still has to wait for the status API to return
@@ -295,6 +277,14 @@ export default Vue.extend({
       });
     },
 
+    renderExample() {
+      const h = 'email, name, attributes\n'
+        + 'user1 @mail.com, "User One", "{""age"": 42, ""planet"": ""Mars""}"\n'
+        + 'user2 @mail.com, "User Two", "{""age"": 24, ""job"": ""Time Traveller""}"';
+
+      this.example = h;
+    },
+
     resetForm() {
       this.form.mode = 'subscribe';
       this.form.overwrite = false;
@@ -361,6 +351,7 @@ export default Vue.extend({
   },
 
   mounted() {
+    this.renderExample();
     this.pollStatus();
 
     const ids = this.$utils.parseQueryIDs(this.$route.query.list_id);
