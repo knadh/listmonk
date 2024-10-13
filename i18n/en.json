@@ -368,6 +368,7 @@
     "settings.security.OIDCClientID": "Client ID",
     "settings.security.OIDCClientSecret": "Client secret",
     "settings.security.OIDCRedirectURL": "Redirect URL for oAuth provider",
+    "settings.security.OIDCRedirectWarning": "This does not seem to be a production URL. Change the Root URL in 'General' settings.",
     "settings.appearance.adminHelp": "Custom CSS to apply to the admin UI.",
     "settings.appearance.adminName": "Admin",
     "settings.appearance.customCSS": "Custom CSS",

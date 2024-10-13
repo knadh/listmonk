@@ -35,6 +35,10 @@
         <b-field :label="$t('settings.security.OIDCRedirectURL')">
           <code><copy-text :text="`${serverConfig.root_url}/auth/oidc`" /></code>
         </b-field>
+        <p v-if="!isURLOk" class="has-text-danger">
+          <b-icon icon="warning-empty" />
+          {{ $t('settings.security.OIDCRedirectWarning') }}
+        </p>
       </div>
     </div>
 
@@ -92,6 +96,15 @@ export default Vue.extend({
 
     isMobile() {
       return this.windowWidth <= 768;
+    },
+
+    isURLOk() {
+      try {
+        const u = new URL(this.serverConfig.root_url);
+        return u.hostname !== 'localhost' && u.hostname !== '127.0.0.1';
+      } catch (e) {
+        return false;
+      }
     },
   },
 
