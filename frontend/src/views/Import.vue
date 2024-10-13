@@ -6,7 +6,7 @@
     <b-loading :active="isLoading" />
 
     <section v-if="isFree()" class="wrap">
-      <form @submit.prevent="onUploadClick" class="box">
+      <form @submit.prevent="onUpload" class="box">
         <div>
           <div class="columns">
             <div class="column">
@@ -294,20 +294,13 @@ export default Vue.extend({
       this.form.delim = ',';
     },
 
-    onUploadClick() {
-      if (this.form.mode === 'subscribe' && this.form.overwrite === true) {
-        this.$utils.confirm(
-          this.$t('import.subscribeWarning'),
-          () => {
-            this.onSubmit(); // Only run onSubmit after the user confirms
-          },
-          () => {
-            this.resetForm(); // Reset form to default on cancel
-          },
-        );
-      } else {
-        this.onSubmit();
+    onUpload() {
+      if (this.form.mode === 'subscribe' && this.form.overwrite) {
+        this.$utils.confirm(this.$t('import.subscribeWarning'), this.onSubmit, this.resetForm);
+        return;
       }
+
+      this.onSubmit();
     },
 
     onSubmit() {
