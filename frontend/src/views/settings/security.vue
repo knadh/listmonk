@@ -35,7 +35,7 @@
         <b-field :label="$t('settings.security.OIDCRedirectURL')">
           <code><copy-text :text="`${serverConfig.root_url}/auth/oidc`" /></code>
         </b-field>
-        <p v-if="!isURLOk" class="has-text-danger">
+        <p v-if="data['security.oidc']['enabled'] && !isURLOk" class="has-text-danger">
           <b-icon icon="warning-empty" />
           {{ $t('settings.security.OIDCRedirectWarning') }}
         </p>
