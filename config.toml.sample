@@ -12,6 +12,10 @@ address = "localhost:9000"
 admin_username = "listmonk"
 admin_password = "listmonk"
 
+[cors]
+enabled = false
+allowed_origins = ["*", "localhost:3000"]
+
 # Database.
 [db]
 host = "localhost"

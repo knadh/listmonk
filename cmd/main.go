@@ -7,6 +7,8 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"sort"
+	"strconv"
 	"strings"
 	"sync"
 	"syscall"
@@ -115,13 +117,42 @@ func init() {
 	// Load config files to pick up the database settings first.
 	initConfigFiles(ko.Strings("config"), ko)
 
-	// Load environment variables and merge into the loaded config.
-	if err := ko.Load(env.Provider("LISTMONK_", ".", func(s string) string {
-		return strings.Replace(strings.ToLower(
-			strings.TrimPrefix(s, "LISTMONK_")), "__", ".", -1)
-	}), nil); err != nil {
-		lo.Fatalf("error loading config from env: %v", err)
+	// Map to store array-like variables
+	arrayMap := make(map[string]map[int]string)
+
+	// Custom function to process environment variables
+	processor := func(key string, value string) (string, interface{}) {
+		// Remove prefix and convert to lowercase
+		processedKey := strings.ToLower(strings.TrimPrefix(key, "LISTMONK_"))
+
+		// Replace double underscores with dots for nested keys
+		processedKey = strings.Replace(processedKey, "__", ".", -1)
+
+		// Check if the key ends with a number (potential array index)
+		parts := strings.Split(processedKey, ".")
+		lastPart := parts[len(parts)-1]
+		if index, err := strconv.Atoi(lastPart); err == nil {
+			// It's an array item
+			arrayKey := strings.Join(parts[:len(parts)-1], ".")
+			if _, exists := arrayMap[arrayKey]; !exists {
+				arrayMap[arrayKey] = make(map[int]string)
+			}
+			arrayMap[arrayKey][index] = value
+
+			return arrayKey, mapToSortedArray(arrayMap[arrayKey])
+		}
+
+		return processedKey, value
 	}
+
+	// Load environment variables
+	if err := ko.Load(env.ProviderWithValue("LISTMONK_", ".", processor), nil); err != nil {
+		fmt.Printf("error loading config from env: %v\n", err)
+		return
+	}
+
+	// Debug print the config.
+	// fmt.Println(ko.Sprint())
 
 	// Connect to the database, load the filesystem to read SQL queries.
 	db = initDB()
@@ -160,6 +191,22 @@ func init() {
 
 	// Prepare queries.
 	queries = prepareQueries(qMap, db, ko)
+}
+
+// mapToSortedArray converts a map[int]string to a sorted []string
+func mapToSortedArray(indexMap map[int]string) []string {
+	var keys []int
+	for k := range indexMap {
+		keys = append(keys, k)
+	}
+	sort.Ints(keys)
+
+	var array []string
+	for _, k := range keys {
+		array = append(array, indexMap[k])
+	}
+
+	return array
 }
 
 func main() {
