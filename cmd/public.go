@@ -115,7 +115,7 @@ func handleGetPublicLists(c echo.Context) error {
 	)
 
 	// Get all public lists.
-	lists, err := app.core.GetLists(models.ListTypePublic)
+	lists, err := app.core.GetLists(models.ListTypePublic, true, nil)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("public.errorFetchingLists"))
 	}
@@ -418,7 +418,7 @@ func handleSubscriptionFormPage(c echo.Context) error {
 	}
 
 	// Get all public lists.
-	lists, err := app.core.GetLists(models.ListTypePublic)
+	lists, err := app.core.GetLists(models.ListTypePublic, true, nil)
 	if err != nil {
 		return c.Render(http.StatusInternalServerError, tplMessage,
 			makeMsgTpl(app.i18n.T("public.errorTitle"), "", app.i18n.Ts("public.errorFetchingLists")))

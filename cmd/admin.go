@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"sort"
@@ -11,20 +12,30 @@ import (
 )
 
 type serverConfig struct {
-	Messengers   []string   `json:"messengers"`
-	Langs        []i18nLang `json:"langs"`
-	Lang         string     `json:"lang"`
-	Update       *AppUpdate `json:"update"`
-	NeedsRestart bool       `json:"needs_restart"`
-	Version      string     `json:"version"`
+	RootURL       string          `json:"root_url"`
+	FromEmail     string          `json:"from_email"`
+	Messengers    []string        `json:"messengers"`
+	Langs         []i18nLang      `json:"langs"`
+	Lang          string          `json:"lang"`
+	Permissions   json.RawMessage `json:"permissions"`
+	Update        *AppUpdate      `json:"update"`
+	NeedsRestart  bool            `json:"needs_restart"`
+	HasLegacyUser bool            `json:"has_legacy_user"`
+	Version       string          `json:"version"`
 }
 
 // handleGetServerConfig returns general server config.
 func handleGetServerConfig(c echo.Context) error {
 	var (
 		app = c.Get("app").(*App)
-		out = serverConfig{}
 	)
+	out := serverConfig{
+		RootURL:       app.constants.RootURL,
+		FromEmail:     app.constants.FromEmail,
+		Lang:          app.constants.Lang,
+		Permissions:   app.constants.PermissionsRaw,
+		HasLegacyUser: app.constants.HasLegacyUser,
+	}
 
 	// Language list.
 	langList, err := getI18nLangList(app.constants.Lang, app)
@@ -33,7 +44,6 @@ func handleGetServerConfig(c echo.Context) error {
 			fmt.Sprintf("Error loading language list: %v", err))
 	}
 	out.Langs = langList
-	out.Lang = app.constants.Lang
 
 	// Sort messenger names with `email` always as the first item.
 	var names []string

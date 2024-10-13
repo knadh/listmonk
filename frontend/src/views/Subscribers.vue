@@ -13,7 +13,7 @@
         </h1>
       </div>
       <div class="column has-text-right">
-        <b-field expanded>
+        <b-field v-if="$can('subscribers:manage')" expanded>
           <b-button expanded type="is-primary" icon-left="plus" @click="showNewForm" data-cy="btn-new" class="btn-new">
             {{ $t('globals.buttons.new') }}
           </b-button>
@@ -42,7 +42,8 @@
                   data-cy="query" />
                 <span class="is-size-6 has-text-grey">
                   {{ $t('subscribers.advancedQueryHelp') }}.{{ ' ' }}
-                  <a href="https://listmonk.app/docs/querying-and-segmentation" target="_blank" rel="noopener noreferrer">
+                  <a href="https://listmonk.app/docs/querying-and-segmentation" target="_blank"
+                    rel="noopener noreferrer">
                     {{ $t('globals.buttons.learnMore') }}.
                   </a>
                 </span>
@@ -69,8 +70,8 @@
     </section><!-- control -->
 
     <br />
-    <b-table :data="subscribers.results ?? []" :loading="loading.subscribers" @check-all="onTableCheck" @check="onTableCheck"
-      :checked-rows.sync="bulk.checked" paginated backend-pagination pagination-position="both"
+    <b-table :data="subscribers.results ?? []" :loading="loading.subscribers" @check-all="onTableCheck"
+      @check="onTableCheck" :checked-rows.sync="bulk.checked" paginated backend-pagination pagination-position="both"
       @page-change="onPageChange" :current-page="queryParams.page" :per-page="subscribers.perPage"
       :total="subscribers.total" hoverable checkable backend-sorting @sort="onSort">
       <template #top-left>
@@ -102,19 +103,14 @@
         </div>
       </template>
 
-      <b-table-column v-slot="props" field="status" :label="$t('globals.fields.status')" header-class="cy-status"
-        :td-attrs="$utils.tdID" sortable>
-        <a :href="`/subscribers/${props.row.id}`" @click.prevent="showEditForm(props.row)">
-          <b-tag :class="props.row.status">
-            {{ $t(`subscribers.status.${props.row.status}`) }}
-          </b-tag>
-        </a>
-      </b-table-column>
-
       <b-table-column v-slot="props" field="email" :label="$t('subscribers.email')" header-class="cy-email" sortable>
-        <a :href="`/subscribers/${props.row.id}`" @click.prevent="showEditForm(props.row)">
+        <a :href="`/subscribers/${props.row.id}`" @click.prevent="showEditForm(props.row)"
+          :class="{ 'blocklisted': props.row.status === 'blocklisted' }">
           {{ props.row.email }}
         </a>
+        <b-tag v-if="props.row.status !== 'enabled'" :class="props.row.status">
+          {{ $t(`subscribers.status.${props.row.status}`) }}
+        </b-tag>
         <b-taglist>
           <template v-for="l in props.row.lists">
             <router-link :to="`/subscribers/lists/${l.id}`" :key="l.id" style="padding-right:0.5em;">
@@ -130,7 +126,8 @@
       </b-table-column>
 
       <b-table-column v-slot="props" field="name" :label="$t('globals.fields.name')" header-class="cy-name" sortable>
-        <a :href="`/subscribers/${props.row.id}`" @click.prevent="showEditForm(props.row)">
+        <a :href="`/subscribers/${props.row.id}`" @click.prevent="showEditForm(props.row)"
+          :class="{ 'blocklisted': props.row.status === 'blocklisted' }">
           {{ props.row.name }}
         </a>
       </b-table-column>
@@ -157,14 +154,14 @@
               <b-icon icon="cloud-download-outline" size="is-small" />
             </b-tooltip>
           </a>
-          <a :href="`/subscribers/${props.row.id}`" @click.prevent="showEditForm(props.row)" data-cy="btn-edit"
-            :aria-label="$t('globals.buttons.edit')">
+          <a v-if="$can('subscribers:manage')" :href="`/subscribers/${props.row.id}`"
+            @click.prevent="showEditForm(props.row)" data-cy="btn-edit" :aria-label="$t('globals.buttons.edit')">
             <b-tooltip :label="$t('globals.buttons.edit')" type="is-dark">
               <b-icon icon="pencil-outline" size="is-small" />
             </b-tooltip>
           </a>
-          <a href="#" @click.prevent="deleteSubscriber(props.row)" data-cy="btn-delete"
-            :aria-label="$t('globals.buttons.delete')">
+          <a v-if="$can('subscribers:manage')" href="#" @click.prevent="deleteSubscriber(props.row)"
+            data-cy="btn-delete" :aria-label="$t('globals.buttons.delete')">
             <b-tooltip :label="$t('globals.buttons.delete')" type="is-dark">
               <b-icon icon="trash-can-outline" size="is-small" />
             </b-tooltip>

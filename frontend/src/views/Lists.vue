@@ -8,7 +8,7 @@
         </h1>
       </div>
       <div class="column has-text-right">
-        <b-field expanded>
+        <b-field v-if="$can('lists:manage_all')" expanded>
           <b-button expanded type="is-primary" icon-left="plus" class="btn-new" @click="showNewForm" data-cy="btn-new">
             {{ $t('globals.buttons.new') }}
           </b-button>
@@ -25,7 +25,8 @@
             <form @submit.prevent="getLists">
               <div>
                 <b-field>
-                  <b-input v-model="queryParams.query" name="query" expanded icon="magnify" ref="query" data-cy="query" />
+                  <b-input v-model="queryParams.query" name="query" expanded icon="magnify" ref="query"
+                    data-cy="query" />
                   <p class="controls">
                     <b-button native-type="submit" type="is-primary" icon-left="magnify" data-cy="btn-query" />
                   </p>
@@ -78,10 +79,15 @@
 
       <b-table-column v-slot="props" field="subscriber_count" :label="$t('globals.terms.subscribers')"
         header-class="cy-subscribers" numeric sortable centered>
-        <router-link :to="`/subscribers/lists/${props.row.id}`">
+        <template v-if="$can('subscribers:get_all', 'subscribers:get')">
+          <router-link :to="`/subscribers/lists/${props.row.id}`">
+            {{ $utils.formatNumber(props.row.subscriberCount) }}
+            <span class="is-size-7 view">{{ $t('globals.buttons.view') }}</span>
+          </router-link>
+        </template>
+        <template v-else>
           {{ $utils.formatNumber(props.row.subscriberCount) }}
-          <span class="is-size-7 view">{{ $t('globals.buttons.view') }}</span>
-        </router-link>
+        </template>
       </b-table-column>
 
       <b-table-column v-slot="props" field="subscriber_counts" header-class="cy-subscribers" width="10%">
@@ -106,26 +112,28 @@
 
       <b-table-column v-slot="props" cell-class="actions" align="right">
         <div>
-          <router-link :to="`/campaigns/new?list_id=${props.row.id}`" data-cy="btn-campaign">
+          <router-link v-if="$can('campaigns:manage')" :to="`/campaigns/new?list_id=${props.row.id}`"
+            data-cy="btn-campaign">
             <b-tooltip :label="$t('lists.sendCampaign')" type="is-dark">
               <b-icon icon="rocket-launch-outline" size="is-small" />
             </b-tooltip>
           </router-link>
 
-          <a href="#" @click.prevent="showEditForm(props.row)" data-cy="btn-edit"
+          <a v-if="$can('lists:manage')" href="#" @click.prevent="showEditForm(props.row)" data-cy="btn-edit"
             :aria-label="$t('globals.buttons.edit')">
             <b-tooltip :label="$t('globals.buttons.edit')" type="is-dark">
               <b-icon icon="pencil-outline" size="is-small" />
             </b-tooltip>
           </a>
 
-          <router-link :to="{ name: 'import', query: { list_id: props.row.id } }" data-cy="btn-import">
+          <router-link v-if="$can('lists:import')" :to="{ name: 'import', query: { list_id: props.row.id } }"
+            data-cy="btn-import">
             <b-tooltip :label="$t('import.title')" type="is-dark">
               <b-icon icon="file-upload-outline" size="is-small" />
             </b-tooltip>
           </router-link>
 
-          <a href="#" @click.prevent="deleteList(props.row)" data-cy="btn-delete"
+          <a v-if="$can('lists:manage')" href="#" @click.prevent="deleteList(props.row)" data-cy="btn-delete"
             :aria-label="$t('globals.buttons.delete')">
             <b-tooltip :label="$t('globals.buttons.delete')" type="is-dark">
               <b-icon icon="trash-can-outline" size="is-small" />

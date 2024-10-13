@@ -8,7 +8,7 @@
         </h1>
       </div>
       <div class="column has-text-right">
-        <b-field expanded>
+        <b-field v-if="$can('campaigns:manage')" expanded>
           <b-button expanded :to="{ name: 'campaign', params: { id: 'new' } }" tag="router-link" class="btn-new"
             type="is-primary" icon-left="plus" data-cy="btn-new">
             {{ $t('globals.buttons.new') }}
@@ -170,51 +170,56 @@
       <b-table-column v-slot="props" cell-class="actions" width="15%" align="right">
         <div>
           <!-- start / pause / resume / scheduled -->
-          <a v-if="canStart(props.row)" href="#"
-            @click.prevent="$utils.confirm(null, () => changeCampaignStatus(props.row, 'running'))" data-cy="btn-start"
-            :aria-label="$t('campaigns.start')">
-            <b-tooltip :label="$t('campaigns.start')" type="is-dark">
-              <b-icon icon="rocket-launch-outline" size="is-small" />
-            </b-tooltip>
-          </a>
-          <a v-if="canPause(props.row)" href="#"
-            @click.prevent="$utils.confirm(null, () => changeCampaignStatus(props.row, 'paused'))" data-cy="btn-pause"
-            :aria-label="$t('campaigns.pause')">
-            <b-tooltip :label="$t('campaigns.pause')" type="is-dark">
-              <b-icon icon="pause-circle-outline" size="is-small" />
-            </b-tooltip>
-          </a>
-          <a v-if="canResume(props.row)" href="#"
-            @click.prevent="$utils.confirm(null, () => changeCampaignStatus(props.row, 'running'))" data-cy="btn-resume"
-            :aria-label="$t('campaigns.send')">
-            <b-tooltip :label="$t('campaigns.send')" type="is-dark">
-              <b-icon icon="rocket-launch-outline" size="is-small" />
-            </b-tooltip>
-          </a>
-          <a v-if="canSchedule(props.row)" href="#"
-            @click.prevent="$utils.confirm($t('campaigns.confirmSchedule'), () => changeCampaignStatus(props.row, 'scheduled'))"
-            data-cy="btn-schedule" :aria-label="$t('campaigns.schedule')">
-            <b-tooltip :label="$t('campaigns.schedule')" type="is-dark">
-              <b-icon icon="clock-start" size="is-small" />
-            </b-tooltip>
-          </a>
+          <template v-if="$can('campaigns:manage')">
+            <a v-if="canStart(props.row)" href="#"
+              @click.prevent="$utils.confirm(null, () => changeCampaignStatus(props.row, 'running'))"
+              data-cy="btn-start" :aria-label="$t('campaigns.start')">
+              <b-tooltip :label="$t('campaigns.start')" type="is-dark">
+                <b-icon icon="rocket-launch-outline" size="is-small" />
+              </b-tooltip>
+            </a>
 
-          <!-- placeholder for finished campaigns -->
-          <a v-if="!canCancel(props.row) && !canSchedule(props.row) && !canStart(props.row)" href="#" data-disabled
-            aria-label=" ">
-            <b-icon icon="rocket-launch-outline" size="is-small" />
-          </a>
+            <a v-if="canPause(props.row)" href="#"
+              @click.prevent="$utils.confirm(null, () => changeCampaignStatus(props.row, 'paused'))" data-cy="btn-pause"
+              :aria-label="$t('campaigns.pause')">
+              <b-tooltip :label="$t('campaigns.pause')" type="is-dark">
+                <b-icon icon="pause-circle-outline" size="is-small" />
+              </b-tooltip>
+            </a>
 
-          <a v-if="canCancel(props.row)" href="#"
-            @click.prevent="$utils.confirm(null, () => changeCampaignStatus(props.row, 'cancelled'))"
-            data-cy="btn-cancel" :aria-label="$t('globals.buttons.cancel')">
-            <b-tooltip :label="$t('globals.buttons.cancel')" type="is-dark">
+            <a v-if="canResume(props.row)" href="#"
+              @click.prevent="$utils.confirm(null, () => changeCampaignStatus(props.row, 'running'))"
+              data-cy="btn-resume" :aria-label="$t('campaigns.send')">
+              <b-tooltip :label="$t('campaigns.send')" type="is-dark">
+                <b-icon icon="rocket-launch-outline" size="is-small" />
+              </b-tooltip>
+            </a>
+
+            <a v-if="canSchedule(props.row)" href="#"
+              @click.prevent="$utils.confirm($t('campaigns.confirmSchedule'), () => changeCampaignStatus(props.row, 'scheduled'))"
+              data-cy="btn-schedule" :aria-label="$t('campaigns.schedule')">
+              <b-tooltip :label="$t('campaigns.schedule')" type="is-dark">
+                <b-icon icon="clock-start" size="is-small" />
+              </b-tooltip>
+            </a>
+
+            <!-- placeholder for finished campaigns -->
+            <a v-if="!canCancel(props.row) && !canSchedule(props.row) && !canStart(props.row)" href="#" data-disabled
+              aria-label=" ">
+              <b-icon icon="rocket-launch-outline" size="is-small" />
+            </a>
+
+            <a v-if="canCancel(props.row)" href="#"
+              @click.prevent="$utils.confirm(null, () => changeCampaignStatus(props.row, 'cancelled'))"
+              data-cy="btn-cancel" :aria-label="$t('globals.buttons.cancel')">
+              <b-tooltip :label="$t('globals.buttons.cancel')" type="is-dark">
+                <b-icon icon="cancel" size="is-small" />
+              </b-tooltip>
+            </a>
+            <a v-else href="#" data-disabled aria-label=" ">
               <b-icon icon="cancel" size="is-small" />
-            </b-tooltip>
-          </a>
-          <a v-else href="#" data-disabled aria-label=" ">
-            <b-icon icon="cancel" size="is-small" />
-          </a>
+            </a>
+          </template>
 
           <a href="#" @click.prevent="previewCampaign(props.row)" data-cy="btn-preview"
             :aria-label="$t('campaigns.preview')">
@@ -222,7 +227,7 @@
               <b-icon icon="file-find-outline" size="is-small" />
             </b-tooltip>
           </a>
-          <a href="#" @click.prevent="$utils.prompt($t('globals.buttons.clone'),
+          <a v-if="$can('campaigns:manage')" href="#" @click.prevent="$utils.prompt($t('globals.buttons.clone'),
             {
               placeholder: $t('globals.fields.name'),
               value: $t('campaigns.copyOf', { name: props.row.name }),
@@ -232,12 +237,13 @@
               <b-icon icon="file-multiple-outline" size="is-small" />
             </b-tooltip>
           </a>
-          <router-link :to="{ name: 'campaignAnalytics', query: { id: props.row.id } }">
+          <router-link v-if="$can('campaigns:get_analytics')"
+            :to="{ name: 'campaignAnalytics', query: { id: props.row.id } }">
             <b-tooltip :label="$t('globals.terms.analytics')" type="is-dark">
               <b-icon icon="chart-bar" size="is-small" />
             </b-tooltip>
           </router-link>
-          <a href="#"
+          <a v-if="$can('campaigns:manage')" href="#"
             @click.prevent="$utils.confirm($t('campaigns.confirmDelete', { name: props.row.name }), () => deleteCampaign(props.row))"
             data-cy="btn-delete" :aria-label="$t('globals.buttons.delete')">
             <b-icon icon="trash-can-outline" size="is-small" />

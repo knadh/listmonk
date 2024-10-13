@@ -96,6 +96,12 @@ const routes = [
     component: () => import('../views/Campaign.vue'),
   },
   {
+    path: '/user/profile',
+    name: 'userProfile',
+    meta: { title: 'users.profile', group: 'settings' },
+    component: () => import('../views/UserProfile.vue'),
+  },
+  {
     path: '/settings',
     name: 'settings',
     meta: { title: 'globals.terms.settings', group: 'settings' },
@@ -106,6 +112,24 @@ const routes = [
     name: 'logs',
     meta: { title: 'logs.title', group: 'settings' },
     component: () => import('../views/Logs.vue'),
+  },
+  {
+    path: '/users',
+    name: 'users',
+    meta: { title: 'globals.terms.users', group: 'users' },
+    component: () => import('../views/Users.vue'),
+  },
+  {
+    path: '/users/roles/users',
+    name: 'userRoles',
+    meta: { title: 'users.userRoles', group: 'users' },
+    component: () => import('../views/Roles.vue'),
+  },
+  {
+    path: '/users/roles/lists',
+    name: 'listRoles',
+    meta: { title: 'users.listRoles', group: 'users' },
+    component: () => import('../views/Roles.vue'),
   },
   {
     path: '/settings/maintenance',

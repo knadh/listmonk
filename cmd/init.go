@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"crypto/md5"
+	"database/sql"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -28,6 +29,7 @@ import (
 	"github.com/knadh/koanf/providers/file"
 	"github.com/knadh/koanf/providers/posflag"
 	"github.com/knadh/koanf/v2"
+	"github.com/knadh/listmonk/internal/auth"
 	"github.com/knadh/listmonk/internal/bounce"
 	"github.com/knadh/listmonk/internal/bounce/mailbox"
 	"github.com/knadh/listmonk/internal/captcha"
@@ -45,13 +47,11 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/lib/pq"
 	flag "github.com/spf13/pflag"
+	"gopkg.in/volatiletech/null.v6"
 )
 
 const (
 	queryFilePath = "queries.sql"
-
-	// Root URI of the admin frontend.
-	adminRoot = "/admin"
 )
 
 // constants contains static, constant config values required by the app.
@@ -60,6 +60,7 @@ type constants struct {
 	RootURL                       string   `koanf:"root_url"`
 	LogoURL                       string   `koanf:"logo_url"`
 	FaviconURL                    string   `koanf:"favicon_url"`
+	LoginURL                      string   `koanf:"login_url"`
 	FromEmail                     string   `koanf:"from_email"`
 	NotifyEmails                  []string `koanf:"notify_emails"`
 	EnablePublicSubPage           bool     `koanf:"enable_public_subscription_page"`
@@ -79,12 +80,17 @@ type constants struct {
 		DomainBlocklist    []string        `koanf:"-"`
 	} `koanf:"privacy"`
 	Security struct {
+		OIDC struct {
+			Enabled      bool   `koanf:"enabled"`
+			Provider     string `koanf:"provider_url"`
+			ClientID     string `koanf:"client_id"`
+			ClientSecret string `koanf:"client_secret"`
+		} `koanf:"oidc"`
+
 		EnableCaptcha bool   `koanf:"enable_captcha"`
 		CaptchaKey    string `koanf:"captcha_key"`
 		CaptchaSecret string `koanf:"captcha_secret"`
 	} `koanf:"security"`
-	AdminUsername []byte `koanf:"admin_username"`
-	AdminPassword []byte `koanf:"admin_password"`
 
 	Appearance struct {
 		AdminCSS  []byte `koanf:"admin.custom_css"`
@@ -93,13 +99,14 @@ type constants struct {
 		PublicJS  []byte `koanf:"public.custom_js"`
 	}
 
-	UnsubURL     string
-	LinkTrackURL string
-	ViewTrackURL string
-	OptinURL     string
-	MessageURL   string
-	ArchiveURL   string
-	AssetVersion string
+	HasLegacyUser bool
+	UnsubURL      string
+	LinkTrackURL  string
+	ViewTrackURL  string
+	OptinURL      string
+	MessageURL    string
+	ArchiveURL    string
+	AssetVersion  string
 
 	MediaUpload struct {
 		Provider   string
@@ -110,6 +117,9 @@ type constants struct {
 	BounceSESEnabled      bool
 	BounceSendgridEnabled bool
 	BouncePostmarkEnabled bool
+
+	PermissionsRaw json.RawMessage
+	Permissions    map[string]struct{}
 }
 
 type notifTpls struct {
@@ -171,6 +181,7 @@ func initFS(appDir, frontendDir, staticDir, i18nDir string) stuffbin.FileSystem 
 			"./config.toml.sample:config.toml.sample",
 			"./queries.sql:queries.sql",
 			"./schema.sql:schema.sql",
+			"./permissions.json:permissions.json",
 		}
 
 		frontendFiles = []string{
@@ -385,11 +396,13 @@ func initConstants() *constants {
 	if err := ko.Unmarshal("security", &c.Security); err != nil {
 		lo.Fatalf("error loading app.security config: %v", err)
 	}
+
 	if err := ko.UnmarshalWithConf("appearance", &c.Appearance, koanf.UnmarshalConf{FlatPaths: true}); err != nil {
 		lo.Fatalf("error loading app.appearance config: %v", err)
 	}
 
 	c.RootURL = strings.TrimRight(c.RootURL, "/")
+	c.LoginURL = path.Join(uriAdmin, "/login")
 	c.Lang = ko.String("app.lang")
 	c.Privacy.Exportable = maps.StringSliceToLookupMap(ko.Strings("privacy.exportable"))
 	c.MediaUpload.Provider = ko.String("upload.provider")
@@ -420,8 +433,32 @@ func initConstants() *constants {
 	c.BounceSendgridEnabled = ko.Bool("bounce.sendgrid_enabled")
 	c.BouncePostmarkEnabled = ko.Bool("bounce.postmark.enabled")
 
+	c.HasLegacyUser = ko.Exists("app.admin_username") || ko.Exists("app.admin_password")
+
 	b := md5.Sum([]byte(time.Now().String()))
 	c.AssetVersion = fmt.Sprintf("%x", b)[0:10]
+
+	pm, err := fs.Read("/permissions.json")
+	if err != nil {
+		lo.Fatalf("error reading permissions file: %v", err)
+	}
+	c.PermissionsRaw = pm
+
+	// Make a lookup map of permissions.
+	permGroups := []struct {
+		Group       string   `json:"group"`
+		Permissions []string `json:"permissions"`
+	}{}
+	if err := json.Unmarshal(pm, &permGroups); err != nil {
+		lo.Fatalf("error loading permissions file: %v", err)
+	}
+
+	c.Permissions = map[string]struct{}{}
+	for _, group := range permGroups {
+		for _, g := range group.Permissions {
+			c.Permissions[g] = struct{}{}
+		}
+	}
 
 	return &c
 }
@@ -899,4 +936,73 @@ func initTplFuncs(i *i18n.I18n, cs *constants) template.FuncMap {
 	}
 
 	return funcs
+}
+
+func initAuth(db *sql.DB, ko *koanf.Koanf, co *core.Core) *auth.Auth {
+	var oidcCfg auth.OIDCConfig
+
+	if ko.Bool("security.oidc.enabled") {
+		oidcCfg = auth.OIDCConfig{
+			Enabled:      true,
+			ProviderURL:  ko.String("security.oidc.provider_url"),
+			ClientID:     ko.String("security.oidc.client_id"),
+			ClientSecret: ko.String("security.oidc.client_secret"),
+			RedirectURL:  fmt.Sprintf("%s/auth/oidc", strings.TrimRight(ko.String("app.root_url"), "/")),
+		}
+	}
+
+	// Session manager callbacks for getting and setting cookies.
+	cb := &auth.Callbacks{
+		GetCookie: func(name string, r interface{}) (*http.Cookie, error) {
+			c := r.(echo.Context)
+			cookie, err := c.Cookie(name)
+			return cookie, err
+		},
+		SetCookie: func(cookie *http.Cookie, w interface{}) error {
+			c := w.(echo.Context)
+			c.SetCookie(cookie)
+			return nil
+		},
+		GetUser: func(id int) (models.User, error) {
+			return co.GetUser(id, "", "")
+		},
+	}
+
+	a, err := auth.New(auth.Config{
+		OIDC: oidcCfg,
+	}, db, cb, lo)
+	if err != nil {
+		lo.Fatalf("error initializing auth: %v", err)
+	}
+
+	// Cache all API users in-memory for token auth.
+	if err := cacheAPIUsers(co, a); err != nil {
+		lo.Fatalf("error loading API users: %v", err)
+	}
+
+	// If the legacy username+password is set in the TOML file, use that as an API
+	// access token in the auth module to preserve backwards compatibility for existing
+	// API integrations. The presence of these values show a red banner on the admin UI
+	// prompting the creation of new API credentials and the removal of values from
+	// the TOML config.
+	var (
+		username = ko.String("app.admin_username")
+		password = ko.String("app.admin_password")
+	)
+	if len(username) > 2 && len(password) > 6 {
+		u := models.User{
+			Username:      username,
+			Password:      null.String{Valid: true, String: password},
+			PasswordLogin: true,
+			HasPassword:   true,
+			Status:        models.UserStatusEnabled,
+			Type:          models.UserTypeAPI,
+		}
+		u.UserRole.ID = auth.SuperAdminRoleID
+		a.CacheAPIUser(u)
+
+		lo.Println(`WARNING: Remove the admin_username and admin_password fields from the TOML configuration file. If you are using APIs, create and use new credentials. Users are now managed via the Admin -> Settings -> Users dashboard.`)
+	}
+
+	return a
 }

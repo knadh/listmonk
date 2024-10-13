@@ -18,6 +18,7 @@ type Queries struct {
 	UpsertSubscriber                *sqlx.Stmt `query:"upsert-subscriber"`
 	UpsertBlocklistSubscriber       *sqlx.Stmt `query:"upsert-blocklist-subscriber"`
 	GetSubscriber                   *sqlx.Stmt `query:"get-subscriber"`
+	HasSubscriberLists              *sqlx.Stmt `query:"has-subscriber-list"`
 	GetSubscribersByEmails          *sqlx.Stmt `query:"get-subscribers-by-emails"`
 	GetSubscriberLists              *sqlx.Stmt `query:"get-subscriber-lists"`
 	GetSubscriptions                *sqlx.Stmt `query:"get-subscriptions"`
@@ -75,6 +76,7 @@ type Queries struct {
 	DeleteCampaignLinkClicks   *sqlx.Stmt `query:"delete-campaign-link-clicks"`
 
 	NextCampaigns            *sqlx.Stmt `query:"next-campaigns"`
+	GetRunningCampaign       *sqlx.Stmt `query:"get-running-campaign"`
 	NextCampaignSubscribers  *sqlx.Stmt `query:"next-campaign-subscribers"`
 	GetOneCampaignSubscriber *sqlx.Stmt `query:"get-one-campaign-subscriber"`
 	UpdateCampaign           *sqlx.Stmt `query:"update-campaign"`
@@ -107,6 +109,23 @@ type Queries struct {
 	DeleteBounces             *sqlx.Stmt `query:"delete-bounces"`
 	DeleteBouncesBySubscriber *sqlx.Stmt `query:"delete-bounces-by-subscriber"`
 	GetDBInfo                 string     `query:"get-db-info"`
+
+	CreateUser        *sqlx.Stmt `query:"create-user"`
+	UpdateUser        *sqlx.Stmt `query:"update-user"`
+	UpdateUserProfile *sqlx.Stmt `query:"update-user-profile"`
+	UpdateUserLogin   *sqlx.Stmt `query:"update-user-login"`
+	DeleteUsers       *sqlx.Stmt `query:"delete-users"`
+	GetUsers          *sqlx.Stmt `query:"get-users"`
+	GetAPITokens      *sqlx.Stmt `query:"get-api-tokens"`
+	LoginUser         *sqlx.Stmt `query:"login-user"`
+
+	CreateRole            *sqlx.Stmt `query:"create-role"`
+	GetUserRoles          *sqlx.Stmt `query:"get-user-roles"`
+	GetListRoles          *sqlx.Stmt `query:"get-list-roles"`
+	UpdateRole            *sqlx.Stmt `query:"update-role"`
+	DeleteRole            *sqlx.Stmt `query:"delete-role"`
+	UpsertListPermissions *sqlx.Stmt `query:"upsert-list-permissions"`
+	DeleteListPermission  *sqlx.Stmt `query:"delete-list-permission"`
 }
 
 // CompileSubscriberQueryTpl takes an arbitrary WHERE expressions

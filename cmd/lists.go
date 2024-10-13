@@ -5,15 +5,17 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/knadh/listmonk/internal/auth"
 	"github.com/knadh/listmonk/models"
 	"github.com/labstack/echo/v4"
 )
 
-// handleGetLists retrieves lists with additional metadata like subscriber counts. This may be slow.
+// handleGetLists retrieves lists with additional metadata like subscriber counts.
 func handleGetLists(c echo.Context) error {
 	var (
-		app = c.Get("app").(*App)
-		pg  = app.paginator.NewFromURL(c.Request().URL.Query())
+		app  = c.Get("app").(*App)
+		user = c.Get(auth.UserKey).(models.User)
+		pg   = app.paginator.NewFromURL(c.Request().URL.Query())
 
 		query      = strings.TrimSpace(c.FormValue("query"))
 		tags       = c.QueryParams()["tag"]
@@ -22,28 +24,23 @@ func handleGetLists(c echo.Context) error {
 		optin      = c.FormValue("optin")
 		order      = c.FormValue("order")
 		minimal, _ = strconv.ParseBool(c.FormValue("minimal"))
-		listID, _  = strconv.Atoi(c.Param("id"))
 
 		out models.PageResults
 	)
 
-	// Fetch one list.
-	single := false
-	if listID > 0 {
-		single = true
-	}
-
-	if single {
-		out, err := app.core.GetList(listID, "")
-		if err != nil {
-			return err
-		}
-		return c.JSON(http.StatusOK, okResp{out})
+	var (
+		permittedIDs []int
+		getAll       = false
+	)
+	if _, ok := user.PermissionsMap["lists:get_all"]; ok {
+		getAll = true
+	} else {
+		permittedIDs = user.GetListIDs
 	}
 
 	// Minimal query simply returns the list of all lists without JOIN subscriber counts. This is fast.
-	if !single && minimal {
-		res, err := app.core.GetLists("")
+	if minimal {
+		res, err := app.core.GetLists("", getAll, permittedIDs)
 		if err != nil {
 			return err
 		}
@@ -61,18 +58,9 @@ func handleGetLists(c echo.Context) error {
 	}
 
 	// Full list query.
-	res, total, err := app.core.QueryLists(query, typ, optin, tags, orderBy, order, pg.Offset, pg.Limit)
+	res, total, err := app.core.QueryLists(query, typ, optin, tags, orderBy, order, getAll, permittedIDs, pg.Offset, pg.Limit)
 	if err != nil {
 		return err
-	}
-
-	if single && len(res) == 0 {
-		return echo.NewHTTPError(http.StatusBadRequest,
-			app.i18n.Ts("globals.messages.notFound", "name", "{globals.terms.list}"))
-	}
-
-	if single {
-		return c.JSON(http.StatusOK, okResp{res[0]})
 	}
 
 	out.Query = query
@@ -80,6 +68,21 @@ func handleGetLists(c echo.Context) error {
 	out.Total = total
 	out.Page = pg.Page
 	out.PerPage = pg.PerPage
+
+	return c.JSON(http.StatusOK, okResp{out})
+}
+
+// handleGetList retrieves a single list by id.
+func handleGetList(c echo.Context) error {
+	var (
+		app       = c.Get("app").(*App)
+		listID, _ = strconv.Atoi(c.Param("id"))
+	)
+
+	out, err := app.core.GetList(listID, "")
+	if err != nil {
+		return err
+	}
 
 	return c.JSON(http.StatusOK, okResp{out})
 }
@@ -159,4 +162,38 @@ func handleDeleteLists(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, okResp{true})
+}
+
+// listPerm is a middleware for wrapping /list/* API calls that take a
+// list :id param for validating the list ID against the user's list perms.
+func listPerm(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		var (
+			app   = c.Get("app").(*App)
+			user  = c.Get(auth.UserKey).(models.User)
+			id, _ = strconv.Atoi(c.Param("id"))
+		)
+
+		// Define permissions based on HTTP read/write.
+		var (
+			permAll = models.PermListManageAll
+			perm    = models.PermListManage
+		)
+		if c.Request().Method == http.MethodGet {
+			permAll = models.PermListGetAll
+			perm = models.PermListGet
+		}
+
+		// Check if the user has permissions for all lists or the specific list.
+		if _, ok := user.PermissionsMap[permAll]; ok {
+			return next(c)
+		}
+		if id > 0 {
+			if _, ok := user.ListPermissionsMap[id][perm]; ok {
+				return next(c)
+			}
+		}
+
+		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.Ts("globals.messages.permissionDenied", "name", "list"))
+	}
 }

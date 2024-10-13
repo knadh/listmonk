@@ -12,9 +12,29 @@
       <template #end>
         <navigation v-if="isMobile" :is-mobile="isMobile" :active-item="activeItem" :active-group="activeGroup"
           @toggleGroup="toggleGroup" @doLogout="doLogout" />
-        <b-navbar-item v-else tag="div">
-          <a href="#" @click.prevent="doLogout">{{ $t('users.logout') }}</a>
-        </b-navbar-item>
+
+        <b-navbar-dropdown class="user" tag="div" right v-else>
+          <template v-if="profile.username" #label>
+            <span class="user-avatar">
+              <img v-if="profile.avatar" :src="profile.avatar" alt="" />
+              <span v-else>{{ profile.username[0].toUpperCase() }}</span>
+            </span>
+          </template>
+
+          <b-navbar-item class="user-name" tag="router-link" to="/user/profile">
+            <strong>{{ profile.username }}</strong>
+            <div class="is-size-7">{{ profile.name }}</div>
+          </b-navbar-item>
+
+          <b-navbar-item href="#">
+            <router-link to="/user/profile">
+              <b-icon icon="account-outline" /> {{ $t('users.profile') }}
+            </router-link>
+          </b-navbar-item>
+          <b-navbar-item href="#">
+            <a href="#" @click.prevent="doLogout"><b-icon icon="logout-variant" /> {{ $t('users.logout') }}</a>
+          </b-navbar-item>
+        </b-navbar-dropdown>
       </template>
     </b-navbar>
 
@@ -33,7 +53,8 @@
 
       <!-- body //-->
       <div class="main">
-        <div class="global-notices" v-if="serverConfig.needs_restart || serverConfig.update">
+        <div class="global-notices"
+          v-if="serverConfig.needs_restart || serverConfig.update || serverConfig.has_legacy_user">
           <div v-if="serverConfig.needs_restart" class="notification is-danger">
             {{ $t('settings.needsRestart') }}
             &mdash;
@@ -42,9 +63,35 @@
               {{ $t('settings.restart') }}
             </b-button>
           </div>
-          <div v-if="serverConfig.update" class="notification is-success">
-            {{ $t('settings.updateAvailable', { version: serverConfig.update.version }) }}
-            <a :href="serverConfig.update.url" target="_blank" rel="noopener noreferer">View</a>
+
+          <template v-if="serverConfig.update">
+            <div v-if="serverConfig.update.update.is_new" class="notification is-success">
+              {{ $t('settings.updateAvailable', {
+                version: `${serverConfig.update.update.release_version}
+              (${$utils.getDate(serverConfig.update.update.release_date).format('DD MMM YY')})`,
+              }) }}
+              <a :href="serverConfig.update.update.url" target="_blank" rel="noopener noreferer">View</a>
+            </div>
+
+            <template v-if="serverConfig.update.messages && serverConfig.update.messages.length > 0">
+              <div v-for="m in serverConfig.update.messages" class="notification"
+                :class="{ [m.priority === 'high' ? 'is-danger' : 'is-info']: true }" :key="m.title">
+                <h3 class="is-size-5" v-if="m.title"><strong>{{ m.title }}</strong></h3>
+                <p v-if="m.description">{{ m.description }}</p>
+                <a v-if="m.url" :href="m.url" target="_blank" rel="noopener noreferer">View</a>
+              </div>
+            </template>
+          </template>
+
+          <div v-if="serverConfig.has_legacy_user" class="notification is-danger">
+            <b-icon icon="warning-empty" />
+            Remove the <code>admin_username</code> and <code>admin_password</code> fields from the TOML
+            configuration file or environment variables. If you are using APIs, create and use new API credentials
+            before removing the them. Visit
+            <router-link :to="{ name: 'users' }">
+              Admin -> Settings -> Users
+            </router-link> dashboard. <a href="https://listmonk.app/docs/upgrade/#upgrading-to-v4xx" target="_blank"
+              rel="noopener noreferer">Learn more.</a>
           </div>
         </div>
 
@@ -114,17 +161,9 @@ export default Vue.extend({
     },
 
     doLogout() {
-      const http = new XMLHttpRequest();
-
-      const u = uris.root.substr(-1) === '/' ? uris.root : `${uris.root}/`;
-      http.open('get', `${u}api/logout`, false, 'logout_non_user', 'logout_non_user');
-      http.onload = () => {
+      this.$api.logout().then(() => {
         document.location.href = uris.root;
-      };
-      http.onerror = () => {
-        document.location.href = uris.root;
-      };
-      http.send();
+      });
     },
 
     listenEvents() {
@@ -147,7 +186,7 @@ export default Vue.extend({
   },
 
   computed: {
-    ...mapState(['serverConfig']),
+    ...mapState(['serverConfig', 'profile']),
 
     version() {
       return import.meta.env.VUE_APP_VERSION;

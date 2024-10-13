@@ -7,6 +7,11 @@ DROP TYPE IF EXISTS campaign_type CASCADE; CREATE TYPE campaign_type AS ENUM ('r
 DROP TYPE IF EXISTS content_type CASCADE; CREATE TYPE content_type AS ENUM ('richtext', 'html', 'plain', 'markdown');
 DROP TYPE IF EXISTS bounce_type CASCADE; CREATE TYPE bounce_type AS ENUM ('soft', 'hard', 'complaint');
 DROP TYPE IF EXISTS template_type CASCADE; CREATE TYPE template_type AS ENUM ('campaign', 'tx');
+DROP TYPE IF EXISTS user_type CASCADE; CREATE TYPE user_type AS ENUM ('user', 'api');
+DROP TYPE IF EXISTS user_status CASCADE; CREATE TYPE user_status AS ENUM ('enabled', 'disabled');
+DROP TYPE IF EXISTS role_type CASCADE; CREATE TYPE role_type AS ENUM ('user', 'list');
+
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
 
 -- subscribers
 DROP TABLE IF EXISTS subscribers CASCADE;
@@ -23,6 +28,7 @@ CREATE TABLE subscribers (
 );
 DROP INDEX IF EXISTS idx_subs_email; CREATE UNIQUE INDEX idx_subs_email ON subscribers(LOWER(email));
 DROP INDEX IF EXISTS idx_subs_status; CREATE INDEX idx_subs_status ON subscribers(status);
+DROP INDEX IF EXISTS idx_subs_id_status; CREATE INDEX idx_subs_id_status ON subscribers(id, status);
 DROP INDEX IF EXISTS idx_subs_created_at; CREATE INDEX idx_subs_created_at ON subscribers(created_at);
 DROP INDEX IF EXISTS idx_subs_updated_at; CREATE INDEX idx_subs_updated_at ON subscribers(updated_at);
 
@@ -246,6 +252,7 @@ INSERT INTO settings (key, value) VALUES
     ('security.enable_captcha', 'false'),
     ('security.captcha_key', '""'),
     ('security.captcha_secret', '""'),
+    ('security.oidc', '{"enabled": false, "provider_url": "", "client_id": "", "client_secret": ""}'),
     ('upload.provider', '"filesystem"'),
     ('upload.max_file_size', '5000'),
     ('upload.extensions', '["jpg","jpeg","png","gif","svg","*"]'),
@@ -295,7 +302,48 @@ DROP INDEX IF EXISTS idx_bounces_camp_id; CREATE INDEX idx_bounces_camp_id ON bo
 DROP INDEX IF EXISTS idx_bounces_source; CREATE INDEX idx_bounces_source ON bounces(source);
 DROP INDEX IF EXISTS idx_bounces_date; CREATE INDEX idx_bounces_date ON bounces((TIMEZONE('UTC', created_at)::DATE));
 
+-- roles
+DROP TABLE IF EXISTS roles CASCADE;
+CREATE TABLE roles (
+    id               SERIAL PRIMARY KEY,
+    type             role_type NOT NULL DEFAULT 'user',
+    parent_id        INTEGER NULL REFERENCES roles(id) ON DELETE CASCADE ON UPDATE CASCADE,
+    list_id          INTEGER NULL REFERENCES lists(id) ON DELETE CASCADE ON UPDATE CASCADE,
+    permissions      TEXT[] NOT NULL DEFAULT '{}',
+    name             TEXT NULL,
+    created_at       TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at       TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+CREATE UNIQUE INDEX roles_idx ON roles (parent_id, list_id);
+CREATE UNIQUE INDEX roles_name_idx ON roles (type, name) WHERE name IS NOT NULL;
 
+-- users
+DROP TABLE IF EXISTS users CASCADE;
+CREATE TABLE users (
+    id               SERIAL PRIMARY KEY,
+    username         TEXT NOT NULL UNIQUE,
+    password_login   BOOLEAN NOT NULL DEFAULT false,
+    password         TEXT NULL,
+    email            TEXT NOT NULL UNIQUE,
+    name             TEXT NOT NULL,
+    avatar           TEXT NULL,
+    type             user_type NOT NULL DEFAULT 'user',
+    user_role_id     INTEGER NOT NULL REFERENCES roles(id) ON DELETE RESTRICT,
+    list_role_id     INTEGER NULL REFERENCES roles(id) ON DELETE CASCADE,
+    status           user_status NOT NULL DEFAULT 'disabled',
+    loggedin_at      TIMESTAMP WITH TIME ZONE NULL,
+    created_at       TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at       TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- user sessions
+DROP TABLE IF EXISTS sessions CASCADE;
+CREATE TABLE sessions (
+    id TEXT NOT NULL PRIMARY KEY,
+    data JSONB DEFAULT '{}'::jsonb NOT NULL,
+    created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT now() NOT NULL
+);
+DROP INDEX IF EXISTS idx_sessions; CREATE INDEX idx_sessions ON sessions (id, created_at);
 
 -- materialized views
 

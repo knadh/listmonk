@@ -10,7 +10,7 @@
           </h1>
         </div>
         <div class="column has-text-right">
-          <b-field expanded>
+          <b-field v-if="$can('settings:manage')" expanded>
             <b-button expanded :disabled="!hasFormChanged" type="is-primary" icon-left="content-save-outline"
               native-type="submit" class="isSaveEnabled" data-cy="btn-save">
               {{ $t('globals.buttons.save') }}
@@ -158,6 +158,12 @@ export default Vue.extend({
         form['security.captcha_secret'] = '';
       } else if (this.hasDummy(form['security.captcha_secret'])) {
         hasDummy = 'captcha';
+      }
+
+      if (this.isDummy(form['security.oidc.client_secret'])) {
+        form['security.oidc.client_secret'] = '';
+      } else if (this.hasDummy(form['security.oidc.client_secret'])) {
+        hasDummy = 'oidc';
       }
 
       if (this.isDummy(form['bounce.postmark'].password)) {

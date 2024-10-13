@@ -31,28 +31,45 @@ router.afterEach((to) => {
   });
 });
 
-function initConfig(app) {
-  // Load server side config and language before mounting the app.
-  api.getServerConfig().then((data) => {
-    api.getLang(data.lang).then((lang) => {
-      i18n.locale = data.lang;
-      i18n.setLocaleMessage(i18n.locale, lang);
+async function initConfig(app) {
+  // Load logged in user profile, server side config, and the language file before mounting the app.
+  const [profile, cfg] = await Promise.all([api.getUserProfile(), api.getServerConfig()]);
 
-      Vue.prototype.$utils = new Utils(i18n);
-      Vue.prototype.$api = api;
+  const lang = await api.getLang(cfg.lang);
+  i18n.locale = cfg.lang;
+  i18n.setLocaleMessage(i18n.locale, lang);
 
-      // Set the page title after i18n has loaded.
-      const to = router.history.current;
-      const t = to.meta.title ? `${i18n.tc(to.meta.title, 0)} /` : '';
-      document.title = `${t} listmonk`;
+  Vue.prototype.$utils = new Utils(i18n);
+  Vue.prototype.$api = api;
 
-      if (app) {
-        app.$mount('#app');
+  // $can('permission:name') is used in the UI to chekc whether the logged in user
+  // has a certain permission to toggle visibility of UI objects and UI functionality.
+  Vue.prototype.$can = (...perms) => {
+    if (profile.userRole.id === 1) {
+      return true;
+    }
+
+    // If the perm ends with a wildcard, check whether at least one permission
+    // in the group is present. Eg: campaigns:* will return true if at least
+    // one of campaigns:get, campaigns:manage etc. are present.
+    return perms.some((perm) => {
+      if (perm.endsWith('*')) {
+        const group = `${perm.split(':')[0]}:`;
+        return profile.userRole.permissions.some((p) => p.startsWith(group));
       }
-    });
-  });
 
-  api.getSettings();
+      return profile.userRole.permissions.includes(perm);
+    });
+  };
+
+  // Set the page title after i18n has loaded.
+  const to = router.history.current;
+  const title = to.meta.title ? `${i18n.tc(to.meta.title, 0)} /` : '';
+  document.title = `${title} listmonk`;
+
+  if (app) {
+    app.$mount('#app');
+  }
 }
 
 const v = new Vue({

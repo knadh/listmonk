@@ -24,7 +24,7 @@ $body-size: 15px;
 $background: $white-bis;
 $body-background-color: $white-bis;
 $primary: #0055d4;
-$green: #0db35e;
+$green: #36995b;
 $turquoise: $green;
 $red: #FF5722;
 
@@ -88,6 +88,10 @@ section {
   &.wrap {
     max-width: 1100px;
   }
+
+  &.section-mini {
+    max-width: 500px;
+  }
 }
 
 .spinner.is-tiny {
@@ -131,6 +135,41 @@ section {
     background-color: #efefef;
   }
 
+.navbar-item.user {
+  .navbar-link:not(.is-arrowless)::after {
+    margin-top: -0.6rem;
+  }
+
+  .user-name {
+    display: block;
+    min-width: 150px;
+  }
+}
+
+.user-avatar {
+  img {
+    display: inline-block;
+    border-radius: 100%;
+    width: 32px;
+    height: 32px;
+    max-height: none;
+  }
+  span {
+    background-color: #ddd;
+    border-radius: 100%;
+    width: 32px;
+    height: 32px;
+    text-align: center;
+    display: inline-block;
+    font-size: 0.875rem;
+    font-weight: bold;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+}
+
 .copy-text {
   color: inherit;
   .icon {
@@ -143,6 +182,11 @@ section {
       visibility: visible;
     }
   }
+}
+
+.spaced-links a {
+  margin-right: 15px;
+  display: inline-block;
 }
 
 /* Two column sidebar+body layout */
@@ -228,7 +272,7 @@ body.is-noscroll {
 }
 .notification {
   padding: 10px 15px;
-  border-left: 5px solid #eee;
+  border-left: 10px solid #eee;
 
   &.is-danger {
     background: $white-ter;
@@ -239,6 +283,11 @@ body.is-noscroll {
     background: $white-ter;
     color: $black;
     border-left-color: $green;
+  }
+  &.is-info {
+    background: $white-ter;
+    border-left-color: $primary;
+    color: $grey-dark;
   }
 }
 
@@ -545,51 +594,42 @@ body.is-noscroll {
 
 /* Tags */
 .tag {
-  min-width: 85px;
-
+  border-radius: 30px !important;
+  border: 0;
+  padding: 0 20px !important;
+  
   &.is-small {
     font-size: 0.65rem;
     background: $white-ter;
-    border: 1px solid $white-ter;
+    // border: 1px solid $white-ter;
     padding: 3px 5px;
     min-width: auto !important;
   }
-
+  
   &:not(body) {
+    background-color: #eee;
     font-size: 0.85em;
-    $color: $grey-lighter;
-    border: 1px solid $color;
-    box-shadow: 1px 1px 0 $color;
     color: $grey;
   }
 
-  &.private, &.scheduled, &.paused, &.tx {
+  &.private, &.scheduled, &.paused, &.tx, &.api {
     $color: #ed7b00;
     color: $color;
-    background: #fff7e6;
-    border: 1px solid lighten($color, 37%);
-    box-shadow: 1px 1px 0 lighten($color, 37%);
+    background: lighten($color, 47);
   }
-  &.public, &.running, &.list, &.campaign {
+  &.public, &.running, &.list, &.campaign, &.user, &.primary {
     $color: $primary;
-    color: lighten($color, 20%);;
+    color: lighten($color, 20%);
     background: #e6f7ff;
-    border: 1px solid lighten($color, 42%);
-    box-shadow: 1px 1px 0 lighten($color, 42%);
   }
   &.finished, &.enabled, &.status-confirmed {
-    $color: $green;
-    color: $color;
-    background: #f6ffed;
-    border: 1px solid lighten($color, 45%);
-    box-shadow: 1px 1px 0 lighten($color, 45%);
+    color: $green;
+    background: #dcfce7;
   }
   &.blocklisted, &.cancelled, &.status-unsubscribed {
     $color: $red;
     color: $color;
     background: #fff1f0;
-    border: 1px solid lighten($color, 30%);
-    box-shadow: 1px 1px 0 lighten($color, 30%);
   }
 
   sup {
@@ -692,6 +732,10 @@ section.lists {
 
   .toggle-advanced {
     margin-top: 10px;
+  }
+
+  .blocklisted {
+    color: red;
   }
 }
 
@@ -856,10 +900,6 @@ section.analytics {
     height: auto;
     min-height: 350px;
   }
-  .smtp-shortcuts a {
-    margin-right: 15px;
-    display: inline-block;
-  }
 }
 
 /* Logs */
@@ -889,6 +929,38 @@ section.analytics {
       background: $white-bis;
     }
   }
+}
+
+/* Users */
+section.users {
+  td .tag {
+    margin: 0 3px;
+  }
+}
+.user-api-token .copy-text {
+  background: rgba($green, .1);
+  display: block;
+  width: 100%;
+  border-radius: 3px;
+  padding: 15px;
+  font-size: 1.2rem;
+  color: $green;
+}
+
+.permissions-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+
+  label {
+    flex: 1 1 45%;
+    max-width: 45%;
+    display: flex;
+  }
+}
+
+th.role-toggle-select a {
+  font-weight: normal;
 }
 
 /* C3 charting lib */

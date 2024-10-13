@@ -1,0 +1,43 @@
+{{ define "admin-login" }}
+{{ template "header" .}}
+
+<section class="login">
+	<h2>{{ .L.T "users.login"}}</h2>
+	{{ if .Data.PasswordEnabled }}
+	<form method="post" action="{{ .RootURL }}/admin/login" class="form">
+		<div>
+			<input type="hidden" name="nonce" value="{{ .Data.Nonce }}" />
+			<input type="hidden" name="next" value="{{ .Data.NextURI }}" />
+			<p>
+				<label for="username">{{ .L.T "users.username" }}</label>
+				<input id="username" type="text" name="username" autofocus required minlength="3" />
+			</p>
+			<p>
+				<label for="password">{{ .L.T "users.password" }}</label>
+				<input id="password" type="password" name="password" required minlength="8" />
+			</p>
+
+			{{ if .Data.Error }}<p><span class="error">{{ .Data.Error }}</span></p>{{ end }}
+
+			<p class="submit"><button class="button" type="submit">{{ .L.T "users.login" }}</button></p>
+		</div>
+	</form>
+	{{ end }}
+
+	{{ if .Data.OIDCProvider }}
+	<form method="post" action="{{ .RootURL }}/auth/oidc">
+		<div>
+			<input type="hidden" name="nonce" value="{{ .Data.Nonce }}" />
+			<input type="hidden" name="next" value="{{ .Data.NextURI }}" />
+			<p><button class="button button-outline" type="submit">
+				<img src="{{ .RootURL }}/public/static/auth/{{ .Data.OIDCProviderLogo }}" alt="" />
+				{{ .L.Ts "users.loginOIDC" "name" .Data.OIDCProvider }}
+			</button></p>
+		</div>
+	</form>
+	{{ end }}
+
+</section>
+
+{{ template "footer" .}}
+{{ end }}

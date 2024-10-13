@@ -422,9 +422,7 @@ export const getLang = async (lang) => http.get(
   { loading: models.lang, camelCase: false },
 );
 
-export const logout = async () => http.get('/api/logout', {
-  auth: { username: 'wrong', password: 'wrong' },
-});
+export const logout = async () => http.post('/api/logout');
 
 export const deleteGCCampaignAnalytics = async (typ, beforeDate) => http.delete(
   `/api/maintenance/analytics/${typ}`,
@@ -439,4 +437,93 @@ export const deleteGCSubscribers = async (typ) => http.delete(
 export const deleteGCSubscriptions = async (beforeDate) => http.delete(
   '/api/maintenance/subscriptions/unconfirmed',
   { loading: models.maintenance, params: { before_date: beforeDate } },
+);
+
+// Users.
+export const getUsers = () => http.get(
+  '/api/users',
+  {
+    loading: models.users,
+    store: models.users,
+  },
+);
+
+export const queryUsers = () => http.get(
+  '/api/users',
+  {
+    loading: models.users,
+    store: models.users,
+  },
+);
+
+export const getUser = async (id) => http.get(
+  `/api/users/${id}`,
+  { loading: models.users },
+);
+
+export const createUser = (data) => http.post(
+  '/api/users',
+  data,
+  { loading: models.users },
+);
+
+export const updateUser = (data) => http.put(
+  `/api/users/${data.id}`,
+  data,
+  { loading: models.users },
+);
+
+export const deleteUser = (id) => http.delete(
+  `/api/users/${id}`,
+  { loading: models.users },
+);
+
+export const getUserProfile = () => http.get(
+  '/api/profile',
+  { loading: models.users, store: models.profile },
+);
+
+export const updateUserProfile = (data) => http.put(
+  '/api/profile',
+  data,
+  { loading: models.users, store: models.profile },
+);
+
+export const getUserRoles = async () => http.get(
+  '/api/roles/users',
+  { loading: models.userRoles, store: models.userRoles },
+);
+
+export const getListRoles = async () => http.get(
+  '/api/roles/lists',
+  { loading: models.listRoles, store: models.listRoles },
+);
+
+export const createUserRole = (data) => http.post(
+  '/api/roles/users',
+  data,
+  { loading: models.userRoles },
+);
+
+export const createListRole = (data) => http.post(
+  '/api/roles/lists',
+  data,
+  { loading: models.listRoles },
+);
+
+export const updateUserRole = (data) => http.put(
+  `/api/roles/users/${data.id}`,
+  data,
+  { loading: models.userRoles },
+);
+
+export const updateListRole = (data) => http.put(
+  `/api/roles/lists/${data.id}`,
+  data,
+  { loading: models.userRoles },
+);
+
+export const deleteRole = (id) => http.delete(
+  `/api/roles/${id}`,
+  { loading: models.userRoles },
 );

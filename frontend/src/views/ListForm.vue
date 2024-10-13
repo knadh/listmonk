@@ -58,7 +58,7 @@
         <b-button @click="$parent.close()">
           {{ $t('globals.buttons.close') }}
         </b-button>
-        <b-button native-type="submit" type="is-primary" :loading="loading.lists" data-cy="btn-save">
+        <b-button v-if="canManage" native-type="submit" type="is-primary" :loading="loading.lists" data-cy="btn-save">
           {{ $t('globals.buttons.save') }}
         </b-button>
       </footer>
@@ -123,7 +123,16 @@ export default Vue.extend({
   },
 
   computed: {
-    ...mapState(['loading']),
+    ...mapState(['loading', 'profile']),
+
+    canManage() {
+      if (this.$can('lists:manage_all')) {
+        return true;
+      }
+
+      const list = this.profile.userRole.lists.find((l) => l.id === this.$props.data.id);
+      return list && list.permissions.includes('list:manage');
+    },
   },
 
   mounted() {

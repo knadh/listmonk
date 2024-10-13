@@ -4,6 +4,7 @@ go 1.20
 
 require (
 	github.com/Masterminds/sprig/v3 v3.2.3
+	github.com/coreos/go-oidc/v3 v3.9.0
 	github.com/disintegration/imaging v1.6.2
 	github.com/emersion/go-message v0.16.0
 	github.com/gdgvda/cron v0.2.0
@@ -31,7 +32,10 @@ require (
 	github.com/spf13/pflag v1.0.5
 	github.com/yuin/goldmark v1.6.0
 	github.com/zerodha/easyjson v1.0.0
+	github.com/zerodha/simplesessions/stores/postgres/v3 v3.0.0
+	github.com/zerodha/simplesessions/v3 v3.0.0
 	golang.org/x/mod v0.17.0
+	golang.org/x/oauth2 v0.13.0
 	gopkg.in/volatiletech/null.v6 v6.0.0-20170828023728-0bef4e07ae1b
 )
 
@@ -40,7 +44,9 @@ require (
 	github.com/Masterminds/semver/v3 v3.2.0 // indirect
 	github.com/emersion/go-textwrapper v0.0.0-20200911093747-65d896831594 // indirect
 	github.com/fsnotify/fsnotify v1.6.0 // indirect
+	github.com/go-jose/go-jose/v3 v3.0.1 // indirect
 	github.com/golang-jwt/jwt v3.2.2+incompatible // indirect
+	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/google/uuid v1.3.0 // indirect
 	github.com/huandu/xstrings v1.4.0 // indirect
 	github.com/imdario/mergo v0.3.14 // indirect
@@ -63,6 +69,9 @@ require (
 	golang.org/x/sys v0.18.0 // indirect
 	golang.org/x/text v0.16.0 // indirect
 	golang.org/x/time v0.5.0 // indirect
+	google.golang.org/appengine v1.6.8 // indirect
+	google.golang.org/protobuf v1.31.0 // indirect
+	gopkg.in/yaml.v2 v2.3.0 // indirect
 )
 
 replace github.com/imdario/mergo => github.com/imdario/mergo v0.3.8
