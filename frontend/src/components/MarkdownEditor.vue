@@ -1,6 +1,6 @@
 <template>
-    <div ref="markdownEditor" id="markdown-editor" class="markdown-editor" />
-  </template>
+  <div ref="markdownEditor" id="markdown-editor" class="markdown-editor" />
+</template>
 
 <script>
 import 'prismjs/components/prism-markdown';
@@ -31,21 +31,13 @@ export default {
       el.shadowRoot.innerHTML = `
            <style>
             .codeflask .codeflask__flatten { font-size: 15px; }
-            .codeflask .codeflask__lines { background: #f5f5f5; z-index: 10; }
-            .codeflask .token.tag { font-weight: bold; color: ${colors.primary}; }
-            .codeflask .token.attr-name { color: #111; }
-            .codeflask .token.attr-value { color: ${colors.secondary} !important; }
-            .codeflask .token.keyword { color: #ff4500; }
-            .codeflask .token.comment { color: #6a737d; font-style: italic; }
-            .codeflask .token.heading { font-weight: bold; color: #00f; }
+            .codeflask .token.tag { font-weight: bold; color: ${colors.primary} !important; }
+            .codeflask .token { color: ${colors.primary} !important; }
+            .codeflask .token.heading { font-weight: bold; }
             .codeflask .token.important,.token.bold,.token.strong { font-weight: bold; }
             .codeflask .token.em,.token.italic { font-style: italic; }
-            .codeflask .token.punctuation { color: #999; }
             .codeflask .token.comment { color: slategray; }
-            .codeflask .token.keyword { color: #ff4500; }
-            .codeflask .token.string { color: #22863a; }
-            .codeflask .token.function { color: #6f42c1; }
-            .codeflask .token.url { color: #0366d6; text-decoration: underline; }
+            .codeflask .token.url { color: ${colors.primary}; text-decoration: underline; }
           </style>
           <div id="area"></area>
           `;
