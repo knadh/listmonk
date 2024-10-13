@@ -80,8 +80,11 @@
     <!-- raw html editor //-->
     <html-editor v-if="form.format === 'html'" v-model="form.body" />
 
-    <!-- plain text / markdown editor //-->
-    <b-input v-if="form.format === 'plain' || form.format === 'markdown'" v-model="form.body" @input="onEditorChange"
+    <!-- markdown editor //-->
+    <markdown-editor v-if="form.format === 'markdown'" v-model="form.body" />
+
+    <!-- plain text //-->
+    <b-input v-if="form.format === 'plain'" v-model="form.body" @input="onEditorChange"
       type="textarea" name="content" ref="plainEditor" class="plain-editor" />
 
     <!-- campaign preview //-->
@@ -136,6 +139,7 @@ import { colors, uris } from '../constants';
 import Media from '../views/Media.vue';
 import CampaignPreview from './CampaignPreview.vue';
 import HTMLEditor from './HTMLEditor.vue';
+import MarkdownEditor from './MarkdownEditor.vue';
 
 const turndown = new TurndownService();
 
@@ -158,6 +162,7 @@ export default {
     Media,
     CampaignPreview,
     'html-editor': HTMLEditor,
+    'markdown-editor': MarkdownEditor,
     TinyMce,
   },
 
