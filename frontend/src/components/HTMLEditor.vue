@@ -28,7 +28,11 @@ export default {
       el.attachShadow({ mode: 'open' });
       el.shadowRoot.innerHTML = `
         <style>
-          .codeflask .codeflask__flatten { font-size: 15px; }
+          .codeflask .codeflask__flatten { 
+            font-size: 15px;
+            white-space: pre-wrap ;
+            word-break: break-word ;
+          }
           .codeflask .codeflask__lines { background: #fafafa; z-index: 10; }
           .codeflask .token.tag { font-weight: bold; }
           .codeflask .token.attr-name { color: #111; }
