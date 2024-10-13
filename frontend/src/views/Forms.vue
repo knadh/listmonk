@@ -117,6 +117,10 @@ export default Vue.extend({
     },
   },
 
+  mounted() {
+    this.$api.getSettings();
+  },
+
   watch: {
     checked() {
       this.renderHTML();
