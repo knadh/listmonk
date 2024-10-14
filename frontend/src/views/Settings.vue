@@ -210,7 +210,7 @@ export default Vue.extend({
             this.$root.loadConfig();
             this.getSettings();
           });
-        }, 500);
+        }, 1000);
       }, () => {
         this.isLoading = false;
       });
