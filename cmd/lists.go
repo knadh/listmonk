@@ -32,7 +32,7 @@ func handleGetLists(c echo.Context) error {
 		permittedIDs []int
 		getAll       = false
 	)
-	if _, ok := user.PermissionsMap["lists:get_all"]; ok {
+	if _, ok := user.PermissionsMap[models.PermListGetAll]; ok {
 		getAll = true
 	} else {
 		permittedIDs = user.GetListIDs
