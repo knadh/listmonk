@@ -179,6 +179,7 @@ describe('Campaigns', () => {
   });
 
   it('Deletes campaign', () => {
+    cy.wait(1000);
     // Delete all visible lists.
     cy.get('tbody tr').each(() => {
       cy.get('tbody a[data-cy=btn-delete]').first().click();
