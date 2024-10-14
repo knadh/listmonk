@@ -1,9 +1,8 @@
 describe('Templates', () => {
   it('Opens templates page', () => {
     cy.resetDB();
-    cy.loginAndVisit('/campaigns/templates');
+    cy.loginAndVisit('/admin/campaigns/templates');
   });
-
 
   it('Counts default templates', () => {
     cy.get('tbody td[data-label=Name]').should('have.length', 3);
@@ -27,7 +26,6 @@ describe('Templates', () => {
       cy.wait(250);
     });
 
-
     // Verify the newly created row.
     cy.get('tbody td[data-label="Name"]').contains('td', 'cloned tx');
   });
@@ -36,13 +34,13 @@ describe('Templates', () => {
     cy.get('tbody td.actions [data-cy=btn-edit]').first().click();
     cy.wait(250);
     cy.get('input[name=name]').clear().type('edited');
-    cy.get('code-flask').shadow().find('.codeflask textarea').invoke('val', '<span>test</span> {{ template "content" . }}').trigger('input');
+    cy.get('code-flask').shadow().find('.codeflask textarea').invoke('val', '<span>test</span> {{ template "content" . }}')
+      .trigger('input');
 
     cy.get('.modal-card-foot button.is-primary').click();
     cy.wait(250);
     cy.get('tbody td[data-label="Name"] a').contains('edited');
   });
-
 
   it('Previews campaign templates', () => {
     // Edited one sould have a bare body.
@@ -79,14 +77,14 @@ describe('Templates', () => {
     cy.get('tbody td[data-label="Name"]').contains('td', 'cloned campaign').then((el) => {
       cy.wrap(el).parent().find('[data-cy=btn-set-default]').click();
       cy.get('.modal button.is-primary').click();
-
     });
 
     // The original default shouldn't have default and the new one should have.
-    cy.get('tbody').contains('td', 'edited').parent().find('[data-cy=btn-delete]').should('exist');
-    cy.get('tbody').contains('td', 'cloned campaign').parent().find('[data-cy=btn-delete]').should('not.exist');
+    cy.get('tbody').contains('td', 'edited').parent().find('[data-cy=btn-delete]')
+      .should('exist');
+    cy.get('tbody').contains('td', 'cloned campaign').parent().find('[data-cy=btn-delete]')
+      .should('not.exist');
   });
-
 
   it('Deletes template', () => {
     cy.wait(250);
@@ -97,7 +95,7 @@ describe('Templates', () => {
         cy.get('.modal button.is-primary').click();
       });
       cy.wait(250);
-    })
+    });
 
     cy.get('tbody td.actions').should('have.length', 3);
   });

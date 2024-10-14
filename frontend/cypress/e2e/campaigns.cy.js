@@ -4,9 +4,8 @@ const headers = '[{"X-Custom": "Custom-Value"}]';
 describe('Campaigns', () => {
   it('Opens campaigns page', () => {
     cy.resetDB();
-    cy.loginAndVisit('/campaigns');
+    cy.loginAndVisit('/admin/campaigns');
   });
-
 
   it('Counts campaigns', () => {
     cy.get('tbody td[data-label=Status]').should('have.length', 1);
@@ -34,7 +33,7 @@ describe('Campaigns', () => {
     cy.wait(500);
 
     // Re-open and check that the file still exists.
-    cy.loginAndVisit('/campaigns');
+    cy.loginAndVisit('/admin/campaigns');
     cy.get('td[data-label=Status] a').eq(0).click();
     cy.get('.b-tabs nav a').eq(1).click();
     cy.get('div.field[data-cy=media]').contains('example');
@@ -115,10 +114,9 @@ describe('Campaigns', () => {
     cy.get('tbody td[data-label=Status] .tag.scheduled');
   });
 
-
   it('Switches formats', () => {
-    cy.resetDB()
-    cy.loginAndVisit('/campaigns');
+    cy.resetDB();
+    cy.loginAndVisit('/admin/campaigns');
     const formats = ['html', 'markdown', 'plain'];
     const htmlBody = '<strong>hello</strong> \{\{ .Subscriber.Name \}\} from {\{ .Subscriber.Attribs.city \}\}';
     const plainBody = 'hello Demo Subscriber from Bengaluru';
@@ -132,9 +130,8 @@ describe('Campaigns', () => {
     });
     cy.get('button[data-cy=btn-save]').click();
 
-
     formats.forEach((c) => {
-      cy.loginAndVisit('/campaigns');
+      cy.loginAndVisit('/admin/campaigns');
       cy.get('td[data-label=Status] a').click();
 
       // Switch to content tab.
@@ -147,7 +144,7 @@ describe('Campaigns', () => {
       // Check content.
       cy.get('button[data-cy=btn-preview]').click();
       cy.wait(500);
-      cy.get("#iframe").then(($f) => {
+      cy.get('#iframe').then(($f) => {
         if (c === 'plain') {
           return;
         }
@@ -158,9 +155,8 @@ describe('Campaigns', () => {
     });
   });
 
-
   it('Clones campaign', () => {
-    cy.loginAndVisit('/campaigns');
+    cy.loginAndVisit('/admin/campaigns');
     for (let n = 0; n < 3; n++) {
       // Clone the campaign.
       cy.get('[data-cy=btn-clone]').first().click();
@@ -175,14 +171,12 @@ describe('Campaigns', () => {
     }
   });
 
-
   it('Searches campaigns', () => {
     cy.get('input[name=query]').clear().type('clone2{enter}');
     cy.get('tbody tr').its('length').should('eq', 1);
     cy.get('tbody td[data-label="Name"]').first().contains('clone2');
     cy.get('input[name=query]').clear().type('{enter}');
   });
-
 
   it('Deletes campaign', () => {
     // Delete all visible lists.
@@ -194,7 +188,6 @@ describe('Campaigns', () => {
     // Confirm deletion.
     cy.get('table tr.is-empty');
   });
-
 
   it('Adds new campaigns', () => {
     const lists = [[1], [1, 2]];
@@ -243,8 +236,7 @@ describe('Campaigns', () => {
               expect(data.headers[0][`X-Header-${n}`]).to.equal(`Value-${n}`);
             });
           });
-        })(n);
-
+        }(n));
 
         // Select content type.
         cy.get(`label[data-cy=check-${c}]`).click();
@@ -254,7 +246,7 @@ describe('Campaigns', () => {
         const plainBody = `hello${n} Demo Subscriber from Bengaluru`;
         const markdownBody = `**hello${n}** Demo Subscriber from Bengaluru`;
 
-        cy.log(`format = ${c}`)
+        cy.log(`format = ${c}`);
         if (c === 'richtext') {
           cy.window().then((win) => {
             win.tinymce.editors[0].setContent(htmlBody);
@@ -262,9 +254,11 @@ describe('Campaigns', () => {
           });
           cy.wait(500);
         } else if (c === 'html') {
-          cy.get('code-flask').shadow().find('.codeflask textarea').invoke('val', htmlBody).trigger('input');
+          cy.get('code-flask').shadow().find('.codeflask textarea').invoke('val', htmlBody)
+            .trigger('input');
         } else if (c === 'markdown') {
-          cy.get('textarea[name=content]').invoke('val', markdownBody).trigger('input');
+          cy.get('code-flask').shadow().find('.codeflask textarea').invoke('val', markdownBody)
+            .trigger('input');
         } else if (c === 'plain') {
           cy.get('textarea[name=content]').invoke('val', plainBody).trigger('input');
         }
@@ -275,7 +269,7 @@ describe('Campaigns', () => {
         // Preview and match the body.
         cy.get('button[data-cy=btn-preview]').click();
         cy.wait(1000);
-        cy.get("#iframe").then(($f) => {
+        cy.get('#iframe').then(($f) => {
           if (c === 'plain') {
             return;
           }

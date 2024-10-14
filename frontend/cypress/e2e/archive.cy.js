@@ -3,18 +3,18 @@ const apiUrl = Cypress.env('apiUrl');
 describe('Archive', () => {
   it('Opens campaigns page', () => {
     cy.resetDB();
-    cy.loginAndVisit('/campaigns');
+    cy.loginAndVisit('/admin/campaigns');
     cy.wait(500);
   });
 
   it('Clones campaign', () => {
-    cy.loginAndVisit('/campaigns');
+    cy.loginAndVisit('/admin/campaigns');
     cy.get('[data-cy=btn-clone]').first().click();
     cy.get('.modal input').clear().type('clone').click();
     cy.get('.modal button.is-primary').click();
     cy.wait(250);
 
-    cy.loginAndVisit('/campaigns');
+    cy.loginAndVisit('/admin/campaigns');
     cy.get('[data-cy=btn-clone]').first().click();
     cy.get('.modal input').clear().type('clone2').click();
     cy.get('.modal button.is-primary').click();
@@ -35,7 +35,7 @@ describe('Archive', () => {
   });
 
   it('Enables archive on one campaign (no slug)', () => {
-    cy.loginAndVisit('/campaigns');
+    cy.loginAndVisit('/admin/campaigns');
     cy.wait(250);
     cy.get('td[data-label=Status] a').eq(0).click();
 
@@ -51,7 +51,7 @@ describe('Archive', () => {
   });
 
   it('Enables archive on one campaign', () => {
-    cy.loginAndVisit('/campaigns');
+    cy.loginAndVisit('/admin/campaigns');
     cy.wait(250);
     cy.get('td[data-label=Status] a').eq(1).click();
 

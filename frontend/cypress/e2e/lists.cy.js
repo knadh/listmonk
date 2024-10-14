@@ -1,13 +1,12 @@
 describe('Lists', () => {
   it('Opens lists page', () => {
     cy.resetDB();
-    cy.loginAndVisit('/lists');
+    cy.loginAndVisit('/admin/lists');
   });
 
   it('Counts subscribers in default lists', () => {
     cy.get('tbody td[data-label=Subscribers]').contains('1');
   });
-
 
   it('Creates campaign for list', () => {
     cy.get('tbody a[data-cy=btn-campaign]').first().click();
@@ -18,7 +17,6 @@ describe('Lists', () => {
     cy.get('.modal button.is-primary').click();
   });
 
-
   it('Creates opt-in campaign for list', () => {
     cy.get('tbody a[data-cy=btn-send-optin-campaign]').click();
     cy.get('.modal button.is-primary').click();
@@ -26,10 +24,9 @@ describe('Lists', () => {
     cy.clickMenu('lists', 'all-lists');
   });
 
-
   it('Checks individual subscribers in lists', () => {
     const subs = [{ listID: 1, email: 'john@example.com' },
-    { listID: 2, email: 'anon@example.com' }];
+      { listID: 2, email: 'anon@example.com' }];
 
     // Click on each list on the lists page, go the subscribers page
     // for that list, and check the subscriber details.
@@ -65,7 +62,6 @@ describe('Lists', () => {
     });
   });
 
-
   it('Deletes lists', () => {
     // Delete all visible lists.
     cy.get('tbody tr').each(() => {
@@ -76,7 +72,6 @@ describe('Lists', () => {
     // Confirm deletion.
     cy.get('table tr.is-empty');
   });
-
 
   // Add new lists.
   it('Adds new lists', () => {
@@ -108,15 +103,13 @@ describe('Lists', () => {
     });
   });
 
-
   it('Searches lists', () => {
     cy.get('[data-cy=query]').clear().type('list-public-single-2{enter}');
-    cy.wait(200)
+    cy.wait(200);
     cy.get('tbody tr').its('length').should('eq', 1);
     cy.get('tbody td[data-label="Name"]').first().contains('list-public-single-2');
     cy.get('[data-cy=query]').clear().type('{enter}');
   });
-
 
   // Sort lists by clicking on various headers. At this point, there should be four
   // lists with IDs = [3, 4, 5, 6]. Sort the items be columns and match them with
@@ -141,8 +134,8 @@ describe('Lists', () => {
     cy.get('ul li').its('length').should('eq', 2);
 
     const cases = [
-      { 'name': 'list-public-single-2', 'description': 'desc-public-2' },
-      { 'name': 'list-public-double-3', 'description': 'desc-public-3' }
+      { name: 'list-public-single-2', description: 'desc-public-2' },
+      { name: 'list-public-double-3', description: 'desc-public-3' },
     ];
 
     cases.forEach((c, n) => {

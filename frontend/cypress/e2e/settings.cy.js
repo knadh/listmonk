@@ -3,7 +3,7 @@ const apiUrl = Cypress.env('apiUrl');
 describe('Templates', () => {
   it('Opens settings page', () => {
     cy.resetDB();
-    cy.loginAndVisit('/settings');
+    cy.loginAndVisit('/admin/settings');
   });
 
   it('Changes some settings', () => {

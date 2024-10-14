@@ -21,12 +21,17 @@ Cypress.Commands.add('sortTable', (theadSelector, ordIDs) => {
 });
 
 Cypress.Commands.add('loginAndVisit', (url) => {
-  cy.visit(url, {
-    auth: {
-      username: Cypress.env('username'),
-      password: Cypress.env('password'),
-    },
-  });
+  cy.visit(`/admin/login?next=${url}`);
+
+  const username = Cypress.env('LISTMONK_ADMIN_USER') || 'admin';
+  const password = Cypress.env('LISTMONK_ADMIN_PASSWORD') || 'listmonk';
+
+  // Fill the username and passowrd and login.
+  cy.get('input[name=username]').invoke('val', username);
+  cy.get('input[name=password]').invoke('val', password);
+
+  // Submit form.
+  cy.get('button').click();
 });
 
 Cypress.Commands.add('clickMenu', (...selectors) => {

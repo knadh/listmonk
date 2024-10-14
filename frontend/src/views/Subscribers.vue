@@ -103,12 +103,13 @@
         </div>
       </template>
 
-      <b-table-column v-slot="props" field="email" :label="$t('subscribers.email')" header-class="cy-email" sortable>
+      <b-table-column v-slot="props" field="email" :label="$t('subscribers.email')" header-class="cy-email" sortable
+        :td-attrs="$utils.tdID">
         <a :href="`/subscribers/${props.row.id}`" @click.prevent="showEditForm(props.row)"
           :class="{ 'blocklisted': props.row.status === 'blocklisted' }">
           {{ props.row.email }}
         </a>
-        <b-tag v-if="props.row.status !== 'enabled'" :class="props.row.status">
+        <b-tag v-if="props.row.status !== 'enabled'" :class="props.row.status" data-cy="blocklisted">
           {{ $t(`subscribers.status.${props.row.status}`) }}
         </b-tag>
         <b-taglist>

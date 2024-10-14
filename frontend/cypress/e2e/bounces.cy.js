@@ -1,12 +1,12 @@
 const apiUrl = Cypress.env('apiUrl');
 
 describe('Bounces', () => {
-  let subs = [];
+  const subs = [];
 
   it('Enable bounces', () => {
     cy.resetDB();
 
-    cy.loginAndVisit('/settings');
+    cy.loginAndVisit('/admin/settings');
     cy.get('.b-tabs nav a').eq(6).click();
     cy.get('[data-cy=btn-enable-bounce] .switch').click();
     cy.get('[data-cy=btn-enable-bounce-webhook] .switch').click();
@@ -55,7 +55,7 @@ describe('Bounces', () => {
         expect(resp.status).to.eq(400);
       });
 
-      cy.loginAndVisit('/subscribers/bounces');
+      cy.loginAndVisit('/admin/subscribers/bounces');
     });
   });
 });
