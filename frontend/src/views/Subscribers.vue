@@ -23,7 +23,7 @@
 
     <section class="subscribers-controls">
       <div class="columns">
-        <div class="column is-4">
+        <div class="column is-8">
           <form @submit.prevent="onSubmit">
             <div>
               <b-field addons>
