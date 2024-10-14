@@ -74,7 +74,7 @@ var (
 	evStream = events.New()
 	bufLog   = buflog.New(5000)
 	lo       = log.New(io.MultiWriter(os.Stdout, bufLog, evStream.ErrWriter()), "",
-		log.Ldate|log.Ltime|log.Lshortfile)
+		log.Ldate|log.Ltime|log.Lmicroseconds|log.Lshortfile)
 
 	ko      = koanf.New(".")
 	fs      stuffbin.FileSystem
