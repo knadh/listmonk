@@ -216,7 +216,7 @@ func (c *Core) ExportSubscribers(query string, subIDs, listIDs []int, subStatus 
 		}
 		defer tx.Rollback()
 
-		if _, err := tx.Query(stmt, nil, 0, nil, 1); err != nil {
+		if _, err := tx.Query(stmt, nil, 0, nil, subStatus, 1); err != nil {
 			return nil, echo.NewHTTPError(http.StatusBadRequest,
 				c.i18n.Ts("subscribers.errorPreparingQuery", "error", pqErrMsg(err)))
 		}
