@@ -24,6 +24,11 @@
               native-value="plain" data-cy="check-plain">
               {{ $t('campaigns.plainText') }}
             </b-radio>
+
+            <b-radio v-model="form.radioFormat" @input="onFormatChange" :disabled="disabled" name="format"
+              native-value="visual" data-cy="check-visual">
+              {{ $t('campaigns.visual') }}
+            </b-radio>
           </div>
         </b-field>
       </div>
@@ -76,6 +81,9 @@
         </div>
       </b-modal>
     </template>
+
+    <!-- visual editor //-->
+    <visual-editor v-if="form.format === 'visual'" :source="bodySource" @change="onChangeVisualEditor" />
 
     <!-- raw html editor //-->
     <html-editor v-if="form.format === 'html'" v-model="form.body" />
@@ -140,6 +148,7 @@ import Media from '../views/Media.vue';
 import CampaignPreview from './CampaignPreview.vue';
 import HTMLEditor from './HTMLEditor.vue';
 import MarkdownEditor from './MarkdownEditor.vue';
+import VisualEditor from './VisualEditor.vue';
 
 const turndown = new TurndownService();
 
@@ -163,13 +172,15 @@ export default {
     CampaignPreview,
     'html-editor': HTMLEditor,
     'markdown-editor': MarkdownEditor,
-    TinyMce,
+    'visual-editor': VisualEditor,
+    'tiny-mce': TinyMce,
   },
 
   props: {
     id: { type: Number, default: 0 },
     title: { type: String, default: '' },
     body: { type: String, default: '' },
+    bodySource: { type: String, default: '' },
     contentType: { type: String, default: '' },
     templateId: { type: Number, default: 0 },
     disabled: { type: Boolean, default: false },
@@ -190,6 +201,7 @@ export default {
       richTextSourceBody: '',
       form: {
         body: '',
+        bodySource: null,
         format: this.contentType,
 
         // Model bound to the checkboxes. This changes on click of the radio,
@@ -401,7 +413,7 @@ export default {
       }
 
       // The parent's v-model gets { contentType, body }.
-      this.$emit('input', { contentType: this.form.format, body: this.form.body });
+      this.$emit('input', { contentType: this.form.format, body: this.form.body, bodySource: this.form.bodySource });
     },
 
     onTogglePreview() {
@@ -417,6 +429,11 @@ export default {
         this.onTogglePreview();
         e.preventDefault();
       }
+    },
+
+    onChangeVisualEditor({ body, source }) {
+      this.form.body = body;
+      this.form.bodySource = source;
     },
 
     beautifyHTML(str) {
@@ -484,6 +501,11 @@ export default {
 
     body(b) {
       this.form.body = b;
+      this.onEditorChange();
+    },
+
+    bodySource(b) {
+      this.form.bodySource = b;
       this.onEditorChange();
     },
 

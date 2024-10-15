@@ -29,10 +29,13 @@
               <b-field :label="$t('globals.fields.type')" label-position="on-border">
                 <b-select v-model="form.type" :disabled="isEditing" expanded>
                   <option value="campaign">
-                    {{ $tc('globals.terms.campaign') }}
+                    {{ $tc('templates.typeCampaignHTML') }}
+                  </option>
+                  <option value="campaign_visual">
+                    {{ $tc('templates.typeCampaignVisual') }}
                   </option>
                   <option value="tx">
-                    {{ $tc('globals.terms.tx') }}
+                    {{ $tc('templates.typeTransactional') }}
                   </option>
                 </b-select>
               </b-field>
@@ -47,9 +50,15 @@
             </div>
           </div>
 
-          <b-field v-if="form.body !== null" :label="$t('templates.rawHTML')" label-position="on-border">
-            <html-editor v-model="form.body" name="body" />
-          </b-field>
+          <template v-if="form.body !== null">
+            <b-field v-if="form.type === 'campaign_visual'" label-position="on-border">
+              <visual-editor v-if="form.type === 'campaign_visual'" name="body" :source="form.bodySource" @change="onChangeVisualEditor" />
+            </b-field>
+
+            <b-field v-else :label="$t('templates.rawHTML')" label-position="on-border">
+              <html-editor v-model="form.body" name="body" />
+            </b-field>
+          </template>
 
           <p class="is-size-7">
             <template v-if="form.type === 'campaign'">
@@ -80,6 +89,7 @@ import Vue from 'vue';
 import { mapState } from 'vuex';
 import CampaignPreview from '../components/CampaignPreview.vue';
 import HTMLEditor from '../components/HTMLEditor.vue';
+import VisualEditor from '../components/VisualEditor.vue';
 import CopyText from '../components/CopyText.vue';
 
 export default Vue.extend({
@@ -87,6 +97,7 @@ export default Vue.extend({
     CampaignPreview,
     CopyText,
     'html-editor': HTMLEditor,
+    'visual-editor': VisualEditor,
   },
 
   props: {
@@ -103,6 +114,7 @@ export default Vue.extend({
         type: 'campaign',
         optin: '',
         body: null,
+        bodySource: null,
       },
       previewItem: null,
       egPlaceholder: '{{ template "content" . }}',
@@ -137,6 +149,7 @@ export default Vue.extend({
         type: this.form.type,
         subject: this.form.subject,
         body: this.form.body,
+        body_source: this.form.bodySource,
       };
 
       this.$api.createTemplate(data).then((d) => {
@@ -153,6 +166,7 @@ export default Vue.extend({
         type: this.form.type,
         subject: this.form.subject,
         body: this.form.body,
+        body_source: this.form.bodySource,
       };
 
       this.$api.updateTemplate(data).then((d) => {
@@ -160,6 +174,11 @@ export default Vue.extend({
         this.$parent.close();
         this.$utils.toast(`'${d.name}' updated`);
       });
+    },
+
+    onChangeVisualEditor({ source, body }) {
+      this.form.body = body;
+      this.form.bodySource = source;
     },
   },
 

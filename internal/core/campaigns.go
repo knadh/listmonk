@@ -182,13 +182,14 @@ func (c *Core) CreateCampaign(o models.Campaign, listIDs []int, mediaIDs []int) 
 		o.Headers,
 		pq.StringArray(normalizeTags(o.Tags)),
 		o.Messenger,
-		o.TemplateID,
+		o.TemplateID.Int64,
 		pq.Array(listIDs),
 		o.Archive,
 		o.ArchiveSlug,
-		o.ArchiveTemplateID,
+		o.ArchiveTemplateID.Int64,
 		o.ArchiveMeta,
 		pq.Array(mediaIDs),
+		o.BodySource,
 	); err != nil {
 		if err == sql.ErrNoRows {
 			return models.Campaign{}, echo.NewHTTPError(http.StatusBadRequest, c.i18n.T("campaigns.noSubs"))
@@ -226,7 +227,8 @@ func (c *Core) UpdateCampaign(id int, o models.Campaign, listIDs []int, mediaIDs
 		o.ArchiveSlug,
 		o.ArchiveTemplateID,
 		o.ArchiveMeta,
-		pq.Array(mediaIDs))
+		pq.Array(mediaIDs),
+		o.BodySource)
 	if err != nil {
 		c.log.Printf("error updating campaign: %v", err)
 		return models.Campaign{}, echo.NewHTTPError(http.StatusInternalServerError,

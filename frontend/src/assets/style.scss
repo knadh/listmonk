@@ -321,7 +321,7 @@ body.is-noscroll {
     box-shadow: 2px 2px 0 #f3f3f3;
     border: 1px solid #e6e6e6;
     border-radius: 3px;
-  
+
     .tox-toolbar__primary {
       border-color: #e6e6e6 !important;
     }
@@ -647,7 +647,7 @@ body.is-noscroll {
   border-radius: 30px !important;
   border: 0;
   padding: 0 20px !important;
-  
+
   &.is-small {
     font-size: 0.65rem;
     background: $white-ter;
@@ -655,7 +655,7 @@ body.is-noscroll {
     padding: 3px 5px;
     min-width: auto !important;
   }
-  
+
   &:not(body) {
     background-color: #eee;
     font-size: 0.85em;
@@ -676,7 +676,7 @@ body.is-noscroll {
     color: $green;
     background: #dcfce7;
   }
-  &.blocklisted, &.cancelled, &.status-unsubscribed {
+  &.blocklisted, &.cancelled, &.status-unsubscribed, &.campaign_visual {
     $color: $red;
     color: $color;
     background: #fff1f0;
