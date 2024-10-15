@@ -81,17 +81,6 @@
                 <list-selector v-model="form.lists" :selected="form.lists" :all="lists.results" :disabled="!canEdit"
                   :label="$t('globals.terms.lists')" :placeholder="$t('campaigns.sendToLists')" />
 
-                <b-field :label="$tc('globals.terms.template')" label-position="on-border">
-                  <b-select :placeholder="$tc('globals.terms.template')" v-model="form.templateId" name="template"
-                    :disabled="!canEdit" required>
-                    <template v-for="t in templates">
-                      <option v-if="t.type === 'campaign'" :value="t.id" :key="t.id">
-                        {{ t.name }}
-                      </option>
-                    </template>
-                  </b-select>
-                </b-field>
-
                 <b-field :label="$tc('globals.terms.messenger')" label-position="on-border">
                   <b-select :placeholder="$tc('globals.terms.messenger')" v-model="form.messenger" name="messenger"
                     :disabled="!canEdit" required>
@@ -180,8 +169,8 @@
       </b-tab-item><!-- campaign -->
 
       <b-tab-item :label="$t('campaigns.content')" icon="text" :disabled="isNew" value="content">
-        <editor v-model="form.content" :id="data.id" :title="data.name" :template-id="form.templateId"
-          :content-type="data.contentType" :body="data.body" :disabled="!canEdit" />
+        <editor v-if="data.id" v-model="form.content"
+          :id="data.id" :title="data.name" :disabled="!canEdit" :templates="templates" />
 
         <div class="columns">
           <div class="column is-6">
@@ -335,11 +324,10 @@ export default Vue.extend({
         headersStr: '[]',
         headers: [],
         messenger: 'email',
-        templateId: 0,
         lists: [],
         tags: [],
         sendAt: null,
-        content: { contentType: 'richtext', body: '' },
+        content: { contentType: 'richtext', body: '', bodySource: null, templateId: null },
         altbody: null,
         media: [],
 
@@ -459,7 +447,7 @@ export default Vue.extend({
           archiveMetaStr: data.archiveMeta ? JSON.stringify(data.archiveMeta, null, 4) : '{}',
 
           // The structure that is populated by editor input event.
-          content: { contentType: data.contentType, body: data.body },
+          content: { contentType: data.contentType, body: data.body, bodySource: data.bodySource, templateId: data.templateId },
         };
         this.isAttachFieldVisible = this.form.media.length > 0;
 
@@ -483,7 +471,7 @@ export default Vue.extend({
         type: 'regular',
         headers: this.form.headers,
         tags: this.form.tags,
-        template_id: this.form.templateId,
+        template_id: this.form.content.templateId,
         content_type: this.form.content.contentType,
         body: this.form.content.body,
         altbody: this.form.content.contentType !== 'plain' ? this.form.altbody : null,
@@ -504,15 +492,12 @@ export default Vue.extend({
         subject: this.form.subject,
         lists: this.form.lists.map((l) => l.id),
         from_email: this.form.fromEmail,
-        content_type: 'richtext',
         messenger: this.form.messenger,
         type: 'regular',
         tags: this.form.tags,
         send_at: this.form.sendLater ? this.form.sendAtDate : null,
         headers: this.form.headers,
-        template_id: this.form.templateId,
         media: this.form.media.map((m) => m.id),
-        // body: this.form.body,
       };
 
       this.$api.createCampaign(data).then((d) => {
@@ -533,9 +518,10 @@ export default Vue.extend({
         tags: this.form.tags,
         send_at: this.form.sendLater ? this.form.sendAtDate : null,
         headers: this.form.headers,
-        template_id: this.form.templateId,
+        template_id: this.form.content.templateId,
         content_type: this.form.content.contentType,
         body: this.form.content.body,
+        body_source: this.form.content.bodySource,
         altbody: this.form.content.contentType !== 'plain' ? this.form.altbody : null,
         archive: this.form.archive,
         archive_template_id: this.form.archiveTemplateId,
@@ -722,7 +708,8 @@ export default Vue.extend({
     this.$api.getTemplates().then((data) => {
       if (data.length > 0) {
         if (!this.form.templateId) {
-          this.form.templateId = data.find((i) => i.isDefault === true).id;
+          const tpl = data.find((i) => i.isDefault === true);
+          this.form.templateId = tpl.id;
         }
       }
     });
