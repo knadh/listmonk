@@ -10,10 +10,10 @@ import (
 )
 
 // GetLists gets all lists optionally filtered by type.
-func (c *Core) GetLists(typ string) ([]models.List, error) {
+func (c *Core) GetLists(typ string, authID string) ([]models.List, error) {
 	out := []models.List{}
 
-	if err := c.q.GetLists.Select(&out, typ, "id"); err != nil {
+	if err := c.q.GetLists.Select(&out, typ, "id", authID); err != nil {
 		c.log.Printf("error fetching lists: %v", err)
 		return nil, echo.NewHTTPError(http.StatusInternalServerError,
 			c.i18n.Ts("globals.messages.errorFetching", "name", "{globals.terms.lists}", "error", pqErrMsg(err)))
@@ -36,34 +36,34 @@ func (c *Core) GetLists(typ string) ([]models.List, error) {
 
 // get lists by authid
 // GetListsByAuthID gets all lists associated with a particular authid.
-func (c *Core) GetListsByAuthID(authid string) ([]models.List, error) {
-	out := []models.List{}
+// func (c *Core) GetListsByAuthID(authid string) ([]models.List, error) {
+// 	out := []models.List{}
 
-	// Only pass authid to filter the lists
-	if err := c.q.GetListsByAuthID.Select(&out, authid); err != nil {
-		c.log.Printf("error fetching lists by authid: %v", err)
-		return nil, echo.NewHTTPError(http.StatusInternalServerError,
-			c.i18n.Ts("globals.messages.errorFetching", "name", "{globals.terms.lists}", "error", pqErrMsg(err)))
-	}
+// 	// Only pass authid to filter the lists
+// 	if err := c.q.GetListsByAuthID.Select(&out, authid); err != nil {
+// 		c.log.Printf("error fetching lists by authid: %v", err)
+// 		return nil, echo.NewHTTPError(http.StatusInternalServerError,
+// 			c.i18n.Ts("globals.messages.errorFetching", "name", "{globals.terms.lists}", "error", pqErrMsg(err)))
+// 	}
 
-	// Replace null tags and calculate subscriber count.
-	for i, l := range out {
-		if l.Tags == nil {
-			out[i].Tags = []string{}
-		}
+// 	// Replace null tags and calculate subscriber count.
+// 	for i, l := range out {
+// 		if l.Tags == nil {
+// 			out[i].Tags = []string{}
+// 		}
 
-		// Total counts for subscribers.
-		for _, c := range l.SubscriberCounts {
-			out[i].SubscriberCount += c
-		}
-	}
+// 		// Total counts for subscribers.
+// 		for _, c := range l.SubscriberCounts {
+// 			out[i].SubscriberCount += c
+// 		}
+// 	}
 
-	return out, nil
-}
+// 	return out, nil
+// }
 
 // QueryLists gets multiple lists based on multiple query params. Along with the  paginated and sliced
 // results, the total number of lists in the DB is returned.
-func (c *Core) QueryLists(searchStr, typ, optin string, tags []string, orderBy, order string, offset, limit int) ([]models.List, int, error) {
+func (c *Core) QueryLists(searchStr, typ, optin string, tags []string, orderBy, order string, offset, limit int, authID string) ([]models.List, int, error) {
 	_ = c.refreshCache(matListSubStats, false)
 
 	if tags == nil {
@@ -72,9 +72,9 @@ func (c *Core) QueryLists(searchStr, typ, optin string, tags []string, orderBy, 
 
 	var (
 		out            = []models.List{}
-		queryStr, stmt = makeSearchQuery(searchStr, orderBy, order, c.q.QueryLists, listQuerySortFields)
+		queryStr, stmt = makeSearchQuery(searchStr, orderBy, order, c.q.QueryLists, listQuerySortFields, authID)
 	)
-	if err := c.db.Select(&out, stmt, 0, "", queryStr, typ, optin, pq.StringArray(tags), offset, limit); err != nil {
+	if err := c.db.Select(&out, stmt, 0, "", queryStr, typ, optin, pq.StringArray(tags), offset, limit, authID); err != nil {
 		c.log.Printf("error fetching lists: %v", err)
 		return nil, 0, echo.NewHTTPError(http.StatusInternalServerError,
 			c.i18n.Ts("globals.messages.errorFetching", "name", "{globals.terms.lists}", "error", pqErrMsg(err)))
@@ -101,15 +101,15 @@ func (c *Core) QueryLists(searchStr, typ, optin string, tags []string, orderBy, 
 }
 
 // GetList gets a list by its ID or UUID.
-func (c *Core) GetList(id int, uuid string) (models.List, error) {
+func (c *Core) GetList(id int, uuid string, authID string) (models.List, error) {
 	var uu interface{}
 	if uuid != "" {
 		uu = uuid
 	}
 
 	var res []models.List
-	queryStr, stmt := makeSearchQuery("", "", "", c.q.QueryLists, nil)
-	if err := c.db.Select(&res, stmt, id, uu, queryStr, "", "", pq.StringArray{}, 0, 1); err != nil {
+	queryStr, stmt := makeSearchQuery("", "", "", c.q.QueryLists, nil, authID)
+	if err := c.db.Select(&res, stmt, id, uu, queryStr, "", "", pq.StringArray{}, 0, 1, authID); err != nil {
 		c.log.Printf("error fetching lists: %v", err)
 		return models.List{}, echo.NewHTTPError(http.StatusInternalServerError,
 			c.i18n.Ts("globals.messages.errorFetching", "name", "{globals.terms.lists}", "error", pqErrMsg(err)))
@@ -162,6 +162,7 @@ func (c *Core) CreateList(l models.List, authID string) (models.List, error) {
 
 	l.UUID = uu.String()
 	l.AuthID = authID
+
 	// Insert and read ID.
 	var newID int
 
@@ -171,12 +172,15 @@ func (c *Core) CreateList(l models.List, authID string) (models.List, error) {
 			c.i18n.Ts("globals.messages.errorCreating", "name", "{globals.terms.list}", "error", pqErrMsg(err)))
 	}
 
-	return c.GetList(newID, "")
+	return c.GetList(newID, "", authID)
 }
 
 // UpdateList updates a given list.
-func (c *Core) UpdateList(id int, l models.List) (models.List, error) {
-	res, err := c.q.UpdateList.Exec(id, l.Name, l.Type, l.Optin, pq.StringArray(normalizeTags(l.Tags)), l.Description)
+func (c *Core) UpdateList(id int, l models.List, authID string) (models.List, error) {
+
+	l.AuthID = authID
+
+	res, err := c.q.UpdateList.Exec(id, l.Name, l.Type, l.Optin, pq.StringArray(normalizeTags(l.Tags)), l.Description, l.AuthID)
 	if err != nil {
 		c.log.Printf("error updating list: %v", err)
 		return models.List{}, echo.NewHTTPError(http.StatusInternalServerError,
@@ -188,17 +192,17 @@ func (c *Core) UpdateList(id int, l models.List) (models.List, error) {
 			c.i18n.Ts("globals.messages.notFound", "name", "{globals.terms.list}"))
 	}
 
-	return c.GetList(id, "")
+	return c.GetList(id, "", l.AuthID)
 }
 
 // DeleteList deletes a list.
-func (c *Core) DeleteList(id int) error {
-	return c.DeleteLists([]int{id})
+func (c *Core) DeleteList(id int, authID string) error {
+	return c.DeleteLists([]int{id}, authID)
 }
 
 // DeleteLists deletes multiple lists.
-func (c *Core) DeleteLists(ids []int) error {
-	if _, err := c.q.DeleteLists.Exec(pq.Array(ids)); err != nil {
+func (c *Core) DeleteLists(ids []int, authID string) error {
+	if _, err := c.q.DeleteLists.Exec(pq.Array(ids), authID); err != nil {
 		c.log.Printf("error deleting lists: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			c.i18n.Ts("globals.messages.errorDeleting", "name", "{globals.terms.list}", "error", pqErrMsg(err)))

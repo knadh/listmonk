@@ -115,7 +115,7 @@ func handleGetPublicLists(c echo.Context) error {
 	)
 
 	// Get all public lists.
-	lists, err := app.core.GetLists(models.ListTypePublic)
+	lists, err := app.core.GetLists(models.ListTypePublic, "")
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("public.errorFetchingLists"))
 	}
@@ -147,7 +147,7 @@ func handleViewCampaignMessage(c echo.Context) error {
 	)
 
 	// Get the campaign.
-	camp, err := app.core.GetCampaign(0, campUUID, "")
+	camp, err := app.core.GetCampaign(0, campUUID, "", "")
 	if err != nil {
 		if er, ok := err.(*echo.HTTPError); ok {
 			if er.Code == http.StatusBadRequest {
@@ -161,7 +161,7 @@ func handleViewCampaignMessage(c echo.Context) error {
 	}
 
 	// Get the subscriber.
-	sub, err := app.core.GetSubscriber(0, subUUID, "")
+	sub, err := app.core.GetSubscriber(0, subUUID, "", "")
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return c.Render(http.StatusNotFound, tplMessage,
@@ -261,7 +261,7 @@ func handleSubscriptionPage(c echo.Context) error {
 	out.AllowWipe = app.constants.Privacy.AllowWipe
 	out.AllowPreferences = app.constants.Privacy.AllowPreferences
 
-	s, err := app.core.GetSubscriber(0, subUUID, "")
+	s, err := app.core.GetSubscriber(0, subUUID, "", "")
 	if err != nil {
 		return c.Render(http.StatusInternalServerError, tplMessage,
 			makeMsgTpl(app.i18n.T("public.errorTitle"), "", app.i18n.Ts("public.errorProcessingRequest")))
@@ -346,7 +346,7 @@ func handleSubscriptionPrefs(c echo.Context) error {
 	}
 
 	// Get the subscriber from the DB.
-	sub, err := app.core.GetSubscriber(0, subUUID, "")
+	sub, err := app.core.GetSubscriber(0, subUUID, "", "")
 	if err != nil {
 		return c.Render(http.StatusInternalServerError, tplMessage,
 			makeMsgTpl(app.i18n.T("public.errorTitle"), "", app.i18n.Ts("globals.messages.pFound",
@@ -355,7 +355,7 @@ func handleSubscriptionPrefs(c echo.Context) error {
 	sub.Name = req.Name
 
 	// Update name.
-	if _, err := app.core.UpdateSubscriber(sub.ID, sub); err != nil {
+	if _, err := app.core.UpdateSubscriber(sub.ID, sub, sub.AuthID); err != nil {
 		return c.Render(http.StatusInternalServerError, tplMessage,
 			makeMsgTpl(app.i18n.T("public.errorTitle"), "", app.i18n.T("public.errorProcessingRequest")))
 	}
@@ -473,7 +473,7 @@ func handleSubscriptionFormPage(c echo.Context) error {
 	}
 
 	// Get all public lists.
-	lists, err := app.core.GetLists(models.ListTypePublic)
+	lists, err := app.core.GetLists(models.ListTypePublic, "")
 	if err != nil {
 		return c.Render(http.StatusInternalServerError, tplMessage,
 			makeMsgTpl(app.i18n.T("public.errorTitle"), "", app.i18n.Ts("public.errorFetchingLists")))
@@ -691,7 +691,7 @@ func handleWipeSubscriberData(c echo.Context) error {
 			makeMsgTpl(app.i18n.T("public.errorTitle"), "", app.i18n.Ts("public.invalidFeature")))
 	}
 
-	if err := app.core.DeleteSubscribers(nil, []string{subUUID}); err != nil {
+	if err := app.core.DeleteSubscribers(nil, []string{subUUID}, ""); err != nil {
 		app.log.Printf("error wiping subscriber data: %s", err)
 		return c.Render(http.StatusInternalServerError, tplMessage,
 			makeMsgTpl(app.i18n.T("public.errorTitle"), "", app.i18n.Ts("public.errorProcessingRequest")))
@@ -770,12 +770,12 @@ func processSubForm(c echo.Context) (bool, error) {
 	if err != nil {
 		// Subscriber already exists. Update subscriptions.
 		if e, ok := err.(*echo.HTTPError); ok && e.Code == http.StatusConflict {
-			sub, err := app.core.GetSubscriber(0, "", req.Email)
+			sub, err := app.core.GetSubscriber(0, "", req.Email, "")
 			if err != nil {
 				return false, err
 			}
 
-			_, hasOptin, err := app.core.UpdateSubscriberWithLists(sub.ID, sub, nil, listUUIDs, false, false)
+			_, hasOptin, err := app.core.UpdateSubscriberWithLists(sub.ID, sub, nil, listUUIDs, false, false, sub.AuthID)
 			if err != nil {
 				return false, err
 			}

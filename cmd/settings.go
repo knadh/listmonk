@@ -52,7 +52,13 @@ var (
 func handleGetSettings(c echo.Context) error {
 	app := c.Get("app").(*App)
 
-	s, err := app.core.GetSettings()
+	authID := c.Request().Header.Get("X-Auth-ID")
+
+	if authID == "" {
+		return echo.NewHTTPError(http.StatusBadRequest, "authid is required")
+	}
+
+	s, err := app.core.GetSettings(authID)
 	if err != nil {
 		return err
 	}
@@ -81,14 +87,18 @@ func handleUpdateSettings(c echo.Context) error {
 		app = c.Get("app").(*App)
 		set models.Settings
 	)
+	authID := c.Request().Header.Get("X-Auth-ID")
 
+	if authID == "" {
+		return echo.NewHTTPError(http.StatusBadRequest, "authid is required")
+	}
 	// Unmarshal and marshal the fields once to sanitize the settings blob.
 	if err := c.Bind(&set); err != nil {
 		return err
 	}
 
 	// Get the existing settings.
-	cur, err := app.core.GetSettings()
+	cur, err := app.core.GetSettings(authID)
 	if err != nil {
 		return err
 	}
@@ -224,7 +234,7 @@ func handleUpdateSettings(c echo.Context) error {
 	}
 
 	// Update the settings in the DB.
-	if err := app.core.UpdateSettings(set); err != nil {
+	if err := app.core.UpdateSettings(set, authID); err != nil {
 		return err
 	}
 

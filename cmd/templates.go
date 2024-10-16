@@ -40,6 +40,11 @@ func handleGetTemplates(c echo.Context) error {
 		noBody, _ = strconv.ParseBool(c.QueryParam("no_body"))
 	)
 
+	// authID := c.Request().Header.Get("X-Auth-ID")
+
+	// if authID == "" {
+	// 	return echo.NewHTTPError(http.StatusBadRequest, "authid is required")
+	// }
 	// Fetch one list.
 	if id > 0 {
 		out, err := app.core.GetTemplate(id, noBody)
@@ -145,6 +150,12 @@ func handleCreateTemplate(c echo.Context) error {
 		o   = models.Template{}
 	)
 
+	authID := c.Request().Header.Get("X-Auth-ID")
+
+	if authID == "" {
+		return echo.NewHTTPError(http.StatusBadRequest, "authid is required")
+	}
+
 	if err := c.Bind(&o); err != nil {
 		return err
 	}
@@ -152,6 +163,7 @@ func handleCreateTemplate(c echo.Context) error {
 	if err := validateTemplate(o, app); err != nil {
 		return err
 	}
+	o.AuthID = authID
 
 	var f template.FuncMap
 
@@ -170,7 +182,7 @@ func handleCreateTemplate(c echo.Context) error {
 	}
 
 	// Create the template the in the DB.
-	out, err := app.core.CreateTemplate(o.Name, o.Type, o.Subject, []byte(o.Body))
+	out, err := app.core.CreateTemplate(o.Name, o.Type, o.Subject, []byte(o.Body), o.AuthID)
 	if err != nil {
 		return err
 	}

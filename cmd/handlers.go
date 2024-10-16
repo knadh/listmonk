@@ -126,7 +126,7 @@ func initHTTPHandlers(e *echo.Echo, app *App) {
 
 	g.GET("/api/lists", handleGetLists)
 	g.GET("/api/lists/:id", handleGetLists)
-	g.GET("/api/lists/authid/:authid", handleGetListsByAuthID)
+	//g.GET("/api/lists/authid/:authid", handleGetListsByAuthID)
 	g.POST("/api/lists", handleCreateList)
 	g.PUT("/api/lists/:id", handleUpdateList)
 	g.DELETE("/api/lists/:id", handleDeleteLists)
@@ -141,7 +141,7 @@ func initHTTPHandlers(e *echo.Echo, app *App) {
 	g.POST("/api/campaigns/:id/content", handleCampaignContent)
 	g.POST("/api/campaigns/:id/text", handlePreviewCampaign)
 	g.POST("/api/campaigns/:id/test", handleTestCampaign)
-	g.POST("/api/campaigns/:authid/create", handleCreateCampaign)
+	g.POST("/api/campaigns", handleCreateCampaign)
 	g.PUT("/api/campaigns/:id", handleUpdateCampaign)
 	g.PUT("/api/campaigns/:id/status", handleUpdateCampaignStatus)
 	g.PUT("/api/campaigns/:id/archive", handleUpdateCampaignArchive)
@@ -326,7 +326,7 @@ func subscriberExists(next echo.HandlerFunc, params ...string) echo.HandlerFunc 
 			subUUID = c.Param("subUUID")
 		)
 
-		if _, err := app.core.GetSubscriber(0, subUUID, ""); err != nil {
+		if _, err := app.core.GetSubscriber(0, subUUID, "", ""); err != nil {
 			if er, ok := err.(*echo.HTTPError); ok && er.Code == http.StatusBadRequest {
 				return c.Render(http.StatusNotFound, tplMessage,
 					makeMsgTpl(app.i18n.T("public.notFoundTitle"), "", er.Message.(string)))

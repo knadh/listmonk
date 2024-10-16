@@ -10,13 +10,13 @@ import (
 )
 
 // GetSettings returns settings from the DB.
-func (c *Core) GetSettings() (models.Settings, error) {
+func (c *Core) GetSettings(authID string) (models.Settings, error) {
 	var (
 		b   types.JSONText
 		out models.Settings
 	)
 
-	if err := c.q.GetSettings.Get(&b); err != nil {
+	if err := c.q.GetSettings.Get(&b, authID); err != nil {
 		return out, echo.NewHTTPError(http.StatusInternalServerError,
 			c.i18n.Ts("globals.messages.errorFetching",
 				"name", "{globals.terms.settings}", "error", pqErrMsg(err)))
@@ -32,7 +32,7 @@ func (c *Core) GetSettings() (models.Settings, error) {
 }
 
 // UpdateSettings updates settings.
-func (c *Core) UpdateSettings(s models.Settings) error {
+func (c *Core) UpdateSettings(s models.Settings, authID string) error {
 	// Marshal settings.
 	b, err := json.Marshal(s)
 	if err != nil {
@@ -41,7 +41,7 @@ func (c *Core) UpdateSettings(s models.Settings) error {
 	}
 
 	// Update the settings in the DB.
-	if _, err := c.q.UpdateSettings.Exec(b); err != nil {
+	if _, err := c.q.UpdateSettings.Exec(b, authID); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			c.i18n.Ts("globals.messages.errorUpdating", "name", "{globals.terms.settings}", "error", pqErrMsg(err)))
 	}

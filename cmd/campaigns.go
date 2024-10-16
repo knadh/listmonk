@@ -67,7 +67,13 @@ func handleGetCampaigns(c echo.Context) error {
 		noBody, _ = strconv.ParseBool(c.QueryParam("no_body"))
 	)
 
-	res, total, err := app.core.QueryCampaigns(query, status, tags, orderBy, order, pg.Offset, pg.Limit)
+	// Retrieve authid from headers (adjust header key if needed)
+	authid := c.Request().Header.Get("X-Auth-ID") // Or any other header key where authid is stored
+	if authid == "" {
+		return echo.NewHTTPError(http.StatusBadRequest, "authid is required")
+	}
+
+	res, total, err := app.core.QueryCampaigns(query, status, tags, orderBy, order, pg.Offset, pg.Limit, authid)
 	if err != nil {
 		return err
 	}
@@ -101,8 +107,13 @@ func handleGetCampaign(c echo.Context) error {
 		id, err   = strconv.Atoi(c.Param("id"))
 		noBody, _ = strconv.ParseBool(c.QueryParam("no_body"))
 	)
+	authID := c.Request().Header.Get("X-Auth-ID")
 
-	out, err := app.core.GetCampaign(id, "", "")
+	if authID == "" {
+		return echo.NewHTTPError(http.StatusBadRequest, "authid is required")
+	}
+
+	out, err := app.core.GetCampaign(id, "", "", authID)
 	if err != nil {
 		return err
 	}
@@ -118,22 +129,22 @@ func handleGetCampaignByAuthId(c echo.Context) error {
 	var (
 		app       = c.Get("app").(*App)
 		noBody, _ = strconv.ParseBool(c.QueryParam("no_body"))
-		authid    = c.Param("authid")
+		authID    = c.Request().Header.Get("X-Auth-ID")
 	)
 
 	// Attempt to retrieve the campaigns by AuthID
-	out, err := app.core.GetCampaignByAuthId(authid)
+	out, err := app.core.GetCampaignByAuthId(authID)
 
 	if err != nil {
 		// Log the error details
-		app.log.Printf("Error fetching campaigns with AuthID: %s Error: %v", authid, err)
+		app.log.Printf("Error fetching campaigns with AuthID: %s Error: %v", authID, err)
 
 		// Return internal server error for other cases
 		return echo.NewHTTPError(http.StatusInternalServerError, "Error retrieving campaigns")
 	}
 
 	// Log successful retrieval of the campaigns
-	app.log.Printf("Successfully retrieved %d campaigns with AuthID: %s", len(out), authid)
+	app.log.Printf("Successfully retrieved %d campaigns with AuthID: %s", len(out), authID)
 
 	// If the "no_body" query parameter is set, clear the body content from each campaign
 	if noBody {
@@ -262,7 +273,8 @@ func handleCreateCampaign(c echo.Context) error {
 	)
 
 	// Extract the authid from the URL
-	authID := c.Param("authid")
+	authID := c.Request().Header.Get("X-Auth-ID")
+
 	if authID == "" {
 		return echo.NewHTTPError(http.StatusBadRequest, "authid is required")
 	}
@@ -359,13 +371,17 @@ func handleUpdateCampaign(c echo.Context) error {
 		app   = c.Get("app").(*App)
 		id, _ = strconv.Atoi(c.Param("id"))
 	)
+	authid := c.Request().Header.Get("X-Auth-ID") // Or any other header key where authid is stored
+	if authid == "" {
+		return echo.NewHTTPError(http.StatusBadRequest, "authid is required")
+	}
 
 	if id < 1 {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidID"))
 
 	}
 
-	cm, err := app.core.GetCampaign(id, "", "")
+	cm, err := app.core.GetCampaign(id, "", "", authid)
 	if err != nil {
 		return err
 	}
@@ -388,7 +404,7 @@ func handleUpdateCampaign(c echo.Context) error {
 		o = c
 	}
 
-	out, err := app.core.UpdateCampaign(id, o.Campaign, o.ListIDs, o.MediaIDs, o.SendLater)
+	out, err := app.core.UpdateCampaign(id, o.Campaign, o.ListIDs, o.MediaIDs, o.SendLater, authid)
 	if err != nil {
 		return err
 	}
@@ -468,12 +484,17 @@ func handleDeleteCampaign(c echo.Context) error {
 		app   = c.Get("app").(*App)
 		id, _ = strconv.Atoi(c.Param("id"))
 	)
+	authID := c.Request().Header.Get("X-Auth-ID")
+
+	if authID == "" {
+		return echo.NewHTTPError(http.StatusBadRequest, "authid is required")
+	}
 
 	if id < 1 {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidID"))
 	}
 
-	if err := app.core.DeleteCampaign(id); err != nil {
+	if err := app.core.DeleteCampaign(id, authID); err != nil {
 		return err
 	}
 

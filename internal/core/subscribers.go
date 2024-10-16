@@ -15,14 +15,14 @@ import (
 )
 
 // GetSubscriber fetches a subscriber by one of the given params.
-func (c *Core) GetSubscriber(id int, uuid, email string) (models.Subscriber, error) {
+func (c *Core) GetSubscriber(id int, uuid, email string, authID string) (models.Subscriber, error) {
 	var uu interface{}
 	if uuid != "" {
 		uu = uuid
 	}
 
 	var out models.Subscribers
-	if err := c.q.GetSubscriber.Select(&out, id, uu, email); err != nil {
+	if err := c.q.GetSubscriber.Select(&out, id, uu, email, authID); err != nil {
 		c.log.Printf("error fetching subscriber: %v", err)
 		return models.Subscriber{}, echo.NewHTTPError(http.StatusInternalServerError,
 			c.i18n.Ts("globals.messages.errorFetching",
@@ -91,7 +91,7 @@ func (c *Core) GetSubscribersByEmail(emails []string) (models.Subscribers, error
 }
 
 // QuerySubscribers queries and returns paginated subscrribers based on the given params including the total count.
-func (c *Core) QuerySubscribers(query string, listIDs []int, subStatus string, order, orderBy string, offset, limit int) (models.Subscribers, int, error) {
+func (c *Core) QuerySubscribers(query string, listIDs []int, subStatus string, order, orderBy string, offset, limit int, authID string) (models.Subscribers, int, error) {
 	// There's an arbitrary query condition.
 	cond := ""
 	if query != "" {
@@ -136,7 +136,7 @@ func (c *Core) QuerySubscribers(query string, listIDs []int, subStatus string, o
 	}
 	defer tx.Rollback()
 
-	if err := tx.Select(&out, stmt, pq.Array(listIDs), subStatus, offset, limit); err != nil {
+	if err := tx.Select(&out, stmt, pq.Array(listIDs), subStatus, offset, limit, authID); err != nil {
 		return nil, 0, echo.NewHTTPError(http.StatusInternalServerError,
 			c.i18n.Ts("globals.messages.errorFetching", "name", "{globals.terms.subscribers}", "error", pqErrMsg(err)))
 	}
@@ -310,7 +310,7 @@ func (c *Core) InsertSubscriber(sub models.Subscriber, listIDs []int, listUUIDs 
 
 	// Fetch the subscriber's full data. If the subscriber already existed and wasn't
 	// created, the id will be empty. Fetch the details by e-mail then.
-	out, err := c.GetSubscriber(sub.ID, "", sub.Email)
+	out, err := c.GetSubscriber(sub.ID, "", sub.Email, sub.AuthID)
 	if err != nil {
 		return models.Subscriber{}, false, err
 	}
@@ -326,7 +326,7 @@ func (c *Core) InsertSubscriber(sub models.Subscriber, listIDs []int, listUUIDs 
 }
 
 // UpdateSubscriber updates a subscriber's properties.
-func (c *Core) UpdateSubscriber(id int, sub models.Subscriber) (models.Subscriber, error) {
+func (c *Core) UpdateSubscriber(id int, sub models.Subscriber, authID string) (models.Subscriber, error) {
 	// Format raw JSON attributes.
 	attribs := []byte("{}")
 	if len(sub.Attribs) > 0 {
@@ -339,11 +339,14 @@ func (c *Core) UpdateSubscriber(id int, sub models.Subscriber) (models.Subscribe
 		}
 	}
 
+	sub.AuthID = authID
+
 	_, err := c.q.UpdateSubscriber.Exec(id,
 		sub.Email,
 		strings.TrimSpace(sub.Name),
 		sub.Status,
 		json.RawMessage(attribs),
+		sub.AuthID,
 	)
 	if err != nil {
 		c.log.Printf("error updating subscriber: %v", err)
@@ -351,7 +354,7 @@ func (c *Core) UpdateSubscriber(id int, sub models.Subscriber) (models.Subscribe
 			c.i18n.Ts("globals.messages.errorUpdating", "name", "{globals.terms.subscriber}", "error", pqErrMsg(err)))
 	}
 
-	out, err := c.GetSubscriber(sub.ID, "", sub.Email)
+	out, err := c.GetSubscriber(sub.ID, "", sub.Email, sub.AuthID)
 	if err != nil {
 		return models.Subscriber{}, err
 	}
@@ -362,7 +365,7 @@ func (c *Core) UpdateSubscriber(id int, sub models.Subscriber) (models.Subscribe
 // UpdateSubscriberWithLists updates a subscriber's properties.
 // If deleteLists is set to true, all existing subscriptions are deleted and only
 // the ones provided are added or retained.
-func (c *Core) UpdateSubscriberWithLists(id int, sub models.Subscriber, listIDs []int, listUUIDs []string, preconfirm, deleteLists bool) (models.Subscriber, bool, error) {
+func (c *Core) UpdateSubscriberWithLists(id int, sub models.Subscriber, listIDs []int, listUUIDs []string, preconfirm, deleteLists bool, authID string) (models.Subscriber, bool, error) {
 	subStatus := models.SubscriptionStatusUnconfirmed
 	if preconfirm {
 		subStatus = models.SubscriptionStatusConfirmed
@@ -379,6 +382,7 @@ func (c *Core) UpdateSubscriberWithLists(id int, sub models.Subscriber, listIDs 
 			attribs = b
 		}
 	}
+	sub.AuthID = authID
 
 	_, err := c.q.UpdateSubscriberWithLists.Exec(id,
 		sub.Email,
@@ -388,14 +392,15 @@ func (c *Core) UpdateSubscriberWithLists(id int, sub models.Subscriber, listIDs 
 		pq.Array(listIDs),
 		pq.Array(listUUIDs),
 		subStatus,
-		deleteLists)
+		deleteLists,
+		sub.AuthID)
 	if err != nil {
 		c.log.Printf("error updating subscriber: %v", err)
 		return models.Subscriber{}, false, echo.NewHTTPError(http.StatusInternalServerError,
 			c.i18n.Ts("globals.messages.errorUpdating", "name", "{globals.terms.subscriber}", "error", pqErrMsg(err)))
 	}
 
-	out, err := c.GetSubscriber(sub.ID, "", sub.Email)
+	out, err := c.GetSubscriber(sub.ID, "", sub.Email, sub.AuthID)
 	if err != nil {
 		return models.Subscriber{}, false, err
 	}
@@ -433,7 +438,7 @@ func (c *Core) BlocklistSubscribersByQuery(query string, listIDs []int, subStatu
 }
 
 // DeleteSubscribers deletes the given list of subscribers.
-func (c *Core) DeleteSubscribers(subIDs []int, subUUIDs []string) error {
+func (c *Core) DeleteSubscribers(subIDs []int, subUUIDs []string, authID string) error {
 	if subIDs == nil {
 		subIDs = []int{}
 	}
@@ -441,7 +446,7 @@ func (c *Core) DeleteSubscribers(subIDs []int, subUUIDs []string) error {
 		subUUIDs = []string{}
 	}
 
-	if _, err := c.q.DeleteSubscribers.Exec(pq.Array(subIDs), pq.Array(subUUIDs)); err != nil {
+	if _, err := c.q.DeleteSubscribers.Exec(pq.Array(subIDs), pq.Array(subUUIDs), authID); err != nil {
 		c.log.Printf("error deleting subscribers: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			c.i18n.Ts("globals.messages.errorDeleting", "name", "{globals.terms.subscribers}", "error", pqErrMsg(err)))

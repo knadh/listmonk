@@ -36,9 +36,9 @@ func (c *Core) GetTemplate(id int, noBody bool) (models.Template, error) {
 }
 
 // CreateTemplate creates a new template.
-func (c *Core) CreateTemplate(name, typ, subject string, body []byte) (models.Template, error) {
+func (c *Core) CreateTemplate(name, typ, subject string, body []byte, authID string) (models.Template, error) {
 	var newID int
-	if err := c.q.CreateTemplate.Get(&newID, name, typ, subject, body); err != nil {
+	if err := c.q.CreateTemplate.Get(&newID, name, typ, subject, body, authID); err != nil {
 		return models.Template{}, echo.NewHTTPError(http.StatusInternalServerError,
 			c.i18n.Ts("globals.messages.errorCreating", "name", "{globals.terms.template}", "error", pqErrMsg(err)))
 	}

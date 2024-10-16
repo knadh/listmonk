@@ -20,7 +20,8 @@ type Media struct {
 	Meta        models.JSON `db:"meta" json:"meta"`
 	URL         string      `json:"url"`
 
-	Total int `db:"total" json:"-"`
+	Total  int    `db:"total" json:"-"`
+	AuthID string `db:"authid" json:"auth_id"`
 }
 
 // Store represents functions to store and retrieve media (files).

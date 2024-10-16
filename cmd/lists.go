@@ -27,6 +27,12 @@ func handleGetLists(c echo.Context) error {
 		out models.PageResults
 	)
 
+	authID := c.Request().Header.Get("X-Auth-ID")
+
+	if authID == "" {
+		return echo.NewHTTPError(http.StatusBadRequest, "authid is required")
+	}
+
 	// Fetch one list.
 	single := false
 	if listID > 0 {
@@ -34,7 +40,7 @@ func handleGetLists(c echo.Context) error {
 	}
 
 	if single {
-		out, err := app.core.GetList(listID, "")
+		out, err := app.core.GetList(listID, "", authID)
 		if err != nil {
 			return err
 		}
@@ -43,7 +49,7 @@ func handleGetLists(c echo.Context) error {
 
 	// Minimal query simply returns the list of all lists without JOIN subscriber counts. This is fast.
 	if !single && minimal {
-		res, err := app.core.GetLists("")
+		res, err := app.core.GetLists("", authID)
 		if err != nil {
 			return err
 		}
@@ -61,7 +67,7 @@ func handleGetLists(c echo.Context) error {
 	}
 
 	// Full list query.
-	res, total, err := app.core.QueryLists(query, typ, optin, tags, orderBy, order, pg.Offset, pg.Limit)
+	res, total, err := app.core.QueryLists(query, typ, optin, tags, orderBy, order, pg.Offset, pg.Limit, authID)
 	if err != nil {
 		return err
 	}
@@ -86,28 +92,28 @@ func handleGetLists(c echo.Context) error {
 
 // handleGetListsByAuthID handles retrieving lists associated with particular AuthID
 // handleGetListsByAuthID retrieves lists associated with a particular authid.
-func handleGetListsByAuthID(c echo.Context) error {
-	var (
-		app    = c.Get("app").(*App)
-		authID = c.Param("authid") // Assuming you are passing authid in the URL path
-		out    []models.List
-	)
+// func handleGetListsByAuthID(c echo.Context) error {
+// 	var (
+// 		app    = c.Get("app").(*App)
+// 		authID = c.Param("authid") // Assuming you are passing authid in the URL path
+// 		out    []models.List
+// 	)
 
-	// Fetch lists by authid
-	res, err := app.core.GetListsByAuthID(authID)
-	if err != nil {
-		return err
-	}
+// 	// Fetch lists by authid
+// 	res, err := app.core.GetListsByAuthID(authID)
+// 	if err != nil {
+// 		return err
+// 	}
 
-	// Check if no lists were found
-	if len(res) == 0 {
-		return c.JSON(http.StatusOK, okResp{[]struct{}{}}) // Return empty response
-	}
+// 	// Check if no lists were found
+// 	if len(res) == 0 {
+// 		return c.JSON(http.StatusOK, okResp{[]struct{}{}}) // Return empty response
+// 	}
 
-	out = res // Assign results
+// 	out = res // Assign results
 
-	return c.JSON(http.StatusOK, okResp{out}) // Return lists as JSON
-}
+// 	return c.JSON(http.StatusOK, okResp{out}) // Return lists as JSON
+// }
 
 // handleCreateList handles list creation.
 func handleCreateList(c echo.Context) error {
@@ -116,7 +122,8 @@ func handleCreateList(c echo.Context) error {
 		l   = models.List{}
 	)
 
-	authID := c.Param("authid")
+	authID := c.Request().Header.Get("X-Auth-ID")
+
 	if authID == "" {
 		return echo.NewHTTPError(http.StatusBadRequest, "authid is required")
 	}
@@ -144,6 +151,11 @@ func handleUpdateList(c echo.Context) error {
 		app   = c.Get("app").(*App)
 		id, _ = strconv.Atoi(c.Param("id"))
 	)
+	authID := c.Request().Header.Get("X-Auth-ID")
+
+	if authID == "" {
+		return echo.NewHTTPError(http.StatusBadRequest, "authid is required")
+	}
 
 	if id < 1 {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidID"))
@@ -160,7 +172,7 @@ func handleUpdateList(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("lists.invalidName"))
 	}
 
-	out, err := app.core.UpdateList(id, l)
+	out, err := app.core.UpdateList(id, l, authID)
 	if err != nil {
 		return err
 	}
@@ -175,6 +187,11 @@ func handleDeleteLists(c echo.Context) error {
 		id, _ = strconv.ParseInt(c.Param("id"), 10, 64)
 		ids   []int
 	)
+	authID := c.Request().Header.Get("X-Auth-ID")
+
+	if authID == "" {
+		return echo.NewHTTPError(http.StatusBadRequest, "authid is required")
+	}
 
 	if id < 1 && len(ids) == 0 {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidID"))
@@ -184,7 +201,7 @@ func handleDeleteLists(c echo.Context) error {
 		ids = append(ids, int(id))
 	}
 
-	if err := app.core.DeleteLists(ids); err != nil {
+	if err := app.core.DeleteLists(ids, authID); err != nil {
 		return err
 	}
 

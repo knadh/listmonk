@@ -69,12 +69,17 @@ func handleGetSubscriber(c echo.Context) error {
 		app   = c.Get("app").(*App)
 		id, _ = strconv.Atoi(c.Param("id"))
 	)
+	authID := c.Request().Header.Get("X-Auth-ID")
+
+	if authID == "" {
+		return echo.NewHTTPError(http.StatusBadRequest, "authid is required")
+	}
 
 	if id < 1 {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidID"))
 	}
 
-	out, err := app.core.GetSubscriber(id, "", "")
+	out, err := app.core.GetSubscriber(id, "", "", authID)
 	if err != nil {
 		return err
 	}
@@ -118,13 +123,19 @@ func handleQuerySubscribers(c echo.Context) error {
 		out       models.PageResults
 	)
 
+	authID := c.Request().Header.Get("X-Auth-ID")
+
+	if authID == "" {
+		return echo.NewHTTPError(http.StatusBadRequest, "authid is required")
+	}
+
 	// Limit the subscribers to specific lists?
 	listIDs, err := getQueryInts("list_id", c.QueryParams())
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidID"))
 	}
 
-	res, total, err := app.core.QuerySubscribers(query, listIDs, subStatus, order, orderBy, pg.Offset, pg.Limit)
+	res, total, err := app.core.QuerySubscribers(query, listIDs, subStatus, order, orderBy, pg.Offset, pg.Limit, authID)
 	if err != nil {
 		return err
 	}
@@ -214,7 +225,7 @@ func handleCreateSubscriber(c echo.Context) error {
 	)
 
 	// Extract the authid from the URL
-	authID := c.Param("authid")
+	authID := c.Request().Header.Get("X-Auth-ID")
 	if authID == "" {
 		return echo.NewHTTPError(http.StatusBadRequest, "authid is required")
 	}
@@ -251,6 +262,11 @@ func handleUpdateSubscriber(c echo.Context) error {
 		}
 	)
 
+	authID := c.Request().Header.Get("X-Auth-ID")
+	if authID == "" {
+		return echo.NewHTTPError(http.StatusBadRequest, "authid is required")
+	}
+
 	// Get and validate fields.
 	if err := c.Bind(&req); err != nil {
 		return err
@@ -270,7 +286,7 @@ func handleUpdateSubscriber(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("subscribers.invalidName"))
 	}
 
-	out, _, err := app.core.UpdateSubscriberWithLists(id, req.Subscriber, req.Lists, nil, req.PreconfirmSubs, true)
+	out, _, err := app.core.UpdateSubscriberWithLists(id, req.Subscriber, req.Lists, nil, req.PreconfirmSubs, true, authID)
 	if err != nil {
 		return err
 	}
@@ -290,7 +306,7 @@ func handleSubscriberSendOptin(c echo.Context) error {
 	}
 
 	// Fetch the subscriber.
-	out, err := app.core.GetSubscriber(id, "", "")
+	out, err := app.core.GetSubscriber(id, "", "", "")
 	if err != nil {
 		return err
 	}
@@ -404,6 +420,11 @@ func handleDeleteSubscribers(c echo.Context) error {
 		subIDs []int
 	)
 
+	authID := c.Request().Header.Get("X-Auth-ID")
+	if authID == "" {
+		return echo.NewHTTPError(http.StatusBadRequest, "authid is required")
+	}
+
 	// Is it an /:id call?
 	if pID != "" {
 		id, _ := strconv.Atoi(pID)
@@ -425,7 +446,7 @@ func handleDeleteSubscribers(c echo.Context) error {
 		subIDs = i
 	}
 
-	if err := app.core.DeleteSubscribers(subIDs, nil); err != nil {
+	if err := app.core.DeleteSubscribers(subIDs, nil, authID); err != nil {
 		return err
 	}
 

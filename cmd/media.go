@@ -29,6 +29,13 @@ func handleUploadMedia(c echo.Context) error {
 		app     = c.Get("app").(*App)
 		cleanUp = false
 	)
+
+	authID := c.Request().Header.Get("X-Auth-ID")
+
+	if authID == "" {
+		return echo.NewHTTPError(http.StatusBadRequest, "authid is required")
+	}
+
 	file, err := c.FormFile("file")
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest,
@@ -128,7 +135,7 @@ func handleUploadMedia(c echo.Context) error {
 			"height": height,
 		}
 	}
-	m, err := app.core.InsertMedia(fName, thumbfName, contentType, meta, app.constants.MediaUpload.Provider, app.media)
+	m, err := app.core.InsertMedia(fName, thumbfName, contentType, meta, app.constants.MediaUpload.Provider, app.media, authID)
 	if err != nil {
 		cleanUp = true
 		return err
@@ -145,16 +152,22 @@ func handleGetMedia(c echo.Context) error {
 		id, _ = strconv.Atoi(c.Param("id"))
 	)
 
+	authID := c.Request().Header.Get("X-Auth-ID")
+
+	if authID == "" {
+		return echo.NewHTTPError(http.StatusBadRequest, "authid is required")
+	}
+
 	// Fetch one list.
 	if id > 0 {
-		out, err := app.core.GetMedia(id, "", app.media)
+		out, err := app.core.GetMedia(id, "", app.media, authID)
 		if err != nil {
 			return err
 		}
 		return c.JSON(http.StatusOK, okResp{out})
 	}
 
-	res, total, err := app.core.QueryMedia(app.constants.MediaUpload.Provider, app.media, query, pg.Offset, pg.Limit)
+	res, total, err := app.core.QueryMedia(app.constants.MediaUpload.Provider, app.media, query, pg.Offset, pg.Limit, authID)
 	if err != nil {
 		return err
 	}
@@ -175,12 +188,17 @@ func handleDeleteMedia(c echo.Context) error {
 		app   = c.Get("app").(*App)
 		id, _ = strconv.Atoi(c.Param("id"))
 	)
+	authID := c.Request().Header.Get("X-Auth-ID")
+
+	if authID == "" {
+		return echo.NewHTTPError(http.StatusBadRequest, "authid is required")
+	}
 
 	if id < 1 {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidID"))
 	}
 
-	fname, err := app.core.DeleteMedia(id)
+	fname, err := app.core.DeleteMedia(id, authID)
 	if err != nil {
 		return err
 	}

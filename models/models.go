@@ -342,6 +342,7 @@ type Template struct {
 	// Only relevant to tx (transactional) templates.
 	SubjectTpl *txttpl.Template   `json:"-"`
 	Tpl        *template.Template `json:"-"`
+	AuthID     string             `db:"authid" json:"auth_id"`
 }
 
 // Bounce represents a single bounce event.

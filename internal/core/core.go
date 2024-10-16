@@ -129,7 +129,7 @@ func pqErrMsg(err error) string {
 // makeSearchQuery cleans an optional search string and prepares the
 // query SQL statement (string interpolated) and returns the
 // search query string along with the SQL expression.
-func makeSearchQuery(searchStr, orderBy, order, query string, querySortFields []string) (string, string) {
+func makeSearchQuery(searchStr, orderBy, order, query string, querySortFields []string, authid string) (string, string) {
 	if searchStr != "" {
 		searchStr = `%` + string(regexFullTextQuery.ReplaceAll([]byte(searchStr), []byte("&"))) + `%`
 	}
@@ -141,9 +141,10 @@ func makeSearchQuery(searchStr, orderBy, order, query string, querySortFields []
 	if order != SortAsc && order != SortDesc {
 		order = SortDesc
 	}
-
+	// Replace order clause
 	query = strings.ReplaceAll(query, "%order%", orderBy+" "+order)
 
+	fmt.Println("Final query:", query)
 	return searchStr, query
 }
 
