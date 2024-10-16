@@ -1,0 +1,55 @@
+version: api.keploy.io/v1beta2
+kind: Http
+name: test-5
+spec:
+    metadata: {}
+    req:
+        method: POST
+        proto_major: 1
+        proto_minor: 1
+        url: http://localhost:9000/api/subscribers
+        header:
+            Accept: '*/*'
+            Authorization: Basic bGlzdG1vbms6bGlzdG1vbms=
+            Content-Length: "175"
+            Content-Type: application/json
+            Host: localhost:9000
+            User-Agent: curl/7.81.0
+        body: '{"email":"subsriber123456@domain.com","name":"The Subscriber","status":"enabled","lists":[1],"attribs":{"city":"Bengaluru","projects":3,"stack":{"languages":["go","python"]}}}'
+        body_type: ""
+        timestamp: 2023-11-03T03:04:54.659661351Z
+    resp:
+        status_code: 200
+        header:
+            Content-Length: "744"
+            Content-Type: application/json; charset=UTF-8
+            Date: Fri, 03 Nov 2023 03:04:54 GMT
+        body: |
+            {"data":{"id":41,"created_at":"2023-11-03T03:04:54.660042Z","updated_at":"2023-11-03T03:04:54.660042Z","uuid":"21dc0f45-c761-4ab0-bcb5-7546954a799e","email":"subsriber123456@domain.com","name":"The Subscriber","attribs":{"city":"Bengaluru","projects":3,"stack":{"languages":["go","python"]}},"status":"enabled","lists":[{"subscription_status":"unconfirmed","subscription_created_at":"2023-11-03T03:04:54.660042+00:00","subscription_updated_at":"2023-11-03T03:04:54.660042+00:00","subscription_meta":{},"id":1,"uuid":"c5977ddf-bfd4-438f-aaa1-baf6fde450b0","name":"Default list","type":"private","optin":"single","tags":["test"],"description":"","created_at":"2023-10-27T06:49:09.177178+00:00","updated_at":"2023-10-27T06:49:09.177178+00:00"}]}}
+        body_type: ""
+        status_message: ""
+        proto_major: 0
+        proto_minor: 0
+        timestamp: 2023-11-03T03:04:57.60476766Z
+    objects: []
+    assertions:
+        noise:
+            - header.Date
+            - body.data.id
+            - body.data.lists.subscription_updated_at
+            - body.data.updated_at
+            - body.data.created_at
+            - body.data.lists.updated_at
+            - body.data.lists.subscription_created_at
+            - body.data.lists.created_at
+            - body.data.attribs.stack.languages
+    created: 1698980697
+curl: |-
+    curl --request POST \
+      --url http://localhost:9000/api/subscribers \
+      --header 'Authorization: Basic bGlzdG1vbms6bGlzdG1vbms=' \
+      --header 'User-Agent: curl/7.81.0' \
+      --header 'Accept: */*' \
+      --header 'Content-Type: application/json' \
+      --header 'Host: localhost:9000' \
+      --data '{"email":"subsriber123456@domain.com","name":"The Subscriber","status":"enabled","lists":[1],"attribs":{"city":"Bengaluru","projects":3,"stack":{"languages":["go","python"]}}}'
