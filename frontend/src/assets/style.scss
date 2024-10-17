@@ -305,19 +305,17 @@ body.is-noscroll {
   border-radius: 2px;
 }
 
-.plain-editor textarea {
-  height: 65vh;
-}
-
 .alt-body textarea {
   height: 30vh;
 }
 
-
 .editor {
   margin-bottom: 30px;
+}
 
+.richtext-editor {
   .tox-tinymce {
+    height: 100%;
     box-shadow: 2px 2px 0 #f3f3f3;
     border: 1px solid #e6e6e6;
     border-radius: 3px;
@@ -336,9 +334,7 @@ body.is-noscroll {
   .tox-tinymce--toolbar-sticky-on .tox-editor-header {
     padding-top: 48px !important;
   }
-
 }
-
 
 .tox.tox-silver-sink {
   z-index: 850;
