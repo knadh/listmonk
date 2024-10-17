@@ -4,32 +4,27 @@
     <div class="columns">
       <div class="column is-6">
         <b-field label="Format">
-          <div>
-            <b-radio v-model="form.radioFormat" @input="onFormatChange" :disabled="disabled" name="format"
-              native-value="richtext" data-cy="check-richtext">
+          <b-select v-model="contentType">
+            <option :disabled="disabled" name="format" value="richtext" data-cy="check-richtext">
               {{ $t('campaigns.richText') }}
-            </b-radio>
+            </option>
 
-            <b-radio v-model="form.radioFormat" @input="onFormatChange" :disabled="disabled" name="format"
-              native-value="html" data-cy="check-html">
+            <option :disabled="disabled" name="format" value="html" data-cy="check-html">
               {{ $t('campaigns.rawHTML') }}
-            </b-radio>
+            </option>
 
-            <b-radio v-model="form.radioFormat" @input="onFormatChange" :disabled="disabled" name="format"
-              native-value="markdown" data-cy="check-markdown">
+            <option :disabled="disabled" name="format" value="markdown" data-cy="check-markdown">
               {{ $t('campaigns.markdown') }}
-            </b-radio>
+            </option>
 
-            <b-radio v-model="form.radioFormat" @input="onFormatChange" :disabled="disabled" name="format"
-              native-value="plain" data-cy="check-plain">
+            <option :disabled="disabled" name="format" value="plain" data-cy="check-plain">
               {{ $t('campaigns.plainText') }}
-            </b-radio>
+            </option>
 
-            <b-radio v-model="form.radioFormat" @input="onFormatChange" :disabled="disabled" name="format"
-              native-value="visual" data-cy="check-visual">
+            <option :disabled="disabled" name="format" value="visual" data-cy="check-visual">
               {{ $t('campaigns.visual') }}
-            </b-radio>
-          </div>
+            </option>
+          </b-select>
         </b-field>
       </div>
       <div class="column is-6 has-text-right">
@@ -40,8 +35,8 @@
     </div>
 
     <!-- wsywig //-->
-    <template v-if="isRichtextReady && form.format === 'richtext'">
-      <tiny-mce v-model="form.body" :disabled="disabled" :init="richtextConf" />
+    <template v-if="isRichtextReady && computedValue.contentType === 'richtext'">
+      <tiny-mce v-model="computedValue.body" :disabled="disabled" :init="richtextConf" />
 
       <b-modal scroll="keep" :width="1200" :aria-modal="true" :active.sync="isRichtextSourceVisible">
         <div>
@@ -68,7 +63,7 @@
             <html-editor v-model="insertHTMLSnippet" />
           </section>
           <footer class="modal-card-foot has-text-right">
-            <b-button @click="onFormatRichtextHTML">
+            <b-button @click="onFormatRichtextHTMLSnippet">
               {{ $t('campaigns.formatHTML') }}
             </b-button>
             <b-button @click="() => { this.isInsertHTMLVisible = false; }">
@@ -83,21 +78,21 @@
     </template>
 
     <!-- visual editor //-->
-    <visual-editor v-if="form.format === 'visual'" :source="bodySource" @change="onChangeVisualEditor" />
+    <visual-editor v-if="computedValue.contentType === 'visual'" :source="computedValue.bodySource" @change="onChangeVisualEditor" />
 
     <!-- raw html editor //-->
-    <html-editor v-if="form.format === 'html'" v-model="form.body" />
+    <html-editor v-if="computedValue.contentType === 'html'" v-model="computedValue.body" />
 
     <!-- markdown editor //-->
-    <markdown-editor v-if="form.format === 'markdown'" v-model="form.body" />
+    <markdown-editor v-if="computedValue.contentType === 'markdown'" v-model="computedValue.body" />
 
     <!-- plain text //-->
-    <b-input v-if="form.format === 'plain'" v-model="form.body" @input="onEditorChange" type="textarea" name="content"
-      ref="plainEditor" class="plain-editor" />
+    <b-input v-if="computedValue.contentType === 'plain'" v-model="computedValue.body"
+      type="textarea" name="content" ref="plainEditor" class="plain-editor" />
 
     <!-- campaign preview //-->
     <campaign-preview v-if="isPreviewing" @close="onTogglePreview" type="campaign" :id="id" :title="title"
-      :content-type="form.format" :template-id="templateId" :body="form.body" />
+      :content-type="computedValue.contentType" :template-id="computedValue.templateId" :body="computedValue.body" />
 
     <!-- image picker -->
     <b-modal scroll="keep" :aria-modal="true" :active.sync="isMediaVisible" :width="900">
@@ -179,18 +174,22 @@ export default {
   props: {
     id: { type: Number, default: 0 },
     title: { type: String, default: '' },
-    body: { type: String, default: '' },
-    bodySource: { type: String, default: '' },
-    contentType: { type: String, default: '' },
-    templateId: { type: Number, default: 0 },
     disabled: { type: Boolean, default: false },
+    value: {
+      type: Object,
+      default: () => ({
+        body: '',
+        bodySource: null,
+        contentType: '',
+        templateId: null,
+      }),
+    },
   },
 
   data() {
     return {
       isPreviewing: false,
       isMediaVisible: false,
-      isEditorFullscreen: false,
       isReady: false,
       isRichtextReady: false,
       isRichtextSourceVisible: false,
@@ -199,22 +198,7 @@ export default {
       isTrackLink: false,
       richtextConf: {},
       richTextSourceBody: '',
-      form: {
-        body: '',
-        bodySource: null,
-        format: this.contentType,
-
-        // Model bound to the checkboxes. This changes on click of the radio,
-        // but is reverted by the change handler if the user cancels the
-        // conversion warning. This is used to set the value of form.format
-        // that the editor uses to render content.
-        radioFormat: this.contentType,
-      },
-
-      // Last position of the cursor in the editor before the media popup
-      // was opened. This is used to insert media on selection from the poup
-      // where the caret may be lost.
-      lastSel: null,
+      contentType: '',
     };
   },
 
@@ -295,25 +279,63 @@ export default {
       this.isRichtextReady = true;
     },
 
-    onFormatChange(format) {
-      if (this.form.body.trim() === '') {
-        this.form.format = format;
-        this.onEditorChange();
+    onContentTypeChange(to, from, prompt) {
+      if (this.computedValue.body.trim() === '') {
         return;
       }
 
-      // Content isn't empty. Warn.
-      this.$utils.confirm(
-        this.$t('campaigns.confirmSwitchFormat'),
-        () => {
-          this.form.format = format;
-          this.onEditorChange();
-        },
-        () => {
-          // On cancel, undo the radio selection.
-          this.form.radioFormat = this.form.format;
-        },
-      );
+      // To avoid prompt loop.
+      if (to === this.computedValue.contentType) {
+        return;
+      }
+
+      if (prompt) {
+        // Content isn't empty. Warn.
+        this.$utils.confirm(
+          this.$t('campaigns.confirmSwitchFormat'),
+          () => {
+            this.computedValue.contentType = this.contentType;
+          },
+          () => {
+            this.contentType = from;
+          },
+        );
+      } else {
+        this.computedValue.contentType = this.contentType;
+      }
+    },
+
+    convertContentType(to, from) {
+      if ((from === 'richtext' || from === 'html') && to === 'plain') {
+        // richtext, html => plain
+
+        // Preserve line breaks when converting HTML to plaintext.
+        const d = document.createElement('div');
+        d.innerHTML = this.beautifyHTML(this.computedValue.body);
+        this.$nextTick(() => {
+          this.computedValue.body = this.trimLines(d.innerText.trim(), true);
+        });
+      } else if ((from === 'richtext' || from === 'html') && to === 'markdown') {
+        // richtext, html => markdown
+        this.computedValue.body = turndown.turndown(this.computedValue.body).replace(/\n\n+/ig, '\n\n');
+      } else if (from === 'plain' && (to === 'richtext' || to === 'html')) {
+        // plain => richtext, html
+        this.computedValue.body = this.computedValue.body.replace(/\n/ig, '<br>\n');
+      } else if (from === 'richtext' && to === 'html') {
+        // richtext => html
+        this.computedValue.body = this.beautifyHTML(this.computedValue.body);
+      } else if (from === 'markdown' && (to === 'richtext' || to === 'html')) {
+        // markdown => richtext, html.
+        this.$api.convertCampaignContent({
+          id: 1, body: this.computedValue.body, from, to,
+        }).then((data) => {
+          this.computedValue.body = this.beautifyHTML(data.trim());
+          // Update the HTML editor.
+          if (to === 'html') {
+            this.updateHTMLEditor();
+          }
+        });
+      }
     },
 
     onEditorURLConvert(url) {
@@ -327,7 +349,7 @@ export default {
     },
 
     onRichtextViewSource() {
-      this.richTextSourceBody = this.form.body;
+      this.richTextSourceBody = this.computedValue.body;
       this.isRichtextSourceVisible = true;
     },
 
@@ -338,15 +360,20 @@ export default {
     onInsertHTML() {
       this.isInsertHTMLVisible = false;
       window.tinymce.editors[0].execCommand('mceInsertContent', false, this.insertHTMLSnippet);
+      this.insertHTMLSnippet = '';
     },
 
     onFormatRichtextHTML() {
       this.richTextSourceBody = this.beautifyHTML(this.richTextSourceBody);
     },
 
+    onFormatRichtextHTMLSnippet() {
+      this.insertHTMLSnippet = this.beautifyHTML(this.insertHTMLSnippet);
+    },
+
     onSaveRichTextSource() {
-      this.form.body = this.richTextSourceBody;
-      window.tinymce.editors[0].setContent(this.form.body);
+      this.computedValue.body = this.richTextSourceBody;
+      window.tinymce.editors[0].setContent(this.computedValue.body);
       this.richTextSourceBody = '';
       this.isRichtextSourceVisible = false;
     },
@@ -407,15 +434,6 @@ export default {
       };
     },
 
-    onEditorChange() {
-      if (!this.isReady) {
-        return;
-      }
-
-      // The parent's v-model gets { contentType, body }.
-      this.$emit('input', { contentType: this.form.format, body: this.form.body, bodySource: this.form.bodySource });
-    },
-
     onTogglePreview() {
       this.isPreviewing = !this.isPreviewing;
     },
@@ -432,14 +450,13 @@ export default {
     },
 
     onChangeVisualEditor({ body, source }) {
-      this.form.body = body;
-      this.form.bodySource = source;
+      this.computedValue.body = body;
+      this.computedValue.bodySource = source;
     },
 
     beautifyHTML(str) {
       // Pad all tags with linebreaks.
       let s = this.trimLines(str.replace(/(<(?!(\/)?a|span)([^>]+)>)/ig, '\n$1\n'), true);
-
       // Remove extra linebreaks.
       s = s.replace(/\n+/g, '\n');
 
@@ -469,6 +486,9 @@ export default {
   mounted() {
     this.initRichtextEditor();
 
+    // Set initial content type for the selector.
+    this.contentType = this.value.contentType;
+
     window.addEventListener('keydown', this.onPreviewShortcut);
   },
 
@@ -479,74 +499,24 @@ export default {
   computed: {
     ...mapState(['serverConfig']),
 
-    htmlFormat() {
-      return this.form.format;
+    computedValue: {
+      get() {
+        return this.value;
+      },
+      set(newValue) {
+        this.$emit('input', newValue);
+      },
     },
   },
 
   watch: {
-    // Capture contentType and body passed from the parent as props.
-    contentType(f) {
-      this.form.format = f;
-      this.form.radioFormat = f;
-
-      if (f !== 'richtext') {
-        this.isReady = true;
-      }
-
-      // Trigger the change event so that the body and content type
-      // are propagated to the parent on first load.
-      this.onEditorChange();
-    },
-
-    body(b) {
-      this.form.body = b;
-      this.onEditorChange();
-    },
-
-    bodySource(b) {
-      this.form.bodySource = b;
-      this.onEditorChange();
+    contentType(to, from) {
+      this.onContentTypeChange(to, from, true);
     },
 
     // eslint-disable-next-line func-names
-    'form.body': function () {
-      this.onEditorChange();
-    },
-
-    htmlFormat(to, from) {
-      if ((from === 'richtext' || from === 'html') && to === 'plain') {
-        // richtext, html => plain
-
-        // Preserve line breaks when converting HTML to plaintext.
-        const d = document.createElement('div');
-        d.innerHTML = this.beautifyHTML(this.form.body);
-        this.$nextTick(() => {
-          this.form.body = this.trimLines(d.innerText.trim(), true);
-        });
-      } else if ((from === 'richtext' || from === 'html') && to === 'markdown') {
-        // richtext, html => markdown
-        this.form.body = turndown.turndown(this.form.body).replace(/\n\n+/ig, '\n\n');
-      } else if (from === 'plain' && (to === 'richtext' || to === 'html')) {
-        // plain => richtext, html
-        this.form.body = this.form.body.replace(/\n/ig, '<br>\n');
-      } else if (from === 'richtext' && to === 'html') {
-        // richtext => html
-        this.form.body = this.beautifyHTML(this.form.body);
-      } else if (from === 'markdown' && (to === 'richtext' || to === 'html')) {
-        // markdown => richtext, html.
-        this.$api.convertCampaignContent({
-          id: 1, body: this.form.body, from, to,
-        }).then((data) => {
-          this.form.body = this.beautifyHTML(data.trim());
-          // Update the HTML editor.
-          if (to === 'html') {
-            this.updateHTMLEditor();
-          }
-        });
-      }
-
-      this.onEditorChange();
+    'computedValue.contentType': function (to, from) {
+      this.convertContentType(to, from);
     },
   },
 };

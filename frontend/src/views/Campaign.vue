@@ -179,8 +179,7 @@
           </b-select>
         </b-field>
 
-        <editor v-model="form.content" :id="data.id" :title="data.name" :template-id="form.templateId"
-          :content-type="data.contentType" :body="data.body" :body-source="data.bodySource" :disabled="!canEdit" />
+        <editor v-model="form.content" :id="data.id" :title="data.name" :disabled="!canEdit" />
 
         <div class="columns">
           <div class="column is-6">
