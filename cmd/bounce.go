@@ -23,17 +23,22 @@ func handleGetBounces(c echo.Context) error {
 		orderBy   = c.FormValue("order_by")
 		order     = c.FormValue("order")
 	)
+	authID := c.Request().Header.Get("X-Auth-ID")
+
+	if authID == "" {
+		return echo.NewHTTPError(http.StatusBadRequest, "authid is required")
+	}
 
 	// Fetch one bounce.
 	if id > 0 {
-		out, err := app.core.GetBounce(id)
+		out, err := app.core.GetBounce(id, authID)
 		if err != nil {
 			return err
 		}
 		return c.JSON(http.StatusOK, okResp{out})
 	}
 
-	res, total, err := app.core.QueryBounces(campID, 0, source, orderBy, order, pg.Offset, pg.Limit)
+	res, total, err := app.core.QueryBounces(campID, 0, source, orderBy, order, pg.Offset, pg.Limit, authID)
 	if err != nil {
 		return err
 	}
@@ -60,12 +65,17 @@ func handleGetSubscriberBounces(c echo.Context) error {
 		app      = c.Get("app").(*App)
 		subID, _ = strconv.Atoi(c.Param("id"))
 	)
+	authID := c.Request().Header.Get("X-Auth-ID")
+
+	if authID == "" {
+		return echo.NewHTTPError(http.StatusBadRequest, "authid is required")
+	}
 
 	if subID < 1 {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidID"))
 	}
 
-	out, _, err := app.core.QueryBounces(0, subID, "", "", "", 0, 1000)
+	out, _, err := app.core.QueryBounces(0, subID, "", "", "", 0, 1000, authID)
 	if err != nil {
 		return err
 	}
@@ -81,6 +91,11 @@ func handleDeleteBounces(c echo.Context) error {
 		all, _ = strconv.ParseBool(c.QueryParam("all"))
 		IDs    = []int{}
 	)
+	authID := c.Request().Header.Get("X-Auth-ID")
+
+	if authID == "" {
+		return echo.NewHTTPError(http.StatusBadRequest, "authid is required")
+	}
 
 	// Is it an /:id call?
 	if pID != "" {
@@ -104,7 +119,7 @@ func handleDeleteBounces(c echo.Context) error {
 		IDs = i
 	}
 
-	if err := app.core.DeleteBounces(IDs); err != nil {
+	if err := app.core.DeleteBounces(IDs, authID); err != nil {
 		return err
 	}
 
@@ -119,6 +134,12 @@ func handleBounceWebhook(c echo.Context) error {
 
 		bounces []models.Bounce
 	)
+
+	authID := c.Request().Header.Get("X-Auth-ID")
+
+	if authID == "" {
+		return echo.NewHTTPError(http.StatusBadRequest, "authid is required")
+	}
 
 	// Read the request body instead of using c.Bind() to read to save the entire raw request as meta.
 	rawReq, err := io.ReadAll(c.Request().Body)

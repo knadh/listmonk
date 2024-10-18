@@ -50,13 +50,14 @@ var (
 
 // handleGetSettings returns settings from the DB.
 func handleGetSettings(c echo.Context) error {
-	app := c.Get("app").(*App)
 
 	authID := c.Request().Header.Get("X-Auth-ID")
 
 	if authID == "" {
 		return echo.NewHTTPError(http.StatusBadRequest, "authid is required")
 	}
+
+	app := c.Get("app").(*App)
 
 	s, err := app.core.GetSettings(authID)
 	if err != nil {

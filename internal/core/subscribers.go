@@ -69,10 +69,10 @@ func (c *Core) GetSubscribersByAuthID(authid string) ([]models.Subscriber, error
 }
 
 // GetSubscribersByEmail fetches a subscriber by one of the given params.
-func (c *Core) GetSubscribersByEmail(emails []string) (models.Subscribers, error) {
+func (c *Core) GetSubscribersByEmail(emails []string, authID string) (models.Subscribers, error) {
 	var out models.Subscribers
 
-	if err := c.q.GetSubscribersByEmails.Select(&out, pq.Array(emails)); err != nil {
+	if err := c.q.GetSubscribersByEmails.Select(&out, pq.Array(emails), authID); err != nil {
 		c.log.Printf("error fetching subscriber: %v", err)
 		return nil, echo.NewHTTPError(http.StatusInternalServerError,
 			c.i18n.Ts("globals.messages.errorFetching", "name", "{globals.terms.subscriber}", "error", pqErrMsg(err)))
@@ -152,7 +152,7 @@ func (c *Core) QuerySubscribers(query string, listIDs []int, subStatus string, o
 }
 
 // GetSubscriberLists returns a subscriber's lists based on the given conditions.
-func (c *Core) GetSubscriberLists(subID int, uuid string, listIDs []int, listUUIDs []string, subStatus string, listType string) ([]models.List, error) {
+func (c *Core) GetSubscriberLists(subID int, uuid string, listIDs []int, listUUIDs []string, subStatus string, listType string, authID string) ([]models.List, error) {
 	if listIDs == nil {
 		listIDs = []int{}
 	}
@@ -168,7 +168,7 @@ func (c *Core) GetSubscriberLists(subID int, uuid string, listIDs []int, listUUI
 	// Fetch double opt-in lists from the given list IDs.
 	// Get the list of subscription lists where the subscriber hasn't confirmed.
 	out := []models.List{}
-	if err := c.q.GetSubscriberLists.Select(&out, subID, uu, pq.Array(listIDs), pq.Array(listUUIDs), subStatus, listType); err != nil {
+	if err := c.q.GetSubscriberLists.Select(&out, subID, uu, pq.Array(listIDs), pq.Array(listUUIDs), subStatus, listType, authID); err != nil {
 		c.log.Printf("error fetching lists for opt-in: %s", pqErrMsg(err))
 		return nil, err
 	}
@@ -179,14 +179,14 @@ func (c *Core) GetSubscriberLists(subID int, uuid string, listIDs []int, listUUI
 // GetSubscriberProfileForExport returns the subscriber's profile data as a JSON exportable.
 // Get the subscriber's data. A single query that gets the profile, list subscriptions, campaign views,
 // and link clicks. Names of private lists are replaced with "Private list".
-func (c *Core) GetSubscriberProfileForExport(id int, uuid string) (models.SubscriberExportProfile, error) {
+func (c *Core) GetSubscriberProfileForExport(id int, uuid string, authID string) (models.SubscriberExportProfile, error) {
 	var uu interface{}
 	if uuid != "" {
 		uu = uuid
 	}
 
 	var out models.SubscriberExportProfile
-	if err := c.q.ExportSubscriberData.Get(&out, id, uu); err != nil {
+	if err := c.q.ExportSubscriberData.Get(&out, id, uu, authID); err != nil {
 		c.log.Printf("error fetching subscriber export data: %v", err)
 
 		return models.SubscriberExportProfile{}, echo.NewHTTPError(http.StatusInternalServerError,
@@ -200,7 +200,7 @@ func (c *Core) GetSubscriberProfileForExport(id int, uuid string) (models.Subscr
 // on the given criteria in an exportable form. The iterator function returned can be called
 // repeatedly until there are nil subscribers. It's an iterator because exports can be extremely
 // large and may have to be fetched in batches from the DB and streamed somewhere.
-func (c *Core) ExportSubscribers(query string, subIDs, listIDs []int, subStatus string, batchSize int) (func() ([]models.SubscriberExport, error), error) {
+func (c *Core) ExportSubscribers(query string, subIDs, listIDs []int, subStatus string, batchSize int, authID string) (func() ([]models.SubscriberExport, error), error) {
 	// There's an arbitrary query condition.
 	cond := ""
 	if query != "" {
@@ -244,7 +244,7 @@ func (c *Core) ExportSubscribers(query string, subIDs, listIDs []int, subStatus 
 	id := 0
 	return func() ([]models.SubscriberExport, error) {
 		var out []models.SubscriberExport
-		if err := tx.Select(&out, pq.Array(listIDs), id, pq.Array(subIDs), subStatus, batchSize); err != nil {
+		if err := tx.Select(&out, pq.Array(listIDs), id, pq.Array(subIDs), subStatus, batchSize, authID); err != nil {
 			c.log.Printf("error exporting subscribers by query: %v", err)
 			return nil, echo.NewHTTPError(http.StatusInternalServerError,
 				c.i18n.Ts("globals.messages.errorFetching", "name", "{globals.terms.subscribers}", "error", pqErrMsg(err)))
@@ -416,8 +416,8 @@ func (c *Core) UpdateSubscriberWithLists(id int, sub models.Subscriber, listIDs 
 }
 
 // BlocklistSubscribers blocklists the given list of subscribers.
-func (c *Core) BlocklistSubscribers(subIDs []int) error {
-	if _, err := c.q.BlocklistSubscribers.Exec(pq.Array(subIDs)); err != nil {
+func (c *Core) BlocklistSubscribers(subIDs []int, authID string) error {
+	if _, err := c.q.BlocklistSubscribers.Exec(pq.Array(subIDs), authID); err != nil {
 		c.log.Printf("error blocklisting subscribers: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			c.i18n.Ts("subscribers.errorBlocklisting", "error", err.Error()))
@@ -427,8 +427,8 @@ func (c *Core) BlocklistSubscribers(subIDs []int) error {
 }
 
 // BlocklistSubscribersByQuery blocklists the given list of subscribers.
-func (c *Core) BlocklistSubscribersByQuery(query string, listIDs []int, subStatus string) error {
-	if err := c.q.ExecSubQueryTpl(sanitizeSQLExp(query), c.q.BlocklistSubscribersByQuery, listIDs, c.db, subStatus); err != nil {
+func (c *Core) BlocklistSubscribersByQuery(query string, listIDs []int, subStatus string, authID string) error {
+	if err := c.q.ExecSubQueryTpl(sanitizeSQLExp(query), c.q.BlocklistSubscribersByQuery, listIDs, c.db, subStatus, authID); err != nil {
 		c.log.Printf("error blocklisting subscribers: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			c.i18n.Ts("subscribers.errorBlocklisting", "error", pqErrMsg(err)))
@@ -456,8 +456,8 @@ func (c *Core) DeleteSubscribers(subIDs []int, subUUIDs []string, authID string)
 }
 
 // DeleteSubscribersByQuery deletes subscribers by a given arbitrary query expression.
-func (c *Core) DeleteSubscribersByQuery(query string, listIDs []int, subStatus string) error {
-	err := c.q.ExecSubQueryTpl(sanitizeSQLExp(query), c.q.DeleteSubscribersByQuery, listIDs, c.db, subStatus)
+func (c *Core) DeleteSubscribersByQuery(query string, listIDs []int, subStatus string, authID string) error {
+	err := c.q.ExecSubQueryTpl(sanitizeSQLExp(query), c.q.DeleteSubscribersByQuery, listIDs, c.db, subStatus, authID)
 	if err != nil {
 		c.log.Printf("error deleting subscribers: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
@@ -468,8 +468,8 @@ func (c *Core) DeleteSubscribersByQuery(query string, listIDs []int, subStatus s
 }
 
 // UnsubscribeByCampaign unsubscribes a given subscriber from lists in a given campaign.
-func (c *Core) UnsubscribeByCampaign(subUUID, campUUID string, blocklist bool) error {
-	if _, err := c.q.UnsubscribeByCampaign.Exec(campUUID, subUUID, blocklist); err != nil {
+func (c *Core) UnsubscribeByCampaign(subUUID, campUUID string, blocklist bool, authID string) error {
+	if _, err := c.q.UnsubscribeByCampaign.Exec(campUUID, subUUID, blocklist, authID); err != nil {
 		c.log.Printf("error unsubscribing: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			c.i18n.Ts("globals.messages.errorUpdating", "name", "{globals.terms.subscribers}", "error", pqErrMsg(err)))
@@ -479,12 +479,12 @@ func (c *Core) UnsubscribeByCampaign(subUUID, campUUID string, blocklist bool) e
 }
 
 // ConfirmOptionSubscription confirms a subscriber's optin subscription.
-func (c *Core) ConfirmOptionSubscription(subUUID string, listUUIDs []string, meta models.JSON) error {
+func (c *Core) ConfirmOptionSubscription(subUUID string, listUUIDs []string, meta models.JSON, authID string) error {
 	if meta == nil {
 		meta = models.JSON{}
 	}
 
-	if _, err := c.q.ConfirmSubscriptionOptin.Exec(subUUID, pq.Array(listUUIDs), meta); err != nil {
+	if _, err := c.q.ConfirmSubscriptionOptin.Exec(subUUID, pq.Array(listUUIDs), meta, authID); err != nil {
 		c.log.Printf("error confirming subscription: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			c.i18n.Ts("globals.messages.errorUpdating", "name", "{globals.terms.subscribers}", "error", pqErrMsg(err)))
@@ -494,13 +494,13 @@ func (c *Core) ConfirmOptionSubscription(subUUID string, listUUIDs []string, met
 }
 
 // DeleteSubscriberBounces deletes the given list of subscribers.
-func (c *Core) DeleteSubscriberBounces(id int, uuid string) error {
+func (c *Core) DeleteSubscriberBounces(id int, uuid string, authID string) error {
 	var uu interface{}
 	if uuid != "" {
 		uu = uuid
 	}
 
-	if _, err := c.q.DeleteBouncesBySubscriber.Exec(id, uu); err != nil {
+	if _, err := c.q.DeleteBouncesBySubscriber.Exec(id, uu, authID); err != nil {
 		c.log.Printf("error deleting bounces: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			c.i18n.Ts("globals.messages.errorDeleting", "name", "{globals.terms.bounces}", "error", pqErrMsg(err)))
@@ -510,8 +510,8 @@ func (c *Core) DeleteSubscriberBounces(id int, uuid string) error {
 }
 
 // DeleteOrphanSubscribers deletes orphan subscriber records (subscribers without lists).
-func (c *Core) DeleteOrphanSubscribers() (int, error) {
-	res, err := c.q.DeleteOrphanSubscribers.Exec()
+func (c *Core) DeleteOrphanSubscribers(authID string) (int, error) {
+	res, err := c.q.DeleteOrphanSubscribers.Exec(authID)
 	if err != nil {
 		c.log.Printf("error deleting orphan subscribers: %v", err)
 		return 0, echo.NewHTTPError(http.StatusInternalServerError,
@@ -523,8 +523,8 @@ func (c *Core) DeleteOrphanSubscribers() (int, error) {
 }
 
 // DeleteBlocklistedSubscribers deletes blocklisted subscribers.
-func (c *Core) DeleteBlocklistedSubscribers() (int, error) {
-	res, err := c.q.DeleteBlocklistedSubscribers.Exec()
+func (c *Core) DeleteBlocklistedSubscribers(authID string) (int, error) {
+	res, err := c.q.DeleteBlocklistedSubscribers.Exec(authID)
 	if err != nil {
 		c.log.Printf("error deleting blocklisted subscribers: %v", err)
 		return 0, echo.NewHTTPError(http.StatusInternalServerError,

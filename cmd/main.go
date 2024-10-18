@@ -54,7 +54,7 @@ type App struct {
 	about      about
 	log        *log.Logger
 	bufLog     *buflog.BufLog
-
+	ko         *koanf.Koanf
 	// Channel for passing reload signals.
 	chReload chan os.Signal
 

@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"html/template"
+	"log"
 	"net/http"
 	"os"
 	"path"
@@ -351,7 +352,9 @@ func prepareQueries(qMap goyesql.Queries, db *sqlx.DB, ko *koanf.Koanf) *models.
 // initSettings loads settings from the DB into the given Koanf map.
 func initSettings(query string, db *sqlx.DB, ko *koanf.Koanf) {
 	var s types.JSONText
-	if err := db.Get(&s, query); err != nil {
+
+	log.Println("auth_id", ko.String("app.auth_id"))
+	if err := db.Get(&s, query, ko.String("app.auth_id")); err != nil {
 		msg := err.Error()
 		if err, ok := err.(*pq.Error); ok {
 			if err.Detail != "" {
@@ -360,6 +363,10 @@ func initSettings(query string, db *sqlx.DB, ko *koanf.Koanf) {
 		}
 
 		lo.Fatalf("error reading settings from DB: %s", msg)
+	}
+
+	if len(s) == 0 {
+		lo.Fatalf("error: settings retrieved from DB are empty")
 	}
 
 	// Setting keys are dot separated, eg: app.favicon_url. Unflatten them into
@@ -483,7 +490,7 @@ func initCampaignManager(q *models.Queries, cs *constants, app *App) *manager.Ma
 }
 
 func initTxTemplates(m *manager.Manager, app *App) {
-	tpls, err := app.core.GetTemplates(models.TemplateTypeTx, false)
+	tpls, err := app.core.GetTemplates(models.TemplateTypeTx, false, "")
 	if err != nil {
 		lo.Fatalf("error loading transactional templates: %v", err)
 	}
@@ -665,6 +672,7 @@ func initNotifTemplates(path string, fs stuffbin.FileSystem, i *i18n.I18n, cs *c
 // initBounceManager initializes the bounce manager that scans mailboxes and listens to webhooks
 // for incoming bounce events.
 func initBounceManager(app *App) *bounce.Manager {
+
 	opt := bounce.Opt{
 		WebhooksEnabled: ko.Bool("bounce.webhooks_enabled"),
 		SESEnabled:      ko.Bool("bounce.ses_enabled"),

@@ -25,6 +25,11 @@ func handleGetServerConfig(c echo.Context) error {
 		app = c.Get("app").(*App)
 		out = serverConfig{}
 	)
+	// authID := c.Request().Header.Get("X-Auth-ID")
+
+	// if authID == "" {
+	// 	return echo.NewHTTPError(http.StatusBadRequest, "authid is required")
+	// }
 
 	// Language list.
 	langList, err := getI18nLangList(app.constants.Lang, app)
@@ -86,6 +91,12 @@ func handleGetDashboardCounts(c echo.Context) error {
 
 // handleReloadApp restarts the app.
 func handleReloadApp(c echo.Context) error {
+
+	// authID := c.Request().Header.Get("X-Auth-ID")
+
+	// if authID == "" {
+	// 	return echo.NewHTTPError(http.StatusBadRequest, "authid is required")
+	// }
 	app := c.Get("app").(*App)
 	go func() {
 		<-time.After(time.Millisecond * 500)

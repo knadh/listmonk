@@ -29,8 +29,13 @@ func handleGetCampaignArchives(c echo.Context) error {
 		app = c.Get("app").(*App)
 		pg  = app.paginator.NewFromURL(c.Request().URL.Query())
 	)
+	authID := c.Request().Header.Get("X-Auth-ID")
 
-	camps, total, err := getCampaignArchives(pg.Offset, pg.Limit, false, app)
+	if authID == "" {
+		return echo.NewHTTPError(http.StatusBadRequest, "authid is required")
+	}
+
+	camps, total, err := getCampaignArchives(pg.Offset, pg.Limit, false, app, authID)
 	if err != nil {
 		return err
 	}
@@ -57,8 +62,13 @@ func handleGetCampaignArchivesFeed(c echo.Context) error {
 		pg              = app.paginator.NewFromURL(c.Request().URL.Query())
 		showFullContent = app.constants.EnablePublicArchiveRSSContent
 	)
+	authID := c.Request().Header.Get("X-Auth-ID")
 
-	camps, _, err := getCampaignArchives(pg.Offset, pg.Limit, showFullContent, app)
+	if authID == "" {
+		return echo.NewHTTPError(http.StatusBadRequest, "authid is required")
+	}
+
+	camps, _, err := getCampaignArchives(pg.Offset, pg.Limit, showFullContent, app, authID)
 	if err != nil {
 		return err
 	}
@@ -100,8 +110,13 @@ func handleCampaignArchivesPage(c echo.Context) error {
 		app = c.Get("app").(*App)
 		pg  = app.paginator.NewFromURL(c.Request().URL.Query())
 	)
+	authID := c.Request().Header.Get("X-Auth-ID")
 
-	out, total, err := getCampaignArchives(pg.Offset, pg.Limit, false, app)
+	if authID == "" {
+		return echo.NewHTTPError(http.StatusBadRequest, "authid is required")
+	}
+
+	out, total, err := getCampaignArchives(pg.Offset, pg.Limit, false, app, authID)
 	if err != nil {
 		return err
 	}
@@ -126,6 +141,12 @@ func handleCampaignArchivePage(c echo.Context) error {
 		slug = ""
 	)
 
+	authID := c.Request().Header.Get("X-Auth-ID")
+
+	if authID == "" {
+		return echo.NewHTTPError(http.StatusBadRequest, "authid is required")
+	}
+
 	// ID can be the UUID or slug.
 	if reUUID.MatchString(id) {
 		uuid = id
@@ -133,7 +154,7 @@ func handleCampaignArchivePage(c echo.Context) error {
 		slug = id
 	}
 
-	pubCamp, err := app.core.GetArchivedCampaign(0, uuid, slug)
+	pubCamp, err := app.core.GetArchivedCampaign(0, uuid, slug, authID)
 	if err != nil || pubCamp.Type != models.CampaignTypeRegular {
 		notFound := false
 		if er, ok := err.(*echo.HTTPError); ok {
@@ -176,8 +197,13 @@ func handleCampaignArchivePageLatest(c echo.Context) error {
 	var (
 		app = c.Get("app").(*App)
 	)
+	authID := c.Request().Header.Get("X-Auth-ID")
 
-	camps, _, err := getCampaignArchives(0, 1, true, app)
+	if authID == "" {
+		return echo.NewHTTPError(http.StatusBadRequest, "authid is required")
+	}
+
+	camps, _, err := getCampaignArchives(0, 1, true, app, authID)
 	if err != nil {
 		return err
 	}
@@ -192,8 +218,8 @@ func handleCampaignArchivePageLatest(c echo.Context) error {
 	return c.HTML(http.StatusOK, camp.Content)
 }
 
-func getCampaignArchives(offset, limit int, renderBody bool, app *App) ([]campArchive, int, error) {
-	pubCamps, total, err := app.core.GetArchivedCampaigns(offset, limit)
+func getCampaignArchives(offset, limit int, renderBody bool, app *App, authID string) ([]campArchive, int, error) {
+	pubCamps, total, err := app.core.GetArchivedCampaigns(offset, limit, authID)
 	if err != nil {
 		return []campArchive{}, total, echo.NewHTTPError(http.StatusInternalServerError, app.i18n.T("public.errorFetchingCampaign"))
 	}

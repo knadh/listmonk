@@ -1,6 +1,7 @@
 [app]
 # Interface and port where the app will run its webserver.
 address = "0.0.0.0:9000"
+auth_id = "auth123"
 
 # Database.
 [db]

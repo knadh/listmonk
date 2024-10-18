@@ -9,7 +9,6 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-// GetSettings returns settings from the DB.
 func (c *Core) GetSettings(authID string) (models.Settings, error) {
 	var (
 		b   types.JSONText

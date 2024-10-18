@@ -158,39 +158,6 @@ func handleGetCampaignByAuthId(c echo.Context) error {
 	return c.JSON(http.StatusOK, okResp{out})
 }
 
-/*
-func handleGetCampaignByAuthId(c echo.Context) error {
-	var (
-		app       = c.Get("app").(*App)
-		noBody, _ = strconv.ParseBool(c.QueryParam("no_body"))
-		authid    = c.Param("authid")
-	)
-
-	// Attempt to retrieve the campaign by AuthID
-	out, err := app.core.GetCampaignByAuthId(authid)
-
-	if err != nil {
-		// Log the error details
-		app.log.Printf("Error fetching campaign with AuthID: %s Error: %v", authid, err)
-
-		// Return internal server error for other cases
-		return echo.NewHTTPError(http.StatusInternalServerError, "Error retrieving campaign")
-	}
-
-	// Log successful retrieval of the campaign
-	app.log.Printf("Successfully retrieved campaign with AuthID: %s", authid)
-
-	// If the "no_body" query parameter is set, remove the body content from the response
-	if noBody {
-		app.log.Printf("NoBody flag is true, clearing the campaign body content")
-		out.Body = ""
-	}
-
-	// Return the campaign data as JSON
-	return c.JSON(http.StatusOK, okResp{out})
-}
-*/
-
 // handlePreviewCampaign renders the HTML preview of a campaign body.
 func handlePreviewCampaign(c echo.Context) error {
 	var (
@@ -198,12 +165,17 @@ func handlePreviewCampaign(c echo.Context) error {
 		id, _    = strconv.Atoi(c.Param("id"))
 		tplID, _ = strconv.Atoi(c.FormValue("template_id"))
 	)
+	authID := c.Request().Header.Get("X-Auth-ID")
+
+	if authID == "" {
+		return echo.NewHTTPError(http.StatusBadRequest, "authid is required")
+	}
 
 	if id < 1 {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidID"))
 	}
 
-	camp, err := app.core.GetCampaignForPreview(id, tplID)
+	camp, err := app.core.GetCampaignForPreview(id, tplID, authID)
 	if err != nil {
 		return err
 	}
@@ -244,6 +216,11 @@ func handleCampaignContent(c echo.Context) error {
 		app   = c.Get("app").(*App)
 		id, _ = strconv.Atoi(c.Param("id"))
 	)
+	authID := c.Request().Header.Get("X-Auth-ID")
+
+	if authID == "" {
+		return echo.NewHTTPError(http.StatusBadRequest, "authid is required")
+	}
 
 	if id < 1 {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidID"))
@@ -254,7 +231,7 @@ func handleCampaignContent(c echo.Context) error {
 		return err
 	}
 
-	out, err := camp.ConvertContent(camp.From, camp.To)
+	out, err := camp.ConvertContent(camp.From, camp.To, authID)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
@@ -418,6 +395,10 @@ func handleUpdateCampaignStatus(c echo.Context) error {
 		app   = c.Get("app").(*App)
 		id, _ = strconv.Atoi(c.Param("id"))
 	)
+	authid := c.Request().Header.Get("X-Auth-ID") // Or any other header key where authid is stored
+	if authid == "" {
+		return echo.NewHTTPError(http.StatusBadRequest, "authid is required")
+	}
 
 	if id < 1 {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidID"))
@@ -431,7 +412,7 @@ func handleUpdateCampaignStatus(c echo.Context) error {
 		return err
 	}
 
-	out, err := app.core.UpdateCampaignStatus(id, o.Status)
+	out, err := app.core.UpdateCampaignStatus(id, o.Status, authid)
 	if err != nil {
 		return err
 	}
@@ -449,6 +430,10 @@ func handleUpdateCampaignArchive(c echo.Context) error {
 		app   = c.Get("app").(*App)
 		id, _ = strconv.Atoi(c.Param("id"))
 	)
+	authid := c.Request().Header.Get("X-Auth-ID") // Or any other header key where authid is stored
+	if authid == "" {
+		return echo.NewHTTPError(http.StatusBadRequest, "authid is required")
+	}
 
 	req := struct {
 		Archive     bool        `json:"archive"`
@@ -470,7 +455,7 @@ func handleUpdateCampaignArchive(c echo.Context) error {
 		req.ArchiveSlug = s
 	}
 
-	if err := app.core.UpdateCampaignArchive(id, req.Archive, req.TemplateID, req.Meta, req.ArchiveSlug); err != nil {
+	if err := app.core.UpdateCampaignArchive(id, req.Archive, req.TemplateID, req.Meta, req.ArchiveSlug, authid); err != nil {
 		return err
 	}
 
@@ -506,8 +491,13 @@ func handleGetRunningCampaignStats(c echo.Context) error {
 	var (
 		app = c.Get("app").(*App)
 	)
+	authID := c.Request().Header.Get("X-Auth-ID")
 
-	out, err := app.core.GetRunningCampaignStats()
+	if authID == "" {
+		return echo.NewHTTPError(http.StatusBadRequest, "authid is required")
+	}
+
+	out, err := app.core.GetRunningCampaignStats(authID)
 	if err != nil {
 		return err
 	}
@@ -549,6 +539,11 @@ func handleTestCampaign(c echo.Context) error {
 		tplID, _  = strconv.Atoi(c.FormValue("template_id"))
 		req       campaignReq
 	)
+	authID := c.Request().Header.Get("X-Auth-ID")
+
+	if authID == "" {
+		return echo.NewHTTPError(http.StatusBadRequest, "authid is required")
+	}
 
 	if campID < 1 {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.errorID"))
@@ -574,13 +569,13 @@ func handleTestCampaign(c echo.Context) error {
 		req.SubscriberEmails[i] = strings.ToLower(strings.TrimSpace(req.SubscriberEmails[i]))
 	}
 
-	subs, err := app.core.GetSubscribersByEmail(req.SubscriberEmails)
+	subs, err := app.core.GetSubscribersByEmail(req.SubscriberEmails, authID)
 	if err != nil {
 		return err
 	}
 
 	// The campaign.
-	camp, err := app.core.GetCampaignForPreview(campID, tplID)
+	camp, err := app.core.GetCampaignForPreview(campID, tplID, authID)
 	if err != nil {
 		return err
 	}
@@ -605,7 +600,7 @@ func handleTestCampaign(c echo.Context) error {
 	for _, s := range subs {
 		sub := s
 		c := camp
-		if err := sendTestMessage(sub, &c, app); err != nil {
+		if err := sendTestMessage(sub, &c, app, authID); err != nil {
 			app.log.Printf("error sending test message: %v", err)
 			return echo.NewHTTPError(http.StatusInternalServerError,
 				app.i18n.Ts("campaigns.errorSendTest", "error", err.Error()))
@@ -624,6 +619,11 @@ func handleGetCampaignViewAnalytics(c echo.Context) error {
 		from = c.QueryParams().Get("from")
 		to   = c.QueryParams().Get("to")
 	)
+	authID := c.Request().Header.Get("X-Auth-ID")
+
+	if authID == "" {
+		return echo.NewHTTPError(http.StatusBadRequest, "authid is required")
+	}
 
 	ids, err := parseStringIDs(c.Request().URL.Query()["id"])
 	if err != nil {
@@ -651,7 +651,7 @@ func handleGetCampaignViewAnalytics(c echo.Context) error {
 	}
 
 	// View, click, bounce stats.
-	out, err := app.core.GetCampaignAnalyticsCounts(ids, typ, from, to)
+	out, err := app.core.GetCampaignAnalyticsCounts(ids, typ, from, to, authID)
 	if err != nil {
 		return err
 	}
@@ -660,7 +660,7 @@ func handleGetCampaignViewAnalytics(c echo.Context) error {
 }
 
 // sendTestMessage takes a campaign and a subscriber and sends out a sample campaign message.
-func sendTestMessage(sub models.Subscriber, camp *models.Campaign, app *App) error {
+func sendTestMessage(sub models.Subscriber, camp *models.Campaign, app *App, authID string) error {
 	if err := camp.CompileTemplate(app.manager.TemplateFuncs(camp)); err != nil {
 		app.log.Printf("error compiling template: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,

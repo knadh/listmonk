@@ -17,6 +17,12 @@ import (
 func handleImportSubscribers(c echo.Context) error {
 	app := c.Get("app").(*App)
 
+	authID := c.Request().Header.Get("X-Auth-ID")
+
+	if authID == "" {
+		return echo.NewHTTPError(http.StatusBadRequest, "authid is required")
+	}
+
 	// Is an import already running?
 	if app.importer.GetStats().Status == subimporter.StatusImporting {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("import.alreadyRunning"))
@@ -88,7 +94,7 @@ func handleImportSubscribers(c echo.Context) error {
 	go impSess.Start()
 
 	if strings.HasSuffix(strings.ToLower(file.Filename), ".csv") {
-		go impSess.LoadCSV(out.Name(), rune(opt.Delim[0]))
+		go impSess.LoadCSV(out.Name(), rune(opt.Delim[0]), authID)
 	} else {
 		// Only 1 CSV from the ZIP is considered. If multiple files have
 		// to be processed, counting the net number of lines (to track progress),
@@ -96,12 +102,12 @@ func handleImportSubscribers(c echo.Context) error {
 		// multiple files becomes complex. Instead, it's just easier for the
 		// end user to concat multiple CSVs (if there are multiple in the first)
 		// place and upload as one in the first place.
-		dir, files, err := impSess.ExtractZIP(out.Name(), 1)
+		dir, files, err := impSess.ExtractZIP(out.Name(), 1, authID)
 		if err != nil {
 			return echo.NewHTTPError(http.StatusInternalServerError,
 				app.i18n.Ts("import.errorProcessingZIP", "error", err.Error()))
 		}
-		go impSess.LoadCSV(dir+"/"+files[0], rune(opt.Delim[0]))
+		go impSess.LoadCSV(dir+"/"+files[0], rune(opt.Delim[0]), authID)
 	}
 
 	return c.JSON(http.StatusOK, okResp{app.importer.GetStats()})
@@ -109,6 +115,12 @@ func handleImportSubscribers(c echo.Context) error {
 
 // handleGetImportSubscribers returns import statistics.
 func handleGetImportSubscribers(c echo.Context) error {
+
+	authID := c.Request().Header.Get("X-Auth-ID")
+
+	if authID == "" {
+		return echo.NewHTTPError(http.StatusBadRequest, "authid is required")
+	}
 	var (
 		app = c.Get("app").(*App)
 		s   = app.importer.GetStats()
@@ -118,6 +130,12 @@ func handleGetImportSubscribers(c echo.Context) error {
 
 // handleGetImportSubscriberStats returns import statistics.
 func handleGetImportSubscriberStats(c echo.Context) error {
+
+	authID := c.Request().Header.Get("X-Auth-ID")
+
+	if authID == "" {
+		return echo.NewHTTPError(http.StatusBadRequest, "authid is required")
+	}
 	app := c.Get("app").(*App)
 	return c.JSON(http.StatusOK, okResp{string(app.importer.GetLogs())})
 }
@@ -126,6 +144,12 @@ func handleGetImportSubscriberStats(c echo.Context) error {
 // If there's an ongoing import, it'll be stopped, and if an import
 // is finished, it's state is cleared.
 func handleStopImportSubscribers(c echo.Context) error {
+
+	authID := c.Request().Header.Get("X-Auth-ID")
+
+	if authID == "" {
+		return echo.NewHTTPError(http.StatusBadRequest, "authid is required")
+	}
 	app := c.Get("app").(*App)
 	app.importer.Stop()
 	return c.JSON(http.StatusOK, okResp{app.importer.GetStats()})

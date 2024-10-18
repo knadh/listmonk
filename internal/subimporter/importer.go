@@ -357,7 +357,7 @@ func (s *Session) Stop() {
 // ExtractZIP takes a ZIP file's path and extracts all .csv files in it to
 // a temporary directory, and returns the name of the temp directory and the
 // list of extracted .csv files.
-func (s *Session) ExtractZIP(srcPath string, maxCSVs int) (string, []string, error) {
+func (s *Session) ExtractZIP(srcPath string, maxCSVs int, authID string) (string, []string, error) {
 	if s.im.isDone() {
 		return "", nil, ErrIsImporting
 	}
@@ -436,7 +436,7 @@ func (s *Session) ExtractZIP(srcPath string, maxCSVs int) (string, []string, err
 }
 
 // LoadCSV loads a CSV file and validates and imports the subscriber entries in it.
-func (s *Session) LoadCSV(srcPath string, delim rune) error {
+func (s *Session) LoadCSV(srcPath string, delim rune, authID string) error {
 	if s.im.isDone() {
 		return ErrIsImporting
 	}

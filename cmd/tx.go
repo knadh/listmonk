@@ -19,6 +19,11 @@ func handleSendTxMessage(c echo.Context) error {
 		app = c.Get("app").(*App)
 		m   models.TxMessage
 	)
+	authID := c.Request().Header.Get("X-Auth-ID")
+
+	if authID == "" {
+		return echo.NewHTTPError(http.StatusBadRequest, "authid is required")
+	}
 
 	// If it's a multipart form, there may be file attachments.
 	if strings.HasPrefix(c.Request().Header.Get("Content-Type"), "multipart/form-data") {
@@ -103,7 +108,7 @@ func handleSendTxMessage(c echo.Context) error {
 		}
 
 		// Get the subscriber.
-		sub, err := app.core.GetSubscriber(subID, "", subEmail, "")
+		sub, err := app.core.GetSubscriber(subID, "", subEmail, authID)
 		if err != nil {
 			// If the subscriber is not found, log that error and move on without halting on the list.
 			if er, ok := err.(*echo.HTTPError); ok && er.Code == http.StatusBadRequest {

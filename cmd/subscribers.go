@@ -157,6 +157,11 @@ func handleExportSubscribers(c echo.Context) error {
 		// The "WHERE ?" bit.
 		query = sanitizeSQLExp(c.FormValue("query"))
 	)
+	authID := c.Request().Header.Get("X-Auth-ID")
+
+	if authID == "" {
+		return echo.NewHTTPError(http.StatusBadRequest, "authid is required")
+	}
 
 	// Limit the subscribers to specific lists?
 	listIDs, err := getQueryInts("list_id", c.QueryParams())
@@ -174,7 +179,7 @@ func handleExportSubscribers(c echo.Context) error {
 	subStatus := c.QueryParam("subscription_status")
 
 	// Get the batched export iterator.
-	exp, err := app.core.ExportSubscribers(query, subIDs, listIDs, subStatus, app.constants.DBBatchSize)
+	exp, err := app.core.ExportSubscribers(query, subIDs, listIDs, subStatus, app.constants.DBBatchSize, authID)
 	if err != nil {
 		return err
 	}
@@ -300,13 +305,18 @@ func handleSubscriberSendOptin(c echo.Context) error {
 		app   = c.Get("app").(*App)
 		id, _ = strconv.Atoi(c.Param("id"))
 	)
+	authID := c.Request().Header.Get("X-Auth-ID")
+
+	if authID == "" {
+		return echo.NewHTTPError(http.StatusBadRequest, "authid is required")
+	}
 
 	if id < 1 {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidID"))
 	}
 
 	// Fetch the subscriber.
-	out, err := app.core.GetSubscriber(id, "", "", "")
+	out, err := app.core.GetSubscriber(id, "", "", authID)
 	if err != nil {
 		return err
 	}
@@ -326,6 +336,11 @@ func handleBlocklistSubscribers(c echo.Context) error {
 		pID    = c.Param("id")
 		subIDs []int
 	)
+	authID := c.Request().Header.Get("X-Auth-ID")
+
+	if authID == "" {
+		return echo.NewHTTPError(http.StatusBadRequest, "authid is required")
+	}
 
 	// Is it a /:id call?
 	if pID != "" {
@@ -350,7 +365,7 @@ func handleBlocklistSubscribers(c echo.Context) error {
 		subIDs = req.SubscriberIDs
 	}
 
-	if err := app.core.BlocklistSubscribers(subIDs); err != nil {
+	if err := app.core.BlocklistSubscribers(subIDs, authID); err != nil {
 		return err
 	}
 
@@ -366,6 +381,11 @@ func handleManageSubscriberLists(c echo.Context) error {
 		pID    = c.Param("id")
 		subIDs []int
 	)
+	authID := c.Request().Header.Get("X-Auth-ID")
+
+	if authID == "" {
+		return echo.NewHTTPError(http.StatusBadRequest, "authid is required")
+	}
 
 	// Is it an /:id call?
 	if pID != "" {
@@ -397,9 +417,9 @@ func handleManageSubscriberLists(c echo.Context) error {
 	case "add":
 		err = app.core.AddSubscriptions(subIDs, req.TargetListIDs, req.Status)
 	case "remove":
-		err = app.core.DeleteSubscriptions(subIDs, req.TargetListIDs)
+		err = app.core.DeleteSubscriptions(subIDs, req.TargetListIDs, authID)
 	case "unsubscribe":
-		err = app.core.UnsubscribeLists(subIDs, req.TargetListIDs, nil)
+		err = app.core.UnsubscribeLists(subIDs, req.TargetListIDs, nil, authID)
 	default:
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("subscribers.invalidAction"))
 	}
@@ -460,12 +480,17 @@ func handleDeleteSubscribersByQuery(c echo.Context) error {
 		app = c.Get("app").(*App)
 		req subQueryReq
 	)
+	authID := c.Request().Header.Get("X-Auth-ID")
+
+	if authID == "" {
+		return echo.NewHTTPError(http.StatusBadRequest, "authid is required")
+	}
 
 	if err := c.Bind(&req); err != nil {
 		return err
 	}
 
-	if err := app.core.DeleteSubscribersByQuery(req.Query, req.ListIDs, req.SubscriptionStatus); err != nil {
+	if err := app.core.DeleteSubscribersByQuery(req.Query, req.ListIDs, req.SubscriptionStatus, authID); err != nil {
 		return err
 	}
 
@@ -479,12 +504,17 @@ func handleBlocklistSubscribersByQuery(c echo.Context) error {
 		app = c.Get("app").(*App)
 		req subQueryReq
 	)
+	authID := c.Request().Header.Get("X-Auth-ID")
+
+	if authID == "" {
+		return echo.NewHTTPError(http.StatusBadRequest, "authid is required")
+	}
 
 	if err := c.Bind(&req); err != nil {
 		return err
 	}
 
-	if err := app.core.BlocklistSubscribersByQuery(req.Query, req.ListIDs, req.SubscriptionStatus); err != nil {
+	if err := app.core.BlocklistSubscribersByQuery(req.Query, req.ListIDs, req.SubscriptionStatus, authID); err != nil {
 		return err
 	}
 
@@ -498,6 +528,11 @@ func handleManageSubscriberListsByQuery(c echo.Context) error {
 		app = c.Get("app").(*App)
 		req subQueryReq
 	)
+	authID := c.Request().Header.Get("X-Auth-ID")
+
+	if authID == "" {
+		return echo.NewHTTPError(http.StatusBadRequest, "authid is required")
+	}
 
 	if err := c.Bind(&req); err != nil {
 		return err
@@ -511,11 +546,11 @@ func handleManageSubscriberListsByQuery(c echo.Context) error {
 	var err error
 	switch req.Action {
 	case "add":
-		err = app.core.AddSubscriptionsByQuery(req.Query, req.ListIDs, req.TargetListIDs, req.Status, req.SubscriptionStatus)
+		err = app.core.AddSubscriptionsByQuery(req.Query, req.ListIDs, req.TargetListIDs, req.Status, req.SubscriptionStatus, authID)
 	case "remove":
-		err = app.core.DeleteSubscriptionsByQuery(req.Query, req.ListIDs, req.TargetListIDs, req.SubscriptionStatus)
+		err = app.core.DeleteSubscriptionsByQuery(req.Query, req.ListIDs, req.TargetListIDs, req.SubscriptionStatus, authID)
 	case "unsubscribe":
-		err = app.core.UnsubscribeListsByQuery(req.Query, req.ListIDs, req.TargetListIDs, req.SubscriptionStatus)
+		err = app.core.UnsubscribeListsByQuery(req.Query, req.ListIDs, req.TargetListIDs, req.SubscriptionStatus, authID)
 	default:
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("subscribers.invalidAction"))
 	}
@@ -533,13 +568,17 @@ func handleDeleteSubscriberBounces(c echo.Context) error {
 		app = c.Get("app").(*App)
 		pID = c.Param("id")
 	)
+	authID := c.Request().Header.Get("X-Auth-ID")
+	if authID == "" {
+		return echo.NewHTTPError(http.StatusBadRequest, "authid is required")
+	}
 
 	id, _ := strconv.Atoi(pID)
 	if id < 1 {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidID"))
 	}
 
-	if err := app.core.DeleteSubscriberBounces(id, ""); err != nil {
+	if err := app.core.DeleteSubscriberBounces(id, "", authID); err != nil {
 		return err
 	}
 
@@ -555,6 +594,11 @@ func handleExportSubscriberData(c echo.Context) error {
 		app = c.Get("app").(*App)
 		pID = c.Param("id")
 	)
+	authID := c.Request().Header.Get("X-Auth-ID")
+
+	if authID == "" {
+		return echo.NewHTTPError(http.StatusBadRequest, "authid is required")
+	}
 
 	id, _ := strconv.Atoi(pID)
 	if id < 1 {
@@ -564,7 +608,7 @@ func handleExportSubscriberData(c echo.Context) error {
 	// Get the subscriber's data. A single query that gets the profile,
 	// list subscriptions, campaign views, and link clicks. Names of
 	// private lists are replaced with "Private list".
-	_, b, err := exportSubscriberData(id, "", app.constants.Privacy.Exportable, app)
+	_, b, err := exportSubscriberData(id, "", app.constants.Privacy.Exportable, app, authID)
 	if err != nil {
 		app.log.Printf("error exporting subscriber data: %s", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
@@ -581,8 +625,8 @@ func handleExportSubscriberData(c echo.Context) error {
 // subscriptions, campaign_views, link_clicks (if they're enabled in the config)
 // and returns a formatted, indented JSON payload. Either takes a numeric id
 // and an empty subUUID or takes 0 and a string subUUID.
-func exportSubscriberData(id int, subUUID string, exportables map[string]bool, app *App) (models.SubscriberExportProfile, []byte, error) {
-	data, err := app.core.GetSubscriberProfileForExport(id, subUUID)
+func exportSubscriberData(id int, subUUID string, exportables map[string]bool, app *App, authID string) (models.SubscriberExportProfile, []byte, error) {
+	data, err := app.core.GetSubscriberProfileForExport(id, subUUID, authID)
 	if err != nil {
 		return data, nil, err
 	}
@@ -650,7 +694,7 @@ func getQueryInts(param string, qp url.Values) ([]int, error) {
 // created via `core.CreateSubscriber()`.
 func sendOptinConfirmationHook(app *App) func(sub models.Subscriber, listIDs []int) (int, error) {
 	return func(sub models.Subscriber, listIDs []int) (int, error) {
-		lists, err := app.core.GetSubscriberLists(sub.ID, "", listIDs, nil, models.SubscriptionStatusUnconfirmed, models.ListOptinDouble)
+		lists, err := app.core.GetSubscriberLists(sub.ID, "", listIDs, nil, models.SubscriptionStatusUnconfirmed, models.ListOptinDouble, "")
 		if err != nil {
 			return 0, err
 		}

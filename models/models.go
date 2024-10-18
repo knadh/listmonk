@@ -363,7 +363,8 @@ type Bounce struct {
 
 	// Pseudofield for getting the total number of bounces
 	// in searches and queries.
-	Total int `db:"total" json:"-"`
+	Total  int    `db:"total" json:"-"`
+	AuthID string `db:"authid" json:"auth_id"`
 }
 
 // Message is the message pushed to a Messenger.
@@ -610,7 +611,7 @@ func (c *Campaign) CompileTemplate(f template.FuncMap) error {
 
 // ConvertContent converts a campaign's body from one format to another,
 // for example, Markdown to HTML.
-func (c *Campaign) ConvertContent(from, to string) (string, error) {
+func (c *Campaign) ConvertContent(from, to string, authID string) (string, error) {
 	body := c.Body
 	for _, r := range regTplFuncs {
 		body = r.regExp.ReplaceAllString(body, r.replace)
