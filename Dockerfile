@@ -7,7 +7,7 @@ RUN apk --no-cache add ca-certificates tzdata shadow su-exec
 WORKDIR /listmonk
 
 # build the code 
-#RUN make dist
+RUN make dist
 
 # Copy only the necessary files
 COPY listmonk .
