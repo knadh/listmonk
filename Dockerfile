@@ -6,10 +6,12 @@ RUN apk --no-cache add ca-certificates tzdata shadow su-exec
 # Set the working directory
 WORKDIR /listmonk
 
+# build the code 
+#RUN make dist
+
 # Copy only the necessary files
 COPY listmonk .
 COPY config.toml.sample config.toml
-COPY config-demo.toml .
 
 # Copy the entrypoint script
 COPY docker-entrypoint.sh /usr/local/bin/
