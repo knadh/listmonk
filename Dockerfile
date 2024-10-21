@@ -1,4 +1,21 @@
-FROM --platform=$BUILDPLATFORM alpine:latest
+# First stage: Build the application
+FROM --platform=$BUILDPLATFORM golang:1.20 AS builder
+
+# Set the working directory
+WORKDIR /listmonk
+
+# Copy the go.mod and go.sum files
+COPY go.mod go.sum ./
+RUN go mod download
+
+# Copy the rest of the application source code
+COPY . .
+
+# Build the code
+RUN make dist
+
+# Second stage: Create a minimal image
+FROM alpine:latest
 
 # Install dependencies
 RUN apk --no-cache add ca-certificates tzdata shadow su-exec
@@ -6,11 +23,10 @@ RUN apk --no-cache add ca-certificates tzdata shadow su-exec
 # Set the working directory
 WORKDIR /listmonk
 
-# build the code 
-RUN make dist && ls -l
+# Copy the built binary from the builder stage
+COPY --from=builder /listmonk/listmonk .
 
-# Copy only the necessary files
-COPY listmonk .
+# Copy the configuration file
 COPY config.toml.sample config.toml
 
 # Copy the entrypoint script
