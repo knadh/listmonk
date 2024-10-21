@@ -1,6 +1,14 @@
 # First stage: Build the application
 FROM --platform=$BUILDPLATFORM golang:1.20 AS builder
 
+# Install Node.js and Yarn
+RUN apt-get update && apt-get install -y curl \
+    && curl -sL https://deb.nodesource.com/setup_16.x | bash - \
+    && apt-get install -y nodejs \
+    && npm install -g yarn \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
 # Set the working directory
 WORKDIR /listmonk
 
