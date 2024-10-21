@@ -35,7 +35,7 @@ WORKDIR /listmonk
 COPY --from=builder /listmonk/listmonk .
 
 # Copy the configuration file
-COPY config.toml.sample config.toml
+#COPY config.toml.sample config.toml
 
 # Copy the entrypoint script
 COPY docker-entrypoint.sh /usr/local/bin/
