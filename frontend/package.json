@@ -6,8 +6,8 @@
     "dev": "vite",
     "build": "vite build",
     "serve": "vite preview",
-    "lint": "eslint --ext .js,.vue --ignore-path src",
-    "prebuild": "eslint --ext .js,.vue --ignore-path src"
+    "lint": "eslint --ext .js,.vue --ignore-path .gitignore src",
+    "prebuild": "eslint --ext .js,.vue --ignore-path .gitignore src"
   },
   "dependencies": {
     "@tinymce/tinymce-vue": "^3",
