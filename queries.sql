@@ -1136,7 +1136,7 @@ FROM users
             WHEN $1::INT != 0 THEN users.id = $1
             WHEN $2::TEXT != '' THEN username = $2
             WHEN $3::TEXT != '' THEN email = $3
-            ELSE FALSE
+            ELSE TRUE
         END
     )
     ORDER BY users.created_at;
