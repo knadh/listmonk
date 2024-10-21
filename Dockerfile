@@ -19,6 +19,9 @@ RUN go mod download
 # Copy the rest of the application source code
 COPY . .
 
+# Verify that .gitignore is copied (optional)
+RUN ls -la frontend 
+
 # Build the code
 RUN make dist
 
