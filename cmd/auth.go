@@ -1,7 +1,9 @@
 package main
 
 import (
+	"errors"
 	"net/http"
+	"net/mail"
 	"net/url"
 	"strings"
 	"time"
@@ -90,8 +92,20 @@ func handleOIDCFinish(c echo.Context) error {
 		return renderLoginPage(c, err)
 	}
 
+	// Validate e-mail from the claim.
+	email := strings.TrimSpace(claims.Email)
+	if email == "" {
+		return renderLoginPage(c, errors.New(app.i18n.Ts("globals.messages.invalidFields", "name", "email")))
+	}
+
+	em, err := mail.ParseAddress(email)
+	if err != nil {
+		return renderLoginPage(c, err)
+	}
+	email = strings.ToLower(em.Address)
+
 	// Get the user by e-mail received from OIDC.
-	user, err := app.core.GetUser(0, "", claims.Email)
+	user, err := app.core.GetUser(0, "", email)
 	if err != nil {
 		return renderLoginPage(c, err)
 	}

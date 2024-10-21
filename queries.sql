@@ -1132,6 +1132,7 @@ FROM users
     WHERE
     (
         CASE
+            -- either filter one row by id/username/text OR match all rows.
             WHEN $1::INT != 0 THEN users.id = $1
             WHEN $2::TEXT != '' THEN username = $2
             WHEN $3::TEXT != '' THEN email = $3
