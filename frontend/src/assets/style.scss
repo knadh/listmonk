@@ -447,12 +447,12 @@ body.is-noscroll {
   }
 }
 .modal-background {
-  background: rgba(255, 255, 255, 0.7);
+  background: rgba(241, 241, 241, 0.7);
 }
 .modal-content, .modal.dialog .modal-card {
   background: $white;
-  box-shadow: 0 0 10px #e4e4e4;
-  border: 1px solid #eee;
+  box-shadow: 0 0 10px #ddd;
+  border: 1px solid #ddd;
   padding: 0;
   border-radius: 5px;
 }
@@ -597,8 +597,20 @@ body.is-noscroll {
 }
 
 /* Tabs */
-.b-tabs .tab-content {
-  padding-top: 3rem;
+.b-tabs {
+  .tab-content {
+    padding: 30px 20px;
+
+    border: 1px solid #ddd;
+    border-width: 0 1px 1px 1px;
+    border-radius: 5px;
+
+    box-shadow: 2px 2px 0 #f3f3f3;
+  }
+
+  ul[role=tablist] {
+    margin-left: 0;
+  }
 }
 
 /* Tags */
