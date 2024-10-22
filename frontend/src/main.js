@@ -42,7 +42,7 @@ async function initConfig(app) {
   Vue.prototype.$utils = new Utils(i18n);
   Vue.prototype.$api = api;
 
-  // $can('permission:name') is used in the UI to chekc whether the logged in user
+  // $can('permission:name') is used in the UI to check whether the logged in user
   // has a certain permission to toggle visibility of UI objects and UI functionality.
   Vue.prototype.$can = (...perms) => {
     if (profile.userRole.id === 1) {
@@ -60,6 +60,14 @@ async function initConfig(app) {
 
       return profile.userRole.permissions.includes(perm);
     });
+  };
+
+  Vue.prototype.$canList = (id, perm) => {
+    if (profile.userRole.id === 1) {
+      return true;
+    }
+
+    return profile.listRole.lists.some((list) => list.id === id && list.permissions.includes(perm));
   };
 
   // Set the page title after i18n has loaded.

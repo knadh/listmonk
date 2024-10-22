@@ -119,8 +119,8 @@
             </b-tooltip>
           </router-link>
 
-          <a v-if="$can('lists:manage')" href="#" @click.prevent="showEditForm(props.row)" data-cy="btn-edit"
-            :aria-label="$t('globals.buttons.edit')">
+          <a v-if="$can('lists:manage') || $canList(props.row.id, 'list:manage')" href="#"
+            @click.prevent="showEditForm(props.row)" data-cy="btn-edit" :aria-label="$t('globals.buttons.edit')">
             <b-tooltip :label="$t('globals.buttons.edit')" type="is-dark">
               <b-icon icon="pencil-outline" size="is-small" />
             </b-tooltip>
@@ -133,8 +133,8 @@
             </b-tooltip>
           </router-link>
 
-          <a v-if="$can('lists:manage')" href="#" @click.prevent="deleteList(props.row)" data-cy="btn-delete"
-            :aria-label="$t('globals.buttons.delete')">
+          <a v-if="$can('lists:manage') || $canList(props.row.id, 'list:manage')" href="#"
+            @click.prevent="deleteList(props.row)" data-cy="btn-delete" :aria-label="$t('globals.buttons.delete')">
             <b-tooltip :label="$t('globals.buttons.delete')" type="is-dark">
               <b-icon icon="trash-can-outline" size="is-small" />
             </b-tooltip>
