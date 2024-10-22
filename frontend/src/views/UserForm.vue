@@ -57,7 +57,7 @@
         <template v-if="form.type !== 'api'">
           <div class="box">
             <b-field>
-              <b-checkbox v-model="form.passwordLogin" :native-value="true">
+              <b-checkbox v-model="form.passwordLogin" :native-value="true" name="password_login">
                 {{ $t('users.passwordEnable') }}
               </b-checkbox>
             </b-field>
@@ -85,7 +85,7 @@
           <div class="columns">
             <div class="column is-6">
               <b-field :label="$tc('users.userRole')" label-position="on-border">
-                <b-select v-model="form.userRoleId" name="role" required expanded>
+                <b-select v-model="form.userRoleId" name="user_role" required expanded>
                   <option v-for="r in userRoles" :value="r.id" :key="r.id">
                     {{ r.name }}
                   </option>
@@ -95,7 +95,7 @@
 
             <div class="column is-6">
               <b-field :label="$tc('users.listRole', 0)" label-position="on-border">
-                <b-select v-model="form.listRoleId" name="role" expanded>
+                <b-select v-model="form.listRoleId" name="list_role" expanded>
                   <option value="">&mdash; {{ $t("globals.terms.none") }} &mdash;</option>
                   <option v-for="r in listRoles" :value="r.id" :key="r.id">
                     {{ r.name }}
