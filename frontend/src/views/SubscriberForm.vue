@@ -45,25 +45,26 @@
             </b-field>
           </div>
         </div>
-
-        <list-selector :label="$t('subscribers.lists')" :placeholder="$t('subscribers.listsPlaceholder')"
-          :message="$t('subscribers.listsHelp')" v-model="form.lists" :selected="form.lists" :all="lists.results" />
-        <div class="columns mb-5">
-          <div class="column is-7">
-            <b-field :message="$t('subscribers.preconfirmHelp')">
-              <b-checkbox v-model="form.preconfirm" :native-value="true" :disabled="!hasOptinList">
-                {{ $t('subscribers.preconfirm') }}
-              </b-checkbox>
-            </b-field>
-          </div>
-          <div v-if="$can('subscribers:manage') && isEditing" class="column is-5 has-text-right">
-            <a href="#" @click.prevent="sendOptinConfirmation" :class="{ 'is-disabled': !hasOptinList }">
-              <b-icon icon="email-outline" size="is-small" />
-              {{ $t('subscribers.sendOptinConfirm') }}</a>
+        <div class="box">
+          <list-selector :label="$t('subscribers.lists')" :placeholder="$t('subscribers.listsPlaceholder')"
+            :message="$t('subscribers.listsHelp')" v-model="form.lists" :selected="form.lists" :all="lists.results" />
+          <div class="columns mb-5">
+            <div class="column is-7">
+              <b-field :message="$t('subscribers.preconfirmHelp')">
+                <b-checkbox v-model="form.preconfirm" :native-value="true" :disabled="!hasOptinList">
+                  {{ $t('subscribers.preconfirm') }}
+                </b-checkbox>
+              </b-field>
+            </div>
+            <div v-if="$can('subscribers:manage') && isEditing" class="column is-5 has-text-right">
+              <a href="#" @click.prevent="sendOptinConfirmation" :class="{ 'is-disabled': !hasOptinList }">
+                <b-icon icon="email-outline" size="is-small" />
+                {{ $t('subscribers.sendOptinConfirm') }}</a>
+            </div>
           </div>
         </div>
 
-        <b-field :message="$t('subscribers.attribsHelp') + ' ' + egAttribs" class="mb-5">
+        <b-field :message="$t('subscribers.attribsHelp') + ' ' + egAttribs" class="mt-5">
           <div>
             <h5>{{ $t('subscribers.attribs') }}</h5>
             <b-input v-model="form.strAttribs" name="attribs" type="textarea" />
@@ -73,41 +74,43 @@
           </div>
         </b-field>
 
-        <div class="mb-5 mt-6" v-if="data.lists">
+        <div class="mb-5 mt-5" v-if="data.lists">
           <h5>{{ $tc('globals.terms.subscriptions', 2) }} ({{ data.lists.length }})</h5>
-          <b-table :data="data.lists" hoverable default-sort="createdAt" class="subscriptions">
-            <b-table-column v-slot="props" field="name" :label="$tc('globals.terms.list', 1)">
-              <div>
-                <router-link :to="`/lists/${props.row.id}`">
-                  {{ props.row.name }}
-                </router-link>
-                <br />
-                <b-tag :class="props.row.optin" :data-cy="`optin-${props.row.optin}`">
-                  <b-icon :icon="props.row.optin === 'double' ? 'account-check-outline' : 'account-off-outline'"
-                    size="is-small" />
-                  {{ ' ' }}
-                  {{ $t(`lists.optins.${props.row.optin}`) }}
-                </b-tag>{{ ' ' }}
-              </div>
-            </b-table-column>
+          <div class="box">
+            <b-table :data="data.lists" hoverable default-sort="createdAt" class="subscriptions">
+              <b-table-column v-slot="props" field="name" :label="$tc('globals.terms.list', 1)">
+                <div>
+                  <router-link :to="`/lists/${props.row.id}`">
+                    {{ props.row.name }}
+                  </router-link>
+                  <br />
+                  <b-tag :class="props.row.optin" :data-cy="`optin-${props.row.optin}`">
+                    <b-icon :icon="props.row.optin === 'double' ? 'account-check-outline' : 'account-off-outline'"
+                      size="is-small" />
+                    {{ ' ' }}
+                    {{ $t(`lists.optins.${props.row.optin}`) }}
+                  </b-tag>{{ ' ' }}
+                </div>
+              </b-table-column>
 
-            <b-table-column v-slot="props" field="status" cell-class="status" :label="$t('globals.fields.status')">
-              <b-tag :class="`status-${props.row.subscriptionStatus}`">
-                {{ $t(`subscribers.status.${props.row.subscriptionStatus}`) }}
-              </b-tag>
-              <template v-if="props.row.optin === 'double' && props.row.subscriptionMeta.optinIp">
-                <br /><span class="is-size-7">{{ props.row.subscriptionMeta.optinIp }}</span>
-              </template>
-            </b-table-column>
+              <b-table-column v-slot="props" field="status" cell-class="status" :label="$t('globals.fields.status')">
+                <b-tag :class="`status-${props.row.subscriptionStatus}`">
+                  {{ $t(`subscribers.status.${props.row.subscriptionStatus}`) }}
+                </b-tag>
+                <template v-if="props.row.optin === 'double' && props.row.subscriptionMeta.optinIp">
+                  <br /><span class="is-size-7">{{ props.row.subscriptionMeta.optinIp }}</span>
+                </template>
+              </b-table-column>
 
-            <b-table-column v-slot="props" field="createdAt" :label="$t('globals.fields.createdAt')">
-              {{ $utils.niceDate(props.row.subscriptionCreatedAt, true) }}
-            </b-table-column>
+              <b-table-column v-slot="props" field="createdAt" :label="$t('globals.fields.createdAt')">
+                {{ $utils.niceDate(props.row.subscriptionCreatedAt, true) }}
+              </b-table-column>
 
-            <b-table-column v-slot="props" field="updatedAt" :label="$t('globals.fields.updatedAt')">
-              {{ $utils.niceDate(props.row.subscriptionCreatedAt, true) }}
-            </b-table-column>
-          </b-table>
+              <b-table-column v-slot="props" field="updatedAt" :label="$t('globals.fields.updatedAt')">
+                {{ $utils.niceDate(props.row.subscriptionCreatedAt, true) }}
+              </b-table-column>
+            </b-table>
+          </div>
         </div>
 
         <div class="bounces" v-show="bounces.length > 0">

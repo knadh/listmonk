@@ -181,7 +181,7 @@
     </b-modal>
 
     <!-- Add / edit form modal -->
-    <b-modal scroll="keep" :aria-modal="true" :active.sync="isFormVisible" :width="800" @close="onFormClose">
+    <b-modal scroll="keep" :aria-modal="true" :active.sync="isFormVisible" :width="850" @close="onFormClose">
       <subscriber-form :data="curItem" :is-editing="isEditing" @finished="querySubscribers" />
     </b-modal>
   </section>

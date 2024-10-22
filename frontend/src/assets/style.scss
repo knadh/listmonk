@@ -451,15 +451,24 @@ body.is-noscroll {
 }
 .modal-content, .modal.dialog .modal-card {
   background: $white;
-  box-shadow: 2px 2px 3px #e4e4e4;
-  border: 1px solid #e5e5e5;
+  box-shadow: 0 0 10px #e4e4e4;
+  border: 1px solid #eee;
   padding: 0;
+  border-radius: 5px;
 }
 .modal-card-head {
   display: block;
+  border-bottom: 0;
+}
+.modal-card-body {
+  padding: 30px 20px;
 }
 .modal .modal-card-foot {
   justify-content: flex-end;
+  border-top: 0;
+}
+.modal .modal-card-foot button {
+  flex-grow: 1;
 }
 .modal .modal-close.is-large {
   display: none;

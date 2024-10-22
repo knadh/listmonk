@@ -23,7 +23,7 @@
         </b-field>
 
         <b-field :label="$t('lists.type')" label-position="on-border" :message="$t('lists.typeHelp')">
-          <b-select v-model="form.type" name="type" :placeholder="$t('lists.typeHelp')" required>
+          <b-select v-model="form.type" name="type" :placeholder="$t('lists.typeHelp')" required expanded>
             <option value="private">
               {{ $t('lists.types.private') }}
             </option>
@@ -34,7 +34,7 @@
         </b-field>
 
         <b-field :label="$t('lists.optin')" label-position="on-border" :message="$t('lists.optinHelp')">
-          <b-select v-model="form.optin" name="optin" placeholder="Opt-in type" required>
+          <b-select v-model="form.optin" name="optin" placeholder="Opt-in type" required expanded>
             <option value="single">
               {{ $t('lists.optins.single') }}
             </option>
