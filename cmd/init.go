@@ -485,13 +485,6 @@ func initCampaignManager(q *models.Queries, cs *constants, app *App) *manager.Ma
 		return app.sendNotification(cs.NotifyEmails, subject, notifTplCampaign, data)
 	}
 
-	if ko.Int("app.concurrency") < 1 {
-		lo.Fatal("app.concurrency should be at least 1")
-	}
-	if ko.Int("app.message_rate") < 1 {
-		lo.Fatal("app.message_rate should be at least 1")
-	}
-
 	if ko.Bool("passive") {
 		lo.Println("running in passive mode. won't process campaigns.")
 	}
