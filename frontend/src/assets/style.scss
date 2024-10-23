@@ -464,6 +464,7 @@ body.is-noscroll {
   padding: 30px 20px;
 }
 .modal .modal-card-foot {
+  background: none;
   justify-content: flex-end;
   border-top: 0;
 }
@@ -491,12 +492,16 @@ body.is-noscroll {
 .button {
   &.is-primary {
     background: $primary;
+    font-weight: bold;
 
-    &:hover {
+    &:hover, &:active {
       background: darken($primary, 15%);
     }
     &:disabled {
       background: $grey-light;
+    }
+    &:focus:not(:active), &.is-focused:not(:active) {
+      box-shadow: 0 0 0 0.2em rgba($primary, 0.25);
     }
   }
 
