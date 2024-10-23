@@ -73,6 +73,7 @@ type Auth struct {
 	cfg       Config
 	oauthCfg  oauth2.Config
 	verifier  *oidc.IDTokenVerifier
+	provider  *oidc.Provider
 	sess      *simplesessions.Manager
 	sessStore *postgres.Store
 	cb        *Callbacks
@@ -92,9 +93,9 @@ func New(cfg Config, db *sql.DB, cb *Callbacks, lo *log.Logger) (*Auth, error) {
 	if cfg.OIDC.Enabled {
 		provider, err := oidc.NewProvider(context.Background(), cfg.OIDC.ProviderURL)
 		if err != nil {
+			cfg.OIDC.Enabled = false
 			lo.Printf("error initializing OIDC OAuth provider: %v", err)
 		} else {
-
 			a.verifier = provider.Verifier(&oidc.Config{
 				ClientID: cfg.OIDC.ClientID,
 			})
@@ -106,6 +107,7 @@ func New(cfg Config, db *sql.DB, cb *Callbacks, lo *log.Logger) (*Auth, error) {
 				RedirectURL:  cfg.OIDC.RedirectURL,
 				Scopes:       []string{oidc.ScopeOpenID, "profile", "email"},
 			}
+			a.provider = provider
 		}
 	}
 
@@ -200,6 +202,19 @@ func (o *Auth) ExchangeOIDCToken(code, nonce string) (string, OIDCclaim, error) 
 	var claims OIDCclaim
 	if err := idTk.Claims(&claims); err != nil {
 		return "", OIDCclaim{}, errors.New("error getting user from OIDC")
+	}
+
+	// If claims doesn't have the e-mail, attempt to fetch it from the userinfo endpoint.
+	if claims.Email == "" {
+		userInfo, err := o.provider.UserInfo(context.TODO(), oauth2.StaticTokenSource(tk))
+		if err != nil {
+			return "", OIDCclaim{}, errors.New("error fetching user info from OIDC")
+		}
+
+		// Parse the UserInfo claims into the claims struct
+		if err := userInfo.Claims(&claims); err != nil {
+			return "", OIDCclaim{}, errors.New("error parsing user info claims")
+		}
 	}
 
 	return rawIDTk, claims, nil
