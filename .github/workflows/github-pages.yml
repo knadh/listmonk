@@ -47,6 +47,7 @@ jobs:
       - name: Generate Swagger UI
         uses: Legion2/swagger-ui-action@v1
         with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
           spec-file: ./docs/swagger/collections.yaml
           output: ./docs/publish/docs/swagger
 
