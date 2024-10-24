@@ -113,7 +113,7 @@ func (c *Core) QuerySubscribers(query string, listIDs []int, subStatus string, o
 
 	// Create a readonly transaction that just does COUNT() to obtain the count of results
 	// and to ensure that the arbitrary query is indeed readonly.
-	total, err := c.getSubscriberCount(cond, subStatus, listIDs)
+	total, err := c.getSubscriberCount(cond, subStatus, listIDs, authID)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -535,7 +535,7 @@ func (c *Core) DeleteBlocklistedSubscribers(authID string) (int, error) {
 	return int(n), nil
 }
 
-func (c *Core) getSubscriberCount(cond, subStatus string, listIDs []int) (int, error) {
+func (c *Core) getSubscriberCount(cond, subStatus string, listIDs []int, authId string) (int, error) {
 	// If there's no condition, it's a "get all" call which can probably be optionally pulled from cache.
 	if cond == "" {
 		_ = c.refreshCache(matListSubStats, false)
@@ -561,7 +561,7 @@ func (c *Core) getSubscriberCount(cond, subStatus string, listIDs []int) (int, e
 
 	// Execute the readonly query and get the count of results.
 	total := 0
-	if err := tx.Get(&total, stmt, pq.Array(listIDs), subStatus); err != nil {
+	if err := tx.Get(&total, stmt, pq.Array(listIDs), subStatus, authId); err != nil {
 		return 0, echo.NewHTTPError(http.StatusInternalServerError,
 			c.i18n.Ts("globals.messages.errorFetching", "name", "{globals.terms.subscribers}", "error", pqErrMsg(err)))
 	}
