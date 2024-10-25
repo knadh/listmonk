@@ -294,9 +294,9 @@ func (s *Session) Start() {
 		}
 
 		if s.opt.Mode == ModeSubscribe {
-			_, err = stmt.Exec(uu, sub.Email, sub.AuthID, sub.Name, sub.Attribs, pq.Array(listIDs), s.opt.SubStatus, s.opt.Overwrite)
+			_, err = stmt.Exec(uu, sub.Email, sub.Name, sub.Attribs, pq.Array(listIDs), s.opt.SubStatus, s.opt.Overwrite, sub.AuthID)
 		} else if s.opt.Mode == ModeBlocklist {
-			_, err = stmt.Exec(uu, sub.Email, sub.AuthID, sub.Name, sub.Attribs)
+			_, err = stmt.Exec(uu, sub.Email, sub.Name, sub.Attribs, sub.AuthID)
 		}
 		if err != nil {
 			s.log.Printf("error executing insert: %v", err)

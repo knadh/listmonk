@@ -136,9 +136,9 @@ SELECT uuid, id from sub;
 -- existing subscriptions are marked as 'unsubscribed'.
 -- This is used in the bulk importer.
 WITH sub AS (
-    INSERT INTO subscribers (uuid, email, name, attribs, status)
-    VALUES($1, $2, $3, $4, 'blocklisted')
-    ON CONFLICT (email) DO UPDATE SET status='blocklisted', updated_at=NOW()
+    INSERT INTO subscribers (uuid, email, authid, name, attribs, status)
+    VALUES($1, $2, $5, $3, $4, 'blocklisted')
+    ON CONFLICT (authid, email) DO UPDATE SET status='blocklisted', updated_at=NOW()
     RETURNING id
 )
 UPDATE subscriber_lists SET status='unsubscribed', updated_at=NOW()

@@ -144,7 +144,7 @@ func makeSearchQuery(searchStr, orderBy, order, query string, querySortFields []
 	// Replace order clause
 	query = strings.ReplaceAll(query, "%order%", orderBy+" "+order)
 
-	fmt.Println("Final query:", query)
+	//fmt.Println("Final query:", query)
 	return searchStr, query
 }
 
