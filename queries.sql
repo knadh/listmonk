@@ -503,7 +503,7 @@ WHERE id = $1 AND authid = $7;
 UPDATE lists SET updated_at=NOW() WHERE id = ANY($1);
 
 -- name: delete-lists
-DELETE FROM lists WHERE id = ALL($1) AND authid = $7;
+DELETE FROM lists WHERE id = ALL($1) AND authid = $2;
 
 
 -- campaigns
