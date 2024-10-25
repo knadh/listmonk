@@ -294,9 +294,9 @@ func (s *Session) Start() {
 		}
 
 		if s.opt.Mode == ModeSubscribe {
-			_, err = stmt.Exec(uu, sub.Email, sub.Name, sub.Attribs, pq.Array(listIDs), s.opt.SubStatus, s.opt.Overwrite)
+			_, err = stmt.Exec(uu, sub.Email, sub.AuthID, sub.Name, sub.Attribs, pq.Array(listIDs), s.opt.SubStatus, s.opt.Overwrite)
 		} else if s.opt.Mode == ModeBlocklist {
-			_, err = stmt.Exec(uu, sub.Email, sub.Name, sub.Attribs)
+			_, err = stmt.Exec(uu, sub.Email, sub.AuthID, sub.Name, sub.Attribs)
 		}
 		if err != nil {
 			s.log.Printf("error executing insert: %v", err)
@@ -561,6 +561,7 @@ func (s *Session) LoadCSV(srcPath string, delim rune, authID string) error {
 			}
 		}
 
+		sub.AuthID = authID
 		// Send the subscriber to the queue.
 		s.subQueue <- sub
 	}
