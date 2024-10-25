@@ -21,7 +21,7 @@ SELECT * FROM subscribers WHERE email=ANY($1) AND authid = $2;
 
 -- name: get-subscriber-lists
 WITH sub AS (
-    SELECT id FROM subscribers WHERE CASE WHEN $1 > 0 THEN id = $1 ELSE uuid = $2 END
+    SELECT id FROM subscribers WHERE (CASE WHEN $1 > 0 THEN id = $1 ELSE uuid = $2 END) AND authid = $7
 )
 SELECT * FROM lists
     LEFT JOIN subscriber_lists ON (lists.id = subscriber_lists.list_id)
@@ -33,6 +33,7 @@ SELECT * FROM lists
     END)
     AND (CASE WHEN $5 != '' THEN subscriber_lists.status = $5::subscription_status ELSE TRUE END)
     AND (CASE WHEN $6 != '' THEN lists.optin = $6::list_optin ELSE TRUE END)
+    AND lists.authid = $7
     ORDER BY id;
 
 -- name: get-subscriber-lists-lazy
@@ -496,13 +497,13 @@ UPDATE lists SET
     tags=$5::VARCHAR(100)[],
     description=(CASE WHEN $6 != '' THEN $6 ELSE description END),
     updated_at=NOW()
-WHERE id = $1 and authid= $7;
+WHERE id = $1 AND authid = $7;
 
 -- name: update-lists-date
 UPDATE lists SET updated_at=NOW() WHERE id = ANY($1);
 
 -- name: delete-lists
-DELETE FROM lists WHERE id = ALL($1);
+DELETE FROM lists WHERE id = ALL($1) AND authid = $7;
 
 
 -- campaigns
