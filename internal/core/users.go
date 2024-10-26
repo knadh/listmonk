@@ -3,9 +3,7 @@ package core
 import (
 	"database/sql"
 	"encoding/json"
-	"errors"
 	"net/http"
-	"strings"
 
 	"github.com/knadh/listmonk/internal/utils"
 	"github.com/knadh/listmonk/models"
@@ -14,21 +12,31 @@ import (
 	"gopkg.in/volatiletech/null.v6"
 )
 
-// GetUsers retrieves all users.
 func (c *Core) GetUsers() ([]models.User, error) {
-	out, err := c.getUsers(0, "", "")
-	return out, err
+	out := []models.User{}
+	if err := c.q.GetUsers.Select(&out); err != nil {
+		return nil, echo.NewHTTPError(http.StatusInternalServerError,
+			c.i18n.Ts("globals.messages.errorFetching", "name", "{globals.terms.users}", "error", pqErrMsg(err)))
+	}
+
+	return c.formatUsers(out), nil
 }
 
 // GetUser retrieves a specific user based on any one given identifier.
 func (c *Core) GetUser(id int, username, email string) (models.User, error) {
-	out, err := c.getUsers(id, username, strings.ToLower(email))
-	if err != nil {
-		return models.User{}, echo.NewHTTPError(http.StatusInternalServerError,
+	var out models.User
+	if err := c.q.GetUser.Get(&out, id, username, email); err != nil {
+		if err == sql.ErrNoRows {
+			return out, echo.NewHTTPError(http.StatusInternalServerError,
+				c.i18n.Ts("globals.messages.notFound", "name", "{globals.terms.user}"))
+
+		}
+
+		return out, echo.NewHTTPError(http.StatusInternalServerError,
 			c.i18n.Ts("globals.messages.errorFetching", "name", "{globals.terms.users}", "error", pqErrMsg(err)))
 	}
 
-	return out[0], nil
+	return c.formatUsers([]models.User{out})[0], nil
 }
 
 // CreateUser creates a new user.
@@ -144,18 +152,8 @@ func (c *Core) LoginUser(username, password string) (models.User, error) {
 	return out, nil
 }
 
-func (c *Core) getUsers(id int, username, email string) ([]models.User, error) {
-	out := []models.User{}
-	if err := c.q.GetUsers.Select(&out, id, username, email); err != nil {
-		return nil, echo.NewHTTPError(http.StatusInternalServerError,
-			c.i18n.Ts("globals.messages.errorFetching", "name", "{globals.terms.users}", "error", pqErrMsg(err)))
-	}
-
-	if len(out) == 0 {
-		return nil, errors.New("user not found")
-	}
-
-	for n, u := range out {
+func (c *Core) formatUsers(users []models.User) []models.User {
+	for n, u := range users {
 		u := u
 
 		if u.Password.String != "" {
@@ -207,8 +205,8 @@ func (c *Core) getUsers(id int, username, email string) ([]models.User, error) {
 			}
 		}
 
-		out[n] = u
+		users[n] = u
 	}
 
-	return out, nil
+	return users
 }

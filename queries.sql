@@ -1129,17 +1129,49 @@ FROM users
     LEFT JOIN ur ON users.user_role_id = ur.id
     LEFT JOIN lp ON users.list_role_id = lp.list_role_id
     LEFT JOIN lr ON lp.list_role_id = lr.id
+    ORDER BY users.created_at;
+
+-- name: get-user
+WITH sel AS (
+    SELECT * FROM users
     WHERE
     (
         CASE
-            -- either filter one row by id/username/text OR match all rows.
             WHEN $1::INT != 0 THEN users.id = $1
             WHEN $2::TEXT != '' THEN username = $2
             WHEN $3::TEXT != '' THEN email = $3
-            ELSE TRUE
         END
     )
-    ORDER BY users.created_at;
+)
+SELECT 
+    sel.*,
+    ur.id AS user_role_id,
+    ur.name AS user_role_name,
+    ur.permissions AS user_role_permissions,
+    lr.id AS list_role_id,
+    lr.name AS list_role_name,
+    lp.list_role_perms
+FROM sel
+    LEFT JOIN roles ur ON sel.user_role_id = ur.id AND ur.type = 'user' AND ur.parent_id IS NULL
+    LEFT JOIN (
+        SELECT r.id, r.name, r.permissions, r.list_id, l.name AS list_name
+        FROM roles r
+        LEFT JOIN lists l ON r.list_id = l.id
+        WHERE r.type = 'list' AND r.parent_id IS NULL
+    ) lr ON sel.list_role_id = lr.id
+    LEFT JOIN LATERAL (
+        SELECT JSONB_AGG(
+                JSONB_BUILD_OBJECT(
+                    'id', COALESCE(cr.list_id, lr.list_id),
+                    'name', COALESCE(cl.name, lr.list_name),
+                    'permissions', COALESCE(cr.permissions, lr.permissions)
+                )
+            ) AS list_role_perms
+        FROM roles cr
+        LEFT JOIN lists cl ON cr.list_id = cl.id
+        WHERE cr.parent_id = lr.id AND cr.type = 'list'
+        GROUP BY lr.id
+    ) lp ON TRUE;
 
 
 -- name: get-api-tokens
