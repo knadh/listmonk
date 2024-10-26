@@ -116,7 +116,7 @@ func handleUpdateUserRole(c echo.Context) error {
 	}
 
 	// Cache the API token for validating API queries without hitting the DB every time.
-	if err := cacheAPIUsers(app.core, app.auth); err != nil {
+	if _, err := cacheUsers(app.core, app.auth); err != nil {
 		return err
 	}
 
@@ -153,7 +153,7 @@ func handleUpdateListRole(c echo.Context) error {
 	}
 
 	// Cache the API token for validating API queries without hitting the DB every time.
-	if err := cacheAPIUsers(app.core, app.auth); err != nil {
+	if _, err := cacheUsers(app.core, app.auth); err != nil {
 		return err
 	}
 
@@ -176,7 +176,7 @@ func handleDeleteRole(c echo.Context) error {
 	}
 
 	// Cache the API token for validating API queries without hitting the DB every time.
-	if err := cacheAPIUsers(app.core, app.auth); err != nil {
+	if _, err := cacheUsers(app.core, app.auth); err != nil {
 		return err
 	}
 

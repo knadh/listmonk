@@ -1,5 +1,23 @@
 const apiUrl = Cypress.env('apiUrl');
 
+describe('First time user setup', () => {
+  it('Sets up the superadmin user', () => {
+    cy.resetDBBlank();
+    cy.visit('/admin/login');
+
+    cy.get('input[name=email]').type('super@domain');
+    cy.get('input[name=username]').type('super');
+    cy.get('input[name=password]').type('super123');
+    cy.get('input[name=password2]').type('super123');
+    cy.get('button[type=submit]').click();
+    cy.wait(500);
+    cy.visit('/admin/users');
+
+    cy.get('[data-cy=btn-edit]').first().click();
+    cy.get('select[name=user_role]').should('have.value', '1');
+  });
+});
+
 describe('User roles', () => {
   it('Opens user roles page', () => {
     cy.resetDB();

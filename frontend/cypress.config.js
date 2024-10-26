@@ -4,11 +4,13 @@ module.exports = defineConfig({
   env: {
     apiUrl: 'http://localhost:9000',
     serverInitCmd:
+      'pkill -9 listmonk | cd ../ && LISTMONK_ADMIN_USER=admin LISTMONK_ADMIN_PASSWORD=listmonk ./listmonk --install --yes && ./listmonk > /dev/null 2>/dev/null &',
+    serverInitBlankCmd:
       'pkill -9 listmonk | cd ../ && ./listmonk --install --yes && ./listmonk > /dev/null 2>/dev/null &',
-    username: 'listmonk',
-    password: 'listmonk',
+    LISTMONK_ADMIN_USER: 'admin',
+    LISTMONK_ADMIN_PASSWORD: 'listmonk',
   },
-  viewportWidth: 1300,
+  viewportWidth: 1400,
   viewportHeight: 950,
   e2e: {
     testIsolation: false,

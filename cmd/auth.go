@@ -10,8 +10,10 @@ import (
 
 	"github.com/knadh/listmonk/internal/auth"
 	"github.com/knadh/listmonk/internal/utils"
+	"github.com/knadh/listmonk/models"
 	"github.com/labstack/echo/v4"
 	"github.com/zerodha/simplesessions/v3"
+	"gopkg.in/volatiletech/null.v6"
 )
 
 type loginTpl struct {
@@ -35,6 +37,17 @@ var oidcProviders = map[string]bool{
 
 // handleLoginPage renders the login page and handles the login form.
 func handleLoginPage(c echo.Context) error {
+	app := c.Get("app").(*App)
+
+	// Has the user been setup?
+	app.Lock()
+	needsUserSetup := app.needsUserSetup
+	app.Unlock()
+
+	if needsUserSetup {
+		return handleLoginSetupPage(c)
+	}
+
 	// Process POST login request.
 	var loginErr error
 	if c.Request().Method == http.MethodPost {
@@ -45,6 +58,26 @@ func handleLoginPage(c echo.Context) error {
 	}
 
 	return renderLoginPage(c, loginErr)
+}
+
+// handleLoginSetupPage renders the first time user login page and handles the login form.
+func handleLoginSetupPage(c echo.Context) error {
+	app := c.Get("app").(*App)
+
+	// Process POST login request.
+	var loginErr error
+
+	if c.Request().Method == http.MethodPost {
+		loginErr = doLoginSetup(c)
+		if loginErr == nil {
+			app.Lock()
+			app.needsUserSetup = false
+			app.Unlock()
+			return c.Redirect(http.StatusFound, utils.SanitizeURI(c.FormValue("next")))
+		}
+	}
+
+	return renderLoginSetupPage(c, loginErr)
 }
 
 // handleLogout logs a user out.
@@ -189,6 +222,34 @@ func renderLoginPage(c echo.Context, loginErr error) error {
 	return c.Render(http.StatusOK, "admin-login", out)
 }
 
+// renderLoginSetupPage renders the first time user setup page.
+func renderLoginSetupPage(c echo.Context, loginErr error) error {
+	var (
+		app  = c.Get("app").(*App)
+		next = utils.SanitizeURI(c.FormValue("next"))
+	)
+
+	if next == "/" {
+		next = uriAdmin
+	}
+
+	out := loginTpl{
+		Title:           app.i18n.T("users.login"),
+		PasswordEnabled: true,
+		NextURI:         next,
+	}
+
+	if loginErr != nil {
+		if e, ok := loginErr.(*echo.HTTPError); ok {
+			out.Error = e.Message.(string)
+		} else {
+			out.Error = loginErr.Error()
+		}
+	}
+
+	return c.Render(http.StatusOK, "admin-login-setup", out)
+}
+
 // doLogin logs a user in with a username and password.
 func doLogin(c echo.Context) error {
 	var (
@@ -224,6 +285,81 @@ func doLogin(c echo.Context) error {
 	// Resist potential constant-time-comparison attacks with a min response time.
 	if ms := time.Now().Sub(start).Milliseconds(); ms < 100 {
 		time.Sleep(time.Duration(ms))
+	}
+
+	// Set the session.
+	if err := app.auth.SaveSession(user, "", c); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// doLoginSetup sets a user up for the first time.
+func doLoginSetup(c echo.Context) error {
+	var (
+		app = c.Get("app").(*App)
+	)
+
+	// Verify that the request came from the login page (CSRF).
+	// nonce, err := c.Cookie("nonce")
+	// if err != nil || nonce.Value == "" || nonce.Value != c.FormValue("nonce") {
+	// 	return echo.NewHTTPError(http.StatusUnauthorized, app.i18n.T("users.invalidRequest"))
+	// }
+
+	var (
+		email     = strings.TrimSpace(c.FormValue("email"))
+		username  = strings.TrimSpace(c.FormValue("username"))
+		password  = strings.TrimSpace(c.FormValue("password"))
+		password2 = strings.TrimSpace(c.FormValue("password2"))
+	)
+
+	if !utils.ValidateEmail(email) {
+		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.Ts("globals.messages.invalidFields", "name", "email"))
+	}
+	if !strHasLen(username, 3, stdInputMaxLen) {
+		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.Ts("globals.messages.invalidFields", "name", "username"))
+	}
+	if !strHasLen(password, 8, stdInputMaxLen) {
+		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.Ts("globals.messages.invalidFields", "name", "password"))
+	}
+	if password != password2 {
+		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("users.passwordMismatch"))
+	}
+
+	// Create the default "Super Admin".
+	r := models.Role{
+		Type: models.RoleTypeUser,
+		Name: null.NewString("Super Admin", true),
+	}
+	for p := range app.constants.Permissions {
+		r.Permissions = append(r.Permissions, p)
+	}
+	role, err := app.core.CreateRole(r)
+	if err != nil {
+		return err
+	}
+
+	// Create the super admin user.
+	u := models.User{
+		Type:          models.UserTypeUser,
+		HasPassword:   true,
+		PasswordLogin: true,
+		Username:      username,
+		Name:          username,
+		Password:      null.NewString(password, true),
+		Email:         null.NewString(email, true),
+		UserRoleID:    role.ID,
+		Status:        models.UserStatusEnabled,
+	}
+	if _, err := app.core.CreateUser(u); err != nil {
+		return err
+	}
+
+	// Log the user in.
+	user, err := app.core.LoginUser(username, password)
+	if err != nil {
+		return err
 	}
 
 	// Set the session.

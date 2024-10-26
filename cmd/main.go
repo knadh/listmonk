@@ -64,6 +64,9 @@ type App struct {
 	// after a settings update.
 	needsRestart bool
 
+	// First time installation with no user records in the DB. Needs user setup.
+	needsUserSetup bool
+
 	// Global state that stores data on an available remote update.
 	update *AppUpdate
 	sync.Mutex
@@ -212,7 +215,13 @@ func main() {
 	app.queries = queries
 	app.manager = initCampaignManager(app.queries, app.constants, app)
 	app.importer = initImporter(app.queries, db, app.core, app)
-	app.auth = initAuth(db.DB, ko, app.core)
+
+	hasUsers, auth := initAuth(db.DB, ko, app.core)
+	app.auth = auth
+	// If there are are no users in the DB who can login, the app has to prompt
+	// for new user setup.
+	app.needsUserSetup = !hasUsers
+
 	app.notifTpls = initNotifTemplates("/email-templates/*.html", fs, app.i18n, app.constants)
 	initTxTemplates(app.manager, app)
 
