@@ -1180,10 +1180,11 @@ SELECT username, password FROM users WHERE status='enabled' AND type='api';
 -- name: login-user
 WITH u AS (
     SELECT users.*, r.name as role_name, r.permissions FROM users
-        LEFT JOIN roles r ON (r.id = users.user_role_id)
-        WHERE username=$1 AND status != 'disabled' AND password_login = TRUE
+    LEFT JOIN roles r ON (r.id = users.user_role_id)
+    WHERE username = $1 AND status != 'disabled' AND password_login = TRUE
+    AND CRYPT($2, password) = password
 )
-SELECT * FROM u WHERE CRYPT($2, password) = password;
+UPDATE users SET loggedin_at = NOW() WHERE id = (SELECT id FROM u) RETURNING *;
 
 -- name: update-user-profile
 UPDATE users SET name=$2, email=(CASE WHEN password_login THEN $3 ELSE email END),
