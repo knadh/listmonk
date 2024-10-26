@@ -12,7 +12,7 @@ describe('Forms', () => {
       .its('length')
       .should('eq', 1);
 
-    cy.get('[data-cy=form] pre').should('not.exist');
+    cy.get('[data-cy=form] code-flask').should('not.exist');
   });
 
   it('Selects public list', () => {
@@ -20,7 +20,7 @@ describe('Forms', () => {
     cy.get('ul[data-cy=lists] .checkbox').click();
 
     // Make sure the <pre> form HTML has appeared.
-    cy.get('[data-cy=form] pre').then(($pre) => {
+    cy.get('code-flask').shadow().find('pre').then(($pre) => {
       // Check that the ID of the list in the checkbox appears in the HTML.
       cy.get('ul[data-cy=lists] input').then(($inp) => {
         cy.wrap($pre).contains($inp.val());
@@ -111,6 +111,7 @@ describe('Forms', () => {
       cy.request('GET', `${apiUrl}/api/campaigns`).then((response) => {
         const campUUID = response.body.data.results[0].uuid;
         cy.loginAndVisit(`${apiUrl}/subscription/${campUUID}/${subUUID}?manage=1`);
+        cy.get('a').contains('Manage').click();
       });
     });
 
