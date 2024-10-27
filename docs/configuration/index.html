@@ -16,7 +16,7 @@
       
       
       <link rel="icon" href="../images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.34">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.42">
     
     
       
@@ -24,7 +24,7 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.35f28582.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.0253249f.min.css">
       
         
         <link rel="stylesheet" href="../assets/stylesheets/palette.06af60db.min.css">
@@ -498,17 +498,17 @@
   
 </li>
         
-          <li class="md-nav__item">
-  <a href="#blocked-ports" class="md-nav__link">
-    <span class="md-ellipsis">
-      Blocked Ports
-    </span>
-  </a>
-  
-</li>
-        
       </ul>
     </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#smtp-ports" class="md-nav__link">
+    <span class="md-ellipsis">
+      SMTP ports
+    </span>
+  </a>
   
 </li>
       
@@ -617,7 +617,7 @@
             
   
   <span class="md-ellipsis">
-    Using Listmonk
+    Using listmonk
   </span>
   
 
@@ -627,7 +627,7 @@
         <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_3">
             <span class="md-nav__icon md-icon"></span>
-            Using Listmonk
+            Using listmonk
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
@@ -1418,17 +1418,17 @@
   
 </li>
         
-          <li class="md-nav__item">
-  <a href="#blocked-ports" class="md-nav__link">
-    <span class="md-ellipsis">
-      Blocked Ports
-    </span>
-  </a>
-  
-</li>
-        
       </ul>
     </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#smtp-ports" class="md-nav__link">
+    <span class="md-ellipsis">
+      SMTP ports
+    </span>
+  </a>
   
 </li>
       
@@ -1489,14 +1489,6 @@
 <tr>
 <td><code>LISTMONK_app__address</code></td>
 <td>"0.0.0.0:9000"</td>
-</tr>
-<tr>
-<td><code>LISTMONK_app__admin_username</code></td>
-<td>listmonk</td>
-</tr>
-<tr>
-<td><code>LISTMONK_app__admin_password</code></td>
-<td>listmonk</td>
 </tr>
 <tr>
 <td><code>LISTMONK_db__host</code></td>
@@ -1656,8 +1648,8 @@ with any Timezone listed <a href="https://en.wikipedia.org/wiki/List_of_tz_datab
 <h2 id="smtp">SMTP<a class="headerlink" href="#smtp" title="Permanent link">&para;</a></h2>
 <h3 id="retries">Retries<a class="headerlink" href="#retries" title="Permanent link">&para;</a></h3>
 <p>The <code>Settings -&gt; SMTP -&gt; Retries</code> denotes the number of times a message that fails at the moment of sending is retried silently using different connections from the SMTP pool. The messages that fail even after retries are the ones that are logged as errors and ignored.</p>
-<h3 id="blocked-ports">Blocked Ports<a class="headerlink" href="#blocked-ports" title="Permanent link">&para;</a></h3>
-<p>Some server hosts block SMTP ports (25, 465) so you have to get request to unblock them i.e. <a href="https://docs.hetzner.com/cloud/servers/faq/#why-can-i-not-send-any-mails-from-my-server">Hetzner</a>.</p>
+<h2 id="smtp-ports">SMTP ports<a class="headerlink" href="#smtp-ports" title="Permanent link">&para;</a></h2>
+<p>Some server hosts block outgoing SMTP ports (25, 465). You may have to contact your host to unblock them before being able to send e-mails. Eg: <a href="https://docs.hetzner.com/cloud/servers/faq/#why-can-i-not-send-any-mails-from-my-server">Hetzner</a>.</p>
 <h2 id="performance">Performance<a class="headerlink" href="#performance" title="Permanent link">&para;</a></h2>
 <h3 id="batch-size">Batch size<a class="headerlink" href="#batch-size" title="Permanent link">&para;</a></h3>
 <p>The batch size parameter is useful when working with very large lists with millions of subscribers for maximising throughput. It is the number of subscribers that are fetched from the database sequentially in a single cycle (~5 seconds) when a campaign is running. Increasing the batch size uses more memory, but reduces the round trip to the database.</p>
@@ -1711,10 +1703,10 @@ with any Timezone listed <a href="https://en.wikipedia.org/wiki/List_of_tz_datab
     </div>
     
     
-    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.indexes", "navigation.sections", "content.code.copy"], "search": "../assets/javascripts/workers/search.07f07601.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.indexes", "navigation.sections", "content.code.copy"], "search": "../assets/javascripts/workers/search.6ce7567c.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
-      <script src="../assets/javascripts/bundle.56dfad97.min.js"></script>
+      <script src="../assets/javascripts/bundle.83f73b43.min.js"></script>
       
     
   </body>

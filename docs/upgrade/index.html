@@ -16,7 +16,7 @@
       
       
       <link rel="icon" href="../images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.34">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.42">
     
     
       
@@ -24,7 +24,7 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.35f28582.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.0253249f.min.css">
       
         
         <link rel="stylesheet" href="../assets/stylesheets/palette.06af60db.min.css">
@@ -392,6 +392,15 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#upgrading-to-v4xx" class="md-nav__link">
+    <span class="md-ellipsis">
+      Upgrading to v4.x.x
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -452,7 +461,7 @@
             
   
   <span class="md-ellipsis">
-    Using Listmonk
+    Using listmonk
   </span>
   
 
@@ -462,7 +471,7 @@
         <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_3">
             <span class="md-nav__icon md-icon"></span>
-            Using Listmonk
+            Using listmonk
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
@@ -1126,6 +1135,15 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#upgrading-to-v4xx" class="md-nav__link">
+    <span class="md-ellipsis">
+      Upgrading to v4.x.x
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1142,20 +1160,27 @@
 
 
 <h1 id="upgrade">Upgrade<a class="headerlink" href="#upgrade" title="Permanent link">&para;</a></h1>
-<p>Some versions may require changes to the database. These changes or database "migrations" are applied automatically and safely, but, it is recommended to take a backup of the Postgres database before running the <code>--upgrade</code> option, especially if you have made customizations to the database tables.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Always take a backup of the Postgres database before upgrading listmonk</p>
+</div>
 <h2 id="binary">Binary<a class="headerlink" href="#binary" title="Permanent link">&para;</a></h2>
 <ul>
-<li>Download the <a href="https://github.com/knadh/listmonk/releases">latest release</a> and extract the listmonk binary.</li>
-<li><code>./listmonk --upgrade</code> to upgrade an existing DB. Upgrades are idempotent and running them multiple times have no side effects.</li>
-<li>Run <code>./listmonk</code> and visit <code>http://localhost:9000</code>.</li>
+<li>Stop the running instance of listmonk.</li>
+<li>Download the <a href="https://github.com/knadh/listmonk/releases">latest release</a> and extract the listmonk binary and overwrite the previous version.</li>
+<li><code>./listmonk --upgrade</code> to upgrade an existing database schema. Upgrades are idempotent and running them multiple times have no side effects.</li>
+<li>Run <code>./listmonk</code> again.</li>
 </ul>
 <p>If you installed listmonk as a service, you will need to stop it before overwriting the binary. Something like <code>sudo systemctl stop listmonk</code> or <code>sudo service listmonk stop</code> should work. Then overwrite the binary with the new version, then run <code>./listmonk --upgrade, and</code>start` it back with the same commands.</p>
 <p>If it's not running as a service, <code>pkill -9 listmonk</code> will stop the listmonk process.</p>
 <h2 id="docker">Docker<a class="headerlink" href="#docker" title="Permanent link">&para;</a></h2>
+<blockquote>
+<p>Instructions for versions above v4.x.x using the latest <a href="https://github.com/knadh/listmonk/blob/master/docker-compose.yml">docker-compose.yml</a> file.</p>
+</blockquote>
 <ul>
+<li><code>docker compose down app</code> and stop the app container.</li>
 <li><code>docker compose pull</code> to pull the latest version from DockerHub.</li>
-<li><code>docker compose run --rm app ./listmonk --upgrade</code> to upgrade an existing DB.</li>
-<li>Run <code>docker compose up app db</code> and visit <code>http://localhost:9000</code>.</li>
+<li><code>docker compose up app -d</code> to automatically run the upgrade and start listmonk.</li>
 </ul>
 <h2 id="railway">Railway<a class="headerlink" href="#railway" title="Permanent link">&para;</a></h2>
 <ul>
@@ -1192,6 +1217,20 @@ psql -h 127.0.0.1 -p 9432 -U listmonk -W listmonk &lt; listmonk-preupgrade-db.sq
 </code></pre></div></li>
 <li>Restart:
 <code>sudo docker compose up -d app db nginx certbot</code></li>
+</ol>
+<h2 id="upgrading-to-v4xx">Upgrading to v4.x.x<a class="headerlink" href="#upgrading-to-v4xx" title="Permanent link">&para;</a></h2>
+<p>v4 is a major upgrade from prior versions with significant changes to certain important features and behaviour. It is the first version to have multi-user support and full fledged user management. Prior versions only had a simple BasicAuth for both admin login (browser prompt) and API calls, with the username and password defined in the TOML configuration file.</p>
+<p>It is safe to upgrade an older installation with <code>--upgrade</code>, but there are a few important things to keep in mind. The upgrade automatically imports the <code>admin_username</code> and <code>admin_password</code> defined in the TOML configuration into the new user management system.</p>
+<ol>
+<li>
+<p><strong>New login UI</strong>: Once you upgrade an older installation, the admin dashboard will no longer show the native browser prompt for login. Instead, a new login UI rendered by listmonk is displayed at the URI <code>/admin/login</code>.</p>
+</li>
+<li>
+<p><strong>API credentials</strong>: If you are using APIs to interact with listmonk, after logging in, go to Settings -&gt; Users and create a new API user with the necessary permissions. Change existing API integrations to use these credentials instead of the old username and password defined in the legacy TOML configuration file or environment variables.</p>
+</li>
+<li>
+<p><strong>Credentials in TOML file or old environment variables</strong>: The admin dashboard shows a warning until the <code>admin_username</code> and <code>admin_password</code> fields are removed from the configuration file or old environment variables. In v4.x.x, these are irrelevant as user credentials are stored in the database and managed from the admin UI. IMPORTANT: if you are using APIs to interact with listmonk, follow the previous step before removing the legacy credentials.</p>
+</li>
 </ol>
 
 
@@ -1243,10 +1282,10 @@ psql -h 127.0.0.1 -p 9432 -U listmonk -W listmonk &lt; listmonk-preupgrade-db.sq
     </div>
     
     
-    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.indexes", "navigation.sections", "content.code.copy"], "search": "../assets/javascripts/workers/search.07f07601.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.indexes", "navigation.sections", "content.code.copy"], "search": "../assets/javascripts/workers/search.6ce7567c.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
-      <script src="../assets/javascripts/bundle.56dfad97.min.js"></script>
+      <script src="../assets/javascripts/bundle.83f73b43.min.js"></script>
       
     
   </body>
