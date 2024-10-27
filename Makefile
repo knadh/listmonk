@@ -79,12 +79,12 @@ pack-bin: build-frontend $(BIN) $(STUFFBIN)
 # Use goreleaser to do a dry run producing local builds.
 .PHONY: release-dry
 release-dry:
-	goreleaser --parallelism 1 --rm-dist --snapshot --skip-validate --skip-publish
+	goreleaser release --parallelism 1 --clean --snapshot --skip=publish
 
 # Use goreleaser to build production releases and publish them.
 .PHONY: release
 release:
-	goreleaser --parallelism 1 --rm-dist --skip-validate
+	goreleaser release --parallelism 1 --clean
 
 # Build local docker images for development.
 .PHONY: build-dev-docker
