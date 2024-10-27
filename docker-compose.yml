@@ -6,7 +6,7 @@ x-db-credentials: &db-credentials                             # Use the default 
 services:
   # listmonk app
   app:
-    image: listmonk/listmonk:test
+    image: listmonk/listmonk:latest
     container_name: listmonk_app
     restart: unless-stopped
     ports:
