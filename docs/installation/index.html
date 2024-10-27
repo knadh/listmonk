@@ -1309,7 +1309,7 @@
 <p>The latest image is available on DockerHub at <code>listmonk/listmonk:latest</code></p>
 <p>The recommended method is to download the <a href="https://github.com/knadh/listmonk/blob/master/docker-compose.yml">docker-compose.yml</a> file, customize it for your environment and then to simply run <code>docker compose up -d</code>.</p>
 <div class="highlight"><pre><span></span><code><span class="c1"># Download the compose file to the current directory.</span>
-curl<span class="w"> </span>-O<span class="w"> </span>https://github.com/knadh/listmonk/blob/master/docker-compose.yml
+curl<span class="w"> </span>-LO<span class="w"> </span>https://github.com/knadh/listmonk/raw/master/docker-compose.yml
 
 <span class="c1"># Run the services in the background.</span>
 docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> </span>-d
