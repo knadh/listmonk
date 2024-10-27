@@ -21,7 +21,7 @@ The recommended method is to download the [docker-compose.yml](https://github.co
 
 ```shell
 # Download the compose file to the current directory.
-curl -O https://github.com/knadh/listmonk/blob/master/docker-compose.yml
+curl -LO https://github.com/knadh/listmonk/raw/master/docker-compose.yml
 
 # Run the services in the background.
 docker compose up -d
