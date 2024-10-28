@@ -18,6 +18,7 @@ If it's not running as a service, `pkill -9 listmonk` will stop the listmonk pro
 
 - `docker compose down app` and stop the app container.
 - `docker compose pull` to pull the latest version from DockerHub.
+- `docker compose run --rm app ./listmonk --upgrade` to upgrade an existing database schema. Upgrades are idempotent and running them multiple times have no side effects.
 - `docker compose up app -d` to automatically run the upgrade and start listmonk.
 
 ## Railway
