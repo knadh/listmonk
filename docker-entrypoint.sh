@@ -34,8 +34,10 @@ create_user() {
 create_group
 create_user
 
-# Set the ownership of the app directory to the app user
-chown -R ${PUID}:${PGID} /listmonk
+# Try to set the ownership of the app directory to the app user.
+if ! chown -R ${PUID}:${PGID} /listmonk 2>/dev/null; then
+  echo "Warning: Failed to change ownership of /listmonk. Readonly volume?"
+fi
 
 echo "Launching listmonk with user=[${USER_NAME}] group=[${GROUP_NAME}] PUID=[${PUID}] PGID=[${PGID}]"
 
