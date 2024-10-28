@@ -14,7 +14,7 @@ If you installed listmonk as a service, you will need to stop it before overwrit
 If it's not running as a service, `pkill -9 listmonk` will stop the listmonk process.
 
 ## Docker
-**Important:** The following instructions are for the new [docker-compose.yml](https://github.com/knadh/listmonk/blob/master/docker-compose.yml) file for v4.x.x onwards.
+**Important:** The following instructions are for the new [docker-compose.yml](https://github.com/knadh/listmonk/blob/master/docker-compose.yml) file.
 
 ```shell
 docker compose down app
@@ -22,7 +22,7 @@ docker compose pull
 docker compose up app -d
 ```
 
-If you are using an older docker-compose.yml file (versions older than v4.x.x), you have to run the `--upgrade` step manually.
+If you are using an older docker-compose.yml file, you have to run the `--upgrade` step manually.
 
 ```shell
 docker-compose down
