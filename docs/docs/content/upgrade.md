@@ -16,9 +16,11 @@ If it's not running as a service, `pkill -9 listmonk` will stop the listmonk pro
 ## Docker
 > Instructions for versions above v4.x.x using the latest [docker-compose.yml](https://github.com/knadh/listmonk/blob/master/docker-compose.yml) file.
 
-- `docker compose down app` and stop the app container.
-- `docker compose pull` to pull the latest version from DockerHub.
-- `docker compose up app -d` to automatically run the upgrade and start listmonk.
+```
+docker-compose down
+docker-compose pull && docker-compose run --rm app ./listmonk --upgrade
+docker-compose up -d app db
+```
 
 ## Railway
 - Head to your dashboard, and select your Listmonk project.
