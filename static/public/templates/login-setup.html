@@ -5,7 +5,7 @@
 	<h2>{{ .L.T "users.newUser"}}</h2>
 	<p> {{ .L.T "users.firstTime" }}</p>
 
-	<form method="post" action="{{ .RootURL }}/admin/login" class="form">
+	<form method="post" action="" class="form">
 		<div>
 			<input type="hidden" name="nonce" value="{{ .Data.Nonce }}" />
 			<input type="hidden" name="next" value="{{ .Data.NextURI }}" />
