@@ -41,22 +41,23 @@
               {{ end }}
             </li>
             <li>
-              <code>./listmonk --new-config</code> to generate config.toml. Edit the file.
+              <code>./listmonk --new-config</code> to generate config.toml. Edit it.
             </li>
-            <li><code>./listmonk --install</code> to setup the Postgres DB (⩾ v9.4) or <code>--upgrade</code> to upgrade an existing DB.</li>
+            <li><code>./listmonk --install</code> to setup the Postgres DB or <code>--upgrade</code> to upgrade an existing DB.</li>
             <li>Run <code>./listmonk</code> and visit <code>http://localhost:9000</code></li>
           </ul>
           <p><a href="/docs/installation">Installation docs &rarr;</a></p>
 
           <br />
           <h3>Hosting providers</h3>
-          <a href="https://railway.app/new/template/listmonk"><img src="https://camo.githubusercontent.com/d07713342bc583232f8752c33a6a24e5f367d73725183a63f2f5fdd7c00606a3/68747470733a2f2f7261696c7761792e6170702f627574746f6e2e737667" alt="One-click deploy on Railway" style="max-height: 32px;" /></a>
+          <a href="https://railway.app/new/template/listmonk"><img src="https://railway.app/button.svg" alt="One-click deploy on Railway" style="max-height: 32px;" /></a>
           <br />
           <a href="https://www.pikapods.com/pods?run=listmonk"><img src="https://www.pikapods.com/static/run-button.svg" alt="Deploy on PikaPod" /></a>
           <br />
           <a href="https://dash.elest.io/deploy?soft=Listmonk&id=237"><img height="33" src="https://github.com/elestio-examples/wordpress/raw/main/deploy-on-elestio.png" alt="Deploy on Elestio" /></a>
           <br />
           <a href="https://zeabur.com/templates/5EDMN6"><img width="148" src="https://zeabur.com/button.svg" alt="Deploy on Zeabur"/></a>
+          <p><small>*listmonk has no affiliation with any of these providers.</small></p>
         </div>
       </div>
       <div class="col-6">
@@ -64,24 +65,19 @@
           <h3>Docker</h3>
           <p><a href="https://hub.docker.com/r/listmonk/listmonk/tags?page=1&ordering=last_updated&name=latest"><code>listmonk/listmonk:latest</code></a></p>
           <p>
-            Use the sample <a href="https://github.com/knadh/listmonk/blob/master/docker-compose.yml">docker-compose.yml</a> 
-            to run manually or use the helper script.
-          </p>
-          <h4>Demo</h4>
-<pre>mkdir listmonk-demo && cd listmonk-demo
-sh -c "$(curl -fsSL https://raw.githubusercontent.com/knadh/listmonk/master/install-demo.sh)"</pre>
-          <p>
-            (DO NOT use this demo setup in production)
+            Download and use the sample <a href="https://github.com/knadh/listmonk/blob/master/docker-compose.yml">docker-compose.yml</a> 
           </p>
 
-          <h4>Production</h4>
-<pre>mkdir listmonk && cd listmonk
-sh -c "$(curl -fsSL https://raw.githubusercontent.com/knadh/listmonk/master/install-prod.sh)"</pre>
+<pre>
+# Download the compose file to the current directory.
+curl -LO https://github.com/knadh/listmonk/raw/master/docker-compose.yml
+
+# Run the services in the background.
+docker compose up -d
+</pre>
           <p>Visit <code>http://localhost:9000</code></p>
 
           <p><a href="/docs/installation">Installation docs &rarr;</a></p>
-
-          <p class="small">NOTE: Always examine the contents of shell scripts before executing them.</p>
         </div>
       </div>
     </div>

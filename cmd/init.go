@@ -485,13 +485,6 @@ func initCampaignManager(q *models.Queries, cs *constants, app *App) *manager.Ma
 		return app.sendNotification(cs.NotifyEmails, subject, notifTplCampaign, data)
 	}
 
-	if ko.Int("app.concurrency") < 1 {
-		lo.Fatal("app.concurrency should be at least 1")
-	}
-	if ko.Int("app.message_rate") < 1 {
-		lo.Fatal("app.message_rate should be at least 1")
-	}
-
 	if ko.Bool("passive") {
 		lo.Println("running in passive mode. won't process campaigns.")
 	}
@@ -938,7 +931,7 @@ func initTplFuncs(i *i18n.I18n, cs *constants) template.FuncMap {
 	return funcs
 }
 
-func initAuth(db *sql.DB, ko *koanf.Koanf, co *core.Core) *auth.Auth {
+func initAuth(db *sql.DB, ko *koanf.Koanf, co *core.Core) (bool, *auth.Auth) {
 	var oidcCfg auth.OIDCConfig
 
 	if ko.Bool("security.oidc.enabled") {
@@ -976,8 +969,9 @@ func initAuth(db *sql.DB, ko *koanf.Koanf, co *core.Core) *auth.Auth {
 	}
 
 	// Cache all API users in-memory for token auth.
-	if err := cacheAPIUsers(co, a); err != nil {
-		lo.Fatalf("error loading API users: %v", err)
+	hasUsers, err := cacheUsers(co, a)
+	if err != nil {
+		lo.Fatalf("error loading API users to cache: %v", err)
 	}
 
 	// If the legacy username+password is set in the TOML file, use that as an API
@@ -1004,5 +998,5 @@ func initAuth(db *sql.DB, ko *koanf.Koanf, co *core.Core) *auth.Auth {
 		lo.Println(`WARNING: Remove the admin_username and admin_password fields from the TOML configuration file. If you are using APIs, create and use new credentials. Users are now managed via the Admin -> Settings -> Users dashboard.`)
 	}
 
-	return a
+	return hasUsers, a
 }

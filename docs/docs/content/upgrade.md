@@ -1,21 +1,24 @@
 # Upgrade
 
-Some versions may require changes to the database. These changes or database "migrations" are applied automatically and safely, but, it is recommended to take a backup of the Postgres database before running the `--upgrade` option, especially if you have made customizations to the database tables.
+!!! Warning
+    Always take a backup of the Postgres database before upgrading listmonk
 
 ## Binary
-- Download the [latest release](https://github.com/knadh/listmonk/releases) and extract the listmonk binary.
-- `./listmonk --upgrade` to upgrade an existing DB. Upgrades are idempotent and running them multiple times have no side effects.
-- Run `./listmonk` and visit `http://localhost:9000`.
+- Stop the running instance of listmonk.
+- Download the [latest release](https://github.com/knadh/listmonk/releases) and extract the listmonk binary and overwrite the previous version.
+- `./listmonk --upgrade` to upgrade an existing database schema. Upgrades are idempotent and running them multiple times have no side effects.
+- Run `./listmonk` again.
 
 If you installed listmonk as a service, you will need to stop it before overwriting the binary. Something like `sudo systemctl stop listmonk` or `sudo service listmonk stop` should work. Then overwrite the binary with the new version, then run `./listmonk --upgrade, and `start` it back with the same commands.
 
 If it's not running as a service, `pkill -9 listmonk` will stop the listmonk process.
 
 ## Docker
+> Instructions for versions above v4.x.x using the latest [docker-compose.yml](https://github.com/knadh/listmonk/blob/master/docker-compose.yml) file.
 
+- `docker compose down app` and stop the app container.
 - `docker compose pull` to pull the latest version from DockerHub.
-- `docker compose run --rm app ./listmonk --upgrade` to upgrade an existing DB.
-- Run `docker compose up app db` and visit `http://localhost:9000`.
+- `docker compose up app -d` to automatically run the upgrade and start listmonk.
 
 ## Railway
 - Head to your dashboard, and select your Listmonk project.

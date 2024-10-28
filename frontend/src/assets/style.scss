@@ -470,6 +470,9 @@ body.is-noscroll {
 }
 .modal .modal-card-foot button {
   flex-grow: 1;
+  &.is-primary {
+    font-weight: bold;
+  }
 }
 .modal .modal-close.is-large {
   display: none;
@@ -492,7 +495,6 @@ body.is-noscroll {
 .button {
   &.is-primary {
     background: $primary;
-    font-weight: bold;
 
     &:hover, &:active {
       background: darken($primary, 15%);

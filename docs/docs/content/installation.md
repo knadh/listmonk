@@ -1,97 +1,46 @@
 # Installation
 
-listmonk requires Postgres ⩾ 12
-
-!!! Admin
-    listmonk generates and prints admin credentials to the terminal during installation. This can be copied to login to the admin dashboard and later changed. To choose a custom username and password during installation,
-    set the environment variables `LISTMONK_ADMIN_USER` and `LISTMONK_ADMIN_PASSWORD` during installation.
+listmonk is a simple binary application that requires a Postgres database instance to run. The binary can be downloaded and run manually, or it can be run as a container with Docker compose.
 
 ## Binary
 1. Download the [latest release](https://github.com/knadh/listmonk/releases) and extract the listmonk binary. `amd64` is the main one. It works for Intel and x86 CPUs.
 1. `./listmonk --new-config` to generate config.toml. Edit the file.
-1. `./listmonk --install` to install the tables in the Postgres DB. Copy the admin username and password from the terminal output (these can be changed from the admin UI later). To choose a custom username and password during installation, run: `LISTMONK_ADMIN_USER=myuser LISTMONK_ADMIN_PASSWORD=xxxxx ./listmonk --install`
-1. Run `./listmonk` and visit `http://localhost:9000`.
+1. `./listmonk --install` to install the tables in the Postgres DB (⩾ 12).
+1. Run `./listmonk` and visit `http://localhost:9000` to create the Super Admin user and login.
+
+!!! Tip
+    To set the Super Admin username and password during installation, set the environment variables:
+    `LISTMONK_ADMIN_USER=myuser LISTMONK_ADMIN_PASSWORD=xxxxx ./listmonk --install`
 
 
 ## Docker
 
 The latest image is available on DockerHub at `listmonk/listmonk:latest`
 
-!!! note
-    listmonk's docs and scripts use `docker compose`, which is compatible with the latest version of docker. If you installed docker and docker-compose from your Linux distribution, you probably have an older version and will need to use the `docker-compose` command instead, or you'll need to update docker manually. [More info](https://gist.github.com/MaximilianKohler/e5158fcfe6de80a9069926a67afcae11#docker-update).
+The recommended method is to download the [docker-compose.yml](https://github.com/knadh/listmonk/blob/master/docker-compose.yml) file, customize it for your environment and then to simply run `docker compose up -d`.
 
-Use the sample [docker-compose.yml](https://github.com/knadh/listmonk/blob/master/docker-compose.yml) to run listmonk and Postgres DB with `docker compose` as follows:
+```shell
+# Download the compose file to the current directory.
+curl -LO https://github.com/knadh/listmonk/raw/master/docker-compose.yml
 
-### Demo
-
-#### Easy Docker install
-
-```bash
-mkdir listmonk-demo && cd listmonk-demo
-bash -c "$(curl -fsSL https://raw.githubusercontent.com/knadh/listmonk/master/install-demo.sh)"
+# Run the services in the background.
+docker compose up -d
 ```
 
-#### Manual Docker install
+Then, visit `http://localhost:9000` to create the Super Admin user and login.
 
-```bash
-wget -O docker-compose.yml https://raw.githubusercontent.com/knadh/listmonk/master/docker-compose.yml
-docker compose up -d demo-db demo-app
-```
+!!! Tip
+    To set the Super Admin username and password during setup, set the environment variables (only the first time):
+    `LISTMONK_ADMIN_USER=myuser LISTMONK_ADMIN_PASSWORD=xxxxx docker compose up -d`
 
-!!! warning
-    The demo does not persist Postgres after the containers are removed. **DO NOT** use this demo setup in production.
 
-### Production
+------------
 
-#### Easy Docker install
+### Mounting a custom config.toml
+The docker-compose file includes all necessary listmonk configuration as environment variables, `LISTMONK_*`.
+If you would like to remove those and mount a config.toml instead:
 
-This setup is recommended if you want to _quickly_ setup `listmonk` in production.
-
-```bash
-mkdir listmonk && cd listmonk
-bash -c "$(curl -fsSL https://raw.githubusercontent.com/knadh/listmonk/master/install-prod.sh)"
-```
-
-The above shell script performs the following actions:
-
-- Downloads `docker-compose.yml` and generates a `config.toml`.
-- Runs a Postgres container and installs the database schema.
-- Runs the `listmonk` container.
-
-!!! note
-    It's recommended to examine the contents of the shell script, before running in your environment.
-
-#### Manual Docker install
-
-The following workflow is recommended to setup `listmonk` manually using `docker compose`. You are encouraged to customise the contents of [`docker-compose.yml`](https://github.com/knadh/listmonk/blob/master/docker-compose.yml) to your needs. The overall setup looks like:
-
-- `docker compose up db` to run the Postgres DB.
-- `docker compose run --rm app ./listmonk --install` to setup the DB (or `--upgrade` to upgrade an existing DB).
-- Copy `config.toml.sample` to your directory and make the following changes:
-    - `app.address` => `0.0.0.0:9000` (Port forwarding on Docker will work only if the app is advertising on all interfaces.)
-    - `db.host` => `listmonk_db` (Container Name of the DB container)
-- Run `docker compose up app` and visit `http://localhost:9000`.
-
-##### Mounting a custom config.toml
-
-To mount a local `config.toml` file, add the following section to `docker-compose.yml`:
-
-```yml
-  app:
-    <<: *app-defaults
-    depends_on:
-      - db
-    volumes:
-    - ./path/on/your/host/config.toml:/listmonk/config.toml
-```
-
-!!! note
-    Some common changes done inside `config.toml` for Docker based setups:
-
-    - Change `app.address` to `0.0.0.0:9000`.
-    - Change `db.host` to `listmonk_db`.
-
-Here's a sample `config.toml` you can use:
+#### 1. Save the config.toml file on the host
 
 ```toml
 [app]
@@ -99,7 +48,7 @@ address = "0.0.0.0:9000"
 
 # Database.
 [db]
-host = "listmonk_db"
+host = "listmonk_db" # Postgres container name in the compose file.
 port = 5432
 user = "listmonk"
 password = "listmonk"
@@ -110,25 +59,20 @@ max_idle = 25
 max_lifetime = "300s"
 ```
 
-Mount the local `config.toml` inside the container at `listmonk/config.toml`.
+#### 2. Mount the config file in docker-compose.yml
 
-!!! tip
-    - See [configuring with environment variables](configuration.md) for variables like `app.admin_password` and `db.password`
-    - Ensure that both `app` and `db` containers are in running. If the containers are not running, restart them `docker compose restart app db`.
-    - Refer to [this tutorial](https://yasoob.me/posts/setting-up-listmonk-opensource-newsletter-mailing/) for setting up a production instance with Docker + Nginx + LetsEncrypt SSL.
+```yaml
+  app:
+    ...
+    volumes:
+    - /path/on/your/host/config.toml:/listmonk/config.toml
+```
 
-!!! info
-    The example `docker-compose.yml` file works with Docker Engine 24.0.5+ and Docker Compose version v2.20.2+.
+#### 3. Change the `--config ''` flags in the `command:` section to point to the path
 
-##### Changing the port
-
-To change the port for listmonk:
-
-- Ensure no other container of listmonk app is running. You can check with `docker ps | grep listmonk`.
-- Change [L11](https://github.com/knadh/listmonk/blob/master/docker-compose.yml#L11) to `custom-port:9000` Eg: `3876:9000`. This will expose the port 3876 on your local network to the container's network interface on port 9000. 
-- For NGINX setup, if you're running NGINX on your local machine, you can proxy_pass to the `<MACHINE_IP>:3876`. You can also run NGINX as a docker container within the listmonk's container (for that you need to add a service `nginx` in the docker-compose.yml). If you do that, then proxy_pass will be set to `http://app:9000`. Docker's network will resolve the DNS for `app` and directly speak to port 9000 (which the app is exposing within its own network).
-            
-
+```yaml
+command: [sh, -c, "./listmonk --install --idempotent --yes --config /listmonk/config.toml && ./listmonk --upgrade --yes --config /listmonk/config.toml && ./listmonk --config /listmonk/config.toml"]
+```
 
 
 ## Compiling from source
@@ -137,13 +81,13 @@ To compile the latest unreleased version (`master` branch):
 
 1. Make sure `go`, `nodejs`, and `yarn` are installed on your system.
 2. `git clone git@github.com:knadh/listmonk.git`
-3. `cd listmonk && make dist`. This will generate the `listmonk binary`.
+3. `cd listmonk && make dist`. This will generate the `listmonk` binary.
 
 ## Release candidate (RC)
 
 The `master` branch with bleeding edge changes is periodically built and published as `listmonk/listmonk:rc` on DockerHub. To run the latest pre-release version, replace all instances of `listmonk/listmonk:latest` with `listmonk/listmonk:rc` in the docker-compose.yml file and follow the Docker installation steps above. While it is generally safe to run release candidate versions, they may have issues that only get resolved in a general release.
 
-## Helm chart for kubernetes
+## Helm chart for Kubernetes
 
 ![Version: 0.1.0](https://img.shields.io/badge/Version-0.1.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 3.0.0](https://img.shields.io/badge/AppVersion-3.0.0-informational?style=flat-square)
 

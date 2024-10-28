@@ -1,0 +1,37 @@
+{{ define "admin-login-setup" }}
+{{ template "header" .}}
+
+<section class="login">
+	<h2>{{ .L.T "users.newUser"}}</h2>
+	<p> {{ .L.T "users.firstTime" }}</p>
+
+	<form method="post" action="" class="form">
+		<div>
+			<input type="hidden" name="nonce" value="{{ .Data.Nonce }}" />
+			<input type="hidden" name="next" value="{{ .Data.NextURI }}" />
+			<p>
+				<label for="email">{{ .L.T "subscribers.email" }}</label>
+				<input id="email" type="email" name="email" autofocus required minlength="3" />
+			</p>
+			<p>
+				<label for="username">{{ .L.T "users.username" }}</label>
+				<input id="username" type="text" name="username" required minlength="3" />
+			</p>
+			<p>
+				<label for="password">{{ .L.T "users.password" }}</label>
+				<input id="password" type="password" name="password" required minlength="8" />
+			</p>
+			<p>
+				<label for="password2">{{ .L.T "users.passwordRepeat" }}</label>
+				<input id="password2" type="password" name="password2" required minlength="8" />
+			</p>
+
+			{{ if .Data.Error }}<p><span class="error">{{ .Data.Error }}</span></p>{{ end }}
+
+			<p class="submit"><button class="button" type="submit">{{ .L.T "globals.buttons.continue" }}</button></p>
+		</div>
+	</form>
+</section>
+
+{{ template "footer" .}}
+{{ end }}

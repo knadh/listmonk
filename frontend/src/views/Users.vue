@@ -45,12 +45,12 @@
         <b-tag v-if="props.row.status === 'disabled'">
           {{ $t(`users.status.${props.row.status}`) }}
         </b-tag>
-        <div class="has-text-grey is-size-7">
+        <b-tag v-if="props.row.type === 'api'" class="api">
+          <b-icon icon="code" />
+          {{ $t(`users.type.${props.row.type}`) }}
+        </b-tag>
+        <div class="has-text-grey is-size-7 mt-2">
           {{ props.row.name }}
-          <b-tag v-if="props.row.type === 'api'" class="is-small api">
-            <b-icon icon="code" />
-            {{ $t(`users.type.${props.row.type}`) }}
-          </b-tag>
         </div>
       </b-table-column>
 

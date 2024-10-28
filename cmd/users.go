@@ -104,7 +104,7 @@ func handleCreateUser(c echo.Context) error {
 	}
 
 	// Cache the API token for validating API queries without hitting the DB every time.
-	if err := cacheAPIUsers(app.core, app.auth); err != nil {
+	if _, err := cacheUsers(app.core, app.auth); err != nil {
 		return err
 	}
 
@@ -186,7 +186,7 @@ func handleUpdateUser(c echo.Context) error {
 	user.Password = null.String{}
 
 	// Cache the API token for validating API queries without hitting the DB every time.
-	if err := cacheAPIUsers(app.core, app.auth); err != nil {
+	if _, err := cacheUsers(app.core, app.auth); err != nil {
 		return err
 	}
 
@@ -214,7 +214,7 @@ func handleDeleteUsers(c echo.Context) error {
 	}
 
 	// Cache the API token for validating API queries without hitting the DB every time.
-	if err := cacheAPIUsers(app.core, app.auth); err != nil {
+	if _, err := cacheUsers(app.core, app.auth); err != nil {
 		return err
 	}
 
@@ -270,19 +270,27 @@ func handleUpdateUserProfile(c echo.Context) error {
 	return c.JSON(http.StatusOK, okResp{out})
 }
 
-func cacheAPIUsers(co *core.Core, a *auth.Auth) error {
+// cacheUsers fetches (API) users and caches them in the auth module.
+// It also returns a bool indicating whether there are any actual users in the DB at all,
+// which if there aren't, the first time user setup needs to be run.
+func cacheUsers(co *core.Core, a *auth.Auth) (bool, error) {
 	allUsers, err := co.GetUsers()
 	if err != nil {
-		return err
+		return false, err
 	}
 
+	hasUser := false
 	apiUsers := make([]models.User, 0, len(allUsers))
 	for _, u := range allUsers {
 		if u.Type == models.UserTypeAPI && u.Status == models.UserStatusEnabled {
 			apiUsers = append(apiUsers, u)
 		}
+
+		if u.Type == models.UserTypeUser {
+			hasUser = true
+		}
 	}
 
 	a.CacheAPIUsers(apiUsers)
-	return nil
+	return hasUser, nil
 }

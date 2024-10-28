@@ -9,6 +9,10 @@ Cypress.Commands.add('resetDB', () => {
   cy.exec(Cypress.env('serverInitCmd'));
 });
 
+Cypress.Commands.add('resetDBBlank', () => {
+  cy.exec(Cypress.env('serverInitBlankCmd'));
+});
+
 // Takes a th class selector of a Buefy table, clicks it sorting the table,
 // then compares the values of [td.data-id] attri of all the rows in the
 // table against the given IDs, asserting the expected order of sort.

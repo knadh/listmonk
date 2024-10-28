@@ -314,8 +314,8 @@ CREATE TABLE roles (
     created_at       TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at       TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
-CREATE UNIQUE INDEX roles_idx ON roles (parent_id, list_id);
-CREATE UNIQUE INDEX roles_name_idx ON roles (type, name) WHERE name IS NOT NULL;
+CREATE UNIQUE INDEX idx_roles ON roles (parent_id, list_id);
+CREATE UNIQUE INDEX idx_roles_name ON roles (type, name) WHERE name IS NOT NULL;
 
 -- users
 DROP TABLE IF EXISTS users CASCADE;

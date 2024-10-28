@@ -62,7 +62,6 @@ dockers:
     dockerfile: Dockerfile
     extra_files:
       - config.toml.sample
-      - config-demo.toml
       - docker-entrypoint.sh
   - use: buildx
     goos: linux
@@ -87,7 +86,6 @@ dockers:
     dockerfile: Dockerfile
     extra_files:
       - config.toml.sample
-      - config-demo.toml
       - docker-entrypoint.sh
   - use: buildx
     goos: linux
@@ -113,7 +111,6 @@ dockers:
     dockerfile: Dockerfile
     extra_files:
       - config.toml.sample
-      - config-demo.toml
       - docker-entrypoint.sh
   - use: buildx
     goos: linux
@@ -139,7 +136,6 @@ dockers:
     dockerfile: Dockerfile
     extra_files:
       - config.toml.sample
-      - config-demo.toml
       - docker-entrypoint.sh
 
 docker_manifests:

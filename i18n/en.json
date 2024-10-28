@@ -602,6 +602,7 @@
     "templates.subject": "Subject",
     "users.apiOneTimeToken": "Copy the API access token now. It will not be shown again.",
     "users.cantDeleteRole": "Cannot delete role that is in use.",
+    "users.firstTime": "This is a fresh install. Pick a username and password for the Super Admin account.",
     "users.invalidLogin": "Invalid login or password",
     "users.invalidRequest": "Invalid auth request",
     "users.lastLogin": "Last login",
