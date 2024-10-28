@@ -17,9 +17,9 @@
 	<script src="/public/custom.js?v={{ .AssetVersion }}" async defer></script>
 
 	{{ if ne .FaviconURL "" }}
-		<link rel="shortcut icon" href="{{ .FaviconURL }}" type="image/x-icon" />
+		<link rel="icon" href="{{ .FaviconURL }}" type="image/x-icon" />
 	{{ else }}
-		<link rel="shortcut icon" href="/public/static/favicon.png?v={{ .AssetVersion }}" type="image/x-icon" />
+		<link rel="icon" href="/public/static/favicon.png?v={{ .AssetVersion }}" type="image/png" />
 	{{ end }}
 </head>
 <body>
