@@ -160,9 +160,9 @@ export default Vue.extend({
         hasDummy = 'captcha';
       }
 
-      if (this.isDummy(form['security.oidc.client_secret'])) {
-        form['security.oidc.client_secret'] = '';
-      } else if (this.hasDummy(form['security.oidc.client_secret'])) {
+      if (this.isDummy(form['security.oidc'].client_secret)) {
+        form['security.oidc'].client_secret = '';
+      } else if (this.hasDummy(form['security.oidc'].client_secret)) {
         hasDummy = 'oidc';
       }
 
