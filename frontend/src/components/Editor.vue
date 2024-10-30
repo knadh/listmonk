@@ -2,8 +2,8 @@
   <!-- Two-way Data-Binding -->
   <section class="editor">
     <div class="columns">
-      <div class="column is-6">
-        <b-field label="Format">
+      <div class="column is-three-quarters is-inline-flex">
+        <b-field :label="$t('campaigns.format')" label-position="on-border" class="mr-4 mb-0">
           <b-select v-model="contentType">
             <option :disabled="disabled" name="format" value="richtext" data-cy="check-richtext">
               {{ $t('campaigns.richText') }}
@@ -26,8 +26,21 @@
             </option>
           </b-select>
         </b-field>
+
+        <b-field :label="$t('globals.terms.baseTemplate')" label-position="on-border">
+          <b-select :placeholder="$t('globals.terms.none')" v-model="templateId" name="template" :disabled="disabled">
+            <option :value="null" key="none" v-if="templateId !== null">
+              {{ $t('globals.terms.none') }}
+            </option>
+            <template v-for="t in applicableTemplates">
+              <option v-if="t.type === 'campaign' || t.type === 'campaign_visual'" :value="t.id" :key="t.id">
+                {{ t.name }}
+              </option>
+            </template>
+          </b-select>
+        </b-field>
       </div>
-      <div class="column is-6 has-text-right">
+      <div class="column is- has-text-right">
         <b-button @click="onTogglePreview" type="is-primary" icon-left="file-find-outline" data-cy="btn-preview">
           {{ $t('campaigns.preview') }} (F9)
         </b-button>
@@ -51,8 +64,8 @@
       type="textarea" name="content" ref="plainEditor" class="plain-editor" />
 
     <!-- campaign preview //-->
-    <campaign-preview v-if="isPreviewing" @close="onTogglePreview" type="campaign" :id="id" :title="title"
-      :content-type="computedValue.contentType" :template-id="computedValue.templateId" :body="computedValue.body" />
+    <campaign-preview v-if="isPreviewing" is-post @close="onTogglePreview" type="campaign" :id="id" :title="title"
+      :content-type="computedValue.contentType" :template-id="templateId" :body="computedValue.body" />
   </section>
 </template>
 
@@ -82,6 +95,7 @@ export default {
     id: { type: Number, default: 0 },
     title: { type: String, default: '' },
     disabled: { type: Boolean, default: false },
+    templates: { type: Array, default: null },
     value: {
       type: Object,
       default: () => ({
@@ -96,12 +110,13 @@ export default {
   data() {
     return {
       isPreviewing: false,
-      contentType: '',
+      contentType: this.$props.value.contentType,
+      templateId: '',
     };
   },
 
   methods: {
-    onContentTypeChange(to, from, prompt) {
+    onContentTypeChange(to, from) {
       if (this.computedValue.body.trim() === '') {
         return;
       }
@@ -111,20 +126,16 @@ export default {
         return;
       }
 
-      if (prompt) {
-        // Content isn't empty. Warn.
-        this.$utils.confirm(
-          this.$t('campaigns.confirmSwitchFormat'),
-          () => {
-            this.computedValue.contentType = this.contentType;
-          },
-          () => {
-            this.contentType = from;
-          },
-        );
-      } else {
-        this.computedValue.contentType = this.contentType;
-      }
+      // Content isn't empty. Warn.
+      this.$utils.confirm(
+        this.$t('campaigns.confirmSwitchFormat'),
+        () => {
+          this.computedValue.contentType = this.contentType;
+        },
+        () => {
+          this.contentType = from;
+        },
+      );
     },
 
     convertContentType(to, from) {
@@ -160,6 +171,11 @@ export default {
       this.$nextTick(() => {
         this.computedValue.body = body;
       });
+
+      // Reset template ID only if its converted to or from visual template.
+      if (to === 'visual' || from === 'visual') {
+        this.computedValue.templateId = '';
+      }
     },
 
     onTogglePreview() {
@@ -210,6 +226,7 @@ export default {
   mounted() {
     // Set initial content type for the selector.
     this.contentType = this.value.contentType;
+    this.templateId = this.value.templateId;
 
     window.addEventListener('keydown', this.onPreviewShortcut);
   },
@@ -229,6 +246,13 @@ export default {
         this.$emit('input', newValue);
       },
     },
+
+    applicableTemplates() {
+      if (this.computedValue.contentType === 'visual') {
+        return this.templates.filter((t) => t.type === 'campaign_visual');
+      }
+      return this.templates.filter((t) => t.type !== 'campaign_visual');
+    },
   },
 
   watch: {
@@ -239,6 +263,36 @@ export default {
     // eslint-disable-next-line func-names
     'computedValue.contentType': function (to, from) {
       this.convertContentType(to, from);
+    },
+
+    templateId(to, from) {
+      if (this.computedValue.templateId === to) {
+        return;
+      }
+
+      if (this.computedValue.contentType === 'visual') {
+        this.$utils.confirm(
+          this.$t('campaigns.confirmApplyVisualTemplate'),
+          () => {
+            this.computedValue.templateId = to;
+
+            if (!to) {
+              this.computedValue.body = '';
+              this.computedValue.bodySource = null;
+            } else {
+              this.templates.forEach((t) => {
+                if (t.id === to) {
+                  this.computedValue.body = t.body;
+                  this.computedValue.bodySource = t.bodySource;
+                }
+              });
+            }
+          },
+          () => {
+            this.templateId = from;
+          },
+        );
+      }
     },
   },
 };

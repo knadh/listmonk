@@ -17,7 +17,7 @@
             {{ $t('templates.newTemplate') }}
           </h4>
         </header>
-        <section expanded class="modal-card-body">
+        <section expanded class="modal-card-body mb-0 pb-0">
           <div class="columns">
             <div class="column is-9">
               <b-field :label="$t('globals.fields.name')" label-position="on-border">
@@ -51,8 +51,8 @@
           </div>
 
           <template v-if="form.body !== null">
-            <b-field v-if="form.type === 'campaign_visual'" label-position="on-border">
-              <visual-editor v-if="form.type === 'campaign_visual'" name="body" :source="form.bodySource" @change="onChangeVisualEditor" />
+            <b-field v-if="form.type === 'campaign_visual'" label-position="on-border" class="mb-1">
+              <visual-editor v-if="form.type === 'campaign_visual'" name="body" :source="form.bodySource" @change="onChangeVisualEditor" height="610px" />
             </b-field>
 
             <b-field v-else :label="$t('templates.rawHTML')" label-position="on-border">
@@ -79,7 +79,7 @@
         </footer>
       </div>
     </form>
-    <campaign-preview v-if="previewItem" type="template" :title="previewItem.name" :template-type="previewItem.type"
+    <campaign-preview v-if="previewItem" is-post type="template" :title="previewItem.name" :template-type="previewItem.type"
       :body="form.body" @close="onTogglePreview" />
   </section>
 </template>

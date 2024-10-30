@@ -5,11 +5,12 @@
 </template>
 
 <script>
-import { render } from '../email-builder';
+import { render, isRendered, setDocument, DEFAULT_SOURCE } from '../email-builder';
 
 export default {
   props: {
     source: { type: String, default: '' },
+    height: { type: String, default: 'auto' },
   },
 
   methods: {
@@ -24,6 +25,7 @@ export default {
         onChange: (data, body) => {
           this.$emit('change', { source: JSON.stringify(data), body });
         },
+        height: this.height,
       });
     },
   },
@@ -31,13 +33,28 @@ export default {
   mounted() {
     this.initEditor();
   },
+
+  watch: {
+    source(val) {
+      if (isRendered('visual-editor')) {
+        if (val) {
+          setDocument(JSON.parse(val));
+        } else {
+          setDocument(DEFAULT_SOURCE);
+        }
+      } else {
+        this.initEditor();
+      }
+    },
+  },
 };
 </script>
 
 <style lang="css">
   .visual-editor-wrapper {
     width: 100%;
-    border-top: 1px solid hsl(0, 0%, 86%);
+    border: 1px solid #eaeaea;
+    max-width: 100vw;
   }
 
   #visual-editor {

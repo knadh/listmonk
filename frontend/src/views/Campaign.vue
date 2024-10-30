@@ -169,17 +169,8 @@
       </b-tab-item><!-- campaign -->
 
       <b-tab-item :label="$t('campaigns.content')" icon="text" :disabled="isNew" value="content">
-        <b-field :label="$tc('globals.terms.template')" label-position="on-border">
-          <b-select :placeholder="$tc('globals.terms.template')" v-model="form.templateId" name="template" :disabled="!canEdit" required>
-            <template v-for="t in templates">
-              <option v-if="t.type === 'campaign' || t.type === 'campaign_visual'" :value="t.id" :key="t.id">
-                {{ t.name }}
-              </option>
-            </template>
-          </b-select>
-        </b-field>
-
-        <editor v-model="form.content" :id="data.id" :title="data.name" :disabled="!canEdit" />
+        <editor v-if="data.id" v-model="form.content"
+          :id="data.id" :title="data.name" :disabled="!canEdit" :templates="templates" />
 
         <div class="columns">
           <div class="column is-6">
@@ -333,11 +324,10 @@ export default Vue.extend({
         headersStr: '[]',
         headers: [],
         messenger: 'email',
-        templateId: 0,
         lists: [],
         tags: [],
         sendAt: null,
-        content: { contentType: 'richtext', body: '', bodySource: null },
+        content: { contentType: 'richtext', body: '', bodySource: null, templateId: null },
         altbody: null,
         media: [],
 
@@ -457,7 +447,7 @@ export default Vue.extend({
           archiveMetaStr: data.archiveMeta ? JSON.stringify(data.archiveMeta, null, 4) : '{}',
 
           // The structure that is populated by editor input event.
-          content: { contentType: data.contentType, body: data.body, bodySource: data.bodySource },
+          content: { contentType: data.contentType, body: data.body, bodySource: data.bodySource, templateId: data.templateId },
         };
         this.isAttachFieldVisible = this.form.media.length > 0;
 
@@ -481,7 +471,7 @@ export default Vue.extend({
         type: 'regular',
         headers: this.form.headers,
         tags: this.form.tags,
-        template_id: this.form.templateId,
+        template_id: this.form.content.templateId,
         content_type: this.form.content.contentType,
         body: this.form.content.body,
         altbody: this.form.content.contentType !== 'plain' ? this.form.altbody : null,
@@ -528,7 +518,7 @@ export default Vue.extend({
         tags: this.form.tags,
         send_at: this.form.sendLater ? this.form.sendAtDate : null,
         headers: this.form.headers,
-        template_id: this.form.templateId,
+        template_id: this.form.content.templateId,
         content_type: this.form.content.contentType,
         body: this.form.content.body,
         body_source: this.form.content.bodySource,

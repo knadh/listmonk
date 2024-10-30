@@ -214,6 +214,9 @@ func (a *App) CreateCampaign(c echo.Context) error {
 		o.Type = models.CampaignTypeRegular
 	}
 
+	if o.ContentType == "" {
+		o.ContentType = models.CampaignContentTypeRichtext
+	}
 	if o.Messenger == "" {
 		o.Messenger = "email"
 	}
@@ -225,7 +228,7 @@ func (a *App) CreateCampaign(c echo.Context) error {
 		o = c
 	}
 
-	if o.ArchiveTemplateID.Valid && o.ArchiveTemplateID.Int64 != 0 {
+	if o.ArchiveTemplateID == 0 {
 		o.ArchiveTemplateID = o.TemplateID
 	}
 
