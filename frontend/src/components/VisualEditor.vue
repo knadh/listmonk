@@ -5,8 +5,6 @@
 </template>
 
 <script>
-import { render, isRendered, setDocument, DEFAULT_SOURCE } from '../email-builder';
-
 export default {
   props: {
     source: { type: String, default: '' },
@@ -20,7 +18,7 @@ export default {
         source = JSON.parse(this.$props.source);
       }
 
-      render('visual-editor', {
+      window.EmailBuilder.render('visual-editor', {
         data: source,
         onChange: (data, body) => {
           this.$emit('change', { source: JSON.stringify(data), body });
@@ -28,19 +26,42 @@ export default {
         height: this.height,
       });
     },
+
+    loadScript() {
+      return new Promise((resolve, reject) => {
+        if (window.EmailBuilder) {
+          resolve();
+          return;
+        }
+
+        const script = document.createElement('script');
+        script.id = 'email-builder-script';
+        script.src = '/admin/static/email-builder/email-builder.umd.js';
+        script.onload = () => {
+          resolve();
+        };
+        script.onerror = reject;
+        document.head.appendChild(script);
+      });
+    },
   },
 
   mounted() {
-    this.initEditor();
+    this.loadScript().then(() => {
+      this.initEditor();
+    }).catch((error) => {
+      // eslint-disable-next-line no-console
+      console.error('Failed to load email-builder script:', error);
+    });
   },
 
   watch: {
     source(val) {
-      if (isRendered('visual-editor')) {
+      if (window.EmailBuilder?.isRendered('visual-editor')) {
         if (val) {
-          setDocument(JSON.parse(val));
+          window.EmailBuilder.setDocument(JSON.parse(val));
         } else {
-          setDocument(DEFAULT_SOURCE);
+          window.EmailBuilder.setDocument(window.EmailBuilder.DEFAULT_SOURCE);
         }
       } else {
         this.initEditor();

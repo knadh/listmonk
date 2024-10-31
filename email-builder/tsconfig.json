@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "target": "es2015",
+    "module": "esnext",
+    "outDir": "dist",
+    "lib": [],
+    "moduleResolution": "node",
+    "jsx": "react",
+    "strict": true,
+    "sourceMap": true,
+    "allowJs": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "declarationMap": true,
+    "declaration": true,
+    "noUnusedLocals": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "allowSyntheticDefaultImports": true
+  },
+  "exclude": ["dist"]
+}
