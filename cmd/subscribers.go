@@ -439,6 +439,10 @@ func handleDeleteSubscribersByQuery(c echo.Context) error {
 		return err
 	}
 
+	if req.Query == "" {
+		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.Ts("globals.messages.invalidFields", "name", "query"))
+	}
+
 	if err := app.core.DeleteSubscribersByQuery(req.Query, req.ListIDs, req.SubscriptionStatus); err != nil {
 		return err
 	}
