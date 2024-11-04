@@ -507,7 +507,7 @@ Blocklist subscribers based on SQL expression.
 ```shell
 curl -u curl -u 'api_username:access_token' -X POST 'http://localhost:9000/api/subscribers/query/blocklist' \
 -H 'Content-Type: application/json' \
---data-raw '{"query":"subscribers.name LIKE '\''John Doe'\'' AND subscribers.attribs->>'\''city'\'' = '\''Bengaluru'\''"}'
+--data-raw '{"query":"subscribers.name LIKE \'John Doe\' AND subscribers.attribs->>'\''city'\'' = '\''Bengaluru'\''"}'
 ```
 
 ##### Example Response
@@ -615,7 +615,7 @@ Delete subscribers based on SQL expression.
 ```shell
 curl -u curl -u 'api_username:access_token' -X POST 'http://localhost:9000/api/subscribers/query/delete' \
 -H 'Content-Type: application/json' \
---data-raw '{"query":"subscribers.name LIKE '\''John Doe'\'' AND subscribers.attribs->>'\''city'\'' = '\''Bengaluru'\''"}'
+--data-raw '{"query":"subscribers.name LIKE \'John Doe\' AND subscribers.attribs->>'\''city'\'' = '\''Bengaluru'\''"}'
 ```
 
 ##### Example Response
