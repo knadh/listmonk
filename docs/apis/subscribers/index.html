@@ -1161,6 +1161,15 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#parameters_8" class="md-nav__link">
+    <span class="md-ellipsis">
+      Parameters
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#example-request_9" class="md-nav__link">
     <span class="md-ellipsis">
       Example Request
@@ -1194,7 +1203,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#parameters_8" class="md-nav__link">
+  <a href="#parameters_9" class="md-nav__link">
     <span class="md-ellipsis">
       Parameters
     </span>
@@ -1236,7 +1245,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#parameters_9" class="md-nav__link">
+  <a href="#parameters_10" class="md-nav__link">
     <span class="md-ellipsis">
       Parameters
     </span>
@@ -1278,7 +1287,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#parameters_10" class="md-nav__link">
+  <a href="#parameters_11" class="md-nav__link">
     <span class="md-ellipsis">
       Parameters
     </span>
@@ -1318,6 +1327,15 @@
   
     <nav class="md-nav" aria-label="POST /api/subscribers/query/delete">
       <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_12" class="md-nav__link">
+    <span class="md-ellipsis">
+      Parameters
+    </span>
+  </a>
+  
+</li>
         
           <li class="md-nav__item">
   <a href="#example-request_13" class="md-nav__link">
@@ -2115,6 +2133,15 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#parameters_8" class="md-nav__link">
+    <span class="md-ellipsis">
+      Parameters
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#example-request_9" class="md-nav__link">
     <span class="md-ellipsis">
       Example Request
@@ -2148,7 +2175,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#parameters_8" class="md-nav__link">
+  <a href="#parameters_9" class="md-nav__link">
     <span class="md-ellipsis">
       Parameters
     </span>
@@ -2190,7 +2217,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#parameters_9" class="md-nav__link">
+  <a href="#parameters_10" class="md-nav__link">
     <span class="md-ellipsis">
       Parameters
     </span>
@@ -2232,7 +2259,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#parameters_10" class="md-nav__link">
+  <a href="#parameters_11" class="md-nav__link">
     <span class="md-ellipsis">
       Parameters
     </span>
@@ -2272,6 +2299,15 @@
   
     <nav class="md-nav" aria-label="POST /api/subscribers/query/delete">
       <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_12" class="md-nav__link">
+    <span class="md-ellipsis">
+      Parameters
+    </span>
+  </a>
+  
+</li>
         
           <li class="md-nav__item">
   <a href="#example-request_13" class="md-nav__link">
@@ -2978,9 +3014,35 @@
 <blockquote>
 <p>Refer to the <a href="../../querying-and-segmentation/#querying-and-segmenting-subscribers">querying and segmentation</a> section for more information on how to query subscribers with SQL expressions.</p>
 </blockquote>
+<h5 id="parameters_8">Parameters<a class="headerlink" href="#parameters_8" title="Permanent link">&para;</a></h5>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Name</th>
+<th style="text-align: left;">Type</th>
+<th style="text-align: left;">Required</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">query</td>
+<td style="text-align: left;">string</td>
+<td style="text-align: left;">Yes</td>
+<td style="text-align: left;">SQL expression to filter subscribers with.</td>
+</tr>
+<tr>
+<td style="text-align: left;">list_ids</td>
+<td style="text-align: left;">[]number</td>
+<td style="text-align: left;">No</td>
+<td style="text-align: left;">Optional list IDs to limit the filtering to.</td>
+</tr>
+</tbody>
+</table>
 <h5 id="example-request_9">Example Request<a class="headerlink" href="#example-request_9" title="Permanent link">&para;</a></h5>
-<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-u<span class="w"> </span>curl<span class="w"> </span>-u<span class="w"> </span><span class="s1">&#39;api_username:access_token&#39;</span><span class="w"> </span>-X<span class="w"> </span>PUT<span class="w"> </span><span class="s1">&#39;http://localhost:9000/api/subscribers/query/blocklist&#39;</span><span class="w"> </span><span class="se">\</span>
---data-raw<span class="w"> </span><span class="s1">&#39;&quot;query=subscribers.name LIKE &#39;</span><span class="se">\&#39;</span><span class="s1">&#39;John Doe&#39;</span><span class="se">\&#39;</span><span class="s1">&#39; AND subscribers.attribs-&gt;&gt;&#39;</span><span class="se">\&#39;</span><span class="s1">&#39;city&#39;</span><span class="se">\&#39;</span><span class="s1">&#39; = &#39;</span><span class="se">\&#39;</span><span class="s1">&#39;Bengaluru&#39;</span><span class="se">\&#39;</span><span class="s1">&#39;&quot;&#39;</span>
+<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-u<span class="w"> </span>curl<span class="w"> </span>-u<span class="w"> </span><span class="s1">&#39;api_username:access_token&#39;</span><span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="s1">&#39;http://localhost:9000/api/subscribers/query/blocklist&#39;</span><span class="w"> </span><span class="se">\</span>
+-H<span class="w"> </span><span class="s1">&#39;Content-Type: application/json&#39;</span><span class="w"> </span><span class="se">\</span>
+--data-raw<span class="w"> </span><span class="s1">&#39;{&quot;query&quot;:&quot;subscribers.name LIKE &#39;</span><span class="se">\&#39;</span><span class="s1">&#39;John Doe&#39;</span><span class="se">\&#39;</span><span class="s1">&#39; AND subscribers.attribs-&gt;&gt;&#39;</span><span class="se">\&#39;</span><span class="s1">&#39;city&#39;</span><span class="se">\&#39;</span><span class="s1">&#39; = &#39;</span><span class="se">\&#39;</span><span class="s1">&#39;Bengaluru&#39;</span><span class="se">\&#39;</span><span class="s1">&#39;&quot;}&#39;</span>
 </code></pre></div>
 <h5 id="example-response_10">Example Response<a class="headerlink" href="#example-response_10" title="Permanent link">&para;</a></h5>
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
@@ -2990,7 +3052,7 @@
 <hr />
 <h4 id="delete-apisubscriberssubscriber_id">DELETE /api/subscribers/{subscriber_id}<a class="headerlink" href="#delete-apisubscriberssubscriber_id" title="Permanent link">&para;</a></h4>
 <p>Delete a specific subscriber.</p>
-<h5 id="parameters_8">Parameters<a class="headerlink" href="#parameters_8" title="Permanent link">&para;</a></h5>
+<h5 id="parameters_9">Parameters<a class="headerlink" href="#parameters_9" title="Permanent link">&para;</a></h5>
 <table>
 <thead>
 <tr>
@@ -3020,7 +3082,7 @@
 <hr />
 <h4 id="delete-apisubscriberssubscriber_idbounces">DELETE /api/subscribers/{subscriber_id}/bounces<a class="headerlink" href="#delete-apisubscriberssubscriber_idbounces" title="Permanent link">&para;</a></h4>
 <p>Delete a subscriber's bounce records</p>
-<h5 id="parameters_9">Parameters<a class="headerlink" href="#parameters_9" title="Permanent link">&para;</a></h5>
+<h5 id="parameters_10">Parameters<a class="headerlink" href="#parameters_10" title="Permanent link">&para;</a></h5>
 <table>
 <thead>
 <tr>
@@ -3050,7 +3112,7 @@
 <hr />
 <h4 id="delete-apisubscribers">DELETE /api/subscribers<a class="headerlink" href="#delete-apisubscribers" title="Permanent link">&para;</a></h4>
 <p>Delete one or more subscribers.</p>
-<h5 id="parameters_10">Parameters<a class="headerlink" href="#parameters_10" title="Permanent link">&para;</a></h5>
+<h5 id="parameters_11">Parameters<a class="headerlink" href="#parameters_11" title="Permanent link">&para;</a></h5>
 <table>
 <thead>
 <tr>
@@ -3080,9 +3142,35 @@
 <hr />
 <h4 id="post-apisubscribersquerydelete">POST /api/subscribers/query/delete<a class="headerlink" href="#post-apisubscribersquerydelete" title="Permanent link">&para;</a></h4>
 <p>Delete subscribers based on SQL expression.</p>
+<h5 id="parameters_12">Parameters<a class="headerlink" href="#parameters_12" title="Permanent link">&para;</a></h5>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Name</th>
+<th style="text-align: left;">Type</th>
+<th style="text-align: left;">Required</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">query</td>
+<td style="text-align: left;">string</td>
+<td style="text-align: left;">Yes</td>
+<td style="text-align: left;">SQL expression to filter subscribers with.</td>
+</tr>
+<tr>
+<td style="text-align: left;">list_ids</td>
+<td style="text-align: left;">[]number</td>
+<td style="text-align: left;">No</td>
+<td style="text-align: left;">Optional list IDs to limit the filtering to.</td>
+</tr>
+</tbody>
+</table>
 <h5 id="example-request_13">Example Request<a class="headerlink" href="#example-request_13" title="Permanent link">&para;</a></h5>
 <div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-u<span class="w"> </span>curl<span class="w"> </span>-u<span class="w"> </span><span class="s1">&#39;api_username:access_token&#39;</span><span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="s1">&#39;http://localhost:9000/api/subscribers/query/delete&#39;</span><span class="w"> </span><span class="se">\</span>
---data-raw<span class="w"> </span><span class="s1">&#39;&quot;query=subscribers.name LIKE &#39;</span><span class="se">\&#39;</span><span class="s1">&#39;John Doe&#39;</span><span class="se">\&#39;</span><span class="s1">&#39; AND subscribers.attribs-&gt;&gt;&#39;</span><span class="se">\&#39;</span><span class="s1">&#39;city&#39;</span><span class="se">\&#39;</span><span class="s1">&#39; = &#39;</span><span class="se">\&#39;</span><span class="s1">&#39;Bengaluru&#39;</span><span class="se">\&#39;</span><span class="s1">&#39;&quot;&#39;</span>
+-H<span class="w"> </span><span class="s1">&#39;Content-Type: application/json&#39;</span><span class="w"> </span><span class="se">\</span>
+--data-raw<span class="w"> </span><span class="s1">&#39;{&quot;query&quot;:&quot;subscribers.name LIKE &#39;</span><span class="se">\&#39;</span><span class="s1">&#39;John Doe&#39;</span><span class="se">\&#39;</span><span class="s1">&#39; AND subscribers.attribs-&gt;&gt;&#39;</span><span class="se">\&#39;</span><span class="s1">&#39;city&#39;</span><span class="se">\&#39;</span><span class="s1">&#39; = &#39;</span><span class="se">\&#39;</span><span class="s1">&#39;Bengaluru&#39;</span><span class="se">\&#39;</span><span class="s1">&#39;&quot;}&#39;</span>
 </code></pre></div>
 <h5 id="example-response_14">Example Response<a class="headerlink" href="#example-response_14" title="Permanent link">&para;</a></h5>
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
