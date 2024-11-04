@@ -16,7 +16,7 @@
       
       
       <link rel="icon" href="../../images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.42">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.43">
     
     
       
@@ -1538,7 +1538,7 @@
 </tbody>
 </table>
 <h5 id="example-request_1">Example Request<a class="headerlink" href="#example-request_1" title="Permanent link">&para;</a></h5>
-<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-u<span class="w"> </span><span class="s1">&#39;username:password&#39;</span><span class="w"> </span>-X<span class="w"> </span>DELETE<span class="w"> </span><span class="s1">&#39;http://localhost:9000/api/bounces?all=true&#39;</span>
+<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-u<span class="w"> </span>curl<span class="w"> </span>-u<span class="w"> </span><span class="s1">&#39;api_username:access_token&#39;</span><span class="w"> </span>-X<span class="w"> </span>DELETE<span class="w"> </span><span class="s1">&#39;http://localhost:9000/api/bounces?all=true&#39;</span>
 </code></pre></div>
 <h5 id="example-response_1">Example Response<a class="headerlink" href="#example-response_1" title="Permanent link">&para;</a></h5>
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
@@ -1568,7 +1568,7 @@
 </tbody>
 </table>
 <h5 id="example-request_2">Example Request<a class="headerlink" href="#example-request_2" title="Permanent link">&para;</a></h5>
-<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-u<span class="w"> </span><span class="s1">&#39;username:password&#39;</span><span class="w"> </span>-X<span class="w"> </span>DELETE<span class="w"> </span><span class="s1">&#39;http://localhost:9000/api/bounces?id=840965&amp;id=840168&amp;id=840879&#39;</span>
+<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-u<span class="w"> </span>curl<span class="w"> </span>-u<span class="w"> </span><span class="s1">&#39;api_username:access_token&#39;</span><span class="w"> </span>-X<span class="w"> </span>DELETE<span class="w"> </span><span class="s1">&#39;http://localhost:9000/api/bounces?id=840965&amp;id=840168&amp;id=840879&#39;</span>
 </code></pre></div>
 <h5 id="example-response_2">Example Response<a class="headerlink" href="#example-response_2" title="Permanent link">&para;</a></h5>
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
@@ -1579,7 +1579,7 @@
 <h4 id="delete-apibouncesbounce_id">DELETE /api/bounces/{bounce_id}<a class="headerlink" href="#delete-apibouncesbounce_id" title="Permanent link">&para;</a></h4>
 <p>To delete specific bounce id.</p>
 <h5 id="example-request_3">Example Request<a class="headerlink" href="#example-request_3" title="Permanent link">&para;</a></h5>
-<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-u<span class="w"> </span><span class="s1">&#39;username:password&#39;</span><span class="w"> </span>-X<span class="w"> </span>DELETE<span class="w"> </span><span class="s1">&#39;http://localhost:9000/api/bounces/840965&#39;</span>
+<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-u<span class="w"> </span>curl<span class="w"> </span>-u<span class="w"> </span><span class="s1">&#39;api_username:access_token&#39;</span><span class="w"> </span>-X<span class="w"> </span>DELETE<span class="w"> </span><span class="s1">&#39;http://localhost:9000/api/bounces/840965&#39;</span>
 </code></pre></div>
 <h5 id="example-response_3">Example Response<a class="headerlink" href="#example-response_3" title="Permanent link">&para;</a></h5>
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
