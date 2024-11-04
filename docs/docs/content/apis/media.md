@@ -51,7 +51,7 @@ Retrieve a specific media.
 ##### Example Request
 
 ```shell
-curl -u 'username:password' 'http://localhost:9000/api/media/7' 
+curl -u curl -u 'api_username:access_token' 'http://localhost:9000/api/media/7' 
 ```
 
 ##### Example Response
