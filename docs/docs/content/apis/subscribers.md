@@ -495,11 +495,19 @@ Blocklist subscribers based on SQL expression.
 
 > Refer to the [querying and segmentation](../querying-and-segmentation.md#querying-and-segmenting-subscribers) section for more information on how to query subscribers with SQL expressions.
 
+##### Parameters
+
+| Name     | Type     | Required | Description                                 |
+|:---------|:---------|:---------|:--------------------------------------------|
+| query    | string   | Yes      | SQL expression to filter subscribers with.  |
+| list_ids | []number | No       | Optional list IDs to limit the filtering to.|
+
 ##### Example Request
 
 ```shell
-curl -u curl -u 'api_username:access_token' -X PUT 'http://localhost:9000/api/subscribers/query/blocklist' \
---data-raw '"query=subscribers.name LIKE '\''John Doe'\'' AND subscribers.attribs->>'\''city'\'' = '\''Bengaluru'\''"'
+curl -u curl -u 'api_username:access_token' -X POST 'http://localhost:9000/api/subscribers/query/blocklist' \
+-H 'Content-Type: application/json' \
+--data-raw '{"query":"subscribers.name LIKE '\''John Doe'\'' AND subscribers.attribs->>'\''city'\'' = '\''Bengaluru'\''"}'
 ```
 
 ##### Example Response
@@ -594,11 +602,20 @@ ______________________________________________________________________
 
 Delete subscribers based on SQL expression.
 
+##### Parameters
+
+| Name     | Type     | Required | Description                                 |
+|:---------|:---------|:---------|:--------------------------------------------|
+| query    | string   | Yes      | SQL expression to filter subscribers with.  |
+| list_ids | []number | No       | Optional list IDs to limit the filtering to.|
+
+
 ##### Example Request
 
 ```shell
 curl -u curl -u 'api_username:access_token' -X POST 'http://localhost:9000/api/subscribers/query/delete' \
---data-raw '"query=subscribers.name LIKE '\''John Doe'\'' AND subscribers.attribs->>'\''city'\'' = '\''Bengaluru'\''"'
+-H 'Content-Type: application/json' \
+--data-raw '{"query":"subscribers.name LIKE '\''John Doe'\'' AND subscribers.attribs->>'\''city'\'' = '\''Bengaluru'\''"}'
 ```
 
 ##### Example Response
