@@ -35,13 +35,7 @@ const DEFAULT_DONUT = {
             const total = data.data.reduce((acc, val) => acc + val, 0);
             const val = data.data[item.dataIndex];
             const percentage = ((val / total) * 100).toFixed(2);
-            const MAX_LABEL_LENGTH = 20;
-            let displayLabel = item.label;
-            if (displayLabel.length > MAX_LABEL_LENGTH) {
-              displayLabel = `${displayLabel.slice(0, MAX_LABEL_LENGTH)}...`; // Truncate
-              return [`${displayLabel}:`, `${val} (${percentage}%)`];
-            }
-            return `${displayLabel}: ${val} (${percentage}%)`;
+            return `${val} (${percentage}%)`;
           },
         },
       },
@@ -143,7 +137,7 @@ export default {
     type: { type: String, default: 'line' },
     onClick: { type: Function, default: () => { } },
   },
-  
+
   mounted() {
     const ctx = this.$el.querySelector('.chart-canvas');
 
