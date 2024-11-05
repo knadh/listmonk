@@ -1,10 +1,18 @@
 <template>
-  <div ref="htmlEditor" id="html-editor" class="html-editor" />
+  <div ref="htmlEditor" class="html-editor">
+    <code-input
+      ref="editor"
+      :value="value"
+      @input="handleInput"
+      language="html"
+      :data-readonly="disabled"
+      spellcheck="false"
+    />
+  </div>
 </template>
 
 <script>
-import CodeFlask from 'codeflask';
-import { colors } from '../constants';
+import Prism from 'prismjs';
 
 export default {
   props: {
@@ -13,66 +21,60 @@ export default {
     disabled: Boolean,
   },
 
-  data() {
-    return {
-      data: '',
-      flask: null,
-    };
-  },
-
   methods: {
-    initHTMLEditor(body) {
-      // CodeFlask editor is rendered in a shadow DOM tree to keep its styles
-      // sandboxed away from the global styles.
-      const el = document.createElement('code-flask');
-      el.attachShadow({ mode: 'open' });
-      el.shadowRoot.innerHTML = `
-        <style>
-          .codeflask .codeflask__flatten { 
-            font-size: 15px;
-            white-space: pre-wrap ;
-            word-break: break-word ;
-          }
-          .codeflask .codeflask__lines { background: #fafafa; z-index: 10; }
-          .codeflask .token.tag { font-weight: bold; }
-          .codeflask .token.attr-name { color: #111; }
-          .codeflask .token.attr-value { color: ${colors.primary} !important; }
-        </style>
-        <div id="area"></area>
-      `;
-      this.$refs.htmlEditor.appendChild(el);
+    handleInput(event) {
+      this.$emit('input', event.target.value);
+    },
 
-      this.flask = new CodeFlask(el.shadowRoot.getElementById('area'), {
-        language: this.$props.language,
-        lineNumbers: false,
-        styleParent: el.shadowRoot,
-        readonly: this.disabled,
-      });
+    initializeEditor() {
+      // const textarea = this.$refs.editor;
+      // textarea.setAttribute('is', 'code-input');
+      // textarea.setAttribute('data-language', this.language);
 
-      this.flask.onUpdate((v) => {
-        this.data = v;
-        this.$emit('input', v);
-      });
-
-      // Set the initial value.
-      this.flask.updateCode(body);
-
-      this.$nextTick(() => {
-        document.querySelector('code-flask').shadowRoot.querySelector('textarea').focus();
-      });
+      // Register Prism for syntax highlighting if needed
+      if (window.codeInput) {
+        window.codeInput.registerTemplate(
+          'syntax-highlighted',
+          window.codeInput.templates.prism(Prism, []),
+        );
+        // window.codeInput.setDefaultTemplate('syntax-highlighted');
+      }
     },
   },
 
   mounted() {
-    this.initHTMLEditor(this.$props.value || '');
-  },
-
-  watch: {
-    value(newVal) {
-      if (newVal !== this.data) {
-        this.flask.updateCode(newVal);
-      }
-    },
+    this.initializeEditor();
   },
 };
 </script>
+
+<style>
+/* Hide the non-editable preview content */
+.code-input pre[aria-hidden="true"] {
+  display: none !important;
+}
+
+/* Additional styling */
+.html-editor {
+  width: 100%;
+  position: relative;
+}
+
+.html-editor textarea {
+  font-size: 15px;
+  min-height: 200px;
+  width: 100%;
+  padding: 8px;
+  border: none;
+  resize: none;
+}
+
+.token.tag { font-weight: bold; }
+.token.attr-name { color: #111; }
+.token.attr-value { color: #0066cc; }
+
+.html-editor textarea:focus {
+  outline: none;
+  border-color: #0066cc;
+}
+</style>
