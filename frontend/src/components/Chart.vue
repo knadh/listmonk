@@ -29,6 +29,15 @@ const DEFAULT_DONUT = {
         },
         bodySpacing: 10,
         padding: 10,
+        callbacks: {
+          label: (item) => {
+            const data = item.chart.data.datasets[item.datasetIndex];
+            const total = data.data.reduce((acc, val) => acc + val, 0);
+            const val = data.data[item.dataIndex];
+            const percentage = ((val / total) * 100).toFixed(2);
+            return `${val} (${percentage}%)`;
+          },
+        },
       },
     },
   },
