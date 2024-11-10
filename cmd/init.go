@@ -433,7 +433,9 @@ func initConstants() *constants {
 	c.BounceSESEnabled = ko.Bool("bounce.ses_enabled")
 	c.BounceSendgridEnabled = ko.Bool("bounce.sendgrid_enabled")
 	c.BouncePostmarkEnabled = ko.Bool("bounce.postmark.enabled")
-	c.BounceForwardemailEnabled = ko.Bool("bounce.forwardemail_enabled")
+	c.BounceForwardemailEnabled = ko.Bool("bounce.forwardemail.enabled")
+
+	fmt.Println(c.BounceForwardemailEnabled)
 
 	c.HasLegacyUser = ko.Exists("app.admin_username") || ko.Exists("app.admin_password")
 
@@ -702,7 +704,6 @@ func initBounceManager(app *App) *bounce.Manager {
 		SESEnabled:      ko.Bool("bounce.ses_enabled"),
 		SendgridEnabled: ko.Bool("bounce.sendgrid_enabled"),
 		SendgridKey:     ko.String("bounce.sendgrid_key"),
-		ForwardemailKey: ko.String("bounce.forwardemail_key"),
 		Postmark: struct {
 			Enabled  bool
 			Username string
@@ -712,8 +713,14 @@ func initBounceManager(app *App) *bounce.Manager {
 			ko.String("bounce.postmark.username"),
 			ko.String("bounce.postmark.password"),
 		},
-		ForwardemailEnabled: ko.Bool("bounce.forwardemail_enabled"),
-		RecordBounceCB:      app.core.RecordBounce,
+		ForwardEmail: struct {
+			Enabled bool
+			Key     string
+		}{
+			ko.Bool("bounce.forwardemail.enabled"),
+			ko.String("bounce.forwardemail.key"),
+		},
+		RecordBounceCB: app.core.RecordBounce,
 	}
 
 	// For now, only one mailbox is supported.

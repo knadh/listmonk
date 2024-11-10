@@ -38,8 +38,10 @@ type Opt struct {
 		Username string
 		Password string
 	}
-	ForwardemailEnabled bool   `json:"forwardemail_enabled"`
-	ForwardemailKey     string `json:"forwardemail_key"`
+	ForwardEmail struct {
+		Enabled bool
+		Key     string
+	}
 
 	RecordBounceCB func(models.Bounce) error
 }
@@ -100,8 +102,8 @@ func New(opt Opt, q *Queries, lo *log.Logger) (*Manager, error) {
 			m.Postmark = webhooks.NewPostmark(opt.Postmark.Username, opt.Postmark.Password)
 		}
 
-		if opt.ForwardemailEnabled {
-			fe := webhooks.NewForwardemail([]byte(opt.ForwardemailKey))
+		if opt.ForwardEmail.Enabled {
+			fe := webhooks.NewForwardemail([]byte(opt.ForwardEmail.Key))
 			m.Forwardemail = fe
 		}
 	}

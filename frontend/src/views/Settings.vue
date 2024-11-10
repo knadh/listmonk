@@ -172,9 +172,9 @@ export default Vue.extend({
         hasDummy = 'postmark';
       }
 
-      if (this.isDummy(form['bounce.forwardemail_key'])) {
-        form['bounce.forwardemail_key'] = '';
-      } else if (this.hasDummy(form['bounce.forwardemail_key'])) {
+      if (this.isDummy(form['bounce.forwardemail'].key)) {
+        form['bounce.forwardemail'].key = '';
+      } else if (this.hasDummy(form['bounce.forwardemail'].key)) {
         hasDummy = 'forwardemail';
       }
 

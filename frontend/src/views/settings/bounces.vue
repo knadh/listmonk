@@ -100,14 +100,14 @@
         <div class="columns">
           <div class="column is-3">
             <b-field :label="$t('settings.bounces.enableForwardemail')">
-              <b-switch v-model="data['bounce.forwardemail_enabled']" name="forwardemail_enabled" :native-value="true"
+              <b-switch v-model="data['bounce.forwardemail'].enabled" name="forwardemail_enabled" :native-value="true"
                 data-cy="btn-enable-bounce-forwardemail" />
             </b-field>
           </div>
           <div class="column">
             <b-field :label="$t('settings.bounces.forwardemailKey')" :message="$t('globals.messages.passwordChange')">
-              <b-input v-model="data['bounce.forwardemail_key']" type="password"
-                :disabled="!data['bounce.forwardemail_enabled']" name="forwardemail_enabled" :native-value="true"
+              <b-input v-model="data['bounce.forwardemail'].key" type="password"
+                :disabled="!data['bounce.forwardemail'].enabled" name="forwardemail_enabled" :native-value="true"
                 data-cy="btn-enable-bounce-forwardemail" />
             </b-field>
           </div>
