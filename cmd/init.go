@@ -113,10 +113,11 @@ type constants struct {
 		Extensions []string
 	}
 
-	BounceWebhooksEnabled bool
-	BounceSESEnabled      bool
-	BounceSendgridEnabled bool
-	BouncePostmarkEnabled bool
+	BounceWebhooksEnabled     bool
+	BounceSESEnabled          bool
+	BounceSendgridEnabled     bool
+	BouncePostmarkEnabled     bool
+	BounceForwardemailEnabled bool
 
 	PermissionsRaw json.RawMessage
 	Permissions    map[string]struct{}
@@ -432,6 +433,9 @@ func initConstants() *constants {
 	c.BounceSESEnabled = ko.Bool("bounce.ses_enabled")
 	c.BounceSendgridEnabled = ko.Bool("bounce.sendgrid_enabled")
 	c.BouncePostmarkEnabled = ko.Bool("bounce.postmark.enabled")
+	c.BounceForwardemailEnabled = ko.Bool("bounce.forwardemail.enabled")
+
+	fmt.Println(c.BounceForwardemailEnabled)
 
 	c.HasLegacyUser = ko.Exists("app.admin_username") || ko.Exists("app.admin_password")
 
@@ -708,6 +712,13 @@ func initBounceManager(app *App) *bounce.Manager {
 			ko.Bool("bounce.postmark.enabled"),
 			ko.String("bounce.postmark.username"),
 			ko.String("bounce.postmark.password"),
+		},
+		ForwardEmail: struct {
+			Enabled bool
+			Key     string
+		}{
+			ko.Bool("bounce.forwardemail.enabled"),
+			ko.String("bounce.forwardemail.key"),
 		},
 		RecordBounceCB: app.core.RecordBounce,
 	}

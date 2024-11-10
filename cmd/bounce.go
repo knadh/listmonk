@@ -204,6 +204,23 @@ func handleBounceWebhook(c echo.Context) error {
 		}
 		bounces = append(bounces, bs...)
 
+	// ForwardEmail.
+	case service == "forwardemail" && app.constants.BounceForwardemailEnabled:
+		var (
+			sig = c.Request().Header.Get("X-Webhook-Signature")
+		)
+
+		bs, err := app.bounce.Forwardemail.ProcessBounce([]byte(sig), rawReq)
+		if err != nil {
+			app.log.Printf("error processing forwardemail notification: %v", err)
+			if _, ok := err.(*echo.HTTPError); ok {
+				return err
+			}
+
+			return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidData"))
+		}
+		bounces = append(bounces, bs...)
+
 	default:
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.Ts("bounces.unknownService"))
 	}

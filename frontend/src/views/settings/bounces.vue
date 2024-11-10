@@ -68,8 +68,9 @@
           </div>
           <div class="column">
             <b-field :label="$t('settings.bounces.sendgridKey')" :message="$t('globals.messages.passwordChange')">
-              <b-input v-model="data['bounce.sendgrid_key']" type="password" :disabled="!data['bounce.sendgrid_enabled']"
-                name="sendgrid_enabled" :native-value="true" data-cy="btn-enable-bounce-sendgrid" />
+              <b-input v-model="data['bounce.sendgrid_key']" type="password"
+                :disabled="!data['bounce.sendgrid_enabled']" name="sendgrid_enabled" :native-value="true"
+                data-cy="btn-enable-bounce-sendgrid" />
             </b-field>
           </div>
         </div>
@@ -83,8 +84,9 @@
           <div class="column">
             <b-field :label="$t('settings.bounces.postmarkUsername')"
               :message="$t('settings.bounces.postmarkUsernameHelp')">
-              <b-input v-model="data['bounce.postmark'].username" type="text" :disabled="!data['bounce.postmark'].enabled"
-                name="postmark_username" data-cy="btn-enable-bounce-postmark" />
+              <b-input v-model="data['bounce.postmark'].username" type="text"
+                :disabled="!data['bounce.postmark'].enabled" name="postmark_username"
+                data-cy="btn-enable-bounce-postmark" />
             </b-field>
           </div>
           <div class="column">
@@ -92,6 +94,21 @@
               <b-input v-model="data['bounce.postmark'].password" type="password"
                 :disabled="!data['bounce.postmark'].enabled" name="postmark_password"
                 data-cy="btn-enable-bounce-postmark" />
+            </b-field>
+          </div>
+        </div>
+        <div class="columns">
+          <div class="column is-3">
+            <b-field :label="$t('settings.bounces.enableForwardemail')">
+              <b-switch v-model="data['bounce.forwardemail'].enabled" name="forwardemail_enabled" :native-value="true"
+                data-cy="btn-enable-bounce-forwardemail" />
+            </b-field>
+          </div>
+          <div class="column">
+            <b-field :label="$t('settings.bounces.forwardemailKey')" :message="$t('globals.messages.passwordChange')">
+              <b-input v-model="data['bounce.forwardemail'].key" type="password"
+                :disabled="!data['bounce.forwardemail'].enabled" name="forwardemail_enabled" :native-value="true"
+                data-cy="btn-enable-bounce-forwardemail" />
             </b-field>
           </div>
         </div>
@@ -180,7 +197,8 @@
                   </b-field>
                   <b-field :label="$t('settings.mailserver.skipTLS')" expanded
                     :message="$t('settings.mailserver.skipTLSHelp')">
-                    <b-switch v-model="item.tls_skip_verify" :disabled="!item.tls_enabled" name="item.tls_skip_verify" />
+                    <b-switch v-model="item.tls_skip_verify" :disabled="!item.tls_enabled"
+                      name="item.tls_skip_verify" />
                   </b-field>
                 </b-field>
               </div>

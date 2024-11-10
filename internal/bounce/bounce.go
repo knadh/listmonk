@@ -38,20 +38,25 @@ type Opt struct {
 		Username string
 		Password string
 	}
+	ForwardEmail struct {
+		Enabled bool
+		Key     string
+	}
 
 	RecordBounceCB func(models.Bounce) error
 }
 
 // Manager handles e-mail bounces.
 type Manager struct {
-	queue    chan models.Bounce
-	mailbox  Mailbox
-	SES      *webhooks.SES
-	Sendgrid *webhooks.Sendgrid
-	Postmark *webhooks.Postmark
-	queries  *Queries
-	opt      Opt
-	log      *log.Logger
+	queue        chan models.Bounce
+	mailbox      Mailbox
+	SES          *webhooks.SES
+	Sendgrid     *webhooks.Sendgrid
+	Postmark     *webhooks.Postmark
+	Forwardemail *webhooks.Forwardemail
+	queries      *Queries
+	opt          Opt
+	log          *log.Logger
 }
 
 // Queries contains the queries.
@@ -95,6 +100,11 @@ func New(opt Opt, q *Queries, lo *log.Logger) (*Manager, error) {
 
 		if opt.Postmark.Enabled {
 			m.Postmark = webhooks.NewPostmark(opt.Postmark.Username, opt.Postmark.Password)
+		}
+
+		if opt.ForwardEmail.Enabled {
+			fe := webhooks.NewForwardemail([]byte(opt.ForwardEmail.Key))
+			m.Forwardemail = fe
 		}
 	}
 
