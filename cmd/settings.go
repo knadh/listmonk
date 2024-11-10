@@ -68,12 +68,12 @@ func handleGetSettings(c echo.Context) error {
 		s.Messengers[i].Password = strings.Repeat(pwdMask, utf8.RuneCountInString(s.Messengers[i].Password))
 	}
 
-	s.ForwardemailKey = strings.Repeat(pwdMask, utf8.RuneCountInString(s.ForwardemailKey))
 	s.UploadS3AwsSecretAccessKey = strings.Repeat(pwdMask, utf8.RuneCountInString(s.UploadS3AwsSecretAccessKey))
 	s.SendgridKey = strings.Repeat(pwdMask, utf8.RuneCountInString(s.SendgridKey))
+	s.BouncePostmark.Password = strings.Repeat(pwdMask, utf8.RuneCountInString(s.BouncePostmark.Password))
+	s.ForwardemailKey = strings.Repeat(pwdMask, utf8.RuneCountInString(s.ForwardemailKey))
 	s.SecurityCaptchaSecret = strings.Repeat(pwdMask, utf8.RuneCountInString(s.SecurityCaptchaSecret))
 	s.OIDC.ClientSecret = strings.Repeat(pwdMask, utf8.RuneCountInString(s.OIDC.ClientSecret))
-	s.BouncePostmark.Password = strings.Repeat(pwdMask, utf8.RuneCountInString(s.BouncePostmark.Password))
 
 	return c.JSON(http.StatusOK, okResp{s})
 }
@@ -198,11 +198,11 @@ func handleUpdateSettings(c echo.Context) error {
 	if set.SendgridKey == "" {
 		set.SendgridKey = cur.SendgridKey
 	}
-	if set.ForwardemailKey == "" {
-		set.ForwardemailKey = cur.ForwardemailKey
-	}
 	if set.BouncePostmark.Password == "" {
 		set.BouncePostmark.Password = cur.BouncePostmark.Password
+	}
+	if set.ForwardemailKey == "" {
+		set.ForwardemailKey = cur.ForwardemailKey
 	}
 	if set.SecurityCaptchaSecret == "" {
 		set.SecurityCaptchaSecret = cur.SecurityCaptchaSecret
