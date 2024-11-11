@@ -3697,6 +3697,8 @@ components:
             type: string
         subscriber_count:
           type: integer
+        description:
+          type: string
 
     NewList:
       type: object
@@ -3713,6 +3715,8 @@ components:
           type: array
           items:
             type: string
+        description:
+          type: string
 
     ImportStatus:
       type: object

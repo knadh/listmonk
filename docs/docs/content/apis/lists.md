@@ -143,6 +143,7 @@ Create a new list.
 | type  | string    | Yes      | Type of list. Options: private, public. |
 | optin | string    | Yes      | Opt-in type. Options: single, double.   |
 | tags  | string\[\]  |          | Associated tags for a list.             |
+| description | string | No | Description of the new list. |
 
 ##### Example Request
 
@@ -162,7 +163,8 @@ curl -u "username:password" -X POST 'http://localhost:9000/api/lists'
         "name": "Test list",
         "type": "public",
         "tags": [],
-        "subscriber_count": 0
+        "subscriber_count": 0,
+        "description": "This is a test list"
     }
 }
 null
@@ -183,6 +185,7 @@ Update a list.
 | type    | string    |          | Type of list. Options: private, public. |
 | optin   | string    |          | Opt-in type. Options: single, double.   |
 | tags    | string\[\]  |          | Associated tags for the list.           |
+| description | string |         | Description of the new list.            |
 
 ##### Example Request
 
@@ -205,7 +208,8 @@ curl -u "username:password" -X PUT 'http://localhost:9000/api/lists/5' \
         "type": "private",
         "optin": "single",
         "tags": [],
-        "subscriber_count": 0
+        "subscriber_count": 0,
+        "description": "This is a test list"
     }
 }
 ```
