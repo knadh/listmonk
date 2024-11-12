@@ -120,7 +120,7 @@ func (c *Core) QuerySubscribers(query string, listIDs []int, subStatus string, o
 	}
 
 	// Run the query again and fetch the actual data. stmt is the raw SQL query.
-	var out models.Subscribers
+	out := models.Subscribers{}
 	stmt := fmt.Sprintf(c.q.QuerySubscribersCount, cond)
 	stmt = strings.ReplaceAll(c.q.QuerySubscribers, "%query%", cond)
 	stmt = strings.ReplaceAll(stmt, "%order%", orderBy+" "+order)

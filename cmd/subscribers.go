@@ -706,11 +706,18 @@ func filterListQeryByPerm(qp url.Values, user models.User, app *App) ([]int, err
 		}
 
 		listIDs = user.FilterListsByPerm(ids, true, true)
-	} else {
-		// There are no incoming params. If the user doesn't have permission to get all subscribers,
-		// filter by the lists they have access to.
+	}
+
+	// There are no incoming params. If the user doesn't have permission to get all subscribers,
+	// filter by the lists they have access to.
+	if len(listIDs) == 0 {
 		if _, ok := user.PermissionsMap[models.PermSubscribersGetAll]; !ok {
-			listIDs = user.GetListIDs
+			if len(user.GetListIDs) > 0 {
+				listIDs = user.GetListIDs
+			} else {
+				// User doesn't have access to any lists.
+				listIDs = []int{-1}
+			}
 		}
 	}
 
