@@ -507,6 +507,20 @@ body.is-noscroll {
     }
   }
 
+  &.is-light.is-outlined {
+    background: lighten($primary, 55%);
+
+    &.is-focused {
+      background: lighten($primary, 55%);
+    }
+
+    &.is-selected {
+      border-color: $primary;
+      color: $primary;
+      font-weight: bold;
+    }
+  }
+
   &:not(.is-small) {
     height: auto;
     padding: 10px 20px;
@@ -590,6 +604,10 @@ body.is-noscroll {
 
   label {
     color: $grey-dark;
+  }
+
+  &.is-floating-label label.label {
+    font-size: 0.875rem;
   }
 
   .help {

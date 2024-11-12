@@ -15,15 +15,17 @@
       <section expanded class="modal-card-body">
         <div class="columns">
           <div class="column is-6">
-            <b-field :label="$t('users.type')" label-position="on-border">
-              <b-select v-model="form.type" name="status" required expanded :disabled="isEditing">
-                <option value="user">
-                  {{ $t('users.type.user') }}
-                </option>
-                <option value="api">
-                  {{ $t('users.type.api') }}
-                </option>
-              </b-select>
+            <b-field label-position="on-border" class="mb-6">
+              <b-radio-button v-model="form.type" name="type" native-value="user" :disabled="isEditing" expanded
+                type="is-light is-outlined">
+                <b-icon icon="account-outline" />
+                {{ $t('users.type.user') }}
+              </b-radio-button>
+              <b-radio-button v-model="form.type" name="type" native-value="api" :disabled="isEditing" expanded
+                type="is-light is-outlined">
+                <b-icon icon="code" />
+                {{ $t('users.type.api') }}
+              </b-radio-button>
             </b-field>
           </div>
           <div class="column is-6">
@@ -46,12 +48,12 @@
             pattern="[a-zA-Z0-9_\-\.]+$" />
         </b-field>
 
-        <b-field v-if="form.type !== 'api'" :label="$t('subscribers.email')" label-position="on-border">
-          <b-input :maxlength="200" v-model="form.email" name="email" :placeholder="$t('subscribers.email')" required />
-        </b-field>
-
         <b-field :label="$t('globals.fields.name')" label-position="on-border">
           <b-input :maxlength="200" v-model="form.name" name="name" :placeholder="$t('globals.fields.name')" />
+        </b-field>
+
+        <b-field v-if="form.type !== 'api'" :label="$t('subscribers.email')" label-position="on-border">
+          <b-input :maxlength="200" v-model="form.email" name="email" :placeholder="$t('subscribers.email')" required />
         </b-field>
 
         <template v-if="form.type !== 'api'">
