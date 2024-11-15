@@ -11,7 +11,7 @@ ______________________________________________________________________
 
 #### GET /api/import/subscribers
 
-Retrieve the status of an import.
+Retrieve the status of an ongoing import.
 
 ##### Example Request
 
@@ -36,7 +36,7 @@ ______________________________________________________________________
 
 #### GET /api/import/subscribers/logs
 
-Retrieve logs related to imports.
+Retrieve logs from an ongoing import.
 
 ##### Example Request
 
@@ -63,9 +63,26 @@ Send a CSV (optionally ZIP compressed) file to import subscribers. Use a multipa
 | Name   | Type        | Required | Description                              |
 |:-------|:------------|:---------|:-----------------------------------------|
 | params | JSON string | Yes      | Stringified JSON with import parameters. |
-| file   | File        | Yes      | File for upload.                         |
+| file   | file        | Yes      | File for upload.                         |
 
-**`params`** (JSON string)
+
+#### `params` (JSON string)
+| Name      | Type     | Required | Description                                                                                                                        |
+|:----------|:---------|:---------|:-----------------------------------------------------------------------------------------------------------------------------------|
+| mode      | string   | Yes      | `subscribe` or `blocklist`                                                                                                         |
+| delim     | string   | Yes      | Single character indicating delimiter used in the CSV file, eg: `,`                                                                |
+| lists     | []number | Yes      | Single character indicating delimiter used in the CSV file, eg: `,`                                                                |
+| overwrite | bool     | Yes      | Whether to overwrite the subscriber parameters including subscriptions or ignore records that are already present in the database. |
+
+##### Example Request
+
+```shell
+curl -u "username:password" -X POST 'http://localhost:9000/api/import/subscribers' \
+  -F 'params={"mode":"subscribe", "subscription_status":"confirmed", "delim":",", "lists":[1, 2], "overwrite": true}' \
+  -F "file=@/path/to/subs.csv"
+```
+
+##### Example Response
 
 ```json
     {
