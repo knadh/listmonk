@@ -3448,13 +3448,7 @@ components:
           type: string
         attribs:
           type: object
-          properties:
-            city:
-              type: string
-            good:
-              type: boolean
-            type:
-              type: string
+          additionalProperties: true
         status:
           type: string
         created_at:
@@ -3513,13 +3507,7 @@ components:
           type: string
         attribs:
           type: object
-          properties:
-            city:
-              type: string
-            good:
-              type: boolean
-            type:
-              type: string
+          additionalProperties: true
         status:
           type: string
         lists:
@@ -3567,18 +3555,7 @@ components:
           type: boolean
         attribs:
           type: object
-          properties:
-            city:
-              type: string
-            projects:
-              type: integer
-            stack:
-              type: object
-              properties:
-                languages:
-                  type: array
-                  items:
-                    type: string
+          additionalProperties: true
 
     UpdateSubscriber:
       type: object
@@ -3601,18 +3578,7 @@ components:
           type: boolean
         attribs:
           type: object
-          properties:
-            city:
-              type: string
-            projects:
-              type: integer
-            stack:
-              type: object
-              properties:
-                languages:
-                  type: array
-                  items:
-                    type: string
+          additionalProperties: true
 
     SubscriberQueryRequest:
       type: object
