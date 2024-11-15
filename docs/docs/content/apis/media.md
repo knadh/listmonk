@@ -16,7 +16,7 @@ Get an uploaded media file.
 ##### Example Request
 
 ```shell
-curl -u "username:password" -X GET 'http://localhost:9000/api/media' \
+curl -u "api_user:token" -X GET 'http://localhost:9000/api/media' \
 --header 'Content-Type: multipart/form-data; boundary=--------------------------093715978792575906250298'
 ```
 
@@ -87,7 +87,7 @@ Upload a media file.
 ##### Example Request
 
 ```shell
-curl -u "username:password" -X POST 'http://localhost:9000/api/media' \
+curl -u "api_user:token" -X POST 'http://localhost:9000/api/media' \
 --header 'Content-Type: multipart/form-data; boundary=--------------------------183679989870526937212428' \
 --form 'file=@/path/to/image.jpg'
 ```
@@ -122,7 +122,7 @@ Delete an uploaded media file.
 ##### Example Request
 
 ```shell
-curl -u "username:password" -X DELETE 'http://localhost:9000/api/media/1'
+curl -u "api_user:token" -X DELETE 'http://localhost:9000/api/media/1'
 ```
 
 ##### Example Response

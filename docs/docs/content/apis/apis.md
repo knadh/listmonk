@@ -2,13 +2,33 @@
 
 All features that are available on the listmonk dashboard are also available as REST-like HTTP APIs that can be interacted with directly. Request and response bodies are JSON. This allows easy scripting of listmonk and integration with other systems, for instance, synchronisation with external subscriber databases.
 
-API requests require BasicAuth authentication with the admin credentials.
+!!! note
+    If you come across API calls that are yet to be documented, please consider contributing to docs.
 
-> The API section is a work in progress. There may be API calls that are yet to be documented. Please consider contributing to docs.
 
-## OpenAPI (Swagger) spec
+## Auth
+HTTP API requests support BasicAuth and a Authorization `token` headers. API users and tokens with the required permissions can be created and managed on the admin UI (Admin -> Users).
 
-The auto-generated OpenAPI (Swagger) specification site for the APIs are available at [**listmonk.app/docs/swagger**](https://listmonk.app/docs/swagger/)
+##### BasicAuth example
+```shell
+curl -u "api_user:token" http://localhost:9000/api/lists
+```
+
+##### Authorization token example
+```shell
+curl -H "Authorization: token api_user:token" http://localhost:9000/api/lists
+```
+
+## Permissions
+**User role**: Permissions allowed for a user are defined as a *User role* (Admin -> User roles) and then attached to a user. 
+
+**List role**: Read / write permissions per-list can be defined as a *List role* (Admin -> User roles) and then attached to a user. 
+
+In a *User role*, `lists:get_all` or `lists:manage_all` permission supercede and override any list specific permissions for a user defined in a *List role*.
+
+To manage lists and subscriber list subscriptions via API requests, ensure that the appropriate permissions are attached to the API user.
+
+______________________________________________________________________
 
 ## Response structure
 
@@ -57,3 +77,9 @@ All timestamp fields are in the format `2019-01-01T09:00:00.000000+05:30`. The s
 |  502  | The backend OMS is down and the API is unable to communicate with it        |
 |  503  | Service unavailable; the API is down                                        |
 |  504  | Gateway timeout; the API is unreachable                                     |
+
+
+## OpenAPI (Swagger) spec
+
+The auto-generated OpenAPI (Swagger) specification site for the APIs are available at [**listmonk.app/docs/swagger**](https://listmonk.app/docs/swagger/)
+

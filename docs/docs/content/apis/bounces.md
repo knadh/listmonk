@@ -27,7 +27,7 @@ Retrieve the bounce records.
 ##### Example Request
 
 ```shell
-curl -u "username:password" -X GET 'http://localhost:9000/api/bounces?campaign_id=1&page=1&per_page=2' \ 
+curl -u "api_user:token" -X GET 'http://localhost:9000/api/bounces?campaign_id=1&page=1&per_page=2' \ 
     -H 'accept: application/json' -H 'Content-Type: application/x-www-form-urlencoded' \
     --data '{"source":"demo","order_by":"created_at","order":"asc"}'
 ```

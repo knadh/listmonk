@@ -28,7 +28,7 @@ Allows sending transactional messages to one or more subscribers via a preconfig
 ##### Example
 
 ```shell
-curl -u "username:password" "http://localhost:9000/api/tx" -X POST \
+curl -u "api_user:token" "http://localhost:9000/api/tx" -X POST \
      -H 'Content-Type: application/json; charset=utf-8' \
      --data-binary @- << EOF
     {
@@ -55,7 +55,7 @@ ______________________________________________________________________
 To include file attachments in a transactional message, use the `multipart/form-data` Content-Type. Use `data` param for the parameters described above as a JSON object. Include any number of attachments via the `file` param.
 
 ```shell
-curl -u "username:password" "http://localhost:9000/api/tx" -X POST \
+curl -u "api_user:token" "http://localhost:9000/api/tx" -X POST \
 -F 'data=\"{
     \"subscriber_email\": \"user@test.com\",
     \"template_id\": 4

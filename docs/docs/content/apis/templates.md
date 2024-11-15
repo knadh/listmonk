@@ -20,7 +20,7 @@ Retrieve all templates.
 ##### Example Request
 
 ```shell
-curl -u "username:password" -X GET 'http://localhost:9000/api/templates'
+curl -u "api_user:token" -X GET 'http://localhost:9000/api/templates'
 ```
 
 ##### Example Response
@@ -56,7 +56,7 @@ Retrieve a specific template.
 ##### Example Request
 
 ```shell
-curl -u "username:password" -X GET 'http://localhost:9000/api/templates/1'
+curl -u "api_user:token" -X GET 'http://localhost:9000/api/templates/1'
 ```
 
 ##### Example Response
@@ -90,7 +90,7 @@ Retrieve the HTML preview of a template.
 ##### Example Request
 
 ```shell
-curl -u "username:password" -X GET 'http://localhost:9000/api/templates/1/preview'
+curl -u "api_user:token" -X GET 'http://localhost:9000/api/templates/1/preview'
 ```
 
 ##### Example Response
@@ -128,7 +128,7 @@ Create a template.
 ##### Example Request
 
 ```shell
-curl -u "username:password" -X POST 'http://localhost:9000/api/templates' \
+curl -u "api_user:token" -X POST 'http://localhost:9000/api/templates' \
 -H 'Content-Type: application/json' \
 -d '{
     "name": "New template",
@@ -179,7 +179,7 @@ Set a template as the default.
 ##### Example Request
 
 ```shell
-curl -u "username:password" -X PUT 'http://localhost:9000/api/templates/1/default'
+curl -u "api_user:token" -X PUT 'http://localhost:9000/api/templates/1/default'
 ```
 
 ##### Example Response
@@ -213,7 +213,7 @@ Delete a template.
 ##### Example Request
 
 ```shell
-curl -u "username:password" -X DELETE 'http://localhost:9000/api/templates/35'
+curl -u "api_user:token" -X DELETE 'http://localhost:9000/api/templates/35'
 ```
 
 ##### Example Response

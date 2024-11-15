@@ -16,7 +16,7 @@ Retrieve the status of an ongoing import.
 ##### Example Request
 
 ```shell
-curl -u "username:password" -X GET 'http://localhost:9000/api/import/subscribers'
+curl -u "api_user:token" -X GET 'http://localhost:9000/api/import/subscribers'
 ```
 
 ##### Example Response
@@ -41,7 +41,7 @@ Retrieve logs from an ongoing import.
 ##### Example Request
 
 ```shell
-curl -u "username:password" -X GET 'http://localhost:9000/api/import/subscribers/logs'
+curl -u "api_user:token" -X GET 'http://localhost:9000/api/import/subscribers/logs'
 ```
 
 ##### Example Response
@@ -77,7 +77,7 @@ Send a CSV (optionally ZIP compressed) file to import subscribers. Use a multipa
 ##### Example Request
 
 ```shell
-curl -u "username:password" -X POST 'http://localhost:9000/api/import/subscribers' \
+curl -u "api_user:token" -X POST 'http://localhost:9000/api/import/subscribers' \
   -F 'params={"mode":"subscribe", "subscription_status":"confirmed", "delim":",", "lists":[1, 2], "overwrite": true}' \
   -F "file=@/path/to/subs.csv"
 ```
@@ -102,7 +102,7 @@ Stop and delete an ongoing import.
 ##### Example Request
 
 ```shell
-curl -u "username:password" -X DELETE 'http://localhost:9000/api/import/subscribers' 
+curl -u "api_user:token" -X DELETE 'http://localhost:9000/api/import/subscribers' 
 ```
 
 ##### Example Response
