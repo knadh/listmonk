@@ -1467,7 +1467,7 @@
 </tbody>
 </table>
 <h5 id="example-request">Example Request<a class="headerlink" href="#example-request" title="Permanent link">&para;</a></h5>
-<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-u<span class="w"> </span><span class="s2">&quot;username:password&quot;</span><span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span><span class="s1">&#39;http://localhost:9000/api/bounces?campaign_id=1&amp;page=1&amp;per_page=2&#39;</span><span class="w"> </span><span class="se">\ </span>
+<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-u<span class="w"> </span><span class="s2">&quot;api_user:token&quot;</span><span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span><span class="s1">&#39;http://localhost:9000/api/bounces?campaign_id=1&amp;page=1&amp;per_page=2&#39;</span><span class="w"> </span><span class="se">\ </span>
 <span class="w">    </span>-H<span class="w"> </span><span class="s1">&#39;accept: application/json&#39;</span><span class="w"> </span>-H<span class="w"> </span><span class="s1">&#39;Content-Type: application/x-www-form-urlencoded&#39;</span><span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--data<span class="w"> </span><span class="s1">&#39;{&quot;source&quot;:&quot;demo&quot;,&quot;order_by&quot;:&quot;created_at&quot;,&quot;order&quot;:&quot;asc&quot;}&#39;</span>
 </code></pre></div>

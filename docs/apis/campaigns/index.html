@@ -2034,7 +2034,7 @@
 <h4 id="get-apicampaigns">GET /api/campaigns<a class="headerlink" href="#get-apicampaigns" title="Permanent link">&para;</a></h4>
 <p>Retrieve all campaigns.</p>
 <h5 id="example-request">Example Request<a class="headerlink" href="#example-request" title="Permanent link">&para;</a></h5>
-<div class="highlight"><pre><span></span><code><span class="w"> </span>curl<span class="w"> </span>-u<span class="w"> </span><span class="s2">&quot;username:password&quot;</span><span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span><span class="s1">&#39;http://localhost:9000/api/campaigns?page=1&amp;per_page=100&#39;</span>
+<div class="highlight"><pre><span></span><code><span class="w"> </span>curl<span class="w"> </span>-u<span class="w"> </span><span class="s2">&quot;api_user:token&quot;</span><span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span><span class="s1">&#39;http://localhost:9000/api/campaigns?page=1&amp;per_page=100&#39;</span>
 </code></pre></div>
 <h5 id="parameters">Parameters<a class="headerlink" href="#parameters" title="Permanent link">&para;</a></h5>
 <table>
@@ -2156,7 +2156,7 @@
 </tbody>
 </table>
 <h5 id="example-request_1">Example Request<a class="headerlink" href="#example-request_1" title="Permanent link">&para;</a></h5>
-<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-u<span class="w"> </span><span class="s2">&quot;username:password&quot;</span><span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span><span class="s1">&#39;http://localhost:9000/api/campaigns/1&#39;</span>
+<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-u<span class="w"> </span><span class="s2">&quot;api_user:token&quot;</span><span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span><span class="s1">&#39;http://localhost:9000/api/campaigns/1&#39;</span>
 </code></pre></div>
 <h5 id="example-response_1">Example Response<a class="headerlink" href="#example-response_1" title="Permanent link">&para;</a></h5>
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
@@ -2215,7 +2215,7 @@
 </tbody>
 </table>
 <h5 id="example-request_2">Example Request<a class="headerlink" href="#example-request_2" title="Permanent link">&para;</a></h5>
-<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-u<span class="w"> </span><span class="s2">&quot;username:password&quot;</span><span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span><span class="s1">&#39;http://localhost:9000/api/campaigns/1/preview&#39;</span>
+<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-u<span class="w"> </span><span class="s2">&quot;api_user:token&quot;</span><span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span><span class="s1">&#39;http://localhost:9000/api/campaigns/1/preview&#39;</span>
 </code></pre></div>
 <h5 id="example-response_2">Example Response<a class="headerlink" href="#example-response_2" title="Permanent link">&para;</a></h5>
 <div class="highlight"><pre><span></span><code><span class="p">&lt;</span><span class="nt">h3</span><span class="p">&gt;</span>Hi John!<span class="p">&lt;/</span><span class="nt">h3</span><span class="p">&gt;</span>
@@ -2244,7 +2244,7 @@ This is a test e-mail campaign. Your second name is Doe and you are from Bengalu
 </tbody>
 </table>
 <h5 id="example-request_3">Example Request<a class="headerlink" href="#example-request_3" title="Permanent link">&para;</a></h5>
-<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-u<span class="w"> </span><span class="s2">&quot;username:password&quot;</span><span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span><span class="s1">&#39;http://localhost:9000/api/campaigns/running/stats?campaign_id=1&#39;</span>
+<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-u<span class="w"> </span><span class="s2">&quot;api_user:token&quot;</span><span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span><span class="s1">&#39;http://localhost:9000/api/campaigns/running/stats?campaign_id=1&#39;</span>
 </code></pre></div>
 <h5 id="example-response_3">Example Response<a class="headerlink" href="#example-response_3" title="Permanent link">&para;</a></h5>
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
@@ -2292,7 +2292,7 @@ This is a test e-mail campaign. Your second name is Doe and you are from Bengalu
 </tbody>
 </table>
 <h5 id="example-request_4">Example Request<a class="headerlink" href="#example-request_4" title="Permanent link">&para;</a></h5>
-<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-u<span class="w"> </span><span class="s2">&quot;username:password&quot;</span><span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span><span class="s1">&#39;http://localhost:9000/api/campaigns/analytics/views?id=1&amp;from=2024-08-04&amp;to=2024-08-12&#39;</span>
+<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-u<span class="w"> </span><span class="s2">&quot;api_user:token&quot;</span><span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span><span class="s1">&#39;http://localhost:9000/api/campaigns/analytics/views?id=1&amp;from=2024-08-04&amp;to=2024-08-12&#39;</span>
 </code></pre></div>
 <h5 id="example-response_4">Example Response<a class="headerlink" href="#example-response_4" title="Permanent link">&para;</a></h5>
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
@@ -2326,7 +2326,7 @@ This is a test e-mail campaign. Your second name is Doe and you are from Bengalu
 <span class="p">}</span>
 </code></pre></div>
 <h5 id="example-request_5">Example Request<a class="headerlink" href="#example-request_5" title="Permanent link">&para;</a></h5>
-<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-u<span class="w"> </span><span class="s2">&quot;username:password&quot;</span><span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span><span class="s1">&#39;http://localhost:9000/api/campaigns/analytics/links?id=1&amp;from=2024-08-04T18%3A30%3A00.624Z&amp;to=2024-08-12T18%3A29%3A00.624Z&#39;</span>
+<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-u<span class="w"> </span><span class="s2">&quot;api_user:token&quot;</span><span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span><span class="s1">&#39;http://localhost:9000/api/campaigns/analytics/links?id=1&amp;from=2024-08-04T18%3A30%3A00.624Z&amp;to=2024-08-12T18%3A29%3A00.624Z&#39;</span>
 </code></pre></div>
 <h5 id="example-response_5">Example Response<a class="headerlink" href="#example-response_5" title="Permanent link">&para;</a></h5>
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
@@ -2445,7 +2445,7 @@ This is a test e-mail campaign. Your second name is Doe and you are from Bengalu
 </tbody>
 </table>
 <h5 id="example-request_6">Example request<a class="headerlink" href="#example-request_6" title="Permanent link">&para;</a></h5>
-<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-u<span class="w"> </span><span class="s2">&quot;username:password&quot;</span><span class="w"> </span><span class="s1">&#39;http://localhost:9000/api/campaigns&#39;</span><span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>-H<span class="w"> </span><span class="s1">&#39;Content-Type: application/json;charset=utf-8&#39;</span><span class="w"> </span>--data-raw<span class="w"> </span><span class="s1">&#39;{&quot;name&quot;:&quot;Test campaign&quot;,&quot;subject&quot;:&quot;Hello, world&quot;,&quot;lists&quot;:[1],&quot;from_email&quot;:&quot;listmonk &lt;noreply@listmonk.yoursite.com&gt;&quot;,&quot;content_type&quot;:&quot;richtext&quot;,&quot;messenger&quot;:&quot;email&quot;,&quot;type&quot;:&quot;regular&quot;,&quot;tags&quot;:[&quot;test&quot;],&quot;template_id&quot;:1}&#39;</span>
+<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-u<span class="w"> </span><span class="s2">&quot;api_user:token&quot;</span><span class="w"> </span><span class="s1">&#39;http://localhost:9000/api/campaigns&#39;</span><span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>-H<span class="w"> </span><span class="s1">&#39;Content-Type: application/json;charset=utf-8&#39;</span><span class="w"> </span>--data-raw<span class="w"> </span><span class="s1">&#39;{&quot;name&quot;:&quot;Test campaign&quot;,&quot;subject&quot;:&quot;Hello, world&quot;,&quot;lists&quot;:[1],&quot;from_email&quot;:&quot;listmonk &lt;noreply@listmonk.yoursite.com&gt;&quot;,&quot;content_type&quot;:&quot;richtext&quot;,&quot;messenger&quot;:&quot;email&quot;,&quot;type&quot;:&quot;regular&quot;,&quot;tags&quot;:[&quot;test&quot;],&quot;template_id&quot;:1}&#39;</span>
 </code></pre></div>
 <h5 id="example-response_6">Example response<a class="headerlink" href="#example-response_6" title="Permanent link">&para;</a></h5>
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
@@ -2552,7 +2552,7 @@ This is a test e-mail campaign. Your second name is Doe and you are from Bengalu
 </ul>
 </blockquote>
 <h5 id="example-request_7">Example Request<a class="headerlink" href="#example-request_7" title="Permanent link">&para;</a></h5>
-<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-u<span class="w"> </span><span class="s2">&quot;username:password&quot;</span><span class="w"> </span>-X<span class="w"> </span>PUT<span class="w"> </span><span class="s1">&#39;http://localhost:9000/api/campaigns/1/status&#39;</span><span class="w"> </span><span class="se">\</span>
+<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-u<span class="w"> </span><span class="s2">&quot;api_user:token&quot;</span><span class="w"> </span>-X<span class="w"> </span>PUT<span class="w"> </span><span class="s1">&#39;http://localhost:9000/api/campaigns/1/status&#39;</span><span class="w"> </span><span class="se">\</span>
 --header<span class="w"> </span><span class="s1">&#39;Content-Type: application/json&#39;</span><span class="w"> </span><span class="se">\</span>
 --data-raw<span class="w"> </span><span class="s1">&#39;{&quot;status&quot;:&quot;scheduled&quot;}&#39;</span>
 </code></pre></div>
@@ -2637,7 +2637,7 @@ This is a test e-mail campaign. Your second name is Doe and you are from Bengalu
 </tbody>
 </table>
 <h5 id="example-request_8">Example Request<a class="headerlink" href="#example-request_8" title="Permanent link">&para;</a></h5>
-<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-u<span class="w"> </span><span class="s2">&quot;username:password&quot;</span><span class="w"> </span>-X<span class="w"> </span>PUT<span class="w"> </span><span class="s1">&#39;http://localhost:8080/api/campaigns/33/archive&#39;</span><span class="w"> </span>
+<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-u<span class="w"> </span><span class="s2">&quot;api_user:token&quot;</span><span class="w"> </span>-X<span class="w"> </span>PUT<span class="w"> </span><span class="s1">&#39;http://localhost:8080/api/campaigns/33/archive&#39;</span><span class="w"> </span>
 --header<span class="w"> </span><span class="s1">&#39;Content-Type: application/json&#39;</span><span class="w"> </span>
 --data-raw<span class="w"> </span><span class="s1">&#39;{&quot;archive&quot;:true,&quot;archive_template_id&quot;:1,&quot;archive_meta&quot;:{},&quot;archive_slug&quot;:&quot;my-newsletter-old-edition&quot;}&#39;</span>
 </code></pre></div>
@@ -2674,7 +2674,7 @@ This is a test e-mail campaign. Your second name is Doe and you are from Bengalu
 </tbody>
 </table>
 <h5 id="example-request_9">Example Request<a class="headerlink" href="#example-request_9" title="Permanent link">&para;</a></h5>
-<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-u<span class="w"> </span><span class="s2">&quot;username:password&quot;</span><span class="w"> </span>-X<span class="w"> </span>DELETE<span class="w"> </span><span class="s1">&#39;http://localhost:9000/api/campaigns/34&#39;</span>
+<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-u<span class="w"> </span><span class="s2">&quot;api_user:token&quot;</span><span class="w"> </span>-X<span class="w"> </span>DELETE<span class="w"> </span><span class="s1">&#39;http://localhost:9000/api/campaigns/34&#39;</span>
 </code></pre></div>
 <h5 id="example-response_9">Example Response<a class="headerlink" href="#example-response_9" title="Permanent link">&para;</a></h5>
 <div class="highlight"><pre><span></span><code><span class="p">{</span>

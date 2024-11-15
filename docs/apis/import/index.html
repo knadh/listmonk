@@ -854,13 +854,13 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#delete-apiimportsubscribers" class="md-nav__link">
+  <a href="#params-json-string" class="md-nav__link">
     <span class="md-ellipsis">
-      DELETE /api/import/subscribers
+      params (JSON string)
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="DELETE /api/import/subscribers">
+    <nav class="md-nav" aria-label="params (JSON string)">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -874,6 +874,39 @@
         
           <li class="md-nav__item">
   <a href="#example-response_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      Example Response
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#delete-apiimportsubscribers" class="md-nav__link">
+    <span class="md-ellipsis">
+      DELETE /api/import/subscribers
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="DELETE /api/import/subscribers">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#example-request_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      Example Request
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-response_3" class="md-nav__link">
     <span class="md-ellipsis">
       Example Response
     </span>
@@ -1268,13 +1301,13 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#delete-apiimportsubscribers" class="md-nav__link">
+  <a href="#params-json-string" class="md-nav__link">
     <span class="md-ellipsis">
-      DELETE /api/import/subscribers
+      params (JSON string)
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="DELETE /api/import/subscribers">
+    <nav class="md-nav" aria-label="params (JSON string)">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -1288,6 +1321,39 @@
         
           <li class="md-nav__item">
   <a href="#example-response_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      Example Response
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#delete-apiimportsubscribers" class="md-nav__link">
+    <span class="md-ellipsis">
+      DELETE /api/import/subscribers
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="DELETE /api/import/subscribers">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#example-request_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      Example Request
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-response_3" class="md-nav__link">
     <span class="md-ellipsis">
       Example Response
     </span>
@@ -1349,9 +1415,9 @@
 </table>
 <hr />
 <h4 id="get-apiimportsubscribers">GET /api/import/subscribers<a class="headerlink" href="#get-apiimportsubscribers" title="Permanent link">&para;</a></h4>
-<p>Retrieve the status of an import.</p>
+<p>Retrieve the status of an ongoing import.</p>
 <h5 id="example-request">Example Request<a class="headerlink" href="#example-request" title="Permanent link">&para;</a></h5>
-<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-u<span class="w"> </span><span class="s2">&quot;username:password&quot;</span><span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span><span class="s1">&#39;http://localhost:9000/api/import/subscribers&#39;</span>
+<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-u<span class="w"> </span><span class="s2">&quot;api_user:token&quot;</span><span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span><span class="s1">&#39;http://localhost:9000/api/import/subscribers&#39;</span>
 </code></pre></div>
 <h5 id="example-response">Example Response<a class="headerlink" href="#example-response" title="Permanent link">&para;</a></h5>
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
@@ -1365,9 +1431,9 @@
 </code></pre></div>
 <hr />
 <h4 id="get-apiimportsubscriberslogs">GET /api/import/subscribers/logs<a class="headerlink" href="#get-apiimportsubscriberslogs" title="Permanent link">&para;</a></h4>
-<p>Retrieve logs related to imports.</p>
+<p>Retrieve logs from an ongoing import.</p>
 <h5 id="example-request_1">Example Request<a class="headerlink" href="#example-request_1" title="Permanent link">&para;</a></h5>
-<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-u<span class="w"> </span><span class="s2">&quot;username:password&quot;</span><span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span><span class="s1">&#39;http://localhost:9000/api/import/subscribers/logs&#39;</span>
+<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-u<span class="w"> </span><span class="s2">&quot;api_user:token&quot;</span><span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span><span class="s1">&#39;http://localhost:9000/api/import/subscribers/logs&#39;</span>
 </code></pre></div>
 <h5 id="example-response_1">Example Response<a class="headerlink" href="#example-response_1" title="Permanent link">&para;</a></h5>
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
@@ -1396,13 +1462,55 @@
 </tr>
 <tr>
 <td style="text-align: left;">file</td>
-<td style="text-align: left;">File</td>
+<td style="text-align: left;">file</td>
 <td style="text-align: left;">Yes</td>
 <td style="text-align: left;">File for upload.</td>
 </tr>
 </tbody>
 </table>
-<p><strong><code>params</code></strong> (JSON string)</p>
+<h4 id="params-json-string"><code>params</code> (JSON string)<a class="headerlink" href="#params-json-string" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Name</th>
+<th style="text-align: left;">Type</th>
+<th style="text-align: left;">Required</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">mode</td>
+<td style="text-align: left;">string</td>
+<td style="text-align: left;">Yes</td>
+<td style="text-align: left;"><code>subscribe</code> or <code>blocklist</code></td>
+</tr>
+<tr>
+<td style="text-align: left;">delim</td>
+<td style="text-align: left;">string</td>
+<td style="text-align: left;">Yes</td>
+<td style="text-align: left;">Single character indicating delimiter used in the CSV file, eg: <code>,</code></td>
+</tr>
+<tr>
+<td style="text-align: left;">lists</td>
+<td style="text-align: left;">[]number</td>
+<td style="text-align: left;">Yes</td>
+<td style="text-align: left;">Single character indicating delimiter used in the CSV file, eg: <code>,</code></td>
+</tr>
+<tr>
+<td style="text-align: left;">overwrite</td>
+<td style="text-align: left;">bool</td>
+<td style="text-align: left;">Yes</td>
+<td style="text-align: left;">Whether to overwrite the subscriber parameters including subscriptions or ignore records that are already present in the database.</td>
+</tr>
+</tbody>
+</table>
+<h5 id="example-request_2">Example Request<a class="headerlink" href="#example-request_2" title="Permanent link">&para;</a></h5>
+<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-u<span class="w"> </span><span class="s2">&quot;api_user:token&quot;</span><span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="s1">&#39;http://localhost:9000/api/import/subscribers&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-F<span class="w"> </span><span class="s1">&#39;params={&quot;mode&quot;:&quot;subscribe&quot;, &quot;subscription_status&quot;:&quot;confirmed&quot;, &quot;delim&quot;:&quot;,&quot;, &quot;lists&quot;:[1, 2], &quot;overwrite&quot;: true}&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-F<span class="w"> </span><span class="s2">&quot;file=@/path/to/subs.csv&quot;</span>
+</code></pre></div>
+<h5 id="example-response_2">Example Response<a class="headerlink" href="#example-response_2" title="Permanent link">&para;</a></h5>
 <div class="highlight"><pre><span></span><code><span class="w">    </span><span class="p">{</span>
 <span class="w">        </span><span class="nt">&quot;mode&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;subscribe&quot;</span><span class="p">,</span><span class="w"> </span><span class="c1">// subscribe or blocklist</span>
 <span class="w">        </span><span class="nt">&quot;delim&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;,&quot;</span><span class="p">,</span><span class="w">        </span><span class="c1">// delimiter in the uploaded file</span>
@@ -1413,10 +1521,10 @@
 <hr />
 <h4 id="delete-apiimportsubscribers">DELETE /api/import/subscribers<a class="headerlink" href="#delete-apiimportsubscribers" title="Permanent link">&para;</a></h4>
 <p>Stop and delete an ongoing import.</p>
-<h5 id="example-request_2">Example Request<a class="headerlink" href="#example-request_2" title="Permanent link">&para;</a></h5>
-<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-u<span class="w"> </span><span class="s2">&quot;username:password&quot;</span><span class="w"> </span>-X<span class="w"> </span>DELETE<span class="w"> </span><span class="s1">&#39;http://localhost:9000/api/import/subscribers&#39;</span><span class="w"> </span>
+<h5 id="example-request_3">Example Request<a class="headerlink" href="#example-request_3" title="Permanent link">&para;</a></h5>
+<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-u<span class="w"> </span><span class="s2">&quot;api_user:token&quot;</span><span class="w"> </span>-X<span class="w"> </span>DELETE<span class="w"> </span><span class="s1">&#39;http://localhost:9000/api/import/subscribers&#39;</span><span class="w"> </span>
 </code></pre></div>
-<h5 id="example-response_2">Example Response<a class="headerlink" href="#example-response_2" title="Permanent link">&para;</a></h5>
+<h5 id="example-response_3">Example Response<a class="headerlink" href="#example-response_3" title="Permanent link">&para;</a></h5>
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
 <span class="w">    </span><span class="nt">&quot;data&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">        </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">,</span>

@@ -1265,7 +1265,7 @@
 </tbody>
 </table>
 <h5 id="example">Example<a class="headerlink" href="#example" title="Permanent link">&para;</a></h5>
-<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-u<span class="w"> </span><span class="s2">&quot;username:password&quot;</span><span class="w"> </span><span class="s2">&quot;http://localhost:9000/api/tx&quot;</span><span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="se">\</span>
+<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-u<span class="w"> </span><span class="s2">&quot;api_user:token&quot;</span><span class="w"> </span><span class="s2">&quot;http://localhost:9000/api/tx&quot;</span><span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="se">\</span>
 <span class="w">     </span>-H<span class="w"> </span><span class="s1">&#39;Content-Type: application/json; charset=utf-8&#39;</span><span class="w"> </span><span class="se">\</span>
 <span class="w">     </span>--data-binary<span class="w"> </span>@-<span class="w"> </span><span class="s">&lt;&lt; EOF</span>
 <span class="s">    {</span>
@@ -1284,7 +1284,7 @@
 <hr />
 <h4 id="file-attachments">File Attachments<a class="headerlink" href="#file-attachments" title="Permanent link">&para;</a></h4>
 <p>To include file attachments in a transactional message, use the <code>multipart/form-data</code> Content-Type. Use <code>data</code> param for the parameters described above as a JSON object. Include any number of attachments via the <code>file</code> param.</p>
-<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-u<span class="w"> </span><span class="s2">&quot;username:password&quot;</span><span class="w"> </span><span class="s2">&quot;http://localhost:9000/api/tx&quot;</span><span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="se">\</span>
+<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-u<span class="w"> </span><span class="s2">&quot;api_user:token&quot;</span><span class="w"> </span><span class="s2">&quot;http://localhost:9000/api/tx&quot;</span><span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="se">\</span>
 -F<span class="w"> </span><span class="s1">&#39;data=\&quot;{</span>
 <span class="s1">    \&quot;subscriber_email\&quot;: \&quot;user@test.com\&quot;,</span>
 <span class="s1">    \&quot;template_id\&quot;: 4</span>

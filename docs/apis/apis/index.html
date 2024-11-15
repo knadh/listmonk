@@ -680,9 +680,42 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#openapi-swagger-spec" class="md-nav__link">
+  <a href="#auth" class="md-nav__link">
     <span class="md-ellipsis">
-      OpenAPI (Swagger) spec
+      Auth
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Auth">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#basicauth-example" class="md-nav__link">
+    <span class="md-ellipsis">
+      BasicAuth example
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#authorization-token-example" class="md-nav__link">
+    <span class="md-ellipsis">
+      Authorization token example
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#permissions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Permissions
     </span>
   </a>
   
@@ -736,6 +769,15 @@
         
       </ul>
     </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#openapi-swagger-spec" class="md-nav__link">
+    <span class="md-ellipsis">
+      OpenAPI (Swagger) spec
+    </span>
+  </a>
   
 </li>
       
@@ -1115,9 +1157,42 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#openapi-swagger-spec" class="md-nav__link">
+  <a href="#auth" class="md-nav__link">
     <span class="md-ellipsis">
-      OpenAPI (Swagger) spec
+      Auth
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Auth">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#basicauth-example" class="md-nav__link">
+    <span class="md-ellipsis">
+      BasicAuth example
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#authorization-token-example" class="md-nav__link">
+    <span class="md-ellipsis">
+      Authorization token example
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#permissions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Permissions
     </span>
   </a>
   
@@ -1174,6 +1249,15 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#openapi-swagger-spec" class="md-nav__link">
+    <span class="md-ellipsis">
+      OpenAPI (Swagger) spec
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1191,12 +1275,24 @@
 
 <h1 id="apis">APIs<a class="headerlink" href="#apis" title="Permanent link">&para;</a></h1>
 <p>All features that are available on the listmonk dashboard are also available as REST-like HTTP APIs that can be interacted with directly. Request and response bodies are JSON. This allows easy scripting of listmonk and integration with other systems, for instance, synchronisation with external subscriber databases.</p>
-<p>API requests require BasicAuth authentication with the admin credentials.</p>
-<blockquote>
-<p>The API section is a work in progress. There may be API calls that are yet to be documented. Please consider contributing to docs.</p>
-</blockquote>
-<h2 id="openapi-swagger-spec">OpenAPI (Swagger) spec<a class="headerlink" href="#openapi-swagger-spec" title="Permanent link">&para;</a></h2>
-<p>The auto-generated OpenAPI (Swagger) specification site for the APIs are available at <a href="https://listmonk.app/docs/swagger/"><strong>listmonk.app/docs/swagger</strong></a></p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If you come across API calls that are yet to be documented, please consider contributing to docs.</p>
+</div>
+<h2 id="auth">Auth<a class="headerlink" href="#auth" title="Permanent link">&para;</a></h2>
+<p>HTTP API requests support BasicAuth and a Authorization <code>token</code> headers. API users and tokens with the required permissions can be created and managed on the admin UI (Admin -&gt; Users).</p>
+<h5 id="basicauth-example">BasicAuth example<a class="headerlink" href="#basicauth-example" title="Permanent link">&para;</a></h5>
+<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-u<span class="w"> </span><span class="s2">&quot;api_user:token&quot;</span><span class="w"> </span>http://localhost:9000/api/lists
+</code></pre></div>
+<h5 id="authorization-token-example">Authorization token example<a class="headerlink" href="#authorization-token-example" title="Permanent link">&para;</a></h5>
+<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: token api_user:token&quot;</span><span class="w"> </span>http://localhost:9000/api/lists
+</code></pre></div>
+<h2 id="permissions">Permissions<a class="headerlink" href="#permissions" title="Permanent link">&para;</a></h2>
+<p><strong>User role</strong>: Permissions allowed for a user are defined as a <em>User role</em> (Admin -&gt; User roles) and then attached to a user. </p>
+<p><strong>List role</strong>: Read / write permissions per-list can be defined as a <em>List role</em> (Admin -&gt; User roles) and then attached to a user. </p>
+<p>In a <em>User role</em>, <code>lists:get_all</code> or <code>lists:manage_all</code> permission supercede and override any list specific permissions for a user defined in a <em>List role</em>.</p>
+<p>To manage lists and subscriber list subscriptions via API requests, ensure that the appropriate permissions are attached to the API user.</p>
+<hr />
 <h2 id="response-structure">Response structure<a class="headerlink" href="#response-structure" title="Permanent link">&para;</a></h2>
 <h3 id="successful-request">Successful request<a class="headerlink" href="#successful-request" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
@@ -1273,6 +1369,8 @@
 </tr>
 </tbody>
 </table>
+<h2 id="openapi-swagger-spec">OpenAPI (Swagger) spec<a class="headerlink" href="#openapi-swagger-spec" title="Permanent link">&para;</a></h2>
+<p>The auto-generated OpenAPI (Swagger) specification site for the APIs are available at <a href="https://listmonk.app/docs/swagger/"><strong>listmonk.app/docs/swagger</strong></a></p>
 
 
 
