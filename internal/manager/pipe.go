@@ -27,7 +27,7 @@ type pipe struct {
 func (m *Manager) newPipe(c *models.Campaign) (*pipe, error) {
 	// Validate messenger.
 	if _, ok := m.messengers[c.Messenger]; !ok {
-		m.store.UpdateCampaignStatus(c.ID, models.CampaignStatusCancelled)
+		m.store.UpdateCampaignStatus(c.ID, models.CampaignStatusCancelled, c.AuthID)
 		return nil, fmt.Errorf("unknown messenger %s on campaign %s", c.Messenger, c.Name)
 	}
 
@@ -191,7 +191,7 @@ func (p *pipe) cleanup() {
 
 	// The campaign was auto-paused due to errors.
 	if p.withErrors.Load() {
-		if err := p.m.store.UpdateCampaignStatus(p.camp.ID, models.CampaignStatusPaused); err != nil {
+		if err := p.m.store.UpdateCampaignStatus(p.camp.ID, models.CampaignStatusPaused, p.camp.AuthID); err != nil {
 			p.m.log.Printf("error updating campaign (%s) status to %s: %v", p.camp.Name, models.CampaignStatusPaused, err)
 		} else {
 			p.m.log.Printf("set campaign (%s) to %s", p.camp.Name, models.CampaignStatusPaused)
@@ -202,7 +202,7 @@ func (p *pipe) cleanup() {
 	}
 
 	// Fetch the up-to-date campaign status from the DB.
-	c, err := p.m.store.GetCampaign(p.camp.ID)
+	c, err := p.m.store.GetCampaign(p.camp.ID, p.camp.AuthID)
 	if err != nil {
 		p.m.log.Printf("error fetching campaign (%s) for ending: %v", p.camp.Name, err)
 		return
@@ -211,7 +211,7 @@ func (p *pipe) cleanup() {
 	// If a running campaign has exhausted subscribers, it's finished.
 	if c.Status == models.CampaignStatusRunning {
 		c.Status = models.CampaignStatusFinished
-		if err := p.m.store.UpdateCampaignStatus(p.camp.ID, models.CampaignStatusFinished); err != nil {
+		if err := p.m.store.UpdateCampaignStatus(p.camp.ID, models.CampaignStatusFinished, p.camp.AuthID); err != nil {
 			p.m.log.Printf("error finishing campaign (%s): %v", p.camp.Name, err)
 		} else {
 			p.m.log.Printf("campaign (%s) finished", p.camp.Name)

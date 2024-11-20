@@ -80,8 +80,37 @@ func handleGetDashboardCounts(c echo.Context) error {
 	var (
 		app = c.Get("app").(*App)
 	)
+	authID := c.Request().Header.Get("X-Auth-ID")
+	if authID == "" {
+		return echo.NewHTTPError(http.StatusBadRequest, "authid is required")
+	}
 
-	out, err := app.core.GetDashboardCounts()
+	from_date := c.QueryParam("from_date")
+	to_date := c.QueryParam("to_date")
+	if from_date != "" || to_date != "" {
+		RFC3339dateLayout := "2006-01-02"
+		fromdate, err := time.Parse(RFC3339dateLayout, from_date)
+
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, map[string]interface{}{"error": "Please validate from date"})
+		}
+
+		todate, err := time.Parse(RFC3339dateLayout, to_date)
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, map[string]interface{}{"error": "Please validate to date"})
+		}
+
+		now := time.Now()
+		if fromdate.After(now) || todate.After(now) {
+			return c.JSON(http.StatusBadRequest, map[string]interface{}{"error": "Dates cannot be in the future"})
+		}
+
+		if fromdate.After(todate) {
+			return c.JSON(http.StatusBadRequest, map[string]interface{}{"error": "To date should be after the from date. Please validate from & to date"})
+		}
+	}
+
+	out, err := app.core.GetDashboardCounts(authID, from_date, to_date)
 	if err != nil {
 		return err
 	}

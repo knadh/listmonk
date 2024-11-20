@@ -21,6 +21,11 @@ func (c *Core) GetSettings(authID string) (models.Settings, error) {
 				"name", "{globals.terms.settings}", "error", pqErrMsg(err)))
 	}
 
+	if len(b) == 0 {
+		return out, echo.NewHTTPError(http.StatusInternalServerError,
+			c.i18n.Ts("globals.messages.notFound", "name", "{globals.terms.settings}"))
+	}
+
 	// Unmarshal the settings and filter out sensitive fields.
 	if err := json.Unmarshal([]byte(b), &out); err != nil {
 		return out, echo.NewHTTPError(http.StatusInternalServerError,

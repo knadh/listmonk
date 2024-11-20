@@ -51,6 +51,11 @@ func (c *Core) GetMedia(id int, uuid string, s media.Store, authID string) (medi
 
 	var out media.Media
 	if err := c.q.GetMedia.Get(&out, id, uu, authID); err != nil {
+		if out.ID == 0 {
+			return out, echo.NewHTTPError(http.StatusBadRequest,
+				c.i18n.Ts("globals.messages.notFound", "name",
+					fmt.Sprintf("{globals.terms.media} (%d:)", id)))
+		}
 		return out, echo.NewHTTPError(http.StatusInternalServerError,
 			c.i18n.Ts("globals.messages.errorFetching", "name", "{globals.terms.media}", "error", pqErrMsg(err)))
 	}
@@ -84,13 +89,17 @@ func (c *Core) InsertMedia(fileName, thumbName, contentType string, meta models.
 }
 
 // DeleteMedia deletes a given media item and returns the filename of the deleted item.
-func (c *Core) DeleteMedia(id int, authID string) (string, error) {
-	var fname string
-	if err := c.q.DeleteMedia.Get(&fname, id, authID); err != nil {
-		c.log.Printf("error inserting uploaded file to db: %v", err)
-		return "", echo.NewHTTPError(http.StatusInternalServerError,
-			c.i18n.Ts("globals.messages.errorCreating", "name", "{globals.terms.media}", "error", pqErrMsg(err)))
+func (c *Core) DeleteMedia(id int, authID string) error {
+	res, err := c.q.DeleteMedia.Exec(id, authID)
+	if err != nil {
+		c.log.Printf("error deleting media: %v", err)
+		return echo.NewHTTPError(http.StatusInternalServerError,
+			c.i18n.Ts("globals.messages.errorDeleting", "name", "{globals.terms.media}", "error", pqErrMsg(err)))
+	}
+	if n, _ := res.RowsAffected(); n == 0 {
+		return echo.NewHTTPError(http.StatusBadRequest,
+			c.i18n.Ts("globals.messages.notFound", "name", "{globals.terms.media}"))
 	}
 
-	return fname, nil
+	return nil
 }

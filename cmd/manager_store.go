@@ -48,9 +48,9 @@ func (s *store) NextSubscribers(campID, limit int) ([]models.Subscriber, error) 
 }
 
 // GetCampaign fetches a campaign from the database.
-func (s *store) GetCampaign(campID int) (*models.Campaign, error) {
+func (s *store) GetCampaign(campID int, authid string) (*models.Campaign, error) {
 	var out = &models.Campaign{}
-	err := s.queries.GetCampaign.Get(out, campID, nil, nil, "default")
+	err := s.queries.GetCampaign.Get(out, campID, nil, nil, "default", authid)
 	return out, err
 }
 
@@ -62,8 +62,8 @@ func (s *store) GetCampaignByAuthId(AuthID string) (*models.Campaign, error) {
 }
 
 // UpdateCampaignStatus updates a campaign's status.
-func (s *store) UpdateCampaignStatus(campID int, status string) error {
-	_, err := s.queries.UpdateCampaignStatus.Exec(campID, status)
+func (s *store) UpdateCampaignStatus(campID int, status string, authid string) error {
+	_, err := s.queries.UpdateCampaignStatus.Exec(campID, status, authid)
 	return err
 }
 
@@ -74,8 +74,8 @@ func (s *store) UpdateCampaignCounts(campID int, toSend int, sent int, lastSubID
 }
 
 // GetAttachment fetches a media attachment blob.
-func (s *store) GetAttachment(mediaID int) (models.Attachment, error) {
-	m, err := s.core.GetMedia(mediaID, "", s.media, "")
+func (s *store) GetAttachment(mediaID int, authid string) (models.Attachment, error) {
+	m, err := s.core.GetMedia(mediaID, "", s.media, authid)
 	if err != nil {
 		return models.Attachment{}, err
 	}
@@ -93,7 +93,7 @@ func (s *store) GetAttachment(mediaID int) (models.Attachment, error) {
 }
 
 // CreateLink registers a URL with a UUID for tracking clicks and returns the UUID.
-func (s *store) CreateLink(url string) (string, error) {
+func (s *store) CreateLink(url string, authid string) (string, error) {
 	// Create a new UUID for the URL. If the URL already exists in the DB
 	// the UUID in the database is returned.
 	uu, err := uuid.NewV4()
@@ -102,7 +102,7 @@ func (s *store) CreateLink(url string) (string, error) {
 	}
 
 	var out string
-	if err := s.queries.CreateLink.Get(&out, uu, url); err != nil {
+	if err := s.queries.CreateLink.Get(&out, uu, url, authid); err != nil {
 		return "", err
 	}
 

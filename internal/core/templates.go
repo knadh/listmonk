@@ -43,7 +43,7 @@ func (c *Core) CreateTemplate(name, typ, subject string, body []byte, authID str
 			c.i18n.Ts("globals.messages.errorCreating", "name", "{globals.terms.template}", "error", pqErrMsg(err)))
 	}
 
-	return c.GetTemplate(newID, false, "")
+	return c.GetTemplate(newID, false, authID)
 }
 
 // UpdateTemplate updates a given template.

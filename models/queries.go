@@ -49,23 +49,26 @@ type Queries struct {
 	DeleteSubscriptionsByQuery             string     `query:"delete-subscriptions-by-query"`
 	UnsubscribeSubscribersFromListsByQuery string     `query:"unsubscribe-subscribers-from-lists-by-query"`
 
-	CreateList       *sqlx.Stmt `query:"create-list"`
-	QueryLists       string     `query:"query-lists"`
-	GetLists         *sqlx.Stmt `query:"get-lists"`
-	GetListsByAuthID *sqlx.Stmt `query:"get-lists-authid"`
-	GetListsByOptin  *sqlx.Stmt `query:"get-lists-by-optin"`
-	UpdateList       *sqlx.Stmt `query:"update-list"`
-	UpdateListsDate  *sqlx.Stmt `query:"update-lists-date"`
-	DeleteLists      *sqlx.Stmt `query:"delete-lists"`
+	CreateList         *sqlx.Stmt `query:"create-list"`
+	QueryLists         string     `query:"query-lists"`
+	GetLists           *sqlx.Stmt `query:"get-lists"`
+	GetListsByAuthID   *sqlx.Stmt `query:"get-lists-authid"`
+	CheckListsByAuthID *sqlx.Stmt `query:"check-lists-authid"`
+	GetListsByOptin    *sqlx.Stmt `query:"get-lists-by-optin"`
+	UpdateList         *sqlx.Stmt `query:"update-list"`
+	UpdateListsDate    *sqlx.Stmt `query:"update-lists-date"`
+	DeleteLists        *sqlx.Stmt `query:"delete-lists"`
 
-	CreateCampaign        *sqlx.Stmt `query:"create-campaign"`
-	QueryCampaigns        string     `query:"query-campaigns"`
-	GetCampaign           *sqlx.Stmt `query:"get-campaign"`
-	GetCampaignByAuthId   *sqlx.Stmt `query:"get-campaign-authid"`
-	GetCampaignForPreview *sqlx.Stmt `query:"get-campaign-for-preview"`
-	GetCampaignStats      *sqlx.Stmt `query:"get-campaign-stats"`
-	GetCampaignStatus     *sqlx.Stmt `query:"get-campaign-status"`
-	GetArchivedCampaigns  *sqlx.Stmt `query:"get-archived-campaigns"`
+	CreateCampaign               *sqlx.Stmt `query:"create-campaign"`
+	CheckInsertCampaignValidData *sqlx.Stmt `query:"check-insert-campaign-valid-data"`
+	CheckUpdateCampaignValidData *sqlx.Stmt `query:"check-update-campaign-valid-data"`
+	QueryCampaigns               string     `query:"query-campaigns"`
+	GetCampaign                  *sqlx.Stmt `query:"get-campaign"`
+	GetCampaignByAuthId          *sqlx.Stmt `query:"get-campaign-authid"`
+	GetCampaignForPreview        *sqlx.Stmt `query:"get-campaign-for-preview"`
+	GetCampaignStats             *sqlx.Stmt `query:"get-campaign-stats"`
+	GetCampaignStatus            *sqlx.Stmt `query:"get-campaign-status"`
+	GetArchivedCampaigns         *sqlx.Stmt `query:"get-archived-campaigns"`
 
 	// These two queries are read as strings and based on settings.individual_tracking=on/off,
 	// are interpolated and copied to view and click counts. Same query, different tables.

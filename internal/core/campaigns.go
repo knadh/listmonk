@@ -2,11 +2,13 @@ package core
 
 import (
 	"database/sql"
+	"encoding/json"
 	"net/http"
 	"time"
 
 	"github.com/gofrs/uuid/v5"
 	"github.com/jmoiron/sqlx"
+	"github.com/jmoiron/sqlx/types"
 	"github.com/knadh/listmonk/models"
 	"github.com/labstack/echo/v4"
 	"github.com/lib/pq"
@@ -250,10 +252,6 @@ func (c *Core) CreateCampaign(o models.Campaign, listIDs []int, mediaIDs []int, 
 	// Set AuthID
 	o.AuthID = authID
 
-	// Ensure that template_id and list_id are provided
-	if o.TemplateID == 0 {
-		return models.Campaign{}, echo.NewHTTPError(http.StatusBadRequest, "Template ID is required.")
-	}
 	if len(listIDs) == 0 {
 		return models.Campaign{}, echo.NewHTTPError(http.StatusBadRequest, "List ID is required.")
 	}
@@ -309,6 +307,30 @@ func (c *Core) CreateCampaign(o models.Campaign, listIDs []int, mediaIDs []int, 
 		}
 	}
 
+	var out1 types.JSONText
+	if err := c.q.CheckInsertCampaignValidData.Get(&out1, o.Name, o.AuthID, o.TemplateID, pq.Array(mediaIDs), pq.Array(listIDs)); err != nil {
+		return models.Campaign{}, echo.NewHTTPError(http.StatusInternalServerError,
+			c.i18n.Ts("globals.messages.errorFetching", "name", "dashboard stats", "error", pqErrMsg(err)))
+	}
+	var validationData map[string]interface{}
+	if err := json.Unmarshal(out1, &validationData); err != nil {
+		return models.Campaign{}, echo.NewHTTPError(http.StatusInternalServerError,
+			c.i18n.T("globals.messages.errorParsingResponse"))
+	}
+
+	if validationData["duplicateCount"].(float64) > 0 {
+		return models.Campaign{}, echo.NewHTTPError(http.StatusBadRequest, c.i18n.Ts("globals.messages.invalidFields", "name", "Name"))
+	}
+	if o.TemplateID != 0 && validationData["templateCount"].(float64) < 1 {
+		return models.Campaign{}, echo.NewHTTPError(http.StatusBadRequest, c.i18n.Ts("globals.messages.notFound", "name", "{globals.terms.template}"))
+	}
+	if len(mediaIDs) > 0 && validationData["mediaCount"].(float64) < 1 {
+		return models.Campaign{}, echo.NewHTTPError(http.StatusBadRequest, c.i18n.Ts("globals.messages.notFound", "name", "{globals.terms.media}"))
+	}
+	if validationData["listCount"].(float64) < 1 {
+		return models.Campaign{}, echo.NewHTTPError(http.StatusBadRequest, c.i18n.Ts("globals.messages.notFound", "name", "{globals.terms.list}"))
+	}
+
 	// Insert the campaign into the database
 	var newID int
 	if err := c.q.CreateCampaign.Get(&newID,
@@ -340,7 +362,7 @@ func (c *Core) CreateCampaign(o models.Campaign, listIDs []int, mediaIDs []int, 
 		o.FromPhone); // language for TTS campaigns
 	err != nil {
 		if err == sql.ErrNoRows {
-			return models.Campaign{}, echo.NewHTTPError(http.StatusBadRequest, c.i18n.T("campaigns.noSubs"))
+			return models.Campaign{}, echo.NewHTTPError(http.StatusBadRequest, c.i18n.T("campaigns.notFound"))
 		}
 
 		c.log.Printf("error creating campaign: %v", err)
@@ -361,6 +383,30 @@ func (c *Core) CreateCampaign(o models.Campaign, listIDs []int, mediaIDs []int, 
 func (c *Core) UpdateCampaign(id int, o models.Campaign, listIDs []int, mediaIDs []int, sendLater bool, authid string) (models.Campaign, error) {
 
 	o.AuthID = authid
+
+	var out1 types.JSONText
+	if err := c.q.CheckUpdateCampaignValidData.Get(&out1, o.Name, o.AuthID, o.TemplateID, pq.Array(mediaIDs), pq.Array(listIDs), id); err != nil {
+		return models.Campaign{}, echo.NewHTTPError(http.StatusInternalServerError,
+			c.i18n.Ts("globals.messages.errorFetching", "name", "dashboard stats", "error", pqErrMsg(err)))
+	}
+	var validationData map[string]interface{}
+	if err := json.Unmarshal(out1, &validationData); err != nil {
+		return models.Campaign{}, echo.NewHTTPError(http.StatusInternalServerError,
+			c.i18n.T("globals.messages.errorParsingResponse"))
+	}
+
+	if validationData["duplicateCount"].(float64) > 0 {
+		return models.Campaign{}, echo.NewHTTPError(http.StatusBadRequest, c.i18n.Ts("globals.messages.invalidFields", "name", "Name"))
+	}
+	if validationData["templateCount"].(float64) < 1 {
+		return models.Campaign{}, echo.NewHTTPError(http.StatusBadRequest, c.i18n.Ts("globals.messages.notFound", "name", "{globals.terms.template}"))
+	}
+	if len(mediaIDs) > 0 && validationData["mediaCount"].(float64) < 1 {
+		return models.Campaign{}, echo.NewHTTPError(http.StatusBadRequest, c.i18n.Ts("globals.messages.notFound", "name", "{globals.terms.media}"))
+	}
+	if validationData["listCount"].(float64) < 1 {
+		return models.Campaign{}, echo.NewHTTPError(http.StatusBadRequest, c.i18n.Ts("globals.messages.notFound", "name", "{globals.terms.list}"))
+	}
 
 	_, err := c.q.UpdateCampaign.Exec(id,
 		o.Name,
@@ -485,7 +531,7 @@ func (c *Core) DeleteCampaign(id int, authID string) error {
 // GetRunningCampaignStats returns the progress stats of running campaigns.
 func (c *Core) GetRunningCampaignStats(authID string) ([]models.CampaignStats, error) {
 	out := []models.CampaignStats{}
-	if err := c.q.GetCampaignStatus.Select(&out, models.CampaignStatusRunning); err != nil {
+	if err := c.q.GetCampaignStatus.Select(&out, models.CampaignStatusRunning, authID); err != nil {
 		if err == sql.ErrNoRows {
 			return nil, nil
 		}

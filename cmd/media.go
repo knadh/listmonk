@@ -198,13 +198,9 @@ func handleDeleteMedia(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidID"))
 	}
 
-	fname, err := app.core.DeleteMedia(id, authID)
-	if err != nil {
+	if err := app.core.DeleteMedia(id, authID); err != nil {
 		return err
 	}
-
-	app.media.Delete(fname)
-	app.media.Delete(thumbPrefix + fname)
 
 	return c.JSON(http.StatusOK, okResp{true})
 }

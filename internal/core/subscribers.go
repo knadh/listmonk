@@ -298,7 +298,7 @@ func (c *Core) InsertSubscriber(sub models.Subscriber, listIDs []int, listUUIDs 
 		pq.Array(listUUIDs),
 		subStatus,
 		sub.AuthID); err != nil {
-		if pqErr, ok := err.(*pq.Error); ok && pqErr.Constraint == "subscribers_email_key" {
+		if pqErr, ok := err.(*pq.Error); ok && pqErr.Constraint == "idx_subs_email_authid" {
 			return models.Subscriber{}, false, echo.NewHTTPError(http.StatusConflict, c.i18n.T("subscribers.emailExists"))
 		} else {
 			// return sub.Subscriber, errSubscriberExists
@@ -396,8 +396,13 @@ func (c *Core) UpdateSubscriberWithLists(id int, sub models.Subscriber, listIDs 
 		sub.AuthID)
 	if err != nil {
 		c.log.Printf("error updating subscriber: %v", err)
-		return models.Subscriber{}, false, echo.NewHTTPError(http.StatusInternalServerError,
-			c.i18n.Ts("globals.messages.errorUpdating", "name", "{globals.terms.subscriber}", "error", pqErrMsg(err)))
+		if pqErr, ok := err.(*pq.Error); ok && pqErr.Constraint == "subscribers_email_key" {
+			return models.Subscriber{}, false, echo.NewHTTPError(http.StatusConflict, c.i18n.T("subscribers.emailExists"))
+		} else {
+			c.log.Printf("error updating subscriber: %v", err)
+			return models.Subscriber{}, false, echo.NewHTTPError(http.StatusInternalServerError,
+				c.i18n.Ts("globals.messages.errorUpdating", "name", "{globals.terms.subscriber}", "error", pqErrMsg(err)))
+		}
 	}
 
 	out, err := c.GetSubscriber(sub.ID, "", sub.Email, sub.AuthID)
@@ -417,10 +422,17 @@ func (c *Core) UpdateSubscriberWithLists(id int, sub models.Subscriber, listIDs 
 
 // BlocklistSubscribers blocklists the given list of subscribers.
 func (c *Core) BlocklistSubscribers(subIDs []int, authID string) error {
-	if _, err := c.q.BlocklistSubscribers.Exec(pq.Array(subIDs), authID); err != nil {
+	res, err := c.q.BlocklistSubscribers.Exec(pq.Array(subIDs), authID)
+
+	if err != nil {
 		c.log.Printf("error blocklisting subscribers: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			c.i18n.Ts("subscribers.errorBlocklisting", "error", err.Error()))
+	}
+
+	if n, _ := res.RowsAffected(); n == 0 {
+		return echo.NewHTTPError(http.StatusBadRequest,
+			c.i18n.Ts("globals.messages.notFound", "name", "{globals.terms.subscribers}"))
 	}
 
 	return nil
@@ -446,10 +458,17 @@ func (c *Core) DeleteSubscribers(subIDs []int, subUUIDs []string, authID string)
 		subUUIDs = []string{}
 	}
 
-	if _, err := c.q.DeleteSubscribers.Exec(pq.Array(subIDs), pq.Array(subUUIDs), authID); err != nil {
+	res, err := c.q.DeleteSubscribers.Exec(pq.Array(subIDs), pq.Array(subUUIDs), authID)
+
+	if err != nil {
 		c.log.Printf("error deleting subscribers: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			c.i18n.Ts("globals.messages.errorDeleting", "name", "{globals.terms.subscribers}", "error", pqErrMsg(err)))
+	}
+
+	if n, _ := res.RowsAffected(); n == 0 {
+		return echo.NewHTTPError(http.StatusBadRequest,
+			c.i18n.Ts("globals.messages.notFound", "name", "{globals.terms.subscribers}"))
 	}
 
 	return nil
@@ -541,7 +560,7 @@ func (c *Core) getSubscriberCount(cond, subStatus string, listIDs []int, authId 
 		_ = c.refreshCache(matListSubStats, false)
 
 		total := 0
-		if err := c.q.QuerySubscribersCountAll.Get(&total, pq.Array(listIDs), subStatus); err != nil {
+		if err := c.q.QuerySubscribersCountAll.Get(&total, pq.Array(listIDs), subStatus, authId); err != nil {
 			return 0, echo.NewHTTPError(http.StatusInternalServerError,
 				c.i18n.Ts("globals.messages.errorFetching", "name", "{globals.terms.subscribers}", "error", pqErrMsg(err)))
 		}

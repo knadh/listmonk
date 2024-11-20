@@ -13,15 +13,17 @@ DROP TABLE IF EXISTS subscribers CASCADE;
 CREATE TABLE subscribers (
     id              SERIAL PRIMARY KEY,
     uuid uuid       NOT NULL UNIQUE,
-    email           TEXT NOT NULL UNIQUE,
+    email           TEXT NOT NULL,
     name            TEXT NOT NULL,
     attribs         JSONB NOT NULL DEFAULT '{}',
     status          subscriber_status NOT NULL DEFAULT 'enabled',
 
     created_at      TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    updated_at      TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+    updated_at      TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    authid          VARCHAR NOT NULL DEFAULT 'auth123'
 );
-DROP INDEX IF EXISTS idx_subs_email; CREATE UNIQUE INDEX idx_subs_email ON subscribers(LOWER(email));
+DROP INDEX IF EXISTS idx_subs_email;
+DROP INDEX IF EXISTS idx_subs_email_authid; CREATE UNIQUE INDEX idx_subs_email_authid ON subscribers(LOWER(email), authid);
 DROP INDEX IF EXISTS idx_subs_status; CREATE INDEX idx_subs_status ON subscribers(status);
 DROP INDEX IF EXISTS idx_subs_created_at; CREATE INDEX idx_subs_created_at ON subscribers(created_at);
 DROP INDEX IF EXISTS idx_subs_updated_at; CREATE INDEX idx_subs_updated_at ON subscribers(updated_at);
@@ -38,7 +40,8 @@ CREATE TABLE lists (
     description     TEXT NOT NULL DEFAULT '',
 
     created_at      TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    updated_at      TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+    updated_at      TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    authid          VARCHAR NOT NULL DEFAULT 'auth123'
 );
 DROP INDEX IF EXISTS idx_lists_type; CREATE INDEX idx_lists_type ON lists(type);
 DROP INDEX IF EXISTS idx_lists_optin; CREATE INDEX idx_lists_optin ON lists(optin);
@@ -56,7 +59,7 @@ CREATE TABLE subscriber_lists (
 
     created_at         TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at         TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-
+    authid             VARCHAR NOT NULL DEFAULT 'auth123',
     PRIMARY KEY(subscriber_id, list_id)
 );
 DROP INDEX IF EXISTS idx_sub_lists_sub_id; CREATE INDEX idx_sub_lists_sub_id ON subscriber_lists(subscriber_id);
@@ -74,9 +77,10 @@ CREATE TABLE templates (
     is_default      BOOLEAN NOT NULL DEFAULT false,
 
     created_at      TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    updated_at      TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+    updated_at      TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    authid          VARCHAR NOT NULL DEFAULT 'auth123'
 );
-CREATE UNIQUE INDEX ON templates (is_default) WHERE is_default = true;
+CREATE UNIQUE INDEX ON templates (is_default, authid) WHERE is_default = true;
 
 
 -- campaigns
@@ -117,7 +121,14 @@ CREATE TABLE campaigns (
 
     started_at       TIMESTAMP WITH TIME ZONE,
     created_at       TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    updated_at       TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+    updated_at       TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    authid           VARCHAR NOT NULL DEFAULT 'auth123',
+    music_id         TEXT,
+	vendor           TEXT,
+	loop             INT,
+	voice            TEXT,
+	language         TEXT,
+	fromphone        TEXT
 );
 DROP INDEX IF EXISTS idx_camps_status; CREATE INDEX idx_camps_status ON campaigns(status);
 DROP INDEX IF EXISTS idx_camps_name; CREATE INDEX idx_camps_name ON campaigns(name);
@@ -133,7 +144,8 @@ CREATE TABLE campaign_lists (
     -- Lists may be deleted, so list_id is nullable
     -- and a copy of the original list name is maintained here.
     list_id      INTEGER NULL REFERENCES lists(id) ON DELETE SET NULL ON UPDATE CASCADE,
-    list_name    TEXT NOT NULL DEFAULT ''
+    list_name    TEXT NOT NULL DEFAULT '',
+    authid       VARCHAR NOT NULL DEFAULT 'auth123'
 );
 CREATE UNIQUE INDEX ON campaign_lists (campaign_id, list_id);
 DROP INDEX IF EXISTS idx_camp_lists_camp_id; CREATE INDEX idx_camp_lists_camp_id ON campaign_lists(campaign_id);
@@ -146,7 +158,8 @@ CREATE TABLE campaign_views (
 
     -- Subscribers may be deleted, but the view counts should remain.
     subscriber_id    INTEGER NULL REFERENCES subscribers(id) ON DELETE SET NULL ON UPDATE CASCADE,
-    created_at       TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+    created_at       TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    authid           VARCHAR NOT NULL DEFAULT 'auth123'
 );
 DROP INDEX IF EXISTS idx_views_camp_id; CREATE INDEX idx_views_camp_id ON campaign_views(campaign_id);
 DROP INDEX IF EXISTS idx_views_subscriber_id; CREATE INDEX idx_views_subscriber_id ON campaign_views(subscriber_id);
@@ -162,7 +175,8 @@ CREATE TABLE media (
     content_type     TEXT NOT NULL DEFAULT 'application/octet-stream',
     thumb            TEXT NOT NULL,
     meta             JSONB NOT NULL DEFAULT '{}',
-    created_at       TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+    created_at       TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    authid           VARCHAR NOT NULL DEFAULT 'auth123'
 );
 
 -- campaign_media
@@ -174,7 +188,8 @@ CREATE TABLE campaign_media (
     -- and a copy of the original name is maintained here.
     media_id     INTEGER NULL REFERENCES media(id) ON DELETE SET NULL ON UPDATE CASCADE,
 
-    filename     TEXT NOT NULL DEFAULT ''
+    filename     TEXT NOT NULL DEFAULT '',
+    authid       VARCHAR NOT NULL DEFAULT 'auth123'
 );
 DROP INDEX IF EXISTS idx_camp_media_id; CREATE UNIQUE INDEX idx_camp_media_id ON campaign_media (campaign_id, media_id);
 DROP INDEX IF EXISTS idx_camp_media_camp_id; CREATE INDEX idx_camp_media_camp_id ON campaign_media(campaign_id);
@@ -186,7 +201,8 @@ CREATE TABLE links (
     id               SERIAL PRIMARY KEY,
     uuid uuid        NOT NULL UNIQUE,
     url              TEXT NOT NULL UNIQUE,
-    created_at       TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+    created_at       TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    authid           VARCHAR NOT NULL DEFAULT 'auth123'
 );
 
 DROP TABLE IF EXISTS link_clicks CASCADE;
@@ -197,7 +213,8 @@ CREATE TABLE link_clicks (
 
     -- Subscribers may be deleted, but the link counts should remain.
     subscriber_id    INTEGER NULL REFERENCES subscribers(id) ON DELETE SET NULL ON UPDATE CASCADE,
-    created_at       TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+    created_at       TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    authid           VARCHAR NOT NULL DEFAULT 'auth123'
 );
 DROP INDEX IF EXISTS idx_clicks_camp_id; CREATE INDEX idx_clicks_camp_id ON link_clicks(campaign_id);
 DROP INDEX IF EXISTS idx_clicks_link_id; CREATE INDEX idx_clicks_link_id ON link_clicks(link_id);
@@ -209,7 +226,8 @@ DROP TABLE IF EXISTS settings CASCADE;
 CREATE TABLE settings (
     key             TEXT NOT NULL UNIQUE,
     value           JSONB NOT NULL DEFAULT '{}',
-    updated_at      TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+    updated_at      TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    authid          VARCHAR NOT NULL DEFAULT 'auth123'
 );
 DROP INDEX IF EXISTS idx_settings_key; CREATE INDEX idx_settings_key ON settings(key);
 INSERT INTO settings (key, value) VALUES
@@ -288,7 +306,8 @@ CREATE TABLE bounces (
     type             bounce_type NOT NULL DEFAULT 'hard',
     source           TEXT NOT NULL DEFAULT '',
     meta             JSONB NOT NULL DEFAULT '{}',
-    created_at       TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+    created_at       TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    authid           VARCHAR NOT NULL DEFAULT 'auth123'
 );
 DROP INDEX IF EXISTS idx_bounces_sub_id; CREATE INDEX idx_bounces_sub_id ON bounces(subscriber_id);
 DROP INDEX IF EXISTS idx_bounces_camp_id; CREATE INDEX idx_bounces_camp_id ON bounces(campaign_id);
@@ -326,11 +345,11 @@ CREATE MATERIALIZED VIEW mat_dashboard_counts AS
             'campaigns', JSON_BUILD_OBJECT(
                 'total', (SELECT COUNT(*) FROM campaigns),
                 'by_status', (
-                    SELECT JSON_OBJECT_AGG (status, num) FROM
-                    (SELECT status, COUNT(*) AS num FROM campaigns GROUP BY status) r
+SELECT JSON_OBJECT_AGG (status, num) FROM
+(SELECT status, COUNT(*) AS num FROM campaigns GROUP BY status) r
                 )
-            ),
-            'messages', (SELECT SUM(sent) AS messages FROM campaigns)
+),
+                'messages', (SELECT SUM(sent) AS messages FROM campaigns)
         ) AS data;
 DROP INDEX IF EXISTS mat_dashboard_stats_idx; CREATE UNIQUE INDEX mat_dashboard_stats_idx ON mat_dashboard_counts (updated_at);
 

@@ -114,8 +114,9 @@ func handlePreviewTemplate(c echo.Context) error {
 			FromEmail:    "dummy-campaign@listmonk.app",
 			TemplateBody: tpl.Body,
 			Body:         dummyTpl,
+			AuthID:       authID,
 		}
-
+		
 		if err := camp.CompileTemplate(app.manager.TemplateFuncs(&camp)); err != nil {
 			return echo.NewHTTPError(http.StatusBadRequest,
 				app.i18n.Ts("templates.errorCompiling", "error", err.Error()))

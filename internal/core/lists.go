@@ -61,6 +61,20 @@ func (c *Core) GetLists(typ string, authID string) ([]models.List, error) {
 // 	return out, nil
 // }
 
+// check lists for authid
+// GetListsByAuthID gets all lists associated with a particular authid.
+func (c *Core) GetListsByAuthID(ListIDs []int, authid string) (int, error) {
+
+	var count int
+	if err := c.q.CheckListsByAuthID.Get(&count, authid, pq.Array(ListIDs)); err != nil {
+		c.log.Printf("error fetching lists by authid: %v", err)
+		return 0, echo.NewHTTPError(http.StatusInternalServerError,
+			c.i18n.Ts("globals.messages.errorFetching", "name", "{globals.terms.lists}", "error", pqErrMsg(err)))
+	}
+
+	return count, nil
+}
+
 // QueryLists gets multiple lists based on multiple query params. Along with the  paginated and sliced
 // results, the total number of lists in the DB is returned.
 func (c *Core) QueryLists(searchStr, typ, optin string, tags []string, orderBy, order string, offset, limit int, authID string) ([]models.List, int, error) {
@@ -202,10 +216,15 @@ func (c *Core) DeleteList(id int, authID string) error {
 
 // DeleteLists deletes multiple lists.
 func (c *Core) DeleteLists(ids []int, authID string) error {
-	if _, err := c.q.DeleteLists.Exec(pq.Array(ids), authID); err != nil {
+	res, err := c.q.DeleteLists.Exec(pq.Array(ids), authID)
+	if err != nil {
 		c.log.Printf("error deleting lists: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			c.i18n.Ts("globals.messages.errorDeleting", "name", "{globals.terms.list}", "error", pqErrMsg(err)))
+	}
+	if n, _ := res.RowsAffected(); n == 0 {
+		return echo.NewHTTPError(http.StatusBadRequest,
+			c.i18n.Ts("globals.messages.notFound", "name", "{globals.terms.list}"))
 	}
 	return nil
 }

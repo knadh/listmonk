@@ -34,7 +34,13 @@ func handleImportSubscribers(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest,
 			app.i18n.Ts("import.invalidParams", "error", err.Error()))
 	}
-
+	count, err := app.core.GetListsByAuthID(opt.ListIDs, authID)
+	if err != nil {
+		return err
+	}
+	if count == 0 {
+		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.Ts("import.invalidParams", "error", "{globals.terms.list}"))
+	}
 	// Validate mode.
 	if opt.Mode != subimporter.ModeSubscribe && opt.Mode != subimporter.ModeBlocklist {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("import.invalidMode"))

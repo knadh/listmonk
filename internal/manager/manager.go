@@ -30,12 +30,12 @@ const (
 type Store interface {
 	NextCampaigns(currentIDs []int64, sentCounts []int64) ([]*models.Campaign, error)
 	NextSubscribers(campID, limit int) ([]models.Subscriber, error)
-	GetCampaign(campID int) (*models.Campaign, error)
+	GetCampaign(campID int, authid string) (*models.Campaign, error)
 	GetCampaignByAuthId(AuthID string) (*models.Campaign, error)
-	GetAttachment(mediaID int) (models.Attachment, error)
-	UpdateCampaignStatus(campID int, status string) error
+	GetAttachment(mediaID int, authid string) (models.Attachment, error)
+	UpdateCampaignStatus(campID int, status string, authid string) error
 	UpdateCampaignCounts(campID int, toSend int, sent int, lastSubID int) error
-	CreateLink(url string) (string, error)
+	CreateLink(url string, authid string) (string, error)
 	BlocklistSubscriber(id int64) error
 	DeleteSubscriber(id int64) error
 }
@@ -327,7 +327,7 @@ func (m *Manager) TemplateFuncs(c *models.Campaign) template.FuncMap {
 				subUUID = dummyUUID
 			}
 
-			return m.trackLink(url, msg.Campaign.UUID, subUUID)
+			return m.trackLink(url, msg.Campaign.UUID, subUUID, c.AuthID)
 		},
 		"TrackView": func(msg *CampaignMessage) template.HTML {
 			subUUID := msg.Subscriber.UUID
@@ -566,7 +566,7 @@ func (m *Manager) isCampaignProcessing(id int) bool {
 
 // trackLink register a URL and return its UUID to be used in message templates
 // for tracking links.
-func (m *Manager) trackLink(url, campUUID, subUUID string) string {
+func (m *Manager) trackLink(url, campUUID, subUUID string, authid string) string {
 	url = strings.ReplaceAll(url, "&amp;", "&")
 
 	m.linksMut.RLock()
@@ -577,7 +577,7 @@ func (m *Manager) trackLink(url, campUUID, subUUID string) string {
 	m.linksMut.RUnlock()
 
 	// Register link.
-	uu, err := m.store.CreateLink(url)
+	uu, err := m.store.CreateLink(url, authid)
 	if err != nil {
 		m.log.Printf("error registering tracking for link '%s': %v", url, err)
 
@@ -634,7 +634,7 @@ func (m *Manager) makeGnericFuncMap() template.FuncMap {
 func (m *Manager) attachMedia(c *models.Campaign) error {
 	// Load any media/attachments.
 	for _, mid := range []int64(c.MediaIDs) {
-		a, err := m.store.GetAttachment(int(mid))
+		a, err := m.store.GetAttachment(int(mid), c.AuthID)
 		if err != nil {
 			return fmt.Errorf("error fetching attachment %d on campaign %s: %v", mid, c.Name, err)
 		}
