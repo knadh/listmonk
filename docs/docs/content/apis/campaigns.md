@@ -37,6 +37,7 @@ Retrieve all campaigns.
 | tags     | []string |          | Tags to filter campaigns. Repeat in the query for multiple values.   |
 | page     | number   |          | Page number for paginated results.                                   |
 | per_page | number   |          | Results per page. Set as 'all' for all results.                      |
+| no_body  | boolean   |          | When set to true, returns response without body content.                      |
 
 ##### Example Response
 
@@ -94,6 +95,7 @@ Retrieve a specific campaign.
 | Name        | Type      | Required | Description  |
 |:------------|:----------|:---------|:-------------|
 | campaign_id | number    | Yes      | Campaign ID. |
+| no_body  | boolean   |          | When set to true, returns response without body content.                      |
 
 ##### Example Request
 
@@ -201,8 +203,8 @@ Retrieve stats of specified campaigns.
 |:------------|:----------|:---------|:----------------------------------------------|
 | id          |number\[\] | Yes      | Campaign IDs to get stats for.                |
 | type        |string     | Yes      | Analytics type: views, links, clicks, bounces |
-| from        |string     | Yes      | Campaign IDs to get stats for.                |
-| to          |string     | Yes      | Campaign IDs to get stats for.                |
+| from        |string     | Yes      | Start value of date range.                |
+| to          |string     | Yes      | End value of date range.                |
 
 
 ##### Example Request
