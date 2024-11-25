@@ -229,7 +229,7 @@ Delete a specific subscriber.
 ##### Example Request
 
 ```shell
-curl -u curl -u 'api_username:access_token' -X DELETE 'http://localhost:9000/api/lists/1'
+curl -u 'api_username:access_token' -X DELETE 'http://localhost:9000/api/lists/1'
 ```
 
 ##### Example Response
