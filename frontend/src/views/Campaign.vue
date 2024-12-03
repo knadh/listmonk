@@ -626,7 +626,7 @@ export default Vue.extend({
     },
 
     messengers() {
-      return ['email', ...this.serverConfig.messengers.map((m) => m.name)];
+      return [...this.serverConfig.messengers];
     },
   },
 
