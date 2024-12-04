@@ -666,7 +666,7 @@ func (s *Session) mapCSVHeaders(csvHdrs []string, knownHdrs map[string]bool) map
 	hdrKeys := make(map[string]int)
 	for i, h := range csvHdrs {
 		// Clean the string of non-ASCII characters (BOM etc.).
-		h := regexCleanStr.ReplaceAllString(h, "")
+		h := regexCleanStr.ReplaceAllString(strings.TrimSpace(h), "")
 		if _, ok := knownHdrs[h]; !ok {
 			s.log.Printf("ignoring unknown header '%s'", h)
 			continue
