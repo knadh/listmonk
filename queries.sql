@@ -432,7 +432,7 @@ SELECT * FROM lists WHERE (CASE WHEN $1 = '' THEN 1=1 ELSE type=$1::list_type EN
 
 -- name: query-lists
 WITH ls AS (
-	SELECT COUNT(*) OVER () AS total, lists.* FROM lists WHERE
+    SELECT COUNT(*) OVER () AS total, lists.* FROM lists WHERE
     CASE
         WHEN $1 > 0 THEN id = $1
         WHEN $2 != '' THEN uuid = $2::UUID
@@ -451,11 +451,12 @@ WITH ls AS (
 statuses AS (
     SELECT
         list_id,
-        COALESCE(JSONB_OBJECT_AGG(status, subscriber_count) FILTER (WHERE status IS NOT NULL), '{}') AS subscriber_statuses
+        COALESCE(JSONB_OBJECT_AGG(status, subscriber_count) FILTER (WHERE status IS NOT NULL), '{}') AS subscriber_statuses,
+        SUM(subscriber_count) AS subscriber_count
     FROM mat_list_subscriber_stats
     GROUP BY list_id
 )
-SELECT ls.*, COALESCE(ss.subscriber_statuses, '{}') AS subscriber_statuses
+SELECT ls.*, COALESCE(ss.subscriber_statuses, '{}') AS subscriber_statuses, COALESCE(ss.subscriber_count, 0) AS subscriber_count
     FROM ls LEFT JOIN statuses ss ON (ls.id = ss.list_id) ORDER BY %order%;
 
 -- name: get-lists-by-optin

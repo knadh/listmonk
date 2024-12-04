@@ -62,11 +62,6 @@ func (c *Core) QueryLists(searchStr, typ, optin string, tags []string, orderBy, 
 			if l.Tags == nil {
 				out[i].Tags = []string{}
 			}
-
-			// Total counts.
-			for _, c := range l.SubscriberCounts {
-				out[i].SubscriberCount += c
-			}
 		}
 	}
 

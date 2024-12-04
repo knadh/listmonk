@@ -293,7 +293,7 @@ type List struct {
 	Optin            string         `db:"optin" json:"optin"`
 	Tags             pq.StringArray `db:"tags" json:"tags"`
 	Description      string         `db:"description" json:"description"`
-	SubscriberCount  int            `db:"-" json:"subscriber_count"`
+	SubscriberCount  int            `db:"subscriber_count" json:"subscriber_count"`
 	SubscriberCounts StringIntMap   `db:"subscriber_statuses" json:"subscriber_statuses"`
 	SubscriberID     int            `db:"subscriber_id" json:"-"`
 
