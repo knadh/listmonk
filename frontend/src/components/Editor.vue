@@ -84,8 +84,8 @@
     <markdown-editor v-if="form.format === 'markdown'" v-model="form.body" />
 
     <!-- plain text //-->
-    <b-input v-if="form.format === 'plain'" v-model="form.body" @input="onEditorChange"
-      type="textarea" name="content" ref="plainEditor" class="plain-editor" />
+    <b-input v-if="form.format === 'plain'" v-model="form.body" @input="onEditorChange" type="textarea" name="content"
+      ref="plainEditor" class="plain-editor" />
 
     <!-- campaign preview //-->
     <campaign-preview v-if="isPreviewing" @close="onTogglePreview" type="campaign" :id="id" :title="title"
@@ -103,7 +103,7 @@
 </template>
 
 <script>
-import { indent } from 'indent.js';
+import { html as beautifyHTML } from 'js-beautify';
 import TurndownService from 'turndown';
 import { mapState } from 'vuex';
 
@@ -426,7 +426,12 @@ export default {
       // Remove extra linebreaks.
       s = s.replace(/\n+/g, '\n');
 
-      return indent.html(s, { tabString: '  ' }).trim();
+      return beautifyHTML(s, {
+        indent_size: 4,
+        indent_char: ' ',
+        max_preserve_newlines: 2,
+        inline: ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'b', 'strong', 'span', 'em', 'i', 'code', 'a'],
+      }).trim();
     },
 
     trimLines(str, removeEmptyLines) {
