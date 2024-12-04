@@ -604,10 +604,11 @@ Delete subscribers based on SQL expression.
 
 ##### Parameters
 
-| Name     | Type     | Required | Description                                 |
-|:---------|:---------|:---------|:--------------------------------------------|
-| query    | string   | Yes      | SQL expression to filter subscribers with.  |
-| list_ids | []number | No       | Optional list IDs to limit the filtering to.|
+| Name     | Type     | Required | Description                                                        |
+|:---------|:---------|:---------|:-------------------------------------------------------------------|
+| query    | string   | No       | SQL expression to filter subscribers with.                         |
+| list_ids | []number | No       | Optional list IDs to limit the filtering to.                       |
+| all      | bool     | No       | When set to `true`, ignores any query and deletes all subscribers. |
 
 
 ##### Example Request

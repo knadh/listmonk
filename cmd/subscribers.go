@@ -30,6 +30,7 @@ type subQueryReq struct {
 	Action             string `json:"action"`
 	Status             string `json:"status"`
 	SubscriptionStatus string `json:"subscription_status"`
+	All                bool   `json:"all"`
 }
 
 // subProfileData represents a subscriber's collated data in JSON
@@ -439,7 +440,9 @@ func handleDeleteSubscribersByQuery(c echo.Context) error {
 		return err
 	}
 
-	if req.Query == "" {
+	if req.All {
+		req.Query = ""
+	} else if req.Query == "" {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.Ts("globals.messages.invalidFields", "name", "query"))
 	}
 
