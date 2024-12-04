@@ -21,8 +21,7 @@
 
     <b-table :data="bounces.results" :hoverable="true" :loading="loading.bounces" default-sort="createdAt" checkable
       @check-all="onTableCheck" @check="onTableCheck" :checked-rows.sync="bulk.checked" detailed show-detail-icon
-      @details-open="(row) => $buefy.toast.open(`Expanded ${row.user.first_name}`)" paginated backend-pagination
-      pagination-position="both" @page-change="onPageChange" :current-page="queryParams.page" :per-page="bounces.perPage"
+      paginated backend-pagination pagination-position="both" @page-change="onPageChange" :current-page="queryParams.page" :per-page="bounces.perPage"
       :total="bounces.total" backend-sorting @sort="onSort">
       <b-table-column v-slot="props" field="email" :label="$t('subscribers.email')" :td-attrs="$utils.tdID" sortable>
         <router-link :to="{ name: 'subscriber', params: { id: props.row.subscriberId } }">
