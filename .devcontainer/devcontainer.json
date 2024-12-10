@@ -1,0 +1,8 @@
+{
+  "name": "listmonk",
+  "dockerComposeFile": "../dev/docker-compose.yml",
+  "service": "backend",
+  "workspaceFolder": "/app",
+  "forwardPorts": [9000],
+  "postStartCommand": "make dist && ./listmonk --install --idempotent --yes --config dev/config.toml"
+}

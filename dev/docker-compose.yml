@@ -1,11 +1,21 @@
 version: "3"
 
 services:
+  adminer:
+    image: adminer:4.8.1-standalone
+    restart: always
+    ports:
+      - 8070:8080
+    networks:
+      - listmonk-dev
+
   mailhog:
     image: mailhog/mailhog:v1.0.1
     ports:
       - "1025:1025" # SMTP
       - "8025:8025" # UI
+    networks:
+      - listmonk-dev
 
   db:
     image: postgres:13
