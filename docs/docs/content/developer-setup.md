@@ -18,9 +18,24 @@ The app has two distinct components, the Go backend and the VueJS frontend. In t
 
 
 ### Running the dev environment
-1. Run `make run` to start the listmonk dev server on `:9000`.
-2. Run `make run-frontend` to start the Vue frontend in dev mode using yarn on `:8080`. All `/api/*` calls are proxied to the app running on `:9000`. Refer to the [frontend README](https://github.com/knadh/listmonk/blob/master/frontend/README.md) for an overview on how the frontend is structured.
-3. Visit `http://localhost:8080`
+You can run your dev environment locally or inside containers.
+
+After setting up the dev environment, you can visit `http://localhost:8080`.
+
+
+1. Locally
+- Run `make run` to start the listmonk dev server on `:9000`.
+- Run `make run-frontend` to start the Vue frontend in dev mode using yarn on `:8080`. All `/api/*` calls are proxied to the app running on `:9000`. Refer to the [frontend README](https://github.com/knadh/listmonk/blob/master/frontend/README.md) for an overview on how the frontend is structured.
+
+2. Inside containers (Using Makefile)
+- Run `make init-dev-docker` to setup container for db.
+- Run `make dev-docker` to setup docker container suite.
+- Run `make rm-dev-docker` to clean up docker container suite.
+
+3. Inside containers (Using devcontainer)
+- Open repo in vscode, open command palette, and select "Dev Containers: Rebuild and Reopen in Container".
+
+It will set up db, and start frontend/backend for you.
 
 
 # Production build
