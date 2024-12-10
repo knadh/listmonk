@@ -3,17 +3,17 @@
 # of localhost will only listen to connections from the current machine. To
 # listen on all interfaces use '0.0.0.0'. To listen on the default web address
 # port, use port 80 (this will require running with elevated permissions).
-address = "localhost:9000"
+address = "0.0.0.0:9000"
 
 # Database.
 [db]
-host = "localhost"
+host = "db"
 port = 5432
-user = "listmonk"
-password = "listmonk"
+user = "listmonk-dev"
+password = "listmonk-dev"
 
 # Ensure that this database has been created in Postgres.
-database = "listmonk"
+database = "listmonk-dev"
 
 ssl_mode = "disable"
 max_open = 25
