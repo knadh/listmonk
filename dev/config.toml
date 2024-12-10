@@ -1,28 +1,24 @@
-# IMPORTANT: This configuration is meant for development only
-### DO NOT USE IN PRODUCTION ###
-
 [app]
 # Interface and port where the app will run its webserver.  The default value
 # of localhost will only listen to connections from the current machine. To
 # listen on all interfaces use '0.0.0.0'. To listen on the default web address
 # port, use port 80 (this will require running with elevated permissions).
-address = "0.0.0.0:9000"
-
-# BasicAuth authentication for the admin dashboard. This will eventually
-# be replaced with a better multi-user, role-based authentication system.
-# IMPORTANT: Leave both values empty to disable authentication on admin
-# only where an external authentication is already setup.
-admin_username = "listmonk"
-admin_password = "listmonk"
+address = "localhost:9000"
 
 # Database.
 [db]
-host = "db"
+host = "localhost"
 port = 5432
-user = "listmonk-dev"
-password = "listmonk-dev"
-database = "listmonk-dev"
+user = "listmonk"
+password = "listmonk"
+
+# Ensure that this database has been created in Postgres.
+database = "listmonk"
+
 ssl_mode = "disable"
 max_open = 25
 max_idle = 25
 max_lifetime = "300s"
+
+# Optional space separated Postgres DSN params. eg: "application_name=listmonk gssencmode=disable"
+params = ""
