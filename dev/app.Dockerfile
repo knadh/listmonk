@@ -8,4 +8,4 @@ ENV CGO_ENABLED=0
 ENV PATH $GOPATH/bin:/usr/local/go/bin:$PATH
 
 WORKDIR /app
-ENTRYPOINT [ "" ]
+CMD [ "sleep infinity" ]
