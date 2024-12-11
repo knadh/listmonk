@@ -1,0 +1,54 @@
+version: api.keploy.io/v1beta2
+kind: Http
+name: test-11
+spec:
+    metadata: {}
+    req:
+        method: GET
+        proto_major: 1
+        proto_minor: 1
+        url: http://localhost:9000/api/campaigns?page=1&per_page=100
+        url_params:
+            page: "1"
+            per_page: "100"
+        header:
+            Accept: '*/*'
+            Authorization: Basic bGlzdG1vbms6bGlzdG1vbms=
+            Host: localhost:9000
+            User-Agent: curl/7.81.0
+        body: ""
+        body_type: ""
+        timestamp: 2023-11-03T03:08:01.834541216Z
+    resp:
+        status_code: 200
+        header:
+            Content-Type: application/json; charset=UTF-8
+            Date: Fri, 03 Nov 2023 03:08:01 GMT
+        body: |
+            {"data":{"results":[{"id":3,"created_at":"2023-10-29T05:21:00.725321Z","updated_at":"2023-10-29T05:21:00.725321Z","views":0,"clicks":0,"bounces":0,"lists":[{"id":1,"name":"Default list"}],"media":[],"started_at":null,"to_send":5,"sent":0,"uuid":"0aadbf8e-b4d5-4ce1-9c3c-30080c2abba4","type":"regular","name":"Test campaign","subject":"Hello, world","from_email":"listmonk \u003cnoreply@listmonk.yoursite.com\u003e","body":"","altbody":null,"send_at":null,"status":"draft","content_type":"richtext","tags":["test"],"headers":[],"template_id":1,"messenger":"email","archive":false,"archive_template_id":1,"archive_meta":{}},{"id":2,"created_at":"2023-10-27T19:29:57.972866Z","updated_at":"2023-10-27T19:30:00.360103Z","views":0,"clicks":0,"bounces":0,"lists":[{"id":2,"name":"Opt-in list"}],"media":[],"started_at":null,"to_send":0,"sent":0,"uuid":"731e7b58-0e7b-4bc3-9738-146a740e1559","type":"regular","name":"ritik","subject":"ritik","from_email":"listmonk \u003cnoreply@listmonk.yoursite.com\u003e","body":"","altbody":null,"send_at":null,"status":"draft","content_type":"richtext","tags":[],"headers":[],"template_id":1,"messenger":"email","archive":false,"archive_template_id":1,"archive_meta":{}},{"id":1,"created_at":"2023-10-27T06:49:09.181995Z","updated_at":"2023-10-27T19:29:41.125794Z","views":0,"clicks":0,"bounces":0,"lists":[{"id":1,"name":"Default list"}],"media":[],"started_at":null,"to_send":0,"sent":0,"uuid":"4e01588d-48f0-4e4d-8ae5-ed753b063960","type":"regular","name":"Test campaign","subject":"Welcome to listmonk","from_email":"No Reply \u003cnoreply@yoursite.com\u003e","body":"\u003ch3\u003eHi {{ .Subscriber.FirstName }}!\u003c/h3\u003e\n\t\t\u003cp\u003eThis is a test e-mail campaign. Your second name is {{ .Subscriber.LastName }} and you are from {{ .Subscriber.Attribs.city }}.\u003c/p\u003e\n\t\t\u003cp\u003eHere is a \u003ca href=\"https://listmonk.app@TrackLink\"\u003etracked link\u003c/a\u003e.\u003c/p\u003e\n\t\t\u003cp\u003eUse the link icon in the editor toolbar or when writing raw HTML or Markdown,\n\t\t\tsimply suffix @TrackLink to the end of a URL to turn it into a tracking link. Example:\u003c/p\u003e\n\t\t\u003cpre\u003e\u0026lt;a href=\u0026quot;https:/\u0026zwnj;/listmonk.app\u0026#064;TrackLink\u0026quot;\u0026gt;\u0026lt;/a\u0026gt;\u003c/pre\u003e\n\t\t\u003cp\u003eFor help, refer to the \u003ca href=\"https://listmonk.app/docs\"\u003edocumentation\u003c/a\u003e.\u003c/p\u003e\n\t\t","altbody":null,"send_at":null,"status":"draft","content_type":"richtext","tags":["test-campaign"],"headers":[],"template_id":1,"messenger":"email","archive":false,"archive_template_id":2,"archive_meta":{}}],"query":"","total":3,"per_page":100,"page":1}}
+        body_type: ""
+        status_message: ""
+        proto_major: 0
+        proto_minor: 0
+        timestamp: 2023-11-03T03:08:03.952825695Z
+    objects: []
+    assertions:
+        noise:
+            - body.data.results.status
+            - header.Date
+            - body.data.results.tags
+            - body.data.results.content_type
+            - body.data.results.type
+            - body.data.results.archive
+            - body.data.results.updated_at
+            - body.data.results.messenger
+            - body.data.results.created_at
+            - body.data.results.subject
+    created: 1698980883
+curl: |
+    curl --request GET \
+      --url http://localhost:9000/api/campaigns?page=1&per_page=100 \
+      --header 'Accept: */*' \
+      --header 'Host: localhost:9000' \
+      --header 'Authorization: Basic bGlzdG1vbms6bGlzdG1vbms=' \
+      --header 'User-Agent: curl/7.81.0' \
