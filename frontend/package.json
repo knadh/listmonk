@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@tinymce/tinymce-vue": "^3",
+    "@webcoder49/code-input": "github:WebCoder49/code-input",
     "axios": "^1.7.4",
     "buefy": "^0.9.25",
     "bulma": "^0.9.4",
