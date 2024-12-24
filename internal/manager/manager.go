@@ -13,6 +13,8 @@ import (
 	"github.com/Masterminds/sprig/v3"
 	"github.com/knadh/listmonk/internal/i18n"
 	"github.com/knadh/listmonk/models"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 )
 
 const (
@@ -594,7 +596,7 @@ func (m *Manager) trackLink(url, campUUID, subUUID string) string {
 // sendNotif sends a notification to registered admin e-mails.
 func (m *Manager) sendNotif(c *models.Campaign, status, reason string) error {
 	var (
-		subject = fmt.Sprintf("%s: %s", strings.Title(status), c.Name)
+		subject = fmt.Sprintf("%s: %s", cases.Title(language.Und).String(status), c.Name)
 		data    = map[string]interface{}{
 			"ID":     c.ID,
 			"Name":   c.Name,
