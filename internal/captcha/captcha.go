@@ -64,11 +64,11 @@ func (c *Captcha) Verify(token string) (error, bool) {
 	}
 
 	var r captchaResp
-	if json.Unmarshal(body, &r); err != nil {
+	if err := json.Unmarshal(body, &r); err != nil {
 		return err, true
 	}
 
-	if r.Success != true {
+	if !r.Success {
 		return fmt.Errorf("captcha failed: %s", strings.Join(r.ErrorCodes, ",")), false
 	}
 

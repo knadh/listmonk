@@ -26,6 +26,8 @@ import (
 	"github.com/knadh/listmonk/internal/i18n"
 	"github.com/knadh/listmonk/models"
 	"github.com/lib/pq"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 )
 
 const (
@@ -246,7 +248,7 @@ func (im *Importer) sendNotif(status string) error {
 			Total:    s.Total,
 		}
 		subject = fmt.Sprintf("%s: %s import",
-			strings.Title(status),
+			cases.Title(language.Und).String(status),
 			s.Name)
 	)
 	return im.opt.NotifCB(subject, out)
@@ -648,7 +650,7 @@ func (im *Importer) ValidateFields(s SubReq) (SubReq, error) {
 
 		parts := strings.Fields(strings.ReplaceAll(name, ".", " "))
 		for n, p := range parts {
-			parts[n] = strings.Title(p)
+			parts[n] = cases.Title(language.Und).String(p)
 		}
 
 		s.Name = strings.Join(parts, " ")

@@ -9,6 +9,9 @@ import (
 	"strconv"
 	"strings"
 	"unicode"
+
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 )
 
 var (
@@ -116,7 +119,7 @@ func trimNullBytes(b []byte) string {
 func titleCase(input string) string {
 	parts := strings.Fields(input)
 	for n, p := range parts {
-		parts[n] = strings.Title(p)
+		parts[n] = cases.Title(language.Und).String(p)
 	}
 
 	return strings.Join(parts, " ")

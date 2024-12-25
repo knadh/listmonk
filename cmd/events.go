@@ -48,5 +48,4 @@ func handleEventStream(c echo.Context) error {
 		}
 	}
 
-	return nil
 }
