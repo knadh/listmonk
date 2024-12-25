@@ -30,7 +30,7 @@ type Server struct {
 
 	// Rest of the options are embedded directly from the smtppool lib.
 	// The JSON tag is for config unmarshal to work.
-	smtppool.Opt `json:"squash"`
+	smtppool.Opt `json:",squash"`
 
 	pool *smtppool.Pool
 }
