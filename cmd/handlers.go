@@ -140,6 +140,8 @@ func initHTTPHandlers(e *echo.Echo, app *App) {
 	api.GET("/api/bounces/:id", pm(handleGetBounces, "bounces:get"))
 	api.DELETE("/api/bounces", pm(handleDeleteBounces, "bounces:manage"))
 	api.DELETE("/api/bounces/:id", pm(handleDeleteBounces, "bounces:manage"))
+	api.PUT("/api/bounces/blocklist", pm(handleBlocklistSubscriberBounces, "bounces:manage"))
+	api.PUT("/api/bounces/:id/blocklist", pm(handleBlocklistSubscriberBounces, "bounces:manage"))
 
 	// Subscriber operations based on arbitrary SQL queries.
 	// These aren't very REST-like.

@@ -104,11 +104,12 @@ type Queries struct {
 	UpdateSettings *sqlx.Stmt `query:"update-settings"`
 
 	// GetStats *sqlx.Stmt `query:"get-stats"`
-	RecordBounce              *sqlx.Stmt `query:"record-bounce"`
-	QueryBounces              string     `query:"query-bounces"`
-	DeleteBounces             *sqlx.Stmt `query:"delete-bounces"`
-	DeleteBouncesBySubscriber *sqlx.Stmt `query:"delete-bounces-by-subscriber"`
-	GetDBInfo                 string     `query:"get-db-info"`
+	RecordBounce                  *sqlx.Stmt `query:"record-bounce"`
+	QueryBounces                  string     `query:"query-bounces"`
+	DeleteBounces                 *sqlx.Stmt `query:"delete-bounces"`
+	DeleteBouncesBySubscriber     *sqlx.Stmt `query:"delete-bounces-by-subscriber"`
+	BlocklistSubscribersByBounces *sqlx.Stmt `query:"blocklist-subscribers-by-bounces"`
+	GetDBInfo                     string     `query:"get-db-info"`
 
 	CreateUser        *sqlx.Stmt `query:"create-user"`
 	UpdateUser        *sqlx.Stmt `query:"update-user"`
