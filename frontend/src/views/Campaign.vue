@@ -99,7 +99,33 @@
                   <b-taginput v-model="form.tags" name="tags" :disabled="!canEdit" ellipsis icon="tag-outline"
                     :placeholder="$t('globals.terms.tags')" />
                 </b-field>
-                <hr />
+                <hr /> 
+
+                <div class="columns">
+                    <div class="column is-6">
+                      <b-field :label="$t('settings.performance.slidingWindow')"
+                        :message="$t('settings.performance.slidingWindowHelp')">
+                        <b-switch v-model="form.sliding_window" :disabled="!canEdit"/>
+                      </b-field>
+                    </div>
+
+                    <div class="column is-3" v-if="form.sliding_window">
+                      <b-field :label="$t('settings.performance.slidingWindowRate')" label-position="on-border"
+                        :message="$t('settings.performance.slidingWindowRateHelp')">
+                        <b-numberinput v-model="form.sliding_window_rate" type="is-light"
+                          controls-position="compact" placeholder="25" min="1"
+                          max="10000000" :disabled="!canEdit"/>
+                      </b-field>
+                    </div>
+
+                    <div class="column is-3" v-if="form.sliding_window">
+                      <b-field :label="$t('settings.performance.slidingWindowDuration')" label-position="on-border"
+                        :message="$t('settings.performance.slidingWindowDurationHelp')">
+                        <b-input v-model="form.sliding_window_duration"
+                        placeholder="1h" :pattern="regDuration" :maxlength="10" :disabled="!canEdit"/>
+                      </b-field>
+                    </div>
+                </div><!-- sliding window -->
 
                 <div class="columns">
                   <div class="column is-4">
@@ -502,6 +528,9 @@ export default Vue.extend({
         headers: this.form.headers,
         template_id: this.form.templateId,
         media: this.form.media.map((m) => m.id),
+        sliding_window: this.form.sliding_window,
+        sliding_window_rate: this.form.sliding_window_rate || 1,
+        sliding_window_duration: this.form.sliding_window_duration || '1h'
         // body: this.form.body,
       };
 
@@ -532,6 +561,9 @@ export default Vue.extend({
         archive_template_id: this.form.archiveTemplateId,
         archive_meta: this.form.archiveMeta,
         media: this.form.media.map((m) => m.id),
+        sliding_window: this.form.sliding_window,
+        sliding_window_rate: this.form.sliding_window_rate || 1,
+        sliding_window_duration: this.form.sliding_window_duration || '1h'
       };
 
       let typMsg = 'globals.messages.updated';

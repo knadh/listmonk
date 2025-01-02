@@ -22,10 +22,6 @@ type Settings struct {
 	CacheSlowQueries         bool   `json:"app.cache_slow_queries"`
 	CacheSlowQueriesInterval string `json:"app.cache_slow_queries_interval"`
 
-	AppMessageSlidingWindow         bool   `json:"app.message_sliding_window"`
-	AppMessageSlidingWindowDuration string `json:"app.message_sliding_window_duration"`
-	AppMessageSlidingWindowRate     int    `json:"app.message_sliding_window_rate"`
-
 	PrivacyIndividualTracking bool     `json:"privacy.individual_tracking"`
 	PrivacyUnsubHeader        bool     `json:"privacy.unsubscribe_header"`
 	PrivacyAllowBlocklist     bool     `json:"privacy.allow_blocklist"`

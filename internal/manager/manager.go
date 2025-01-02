@@ -85,8 +85,6 @@ type Manager struct {
 	// Sliding window keeps track of the total number of messages sent in a period
 	// and on reaching the specified limit, waits until the window is over before
 	// sending further messages.
-	slidingCount int
-	slidingStart time.Time
 
 	tplFuncs template.FuncMap
 }
@@ -110,24 +108,21 @@ type CampaignMessage struct {
 // Config has parameters for configuring the manager.
 type Config struct {
 	// Number of subscribers to pull from the DB in a single iteration.
-	BatchSize             int
-	Concurrency           int
-	MessageRate           int
-	MaxSendErrors         int
-	SlidingWindow         bool
-	SlidingWindowDuration time.Duration
-	SlidingWindowRate     int
-	RequeueOnError        bool
-	FromEmail             string
-	IndividualTracking    bool
-	LinkTrackURL          string
-	UnsubURL              string
-	OptinURL              string
-	MessageURL            string
-	ViewTrackURL          string
-	ArchiveURL            string
-	RootURL               string
-	UnsubHeader           bool
+	BatchSize          int
+	Concurrency        int
+	MessageRate        int
+	MaxSendErrors      int
+	RequeueOnError     bool
+	FromEmail          string
+	IndividualTracking bool
+	LinkTrackURL       string
+	UnsubURL           string
+	OptinURL           string
+	MessageURL         string
+	ViewTrackURL       string
+	ArchiveURL         string
+	RootURL            string
+	UnsubHeader        bool
 
 	// Interval to scan the DB for active campaign checkpoints.
 	ScanInterval time.Duration

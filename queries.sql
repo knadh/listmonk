@@ -508,11 +508,14 @@ counts AS (
       )
 ),
 camp AS (
-    INSERT INTO campaigns (uuid, type, name, subject, from_email, body, altbody, content_type, send_at, headers, tags, messenger, template_id, to_send, max_subscriber_id, archive, archive_slug, archive_template_id, archive_meta)
+    INSERT INTO campaigns (uuid, type, name, subject, from_email, body, altbody, content_type, send_at, headers, 
+    tags, messenger, template_id, to_send, max_subscriber_id, archive, archive_slug, archive_template_id, archive_meta,
+    sliding_window, sliding_window_rate, sliding_window_duration)
         SELECT $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12,
             (SELECT id FROM tpl), (SELECT to_send FROM counts),
             (SELECT max_sub_id FROM counts), $15, $16,
-            (CASE WHEN $17 = 0 THEN (SELECT id FROM tpl) ELSE $17 END), $18
+            (CASE WHEN $17 = 0 THEN (SELECT id FROM tpl) ELSE $17 END), $18,
+            $20, $21, $22
         RETURNING id
 ),
 med AS (
@@ -839,6 +842,9 @@ WITH camp AS (
         archive_slug=$16,
         archive_template_id=$17,
         archive_meta=$18,
+        sliding_window=$20,
+        sliding_window_rate=$21,
+        sliding_window_duration=$22
         updated_at=NOW()
     WHERE id = $1 RETURNING id
 ),

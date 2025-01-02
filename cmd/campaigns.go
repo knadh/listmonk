@@ -251,7 +251,7 @@ func handleUpdateCampaign(c echo.Context) error {
 		return err
 	}
 
-	if isCampaignalMutable(cm.Status) {
+	if isCampaignalImmutable(cm.Status) {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("campaigns.cantUpdate"))
 	}
 
@@ -602,7 +602,7 @@ func validateCampaignFields(c campaignReq, app *App) (campaignReq, error) {
 
 // isCampaignalMutable tells if a campaign's in a state where it's
 // properties can be mutated.
-func isCampaignalMutable(status string) bool {
+func isCampaignalImmutable(status string) bool {
 	return status == models.CampaignStatusRunning ||
 		status == models.CampaignStatusCancelled ||
 		status == models.CampaignStatusFinished

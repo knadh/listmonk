@@ -11,14 +11,17 @@ import (
 )
 
 type pipe struct {
-	camp       *models.Campaign
-	rate       *ratecounter.RateCounter
-	wg         *sync.WaitGroup
-	sent       atomic.Int64
-	lastID     atomic.Uint64
-	errors     atomic.Uint64
-	stopped    atomic.Bool
-	withErrors atomic.Bool
+	camp                  *models.Campaign
+	rate                  *ratecounter.RateCounter
+	SlidingWindowDuration time.Duration
+	slidingCount          int
+	slidingStart          time.Time
+	wg                    *sync.WaitGroup
+	sent                  atomic.Int64
+	lastID                atomic.Uint64
+	errors                atomic.Uint64
+	stopped               atomic.Bool
+	withErrors            atomic.Bool
 
 	m *Manager
 }
@@ -41,12 +44,15 @@ func (m *Manager) newPipe(c *models.Campaign) (*pipe, error) {
 		return nil, err
 	}
 
+	dur, _ := time.ParseDuration(c.SlidingWindowDuration)
+
 	// Add the campaign to the active map.
 	p := &pipe{
-		camp: c,
-		rate: ratecounter.NewRateCounter(time.Minute),
-		wg:   &sync.WaitGroup{},
-		m:    m,
+		camp:                  c,
+		rate:                  ratecounter.NewRateCounter(time.Minute),
+		SlidingWindowDuration: dur,
+		wg:                    &sync.WaitGroup{},
+		m:                     m,
 	}
 
 	// Increment the waitgroup so that Wait() blocks immediately. This is necessary
@@ -87,9 +93,9 @@ func (p *pipe) NextSubscribers() (bool, error) {
 	}
 
 	// Is there a sliding window limit configured?
-	hasSliding := p.m.cfg.SlidingWindow &&
-		p.m.cfg.SlidingWindowRate > 0 &&
-		p.m.cfg.SlidingWindowDuration.Seconds() > 1
+	hasSliding := p.camp.SlidingWindow &&
+		p.camp.SlidingWindowRate > 0 &&
+		p.SlidingWindowDuration.Seconds() > 1
 
 	// Push messages.
 	for _, s := range subs {
@@ -105,27 +111,27 @@ func (p *pipe) NextSubscribers() (bool, error) {
 
 		// Check if the sliding window is active.
 		if hasSliding {
-			diff := time.Now().Sub(p.m.slidingStart)
+			diff := time.Now().Sub(p.slidingStart)
 
 			// Window has expired. Reset the clock.
-			if diff >= p.m.cfg.SlidingWindowDuration {
-				p.m.slidingStart = time.Now()
-				p.m.slidingCount = 0
+			if diff >= p.SlidingWindowDuration {
+				p.slidingStart = time.Now()
+				p.slidingCount = 0
 				continue
 			}
 
 			// Have the messages exceeded the limit?
-			p.m.slidingCount++
-			if p.m.slidingCount >= p.m.cfg.SlidingWindowRate {
-				wait := p.m.cfg.SlidingWindowDuration - diff
+			p.slidingCount++
+			if p.slidingCount >= p.camp.SlidingWindowRate {
+				wait := p.SlidingWindowDuration - diff
 
 				p.m.log.Printf("messages exceeded (%d) for the window (%v since %s). Sleeping for %s.",
-					p.m.slidingCount,
-					p.m.cfg.SlidingWindowDuration,
-					p.m.slidingStart.Format(time.RFC822Z),
+					p.slidingCount,
+					p.SlidingWindowDuration,
+					p.slidingStart.Format(time.RFC822Z),
 					wait.Round(time.Second)*1)
 
-				p.m.slidingCount = 0
+				p.slidingCount = 0
 				time.Sleep(wait)
 			}
 		}

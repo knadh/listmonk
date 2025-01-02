@@ -332,11 +332,16 @@ type Campaign struct {
 	ArchiveMeta       json.RawMessage `db:"archive_meta" json:"archive_meta"`
 
 	// TemplateBody is joined in from templates by the next-campaigns query.
-	TemplateBody        string             `db:"template_body" json:"-"`
-	ArchiveTemplateBody string             `db:"archive_template_body" json:"-"`
-	Tpl                 *template.Template `json:"-"`
-	SubjectTpl          *txttpl.Template   `json:"-"`
-	AltBodyTpl          *template.Template `json:"-"`
+	TemplateBody        string `db:"template_body" json:"-"`
+	ArchiveTemplateBody string `db:"archive_template_body" json:"-"`
+
+	SlidingWindow         bool   `db:"sliding_window" json:"sliding_window"`
+	SlidingWindowRate     int    `db:"sliding_window_rate" json:"sliding_window_rate"`
+	SlidingWindowDuration string `db:"sliding_window_duration" json:"sliding_window_duration"`
+
+	Tpl        *template.Template `json:"-"`
+	SubjectTpl *txttpl.Template   `json:"-"`
+	AltBodyTpl *template.Template `json:"-"`
 
 	// List of media (attachment) IDs obtained from the next-campaign query
 	// while sending a campaign.
