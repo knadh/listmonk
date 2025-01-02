@@ -104,7 +104,7 @@
                 <!-- sliding window -->
                 <div class="columns">
                     <div class="column is-6">
-                      <b-field :label="$t('campaigns.slidingWindow')" :message="$t('campaigns.slidingWindowHelp')" >
+                      <b-field :label="$t('campaigns.slidingWindow')" :message="$t('campaigns.slidingWindowHelp')">
                         <b-switch v-model="form.slidingWindow" :disabled="!canEdit" />
                       </b-field>
                     </div>
