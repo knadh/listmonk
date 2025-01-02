@@ -539,7 +539,7 @@ SELECT  c.id, c.uuid, c.name, c.subject, c.from_email,
         c.messenger, c.started_at, c.to_send, c.sent, c.type,
         c.body, c.altbody, c.send_at, c.headers, c.status, c.content_type, c.tags,
         c.template_id, c.archive, c.archive_slug, c.archive_template_id, c.archive_meta,
-        c.created_at, c.updated_at,
+        c.created_at, c.updated_at, sliding_window, sliding_window_rate, sliding_window_duration,
         COUNT(*) OVER () AS total,
         (
             SELECT COALESCE(ARRAY_TO_JSON(ARRAY_AGG(l)), '[]') FROM (
@@ -844,7 +844,7 @@ WITH camp AS (
         archive_meta=$18,
         sliding_window=$20,
         sliding_window_rate=$21,
-        sliding_window_duration=$22
+        sliding_window_duration=$22,
         updated_at=NOW()
     WHERE id = $1 RETURNING id
 ),

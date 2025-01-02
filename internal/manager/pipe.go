@@ -51,6 +51,7 @@ func (m *Manager) newPipe(c *models.Campaign) (*pipe, error) {
 		camp:                  c,
 		rate:                  ratecounter.NewRateCounter(time.Minute),
 		SlidingWindowDuration: dur,
+		slidingStart:          time.Now(),
 		wg:                    &sync.WaitGroup{},
 		m:                     m,
 	}
@@ -80,16 +81,25 @@ func (m *Manager) newPipe(c *models.Campaign) (*pipe, error) {
 // It returns a bool indicating whether any subscribers were processed
 // in the current batch or not. A false indicates that all subscribers
 // have been processed, or that a campaign has been paused or cancelled.
-func (p *pipe) NextSubscribers() (bool, error) {
+type NextSubResult struct {
+	Has   bool
+	Error error
+}
+
+func (p *pipe) NextSubscribers(result chan *NextSubResult) {
 	// Fetch a batch of subscribers.
 	subs, err := p.m.store.NextSubscribers(p.camp.ID, p.m.cfg.BatchSize)
 	if err != nil {
-		return false, fmt.Errorf("error fetching campaign subscribers (%s): %v", p.camp.Name, err)
+		result <- &NextSubResult{
+			Error: fmt.Errorf("error fetching campaign subscribers (%s): %v", p.camp.Name, err),
+		}
+		return
 	}
 
 	// There are no subscribers.
 	if len(subs) == 0 {
-		return false, nil
+		result <- &NextSubResult{}
+		return
 	}
 
 	// Is there a sliding window limit configured?
@@ -111,7 +121,7 @@ func (p *pipe) NextSubscribers() (bool, error) {
 
 		// Check if the sliding window is active.
 		if hasSliding {
-			diff := time.Now().Sub(p.slidingStart)
+			diff := time.Since(p.slidingStart)
 
 			// Window has expired. Reset the clock.
 			if diff >= p.SlidingWindowDuration {
@@ -137,7 +147,7 @@ func (p *pipe) NextSubscribers() (bool, error) {
 		}
 	}
 
-	return true, nil
+	result <- &NextSubResult{Has: true}
 }
 
 func (p *pipe) OnError() {

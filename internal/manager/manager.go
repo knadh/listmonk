@@ -155,19 +155,18 @@ func New(cfg Config, store Store, notifCB models.AdminNotifCallback, i *i18n.I18
 	}
 
 	m := &Manager{
-		cfg:          cfg,
-		store:        store,
-		i18n:         i,
-		notifCB:      notifCB,
-		log:          l,
-		messengers:   make(map[string]Messenger),
-		pipes:        make(map[int]*pipe),
-		tpls:         make(map[int]*models.Template),
-		links:        make(map[string]string),
-		nextPipes:    make(chan *pipe, 1000),
-		campMsgQ:     make(chan CampaignMessage, cfg.Concurrency*cfg.MessageRate*2),
-		msgQ:         make(chan models.Message, cfg.Concurrency*cfg.MessageRate*2),
-		slidingStart: time.Now(),
+		cfg:        cfg,
+		store:      store,
+		i18n:       i,
+		notifCB:    notifCB,
+		log:        l,
+		messengers: make(map[string]Messenger),
+		pipes:      make(map[int]*pipe),
+		tpls:       make(map[int]*models.Template),
+		links:      make(map[string]string),
+		nextPipes:  make(chan *pipe, 1000),
+		campMsgQ:   make(chan CampaignMessage, cfg.Concurrency*cfg.MessageRate*2),
+		msgQ:       make(chan models.Message, cfg.Concurrency*cfg.MessageRate*2),
 	}
 	m.tplFuncs = m.makeGnericFuncMap()
 
@@ -266,23 +265,33 @@ func (m *Manager) Run() {
 	// Indefinitely wait on the pipe queue to fetch the next set of subscribers
 	// for any active campaigns.
 	for p := range m.nextPipes {
-		has, err := p.NextSubscribers()
-		if err != nil {
-			m.log.Printf("error processing campaign batch (%s): %v", p.camp.Name, err)
-			continue
-		}
+		channel := make(chan *NextSubResult)
+		go p.NextSubscribers(channel)
+		go m.processNextSubResult(p, channel)
+	}
+}
 
-		if has {
-			// There are more subscribers to fetch. Queue again.
-			select {
-			case m.nextPipes <- p:
-			default:
-			}
-		} else {
-			// Mark the pseudo counter that's added in makePipe() that is used
-			// to force a wait on a pipe.
-			p.wg.Done()
+func (m *Manager) processNextSubResult(
+	p *pipe,
+	channel chan *NextSubResult,
+) {
+	result := <-channel
+
+	if result.Error != nil {
+		m.log.Printf("error processing campaign batch (%s): %v", p.camp.Name, result.Error)
+		return
+	}
+
+	if result.Has && !p.stopped.Load() {
+		// There are more subscribers to fetch. Queue again.
+		select {
+		case m.nextPipes <- p:
+		default:
 		}
+	} else {
+		// Mark the pseudo counter that's added in makePipe() that is used
+		// to force a wait on a pipe.
+		p.wg.Done()
 	}
 }
 

@@ -2272,6 +2272,19 @@ components:
               type: string
             campaigns.views:
               type: string
+            campaigns.slidingWindow:
+              type: string
+            campaigns.slidingWindowDuration:
+              type: string
+            campaigns.slidingWindowDurationHelp:
+              type: string
+            campaigns.slidingWindowHelp:
+              type: string
+            campaigns.slidingWindowRate:
+              type: string
+            campaigns.slidingWindowRateHelp:
+              type: string
+
             dashboard.campaignViews:
               type: string
             dashboard.linkClicks:
@@ -3003,18 +3016,6 @@ components:
             settings.performance.messageRateHelp:
               type: string
             settings.performance.name:
-              type: string
-            settings.performance.slidingWindow:
-              type: string
-            settings.performance.slidingWindowDuration:
-              type: string
-            settings.performance.slidingWindowDurationHelp:
-              type: string
-            settings.performance.slidingWindowHelp:
-              type: string
-            settings.performance.slidingWindowRate:
-              type: string
-            settings.performance.slidingWindowRateHelp:
               type: string
             settings.privacy.allowBlocklist:
               type: string
