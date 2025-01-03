@@ -452,7 +452,7 @@ export default Vue.extend({
         this.updateCampaignWindow();
         return;
       }
-      
+
       switch (typ) {
         case 'create':
           this.createCampaign();
@@ -597,10 +597,10 @@ export default Vue.extend({
         sliding_window_duration: this.form.slidingWindowDuration || '1h',
       };
 
-      let typMsg = 'globals.messages.updated';
+      const typMsg = 'globals.messages.updated';
 
       return new Promise((resolve) => {
-        this.$api.updateCampaignWindow(this.data.id, data).then((d) => {
+        this.$api.updateCampaignWindow(this.data.id, data).then(() => {
           this.$utils.toast(this.$t(typMsg, { name: this.data.name }));
           resolve();
         });
@@ -656,7 +656,6 @@ export default Vue.extend({
 
   computed: {
     ...mapState(['serverConfig', 'loading', 'lists', 'templates']),
-
 
     canEdit() {
       return this.isNew
