@@ -615,7 +615,7 @@
     "users.login": "Login",
     "users.loginOIDC": "Login with {name}",
     "users.logout": "Logout",
-    "users.needSuper": "User(s) couldn't updated. There has to be at least one active Super Admin user.",
+    "users.needSuper": "User(s) couldn't be updated. There has to be at least one active Super Admin user.",
     "users.newListRole": "New list role",
     "users.newUser": "New user",
     "users.newUserRole": "New user role",
