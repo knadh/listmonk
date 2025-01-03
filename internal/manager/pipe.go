@@ -22,8 +22,7 @@ type pipe struct {
 	errors                atomic.Uint64
 	stopped               atomic.Bool
 	withErrors            atomic.Bool
-
-	m *Manager
+	m                     *Manager
 }
 
 // newPipe adds a campaign to the process queue.
@@ -108,7 +107,16 @@ func (p *pipe) NextSubscribers(result chan *NextSubResult) {
 		p.SlidingWindowDuration.Seconds() > 1
 
 	// Push messages.
-	for _, s := range subs {
+	for idx, s := range subs {
+
+		if p.stopped.Load() {
+			remaining := len(subs) - (idx + 1)
+			if remaining > 0 {
+				p.m.store.UpdateLastSubscriberId(p.camp.ID, remaining)
+			}
+			break
+		}
+
 		msg, err := p.newMessage(s)
 		if err != nil {
 			p.m.log.Printf("error rendering message (%s) (%s): %v", p.camp.Name, s.Email, err)
@@ -133,21 +141,42 @@ func (p *pipe) NextSubscribers(result chan *NextSubResult) {
 			// Have the messages exceeded the limit?
 			p.slidingCount++
 			if p.slidingCount >= p.camp.SlidingWindowRate {
-				wait := p.SlidingWindowDuration - diff
+				wait := (p.SlidingWindowDuration - diff).Round(time.Second)
 
 				p.m.log.Printf("messages exceeded (%d) for the window (%v since %s). Sleeping for %s.",
 					p.slidingCount,
 					p.SlidingWindowDuration,
 					p.slidingStart.Format(time.RFC822Z),
-					wait.Round(time.Second)*1)
+					wait)
 
 				p.slidingCount = 0
-				time.Sleep(wait)
+
+				p.pauseFor(wait)
 			}
 		}
 	}
 
 	result <- &NextSubResult{Has: true}
+}
+
+func (p *pipe) pauseFor(wait time.Duration) {
+	startTime := time.Now()
+	ticker := time.NewTicker(1 * time.Second)
+	defer ticker.Stop()
+
+	for {
+		select {
+		case <-ticker.C:
+
+			if p.stopped.Load() {
+				return
+			}
+
+			if time.Since(startTime) > wait {
+				return
+			}
+		}
+	}
 }
 
 func (p *pipe) OnError() {

@@ -342,6 +342,31 @@ func handleUpdateCampaignArchive(c echo.Context) error {
 	return c.JSON(http.StatusOK, okResp{req})
 }
 
+// handleUpdateCampaignWindow handles campaign window modification
+func handleUpdateCampaignWindow(c echo.Context) error {
+	var (
+		app   = c.Get("app").(*App)
+		id, _ = strconv.Atoi(c.Param("id"))
+	)
+
+	req := struct {
+		SlidingWindow         bool   `json:"sliding_window"`
+		SlidingWindowRate     int    `json:"sliding_window_rate"`
+		SlidingWindowDuration string `json:"sliding_window_duration"`
+	}{}
+
+	// Get and validate fields.
+	if err := c.Bind(&req); err != nil {
+		return err
+	}
+
+	if err := app.core.UpdateCampaignWindow(id, req.SlidingWindow, req.SlidingWindowRate, req.SlidingWindowDuration); err != nil {
+		return err
+	}
+
+	return c.JSON(http.StatusOK, okResp{req})
+}
+
 // handleDeleteCampaign handles campaign deletion.
 // Only scheduled campaigns that have not started yet can be deleted.
 func handleDeleteCampaign(c echo.Context) error {

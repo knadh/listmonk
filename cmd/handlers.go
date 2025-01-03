@@ -174,6 +174,7 @@ func initHTTPHandlers(e *echo.Echo, app *App) {
 	api.PUT("/api/campaigns/:id", pm(handleUpdateCampaign, "campaigns:manage"))
 	api.PUT("/api/campaigns/:id/status", pm(handleUpdateCampaignStatus, "campaigns:manage"))
 	api.PUT("/api/campaigns/:id/archive", pm(handleUpdateCampaignArchive, "campaigns:manage"))
+	api.PUT("/api/campaigns/:id/window", pm(handleUpdateCampaignWindow, "campaigns:manage"))
 	api.DELETE("/api/campaigns/:id", pm(handleDeleteCampaign, "campaigns:manage"))
 
 	api.GET("/api/media", pm(handleGetMedia, "media:get"))

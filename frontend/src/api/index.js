@@ -332,6 +332,13 @@ export const changeCampaignStatus = async (id, status) => http.put(
   { loading: models.campaigns },
 );
 
+export const updateCampaignWindow = async (id, data) => http.put(
+  `/api/campaigns/${id}/window`,
+  data,
+
+  { loading: models.campaigns },
+);
+
 export const updateCampaignArchive = async (id, data) => http.put(
   `/api/campaigns/${id}/archive`,
   data,

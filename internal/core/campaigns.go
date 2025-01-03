@@ -304,6 +304,22 @@ func (c *Core) UpdateCampaignStatus(id int, status string) (models.Campaign, err
 	return cm, nil
 }
 
+func (c *Core) UpdateCampaignWindow(
+	id int,
+	slidingWindowEnabled bool,
+	slidingWindowRate int,
+	slidingWindowDuration string,
+) error {
+	if _, err := c.q.UpdateCampaignWindow.Exec(id, slidingWindowEnabled, slidingWindowRate, slidingWindowDuration); err != nil {
+		c.log.Printf("error updating campaign: %v", err)
+
+		return echo.NewHTTPError(http.StatusInternalServerError,
+			c.i18n.Ts("globals.messages.errorUpdating", "name", "{globals.terms.campaign}", "error", pqErrMsg(err)))
+	}
+
+	return nil
+}
+
 // UpdateCampaignArchive updates a campaign's archive properties.
 func (c *Core) UpdateCampaignArchive(id int, enabled bool, tplID int, meta models.JSON, archiveSlug string) error {
 	if _, err := c.q.UpdateCampaignArchive.Exec(id, enabled, archiveSlug, tplID, meta); err != nil {

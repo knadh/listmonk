@@ -809,6 +809,10 @@ u AS (
 )
 SELECT * FROM subs;
 
+-- name: update-campaign-last-sub-id
+UPDATE campaigns SET last_subscriber_id = GREATEST(last_subscriber_id - $2, 0)
+WHERE id = $1
+
 -- name: delete-campaign-views
 DELETE FROM campaign_views WHERE created_at < $1;
 
@@ -875,6 +879,9 @@ WHERE id=$1;
 
 -- name: update-campaign-status
 UPDATE campaigns SET status=$2, updated_at=NOW() WHERE id = $1;
+
+-- name: update-campaign-window
+UPDATE campaigns SET sliding_window=$2, sliding_window_rate=$3, sliding_window_duration=$4 WHERE id = $1;
 
 -- name: update-campaign-archive
 UPDATE campaigns SET

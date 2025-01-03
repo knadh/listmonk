@@ -24,7 +24,7 @@
 
       <div class="column is-6">
         <div v-if="$can('campaigns:manage')" class="buttons">
-          <b-field grouped v-if="isEditing && canEdit">
+          <b-field grouped v-if="isEditing && (canEdit || canEditWindow)">
             <b-field expanded>
               <b-button expanded @click="() => onSubmit('update')" :loading="loading.campaigns" type="is-primary"
                 icon-left="content-save-outline" data-cy="btn-save">
@@ -105,7 +105,7 @@
                 <div class="columns">
                     <div class="column is-6">
                       <b-field :label="$t('campaigns.slidingWindow')" :message="$t('campaigns.slidingWindowHelp')">
-                        <b-switch v-model="form.slidingWindow" :disabled="!canEdit" />
+                        <b-switch v-model="form.slidingWindow" :disabled="!canEditWindow" />
                       </b-field>
                     </div>
 
@@ -114,7 +114,7 @@
                         :message="$t('campaigns.slidingWindowRateHelp')">
                         <b-numberinput v-model="form.slidingWindowRate" type="is-light"
                           controls-position="compact" placeholder="25" min="1"
-                          max="10000000" :disabled="!canEdit" />
+                          max="10000000" :disabled="!canEditWindow" />
                       </b-field>
                     </div>
 
@@ -122,7 +122,7 @@
                       <b-field :label="$t('campaigns.slidingWindowDuration')" label-position="on-border"
                         :message="$t('campaigns.slidingWindowDurationHelp')">
                         <b-input v-model="form.slidingWindowDuration"
-                          placeholder="1h" :pattern="regDuration" :maxlength="10" :disabled="!canEdit" />
+                          placeholder="1h" :pattern="regDuration" :maxlength="10" :disabled="!canEditWindow" />
                       </b-field>
                     </div>
                 </div>
@@ -448,6 +448,11 @@ export default Vue.extend({
         this.form.archiveMeta = {};
       }
 
+      if (this.data.status === 'paused') {
+        this.updateCampaignWindow();
+        return;
+      }
+      
       switch (typ) {
         case 'create':
           this.createCampaign();
@@ -585,6 +590,23 @@ export default Vue.extend({
       });
     },
 
+    async updateCampaignWindow() {
+      const data = {
+        sliding_window: this.form.slidingWindow,
+        sliding_window_rate: this.form.slidingWindowRate || 1,
+        sliding_window_duration: this.form.slidingWindowDuration || '1h',
+      };
+
+      let typMsg = 'globals.messages.updated';
+
+      return new Promise((resolve) => {
+        this.$api.updateCampaignWindow(this.data.id, data).then((d) => {
+          this.$utils.toast(this.$t(typMsg, { name: this.data.name }));
+          resolve();
+        });
+      });
+    },
+
     onUpdateCampaignArchive() {
       if (this.isEditing && this.canEdit) {
         return;
@@ -635,9 +657,15 @@ export default Vue.extend({
   computed: {
     ...mapState(['serverConfig', 'loading', 'lists', 'templates']),
 
+
     canEdit() {
       return this.isNew
         || this.data.status === 'draft' || this.data.status === 'scheduled';
+    },
+
+    canEditWindow() {
+      return this.isNew
+        || this.data.status === 'draft' || this.data.status === 'scheduled' || this.data.status === 'paused';
     },
 
     canSchedule() {

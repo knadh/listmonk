@@ -35,6 +35,7 @@ type Store interface {
 	GetCampaign(campID int) (*models.Campaign, error)
 	GetAttachment(mediaID int) (models.Attachment, error)
 	UpdateCampaignStatus(campID int, status string) error
+	UpdateLastSubscriberId(campId int, pending int) error
 	UpdateCampaignCounts(campID int, toSend int, sent int, lastSubID int) error
 	CreateLink(url string) (string, error)
 	BlocklistSubscriber(id int64) error
@@ -277,6 +278,8 @@ func (m *Manager) processNextSubResult(
 ) {
 	result := <-channel
 
+	m.log.Println("next subresult", result.Has, result.Error, p.stopped.Load())
+
 	if result.Error != nil {
 		m.log.Printf("error processing campaign batch (%s): %v", p.camp.Name, result.Error)
 		return
@@ -289,6 +292,8 @@ func (m *Manager) processNextSubResult(
 		default:
 		}
 	} else {
+		m.log.Println("next subresult->done")
+
 		// Mark the pseudo counter that's added in makePipe() that is used
 		// to force a wait on a pipe.
 		p.wg.Done()

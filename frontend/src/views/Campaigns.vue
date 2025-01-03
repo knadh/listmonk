@@ -429,6 +429,9 @@ export default Vue.extend({
         archive_template_id: c.archiveTemplateId,
         archive_meta: c.archiveMeta,
         media: c.media.map((m) => m.id),
+        sliding_window: c.slidingWindow,
+        sliding_window_rate: c.slidingWindowRate || 1,
+        sliding_window_duration: c.slidingWindowDuration || '1h',
       };
 
       if (c.archive) {
