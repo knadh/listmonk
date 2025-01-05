@@ -15,7 +15,6 @@
 
             <div class="spaced-links is-size-7 mt-2" :class="{ 'disabled': !data['security.oidc']['enabled'] }">
               <a href="#" @click.prevent="() => setProvider(n, 'google')">Google</a>
-              <a href="#" @click.prevent="() => setProvider(n, 'github')">GitHub</a>
               <a href="#" @click.prevent="() => setProvider(n, 'microsoft')">Microsoft</a>
               <a href="#" @click.prevent="() => setProvider(n, 'apple')">Apple</a>
             </div>
