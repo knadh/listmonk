@@ -245,7 +245,7 @@ func handleBounceWebhook(c echo.Context) error {
 			sig = c.Request().Header.Get("X-Webhook-Signature")
 		)
 
-		bs, err := app.bounce.Forwardemail.ProcessBounce([]byte(sig), rawReq)
+		bs, err := app.bounce.Forwardemail.ProcessBounce(sig, rawReq)
 		if err != nil {
 			app.log.Printf("error processing forwardemail notification: %v", err)
 			if _, ok := err.(*echo.HTTPError); ok {

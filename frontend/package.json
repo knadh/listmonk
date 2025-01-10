@@ -42,5 +42,8 @@
     "vite": "^5.1.8",
     "vue-eslint-parser": "^9.3.2",
     "vue-template-compiler": "^2.6.12"
+  },
+  "resolutions": {
+    "jackspeak": "2.1.1"
   }
 }
