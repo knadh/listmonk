@@ -901,16 +901,20 @@ section.analytics {
 /* Media gallery */
 .media-files {
   img {
-    max-width: 125px;
+    max-width: 140px;
+    max-height: 140px;
   }
 
   .thumb.box {
-    display: inline-block;
-    padding: 5px;
-    min-width: 140px;
-    max-height: 140px;
-    overflow: hidden;
+    background: repeating-conic-gradient(#f0f0f0 0 90deg, #fff 90deg 180deg) 0 0 / 32px 32px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: fit-content;
+    height: fit-content;
     text-align: center;
+    padding: 0;
+    overflow: hidden;
   }
   .ext {
     text-transform: uppercase;
