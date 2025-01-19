@@ -98,6 +98,7 @@
     "campaigns.testSent": "Testnachricht gesendet",
     "campaigns.timestamps": "Zeitstempel",
     "campaigns.trackLink": "Track Link",
+    "campaigns.unSchedule": "Unschedule",
     "campaigns.views": "Ansichten",
     "dashboard.campaignViews": "Kampagnenansichten",
     "dashboard.linkClicks": "Linkklicks",

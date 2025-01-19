@@ -98,6 +98,7 @@
     "campaigns.testSent": "Wiadomość testowa wysłana",
     "campaigns.timestamps": "Sygnatury czasowe",
     "campaigns.trackLink": "Link śledzący",
+    "campaigns.unSchedule": "Unschedule",
     "campaigns.views": "Wyświetlenia",
     "dashboard.campaignViews": "Wyświetlenia kampanii",
     "dashboard.linkClicks": "Kliknięcia linków",

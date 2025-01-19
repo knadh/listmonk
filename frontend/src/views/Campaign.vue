@@ -43,6 +43,12 @@
                 {{ $t('campaigns.schedule') }}
               </b-button>
             </b-field>
+            <b-field expanded v-if="canUnSchedule">
+              <b-button expanded @click="unscheduleCampaign" :loading="loading.campaigns" type="is-primary"
+                icon-left="clock-start" data-cy="btn-unschedule">
+                {{ $t('campaigns.unSchedule') }}
+              </b-button>
+            </b-field>
           </b-field>
         </div>
       </div>
@@ -593,6 +599,13 @@ export default Vue.extend({
         },
       );
     },
+
+    unscheduleCampaign() {
+      this.$api.changeCampaignStatus(this.data.id, 'draft').then((d) => {
+        this.data = d;
+        this.form.archiveSlug = d.archiveSlug;
+      });
+    },
   },
 
   computed: {
@@ -605,6 +618,10 @@ export default Vue.extend({
 
     canSchedule() {
       return this.data.status === 'draft' && this.data.sendAt;
+    },
+
+    canUnSchedule() {
+      return this.data.status === 'scheduled' && this.data.sendAt;
     },
 
     canStart() {

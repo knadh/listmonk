@@ -98,6 +98,7 @@
     "campaigns.testSent": "已发送测试消息",
     "campaigns.timestamps": "时间戳",
     "campaigns.trackLink": "跟踪链接",
+    "campaigns.unSchedule": "Unschedule",
     "campaigns.views": "视图",
     "dashboard.campaignViews": "广告系列视图",
     "dashboard.linkClicks": "链接点击次数",

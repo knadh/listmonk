@@ -98,6 +98,7 @@
     "campaigns.testSent": "Tesztüzenet elküldve",
     "campaigns.timestamps": "Időbélyegek",
     "campaigns.trackLink": "Nyomkövetőhivatkozás",
+    "campaigns.unSchedule": "Unschedule",
     "campaigns.views": "Megtekintések",
     "dashboard.campaignViews": "Megtekintések",
     "dashboard.linkClicks": "Kattintások",

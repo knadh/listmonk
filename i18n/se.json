@@ -98,6 +98,7 @@
     "campaigns.testSent": "Testmeddelande skickat",
     "campaigns.timestamps": "Tidsstämplar",
     "campaigns.trackLink": "Spåra länk",
+    "campaigns.unSchedule": "Unschedule",
     "campaigns.views": "Visningar",
     "dashboard.campaignViews": "Visningar av kampanjer",
     "dashboard.linkClicks": "Länkklickar",
