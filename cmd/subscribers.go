@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"net/textproto"
 	"net/url"
 	"strconv"
 	"strings"
@@ -663,8 +664,19 @@ func sendOptinConfirmationHook(app *App) func(sub models.Subscriber, listIDs []i
 		out.OptinURL = fmt.Sprintf(app.constants.OptinURL, sub.UUID, qListIDs.Encode())
 		out.UnsubURL = fmt.Sprintf(app.constants.UnsubURL, dummyUUID, sub.UUID)
 
+		// Unsub headers.
+		h := textproto.MIMEHeader{}
+		h.Set(models.EmailHeaderSubscriberUUID, sub.UUID)
+
+		// Attach List-Unsubscribe headers?
+		if app.constants.Privacy.UnsubHeader {
+			unsubURL := fmt.Sprintf(app.constants.UnsubURL, dummyUUID, sub.UUID)
+			h.Set("List-Unsubscribe-Post", "List-Unsubscribe=One-Click")
+			h.Set("List-Unsubscribe", `<`+unsubURL+`>`)
+		}
+
 		// Send the e-mail.
-		if err := app.sendNotification([]string{sub.Email}, app.i18n.T("subscribers.optinSubject"), notifSubscriberOptin, out); err != nil {
+		if err := app.sendNotification([]string{sub.Email}, app.i18n.T("subscribers.optinSubject"), notifSubscriberOptin, out, h); err != nil {
 			app.log.Printf("error sending opt-in e-mail for subscriber %d (%s): %s", sub.ID, sub.UUID, err)
 			return 0, err
 		}

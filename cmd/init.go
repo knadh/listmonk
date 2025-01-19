@@ -76,6 +76,7 @@ type constants struct {
 		AllowExport        bool            `koanf:"allow_export"`
 		AllowWipe          bool            `koanf:"allow_wipe"`
 		RecordOptinIP      bool            `koanf:"record_optin_ip"`
+		UnsubHeader        bool            `koanf:"unsubscribe_header"`
 		Exportable         map[string]bool `koanf:"-"`
 		DomainBlocklist    []string        `koanf:"-"`
 	} `koanf:"privacy"`
@@ -483,7 +484,7 @@ func initI18n(lang string, fs stuffbin.FileSystem) *i18n.I18n {
 // initCampaignManager initializes the campaign manager.
 func initCampaignManager(q *models.Queries, cs *constants, app *App) *manager.Manager {
 	campNotifCB := func(subject string, data interface{}) error {
-		return app.sendNotification(cs.NotifyEmails, subject, notifTplCampaign, data)
+		return app.sendNotification(cs.NotifyEmails, subject, notifTplCampaign, data, nil)
 	}
 
 	if ko.Bool("passive") {
@@ -541,7 +542,7 @@ func initImporter(q *models.Queries, db *sqlx.DB, core *core.Core, app *App) *su
 				// Refresh cached subscriber counts and stats.
 				core.RefreshMatViews(true)
 
-				app.sendNotification(app.constants.NotifyEmails, subject, notifTplImport, data)
+				app.sendNotification(app.constants.NotifyEmails, subject, notifTplImport, data, nil)
 				return nil
 			},
 		}, db.DB, app.i18n)
