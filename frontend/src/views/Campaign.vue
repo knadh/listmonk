@@ -613,7 +613,7 @@ export default Vue.extend({
 
     canEdit() {
       return this.isNew
-        || this.data.status === 'draft' || this.data.status === 'scheduled';
+        || this.data.status === 'draft' || this.data.status === 'scheduled' || this.data.status === 'paused';
     },
 
     canSchedule() {
@@ -625,7 +625,7 @@ export default Vue.extend({
     },
 
     canStart() {
-      return this.data.status === 'draft' && !this.data.sendAt;
+      return this.data.status === 'draft' || this.data.status === 'paused';
     },
 
     canArchive() {
