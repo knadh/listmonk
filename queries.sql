@@ -830,6 +830,12 @@ WITH camp AS (
         altbody=(CASE WHEN $6 = '' THEN NULL ELSE $6 END),
         content_type=$7::content_type,
         send_at=$8::TIMESTAMP WITH TIME ZONE,
+        status=(
+            CASE
+                WHEN status = 'scheduled' AND $8 IS NULL THEN 'draft'
+                ELSE status
+            END
+        ),
         headers=$9,
         tags=$10::VARCHAR(100)[],
         messenger=$11,
