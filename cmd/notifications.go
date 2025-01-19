@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"net/textproto"
 	"regexp"
 	"strings"
 
@@ -27,7 +28,7 @@ type notifData struct {
 }
 
 // sendNotification sends out an e-mail notification to admins.
-func (app *App) sendNotification(toEmails []string, subject, tplName string, data interface{}) error {
+func (app *App) sendNotification(toEmails []string, subject, tplName string, data interface{}, headers textproto.MIMEHeader) error {
 	if len(toEmails) == 0 {
 		return nil
 	}
@@ -48,6 +49,7 @@ func (app *App) sendNotification(toEmails []string, subject, tplName string, dat
 	m.Subject = subject
 	m.Body = body
 	m.Messenger = emailMsgr
+	m.Headers = headers
 	if err := app.manager.PushMessage(m); err != nil {
 		app.log.Printf("error sending admin notification (%s): %v", subject, err)
 		return err
