@@ -99,6 +99,7 @@
     "campaigns.testSent": "Test mesajı gönderildi",
     "campaigns.timestamps": "Zaman etiketi",
     "campaigns.trackLink": "İzleme bağlantısı",
+    "campaigns.unSchedule": "Unschedule",
     "campaigns.views": "Görüntülenme",
     "dashboard.campaignViews": "Kampanya görüntülenme Sayısı",
     "dashboard.linkClicks": "Linklerin tıklanması",

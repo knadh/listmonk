@@ -98,6 +98,7 @@
     "campaigns.testSent": "Тестовое сообщение отправлено",
     "campaigns.timestamps": "Метки времени",
     "campaigns.trackLink": "Ссылка на трек",
+    "campaigns.unSchedule": "Unschedule",
     "campaigns.views": "Просмотры",
     "dashboard.campaignViews": "Просмотров кампаний",
     "dashboard.linkClicks": "Кликов по ссылкам",

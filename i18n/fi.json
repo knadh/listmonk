@@ -99,6 +99,7 @@
     "campaigns.testSent": "Testiviesti lähetetty",
     "campaigns.timestamps": "Aikaleimat",
     "campaigns.trackLink": "Seuraa linkkejä",
+    "campaigns.unSchedule": "Unschedule",
     "campaigns.views": "Katselukerrat",
     "dashboard.campaignViews": "Kampanjan katselukerrat",
     "dashboard.linkClicks": "Linkkiklikkaukset",
