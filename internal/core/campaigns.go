@@ -208,7 +208,9 @@ func (c *Core) CreateCampaign(o models.Campaign, listIDs []int, mediaIDs []int) 
 }
 
 // UpdateCampaign updates a campaign.
-func (c *Core) UpdateCampaign(id int, o models.Campaign, listIDs []int, mediaIDs []int, sendLater bool) (models.Campaign, error) {
+func (c *Core) UpdateCampaign(id int, o models.Campaign, listIDs []int, mediaIDs []int) (models.Campaign, error) {
+	sendLater := o.SendAt.Valid
+
 	_, err := c.q.UpdateCampaign.Exec(id,
 		o.Name,
 		o.Subject,
