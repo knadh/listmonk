@@ -16,7 +16,7 @@
       
       
       <link rel="icon" href="../../images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.49">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.50">
     
     
       
@@ -24,7 +24,7 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.6f8fc17f.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.a40c8224.min.css">
       
         
         <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
@@ -355,6 +355,8 @@
       
         
       
+        
+      
     
     
       
@@ -547,6 +549,27 @@
   
   <span class="md-ellipsis">
     Integrating with external systems
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../roles-and-permissions/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    User roles and permissions
   </span>
   
 
@@ -949,6 +972,15 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#vacuum-ing" class="md-nav__link">
+    <span class="md-ellipsis">
+      VACUUM-ing
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1072,6 +1104,15 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#vacuum-ing" class="md-nav__link">
+    <span class="md-ellipsis">
+      VACUUM-ing
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1098,6 +1139,8 @@
 <p>However, at that scale, viewing the exact number of subscribers or statistics every time the admin panel is accessed becomes mostly unnecessary. On installations with millions of subscribers, where the above pages do not load instantly, it is highly recommended to turn on the <code>Settings -&gt; Performance -&gt; Cache slow database queries</code> option.</p>
 <h2 id="slow-query-caching">Slow query caching<a class="headerlink" href="#slow-query-caching" title="Permanent link">&para;</a></h2>
 <p>When this option is enabled, the subscriber counts on the Lists page, the Subscribers page, and the statistics on the dashboard, etc., are no longer counted in real-time in the database. Instead, they are updated periodically and cached, resulting in a massive performance boost. The periodicity can be configured on the Settings -&gt; Performance page using a standard crontab expression (default: <code>0 3 * * *</code>, which means 3 AM daily). Use a tool like <a href="https://crontab.guru">crontab.guru</a> for easily generating a desired crontab expression.</p>
+<h2 id="vacuum-ing">VACUUM-ing<a class="headerlink" href="#vacuum-ing" title="Permanent link">&para;</a></h2>
+<p>Running <a href="https://www.postgresql.org/docs/current/sql-vacuum.html"><code>VACUUM ANALYZE</code></a> on large Postgres databases at regular intervals (for instance, once a week), is recommended. It reclaims disk space and improves Postgres' query performance. Do note that this is a blocking operation and all database queries can come to a stand-still on a large database while the operation is running (generally only a few seconds).</p>
 
 
 
@@ -1148,10 +1191,10 @@
     </div>
     
     
-    <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.indexes", "navigation.sections", "content.code.copy"], "search": "../../assets/javascripts/workers/search.6ce7567c.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.indexes", "navigation.sections", "content.code.copy"], "search": "../../assets/javascripts/workers/search.f8cc74c7.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.88dd0f4e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.60a45f97.min.js"></script>
       
     
   </body>

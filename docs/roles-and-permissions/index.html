@@ -9,10 +9,10 @@
       
       
       
-        <link rel="prev" href="../i18n/">
+        <link rel="prev" href="../external-integration/">
       
       
-        <link rel="next" href="../roles-and-permissions/">
+        <link rel="next" href="../apis/apis/">
       
       
       <link rel="icon" href="../images/favicon.png">
@@ -20,7 +20,7 @@
     
     
       
-        <title>Integrating with external systems - listmonk / Documentation</title>
+        <title>User roles and permissions - listmonk / Documentation</title>
       
     
     
@@ -72,7 +72,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#integrating-with-external-systems" class="md-skip">
+        <a href="#user-roles" class="md-skip">
           Skip to content
         </a>
       
@@ -107,7 +107,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Integrating with external systems
+              User roles and permissions
             
           </span>
         </div>
@@ -543,6 +543,27 @@
                 
   
   
+  
+  
+    <li class="md-nav__item">
+      <a href="../external-integration/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Integrating with external systems
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
     
   
   
@@ -552,14 +573,12 @@
       <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
       
       
-        
-      
       
         <label class="md-nav__link md-nav__link--active" for="__toc">
           
   
   <span class="md-ellipsis">
-    Integrating with external systems
+    User roles and permissions
   </span>
   
 
@@ -570,7 +589,7 @@
         
   
   <span class="md-ellipsis">
-    Integrating with external systems
+    User roles and permissions
   </span>
   
 
@@ -582,8 +601,6 @@
   
   
   
-    
-  
   
     <label class="md-nav__title" for="__toc">
       <span class="md-nav__icon md-icon"></span>
@@ -592,18 +609,27 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#using-apis" class="md-nav__link">
+  <a href="#user-roles" class="md-nav__link">
     <span class="md-ellipsis">
-      Using APIs
+      User roles
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#interacting-directly-with-the-db" class="md-nav__link">
+  <a href="#list-roles" class="md-nav__link">
     <span class="md-ellipsis">
-      Interacting directly with the DB
+      List roles
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#api-users" class="md-nav__link">
+    <span class="md-ellipsis">
+      API users
     </span>
   </a>
   
@@ -613,27 +639,6 @@
   
 </nav>
       
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../roles-and-permissions/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    User roles and permissions
-  </span>
-  
-
-      </a>
     </li>
   
 
@@ -1086,8 +1091,6 @@
   
   
   
-    
-  
   
     <label class="md-nav__title" for="__toc">
       <span class="md-nav__icon md-icon"></span>
@@ -1096,18 +1099,27 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#using-apis" class="md-nav__link">
+  <a href="#user-roles" class="md-nav__link">
     <span class="md-ellipsis">
-      Using APIs
+      User roles
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#interacting-directly-with-the-db" class="md-nav__link">
+  <a href="#list-roles" class="md-nav__link">
     <span class="md-ellipsis">
-      Interacting directly with the DB
+      List roles
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#api-users" class="md-nav__link">
+    <span class="md-ellipsis">
+      API users
     </span>
   </a>
   
@@ -1128,12 +1140,151 @@
                   
 
 
-<h1 id="integrating-with-external-systems">Integrating with external systems<a class="headerlink" href="#integrating-with-external-systems" title="Permanent link">&para;</a></h1>
-<p>In many environments, a mailing list manager's subscriber database is not run independently but as a part of an existing customer database or a CRM. There are multiple ways of keeping listmonk in sync with external systems.</p>
-<h2 id="using-apis">Using APIs<a class="headerlink" href="#using-apis" title="Permanent link">&para;</a></h2>
-<p>The <a href="../apis/subscribers/">subscriber APIs</a> offers several APIs to manipulate the subscribers database, like addition, updation, and deletion. For bulk synchronisation, a CSV can be generated (and optionally zipped) and posted to the import API.</p>
-<h2 id="interacting-directly-with-the-db">Interacting directly with the DB<a class="headerlink" href="#interacting-directly-with-the-db" title="Permanent link">&para;</a></h2>
-<p>listmonk uses tables with simple schemas to represent subscribers (<code>subscribers</code>), lists (<code>lists</code>), and subscriptions (<code>subscriber_lists</code>). It is easy to add, update, and delete subscriber information directly with the database tables for advanced usecases. See the <a href="https://github.com/knadh/listmonk/blob/master/schema.sql">table schemas</a> for more information.</p>
+  <h1>User roles and permissions</h1>
+
+<p>listmonk supports (&gt;= v4.0.0) creating systems users with granular permissions to various features, including list-specific permissions. Users can login with a username and password, or via an OIDC (OpenID Connect) handshake if an auth provider is connected. Various permissions can be grouped into "user roles", which can be assigned to users. List-specific permissions can be grouped into "list roles".</p>
+<h2 id="user-roles">User roles<a class="headerlink" href="#user-roles" title="Permanent link">&para;</a></h2>
+<p>A user role is a collection of user related permissions. User roles are attached to user accounts. User roles can be managed in <code>Admin -&gt; Users -&gt; User roles</code> The permissions are described below.</p>
+<table>
+<thead>
+<tr>
+<th>Group</th>
+<th>Permission</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>lists</td>
+<td>lists:get_all</td>
+<td>Get details of all lists</td>
+</tr>
+<tr>
+<td></td>
+<td>lists:manage_all</td>
+<td>Create, update, and delete all lists</td>
+</tr>
+<tr>
+<td>subscribers</td>
+<td>subscribers:get</td>
+<td>Get individual subscriber details</td>
+</tr>
+<tr>
+<td></td>
+<td>subscribers:get_all</td>
+<td>Get all subscribers and their details</td>
+</tr>
+<tr>
+<td></td>
+<td>subscribers:manage</td>
+<td>Add, update, and delete subscribers</td>
+</tr>
+<tr>
+<td></td>
+<td>subscribers:import</td>
+<td>Import subscribers from external files</td>
+</tr>
+<tr>
+<td></td>
+<td>subscribers:sql_query</td>
+<td>Run SQL queries on subscriber data. <strong>WARNING:</strong> This permission will allow the querying of all lists and subscribers directly from the database with SQL expressions, superceding individual list and subscriber permissions above.</td>
+</tr>
+<tr>
+<td></td>
+<td>tx:send</td>
+<td>Send transactional messages to subscribers</td>
+</tr>
+<tr>
+<td>campaigns</td>
+<td>campaigns:get</td>
+<td>Get campaign details</td>
+</tr>
+<tr>
+<td></td>
+<td>campaigns:get_analytics</td>
+<td>Access campaign performance metrics</td>
+</tr>
+<tr>
+<td></td>
+<td>campaigns:manage</td>
+<td>Create, update, and delete campaigns</td>
+</tr>
+<tr>
+<td>bounces</td>
+<td>bounces:get</td>
+<td>Get email bounce records</td>
+</tr>
+<tr>
+<td></td>
+<td>bounces:manage</td>
+<td>Process and handle bounced emails</td>
+</tr>
+<tr>
+<td></td>
+<td>webhooks:post_bounce</td>
+<td>Receive bounce notifications via webhook</td>
+</tr>
+<tr>
+<td>media</td>
+<td>media:get</td>
+<td>Get uploaded media files</td>
+</tr>
+<tr>
+<td></td>
+<td>media:manage</td>
+<td>Upload, update, and delete media</td>
+</tr>
+<tr>
+<td>templates</td>
+<td>templates:get</td>
+<td>Get email templates</td>
+</tr>
+<tr>
+<td></td>
+<td>templates:manage</td>
+<td>Create, update, and delete templates</td>
+</tr>
+<tr>
+<td>users</td>
+<td>users:get</td>
+<td>Get system user accounts</td>
+</tr>
+<tr>
+<td></td>
+<td>users:manage</td>
+<td>Create, update, and delete user accounts</td>
+</tr>
+<tr>
+<td></td>
+<td>roles:get</td>
+<td>Get user roles and permissions</td>
+</tr>
+<tr>
+<td></td>
+<td>roles:manage</td>
+<td>Create and modify user roles</td>
+</tr>
+<tr>
+<td>settings</td>
+<td>settings:get</td>
+<td>Get system settings</td>
+</tr>
+<tr>
+<td></td>
+<td>settings:manage</td>
+<td>Modify system configuration</td>
+</tr>
+<tr>
+<td></td>
+<td>settings:maintain</td>
+<td>Perform system maintenance tasks</td>
+</tr>
+</tbody>
+</table>
+<h2 id="list-roles">List roles<a class="headerlink" href="#list-roles" title="Permanent link">&para;</a></h2>
+<p>A list role is a collection of permissions assigned per list. Each list can be assigned a view (read) or manage (update) permission. List roles are attached to user accounts. Only the lists defined in a list role is accessible by the user, be it on the admin UI or via API calls. Do note that the <code>lists:get_all</code> and <code>lists:manage_all</code> permissions in user roles override all per-list permissions.</p>
+<h2 id="api-users">API users<a class="headerlink" href="#api-users" title="Permanent link">&para;</a></h2>
+<p>A user account can be of two types, a regular user or an API user. API users are meant for intertacting with the listmonk APIs programmatically. Unlike regular user accounts that have custom passwords or OIDC for authentication, API users get an automatically generated secret token.</p>
 
 
 
