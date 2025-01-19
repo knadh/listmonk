@@ -99,6 +99,7 @@
     "campaigns.testSent": "測試電子郵件已寄送",
     "campaigns.timestamps": "時間戳記",
     "campaigns.trackLink": "追蹤連結",
+    "campaigns.unSchedule": "Unschedule",
     "campaigns.views": "開信",
     "dashboard.campaignViews": "活動開信",
     "dashboard.linkClicks": "連結點擊次數",

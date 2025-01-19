@@ -24,9 +24,6 @@ import (
 type campaignReq struct {
 	models.Campaign
 
-	// Indicates if the "send_at" date should be written or set to null.
-	SendLater bool `json:"send_later"`
-
 	// This overrides Campaign.Lists to receive and
 	// write a list of int IDs during creation and updation.
 	// Campaign.Lists is JSONText for sending lists children
@@ -251,7 +248,7 @@ func handleUpdateCampaign(c echo.Context) error {
 		return err
 	}
 
-	if isCampaignalMutable(cm.Status) {
+	if !canEditCampaign(cm.Status) {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("campaigns.cantUpdate"))
 	}
 
@@ -269,7 +266,7 @@ func handleUpdateCampaign(c echo.Context) error {
 		o = c
 	}
 
-	out, err := app.core.UpdateCampaign(id, o.Campaign, o.ListIDs, o.MediaIDs, o.SendLater)
+	out, err := app.core.UpdateCampaign(id, o.Campaign, o.ListIDs, o.MediaIDs)
 	if err != nil {
 		return err
 	}
@@ -600,12 +597,12 @@ func validateCampaignFields(c campaignReq, app *App) (campaignReq, error) {
 	return c, nil
 }
 
-// isCampaignalMutable tells if a campaign's in a state where it's
-// properties can be mutated.
-func isCampaignalMutable(status string) bool {
-	return status == models.CampaignStatusRunning ||
-		status == models.CampaignStatusCancelled ||
-		status == models.CampaignStatusFinished
+// canEditCampaign returns true if a campaign is in a status where updating
+// its properties is allowed.
+func canEditCampaign(status string) bool {
+	return status == models.CampaignStatusDraft ||
+		status == models.CampaignStatusPaused ||
+		status == models.CampaignStatusScheduled
 }
 
 // makeOptinCampaignMessage makes a default opt-in campaign message body.

@@ -98,6 +98,7 @@
     "campaigns.testSent": "Testovací zpráva odeslána",
     "campaigns.timestamps": "Časová razítka",
     "campaigns.trackLink": "Sledovací odkaz",
+    "campaigns.unSchedule": "Unschedule",
     "campaigns.views": "Pohledy",
     "dashboard.campaignViews": "Pohledy na kampaň",
     "dashboard.linkClicks": "Klepnutí na odkaz",

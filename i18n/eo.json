@@ -98,6 +98,7 @@
     "campaigns.testSent": "S'ha enviat el missatge de prova",
     "campaigns.timestamps": "Segells de temps",
     "campaigns.trackLink": "Enllaç de seguiment",
+    "campaigns.unSchedule": "Unschedule",
     "campaigns.views": "Visualitzacions",
     "dashboard.campaignViews": "Visualitzacions de la campanya",
     "dashboard.linkClicks": "Clics a enllaços",

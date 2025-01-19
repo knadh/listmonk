@@ -99,6 +99,7 @@
     "campaigns.testSent": "テストメッセージ送信済み",
     "campaigns.timestamps": "タイムスタンプ",
     "campaigns.trackLink": "リンクの追跡",
+    "campaigns.unSchedule": "Unschedule",
     "campaigns.views": "ビュー",
     "dashboard.campaignViews": "キャンペーンビュー",
     "dashboard.linkClicks": "リンクのクリック",
