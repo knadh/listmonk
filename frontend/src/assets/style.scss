@@ -799,8 +799,13 @@ section.lists {
 }
 
 .bounces {
+  tr.detail td {
+    max-width: 0;
+  }
   pre {
     padding: 5px 10px;
+    overflow-x: auto;
+    max-width: 100%;
   }
 }
 
