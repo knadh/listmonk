@@ -28,7 +28,7 @@
 			<div class="logo">
 				<a href="{{ if .EnablePublicSubPage }}{{ .RootURL}}/subscription/form{{ end }}">
 				{{ if ne .LogoURL "" }}
-					<img src="{{ .LogoURL }}" alt="{{ .Data.Title }}" /></a>
+					<img src="{{ .LogoURL }}" alt="{{ .Data.Title }}" />
 				{{ else }}
 					<img src="/public/static/logo.svg?v={{ .AssetVersion }}" alt="{{ .Data.Title }}" />
 				{{ end }}
