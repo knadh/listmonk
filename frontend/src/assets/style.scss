@@ -973,11 +973,12 @@ section.analytics {
       margin-bottom: 2px;
     }
 
-    .timestamp {
+    .timestamp, .file {
       color: $primary;
       display: inline-block;
       min-width: 175px;
       margin-right: 5px;
+      user-select: auto;
     }
 
     .line:hover {
