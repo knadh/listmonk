@@ -434,6 +434,8 @@
     "settings.mailserver.idleTimeoutHelp": "Время ожидания новой активности в соединении перед тем, как закрыть и удалить его из пула (s, m соотвественно секунды и минуты).",
     "settings.mailserver.maxConns": "Максимальное количество соединений",
     "settings.mailserver.maxConnsHelp": "Максимальное количество одновременных соединений к серверу SMTP.",
+    "settings.mailserver.name": "Имя",
+    "settings.mailserver.nameHelp": "Необязательное имя SMTP-сервера. Используется в настройках кампании.",
     "settings.mailserver.password": "Пароль",
     "settings.mailserver.passwordHelp": "Для изменения введите",
     "settings.mailserver.port": "Порт",

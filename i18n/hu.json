@@ -434,6 +434,8 @@
     "settings.mailserver.idleTimeoutHelp": "Kapcsolat életben tartása a megadott ideig. (s: másodperc, m: perc)",
     "settings.mailserver.maxConns": "Kapcsolatok",
     "settings.mailserver.maxConnsHelp": "Egyidejű kapcsolatok maximális száma.",
+    "settings.mailserver.name": "Név",
+    "settings.mailserver.nameHelp": "Az SMTP-kiszolgáló opcionális neve. A kampánybeállításokban használható.",
     "settings.mailserver.password": "Jelszó",
     "settings.mailserver.passwordHelp": "írja be a jelszót",
     "settings.mailserver.port": "Port",
