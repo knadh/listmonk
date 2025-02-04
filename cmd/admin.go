@@ -45,16 +45,20 @@ func handleGetServerConfig(c echo.Context) error {
 	}
 	out.Langs = langList
 
-	// Sort messenger names with `email` always as the first item.
-	var names []string
+	names := make([]string, 0, len(app.messengers))
 	for name := range app.messengers {
-		if name == emailMsgr {
-			continue
-		}
 		names = append(names, name)
 	}
-	sort.Strings(names)
-	out.Messengers = append(out.Messengers, emailMsgr)
+	// Sort messenger names with `email` always as the first item.
+	sort.SliceStable(names, func(i, j int) bool {
+		if names[i] == emailMsgr {
+			return true
+		}
+		if names[j] == emailMsgr {
+			return false
+		}
+		return names[i] < names[j]
+	})
 	out.Messengers = append(out.Messengers, names...)
 
 	app.Lock()

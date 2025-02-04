@@ -233,6 +233,10 @@ func main() {
 	// Initialize the default SMTP (`email`) messenger.
 	app.messengers[emailMsgr] = initSMTPMessenger(app.manager)
 
+	for _, m := range initSMTPMessengers() {
+		app.messengers[m.Name()] = m
+	}
+
 	// Initialize any additional postback messengers.
 	for _, m := range initPostbackMessengers(app.manager) {
 		app.messengers[m.Name()] = m

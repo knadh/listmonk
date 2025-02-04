@@ -164,6 +164,16 @@ func handleUpdateSettings(c echo.Context) error {
 	// and "email" is a reserved name.
 	names := map[string]bool{emailMsgr: true}
 
+	// Add SMTP as messengers to prevent duplicate names if they exist in set.Messengers
+	for _, s := range set.SMTP {
+		name := email.GetEmailerName(s.Name, s.Host)
+		if _, ok := names[name]; ok {
+			return echo.NewHTTPError(http.StatusBadRequest,
+				app.i18n.Ts("settings.duplicateMessengerName", "name", name))
+		}
+		names[name] = true
+	}
+
 	for i, m := range set.Messengers {
 		// UUID to keep track of password changes similar to the SMTP logic above.
 		if m.UUID == "" {

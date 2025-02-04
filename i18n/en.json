@@ -424,6 +424,8 @@
     "settings.general.siteName": "Site name",
     "settings.invalidMessengerName": "Invalid messenger name.",
     "settings.mailserver.authProtocol": "Auth protocol",
+    "settings.mailserver.name": "Name",
+    "settings.mailserver.nameHelp": "Optional name of the SMTP server. Usable in the campaign settings.",
     "settings.mailserver.host": "Host",
     "settings.mailserver.hostHelp": "SMTP server's host address.",
     "settings.mailserver.idleTimeout": "Idle timeout",

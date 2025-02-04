@@ -21,6 +21,8 @@ const (
 
 // Server represents an SMTP server's credentials.
 type Server struct {
+	// Name is unique identifier for the server.
+	Name          string            `json:"name"`
 	Username      string            `json:"username"`
 	Password      string            `json:"password"`
 	AuthProtocol  string            `json:"auth_protocol"`
@@ -91,7 +93,20 @@ func New(servers ...Server) (*Emailer, error) {
 
 // Name returns the Server's name.
 func (e *Emailer) Name() string {
-	return emName
+	// It's `email` if there are more than one SMTP servers.
+	if len(e.servers) > 1 {
+		return emName
+	}
+	srv := e.servers[0]
+	return GetEmailerName(srv.Name, srv.Host)
+}
+
+// GetEmailerName returns the emailer name.
+func GetEmailerName(name, host string) string {
+	if name != "" {
+		return fmt.Sprintf("%s-%s", emName, name)
+	}
+	return fmt.Sprintf("%s-%s", emName, host)
 }
 
 // Push pushes a message to the server.

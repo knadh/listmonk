@@ -589,6 +589,50 @@ func initSMTPMessenger(m *manager.Manager) manager.Messenger {
 	return msgr
 }
 
+func initSMTPMessengers() []manager.Messenger {
+	var (
+		mapKeys = ko.MapKeys("smtp")
+		servers = make([]email.Server, 0, len(mapKeys))
+	)
+
+	items := ko.Slices("smtp")
+	if len(items) == 0 {
+		lo.Fatalf("no SMTP servers found in config")
+	}
+
+	// Load the config for multiple SMTP servers.
+	for _, item := range items {
+		if !item.Bool("enabled") {
+			continue
+		}
+
+		// Read the SMTP config.
+		var s email.Server
+		if err := item.UnmarshalWithConf("", &s, koanf.UnmarshalConf{Tag: "json"}); err != nil {
+			lo.Fatalf("error reading SMTP config: %v", err)
+		}
+
+		servers = append(servers, s)
+		lo.Printf("loaded email (SMTP) messenger: %s@%s",
+			item.String("username"), item.String("host"))
+	}
+	if len(servers) == 0 {
+		lo.Fatalf("no SMTP servers enabled in settings")
+	}
+
+	msgrs := make([]manager.Messenger, 0, len(servers))
+	for _, srv := range servers {
+		// Initialize the e-mail messenger with single SMTP server.
+		msgr, err := email.New(srv)
+		if err != nil {
+			lo.Fatalf("error loading e-mail messenger: %v", err)
+		}
+		msgrs = append(msgrs, msgr)
+	}
+
+	return msgrs
+}
+
 // initPostbackMessengers initializes and returns all the enabled
 // HTTP postback messenger backends.
 func initPostbackMessengers(m *manager.Manager) []manager.Messenger {
