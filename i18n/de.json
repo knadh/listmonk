@@ -430,6 +430,8 @@
     "settings.mailserver.idleTimeoutHelp": "Wartezeit auf neue Aktivität bevor eine Verbindung geschlossen und aus dem Pool entfernt wird. (s für Sekunden, m für Minuten).",
     "settings.mailserver.maxConns": "Max. Verbindungen",
     "settings.mailserver.maxConnsHelp": "Maximale gleichzeitige Verbindungen zum SMTP Server",
+    "settings.mailserver.name": "Name",
+    "settings.mailserver.nameHelp": "Optionaler Name des SMTP-Servers. Verwendbar in den Kampagneneinstellungen.",
     "settings.mailserver.password": "Passwort",
     "settings.mailserver.passwordHelp": "Gib dein Passwort ein, um es zu ändern",
     "settings.mailserver.port": "Port",
