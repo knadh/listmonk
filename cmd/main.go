@@ -69,7 +69,7 @@ type App struct {
 
 	// Global state that stores data on an available remote update.
 	update *AppUpdate
-	sync.Mutex
+	sync.RWMutex
 }
 
 var (
@@ -256,7 +256,10 @@ func main() {
 	go app.manager.Run()
 
 	// Start the app server.
-	srv := initHTTPServer(app)
+	h, err := initHTTPServer(app)
+	if err != nil {
+		lo.Fatalf("error starting server: %v", err)
+	}
 
 	// Star the update checker.
 	if ko.Bool("app.check_updates") {
@@ -274,17 +277,23 @@ func main() {
 		// Stop the HTTP server.
 		ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
 		defer cancel()
-		srv.Shutdown(ctx)
+		if err := h.echo.Shutdown(ctx); err != nil {
+			lo.Printf("error shutting down server: %v", err)
+		}
 
 		// Close the campaign manager.
 		app.manager.Close()
 
 		// Close the DB pool.
-		app.db.DB.Close()
+		if err := app.db.DB.Close(); err != nil {
+			lo.Printf("error closing DB: %v", err)
+		}
 
 		// Close the messenger pool.
 		for _, m := range app.messengers {
-			m.Close()
+			if err := m.Close(); err != nil {
+				lo.Printf("error closing messenger %s: %v", m.Name(), err)
+			}
 		}
 
 		// Signal the close.

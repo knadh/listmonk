@@ -24,13 +24,12 @@ type campArchive struct {
 }
 
 // handleGetCampaignArchives renders the public campaign archives page.
-func handleGetCampaignArchives(c echo.Context) error {
+func (h *Handler) handleGetCampaignArchives(c echo.Context) error {
 	var (
-		app = c.Get("app").(*App)
-		pg  = app.paginator.NewFromURL(c.Request().URL.Query())
+		pg = h.app.paginator.NewFromURL(c.Request().URL.Query())
 	)
 
-	camps, total, err := getCampaignArchives(pg.Offset, pg.Limit, false, app)
+	camps, total, err := getCampaignArchives(pg.Offset, pg.Limit, false, h.app)
 	if err != nil {
 		return err
 	}
@@ -51,14 +50,13 @@ func handleGetCampaignArchives(c echo.Context) error {
 }
 
 // handleGetCampaignArchivesFeed renders the public campaign archives RSS feed.
-func handleGetCampaignArchivesFeed(c echo.Context) error {
+func (h *Handler) handleGetCampaignArchivesFeed(c echo.Context) error {
 	var (
-		app             = c.Get("app").(*App)
-		pg              = app.paginator.NewFromURL(c.Request().URL.Query())
-		showFullContent = app.constants.EnablePublicArchiveRSSContent
+		pg              = h.app.paginator.NewFromURL(c.Request().URL.Query())
+		showFullContent = h.app.constants.EnablePublicArchiveRSSContent
 	)
 
-	camps, _, err := getCampaignArchives(pg.Offset, pg.Limit, showFullContent, app)
+	camps, _, err := getCampaignArchives(pg.Offset, pg.Limit, showFullContent, h.app)
 	if err != nil {
 		return err
 	}
@@ -80,34 +78,33 @@ func handleGetCampaignArchivesFeed(c echo.Context) error {
 	}
 
 	feed := &feeds.Feed{
-		Title:       app.constants.SiteName,
-		Link:        &feeds.Link{Href: app.constants.RootURL},
-		Description: app.i18n.T("public.archiveTitle"),
+		Title:       h.app.constants.SiteName,
+		Link:        &feeds.Link{Href: h.app.constants.RootURL},
+		Description: h.app.i18n.T("public.archiveTitle"),
 		Items:       out,
 	}
 
 	if err := feed.WriteRss(c.Response().Writer); err != nil {
-		app.log.Printf("error generating archive RSS feed: %v", err)
-		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("public.errorProcessingRequest"))
+		h.app.log.Printf("error generating archive RSS feed: %v", err)
+		return echo.NewHTTPError(http.StatusBadRequest, h.app.i18n.T("public.errorProcessingRequest"))
 	}
 
 	return nil
 }
 
 // handleCampaignArchivesPage renders the public campaign archives page.
-func handleCampaignArchivesPage(c echo.Context) error {
+func (h *Handler) handleCampaignArchivesPage(c echo.Context) error {
 	var (
-		app = c.Get("app").(*App)
-		pg  = app.paginator.NewFromURL(c.Request().URL.Query())
+		pg = h.app.paginator.NewFromURL(c.Request().URL.Query())
 	)
 
-	out, total, err := getCampaignArchives(pg.Offset, pg.Limit, false, app)
+	out, total, err := getCampaignArchives(pg.Offset, pg.Limit, false, h.app)
 	if err != nil {
 		return err
 	}
 	pg.SetTotal(total)
 
-	title := app.i18n.T("public.archiveTitle")
+	title := h.app.i18n.T("public.archiveTitle")
 	return c.Render(http.StatusOK, "archive", struct {
 		Title       string
 		Description string
@@ -118,9 +115,8 @@ func handleCampaignArchivesPage(c echo.Context) error {
 }
 
 // handleCampaignArchivePage renders the public campaign archives page.
-func handleCampaignArchivePage(c echo.Context) error {
+func (h *Handler) handleCampaignArchivePage(c echo.Context) error {
 	var (
-		app  = c.Get("app").(*App)
 		id   = c.Param("id")
 		uuid = ""
 		slug = ""
@@ -133,7 +129,7 @@ func handleCampaignArchivePage(c echo.Context) error {
 		slug = id
 	}
 
-	pubCamp, err := app.core.GetArchivedCampaign(0, uuid, slug)
+	pubCamp, err := h.app.core.GetArchivedCampaign(0, uuid, slug)
 	if err != nil || pubCamp.Type != models.CampaignTypeRegular {
 		notFound := false
 		if er, ok := err.(*echo.HTTPError); ok {
@@ -146,45 +142,41 @@ func handleCampaignArchivePage(c echo.Context) error {
 
 		if notFound {
 			return c.Render(http.StatusNotFound, tplMessage,
-				makeMsgTpl(app.i18n.T("public.notFoundTitle"), "", app.i18n.T("public.campaignNotFound")))
+				makeMsgTpl(h.app.i18n.T("public.notFoundTitle"), "", h.app.i18n.T("public.campaignNotFound")))
 		}
 
 		return c.Render(http.StatusInternalServerError, tplMessage,
-			makeMsgTpl(app.i18n.T("public.errorTitle"), "", app.i18n.Ts("public.errorFetchingCampaign")))
+			makeMsgTpl(h.app.i18n.T("public.errorTitle"), "", h.app.i18n.Ts("public.errorFetchingCampaign")))
 	}
 
-	out, err := compileArchiveCampaigns([]models.Campaign{pubCamp}, app)
+	out, err := compileArchiveCampaigns([]models.Campaign{pubCamp}, h.app)
 	if err != nil {
 		return c.Render(http.StatusInternalServerError, tplMessage,
-			makeMsgTpl(app.i18n.T("public.errorTitle"), "", app.i18n.Ts("public.errorFetchingCampaign")))
+			makeMsgTpl(h.app.i18n.T("public.errorTitle"), "", h.app.i18n.Ts("public.errorFetchingCampaign")))
 	}
 
 	// Render the message body.
 	camp := out[0].Campaign
-	msg, err := app.manager.NewCampaignMessage(camp, out[0].Subscriber)
+	msg, err := h.app.manager.NewCampaignMessage(camp, out[0].Subscriber)
 	if err != nil {
-		app.log.Printf("error rendering message: %v", err)
+		h.app.log.Printf("error rendering message: %v", err)
 		return c.Render(http.StatusInternalServerError, tplMessage,
-			makeMsgTpl(app.i18n.T("public.errorTitle"), "", app.i18n.Ts("public.errorFetchingCampaign")))
+			makeMsgTpl(h.app.i18n.T("public.errorTitle"), "", h.app.i18n.Ts("public.errorFetchingCampaign")))
 	}
 
 	return c.HTML(http.StatusOK, string(msg.Body()))
 }
 
 // handleCampaignArchivePageLatest renders the latest public campaign.
-func handleCampaignArchivePageLatest(c echo.Context) error {
-	var (
-		app = c.Get("app").(*App)
-	)
-
-	camps, _, err := getCampaignArchives(0, 1, true, app)
+func (h *Handler) handleCampaignArchivePageLatest(c echo.Context) error {
+	camps, _, err := getCampaignArchives(0, 1, true, h.app)
 	if err != nil {
 		return err
 	}
 
 	if len(camps) == 0 {
 		return c.Render(http.StatusNotFound, tplMessage,
-			makeMsgTpl(app.i18n.T("public.notFoundTitle"), "", app.i18n.T("public.campaignNotFound")))
+			makeMsgTpl(h.app.i18n.T("public.notFoundTitle"), "", h.app.i18n.T("public.campaignNotFound")))
 	}
 
 	camp := camps[0]

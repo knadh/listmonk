@@ -8,11 +8,8 @@ import (
 )
 
 // handleGCSubscribers garbage collects (deletes) orphaned or blocklisted subscribers.
-func handleGCSubscribers(c echo.Context) error {
-	var (
-		app = c.Get("app").(*App)
-		typ = c.Param("type")
-	)
+func (h *Handler) handleGCSubscribers(c echo.Context) error {
+	typ := c.Param("type")
 
 	var (
 		n   int
@@ -21,11 +18,11 @@ func handleGCSubscribers(c echo.Context) error {
 
 	switch typ {
 	case "blocklisted":
-		n, err = app.core.DeleteBlocklistedSubscribers()
+		n, err = h.app.core.DeleteBlocklistedSubscribers()
 	case "orphan":
-		n, err = app.core.DeleteOrphanSubscribers()
+		n, err = h.app.core.DeleteOrphanSubscribers()
 	default:
-		err = echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidData"))
+		err = echo.NewHTTPError(http.StatusBadRequest, h.app.i18n.T("globals.messages.invalidData"))
 	}
 
 	if err != nil {
@@ -38,17 +35,13 @@ func handleGCSubscribers(c echo.Context) error {
 }
 
 // handleGCSubscriptions garbage collects (deletes) orphaned or blocklisted subscribers.
-func handleGCSubscriptions(c echo.Context) error {
-	var (
-		app = c.Get("app").(*App)
-	)
-
+func (h *Handler) handleGCSubscriptions(c echo.Context) error {
 	t, err := time.Parse(time.RFC3339, c.FormValue("before_date"))
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidData"))
+		return echo.NewHTTPError(http.StatusBadRequest, h.app.i18n.T("globals.messages.invalidData"))
 	}
 
-	n, err := app.core.DeleteUnconfirmedSubscriptions(t)
+	n, err := h.app.core.DeleteUnconfirmedSubscriptions(t)
 	if err != nil {
 		return err
 	}
@@ -59,29 +52,26 @@ func handleGCSubscriptions(c echo.Context) error {
 }
 
 // handleGCCampaignAnalytics garbage collects (deletes) campaign analytics.
-func handleGCCampaignAnalytics(c echo.Context) error {
-	var (
-		app = c.Get("app").(*App)
-		typ = c.Param("type")
-	)
+func (h *Handler) handleGCCampaignAnalytics(c echo.Context) error {
+	typ := c.Param("type")
 
 	t, err := time.Parse(time.RFC3339, c.FormValue("before_date"))
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidData"))
+		return echo.NewHTTPError(http.StatusBadRequest, h.app.i18n.T("globals.messages.invalidData"))
 	}
 
 	switch typ {
 	case "all":
-		if err := app.core.DeleteCampaignViews(t); err != nil {
+		if err := h.app.core.DeleteCampaignViews(t); err != nil {
 			return err
 		}
-		err = app.core.DeleteCampaignLinkClicks(t)
+		err = h.app.core.DeleteCampaignLinkClicks(t)
 	case "views":
-		err = app.core.DeleteCampaignViews(t)
+		err = h.app.core.DeleteCampaignViews(t)
 	case "clicks":
-		err = app.core.DeleteCampaignLinkClicks(t)
+		err = h.app.core.DeleteCampaignLinkClicks(t)
 	default:
-		err = echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidData"))
+		err = echo.NewHTTPError(http.StatusBadRequest, h.app.i18n.T("globals.messages.invalidData"))
 	}
 
 	if err != nil {

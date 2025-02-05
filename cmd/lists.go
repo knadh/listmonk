@@ -11,11 +11,10 @@ import (
 )
 
 // handleGetLists retrieves lists with additional metadata like subscriber counts.
-func handleGetLists(c echo.Context) error {
+func (h *Handler) handleGetLists(c echo.Context) error {
 	var (
-		app  = c.Get("app").(*App)
 		user = c.Get(auth.UserKey).(models.User)
-		pg   = app.paginator.NewFromURL(c.Request().URL.Query())
+		pg   = h.app.paginator.NewFromURL(c.Request().URL.Query())
 
 		query      = strings.TrimSpace(c.FormValue("query"))
 		tags       = c.QueryParams()["tag"]
@@ -40,7 +39,7 @@ func handleGetLists(c echo.Context) error {
 
 	// Minimal query simply returns the list of all lists without JOIN subscriber counts. This is fast.
 	if minimal {
-		res, err := app.core.GetLists("", getAll, permittedIDs)
+		res, err := h.app.core.GetLists("", getAll, permittedIDs)
 		if err != nil {
 			return err
 		}
@@ -58,7 +57,7 @@ func handleGetLists(c echo.Context) error {
 	}
 
 	// Full list query.
-	res, total, err := app.core.QueryLists(query, typ, optin, tags, orderBy, order, getAll, permittedIDs, pg.Offset, pg.Limit)
+	res, total, err := h.app.core.QueryLists(query, typ, optin, tags, orderBy, order, getAll, permittedIDs, pg.Offset, pg.Limit)
 	if err != nil {
 		return err
 	}
@@ -73,13 +72,10 @@ func handleGetLists(c echo.Context) error {
 }
 
 // handleGetList retrieves a single list by id.
-func handleGetList(c echo.Context) error {
-	var (
-		app       = c.Get("app").(*App)
-		listID, _ = strconv.Atoi(c.Param("id"))
-	)
+func (h *Handler) handleGetList(c echo.Context) error {
+	listID, _ := strconv.Atoi(c.Param("id"))
 
-	out, err := app.core.GetList(listID, "")
+	out, err := h.app.core.GetList(listID, "")
 	if err != nil {
 		return err
 	}
@@ -88,11 +84,8 @@ func handleGetList(c echo.Context) error {
 }
 
 // handleCreateList handles list creation.
-func handleCreateList(c echo.Context) error {
-	var (
-		app = c.Get("app").(*App)
-		l   = models.List{}
-	)
+func (h *Handler) handleCreateList(c echo.Context) error {
+	l := models.List{}
 
 	if err := c.Bind(&l); err != nil {
 		return err
@@ -100,10 +93,10 @@ func handleCreateList(c echo.Context) error {
 
 	// Validate.
 	if !strHasLen(l.Name, 1, stdInputMaxLen) {
-		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("lists.invalidName"))
+		return echo.NewHTTPError(http.StatusBadRequest, h.app.i18n.T("lists.invalidName"))
 	}
 
-	out, err := app.core.CreateList(l)
+	out, err := h.app.core.CreateList(l)
 	if err != nil {
 		return err
 	}
@@ -112,14 +105,11 @@ func handleCreateList(c echo.Context) error {
 }
 
 // handleUpdateList handles list modification.
-func handleUpdateList(c echo.Context) error {
-	var (
-		app   = c.Get("app").(*App)
-		id, _ = strconv.Atoi(c.Param("id"))
-	)
+func (h *Handler) handleUpdateList(c echo.Context) error {
+	id, _ := strconv.Atoi(c.Param("id"))
 
 	if id < 1 {
-		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidID"))
+		return echo.NewHTTPError(http.StatusBadRequest, h.app.i18n.T("globals.messages.invalidID"))
 	}
 
 	// Incoming params.
@@ -130,10 +120,10 @@ func handleUpdateList(c echo.Context) error {
 
 	// Validate.
 	if !strHasLen(l.Name, 1, stdInputMaxLen) {
-		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("lists.invalidName"))
+		return echo.NewHTTPError(http.StatusBadRequest, h.app.i18n.T("lists.invalidName"))
 	}
 
-	out, err := app.core.UpdateList(id, l)
+	out, err := h.app.core.UpdateList(id, l)
 	if err != nil {
 		return err
 	}
@@ -142,22 +132,21 @@ func handleUpdateList(c echo.Context) error {
 }
 
 // handleDeleteLists handles list deletion, either a single one (ID in the URI), or a list.
-func handleDeleteLists(c echo.Context) error {
+func (h *Handler) handleDeleteLists(c echo.Context) error {
 	var (
-		app   = c.Get("app").(*App)
 		id, _ = strconv.ParseInt(c.Param("id"), 10, 64)
 		ids   []int
 	)
 
 	if id < 1 && len(ids) == 0 {
-		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidID"))
+		return echo.NewHTTPError(http.StatusBadRequest, h.app.i18n.T("globals.messages.invalidID"))
 	}
 
 	if id > 0 {
 		ids = append(ids, int(id))
 	}
 
-	if err := app.core.DeleteLists(ids); err != nil {
+	if err := h.app.core.DeleteLists(ids); err != nil {
 		return err
 	}
 
@@ -166,34 +155,35 @@ func handleDeleteLists(c echo.Context) error {
 
 // listPerm is a middleware for wrapping /list/* API calls that take a
 // list :id param for validating the list ID against the user's list perms.
-func listPerm(next echo.HandlerFunc) echo.HandlerFunc {
-	return func(c echo.Context) error {
-		var (
-			app   = c.Get("app").(*App)
-			user  = c.Get(auth.UserKey).(models.User)
-			id, _ = strconv.Atoi(c.Param("id"))
-		)
+func (h *Handler) listPerm() echo.MiddlewareFunc {
+	return func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(c echo.Context) error {
+			var (
+				user  = c.Get(auth.UserKey).(models.User)
+				id, _ = strconv.Atoi(c.Param("id"))
+			)
 
-		// Define permissions based on HTTP read/write.
-		var (
-			permAll = models.PermListManageAll
-			perm    = models.PermListManage
-		)
-		if c.Request().Method == http.MethodGet {
-			permAll = models.PermListGetAll
-			perm = models.PermListGet
-		}
+			// Define permissions based on HTTP read/write.
+			var (
+				permAll = models.PermListManageAll
+				perm    = models.PermListManage
+			)
+			if c.Request().Method == http.MethodGet {
+				permAll = models.PermListGetAll
+				perm = models.PermListGet
+			}
 
-		// Check if the user has permissions for all lists or the specific list.
-		if _, ok := user.PermissionsMap[permAll]; ok {
-			return next(c)
-		}
-		if id > 0 {
-			if _, ok := user.ListPermissionsMap[id][perm]; ok {
+			// Check if the user has permissions for all lists or the specific list.
+			if _, ok := user.PermissionsMap[permAll]; ok {
 				return next(c)
 			}
-		}
+			if id > 0 {
+				if _, ok := user.ListPermissionsMap[id][perm]; ok {
+					return next(c)
+				}
+			}
 
-		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.Ts("globals.messages.permissionDenied", "name", "list"))
+			return echo.NewHTTPError(http.StatusBadRequest, h.app.i18n.Ts("globals.messages.permissionDenied", "name", "list"))
+		}
 	}
 }

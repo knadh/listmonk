@@ -14,30 +14,27 @@ import (
 )
 
 // handleSendTxMessage handles the sending of a transactional message.
-func handleSendTxMessage(c echo.Context) error {
-	var (
-		app = c.Get("app").(*App)
-		m   models.TxMessage
-	)
+func (h *Handler) handleSendTxMessage(c echo.Context) error {
+	var m models.TxMessage
 
 	// If it's a multipart form, there may be file attachments.
 	if strings.HasPrefix(c.Request().Header.Get("Content-Type"), "multipart/form-data") {
 		form, err := c.MultipartForm()
 		if err != nil {
 			return echo.NewHTTPError(http.StatusBadRequest,
-				app.i18n.Ts("globals.messages.invalidFields", "name", err.Error()))
+				h.app.i18n.Ts("globals.messages.invalidFields", "name", err.Error()))
 		}
 
 		data, ok := form.Value["data"]
 		if !ok || len(data) != 1 {
 			return echo.NewHTTPError(http.StatusBadRequest,
-				app.i18n.Ts("globals.messages.invalidFields", "name", "data"))
+				h.app.i18n.Ts("globals.messages.invalidFields", "name", "data"))
 		}
 
 		// Parse the JSON data.
 		if err := json.Unmarshal([]byte(data[0]), &m); err != nil {
 			return echo.NewHTTPError(http.StatusBadRequest,
-				app.i18n.Ts("globals.messages.invalidFields", "name", fmt.Sprintf("data: %s", err.Error())))
+				h.app.i18n.Ts("globals.messages.invalidFields", "name", fmt.Sprintf("data: %s", err.Error())))
 		}
 
 		// Attach files.
@@ -45,14 +42,14 @@ func handleSendTxMessage(c echo.Context) error {
 			file, err := f.Open()
 			if err != nil {
 				return echo.NewHTTPError(http.StatusInternalServerError,
-					app.i18n.Ts("globals.messages.invalidFields", "name", fmt.Sprintf("file: %s", err.Error())))
+					h.app.i18n.Ts("globals.messages.invalidFields", "name", fmt.Sprintf("file: %s", err.Error())))
 			}
 			defer file.Close()
 
 			b, err := io.ReadAll(file)
 			if err != nil {
 				return echo.NewHTTPError(http.StatusInternalServerError,
-					app.i18n.Ts("globals.messages.invalidFields", "name", fmt.Sprintf("file: %s", err.Error())))
+					h.app.i18n.Ts("globals.messages.invalidFields", "name", fmt.Sprintf("file: %s", err.Error())))
 			}
 
 			m.Attachments = append(m.Attachments, models.Attachment{
@@ -67,17 +64,17 @@ func handleSendTxMessage(c echo.Context) error {
 	}
 
 	// Validate input.
-	if r, err := validateTxMessage(m, app); err != nil {
+	if r, err := validateTxMessage(m, h.app); err != nil {
 		return err
 	} else {
 		m = r
 	}
 
 	// Get the cached tx template.
-	tpl, err := app.manager.GetTpl(m.TemplateID)
+	tpl, err := h.app.manager.GetTpl(m.TemplateID)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest,
-			app.i18n.Ts("globals.messages.notFound", "name", fmt.Sprintf("template %d", m.TemplateID)))
+			h.app.i18n.Ts("globals.messages.notFound", "name", fmt.Sprintf("template %d", m.TemplateID)))
 	}
 
 	var (
@@ -103,7 +100,7 @@ func handleSendTxMessage(c echo.Context) error {
 		}
 
 		// Get the subscriber.
-		sub, err := app.core.GetSubscriber(subID, "", subEmail)
+		sub, err := h.app.core.GetSubscriber(subID, "", subEmail)
 		if err != nil {
 			// If the subscriber is not found, log that error and move on without halting on the list.
 			if er, ok := err.(*echo.HTTPError); ok && er.Code == http.StatusBadRequest {
@@ -117,7 +114,7 @@ func handleSendTxMessage(c echo.Context) error {
 		// Render the message.
 		if err := m.Render(sub, tpl); err != nil {
 			return echo.NewHTTPError(http.StatusBadRequest,
-				app.i18n.Ts("globals.messages.errorFetching", "name"))
+				h.app.i18n.Ts("globals.messages.errorFetching", "name"))
 		}
 
 		// Prepare the final message.
@@ -147,8 +144,8 @@ func handleSendTxMessage(c echo.Context) error {
 			}
 		}
 
-		if err := app.manager.PushMessage(msg); err != nil {
-			app.log.Printf("error sending message (%s): %v", msg.Subject, err)
+		if err := h.app.manager.PushMessage(msg); err != nil {
+			h.app.log.Printf("error sending message (%s): %v", msg.Subject, err)
 			return err
 		}
 	}

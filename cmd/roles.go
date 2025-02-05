@@ -11,13 +11,10 @@ import (
 )
 
 // handleGetUserRoles retrieves roles.
-func handleGetUserRoles(c echo.Context) error {
-	var (
-		app = c.Get("app").(*App)
-	)
+func (h *Handler) handleGetUserRoles(c echo.Context) error {
 
 	// Get all roles.
-	out, err := app.core.GetRoles()
+	out, err := h.app.core.GetRoles()
 	if err != nil {
 		return err
 	}
@@ -26,13 +23,9 @@ func handleGetUserRoles(c echo.Context) error {
 }
 
 // handleGeListRoles retrieves roles.
-func handleGeListRoles(c echo.Context) error {
-	var (
-		app = c.Get("app").(*App)
-	)
-
+func (h *Handler) handleGetListRoles(c echo.Context) error {
 	// Get all roles.
-	out, err := app.core.GetListRoles()
+	out, err := h.app.core.GetListRoles()
 	if err != nil {
 		return err
 	}
@@ -41,21 +34,20 @@ func handleGeListRoles(c echo.Context) error {
 }
 
 // handleCreateUserRole handles role creation.
-func handleCreateUserRole(c echo.Context) error {
+func (h *Handler) handleCreateUserRole(c echo.Context) error {
 	var (
-		app = c.Get("app").(*App)
-		r   = models.Role{}
+		r = models.Role{}
 	)
 
 	if err := c.Bind(&r); err != nil {
 		return err
 	}
 
-	if err := validateUserRole(r, app); err != nil {
+	if err := validateUserRole(r, h.app); err != nil {
 		return err
 	}
 
-	out, err := app.core.CreateRole(r)
+	out, err := h.app.core.CreateRole(r)
 	if err != nil {
 		return err
 	}
@@ -64,21 +56,20 @@ func handleCreateUserRole(c echo.Context) error {
 }
 
 // handleCreateListRole handles role creation.
-func handleCreateListRole(c echo.Context) error {
+func (h *Handler) handleCreateListRole(c echo.Context) error {
 	var (
-		app = c.Get("app").(*App)
-		r   = models.ListRole{}
+		r = models.ListRole{}
 	)
 
 	if err := c.Bind(&r); err != nil {
 		return err
 	}
 
-	if err := validateListRole(r, app); err != nil {
+	if err := validateListRole(r, h.app); err != nil {
 		return err
 	}
 
-	out, err := app.core.CreateListRole(r)
+	out, err := h.app.core.CreateListRole(r)
 	if err != nil {
 		return err
 	}
@@ -87,14 +78,13 @@ func handleCreateListRole(c echo.Context) error {
 }
 
 // handleUpdateUserRole handles role modification.
-func handleUpdateUserRole(c echo.Context) error {
+func (h *Handler) handleUpdateUserRole(c echo.Context) error {
 	var (
-		app   = c.Get("app").(*App)
 		id, _ = strconv.Atoi(c.Param("id"))
 	)
 
 	if id < 2 {
-		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidID"))
+		return echo.NewHTTPError(http.StatusBadRequest, h.app.i18n.T("globals.messages.invalidID"))
 	}
 
 	// Incoming params.
@@ -103,20 +93,20 @@ func handleUpdateUserRole(c echo.Context) error {
 		return err
 	}
 
-	if err := validateUserRole(r, app); err != nil {
+	if err := validateUserRole(r, h.app); err != nil {
 		return err
 	}
 
 	// Validate.
 	r.Name.String = strings.TrimSpace(r.Name.String)
 
-	out, err := app.core.UpdateUserRole(id, r)
+	out, err := h.app.core.UpdateUserRole(id, r)
 	if err != nil {
 		return err
 	}
 
 	// Cache the API token for validating API queries without hitting the DB every time.
-	if _, err := cacheUsers(app.core, app.auth); err != nil {
+	if _, err := cacheUsers(h.app.core, h.app.auth); err != nil {
 		return err
 	}
 
@@ -124,14 +114,13 @@ func handleUpdateUserRole(c echo.Context) error {
 }
 
 // handleUpdateListRole handles role modification.
-func handleUpdateListRole(c echo.Context) error {
+func (h *Handler) handleUpdateListRole(c echo.Context) error {
 	var (
-		app   = c.Get("app").(*App)
 		id, _ = strconv.Atoi(c.Param("id"))
 	)
 
 	if id < 2 {
-		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidID"))
+		return echo.NewHTTPError(http.StatusBadRequest, h.app.i18n.T("globals.messages.invalidID"))
 	}
 
 	// Incoming params.
@@ -140,20 +129,20 @@ func handleUpdateListRole(c echo.Context) error {
 		return err
 	}
 
-	if err := validateListRole(r, app); err != nil {
+	if err := validateListRole(r, h.app); err != nil {
 		return err
 	}
 
 	// Validate.
 	r.Name.String = strings.TrimSpace(r.Name.String)
 
-	out, err := app.core.UpdateListRole(id, r)
+	out, err := h.app.core.UpdateListRole(id, r)
 	if err != nil {
 		return err
 	}
 
 	// Cache the API token for validating API queries without hitting the DB every time.
-	if _, err := cacheUsers(app.core, app.auth); err != nil {
+	if _, err := cacheUsers(h.app.core, h.app.auth); err != nil {
 		return err
 	}
 
@@ -161,22 +150,21 @@ func handleUpdateListRole(c echo.Context) error {
 }
 
 // handleDeleteRole handles role deletion.
-func handleDeleteRole(c echo.Context) error {
+func (h *Handler) handleDeleteRole(c echo.Context) error {
 	var (
-		app   = c.Get("app").(*App)
 		id, _ = strconv.ParseInt(c.Param("id"), 10, 64)
 	)
 
 	if id < 1 {
-		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidID"))
+		return echo.NewHTTPError(http.StatusBadRequest, h.app.i18n.T("globals.messages.invalidID"))
 	}
 
-	if err := app.core.DeleteRole(int(id)); err != nil {
+	if err := h.app.core.DeleteRole(int(id)); err != nil {
 		return err
 	}
 
 	// Cache the API token for validating API queries without hitting the DB every time.
-	if _, err := cacheUsers(app.core, app.auth); err != nil {
+	if _, err := cacheUsers(h.app.core, h.app.auth); err != nil {
 		return err
 	}
 

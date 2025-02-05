@@ -22,15 +22,13 @@ type i18nLangRaw struct {
 }
 
 // handleGetI18nLang returns the JSON language pack given the language code.
-func handleGetI18nLang(c echo.Context) error {
-	app := c.Get("app").(*App)
-
+func (h *Handler) handleGetI18nLang(c echo.Context) error {
 	lang := c.Param("lang")
 	if len(lang) > 6 || reLangCode.MatchString(lang) {
 		return echo.NewHTTPError(http.StatusBadRequest, "Invalid language code.")
 	}
 
-	i, ok, err := getI18nLang(lang, app.fs)
+	i, ok, err := getI18nLang(lang, h.app.fs)
 	if err != nil && !ok {
 		return echo.NewHTTPError(http.StatusBadRequest, "Unknown language.")
 	}

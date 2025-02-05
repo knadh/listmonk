@@ -25,20 +25,17 @@ type serverConfig struct {
 }
 
 // handleGetServerConfig returns general server config.
-func handleGetServerConfig(c echo.Context) error {
-	var (
-		app = c.Get("app").(*App)
-	)
+func (h *Handler) handleGetServerConfig(c echo.Context) error {
 	out := serverConfig{
-		RootURL:       app.constants.RootURL,
-		FromEmail:     app.constants.FromEmail,
-		Lang:          app.constants.Lang,
-		Permissions:   app.constants.PermissionsRaw,
-		HasLegacyUser: app.constants.HasLegacyUser,
+		RootURL:       h.app.constants.RootURL,
+		FromEmail:     h.app.constants.FromEmail,
+		Lang:          h.app.constants.Lang,
+		Permissions:   h.app.constants.PermissionsRaw,
+		HasLegacyUser: h.app.constants.HasLegacyUser,
 	}
 
 	// Language list.
-	langList, err := getI18nLangList(app.constants.Lang, app)
+	langList, err := getI18nLangList(h.app.constants.Lang, h.app)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			fmt.Sprintf("Error loading language list: %v", err))
@@ -47,7 +44,7 @@ func handleGetServerConfig(c echo.Context) error {
 
 	// Sort messenger names with `email` always as the first item.
 	var names []string
-	for name := range app.messengers {
+	for name := range h.app.messengers {
 		if name == emailMsgr {
 			continue
 		}
@@ -57,22 +54,18 @@ func handleGetServerConfig(c echo.Context) error {
 	out.Messengers = append(out.Messengers, emailMsgr)
 	out.Messengers = append(out.Messengers, names...)
 
-	app.Lock()
-	out.NeedsRestart = app.needsRestart
-	out.Update = app.update
-	app.Unlock()
+	h.app.RLock()
+	out.NeedsRestart = h.app.needsRestart
+	out.Update = h.app.update
+	h.app.RUnlock()
 	out.Version = versionString
 
 	return c.JSON(http.StatusOK, okResp{out})
 }
 
 // handleGetDashboardCharts returns chart data points to render ont he dashboard.
-func handleGetDashboardCharts(c echo.Context) error {
-	var (
-		app = c.Get("app").(*App)
-	)
-
-	out, err := app.core.GetDashboardCharts()
+func (h *Handler) handleGetDashboardCharts(c echo.Context) error {
+	out, err := h.app.core.GetDashboardCharts()
 	if err != nil {
 		return err
 	}
@@ -81,12 +74,8 @@ func handleGetDashboardCharts(c echo.Context) error {
 }
 
 // handleGetDashboardCounts returns stats counts to show on the dashboard.
-func handleGetDashboardCounts(c echo.Context) error {
-	var (
-		app = c.Get("app").(*App)
-	)
-
-	out, err := app.core.GetDashboardCounts()
+func (h *Handler) handleGetDashboardCounts(c echo.Context) error {
+	out, err := h.app.core.GetDashboardCounts()
 	if err != nil {
 		return err
 	}
@@ -95,11 +84,10 @@ func handleGetDashboardCounts(c echo.Context) error {
 }
 
 // handleReloadApp restarts the app.
-func handleReloadApp(c echo.Context) error {
-	app := c.Get("app").(*App)
+func (h *Handler) handleReloadApp(c echo.Context) error {
 	go func() {
 		<-time.After(time.Millisecond * 500)
-		app.chReload <- syscall.SIGHUP
+		h.app.chReload <- syscall.SIGHUP
 	}()
 	return c.JSON(http.StatusOK, okResp{true})
 }

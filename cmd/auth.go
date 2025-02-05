@@ -43,52 +43,48 @@ var oidcProviders = map[string]bool{
 }
 
 // handleLoginPage renders the login page and handles the login form.
-func handleLoginPage(c echo.Context) error {
-	app := c.Get("app").(*App)
-
+func (h *Handler) handleLoginPage(c echo.Context) error {
 	// Has the user been setup?
-	app.Lock()
-	needsUserSetup := app.needsUserSetup
-	app.Unlock()
+	h.app.RLock()
+	needsUserSetup := h.app.needsUserSetup
+	h.app.RUnlock()
 
 	if needsUserSetup {
-		return handleLoginSetupPage(c)
+		return h.handleLoginSetupPage(c)
 	}
 
 	// Process POST login request.
 	var loginErr error
 	if c.Request().Method == http.MethodPost {
-		loginErr = doLogin(c)
+		loginErr = h.doLogin(c)
 		if loginErr == nil {
 			return c.Redirect(http.StatusFound, utils.SanitizeURI(c.FormValue("next")))
 		}
 	}
 
-	return renderLoginPage(c, loginErr)
+	return h.renderLoginPage(c, loginErr)
 }
 
 // handleLoginSetupPage renders the first time user login page and handles the login form.
-func handleLoginSetupPage(c echo.Context) error {
-	app := c.Get("app").(*App)
-
+func (h *Handler) handleLoginSetupPage(c echo.Context) error {
 	// Process POST login request.
 	var loginErr error
 
 	if c.Request().Method == http.MethodPost {
-		loginErr = doLoginSetup(c)
+		loginErr = h.doLoginSetup(c)
 		if loginErr == nil {
-			app.Lock()
-			app.needsUserSetup = false
-			app.Unlock()
+			h.app.Lock()
+			h.app.needsUserSetup = false
+			h.app.Unlock()
 			return c.Redirect(http.StatusFound, utils.SanitizeURI(c.FormValue("next")))
 		}
 	}
 
-	return renderLoginSetupPage(c, loginErr)
+	return h.renderLoginSetupPage(c, loginErr)
 }
 
 // handleLogout logs a user out.
-func handleLogout(c echo.Context) error {
+func (h *Handler) handleLogout(c echo.Context) error {
 	var (
 		sess = c.Get(auth.SessionKey).(*simplesessions.Session)
 	)
@@ -100,13 +96,11 @@ func handleLogout(c echo.Context) error {
 }
 
 // handleOIDCLogin initializes an OIDC request and redirects to the OIDC provider for login.
-func handleOIDCLogin(c echo.Context) error {
-	app := c.Get("app").(*App)
-
+func (h *Handler) handleOIDCLogin(c echo.Context) error {
 	// Verify that the request came from the login page (CSRF).
 	nonce, err := c.Cookie("nonce")
 	if err != nil || nonce.Value == "" || nonce.Value != c.FormValue("nonce") {
-		return echo.NewHTTPError(http.StatusUnauthorized, app.i18n.T("users.invalidRequest"))
+		return echo.NewHTTPError(http.StatusUnauthorized, h.app.i18n.T("users.invalidRequest"))
 	}
 
 	next := utils.SanitizeURI(c.FormValue("next"))
@@ -121,78 +115,75 @@ func handleOIDCLogin(c echo.Context) error {
 
 	stateJSON, err := json.Marshal(state)
 	if err != nil {
-		app.log.Printf("error marshalling OIDC state: %v", err)
-		return echo.NewHTTPError(http.StatusInternalServerError, app.i18n.T("globals.messages.internalError"))
+		h.app.log.Printf("error marshalling OIDC state: %v", err)
+		return echo.NewHTTPError(http.StatusInternalServerError, h.app.i18n.T("globals.messages.internalError"))
 	}
 
-	return c.Redirect(http.StatusFound, app.auth.GetOIDCAuthURL(base64.URLEncoding.EncodeToString(stateJSON), nonce.Value))
+	return c.Redirect(http.StatusFound, h.app.auth.GetOIDCAuthURL(base64.URLEncoding.EncodeToString(stateJSON), nonce.Value))
 }
 
 // handleOIDCFinish receives the redirect callback from the OIDC provider and completes the handshake.
-func handleOIDCFinish(c echo.Context) error {
-	app := c.Get("app").(*App)
-
+func (h *Handler) handleOIDCFinish(c echo.Context) error {
 	nonce, err := c.Cookie("nonce")
 	if err != nil || nonce.Value == "" {
-		return renderLoginPage(c, echo.NewHTTPError(http.StatusUnauthorized, app.i18n.T("users.invalidRequest")))
+		return h.renderLoginPage(c, echo.NewHTTPError(http.StatusUnauthorized, h.app.i18n.T("users.invalidRequest")))
 	}
 
 	// Validate the OIDC token.
-	oidcToken, claims, err := app.auth.ExchangeOIDCToken(c.Request().URL.Query().Get("code"), nonce.Value)
+	oidcToken, claims, err := h.app.auth.ExchangeOIDCToken(c.Request().URL.Query().Get("code"), nonce.Value)
 	if err != nil {
-		return renderLoginPage(c, err)
+		return h.renderLoginPage(c, err)
 	}
 
 	// Validate the state.
 	var state oidcState
 	stateB, err := base64.URLEncoding.DecodeString(c.QueryParam("state"))
 	if err != nil {
-		app.log.Printf("error decoding OIDC state: %v", err)
-		return echo.NewHTTPError(http.StatusInternalServerError, app.i18n.T("globals.messages.internalError"))
+		h.app.log.Printf("error decoding OIDC state: %v", err)
+		return echo.NewHTTPError(http.StatusInternalServerError, h.app.i18n.T("globals.messages.internalError"))
 	}
 	if err := json.Unmarshal(stateB, &state); err != nil {
-		app.log.Printf("error unmarshalling OIDC state: %v", err)
-		return echo.NewHTTPError(http.StatusInternalServerError, app.i18n.T("globals.messages.internalError"))
+		h.app.log.Printf("error unmarshalling OIDC state: %v", err)
+		return echo.NewHTTPError(http.StatusInternalServerError, h.app.i18n.T("globals.messages.internalError"))
 	}
 	if state.Nonce != nonce.Value {
-		return renderLoginPage(c, echo.NewHTTPError(http.StatusUnauthorized, app.i18n.T("users.invalidRequest")))
+		return h.renderLoginPage(c, echo.NewHTTPError(http.StatusUnauthorized, h.app.i18n.T("users.invalidRequest")))
 	}
 
 	// Validate e-mail from the claim.
 	email := strings.TrimSpace(claims.Email)
 	if email == "" {
-		return renderLoginPage(c, errors.New(app.i18n.Ts("globals.messages.invalidFields", "name", "email")))
+		return h.renderLoginPage(c, errors.New(h.app.i18n.Ts("globals.messages.invalidFields", "name", "email")))
 	}
 
 	em, err := mail.ParseAddress(email)
 	if err != nil {
-		return renderLoginPage(c, err)
+		return h.renderLoginPage(c, err)
 	}
 	email = strings.ToLower(em.Address)
 
 	// Get the user by e-mail received from OIDC.
-	user, err := app.core.GetUser(0, "", email)
+	user, err := h.app.core.GetUser(0, "", email)
 	if err != nil {
-		return renderLoginPage(c, err)
+		return h.renderLoginPage(c, err)
 	}
 
 	// Update user login.
-	if err := app.core.UpdateUserLogin(user.ID, claims.Picture); err != nil {
-		return renderLoginPage(c, err)
+	if err := h.app.core.UpdateUserLogin(user.ID, claims.Picture); err != nil {
+		return h.renderLoginPage(c, err)
 	}
 
 	// Set the session.
-	if err := app.auth.SaveSession(user, oidcToken, c); err != nil {
-		return renderLoginPage(c, err)
+	if err := h.app.auth.SaveSession(user, oidcToken, c); err != nil {
+		return h.renderLoginPage(c, err)
 	}
 
 	return c.Redirect(http.StatusFound, utils.SanitizeURI(state.Next))
 }
 
 // renderLoginPage renders the login page and handles the login form.
-func renderLoginPage(c echo.Context, loginErr error) error {
+func (h *Handler) renderLoginPage(c echo.Context, loginErr error) error {
 	var (
-		app  = c.Get("app").(*App)
 		next = utils.SanitizeURI(c.FormValue("next"))
 	)
 
@@ -202,9 +193,9 @@ func renderLoginPage(c echo.Context, loginErr error) error {
 
 	oidcProvider := ""
 	oidcProviderLogo := ""
-	if app.constants.Security.OIDC.Enabled {
+	if h.app.constants.Security.OIDC.Enabled {
 		oidcProviderLogo = "oidc.png"
-		u, err := url.Parse(app.constants.Security.OIDC.Provider)
+		u, err := url.Parse(h.app.constants.Security.OIDC.Provider)
 		if err == nil {
 			h := strings.Split(u.Hostname(), ".")
 
@@ -222,7 +213,7 @@ func renderLoginPage(c echo.Context, loginErr error) error {
 	}
 
 	out := loginTpl{
-		Title:            app.i18n.T("users.login"),
+		Title:            h.app.i18n.T("users.login"),
 		PasswordEnabled:  true,
 		OIDCProvider:     oidcProvider,
 		OIDCProviderLogo: oidcProviderLogo,
@@ -240,8 +231,8 @@ func renderLoginPage(c echo.Context, loginErr error) error {
 	// Generate and set a nonce for preventing CSRF requests.
 	nonce, err := utils.GenerateRandomString(16)
 	if err != nil {
-		app.log.Printf("error generating OIDC nonce: %v", err)
-		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.internalError"))
+		h.app.log.Printf("error generating OIDC nonce: %v", err)
+		return echo.NewHTTPError(http.StatusBadRequest, h.app.i18n.T("globals.messages.internalError"))
 	}
 	c.SetCookie(&http.Cookie{
 		Name:     "nonce",
@@ -256,9 +247,8 @@ func renderLoginPage(c echo.Context, loginErr error) error {
 }
 
 // renderLoginSetupPage renders the first time user setup page.
-func renderLoginSetupPage(c echo.Context, loginErr error) error {
+func (h *Handler) renderLoginSetupPage(c echo.Context, loginErr error) error {
 	var (
-		app  = c.Get("app").(*App)
 		next = utils.SanitizeURI(c.FormValue("next"))
 	)
 
@@ -267,7 +257,7 @@ func renderLoginSetupPage(c echo.Context, loginErr error) error {
 	}
 
 	out := loginTpl{
-		Title:           app.i18n.T("users.login"),
+		Title:           h.app.i18n.T("users.login"),
 		PasswordEnabled: true,
 		NextURI:         next,
 	}
@@ -284,33 +274,23 @@ func renderLoginSetupPage(c echo.Context, loginErr error) error {
 }
 
 // doLogin logs a user in with a username and password.
-func doLogin(c echo.Context) error {
-	var (
-		app = c.Get("app").(*App)
-	)
-
-	// Verify that the request came from the login page (CSRF).
-	// nonce, err := c.Cookie("nonce")
-	// if err != nil || nonce.Value == "" || nonce.Value != c.FormValue("nonce") {
-	// 	return echo.NewHTTPError(http.StatusUnauthorized, app.i18n.T("users.invalidRequest"))
-	// }
-
+func (h *Handler) doLogin(c echo.Context) error {
 	var (
 		username = strings.TrimSpace(c.FormValue("username"))
 		password = strings.TrimSpace(c.FormValue("password"))
 	)
 
 	if !strHasLen(username, 3, stdInputMaxLen) {
-		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.Ts("globals.messages.invalidFields", "name", "username"))
+		return echo.NewHTTPError(http.StatusBadRequest, h.app.i18n.Ts("globals.messages.invalidFields", "name", "username"))
 	}
 
 	if !strHasLen(password, 8, stdInputMaxLen) {
-		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.Ts("globals.messages.invalidFields", "name", "password"))
+		return echo.NewHTTPError(http.StatusBadRequest, h.app.i18n.Ts("globals.messages.invalidFields", "name", "password"))
 	}
 
 	start := time.Now()
 
-	user, err := app.core.LoginUser(username, password)
+	user, err := h.app.core.LoginUser(username, password)
 	if err != nil {
 		return err
 	}
@@ -321,7 +301,7 @@ func doLogin(c echo.Context) error {
 	}
 
 	// Set the session.
-	if err := app.auth.SaveSession(user, "", c); err != nil {
+	if err := h.app.auth.SaveSession(user, "", c); err != nil {
 		return err
 	}
 
@@ -329,17 +309,7 @@ func doLogin(c echo.Context) error {
 }
 
 // doLoginSetup sets a user up for the first time.
-func doLoginSetup(c echo.Context) error {
-	var (
-		app = c.Get("app").(*App)
-	)
-
-	// Verify that the request came from the login page (CSRF).
-	// nonce, err := c.Cookie("nonce")
-	// if err != nil || nonce.Value == "" || nonce.Value != c.FormValue("nonce") {
-	// 	return echo.NewHTTPError(http.StatusUnauthorized, app.i18n.T("users.invalidRequest"))
-	// }
-
+func (h *Handler) doLoginSetup(c echo.Context) error {
 	var (
 		email     = strings.TrimSpace(c.FormValue("email"))
 		username  = strings.TrimSpace(c.FormValue("username"))
@@ -348,16 +318,16 @@ func doLoginSetup(c echo.Context) error {
 	)
 
 	if !utils.ValidateEmail(email) {
-		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.Ts("globals.messages.invalidFields", "name", "email"))
+		return echo.NewHTTPError(http.StatusBadRequest, h.app.i18n.Ts("globals.messages.invalidFields", "name", "email"))
 	}
 	if !strHasLen(username, 3, stdInputMaxLen) {
-		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.Ts("globals.messages.invalidFields", "name", "username"))
+		return echo.NewHTTPError(http.StatusBadRequest, h.app.i18n.Ts("globals.messages.invalidFields", "name", "username"))
 	}
 	if !strHasLen(password, 8, stdInputMaxLen) {
-		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.Ts("globals.messages.invalidFields", "name", "password"))
+		return echo.NewHTTPError(http.StatusBadRequest, h.app.i18n.Ts("globals.messages.invalidFields", "name", "password"))
 	}
 	if password != password2 {
-		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("users.passwordMismatch"))
+		return echo.NewHTTPError(http.StatusBadRequest, h.app.i18n.T("users.passwordMismatch"))
 	}
 
 	// Create the default "Super Admin".
@@ -365,10 +335,10 @@ func doLoginSetup(c echo.Context) error {
 		Type: models.RoleTypeUser,
 		Name: null.NewString("Super Admin", true),
 	}
-	for p := range app.constants.Permissions {
+	for p := range h.app.constants.Permissions {
 		r.Permissions = append(r.Permissions, p)
 	}
-	role, err := app.core.CreateRole(r)
+	role, err := h.app.core.CreateRole(r)
 	if err != nil {
 		return err
 	}
@@ -385,18 +355,18 @@ func doLoginSetup(c echo.Context) error {
 		UserRoleID:    role.ID,
 		Status:        models.UserStatusEnabled,
 	}
-	if _, err := app.core.CreateUser(u); err != nil {
+	if _, err := h.app.core.CreateUser(u); err != nil {
 		return err
 	}
 
 	// Log the user in.
-	user, err := app.core.LoginUser(username, password)
+	user, err := h.app.core.LoginUser(username, password)
 	if err != nil {
 		return err
 	}
 
 	// Set the session.
-	if err := app.auth.SaveSession(user, "", c); err != nil {
+	if err := h.app.auth.SaveSession(user, "", c); err != nil {
 		return err
 	}
 

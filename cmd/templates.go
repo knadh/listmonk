@@ -32,17 +32,15 @@ var (
 )
 
 // handleGetTemplates handles retrieval of templates.
-func handleGetTemplates(c echo.Context) error {
+func (h *Handler) handleGetTemplates(c echo.Context) error {
 	var (
-		app = c.Get("app").(*App)
-
 		id, _     = strconv.Atoi(c.Param("id"))
 		noBody, _ = strconv.ParseBool(c.QueryParam("no_body"))
 	)
 
 	// Fetch one list.
 	if id > 0 {
-		out, err := app.core.GetTemplate(id, noBody)
+		out, err := h.app.core.GetTemplate(id, noBody)
 		if err != nil {
 			return err
 		}
@@ -50,7 +48,7 @@ func handleGetTemplates(c echo.Context) error {
 		return c.JSON(http.StatusOK, okResp{out})
 	}
 
-	out, err := app.core.GetTemplates("", noBody)
+	out, err := h.app.core.GetTemplates("", noBody)
 	if err != nil {
 		return err
 	}
@@ -59,11 +57,8 @@ func handleGetTemplates(c echo.Context) error {
 }
 
 // handlePreviewTemplate renders the HTML preview of a template.
-func handlePreviewTemplate(c echo.Context) error {
-	var (
-		app   = c.Get("app").(*App)
-		id, _ = strconv.Atoi(c.Param("id"))
-	)
+func (h *Handler) handlePreviewTemplate(c echo.Context) error {
+	id, _ := strconv.Atoi(c.Param("id"))
 
 	tpl := models.Template{
 		Type: c.FormValue("template_type"),
@@ -78,15 +73,15 @@ func handlePreviewTemplate(c echo.Context) error {
 
 		if tpl.Type == models.TemplateTypeCampaign && !regexpTplTag.MatchString(tpl.Body) {
 			return echo.NewHTTPError(http.StatusBadRequest,
-				app.i18n.Ts("templates.placeholderHelp", "placeholder", tplTag))
+				h.app.i18n.Ts("templates.placeholderHelp", "placeholder", tplTag))
 		}
 	} else {
 		// There is no body. Fetch the template.
 		if id < 1 {
-			return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidID"))
+			return echo.NewHTTPError(http.StatusBadRequest, h.app.i18n.T("globals.messages.invalidID"))
 		}
 
-		t, err := app.core.GetTemplate(id, false)
+		t, err := h.app.core.GetTemplate(id, false)
 		if err != nil {
 			return err
 		}
@@ -99,28 +94,28 @@ func handlePreviewTemplate(c echo.Context) error {
 	if tpl.Type == models.TemplateTypeCampaign {
 		camp := models.Campaign{
 			UUID:         dummyUUID,
-			Name:         app.i18n.T("templates.dummyName"),
-			Subject:      app.i18n.T("templates.dummySubject"),
+			Name:         h.app.i18n.T("templates.dummyName"),
+			Subject:      h.app.i18n.T("templates.dummySubject"),
 			FromEmail:    "dummy-campaign@listmonk.app",
 			TemplateBody: tpl.Body,
 			Body:         dummyTpl,
 		}
 
-		if err := camp.CompileTemplate(app.manager.TemplateFuncs(&camp)); err != nil {
+		if err := camp.CompileTemplate(h.app.manager.TemplateFuncs(&camp)); err != nil {
 			return echo.NewHTTPError(http.StatusBadRequest,
-				app.i18n.Ts("templates.errorCompiling", "error", err.Error()))
+				h.app.i18n.Ts("templates.errorCompiling", "error", err.Error()))
 		}
 
 		// Render the message body.
-		msg, err := app.manager.NewCampaignMessage(&camp, dummySubscriber)
+		msg, err := h.app.manager.NewCampaignMessage(&camp, dummySubscriber)
 		if err != nil {
 			return echo.NewHTTPError(http.StatusBadRequest,
-				app.i18n.Ts("templates.errorRendering", "error", err.Error()))
+				h.app.i18n.Ts("templates.errorRendering", "error", err.Error()))
 		}
 		out = msg.Body()
 	} else {
 		// Compile transactional template.
-		if err := tpl.Compile(app.manager.GenericTemplateFuncs()); err != nil {
+		if err := tpl.Compile(h.app.manager.GenericTemplateFuncs()); err != nil {
 			return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 		}
 
@@ -139,17 +134,14 @@ func handlePreviewTemplate(c echo.Context) error {
 }
 
 // handleCreateTemplate handles template creation.
-func handleCreateTemplate(c echo.Context) error {
-	var (
-		app = c.Get("app").(*App)
-		o   = models.Template{}
-	)
+func (h *Handler) handleCreateTemplate(c echo.Context) error {
+	o := models.Template{}
 
 	if err := c.Bind(&o); err != nil {
 		return err
 	}
 
-	if err := validateTemplate(o, app); err != nil {
+	if err := validateTemplate(o, h.app); err != nil {
 		return err
 	}
 
@@ -159,9 +151,9 @@ func handleCreateTemplate(c echo.Context) error {
 	// the subject changes per campaign and is on models.Campaign.
 	if o.Type == models.TemplateTypeCampaign {
 		o.Subject = ""
-		f = app.manager.TemplateFuncs(nil)
+		f = h.app.manager.TemplateFuncs(nil)
 	} else {
-		f = app.manager.GenericTemplateFuncs()
+		f = h.app.manager.GenericTemplateFuncs()
 	}
 
 	// Compile the template and validate.
@@ -170,7 +162,7 @@ func handleCreateTemplate(c echo.Context) error {
 	}
 
 	// Create the template the in the DB.
-	out, err := app.core.CreateTemplate(o.Name, o.Type, o.Subject, []byte(o.Body))
+	out, err := h.app.core.CreateTemplate(o.Name, o.Type, o.Subject, []byte(o.Body))
 	if err != nil {
 		return err
 	}
@@ -178,21 +170,18 @@ func handleCreateTemplate(c echo.Context) error {
 	// If it's a transactional template, cache it in the manager
 	// to be used for arbitrary incoming tx message pushes.
 	if o.Type == models.TemplateTypeTx {
-		app.manager.CacheTpl(out.ID, &o)
+		h.app.manager.CacheTpl(out.ID, &o)
 	}
 
 	return c.JSON(http.StatusOK, okResp{out})
 }
 
 // handleUpdateTemplate handles template modification.
-func handleUpdateTemplate(c echo.Context) error {
-	var (
-		app   = c.Get("app").(*App)
-		id, _ = strconv.Atoi(c.Param("id"))
-	)
+func (h *Handler) handleUpdateTemplate(c echo.Context) error {
+	id, _ := strconv.Atoi(c.Param("id"))
 
 	if id < 1 {
-		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidID"))
+		return echo.NewHTTPError(http.StatusBadRequest, h.app.i18n.T("globals.messages.invalidID"))
 	}
 
 	var o models.Template
@@ -200,7 +189,7 @@ func handleUpdateTemplate(c echo.Context) error {
 		return err
 	}
 
-	if err := validateTemplate(o, app); err != nil {
+	if err := validateTemplate(o, h.app); err != nil {
 		return err
 	}
 
@@ -210,9 +199,9 @@ func handleUpdateTemplate(c echo.Context) error {
 	// the subject changes per campaign and is on models.Campaign.
 	if o.Type == models.TemplateTypeCampaign {
 		o.Subject = ""
-		f = app.manager.TemplateFuncs(nil)
+		f = h.app.manager.TemplateFuncs(nil)
 	} else {
-		f = app.manager.GenericTemplateFuncs()
+		f = h.app.manager.GenericTemplateFuncs()
 	}
 
 	// Compile the template and validate.
@@ -220,14 +209,14 @@ func handleUpdateTemplate(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	out, err := app.core.UpdateTemplate(id, o.Name, o.Subject, []byte(o.Body))
+	out, err := h.app.core.UpdateTemplate(id, o.Name, o.Subject, []byte(o.Body))
 	if err != nil {
 		return err
 	}
 
 	// If it's a transactional template, cache it.
 	if out.Type == models.TemplateTypeTx {
-		app.manager.CacheTpl(out.ID, &o)
+		h.app.manager.CacheTpl(out.ID, &o)
 	}
 
 	return c.JSON(http.StatusOK, okResp{out})
@@ -235,40 +224,34 @@ func handleUpdateTemplate(c echo.Context) error {
 }
 
 // handleTemplateSetDefault handles template modification.
-func handleTemplateSetDefault(c echo.Context) error {
-	var (
-		app   = c.Get("app").(*App)
-		id, _ = strconv.Atoi(c.Param("id"))
-	)
+func (h *Handler) handleTemplateSetDefault(c echo.Context) error {
+	id, _ := strconv.Atoi(c.Param("id"))
 
 	if id < 1 {
-		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidID"))
+		return echo.NewHTTPError(http.StatusBadRequest, h.app.i18n.T("globals.messages.invalidID"))
 	}
 
-	if err := app.core.SetDefaultTemplate(id); err != nil {
+	if err := h.app.core.SetDefaultTemplate(id); err != nil {
 		return err
 	}
 
-	return handleGetTemplates(c)
+	return h.handleGetTemplates(c)
 }
 
 // handleDeleteTemplate handles template deletion.
-func handleDeleteTemplate(c echo.Context) error {
-	var (
-		app   = c.Get("app").(*App)
-		id, _ = strconv.Atoi(c.Param("id"))
-	)
+func (h *Handler) handleDeleteTemplate(c echo.Context) error {
+	id, _ := strconv.Atoi(c.Param("id"))
 
 	if id < 1 {
-		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidID"))
+		return echo.NewHTTPError(http.StatusBadRequest, h.app.i18n.T("globals.messages.invalidID"))
 	}
 
-	if err := app.core.DeleteTemplate(id); err != nil {
+	if err := h.app.core.DeleteTemplate(id); err != nil {
 		return err
 	}
 
 	// Delete cached template.
-	app.manager.DeleteTpl(id)
+	h.app.manager.DeleteTpl(id)
 
 	return c.JSON(http.StatusOK, okResp{true})
 }

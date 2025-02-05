@@ -50,10 +50,9 @@ var (
 )
 
 // handleGetCampaigns handles retrieval of campaigns.
-func handleGetCampaigns(c echo.Context) error {
+func (h *Handler) handleGetCampaigns(c echo.Context) error {
 	var (
-		app = c.Get("app").(*App)
-		pg  = app.paginator.NewFromURL(c.Request().URL.Query())
+		pg = h.app.paginator.NewFromURL(c.Request().URL.Query())
 
 		status    = c.QueryParams()["status"]
 		tags      = c.QueryParams()["tag"]
@@ -63,7 +62,7 @@ func handleGetCampaigns(c echo.Context) error {
 		noBody, _ = strconv.ParseBool(c.QueryParam("no_body"))
 	)
 
-	res, total, err := app.core.QueryCampaigns(query, status, tags, orderBy, order, pg.Offset, pg.Limit)
+	res, total, err := h.app.core.QueryCampaigns(query, status, tags, orderBy, order, pg.Offset, pg.Limit)
 	if err != nil {
 		return err
 	}
@@ -91,14 +90,13 @@ func handleGetCampaigns(c echo.Context) error {
 }
 
 // handleGetCampaign handles retrieval of campaigns.
-func handleGetCampaign(c echo.Context) error {
+func (h *Handler) handleGetCampaign(c echo.Context) error {
 	var (
-		app       = c.Get("app").(*App)
 		id, _     = strconv.Atoi(c.Param("id"))
 		noBody, _ = strconv.ParseBool(c.QueryParam("no_body"))
 	)
 
-	out, err := app.core.GetCampaign(id, "", "")
+	out, err := h.app.core.GetCampaign(id, "", "")
 	if err != nil {
 		return err
 	}
@@ -111,18 +109,17 @@ func handleGetCampaign(c echo.Context) error {
 }
 
 // handlePreviewCampaign renders the HTML preview of a campaign body.
-func handlePreviewCampaign(c echo.Context) error {
+func (h *Handler) handlePreviewCampaign(c echo.Context) error {
 	var (
-		app      = c.Get("app").(*App)
 		id, _    = strconv.Atoi(c.Param("id"))
 		tplID, _ = strconv.Atoi(c.FormValue("template_id"))
 	)
 
 	if id < 1 {
-		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidID"))
+		return echo.NewHTTPError(http.StatusBadRequest, h.app.i18n.T("globals.messages.invalidID"))
 	}
 
-	camp, err := app.core.GetCampaignForPreview(id, tplID)
+	camp, err := h.app.core.GetCampaignForPreview(id, tplID)
 	if err != nil {
 		return err
 	}
@@ -136,18 +133,18 @@ func handlePreviewCampaign(c echo.Context) error {
 	// Use a dummy campaign ID to prevent views and clicks from {{ TrackView }}
 	// and {{ TrackLink }} being registered on preview.
 	camp.UUID = dummySubscriber.UUID
-	if err := camp.CompileTemplate(app.manager.TemplateFuncs(&camp)); err != nil {
-		app.log.Printf("error compiling template: %v", err)
+	if err := camp.CompileTemplate(h.app.manager.TemplateFuncs(&camp)); err != nil {
+		h.app.log.Printf("error compiling template: %v", err)
 		return echo.NewHTTPError(http.StatusBadRequest,
-			app.i18n.Ts("templates.errorCompiling", "error", err.Error()))
+			h.app.i18n.Ts("templates.errorCompiling", "error", err.Error()))
 	}
 
 	// Render the message body.
-	msg, err := app.manager.NewCampaignMessage(&camp, dummySubscriber)
+	msg, err := h.app.manager.NewCampaignMessage(&camp, dummySubscriber)
 	if err != nil {
-		app.log.Printf("error rendering message: %v", err)
+		h.app.log.Printf("error rendering message: %v", err)
 		return echo.NewHTTPError(http.StatusBadRequest,
-			app.i18n.Ts("templates.errorRendering", "error", err.Error()))
+			h.app.i18n.Ts("templates.errorRendering", "error", err.Error()))
 	}
 
 	if camp.ContentType == models.CampaignContentTypePlain {
@@ -158,14 +155,13 @@ func handlePreviewCampaign(c echo.Context) error {
 }
 
 // handleCampaignContent handles campaign content (body) format conversions.
-func handleCampaignContent(c echo.Context) error {
+func (h *Handler) handleCampaignContent(c echo.Context) error {
 	var (
-		app   = c.Get("app").(*App)
 		id, _ = strconv.Atoi(c.Param("id"))
 	)
 
 	if id < 1 {
-		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidID"))
+		return echo.NewHTTPError(http.StatusBadRequest, h.app.i18n.T("globals.messages.invalidID"))
 	}
 
 	var camp campaignContentReq
@@ -183,11 +179,8 @@ func handleCampaignContent(c echo.Context) error {
 
 // handleCreateCampaign handles campaign creation.
 // Newly created campaigns are always drafts.
-func handleCreateCampaign(c echo.Context) error {
-	var (
-		app = c.Get("app").(*App)
-		o   campaignReq
-	)
+func (h *Handler) handleCreateCampaign(c echo.Context) error {
+	var o campaignReq
 
 	if err := c.Bind(&o); err != nil {
 		return err
@@ -195,7 +188,7 @@ func handleCreateCampaign(c echo.Context) error {
 
 	// If the campaign's 'opt-in', prepare a default message.
 	if o.Type == models.CampaignTypeOptin {
-		op, err := makeOptinCampaignMessage(o, app)
+		op, err := makeOptinCampaignMessage(o, h.app)
 		if err != nil {
 			return err
 		}
@@ -212,7 +205,7 @@ func handleCreateCampaign(c echo.Context) error {
 	}
 
 	// Validate.
-	if c, err := validateCampaignFields(o, app); err != nil {
+	if c, err := validateCampaignFields(o, h.app); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	} else {
 		o = c
@@ -222,7 +215,7 @@ func handleCreateCampaign(c echo.Context) error {
 		o.ArchiveTemplateID = o.TemplateID
 	}
 
-	out, err := app.core.CreateCampaign(o.Campaign, o.ListIDs, o.MediaIDs)
+	out, err := h.app.core.CreateCampaign(o.Campaign, o.ListIDs, o.MediaIDs)
 	if err != nil {
 		return err
 	}
@@ -232,24 +225,21 @@ func handleCreateCampaign(c echo.Context) error {
 
 // handleUpdateCampaign handles campaign modification.
 // Campaigns that are done cannot be modified.
-func handleUpdateCampaign(c echo.Context) error {
-	var (
-		app   = c.Get("app").(*App)
-		id, _ = strconv.Atoi(c.Param("id"))
-	)
+func (h *Handler) handleUpdateCampaign(c echo.Context) error {
+	id, _ := strconv.Atoi(c.Param("id"))
 
 	if id < 1 {
-		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidID"))
+		return echo.NewHTTPError(http.StatusBadRequest, h.app.i18n.T("globals.messages.invalidID"))
 
 	}
 
-	cm, err := app.core.GetCampaign(id, "", "")
+	cm, err := h.app.core.GetCampaign(id, "", "")
 	if err != nil {
 		return err
 	}
 
 	if !canEditCampaign(cm.Status) {
-		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("campaigns.cantUpdate"))
+		return echo.NewHTTPError(http.StatusBadRequest, h.app.i18n.T("campaigns.cantUpdate"))
 	}
 
 	// Read the incoming params into the existing campaign fields from the DB.
@@ -260,13 +250,13 @@ func handleUpdateCampaign(c echo.Context) error {
 		return err
 	}
 
-	if c, err := validateCampaignFields(o, app); err != nil {
+	if c, err := validateCampaignFields(o, h.app); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	} else {
 		o = c
 	}
 
-	out, err := app.core.UpdateCampaign(id, o.Campaign, o.ListIDs, o.MediaIDs)
+	out, err := h.app.core.UpdateCampaign(id, o.Campaign, o.ListIDs, o.MediaIDs)
 	if err != nil {
 		return err
 	}
@@ -275,14 +265,11 @@ func handleUpdateCampaign(c echo.Context) error {
 }
 
 // handleUpdateCampaignStatus handles campaign status modification.
-func handleUpdateCampaignStatus(c echo.Context) error {
-	var (
-		app   = c.Get("app").(*App)
-		id, _ = strconv.Atoi(c.Param("id"))
-	)
+func (h *Handler) handleUpdateCampaignStatus(c echo.Context) error {
+	id, _ := strconv.Atoi(c.Param("id"))
 
 	if id < 1 {
-		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidID"))
+		return echo.NewHTTPError(http.StatusBadRequest, h.app.i18n.T("globals.messages.invalidID"))
 	}
 
 	var o struct {
@@ -293,24 +280,21 @@ func handleUpdateCampaignStatus(c echo.Context) error {
 		return err
 	}
 
-	out, err := app.core.UpdateCampaignStatus(id, o.Status)
+	out, err := h.app.core.UpdateCampaignStatus(id, o.Status)
 	if err != nil {
 		return err
 	}
 
 	if o.Status == models.CampaignStatusPaused || o.Status == models.CampaignStatusCancelled {
-		app.manager.StopCampaign(id)
+		h.app.manager.StopCampaign(id)
 	}
 
 	return c.JSON(http.StatusOK, okResp{out})
 }
 
 // handleUpdateCampaignArchive handles campaign status modification.
-func handleUpdateCampaignArchive(c echo.Context) error {
-	var (
-		app   = c.Get("app").(*App)
-		id, _ = strconv.Atoi(c.Param("id"))
-	)
+func (h *Handler) handleUpdateCampaignArchive(c echo.Context) error {
+	id, _ := strconv.Atoi(c.Param("id"))
 
 	req := struct {
 		Archive     bool        `json:"archive"`
@@ -332,7 +316,7 @@ func handleUpdateCampaignArchive(c echo.Context) error {
 		req.ArchiveSlug = s
 	}
 
-	if err := app.core.UpdateCampaignArchive(id, req.Archive, req.TemplateID, req.Meta, req.ArchiveSlug); err != nil {
+	if err := h.app.core.UpdateCampaignArchive(id, req.Archive, req.TemplateID, req.Meta, req.ArchiveSlug); err != nil {
 		return err
 	}
 
@@ -341,17 +325,14 @@ func handleUpdateCampaignArchive(c echo.Context) error {
 
 // handleDeleteCampaign handles campaign deletion.
 // Only scheduled campaigns that have not started yet can be deleted.
-func handleDeleteCampaign(c echo.Context) error {
-	var (
-		app   = c.Get("app").(*App)
-		id, _ = strconv.Atoi(c.Param("id"))
-	)
+func (h *Handler) handleDeleteCampaign(c echo.Context) error {
+	id, _ := strconv.Atoi(c.Param("id"))
 
 	if id < 1 {
-		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidID"))
+		return echo.NewHTTPError(http.StatusBadRequest, h.app.i18n.T("globals.messages.invalidID"))
 	}
 
-	if err := app.core.DeleteCampaign(id); err != nil {
+	if err := h.app.core.DeleteCampaign(id); err != nil {
 		return err
 	}
 
@@ -359,12 +340,8 @@ func handleDeleteCampaign(c echo.Context) error {
 }
 
 // handleGetRunningCampaignStats returns stats of a given set of campaign IDs.
-func handleGetRunningCampaignStats(c echo.Context) error {
-	var (
-		app = c.Get("app").(*App)
-	)
-
-	out, err := app.core.GetRunningCampaignStats()
+func (h *Handler) handleGetRunningCampaignStats(c echo.Context) error {
+	out, err := h.app.core.GetRunningCampaignStats()
 	if err != nil {
 		return err
 	}
@@ -390,7 +367,7 @@ func handleGetRunningCampaignStats(c echo.Context) error {
 			out[i].NetRate = rate
 
 			// Realtime running rate over the last minute.
-			out[i].Rate = app.manager.GetCampaignStats(c.ID).SendRate
+			out[i].Rate = h.app.manager.GetCampaignStats(c.ID).SendRate
 		}
 	}
 
@@ -399,16 +376,15 @@ func handleGetRunningCampaignStats(c echo.Context) error {
 
 // handleTestCampaign handles the sending of a campaign message to
 // arbitrary subscribers for testing.
-func handleTestCampaign(c echo.Context) error {
+func (h *Handler) handleTestCampaign(c echo.Context) error {
 	var (
-		app       = c.Get("app").(*App)
 		campID, _ = strconv.Atoi(c.Param("id"))
 		tplID, _  = strconv.Atoi(c.FormValue("template_id"))
 		req       campaignReq
 	)
 
 	if campID < 1 {
-		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.errorID"))
+		return echo.NewHTTPError(http.StatusBadRequest, h.app.i18n.T("globals.messages.errorID"))
 	}
 
 	// Get and validate fields.
@@ -417,13 +393,13 @@ func handleTestCampaign(c echo.Context) error {
 	}
 
 	// Validate.
-	if c, err := validateCampaignFields(req, app); err != nil {
+	if c, err := validateCampaignFields(req, h.app); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	} else {
 		req = c
 	}
 	if len(req.SubscriberEmails) == 0 {
-		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("campaigns.noSubsToTest"))
+		return echo.NewHTTPError(http.StatusBadRequest, h.app.i18n.T("campaigns.noSubsToTest"))
 	}
 
 	// Get the subscribers.
@@ -431,13 +407,13 @@ func handleTestCampaign(c echo.Context) error {
 		req.SubscriberEmails[i] = strings.ToLower(strings.TrimSpace(req.SubscriberEmails[i]))
 	}
 
-	subs, err := app.core.GetSubscribersByEmail(req.SubscriberEmails)
+	subs, err := h.app.core.GetSubscribersByEmail(req.SubscriberEmails)
 	if err != nil {
 		return err
 	}
 
 	// The campaign.
-	camp, err := app.core.GetCampaignForPreview(campID, tplID)
+	camp, err := h.app.core.GetCampaignForPreview(campID, tplID)
 	if err != nil {
 		return err
 	}
@@ -462,10 +438,10 @@ func handleTestCampaign(c echo.Context) error {
 	for _, s := range subs {
 		sub := s
 		c := camp
-		if err := sendTestMessage(sub, &c, app); err != nil {
-			app.log.Printf("error sending test message: %v", err)
+		if err := sendTestMessage(sub, &c, h.app); err != nil {
+			h.app.log.Printf("error sending test message: %v", err)
 			return echo.NewHTTPError(http.StatusInternalServerError,
-				app.i18n.Ts("campaigns.errorSendTest", "error", err.Error()))
+				h.app.i18n.Ts("campaigns.errorSendTest", "error", err.Error()))
 		}
 	}
 
@@ -473,10 +449,8 @@ func handleTestCampaign(c echo.Context) error {
 }
 
 // handleGetCampaignViewAnalytics retrieves view counts for a campaign.
-func handleGetCampaignViewAnalytics(c echo.Context) error {
+func (h *Handler) handleGetCampaignViewAnalytics(c echo.Context) error {
 	var (
-		app = c.Get("app").(*App)
-
 		typ  = c.Param("type")
 		from = c.QueryParams().Get("from")
 		to   = c.QueryParams().Get("to")
@@ -485,21 +459,21 @@ func handleGetCampaignViewAnalytics(c echo.Context) error {
 	ids, err := parseStringIDs(c.Request().URL.Query()["id"])
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest,
-			app.i18n.Ts("globals.messages.errorInvalidIDs", "error", err.Error()))
+			h.app.i18n.Ts("globals.messages.errorInvalidIDs", "error", err.Error()))
 	}
 
 	if len(ids) == 0 {
 		return echo.NewHTTPError(http.StatusBadRequest,
-			app.i18n.Ts("globals.messages.missingFields", "name", "`id`"))
+			h.app.i18n.Ts("globals.messages.missingFields", "name", "`id`"))
 	}
 
 	if !strHasLen(from, 10, 30) || !strHasLen(to, 10, 30) {
-		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("analytics.invalidDates"))
+		return echo.NewHTTPError(http.StatusBadRequest, h.app.i18n.T("analytics.invalidDates"))
 	}
 
 	// Campaign link stats.
 	if typ == "links" {
-		out, err := app.core.GetCampaignAnalyticsLinks(ids, typ, from, to)
+		out, err := h.app.core.GetCampaignAnalyticsLinks(ids, typ, from, to)
 		if err != nil {
 			return err
 		}
@@ -508,7 +482,7 @@ func handleGetCampaignViewAnalytics(c echo.Context) error {
 	}
 
 	// View, click, bounce stats.
-	out, err := app.core.GetCampaignAnalyticsCounts(ids, typ, from, to)
+	out, err := h.app.core.GetCampaignAnalyticsCounts(ids, typ, from, to)
 	if err != nil {
 		return err
 	}

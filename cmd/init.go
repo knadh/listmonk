@@ -792,26 +792,12 @@ func initHTTPServer(app *App) (*Handler, error) {
 		return nil, fmt.Errorf("error initializing http server: %w", err)
 	}
 
-	// Initialize the static file server.
-	fSrv := app.fs.FileServer()
-
-	// Public (subscriber) facing static files.
-	srv.GET("/public/static/*", echo.WrapHandler(fSrv))
-
-	// Admin (frontend) facing static files.
-	srv.GET("/admin/static/*", echo.WrapHandler(fSrv))
-
-	// Public (subscriber) facing media upload files.
-	if ko.String("upload.provider") == "filesystem" && ko.String("upload.filesystem.upload_uri") != "" {
-		srv.Static(ko.String("upload.filesystem.upload_uri"), ko.String("upload.filesystem.upload_path"))
-	}
-
-	// Register all HTTP handlers.
-	initHTTPHandlers(srv, app)
+	h.register()
+	h.initHTTPHandlers()
 
 	// Start the server.
 	go func() {
-		if err := srv.Start(ko.String("app.address")); err != nil {
+		if err := h.echo.Start(ko.String("app.address")); err != nil {
 			if errors.Is(err, http.ErrServerClosed) {
 				lo.Println("HTTP server shut down")
 			} else {
@@ -820,7 +806,7 @@ func initHTTPServer(app *App) (*Handler, error) {
 		}
 	}()
 
-	return srv
+	return h, nil
 }
 
 func initCaptcha() *captcha.Captcha {

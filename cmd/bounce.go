@@ -12,10 +12,9 @@ import (
 )
 
 // handleGetBounces handles retrieval of bounce records.
-func handleGetBounces(c echo.Context) error {
+func (h *Handler) handleGetBounces(c echo.Context) error {
 	var (
-		app = c.Get("app").(*App)
-		pg  = app.paginator.NewFromURL(c.Request().URL.Query())
+		pg = h.app.paginator.NewFromURL(c.Request().URL.Query())
 
 		id, _     = strconv.Atoi(c.Param("id"))
 		campID, _ = strconv.Atoi(c.QueryParam("campaign_id"))
@@ -26,14 +25,14 @@ func handleGetBounces(c echo.Context) error {
 
 	// Fetch one bounce.
 	if id > 0 {
-		out, err := app.core.GetBounce(id)
+		out, err := h.app.core.GetBounce(id)
 		if err != nil {
 			return err
 		}
 		return c.JSON(http.StatusOK, okResp{out})
 	}
 
-	res, total, err := app.core.QueryBounces(campID, 0, source, orderBy, order, pg.Offset, pg.Limit)
+	res, total, err := h.app.core.QueryBounces(campID, 0, source, orderBy, order, pg.Offset, pg.Limit)
 	if err != nil {
 		return err
 	}
@@ -55,17 +54,14 @@ func handleGetBounces(c echo.Context) error {
 }
 
 // handleGetSubscriberBounces retrieves a subscriber's bounce records.
-func handleGetSubscriberBounces(c echo.Context) error {
-	var (
-		app      = c.Get("app").(*App)
-		subID, _ = strconv.Atoi(c.Param("id"))
-	)
+func (h *Handler) handleGetSubscriberBounces(c echo.Context) error {
+	var subID, _ = strconv.Atoi(c.Param("id"))
 
 	if subID < 1 {
-		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidID"))
+		return echo.NewHTTPError(http.StatusBadRequest, h.app.i18n.T("globals.messages.invalidID"))
 	}
 
-	out, _, err := app.core.QueryBounces(0, subID, "", "", "", 0, 1000)
+	out, _, err := h.app.core.QueryBounces(0, subID, "", "", "", 0, 1000)
 	if err != nil {
 		return err
 	}
@@ -74,9 +70,8 @@ func handleGetSubscriberBounces(c echo.Context) error {
 }
 
 // handleDeleteBounces handles bounce deletion, either a single one (ID in the URI), or a list.
-func handleDeleteBounces(c echo.Context) error {
+func (h *Handler) handleDeleteBounces(c echo.Context) error {
 	var (
-		app    = c.Get("app").(*App)
 		pID    = c.Param("id")
 		all, _ = strconv.ParseBool(c.QueryParam("all"))
 		IDs    = []int{}
@@ -86,7 +81,7 @@ func handleDeleteBounces(c echo.Context) error {
 	if pID != "" {
 		id, _ := strconv.Atoi(pID)
 		if id < 1 {
-			return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidID"))
+			return echo.NewHTTPError(http.StatusBadRequest, h.app.i18n.T("globals.messages.invalidID"))
 		}
 		IDs = append(IDs, id)
 	} else if !all {
@@ -94,17 +89,17 @@ func handleDeleteBounces(c echo.Context) error {
 		i, err := parseStringIDs(c.Request().URL.Query()["id"])
 		if err != nil {
 			return echo.NewHTTPError(http.StatusBadRequest,
-				app.i18n.Ts("globals.messages.invalidID", "error", err.Error()))
+				h.app.i18n.Ts("globals.messages.invalidID", "error", err.Error()))
 		}
 
 		if len(i) == 0 {
 			return echo.NewHTTPError(http.StatusBadRequest,
-				app.i18n.Ts("globals.messages.invalidID"))
+				h.app.i18n.Ts("globals.messages.invalidID"))
 		}
 		IDs = i
 	}
 
-	if err := app.core.DeleteBounces(IDs); err != nil {
+	if err := h.app.core.DeleteBounces(IDs); err != nil {
 		return err
 	}
 
@@ -112,9 +107,8 @@ func handleDeleteBounces(c echo.Context) error {
 }
 
 // handleBounceWebhook renders the HTML preview of a template.
-func handleBounceWebhook(c echo.Context) error {
+func (h *Handler) handleBounceWebhook(c echo.Context) error {
 	var (
-		app     = c.Get("app").(*App)
 		service = c.Param("service")
 
 		bounces []models.Bounce
@@ -123,19 +117,19 @@ func handleBounceWebhook(c echo.Context) error {
 	// Read the request body instead of using c.Bind() to read to save the entire raw request as meta.
 	rawReq, err := io.ReadAll(c.Request().Body)
 	if err != nil {
-		app.log.Printf("error reading ses notification body: %v", err)
-		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.Ts("globals.messages.internalError"))
+		h.app.log.Printf("error reading ses notification body: %v", err)
+		return echo.NewHTTPError(http.StatusBadRequest, h.app.i18n.Ts("globals.messages.internalError"))
 	}
 
-	switch true {
+	switch {
 	// Native internal webhook.
 	case service == "":
 		var b models.Bounce
 		if err := json.Unmarshal(rawReq, &b); err != nil {
-			return echo.NewHTTPError(http.StatusBadRequest, app.i18n.Ts("globals.messages.invalidData")+":"+err.Error())
+			return echo.NewHTTPError(http.StatusBadRequest, h.app.i18n.Ts("globals.messages.invalidData")+":"+err.Error())
 		}
 
-		if bv, err := validateBounceFields(b, app); err != nil {
+		if bv, err := validateBounceFields(b, h.app); err != nil {
 			return err
 		} else {
 			b = bv
@@ -152,83 +146,83 @@ func handleBounceWebhook(c echo.Context) error {
 		bounces = append(bounces, b)
 
 	// Amazon SES.
-	case service == "ses" && app.constants.BounceSESEnabled:
+	case service == "ses" && h.app.constants.BounceSESEnabled:
 		switch c.Request().Header.Get("X-Amz-Sns-Message-Type") {
 		// SNS webhook registration confirmation. Only after these are processed will the endpoint
 		// start getting bounce notifications.
 		case "SubscriptionConfirmation", "UnsubscribeConfirmation":
-			if err := app.bounce.SES.ProcessSubscription(rawReq); err != nil {
-				app.log.Printf("error processing SNS (SES) subscription: %v", err)
-				return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidData"))
+			if err := h.app.bounce.SES.ProcessSubscription(rawReq); err != nil {
+				h.app.log.Printf("error processing SNS (SES) subscription: %v", err)
+				return echo.NewHTTPError(http.StatusBadRequest, h.app.i18n.T("globals.messages.invalidData"))
 			}
 			break
 
 		// Bounce notification.
 		case "Notification":
-			b, err := app.bounce.SES.ProcessBounce(rawReq)
+			b, err := h.app.bounce.SES.ProcessBounce(rawReq)
 			if err != nil {
-				app.log.Printf("error processing SES notification: %v", err)
-				return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidData"))
+				h.app.log.Printf("error processing SES notification: %v", err)
+				return echo.NewHTTPError(http.StatusBadRequest, h.app.i18n.T("globals.messages.invalidData"))
 			}
 			bounces = append(bounces, b)
 
 		default:
-			return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidData"))
+			return echo.NewHTTPError(http.StatusBadRequest, h.app.i18n.T("globals.messages.invalidData"))
 		}
 
 	// SendGrid.
-	case service == "sendgrid" && app.constants.BounceSendgridEnabled:
+	case service == "sendgrid" && h.app.constants.BounceSendgridEnabled:
 		var (
 			sig = c.Request().Header.Get("X-Twilio-Email-Event-Webhook-Signature")
 			ts  = c.Request().Header.Get("X-Twilio-Email-Event-Webhook-Timestamp")
 		)
 
 		// Sendgrid sends multiple bounces.
-		bs, err := app.bounce.Sendgrid.ProcessBounce(sig, ts, rawReq)
+		bs, err := h.app.bounce.Sendgrid.ProcessBounce(sig, ts, rawReq)
 		if err != nil {
-			app.log.Printf("error processing sendgrid notification: %v", err)
-			return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidData"))
+			h.app.log.Printf("error processing sendgrid notification: %v", err)
+			return echo.NewHTTPError(http.StatusBadRequest, h.app.i18n.T("globals.messages.invalidData"))
 		}
 		bounces = append(bounces, bs...)
 
 	// Postmark.
-	case service == "postmark" && app.constants.BouncePostmarkEnabled:
-		bs, err := app.bounce.Postmark.ProcessBounce(rawReq, c)
+	case service == "postmark" && h.app.constants.BouncePostmarkEnabled:
+		bs, err := h.app.bounce.Postmark.ProcessBounce(rawReq, c)
 		if err != nil {
-			app.log.Printf("error processing postmark notification: %v", err)
+			h.app.log.Printf("error processing postmark notification: %v", err)
 			if _, ok := err.(*echo.HTTPError); ok {
 				return err
 			}
 
-			return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidData"))
+			return echo.NewHTTPError(http.StatusBadRequest, h.app.i18n.T("globals.messages.invalidData"))
 		}
 		bounces = append(bounces, bs...)
 
 	// ForwardEmail.
-	case service == "forwardemail" && app.constants.BounceForwardemailEnabled:
+	case service == "forwardemail" && h.app.constants.BounceForwardemailEnabled:
 		var (
 			sig = c.Request().Header.Get("X-Webhook-Signature")
 		)
 
-		bs, err := app.bounce.Forwardemail.ProcessBounce(sig, rawReq)
+		bs, err := h.app.bounce.Forwardemail.ProcessBounce(sig, rawReq)
 		if err != nil {
-			app.log.Printf("error processing forwardemail notification: %v", err)
+			h.app.log.Printf("error processing forwardemail notification: %v", err)
 			if _, ok := err.(*echo.HTTPError); ok {
 				return err
 			}
 
-			return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidData"))
+			return echo.NewHTTPError(http.StatusBadRequest, h.app.i18n.T("globals.messages.invalidData"))
 		}
 		bounces = append(bounces, bs...)
 
 	default:
-		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.Ts("bounces.unknownService"))
+		return echo.NewHTTPError(http.StatusBadRequest, h.app.i18n.Ts("bounces.unknownService"))
 	}
 
 	// Record bounces if any.
 	for _, b := range bounces {
-		if err := app.bounce.Record(b); err != nil {
-			app.log.Printf("error recording bounce: %v", err)
+		if err := h.app.bounce.Record(b); err != nil {
+			h.app.log.Printf("error recording bounce: %v", err)
 		}
 	}
 
