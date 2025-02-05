@@ -275,7 +275,7 @@ func main() {
 	closerWait := make(chan bool)
 	<-awaitReload(app.chReload, closerWait, func() {
 		// Stop the HTTP server.
-		ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()
 		if err := h.echo.Shutdown(ctx); err != nil {
 			lo.Printf("error shutting down server: %v", err)
