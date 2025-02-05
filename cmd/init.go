@@ -785,33 +785,11 @@ func initAbout(q *models.Queries, db *sqlx.DB) about {
 }
 
 // initHTTPServer sets up and runs the app's main HTTP server and blocks forever.
-func initHTTPServer(app *App) *echo.Echo {
+func initHTTPServer(app *App) (*Handler, error) {
 	// Initialize the HTTP server.
-	var srv = echo.New()
-	srv.HideBanner = true
-
-	// Register app (*App) to be injected into all HTTP handlers.
-	srv.Use(func(next echo.HandlerFunc) echo.HandlerFunc {
-		return func(c echo.Context) error {
-			c.Set("app", app)
-			return next(c)
-		}
-	})
-
-	tpl, err := stuffbin.ParseTemplatesGlob(initTplFuncs(app.i18n, app.constants), app.fs, "/public/templates/*.html")
+	h, err := newHandler(app)
 	if err != nil {
-		lo.Fatalf("error parsing public templates: %v", err)
-	}
-	srv.Renderer = &tplRenderer{
-		templates:           tpl,
-		SiteName:            app.constants.SiteName,
-		RootURL:             app.constants.RootURL,
-		LogoURL:             app.constants.LogoURL,
-		FaviconURL:          app.constants.FaviconURL,
-		AssetVersion:        app.constants.AssetVersion,
-		EnablePublicSubPage: app.constants.EnablePublicSubPage,
-		EnablePublicArchive: app.constants.EnablePublicArchive,
-		IndividualTracking:  app.constants.Privacy.IndividualTracking,
+		return nil, fmt.Errorf("error initializing http server: %w", err)
 	}
 
 	// Initialize the static file server.

@@ -273,36 +273,39 @@ func (o *Auth) Middleware(next echo.HandlerFunc) echo.HandlerFunc {
 	}
 }
 
-func (o *Auth) Perm(next echo.HandlerFunc, perms ...string) echo.HandlerFunc {
-	return func(c echo.Context) error {
-		u, ok := c.Get(UserKey).(models.User)
-		if !ok {
-			c.Set(UserKey, echo.NewHTTPError(http.StatusForbidden, "invalid session"))
-			return next(c)
-		}
-
-		// If the current user is a Super Admin user, do no checks.
-		if u.UserRole.ID == SuperAdminRoleID {
-			return next(c)
-		}
-
-		// Check if the current handler's permission is in the user's permission map.
-		var (
-			has  = false
-			perm = ""
-		)
-		for _, perm = range perms {
-			if _, ok := u.PermissionsMap[perm]; ok {
-				has = true
-				break
+// Perm is a middleware that checks if the current user has the required permissions to access the handler.
+func (o *Auth) Perm(perms ...string) echo.MiddlewareFunc {
+	return func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(c echo.Context) error {
+			u, ok := c.Get(UserKey).(models.User)
+			if !ok {
+				c.Set(UserKey, echo.NewHTTPError(http.StatusForbidden, "invalid session"))
+				return next(c)
 			}
-		}
 
-		if !has {
-			return echo.NewHTTPError(http.StatusForbidden, fmt.Sprintf("permission denied: %s", perm))
-		}
+			// If the current user is a Super Admin user, do no checks.
+			if u.UserRole.ID == SuperAdminRoleID {
+				return next(c)
+			}
 
-		return next(c)
+			// Check if the current handler's permission is in the user's permission map.
+			var (
+				has  = false
+				perm = ""
+			)
+			for _, perm = range perms {
+				if _, ok := u.PermissionsMap[perm]; ok {
+					has = true
+					break
+				}
+			}
+
+			if !has {
+				return echo.NewHTTPError(http.StatusForbidden, fmt.Sprintf("permission denied: %s", perm))
+			}
+
+			return next(c)
+		}
 	}
 }
 
