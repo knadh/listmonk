@@ -122,6 +122,7 @@ func initHTTPHandlers(e *echo.Echo, app *App) {
 	api.GET("/api/about", handleGetAboutInfo)
 
 	api.GET("/api/subscribers", pm(handleQuerySubscribers, "subscribers:get_all", "subscribers:get"))
+	api.GET("/api/subscribers/switch_list", pm(handleAddAndRmList, "subscribers:switch_list", "subscribers:switch"))
 	api.GET("/api/subscribers/:id", pm(handleGetSubscriber, "subscribers:get_all", "subscribers:get"))
 	api.GET("/api/subscribers/:id/export", pm(handleExportSubscriberData, "subscribers:get_all", "subscribers:get"))
 	api.GET("/api/subscribers/:id/bounces", pm(handleGetSubscriberBounces, "bounces:get"))

@@ -226,6 +226,67 @@ func handleCreateSubscriber(c echo.Context) error {
 	return c.JSON(http.StatusOK, okResp{sub})
 }
 
+func handleAddAndRmList(c echo.Context) error{
+    var(
+        app = c.Get("app").(*App)
+        user = c.Get(auth.UserKey).(models.User)
+
+        email = c.QueryParam("email")
+        list1, _ = strconv.Atoi(c.QueryParam("lista"))
+        list2, _ = strconv.Atoi(c.QueryParam("listr"))
+        add_both, _ = strconv.Atoi(c.QueryParam("addBoth")) // if false -> add 1 and remove 2, true -> add both
+    )
+    fmt.Println(user, list2)
+
+    subscriber, err  := app.core.GetSubscribersByEmail([]string{email})
+
+    if err != nil{
+        return echo.NewHTTPError(http.StatusNotFound, err.Error())
+    }
+    
+    if len(subscriber) == 0{
+        return echo.NewHTTPError(http.StatusNotFound ,"no subscriber found")
+    }
+
+    var data []models.Subscriber
+    for _, subs := range subscriber{
+        // Get existing lists
+        lists, err := app.core.GetSubscriberLists(subs.ID, subs.UUID, nil, nil, "", "")
+        if err != nil{
+            return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+        }
+
+        // Prepare new list
+        var new_lists []int
+        if add_both == 1{
+            // add both lists
+            new_lists = append(new_lists, list1)
+            new_lists = append(new_lists, list2)
+        }else{
+            // remove list2
+            for i := range lists{
+                if lists[i].ID != list2{
+                    new_lists = append(new_lists, lists[i].ID)
+                }
+            }
+            new_lists = append(new_lists, list1)
+        }
+
+        fmt.Println("new lists -> ", new_lists)
+
+        fmt.Println("Updating with -> ", subs)
+        out, _, err := app.core.UpdateSubscriberWithLists(subs.ID, subs, new_lists, nil, false, true)
+
+        if err != nil{
+            return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+        }
+
+        data = append(data, out)
+    }
+
+    return c.JSON(http.StatusOK, okResp{data})
+}
+
 // handleUpdateSubscriber handles modification of a subscriber.
 func handleUpdateSubscriber(c echo.Context) error {
 	var (
