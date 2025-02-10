@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"sort"
 	"syscall"
 	"time"
 
@@ -45,21 +44,10 @@ func handleGetServerConfig(c echo.Context) error {
 	}
 	out.Langs = langList
 
-	names := make([]string, 0, len(app.messengers))
-	for name := range app.messengers {
-		names = append(names, name)
+	out.Messengers = make([]string, 0, len(app.messengers))
+	for _, m := range app.messengers {
+		out.Messengers = append(out.Messengers, m.Name())
 	}
-	// Sort messenger names with `email` always as the first item.
-	sort.SliceStable(names, func(i, j int) bool {
-		if names[i] == emailMsgr {
-			return true
-		}
-		if names[j] == emailMsgr {
-			return false
-		}
-		return names[i] < names[j]
-	})
-	out.Messengers = append(out.Messengers, names...)
 
 	app.Lock()
 	out.NeedsRestart = app.needsRestart

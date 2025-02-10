@@ -548,60 +548,15 @@ func initImporter(q *models.Queries, db *sqlx.DB, core *core.Core, app *App) *su
 		}, db.DB, app.i18n)
 }
 
-// initSMTPMessenger initializes the SMTP messenger.
-func initSMTPMessenger(m *manager.Manager) manager.Messenger {
-	var (
-		mapKeys = ko.MapKeys("smtp")
-		servers = make([]email.Server, 0, len(mapKeys))
-	)
-
-	items := ko.Slices("smtp")
-	if len(items) == 0 {
-		lo.Fatalf("no SMTP servers found in config")
-	}
-
-	// Load the config for multiple SMTP servers.
-	for _, item := range items {
-		if !item.Bool("enabled") {
-			continue
-		}
-
-		// Read the SMTP config.
-		var s email.Server
-		if err := item.UnmarshalWithConf("", &s, koanf.UnmarshalConf{Tag: "json"}); err != nil {
-			lo.Fatalf("error reading SMTP config: %v", err)
-		}
-
-		servers = append(servers, s)
-		lo.Printf("loaded email (SMTP) messenger: %s@%s",
-			item.String("username"), item.String("host"))
-	}
-	if len(servers) == 0 {
-		lo.Fatalf("no SMTP servers enabled in settings")
-	}
-
-	// Initialize the e-mail messenger with multiple SMTP servers.
-	msgr, err := email.New(servers...)
-	if err != nil {
-		lo.Fatalf("error loading e-mail messenger: %v", err)
-	}
-
-	return msgr
-}
-
+// initSMTPMessenger initializes the combined and individual SMTP messengers.
 func initSMTPMessengers() []manager.Messenger {
 	var (
-		mapKeys = ko.MapKeys("smtp")
-		servers = make([]email.Server, 0, len(mapKeys))
+		servers = []email.Server{}
+		out     = []manager.Messenger{}
 	)
 
-	items := ko.Slices("smtp")
-	if len(items) == 0 {
-		lo.Fatalf("no SMTP servers found in config")
-	}
-
 	// Load the config for multiple SMTP servers.
-	for _, item := range items {
+	for _, item := range ko.Slices("smtp") {
 		if !item.Bool("enabled") {
 			continue
 		}
@@ -613,29 +568,39 @@ func initSMTPMessengers() []manager.Messenger {
 		}
 
 		servers = append(servers, s)
-		lo.Printf("loaded email (SMTP) messenger: %s@%s",
-			item.String("username"), item.String("host"))
-	}
-	if len(servers) == 0 {
-		lo.Fatalf("no SMTP servers enabled in settings")
-	}
+		lo.Printf("initialized email (SMTP) messenger: %s@%s", item.String("username"), item.String("host"))
 
-	msgrs := make([]manager.Messenger, 0, len(servers))
-	for _, srv := range servers {
-		// Initialize the e-mail messenger with single SMTP server.
-		msgr, err := email.New(srv)
-		if err != nil {
-			lo.Fatalf("error loading e-mail messenger: %v", err)
+		// If the server has a name, initialize it as a standalone e-mail messenger
+		// allowing campaigns to select individual SMTPs. In the UI and config, it'll appear as `email / $name`.
+		if s.Name != "" {
+			msgr, err := email.New(fmt.Sprintf("%s / %s", email.MessengerName, s.Name), s)
+			if err != nil {
+				lo.Fatalf("error initializing e-mail messenger: %v", err)
+			}
+			out = append(out, msgr)
 		}
-		msgrs = append(msgrs, msgr)
 	}
 
-	return msgrs
+	// Initialize the 'email' messenger with all SMTP servers.
+	msgr, err := email.New(email.MessengerName, servers...)
+	if err != nil {
+		lo.Fatalf("error initializing e-mail messenger: %v", err)
+	}
+
+	// If it's just one server, return the default "email" messenger.
+	if len(servers) == 1 {
+		return []manager.Messenger{msgr}
+	}
+
+	// If there are multiple servers, prepend the group "email" to be the first one.
+	out = append([]manager.Messenger{msgr}, out...)
+
+	return out
 }
 
 // initPostbackMessengers initializes and returns all the enabled
 // HTTP postback messenger backends.
-func initPostbackMessengers(m *manager.Manager) []manager.Messenger {
+func initPostbackMessengers() []manager.Messenger {
 	items := ko.Slices("messengers")
 	if len(items) == 0 {
 		return nil

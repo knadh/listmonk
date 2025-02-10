@@ -13,7 +13,8 @@ import (
 )
 
 const (
-	emName        = "email"
+	MessengerName = "email"
+
 	hdrReturnPath = "Return-Path"
 	hdrBcc        = "Bcc"
 	hdrCc         = "Cc"
@@ -40,12 +41,16 @@ type Server struct {
 // Emailer is the SMTP e-mail messenger.
 type Emailer struct {
 	servers []*Server
+	name    string
 }
 
 // New returns an SMTP e-mail Messenger backend with the given SMTP servers.
-func New(servers ...Server) (*Emailer, error) {
+// Group indicates whether the messenger represents a group of SMTP servers (1 or more)
+// that are used as a round-robin pool, or a single server.
+func New(name string, servers ...Server) (*Emailer, error) {
 	e := &Emailer{
 		servers: make([]*Server, 0, len(servers)),
+		name:    name,
 	}
 
 	for _, srv := range servers {
@@ -91,22 +96,9 @@ func New(servers ...Server) (*Emailer, error) {
 	return e, nil
 }
 
-// Name returns the Server's name.
+// Name returns the messenger's name.
 func (e *Emailer) Name() string {
-	// It's `email` if there are more than one SMTP servers.
-	if len(e.servers) > 1 {
-		return emName
-	}
-	srv := e.servers[0]
-	return GetEmailerName(srv.Name, srv.Host)
-}
-
-// GetEmailerName returns the emailer name.
-func GetEmailerName(name, host string) string {
-	if name != "" {
-		return fmt.Sprintf("%s-%s", emName, name)
-	}
-	return fmt.Sprintf("%s-%s", emName, host)
+	return e.name
 }
 
 // Push pushes a message to the server.

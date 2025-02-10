@@ -431,7 +431,7 @@
     "settings.mailserver.maxConns": "Max. connections",
     "settings.mailserver.maxConnsHelp": "Maximum concurrent connections to the server.",
     "settings.mailserver.name": "Name",
-    "settings.mailserver.nameHelp": "Optional name of the SMTP server. Usable in the campaign settings.",
+    "settings.mailserver.nameHelp": "Optional unique name for the SMTP server. Setting this allows the server to be specifically selected for a campaign.",
     "settings.mailserver.password": "Password",
     "settings.mailserver.passwordHelp": "Enter to change",
     "settings.mailserver.port": "Port",

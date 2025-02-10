@@ -96,11 +96,27 @@ func handleUpdateSettings(c echo.Context) error {
 		return err
 	}
 
+	// Validate and sanitize postback Messenger names along with SMTP names
+	// (where each SMTP is also considered as a standalone messenger).
+	// Duplicates are disallowed and "email" is a reserved name.
+	names := map[string]bool{emailMsgr: true}
+
 	// There should be at least one SMTP block that's enabled.
 	has := false
 	for i, s := range set.SMTP {
 		if s.Enabled {
 			has = true
+		}
+
+		// Sanitize and normalize the SMTP server name.
+		s.Name = reAlphaNum.ReplaceAllString(strings.ToLower(strings.TrimSpace(s.Name)), "")
+		if s.Name != "" {
+			if _, ok := names[s.Name]; ok {
+				return echo.NewHTTPError(http.StatusBadRequest,
+					app.i18n.Ts("settings.duplicateMessengerName", "name", s.Name))
+			}
+
+			names[s.Name] = true
 		}
 
 		// Assign a UUID. The frontend only sends a password when the user explicitly
@@ -158,20 +174,6 @@ func handleUpdateSettings(c echo.Context) error {
 				}
 			}
 		}
-	}
-
-	// Validate and sanitize postback Messenger names. Duplicates are disallowed
-	// and "email" is a reserved name.
-	names := map[string]bool{emailMsgr: true}
-
-	// Add SMTP as messengers to prevent duplicate names if they exist in set.Messengers
-	for _, s := range set.SMTP {
-		name := email.GetEmailerName(s.Name, s.Host)
-		if _, ok := names[name]; ok {
-			return echo.NewHTTPError(http.StatusBadRequest,
-				app.i18n.Ts("settings.duplicateMessengerName", "name", name))
-		}
-		names[name] = true
 	}
 
 	for i, m := range set.Messengers {
@@ -307,7 +309,7 @@ func handleTestSMTPSettings(c echo.Context) error {
 	req.MaxConns = 1
 	req.IdleTimeout = time.Second * 2
 	req.PoolWaitTimeout = time.Second * 2
-	msgr, err := email.New(req)
+	msgr, err := email.New("", req)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest,
 			app.i18n.Ts("globals.messages.errorCreating", "name", "SMTP", "error", err.Error()))
