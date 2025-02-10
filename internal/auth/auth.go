@@ -33,11 +33,25 @@ const (
 	sessTypeOIDC   = "oidc"
 )
 
+type StringOrBoolean bool
+
+func (bit *StringOrBoolean) UnmarshalJSON(data []byte) error {
+	asString := strings.ToLower(strings.Trim(string(data), "\""))
+	if asString == "1" || asString == "true" {
+		*bit = true
+	} else if asString == "0" || asString == "false" {
+		*bit = false
+	} else {
+		return errors.New(fmt.Sprintf("Boolean unmarshal error: invalid input %s", asString))
+	}
+	return nil
+}
+
 type OIDCclaim struct {
-	Email         string `json:"email"`
-	EmailVerified bool   `json:"email_verified"`
-	Sub           string `json:"sub"`
-	Picture       string `json:"picture"`
+	Email         string          `json:"email"`
+	EmailVerified StringOrBoolean `json:"email_verified"`
+	Sub           string          `json:"sub"`
+	Picture       string          `json:"picture"`
 }
 
 type OIDCConfig struct {
