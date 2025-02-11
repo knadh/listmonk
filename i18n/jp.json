@@ -435,6 +435,8 @@
     "settings.mailserver.idleTimeoutHelp": "接続を閉じてプールから削除する前に、接続の新しいアクティビティの待機をする時間 (秒はs,分はm).",
     "settings.mailserver.maxConns": "最大接続数",
     "settings.mailserver.maxConnsHelp": "サーバーへの最大同時接続数。",
+    "settings.mailserver.name": "名前",
+    "settings.mailserver.nameHelp": "SMTPサーバーの任意の一意の名前です。これを設定すると、キャンペーンごとにサーバーを特定のものに選択することができます。例：primary-server。英数字とダッシュのみ使用できます。",
     "settings.mailserver.password": "パスワード",
     "settings.mailserver.passwordHelp": "エンターで変更",
     "settings.mailserver.port": "ポート",

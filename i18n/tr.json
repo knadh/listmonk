@@ -435,6 +435,8 @@
     "settings.mailserver.idleTimeoutHelp": "Bir bağlantıdaki yeni etkinliği kapatmadan ve havuzdan kaldırmadan önce bekleme süresi (s saniye, m dakika).",
     "settings.mailserver.maxConns": "Maksimum bağlantı sayısı",
     "settings.mailserver.maxConnsHelp": "SMTP sunucusuna aynı anda gönderilecek çoklu istek sayısı.",
+    "settings.mailserver.name": "İsim",
+    "settings.mailserver.nameHelp": "SMTP sunucusu için isteğe bağlı benzersiz ad. Bu ayar, kampanya için özel olarak seçilebilecek sunucunun belirlenmesine olanak sağlar. Örnek: primary-server. Alfanumerik / tire.",
     "settings.mailserver.password": "Parola",
     "settings.mailserver.passwordHelp": "Değiştirmek için giriniz",
     "settings.mailserver.port": "Bağlantı Noktası",

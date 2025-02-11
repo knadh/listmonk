@@ -434,6 +434,8 @@
     "settings.mailserver.idleTimeoutHelp": "Temps d'inactivitat per esperar una nova activitat en una connexió abans de tancar-la i eliminar-la de la grup (s per segon, m per minut).",
     "settings.mailserver.maxConns": "Connexions màximes",
     "settings.mailserver.maxConnsHelp": "Màxim de connexions concurrents al servidor.",
+    "settings.mailserver.name": "Nom",
+    "settings.mailserver.nameHelp": "Nom opcional únic per al servidor SMTP. Establir això permet seleccionar específicament el servidor per a una campanya. Exemple: primary-server. Alfanumèric / guionet.",
     "settings.mailserver.password": "Contrasenya",
     "settings.mailserver.passwordHelp": "Fes intro per canviar",
     "settings.mailserver.port": "Port",

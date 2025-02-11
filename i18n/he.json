@@ -430,6 +430,8 @@
     "settings.mailserver.idleTimeoutHelp": "זמן המתנה לפענוח פעילות נוספת בחיבור לפני סגירתו והסרתו מהקופסה (s לשנייה, m לדקה).",
     "settings.mailserver.maxConns": "מקסימום חיבורים",
     "settings.mailserver.maxConnsHelp": "למספר החיבורים המרובים הממוקדים לשרת.",
+    "settings.mailserver.name": "שֵׁם",
+    "settings.mailserver.nameHelp": "שם אופציונלי ייחודי עבור שרת SMTP. הגדרת זאת מאפשרת בחירה ממוקדת של השרת לקמפיין מסוים. לדוג' primary-server. מותרים אותיות ומקף.",
     "settings.mailserver.password": "סיסמא",
     "settings.mailserver.passwordHelp": "יש להזין כדי לשנות",
     "settings.mailserver.port": "פורט",

@@ -434,6 +434,8 @@
     "settings.mailserver.idleTimeoutHelp": "Hoe lang op nieuwe activeit gewacht moet worden voor een verbinding wordt gesloten en van de pool wordt verwijderd (s voor seconden, m voor minuten). ",
     "settings.mailserver.maxConns": "Max. # connecties",
     "settings.mailserver.maxConnsHelp": "Maximum # concurrente connecties naar de server.",
+    "settings.mailserver.name": "Naam",
+    "settings.mailserver.nameHelp": "Optionele unieke naam voor de SMTP-server. Het instellen hiervan maakt het mogelijk om specifiek voor een campagne een server te selecteren. Bijv .: primary-server. Alfanumeriek / streepje.",
     "settings.mailserver.password": "Wachtwoord",
     "settings.mailserver.passwordHelp": "Enter om te veranderen",
     "settings.mailserver.port": "Poort",

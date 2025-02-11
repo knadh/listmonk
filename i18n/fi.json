@@ -434,6 +434,8 @@
     "settings.mailserver.idleTimeoutHelp": "Odota uutta toimintaa yhteydellä ennen kuin suljetaan ja poistetaan alta (s sekunteja, m minuutteja).",
     "settings.mailserver.maxConns": "Maksimiyhteydet",
     "settings.mailserver.maxConnsHelp": "Kerralla samaan aikaan avoimet yhteydet palvelimeen.",
+    "settings.mailserver.name": "Nimi",
+    "settings.mailserver.nameHelp": "Vaihtoehtoinen uniikki nimi SMTP-palvelimelle. Tämän asettaminen mahdollistaa palvelimen erityisen valinnan kampanjalle. Esim: primary-server. Aakkosnumeeriset / viivalla erotetut merkit.",
     "settings.mailserver.password": "Salasana",
     "settings.mailserver.passwordHelp": "Syötä muuttaaksesi",
     "settings.mailserver.port": "Portti",

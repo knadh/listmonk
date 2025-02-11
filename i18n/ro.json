@@ -435,6 +435,8 @@
     "settings.mailserver.idleTimeoutHelp": "Este timpul să asștepți o activitate nouă pe conexiune înainte de a o închide și a o scoate din unificator (s pentru secundă, m pentru minut).",
     "settings.mailserver.maxConns": "Conexiuni maxime",
     "settings.mailserver.maxConnsHelp": "Conexiuni concurente maxime la server.",
+    "settings.mailserver.name": "Nume",
+    "settings.mailserver.nameHelp": "Nume unic opțional pentru serverul SMTP. Setarea acestuia permite selectarea explicită a serverului pentru o campanie. de ex.: primary-server. Alfanumeric / cratimă.",
     "settings.mailserver.password": "Parola",
     "settings.mailserver.passwordHelp": "Introduceți pentru a modifica",
     "settings.mailserver.port": "Port",

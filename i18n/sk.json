@@ -434,6 +434,8 @@
     "settings.mailserver.idleTimeoutHelp": "Doba čakania na novú aktivitu na pripojení pred uzavretím a odobratím z poolu (s - sekundy, m - minuty).",
     "settings.mailserver.maxConns": "Maximálny počet spojení",
     "settings.mailserver.maxConnsHelp": "Maximálny počet súčasných spojení na server.",
+    "settings.mailserver.name": "Meno",
+    "settings.mailserver.nameHelp": "Voliteľný jedinečný názov pre SMTP server. Nastavenie tohto umožňuje špecificky vybrať server pre kampaň. Napríklad: primary-server. Alfanumerické / pomlčka.",
     "settings.mailserver.password": "Heslo",
     "settings.mailserver.passwordHelp": "Klávesou Enter zadajte zmenu",
     "settings.mailserver.port": "Port",

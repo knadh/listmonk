@@ -434,6 +434,8 @@
     "settings.mailserver.idleTimeoutHelp": "പൂളിൽ നിന്നും കണക്ഷൻ വിച്ഛേദിയ്ക്കുന്നതിനുമുമ്പ് പുതിയ പ്രവർത്തനത്തിനായി കാത്തുനിൽക്കുന്നതിനുള്ള സമയപരിധി(s സെക്കന്റിന്, m മിനുട്ടിന്).",
     "settings.mailserver.maxConns": "പരമാവധി കണക്ഷനുകൾ",
     "settings.mailserver.maxConnsHelp": "SMTP സേർവ്വറിലേയ്ക്കുള്ള പരമാവധി സമാന്തര കണക്ഷനുകൾ.",
+    "settings.mailserver.name": "പേര്",
+    "settings.mailserver.nameHelp": "SMTP സേവകത്തിന് ഐച്ഛികമായ അനന്യ പേര്. ഈ സര്‍വര്‍ ഒരു പ്രവര്‍ത്തനത്തിന് പ്രത്യേകം തിരഞ്ഞെടുക്കുന്നതിന് സാധാരണയായി അനുവദിക്കുന്നു. ഉദാ: പ്രധാന-സേവര്‍. അക്ഷരം / ഡാഷ് ഉപയോഗപ്പെടുന്നു.",
     "settings.mailserver.password": "രഹസ്യ കോഡ്‌",
     "settings.mailserver.passwordHelp": "മാറ്റം വരുത്താൻ എന്റർ കീ അമർത്തുക",
     "settings.mailserver.port": "പോർട്ട്",

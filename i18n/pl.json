@@ -435,6 +435,8 @@
     "settings.mailserver.idleTimeoutHelp": "Czas czekania na nową aktywność na połączeniu przed jej zamknięciem i usunięciem z puli (s dla sekud, m dla minut).",
     "settings.mailserver.maxConns": "Maksymalna liczba połączeń",
     "settings.mailserver.maxConnsHelp": "Maksymalna liczba jednoczesnych połączeń do serwera SMTP.",
+    "settings.mailserver.name": "Nazwa",
+    "settings.mailserver.nameHelp": "Opcjonalna unikalna nazwa dla serwera SMTP. Ustawienie tego umożliwia wybór konkretnego serwera dla kampanii. Na przykład: primary-server. Alfanumeryczne / myślnik.",
     "settings.mailserver.password": "Hasło",
     "settings.mailserver.passwordHelp": "Wpisz w celu zmiany",
     "settings.mailserver.port": "Port",
