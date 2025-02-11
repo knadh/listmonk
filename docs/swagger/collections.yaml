@@ -2880,6 +2880,10 @@ components:
               type: string
             settings.mailserver.authProtocol:
               type: string
+            settings.mailserver.name:
+              type: string
+            settings.mailserver.nameHelp:
+              type: string
             settings.mailserver.host:
               type: string
             settings.mailserver.hostHelp:

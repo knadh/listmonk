@@ -435,6 +435,8 @@
     "settings.mailserver.idleTimeoutHelp": "Thời gian chờ hoạt động mới trên một kết nối trước khi đóng và xóa nó khỏi nhóm (s cho giây, m cho phút).",
     "settings.mailserver.maxConns": "Tối đa kết nối",
     "settings.mailserver.maxConnsHelp": "Kết nối đồng thời tối đa đến máy chủ.",
+    "settings.mailserver.name": "Tên",
+    "settings.mailserver.nameHelp": "Tên tùy chọn duy nhất cho máy chủ SMTP. Cài đặt này cho phép chọn riêng máy chủ cho một chiến dịch cụ thể. Ví dụ: primary-server. Chỉ cho phép ký tự chữ số / gạch ngang.",
     "settings.mailserver.password": "Mật khẩu",
     "settings.mailserver.passwordHelp": "Nhập để thay đổi",
     "settings.mailserver.port": "Cổng",

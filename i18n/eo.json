@@ -434,6 +434,8 @@
     "settings.mailserver.idleTimeoutHelp": "Temps d'inactivitat per esperar una nova activitat en una connexió abans de tancar-la i eliminar-la de la grup (s per segon, m per minut).",
     "settings.mailserver.maxConns": "Connexions màximes",
     "settings.mailserver.maxConnsHelp": "Màxim de connexions concurrents al servidor.",
+    "settings.mailserver.name": "Nomo",
+    "settings.mailserver.nameHelp": "Opcia unika nomo por la SMTP-servilo. La difino permesas elekti la servilon specife por kampanjo. Ekz.: primara-servilo. Alfa-numera / streko.",
     "settings.mailserver.password": "Contrasenya",
     "settings.mailserver.passwordHelp": "Fes intro per canviar",
     "settings.mailserver.port": "Pordo",

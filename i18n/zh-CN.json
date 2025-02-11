@@ -434,6 +434,8 @@
     "settings.mailserver.idleTimeoutHelp": "在关闭连接并将其从池中删除之前等待连接上的新活动的时间（s 表示秒，m 表示分钟）。",
     "settings.mailserver.maxConns": "最大连接数",
     "settings.mailserver.maxConnsHelp": "与服务器的最大并发连接数。",
+    "settings.mailserver.name": "姓名",
+    "settings.mailserver.nameHelp": "SMTP 服务器的可选唯一名称。设置此项可让您在发送活动时选择特定的服务器。例如：primary-server。只能使用字母、数字和破折号。",
     "settings.mailserver.password": "密码",
     "settings.mailserver.passwordHelp": "输入更改",
     "settings.mailserver.port": "端口",

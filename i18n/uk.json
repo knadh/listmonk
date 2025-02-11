@@ -430,6 +430,8 @@
     "settings.mailserver.idleTimeoutHelp": "Скільки чекати нові дані, перш ніж закрити з'єднання й вилучити його з черги (s — секунди, m — хвилини).",
     "settings.mailserver.maxConns": "Кількість з'єднань",
     "settings.mailserver.maxConnsHelp": "Максимум конкурентних з'єднань із сервером.",
+    "settings.mailserver.name": "Ім'я",
+    "settings.mailserver.nameHelp": "Додаткове унікальне ім'я для сервера SMTP. Налаштування цього дозволяє вибирати сервер, який буде використовуватись спеціально для кампанії. Наприклад: primary-server. Дозволені літери, цифри та дефіси.",
     "settings.mailserver.password": "Пароль",
     "settings.mailserver.passwordHelp": "Щоб змінити, уведіть новий.",
     "settings.mailserver.port": "Порт",

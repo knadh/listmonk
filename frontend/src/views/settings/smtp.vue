@@ -17,7 +17,7 @@
 
           <div class="column" :class="{ disabled: !item.enabled }">
             <div class="columns">
-              <div class="column is-8">
+              <div class="column is-9">
                 <b-field :label="$t('settings.mailserver.host')" label-position="on-border"
                   :message="$t('settings.mailserver.hostHelp')">
                   <b-input v-model="item.host" name="host" placeholder="smtp.yourmailserver.net" :maxlength="200" />
@@ -142,6 +142,15 @@
             </div>
 
             <div class="columns">
+              <div class="column is-6">
+                <b-field :label="$t('globals.fields.name')" label-position="on-border"
+                  :message="$t('settings.mailserver.nameHelp')">
+                  <b-input v-model="item.name" name="name" placeholder="" :maxlength="100" />
+                </b-field>
+              </div>
+            </div>
+
+            <div class="columns">
               <div class="column">
                 <p v-if="item.email_headers.length === 0 && !item.showHeaders">
                   <a href="#" @click.prevent="() => showSMTPHeaders(n)">
@@ -251,6 +260,7 @@ export default Vue.extend({
   methods: {
     addSMTP() {
       this.data.smtp.push({
+        name: '',
         enabled: true,
         host: '',
         hello_hostname: '',

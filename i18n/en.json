@@ -430,6 +430,7 @@
     "settings.mailserver.idleTimeoutHelp": "Time to wait for new activity on a connection before closing it and removing it from the pool (s for second, m for minute).",
     "settings.mailserver.maxConns": "Max. connections",
     "settings.mailserver.maxConnsHelp": "Maximum concurrent connections to the server.",
+    "settings.mailserver.nameHelp": "Optional unique name for the SMTP server. Setting this allows the server to be specifically selected for a campaign. eg: primary-server. Alphanumeric / dash.",
     "settings.mailserver.password": "Password",
     "settings.mailserver.passwordHelp": "Enter to change",
     "settings.mailserver.port": "Port",

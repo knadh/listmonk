@@ -434,6 +434,8 @@
     "settings.mailserver.idleTimeoutHelp": "Amser aros ar gyfer gweithgaredd newydd ar gysylltiad cyn ei gau a'i ddileu o'r gronfa (e ar gyfer eiliad",
     "settings.mailserver.maxConns": "Uchafswm nifer y cysylltiadau",
     "settings.mailserver.maxConnsHelp": "Uchafswm nifer y cysylltiadau cydamserol â'r gweinydd",
+    "settings.mailserver.name": "Enw",
+    "settings.mailserver.nameHelp": "Enw unigryw dewisol ar gyfer y gweinydd SMTP. Trwy osod hwn, mae'n caniatáu i'r gweinydd gael ei ddewis yn benodol ar gyfer ymgyrch. e.e.: gwefr-prif. Alffaniwmerig / llinell.",
     "settings.mailserver.password": "Cyfrinair",
     "settings.mailserver.passwordHelp": "Pwyswch enter i'w newid",
     "settings.mailserver.port": "Porth",

@@ -432,6 +432,8 @@
     "settings.mailserver.idleTimeoutHelp": "Čas za čakanje na novo dejavnost v povezavi, preden jo zaprete in odstranite iz skupine (s za sekundo, m za minuto).",
     "settings.mailserver.maxConns": "Maks. povezav",
     "settings.mailserver.maxConnsHelp": "Največje število sočasnih povezav s strežnikom.",
+    "settings.mailserver.name": "Ime",
+    "settings.mailserver.nameHelp": "Izbirno enolično ime za SMTP strežnik. Nastavitev tega omogoča posebno izbiro strežnika za kampanjo. Na primer: primary-server. Črke, številke / pomišljaj.",
     "settings.mailserver.password": "Geslo",
     "settings.mailserver.passwordHelp": "Vnesite za spremembo",
     "settings.mailserver.port": "Vrata",

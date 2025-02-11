@@ -37,25 +37,26 @@ const (
 // App contains the "global" components that are
 // passed around, especially through HTTP handlers.
 type App struct {
-	core       *core.Core
-	fs         stuffbin.FileSystem
-	db         *sqlx.DB
-	queries    *models.Queries
-	constants  *constants
-	manager    *manager.Manager
-	importer   *subimporter.Importer
-	messengers map[string]manager.Messenger
-	auth       *auth.Auth
-	media      media.Store
-	i18n       *i18n.I18n
-	bounce     *bounce.Manager
-	paginator  *paginator.Paginator
-	captcha    *captcha.Captcha
-	events     *events.Events
-	notifTpls  *notifTpls
-	about      about
-	log        *log.Logger
-	bufLog     *buflog.BufLog
+	core           *core.Core
+	fs             stuffbin.FileSystem
+	db             *sqlx.DB
+	queries        *models.Queries
+	constants      *constants
+	manager        *manager.Manager
+	importer       *subimporter.Importer
+	messengers     []manager.Messenger
+	emailMessenger manager.Messenger
+	auth           *auth.Auth
+	media          media.Store
+	i18n           *i18n.I18n
+	bounce         *bounce.Manager
+	paginator      *paginator.Paginator
+	captcha        *captcha.Captcha
+	events         *events.Events
+	notifTpls      *notifTpls
+	about          about
+	log            *log.Logger
+	bufLog         *buflog.BufLog
 
 	// Channel for passing reload signals.
 	chReload chan os.Signal
@@ -175,7 +176,7 @@ func main() {
 		db:         db,
 		constants:  initConstants(),
 		media:      initMediaStore(),
-		messengers: make(map[string]manager.Messenger),
+		messengers: []manager.Messenger{},
 		log:        lo,
 		bufLog:     bufLog,
 		captcha:    initCaptcha(),
@@ -230,13 +231,16 @@ func main() {
 		go app.bounce.Run()
 	}
 
-	// Initialize the default SMTP (`email`) messenger.
-	app.messengers[emailMsgr] = initSMTPMessenger(app.manager)
+	// Initialize the SMTP messengers.
+	app.messengers = initSMTPMessengers()
+	for _, m := range app.messengers {
+		if m.Name() == emailMsgr {
+			app.emailMessenger = m
+		}
+	}
 
 	// Initialize any additional postback messengers.
-	for _, m := range initPostbackMessengers(app.manager) {
-		app.messengers[m.Name()] = m
-	}
+	app.messengers = append(app.messengers, initPostbackMessengers()...)
 
 	// Attach all messengers to the campaign manager.
 	for _, m := range app.messengers {
