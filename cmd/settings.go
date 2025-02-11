@@ -109,15 +109,16 @@ func handleUpdateSettings(c echo.Context) error {
 		}
 
 		// Sanitize and normalize the SMTP server name.
-		s.Name = reAlphaNum.ReplaceAllString(strings.ToLower(strings.TrimSpace(s.Name)), "")
-		if s.Name != "" {
-			if _, ok := names[s.Name]; ok {
+		name := reAlphaNum.ReplaceAllString(strings.ToLower(strings.TrimSpace(s.Name)), "-")
+		if name != "" {
+			if _, ok := names[name]; ok {
 				return echo.NewHTTPError(http.StatusBadRequest,
-					app.i18n.Ts("settings.duplicateMessengerName", "name", s.Name))
+					app.i18n.Ts("settings.duplicateMessengerName", "name", name))
 			}
 
-			names[s.Name] = true
+			names[name] = true
 		}
+		set.SMTP[i].Name = name
 
 		// Assign a UUID. The frontend only sends a password when the user explicitly
 		// changes the password. In other cases, the existing password in the DB
