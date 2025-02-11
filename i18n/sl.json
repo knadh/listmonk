@@ -433,7 +433,7 @@
     "settings.mailserver.maxConns": "Maks. povezav",
     "settings.mailserver.maxConnsHelp": "Največje število sočasnih povezav s strežnikom.",
     "settings.mailserver.name": "Ime",
-    "settings.mailserver.nameHelp": "Izbirno ime strežnika SMTP. Uporabno v nastavitvah kampanje.",
+    "settings.mailserver.nameHelp": "Izbirno enolično ime za SMTP strežnik. Nastavitev tega omogoča posebno izbiro strežnika za kampanjo. Na primer: primary-server. Črke, številke / pomišljaj.",
     "settings.mailserver.password": "Geslo",
     "settings.mailserver.passwordHelp": "Vnesite za spremembo",
     "settings.mailserver.port": "Vrata",
