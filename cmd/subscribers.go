@@ -227,6 +227,7 @@ func handleCreateSubscriber(c echo.Context) error {
 }
 
 func handleAddAndRmList(c echo.Context) error {
+    fmt.Println("helloooo")
     var (
         app  = c.Get("app").(*App)
         user = c.Get(auth.UserKey).(models.User)
@@ -235,14 +236,13 @@ func handleAddAndRmList(c echo.Context) error {
     var requestBody struct {
         Email string `json:"email"`
         List1 []int  `json:"lista"`
-        List2 []int  `json:"listr"`
     }
     
     if err := c.Bind(&requestBody); err != nil {
         return echo.NewHTTPError(http.StatusBadRequest, "Invalid request body")
     }
     
-    fmt.Println(user, requestBody.List2)
+    fmt.Println(user, requestBody.List1)
     
     subscriber, err := app.core.GetSubscribersByEmail([]string{requestBody.Email})
     if err != nil {
