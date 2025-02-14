@@ -63,6 +63,7 @@ type Settings struct {
 	UploadS3Expiry             string   `json:"upload.s3.expiry"`
 
 	SMTP []struct {
+		Name          string              `json:"name"`
 		UUID          string              `json:"uuid"`
 		Enabled       bool                `json:"enabled"`
 		Host          string              `json:"host"`

@@ -313,7 +313,7 @@ Create a new subscriber.
 
 ```shell
 curl -u 'api_username:access_token' 'http://localhost:9000/api/subscribers' -H 'Content-Type: application/json' \
-    --data '{"email":"subsriber@domain.com","name":"The Subscriber","status":"enabled","lists":[1],"attribs":{"city":"Bengaluru","projects":3,"stack":{"languages":["go","python"]}}}'
+    --data '{"email":"subscriber@domain.com","name":"The Subscriber","status":"enabled","lists":[1],"attribs":{"city":"Bengaluru","projects":3,"stack":{"languages":["go","python"]}}}'
 ```
 
 ##### Example Response
@@ -325,7 +325,7 @@ curl -u 'api_username:access_token' 'http://localhost:9000/api/subscribers' -H '
     "created_at": "2019-07-03T12:17:29.735507+05:30",
     "updated_at": "2019-07-03T12:17:29.735507+05:30",
     "uuid": "eb420c55-4cfb-4972-92ba-c93c34ba475d",
-    "email": "subsriber@domain.com",
+    "email": "subscriber@domain.com",
     "name": "The Subscriber",
     "attribs": {
       "city": "Bengaluru",
@@ -376,14 +376,14 @@ Create a public subscription, accepts both form encoded or JSON encoded body.
 
 ```shell
 curl 'http://localhost:9000/api/public/subscription' -H 'Content-Type: application/json' \
-    --data '{"email":"subsriber@domain.com","name":"The Subscriber","list_uuids": ["eb420c55-4cfb-4972-92ba-c93c34ba475d", "0c554cfb-eb42-4972-92ba-c93c34ba475d"]}'
+    --data '{"email":"subscriber@domain.com","name":"The Subscriber","list_uuids": ["eb420c55-4cfb-4972-92ba-c93c34ba475d", "0c554cfb-eb42-4972-92ba-c93c34ba475d"]}'
 ```
 
 ##### Example Form Request
 
 ```shell
 curl -u 'http://localhost:9000/api/public/subscription' \
-    -d 'email=subsriber@domain.com' -d 'name=The Subscriber' -d 'l=eb420c55-4cfb-4972-92ba-c93c34ba475d' -d 'l=0c554cfb-eb42-4972-92ba-c93c34ba475d'
+    -d 'email=subscriber@domain.com' -d 'name=The Subscriber' -d 'l=eb420c55-4cfb-4972-92ba-c93c34ba475d' -d 'l=0c554cfb-eb42-4972-92ba-c93c34ba475d'
 ```
 
 Note: For form request, use `l` for multiple lists instead of `lists`.

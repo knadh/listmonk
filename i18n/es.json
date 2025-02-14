@@ -435,6 +435,8 @@
     "settings.mailserver.idleTimeoutHelp": "Tiempo máximo de espara a nueva actividad en una conexión antes de cerrarla y retirarla del pool de conexiones (s para segundos, m para minutos).",
     "settings.mailserver.maxConns": "Conexiones máximas",
     "settings.mailserver.maxConnsHelp": "Número máximo de conexiones concurrentes hacia el servidor SMTP.",
+    "settings.mailserver.name": "Nombre",
+    "settings.mailserver.nameHelp": "Nombre único opcional para el servidor SMTP. Debe tener el prefijo email-. Configurar esto permite seleccionar específicamente el servidor para una campaña, por ejemplo: email-primary-server. Alfanumérico / guión.",
     "settings.mailserver.password": "Contraseña",
     "settings.mailserver.passwordHelp": "Ingresar contraseña para cambiar",
     "settings.mailserver.port": "Puerto",
