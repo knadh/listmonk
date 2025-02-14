@@ -122,12 +122,12 @@ func initHTTPHandlers(e *echo.Echo, app *App) {
 	api.GET("/api/about", handleGetAboutInfo)
 
 	api.GET("/api/subscribers", pm(handleQuerySubscribers, "subscribers:get_all", "subscribers:get"))
-	api.GET("/api/subscribers/switch_list", handleAddAndRmList)
 	api.GET("/api/subscribers/:id", pm(handleGetSubscriber, "subscribers:get_all", "subscribers:get"))
 	api.GET("/api/subscribers/:id/export", pm(handleExportSubscriberData, "subscribers:get_all", "subscribers:get"))
 	api.GET("/api/subscribers/:id/bounces", pm(handleGetSubscriberBounces, "bounces:get"))
 	api.DELETE("/api/subscribers/:id/bounces", pm(handleDeleteSubscriberBounces, "bounces:manage"))
 	api.POST("/api/subscribers", pm(handleCreateSubscriber, "subscribers:manage"))
+	api.POST("/api/subscribers/switch_list", handleAddAndRmList)
 	api.PUT("/api/subscribers/:id", pm(handleUpdateSubscriber, "subscribers:manage"))
 	api.POST("/api/subscribers/:id/optin", pm(handleSubscriberSendOptin, "subscribers:manage"))
 	api.PUT("/api/subscribers/blocklist", pm(handleBlocklistSubscribers, "subscribers:manage"))
