@@ -651,11 +651,11 @@ export default Vue.extend({
     },
 
     emailMessengers() {
-      return ['email', ...this.serverConfig.messengers.filter((m) => m.startsWith('email /'))];
+      return ['email', ...this.serverConfig.messengers.filter((m) => m.startsWith('email-'))];
     },
 
     otherMessengers() {
-      return this.serverConfig.messengers.filter((m) => m !== 'email' && !m.startsWith('email /'));
+      return this.serverConfig.messengers.filter((m) => m !== 'email' && !m.startsWith('email-'));
     },
   },
 

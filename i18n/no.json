@@ -430,6 +430,7 @@
     "settings.mailserver.idleTimeoutHelp": "Tid å vente på ny aktivitet på en tilkobling før den lukkes og fjernes fra bassenget (s for sekunder, m for minutter).",
     "settings.mailserver.maxConns": "Maks. tilkoblinger",
     "settings.mailserver.maxConnsHelp": "Maksimalt antall samtidige tilkoblinger til serveren.",
+    "settings.mailserver.nameHelp": "Valgfritt unikt navn for SMTP-serveren. Må ha prefikset email-. Dette tillater at serveren kan spesifikt velges for en kampanje. For eksempel: email-primary-server. Alfanumerisk / bindestrek.",
     "settings.mailserver.password": "Passord",
     "settings.mailserver.passwordHelp": "Skriv inn for å endre",
     "settings.mailserver.port": "Port",

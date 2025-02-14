@@ -111,6 +111,10 @@ func handleUpdateSettings(c echo.Context) error {
 		// Sanitize and normalize the SMTP server name.
 		name := reAlphaNum.ReplaceAllString(strings.ToLower(strings.TrimSpace(s.Name)), "-")
 		if name != "" {
+			if !strings.HasPrefix(name, "email-") {
+				name = "email-" + name
+			}
+
 			if _, ok := names[name]; ok {
 				return echo.NewHTTPError(http.StatusBadRequest,
 					app.i18n.Ts("settings.duplicateMessengerName", "name", name))

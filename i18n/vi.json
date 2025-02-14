@@ -436,7 +436,7 @@
     "settings.mailserver.maxConns": "Tối đa kết nối",
     "settings.mailserver.maxConnsHelp": "Kết nối đồng thời tối đa đến máy chủ.",
     "settings.mailserver.name": "Tên",
-    "settings.mailserver.nameHelp": "Tên tùy chọn duy nhất cho máy chủ SMTP. Cài đặt này cho phép chọn riêng máy chủ cho một chiến dịch cụ thể. Ví dụ: primary-server. Chỉ cho phép ký tự chữ số / gạch ngang.",
+    "settings.mailserver.nameHelp": "Tên tùy chọn duy nhất cho máy chủ SMTP. Phải có tiền tố là email-. Thiết lập này cho phép chọn máy chủ cụ thể cho một chiến dịch. Ví dụ: email-primary-server. Chữ số, chữ cái / dấu gạch ngang.",
     "settings.mailserver.password": "Mật khẩu",
     "settings.mailserver.passwordHelp": "Nhập để thay đổi",
     "settings.mailserver.port": "Cổng",

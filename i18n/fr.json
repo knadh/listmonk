@@ -436,7 +436,7 @@
     "settings.mailserver.maxConns": "Nb. de connexions max.",
     "settings.mailserver.maxConnsHelp": "Nombre maximum de connexions simultanées au serveur SMTP",
     "settings.mailserver.name": "Nom",
-    "settings.mailserver.nameHelp": "Nom facultatif unique pour le serveur SMTP. Le définir permet de sélectionner spécifiquement ce serveur pour une campagne. Par exemple : primary-server. Alphanumérique / tiret.",
+    "settings.mailserver.nameHelp": "Nom facultatif unique pour le serveur SMTP. Doit avoir le préfixe email-. En le définissant, le serveur peut être spécifiquement sélectionné pour une campagne, par exemple email-primary-server. Alphanumérique / tiret.",
     "settings.mailserver.password": "Mot de passe",
     "settings.mailserver.passwordHelp": "Entrez un nouveau mot de passe si vous souhaitez le modifier",
     "settings.mailserver.port": "Port",

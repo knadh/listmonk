@@ -573,7 +573,7 @@ func initSMTPMessengers() []manager.Messenger {
 		// If the server has a name, initialize it as a standalone e-mail messenger
 		// allowing campaigns to select individual SMTPs. In the UI and config, it'll appear as `email / $name`.
 		if s.Name != "" {
-			msgr, err := email.New(fmt.Sprintf("%s / %s", email.MessengerName, s.Name), s)
+			msgr, err := email.New(s.Name, s)
 			if err != nil {
 				lo.Fatalf("error initializing e-mail messenger: %v", err)
 			}

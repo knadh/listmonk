@@ -435,7 +435,7 @@
     "settings.mailserver.maxConns": "Kapcsolatok",
     "settings.mailserver.maxConnsHelp": "Egyidejű kapcsolatok maximális száma.",
     "settings.mailserver.name": "Név",
-    "settings.mailserver.nameHelp": "Választható egyedi név az SMTP szerverhez. A beállítás lehetővé teszi, hogy a szervert kifejezetten egy kampányhoz válasszák ki. pl.: primary-server. Alfanumerikus karakterek / kötőjelek engedélyezettek.",
+    "settings.mailserver.nameHelp": "Opcionális egyedi név az SMTP kiszolgálóhoz. Az email- előtaggal kell rendelkeznie. A beállítás lehetővé teszi, hogy a kiszolgálót kifejezetten kiválasszák egy kampányhoz. Példa: email-fő-szerver. Alfanumerikus / kötőjeles karakterek engedélyezettek.",
     "settings.mailserver.password": "Jelszó",
     "settings.mailserver.passwordHelp": "írja be a jelszót",
     "settings.mailserver.port": "Port",

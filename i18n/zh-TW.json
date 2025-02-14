@@ -436,7 +436,7 @@
     "settings.mailserver.maxConns": "最大聯結數",
     "settings.mailserver.maxConnsHelp": "與伺服器的最高同時聯結數量。",
     "settings.mailserver.name": "姓名",
-    "settings.mailserver.nameHelp": "選填項目，SMTP 伺服器的唯一名稱。設定此項可讓伺服器針對特定活動進行選擇。例如：primary-server。僅支援字母、數字和破折號。",
+    "settings.mailserver.nameHelp": "SMTP 伺服器的選擇性獨特名稱。必須帶有 email- 前綴。設置此操作可以讓伺服器專門為某個活動進行選擇。例如：email-primary-server。只能使用字母、數字和短橫線字符。",
     "settings.mailserver.password": "密碼",
     "settings.mailserver.passwordHelp": "輸入以變更",
     "settings.mailserver.port": "連接埠",

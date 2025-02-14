@@ -436,7 +436,7 @@
     "settings.mailserver.maxConns": "Conexiuni maxime",
     "settings.mailserver.maxConnsHelp": "Conexiuni concurente maxime la server.",
     "settings.mailserver.name": "Nume",
-    "settings.mailserver.nameHelp": "Nume unic opțional pentru serverul SMTP. Setarea acestuia permite selectarea explicită a serverului pentru o campanie. de ex.: primary-server. Alfanumeric / cratimă.",
+    "settings.mailserver.nameHelp": "Nume unic opțional pentru serverul SMTP. Trebuie să aibă prefixul email-. Setarea aceasta permite selectarea explicită a serverului pentru o campanie. de exemplu: email-primary-server. Alfanumeric / cratimă.",
     "settings.mailserver.password": "Parola",
     "settings.mailserver.passwordHelp": "Introduceți pentru a modifica",
     "settings.mailserver.port": "Port",

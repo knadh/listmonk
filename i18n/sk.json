@@ -435,7 +435,7 @@
     "settings.mailserver.maxConns": "Maximálny počet spojení",
     "settings.mailserver.maxConnsHelp": "Maximálny počet súčasných spojení na server.",
     "settings.mailserver.name": "Meno",
-    "settings.mailserver.nameHelp": "Voliteľný jedinečný názov pre SMTP server. Nastavenie tohto umožňuje špecificky vybrať server pre kampaň. Napríklad: primary-server. Alfanumerické / pomlčka.",
+    "settings.mailserver.nameHelp": "Voliteľný jedinečný názov pre SMTP server. Musí mať predponu email-. Toto nastavenie umožňuje špecifický výber servera pre kampaň. Napríklad: email-primary-server. Alfanumerické / pomlčka.",
     "settings.mailserver.password": "Heslo",
     "settings.mailserver.passwordHelp": "Klávesou Enter zadajte zmenu",
     "settings.mailserver.port": "Port",

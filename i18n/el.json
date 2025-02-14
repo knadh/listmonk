@@ -431,7 +431,7 @@
     "settings.mailserver.maxConns": "Μέγιστες συνδέσεις",
     "settings.mailserver.maxConnsHelp": "Μέγιστες ταυτόχρονες συνδέσεις στο διακομιστή.",
     "settings.mailserver.name": "Ονομα",
-    "settings.mailserver.nameHelp": "Προαιρετικό μοναδικό όνομα για τον διακομιστή SMTP. Η ρύθμιση αυτή επιτρέπει την επιλογή συγκεκριμένου διακομιστή για μία καμπάνια. π.χ.: primary-server. Αλφαριθμητικά / παύλα.",
+    "settings.mailserver.nameHelp": "Προαιρετικό μοναδικό όνομα για τον διακομιστή SMTP. Πρέπει να έχει το πρόθεμα email-. Η οριστική ρύθμιση αυτής της τιμής επιτρέπει την επιλογή του διακομιστή συγκεκριμένα για μια καμπάνια. π.χ .: email-primary-server. Αλφαριθμητικό / παύλα.",
     "settings.mailserver.password": "Κωδικός πρόσβασης",
     "settings.mailserver.passwordHelp": "Enter για να το αλλάξετε",
     "settings.mailserver.port": "Θύρα",

@@ -436,7 +436,7 @@
     "settings.mailserver.maxConns": "最大接続数",
     "settings.mailserver.maxConnsHelp": "サーバーへの最大同時接続数。",
     "settings.mailserver.name": "名前",
-    "settings.mailserver.nameHelp": "SMTPサーバーの任意の一意の名前です。これを設定すると、キャンペーンごとにサーバーを特定のものに選択することができます。例：primary-server。英数字とダッシュのみ使用できます。",
+    "settings.mailserver.nameHelp": "SMTPサーバーのオプションの固有名。email-プレフィックスを付ける必要があります。これにより、キャンペーンに特定のサーバーを選択できます。例：email-primary-server。英数字/ダッシュ。",
     "settings.mailserver.password": "パスワード",
     "settings.mailserver.passwordHelp": "エンターで変更",
     "settings.mailserver.port": "ポート",

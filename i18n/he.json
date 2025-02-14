@@ -431,7 +431,7 @@
     "settings.mailserver.maxConns": "מקסימום חיבורים",
     "settings.mailserver.maxConnsHelp": "למספר החיבורים המרובים הממוקדים לשרת.",
     "settings.mailserver.name": "שֵׁם",
-    "settings.mailserver.nameHelp": "שם אופציונלי ייחודי עבור שרת SMTP. הגדרת זאת מאפשרת בחירה ממוקדת של השרת לקמפיין מסוים. לדוג' primary-server. מותרים אותיות ומקף.",
+    "settings.mailserver.nameHelp": "שם ייחודי אופציונלי עבור שרת SMTP. חייב להכיל את הקידומת email-. הגדרה זו מאפשרת לבחור את השרת למסע דואר מסוים. לדוגמה: email-primary-server. אותיות ומקף בלבד.",
     "settings.mailserver.password": "סיסמא",
     "settings.mailserver.passwordHelp": "יש להזין כדי לשנות",
     "settings.mailserver.port": "פורט",
