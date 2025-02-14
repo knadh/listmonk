@@ -435,7 +435,7 @@
     "settings.mailserver.maxConns": "Max. # connecties",
     "settings.mailserver.maxConnsHelp": "Maximum # concurrente connecties naar de server.",
     "settings.mailserver.name": "Naam",
-    "settings.mailserver.nameHelp": "Optionele unieke naam voor de SMTP-server. Het instellen hiervan maakt het mogelijk om specifiek voor een campagne een server te selecteren. Bijv .: primary-server. Alfanumeriek / streepje.",
+    "settings.mailserver.nameHelp": "Optionele unieke naam voor de SMTP-server. Moet de prefix 'email-' hebben. Deze instelling maakt het mogelijk om de server specifiek te selecteren voor een campagne. bv: email-primary-server. Alfanumeriek / streepje.",
     "settings.mailserver.password": "Wachtwoord",
     "settings.mailserver.passwordHelp": "Enter om te veranderen",
     "settings.mailserver.port": "Poort",

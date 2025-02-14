@@ -145,7 +145,7 @@
               <div class="column is-6">
                 <b-field :label="$t('globals.fields.name')" label-position="on-border"
                   :message="$t('settings.mailserver.nameHelp')">
-                  <b-input v-model="item.name" name="name" placeholder="" :maxlength="100" />
+                  <b-input v-model="item.name" name="name" placeholder="email-primary" :maxlength="100" />
                 </b-field>
               </div>
             </div>

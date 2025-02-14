@@ -435,7 +435,7 @@
     "settings.mailserver.maxConns": "പരമാവധി കണക്ഷനുകൾ",
     "settings.mailserver.maxConnsHelp": "SMTP സേർവ്വറിലേയ്ക്കുള്ള പരമാവധി സമാന്തര കണക്ഷനുകൾ.",
     "settings.mailserver.name": "പേര്",
-    "settings.mailserver.nameHelp": "SMTP സേവകത്തിന് ഐച്ഛികമായ അനന്യ പേര്. ഈ സര്‍വര്‍ ഒരു പ്രവര്‍ത്തനത്തിന് പ്രത്യേകം തിരഞ്ഞെടുക്കുന്നതിന് സാധാരണയായി അനുവദിക്കുന്നു. ഉദാ: പ്രധാന-സേവര്‍. അക്ഷരം / ഡാഷ് ഉപയോഗപ്പെടുന്നു.",
+    "settings.mailserver.nameHelp": "SMTP സെർവറിന് ഓപ്ഷണൽ യൂണിക് പേര്. പൂർവ്വപ്രത്യയത്തോടുക്ക് email- എന്ന പ്രത്യയം ഉണ്ടായിരിക്കുകയുണ്ടാക്കുന്നത് ഏറ്റവും നല്ല ക്യാമ്പെയിൻ വഴി സെർവറിനെ തിരഞ്ഞെടുക്കാൻ അനുവദിക്കും. ഉദാ: email-primary-server. അക്ഷരങ്ങളും / ഡാഷുകളും ഉണ്ടായിരിക്കാം.",
     "settings.mailserver.password": "രഹസ്യ കോഡ്‌",
     "settings.mailserver.passwordHelp": "മാറ്റം വരുത്താൻ എന്റർ കീ അമർത്തുക",
     "settings.mailserver.port": "പോർട്ട്",

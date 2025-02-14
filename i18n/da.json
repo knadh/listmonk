@@ -431,7 +431,7 @@
     "settings.mailserver.maxConns": "Maks. tilslutninger",
     "settings.mailserver.maxConnsHelp": "Maksimalt antal samtidige forbindelser til serveren.",
     "settings.mailserver.name": "Navn",
-    "settings.mailserver.nameHelp": "Valgfrit unikt navn til SMTP-serveren. Ved at angive dette kan serveren vælges specifikt til en kampagne. f.eks.: primær-server. Alfanumerisk / bindestreg.",
+    "settings.mailserver.nameHelp": "Valgfri unikt navn til SMTP-serveren. Skal have præfixet email-. På denne måde kan serveren vælges specifikt til en kampagne. Eksempelvis: email-primary-server. Alfanumerisk / bindestreg.",
     "settings.mailserver.password": "Kodeord",
     "settings.mailserver.passwordHelp": "Indtast for at ændre",
     "settings.mailserver.port": "Port",

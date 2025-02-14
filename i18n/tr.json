@@ -436,7 +436,7 @@
     "settings.mailserver.maxConns": "Maksimum bağlantı sayısı",
     "settings.mailserver.maxConnsHelp": "SMTP sunucusuna aynı anda gönderilecek çoklu istek sayısı.",
     "settings.mailserver.name": "İsim",
-    "settings.mailserver.nameHelp": "SMTP sunucusu için isteğe bağlı benzersiz ad. Bu ayar, kampanya için özel olarak seçilebilecek sunucunun belirlenmesine olanak sağlar. Örnek: primary-server. Alfanumerik / tire.",
+    "settings.mailserver.nameHelp": "SMTP sunucusu için isteğe bağlı benzersiz bir isim. email- ön ekine sahip olmalıdır. Bu ayarı yapmak, sunucunun belirli bir kampanya için özellikle seçilmesine izin verir. Örneğin: email-primary-server. Alfanümerik / tire işareti kullanılmalıdır.",
     "settings.mailserver.password": "Parola",
     "settings.mailserver.passwordHelp": "Değiştirmek için giriniz",
     "settings.mailserver.port": "Bağlantı Noktası",

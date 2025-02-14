@@ -435,7 +435,7 @@
     "settings.mailserver.maxConns": "Maksimiyhteydet",
     "settings.mailserver.maxConnsHelp": "Kerralla samaan aikaan avoimet yhteydet palvelimeen.",
     "settings.mailserver.name": "Nimi",
-    "settings.mailserver.nameHelp": "Vaihtoehtoinen uniikki nimi SMTP-palvelimelle. Tämän asettaminen mahdollistaa palvelimen erityisen valinnan kampanjalle. Esim: primary-server. Aakkosnumeeriset / viivalla erotetut merkit.",
+    "settings.mailserver.nameHelp": "Valinnainen ainutlaatuinen nimi SMTP-palvelimelle. Nimen tulee alkaa email- etuliitteellä. Tämän asetuksen avulla palvelin voidaan valita erityisesti kampanjaan. Esim. email-primary-server. Aakkosnumeeriset merkit / väliviiva sallittuja.",
     "settings.mailserver.password": "Salasana",
     "settings.mailserver.passwordHelp": "Syötä muuttaaksesi",
     "settings.mailserver.port": "Portti",
