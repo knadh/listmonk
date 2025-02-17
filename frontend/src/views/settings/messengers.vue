@@ -118,7 +118,7 @@ export default Vue.extend({
         password: '',
         max_conns: 25,
         max_msg_retries: 2,
-        retry_delay: 15s,
+        retry_delay: '15s',
         timeout: '5s',
       });
 
