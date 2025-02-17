@@ -540,6 +540,8 @@
     "settings.smtp.name": "SMTP",
     "settings.smtp.retries": "Retries",
     "settings.smtp.retriesHelp": "Number of times to retry when a message fails.",
+    "settings.smtp.retryDelay": "Retry delay",
+    "settings.smtp.retryDelayHelp": "Time to wait between retries.",
     "settings.smtp.sendTest": "Send e-mail",
     "settings.smtp.setCustomHeaders": "Set custom headers",
     "settings.smtp.testConnection": "Test connection",
