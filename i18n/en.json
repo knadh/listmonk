@@ -474,6 +474,8 @@
     "settings.messengers.password": "Password",
     "settings.messengers.retries": "Retries",
     "settings.messengers.retriesHelp": "Number of times to retry when a message fails.",
+    "settings.messengers.retryDelay": "Retry delay",
+    "settings.messengers.retryDelayHelp": "Time to wait between retries.",
     "settings.messengers.skipTLSHelp": "Skip hostname check on the TLS certificate.",
     "settings.messengers.timeout": "Idle timeout",
     "settings.messengers.timeoutHelp": "Time to wait for new activity on a connection before closing it and removing it from the pool (s for second, m for minute).",
