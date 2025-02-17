@@ -190,6 +190,19 @@ func (e *Emailer) Flush() error {
 	return nil
 }
 
+// Retrieve the retry delay from the configuration
+retryDelay := time.Duration(config.RetryDelay) * time.Second
+
+// Implement retry logic
+var err error
+for i := 0; i < maxRetries; i++ {
+    err = sendSMTPMail(...)
+    if err == nil {
+        break
+    }
+    time.Sleep(retryDelay) // Wait for the retry delay before the next attempt
+}
+
 // Close closes the SMTP pools.
 func (e *Emailer) Close() error {
 	for _, s := range e.servers {
