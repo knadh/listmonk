@@ -100,3 +100,12 @@ func (c *Core) DeleteBounces(ids []int) error {
 	}
 	return nil
 }
+
+func (c *Core) BlocklistSubscriberBounces(ids []int) error {
+	if _, err := c.q.BlocklistSubscribersByBounces.Exec(pq.Array(ids)); err != nil {
+		c.log.Printf("error blocklisting subscribers by bounces: %v", err)
+		return echo.NewHTTPError(http.StatusInternalServerError,
+			c.i18n.Ts("globals.messages.errorUpdating", "name", "{globals.terms.bounce}", "error", pqErrMsg(err)))
+	}
+	return nil
+}
