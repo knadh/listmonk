@@ -106,7 +106,7 @@ func handleQuerySubscribers(c echo.Context) error {
 	)
 
 	// Filter list IDs by permission.
-	listIDs, err := filterListQeryByPerm(c.QueryParams(), user, app)
+	listIDs, err := filterListQueryByPerm(c.QueryParams(), user, app)
 	if err != nil {
 		return err
 	}
@@ -136,7 +136,7 @@ func handleExportSubscribers(c echo.Context) error {
 	)
 
 	// Filter list IDs by permission.
-	listIDs, err := filterListQeryByPerm(c.QueryParams(), user, app)
+	listIDs, err := filterListQueryByPerm(c.QueryParams(), user, app)
 	if err != nil {
 		return err
 	}
@@ -710,7 +710,7 @@ func hasSubPerm(u models.User, subIDs []int, app *App) error {
 	return nil
 }
 
-func filterListQeryByPerm(qp url.Values, user models.User, app *App) ([]int, error) {
+func filterListQueryByPerm(qp url.Values, user models.User, app *App) ([]int, error) {
 	var listIDs []int
 
 	// If there are incoming list query params, filter them by permission.
