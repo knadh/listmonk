@@ -1,4 +1,13 @@
+basePath: /api
+host: localhost
 info:
-  contact: {}
+  contact:
+    url: https://github.com/knadh/listmonk/discussions
+  description: Self-hosted newsletter and mailing list manager
+  license:
+    name: GNU AFFERO GENERAL PUBLIC LICENSE
+    url: https://github.com/knadh/listmonk/blob/master/LICENSE
+  title: Listmonk API
+  version: "0.0"
 paths: {}
 swagger: "2.0"

@@ -179,16 +179,14 @@ func init() {
 // @license.name GNU AFFERO GENERAL PUBLIC LICENSE
 // @license.url https://github.com/knadh/listmonk/blob/master/LICENSE
 
-// @host petstore.swagger.io
-// @BasePath /v2
+// @host localhost
+// @BasePath /api
 func main() {
 	// programmatically set swagger info
-	docs.SwaggerInfo.Title = "Listmonk API"
-	docs.SwaggerInfo.Description = "This is a sample server Petstore server." // TODO
 	docs.SwaggerInfo.Version = buildString
-	docs.SwaggerInfo.Host = "petstore.swagger.io"        // TODO
-	docs.SwaggerInfo.BasePath = "/v2"                    // TODO
-	docs.SwaggerInfo.Schemes = []string{"http", "https"} // TODO
+	docs.SwaggerInfo.BasePath = apiPath
+	docs.SwaggerInfo.Host = "localhost"                  // TODO: set to current listmonk exposed host
+	docs.SwaggerInfo.Schemes = []string{"http", "https"} // TODO set to current listmonk exposed schemes
 
 	// Initialize the main app controller that wraps all of the app's
 	// components. This is passed around HTTP handlers.
