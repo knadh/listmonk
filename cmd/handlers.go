@@ -6,11 +6,14 @@ import (
 	"net/url"
 	"path"
 	"regexp"
+	"strings"
 
 	"github.com/knadh/listmonk/internal/auth"
 	"github.com/knadh/paginator"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	echoSwagger "github.com/swaggo/echo-swagger"
+	_ "github.com/swaggo/echo-swagger/example/docs"
 )
 
 const (
@@ -61,6 +64,10 @@ func initHTTPHandlers(e *echo.Echo, app *App) {
 		}
 		e.DefaultHTTPErrorHandler(err, c)
 	}
+
+	// start swagger
+	e.GET("/swagger/*", echoSwagger.WrapHandler)
+	e.Logger.Fatal(e.Start(":1323"))
 
 	var (
 		// Authenticated /api/* handlers.
@@ -147,7 +154,12 @@ func initHTTPHandlers(e *echo.Echo, app *App) {
 	api.PUT("/api/subscribers/query/blocklist", pm(handleBlocklistSubscribersByQuery, "subscribers:manage"))
 	api.PUT("/api/subscribers/query/lists", pm(handleManageSubscriberListsByQuery, "subscribers:manage"))
 	api.GET("/api/subscribers/export",
-		pm(middleware.GzipWithConfig(middleware.GzipConfig{Level: 9})(handleExportSubscribers), "subscribers:get_all", "subscribers:get"))
+		pm(middleware.GzipWithConfig(middleware.GzipConfig{
+			Level: 9,
+			// required by https://github.com/swaggo/echo-swagger?tab=readme-ov-file#example
+			Skipper: func(c echo.Context) bool {
+				return strings.Contains(c.Request().URL.Path, "swagger")
+			}})(handleExportSubscribers), "subscribers:get_all", "subscribers:get"))
 
 	api.GET("/api/import/subscribers", pm(handleGetImportSubscribers, "subscribers:import"))
 	api.GET("/api/import/subscribers/logs", pm(handleGetImportSubscriberStats, "subscribers:import"))

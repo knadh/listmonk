@@ -28,6 +28,8 @@ import (
 	"github.com/knadh/listmonk/models"
 	"github.com/knadh/paginator"
 	"github.com/knadh/stuffbin"
+
+	docs "github.com/knadh/listmonk/docs/swagger"
 )
 
 const (
@@ -168,7 +170,26 @@ func init() {
 	queries = prepareQueries(qMap, db, ko)
 }
 
+// @title Listmonk API
+// @version 0.0
+// @description Self-hosted newsletter and mailing list manager
+
+// @contact.url https://github.com/knadh/listmonk/discussions
+
+// @license.name GNU AFFERO GENERAL PUBLIC LICENSE
+// @license.url https://github.com/knadh/listmonk/blob/master/LICENSE
+
+// @host petstore.swagger.io
+// @BasePath /v2
 func main() {
+	// programmatically set swagger info
+	docs.SwaggerInfo.Title = "Listmonk API"
+	docs.SwaggerInfo.Description = "This is a sample server Petstore server." // TODO
+	docs.SwaggerInfo.Version = buildString
+	docs.SwaggerInfo.Host = "petstore.swagger.io"        // TODO
+	docs.SwaggerInfo.BasePath = "/v2"                    // TODO
+	docs.SwaggerInfo.Schemes = []string{"http", "https"} // TODO
+
 	// Initialize the main app controller that wraps all of the app's
 	// components. This is passed around HTTP handlers.
 	app := &App{
