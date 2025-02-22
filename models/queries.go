@@ -69,6 +69,7 @@ type Queries struct {
 	// are interpolated and copied to view and click counts. Same query, different tables.
 	GetCampaignAnalyticsCounts string     `query:"get-campaign-analytics-counts"`
 	GetCampaignViewCounts      *sqlx.Stmt `query:"get-campaign-view-counts"`
+	GetCampaignIndividualViews *sqlx.Stmt `query:"get-individual-campaign-views"`
 	GetCampaignClickCounts     *sqlx.Stmt `query:"get-campaign-click-counts"`
 	GetCampaignLinkCounts      *sqlx.Stmt `query:"get-campaign-link-counts"`
 	GetCampaignBounceCounts    *sqlx.Stmt `query:"get-campaign-bounce-counts"`

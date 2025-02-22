@@ -1251,3 +1251,7 @@ UPDATE roles SET name=$2, permissions=$3 WHERE id=$1 and parent_id IS NULL RETUR
 
 -- name: delete-role
 DELETE FROM roles WHERE id=$1;
+
+
+-- name: get-individual-campaign-views
+SELECT campaign_id, sname as name, email, sstatus as status from campaigns inner join (select subs.name as sname, email, subs.status as sstatus, cpv.id as campaign_id from campaign_views as cpv right join subscribers as subs on cpv.subscriber_id = subs.id) on campaign_id = id;

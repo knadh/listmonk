@@ -373,6 +373,16 @@ func (c *Core) GetCampaignAnalyticsCounts(campIDs []int, typ, fromDate, toDate s
 	return out, nil
 }
 
+func (c *Core) GetCampaignIndividualViews(campIDs []int, fromDate, toDate string) ([]models.CampaignIndividualViews, error) {
+    out := []models.CampaignIndividualViews{}
+    if err := c.q.GetCampaignIndividualViews.Select(&out); err != nil{
+        c.log.Printf("error fetching campaign: %v", err)
+        return nil, echo.NewHTTPError(http.StatusInternalServerError,
+            c.i18n.Ts("globals.messages.errorFetching", "name", "{globals.terms.analytics}", "error", pqErrMsg(err)))
+    }
+    return out, nil
+}
+
 // GetCampaignAnalyticsLinks returns link click analytics for the given campaign IDs.
 func (c *Core) GetCampaignAnalyticsLinks(campIDs []int, typ, fromDate, toDate string) ([]models.CampaignAnalyticsLink, error) {
 	out := []models.CampaignAnalyticsLink{}

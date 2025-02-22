@@ -166,6 +166,7 @@ func initHTTPHandlers(e *echo.Echo, app *App) {
 	api.GET("/api/campaigns/running/stats", pm(handleGetRunningCampaignStats, "campaigns:get"))
 	api.GET("/api/campaigns/:id", pm(handleGetCampaign, "campaigns:get"))
 	api.GET("/api/campaigns/analytics/:type", pm(handleGetCampaignViewAnalytics, "campaigns:get_analytics"))
+	api.GET("/api/campaigns/analytics/individual_views", pm(handleGetCampaignIndividualViews, "campaigns:get_indiv_cpg"))
 	api.GET("/api/campaigns/:id/preview", pm(handlePreviewCampaign, "campaigns:get"))
 	api.POST("/api/campaigns/:id/preview", pm(handlePreviewCampaign, "campaigns:get"))
 	api.POST("/api/campaigns/:id/content", pm(handleCampaignContent, "campaigns:manage"))

@@ -292,6 +292,24 @@ export const getCampaignViewCounts = async (params) => http.get(
   { params, loading: models.campaigns },
 );
 
+export const getIndividualCampaignViews = async (params) => http.get(
+  '/api/campaigns/analytics/individual_views',
+  { params, loading: models.campaigns },
+)
+  .then((response) => {
+    console.info('API Response:', response); // Changed to console.info
+    return response;
+  })
+  .catch((error) => {
+    console.error('API Error:', error);
+    throw error;
+  });
+
+// export const getIndividualCampaignViews = async (params) => http.get(
+//   '/api/campaigns/analytics/individual_views?email=akshatdev2711@gmail.com',
+//   { params, loading: models.campaigns },
+// );
+
 export const getCampaignClickCounts = async (params) => http.get(
   '/api/campaigns/analytics/clicks',
   { params, loading: models.campaigns },
@@ -305,7 +323,15 @@ export const getCampaignBounceCounts = async (params) => http.get(
 export const getCampaignLinkCounts = async (params) => http.get(
   '/api/campaigns/analytics/links',
   { params, loading: models.campaigns },
-);
+)
+  .then((response) => {
+    console.info('API Response Link clicks:', response); // Changed to console.info
+    return response;
+  })
+  .catch((error) => {
+    console.error('API Error:', error);
+    throw error;
+  });
 
 export const convertCampaignContent = async (data) => http.post(
   `/api/campaigns/${data.id}/content`,
