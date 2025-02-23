@@ -283,14 +283,14 @@ func installSuperAdminUsers(username, password string, q *models.Queries, create
 		lo.Fatalf("error creating super admin role: %v", err)
 	}
 
-	if _, err := q.CreateUser.Exec(username, true, password, username+"@listmonk", username, "user", 1, nil, "enabled"); err != nil {
+	if _, err := q.CreateUser.Exec(username, true, password, username+"@listmonk", username, models.UserTypeUser, 1, nil, "enabled"); err != nil {
 		lo.Fatalf("error creating superadmin user: %v", err)
 	}
 
 	//
 	if createApiUser {
 		username := username + "_api"
-		if _, err := q.CreateUser.Exec(username, true, password, username+"@listmonk", username, "api", 1, nil, "enabled"); err != nil {
+		if _, err := q.CreateUser.Exec(username, false, password, username+"@listmonk", username, models.UserTypeAPI, 1, nil, "enabled"); err != nil {
 			lo.Fatalf("error creating superadmin API user: %v", err)
 		}
 	}
