@@ -74,8 +74,9 @@ func install(lastVer string, db *sqlx.DB, fs stuffbin.FileSystem, prompt, idempo
 
 	// Setup the user optionally.
 	var (
-		user     = os.Getenv("LISTMONK_ADMIN_USER")
-		password = os.Getenv("LISTMONK_ADMIN_PASSWORD")
+		user          = os.Getenv("LISTMONK_ADMIN_USER")
+		password      = os.Getenv("LISTMONK_ADMIN_PASSWORD")
+		createApiUser = os.Getenv("LISTMONK_ADMIN_API_ENABLED")
 	)
 	if user != "" && password != "" {
 		if len(user) < 3 || len(password) < 8 {
@@ -83,7 +84,7 @@ func install(lastVer string, db *sqlx.DB, fs stuffbin.FileSystem, prompt, idempo
 		}
 
 		lo.Printf("creating Super Admin user '%s'", user)
-		installUser(user, password, q)
+		installSuperAdminUsers(user, password, q, createApiUser != "")
 	} else {
 		lo.Printf("no Super Admin user created. Visit webpage to create user.")
 	}
@@ -269,7 +270,7 @@ func checkSchema(db *sqlx.DB) (bool, error) {
 	return true, nil
 }
 
-func installUser(username, password string, q *models.Queries) {
+func installSuperAdminUsers(username, password string, q *models.Queries, createApiUser bool) {
 	consts := initConstants()
 
 	// Super admin role.
@@ -284,5 +285,13 @@ func installUser(username, password string, q *models.Queries) {
 
 	if _, err := q.CreateUser.Exec(username, true, password, username+"@listmonk", username, "user", 1, nil, "enabled"); err != nil {
 		lo.Fatalf("error creating superadmin user: %v", err)
+	}
+
+	//
+	if createApiUser {
+		username := username + "_api"
+		if _, err := q.CreateUser.Exec(username, true, password, username+"@listmonk", username, "api", 1, nil, "enabled"); err != nil {
+			lo.Fatalf("error creating superadmin API user: %v", err)
+		}
 	}
 }
