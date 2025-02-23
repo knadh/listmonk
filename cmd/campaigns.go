@@ -513,6 +513,115 @@ func handleGetCampaignViewAnalytics(c echo.Context) error {
 		return err
 	}
 
+
+	return c.JSON(http.StatusOK, okResp{out})
+}
+
+func handleGetCampaignIndividualViews(c echo.Context) error{
+	var (
+		app = c.Get("app").(*App)
+
+		// typ  = c.Param("type")
+		from = c.QueryParams().Get("from")
+		to   = c.QueryParams().Get("to")
+	)
+
+    ids, err := parseStringIDs(c.Request().URL.Query()["id"])
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest,
+			app.i18n.Ts("globals.messages.errorInvalidIDs", "error", err.Error()))
+	}
+
+	if len(ids) == 0 {
+		return echo.NewHTTPError(http.StatusBadRequest,
+			app.i18n.Ts("globals.messages.missingFields", "name", "`id`"))
+	}
+
+	if !strHasLen(from, 10, 30) || !strHasLen(to, 10, 30) {
+		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("analytics.invalidDates"))
+	}
+
+
+
+	// View, click, bounce stats.
+	out, err := app.core.GetCampaignIndividualViews(ids, from, to)
+	if err != nil {
+		return err
+	}
+
+
+	return c.JSON(http.StatusOK, okResp{out})
+}
+
+func handleGetCampaignIndividualLinkClicks(c echo.Context) error{
+	var (
+		app = c.Get("app").(*App)
+
+		// typ  = c.Param("type")
+		from = c.QueryParams().Get("from")
+		to   = c.QueryParams().Get("to")
+	)
+
+    ids, err := parseStringIDs(c.Request().URL.Query()["id"])
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest,
+			app.i18n.Ts("globals.messages.errorInvalidIDs", "error", err.Error()))
+	}
+
+	if len(ids) == 0 {
+		return echo.NewHTTPError(http.StatusBadRequest,
+			app.i18n.Ts("globals.messages.missingFields", "name", "`id`"))
+	}
+
+	if !strHasLen(from, 10, 30) || !strHasLen(to, 10, 30) {
+		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("analytics.invalidDates"))
+	}
+
+
+
+	// View, click, bounce stats.
+	out, err := app.core.GetCampaignIndividualLinkClicks(ids, from, to)
+	if err != nil {
+		return err
+	}
+
+
+	return c.JSON(http.StatusOK, okResp{out})
+}
+
+func handleGetCampaignIndividualLinkClicksUsers(c echo.Context) error{
+	var (
+		app = c.Get("app").(*App)
+
+		// typ  = c.Param("type")
+		from = c.QueryParams().Get("from")
+		to   = c.QueryParams().Get("to")
+	)
+
+    ids, err := parseStringIDs(c.Request().URL.Query()["id"])
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest,
+			app.i18n.Ts("globals.messages.errorInvalidIDs", "error", err.Error()))
+	}
+
+	if len(ids) == 0 {
+		return echo.NewHTTPError(http.StatusBadRequest,
+			app.i18n.Ts("globals.messages.missingFields", "name", "`id`"))
+	}
+
+	if !strHasLen(from, 10, 30) || !strHasLen(to, 10, 30) {
+		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("analytics.invalidDates"))
+	}
+
+
+
+	// View, click, bounce stats.
+	out, err := app.core.GetCampaignAllIndividualClickUsers(ids, from, to)
+	if err != nil {
+		return err
+	}
+
+
 	return c.JSON(http.StatusOK, okResp{out})
 }
 

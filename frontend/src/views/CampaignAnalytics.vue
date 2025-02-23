@@ -64,6 +64,59 @@
           </div>
         </div>
       </div>
+      <!-- Individual Campaign Views -->
+      <div class="mt-5">
+        <h4>
+          Individual Campaign Views
+        </h4>
+        <button type="button" class="button is-primary mb-3" @click="exportToCSV(`table-individual-views`)">
+          Export to CSV
+        </button>
+        <table class="table is-striped is-fullwidth" :id="`table-individual-views`">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(item, index) of tables.individualViews.data" :key="index">
+              <!-- <td>{{ item.campaign_id }}</td> -->
+              <td>{{ item.name }}</td>
+              <td>{{ item.email }}</td>
+              <td>Subscribed</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <!-- Individual link clicks -->
+      <div class="mt-5">
+        <h4>
+          Individual Link Clicks
+        </h4>
+        <button type="button" class="button is-primary mb-3 outline" @click="exportToCSV_NOTAB(tables.individualClickUsers.data)">
+          Export to CSV
+        </button>
+        <table class="table is-striped is-fullwidth" :id="`table-individual-clicks`">
+          <thead>
+            <tr>
+              <th>Link</th>
+              <th>Total Clicks</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(item, index) of tables.individualClicks.data" :key="index">
+              <!-- <td>{{ item.campaign_id }}</td> -->
+              <td>{{ item.url }}</td>
+              <td>{{ item.clickCount }}</td>
+              <td />
+              <!-- <td>Subscribed</td> -->
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </section>
   </section>
 </template>
@@ -105,6 +158,24 @@ export default Vue.extend({
         links: 0,
       },
       urls: [],
+      tables: {
+        individualViews: {
+          name: this.$t('campaign.individual_views'),
+          fn: this.$api.getIndividualCampaignViews,
+          data: [],
+        },
+        individualClicks: {
+          name: this.$t('campaign.individual_clicks'),
+          fn: this.$api.getIndividualCampaignLinkClicks,
+          data: [],
+        },
+        individualClickUsers: {
+          name: this.$t('campaign.individual_clicks_users'),
+          fn: this.$api.getIndividualCampaignLinkClickUsers,
+          data: [],
+        },
+      },
+
       charts: {
         views: {
           name: this.$t('campaigns.views'),
@@ -282,11 +353,77 @@ export default Vue.extend({
       });
     },
 
+    getTableData(typ, camps) {
+      // Call the HTTP API.
+      console.log('in getTableData', typ, camps);
+      this.tables[typ].fn({
+        id: camps.map((c) => c.id),
+        from: this.form.from,
+        to: this.form.to,
+      }).then((data) => {
+        this.tables[typ].data = data;
+      });
+    },
+
     onLinkClick(e) {
       const bars = e.chart.getElementsAtEventForMode(e, 'nearest', { intersect: true }, true);
       if (bars.length > 0) {
         window.open(this.urls[bars[0].index], '_blank', 'noopener noreferrer');
       }
+    },
+
+    exportToCSV_NOTAB(data) {
+      if (!data || data.length === 0) return;
+
+      let csvContent = 'data:text/csv;charset=utf-8,';
+
+      // Extract headers (keys from first object)
+      const headers = Object.keys(data[0]);
+      csvContent += `${headers.join(',')}\n`;
+
+      // Add data rows
+      data.forEach((row) => {
+        const rowData = headers.map((field) => JSON.stringify(row[field] || '')); // Handle undefined/null
+        csvContent += `${rowData.join(',')}\n`;
+      });
+
+      // Encode CSV content
+      const encodedUri = encodeURI(csvContent);
+
+      // Create a temporary download link
+      const link = document.createElement('a');
+      link.setAttribute('href', encodedUri);
+      link.setAttribute('download', 'data.csv');
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    },
+
+    exportToCSV(tableName) {
+      const table = document.getElementById(tableName); // Assuming your table has id "myTable"
+      let csvContent = 'data:text/csv;charset=utf-8,';
+
+      const headers = Array.from(table.querySelectorAll('thead th'))
+        .map((th) => th.textContent.trim())
+        .join(',');
+
+      csvContent += `${headers}\n`;
+
+      console.log('Table name->', tableName);
+
+      const csvData = Array.from(table.querySelectorAll('tr'))
+        .map((row) => Array.from(row.querySelectorAll('td'))
+          .map((cell) => cell.textContent)
+          .join(','))
+        .join('\n');
+
+      const encodedUri = csvContent + encodeURI(csvData);
+      const link = document.createElement('a');
+      link.setAttribute('href', encodedUri);
+      link.setAttribute('download', `${tableName}_export.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
     },
   },
 
@@ -307,6 +444,7 @@ export default Vue.extend({
     // Fetch one or more campaigns if there are ?id params, wait for the fetches
     // to finish, add them to the campaign selector and submit the form.
     const ids = this.$utils.parseQueryIDs(this.$route.query.id);
+    // this.loadIndividualClicks();
     if (ids.length > 0) {
       this.isSearchLoading = true;
       Promise.allSettled(ids.map((id) => this.$api.getCampaign(id))).then((data) => {
@@ -330,6 +468,11 @@ export default Vue.extend({
 
             // Fetch views, clicks, bounces for every campaign.
             this.getData(k, this.form.campaigns);
+          });
+
+          Object.keys(this.tables).forEach((k) => {
+            console.log(k);
+            this.getTableData(k, this.form.campaigns);
           });
         });
       });
