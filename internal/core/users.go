@@ -47,7 +47,7 @@ func (c *Core) CreateUser(u models.User) (models.User, error) {
 	// and set the e-mail to default.
 	if u.Type == models.UserTypeAPI {
 		// Generate a random admin password.
-		tk, err := utils.GenerateRandomString(32)
+		tk, err := utils.GenerateRandomString(models.ApiUserTokenSize)
 		if err != nil {
 			return models.User{}, err
 		}

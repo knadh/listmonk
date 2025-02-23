@@ -33,9 +33,9 @@ services:
       LISTMONK_db__max_idle: 25
       LISTMONK_db__max_lifetime: 300s
       TZ: Etc/UTC
-      LISTMONK_ADMIN_USER: ${LISTMONK_ADMIN_USER:-}                 # If these (optional) are set during the first `docker compose up`, then the Super Admin user is automatically created.
-      LISTMONK_ADMIN_PASSWORD: ${LISTMONK_ADMIN_PASSWORD:-}         # Otherwise, the user can be setup on the web app after the first visit to http://localhost:9000
-      LISTMONK_ADMIN_API_ENABLED: ${LISTMONK_ADMIN_API_ENABLED:-}   # if defined, "${LISTMONK_ADMIN_USER}_api" username will be created with granted access to API, with same password
+      LISTMONK_ADMIN_USER: ${LISTMONK_ADMIN_USER:-}             # If these (optional) are set during the first `docker compose up`, then the Super Admin user is automatically created.
+      LISTMONK_ADMIN_PASSWORD: ${LISTMONK_ADMIN_PASSWORD:-}     # Otherwise, the user can be setup on the web app after the first visit to http://localhost:9000
+      LISTMONK_ADMIN_API_TOKEN: ${LISTMONK_ADMIN_API_TOKEN:-}   # If defined, "${LISTMONK_ADMIN_USER}_api" username will be created with granted access to API. Needs to be exactly 32 characters, as per database specifications
     volumes:
       - ./uploads:/listmonk/uploads:rw                        # Mount an uploads directory on the host to /listmonk/uploads inside the container.
                                                               # To use this, change directory path in Admin -> Settings -> Media to /listmonk/uploads

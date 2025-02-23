@@ -61,6 +61,9 @@ const (
 	UserStatusEnabled  = "enabled"
 	UserStatusDisabled = "disabled"
 
+	//
+	ApiUserTokenSize = 32
+
 	// Role.
 	RoleTypeUser = "user"
 	RoleTypeList = "list"
