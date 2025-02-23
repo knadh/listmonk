@@ -64,14 +64,15 @@
           </div>
         </div>
       </div>
-      <div class="mt-5" v-for="(v, k) in tables" :key="k">
-        <h4 v-if="v.chart !== null">
-            {{ v.name }}
+      <!-- Individual Campaign Views -->
+      <div class="mt-5">
+        <h4>
+          Individual Campaign Views
         </h4>
-        <button type="button" class="button is-primary mb-3" @click="exportToCSV(v.data, `table-${k}`)">
+        <button type="button" class="button is-primary mb-3" @click="exportToCSV(`table-individual-views`)">
           Export to CSV
         </button>
-        <table class="table is-striped is-fullwidth" :id="`table-${k}`">
+        <table class="table is-striped is-fullwidth" :id="`table-individual-views`">
           <thead>
             <tr>
               <th>Name</th>
@@ -80,11 +81,38 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(item, index) of v.data" :key="index">
+            <tr v-for="(item, index) of tables.individualViews.data" :key="index">
               <!-- <td>{{ item.campaign_id }}</td> -->
               <td>{{ item.name }}</td>
               <td>{{ item.email }}</td>
               <td>Subscribed</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <!-- Individual link clicks -->
+      <div class="mt-5">
+        <h4>
+          Individual Link Clicks
+        </h4>
+        <button type="button" class="button is-primary mb-3 outline" @click="exportToCSV_NOTAB(tables.individualClickUsers.data)">
+          Export to CSV
+        </button>
+        <table class="table is-striped is-fullwidth" :id="`table-individual-clicks`">
+          <thead>
+            <tr>
+              <th>Link</th>
+              <th>Total Clicks</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(item, index) of tables.individualClicks.data" :key="index">
+              <!-- <td>{{ item.campaign_id }}</td> -->
+              <td>{{ item.url }}</td>
+              <td>{{ item.clickCount }}</td>
+              <td />
+              <!-- <td>Subscribed</td> -->
             </tr>
           </tbody>
         </table>
@@ -131,9 +159,19 @@ export default Vue.extend({
       },
       urls: [],
       tables: {
-        individualClicks: {
+        individualViews: {
           name: this.$t('campaign.individual_views'),
           fn: this.$api.getIndividualCampaignViews,
+          data: [],
+        },
+        individualClicks: {
+          name: this.$t('campaign.individual_clicks'),
+          fn: this.$api.getIndividualCampaignLinkClicks,
+          data: [],
+        },
+        individualClickUsers: {
+          name: this.$t('campaign.individual_clicks_users'),
+          fn: this.$api.getIndividualCampaignLinkClickUsers,
           data: [],
         },
       },
@@ -334,9 +372,34 @@ export default Vue.extend({
       }
     },
 
-    exportToCSV(data, tableName) {
+    exportToCSV_NOTAB(data) {
       if (!data || data.length === 0) return;
 
+      let csvContent = 'data:text/csv;charset=utf-8,';
+
+      // Extract headers (keys from first object)
+      const headers = Object.keys(data[0]);
+      csvContent += `${headers.join(',')}\n`;
+
+      // Add data rows
+      data.forEach((row) => {
+        const rowData = headers.map((field) => JSON.stringify(row[field] || '')); // Handle undefined/null
+        csvContent += `${rowData.join(',')}\n`;
+      });
+
+      // Encode CSV content
+      const encodedUri = encodeURI(csvContent);
+
+      // Create a temporary download link
+      const link = document.createElement('a');
+      link.setAttribute('href', encodedUri);
+      link.setAttribute('download', 'data.csv');
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    },
+
+    exportToCSV(tableName) {
       const table = document.getElementById(tableName); // Assuming your table has id "myTable"
       let csvContent = 'data:text/csv;charset=utf-8,';
 

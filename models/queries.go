@@ -70,6 +70,8 @@ type Queries struct {
 	GetCampaignAnalyticsCounts string     `query:"get-campaign-analytics-counts"`
 	GetCampaignViewCounts      *sqlx.Stmt `query:"get-campaign-view-counts"`
 	GetCampaignIndividualViews *sqlx.Stmt `query:"get-individual-campaign-views"`
+	GetIndividualLinkClicks    *sqlx.Stmt `query:"get-individual-link-clicks"`
+	GetIndividualLinksClicksPerLinkPerUser *sqlx.Stmt `query:"get-individual-link-clicks-user-data-single-link"`
 	GetCampaignClickCounts     *sqlx.Stmt `query:"get-campaign-click-counts"`
 	GetCampaignLinkCounts      *sqlx.Stmt `query:"get-campaign-link-counts"`
 	GetCampaignBounceCounts    *sqlx.Stmt `query:"get-campaign-bounce-counts"`

@@ -295,15 +295,17 @@ export const getCampaignViewCounts = async (params) => http.get(
 export const getIndividualCampaignViews = async (params) => http.get(
   '/api/campaigns/analytics/individual_views',
   { params, loading: models.campaigns },
-)
-  .then((response) => {
-    console.info('API Response:', response); // Changed to console.info
-    return response;
-  })
-  .catch((error) => {
-    console.error('API Error:', error);
-    throw error;
-  });
+);
+
+export const getIndividualCampaignLinkClicks = async (params) => http.get(
+  '/api/campaigns/analytics/individual_clicks',
+  { params, loading: models.campaigns },
+);
+
+export const getIndividualCampaignLinkClickUsers = async (params) => http.get(
+  'api/campaigns/analytics/get_individual_clicks_data',
+  { params, loading: models.campaigns },
+);
 
 // export const getIndividualCampaignViews = async (params) => http.get(
 //   '/api/campaigns/analytics/individual_views?email=akshatdev2711@gmail.com',

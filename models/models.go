@@ -399,6 +399,18 @@ type CampaignIndividualViews struct{
     Status string `db:"status" json:"status"`
 }
 
+type CampaignIndividualLinkClicks struct{
+    CampaignId string `db:"campaign_id" json:"campaign_id"`
+    Url string `db:"url" json:"url"`
+    ClickCount  string `db:"click_count" json:"click_count"`
+}
+
+type CampaignIndividualLinkClicksUsers struct{
+    CampaignId string `db:"campaign_id" json:"campaign_id"`
+    Url string `db:"url" json:"url"`
+	Name string `db:"name" json:"name"`
+	Email string `db:"email" json:"email"`
+}
 // Campaigns represents a slice of Campaigns.
 type Campaigns []Campaign
 
