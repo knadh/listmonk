@@ -1255,7 +1255,7 @@ DELETE FROM roles WHERE id=$1;
 
 -- name: get-individual-campaign-views
 -- SELECT campaign_id, sname as name, email, sstatus as status from campaigns inner join (select subs.name as sname, email, subs.status as sstatus, cpv.id as campaign_id from campaign_views as cpv right join subscribers as subs on cpv.subscriber_id = subs.id) on campaign_id = id;
-SELECT c.id AS campaign_id, subs.name AS name, subs.email, subs.status AS status 
+SELECT distinct c.id AS campaign_id, subs.name AS name, subs.email, subs.status AS status 
 FROM campaigns c
 INNER JOIN campaign_views cpv ON c.id = cpv.campaign_id
 RIGHT JOIN subscribers subs ON cpv.subscriber_id = subs.id
