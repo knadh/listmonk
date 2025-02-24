@@ -989,7 +989,7 @@ WHERE id = $1;
 
 -- name: set-default-template
 WITH u AS (
-    UPDATE templates SET is_default=true WHERE id=$1 AND (type='campaign' OR type='campaign_visual') RETURNING id
+    UPDATE templates SET is_default=true WHERE id=$1 AND type='campaign' RETURNING id
 )
 UPDATE templates SET is_default=false WHERE id != $1;
 

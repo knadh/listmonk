@@ -311,6 +311,12 @@ body.is-noscroll {
 
 .editor {
   margin-bottom: 30px;
+
+  .copy-visual-template-list {
+    select {
+      min-width: 200px;
+    }
+  }
 }
 
 .richtext-editor {
