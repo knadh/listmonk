@@ -35,6 +35,7 @@ export default function ImageSidebarPanel({ data, setData }: ImageSidebarPanelPr
     <BaseSidebarPanel title="Image block">
       <TextInput
         label="Source URL"
+        className="image-url"
         defaultValue={data.props?.url ?? ''}
         onChange={(v) => {
           const url = v.trim().length === 0 ? null : v.trim();

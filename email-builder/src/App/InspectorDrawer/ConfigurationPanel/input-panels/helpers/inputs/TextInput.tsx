@@ -9,9 +9,10 @@ type Props = {
   helperText?: string | JSX.Element;
   InputProps?: InputProps;
   defaultValue: string;
+  className?: string;
   onChange: (v: string) => void;
 };
-export default function TextInput({ helperText, label, placeholder, rows, InputProps, defaultValue, onChange }: Props) {
+export default function TextInput({ helperText, label, placeholder, rows, InputProps, defaultValue, className, onChange }: Props) {
   const [value, setValue] = useState(defaultValue);
   const isMultiline = typeof rows === 'number' && rows > 1;
   return (
@@ -24,6 +25,7 @@ export default function TextInput({ helperText, label, placeholder, rows, InputP
       placeholder={placeholder}
       helperText={helperText}
       InputProps={InputProps}
+      className={className}
       value={value}
       onChange={(ev) => {
         const v = ev.target.value;

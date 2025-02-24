@@ -27,18 +27,35 @@
           </b-select>
         </b-field>
 
-        <b-field :label="$t('globals.terms.baseTemplate')" label-position="on-border">
+        <b-field v-if="computedValue.contentType !== 'visual'" :label="$t('globals.terms.baseTemplate')" label-position="on-border">
           <b-select :placeholder="$t('globals.terms.none')" v-model="templateId" name="template" :disabled="disabled">
-            <option :value="null" key="none" v-if="templateId !== null">
-              {{ $t('globals.terms.none') }}
-            </option>
             <template v-for="t in applicableTemplates">
-              <option v-if="t.type === 'campaign' || t.type === 'campaign_visual'" :value="t.id" :key="t.id">
+              <option :value="t.id" :key="t.id">
                 {{ t.name }}
               </option>
             </template>
           </b-select>
         </b-field>
+
+        <div v-else>
+          <b-button v-if="!isVisualTplSelector" @click="onShowVisualTplSelector" type="is-ghost" icon-left="file-find-outline" data-cy="btn-select-visual-tpl">
+            {{ $t('globals.terms.copyVisualTemplate') }}
+          </b-button>
+
+          <b-field v-else :label="$t('globals.terms.copyVisualTemplate')" label-position="on-border">
+              <b-select :placeholder="$t('globals.terms.none')" v-model="visualTemplateId" name="template" :disabled="disabled" class="copy-visual-template-list">
+                <template v-for="t in applicableTemplates">
+                  <option :value="t.id" :key="t.id">
+                    {{ t.name }}
+                  </option>
+                </template>
+              </b-select>
+
+              <b-button :disabled="isVisualTplApplied" class="ml-3" @click="onApplyVisualTpl" type="is-primary" icon-left="content-save-outline" data-cy="btn-save-visual-tpl">
+                {{ $t('globals.terms.apply') }}
+              </b-button>
+          </b-field>
+        </div>
       </div>
       <div class="column is- has-text-right">
         <b-button @click="onTogglePreview" type="is-primary" icon-left="file-find-outline" data-cy="btn-preview">
@@ -51,7 +68,7 @@
     <richtext-editor v-if="computedValue.contentType === 'richtext'" v-model="computedValue.body" />
 
     <!-- visual editor //-->
-    <visual-editor v-if="computedValue.contentType === 'visual'" :source="computedValue.bodySource" @change="onChangeVisualEditor" />
+    <visual-editor v-if="computedValue.contentType === 'visual'" :source="computedValue.bodySource" @change="onChangeVisualEditor" height="65vh" />
 
     <!-- raw html editor //-->
     <html-editor v-if="computedValue.contentType === 'html'" v-model="computedValue.body" />
@@ -110,14 +127,18 @@ export default {
   data() {
     return {
       isPreviewing: false,
+      isVisualTplSelector: false,
+      isVisualTplApplied: false,
       contentType: this.$props.value.contentType,
       templateId: '',
+      visualTemplateId: ''
     };
   },
 
   methods: {
     onContentTypeChange(to, from) {
-      if (this.computedValue.body.trim() === '') {
+      if (this.computedValue.body?.trim() === '') {
+        this.computedValue.contentType = this.contentType;
         return;
       }
 
@@ -140,6 +161,8 @@ export default {
 
     convertContentType(to, from) {
       let body;
+      let skip = false;
+
       if ((from === 'richtext' || from === 'html') && to === 'plain') {
         // richtext, html => plain
 
@@ -157,24 +180,36 @@ export default {
         // richtext => html
         body = this.beautifyHTML(this.computedValue.body);
       } else if (from === 'markdown' && (to === 'richtext' || to === 'html')) {
+        // Skip default update.
+        skip = true;
         // markdown => richtext, html.
         this.$api.convertCampaignContent({
           id: 1, body: this.computedValue.body, from, to,
         }).then((data) => {
           this.$nextTick(() => {
             this.computedValue.body = this.beautifyHTML(data.trim());
+            this.computedValue.bodySource = null;
           });
         });
       }
 
-      // Update the current body.
-      this.$nextTick(() => {
-        this.computedValue.body = body;
-      });
+      if (!skip) {
+        // Update the current body.
+        this.$nextTick(() => {
+          this.computedValue.body = body;
+
+          // If not visual editor then set bodySource to null
+          // this makes sure previous bodySource is not used when switching to visual editor.
+          if (to !== 'visual') {
+            this.computedValue.bodySource = null;
+          }
+        });
+      }
 
       // Reset template ID only if its converted to or from visual template.
       if (to === 'visual' || from === 'visual') {
-        this.computedValue.templateId = '';
+        this.templateId = null;
+        this.computedValue.templateId = null;
       }
     },
 
@@ -221,6 +256,53 @@ export default {
 
       return out.join('\n').replace(/\n\s*\n\s*\n/g, '\n\n');
     },
+
+    onShowVisualTplSelector() {
+      this.isVisualTplSelector = true;
+      this.setDefaultTemplate();
+    },
+
+    onApplyVisualTpl() {
+      this.$utils.confirm(
+        this.$t('campaigns.confirmApplyVisualTemplate'),
+        () => {
+          let found = false;
+          this.templates.forEach((t) => {
+            if (t.id === this.visualTemplateId) {
+              found = true;
+              this.computedValue.body = t.body;
+              this.computedValue.bodySource = t.bodySource;
+
+              // Deplay update so that applied template is propogated to visual editor
+              // and it doesn't enable the apply button again. Delay here is arbitrary.
+              setTimeout(() => {
+                this.isVisualTplApplied = true;
+              }, 250);
+            }
+          });
+
+          if (!found) {
+            this.computedValue.body = '';
+            this.computedValue.bodySource = null;
+
+            // Deplay update so that applied template is propogated to visual editor
+            // and it doesn't enable the apply button again. Delay here is arbitrary.
+            setTimeout(() => {
+              this.isVisualTplApplied = true;
+            }, 250);
+          }
+        }
+      );
+    },
+
+    setDefaultTemplate() {
+      if (this.computedValue.contentType === 'visual') {
+        this.visualTemplateId = this.applicableTemplates[0]?.id || null;
+      } else {
+        const defaultTemplate = this.applicableTemplates.find((t) => t.isDefault === true);
+        this.templateId = defaultTemplate?.id || this.applicableTemplates[0]?.id || null;
+      }
+    }
   },
 
   mounted() {
@@ -251,7 +333,7 @@ export default {
       if (this.computedValue.contentType === 'visual') {
         return this.templates.filter((t) => t.type === 'campaign_visual');
       }
-      return this.templates.filter((t) => t.type !== 'campaign_visual');
+      return this.templates.filter((t) => t.type === 'campaign');
     },
   },
 
@@ -265,33 +347,25 @@ export default {
       this.convertContentType(to, from);
     },
 
-    templateId(to, from) {
+    applicableTemplates() {
+      this.setDefaultTemplate();
+    },
+
+    templateId(to) {
       if (this.computedValue.templateId === to) {
         return;
       }
+      this.computedValue.templateId = to;
+    },
 
-      if (this.computedValue.contentType === 'visual') {
-        this.$utils.confirm(
-          this.$t('campaigns.confirmApplyVisualTemplate'),
-          () => {
-            this.computedValue.templateId = to;
+    // eslint-disable-next-line func-names
+    'computedValue.bodySource': function (to, from) {
+      this.isVisualTplApplied = !(JSON.stringify(to) !== JSON.stringify(from));
+    },
 
-            if (!to) {
-              this.computedValue.body = '';
-              this.computedValue.bodySource = null;
-            } else {
-              this.templates.forEach((t) => {
-                if (t.id === to) {
-                  this.computedValue.body = t.body;
-                  this.computedValue.bodySource = t.bodySource;
-                }
-              });
-            }
-          },
-          () => {
-            this.templateId = from;
-          },
-        );
+    visualTemplateId(to, from) {
+      if (from && from !== to) {
+        this.isVisualTplApplied = false;
       }
     },
   },

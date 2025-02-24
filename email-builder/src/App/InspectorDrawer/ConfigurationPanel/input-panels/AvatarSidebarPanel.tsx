@@ -58,6 +58,7 @@ export default function AvatarSidebarPanel({ data, setData }: AvatarSidebarPanel
       </RadioGroupInput>
       <TextInput
         label="Image URL"
+        className="image-url"
         defaultValue={imageUrl}
         onChange={(imageUrl) => {
           updateData({ ...data, props: { ...data.props, imageUrl } });
