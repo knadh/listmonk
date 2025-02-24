@@ -78,7 +78,6 @@ export default function TemplatePanel() {
           borderBottom: 1,
           borderColor: 'divider',
           backgroundColor: 'white',
-          position: 'sticky',
           top: 0,
           px: 1,
         }}

@@ -52,7 +52,7 @@
 
           <template v-if="form.body !== null">
             <b-field v-if="form.type === 'campaign_visual'" label-position="on-border" class="mb-1">
-              <visual-editor v-if="form.type === 'campaign_visual'" name="body" :source="form.bodySource" @change="onChangeVisualEditor" height="610px" />
+              <visual-editor v-if="form.type === 'campaign_visual'" name="body" :source="form.bodySource" @change="onChangeVisualEditor" height="70vh" />
             </b-field>
 
             <b-field v-else :label="$t('templates.rawHTML')" label-position="on-border">
