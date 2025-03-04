@@ -75,6 +75,7 @@ type Settings struct {
 		EmailHeaders  []map[string]string `json:"email_headers"`
 		MaxConns      int                 `json:"max_conns"`
 		MaxMsgRetries int                 `json:"max_msg_retries"`
+		RetryDelay    string              `json:"retry_delay"`
 		IdleTimeout   string              `json:"idle_timeout"`
 		WaitTimeout   string              `json:"wait_timeout"`
 		TLSType       string              `json:"tls_type"`
@@ -91,6 +92,7 @@ type Settings struct {
 		MaxConns      int    `json:"max_conns"`
 		Timeout       string `json:"timeout"`
 		MaxMsgRetries int    `json:"max_msg_retries"`
+		RetryDelay    string `json:"retry_delay"`
 	} `json:"messengers"`
 
 	BounceEnabled        bool `json:"bounce.enabled"`
