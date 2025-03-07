@@ -218,7 +218,7 @@ ______________________________________________________________________
 
 #### DELETE /api/lists/{list_id}
 
-Delete a specific subscriber.
+Delete a specific list.
 
 ##### Parameters
 
