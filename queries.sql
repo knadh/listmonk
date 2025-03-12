@@ -466,6 +466,13 @@ SELECT * FROM lists WHERE (CASE WHEN $1 != '' THEN optin=$1::list_optin ELSE TRU
           WHEN $3::UUID[] IS NOT NULL THEN uuid = ANY($3::UUID[])
     END) ORDER BY name;
 
+-- name: get-list-types
+-- Retrieves the private|public type of lists by ID or uuid. Used for filtering.
+SELECT id, uuid, type FROM lists WHERE
+    (CASE WHEN $1::INT[] IS NOT NULL THEN id = ANY($1::INT[])
+          WHEN $2::UUID[] IS NOT NULL THEN uuid = ANY($2::UUID[])
+    END);
+
 -- name: create-list
 INSERT INTO lists (uuid, name, type, optin, tags, description) VALUES($1, $2, $3, $4, $5, $6) RETURNING id;
 

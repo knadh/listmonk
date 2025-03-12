@@ -53,6 +53,7 @@ type Queries struct {
 	QueryLists      string     `query:"query-lists"`
 	GetLists        *sqlx.Stmt `query:"get-lists"`
 	GetListsByOptin *sqlx.Stmt `query:"get-lists-by-optin"`
+	GetListTypes    *sqlx.Stmt `query:"get-list-types"`
 	UpdateList      *sqlx.Stmt `query:"update-list"`
 	UpdateListsDate *sqlx.Stmt `query:"update-lists-date"`
 	DeleteLists     *sqlx.Stmt `query:"delete-lists"`
