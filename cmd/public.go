@@ -703,6 +703,18 @@ func processSubForm(c echo.Context) (bool, error) {
 
 	listUUIDs := pq.StringArray(req.FormListUUIDs)
 
+	// Fetch the list types and ensure that they are not private.
+	listTypes, err := app.core.GetListTypes(nil, req.FormListUUIDs)
+	if err != nil {
+		return false, echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("%s", err.(*echo.HTTPError).Message))
+	}
+
+	for _, t := range listTypes {
+		if t == models.ListTypePrivate {
+			return false, echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidUUID"))
+		}
+	}
+
 	// Insert the subscriber into the DB.
 	_, hasOptin, err := app.core.InsertSubscriber(models.Subscriber{
 		Name:   req.Name,
