@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@tinymce/tinymce-vue": "^3",
-    "axios": "^1.7.4",
+    "axios": "^1.8.2",
     "buefy": "^0.9.25",
     "bulma": "^0.9.4",
     "chart.js": "^4.4.1",
