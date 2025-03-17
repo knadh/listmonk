@@ -116,8 +116,10 @@ var regTplFuncs = []regTplFunc{
 	// Convert the shorthand https://google.com@TrackLink to {{ TrackLink ... }}.
 	// This is for WYSIWYG editors that encode and break quotes {{ "" }} when inserted
 	// inside <a href="{{ TrackLink "https://these-quotes-break" }}>.
+	// The regex matches all characters that may occur in an URL
+	// (see "2. Characters" in RFC3986: https://www.ietf.org/rfc/rfc3986.txt)
 	{
-		regExp:  regexp.MustCompile(`(https?://.+?)@TrackLink`),
+		regExp:  regexp.MustCompile(`(https?://[\p{L}_\-\.~!#$&'()*+,/:;=?@\[\]]*)@TrackLink`),
 		replace: `{{ TrackLink "$1" . }}`,
 	},
 
