@@ -75,7 +75,7 @@
               <b-icon icon="file-multiple-outline" size="is-small" />
             </b-tooltip>
           </a>
-          <a v-if="!props.row.isDefault && props.row.type !== 'tx'" href="#"
+          <a v-if="!props.row.isDefault && props.row.type === 'campaign'" href="#"
             @click.prevent="$utils.confirm(null, () => makeTemplateDefault(props.row))" data-cy="btn-set-default"
             :aria-label="$t('templates.makeDefault')">
             <b-tooltip :label="$t('templates.makeDefault')" type="is-dark">

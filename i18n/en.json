@@ -245,6 +245,7 @@
     "globals.terms.user": "User | Users",
     "globals.terms.users": "Users",
     "globals.terms.year": "Year | Years",
+    "globals.terms.apply": "Apply",
     "import.alreadyRunning": "An import is already running. Wait for it to finish or stop it before trying again.",
     "import.blocklist": "Blocklist",
     "import.csvDelim": "CSV delimiter",
