@@ -27,8 +27,18 @@
           </b-select>
         </b-field>
 
-        <b-field :label="$t('globals.terms.baseTemplate')" label-position="on-border">
+        <b-field v-if="computedValue.contentType !== 'visual'" :label="$t('globals.terms.baseTemplate')" label-position="on-border">
           <b-select :placeholder="$t('globals.terms.none')" v-model="templateId" name="template" :disabled="disabled">
+            <template v-for="t in applicableTemplates">
+              <option :value="t.id" :key="t.id">
+                {{ t.name }}
+              </option>
+            </template>
+          </b-select>
+        </b-field>
+
+        <b-field v-else :label="$t('globals.terms.copyVisualTemplate')" label-position="on-border">
+          <b-select :placeholder="$t('globals.terms.none')" v-model="templateId" name="template" :disabled="disabled" class="copy-visual-template-list">
             <option :value="null" key="none" v-if="templateId !== null">
               {{ $t('globals.terms.none') }}
             </option>
@@ -51,7 +61,7 @@
     <richtext-editor v-if="computedValue.contentType === 'richtext'" v-model="computedValue.body" />
 
     <!-- visual editor //-->
-    <visual-editor v-if="computedValue.contentType === 'visual'" :source="computedValue.bodySource" @change="onChangeVisualEditor" />
+    <visual-editor v-if="computedValue.contentType === 'visual'" :source="computedValue.bodySource" @change="onChangeVisualEditor" height="65vh" />
 
     <!-- raw html editor //-->
     <html-editor v-if="computedValue.contentType === 'html'" v-model="computedValue.body" />
@@ -117,7 +127,8 @@ export default {
 
   methods: {
     onContentTypeChange(to, from) {
-      if (this.computedValue.body.trim() === '') {
+      if (this.computedValue.body?.trim() === '') {
+        this.computedValue.contentType = this.contentType;
         return;
       }
 
@@ -174,7 +185,8 @@ export default {
 
       // Reset template ID only if its converted to or from visual template.
       if (to === 'visual' || from === 'visual') {
-        this.computedValue.templateId = '';
+        this.templateId = null;
+        this.computedValue.templateId = null;
       }
     },
 
@@ -250,8 +262,9 @@ export default {
     applicableTemplates() {
       if (this.computedValue.contentType === 'visual') {
         return this.templates.filter((t) => t.type === 'campaign_visual');
+      } else {
+        return this.templates.filter((t) => t.type === 'campaign');
       }
-      return this.templates.filter((t) => t.type !== 'campaign_visual');
     },
   },
 
@@ -263,6 +276,16 @@ export default {
     // eslint-disable-next-line func-names
     'computedValue.contentType': function (to, from) {
       this.convertContentType(to, from);
+    },
+
+    applicableTemplates(to) {
+      if (this.computedValue.contentType !== 'visual') {
+        const ctps = this.templates.filter((t) => t.type === 'campaign')
+        if (!ctps.find(t => t.id === this.templateId)) {
+            const defaultTemplate = ctps.find(t => t.isDefault === true);
+            this.templateId = defaultTemplate?.id || ctps[0]?.id || null;
+        }
+      }
     },
 
     templateId(to, from) {
@@ -292,6 +315,8 @@ export default {
             this.templateId = from;
           },
         );
+      } else {
+        this.computedValue.templateId = to;
       }
     },
   },
