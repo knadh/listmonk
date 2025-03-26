@@ -121,7 +121,7 @@
     "email.status.status": "Állapot",
     "email.unsub": "Leiratkozás",
     "email.unsubHelp": "Leiratkozik a listáról?",
-    "email.viewInBrowser": "Megnyitás",
+    "email.viewInBrowser": "Megnyitás böngészőben",
     "forms.formHTML": "HTML űrlap",
     "forms.formHTMLHelp": "Az alábbi HTML kód beágyazásával megjelenítheti az feliratkozási űrlapot egy külső weboldalon. Az űrlapnak tartalmaznia kell az e-mail mezőt és egy vagy több `name=\"l\"` (lista UUID) mezőt. A név mező nem kötelező.",
     "forms.noPublicLists": "Nincsenek nyilvános listák az űrlapok létrehozásához.",
