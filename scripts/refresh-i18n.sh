@@ -1,14 +1,17 @@
 #!/bin/bash
 
-# "Refresh" all i18n language files by merging missing keys in lang files
-# from a base language file. In addition, sort all files by keys.
-
+# "Refresh" all i18n language files by merging and syncing keys with the base file.
 BASE_DIR=$(dirname "$0")"/../i18n" # Exclude the trailing slash.
 BASE_FILE="en.json"
 
-# Iterate through all i18n files and merge them into the base file,
-# filling in missing keys.
+# Iterate through all i18n files and sync them with the base file.
 for fpath in "$BASE_DIR/"*.json; do
-	echo $(basename -- $fpath)
-	echo "$( jq -s '.[0] * .[1]' -S --indent 4 "$BASE_DIR/$BASE_FILE" $fpath )" > $fpath
+    if [ "$(basename -- "$fpath")" = "$BASE_FILE" ]; then
+        continue  # Skip the base file itself
+    fi
+    echo "$(basename -- "$fpath")"
+    jq -s --indent 4 --sort-keys \
+        '.[0] as $base | .[1] as $target |
+        $base | with_entries(.value = ($target[.key] // .value))' \
+        "$BASE_DIR/$BASE_FILE" "$fpath" > "$fpath.tmp" && mv "$fpath.tmp" "$fpath"
 done
