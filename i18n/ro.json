@@ -505,6 +505,8 @@
     "settings.privacy.allowPrefsHelp": "Permiteți abonaților să-și schimbe preferințele, cum ar fi numele lor și abonările la mai multe liste.",
     "settings.privacy.allowWipe": "Permiteți accesul la audio",
     "settings.privacy.allowWipeHelp": "Permite abonaților să se șteargă, inclusiv abonamentele lor și toate celelalte date din baza de date. Vizualizările campaniei și clicurile pe linkuri sunt, de asemenea, eliminate, în timp ce numărul de vizualizări și clicuri rămâne (fără niciun abonat asociat acestora), astfel încât statisticile și analizele să nu fie afectate.",
+    "settings.privacy.domainAllowlist": "Domain allowlist",
+    "settings.privacy.domainAllowlistHelp": "Only e-mail addresses with these domains are allowed to subscribe. Enter one domain per line, eg: example.com, *.example.com",
     "settings.privacy.domainBlocklist": "Nu am găsit date despre domeniul {domain}.",
     "settings.privacy.domainBlocklistHelp": "Adresele de poștă electronică cu aceste domenii nu sunt permise de la abonare. Introduceți un domeniu pe linie, de exemplu: somesite.com",
     "settings.privacy.individualSubTracking": "În acest hub nu sunt disponibile date despre abonați",

@@ -505,6 +505,8 @@
     "settings.privacy.allowPrefsHelp": "Caniatáu i danysgrifwyr newid dewisiadau fel eu henw a pha restrau maent wedi tanysgrifio iddynt.",
     "settings.privacy.allowWipe": "Caniatáu sgubo",
     "settings.privacy.allowWipeHelp": "Caniatáu i danysgrifwyr ddileu eu hunain",
+    "settings.privacy.domainAllowlist": "Domain allowlist",
+    "settings.privacy.domainAllowlistHelp": "Only e-mail addresses with these domains are allowed to subscribe. Enter one domain per line, eg: example.com, *.example.com",
     "settings.privacy.domainBlocklist": "Rhestr rhwystro parthau",
     "settings.privacy.domainBlocklistHelp": "Nid oes gan gyfeiriadau e-bost yn y parthau hyn yr hawl i danysgrifio. Rhowch un parth i bob llinell",
     "settings.privacy.individualSubTracking": "Olrhain tanysgrifwyr unigol",

@@ -52,11 +52,17 @@ const (
 
 // Importer represents the bulk CSV subscriber import system.
 type Importer struct {
-	opt                   Options
-	db                    *sql.DB
-	i18n                  *i18n.I18n
-	domainBlocklist       map[string]bool
+	opt  Options
+	db   *sql.DB
+	i18n *i18n.I18n
+
+	domainBlocklist       map[string]struct{}
 	hasBlocklistWildcards bool
+	hasBlocklist          bool
+
+	domainAllowlist       map[string]struct{}
+	hasAllowlistWildcards bool
+	hasAllowlist          bool
 
 	stop   chan bool
 	status Status
@@ -70,8 +76,8 @@ type Options struct {
 	UpdateListDateStmt *sql.Stmt
 	NotifCB            models.AdminNotifCallback
 
-	// Lookup table for blocklisted domains.
 	DomainBlocklist []string
+	DomainAllowlist []string
 }
 
 // Session represents a single import session.
@@ -136,23 +142,23 @@ func New(opt Options, db *sql.DB, i *i18n.I18n) *Importer {
 		opt:             opt,
 		db:              db,
 		i18n:            i,
-		domainBlocklist: make(map[string]bool, len(opt.DomainBlocklist)),
+		domainBlocklist: make(map[string]struct{}, len(opt.DomainBlocklist)),
+		domainAllowlist: make(map[string]struct{}, len(opt.DomainAllowlist)),
 		status:          Status{Status: StatusNone, logBuf: bytes.NewBuffer(nil)},
 		stop:            make(chan bool, 1),
 	}
 
 	// Domain blocklist.
-	for _, d := range opt.DomainBlocklist {
-		im.domainBlocklist[d] = true
+	mp, hasWildcards := makeDomainMap(opt.DomainBlocklist)
+	im.domainBlocklist = mp
+	im.hasBlocklistWildcards = hasWildcards
+	im.hasBlocklist = len(mp) > 0
 
-		// Domains with *. as the subdomain prefix, strip that
-		// and add the full domain to the blocklist as well.
-		// eg: *.example.com => example.com
-		if strings.Contains(d, "*.") {
-			im.hasBlocklistWildcards = true
-			im.domainBlocklist[strings.TrimPrefix(d, "*.")] = true
-		}
-	}
+	// Domain allowlist.
+	mp, hasWildcards = makeDomainMap(opt.DomainAllowlist)
+	im.domainAllowlist = mp
+	im.hasAllowlistWildcards = hasWildcards
+	im.hasAllowlist = len(mp) > 0
 
 	return &im
 }
@@ -603,29 +609,24 @@ func (im *Importer) SanitizeEmail(email string) (string, error) {
 
 	// Check if the e-mail's domain is blocklisted. The e-mail domain and blocklist config
 	// are always lowercase.
-	d := strings.Split(em.Address, "@")
-	if len(d) == 2 {
-		domain := d[1]
-
-		// Check the domain as-is.
-		if _, ok := im.domainBlocklist[domain]; ok {
-			return "", errors.New(im.i18n.T("subscribers.domainBlocklisted"))
+	if im.hasAllowlist || im.hasBlocklist {
+		d := strings.Split(em.Address, "@")
+		if len(d) != 2 {
+			return em.Address, nil
 		}
 
-		// If there are wildcards in the blocklist and the email domain has a subdomain, check that.
-		if im.hasBlocklistWildcards && strings.Count(domain, ".") > 1 {
-			parts := strings.Split(domain, ".")
+		domain := d[1]
 
-			// Replace the first part of the subdomain with * and check if that exists in the blocklist.
-			// Eg: test.mail.example.com => *.mail.example.com
-			parts[0] = "*"
-			domain = strings.Join(parts, ".")
-
-			if _, ok := im.domainBlocklist[domain]; ok {
+		// If there's an allowlist, check if the domain is in it. Checking blocklist after that is moot.
+		if im.hasAllowlist {
+			if !im.checkInList(domain, im.hasAllowlistWildcards, im.domainAllowlist) {
+				return "", errors.New(im.i18n.T("subscribers.domainBlocklisted"))
+			}
+		} else if im.hasBlocklist {
+			if im.checkInList(domain, im.hasBlocklistWildcards, im.domainBlocklist) {
 				return "", errors.New(im.i18n.T("subscribers.domainBlocklisted"))
 			}
 		}
-
 	}
 
 	return em.Address, nil
@@ -657,6 +658,30 @@ func (im *Importer) ValidateFields(s SubReq) (SubReq, error) {
 	}
 
 	return s, nil
+}
+
+// Check the domain against the given map of domains (block/allowlist).
+func (im *Importer) checkInList(domain string, hasWildcards bool, mp map[string]struct{}) bool {
+	// Check the domain as-is.
+	if _, ok := mp[domain]; ok {
+		return true
+	}
+
+	// If there are wildcards in the list and the email domain has a subdomain, check that.
+	if hasWildcards && strings.Count(domain, ".") > 1 {
+		parts := strings.Split(domain, ".")
+
+		// Replace the first part of the subdomain with * and check if that exists in the list.
+		// Eg: test.mail.example.com => *.mail.example.com
+		parts[0] = "*"
+		domain = strings.Join(parts, ".")
+
+		if _, ok := mp[domain]; ok {
+			return true
+		}
+	}
+
+	return false
 }
 
 // mapCSVHeaders takes a list of headers obtained from a CSV file, a map of known headers,
@@ -701,4 +726,24 @@ func countLines(r io.Reader) (int, error) {
 			return count, err
 		}
 	}
+}
+
+func makeDomainMap(domains []string) (map[string]struct{}, bool) {
+	var (
+		out          = make(map[string]struct{}, len(domains))
+		hasWildCards = false
+	)
+	for _, d := range domains {
+		out[d] = struct{}{}
+
+		// Domains with *. as the subdomain prefix, strip that
+		// and add the full domain to the blocklist as well.
+		// eg: *.example.com => example.com
+		if strings.Contains(d, "*.") {
+			hasWildCards = true
+			out[strings.TrimPrefix(d, "*.")] = struct{}{}
+		}
+	}
+
+	return out, hasWildCards
 }

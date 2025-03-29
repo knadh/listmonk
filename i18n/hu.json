@@ -505,6 +505,8 @@
     "settings.privacy.allowPrefsHelp": "A tagok módosíthatják tagságukat (nevüket, listáikat, stb.).",
     "settings.privacy.allowWipe": "Tagság törlése",
     "settings.privacy.allowWipeHelp": "A tagok törölhetik midnen adatukat az adatbázisból. A megtekintések és kattintások száma megmarad (nem tagokkal társítva), így ez a kimutatásokat nem érinti.",
+    "settings.privacy.domainAllowlist": "Domain allowlist",
+    "settings.privacy.domainAllowlistHelp": "Only e-mail addresses with these domains are allowed to subscribe. Enter one domain per line, eg: example.com, *.example.com",
     "settings.privacy.domainBlocklist": "Domain tiltólista",
     "settings.privacy.domainBlocklistHelp": "A felsorolt domainekhez tartozó e-mail címekkel nem lehet feliratkozni. Soronként egy domaint adjon meg, pl.: teszt.hu",
     "settings.privacy.individualSubTracking": "Megtekintések és kattintások tagokhoz kötése",

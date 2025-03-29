@@ -505,6 +505,8 @@
     "settings.privacy.allowPrefsHelp": "Povolit přihlášeným změnu předvoleb jako jsou jména a přihlášení k více seznamům.",
     "settings.privacy.allowWipe": "Umožnit vymazání",
     "settings.privacy.allowWipeHelp": "Umožnit odběratelům odstranit sebe včetně svých odběrů a všech ostatních dat z databáze. Pohledy na kampaně a klepnutí na odkazy se rovněž odeberou, zatímco pohledy a počty klepnutí se zachovají (aniž by měly přidruženého odběratele), takže statistiky a analýzy nebudou ovlivněny.",
+    "settings.privacy.domainAllowlist": "Domain allowlist",
+    "settings.privacy.domainAllowlistHelp": "Only e-mail addresses with these domains are allowed to subscribe. Enter one domain per line, eg: example.com, *.example.com",
     "settings.privacy.domainBlocklist": "Seznam blokovaných domén",
     "settings.privacy.domainBlocklistHelp": "E-mailové adresy z těchto domén se nemohou přihlásit k odběru. Uveďte jednu doménu na řádek, eg: somesite.com",
     "settings.privacy.individualSubTracking": "Sledování jednotlivých odběratelů",

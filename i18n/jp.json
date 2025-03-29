@@ -505,6 +505,8 @@
     "settings.privacy.allowPrefsHelp": "加入者に個人設定変更（名前やサブスクリプション状態）を許可する。",
     "settings.privacy.allowWipe": "ワイプを許可する",
     "settings.privacy.allowWipeHelp": "加入者サブスクリプション含むすべてのデータを含めて、データベースから自身を削除することを許可する。キャンペーンビューとリンククリックも削除されるが、統計と分析に影響が出ないよう、ビューとクリックカウントは残る (加入者を持たない状態)。",
+    "settings.privacy.domainAllowlist": "Domain allowlist",
+    "settings.privacy.domainAllowlistHelp": "Only e-mail addresses with these domains are allowed to subscribe. Enter one domain per line, eg: example.com, *.example.com",
     "settings.privacy.domainBlocklist": "ドメインブロックリスト",
     "settings.privacy.domainBlocklistHelp": "これらのドメインを持つメールアドレスは加入することができません。各行に一つドメインを入れてください。例: somesite.com",
     "settings.privacy.individualSubTracking": "加入者個別追跡",

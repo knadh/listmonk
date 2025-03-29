@@ -37,5 +37,12 @@ func V5_0_0(db *sqlx.DB, fs stuffbin.FileSystem, ko *koanf.Koanf, lo *log.Logger
 		return err
 	}
 
+	// Insert new preference settings.
+	if _, err := db.Exec(`
+		INSERT INTO settings (key, value) VALUES('privacy.domain_allowlist', '[]') ON CONFLICT DO NOTHING;
+	`); err != nil {
+		return err
+	}
+
 	return nil
 }

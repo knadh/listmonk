@@ -505,6 +505,8 @@
     "settings.privacy.allowPrefsHelp": "Cho phép người đăng ký thay đổi tùy chọn như tên và đăng ký danh sách đa nguyên.",
     "settings.privacy.allowWipe": "Cho phép xóa",
     "settings.privacy.allowWipeHelp": "Cho phép người đăng ký tự xóa bao gồm đăng ký của họ và tất cả dữ liệu khác khỏi cơ sở dữ liệu. Lượt xem chiến dịch và lượt nhấp vào liên kết cũng bị xóa trong khi lượt xem và số lượt nhấp vẫn còn (không có người đăng ký nào được liên kết với chúng) để số liệu thống kê và phân tích không bị ảnh hưởng.",
+    "settings.privacy.domainAllowlist": "Domain allowlist",
+    "settings.privacy.domainAllowlistHelp": "Only e-mail addresses with these domains are allowed to subscribe. Enter one domain per line, eg: example.com, *.example.com",
     "settings.privacy.domainBlocklist": "Danh sách chặn tên miền",
     "settings.privacy.domainBlocklistHelp": "Địa chỉ email với các miền này không được phép đăng ký. Nhập một tên miền trên mỗi dòng, ví dụ: somesite.com",
     "settings.privacy.individualSubTracking": "Theo dõi người đăng ký cá nhân",

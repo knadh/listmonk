@@ -505,6 +505,8 @@
     "settings.privacy.allowPrefsHelp": "Permet als subscriptors fer canvis de les preferències tals com els seus noms o la subscripció a múltiples llistes.",
     "settings.privacy.allowWipe": "Permet l'esborrat permanent",
     "settings.privacy.allowWipeHelp": "Permet als subscriptors esborrar-se, incloses les seves subscripcions i totes les altres dades de la base de dades. Les visualitzacions de campanya i els clics als enllaços també s'eliminen mentre es mantenen les visualitzacions i els recomptes de clics (sense subscriptors associats a ells) de manera que les estadístiques i els indicadors no es veuran afectats.",
+    "settings.privacy.domainAllowlist": "Domain allowlist",
+    "settings.privacy.domainAllowlistHelp": "Only e-mail addresses with these domains are allowed to subscribe. Enter one domain per line, eg: example.com, *.example.com",
     "settings.privacy.domainBlocklist": "Llista de dominis bloquejats",
     "settings.privacy.domainBlocklistHelp": "No es permet la subscripció a les adreces de correu electrònic amb aquests dominis. Introduïu un domini per línia, per exemple: somesite.com",
     "settings.privacy.individualSubTracking": "Seguiment individual de subscriptors",

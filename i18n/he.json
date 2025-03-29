@@ -505,6 +505,8 @@
     "settings.privacy.allowPrefsHelp": "ניתן למנויים לשתף פעולה בשינוי בחירות כמו שמותיהם ורישומי המנויים הרבים.",
     "settings.privacy.allowWipe": "אישור מחיקה",
     "settings.privacy.allowWipeHelp": "ניתן למנויים למחוק את עצמם כולל מינויים וכל הנתונים הקשורים להם ממסד הנתונים. תוספות חישוב גם מסירות הודעות וחיצונית בזמו שנשארו (ללא subscriber משוייך אליהם) בזמן מדידת נתונים כדי שלא יתפקעו נתונים וניתוחים.",
+    "settings.privacy.domainAllowlist": "Domain allowlist",
+    "settings.privacy.domainAllowlistHelp": "Only e-mail addresses with these domains are allowed to subscribe. Enter one domain per line, eg: example.com, *.example.com",
     "settings.privacy.domainBlocklist": "רשימת החסימה",
     "settings.privacy.domainBlocklistHelp": "כתובות דואר אלקטרוני באמצעות שמן נאסר על הרשות להרשים. שמות התחומים יבשים על כל שורה. לדוגמה: somesite.com",
     "settings.privacy.individualSubTracking": "מעקב אישי של המנויים",
