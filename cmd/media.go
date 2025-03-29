@@ -48,10 +48,6 @@ func handleUploadMedia(c echo.Context) error {
 		ext         = strings.TrimPrefix(strings.ToLower(filepath.Ext(file.Filename)), ".")
 		contentType = file.Header.Get("Content-Type")
 	)
-	if !isASCII(file.Filename) {
-		return echo.NewHTTPError(http.StatusUnprocessableEntity,
-			app.i18n.Ts("media.invalidFileName", "name", file.Filename))
-	}
 
 	// Validate file extension.
 	if !inArray("*", app.constants.MediaUpload.Extensions) {
