@@ -179,6 +179,16 @@ export const deleteSubscriberBounces = async (id) => http.delete(
   { loading: models.bounces },
 );
 
+export const blocklistSubscriberBounce = async (id) => http.put(
+  `/api/bounces/${id}/blocklist`,
+  { loading: models.bounces },
+);
+
+export const blocklistSubscriberBounces = async (params) => http.put(
+  '/api/bounces/blocklist',
+  { params, loading: models.bounces },
+);
+
 export const deleteBounce = async (id) => http.delete(
   `/api/bounces/${id}`,
   { loading: models.bounces },
