@@ -90,7 +90,7 @@ func (s *store) UpdateCampaignCounts(campID int, toSend int, sent int, lastSubID
 
 // GetAttachment fetches a media attachment blob.
 func (s *store) GetAttachment(mediaID int) (models.Attachment, error) {
-	m, err := s.core.GetMedia(mediaID, "", s.media)
+	m, err := s.core.GetMedia(mediaID, "", "", s.media)
 	if err != nil {
 		return models.Attachment{}, err
 	}

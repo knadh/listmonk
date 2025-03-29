@@ -170,6 +170,7 @@ CREATE TABLE media (
     meta             JSONB NOT NULL DEFAULT '{}',
     created_at       TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
+DROP INDEX IF EXISTS idx_media_filename; CREATE INDEX idx_media_filename ON media(provider, filename);
 
 -- campaign_media
 DROP TABLE IF EXISTS campaign_media CASCADE;

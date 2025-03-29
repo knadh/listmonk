@@ -1,6 +1,7 @@
 package core
 
 import (
+	"database/sql"
 	"fmt"
 	"net/http"
 	"strings"
@@ -43,14 +44,19 @@ func (c *Core) QueryMedia(provider string, s media.Store, query string, offset, 
 }
 
 // GetMedia returns a media item.
-func (c *Core) GetMedia(id int, uuid string, s media.Store) (media.Media, error) {
+func (c *Core) GetMedia(id int, uuid, fileName string, s media.Store) (media.Media, error) {
 	var uu interface{}
 	if uuid != "" {
 		uu = uuid
 	}
 
 	var out media.Media
-	if err := c.q.GetMedia.Get(&out, id, uu); err != nil {
+	if err := c.q.GetMedia.Get(&out, id, uu, fileName); err != nil {
+		// If it's ` sql: no rows in result set`, return a 404.
+		if err == sql.ErrNoRows {
+			return out, ErrNotFound
+		}
+
 		return out, echo.NewHTTPError(http.StatusInternalServerError,
 			c.i18n.Ts("globals.messages.errorFetching", "name", "{globals.terms.media}", "error", pqErrMsg(err)))
 	}
@@ -80,7 +86,7 @@ func (c *Core) InsertMedia(fileName, thumbName, contentType string, meta models.
 			c.i18n.Ts("globals.messages.errorCreating", "name", "{globals.terms.media}", "error", pqErrMsg(err)))
 	}
 
-	return c.GetMedia(newID, "", s)
+	return c.GetMedia(newID, "", "", s)
 }
 
 // DeleteMedia deletes a given media item and returns the filename of the deleted item.

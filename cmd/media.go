@@ -57,12 +57,19 @@ func handleUploadMedia(c echo.Context) error {
 		}
 	}
 
-	// Sanitize filename.
+	// Sanitize the filename.
 	fName := makeFilename(file.Filename)
 
-	// Add a random suffix to the filename to ensure uniqueness.
-	suffix, _ := generateRandomString(6)
-	fName = appendSuffixToFilename(fName, suffix)
+	// If the filename already exists in the DB, make it unique by adding a random suffix.
+	if _, err := app.core.GetMedia(0, "", fName, app.media); err == nil {
+		suffix, err := generateRandomString(6)
+		if err != nil {
+			app.log.Printf("error generating random string: %v", err)
+			return echo.NewHTTPError(http.StatusInternalServerError, app.i18n.T("globals.messages.internalError"))
+		}
+
+		fName = appendSuffixToFilename(fName, suffix)
+	}
 
 	// Upload the file.
 	fName, err = app.media.Put(fName, contentType, src)
@@ -143,7 +150,7 @@ func handleGetMedia(c echo.Context) error {
 
 	// Fetch one list.
 	if id > 0 {
-		out, err := app.core.GetMedia(id, "", app.media)
+		out, err := app.core.GetMedia(id, "", "", app.media)
 		if err != nil {
 			return err
 		}

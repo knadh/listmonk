@@ -31,5 +31,11 @@ func V5_0_0(db *sqlx.DB, fs stuffbin.FileSystem, ko *koanf.Koanf, lo *log.Logger
 		return err
 	}
 
+	if _, err := db.Exec(`
+		CREATE INDEX IF NOT EXISTS idx_media_filename ON media(provider, filename);
+	`); err != nil {
+		return err
+	}
+
 	return nil
 }
