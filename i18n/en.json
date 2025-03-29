@@ -295,7 +295,6 @@
     "media.errorSavingThumbnail": "Error saving thumbnail: {error}",
     "media.errorUploading": "Error uploading file: {error}",
     "media.invalidFile": "Invalid file: {error}",
-    "media.invalidFileName": "Invalid filename {name}. Use only ASCII characters",
     "media.title": "Media",
     "media.unsupportedFileType": "Unsupported file type ({type})",
     "media.upload": "Upload",

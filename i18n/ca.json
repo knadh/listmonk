@@ -295,7 +295,6 @@
     "media.errorSavingThumbnail": "Error en desar la miniatura: {error}",
     "media.errorUploading": "Error en carregar el fitxer: {error}",
     "media.invalidFile": "Fitxer no vàlid: {error}",
-    "media.invalidFileName": "Nom de fitxer invàlid {name}. Utilitza únicament caràcters ASCII",
     "media.title": "Mèdia",
     "media.unsupportedFileType": "El tipus de fitxer ({type}) no és compatible",
     "media.upload": "Carrega",

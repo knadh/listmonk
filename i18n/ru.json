@@ -295,7 +295,6 @@
     "media.errorSavingThumbnail": "Ошибка сохранения миниатюры: {error}",
     "media.errorUploading": "Ошибка загрузки файла: {error}",
     "media.invalidFile": "Неверный файл: {error}",
-    "media.invalidFileName": "Неверное имя файла {name}. Используйте только символы ASCII",
     "media.title": "Медиа",
     "media.unsupportedFileType": "Неподдерживаемый тип файла ({type})",
     "media.upload": "Загрузить",
