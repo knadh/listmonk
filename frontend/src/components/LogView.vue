@@ -3,11 +3,13 @@
     <b-loading :active="loading" :is-full-page="false" />
     <div class="lines" ref="lines">
       <template v-for="(l, i) in lines">
-        <span :set="line = splitLine(l)" :key="i" class="line">
-          <span class="timestamp">{{ line.timestamp }}&nbsp;</span>
-          <span class="file">{{ line.file }}:&nbsp;</span>
-          <span class="log-message">{{ line.message }}</span>
-        </span>
+        <template v-if="l">
+          <span :set="line = splitLine(l)" :key="i" class="line">
+            <span class="timestamp">{{ line.timestamp }}&nbsp;</span>
+            <span class="file">{{ line.file }}:&nbsp;</span>
+            <span class="log-message">{{ line.message }}</span>
+          </span>
+        </template>
       </template>
     </div>
   </section>
@@ -33,6 +35,14 @@ export default {
   methods: {
     splitLine: (l) => {
       const parts = l.split(reFormatLine);
+      if (parts.length !== 5) {
+        return {
+          timestamp: '',
+          file: '',
+          message: l,
+        };
+      }
+
       return {
         timestamp: parts[1],
         file: parts[2],
