@@ -8,12 +8,14 @@ import (
 	"bytes"
 	"fmt"
 	"log"
+	"net/http"
 	"regexp"
 	"strings"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/knadh/listmonk/internal/i18n"
 	"github.com/knadh/listmonk/models"
+	"github.com/labstack/echo/v4"
 	"github.com/lib/pq"
 )
 
@@ -60,6 +62,10 @@ type Opt struct {
 	Queries   *models.Queries
 	Log       *log.Logger
 }
+
+var (
+	ErrNotFound = echo.NewHTTPError(http.StatusNotFound, "not found")
+)
 
 var (
 	regexFullTextQuery  = regexp.MustCompile(`\s+`)
