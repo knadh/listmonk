@@ -505,6 +505,8 @@
     "settings.privacy.allowPrefsHelp": "Erlaube den Abonnenten, ihre Einstellungen zu ändern, wie z. B. ihren Namen und mehrere Listenabonnements.",
     "settings.privacy.allowWipe": "Löschen aktivieren",
     "settings.privacy.allowWipeHelp": "Erlaube Abonnenten alle Daten, welche über sie gespeichert sind zu löschen. Dies beinhaltet auch Klicks und Anzeigen, verändert allerdings nicht die Gesamtzahl. Statistiken bleiben auch unverändert.",
+    "settings.privacy.domainAllowlist": "Domain allowlist",
+    "settings.privacy.domainAllowlistHelp": "Only e-mail addresses with these domains are allowed to subscribe. Enter one domain per line, eg: example.com, *.example.com",
     "settings.privacy.domainBlocklist": "Domain-Sperrliste",
     "settings.privacy.domainBlocklistHelp": "E-Mail Adressen dieser Domains sind vom Abonnieren ausgeschlossen.  Eine Domain pro Zeile, z.B. somesite.com",
     "settings.privacy.individualSubTracking": "Einzelabonnenten Tracking",

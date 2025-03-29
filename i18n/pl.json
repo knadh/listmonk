@@ -505,6 +505,8 @@
     "settings.privacy.allowPrefsHelp": "Zezwól subskrybentom na zmianę ustawień takich jak imię czy subskrybowane listy",
     "settings.privacy.allowWipe": "Zezwól na czyszczenie danych",
     "settings.privacy.allowWipeHelp": "Czy zezwolić subskrybentom na usuwanie ich samych razem z wszystkimi ich danymi? Wyświetlenia i liczba kliknięć zostaną zachowane, ale zostaną z nich usunięte informacje kto wykonał tę akcję.",
+    "settings.privacy.domainAllowlist": "Domain allowlist",
+    "settings.privacy.domainAllowlistHelp": "Only e-mail addresses with these domains are allowed to subscribe. Enter one domain per line, eg: example.com, *.example.com",
     "settings.privacy.domainBlocklist": "Lista zablokowanych domen",
     "settings.privacy.domainBlocklistHelp": "Adresy e-mail z tymi domenami nie mogą subskrybować. Wprowadź jedną domenę w każdym wierszu, np.: domena.com",
     "settings.privacy.individualSubTracking": "Śledzenie indywidualnych subskrybentów",

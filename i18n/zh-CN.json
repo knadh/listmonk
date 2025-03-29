@@ -505,6 +505,8 @@
     "settings.privacy.allowPrefsHelp": "允许订阅者更改首选项，例如他们的姓名和多个列表订阅。",
     "settings.privacy.allowWipe": "允许擦除",
     "settings.privacy.allowWipeHelp": "允许订阅者删除自己，包括他们的订阅和数据库中的所有其他数据。广告系列浏览量和链接点击量也会被删除，而浏览量和点击量仍然存在（没有与之关联的订阅者），因此统计数据和分析不会受到影响。",
+    "settings.privacy.domainAllowlist": "Domain allowlist",
+    "settings.privacy.domainAllowlistHelp": "Only e-mail addresses with these domains are allowed to subscribe. Enter one domain per line, eg: example.com, *.example.com",
     "settings.privacy.domainBlocklist": "域阻止列表",
     "settings.privacy.domainBlocklistHelp": "不允许订阅具有这些域的电子邮件地址。每行输入一个域，例如：somesite.com",
     "settings.privacy.individualSubTracking": "个人订户跟踪",

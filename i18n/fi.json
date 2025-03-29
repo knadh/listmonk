@@ -505,6 +505,8 @@
     "settings.privacy.allowPrefsHelp": "Salli tilaajien muuttaa asetuksia, kuten nimiä ja tilauslistoja.",
     "settings.privacy.allowWipe": "Salli poistaminen",
     "settings.privacy.allowWipeHelp": "Salli tilaajien poistaa itsensä sisältäen tilaukset ja kaikki muut tiedot tietokannasta. Kampanjan katselut ja linkkiklikkaukset poistuvat myös, kun näkymät ja klikki- tai näyttömäärät säilyvät (ilman tilaajaa niihin nimettynä), jotta tilastotiedot ja analytiikka eivät häiriinny.",
+    "settings.privacy.domainAllowlist": "Domain allowlist",
+    "settings.privacy.domainAllowlistHelp": "Only e-mail addresses with these domains are allowed to subscribe. Enter one domain per line, eg: example.com, *.example.com",
     "settings.privacy.domainBlocklist": "Verkkotunnus-estolista",
     "settings.privacy.domainBlocklistHelp": "Tilaajien sähköpostiosoitteet näistä verkkotunnuksista estetään liittymästä postituslistoille. Lisää yksi verkkotunnus per rivi, esim: esimerkki.fi",
     "settings.privacy.individualSubTracking": "Yksittäinen tilaajatason seuranta",

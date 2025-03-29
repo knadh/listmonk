@@ -505,6 +505,8 @@
     "settings.privacy.allowPrefsHelp": "Abonelerin adları ve çoklu liste abonelikleri gibi tercihlerini değiştirmelerine izin verin.",
     "settings.privacy.allowWipe": "Silmek için izin ver",
     "settings.privacy.allowWipeHelp": "Abonelerin, abonelikleri ve veritabanındaki diğer tüm veriler dahil olmak üzere kendilerini silmesine izin verin. Kampanya görüntülemeleri ve bağlantı tıklamaları da, görünümler ve tıklama sayıları kalır (bunlarla ilişkilendirilmiş abone olmadan), böylece istatistikler ve analizler etkilenmez.",
+    "settings.privacy.domainAllowlist": "Domain allowlist",
+    "settings.privacy.domainAllowlistHelp": "Only e-mail addresses with these domains are allowed to subscribe. Enter one domain per line, eg: example.com, *.example.com",
     "settings.privacy.domainBlocklist": "Alan adı engelleme listesi",
     "settings.privacy.domainBlocklistHelp": "Bu alan adlarına sahip e-posta adreslerinin abone olmasına izin verilmez. Her satıra bir alan adı girin, örneğin: somesite.com",
     "settings.privacy.individualSubTracking": "Bireysel üye takibi",

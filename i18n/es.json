@@ -505,6 +505,8 @@
     "settings.privacy.allowPrefsHelp": "Permitir a las cuentas suscritas realizar cambios como nombre o pertenencia a diferentes listas.",
     "settings.privacy.allowWipe": "Permitir limpieza de datos",
     "settings.privacy.allowWipeHelp": "Permitir a los suscriptores eliminarse incluyendo sus suscripciones y todos sus datos de la base de datos. Las vistas de las campañas y los vínculos cliqueados también son eliminados mientras que las vistas y el conteo de clics se mantienen. (sin suscriptores asociados a ellos) de manera que las estadísticas y el análisis no se vea afectado.",
+    "settings.privacy.domainAllowlist": "Domain allowlist",
+    "settings.privacy.domainAllowlistHelp": "Only e-mail addresses with these domains are allowed to subscribe. Enter one domain per line, eg: example.com, *.example.com",
     "settings.privacy.domainBlocklist": "Listado de dominios bloqueados",
     "settings.privacy.domainBlocklistHelp": "Los correos electrónicos de estos dominios estan desabilitados para suscribirse. Introduzca un dominio por línea, por ejemplo: unsitio.com",
     "settings.privacy.individualSubTracking": "Seguimiento de suscriptor inválido.",

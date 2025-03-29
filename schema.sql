@@ -249,6 +249,7 @@ INSERT INTO settings (key, value) VALUES
     ('privacy.allow_preferences', 'true'),
     ('privacy.exportable', '["profile", "subscriptions", "campaign_views", "link_clicks"]'),
     ('privacy.domain_blocklist', '[]'),
+    ('privacy.domain_allowlist', '[]'),
     ('privacy.record_optin_ip', 'false'),
     ('security.enable_captcha', 'false'),
     ('security.captcha_key', '""'),

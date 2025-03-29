@@ -79,6 +79,7 @@ type constants struct {
 		UnsubHeader        bool            `koanf:"unsubscribe_header"`
 		Exportable         map[string]bool `koanf:"-"`
 		DomainBlocklist    []string        `koanf:"-"`
+		DomainAllowlist    []string        `koanf:"-"`
 	} `koanf:"privacy"`
 	Security struct {
 		OIDC struct {
@@ -410,6 +411,7 @@ func initConstants() *constants {
 	c.MediaUpload.Provider = ko.String("upload.provider")
 	c.MediaUpload.Extensions = ko.Strings("upload.extensions")
 	c.Privacy.DomainBlocklist = ko.Strings("privacy.domain_blocklist")
+	c.Privacy.DomainAllowlist = ko.Strings("privacy.domain_allowlist")
 
 	// Static URLS.
 	// url.com/subscription/{campaign_uuid}/{subscriber_uuid}
@@ -535,6 +537,7 @@ func initImporter(q *models.Queries, db *sqlx.DB, core *core.Core, app *App) *su
 	return subimporter.New(
 		subimporter.Options{
 			DomainBlocklist:    app.constants.Privacy.DomainBlocklist,
+			DomainAllowlist:    app.constants.Privacy.DomainAllowlist,
 			UpsertStmt:         q.UpsertSubscriber.Stmt,
 			BlocklistStmt:      q.UpsertBlocklistSubscriber.Stmt,
 			UpdateListDateStmt: q.UpdateListsDate.Stmt,

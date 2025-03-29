@@ -505,6 +505,8 @@
     "settings.privacy.allowPrefsHelp": "Να επιτρέπεται στους συνδρομητές να αλλάξουν τις προτιμήσεις τους, όπως τα ονόματά τους και τις συνδρομές σε πολλαπλές λίστες.",
     "settings.privacy.allowWipe": "Να επιτρέπεται η ολική εκκαθάριση",
     "settings.privacy.allowWipeHelp": "Να επιτρέπεται στους συνδρομητές να διαγράφουν τους εαυτούς τους, συμπεριλαμβανομένων των εγγραφών τους και όλων των άλλων δεδομένων από τη βάση δεδομένων. Οι προβολές εκστρατειών και τα κλικ σε συνδέσμους διαγράφονται επίσης, ενώ οι καταγραφές του πλήθους των προβολές και των κλικ παραμένουν (χωρίς να συνδέεται με αυτά κανένας συνδρομητής), ώστε να μην επηρεάζονται τα στατιστικά και τα αναλυτικά στοιχεία.",
+    "settings.privacy.domainAllowlist": "Domain allowlist",
+    "settings.privacy.domainAllowlistHelp": "Only e-mail addresses with these domains are allowed to subscribe. Enter one domain per line, eg: example.com, *.example.com",
     "settings.privacy.domainBlocklist": "Λίστα αποκλεισμένων domain",
     "settings.privacy.domainBlocklistHelp": "Οι διευθύνσεις ηλεκτρονικού ταχυδρομείου σε αυτά τα domain δεν μπορούν να εγγραφούν. Εισάγετε ένα domain ανά γραμμή, π.χ.: somesite.com",
     "settings.privacy.individualSubTracking": "Παρακολούθηση μεμονωμένων συνδρομητών",

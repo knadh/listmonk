@@ -505,6 +505,8 @@
     "settings.privacy.allowPrefsHelp": "വരിക്കാരെ അവരുടെ പേരുകളും ഒന്നിലധികം ലിസ്റ്റ് സബ്‌സ്‌ക്രിപ്‌ഷനുകളും പോലുള്ള മുൻഗണനകൾ മാറ്റാൻ അനുവദിക്കുക.",
     "settings.privacy.allowWipe": "വിവരങ്ങൾ എന്നന്നേയ്ക്കുമായി ഇല്ലാതാക്കുന്നത് അനുവദിക്കുക",
     "settings.privacy.allowWipeHelp": "ഉപഭോക്താക്കളെ അവരുടെ വരിക്കാരായിട്ടുള്ള ലിസ്റ്റുകളും മറ്റു വിവരങ്ങളും ഡാറ്റാബേസിൽ നിന്നും ഇല്ലാതാക്കാൻ അനുവദിക്കുക.ക്യാമ്പെയ്ൻ കാഴ്ചകളും കണ്ണികളിന്മേലുള്ള ക്ലിക്കുകളുടെ വിവരങ്ങളും ഇല്ലാതാക്കുമെങ്കിലും കാഴ്ചകളുടെയും കണ്ണിയിലുള്ള ക്ലിക്കുകളുടെ (ഉപഭോക്തൃ വിവരങ്ങളില്ലാതെ) എണ്ണവും നിലനിൽക്കും. അതിനാൽ സ്ഥിതിവിവരക്കണക്കുകളെയും വിശകലനങ്ങളെയും ബാധിക്കില്ല.",
+    "settings.privacy.domainAllowlist": "Domain allowlist",
+    "settings.privacy.domainAllowlistHelp": "Only e-mail addresses with these domains are allowed to subscribe. Enter one domain per line, eg: example.com, *.example.com",
     "settings.privacy.domainBlocklist": "ഡൊമെയ്ൻ ബ്ലോക്ക്ലിസ്റ്റ്",
     "settings.privacy.domainBlocklistHelp": "ഈ ഡൊമെയ്‌നുകളുള്ള ഇമെയിൽ വിലാസങ്ങൾ സബ്‌സ്‌ക്രൈബുചെയ്യുന്നതിൽ നിന്ന് അനുവദനീയമല്ല. ഓരോ വരിയിലും ഒരു ഡൊമെയ്ൻ നൽകുക. ഉദാ: somesite.com",
     "settings.privacy.individualSubTracking": "വ്യക്തിഗത വരിക്കാരെ പിൻതുടരുക",

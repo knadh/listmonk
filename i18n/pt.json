@@ -505,6 +505,8 @@
     "settings.privacy.allowPrefsHelp": "Permitir que os subscritores alterem as suas preferências, como o seu nome e a sua subscrição às diversas listas.",
     "settings.privacy.allowWipe": "Permitir eliminação de dados",
     "settings.privacy.allowWipeHelp": "Permitir aos subscritores eliminar todos os seus dados, incluindo as suas subscrições, da base de dados. Visualizações de campanhas e cliques em links também são removidos enquanto visualizações e contagem de clicks permanecem (sem nenhum subscritor associado) para que as estatísticas não sejam afetadas.",
+    "settings.privacy.domainAllowlist": "Domain allowlist",
+    "settings.privacy.domainAllowlistHelp": "Only e-mail addresses with these domains are allowed to subscribe. Enter one domain per line, eg: example.com, *.example.com",
     "settings.privacy.domainBlocklist": "Lista de domínios bloqueados",
     "settings.privacy.domainBlocklistHelp": "Endereços de email com estes domínios não podem efetuar subscrições. Insira um domínio por linha, e.g. somesite.com",
     "settings.privacy.individualSubTracking": "Tracking individual de subscritores",

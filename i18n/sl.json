@@ -505,6 +505,8 @@
     "settings.privacy.allowPrefsHelp": "Dovoli naročnikom, da spremenijo nastavitve, kot so njihova imena in naročnine na več seznamov.",
     "settings.privacy.allowWipe": "Dovoli brisanje",
     "settings.privacy.allowWipeHelp": "Dovoli naročnikom, da se izbrišejo, vključno s svojimi naročninami in vsemi drugimi podatki iz zbirke podatkov. Odstranjeni so tudi ogledi oglaševalske akcije in kliki povezav, medtem ko število ogledov in klikov ostane (brez povezanih naročnikov), tako da statistika in analitika ni prizadeta.",
+    "settings.privacy.domainAllowlist": "Domain allowlist",
+    "settings.privacy.domainAllowlistHelp": "Only e-mail addresses with these domains are allowed to subscribe. Enter one domain per line, eg: example.com, *.example.com",
     "settings.privacy.domainBlocklist": "Seznam blokiranih domen",
     "settings.privacy.domainBlocklistHelp": "Na e-poštne naslove s temi domenami ni dovoljeno naročanje. V vsako vrstico vnesite eno domeno, npr. somesite.com",
     "settings.privacy.individualSubTracking": "Sledenje posameznim naročnikom",

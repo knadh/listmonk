@@ -505,6 +505,8 @@
     "settings.privacy.allowPrefsHelp": "Tillat abonnenter å endre preferanser, for eksempel navn og hvilke lister de er abonnert på.",
     "settings.privacy.allowWipe": "Tillat sletting",
     "settings.privacy.allowWipeHelp": "Tillat abonnenter å slette seg selv, inkludert abonnementer og all annen data fra databasen. Kampanjevisninger og lenkeklikk fjernes også, mens statistikk og analyse forblir (uten tilknytning til abonnenter).",
+    "settings.privacy.domainAllowlist": "Domain allowlist",
+    "settings.privacy.domainAllowlistHelp": "Only e-mail addresses with these domains are allowed to subscribe. Enter one domain per line, eg: example.com, *.example.com",
     "settings.privacy.domainBlocklist": "Blokkerte domener",
     "settings.privacy.domainBlocklistHelp": "E-postadresser med disse domenene er ikke tillatt å abonnere. Skriv inn ett domene per linje, f.eks. somesite.com",
     "settings.privacy.individualSubTracking": "Individuell abonnentsporing",

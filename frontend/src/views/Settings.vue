@@ -194,6 +194,7 @@ export default Vue.extend({
 
       // Domain blocklist array from multi-line strings.
       form['privacy.domain_blocklist'] = form['privacy.domain_blocklist'].split('\n').map((v) => v.trim().toLowerCase()).filter((v) => v !== '');
+      form['privacy.domain_allowlist'] = form['privacy.domain_allowlist'].split('\n').map((v) => v.trim().toLowerCase()).filter((v) => v !== '');
 
       this.isLoading = true;
       this.$api.updateSettings(form).then((data) => {
@@ -236,6 +237,7 @@ export default Vue.extend({
 
         // Domain blocklist array to multi-line string.
         d['privacy.domain_blocklist'] = d['privacy.domain_blocklist'].join('\n');
+        d['privacy.domain_allowlist'] = d['privacy.domain_allowlist'].join('\n');
 
         this.key += 1;
         this.form = d;

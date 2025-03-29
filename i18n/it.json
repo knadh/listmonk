@@ -505,6 +505,8 @@
     "settings.privacy.allowPrefsHelp": "Consenti agli iscritti di modificare le preferenze come il loro nome e le sottoscrizioni a più liste.",
     "settings.privacy.allowWipe": "Autorizza la cancellazione",
     "settings.privacy.allowWipeHelp": "Autorizza gli iscritti a cancellare le loro iscrizioni e tutti gli altri dati dal database. Le visualizzazioni della campagna e i clic sui link verranno anch'essi cancellati, mentre i contatori globali delle visualizzazioni e del numero di clic restano invariati (nessun iscritto vi è associato) in modo che le statistiche non siano compromesse.",
+    "settings.privacy.domainAllowlist": "Domain allowlist",
+    "settings.privacy.domainAllowlistHelp": "Only e-mail addresses with these domains are allowed to subscribe. Enter one domain per line, eg: example.com, *.example.com",
     "settings.privacy.domainBlocklist": "Dominio della lista di blocco",
     "settings.privacy.domainBlocklistHelp": "Le caselle di posta di questi domini sono vietate dalla iscrizione. Inserire un dominio per riga, ad esempio: pincopallino.com",
     "settings.privacy.individualSubTracking": "Follow-up individuale degli abbonati",

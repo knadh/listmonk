@@ -505,6 +505,8 @@
     "settings.privacy.allowPrefsHelp": "Дозволити підписни_цям налаштовувати свої імена й перемикати стан підписок.",
     "settings.privacy.allowWipe": "Дозволити стирання",
     "settings.privacy.allowWipeHelp": "Дозволити підписни_цям видаляти себе, свої підписки й пов'язані дані з бази. Перегляди кампаній і переходи за посиланнями відв'язуються від підписни_ці, тобто кількість у статистиці й аналітиці залишається без змін.",
+    "settings.privacy.domainAllowlist": "Domain allowlist",
+    "settings.privacy.domainAllowlistHelp": "Only e-mail addresses with these domains are allowed to subscribe. Enter one domain per line, eg: example.com, *.example.com",
     "settings.privacy.domainBlocklist": "Блокування доменів",
     "settings.privacy.domainBlocklistHelp": "Адресам е-пошти з цих доменів заборонено підписуватись. Уводьте кожен домен з нового рядка, наприклад: example.org",
     "settings.privacy.individualSubTracking": "Відстежувати окремих підписни_ць",

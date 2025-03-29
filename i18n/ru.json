@@ -505,6 +505,8 @@
     "settings.privacy.allowPrefsHelp": "Разрешить подписчикам изменять настройки, такие как их имена и подписки на несколько списков.",
     "settings.privacy.allowWipe": "Разрешить удаление",
     "settings.privacy.allowWipeHelp": "Разрешить подписчикам удалять себя, включая их подписки и все другие данные из базы данных. Просмотры кампаний и клики по ссылкам также удаляются, в то время как количество просмотров и кликов остаётся (без связи с подписчиком), чтобы не повлиять на статистику и аналитику.",
+    "settings.privacy.domainAllowlist": "Domain allowlist",
+    "settings.privacy.domainAllowlistHelp": "Only e-mail addresses with these domains are allowed to subscribe. Enter one domain per line, eg: example.com, *.example.com",
     "settings.privacy.domainBlocklist": "Чёрный список доменов",
     "settings.privacy.domainBlocklistHelp": "Адреса электронной почты с этими доменами не могут подписываться. Введите по одному домену на строку, например: somesite.com",
     "settings.privacy.individualSubTracking": "Индивидуальное отслеживание подписчиков",

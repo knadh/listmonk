@@ -505,6 +505,8 @@
     "settings.privacy.allowPrefsHelp": "Ska prenumeranter kunna ändra preferenser som deras namn och flera lista-prenumerationer.",
     "settings.privacy.allowWipe": "Tillåt att radera",
     "settings.privacy.allowWipeHelp": "Ska prenumeranter kunna radera sig själva, inklusive deras prenumerationer och all annan data från databasen. Kampanjvisningar och länkklickar tas också bort, medan visnings- och klickräkningar förblir (utan någon prenumerant kopplad till dem) för att statistik och analys inte påverkas.",
+    "settings.privacy.domainAllowlist": "Domain allowlist",
+    "settings.privacy.domainAllowlistHelp": "Only e-mail addresses with these domains are allowed to subscribe. Enter one domain per line, eg: example.com, *.example.com",
     "settings.privacy.domainBlocklist": "Domänblocklista",
     "settings.privacy.domainBlocklistHelp": "E-postadresser med dessa domäner är inte tillåtna att prenumerera. Ange en domän per rad, t.ex: exempsite.com",
     "settings.privacy.individualSubTracking": "Individuell prenumerationsövervakning",

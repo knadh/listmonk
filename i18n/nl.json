@@ -505,6 +505,8 @@
     "settings.privacy.allowPrefsHelp": "Abonnees toestaan ​​om voorkeuren zoals hun naam en meerdere lijstabonnementen te wijzigen.",
     "settings.privacy.allowWipe": "Data wipe toestaan",
     "settings.privacy.allowWipeHelp": "Abonnees toelaten zichzelf, al hun inschrijvingen en alle andere data over hun te verwijderen uit de database. Views en klikken op links van campagnes worden verwijderd, maar het aantal views en kliks blijft hetzelfde zodat statistieken niet veranderen.",
+    "settings.privacy.domainAllowlist": "Domain allowlist",
+    "settings.privacy.domainAllowlistHelp": "Only e-mail addresses with these domains are allowed to subscribe. Enter one domain per line, eg: example.com, *.example.com",
     "settings.privacy.domainBlocklist": "Domein blocklist",
     "settings.privacy.domainBlocklistHelp": "E-mail adressen met deze domeinen kunnen zich niet inschrijven. Geef een domein in per lijn, bv.: somesite.com",
     "settings.privacy.individualSubTracking": "Individuele abonnees volgen",

@@ -29,9 +29,20 @@
       <b-switch v-model="data['privacy.record_optin_ip']" name="privacy.record_optin_ip" />
     </b-field>
 
-    <b-field :label="$t('settings.privacy.domainBlocklist')" :message="$t('settings.privacy.domainBlocklistHelp')">
-      <b-input type="textarea" v-model="data['privacy.domain_blocklist']" name="privacy.domain_blocklist" />
-    </b-field>
+    <hr />
+
+    <b-tabs v-model="tab" type="is-boxed" :animated="false">
+      <b-tab-item :label="`${$t('settings.privacy.domainBlocklist')} (${numBlocked})`">
+        <b-field :message="$t('settings.privacy.domainBlocklistHelp')">
+          <b-input type="textarea" v-model="data['privacy.domain_blocklist']" name="privacy.domain_blocklist" />
+        </b-field>
+      </b-tab-item>
+      <b-tab-item :label="`${$t('settings.privacy.domainAllowlist')} (${numAllowed})`">
+        <b-field :message="$t('settings.privacy.domainAllowlistHelp')">
+          <b-input type="textarea" v-model="data['privacy.domain_allowlist']" name="privacy.domain_allowlist" />
+        </b-field>
+      </b-tab-item>
+    </b-tabs>
   </div>
 </template>
 
@@ -48,7 +59,33 @@ export default Vue.extend({
   data() {
     return {
       data: this.form,
+      tab: 0,
     };
+  },
+
+  methods: {
+    countItems(str) {
+      return str.split('\n').filter((line) => line.trim()).length;
+    },
+  },
+
+  mounted() {
+    this.tab = this.$utils.getPref('settings.privacyDomainTab') || 0;
+  },
+
+  computed: {
+    numBlocked() {
+      return this.countItems(this.form['privacy.domain_blocklist']);
+    },
+    numAllowed() {
+      return this.countItems(this.form['privacy.domain_allowlist']);
+    },
+  },
+
+  watch: {
+    tab(t) {
+      this.$utils.setPref('settings.privacyDomainTab', t);
+    },
   },
 });
 </script>
