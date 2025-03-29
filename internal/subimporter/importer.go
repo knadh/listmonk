@@ -172,7 +172,7 @@ func (im *Importer) NewSession(opt SessionOpt) (*Session, error) {
 
 	s := &Session{
 		im:       im,
-		log:      log.New(im.status.logBuf, "", log.Ldate|log.Ltime|log.Lshortfile),
+		log:      log.New(im.status.logBuf, "", log.Ldate|log.Ltime|log.Lmicroseconds|log.Lshortfile),
 		subQueue: make(chan SubReq, commitBatchSize),
 		opt:      opt,
 	}
