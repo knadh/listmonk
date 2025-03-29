@@ -295,7 +295,6 @@
     "media.errorSavingThumbnail": "Feil ved lagring av miniatyrbilde: {error}",
     "media.errorUploading": "Feil ved opplasting av fil: {error}",
     "media.invalidFile": "Ugyldig fil: {error}",
-    "media.invalidFileName": "Ugyldig filnavn {name}. Bruk kun ASCII-tegn",
     "media.title": "Media",
     "media.unsupportedFileType": "Ikke-støttet filtype ({type})",
     "media.upload": "Last opp",

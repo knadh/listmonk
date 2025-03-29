@@ -295,7 +295,6 @@
     "media.errorSavingThumbnail": "Грешка при запазване на миниатюра: {error}",
     "media.errorUploading": "Грешка при качване на файл: {error}",
     "media.invalidFile": "Невалиден файл: {error}",
-    "media.invalidFileName": "Невалидно име на файл {name}. Използвайте само ASCII символи",
     "media.title": "Медия",
     "media.unsupportedFileType": "Неподдържан тип файл ({type})",
     "media.upload": "Качване",
@@ -641,4 +640,3 @@
     "users.username": "Потребителско име",
     "users.usernameHelp": "Използва се с вход с парола"
 }
-    
