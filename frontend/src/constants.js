@@ -2,7 +2,12 @@ export const models = Object.freeze({
   serverConfig: 'serverConfig',
   lang: 'lang',
   dashboard: 'dashboard',
+  // This loading state is used across all contexts where lists are loaded
+  // via the instant "minimal" API.
   lists: 'lists',
+  // This is used only on the lists page where lists are loaded with full
+  // context (subscriber counts), which can be slow and expensive.
+  listsFull: 'listsFull',
   subscribers: 'subscribers',
   campaigns: 'campaigns',
   templates: 'templates',
