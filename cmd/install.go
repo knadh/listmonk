@@ -15,7 +15,7 @@ import (
 
 // install runs the first time setup of setting up the database.
 func install(lastVer string, db *sqlx.DB, fs stuffbin.FileSystem, prompt, idempotent bool) {
-	qMap := readQueries(queryFilePath, db, fs)
+	qMap := readQueries(queryFilePath, fs)
 
 	fmt.Println("")
 	if !idempotent {
@@ -244,7 +244,7 @@ func recordMigrationVersion(ver string, db *sqlx.DB) error {
 
 func newConfigFile(path string) error {
 	if _, err := os.Stat(path); !os.IsNotExist(err) {
-		return fmt.Errorf("%s exists. Remove it to generate a new one.", path)
+		return fmt.Errorf("%s exists. Remove it to generate a new one", path)
 	}
 
 	// Initialize the static file system into which all

@@ -20,13 +20,6 @@ var (
 	reTitle = regexp.MustCompile(`(?s)<title\s*data-i18n\s*>(.+?)</title>`)
 )
 
-// notifData represents params commonly used across different notification
-// templates.
-type notifData struct {
-	RootURL string
-	LogoURL string
-}
-
 // sendNotification sends out an e-mail notification to admins.
 func (app *App) sendNotification(toEmails []string, subject, tplName string, data interface{}, headers textproto.MIMEHeader) error {
 	if len(toEmails) == 0 {

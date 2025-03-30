@@ -8,7 +8,6 @@ import (
 	"regexp"
 
 	"github.com/knadh/listmonk/internal/auth"
-	"github.com/knadh/paginator"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
@@ -16,11 +15,6 @@ import (
 const (
 	// stdInputMaxLen is the maximum allowed length for a standard input field.
 	stdInputMaxLen = 2000
-
-	sortAsc  = "asc"
-	sortDesc = "desc"
-
-	basicAuthd = "basicauthd"
 
 	// URIs.
 	uriAdmin = "/admin"
@@ -30,25 +24,8 @@ type okResp struct {
 	Data interface{} `json:"data"`
 }
 
-// pagination represents a query's pagination (limit, offset) related values.
-type pagination struct {
-	PerPage int `json:"per_page"`
-	Page    int `json:"page"`
-	Offset  int `json:"offset"`
-	Limit   int `json:"limit"`
-}
-
 var (
-	reUUID     = regexp.MustCompile("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$")
-	reLangCode = regexp.MustCompile("[^a-zA-Z_0-9\\-]")
-
-	paginate = paginator.New(paginator.Opt{
-		DefaultPerPage: 20,
-		MaxPerPage:     50,
-		NumPageNums:    10,
-		PageParam:      "page",
-		PerPageParam:   "per_page",
-	})
+	reUUID = regexp.MustCompile("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$")
 )
 
 // registerHandlers registers HTTP handlers.
@@ -352,9 +329,8 @@ func validateUUID(next echo.HandlerFunc, params ...string) echo.HandlerFunc {
 
 		for _, p := range params {
 			if !reUUID.MatchString(c.Param(p)) {
-				return c.Render(http.StatusBadRequest, tplMessage,
-					makeMsgTpl(app.i18n.T("public.errorTitle"), "",
-						app.i18n.T("globals.messages.invalidUUID")))
+				return c.Render(http.StatusBadRequest, tplMessage, makeMsgTpl(app.i18n.T("public.errorTitle"), "",
+					app.i18n.T("globals.messages.invalidUUID")))
 			}
 		}
 		return next(c)
@@ -363,7 +339,7 @@ func validateUUID(next echo.HandlerFunc, params ...string) echo.HandlerFunc {
 
 // subscriberExists middleware checks if a subscriber exists given the UUID
 // param in a request.
-func subscriberExists(next echo.HandlerFunc, params ...string) echo.HandlerFunc {
+func subscriberExists(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var (
 			app     = c.Get("app").(*App)
@@ -386,7 +362,7 @@ func subscriberExists(next echo.HandlerFunc, params ...string) echo.HandlerFunc 
 }
 
 // noIndex adds the HTTP header requesting robots to not crawl the page.
-func noIndex(next echo.HandlerFunc, params ...string) echo.HandlerFunc {
+func noIndex(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		c.Response().Header().Set("X-Robots-Tag", "noindex")
 		return next(c)

@@ -161,7 +161,6 @@ func handleBounceWebhook(c echo.Context) error {
 				app.log.Printf("error processing SNS (SES) subscription: %v", err)
 				return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidData"))
 			}
-			break
 
 		// Bounce notification.
 		case "Notification":
