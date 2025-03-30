@@ -557,7 +557,13 @@ WHERE ($1 = 0 OR id = $1)
     AND (CARDINALITY($2::campaign_status[]) = 0 OR status = ANY($2))
     AND (CARDINALITY($3::VARCHAR(100)[]) = 0 OR $3 <@ tags)
     AND ($4 = '' OR TO_TSVECTOR(CONCAT(name, ' ', subject)) @@ TO_TSQUERY($4) OR CONCAT(c.name, ' ', c.subject) ILIKE $4)
-ORDER BY %order% OFFSET $5 LIMIT (CASE WHEN $6 < 1 THEN NULL ELSE $6 END);
+    -- Get all campaigns or filter by list IDs.
+    AND (
+        $5 OR EXISTS (
+            SELECT 1 FROM campaign_lists WHERE campaign_id = c.id AND list_id = ANY($6::INT[])
+        )
+    )
+ORDER BY %order% OFFSET $7 LIMIT (CASE WHEN $8 < 1 THEN NULL ELSE $8 END);
 
 -- name: get-campaign
 SELECT campaigns.*,
@@ -640,9 +646,13 @@ LEFT JOIN templates ON (templates.id = (CASE WHEN $2=0 THEN campaigns.template_i
 WHERE campaigns.id = $1;
 
 -- name: get-campaign-status
-SELECT id, status, to_send, sent, started_at, updated_at
-    FROM campaigns
-    WHERE status=$1;
+SELECT id, status, to_send, sent, started_at, updated_at FROM campaigns WHERE status=$1;
+
+-- name: campaign-has-lists
+-- Returns TRUE if the campaign $1 has any of the lists given in $2.
+SELECT EXISTS (
+    SELECT TRUE FROM campaign_lists WHERE campaign_id = $1 AND list_id = ANY($2::INT[])
+);
 
 -- name: next-campaigns
 -- Retreives campaigns that are running (or scheduled and the time's up) and need

@@ -23,9 +23,8 @@ import (
 
 const (
 	// UserKey is the key on which the User profile is set on echo handlers.
-	UserKey          = "auth_user"
-	SessionKey       = "auth_session"
-	SuperAdminRoleID = 1
+	UserKey    = "auth_user"
+	SessionKey = "auth_session"
 )
 
 const (
@@ -282,7 +281,7 @@ func (o *Auth) Perm(next echo.HandlerFunc, perms ...string) echo.HandlerFunc {
 		}
 
 		// If the current user is a Super Admin user, do no checks.
-		if u.UserRole.ID == SuperAdminRoleID {
+		if u.UserRole.ID == models.SuperAdminRoleID {
 			return next(c)
 		}
 

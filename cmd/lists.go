@@ -28,19 +28,12 @@ func handleGetLists(c echo.Context) error {
 		out models.PageResults
 	)
 
-	var (
-		permittedIDs []int
-		getAll       = false
-	)
-	if _, ok := user.PermissionsMap[models.PermListGetAll]; ok {
-		getAll = true
-	} else {
-		permittedIDs = user.GetListIDs
-	}
+	// Get the list IDs (or blanket permission) the user has access to.
+	hasAllPerm, permittedIDs := user.GetPermittedLists(true, false)
 
 	// Minimal query simply returns the list of all lists without JOIN subscriber counts. This is fast.
 	if minimal {
-		res, err := app.core.GetLists("", getAll, permittedIDs)
+		res, err := app.core.GetLists("", hasAllPerm, permittedIDs)
 		if err != nil {
 			return err
 		}
@@ -58,7 +51,7 @@ func handleGetLists(c echo.Context) error {
 	}
 
 	// Full list query.
-	res, total, err := app.core.QueryLists(query, typ, optin, tags, orderBy, order, getAll, permittedIDs, pg.Offset, pg.Limit)
+	res, total, err := app.core.QueryLists(query, typ, optin, tags, orderBy, order, hasAllPerm, permittedIDs, pg.Offset, pg.Limit)
 	if err != nil {
 		return err
 	}
@@ -73,6 +66,7 @@ func handleGetLists(c echo.Context) error {
 }
 
 // handleGetList retrieves a single list by id.
+// It's permission checked by the listPerm middleware.
 func handleGetList(c echo.Context) error {
 	var (
 		app       = c.Get("app").(*App)
@@ -112,6 +106,7 @@ func handleCreateList(c echo.Context) error {
 }
 
 // handleUpdateList handles list modification.
+// It's permission checked by the listPerm middleware.
 func handleUpdateList(c echo.Context) error {
 	var (
 		app   = c.Get("app").(*App)
@@ -142,6 +137,7 @@ func handleUpdateList(c echo.Context) error {
 }
 
 // handleDeleteLists handles list deletion, either a single one (ID in the URI), or a list.
+// It's permission checked by the listPerm middleware.
 func handleDeleteLists(c echo.Context) error {
 	var (
 		app   = c.Get("app").(*App)
@@ -185,11 +181,12 @@ func listPerm(next echo.HandlerFunc) echo.HandlerFunc {
 		}
 
 		// Check if the user has permissions for all lists or the specific list.
-		if _, ok := user.PermissionsMap[permAll]; ok {
+		if user.HasPerm(permAll) {
 			return next(c)
 		}
+
 		if id > 0 {
-			if _, ok := user.ListPermissionsMap[id][perm]; ok {
+			if user.HasListPerm(id, perm) {
 				return next(c)
 			}
 		}
