@@ -31,6 +31,7 @@ func V5_0_0(db *sqlx.DB, fs stuffbin.FileSystem, ko *koanf.Koanf, lo *log.Logger
 		return err
 	}
 
+	// Index of media filename lookup.
 	if _, err := db.Exec(`
 		CREATE INDEX IF NOT EXISTS idx_media_filename ON media(provider, filename);
 	`); err != nil {
@@ -40,6 +41,14 @@ func V5_0_0(db *sqlx.DB, fs stuffbin.FileSystem, ko *koanf.Koanf, lo *log.Logger
 	// Insert new preference settings.
 	if _, err := db.Exec(`
 		INSERT INTO settings (key, value) VALUES('privacy.domain_allowlist', '[]') ON CONFLICT DO NOTHING;
+	`); err != nil {
+		return err
+	}
+
+	// Insert new default super admin permissions.
+	if _, err := db.Exec(`
+		UPDATE roles SET permissions = permissions || '{campaigns:get_all}' WHERE id = 1 AND NOT permissions @> '{campaigns:get_all}';
+		UPDATE roles SET permissions = permissions || '{campaigns:manage_all}' WHERE id = 1 AND NOT permissions @> '{campaigns:manage_all}';
 	`); err != nil {
 		return err
 	}

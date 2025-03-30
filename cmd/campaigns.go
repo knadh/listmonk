@@ -13,6 +13,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/knadh/listmonk/internal/auth"
 	"github.com/knadh/listmonk/models"
 	"github.com/labstack/echo/v4"
 	"github.com/lib/pq"
@@ -52,8 +53,9 @@ var (
 // handleGetCampaigns handles retrieval of campaigns.
 func handleGetCampaigns(c echo.Context) error {
 	var (
-		app = c.Get("app").(*App)
-		pg  = app.paginator.NewFromURL(c.Request().URL.Query())
+		app  = c.Get("app").(*App)
+		user = c.Get(auth.UserKey).(models.User)
+		pg   = app.paginator.NewFromURL(c.Request().URL.Query())
 
 		status    = c.QueryParams()["status"]
 		tags      = c.QueryParams()["tag"]
@@ -63,17 +65,31 @@ func handleGetCampaigns(c echo.Context) error {
 		noBody, _ = strconv.ParseBool(c.QueryParam("no_body"))
 	)
 
-	res, total, err := app.core.QueryCampaigns(query, status, tags, orderBy, order, pg.Offset, pg.Limit)
+	var (
+		hasAllPerm     = user.HasPerm(models.PermCampaignsGetAll)
+		permittedLists []int
+	)
+
+	if !hasAllPerm {
+		// Either the user has campaigns:get_all permissions and can view all campaigns,
+		// or the campaigns are filtered by the lists the user has get|manage access to.
+		hasAllPerm, permittedLists = user.GetPermittedLists(true, true)
+	}
+
+	// Query and retrieve the campaigns.
+	res, total, err := app.core.QueryCampaigns(query, status, tags, orderBy, order, hasAllPerm, permittedLists, pg.Offset, pg.Limit)
 	if err != nil {
 		return err
 	}
 
+	// Remove the body from the response if requested.
 	if noBody {
-		for i := 0; i < len(res); i++ {
+		for i := range res {
 			res[i].Body = ""
 		}
 	}
 
+	// Paginate the response.
 	var out models.PageResults
 	if len(res) == 0 {
 		out.Results = []models.Campaign{}
@@ -93,11 +109,22 @@ func handleGetCampaigns(c echo.Context) error {
 // handleGetCampaign handles retrieval of campaigns.
 func handleGetCampaign(c echo.Context) error {
 	var (
-		app       = c.Get("app").(*App)
+		app = c.Get("app").(*App)
+
 		id, _     = strconv.Atoi(c.Param("id"))
 		noBody, _ = strconv.ParseBool(c.QueryParam("no_body"))
 	)
 
+	if id < 1 {
+		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidID"))
+	}
+
+	// Check if the user has access to the campaign.
+	if err := checkCampaignPerm(id, true, c); err != nil {
+		return err
+	}
+
+	// Get the campaign from the DB.
 	out, err := app.core.GetCampaign(id, "", "")
 	if err != nil {
 		return err
@@ -113,7 +140,8 @@ func handleGetCampaign(c echo.Context) error {
 // handlePreviewCampaign renders the HTML preview of a campaign body.
 func handlePreviewCampaign(c echo.Context) error {
 	var (
-		app      = c.Get("app").(*App)
+		app = c.Get("app").(*App)
+
 		id, _    = strconv.Atoi(c.Param("id"))
 		tplID, _ = strconv.Atoi(c.FormValue("template_id"))
 	)
@@ -122,6 +150,12 @@ func handlePreviewCampaign(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidID"))
 	}
 
+	// Check if the user has access to the campaign.
+	if err := checkCampaignPerm(id, true, c); err != nil {
+		return err
+	}
+
+	// Fetch the campaign body from the DB.
 	camp, err := app.core.GetCampaignForPreview(id, tplID)
 	if err != nil {
 		return err
@@ -243,6 +277,12 @@ func handleUpdateCampaign(c echo.Context) error {
 
 	}
 
+	// Check if the user has access to the campaign.
+	if err := checkCampaignPerm(id, false, c); err != nil {
+		return err
+	}
+
+	// Retrieve the campaign from the DB.
 	cm, err := app.core.GetCampaign(id, "", "")
 	if err != nil {
 		return err
@@ -285,20 +325,26 @@ func handleUpdateCampaignStatus(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidID"))
 	}
 
-	var o struct {
-		Status string `json:"status"`
-	}
-
-	if err := c.Bind(&o); err != nil {
+	// Check if the user has access to the campaign.
+	if err := checkCampaignPerm(id, false, c); err != nil {
 		return err
 	}
 
-	out, err := app.core.UpdateCampaignStatus(id, o.Status)
+	req := struct {
+		Status string `json:"status"`
+	}{}
+	if err := c.Bind(&req); err != nil {
+		return err
+	}
+
+	// Update the campaign status in the DB.
+	out, err := app.core.UpdateCampaignStatus(id, req.Status)
 	if err != nil {
 		return err
 	}
 
-	if o.Status == models.CampaignStatusPaused || o.Status == models.CampaignStatusCancelled {
+	// If the campaign is being stopped, send the signal to the manager to stop it in flight.
+	if req.Status == models.CampaignStatusPaused || req.Status == models.CampaignStatusCancelled {
 		app.manager.StopCampaign(id)
 	}
 
@@ -312,14 +358,17 @@ func handleUpdateCampaignArchive(c echo.Context) error {
 		id, _ = strconv.Atoi(c.Param("id"))
 	)
 
+	// Check if the user has access to the campaign.
+	if err := checkCampaignPerm(id, false, c); err != nil {
+		return err
+	}
+
 	req := struct {
 		Archive     bool        `json:"archive"`
 		TemplateID  int         `json:"archive_template_id"`
 		Meta        models.JSON `json:"archive_meta"`
 		ArchiveSlug string      `json:"archive_slug"`
 	}{}
-
-	// Get and validate fields.
 	if err := c.Bind(&req); err != nil {
 		return err
 	}
@@ -351,6 +400,12 @@ func handleDeleteCampaign(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidID"))
 	}
 
+	// Check if the user has access to the campaign.
+	if err := checkCampaignPerm(id, false, c); err != nil {
+		return err
+	}
+
+	// Delete the campaign from the DB.
 	if err := app.core.DeleteCampaign(id); err != nil {
 		return err
 	}
@@ -401,17 +456,23 @@ func handleGetRunningCampaignStats(c echo.Context) error {
 // arbitrary subscribers for testing.
 func handleTestCampaign(c echo.Context) error {
 	var (
-		app       = c.Get("app").(*App)
-		campID, _ = strconv.Atoi(c.Param("id"))
-		tplID, _  = strconv.Atoi(c.FormValue("template_id"))
-		req       campaignReq
+		app = c.Get("app").(*App)
+
+		id, _    = strconv.Atoi(c.Param("id"))
+		tplID, _ = strconv.Atoi(c.FormValue("template_id"))
 	)
 
-	if campID < 1 {
+	if id < 1 {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.errorID"))
 	}
 
+	// Check if the user has access to the campaign.
+	if err := checkCampaignPerm(id, false, c); err != nil {
+		return err
+	}
+
 	// Get and validate fields.
+	var req campaignReq
 	if err := c.Bind(&req); err != nil {
 		return err
 	}
@@ -437,7 +498,7 @@ func handleTestCampaign(c echo.Context) error {
 	}
 
 	// The campaign.
-	camp, err := app.core.GetCampaignForPreview(campID, tplID)
+	camp, err := app.core.GetCampaignForPreview(id, tplID)
 	if err != nil {
 		return err
 	}
@@ -643,4 +704,42 @@ func makeOptinCampaignMessage(o campaignReq, app *App) (campaignReq, error) {
 
 	o.Body = b.String()
 	return o, nil
+}
+
+// checkCampaignPerm checks if the user has get or manage access to the given campaign.
+func checkCampaignPerm(id int, isGet bool, c echo.Context) error {
+	var (
+		app  = c.Get("app").(*App)
+		user = c.Get(auth.UserKey).(models.User)
+	)
+
+	perm := models.PermCampaignsGet
+	if isGet {
+		// It's a get request and there's a blanket get all permission.
+		if user.HasPerm(models.PermCampaignsGetAll) {
+			return nil
+		}
+	} else {
+		// It's a manage request and there's a blanket manage_all permission.
+		if user.HasPerm(models.PermCampaignsManageAll) {
+			return nil
+		}
+
+		perm = models.PermCampaignsManage
+	}
+
+	// There are no *_all campaign permissions. Instead, check if the user access
+	// blanket get_all/manage_all list permissions. If yes, then the user can access
+	// all campaigns. If there are no *_all permissions, then ensure that the
+	// campaign belongs to the lists that the user has access to.
+	if hasAllPerm, permittedListIDs := user.GetPermittedLists(true, true); !hasAllPerm {
+		if ok, err := app.core.CampaignHasLists(id, permittedListIDs); err != nil {
+			return err
+		} else if !ok {
+			return echo.NewHTTPError(http.StatusForbidden,
+				app.i18n.Ts("globals.messages.permissionDenied", "name", perm))
+		}
+	}
+
+	return nil
 }

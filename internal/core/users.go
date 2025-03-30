@@ -19,7 +19,7 @@ func (c *Core) GetUsers() ([]models.User, error) {
 			c.i18n.Ts("globals.messages.errorFetching", "name", "{globals.terms.users}", "error", pqErrMsg(err)))
 	}
 
-	return c.formatUsers(out), nil
+	return c.setupUserFields(out), nil
 }
 
 // GetUser retrieves a specific user based on any one given identifier.
@@ -36,7 +36,7 @@ func (c *Core) GetUser(id int, username, email string) (models.User, error) {
 			c.i18n.Ts("globals.messages.errorFetching", "name", "{globals.terms.users}", "error", pqErrMsg(err)))
 	}
 
-	return c.formatUsers([]models.User{out})[0], nil
+	return c.setupUserFields([]models.User{out})[0], nil
 }
 
 // CreateUser creates a new user.
@@ -152,7 +152,8 @@ func (c *Core) LoginUser(username, password string) (models.User, error) {
 	return out, nil
 }
 
-func (c *Core) formatUsers(users []models.User) []models.User {
+// setupUserFields prepares and sets up various user fields.
+func (c *Core) setupUserFields(users []models.User) []models.User {
 	for n, u := range users {
 		u := u
 
@@ -188,6 +189,7 @@ func (c *Core) formatUsers(users []models.User) []models.User {
 
 			u.ListRole = &models.ListRolePermissions{ID: *u.ListRoleID, Name: u.ListRoleName.String, Lists: listPerms}
 
+			// Iterate each list in the list permissions and setup get/manage list IDs.
 			for _, p := range listPerms {
 				u.ListPermissionsMap[p.ID] = make(map[string]struct{})
 
@@ -195,10 +197,10 @@ func (c *Core) formatUsers(users []models.User) []models.User {
 					u.ListPermissionsMap[p.ID][perm] = struct{}{}
 
 					// List IDs with get / manage permissions.
-					if perm == "list:get" {
+					if perm == models.PermListGet {
 						u.GetListIDs = append(u.GetListIDs, p.ID)
 					}
-					if perm == "list:manage" {
+					if perm == models.PermListManage {
 						u.ManageListIDs = append(u.ManageListIDs, p.ID)
 					}
 				}

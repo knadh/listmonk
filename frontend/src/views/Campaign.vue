@@ -23,7 +23,7 @@
       </div>
 
       <div class="column is-6">
-        <div v-if="$can('campaigns:manage')" class="buttons">
+        <div v-if="canManage" class="buttons">
           <b-field grouped v-if="isEditing && canEdit">
             <b-field expanded>
               <b-button expanded @click="() => onSubmit('update')" :loading="loading.campaigns" type="is-primary"
@@ -157,7 +157,7 @@
                 </b-field>
               </form>
             </div>
-            <div v-if="$can('campaigns:manage')" class="column is-4 is-offset-1">
+            <div v-if="canManage" class="column is-4 is-offset-1">
               <br />
               <div class="box">
                 <h3 class="title is-size-6">
@@ -619,6 +619,10 @@ export default Vue.extend({
 
   computed: {
     ...mapState(['serverConfig', 'loading', 'lists', 'templates']),
+
+    canManage() {
+      return this.$can('campaigns:manage_all', 'campaigns:manage');
+    },
 
     canEdit() {
       return this.isNew
