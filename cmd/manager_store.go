@@ -1,8 +1,6 @@
 package main
 
 import (
-	"net/http"
-
 	"github.com/gofrs/uuid/v5"
 	"github.com/knadh/listmonk/internal/core"
 	"github.com/knadh/listmonk/internal/manager"
@@ -17,7 +15,6 @@ type store struct {
 	queries *models.Queries
 	core    *core.Core
 	media   media.Store
-	h       *http.Client
 }
 
 type runningCamp struct {

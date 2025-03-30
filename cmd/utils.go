@@ -1,16 +1,12 @@
 package main
 
 import (
-	"bytes"
 	"crypto/rand"
 	"fmt"
 	"path/filepath"
 	"regexp"
 	"strconv"
 	"strings"
-
-	"golang.org/x/text/cases"
-	"golang.org/x/text/language"
 )
 
 var (
@@ -98,28 +94,4 @@ func generateRandomString(n int) (string, error) {
 // strHasLen checks if the given string has a length within min-max.
 func strHasLen(str string, min, max int) bool {
 	return len(str) >= min && len(str) <= max
-}
-
-// strSliceContains checks if a string is present in the string slice.
-func strSliceContains(str string, sl []string) bool {
-	for _, s := range sl {
-		if s == str {
-			return true
-		}
-	}
-
-	return false
-}
-
-func trimNullBytes(b []byte) string {
-	return string(bytes.Trim(b, "\x00"))
-}
-
-func titleCase(input string) string {
-	parts := strings.Fields(input)
-	for n, p := range parts {
-		parts[n] = cases.Title(language.Und).String(p)
-	}
-
-	return strings.Join(parts, " ")
 }
