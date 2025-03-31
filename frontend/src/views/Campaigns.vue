@@ -52,16 +52,14 @@
             </router-link>
           </p>
           <p v-if="isSheduled(props.row)">
-            <b-tooltip :label="$t('scheduled')" type="is-dark">
-              <span class="is-size-7 has-text-grey scheduled">
-                <b-icon icon="alarm" size="is-small" />
-                <span v-if="!isDone(props.row) && !isRunning(props.row)">
-                  {{ $utils.duration(new Date(), props.row.sendAt, true) }}
-                  <br />
-                </span>
-                {{ $utils.niceDate(props.row.sendAt, true) }}
+            <span class="is-size-7 has-text-grey scheduled">
+              <b-icon icon="alarm" size="is-small" />
+              <span v-if="!isDone(props.row) && !isRunning(props.row)">
+                {{ $utils.duration(new Date(), props.row.sendAt, true) }}
+                <br />
               </span>
-            </b-tooltip>
+              {{ $utils.niceDate(props.row.sendAt, true) }}
+            </span>
           </p>
         </div>
       </b-table-column>

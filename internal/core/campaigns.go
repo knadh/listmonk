@@ -255,7 +255,7 @@ func (c *Core) UpdateCampaignStatus(id int, status string) (models.Campaign, err
 			errMsg = c.i18n.T("campaigns.onlyScheduledAsDraft")
 		}
 	case models.CampaignStatusScheduled:
-		if cm.Status != models.CampaignStatusDraft {
+		if cm.Status != models.CampaignStatusDraft && cm.Status != models.CampaignStatusPaused {
 			errMsg = c.i18n.T("campaigns.onlyDraftAsScheduled")
 		}
 		if !cm.SendAt.Valid {

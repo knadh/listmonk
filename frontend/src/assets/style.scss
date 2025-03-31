@@ -126,6 +126,10 @@ section {
   background-color: $primary;
 }
 
+.has-text-primary {
+  color: $primary !important;
+}
+
 .box {
   background: $white;
   box-shadow: 2px 2px 0 #f3f3f3;

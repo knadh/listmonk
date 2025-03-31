@@ -61,7 +61,7 @@
     "campaigns.notFound": "Campaign not found.",
     "campaigns.onlyActiveCancel": "Only active campaigns can be cancelled.",
     "campaigns.onlyActivePause": "Only active campaigns can be paused.",
-    "campaigns.onlyDraftAsScheduled": "Only draft campaigns can be scheduled.",
+    "campaigns.onlyDraftAsScheduled": "Only draft or paused campaigns can be scheduled.",
     "campaigns.onlyPausedDraft": "Only paused campaigns and drafts can be started.",
     "campaigns.onlyScheduledAsDraft": "Only scheduled campaigns can be saved as drafts.",
     "campaigns.pause": "Pause",
