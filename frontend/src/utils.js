@@ -68,7 +68,15 @@ export default class Utils {
     return out;
   };
 
-  duration = (start, end) => dayjs(end).from(dayjs(start), true);
+  duration = (start, end) => {
+    const a = dayjs(start);
+    const b = dayjs(end);
+
+    // Get the duration string, eg: "2 days".
+    const diff = b.from(a, true);
+
+    return `${b.isBefore(a) ? '-' : ''}${diff}`;
+  };
 
   // Simple, naive, e-mail address check.
   validateEmail = (e) => e.match(reEmail);
