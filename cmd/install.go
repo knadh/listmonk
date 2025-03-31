@@ -74,18 +74,49 @@ func install(lastVer string, db *sqlx.DB, fs stuffbin.FileSystem, prompt, idempo
 
 	// Setup the user optionally.
 	var (
-		user     = os.Getenv("LISTMONK_ADMIN_USER")
-		password = os.Getenv("LISTMONK_ADMIN_PASSWORD")
+		user         = os.Getenv("LISTMONK_ADMIN_USER")
+		password     = os.Getenv("LISTMONK_ADMIN_PASSWORD")
+		apiUserToken = os.Getenv("LISTMONK_ADMIN_API_TOKEN")
 	)
-	if user != "" && password != "" {
-		if len(user) < 3 || len(password) < 8 {
-			lo.Fatal("LISTMONK_ADMIN_USER should be min 3 chars and LISTMONK_ADMIN_PASSWORD should be min 8 chars")
+
+	createSuperAdminUser := false
+	createSuperAdminAPIUser := false
+
+	if user != "" {
+		if len(user) < 3 {
+			lo.Fatal("LISTMONK_ADMIN_USER should be min 3 chars")
 		}
 
-		lo.Printf("creating Super Admin user '%s'", user)
-		installUser(user, password, q)
+		if password != "" && len(password) < 8 {
+			lo.Fatal("LISTMONK_ADMIN_PASSWORD should be min 8 chars")
+		} else {
+			createSuperAdminUser = true
+		}
+
+		if apiUserToken != "" && len(apiUserToken) != models.ApiUserTokenSize {
+			lo.Fatalf("LISTMONK_ADMIN_API_TOKEN should be min %d chars", models.ApiUserTokenSize)
+		} else {
+			createSuperAdminAPIUser = true
+		}
+
+	}
+
+	if !createSuperAdminUser && !createSuperAdminAPIUser {
+		lo.Printf("no Super Admin user created. Visit webpage to create user, or use appropriate env variables per documentation.")
 	} else {
-		lo.Printf("no Super Admin user created. Visit webpage to create user.")
+		lo.Printf("creating Super Admin role '%s'", user)
+		installSuperAdminRole(q)
+	}
+
+	if createSuperAdminUser {
+		lo.Printf("creating Super Admin user '%s'", user)
+		installSuperAdminUser(user, password, q)
+	}
+
+	if createSuperAdminAPIUser {
+		user := user + "_api"
+		lo.Printf("creating Super Admin API user '%s'", user)
+		installSuperAdminAPIUser(user+"_api", apiUserToken, q)
 	}
 
 	lo.Printf("setup complete")
@@ -269,7 +300,9 @@ func checkSchema(db *sqlx.DB) (bool, error) {
 	return true, nil
 }
 
-func installUser(username, password string, q *models.Queries) {
+var superUserRoleId = 1
+
+func installSuperAdminRole(q *models.Queries) int {
 	consts := initConstants()
 
 	// Super admin role.
@@ -278,11 +311,22 @@ func installUser(username, password string, q *models.Queries) {
 		perms = append(perms, p)
 	}
 
-	if _, err := q.CreateRole.Exec("Super Admin", "user", pq.Array(perms)); err != nil {
+	if _, err := q.CreateRole.Exec("Super Admin", models.RoleTypeUser, pq.Array(perms)); err != nil {
 		lo.Fatalf("error creating super admin role: %v", err)
 	}
 
-	if _, err := q.CreateUser.Exec(username, true, password, username+"@listmonk", username, "user", 1, nil, "enabled"); err != nil {
+	// TODO: would be smart to get the created role ID instead of hard-coding it
+	return superUserRoleId
+}
+
+func installSuperAdminUser(username, password string, q *models.Queries) {
+	if _, err := q.CreateUser.Exec(username, true, password, username+"@listmonk", username, models.UserTypeUser, superUserRoleId, nil, models.UserStatusEnabled); err != nil {
 		lo.Fatalf("error creating superadmin user: %v", err)
+	}
+}
+
+func installSuperAdminAPIUser(username, apiUserToken string, q *models.Queries) {
+	if _, err := q.CreateUser.Exec(username, false, apiUserToken, username+"@api", username, models.UserTypeAPI, superUserRoleId, nil, models.UserStatusEnabled); err != nil {
+		lo.Fatalf("error creating superadmin API user: %v", err)
 	}
 }
