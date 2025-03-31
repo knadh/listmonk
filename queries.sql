@@ -880,7 +880,15 @@ UPDATE campaigns SET
 WHERE id=$1;
 
 -- name: update-campaign-status
-UPDATE campaigns SET status=$2, updated_at=NOW() WHERE id = $1;
+UPDATE campaigns SET
+    status=(
+        CASE
+            WHEN send_at IS NOT NULL AND $2 = 'running' THEN 'scheduled'
+            ELSE $2::campaign_status
+        END
+    ),
+    updated_at=NOW()
+WHERE id = $1;
 
 -- name: update-campaign-archive
 UPDATE campaigns SET

@@ -114,6 +114,18 @@ describe('Campaigns', () => {
     cy.get('tbody td[data-label=Status] .tag.scheduled');
   });
 
+  it('Unschedules campaign', () => {
+    cy.get('td[data-label=Status] a').eq(1).click();
+    cy.wait(250);
+    cy.get('button[data-cy=btn-unschedule]').click();
+    cy.get('.modal button.is-primary:eq(0)').click();
+    cy.wait(250);
+    cy.visit('/admin/campaigns');
+
+    // Check if the status label has the inner text `Draft`.
+    cy.get('td[data-label=Status] .tag.draft').should('have.length', 1);
+  });
+
   it('Switches formats', () => {
     cy.resetDB();
     cy.loginAndVisit('/admin/campaigns');
