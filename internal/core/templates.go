@@ -6,6 +6,7 @@ import (
 
 	"github.com/knadh/listmonk/models"
 	"github.com/labstack/echo/v4"
+	null "gopkg.in/volatiletech/null.v6"
 )
 
 // GetTemplates retrieves all templates.
@@ -36,9 +37,9 @@ func (c *Core) GetTemplate(id int, noBody bool) (models.Template, error) {
 }
 
 // CreateTemplate creates a new template.
-func (c *Core) CreateTemplate(name, typ, subject string, body []byte) (models.Template, error) {
+func (c *Core) CreateTemplate(name, typ, subject string, body []byte, bodySource null.String) (models.Template, error) {
 	var newID int
-	if err := c.q.CreateTemplate.Get(&newID, name, typ, subject, body); err != nil {
+	if err := c.q.CreateTemplate.Get(&newID, name, typ, subject, body, bodySource); err != nil {
 		return models.Template{}, echo.NewHTTPError(http.StatusInternalServerError,
 			c.i18n.Ts("globals.messages.errorCreating", "name", "{globals.terms.template}", "error", pqErrMsg(err)))
 	}
@@ -47,8 +48,8 @@ func (c *Core) CreateTemplate(name, typ, subject string, body []byte) (models.Te
 }
 
 // UpdateTemplate updates a given template.
-func (c *Core) UpdateTemplate(id int, name, subject string, body []byte) (models.Template, error) {
-	res, err := c.q.UpdateTemplate.Exec(id, name, subject, body)
+func (c *Core) UpdateTemplate(id int, name, subject string, body []byte, bodySource null.String) (models.Template, error) {
+	res, err := c.q.UpdateTemplate.Exec(id, name, subject, body, bodySource)
 	if err != nil {
 		return models.Template{}, echo.NewHTTPError(http.StatusInternalServerError,
 			c.i18n.Ts("globals.messages.errorUpdating", "name", "{globals.terms.template}", "error", pqErrMsg(err)))

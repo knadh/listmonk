@@ -11,13 +11,23 @@ GOPATH ?= $(HOME)/go
 STUFFBIN ?= $(GOPATH)/bin/stuffbin
 FRONTEND_YARN_MODULES = frontend/node_modules
 FRONTEND_DIST = frontend/dist
+FRONTEND_EMAIL_BUILDER_DIST = frontend/public/static/email-builder
 FRONTEND_DEPS = \
 	$(FRONTEND_YARN_MODULES) \
+	$(FRONTEND_EMAIL_BUILDER_DIST) \
 	frontend/index.html \
 	frontend/package.json \
 	frontend/vite.config.js \
 	frontend/.eslintrc.js \
 	$(shell find frontend/fontello frontend/public frontend/src -type f)
+EMAIL_BUILDER_YARN_MODULES = email-builder/node_modules
+EMAIL_BUILDER_DIST = email-builder/dist
+EMAIL_BUILDER_DEPS = \
+	$(EMAIL_BUILDER_YARN_MODULES) \
+	email-builder/package.json \
+	email-builder/tsconfig.json \
+	email-builder/vite.config.ts \
+	$(shell find email-builder/src -type f)
 
 BIN := listmonk
 STATIC := config.toml.sample \
@@ -37,6 +47,10 @@ $(FRONTEND_YARN_MODULES): frontend/package.json frontend/yarn.lock
 	cd frontend && $(YARN) install
 	touch -c $(FRONTEND_YARN_MODULES)
 
+$(EMAIL_BUILDER_YARN_MODULES): frontend/package.json frontend/yarn.lock
+	cd email-builder && $(YARN) install
+	touch -c $(EMAIL_BUILDER_YARN_MODULES)
+
 # Build the backend to ./listmonk.
 $(BIN): $(shell find . -type f -name "*.go") go.mod go.sum schema.sql queries.sql permissions.json
 	CGO_ENABLED=0 go build -o ${BIN} -ldflags="-s -w -X 'main.buildString=${BUILDSTR}' -X 'main.versionString=${VERSION}'" cmd/*.go
@@ -51,9 +65,22 @@ $(FRONTEND_DIST): $(FRONTEND_DEPS)
 	export VUE_APP_VERSION="${VERSION}" && cd frontend && $(YARN) build
 	touch -c $(FRONTEND_DIST)
 
+# Build the JS email-builder dist.
+$(EMAIL_BUILDER_DIST): $(EMAIL_BUILDER_DEPS)
+	export VUE_APP_VERSION="${VERSION}" && cd email-builder && $(YARN) build
+	touch -c $(EMAIL_BUILDER_DIST)
+
+# Copy the build assets to frontend.
+$(FRONTEND_EMAIL_BUILDER_DIST): $(EMAIL_BUILDER_DIST)
+	mkdir -p $(FRONTEND_EMAIL_BUILDER_DIST)
+	cp -r $(EMAIL_BUILDER_DIST)/* $(FRONTEND_EMAIL_BUILDER_DIST)
+	touch -c $(FRONTEND_EMAIL_BUILDER_DIST)
 
 .PHONY: build-frontend
-build-frontend: $(FRONTEND_DIST)
+build-frontend: $(FRONTEND_EMAIL_BUILDER_DIST) $(FRONTEND_DIST)
+
+.PHONY: build-email-builder
+build-email-builder: $(EMAIL_BUILDER_DIST) $(FRONTEND_EMAIL_BUILDER_DIST)
 
 # Run the JS frontend server in dev mode.
 .PHONY: run-frontend

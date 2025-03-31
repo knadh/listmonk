@@ -63,15 +63,16 @@ func handlePreviewTemplate(c echo.Context) error {
 	var (
 		app   = c.Get("app").(*App)
 		id, _ = strconv.Atoi(c.Param("id"))
+		tpl   models.Template
 	)
 
-	tpl := models.Template{
-		Type: c.FormValue("template_type"),
-		Body: c.FormValue("body"),
-	}
-
 	// Body is posted.
-	if tpl.Body != "" {
+	if c.Request().Method == http.MethodPost {
+		tpl = models.Template{
+			Type: c.FormValue("template_type"),
+			Body: c.FormValue("body"),
+		}
+
 		if tpl.Type == "" {
 			tpl.Type = models.TemplateTypeCampaign
 		}
@@ -96,7 +97,7 @@ func handlePreviewTemplate(c echo.Context) error {
 
 	// Compile the campaign template.
 	var out []byte
-	if tpl.Type == models.TemplateTypeCampaign {
+	if tpl.Type == models.TemplateTypeCampaign || tpl.Type == models.TemplateTypeCampaignVisual {
 		camp := models.Campaign{
 			UUID:         dummyUUID,
 			Name:         app.i18n.T("templates.dummyName"),
@@ -157,7 +158,7 @@ func handleCreateTemplate(c echo.Context) error {
 
 	// Subject is only relevant for fixed tx templates. For campaigns,
 	// the subject changes per campaign and is on models.Campaign.
-	if o.Type == models.TemplateTypeCampaign {
+	if o.Type == models.TemplateTypeCampaign || o.Type == models.TemplateTypeCampaignVisual {
 		o.Subject = ""
 		f = app.manager.TemplateFuncs(nil)
 	} else {
@@ -170,7 +171,7 @@ func handleCreateTemplate(c echo.Context) error {
 	}
 
 	// Create the template the in the DB.
-	out, err := app.core.CreateTemplate(o.Name, o.Type, o.Subject, []byte(o.Body))
+	out, err := app.core.CreateTemplate(o.Name, o.Type, o.Subject, []byte(o.Body), o.BodySource)
 	if err != nil {
 		return err
 	}
@@ -220,7 +221,7 @@ func handleUpdateTemplate(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	out, err := app.core.UpdateTemplate(id, o.Name, o.Subject, []byte(o.Body))
+	out, err := app.core.UpdateTemplate(id, o.Name, o.Subject, []byte(o.Body), o.BodySource)
 	if err != nil {
 		return err
 	}
