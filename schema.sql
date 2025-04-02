@@ -170,6 +170,7 @@ CREATE TABLE media (
     meta             JSONB NOT NULL DEFAULT '{}',
     created_at       TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
+DROP INDEX IF EXISTS idx_media_filename; CREATE INDEX idx_media_filename ON media(provider, filename);
 
 -- campaign_media
 DROP TABLE IF EXISTS campaign_media CASCADE;
@@ -248,6 +249,7 @@ INSERT INTO settings (key, value) VALUES
     ('privacy.allow_preferences', 'true'),
     ('privacy.exportable', '["profile", "subscriptions", "campaign_views", "link_clicks"]'),
     ('privacy.domain_blocklist', '[]'),
+    ('privacy.domain_allowlist', '[]'),
     ('privacy.record_optin_ip', 'false'),
     ('security.enable_captcha', 'false'),
     ('security.captcha_key', '""'),

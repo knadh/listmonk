@@ -316,7 +316,7 @@ func doLogin(c echo.Context) error {
 	}
 
 	// Resist potential constant-time-comparison attacks with a min response time.
-	if ms := time.Now().Sub(start).Milliseconds(); ms < 100 {
+	if ms := time.Since(start).Milliseconds(); ms < 100 {
 		time.Sleep(time.Duration(ms))
 	}
 

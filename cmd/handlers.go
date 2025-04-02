@@ -8,7 +8,6 @@ import (
 	"regexp"
 
 	"github.com/knadh/listmonk/internal/auth"
-	"github.com/knadh/paginator"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
@@ -16,11 +15,6 @@ import (
 const (
 	// stdInputMaxLen is the maximum allowed length for a standard input field.
 	stdInputMaxLen = 2000
-
-	sortAsc  = "asc"
-	sortDesc = "desc"
-
-	basicAuthd = "basicauthd"
 
 	// URIs.
 	uriAdmin = "/admin"
@@ -30,25 +24,8 @@ type okResp struct {
 	Data interface{} `json:"data"`
 }
 
-// pagination represents a query's pagination (limit, offset) related values.
-type pagination struct {
-	PerPage int `json:"per_page"`
-	Page    int `json:"page"`
-	Offset  int `json:"offset"`
-	Limit   int `json:"limit"`
-}
-
 var (
-	reUUID     = regexp.MustCompile("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$")
-	reLangCode = regexp.MustCompile("[^a-zA-Z_0-9\\-]")
-
-	paginate = paginator.New(paginator.Opt{
-		DefaultPerPage: 20,
-		MaxPerPage:     50,
-		NumPageNums:    10,
-		PageParam:      "page",
-		PerPageParam:   "per_page",
-	})
+	reUUID = regexp.MustCompile("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$")
 )
 
 // registerHandlers registers HTTP handlers.
@@ -162,23 +139,23 @@ func initHTTPHandlers(e *echo.Echo, app *App) {
 	api.PUT("/api/lists/:id", listPerm(handleUpdateList))
 	api.DELETE("/api/lists/:id", listPerm(handleDeleteLists))
 
-	api.GET("/api/campaigns", pm(handleGetCampaigns, "campaigns:get"))
-	api.GET("/api/campaigns/running/stats", pm(handleGetRunningCampaignStats, "campaigns:get"))
-	api.GET("/api/campaigns/:id", pm(handleGetCampaign, "campaigns:get"))
+	api.GET("/api/campaigns", pm(handleGetCampaigns, "campaigns:get_all", "campaigns:get"))
+	api.GET("/api/campaigns/running/stats", pm(handleGetRunningCampaignStats, "campaigns:get_all", "campaigns:get"))
+	api.GET("/api/campaigns/:id", pm(handleGetCampaign, "campaigns:get_all", "campaigns:get"))
 	api.GET("/api/campaigns/analytics/:type", pm(handleGetCampaignViewAnalytics, "campaigns:get_analytics"))
 	api.GET("/api/campaigns/analytics/individual_views", handleGetCampaignIndividualViews)
 	api.GET("/api/campaigns/analytics/individual_clicks", handleGetCampaignIndividualLinkClicks) //, "campaigns:get_indiv_cpg_link_clicks"))
 	api.GET("/api/campaigns/analytics/get_individual_clicks_data", handleGetCampaignIndividualLinkClicksUsers) //, "campaigns:get_indiv_cpg_link_clicks_users"))
-	api.GET("/api/campaigns/:id/preview", pm(handlePreviewCampaign, "campaigns:get"))
-	api.POST("/api/campaigns/:id/preview", pm(handlePreviewCampaign, "campaigns:get"))
-	api.POST("/api/campaigns/:id/content", pm(handleCampaignContent, "campaigns:manage"))
-	api.POST("/api/campaigns/:id/text", pm(handlePreviewCampaign, "campaigns:manage"))
-	api.POST("/api/campaigns/:id/test", pm(handleTestCampaign, "campaigns:manage"))
-	api.POST("/api/campaigns", pm(handleCreateCampaign, "campaigns:manage"))
-	api.PUT("/api/campaigns/:id", pm(handleUpdateCampaign, "campaigns:manage"))
-	api.PUT("/api/campaigns/:id/status", pm(handleUpdateCampaignStatus, "campaigns:manage"))
-	api.PUT("/api/campaigns/:id/archive", pm(handleUpdateCampaignArchive, "campaigns:manage"))
-	api.DELETE("/api/campaigns/:id", pm(handleDeleteCampaign, "campaigns:manage"))
+	api.GET("/api/campaigns/:id/preview", pm(handlePreviewCampaign, "campaigns:get_all", "campaigns:get"))
+	api.POST("/api/campaigns/:id/preview", pm(handlePreviewCampaign, "campaigns:get_all", "campaigns:get"))
+	api.POST("/api/campaigns/:id/content", pm(handleCampaignContent, "campaigns:manage_all", "campaigns:manage"))
+	api.POST("/api/campaigns/:id/text", pm(handlePreviewCampaign, "campaigns:get"))
+	api.POST("/api/campaigns/:id/test", pm(handleTestCampaign, "campaigns:manage_all", "campaigns:manage"))
+	api.POST("/api/campaigns", pm(handleCreateCampaign, "campaigns:manage_all", "campaigns:manage"))
+	api.PUT("/api/campaigns/:id", pm(handleUpdateCampaign, "campaigns:manage_all", "campaigns:manage"))
+	api.PUT("/api/campaigns/:id/status", pm(handleUpdateCampaignStatus, "campaigns:manage_all", "campaigns:manage"))
+	api.PUT("/api/campaigns/:id/archive", pm(handleUpdateCampaignArchive, "campaigns:manage_all", "campaigns:manage"))
+	api.DELETE("/api/campaigns/:id", pm(handleDeleteCampaign, "campaigns:manage_all", "campaigns:manage"))
 
 	api.GET("/api/media", pm(handleGetMedia, "media:get"))
 	api.GET("/api/media/:id", pm(handleGetMedia, "media:get"))
@@ -356,9 +333,8 @@ func validateUUID(next echo.HandlerFunc, params ...string) echo.HandlerFunc {
 
 		for _, p := range params {
 			if !reUUID.MatchString(c.Param(p)) {
-				return c.Render(http.StatusBadRequest, tplMessage,
-					makeMsgTpl(app.i18n.T("public.errorTitle"), "",
-						app.i18n.T("globals.messages.invalidUUID")))
+				return c.Render(http.StatusBadRequest, tplMessage, makeMsgTpl(app.i18n.T("public.errorTitle"), "",
+					app.i18n.T("globals.messages.invalidUUID")))
 			}
 		}
 		return next(c)
@@ -367,7 +343,7 @@ func validateUUID(next echo.HandlerFunc, params ...string) echo.HandlerFunc {
 
 // subscriberExists middleware checks if a subscriber exists given the UUID
 // param in a request.
-func subscriberExists(next echo.HandlerFunc, params ...string) echo.HandlerFunc {
+func subscriberExists(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var (
 			app     = c.Get("app").(*App)
@@ -390,7 +366,7 @@ func subscriberExists(next echo.HandlerFunc, params ...string) echo.HandlerFunc 
 }
 
 // noIndex adds the HTTP header requesting robots to not crawl the page.
-func noIndex(next echo.HandlerFunc, params ...string) echo.HandlerFunc {
+func noIndex(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		c.Response().Header().Set("X-Robots-Tag", "noindex")
 		return next(c)

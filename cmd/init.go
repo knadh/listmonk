@@ -79,6 +79,7 @@ type constants struct {
 		UnsubHeader        bool            `koanf:"unsubscribe_header"`
 		Exportable         map[string]bool `koanf:"-"`
 		DomainBlocklist    []string        `koanf:"-"`
+		DomainAllowlist    []string        `koanf:"-"`
 	} `koanf:"privacy"`
 	Security struct {
 		OIDC struct {
@@ -316,7 +317,7 @@ func initDB() *sqlx.DB {
 }
 
 // readQueries reads named SQL queries from the SQL queries file into a query map.
-func readQueries(sqlFile string, db *sqlx.DB, fs stuffbin.FileSystem) goyesql.Queries {
+func readQueries(sqlFile string, fs stuffbin.FileSystem) goyesql.Queries {
 	// Load SQL queries.
 	qB, err := fs.Read(sqlFile)
 	if err != nil {
@@ -410,6 +411,7 @@ func initConstants() *constants {
 	c.MediaUpload.Provider = ko.String("upload.provider")
 	c.MediaUpload.Extensions = ko.Strings("upload.extensions")
 	c.Privacy.DomainBlocklist = ko.Strings("privacy.domain_blocklist")
+	c.Privacy.DomainAllowlist = ko.Strings("privacy.domain_allowlist")
 
 	// Static URLS.
 	// url.com/subscription/{campaign_uuid}/{subscriber_uuid}
@@ -535,6 +537,7 @@ func initImporter(q *models.Queries, db *sqlx.DB, core *core.Core, app *App) *su
 	return subimporter.New(
 		subimporter.Options{
 			DomainBlocklist:    app.constants.Privacy.DomainBlocklist,
+			DomainAllowlist:    app.constants.Privacy.DomainAllowlist,
 			UpsertStmt:         q.UpsertSubscriber.Stmt,
 			BlocklistStmt:      q.UpsertBlocklistSubscriber.Stmt,
 			UpdateListDateStmt: q.UpdateListsDate.Stmt,
@@ -670,7 +673,7 @@ func initMediaStore() media.Store {
 
 // initNotifTemplates compiles and returns e-mail notification templates that are
 // used for sending ad-hoc notifications to admins and subscribers.
-func initNotifTemplates(path string, fs stuffbin.FileSystem, i *i18n.I18n, cs *constants) *notifTpls {
+func initNotifTemplates(fs stuffbin.FileSystem, i *i18n.I18n, cs *constants) *notifTpls {
 	tpls, err := stuffbin.ParseTemplatesGlob(initTplFuncs(i, cs), fs, "/static/email-templates/*.html")
 	if err != nil {
 		lo.Fatalf("error parsing e-mail notif templates: %v", err)
@@ -1010,7 +1013,7 @@ func initAuth(db *sql.DB, ko *koanf.Koanf, co *core.Core) (bool, *auth.Auth) {
 			Status:        models.UserStatusEnabled,
 			Type:          models.UserTypeAPI,
 		}
-		u.UserRole.ID = auth.SuperAdminRoleID
+		u.UserRole.ID = models.SuperAdminRoleID
 		a.CacheAPIUser(u)
 
 		lo.Println(`WARNING: Remove the admin_username and admin_password fields from the TOML configuration file. If you are using APIs, create and use new credentials. Users are now managed via the Admin -> Settings -> Users dashboard.`)

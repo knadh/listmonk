@@ -37,7 +37,7 @@ func handleGetServerConfig(c echo.Context) error {
 	}
 
 	// Language list.
-	langList, err := getI18nLangList(app.constants.Lang, app)
+	langList, err := getI18nLangList(app)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			fmt.Sprintf("Error loading language list: %v", err))

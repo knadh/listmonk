@@ -24,8 +24,10 @@
         "permissions":
         [
             "campaigns:get",
+            "campaigns:get_all",
             "campaigns:get_analytics",
-            "campaigns:manage"
+            "campaigns:manage",
+            "campaigns:manage_all"
         ]
     },
     {

@@ -16,7 +16,7 @@
       </div>
     </header>
 
-    <b-table :data="lists.results" :loading="loading.lists" hoverable default-sort="createdAt" paginated
+    <b-table :data="lists.results" :loading="loading.listsFull" hoverable default-sort="createdAt" paginated
       backend-pagination pagination-position="both" @page-change="onPageChange" :current-page="queryParams.page"
       :per-page="lists.perPage" :total="lists.total" backend-sorting @sort="onSort">
       <template #top-left>
@@ -142,7 +142,7 @@
         </div>
       </b-table-column>
 
-      <template #empty v-if="!loading.lists">
+      <template #empty v-if="!loading.listsFull">
         <empty-placeholder />
       </template>
     </b-table>

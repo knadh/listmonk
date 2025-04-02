@@ -35,6 +35,7 @@ type Settings struct {
 	PrivacyExportable         []string `json:"privacy.exportable"`
 	PrivacyRecordOptinIP      bool     `json:"privacy.record_optin_ip"`
 	DomainBlocklist           []string `json:"privacy.domain_blocklist"`
+	DomainAllowlist           []string `json:"privacy.domain_allowlist"`
 
 	SecurityEnableCaptcha bool   `json:"security.enable_captcha"`
 	SecurityCaptchaKey    string `json:"security.captcha_key"`

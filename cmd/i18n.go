@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"regexp"
 	"sort"
 
 	"github.com/knadh/listmonk/internal/i18n"
@@ -20,6 +21,8 @@ type i18nLangRaw struct {
 	Code string `json:"_.code"`
 	Name string `json:"_.name"`
 }
+
+var reLangCode = regexp.MustCompile(`[^a-zA-Z_0-9\\-]`)
 
 // handleGetI18nLang returns the JSON language pack given the language code.
 func handleGetI18nLang(c echo.Context) error {
@@ -39,7 +42,7 @@ func handleGetI18nLang(c echo.Context) error {
 }
 
 // getI18nLangList returns the list of available i18n languages.
-func getI18nLangList(lang string, app *App) ([]i18nLang, error) {
+func getI18nLangList(app *App) ([]i18nLang, error) {
 	list, err := app.fs.Glob("/i18n/*.json")
 	if err != nil {
 		return nil, err
@@ -52,15 +55,12 @@ func getI18nLangList(lang string, app *App) ([]i18nLang, error) {
 			return out, fmt.Errorf("error reading lang file: %s: %v", l, err)
 		}
 
-		var lang i18nLangRaw
-		if err := json.Unmarshal(b.ReadBytes(), &lang); err != nil {
+		var r i18nLangRaw
+		if err := json.Unmarshal(b.ReadBytes(), &r); err != nil {
 			return out, fmt.Errorf("error parsing lang file: %s: %v", l, err)
 		}
 
-		out = append(out, i18nLang{
-			Code: lang.Code,
-			Name: lang.Name,
-		})
+		out = append(out, i18nLang(r))
 	}
 
 	sort.SliceStable(out, func(i, j int) bool {

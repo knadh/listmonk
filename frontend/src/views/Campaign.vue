@@ -23,7 +23,7 @@
       </div>
 
       <div class="column is-6">
-        <div v-if="$can('campaigns:manage')" class="buttons">
+        <div v-if="canManage" class="buttons">
           <b-field grouped v-if="isEditing && canEdit">
             <b-field expanded>
               <b-button expanded @click="() => onSubmit('update')" :loading="loading.campaigns" type="is-primary"
@@ -44,8 +44,8 @@
               </b-button>
             </b-field>
             <b-field expanded v-if="canUnSchedule">
-              <b-button expanded @click="unscheduleCampaign" :loading="loading.campaigns" type="is-primary"
-                icon-left="clock-start" data-cy="btn-unschedule">
+              <b-button expanded @click="$utils.confirm(null, unscheduleCampaign)" :loading="loading.campaigns"
+                type="is-primary" icon-left="clock-start" data-cy="btn-unschedule">
                 {{ $t('campaigns.unSchedule') }}
               </b-button>
             </b-field>
@@ -127,8 +127,8 @@
                     <br />
                     <b-field v-if="form.sendLater" data-cy="send_at"
                       :message="form.sendAtDate ? $utils.duration(Date(), form.sendAtDate) : ''">
-                      <b-datetimepicker v-model="form.sendAtDate" :disabled="!canEdit"
-                        :placeholder="$t('campaigns.dateAndTime')" icon="calendar-clock"
+                      <b-datetimepicker v-model="form.sendAtDate" :disabled="!canEdit" required editable mobile-native
+                        position="is-top-right" :placeholder="$t('campaigns.dateAndTime')" icon="calendar-clock"
                         :timepicker="{ hourFormat: '24' }" :datetime-formatter="formatDateTime"
                         horizontal-time-picker />
                     </b-field>
@@ -157,7 +157,7 @@
                 </b-field>
               </form>
             </div>
-            <div v-if="$can('campaigns:manage')" class="column is-4 is-offset-1">
+            <div v-if="canManage" class="column is-4 is-offset-1">
               <br />
               <div class="box">
                 <h3 class="title is-size-6">
@@ -469,11 +469,6 @@ export default Vue.extend({
           }
           return f;
         });
-
-        if (data.sendAt !== null) {
-          this.form.sendLater = true;
-          this.form.sendAtDate = dayjs(data.sendAt).toDate();
-        }
       });
     },
 
@@ -553,11 +548,16 @@ export default Vue.extend({
         typMsg = 'campaigns.started';
       }
 
+      if (!this.form.sendAtDate) {
+        this.form.sendLater = false;
+      }
+
       // This promise is used by startCampaign to first save before starting.
       return new Promise((resolve) => {
         this.$api.updateCampaign(this.data.id, data).then((d) => {
           this.data = d;
           this.form.archiveSlug = d.archiveSlug;
+
           this.$utils.toast(this.$t(typMsg, { name: d.name }));
           resolve();
         });
@@ -613,7 +613,6 @@ export default Vue.extend({
     unscheduleCampaign() {
       this.$api.changeCampaignStatus(this.data.id, 'draft').then((d) => {
         this.data = d;
-        this.form.archiveSlug = d.archiveSlug;
       });
     },
   },
@@ -621,21 +620,25 @@ export default Vue.extend({
   computed: {
     ...mapState(['serverConfig', 'loading', 'lists', 'templates']),
 
+    canManage() {
+      return this.$can('campaigns:manage_all', 'campaigns:manage');
+    },
+
     canEdit() {
       return this.isNew
         || this.data.status === 'draft' || this.data.status === 'scheduled' || this.data.status === 'paused';
     },
 
     canSchedule() {
-      return this.data.status === 'draft' && this.data.sendAt;
+      return (this.data.status === 'draft' || this.data.status === 'paused') && (this.form.sendLater && this.form.sendAtDate);
     },
 
     canUnSchedule() {
-      return this.data.status === 'scheduled' && this.data.sendAt;
+      return this.data.status === 'scheduled';
     },
 
     canStart() {
-      return this.data.status === 'draft' || this.data.status === 'paused';
+      return (this.data.status === 'draft' || this.data.status === 'paused') && !this.form.sendLater;
     },
 
     canArchive() {
@@ -670,6 +673,16 @@ export default Vue.extend({
   watch: {
     selectedLists() {
       this.form.lists = this.selectedLists;
+    },
+
+    'data.sendAt': function () {
+      if (this.data.sendAt !== null) {
+        this.form.sendLater = true;
+        this.form.sendAtDate = dayjs(this.data.sendAt).toDate();
+      } else {
+        this.form.sendLater = false;
+        this.form.sendAtDate = null;
+      }
     },
   },
 

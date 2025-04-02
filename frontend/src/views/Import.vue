@@ -167,7 +167,7 @@ export default Vue.extend({
 
       isProcessing: false,
       status: { status: '' },
-      logs: '',
+      logs: [],
       pollID: null,
     };
   },

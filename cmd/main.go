@@ -157,7 +157,7 @@ func init() {
 	checkUpgrade(db)
 
 	// Read the SQL queries from the queries file.
-	qMap := readQueries(queryFilePath, db, fs)
+	qMap := readQueries(queryFilePath, fs)
 
 	// Load settings from DB.
 	if q, ok := qMap["get-settings"]; ok {
@@ -223,7 +223,7 @@ func main() {
 	// for new user setup.
 	app.needsUserSetup = !hasUsers
 
-	app.notifTpls = initNotifTemplates("/email-templates/*.html", fs, app.i18n, app.constants)
+	app.notifTpls = initNotifTemplates(fs, app.i18n, app.constants)
 	initTxTemplates(app.manager, app)
 
 	if ko.Bool("bounce.enabled") {

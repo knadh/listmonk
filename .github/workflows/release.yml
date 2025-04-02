@@ -20,9 +20,9 @@ jobs:
         uses: docker/setup-qemu-action@v2
 
       - name: Set up Go
-        uses: actions/setup-go@v4
+        uses: actions/setup-go@v5
         with:
-          go-version: "1.23.2"
+          go-version: "1.24.1"
 
       - name: Login to Docker Registry
         uses: docker/login-action@v2
@@ -46,7 +46,7 @@ jobs:
           docker version
 
       - name: Run GoReleaser
-        uses: goreleaser/goreleaser-action@v4
+        uses: goreleaser/goreleaser-action@v5
         with:
           version: latest
           args: release --parallelism 1 --clean

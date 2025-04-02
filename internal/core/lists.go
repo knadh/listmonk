@@ -9,6 +9,12 @@ import (
 	"github.com/lib/pq"
 )
 
+type listType struct {
+	ID   int    `json:"id"`
+	UUID string `json:"uuid"`
+	Type string `json:"type"`
+}
+
 // GetLists gets all lists optionally filtered by type.
 func (c *Core) GetLists(typ string, getAll bool, permittedIDs []int) ([]models.List, error) {
 	out := []models.List{}
@@ -107,6 +113,33 @@ func (c *Core) GetListsByOptin(ids []int, optinType string) ([]models.List, erro
 		c.log.Printf("error fetching lists for opt-in: %s", pqErrMsg(err))
 		return nil, echo.NewHTTPError(http.StatusInternalServerError,
 			c.i18n.Ts("globals.messages.errorFetching", "name", "{globals.terms.list}", "error", pqErrMsg(err)))
+	}
+
+	return out, nil
+}
+
+// GetListTypes returns lists by their IDs or UUIDs.
+// If ids is given, then the map returned has the list IDs as keys,
+// otherwise, they have UUIDs as the keys.
+// Note: This is a really weird and awkward API. Ideally, Go Generics
+// should've somehow supported generic struct methods.
+func (c *Core) GetListTypes(ids []int, uuids []string) (map[interface{}]string, error) {
+	res := []listType{}
+
+	out := map[interface{}]string{}
+	if err := c.q.GetListTypes.Select(&res, pq.Array(ids), pq.StringArray(uuids)); err != nil {
+		c.log.Printf("error fetching list types: %v", err)
+		return nil, echo.NewHTTPError(http.StatusInternalServerError,
+			c.i18n.Ts("globals.messages.errorFetching", "name", "{globals.terms.list}", "error", pqErrMsg(err)))
+	}
+
+	isIDs := ids != nil
+	for _, r := range res {
+		if isIDs {
+			out[r.ID] = r.Type
+		} else {
+			out[r.UUID] = r.Type
+		}
 	}
 
 	return out, nil

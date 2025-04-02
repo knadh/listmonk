@@ -9,7 +9,7 @@ import (
 	"strings"
 
 	"github.com/knadh/listmonk/models"
-	"github.com/knadh/smtppool"
+	"github.com/knadh/smtppool/v2"
 )
 
 const (
@@ -70,6 +70,7 @@ func New(name string, servers ...Server) (*Emailer, error) {
 		s.Opt.Auth = auth
 
 		// TLS config.
+		s.Opt.SSL = smtppool.SSLNone
 		if s.TLSType != "none" {
 			s.TLSConfig = &tls.Config{}
 			if s.TLSSkipVerify {
@@ -79,8 +80,11 @@ func New(name string, servers ...Server) (*Emailer, error) {
 			}
 
 			// SSL/TLS, not STARTTLS.
-			if s.TLSType == "TLS" {
-				s.Opt.SSL = true
+			switch s.TLSType {
+			case "TLS":
+				s.Opt.SSL = smtppool.SSLTLS
+			case "STARTTLS":
+				s.Opt.SSL = smtppool.SSLSTARTTLS
 			}
 		}
 

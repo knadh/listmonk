@@ -58,13 +58,13 @@ func handleGetSettings(c echo.Context) error {
 	}
 
 	// Empty out passwords.
-	for i := 0; i < len(s.SMTP); i++ {
+	for i := range s.SMTP {
 		s.SMTP[i].Password = strings.Repeat(pwdMask, utf8.RuneCountInString(s.SMTP[i].Password))
 	}
-	for i := 0; i < len(s.BounceBoxes); i++ {
+	for i := range s.BounceBoxes {
 		s.BounceBoxes[i].Password = strings.Repeat(pwdMask, utf8.RuneCountInString(s.BounceBoxes[i].Password))
 	}
-	for i := 0; i < len(s.Messengers); i++ {
+	for i := range s.Messengers {
 		s.Messengers[i].Password = strings.Repeat(pwdMask, utf8.RuneCountInString(s.Messengers[i].Password))
 	}
 
@@ -232,15 +232,22 @@ func handleUpdateSettings(c echo.Context) error {
 		set.UploadExtensions[n] = strings.ToLower(strings.TrimPrefix(strings.TrimSpace(v), "."))
 	}
 
-	// Domain blocklist.
-	doms := make([]string, 0)
+	// Domain blocklist / allowlist.
+	doms := make([]string, 0, len(set.DomainBlocklist))
 	for _, d := range set.DomainBlocklist {
-		d = strings.TrimSpace(strings.ToLower(d))
-		if d != "" {
+		if d = strings.TrimSpace(strings.ToLower(d)); d != "" {
 			doms = append(doms, d)
 		}
 	}
 	set.DomainBlocklist = doms
+
+	doms = make([]string, 0, len(set.DomainAllowlist))
+	for _, d := range set.DomainAllowlist {
+		if d = strings.TrimSpace(strings.ToLower(d)); d != "" {
+			doms = append(doms, d)
+		}
+	}
+	set.DomainAllowlist = doms
 
 	// Validate slow query caching cron.
 	if set.CacheSlowQueries {

@@ -127,7 +127,7 @@ export const queryLists = (params) => http.get(
   '/api/lists',
   {
     params: (!params ? { per_page: 'all' } : params),
-    loading: models.lists,
+    loading: models.listsFull,
   },
 );
 
