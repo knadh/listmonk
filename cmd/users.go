@@ -9,7 +9,6 @@ import (
 	"github.com/knadh/listmonk/internal/auth"
 	"github.com/knadh/listmonk/internal/core"
 	"github.com/knadh/listmonk/internal/utils"
-	"github.com/knadh/listmonk/models"
 	"github.com/labstack/echo/v4"
 	"gopkg.in/volatiletech/null.v6"
 )
@@ -59,7 +58,7 @@ func handleGetUsers(c echo.Context) error {
 func handleCreateUser(c echo.Context) error {
 	var (
 		app = c.Get("app").(*App)
-		u   = models.User{}
+		u   = auth.User{}
 	)
 
 	if err := c.Bind(&u); err != nil {
@@ -77,7 +76,7 @@ func handleCreateUser(c echo.Context) error {
 	if !reUsername.MatchString(u.Username) {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.Ts("globals.messages.invalidFields", "name", "username"))
 	}
-	if u.Type != models.UserTypeAPI {
+	if u.Type != auth.UserTypeAPI {
 		if !utils.ValidateEmail(email) {
 			return echo.NewHTTPError(http.StatusBadRequest, app.i18n.Ts("globals.messages.invalidFields", "name", "email"))
 		}
@@ -99,7 +98,7 @@ func handleCreateUser(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	if user.Type != models.UserTypeAPI {
+	if user.Type != auth.UserTypeAPI {
 		user.Password = null.String{}
 	}
 
@@ -123,7 +122,7 @@ func handleUpdateUser(c echo.Context) error {
 	}
 
 	// Incoming params.
-	var u models.User
+	var u auth.User
 	if err := c.Bind(&u); err != nil {
 		return err
 	}
@@ -141,7 +140,7 @@ func handleUpdateUser(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.Ts("globals.messages.invalidFields", "name", "username"))
 	}
 
-	if u.Type != models.UserTypeAPI {
+	if u.Type != auth.UserTypeAPI {
 		if !utils.ValidateEmail(email) {
 			return echo.NewHTTPError(http.StatusBadRequest, app.i18n.Ts("globals.messages.invalidFields", "name", "email"))
 		}
@@ -224,7 +223,7 @@ func handleDeleteUsers(c echo.Context) error {
 // handleGetUserProfile fetches the uesr profile for the currently logged in user.
 func handleGetUserProfile(c echo.Context) error {
 	var (
-		user = c.Get(auth.UserKey).(models.User)
+		user = c.Get(auth.UserKey).(auth.User)
 	)
 	user.Password.String = ""
 	user.Password.Valid = false
@@ -236,10 +235,10 @@ func handleGetUserProfile(c echo.Context) error {
 func handleUpdateUserProfile(c echo.Context) error {
 	var (
 		app  = c.Get("app").(*App)
-		user = c.Get(auth.UserKey).(models.User)
+		user = c.Get(auth.UserKey).(auth.User)
 	)
 
-	u := models.User{}
+	u := auth.User{}
 	if err := c.Bind(&u); err != nil {
 		return err
 	}
@@ -280,13 +279,13 @@ func cacheUsers(co *core.Core, a *auth.Auth) (bool, error) {
 	}
 
 	hasUser := false
-	apiUsers := make([]models.User, 0, len(allUsers))
+	apiUsers := make([]auth.User, 0, len(allUsers))
 	for _, u := range allUsers {
-		if u.Type == models.UserTypeAPI && u.Status == models.UserStatusEnabled {
+		if u.Type == auth.UserTypeAPI && u.Status == auth.UserStatusEnabled {
 			apiUsers = append(apiUsers, u)
 		}
 
-		if u.Type == models.UserTypeUser {
+		if u.Type == auth.UserTypeUser {
 			hasUser = true
 		}
 	}

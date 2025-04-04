@@ -54,7 +54,7 @@ var (
 func handleGetCampaigns(c echo.Context) error {
 	var (
 		app  = c.Get("app").(*App)
-		user = c.Get(auth.UserKey).(models.User)
+		user = c.Get(auth.UserKey).(auth.User)
 		pg   = app.paginator.NewFromURL(c.Request().URL.Query())
 
 		status    = c.QueryParams()["status"]
@@ -66,14 +66,14 @@ func handleGetCampaigns(c echo.Context) error {
 	)
 
 	var (
-		hasAllPerm     = user.HasPerm(models.PermCampaignsGetAll)
+		hasAllPerm     = user.HasPerm(auth.PermCampaignsGetAll)
 		permittedLists []int
 	)
 
 	if !hasAllPerm {
 		// Either the user has campaigns:get_all permissions and can view all campaigns,
 		// or the campaigns are filtered by the lists the user has get|manage access to.
-		hasAllPerm, permittedLists = user.GetPermittedLists(true, true)
+		hasAllPerm, permittedLists = user.GetPermittedLists(auth.PermTypeGet | auth.PermTypeManage)
 	}
 
 	// Query and retrieve the campaigns.
@@ -120,7 +120,7 @@ func handleGetCampaign(c echo.Context) error {
 	}
 
 	// Check if the user has access to the campaign.
-	if err := checkCampaignPerm(id, true, c); err != nil {
+	if err := checkCampaignPerm(auth.PermTypeGet, id, c); err != nil {
 		return err
 	}
 
@@ -151,7 +151,7 @@ func handlePreviewCampaign(c echo.Context) error {
 	}
 
 	// Check if the user has access to the campaign.
-	if err := checkCampaignPerm(id, true, c); err != nil {
+	if err := checkCampaignPerm(auth.PermTypeGet, id, c); err != nil {
 		return err
 	}
 
@@ -278,7 +278,7 @@ func handleUpdateCampaign(c echo.Context) error {
 	}
 
 	// Check if the user has access to the campaign.
-	if err := checkCampaignPerm(id, false, c); err != nil {
+	if err := checkCampaignPerm(auth.PermTypeManage, id, c); err != nil {
 		return err
 	}
 
@@ -326,7 +326,7 @@ func handleUpdateCampaignStatus(c echo.Context) error {
 	}
 
 	// Check if the user has access to the campaign.
-	if err := checkCampaignPerm(id, false, c); err != nil {
+	if err := checkCampaignPerm(auth.PermTypeManage, id, c); err != nil {
 		return err
 	}
 
@@ -359,7 +359,7 @@ func handleUpdateCampaignArchive(c echo.Context) error {
 	)
 
 	// Check if the user has access to the campaign.
-	if err := checkCampaignPerm(id, false, c); err != nil {
+	if err := checkCampaignPerm(auth.PermTypeManage, id, c); err != nil {
 		return err
 	}
 
@@ -401,7 +401,7 @@ func handleDeleteCampaign(c echo.Context) error {
 	}
 
 	// Check if the user has access to the campaign.
-	if err := checkCampaignPerm(id, false, c); err != nil {
+	if err := checkCampaignPerm(auth.PermTypeManage, id, c); err != nil {
 		return err
 	}
 
@@ -467,7 +467,7 @@ func handleTestCampaign(c echo.Context) error {
 	}
 
 	// Check if the user has access to the campaign.
-	if err := checkCampaignPerm(id, false, c); err != nil {
+	if err := checkCampaignPerm(auth.PermTypeManage, id, c); err != nil {
 		return err
 	}
 
@@ -707,32 +707,32 @@ func makeOptinCampaignMessage(o campaignReq, app *App) (campaignReq, error) {
 }
 
 // checkCampaignPerm checks if the user has get or manage access to the given campaign.
-func checkCampaignPerm(id int, isGet bool, c echo.Context) error {
+func checkCampaignPerm(types auth.PermType, id int, c echo.Context) error {
 	var (
 		app  = c.Get("app").(*App)
-		user = c.Get(auth.UserKey).(models.User)
+		user = c.Get(auth.UserKey).(auth.User)
 	)
 
-	perm := models.PermCampaignsGet
-	if isGet {
+	perm := auth.PermCampaignsGet
+	if types&auth.PermTypeGet != 0 {
 		// It's a get request and there's a blanket get all permission.
-		if user.HasPerm(models.PermCampaignsGetAll) {
+		if user.HasPerm(auth.PermCampaignsGetAll) {
 			return nil
 		}
 	} else {
 		// It's a manage request and there's a blanket manage_all permission.
-		if user.HasPerm(models.PermCampaignsManageAll) {
+		if user.HasPerm(auth.PermCampaignsManageAll) {
 			return nil
 		}
 
-		perm = models.PermCampaignsManage
+		perm = auth.PermCampaignsManage
 	}
 
 	// There are no *_all campaign permissions. Instead, check if the user access
 	// blanket get_all/manage_all list permissions. If yes, then the user can access
 	// all campaigns. If there are no *_all permissions, then ensure that the
 	// campaign belongs to the lists that the user has access to.
-	if hasAllPerm, permittedListIDs := user.GetPermittedLists(true, true); !hasAllPerm {
+	if hasAllPerm, permittedListIDs := user.GetPermittedLists(auth.PermTypeGet | auth.PermTypeManage); !hasAllPerm {
 		if ok, err := app.core.CampaignHasLists(id, permittedListIDs); err != nil {
 			return err
 		} else if !ok {

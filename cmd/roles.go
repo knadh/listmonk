@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/knadh/listmonk/models"
+	"github.com/knadh/listmonk/internal/auth"
 	"github.com/labstack/echo/v4"
 )
 
@@ -44,7 +44,7 @@ func handleGeListRoles(c echo.Context) error {
 func handleCreateUserRole(c echo.Context) error {
 	var (
 		app = c.Get("app").(*App)
-		r   = models.Role{}
+		r   = auth.Role{}
 	)
 
 	if err := c.Bind(&r); err != nil {
@@ -67,7 +67,7 @@ func handleCreateUserRole(c echo.Context) error {
 func handleCreateListRole(c echo.Context) error {
 	var (
 		app = c.Get("app").(*App)
-		r   = models.ListRole{}
+		r   = auth.ListRole{}
 	)
 
 	if err := c.Bind(&r); err != nil {
@@ -98,7 +98,7 @@ func handleUpdateUserRole(c echo.Context) error {
 	}
 
 	// Incoming params.
-	var r models.Role
+	var r auth.Role
 	if err := c.Bind(&r); err != nil {
 		return err
 	}
@@ -135,7 +135,7 @@ func handleUpdateListRole(c echo.Context) error {
 	}
 
 	// Incoming params.
-	var r models.ListRole
+	var r auth.ListRole
 	if err := c.Bind(&r); err != nil {
 		return err
 	}
@@ -183,7 +183,7 @@ func handleDeleteRole(c echo.Context) error {
 	return c.JSON(http.StatusOK, okResp{true})
 }
 
-func validateUserRole(r models.Role, app *App) error {
+func validateUserRole(r auth.Role, app *App) error {
 	// Validate fields.
 	if !strHasLen(r.Name.String, 1, stdInputMaxLen) {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.Ts("globals.messages.invalidFields", "name", "name"))
@@ -198,7 +198,7 @@ func validateUserRole(r models.Role, app *App) error {
 	return nil
 }
 
-func validateListRole(r models.ListRole, app *App) error {
+func validateListRole(r auth.ListRole, app *App) error {
 	// Validate fields.
 	if !strHasLen(r.Name.String, 1, stdInputMaxLen) {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.Ts("globals.messages.invalidFields", "name", "name"))
