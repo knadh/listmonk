@@ -54,7 +54,7 @@ var (
 func handleGetCampaigns(c echo.Context) error {
 	var (
 		app  = c.Get("app").(*App)
-		user = c.Get(auth.UserKey).(auth.User)
+		user = auth.GetUser(c)
 		pg   = app.paginator.NewFromURL(c.Request().URL.Query())
 
 		status    = c.QueryParams()["status"]
@@ -710,7 +710,7 @@ func makeOptinCampaignMessage(o campaignReq, app *App) (campaignReq, error) {
 func checkCampaignPerm(types auth.PermType, id int, c echo.Context) error {
 	var (
 		app  = c.Get("app").(*App)
-		user = c.Get(auth.UserKey).(auth.User)
+		user = auth.GetUser(c)
 	)
 
 	perm := auth.PermCampaignsGet

@@ -43,7 +43,7 @@ func initHTTPHandlers(e *echo.Echo, app *App) {
 		// Authenticated /api/* handlers.
 		api = e.Group("", app.auth.Middleware, func(next echo.HandlerFunc) echo.HandlerFunc {
 			return func(c echo.Context) error {
-				u := c.Get(auth.UserKey)
+				u := c.Get(auth.UserHTTPCtxKey)
 
 				// On no-auth, respond with a JSON error.
 				if err, ok := u.(*echo.HTTPError); ok {
@@ -57,7 +57,8 @@ func initHTTPHandlers(e *echo.Echo, app *App) {
 		// Authenticated non /api handlers.
 		a = e.Group("", app.auth.Middleware, func(next echo.HandlerFunc) echo.HandlerFunc {
 			return func(c echo.Context) error {
-				u := c.Get(auth.UserKey)
+				u := c.Get(auth.UserHTTPCtxKey)
+
 				// On no-auth, redirect to login page
 				if _, ok := u.(*echo.HTTPError); ok {
 					u, _ := url.Parse(app.constants.LoginURL)

@@ -235,31 +235,31 @@ func (o *Auth) Middleware(next echo.HandlerFunc) echo.HandlerFunc {
 		if len(hdr) > 0 {
 			key, token, err := parseAuthHeader(hdr)
 			if err != nil {
-				c.Set(UserKey, echo.NewHTTPError(http.StatusForbidden, err.Error()))
+				c.Set(UserHTTPCtxKey, echo.NewHTTPError(http.StatusForbidden, err.Error()))
 				return next(c)
 			}
 
 			// Validate the token.
 			user, ok := o.GetAPIToken(key, token)
 			if !ok {
-				c.Set(UserKey, echo.NewHTTPError(http.StatusForbidden, "invalid API credentials"))
+				c.Set(UserHTTPCtxKey, echo.NewHTTPError(http.StatusForbidden, "invalid API credentials"))
 				return next(c)
 			}
 
 			// Set the user details on the handler context.
-			c.Set(UserKey, user)
+			c.Set(UserHTTPCtxKey, user)
 			return next(c)
 		}
 
 		// Is it a cookie based session?
 		sess, user, err := o.validateSession(c)
 		if err != nil {
-			c.Set(UserKey, echo.NewHTTPError(http.StatusForbidden, "invalid session"))
+			c.Set(UserHTTPCtxKey, echo.NewHTTPError(http.StatusForbidden, "invalid session"))
 			return next(c)
 		}
 
 		// Set the user details on the handler context.
-		c.Set(UserKey, user)
+		c.Set(UserHTTPCtxKey, user)
 		c.Set(SessionKey, sess)
 		return next(c)
 	}
@@ -267,9 +267,9 @@ func (o *Auth) Middleware(next echo.HandlerFunc) echo.HandlerFunc {
 
 func (o *Auth) Perm(next echo.HandlerFunc, perms ...string) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		u, ok := c.Get(UserKey).(User)
+		u, ok := c.Get(UserHTTPCtxKey).(User)
 		if !ok {
-			c.Set(UserKey, echo.NewHTTPError(http.StatusForbidden, "invalid session"))
+			c.Set(UserHTTPCtxKey, echo.NewHTTPError(http.StatusForbidden, "invalid session"))
 			return next(c)
 		}
 
@@ -341,6 +341,12 @@ func (o *Auth) validateSession(c echo.Context) (*simplesessions.Session, User, e
 	}
 
 	return sess, user, err
+}
+
+// GetUser retrieves and returns the User object from an authenticated
+// HTTP handler request.
+func GetUser(c echo.Context) User {
+	return c.Get(UserHTTPCtxKey).(User)
 }
 
 // parseAuthHeader parses the Authorization header and returns the api_key and access_token.

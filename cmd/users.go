@@ -223,7 +223,7 @@ func handleDeleteUsers(c echo.Context) error {
 // handleGetUserProfile fetches the uesr profile for the currently logged in user.
 func handleGetUserProfile(c echo.Context) error {
 	var (
-		user = c.Get(auth.UserKey).(auth.User)
+		user = auth.GetUser(c)
 	)
 	user.Password.String = ""
 	user.Password.Valid = false
@@ -235,7 +235,7 @@ func handleGetUserProfile(c echo.Context) error {
 func handleUpdateUserProfile(c echo.Context) error {
 	var (
 		app  = c.Get("app").(*App)
-		user = c.Get(auth.UserKey).(auth.User)
+		user = auth.GetUser(c)
 	)
 
 	u := auth.User{}
