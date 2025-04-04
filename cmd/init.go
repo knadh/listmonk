@@ -977,7 +977,7 @@ func initAuth(db *sql.DB, ko *koanf.Koanf, co *core.Core) (bool, *auth.Auth) {
 			c.SetCookie(cookie)
 			return nil
 		},
-		GetUser: func(id int) (models.User, error) {
+		GetUser: func(id int) (auth.User, error) {
 			return co.GetUser(id, "", "")
 		},
 	}
@@ -1005,15 +1005,15 @@ func initAuth(db *sql.DB, ko *koanf.Koanf, co *core.Core) (bool, *auth.Auth) {
 		password = ko.String("app.admin_password")
 	)
 	if len(username) > 2 && len(password) > 6 {
-		u := models.User{
+		u := auth.User{
 			Username:      username,
 			Password:      null.String{Valid: true, String: password},
 			PasswordLogin: true,
 			HasPassword:   true,
-			Status:        models.UserStatusEnabled,
-			Type:          models.UserTypeAPI,
+			Status:        auth.UserStatusEnabled,
+			Type:          auth.UserTypeAPI,
 		}
-		u.UserRole.ID = models.SuperAdminRoleID
+		u.UserRole.ID = auth.SuperAdminRoleID
 		a.CacheAPIUser(u)
 
 		lo.Println(`WARNING: Remove the admin_username and admin_password fields from the TOML configuration file. If you are using APIs, create and use new credentials. Users are now managed via the Admin -> Settings -> Users dashboard.`)

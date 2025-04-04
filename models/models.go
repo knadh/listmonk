@@ -55,16 +55,6 @@ const (
 	ListOptinSingle = "single"
 	ListOptinDouble = "double"
 
-	// User.
-	UserTypeUser       = "user"
-	UserTypeAPI        = "api"
-	UserStatusEnabled  = "enabled"
-	UserStatusDisabled = "disabled"
-
-	// Role.
-	RoleTypeUser = "user"
-	RoleTypeList = "list"
-
 	// BaseTpl is the name of the base template.
 	BaseTpl = "base"
 

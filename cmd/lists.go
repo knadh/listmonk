@@ -14,7 +14,7 @@ import (
 func handleGetLists(c echo.Context) error {
 	var (
 		app  = c.Get("app").(*App)
-		user = c.Get(auth.UserKey).(models.User)
+		user = c.Get(auth.UserKey).(auth.User)
 		pg   = app.paginator.NewFromURL(c.Request().URL.Query())
 
 		query      = strings.TrimSpace(c.FormValue("query"))
@@ -29,7 +29,7 @@ func handleGetLists(c echo.Context) error {
 	)
 
 	// Get the list IDs (or blanket permission) the user has access to.
-	hasAllPerm, permittedIDs := user.GetPermittedLists(true, false)
+	hasAllPerm, permittedIDs := user.GetPermittedLists(auth.PermTypeGet)
 
 	// Minimal query simply returns the list of all lists without JOIN subscriber counts. This is fast.
 	if minimal {
@@ -69,7 +69,9 @@ func handleGetLists(c echo.Context) error {
 // It's permission checked by the listPerm middleware.
 func handleGetList(c echo.Context) error {
 	var (
-		app   = c.Get("app").(*App)
+		app  = c.Get("app").(*App)
+		user = c.Get(auth.UserKey).(auth.User)
+
 		id, _ = strconv.Atoi(c.Param("id"))
 	)
 
@@ -78,7 +80,7 @@ func handleGetList(c echo.Context) error {
 	}
 
 	// Check if the user has access to the list.
-	if err := checkListPerm(true, false, c, id); err != nil {
+	if err := user.HasListPerm(auth.PermTypeGet, id); err != nil {
 		return err
 	}
 
@@ -119,7 +121,9 @@ func handleCreateList(c echo.Context) error {
 // It's permission checked by the listPerm middleware.
 func handleUpdateList(c echo.Context) error {
 	var (
-		app   = c.Get("app").(*App)
+		app  = c.Get("app").(*App)
+		user = c.Get(auth.UserKey).(auth.User)
+
 		id, _ = strconv.Atoi(c.Param("id"))
 	)
 
@@ -128,7 +132,7 @@ func handleUpdateList(c echo.Context) error {
 	}
 
 	// Check if the user has access to the list.
-	if err := checkListPerm(false, true, c, id); err != nil {
+	if err := user.HasListPerm(auth.PermTypeManage, id); err != nil {
 		return err
 	}
 
@@ -155,7 +159,9 @@ func handleUpdateList(c echo.Context) error {
 // It's permission checked by the listPerm middleware.
 func handleDeleteLists(c echo.Context) error {
 	var (
-		app   = c.Get("app").(*App)
+		app  = c.Get("app").(*App)
+		user = c.Get(auth.UserKey).(auth.User)
+
 		id, _ = strconv.ParseInt(c.Param("id"), 10, 64)
 		ids   []int
 	)
@@ -169,7 +175,7 @@ func handleDeleteLists(c echo.Context) error {
 	}
 
 	// Check if the user has access to the list.
-	if err := checkListPerm(true, false, c, ids...); err != nil {
+	if err := user.HasListPerm(auth.PermTypeManage, ids...); err != nil {
 		return err
 	}
 
@@ -179,36 +185,4 @@ func handleDeleteLists(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, okResp{true})
-}
-
-// checkListPerm checks if the user has get or manage access to the given list.
-func checkListPerm(get, manage bool, c echo.Context, listIDs ...int) error {
-	var (
-		app  = c.Get("app").(*App)
-		user = c.Get(auth.UserKey).(models.User)
-	)
-
-	var permAll, perm string
-	if get {
-		permAll = models.PermListGetAll
-		perm = models.PermListGet
-	} else if manage {
-		permAll = models.PermListManageAll
-		perm = models.PermListManage
-	}
-
-	// Check if the user has permissions for all lists or the specific list.
-	if user.HasPerm(permAll) {
-		return nil
-	}
-
-	for _, id := range listIDs {
-		if id > 0 {
-			if user.HasListPerm(id, perm) {
-				return nil
-			}
-		}
-	}
-
-	return echo.NewHTTPError(http.StatusBadRequest, app.i18n.Ts("globals.messages.permissionDenied", "name", "list"))
 }

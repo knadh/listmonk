@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/gofrs/uuid/v5"
+	"github.com/knadh/listmonk/internal/auth"
 	"github.com/knadh/listmonk/models"
 	"github.com/labstack/echo/v4"
 	"github.com/lib/pq"
@@ -271,7 +272,7 @@ func (c *Core) InsertSubscriber(sub models.Subscriber, listIDs []int, listUUIDs 
 		subStatus = models.SubscriptionStatusConfirmed
 	}
 	if sub.Status == "" {
-		sub.Status = models.UserStatusEnabled
+		sub.Status = auth.UserStatusEnabled
 	}
 
 	// For pq.Array()

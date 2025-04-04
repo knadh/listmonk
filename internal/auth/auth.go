@@ -14,17 +14,10 @@ import (
 	"time"
 
 	"github.com/coreos/go-oidc/v3/oidc"
-	"github.com/knadh/listmonk/models"
 	"github.com/labstack/echo/v4"
 	"github.com/zerodha/simplesessions/stores/postgres/v3"
 	"github.com/zerodha/simplesessions/v3"
 	"golang.org/x/oauth2"
-)
-
-const (
-	// UserKey is the key on which the User profile is set on echo handlers.
-	UserKey    = "auth_user"
-	SessionKey = "auth_session"
 )
 
 const (
@@ -62,11 +55,11 @@ type Config struct {
 type Callbacks struct {
 	SetCookie func(cookie *http.Cookie, w interface{}) error
 	GetCookie func(name string, r interface{}) (*http.Cookie, error)
-	GetUser   func(id int) (models.User, error)
+	GetUser   func(id int) (User, error)
 }
 
 type Auth struct {
-	apiUsers map[string]models.User
+	apiUsers map[string]User
 	sync.RWMutex
 
 	cfg       Config
@@ -85,7 +78,7 @@ func New(cfg Config, db *sql.DB, cb *Callbacks, lo *log.Logger) (*Auth, error) {
 		cb:  cb,
 		log: lo,
 
-		apiUsers: map[string]models.User{},
+		apiUsers: map[string]User{},
 	}
 
 	// Initialize OIDC.
@@ -141,9 +134,9 @@ func New(cfg Config, db *sql.DB, cb *Callbacks, lo *log.Logger) (*Auth, error) {
 // CacheAPIUsers caches API users for authenticating requests. It wipes
 // the existing cache every time and is meant for syncing all API users
 // in the database in one shot.
-func (o *Auth) CacheAPIUsers(users []models.User) {
+func (o *Auth) CacheAPIUsers(users []User) {
 	o.Lock()
-	o.apiUsers = map[string]models.User{}
+	o.apiUsers = map[string]User{}
 
 	for _, u := range users {
 		o.apiUsers[u.Username] = u
@@ -152,20 +145,20 @@ func (o *Auth) CacheAPIUsers(users []models.User) {
 }
 
 // CacheAPIUser caches an API user for authenticating requests.
-func (o *Auth) CacheAPIUser(u models.User) {
+func (o *Auth) CacheAPIUser(u User) {
 	o.Lock()
 	o.apiUsers[u.Username] = u
 	o.Unlock()
 }
 
 // GetAPIToken validates an API user+token.
-func (o *Auth) GetAPIToken(user string, token string) (models.User, bool) {
+func (o *Auth) GetAPIToken(user string, token string) (User, bool) {
 	o.RLock()
 	t, ok := o.apiUsers[user]
 	o.RUnlock()
 
 	if !ok || subtle.ConstantTimeCompare([]byte(t.Password.String), []byte(token)) != 1 {
-		return models.User{}, false
+		return User{}, false
 	}
 
 	return t, true
@@ -274,14 +267,14 @@ func (o *Auth) Middleware(next echo.HandlerFunc) echo.HandlerFunc {
 
 func (o *Auth) Perm(next echo.HandlerFunc, perms ...string) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		u, ok := c.Get(UserKey).(models.User)
+		u, ok := c.Get(UserKey).(User)
 		if !ok {
 			c.Set(UserKey, echo.NewHTTPError(http.StatusForbidden, "invalid session"))
 			return next(c)
 		}
 
 		// If the current user is a Super Admin user, do no checks.
-		if u.UserRole.ID == models.SuperAdminRoleID {
+		if u.UserRole.ID == SuperAdminRoleID {
 			return next(c)
 		}
 
@@ -306,7 +299,7 @@ func (o *Auth) Perm(next echo.HandlerFunc, perms ...string) echo.HandlerFunc {
 }
 
 // SaveSession creates and sets a session (post successful login/auth).
-func (o *Auth) SaveSession(u models.User, oidcToken string, c echo.Context) error {
+func (o *Auth) SaveSession(u User, oidcToken string, c echo.Context) error {
 	sess, err := o.sess.NewSession(c, c)
 	if err != nil {
 		o.log.Printf("error creating login session: %v", err)
@@ -321,24 +314,24 @@ func (o *Auth) SaveSession(u models.User, oidcToken string, c echo.Context) erro
 	return nil
 }
 
-func (o *Auth) validateSession(c echo.Context) (*simplesessions.Session, models.User, error) {
+func (o *Auth) validateSession(c echo.Context) (*simplesessions.Session, User, error) {
 	// Cookie session.
 	sess, err := o.sess.Acquire(nil, c, c)
 	if err != nil {
-		return nil, models.User{}, echo.NewHTTPError(http.StatusForbidden, err.Error())
+		return nil, User{}, echo.NewHTTPError(http.StatusForbidden, err.Error())
 	}
 
 	// Get the session variables.
 	vars, err := sess.GetMulti("user_id", "oidc_token")
 	if err != nil {
-		return nil, models.User{}, echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+		return nil, User{}, echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
 	// Validate the user ID in the session.
 	userID, err := o.sessStore.Int(vars["user_id"], nil)
 	if err != nil || userID < 1 {
 		o.log.Printf("error fetching session user ID: %v", err)
-		return nil, models.User{}, echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+		return nil, User{}, echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
 	// Fetch user details from the database.

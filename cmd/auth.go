@@ -12,7 +12,6 @@ import (
 
 	"github.com/knadh/listmonk/internal/auth"
 	"github.com/knadh/listmonk/internal/utils"
-	"github.com/knadh/listmonk/models"
 	"github.com/labstack/echo/v4"
 	"github.com/zerodha/simplesessions/v3"
 	"gopkg.in/volatiletech/null.v6"
@@ -361,8 +360,8 @@ func doLoginSetup(c echo.Context) error {
 	}
 
 	// Create the default "Super Admin".
-	r := models.Role{
-		Type: models.RoleTypeUser,
+	r := auth.Role{
+		Type: auth.RoleTypeUser,
 		Name: null.NewString("Super Admin", true),
 	}
 	for p := range app.constants.Permissions {
@@ -374,8 +373,8 @@ func doLoginSetup(c echo.Context) error {
 	}
 
 	// Create the super admin user.
-	u := models.User{
-		Type:          models.UserTypeUser,
+	u := auth.User{
+		Type:          auth.UserTypeUser,
 		HasPassword:   true,
 		PasswordLogin: true,
 		Username:      username,
@@ -383,7 +382,7 @@ func doLoginSetup(c echo.Context) error {
 		Password:      null.NewString(password, true),
 		Email:         null.NewString(email, true),
 		UserRoleID:    role.ID,
-		Status:        models.UserStatusEnabled,
+		Status:        auth.UserStatusEnabled,
 	}
 	if _, err := app.core.CreateUser(u); err != nil {
 		return err
