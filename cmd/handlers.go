@@ -133,10 +133,10 @@ func initHTTPHandlers(e *echo.Echo, app *App) {
 
 	// Individual list permissions are applied directly within handleGetLists.
 	api.GET("/api/lists", handleGetLists)
-	api.GET("/api/lists/:id", listPerm(handleGetList))
+	api.GET("/api/lists/:id", handleGetList)
 	api.POST("/api/lists", pm(handleCreateList, "lists:manage_all"))
-	api.PUT("/api/lists/:id", listPerm(handleUpdateList))
-	api.DELETE("/api/lists/:id", listPerm(handleDeleteLists))
+	api.PUT("/api/lists/:id", handleUpdateList)
+	api.DELETE("/api/lists/:id", handleDeleteLists)
 
 	api.GET("/api/campaigns", pm(handleGetCampaigns, "campaigns:get_all", "campaigns:get"))
 	api.GET("/api/campaigns/running/stats", pm(handleGetRunningCampaignStats, "campaigns:get_all", "campaigns:get"))

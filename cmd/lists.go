@@ -69,11 +69,21 @@ func handleGetLists(c echo.Context) error {
 // It's permission checked by the listPerm middleware.
 func handleGetList(c echo.Context) error {
 	var (
-		app       = c.Get("app").(*App)
-		listID, _ = strconv.Atoi(c.Param("id"))
+		app   = c.Get("app").(*App)
+		id, _ = strconv.Atoi(c.Param("id"))
 	)
 
-	out, err := app.core.GetList(listID, "")
+	if id < 1 {
+		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidID"))
+	}
+
+	// Check if the user has access to the list.
+	if err := checkListPerm(true, false, c, id); err != nil {
+		return err
+	}
+
+	// Get the list from the DB.
+	out, err := app.core.GetList(id, "")
 	if err != nil {
 		return err
 	}
@@ -117,6 +127,11 @@ func handleUpdateList(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidID"))
 	}
 
+	// Check if the user has access to the list.
+	if err := checkListPerm(false, true, c, id); err != nil {
+		return err
+	}
+
 	// Incoming params.
 	var l models.List
 	if err := c.Bind(&l); err != nil {
@@ -153,6 +168,12 @@ func handleDeleteLists(c echo.Context) error {
 		ids = append(ids, int(id))
 	}
 
+	// Check if the user has access to the list.
+	if err := checkListPerm(true, false, c, ids...); err != nil {
+		return err
+	}
+
+	// Delete the lists from the DB.
 	if err := app.core.DeleteLists(ids); err != nil {
 		return err
 	}
@@ -160,37 +181,34 @@ func handleDeleteLists(c echo.Context) error {
 	return c.JSON(http.StatusOK, okResp{true})
 }
 
-// listPerm is a middleware for wrapping /list/* API calls that take a
-// list :id param for validating the list ID against the user's list perms.
-func listPerm(next echo.HandlerFunc) echo.HandlerFunc {
-	return func(c echo.Context) error {
-		var (
-			app   = c.Get("app").(*App)
-			user  = c.Get(auth.UserKey).(models.User)
-			id, _ = strconv.Atoi(c.Param("id"))
-		)
+// checkListPerm checks if the user has get or manage access to the given list.
+func checkListPerm(get, manage bool, c echo.Context, listIDs ...int) error {
+	var (
+		app  = c.Get("app").(*App)
+		user = c.Get(auth.UserKey).(models.User)
+	)
 
-		// Define permissions based on HTTP read/write.
-		var (
-			permAll = models.PermListManageAll
-			perm    = models.PermListManage
-		)
-		if c.Request().Method == http.MethodGet {
-			permAll = models.PermListGetAll
-			perm = models.PermListGet
-		}
+	var permAll, perm string
+	if get {
+		permAll = models.PermListGetAll
+		perm = models.PermListGet
+	} else if manage {
+		permAll = models.PermListManageAll
+		perm = models.PermListManage
+	}
 
-		// Check if the user has permissions for all lists or the specific list.
-		if user.HasPerm(permAll) {
-			return next(c)
-		}
+	// Check if the user has permissions for all lists or the specific list.
+	if user.HasPerm(permAll) {
+		return nil
+	}
 
+	for _, id := range listIDs {
 		if id > 0 {
 			if user.HasListPerm(id, perm) {
-				return next(c)
+				return nil
 			}
 		}
-
-		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.Ts("globals.messages.permissionDenied", "name", "list"))
 	}
+
+	return echo.NewHTTPError(http.StatusBadRequest, app.i18n.Ts("globals.messages.permissionDenied", "name", "list"))
 }
