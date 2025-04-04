@@ -14,7 +14,7 @@ import (
 func handleGetLists(c echo.Context) error {
 	var (
 		app  = c.Get("app").(*App)
-		user = c.Get(auth.UserKey).(auth.User)
+		user = auth.GetUser(c)
 		pg   = app.paginator.NewFromURL(c.Request().URL.Query())
 
 		query      = strings.TrimSpace(c.FormValue("query"))
@@ -70,7 +70,7 @@ func handleGetLists(c echo.Context) error {
 func handleGetList(c echo.Context) error {
 	var (
 		app  = c.Get("app").(*App)
-		user = c.Get(auth.UserKey).(auth.User)
+		user = auth.GetUser(c)
 
 		id, _ = strconv.Atoi(c.Param("id"))
 	)
@@ -122,7 +122,7 @@ func handleCreateList(c echo.Context) error {
 func handleUpdateList(c echo.Context) error {
 	var (
 		app  = c.Get("app").(*App)
-		user = c.Get(auth.UserKey).(auth.User)
+		user = auth.GetUser(c)
 
 		id, _ = strconv.Atoi(c.Param("id"))
 	)
@@ -160,7 +160,7 @@ func handleUpdateList(c echo.Context) error {
 func handleDeleteLists(c echo.Context) error {
 	var (
 		app  = c.Get("app").(*App)
-		user = c.Get(auth.UserKey).(auth.User)
+		user = auth.GetUser(c)
 
 		id, _ = strconv.ParseInt(c.Param("id"), 10, 64)
 		ids   []int

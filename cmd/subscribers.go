@@ -56,7 +56,7 @@ func handleGetSubscriber(c echo.Context) error {
 	var (
 		app   = c.Get("app").(*App)
 		id, _ = strconv.Atoi(c.Param("id"))
-		user  = c.Get(auth.UserKey).(auth.User)
+		user  = auth.GetUser(c)
 	)
 
 	if id < 1 {
@@ -81,7 +81,7 @@ func handleGetSubscriber(c echo.Context) error {
 func handleQuerySubscribers(c echo.Context) error {
 	var (
 		app  = c.Get("app").(*App)
-		user = c.Get(auth.UserKey).(auth.User)
+		user = auth.GetUser(c)
 		pg   = app.paginator.NewFromURL(c.Request().URL.Query())
 
 		// The "WHERE ?" bit.
@@ -116,7 +116,7 @@ func handleQuerySubscribers(c echo.Context) error {
 func handleExportSubscribers(c echo.Context) error {
 	var (
 		app  = c.Get("app").(*App)
-		user = c.Get(auth.UserKey).(auth.User)
+		user = auth.GetUser(c)
 
 		// The "WHERE ?" bit.
 		query = sanitizeSQLExp(c.FormValue("query"))
@@ -185,7 +185,7 @@ loop:
 func handleCreateSubscriber(c echo.Context) error {
 	var (
 		app  = c.Get("app").(*App)
-		user = c.Get(auth.UserKey).(auth.User)
+		user = auth.GetUser(c)
 
 		req subimporter.SubReq
 	)
@@ -217,7 +217,7 @@ func handleCreateSubscriber(c echo.Context) error {
 func handleUpdateSubscriber(c echo.Context) error {
 	var (
 		app  = c.Get("app").(*App)
-		user = c.Get(auth.UserKey).(auth.User)
+		user = auth.GetUser(c)
 
 		id, _ = strconv.Atoi(c.Param("id"))
 		req   struct {
@@ -326,7 +326,7 @@ func handleBlocklistSubscribers(c echo.Context) error {
 func handleManageSubscriberLists(c echo.Context) error {
 	var (
 		app  = c.Get("app").(*App)
-		user = c.Get(auth.UserKey).(auth.User)
+		user = auth.GetUser(c)
 
 		pID    = c.Param("id")
 		subIDs []int
@@ -468,7 +468,7 @@ func handleBlocklistSubscribersByQuery(c echo.Context) error {
 func handleManageSubscriberListsByQuery(c echo.Context) error {
 	var (
 		app  = c.Get("app").(*App)
-		user = c.Get(auth.UserKey).(auth.User)
+		user = auth.GetUser(c)
 
 		req subQueryReq
 	)
