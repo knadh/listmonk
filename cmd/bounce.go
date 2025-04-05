@@ -26,7 +26,7 @@ func (a *App) GetBounces(c echo.Context) error {
 
 	// Query and fetch bounces from the DB.
 	var (
-		pg        = a.paginator.NewFromURL(c.Request().URL.Query())
+		pg        = a.pg.NewFromURL(c.Request().URL.Query())
 		campID, _ = strconv.Atoi(c.QueryParam("campaign_id"))
 		source    = c.FormValue("source")
 		orderBy   = c.FormValue("order_by")

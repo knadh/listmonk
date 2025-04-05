@@ -26,7 +26,7 @@ type campArchive struct {
 // GetCampaignArchives renders the public campaign archives page.
 func (a *App) GetCampaignArchives(c echo.Context) error {
 	// Get archives from the DB.
-	pg := a.paginator.NewFromURL(c.Request().URL.Query())
+	pg := a.pg.NewFromURL(c.Request().URL.Query())
 	camps, total, err := a.getCampaignArchives(pg.Offset, pg.Limit, false)
 	if err != nil {
 		return err
@@ -52,7 +52,7 @@ func (a *App) GetCampaignArchives(c echo.Context) error {
 // GetCampaignArchivesFeed renders the public campaign archives RSS feed.
 func (a *App) GetCampaignArchivesFeed(c echo.Context) error {
 	var (
-		pg              = a.paginator.NewFromURL(c.Request().URL.Query())
+		pg              = a.pg.NewFromURL(c.Request().URL.Query())
 		showFullContent = a.cfg.EnablePublicArchiveRSSContent
 	)
 
@@ -98,7 +98,7 @@ func (a *App) GetCampaignArchivesFeed(c echo.Context) error {
 // CampaignArchivesPage renders the public campaign archives page.
 func (a *App) CampaignArchivesPage(c echo.Context) error {
 	// Get archives from the DB.
-	pg := a.paginator.NewFromURL(c.Request().URL.Query())
+	pg := a.pg.NewFromURL(c.Request().URL.Query())
 	out, total, err := a.getCampaignArchives(pg.Offset, pg.Limit, false)
 	if err != nil {
 		return err

@@ -14,7 +14,7 @@ import (
 func (a *App) GetLists(c echo.Context) error {
 	var (
 		user = auth.GetUser(c)
-		pg   = a.paginator.NewFromURL(c.Request().URL.Query())
+		pg   = a.pg.NewFromURL(c.Request().URL.Query())
 	)
 
 	// Get the list IDs (or blanket permission) the user has access to.

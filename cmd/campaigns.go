@@ -68,7 +68,7 @@ func (a *App) GetCampaigns(c echo.Context) error {
 	}
 
 	var (
-		pg = a.paginator.NewFromURL(c.Request().URL.Query())
+		pg = a.pg.NewFromURL(c.Request().URL.Query())
 
 		status    = c.QueryParams()["status"]
 		tags      = c.QueryParams()["tag"]

@@ -55,6 +55,7 @@ import (
 
 const (
 	queryFilePath = "queries.sql"
+	emailMsgr     = "email"
 )
 
 // UrlConfig contains various URL constants used in the app.
@@ -394,8 +395,8 @@ func initUrlConfig(ko *koanf.Koanf) *UrlConfig {
 
 	return &UrlConfig{
 		RootURL:    root,
-		LogoURL:    path.Join(root, ko.String("app.logo_url")),
-		FaviconURL: path.Join(root, ko.String("app.favicon_url")),
+		LogoURL:    ko.String("app.logo_url"),
+		FaviconURL: ko.String("app.favicon_url"),
 		LoginURL:   path.Join(uriAdmin, "/login"),
 
 		// Static URLS.
@@ -495,13 +496,37 @@ func initI18n(lang string, fs stuffbin.FileSystem) *i18n.I18n {
 	return i
 }
 
+// initCore initializes the CRUD DB core .
+func initCore(fnNotify func(sub models.Subscriber, listIDs []int) (int, error), queries *models.Queries, db *sqlx.DB, i *i18n.I18n, ko *koanf.Koanf) *core.Core {
+	opt := &core.Opt{
+		Constants: core.Constants{
+			SendOptinConfirmation: ko.Bool("app.send_optin_confirmation"),
+			CacheSlowQueries:      ko.Bool("app.cache_slow_queries"),
+		},
+		Queries: queries,
+		DB:      db,
+		I18n:    i,
+		Log:     lo,
+	}
+
+	// Load bounce config.
+	if err := ko.Unmarshal("bounce.actions", &opt.Constants.BounceActions); err != nil {
+		lo.Fatalf("error unmarshalling bounce config: %v", err)
+	}
+
+	// Initialize the CRUD core.
+	return core.New(opt, &core.Hooks{
+		SendOptinConfirmation: fnNotify,
+	})
+}
+
 // initCampaignManager initializes the campaign manager.
-func initCampaignManager(q *models.Queries, u *UrlConfig, co *core.Core, md media.Store, i *i18n.I18n) *manager.Manager {
+func initCampaignManager(msgrs []manager.Messenger, q *models.Queries, u *UrlConfig, co *core.Core, md media.Store, i *i18n.I18n, ko *koanf.Koanf) *manager.Manager {
 	if ko.Bool("passive") {
 		lo.Println("running in passive mode. won't process campaigns.")
 	}
 
-	return manager.New(manager.Config{
+	mgr := manager.New(manager.Config{
 		BatchSize:             ko.Int("app.batch_size"),
 		Concurrency:           ko.Int("app.concurrency"),
 		MessageRate:           ko.Int("app.message_rate"),
@@ -522,6 +547,13 @@ func initCampaignManager(q *models.Queries, u *UrlConfig, co *core.Core, md medi
 		ScanInterval:          time.Second * 5,
 		ScanCampaigns:         !ko.Bool("passive"),
 	}, newManagerStore(q, co, md), i, lo)
+
+	// Attach all messengers to the campaign manager.
+	for _, m := range msgrs {
+		mgr.AddMessenger(m)
+	}
+
+	return mgr
 }
 
 // initTxTemplates initializes and compiles the transactional templates and caches them in-memory.
@@ -807,7 +839,7 @@ func initAbout(q *models.Queries, db *sqlx.DB) about {
 }
 
 // initHTTPServer sets up and runs the app's main HTTP server and blocks forever.
-func initHTTPServer(app *App) *echo.Echo {
+func initHTTPServer(cfg *Config, urlCfg *UrlConfig, i *i18n.I18n, fs stuffbin.FileSystem, app *App) *echo.Echo {
 	// Initialize the HTTP server.
 	var srv = echo.New()
 	srv.HideBanner = true
@@ -820,24 +852,24 @@ func initHTTPServer(app *App) *echo.Echo {
 		}
 	})
 
-	tpl, err := stuffbin.ParseTemplatesGlob(initTplFuncs(app.i18n, app.urlCfg), app.fs, "/public/templates/*.html")
+	tpl, err := stuffbin.ParseTemplatesGlob(initTplFuncs(i, urlCfg), fs, "/public/templates/*.html")
 	if err != nil {
 		lo.Fatalf("error parsing public templates: %v", err)
 	}
 	srv.Renderer = &tplRenderer{
 		templates:           tpl,
-		SiteName:            app.cfg.SiteName,
-		RootURL:             app.urlCfg.RootURL,
-		LogoURL:             app.urlCfg.LogoURL,
-		FaviconURL:          app.urlCfg.FaviconURL,
-		AssetVersion:        app.cfg.AssetVersion,
-		EnablePublicSubPage: app.cfg.EnablePublicSubPage,
-		EnablePublicArchive: app.cfg.EnablePublicArchive,
-		IndividualTracking:  app.cfg.Privacy.IndividualTracking,
+		SiteName:            cfg.SiteName,
+		RootURL:             urlCfg.RootURL,
+		LogoURL:             urlCfg.LogoURL,
+		FaviconURL:          urlCfg.FaviconURL,
+		AssetVersion:        cfg.AssetVersion,
+		EnablePublicSubPage: cfg.EnablePublicSubPage,
+		EnablePublicArchive: cfg.EnablePublicArchive,
+		IndividualTracking:  cfg.Privacy.IndividualTracking,
 	}
 
 	// Initialize the static file server.
-	fSrv := app.fs.FileServer()
+	fSrv := fs.FileServer()
 
 	// Public (subscriber) facing static files.
 	srv.GET("/public/static/*", echo.WrapHandler(fSrv))
@@ -876,11 +908,11 @@ func initCaptcha() *captcha.Captcha {
 
 // initCron initializes the cron job for refreshing slow query cache.
 
-func initCron(core *core.Core) {
+func initCron(co *core.Core) {
 	c := cron.New()
 	_, err := c.Add(ko.MustString("app.cache_slow_queries_interval"), func() {
 		lo.Println("refreshing slow query cache")
-		_ = core.RefreshMatViews(true)
+		_ = co.RefreshMatViews(true)
 		lo.Println("done refreshing slow query cache")
 	})
 	if err != nil {
@@ -921,19 +953,6 @@ func awaitReload(sigChan chan os.Signal, closerWait chan bool, closer func()) ch
 			}
 		}
 	}()
-
-	return out
-}
-
-// joinFSPaths joins the given paths with the root path and returns the full paths.
-func joinFSPaths(root string, paths []string) []string {
-	out := make([]string, 0, len(paths))
-	for _, p := range paths {
-		// real_path:stuffbin_alias
-		f := strings.Split(p, ":")
-
-		out = append(out, path.Join(root, f[0])+":"+f[1])
-	}
 
 	return out
 }
@@ -1037,4 +1056,17 @@ func initAuth(co *core.Core, db *sql.DB, ko *koanf.Koanf) (bool, *auth.Auth) {
 	}
 
 	return hasUsers, a
+}
+
+// joinFSPaths joins the given paths with the root path and returns the full paths.
+func joinFSPaths(root string, paths []string) []string {
+	out := make([]string, 0, len(paths))
+	for _, p := range paths {
+		// real_path:stuffbin_alias
+		f := strings.Split(p, ":")
+
+		out = append(out, path.Join(root, f[0])+":"+f[1])
+	}
+
+	return out
 }
