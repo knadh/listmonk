@@ -11,9 +11,9 @@ import (
 )
 
 // GetUserRoles retrieves roles.
-func (h *Handlers) GetUserRoles(c echo.Context) error {
+func (a *App) GetUserRoles(c echo.Context) error {
 	// Get all roles.
-	out, err := h.app.core.GetRoles()
+	out, err := a.core.GetRoles()
 	if err != nil {
 		return err
 	}
@@ -22,9 +22,9 @@ func (h *Handlers) GetUserRoles(c echo.Context) error {
 }
 
 // GeListRoles retrieves roles.
-func (h *Handlers) GeListRoles(c echo.Context) error {
+func (a *App) GeListRoles(c echo.Context) error {
 	// Get all roles.
-	out, err := h.app.core.GetListRoles()
+	out, err := a.core.GetListRoles()
 	if err != nil {
 		return err
 	}
@@ -33,17 +33,17 @@ func (h *Handlers) GeListRoles(c echo.Context) error {
 }
 
 // CreateUserRole handles role creation.
-func (h *Handlers) CreateUserRole(c echo.Context) error {
+func (a *App) CreateUserRole(c echo.Context) error {
 	var r auth.Role
 	if err := c.Bind(&r); err != nil {
 		return err
 	}
-	if err := h.validateUserRole(r); err != nil {
+	if err := a.validateUserRole(r); err != nil {
 		return err
 	}
 
 	// Create the role in the DB.
-	out, err := h.app.core.CreateRole(r)
+	out, err := a.core.CreateRole(r)
 	if err != nil {
 		return err
 	}
@@ -52,17 +52,17 @@ func (h *Handlers) CreateUserRole(c echo.Context) error {
 }
 
 // CreateListRole handles role creation.
-func (h *Handlers) CreateListRole(c echo.Context) error {
+func (a *App) CreateListRole(c echo.Context) error {
 	var r auth.ListRole
 	if err := c.Bind(&r); err != nil {
 		return err
 	}
-	if err := h.validateListRole(r); err != nil {
+	if err := a.validateListRole(r); err != nil {
 		return err
 	}
 
 	// Create the role in the DB.
-	out, err := h.app.core.CreateListRole(r)
+	out, err := a.core.CreateListRole(r)
 	if err != nil {
 		return err
 	}
@@ -71,11 +71,11 @@ func (h *Handlers) CreateListRole(c echo.Context) error {
 }
 
 // UpdateUserRole handles role modification.
-func (h *Handlers) UpdateUserRole(c echo.Context) error {
+func (a *App) UpdateUserRole(c echo.Context) error {
 	// ID 1 is reserved for the Super Admin role and anything below that is invalid.
 	id, _ := strconv.Atoi(c.Param("id"))
 	if id < 2 {
-		return echo.NewHTTPError(http.StatusBadRequest, h.app.i18n.T("globals.messages.invalidID"))
+		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("globals.messages.invalidID"))
 	}
 
 	// Incoming params.
@@ -83,7 +83,7 @@ func (h *Handlers) UpdateUserRole(c echo.Context) error {
 	if err := c.Bind(&r); err != nil {
 		return err
 	}
-	if err := h.validateUserRole(r); err != nil {
+	if err := a.validateUserRole(r); err != nil {
 		return err
 	}
 
@@ -91,13 +91,13 @@ func (h *Handlers) UpdateUserRole(c echo.Context) error {
 	r.Name.String = strings.TrimSpace(r.Name.String)
 
 	// Update the role in the DB.
-	out, err := h.app.core.UpdateUserRole(id, r)
+	out, err := a.core.UpdateUserRole(id, r)
 	if err != nil {
 		return err
 	}
 
 	// Cache API tokens for in-memory, off-DB /api/* request auth.
-	if _, err := cacheUsers(h.app.core, h.app.auth); err != nil {
+	if _, err := cacheUsers(a.core, a.auth); err != nil {
 		return err
 	}
 
@@ -105,11 +105,11 @@ func (h *Handlers) UpdateUserRole(c echo.Context) error {
 }
 
 // UpdateListRole handles role modification.
-func (h *Handlers) UpdateListRole(c echo.Context) error {
+func (a *App) UpdateListRole(c echo.Context) error {
 	// ID 1 is reserved for the Super Admin role and anything below that is invalid.
 	id, _ := strconv.Atoi(c.Param("id"))
 	if id < 2 {
-		return echo.NewHTTPError(http.StatusBadRequest, h.app.i18n.T("globals.messages.invalidID"))
+		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("globals.messages.invalidID"))
 	}
 
 	// Incoming params.
@@ -118,7 +118,7 @@ func (h *Handlers) UpdateListRole(c echo.Context) error {
 		return err
 	}
 
-	if err := h.validateListRole(r); err != nil {
+	if err := a.validateListRole(r); err != nil {
 		return err
 	}
 
@@ -126,13 +126,13 @@ func (h *Handlers) UpdateListRole(c echo.Context) error {
 	r.Name.String = strings.TrimSpace(r.Name.String)
 
 	// Update the role in the DB.
-	out, err := h.app.core.UpdateListRole(id, r)
+	out, err := a.core.UpdateListRole(id, r)
 	if err != nil {
 		return err
 	}
 
 	// Cache API tokens for in-memory, off-DB /api/* request auth.
-	if _, err := cacheUsers(h.app.core, h.app.auth); err != nil {
+	if _, err := cacheUsers(a.core, a.auth); err != nil {
 		return err
 	}
 
@@ -140,48 +140,48 @@ func (h *Handlers) UpdateListRole(c echo.Context) error {
 }
 
 // DeleteRole handles role deletion.
-func (h *Handlers) DeleteRole(c echo.Context) error {
+func (a *App) DeleteRole(c echo.Context) error {
 	id, _ := strconv.ParseInt(c.Param("id"), 10, 64)
 	if id < 2 {
-		return echo.NewHTTPError(http.StatusBadRequest, h.app.i18n.T("globals.messages.invalidID"))
+		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("globals.messages.invalidID"))
 	}
 
 	// Delete the role from the DB.
-	if err := h.app.core.DeleteRole(int(id)); err != nil {
+	if err := a.core.DeleteRole(int(id)); err != nil {
 		return err
 	}
 
 	// Cache API tokens for in-memory, off-DB /api/* request auth.
-	if _, err := cacheUsers(h.app.core, h.app.auth); err != nil {
+	if _, err := cacheUsers(a.core, a.auth); err != nil {
 		return err
 	}
 
 	return c.JSON(http.StatusOK, okResp{true})
 }
 
-func (h *Handlers) validateUserRole(r auth.Role) error {
+func (a *App) validateUserRole(r auth.Role) error {
 	if !strHasLen(r.Name.String, 1, stdInputMaxLen) {
-		return echo.NewHTTPError(http.StatusBadRequest, h.app.i18n.Ts("globals.messages.invalidFields", "name", "name"))
+		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.Ts("globals.messages.invalidFields", "name", "name"))
 	}
 
 	for _, p := range r.Permissions {
-		if _, ok := h.app.constants.Permissions[p]; !ok {
-			return echo.NewHTTPError(http.StatusBadRequest, h.app.i18n.Ts("globals.messages.invalidFields", "name", fmt.Sprintf("permission: %s", p)))
+		if _, ok := a.constants.Permissions[p]; !ok {
+			return echo.NewHTTPError(http.StatusBadRequest, a.i18n.Ts("globals.messages.invalidFields", "name", fmt.Sprintf("permission: %s", p)))
 		}
 	}
 
 	return nil
 }
 
-func (h *Handlers) validateListRole(r auth.ListRole) error {
+func (a *App) validateListRole(r auth.ListRole) error {
 	if !strHasLen(r.Name.String, 1, stdInputMaxLen) {
-		return echo.NewHTTPError(http.StatusBadRequest, h.app.i18n.Ts("globals.messages.invalidFields", "name", "name"))
+		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.Ts("globals.messages.invalidFields", "name", "name"))
 	}
 
 	for _, l := range r.Lists {
 		for _, p := range l.Permissions {
 			if p != auth.PermListGet && p != auth.PermListManage {
-				return echo.NewHTTPError(http.StatusBadRequest, h.app.i18n.Ts("globals.messages.invalidFields", "name", fmt.Sprintf("list permission: %s", p)))
+				return echo.NewHTTPError(http.StatusBadRequest, a.i18n.Ts("globals.messages.invalidFields", "name", fmt.Sprintf("list permission: %s", p)))
 			}
 		}
 	}
