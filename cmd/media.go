@@ -155,7 +155,7 @@ func (a *App) GetMedia(c echo.Context) error {
 
 	// Get the media from the DB.
 	var (
-		pg    = a.paginator.NewFromURL(c.Request().URL.Query())
+		pg    = a.pg.NewFromURL(c.Request().URL.Query())
 		query = c.FormValue("query")
 	)
 	res, total, err := a.core.QueryMedia(a.cfg.MediaUpload.Provider, a.media, query, pg.Offset, pg.Limit)

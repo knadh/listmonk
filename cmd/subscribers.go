@@ -95,7 +95,7 @@ func (a *App) QuerySubscribers(c echo.Context) error {
 		subStatus = c.FormValue("subscription_status")
 		orderBy   = c.FormValue("order_by")
 		order     = c.FormValue("order")
-		pg        = a.paginator.NewFromURL(c.Request().URL.Query())
+		pg        = a.pg.NewFromURL(c.Request().URL.Query())
 	)
 	res, total, err := a.core.QuerySubscribers(query, listIDs, subStatus, order, orderBy, pg.Offset, pg.Limit)
 	if err != nil {
@@ -264,7 +264,7 @@ func (a *App) SubscriberSendOptin(c echo.Context) error {
 	}
 
 	// Trigger the opt-in confirmation e-mail hook.
-	if _, err := a.optinNotifyHook(out, nil); err != nil {
+	if _, err := a.fnOptinNotify(out, nil); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, a.i18n.T("subscribers.errorSendingOptin"))
 	}
 
@@ -657,7 +657,7 @@ func makeOptinNotifyHook(unsubHeader bool, u *UrlConfig, q *models.Queries, i *i
 		// Fetch double opt-in lists from the given list IDs.
 		// Get the list of subscription lists where the subscriber hasn't confirmed.
 		var lists = []models.List{}
-		if err := q.GetSubscriberLists.Select(&lists, sub.ID, "", pq.Array(listIDs), nil, models.SubscriptionStatusUnconfirmed, models.ListOptinDouble); err != nil {
+		if err := q.GetSubscriberLists.Select(&lists, sub.ID, nil, pq.Array(listIDs), nil, models.SubscriptionStatusUnconfirmed, models.ListOptinDouble); err != nil {
 			lo.Printf("error fetching lists for opt-in: %s", err)
 			return 0, err
 		}

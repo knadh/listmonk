@@ -575,7 +575,7 @@ func (a *App) SelfExportSubscriberData(c echo.Context) error {
 
 	// E-mail the data as a JSON attachment to the subscriber.
 	const fname = "data.json"
-	if err := a.emailMessenger.Push(models.Message{
+	if err := a.emailMsgr.Push(models.Message{
 		From:    a.cfg.FromEmail,
 		To:      []string{data.Email},
 		Subject: subject,
