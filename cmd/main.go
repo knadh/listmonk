@@ -34,8 +34,7 @@ const (
 	emailMsgr = "email"
 )
 
-// App contains the "global" components that are
-// passed around, especially through HTTP handlers.
+// App contains the "global" shared components, controllers and fields.
 type App struct {
 	core           *core.Core
 	fs             stuffbin.FileSystem
@@ -216,7 +215,7 @@ func main() {
 	})
 
 	app.queries = queries
-	app.manager = initCampaignManager(app.queries, app.constants, app)
+	app.manager = initCampaignManager(app.sendNotification, app.queries, app.constants, app.core, app.media, app.i18n)
 	app.importer = initImporter(app.queries, db, app.core, app)
 
 	hasUsers, auth := initAuth(app.core, db.DB, ko)
@@ -228,7 +227,7 @@ func main() {
 
 	// Initialize admin email notification templates.
 	app.notifTpls = initNotifTemplates(fs, app.i18n, app.constants)
-	initTxTemplates(app.manager, app)
+	initTxTemplates(app.manager, app.core)
 
 	// Initialize the bounce manager that processes bounces from webhooks and
 	// POP3 mailbox scanning.
@@ -270,7 +269,7 @@ func main() {
 
 	// Star the update checker.
 	if ko.Bool("app.check_updates") {
-		go checkUpdates(versionString, time.Hour*24, app)
+		go app.checkUpdates(versionString, time.Hour*24)
 	}
 
 	// Wait for the reload signal with a callback to gracefully shut down resources.

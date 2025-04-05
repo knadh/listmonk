@@ -9,6 +9,8 @@ import (
 	"github.com/knadh/listmonk/models"
 )
 
+type notifCB func(toEmails []string, subject, tplName string, data any, headers textproto.MIMEHeader) error
+
 const (
 	notifTplImport       = "import-status"
 	notifTplCampaign     = "campaign-status"

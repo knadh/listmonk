@@ -17,12 +17,8 @@ var (
 	reUsername = regexp.MustCompile(`^[a-zA-Z0-9_\\-\\.]+$`)
 )
 
-// handleGetUsers retrieves users.
-func handleGetUsers(c echo.Context) error {
-	var (
-		app = c.Get("app").(*App)
-	)
-
+// GetUsers retrieves users.
+func (h *Handlers) GetUsers(c echo.Context) error {
 	var (
 		single    = false
 		userID, _ = strconv.Atoi(c.Param("id"))
@@ -33,7 +29,7 @@ func handleGetUsers(c echo.Context) error {
 
 	if single {
 		// Get the user from the DB.
-		out, err := app.core.GetUser(userID, "", "")
+		out, err := h.app.core.GetUser(userID, "", "")
 		if err != nil {
 			return err
 		}
@@ -45,7 +41,7 @@ func handleGetUsers(c echo.Context) error {
 	}
 
 	// Get all users from the DB.
-	out, err := app.core.GetUsers()
+	out, err := h.app.core.GetUsers()
 	if err != nil {
 		return err
 	}
@@ -58,12 +54,8 @@ func handleGetUsers(c echo.Context) error {
 	return c.JSON(http.StatusOK, okResp{out})
 }
 
-// handleCreateUser handles user creation.
-func handleCreateUser(c echo.Context) error {
-	var (
-		app = c.Get("app").(*App)
-	)
-
+// CreateUser handles user creation.
+func (h *Handlers) CreateUser(c echo.Context) error {
 	var u = auth.User{}
 	if err := c.Bind(&u); err != nil {
 		return err
@@ -75,18 +67,18 @@ func handleCreateUser(c echo.Context) error {
 
 	// Validate fields.
 	if !strHasLen(u.Username, 3, stdInputMaxLen) {
-		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.Ts("globals.messages.invalidFields", "name", "username"))
+		return echo.NewHTTPError(http.StatusBadRequest, h.app.i18n.Ts("globals.messages.invalidFields", "name", "username"))
 	}
 	if !reUsername.MatchString(u.Username) {
-		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.Ts("globals.messages.invalidFields", "name", "username"))
+		return echo.NewHTTPError(http.StatusBadRequest, h.app.i18n.Ts("globals.messages.invalidFields", "name", "username"))
 	}
 	if u.Type != auth.UserTypeAPI {
 		if !utils.ValidateEmail(email) {
-			return echo.NewHTTPError(http.StatusBadRequest, app.i18n.Ts("globals.messages.invalidFields", "name", "email"))
+			return echo.NewHTTPError(http.StatusBadRequest, h.app.i18n.Ts("globals.messages.invalidFields", "name", "email"))
 		}
 		if u.PasswordLogin {
 			if !strHasLen(u.Password.String, 8, stdInputMaxLen) {
-				return echo.NewHTTPError(http.StatusBadRequest, app.i18n.Ts("globals.messages.invalidFields", "name", "password"))
+				return echo.NewHTTPError(http.StatusBadRequest, h.app.i18n.Ts("globals.messages.invalidFields", "name", "password"))
 			}
 		}
 
@@ -98,7 +90,7 @@ func handleCreateUser(c echo.Context) error {
 	}
 
 	// Create the user in the DB.
-	user, err := app.core.CreateUser(u)
+	user, err := h.app.core.CreateUser(u)
 	if err != nil {
 		return err
 	}
@@ -109,22 +101,18 @@ func handleCreateUser(c echo.Context) error {
 	}
 
 	// Cache the API token for in-memory, off-DB /api/* request auth.
-	if _, err := cacheUsers(app.core, app.auth); err != nil {
+	if _, err := cacheUsers(h.app.core, h.app.auth); err != nil {
 		return err
 	}
 
 	return c.JSON(http.StatusOK, okResp{user})
 }
 
-// handleUpdateUser handles user modification.
-func handleUpdateUser(c echo.Context) error {
-	var (
-		app = c.Get("app").(*App)
-	)
-
+// UpdateUser handles user modification.
+func (h *Handlers) UpdateUser(c echo.Context) error {
 	id, _ := strconv.Atoi(c.Param("id"))
 	if id < 1 {
-		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidID"))
+		return echo.NewHTTPError(http.StatusBadRequest, h.app.i18n.T("globals.messages.invalidID"))
 	}
 
 	// Incoming params.
@@ -139,31 +127,31 @@ func handleUpdateUser(c echo.Context) error {
 
 	// Validate fields.
 	if !strHasLen(u.Username, 3, stdInputMaxLen) {
-		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.Ts("globals.messages.invalidFields", "name", "username"))
+		return echo.NewHTTPError(http.StatusBadRequest, h.app.i18n.Ts("globals.messages.invalidFields", "name", "username"))
 	}
 	if !reUsername.MatchString(u.Username) {
-		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.Ts("globals.messages.invalidFields", "name", "username"))
+		return echo.NewHTTPError(http.StatusBadRequest, h.app.i18n.Ts("globals.messages.invalidFields", "name", "username"))
 	}
 
 	if u.Type != auth.UserTypeAPI {
 		if !utils.ValidateEmail(email) {
-			return echo.NewHTTPError(http.StatusBadRequest, app.i18n.Ts("globals.messages.invalidFields", "name", "email"))
+			return echo.NewHTTPError(http.StatusBadRequest, h.app.i18n.Ts("globals.messages.invalidFields", "name", "email"))
 		}
 
 		// Validate password if password login is enabled.
 		if u.PasswordLogin && u.Password.String != "" {
 			if !strHasLen(u.Password.String, 8, stdInputMaxLen) {
-				return echo.NewHTTPError(http.StatusBadRequest, app.i18n.Ts("globals.messages.invalidFields", "name", "password"))
+				return echo.NewHTTPError(http.StatusBadRequest, h.app.i18n.Ts("globals.messages.invalidFields", "name", "password"))
 			}
 
 			if u.Password.String != "" {
 				// If a password is sent, validate it before updating in the DB. If it's not set, leave the password in the DB untouched.
 				if !strHasLen(u.Password.String, 8, stdInputMaxLen) {
-					return echo.NewHTTPError(http.StatusBadRequest, app.i18n.Ts("globals.messages.invalidFields", "name", "password"))
+					return echo.NewHTTPError(http.StatusBadRequest, h.app.i18n.Ts("globals.messages.invalidFields", "name", "password"))
 				}
 			} else {
 				// Get the user from the DB.
-				user, err := app.core.GetUser(id, "", "")
+				user, err := h.app.core.GetUser(id, "", "")
 				if err != nil {
 					return err
 				}
@@ -171,7 +159,7 @@ func handleUpdateUser(c echo.Context) error {
 				// If password login is enabled, but there's no password in the DB and there's no incoming
 				// password, throw an error.
 				if !user.HasPassword {
-					return echo.NewHTTPError(http.StatusBadRequest, app.i18n.Ts("globals.messages.invalidFields", "name", "password"))
+					return echo.NewHTTPError(http.StatusBadRequest, h.app.i18n.Ts("globals.messages.invalidFields", "name", "password"))
 				}
 			}
 		}
@@ -185,7 +173,7 @@ func handleUpdateUser(c echo.Context) error {
 	}
 
 	// Update the user in the DB.
-	user, err := app.core.UpdateUser(id, u)
+	user, err := h.app.core.UpdateUser(id, u)
 	if err != nil {
 		return err
 	}
@@ -194,48 +182,43 @@ func handleUpdateUser(c echo.Context) error {
 	user.Password = null.String{}
 
 	// Cache the API token for in-memory, off-DB /api/* request auth.
-	if _, err := cacheUsers(app.core, app.auth); err != nil {
+	if _, err := cacheUsers(h.app.core, h.app.auth); err != nil {
 		return err
 	}
 
 	return c.JSON(http.StatusOK, okResp{user})
 }
 
-// handleDeleteUsers handles user deletion, either a single one (ID in the URI), or a list.
-func handleDeleteUsers(c echo.Context) error {
-	var (
-		app = c.Get("app").(*App)
-	)
-
+// DeleteUsers handles user deletion, either a single one (ID in the URI), or a list.
+func (h *Handlers) DeleteUsers(c echo.Context) error {
 	var (
 		id, _ = strconv.ParseInt(c.Param("id"), 10, 64)
 		ids   []int
 	)
 	if id < 1 && len(ids) == 0 {
-		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidID"))
+		return echo.NewHTTPError(http.StatusBadRequest, h.app.i18n.T("globals.messages.invalidID"))
 	}
 	if id > 0 {
 		ids = append(ids, int(id))
 	}
 
 	// Delete the user(s) from the DB.
-	if err := app.core.DeleteUsers(ids); err != nil {
+	if err := h.app.core.DeleteUsers(ids); err != nil {
 		return err
 	}
 
 	// Cache the API token for in-memory, off-DB /api/* request auth.
-	if _, err := cacheUsers(app.core, app.auth); err != nil {
+	if _, err := cacheUsers(h.app.core, h.app.auth); err != nil {
 		return err
 	}
 
 	return c.JSON(http.StatusOK, okResp{true})
 }
 
-// handleGetUserProfile fetches the uesr profile for the currently logged in user.
-func handleGetUserProfile(c echo.Context) error {
-	var (
-		user = auth.GetUser(c)
-	)
+// GetUserProfile fetches the uesr profile for the currently logged in user.
+func (h *Handlers) GetUserProfile(c echo.Context) error {
+	// Get the authenticated user.
+	user := auth.GetUser(c)
 
 	// Blank out the password hash before responding to the API.
 	user.Password.String = ""
@@ -244,12 +227,10 @@ func handleGetUserProfile(c echo.Context) error {
 	return c.JSON(http.StatusOK, okResp{user})
 }
 
-// handleUpdateUserProfile update's the current user's profile.
-func handleUpdateUserProfile(c echo.Context) error {
-	var (
-		app  = c.Get("app").(*App)
-		user = auth.GetUser(c)
-	)
+// UpdateUserProfile update's the current user's profile.
+func (h *Handlers) UpdateUserProfile(c echo.Context) error {
+	// Get the authenticated user.
+	user := auth.GetUser(c)
 
 	// Incoming params.
 	u := auth.User{}
@@ -263,19 +244,19 @@ func handleUpdateUserProfile(c echo.Context) error {
 	// Validate fields.
 	if user.PasswordLogin {
 		if !utils.ValidateEmail(email) {
-			return echo.NewHTTPError(http.StatusBadRequest, app.i18n.Ts("globals.messages.invalidFields", "name", "email"))
+			return echo.NewHTTPError(http.StatusBadRequest, h.app.i18n.Ts("globals.messages.invalidFields", "name", "email"))
 		}
 		u.Email = null.String{String: email, Valid: true}
 	}
 
 	if u.PasswordLogin && u.Password.String != "" {
 		if !strHasLen(u.Password.String, 8, stdInputMaxLen) {
-			return echo.NewHTTPError(http.StatusBadRequest, app.i18n.Ts("globals.messages.invalidFields", "name", "password"))
+			return echo.NewHTTPError(http.StatusBadRequest, h.app.i18n.Ts("globals.messages.invalidFields", "name", "password"))
 		}
 	}
 
 	// Update the user in the DB.
-	out, err := app.core.UpdateUserProfile(user.ID, u)
+	out, err := h.app.core.UpdateUserProfile(user.ID, u)
 	if err != nil {
 		return err
 	}

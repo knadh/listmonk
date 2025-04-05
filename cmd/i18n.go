@@ -24,18 +24,14 @@ type i18nLangRaw struct {
 
 var reLangCode = regexp.MustCompile(`[^a-zA-Z_0-9\\-]`)
 
-// handleGetI18nLang returns the JSON language pack given the language code.
-func handleGetI18nLang(c echo.Context) error {
-	var (
-		app = c.Get("app").(*App)
-	)
-
+// GetI18nLang returns the JSON language pack given the language code.
+func (h *Handlers) GetI18nLang(c echo.Context) error {
 	lang := c.Param("lang")
 	if len(lang) > 6 || reLangCode.MatchString(lang) {
 		return echo.NewHTTPError(http.StatusBadRequest, "Invalid language code.")
 	}
 
-	i, ok, err := getI18nLang(lang, app.fs)
+	i, ok, err := getI18nLang(lang, h.app.fs)
 	if err != nil && !ok {
 		return echo.NewHTTPError(http.StatusBadRequest, "Unknown language.")
 	}

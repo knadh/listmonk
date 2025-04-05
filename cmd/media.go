@@ -23,23 +23,19 @@ var (
 	imageExts  = []string{"gif", "png", "jpg", "jpeg"}
 )
 
-// handleUploadMedia handles media file uploads.
-func handleUploadMedia(c echo.Context) error {
-	var (
-		app = c.Get("app").(*App)
-	)
-
+// UploadMedia handles media file uploads.
+func (h *Handlers) UploadMedia(c echo.Context) error {
 	file, err := c.FormFile("file")
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest,
-			app.i18n.Ts("media.invalidFile", "error", err.Error()))
+			h.app.i18n.Ts("media.invalidFile", "error", err.Error()))
 	}
 
 	// Read the file from the HTTP form.
 	src, err := file.Open()
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError,
-			app.i18n.Ts("media.errorReadingFile", "error", err.Error()))
+			h.app.i18n.Ts("media.errorReadingFile", "error", err.Error()))
 	}
 	defer src.Close()
 
@@ -50,10 +46,10 @@ func handleUploadMedia(c echo.Context) error {
 	)
 
 	// Validate file extension.
-	if !inArray("*", app.constants.MediaUpload.Extensions) {
-		if ok := inArray(ext, app.constants.MediaUpload.Extensions); !ok {
+	if !inArray("*", h.app.constants.MediaUpload.Extensions) {
+		if ok := inArray(ext, h.app.constants.MediaUpload.Extensions); !ok {
 			return echo.NewHTTPError(http.StatusBadRequest,
-				app.i18n.Ts("media.unsupportedFileType", "type", ext))
+				h.app.i18n.Ts("media.unsupportedFileType", "type", ext))
 		}
 	}
 
@@ -61,22 +57,22 @@ func handleUploadMedia(c echo.Context) error {
 	fName := makeFilename(file.Filename)
 
 	// If the filename already exists in the DB, make it unique by adding a random suffix.
-	if _, err := app.core.GetMedia(0, "", fName, app.media); err == nil {
+	if _, err := h.app.core.GetMedia(0, "", fName, h.app.media); err == nil {
 		suffix, err := generateRandomString(6)
 		if err != nil {
-			app.log.Printf("error generating random string: %v", err)
-			return echo.NewHTTPError(http.StatusInternalServerError, app.i18n.T("globals.messages.internalError"))
+			h.app.log.Printf("error generating random string: %v", err)
+			return echo.NewHTTPError(http.StatusInternalServerError, h.app.i18n.T("globals.messages.internalError"))
 		}
 
 		fName = appendSuffixToFilename(fName, suffix)
 	}
 
 	// Upload the file to the media store.
-	fName, err = app.media.Put(fName, contentType, src)
+	fName, err = h.app.media.Put(fName, contentType, src)
 	if err != nil {
-		app.log.Printf("error uploading file: %v", err)
+		h.app.log.Printf("error uploading file: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
-			app.i18n.Ts("media.errorUploading", "error", err.Error()))
+			h.app.i18n.Ts("media.errorUploading", "error", err.Error()))
 	}
 
 	// This keeps track of whether the file has to be deleted from the DB and the store
@@ -87,10 +83,10 @@ func handleUploadMedia(c echo.Context) error {
 	)
 	defer func() {
 		if cleanUp {
-			app.media.Delete(fName)
+			h.app.media.Delete(fName)
 
 			if thumbfName != "" {
-				app.media.Delete(thumbfName)
+				h.app.media.Delete(thumbfName)
 			}
 		}
 	}()
@@ -101,23 +97,23 @@ func handleUploadMedia(c echo.Context) error {
 	// Create thumbnail from file for non-vector formats.
 	isImage := inArray(ext, imageExts)
 	if isImage {
-		thumbFile, w, h, err := processImage(file)
+		thumbFile, wi, he, err := processImage(file)
 		if err != nil {
 			cleanUp = true
-			app.log.Printf("error resizing image: %v", err)
+			h.app.log.Printf("error resizing image: %v", err)
 			return echo.NewHTTPError(http.StatusInternalServerError,
-				app.i18n.Ts("media.errorResizing", "error", err.Error()))
+				h.app.i18n.Ts("media.errorResizing", "error", err.Error()))
 		}
-		width = w
-		height = h
+		width = wi
+		height = he
 
 		// Upload thumbnail.
-		tf, err := app.media.Put(thumbPrefix+fName, contentType, thumbFile)
+		tf, err := h.app.media.Put(thumbPrefix+fName, contentType, thumbFile)
 		if err != nil {
 			cleanUp = true
-			app.log.Printf("error saving thumbnail: %v", err)
+			h.app.log.Printf("error saving thumbnail: %v", err)
 			return echo.NewHTTPError(http.StatusInternalServerError,
-				app.i18n.Ts("media.errorSavingThumbnail", "error", err.Error()))
+				h.app.i18n.Ts("media.errorSavingThumbnail", "error", err.Error()))
 		}
 		thumbfName = tf
 	}
@@ -135,7 +131,7 @@ func handleUploadMedia(c echo.Context) error {
 	}
 
 	// Insert the media into the DB.
-	m, err := app.core.InsertMedia(fName, thumbfName, contentType, meta, app.constants.MediaUpload.Provider, app.media)
+	m, err := h.app.core.InsertMedia(fName, thumbfName, contentType, meta, h.app.constants.MediaUpload.Provider, h.app.media)
 	if err != nil {
 		cleanUp = true
 		return err
@@ -144,16 +140,12 @@ func handleUploadMedia(c echo.Context) error {
 	return c.JSON(http.StatusOK, okResp{m})
 }
 
-// handleGetMedia handles retrieval of uploaded media.
-func handleGetMedia(c echo.Context) error {
-	var (
-		app = c.Get("app").(*App)
-	)
-
+// GetMedia handles retrieval of uploaded media.
+func (h *Handlers) GetMedia(c echo.Context) error {
 	// Fetch one media item from the DB.
 	id, _ := strconv.Atoi(c.Param("id"))
 	if id > 0 {
-		out, err := app.core.GetMedia(id, "", "", app.media)
+		out, err := h.app.core.GetMedia(id, "", "", h.app.media)
 		if err != nil {
 			return err
 		}
@@ -163,10 +155,10 @@ func handleGetMedia(c echo.Context) error {
 
 	// Get the media from the DB.
 	var (
-		pg    = app.paginator.NewFromURL(c.Request().URL.Query())
+		pg    = h.app.paginator.NewFromURL(c.Request().URL.Query())
 		query = c.FormValue("query")
 	)
-	res, total, err := app.core.QueryMedia(app.constants.MediaUpload.Provider, app.media, query, pg.Offset, pg.Limit)
+	res, total, err := h.app.core.QueryMedia(h.app.constants.MediaUpload.Provider, h.app.media, query, pg.Offset, pg.Limit)
 	if err != nil {
 		return err
 	}
@@ -181,26 +173,22 @@ func handleGetMedia(c echo.Context) error {
 	return c.JSON(http.StatusOK, okResp{out})
 }
 
-// deleteMedia handles deletion of uploaded media.
-func handleDeleteMedia(c echo.Context) error {
-	var (
-		app = c.Get("app").(*App)
-	)
-
+// DeleteMedia handles deletion of uploaded media.
+func (h *Handlers) DeleteMedia(c echo.Context) error {
 	id, _ := strconv.Atoi(c.Param("id"))
 	if id < 1 {
-		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidID"))
+		return echo.NewHTTPError(http.StatusBadRequest, h.app.i18n.T("globals.messages.invalidID"))
 	}
 
 	// Delete the media from the DB. The query returns the filename.
-	fname, err := app.core.DeleteMedia(id)
+	fname, err := h.app.core.DeleteMedia(id)
 	if err != nil {
 		return err
 	}
 
 	// Delete the files from the media store.
-	app.media.Delete(fname)
-	app.media.Delete(thumbPrefix + fname)
+	h.app.media.Delete(fname)
+	h.app.media.Delete(thumbPrefix + fname)
 
 	return c.JSON(http.StatusOK, okResp{true})
 }
