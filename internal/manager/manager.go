@@ -64,7 +64,7 @@ type Manager struct {
 	store      Store
 	i18n       *i18n.I18n
 	messengers map[string]Messenger
-	notifCB    models.AdminNotifCallback
+	notifCB    models.NotifCallback
 	log        *log.Logger
 
 	// Campaigns that are currently running.
@@ -145,7 +145,7 @@ type Config struct {
 var pushTimeout = time.Second * 3
 
 // New returns a new instance of Mailer.
-func New(cfg Config, store Store, notifCB models.AdminNotifCallback, i *i18n.I18n, l *log.Logger) *Manager {
+func New(cfg Config, store Store, notifCB models.NotifCallback, i *i18n.I18n, l *log.Logger) *Manager {
 	if cfg.BatchSize < 1 {
 		cfg.BatchSize = 1000
 	}

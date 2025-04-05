@@ -71,7 +71,7 @@ type Options struct {
 	UpsertStmt         *sql.Stmt
 	BlocklistStmt      *sql.Stmt
 	UpdateListDateStmt *sql.Stmt
-	NotifCB            models.AdminNotifCallback
+	NotifCB            models.NotifCallback
 
 	DomainBlocklist []string
 	DomainAllowlist []string
@@ -253,9 +253,7 @@ func (im *Importer) sendNotif(status string) error {
 			Imported: s.Imported,
 			Total:    s.Total,
 		}
-		subject = fmt.Sprintf("%s: %s import",
-			cases.Title(language.Und).String(status),
-			s.Name)
+		subject = fmt.Sprintf("%s: %s import", cases.Title(language.Und).String(status), s.Name)
 	)
 	return im.opt.NotifCB(subject, out)
 }

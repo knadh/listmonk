@@ -323,13 +323,12 @@ func (h *Handlers) TestSMTPSettings(c echo.Context) error {
 
 	// Render the test email template body.
 	var b bytes.Buffer
-	if err := h.app.notifTpls.tpls.ExecuteTemplate(&b, "smtp-test", nil); err != nil {
+	if err := h.app.notifs.Tpls.ExecuteTemplate(&b, "smtp-test", nil); err != nil {
 		h.app.log.Printf("error compiling notification template '%s': %v", "smtp-test", err)
 		return err
 	}
 
 	m := models.Message{}
-	m.ContentType = h.app.notifTpls.contentType
 	m.From = h.app.constants.FromEmail
 	m.To = []string{to}
 	m.Subject = h.app.i18n.T("settings.smtp.testConnection")

@@ -119,9 +119,8 @@ var regTplFuncs = []regTplFunc{
 	},
 }
 
-// AdminNotifCallback is a callback function that's called
-// when a campaign's status changes.
-type AdminNotifCallback func(subject string, data any) error
+// NotifCallback is a callback function that triggers a notification.
+type NotifCallback func(subject string, data any) error
 
 // PageResults is a generic HTTP response container for paginated results of list of items.
 type PageResults struct {

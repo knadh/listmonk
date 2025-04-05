@@ -43,6 +43,7 @@ import (
 	"github.com/knadh/listmonk/internal/media/providers/s3"
 	"github.com/knadh/listmonk/internal/messenger/email"
 	"github.com/knadh/listmonk/internal/messenger/postback"
+	"github.com/knadh/listmonk/internal/notifs"
 	"github.com/knadh/listmonk/internal/subimporter"
 	"github.com/knadh/listmonk/models"
 	"github.com/knadh/stuffbin"
@@ -125,11 +126,6 @@ type constants struct {
 
 	PermissionsRaw json.RawMessage
 	Permissions    map[string]struct{}
-}
-
-type notifTpls struct {
-	tpls        *template.Template
-	contentType string
 }
 
 // initFlags initializes the commandline flags into the Koanf instance.
@@ -488,9 +484,9 @@ func initI18n(lang string, fs stuffbin.FileSystem) *i18n.I18n {
 }
 
 // initCampaignManager initializes the campaign manager.
-func initCampaignManager(cb notifCB, q *models.Queries, cs *constants, co *core.Core, md media.Store, i *i18n.I18n) *manager.Manager {
+func initCampaignManager(q *models.Queries, cs *constants, fnNotif notifs.FuncNotifSystem, co *core.Core, md media.Store, i *i18n.I18n) *manager.Manager {
 	campNotifCB := func(subject string, data any) error {
-		return cb(cs.NotifyEmails, subject, notifTplCampaign, data, nil)
+		return fnNotif(subject, notifTplCampaign, data, nil)
 	}
 
 	if ko.Bool("passive") {
@@ -554,7 +550,7 @@ func initImporter(q *models.Queries, db *sqlx.DB, core *core.Core, app *App) *su
 				core.RefreshMatViews(true)
 
 				// Send admin notification.
-				app.sendNotification(app.constants.NotifyEmails, subject, notifTplImport, data, nil)
+				app.notifs.NotifySystem(subject, notifTplImport, data, nil)
 				return nil
 			},
 		}, db.DB, app.i18n)
@@ -680,39 +676,36 @@ func initMediaStore(ko *koanf.Koanf) media.Store {
 	return nil
 }
 
-// initNotifTemplates compiles and returns e-mail notification templates that are
-// used for sending ad-hoc notifications to admins and subscribers.
-func initNotifTemplates(fs stuffbin.FileSystem, i *i18n.I18n, cs *constants) *notifTpls {
+// initNotifs initializes the notifier with the system e-mail templates.
+func initNotifs(fs stuffbin.FileSystem, i *i18n.I18n, pushFn notifs.FuncPush, cs *constants, ko *koanf.Koanf) *notifs.Notifs {
 	tpls, err := stuffbin.ParseTemplatesGlob(initTplFuncs(i, cs), fs, "/static/email-templates/*.html")
 	if err != nil {
 		lo.Fatalf("error parsing e-mail notif templates: %v", err)
 	}
 
+	// Read the notification templates.
 	html, err := fs.Read("/static/email-templates/base.html")
 	if err != nil {
 		lo.Fatalf("error reading static/email-templates/base.html: %v", err)
 	}
 
-	out := &notifTpls{
-		tpls:        tpls,
-		contentType: models.CampaignContentTypeHTML,
-	}
-
 	// Determine whether the notification templates are HTML or plaintext.
 	// Copy the first few (arbitrary) bytes of the template and check if has the <!doctype html> tag.
-	ln := 256
-	if len(html) < ln {
-		ln = len(html)
-	}
+	ln := min(len(html), 256)
 	h := make([]byte, ln)
 	copy(h, html[0:ln])
 
+	contentType := models.CampaignContentTypeHTML
 	if !bytes.Contains(bytes.ToLower(h), []byte("<!doctype html")) {
-		out.contentType = models.CampaignContentTypePlain
+		contentType = models.CampaignContentTypePlain
 		lo.Println("system e-mail templates are plaintext")
 	}
 
-	return out
+	return notifs.NewNotifs(notifs.Opt{
+		FromEmail:    ko.MustString("app.from_email"),
+		SystemEmails: ko.MustStrings("app.notify_emails"),
+		ContentType:  contentType,
+	}, tpls, pushFn, lo)
 }
 
 // initBounceManager initializes the bounce manager that scans mailboxes and listens to webhooks

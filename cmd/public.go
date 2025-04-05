@@ -563,26 +563,21 @@ func (h *Handlers) SelfExportSubscriberData(c echo.Context) error {
 
 	// Prepare the attachment e-mail.
 	var msg bytes.Buffer
-	if err := h.app.notifTpls.tpls.ExecuteTemplate(&msg, notifSubscriberData, data); err != nil {
+	if err := h.app.notifs.Tpls.ExecuteTemplate(&msg, notifSubscriberData, data); err != nil {
 		h.app.log.Printf("error compiling notification template '%s': %v", notifSubscriberData, err)
 		return c.Render(http.StatusInternalServerError, tplMessage,
 			makeMsgTpl(h.app.i18n.T("public.errorTitle"), "", h.app.i18n.Ts("public.errorProcessingRequest")))
 	}
 
-	var (
-		subject = h.app.i18n.Ts("email.data.title")
-		body    = msg.Bytes()
-	)
-	subject, body = getTplSubject(subject, body)
+	subject, body := getTplSubject(h.app.i18n.Ts("email.data.title"), msg.Bytes())
 
 	// E-mail the data as a JSON attachment to the subscriber.
 	const fname = "data.json"
 	if err := h.app.emailMessenger.Push(models.Message{
-		ContentType: h.app.notifTpls.contentType,
-		From:        h.app.constants.FromEmail,
-		To:          []string{data.Email},
-		Subject:     subject,
-		Body:        body,
+		From:    h.app.constants.FromEmail,
+		To:      []string{data.Email},
+		Subject: subject,
+		Body:    body,
 		Attachments: []models.Attachment{
 			{
 				Name:    fname,
