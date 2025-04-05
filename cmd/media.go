@@ -46,8 +46,8 @@ func (a *App) UploadMedia(c echo.Context) error {
 	)
 
 	// Validate file extension.
-	if !inArray("*", a.constants.MediaUpload.Extensions) {
-		if ok := inArray(ext, a.constants.MediaUpload.Extensions); !ok {
+	if !inArray("*", a.cfg.MediaUpload.Extensions) {
+		if ok := inArray(ext, a.cfg.MediaUpload.Extensions); !ok {
 			return echo.NewHTTPError(http.StatusBadRequest,
 				a.i18n.Ts("media.unsupportedFileType", "type", ext))
 		}
@@ -131,7 +131,7 @@ func (a *App) UploadMedia(c echo.Context) error {
 	}
 
 	// Insert the media into the DB.
-	m, err := a.core.InsertMedia(fName, thumbfName, contentType, meta, a.constants.MediaUpload.Provider, a.media)
+	m, err := a.core.InsertMedia(fName, thumbfName, contentType, meta, a.cfg.MediaUpload.Provider, a.media)
 	if err != nil {
 		cleanUp = true
 		return err
@@ -158,7 +158,7 @@ func (a *App) GetMedia(c echo.Context) error {
 		pg    = a.paginator.NewFromURL(c.Request().URL.Query())
 		query = c.FormValue("query")
 	)
-	res, total, err := a.core.QueryMedia(a.constants.MediaUpload.Provider, a.media, query, pg.Offset, pg.Limit)
+	res, total, err := a.core.QueryMedia(a.cfg.MediaUpload.Provider, a.media, query, pg.Offset, pg.Limit)
 	if err != nil {
 		return err
 	}

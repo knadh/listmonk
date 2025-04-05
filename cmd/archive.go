@@ -53,7 +53,7 @@ func (a *App) GetCampaignArchives(c echo.Context) error {
 func (a *App) GetCampaignArchivesFeed(c echo.Context) error {
 	var (
 		pg              = a.paginator.NewFromURL(c.Request().URL.Query())
-		showFullContent = a.constants.EnablePublicArchiveRSSContent
+		showFullContent = a.cfg.EnablePublicArchiveRSSContent
 	)
 
 	// Get archives from the DB.
@@ -81,8 +81,8 @@ func (a *App) GetCampaignArchivesFeed(c echo.Context) error {
 
 	// Generate the feed.
 	feed := &feeds.Feed{
-		Title:       a.constants.SiteName,
-		Link:        &feeds.Link{Href: a.constants.RootURL},
+		Title:       a.cfg.SiteName,
+		Link:        &feeds.Link{Href: a.urlCfg.RootURL},
 		Description: a.i18n.T("public.archiveTitle"),
 		Items:       out,
 	}
@@ -215,9 +215,9 @@ func (a *App) getCampaignArchives(offset, limit int, renderBody bool) ([]campArc
 
 		// The campaign may have a custom slug.
 		if camp.ArchiveSlug.Valid {
-			archive.URL, _ = url.JoinPath(a.constants.ArchiveURL, camp.ArchiveSlug.String)
+			archive.URL, _ = url.JoinPath(a.urlCfg.ArchiveURL, camp.ArchiveSlug.String)
 		} else {
-			archive.URL, _ = url.JoinPath(a.constants.ArchiveURL, camp.UUID)
+			archive.URL, _ = url.JoinPath(a.urlCfg.ArchiveURL, camp.UUID)
 		}
 
 		// Render the full template body if requested.

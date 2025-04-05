@@ -11,10 +11,12 @@ import (
 	"strings"
 
 	"github.com/knadh/listmonk/internal/auth"
+	"github.com/knadh/listmonk/internal/i18n"
 	"github.com/knadh/listmonk/internal/notifs"
 	"github.com/knadh/listmonk/internal/subimporter"
 	"github.com/knadh/listmonk/models"
 	"github.com/labstack/echo/v4"
+	"github.com/lib/pq"
 )
 
 const (
@@ -133,7 +135,7 @@ func (a *App) ExportSubscribers(c echo.Context) error {
 
 	// Get the batched export iterator.
 	query := sanitizeSQLExp(c.FormValue("query"))
-	exp, err := a.core.ExportSubscribers(query, subIDs, listIDs, subStatus, a.constants.DBBatchSize)
+	exp, err := a.core.ExportSubscribers(query, subIDs, listIDs, subStatus, a.cfg.DBBatchSize)
 	if err != nil {
 		return err
 	}
@@ -262,7 +264,7 @@ func (a *App) SubscriberSendOptin(c echo.Context) error {
 	}
 
 	// Trigger the opt-in confirmation e-mail hook.
-	if _, err := a.optinConfirmNotify()(out, nil); err != nil {
+	if _, err := a.optinNotifyHook(out, nil); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, a.i18n.T("subscribers.errorSendingOptin"))
 	}
 
@@ -510,7 +512,7 @@ func (a *App) ExportSubscriberData(c echo.Context) error {
 	// Get the subscriber's data. A single query that gets the profile,
 	// list subscriptions, campaign views, and link clicks. Names of
 	// private lists are replaced with "Private list".
-	_, b, err := a.exportSubscriberData(id, "", a.constants.Privacy.Exportable)
+	_, b, err := a.exportSubscriberData(id, "", a.cfg.Privacy.Exportable)
 	if err != nil {
 		a.log.Printf("error exporting subscriber data: %s", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
@@ -555,54 +557,6 @@ func (a *App) exportSubscriberData(id int, subUUID string, exportables map[strin
 	}
 
 	return data, b, nil
-}
-
-// optinConfirmNotify returns an enclosed callback that sends optin confirmation e-mails.
-// This is plugged into the 'core' package to send optin confirmations when a new subscriber is
-// created via `core.CreateSubscriber()`.
-func (app *App) optinConfirmNotify() func(sub models.Subscriber, listIDs []int) (int, error) {
-	return func(sub models.Subscriber, listIDs []int) (int, error) {
-		lists, err := app.core.GetSubscriberLists(sub.ID, "", listIDs, nil, models.SubscriptionStatusUnconfirmed, models.ListOptinDouble)
-		if err != nil {
-			return 0, err
-		}
-
-		// None.
-		if len(lists) == 0 {
-			return 0, nil
-		}
-
-		var (
-			out      = subOptin{Subscriber: sub, Lists: lists}
-			qListIDs = url.Values{}
-		)
-
-		// Construct the opt-in URL with list IDs.
-		for _, l := range out.Lists {
-			qListIDs.Add("l", l.UUID)
-		}
-		out.OptinURL = fmt.Sprintf(app.constants.OptinURL, sub.UUID, qListIDs.Encode())
-		out.UnsubURL = fmt.Sprintf(app.constants.UnsubURL, dummyUUID, sub.UUID)
-
-		// Unsub headers.
-		hdr := textproto.MIMEHeader{}
-		hdr.Set(models.EmailHeaderSubscriberUUID, sub.UUID)
-
-		// Attach List-Unsubscribe headers?
-		if app.constants.Privacy.UnsubHeader {
-			unsubURL := fmt.Sprintf(app.constants.UnsubURL, dummyUUID, sub.UUID)
-			hdr.Set("List-Unsubscribe-Post", "List-Unsubscribe=One-Click")
-			hdr.Set("List-Unsubscribe", `<`+unsubURL+`>`)
-		}
-
-		// Send the e-mail.
-		if err := notifs.Notify([]string{sub.Email}, app.i18n.T("subscribers.optinSubject"), notifs.TplSubscriberOptin, out, hdr); err != nil {
-			app.log.Printf("error sending opt-in e-mail for subscriber %d (%s): %s", sub.ID, sub.UUID, err)
-			return 0, err
-		}
-
-		return len(lists), nil
-	}
 }
 
 // hasSubPerm checks whether the current user has permission to access the given list
@@ -693,4 +647,55 @@ func getQueryInts(param string, qp url.Values) ([]int, error) {
 	}
 
 	return out, nil
+}
+
+// makeOptinNotifyHook returns an enclosed callback that sends optin confirmation e-mails.
+// This is plugged into the 'core' package to send optin confirmations when a new subscriber is
+// created via `core.CreateSubscriber()`.
+func makeOptinNotifyHook(unsubHeader bool, u *UrlConfig, q *models.Queries, i *i18n.I18n) func(sub models.Subscriber, listIDs []int) (int, error) {
+	return func(sub models.Subscriber, listIDs []int) (int, error) {
+		// Fetch double opt-in lists from the given list IDs.
+		// Get the list of subscription lists where the subscriber hasn't confirmed.
+		var lists = []models.List{}
+		if err := q.GetSubscriberLists.Select(&lists, sub.ID, "", pq.Array(listIDs), nil, models.SubscriptionStatusUnconfirmed, models.ListOptinDouble); err != nil {
+			lo.Printf("error fetching lists for opt-in: %s", err)
+			return 0, err
+		}
+
+		// None.
+		if len(lists) == 0 {
+			return 0, nil
+		}
+
+		var (
+			out      = subOptin{Subscriber: sub, Lists: lists}
+			qListIDs = url.Values{}
+		)
+
+		// Construct the opt-in URL with list IDs.
+		for _, l := range out.Lists {
+			qListIDs.Add("l", l.UUID)
+		}
+		out.OptinURL = fmt.Sprintf(u.OptinURL, sub.UUID, qListIDs.Encode())
+		out.UnsubURL = fmt.Sprintf(u.UnsubURL, dummyUUID, sub.UUID)
+
+		// Unsub headers.
+		hdr := textproto.MIMEHeader{}
+		hdr.Set(models.EmailHeaderSubscriberUUID, sub.UUID)
+
+		// Attach List-Unsubscribe headers?
+		if unsubHeader {
+			unsubURL := fmt.Sprintf(u.UnsubURL, dummyUUID, sub.UUID)
+			hdr.Set("List-Unsubscribe-Post", "List-Unsubscribe=One-Click")
+			hdr.Set("List-Unsubscribe", `<`+unsubURL+`>`)
+		}
+
+		// Send the e-mail.
+		if err := notifs.Notify([]string{sub.Email}, i.T("subscribers.optinSubject"), notifs.TplSubscriberOptin, out, hdr); err != nil {
+			lo.Printf("error sending opt-in e-mail for subscriber %d (%s): %s", sub.ID, sub.UUID, err)
+			return 0, err
+		}
+
+		return len(lists), nil
+	}
 }

@@ -553,7 +553,7 @@ func (a *App) sendTestMessage(sub models.Subscriber, camp *models.Campaign) erro
 // validateCampaignFields validates incoming campaign field values.
 func (a *App) validateCampaignFields(c campReq) (campReq, error) {
 	if c.FromEmail == "" {
-		c.FromEmail = a.constants.FromEmail
+		c.FromEmail = a.cfg.FromEmail
 	} else if !reFromAddress.Match([]byte(c.FromEmail)) {
 		if _, err := a.importer.SanitizeEmail(c.FromEmail); err != nil {
 			return c, errors.New(a.i18n.T("campaigns.fieldInvalidFromEmail"))

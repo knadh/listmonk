@@ -190,9 +190,9 @@ func (a *App) renderLoginPage(c echo.Context, loginErr error) error {
 		oidcProvider = ""
 		oidcLogo     = ""
 	)
-	if a.constants.Security.OIDC.Enabled {
+	if a.cfg.Security.OIDC.Enabled {
 		oidcLogo = "oidc.png"
-		u, err := url.Parse(a.constants.Security.OIDC.Provider)
+		u, err := url.Parse(a.cfg.Security.OIDC.Provider)
 		if err == nil {
 			h := strings.Split(u.Hostname(), ".")
 
@@ -330,7 +330,7 @@ func (a *App) doFirstTimeSetup(c echo.Context) error {
 		Type: auth.RoleTypeUser,
 		Name: null.NewString("Super Admin", true),
 	}
-	for p := range a.constants.Permissions {
+	for p := range a.cfg.Permissions {
 		r.Permissions = append(r.Permissions, p)
 	}
 

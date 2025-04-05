@@ -49,7 +49,7 @@ func initHTTPHandlers(e *echo.Echo, a *App) {
 
 				// On no-auth, redirect to login page
 				if _, ok := u.(*echo.HTTPError); ok {
-					u, _ := url.Parse(a.constants.LoginURL)
+					u, _ := url.Parse(a.urlCfg.LoginURL)
 					q := url.Values{}
 					q.Set("next", c.Request().RequestURI)
 					u.RawQuery = q.Encode()
@@ -197,7 +197,7 @@ func initHTTPHandlers(e *echo.Echo, a *App) {
 		g.PUT("/api/roles/lists/:id", pm(a.UpdateListRole, "roles:manage"))
 		g.DELETE("/api/roles/:id", pm(a.DeleteRole, "roles:manage"))
 
-		if a.constants.BounceWebhooksEnabled {
+		if a.cfg.BounceWebhooksEnabled {
 			// Private authenticated bounce endpoint.
 			g.POST("/webhooks/bounce", pm(a.BounceWebhook, "webhooks:post_bounce"))
 		}
@@ -209,7 +209,7 @@ func initHTTPHandlers(e *echo.Echo, a *App) {
 		// Public unauthenticated endpoints.
 		g := e.Group("")
 
-		if a.constants.BounceWebhooksEnabled {
+		if a.cfg.BounceWebhooksEnabled {
 			// Public bounce endpoints for webservices like SES.
 			g.POST("/webhooks/service/:service", a.BounceWebhook)
 		}
@@ -223,7 +223,7 @@ func initHTTPHandlers(e *echo.Echo, a *App) {
 		g.GET(path.Join(uriAdmin, "/login"), a.LoginPage)
 		g.POST(path.Join(uriAdmin, "/login"), a.LoginPage)
 
-		if a.constants.Security.OIDC.Enabled {
+		if a.cfg.Security.OIDC.Enabled {
 			g.POST("/auth/oidc", a.OIDCLogin)
 			g.GET("/auth/oidc", a.OIDCFinish)
 		}
@@ -231,7 +231,7 @@ func initHTTPHandlers(e *echo.Echo, a *App) {
 		// Public APIs.
 		g.GET("/api/public/lists", a.GetPublicLists)
 		g.POST("/api/public/subscription", a.PublicSubscription)
-		if a.constants.EnablePublicArchive {
+		if a.cfg.EnablePublicArchive {
 			g.GET("/api/public/archive", a.GetCampaignArchives)
 		}
 
@@ -249,7 +249,7 @@ func initHTTPHandlers(e *echo.Echo, a *App) {
 		g.GET("/campaign/:campUUID/:subUUID", noIndex(validateUUID(a.ViewCampaignMessage, "campUUID", "subUUID")))
 		g.GET("/campaign/:campUUID/:subUUID/px.png", noIndex(validateUUID(a.RegisterCampaignView, "campUUID", "subUUID")))
 
-		if a.constants.EnablePublicArchive {
+		if a.cfg.EnablePublicArchive {
 			g.GET("/archive", a.CampaignArchivesPage)
 			g.GET("/archive.xml", a.GetCampaignArchivesFeed)
 			g.GET("/archive/:id", a.CampaignArchivePage)
@@ -283,7 +283,7 @@ func (a *App) AdminPage(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
-	b = bytes.ReplaceAll(b, []byte("asset_version"), []byte(a.constants.AssetVersion))
+	b = bytes.ReplaceAll(b, []byte("asset_version"), []byte(a.cfg.AssetVersion))
 
 	return c.HTMLBlob(http.StatusOK, b)
 }
@@ -306,19 +306,19 @@ func serveCustomAppearance(name string) echo.HandlerFunc {
 
 		switch name {
 		case "admin.custom_css":
-			out = app.constants.Appearance.AdminCSS
+			out = app.cfg.Appearance.AdminCSS
 			hdr = "text/css; charset=utf-8"
 
 		case "admin.custom_js":
-			out = app.constants.Appearance.AdminJS
+			out = app.cfg.Appearance.AdminJS
 			hdr = "application/javascript; charset=utf-8"
 
 		case "public.custom_css":
-			out = app.constants.Appearance.PublicCSS
+			out = app.cfg.Appearance.PublicCSS
 			hdr = "text/css; charset=utf-8"
 
 		case "public.custom_js":
-			out = app.constants.Appearance.PublicJS
+			out = app.cfg.Appearance.PublicJS
 			hdr = "application/javascript; charset=utf-8"
 		}
 

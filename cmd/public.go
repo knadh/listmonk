@@ -206,10 +206,10 @@ func (a *App) SubscriptionPage(c echo.Context) error {
 		Subscriber:       s,
 		SubUUID:          subUUID,
 		publicTpl:        publicTpl{Title: a.i18n.T("public.unsubscribeTitle")},
-		AllowBlocklist:   a.constants.Privacy.AllowBlocklist,
-		AllowExport:      a.constants.Privacy.AllowExport,
-		AllowWipe:        a.constants.Privacy.AllowWipe,
-		AllowPreferences: a.constants.Privacy.AllowPreferences,
+		AllowBlocklist:   a.cfg.Privacy.AllowBlocklist,
+		AllowExport:      a.cfg.Privacy.AllowExport,
+		AllowWipe:        a.cfg.Privacy.AllowWipe,
+		AllowPreferences: a.cfg.Privacy.AllowPreferences,
 	}
 
 	// If the subscriber is blocklisted, throw an error.
@@ -218,7 +218,7 @@ func (a *App) SubscriptionPage(c echo.Context) error {
 	}
 
 	// Only show preference management if it's enabled in settings.
-	if a.constants.Privacy.AllowPreferences {
+	if a.cfg.Privacy.AllowPreferences {
 		out.ShowManage = showManage
 
 		// Get the subscriber's lists from the DB to render in the template.
@@ -261,7 +261,7 @@ func (a *App) SubscriptionPrefs(c echo.Context) error {
 	var (
 		campUUID  = c.Param("campUUID")
 		subUUID   = c.Param("subUUID")
-		blocklist = a.constants.Privacy.AllowBlocklist && req.Blocklist
+		blocklist = a.cfg.Privacy.AllowBlocklist && req.Blocklist
 	)
 	if !req.Manage || blocklist {
 		if err := a.core.UnsubscribeByCampaign(subUUID, campUUID, blocklist); err != nil {
@@ -274,7 +274,7 @@ func (a *App) SubscriptionPrefs(c echo.Context) error {
 	}
 
 	// Is preference management enabled?
-	if !a.constants.Privacy.AllowPreferences {
+	if !a.cfg.Privacy.AllowPreferences {
 		return c.Render(http.StatusBadRequest, tplMessage,
 			makeMsgTpl(a.i18n.T("public.errorTitle"), "", a.i18n.T("public.invalidFeature")))
 	}
@@ -375,7 +375,7 @@ func (a *App) OptinPage(c echo.Context) error {
 	// Confirm.
 	if confirm {
 		meta := models.JSON{}
-		if a.constants.Privacy.RecordOptinIP {
+		if a.cfg.Privacy.RecordOptinIP {
 			if h := c.Request().Header.Get("X-Forwarded-For"); h != "" {
 				meta["optin_ip"] = h
 			} else if h := c.Request().RemoteAddr; h != "" {
@@ -405,7 +405,7 @@ func (a *App) OptinPage(c echo.Context) error {
 // SubscriptionFormPage handles subscription requests coming from public
 // HTML subscription forms.
 func (a *App) SubscriptionFormPage(c echo.Context) error {
-	if !a.constants.EnablePublicSubPage {
+	if !a.cfg.EnablePublicSubPage {
 		return c.Render(http.StatusNotFound, tplMessage,
 			makeMsgTpl(a.i18n.T("public.errorTitle"), "", a.i18n.Ts("public.invalidFeature")))
 	}
@@ -428,8 +428,8 @@ func (a *App) SubscriptionFormPage(c echo.Context) error {
 	out.Lists = lists
 
 	// Captcha is enabled. Set the key for the template to render.
-	if a.constants.Security.EnableCaptcha {
-		out.CaptchaKey = a.constants.Security.CaptchaKey
+	if a.cfg.Security.EnableCaptcha {
+		out.CaptchaKey = a.cfg.Security.CaptchaKey
 	}
 
 	return c.Render(http.StatusOK, "subscription-form", out)
@@ -444,7 +444,7 @@ func (a *App) SubscriptionForm(c echo.Context) error {
 	}
 
 	// Process CAPTCHA.
-	if a.constants.Security.EnableCaptcha {
+	if a.cfg.Security.EnableCaptcha {
 		err, ok := a.captcha.Verify(c.FormValue("h-captcha-response"))
 		if err != nil {
 			a.log.Printf("Captcha request failed: %v", err)
@@ -479,7 +479,7 @@ func (a *App) SubscriptionForm(c echo.Context) error {
 // PublicSubscription handles subscription requests coming from public
 // API calls.
 func (a *App) PublicSubscription(c echo.Context) error {
-	if !a.constants.EnablePublicSubPage {
+	if !a.cfg.EnablePublicSubPage {
 		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("public.invalidFeature"))
 	}
 
@@ -499,7 +499,7 @@ func (a *App) PublicSubscription(c echo.Context) error {
 func (a *App) LinkRedirect(c echo.Context) error {
 	// If individual tracking is disabled, do not record the subscriber ID.
 	subUUID := c.Param("subUUID")
-	if !a.constants.Privacy.IndividualTracking {
+	if !a.cfg.Privacy.IndividualTracking {
 		subUUID = ""
 	}
 
@@ -524,7 +524,7 @@ func (a *App) LinkRedirect(c echo.Context) error {
 func (a *App) RegisterCampaignView(c echo.Context) error {
 	// If individual tracking is disabled, do not record the subscriber ID.
 	subUUID := c.Param("subUUID")
-	if !a.constants.Privacy.IndividualTracking {
+	if !a.cfg.Privacy.IndividualTracking {
 		subUUID = ""
 	}
 
@@ -546,7 +546,7 @@ func (a *App) RegisterCampaignView(c echo.Context) error {
 // is dependent on the configuration.
 func (a *App) SelfExportSubscriberData(c echo.Context) error {
 	// Is export allowed?
-	if !a.constants.Privacy.AllowExport {
+	if !a.cfg.Privacy.AllowExport {
 		return c.Render(http.StatusBadRequest, tplMessage,
 			makeMsgTpl(a.i18n.T("public.errorTitle"), "", a.i18n.Ts("public.invalidFeature")))
 	}
@@ -555,7 +555,7 @@ func (a *App) SelfExportSubscriberData(c echo.Context) error {
 	// list subscriptions, campaign views, and link clicks. Names of
 	// private lists are replaced with "Private list".
 	subUUID := c.Param("subUUID")
-	data, b, err := a.exportSubscriberData(0, subUUID, a.constants.Privacy.Exportable)
+	data, b, err := a.exportSubscriberData(0, subUUID, a.cfg.Privacy.Exportable)
 	if err != nil {
 		a.log.Printf("error exporting subscriber data: %s", err)
 		return c.Render(http.StatusInternalServerError, tplMessage,
@@ -576,7 +576,7 @@ func (a *App) SelfExportSubscriberData(c echo.Context) error {
 	// E-mail the data as a JSON attachment to the subscriber.
 	const fname = "data.json"
 	if err := a.emailMessenger.Push(models.Message{
-		From:    a.constants.FromEmail,
+		From:    a.cfg.FromEmail,
 		To:      []string{data.Email},
 		Subject: subject,
 		Body:    body,
@@ -602,7 +602,7 @@ func (a *App) SelfExportSubscriberData(c echo.Context) error {
 // clicks remain as orphan data unconnected to any subscriber.
 func (a *App) WipeSubscriberData(c echo.Context) error {
 	// Is wiping allowed?
-	if !a.constants.Privacy.AllowWipe {
+	if !a.cfg.Privacy.AllowWipe {
 		return c.Render(http.StatusBadRequest, tplMessage,
 			makeMsgTpl(a.i18n.T("public.errorTitle"), "", a.i18n.Ts("public.invalidFeature")))
 	}
