@@ -24,6 +24,7 @@ import (
 	"github.com/knadh/listmonk/internal/i18n"
 	"github.com/knadh/listmonk/internal/manager"
 	"github.com/knadh/listmonk/internal/media"
+	notifs "github.com/knadh/listmonk/internal/notifs"
 	"github.com/knadh/listmonk/internal/subimporter"
 	"github.com/knadh/listmonk/models"
 	"github.com/knadh/paginator"
@@ -52,7 +53,7 @@ type App struct {
 	paginator      *paginator.Paginator
 	captcha        *captcha.Captcha
 	events         *events.Events
-	notifTpls      *notifTpls
+	notifs         *notifs.Notifs
 	about          about
 	log            *log.Logger
 	bufLog         *buflog.BufLog
@@ -211,11 +212,11 @@ func main() {
 
 	// Initialize the CRUD core.
 	app.core = core.New(cOpt, &core.Hooks{
-		SendOptinConfirmation: optinConfirmHook(app),
+		SendOptinConfirmation: app.optinConfirmNotify(),
 	})
 
 	app.queries = queries
-	app.manager = initCampaignManager(app.sendNotification, app.queries, app.constants, app.core, app.media, app.i18n)
+	app.manager = initCampaignManager(app.queries, app.constants, app.notifs.NotifySystem, app.core, app.media, app.i18n)
 	app.importer = initImporter(app.queries, db, app.core, app)
 
 	hasUsers, auth := initAuth(app.core, db.DB, ko)
@@ -226,7 +227,7 @@ func main() {
 	app.needsUserSetup = !hasUsers
 
 	// Initialize admin email notification templates.
-	app.notifTpls = initNotifTemplates(fs, app.i18n, app.constants)
+	app.notifs = initNotifs(app.fs, app.i18n, app.manager.PushMessage, app.constants, ko)
 	initTxTemplates(app.manager, app.core)
 
 	// Initialize the bounce manager that processes bounces from webhooks and

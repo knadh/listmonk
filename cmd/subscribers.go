@@ -261,7 +261,7 @@ func (h *Handlers) SubscriberSendOptin(c echo.Context) error {
 	}
 
 	// Trigger the opt-in confirmation e-mail hook.
-	if _, err := optinConfirmHook(h.app)(out, nil); err != nil {
+	if _, err := h.app.optinConfirmNotify()(out, nil); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, h.app.i18n.T("subscribers.errorSendingOptin"))
 	}
 
@@ -556,10 +556,10 @@ func (h *Handlers) exportSubscriberData(id int, subUUID string, exportables map[
 	return data, b, nil
 }
 
-// optinConfirmHook returns an enclosed callback that sends optin confirmation e-mails.
+// optinConfirmNotify returns an enclosed callback that sends optin confirmation e-mails.
 // This is plugged into the 'core' package to send optin confirmations when a new subscriber is
 // created via `core.CreateSubscriber()`.
-func optinConfirmHook(app *App) func(sub models.Subscriber, listIDs []int) (int, error) {
+func (app *App) optinConfirmNotify() func(sub models.Subscriber, listIDs []int) (int, error) {
 	return func(sub models.Subscriber, listIDs []int) (int, error) {
 		lists, err := app.core.GetSubscriberLists(sub.ID, "", listIDs, nil, models.SubscriptionStatusUnconfirmed, models.ListOptinDouble)
 		if err != nil {
@@ -595,7 +595,7 @@ func optinConfirmHook(app *App) func(sub models.Subscriber, listIDs []int) (int,
 		}
 
 		// Send the e-mail.
-		if err := app.sendNotification([]string{sub.Email}, app.i18n.T("subscribers.optinSubject"), notifSubscriberOptin, out, hdr); err != nil {
+		if err := app.notifs.Notify([]string{sub.Email}, app.i18n.T("subscribers.optinSubject"), notifSubscriberOptin, out, hdr); err != nil {
 			app.log.Printf("error sending opt-in e-mail for subscriber %d (%s): %s", sub.ID, sub.UUID, err)
 			return 0, err
 		}
