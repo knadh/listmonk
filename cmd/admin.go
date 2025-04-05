@@ -26,11 +26,11 @@ type serverConfig struct {
 // GetServerConfig returns general server config.
 func (a *App) GetServerConfig(c echo.Context) error {
 	out := serverConfig{
-		RootURL:       a.constants.RootURL,
-		FromEmail:     a.constants.FromEmail,
-		Lang:          a.constants.Lang,
-		Permissions:   a.constants.PermissionsRaw,
-		HasLegacyUser: a.constants.HasLegacyUser,
+		RootURL:       a.urlCfg.RootURL,
+		FromEmail:     a.cfg.FromEmail,
+		Lang:          a.cfg.Lang,
+		Permissions:   a.cfg.PermissionsRaw,
+		HasLegacyUser: a.cfg.HasLegacyUser,
 	}
 
 	// Language list.

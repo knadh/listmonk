@@ -330,7 +330,7 @@ func (a *App) TestSMTPSettings(c echo.Context) error {
 	}
 
 	m := models.Message{}
-	m.From = a.constants.FromEmail
+	m.From = a.cfg.FromEmail
 	m.To = []string{to}
 	m.Subject = a.i18n.T("settings.smtp.testConnection")
 	m.Body = b.Bytes()

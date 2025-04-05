@@ -37,25 +37,27 @@ const (
 
 // App contains the "global" shared components, controllers and fields.
 type App struct {
-	core           *core.Core
-	fs             stuffbin.FileSystem
-	db             *sqlx.DB
-	queries        *models.Queries
-	constants      *constants
-	manager        *manager.Manager
-	importer       *subimporter.Importer
-	messengers     []manager.Messenger
-	emailMessenger manager.Messenger
-	auth           *auth.Auth
-	media          media.Store
-	i18n           *i18n.I18n
-	bounce         *bounce.Manager
-	paginator      *paginator.Paginator
-	captcha        *captcha.Captcha
-	events         *events.Events
-	about          about
-	log            *log.Logger
-	bufLog         *buflog.BufLog
+	core            *core.Core
+	fs              stuffbin.FileSystem
+	db              *sqlx.DB
+	queries         *models.Queries
+	cfg             *Config
+	urlCfg          *UrlConfig
+	manager         *manager.Manager
+	importer        *subimporter.Importer
+	messengers      []manager.Messenger
+	emailMessenger  manager.Messenger
+	auth            *auth.Auth
+	media           media.Store
+	i18n            *i18n.I18n
+	bounce          *bounce.Manager
+	paginator       *paginator.Paginator
+	captcha         *captcha.Captcha
+	events          *events.Events
+	optinNotifyHook func(models.Subscriber, []int) (int, error)
+	about           about
+	log             *log.Logger
+	bufLog          *buflog.BufLog
 
 	// Channel for passing reload signals.
 	chReload chan os.Signal
@@ -173,7 +175,8 @@ func main() {
 	app := &App{
 		fs:         fs,
 		db:         db,
-		constants:  initConstants(ko),
+		cfg:        initConstConfig(ko),
+		urlCfg:     initUrlConfig(ko),
 		media:      initMediaStore(ko),
 		messengers: []manager.Messenger{},
 		log:        lo,
@@ -192,10 +195,10 @@ func main() {
 	}
 
 	// Load i18n language map.
-	app.i18n = initI18n(app.constants.Lang, fs)
+	app.i18n = initI18n(ko.MustString("app.lang"), fs)
 	cOpt := &core.Opt{
 		Constants: core.Constants{
-			SendOptinConfirmation: app.constants.SendOptinConfirmation,
+			SendOptinConfirmation: ko.Bool("app.send_optin_confirmation"),
 			CacheSlowQueries:      ko.Bool("app.cache_slow_queries"),
 		},
 		Queries: queries,
@@ -204,19 +207,19 @@ func main() {
 		Log:     lo,
 	}
 
-	// Load bounce config.
+	// Load bounce config into the core.
 	if err := ko.Unmarshal("bounce.actions", &cOpt.Constants.BounceActions); err != nil {
 		lo.Fatalf("error unmarshalling bounce config: %v", err)
 	}
 
 	// Initialize the CRUD core.
-	app.core = core.New(cOpt, &core.Hooks{
-		SendOptinConfirmation: app.optinConfirmNotify(),
-	})
+	optinNotify := makeOptinNotifyHook(ko.Bool("app.send_optin_confirmation"), app.urlCfg, queries, app.i18n)
+	app.optinNotifyHook = optinNotify
+	app.core = core.New(cOpt, &core.Hooks{SendOptinConfirmation: optinNotify})
 
 	app.queries = queries
-	app.manager = initCampaignManager(app.queries, app.constants, app.core, app.media, app.i18n)
-	app.importer = initImporter(app.queries, db, app.core, app)
+	app.manager = initCampaignManager(app.queries, app.urlCfg, app.core, app.media, app.i18n)
+	app.importer = initImporter(app.queries, db, app.core, app.i18n, ko)
 
 	hasUsers, auth := initAuth(app.core, db.DB, ko)
 	app.auth = auth
@@ -241,7 +244,7 @@ func main() {
 	}
 
 	// Initialize admin email notification templates.
-	initNotifs(app.fs, app.i18n, app.emailMessenger.(*email.Emailer), app.constants, ko)
+	initNotifs(app.fs, app.i18n, app.emailMessenger.(*email.Emailer), app.urlCfg, ko)
 	initTxTemplates(app.manager, app.core)
 
 	// Initialize any additional postback messengers.

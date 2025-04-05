@@ -165,7 +165,7 @@ func (a *App) validateUserRole(r auth.Role) error {
 	}
 
 	for _, p := range r.Permissions {
-		if _, ok := a.constants.Permissions[p]; !ok {
+		if _, ok := a.cfg.Permissions[p]; !ok {
 			return echo.NewHTTPError(http.StatusBadRequest, a.i18n.Ts("globals.messages.invalidFields", "name", fmt.Sprintf("permission: %s", p)))
 		}
 	}

@@ -191,7 +191,7 @@ func (a *App) validateTxMessage(m models.TxMessage) (models.TxMessage, error) {
 	}
 
 	if m.FromEmail == "" {
-		m.FromEmail = a.constants.FromEmail
+		m.FromEmail = a.cfg.FromEmail
 	}
 
 	if m.Messenger == "" {

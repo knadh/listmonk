@@ -143,7 +143,7 @@ func (a *App) BounceWebhook(c echo.Context) error {
 		bounces = append(bounces, b)
 
 	// Amazon SES.
-	case service == "ses" && a.constants.BounceSESEnabled:
+	case service == "ses" && a.cfg.BounceSESEnabled:
 		switch c.Request().Header.Get("X-Amz-Sns-Message-Type") {
 		// SNS webhook registration confirmation. Only after these are processed will the endpoint
 		// start getting bounce notifications.
@@ -167,7 +167,7 @@ func (a *App) BounceWebhook(c echo.Context) error {
 		}
 
 	// SendGrid.
-	case service == "sendgrid" && a.constants.BounceSendgridEnabled:
+	case service == "sendgrid" && a.cfg.BounceSendgridEnabled:
 		var (
 			sig = c.Request().Header.Get("X-Twilio-Email-Event-Webhook-Signature")
 			ts  = c.Request().Header.Get("X-Twilio-Email-Event-Webhook-Timestamp")
@@ -182,7 +182,7 @@ func (a *App) BounceWebhook(c echo.Context) error {
 		bounces = append(bounces, bs...)
 
 	// Postmark.
-	case service == "postmark" && a.constants.BouncePostmarkEnabled:
+	case service == "postmark" && a.cfg.BouncePostmarkEnabled:
 		bs, err := a.bounce.Postmark.ProcessBounce(rawReq, c)
 		if err != nil {
 			a.log.Printf("error processing postmark notification: %v", err)
@@ -195,7 +195,7 @@ func (a *App) BounceWebhook(c echo.Context) error {
 		bounces = append(bounces, bs...)
 
 	// ForwardEmail.
-	case service == "forwardemail" && a.constants.BounceForwardemailEnabled:
+	case service == "forwardemail" && a.cfg.BounceForwardemailEnabled:
 		var (
 			sig = c.Request().Header.Get("X-Webhook-Signature")
 		)
