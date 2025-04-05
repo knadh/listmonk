@@ -52,22 +52,22 @@ var (
 )
 
 // GetSubscriber handles the retrieval of a single subscriber by ID.
-func (h *Handlers) GetSubscriber(c echo.Context) error {
+func (a *App) GetSubscriber(c echo.Context) error {
 	// Get the authenticated user.
 	user := auth.GetUser(c)
 
 	id, _ := strconv.Atoi(c.Param("id"))
 	if id < 1 {
-		return echo.NewHTTPError(http.StatusBadRequest, h.app.i18n.T("globals.messages.invalidID"))
+		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("globals.messages.invalidID"))
 	}
 
 	// Check if the user has access to at least one of the lists on the subscriber.
-	if err := h.hasSubPerm(user, []int{id}); err != nil {
+	if err := a.hasSubPerm(user, []int{id}); err != nil {
 		return err
 	}
 
 	// Fetch the subscriber from the DB.
-	out, err := h.app.core.GetSubscriber(id, "", "")
+	out, err := a.core.GetSubscriber(id, "", "")
 	if err != nil {
 		return err
 	}
@@ -76,12 +76,12 @@ func (h *Handlers) GetSubscriber(c echo.Context) error {
 }
 
 // QuerySubscribers handles querying subscribers based on an arbitrary SQL expression.
-func (h *Handlers) QuerySubscribers(c echo.Context) error {
+func (a *App) QuerySubscribers(c echo.Context) error {
 	// Get the authenticated user.
 	user := auth.GetUser(c)
 
 	// Filter list IDs by permission.
-	listIDs, err := h.filterListQueryByPerm("list_id", c.QueryParams(), user)
+	listIDs, err := a.filterListQueryByPerm("list_id", c.QueryParams(), user)
 	if err != nil {
 		return err
 	}
@@ -92,9 +92,9 @@ func (h *Handlers) QuerySubscribers(c echo.Context) error {
 		subStatus = c.FormValue("subscription_status")
 		orderBy   = c.FormValue("order_by")
 		order     = c.FormValue("order")
-		pg        = h.app.paginator.NewFromURL(c.Request().URL.Query())
+		pg        = a.paginator.NewFromURL(c.Request().URL.Query())
 	)
-	res, total, err := h.app.core.QuerySubscribers(query, listIDs, subStatus, order, orderBy, pg.Offset, pg.Limit)
+	res, total, err := a.core.QuerySubscribers(query, listIDs, subStatus, order, orderBy, pg.Offset, pg.Limit)
 	if err != nil {
 		return err
 	}
@@ -111,12 +111,12 @@ func (h *Handlers) QuerySubscribers(c echo.Context) error {
 }
 
 // ExportSubscribers handles querying subscribers based on an arbitrary SQL expression.
-func (h *Handlers) ExportSubscribers(c echo.Context) error {
+func (a *App) ExportSubscribers(c echo.Context) error {
 	// Get the authenticated user.
 	user := auth.GetUser(c)
 
 	// Filter list IDs by permission.
-	listIDs, err := h.filterListQueryByPerm("list_id", c.QueryParams(), user)
+	listIDs, err := a.filterListQueryByPerm("list_id", c.QueryParams(), user)
 	if err != nil {
 		return err
 	}
@@ -124,7 +124,7 @@ func (h *Handlers) ExportSubscribers(c echo.Context) error {
 	// Export only specific subscriber IDs?
 	subIDs, err := getQueryInts("id", c.QueryParams())
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, h.app.i18n.T("globals.messages.invalidID"))
+		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("globals.messages.invalidID"))
 	}
 
 	// Filter by subscription status
@@ -132,7 +132,7 @@ func (h *Handlers) ExportSubscribers(c echo.Context) error {
 
 	// Get the batched export iterator.
 	query := sanitizeSQLExp(c.FormValue("query"))
-	exp, err := h.app.core.ExportSubscribers(query, subIDs, listIDs, subStatus, h.app.constants.DBBatchSize)
+	exp, err := a.core.ExportSubscribers(query, subIDs, listIDs, subStatus, a.constants.DBBatchSize)
 	if err != nil {
 		return err
 	}
@@ -163,7 +163,7 @@ loop:
 		for _, r := range out {
 			if err = wr.Write([]string{r.UUID, r.Email, r.Name, r.Attribs, r.Status,
 				r.CreatedAt.Time.String(), r.UpdatedAt.Time.String()}); err != nil {
-				h.app.log.Printf("error streaming CSV export: %v", err)
+				a.log.Printf("error streaming CSV export: %v", err)
 				break loop
 			}
 		}
@@ -176,7 +176,7 @@ loop:
 }
 
 // CreateSubscriber handles the creation of a new subscriber.
-func (h *Handlers) CreateSubscriber(c echo.Context) error {
+func (a *App) CreateSubscriber(c echo.Context) error {
 	// Get the authenticated user.
 	user := auth.GetUser(c)
 
@@ -187,7 +187,7 @@ func (h *Handlers) CreateSubscriber(c echo.Context) error {
 	}
 
 	// Validate fields.
-	req, err := h.app.importer.ValidateFields(req)
+	req, err := a.importer.ValidateFields(req)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
@@ -196,7 +196,7 @@ func (h *Handlers) CreateSubscriber(c echo.Context) error {
 	listIDs := user.FilterListsByPerm(auth.PermTypeManage, req.Lists)
 
 	// Insert the subscriber into the DB.
-	sub, _, err := h.app.core.InsertSubscriber(req.Subscriber, listIDs, nil, req.PreconfirmSubs)
+	sub, _, err := a.core.InsertSubscriber(req.Subscriber, listIDs, nil, req.PreconfirmSubs)
 	if err != nil {
 		return err
 	}
@@ -205,13 +205,13 @@ func (h *Handlers) CreateSubscriber(c echo.Context) error {
 }
 
 // UpdateSubscriber handles modification of a subscriber.
-func (h *Handlers) UpdateSubscriber(c echo.Context) error {
+func (a *App) UpdateSubscriber(c echo.Context) error {
 	// Get the authenticated user.
 	user := auth.GetUser(c)
 
 	id, _ := strconv.Atoi(c.Param("id"))
 	if id < 1 {
-		return echo.NewHTTPError(http.StatusBadRequest, h.app.i18n.T("globals.messages.invalidID"))
+		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("globals.messages.invalidID"))
 	}
 
 	// Get and validate fields.
@@ -225,21 +225,21 @@ func (h *Handlers) UpdateSubscriber(c echo.Context) error {
 	}
 
 	// Sanitize and validate the email field.
-	if em, err := h.app.importer.SanitizeEmail(req.Email); err != nil {
+	if em, err := a.importer.SanitizeEmail(req.Email); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	} else {
 		req.Email = em
 	}
 
 	if req.Name != "" && !strHasLen(req.Name, 1, stdInputMaxLen) {
-		return echo.NewHTTPError(http.StatusBadRequest, h.app.i18n.T("subscribers.invalidName"))
+		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("subscribers.invalidName"))
 	}
 
 	// Filter lists against the current user's permitted lists.
 	listIDs := user.FilterListsByPerm(auth.PermTypeManage, req.Lists)
 
 	// Update the subscriber in the DB.
-	out, _, err := h.app.core.UpdateSubscriberWithLists(id, req.Subscriber, listIDs, nil, req.PreconfirmSubs, true)
+	out, _, err := a.core.UpdateSubscriberWithLists(id, req.Subscriber, listIDs, nil, req.PreconfirmSubs, true)
 	if err != nil {
 		return err
 	}
@@ -248,21 +248,21 @@ func (h *Handlers) UpdateSubscriber(c echo.Context) error {
 }
 
 // SubscriberSendOptin sends an optin confirmation e-mail to a subscriber.
-func (h *Handlers) SubscriberSendOptin(c echo.Context) error {
+func (a *App) SubscriberSendOptin(c echo.Context) error {
 	id, _ := strconv.Atoi(c.Param("id"))
 	if id < 1 {
-		return echo.NewHTTPError(http.StatusBadRequest, h.app.i18n.T("globals.messages.invalidID"))
+		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("globals.messages.invalidID"))
 	}
 
 	// Fetch the subscriber.
-	out, err := h.app.core.GetSubscriber(id, "", "")
+	out, err := a.core.GetSubscriber(id, "", "")
 	if err != nil {
 		return err
 	}
 
 	// Trigger the opt-in confirmation e-mail hook.
-	if _, err := h.app.optinConfirmNotify()(out, nil); err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, h.app.i18n.T("subscribers.errorSendingOptin"))
+	if _, err := a.optinConfirmNotify()(out, nil); err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, a.i18n.T("subscribers.errorSendingOptin"))
 	}
 
 	return c.JSON(http.StatusOK, okResp{true})
@@ -270,7 +270,7 @@ func (h *Handlers) SubscriberSendOptin(c echo.Context) error {
 
 // BlocklistSubscribers handles the blocklisting of one or more subscribers.
 // It takes either an ID in the URI, or a list of IDs in the request body.
-func (h *Handlers) BlocklistSubscribers(c echo.Context) error {
+func (a *App) BlocklistSubscribers(c echo.Context) error {
 	// Is it a /:id call?
 	var (
 		subIDs []int
@@ -279,7 +279,7 @@ func (h *Handlers) BlocklistSubscribers(c echo.Context) error {
 	if pID != "" {
 		id, _ := strconv.Atoi(pID)
 		if id < 1 {
-			return echo.NewHTTPError(http.StatusBadRequest, h.app.i18n.T("globals.messages.invalidID"))
+			return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("globals.messages.invalidID"))
 		}
 
 		subIDs = append(subIDs, id)
@@ -288,7 +288,7 @@ func (h *Handlers) BlocklistSubscribers(c echo.Context) error {
 		var req subQueryReq
 		if err := c.Bind(&req); err != nil {
 			return echo.NewHTTPError(http.StatusBadRequest,
-				h.app.i18n.Ts("globals.messages.errorInvalidIDs", "error", err.Error()))
+				a.i18n.Ts("globals.messages.errorInvalidIDs", "error", err.Error()))
 		}
 		if len(req.SubscriberIDs) == 0 {
 			return echo.NewHTTPError(http.StatusBadRequest,
@@ -299,7 +299,7 @@ func (h *Handlers) BlocklistSubscribers(c echo.Context) error {
 	}
 
 	// Update the subscribers in the DB.
-	if err := h.app.core.BlocklistSubscribers(subIDs); err != nil {
+	if err := a.core.BlocklistSubscribers(subIDs); err != nil {
 		return err
 	}
 
@@ -309,7 +309,7 @@ func (h *Handlers) BlocklistSubscribers(c echo.Context) error {
 // ManageSubscriberLists handles bulk addition or removal of subscribers
 // from or to one or more target lists.
 // It takes either an ID in the URI, or a list of IDs in the request body.
-func (h *Handlers) ManageSubscriberLists(c echo.Context) error {
+func (a *App) ManageSubscriberLists(c echo.Context) error {
 	// Get the authenticated user.
 	user := auth.GetUser(c)
 
@@ -321,7 +321,7 @@ func (h *Handlers) ManageSubscriberLists(c echo.Context) error {
 	if pID != "" {
 		id, _ := strconv.Atoi(pID)
 		if id < 1 {
-			return echo.NewHTTPError(http.StatusBadRequest, h.app.i18n.T("globals.messages.invalidID"))
+			return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("globals.messages.invalidID"))
 		}
 		subIDs = append(subIDs, id)
 	}
@@ -329,16 +329,16 @@ func (h *Handlers) ManageSubscriberLists(c echo.Context) error {
 	var req subQueryReq
 	if err := c.Bind(&req); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest,
-			h.app.i18n.Ts("globals.messages.errorInvalidIDs", "error", err.Error()))
+			a.i18n.Ts("globals.messages.errorInvalidIDs", "error", err.Error()))
 	}
 	if len(req.SubscriberIDs) == 0 {
-		return echo.NewHTTPError(http.StatusBadRequest, h.app.i18n.T("subscribers.errorNoIDs"))
+		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("subscribers.errorNoIDs"))
 	}
 	if len(subIDs) == 0 {
 		subIDs = req.SubscriberIDs
 	}
 	if len(req.TargetListIDs) == 0 {
-		return echo.NewHTTPError(http.StatusBadRequest, h.app.i18n.T("subscribers.errorNoListsGiven"))
+		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("subscribers.errorNoListsGiven"))
 	}
 
 	// Filter lists against the current user's permitted lists.
@@ -348,13 +348,13 @@ func (h *Handlers) ManageSubscriberLists(c echo.Context) error {
 	var err error
 	switch req.Action {
 	case "add":
-		err = h.app.core.AddSubscriptions(subIDs, listIDs, req.Status)
+		err = a.core.AddSubscriptions(subIDs, listIDs, req.Status)
 	case "remove":
-		err = h.app.core.DeleteSubscriptions(subIDs, listIDs)
+		err = a.core.DeleteSubscriptions(subIDs, listIDs)
 	case "unsubscribe":
-		err = h.app.core.UnsubscribeLists(subIDs, listIDs, nil)
+		err = a.core.UnsubscribeLists(subIDs, listIDs, nil)
 	default:
-		return echo.NewHTTPError(http.StatusBadRequest, h.app.i18n.T("subscribers.invalidAction"))
+		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("subscribers.invalidAction"))
 	}
 
 	if err != nil {
@@ -366,7 +366,7 @@ func (h *Handlers) ManageSubscriberLists(c echo.Context) error {
 
 // DeleteSubscribers handles subscriber deletion.
 // It takes either an ID in the URI, or a list of IDs in the request body.
-func (h *Handlers) DeleteSubscribers(c echo.Context) error {
+func (a *App) DeleteSubscribers(c echo.Context) error {
 	// Is it an /:id call?
 	var (
 		pID    = c.Param("id")
@@ -375,7 +375,7 @@ func (h *Handlers) DeleteSubscribers(c echo.Context) error {
 	if pID != "" {
 		id, _ := strconv.Atoi(pID)
 		if id < 1 {
-			return echo.NewHTTPError(http.StatusBadRequest, h.app.i18n.T("globals.messages.invalidID"))
+			return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("globals.messages.invalidID"))
 		}
 		subIDs = append(subIDs, id)
 	} else {
@@ -383,16 +383,16 @@ func (h *Handlers) DeleteSubscribers(c echo.Context) error {
 		i, err := parseStringIDs(c.Request().URL.Query()["id"])
 		if err != nil {
 			return echo.NewHTTPError(http.StatusBadRequest,
-				h.app.i18n.Ts("globals.messages.errorInvalidIDs", "error", err.Error()))
+				a.i18n.Ts("globals.messages.errorInvalidIDs", "error", err.Error()))
 		}
 		if len(i) == 0 {
-			return echo.NewHTTPError(http.StatusBadRequest, h.app.i18n.T("subscribers.errorNoIDs"))
+			return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("subscribers.errorNoIDs"))
 		}
 		subIDs = i
 	}
 
 	// Delete the subscribers from the DB.
-	if err := h.app.core.DeleteSubscribers(subIDs, nil); err != nil {
+	if err := a.core.DeleteSubscribers(subIDs, nil); err != nil {
 		return err
 	}
 
@@ -401,7 +401,7 @@ func (h *Handlers) DeleteSubscribers(c echo.Context) error {
 
 // DeleteSubscribersByQuery bulk deletes based on an
 // arbitrary SQL expression.
-func (h *Handlers) DeleteSubscribersByQuery(c echo.Context) error {
+func (a *App) DeleteSubscribersByQuery(c echo.Context) error {
 	var req subQueryReq
 	if err := c.Bind(&req); err != nil {
 		return err
@@ -411,11 +411,11 @@ func (h *Handlers) DeleteSubscribersByQuery(c echo.Context) error {
 		// If the "all" flag is set, ignore any subquery that may be present.
 		req.Query = ""
 	} else if req.Query == "" {
-		return echo.NewHTTPError(http.StatusBadRequest, h.app.i18n.Ts("globals.messages.invalidFields", "name", "query"))
+		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.Ts("globals.messages.invalidFields", "name", "query"))
 	}
 
 	// Delete the subscribers from the DB.
-	if err := h.app.core.DeleteSubscribersByQuery(req.Query, req.ListIDs, req.SubscriptionStatus); err != nil {
+	if err := a.core.DeleteSubscribersByQuery(req.Query, req.ListIDs, req.SubscriptionStatus); err != nil {
 		return err
 	}
 
@@ -424,18 +424,18 @@ func (h *Handlers) DeleteSubscribersByQuery(c echo.Context) error {
 
 // BlocklistSubscribersByQuery bulk blocklists subscribers
 // based on an arbitrary SQL expression.
-func (h *Handlers) BlocklistSubscribersByQuery(c echo.Context) error {
+func (a *App) BlocklistSubscribersByQuery(c echo.Context) error {
 	var req subQueryReq
 	if err := c.Bind(&req); err != nil {
 		return err
 	}
 
 	if req.Query == "" {
-		return echo.NewHTTPError(http.StatusBadRequest, h.app.i18n.Ts("globals.messages.invalidFields", "name", "query"))
+		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.Ts("globals.messages.invalidFields", "name", "query"))
 	}
 
 	// Update the subscribers in the DB.
-	if err := h.app.core.BlocklistSubscribersByQuery(req.Query, req.ListIDs, req.SubscriptionStatus); err != nil {
+	if err := a.core.BlocklistSubscribersByQuery(req.Query, req.ListIDs, req.SubscriptionStatus); err != nil {
 		return err
 	}
 
@@ -444,7 +444,7 @@ func (h *Handlers) BlocklistSubscribersByQuery(c echo.Context) error {
 
 // ManageSubscriberListsByQuery bulk adds/removes/unsubscribes subscribers
 // from one or more lists based on an arbitrary SQL expression.
-func (h *Handlers) ManageSubscriberListsByQuery(c echo.Context) error {
+func (a *App) ManageSubscriberListsByQuery(c echo.Context) error {
 	// Get the authenticated user.
 	user := auth.GetUser(c)
 
@@ -454,7 +454,7 @@ func (h *Handlers) ManageSubscriberListsByQuery(c echo.Context) error {
 	}
 	if len(req.TargetListIDs) == 0 {
 		return echo.NewHTTPError(http.StatusBadRequest,
-			h.app.i18n.T("subscribers.errorNoListsGiven"))
+			a.i18n.T("subscribers.errorNoListsGiven"))
 	}
 
 	// Filter lists against the current user's permitted lists.
@@ -465,13 +465,13 @@ func (h *Handlers) ManageSubscriberListsByQuery(c echo.Context) error {
 	var err error
 	switch req.Action {
 	case "add":
-		err = h.app.core.AddSubscriptionsByQuery(req.Query, sourceListIDs, targetListIDs, req.Status, req.SubscriptionStatus)
+		err = a.core.AddSubscriptionsByQuery(req.Query, sourceListIDs, targetListIDs, req.Status, req.SubscriptionStatus)
 	case "remove":
-		err = h.app.core.DeleteSubscriptionsByQuery(req.Query, sourceListIDs, targetListIDs, req.SubscriptionStatus)
+		err = a.core.DeleteSubscriptionsByQuery(req.Query, sourceListIDs, targetListIDs, req.SubscriptionStatus)
 	case "unsubscribe":
-		err = h.app.core.UnsubscribeListsByQuery(req.Query, sourceListIDs, targetListIDs, req.SubscriptionStatus)
+		err = a.core.UnsubscribeListsByQuery(req.Query, sourceListIDs, targetListIDs, req.SubscriptionStatus)
 	default:
-		return echo.NewHTTPError(http.StatusBadRequest, h.app.i18n.T("subscribers.invalidAction"))
+		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("subscribers.invalidAction"))
 	}
 
 	if err != nil {
@@ -482,14 +482,14 @@ func (h *Handlers) ManageSubscriberListsByQuery(c echo.Context) error {
 }
 
 // DeleteSubscriberBounces deletes all the bounces on a subscriber.
-func (h *Handlers) DeleteSubscriberBounces(c echo.Context) error {
+func (a *App) DeleteSubscriberBounces(c echo.Context) error {
 	id, _ := strconv.Atoi(c.Param("id"))
 	if id < 1 {
-		return echo.NewHTTPError(http.StatusBadRequest, h.app.i18n.T("globals.messages.invalidID"))
+		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("globals.messages.invalidID"))
 	}
 
 	// Delete the bounces from the DB.
-	if err := h.app.core.DeleteSubscriberBounces(id, ""); err != nil {
+	if err := a.core.DeleteSubscriberBounces(id, ""); err != nil {
 		return err
 	}
 
@@ -499,21 +499,21 @@ func (h *Handlers) DeleteSubscriberBounces(c echo.Context) error {
 // ExportSubscriberData pulls the subscriber's profile,
 // list subscriptions, campaign views and clicks and produces
 // a JSON report. This is a privacy feature and depends on the
-// configuration in h.app.Constants.Privacy.
-func (h *Handlers) ExportSubscriberData(c echo.Context) error {
+// configuration in a.Constants.Privacy.
+func (a *App) ExportSubscriberData(c echo.Context) error {
 	id, _ := strconv.Atoi(c.Param("id"))
 	if id < 1 {
-		return echo.NewHTTPError(http.StatusBadRequest, h.app.i18n.T("globals.messages.invalidID"))
+		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("globals.messages.invalidID"))
 	}
 
 	// Get the subscriber's data. A single query that gets the profile,
 	// list subscriptions, campaign views, and link clicks. Names of
 	// private lists are replaced with "Private list".
-	_, b, err := h.exportSubscriberData(id, "", h.app.constants.Privacy.Exportable)
+	_, b, err := a.exportSubscriberData(id, "", a.constants.Privacy.Exportable)
 	if err != nil {
-		h.app.log.Printf("error exporting subscriber data: %s", err)
+		a.log.Printf("error exporting subscriber data: %s", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
-			h.app.i18n.Ts("globals.messages.errorFetching", "name", "{globals.terms.subscribers}", "error", err.Error()))
+			a.i18n.Ts("globals.messages.errorFetching", "name", "{globals.terms.subscribers}", "error", err.Error()))
 	}
 
 	// Set headers to force the browser to prompt for download.
@@ -526,8 +526,8 @@ func (h *Handlers) ExportSubscriberData(c echo.Context) error {
 // subscriptions, campaign_views, link_clicks (if they're enabled in the config)
 // and returns a formatted, indented JSON payload. Either takes a numeric id
 // and an empty subUUID or takes 0 and a string subUUID.
-func (h *Handlers) exportSubscriberData(id int, subUUID string, exportables map[string]bool) (models.SubscriberExportProfile, []byte, error) {
-	data, err := h.app.core.GetSubscriberProfileForExport(id, subUUID)
+func (a *App) exportSubscriberData(id int, subUUID string, exportables map[string]bool) (models.SubscriberExportProfile, []byte, error) {
+	data, err := a.core.GetSubscriberProfileForExport(id, subUUID)
 	if err != nil {
 		return data, nil, err
 	}
@@ -549,7 +549,7 @@ func (h *Handlers) exportSubscriberData(id int, subUUID string, exportables map[
 	// Marshal the data into an indented payload.
 	b, err := json.MarshalIndent(data, "", "  ")
 	if err != nil {
-		h.app.log.Printf("error marshalling subscriber export data: %v", err)
+		a.log.Printf("error marshalling subscriber export data: %v", err)
 		return data, nil, err
 	}
 
@@ -606,7 +606,7 @@ func (app *App) optinConfirmNotify() func(sub models.Subscriber, listIDs []int) 
 
 // hasSubPerm checks whether the current user has permission to access the given list
 // of subscriber IDs.
-func (h *Handlers) hasSubPerm(u auth.User, subIDs []int) error {
+func (a *App) hasSubPerm(u auth.User, subIDs []int) error {
 	allPerm, listIDs := u.GetPermittedLists(auth.PermTypeGet | auth.PermTypeManage)
 
 	// User has blanket get_all|manage_all permission.
@@ -615,14 +615,14 @@ func (h *Handlers) hasSubPerm(u auth.User, subIDs []int) error {
 	}
 
 	// Check whether the subscribers have the list IDs permitted to the user.
-	res, err := h.app.core.HasSubscriberLists(subIDs, listIDs)
+	res, err := a.core.HasSubscriberLists(subIDs, listIDs)
 	if err != nil {
 		return err
 	}
 
 	for id, has := range res {
 		if !has {
-			return echo.NewHTTPError(http.StatusForbidden, h.app.i18n.Ts("globals.messages.permissionDenied", "name", fmt.Sprintf("subscriber: %d", id)))
+			return echo.NewHTTPError(http.StatusForbidden, a.i18n.Ts("globals.messages.permissionDenied", "name", fmt.Sprintf("subscriber: %d", id)))
 		}
 	}
 
@@ -630,14 +630,14 @@ func (h *Handlers) hasSubPerm(u auth.User, subIDs []int) error {
 }
 
 // filterListQueryByPerm filters the list IDs in the query params and returns the list IDs to which the user has access.
-func (h *Handlers) filterListQueryByPerm(param string, qp url.Values, user auth.User) ([]int, error) {
+func (a *App) filterListQueryByPerm(param string, qp url.Values, user auth.User) ([]int, error) {
 	var listIDs []int
 
 	// If there are incoming list query params, filter them by permission.
 	if qp.Has(param) {
 		ids, err := getQueryInts(param, qp)
 		if err != nil {
-			return nil, echo.NewHTTPError(http.StatusBadRequest, h.app.i18n.T("globals.messages.invalidID"))
+			return nil, echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("globals.messages.invalidID"))
 		}
 
 		listIDs = user.FilterListsByPerm(auth.PermTypeGet|auth.PermTypeManage, ids)

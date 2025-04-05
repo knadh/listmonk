@@ -11,10 +11,10 @@ import (
 )
 
 // GetLists retrieves lists with additional metadata like subscriber counts.
-func (h *Handlers) GetLists(c echo.Context) error {
+func (a *App) GetLists(c echo.Context) error {
 	var (
 		user = auth.GetUser(c)
-		pg   = h.app.paginator.NewFromURL(c.Request().URL.Query())
+		pg   = a.paginator.NewFromURL(c.Request().URL.Query())
 	)
 
 	// Get the list IDs (or blanket permission) the user has access to.
@@ -23,7 +23,7 @@ func (h *Handlers) GetLists(c echo.Context) error {
 	// Minimal query simply returns the list of all lists without JOIN subscriber counts. This is fast.
 	minimal, _ := strconv.ParseBool(c.FormValue("minimal"))
 	if minimal {
-		res, err := h.app.core.GetLists("", hasAllPerm, permittedIDs)
+		res, err := a.core.GetLists("", hasAllPerm, permittedIDs)
 		if err != nil {
 			return err
 		}
@@ -52,7 +52,7 @@ func (h *Handlers) GetLists(c echo.Context) error {
 		optin   = c.FormValue("optin")
 		order   = c.FormValue("order")
 	)
-	res, total, err := h.app.core.QueryLists(query, typ, optin, tags, orderBy, order, hasAllPerm, permittedIDs, pg.Offset, pg.Limit)
+	res, total, err := a.core.QueryLists(query, typ, optin, tags, orderBy, order, hasAllPerm, permittedIDs, pg.Offset, pg.Limit)
 	if err != nil {
 		return err
 	}
@@ -70,13 +70,13 @@ func (h *Handlers) GetLists(c echo.Context) error {
 
 // GetList retrieves a single list by id.
 // It's permission checked by the listPerm middleware.
-func (h *Handlers) GetList(c echo.Context) error {
+func (a *App) GetList(c echo.Context) error {
 	// Get the authenticated user.
 	user := auth.GetUser(c)
 
 	id, _ := strconv.Atoi(c.Param("id"))
 	if id < 1 {
-		return echo.NewHTTPError(http.StatusBadRequest, h.app.i18n.T("globals.messages.invalidID"))
+		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("globals.messages.invalidID"))
 	}
 
 	// Check if the user has access to the list.
@@ -85,7 +85,7 @@ func (h *Handlers) GetList(c echo.Context) error {
 	}
 
 	// Get the list from the DB.
-	out, err := h.app.core.GetList(id, "")
+	out, err := a.core.GetList(id, "")
 	if err != nil {
 		return err
 	}
@@ -94,7 +94,7 @@ func (h *Handlers) GetList(c echo.Context) error {
 }
 
 // CreateList handles list creation.
-func (h *Handlers) CreateList(c echo.Context) error {
+func (a *App) CreateList(c echo.Context) error {
 	l := models.List{}
 	if err := c.Bind(&l); err != nil {
 		return err
@@ -102,10 +102,10 @@ func (h *Handlers) CreateList(c echo.Context) error {
 
 	// Validate.
 	if !strHasLen(l.Name, 1, stdInputMaxLen) {
-		return echo.NewHTTPError(http.StatusBadRequest, h.app.i18n.T("lists.invalidName"))
+		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("lists.invalidName"))
 	}
 
-	out, err := h.app.core.CreateList(l)
+	out, err := a.core.CreateList(l)
 	if err != nil {
 		return err
 	}
@@ -115,13 +115,13 @@ func (h *Handlers) CreateList(c echo.Context) error {
 
 // UpdateList handles list modification.
 // It's permission checked by the listPerm middleware.
-func (h *Handlers) UpdateList(c echo.Context) error {
+func (a *App) UpdateList(c echo.Context) error {
 	// Get the authenticated user.
 	user := auth.GetUser(c)
 
 	id, _ := strconv.Atoi(c.Param("id"))
 	if id < 1 {
-		return echo.NewHTTPError(http.StatusBadRequest, h.app.i18n.T("globals.messages.invalidID"))
+		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("globals.messages.invalidID"))
 	}
 
 	// Check if the user has access to the list.
@@ -137,11 +137,11 @@ func (h *Handlers) UpdateList(c echo.Context) error {
 
 	// Validate.
 	if !strHasLen(l.Name, 1, stdInputMaxLen) {
-		return echo.NewHTTPError(http.StatusBadRequest, h.app.i18n.T("lists.invalidName"))
+		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("lists.invalidName"))
 	}
 
 	// Update the list in the DB.
-	out, err := h.app.core.UpdateList(id, l)
+	out, err := a.core.UpdateList(id, l)
 	if err != nil {
 		return err
 	}
@@ -151,7 +151,7 @@ func (h *Handlers) UpdateList(c echo.Context) error {
 
 // DeleteLists handles list deletion, either a single one (ID in the URI), or a list.
 // It's permission checked by the listPerm middleware.
-func (h *Handlers) DeleteLists(c echo.Context) error {
+func (a *App) DeleteLists(c echo.Context) error {
 	// Get the authenticated user.
 	user := auth.GetUser(c)
 
@@ -160,7 +160,7 @@ func (h *Handlers) DeleteLists(c echo.Context) error {
 		ids   []int
 	)
 	if id < 1 && len(ids) == 0 {
-		return echo.NewHTTPError(http.StatusBadRequest, h.app.i18n.T("globals.messages.invalidID"))
+		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("globals.messages.invalidID"))
 	}
 
 	if id > 0 {
@@ -173,7 +173,7 @@ func (h *Handlers) DeleteLists(c echo.Context) error {
 	}
 
 	// Delete the lists from the DB.
-	if err := h.app.core.DeleteLists(ids); err != nil {
+	if err := a.core.DeleteLists(ids); err != nil {
 		return err
 	}
 
