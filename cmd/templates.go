@@ -35,12 +35,13 @@ var (
 func handleGetTemplates(c echo.Context) error {
 	var (
 		app = c.Get("app").(*App)
-
-		id, _     = strconv.Atoi(c.Param("id"))
-		noBody, _ = strconv.ParseBool(c.QueryParam("no_body"))
 	)
 
 	// Fetch one list.
+	var (
+		id, _     = strconv.Atoi(c.Param("id"))
+		noBody, _ = strconv.ParseBool(c.QueryParam("no_body"))
+	)
 	if id > 0 {
 		out, err := app.core.GetTemplate(id, noBody)
 		if err != nil {
@@ -50,6 +51,7 @@ func handleGetTemplates(c echo.Context) error {
 		return c.JSON(http.StatusOK, okResp{out})
 	}
 
+	// Fetch templates from the DB (with or without body).
 	out, err := app.core.GetTemplates("", noBody)
 	if err != nil {
 		return err
@@ -61,8 +63,7 @@ func handleGetTemplates(c echo.Context) error {
 // handlePreviewTemplate renders the HTML preview of a template.
 func handlePreviewTemplate(c echo.Context) error {
 	var (
-		app   = c.Get("app").(*App)
-		id, _ = strconv.Atoi(c.Param("id"))
+		app = c.Get("app").(*App)
 	)
 
 	tpl := models.Template{
@@ -70,7 +71,7 @@ func handlePreviewTemplate(c echo.Context) error {
 		Body: c.FormValue("body"),
 	}
 
-	// Body is posted.
+	// Body is posted with the request.
 	if tpl.Body != "" {
 		if tpl.Type == "" {
 			tpl.Type = models.TemplateTypeCampaign
@@ -81,7 +82,8 @@ func handlePreviewTemplate(c echo.Context) error {
 				app.i18n.Ts("templates.placeholderHelp", "placeholder", tplTag))
 		}
 	} else {
-		// There is no body. Fetch the template.
+		// There is no body. Fetch the template from the DB.
+		id, _ := strconv.Atoi(c.Param("id"))
 		if id < 1 {
 			return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidID"))
 		}
@@ -142,30 +144,28 @@ func handlePreviewTemplate(c echo.Context) error {
 func handleCreateTemplate(c echo.Context) error {
 	var (
 		app = c.Get("app").(*App)
-		o   = models.Template{}
 	)
 
+	var o models.Template
 	if err := c.Bind(&o); err != nil {
 		return err
 	}
-
 	if err := validateTemplate(o, app); err != nil {
 		return err
 	}
 
-	var f template.FuncMap
-
 	// Subject is only relevant for fixed tx templates. For campaigns,
 	// the subject changes per campaign and is on models.Campaign.
+	var funcs template.FuncMap
 	if o.Type == models.TemplateTypeCampaign {
 		o.Subject = ""
-		f = app.manager.TemplateFuncs(nil)
+		funcs = app.manager.TemplateFuncs(nil)
 	} else {
-		f = app.manager.GenericTemplateFuncs()
+		funcs = app.manager.GenericTemplateFuncs()
 	}
 
 	// Compile the template and validate.
-	if err := o.Compile(f); err != nil {
+	if err := o.Compile(funcs); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
@@ -187,10 +187,10 @@ func handleCreateTemplate(c echo.Context) error {
 // handleUpdateTemplate handles template modification.
 func handleUpdateTemplate(c echo.Context) error {
 	var (
-		app   = c.Get("app").(*App)
-		id, _ = strconv.Atoi(c.Param("id"))
+		app = c.Get("app").(*App)
 	)
 
+	id, _ := strconv.Atoi(c.Param("id"))
 	if id < 1 {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidID"))
 	}
@@ -199,27 +199,26 @@ func handleUpdateTemplate(c echo.Context) error {
 	if err := c.Bind(&o); err != nil {
 		return err
 	}
-
 	if err := validateTemplate(o, app); err != nil {
 		return err
 	}
 
-	var f template.FuncMap
-
 	// Subject is only relevant for fixed tx templates. For campaigns,
 	// the subject changes per campaign and is on models.Campaign.
+	var funcs template.FuncMap
 	if o.Type == models.TemplateTypeCampaign {
 		o.Subject = ""
-		f = app.manager.TemplateFuncs(nil)
+		funcs = app.manager.TemplateFuncs(nil)
 	} else {
-		f = app.manager.GenericTemplateFuncs()
+		funcs = app.manager.GenericTemplateFuncs()
 	}
 
 	// Compile the template and validate.
-	if err := o.Compile(f); err != nil {
+	if err := o.Compile(funcs); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
+	// Update the template in the DB.
 	out, err := app.core.UpdateTemplate(id, o.Name, o.Subject, []byte(o.Body))
 	if err != nil {
 		return err
@@ -237,14 +236,15 @@ func handleUpdateTemplate(c echo.Context) error {
 // handleTemplateSetDefault handles template modification.
 func handleTemplateSetDefault(c echo.Context) error {
 	var (
-		app   = c.Get("app").(*App)
-		id, _ = strconv.Atoi(c.Param("id"))
+		app = c.Get("app").(*App)
 	)
 
+	id, _ := strconv.Atoi(c.Param("id"))
 	if id < 1 {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidID"))
 	}
 
+	// Update the template in the DB.
 	if err := app.core.SetDefaultTemplate(id); err != nil {
 		return err
 	}
@@ -255,14 +255,15 @@ func handleTemplateSetDefault(c echo.Context) error {
 // handleDeleteTemplate handles template deletion.
 func handleDeleteTemplate(c echo.Context) error {
 	var (
-		app   = c.Get("app").(*App)
-		id, _ = strconv.Atoi(c.Param("id"))
+		app = c.Get("app").(*App)
 	)
 
+	id, _ := strconv.Atoi(c.Param("id"))
 	if id < 1 {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidID"))
 	}
 
+	// Delete the template from the DB.
 	if err := app.core.DeleteTemplate(id); err != nil {
 		return err
 	}

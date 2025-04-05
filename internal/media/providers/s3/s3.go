@@ -98,6 +98,7 @@ func (c *Client) GetURL(name string) string {
 			Timestamp:     time.Now(),
 			ExpirySeconds: int(c.opts.Expiry.Seconds()),
 		})
+
 		return u
 	}
 
@@ -114,6 +115,7 @@ func (c *Client) GetBlob(uurl string) ([]byte, error) {
 		uurl = filepath.Base(p.Path)
 	}
 
+	// Download the file from S3.
 	file, err := c.s3.FileDownload(simples3.DownloadInput{
 		Bucket:    c.opts.Bucket,
 		ObjectKey: c.makeBucketPath(filepath.Base(uurl)),
@@ -122,6 +124,7 @@ func (c *Client) GetBlob(uurl string) ([]byte, error) {
 		return nil, err
 	}
 
+	// Read it into a byte blob.
 	b, err := io.ReadAll(file)
 	if err != nil {
 		return nil, err
@@ -137,6 +140,7 @@ func (c *Client) Delete(name string) error {
 		Bucket:    c.opts.Bucket,
 		ObjectKey: c.makeBucketPath(name),
 	})
+
 	return err
 }
 

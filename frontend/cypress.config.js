@@ -13,6 +13,7 @@ module.exports = defineConfig({
   viewportWidth: 1400,
   viewportHeight: 950,
   e2e: {
+    experimentalRunAllSpecs: true,
     testIsolation: false,
     experimentalSessionAndOrigin: false,
     // We've imported your old cypress plugins here.

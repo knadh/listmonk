@@ -43,7 +43,9 @@ var oidcProviders = map[string]bool{
 
 // handleLoginPage renders the login page and handles the login form.
 func handleLoginPage(c echo.Context) error {
-	app := c.Get("app").(*App)
+	var (
+		app = c.Get("app").(*App)
+	)
 
 	// Has the user been setup?
 	app.Lock()
@@ -63,18 +65,20 @@ func handleLoginPage(c echo.Context) error {
 		}
 	}
 
+	// Render the page, with or without POST.
 	return renderLoginPage(c, loginErr)
 }
 
 // handleLoginSetupPage renders the first time user login page and handles the login form.
 func handleLoginSetupPage(c echo.Context) error {
-	app := c.Get("app").(*App)
+	var (
+		app = c.Get("app").(*App)
+	)
 
 	// Process POST login request.
 	var loginErr error
-
 	if c.Request().Method == http.MethodPost {
-		loginErr = doLoginSetup(c)
+		loginErr = doFirstTimeSetup(c)
 		if loginErr == nil {
 			app.Lock()
 			app.needsUserSetup = false
@@ -83,16 +87,14 @@ func handleLoginSetupPage(c echo.Context) error {
 		}
 	}
 
+	// Render the page, with or without POST.
 	return renderLoginSetupPage(c, loginErr)
 }
 
 // handleLogout logs a user out.
 func handleLogout(c echo.Context) error {
-	var (
-		sess = c.Get(auth.SessionKey).(*simplesessions.Session)
-	)
-
-	// Clear the session.
+	// Delete the session from the DB and cookie.
+	sess := c.Get(auth.SessionKey).(*simplesessions.Session)
 	_ = sess.Destroy()
 
 	return c.JSON(http.StatusOK, okResp{true})
@@ -100,7 +102,9 @@ func handleLogout(c echo.Context) error {
 
 // handleOIDCLogin initializes an OIDC request and redirects to the OIDC provider for login.
 func handleOIDCLogin(c echo.Context) error {
-	app := c.Get("app").(*App)
+	var (
+		app = c.Get("app").(*App)
+	)
 
 	// Verify that the request came from the login page (CSRF).
 	nonce, err := c.Cookie("nonce")
@@ -108,29 +112,32 @@ func handleOIDCLogin(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusUnauthorized, app.i18n.T("users.invalidRequest"))
 	}
 
+	// Sanitize the URL and make it relative.
 	next := utils.SanitizeURI(c.FormValue("next"))
 	if next == "/" {
 		next = uriAdmin
 	}
 
-	state := oidcState{
-		Nonce: nonce.Value,
-		Next:  next,
-	}
+	// Preparethe OIDC payload to send to the provider.
+	state := oidcState{Nonce: nonce.Value, Next: next}
 
-	stateJSON, err := json.Marshal(state)
+	b, err := json.Marshal(state)
 	if err != nil {
 		app.log.Printf("error marshalling OIDC state: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, app.i18n.T("globals.messages.internalError"))
 	}
 
-	return c.Redirect(http.StatusFound, app.auth.GetOIDCAuthURL(base64.URLEncoding.EncodeToString(stateJSON), nonce.Value))
+	// Redirect to the external OIDC provider.
+	return c.Redirect(http.StatusFound, app.auth.GetOIDCAuthURL(base64.URLEncoding.EncodeToString(b), nonce.Value))
 }
 
 // handleOIDCFinish receives the redirect callback from the OIDC provider and completes the handshake.
 func handleOIDCFinish(c echo.Context) error {
-	app := c.Get("app").(*App)
+	var (
+		app = c.Get("app").(*App)
+	)
 
+	// Verify that the request actually originated from the login request (which sets the nonce value).
 	nonce, err := c.Cookie("nonce")
 	if err != nil || nonce.Value == "" {
 		return renderLoginPage(c, echo.NewHTTPError(http.StatusUnauthorized, app.i18n.T("users.invalidRequest")))
@@ -162,7 +169,6 @@ func handleOIDCFinish(c echo.Context) error {
 	if email == "" {
 		return renderLoginPage(c, errors.New(app.i18n.Ts("globals.messages.invalidFields", "name", "email")))
 	}
-
 	em, err := mail.ParseAddress(email)
 	if err != nil {
 		return renderLoginPage(c, err)
@@ -175,34 +181,37 @@ func handleOIDCFinish(c echo.Context) error {
 		return renderLoginPage(c, err)
 	}
 
-	// Update user login.
+	// Update the user login state (avatar, logged in date) in the DB.
 	if err := app.core.UpdateUserLogin(user.ID, claims.Picture); err != nil {
 		return renderLoginPage(c, err)
 	}
 
-	// Set the session.
+	// Set the session in the DB and cookie.
 	if err := app.auth.SaveSession(user, oidcToken, c); err != nil {
 		return renderLoginPage(c, err)
 	}
 
+	// Redirect to the next page.
 	return c.Redirect(http.StatusFound, utils.SanitizeURI(state.Next))
 }
 
 // renderLoginPage renders the login page and handles the login form.
 func renderLoginPage(c echo.Context, loginErr error) error {
 	var (
-		app  = c.Get("app").(*App)
-		next = utils.SanitizeURI(c.FormValue("next"))
+		app = c.Get("app").(*App)
 	)
 
+	next := utils.SanitizeURI(c.FormValue("next"))
 	if next == "/" {
 		next = uriAdmin
 	}
 
-	oidcProvider := ""
-	oidcProviderLogo := ""
+	var (
+		oidcProvider = ""
+		oidcLogo     = ""
+	)
 	if app.constants.Security.OIDC.Enabled {
-		oidcProviderLogo = "oidc.png"
+		oidcLogo = "oidc.png"
 		u, err := url.Parse(app.constants.Security.OIDC.Provider)
 		if err == nil {
 			h := strings.Split(u.Hostname(), ".")
@@ -214,8 +223,9 @@ func renderLoginPage(c echo.Context, loginErr error) error {
 				oidcProvider = u.Hostname()
 			}
 
+			// Lookup the logo in the known providers map.
 			if _, ok := oidcProviders[oidcProvider]; ok {
-				oidcProviderLogo = oidcProvider + ".png"
+				oidcLogo = oidcProvider + ".png"
 			}
 		}
 	}
@@ -224,10 +234,11 @@ func renderLoginPage(c echo.Context, loginErr error) error {
 		Title:            app.i18n.T("users.login"),
 		PasswordEnabled:  true,
 		OIDCProvider:     oidcProvider,
-		OIDCProviderLogo: oidcProviderLogo,
+		OIDCProviderLogo: oidcLogo,
 		NextURI:          next,
 	}
 
+	// If there was an error in the previous state (POST reqest), set it to render in the template.
 	if loginErr != nil {
 		if e, ok := loginErr.(*echo.HTTPError); ok {
 			out.Error = e.Message.(string)
@@ -236,7 +247,7 @@ func renderLoginPage(c echo.Context, loginErr error) error {
 		}
 	}
 
-	// Generate and set a nonce for preventing CSRF requests.
+	// Generate and set a nonce for preventing CSRF requests that will be valided in the subsequent requests.
 	nonce, err := utils.GenerateRandomString(16)
 	if err != nil {
 		app.log.Printf("error generating OIDC nonce: %v", err)
@@ -251,16 +262,17 @@ func renderLoginPage(c echo.Context, loginErr error) error {
 	})
 	out.Nonce = nonce
 
+	// Render the login page.
 	return c.Render(http.StatusOK, "admin-login", out)
 }
 
 // renderLoginSetupPage renders the first time user setup page.
 func renderLoginSetupPage(c echo.Context, loginErr error) error {
 	var (
-		app  = c.Get("app").(*App)
-		next = utils.SanitizeURI(c.FormValue("next"))
+		app = c.Get("app").(*App)
 	)
 
+	next := utils.SanitizeURI(c.FormValue("next"))
 	if next == "/" {
 		next = uriAdmin
 	}
@@ -271,6 +283,7 @@ func renderLoginSetupPage(c echo.Context, loginErr error) error {
 		NextURI:         next,
 	}
 
+	// If there was an error in the previous state (POST reqest), set it to render in the template.
 	if loginErr != nil {
 		if e, ok := loginErr.(*echo.HTTPError); ok {
 			out.Error = e.Message.(string)
@@ -288,12 +301,6 @@ func doLogin(c echo.Context) error {
 		app = c.Get("app").(*App)
 	)
 
-	// Verify that the request came from the login page (CSRF).
-	// nonce, err := c.Cookie("nonce")
-	// if err != nil || nonce.Value == "" || nonce.Value != c.FormValue("nonce") {
-	// 	return echo.NewHTTPError(http.StatusUnauthorized, app.i18n.T("users.invalidRequest"))
-	// }
-
 	var (
 		username = strings.TrimSpace(c.FormValue("username"))
 		password = strings.TrimSpace(c.FormValue("password"))
@@ -302,24 +309,22 @@ func doLogin(c echo.Context) error {
 	if !strHasLen(username, 3, stdInputMaxLen) {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.Ts("globals.messages.invalidFields", "name", "username"))
 	}
-
 	if !strHasLen(password, 8, stdInputMaxLen) {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.Ts("globals.messages.invalidFields", "name", "password"))
 	}
 
-	start := time.Now()
-
+	// Log the user in by fetching and verifying credentials from the DB.
 	user, err := app.core.LoginUser(username, password)
 	if err != nil {
 		return err
 	}
 
 	// Resist potential constant-time-comparison attacks with a min response time.
-	if ms := time.Since(start).Milliseconds(); ms < 100 {
+	if ms := time.Since(time.Now()).Milliseconds(); ms < 100 {
 		time.Sleep(time.Duration(ms))
 	}
 
-	// Set the session.
+	// Set the session in the DB and cookie.
 	if err := app.auth.SaveSession(user, "", c); err != nil {
 		return err
 	}
@@ -327,17 +332,11 @@ func doLogin(c echo.Context) error {
 	return nil
 }
 
-// doLoginSetup sets a user up for the first time.
-func doLoginSetup(c echo.Context) error {
+// doFirstTimeSetup sets a user up for the first time.
+func doFirstTimeSetup(c echo.Context) error {
 	var (
 		app = c.Get("app").(*App)
 	)
-
-	// Verify that the request came from the login page (CSRF).
-	// nonce, err := c.Cookie("nonce")
-	// if err != nil || nonce.Value == "" || nonce.Value != c.FormValue("nonce") {
-	// 	return echo.NewHTTPError(http.StatusUnauthorized, app.i18n.T("users.invalidRequest"))
-	// }
 
 	var (
 		email     = strings.TrimSpace(c.FormValue("email"))
@@ -345,7 +344,6 @@ func doLoginSetup(c echo.Context) error {
 		password  = strings.TrimSpace(c.FormValue("password"))
 		password2 = strings.TrimSpace(c.FormValue("password2"))
 	)
-
 	if !utils.ValidateEmail(email) {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.Ts("globals.messages.invalidFields", "name", "email"))
 	}
@@ -359,7 +357,7 @@ func doLoginSetup(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("users.passwordMismatch"))
 	}
 
-	// Create the default "Super Admin".
+	// Create the default "Super Admin" with all permission.
 	r := auth.Role{
 		Type: auth.RoleTypeUser,
 		Name: null.NewString("Super Admin", true),
@@ -367,12 +365,14 @@ func doLoginSetup(c echo.Context) error {
 	for p := range app.constants.Permissions {
 		r.Permissions = append(r.Permissions, p)
 	}
+
+	// Create the role in the DB.
 	role, err := app.core.CreateRole(r)
 	if err != nil {
 		return err
 	}
 
-	// Create the super admin user.
+	// Create the super admin user in the DB.
 	u := auth.User{
 		Type:          auth.UserTypeUser,
 		HasPassword:   true,
@@ -388,13 +388,13 @@ func doLoginSetup(c echo.Context) error {
 		return err
 	}
 
-	// Log the user in.
+	// Log the user in directly.
 	user, err := app.core.LoginUser(username, password)
 	if err != nil {
 		return err
 	}
 
-	// Set the session.
+	// Set the session in the DB and cookie.
 	if err := app.auth.SaveSession(user, "", c); err != nil {
 		return err
 	}

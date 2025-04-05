@@ -21,7 +21,7 @@ const (
 )
 
 type okResp struct {
-	Data interface{} `json:"data"`
+	Data any `json:"data"`
 }
 
 var (

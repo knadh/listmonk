@@ -443,87 +443,87 @@ export const deleteGCSubscriptions = async (beforeDate) => http.delete(
 export const getUsers = () => http.get(
   '/api/users',
   {
-    loading: auth.Users,
-    store: auth.Users,
+    loading: models.users,
+    store: models.users,
   },
 );
 
 export const queryUsers = () => http.get(
   '/api/users',
   {
-    loading: auth.Users,
-    store: auth.Users,
+    loading: models.users,
+    store: models.users,
   },
 );
 
 export const getUser = async (id) => http.get(
   `/api/users/${id}`,
-  { loading: auth.Users },
+  { loading: models.users },
 );
 
 export const createUser = (data) => http.post(
   '/api/users',
   data,
-  { loading: auth.Users },
+  { loading: models.users },
 );
 
 export const updateUser = (data) => http.put(
   `/api/users/${data.id}`,
   data,
-  { loading: auth.Users },
+  { loading: models.users },
 );
 
 export const deleteUser = (id) => http.delete(
   `/api/users/${id}`,
-  { loading: auth.Users },
+  { loading: models.users },
 );
 
 export const getUserProfile = () => http.get(
   '/api/profile',
-  { loading: auth.Users, store: models.profile },
+  { loading: models.users, store: models.profile },
 );
 
 export const updateUserProfile = (data) => http.put(
   '/api/profile',
   data,
-  { loading: auth.Users, store: models.profile },
+  { loading: models.users, store: models.profile },
 );
 
 export const getUserRoles = async () => http.get(
   '/api/roles/users',
-  { loading: auth.UserRoles, store: auth.UserRoles },
+  { loading: models.userRoles, store: models.userRoles },
 );
 
 export const getListRoles = async () => http.get(
   '/api/roles/lists',
-  { loading: auth.ListRoles, store: auth.ListRoles },
+  { loading: models.listRoles, store: models.listRoles },
 );
 
 export const createUserRole = (data) => http.post(
   '/api/roles/users',
   data,
-  { loading: auth.UserRoles },
+  { loading: models.userRoles },
 );
 
 export const createListRole = (data) => http.post(
   '/api/roles/lists',
   data,
-  { loading: auth.ListRoles },
+  { loading: models.listRoles },
 );
 
 export const updateUserRole = (data) => http.put(
   `/api/roles/users/${data.id}`,
   data,
-  { loading: auth.UserRoles },
+  { loading: models.userRoles },
 );
 
 export const updateListRole = (data) => http.put(
   `/api/roles/lists/${data.id}`,
   data,
-  { loading: auth.UserRoles },
+  { loading: models.userRoles },
 );
 
 export const deleteRole = (id) => http.delete(
   `/api/roles/${id}`,
-  { loading: auth.UserRoles },
+  { loading: models.userRoles },
 );

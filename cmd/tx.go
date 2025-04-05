@@ -17,8 +17,9 @@ import (
 func handleSendTxMessage(c echo.Context) error {
 	var (
 		app = c.Get("app").(*App)
-		m   models.TxMessage
 	)
+
+	var m models.TxMessage
 
 	// If it's a multipart form, there may be file attachments.
 	if strings.HasPrefix(c.Request().Header.Get("Content-Type"), "multipart/form-data") {
@@ -30,8 +31,7 @@ func handleSendTxMessage(c echo.Context) error {
 
 		data, ok := form.Value["data"]
 		if !ok || len(data) != 1 {
-			return echo.NewHTTPError(http.StatusBadRequest,
-				app.i18n.Ts("globals.messages.invalidFields", "name", "data"))
+			return echo.NewHTTPError(http.StatusBadRequest, app.i18n.Ts("globals.messages.invalidFields", "name", "data"))
 		}
 
 		// Parse the JSON data.
@@ -66,7 +66,7 @@ func handleSendTxMessage(c echo.Context) error {
 		return err
 	}
 
-	// Validate input.
+	// Validate fields.
 	if r, err := validateTxMessage(m, app); err != nil {
 		return err
 	} else {
@@ -90,7 +90,7 @@ func handleSendTxMessage(c echo.Context) error {
 	}
 
 	notFound := []string{}
-	for n := 0; n < num; n++ {
+	for n := range num {
 		var (
 			subID    int
 			subEmail string
@@ -160,6 +160,7 @@ func handleSendTxMessage(c echo.Context) error {
 	return c.JSON(http.StatusOK, okResp{true})
 }
 
+// validateTxMessage validates the tx message fields.
 func validateTxMessage(m models.TxMessage, app *App) (models.TxMessage, error) {
 	if len(m.SubscriberEmails) > 0 && m.SubscriberEmail != "" {
 		return m, echo.NewHTTPError(http.StatusBadRequest,

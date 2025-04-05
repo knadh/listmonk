@@ -149,6 +149,7 @@ func (p *Postback) Flush() error {
 // Close closes idle HTTP connections.
 func (p *Postback) Close() error {
 	p.c.CloseIdleConnections()
+
 	return nil
 }
 
@@ -192,6 +193,7 @@ func (p *Postback) exec(method, rURL string, reqBody []byte, headers http.Header
 		req.URL.RawQuery = string(reqBody)
 	}
 
+	// Execute the request.
 	r, err := p.c.Do(req)
 	if err != nil {
 		return err

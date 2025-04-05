@@ -27,25 +27,28 @@ type campArchive struct {
 func handleGetCampaignArchives(c echo.Context) error {
 	var (
 		app = c.Get("app").(*App)
-		pg  = app.paginator.NewFromURL(c.Request().URL.Query())
 	)
 
+	// Get archives from the DB.
+	pg := app.paginator.NewFromURL(c.Request().URL.Query())
 	camps, total, err := getCampaignArchives(pg.Offset, pg.Limit, false, app)
 	if err != nil {
 		return err
 	}
 
-	var out models.PageResults
 	if len(camps) == 0 {
-		out.Results = []campArchive{}
-		return c.JSON(http.StatusOK, okResp{out})
+		return c.JSON(http.StatusOK, okResp{models.PageResults{
+			Results: []campArchive{},
+		}})
 	}
 
 	// Meta.
-	out.Results = camps
-	out.Total = total
-	out.Page = pg.Page
-	out.PerPage = pg.PerPage
+	out := models.PageResults{
+		Results: camps,
+		Total:   total,
+		Page:    pg.Page,
+		PerPage: pg.PerPage,
+	}
 
 	return c.JSON(200, okResp{out})
 }
@@ -53,16 +56,21 @@ func handleGetCampaignArchives(c echo.Context) error {
 // handleGetCampaignArchivesFeed renders the public campaign archives RSS feed.
 func handleGetCampaignArchivesFeed(c echo.Context) error {
 	var (
-		app             = c.Get("app").(*App)
+		app = c.Get("app").(*App)
+	)
+
+	var (
 		pg              = app.paginator.NewFromURL(c.Request().URL.Query())
 		showFullContent = app.constants.EnablePublicArchiveRSSContent
 	)
 
+	// Get archives from the DB.
 	camps, _, err := getCampaignArchives(pg.Offset, pg.Limit, showFullContent, app)
 	if err != nil {
 		return err
 	}
 
+	// Format output for the feed.
 	out := make([]*feeds.Item, 0, len(camps))
 	for _, c := range camps {
 		pubDate := c.CreatedAt.Time
@@ -79,6 +87,7 @@ func handleGetCampaignArchivesFeed(c echo.Context) error {
 		})
 	}
 
+	// Generate the feed.
 	feed := &feeds.Feed{
 		Title:       app.constants.SiteName,
 		Link:        &feeds.Link{Href: app.constants.RootURL},
@@ -98,9 +107,10 @@ func handleGetCampaignArchivesFeed(c echo.Context) error {
 func handleCampaignArchivesPage(c echo.Context) error {
 	var (
 		app = c.Get("app").(*App)
-		pg  = app.paginator.NewFromURL(c.Request().URL.Query())
 	)
 
+	// Get archives from the DB.
+	pg := app.paginator.NewFromURL(c.Request().URL.Query())
 	out, total, err := getCampaignArchives(pg.Offset, pg.Limit, false, app)
 	if err != nil {
 		return err
@@ -120,50 +130,58 @@ func handleCampaignArchivesPage(c echo.Context) error {
 // handleCampaignArchivePage renders the public campaign archives page.
 func handleCampaignArchivePage(c echo.Context) error {
 	var (
-		app  = c.Get("app").(*App)
-		id   = c.Param("id")
-		uuid = ""
-		slug = ""
+		app = c.Get("app").(*App)
 	)
 
 	// ID can be the UUID or slug.
-	if reUUID.MatchString(id) {
-		uuid = id
+	var (
+		idStr      = c.Param("id")
+		uuid, slug string
+	)
+	if reUUID.MatchString(idStr) {
+		uuid = idStr
 	} else {
-		slug = id
+		slug = idStr
 	}
 
+	// Get the campaign from the DB.
 	pubCamp, err := app.core.GetArchivedCampaign(0, uuid, slug)
 	if err != nil || pubCamp.Type != models.CampaignTypeRegular {
 		notFound := false
+
+		// Camppaig doesn't exist.
 		if er, ok := err.(*echo.HTTPError); ok {
 			if er.Code == http.StatusBadRequest {
 				notFound = true
 			}
 		} else if pubCamp.Type != models.CampaignTypeRegular {
+			// Campaign isn't of regular type.
 			notFound = true
 		}
 
+		// 404.
 		if notFound {
 			return c.Render(http.StatusNotFound, tplMessage,
 				makeMsgTpl(app.i18n.T("public.notFoundTitle"), "", app.i18n.T("public.campaignNotFound")))
 		}
 
+		// Some other internal error.
 		return c.Render(http.StatusInternalServerError, tplMessage,
 			makeMsgTpl(app.i18n.T("public.errorTitle"), "", app.i18n.Ts("public.errorFetchingCampaign")))
 	}
 
+	// "Compile" the campaign template with appropriate data.
 	out, err := compileArchiveCampaigns([]models.Campaign{pubCamp}, app)
 	if err != nil {
 		return c.Render(http.StatusInternalServerError, tplMessage,
 			makeMsgTpl(app.i18n.T("public.errorTitle"), "", app.i18n.Ts("public.errorFetchingCampaign")))
 	}
 
-	// Render the message body.
+	// Render the campaign body.
 	camp := out[0].Campaign
 	msg, err := app.manager.NewCampaignMessage(camp, out[0].Subscriber)
 	if err != nil {
-		app.log.Printf("error rendering message: %v", err)
+		app.log.Printf("error rendering campaign: %v", err)
 		return c.Render(http.StatusInternalServerError, tplMessage,
 			makeMsgTpl(app.i18n.T("public.errorTitle"), "", app.i18n.Ts("public.errorFetchingCampaign")))
 	}
@@ -177,6 +195,7 @@ func handleCampaignArchivePageLatest(c echo.Context) error {
 		app = c.Get("app").(*App)
 	)
 
+	// Get the latest campaign from the DB.
 	camps, _, err := getCampaignArchives(0, 1, true, app)
 	if err != nil {
 		return err
@@ -186,12 +205,12 @@ func handleCampaignArchivePageLatest(c echo.Context) error {
 		return c.Render(http.StatusNotFound, tplMessage,
 			makeMsgTpl(app.i18n.T("public.notFoundTitle"), "", app.i18n.T("public.campaignNotFound")))
 	}
-
 	camp := camps[0]
 
 	return c.HTML(http.StatusOK, camp.Content)
 }
 
+// getCampaignArchives fetches the public campaign archives from the DB.
 func getCampaignArchives(offset, limit int, renderBody bool, app *App) ([]campArchive, int, error) {
 	pubCamps, total, err := app.core.GetArchivedCampaigns(offset, limit)
 	if err != nil {
@@ -214,12 +233,14 @@ func getCampaignArchives(offset, limit int, renderBody bool, app *App) ([]campAr
 			SendAt:    camp.SendAt,
 		}
 
+		// The campaign may have a custom slug.
 		if camp.ArchiveSlug.Valid {
 			archive.URL, _ = url.JoinPath(app.constants.ArchiveURL, camp.ArchiveSlug.String)
 		} else {
 			archive.URL, _ = url.JoinPath(app.constants.ArchiveURL, camp.UUID)
 		}
 
+		// Render the full template body if requested.
 		if renderBody {
 			msg, err := app.manager.NewCampaignMessage(camp, m.Subscriber)
 			if err != nil {
@@ -234,12 +255,13 @@ func getCampaignArchives(offset, limit int, renderBody bool, app *App) ([]campAr
 	return out, total, nil
 }
 
+// compileArchiveCampaigns compiles the campaign template with the subscriber data.
 func compileArchiveCampaigns(camps []models.Campaign, app *App) ([]manager.CampaignMessage, error) {
-	var (
-		b = bytes.Buffer{}
-	)
 
-	out := make([]manager.CampaignMessage, 0, len(camps))
+	var (
+		b   = bytes.Buffer{}
+		out = make([]manager.CampaignMessage, 0, len(camps))
+	)
 	for _, c := range camps {
 		camp := c
 		if err := camp.CompileTemplate(app.manager.TemplateFuncs(&camp)); err != nil {
@@ -266,7 +288,6 @@ func compileArchiveCampaigns(camps []models.Campaign, app *App) ([]manager.Campa
 			}
 			camp.Subject = b.String()
 			b.Reset()
-
 		}
 
 		out = append(out, m)

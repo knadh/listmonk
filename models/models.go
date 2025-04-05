@@ -99,7 +99,7 @@ var regTplFuncs = []regTplFunc{
 	// and substituting it with {{ Track "http://link.com" . }} (the dot context)
 	// before compilation. This is to make linking easier for users.
 	{
-		regExp:  regexp.MustCompile("{{(\\s+)?TrackLink(\\s+)?(.+?)(\\s+)?}}"),
+		regExp:  regexp.MustCompile(`{{(\\s+)?TrackLink(\\s+)?(.+?)(\\s+)?}}`),
 		replace: `{{ TrackLink $3 . }}`,
 	},
 
@@ -121,11 +121,11 @@ var regTplFuncs = []regTplFunc{
 
 // AdminNotifCallback is a callback function that's called
 // when a campaign's status changes.
-type AdminNotifCallback func(subject string, data interface{}) error
+type AdminNotifCallback func(subject string, data any) error
 
 // PageResults is a generic HTTP response container for paginated results of list of items.
 type PageResults struct {
-	Results interface{} `json:"results"`
+	Results any `json:"results"`
 
 	Query   string `json:"query"`
 	Total   int    `json:"total"`
@@ -174,7 +174,7 @@ type SubscriberExportProfile struct {
 }
 
 // JSON is the wrapper for reading and writing arbitrary JSONB fields from the DB.
-type JSON map[string]interface{}
+type JSON map[string]any
 
 // StringIntMap is used to define DB Scan()s.
 type StringIntMap map[string]int
@@ -379,12 +379,12 @@ type TxMessage struct {
 	SubscriberEmail string `json:"subscriber_email"`
 	SubscriberID    int    `json:"subscriber_id"`
 
-	TemplateID  int                    `json:"template_id"`
-	Data        map[string]interface{} `json:"data"`
-	FromEmail   string                 `json:"from_email"`
-	Headers     Headers                `json:"headers"`
-	ContentType string                 `json:"content_type"`
-	Messenger   string                 `json:"messenger"`
+	TemplateID  int            `json:"template_id"`
+	Data        map[string]any `json:"data"`
+	FromEmail   string         `json:"from_email"`
+	Headers     Headers        `json:"headers"`
+	ContentType string         `json:"content_type"`
+	Messenger   string         `json:"messenger"`
 
 	// File attachments added from multi-part form data.
 	Attachments []Attachment `json:"-"`
@@ -455,7 +455,7 @@ func (s JSON) Value() (driver.Value, error) {
 }
 
 // Scan unmarshals JSONB from the DB.
-func (s JSON) Scan(src interface{}) error {
+func (s JSON) Scan(src any) error {
 	if src == nil {
 		s = make(JSON)
 		return nil
@@ -468,7 +468,7 @@ func (s JSON) Scan(src interface{}) error {
 }
 
 // Scan unmarshals JSONB from the DB.
-func (s StringIntMap) Scan(src interface{}) error {
+func (s StringIntMap) Scan(src any) error {
 	if src == nil {
 		s = make(StringIntMap)
 		return nil
@@ -524,7 +524,7 @@ func (c *Campaign) CompileTemplate(f template.FuncMap) error {
 			subj = r.regExp.ReplaceAllString(subj, r.replace)
 		}
 
-		var txtFuncs map[string]interface{} = f
+		var txtFuncs map[string]any = f
 		subjTpl, err := txttpl.New(ContentTpl).Funcs(txtFuncs).Parse(subj)
 		if err != nil {
 			return fmt.Errorf("error compiling subject: %v", err)
@@ -689,7 +689,7 @@ func (s Subscriber) LastName() string {
 }
 
 // Scan implements the sql.Scanner interface.
-func (h *Headers) Scan(src interface{}) error {
+func (h *Headers) Scan(src any) error {
 	var b []byte
 	switch src := src.(type) {
 	case []byte:

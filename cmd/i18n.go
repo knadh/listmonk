@@ -26,7 +26,9 @@ var reLangCode = regexp.MustCompile(`[^a-zA-Z_0-9\\-]`)
 
 // handleGetI18nLang returns the JSON language pack given the language code.
 func handleGetI18nLang(c echo.Context) error {
-	app := c.Get("app").(*App)
+	var (
+		app = c.Get("app").(*App)
+	)
 
 	lang := c.Param("lang")
 	if len(lang) > 6 || reLangCode.MatchString(lang) {
@@ -48,6 +50,7 @@ func getI18nLangList(app *App) ([]i18nLang, error) {
 		return nil, err
 	}
 
+	// Read language JSON files from the fs.
 	var out []i18nLang
 	for _, l := range list {
 		b, err := app.fs.Get(l)
@@ -63,6 +66,7 @@ func getI18nLangList(app *App) ([]i18nLang, error) {
 		out = append(out, i18nLang(r))
 	}
 
+	// Sort by language code.
 	sort.SliceStable(out, func(i, j int) bool {
 		return out[i].Code < out[j].Code
 	})
@@ -91,7 +95,6 @@ func getI18nLang(lang string, fs stuffbin.FileSystem) (*i18n.I18n, bool, error) 
 	if err != nil {
 		return i, true, fmt.Errorf("error reading i18n language file: %s: %v", lang, err)
 	}
-
 	if err := i.Load(b); err != nil {
 		return i, true, fmt.Errorf("error loading i18n language file: %s: %v", lang, err)
 	}

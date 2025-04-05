@@ -28,6 +28,7 @@ func handleGetServerConfig(c echo.Context) error {
 	var (
 		app = c.Get("app").(*App)
 	)
+
 	out := serverConfig{
 		RootURL:       app.constants.RootURL,
 		FromEmail:     app.constants.FromEmail,
@@ -64,6 +65,7 @@ func handleGetDashboardCharts(c echo.Context) error {
 		app = c.Get("app").(*App)
 	)
 
+	// Get the chart data from the DB.
 	out, err := app.core.GetDashboardCharts()
 	if err != nil {
 		return err
@@ -78,6 +80,7 @@ func handleGetDashboardCounts(c echo.Context) error {
 		app = c.Get("app").(*App)
 	)
 
+	// Get the chart data from the DB.
 	out, err := app.core.GetDashboardCounts()
 	if err != nil {
 		return err
@@ -88,10 +91,16 @@ func handleGetDashboardCounts(c echo.Context) error {
 
 // handleReloadApp restarts the app.
 func handleReloadApp(c echo.Context) error {
-	app := c.Get("app").(*App)
+	var (
+		app = c.Get("app").(*App)
+	)
+
 	go func() {
 		<-time.After(time.Millisecond * 500)
+
+		// Send the reload signal to trigger the wait loop in main.
 		app.chReload <- syscall.SIGHUP
 	}()
+
 	return c.JSON(http.StatusOK, okResp{true})
 }

@@ -45,7 +45,7 @@ func (c *Core) QueryMedia(provider string, s media.Store, query string, offset, 
 
 // GetMedia returns a media item.
 func (c *Core) GetMedia(id int, uuid, fileName string, s media.Store) (media.Media, error) {
-	var uu interface{}
+	var uu any
 	if uuid != "" {
 		uu = uuid
 	}
