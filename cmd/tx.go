@@ -13,12 +13,8 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-// handleSendTxMessage handles the sending of a transactional message.
-func handleSendTxMessage(c echo.Context) error {
-	var (
-		app = c.Get("app").(*App)
-	)
-
+// SendTxMessage handles the sending of a transactional message.
+func (h *Handlers) SendTxMessage(c echo.Context) error {
 	var m models.TxMessage
 
 	// If it's a multipart form, there may be file attachments.
@@ -26,18 +22,18 @@ func handleSendTxMessage(c echo.Context) error {
 		form, err := c.MultipartForm()
 		if err != nil {
 			return echo.NewHTTPError(http.StatusBadRequest,
-				app.i18n.Ts("globals.messages.invalidFields", "name", err.Error()))
+				h.app.i18n.Ts("globals.messages.invalidFields", "name", err.Error()))
 		}
 
 		data, ok := form.Value["data"]
 		if !ok || len(data) != 1 {
-			return echo.NewHTTPError(http.StatusBadRequest, app.i18n.Ts("globals.messages.invalidFields", "name", "data"))
+			return echo.NewHTTPError(http.StatusBadRequest, h.app.i18n.Ts("globals.messages.invalidFields", "name", "data"))
 		}
 
 		// Parse the JSON data.
 		if err := json.Unmarshal([]byte(data[0]), &m); err != nil {
 			return echo.NewHTTPError(http.StatusBadRequest,
-				app.i18n.Ts("globals.messages.invalidFields", "name", fmt.Sprintf("data: %s", err.Error())))
+				h.app.i18n.Ts("globals.messages.invalidFields", "name", fmt.Sprintf("data: %s", err.Error())))
 		}
 
 		// Attach files.
@@ -45,14 +41,14 @@ func handleSendTxMessage(c echo.Context) error {
 			file, err := f.Open()
 			if err != nil {
 				return echo.NewHTTPError(http.StatusInternalServerError,
-					app.i18n.Ts("globals.messages.invalidFields", "name", fmt.Sprintf("file: %s", err.Error())))
+					h.app.i18n.Ts("globals.messages.invalidFields", "name", fmt.Sprintf("file: %s", err.Error())))
 			}
 			defer file.Close()
 
 			b, err := io.ReadAll(file)
 			if err != nil {
 				return echo.NewHTTPError(http.StatusInternalServerError,
-					app.i18n.Ts("globals.messages.invalidFields", "name", fmt.Sprintf("file: %s", err.Error())))
+					h.app.i18n.Ts("globals.messages.invalidFields", "name", fmt.Sprintf("file: %s", err.Error())))
 			}
 
 			m.Attachments = append(m.Attachments, models.Attachment{
@@ -67,17 +63,17 @@ func handleSendTxMessage(c echo.Context) error {
 	}
 
 	// Validate fields.
-	if r, err := validateTxMessage(m, app); err != nil {
+	if r, err := h.validateTxMessage(m); err != nil {
 		return err
 	} else {
 		m = r
 	}
 
 	// Get the cached tx template.
-	tpl, err := app.manager.GetTpl(m.TemplateID)
+	tpl, err := h.app.manager.GetTpl(m.TemplateID)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest,
-			app.i18n.Ts("globals.messages.notFound", "name", fmt.Sprintf("template %d", m.TemplateID)))
+			h.app.i18n.Ts("globals.messages.notFound", "name", fmt.Sprintf("template %d", m.TemplateID)))
 	}
 
 	var (
@@ -103,7 +99,7 @@ func handleSendTxMessage(c echo.Context) error {
 		}
 
 		// Get the subscriber.
-		sub, err := app.core.GetSubscriber(subID, "", subEmail)
+		sub, err := h.app.core.GetSubscriber(subID, "", subEmail)
 		if err != nil {
 			// If the subscriber is not found, log that error and move on without halting on the list.
 			if er, ok := err.(*echo.HTTPError); ok && er.Code == http.StatusBadRequest {
@@ -117,7 +113,7 @@ func handleSendTxMessage(c echo.Context) error {
 		// Render the message.
 		if err := m.Render(sub, tpl); err != nil {
 			return echo.NewHTTPError(http.StatusBadRequest,
-				app.i18n.Ts("globals.messages.errorFetching", "name"))
+				h.app.i18n.Ts("globals.messages.errorFetching", "name"))
 		}
 
 		// Prepare the final message.
@@ -147,8 +143,8 @@ func handleSendTxMessage(c echo.Context) error {
 			}
 		}
 
-		if err := app.manager.PushMessage(msg); err != nil {
-			app.log.Printf("error sending message (%s): %v", msg.Subject, err)
+		if err := h.app.manager.PushMessage(msg); err != nil {
+			h.app.log.Printf("error sending message (%s): %v", msg.Subject, err)
 			return err
 		}
 	}
@@ -161,14 +157,14 @@ func handleSendTxMessage(c echo.Context) error {
 }
 
 // validateTxMessage validates the tx message fields.
-func validateTxMessage(m models.TxMessage, app *App) (models.TxMessage, error) {
+func (h *Handlers) validateTxMessage(m models.TxMessage) (models.TxMessage, error) {
 	if len(m.SubscriberEmails) > 0 && m.SubscriberEmail != "" {
 		return m, echo.NewHTTPError(http.StatusBadRequest,
-			app.i18n.Ts("globals.messages.invalidFields", "name", "do not send `subscriber_email`"))
+			h.app.i18n.Ts("globals.messages.invalidFields", "name", "do not send `subscriber_email`"))
 	}
 	if len(m.SubscriberIDs) > 0 && m.SubscriberID != 0 {
 		return m, echo.NewHTTPError(http.StatusBadRequest,
-			app.i18n.Ts("globals.messages.invalidFields", "name", "do not send `subscriber_id`"))
+			h.app.i18n.Ts("globals.messages.invalidFields", "name", "do not send `subscriber_id`"))
 	}
 
 	if m.SubscriberEmail != "" {
@@ -181,12 +177,12 @@ func validateTxMessage(m models.TxMessage, app *App) (models.TxMessage, error) {
 
 	if (len(m.SubscriberEmails) == 0 && len(m.SubscriberIDs) == 0) || (len(m.SubscriberEmails) > 0 && len(m.SubscriberIDs) > 0) {
 		return m, echo.NewHTTPError(http.StatusBadRequest,
-			app.i18n.Ts("globals.messages.invalidFields", "name", "send subscriber_emails OR subscriber_ids"))
+			h.app.i18n.Ts("globals.messages.invalidFields", "name", "send subscriber_emails OR subscriber_ids"))
 	}
 
 	for n, email := range m.SubscriberEmails {
 		if m.SubscriberEmail != "" {
-			em, err := app.importer.SanitizeEmail(email)
+			em, err := h.app.importer.SanitizeEmail(email)
 			if err != nil {
 				return m, echo.NewHTTPError(http.StatusBadRequest, err.Error())
 			}
@@ -195,13 +191,13 @@ func validateTxMessage(m models.TxMessage, app *App) (models.TxMessage, error) {
 	}
 
 	if m.FromEmail == "" {
-		m.FromEmail = app.constants.FromEmail
+		m.FromEmail = h.app.constants.FromEmail
 	}
 
 	if m.Messenger == "" {
 		m.Messenger = emailMsgr
-	} else if !app.manager.HasMessenger(m.Messenger) {
-		return m, echo.NewHTTPError(http.StatusBadRequest, app.i18n.Ts("campaigns.fieldInvalidMessenger", "name", m.Messenger))
+	} else if !h.app.manager.HasMessenger(m.Messenger) {
+		return m, echo.NewHTTPError(http.StatusBadRequest, h.app.i18n.Ts("campaigns.fieldInvalidMessenger", "name", m.Messenger))
 	}
 
 	return m, nil

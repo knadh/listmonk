@@ -488,9 +488,9 @@ func initI18n(lang string, fs stuffbin.FileSystem) *i18n.I18n {
 }
 
 // initCampaignManager initializes the campaign manager.
-func initCampaignManager(q *models.Queries, cs *constants, app *App) *manager.Manager {
+func initCampaignManager(cb notifCB, q *models.Queries, cs *constants, co *core.Core, md media.Store, i *i18n.I18n) *manager.Manager {
 	campNotifCB := func(subject string, data any) error {
-		return app.sendNotification(cs.NotifyEmails, subject, notifTplCampaign, data, nil)
+		return cb(cs.NotifyEmails, subject, notifTplCampaign, data, nil)
 	}
 
 	if ko.Bool("passive") {
@@ -517,19 +517,19 @@ func initCampaignManager(q *models.Queries, cs *constants, app *App) *manager.Ma
 		SlidingWindowRate:     ko.Int("app.message_sliding_window_rate"),
 		ScanInterval:          time.Second * 5,
 		ScanCampaigns:         !ko.Bool("passive"),
-	}, newManagerStore(q, app.core, app.media), campNotifCB, app.i18n, lo)
+	}, newManagerStore(q, co, md), campNotifCB, i, lo)
 }
 
 // initTxTemplates initializes and compiles the transactional templates and caches them in-memory.
-func initTxTemplates(m *manager.Manager, app *App) {
-	tpls, err := app.core.GetTemplates(models.TemplateTypeTx, false)
+func initTxTemplates(m *manager.Manager, co *core.Core) {
+	tpls, err := co.GetTemplates(models.TemplateTypeTx, false)
 	if err != nil {
 		lo.Fatalf("error loading transactional templates: %v", err)
 	}
 
 	for _, t := range tpls {
 		tpl := t
-		if err := tpl.Compile(app.manager.GenericTemplateFuncs()); err != nil {
+		if err := tpl.Compile(m.GenericTemplateFuncs()); err != nil {
 			lo.Printf("error compiling transactional template %d: %v", tpl.ID, err)
 			continue
 		}

@@ -24,6 +24,10 @@ type okResp struct {
 	Data any `json:"data"`
 }
 
+type Handlers struct {
+	app *App
+}
+
 var (
 	reUUID = regexp.MustCompile("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$")
 )
@@ -74,130 +78,134 @@ func initHTTPHandlers(e *echo.Echo, app *App) {
 
 		// Public unauthenticated endpoints.
 		p = e.Group("")
+
+		h = &Handlers{
+			app: app,
+		}
 	)
 
 	// Authenticated endpoints.
-	a.GET(path.Join(uriAdmin, ""), handleAdminPage)
+	a.GET(path.Join(uriAdmin, ""), h.AdminPage)
 	a.GET(path.Join(uriAdmin, "/custom.css"), serveCustomAppearance("admin.custom_css"))
 	a.GET(path.Join(uriAdmin, "/custom.js"), serveCustomAppearance("admin.custom_js"))
-	a.GET(path.Join(uriAdmin, "/*"), handleAdminPage)
+	a.GET(path.Join(uriAdmin, "/*"), h.AdminPage)
 
 	pm := app.auth.Perm
 
 	// API endpoints.
-	api.GET("/api/health", handleHealthCheck)
-	api.GET("/api/config", handleGetServerConfig)
-	api.GET("/api/lang/:lang", handleGetI18nLang)
-	api.GET("/api/dashboard/charts", handleGetDashboardCharts)
-	api.GET("/api/dashboard/counts", handleGetDashboardCounts)
+	api.GET("/api/health", h.HealthCheck)
+	api.GET("/api/config", h.GetServerConfig)
+	api.GET("/api/lang/:lang", h.GetI18nLang)
+	api.GET("/api/dashboard/charts", h.GetDashboardCharts)
+	api.GET("/api/dashboard/counts", h.GetDashboardCounts)
 
-	api.GET("/api/settings", pm(handleGetSettings, "settings:get"))
-	api.PUT("/api/settings", pm(handleUpdateSettings, "settings:manage"))
-	api.POST("/api/settings/smtp/test", pm(handleTestSMTPSettings, "settings:manage"))
-	api.POST("/api/admin/reload", pm(handleReloadApp, "settings:manage"))
-	api.GET("/api/logs", pm(handleGetLogs, "settings:get"))
-	api.GET("/api/events", pm(handleEventStream, "settings:get"))
-	api.GET("/api/about", handleGetAboutInfo)
+	api.GET("/api/settings", pm(h.GetSettings, "settings:get"))
+	api.PUT("/api/settings", pm(h.UpdateSettings, "settings:manage"))
+	api.POST("/api/settings/smtp/test", pm(h.TestSMTPSettings, "settings:manage"))
+	api.POST("/api/admin/reload", pm(h.ReloadApp, "settings:manage"))
+	api.GET("/api/logs", pm(h.GetLogs, "settings:get"))
+	api.GET("/api/events", pm(h.EventStream, "settings:get"))
+	api.GET("/api/about", h.GetAboutInfo)
 
-	api.GET("/api/subscribers", pm(handleQuerySubscribers, "subscribers:get_all", "subscribers:get"))
-	api.GET("/api/subscribers/:id", pm(handleGetSubscriber, "subscribers:get_all", "subscribers:get"))
-	api.GET("/api/subscribers/:id/export", pm(handleExportSubscriberData, "subscribers:get_all", "subscribers:get"))
-	api.GET("/api/subscribers/:id/bounces", pm(handleGetSubscriberBounces, "bounces:get"))
-	api.DELETE("/api/subscribers/:id/bounces", pm(handleDeleteSubscriberBounces, "bounces:manage"))
-	api.POST("/api/subscribers", pm(handleCreateSubscriber, "subscribers:manage"))
-	api.PUT("/api/subscribers/:id", pm(handleUpdateSubscriber, "subscribers:manage"))
-	api.POST("/api/subscribers/:id/optin", pm(handleSubscriberSendOptin, "subscribers:manage"))
-	api.PUT("/api/subscribers/blocklist", pm(handleBlocklistSubscribers, "subscribers:manage"))
-	api.PUT("/api/subscribers/:id/blocklist", pm(handleBlocklistSubscribers, "subscribers:manage"))
-	api.PUT("/api/subscribers/lists/:id", pm(handleManageSubscriberLists, "subscribers:manage"))
-	api.PUT("/api/subscribers/lists", pm(handleManageSubscriberLists, "subscribers:manage"))
-	api.DELETE("/api/subscribers/:id", pm(handleDeleteSubscribers, "subscribers:manage"))
-	api.DELETE("/api/subscribers", pm(handleDeleteSubscribers, "subscribers:manage"))
+	api.GET("/api/subscribers", pm(h.QuerySubscribers, "subscribers:get_all", "subscribers:get"))
+	api.GET("/api/subscribers/:id", pm(h.GetSubscriber, "subscribers:get_all", "subscribers:get"))
+	api.GET("/api/subscribers/:id/export", pm(h.ExportSubscriberData, "subscribers:get_all", "subscribers:get"))
+	api.GET("/api/subscribers/:id/bounces", pm(h.GetSubscriberBounces, "bounces:get"))
+	api.DELETE("/api/subscribers/:id/bounces", pm(h.DeleteSubscriberBounces, "bounces:manage"))
+	api.POST("/api/subscribers", pm(h.CreateSubscriber, "subscribers:manage"))
+	api.PUT("/api/subscribers/:id", pm(h.UpdateSubscriber, "subscribers:manage"))
+	api.POST("/api/subscribers/:id/optin", pm(h.SubscriberSendOptin, "subscribers:manage"))
+	api.PUT("/api/subscribers/blocklist", pm(h.BlocklistSubscribers, "subscribers:manage"))
+	api.PUT("/api/subscribers/:id/blocklist", pm(h.BlocklistSubscribers, "subscribers:manage"))
+	api.PUT("/api/subscribers/lists/:id", pm(h.ManageSubscriberLists, "subscribers:manage"))
+	api.PUT("/api/subscribers/lists", pm(h.ManageSubscriberLists, "subscribers:manage"))
+	api.DELETE("/api/subscribers/:id", pm(h.DeleteSubscribers, "subscribers:manage"))
+	api.DELETE("/api/subscribers", pm(h.DeleteSubscribers, "subscribers:manage"))
 
-	api.GET("/api/bounces", pm(handleGetBounces, "bounces:get"))
-	api.GET("/api/bounces/:id", pm(handleGetBounces, "bounces:get"))
-	api.DELETE("/api/bounces", pm(handleDeleteBounces, "bounces:manage"))
-	api.DELETE("/api/bounces/:id", pm(handleDeleteBounces, "bounces:manage"))
+	api.GET("/api/bounces", pm(h.GetBounces, "bounces:get"))
+	api.GET("/api/bounces/:id", pm(h.GetBounces, "bounces:get"))
+	api.DELETE("/api/bounces", pm(h.DeleteBounces, "bounces:manage"))
+	api.DELETE("/api/bounces/:id", pm(h.DeleteBounces, "bounces:manage"))
 
 	// Subscriber operations based on arbitrary SQL queries.
 	// These aren't very REST-like.
-	api.POST("/api/subscribers/query/delete", pm(handleDeleteSubscribersByQuery, "subscribers:manage"))
-	api.PUT("/api/subscribers/query/blocklist", pm(handleBlocklistSubscribersByQuery, "subscribers:manage"))
-	api.PUT("/api/subscribers/query/lists", pm(handleManageSubscriberListsByQuery, "subscribers:manage"))
+	api.POST("/api/subscribers/query/delete", pm(h.DeleteSubscribersByQuery, "subscribers:manage"))
+	api.PUT("/api/subscribers/query/blocklist", pm(h.BlocklistSubscribersByQuery, "subscribers:manage"))
+	api.PUT("/api/subscribers/query/lists", pm(h.ManageSubscriberListsByQuery, "subscribers:manage"))
 	api.GET("/api/subscribers/export",
-		pm(middleware.GzipWithConfig(middleware.GzipConfig{Level: 9})(handleExportSubscribers), "subscribers:get_all", "subscribers:get"))
+		pm(middleware.GzipWithConfig(middleware.GzipConfig{Level: 9})(h.ExportSubscribers), "subscribers:get_all", "subscribers:get"))
 
-	api.GET("/api/import/subscribers", pm(handleGetImportSubscribers, "subscribers:import"))
-	api.GET("/api/import/subscribers/logs", pm(handleGetImportSubscriberStats, "subscribers:import"))
-	api.POST("/api/import/subscribers", pm(handleImportSubscribers, "subscribers:import"))
-	api.DELETE("/api/import/subscribers", pm(handleStopImportSubscribers, "subscribers:import"))
+	api.GET("/api/import/subscribers", pm(h.GetImportSubscribers, "subscribers:import"))
+	api.GET("/api/import/subscribers/logs", pm(h.GetImportSubscriberStats, "subscribers:import"))
+	api.POST("/api/import/subscribers", pm(h.ImportSubscribers, "subscribers:import"))
+	api.DELETE("/api/import/subscribers", pm(h.StopImportSubscribers, "subscribers:import"))
 
 	// Individual list permissions are applied directly within handleGetLists.
-	api.GET("/api/lists", handleGetLists)
-	api.GET("/api/lists/:id", handleGetList)
-	api.POST("/api/lists", pm(handleCreateList, "lists:manage_all"))
-	api.PUT("/api/lists/:id", handleUpdateList)
-	api.DELETE("/api/lists/:id", handleDeleteLists)
+	api.GET("/api/lists", h.GetLists)
+	api.GET("/api/lists/:id", h.GetList)
+	api.POST("/api/lists", pm(h.CreateList, "lists:manage_all"))
+	api.PUT("/api/lists/:id", h.UpdateList)
+	api.DELETE("/api/lists/:id", h.DeleteLists)
 
-	api.GET("/api/campaigns", pm(handleGetCampaigns, "campaigns:get_all", "campaigns:get"))
-	api.GET("/api/campaigns/running/stats", pm(handleGetRunningCampaignStats, "campaigns:get_all", "campaigns:get"))
-	api.GET("/api/campaigns/:id", pm(handleGetCampaign, "campaigns:get_all", "campaigns:get"))
-	api.GET("/api/campaigns/analytics/:type", pm(handleGetCampaignViewAnalytics, "campaigns:get_analytics"))
-	api.GET("/api/campaigns/:id/preview", pm(handlePreviewCampaign, "campaigns:get_all", "campaigns:get"))
-	api.POST("/api/campaigns/:id/preview", pm(handlePreviewCampaign, "campaigns:get_all", "campaigns:get"))
-	api.POST("/api/campaigns/:id/content", pm(handleCampaignContent, "campaigns:manage_all", "campaigns:manage"))
-	api.POST("/api/campaigns/:id/text", pm(handlePreviewCampaign, "campaigns:get"))
-	api.POST("/api/campaigns/:id/test", pm(handleTestCampaign, "campaigns:manage_all", "campaigns:manage"))
-	api.POST("/api/campaigns", pm(handleCreateCampaign, "campaigns:manage_all", "campaigns:manage"))
-	api.PUT("/api/campaigns/:id", pm(handleUpdateCampaign, "campaigns:manage_all", "campaigns:manage"))
-	api.PUT("/api/campaigns/:id/status", pm(handleUpdateCampaignStatus, "campaigns:manage_all", "campaigns:manage"))
-	api.PUT("/api/campaigns/:id/archive", pm(handleUpdateCampaignArchive, "campaigns:manage_all", "campaigns:manage"))
-	api.DELETE("/api/campaigns/:id", pm(handleDeleteCampaign, "campaigns:manage_all", "campaigns:manage"))
+	api.GET("/api/campaigns", pm(h.GetCampaigns, "campaigns:get_all", "campaigns:get"))
+	api.GET("/api/campaigns/running/stats", pm(h.GetRunningCampaignStats, "campaigns:get_all", "campaigns:get"))
+	api.GET("/api/campaigns/:id", pm(h.GetCampaign, "campaigns:get_all", "campaigns:get"))
+	api.GET("/api/campaigns/analytics/:type", pm(h.GetCampaignViewAnalytics, "campaigns:get_analytics"))
+	api.GET("/api/campaigns/:id/preview", pm(h.PreviewCampaign, "campaigns:get_all", "campaigns:get"))
+	api.POST("/api/campaigns/:id/preview", pm(h.PreviewCampaign, "campaigns:get_all", "campaigns:get"))
+	api.POST("/api/campaigns/:id/content", pm(h.CampaignContent, "campaigns:manage_all", "campaigns:manage"))
+	api.POST("/api/campaigns/:id/text", pm(h.PreviewCampaign, "campaigns:get"))
+	api.POST("/api/campaigns/:id/test", pm(h.TestCampaign, "campaigns:manage_all", "campaigns:manage"))
+	api.POST("/api/campaigns", pm(h.CreateCampaign, "campaigns:manage_all", "campaigns:manage"))
+	api.PUT("/api/campaigns/:id", pm(h.UpdateCampaign, "campaigns:manage_all", "campaigns:manage"))
+	api.PUT("/api/campaigns/:id/status", pm(h.UpdateCampaignStatus, "campaigns:manage_all", "campaigns:manage"))
+	api.PUT("/api/campaigns/:id/archive", pm(h.UpdateCampaignArchive, "campaigns:manage_all", "campaigns:manage"))
+	api.DELETE("/api/campaigns/:id", pm(h.DeleteCampaign, "campaigns:manage_all", "campaigns:manage"))
 
-	api.GET("/api/media", pm(handleGetMedia, "media:get"))
-	api.GET("/api/media/:id", pm(handleGetMedia, "media:get"))
-	api.POST("/api/media", pm(handleUploadMedia, "media:manage"))
-	api.DELETE("/api/media/:id", pm(handleDeleteMedia, "media:manage"))
+	api.GET("/api/media", pm(h.GetMedia, "media:get"))
+	api.GET("/api/media/:id", pm(h.GetMedia, "media:get"))
+	api.POST("/api/media", pm(h.UploadMedia, "media:manage"))
+	api.DELETE("/api/media/:id", pm(h.DeleteMedia, "media:manage"))
 
-	api.GET("/api/templates", pm(handleGetTemplates, "templates:get"))
-	api.GET("/api/templates/:id", pm(handleGetTemplates, "templates:get"))
-	api.GET("/api/templates/:id/preview", pm(handlePreviewTemplate, "templates:get"))
-	api.POST("/api/templates/preview", pm(handlePreviewTemplate, "templates:get"))
-	api.POST("/api/templates", pm(handleCreateTemplate, "templates:manage"))
-	api.PUT("/api/templates/:id", pm(handleUpdateTemplate, "templates:manage"))
-	api.PUT("/api/templates/:id/default", pm(handleTemplateSetDefault, "templates:manage"))
-	api.DELETE("/api/templates/:id", pm(handleDeleteTemplate, "templates:manage"))
+	api.GET("/api/templates", pm(h.GetTemplates, "templates:get"))
+	api.GET("/api/templates/:id", pm(h.GetTemplates, "templates:get"))
+	api.GET("/api/templates/:id/preview", pm(h.PreviewTemplate, "templates:get"))
+	api.POST("/api/templates/preview", pm(h.PreviewTemplate, "templates:get"))
+	api.POST("/api/templates", pm(h.CreateTemplate, "templates:manage"))
+	api.PUT("/api/templates/:id", pm(h.UpdateTemplate, "templates:manage"))
+	api.PUT("/api/templates/:id/default", pm(h.TemplateSetDefault, "templates:manage"))
+	api.DELETE("/api/templates/:id", pm(h.DeleteTemplate, "templates:manage"))
 
-	api.DELETE("/api/maintenance/subscribers/:type", pm(handleGCSubscribers, "settings:maintain"))
-	api.DELETE("/api/maintenance/analytics/:type", pm(handleGCCampaignAnalytics, "settings:maintain"))
-	api.DELETE("/api/maintenance/subscriptions/unconfirmed", pm(handleGCSubscriptions, "settings:maintain"))
+	api.DELETE("/api/maintenance/subscribers/:type", pm(h.GCSubscribers, "settings:maintain"))
+	api.DELETE("/api/maintenance/analytics/:type", pm(h.GCCampaignAnalytics, "settings:maintain"))
+	api.DELETE("/api/maintenance/subscriptions/unconfirmed", pm(h.GCSubscriptions, "settings:maintain"))
 
-	api.POST("/api/tx", pm(handleSendTxMessage, "tx:send"))
+	api.POST("/api/tx", pm(h.SendTxMessage, "tx:send"))
 
-	api.GET("/api/profile", handleGetUserProfile)
-	api.PUT("/api/profile", handleUpdateUserProfile)
-	api.GET("/api/users", pm(handleGetUsers, "users:get"))
-	api.GET("/api/users/:id", pm(handleGetUsers, "users:get"))
-	api.POST("/api/users", pm(handleCreateUser, "users:manage"))
-	api.PUT("/api/users/:id", pm(handleUpdateUser, "users:manage"))
-	api.DELETE("/api/users", pm(handleDeleteUsers, "users:manage"))
-	api.DELETE("/api/users/:id", pm(handleDeleteUsers, "users:manage"))
-	api.POST("/api/logout", handleLogout)
+	api.GET("/api/profile", h.GetUserProfile)
+	api.PUT("/api/profile", h.UpdateUserProfile)
+	api.GET("/api/users", pm(h.GetUsers, "users:get"))
+	api.GET("/api/users/:id", pm(h.GetUsers, "users:get"))
+	api.POST("/api/users", pm(h.CreateUser, "users:manage"))
+	api.PUT("/api/users/:id", pm(h.UpdateUser, "users:manage"))
+	api.DELETE("/api/users", pm(h.DeleteUsers, "users:manage"))
+	api.DELETE("/api/users/:id", pm(h.DeleteUsers, "users:manage"))
+	api.POST("/api/logout", h.Logout)
 
-	api.GET("/api/roles/users", pm(handleGetUserRoles, "roles:get"))
-	api.GET("/api/roles/lists", pm(handleGeListRoles, "roles:get"))
-	api.POST("/api/roles/users", pm(handleCreateUserRole, "roles:manage"))
-	api.POST("/api/roles/lists", pm(handleCreateListRole, "roles:manage"))
-	api.PUT("/api/roles/users/:id", pm(handleUpdateUserRole, "roles:manage"))
-	api.PUT("/api/roles/lists/:id", pm(handleUpdateListRole, "roles:manage"))
-	api.DELETE("/api/roles/:id", pm(handleDeleteRole, "roles:manage"))
+	api.GET("/api/roles/users", pm(h.GetUserRoles, "roles:get"))
+	api.GET("/api/roles/lists", pm(h.GeListRoles, "roles:get"))
+	api.POST("/api/roles/users", pm(h.CreateUserRole, "roles:manage"))
+	api.POST("/api/roles/lists", pm(h.CreateListRole, "roles:manage"))
+	api.PUT("/api/roles/users/:id", pm(h.UpdateUserRole, "roles:manage"))
+	api.PUT("/api/roles/lists/:id", pm(h.UpdateListRole, "roles:manage"))
+	api.DELETE("/api/roles/:id", pm(h.DeleteRole, "roles:manage"))
 
 	if app.constants.BounceWebhooksEnabled {
 		// Private authenticated bounce endpoint.
-		api.POST("/webhooks/bounce", pm(handleBounceWebhook, "webhooks:post_bounce"))
+		api.POST("/webhooks/bounce", pm(h.BounceWebhook, "webhooks:post_bounce"))
 
 		// Public bounce endpoints for webservices like SES.
-		p.POST("/webhooks/service/:service", handleBounceWebhook)
+		p.POST("/webhooks/service/:service", h.BounceWebhook)
 	}
 
 	// =================================================================
@@ -209,54 +217,54 @@ func initHTTPHandlers(e *echo.Echo, app *App) {
 	})
 
 	// Public admin endpoints (login page, OIDC endpoints).
-	p.GET(path.Join(uriAdmin, "/login"), handleLoginPage)
-	p.POST(path.Join(uriAdmin, "/login"), handleLoginPage)
+	p.GET(path.Join(uriAdmin, "/login"), h.LoginPage)
+	p.POST(path.Join(uriAdmin, "/login"), h.LoginPage)
 
 	if app.constants.Security.OIDC.Enabled {
-		p.POST("/auth/oidc", handleOIDCLogin)
-		p.GET("/auth/oidc", handleOIDCFinish)
+		p.POST("/auth/oidc", h.OIDCLogin)
+		p.GET("/auth/oidc", h.OIDCFinish)
 	}
 
 	// Public APIs.
-	p.GET("/api/public/lists", handleGetPublicLists)
-	p.POST("/api/public/subscription", handlePublicSubscription)
+	p.GET("/api/public/lists", h.GetPublicLists)
+	p.POST("/api/public/subscription", h.PublicSubscription)
 	if app.constants.EnablePublicArchive {
-		p.GET("/api/public/archive", handleGetCampaignArchives)
+		p.GET("/api/public/archive", h.GetCampaignArchives)
 	}
 
 	// /public/static/* file server is registered in initHTTPServer().
 	// Public subscriber facing views.
-	p.GET("/subscription/form", handleSubscriptionFormPage)
-	p.POST("/subscription/form", handleSubscriptionForm)
-	p.GET("/subscription/:campUUID/:subUUID", noIndex(validateUUID(subscriberExists(handleSubscriptionPage),
+	p.GET("/subscription/form", h.SubscriptionFormPage)
+	p.POST("/subscription/form", h.SubscriptionForm)
+	p.GET("/subscription/:campUUID/:subUUID", noIndex(validateUUID(subscriberExists(h.SubscriptionPage),
 		"campUUID", "subUUID")))
-	p.POST("/subscription/:campUUID/:subUUID", validateUUID(subscriberExists(handleSubscriptionPrefs),
+	p.POST("/subscription/:campUUID/:subUUID", validateUUID(subscriberExists(h.SubscriptionPrefs),
 		"campUUID", "subUUID"))
-	p.GET("/subscription/optin/:subUUID", noIndex(validateUUID(subscriberExists(handleOptinPage), "subUUID")))
-	p.POST("/subscription/optin/:subUUID", validateUUID(subscriberExists(handleOptinPage), "subUUID"))
-	p.POST("/subscription/export/:subUUID", validateUUID(subscriberExists(handleSelfExportSubscriberData),
+	p.GET("/subscription/optin/:subUUID", noIndex(validateUUID(subscriberExists(h.OptinPage), "subUUID")))
+	p.POST("/subscription/optin/:subUUID", validateUUID(subscriberExists(h.OptinPage), "subUUID"))
+	p.POST("/subscription/export/:subUUID", validateUUID(subscriberExists(h.SelfExportSubscriberData),
 		"subUUID"))
-	p.POST("/subscription/wipe/:subUUID", validateUUID(subscriberExists(handleWipeSubscriberData),
+	p.POST("/subscription/wipe/:subUUID", validateUUID(subscriberExists(h.WipeSubscriberData),
 		"subUUID"))
-	p.GET("/link/:linkUUID/:campUUID/:subUUID", noIndex(validateUUID(handleLinkRedirect,
+	p.GET("/link/:linkUUID/:campUUID/:subUUID", noIndex(validateUUID(h.LinkRedirect,
 		"linkUUID", "campUUID", "subUUID")))
-	p.GET("/campaign/:campUUID/:subUUID", noIndex(validateUUID(handleViewCampaignMessage,
+	p.GET("/campaign/:campUUID/:subUUID", noIndex(validateUUID(h.ViewCampaignMessage,
 		"campUUID", "subUUID")))
-	p.GET("/campaign/:campUUID/:subUUID/px.png", noIndex(validateUUID(handleRegisterCampaignView,
+	p.GET("/campaign/:campUUID/:subUUID/px.png", noIndex(validateUUID(h.RegisterCampaignView,
 		"campUUID", "subUUID")))
 
 	if app.constants.EnablePublicArchive {
-		p.GET("/archive", handleCampaignArchivesPage)
-		p.GET("/archive.xml", handleGetCampaignArchivesFeed)
-		p.GET("/archive/:id", handleCampaignArchivePage)
-		p.GET("/archive/latest", handleCampaignArchivePageLatest)
+		p.GET("/archive", h.CampaignArchivesPage)
+		p.GET("/archive.xml", h.GetCampaignArchivesFeed)
+		p.GET("/archive/:id", h.CampaignArchivePage)
+		p.GET("/archive/latest", h.CampaignArchivePageLatest)
 	}
 
 	p.GET("/public/custom.css", serveCustomAppearance("public.custom_css"))
 	p.GET("/public/custom.js", serveCustomAppearance("public.custom_js"))
 
 	// Public health API endpoint.
-	p.GET("/health", handleHealthCheck)
+	p.GET("/health", h.HealthCheck)
 
 	// 404 pages.
 	p.RouteNotFound("/*", func(c echo.Context) error {
@@ -271,22 +279,20 @@ func initHTTPHandlers(e *echo.Echo, app *App) {
 	})
 }
 
-// handleAdminPage is the root handler that renders the Javascript admin frontend.
-func handleAdminPage(c echo.Context) error {
-	app := c.Get("app").(*App)
-
-	b, err := app.fs.Read(path.Join(uriAdmin, "/index.html"))
+// AdminPage is the root handler that renders the Javascript admin frontend.
+func (h *Handlers) AdminPage(c echo.Context) error {
+	b, err := h.app.fs.Read(path.Join(uriAdmin, "/index.html"))
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
-	b = bytes.ReplaceAll(b, []byte("asset_version"), []byte(app.constants.AssetVersion))
+	b = bytes.ReplaceAll(b, []byte("asset_version"), []byte(h.app.constants.AssetVersion))
 
 	return c.HTMLBlob(http.StatusOK, b)
 }
 
-// handleHealthCheck is a healthcheck endpoint that returns a 200 response.
-func handleHealthCheck(c echo.Context) error {
+// HealthCheck is a healthcheck endpoint that returns a 200 response.
+func (h *Handlers) HealthCheck(c echo.Context) error {
 	return c.JSON(http.StatusOK, okResp{true})
 }
 

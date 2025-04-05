@@ -23,15 +23,11 @@ type campArchive struct {
 	URL       string    `json:"url"`
 }
 
-// handleGetCampaignArchives renders the public campaign archives page.
-func handleGetCampaignArchives(c echo.Context) error {
-	var (
-		app = c.Get("app").(*App)
-	)
-
+// GetCampaignArchives renders the public campaign archives page.
+func (h *Handlers) GetCampaignArchives(c echo.Context) error {
 	// Get archives from the DB.
-	pg := app.paginator.NewFromURL(c.Request().URL.Query())
-	camps, total, err := getCampaignArchives(pg.Offset, pg.Limit, false, app)
+	pg := h.app.paginator.NewFromURL(c.Request().URL.Query())
+	camps, total, err := h.getCampaignArchives(pg.Offset, pg.Limit, false)
 	if err != nil {
 		return err
 	}
@@ -53,19 +49,15 @@ func handleGetCampaignArchives(c echo.Context) error {
 	return c.JSON(200, okResp{out})
 }
 
-// handleGetCampaignArchivesFeed renders the public campaign archives RSS feed.
-func handleGetCampaignArchivesFeed(c echo.Context) error {
+// GetCampaignArchivesFeed renders the public campaign archives RSS feed.
+func (h *Handlers) GetCampaignArchivesFeed(c echo.Context) error {
 	var (
-		app = c.Get("app").(*App)
-	)
-
-	var (
-		pg              = app.paginator.NewFromURL(c.Request().URL.Query())
-		showFullContent = app.constants.EnablePublicArchiveRSSContent
+		pg              = h.app.paginator.NewFromURL(c.Request().URL.Query())
+		showFullContent = h.app.constants.EnablePublicArchiveRSSContent
 	)
 
 	// Get archives from the DB.
-	camps, _, err := getCampaignArchives(pg.Offset, pg.Limit, showFullContent, app)
+	camps, _, err := h.getCampaignArchives(pg.Offset, pg.Limit, showFullContent)
 	if err != nil {
 		return err
 	}
@@ -89,35 +81,31 @@ func handleGetCampaignArchivesFeed(c echo.Context) error {
 
 	// Generate the feed.
 	feed := &feeds.Feed{
-		Title:       app.constants.SiteName,
-		Link:        &feeds.Link{Href: app.constants.RootURL},
-		Description: app.i18n.T("public.archiveTitle"),
+		Title:       h.app.constants.SiteName,
+		Link:        &feeds.Link{Href: h.app.constants.RootURL},
+		Description: h.app.i18n.T("public.archiveTitle"),
 		Items:       out,
 	}
 
 	if err := feed.WriteRss(c.Response().Writer); err != nil {
-		app.log.Printf("error generating archive RSS feed: %v", err)
-		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("public.errorProcessingRequest"))
+		h.app.log.Printf("error generating archive RSS feed: %v", err)
+		return echo.NewHTTPError(http.StatusBadRequest, h.app.i18n.T("public.errorProcessingRequest"))
 	}
 
 	return nil
 }
 
-// handleCampaignArchivesPage renders the public campaign archives page.
-func handleCampaignArchivesPage(c echo.Context) error {
-	var (
-		app = c.Get("app").(*App)
-	)
-
+// CampaignArchivesPage renders the public campaign archives page.
+func (h *Handlers) CampaignArchivesPage(c echo.Context) error {
 	// Get archives from the DB.
-	pg := app.paginator.NewFromURL(c.Request().URL.Query())
-	out, total, err := getCampaignArchives(pg.Offset, pg.Limit, false, app)
+	pg := h.app.paginator.NewFromURL(c.Request().URL.Query())
+	out, total, err := h.getCampaignArchives(pg.Offset, pg.Limit, false)
 	if err != nil {
 		return err
 	}
 	pg.SetTotal(total)
 
-	title := app.i18n.T("public.archiveTitle")
+	title := h.app.i18n.T("public.archiveTitle")
 	return c.Render(http.StatusOK, "archive", struct {
 		Title       string
 		Description string
@@ -127,12 +115,8 @@ func handleCampaignArchivesPage(c echo.Context) error {
 	}{title, title, out, pg.TotalPages, template.HTML(pg.HTML("?page=%d"))})
 }
 
-// handleCampaignArchivePage renders the public campaign archives page.
-func handleCampaignArchivePage(c echo.Context) error {
-	var (
-		app = c.Get("app").(*App)
-	)
-
+// CampaignArchivePage renders the public campaign archives page.
+func (h *Handlers) CampaignArchivePage(c echo.Context) error {
 	// ID can be the UUID or slug.
 	var (
 		idStr      = c.Param("id")
@@ -145,7 +129,7 @@ func handleCampaignArchivePage(c echo.Context) error {
 	}
 
 	// Get the campaign from the DB.
-	pubCamp, err := app.core.GetArchivedCampaign(0, uuid, slug)
+	pubCamp, err := h.app.core.GetArchivedCampaign(0, uuid, slug)
 	if err != nil || pubCamp.Type != models.CampaignTypeRegular {
 		notFound := false
 
@@ -162,48 +146,44 @@ func handleCampaignArchivePage(c echo.Context) error {
 		// 404.
 		if notFound {
 			return c.Render(http.StatusNotFound, tplMessage,
-				makeMsgTpl(app.i18n.T("public.notFoundTitle"), "", app.i18n.T("public.campaignNotFound")))
+				makeMsgTpl(h.app.i18n.T("public.notFoundTitle"), "", h.app.i18n.T("public.campaignNotFound")))
 		}
 
 		// Some other internal error.
 		return c.Render(http.StatusInternalServerError, tplMessage,
-			makeMsgTpl(app.i18n.T("public.errorTitle"), "", app.i18n.Ts("public.errorFetchingCampaign")))
+			makeMsgTpl(h.app.i18n.T("public.errorTitle"), "", h.app.i18n.Ts("public.errorFetchingCampaign")))
 	}
 
 	// "Compile" the campaign template with appropriate data.
-	out, err := compileArchiveCampaigns([]models.Campaign{pubCamp}, app)
+	out, err := h.compileArchiveCampaigns([]models.Campaign{pubCamp})
 	if err != nil {
 		return c.Render(http.StatusInternalServerError, tplMessage,
-			makeMsgTpl(app.i18n.T("public.errorTitle"), "", app.i18n.Ts("public.errorFetchingCampaign")))
+			makeMsgTpl(h.app.i18n.T("public.errorTitle"), "", h.app.i18n.Ts("public.errorFetchingCampaign")))
 	}
 
 	// Render the campaign body.
 	camp := out[0].Campaign
-	msg, err := app.manager.NewCampaignMessage(camp, out[0].Subscriber)
+	msg, err := h.app.manager.NewCampaignMessage(camp, out[0].Subscriber)
 	if err != nil {
-		app.log.Printf("error rendering campaign: %v", err)
+		h.app.log.Printf("error rendering campaign: %v", err)
 		return c.Render(http.StatusInternalServerError, tplMessage,
-			makeMsgTpl(app.i18n.T("public.errorTitle"), "", app.i18n.Ts("public.errorFetchingCampaign")))
+			makeMsgTpl(h.app.i18n.T("public.errorTitle"), "", h.app.i18n.Ts("public.errorFetchingCampaign")))
 	}
 
 	return c.HTML(http.StatusOK, string(msg.Body()))
 }
 
-// handleCampaignArchivePageLatest renders the latest public campaign.
-func handleCampaignArchivePageLatest(c echo.Context) error {
-	var (
-		app = c.Get("app").(*App)
-	)
-
+// CampaignArchivePageLatest renders the latest public campaign.
+func (h *Handlers) CampaignArchivePageLatest(c echo.Context) error {
 	// Get the latest campaign from the DB.
-	camps, _, err := getCampaignArchives(0, 1, true, app)
+	camps, _, err := h.getCampaignArchives(0, 1, true)
 	if err != nil {
 		return err
 	}
 
 	if len(camps) == 0 {
 		return c.Render(http.StatusNotFound, tplMessage,
-			makeMsgTpl(app.i18n.T("public.notFoundTitle"), "", app.i18n.T("public.campaignNotFound")))
+			makeMsgTpl(h.app.i18n.T("public.notFoundTitle"), "", h.app.i18n.T("public.campaignNotFound")))
 	}
 	camp := camps[0]
 
@@ -211,13 +191,13 @@ func handleCampaignArchivePageLatest(c echo.Context) error {
 }
 
 // getCampaignArchives fetches the public campaign archives from the DB.
-func getCampaignArchives(offset, limit int, renderBody bool, app *App) ([]campArchive, int, error) {
-	pubCamps, total, err := app.core.GetArchivedCampaigns(offset, limit)
+func (h *Handlers) getCampaignArchives(offset, limit int, renderBody bool) ([]campArchive, int, error) {
+	pubCamps, total, err := h.app.core.GetArchivedCampaigns(offset, limit)
 	if err != nil {
-		return []campArchive{}, total, echo.NewHTTPError(http.StatusInternalServerError, app.i18n.T("public.errorFetchingCampaign"))
+		return []campArchive{}, total, echo.NewHTTPError(http.StatusInternalServerError, h.app.i18n.T("public.errorFetchingCampaign"))
 	}
 
-	msgs, err := compileArchiveCampaigns(pubCamps, app)
+	msgs, err := h.compileArchiveCampaigns(pubCamps)
 	if err != nil {
 		return []campArchive{}, total, err
 	}
@@ -235,14 +215,14 @@ func getCampaignArchives(offset, limit int, renderBody bool, app *App) ([]campAr
 
 		// The campaign may have a custom slug.
 		if camp.ArchiveSlug.Valid {
-			archive.URL, _ = url.JoinPath(app.constants.ArchiveURL, camp.ArchiveSlug.String)
+			archive.URL, _ = url.JoinPath(h.app.constants.ArchiveURL, camp.ArchiveSlug.String)
 		} else {
-			archive.URL, _ = url.JoinPath(app.constants.ArchiveURL, camp.UUID)
+			archive.URL, _ = url.JoinPath(h.app.constants.ArchiveURL, camp.UUID)
 		}
 
 		// Render the full template body if requested.
 		if renderBody {
-			msg, err := app.manager.NewCampaignMessage(camp, m.Subscriber)
+			msg, err := h.app.manager.NewCampaignMessage(camp, m.Subscriber)
 			if err != nil {
 				return []campArchive{}, total, err
 			}
@@ -256,7 +236,7 @@ func getCampaignArchives(offset, limit int, renderBody bool, app *App) ([]campAr
 }
 
 // compileArchiveCampaigns compiles the campaign template with the subscriber data.
-func compileArchiveCampaigns(camps []models.Campaign, app *App) ([]manager.CampaignMessage, error) {
+func (h *Handlers) compileArchiveCampaigns(camps []models.Campaign) ([]manager.CampaignMessage, error) {
 
 	var (
 		b   = bytes.Buffer{}
@@ -264,16 +244,16 @@ func compileArchiveCampaigns(camps []models.Campaign, app *App) ([]manager.Campa
 	)
 	for _, c := range camps {
 		camp := c
-		if err := camp.CompileTemplate(app.manager.TemplateFuncs(&camp)); err != nil {
-			app.log.Printf("error compiling template: %v", err)
-			return nil, echo.NewHTTPError(http.StatusInternalServerError, app.i18n.T("public.errorFetchingCampaign"))
+		if err := camp.CompileTemplate(h.app.manager.TemplateFuncs(&camp)); err != nil {
+			h.app.log.Printf("error compiling template: %v", err)
+			return nil, echo.NewHTTPError(http.StatusInternalServerError, h.app.i18n.T("public.errorFetchingCampaign"))
 		}
 
 		// Load the dummy subscriber meta.
 		var sub models.Subscriber
 		if err := json.Unmarshal([]byte(camp.ArchiveMeta), &sub); err != nil {
-			app.log.Printf("error unmarshalling campaign archive meta: %v", err)
-			return nil, echo.NewHTTPError(http.StatusInternalServerError, app.i18n.T("public.errorFetchingCampaign"))
+			h.app.log.Printf("error unmarshalling campaign archive meta: %v", err)
+			return nil, echo.NewHTTPError(http.StatusInternalServerError, h.app.i18n.T("public.errorFetchingCampaign"))
 		}
 
 		m := manager.CampaignMessage{
