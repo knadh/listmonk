@@ -14,6 +14,7 @@ import (
 	"time"
 
 	"github.com/knadh/listmonk/internal/auth"
+	"github.com/knadh/listmonk/internal/notifs"
 	"github.com/knadh/listmonk/models"
 	"github.com/labstack/echo/v4"
 	"github.com/lib/pq"
@@ -639,7 +640,7 @@ func (a *App) makeOptinCampaignMessage(o campReq) (campReq, error) {
 	// Prepare sample opt-in message for the campaign.
 	var b bytes.Buffer
 
-	if err := a.notifs.Tpls.ExecuteTemplate(&b, "optin-campaign", struct {
+	if err := notifs.Tpls.ExecuteTemplate(&b, "optin-campaign", struct {
 		Lists        []models.List
 		OptinURLAttr template.HTMLAttr
 	}{lists, optinURLAttr}); err != nil {

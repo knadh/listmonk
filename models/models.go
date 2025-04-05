@@ -119,9 +119,6 @@ var regTplFuncs = []regTplFunc{
 	},
 }
 
-// NotifCallback is a callback function that triggers a notification.
-type NotifCallback func(subject string, data any) error
-
 // PageResults is a generic HTTP response container for paginated results of list of items.
 type PageResults struct {
 	Results any `json:"results"`

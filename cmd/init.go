@@ -484,11 +484,7 @@ func initI18n(lang string, fs stuffbin.FileSystem) *i18n.I18n {
 }
 
 // initCampaignManager initializes the campaign manager.
-func initCampaignManager(q *models.Queries, cs *constants, fnNotif notifs.FuncNotifSystem, co *core.Core, md media.Store, i *i18n.I18n) *manager.Manager {
-	campNotifCB := func(subject string, data any) error {
-		return fnNotif(subject, notifTplCampaign, data, nil)
-	}
-
+func initCampaignManager(q *models.Queries, cs *constants, co *core.Core, md media.Store, i *i18n.I18n) *manager.Manager {
 	if ko.Bool("passive") {
 		lo.Println("running in passive mode. won't process campaigns.")
 	}
@@ -513,7 +509,7 @@ func initCampaignManager(q *models.Queries, cs *constants, fnNotif notifs.FuncNo
 		SlidingWindowRate:     ko.Int("app.message_sliding_window_rate"),
 		ScanInterval:          time.Second * 5,
 		ScanCampaigns:         !ko.Bool("passive"),
-	}, newManagerStore(q, co, md), campNotifCB, i, lo)
+	}, newManagerStore(q, co, md), i, lo)
 }
 
 // initTxTemplates initializes and compiles the transactional templates and caches them in-memory.
@@ -545,12 +541,12 @@ func initImporter(q *models.Queries, db *sqlx.DB, core *core.Core, app *App) *su
 
 			// Hook for triggering admin notifications and refreshing stats materialized
 			// views after a successful import.
-			NotifCB: func(subject string, data any) error {
+			PostCB: func(subject string, data any) error {
 				// Refresh cached subscriber counts and stats.
 				core.RefreshMatViews(true)
 
 				// Send admin notification.
-				app.notifs.NotifySystem(subject, notifTplImport, data, nil)
+				notifs.NotifySystem(subject, notifs.TplImport, data, nil)
 				return nil
 			},
 		}, db.DB, app.i18n)
@@ -677,7 +673,7 @@ func initMediaStore(ko *koanf.Koanf) media.Store {
 }
 
 // initNotifs initializes the notifier with the system e-mail templates.
-func initNotifs(fs stuffbin.FileSystem, i *i18n.I18n, pushFn notifs.FuncPush, cs *constants, ko *koanf.Koanf) *notifs.Notifs {
+func initNotifs(fs stuffbin.FileSystem, i *i18n.I18n, em *email.Emailer, cs *constants, ko *koanf.Koanf) {
 	tpls, err := stuffbin.ParseTemplatesGlob(initTplFuncs(i, cs), fs, "/static/email-templates/*.html")
 	if err != nil {
 		lo.Fatalf("error parsing e-mail notif templates: %v", err)
@@ -701,11 +697,11 @@ func initNotifs(fs stuffbin.FileSystem, i *i18n.I18n, pushFn notifs.FuncPush, cs
 		lo.Println("system e-mail templates are plaintext")
 	}
 
-	return notifs.NewNotifs(notifs.Opt{
+	notifs.Initialize(notifs.Opt{
 		FromEmail:    ko.MustString("app.from_email"),
 		SystemEmails: ko.MustStrings("app.notify_emails"),
 		ContentType:  contentType,
-	}, tpls, pushFn, lo)
+	}, tpls, em, lo)
 }
 
 // initBounceManager initializes the bounce manager that scans mailboxes and listens to webhooks
