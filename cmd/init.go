@@ -8,6 +8,8 @@ import (
 	"errors"
 	"fmt"
 	"html/template"
+	"log"
+	"maps"
 	"net/http"
 	"os"
 	"path"
@@ -23,7 +25,7 @@ import (
 	"github.com/jmoiron/sqlx/types"
 	"github.com/knadh/goyesql/v2"
 	goyesqlx "github.com/knadh/goyesql/v2/sqlx"
-	"github.com/knadh/koanf/maps"
+	koanfmaps "github.com/knadh/koanf/maps"
 	"github.com/knadh/koanf/parsers/toml"
 	"github.com/knadh/koanf/providers/confmap"
 	"github.com/knadh/koanf/providers/file"
@@ -130,7 +132,8 @@ type notifTpls struct {
 	contentType string
 }
 
-func initFlags() {
+// initFlags initializes the commandline flags into the Koanf instance.
+func initFlags(ko *koanf.Koanf) {
 	f := flag.NewFlagSet("config", flag.ContinueOnError)
 	f.Usage = func() {
 		// Register --help handler.
@@ -378,7 +381,7 @@ func initSettings(query string, db *sqlx.DB, ko *koanf.Koanf) {
 
 	// Setting keys are dot separated, eg: app.favicon_url. Unflatten them into
 	// nested maps {app: {favicon_url}}.
-	var out map[string]interface{}
+	var out map[string]any
 	if err := json.Unmarshal(s, &out); err != nil {
 		lo.Fatalf("error unmarshalling settings from DB: %v", err)
 	}
@@ -387,7 +390,8 @@ func initSettings(query string, db *sqlx.DB, ko *koanf.Koanf) {
 	}
 }
 
-func initConstants() *constants {
+// initConstants initializes the app's global constants from the given koanf instance.
+func initConstants(ko *koanf.Koanf) *constants {
 	// Read constants.
 	var c constants
 	if err := ko.Unmarshal("app", &c); err != nil {
@@ -407,7 +411,7 @@ func initConstants() *constants {
 	c.RootURL = strings.TrimRight(c.RootURL, "/")
 	c.LoginURL = path.Join(uriAdmin, "/login")
 	c.Lang = ko.String("app.lang")
-	c.Privacy.Exportable = maps.StringSliceToLookupMap(ko.Strings("privacy.exportable"))
+	c.Privacy.Exportable = koanfmaps.StringSliceToLookupMap(ko.Strings("privacy.exportable"))
 	c.MediaUpload.Provider = ko.String("upload.provider")
 	c.MediaUpload.Extensions = ko.Strings("upload.extensions")
 	c.Privacy.DomainBlocklist = ko.Strings("privacy.domain_blocklist")
@@ -485,7 +489,7 @@ func initI18n(lang string, fs stuffbin.FileSystem) *i18n.I18n {
 
 // initCampaignManager initializes the campaign manager.
 func initCampaignManager(q *models.Queries, cs *constants, app *App) *manager.Manager {
-	campNotifCB := func(subject string, data interface{}) error {
+	campNotifCB := func(subject string, data any) error {
 		return app.sendNotification(cs.NotifyEmails, subject, notifTplCampaign, data, nil)
 	}
 
@@ -516,6 +520,7 @@ func initCampaignManager(q *models.Queries, cs *constants, app *App) *manager.Ma
 	}, newManagerStore(q, app.core, app.media), campNotifCB, app.i18n, lo)
 }
 
+// initTxTemplates initializes and compiles the transactional templates and caches them in-memory.
 func initTxTemplates(m *manager.Manager, app *App) {
 	tpls, err := app.core.GetTemplates(models.TemplateTypeTx, false)
 	if err != nil {
@@ -541,10 +546,14 @@ func initImporter(q *models.Queries, db *sqlx.DB, core *core.Core, app *App) *su
 			UpsertStmt:         q.UpsertSubscriber.Stmt,
 			BlocklistStmt:      q.UpsertBlocklistSubscriber.Stmt,
 			UpdateListDateStmt: q.UpdateListsDate.Stmt,
-			NotifCB: func(subject string, data interface{}) error {
+
+			// Hook for triggering admin notifications and refreshing stats materialized
+			// views after a successful import.
+			NotifCB: func(subject string, data any) error {
 				// Refresh cached subscriber counts and stats.
 				core.RefreshMatViews(true)
 
+				// Send admin notification.
 				app.sendNotification(app.constants.NotifyEmails, subject, notifTplImport, data, nil)
 				return nil
 			},
@@ -603,7 +612,7 @@ func initSMTPMessengers() []manager.Messenger {
 
 // initPostbackMessengers initializes and returns all the enabled
 // HTTP postback messenger backends.
-func initPostbackMessengers() []manager.Messenger {
+func initPostbackMessengers(ko *koanf.Koanf) []manager.Messenger {
 	items := ko.Slices("messengers")
 	if len(items) == 0 {
 		return nil
@@ -638,7 +647,7 @@ func initPostbackMessengers() []manager.Messenger {
 }
 
 // initMediaStore initializes Upload manager with a custom backend.
-func initMediaStore() media.Store {
+func initMediaStore(ko *koanf.Koanf) media.Store {
 	switch provider := ko.String("upload.provider"); provider {
 	case "s3":
 		var o s3.Opt
@@ -708,7 +717,7 @@ func initNotifTemplates(fs stuffbin.FileSystem, i *i18n.I18n, cs *constants) *no
 
 // initBounceManager initializes the bounce manager that scans mailboxes and listens to webhooks
 // for incoming bounce events.
-func initBounceManager(app *App) *bounce.Manager {
+func initBounceManager(cb func(models.Bounce) error, stmt *sqlx.Stmt, lo *log.Logger, ko *koanf.Koanf) *bounce.Manager {
 	opt := bounce.Opt{
 		WebhooksEnabled: ko.Bool("bounce.webhooks_enabled"),
 		SESEnabled:      ko.Bool("bounce.ses_enabled"),
@@ -730,7 +739,7 @@ func initBounceManager(app *App) *bounce.Manager {
 			ko.Bool("bounce.forwardemail.enabled"),
 			ko.String("bounce.forwardemail.key"),
 		},
-		RecordBounceCB: app.core.RecordBounce,
+		RecordBounceCB: cb,
 	}
 
 	// For now, only one mailbox is supported.
@@ -750,9 +759,8 @@ func initBounceManager(app *App) *bounce.Manager {
 		break
 	}
 
-	b, err := bounce.New(opt, &bounce.Queries{
-		RecordQuery: app.queries.RecordBounce,
-	}, app.log)
+	// Initialize the bounce manager.
+	b, err := bounce.New(opt, &bounce.Queries{RecordQuery: stmt}, lo)
 	if err != nil {
 		lo.Fatalf("error initializing bounce manager: %v", err)
 	}
@@ -760,6 +768,7 @@ func initBounceManager(app *App) *bounce.Manager {
 	return b
 }
 
+// initAbout initializes the app's /about API endpoint with the app and system info.
 func initAbout(q *models.Queries, db *sqlx.DB) about {
 	var (
 		mem runtime.MemStats
@@ -857,11 +866,14 @@ func initHTTPServer(app *App) *echo.Echo {
 	return srv
 }
 
+// initCaptcha initializes the captcha service.
 func initCaptcha() *captcha.Captcha {
 	return captcha.New(captcha.Opt{
 		CaptchaSecret: ko.String("security.captcha_secret"),
 	})
 }
+
+// initCron initializes the cron job for refreshing slow query cache.
 
 func initCron(core *core.Core) {
 	c := cron.New()
@@ -879,6 +891,7 @@ func initCron(core *core.Core) {
 	lo.Printf("IMPORTANT: database slow query caching is enabled. Aggregate numbers and stats will not be realtime. Next refresh at: %v", c.Entries()[0].Next)
 }
 
+// awaitReload waits for a SIGHUP signal to reload the app. Every setting change on the UI causes a reload.
 func awaitReload(sigChan chan os.Signal, closerWait chan bool, closer func()) chan bool {
 	// The blocking signal handler that main() waits on.
 	out := make(chan bool)
@@ -911,6 +924,7 @@ func awaitReload(sigChan chan os.Signal, closerWait chan bool, closer func()) ch
 	return out
 }
 
+// joinFSPaths joins the given paths with the root path and returns the full paths.
 func joinFSPaths(root string, paths []string) []string {
 	out := make([]string, 0, len(paths))
 	for _, p := range paths {
@@ -923,6 +937,8 @@ func joinFSPaths(root string, paths []string) []string {
 	return out
 }
 
+// initTplFuncs returns a generic template func map with custom template
+// functions and sprig template functions.
 func initTplFuncs(i *i18n.I18n, cs *constants) template.FuncMap {
 	funcs := template.FuncMap{
 		"RootURL": func() string {
@@ -945,16 +961,17 @@ func initTplFuncs(i *i18n.I18n, cs *constants) template.FuncMap {
 		},
 	}
 
-	for k, v := range sprig.GenericFuncMap() {
-		funcs[k] = v
-	}
+	// Copy spring functions.
+	maps.Copy(funcs, sprig.GenericFuncMap())
 
 	return funcs
 }
 
-func initAuth(db *sql.DB, ko *koanf.Koanf, co *core.Core) (bool, *auth.Auth) {
+// initAuth initializes the auth module with the given DB connection and
+func initAuth(co *core.Core, db *sql.DB, ko *koanf.Koanf) (bool, *auth.Auth) {
 	var oidcCfg auth.OIDCConfig
 
+	// If OIDC is enabled, set up the OIDC config.
 	if ko.Bool("security.oidc.enabled") {
 		oidcCfg = auth.OIDCConfig{
 			Enabled:      true,
@@ -965,14 +982,14 @@ func initAuth(db *sql.DB, ko *koanf.Koanf, co *core.Core) (bool, *auth.Auth) {
 		}
 	}
 
-	// Session manager callbacks for getting and setting cookies.
+	// Setup the sessio manager callbacks for getting and setting cookies.
 	cb := &auth.Callbacks{
-		GetCookie: func(name string, r interface{}) (*http.Cookie, error) {
+		GetCookie: func(name string, r any) (*http.Cookie, error) {
 			c := r.(echo.Context)
 			cookie, err := c.Cookie(name)
 			return cookie, err
 		},
-		SetCookie: func(cookie *http.Cookie, w interface{}) error {
+		SetCookie: func(cookie *http.Cookie, w any) error {
 			c := w.(echo.Context)
 			c.SetCookie(cookie)
 			return nil
@@ -982,9 +999,8 @@ func initAuth(db *sql.DB, ko *koanf.Koanf, co *core.Core) (bool, *auth.Auth) {
 		},
 	}
 
-	a, err := auth.New(auth.Config{
-		OIDC: oidcCfg,
-	}, db, cb, lo)
+	// Initiaize the auth module.
+	a, err := auth.New(auth.Config{OIDC: oidcCfg}, db, cb, lo)
 	if err != nil {
 		lo.Fatalf("error initializing auth: %v", err)
 	}

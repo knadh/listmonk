@@ -12,8 +12,8 @@ import (
 
 // I18n offers translation functions over a language map.
 type I18n struct {
-	code    string `json:"code"`
-	name    string `json:"name"`
+	Code    string `json:"code"`
+	Name    string `json:"name"`
 	langMap map[string]string
 }
 
@@ -38,8 +38,8 @@ func New(b []byte) (*I18n, error) {
 
 	return &I18n{
 		langMap: l,
-		code:    code,
-		name:    name,
+		Code:    code,
+		Name:    name,
 	}, nil
 }
 
@@ -56,16 +56,6 @@ func (i *I18n) Load(b []byte) error {
 	}
 
 	return nil
-}
-
-// Name returns the canonical name of the language.
-func (i *I18n) Name() string {
-	return i.name
-}
-
-// Code returns the ISO code of the language.
-func (i *I18n) Code() string {
-	return i.code
 }
 
 // JSON returns the languagemap as raw JSON.

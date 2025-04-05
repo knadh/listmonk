@@ -14,12 +14,12 @@ import (
 )
 
 type BounceDetails struct {
-	Action   string      `json:"action"`
-	Message  string      `json:"message"`
-	Category string      `json:"category"`
-	Code     int         `json:"code"`
-	Status   interface{} `json:"status"`
-	Line     int         `json:"line"`
+	Action   string `json:"action"`
+	Message  string `json:"message"`
+	Category string `json:"category"`
+	Code     int    `json:"code"`
+	Status   any    `json:"status"`
+	Line     int    `json:"line"`
 }
 
 type forwardemailNotif struct {

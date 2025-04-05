@@ -16,22 +16,13 @@ func handleGetLists(c echo.Context) error {
 		app  = c.Get("app").(*App)
 		user = auth.GetUser(c)
 		pg   = app.paginator.NewFromURL(c.Request().URL.Query())
-
-		query      = strings.TrimSpace(c.FormValue("query"))
-		tags       = c.QueryParams()["tag"]
-		orderBy    = c.FormValue("order_by")
-		typ        = c.FormValue("type")
-		optin      = c.FormValue("optin")
-		order      = c.FormValue("order")
-		minimal, _ = strconv.ParseBool(c.FormValue("minimal"))
-
-		out models.PageResults
 	)
 
 	// Get the list IDs (or blanket permission) the user has access to.
 	hasAllPerm, permittedIDs := user.GetPermittedLists(auth.PermTypeGet)
 
 	// Minimal query simply returns the list of all lists without JOIN subscriber counts. This is fast.
+	minimal, _ := strconv.ParseBool(c.FormValue("minimal"))
 	if minimal {
 		res, err := app.core.GetLists("", hasAllPerm, permittedIDs)
 		if err != nil {
@@ -42,25 +33,38 @@ func handleGetLists(c echo.Context) error {
 		}
 
 		// Meta.
-		out.Results = res
-		out.Total = len(res)
-		out.Page = 1
-		out.PerPage = out.Total
+		total := len(res)
+		out := models.PageResults{
+			Results: res,
+			Total:   total,
+			Page:    1,
+			PerPage: total,
+		}
 
 		return c.JSON(http.StatusOK, okResp{out})
 	}
 
 	// Full list query.
+	var (
+		query   = strings.TrimSpace(c.FormValue("query"))
+		tags    = c.QueryParams()["tag"]
+		orderBy = c.FormValue("order_by")
+		typ     = c.FormValue("type")
+		optin   = c.FormValue("optin")
+		order   = c.FormValue("order")
+	)
 	res, total, err := app.core.QueryLists(query, typ, optin, tags, orderBy, order, hasAllPerm, permittedIDs, pg.Offset, pg.Limit)
 	if err != nil {
 		return err
 	}
 
-	out.Query = query
-	out.Results = res
-	out.Total = total
-	out.Page = pg.Page
-	out.PerPage = pg.PerPage
+	out := models.PageResults{
+		Query:   query,
+		Results: res,
+		Total:   total,
+		Page:    pg.Page,
+		PerPage: pg.PerPage,
+	}
 
 	return c.JSON(http.StatusOK, okResp{out})
 }
@@ -71,10 +75,9 @@ func handleGetList(c echo.Context) error {
 	var (
 		app  = c.Get("app").(*App)
 		user = auth.GetUser(c)
-
-		id, _ = strconv.Atoi(c.Param("id"))
 	)
 
+	id, _ := strconv.Atoi(c.Param("id"))
 	if id < 1 {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidID"))
 	}
@@ -97,9 +100,9 @@ func handleGetList(c echo.Context) error {
 func handleCreateList(c echo.Context) error {
 	var (
 		app = c.Get("app").(*App)
-		l   = models.List{}
 	)
 
+	l := models.List{}
 	if err := c.Bind(&l); err != nil {
 		return err
 	}
@@ -123,10 +126,9 @@ func handleUpdateList(c echo.Context) error {
 	var (
 		app  = c.Get("app").(*App)
 		user = auth.GetUser(c)
-
-		id, _ = strconv.Atoi(c.Param("id"))
 	)
 
+	id, _ := strconv.Atoi(c.Param("id"))
 	if id < 1 {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidID"))
 	}
@@ -147,6 +149,7 @@ func handleUpdateList(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("lists.invalidName"))
 	}
 
+	// Update the list in the DB.
 	out, err := app.core.UpdateList(id, l)
 	if err != nil {
 		return err
@@ -161,11 +164,12 @@ func handleDeleteLists(c echo.Context) error {
 	var (
 		app  = c.Get("app").(*App)
 		user = auth.GetUser(c)
+	)
 
+	var (
 		id, _ = strconv.ParseInt(c.Param("id"), 10, 64)
 		ids   []int
 	)
-
 	if id < 1 && len(ids) == 0 {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidID"))
 	}

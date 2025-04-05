@@ -15,7 +15,9 @@ import (
 // handleImportSubscribers handles the uploading and bulk importing of
 // a ZIP file of one or more CSV files.
 func handleImportSubscribers(c echo.Context) error {
-	app := c.Get("app").(*App)
+	var (
+		app = c.Get("app").(*App)
+	)
 
 	// Is an import already running?
 	if app.importer.GetStats().Status == subimporter.StatusImporting {
@@ -54,6 +56,7 @@ func handleImportSubscribers(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("import.invalidDelim"))
 	}
 
+	// Open the HTTP file.
 	file, err := c.FormFile("file")
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest,
@@ -66,6 +69,7 @@ func handleImportSubscribers(c echo.Context) error {
 	}
 	defer src.Close()
 
+	// Copy it to a temp location.
 	out, err := os.CreateTemp("", "listmonk")
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError,
@@ -80,15 +84,15 @@ func handleImportSubscribers(c echo.Context) error {
 
 	// Start the importer session.
 	opt.Filename = file.Filename
-	impSess, err := app.importer.NewSession(opt)
+	sess, err := app.importer.NewSession(opt)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			app.i18n.Ts("import.errorStarting", "error", err.Error()))
 	}
-	go impSess.Start()
+	go sess.Start()
 
 	if strings.HasSuffix(strings.ToLower(file.Filename), ".csv") {
-		go impSess.LoadCSV(out.Name(), rune(opt.Delim[0]))
+		go sess.LoadCSV(out.Name(), rune(opt.Delim[0]))
 	} else {
 		// Only 1 CSV from the ZIP is considered. If multiple files have
 		// to be processed, counting the net number of lines (to track progress),
@@ -96,12 +100,13 @@ func handleImportSubscribers(c echo.Context) error {
 		// multiple files becomes complex. Instead, it's just easier for the
 		// end user to concat multiple CSVs (if there are multiple in the first)
 		// place and upload as one in the first place.
-		dir, files, err := impSess.ExtractZIP(out.Name(), 1)
+		dir, files, err := sess.ExtractZIP(out.Name(), 1)
 		if err != nil {
 			return echo.NewHTTPError(http.StatusInternalServerError,
 				app.i18n.Ts("import.errorProcessingZIP", "error", err.Error()))
 		}
-		go impSess.LoadCSV(dir+"/"+files[0], rune(opt.Delim[0]))
+
+		go sess.LoadCSV(dir+"/"+files[0], rune(opt.Delim[0]))
 	}
 
 	return c.JSON(http.StatusOK, okResp{app.importer.GetStats()})
@@ -111,14 +116,18 @@ func handleImportSubscribers(c echo.Context) error {
 func handleGetImportSubscribers(c echo.Context) error {
 	var (
 		app = c.Get("app").(*App)
-		s   = app.importer.GetStats()
 	)
+
+	s := app.importer.GetStats()
 	return c.JSON(http.StatusOK, okResp{s})
 }
 
 // handleGetImportSubscriberStats returns import statistics.
 func handleGetImportSubscriberStats(c echo.Context) error {
-	app := c.Get("app").(*App)
+	var (
+		app = c.Get("app").(*App)
+	)
+
 	return c.JSON(http.StatusOK, okResp{string(app.importer.GetLogs())})
 }
 
@@ -126,7 +135,10 @@ func handleGetImportSubscriberStats(c echo.Context) error {
 // If there's an ongoing import, it'll be stopped, and if an import
 // is finished, it's state is cleared.
 func handleStopImportSubscribers(c echo.Context) error {
-	app := c.Get("app").(*App)
+	var (
+		app = c.Get("app").(*App)
+	)
+
 	app.importer.Stop()
 	return c.JSON(http.StatusOK, okResp{app.importer.GetStats()})
 }

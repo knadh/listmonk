@@ -77,8 +77,7 @@ var (
 	// Buffered log writer for storing N lines of log entries for the UI.
 	evStream = events.New()
 	bufLog   = buflog.New(5000)
-	lo       = log.New(io.MultiWriter(os.Stdout, bufLog, evStream.ErrWriter()), "",
-		log.Ldate|log.Ltime|log.Lmicroseconds|log.Lshortfile)
+	lo       = log.New(io.MultiWriter(os.Stdout, bufLog, evStream.ErrWriter()), "", log.Ldate|log.Ltime|log.Lmicroseconds|log.Lshortfile)
 
 	ko      = koanf.New(".")
 	fs      stuffbin.FileSystem
@@ -97,7 +96,8 @@ var (
 )
 
 func init() {
-	initFlags()
+	// Initialize commandline flags.
+	initFlags(ko)
 
 	// Display version.
 	if ko.Bool("version") {
@@ -174,8 +174,8 @@ func main() {
 	app := &App{
 		fs:         fs,
 		db:         db,
-		constants:  initConstants(),
-		media:      initMediaStore(),
+		constants:  initConstants(ko),
+		media:      initMediaStore(ko),
 		messengers: []manager.Messenger{},
 		log:        lo,
 		bufLog:     bufLog,
@@ -205,29 +205,35 @@ func main() {
 		Log:     lo,
 	}
 
+	// Load bounce config.
 	if err := ko.Unmarshal("bounce.actions", &cOpt.Constants.BounceActions); err != nil {
 		lo.Fatalf("error unmarshalling bounce config: %v", err)
 	}
 
+	// Initialize the CRUD core.
 	app.core = core.New(cOpt, &core.Hooks{
-		SendOptinConfirmation: sendOptinConfirmationHook(app),
+		SendOptinConfirmation: optinConfirmHook(app),
 	})
 
 	app.queries = queries
 	app.manager = initCampaignManager(app.queries, app.constants, app)
 	app.importer = initImporter(app.queries, db, app.core, app)
 
-	hasUsers, auth := initAuth(db.DB, ko, app.core)
+	hasUsers, auth := initAuth(app.core, db.DB, ko)
 	app.auth = auth
+
 	// If there are are no users in the DB who can login, the app has to prompt
 	// for new user setup.
 	app.needsUserSetup = !hasUsers
 
+	// Initialize admin email notification templates.
 	app.notifTpls = initNotifTemplates(fs, app.i18n, app.constants)
 	initTxTemplates(app.manager, app)
 
+	// Initialize the bounce manager that processes bounces from webhooks and
+	// POP3 mailbox scanning.
 	if ko.Bool("bounce.enabled") {
-		app.bounce = initBounceManager(app)
+		app.bounce = initBounceManager(app.core.RecordBounce, app.queries.RecordBounce, lo, ko)
 		go app.bounce.Run()
 	}
 
@@ -240,7 +246,7 @@ func main() {
 	}
 
 	// Initialize any additional postback messengers.
-	app.messengers = append(app.messengers, initPostbackMessengers()...)
+	app.messengers = append(app.messengers, initPostbackMessengers(ko)...)
 
 	// Attach all messengers to the campaign manager.
 	for _, m := range app.messengers {

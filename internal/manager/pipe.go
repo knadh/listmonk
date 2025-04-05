@@ -105,7 +105,7 @@ func (p *pipe) NextSubscribers() (bool, error) {
 
 		// Check if the sliding window is active.
 		if hasSliding {
-			diff := time.Now().Sub(p.m.slidingStart)
+			diff := time.Since(p.m.slidingStart)
 
 			// Window has expired. Reset the clock.
 			if diff >= p.m.cfg.SlidingWindowDuration {
@@ -134,6 +134,8 @@ func (p *pipe) NextSubscribers() (bool, error) {
 	return true, nil
 }
 
+// OnError keeps track of the number of errors that occur while sending messages
+// and pauses the campaign if the error threshold is met.
 func (p *pipe) OnError() {
 	if p.m.cfg.MaxSendErrors < 1 {
 		return
@@ -177,6 +179,8 @@ func (p *pipe) newMessage(s models.Subscriber) (CampaignMessage, error) {
 	return msg, nil
 }
 
+// cleanup finishes the campaign and updates the campaign status in the DB
+// and also triggers a notification to the admin.
 func (p *pipe) cleanup() {
 	defer func() {
 		p.m.pipesMut.Lock()

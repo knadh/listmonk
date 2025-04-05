@@ -29,11 +29,13 @@ type aboutHost struct {
 	Machine  string `json:"arch"`
 	Hostname string `json:"hostname"`
 }
+
 type aboutSystem struct {
 	NumCPU  int    `json:"num_cpu"`
 	AllocMB uint64 `json:"memory_alloc_mb"`
 	OSMB    uint64 `json:"memory_from_os_mb"`
 }
+
 type about struct {
 	Version   string         `json:"version"`
 	Build     string         `json:"build"`
@@ -50,7 +52,9 @@ var (
 
 // handleGetSettings returns settings from the DB.
 func handleGetSettings(c echo.Context) error {
-	app := c.Get("app").(*App)
+	var (
+		app = c.Get("app").(*App)
+	)
 
 	s, err := app.core.GetSettings()
 	if err != nil {
@@ -82,10 +86,10 @@ func handleGetSettings(c echo.Context) error {
 func handleUpdateSettings(c echo.Context) error {
 	var (
 		app = c.Get("app").(*App)
-		set models.Settings
 	)
 
 	// Unmarshal and marshal the fields once to sanitize the settings blob.
+	var set models.Settings
 	if err := c.Bind(&set); err != nil {
 		return err
 	}
@@ -150,6 +154,7 @@ func handleUpdateSettings(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("settings.errorNoSMTP"))
 	}
 
+	// Always remove the trailing slash from the app root URL.
 	set.AppRootURL = strings.TrimRight(set.AppRootURL, "/")
 
 	// Bounce boxes.
@@ -284,13 +289,18 @@ func handleUpdateSettings(c echo.Context) error {
 
 // handleGetLogs returns the log entries stored in the log buffer.
 func handleGetLogs(c echo.Context) error {
-	app := c.Get("app").(*App)
+	var (
+		app = c.Get("app").(*App)
+	)
+
 	return c.JSON(http.StatusOK, okResp{app.bufLog.Lines()})
 }
 
 // handleTestSMTPSettings returns the log entries stored in the log buffer.
 func handleTestSMTPSettings(c echo.Context) error {
-	app := c.Get("app").(*App)
+	var (
+		app = c.Get("app").(*App)
+	)
 
 	// Copy the raw JSON post body.
 	reqBody, err := io.ReadAll(c.Request().Body)
@@ -327,6 +337,7 @@ func handleTestSMTPSettings(c echo.Context) error {
 			app.i18n.Ts("globals.messages.errorCreating", "name", "SMTP", "error", err.Error()))
 	}
 
+	// Render the test email template body.
 	var b bytes.Buffer
 	if err := app.notifTpls.tpls.ExecuteTemplate(&b, "smtp-test", nil); err != nil {
 		app.log.Printf("error compiling notification template '%s': %v", "smtp-test", err)
@@ -349,9 +360,9 @@ func handleTestSMTPSettings(c echo.Context) error {
 func handleGetAboutInfo(c echo.Context) error {
 	var (
 		app = c.Get("app").(*App)
-		mem runtime.MemStats
 	)
 
+	var mem runtime.MemStats
 	runtime.ReadMemStats(&mem)
 
 	out := app.about

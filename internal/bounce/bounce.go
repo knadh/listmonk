@@ -11,13 +11,6 @@ import (
 	"github.com/knadh/listmonk/models"
 )
 
-const (
-	// subID is the identifying subscriber ID header to look for in
-	// bounced e-mails.
-	subID  = "X-Listmonk-Subscriber"
-	campID = "X-Listmonk-Campaign"
-)
-
 // Mailbox represents a POP/IMAP mailbox client that can scan messages and pass
 // them to a given channel.
 type Mailbox interface {
@@ -118,20 +111,13 @@ func (m *Manager) Run() {
 		go m.runMailboxScanner()
 	}
 
-	for {
-		select {
-		case b, ok := <-m.queue:
-			if !ok {
-				return
-			}
+	for b := range m.queue {
+		if b.CreatedAt.IsZero() {
+			b.CreatedAt = time.Now()
+		}
 
-			if b.CreatedAt.IsZero() {
-				b.CreatedAt = time.Now()
-			}
-
-			if err := m.opt.RecordBounceCB(b); err != nil {
-				continue
-			}
+		if err := m.opt.RecordBounceCB(b); err != nil {
+			continue
 		}
 	}
 }
@@ -149,8 +135,6 @@ func (m *Manager) runMailboxScanner() {
 
 // Record records a new bounce event given the subscriber's email or UUID.
 func (m *Manager) Record(b models.Bounce) error {
-	select {
-	case m.queue <- b:
-	}
+	m.queue <- b
 	return nil
 }

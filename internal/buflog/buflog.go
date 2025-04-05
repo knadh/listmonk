@@ -29,13 +29,14 @@ func New(maxLines int) *BufLog {
 // using LIFO.
 func (bu *BufLog) Write(b []byte) (n int, err error) {
 	bu.Lock()
+	defer bu.Unlock()
+
 	if len(bu.lines) >= bu.maxLines {
 		bu.lines[0] = ""
 		bu.lines = bu.lines[1:len(bu.lines)]
 	}
-
 	bu.lines = append(bu.lines, strings.TrimSpace(string(b)))
-	bu.Unlock()
+
 	return len(b), nil
 }
 

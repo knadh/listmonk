@@ -31,9 +31,6 @@ import (
 )
 
 const (
-	// stdInputMaxLen is the maximum allowed length for a standard input field.
-	stdInputMaxLen = 200
-
 	// commitBatchSize is the number of inserts to commit in a single SQL transaction.
 	commitBatchSize = 10000
 )
@@ -191,6 +188,7 @@ func (im *Importer) NewSession(opt SessionOpt) (*Session, error) {
 func (im *Importer) GetStats() Status {
 	im.RLock()
 	defer im.RUnlock()
+
 	return Status{
 		Name:     im.status.Name,
 		Status:   im.status.Status,
@@ -207,6 +205,7 @@ func (im *Importer) GetLogs() []byte {
 	if im.status.logBuf == nil {
 		return []byte{}
 	}
+
 	return im.status.logBuf.Bytes()
 }
 
@@ -233,6 +232,7 @@ func (im *Importer) isDone() bool {
 		s = false
 	}
 	im.RUnlock()
+
 	return s
 }
 
@@ -270,13 +270,10 @@ func (s *Session) Start() {
 		err   error
 		total = 0
 		cur   = 0
-
-		listIDs = make([]int, len(s.opt.ListIDs))
 	)
 
-	for i, v := range s.opt.ListIDs {
-		listIDs[i] = v
-	}
+	listIDs := make([]int, len(s.opt.ListIDs))
+	copy(listIDs, s.opt.ListIDs)
 
 	for sub := range s.subQueue {
 		if cur == 0 {
@@ -354,6 +351,7 @@ func (s *Session) Start() {
 	if _, err := s.im.opt.UpdateListDateStmt.Exec(pq.Array(listIDs)); err != nil {
 		s.log.Printf("error updating lists date: %v", err)
 	}
+
 	s.im.sendNotif(StatusFinished)
 }
 
@@ -476,8 +474,8 @@ func (s *Session) LoadCSV(srcPath string, delim rune) error {
 		return errors.New("empty file")
 	}
 
-	s.im.Lock()
 	// Exclude the header from count.
+	s.im.Lock()
 	s.im.status.Total = numLines - 1
 	s.im.Unlock()
 
@@ -575,6 +573,7 @@ func (s *Session) LoadCSV(srcPath string, delim rune) error {
 
 	close(s.subQueue)
 	failed = false
+
 	return nil
 }
 
@@ -584,6 +583,7 @@ func (im *Importer) Stop() {
 		im.Lock()
 		im.status = Status{Status: StatusNone}
 		im.Unlock()
+
 		return
 	}
 

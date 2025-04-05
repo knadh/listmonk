@@ -22,7 +22,7 @@ const (
 
 // Server represents an SMTP server's credentials.
 type Server struct {
-	// Name is unique identifier for the server.
+	// Name is a unique identifier for the server.
 	Name          string            `json:"name"`
 	Username      string            `json:"username"`
 	Password      string            `json:"password"`
@@ -33,6 +33,7 @@ type Server struct {
 
 	// Rest of the options are embedded directly from the smtppool lib.
 	// The JSON tag is for config unmarshal to work.
+	//lint:ignore SA5008 ,squash is needed by koanf/mapstructure config unmarshal.
 	smtppool.Opt `json:",squash"`
 
 	pool *smtppool.Pool
@@ -55,6 +56,7 @@ func New(name string, servers ...Server) (*Emailer, error) {
 
 	for _, srv := range servers {
 		s := srv
+
 		var auth smtp.Auth
 		switch s.AuthProtocol {
 		case "cram":
@@ -134,6 +136,7 @@ func (e *Emailer) Push(m models.Message) error {
 		}
 	}
 
+	// Create the email.
 	em := smtppool.Email{
 		From:        m.From,
 		To:          m.To,

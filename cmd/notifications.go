@@ -21,7 +21,7 @@ var (
 )
 
 // sendNotification sends out an e-mail notification to admins.
-func (app *App) sendNotification(toEmails []string, subject, tplName string, data interface{}, headers textproto.MIMEHeader) error {
+func (app *App) sendNotification(toEmails []string, subject, tplName string, data any, headers textproto.MIMEHeader) error {
 	if len(toEmails) == 0 {
 		return nil
 	}

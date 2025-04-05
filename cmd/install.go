@@ -270,7 +270,7 @@ func checkSchema(db *sqlx.DB) (bool, error) {
 }
 
 func installUser(username, password string, q *models.Queries) {
-	consts := initConstants()
+	consts := initConstants(ko)
 
 	// Super admin role.
 	perms := []string{}

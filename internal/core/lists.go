@@ -76,7 +76,7 @@ func (c *Core) QueryLists(searchStr, typ, optin string, tags []string, orderBy, 
 
 // GetList gets a list by its ID or UUID.
 func (c *Core) GetList(id int, uuid string) (models.List, error) {
-	var uu interface{}
+	var uu any
 	if uuid != "" {
 		uu = uuid
 	}
@@ -123,10 +123,10 @@ func (c *Core) GetListsByOptin(ids []int, optinType string) ([]models.List, erro
 // otherwise, they have UUIDs as the keys.
 // Note: This is a really weird and awkward API. Ideally, Go Generics
 // should've somehow supported generic struct methods.
-func (c *Core) GetListTypes(ids []int, uuids []string) (map[interface{}]string, error) {
+func (c *Core) GetListTypes(ids []int, uuids []string) (map[any]string, error) {
 	res := []listType{}
 
-	out := map[interface{}]string{}
+	out := map[any]string{}
 	if err := c.q.GetListTypes.Select(&res, pq.Array(ids), pq.StringArray(uuids)); err != nil {
 		c.log.Printf("error fetching list types: %v", err)
 		return nil, echo.NewHTTPError(http.StatusInternalServerError,

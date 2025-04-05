@@ -20,11 +20,6 @@ import (
 	"golang.org/x/oauth2"
 )
 
-const (
-	sessTypeNative = "native"
-	sessTypeOIDC   = "oidc"
-)
-
 type OIDCclaim struct {
 	Email         string `json:"email"`
 	EmailVerified bool   `json:"email_verified"`
@@ -53,8 +48,8 @@ type Config struct {
 
 // Callbacks takes two callback functions required by simplesessions.
 type Callbacks struct {
-	SetCookie func(cookie *http.Cookie, w interface{}) error
-	GetCookie func(name string, r interface{}) (*http.Cookie, error)
+	SetCookie func(cookie *http.Cookie, w any) error
+	GetCookie func(name string, r any) (*http.Cookie, error)
 	GetUser   func(id int) (User, error)
 }
 
@@ -72,6 +67,9 @@ type Auth struct {
 	log       *log.Logger
 }
 
+var sessPruneInterval = time.Hour * 12
+
+// New returns an initialize Auth instance.
 func New(cfg Config, db *sql.DB, cb *Callbacks, lo *log.Logger) (*Auth, error) {
 	a := &Auth{
 		cfg: cfg,
@@ -125,7 +123,7 @@ func New(cfg Config, db *sql.DB, cb *Callbacks, lo *log.Logger) (*Auth, error) {
 		if err := st.Prune(); err != nil {
 			lo.Printf("error pruning login sessions: %v", err)
 		}
-		time.Sleep(time.Hour * 12)
+		time.Sleep(sessPruneInterval)
 	}()
 
 	return a, nil
@@ -136,12 +134,12 @@ func New(cfg Config, db *sql.DB, cb *Callbacks, lo *log.Logger) (*Auth, error) {
 // in the database in one shot.
 func (o *Auth) CacheAPIUsers(users []User) {
 	o.Lock()
-	o.apiUsers = map[string]User{}
+	defer o.Unlock()
 
+	o.apiUsers = map[string]User{}
 	for _, u := range users {
 		o.apiUsers[u.Username] = u
 	}
-	o.Unlock()
 }
 
 // CacheAPIUser caches an API user for authenticating requests.
@@ -265,6 +263,7 @@ func (o *Auth) Middleware(next echo.HandlerFunc) echo.HandlerFunc {
 	}
 }
 
+// Perm is an HTTP handler middleware that checks if the authenticated user has the required permissions.
 func (o *Auth) Perm(next echo.HandlerFunc, perms ...string) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		u, ok := c.Get(UserHTTPCtxKey).(User)
@@ -306,7 +305,7 @@ func (o *Auth) SaveSession(u User, oidcToken string, c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, "error creating session")
 	}
 
-	if err := sess.SetMulti(map[string]interface{}{"user_id": u.ID, "oidc_token": oidcToken}); err != nil {
+	if err := sess.SetMulti(map[string]any{"user_id": u.ID, "oidc_token": oidcToken}); err != nil {
 		o.log.Printf("error setting login session: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, "error creating session")
 	}
@@ -314,9 +313,10 @@ func (o *Auth) SaveSession(u User, oidcToken string, c echo.Context) error {
 	return nil
 }
 
+// validateSession checks if the cookie session is valid (in the DB) and returns the session and user details.
 func (o *Auth) validateSession(c echo.Context) (*simplesessions.Session, User, error) {
 	// Cookie session.
-	sess, err := o.sess.Acquire(nil, c, c)
+	sess, err := o.sess.Acquire(context.TODO(), c, c)
 	if err != nil {
 		return nil, User{}, echo.NewHTTPError(http.StatusForbidden, err.Error())
 	}
