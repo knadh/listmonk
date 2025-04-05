@@ -71,7 +71,7 @@ type Options struct {
 	UpsertStmt         *sql.Stmt
 	BlocklistStmt      *sql.Stmt
 	UpdateListDateStmt *sql.Stmt
-	NotifCB            models.NotifCallback
+	PostCB             func(subject string, data any) error
 
 	DomainBlocklist []string
 	DomainAllowlist []string
@@ -255,7 +255,7 @@ func (im *Importer) sendNotif(status string) error {
 		}
 		subject = fmt.Sprintf("%s: %s import", cases.Title(language.Und).String(status), s.Name)
 	)
-	return im.opt.NotifCB(subject, out)
+	return im.opt.PostCB(subject, out)
 }
 
 // Start is a blocking function that selects on a channel queue until all

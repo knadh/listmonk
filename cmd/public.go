@@ -14,6 +14,7 @@ import (
 
 	"github.com/knadh/listmonk/internal/i18n"
 	"github.com/knadh/listmonk/internal/manager"
+	"github.com/knadh/listmonk/internal/notifs"
 	"github.com/knadh/listmonk/models"
 	"github.com/labstack/echo/v4"
 	"github.com/lib/pq"
@@ -563,13 +564,14 @@ func (a *App) SelfExportSubscriberData(c echo.Context) error {
 
 	// Prepare the attachment e-mail.
 	var msg bytes.Buffer
-	if err := a.notifs.Tpls.ExecuteTemplate(&msg, notifSubscriberData, data); err != nil {
-		a.log.Printf("error compiling notification template '%s': %v", notifSubscriberData, err)
+	if err := notifs.Tpls.ExecuteTemplate(&msg, notifs.TplSubscriberData, data); err != nil {
+		a.log.Printf("error compiling notification template '%s': %v", notifs.TplSubscriberData, err)
 		return c.Render(http.StatusInternalServerError, tplMessage,
 			makeMsgTpl(a.i18n.T("public.errorTitle"), "", a.i18n.Ts("public.errorProcessingRequest")))
 	}
 
-	subject, body := getTplSubject(a.i18n.Ts("email.data.title"), msg.Bytes())
+	// TODO: GetTplSubject should be moved to a utils package.
+	subject, body := notifs.GetTplSubject(a.i18n.Ts("email.data.title"), msg.Bytes())
 
 	// E-mail the data as a JSON attachment to the subscriber.
 	const fname = "data.json"

@@ -24,7 +24,7 @@ import (
 	"github.com/knadh/listmonk/internal/i18n"
 	"github.com/knadh/listmonk/internal/manager"
 	"github.com/knadh/listmonk/internal/media"
-	notifs "github.com/knadh/listmonk/internal/notifs"
+	"github.com/knadh/listmonk/internal/messenger/email"
 	"github.com/knadh/listmonk/internal/subimporter"
 	"github.com/knadh/listmonk/models"
 	"github.com/knadh/paginator"
@@ -53,7 +53,6 @@ type App struct {
 	paginator      *paginator.Paginator
 	captcha        *captcha.Captcha
 	events         *events.Events
-	notifs         *notifs.Notifs
 	about          about
 	log            *log.Logger
 	bufLog         *buflog.BufLog
@@ -216,7 +215,7 @@ func main() {
 	})
 
 	app.queries = queries
-	app.manager = initCampaignManager(app.queries, app.constants, app.notifs.NotifySystem, app.core, app.media, app.i18n)
+	app.manager = initCampaignManager(app.queries, app.constants, app.core, app.media, app.i18n)
 	app.importer = initImporter(app.queries, db, app.core, app)
 
 	hasUsers, auth := initAuth(app.core, db.DB, ko)
@@ -225,10 +224,6 @@ func main() {
 	// If there are are no users in the DB who can login, the app has to prompt
 	// for new user setup.
 	app.needsUserSetup = !hasUsers
-
-	// Initialize admin email notification templates.
-	app.notifs = initNotifs(app.fs, app.i18n, app.manager.PushMessage, app.constants, ko)
-	initTxTemplates(app.manager, app.core)
 
 	// Initialize the bounce manager that processes bounces from webhooks and
 	// POP3 mailbox scanning.
@@ -244,6 +239,10 @@ func main() {
 			app.emailMessenger = m
 		}
 	}
+
+	// Initialize admin email notification templates.
+	initNotifs(app.fs, app.i18n, app.emailMessenger.(*email.Emailer), app.constants, ko)
+	initTxTemplates(app.manager, app.core)
 
 	// Initialize any additional postback messengers.
 	app.messengers = append(app.messengers, initPostbackMessengers(ko)...)

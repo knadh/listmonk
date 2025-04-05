@@ -11,6 +11,7 @@ import (
 	"strings"
 
 	"github.com/knadh/listmonk/internal/auth"
+	"github.com/knadh/listmonk/internal/notifs"
 	"github.com/knadh/listmonk/internal/subimporter"
 	"github.com/knadh/listmonk/models"
 	"github.com/labstack/echo/v4"
@@ -595,7 +596,7 @@ func (app *App) optinConfirmNotify() func(sub models.Subscriber, listIDs []int) 
 		}
 
 		// Send the e-mail.
-		if err := app.notifs.Notify([]string{sub.Email}, app.i18n.T("subscribers.optinSubject"), notifSubscriberOptin, out, hdr); err != nil {
+		if err := notifs.Notify([]string{sub.Email}, app.i18n.T("subscribers.optinSubject"), notifs.TplSubscriberOptin, out, hdr); err != nil {
 			app.log.Printf("error sending opt-in e-mail for subscriber %d (%s): %s", sub.ID, sub.UUID, err)
 			return 0, err
 		}

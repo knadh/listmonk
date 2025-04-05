@@ -14,6 +14,7 @@ import (
 
 	"github.com/Masterminds/sprig/v3"
 	"github.com/knadh/listmonk/internal/i18n"
+	"github.com/knadh/listmonk/internal/notifs"
 	"github.com/knadh/listmonk/models"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
@@ -64,7 +65,7 @@ type Manager struct {
 	store      Store
 	i18n       *i18n.I18n
 	messengers map[string]Messenger
-	notifCB    models.NotifCallback
+	fnNotify   func(subject string, data any) error
 	log        *log.Logger
 
 	// Campaigns that are currently running.
@@ -145,7 +146,7 @@ type Config struct {
 var pushTimeout = time.Second * 3
 
 // New returns a new instance of Mailer.
-func New(cfg Config, store Store, notifCB models.NotifCallback, i *i18n.I18n, l *log.Logger) *Manager {
+func New(cfg Config, store Store, i *i18n.I18n, l *log.Logger) *Manager {
 	if cfg.BatchSize < 1 {
 		cfg.BatchSize = 1000
 	}
@@ -157,10 +158,12 @@ func New(cfg Config, store Store, notifCB models.NotifCallback, i *i18n.I18n, l 
 	}
 
 	m := &Manager{
-		cfg:          cfg,
-		store:        store,
-		i18n:         i,
-		notifCB:      notifCB,
+		cfg:   cfg,
+		store: store,
+		i18n:  i,
+		fnNotify: func(subject string, data any) error {
+			return notifs.NotifySystem(subject, notifs.TplCampaignStatus, data, nil)
+		},
 		log:          l,
 		messengers:   make(map[string]Messenger),
 		pipes:        make(map[int]*pipe),
@@ -588,7 +591,7 @@ func (m *Manager) sendNotif(c *models.Campaign, status, reason string) error {
 		}
 	)
 
-	return m.notifCB(subject, data)
+	return m.fnNotify(subject, data)
 }
 
 // makeGnericFuncMap returns a generic template func map with custom template
