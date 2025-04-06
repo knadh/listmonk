@@ -1,6 +1,6 @@
 <template>
   <div class="visual-editor-wrapper">
-    <div ref="visualEditor" id="visual-editor" class="visual-editor email-builder-container" />
+    <iframe ref="visualEditor" id="visual-editor" class="visual-editor email-builder-container" title="Visual email editor" />
 
     <!-- image picker -->
     <b-modal scroll="keep" :aria-modal="true" :active.sync="isMediaVisible" :width="900">
@@ -39,18 +39,19 @@ export default {
         source = JSON.parse(this.$props.source);
       }
 
-      window.EmailBuilder.render('visual-editor', {
+      const iframe = this.$refs.visualEditor;
+      iframe.contentWindow.EmailBuilder.render('visual-editor-container', {
         data: source,
         onChange: (data, body) => {
           this.$emit('change', { source: JSON.stringify(data), body });
         },
-        height: this.height,
       });
     },
 
     loadScript() {
       return new Promise((resolve, reject) => {
-        if (window.EmailBuilder) {
+        const iframe = this.$refs.visualEditor;
+        if (iframe.contentWindow.EmailBuilder) {
           resolve();
           return;
         }
@@ -62,12 +63,15 @@ export default {
           resolve();
         };
         script.onerror = reject;
-        document.head.appendChild(script);
+
+        // Append script to iframe's head
+        iframe.contentDocument.head.appendChild(script);
       });
     },
 
     onMediaSelect(media) {
-      const input = document.querySelector('.image-url input');
+      const iframe = this.$refs.visualEditor;
+      const input = iframe.contentDocument.querySelector('.image-url input');
       if (input) {
         const nativeInputValueSetter = Object.getOwnPropertyDescriptor(
           window.HTMLInputElement.prototype,
@@ -79,56 +83,80 @@ export default {
         input.dispatchEvent(inputEvent);
       }
     },
-  },
 
-  mounted() {
-    this.loadScript().then(() => {
-      this.initEditor();
-    }).catch((error) => {
-      // eslint-disable-next-line no-console
-      console.error('Failed to load email-builder script:', error);
-    });
-
-    // Select a stable parent element
-    const stableParent = document.querySelector('.visual-editor');
-
-    // Observe mutations to handle dynamically added elements
-    const observer = new MutationObserver((mutations) => {
-      mutations.forEach((mutation) => {
-        mutation.addedNodes.forEach((node) => {
-          node.querySelectorAll('.image-url').forEach((img) => {
-            // Create anchor tag
-            const anchor = document.createElement('a');
-            anchor.href = '#';
-            anchor.className = 'open-media-selector';
-            anchor.textContent = 'Select Image';
-            anchor.style.marginTop = '5px';
-            anchor.addEventListener('click', (e) => {
-              e.preventDefault();
-              this.isMediaVisible = true;
+    // Observe DOM changes in the iframe to inject media selector
+    // into the image URL input fields.
+    setupInjectMediaObserver(iframe) {
+      const observer = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+          mutation.addedNodes.forEach((node) => {
+            node.querySelectorAll('.image-url').forEach((img) => {
+              // Create anchor tag
+              const anchor = document.createElement('a');
+              anchor.href = '#';
+              anchor.className = 'open-media-selector';
+              anchor.textContent = 'Select Image';
+              anchor.style.marginTop = '5px';
+              anchor.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.isMediaVisible = true;
+              });
+              if (img.parentNode) {
+                img.parentNode.insertBefore(anchor, img.nextSibling);
+              }
             });
-            if (img.parentNode) {
-              img.parentNode.insertBefore(anchor, img.nextSibling);
-            }
           });
         });
       });
-    });
 
-    // Start observing
-    observer.observe(stableParent, {
-      childList: true,
-      subtree: true,
-    });
+      // Start observing
+      observer.observe(iframe.contentDocument.querySelector('#visual-editor-container'), {
+        childList: true,
+        subtree: true,
+      });
+    },
+  },
+
+  mounted() {
+    // Initialize iframe content
+    const iframe = this.$refs.visualEditor;
+    iframe.style.height = this.height;
+
+    // Set basic iframe HTML structure
+    iframe.srcdoc = `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <style>
+            body { margin: 0; padding: 0; }
+            #visual-editor-container { width: 100%; height: 100%; }
+          </style>
+        </head>
+        <body>
+          <div id="visual-editor-container"></div>
+        </body>
+      </html>
+    `;
+
+    iframe.onload = () => {
+      this.loadScript().then(() => {
+        this.initEditor();
+        this.setupInjectMediaObserver(iframe);
+      }).catch((error) => {
+        /* eslint-disable-next-line no-console */
+        console.error('Failed to load email-builer script:', error);
+      });
+    };
   },
 
   watch: {
     source(val) {
-      if (window.EmailBuilder?.isRendered('visual-editor')) {
+      const iframe = this.$refs.visualEditor;
+      if (iframe.contentWindow.EmailBuilder?.isRendered('visual-editor')) {
         if (val) {
-          window.EmailBuilder.setDocument(JSON.parse(val));
+          iframe.contentWindow.EmailBuilder.setDocument(JSON.parse(val));
         } else {
-          window.EmailBuilder.setDocument(window.EmailBuilder.DEFAULT_SOURCE);
+          iframe.contentWindow.EmailBuilder.setDocument(iframe.contentWindow.EmailBuilder.DEFAULT_SOURCE);
         }
       } else {
         this.initEditor();
@@ -147,5 +175,8 @@ export default {
 
   #visual-editor {
     position: relative;
+    border: none;
+    width: 100%;
+    min-height: 500px;
   }
 </style>
