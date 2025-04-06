@@ -117,7 +117,7 @@ func (a *App) CreateTemplate(c echo.Context) error {
 	// Subject is only relevant for fixed tx templates. For campaigns,
 	// the subject changes per campaign and is on models.Campaign.
 	var funcs template.FuncMap
-	if o.Type == models.TemplateTypeCampaign {
+	if o.Type == models.TemplateTypeCampaign || o.Type == models.TemplateTypeCampaignVisual {
 		o.Subject = ""
 		funcs = a.manager.TemplateFuncs(nil)
 	} else {
@@ -130,7 +130,7 @@ func (a *App) CreateTemplate(c echo.Context) error {
 	}
 
 	// Create the template the in the DB.
-	out, err := a.core.CreateTemplate(o.Name, o.Type, o.Subject, []byte(o.Body))
+	out, err := a.core.CreateTemplate(o.Name, o.Type, o.Subject, []byte(o.Body), o.BodySource)
 	if err != nil {
 		return err
 	}
@@ -171,7 +171,7 @@ func (a *App) UpdateTemplate(c echo.Context) error {
 
 	// Update the template in the DB.
 	id := getID(c)
-	out, err := a.core.UpdateTemplate(id, o.Name, o.Subject, []byte(o.Body))
+	out, err := a.core.UpdateTemplate(id, o.Name, o.Subject, []byte(o.Body), o.BodySource)
 	if err != nil {
 		return err
 	}
@@ -232,7 +232,7 @@ func (a *App) validateTemplate(o models.Template) error {
 // previewTemplate renders the HTML preview of a template.
 func (a *App) previewTemplate(tpl models.Template) ([]byte, error) {
 	var out []byte
-	if tpl.Type == models.TemplateTypeCampaign {
+	if tpl.Type == models.TemplateTypeCampaign || tpl.Type == models.TemplateTypeCampaignVisual {
 		camp := models.Campaign{
 			UUID:         dummyUUID,
 			Name:         a.i18n.T("templates.dummyName"),
