@@ -56,15 +56,10 @@ var (
 
 // GetSubscriber handles the retrieval of a single subscriber by ID.
 func (a *App) GetSubscriber(c echo.Context) error {
-	// Get the authenticated user.
 	user := auth.GetUser(c)
 
-	id, _ := strconv.Atoi(c.Param("id"))
-	if id < 1 {
-		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("globals.messages.invalidID"))
-	}
-
 	// Check if the user has access to at least one of the lists on the subscriber.
+	id := getID(c)
 	if err := a.hasSubPerm(user, []int{id}); err != nil {
 		return err
 	}
@@ -212,11 +207,6 @@ func (a *App) UpdateSubscriber(c echo.Context) error {
 	// Get the authenticated user.
 	user := auth.GetUser(c)
 
-	id, _ := strconv.Atoi(c.Param("id"))
-	if id < 1 {
-		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("globals.messages.invalidID"))
-	}
-
 	// Get and validate fields.
 	req := struct {
 		models.Subscriber
@@ -242,6 +232,7 @@ func (a *App) UpdateSubscriber(c echo.Context) error {
 	listIDs := user.FilterListsByPerm(auth.PermTypeManage, req.Lists)
 
 	// Update the subscriber in the DB.
+	id := getID(c)
 	out, _, err := a.core.UpdateSubscriberWithLists(id, req.Subscriber, listIDs, nil, req.PreconfirmSubs, true)
 	if err != nil {
 		return err
@@ -252,12 +243,8 @@ func (a *App) UpdateSubscriber(c echo.Context) error {
 
 // SubscriberSendOptin sends an optin confirmation e-mail to a subscriber.
 func (a *App) SubscriberSendOptin(c echo.Context) error {
-	id, _ := strconv.Atoi(c.Param("id"))
-	if id < 1 {
-		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("globals.messages.invalidID"))
-	}
-
 	// Fetch the subscriber.
+	id := getID(c)
 	out, err := a.core.GetSubscriber(id, "", "")
 	if err != nil {
 		return err
@@ -271,38 +258,31 @@ func (a *App) SubscriberSendOptin(c echo.Context) error {
 	return c.JSON(http.StatusOK, okResp{true})
 }
 
+// BlocklistSubscriber handles the blocklisting of a given subscriber.
+func (a *App) BlocklistSubscriber(c echo.Context) error {
+	// Update the subscribers in the DB.
+	id := getID(c)
+	if err := a.core.BlocklistSubscribers([]int{id}); err != nil {
+		return err
+	}
+
+	return c.JSON(http.StatusOK, okResp{true})
+}
+
 // BlocklistSubscribers handles the blocklisting of one or more subscribers.
-// It takes either an ID in the URI, or a list of IDs in the request body.
 func (a *App) BlocklistSubscribers(c echo.Context) error {
-	// Is it a /:id call?
-	var (
-		subIDs []int
-		pID    = c.Param("id")
-	)
-	if pID != "" {
-		id, _ := strconv.Atoi(pID)
-		if id < 1 {
-			return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("globals.messages.invalidID"))
-		}
-
-		subIDs = append(subIDs, id)
-	} else {
-		// Multiple IDs.
-		var req subQueryReq
-		if err := c.Bind(&req); err != nil {
-			return echo.NewHTTPError(http.StatusBadRequest,
-				a.i18n.Ts("globals.messages.errorInvalidIDs", "error", err.Error()))
-		}
-		if len(req.SubscriberIDs) == 0 {
-			return echo.NewHTTPError(http.StatusBadRequest,
-				"No IDs given.")
-		}
-
-		subIDs = req.SubscriberIDs
+	var req subQueryReq
+	if err := c.Bind(&req); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest,
+			a.i18n.Ts("globals.messages.errorInvalidIDs", "error", err.Error()))
+	}
+	if len(req.SubscriberIDs) == 0 {
+		return echo.NewHTTPError(http.StatusBadRequest,
+			a.i18n.Ts("globals.messages.errorInvalidIDs", "error", "ids"))
 	}
 
 	// Update the subscribers in the DB.
-	if err := a.core.BlocklistSubscribers(subIDs); err != nil {
+	if err := a.core.BlocklistSubscribers(req.SubscriberIDs); err != nil {
 		return err
 	}
 
@@ -367,35 +347,32 @@ func (a *App) ManageSubscriberLists(c echo.Context) error {
 	return c.JSON(http.StatusOK, okResp{true})
 }
 
-// DeleteSubscribers handles subscriber deletion.
-// It takes either an ID in the URI, or a list of IDs in the request body.
+// DeleteSubscriber handles deletion of a single subscriber.
+func (a *App) DeleteSubscriber(c echo.Context) error {
+	// Delete the subscribers from the DB.
+	id := getID(c)
+	if err := a.core.DeleteSubscribers([]int{id}, nil); err != nil {
+		return err
+	}
+
+	return c.JSON(http.StatusOK, okResp{true})
+}
+
+// DeleteSubscribers handles bulk deletion of one or more subscribers.
 func (a *App) DeleteSubscribers(c echo.Context) error {
-	// Is it an /:id call?
-	var (
-		pID    = c.Param("id")
-		subIDs []int
-	)
-	if pID != "" {
-		id, _ := strconv.Atoi(pID)
-		if id < 1 {
-			return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("globals.messages.invalidID"))
-		}
-		subIDs = append(subIDs, id)
-	} else {
-		// Multiple IDs.
-		i, err := parseStringIDs(c.Request().URL.Query()["id"])
-		if err != nil {
-			return echo.NewHTTPError(http.StatusBadRequest,
-				a.i18n.Ts("globals.messages.errorInvalidIDs", "error", err.Error()))
-		}
-		if len(i) == 0 {
-			return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("subscribers.errorNoIDs"))
-		}
-		subIDs = i
+	// Multiple IDs.
+	ids, err := parseStringIDs(c.Request().URL.Query()["id"])
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest,
+			a.i18n.Ts("globals.messages.errorInvalidIDs", "error", err.Error()))
+	}
+	if len(ids) == 0 {
+		return echo.NewHTTPError(http.StatusBadRequest,
+			a.i18n.Ts("globals.messages.errorInvalidIDs", "error", "ids"))
 	}
 
 	// Delete the subscribers from the DB.
-	if err := a.core.DeleteSubscribers(subIDs, nil); err != nil {
+	if err := a.core.DeleteSubscribers(ids, nil); err != nil {
 		return err
 	}
 
@@ -486,12 +463,8 @@ func (a *App) ManageSubscriberListsByQuery(c echo.Context) error {
 
 // DeleteSubscriberBounces deletes all the bounces on a subscriber.
 func (a *App) DeleteSubscriberBounces(c echo.Context) error {
-	id, _ := strconv.Atoi(c.Param("id"))
-	if id < 1 {
-		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("globals.messages.invalidID"))
-	}
-
 	// Delete the bounces from the DB.
+	id := getID(c)
 	if err := a.core.DeleteSubscriberBounces(id, ""); err != nil {
 		return err
 	}
@@ -504,14 +477,10 @@ func (a *App) DeleteSubscriberBounces(c echo.Context) error {
 // a JSON report. This is a privacy feature and depends on the
 // configuration in a.Constants.Privacy.
 func (a *App) ExportSubscriberData(c echo.Context) error {
-	id, _ := strconv.Atoi(c.Param("id"))
-	if id < 1 {
-		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("globals.messages.invalidID"))
-	}
-
 	// Get the subscriber's data. A single query that gets the profile,
 	// list subscriptions, campaign views, and link clicks. Names of
 	// private lists are replaced with "Private list".
+	id := getID(c)
 	_, b, err := a.exportSubscriberData(id, "", a.cfg.Privacy.Exportable)
 	if err != nil {
 		a.log.Printf("error exporting subscriber data: %s", err)
@@ -627,26 +596,6 @@ func sanitizeSQLExp(q string) string {
 		q = q[:len(q)-1]
 	}
 	return q
-}
-
-// getQueryInts parses the list of given query param values into ints.
-func getQueryInts(param string, qp url.Values) ([]int, error) {
-	var out []int
-	if vals, ok := qp[param]; ok {
-		for _, v := range vals {
-			if v == "" {
-				continue
-			}
-
-			listID, err := strconv.Atoi(v)
-			if err != nil {
-				return nil, err
-			}
-			out = append(out, listID)
-		}
-	}
-
-	return out, nil
 }
 
 // makeOptinNotifyHook returns an enclosed callback that sends optin confirmation e-mails.

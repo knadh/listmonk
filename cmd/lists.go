@@ -12,10 +12,8 @@ import (
 
 // GetLists retrieves lists with additional metadata like subscriber counts.
 func (a *App) GetLists(c echo.Context) error {
-	var (
-		user = auth.GetUser(c)
-		pg   = a.pg.NewFromURL(c.Request().URL.Query())
-	)
+	// Get the authenticated user.
+	user := auth.GetUser(c)
 
 	// Get the list IDs (or blanket permission) the user has access to.
 	hasAllPerm, permittedIDs := user.GetPermittedLists(auth.PermTypeGet)
@@ -51,6 +49,8 @@ func (a *App) GetLists(c echo.Context) error {
 		typ     = c.FormValue("type")
 		optin   = c.FormValue("optin")
 		order   = c.FormValue("order")
+
+		pg = a.pg.NewFromURL(c.Request().URL.Query())
 	)
 	res, total, err := a.core.QueryLists(query, typ, optin, tags, orderBy, order, hasAllPerm, permittedIDs, pg.Offset, pg.Limit)
 	if err != nil {
@@ -74,12 +74,8 @@ func (a *App) GetList(c echo.Context) error {
 	// Get the authenticated user.
 	user := auth.GetUser(c)
 
-	id, _ := strconv.Atoi(c.Param("id"))
-	if id < 1 {
-		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("globals.messages.invalidID"))
-	}
-
 	// Check if the user has access to the list.
+	id := getID(c)
 	if err := user.HasListPerm(auth.PermTypeGet, id); err != nil {
 		return err
 	}
@@ -119,12 +115,8 @@ func (a *App) UpdateList(c echo.Context) error {
 	// Get the authenticated user.
 	user := auth.GetUser(c)
 
-	id, _ := strconv.Atoi(c.Param("id"))
-	if id < 1 {
-		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("globals.messages.invalidID"))
-	}
-
 	// Check if the user has access to the list.
+	id := getID(c)
 	if err := user.HasListPerm(auth.PermTypeManage, id); err != nil {
 		return err
 	}

@@ -5,7 +5,6 @@ import (
 	"mime/multipart"
 	"net/http"
 	"path/filepath"
-	"strconv"
 	"strings"
 
 	"github.com/disintegration/imaging"
@@ -140,24 +139,14 @@ func (a *App) UploadMedia(c echo.Context) error {
 	return c.JSON(http.StatusOK, okResp{m})
 }
 
-// GetMedia handles retrieval of uploaded media.
-func (a *App) GetMedia(c echo.Context) error {
-	// Fetch one media item from the DB.
-	id, _ := strconv.Atoi(c.Param("id"))
-	if id > 0 {
-		out, err := a.core.GetMedia(id, "", "", a.media)
-		if err != nil {
-			return err
-		}
-
-		return c.JSON(http.StatusOK, okResp{out})
-	}
-
-	// Get the media from the DB.
+// GetAllMedia handles retrieval of uploaded media.
+func (a *App) GetAllMedia(c echo.Context) error {
 	var (
-		pg    = a.pg.NewFromURL(c.Request().URL.Query())
 		query = c.FormValue("query")
+
+		pg = a.pg.NewFromURL(c.Request().URL.Query())
 	)
+	// Fetch the media items from the DB.
 	res, total, err := a.core.QueryMedia(a.cfg.MediaUpload.Provider, a.media, query, pg.Offset, pg.Limit)
 	if err != nil {
 		return err
@@ -173,14 +162,23 @@ func (a *App) GetMedia(c echo.Context) error {
 	return c.JSON(http.StatusOK, okResp{out})
 }
 
-// DeleteMedia handles deletion of uploaded media.
-func (a *App) DeleteMedia(c echo.Context) error {
-	id, _ := strconv.Atoi(c.Param("id"))
-	if id < 1 {
-		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("globals.messages.invalidID"))
+// GetMedia handles retrieval of a media item by ID.
+func (a *App) GetMedia(c echo.Context) error {
+	// Fetch the media item from the DB.
+	id := getID(c)
+	out, err := a.core.GetMedia(id, "", "", a.media)
+	if err != nil {
+		return err
 	}
 
+	return c.JSON(http.StatusOK, okResp{out})
+}
+
+// DeleteMedia handles deletion of uploaded media.
+func (a *App) DeleteMedia(c echo.Context) error {
+
 	// Delete the media from the DB. The query returns the filename.
+	id := getID(c)
 	fname, err := a.core.DeleteMedia(id)
 	if err != nil {
 		return err
