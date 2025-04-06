@@ -1,4 +1,5 @@
 import 'cypress-file-upload';
+import 'cypress-wait-until';
 
 Cypress.Commands.add('resetDB', () => {
   // Although cypress clearly states that a webserver should not be run
@@ -50,6 +51,27 @@ Cypress.Commands.add('iframe', { prevSubject: 'element' }, ($iframe, callback = 
   .should((iframe) => expect(iframe.contents().find('body')).to.exist)
   .then((iframe) => cy.wrap(iframe.contents().find('body')))
   .within({}, callback));
+
+Cypress.Commands.add('waitForBackend', () => {
+  // Intercept frontend's health checks to prevent test failures
+  cy.intercept({
+    method: 'GET',
+    url: '/*', // Update with actual polling endpoint
+  }, {
+    continueOnNetworkError: true, // Prevents Cypress from failing on network errors
+  });
+
+  cy.waitUntil(
+    () => cy.request({
+      url: '/api/profile', // Same endpoint as frontend polls
+      failOnStatusCode: false,
+    }).then((response) => response.status === 200),
+    {
+      timeout: 10000, // Max wait time (10 seconds)
+      interval: 1000, // Check every 0.5 seconds
+    },
+  );
+});
 
 Cypress.on('uncaught:exception', (err, runnable) => {
   if (err.hasOwnProperty('request')) {
