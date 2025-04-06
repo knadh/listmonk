@@ -109,10 +109,8 @@ func (a *App) GetCampaigns(c echo.Context) error {
 
 // GetCampaign handles retrieval of campaigns.
 func (a *App) GetCampaign(c echo.Context) error {
-	id, _ := strconv.Atoi(c.Param("id"))
-	if id < 1 {
-		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("globals.messages.invalidID"))
-	}
+	// Get the campaign ID.
+	id := getID(c)
 
 	// Check if the user has access to the campaign.
 	if err := a.checkCampaignPerm(auth.PermTypeGet, id, c); err != nil {
@@ -136,10 +134,8 @@ func (a *App) GetCampaign(c echo.Context) error {
 
 // PreviewCampaign renders the HTML preview of a campaign body.
 func (a *App) PreviewCampaign(c echo.Context) error {
-	id, _ := strconv.Atoi(c.Param("id"))
-	if id < 1 {
-		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("globals.messages.invalidID"))
-	}
+	// Get the campaign ID.
+	id := getID(c)
 
 	// Check if the user has access to the campaign.
 	if err := a.checkCampaignPerm(auth.PermTypeGet, id, c); err != nil {
@@ -185,16 +181,12 @@ func (a *App) PreviewCampaign(c echo.Context) error {
 
 // CampaignContent handles campaign content (body) format conversions.
 func (a *App) CampaignContent(c echo.Context) error {
-	id, _ := strconv.Atoi(c.Param("id"))
-	if id < 1 {
-		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("globals.messages.invalidID"))
-	}
-
 	var camp campContentReq
 	if err := c.Bind(&camp); err != nil {
 		return err
 	}
 
+	// Convert formats, eg: markdown to HTML.
 	out, err := camp.ConvertContent(camp.From, camp.To)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
@@ -251,11 +243,8 @@ func (a *App) CreateCampaign(c echo.Context) error {
 // UpdateCampaign handles campaign modification.
 // Campaigns that are done cannot be modified.
 func (a *App) UpdateCampaign(c echo.Context) error {
-	id, _ := strconv.Atoi(c.Param("id"))
-	if id < 1 {
-		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("globals.messages.invalidID"))
-
-	}
+	// Get the campaign ID.
+	id := getID(c)
 
 	// Check if the user has access to the campaign.
 	if err := a.checkCampaignPerm(auth.PermTypeManage, id, c); err != nil {
@@ -296,10 +285,8 @@ func (a *App) UpdateCampaign(c echo.Context) error {
 
 // UpdateCampaignStatus handles campaign status modification.
 func (a *App) UpdateCampaignStatus(c echo.Context) error {
-	id, _ := strconv.Atoi(c.Param("id"))
-	if id < 1 {
-		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("globals.messages.invalidID"))
-	}
+	// Get the campaign ID.
+	id := getID(c)
 
 	// Check if the user has access to the campaign.
 	if err := a.checkCampaignPerm(auth.PermTypeManage, id, c); err != nil {
@@ -329,8 +316,9 @@ func (a *App) UpdateCampaignStatus(c echo.Context) error {
 
 // UpdateCampaignArchive handles campaign status modification.
 func (a *App) UpdateCampaignArchive(c echo.Context) error {
+	id := getID(c)
+
 	// Check if the user has access to the campaign.
-	id, _ := strconv.Atoi(c.Param("id"))
 	if err := a.checkCampaignPerm(auth.PermTypeManage, id, c); err != nil {
 		return err
 	}
@@ -363,10 +351,8 @@ func (a *App) UpdateCampaignArchive(c echo.Context) error {
 // DeleteCampaign handles campaign deletion.
 // Only scheduled campaigns that have not started yet can be deleted.
 func (a *App) DeleteCampaign(c echo.Context) error {
-	id, _ := strconv.Atoi(c.Param("id"))
-	if id < 1 {
-		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("globals.messages.invalidID"))
-	}
+	// Get the campaign ID.
+	id := getID(c)
 
 	// Check if the user has access to the campaign.
 	if err := a.checkCampaignPerm(auth.PermTypeManage, id, c); err != nil {
@@ -417,10 +403,8 @@ func (a *App) GetRunningCampaignStats(c echo.Context) error {
 // TestCampaign handles the sending of a campaign message to
 // arbitrary subscribers for testing.
 func (a *App) TestCampaign(c echo.Context) error {
-	id, _ := strconv.Atoi(c.Param("id"))
-	if id < 1 {
-		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("globals.messages.errorID"))
-	}
+	// Get the campaign ID.
+	id := getID(c)
 
 	// Check if the user has access to the campaign.
 	if err := a.checkCampaignPerm(auth.PermTypeManage, id, c); err != nil {

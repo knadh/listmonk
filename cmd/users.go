@@ -3,7 +3,6 @@ package main
 import (
 	"net/http"
 	"regexp"
-	"strconv"
 	"strings"
 
 	"github.com/knadh/listmonk/internal/auth"
@@ -17,36 +16,30 @@ var (
 	reUsername = regexp.MustCompile(`^[a-zA-Z0-9_\\-\\.]+$`)
 )
 
-// GetUsers retrieves users.
+// GetUser retrieves a single user by ID.
+func (a *App) GetUser(c echo.Context) error {
+	// Get the user from the DB.
+	id := getID(c)
+	out, err := a.core.GetUser(id, "", "")
+	if err != nil {
+		return err
+	}
+
+	// Blank out the password hash in the response.
+	out.Password = null.String{}
+
+	return c.JSON(http.StatusOK, okResp{out})
+}
+
+// GetUsers retrieves all users.
 func (a *App) GetUsers(c echo.Context) error {
-	var (
-		single    = false
-		userID, _ = strconv.Atoi(c.Param("id"))
-	)
-	if userID > 0 {
-		single = true
-	}
-
-	if single {
-		// Get the user from the DB.
-		out, err := a.core.GetUser(userID, "", "")
-		if err != nil {
-			return err
-		}
-
-		// Blank out the password hash respond to the API.
-		out.Password = null.String{}
-
-		return c.JSON(http.StatusOK, okResp{out})
-	}
-
 	// Get all users from the DB.
 	out, err := a.core.GetUsers()
 	if err != nil {
 		return err
 	}
 
-	// Blank out password hashes before respond to the API.
+	// Blank out the password hash in the response.
 	for n := range out {
 		out[n].Password = null.String{}
 	}
@@ -56,7 +49,7 @@ func (a *App) GetUsers(c echo.Context) error {
 
 // CreateUser handles user creation.
 func (a *App) CreateUser(c echo.Context) error {
-	var u = auth.User{}
+	var u auth.User
 	if err := c.Bind(&u); err != nil {
 		return err
 	}
@@ -95,7 +88,7 @@ func (a *App) CreateUser(c echo.Context) error {
 		return err
 	}
 
-	// Blank out the password hash before responding to the API.
+	// Blank out the password hash in the response.
 	if user.Type != auth.UserTypeAPI {
 		user.Password = null.String{}
 	}
@@ -110,11 +103,6 @@ func (a *App) CreateUser(c echo.Context) error {
 
 // UpdateUser handles user modification.
 func (a *App) UpdateUser(c echo.Context) error {
-	id, _ := strconv.Atoi(c.Param("id"))
-	if id < 1 {
-		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("globals.messages.invalidID"))
-	}
-
 	// Incoming params.
 	var u auth.User
 	if err := c.Bind(&u); err != nil {
@@ -133,6 +121,8 @@ func (a *App) UpdateUser(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.Ts("globals.messages.invalidFields", "name", "username"))
 	}
 
+	// Get the user ID.
+	id := getID(c)
 	if u.Type != auth.UserTypeAPI {
 		if !utils.ValidateEmail(email) {
 			return echo.NewHTTPError(http.StatusBadRequest, a.i18n.Ts("globals.messages.invalidFields", "name", "email"))
@@ -178,7 +168,7 @@ func (a *App) UpdateUser(c echo.Context) error {
 		return err
 	}
 
-	// Blank out the password hash before responding to the API.
+	// Blank out the password hash in the response.
 	user.Password = null.String{}
 
 	// Cache the API token for in-memory, off-DB /api/* request auth.
@@ -189,17 +179,27 @@ func (a *App) UpdateUser(c echo.Context) error {
 	return c.JSON(http.StatusOK, okResp{user})
 }
 
+// DeleteUser handles the deletion of a single user by ID.
+func (a *App) DeleteUser(c echo.Context) error {
+	// Delete the user(s) from the DB.
+	id := getID(c)
+	if err := a.core.DeleteUsers([]int{id}); err != nil {
+		return err
+	}
+
+	// Cache the API token for in-memory, off-DB /api/* request auth.
+	if _, err := cacheUsers(a.core, a.auth); err != nil {
+		return err
+	}
+
+	return c.JSON(http.StatusOK, okResp{true})
+}
+
 // DeleteUsers handles user deletion, either a single one (ID in the URI), or a list.
 func (a *App) DeleteUsers(c echo.Context) error {
-	var (
-		id, _ = strconv.ParseInt(c.Param("id"), 10, 64)
-		ids   []int
-	)
-	if id < 1 && len(ids) == 0 {
+	ids, err := getQueryInts("id", c.QueryParams())
+	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("globals.messages.invalidID"))
-	}
-	if id > 0 {
-		ids = append(ids, int(id))
 	}
 
 	// Delete the user(s) from the DB.
@@ -220,7 +220,7 @@ func (a *App) GetUserProfile(c echo.Context) error {
 	// Get the authenticated user.
 	user := auth.GetUser(c)
 
-	// Blank out the password hash before responding to the API.
+	// Blank out the password hash in the response.
 	user.Password.String = ""
 	user.Password.Valid = false
 
@@ -261,7 +261,7 @@ func (a *App) UpdateUserProfile(c echo.Context) error {
 		return err
 	}
 
-	// Blank out the password hash before responding to the API.
+	// Blank out the password hash in the response.
 	out.Password = null.String{}
 
 	return c.JSON(http.StatusOK, okResp{out})

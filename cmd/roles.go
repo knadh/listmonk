@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"net/http"
-	"strconv"
 	"strings"
 
 	"github.com/knadh/listmonk/internal/auth"
@@ -72,9 +71,10 @@ func (a *App) CreateListRole(c echo.Context) error {
 
 // UpdateUserRole handles role modification.
 func (a *App) UpdateUserRole(c echo.Context) error {
-	// ID 1 is reserved for the Super Admin role and anything below that is invalid.
-	id, _ := strconv.Atoi(c.Param("id"))
-	if id < 2 {
+	id := getID(c)
+
+	// ID 1 is reserved for the Super Admin user role.
+	if id == auth.SuperAdminRoleID {
 		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("globals.messages.invalidID"))
 	}
 
@@ -106,9 +106,11 @@ func (a *App) UpdateUserRole(c echo.Context) error {
 
 // UpdateListRole handles role modification.
 func (a *App) UpdateListRole(c echo.Context) error {
-	// ID 1 is reserved for the Super Admin role and anything below that is invalid.
-	id, _ := strconv.Atoi(c.Param("id"))
-	if id < 2 {
+	// Get the role ID.
+	id := getID(c)
+
+	// ID 1 is reserved for the Super Admin user role.
+	if id == auth.SuperAdminRoleID {
 		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("globals.messages.invalidID"))
 	}
 
@@ -139,10 +141,13 @@ func (a *App) UpdateListRole(c echo.Context) error {
 	return c.JSON(http.StatusOK, okResp{out})
 }
 
-// DeleteRole handles role deletion.
+// DeleteRole handles (user|list) role deletion.
 func (a *App) DeleteRole(c echo.Context) error {
-	id, _ := strconv.ParseInt(c.Param("id"), 10, 64)
-	if id < 2 {
+	// Get the role ID.
+	id := getID(c)
+
+	// ID 1 is reserved for the Super Admin user role.
+	if id == auth.SuperAdminRoleID {
 		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("globals.messages.invalidID"))
 	}
 
