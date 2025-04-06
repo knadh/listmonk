@@ -142,16 +142,25 @@ func (a *App) PreviewCampaign(c echo.Context) error {
 		return err
 	}
 
-	// Fetch the campaign body from the DB.
-	tplID, _ := strconv.Atoi(c.FormValue("template_id"))
+	var (
+		isPost      = c.Request().Method == http.MethodPost
+		contentType = c.FormValue("content_type")
+		tplID, _    = strconv.Atoi(c.FormValue("template_id"))
+	)
+	// For visual content type don't use the template for preview, use only body.
+	if contentType == models.CampaignContentTypeVisual && tplID < 1 {
+		tplID = 0
+	}
+
+	// Get the campaign from the DB for previewing.
 	camp, err := a.core.GetCampaignForPreview(id, tplID)
 	if err != nil {
 		return err
 	}
 
 	// There's a body in the request to preview instead of the body in the DB.
-	if c.Request().Method == http.MethodPost {
-		camp.ContentType = c.FormValue("content_type")
+	if isPost {
+		camp.ContentType = contentType
 		camp.Body = c.FormValue("body")
 	}
 
@@ -214,9 +223,6 @@ func (a *App) CreateCampaign(c echo.Context) error {
 		o.Type = models.CampaignTypeRegular
 	}
 
-	if o.ContentType == "" {
-		o.ContentType = models.CampaignContentTypeRichtext
-	}
 	if o.Messenger == "" {
 		o.Messenger = "email"
 	}
@@ -228,7 +234,7 @@ func (a *App) CreateCampaign(c echo.Context) error {
 		o = c
 	}
 
-	if o.ArchiveTemplateID == 0 {
+	if o.ArchiveTemplateID.Valid && o.ArchiveTemplateID.Int != 0 {
 		o.ArchiveTemplateID = o.TemplateID
 	}
 

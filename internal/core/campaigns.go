@@ -124,27 +124,11 @@ func (c *Core) getCampaign(id int, uuid, archiveSlug string, tplType string) (mo
 	return out[0], nil
 }
 
-// GetCampaignForPreview retrieves a campaign with a template body.
-func (c *Core) GetCampaignForPreview(id int) (models.Campaign, error) {
+// GetCampaignForPreview retrieves a campaign with a template body. If the optional tplID is > 0
+// that particular template is used, otherwise, the template saved on the campaign is.
+func (c *Core) GetCampaignForPreview(id int, tplID int) (models.Campaign, error) {
 	var out models.Campaign
-	if err := c.q.GetCampaignForPreview.Get(&out, id); err != nil {
-		if err == sql.ErrNoRows {
-			return models.Campaign{}, echo.NewHTTPError(http.StatusBadRequest,
-				c.i18n.Ts("globals.messages.notFound", "name", "{globals.terms.campaign}"))
-		}
-
-		c.log.Printf("error fetching campaign: %v", err)
-		return models.Campaign{}, echo.NewHTTPError(http.StatusInternalServerError,
-			c.i18n.Ts("globals.messages.errorFetching", "name", "{globals.terms.campaign}", "error", pqErrMsg(err)))
-	}
-
-	return out, nil
-}
-
-// GetCampaignForPreview retrieves a campaign with a template body.
-func (c *Core) GetCampaignForPreviewWithTemplate(id int, tplID *int) (models.Campaign, error) {
-	var out models.Campaign
-	if err := c.q.GetCampaignForPreviewWithTemplate.Get(&out, id, tplID); err != nil {
+	if err := c.q.GetCampaignForPreview.Get(&out, id, tplID); err != nil {
 		if err == sql.ErrNoRows {
 			return models.Campaign{}, echo.NewHTTPError(http.StatusBadRequest,
 				c.i18n.Ts("globals.messages.notFound", "name", "{globals.terms.campaign}"))
@@ -199,11 +183,11 @@ func (c *Core) CreateCampaign(o models.Campaign, listIDs []int, mediaIDs []int) 
 		o.Headers,
 		pq.StringArray(normalizeTags(o.Tags)),
 		o.Messenger,
-		o.TemplateID.Int64,
+		o.TemplateID.Int,
 		pq.Array(listIDs),
 		o.Archive,
 		o.ArchiveSlug,
-		o.ArchiveTemplateID.Int64,
+		o.ArchiveTemplateID.Int,
 		o.ArchiveMeta,
 		pq.Array(mediaIDs),
 		o.BodySource,

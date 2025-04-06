@@ -663,7 +663,7 @@ LEFT JOIN bounces AS b ON (b.campaign_id = id)
 ORDER BY ARRAY_POSITION($1, id);
 
 -- name: get-campaign-for-preview
-SELECT campaigns.*, COALESCE(templates.body, '') AS template_body,
+SELECT campaigns.*, COALESCE(templates.body, (SELECT body FROM templates WHERE is_default = true LIMIT 1)) AS template_body,
 (
 	SELECT COALESCE(ARRAY_TO_JSON(ARRAY_AGG(l)), '[]') FROM (
 		SELECT COALESCE(campaign_lists.list_id, 0) AS id,
@@ -672,20 +672,7 @@ SELECT campaigns.*, COALESCE(templates.body, '') AS template_body,
 	) l
 ) AS lists
 FROM campaigns
-LEFT JOIN templates ON templates.id = campaigns.template_id
-WHERE campaigns.id = $1;
-
--- name: get-campaign-for-preview-with-tpl
-SELECT campaigns.*, COALESCE(templates.body, '') AS template_body,
-(
-	SELECT COALESCE(ARRAY_TO_JSON(ARRAY_AGG(l)), '[]') FROM (
-		SELECT COALESCE(campaign_lists.list_id, 0) AS id,
-        campaign_lists.list_name AS name
-        FROM campaign_lists WHERE campaign_lists.campaign_id = campaigns.id
-	) l
-) AS lists
-FROM campaigns
-LEFT JOIN templates ON templates.id = $2
+LEFT JOIN templates ON (templates.id = (CASE WHEN $2=0 THEN campaigns.template_id ELSE $2 END))
 WHERE campaigns.id = $1;
 
 -- name: get-campaign-status

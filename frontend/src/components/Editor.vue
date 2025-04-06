@@ -27,7 +27,8 @@
           </b-select>
         </b-field>
 
-        <b-field v-if="computedValue.contentType !== 'visual'" :label="$t('globals.terms.baseTemplate')" label-position="on-border">
+        <b-field v-if="computedValue.contentType !== 'visual'" :label="$t('globals.terms.baseTemplate')"
+          label-position="on-border">
           <b-select :placeholder="$t('globals.terms.none')" v-model="templateId" name="template" :disabled="disabled">
             <template v-for="t in applicableTemplates">
               <option :value="t.id" :key="t.id">
@@ -38,22 +39,25 @@
         </b-field>
 
         <div v-else>
-          <b-button v-if="!isVisualTplSelector" @click="onShowVisualTplSelector" type="is-ghost" icon-left="file-find-outline" data-cy="btn-select-visual-tpl">
+          <b-button v-if="!isVisualTplSelector" @click="onShowVisualTplSelector" type="is-ghost"
+            icon-left="file-find-outline" data-cy="btn-select-visual-tpl">
             {{ $t('globals.terms.copyVisualTemplate') }}
           </b-button>
 
           <b-field v-else :label="$t('globals.terms.copyVisualTemplate')" label-position="on-border">
-              <b-select :placeholder="$t('globals.terms.none')" v-model="visualTemplateId" name="template" :disabled="disabled" class="copy-visual-template-list">
-                <template v-for="t in applicableTemplates">
-                  <option :value="t.id" :key="t.id">
-                    {{ t.name }}
-                  </option>
-                </template>
-              </b-select>
+            <b-select :placeholder="$t('globals.terms.none')" v-model="visualTemplateId" name="template"
+              :disabled="disabled" class="copy-visual-template-list">
+              <template v-for="t in applicableTemplates">
+                <option :value="t.id" :key="t.id">
+                  {{ t.name }}
+                </option>
+              </template>
+            </b-select>
 
-              <b-button :disabled="isVisualTplApplied" class="ml-3" @click="onApplyVisualTpl" type="is-primary" icon-left="content-save-outline" data-cy="btn-save-visual-tpl">
-                {{ $t('globals.terms.apply') }}
-              </b-button>
+            <b-button :disabled="isVisualTplApplied" class="ml-3" @click="onApplyVisualTpl" type="is-primary"
+              icon-left="content-save-outline" data-cy="btn-save-visual-tpl">
+              {{ $t('globals.terms.apply') }}
+            </b-button>
           </b-field>
         </div>
       </div>
@@ -68,7 +72,8 @@
     <richtext-editor v-if="computedValue.contentType === 'richtext'" v-model="computedValue.body" />
 
     <!-- visual editor //-->
-    <visual-editor v-if="computedValue.contentType === 'visual'" :source="computedValue.bodySource" @change="onChangeVisualEditor" height="65vh" />
+    <visual-editor v-if="computedValue.contentType === 'visual'" :source="computedValue.bodySource"
+      @change="onChangeVisualEditor" height="65vh" />
 
     <!-- raw html editor //-->
     <html-editor v-if="computedValue.contentType === 'html'" v-model="computedValue.body" />
@@ -77,8 +82,8 @@
     <markdown-editor v-if="computedValue.contentType === 'markdown'" v-model="computedValue.body" />
 
     <!-- plain text //-->
-    <b-input v-if="computedValue.contentType === 'plain'" v-model="computedValue.body"
-      type="textarea" name="content" ref="plainEditor" class="plain-editor" />
+    <b-input v-if="computedValue.contentType === 'plain'" v-model="computedValue.body" type="textarea" name="content"
+      ref="plainEditor" class="plain-editor" />
 
     <!-- campaign preview //-->
     <campaign-preview v-if="isPreviewing" is-post @close="onTogglePreview" type="campaign" :id="id" :title="title"
@@ -131,7 +136,7 @@ export default {
       isVisualTplApplied: false,
       contentType: this.$props.value.contentType,
       templateId: '',
-      visualTemplateId: ''
+      visualTemplateId: '',
     };
   },
 
@@ -291,7 +296,7 @@ export default {
               this.isVisualTplApplied = true;
             }, 250);
           }
-        }
+        },
       );
     },
 
@@ -302,7 +307,7 @@ export default {
         const defaultTemplate = this.applicableTemplates.find((t) => t.isDefault === true);
         this.templateId = defaultTemplate?.id || this.applicableTemplates[0]?.id || null;
       }
-    }
+    },
   },
 
   mounted() {
