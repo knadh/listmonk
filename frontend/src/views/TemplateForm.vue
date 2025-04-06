@@ -194,10 +194,14 @@ export default Vue.extend({
     });
 
     window.addEventListener('keydown', this.onPreviewShortcut);
+    // Add overflow hidden to HTML root when mounted
+    document.documentElement.style.overflow = 'hidden';
   },
 
   beforeDestroy() {
     window.removeEventListener('keydown', this.onPreviewShortcut);
+    // Add overflow hidden to HTML root when mounted
+    document.documentElement.style.overflow = 'auto';
   },
 });
 </script>
