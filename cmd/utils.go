@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"path/filepath"
 	"regexp"
+	"slices"
 	"strconv"
 	"strings"
 )
@@ -15,12 +16,7 @@ var (
 
 // inArray checks if a string is present in a list of strings.
 func inArray(val string, vals []string) (ok bool) {
-	for _, v := range vals {
-		if v == val {
-			return true
-		}
-	}
-	return false
+	return slices.Contains(vals, val)
 }
 
 // makeFilename sanitizes a filename (user supplied upload filenames).

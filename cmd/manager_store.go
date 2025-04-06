@@ -139,11 +139,13 @@ func (s *store) RecordBounce(b models.Bounce) (int64, int, error) {
 	return res.SubscriberID, res.Num, err
 }
 
+// BlocklistSubscriber blocklists a subscriber permanently.
 func (s *store) BlocklistSubscriber(id int64) error {
 	_, err := s.queries.BlocklistSubscribers.Exec(pq.Int64Array{id})
 	return err
 }
 
+// DeleteSubscriber deletes a subscriber from the DB.
 func (s *store) DeleteSubscriber(id int64) error {
 	_, err := s.queries.DeleteSubscribers.Exec(pq.Int64Array{id})
 	return err

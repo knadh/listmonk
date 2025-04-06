@@ -125,9 +125,7 @@ func V4_0_0(db *sqlx.DB, fs stuffbin.FileSystem, ko *koanf.Koanf, lo *log.Logger
 
 		perms := []string{}
 		for _, group := range permGroups {
-			for _, p := range group.Permissions {
-				perms = append(perms, p)
-			}
+			perms = append(perms, group.Permissions...)
 		}
 		if _, err := db.Exec(`INSERT INTO roles (type, name, permissions) VALUES('user', 'Super Admin', $1) ON CONFLICT DO NOTHING`, pq.Array(perms)); err != nil {
 			return err

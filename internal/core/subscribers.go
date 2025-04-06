@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/gofrs/uuid/v5"
+	"github.com/knadh/listmonk/internal/auth"
 	"github.com/knadh/listmonk/models"
 	"github.com/labstack/echo/v4"
 	"github.com/lib/pq"
@@ -16,7 +17,7 @@ import (
 
 // GetSubscriber fetches a subscriber by one of the given params.
 func (c *Core) GetSubscriber(id int, uuid, email string) (models.Subscriber, error) {
-	var uu interface{}
+	var uu any
 	if uuid != "" {
 		uu = uuid
 	}
@@ -120,9 +121,7 @@ func (c *Core) QuerySubscribers(query string, listIDs []int, subStatus string, o
 	}
 
 	// Run the query again and fetch the actual data. stmt is the raw SQL query.
-	out := models.Subscribers{}
-	stmt := fmt.Sprintf(c.q.QuerySubscribersCount, cond)
-	stmt = strings.ReplaceAll(c.q.QuerySubscribers, "%query%", cond)
+	stmt := strings.ReplaceAll(c.q.QuerySubscribers, "%query%", cond)
 	stmt = strings.ReplaceAll(stmt, "%order%", orderBy+" "+order)
 
 	tx, err := c.db.BeginTxx(context.Background(), &sql.TxOptions{ReadOnly: true})
@@ -132,6 +131,7 @@ func (c *Core) QuerySubscribers(query string, listIDs []int, subStatus string, o
 	}
 	defer tx.Rollback()
 
+	var out models.Subscribers
 	if err := tx.Select(&out, stmt, pq.Array(listIDs), subStatus, offset, limit); err != nil {
 		return nil, 0, echo.NewHTTPError(http.StatusInternalServerError,
 			c.i18n.Ts("globals.messages.errorFetching", "name", "{globals.terms.subscribers}", "error", pqErrMsg(err)))
@@ -156,7 +156,7 @@ func (c *Core) GetSubscriberLists(subID int, uuid string, listIDs []int, listUUI
 		listUUIDs = []string{}
 	}
 
-	var uu interface{}
+	var uu any
 	if uuid != "" {
 		uu = uuid
 	}
@@ -176,7 +176,7 @@ func (c *Core) GetSubscriberLists(subID int, uuid string, listIDs []int, listUUI
 // Get the subscriber's data. A single query that gets the profile, list subscriptions, campaign views,
 // and link clicks. Names of private lists are replaced with "Private list".
 func (c *Core) GetSubscriberProfileForExport(id int, uuid string) (models.SubscriberExportProfile, error) {
-	var uu interface{}
+	var uu any
 	if uuid != "" {
 		uu = uuid
 	}
@@ -203,8 +203,7 @@ func (c *Core) ExportSubscribers(query string, subIDs, listIDs []int, subStatus 
 		cond = " AND " + query
 	}
 
-	stmt := fmt.Sprintf(c.q.QuerySubscribersForExport, cond)
-	stmt = strings.ReplaceAll(c.q.QuerySubscribersForExport, "%query%", cond)
+	stmt := strings.ReplaceAll(c.q.QuerySubscribersForExport, "%query%", cond)
 
 	// Verify that the arbitrary SQL search expression is read only.
 	if cond != "" {
@@ -271,7 +270,7 @@ func (c *Core) InsertSubscriber(sub models.Subscriber, listIDs []int, listUUIDs 
 		subStatus = models.SubscriptionStatusConfirmed
 	}
 	if sub.Status == "" {
-		sub.Status = models.UserStatusEnabled
+		sub.Status = auth.UserStatusEnabled
 	}
 
 	// For pq.Array()
@@ -483,7 +482,7 @@ func (c *Core) ConfirmOptionSubscription(subUUID string, listUUIDs []string, met
 
 // DeleteSubscriberBounces deletes the given list of subscribers.
 func (c *Core) DeleteSubscriberBounces(id int, uuid string) error {
-	var uu interface{}
+	var uu any
 	if uuid != "" {
 		uu = uuid
 	}

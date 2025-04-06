@@ -89,7 +89,7 @@ func (c *Core) GetArchivedCampaign(id int, uuid, archiveSlug string) (models.Cam
 // the archive template is returned.
 func (c *Core) getCampaign(id int, uuid, archiveSlug string, tplType string) (models.Campaign, error) {
 	// Unsafe to ignore scanning fields not present in models.Campaigns.
-	var uu interface{}
+	var uu any
 	if uuid != "" {
 		uu = uuid
 	}

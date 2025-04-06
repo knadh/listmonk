@@ -20,9 +20,9 @@ import (
 	"gopkg.in/volatiletech/null.v6"
 )
 
-// campaignReq is a wrapper over the Campaign model for receiving
+// campReq is a wrapper over the Campaign model for receiving
 // campaign creation and update data from APIs.
-type campaignReq struct {
+type campReq struct {
 	models.Campaign
 
 	// This overrides Campaign.Lists to receive and
@@ -37,9 +37,9 @@ type campaignReq struct {
 	SubscriberEmails pq.StringArray `json:"subscribers"`
 }
 
-// campaignContentReq wraps params coming from API requests for converting
+// campContentReq wraps params coming from API requests for converting
 // campaign content formats.
-type campaignContentReq struct {
+type campContentReq struct {
 	models.Campaign
 	From string `json:"from"`
 	To   string `json:"to"`
@@ -54,8 +54,22 @@ var (
 func handleGetCampaigns(c echo.Context) error {
 	var (
 		app  = c.Get("app").(*App)
-		user = c.Get(auth.UserKey).(models.User)
-		pg   = app.paginator.NewFromURL(c.Request().URL.Query())
+		user = auth.GetUser(c)
+	)
+
+	var (
+		hasAllPerm     = user.HasPerm(auth.PermCampaignsGetAll)
+		permittedLists []int
+	)
+
+	if !hasAllPerm {
+		// Either the user has campaigns:get_all permissions and can view all campaigns,
+		// or the campaigns are filtered by the lists the user has get|manage access to.
+		hasAllPerm, permittedLists = user.GetPermittedLists(auth.PermTypeGet | auth.PermTypeManage)
+	}
+
+	var (
+		pg = app.paginator.NewFromURL(c.Request().URL.Query())
 
 		status    = c.QueryParams()["status"]
 		tags      = c.QueryParams()["tag"]
@@ -65,18 +79,7 @@ func handleGetCampaigns(c echo.Context) error {
 		noBody, _ = strconv.ParseBool(c.QueryParam("no_body"))
 	)
 
-	var (
-		hasAllPerm     = user.HasPerm(models.PermCampaignsGetAll)
-		permittedLists []int
-	)
-
-	if !hasAllPerm {
-		// Either the user has campaigns:get_all permissions and can view all campaigns,
-		// or the campaigns are filtered by the lists the user has get|manage access to.
-		hasAllPerm, permittedLists = user.GetPermittedLists(true, true)
-	}
-
-	// Query and retrieve the campaigns.
+	// Query and retrieve campaigns from the DB.
 	res, total, err := app.core.QueryCampaigns(query, status, tags, orderBy, order, hasAllPerm, permittedLists, pg.Offset, pg.Limit)
 	if err != nil {
 		return err
@@ -90,18 +93,17 @@ func handleGetCampaigns(c echo.Context) error {
 	}
 
 	// Paginate the response.
-	var out models.PageResults
 	if len(res) == 0 {
-		out.Results = []models.Campaign{}
-		return c.JSON(http.StatusOK, okResp{out})
+		return c.JSON(http.StatusOK, okResp{models.PageResults{Results: []models.Campaign{}}})
 	}
 
-	// Meta.
-	out.Query = query
-	out.Results = res
-	out.Total = total
-	out.Page = pg.Page
-	out.PerPage = pg.PerPage
+	out := models.PageResults{
+		Query:   query,
+		Results: res,
+		Total:   total,
+		Page:    pg.Page,
+		PerPage: pg.PerPage,
+	}
 
 	return c.JSON(http.StatusOK, okResp{out})
 }
@@ -110,17 +112,15 @@ func handleGetCampaigns(c echo.Context) error {
 func handleGetCampaign(c echo.Context) error {
 	var (
 		app = c.Get("app").(*App)
-
-		id, _     = strconv.Atoi(c.Param("id"))
-		noBody, _ = strconv.ParseBool(c.QueryParam("no_body"))
 	)
 
+	id, _ := strconv.Atoi(c.Param("id"))
 	if id < 1 {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidID"))
 	}
 
 	// Check if the user has access to the campaign.
-	if err := checkCampaignPerm(id, true, c); err != nil {
+	if err := checkCampaignPerm(auth.PermTypeGet, id, c); err != nil {
 		return err
 	}
 
@@ -130,6 +130,8 @@ func handleGetCampaign(c echo.Context) error {
 		return err
 	}
 
+	// Blank out the body if requested.
+	noBody, _ := strconv.ParseBool(c.QueryParam("no_body"))
 	if noBody {
 		out.Body = ""
 	}
@@ -141,21 +143,20 @@ func handleGetCampaign(c echo.Context) error {
 func handlePreviewCampaign(c echo.Context) error {
 	var (
 		app = c.Get("app").(*App)
-
-		id, _    = strconv.Atoi(c.Param("id"))
-		tplID, _ = strconv.Atoi(c.FormValue("template_id"))
 	)
 
+	id, _ := strconv.Atoi(c.Param("id"))
 	if id < 1 {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidID"))
 	}
 
 	// Check if the user has access to the campaign.
-	if err := checkCampaignPerm(id, true, c); err != nil {
+	if err := checkCampaignPerm(auth.PermTypeGet, id, c); err != nil {
 		return err
 	}
 
 	// Fetch the campaign body from the DB.
+	tplID, _ := strconv.Atoi(c.FormValue("template_id"))
 	camp, err := app.core.GetCampaignForPreview(id, tplID)
 	if err != nil {
 		return err
@@ -194,15 +195,15 @@ func handlePreviewCampaign(c echo.Context) error {
 // handleCampaignContent handles campaign content (body) format conversions.
 func handleCampaignContent(c echo.Context) error {
 	var (
-		app   = c.Get("app").(*App)
-		id, _ = strconv.Atoi(c.Param("id"))
+		app = c.Get("app").(*App)
 	)
 
+	id, _ := strconv.Atoi(c.Param("id"))
 	if id < 1 {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidID"))
 	}
 
-	var camp campaignContentReq
+	var camp campContentReq
 	if err := c.Bind(&camp); err != nil {
 		return err
 	}
@@ -220,7 +221,7 @@ func handleCampaignContent(c echo.Context) error {
 func handleCreateCampaign(c echo.Context) error {
 	var (
 		app = c.Get("app").(*App)
-		o   campaignReq
+		o   campReq
 	)
 
 	if err := c.Bind(&o); err != nil {
@@ -278,7 +279,7 @@ func handleUpdateCampaign(c echo.Context) error {
 	}
 
 	// Check if the user has access to the campaign.
-	if err := checkCampaignPerm(id, false, c); err != nil {
+	if err := checkCampaignPerm(auth.PermTypeManage, id, c); err != nil {
 		return err
 	}
 
@@ -295,7 +296,7 @@ func handleUpdateCampaign(c echo.Context) error {
 	// Read the incoming params into the existing campaign fields from the DB.
 	// This allows updating of values that have been sent whereas fields
 	// that are not in the request retain the old values.
-	o := campaignReq{Campaign: cm}
+	o := campReq{Campaign: cm}
 	if err := c.Bind(&o); err != nil {
 		return err
 	}
@@ -326,7 +327,7 @@ func handleUpdateCampaignStatus(c echo.Context) error {
 	}
 
 	// Check if the user has access to the campaign.
-	if err := checkCampaignPerm(id, false, c); err != nil {
+	if err := checkCampaignPerm(auth.PermTypeManage, id, c); err != nil {
 		return err
 	}
 
@@ -359,7 +360,7 @@ func handleUpdateCampaignArchive(c echo.Context) error {
 	)
 
 	// Check if the user has access to the campaign.
-	if err := checkCampaignPerm(id, false, c); err != nil {
+	if err := checkCampaignPerm(auth.PermTypeManage, id, c); err != nil {
 		return err
 	}
 
@@ -401,7 +402,7 @@ func handleDeleteCampaign(c echo.Context) error {
 	}
 
 	// Check if the user has access to the campaign.
-	if err := checkCampaignPerm(id, false, c); err != nil {
+	if err := checkCampaignPerm(auth.PermTypeManage, id, c); err != nil {
 		return err
 	}
 
@@ -419,6 +420,7 @@ func handleGetRunningCampaignStats(c echo.Context) error {
 		app = c.Get("app").(*App)
 	)
 
+	// Get the running campaign stats from the DB.
 	out, err := app.core.GetRunningCampaignStats()
 	if err != nil {
 		return err
@@ -431,10 +433,7 @@ func handleGetRunningCampaignStats(c echo.Context) error {
 	// Compute rate.
 	for i, c := range out {
 		if c.Started.Valid && c.UpdatedAt.Valid {
-			diff := int(c.UpdatedAt.Time.Sub(c.Started.Time).Minutes())
-			if diff < 1 {
-				diff = 1
-			}
+			diff := max(int(c.UpdatedAt.Time.Sub(c.Started.Time).Minutes()), 1)
 
 			rate := c.Sent / diff
 			if rate > c.Sent || rate > c.ToSend {
@@ -457,22 +456,20 @@ func handleGetRunningCampaignStats(c echo.Context) error {
 func handleTestCampaign(c echo.Context) error {
 	var (
 		app = c.Get("app").(*App)
-
-		id, _    = strconv.Atoi(c.Param("id"))
-		tplID, _ = strconv.Atoi(c.FormValue("template_id"))
 	)
 
+	id, _ := strconv.Atoi(c.Param("id"))
 	if id < 1 {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.errorID"))
 	}
 
 	// Check if the user has access to the campaign.
-	if err := checkCampaignPerm(id, false, c); err != nil {
+	if err := checkCampaignPerm(auth.PermTypeManage, id, c); err != nil {
 		return err
 	}
 
 	// Get and validate fields.
-	var req campaignReq
+	var req campReq
 	if err := c.Bind(&req); err != nil {
 		return err
 	}
@@ -487,17 +484,19 @@ func handleTestCampaign(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("campaigns.noSubsToTest"))
 	}
 
-	// Get the subscribers.
-	for i := 0; i < len(req.SubscriberEmails); i++ {
+	// Sanitize subscriber e-mails.
+	for i := range req.SubscriberEmails {
 		req.SubscriberEmails[i] = strings.ToLower(strings.TrimSpace(req.SubscriberEmails[i]))
 	}
 
+	// Get the subscribers from the DB by their e-mails.
 	subs, err := app.core.GetSubscribersByEmail(req.SubscriberEmails)
 	if err != nil {
 		return err
 	}
 
-	// The campaign.
+	// Get the campaign from the DB for previewing.
+	tplID, _ := strconv.Atoi(c.FormValue("template_id"))
 	camp, err := app.core.GetCampaignForPreview(id, tplID)
 	if err != nil {
 		return err
@@ -522,8 +521,8 @@ func handleTestCampaign(c echo.Context) error {
 	// Send the test messages.
 	for _, s := range subs {
 		sub := s
-		c := camp
-		if err := sendTestMessage(sub, &c, app); err != nil {
+
+		if err := sendTestMessage(sub, &camp, app); err != nil {
 			app.log.Printf("error sending test message: %v", err)
 			return echo.NewHTTPError(http.StatusInternalServerError,
 				app.i18n.Ts("campaigns.errorSendTest", "error", err.Error()))
@@ -537,10 +536,6 @@ func handleTestCampaign(c echo.Context) error {
 func handleGetCampaignViewAnalytics(c echo.Context) error {
 	var (
 		app = c.Get("app").(*App)
-
-		typ  = c.Param("type")
-		from = c.QueryParams().Get("from")
-		to   = c.QueryParams().Get("to")
 	)
 
 	ids, err := parseStringIDs(c.Request().URL.Query()["id"])
@@ -554,6 +549,11 @@ func handleGetCampaignViewAnalytics(c echo.Context) error {
 			app.i18n.Ts("globals.messages.missingFields", "name", "`id`"))
 	}
 
+	var (
+		typ  = c.Param("type")
+		from = c.QueryParams().Get("from")
+		to   = c.QueryParams().Get("to")
+	)
 	if !strHasLen(from, 10, 30) || !strHasLen(to, 10, 30) {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("analytics.invalidDates"))
 	}
@@ -568,7 +568,7 @@ func handleGetCampaignViewAnalytics(c echo.Context) error {
 		return c.JSON(http.StatusOK, okResp{out})
 	}
 
-	// View, click, bounce stats.
+	// Get the analytics numbers from the DB for the campaigns.
 	out, err := app.core.GetCampaignAnalyticsCounts(ids, typ, from, to)
 	if err != nil {
 		return err
@@ -698,15 +698,14 @@ func sendTestMessage(sub models.Subscriber, camp *models.Campaign, app *App) err
 	msg, err := app.manager.NewCampaignMessage(camp, sub)
 	if err != nil {
 		app.log.Printf("error rendering message: %v", err)
-		return echo.NewHTTPError(http.StatusNotFound,
-			app.i18n.Ts("templates.errorRendering", "error", err.Error()))
+		return echo.NewHTTPError(http.StatusNotFound, app.i18n.Ts("templates.errorRendering", "error", err.Error()))
 	}
 
 	return app.manager.PushCampaignMessage(msg)
 }
 
 // validateCampaignFields validates incoming campaign field values.
-func validateCampaignFields(c campaignReq, app *App) (campaignReq, error) {
+func validateCampaignFields(c campReq, app *App) (campReq, error) {
 	if c.FromEmail == "" {
 		c.FromEmail = app.constants.FromEmail
 	} else if !regexFromAddress.Match([]byte(c.FromEmail)) {
@@ -776,18 +775,18 @@ func canEditCampaign(status string) bool {
 }
 
 // makeOptinCampaignMessage makes a default opt-in campaign message body.
-func makeOptinCampaignMessage(o campaignReq, app *App) (campaignReq, error) {
+func makeOptinCampaignMessage(o campReq, app *App) (campReq, error) {
 	if len(o.ListIDs) == 0 {
 		return o, echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("campaigns.fieldInvalidListIDs"))
 	}
 
-	// Fetch double opt-in lists from the given list IDs.
+	// Fetch double opt-in lists from the given list IDs from the DB.
 	lists, err := app.core.GetListsByOptin(o.ListIDs, models.ListOptinDouble)
 	if err != nil {
 		return o, err
 	}
 
-	// No opt-in lists.
+	// There are no double opt-in lists.
 	if len(lists) == 0 {
 		return o, echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("campaigns.noOptinLists"))
 	}
@@ -816,32 +815,32 @@ func makeOptinCampaignMessage(o campaignReq, app *App) (campaignReq, error) {
 }
 
 // checkCampaignPerm checks if the user has get or manage access to the given campaign.
-func checkCampaignPerm(id int, isGet bool, c echo.Context) error {
+func checkCampaignPerm(types auth.PermType, id int, c echo.Context) error {
 	var (
 		app  = c.Get("app").(*App)
-		user = c.Get(auth.UserKey).(models.User)
+		user = auth.GetUser(c)
 	)
 
-	perm := models.PermCampaignsGet
-	if isGet {
+	perm := auth.PermCampaignsGet
+	if types&auth.PermTypeGet != 0 {
 		// It's a get request and there's a blanket get all permission.
-		if user.HasPerm(models.PermCampaignsGetAll) {
+		if user.HasPerm(auth.PermCampaignsGetAll) {
 			return nil
 		}
 	} else {
 		// It's a manage request and there's a blanket manage_all permission.
-		if user.HasPerm(models.PermCampaignsManageAll) {
+		if user.HasPerm(auth.PermCampaignsManageAll) {
 			return nil
 		}
 
-		perm = models.PermCampaignsManage
+		perm = auth.PermCampaignsManage
 	}
 
 	// There are no *_all campaign permissions. Instead, check if the user access
 	// blanket get_all/manage_all list permissions. If yes, then the user can access
 	// all campaigns. If there are no *_all permissions, then ensure that the
 	// campaign belongs to the lists that the user has access to.
-	if hasAllPerm, permittedListIDs := user.GetPermittedLists(true, true); !hasAllPerm {
+	if hasAllPerm, permittedListIDs := user.GetPermittedLists(auth.PermTypeGet | auth.PermTypeManage); !hasAllPerm {
 		if ok, err := app.core.CampaignHasLists(id, permittedListIDs); err != nil {
 			return err
 		} else if !ok {

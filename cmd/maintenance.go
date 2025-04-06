@@ -11,10 +11,11 @@ import (
 func handleGCSubscribers(c echo.Context) error {
 	var (
 		app = c.Get("app").(*App)
-		typ = c.Param("type")
 	)
 
 	var (
+		typ = c.Param("type")
+
 		n   int
 		err error
 	)
@@ -43,11 +44,13 @@ func handleGCSubscriptions(c echo.Context) error {
 		app = c.Get("app").(*App)
 	)
 
+	// Validate the date.
 	t, err := time.Parse(time.RFC3339, c.FormValue("before_date"))
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidData"))
 	}
 
+	// Delete unconfirmed subscriptions from the DB in bulk.
 	n, err := app.core.DeleteUnconfirmedSubscriptions(t)
 	if err != nil {
 		return err

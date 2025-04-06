@@ -9,7 +9,6 @@ import (
 	"github.com/knadh/listmonk/internal/auth"
 	"github.com/knadh/listmonk/internal/core"
 	"github.com/knadh/listmonk/internal/utils"
-	"github.com/knadh/listmonk/models"
 	"github.com/labstack/echo/v4"
 	"gopkg.in/volatiletech/null.v6"
 )
@@ -21,33 +20,37 @@ var (
 // handleGetUsers retrieves users.
 func handleGetUsers(c echo.Context) error {
 	var (
-		app       = c.Get("app").(*App)
-		userID, _ = strconv.Atoi(c.Param("id"))
+		app = c.Get("app").(*App)
 	)
 
-	// Fetch one.
-	single := false
+	var (
+		single    = false
+		userID, _ = strconv.Atoi(c.Param("id"))
+	)
 	if userID > 0 {
 		single = true
 	}
 
 	if single {
+		// Get the user from the DB.
 		out, err := app.core.GetUser(userID, "", "")
 		if err != nil {
 			return err
 		}
 
+		// Blank out the password hash respond to the API.
 		out.Password = null.String{}
 
 		return c.JSON(http.StatusOK, okResp{out})
 	}
 
-	// Get all users.
+	// Get all users from the DB.
 	out, err := app.core.GetUsers()
 	if err != nil {
 		return err
 	}
 
+	// Blank out password hashes before respond to the API.
 	for n := range out {
 		out[n].Password = null.String{}
 	}
@@ -59,9 +62,9 @@ func handleGetUsers(c echo.Context) error {
 func handleCreateUser(c echo.Context) error {
 	var (
 		app = c.Get("app").(*App)
-		u   = models.User{}
 	)
 
+	var u = auth.User{}
 	if err := c.Bind(&u); err != nil {
 		return err
 	}
@@ -77,7 +80,7 @@ func handleCreateUser(c echo.Context) error {
 	if !reUsername.MatchString(u.Username) {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.Ts("globals.messages.invalidFields", "name", "username"))
 	}
-	if u.Type != models.UserTypeAPI {
+	if u.Type != auth.UserTypeAPI {
 		if !utils.ValidateEmail(email) {
 			return echo.NewHTTPError(http.StatusBadRequest, app.i18n.Ts("globals.messages.invalidFields", "name", "email"))
 		}
@@ -94,16 +97,18 @@ func handleCreateUser(c echo.Context) error {
 		u.Name = u.Username
 	}
 
-	// Create the user in the database.
+	// Create the user in the DB.
 	user, err := app.core.CreateUser(u)
 	if err != nil {
 		return err
 	}
-	if user.Type != models.UserTypeAPI {
+
+	// Blank out the password hash before responding to the API.
+	if user.Type != auth.UserTypeAPI {
 		user.Password = null.String{}
 	}
 
-	// Cache the API token for validating API queries without hitting the DB every time.
+	// Cache the API token for in-memory, off-DB /api/* request auth.
 	if _, err := cacheUsers(app.core, app.auth); err != nil {
 		return err
 	}
@@ -114,21 +119,20 @@ func handleCreateUser(c echo.Context) error {
 // handleUpdateUser handles user modification.
 func handleUpdateUser(c echo.Context) error {
 	var (
-		app   = c.Get("app").(*App)
-		id, _ = strconv.Atoi(c.Param("id"))
+		app = c.Get("app").(*App)
 	)
 
+	id, _ := strconv.Atoi(c.Param("id"))
 	if id < 1 {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidID"))
 	}
 
 	// Incoming params.
-	var u models.User
+	var u auth.User
 	if err := c.Bind(&u); err != nil {
 		return err
 	}
 
-	// Validate.
 	u.Username = strings.TrimSpace(u.Username)
 	u.Name = strings.TrimSpace(u.Name)
 	email := strings.TrimSpace(u.Email.String)
@@ -141,21 +145,24 @@ func handleUpdateUser(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.Ts("globals.messages.invalidFields", "name", "username"))
 	}
 
-	if u.Type != models.UserTypeAPI {
+	if u.Type != auth.UserTypeAPI {
 		if !utils.ValidateEmail(email) {
 			return echo.NewHTTPError(http.StatusBadRequest, app.i18n.Ts("globals.messages.invalidFields", "name", "email"))
 		}
+
+		// Validate password if password login is enabled.
 		if u.PasswordLogin && u.Password.String != "" {
 			if !strHasLen(u.Password.String, 8, stdInputMaxLen) {
 				return echo.NewHTTPError(http.StatusBadRequest, app.i18n.Ts("globals.messages.invalidFields", "name", "password"))
 			}
 
 			if u.Password.String != "" {
+				// If a password is sent, validate it before updating in the DB. If it's not set, leave the password in the DB untouched.
 				if !strHasLen(u.Password.String, 8, stdInputMaxLen) {
 					return echo.NewHTTPError(http.StatusBadRequest, app.i18n.Ts("globals.messages.invalidFields", "name", "password"))
 				}
 			} else {
-				// Get the existing user for password validation.
+				// Get the user from the DB.
 				user, err := app.core.GetUser(id, "", "")
 				if err != nil {
 					return err
@@ -172,6 +179,7 @@ func handleUpdateUser(c echo.Context) error {
 		u.Email = null.String{String: email, Valid: true}
 	}
 
+	// Default the name to username if not set.
 	if u.Name == "" {
 		u.Name = u.Username
 	}
@@ -182,10 +190,10 @@ func handleUpdateUser(c echo.Context) error {
 		return err
 	}
 
-	// Clear the pasword before sending outside.
+	// Blank out the password hash before responding to the API.
 	user.Password = null.String{}
 
-	// Cache the API token for validating API queries without hitting the DB every time.
+	// Cache the API token for in-memory, off-DB /api/* request auth.
 	if _, err := cacheUsers(app.core, app.auth); err != nil {
 		return err
 	}
@@ -196,24 +204,26 @@ func handleUpdateUser(c echo.Context) error {
 // handleDeleteUsers handles user deletion, either a single one (ID in the URI), or a list.
 func handleDeleteUsers(c echo.Context) error {
 	var (
-		app   = c.Get("app").(*App)
+		app = c.Get("app").(*App)
+	)
+
+	var (
 		id, _ = strconv.ParseInt(c.Param("id"), 10, 64)
 		ids   []int
 	)
-
 	if id < 1 && len(ids) == 0 {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidID"))
 	}
-
 	if id > 0 {
 		ids = append(ids, int(id))
 	}
 
+	// Delete the user(s) from the DB.
 	if err := app.core.DeleteUsers(ids); err != nil {
 		return err
 	}
 
-	// Cache the API token for validating API queries without hitting the DB every time.
+	// Cache the API token for in-memory, off-DB /api/* request auth.
 	if _, err := cacheUsers(app.core, app.auth); err != nil {
 		return err
 	}
@@ -224,8 +234,10 @@ func handleDeleteUsers(c echo.Context) error {
 // handleGetUserProfile fetches the uesr profile for the currently logged in user.
 func handleGetUserProfile(c echo.Context) error {
 	var (
-		user = c.Get(auth.UserKey).(models.User)
+		user = auth.GetUser(c)
 	)
+
+	// Blank out the password hash before responding to the API.
 	user.Password.String = ""
 	user.Password.Valid = false
 
@@ -236,10 +248,11 @@ func handleGetUserProfile(c echo.Context) error {
 func handleUpdateUserProfile(c echo.Context) error {
 	var (
 		app  = c.Get("app").(*App)
-		user = c.Get(auth.UserKey).(models.User)
+		user = auth.GetUser(c)
 	)
 
-	u := models.User{}
+	// Incoming params.
+	u := auth.User{}
 	if err := c.Bind(&u); err != nil {
 		return err
 	}
@@ -261,10 +274,13 @@ func handleUpdateUserProfile(c echo.Context) error {
 		}
 	}
 
+	// Update the user in the DB.
 	out, err := app.core.UpdateUserProfile(user.ID, u)
 	if err != nil {
 		return err
 	}
+
+	// Blank out the password hash before responding to the API.
 	out.Password = null.String{}
 
 	return c.JSON(http.StatusOK, okResp{out})
@@ -274,19 +290,19 @@ func handleUpdateUserProfile(c echo.Context) error {
 // It also returns a bool indicating whether there are any actual users in the DB at all,
 // which if there aren't, the first time user setup needs to be run.
 func cacheUsers(co *core.Core, a *auth.Auth) (bool, error) {
-	allUsers, err := co.GetUsers()
+	users, err := co.GetUsers()
 	if err != nil {
 		return false, err
 	}
 
 	hasUser := false
-	apiUsers := make([]models.User, 0, len(allUsers))
-	for _, u := range allUsers {
-		if u.Type == models.UserTypeAPI && u.Status == models.UserStatusEnabled {
+	apiUsers := make([]auth.User, 0, len(users))
+	for _, u := range users {
+		if u.Type == auth.UserTypeAPI && u.Status == auth.UserStatusEnabled {
 			apiUsers = append(apiUsers, u)
 		}
 
-		if u.Type == models.UserTypeUser {
+		if u.Type == auth.UserTypeUser {
 			hasUser = true
 		}
 	}

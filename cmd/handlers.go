@@ -21,7 +21,7 @@ const (
 )
 
 type okResp struct {
-	Data interface{} `json:"data"`
+	Data any `json:"data"`
 }
 
 var (
@@ -43,7 +43,7 @@ func initHTTPHandlers(e *echo.Echo, app *App) {
 		// Authenticated /api/* handlers.
 		api = e.Group("", app.auth.Middleware, func(next echo.HandlerFunc) echo.HandlerFunc {
 			return func(c echo.Context) error {
-				u := c.Get(auth.UserKey)
+				u := c.Get(auth.UserHTTPCtxKey)
 
 				// On no-auth, respond with a JSON error.
 				if err, ok := u.(*echo.HTTPError); ok {
@@ -57,7 +57,8 @@ func initHTTPHandlers(e *echo.Echo, app *App) {
 		// Authenticated non /api handlers.
 		a = e.Group("", app.auth.Middleware, func(next echo.HandlerFunc) echo.HandlerFunc {
 			return func(c echo.Context) error {
-				u := c.Get(auth.UserKey)
+				u := c.Get(auth.UserHTTPCtxKey)
+
 				// On no-auth, redirect to login page
 				if _, ok := u.(*echo.HTTPError); ok {
 					u, _ := url.Parse(app.constants.LoginURL)
@@ -134,10 +135,10 @@ func initHTTPHandlers(e *echo.Echo, app *App) {
 
 	// Individual list permissions are applied directly within handleGetLists.
 	api.GET("/api/lists", handleGetLists)
-	api.GET("/api/lists/:id", listPerm(handleGetList))
+	api.GET("/api/lists/:id", handleGetList)
 	api.POST("/api/lists", pm(handleCreateList, "lists:manage_all"))
-	api.PUT("/api/lists/:id", listPerm(handleUpdateList))
-	api.DELETE("/api/lists/:id", listPerm(handleDeleteLists))
+	api.PUT("/api/lists/:id", handleUpdateList)
+	api.DELETE("/api/lists/:id", handleDeleteLists)
 
 	api.GET("/api/campaigns", pm(handleGetCampaigns, "campaigns:get_all", "campaigns:get"))
 	api.GET("/api/campaigns/running/stats", pm(handleGetRunningCampaignStats, "campaigns:get_all", "campaigns:get"))

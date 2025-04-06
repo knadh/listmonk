@@ -47,7 +47,7 @@ type tplData struct {
 	EnablePublicSubPage bool
 	EnablePublicArchive bool
 	IndividualTracking  bool
-	Data                interface{}
+	Data                any
 	L                   *i18n.I18n
 }
 
@@ -68,11 +68,15 @@ type unsubTpl struct {
 	ShowManage       bool
 }
 
-type optinTpl struct {
-	publicTpl
+type optinReq struct {
 	SubUUID   string
 	ListUUIDs []string      `query:"l" form:"l"`
 	Lists     []models.List `query:"-" form:"-"`
+}
+
+type optinTpl struct {
+	publicTpl
+	optinReq
 }
 
 type msgTpl struct {
@@ -92,7 +96,7 @@ var (
 )
 
 // Render executes and renders a template for echo.
-func (t *tplRenderer) Render(w io.Writer, name string, data interface{}, c echo.Context) error {
+func (t *tplRenderer) Render(w io.Writer, name string, data any, c echo.Context) error {
 	return t.templates.ExecuteTemplate(w, name, tplData{
 		SiteName:            t.SiteName,
 		RootURL:             t.RootURL,
@@ -140,12 +144,11 @@ func handleGetPublicLists(c echo.Context) error {
 // This is the view the {{ MessageURL }} template tag links to in e-mail campaigns.
 func handleViewCampaignMessage(c echo.Context) error {
 	var (
-		app      = c.Get("app").(*App)
-		campUUID = c.Param("campUUID")
-		subUUID  = c.Param("subUUID")
+		app = c.Get("app").(*App)
 	)
 
 	// Get the campaign.
+	campUUID := c.Param("campUUID")
 	camp, err := app.core.GetCampaign(0, campUUID, "")
 	if err != nil {
 		if er, ok := err.(*echo.HTTPError); ok {
@@ -160,6 +163,7 @@ func handleViewCampaignMessage(c echo.Context) error {
 	}
 
 	// Get the subscriber.
+	subUUID := c.Param("subUUID")
 	sub, err := app.core.GetSubscriber(0, subUUID, "")
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -189,41 +193,46 @@ func handleViewCampaignMessage(c echo.Context) error {
 	return c.HTML(http.StatusOK, string(msg.Body()))
 }
 
-// handleSubscriptionPage renders the subscription management page and
-// handles unsubscriptions. This is the view that {{ UnsubscribeURL }} in
-// campaigns link to.
+// handleSubscriptionPage renders the subscription management page and handles unsubscriptions.
+// This is the view that {{ UnsubscribeURL }} in campaigns link to.
 func handleSubscriptionPage(c echo.Context) error {
 	var (
-		app           = c.Get("app").(*App)
+		app = c.Get("app").(*App)
+	)
+
+	var (
 		subUUID       = c.Param("subUUID")
 		showManage, _ = strconv.ParseBool(c.FormValue("manage"))
-		out           = unsubTpl{}
 	)
-	out.SubUUID = subUUID
-	out.Title = app.i18n.T("public.unsubscribeTitle")
-	out.AllowBlocklist = app.constants.Privacy.AllowBlocklist
-	out.AllowExport = app.constants.Privacy.AllowExport
-	out.AllowWipe = app.constants.Privacy.AllowWipe
-	out.AllowPreferences = app.constants.Privacy.AllowPreferences
 
+	// Get the subscriber from the DB.
 	s, err := app.core.GetSubscriber(0, subUUID, "")
 	if err != nil {
 		return c.Render(http.StatusInternalServerError, tplMessage,
 			makeMsgTpl(app.i18n.T("public.errorTitle"), "", app.i18n.Ts("public.errorProcessingRequest")))
 	}
-	out.Subscriber = s
 
+	// Prepare the public template.
+	out := unsubTpl{
+		Subscriber:       s,
+		SubUUID:          subUUID,
+		publicTpl:        publicTpl{Title: app.i18n.T("public.unsubscribeTitle")},
+		AllowBlocklist:   app.constants.Privacy.AllowBlocklist,
+		AllowExport:      app.constants.Privacy.AllowExport,
+		AllowWipe:        app.constants.Privacy.AllowWipe,
+		AllowPreferences: app.constants.Privacy.AllowPreferences,
+	}
+
+	// If the subscriber is blocklisted, throw an error.
 	if s.Status == models.SubscriberStatusBlockListed {
-		return c.Render(http.StatusOK, tplMessage,
-			makeMsgTpl(app.i18n.T("public.noSubTitle"), "", app.i18n.Ts("public.blocklisted")))
+		return c.Render(http.StatusOK, tplMessage, makeMsgTpl(app.i18n.T("public.noSubTitle"), "", app.i18n.Ts("public.blocklisted")))
 	}
 
 	// Only show preference management if it's enabled in settings.
 	if app.constants.Privacy.AllowPreferences {
 		out.ShowManage = showManage
-	}
-	if out.ShowManage {
-		// Get the subscriber's lists.
+
+		// Get the subscriber's lists from the DB to render in the template.
 		subs, err := app.core.GetSubscriptions(0, subUUID, false)
 		if err != nil {
 			return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("public.errorFetchingLists"))
@@ -231,6 +240,7 @@ func handleSubscriptionPage(c echo.Context) error {
 
 		out.Subscriptions = make([]models.Subscription, 0, len(subs))
 		for _, s := range subs {
+			// Private lists shouldn't be rendered in the template.
 			if s.Type == models.ListTypePrivate {
 				continue
 			}
@@ -247,26 +257,27 @@ func handleSubscriptionPage(c echo.Context) error {
 // campaigns link to.
 func handleSubscriptionPrefs(c echo.Context) error {
 	var (
-		app      = c.Get("app").(*App)
-		campUUID = c.Param("campUUID")
-		subUUID  = c.Param("subUUID")
-
-		req struct {
-			Name      string   `form:"name" json:"name"`
-			ListUUIDs []string `form:"l" json:"list_uuids"`
-			Blocklist bool     `form:"blocklist" json:"blocklist"`
-			Manage    bool     `form:"manage" json:"manage"`
-		}
+		app = c.Get("app").(*App)
 	)
 
 	// Read the form.
+	var req struct {
+		Name      string   `form:"name" json:"name"`
+		ListUUIDs []string `form:"l" json:"list_uuids"`
+		Blocklist bool     `form:"blocklist" json:"blocklist"`
+		Manage    bool     `form:"manage" json:"manage"`
+	}
 	if err := c.Bind(&req); err != nil {
 		return c.Render(http.StatusBadRequest, tplMessage,
 			makeMsgTpl(app.i18n.T("public.errorTitle"), "", app.i18n.T("globals.messages.invalidData")))
 	}
 
 	// Simple unsubscribe.
-	blocklist := app.constants.Privacy.AllowBlocklist && req.Blocklist
+	var (
+		campUUID  = c.Param("campUUID")
+		subUUID   = c.Param("subUUID")
+		blocklist = app.constants.Privacy.AllowBlocklist && req.Blocklist
+	)
 	if !req.Manage || blocklist {
 		if err := app.core.UnsubscribeByCampaign(subUUID, campUUID, blocklist); err != nil {
 			return c.Render(http.StatusInternalServerError, tplMessage,
@@ -299,7 +310,7 @@ func handleSubscriptionPrefs(c echo.Context) error {
 	}
 	sub.Name = req.Name
 
-	// Update name.
+	// Update the subscriber properties in the DB.
 	if _, err := app.core.UpdateSubscriber(sub.ID, sub); err != nil {
 		return c.Render(http.StatusInternalServerError, tplMessage,
 			makeMsgTpl(app.i18n.T("public.errorTitle"), "", app.i18n.T("public.errorProcessingRequest")))
@@ -312,11 +323,13 @@ func handleSubscriptionPrefs(c echo.Context) error {
 		reqUUIDs[u] = struct{}{}
 	}
 
+	// Get subscription from teh DB.
 	subs, err := app.core.GetSubscriptions(0, subUUID, false)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("public.errorFetchingLists"))
 	}
 
+	// Filter the lists in the request against the subscriptions in the DB.
 	unsubUUIDs := make([]string, 0, len(req.ListUUIDs))
 	for _, s := range subs {
 		if s.Type == models.ListTypePrivate {
@@ -343,23 +356,21 @@ func handleSubscriptionPrefs(c echo.Context) error {
 // notifications.
 func handleOptinPage(c echo.Context) error {
 	var (
-		app        = c.Get("app").(*App)
+		app = c.Get("app").(*App)
+	)
+
+	var (
 		subUUID    = c.Param("subUUID")
 		confirm, _ = strconv.ParseBool(c.FormValue("confirm"))
-		out        = optinTpl{}
+		req        optinReq
 	)
-	out.SubUUID = subUUID
-	out.Title = app.i18n.T("public.confirmOptinSubTitle")
-	out.SubUUID = subUUID
-
-	// Get and validate fields.
-	if err := c.Bind(&out); err != nil {
+	if err := c.Bind(&req); err != nil {
 		return err
 	}
 
 	// Validate list UUIDs if there are incoming UUIDs in the request.
-	if len(out.ListUUIDs) > 0 {
-		for _, l := range out.ListUUIDs {
+	if len(req.ListUUIDs) > 0 {
+		for _, l := range req.ListUUIDs {
 			if !reUUID.MatchString(l) {
 				return c.Render(http.StatusBadRequest, tplMessage,
 					makeMsgTpl(app.i18n.T("public.errorTitle"), "", app.i18n.T("globals.messages.invalidUUID")))
@@ -368,7 +379,7 @@ func handleOptinPage(c echo.Context) error {
 	}
 
 	// Get the list of subscription lists where the subscriber hasn't confirmed.
-	lists, err := app.core.GetSubscriberLists(0, subUUID, nil, out.ListUUIDs, models.SubscriptionStatusUnconfirmed, "")
+	lists, err := app.core.GetSubscriberLists(0, subUUID, nil, req.ListUUIDs, models.SubscriptionStatusUnconfirmed, "")
 	if err != nil {
 		return c.Render(http.StatusInternalServerError, tplMessage,
 			makeMsgTpl(app.i18n.T("public.errorTitle"), "", app.i18n.Ts("public.errorFetchingLists")))
@@ -379,7 +390,6 @@ func handleOptinPage(c echo.Context) error {
 		return c.Render(http.StatusOK, tplMessage,
 			makeMsgTpl(app.i18n.T("public.noSubTitle"), "", app.i18n.Ts("public.noSubInfo")))
 	}
-	out.Lists = lists
 
 	// Confirm.
 	if confirm {
@@ -392,7 +402,8 @@ func handleOptinPage(c echo.Context) error {
 			}
 		}
 
-		if err := app.core.ConfirmOptionSubscription(subUUID, out.ListUUIDs, meta); err != nil {
+		// Confirm subscriptions in the DB.
+		if err := app.core.ConfirmOptionSubscription(subUUID, req.ListUUIDs, meta); err != nil {
 			app.log.Printf("error unsubscribing: %v", err)
 			return c.Render(http.StatusInternalServerError, tplMessage,
 				makeMsgTpl(app.i18n.T("public.errorTitle"), "", app.i18n.Ts("public.errorProcessingRequest")))
@@ -401,6 +412,11 @@ func handleOptinPage(c echo.Context) error {
 		return c.Render(http.StatusOK, tplMessage,
 			makeMsgTpl(app.i18n.T("public.subConfirmedTitle"), "", app.i18n.Ts("public.subConfirmed")))
 	}
+
+	var out optinTpl
+	out.Lists = lists
+	out.SubUUID = subUUID
+	out.Title = app.i18n.T("public.confirmOptinSubTitle")
 
 	return c.Render(http.StatusOK, "optin", out)
 }
@@ -417,13 +433,14 @@ func handleSubscriptionFormPage(c echo.Context) error {
 			makeMsgTpl(app.i18n.T("public.errorTitle"), "", app.i18n.Ts("public.invalidFeature")))
 	}
 
-	// Get all public lists.
+	// Get all public lists from the DB.
 	lists, err := app.core.GetLists(models.ListTypePublic, true, nil)
 	if err != nil {
 		return c.Render(http.StatusInternalServerError, tplMessage,
 			makeMsgTpl(app.i18n.T("public.errorTitle"), "", app.i18n.Ts("public.errorFetchingLists")))
 	}
 
+	// There are no public lists available for subscription.
 	if len(lists) == 0 {
 		return c.Render(http.StatusInternalServerError, tplMessage,
 			makeMsgTpl(app.i18n.T("public.errorTitle"), "", app.i18n.Ts("public.noListsAvailable")))
@@ -433,6 +450,7 @@ func handleSubscriptionFormPage(c echo.Context) error {
 	out.Title = app.i18n.T("public.sub")
 	out.Lists = lists
 
+	// Captcha is enabled. Set the key for the template to render.
 	if app.constants.Security.EnableCaptcha {
 		out.CaptchaKey = app.constants.Security.CaptchaKey
 	}
@@ -472,10 +490,11 @@ func handleSubscriptionForm(c echo.Context) error {
 			return e
 		}
 
-		return c.Render(e.Code, tplMessage,
-			makeMsgTpl(app.i18n.T("public.errorTitle"), "", fmt.Sprintf("%s", e.Message)))
+		return c.Render(e.Code, tplMessage, makeMsgTpl(app.i18n.T("public.errorTitle"), "", fmt.Sprintf("%s", e.Message)))
 	}
 
+	// If there were double optin lists, show the opt-in pending message instead of
+	// the subscription confirmation message.
 	msg := "public.subConfirmed"
 	if hasOptin {
 		msg = "public.subOptinPending"
@@ -510,17 +529,20 @@ func handlePublicSubscription(c echo.Context) error {
 // campaign. These links are generated by {{ TrackLink }} tags in campaigns.
 func handleLinkRedirect(c echo.Context) error {
 	var (
-		app      = c.Get("app").(*App)
-		linkUUID = c.Param("linkUUID")
-		campUUID = c.Param("campUUID")
-		subUUID  = c.Param("subUUID")
+		app = c.Get("app").(*App)
 	)
 
 	// If individual tracking is disabled, do not record the subscriber ID.
+	subUUID := c.Param("subUUID")
 	if !app.constants.Privacy.IndividualTracking {
 		subUUID = ""
 	}
 
+	// Inser the link click in the DB.
+	var (
+		linkUUID = c.Param("linkUUID")
+		campUUID = c.Param("campUUID")
+	)
 	url, err := app.core.RegisterCampaignLinkClick(linkUUID, campUUID, subUUID)
 	if err != nil {
 		e := err.(*echo.HTTPError)
@@ -536,17 +558,17 @@ func handleLinkRedirect(c echo.Context) error {
 // the {{ TrackView }} template tag in campaigns.
 func handleRegisterCampaignView(c echo.Context) error {
 	var (
-		app      = c.Get("app").(*App)
-		campUUID = c.Param("campUUID")
-		subUUID  = c.Param("subUUID")
+		app = c.Get("app").(*App)
 	)
 
 	// If individual tracking is disabled, do not record the subscriber ID.
+	subUUID := c.Param("subUUID")
 	if !app.constants.Privacy.IndividualTracking {
 		subUUID = ""
 	}
 
 	// Exclude dummy hits from template previews.
+	campUUID := c.Param("campUUID")
 	if campUUID != dummyUUID && subUUID != dummyUUID {
 		if err := app.core.RegisterCampaignView(campUUID, subUUID); err != nil {
 			app.log.Printf("error registering campaign view: %s", err)
@@ -563,9 +585,9 @@ func handleRegisterCampaignView(c echo.Context) error {
 // is dependent on the configuration.
 func handleSelfExportSubscriberData(c echo.Context) error {
 	var (
-		app     = c.Get("app").(*App)
-		subUUID = c.Param("subUUID")
+		app = c.Get("app").(*App)
 	)
+
 	// Is export allowed?
 	if !app.constants.Privacy.AllowExport {
 		return c.Render(http.StatusBadRequest, tplMessage,
@@ -575,6 +597,7 @@ func handleSelfExportSubscriberData(c echo.Context) error {
 	// Get the subscriber's data. A single query that gets the profile,
 	// list subscriptions, campaign views, and link clicks. Names of
 	// private lists are replaced with "Private list".
+	subUUID := c.Param("subUUID")
 	data, b, err := exportSubscriberData(0, subUUID, app.constants.Privacy.Exportable, app)
 	if err != nil {
 		app.log.Printf("error exporting subscriber data: %s", err)
@@ -596,7 +619,7 @@ func handleSelfExportSubscriberData(c echo.Context) error {
 	)
 	subject, body = getTplSubject(subject, body)
 
-	// Send the data as a JSON attachment to the subscriber.
+	// E-mail the data as a JSON attachment to the subscriber.
 	const fname = "data.json"
 	if err := app.emailMessenger.Push(models.Message{
 		ContentType: app.notifTpls.contentType,
@@ -626,8 +649,7 @@ func handleSelfExportSubscriberData(c echo.Context) error {
 // clicks remain as orphan data unconnected to any subscriber.
 func handleWipeSubscriberData(c echo.Context) error {
 	var (
-		app     = c.Get("app").(*App)
-		subUUID = c.Param("subUUID")
+		app = c.Get("app").(*App)
 	)
 
 	// Is wiping allowed?
@@ -636,6 +658,7 @@ func handleWipeSubscriberData(c echo.Context) error {
 			makeMsgTpl(app.i18n.T("public.errorTitle"), "", app.i18n.Ts("public.invalidFeature")))
 	}
 
+	subUUID := c.Param("subUUID")
 	if err := app.core.DeleteSubscribers(nil, []string{subUUID}); err != nil {
 		app.log.Printf("error wiping subscriber data: %s", err)
 		return c.Render(http.StatusInternalServerError, tplMessage,
@@ -654,6 +677,7 @@ func drawTransparentImage(h, w int) []byte {
 		out = &bytes.Buffer{}
 	)
 	_ = png.Encode(out, img)
+
 	return out.Bytes()
 }
 
@@ -663,14 +687,14 @@ func drawTransparentImage(h, w int) []byte {
 func processSubForm(c echo.Context) (bool, error) {
 	var (
 		app = c.Get("app").(*App)
-		req struct {
-			Name          string   `form:"name" json:"name"`
-			Email         string   `form:"email" json:"email"`
-			FormListUUIDs []string `form:"l" json:"list_uuids"`
-		}
 	)
 
 	// Get and validate fields.
+	var req struct {
+		Name          string   `form:"name" json:"name"`
+		Email         string   `form:"email" json:"email"`
+		FormListUUIDs []string `form:"l" json:"list_uuids"`
+	}
 	if err := c.Bind(&req); err != nil {
 		return false, err
 	}
@@ -722,13 +746,15 @@ func processSubForm(c echo.Context) (bool, error) {
 		Status: models.SubscriberStatusEnabled,
 	}, nil, listUUIDs, false)
 	if err != nil {
-		// Subscriber already exists. Update subscriptions.
+		// Subscriber already exists. Update subscriptions in the DB.
 		if e, ok := err.(*echo.HTTPError); ok && e.Code == http.StatusConflict {
+			// Get the subscriber from the DB by their email.
 			sub, err := app.core.GetSubscriber(0, "", req.Email)
 			if err != nil {
 				return false, err
 			}
 
+			// Update the subscriber's subscriptions in the DB.
 			_, hasOptin, err := app.core.UpdateSubscriberWithLists(sub.ID, sub, nil, listUUIDs, false, false)
 			if err != nil {
 				return false, err

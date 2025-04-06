@@ -14,22 +14,10 @@ import (
 	"time"
 
 	"github.com/coreos/go-oidc/v3/oidc"
-	"github.com/knadh/listmonk/models"
 	"github.com/labstack/echo/v4"
 	"github.com/zerodha/simplesessions/stores/postgres/v3"
 	"github.com/zerodha/simplesessions/v3"
 	"golang.org/x/oauth2"
-)
-
-const (
-	// UserKey is the key on which the User profile is set on echo handlers.
-	UserKey    = "auth_user"
-	SessionKey = "auth_session"
-)
-
-const (
-	sessTypeNative = "native"
-	sessTypeOIDC   = "oidc"
 )
 
 type OIDCclaim struct {
@@ -60,13 +48,13 @@ type Config struct {
 
 // Callbacks takes two callback functions required by simplesessions.
 type Callbacks struct {
-	SetCookie func(cookie *http.Cookie, w interface{}) error
-	GetCookie func(name string, r interface{}) (*http.Cookie, error)
-	GetUser   func(id int) (models.User, error)
+	SetCookie func(cookie *http.Cookie, w any) error
+	GetCookie func(name string, r any) (*http.Cookie, error)
+	GetUser   func(id int) (User, error)
 }
 
 type Auth struct {
-	apiUsers map[string]models.User
+	apiUsers map[string]User
 	sync.RWMutex
 
 	cfg       Config
@@ -79,13 +67,16 @@ type Auth struct {
 	log       *log.Logger
 }
 
+var sessPruneInterval = time.Hour * 12
+
+// New returns an initialize Auth instance.
 func New(cfg Config, db *sql.DB, cb *Callbacks, lo *log.Logger) (*Auth, error) {
 	a := &Auth{
 		cfg: cfg,
 		cb:  cb,
 		log: lo,
 
-		apiUsers: map[string]models.User{},
+		apiUsers: map[string]User{},
 	}
 
 	// Initialize OIDC.
@@ -132,7 +123,7 @@ func New(cfg Config, db *sql.DB, cb *Callbacks, lo *log.Logger) (*Auth, error) {
 		if err := st.Prune(); err != nil {
 			lo.Printf("error pruning login sessions: %v", err)
 		}
-		time.Sleep(time.Hour * 12)
+		time.Sleep(sessPruneInterval)
 	}()
 
 	return a, nil
@@ -141,31 +132,31 @@ func New(cfg Config, db *sql.DB, cb *Callbacks, lo *log.Logger) (*Auth, error) {
 // CacheAPIUsers caches API users for authenticating requests. It wipes
 // the existing cache every time and is meant for syncing all API users
 // in the database in one shot.
-func (o *Auth) CacheAPIUsers(users []models.User) {
+func (o *Auth) CacheAPIUsers(users []User) {
 	o.Lock()
-	o.apiUsers = map[string]models.User{}
+	defer o.Unlock()
 
+	o.apiUsers = map[string]User{}
 	for _, u := range users {
 		o.apiUsers[u.Username] = u
 	}
-	o.Unlock()
 }
 
 // CacheAPIUser caches an API user for authenticating requests.
-func (o *Auth) CacheAPIUser(u models.User) {
+func (o *Auth) CacheAPIUser(u User) {
 	o.Lock()
 	o.apiUsers[u.Username] = u
 	o.Unlock()
 }
 
 // GetAPIToken validates an API user+token.
-func (o *Auth) GetAPIToken(user string, token string) (models.User, bool) {
+func (o *Auth) GetAPIToken(user string, token string) (User, bool) {
 	o.RLock()
 	t, ok := o.apiUsers[user]
 	o.RUnlock()
 
 	if !ok || subtle.ConstantTimeCompare([]byte(t.Password.String), []byte(token)) != 1 {
-		return models.User{}, false
+		return User{}, false
 	}
 
 	return t, true
@@ -242,46 +233,47 @@ func (o *Auth) Middleware(next echo.HandlerFunc) echo.HandlerFunc {
 		if len(hdr) > 0 {
 			key, token, err := parseAuthHeader(hdr)
 			if err != nil {
-				c.Set(UserKey, echo.NewHTTPError(http.StatusForbidden, err.Error()))
+				c.Set(UserHTTPCtxKey, echo.NewHTTPError(http.StatusForbidden, err.Error()))
 				return next(c)
 			}
 
 			// Validate the token.
 			user, ok := o.GetAPIToken(key, token)
 			if !ok {
-				c.Set(UserKey, echo.NewHTTPError(http.StatusForbidden, "invalid API credentials"))
+				c.Set(UserHTTPCtxKey, echo.NewHTTPError(http.StatusForbidden, "invalid API credentials"))
 				return next(c)
 			}
 
 			// Set the user details on the handler context.
-			c.Set(UserKey, user)
+			c.Set(UserHTTPCtxKey, user)
 			return next(c)
 		}
 
 		// Is it a cookie based session?
 		sess, user, err := o.validateSession(c)
 		if err != nil {
-			c.Set(UserKey, echo.NewHTTPError(http.StatusForbidden, "invalid session"))
+			c.Set(UserHTTPCtxKey, echo.NewHTTPError(http.StatusForbidden, "invalid session"))
 			return next(c)
 		}
 
 		// Set the user details on the handler context.
-		c.Set(UserKey, user)
+		c.Set(UserHTTPCtxKey, user)
 		c.Set(SessionKey, sess)
 		return next(c)
 	}
 }
 
+// Perm is an HTTP handler middleware that checks if the authenticated user has the required permissions.
 func (o *Auth) Perm(next echo.HandlerFunc, perms ...string) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		u, ok := c.Get(UserKey).(models.User)
+		u, ok := c.Get(UserHTTPCtxKey).(User)
 		if !ok {
-			c.Set(UserKey, echo.NewHTTPError(http.StatusForbidden, "invalid session"))
+			c.Set(UserHTTPCtxKey, echo.NewHTTPError(http.StatusForbidden, "invalid session"))
 			return next(c)
 		}
 
 		// If the current user is a Super Admin user, do no checks.
-		if u.UserRole.ID == models.SuperAdminRoleID {
+		if u.UserRole.ID == SuperAdminRoleID {
 			return next(c)
 		}
 
@@ -306,14 +298,14 @@ func (o *Auth) Perm(next echo.HandlerFunc, perms ...string) echo.HandlerFunc {
 }
 
 // SaveSession creates and sets a session (post successful login/auth).
-func (o *Auth) SaveSession(u models.User, oidcToken string, c echo.Context) error {
+func (o *Auth) SaveSession(u User, oidcToken string, c echo.Context) error {
 	sess, err := o.sess.NewSession(c, c)
 	if err != nil {
 		o.log.Printf("error creating login session: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, "error creating session")
 	}
 
-	if err := sess.SetMulti(map[string]interface{}{"user_id": u.ID, "oidc_token": oidcToken}); err != nil {
+	if err := sess.SetMulti(map[string]any{"user_id": u.ID, "oidc_token": oidcToken}); err != nil {
 		o.log.Printf("error setting login session: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, "error creating session")
 	}
@@ -321,24 +313,25 @@ func (o *Auth) SaveSession(u models.User, oidcToken string, c echo.Context) erro
 	return nil
 }
 
-func (o *Auth) validateSession(c echo.Context) (*simplesessions.Session, models.User, error) {
+// validateSession checks if the cookie session is valid (in the DB) and returns the session and user details.
+func (o *Auth) validateSession(c echo.Context) (*simplesessions.Session, User, error) {
 	// Cookie session.
-	sess, err := o.sess.Acquire(nil, c, c)
+	sess, err := o.sess.Acquire(context.TODO(), c, c)
 	if err != nil {
-		return nil, models.User{}, echo.NewHTTPError(http.StatusForbidden, err.Error())
+		return nil, User{}, echo.NewHTTPError(http.StatusForbidden, err.Error())
 	}
 
 	// Get the session variables.
 	vars, err := sess.GetMulti("user_id", "oidc_token")
 	if err != nil {
-		return nil, models.User{}, echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+		return nil, User{}, echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
 	// Validate the user ID in the session.
 	userID, err := o.sessStore.Int(vars["user_id"], nil)
 	if err != nil || userID < 1 {
 		o.log.Printf("error fetching session user ID: %v", err)
-		return nil, models.User{}, echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+		return nil, User{}, echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
 	// Fetch user details from the database.
@@ -348,6 +341,12 @@ func (o *Auth) validateSession(c echo.Context) (*simplesessions.Session, models.
 	}
 
 	return sess, user, err
+}
+
+// GetUser retrieves and returns the User object from an authenticated
+// HTTP handler request.
+func GetUser(c echo.Context) User {
+	return c.Get(UserHTTPCtxKey).(User)
 }
 
 // parseAuthHeader parses the Authorization header and returns the api_key and access_token.

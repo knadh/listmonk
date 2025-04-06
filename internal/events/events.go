@@ -16,11 +16,11 @@ const (
 
 // Event represents a single event in the system.
 type Event struct {
-	ID       string      `json:"id"`
-	Type     string      `json:"type"`
-	Message  string      `json:"message"`
-	Data     interface{} `json:"data"`
-	Channels []string    `json:"-"`
+	ID       string   `json:"id"`
+	Type     string   `json:"type"`
+	Message  string   `json:"message"`
+	Data     any      `json:"data"`
+	Channels []string `json:"-"`
 }
 
 type Events struct {

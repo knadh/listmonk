@@ -15,41 +15,43 @@ import (
 func handleGetBounces(c echo.Context) error {
 	var (
 		app = c.Get("app").(*App)
-		pg  = app.paginator.NewFromURL(c.Request().URL.Query())
-
-		id, _     = strconv.Atoi(c.Param("id"))
-		campID, _ = strconv.Atoi(c.QueryParam("campaign_id"))
-		source    = c.FormValue("source")
-		orderBy   = c.FormValue("order_by")
-		order     = c.FormValue("order")
 	)
 
-	// Fetch one bounce.
+	// Fetch one bounce from the DB.
+	id, _ := strconv.Atoi(c.Param("id"))
 	if id > 0 {
 		out, err := app.core.GetBounce(id)
 		if err != nil {
 			return err
 		}
+
 		return c.JSON(http.StatusOK, okResp{out})
 	}
 
+	// Query and fetch bounces from the DB.
+	var (
+		pg        = app.paginator.NewFromURL(c.Request().URL.Query())
+		campID, _ = strconv.Atoi(c.QueryParam("campaign_id"))
+		source    = c.FormValue("source")
+		orderBy   = c.FormValue("order_by")
+		order     = c.FormValue("order")
+	)
 	res, total, err := app.core.QueryBounces(campID, 0, source, orderBy, order, pg.Offset, pg.Limit)
 	if err != nil {
 		return err
 	}
 
 	// No results.
-	var out models.PageResults
 	if len(res) == 0 {
-		out.Results = []models.Bounce{}
-		return c.JSON(http.StatusOK, okResp{out})
+		return c.JSON(http.StatusOK, okResp{models.PageResults{Results: []models.Bounce{}}})
 	}
 
-	// Meta.
-	out.Results = res
-	out.Total = total
-	out.Page = pg.Page
-	out.PerPage = pg.PerPage
+	out := models.PageResults{
+		Results: res,
+		Total:   total,
+		Page:    pg.Page,
+		PerPage: pg.PerPage,
+	}
 
 	return c.JSON(http.StatusOK, okResp{out})
 }
@@ -57,14 +59,15 @@ func handleGetBounces(c echo.Context) error {
 // handleGetSubscriberBounces retrieves a subscriber's bounce records.
 func handleGetSubscriberBounces(c echo.Context) error {
 	var (
-		app      = c.Get("app").(*App)
-		subID, _ = strconv.Atoi(c.Param("id"))
+		app = c.Get("app").(*App)
 	)
 
+	subID, _ := strconv.Atoi(c.Param("id"))
 	if subID < 1 {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidID"))
 	}
 
+	// Query and fetch bounces from the DB.
 	out, _, err := app.core.QueryBounces(0, subID, "", "", "", 0, 1000)
 	if err != nil {
 		return err
@@ -76,35 +79,37 @@ func handleGetSubscriberBounces(c echo.Context) error {
 // handleDeleteBounces handles bounce deletion, either a single one (ID in the URI), or a list.
 func handleDeleteBounces(c echo.Context) error {
 	var (
-		app    = c.Get("app").(*App)
-		pID    = c.Param("id")
-		all, _ = strconv.ParseBool(c.QueryParam("all"))
-		IDs    = []int{}
+		app = c.Get("app").(*App)
 	)
 
 	// Is it an /:id call?
-	if pID != "" {
-		id, _ := strconv.Atoi(pID)
+	var (
+		all, _ = strconv.ParseBool(c.QueryParam("all"))
+		idStr  = c.Param("id")
+
+		ids = []int{}
+	)
+	if idStr != "" {
+		id, _ := strconv.Atoi(idStr)
 		if id < 1 {
 			return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidID"))
 		}
-		IDs = append(IDs, id)
+		ids = append(ids, id)
 	} else if !all {
-		// Multiple IDs.
+		// There are multiple IDs in the query string.
 		i, err := parseStringIDs(c.Request().URL.Query()["id"])
 		if err != nil {
-			return echo.NewHTTPError(http.StatusBadRequest,
-				app.i18n.Ts("globals.messages.invalidID", "error", err.Error()))
+			return echo.NewHTTPError(http.StatusBadRequest, app.i18n.Ts("globals.messages.invalidID", "error", err.Error()))
 		}
 
 		if len(i) == 0 {
-			return echo.NewHTTPError(http.StatusBadRequest,
-				app.i18n.Ts("globals.messages.invalidID"))
+			return echo.NewHTTPError(http.StatusBadRequest, app.i18n.Ts("globals.messages.invalidID"))
 		}
-		IDs = i
+		ids = i
 	}
 
-	if err := app.core.DeleteBounces(IDs); err != nil {
+	// Delete bounces from the DB.
+	if err := app.core.DeleteBounces(ids); err != nil {
 		return err
 	}
 
@@ -114,10 +119,7 @@ func handleDeleteBounces(c echo.Context) error {
 // handleBounceWebhook renders the HTML preview of a template.
 func handleBounceWebhook(c echo.Context) error {
 	var (
-		app     = c.Get("app").(*App)
-		service = c.Param("service")
-
-		bounces []models.Bounce
+		app = c.Get("app").(*App)
 	)
 
 	// Read the request body instead of using c.Bind() to read to save the entire raw request as meta.
@@ -127,6 +129,11 @@ func handleBounceWebhook(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.Ts("globals.messages.internalError"))
 	}
 
+	var (
+		service = c.Param("service")
+
+		bounces []models.Bounce
+	)
 	switch true {
 	// Native internal webhook.
 	case service == "":
@@ -224,7 +231,7 @@ func handleBounceWebhook(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.Ts("bounces.unknownService"))
 	}
 
-	// Record bounces if any.
+	// Insert bounces into the DB.
 	for _, b := range bounces {
 		if err := app.bounce.Record(b); err != nil {
 			app.log.Printf("error recording bounce: %v", err)

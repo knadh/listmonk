@@ -4,14 +4,14 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/knadh/listmonk/models"
+	"github.com/knadh/listmonk/internal/auth"
 	"github.com/labstack/echo/v4"
 	"github.com/lib/pq"
 )
 
 // GetRoles retrieves all roles.
-func (c *Core) GetRoles() ([]models.Role, error) {
-	out := []models.Role{}
+func (c *Core) GetRoles() ([]auth.Role, error) {
+	out := []auth.Role{}
 	if err := c.q.GetUserRoles.Select(&out); err != nil {
 		return nil, echo.NewHTTPError(http.StatusInternalServerError,
 			c.i18n.Ts("globals.messages.errorFetching", "name", "role", "error", pqErrMsg(err)))
@@ -21,8 +21,8 @@ func (c *Core) GetRoles() ([]models.Role, error) {
 }
 
 // GetListRoles retrieves all list roles.
-func (c *Core) GetListRoles() ([]models.ListRole, error) {
-	out := []models.ListRole{}
+func (c *Core) GetListRoles() ([]auth.ListRole, error) {
+	out := []auth.ListRole{}
 	if err := c.q.GetListRoles.Select(&out); err != nil {
 		return nil, echo.NewHTTPError(http.StatusInternalServerError,
 			c.i18n.Ts("globals.messages.errorFetching", "name", "role", "error", pqErrMsg(err)))
@@ -43,10 +43,10 @@ func (c *Core) GetListRoles() ([]models.ListRole, error) {
 }
 
 // CreateRole creates a new role.
-func (c *Core) CreateRole(r models.Role) (models.Role, error) {
-	var out models.Role
+func (c *Core) CreateRole(r auth.Role) (auth.Role, error) {
+	var out auth.Role
 
-	if err := c.q.CreateRole.Get(&out, r.Name, models.RoleTypeUser, pq.Array(r.Permissions)); err != nil {
+	if err := c.q.CreateRole.Get(&out, r.Name, auth.RoleTypeUser, pq.Array(r.Permissions)); err != nil {
 		return out, echo.NewHTTPError(http.StatusInternalServerError,
 			c.i18n.Ts("globals.messages.errorCreating", "name", "{users.role}", "error", pqErrMsg(err)))
 	}
@@ -55,10 +55,10 @@ func (c *Core) CreateRole(r models.Role) (models.Role, error) {
 }
 
 // CreateListRole creates a new list role.
-func (c *Core) CreateListRole(r models.ListRole) (models.ListRole, error) {
-	var out models.ListRole
+func (c *Core) CreateListRole(r auth.ListRole) (auth.ListRole, error) {
+	var out auth.ListRole
 
-	if err := c.q.CreateRole.Get(&out, r.Name, models.RoleTypeList, pq.Array([]string{})); err != nil {
+	if err := c.q.CreateRole.Get(&out, r.Name, auth.RoleTypeList, pq.Array([]string{})); err != nil {
 		return out, echo.NewHTTPError(http.StatusInternalServerError,
 			c.i18n.Ts("globals.messages.errorCreating", "name", "{users.role}", "error", pqErrMsg(err)))
 	}
@@ -72,7 +72,7 @@ func (c *Core) CreateListRole(r models.ListRole) (models.ListRole, error) {
 }
 
 // UpsertListPermissions upserts permission for a role.
-func (c *Core) UpsertListPermissions(roleID int, lp []models.ListPermission) error {
+func (c *Core) UpsertListPermissions(roleID int, lp []auth.ListPermission) error {
 	var (
 		listIDs   = make([]int, 0, len(lp))
 		listPerms = make([][]string, 0, len(lp))
@@ -113,8 +113,8 @@ func (c *Core) DeleteListPermission(roleID, listID int) error {
 }
 
 // UpdateUserRole updates a given role.
-func (c *Core) UpdateUserRole(id int, r models.Role) (models.Role, error) {
-	var out models.Role
+func (c *Core) UpdateUserRole(id int, r auth.Role) (auth.Role, error) {
+	var out auth.Role
 
 	if err := c.q.UpdateRole.Get(&out, id, r.Name, pq.Array(r.Permissions)); err != nil {
 		return out, echo.NewHTTPError(http.StatusInternalServerError,
@@ -129,8 +129,8 @@ func (c *Core) UpdateUserRole(id int, r models.Role) (models.Role, error) {
 }
 
 // UpdateListRole updates a given role.
-func (c *Core) UpdateListRole(id int, r models.ListRole) (models.ListRole, error) {
-	var out models.ListRole
+func (c *Core) UpdateListRole(id int, r auth.ListRole) (auth.ListRole, error) {
+	var out auth.ListRole
 
 	if err := c.q.UpdateRole.Get(&out, id, r.Name, pq.Array([]string{})); err != nil {
 		return out, echo.NewHTTPError(http.StatusInternalServerError,
