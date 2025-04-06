@@ -216,7 +216,7 @@ func handleAddAndRmList(c echo.Context) error {
     fmt.Println("helloooo")
     var (
         app  = c.Get("app").(*App)
-        user = c.Get(auth.UserKey).(models.User)
+        user = auth.GetUser(c)
     )
     
     var requestBody struct {
