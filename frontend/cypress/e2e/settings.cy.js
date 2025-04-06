@@ -1,12 +1,14 @@
 const apiUrl = Cypress.env('apiUrl');
 
-describe('Templates', () => {
+describe('Settings', () => {
   it('Opens settings page', () => {
     cy.resetDB();
     cy.loginAndVisit('/admin/settings');
   });
 
   it('Changes some settings', () => {
+    cy.get('.b-tabs nav a').eq(0).click();
+
     const rootURL = 'http://127.0.0.1:9000';
     const faveURL = 'http://127.0.0.1:9000/public/static/logo.png';
 
@@ -26,8 +28,11 @@ describe('Templates', () => {
 
     cy.get('[data-cy=btn-save]').click();
 
-    cy.wait(1000);
+    cy.waitForBackend();
+    cy.wait(2000);
+  });
 
+  it('Verify settings change', () => {
     // Verify the changes.
     cy.request(`${apiUrl}/api/settings`).should((response) => {
       const { data } = response.body;
