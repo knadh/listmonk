@@ -27,8 +27,8 @@
           <b-field grouped v-if="isEditing && canEdit">
             <b-field expanded>
               <b-button expanded @click="() => onSubmit('update')" :loading="loading.campaigns" type="is-primary"
-                icon-left="content-save-outline" data-cy="btn-save">
-                {{ $t('globals.buttons.saveChanges') }}
+                icon-left="content-save-outline" data-cy="btn-save" aria-keyshortcuts="ctrl+s">
+                <span class="has-kbd">{{ $t('globals.buttons.saveChanges') }} <span class="kbd">Ctrl+S</span></span>
               </b-button>
             </b-field>
             <b-field expanded v-if="canStart">
@@ -738,6 +738,14 @@ export default Vue.extend({
     this.$nextTick(() => {
       this.$refs.focus.focus();
     });
+
+    this.$events.$on('campaign.update', () => {
+      this.onSubmit('update');
+    });
+  },
+
+  beforeDestroy() {
+    this.$events.$off('campaign.update');
   },
 });
 </script>
