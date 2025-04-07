@@ -110,7 +110,7 @@ export default {
         });
       });
 
-      // Start observing
+      // Start observing.
       observer.observe(iframe.contentDocument.querySelector('#visual-editor-container'), {
         childList: true,
         subtree: true,

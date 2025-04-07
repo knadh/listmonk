@@ -101,6 +101,7 @@ import HTMLEditor from './HTMLEditor.vue';
 import MarkdownEditor from './MarkdownEditor.vue';
 import VisualEditor from './VisualEditor.vue';
 import RichtextEditor from './RichtextEditor.vue';
+import markdownToVisualBlock from './editor';
 
 const turndown = new TurndownService();
 
@@ -146,10 +147,14 @@ export default {
 
   methods: {
     onContentTypeChange(to, from) {
+      if (!this.self.body.trim()) {
+        this.convertContentType(to, from);
+        return;
+      }
+
       // Ask for confirmation as pretty much all conversions are lossy.
-      const msgKey = to === 'visual' ? 'campaigns.confirmOverwriteContent' : 'campaigns.confirmSwitchFormat';
       this.$utils.confirm(
-        this.$t(msgKey),
+        this.$t('campaigns.confirmSwitchFormat'),
         () => {
           this.convertContentType(to, from);
         },
@@ -162,6 +167,7 @@ export default {
 
     convertContentType(to, from) {
       let body = this.self.body ?? '';
+      let bodySource = null;
 
       // Skip UI update (markdown => richtext, html requires a backenbd call).
       let skip = false;
@@ -190,6 +196,12 @@ export default {
             break;
           }
 
+          case 'visual': {
+            const md = turndown.turndown(body).replace(/\n\n+/ig, '\n\n');
+            bodySource = JSON.stringify(markdownToVisualBlock(md));
+            break;
+          }
+
           default:
             // Switching between HTML formats, no need to do anything further
             // as body is already beautified.
@@ -214,14 +226,11 @@ export default {
         // Plain to an HTML type, change plain line breaks to HTML breaks.
       } else if (from === 'plain' && (to === 'richtext' || to === 'html')) {
         body = body.replace(/\n/ig, '<br>\n');
+      } else if (to === 'visual') {
+        bodySource = JSON.stringify(markdownToVisualBlock(body));
       }
 
       // =======================================================================
-      // If the target is visual, empty the visual editor's block content source.
-      if (to !== 'visual') {
-        this.self.bodySource = null;
-      }
-
       // Reset the campaign template ID if its converted to or from visual template.
       if (to === 'visual' || from === 'visual') {
         this.templateId = null;
@@ -236,6 +245,7 @@ export default {
           // multiple events.
           this.self.contentType = to;
           this.self.body = body;
+          this.self.bodySource = bodySource;
         });
       }
     },
@@ -392,4 +402,5 @@ export default {
     },
   },
 };
+
 </script>
