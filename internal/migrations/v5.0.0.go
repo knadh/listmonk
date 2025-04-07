@@ -53,5 +53,26 @@ func V5_0_0(db *sqlx.DB, fs stuffbin.FileSystem, ko *koanf.Koanf, lo *log.Logger
 		return err
 	}
 
+	// Visual editor changes.
+	if _, err := db.Exec(`
+		ALTER TYPE content_type ADD VALUE IF NOT EXISTS 'visual';
+		ALTER TYPE template_type ADD VALUE IF NOT EXISTS 'campaign_visual';
+		ALTER TABLE templates ADD COLUMN IF NOT EXISTS body_source TEXT NULL;
+		ALTER TABLE campaigns ADD COLUMN IF NOT EXISTS body_source TEXT NULL;
+	`); err != nil {
+		return err
+	}
+	if _, err := db.Exec(`
+		ALTER TABLE campaigns DROP CONSTRAINT IF EXISTS campaigns_template_id_fkey,
+			ADD FOREIGN KEY (template_id) REFERENCES templates(id) ON DELETE SET NULL,
+			ALTER COLUMN template_id DROP DEFAULT;
+
+		ALTER TABLE campaigns DROP CONSTRAINT IF EXISTS campaigns_archive_template_id_fkey,
+			ADD FOREIGN KEY (archive_template_id) REFERENCES templates(id) ON DELETE SET NULL,
+			ALTER COLUMN archive_template_id DROP DEFAULT;
+	`); err != nil {
+		return err
+	}
+
 	return nil
 }
