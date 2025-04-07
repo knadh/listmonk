@@ -147,12 +147,12 @@ func (a *App) PreviewCampaign(c echo.Context) error {
 		contentType = c.FormValue("content_type")
 		tplID, _    = strconv.Atoi(c.FormValue("template_id"))
 	)
-	// For visual content type don't use the template for preview, use only body.
-	if contentType == models.CampaignContentTypeVisual && tplID < 1 {
+	// For visual content, template ID for previewing is irrelevant.
+	if contentType == models.CampaignContentTypeVisual || tplID < 1 {
 		tplID = 0
 	}
 
-	// Get the campaign from the DB for previewing.
+	// Get the campaign from the DB for previewing with the `template_body` field.
 	camp, err := a.core.GetCampaignForPreview(id, tplID)
 	if err != nil {
 		return err
@@ -162,6 +162,11 @@ func (a *App) PreviewCampaign(c echo.Context) error {
 	if isPost {
 		camp.ContentType = contentType
 		camp.Body = c.FormValue("body")
+
+		// For visual campaigns, template body from the DB shouldn't be used.
+		if contentType == models.CampaignContentTypeVisual {
+			camp.TemplateBody = ""
+		}
 	}
 
 	// Use a dummy campaign ID to prevent views and clicks from {{ TrackView }}
@@ -181,6 +186,7 @@ func (a *App) PreviewCampaign(c echo.Context) error {
 			a.i18n.Ts("templates.errorRendering", "error", err.Error()))
 	}
 
+	// Plaintext headers for plain body.
 	if camp.ContentType == models.CampaignContentTypePlain {
 		return c.String(http.StatusOK, string(msg.Body()))
 	}
