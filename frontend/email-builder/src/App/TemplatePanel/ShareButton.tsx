@@ -7,7 +7,7 @@ import { useDocument } from '../../documents/editor/EditorContext';
 
 export default function ShareButton() {
   const document = useDocument();
-  const [message, setMessage] = useState<string | null>(null);
+  const [message, setMessage] = useState < string | null > (null);
 
   const onClick = async () => {
     const c = encodeURIComponent(JSON.stringify(document));
