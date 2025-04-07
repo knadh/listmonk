@@ -169,8 +169,8 @@
       </b-tab-item><!-- campaign -->
 
       <b-tab-item :label="$t('campaigns.content')" icon="text" :disabled="isNew" value="content">
-        <editor v-if="data.id" v-model="form.content"
-          :id="data.id" :title="data.name" :disabled="!canEdit" :templates="templates" />
+        <editor v-if="data.id" v-model="form.content" :id="data.id" :title="data.name" :disabled="!canEdit"
+          :templates="templates" />
 
         <div class="columns">
           <div class="column is-6">
