@@ -34,7 +34,8 @@
         <b-tag v-if="props.row.type === 'campaign'" :class="props.row.type" :data-cy="`type-${props.row.type}`">
           {{ $tc('templates.typeCampaignHTML') }}
         </b-tag>
-        <b-tag v-else-if="props.row.type === 'campaign_visual'" :class="props.row.type" :data-cy="`type-${props.row.type}`">
+        <b-tag v-else-if="props.row.type === 'campaign_visual'" :class="props.row.type"
+          :data-cy="`type-${props.row.type}`">
           {{ $tc('templates.typeCampaignVisual') }}
         </b-tag>
         <b-tag v-else :class="props.row.type" :data-cy="`type-${props.row.type}`">

@@ -502,18 +502,20 @@ DELETE FROM lists WHERE id = ALL($1);
 -- This creates the campaign and inserts campaign_lists relationships.
 WITH tpl AS (
     -- Select the template for the given template ID or use the default template.
-    SELECT id,
-        CASE WHEN type = 'campaign_visual' THEN body ELSE '' END AS body,
-        CASE WHEN type = 'campaign_visual' THEN body_source ELSE '' END AS body_source,
-        CASE
-            WHEN type = 'campaign_visual' THEN 'visual'
-            ELSE 'richtext'
-        END AS content_type
+    SELECT
+        -- If the template is a visual template, then use it's HTML body as the campaign
+        -- body and its block source as the campaign's block source,
+        -- and don't set a template_id in the campaigns table, as it's essentially an
+        -- HTML template body "import" during creation.
+        (CASE WHEN type = 'campaign_visual' THEN NULL ELSE id END) AS id,
+        (CASE WHEN type = 'campaign_visual' THEN body ELSE '' END) AS body,
+        (CASE WHEN type = 'campaign_visual' THEN body_source ELSE '' END) AS body_source,
+        (CASE WHEN type = 'campaign_visual' THEN 'visual' ELSE 'richtext' END) AS content_type
     FROM templates
     WHERE
         CASE
             WHEN $13::INT IS NOT NULL AND $13::INT != 0 THEN id = $13::INT
-            WHEN $13::INT = 0 THEN is_default = TRUE
+            ELSE is_default = TRUE
         END
     LIMIT 1
 ),
@@ -536,7 +538,7 @@ camp AS (
         content_type, send_at, headers, tags, messenger, template_id, to_send,
         max_subscriber_id, archive, archive_slug, archive_template_id, archive_meta, body_source)
         SELECT $1, $2, $3, $4, $5,
-            -- Body
+            -- body
             COALESCE(NULLIF($6, ''), (SELECT body FROM tpl), ''),
             $7,
             COALESCE(NULLIF($8, ''), (SELECT content_type FROM tpl), 'richtext')::content_type,
@@ -545,10 +547,10 @@ camp AS (
             (SELECT to_send FROM counts),
             (SELECT max_sub_id FROM counts),
             $15, $16,
-            -- Template ID
-            COALESCE(NULLIF($17, 0), (SELECT id FROM tpl)),
+            -- archive_template_id
+            $17,
             $18,
-            -- Body source
+            -- body_source
             COALESCE(NULLIF($20, ''), (SELECT body_source FROM tpl))
         RETURNING id
 ),
@@ -663,7 +665,7 @@ LEFT JOIN bounces AS b ON (b.campaign_id = id)
 ORDER BY ARRAY_POSITION($1, id);
 
 -- name: get-campaign-for-preview
-SELECT campaigns.*, COALESCE(templates.body, (SELECT body FROM templates WHERE is_default = true LIMIT 1)) AS template_body,
+SELECT campaigns.*, COALESCE(templates.body, '') AS template_body,
 (
 	SELECT COALESCE(ARRAY_TO_JSON(ARRAY_AGG(l)), '[]') FROM (
 		SELECT COALESCE(campaign_lists.list_id, 0) AS id,
