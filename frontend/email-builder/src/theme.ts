@@ -1,4 +1,6 @@
-import { alpha, createTheme, darken, lighten } from '@mui/material/styles';
+import {
+  alpha, createTheme, darken, lighten,
+} from '@mui/material/styles';
 
 const BRAND_NAVY = '#212443';
 const BRAND_BLUE = '#0079CC';
@@ -7,10 +9,8 @@ const BRAND_RED = '#E81212';
 const BRAND_YELLOW = '#F6DC9F';
 const BRAND_PURPLE = '#6C0E7C';
 const BRAND_BROWN = '#CC996C';
-const STANDARD_FONT_FAMILY =
-  '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"';
-const MONOSPACE_FONT_FAMILY =
-  'ui-monospace, Menlo, Monaco, "Cascadia Mono", "Segoe UI Mono", "Roboto Mono", "Oxygen Mono", "Ubuntu Monospace", "Source Code Pro", "Fira Mono", "Droid Sans Mono", "Courier New", monospace';
+const STANDARD_FONT_FAMILY = 'sans-serif, "Segoe UI", Roboto, Helvetica, Arial';
+const MONOSPACE_FONT_FAMILY = 'monospace, Menlo, Monaco, "Segoe UI Mono", "Roboto Mono"';
 
 const BASE_THEME = createTheme({
   palette: {
