@@ -42,7 +42,7 @@ func (c *Core) QueryCampaigns(searchStr string, statuses, tags []string, orderBy
 			c.i18n.Ts("globals.messages.errorFetching", "name", "{globals.terms.campaign}", "error", pqErrMsg(err)))
 	}
 
-	for i := 0; i < len(out); i++ {
+	for i := range out {
 		// Replace null tags.
 		if out[i].Tags == nil {
 			out[i].Tags = []string{}
@@ -309,9 +309,9 @@ func (c *Core) UpdateCampaignArchive(id int, enabled bool, tplID int, meta model
 	return nil
 }
 
-// DeleteCampaign deletes a campaign.
-func (c *Core) DeleteCampaign(id int) error {
-	res, err := c.q.DeleteCampaign.Exec(id)
+// DeleteCampaigns deletes a campaign.
+func (c *Core) DeleteCampaigns(ids []int) error {
+	res, err := c.q.DeleteCampaigns.Exec(pq.Array(ids))
 	if err != nil {
 		c.log.Printf("error deleting campaign: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,

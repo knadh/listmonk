@@ -82,20 +82,26 @@
           </a>
           <template v-if="bulk.checked.length > 0">
             <a class="a" href="#" @click.prevent="showBulkListForm" data-cy="btn-manage-lists">
-              <b-icon icon="format-list-bulleted-square" size="is-small" /> Manage lists
+              <b-icon icon="format-list-bulleted-square" size="is-small" /> {{ $t('subscribers.manageLists') }}
             </a>
             <a class="a" href="#" @click.prevent="deleteSubscribers" data-cy="btn-delete-subscribers">
-              <b-icon icon="trash-can-outline" size="is-small" /> Delete
+              <b-icon icon="trash-can-outline" size="is-small" /> {{ $t('globals.buttons.delete') }}
             </a>
             <a class="a" href="#" @click.prevent="blocklistSubscribers" data-cy="btn-manage-blocklist">
-              <b-icon icon="account-off-outline" size="is-small" /> Blocklist
+              <b-icon icon="account-off-outline" size="is-small" /> {{ $t('import.blocklist') }}
             </a>
             <span class="a">
-              {{ $t('subscribers.numSelected', { num: numSelectedSubscribers }) }}
+              {{ $t('globals.messages.numSelected', {
+                num: numSelected,
+                name: $tc('globals.terms.subscriber', numSelected).toLowerCase(),
+              }) }}
               <span v-if="!bulk.all && subscribers.total > subscribers.perPage">
                 &mdash;
-                <a href="#" @click.prevent="selectAllSubscribers">
-                  {{ $t('subscribers.selectAll', { num: subscribers.total }) }}
+                <a href="#" @click.prevent="onSelectAll">
+                  {{ $t('globals.buttons.selectAll', {
+                    num: subscribers.total,
+                    name: $t('globals.terms.subscribers').toLowerCase(),
+                  }) }}
                 </a>
               </span>
             </span>
@@ -177,7 +183,7 @@
 
     <!-- Manage list modal -->
     <b-modal scroll="keep" :aria-modal="true" :active.sync="isBulkListFormVisible" :width="500" class="has-overflow">
-      <subscriber-bulk-list :num-subscribers="this.numSelectedSubscribers" @finished="bulkChangeLists" />
+      <subscriber-bulk-list :num-subscribers="this.numSelected" @finished="bulkChangeLists" />
     </b-modal>
 
     <!-- Add / edit form modal -->
@@ -260,7 +266,7 @@ export default Vue.extend({
     },
 
     // Mark all subscribers in the query as selected.
-    selectAllSubscribers() {
+    onSelectAll() {
       this.bulk.all = true;
     },
 
@@ -378,7 +384,7 @@ export default Vue.extend({
         };
       }
 
-      this.$utils.confirm(this.$t('subscribers.confirmBlocklist', { num: this.numSelectedSubscribers }), fn);
+      this.$utils.confirm(this.$t('subscribers.confirmBlocklist', { num: this.numSelected }), fn);
     },
 
     exportSubscribers() {
@@ -407,6 +413,7 @@ export default Vue.extend({
     },
 
     deleteSubscribers() {
+      const langName = this.$tc('globals.terms.subscriber', this.numSelected).toLowerCase();
       let fn = null;
       if (!this.bulk.all && this.bulk.checked.length > 0) {
         // If 'all' is not selected, delete subscribers by IDs.
@@ -416,7 +423,7 @@ export default Vue.extend({
             .then(() => {
               this.querySubscribers();
 
-              this.$utils.toast(this.$t('subscribers.subscribersDeleted', { num: this.numSelectedSubscribers }));
+              this.$utils.toast(this.$t('globals.messages.numDeleted', { num: this.numSelected, name: langName }));
             });
         };
       } else {
@@ -433,14 +440,14 @@ export default Vue.extend({
             this.querySubscribers();
 
             this.$utils.toast(this.$t(
-              'subscribers.subscribersDeleted',
-              { num: this.numSelectedSubscribers },
+              'globals.messages.numDeleted',
+              { num: this.numSelected, name: langName },
             ));
           });
         };
       }
 
-      this.$utils.confirm(this.$t('subscribers.confirmDelete', { num: this.numSelectedSubscribers }), fn);
+      this.$utils.confirm(this.$t('globals.messages.confirmNumDelete', { num: this.numSelected, name: langName }), fn);
     },
 
     bulkChangeLists(action, preconfirm, lists) {
@@ -477,7 +484,7 @@ export default Vue.extend({
   computed: {
     ...mapState(['subscribers', 'lists', 'loading']),
 
-    numSelectedSubscribers() {
+    numSelected() {
       if (this.bulk.all) {
         return this.subscribers.total;
       }

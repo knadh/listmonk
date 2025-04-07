@@ -909,8 +909,8 @@ UPDATE campaigns SET
     updated_at=NOW()
     WHERE id=$1;
 
--- name: delete-campaign
-DELETE FROM campaigns WHERE id=$1;
+-- name: delete-campaigns
+DELETE FROM campaigns WHERE id = ANY($1);
 
 -- name: register-campaign-view
 WITH view AS (

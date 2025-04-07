@@ -17,24 +17,37 @@
       </div>
     </header>
 
-    <b-table :data="campaigns.results" :loading="loading.campaigns" :row-class="highlightedRow" paginated
+    <div class="columns">
+      <form @submit.prevent="getCampaigns" class="is-half column">
+        <div>
+          <b-field>
+            <b-input v-model="queryParams.query" name="query" expanded :placeholder="$t('campaigns.queryPlaceholder')"
+              icon="magnify" ref="query" />
+            <p class="controls">
+              <b-button native-type="submit" type="is-primary" icon-left="magnify" />
+            </p>
+          </b-field>
+        </div>
+      </form>
+    </div>
+
+    <b-table :data="campaigns.results" :loading="loading.campaigns" :row-class="highlightedRow"
+      @check-all="onTableCheck" @check="onTableCheck" :checked-rows.sync="bulk.checked" checkable paginated
       backend-pagination pagination-position="both" @page-change="onPageChange" :current-page="queryParams.page"
       :per-page="campaigns.perPage" :total="campaigns.total" hoverable backend-sorting @sort="onSort">
       <template #top-left>
-        <div class="columns">
-          <div class="column is-6">
-            <form @submit.prevent="getCampaigns">
-              <div>
-                <b-field>
-                  <b-input v-model="queryParams.query" name="query" expanded
-                    :placeholder="$t('campaigns.queryPlaceholder')" icon="magnify" ref="query" />
-                  <p class="controls">
-                    <b-button native-type="submit" type="is-primary" icon-left="magnify" />
-                  </p>
-                </b-field>
-              </div>
-            </form>
-          </div>
+        <div class="actions">
+          <template v-if="bulk.checked.length > 0">
+            <a class="a" href="#" @click.prevent="onDeleteCampaigns" data-cy="btn-delete-campaigns">
+              <b-icon icon="trash-can-outline" size="is-small" /> Delete
+            </a>
+            <span class="a">
+              {{ $t('globals.messages.numSelected', {
+                num: numSelected,
+                name: $tc('globals.terms.campaign', numSelected).toLowerCase(),
+              }) }}
+            </span>
+          </template>
         </div>
       </template>
 
@@ -242,7 +255,7 @@
             </b-tooltip>
           </router-link>
           <a v-if="$can('campaigns:manage')" href="#"
-            @click.prevent="$utils.confirm($t('campaigns.confirmDelete', { name: props.row.name }), () => deleteCampaign(props.row))"
+            @click.prevent="$utils.confirm($t('campaigns.confirmDelete', { name: props.row.name }), () => onDeleteCampaign(props.row))"
             data-cy="btn-delete" :aria-label="$t('globals.buttons.delete')">
             <b-icon icon="trash-can-outline" size="is-small" />
           </a>
@@ -283,6 +296,12 @@ export default Vue.extend({
       },
       pollID: null,
       campaignStatsData: {},
+
+      // Table bulk row selection states.
+      bulk: {
+        checked: [],
+        all: false,
+      },
     };
   },
 
@@ -324,6 +343,13 @@ export default Vue.extend({
       return '';
     },
 
+    onTableCheck() {
+      // Disable bulk.all selection if there are no rows checked in the table.
+      if (this.bulk.checked.length !== this.campaigns.total) {
+        this.bulk.all = false;
+      }
+    },
+
     onPageChange(p) {
       this.queryParams.page = p;
       this.getCampaigns();
@@ -351,6 +377,7 @@ export default Vue.extend({
         order_by: this.queryParams.orderBy,
         order: this.queryParams.order,
       });
+      this.bulk.checked = [];
     },
 
     // Stats returns the campaign object with stats (sent, toSend etc.)
@@ -438,7 +465,26 @@ export default Vue.extend({
       });
     },
 
-    deleteCampaign(c) {
+    onDeleteCampaigns() {
+      const langName = this.$tc('globals.terms.campaign', this.numSelected).toLowerCase();
+      const ids = this.bulk.checked.map((s) => s.id);
+
+      const fn = () => {
+        this.$api.deleteCampaigns({ id: ids })
+          .then(() => {
+            this.getCampaigns();
+
+            this.$utils.toast(this.$t(
+              'globals.messages.numDeleted',
+              { num: this.numSelected, name: langName },
+            ));
+          });
+      };
+
+      this.$utils.confirm(this.$t('globals.messages.confirmNumDelete', { num: this.numSelected, name: langName }), fn);
+    },
+
+    onDeleteCampaign(c) {
       this.$api.deleteCampaign(c.id).then(() => {
         this.getCampaigns();
         this.$utils.toast(this.$t('globals.messages.deleted', { name: c.name }));
@@ -448,6 +494,14 @@ export default Vue.extend({
 
   computed: {
     ...mapState(['campaigns', 'loading']),
+
+    numSelected() {
+      if (this.bulk.all) {
+        return this.campaigns.total;
+      }
+      return this.bulk.checked.length;
+    },
+
   },
 
   mounted() {

@@ -360,7 +360,28 @@ func (a *App) DeleteCampaign(c echo.Context) error {
 	}
 
 	// Delete the campaign from the DB.
-	if err := a.core.DeleteCampaign(id); err != nil {
+	if err := a.core.DeleteCampaigns([]int{id}); err != nil {
+		return err
+	}
+
+	return c.JSON(http.StatusOK, okResp{true})
+}
+
+// DeleteCampaigns handles bulk deletion of one or more campaigns.
+func (a *App) DeleteCampaigns(c echo.Context) error {
+	// Multiple IDs.
+	ids, err := parseStringIDs(c.Request().URL.Query()["id"])
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest,
+			a.i18n.Ts("globals.messages.errorInvalidIDs", "error", err.Error()))
+	}
+	if len(ids) == 0 {
+		return echo.NewHTTPError(http.StatusBadRequest,
+			a.i18n.Ts("globals.messages.errorInvalidIDs", "error", "ids"))
+	}
+
+	// Delete the subscribers from the DB.
+	if err := a.core.DeleteCampaigns(ids); err != nil {
 		return err
 	}
 

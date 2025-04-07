@@ -343,6 +343,11 @@ export const deleteCampaign = async (id) => http.delete(
   { loading: models.campaigns },
 );
 
+export const deleteCampaigns = async (params) => http.delete(
+  '/api/campaigns',
+  { params, loading: models.campaigns },
+);
+
 // Media.
 export const getMedia = async (params) => http.get(
   '/api/media',
