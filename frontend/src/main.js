@@ -41,6 +41,7 @@ async function initConfig(app) {
 
   Vue.prototype.$utils = new Utils(i18n);
   Vue.prototype.$api = api;
+  Vue.prototype.$events = app;
 
   // $can('permission:name') is used in the UI to check whether the logged in user
   // has a certain permission to toggle visibility of UI objects and UI functionality.

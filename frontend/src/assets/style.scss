@@ -296,7 +296,7 @@ body.is-noscroll {
 }
 
 /* WYSIWYG / HTML code editor */
-.html-editor, .markdown-editor {
+.html-editor, .plain-editor textarea, .markdown-editor {
   position: relative;
   width: 100%;
   min-height: 250px;
@@ -510,6 +510,23 @@ body.is-noscroll {
     }
     &:focus:not(:active), &.is-focused:not(:active) {
       box-shadow: 0 0 0 0.2em rgba($primary, 0.25);
+    }
+
+    .has-kbd {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .kbd {
+      font-size: 0.575rem;
+      font-family: monospace;
+      color: #cbdefa;
+      border: 1px solid #5381c5;
+      border-radius: 3px;
+      padding: 1px 5px;
+      display: inline-block;
+      border-width: 1px 2px 2px 1px;
     }
   }
 
