@@ -126,7 +126,7 @@ func (c *Core) getCampaign(id int, uuid, archiveSlug string, tplType string) (mo
 
 // GetCampaignForPreview retrieves a campaign with a template body. If the optional tplID is > 0
 // that particular template is used, otherwise, the template saved on the campaign is.
-func (c *Core) GetCampaignForPreview(id int, tplID int) (models.Campaign, error) {
+func (c *Core) GetCampaignForPreview(id, tplID int) (models.Campaign, error) {
 	var out models.Campaign
 	if err := c.q.GetCampaignForPreview.Get(&out, id, tplID); err != nil {
 		if err == sql.ErrNoRows {
@@ -183,11 +183,11 @@ func (c *Core) CreateCampaign(o models.Campaign, listIDs []int, mediaIDs []int) 
 		o.Headers,
 		pq.StringArray(normalizeTags(o.Tags)),
 		o.Messenger,
-		o.TemplateID.Int,
+		o.TemplateID,
 		pq.Array(listIDs),
 		o.Archive,
 		o.ArchiveSlug,
-		o.ArchiveTemplateID.Int,
+		o.ArchiveTemplateID,
 		o.ArchiveMeta,
 		pq.Array(mediaIDs),
 		o.BodySource,
@@ -211,6 +211,12 @@ func (c *Core) CreateCampaign(o models.Campaign, listIDs []int, mediaIDs []int) 
 
 // UpdateCampaign updates a campaign.
 func (c *Core) UpdateCampaign(id int, o models.Campaign, listIDs []int, mediaIDs []int) (models.Campaign, error) {
+	// If it's a visual campain, no template ID should be saved.
+	if o.ContentType == models.CampaignContentTypeVisual {
+		o.TemplateID.Valid = false
+		o.ArchiveTemplateID.Valid = false
+	}
+
 	_, err := c.q.UpdateCampaign.Exec(id,
 		o.Name,
 		o.Subject,
