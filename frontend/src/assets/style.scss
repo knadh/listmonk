@@ -533,6 +533,9 @@ body.is-noscroll {
   }
 }
 
+.button.is-primary[disabled] {
+  border-color: $grey-light;
+}
 .has-addons {
   .controls .button.is-primary {
     border-top-left-radius: 0;
