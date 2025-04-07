@@ -1,6 +1,7 @@
 <template>
   <div class="visual-editor-wrapper">
-    <iframe ref="visualEditor" id="visual-editor" class="visual-editor email-builder-container" title="Visual email editor" />
+    <iframe ref="visualEditor" id="visual-editor" class="visual-editor email-builder-container"
+      title="Visual email editor" />
 
     <!-- image picker -->
     <b-modal scroll="keep" :aria-modal="true" :active.sync="isMediaVisible" :width="900">
@@ -152,7 +153,7 @@ export default {
   watch: {
     source(val) {
       const iframe = this.$refs.visualEditor;
-      if (iframe.contentWindow.EmailBuilder?.isRendered('visual-editor')) {
+      if (iframe.contentWindow.EmailBuilder?.isRendered('visual-editor-container')) {
         if (val) {
           iframe.contentWindow.EmailBuilder.setDocument(JSON.parse(val));
         } else {
@@ -167,16 +168,16 @@ export default {
 </script>
 
 <style lang="css">
-  .visual-editor-wrapper {
-    width: 100%;
-    border: 1px solid #eaeaea;
-    max-width: 100vw;
-  }
+.visual-editor-wrapper {
+  width: 100%;
+  border: 1px solid #eaeaea;
+  max-width: 100vw;
+}
 
-  #visual-editor {
-    position: relative;
-    border: none;
-    width: 100%;
-    min-height: 500px;
-  }
+#visual-editor {
+  position: relative;
+  border: none;
+  width: 100%;
+  min-height: 500px;
+}
 </style>
