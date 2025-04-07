@@ -141,6 +141,13 @@ export default {
         urlconverter_callback: this.onEditorURLConvert,
 
         setup: (editor) => {
+          editor.addShortcut('ctrl+s', 'Save content', () => {
+            this.$events.$emit('campaign.update', {});
+          });
+          editor.addShortcut('f9', 'Preview', () => {
+            this.$events.$emit('campaign.preview', {});
+          });
+
           editor.on('init', () => {
             editor.focus();
             this.onEditorDialogOpen(editor);

@@ -62,8 +62,9 @@
         </div>
       </div>
       <div class="column is- has-text-right">
-        <b-button @click="onTogglePreview" type="is-primary" icon-left="file-find-outline" data-cy="btn-preview">
-          {{ $t('campaigns.preview') }} (F9)
+        <b-button @click="onTogglePreview" type="is-primary" icon-left="file-find-outline" data-cy="btn-preview"
+          aria-keyshortcuts="F9">
+          <span class="has-kbd">{{ $t('campaigns.preview') }} <span class="kbd">F9</span></span>
         </b-button>
       </div>
     </div>
@@ -254,9 +255,16 @@ export default {
       this.isPreviewing = !this.isPreviewing;
     },
 
-    onPreviewShortcut(e) {
+    onKeyboardShortcut(e) {
+      // On F9, toggle the preview.
       if (e.key === 'F9') {
         this.onTogglePreview();
+        e.preventDefault();
+      }
+
+      // On Ctrl+S, trigger save.
+      if (e.ctrlKey && e.key === 's') {
+        this.$events.$emit('campaign.update');
         e.preventDefault();
       }
     },
@@ -347,11 +355,16 @@ export default {
     this.contentTypeSel = this.value.contentType;
     this.templateId = this.value.templateId;
 
-    window.addEventListener('keydown', this.onPreviewShortcut);
+    window.addEventListener('keydown', this.onKeyboardShortcut);
+
+    this.$events.$on('campaign.preview', () => {
+      this.isPreviewing = true;
+    });
   },
 
   beforeDestroy() {
-    window.removeEventListener('keydown', this.onPreviewShortcut);
+    window.removeEventListener('keydown', this.onKeyboardShortcut);
+    this.$events.$off('campaign.preview');
   },
 
   computed: {
