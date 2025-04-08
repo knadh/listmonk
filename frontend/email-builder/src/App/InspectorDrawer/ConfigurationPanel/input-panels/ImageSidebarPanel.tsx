@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-
+import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import {
   VerticalAlignBottomOutlined,
   VerticalAlignCenterOutlined,
@@ -42,6 +42,13 @@ export default function ImageSidebarPanel({ data, setData }: ImageSidebarPanelPr
           updateData({ ...data, props: { ...data.props, url } });
         }}
       />
+      <a href="#" class="select-media"
+        style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', marginTop: '5px' }}
+        onClick={(e) => {
+        // @ts-ignore
+        window.parent.postMessage('visualeditor.select-media', '*');
+        e.preventDefault();
+      }}><CloudUploadIcon style={{fontSize: '1rem'}} /> Select media</a>
 
       <TextInput
         label="Alt text"
