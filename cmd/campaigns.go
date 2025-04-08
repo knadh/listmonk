@@ -88,6 +88,7 @@ func (a *App) GetCampaigns(c echo.Context) error {
 	if noBody {
 		for i := range res {
 			res[i].Body = ""
+			res[i].BodySource.Valid = false
 		}
 	}
 
@@ -563,6 +564,16 @@ func (a *App) validateCampaignFields(c campReq) (campReq, error) {
 	// Larger char limit for subject as it can contain {{ go templating }} logic.
 	if !strHasLen(c.Subject, 1, 5000) {
 		return c, errors.New(a.i18n.T("campaigns.fieldInvalidSubject"))
+	}
+
+	// If no content-type is specified, default to richtext.
+	if c.ContentType != models.CampaignContentTypeRichtext &&
+		c.ContentType != models.CampaignContentTypeHTML &&
+		c.ContentType != models.CampaignContentTypePlain &&
+		c.ContentType != models.CampaignContentTypeVisual &&
+		c.ContentType != models.CampaignContentTypeMarkdown {
+		c.ContentType = models.CampaignContentTypeRichtext
+		c.BodySource.Valid = false
 	}
 
 	// If there's a "send_at" date, it should be in the future.

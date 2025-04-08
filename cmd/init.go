@@ -316,7 +316,7 @@ func initDB() *sqlx.DB {
 	db.SetMaxIdleConns(c.MaxIdle)
 	db.SetConnMaxLifetime(c.MaxLifetime)
 
-	return db
+	return db.Unsafe()
 }
 
 // readQueries reads named SQL queries from the SQL queries file into a query map.
@@ -358,7 +358,7 @@ func prepareQueries(qMap goyesql.Queries, db *sqlx.DB, ko *koanf.Koanf) *models.
 
 	// Scan and prepare all queries.
 	var q models.Queries
-	if err := goyesqlx.ScanToStruct(&q, qMap, db.Unsafe()); err != nil {
+	if err := goyesqlx.ScanToStruct(&q, qMap, db); err != nil {
 		lo.Fatalf("error preparing SQL queries: %v", err)
 	}
 
