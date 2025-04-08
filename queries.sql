@@ -514,8 +514,10 @@ WITH tpl AS (
     FROM templates
     WHERE
         CASE
-            WHEN $13::INT IS NOT NULL AND $13::INT != 0 THEN id = $13::INT
-            ELSE is_default = TRUE
+            -- If a template ID is present, use it. If not, use the default template only if
+            -- it's not a visual template.
+            WHEN $13::INT IS NOT NULL THEN id = $13::INT
+            ELSE $8 != 'visual' AND is_default = TRUE
         END
     LIMIT 1
 ),
@@ -541,7 +543,7 @@ camp AS (
             -- body
             COALESCE(NULLIF($6, ''), (SELECT body FROM tpl), ''),
             $7,
-            COALESCE(NULLIF($8, ''), (SELECT content_type FROM tpl), 'richtext')::content_type,
+            $8::content_type,
             $9, $10, $11, $12,
             (SELECT id FROM tpl),
             (SELECT to_send FROM counts),
@@ -551,7 +553,7 @@ camp AS (
             $17,
             $18,
             -- body_source
-            COALESCE(NULLIF($20, ''), (SELECT body_source FROM tpl))
+            COALESCE($20, (SELECT body_source FROM tpl))
         RETURNING id
 ),
 med AS (
@@ -571,11 +573,7 @@ SELECT id FROM camp;
 -- there's a COUNT() OVER() that still returns the total result count
 -- for pagination in the frontend, albeit being a field that'll repeat
 -- with every resultant row.
-SELECT  c.id, c.uuid, c.name, c.subject, c.from_email,
-        c.messenger, c.started_at, c.to_send, c.sent, c.type,
-        c.body, c.altbody, c.send_at, c.headers, c.status, c.content_type, c.tags,
-        c.template_id, c.archive, c.archive_slug, c.archive_template_id, c.archive_meta,
-        c.created_at, c.updated_at,
+SELECT  c.*,
         COUNT(*) OVER () AS total,
         (
             SELECT COALESCE(ARRAY_TO_JSON(ARRAY_AGG(l)), '[]') FROM (
@@ -888,10 +886,11 @@ WITH camp AS (
         headers=$9,
         tags=$10::VARCHAR(100)[],
         messenger=$11,
-        template_id=$12,
+        -- template_id shouldn't be saved for visual campaigns.
+        template_id=(CASE WHEN $7::content_type = 'visual' THEN NULL ELSE $12::INT END),
         archive=$14,
         archive_slug=$15,
-        archive_template_id=$16,
+        archive_template_id=(CASE WHEN $7::content_type = 'visual' THEN NULL ELSE $16::INT END),
         archive_meta=$17,
         body_source=$19,
         updated_at=NOW()

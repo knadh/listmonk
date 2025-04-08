@@ -419,6 +419,7 @@ export default Vue.extend({
         tags: c.tags,
         template_id: c.templateId,
         body: c.body,
+        body_source: c.bodySource,
         altbody: c.altbody,
         headers: c.headers,
         send_later: sendLater,
