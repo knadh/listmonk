@@ -79,14 +79,14 @@ $(FRONTEND_EMAIL_BUILDER_DIST_FINAL): $(FRONTEND_EMAIL_BUILDER_DIST)
 	touch -c $(FRONTEND_EMAIL_BUILDER_DIST_FINAL)
 
 .PHONY: build-frontend
-build-frontend: $(FRONTEND_EMAIL_BUILDER_DIST) $(FRONTEND_DIST)
+build-frontend: $(FRONTEND_EMAIL_BUILDER_DIST_FINAL) $(FRONTEND_DIST)
 
 .PHONY: build-email-builder
-build-email-builder: $(FRONTEND_EMAIL_BUILDER_DIST) $(FRONTEND_EMAIL_BUILDER_DIST)
+build-email-builder: $(FRONTEND_EMAIL_BUILDER_DIST_FINAL)
 
 # Run the JS frontend server in dev mode.
 .PHONY: run-frontend
-run-frontend:
+run-frontend: $(FRONTEND_EMAIL_BUILDER_DIST_FINAL)
 	export VUE_APP_VERSION="${VERSION}" && cd frontend && $(YARN) dev
 
 # Run Go tests.
