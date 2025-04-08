@@ -8,6 +8,10 @@
         </h1>
       </div>
       <div class="column has-text-right buttons">
+        <b-button v-if="bulk.checked.length > 0 || bulk.all" type="is-primary" icon-left="account-off-outline"
+          data-cy="btn-bulk-blocklist" @click.prevent="$utils.confirm(null, () => blocklistSubscriberBounces())">
+          {{ $t('settings.bounces.blocklist') }}
+        </b-button>
         <b-button v-if="bulk.checked.length > 0 || bulk.all" type="is-primary" icon-left="trash-can-outline"
           data-cy="btn-delete" @click.prevent="$utils.confirm(null, () => deleteBounces())">
           {{ $t('globals.buttons.clear') }}
