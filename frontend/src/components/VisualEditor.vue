@@ -70,6 +70,7 @@ export default {
       });
     },
 
+    // Inject media URL into the image URL input field in the visual edior sidebar.
     onMediaSelect(media) {
       const iframe = this.$refs.visualEditor;
       const input = iframe.contentDocument.querySelector('.image-url input');
@@ -87,34 +88,14 @@ export default {
 
     // Observe DOM changes in the iframe to inject media selector
     // into the image URL input fields.
-    setupInjectMediaObserver(iframe) {
-      const observer = new MutationObserver((mutations) => {
-        mutations.forEach((mutation) => {
-          mutation.addedNodes.forEach((node) => {
-            node.querySelectorAll('.image-url').forEach((img) => {
-              // Create anchor tag
-              const anchor = document.createElement('a');
-              anchor.href = '#';
-              anchor.className = 'open-media-selector';
-              anchor.textContent = 'Select Image';
-              anchor.style.marginTop = '5px';
-              anchor.addEventListener('click', (e) => {
-                e.preventDefault();
-                this.isMediaVisible = true;
-              });
-              if (img.parentNode) {
-                img.parentNode.insertBefore(anchor, img.nextSibling);
-              }
-            });
-          });
-        });
-      });
+    onSidebarMount(msg) {
+      if (!msg.data) {
+        return;
+      }
 
-      // Start observing.
-      observer.observe(iframe.contentDocument.querySelector('#visual-editor-container'), {
-        childList: true,
-        subtree: true,
-      });
+      if (msg.data === 'visualeditor.select-media') {
+        this.isMediaVisible = true;
+      }
     },
   },
 
@@ -142,12 +123,17 @@ export default {
     iframe.onload = () => {
       this.loadScript().then(() => {
         this.initEditor();
-        this.setupInjectMediaObserver(iframe);
       }).catch((error) => {
         /* eslint-disable-next-line no-console */
         console.error('Failed to load email-builer script:', error);
       });
     };
+
+    window.addEventListener('message', this.onSidebarMount, false);
+  },
+
+  unmounted() {
+    window.removeEventListener('message', this.onSidebarMount, false);
   },
 
   watch: {

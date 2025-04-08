@@ -1,6 +1,8 @@
 import React from 'react';
 
-import { Box, Drawer, Tab, Tabs } from '@mui/material';
+import {
+  Box, Drawer, Tab, Tabs,
+} from '@mui/material';
 
 import { setSidebarTab, useInspectorDrawerOpen, useSelectedSidebarTab } from '../../documents/editor/EditorContext';
 
@@ -26,6 +28,7 @@ export default function InspectorDrawer() {
     <Drawer
       variant="persistent"
       anchor="right"
+      className="sidebar"
       open={inspectorDrawerOpen}
       sx={{
         width: inspectorDrawerOpen ? INSPECTOR_DRAWER_WIDTH : 0,
@@ -34,10 +37,13 @@ export default function InspectorDrawer() {
       PaperProps={{ style: { position: 'absolute', zIndex: 0 } }}
       ModalProps={{
         container: document.querySelector('.email-builder-container'),
-        style: { position: 'absolute', zIndex: 0 }
+        style: { position: 'absolute', zIndex: 0 },
       }}
     >
-      <Box sx={{ width: INSPECTOR_DRAWER_WIDTH, height: 49, borderBottom: 1, borderColor: 'divider' }}>
+      <Box sx={{
+        width: INSPECTOR_DRAWER_WIDTH, height: 49, borderBottom: 1, borderColor: 'divider',
+      }}
+      >
         <Box px={2}>
           <Tabs value={selectedSidebarTab} onChange={(_, v) => setSidebarTab(v)}>
             <Tab value="styles" label="Styles" />
