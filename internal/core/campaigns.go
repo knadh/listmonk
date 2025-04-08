@@ -42,7 +42,7 @@ func (c *Core) QueryCampaigns(searchStr string, statuses, tags []string, orderBy
 			c.i18n.Ts("globals.messages.errorFetching", "name", "{globals.terms.campaign}", "error", pqErrMsg(err)))
 	}
 
-	for i := 0; i < len(out); i++ {
+	for i := range out {
 		// Replace null tags.
 		if out[i].Tags == nil {
 			out[i].Tags = []string{}
@@ -211,12 +211,6 @@ func (c *Core) CreateCampaign(o models.Campaign, listIDs []int, mediaIDs []int) 
 
 // UpdateCampaign updates a campaign.
 func (c *Core) UpdateCampaign(id int, o models.Campaign, listIDs []int, mediaIDs []int) (models.Campaign, error) {
-	// If it's a visual campain, no template ID should be saved.
-	if o.ContentType == models.CampaignContentTypeVisual {
-		o.TemplateID.Valid = false
-		o.ArchiveTemplateID.Valid = false
-	}
-
 	_, err := c.q.UpdateCampaign.Exec(id,
 		o.Name,
 		o.Subject,
