@@ -353,6 +353,7 @@ export default Vue.extend({
         query: this.queryParams.query.replace(/[^\p{L}\p{N}\s]/gu, ' '),
         order_by: this.queryParams.orderBy,
         order: this.queryParams.order,
+        no_body: true,
       });
     },
 

@@ -372,6 +372,11 @@ export const getTemplates = async () => http.get(
   { loading: models.templates, store: models.templates },
 );
 
+export const getTemplate = async (id) => http.get(
+  `/api/templates/${id}`,
+  { loading: models.templates },
+);
+
 export const updateTemplate = async (data) => http.put(
   `/api/templates/${data.id}`,
   data,
