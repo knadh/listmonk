@@ -325,19 +325,20 @@ func (a *App) doFirstTimeSetup(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("users.passwordMismatch"))
 	}
 
-	// Create the default "Super Admin" with all permission.
-	r := auth.Role{
-		Type: auth.RoleTypeUser,
-		Name: null.NewString("Super Admin", true),
-	}
-	for p := range a.cfg.Permissions {
-		r.Permissions = append(r.Permissions, p)
-	}
+	// Create the default "Super Admin" with all permissions if it doesn't exist.
+	if _, err := a.core.GetRole(auth.SuperAdminRoleID); err != nil {
+		r := auth.Role{
+			Type: auth.RoleTypeUser,
+			Name: null.NewString("Super Admin", true),
+		}
+		for p := range a.cfg.Permissions {
+			r.Permissions = append(r.Permissions, p)
+		}
 
-	// Create the role in the DB.
-	role, err := a.core.CreateRole(r)
-	if err != nil {
-		return err
+		// Create the role in the DB.
+		if _, err := a.core.CreateRole(r); err != nil {
+			return err
+		}
 	}
 
 	// Create the super admin user in the DB.
@@ -349,7 +350,7 @@ func (a *App) doFirstTimeSetup(c echo.Context) error {
 		Name:          username,
 		Password:      null.NewString(password, true),
 		Email:         null.NewString(email, true),
-		UserRoleID:    role.ID,
+		UserRoleID:    auth.SuperAdminRoleID,
 		Status:        auth.UserStatusEnabled,
 	}
 	if _, err := a.core.CreateUser(u); err != nil {
