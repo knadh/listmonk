@@ -42,7 +42,6 @@
             icon-left="file-find-outline" data-cy="btn-select-visual-tpl">
             {{ $t('campaigns.importVisualTemplate') }}
           </b-button>
-
           <b-field v-else :label="$tc('globals.terms.template')" label-position="on-border">
             <b-select :placeholder="$t('globals.terms.none')" v-model="visualTemplateId"
               @input="() => isVisualTplDisabled = false" name="template" :disabled="disabled"
@@ -54,9 +53,14 @@
               </template>
             </b-select>
 
-            <b-button :disabled="disabled || isVisualTplDisabled" class="ml-3" @click="onImportVisualTpl"
-              type="is-primary" icon-left="content-save-outline" data-cy="btn-save-visual-tpl">
+            <b-button :disabled="disabled || isVisualTplDisabled || !visualTemplateId" class="ml-3"
+              @click="onImportVisualTpl" type="is-primary" icon-left="content-save-outline"
+              data-cy="btn-save-visual-tpl">
               {{ $t('globals.terms.import') }}
+
+              <span class="spinner is-tiny" v-if="loading.templates">
+                <b-loading :is-full-page="false" active />
+              </span>
             </b-button>
           </b-field>
         </div>
@@ -141,8 +145,8 @@ export default {
       isVisualTplSelector: false,
       isVisualTplDisabled: false,
       contentTypeSel: this.$props.value.contentType,
-      templateId: '',
-      visualTemplateId: '',
+      templateId: null,
+      visualTemplateId: null,
     };
   },
 
@@ -308,34 +312,19 @@ export default {
     },
 
     onImportVisualTpl() {
+      if (!this.visualTemplateId) {
+        return;
+      }
+
       this.$utils.confirm(
         this.$t('campaigns.confirmOverwriteContent'),
         () => {
-          let found = false;
-          this.templates.forEach((t) => {
-            if (t.id === this.visualTemplateId) {
-              found = true;
-              this.self.body = t.body;
-              this.self.bodySource = t.bodySource;
-
-              // Deplay update so that applied template is propogated to visual editor
-              // and it doesn't enable the apply button again. Delay here is arbitrary.
-              setTimeout(() => {
-                this.isVisualTplDisabled = true;
-              }, 250);
-            }
+          // Fetch the template body from the server.
+          this.$api.getTemplate(this.visualTemplateId).then((data) => {
+            this.self.body = data.body;
+            this.self.bodySource = data.bodySource;
+            this.isVisualTplDisabled = true;
           });
-
-          if (!found) {
-            this.self.body = '';
-            this.self.bodySource = null;
-
-            // Deplay update so that applied template is propogated to visual editor
-            // and it doesn't enable the apply button again. Delay here is arbitrary.
-            setTimeout(() => {
-              this.isVisualTplDisabled = true;
-            }, 250);
-          }
         },
       );
     },
@@ -368,7 +357,7 @@ export default {
   },
 
   computed: {
-    ...mapState(['serverConfig']),
+    ...mapState(['serverConfig', 'loading']),
 
     // This is a clone of the incoming `value` prop that's mutated here.
     self: {
