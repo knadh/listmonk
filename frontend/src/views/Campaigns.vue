@@ -401,7 +401,15 @@ export default Vue.extend({
       });
     },
 
-    cloneCampaign(name, c) {
+    async cloneCampaign(name, c) {
+      // Fetch the template body from the server.
+      let body = '';
+      let bodySource = null;
+      await this.$api.getCampaign(c.id).then((data) => {
+        body = data.body;
+        bodySource = data.bodySource;
+      });
+
       const now = this.$utils.getDate();
       const sendLater = !!c.sendAt;
       let sendAt = null;
@@ -419,8 +427,8 @@ export default Vue.extend({
         messenger: c.messenger,
         tags: c.tags,
         template_id: c.templateId,
-        body: c.body,
-        body_source: c.bodySource,
+        body,
+        body_source: bodySource,
         altbody: c.altbody,
         headers: c.headers,
         send_later: sendLater,
