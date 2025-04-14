@@ -536,7 +536,7 @@ func (c *Campaign) CompileTemplate(f template.FuncMap) error {
 	// Compile the base template.
 	body := c.TemplateBody
 
-	if body == "" {
+	if body == "" || c.ContentType == CampaignContentTypeVisual {
 		body = `{{ template "content" . }}`
 	}
 
