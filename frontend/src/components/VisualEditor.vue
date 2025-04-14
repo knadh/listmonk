@@ -68,9 +68,10 @@ export default {
             this.$emit('change', { source: JSON.stringify(data), body });
           },
         });
-      } else {
-        // setDocument appends the content to the container. Clear it first.
-        // em.resetDocument();
+      }
+
+      if (!source) {
+        return;
       }
 
       // setDocument() will trigger onChange() that produces both bodySource and body (HTML).
