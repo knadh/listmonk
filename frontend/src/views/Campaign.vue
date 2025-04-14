@@ -81,24 +81,37 @@
                 <list-selector v-model="form.lists" :selected="form.lists" :all="lists.results" :disabled="!canEdit"
                   :label="$t('globals.terms.lists')" :placeholder="$t('campaigns.sendToLists')" />
 
-                <b-field :label="$tc('globals.terms.messenger')" label-position="on-border">
-                  <b-select :placeholder="$tc('globals.terms.messenger')" v-model="form.messenger" name="messenger"
-                    :disabled="!canEdit" required>
-                    <template v-if="emailMessengers.length > 1">
-                      <optgroup label="email">
-                        <option v-for="m in emailMessengers" :value="m" :key="m">
-                          {{ m }}
+                <div class="columns">
+                  <div class="column is-6">
+                    <b-field :label="$tc('globals.terms.messenger')" label-position="on-border">
+                      <b-select :placeholder="$tc('globals.terms.messenger')" v-model="form.messenger" name="messenger"
+                        :disabled="!canEdit" required expanded>
+                        <template v-if="emailMessengers.length > 1">
+                          <optgroup label="email">
+                            <option v-for="m in emailMessengers" :value="m" :key="m">
+                              {{ m }}
+                            </option>
+                          </optgroup>
+                        </template>
+                        <template v-else>
+                          <option value="email">email</option>
+                        </template>
+                        <option v-for="m in otherMessengers" :value="m" :key="m">{{ m }}</option>
+                      </b-select>
+                    </b-field>
+                  </div>
+                  <div class="column is-6">
+                    <b-field :label="$t('campaigns.format')" label-position="on-border" class="mr-4 mb-0">
+                      <b-select v-model="form.content.contentType" :disabled="disabled || isEditing" value="richtext"
+                        expanded>
+                        <option v-for="(name, f) in contentTypes" :key="f" name="format" :value="f"
+                          :data-cy="`check-${f}`">
+                          {{ name }}
                         </option>
-                      </optgroup>
-                    </template>
-                    <template v-else>
-                      <option value="email">email</option>
-                    </template>
-                    <option v-for="m in otherMessengers" :value="m" :key="m">
-                      {{ m }}
-                    </option>
-                  </b-select>
-                </b-field>
+                      </b-select>
+                    </b-field>
+                  </div>
+                </div>
 
                 <b-field :label="$t('globals.terms.tags')" label-position="on-border">
                   <b-taginput v-model="form.tags" name="tags" :disabled="!canEdit" ellipsis icon="tag-outline"
@@ -170,7 +183,7 @@
 
       <b-tab-item :label="$t('campaigns.content')" icon="text" :disabled="isNew" value="content">
         <editor v-if="data.id" v-model="form.content" :id="data.id" :title="data.name" :disabled="!canEdit"
-          :templates="templates" />
+          :templates="templates" :content-types="contentTypes" />
 
         <div class="columns">
           <div class="column is-6">
@@ -303,6 +316,14 @@ export default Vue.extend({
 
   data() {
     return {
+      contentTypes: Object.freeze({
+        richtext: this.$t('campaigns.richText'),
+        html: this.$t('campaigns.rawHTML'),
+        markdown: this.$t('campaigns.markdown'),
+        plain: this.$t('campaigns.plainText'),
+        visual: this.$t('campaigns.visual'),
+      }),
+
       isNew: false,
       isEditing: false,
       isHeadersVisible: false,
@@ -502,6 +523,7 @@ export default Vue.extend({
         subject: this.form.subject,
         lists: this.form.lists.map((l) => l.id),
         from_email: this.form.fromEmail,
+        content_type: this.form.content.contentType,
         messenger: this.form.messenger,
         type: 'regular',
         tags: this.form.tags,

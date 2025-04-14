@@ -4,25 +4,9 @@
     <div class="columns">
       <div class="column is-three-quarters is-inline-flex">
         <b-field :label="$t('campaigns.format')" label-position="on-border" class="mr-4 mb-0">
-          <b-select v-model="contentTypeSel">
-            <option :disabled="disabled" name="format" value="richtext" data-cy="check-richtext">
-              {{ $t('campaigns.richText') }}
-            </option>
-
-            <option :disabled="disabled" name="format" value="html" data-cy="check-html">
-              {{ $t('campaigns.rawHTML') }}
-            </option>
-
-            <option :disabled="disabled" name="format" value="markdown" data-cy="check-markdown">
-              {{ $t('campaigns.markdown') }}
-            </option>
-
-            <option :disabled="disabled" name="format" value="plain" data-cy="check-plain">
-              {{ $t('campaigns.plainText') }}
-            </option>
-
-            <option :disabled="disabled" name="format" value="visual" data-cy="check-visual">
-              {{ $t('campaigns.visual') }}
+          <b-select v-model="contentTypeSel" :disabled="disabled">
+            <option v-for="(name, f) in contentTypes" :key="f" name="format" :value="f" :data-cy="`check-${f}`">
+              {{ name }}
             </option>
           </b-select>
         </b-field>
@@ -120,6 +104,7 @@ export default {
   },
 
   props: {
+    contentTypes: { type: Object, default: () => ({}) },
     id: { type: Number, default: 0 },
     title: { type: String, default: '' },
     disabled: { type: Boolean, default: false },
