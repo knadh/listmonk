@@ -4,7 +4,7 @@
     <div class="columns">
       <div class="column is-three-quarters is-inline-flex">
         <b-field :label="$t('campaigns.format')" label-position="on-border" class="mr-4 mb-0">
-          <b-select v-model="contentTypeSel" :disabled="disabled">
+          <b-select v-model="contentTypeSel" :disabled="disabled" name="content_type">
             <option v-for="(name, f) in contentTypes" :key="f" name="format" :value="f" :data-cy="`check-${f}`">
               {{ name }}
             </option>
