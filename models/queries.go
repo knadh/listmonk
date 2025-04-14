@@ -3,7 +3,7 @@ package models
 import (
 	"context"
 	"database/sql"
-	"fmt"
+	"strings"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/lib/pq"
@@ -131,35 +131,39 @@ type Queries struct {
 	DeleteListPermission  *sqlx.Stmt `query:"delete-list-permission"`
 }
 
-// CompileSubscriberQueryTpl takes an arbitrary WHERE expressions
+// compileSubscriberQueryTpl takes an arbitrary WHERE expressions
 // to filter subscribers from the subscribers table and prepares a query
 // out of it using the raw `query-subscribers-template` query template.
 // While doing this, a readonly transaction is created and the query is
 // dry run on it to ensure that it is indeed readonly.
-func (q *Queries) CompileSubscriberQueryTpl(exp string, db *sqlx.DB, subStatus string) (string, error) {
+func (q *Queries) compileSubscriberQueryTpl(searchStr, queryExp string, db *sqlx.DB, subStatus string) (string, error) {
 	tx, err := db.BeginTxx(context.Background(), &sql.TxOptions{ReadOnly: true})
 	if err != nil {
 		return "", err
 	}
 	defer tx.Rollback()
 
-	// Perform the dry run.
-	if exp != "" {
-		exp = " AND " + exp
+	// There's an arbitrary query condition.
+	cond := "TRUE"
+	if queryExp != "" {
+		cond = queryExp
 	}
-	stmt := fmt.Sprintf(q.QuerySubscribersTpl, exp)
-	if _, err := tx.Exec(stmt, true, pq.Int64Array{}, subStatus); err != nil {
+
+	// Perform the dry run.
+	stmt := strings.ReplaceAll(q.QuerySubscribersTpl, "%query%", cond)
+	if _, err := tx.Exec(stmt, true, pq.Int64Array{}, subStatus, searchStr); err != nil {
 		return "", err
 	}
+
 	return stmt, nil
 }
 
 // compileSubscriberQueryTpl takes an arbitrary WHERE expressions and a subscriber
 // query template that depends on the filter (eg: delete by query, blocklist by query etc.)
 // combines and executes them.
-func (q *Queries) ExecSubQueryTpl(exp, tpl string, listIDs []int, db *sqlx.DB, subStatus string, args ...any) error {
+func (q *Queries) ExecSubQueryTpl(searchStr, queryExp, baseQueryTpl string, listIDs []int, db *sqlx.DB, subStatus string, args ...any) error {
 	// Perform a dry run.
-	filterExp, err := q.CompileSubscriberQueryTpl(exp, db, subStatus)
+	filterExp, err := q.compileSubscriberQueryTpl(searchStr, queryExp, db, subStatus)
 	if err != nil {
 		return err
 	}
@@ -168,9 +172,14 @@ func (q *Queries) ExecSubQueryTpl(exp, tpl string, listIDs []int, db *sqlx.DB, s
 		listIDs = []int{}
 	}
 
+	// Insert the subscriber filter query into the target query.
+	stmt := strings.ReplaceAll(baseQueryTpl, "%query%", filterExp)
+
 	// First argument is the boolean indicating if the query is a dry run.
-	a := append([]any{false, pq.Array(listIDs), subStatus}, args...)
-	if _, err := db.Exec(fmt.Sprintf(tpl, filterExp), a...); err != nil {
+	a := append([]any{false, pq.Array(listIDs), subStatus, searchStr}, args...)
+
+	// Execute the query on the DB.
+	if _, err := db.Exec(stmt, a...); err != nil {
 		return err
 	}
 	return nil

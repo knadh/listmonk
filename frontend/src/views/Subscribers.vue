@@ -223,6 +223,7 @@ export default Vue.extend({
       queryParams: {
         // Search query expression.
         queryExp: '',
+        search: '',
 
         // ID of the list the current subscriber view is filtered by.
         listID: null,
@@ -242,6 +243,7 @@ export default Vue.extend({
 
     toggleAdvancedSearch() {
       this.isSearchAdvanced = !this.isSearchAdvanced;
+      this.queryParams.search = '';
 
       // Toggling to simple search.
       if (!this.isSearchAdvanced) {
@@ -251,6 +253,16 @@ export default Vue.extend({
         this.querySubscribers();
         this.$refs.query.focus();
         return;
+      }
+
+      // Toggling to advanced search.
+      const q = this.queryInput.replace(/'/, "''").trim();
+      if (q) {
+        if (this.$utils.validateEmail(q)) {
+          this.queryParams.queryExp = `email = '${q.toLowerCase()}'`;
+        } else {
+          this.queryParams.queryExp = `(name ~* '${q}' OR email ~* '${q.toLowerCase()}')`;
+        }
       }
 
       // Toggling to advanced search.
@@ -307,13 +319,9 @@ export default Vue.extend({
     // in this.queryExp.
     onSimpleQueryInput(v) {
       const q = v.replace(/'/, "''").trim();
+      this.queryParams.queryExp = '';
       this.queryParams.page = 1;
-
-      if (this.$utils.validateEmail(q)) {
-        this.queryParams.queryExp = `email = '${q.toLowerCase()}'`;
-      } else {
-        this.queryParams.queryExp = `(name ~* '${q}' OR email ~* '${q.toLowerCase()}')`;
-      }
+      this.queryParams.search = q.toLowerCase();
     },
 
     // Ctrl + Enter on the advanced query searches.
@@ -331,15 +339,24 @@ export default Vue.extend({
     querySubscribers(params) {
       this.queryParams = { ...this.queryParams, ...params };
 
+      const qp = {
+        list_id: this.queryParams.listID,
+        search: this.queryParams.search,
+        query: this.queryParams.queryExp,
+        page: this.queryParams.page,
+        subscription_status: this.queryParams.subStatus,
+        order_by: this.queryParams.orderBy,
+        order: this.queryParams.order,
+      };
+
+      if (this.queryParams.queryExp) {
+        delete qp.search;
+      } else {
+        delete qp.queryExp;
+      }
+
       this.$nextTick(() => {
-        this.$api.getSubscribers({
-          list_id: this.queryParams.listID,
-          query: this.queryParams.queryExp,
-          page: this.queryParams.page,
-          subscription_status: this.queryParams.subStatus,
-          order_by: this.queryParams.orderBy,
-          order: this.queryParams.order,
-        }).then(() => {
+        this.$api.getSubscribers(qp).then(() => {
           this.bulk.checked = [];
         });
       });
@@ -371,6 +388,7 @@ export default Vue.extend({
         // 'All' is selected, blocklist by query.
         fn = () => {
           this.$api.blocklistSubscribersByQuery({
+            search: this.queryParams.search,
             query: this.queryParams.queryExp,
             list_ids: this.queryParams.listID ? [this.queryParams.listID] : null,
             subscription_status: this.queryParams.subStatus,
@@ -387,7 +405,12 @@ export default Vue.extend({
 
       this.$utils.confirm(this.$t('subscribers.confirmExport', { num }), () => {
         const q = new URLSearchParams();
-        q.append('query', this.queryParams.queryExp);
+
+        if (this.queryParams.search) {
+          q.append('search', this.queryParams.search);
+        } else if (this.queryParams.queryExp) {
+          q.append('query', this.queryParams.queryExp);
+        }
 
         if (this.queryParams.listID) {
           q.append('list_id', this.queryParams.listID);
@@ -426,6 +449,7 @@ export default Vue.extend({
             // If the query expression is empty, explicitly pass `all=true`
             // so that the backend deletes all records in the DB with an empty query string.
             all: this.queryParams.queryExp.trim() === '',
+            search: this.queryParams.search,
             query: this.queryParams.queryExp,
             list_ids: this.queryParams.listID ? [this.queryParams.listID] : null,
             subscription_status: this.queryParams.subStatus,
@@ -447,6 +471,7 @@ export default Vue.extend({
       const data = {
         action,
         query: this.fullQueryExp,
+        search: this.queryParams.search,
         list_ids: this.queryParams.listID ? [this.queryParams.listID] : null,
         target_list_ids: lists.map((l) => l.id),
       };
