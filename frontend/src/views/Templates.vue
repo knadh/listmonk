@@ -171,6 +171,7 @@ export default Vue.extend({
         type: t.type,
         subject: t.subject,
         body: t.body,
+        body_source: t.bodySource,
       };
       this.$api.createTemplate(data).then((d) => {
         this.$api.getTemplates();
