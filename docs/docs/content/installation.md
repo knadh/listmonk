@@ -115,7 +115,7 @@ $ helm upgrade \
 <br />
 <a href="https://repocloud.io/details/?app_id=217"><img src="https://d16t0pc4846x52.cloudfront.net/deploy.png" alt="Deploy at RepoCloud" style="max-width: 150px;"/></a>
 <br />
-<a href="https://cloud.sealos.io/?openapp=system-template%3FtemplateName%3Dlistmonk"><img src="https://cdn.jsdelivr.net/gh/labring-actions/templates@main/Deploy-on-Sealos.svg" alt="Deploy on Sealos" style="max-width: 150px;"/></a>
+<a href="https://template.sealos.io/deploy?templateName=listmonk"><img src="https://sealos.io/Deploy-on-Sealos.svg" alt="Deploy on Sealos" style="max-width: 150px;"/></a>
 <br />
 <a href="https://zeabur.com/templates/5EDMN6"><img src="https://zeabur.com/button.svg" alt="Deploy on Zeabur" style="max-width: 150px;"/></a>
 
