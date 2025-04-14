@@ -102,7 +102,7 @@
                   </div>
                   <div class="column is-6">
                     <b-field :label="$t('campaigns.format')" label-position="on-border" class="mr-4 mb-0">
-                      <b-select v-model="form.content.contentType" :disabled="disabled || isEditing" value="richtext"
+                      <b-select v-model="form.content.contentType" :disabled="!canEdit || isEditing" value="richtext"
                         expanded>
                         <option v-for="(name, f) in contentTypes" :key="f" name="format" :value="f"
                           :data-cy="`check-${f}`">
