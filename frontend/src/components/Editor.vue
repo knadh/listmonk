@@ -78,7 +78,7 @@
 
     <!-- visual editor //-->
     <visual-editor v-if="self.contentType === 'visual'" :source="self.bodySource" @change="onVisualEditorChange"
-      height="65vh" />
+      height="65vh" ref="visualEditor" />
 
     <!-- raw html editor //-->
     <html-editor v-if="self.contentType === 'html'" v-model="self.body" />
@@ -324,6 +324,8 @@ export default {
             this.self.body = data.body;
             this.self.bodySource = data.bodySource;
             this.isVisualTplDisabled = true;
+
+            this.$refs.visualEditor.render(JSON.parse(data.bodySource));
           });
         },
       );

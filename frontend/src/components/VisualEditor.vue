@@ -34,21 +34,6 @@ export default {
   },
 
   methods: {
-    initEditor() {
-      let source = null;
-      if (this.$props.source) {
-        source = JSON.parse(this.$props.source);
-      }
-
-      const iframe = this.$refs.visualEditor;
-      iframe.contentWindow.EmailBuilder.render('visual-editor-container', {
-        data: source,
-        onChange: (data, body) => {
-          this.$emit('change', { source: JSON.stringify(data), body });
-        },
-      });
-    },
-
     loadScript() {
       return new Promise((resolve, reject) => {
         const iframe = this.$refs.visualEditor;
@@ -68,6 +53,45 @@ export default {
         // Append script to iframe's head
         iframe.contentDocument.head.appendChild(script);
       });
+    },
+
+    render(source) {
+      const iframe = this.$refs.visualEditor;
+
+      // If the editor is not-rendered, render it the first time. This can happen
+      // on first loads and importing an email template via render().
+      const em = iframe.contentWindow.EmailBuilder;
+      if (!em || !em.isRendered('visual-editor-container')) {
+        iframe.contentWindow.EmailBuilder.render('visual-editor-container', {
+          data: {},
+          onChange: (data, body) => {
+            this.$emit('change', { source: JSON.stringify(data), body });
+          },
+        });
+      } else {
+        // setDocument appends the content to the container. Clear it first.
+        // em.resetDocument();
+      }
+
+      // setDocument() will trigger onChange() that produces both bodySource and body (HTML).
+      // On init, the `data: source` above sets the content in the editor, but doesn't trigger
+      // onChange(), which is required to set the source+HTML state in the parent for preview to work.
+      // Couldn't figure out if there was an on load/on init event etc. in email-builder, so brute force it
+      // with a timer.
+      let n = 10;
+      const timer = window.setInterval(() => {
+        const container = iframe.contentWindow.document.getElementById('visual-editor-container');
+        if (container && container.hasChildNodes()) {
+          em.resetDocument(source);
+          window.clearInterval(timer);
+          return;
+        }
+
+        n += 1;
+        if (n > 10) {
+          window.clearInterval(timer);
+        }
+      }, 100);
     },
 
     // Inject media URL into the image URL input field in the visual edior sidebar.
@@ -122,7 +146,12 @@ export default {
 
     iframe.onload = () => {
       this.loadScript().then(() => {
-        this.initEditor();
+        let source = null;
+        if (this.$props.source) {
+          source = JSON.parse(this.$props.source);
+        }
+
+        this.render(source);
       }).catch((error) => {
         /* eslint-disable-next-line no-console */
         console.error('Failed to load email-builer script:', error);
@@ -134,21 +163,6 @@ export default {
 
   unmounted() {
     window.removeEventListener('message', this.onSidebarMount, false);
-  },
-
-  watch: {
-    source(val) {
-      const iframe = this.$refs.visualEditor;
-      if (iframe.contentWindow.EmailBuilder?.isRendered('visual-editor-container')) {
-        if (val) {
-          iframe.contentWindow.EmailBuilder.setDocument(JSON.parse(val));
-        } else {
-          iframe.contentWindow.EmailBuilder.setDocument(iframe.contentWindow.EmailBuilder.DEFAULT_SOURCE);
-        }
-      } else {
-        this.initEditor();
-      }
-    },
   },
 };
 </script>

@@ -10,9 +10,9 @@
         <section expanded class="modal-card-body preview">
           <b-loading :active="isLoading" :is-full-page="false" />
           <form v-if="isPost" method="post" :action="previewURL" target="iframe" ref="form">
-            <input type="hidden" name="template_id" :value="templateId" />
-            <input type="hidden" name="content_type" :value="contentType" />
-            <input type="hidden" name="template_type" :value="templateType" />
+            <input v-if="templateId" type="hidden" name="template_id" :value="templateId" />
+            <input v-if="contentType" type="hidden" name="content_type" :value="contentType" />
+            <input v-if="templateType" type="hidden" name="template_type" :value="templateType" />
             <input type="hidden" name="body" :value="body" />
           </form>
 
