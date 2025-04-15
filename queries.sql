@@ -1088,7 +1088,7 @@ SELECT COUNT(*) OVER () AS total,
     bounces.subscriber_id,
     subscribers.uuid AS subscriber_uuid,
     subscribers.email AS email,
-    subscribers.email AS email,
+    subscribers.status as subscriber_status,
     (
         CASE WHEN bounces.campaign_id IS NOT NULL
         THEN JSON_BUILD_OBJECT('id', bounces.campaign_id, 'name', campaigns.name)
@@ -1105,6 +1105,17 @@ ORDER BY %order% OFFSET $5 LIMIT $6;
 
 -- name: delete-bounces
 DELETE FROM bounces WHERE CARDINALITY($1::INT[]) = 0 OR id = ANY($1);
+
+--name: blocklist-subscribers-by-bounces
+WITH subscriber_ids_to_blocklist AS (
+  SELECT DISTINCT b.subscriber_id
+  FROM bounces b
+  WHERE CARDINALITY($1::INT[]) = 0 OR b.id = ANY($1)
+)
+UPDATE subscribers
+SET status = 'blocklisted'
+WHERE id IN (SELECT subscriber_id FROM subscriber_ids_to_blocklist)
+RETURNING id, email, status;
 
 -- name: delete-bounces-by-subscriber
 WITH sub AS (
