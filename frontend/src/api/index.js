@@ -181,11 +181,13 @@ export const deleteSubscriberBounces = async (id) => http.delete(
 
 export const blocklistSubscriberBounce = async (id) => http.put(
   `/api/bounces/${id}/blocklist`,
+  null,
   { loading: models.bounces },
 );
 
 export const blocklistSubscriberBounces = async (params) => http.put(
   '/api/bounces/blocklist',
+  null,
   { params, loading: models.bounces },
 );
 

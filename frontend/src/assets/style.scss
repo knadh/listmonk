@@ -809,6 +809,12 @@ section.lists {
   }
 }
 
+.bulk-dropdown-wrapper {
+  position: absolute;
+  top: 50%;
+  transform: translate(-110%, -50%); // shift left and vertically center
+  z-index: 10;
+}
 /* Import page */
 section.import {
   .delimiter input {

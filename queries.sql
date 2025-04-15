@@ -1049,7 +1049,7 @@ DELETE FROM bounces WHERE subscriber_id = (SELECT id FROM sub);
 WITH subscriber_ids_to_blocklist AS (
   SELECT DISTINCT b.subscriber_id
   FROM bounces b
-  WHERE b.id = ANY($1)
+  WHERE CARDINALITY($1::INT[]) = 0 OR b.id = ANY($1)
 )
 UPDATE subscribers
 SET status = 'blocklisted'

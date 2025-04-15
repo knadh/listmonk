@@ -7,20 +7,59 @@
           <span v-if="bounces.total > 0">({{ bounces.total }})</span>
         </h1>
       </div>
-      <div class="column has-text-right buttons">
-        <b-button v-if="bulk.checked.length > 0 || bulk.all" type="is-primary" icon-left="account-off-outline"
-          data-cy="btn-bulk-blocklist" @click.prevent="$utils.confirm(null, () => blocklistSubscriberBounces())">
-          {{ $t('settings.bounces.blocklist') }}
+    <div class="column has-text-right buttons is-flex is-align-items-center is-justify-content-flex-end is-flex-wrap-nowrap">
+      <div class="bulk-actions-wrapper" style="position: relative; display: flex; align-items: center;">
+
+        <!-- Dropdown for selected bulk actions -->
+        <div class="bulk-dropdown-wrapper">
+          <b-dropdown 
+            v-if="bulk.checked.length > 0 || bulk.all" 
+            aria-role="list" 
+            class="bulk-dropdown-wrapper"
+          >
+            <template #trigger="{ active }">
+              <b-button
+                label="Selected Actions"
+                type="is-primary"
+                :icon-right="active ? 'arrow-up' : 'arrow-down'"
+              />
+            </template>
+            <b-dropdown-item 
+              aria-role="listitem" 
+              @click="$utils.confirm(null, () => blocklistBounces())"
+            >
+              {{ $t('settings.bounces.blocklist') }}
+            </b-dropdown-item>
+            <b-dropdown-item 
+              aria-role="listitem" 
+              @click="$utils.confirm(null, () => deleteBounces())"
+            >
+              {{ $t('globals.buttons.clear') }}
+            </b-dropdown-item>
+          </b-dropdown>
+        </div>
+
+        <!-- Actions on all bounces -->
+        <b-button 
+          v-if="bounces.total" 
+          icon-left="account-off-outline"
+          data-cy="btn-bulk-blocklist"
+          @click.prevent="$utils.confirm(null, () => blocklistBounces(true))"
+        >
+          {{ $t('settings.bounces.blocklist') + ' ' + $t('globals.terms.all') }}
         </b-button>
-        <b-button v-if="bulk.checked.length > 0 || bulk.all" type="is-primary" icon-left="trash-can-outline"
-          data-cy="btn-delete" @click.prevent="$utils.confirm(null, () => deleteBounces())">
-          {{ $t('globals.buttons.clear') }}
-        </b-button>
-        <b-button v-if="bounces.total" icon-left="trash-can-outline" data-cy="btn-delete"
-          @click.prevent="$utils.confirm(null, () => deleteBounces(true))">
+
+        <b-button 
+          v-if="bounces.total" 
+          icon-left="trash-can-outline" 
+          data-cy="btn-delete"
+          @click.prevent="$utils.confirm(null, () => deleteBounces(true))"
+        >
           {{ $t('globals.buttons.clearAll') }}
         </b-button>
+
       </div>
+    </div>
     </header>
 
     <b-table :data="bounces.results" :hoverable="true" :loading="loading.bounces" default-sort="createdAt" checkable
@@ -170,18 +209,31 @@ export default Vue.extend({
       const ids = this.bulk.checked.map((s) => s.id);
       this.$api.deleteBounces({ id: ids }).then(fnSuccess);
     },
+    blocklistBounces(all) {
+      const fnSuccess = () => {
+        this.getBounces();
+        this.$utils.toast(this.$t(
+          'globals.messages.blocklistedCount',
+          { name: this.$tc('globals.terms.bounces'), num: this.bounces.total },
+        ));
+      };
+      if (all) {
+        this.$api.blocklistSubscriberBounces({all: true}). then(fnSuccess);
+        return;
+      }
+      const ids = this.bulk.checked.map((s) => s.id);
+      this.$api.blocklistSubscriberBounces({id: ids }).then(fnSuccess);
+    },
   },
 
   computed: {
     ...mapState(['templates', 'loading']),
-
     selectedBounces() {
       if (this.bulk.all) {
         return this.bounces.total;
       }
       return this.bulk.checked.length;
     },
-
   },
 
   mounted() {

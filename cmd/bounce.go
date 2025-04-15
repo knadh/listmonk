@@ -81,7 +81,6 @@ func handleDeleteBounces(c echo.Context) error {
 		all, _ = strconv.ParseBool(c.QueryParam("all"))
 		IDs    = []int{}
 	)
-
 	// Is it an /:id call?
 	if pID != "" {
 		id, _ := strconv.Atoi(pID)
@@ -118,6 +117,7 @@ func handleBlocklistSubscriberBounces(c echo.Context) error {
 		all, _ = strconv.ParseBool(c.QueryParam("all"))
 		IDs    = []int{}
 	)
+
 	// Is it an /:id call?
 	if pID != "" {
 		id, _ := strconv.Atoi(pID)
