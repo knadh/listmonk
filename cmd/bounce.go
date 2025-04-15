@@ -248,3 +248,38 @@ func (a *App) validateBounceFields(b models.Bounce) (models.Bounce, error) {
 
 	return b, nil
 }
+
+func (a *App) BlocklistSubscriberBounces(c echo.Context) error {
+	var (
+		app    = c.Get("app").(*App)
+		pID    = c.Param("id")
+		all, _ = strconv.ParseBool(c.QueryParam("all"))
+		IDs    = []int{}
+	)
+	// Is it an /:id call?
+	if pID != "" {
+		id, _ := strconv.Atoi(pID)
+		if id < 1 {
+			return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidID"))
+		}
+		IDs = append(IDs, id)
+	} else if !all {
+		// Multiple IDs.
+		i, err := parseStringIDs(c.Request().URL.Query()["id"])
+		if err != nil {
+			return echo.NewHTTPError(http.StatusBadRequest,
+				app.i18n.Ts("globals.messages.invalidID", "error", err.Error()))
+		}
+
+		if len(i) == 0 {
+			return echo.NewHTTPError(http.StatusBadRequest,
+				app.i18n.Ts("globals.messages.invalidID"))
+		}
+		IDs = i
+	}
+
+	if err := app.core.BlocklistSubscriberBounces(IDs); err != nil {
+		return err
+	}
+	return c.JSON(http.StatusOK, okResp{true})
+}
