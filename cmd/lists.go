@@ -10,13 +10,10 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-// handleGetLists retrieves lists with additional metadata like subscriber counts.
-func handleGetLists(c echo.Context) error {
-	var (
-		app  = c.Get("app").(*App)
-		user = auth.GetUser(c)
-		pg   = app.paginator.NewFromURL(c.Request().URL.Query())
-	)
+// GetLists retrieves lists with additional metadata like subscriber counts.
+func (a *App) GetLists(c echo.Context) error {
+	// Get the authenticated user.
+	user := auth.GetUser(c)
 
 	// Get the list IDs (or blanket permission) the user has access to.
 	hasAllPerm, permittedIDs := user.GetPermittedLists(auth.PermTypeGet)
@@ -24,7 +21,7 @@ func handleGetLists(c echo.Context) error {
 	// Minimal query simply returns the list of all lists without JOIN subscriber counts. This is fast.
 	minimal, _ := strconv.ParseBool(c.FormValue("minimal"))
 	if minimal {
-		res, err := app.core.GetLists("", hasAllPerm, permittedIDs)
+		res, err := a.core.GetLists("", hasAllPerm, permittedIDs)
 		if err != nil {
 			return err
 		}
@@ -52,8 +49,10 @@ func handleGetLists(c echo.Context) error {
 		typ     = c.FormValue("type")
 		optin   = c.FormValue("optin")
 		order   = c.FormValue("order")
+
+		pg = a.pg.NewFromURL(c.Request().URL.Query())
 	)
-	res, total, err := app.core.QueryLists(query, typ, optin, tags, orderBy, order, hasAllPerm, permittedIDs, pg.Offset, pg.Limit)
+	res, total, err := a.core.QueryLists(query, typ, optin, tags, orderBy, order, hasAllPerm, permittedIDs, pg.Offset, pg.Limit)
 	if err != nil {
 		return err
 	}
@@ -69,26 +68,20 @@ func handleGetLists(c echo.Context) error {
 	return c.JSON(http.StatusOK, okResp{out})
 }
 
-// handleGetList retrieves a single list by id.
+// GetList retrieves a single list by id.
 // It's permission checked by the listPerm middleware.
-func handleGetList(c echo.Context) error {
-	var (
-		app  = c.Get("app").(*App)
-		user = auth.GetUser(c)
-	)
-
-	id, _ := strconv.Atoi(c.Param("id"))
-	if id < 1 {
-		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidID"))
-	}
+func (a *App) GetList(c echo.Context) error {
+	// Get the authenticated user.
+	user := auth.GetUser(c)
 
 	// Check if the user has access to the list.
+	id := getID(c)
 	if err := user.HasListPerm(auth.PermTypeGet, id); err != nil {
 		return err
 	}
 
 	// Get the list from the DB.
-	out, err := app.core.GetList(id, "")
+	out, err := a.core.GetList(id, "")
 	if err != nil {
 		return err
 	}
@@ -96,12 +89,8 @@ func handleGetList(c echo.Context) error {
 	return c.JSON(http.StatusOK, okResp{out})
 }
 
-// handleCreateList handles list creation.
-func handleCreateList(c echo.Context) error {
-	var (
-		app = c.Get("app").(*App)
-	)
-
+// CreateList handles list creation.
+func (a *App) CreateList(c echo.Context) error {
 	l := models.List{}
 	if err := c.Bind(&l); err != nil {
 		return err
@@ -109,10 +98,10 @@ func handleCreateList(c echo.Context) error {
 
 	// Validate.
 	if !strHasLen(l.Name, 1, stdInputMaxLen) {
-		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("lists.invalidName"))
+		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("lists.invalidName"))
 	}
 
-	out, err := app.core.CreateList(l)
+	out, err := a.core.CreateList(l)
 	if err != nil {
 		return err
 	}
@@ -120,20 +109,14 @@ func handleCreateList(c echo.Context) error {
 	return c.JSON(http.StatusOK, okResp{out})
 }
 
-// handleUpdateList handles list modification.
+// UpdateList handles list modification.
 // It's permission checked by the listPerm middleware.
-func handleUpdateList(c echo.Context) error {
-	var (
-		app  = c.Get("app").(*App)
-		user = auth.GetUser(c)
-	)
-
-	id, _ := strconv.Atoi(c.Param("id"))
-	if id < 1 {
-		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidID"))
-	}
+func (a *App) UpdateList(c echo.Context) error {
+	// Get the authenticated user.
+	user := auth.GetUser(c)
 
 	// Check if the user has access to the list.
+	id := getID(c)
 	if err := user.HasListPerm(auth.PermTypeManage, id); err != nil {
 		return err
 	}
@@ -146,11 +129,11 @@ func handleUpdateList(c echo.Context) error {
 
 	// Validate.
 	if !strHasLen(l.Name, 1, stdInputMaxLen) {
-		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("lists.invalidName"))
+		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("lists.invalidName"))
 	}
 
 	// Update the list in the DB.
-	out, err := app.core.UpdateList(id, l)
+	out, err := a.core.UpdateList(id, l)
 	if err != nil {
 		return err
 	}
@@ -158,20 +141,18 @@ func handleUpdateList(c echo.Context) error {
 	return c.JSON(http.StatusOK, okResp{out})
 }
 
-// handleDeleteLists handles list deletion, either a single one (ID in the URI), or a list.
+// DeleteLists handles list deletion, either a single one (ID in the URI), or a list.
 // It's permission checked by the listPerm middleware.
-func handleDeleteLists(c echo.Context) error {
-	var (
-		app  = c.Get("app").(*App)
-		user = auth.GetUser(c)
-	)
+func (a *App) DeleteLists(c echo.Context) error {
+	// Get the authenticated user.
+	user := auth.GetUser(c)
 
 	var (
 		id, _ = strconv.ParseInt(c.Param("id"), 10, 64)
 		ids   []int
 	)
 	if id < 1 && len(ids) == 0 {
-		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidID"))
+		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("globals.messages.invalidID"))
 	}
 
 	if id > 0 {
@@ -184,7 +165,7 @@ func handleDeleteLists(c echo.Context) error {
 	}
 
 	// Delete the lists from the DB.
-	if err := app.core.DeleteLists(ids); err != nil {
+	if err := a.core.DeleteLists(ids); err != nil {
 		return err
 	}
 

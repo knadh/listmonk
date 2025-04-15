@@ -6,6 +6,7 @@ import (
 	"net/url"
 	"path"
 	"regexp"
+	"strconv"
 
 	"github.com/knadh/listmonk/internal/auth"
 	"github.com/labstack/echo/v4"
@@ -29,39 +30,27 @@ var (
 )
 
 // registerHandlers registers HTTP handlers.
-func initHTTPHandlers(e *echo.Echo, app *App) {
+func initHTTPHandlers(e *echo.Echo, a *App) {
 	// Default error handler.
 	e.HTTPErrorHandler = func(err error, c echo.Context) {
 		// Generic, non-echo error. Log it.
 		if _, ok := err.(*echo.HTTPError); !ok {
-			app.log.Println(err.Error())
+			a.log.Println(err.Error())
 		}
 		e.DefaultHTTPErrorHandler(err, c)
 	}
 
-	var (
-		// Authenticated /api/* handlers.
-		api = e.Group("", app.auth.Middleware, func(next echo.HandlerFunc) echo.HandlerFunc {
-			return func(c echo.Context) error {
-				u := c.Get(auth.UserHTTPCtxKey)
-
-				// On no-auth, respond with a JSON error.
-				if err, ok := u.(*echo.HTTPError); ok {
-					return err
-				}
-
-				return next(c)
-			}
-		})
-
-		// Authenticated non /api handlers.
-		a = e.Group("", app.auth.Middleware, func(next echo.HandlerFunc) echo.HandlerFunc {
+	// =================================================================
+	// Authenticated non /api handlers.
+	{
+		// Attach a middleware to the group that checks for auth.
+		g := e.Group("", a.auth.Middleware, func(next echo.HandlerFunc) echo.HandlerFunc {
 			return func(c echo.Context) error {
 				u := c.Get(auth.UserHTTPCtxKey)
 
 				// On no-auth, redirect to login page
 				if _, ok := u.(*echo.HTTPError); ok {
-					u, _ := url.Parse(app.constants.LoginURL)
+					u, _ := url.Parse(a.urlCfg.LoginURL)
 					q := url.Values{}
 					q.Set("next", c.Request().RequestURI)
 					u.RawQuery = q.Encode()
@@ -72,225 +61,240 @@ func initHTTPHandlers(e *echo.Echo, app *App) {
 			}
 		})
 
-		// Public unauthenticated endpoints.
-		p = e.Group("")
-	)
+		// Authenticated endpoints.
+		g.GET(path.Join(uriAdmin, ""), a.AdminPage)
+		g.GET(path.Join(uriAdmin, "/custom.css"), serveCustomAppearance("admin.custom_css"))
+		g.GET(path.Join(uriAdmin, "/custom.js"), serveCustomAppearance("admin.custom_js"))
+		g.GET(path.Join(uriAdmin, "/*"), a.AdminPage)
+	}
 
-	// Authenticated endpoints.
-	a.GET(path.Join(uriAdmin, ""), handleAdminPage)
-	a.GET(path.Join(uriAdmin, "/custom.css"), serveCustomAppearance("admin.custom_css"))
-	a.GET(path.Join(uriAdmin, "/custom.js"), serveCustomAppearance("admin.custom_js"))
-	a.GET(path.Join(uriAdmin, "/*"), handleAdminPage)
+	// =================================================================
+	// Authenticated /api/* handlers.
+	{
+		var (
+			// Permission check middleware.
+			pm = a.auth.Perm
 
-	pm := app.auth.Perm
+			// Attach a middleware to the group that checks for auth.
+			g = e.Group("", a.auth.Middleware, func(next echo.HandlerFunc) echo.HandlerFunc {
+				return func(c echo.Context) error {
+					u := c.Get(auth.UserHTTPCtxKey)
 
-	// API endpoints.
-	api.GET("/api/health", handleHealthCheck)
-	api.GET("/api/config", handleGetServerConfig)
-	api.GET("/api/lang/:lang", handleGetI18nLang)
-	api.GET("/api/dashboard/charts", handleGetDashboardCharts)
-	api.GET("/api/dashboard/counts", handleGetDashboardCounts)
+					// On no-auth, respond with a JSON error.
+					if err, ok := u.(*echo.HTTPError); ok {
+						return err
+					}
 
-	api.GET("/api/settings", pm(handleGetSettings, "settings:get"))
-	api.PUT("/api/settings", pm(handleUpdateSettings, "settings:manage"))
-	api.POST("/api/settings/smtp/test", pm(handleTestSMTPSettings, "settings:manage"))
-	api.POST("/api/admin/reload", pm(handleReloadApp, "settings:manage"))
-	api.GET("/api/logs", pm(handleGetLogs, "settings:get"))
-	api.GET("/api/events", pm(handleEventStream, "settings:get"))
-	api.GET("/api/about", handleGetAboutInfo)
+					return next(c)
+				}
+			})
+		)
 
-	api.GET("/api/subscribers", pm(handleQuerySubscribers, "subscribers:get_all", "subscribers:get"))
-	api.GET("/api/subscribers/:id", pm(handleGetSubscriber, "subscribers:get_all", "subscribers:get"))
-	api.GET("/api/subscribers/:id/export", pm(handleExportSubscriberData, "subscribers:get_all", "subscribers:get"))
-	api.GET("/api/subscribers/:id/bounces", pm(handleGetSubscriberBounces, "bounces:get"))
-	api.DELETE("/api/subscribers/:id/bounces", pm(handleDeleteSubscriberBounces, "bounces:manage"))
-	api.POST("/api/subscribers", pm(handleCreateSubscriber, "subscribers:manage"))
-	api.POST("/api/subscribers/switch_list", handleAddAndRmList)
-	api.PUT("/api/subscribers/:id", pm(handleUpdateSubscriber, "subscribers:manage"))
-	api.POST("/api/subscribers/:id/optin", pm(handleSubscriberSendOptin, "subscribers:manage"))
-	api.PUT("/api/subscribers/blocklist", pm(handleBlocklistSubscribers, "subscribers:manage"))
-	api.PUT("/api/subscribers/:id/blocklist", pm(handleBlocklistSubscribers, "subscribers:manage"))
-	api.PUT("/api/subscribers/lists/:id", pm(handleManageSubscriberLists, "subscribers:manage"))
-	api.PUT("/api/subscribers/lists", pm(handleManageSubscriberLists, "subscribers:manage"))
-	api.DELETE("/api/subscribers/:id", pm(handleDeleteSubscribers, "subscribers:manage"))
-	api.DELETE("/api/subscribers", pm(handleDeleteSubscribers, "subscribers:manage"))
+		g.POST("/api/subscribers/switch_list", a.handleAddAndRmList)
+		// API endpoints.
+		g.GET("/api/health", a.HealthCheck)
+		g.GET("/api/config", a.GetServerConfig)
+		g.GET("/api/lang/:lang", a.GetI18nLang)
+		g.GET("/api/dashboard/charts", a.GetDashboardCharts)
+		g.GET("/api/dashboard/counts", a.GetDashboardCounts)
 
-	api.GET("/api/bounces", pm(handleGetBounces, "bounces:get"))
-	api.GET("/api/bounces/:id", pm(handleGetBounces, "bounces:get"))
-	api.DELETE("/api/bounces", pm(handleDeleteBounces, "bounces:manage"))
-	api.DELETE("/api/bounces/:id", pm(handleDeleteBounces, "bounces:manage"))
+		g.GET("/api/settings", pm(a.GetSettings, "settings:get"))
+		g.PUT("/api/settings", pm(a.UpdateSettings, "settings:manage"))
+		g.POST("/api/settings/smtp/test", pm(a.TestSMTPSettings, "settings:manage"))
+		g.POST("/api/admin/reload", pm(a.ReloadApp, "settings:manage"))
+		g.GET("/api/logs", pm(a.GetLogs, "settings:get"))
+		g.GET("/api/events", pm(a.EventStream, "settings:get"))
+		g.GET("/api/about", a.GetAboutInfo)
 
-	// Subscriber operations based on arbitrary SQL queries.
-	// These aren't very REST-like.
-	api.POST("/api/subscribers/query/delete", pm(handleDeleteSubscribersByQuery, "subscribers:manage"))
-	api.PUT("/api/subscribers/query/blocklist", pm(handleBlocklistSubscribersByQuery, "subscribers:manage"))
-	api.PUT("/api/subscribers/query/lists", pm(handleManageSubscriberListsByQuery, "subscribers:manage"))
-	api.GET("/api/subscribers/export",
-		pm(middleware.GzipWithConfig(middleware.GzipConfig{Level: 9})(handleExportSubscribers), "subscribers:get_all", "subscribers:get"))
+		g.GET("/api/subscribers", pm(a.QuerySubscribers, "subscribers:get_all", "subscribers:get"))
+		g.GET("/api/subscribers/:id", pm(hasID(a.GetSubscriber), "subscribers:get_all", "subscribers:get"))
+		g.GET("/api/subscribers/:id/export", pm(hasID(a.ExportSubscriberData), "subscribers:get_all", "subscribers:get"))
+		g.GET("/api/subscribers/:id/bounces", pm(hasID(a.GetSubscriberBounces), "bounces:get"))
+		g.DELETE("/api/subscribers/:id/bounces", pm(hasID(a.DeleteSubscriberBounces), "bounces:manage"))
+		g.POST("/api/subscribers", pm(a.CreateSubscriber, "subscribers:manage"))
+		g.PUT("/api/subscribers/:id", pm(hasID(a.UpdateSubscriber), "subscribers:manage"))
+		g.POST("/api/subscribers/:id/optin", pm(hasID(a.SubscriberSendOptin), "subscribers:manage"))
+		g.PUT("/api/subscribers/blocklist", pm(a.BlocklistSubscribers, "subscribers:manage"))
+		g.PUT("/api/subscribers/:id/blocklist", pm(hasID(a.BlocklistSubscriber), "subscribers:manage"))
+		g.PUT("/api/subscribers/lists/:id", pm(a.ManageSubscriberLists, "subscribers:manage"))
+		g.PUT("/api/subscribers/lists", pm(a.ManageSubscriberLists, "subscribers:manage"))
+		g.DELETE("/api/subscribers/:id", pm(hasID(a.DeleteSubscriber), "subscribers:manage"))
+		g.DELETE("/api/subscribers", pm(a.DeleteSubscribers, "subscribers:manage"))
 
-	api.GET("/api/import/subscribers", pm(handleGetImportSubscribers, "subscribers:import"))
-	api.GET("/api/import/subscribers/logs", pm(handleGetImportSubscriberStats, "subscribers:import"))
-	api.POST("/api/import/subscribers", pm(handleImportSubscribers, "subscribers:import"))
-	api.DELETE("/api/import/subscribers", pm(handleStopImportSubscribers, "subscribers:import"))
+		g.GET("/api/bounces", pm(a.GetBounces, "bounces:get"))
+		g.GET("/api/bounces/:id", pm(hasID(a.GetBounce), "bounces:get"))
+		g.DELETE("/api/bounces", pm(a.DeleteBounces, "bounces:manage"))
+		g.DELETE("/api/bounces/:id", pm(hasID(a.DeleteBounce), "bounces:manage"))
 
-	// Individual list permissions are applied directly within handleGetLists.
-	api.GET("/api/lists", handleGetLists)
-	api.GET("/api/lists/:id", handleGetList)
-	api.POST("/api/lists", pm(handleCreateList, "lists:manage_all"))
-	api.PUT("/api/lists/:id", handleUpdateList)
-	api.DELETE("/api/lists/:id", handleDeleteLists)
+		// Subscriber operations based on arbitrary SQL queries.
+		// These aren't very REST-like.
+		g.POST("/api/subscribers/query/delete", pm(a.DeleteSubscribersByQuery, "subscribers:manage"))
+		g.PUT("/api/subscribers/query/blocklist", pm(a.BlocklistSubscribersByQuery, "subscribers:manage"))
+		g.PUT("/api/subscribers/query/lists", pm(a.ManageSubscriberListsByQuery, "subscribers:manage"))
+		g.GET("/api/subscribers/export",
+			pm(middleware.GzipWithConfig(middleware.GzipConfig{Level: 9})(a.ExportSubscribers), "subscribers:get_all", "subscribers:get"))
 
-	api.GET("/api/campaigns", pm(handleGetCampaigns, "campaigns:get_all", "campaigns:get"))
-	api.GET("/api/campaigns/running/stats", pm(handleGetRunningCampaignStats, "campaigns:get_all", "campaigns:get"))
-	api.GET("/api/campaigns/:id", pm(handleGetCampaign, "campaigns:get_all", "campaigns:get"))
-	api.GET("/api/campaigns/analytics/:type", pm(handleGetCampaignViewAnalytics, "campaigns:get_analytics"))
-	api.GET("/api/campaigns/analytics/individual_views", handleGetCampaignIndividualViews)
-	api.GET("/api/campaigns/analytics/individual_clicks", handleGetCampaignIndividualLinkClicks) //, "campaigns:get_indiv_cpg_link_clicks"))
-	api.GET("/api/campaigns/analytics/get_individual_clicks_data", handleGetCampaignIndividualLinkClicksUsers) //, "campaigns:get_indiv_cpg_link_clicks_users"))
-	api.GET("/api/campaigns/:id/preview", pm(handlePreviewCampaign, "campaigns:get_all", "campaigns:get"))
-	api.POST("/api/campaigns/:id/preview", pm(handlePreviewCampaign, "campaigns:get_all", "campaigns:get"))
-	api.POST("/api/campaigns/:id/content", pm(handleCampaignContent, "campaigns:manage_all", "campaigns:manage"))
-	api.POST("/api/campaigns/:id/text", pm(handlePreviewCampaign, "campaigns:get"))
-	api.POST("/api/campaigns/:id/test", pm(handleTestCampaign, "campaigns:manage_all", "campaigns:manage"))
-	api.POST("/api/campaigns", pm(handleCreateCampaign, "campaigns:manage_all", "campaigns:manage"))
-	api.PUT("/api/campaigns/:id", pm(handleUpdateCampaign, "campaigns:manage_all", "campaigns:manage"))
-	api.PUT("/api/campaigns/:id/status", pm(handleUpdateCampaignStatus, "campaigns:manage_all", "campaigns:manage"))
-	api.PUT("/api/campaigns/:id/archive", pm(handleUpdateCampaignArchive, "campaigns:manage_all", "campaigns:manage"))
-	api.DELETE("/api/campaigns/:id", pm(handleDeleteCampaign, "campaigns:manage_all", "campaigns:manage"))
+		g.GET("/api/campaigns/analytics/individual_views", handleGetCampaignIndividualViews)
+		g.GET("/api/campaigns/analytics/individual_clicks", handleGetCampaignIndividualLinkClicks)               //, "campaigns:get_indiv_cpg_link_clicks"))
+		g.GET("/api/campaigns/analytics/get_individual_clicks_data", handleGetCampaignIndividualLinkClicksUsers) //, "campaigns:get_indiv_cpg_link_clicks_users"))
+		g.GET("/api/import/subscribers", pm(a.GetImportSubscribers, "subscribers:import"))
+		g.GET("/api/import/subscribers/logs", pm(a.GetImportSubscriberStats, "subscribers:import"))
+		g.POST("/api/import/subscribers", pm(a.ImportSubscribers, "subscribers:import"))
+		g.DELETE("/api/import/subscribers", pm(a.StopImportSubscribers, "subscribers:import"))
 
-	api.GET("/api/media", pm(handleGetMedia, "media:get"))
-	api.GET("/api/media/:id", pm(handleGetMedia, "media:get"))
-	api.POST("/api/media", pm(handleUploadMedia, "media:manage"))
-	api.DELETE("/api/media/:id", pm(handleDeleteMedia, "media:manage"))
+		// Individual list permissions are applied directly within handleGetLists.
+		g.GET("/api/lists", a.GetLists)
+		g.GET("/api/lists/:id", hasID(a.GetList))
+		g.POST("/api/lists", pm(a.CreateList, "lists:manage_all"))
+		g.PUT("/api/lists/:id", hasID(a.UpdateList))
+		g.DELETE("/api/lists/:id", hasID(a.DeleteLists))
 
-	api.GET("/api/templates", pm(handleGetTemplates, "templates:get"))
-	api.GET("/api/templates/:id", pm(handleGetTemplates, "templates:get"))
-	api.GET("/api/templates/:id/preview", pm(handlePreviewTemplate, "templates:get"))
-	api.POST("/api/templates/preview", pm(handlePreviewTemplate, "templates:get"))
-	api.POST("/api/templates", pm(handleCreateTemplate, "templates:manage"))
-	api.PUT("/api/templates/:id", pm(handleUpdateTemplate, "templates:manage"))
-	api.PUT("/api/templates/:id/default", pm(handleTemplateSetDefault, "templates:manage"))
-	api.DELETE("/api/templates/:id", pm(handleDeleteTemplate, "templates:manage"))
+		g.GET("/api/campaigns", pm(a.GetCampaigns, "campaigns:get_all", "campaigns:get"))
+		g.GET("/api/campaigns/running/stats", pm(a.GetRunningCampaignStats, "campaigns:get_all", "campaigns:get"))
+		g.GET("/api/campaigns/:id", pm(hasID(a.GetCampaign), "campaigns:get_all", "campaigns:get"))
+		g.GET("/api/campaigns/analytics/:type", pm(a.GetCampaignViewAnalytics, "campaigns:get_analytics"))
+		g.GET("/api/campaigns/:id/preview", pm(hasID(a.PreviewCampaign), "campaigns:get_all", "campaigns:get"))
+		g.POST("/api/campaigns/:id/preview", pm(hasID(a.PreviewCampaign), "campaigns:get_all", "campaigns:get"))
+		g.POST("/api/campaigns/:id/content", pm(hasID(a.CampaignContent), "campaigns:manage_all", "campaigns:manage"))
+		g.POST("/api/campaigns/:id/text", pm(hasID(a.PreviewCampaign), "campaigns:get"))
+		g.POST("/api/campaigns/:id/test", pm(hasID(a.TestCampaign), "campaigns:manage_all", "campaigns:manage"))
+		g.POST("/api/campaigns", pm(a.CreateCampaign, "campaigns:manage_all", "campaigns:manage"))
+		g.PUT("/api/campaigns/:id", pm(hasID(a.UpdateCampaign), "campaigns:manage_all", "campaigns:manage"))
+		g.PUT("/api/campaigns/:id/status", pm(hasID(a.UpdateCampaignStatus), "campaigns:manage_all", "campaigns:manage"))
+		g.PUT("/api/campaigns/:id/archive", pm(hasID(a.UpdateCampaignArchive), "campaigns:manage_all", "campaigns:manage"))
+		g.DELETE("/api/campaigns/:id", pm(hasID(a.DeleteCampaign), "campaigns:manage_all", "campaigns:manage"))
 
-	api.DELETE("/api/maintenance/subscribers/:type", pm(handleGCSubscribers, "settings:maintain"))
-	api.DELETE("/api/maintenance/analytics/:type", pm(handleGCCampaignAnalytics, "settings:maintain"))
-	api.DELETE("/api/maintenance/subscriptions/unconfirmed", pm(handleGCSubscriptions, "settings:maintain"))
+		g.GET("/api/media", pm(a.GetAllMedia, "media:get"))
+		g.GET("/api/media/:id", pm(hasID(a.GetMedia), "media:get"))
+		g.POST("/api/media", pm(a.UploadMedia, "media:manage"))
+		g.DELETE("/api/media/:id", pm(hasID(a.DeleteMedia), "media:manage"))
 
-	api.POST("/api/tx", pm(handleSendTxMessage, "tx:send"))
+		g.GET("/api/templates", pm(a.GetTemplates, "templates:get"))
+		g.GET("/api/templates/:id", pm(hasID(a.GetTemplate), "templates:get"))
+		g.GET("/api/templates/:id/preview", pm(hasID(a.PreviewTemplate), "templates:get"))
+		g.POST("/api/templates/preview", pm(a.PreviewTemplateBody, "templates:get"))
+		g.POST("/api/templates", pm(a.CreateTemplate, "templates:manage"))
+		g.PUT("/api/templates/:id", pm(hasID(a.UpdateTemplate), "templates:manage"))
+		g.PUT("/api/templates/:id/default", pm(hasID(a.TemplateSetDefault), "templates:manage"))
+		g.DELETE("/api/templates/:id", pm(hasID(a.DeleteTemplate), "templates:manage"))
 
-	api.GET("/api/profile", handleGetUserProfile)
-	api.PUT("/api/profile", handleUpdateUserProfile)
-	api.GET("/api/users", pm(handleGetUsers, "users:get"))
-	api.GET("/api/users/:id", pm(handleGetUsers, "users:get"))
-	api.POST("/api/users", pm(handleCreateUser, "users:manage"))
-	api.PUT("/api/users/:id", pm(handleUpdateUser, "users:manage"))
-	api.DELETE("/api/users", pm(handleDeleteUsers, "users:manage"))
-	api.DELETE("/api/users/:id", pm(handleDeleteUsers, "users:manage"))
-	api.POST("/api/logout", handleLogout)
+		g.DELETE("/api/maintenance/subscribers/:type", pm(a.GCSubscribers, "settings:maintain"))
+		g.DELETE("/api/maintenance/analytics/:type", pm(a.GCCampaignAnalytics, "settings:maintain"))
+		g.DELETE("/api/maintenance/subscriptions/unconfirmed", pm(a.GCSubscriptions, "settings:maintain"))
 
-	api.GET("/api/roles/users", pm(handleGetUserRoles, "roles:get"))
-	api.GET("/api/roles/lists", pm(handleGeListRoles, "roles:get"))
-	api.POST("/api/roles/users", pm(handleCreateUserRole, "roles:manage"))
-	api.POST("/api/roles/lists", pm(handleCreateListRole, "roles:manage"))
-	api.PUT("/api/roles/users/:id", pm(handleUpdateUserRole, "roles:manage"))
-	api.PUT("/api/roles/lists/:id", pm(handleUpdateListRole, "roles:manage"))
-	api.DELETE("/api/roles/:id", pm(handleDeleteRole, "roles:manage"))
+		g.POST("/api/tx", pm(a.SendTxMessage, "tx:send"))
 
-	if app.constants.BounceWebhooksEnabled {
-		// Private authenticated bounce endpoint.
-		api.POST("/webhooks/bounce", pm(handleBounceWebhook, "webhooks:post_bounce"))
+		g.GET("/api/profile", a.GetUserProfile)
+		g.PUT("/api/profile", a.UpdateUserProfile)
+		g.GET("/api/users", pm(a.GetUsers, "users:get"))
+		g.GET("/api/users/:id", pm(hasID(a.GetUser), "users:get"))
+		g.POST("/api/users", pm(a.CreateUser, "users:manage"))
+		g.PUT("/api/users/:id", pm(hasID(a.UpdateUser), "users:manage"))
+		g.DELETE("/api/users", pm(a.DeleteUsers, "users:manage"))
+		g.DELETE("/api/users/:id", pm(hasID(a.DeleteUser), "users:manage"))
+		g.POST("/api/logout", a.Logout)
 
-		// Public bounce endpoints for webservices like SES.
-		p.POST("/webhooks/service/:service", handleBounceWebhook)
+		g.GET("/api/roles/users", pm(a.GetUserRoles, "roles:get"))
+		g.GET("/api/roles/lists", pm(a.GeListRoles, "roles:get"))
+		g.POST("/api/roles/users", pm(a.CreateUserRole, "roles:manage"))
+		g.POST("/api/roles/lists", pm(a.CreateListRole, "roles:manage"))
+		g.PUT("/api/roles/users/:id", pm(hasID(a.UpdateUserRole), "roles:manage"))
+		g.PUT("/api/roles/lists/:id", pm(hasID(a.UpdateListRole), "roles:manage"))
+		g.DELETE("/api/roles/:id", pm(hasID(a.DeleteRole), "roles:manage"))
+
+		if a.cfg.BounceWebhooksEnabled {
+			// Private authenticated bounce endpoint.
+			g.POST("/webhooks/bounce", pm(a.BounceWebhook, "webhooks:post_bounce"))
+		}
 	}
 
 	// =================================================================
 	// Public API endpoints.
+	{
+		// Public unauthenticated endpoints.
+		g := e.Group("")
 
-	// Landing page.
-	p.GET("/", func(c echo.Context) error {
-		return c.Render(http.StatusOK, "home", publicTpl{Title: "listmonk"})
-	})
+		if a.cfg.BounceWebhooksEnabled {
+			// Public bounce endpoints for webservices like SES.
+			g.POST("/webhooks/service/:service", a.BounceWebhook)
+		}
 
-	// Public admin endpoints (login page, OIDC endpoints).
-	p.GET(path.Join(uriAdmin, "/login"), handleLoginPage)
-	p.POST(path.Join(uriAdmin, "/login"), handleLoginPage)
+		// Landing page.
+		g.GET("/", func(c echo.Context) error {
+			return c.Render(http.StatusOK, "home", publicTpl{Title: "listmonk"})
+		})
 
-	if app.constants.Security.OIDC.Enabled {
-		p.POST("/auth/oidc", handleOIDCLogin)
-		p.GET("/auth/oidc", handleOIDCFinish)
+		// Public admin endpoints (login page, OIDC endpoints).
+		g.GET(path.Join(uriAdmin, "/login"), a.LoginPage)
+		g.POST(path.Join(uriAdmin, "/login"), a.LoginPage)
+
+		if a.cfg.Security.OIDC.Enabled {
+			g.POST("/auth/oidc", a.OIDCLogin)
+			g.GET("/auth/oidc", a.OIDCFinish)
+		}
+
+		// Public APIs.
+		g.GET("/api/public/lists", a.GetPublicLists)
+		g.POST("/api/public/subscription", a.PublicSubscription)
+		if a.cfg.EnablePublicArchive {
+			g.GET("/api/public/archive", a.GetCampaignArchives)
+		}
+
+		// /public/static/* file server is registered in initHTTPServer().
+		// Public subscriber facing views.
+		g.GET("/subscription/form", a.SubscriptionFormPage)
+		g.POST("/subscription/form", a.SubscriptionForm)
+		g.GET("/subscription/:campUUID/:subUUID", noIndex(a.hasUUID(a.hasSub(a.SubscriptionPage), "campUUID", "subUUID")))
+		g.POST("/subscription/:campUUID/:subUUID", a.hasUUID(a.hasSub(a.SubscriptionPrefs), "campUUID", "subUUID"))
+		g.GET("/subscription/optin/:subUUID", noIndex(a.hasUUID(a.hasSub(a.OptinPage), "subUUID")))
+		g.POST("/subscription/optin/:subUUID", a.hasUUID(a.hasSub(a.OptinPage), "subUUID"))
+		g.POST("/subscription/export/:subUUID", a.hasUUID(a.hasSub(a.SelfExportSubscriberData), "subUUID"))
+		g.POST("/subscription/wipe/:subUUID", a.hasUUID(a.hasSub(a.WipeSubscriberData), "subUUID"))
+		g.GET("/link/:linkUUID/:campUUID/:subUUID", noIndex(a.hasUUID(a.LinkRedirect, "linkUUID", "campUUID", "subUUID")))
+		g.GET("/campaign/:campUUID/:subUUID", noIndex(a.hasUUID(a.ViewCampaignMessage, "campUUID", "subUUID")))
+		g.GET("/campaign/:campUUID/:subUUID/px.png", noIndex(a.hasUUID(a.RegisterCampaignView, "campUUID", "subUUID")))
+
+		if a.cfg.EnablePublicArchive {
+			g.GET("/archive", a.CampaignArchivesPage)
+			g.GET("/archive.xml", a.GetCampaignArchivesFeed)
+			g.GET("/archive/:id", a.CampaignArchivePage)
+			g.GET("/archive/latest", a.CampaignArchivePageLatest)
+		}
+
+		g.GET("/public/custom.css", serveCustomAppearance("public.custom_css"))
+		g.GET("/public/custom.js", serveCustomAppearance("public.custom_js"))
+
+		// Public health API endpoint.
+		g.GET("/health", a.HealthCheck)
+
+		// 404 pages.
+		g.RouteNotFound("/*", func(c echo.Context) error {
+			return c.Render(http.StatusNotFound, tplMessage,
+				makeMsgTpl("404 - "+a.i18n.T("public.notFoundTitle"), "", ""))
+		})
+		g.RouteNotFound("/api/*", func(c echo.Context) error {
+			return echo.NewHTTPError(http.StatusNotFound, "404 unknown endpoint")
+		})
+		g.RouteNotFound("/admin/*", func(c echo.Context) error {
+			return echo.NewHTTPError(http.StatusNotFound, "404 page not found")
+		})
 	}
-
-	// Public APIs.
-	p.GET("/api/public/lists", handleGetPublicLists)
-	p.POST("/api/public/subscription", handlePublicSubscription)
-	if app.constants.EnablePublicArchive {
-		p.GET("/api/public/archive", handleGetCampaignArchives)
-	}
-
-	// /public/static/* file server is registered in initHTTPServer().
-	// Public subscriber facing views.
-	p.GET("/subscription/form", handleSubscriptionFormPage)
-	p.POST("/subscription/form", handleSubscriptionForm)
-	p.GET("/subscription/:campUUID/:subUUID", noIndex(validateUUID(subscriberExists(handleSubscriptionPage),
-		"campUUID", "subUUID")))
-	p.POST("/subscription/:campUUID/:subUUID", validateUUID(subscriberExists(handleSubscriptionPrefs),
-		"campUUID", "subUUID"))
-	p.GET("/subscription/optin/:subUUID", noIndex(validateUUID(subscriberExists(handleOptinPage), "subUUID")))
-	p.POST("/subscription/optin/:subUUID", validateUUID(subscriberExists(handleOptinPage), "subUUID"))
-	p.POST("/subscription/export/:subUUID", validateUUID(subscriberExists(handleSelfExportSubscriberData),
-		"subUUID"))
-	p.POST("/subscription/wipe/:subUUID", validateUUID(subscriberExists(handleWipeSubscriberData),
-		"subUUID"))
-	p.GET("/link/:linkUUID/:campUUID/:subUUID", noIndex(validateUUID(handleLinkRedirect,
-		"linkUUID", "campUUID", "subUUID")))
-	p.GET("/campaign/:campUUID/:subUUID", noIndex(validateUUID(handleViewCampaignMessage,
-		"campUUID", "subUUID")))
-	p.GET("/campaign/:campUUID/:subUUID/px.png", noIndex(validateUUID(handleRegisterCampaignView,
-		"campUUID", "subUUID")))
-
-	if app.constants.EnablePublicArchive {
-		p.GET("/archive", handleCampaignArchivesPage)
-		p.GET("/archive.xml", handleGetCampaignArchivesFeed)
-		p.GET("/archive/:id", handleCampaignArchivePage)
-		p.GET("/archive/latest", handleCampaignArchivePageLatest)
-	}
-
-	p.GET("/public/custom.css", serveCustomAppearance("public.custom_css"))
-	p.GET("/public/custom.js", serveCustomAppearance("public.custom_js"))
-
-	// Public health API endpoint.
-	p.GET("/health", handleHealthCheck)
-
-	// 404 pages.
-	p.RouteNotFound("/*", func(c echo.Context) error {
-		return c.Render(http.StatusNotFound, tplMessage,
-			makeMsgTpl("404 - "+app.i18n.T("public.notFoundTitle"), "", ""))
-	})
-	p.RouteNotFound("/api/*", func(c echo.Context) error {
-		return echo.NewHTTPError(http.StatusNotFound, "404 unknown endpoint")
-	})
-	p.RouteNotFound("/admin/*", func(c echo.Context) error {
-		return echo.NewHTTPError(http.StatusNotFound, "404 page not found")
-	})
 }
 
-// handleAdminPage is the root handler that renders the Javascript admin frontend.
-func handleAdminPage(c echo.Context) error {
-	app := c.Get("app").(*App)
-
-	b, err := app.fs.Read(path.Join(uriAdmin, "/index.html"))
+// AdminPage is the root handler that renders the Javascript admin frontend.
+func (a *App) AdminPage(c echo.Context) error {
+	b, err := a.fs.Read(path.Join(uriAdmin, "/index.html"))
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
-	b = bytes.ReplaceAll(b, []byte("asset_version"), []byte(app.constants.AssetVersion))
+	b = bytes.ReplaceAll(b, []byte("asset_version"), []byte(a.cfg.AssetVersion))
 
 	return c.HTMLBlob(http.StatusOK, b)
 }
 
-// handleHealthCheck is a healthcheck endpoint that returns a 200 response.
-func handleHealthCheck(c echo.Context) error {
+// HealthCheck is a healthcheck endpoint that returns a 200 response.
+func (a *App) HealthCheck(c echo.Context) error {
 	return c.JSON(http.StatusOK, okResp{true})
 }
 
@@ -307,19 +311,19 @@ func serveCustomAppearance(name string) echo.HandlerFunc {
 
 		switch name {
 		case "admin.custom_css":
-			out = app.constants.Appearance.AdminCSS
+			out = app.cfg.Appearance.AdminCSS
 			hdr = "text/css; charset=utf-8"
 
 		case "admin.custom_js":
-			out = app.constants.Appearance.AdminJS
+			out = app.cfg.Appearance.AdminJS
 			hdr = "application/javascript; charset=utf-8"
 
 		case "public.custom_css":
-			out = app.constants.Appearance.PublicCSS
+			out = app.cfg.Appearance.PublicCSS
 			hdr = "text/css; charset=utf-8"
 
 		case "public.custom_js":
-			out = app.constants.Appearance.PublicJS
+			out = app.cfg.Appearance.PublicJS
 			hdr = "application/javascript; charset=utf-8"
 		}
 
@@ -327,39 +331,47 @@ func serveCustomAppearance(name string) echo.HandlerFunc {
 	}
 }
 
-// validateUUID middleware validates the UUID string format for a given set of params.
-func validateUUID(next echo.HandlerFunc, params ...string) echo.HandlerFunc {
+// hasUUID middleware validates the UUID string format for a given set of params.
+func (a *App) hasUUID(next echo.HandlerFunc, params ...string) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		app := c.Get("app").(*App)
-
 		for _, p := range params {
 			if !reUUID.MatchString(c.Param(p)) {
-				return c.Render(http.StatusBadRequest, tplMessage, makeMsgTpl(app.i18n.T("public.errorTitle"), "",
-					app.i18n.T("globals.messages.invalidUUID")))
+				return c.Render(http.StatusBadRequest, tplMessage, makeMsgTpl(a.i18n.T("public.errorTitle"), "",
+					a.i18n.T("globals.messages.invalidUUID")))
 			}
 		}
 		return next(c)
 	}
 }
 
-// subscriberExists middleware checks if a subscriber exists given the UUID
-// param in a request.
-func subscriberExists(next echo.HandlerFunc) echo.HandlerFunc {
+// hasID middleware validates the :id param in the URL and sets its int value in the context.
+func hasID(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		var (
-			app     = c.Get("app").(*App)
-			subUUID = c.Param("subUUID")
-		)
+		id, _ := strconv.Atoi(c.Param("id"))
+		if id < 1 {
+			return echo.NewHTTPError(http.StatusBadRequest, "invalid ID")
+		}
 
-		if _, err := app.core.GetSubscriber(0, subUUID, ""); err != nil {
+		c.Set("id", id)
+		return next(c)
+	}
+}
+
+// hasSub middleware checks if a subscriber exists given the UUID
+// param in a request.
+func (a *App) hasSub(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		subUUID := c.Param("subUUID")
+
+		if _, err := a.core.GetSubscriber(0, subUUID, ""); err != nil {
 			if er, ok := err.(*echo.HTTPError); ok && er.Code == http.StatusBadRequest {
 				return c.Render(http.StatusNotFound, tplMessage,
-					makeMsgTpl(app.i18n.T("public.notFoundTitle"), "", er.Message.(string)))
+					makeMsgTpl(a.i18n.T("public.notFoundTitle"), "", er.Message.(string)))
 			}
 
-			app.log.Printf("error checking subscriber existence: %v", err)
+			a.log.Printf("error checking subscriber existence: %v", err)
 			return c.Render(http.StatusInternalServerError, tplMessage,
-				makeMsgTpl(app.i18n.T("public.errorTitle"), "", app.i18n.T("public.errorProcessingRequest")))
+				makeMsgTpl(a.i18n.T("public.errorTitle"), "", a.i18n.T("public.errorProcessingRequest")))
 		}
 
 		return next(c)
@@ -372,4 +384,9 @@ func noIndex(next echo.HandlerFunc) echo.HandlerFunc {
 		c.Response().Header().Set("X-Robots-Tag", "noindex")
 		return next(c)
 	}
+}
+
+// getID returns the :id param from the URL parsed and stored as an int by the hasID middleware.
+func getID(c echo.Context) int {
+	return c.Get("id").(int)
 }

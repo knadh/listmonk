@@ -11,11 +11,18 @@ describe('Bounces', () => {
     cy.get('[data-cy=btn-enable-bounce] .switch').click();
     cy.get('[data-cy=btn-enable-bounce-webhook] .switch').click();
 
+    // The last <select> box, pick 'delete' option.
+    cy.get('select[name="bounce.action"]').last().select('delete');
+
     cy.get('[data-cy=btn-save]').click();
-    cy.wait(2000);
+
+    cy.waitForBackend();
+    cy.wait(1000);
   });
 
   it('Post bounces', () => {
+    cy.loginAndVisit('/admin/subscribers/bounces');
+
     // Get campaign.
     let camp = {};
     cy.request(`${apiUrl}/api/campaigns`).then((resp) => {
@@ -42,6 +49,7 @@ describe('Bounces', () => {
       // Hard bounces blocklist.
       cy.request('POST', `${apiUrl}/webhooks/bounce`, { source: 'api', type: 'hard', email: subs[0].email });
       cy.request('POST', `${apiUrl}/webhooks/bounce`, { source: 'api', type: 'hard', email: subs[0].email });
+
       cy.request(`${apiUrl}/api/subscribers/${subs[0].id}`).then((resp) => {
         sub = resp.body.data;
       }).then(() => {

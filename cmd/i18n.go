@@ -24,18 +24,14 @@ type i18nLangRaw struct {
 
 var reLangCode = regexp.MustCompile(`[^a-zA-Z_0-9\\-]`)
 
-// handleGetI18nLang returns the JSON language pack given the language code.
-func handleGetI18nLang(c echo.Context) error {
-	var (
-		app = c.Get("app").(*App)
-	)
-
+// GetI18nLang returns the JSON language pack given the language code.
+func (a *App) GetI18nLang(c echo.Context) error {
 	lang := c.Param("lang")
 	if len(lang) > 6 || reLangCode.MatchString(lang) {
 		return echo.NewHTTPError(http.StatusBadRequest, "Invalid language code.")
 	}
 
-	i, ok, err := getI18nLang(lang, app.fs)
+	i, ok, err := getI18nLang(lang, a.fs)
 	if err != nil && !ok {
 		return echo.NewHTTPError(http.StatusBadRequest, "Unknown language.")
 	}
@@ -44,8 +40,8 @@ func handleGetI18nLang(c echo.Context) error {
 }
 
 // getI18nLangList returns the list of available i18n languages.
-func getI18nLangList(app *App) ([]i18nLang, error) {
-	list, err := app.fs.Glob("/i18n/*.json")
+func getI18nLangList(fs stuffbin.FileSystem) ([]i18nLang, error) {
+	list, err := fs.Glob("/i18n/*.json")
 	if err != nil {
 		return nil, err
 	}
@@ -53,7 +49,7 @@ func getI18nLangList(app *App) ([]i18nLang, error) {
 	// Read language JSON files from the fs.
 	var out []i18nLang
 	for _, l := range list {
-		b, err := app.fs.Get(l)
+		b, err := fs.Get(l)
 		if err != nil {
 			return out, fmt.Errorf("error reading lang file: %s: %v", l, err)
 		}

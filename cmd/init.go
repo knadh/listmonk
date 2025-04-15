@@ -43,6 +43,7 @@ import (
 	"github.com/knadh/listmonk/internal/media/providers/s3"
 	"github.com/knadh/listmonk/internal/messenger/email"
 	"github.com/knadh/listmonk/internal/messenger/postback"
+	"github.com/knadh/listmonk/internal/notifs"
 	"github.com/knadh/listmonk/internal/subimporter"
 	"github.com/knadh/listmonk/models"
 	"github.com/knadh/stuffbin"
@@ -54,21 +55,31 @@ import (
 
 const (
 	queryFilePath = "queries.sql"
+	emailMsgr     = "email"
 )
 
-// constants contains static, constant config values required by the app.
-type constants struct {
+// UrlConfig contains various URL constants used in the app.
+type UrlConfig struct {
+	RootURL      string `koanf:"root_url"`
+	LogoURL      string `koanf:"logo_url"`
+	FaviconURL   string `koanf:"favicon_url"`
+	LoginURL     string `koanf:"login_url"`
+	UnsubURL     string
+	LinkTrackURL string
+	ViewTrackURL string
+	OptinURL     string
+	MessageURL   string
+	ArchiveURL   string
+}
+
+// Config contains static, constant config values required by arbitrary handlers and functions.
+type Config struct {
 	SiteName                      string   `koanf:"site_name"`
-	RootURL                       string   `koanf:"root_url"`
-	LogoURL                       string   `koanf:"logo_url"`
-	FaviconURL                    string   `koanf:"favicon_url"`
-	LoginURL                      string   `koanf:"login_url"`
 	FromEmail                     string   `koanf:"from_email"`
 	NotifyEmails                  []string `koanf:"notify_emails"`
 	EnablePublicSubPage           bool     `koanf:"enable_public_subscription_page"`
 	EnablePublicArchive           bool     `koanf:"enable_public_archive"`
 	EnablePublicArchiveRSSContent bool     `koanf:"enable_public_archive_rss_content"`
-	SendOptinConfirmation         bool     `koanf:"send_optin_confirmation"`
 	Lang                          string   `koanf:"lang"`
 	DBBatchSize                   int      `koanf:"batch_size"`
 	Privacy                       struct {
@@ -104,12 +115,6 @@ type constants struct {
 	}
 
 	HasLegacyUser bool
-	UnsubURL      string
-	LinkTrackURL  string
-	ViewTrackURL  string
-	OptinURL      string
-	MessageURL    string
-	ArchiveURL    string
 	AssetVersion  string
 
 	MediaUpload struct {
@@ -125,11 +130,6 @@ type constants struct {
 
 	PermissionsRaw json.RawMessage
 	Permissions    map[string]struct{}
-}
-
-type notifTpls struct {
-	tpls        *template.Template
-	contentType string
 }
 
 // initFlags initializes the commandline flags into the Koanf instance.
@@ -390,10 +390,40 @@ func initSettings(query string, db *sqlx.DB, ko *koanf.Koanf) {
 	}
 }
 
-// initConstants initializes the app's global constants from the given koanf instance.
-func initConstants(ko *koanf.Koanf) *constants {
+func initUrlConfig(ko *koanf.Koanf) *UrlConfig {
+	root := strings.TrimSuffix(ko.String("app.root_url"), "/")
+
+	return &UrlConfig{
+		RootURL:    root,
+		LogoURL:    ko.String("app.logo_url"),
+		FaviconURL: ko.String("app.favicon_url"),
+		LoginURL:   path.Join(uriAdmin, "/login"),
+
+		// Static URLS.
+		// url.com/subscription/{campaign_uuid}/{subscriber_uuid}
+		UnsubURL: fmt.Sprintf("%s/subscription/%%s/%%s", root),
+
+		// url.com/subscription/optin/{subscriber_uuid}
+		OptinURL: fmt.Sprintf("%s/subscription/optin/%%s?%%s", root),
+
+		// url.com/link/{campaign_uuid}/{subscriber_uuid}/{link_uuid}
+		LinkTrackURL: fmt.Sprintf("%s/link/%%s/%%s/%%s", root),
+
+		// url.com/link/{campaign_uuid}/{subscriber_uuid}
+		MessageURL: fmt.Sprintf("%s/campaign/%%s/%%s", root),
+
+		// url.com/archive
+		ArchiveURL: root + "/archive",
+
+		// url.com/campaign/{campaign_uuid}/{subscriber_uuid}/px.png
+		ViewTrackURL: fmt.Sprintf("%s/campaign/%%s/%%s/px.png", root),
+	}
+}
+
+// initConstConfig initializes the app's global constants from the given koanf instance.
+func initConstConfig(ko *koanf.Koanf) *Config {
 	// Read constants.
-	var c constants
+	var c Config
 	if err := ko.Unmarshal("app", &c); err != nil {
 		lo.Fatalf("error loading app config: %v", err)
 	}
@@ -408,33 +438,12 @@ func initConstants(ko *koanf.Koanf) *constants {
 		lo.Fatalf("error loading app.appearance config: %v", err)
 	}
 
-	c.RootURL = strings.TrimRight(c.RootURL, "/")
-	c.LoginURL = path.Join(uriAdmin, "/login")
 	c.Lang = ko.String("app.lang")
 	c.Privacy.Exportable = koanfmaps.StringSliceToLookupMap(ko.Strings("privacy.exportable"))
 	c.MediaUpload.Provider = ko.String("upload.provider")
 	c.MediaUpload.Extensions = ko.Strings("upload.extensions")
 	c.Privacy.DomainBlocklist = ko.Strings("privacy.domain_blocklist")
 	c.Privacy.DomainAllowlist = ko.Strings("privacy.domain_allowlist")
-
-	// Static URLS.
-	// url.com/subscription/{campaign_uuid}/{subscriber_uuid}
-	c.UnsubURL = fmt.Sprintf("%s/subscription/%%s/%%s", c.RootURL)
-
-	// url.com/subscription/optin/{subscriber_uuid}
-	c.OptinURL = fmt.Sprintf("%s/subscription/optin/%%s?%%s", c.RootURL)
-
-	// url.com/link/{campaign_uuid}/{subscriber_uuid}/{link_uuid}
-	c.LinkTrackURL = fmt.Sprintf("%s/link/%%s/%%s/%%s", c.RootURL)
-
-	// url.com/link/{campaign_uuid}/{subscriber_uuid}
-	c.MessageURL = fmt.Sprintf("%s/campaign/%%s/%%s", c.RootURL)
-
-	// url.com/archive
-	c.ArchiveURL = c.RootURL + "/archive"
-
-	// url.com/campaign/{campaign_uuid}/{subscriber_uuid}/px.png
-	c.ViewTrackURL = fmt.Sprintf("%s/campaign/%%s/%%s/px.png", c.RootURL)
 
 	c.BounceWebhooksEnabled = ko.Bool("bounce.webhooks_enabled")
 	c.BounceSESEnabled = ko.Bool("bounce.ses_enabled")
@@ -487,49 +496,76 @@ func initI18n(lang string, fs stuffbin.FileSystem) *i18n.I18n {
 	return i
 }
 
-// initCampaignManager initializes the campaign manager.
-func initCampaignManager(q *models.Queries, cs *constants, app *App) *manager.Manager {
-	campNotifCB := func(subject string, data any) error {
-		return app.sendNotification(cs.NotifyEmails, subject, notifTplCampaign, data, nil)
+// initCore initializes the CRUD DB core .
+func initCore(fnNotify func(sub models.Subscriber, listIDs []int) (int, error), queries *models.Queries, db *sqlx.DB, i *i18n.I18n, ko *koanf.Koanf) *core.Core {
+	opt := &core.Opt{
+		Constants: core.Constants{
+			SendOptinConfirmation: ko.Bool("app.send_optin_confirmation"),
+			CacheSlowQueries:      ko.Bool("app.cache_slow_queries"),
+		},
+		Queries: queries,
+		DB:      db,
+		I18n:    i,
+		Log:     lo,
 	}
 
+	// Load bounce config.
+	if err := ko.Unmarshal("bounce.actions", &opt.Constants.BounceActions); err != nil {
+		lo.Fatalf("error unmarshalling bounce config: %v", err)
+	}
+
+	// Initialize the CRUD core.
+	return core.New(opt, &core.Hooks{
+		SendOptinConfirmation: fnNotify,
+	})
+}
+
+// initCampaignManager initializes the campaign manager.
+func initCampaignManager(msgrs []manager.Messenger, q *models.Queries, u *UrlConfig, co *core.Core, md media.Store, i *i18n.I18n, ko *koanf.Koanf) *manager.Manager {
 	if ko.Bool("passive") {
 		lo.Println("running in passive mode. won't process campaigns.")
 	}
 
-	return manager.New(manager.Config{
+	mgr := manager.New(manager.Config{
 		BatchSize:             ko.Int("app.batch_size"),
 		Concurrency:           ko.Int("app.concurrency"),
 		MessageRate:           ko.Int("app.message_rate"),
 		MaxSendErrors:         ko.Int("app.max_send_errors"),
-		FromEmail:             cs.FromEmail,
+		FromEmail:             ko.MustString("app.from_email"),
 		IndividualTracking:    ko.Bool("privacy.individual_tracking"),
-		UnsubURL:              cs.UnsubURL,
-		OptinURL:              cs.OptinURL,
-		LinkTrackURL:          cs.LinkTrackURL,
-		ViewTrackURL:          cs.ViewTrackURL,
-		MessageURL:            cs.MessageURL,
-		ArchiveURL:            cs.ArchiveURL,
-		RootURL:               cs.RootURL,
+		UnsubURL:              u.UnsubURL,
+		OptinURL:              u.OptinURL,
+		LinkTrackURL:          u.LinkTrackURL,
+		ViewTrackURL:          u.ViewTrackURL,
+		MessageURL:            u.MessageURL,
+		ArchiveURL:            u.ArchiveURL,
+		RootURL:               u.RootURL,
 		UnsubHeader:           ko.Bool("privacy.unsubscribe_header"),
 		SlidingWindow:         ko.Bool("app.message_sliding_window"),
 		SlidingWindowDuration: ko.Duration("app.message_sliding_window_duration"),
 		SlidingWindowRate:     ko.Int("app.message_sliding_window_rate"),
 		ScanInterval:          time.Second * 5,
 		ScanCampaigns:         !ko.Bool("passive"),
-	}, newManagerStore(q, app.core, app.media), campNotifCB, app.i18n, lo)
+	}, newManagerStore(q, co, md), i, lo)
+
+	// Attach all messengers to the campaign manager.
+	for _, m := range msgrs {
+		mgr.AddMessenger(m)
+	}
+
+	return mgr
 }
 
 // initTxTemplates initializes and compiles the transactional templates and caches them in-memory.
-func initTxTemplates(m *manager.Manager, app *App) {
-	tpls, err := app.core.GetTemplates(models.TemplateTypeTx, false)
+func initTxTemplates(m *manager.Manager, co *core.Core) {
+	tpls, err := co.GetTemplates(models.TemplateTypeTx, false)
 	if err != nil {
 		lo.Fatalf("error loading transactional templates: %v", err)
 	}
 
 	for _, t := range tpls {
 		tpl := t
-		if err := tpl.Compile(app.manager.GenericTemplateFuncs()); err != nil {
+		if err := tpl.Compile(m.GenericTemplateFuncs()); err != nil {
 			lo.Printf("error compiling transactional template %d: %v", tpl.ID, err)
 			continue
 		}
@@ -538,26 +574,26 @@ func initTxTemplates(m *manager.Manager, app *App) {
 }
 
 // initImporter initializes the bulk subscriber importer.
-func initImporter(q *models.Queries, db *sqlx.DB, core *core.Core, app *App) *subimporter.Importer {
+func initImporter(q *models.Queries, db *sqlx.DB, core *core.Core, i *i18n.I18n, ko *koanf.Koanf) *subimporter.Importer {
 	return subimporter.New(
 		subimporter.Options{
-			DomainBlocklist:    app.constants.Privacy.DomainBlocklist,
-			DomainAllowlist:    app.constants.Privacy.DomainAllowlist,
+			DomainBlocklist:    ko.Strings("privacy.domain_blocklist"),
+			DomainAllowlist:    ko.Strings("privacy.domain_allowlist"),
 			UpsertStmt:         q.UpsertSubscriber.Stmt,
 			BlocklistStmt:      q.UpsertBlocklistSubscriber.Stmt,
 			UpdateListDateStmt: q.UpdateListsDate.Stmt,
 
 			// Hook for triggering admin notifications and refreshing stats materialized
 			// views after a successful import.
-			NotifCB: func(subject string, data any) error {
+			PostCB: func(subject string, data any) error {
 				// Refresh cached subscriber counts and stats.
 				core.RefreshMatViews(true)
 
 				// Send admin notification.
-				app.sendNotification(app.constants.NotifyEmails, subject, notifTplImport, data, nil)
+				notifs.NotifySystem(subject, notifs.TplImport, data, nil)
 				return nil
 			},
-		}, db.DB, app.i18n)
+		}, db.DB, i)
 }
 
 // initSMTPMessenger initializes the combined and individual SMTP messengers.
@@ -680,39 +716,36 @@ func initMediaStore(ko *koanf.Koanf) media.Store {
 	return nil
 }
 
-// initNotifTemplates compiles and returns e-mail notification templates that are
-// used for sending ad-hoc notifications to admins and subscribers.
-func initNotifTemplates(fs stuffbin.FileSystem, i *i18n.I18n, cs *constants) *notifTpls {
-	tpls, err := stuffbin.ParseTemplatesGlob(initTplFuncs(i, cs), fs, "/static/email-templates/*.html")
+// initNotifs initializes the notifier with the system e-mail templates.
+func initNotifs(fs stuffbin.FileSystem, i *i18n.I18n, em *email.Emailer, u *UrlConfig, ko *koanf.Koanf) {
+	tpls, err := stuffbin.ParseTemplatesGlob(initTplFuncs(i, u), fs, "/static/email-templates/*.html")
 	if err != nil {
 		lo.Fatalf("error parsing e-mail notif templates: %v", err)
 	}
 
+	// Read the notification templates.
 	html, err := fs.Read("/static/email-templates/base.html")
 	if err != nil {
 		lo.Fatalf("error reading static/email-templates/base.html: %v", err)
 	}
 
-	out := &notifTpls{
-		tpls:        tpls,
-		contentType: models.CampaignContentTypeHTML,
-	}
-
 	// Determine whether the notification templates are HTML or plaintext.
 	// Copy the first few (arbitrary) bytes of the template and check if has the <!doctype html> tag.
-	ln := 256
-	if len(html) < ln {
-		ln = len(html)
-	}
+	ln := min(len(html), 256)
 	h := make([]byte, ln)
 	copy(h, html[0:ln])
 
+	contentType := models.CampaignContentTypeHTML
 	if !bytes.Contains(bytes.ToLower(h), []byte("<!doctype html")) {
-		out.contentType = models.CampaignContentTypePlain
+		contentType = models.CampaignContentTypePlain
 		lo.Println("system e-mail templates are plaintext")
 	}
 
-	return out
+	notifs.Initialize(notifs.Opt{
+		FromEmail:    ko.MustString("app.from_email"),
+		SystemEmails: ko.MustStrings("app.notify_emails"),
+		ContentType:  contentType,
+	}, tpls, em, lo)
 }
 
 // initBounceManager initializes the bounce manager that scans mailboxes and listens to webhooks
@@ -806,7 +839,7 @@ func initAbout(q *models.Queries, db *sqlx.DB) about {
 }
 
 // initHTTPServer sets up and runs the app's main HTTP server and blocks forever.
-func initHTTPServer(app *App) *echo.Echo {
+func initHTTPServer(cfg *Config, urlCfg *UrlConfig, i *i18n.I18n, fs stuffbin.FileSystem, app *App) *echo.Echo {
 	// Initialize the HTTP server.
 	var srv = echo.New()
 	srv.HideBanner = true
@@ -819,24 +852,24 @@ func initHTTPServer(app *App) *echo.Echo {
 		}
 	})
 
-	tpl, err := stuffbin.ParseTemplatesGlob(initTplFuncs(app.i18n, app.constants), app.fs, "/public/templates/*.html")
+	tpl, err := stuffbin.ParseTemplatesGlob(initTplFuncs(i, urlCfg), fs, "/public/templates/*.html")
 	if err != nil {
 		lo.Fatalf("error parsing public templates: %v", err)
 	}
 	srv.Renderer = &tplRenderer{
 		templates:           tpl,
-		SiteName:            app.constants.SiteName,
-		RootURL:             app.constants.RootURL,
-		LogoURL:             app.constants.LogoURL,
-		FaviconURL:          app.constants.FaviconURL,
-		AssetVersion:        app.constants.AssetVersion,
-		EnablePublicSubPage: app.constants.EnablePublicSubPage,
-		EnablePublicArchive: app.constants.EnablePublicArchive,
-		IndividualTracking:  app.constants.Privacy.IndividualTracking,
+		SiteName:            cfg.SiteName,
+		RootURL:             urlCfg.RootURL,
+		LogoURL:             urlCfg.LogoURL,
+		FaviconURL:          urlCfg.FaviconURL,
+		AssetVersion:        cfg.AssetVersion,
+		EnablePublicSubPage: cfg.EnablePublicSubPage,
+		EnablePublicArchive: cfg.EnablePublicArchive,
+		IndividualTracking:  cfg.Privacy.IndividualTracking,
 	}
 
 	// Initialize the static file server.
-	fSrv := app.fs.FileServer()
+	fSrv := fs.FileServer()
 
 	// Public (subscriber) facing static files.
 	srv.GET("/public/static/*", echo.WrapHandler(fSrv))
@@ -875,11 +908,11 @@ func initCaptcha() *captcha.Captcha {
 
 // initCron initializes the cron job for refreshing slow query cache.
 
-func initCron(core *core.Core) {
+func initCron(co *core.Core) {
 	c := cron.New()
 	_, err := c.Add(ko.MustString("app.cache_slow_queries_interval"), func() {
 		lo.Println("refreshing slow query cache")
-		_ = core.RefreshMatViews(true)
+		_ = co.RefreshMatViews(true)
 		lo.Println("done refreshing slow query cache")
 	})
 	if err != nil {
@@ -924,28 +957,15 @@ func awaitReload(sigChan chan os.Signal, closerWait chan bool, closer func()) ch
 	return out
 }
 
-// joinFSPaths joins the given paths with the root path and returns the full paths.
-func joinFSPaths(root string, paths []string) []string {
-	out := make([]string, 0, len(paths))
-	for _, p := range paths {
-		// real_path:stuffbin_alias
-		f := strings.Split(p, ":")
-
-		out = append(out, path.Join(root, f[0])+":"+f[1])
-	}
-
-	return out
-}
-
 // initTplFuncs returns a generic template func map with custom template
 // functions and sprig template functions.
-func initTplFuncs(i *i18n.I18n, cs *constants) template.FuncMap {
+func initTplFuncs(i *i18n.I18n, u *UrlConfig) template.FuncMap {
 	funcs := template.FuncMap{
 		"RootURL": func() string {
-			return cs.RootURL
+			return u.RootURL
 		},
 		"LogoURL": func() string {
-			return cs.LogoURL
+			return u.LogoURL
 		},
 		"Date": func(layout string) string {
 			if layout == "" {
@@ -1036,4 +1056,17 @@ func initAuth(co *core.Core, db *sql.DB, ko *koanf.Koanf) (bool, *auth.Auth) {
 	}
 
 	return hasUsers, a
+}
+
+// joinFSPaths joins the given paths with the root path and returns the full paths.
+func joinFSPaths(root string, paths []string) []string {
+	out := make([]string, 0, len(paths))
+	for _, p := range paths {
+		// real_path:stuffbin_alias
+		f := strings.Split(p, ":")
+
+		out = append(out, path.Join(root, f[0])+":"+f[1])
+	}
+
+	return out
 }

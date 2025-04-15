@@ -1126,7 +1126,7 @@ UPDATE users SET
 
 -- name: delete-users
 WITH u AS (
-    SELECT COUNT(*) AS num FROM users WHERE NOT(id = ANY($1)) AND user_role_id=1 AND status='enabled'
+    SELECT COUNT(*) AS num FROM users WHERE NOT(id = ANY($1)) AND user_role_id=1 AND type='user' AND status='enabled'
 )
 DELETE FROM users WHERE id = ALL($1) AND (SELECT num FROM u) > 0;
 
@@ -1233,7 +1233,8 @@ UPDATE users SET loggedin_at=NOW(), avatar=(CASE WHEN $2 != '' THEN $2 ELSE avat
 
 -- name: get-user-roles
 WITH mainroles AS (
-    SELECT ur.* FROM roles ur WHERE type = 'user' AND ur.parent_id IS NULL
+    SELECT ur.* FROM roles ur WHERE type = 'user' AND ur.parent_id IS NULL AND
+    CASE WHEN $1::INT != 0 THEN ur.id = $1 ELSE TRUE END
 ),
 listPerms AS (
     SELECT ur.parent_id, JSONB_AGG(JSONB_BUILD_OBJECT('id', ur.list_id, 'name', lists.name, 'permissions', ur.permissions)) AS listPerms

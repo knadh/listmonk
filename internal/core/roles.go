@@ -12,12 +12,29 @@ import (
 // GetRoles retrieves all roles.
 func (c *Core) GetRoles() ([]auth.Role, error) {
 	out := []auth.Role{}
-	if err := c.q.GetUserRoles.Select(&out); err != nil {
+	if err := c.q.GetUserRoles.Select(&out, nil); err != nil {
 		return nil, echo.NewHTTPError(http.StatusInternalServerError,
 			c.i18n.Ts("globals.messages.errorFetching", "name", "role", "error", pqErrMsg(err)))
 	}
 
 	return out, nil
+}
+
+// GetRole retrieves a role.
+func (c *Core) GetRole(id int) (auth.Role, error) {
+	out := []auth.Role{}
+	if err := c.q.GetUserRoles.Select(&out, id); err != nil {
+		return auth.Role{}, echo.NewHTTPError(http.StatusInternalServerError,
+			c.i18n.Ts("globals.messages.errorFetching", "name", "role", "error", pqErrMsg(err)))
+	}
+
+	// Role does not exist.
+	if len(out) == 0 {
+		return auth.Role{}, echo.NewHTTPError(http.StatusInternalServerError,
+			c.i18n.Ts("globals.messages.errorFetching", "name", "role", "error", "role not found"))
+	}
+
+	return out[0], nil
 }
 
 // GetListRoles retrieves all list roles.

@@ -23,50 +23,42 @@ type serverConfig struct {
 	Version       string          `json:"version"`
 }
 
-// handleGetServerConfig returns general server config.
-func handleGetServerConfig(c echo.Context) error {
-	var (
-		app = c.Get("app").(*App)
-	)
-
+// GetServerConfig returns general server config.
+func (a *App) GetServerConfig(c echo.Context) error {
 	out := serverConfig{
-		RootURL:       app.constants.RootURL,
-		FromEmail:     app.constants.FromEmail,
-		Lang:          app.constants.Lang,
-		Permissions:   app.constants.PermissionsRaw,
-		HasLegacyUser: app.constants.HasLegacyUser,
+		RootURL:       a.urlCfg.RootURL,
+		FromEmail:     a.cfg.FromEmail,
+		Lang:          a.cfg.Lang,
+		Permissions:   a.cfg.PermissionsRaw,
+		HasLegacyUser: a.cfg.HasLegacyUser,
 	}
 
 	// Language list.
-	langList, err := getI18nLangList(app)
+	langList, err := getI18nLangList(a.fs)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			fmt.Sprintf("Error loading language list: %v", err))
 	}
 	out.Langs = langList
 
-	out.Messengers = make([]string, 0, len(app.messengers))
-	for _, m := range app.messengers {
+	out.Messengers = make([]string, 0, len(a.messengers))
+	for _, m := range a.messengers {
 		out.Messengers = append(out.Messengers, m.Name())
 	}
 
-	app.Lock()
-	out.NeedsRestart = app.needsRestart
-	out.Update = app.update
-	app.Unlock()
+	a.Lock()
+	out.NeedsRestart = a.needsRestart
+	out.Update = a.update
+	a.Unlock()
 	out.Version = versionString
 
 	return c.JSON(http.StatusOK, okResp{out})
 }
 
-// handleGetDashboardCharts returns chart data points to render ont he dashboard.
-func handleGetDashboardCharts(c echo.Context) error {
-	var (
-		app = c.Get("app").(*App)
-	)
-
+// GetDashboardCharts returns chart data points to render ont he dashboard.
+func (a *App) GetDashboardCharts(c echo.Context) error {
 	// Get the chart data from the DB.
-	out, err := app.core.GetDashboardCharts()
+	out, err := a.core.GetDashboardCharts()
 	if err != nil {
 		return err
 	}
@@ -74,14 +66,10 @@ func handleGetDashboardCharts(c echo.Context) error {
 	return c.JSON(http.StatusOK, okResp{out})
 }
 
-// handleGetDashboardCounts returns stats counts to show on the dashboard.
-func handleGetDashboardCounts(c echo.Context) error {
-	var (
-		app = c.Get("app").(*App)
-	)
-
+// GetDashboardCounts returns stats counts to show on the dashboard.
+func (a *App) GetDashboardCounts(c echo.Context) error {
 	// Get the chart data from the DB.
-	out, err := app.core.GetDashboardCounts()
+	out, err := a.core.GetDashboardCounts()
 	if err != nil {
 		return err
 	}
@@ -89,17 +77,13 @@ func handleGetDashboardCounts(c echo.Context) error {
 	return c.JSON(http.StatusOK, okResp{out})
 }
 
-// handleReloadApp restarts the app.
-func handleReloadApp(c echo.Context) error {
-	var (
-		app = c.Get("app").(*App)
-	)
-
+// ReloadApp sends a reload signal to the app, causing a full restart.
+func (a *App) ReloadApp(c echo.Context) error {
 	go func() {
 		<-time.After(time.Millisecond * 500)
 
 		// Send the reload signal to trigger the wait loop in main.
-		app.chReload <- syscall.SIGHUP
+		a.chReload <- syscall.SIGHUP
 	}()
 
 	return c.JSON(http.StatusOK, okResp{true})
