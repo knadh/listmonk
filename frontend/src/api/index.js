@@ -184,7 +184,7 @@ export const blocklistSubscriberBounce = async (id) => http.put(
   null,
   { loading: models.bounces },
 );
-  
+
 export const blocklistSubscriberBounces = async (params) => http.put(
   '/api/bounces/blocklist',
   null,
