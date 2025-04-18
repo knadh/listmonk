@@ -1,6 +1,6 @@
 {
-  "name": "@usewaypoint/editor-sample",
-  "version": "0.0.1",
+  "name": "@listmonk/email-builder",
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",

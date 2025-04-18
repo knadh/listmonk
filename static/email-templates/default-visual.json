@@ -57,7 +57,7 @@
                 "padding": { "top": 16, "bottom": 16, "right": 24, "left": 24 }
             },
             "props": {
-                "buttonBackgroundColor": "#2563EB",
+                "buttonBackgroundColor": "#0055d4",
                 "text": "This is a button",
                 "url": "https://listmonk.app"
             }
