@@ -221,6 +221,20 @@ func installTemplates(q *models.Queries) (int, int) {
 		lo.Fatalf("error creating sample transactional template: %v", err)
 	}
 
+	// Sample visual campaign template.
+	visualTpl, err := fs.Get("/static/email-templates/default-visual.tpl")
+	if err != nil {
+		lo.Fatalf("error reading default visual template: %v", err)
+	}
+	visualSrc, err := fs.Get("/static/email-templates/default-visual.json")
+	if err != nil {
+		lo.Fatalf("error reading default visual template json: %v", err)
+	}
+
+	if err := q.CreateTemplate.Get(&campTplID, "Sample visual template", models.TemplateTypeCampaignVisual, "", visualTpl.ReadBytes(), visualSrc.ReadBytes()); err != nil {
+		lo.Fatalf("error creating default campaign template: %v", err)
+	}
+
 	return campTplID, archiveTplID
 }
 
