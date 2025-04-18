@@ -179,6 +179,7 @@ func initHTTPHandlers(e *echo.Echo, a *App) {
 		g.DELETE("/api/maintenance/subscriptions/unconfirmed", pm(a.GCSubscriptions, "settings:maintain"))
 
 		g.POST("/api/tx", pm(a.SendTxMessage, "tx:send"))
+		g.POST("/api/tx/external", pm(a.SendExternalTxMessage, "tx:send"))
 
 		g.GET("/api/profile", a.GetUserProfile)
 		g.PUT("/api/profile", a.UpdateUserProfile)
