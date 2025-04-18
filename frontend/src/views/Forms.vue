@@ -9,7 +9,6 @@
     <p v-else-if="publicLists.length === 0">
       {{ $t('forms.noPublicLists') }}
     </p>
-
     <div class="columns" v-else-if="publicLists.length > 0">
       <div class="column is-4">
         <h4>{{ $t('forms.publicLists') }}</h4>
@@ -24,13 +23,13 @@
           </li>
         </ul>
 
-        <template v-if="settings['app.enable_public_subscription_page']">
+        <template v-if="serverConfig.public_subscription.enabled">
           <hr />
           <h4>{{ $t('forms.publicSubPage') }}</h4>
           <p>
-            <a :href="`${settings['app.root_url']}/subscription/form`" target="_blank" rel="noopener noreferer"
+            <a :href="`${serverConfig.root_url}/subscription/form`" target="_blank" rel="noopener noreferer"
               data-cy="url">
-              {{ settings['app.root_url'] }}/subscription/form
+              {{ serverConfig.root_url }}/subscription/form
             </a>
           </p>
         </template>
@@ -68,7 +67,7 @@ export default Vue.extend({
 
   methods: {
     renderHTML() {
-      let h = `<form method="post" action="${this.settings['app.root_url']}/subscription/form" class="listmonk-form">\n`
+      let h = `<form method="post" action="${this.serverConfig.root_url}/subscription/form" class="listmonk-form">\n`
         + '  <div>\n'
         + `    <h3>${this.$t('public.sub')}</h3>\n`
         + '    <input type="hidden" name="nonce" />\n\n'
@@ -91,9 +90,9 @@ export default Vue.extend({
       });
 
       // Captcha?
-      if (this.settings['security.enable_captcha']) {
+      if (this.serverConfig.public_subscription.captcha_enabled) {
         h += '\n'
-          + `    <div class="h-captcha" data-sitekey="${this.settings['security.captcha_key']}"></div>\n`
+          + `    <div class="h-captcha" data-sitekey="${this.serverConfig.public_subscription.captcha_key}"></div>\n`
           + `    <${'script'} src="https://js.hcaptcha.com/1/api.js" async defer></${'script'}>\n`;
       }
 
@@ -107,7 +106,7 @@ export default Vue.extend({
   },
 
   computed: {
-    ...mapState(['loading', 'lists', 'settings']),
+    ...mapState(['loading', 'lists', 'serverConfig']),
 
     publicLists() {
       if (!this.lists.results) {
@@ -115,10 +114,6 @@ export default Vue.extend({
       }
       return this.lists.results.filter((l) => l.type === 'public');
     },
-  },
-
-  mounted() {
-    this.$api.getSettings();
   },
 
   watch: {
