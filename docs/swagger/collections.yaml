@@ -1912,16 +1912,39 @@ paths:
 
   /tx:
     post:
+      description: handles sending of transactional message to a subscriber
+      operationId: sendTxMessage
       tags:
         - Transactional
-      description: send message to a subscriber
-      operationId: transactWithSubscriber
       requestBody:
         description: email message to a subscriber
         content:
           application/json:
             schema:
               $ref: "#/components/schemas/TransactionalMessage"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: boolean
+
+  /tx/external:
+    post:
+      description: handles sending of transactional message to any email address without requiring the recipient to be a subscriber
+      operationId: sendExternalTxMessage
+      tags:
+        - Transactional
+      requestBody:
+        description: email message to external recipients
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ExternalTransactionalMessage"
       responses:
         "200":
           description: OK
@@ -4079,3 +4102,36 @@ components:
           type: string
         content_type:
           type: string
+
+    ExternalTransactionalMessage:
+      type: object
+      required:
+        - subscriber_emails
+        - template_id
+        - subject
+      properties:
+        subscriber_emails:
+          type: array
+          items:
+            type: string
+          description: List of email addresses to send the message to
+        template_id:
+          type: integer
+          description: ID of the template to use
+        subject:
+          type: string
+          description: Subject of the email
+        data:
+          type: object
+          description: Optional data to be used in the template
+        attachments:
+          type: array
+          items:
+            type: object
+            properties:
+              filename:
+                type: string
+              content:
+                type: string
+                format: binary
+          description: Optional file attachments
