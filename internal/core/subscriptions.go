@@ -35,12 +35,12 @@ func (c *Core) AddSubscriptions(subIDs, listIDs []int, status string) error {
 
 // AddSubscriptionsByQuery adds list subscriptions to subscribers by a given arbitrary query expression.
 // sourceListIDs is the list of list IDs to filter the subscriber query with.
-func (c *Core) AddSubscriptionsByQuery(query string, sourceListIDs, targetListIDs []int, status string, subStatus string) error {
+func (c *Core) AddSubscriptionsByQuery(searchStr, queryExp string, sourceListIDs, targetListIDs []int, status string, subStatus string) error {
 	if sourceListIDs == nil {
 		sourceListIDs = []int{}
 	}
 
-	err := c.q.ExecSubQueryTpl(sanitizeSQLExp(query), c.q.AddSubscribersToListsByQuery, sourceListIDs, c.db, subStatus, pq.Array(targetListIDs), status)
+	err := c.q.ExecSubQueryTpl(searchStr, queryExp, c.q.AddSubscribersToListsByQuery, sourceListIDs, c.db, subStatus, pq.Array(targetListIDs), status)
 	if err != nil {
 		c.log.Printf("error adding subscriptions by query: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
@@ -64,12 +64,12 @@ func (c *Core) DeleteSubscriptions(subIDs, listIDs []int) error {
 
 // DeleteSubscriptionsByQuery deletes list subscriptions from subscribers by a given arbitrary query expression.
 // sourceListIDs is the list of list IDs to filter the subscriber query with.
-func (c *Core) DeleteSubscriptionsByQuery(query string, sourceListIDs, targetListIDs []int, subStatus string) error {
+func (c *Core) DeleteSubscriptionsByQuery(searchStr, queryExp string, sourceListIDs, targetListIDs []int, subStatus string) error {
 	if sourceListIDs == nil {
 		sourceListIDs = []int{}
 	}
 
-	err := c.q.ExecSubQueryTpl(sanitizeSQLExp(query), c.q.DeleteSubscriptionsByQuery, sourceListIDs, c.db, subStatus, pq.Array(targetListIDs))
+	err := c.q.ExecSubQueryTpl(searchStr, queryExp, c.q.DeleteSubscriptionsByQuery, sourceListIDs, c.db, subStatus, pq.Array(targetListIDs))
 	if err != nil {
 		c.log.Printf("error deleting subscriptions by query: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
@@ -92,12 +92,12 @@ func (c *Core) UnsubscribeLists(subIDs, listIDs []int, listUUIDs []string) error
 
 // UnsubscribeListsByQuery sets list subscriptions to 'unsubscribed' by a given arbitrary query expression.
 // sourceListIDs is the list of list IDs to filter the subscriber query with.
-func (c *Core) UnsubscribeListsByQuery(query string, sourceListIDs, targetListIDs []int, subStatus string) error {
+func (c *Core) UnsubscribeListsByQuery(searchStr, queryExp string, sourceListIDs, targetListIDs []int, subStatus string) error {
 	if sourceListIDs == nil {
 		sourceListIDs = []int{}
 	}
 
-	err := c.q.ExecSubQueryTpl(sanitizeSQLExp(query), c.q.UnsubscribeSubscribersFromListsByQuery, sourceListIDs, c.db, subStatus, pq.Array(targetListIDs))
+	err := c.q.ExecSubQueryTpl(searchStr, queryExp, c.q.UnsubscribeSubscribersFromListsByQuery, sourceListIDs, c.db, subStatus, pq.Array(targetListIDs))
 	if err != nil {
 		c.log.Printf("error unsubscribing from lists by query: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,

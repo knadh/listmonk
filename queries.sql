@@ -309,7 +309,6 @@ SELECT (SELECT email FROM prof) as email,
 -- there's a COUNT() OVER() that still returns the total result count
 -- for pagination in the frontend, albeit being a field that'll repeat
 -- with every resultant row.
--- %s = arbitrary expression, %s = order by field, %s = order direction
 SELECT subscribers.* FROM subscribers
     LEFT JOIN subscriber_lists
     ON (
@@ -319,8 +318,9 @@ SELECT subscribers.* FROM subscribers
         AND ($2 = '' OR subscriber_lists.status = $2::subscription_status)
     )
     WHERE (CARDINALITY($1) = 0 OR subscriber_lists.list_id = ANY($1::INT[]))
-    %query%
-    ORDER BY %order% OFFSET $3 LIMIT (CASE WHEN $4 < 1 THEN NULL ELSE $4 END);
+    AND (CASE WHEN $3 != '' THEN name ~* $3 OR email ~* $3 ELSE TRUE END)
+    AND %query%
+    ORDER BY %order% OFFSET $4 LIMIT (CASE WHEN $5 < 1 THEN NULL ELSE $5 END);
 
 -- name: query-subscribers-count
 -- Replica of query-subscribers for obtaining the results count.
@@ -332,7 +332,9 @@ SELECT COUNT(*) AS total FROM subscribers
         AND subscriber_lists.subscriber_id = subscribers.id
         AND ($2 = '' OR subscriber_lists.status = $2::subscription_status)
     )
-    WHERE (CARDINALITY($1) = 0 OR subscriber_lists.list_id = ANY($1::INT[])) %s;
+    WHERE (CARDINALITY($1) = 0 OR subscriber_lists.list_id = ANY($1::INT[]))
+    AND (CASE WHEN $3 != '' THEN name ~* $3 OR email ~* $3 ELSE TRUE END)
+    AND %query%;
 
 -- name: query-subscribers-count-all
 -- Cached query for getting the "all" subscriber count without arbitrary conditions.
@@ -344,7 +346,6 @@ SELECT COALESCE(SUM(subscriber_count), 0) AS total FROM mat_list_subscriber_stat
 -- raw: true
 -- Unprepared statement for issuring arbitrary WHERE conditions for
 -- searching subscribers to do bulk CSV export.
--- %s = arbitrary expression
 SELECT subscribers.id,
        subscribers.uuid,
        subscribers.email,
@@ -363,8 +364,9 @@ SELECT subscribers.id,
     )
     WHERE subscriber_lists.list_id = ALL($1::INT[]) AND id > $2
     AND (CASE WHEN CARDINALITY($3::INT[]) > 0 THEN id=ANY($3) ELSE true END)
-    %query%
-    ORDER BY subscribers.id ASC LIMIT (CASE WHEN $5 < 1 THEN NULL ELSE $5 END);
+    AND (CASE WHEN $5 != '' THEN name ~* $5 OR email ~* $5 ELSE TRUE END)
+    AND %query%
+    ORDER BY subscribers.id ASC LIMIT (CASE WHEN $6 < 1 THEN NULL ELSE $6 END);
 
 -- name: query-subscribers-template
 -- raw: true
@@ -374,7 +376,7 @@ SELECT subscribers.id,
 --
 -- All queries that embed this query should expect
 -- $1=true/false (dry-run or not) and $2=[]INT (option list IDs).
--- That is, their positional arguments should start from $3.
+-- That is, their positional arguments should start from $4.
 SELECT subscribers.id FROM subscribers
 LEFT JOIN subscriber_lists
 ON (
@@ -383,17 +385,19 @@ ON (
     AND subscriber_lists.subscriber_id = subscribers.id
     AND ($3 = '' OR subscriber_lists.status = $3::subscription_status)
 )
-WHERE subscriber_lists.list_id = ALL($2::INT[]) %s
+WHERE subscriber_lists.list_id = ALL($2::INT[])
+    AND (CASE WHEN $4 != '' THEN name ~* $4 OR email ~* $4 ELSE TRUE END)
+    AND %query%
 LIMIT (CASE WHEN $1 THEN 1 END)
 
 -- name: delete-subscribers-by-query
 -- raw: true
-WITH subs AS (%s)
+WITH subs AS (%query%)
 DELETE FROM subscribers WHERE id=ANY(SELECT id FROM subs);
 
 -- name: blocklist-subscribers-by-query
 -- raw: true
-WITH subs AS (%s),
+WITH subs AS (%query%),
 b AS (
     UPDATE subscribers SET status='blocklisted', updated_at=NOW()
     WHERE id = ANY(SELECT id FROM subs)
@@ -403,22 +407,22 @@ UPDATE subscriber_lists SET status='unsubscribed', updated_at=NOW()
 
 -- name: add-subscribers-to-lists-by-query
 -- raw: true
-WITH subs AS (%s)
+WITH subs AS (%query%)
 INSERT INTO subscriber_lists (subscriber_id, list_id, status)
-    (SELECT a, b, (CASE WHEN $5 != '' THEN $5::subscription_status ELSE 'unconfirmed' END) FROM UNNEST(ARRAY(SELECT id FROM subs)) a, UNNEST($4::INT[]) b)
+    (SELECT a, b, (CASE WHEN $6 != '' THEN $6::subscription_status ELSE 'unconfirmed' END) FROM UNNEST(ARRAY(SELECT id FROM subs)) a, UNNEST($5::INT[]) b)
     ON CONFLICT (subscriber_id, list_id) DO NOTHING;
 
 -- name: delete-subscriptions-by-query
 -- raw: true
-WITH subs AS (%s)
+WITH subs AS (%query%)
 DELETE FROM subscriber_lists
-    WHERE (subscriber_id, list_id) = ANY(SELECT a, b FROM UNNEST(ARRAY(SELECT id FROM subs)) a, UNNEST($4::INT[]) b);
+    WHERE (subscriber_id, list_id) = ANY(SELECT a, b FROM UNNEST(ARRAY(SELECT id FROM subs)) a, UNNEST($5::INT[]) b);
 
 -- name: unsubscribe-subscribers-from-lists-by-query
 -- raw: true
-WITH subs AS (%s)
+WITH subs AS (%query%)
 UPDATE subscriber_lists SET status='unsubscribed', updated_at=NOW()
-    WHERE (subscriber_id, list_id) = ANY(SELECT a, b FROM UNNEST(ARRAY(SELECT id FROM subs)) a, UNNEST($4::INT[]) b);
+    WHERE (subscriber_id, list_id) = ANY(SELECT a, b FROM UNNEST(ARRAY(SELECT id FROM subs)) a, UNNEST($5::INT[]) b);
 
 
 -- lists

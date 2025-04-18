@@ -26,6 +26,7 @@ const (
 // subQueryReq is a "catch all" struct for reading various
 // subscriber related requests.
 type subQueryReq struct {
+	Search             string `json:"search"`
 	Query              string `json:"query"`
 	ListIDs            []int  `json:"list_ids"`
 	TargetListIDs      []int  `json:"target_list_ids"`
@@ -84,21 +85,32 @@ func (a *App) QuerySubscribers(c echo.Context) error {
 		return err
 	}
 
+	// Does the user have the subscribers:sql_query permission?
+	query := formatSQLExp(c.FormValue("query"))
+	if query != "" {
+		if !user.HasPerm(auth.PermSubscribersSqlQuery) {
+			return echo.NewHTTPError(http.StatusForbidden,
+				a.i18n.Ts("globals.messages.permissionDenied", "name", auth.PermSubscribersSqlQuery))
+		}
+	}
+
 	var (
-		// The "WHERE ?" bit.
-		query     = sanitizeSQLExp(c.FormValue("query"))
+		searchStr = strings.TrimSpace(c.FormValue("search"))
 		subStatus = c.FormValue("subscription_status")
-		orderBy   = c.FormValue("order_by")
 		order     = c.FormValue("order")
+		orderBy   = c.FormValue("order_by")
 		pg        = a.pg.NewFromURL(c.Request().URL.Query())
 	)
-	res, total, err := a.core.QuerySubscribers(query, listIDs, subStatus, order, orderBy, pg.Offset, pg.Limit)
+
+	// Query subscribers from the DB.
+	res, total, err := a.core.QuerySubscribers(searchStr, query, listIDs, subStatus, order, orderBy, pg.Offset, pg.Limit)
 	if err != nil {
 		return err
 	}
 
 	out := models.PageResults{
 		Query:   query,
+		Search:  searchStr,
 		Results: res,
 		Total:   total,
 		Page:    pg.Page,
@@ -128,9 +140,20 @@ func (a *App) ExportSubscribers(c echo.Context) error {
 	// Filter by subscription status
 	subStatus := c.QueryParam("subscription_status")
 
+	// Does the user have the subscribers:sql_query permission?
+	var (
+		searchStr = strings.TrimSpace(c.FormValue("search"))
+		query     = formatSQLExp(c.FormValue("query"))
+	)
+	if query != "" {
+		if !user.HasPerm(auth.PermSubscribersSqlQuery) {
+			return echo.NewHTTPError(http.StatusForbidden,
+				a.i18n.Ts("globals.messages.permissionDenied", "name", auth.PermSubscribersSqlQuery))
+		}
+	}
+
 	// Get the batched export iterator.
-	query := sanitizeSQLExp(c.FormValue("query"))
-	exp, err := a.core.ExportSubscribers(query, subIDs, listIDs, subStatus, a.cfg.DBBatchSize)
+	exp, err := a.core.ExportSubscribers(searchStr, query, subIDs, listIDs, subStatus, a.cfg.DBBatchSize)
 	if err != nil {
 		return err
 	}
@@ -325,7 +348,13 @@ func (a *App) ManageSubscriberLists(c echo.Context) error {
 	}
 
 	// Filter lists against the current user's permitted lists.
-	listIDs := user.FilterListsByPerm(auth.PermTypeManage, req.TargetListIDs)
+	listIDs := user.FilterListsByPerm(auth.PermTypeGet|auth.PermTypeManage, req.TargetListIDs)
+
+	// User doesn't have the required list permissions.
+	if len(listIDs) == 0 {
+		return echo.NewHTTPError(http.StatusForbidden,
+			a.i18n.Ts("globals.messages.permissionDenied", "name", "lists"))
+	}
 
 	// Run the action in the DB.
 	var err error
@@ -382,20 +411,34 @@ func (a *App) DeleteSubscribers(c echo.Context) error {
 // DeleteSubscribersByQuery bulk deletes based on an
 // arbitrary SQL expression.
 func (a *App) DeleteSubscribersByQuery(c echo.Context) error {
+	// Get the authenticated user.
+	user := auth.GetUser(c)
+
 	var req subQueryReq
 	if err := c.Bind(&req); err != nil {
 		return err
 	}
 
+	req.Search = strings.TrimSpace(req.Search)
+	req.Query = formatSQLExp(req.Query)
 	if req.All {
 		// If the "all" flag is set, ignore any subquery that may be present.
+		req.Search = ""
 		req.Query = ""
-	} else if req.Query == "" {
+	} else if req.Search == "" && req.Query == "" {
 		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.Ts("globals.messages.invalidFields", "name", "query"))
 	}
 
+	// Does the user have the subscribers:sql_query permission?
+	if req.Query != "" {
+		if !user.HasPerm(auth.PermSubscribersSqlQuery) {
+			return echo.NewHTTPError(http.StatusForbidden,
+				a.i18n.Ts("globals.messages.permissionDenied", "name", auth.PermSubscribersSqlQuery))
+		}
+	}
+
 	// Delete the subscribers from the DB.
-	if err := a.core.DeleteSubscribersByQuery(req.Query, req.ListIDs, req.SubscriptionStatus); err != nil {
+	if err := a.core.DeleteSubscribersByQuery(req.Search, req.Query, req.ListIDs, req.SubscriptionStatus); err != nil {
 		return err
 	}
 
@@ -405,17 +448,30 @@ func (a *App) DeleteSubscribersByQuery(c echo.Context) error {
 // BlocklistSubscribersByQuery bulk blocklists subscribers
 // based on an arbitrary SQL expression.
 func (a *App) BlocklistSubscribersByQuery(c echo.Context) error {
+	// Get the authenticated user.
+	user := auth.GetUser(c)
+
 	var req subQueryReq
 	if err := c.Bind(&req); err != nil {
 		return err
 	}
 
-	if req.Query == "" {
+	req.Search = strings.TrimSpace(req.Search)
+	req.Query = formatSQLExp(req.Query)
+	if req.Search == "" && req.Query == "" {
 		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.Ts("globals.messages.invalidFields", "name", "query"))
 	}
 
+	// Does the user have the subscribers:sql_query permission?
+	if req.Query != "" {
+		if !user.HasPerm(auth.PermSubscribersSqlQuery) {
+			return echo.NewHTTPError(http.StatusForbidden,
+				a.i18n.Ts("globals.messages.permissionDenied", "name", auth.PermSubscribersSqlQuery))
+		}
+	}
+
 	// Update the subscribers in the DB.
-	if err := a.core.BlocklistSubscribersByQuery(req.Query, req.ListIDs, req.SubscriptionStatus); err != nil {
+	if err := a.core.BlocklistSubscribersByQuery(req.Search, req.Query, req.ListIDs, req.SubscriptionStatus); err != nil {
 		return err
 	}
 
@@ -437,19 +493,33 @@ func (a *App) ManageSubscriberListsByQuery(c echo.Context) error {
 			a.i18n.T("subscribers.errorNoListsGiven"))
 	}
 
+	req.Search = strings.TrimSpace(req.Search)
+	req.Query = formatSQLExp(req.Query)
+	if req.Search == "" && req.Query == "" {
+		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.Ts("globals.messages.invalidFields", "name", "query"))
+	}
+
+	// Does the user have the subscribers:sql_query permission?
+	if req.Query != "" {
+		if !user.HasPerm(auth.PermSubscribersSqlQuery) {
+			return echo.NewHTTPError(http.StatusForbidden,
+				a.i18n.Ts("globals.messages.permissionDenied", "name", auth.PermSubscribersSqlQuery))
+		}
+	}
+
 	// Filter lists against the current user's permitted lists.
-	sourceListIDs := user.FilterListsByPerm(auth.PermTypeManage, req.ListIDs)
-	targetListIDs := user.FilterListsByPerm(auth.PermTypeManage, req.TargetListIDs)
+	sourceListIDs := user.FilterListsByPerm(auth.PermTypeGet|auth.PermTypeManage, req.ListIDs)
+	targetListIDs := user.FilterListsByPerm(auth.PermTypeGet|auth.PermTypeManage, req.TargetListIDs)
 
 	// Run the action in the DB.
 	var err error
 	switch req.Action {
 	case "add":
-		err = a.core.AddSubscriptionsByQuery(req.Query, sourceListIDs, targetListIDs, req.Status, req.SubscriptionStatus)
+		err = a.core.AddSubscriptionsByQuery(req.Search, req.Query, sourceListIDs, targetListIDs, req.Status, req.SubscriptionStatus)
 	case "remove":
-		err = a.core.DeleteSubscriptionsByQuery(req.Query, sourceListIDs, targetListIDs, req.SubscriptionStatus)
+		err = a.core.DeleteSubscriptionsByQuery(req.Search, req.Query, sourceListIDs, targetListIDs, req.SubscriptionStatus)
 	case "unsubscribe":
-		err = a.core.UnsubscribeListsByQuery(req.Query, sourceListIDs, targetListIDs, req.SubscriptionStatus)
+		err = a.core.UnsubscribeListsByQuery(req.Search, req.Query, sourceListIDs, targetListIDs, req.SubscriptionStatus)
 	default:
 		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("subscribers.invalidAction"))
 	}
@@ -583,15 +653,15 @@ func (a *App) filterListQueryByPerm(param string, qp url.Values, user auth.User)
 	return listIDs, nil
 }
 
-// sanitizeSQLExp does basic sanitisation on arbitrary
+// formatSQLExp does basic sanitisation on arbitrary
 // SQL query expressions coming from the frontend.
-func sanitizeSQLExp(q string) string {
+func formatSQLExp(q string) string {
+	q = strings.TrimSpace(q)
 	if len(q) == 0 {
 		return ""
 	}
 
 	// Remove semicolon suffix.
-	q = strings.TrimSpace(q)
 	if q[len(q)-1] == ';' {
 		q = q[:len(q)-1]
 	}

@@ -123,6 +123,7 @@ var regTplFuncs = []regTplFunc{
 type PageResults struct {
 	Results any `json:"results"`
 
+	Search  string `json:"search"`
 	Query   string `json:"query"`
 	Total   int    `json:"total"`
 	PerPage int    `json:"per_page"`
