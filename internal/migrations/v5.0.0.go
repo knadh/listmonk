@@ -74,5 +74,20 @@ func V5_0_0(db *sqlx.DB, fs stuffbin.FileSystem, ko *koanf.Koanf, lo *log.Logger
 		return err
 	}
 
+	// Insert visual campaign template.
+	visualTpl, err := fs.Get("/static/email-templates/default-visual.tpl")
+	if err != nil {
+		lo.Fatalf("error reading default visual template: %v", err)
+	}
+	visualSrc, err := fs.Get("/static/email-templates/default-visual.json")
+	if err != nil {
+		lo.Fatalf("error reading default visual template json: %v", err)
+	}
+
+	if _, err := db.Exec(`INSERT INTO templates (name, type, subject, body, body_source) VALUES($1, $2, $3, $4, $5)`,
+		"Sample visual template", "campaign_visual", "", visualTpl.ReadBytes(), visualSrc.ReadBytes()); err != nil {
+		return err
+	}
+
 	return nil
 }
