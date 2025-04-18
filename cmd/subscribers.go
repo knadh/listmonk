@@ -347,7 +347,13 @@ func (a *App) ManageSubscriberLists(c echo.Context) error {
 	}
 
 	// Filter lists against the current user's permitted lists.
-	listIDs := user.FilterListsByPerm(auth.PermTypeManage, req.TargetListIDs)
+	listIDs := user.FilterListsByPerm(auth.PermTypeGet|auth.PermTypeManage, req.TargetListIDs)
+
+	// User doesn't have the required list permissions.
+	if len(listIDs) == 0 {
+		return echo.NewHTTPError(http.StatusForbidden,
+			a.i18n.Ts("globals.messages.permissionDenied", "name", "lists"))
+	}
 
 	// Run the action in the DB.
 	var err error
@@ -501,8 +507,8 @@ func (a *App) ManageSubscriberListsByQuery(c echo.Context) error {
 	}
 
 	// Filter lists against the current user's permitted lists.
-	sourceListIDs := user.FilterListsByPerm(auth.PermTypeManage, req.ListIDs)
-	targetListIDs := user.FilterListsByPerm(auth.PermTypeManage, req.TargetListIDs)
+	sourceListIDs := user.FilterListsByPerm(auth.PermTypeGet|auth.PermTypeManage, req.ListIDs)
+	targetListIDs := user.FilterListsByPerm(auth.PermTypeGet|auth.PermTypeManage, req.TargetListIDs)
 
 	// Run the action in the DB.
 	var err error
