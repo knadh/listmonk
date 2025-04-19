@@ -385,6 +385,36 @@ func (c *Core) GetCampaignAnalyticsCounts(campIDs []int, typ, fromDate, toDate s
 	return out, nil
 }
 
+func (c *Core) GetCampaignIndividualViews(campIDs []int, fromDate, toDate string) ([]models.CampaignIndividualViews, error) {
+    out := []models.CampaignIndividualViews{}
+    if err := c.q.GetCampaignIndividualViews.Select(&out, pq.Array(campIDs), fromDate, toDate); err != nil{
+        c.log.Printf("error fetching campaign: %v", err)
+        return nil, echo.NewHTTPError(http.StatusInternalServerError,
+            c.i18n.Ts("globals.messages.errorFetching", "name", "{globals.terms.analytics}", "error", pqErrMsg(err)))
+    }
+    return out, nil
+}
+
+func (c *Core) GetCampaignIndividualLinkClicks(campIDs []int, fromDate, toDate string) ([]models.CampaignIndividualLinkClicks, error) {
+    out := []models.CampaignIndividualLinkClicks{}
+    if err := c.q.GetIndividualLinkClicks.Select(&out, pq.Array(campIDs), fromDate, toDate); err != nil{
+        c.log.Printf("error fetching campaign: %v", err)
+        return nil, echo.NewHTTPError(http.StatusInternalServerError,
+            c.i18n.Ts("globals.messages.errorFetching", "name", "{globals.terms.analytics}", "error", pqErrMsg(err)))
+    }
+    return out, nil
+}
+
+func (c *Core) GetCampaignAllIndividualClickUsers(campIDs []int, fromDate, toDate string) ([]models.CampaignIndividualLinkClicksUsers, error) {
+    out := []models.CampaignIndividualLinkClicksUsers{}
+    if err := c.q.GetIndividualLinksClicksPerLinkPerUser.Select(&out, pq.Array(campIDs), fromDate, toDate); err != nil{
+        c.log.Printf("error fetching campaign: %v", err)
+        return nil, echo.NewHTTPError(http.StatusInternalServerError,
+            c.i18n.Ts("globals.messages.errorFetching", "name", "{globals.terms.analytics}", "error", pqErrMsg(err)))
+    }
+    return out, nil
+}
+
 // GetCampaignAnalyticsLinks returns link click analytics for the given campaign IDs.
 func (c *Core) GetCampaignAnalyticsLinks(campIDs []int, typ, fromDate, toDate string) ([]models.CampaignAnalyticsLink, error) {
 	out := []models.CampaignAnalyticsLink{}
