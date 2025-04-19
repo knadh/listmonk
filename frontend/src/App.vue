@@ -53,8 +53,7 @@
 
       <!-- body //-->
       <div class="main">
-        <div class="global-notices"
-          v-if="serverConfig.needs_restart || serverConfig.update || serverConfig.has_legacy_user">
+        <div class="global-notices" v-if="isGlobalNotices">
           <div v-if="serverConfig.needs_restart" class="notification is-danger">
             {{ $t('settings.needsRestart') }}
             &mdash;
@@ -187,6 +186,14 @@ export default Vue.extend({
 
   computed: {
     ...mapState(['serverConfig', 'profile']),
+
+    isGlobalNotices() {
+      return (this.serverConfig.needs_restart
+        || this.serverConfig.has_legacy_user
+        || (this.serverConfig.update
+        && this.serverConfig.update.messages
+        && this.serverConfig.update.messages.length > 0));
+    },
 
     version() {
       return import.meta.env.VUE_APP_VERSION;

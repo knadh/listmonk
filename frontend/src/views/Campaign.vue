@@ -27,8 +27,8 @@
           <b-field grouped v-if="isEditing && canEdit">
             <b-field expanded>
               <b-button expanded @click="() => onSubmit('update')" :loading="loading.campaigns" type="is-primary"
-                icon-left="content-save-outline" data-cy="btn-save">
-                {{ $t('globals.buttons.saveChanges') }}
+                icon-left="content-save-outline" data-cy="btn-save" aria-keyshortcuts="ctrl+s">
+                <span class="has-kbd">{{ $t('globals.buttons.saveChanges') }} <span class="kbd">Ctrl+S</span></span>
               </b-button>
             </b-field>
             <b-field expanded v-if="canStart">
@@ -81,35 +81,37 @@
                 <list-selector v-model="form.lists" :selected="form.lists" :all="lists.results" :disabled="!canEdit"
                   :label="$t('globals.terms.lists')" :placeholder="$t('campaigns.sendToLists')" />
 
-                <b-field :label="$tc('globals.terms.template')" label-position="on-border">
-                  <b-select :placeholder="$tc('globals.terms.template')" v-model="form.templateId" name="template"
-                    :disabled="!canEdit" required>
-                    <template v-for="t in templates">
-                      <option v-if="t.type === 'campaign'" :value="t.id" :key="t.id">
-                        {{ t.name }}
-                      </option>
-                    </template>
-                  </b-select>
-                </b-field>
-
-                <b-field :label="$tc('globals.terms.messenger')" label-position="on-border">
-                  <b-select :placeholder="$tc('globals.terms.messenger')" v-model="form.messenger" name="messenger"
-                    :disabled="!canEdit" required>
-                    <template v-if="emailMessengers.length > 1">
-                      <optgroup label="email">
-                        <option v-for="m in emailMessengers" :value="m" :key="m">
-                          {{ m }}
+                <div class="columns">
+                  <div class="column is-6">
+                    <b-field :label="$tc('globals.terms.messenger')" label-position="on-border">
+                      <b-select :placeholder="$tc('globals.terms.messenger')" v-model="form.messenger" name="messenger"
+                        :disabled="!canEdit" required expanded>
+                        <template v-if="emailMessengers.length > 1">
+                          <optgroup label="email">
+                            <option v-for="m in emailMessengers" :value="m" :key="m">
+                              {{ m }}
+                            </option>
+                          </optgroup>
+                        </template>
+                        <template v-else>
+                          <option value="email">email</option>
+                        </template>
+                        <option v-for="m in otherMessengers" :value="m" :key="m">{{ m }}</option>
+                      </b-select>
+                    </b-field>
+                  </div>
+                  <div class="column is-6">
+                    <b-field :label="$t('campaigns.format')" label-position="on-border" class="mr-4 mb-0">
+                      <b-select v-model="form.content.contentType" :disabled="!canEdit || isEditing" value="richtext"
+                        expanded>
+                        <option v-for="(name, f) in contentTypes" :key="f" name="format" :value="f"
+                          :data-cy="`check-${f}`">
+                          {{ name }}
                         </option>
-                      </optgroup>
-                    </template>
-                    <template v-else>
-                      <option value="email">email</option>
-                    </template>
-                    <option v-for="m in otherMessengers" :value="m" :key="m">
-                      {{ m }}
-                    </option>
-                  </b-select>
-                </b-field>
+                      </b-select>
+                    </b-field>
+                  </div>
+                </div>
 
                 <b-field :label="$t('globals.terms.tags')" label-position="on-border">
                   <b-taginput v-model="form.tags" name="tags" :disabled="!canEdit" ellipsis icon="tag-outline"
@@ -180,8 +182,8 @@
       </b-tab-item><!-- campaign -->
 
       <b-tab-item :label="$t('campaigns.content')" icon="text" :disabled="isNew" value="content">
-        <editor v-model="form.content" :id="data.id" :title="data.name" :template-id="form.templateId"
-          :content-type="data.contentType" :body="data.body" :disabled="!canEdit" />
+        <editor v-if="data.id" v-model="form.content" :id="data.id" :title="data.name" :disabled="!canEdit"
+          :templates="templates" :content-types="contentTypes" />
 
         <div class="columns">
           <div class="column is-6">
@@ -314,6 +316,14 @@ export default Vue.extend({
 
   data() {
     return {
+      contentTypes: Object.freeze({
+        richtext: this.$t('campaigns.richText'),
+        html: this.$t('campaigns.rawHTML'),
+        markdown: this.$t('campaigns.markdown'),
+        plain: this.$t('campaigns.plainText'),
+        visual: this.$t('campaigns.visual'),
+      }),
+
       isNew: false,
       isEditing: false,
       isHeadersVisible: false,
@@ -335,11 +345,15 @@ export default Vue.extend({
         headersStr: '[]',
         headers: [],
         messenger: 'email',
-        templateId: 0,
         lists: [],
         tags: [],
         sendAt: null,
-        content: { contentType: 'richtext', body: '' },
+        content: {
+          contentType: 'richtext',
+          body: '',
+          bodySource: null,
+          templateId: null,
+        },
         altbody: null,
         media: [],
 
@@ -459,7 +473,12 @@ export default Vue.extend({
           archiveMetaStr: data.archiveMeta ? JSON.stringify(data.archiveMeta, null, 4) : '{}',
 
           // The structure that is populated by editor input event.
-          content: { contentType: data.contentType, body: data.body },
+          content: {
+            contentType: data.contentType,
+            body: data.body,
+            bodySource: data.bodySource,
+            templateId: data.templateId,
+          },
         };
         this.isAttachFieldVisible = this.form.media.length > 0;
 
@@ -483,7 +502,7 @@ export default Vue.extend({
         type: 'regular',
         headers: this.form.headers,
         tags: this.form.tags,
-        template_id: this.form.templateId,
+        template_id: this.form.content.templateId,
         content_type: this.form.content.contentType,
         body: this.form.content.body,
         altbody: this.form.content.contentType !== 'plain' ? this.form.altbody : null,
@@ -504,15 +523,13 @@ export default Vue.extend({
         subject: this.form.subject,
         lists: this.form.lists.map((l) => l.id),
         from_email: this.form.fromEmail,
-        content_type: 'richtext',
+        content_type: this.form.content.contentType,
         messenger: this.form.messenger,
         type: 'regular',
         tags: this.form.tags,
         send_at: this.form.sendLater ? this.form.sendAtDate : null,
         headers: this.form.headers,
-        template_id: this.form.templateId,
         media: this.form.media.map((m) => m.id),
-        // body: this.form.body,
       };
 
       this.$api.createCampaign(data).then((d) => {
@@ -533,9 +550,10 @@ export default Vue.extend({
         tags: this.form.tags,
         send_at: this.form.sendLater ? this.form.sendAtDate : null,
         headers: this.form.headers,
-        template_id: this.form.templateId,
+        template_id: this.form.content.templateId,
         content_type: this.form.content.contentType,
         body: this.form.content.body,
+        body_source: this.form.content.bodySource,
         altbody: this.form.content.contentType !== 'plain' ? this.form.altbody : null,
         archive: this.form.archive,
         archive_template_id: this.form.archiveTemplateId,
@@ -722,7 +740,8 @@ export default Vue.extend({
     this.$api.getTemplates().then((data) => {
       if (data.length > 0) {
         if (!this.form.templateId) {
-          this.form.templateId = data.find((i) => i.isDefault === true).id;
+          const tpl = data.find((i) => i.isDefault === true);
+          this.form.templateId = tpl.id;
         }
       }
     });
@@ -741,6 +760,14 @@ export default Vue.extend({
     this.$nextTick(() => {
       this.$refs.focus.focus();
     });
+
+    this.$events.$on('campaign.update', () => {
+      this.onSubmit('update');
+    });
+  },
+
+  beforeDestroy() {
+    this.$events.$off('campaign.update');
   },
 });
 </script>

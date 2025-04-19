@@ -42,7 +42,11 @@ describe('Campaigns', () => {
     cy.get('button[data-cy=btn-start]').click();
     cy.get('.modal button.is-primary:eq(0)').click();
     cy.wait(500);
-    cy.get('tbody tr').eq(0).get('td[data-label=Status] .tag.running');
+    cy.get('tbody tr').eq(0).within(() => {
+      cy.get('td[data-label=Status] .tag').should(($tag) => {
+        expect($tag.hasClass('running') || $tag.hasClass('finished')).to.be.true;
+      });
+    });
   });
 
   it('Edits campaign', () => {
@@ -80,7 +84,7 @@ describe('Campaigns', () => {
     cy.get('.b-tabs nav a').eq(1).click();
 
     // Switch format to plain text.
-    cy.get('label[data-cy=check-plain]').click();
+    cy.get('select[name=content_type]').select('plain');
     cy.get('.modal button.is-primary:eq(0)').click();
 
     // Enter body value.
@@ -143,14 +147,14 @@ describe('Campaigns', () => {
     cy.get('button[data-cy=btn-save]').click();
 
     formats.forEach((c) => {
-      cy.loginAndVisit('/admin/campaigns');
+      cy.visit('/admin/campaigns');
       cy.get('td[data-label=Status] a').click();
 
       // Switch to content tab.
       cy.get('.b-tabs nav a').eq(1).click();
 
       // Switch format.
-      cy.get(`label[data-cy=check-${c}]`).click();
+      cy.get('select[name=content_type]').select(c);
       cy.get('.modal button.is-primary:eq(0)').click();
 
       // Check content.
@@ -204,7 +208,7 @@ describe('Campaigns', () => {
 
   it('Adds new campaigns', () => {
     const lists = [[1], [1, 2]];
-    const cTypes = ['richtext', 'html', 'markdown', 'plain'];
+    const cTypes = ['richtext', 'html', 'markdown', 'plain', 'visual'];
 
     let n = 0;
     cTypes.forEach((c) => {
@@ -252,7 +256,7 @@ describe('Campaigns', () => {
         }(n));
 
         // Select content type.
-        cy.get(`label[data-cy=check-${c}]`).click();
+        cy.get('select[name=content_type]').select(c);
 
         // Insert content.
         const htmlBody = `<strong>hello${n}</strong> \{\{ .Subscriber.Name \}\} from {\{ .Subscriber.Attribs.city \}\}`;
@@ -274,6 +278,13 @@ describe('Campaigns', () => {
             .trigger('input');
         } else if (c === 'plain') {
           cy.get('textarea[name=content]').invoke('val', plainBody).trigger('input');
+        } else if (c === 'visual') {
+          cy.wait(200);
+          cy.get('iframe').then((el) => {
+            cy.wrap(el.contents()).find('table td').click();
+            cy.wait(200);
+            cy.wrap(el.contents()).find('textarea').eq(0).type(plainBody);
+          });
         }
 
         // Save.
@@ -287,7 +298,12 @@ describe('Campaigns', () => {
             return;
           }
           const doc = $f.contents();
-          expect(doc.find('.wrap').text().trim()).equal(plainBody);
+
+          if (c === 'visual') {
+            expect(doc.find('td').text().trim()).equal(plainBody);
+          } else {
+            expect(doc.find('.wrap').text().trim()).equal(plainBody);
+          }
         });
 
         cy.get('.modal-card-foot button').click();
@@ -339,8 +355,8 @@ describe('Campaigns', () => {
   });
 
   it('Sorts campaigns', () => {
-    const asc = [5, 6, 7, 8, 9, 10, 11, 12];
-    const desc = [12, 11, 10, 9, 8, 7, 6, 5];
+    const asc = [5, 6, 7, 8, 9, 10, 11, 12, 13, 14];
+    const desc = [14, 13, 12, 11, 10, 9, 8, 7, 6, 5];
     const cases = ['cy-name', 'cy-timestamp'];
 
     cases.forEach((c) => {

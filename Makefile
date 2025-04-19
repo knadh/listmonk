@@ -11,13 +11,25 @@ GOPATH ?= $(HOME)/go
 STUFFBIN ?= $(GOPATH)/bin/stuffbin
 FRONTEND_YARN_MODULES = frontend/node_modules
 FRONTEND_DIST = frontend/dist
+FRONTEND_EMAIL_BUILDER_DIST_FINAL = frontend/public/static/email-builder
 FRONTEND_DEPS = \
 	$(FRONTEND_YARN_MODULES) \
+	$(FRONTEND_EMAIL_BUILDER_DIST_FINAL) \
 	frontend/index.html \
 	frontend/package.json \
 	frontend/vite.config.js \
 	frontend/.eslintrc.js \
 	$(shell find frontend/fontello frontend/public frontend/src -type f)
+
+FRONTEND_EMAIL_BUILDER = frontend/email-builder
+FRONTEND_EMAIL_BUILDER_YARN_MODULES = $(FRONTEND_EMAIL_BUILDER)/node_modules
+FRONTEND_EMAIL_BUILDER_DIST = $(FRONTEND_EMAIL_BUILDER)/dist
+FRONTEND_EMAIL_BUILDER_DEPS = \
+	$(FRONTEND_EMAIL_BUILDER_YARN_MODULES) \
+	$(FRONTEND_EMAIL_BUILDER)/package.json \
+	$(FRONTEND_EMAIL_BUILDER)/tsconfig.json \
+	$(FRONTEND_EMAIL_BUILDER)/vite.config.ts \
+	$(shell find $(FRONTEND_EMAIL_BUILDER)/src -type f)
 
 BIN := listmonk
 STATIC := config.toml.sample \
@@ -37,6 +49,10 @@ $(FRONTEND_YARN_MODULES): frontend/package.json frontend/yarn.lock
 	cd frontend && $(YARN) install
 	touch -c $(FRONTEND_YARN_MODULES)
 
+$(FRONTEND_EMAIL_BUILDER_YARN_MODULES): frontend/package.json frontend/yarn.lock
+	cd $(FRONTEND_EMAIL_BUILDER) && $(YARN) install
+	touch -c $(FRONTEND_EMAIL_BUILDER_YARN_MODULES)
+
 # Build the backend to ./listmonk.
 $(BIN): $(shell find . -type f -name "*.go") go.mod go.sum schema.sql queries.sql permissions.json
 	CGO_ENABLED=0 go build -o ${BIN} -ldflags="-s -w -X 'main.buildString=${BUILDSTR}' -X 'main.versionString=${VERSION}'" cmd/*.go
@@ -51,13 +67,26 @@ $(FRONTEND_DIST): $(FRONTEND_DEPS)
 	export VUE_APP_VERSION="${VERSION}" && cd frontend && $(YARN) build
 	touch -c $(FRONTEND_DIST)
 
+# Build the JS email-builder dist.
+$(FRONTEND_EMAIL_BUILDER_DIST): $(FRONTEND_EMAIL_BUILDER_DEPS)
+	export VUE_APP_VERSION="${VERSION}" && cd $(FRONTEND_EMAIL_BUILDER) && $(YARN) build
+	touch -c $(FRONTEND_EMAIL_BUILDER_DIST)
+
+# Copy the build assets to frontend.
+$(FRONTEND_EMAIL_BUILDER_DIST_FINAL): $(FRONTEND_EMAIL_BUILDER_DIST)
+	mkdir -p $(FRONTEND_EMAIL_BUILDER_DIST_FINAL)
+	cp -r $(FRONTEND_EMAIL_BUILDER_DIST)/* $(FRONTEND_EMAIL_BUILDER_DIST_FINAL)
+	touch -c $(FRONTEND_EMAIL_BUILDER_DIST_FINAL)
 
 .PHONY: build-frontend
-build-frontend: $(FRONTEND_DIST)
+build-frontend: $(FRONTEND_EMAIL_BUILDER_DIST_FINAL) $(FRONTEND_DIST)
+
+.PHONY: build-email-builder
+build-email-builder: $(FRONTEND_EMAIL_BUILDER_DIST_FINAL)
 
 # Run the JS frontend server in dev mode.
 .PHONY: run-frontend
-run-frontend:
+run-frontend: $(FRONTEND_EMAIL_BUILDER_DIST_FINAL)
 	export VUE_APP_VERSION="${VERSION}" && cd frontend && $(YARN) dev
 
 # Run Go tests.

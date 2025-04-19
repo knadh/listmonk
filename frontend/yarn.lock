@@ -470,6 +470,11 @@
   resolved "https://registry.yarnpkg.com/@types/estree/-/estree-1.0.6.tgz#628effeeae2064a1b4e79f78e81d87b7e5fc7b50"
   integrity sha512-AYnb1nQyY49te+VRAVgmzfcgjYS91mY5P0TKUDCLEM+gNnA+3T6rWITXRLYCpahpqSQbN5cE+gHpnPyXjHWxcw==
 
+"@types/js-beautify@^1.14.3":
+  version "1.14.3"
+  resolved "https://registry.yarnpkg.com/@types/js-beautify/-/js-beautify-1.14.3.tgz#6ced76f79935e37e0d613110dea369881d93c1ff"
+  integrity sha512-FMbQHz+qd9DoGvgLHxeqqVPaNRffpIu5ZjozwV8hf9JAGpIOzuAf4wGbRSo8LNITHqGjmmVjaMggTT5P4v4IHg==
+
 "@types/json5@^0.0.29":
   version "0.0.29"
   resolved "https://registry.yarnpkg.com/@types/json5/-/json5-0.0.29.tgz#ee28707ae94e11d2b827bcbe5270bcea7f3e71ee"
@@ -2076,6 +2081,11 @@ indent-string@^4.0.0:
   version "4.0.0"
   resolved "https://registry.yarnpkg.com/indent-string/-/indent-string-4.0.0.tgz#624f8f4497d619b2d9768531d58f4122854d7251"
   integrity sha512-EdDDZu4A2OyIK7Lr/2zG+w5jmbuk1DVBnEwREQvBzspBJkCEbRa8GxU1lghYcaGJCnRWibjDXlq779X1/y5xwg==
+
+indent.js@^0.3.5:
+  version "0.3.5"
+  resolved "https://registry.yarnpkg.com/indent.js/-/indent.js-0.3.5.tgz#e2fefa04043b7be69c33635dc9e0cfb9cc7c4d7f"
+  integrity sha512-wiTA5fEz0kc8tHzY6CSujl/k62WVNvTxAZzmPe5V7MYxRCeGGibPCIYWYBzPp/bcJh3CXUO/8qrTrO/x9s1i2Q==
 
 inflight@^1.0.4:
   version "1.0.6"
