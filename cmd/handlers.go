@@ -133,6 +133,9 @@ func initHTTPHandlers(e *echo.Echo, a *App) {
 		g.GET("/api/subscribers/export",
 			pm(middleware.GzipWithConfig(middleware.GzipConfig{Level: 9})(a.ExportSubscribers), "subscribers:get_all", "subscribers:get"))
 
+		g.GET("/api/campaigns/analytics/individual_views", handleGetCampaignIndividualViews)
+		g.GET("/api/campaigns/analytics/individual_clicks", handleGetCampaignIndividualLinkClicks)               //, "campaigns:get_indiv_cpg_link_clicks"))
+		g.GET("/api/campaigns/analytics/get_individual_clicks_data", handleGetCampaignIndividualLinkClicksUsers) //, "campaigns:get_indiv_cpg_link_clicks_users"))
 		g.GET("/api/import/subscribers", pm(a.GetImportSubscribers, "subscribers:import"))
 		g.GET("/api/import/subscribers/logs", pm(a.GetImportSubscriberStats, "subscribers:import"))
 		g.POST("/api/import/subscribers", pm(a.ImportSubscribers, "subscribers:import"))
