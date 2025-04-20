@@ -72,10 +72,11 @@
             </b-tag>
             <router-link :to="{ name: 'campaign', params: { id: props.row.id } }">
               {{ props.row.name }}
+              <copy-text :text="props.row.name" hide-text />
             </router-link>
           </p>
           <p class="is-size-7 has-text-grey">
-            {{ props.row.subject }}
+            <copy-text :text="props.row.subject" />
           </p>
           <b-taglist>
             <b-tag class="is-small" v-for="t in props.row.tags" :key="t">
@@ -265,11 +266,13 @@ import Vue from 'vue';
 import { mapState } from 'vuex';
 import CampaignPreview from '../components/CampaignPreview.vue';
 import EmptyPlaceholder from '../components/EmptyPlaceholder.vue';
+import CopyText from '../components/CopyText.vue';
 
 export default Vue.extend({
   components: {
     CampaignPreview,
     EmptyPlaceholder,
+    CopyText,
   },
 
   data() {

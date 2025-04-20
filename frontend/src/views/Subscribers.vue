@@ -108,6 +108,7 @@
         <a :href="`/subscribers/${props.row.id}`" @click.prevent="showEditForm(props.row)"
           :class="{ 'blocklisted': props.row.status === 'blocklisted' }">
           {{ props.row.email }}
+          <copy-text :text="`${props.row.email}`" hide-text />
         </a>
         <b-tag v-if="props.row.status !== 'enabled'" :class="props.row.status" data-cy="blocklisted">
           {{ $t(`subscribers.status.${props.row.status}`) }}
@@ -130,6 +131,7 @@
         <a :href="`/subscribers/${props.row.id}`" @click.prevent="showEditForm(props.row)"
           :class="{ 'blocklisted': props.row.status === 'blocklisted' }">
           {{ props.row.name }}
+          <copy-text :text="`${props.row.name}`" hide-text />
         </a>
       </b-table-column>
 
@@ -194,11 +196,13 @@ import EmptyPlaceholder from '../components/EmptyPlaceholder.vue';
 import { uris } from '../constants';
 import SubscriberBulkList from './SubscriberBulkList.vue';
 import SubscriberForm from './SubscriberForm.vue';
+import CopyText from '../components/CopyText.vue';
 
 export default Vue.extend({
   components: {
     SubscriberForm,
     SubscriberBulkList,
+    CopyText,
     EmptyPlaceholder,
   },
 
