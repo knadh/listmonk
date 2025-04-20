@@ -65,10 +65,10 @@
       height="65vh" ref="visualEditor" />
 
     <!-- raw html editor //-->
-    <html-editor v-if="self.contentType === 'html'" v-model="self.body" />
+    <code-editor lang="html" v-if="self.contentType === 'html'" v-model="self.body" key="editor-html" />
 
     <!-- markdown editor //-->
-    <markdown-editor v-if="self.contentType === 'markdown'" v-model="self.body" />
+    <code-editor lang="markdown" v-if="self.contentType === 'markdown'" v-model="self.body" key="editor-markdown" />
 
     <!-- plain text //-->
     <b-input v-if="self.contentType === 'plain'" v-model="self.body" type="textarea" name="content" ref="plainEditor"
@@ -86,19 +86,17 @@ import TurndownService from 'turndown';
 import { mapState } from 'vuex';
 
 import CampaignPreview from './CampaignPreview.vue';
-import HTMLEditor from './HTMLEditor.vue';
-import MarkdownEditor from './MarkdownEditor.vue';
 import VisualEditor from './VisualEditor.vue';
 import RichtextEditor from './RichtextEditor.vue';
 import markdownToVisualBlock from './editor';
+import CodeEditor from './CodeEditor.vue';
 
 const turndown = new TurndownService();
 
 export default {
   components: {
     CampaignPreview,
-    'html-editor': HTMLEditor,
-    'markdown-editor': MarkdownEditor,
+    'code-editor': CodeEditor,
     'visual-editor': VisualEditor,
     'richtext-editor': RichtextEditor,
   },

@@ -693,6 +693,7 @@ export default Vue.extend({
       this.form.lists = this.selectedLists;
     },
 
+    // eslint-disable-next-line func-names
     'data.sendAt': function () {
       if (this.data.sendAt !== null) {
         this.form.sendLater = true;

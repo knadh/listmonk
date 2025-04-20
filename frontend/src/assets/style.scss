@@ -296,13 +296,28 @@ body.is-noscroll {
 }
 
 /* WYSIWYG / HTML code editor */
-.html-editor, .plain-editor textarea, .markdown-editor {
+.plain-editor textarea, .code-editor {
   position: relative;
   width: 100%;
   min-height: 250px;
   height: 65vh;
   border: 1px solid $grey-lighter;
   border-radius: 2px;
+
+  .cm-editor {
+    height: 100%;
+  }
+}
+
+.code-editor {
+  .cm-lineNumbers .cm-gutterElement{
+    color: #aaa;
+    font-size: 0.875rem;
+    padding-right: 10px;
+  }
+  .cm-gutters {
+    margin-right: 10px;
+  }
 }
 
 .alt-body textarea {
@@ -977,8 +992,8 @@ section.analytics {
   .box {
     margin-bottom: 30px;
   }
-  .html-editor {
-    height: auto;
+  .code-editor {
+    height: 20vh;
     min-height: 350px;
   }
 }

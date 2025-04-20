@@ -5,7 +5,7 @@
     <b-modal scroll="keep" :width="1200" :aria-modal="true" :active.sync="isRichtextSourceVisible">
       <div>
         <section expanded class="modal-card-body preview">
-          <html-editor v-model="richTextSourceBody" />
+          <code-editor lang="html" v-model="richTextSourceBody" key="richtext-source" />
         </section>
         <footer class="modal-card-foot has-text-right">
           <b-button @click="onFormatRichtextHTML">
@@ -24,7 +24,7 @@
     <b-modal scroll="keep" :width="750" :aria-modal="true" :active.sync="isInsertHTMLVisible">
       <div>
         <section expanded class="modal-card-body preview">
-          <html-editor v-model="insertHTMLSnippet" />
+          <code-editor lang="html" v-model="insertHTMLSnippet" key="richtext-snippet" />
         </section>
         <footer class="modal-card-foot has-text-right">
           <b-button @click="onFormatRichtextHTMLSnippet">
@@ -84,7 +84,7 @@ import 'tinymce/skins/ui/oxide/skin.css';
 import 'tinymce/themes/silver';
 
 import { colors, uris } from '../constants';
-import HTMLEditor from './HTMLEditor.vue';
+import CodeEditor from './CodeEditor.vue';
 import Media from '../views/Media.vue';
 
 // Map of listmonk language codes to corresponding TinyMCE language files.
@@ -105,7 +105,7 @@ export default {
   components: {
     Media,
     'tiny-mce': TinyMce,
-    'html-editor': HTMLEditor,
+    'code-editor': CodeEditor,
   },
 
   props: {

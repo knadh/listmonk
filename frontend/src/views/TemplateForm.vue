@@ -52,11 +52,12 @@
 
           <template v-if="form.body !== null">
             <b-field v-if="form.type === 'campaign_visual'" label-position="on-border" class="mb-1">
-              <visual-editor v-if="form.type === 'campaign_visual'" name="body" :source="form.bodySource" @change="onChangeVisualEditor" height="70vh" />
+              <visual-editor v-if="form.type === 'campaign_visual'" name="body" :source="form.bodySource"
+                @change="onChangeVisualEditor" height="70vh" />
             </b-field>
 
             <b-field v-else :label="$t('templates.rawHTML')" label-position="on-border">
-              <html-editor v-model="form.body" name="body" />
+              <code-editor lang="html" v-model="form.body" name="body" />
             </b-field>
           </template>
 
@@ -79,8 +80,8 @@
         </footer>
       </div>
     </form>
-    <campaign-preview v-if="previewItem" is-post type="template" :title="previewItem.name" :template-type="previewItem.type"
-      :body="form.body" @close="onTogglePreview" />
+    <campaign-preview v-if="previewItem" is-post type="template" :title="previewItem.name"
+      :template-type="previewItem.type" :body="form.body" @close="onTogglePreview" />
   </section>
 </template>
 
@@ -88,7 +89,7 @@
 import Vue from 'vue';
 import { mapState } from 'vuex';
 import CampaignPreview from '../components/CampaignPreview.vue';
-import HTMLEditor from '../components/HTMLEditor.vue';
+import CodeEditor from '../components/CodeEditor.vue';
 import VisualEditor from '../components/VisualEditor.vue';
 import CopyText from '../components/CopyText.vue';
 
@@ -96,7 +97,7 @@ export default Vue.extend({
   components: {
     CampaignPreview,
     CopyText,
-    'html-editor': HTMLEditor,
+    'code-editor': CodeEditor,
     'visual-editor': VisualEditor,
   },
 

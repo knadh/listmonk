@@ -40,7 +40,7 @@
           {{ $t('forms.formHTMLHelp') }}
         </p>
 
-        <html-editor v-if="checked.length > 0" v-model="html" disabled />
+        <code-editor lang="html" v-if="checked.length > 0" v-model="html" disabled />
       </div>
     </div><!-- columns -->
   </section>
@@ -49,13 +49,13 @@
 <script>
 import Vue from 'vue';
 import { mapState } from 'vuex';
-import HTMLEditor from '../components/HTMLEditor.vue';
+import CodeEditor from '../components/CodeEditor.vue';
 
 export default Vue.extend({
   name: 'ListForm',
 
   components: {
-    'html-editor': HTMLEditor,
+    'code-editor': CodeEditor,
   },
 
   data() {

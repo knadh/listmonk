@@ -271,11 +271,19 @@ describe('Campaigns', () => {
           });
           cy.wait(500);
         } else if (c === 'html') {
-          cy.get('code-flask').shadow().find('.codeflask textarea').invoke('val', htmlBody)
-            .trigger('input');
+          cy.get('[contenteditable="true"]').then(($el) => {
+            cy.window().then((win) => {
+              $el.focus();
+              win.document.execCommand('insertText', false, htmlBody);
+            });
+          });
         } else if (c === 'markdown') {
-          cy.get('code-flask').shadow().find('.codeflask textarea').invoke('val', markdownBody)
-            .trigger('input');
+          cy.get('[contenteditable="true"]').then(($el) => {
+            cy.window().then((win) => {
+              $el.focus();
+              win.document.execCommand('insertText', false, markdownBody);
+            });
+          });
         } else if (c === 'plain') {
           cy.get('textarea[name=content]').invoke('val', plainBody).trigger('input');
         } else if (c === 'visual') {
