@@ -240,21 +240,23 @@
                 </div>
               </b-field>
             </div>
-            <div class="column is-8 has-text-right">
-              <b-field v-if="!canEdit && canArchive">
-                <b-button @click="onUpdateCampaignArchive" :loading="loading.campaigns" type="is-primary"
-                  icon-left="content-save-outline" data-cy="btn-save">
-                  {{ $t('globals.buttons.saveChanges') }}
-                </b-button>
+            <div class="column is-8">
+              <b-field grouped position="is-right">
+                <b-field v-if="!canEdit && canArchive">
+                  <b-button @click="onUpdateCampaignArchive" :loading="loading.campaigns" type="is-primary"
+                    icon-left="content-save-outline" data-cy="btn-save">
+                    {{ $t('globals.buttons.saveChanges') }}
+                  </b-button>
+                </b-field>
               </b-field>
             </div>
           </div>
 
           <div class="columns">
-            <div class="column is-8">
+            <div class="column is-6">
               <b-field :label="$tc('globals.terms.template')" label-position="on-border">
                 <b-select :placeholder="$tc('globals.terms.template')" v-model="form.archiveTemplateId" name="template"
-                  :disabled="!canArchive || !form.archive" required>
+                  :disabled="!canArchive || !form.archive || form.content.contentType === 'visual'" required>
                   <template v-for="t in templates">
                     <option v-if="t.type === 'campaign'" :value="t.id" :key="t.id">
                       {{ t.name }}
@@ -264,9 +266,19 @@
               </b-field>
             </div>
 
-            <div class="column has-text-right">
-              <a v-if="!this.form.archiveMetaStr || this.form.archiveMetaStr === '{}'" class="button is-primary"
-                href="#" @click.prevent="onFillArchiveMeta" aria-label="{}"><b-icon icon="code" /></a>
+            <div class="column is-6">
+              <b-field grouped position="is-right">
+                <b-field v-if="form.archive && (!this.form.archiveMetaStr || this.form.archiveMetaStr === '{}')">
+                  <a class="button is-primary" href="#" @click.prevent="onFillArchiveMeta" aria-label="{}"><b-icon
+                      icon="code" /></a>
+                </b-field>
+                <b-field v-if="form.archive">
+                  <b-button @click="onToggleArchivePreview" type="is-primary" icon-left="file-find-outline"
+                    data-cy="btn-preview">
+                    {{ $t('campaigns.preview') }}
+                  </b-button>
+                </b-field>
+              </b-field>
             </div>
           </div>
           <b-field>
@@ -292,6 +304,10 @@
         </section>
       </div>
     </b-modal>
+
+    <campaign-preview v-if="isPreviewingArchive" @close="onToggleArchivePreview" type="campaign" :id="data.id"
+      :archive-meta="form.archiveMetaStr" :title="data.title" :content-type="data.contentType"
+      :template-id="form.archiveTemplateId" is-post is-archive />
   </section>
 </template>
 
@@ -305,6 +321,7 @@ import CopyText from '../components/CopyText.vue';
 import Editor from '../components/Editor.vue';
 import ListSelector from '../components/ListSelector.vue';
 import Media from './Media.vue';
+import CampaignPreview from '../components/CampaignPreview.vue';
 
 export default Vue.extend({
   components: {
@@ -312,6 +329,7 @@ export default Vue.extend({
     Editor,
     Media,
     CopyText,
+    CampaignPreview,
   },
 
   data() {
@@ -329,6 +347,7 @@ export default Vue.extend({
       isHeadersVisible: false,
       isAttachFieldVisible: false,
       isAttachModalOpen: false,
+      isPreviewingArchive: false,
       activeTab: 'campaign',
 
       data: {},
@@ -371,6 +390,10 @@ export default Vue.extend({
   methods: {
     formatDateTime(s) {
       return dayjs(s).format('YYYY-MM-DD HH:mm');
+    },
+
+    onToggleArchivePreview() {
+      this.isPreviewingArchive = !this.isPreviewingArchive;
     },
 
     onAddAltBody() {
@@ -446,8 +469,6 @@ export default Vue.extend({
           this.$utils.toast(e.toString(), 'is-danger');
           return;
         }
-      } else {
-        this.form.archiveMeta = {};
       }
 
       switch (typ) {

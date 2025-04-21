@@ -13,7 +13,8 @@
             <input v-if="templateId" type="hidden" name="template_id" :value="templateId" />
             <input v-if="contentType" type="hidden" name="content_type" :value="contentType" />
             <input v-if="templateType" type="hidden" name="template_type" :value="templateType" />
-            <input type="hidden" name="body" :value="body" />
+            <input v-if="archiveMeta" type="hidden" name="archive_meta" :value="archiveMeta" />
+            <input v-if="body" type="hidden" name="body" :value="body" />
           </form>
 
           <iframe id="iframe" name="iframe" ref="iframe" :title="title" :src="isPost ? 'about:blank' : previewURL"
@@ -48,9 +49,12 @@ export default {
     // campaign | tx.
     templateType: { type: String, default: '' },
 
+    archiveMeta: { type: String, default: null },
+
     body: { type: String, default: '' },
     contentType: { type: String, default: '' },
     templateId: { type: [Number, null], default: null },
+    isArchive: { type: Boolean, default: false },
   },
 
   data() {
@@ -80,7 +84,7 @@ export default {
       let uri = 'about:blank';
 
       if (this.type === 'campaign') {
-        uri = uris.previewCampaign;
+        uri = this.isArchive ? uris.previewCampaignArchive : uris.previewCampaign;
       } else if (this.type === 'template') {
         if (this.id) {
           uri = uris.previewTemplate;

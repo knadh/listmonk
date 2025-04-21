@@ -289,6 +289,7 @@ describe('Campaigns', () => {
         } else if (c === 'visual') {
           cy.wait(200);
           cy.get('iframe').then((el) => {
+            cy.wait(200);
             cy.wrap(el.contents()).find('table td').click();
             cy.wait(200);
             cy.wrap(el.contents()).find('textarea').eq(0).type(plainBody);

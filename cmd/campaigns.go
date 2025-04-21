@@ -195,6 +195,44 @@ func (a *App) PreviewCampaign(c echo.Context) error {
 	return c.HTML(http.StatusOK, string(msg.Body()))
 }
 
+// PreviewCampaignArchive renders the public campaign archives page.
+func (a *App) PreviewCampaignArchive(c echo.Context) error {
+	// Get the campaign ID.
+	id := getID(c)
+
+	// Check if the user has access to the campaign.
+	if err := a.checkCampaignPerm(auth.PermTypeGet, id, c); err != nil {
+		return err
+	}
+
+	// Fetch the campaign body from the DB.
+	tplID, _ := strconv.Atoi(c.FormValue("template_id"))
+	camp, err := a.core.GetCampaignForPreview(id, tplID)
+	if err != nil {
+		return err
+	}
+
+	camp.ArchiveMeta = json.RawMessage([]byte(c.FormValue("archive_meta")))
+
+	// "Compile" the campaign template with appropriate data.
+	res, err := a.compileArchiveCampaigns([]models.Campaign{camp})
+	if err != nil {
+		return c.Render(http.StatusInternalServerError, tplMessage,
+			makeMsgTpl(a.i18n.T("public.errorTitle"), "", a.i18n.Ts("public.errorFetchingCampaign")))
+	}
+
+	// Render the campaign body.
+	out := res[0].Campaign
+	msg, err := a.manager.NewCampaignMessage(out, res[0].Subscriber)
+	if err != nil {
+		a.log.Printf("error rendering campaign: %v", err)
+		return c.Render(http.StatusInternalServerError, tplMessage,
+			makeMsgTpl(a.i18n.T("public.errorTitle"), "", a.i18n.Ts("public.errorFetchingCampaign")))
+	}
+
+	return c.HTML(http.StatusOK, string(msg.Body()))
+}
+
 // CampaignContent handles campaign content (body) format conversions.
 func (a *App) CampaignContent(c echo.Context) error {
 	var camp campContentReq
