@@ -48,6 +48,7 @@ const (
 	CampaignContentTypeHTML     = "html"
 	CampaignContentTypeMarkdown = "markdown"
 	CampaignContentTypePlain    = "plain"
+	CampaignContentTypeVisual   = "visual"
 
 	// List.
 	ListTypePrivate = "private"
@@ -78,8 +79,9 @@ const (
 	BounceTypeComplaint = "complaint"
 
 	// Templates.
-	TemplateTypeCampaign = "campaign"
-	TemplateTypeTx       = "tx"
+	TemplateTypeCampaign       = "campaign"
+	TemplateTypeCampaignVisual = "campaign_visual"
+	TemplateTypeTx             = "tx"
 )
 
 // Headers represents an array of string maps used to represent SMTP, HTTP headers etc.
@@ -225,17 +227,18 @@ type Campaign struct {
 	Subject           string          `db:"subject" json:"subject"`
 	FromEmail         string          `db:"from_email" json:"from_email"`
 	Body              string          `db:"body" json:"body"`
+	BodySource        null.String     `db:"body_source" json:"body_source"`
 	AltBody           null.String     `db:"altbody" json:"altbody"`
 	SendAt            null.Time       `db:"send_at" json:"send_at"`
 	Status            string          `db:"status" json:"status"`
 	ContentType       string          `db:"content_type" json:"content_type"`
 	Tags              pq.StringArray  `db:"tags" json:"tags"`
 	Headers           Headers         `db:"headers" json:"headers"`
-	TemplateID        int             `db:"template_id" json:"template_id"`
+	TemplateID        null.Int        `db:"template_id" json:"template_id"`
 	Messenger         string          `db:"messenger" json:"messenger"`
 	Archive           bool            `db:"archive" json:"archive"`
 	ArchiveSlug       null.String     `db:"archive_slug" json:"archive_slug"`
-	ArchiveTemplateID int             `db:"archive_template_id" json:"archive_template_id"`
+	ArchiveTemplateID null.Int        `db:"archive_template_id" json:"archive_template_id"`
 	ArchiveMeta       json.RawMessage `db:"archive_meta" json:"archive_meta"`
 
 	// TemplateBody is joined in from templates by the next-campaigns query.
@@ -308,10 +311,11 @@ type Template struct {
 
 	Name string `db:"name" json:"name"`
 	// Subject is only for type=tx.
-	Subject   string `db:"subject" json:"subject"`
-	Type      string `db:"type" json:"type"`
-	Body      string `db:"body" json:"body,omitempty"`
-	IsDefault bool   `db:"is_default" json:"is_default"`
+	Subject    string      `db:"subject" json:"subject"`
+	Type       string      `db:"type" json:"type"`
+	Body       string      `db:"body" json:"body,omitempty"`
+	BodySource null.String `db:"body_source" json:"body_source,omitempty"`
+	IsDefault  bool        `db:"is_default" json:"is_default"`
 
 	// Only relevant to tx (transactional) templates.
 	SubjectTpl *txttpl.Template   `json:"-"`
@@ -531,6 +535,11 @@ func (c *Campaign) CompileTemplate(f template.FuncMap) error {
 
 	// Compile the base template.
 	body := c.TemplateBody
+
+	if body == "" || c.ContentType == CampaignContentTypeVisual {
+		body = `{{ template "content" . }}`
+	}
+
 	for _, r := range regTplFuncs {
 		body = r.regExp.ReplaceAllString(body, r.replace)
 	}

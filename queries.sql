@@ -501,8 +501,25 @@ DELETE FROM lists WHERE id = ALL($1);
 -- name: create-campaign
 -- This creates the campaign and inserts campaign_lists relationships.
 WITH tpl AS (
-    -- If there's no template_id given, use the default template.
-    SELECT (CASE WHEN $13 = 0 THEN id ELSE $13 END) AS id FROM templates WHERE is_default IS TRUE
+    -- Select the template for the given template ID or use the default template.
+    SELECT
+        -- If the template is a visual template, then use it's HTML body as the campaign
+        -- body and its block source as the campaign's block source,
+        -- and don't set a template_id in the campaigns table, as it's essentially an
+        -- HTML template body "import" during creation.
+        (CASE WHEN type = 'campaign_visual' THEN NULL ELSE id END) AS id,
+        (CASE WHEN type = 'campaign_visual' THEN body ELSE '' END) AS body,
+        (CASE WHEN type = 'campaign_visual' THEN body_source ELSE '' END) AS body_source,
+        (CASE WHEN type = 'campaign_visual' THEN 'visual' ELSE 'richtext' END) AS content_type
+    FROM templates
+    WHERE
+        CASE
+            -- If a template ID is present, use it. If not, use the default template only if
+            -- it's not a visual template.
+            WHEN $13::INT IS NOT NULL THEN id = $13::INT
+            ELSE $8 != 'visual' AND is_default = TRUE
+        END
+    LIMIT 1
 ),
 counts AS (
     -- This is going to be slow on large databases.
@@ -519,11 +536,24 @@ counts AS (
       )
 ),
 camp AS (
-    INSERT INTO campaigns (uuid, type, name, subject, from_email, body, altbody, content_type, send_at, headers, tags, messenger, template_id, to_send, max_subscriber_id, archive, archive_slug, archive_template_id, archive_meta)
-        SELECT $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12,
-            (SELECT id FROM tpl), (SELECT to_send FROM counts),
-            (SELECT max_sub_id FROM counts), $15, $16,
-            (CASE WHEN $17 = 0 THEN (SELECT id FROM tpl) ELSE $17 END), $18
+    INSERT INTO campaigns (uuid, type, name, subject, from_email, body, altbody,
+        content_type, send_at, headers, tags, messenger, template_id, to_send,
+        max_subscriber_id, archive, archive_slug, archive_template_id, archive_meta, body_source)
+        SELECT $1, $2, $3, $4, $5,
+            -- body
+            COALESCE(NULLIF($6, ''), (SELECT body FROM tpl), ''),
+            $7,
+            $8::content_type,
+            $9, $10, $11, $12,
+            (SELECT id FROM tpl),
+            (SELECT to_send FROM counts),
+            (SELECT max_sub_id FROM counts),
+            $15, $16,
+            -- archive_template_id
+            $17,
+            $18,
+            -- body_source
+            COALESCE($20, (SELECT body_source FROM tpl))
         RETURNING id
 ),
 med AS (
@@ -543,11 +573,7 @@ SELECT id FROM camp;
 -- there's a COUNT() OVER() that still returns the total result count
 -- for pagination in the frontend, albeit being a field that'll repeat
 -- with every resultant row.
-SELECT  c.id, c.uuid, c.name, c.subject, c.from_email,
-        c.messenger, c.started_at, c.to_send, c.sent, c.type,
-        c.body, c.altbody, c.send_at, c.headers, c.status, c.content_type, c.tags,
-        c.template_id, c.archive, c.archive_slug, c.archive_template_id, c.archive_meta,
-        c.created_at, c.updated_at,
+SELECT  c.*,
         COUNT(*) OVER () AS total,
         (
             SELECT COALESCE(ARRAY_TO_JSON(ARRAY_AGG(l)), '[]') FROM (
@@ -571,7 +597,7 @@ ORDER BY %order% OFFSET $7 LIMIT (CASE WHEN $8 < 1 THEN NULL ELSE $8 END);
 
 -- name: get-campaign
 SELECT campaigns.*,
-    COALESCE(templates.body, (SELECT body FROM templates WHERE is_default = true LIMIT 1)) AS template_body
+    COALESCE(templates.body, (SELECT body FROM templates WHERE is_default = true LIMIT 1), '') AS template_body
     FROM campaigns
     LEFT JOIN templates ON (
         CASE WHEN $4 = 'default' THEN templates.id = campaigns.template_id
@@ -585,7 +611,7 @@ SELECT campaigns.*,
 
 -- name: get-archived-campaigns
 SELECT COUNT(*) OVER () AS total, campaigns.*,
-    COALESCE(templates.body, (SELECT body FROM templates WHERE is_default = true LIMIT 1)) AS template_body
+    COALESCE(templates.body, (SELECT body FROM templates WHERE is_default = true LIMIT 1), '') AS template_body
     FROM campaigns
     LEFT JOIN templates ON (
         CASE WHEN $3 = 'default' THEN templates.id = campaigns.template_id
@@ -637,7 +663,7 @@ LEFT JOIN bounces AS b ON (b.campaign_id = id)
 ORDER BY ARRAY_POSITION($1, id);
 
 -- name: get-campaign-for-preview
-SELECT campaigns.*, COALESCE(templates.body, (SELECT body FROM templates WHERE is_default = true LIMIT 1)) AS template_body,
+SELECT campaigns.*, COALESCE(templates.body, '') AS template_body,
 (
 	SELECT COALESCE(ARRAY_TO_JSON(ARRAY_AGG(l)), '[]') FROM (
 		SELECT COALESCE(campaign_lists.list_id, 0) AS id,
@@ -667,7 +693,7 @@ SELECT EXISTS (
 -- a campaign. This is used to fetch and slice subscribers for the campaign in next-campaign-subscribers.
 WITH camps AS (
     -- Get all running campaigns and their template bodies (if the template's deleted, the default template body instead)
-    SELECT campaigns.*, COALESCE(templates.body, (SELECT body FROM templates WHERE is_default = true LIMIT 1)) AS template_body
+    SELECT campaigns.*, COALESCE(templates.body, (SELECT body FROM templates WHERE is_default = true LIMIT 1), '') AS template_body
     FROM campaigns
     LEFT JOIN templates ON (templates.id = campaigns.template_id)
     WHERE (status='running' OR (status='scheduled' AND NOW() >= campaigns.send_at))
@@ -860,11 +886,13 @@ WITH camp AS (
         headers=$9,
         tags=$10::VARCHAR(100)[],
         messenger=$11,
-        template_id=$12,
+        -- template_id shouldn't be saved for visual campaigns.
+        template_id=(CASE WHEN $7::content_type = 'visual' THEN NULL ELSE $12::INT END),
         archive=$14,
         archive_slug=$15,
-        archive_template_id=$16,
+        archive_template_id=(CASE WHEN $7::content_type = 'visual' THEN NULL ELSE $16::INT END),
         archive_meta=$17,
+        body_source=$19,
         updated_at=NOW()
     WHERE id = $1 RETURNING id
 ),
@@ -927,20 +955,23 @@ INSERT INTO campaign_views (campaign_id, subscriber_id)
 
 -- templates
 -- name: get-templates
--- Only if the second param ($2) is true, body is returned.
-SELECT id, name, type, subject, (CASE WHEN $2 = false THEN body ELSE '' END) as body,
+-- Only if the second param ($2 - noBody) is true, body and body_source is returned.
+SELECT id, name, type, subject,
+    (CASE WHEN $2 = false THEN body ELSE '' END) as body,
+    (CASE WHEN $2 = false THEN body_source ELSE NULL END) as body_source,
     is_default, created_at, updated_at
     FROM templates WHERE ($1 = 0 OR id = $1) AND ($3 = '' OR type = $3::template_type)
     ORDER BY created_at;
 
 -- name: create-template
-INSERT INTO templates (name, type, subject, body) VALUES($1, $2, $3, $4) RETURNING id;
+INSERT INTO templates (name, type, subject, body, body_source) VALUES($1, $2, $3, $4, $5) RETURNING id;
 
 -- name: update-template
 UPDATE templates SET
     name=(CASE WHEN $2 != '' THEN $2 ELSE name END),
     subject=(CASE WHEN $3 != '' THEN $3 ELSE name END),
     body=(CASE WHEN $4 != '' THEN $4 ELSE body END),
+    body_source=(CASE WHEN $5 != '' THEN $5 ELSE body_source END),
     updated_at=NOW()
 WHERE id = $1;
 
@@ -957,7 +988,7 @@ WITH tpl AS (
     DELETE FROM templates WHERE id = $1 AND (SELECT COUNT(id) FROM templates) > 1 AND is_default = false RETURNING id
 ),
 def AS (
-    SELECT id FROM templates WHERE is_default = true AND type='campaign' LIMIT 1
+    SELECT id FROM templates WHERE is_default = true AND (type='campaign' OR type='campaign_visual') LIMIT 1
 ),
 up AS (
     UPDATE campaigns SET template_id = (SELECT id FROM def) WHERE (SELECT id FROM tpl) > 0 AND template_id = $1
@@ -1158,7 +1189,7 @@ lp AS (
     LEFT JOIN lists cl ON cr.list_id = cl.id
     GROUP BY lr.id
 )
-SELECT 
+SELECT
     users.*,
     ur.id AS user_role_id,
     ur.name AS user_role_name,
@@ -1184,7 +1215,7 @@ WITH sel AS (
         END
     )
 )
-SELECT 
+SELECT
     sel.*,
     ur.id AS user_role_id,
     ur.name AS user_role_name,

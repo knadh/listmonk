@@ -32,10 +32,14 @@
 
       <b-table-column v-slot="props" field="type" :label="$t('globals.fields.type')" sortable>
         <b-tag v-if="props.row.type === 'campaign'" :class="props.row.type" :data-cy="`type-${props.row.type}`">
-          {{ $tc('globals.terms.campaign', 1) }}
+          {{ $tc('templates.typeCampaignHTML') }}
+        </b-tag>
+        <b-tag v-else-if="props.row.type === 'campaign_visual'" :class="props.row.type"
+          :data-cy="`type-${props.row.type}`">
+          {{ $tc('templates.typeCampaignVisual') }}
         </b-tag>
         <b-tag v-else :class="props.row.type" :data-cy="`type-${props.row.type}`">
-          {{ $tc('globals.terms.tx', 1) }}
+          {{ $tc('templates.typeTransactional') }}
         </b-tag>
       </b-table-column>
 
@@ -72,7 +76,7 @@
               <b-icon icon="file-multiple-outline" size="is-small" />
             </b-tooltip>
           </a>
-          <a v-if="!props.row.isDefault && props.row.type !== 'tx'" href="#"
+          <a v-if="!props.row.isDefault && props.row.type === 'campaign'" href="#"
             @click.prevent="$utils.confirm(null, () => makeTemplateDefault(props.row))" data-cy="btn-set-default"
             :aria-label="$t('templates.makeDefault')">
             <b-tooltip :label="$t('templates.makeDefault')" type="is-dark">
@@ -167,6 +171,7 @@ export default Vue.extend({
         type: t.type,
         subject: t.subject,
         body: t.body,
+        body_source: t.bodySource,
       };
       this.$api.createTemplate(data).then((d) => {
         this.$api.getTemplates();

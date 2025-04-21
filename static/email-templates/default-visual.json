@@ -1,0 +1,66 @@
+{
+    "root": {
+        "type": "EmailLayout",
+        "data": {
+            "backdropColor": "#F5F5F5",
+            "canvasColor": "#FFFFFF",
+            "textColor": "#262626",
+            "fontFamily": "MODERN_SANS",
+            "childrenIds": [
+                "block-1744970939431",
+                "block-1744970976991",
+                "block-1744971036169",
+                "block-1744971054197"
+            ]
+        }
+    },
+    "block-1744970939431": {
+        "type": "Heading",
+        "data": {
+            "props": {
+                "text": "Hello {{ .Subscriber.Name }}",
+                "level": "h3"
+            },
+            "style": {
+                "padding": { "top": 16, "bottom": 16, "right": 24, "left": 24 }
+            }
+        }
+    },
+    "block-1744970976991": {
+        "type": "Text",
+        "data": {
+            "style": {
+                "fontWeight": "normal",
+                "padding": { "top": 16, "bottom": 16, "right": 24, "left": 24 }
+            },
+            "props": {
+                "markdown": true,
+                "text": "This is a test e-mail campaign. Your second name is {{ .Subscriber.LastName }} and this block of text is in Markdown.\n\nHere is a [tracked link](https://listmonk.app@TrackLink).\n\nUse the link icon in the editor toolbar or when writing raw HTML or Markdown, simply suffix @TrackLink to the end of a URL to turn it into a tracking link. Example:\n\n<a href=\"https:/‌/listmonk.app@TrackLink\"></a>\n\nFor help, refer to the [documentation](https://listmonk.app/docs)."
+            }
+        }
+    },
+    "block-1744971036169": {
+        "type": "Divider",
+        "data": {
+            "style": {
+                "padding": { "top": 16,"right": 0, "bottom": 16, "left": 0 }
+            },
+            "props": {
+                "lineColor": "#CCCCCC"
+            }
+        }
+    },
+    "block-1744971054197": {
+        "type": "Button",
+        "data": {
+            "style": {
+                "padding": { "top": 16, "bottom": 16, "right": 24, "left": 24 }
+            },
+            "props": {
+                "buttonBackgroundColor": "#0055d4",
+                "text": "This is a button",
+                "url": "https://listmonk.app"
+            }
+        }
+    }
+}

@@ -88,6 +88,7 @@ func (a *App) GetCampaigns(c echo.Context) error {
 	if noBody {
 		for i := range res {
 			res[i].Body = ""
+			res[i].BodySource.Valid = false
 		}
 	}
 
@@ -142,17 +143,31 @@ func (a *App) PreviewCampaign(c echo.Context) error {
 		return err
 	}
 
-	// Fetch the campaign body from the DB.
-	tplID, _ := strconv.Atoi(c.FormValue("template_id"))
+	var (
+		isPost      = c.Request().Method == http.MethodPost
+		contentType = c.FormValue("content_type")
+		tplID, _    = strconv.Atoi(c.FormValue("template_id"))
+	)
+	// For visual content, template ID for previewing is irrelevant.
+	if contentType == models.CampaignContentTypeVisual || tplID < 1 {
+		tplID = 0
+	}
+
+	// Get the campaign from the DB for previewing with the `template_body` field.
 	camp, err := a.core.GetCampaignForPreview(id, tplID)
 	if err != nil {
 		return err
 	}
 
 	// There's a body in the request to preview instead of the body in the DB.
-	if c.Request().Method == http.MethodPost {
-		camp.ContentType = c.FormValue("content_type")
+	if isPost {
+		camp.ContentType = contentType
 		camp.Body = c.FormValue("body")
+
+		// For visual campaigns, template body from the DB shouldn't be used.
+		if contentType == models.CampaignContentTypeVisual {
+			camp.TemplateBody = ""
+		}
 	}
 
 	// Use a dummy campaign ID to prevent views and clicks from {{ TrackView }}
@@ -172,8 +187,47 @@ func (a *App) PreviewCampaign(c echo.Context) error {
 			a.i18n.Ts("templates.errorRendering", "error", err.Error()))
 	}
 
+	// Plaintext headers for plain body.
 	if camp.ContentType == models.CampaignContentTypePlain {
 		return c.String(http.StatusOK, string(msg.Body()))
+	}
+
+	return c.HTML(http.StatusOK, string(msg.Body()))
+}
+
+// PreviewCampaignArchive renders the public campaign archives page.
+func (a *App) PreviewCampaignArchive(c echo.Context) error {
+	// Get the campaign ID.
+	id := getID(c)
+
+	// Check if the user has access to the campaign.
+	if err := a.checkCampaignPerm(auth.PermTypeGet, id, c); err != nil {
+		return err
+	}
+
+	// Fetch the campaign body from the DB.
+	tplID, _ := strconv.Atoi(c.FormValue("template_id"))
+	camp, err := a.core.GetCampaignForPreview(id, tplID)
+	if err != nil {
+		return err
+	}
+
+	camp.ArchiveMeta = json.RawMessage([]byte(c.FormValue("archive_meta")))
+
+	// "Compile" the campaign template with appropriate data.
+	res, err := a.compileArchiveCampaigns([]models.Campaign{camp})
+	if err != nil {
+		return c.Render(http.StatusInternalServerError, tplMessage,
+			makeMsgTpl(a.i18n.T("public.errorTitle"), "", a.i18n.Ts("public.errorFetchingCampaign")))
+	}
+
+	// Render the campaign body.
+	out := res[0].Campaign
+	msg, err := a.manager.NewCampaignMessage(out, res[0].Subscriber)
+	if err != nil {
+		a.log.Printf("error rendering campaign: %v", err)
+		return c.Render(http.StatusInternalServerError, tplMessage,
+			makeMsgTpl(a.i18n.T("public.errorTitle"), "", a.i18n.Ts("public.errorFetchingCampaign")))
 	}
 
 	return c.HTML(http.StatusOK, string(msg.Body()))
@@ -214,9 +268,6 @@ func (a *App) CreateCampaign(c echo.Context) error {
 		o.Type = models.CampaignTypeRegular
 	}
 
-	if o.ContentType == "" {
-		o.ContentType = models.CampaignContentTypeRichtext
-	}
 	if o.Messenger == "" {
 		o.Messenger = "email"
 	}
@@ -228,7 +279,7 @@ func (a *App) CreateCampaign(c echo.Context) error {
 		o = c
 	}
 
-	if o.ArchiveTemplateID == 0 {
+	if o.ArchiveTemplateID.Valid && o.ArchiveTemplateID.Int != 0 {
 		o.ArchiveTemplateID = o.TemplateID
 	}
 
@@ -551,6 +602,16 @@ func (a *App) validateCampaignFields(c campReq) (campReq, error) {
 	// Larger char limit for subject as it can contain {{ go templating }} logic.
 	if !strHasLen(c.Subject, 1, 5000) {
 		return c, errors.New(a.i18n.T("campaigns.fieldInvalidSubject"))
+	}
+
+	// If no content-type is specified, default to richtext.
+	if c.ContentType != models.CampaignContentTypeRichtext &&
+		c.ContentType != models.CampaignContentTypeHTML &&
+		c.ContentType != models.CampaignContentTypePlain &&
+		c.ContentType != models.CampaignContentTypeVisual &&
+		c.ContentType != models.CampaignContentTypeMarkdown {
+		c.ContentType = models.CampaignContentTypeRichtext
+		c.BodySource.Valid = false
 	}
 
 	// If there's a "send_at" date, it should be in the future.

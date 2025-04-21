@@ -7,11 +7,12 @@
         </div>
 
         <b-field :label="$t('settings.appearance.customCSS')" label-position="on-border">
-          <html-editor v-model="data['appearance.admin.custom_css']" name="body" language="css" />
+          <code-editor lang="css" v-model="data['appearance.admin.custom_css']" name="body" key="editor-admin-css" />
         </b-field>
 
         <b-field :label="$t('settings.appearance.customJS')" label-position="on-border">
-          <html-editor v-model="data['appearance.admin.custom_js']" name="body" language="css" />
+          <code-editor lang="javascript" v-model="data['appearance.admin.custom_js']" name="body"
+            key="editor-admin-js" />
         </b-field>
       </b-tab-item><!-- admin -->
 
@@ -21,11 +22,12 @@
         </div>
 
         <b-field :label="$t('settings.appearance.customCSS')" label-position="on-border">
-          <html-editor v-model="data['appearance.public.custom_css']" name="body" language="css" />
+          <code-editor lang="css" v-model="data['appearance.public.custom_css']" name="body" key="editor-public-css" />
         </b-field>
 
         <b-field :label="$t('settings.appearance.customJS')" label-position="on-border">
-          <html-editor v-model="data['appearance.public.custom_js']" name="body" language="js" />
+          <code-editor lang="javascript" v-model="data['appearance.public.custom_js']" name="body"
+            key="editor-public-js" />
         </b-field>
       </b-tab-item><!-- public -->
     </b-tabs>
@@ -35,11 +37,11 @@
 <script>
 import Vue from 'vue';
 import { mapState } from 'vuex';
-import HTMLEditor from '../../components/HTMLEditor.vue';
+import CodeEditor from '../../components/CodeEditor.vue';
 
 export default Vue.extend({
   components: {
-    'html-editor': HTMLEditor,
+    'code-editor': CodeEditor,
   },
 
   props: {
