@@ -278,9 +278,9 @@ export default Vue.extend({
     },
 
     renderExample() {
-      const h = 'email, name, attributes\n'
-        + 'user1@mail.com, "User One", "{""age"": 42, ""planet"": ""Mars""}"\n'
-        + 'user2@mail.com, "User Two", "{""age"": 24, ""job"": ""Time Traveller""}"';
+      const h = 'email,name,attributes\n'
+        + 'user1@mail.com,"User One","{""age"": 42, ""planet"": ""Mars""}"\n'
+        + 'user2@mail.com,"User Two","{""age"": 24, ""job"": ""Time Traveller""}"';
 
       this.example = h;
     },
