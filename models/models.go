@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/yosssi/gohtml"
 	"html/template"
 	"net/textproto"
 	"regexp"
@@ -568,6 +569,8 @@ func (c *Campaign) CompileTemplate(f template.FuncMap) error {
 	} else {
 		body = c.Body
 	}
+
+	body = gohtml.Format(body)
 
 	// Compile the campaign message.
 	for _, r := range regTplFuncs {
