@@ -40,7 +40,10 @@ func V5_0_0_rc1(db *sqlx.DB, fs stuffbin.FileSystem, ko *koanf.Koanf, lo *log.Lo
 
 	// Insert new preference settings.
 	if _, err := db.Exec(`
-		INSERT INTO settings (key, value) VALUES('privacy.domain_allowlist', '[]') ON CONFLICT DO NOTHING;
+		INSERT INTO settings (key, value) VALUES
+			('privacy.domain_allowlist', '[]'),
+			('security.oidc.provider_name', '""')
+		ON CONFLICT DO NOTHING;
 	`); err != nil {
 		return err
 	}

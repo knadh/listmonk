@@ -529,6 +529,7 @@
     "settings.security.OIDCRedirectURL": "Redirect URL for oAuth provider",
     "settings.security.OIDCRedirectWarning": "This does not seem to be a production URL. Change the Root URL in 'General' settings.",
     "settings.security.OIDCURL": "Provider URL",
+    "settings.security.OIDCName": "Provider name",
     "settings.security.OIDCWarning": "When OIDC is enabled, default password login is disabled. Invalid config can lock you out.",
     "settings.security.captchaKey": "hCaptcha.com SiteKey",
     "settings.security.captchaKeyHelp": "Visit www.hcaptcha.com to obtain the key and secret.",

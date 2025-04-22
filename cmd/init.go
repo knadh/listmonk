@@ -97,7 +97,8 @@ type Config struct {
 	Security struct {
 		OIDC struct {
 			Enabled      bool   `koanf:"enabled"`
-			Provider     string `koanf:"provider_url"`
+			ProviderURL  string `koanf:"provider_url"`
+			ProviderName string `koanf:"provider_name"`
 			ClientID     string `koanf:"client_id"`
 			ClientSecret string `koanf:"client_secret"`
 		} `koanf:"oidc"`

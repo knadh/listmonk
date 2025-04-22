@@ -187,25 +187,30 @@ func (a *App) renderLoginPage(c echo.Context, loginErr error) error {
 	}
 
 	var (
-		oidcProvider = ""
-		oidcLogo     = ""
+		oidcProviderName = a.cfg.Security.OIDC.ProviderName
+		oidcLogo         = ""
 	)
 	if a.cfg.Security.OIDC.Enabled {
 		oidcLogo = "oidc.png"
-		u, err := url.Parse(a.cfg.Security.OIDC.Provider)
+		u, err := url.Parse(a.cfg.Security.OIDC.ProviderURL)
 		if err == nil {
 			h := strings.Split(u.Hostname(), ".")
 
 			// Get the last two h for the root domain
+			prov := ""
 			if len(h) >= 2 {
-				oidcProvider = h[len(h)-2] + "." + h[len(h)-1]
+				prov = h[len(h)-2] + "." + h[len(h)-1]
 			} else {
-				oidcProvider = u.Hostname()
+				prov = u.Hostname()
+			}
+
+			if oidcProviderName == "" {
+				oidcProviderName = prov
 			}
 
 			// Lookup the logo in the known providers map.
-			if _, ok := oidcProviders[oidcProvider]; ok {
-				oidcLogo = oidcProvider + ".png"
+			if _, ok := oidcProviders[prov]; ok {
+				oidcLogo = prov + ".png"
 			}
 		}
 	}
@@ -213,7 +218,7 @@ func (a *App) renderLoginPage(c echo.Context, loginErr error) error {
 	out := loginTpl{
 		Title:            a.i18n.T("users.login"),
 		PasswordEnabled:  true,
-		OIDCProvider:     oidcProvider,
+		OIDCProvider:     oidcProviderName,
 		OIDCProviderLogo: oidcLogo,
 		NextURI:          next,
 	}
