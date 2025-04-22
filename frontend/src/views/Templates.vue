@@ -8,7 +8,7 @@
         </h1>
       </div>
       <div class="column has-text-right">
-        <b-field expanded>
+        <b-field v-if="$can('templates:manage')" expanded>
           <b-button expanded type="is-primary" icon-left="plus" class="btn-new" @click="showNewForm">
             {{ $t('globals.buttons.new') }}
           </b-button>

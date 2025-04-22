@@ -187,11 +187,14 @@ func (a *App) renderLoginPage(c echo.Context, loginErr error) error {
 	}
 
 	var (
-		oidcProviderName = a.cfg.Security.OIDC.ProviderName
+		oidcProviderName = ""
 		oidcLogo         = ""
 	)
 	if a.cfg.Security.OIDC.Enabled {
+		// Defaults.
+		oidcProviderName = a.cfg.Security.OIDC.ProviderName
 		oidcLogo = "oidc.png"
+
 		u, err := url.Parse(a.cfg.Security.OIDC.ProviderURL)
 		if err == nil {
 			h := strings.Split(u.Hostname(), ".")

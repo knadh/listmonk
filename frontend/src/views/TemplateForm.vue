@@ -74,7 +74,7 @@
           <b-button @click="$parent.close()">
             {{ $t('globals.buttons.close') }}
           </b-button>
-          <b-button native-type="submit" type="is-primary" :loading="loading.templates">
+          <b-button v-if="$can('templates:manage')" native-type="submit" type="is-primary" :loading="loading.templates">
             {{ $t('globals.buttons.save') }}
           </b-button>
         </footer>
