@@ -289,8 +289,15 @@ func (m *Manager) Run() {
 			default:
 			}
 		} else {
-			// Mark the pseudo counter that's added in makePipe() that is used
-			// to force a wait on a pipe.
+			// The pipe is created with a +1 on the waitgroup pseudo counter
+			// so that it immediately waits. Subsequently, every message created
+			// is incremented in the counter in pipe.newMessage(), and when it's'
+			// processed (or ignored when a campaign is paused or cancelled),
+			// the count is's reduced in worker().
+			//
+			// This marks down the original non-message +1, causing the waitgroup
+			// to be released and the pipe to end, triggering the pg.Wait()
+			// in newPipe() that calls pipe.cleanup().
 			p.wg.Done()
 		}
 	}
@@ -439,8 +446,9 @@ func (m *Manager) worker() {
 				return
 			}
 
-			// If the campaign has ended, ignore the message.
+			// If the campaign has ended or stopped, ignore the message.
 			if msg.pipe != nil && msg.pipe.stopped.Load() {
+				// Reduce the message counter on the pipe.
 				msg.pipe.wg.Done()
 				continue
 			}
