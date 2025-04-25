@@ -19,3 +19,4 @@ A list of 3rd party client libraries and SDKs that have been written for listmon
 - [listmonk-nodejs-api](https://github.com/mihairaulea/listmonk-nodejs-api) — NodeJS API client
 - [listmonk-laravel](https://github.com/theafolayan/listmonk-laravel) — Laravel API Client
 - [nuxt-listmonk](https://github.com/roncallyt/nuxt-listmonk) — Listmonk module for Nuxt.js
+- [listmonk-japi](https://codeberg.org/hlassiege/listmonk-japi) - Listmonk client for Java/kotlin
