@@ -44,6 +44,7 @@ type Settings struct {
 	OIDC struct {
 		Enabled      bool   `json:"enabled"`
 		ProviderURL  string `json:"provider_url"`
+		ProviderName string `json:"provider_name"`
 		ClientID     string `json:"client_id"`
 		ClientSecret string `json:"client_secret"`
 	} `json:"security.oidc"`

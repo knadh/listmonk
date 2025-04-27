@@ -42,7 +42,7 @@ func (c *Core) QueryCampaigns(searchStr string, statuses, tags []string, orderBy
 			c.i18n.Ts("globals.messages.errorFetching", "name", "{globals.terms.campaign}", "error", pqErrMsg(err)))
 	}
 
-	for i := 0; i < len(out); i++ {
+	for i := range out {
 		// Replace null tags.
 		if out[i].Tags == nil {
 			out[i].Tags = []string{}
@@ -124,7 +124,8 @@ func (c *Core) getCampaign(id int, uuid, archiveSlug string, tplType string) (mo
 	return out[0], nil
 }
 
-// GetCampaignForPreview retrieves a campaign with a template body.
+// GetCampaignForPreview retrieves a campaign with a template body. If the optional tplID is > 0
+// that particular template is used, otherwise, the template saved on the campaign is.
 func (c *Core) GetCampaignForPreview(id, tplID int) (models.Campaign, error) {
 	var out models.Campaign
 	if err := c.q.GetCampaignForPreview.Get(&out, id, tplID); err != nil {
@@ -189,6 +190,7 @@ func (c *Core) CreateCampaign(o models.Campaign, listIDs []int, mediaIDs []int) 
 		o.ArchiveTemplateID,
 		o.ArchiveMeta,
 		pq.Array(mediaIDs),
+		o.BodySource,
 	); err != nil {
 		if err == sql.ErrNoRows {
 			return models.Campaign{}, echo.NewHTTPError(http.StatusBadRequest, c.i18n.T("campaigns.noSubs"))
@@ -226,7 +228,8 @@ func (c *Core) UpdateCampaign(id int, o models.Campaign, listIDs []int, mediaIDs
 		o.ArchiveSlug,
 		o.ArchiveTemplateID,
 		o.ArchiveMeta,
-		pq.Array(mediaIDs))
+		pq.Array(mediaIDs),
+		o.BodySource)
 	if err != nil {
 		c.log.Printf("error updating campaign: %v", err)
 		return models.Campaign{}, echo.NewHTTPError(http.StatusInternalServerError,

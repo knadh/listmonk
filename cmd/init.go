@@ -97,7 +97,8 @@ type Config struct {
 	Security struct {
 		OIDC struct {
 			Enabled      bool   `koanf:"enabled"`
-			Provider     string `koanf:"provider_url"`
+			ProviderURL  string `koanf:"provider_url"`
+			ProviderName string `koanf:"provider_name"`
 			ClientID     string `koanf:"client_id"`
 			ClientSecret string `koanf:"client_secret"`
 		} `koanf:"oidc"`
@@ -316,7 +317,7 @@ func initDB() *sqlx.DB {
 	db.SetMaxIdleConns(c.MaxIdle)
 	db.SetConnMaxLifetime(c.MaxLifetime)
 
-	return db
+	return db.Unsafe()
 }
 
 // readQueries reads named SQL queries from the SQL queries file into a query map.
@@ -358,7 +359,7 @@ func prepareQueries(qMap goyesql.Queries, db *sqlx.DB, ko *koanf.Koanf) *models.
 
 	// Scan and prepare all queries.
 	var q models.Queries
-	if err := goyesqlx.ScanToStruct(&q, qMap, db.Unsafe()); err != nil {
+	if err := goyesqlx.ScanToStruct(&q, qMap, db); err != nil {
 		lo.Fatalf("error preparing SQL queries: %v", err)
 	}
 
@@ -531,7 +532,7 @@ func initCampaignManager(msgrs []manager.Messenger, q *models.Queries, u *UrlCon
 		Concurrency:           ko.Int("app.concurrency"),
 		MessageRate:           ko.Int("app.message_rate"),
 		MaxSendErrors:         ko.Int("app.max_send_errors"),
-		FromEmail:             ko.MustString("app.from_email"),
+		FromEmail:             ko.String("app.from_email"),
 		IndividualTracking:    ko.Bool("privacy.individual_tracking"),
 		UnsubURL:              u.UnsubURL,
 		OptinURL:              u.OptinURL,
@@ -742,8 +743,8 @@ func initNotifs(fs stuffbin.FileSystem, i *i18n.I18n, em *email.Emailer, u *UrlC
 	}
 
 	notifs.Initialize(notifs.Opt{
-		FromEmail:    ko.MustString("app.from_email"),
-		SystemEmails: ko.MustStrings("app.notify_emails"),
+		FromEmail:    ko.String("app.from_email"),
+		SystemEmails: ko.Strings("app.notify_emails"),
 		ContentType:  contentType,
 	}, tpls, em, lo)
 }
@@ -907,10 +908,15 @@ func initCaptcha() *captcha.Captcha {
 }
 
 // initCron initializes the cron job for refreshing slow query cache.
-
 func initCron(co *core.Core) {
+	intval := ko.String("app.cache_slow_queries_interval")
+	if intval == "" {
+		lo.Println("error: invalid cron interval string")
+		return
+	}
+
 	c := cron.New()
-	_, err := c.Add(ko.MustString("app.cache_slow_queries_interval"), func() {
+	_, err := c.Add(intval, func() {
 		lo.Println("refreshing slow query cache")
 		_ = co.RefreshMatViews(true)
 		lo.Println("done refreshing slow query cache")
