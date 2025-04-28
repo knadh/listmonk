@@ -116,11 +116,11 @@ figcaption {
 
 /* Layout */
 .container {
-  max-width: 1200px;
+  max-width: 1300px;
   margin: 0 auto;
 }
 .header {
-  margin: 30px 0 60px 0;
+  margin: 20px 0 60px 0;
   text-align: left;
 }
 
@@ -156,7 +156,7 @@ nav {
     color: #666;
   }
   .splash .confetti {
-    max-width: 1000px;
+    max-width: 1200px;
     margin: 0 auto;
   }
   .splash .demo {
@@ -229,8 +229,8 @@ nav {
 
 .footer {
   border-top: 1px solid #eee;
-  padding-top: 30px;
-  margin: 90px 0 30px 0;
+  margin-top: 30px;
+  padding: 30px 0;
   color: #777;
 }
 
