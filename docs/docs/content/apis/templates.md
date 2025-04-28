@@ -34,6 +34,7 @@ curl -u "api_user:token" -X GET 'http://localhost:9000/api/templates'
             "updated_at": "2020-03-14T17:36:41.288578+01:00",
             "name": "Default template",
             "body": "{{ template \"content\" . }}",
+            "body_source": null,
             "type": "campaign",
             "is_default": true
         }
@@ -69,6 +70,7 @@ curl -u "api_user:token" -X GET 'http://localhost:9000/api/templates/1'
         "updated_at": "2020-03-14T17:36:41.288578+01:00",
         "name": "Default template",
         "body": "{{ template \"content\" . }}",
+        "body_source": null,
         "type": "campaign",
         "is_default": true
     }
@@ -118,12 +120,13 @@ Create a template.
 
 ##### Parameters
 
-| Name    | Type      | Required | Description                                   |
-|:--------|:----------|:---------|:----------------------------------------------|
-| name    | string    | Yes      | Name of the template                          |
-| type    | string    | Yes      | Type of the template (`campaign` or `tx`)     |
-| subject | string    |          | Subject line for the template (only for `tx`) |
-| body    | string    | Yes      | HTML body of the template                     |
+| Name        | Type   | Required | Description                                                                   |
+|:------------|:-------|:---------|:------------------------------------------------------------------------------|
+| name        | string | Yes      | Name of the template                                                          |
+| type        | string | Yes      | Type of the template (`campaign`, `campaign_visual`, or `tx`)                 |
+| subject     | string |          | Subject line for the template (only for `tx`)                                 |
+| body_source | string |          | If type is `campaign_visual`, the JSON source for the email-builder tempalate |
+| body        | string | Yes      | HTML body of the template                                                     |
 
 ##### Example Request
 
@@ -149,6 +152,7 @@ curl -u "api_user:token" -X POST 'http://localhost:9000/api/templates' \
             "updated_at": "2020-03-14T17:36:41.288578+01:00",
             "name": "Default template",
             "body": "{{ template \"content\" . }}",
+            "body_source": null,
             "type": "campaign",
             "is_default": true
         }
@@ -192,6 +196,7 @@ curl -u "api_user:token" -X PUT 'http://localhost:9000/api/templates/1/default'
         "updated_at": "2020-03-14T17:36:41.288578+01:00",
         "name": "Default template",
         "body": "{{ template \"content\" . }}",
+        "body_source": null,
         "type": "campaign",
         "is_default": true
     }

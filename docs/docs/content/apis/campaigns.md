@@ -66,6 +66,7 @@ Retrieve all campaigns.
                 "subject": "Welcome to listmonk",
                 "from_email": "No Reply <noreply@yoursite.com>",
                 "body": "<h3>Hi {{ .Subscriber.FirstName }}!</h3>\n\t\t\tThis is a test e-mail campaign. Your second name is {{ .Subscriber.LastName }} and you are from {{ .Subscriber.Attribs.city }}.",
+                "body_source": null,
                 "send_at": "2020-03-15T17:36:41.293233+01:00",
                 "status": "draft",
                 "content_type": "richtext",
@@ -128,6 +129,7 @@ curl -u "api_user:token" -X GET 'http://localhost:9000/api/campaigns/1'
         "subject": "Welcome to listmonk",
         "from_email": "No Reply <noreply@yoursite.com>",
         "body": "<h3>Hi {{ .Subscriber.FirstName }}!</h3>\n\t\t\tThis is a test e-mail campaign. Your second name is {{ .Subscriber.LastName }} and you are from {{ .Subscriber.Attribs.city }}.",
+        "body_source": null,
         "send_at": "2020-03-15T17:36:41.293233+01:00",
         "status": "draft",
         "content_type": "richtext",
@@ -286,21 +288,22 @@ Create a new campaign.
 
 ##### Parameters
 
-| Name         | Type      | Required | Description                                                                             |
-|:-------------|:----------|:---------|:----------------------------------------------------------------------------------------|
-| name         | string    | Yes      | Campaign name.                                                                          |
-| subject      | string    | Yes      | Campaign email subject.                                                                 |
-| lists        | number\[\]  | Yes      | List IDs to send campaign to.                                                           |
-| from_email   | string    |          | 'From' email in campaign emails. Defaults to value from settings if not provided.       |
-| type         | string    | Yes      | Campaign type: 'regular' or 'optin'.                                                    |
-| content_type | string    | Yes      | Content type: 'richtext', 'html', 'markdown', 'plain'.                                  |
-| body         | string    | Yes      | Content body of campaign.                                                               |
-| altbody      | string    |          | Alternate plain text body for HTML (and richtext) emails.                               |
-| send_at      | string    |          | Timestamp to schedule campaign. Format: 'YYYY-MM-DDTHH:MM:SSZ'.                          |
-| messenger    | string    |          | 'email' or a custom messenger defined in settings. Defaults to 'email' if not provided. |
-| template_id  | number    |          | Template ID to use. Defaults to default template if not provided.                       |
-| tags         | string\[\]  |          | Tags to mark campaign.                                                                  |
-| headers      | JSON      |          | Key-value pairs to send as SMTP headers. Example: \[{"x-custom-header": "value"}\].       |
+| Name         | Type       | Required | Description                                                                             |
+|:-------------|:-----------|:---------|:----------------------------------------------------------------------------------------|
+| name         | string     | Yes      | Campaign name.                                                                          |
+| subject      | string     | Yes      | Campaign email subject.                                                                 |
+| lists        | number\[\] | Yes      | List IDs to send campaign to.                                                           |
+| from_email   | string     |          | 'From' email in campaign emails. Defaults to value from settings if not provided.       |
+| type         | string     | Yes      | Campaign type: 'regular' or 'optin'.                                                    |
+| content_type | string     | Yes      | Content type: 'richtext', 'html', 'markdown', 'plain', 'visual'.                        |
+| body         | string     | Yes      | Content body of campaign.                                                               |
+| body_source  | string     |          | If content_type is `visual`, the JSON block source of the body.                         |
+| altbody      | string     |          | Alternate plain text body for HTML (and richtext) emails.                               |
+| send_at      | string     |          | Timestamp to schedule campaign. Format: 'YYYY-MM-DDTHH:MM:SSZ'.                         |
+| messenger    | string     |          | 'email' or a custom messenger defined in settings. Defaults to 'email' if not provided. |
+| template_id  | number     |          | Template ID to use. Defaults to default template if not provided.                       |
+| tags         | string\[\] |          | Tags to mark campaign.                                                                  |
+| headers      | JSON       |          | Key-value pairs to send as SMTP headers. Example: \[{"x-custom-header": "value"}\].     |
 
 ##### Example request
 
@@ -332,6 +335,7 @@ curl -u "api_user:token" 'http://localhost:9000/api/campaigns' -X POST -H 'Conte
         "subject": "Hello, world",
         "from_email": "listmonk \u003cnoreply@listmonk.yoursite.com\u003e",
         "body": "",
+        "body_source": null,
         "altbody": null,
         "send_at": null,
         "status": "draft",
