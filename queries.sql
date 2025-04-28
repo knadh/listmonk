@@ -509,7 +509,7 @@ WITH tpl AS (
         -- HTML template body "import" during creation.
         (CASE WHEN type = 'campaign_visual' THEN NULL ELSE id END) AS id,
         (CASE WHEN type = 'campaign_visual' THEN body ELSE '' END) AS body,
-        (CASE WHEN type = 'campaign_visual' THEN body_source ELSE '' END) AS body_source,
+        (CASE WHEN type = 'campaign_visual' THEN body_source ELSE NULL END) AS body_source,
         (CASE WHEN type = 'campaign_visual' THEN 'visual' ELSE 'richtext' END) AS content_type
     FROM templates
     WHERE
