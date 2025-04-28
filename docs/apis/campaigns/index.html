@@ -2216,6 +2216,7 @@
 <span class="w">                </span><span class="nt">&quot;subject&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Welcome to listmonk&quot;</span><span class="p">,</span>
 <span class="w">                </span><span class="nt">&quot;from_email&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;No Reply &lt;noreply@yoursite.com&gt;&quot;</span><span class="p">,</span>
 <span class="w">                </span><span class="nt">&quot;body&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&lt;h3&gt;Hi {{ .Subscriber.FirstName }}!&lt;/h3&gt;\n\t\t\tThis is a test e-mail campaign. Your second name is {{ .Subscriber.LastName }} and you are from {{ .Subscriber.Attribs.city }}.&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">&quot;body_source&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
 <span class="w">                </span><span class="nt">&quot;send_at&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2020-03-15T17:36:41.293233+01:00&quot;</span><span class="p">,</span>
 <span class="w">                </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;draft&quot;</span><span class="p">,</span>
 <span class="w">                </span><span class="nt">&quot;content_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;richtext&quot;</span><span class="p">,</span>
@@ -2287,6 +2288,7 @@
 <span class="w">        </span><span class="nt">&quot;subject&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Welcome to listmonk&quot;</span><span class="p">,</span>
 <span class="w">        </span><span class="nt">&quot;from_email&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;No Reply &lt;noreply@yoursite.com&gt;&quot;</span><span class="p">,</span>
 <span class="w">        </span><span class="nt">&quot;body&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&lt;h3&gt;Hi {{ .Subscriber.FirstName }}!&lt;/h3&gt;\n\t\t\tThis is a test e-mail campaign. Your second name is {{ .Subscriber.LastName }} and you are from {{ .Subscriber.Attribs.city }}.&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;body_source&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
 <span class="w">        </span><span class="nt">&quot;send_at&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2020-03-15T17:36:41.293233+01:00&quot;</span><span class="p">,</span>
 <span class="w">        </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;draft&quot;</span><span class="p">,</span>
 <span class="w">        </span><span class="nt">&quot;content_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;richtext&quot;</span><span class="p">,</span>
@@ -2504,13 +2506,19 @@ This is a test e-mail campaign. Your second name is Doe and you are from Bengalu
 <td style="text-align: left;">content_type</td>
 <td style="text-align: left;">string</td>
 <td style="text-align: left;">Yes</td>
-<td style="text-align: left;">Content type: 'richtext', 'html', 'markdown', 'plain'.</td>
+<td style="text-align: left;">Content type: 'richtext', 'html', 'markdown', 'plain', 'visual'.</td>
 </tr>
 <tr>
 <td style="text-align: left;">body</td>
 <td style="text-align: left;">string</td>
 <td style="text-align: left;">Yes</td>
 <td style="text-align: left;">Content body of campaign.</td>
+</tr>
+<tr>
+<td style="text-align: left;">body_source</td>
+<td style="text-align: left;">string</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">If content_type is <code>visual</code>, the JSON block source of the body.</td>
 </tr>
 <tr>
 <td style="text-align: left;">altbody</td>
@@ -2575,6 +2583,7 @@ This is a test e-mail campaign. Your second name is Doe and you are from Bengalu
 <span class="w">        </span><span class="nt">&quot;subject&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Hello, world&quot;</span><span class="p">,</span>
 <span class="w">        </span><span class="nt">&quot;from_email&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;listmonk \u003cnoreply@listmonk.yoursite.com\u003e&quot;</span><span class="p">,</span>
 <span class="w">        </span><span class="nt">&quot;body&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;body_source&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
 <span class="w">        </span><span class="nt">&quot;altbody&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
 <span class="w">        </span><span class="nt">&quot;send_at&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
 <span class="w">        </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;draft&quot;</span><span class="p">,</span>

@@ -1734,6 +1734,7 @@
 <span class="w">            </span><span class="nt">&quot;updated_at&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2020-03-14T17:36:41.288578+01:00&quot;</span><span class="p">,</span>
 <span class="w">            </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Default template&quot;</span><span class="p">,</span>
 <span class="w">            </span><span class="nt">&quot;body&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;{{ template \&quot;content\&quot; . }}&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;body_source&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
 <span class="w">            </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;campaign&quot;</span><span class="p">,</span>
 <span class="w">            </span><span class="nt">&quot;is_default&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
 <span class="w">        </span><span class="p">}</span>
@@ -1773,6 +1774,7 @@
 <span class="w">        </span><span class="nt">&quot;updated_at&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2020-03-14T17:36:41.288578+01:00&quot;</span><span class="p">,</span>
 <span class="w">        </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Default template&quot;</span><span class="p">,</span>
 <span class="w">        </span><span class="nt">&quot;body&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;{{ template \&quot;content\&quot; . }}&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;body_source&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
 <span class="w">        </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;campaign&quot;</span><span class="p">,</span>
 <span class="w">        </span><span class="nt">&quot;is_default&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
 <span class="w">    </span><span class="p">}</span>
@@ -1841,13 +1843,19 @@
 <td style="text-align: left;">type</td>
 <td style="text-align: left;">string</td>
 <td style="text-align: left;">Yes</td>
-<td style="text-align: left;">Type of the template (<code>campaign</code> or <code>tx</code>)</td>
+<td style="text-align: left;">Type of the template (<code>campaign</code>, <code>campaign_visual</code>, or <code>tx</code>)</td>
 </tr>
 <tr>
 <td style="text-align: left;">subject</td>
 <td style="text-align: left;">string</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;">Subject line for the template (only for <code>tx</code>)</td>
+</tr>
+<tr>
+<td style="text-align: left;">body_source</td>
+<td style="text-align: left;">string</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">If type is <code>campaign_visual</code>, the JSON source for the email-builder tempalate</td>
 </tr>
 <tr>
 <td style="text-align: left;">body</td>
@@ -1876,6 +1884,7 @@
 <span class="w">            </span><span class="nt">&quot;updated_at&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2020-03-14T17:36:41.288578+01:00&quot;</span><span class="p">,</span>
 <span class="w">            </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Default template&quot;</span><span class="p">,</span>
 <span class="w">            </span><span class="nt">&quot;body&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;{{ template \&quot;content\&quot; . }}&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;body_source&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
 <span class="w">            </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;campaign&quot;</span><span class="p">,</span>
 <span class="w">            </span><span class="nt">&quot;is_default&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
 <span class="w">        </span><span class="p">}</span>
@@ -1921,6 +1930,7 @@
 <span class="w">        </span><span class="nt">&quot;updated_at&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2020-03-14T17:36:41.288578+01:00&quot;</span><span class="p">,</span>
 <span class="w">        </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Default template&quot;</span><span class="p">,</span>
 <span class="w">        </span><span class="nt">&quot;body&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;{{ template \&quot;content\&quot; . }}&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;body_source&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
 <span class="w">        </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;campaign&quot;</span><span class="p">,</span>
 <span class="w">        </span><span class="nt">&quot;is_default&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
 <span class="w">    </span><span class="p">}</span>
