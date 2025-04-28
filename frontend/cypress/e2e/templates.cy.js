@@ -5,7 +5,7 @@ describe('Templates', () => {
   });
 
   it('Counts default templates', () => {
-    cy.get('tbody td[data-label=Name]').should('have.length', 3);
+    cy.get('tbody td[data-label=Name]').should('have.length', 4);
   });
 
   it('Clones campaign template', () => {
@@ -34,8 +34,9 @@ describe('Templates', () => {
     cy.get('tbody td.actions [data-cy=btn-edit]').first().click();
     cy.wait(250);
     cy.get('input[name=name]').clear().type('edited');
-    cy.get('code-flask').shadow().find('.codeflask textarea').invoke('val', '<span>test</span> {{ template "content" . }}')
-      .trigger('input');
+
+    const htmlBody = '<span>test</span><div class="wrap">{{ template "content" . }}</div>';
+    cy.get('[role="textbox"]').invoke('text', htmlBody);
 
     cy.get('.modal-card-foot button.is-primary').click();
     cy.wait(250);
@@ -53,7 +54,8 @@ describe('Templates', () => {
     cy.get('.modal-card-foot button').click();
 
     // Cloned one should have the full template.
-    cy.get('tbody [data-cy=btn-preview').eq(3).click();
+    cy.get('tbody').contains('a', 'cloned campaign').parents('tr').find('[data-cy=btn-preview]')
+      .click();
     cy.wait(500);
     cy.get('.modal-card-body iframe').iframe(() => {
       cy.get('.wrap p').first().contains('Hi there');
@@ -97,6 +99,6 @@ describe('Templates', () => {
       cy.wait(250);
     });
 
-    cy.get('tbody td.actions').should('have.length', 3);
+    cy.get('tbody td.actions').should('have.length', 4);
   });
 });

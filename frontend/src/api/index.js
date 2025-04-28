@@ -71,7 +71,7 @@ http.interceptors.response.use((resp) => {
   }
 
   let msg = '';
-  if (err.response.data && err.response.data.message) {
+  if (err.response && err.response.data && err.response.data.message) {
     msg = err.response.data.message;
   } else {
     msg = err.toString();

@@ -263,6 +263,7 @@ describe('Domain blocklist', () => {
   });
 
   it('Try subscribing via public page', () => {
+    cy.wait(1000);
     cy.visit(`${apiUrl}/subscription/form`);
     cy.get('input[name=email]').clear().type('test@noban.net');
     cy.get('button[type=submit]').click();

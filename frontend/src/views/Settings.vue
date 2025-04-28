@@ -198,7 +198,7 @@ export default Vue.extend({
 
       this.isLoading = true;
       this.$api.updateSettings(form).then((data) => {
-        if (data.needsRestart) {
+        if (typeof data === 'object' && data !== null && data.needsRestart) {
           // There are running campaigns and the app didn't auto restart.
           // The UI will show a warning.
           this.$root.loadConfig();
@@ -228,7 +228,13 @@ export default Vue.extend({
     getSettings() {
       this.isLoading = true;
       this.$api.getSettings().then((data) => {
-        const d = JSON.parse(JSON.stringify(data));
+        let d = {};
+        try {
+          // Create a deep-copy of the settings hierarchy.
+          d = JSON.parse(JSON.stringify(data));
+        } catch (err) {
+          return;
+        }
 
         // Serialize the `email_headers` array map to display on the form.
         for (let i = 0; i < d.smtp.length; i += 1) {
