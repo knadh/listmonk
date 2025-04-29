@@ -242,4 +242,18 @@ export default class Utils {
     p[key] = val;
     localStorage.setItem(prefKey, JSON.stringify(p));
   };
+
+  // Converts Json array to csv
+  jsonToCsv = (jsonData) => {
+    let csv = '';
+    let headers = Object.keys(jsonData[0]);
+    csv += headers.join(',') + '\n';
+    jsonData.forEach(function (row) {
+      let data = headers.map(header => JSON.stringify(row[header]).replaceAll(',', ';')).join(',');
+      csv += data + '\n';
+    });
+    return csv;
+  }
 }
+
+

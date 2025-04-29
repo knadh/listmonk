@@ -34,6 +34,11 @@
               {{ $t('globals.buttons.delete') }}
             </b-button>
           </b-field>
+          <b-field>
+            <b-button class="is-primary" :loading="loading.maintenance" @click="exportSubscribers" expanded>
+              Export
+            </b-button>
+          </b-field>
         </div>
       </div>
     </div><!-- subscribers -->
@@ -146,6 +151,32 @@ export default Vue.extend({
           });
         },
       );
+    },
+
+    exportSubscribers() {
+      console.log("exporting...")
+      this.$api.getSubscribers().then((data) => {
+        let subscribersData = data.results
+        if(subscribersData.length == 0){
+          this.$utils.toast(
+            'No Subscribers available!',
+            false
+          )
+        }else{
+          let csvContent = this.$utils.jsonToCsv(subscribersData);
+          let blob = new Blob([csvContent], { type: 'text/csv' });
+          let url = window.URL.createObjectURL(blob);
+          let a = document.createElement('a');
+          a.href = url;
+          a.download = 'data.csv';
+          document.body.appendChild(a);
+          a.click();
+
+          this.$utils.toast(
+            'Successfully exported subscribers data',
+          )
+        }
+      })
     },
 
     deleteSubscriptions() {
