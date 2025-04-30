@@ -853,6 +853,14 @@ u AS (
 )
 SELECT * FROM subs;
 
+-- name: get-individual-campaign-views
+SELECT cviews.id, cviews.campaign_id, subs.name, subs.email
+FROM campaign_views AS cviews, subscribers AS subs
+ON subs.id = cviews.subscriber_id
+WHERE cviews.id = $1
+AND cviews.created_at <= $2
+AND cviews.created_at >= $3;
+
 -- name: delete-campaign-views
 DELETE FROM campaign_views WHERE created_at < $1;
 
@@ -1009,7 +1017,7 @@ SELECT * FROM media WHERE
     CASE
         WHEN $1 > 0 THEN id = $1
         WHEN $2 != '' THEN uuid = $2::UUID
-        WHEN $3 != '' THEN filename = $3    
+        WHEN $3 != '' THEN filename = $3
         ELSE false
     END;
 
