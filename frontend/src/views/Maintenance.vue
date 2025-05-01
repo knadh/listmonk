@@ -165,18 +165,18 @@
           </b-field>
         </div>
         <div class="column is-4">
-          <b-field :label="$t('maintenance.olderThan')">
+          <b-field label="From">
             <b-datepicker
-              v-model="analyticsDateBefore"
+              v-model="analyticsDateFrom"
               required
               expanded
               icon="calendar-clock"
               :date-formatter="formatDateTime"
             />
           </b-field>
-          <b-field :label="After">
+          <b-field label="To">
             <b-datepicker
-              v-model="analyticsDateAfter"
+              v-model="analyticsDateTo"
               required
               expanded
               icon="calendar-clock"
@@ -218,8 +218,8 @@ export default Vue.extend({
       analyticsType: "all",
       subscriptionType: "optin",
       analyticsDate: dayjs().subtract(7, "day").toDate(),
-      analyticsDateBefore: dayjs().subtract(14, "day").toDate(),
-      analyticsDateAfter: dayjs().subtract(7, "day").toDate(),
+      analyticsDateFrom: dayjs().subtract(14, "day").toDate(),
+      analyticsDateTo: dayjs().toDate(),
       subscriptionDate: dayjs().subtract(7, "day").toDate(),
     };
   },
@@ -247,17 +247,9 @@ export default Vue.extend({
       this.$api.getSubscribers().then((data) => {
         let subscribersData = data.results;
         if (subscribersData.length == 0) {
-          this.$utils.toast("No Subscribers available!", false);
+          this.$utils.toast("No Subscribers available!", "error");
         } else {
-          let csvContent = this.$utils.jsonToCsv(subscribersData);
-          let blob = new Blob([csvContent], { type: "text/csv" });
-          let url = window.URL.createObjectURL(blob);
-          let a = document.createElement("a");
-          a.href = url;
-          a.download = "data.csv";
-          document.body.appendChild(a);
-          a.click();
-
+          this.$utils.downloadCSV(subscribersData);
           this.$utils.toast("Successfully exported subscribers data");
         }
       });
@@ -288,11 +280,34 @@ export default Vue.extend({
 
     exportAnalytics() {
       console.log("get analytics...", this.analyticsType, this.analyticsDate);
-      this.$api.getGCCampaignAnalytics(
-        this.analyticsType,
-        this.analyticsDateBefore,
-        this.analyticsDateAfter
-      );
+      console.log(this.analyticsDateTo, this.analyticsDateFrom);
+      console.log(this.analyticsDateTo < this.analyticsDateFrom);
+      if (this.analyticsDateTo < this.analyticsDateFrom) {
+        this.$utils.toast("'From' Date should be less than 'To' Date", "error");
+        return;
+      }
+      if (this.analyticsType === "views") {
+        this.$api
+          .getGCCampaignAnalyticsViews(
+            1,
+            this.analyticsDateFrom,
+            this.analyticsDateTo
+          )
+          .then((data) => {
+            if (data.length === 0) {
+              this.$utils.toast("No analytics found!", "error");
+              return;
+            }
+
+            this.$utils.downloadCSV(data);
+            this.$utils.toast("Successfully exported subscribers data");
+          })
+          .catch((err) => {
+            console.log(err);
+          });
+      } else {
+        this.$utils.toast("Not supported Yet!", "error");
+      }
     },
   },
 

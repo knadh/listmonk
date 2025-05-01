@@ -298,9 +298,9 @@ type CampaignAnalyticsCount struct {
 }
 
 type CampaignIndividualViews struct {
-	Name   string `db:"name" json:"name"`
-	Email  string `db:"email" json:"email"`
-	Status string `db:"status" json:"status"`
+	Id    string `db:"cid" json:"campaign_id"`
+	Name  string `db:"sname" json:"name"`
+	Email string `db:"email" json:"email"`
 }
 
 type CampaignAnalyticsLink struct {

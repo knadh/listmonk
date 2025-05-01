@@ -2,6 +2,7 @@ package core
 
 import (
 	"database/sql"
+	"log"
 	"net/http"
 	"time"
 
@@ -391,6 +392,7 @@ func (c *Core) GetCampaignAnalyticsCounts(campIDs []int, typ, fromDate, toDate s
 // GetIndividualCampaignAnalyticsViews
 func (c *Core) GetIndividualCampaignAnalyticsViews(campID int, fromDate, toDate string) ([]models.CampaignIndividualViews, error) {
 	out := []models.CampaignIndividualViews{}
+	log.Println(campID, fromDate, toDate)
 	if err := c.q.GetIndividualCampaignViews.Select(&out, campID, fromDate, toDate); err != nil {
 		c.log.Printf("error fetching individual campaign views: %v", err)
 		return nil, echo.NewHTTPError(http.StatusInternalServerError,

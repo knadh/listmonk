@@ -368,20 +368,11 @@ export const deleteGCCampaignAnalytics = async (typ, beforeDate) =>
     params: { before_date: beforeDate },
   });
 
-export const getGCCampaignAnalytics = async (typ, beforeDate, afterDate) => {
-  if (typ === "views") {
-    http.get("/api/campaigns/analytics/views", {
-      loading: models.maintenance,
-      params: { id: 1, before_date: beforeDate, after_date: afterDate },
-    });
-  } else {
-    // to be handled for link clicks
-    // http.get("/api/campaigns/analytics/link_clicks", {
-    //   loading: models.maintenance,
-    //   params: { before_date: beforeDate, after_date: afterDate },
-    // });
-  }
-};
+export const getGCCampaignAnalyticsViews = async (id, from, to) =>
+  http.get("/api/campaigns/analytics/views", {
+    loading: models.maintenance,
+    params: { id, from, to },
+  });
 
 export const deleteGCSubscribers = async (typ) =>
   http.delete(`/api/maintenance/subscribers/${typ}`, {

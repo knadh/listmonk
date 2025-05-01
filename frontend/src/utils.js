@@ -248,14 +248,23 @@ export default class Utils {
   };
 
   // Converts Json array to csv
-  jsonToCsv = (jsonData) => {
-    let csv = Object.keys(jsonData[0]).join(",") + "\n";
+  jsonToCsv = (jsonData) => {};
+
+  downloadCSV = (jsonData) => {
+    let headers = Object.keys(jsonData[0]);
+    let csv = headers.join(",") + "\n";
     jsonData.forEach(function (row) {
       let data = headers
         .map((header) => JSON.stringify(row[header]).replaceAll(",", ";"))
         .join(",");
       csv += data + "\n";
     });
-    return csv;
+    let blob = new Blob([csv], { type: "text/csv" });
+    let url = window.URL.createObjectURL(blob);
+    let a = document.createElement("a");
+    a.href = url;
+    a.download = "data.csv";
+    document.body.appendChild(a);
+    a.click();
   };
 }
