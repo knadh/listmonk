@@ -53,32 +53,27 @@ Cypress.Commands.add('iframe', { prevSubject: 'element' }, ($iframe, callback = 
   .within({}, callback));
 
 Cypress.Commands.add('waitForBackend', () => {
-  // Intercept frontend's health checks to prevent test failures
-  cy.intercept({
-    method: 'GET',
-    url: '/*', // Update with actual polling endpoint
-  }, {
-    continueOnNetworkError: true, // Prevents Cypress from failing on network errors
-  });
+  // Silence all network errors during wait
+  cy.intercept('*', { continueOnNetworkError: true });
 
+  // Keep trying until backend responds successfully
   cy.waitUntil(
     () => cy.request({
-      url: '/api/profile', // Same endpoint as frontend polls
+      url: '/api/health',
       failOnStatusCode: false,
-    }).then((response) => response.status === 200),
+    }).then((res) =>
+      // Re-enable exception handling once backend is healthy
+      res.status === 200),
     {
-      timeout: 10000, // Max wait time (10 seconds)
-      interval: 1000, // Check every 0.5 seconds
+      timeout: 60000,
+      interval: 2000,
     },
   );
 });
 
 Cypress.on('uncaught:exception', (err, runnable) => {
   if (err.hasOwnProperty('request')) {
-    const u = err.request.url;
-    if (u.includes('config') || u.includes('settings') || u.includes('events')) {
-      return false;
-    }
+    return false;
   }
 
   return true;

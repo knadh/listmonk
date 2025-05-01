@@ -241,7 +241,7 @@ INSERT INTO settings (key, value) VALUES
     ('app.enable_public_archive_rss_content', 'true'),
     ('app.send_optin_confirmation', 'true'),
     ('app.check_updates', 'true'),
-    ('app.notify_emails', '["admin1@mysite.com", "admin2@mysite.com"]'),
+    ('app.notify_emails', '[]'),
     ('app.lang', '"en"'),
     ('privacy.individual_tracking', 'false'),
     ('privacy.unsubscribe_header', 'true'),

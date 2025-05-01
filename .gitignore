@@ -4,6 +4,7 @@ frontend/yarn.lock
 frontend/build/
 frontend/public/static/email-builder/
 frontend/dist/
+frontend/email-builder/dist/
 email-builder/node_modules/
 email-builder/.cache/
 email-builder/yarn.lock

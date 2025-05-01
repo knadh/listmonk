@@ -27,9 +27,9 @@ describe('Settings', () => {
     cy.get('.modal button.is-primary').click();
 
     cy.get('[data-cy=btn-save]').click();
+    cy.wait(500);
 
     cy.waitForBackend();
-    cy.wait(2000);
   });
 
   it('Verify settings change', () => {

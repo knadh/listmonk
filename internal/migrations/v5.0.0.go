@@ -8,8 +8,8 @@ import (
 	"github.com/knadh/stuffbin"
 )
 
-// V5_0_0_rc1 performs the DB migrations.
-func V5_0_0_rc1(db *sqlx.DB, fs stuffbin.FileSystem, ko *koanf.Koanf, lo *log.Logger) error {
+// V5_0_0 performs the DB migrations.
+func V5_0_0(db *sqlx.DB, fs stuffbin.FileSystem, ko *koanf.Koanf, lo *log.Logger) error {
 	lo.Println("IMPORTANT: this upgrade might take a while if you have a large database. Please be patient ...")
 	if _, err := db.Exec(`
 		-- Create a new temp materialized view with the fixed query (removing COUNT(*) that returns 1 for NULLs) 
