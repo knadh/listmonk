@@ -33,7 +33,8 @@ router.afterEach((to) => {
 
 async function initConfig(app) {
   // Load logged in user profile, server side config, and the language file before mounting the app.
-  const [profile, cfg] = await Promise.all([api.getUserProfile(), api.getServerConfig()]);
+  const [_profile, cfg] = await Promise.all([api.getUserProfile(), api.getServerConfig()]);
+  let profile = _profile;
 
   const lang = await api.getLang(cfg.lang);
   i18n.locale = cfg.lang;
@@ -42,6 +43,9 @@ async function initConfig(app) {
   Vue.prototype.$utils = new Utils(i18n);
   Vue.prototype.$api = api;
   Vue.prototype.$events = app;
+  Vue.prototype.$refreshUser = async () => {
+    profile = await api.getUserProfile();
+  };
 
   // $can('permission:name') is used in the UI to check whether the logged in user
   // has a certain permission to toggle visibility of UI objects and UI functionality.

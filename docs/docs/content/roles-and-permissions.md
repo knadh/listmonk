@@ -7,7 +7,8 @@ A user role is a collection of user related permissions. User roles are attached
 | Group       | Permission              | Description                                                                                                                                                                                                                          |
 | ----------- | ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | lists       | lists:get_all           | Get details of all lists                                                                                                                                                                                                             |
-|             | lists:manage_all        | Create, update, and delete all lists                                                                                                                                                                                                 |
+|             | lists:manage_all        | Update and delete all lists                                                                                                                                                                                                         |
+|             | lists:create            | Create new lists                                                                                                                                                                                                                     |
 | subscribers | subscribers:get         | Get individual subscriber details                                                                                                                                                                                                    |
 |             | subscribers:get_all     | Get all subscribers and their details                                                                                                                                                                                                |
 |             | subscribers:manage      | Add, update, and delete subscribers                                                                                                                                                                                                  |
@@ -36,6 +37,8 @@ A user role is a collection of user related permissions. User roles are attached
 ## List roles
 
 A list role is a collection of permissions assigned per list. Each list can be assigned a view (read) or manage (update) permission. List roles are attached to user accounts. Only the lists defined in a list role is accessible by the user, be it on the admin UI or via API calls. Do note that the `lists:get_all` and `lists:manage_all` permissions in user roles override all per-list permissions.
+
+Lists created by a user with `lists:create` will be added to that user's list role with both view and manage permissions. Do note that users without a list role who do not have the `lists:get_all` permission will be unable to view created lists.
 
 ## API users
 
