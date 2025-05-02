@@ -23,6 +23,7 @@ type Queries struct {
 	GetSubscriberLists              *sqlx.Stmt `query:"get-subscriber-lists"`
 	GetSubscriptions                *sqlx.Stmt `query:"get-subscriptions"`
 	GetSubscriberListsLazy          *sqlx.Stmt `query:"get-subscriber-lists-lazy"`
+	GetLinkClicksAnalytics          *sqlx.Stmt `query:"get-link-clicks-analytics"`
 	UpdateSubscriber                *sqlx.Stmt `query:"update-subscriber"`
 	UpdateSubscriberWithLists       *sqlx.Stmt `query:"update-subscriber-with-lists"`
 	BlocklistSubscribers            *sqlx.Stmt `query:"blocklist-subscribers"`

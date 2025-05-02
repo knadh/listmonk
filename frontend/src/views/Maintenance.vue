@@ -151,7 +151,7 @@
       <div class="columns">
         <div class="column is-4">
           <b-field label="Data">
-            <b-select v-model="analyticsType" expanded>
+            <b-select v-model="analyticsTypeExport" expanded>
               <option selected value="all">
                 {{ $t("globals.terms.all") }}
               </option>
@@ -216,10 +216,12 @@ export default Vue.extend({
     return {
       subscriberType: "orphan",
       analyticsType: "all",
+      analyticsTypeExport: "all",
       subscriptionType: "optin",
       analyticsDate: dayjs().subtract(7, "day").toDate(),
       analyticsDateFrom: dayjs().subtract(14, "day").toDate(),
       analyticsDateTo: dayjs().toDate(),
+      campaignId: 1,
       subscriptionDate: dayjs().subtract(7, "day").toDate(),
     };
   },
@@ -279,14 +281,14 @@ export default Vue.extend({
     },
 
     exportAnalytics() {
-      console.log("get analytics...", this.analyticsType, this.analyticsDate);
-      console.log(this.analyticsDateTo, this.analyticsDateFrom);
-      console.log(this.analyticsDateTo < this.analyticsDateFrom);
       if (this.analyticsDateTo < this.analyticsDateFrom) {
         this.$utils.toast("'From' Date should be less than 'To' Date", "error");
         return;
       }
-      if (this.analyticsType === "views") {
+      if (
+        this.analyticsTypeExport === "views" ||
+        this.analyticsTypeExport === "all"
+      ) {
         this.$api
           .getGCCampaignAnalyticsViews(
             1,
@@ -299,14 +301,36 @@ export default Vue.extend({
               return;
             }
 
-            this.$utils.downloadCSV(data);
-            this.$utils.toast("Successfully exported subscribers data");
+            this.$utils.downloadCSV(data, "campaign_views");
+            this.$utils.toast("Successfully exported campaign views");
           })
           .catch((err) => {
             console.log(err);
           });
-      } else {
-        this.$utils.toast("Not supported Yet!", "error");
+      }
+
+      if (
+        this.analyticsTypeExport === "clicks" ||
+        this.analyticsTypeExport === "all"
+      ) {
+        this.$api
+          .getGCCampaignAnalyticsLinkClicks(
+            1,
+            this.analyticsDateFrom,
+            this.analyticsDateTo
+          )
+          .then((data) => {
+            if (data.length === 0) {
+              this.$utils.toast("No analytics found!", "error");
+              return;
+            }
+
+            this.$utils.downloadCSV(data, "link_clicks");
+            this.$utils.toast("Successfully exported link clicks data");
+          })
+          .catch((err) => {
+            console.log(err);
+          });
       }
     },
   },

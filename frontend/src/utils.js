@@ -247,10 +247,7 @@ export default class Utils {
     localStorage.setItem(prefKey, JSON.stringify(p));
   };
 
-  // Converts Json array to csv
-  jsonToCsv = (jsonData) => {};
-
-  downloadCSV = (jsonData) => {
+  downloadCSV = (jsonData, fileName) => {
     let headers = Object.keys(jsonData[0]);
     let csv = headers.join(",") + "\n";
     jsonData.forEach(function (row) {
@@ -263,7 +260,7 @@ export default class Utils {
     let url = window.URL.createObjectURL(blob);
     let a = document.createElement("a");
     a.href = url;
-    a.download = "data.csv";
+    a.download = fileName + ".csv";
     document.body.appendChild(a);
     a.click();
   };

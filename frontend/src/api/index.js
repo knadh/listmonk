@@ -374,6 +374,12 @@ export const getGCCampaignAnalyticsViews = async (id, from, to) =>
     params: { id, from, to },
   });
 
+export const getGCCampaignAnalyticsLinkClicks = async (id, from, to) =>
+  http.get("/api/campaigns/analytics/link_clicks", {
+    loading: models.maintenance,
+    params: { id, from, to },
+  });
+
 export const deleteGCSubscribers = async (typ) =>
   http.delete(`/api/maintenance/subscribers/${typ}`, {
     loading: models.maintenance,

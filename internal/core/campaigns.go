@@ -392,12 +392,25 @@ func (c *Core) GetCampaignAnalyticsCounts(campIDs []int, typ, fromDate, toDate s
 // GetIndividualCampaignAnalyticsViews
 func (c *Core) GetIndividualCampaignAnalyticsViews(campID int, fromDate, toDate string) ([]models.CampaignIndividualViews, error) {
 	out := []models.CampaignIndividualViews{}
-	log.Println(campID, fromDate, toDate)
 	if err := c.q.GetIndividualCampaignViews.Select(&out, campID, fromDate, toDate); err != nil {
 		c.log.Printf("error fetching individual campaign views: %v", err)
 		return nil, echo.NewHTTPError(http.StatusInternalServerError,
 			c.i18n.Ts("globals.messages.errorFetching", "name", "{globals.terms.analytics}", "error", pqErrMsg(err)))
 	}
+
+	return out, nil
+}
+
+// Get Individual Link clicks
+func (c *Core) GetLinkClickAnalytics(campID int, fromDate, toDate string) ([]models.CampaignLinkClicksData, error) {
+	out := []models.CampaignLinkClicksData{}
+	log.Println(campID, fromDate, toDate)
+	if err := c.q.GetLinkClicksAnalytics.Select(&out, campID, fromDate, toDate); err != nil {
+		c.log.Printf("error fetching individual campaign views: %v", err)
+		return nil, echo.NewHTTPError(http.StatusInternalServerError,
+			c.i18n.Ts("globals.messages.errorFetching", "name", "{globals.terms.analytics}", "error", pqErrMsg(err)))
+	}
+	log.Println(out)
 
 	return out, nil
 }

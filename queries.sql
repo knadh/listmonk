@@ -1326,3 +1326,13 @@ UPDATE roles SET name=$2, permissions=$3 WHERE id=$1 and parent_id IS NULL RETUR
 
 -- name: delete-role
 DELETE FROM roles WHERE id=$1;
+
+-- name: get-link-clicks-analytics
+SELECT campaign_id AS cid, subscribers.name AS sname,
+subscribers.email AS email, links.url AS url
+FROM link_clicks
+INNER JOIN links ON link_id = link_clicks.id
+INNER JOIN subscribers ON subscribers.id = subscriber_id
+WHERE link_clicks.campaign_id = $1
+AND link_clicks.created_at >= $2
+AND link_clicks.created_at <= $3;

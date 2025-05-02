@@ -592,6 +592,31 @@ func (a *App) GetIndividualCampaignViewAnalytics(c echo.Context) error {
 	return c.JSON(http.StatusOK, okResp{out})
 }
 
+// Get link clicks information
+func (a *App) GetLinkClickAnalytics(c echo.Context) error {
+	id, err := strconv.Atoi(c.Request().URL.Query()["id"][0])
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest,
+			a.i18n.Ts("globals.messages.errorInvalidIDs", "error", err.Error()))
+	}
+
+	var (
+		from = c.QueryParams().Get("from")
+		to   = c.QueryParams().Get("to")
+	)
+	if !strHasLen(from, 10, 30) || !strHasLen(to, 10, 30) {
+		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("analytics.invalidDates"))
+	}
+
+	// Get the analytics numbers from the DB for the campaigns.
+	out, err := a.core.GetLinkClickAnalytics(id, from, to)
+	if err != nil {
+		return err
+	}
+
+	return c.JSON(http.StatusOK, okResp{out})
+}
+
 // sendTestMessage takes a campaign and a subscriber and sends out a sample campaign message.
 func (a *App) sendTestMessage(sub models.Subscriber, camp *models.Campaign) error {
 	if err := camp.CompileTemplate(a.manager.TemplateFuncs(camp)); err != nil {
