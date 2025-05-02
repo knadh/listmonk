@@ -255,15 +255,19 @@ export default Vue.extend({
         this.disabled = true;
       }
     } else {
-      const skip = ['admin', 'users'];
+      const disabledGroups = ['users', 'settings'];
+      const disabledPerms = [
+        'lists:get_all',
+        'lists:manage_all',
+        'subscribers:get_all',
+        'subscribers:sql_query',
+        'campaigns:get_all',
+        'campaigns:manage_all',
+      ];
       this.form.permissions = this.serverConfig.permissions.reduce((acc, item) => {
-        if (skip.includes(item.group)) {
-          return acc;
-        }
+        if (disabledGroups.includes(item.group)) return acc;
         item.permissions.forEach((p) => {
-          if (p !== 'subscribers:sql_query' && !p.startsWith('lists:') && !p.startsWith('settings:')) {
-            acc.push(p);
-          }
+          if (!disabledPerms.includes(p)) acc.push(p);
         });
         return acc;
       }, []);
