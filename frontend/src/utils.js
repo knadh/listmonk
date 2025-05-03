@@ -1,26 +1,26 @@
 import {
   ToastProgrammatic as Toast,
   DialogProgrammatic as Dialog,
-} from "buefy";
-import dayjs from "dayjs";
-import relativeTime from "dayjs/plugin/relativeTime";
-import updateLocale from "dayjs/plugin/updateLocale";
+} from 'buefy';
+import dayjs from 'dayjs';
+import relativeTime from 'dayjs/plugin/relativeTime';
+import updateLocale from 'dayjs/plugin/updateLocale';
 
 dayjs.extend(updateLocale);
 dayjs.extend(relativeTime);
 
 const reEmail = /(.+?)@(.+?)/gi;
-const prefKey = "listmonk_pref";
+const prefKey = 'listmonk_pref';
 
 const htmlEntities = {
-  "&": "&amp;",
-  "<": "&lt;",
-  ">": "&gt;",
-  '"': "&quot;",
-  "'": "&#39;",
-  "/": "&#x2F;",
-  "`": "&#x60;",
-  "=": "&#x3D;",
+  '&': '&amp;',
+  '<': '&lt;',
+  '>': '&gt;',
+  '"': '&quot;',
+  "'": '&#39;',
+  '/': '&#x2F;',
+  '`': '&#x60;',
+  '=': '&#x3D;',
 };
 
 export default class Utils {
@@ -29,21 +29,21 @@ export default class Utils {
     this.intlNumFormat = new Intl.NumberFormat();
 
     if (i18n) {
-      dayjs.updateLocale("en", {
+      dayjs.updateLocale('en', {
         relativeTime: {
-          future: "%s",
-          past: "%s",
-          s: `${i18n.tc("globals.terms.second", 2)}`,
-          m: `1 ${i18n.tc("globals.terms.minute", 1)}`,
-          mm: `%d ${i18n.tc("globals.terms.minute", 2)}`,
-          h: `1 ${i18n.tc("globals.terms.hour", 1)}`,
-          hh: `%d ${i18n.tc("globals.terms.hour", 2)}`,
-          d: `1 ${i18n.tc("globals.terms.day", 1)}`,
-          dd: `%d ${i18n.tc("globals.terms.day", 2)}`,
-          M: `1 ${i18n.tc("globals.terms.month", 1)}`,
-          MM: `%d ${i18n.tc("globals.terms.month", 2)}`,
-          y: `${i18n.tc("globals.terms.year", 1)}`,
-          yy: `%d ${i18n.tc("globals.terms.year", 2)}`,
+          future: '%s',
+          past: '%s',
+          s: `${i18n.tc('globals.terms.second', 2)}`,
+          m: `1 ${i18n.tc('globals.terms.minute', 1)}`,
+          mm: `%d ${i18n.tc('globals.terms.minute', 2)}`,
+          h: `1 ${i18n.tc('globals.terms.hour', 1)}`,
+          hh: `%d ${i18n.tc('globals.terms.hour', 2)}`,
+          d: `1 ${i18n.tc('globals.terms.day', 1)}`,
+          dd: `%d ${i18n.tc('globals.terms.day', 2)}`,
+          M: `1 ${i18n.tc('globals.terms.month', 1)}`,
+          MM: `%d ${i18n.tc('globals.terms.month', 2)}`,
+          y: `${i18n.tc('globals.terms.year', 1)}`,
+          yy: `%d ${i18n.tc('globals.terms.year', 2)}`,
         },
       });
     }
@@ -54,7 +54,7 @@ export default class Utils {
   // Parses an ISO timestamp to a simpler form.
   niceDate = (stamp, showTime) => {
     if (!stamp) {
-      return "";
+      return '';
     }
 
     const d = dayjs(stamp);
@@ -62,7 +62,7 @@ export default class Utils {
     const month = this.i18n.t(`globals.months.${d.month() + 1}`);
     let out = d.format(`[${day},] DD [${month}] YYYY`);
     if (showTime) {
-      out += d.format(", HH:mm");
+      out += d.format(', HH:mm');
     }
 
     return out;
@@ -75,7 +75,7 @@ export default class Utils {
     // Get the duration string, eg: "2 days".
     const diff = b.from(a, true);
 
-    return `${b.isBefore(a) ? "-" : ""}${diff}`;
+    return `${b.isBefore(a) ? '-' : ''}${diff}`;
   };
 
   // Simple, naive, e-mail address check.
@@ -86,17 +86,17 @@ export default class Utils {
       return 0;
     }
 
-    let pfx = "";
+    let pfx = '';
     let div = 1;
 
     if (n >= 1.0e9) {
-      pfx = "b";
+      pfx = 'b';
       div = 1.0e9;
     } else if (n >= 1.0e6) {
-      pfx = "m";
+      pfx = 'm';
       div = 1.0e6;
     } else if (n >= 1.0e4) {
-      pfx = "k";
+      pfx = 'k';
       div = 1.0e3;
     } else {
       return n;
@@ -121,11 +121,11 @@ export default class Utils {
       return [];
     }
 
-    if (typeof ids === "string") {
+    if (typeof ids === 'string') {
       return [parseInt(ids, 10)];
     }
 
-    if (typeof ids === "number") {
+    if (typeof ids === 'number') {
       return [parseInt(ids, 10)];
     }
 
@@ -140,12 +140,12 @@ export default class Utils {
   // UI shortcuts.
   confirm = (msg, onConfirm, onCancel) => {
     Dialog.confirm({
-      scroll: "keep",
+      scroll: 'keep',
       message: !msg
-        ? this.i18n.t("globals.messages.confirm")
+        ? this.i18n.t('globals.messages.confirm')
         : this.escapeHTML(msg),
-      confirmText: this.i18n.t("globals.buttons.ok"),
-      cancelText: this.i18n.t("globals.buttons.cancel"),
+      confirmText: this.i18n.t('globals.buttons.ok'),
+      cancelText: this.i18n.t('globals.buttons.cancel'),
       onConfirm,
       onCancel,
     });
@@ -155,12 +155,12 @@ export default class Utils {
     const p = params || {};
 
     Dialog.prompt({
-      scroll: "keep",
+      scroll: 'keep',
       message: this.escapeHTML(msg),
-      confirmText: p.confirmText || this.i18n.t("globals.buttons.ok"),
-      cancelText: p.cancelText || this.i18n.t("globals.buttons.cancel"),
+      confirmText: p.confirmText || this.i18n.t('globals.buttons.ok'),
+      cancelText: p.cancelText || this.i18n.t('globals.buttons.cancel'),
       inputAttrs: {
-        type: "string",
+        type: 'string',
         maxlength: 200,
         ...inputAttrs,
       },
@@ -173,22 +173,20 @@ export default class Utils {
   toast = (msg, typ, duration, queue) => {
     Toast.open({
       message: this.escapeHTML(msg),
-      type: !typ ? "is-success" : typ,
+      type: !typ ? 'is-success' : typ,
       queue,
       duration: duration || 3000,
-      position: "is-top",
+      position: 'is-top',
       pauseOnHover: true,
     });
   };
 
   // Takes a props.row from a Buefy b-column <td> template and
   // returns a `data-id` attribute which Buefy then applies to the td.
-  tdID = (row) => ({ "data-id": row.id.toString() });
+  tdID = (row) => ({ 'data-id': row.id.toString() });
 
   camelString = (str) => {
-    const s = str.replace(/[-_\s]+(.)?/g, (match, chr) =>
-      chr ? chr.toUpperCase() : ""
-    );
+    const s = str.replace(/[-_\s]+(.)?/g, (match, chr) => (chr ? chr.toUpperCase() : ''));
     return s.substr(0, 1).toLowerCase() + s.substr(1);
   };
 
@@ -205,12 +203,12 @@ export default class Utils {
     }
 
     if (Array.isArray(obj)) {
-      return obj.map((o) => this.camelKeys(o, testFunc, `${keys || ""}.*`));
+      return obj.map((o) => this.camelKeys(o, testFunc, `${keys || ''}.*`));
     }
 
     if (obj.constructor === Object) {
       return Object.keys(obj).reduce((result, key) => {
-        const keyPath = `${keys || ""}.${key}`;
+        const keyPath = `${keys || ''}.${key}`;
         let k = key;
 
         // If there's no testfunc or if a function is defined and it returns true, convert.
@@ -248,19 +246,19 @@ export default class Utils {
   };
 
   downloadCSV = (jsonData, fileName) => {
-    let headers = Object.keys(jsonData[0]);
-    let csv = headers.join(",") + "\n";
-    jsonData.forEach(function (row) {
-      let data = headers
-        .map((header) => JSON.stringify(row[header]).replaceAll(",", ";"))
-        .join(",");
-      csv += data + "\n";
+    const headers = Object.keys(jsonData[0]);
+    let csv = `${headers.join(',')}\n`;
+    jsonData.forEach((row) => {
+      const data = headers
+        .map((header) => JSON.stringify(row[header]).replaceAll(',', ';'))
+        .join(',');
+      csv += `${data}\n`;
     });
-    let blob = new Blob([csv], { type: "text/csv" });
-    let url = window.URL.createObjectURL(blob);
-    let a = document.createElement("a");
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
     a.href = url;
-    a.download = fileName + ".csv";
+    a.download = `${fileName}.csv`;
     document.body.appendChild(a);
     a.click();
   };

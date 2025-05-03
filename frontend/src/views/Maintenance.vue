@@ -205,54 +205,53 @@
 </template>
 
 <script>
-import dayjs from "dayjs";
-import Vue from "vue";
-import { mapState } from "vuex";
+import dayjs from 'dayjs';
+import Vue from 'vue';
+import { mapState } from 'vuex';
 
 export default Vue.extend({
   components: {},
 
   data() {
     return {
-      subscriberType: "orphan",
-      analyticsType: "all",
-      analyticsTypeExport: "all",
-      subscriptionType: "optin",
-      analyticsDate: dayjs().subtract(7, "day").toDate(),
-      analyticsDateFrom: dayjs().subtract(14, "day").toDate(),
+      subscriberType: 'orphan',
+      analyticsType: 'all',
+      analyticsTypeExport: 'all',
+      subscriptionType: 'optin',
+      analyticsDate: dayjs().subtract(7, 'day').toDate(),
+      analyticsDateFrom: dayjs().subtract(14, 'day').toDate(),
       analyticsDateTo: dayjs().toDate(),
       campaignId: 1,
-      subscriptionDate: dayjs().subtract(7, "day").toDate(),
+      subscriptionDate: dayjs().subtract(7, 'day').toDate(),
     };
   },
 
   methods: {
     formatDateTime(s) {
-      return dayjs(s).format("YYYY-MM-DD");
+      return dayjs(s).format('YYYY-MM-DD');
     },
 
     deleteSubscribers() {
       this.$utils.confirm(null, () => {
         this.$api.deleteGCSubscribers(this.subscriberType).then((data) => {
           this.$utils.toast(
-            this.$t("globals.messages.deletedCount", {
-              name: this.$tc("globals.terms.subscribers", 2),
+            this.$t('globals.messages.deletedCount', {
+              name: this.$tc('globals.terms.subscribers', 2),
               num: data.count,
-            })
+            }),
           );
         });
       });
     },
 
     exportSubscribers() {
-      console.log("exporting...");
       this.$api.getSubscribers().then((data) => {
-        let subscribersData = data.results;
-        if (subscribersData.length == 0) {
-          this.$utils.toast("No Subscribers available!", "error");
+        const subscribersData = data.results;
+        if (subscribersData.length === 0) {
+          this.$utils.toast('No Subscribers available!', 'error');
         } else {
           this.$utils.downloadCSV(subscribersData);
-          this.$utils.toast("Successfully exported subscribers data");
+          this.$utils.toast('Successfully exported subscribers data');
         }
       });
     },
@@ -261,10 +260,10 @@ export default Vue.extend({
       this.$utils.confirm(null, () => {
         this.$api.deleteGCSubscriptions(this.subscriptionDate).then((data) => {
           this.$utils.toast(
-            this.$t("globals.messages.deletedCount", {
-              name: this.$tc("globals.terms.subscriptions", 2),
+            this.$t('globals.messages.deletedCount', {
+              name: this.$tc('globals.terms.subscriptions', 2),
               num: data.count,
-            })
+            }),
           );
         });
       });
@@ -275,68 +274,68 @@ export default Vue.extend({
         this.$api
           .deleteGCCampaignAnalytics(this.analyticsType, this.analyticsDate)
           .then(() => {
-            this.$utils.toast(this.$t("globals.messages.done"));
+            this.$utils.toast(this.$t('globals.messages.done'));
           });
       });
     },
 
     exportAnalytics() {
       if (this.analyticsDateTo < this.analyticsDateFrom) {
-        this.$utils.toast("'From' Date should be less than 'To' Date", "error");
+        this.$utils.toast("'From' Date should be less than 'To' Date", 'error');
         return;
       }
       if (
-        this.analyticsTypeExport === "views" ||
-        this.analyticsTypeExport === "all"
+        this.analyticsTypeExport === 'views'
+        || this.analyticsTypeExport === 'all'
       ) {
         this.$api
           .getGCCampaignAnalyticsViews(
             1,
             this.analyticsDateFrom,
-            this.analyticsDateTo
+            this.analyticsDateTo,
           )
           .then((data) => {
             if (data.length === 0) {
-              this.$utils.toast("No analytics found!", "error");
+              this.$utils.toast('No analytics found!', 'error');
               return;
             }
 
-            this.$utils.downloadCSV(data, "campaign_views");
-            this.$utils.toast("Successfully exported campaign views");
+            this.$utils.downloadCSV(data, 'campaign_views');
+            this.$utils.toast('Successfully exported campaign views');
           })
           .catch((err) => {
-            console.log(err);
+            this.$utils.toast(err, 'error');
           });
       }
 
       if (
-        this.analyticsTypeExport === "clicks" ||
-        this.analyticsTypeExport === "all"
+        this.analyticsTypeExport === 'clicks'
+        || this.analyticsTypeExport === 'all'
       ) {
         this.$api
           .getGCCampaignAnalyticsLinkClicks(
             1,
             this.analyticsDateFrom,
-            this.analyticsDateTo
+            this.analyticsDateTo,
           )
           .then((data) => {
             if (data.length === 0) {
-              this.$utils.toast("No analytics found!", "error");
+              this.$utils.toast('No analytics found!', 'error');
               return;
             }
 
-            this.$utils.downloadCSV(data, "link_clicks");
-            this.$utils.toast("Successfully exported link clicks data");
+            this.$utils.downloadCSV(data, 'link_clicks');
+            this.$utils.toast('Successfully exported link clicks data');
           })
           .catch((err) => {
-            console.log(err);
+            this.$utils.toast(err, 'error');
           });
       }
     },
   },
 
   computed: {
-    ...mapState(["loading"]),
+    ...mapState(['loading']),
   },
 });
 </script>
