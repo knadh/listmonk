@@ -314,9 +314,14 @@ func (a *App) SendExternalTxMessage(c echo.Context) error {
 
 // validateExternalTxMessage validates the external tx message fields.
 func (a *App) validateExternalTxMessage(m models.TxMessage) (models.TxMessage, error) {
-	if len(m.SubscriberEmails) == 0 {
+	if len(m.SubscriberEmails) == 0 && m.SubscriberEmail == "" {
 		return m, echo.NewHTTPError(http.StatusBadRequest,
-			a.i18n.Ts("globals.messages.invalidFields", "name", "subscriber_emails is required"))
+			a.i18n.Ts("globals.messages.invalidFields", "name", "subscriber_emails or subscriber_email is required"))
+	}
+
+	// Convert subscriber_email to subscriber_emails if needed
+	if m.SubscriberEmail != "" {
+		m.SubscriberEmails = append(m.SubscriberEmails, m.SubscriberEmail)
 	}
 
 	for n, email := range m.SubscriberEmails {
