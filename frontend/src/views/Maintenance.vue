@@ -147,7 +147,7 @@
           </b-field>
         </div>
       </div>
-
+      <hr />
       <div class="columns">
         <div class="column is-4">
           <b-field label="Data">
@@ -164,7 +164,6 @@
             </b-select>
           </b-field>
         </div>
-        <hr />
         <div class="column is-4">
           <b-field label="From">
             <b-datepicker
