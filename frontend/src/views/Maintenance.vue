@@ -164,6 +164,7 @@
             </b-select>
           </b-field>
         </div>
+        <hr />
         <div class="column is-4">
           <b-field label="From">
             <b-datepicker
