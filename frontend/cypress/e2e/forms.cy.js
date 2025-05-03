@@ -12,19 +12,16 @@ describe('Forms', () => {
       .its('length')
       .should('eq', 1);
 
-    cy.get('[data-cy=form] code-flask').should('not.exist');
+    cy.get('[data-cy=form] [role=textbox]').should('not.exist');
   });
 
   it('Selects public list', () => {
     // Click the list checkbox.
     cy.get('ul[data-cy=lists] .checkbox').click();
 
-    // Make sure the <pre> form HTML has appeared.
-    cy.get('code-flask').shadow().find('pre').then(($pre) => {
-      // Check that the ID of the list in the checkbox appears in the HTML.
-      cy.get('ul[data-cy=lists] input').then(($inp) => {
-        cy.wrap($pre).contains($inp.val());
-      });
+    // Check that the ID of the list in the checkbox appears in the HTML.
+    cy.get('ul[data-cy=lists] input').then(($inp) => {
+      cy.get('[role=textbox]').contains($inp.val());
     });
 
     // Click the list checkbox.

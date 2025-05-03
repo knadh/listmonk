@@ -71,7 +71,7 @@ http.interceptors.response.use((resp) => {
   }
 
   let msg = '';
-  if (err.response.data && err.response.data.message) {
+  if (err.response && err.response.data && err.response.data.message) {
     msg = err.response.data.message;
   } else {
     msg = err.toString();
@@ -370,6 +370,11 @@ export const createTemplate = async (data) => http.post(
 export const getTemplates = async () => http.get(
   '/api/templates',
   { loading: models.templates, store: models.templates },
+);
+
+export const getTemplate = async (id) => http.get(
+  `/api/templates/${id}`,
+  { loading: models.templates },
 );
 
 export const updateTemplate = async (data) => http.put(

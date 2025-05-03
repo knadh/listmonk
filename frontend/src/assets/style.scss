@@ -296,32 +296,51 @@ body.is-noscroll {
 }
 
 /* WYSIWYG / HTML code editor */
-.html-editor, .markdown-editor {
+.plain-editor textarea, .code-editor {
   position: relative;
   width: 100%;
   min-height: 250px;
   height: 65vh;
   border: 1px solid $grey-lighter;
   border-radius: 2px;
+
+  .cm-editor {
+    height: 100%;
+  }
 }
 
-.plain-editor textarea {
-  height: 65vh;
+.code-editor {
+  .cm-lineNumbers .cm-gutterElement{
+    color: #aaa;
+    font-size: 0.875rem;
+    padding-right: 10px;
+  }
+  .cm-gutters {
+    margin-right: 10px;
+  }
 }
 
 .alt-body textarea {
   height: 30vh;
 }
 
-
 .editor {
   margin-bottom: 30px;
 
+  .copy-visual-template-list {
+    select {
+      min-width: 200px;
+    }
+  }
+}
+
+.richtext-editor {
   .tox-tinymce {
+    height: 100%;
     box-shadow: 2px 2px 0 #f3f3f3;
     border: 1px solid #e6e6e6;
     border-radius: 3px;
-  
+
     .tox-toolbar__primary {
       border-color: #e6e6e6 !important;
     }
@@ -336,9 +355,7 @@ body.is-noscroll {
   .tox-tinymce--toolbar-sticky-on .tox-editor-header {
     padding-top: 48px !important;
   }
-
 }
-
 
 .tox.tox-silver-sink {
   z-index: 850;
@@ -509,6 +526,23 @@ body.is-noscroll {
     &:focus:not(:active), &.is-focused:not(:active) {
       box-shadow: 0 0 0 0.2em rgba($primary, 0.25);
     }
+
+    .has-kbd {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .kbd {
+      font-size: 0.575rem;
+      font-family: monospace;
+      color: #cbdefa;
+      border: 1px solid #5381c5;
+      border-radius: 3px;
+      padding: 1px 5px;
+      display: inline-block;
+      border-width: 1px 2px 2px 1px;
+    }
   }
 
   &.is-light.is-outlined {
@@ -531,6 +565,9 @@ body.is-noscroll {
   }
 }
 
+.button.is-primary[disabled] {
+  border-color: $grey-light;
+}
 .has-addons {
   .controls .button.is-primary {
     border-top-left-radius: 0;
@@ -647,7 +684,7 @@ body.is-noscroll {
   border-radius: 30px !important;
   border: 0;
   padding: 0 20px !important;
-  
+
   &.is-small {
     font-size: 0.65rem;
     background: $white-ter;
@@ -655,7 +692,7 @@ body.is-noscroll {
     padding: 3px 5px;
     min-width: auto !important;
   }
-  
+
   &:not(body) {
     background-color: #eee;
     font-size: 0.85em;
@@ -676,7 +713,7 @@ body.is-noscroll {
     color: $green;
     background: #dcfce7;
   }
-  &.blocklisted, &.cancelled, &.status-unsubscribed {
+  &.blocklisted, &.cancelled, &.status-unsubscribed, &.campaign_visual {
     $color: $red;
     color: $color;
     background: #fff1f0;
@@ -955,8 +992,8 @@ section.analytics {
   .box {
     margin-bottom: 30px;
   }
-  .html-editor {
-    height: auto;
+  .code-editor {
+    height: 20vh;
     min-height: 350px;
   }
 }

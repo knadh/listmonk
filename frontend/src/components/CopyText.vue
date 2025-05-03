@@ -1,6 +1,6 @@
 <template>
   <a href="#" class="copy-text" ref="text" @click.prevent="onClick">
-    {{ $props.text }}
+    <template v-if="!hideText">{{ $props.text }}</template>
     <b-icon icon="file-multiple-outline" size="is-small" />
   </a>
 </template>
@@ -11,10 +11,14 @@ export default {
 
   props: {
     text: { type: String, default: '' },
+    hideText: { type: Boolean, default: false },
   },
 
   methods: {
-    onClick() {
+    onClick(e) {
+      e.preventDefault();
+      e.stopPropagation();
+
       const input = document.createElement('input');
       input.setAttribute('type', 'text');
       input.style.opacity = '0';

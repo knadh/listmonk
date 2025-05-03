@@ -1,25 +1,35 @@
 <template>
   <div class="items">
     <div class="columns">
-      <div class="column is-4">
+      <div class="column is-3">
         <b-field :label="$t('settings.security.enableOIDC')" :message="$t('settings.security.OIDCHelp')">
           <b-switch v-model="data['security.oidc']['enabled']" name="security.oidc" />
         </b-field>
       </div>
-      <div class="column is-8">
-        <b-field :label="$t('settings.security.OIDCURL')" label-position="on-border">
-          <div>
-            <b-input v-model="data['security.oidc']['provider_url']" name="oidc.provider_url"
-              placeholder="https://login.yoursite.com" :disabled="!data['security.oidc']['enabled']" :maxlength="300"
-              required type="url" pattern="https?://.*" />
+      <div class="column is-9">
+        <div class="columns">
+          <div class="column is-7">
+            <b-field :label="$t('settings.security.OIDCURL')" label-position="on-border">
+              <div>
+                <b-input v-model="data['security.oidc']['provider_url']" name="oidc.provider_url"
+                  placeholder="https://login.yoursite.com" :disabled="!data['security.oidc']['enabled']"
+                  :maxlength="300" required type="url" pattern="https?://.*" />
 
-            <div class="spaced-links is-size-7 mt-2" :class="{ 'disabled': !data['security.oidc']['enabled'] }">
-              <a href="#" @click.prevent="() => setProvider(n, 'google')">Google</a>
-              <a href="#" @click.prevent="() => setProvider(n, 'microsoft')">Microsoft</a>
-              <a href="#" @click.prevent="() => setProvider(n, 'apple')">Apple</a>
-            </div>
+                <div class="spaced-links is-size-7 mt-2" :class="{ 'disabled': !data['security.oidc']['enabled'] }">
+                  <a href="#" @click.prevent="() => setProvider('google')">Google</a>
+                  <a href="#" @click.prevent="() => setProvider('microsoft')">Microsoft</a>
+                  <a href="#" @click.prevent="() => setProvider('apple')">Apple</a>
+                </div>
+              </div>
+            </b-field>
           </div>
-        </b-field>
+          <div class="column is-5">
+            <b-field :label="$t('settings.security.OIDCName')" label-position="on-border">
+              <b-input v-model="data['security.oidc']['provider_name']" name="oidc.provider_name" ref="provider_name"
+                :disabled="!data['security.oidc']['enabled']" :maxlength="200" />
+            </b-field>
+          </div>
+        </div>
 
         <b-field :label="$t('settings.security.OIDCClientID')" label-position="on-border">
           <b-input v-model="data['security.oidc']['client_id']" name="oidc.client_id" ref="client_id"
@@ -43,12 +53,12 @@
 
     <hr />
     <div class="columns">
-      <div class="column is-4">
+      <div class="column is-3">
         <b-field :label="$t('settings.security.enableCaptcha')" :message="$t('settings.security.enableCaptchaHelp')">
           <b-switch v-model="data['security.enable_captcha']" name="security.captcha" />
         </b-field>
       </div>
-      <div class="column is-8">
+      <div class="column is-9">
         <b-field :label="$t('settings.security.captchaKey')" label-position="on-border"
           :message="$t('settings.security.captchaKeyHelp')">
           <b-input v-model="data['security.captcha_key']" name="captcha_key"
@@ -108,8 +118,9 @@ export default Vue.extend({
   },
 
   methods: {
-    setProvider(n, provider) {
+    setProvider(provider) {
       this.$set(this.data['security.oidc'], 'provider_url', OIDC_PROVIDERS[provider]);
+      this.$set(this.data['security.oidc'], 'provider_name', provider.charAt(0).toUpperCase() + provider.slice(1));
 
       this.$nextTick(() => {
         this.$refs.client_id.focus();

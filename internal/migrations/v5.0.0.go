@@ -40,7 +40,10 @@ func V5_0_0(db *sqlx.DB, fs stuffbin.FileSystem, ko *koanf.Koanf, lo *log.Logger
 
 	// Insert new preference settings.
 	if _, err := db.Exec(`
-		INSERT INTO settings (key, value) VALUES('privacy.domain_allowlist', '[]') ON CONFLICT DO NOTHING;
+		INSERT INTO settings (key, value) VALUES
+			('privacy.domain_allowlist', '[]'),
+			('security.oidc.provider_name', '""')
+		ON CONFLICT DO NOTHING;
 	`); err != nil {
 		return err
 	}
@@ -50,6 +53,42 @@ func V5_0_0(db *sqlx.DB, fs stuffbin.FileSystem, ko *koanf.Koanf, lo *log.Logger
 		UPDATE roles SET permissions = permissions || '{campaigns:get_all}' WHERE id = 1 AND NOT permissions @> '{campaigns:get_all}';
 		UPDATE roles SET permissions = permissions || '{campaigns:manage_all}' WHERE id = 1 AND NOT permissions @> '{campaigns:manage_all}';
 	`); err != nil {
+		return err
+	}
+
+	// Visual editor changes.
+	if _, err := db.Exec(`
+		ALTER TYPE content_type ADD VALUE IF NOT EXISTS 'visual';
+		ALTER TYPE template_type ADD VALUE IF NOT EXISTS 'campaign_visual';
+		ALTER TABLE templates ADD COLUMN IF NOT EXISTS body_source TEXT NULL;
+		ALTER TABLE campaigns ADD COLUMN IF NOT EXISTS body_source TEXT NULL;
+	`); err != nil {
+		return err
+	}
+	if _, err := db.Exec(`
+		ALTER TABLE campaigns DROP CONSTRAINT IF EXISTS campaigns_template_id_fkey,
+			ADD FOREIGN KEY (template_id) REFERENCES templates(id) ON DELETE SET NULL,
+			ALTER COLUMN template_id DROP DEFAULT;
+
+		ALTER TABLE campaigns DROP CONSTRAINT IF EXISTS campaigns_archive_template_id_fkey,
+			ADD FOREIGN KEY (archive_template_id) REFERENCES templates(id) ON DELETE SET NULL,
+			ALTER COLUMN archive_template_id DROP DEFAULT;
+	`); err != nil {
+		return err
+	}
+
+	// Insert visual campaign template.
+	visualTpl, err := fs.Get("/static/email-templates/default-visual.tpl")
+	if err != nil {
+		lo.Fatalf("error reading default visual template: %v", err)
+	}
+	visualSrc, err := fs.Get("/static/email-templates/default-visual.json")
+	if err != nil {
+		lo.Fatalf("error reading default visual template json: %v", err)
+	}
+
+	if _, err := db.Exec(`INSERT INTO templates (name, type, subject, body, body_source) VALUES($1, $2, $3, $4, $5)`,
+		"Sample visual template", "campaign_visual", "", visualTpl.ReadBytes(), visualSrc.ReadBytes()); err != nil {
 		return err
 	}
 

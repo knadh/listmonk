@@ -8,11 +8,17 @@ import (
 	"time"
 
 	"github.com/labstack/echo/v4"
+	null "gopkg.in/volatiletech/null.v6"
 )
 
 type serverConfig struct {
-	RootURL       string          `json:"root_url"`
-	FromEmail     string          `json:"from_email"`
+	RootURL            string `json:"root_url"`
+	FromEmail          string `json:"from_email"`
+	PublicSubscription struct {
+		Enabled        bool        `json:"enabled"`
+		CaptchaEnabled bool        `json:"captcha_enabled"`
+		CaptchaKey     null.String `json:"captcha_key"`
+	} `json:"public_subscription"`
 	Messengers    []string        `json:"messengers"`
 	Langs         []i18nLang      `json:"langs"`
 	Lang          string          `json:"lang"`
@@ -31,6 +37,11 @@ func (a *App) GetServerConfig(c echo.Context) error {
 		Lang:          a.cfg.Lang,
 		Permissions:   a.cfg.PermissionsRaw,
 		HasLegacyUser: a.cfg.HasLegacyUser,
+	}
+	out.PublicSubscription.Enabled = a.cfg.EnablePublicSubPage
+	if a.cfg.Security.EnableCaptcha {
+		out.PublicSubscription.CaptchaEnabled = true
+		out.PublicSubscription.CaptchaKey = null.StringFrom(a.cfg.Security.CaptchaKey)
 	}
 
 	// Language list.
