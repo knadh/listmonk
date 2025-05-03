@@ -163,6 +163,25 @@
               </option>
             </b-select>
           </b-field>
+          <b-field :label="$t('globals.terms.campaign')">
+            <b-select
+              v-model="selectedCampaign"
+              :loading="isSearchLoading"
+              :placeholder="None"
+              field="name"
+              expanded
+              autocomplete
+            >
+              <option value="-1">None</option>
+              <option
+                v-for="campaign in queriedCampaigns"
+                :key="campaign.id"
+                :value="campaign.id"
+              >
+                {{ campaign.name }}
+              </option>
+            </b-select>
+          </b-field>
         </div>
         <div class="column is-4">
           <b-field label="From">
@@ -215,6 +234,9 @@ export default Vue.extend({
   data() {
     return {
       subscriberType: 'orphan',
+      queriedCampaigns: [],
+      isSearchLoading: false,
+      selectedCampaign: -1,
       analyticsType: 'all',
       analyticsTypeExport: 'all',
       subscriptionType: 'optin',
@@ -226,9 +248,29 @@ export default Vue.extend({
     };
   },
 
+  mounted() {
+    // Get Campaign details for export section
+    this.queryCampaigns();
+  },
+
   methods: {
     formatDateTime(s) {
       return dayjs(s).format('YYYY-MM-DD');
+    },
+    queryCampaigns() {
+      this.$api
+        .getCampaigns({
+          order_by: 'created_at',
+          order: 'DESC',
+        })
+        .then((data) => {
+          this.queriedCampaigns = data.results.map((c) => {
+            // Change the name to include the ID in the auto-suggest results.
+            const camp = c;
+            camp.name = `#${c.id}: ${c.name}`;
+            return camp;
+          });
+        });
     },
 
     deleteSubscribers() {
@@ -236,7 +278,6 @@ export default Vue.extend({
         this.$api.deleteGCSubscribers(this.subscriberType).then((data) => {
           this.$utils.toast(
             this.$t('globals.messages.deletedCount', {
-              name: this.$tc('globals.terms.subscribers', 2),
               num: data.count,
             }),
           );
@@ -284,13 +325,18 @@ export default Vue.extend({
         this.$utils.toast("'From' Date should be less than 'To' Date", 'error');
         return;
       }
+
+      if (this.selectedCampaign === -1) {
+        this.$utils.toast('Please select a Campaign first', 'error');
+        return;
+      }
       if (
         this.analyticsTypeExport === 'views'
         || this.analyticsTypeExport === 'all'
       ) {
         this.$api
           .getGCCampaignAnalyticsViews(
-            1,
+            this.selectedCampaign,
             this.analyticsDateFrom,
             this.analyticsDateTo,
           )
@@ -314,7 +360,7 @@ export default Vue.extend({
       ) {
         this.$api
           .getGCCampaignAnalyticsLinkClicks(
-            1,
+            this.selectedCampaign,
             this.analyticsDateFrom,
             this.analyticsDateTo,
           )

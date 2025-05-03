@@ -2,7 +2,6 @@ package core
 
 import (
 	"database/sql"
-	"log"
 	"net/http"
 	"time"
 
@@ -404,13 +403,11 @@ func (c *Core) GetIndividualCampaignAnalyticsViews(campID int, fromDate, toDate 
 // Get Individual Link clicks
 func (c *Core) GetLinkClickAnalytics(campID int, fromDate, toDate string) ([]models.CampaignLinkClicksData, error) {
 	out := []models.CampaignLinkClicksData{}
-	log.Println(campID, fromDate, toDate)
 	if err := c.q.GetLinkClicksAnalytics.Select(&out, campID, fromDate, toDate); err != nil {
 		c.log.Printf("error fetching individual campaign views: %v", err)
 		return nil, echo.NewHTTPError(http.StatusInternalServerError,
 			c.i18n.Ts("globals.messages.errorFetching", "name", "{globals.terms.analytics}", "error", pqErrMsg(err)))
 	}
-	log.Println(out)
 
 	return out, nil
 }
