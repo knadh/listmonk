@@ -301,7 +301,8 @@ export default Vue.extend({
   created() {
     const now = dayjs().set('hour', 23).set('minute', 59).set('seconds', 0);
     this.form.to = now.toDate();
-    this.form.from = now.subtract(7, 'day').set('hour', 0).set('minute', 0).toDate();
+    // this.form.from = now.subtract(7, 'day').set('hour', 0).set('minute', 0).toDate();
+    this.form.from = now.subtract(10, 'year').set('hour', 0).set('minute', 0).toDate();
   },
 
   mounted() {
