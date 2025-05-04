@@ -273,6 +273,17 @@ func (a *App) SendExternalTxMessage(c echo.Context) error {
 	// Copy recipient emails to subscriber emails for internal processing
 	m.SubscriberEmails = m.RecipientEmails
 
+	// Set default values
+	if m.FromEmail == "" {
+		m.FromEmail = a.cfg.FromEmail
+	}
+
+	if m.Messenger == "" {
+		m.Messenger = emailMsgr
+	} else if !a.manager.HasMessenger(m.Messenger) {
+		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.Ts("campaigns.fieldInvalidMessenger", "name", m.Messenger))
+	}
+
 	// Get the cached tx template.
 	tpl, err := a.manager.GetTpl(m.TemplateID)
 	if err != nil {
