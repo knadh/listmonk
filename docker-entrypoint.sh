@@ -34,6 +34,25 @@ create_user() {
 create_group
 create_user
 
+load_env_from_file() {
+  VAR_NAME=$1
+  eval "value=\${$VAR_NAME:-}"
+  if [ -z "$value" ]; then
+    eval "value_FILE=\${${VAR_NAME}_FILE:-}"
+    if [ -n "$value_FILE" ]; then
+      TEMP=$(cat "$value_FILE")
+      eval "export $VAR_NAME=\"$TEMP\""
+      echo "Loaded $VAR_NAME"
+    fi
+  fi
+}
+
+load_env_from_file LISTMONK_db__user
+load_env_from_file LISTMONK_db__password
+load_env_from_file LISTMONK_db__database
+load_env_from_file LISTMONK_ADMIN_USER
+load_env_from_file LISTMONK_ADMIN_PASSWORD
+
 # Try to set the ownership of the app directory to the app user.
 if ! chown -R ${PUID}:${PGID} /listmonk 2>/dev/null; then
   echo "Warning: Failed to change ownership of /listmonk. Readonly volume?"
