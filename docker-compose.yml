@@ -23,9 +23,9 @@ services:
 
     environment:                                              # The same params as in config.toml are passed as env vars here.
       LISTMONK_app__address: 0.0.0.0:9000
-      LISTMONK_db__user: *db-user
-      LISTMONK_db__password: *db-password
-      LISTMONK_db__database: *db-name
+      LISTMONK_db__user: *db-user                             # LISTMONK_db__user_FILE also available for docker secrets
+      LISTMONK_db__password: *db-password                     # LISTMONK_db__password_FILE also available for docker secrets
+      LISTMONK_db__database: *db-name                         # LISTMONK_db__database_FILE also available for docker secrets
       LISTMONK_db__host: listmonk_db
       LISTMONK_db__port: 5432
       LISTMONK_db__ssl_mode: disable
@@ -35,6 +35,9 @@ services:
       TZ: Etc/UTC
       LISTMONK_ADMIN_USER: ${LISTMONK_ADMIN_USER:-}           # If these (optional) are set during the first `docker compose up`, then the Super Admin user is automatically created.
       LISTMONK_ADMIN_PASSWORD: ${LISTMONK_ADMIN_PASSWORD:-}   # Otherwise, the user can be setup on the web app after the first visit to http://localhost:9000
+
+      # LISTMONK_ADMIN_USER_FILE also available for docker secrets
+      # LISTMONK_ADMIN_PASSWORD_FILE also available for docker secrets
     volumes:
       - ./uploads:/listmonk/uploads:rw                        # Mount an uploads directory on the host to /listmonk/uploads inside the container.
                                                               # To use this, change directory path in Admin -> Settings -> Media to /listmonk/uploads
@@ -49,7 +52,7 @@ services:
     networks:
       - listmonk
     environment:
-      <<: *db-credentials
+      <<: *db-credentials                                     # POSTGRES_PASSWORD_FILE, POSTGRES_USER_FILE, POSTGRES_DB_FILE also available for docker secrets
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U listmonk"]
       interval: 10s
