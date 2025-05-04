@@ -250,12 +250,28 @@ func (a *App) SendExternalTxMessage(c echo.Context) error {
 		return err
 	}
 
-	// Validate fields.
-	if r, err := a.validateExternalTxMessage(m); err != nil {
-		return err
-	} else {
-		m = r
+	// Check for recipient fields first
+	if len(m.RecipientEmails) == 0 && m.RecipientEmail == "" {
+		return echo.NewHTTPError(http.StatusBadRequest,
+			a.i18n.Ts("globals.messages.invalidFields", "name", "recipient_emails or recipient_email is required"))
 	}
+
+	// Convert recipient_email to recipient_emails if needed
+	if m.RecipientEmail != "" {
+		m.RecipientEmails = append(m.RecipientEmails, m.RecipientEmail)
+	}
+
+	// Sanitize all recipient emails
+	for n, email := range m.RecipientEmails {
+		em, err := a.importer.SanitizeEmail(email)
+		if err != nil {
+			return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+		}
+		m.RecipientEmails[n] = em
+	}
+
+	// Copy recipient emails to subscriber emails for internal processing
+	m.SubscriberEmails = m.RecipientEmails
 
 	// Get the cached tx template.
 	tpl, err := a.manager.GetTpl(m.TemplateID)
@@ -308,42 +324,4 @@ func (a *App) SendExternalTxMessage(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, okResp{true})
-}
-
-// validateExternalTxMessage validates the external tx message fields.
-func (a *App) validateExternalTxMessage(m models.TxMessage) (models.TxMessage, error) {
-	// Check for recipient fields
-	if len(m.RecipientEmails) == 0 && m.RecipientEmail == "" {
-		return m, echo.NewHTTPError(http.StatusBadRequest,
-			a.i18n.Ts("globals.messages.invalidFields", "name", "recipient_emails or recipient_email is required"))
-	}
-
-	// Convert recipient_email to recipient_emails if needed
-	if m.RecipientEmail != "" {
-		m.RecipientEmails = append(m.RecipientEmails, m.RecipientEmail)
-	}
-
-	// Sanitize all recipient emails
-	for n, email := range m.RecipientEmails {
-		em, err := a.importer.SanitizeEmail(email)
-		if err != nil {
-			return m, echo.NewHTTPError(http.StatusBadRequest, err.Error())
-		}
-		m.RecipientEmails[n] = em
-	}
-
-	// Copy recipient emails to subscriber emails for internal processing
-	m.SubscriberEmails = m.RecipientEmails
-
-	if m.FromEmail == "" {
-		m.FromEmail = a.cfg.FromEmail
-	}
-
-	if m.Messenger == "" {
-		m.Messenger = emailMsgr
-	} else if !a.manager.HasMessenger(m.Messenger) {
-		return m, echo.NewHTTPError(http.StatusBadRequest, a.i18n.Ts("campaigns.fieldInvalidMessenger", "name", m.Messenger))
-	}
-
-	return m, nil
 }
