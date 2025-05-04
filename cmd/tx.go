@@ -160,11 +160,11 @@ func (a *App) SendTxMessage(c echo.Context) error {
 func (a *App) validateTxMessage(m models.TxMessage) (models.TxMessage, error) {
 	if len(m.SubscriberEmails) > 0 && m.SubscriberEmail != "" {
 		return m, echo.NewHTTPError(http.StatusBadRequest,
-			a.i18n.Ts("globals.messages.invalidFields", "name", "do not send `subscriber_email`"))
+			a.i18n.Ts("globals.messages.invalidFields", "name", "do not send both `subscriber_email` and `subscriber_emails`"))
 	}
 	if len(m.SubscriberIDs) > 0 && m.SubscriberID != 0 {
 		return m, echo.NewHTTPError(http.StatusBadRequest,
-			a.i18n.Ts("globals.messages.invalidFields", "name", "do not send `subscriber_id`"))
+			a.i18n.Ts("globals.messages.invalidFields", "name", "do not send both `subscriber_id` and `subscriber_ids`"))
 	}
 
 	if m.SubscriberEmail != "" {
@@ -181,13 +181,11 @@ func (a *App) validateTxMessage(m models.TxMessage) (models.TxMessage, error) {
 	}
 
 	for n, email := range m.SubscriberEmails {
-		if m.SubscriberEmail != "" {
-			em, err := a.importer.SanitizeEmail(email)
-			if err != nil {
-				return m, echo.NewHTTPError(http.StatusBadRequest, err.Error())
-			}
-			m.SubscriberEmails[n] = em
+		em, err := a.importer.SanitizeEmail(email)
+		if err != nil {
+			return m, echo.NewHTTPError(http.StatusBadRequest, err.Error())
 		}
+		m.SubscriberEmails[n] = em
 	}
 
 	if m.FromEmail == "" {
@@ -314,23 +312,28 @@ func (a *App) SendExternalTxMessage(c echo.Context) error {
 
 // validateExternalTxMessage validates the external tx message fields.
 func (a *App) validateExternalTxMessage(m models.TxMessage) (models.TxMessage, error) {
-	if len(m.SubscriberEmails) == 0 && m.SubscriberEmail == "" {
+	// Check for recipient fields
+	if len(m.RecipientEmails) == 0 && m.RecipientEmail == "" {
 		return m, echo.NewHTTPError(http.StatusBadRequest,
-			a.i18n.Ts("globals.messages.invalidFields", "name", "subscriber_emails or subscriber_email is required"))
+			a.i18n.Ts("globals.messages.invalidFields", "name", "recipient_emails or recipient_email is required"))
 	}
 
-	// Convert subscriber_email to subscriber_emails if needed
-	if m.SubscriberEmail != "" {
-		m.SubscriberEmails = append(m.SubscriberEmails, m.SubscriberEmail)
+	// Convert recipient_email to recipient_emails if needed
+	if m.RecipientEmail != "" {
+		m.RecipientEmails = append(m.RecipientEmails, m.RecipientEmail)
 	}
 
-	for n, email := range m.SubscriberEmails {
+	// Sanitize all recipient emails
+	for n, email := range m.RecipientEmails {
 		em, err := a.importer.SanitizeEmail(email)
 		if err != nil {
 			return m, echo.NewHTTPError(http.StatusBadRequest, err.Error())
 		}
-		m.SubscriberEmails[n] = em
+		m.RecipientEmails[n] = em
 	}
+
+	// Copy recipient emails to subscriber emails for internal processing
+	m.SubscriberEmails = m.RecipientEmails
 
 	if m.FromEmail == "" {
 		m.FromEmail = a.cfg.FromEmail

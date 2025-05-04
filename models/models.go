@@ -380,6 +380,10 @@ type TxMessage struct {
 	SubscriberEmail string `json:"subscriber_email"`
 	SubscriberID    int    `json:"subscriber_id"`
 
+	// New fields for external endpoint
+	RecipientEmails []string `json:"recipient_emails"`
+	RecipientEmail  string   `json:"recipient_email"`
+
 	TemplateID  int            `json:"template_id"`
 	Data        map[string]any `json:"data"`
 	FromEmail   string         `json:"from_email"`
