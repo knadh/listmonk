@@ -854,7 +854,12 @@ u AS (
 SELECT * FROM subs;
 
 -- name: get-individual-campaign-views
-SELECT cviews.campaign_id AS cid, subs.name AS sname, subs.email AS email
+SELECT cviews.campaign_id AS cid, subs.name AS sname,
+subs.email AS email,
+CASE
+    WHEN subs.status = 'enabled' THEN 'subscribed'
+    ELSE 'unsubscribed'
+END AS user_status
 FROM campaign_views AS cviews INNER JOIN subscribers AS subs
 ON subs.id = cviews.subscriber_id
 WHERE cviews.campaign_id = $1
