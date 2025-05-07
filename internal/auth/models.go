@@ -44,6 +44,7 @@ const (
 const (
 	PermListGetAll            = "lists:get_all"
 	PermListManageAll         = "lists:manage_all"
+	PermListCreate            = "lists:create"
 	PermListManage            = "list:manage"
 	PermListGet               = "list:get"
 	PermSubscribersGet        = "subscribers:get"
