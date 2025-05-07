@@ -3,6 +3,7 @@
 | Method | Endpoint | Description                    |
 |:-------|:---------|:-------------------------------|
 | POST   | /api/tx  | Send transactional messages    |
+| POST   | /api/tx/external | Send transactional messages to external recipients |
 
 ______________________________________________________________________
 
@@ -40,12 +41,40 @@ curl -u "api_user:token" "http://localhost:9000/api/tx" -X POST \
 EOF
 ```
 
-##### Example response
+______________________________________________________________________
 
-```json
-{
-    "data": true
-}
+#### POST /api/tx/external
+
+Allows sending transactional messages to any email address without requiring the recipient to be a subscriber.
+
+##### Parameters
+
+| Name              | Type      | Required | Description                                                                |
+|:------------------|:----------|:---------|:---------------------------------------------------------------------------|
+| recipient_email   | string    |          | Email of the recipient. Can substitute with `recipient_emails`.            |
+| recipient_emails  | string\[\]  |          | Multiple recipient emails as alternative to `recipient_email`.             |
+| template_id       | number    | Yes      | ID of the transactional template to be used for the message.               |
+| subject           | string    | Yes      | Subject of the email.                                                      |
+| from_email        | string    |          | Optional sender email.                                                     |
+| data              | JSON      |          | Optional nested JSON map. Available in the template as `{{ .Tx.Data.* }}`. |
+| headers           | JSON\[\]    |          | Optional array of email headers.                                           |
+| messenger         | string    |          | Messenger to send the message. Default is `email`.                         |
+| content_type      | string    |          | Email format options include `html`, `markdown`, and `plain`.              |
+
+##### Example
+
+```shell
+curl -u "api_user:token" "http://localhost:9000/api/tx/external" -X POST \
+     -H 'Content-Type: application/json; charset=utf-8' \
+     --data-binary @- << EOF
+    {
+        "recipient_email": "user@test.com",
+        "template_id": 2,
+        "subject": "Your order confirmation",
+        "data": {"order_id": "1234", "date": "2022-07-30", "items": [1, 2, 3]},
+        "content_type": "html"
+    }
+EOF
 ```
 
 ______________________________________________________________________
@@ -59,6 +88,19 @@ curl -u "api_user:token" "http://localhost:9000/api/tx" -X POST \
 -F 'data=\"{
     \"subscriber_email\": \"user@test.com\",
     \"template_id\": 4
+}"' \
+-F 'file=@"/path/to/attachment.pdf"' \
+-F 'file=@"/path/to/attachment2.pdf"'
+```
+
+For external messages:
+
+```shell
+curl -u "api_user:token" "http://localhost:9000/api/tx/external" -X POST \
+-F 'data=\"{
+    \"recipient_email\": \"user@test.com\",
+    \"template_id\": 4,
+    \"subject\": \"Your order confirmation\"
 }"' \
 -F 'file=@"/path/to/attachment.pdf"' \
 -F 'file=@"/path/to/attachment2.pdf"'
