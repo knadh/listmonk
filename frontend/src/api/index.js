@@ -472,8 +472,20 @@ export const createUser = (data) => http.post(
   { loading: models.users },
 );
 
+export const createAPIUser = (data) => http.post(
+  '/api/users/api',
+  data,
+  { loading: models.users },
+);
+
 export const updateUser = (data) => http.put(
   `/api/users/${data.id}`,
+  data,
+  { loading: models.users },
+);
+
+export const assignRoleToUser = (id, data) => http.put(
+  `/api/users/${id}/role`,
   data,
   { loading: models.users },
 );
@@ -512,6 +524,12 @@ export const createUserRole = (data) => http.post(
 
 export const createListRole = (data) => http.post(
   '/api/roles/lists',
+  data,
+  { loading: models.listRoles },
+);
+
+export const assignListsToRole = (data) => http.post(
+  '/api/roles/lists/assign',
   data,
   { loading: models.listRoles },
 );
