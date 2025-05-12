@@ -4108,7 +4108,6 @@ components:
       required:
         - subscriber_emails
         - template_id
-        - subject
       properties:
         subscriber_emails:
           type: array
