@@ -536,6 +536,8 @@
     "settings.security.captchaSecret": "hCaptcha.com secret",
     "settings.security.enableCaptcha": "Enable CAPTCHA",
     "settings.security.enableCaptchaHelp": "Enable CAPTCHA on the public subscription form.",
+    "settings.security.enableInvisibleCaptcha": "Enable Invisible CAPTCHA",
+    "settings.security.enableInvisibleCaptchaHelp": "Enable this setting to hide the CAPTCHA until the contact hits the subscription button. The CAPTCHA will appear as a floating window.",
     "settings.security.enableOIDC": "Enable OIDC SSO",
     "settings.security.name": "Security",
     "settings.smtp.customHeaders": "Custom headers",
