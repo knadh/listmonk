@@ -67,7 +67,7 @@ export default Vue.extend({
 
   methods: {
     renderHTML() {
-      let h = `<form method="post" action="${this.serverConfig.root_url}/subscription/form" class="listmonk-form">\n`
+      let h = `<form method="post" action="${this.serverConfig.root_url}/subscription/form" class="listmonk-form" id="listmonk-form">\n`
         + '  <div>\n'
         + `    <h3>${this.$t('public.sub')}</h3>\n`
         + '    <input type="hidden" name="nonce" />\n\n'
@@ -90,14 +90,29 @@ export default Vue.extend({
       });
 
       // Captcha?
-      if (this.serverConfig.public_subscription.captcha_enabled) {
+      if (this.serverConfig.public_subscription.captcha_enabled && !this.serverConfig.public_subscription.captcha_invisible_enabled) {
         h += '\n'
           + `    <div class="h-captcha" data-sitekey="${this.serverConfig.public_subscription.captcha_key}"></div>\n`
           + `    <${'script'} src="https://js.hcaptcha.com/1/api.js" async defer></${'script'}>\n`;
       }
 
+      // Invisible Captcha
+      if (this.serverConfig.public_subscription.captcha_enabled && this.serverConfig.public_subscription.captcha_invisible_enabled) {
+        h += '\n'
+          + `    <div class="h-captcha" data-sitekey="${this.serverConfig.public_subscription.captcha_key}" data-callback="onSubmit" data-size="invisible"></div>\n`
+      }
+
       h += '\n'
-        + `    <input type="submit" value="${this.$t('public.sub')} " />\n`
+        + `    <input id="listmonk-form-submit" type="submit" value="${this.$t('public.sub')} " />\n`;
+
+      // Invisible Captcha
+      if (this.serverConfig.public_subscription.captcha_enabled && this.serverConfig.public_subscription.captcha_invisible_enabled) {
+        h += '\n'
+          + `    <${'script'}>const form = document.getElementById('listmonk-form'); function validate(event) { event.preventDefault(); if (form.checkValidity()) { hcaptcha.execute(); } else { form.reportValidity(); } } function onLoad() { var element = document.getElementById('listmonk-form-submit'); element.onclick = validate; } function onSubmit(token) { form.submit(); }</${'script'}>\n`;
+          + `    <${'script'} src="https://js.hcaptcha.com/1/api.js?onload=onLoad" async defer></${'script'}>\n`;
+      }
+
+      h += '\n'
         + '  </div>\n'
         + '</form>';
 
