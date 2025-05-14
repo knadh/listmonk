@@ -15,9 +15,10 @@ type serverConfig struct {
 	RootURL            string `json:"root_url"`
 	FromEmail          string `json:"from_email"`
 	PublicSubscription struct {
-		Enabled        bool        `json:"enabled"`
-		CaptchaEnabled bool        `json:"captcha_enabled"`
-		CaptchaKey     null.String `json:"captcha_key"`
+		Enabled        		bool        `json:"enabled"`
+		CaptchaEnabled 		bool        `json:"captcha_enabled"`
+		CaptchaInvisibleEnabled bool        `json:"captcha_invisible_enabled"`
+		CaptchaKey     		null.String `json:"captcha_key"`
 	} `json:"public_subscription"`
 	Messengers    []string        `json:"messengers"`
 	Langs         []i18nLang      `json:"langs"`
@@ -42,6 +43,9 @@ func (a *App) GetServerConfig(c echo.Context) error {
 	if a.cfg.Security.EnableCaptcha {
 		out.PublicSubscription.CaptchaEnabled = true
 		out.PublicSubscription.CaptchaKey = null.StringFrom(a.cfg.Security.CaptchaKey)
+	}
+	if a.cfg.Security.EnableInvisibleCaptcha {
+		out.PublicSubscription.CaptchaInvisibleEnabled = true
 	}
 
 	// Language list.
