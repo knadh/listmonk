@@ -53,11 +53,11 @@ When configuring auth proxies and web application firewalls, use this table.
 
 #### Using filesystem
 
-When configuring `docker` volume mounts for using filesystem media uploads, you can follow either of two approaches. [The second option may be necessary if](https://github.com/knadh/listmonk/issues/1169#issuecomment-1674475945) your setup requires you to use `sudo` for docker commands. 
+When configuring `docker` volume mounts for using filesystem media uploads, you can follow either of two approaches. [The second option may be necessary if](https://github.com/knadh/listmonk/issues/1169#issuecomment-1674475945) your setup requires you to use `sudo` for docker commands.
 
-After making any changes you will need to run `sudo docker compose stop ; sudo docker compose up`. 
+After making any changes you will need to run `sudo docker compose stop ; sudo docker compose up`.
 
-And under `https://listmonk.mysite.com/admin/settings` you put `/listmonk/uploads`. 
+And under `https://listmonk.mysite.com/admin/settings` you put `/listmonk/uploads`.
 
 #### Using volumes
 
@@ -148,3 +148,76 @@ Some server hosts block outgoing SMTP ports (25, 465). You may have to contact y
 ### Batch size
 
 The batch size parameter is useful when working with very large lists with millions of subscribers for maximising throughput. It is the number of subscribers that are fetched from the database sequentially in a single cycle (~5 seconds) when a campaign is running. Increasing the batch size uses more memory, but reduces the round trip to the database.
+
+## Single Sign On
+
+Listmonk has OIDC support to use a Single Sign On system to connect to it.
+
+!!! note "Automatic user creation"
+
+    There is no automatic user creation on first connexion, but this might get changed in the futur. As of May 2025, you need to create a user with the same email address as the SSO user to enable connexion of said user. Please see [this issue for reference.](https://github.com/knadh/listmonk/issues/2209)
+
+
+### Keycloak
+
+To configure the Keycloak SSO :
+
+1. In Listmonk, under Settings > Settings > Security, switch *Enable OIDC SSO*
+    - In **Provider URL**, set `https://<keycloak.example.ch>/auth/realms/<realm name>`
+    - In **Provider Name**, set the name of the SSO, this will be shown to users on the connexion button.
+    - In **Client ID**, set the name of the client you will use in Keycloak.
+    - In **Client Secret**, set the Secret you will get in the next step from Keycloak.
+    - You should see the **Redirect URL for oAuth provider** generated below, that you will use in Keycloak.
+
+2. In KeyCloak, create a new Client with the following options
+    - **General settings**
+        - **Client ID** : Set client name you set in the step before.
+    - **Capability config**
+          - Client authentication: On
+          - Authorization: On
+          - Authentication Flow:
+              - Standard Flow: On
+              - Direct Access grants: On
+    - **Login settings** :
+        - Root URL: Auto generated from listmonk, should be: `https://<listmonk.example.com>/auth/oidc`
+        - Valid redirect URIs: Same as Root URL
+        - Valid post logout redirect URIs: `*`
+
+3. Once the client is created, go to the client's settings in Keycloak, and navigate to **Credentials**, copy Client Secret.
+4. Use the Client Secret and Client ID to populate Listmonk settings.
+5. Hit save
+6. Create a user in listmonk with the same email as the one in your SSO
+7. Try to login as this user
+
+!!! info "Tracking issue"
+    In case you need help with setting up Keycloak, please [see this issue](https://github.com/knadh/listmonk/issues/2209)
+
+### Authentik
+
+1. In Listmonk, under Settings > Settings > Security, switch *Enable OIDC SSO*
+    - In **Provider URL**, set `https://<authentik.example.fr>/application/o/<listmonk>/`
+    - In **Provider Name**, set the name of the SSO, this will be shown to users on the connexion button.
+    - In **Client ID**, set the name of the client you will use in Keycloak.
+    - In **Client Secret**, set the Secret you will get in the next step from Keycloak.
+    - You should see the **Redirect URL for oAuth provider** generated below, that you will use in Keycloak.
+
+
+2. In Authentik  make a new provider like you would for most OIDC providers, noting the client ID and secret to be used later in Listmonk's settings.
+    - However, be particularly careful about the following settings:
+        - Copy the Redirect URI from the OIDC settings in Listmonk, described in the next section. It should not have a trailing slash.
+        - For Signing Key, set it to "authentik Self-signed Certificate." Do not leave it blank, or the response is signed with an algorithm that Listmonk doesn't support.
+    - When you create the Authentik application, associate it to the provider as usual. Note the slug will be used in the redirect URI. You can use `listmonk` as a slug.
+
+3. Once the client is created, copy the Client Secret.
+4. Use the Client Secret and Client ID to populate Listmonk settings.
+5. Hit save
+6. Create a user in listmonk with the same email as the one in your SSO
+7. Try to login as this user
+
+
+!!! info "Tracking issue"
+    In case you need help with setting up Authentik, please [see this issue](https://github.com/knadh/listmonk/issues/2205)
+
+### Other SSO
+
+Feel free to contribute to this documentation if you setup another SSO provider for Listmonk.
