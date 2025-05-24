@@ -452,7 +452,7 @@ export default Vue.extend({
           this.$api.deleteSubscribersByQuery({
             // If the query expression is empty, explicitly pass `all=true`
             // so that the backend deletes all records in the DB with an empty query string.
-            all: this.queryParams.queryExp.trim() === '',
+            all: this.queryParams.queryExp.trim() === '' && this.queryParams.search.trim() === '',
             search: this.queryParams.search,
             query: this.queryParams.queryExp,
             list_ids: this.queryParams.listID ? [this.queryParams.listID] : null,
