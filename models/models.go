@@ -101,7 +101,7 @@ var regTplFuncs = []regTplFunc{
 	// and substituting it with {{ Track "http://link.com" . }} (the dot context)
 	// before compilation. This is to make linking easier for users.
 	{
-		regExp:  regexp.MustCompile(`{{(\\s+)?TrackLink(\\s+)?(.+?)(\\s+)?}}`),
+		regExp:  regexp.MustCompile(`{{(\s+)?TrackLink(\s+)?(.+?)(\s+)?}}`),
 		replace: `{{ TrackLink $3 . }}`,
 	},
 
