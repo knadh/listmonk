@@ -9,7 +9,7 @@ import (
 	"github.com/lib/pq"
 )
 
-var bounceQuerySortFields = []string{"email", "campaign_name", "source", "created_at"}
+var bounceQuerySortFields = []string{"email", "campaign_name", "source", "created_at", "type"}
 
 // QueryBounces retrieves paginated bounce entries based on the given params.
 // It also returns the total number of bounce records in the DB.
