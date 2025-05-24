@@ -13,7 +13,7 @@ import (
 )
 
 var (
-	reUsername = regexp.MustCompile(`^[a-zA-Z0-9_\\-\\.]+$`)
+	reUsername = regexp.MustCompile(`^[a-zA-Z0-9_\-\.@]+$`)
 )
 
 // GetUser retrieves a single user by ID.

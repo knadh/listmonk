@@ -45,7 +45,7 @@
         <b-field :label="$t('users.username')" label-position="on-border">
           <b-input :maxlength="200" v-model="form.username" name="username" ref="focus" autofocus
             :placeholder="$t('users.username')" required :message="$t('users.usernameHelp')" autocomplete="off"
-            pattern="[a-zA-Z0-9_\-\.]+$" />
+            pattern="[a-zA-Z0-9_\-\.@]+$" />
         </b-field>
 
         <b-field :label="$t('globals.fields.name')" label-position="on-border">
