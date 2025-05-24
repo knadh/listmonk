@@ -157,7 +157,7 @@ func (a *App) UpdateTemplate(c echo.Context) error {
 	// Subject is only relevant for fixed tx templates. For campaigns,
 	// the subject changes per campaign and is on models.Campaign.
 	var funcs template.FuncMap
-	if o.Type == models.TemplateTypeCampaign {
+	if o.Type == models.TemplateTypeCampaign || o.Type == models.TemplateTypeCampaignVisual {
 		o.Subject = ""
 		funcs = a.manager.TemplateFuncs(nil)
 	} else {
