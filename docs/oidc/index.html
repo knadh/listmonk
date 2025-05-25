@@ -9,10 +9,10 @@
       
       
       
-        <link rel="prev" href="../templating/">
+        <link rel="prev" href="../roles-and-permissions/">
       
       
-        <link rel="next" href="../bounces/">
+        <link rel="next" href="../apis/apis/">
       
       
       <link rel="icon" href="../images/favicon.png">
@@ -20,7 +20,7 @@
     
     
       
-        <title>Querying and segmenting subscribers - listmonk / Documentation</title>
+        <title>OIDC SSO - listmonk / Documentation</title>
       
     
     
@@ -72,7 +72,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#querying-and-segmenting-subscribers" class="md-skip">
+        <a href="#oidc-single-sign-on" class="md-skip">
           Skip to content
         </a>
       
@@ -107,7 +107,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Querying and segmenting subscribers
+              OIDC SSO
             
           </span>
         </div>
@@ -461,32 +461,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    Querying and segmenting subscribers
-    
-  </span>
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../querying-and-segmentation/" class="md-nav__link">
         
   
   
@@ -497,113 +475,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#database-fields" class="md-nav__link">
-    <span class="md-ellipsis">
-      Database fields
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#sample-attributes" class="md-nav__link">
-    <span class="md-ellipsis">
-      Sample attributes
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#sample-sql-query-expressions" class="md-nav__link">
-    <span class="md-ellipsis">
-      Sample SQL query expressions
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Sample SQL query expressions">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#find-a-subscriber-by-e-mail" class="md-nav__link">
-    <span class="md-ellipsis">
-      Find a subscriber by e-mail
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#find-a-subscriber-by-name" class="md-nav__link">
-    <span class="md-ellipsis">
-      Find a subscriber by name
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#multiple-conditions" class="md-nav__link">
-    <span class="md-ellipsis">
-      Multiple conditions
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#querying-subscribers-who-viewed-the-campaign-email" class="md-nav__link">
-    <span class="md-ellipsis">
-      Querying subscribers who viewed the campaign email
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#querying-attributes" class="md-nav__link">
-    <span class="md-ellipsis">
-      Querying attributes
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#querying-nested-attributes" class="md-nav__link">
-    <span class="md-ellipsis">
-      Querying nested attributes
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -751,10 +622,30 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../oidc/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    OIDC SSO
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -765,6 +656,123 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#oidc-single-sign-on" class="md-nav__link">
+    <span class="md-ellipsis">
+      OIDC Single Sign On
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tutorials" class="md-nav__link">
+    <span class="md-ellipsis">
+      Tutorials
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Tutorials">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#keycloak" class="md-nav__link">
+    <span class="md-ellipsis">
+      Keycloak
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Keycloak">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-create-a-new-client-in-keycloak" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Create a new client in Keycloak
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-configure-listmonk" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Configure Listmonk
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#authentik" class="md-nav__link">
+    <span class="md-ellipsis">
+      Authentik
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Authentik">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-create-a-new-oidc-provider-in-authentik" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Create a new OIDC provider in Authentik
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-create-an-application-in-authentik" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Create an application in Authentik
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-configure-listmonk" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Configure listmonk
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1250,8 +1258,6 @@
   
   
   
-    
-  
   
     <label class="md-nav__title" for="__toc">
       <span class="md-nav__icon md-icon"></span>
@@ -1260,84 +1266,96 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#database-fields" class="md-nav__link">
+  <a href="#oidc-single-sign-on" class="md-nav__link">
     <span class="md-ellipsis">
-      Database fields
+      OIDC Single Sign On
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#sample-attributes" class="md-nav__link">
+  <a href="#tutorials" class="md-nav__link">
     <span class="md-ellipsis">
-      Sample attributes
+      Tutorials
     </span>
   </a>
   
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#sample-sql-query-expressions" class="md-nav__link">
-    <span class="md-ellipsis">
-      Sample SQL query expressions
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Sample SQL query expressions">
+    <nav class="md-nav" aria-label="Tutorials">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#find-a-subscriber-by-e-mail" class="md-nav__link">
+  <a href="#keycloak" class="md-nav__link">
     <span class="md-ellipsis">
-      Find a subscriber by e-mail
+      Keycloak
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Keycloak">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-create-a-new-client-in-keycloak" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Create a new client in Keycloak
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#find-a-subscriber-by-name" class="md-nav__link">
+  <a href="#2-configure-listmonk" class="md-nav__link">
     <span class="md-ellipsis">
-      Find a subscriber by name
+      2. Configure Listmonk
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#authentik" class="md-nav__link">
+    <span class="md-ellipsis">
+      Authentik
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Authentik">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-create-a-new-oidc-provider-in-authentik" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Create a new OIDC provider in Authentik
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#multiple-conditions" class="md-nav__link">
+  <a href="#2-create-an-application-in-authentik" class="md-nav__link">
     <span class="md-ellipsis">
-      Multiple conditions
+      2. Create an application in Authentik
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#querying-subscribers-who-viewed-the-campaign-email" class="md-nav__link">
+  <a href="#3-configure-listmonk" class="md-nav__link">
     <span class="md-ellipsis">
-      Querying subscribers who viewed the campaign email
+      3. Configure listmonk
     </span>
   </a>
   
 </li>
         
-          <li class="md-nav__item">
-  <a href="#querying-attributes" class="md-nav__link">
-    <span class="md-ellipsis">
-      Querying attributes
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#querying-nested-attributes" class="md-nav__link">
-    <span class="md-ellipsis">
-      Querying nested attributes
-    </span>
-  </a>
+      </ul>
+    </nav>
   
 </li>
         
@@ -1362,104 +1380,88 @@
 
 
 
-<h1 id="querying-and-segmenting-subscribers">Querying and segmenting subscribers<a class="headerlink" href="#querying-and-segmenting-subscribers" title="Permanent link">&para;</a></h1>
-<p>listmonk allows the writing of partial Postgres SQL expressions to query, filter, and segment subscribers.</p>
-<h2 id="database-fields">Database fields<a class="headerlink" href="#database-fields" title="Permanent link">&para;</a></h2>
-<p>These are the fields in the subscriber database that can be queried.</p>
-<table>
-<thead>
-<tr>
-<th>Field</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>subscribers.uuid</code></td>
-<td>The randomly generated unique ID of the subscriber</td>
-</tr>
-<tr>
-<td><code>subscribers.email</code></td>
-<td>E-mail ID of the subscriber</td>
-</tr>
-<tr>
-<td><code>subscribers.name</code></td>
-<td>Name of the subscriber</td>
-</tr>
-<tr>
-<td><code>subscribers.status</code></td>
-<td>Status of the subscriber (enabled, disabled, blocklisted)</td>
-</tr>
-<tr>
-<td><code>subscribers.attribs</code></td>
-<td>Map of arbitrary attributes represented as JSON. Accessed via the <code>-&gt;</code> and <code>-&gt;&gt;</code> Postgres operator.</td>
-</tr>
-<tr>
-<td><code>subscribers.created_at</code></td>
-<td>Timestamp when the subscriber was first added</td>
-</tr>
-<tr>
-<td><code>subscribers.updated_at</code></td>
-<td>Timestamp when the subscriber was modified</td>
-</tr>
-</tbody>
-</table>
-<h2 id="sample-attributes">Sample attributes<a class="headerlink" href="#sample-attributes" title="Permanent link">&para;</a></h2>
-<p>Here's a sample JSON map of attributes assigned to an imaginary subscriber.</p>
-<div class="highlight"><pre><span></span><code><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;city&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Bengaluru&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;likes_tea&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;spoken_languages&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;English&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;Malayalam&quot;</span><span class="p">],</span>
-<span class="w">  </span><span class="nt">&quot;projects&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;stack&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nt">&quot;frameworks&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;echo&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;go&quot;</span><span class="p">],</span>
-<span class="w">    </span><span class="nt">&quot;languages&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;go&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;python&quot;</span><span class="p">],</span>
-<span class="w">    </span><span class="nt">&quot;preferred_language&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;go&quot;</span>
-<span class="w">  </span><span class="p">}</span>
-<span class="p">}</span>
-</code></pre></div>
-<p><img alt="listmonk screenshot" src="../images/edit-subscriber.png" /></p>
-<h2 id="sample-sql-query-expressions">Sample SQL query expressions<a class="headerlink" href="#sample-sql-query-expressions" title="Permanent link">&para;</a></h2>
-<p><img alt="listmonk" src="../images/query-subscribers.png" /></p>
-<h4 id="find-a-subscriber-by-e-mail">Find a subscriber by e-mail<a class="headerlink" href="#find-a-subscriber-by-e-mail" title="Permanent link">&para;</a></h4>
-<div class="highlight"><pre><span></span><code><span class="c1">-- Exact match</span>
-<span class="n">subscribers</span><span class="p">.</span><span class="n">email</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;some@domain.com&#39;</span>
-
-<span class="c1">-- Partial match to find e-mails that end in @domain.com.</span>
-<span class="n">subscribers</span><span class="p">.</span><span class="n">email</span><span class="w"> </span><span class="k">LIKE</span><span class="w"> </span><span class="s1">&#39;%@domain.com&#39;</span>
-</code></pre></div>
-<h4 id="find-a-subscriber-by-name">Find a subscriber by name<a class="headerlink" href="#find-a-subscriber-by-name" title="Permanent link">&para;</a></h4>
-<div class="highlight"><pre><span></span><code><span class="c1">-- Find all subscribers whose name start with John.</span>
-<span class="n">subscribers</span><span class="p">.</span><span class="n">email</span><span class="w"> </span><span class="k">LIKE</span><span class="w"> </span><span class="s1">&#39;John%&#39;</span>
-</code></pre></div>
-<h4 id="multiple-conditions">Multiple conditions<a class="headerlink" href="#multiple-conditions" title="Permanent link">&para;</a></h4>
-<div class="highlight"><pre><span></span><code><span class="c1">-- Find all Johns who have been blocklisted.</span>
-<span class="n">subscribers</span><span class="p">.</span><span class="n">email</span><span class="w"> </span><span class="k">LIKE</span><span class="w"> </span><span class="s1">&#39;John%&#39;</span><span class="w"> </span><span class="k">AND</span><span class="w"> </span><span class="n">status</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;blocklisted&#39;</span>
-</code></pre></div>
-<h4 id="querying-subscribers-who-viewed-the-campaign-email">Querying subscribers who viewed the campaign email<a class="headerlink" href="#querying-subscribers-who-viewed-the-campaign-email" title="Permanent link">&para;</a></h4>
-<div class="highlight"><pre><span></span><code><span class="c1">-- Find all subscribers who viewed the campaign email.</span>
-<span class="k">EXISTS</span><span class="p">(</span><span class="k">SELECT</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">campaign_views</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">campaign_views</span><span class="p">.</span><span class="n">subscriber_id</span><span class="o">=</span><span class="n">subscribers</span><span class="p">.</span><span class="n">id</span><span class="w"> </span><span class="k">AND</span><span class="w"> </span><span class="n">campaign_views</span><span class="p">.</span><span class="n">campaign_id</span><span class="o">=&lt;</span><span class="n">put_id_of_campaign</span><span class="o">&gt;</span><span class="p">)</span>
-</code></pre></div>
-<h4 id="querying-attributes">Querying attributes<a class="headerlink" href="#querying-attributes" title="Permanent link">&para;</a></h4>
-<div class="highlight"><pre><span></span><code><span class="c1">-- The -&gt;&gt; operator returns the value as text. Find all subscribers</span>
-<span class="c1">-- who live in Bengaluru and have done more than 3 projects.</span>
-<span class="c1">-- Here &#39;projects&#39; is cast into an integer so that we can apply the</span>
-<span class="c1">-- numerical operator &gt;</span>
-<span class="n">subscribers</span><span class="p">.</span><span class="n">attribs</span><span class="o">-&gt;&gt;</span><span class="s1">&#39;city&#39;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;Bengaluru&#39;</span><span class="w"> </span><span class="k">AND</span>
-<span class="w">    </span><span class="p">(</span><span class="n">subscribers</span><span class="p">.</span><span class="n">attribs</span><span class="o">-&gt;&gt;</span><span class="s1">&#39;projects&#39;</span><span class="p">)::</span><span class="nb">INT</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">3</span>
-</code></pre></div>
-<h4 id="querying-nested-attributes">Querying nested attributes<a class="headerlink" href="#querying-nested-attributes" title="Permanent link">&para;</a></h4>
-<div class="highlight"><pre><span></span><code><span class="c1">-- Find all blocklisted subscribers who like to drink tea, can code Python</span>
-<span class="c1">-- and prefer coding Go.</span>
-<span class="c1">--</span>
-<span class="c1">-- The -&gt; operator returns the value as a structure. Here, the &quot;languages&quot; field</span>
-<span class="c1">-- The ? operator checks for the existence of a value in a list.</span>
-<span class="n">subscribers</span><span class="p">.</span><span class="n">status</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;blocklisted&#39;</span><span class="w"> </span><span class="k">AND</span>
-<span class="w">    </span><span class="p">(</span><span class="n">subscribers</span><span class="p">.</span><span class="n">attribs</span><span class="o">-&gt;&gt;</span><span class="s1">&#39;likes_tea&#39;</span><span class="p">)::</span><span class="nb">BOOLEAN</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">true</span><span class="w"> </span><span class="k">AND</span>
-<span class="w">    </span><span class="n">subscribers</span><span class="p">.</span><span class="n">attribs</span><span class="o">-&gt;</span><span class="s1">&#39;stack&#39;</span><span class="o">-&gt;</span><span class="s1">&#39;languages&#39;</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="s1">&#39;python&#39;</span><span class="w"> </span><span class="k">AND</span>
-<span class="w">    </span><span class="n">subscribers</span><span class="p">.</span><span class="n">attribs</span><span class="o">-&gt;</span><span class="s1">&#39;stack&#39;</span><span class="o">-&gt;&gt;</span><span class="s1">&#39;preferred_language&#39;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;go&#39;</span>
-</code></pre></div>
-<p>To learn how to write SQL expressions to do advancd querying on JSON attributes, refer to the Postgres <a href="https://www.postgresql.org/docs/11/functions-json.html">JSONB documentation</a>.</p>
+<h2 id="oidc-single-sign-on">OIDC Single Sign On<a class="headerlink" href="#oidc-single-sign-on" title="Permanent link">&para;</a></h2>
+<p>Listmonk supports single sign-on with OIDC (OpenID Connect). Any standards compliant OIDC provider can be configured in Settings -&gt; Security -&gt; OIDC</p>
+<div class="admonition note">
+<p class="admonition-title">Automatic user creation</p>
+<p>There is no support for automatic user creation via OIDC currently. The Super Admin must create users prior in Admin -&gt; Users with the same e-mail address that is expected from the OIDC provider per user.</p>
+</div>
+<h1 id="tutorials">Tutorials<a class="headerlink" href="#tutorials" title="Permanent link">&para;</a></h1>
+<p>Tutorials for configuring listmonk SSO with popular OIDC providers.</p>
+<h2 id="keycloak">Keycloak<a class="headerlink" href="#keycloak" title="Permanent link">&para;</a></h2>
+<p>Keycloak configuration for listmonk SSO integration.</p>
+<h3 id="1-create-a-new-client-in-keycloak">1. Create a new client in Keycloak<a class="headerlink" href="#1-create-a-new-client-in-keycloak" title="Permanent link">&para;</a></h3>
+<p>In the Keycloak admin, use an existing realm, or create a new realm. Create a new client in <code>Clients → Create</code>.</p>
+<ul>
+<li><strong>General Settings</strong><ul>
+<li><strong>Client type</strong>: <code>OpenID Connect</code></li>
+<li><strong>Client ID</strong>: <code>listmonk</code> (or any preferred name)</li>
+<li><strong>Name</strong>: Optional descriptive name (e.g., "listmonk SSO")</li>
+</ul>
+</li>
+<li><strong>Capability Config</strong>:<ul>
+<li><strong>Client authentication</strong>: On</li>
+<li><strong>Authorization</strong>: On</li>
+<li><strong>Authentication Flow</strong><ul>
+<li><strong>Standard Flow</strong>: On</li>
+<li><strong>Direct Access grants</strong>: On</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>Login Settings</strong>:<ul>
+<li><strong>Root URL</strong>: Copy the <strong>Redirect URL for oAuth provider</strong> value from listmonk Admin -&gt; Settings -&gt; Security -&gt; OIDC. It will look like <code>https://listmonk.yoursite.com/auth/oidc</code></li>
+<li><strong>Valid redirect URIs</strong>: Same as the Root URL above</li>
+<li><strong>Valid post logout redirect URIs</strong>: *</li>
+</ul>
+</li>
+</ul>
+<p>After the client creation steps above, go to the client's <code>Credentials</code> tab and copy the <code>Client Secret</code>.</p>
+<h3 id="2-configure-listmonk">2. Configure Listmonk<a class="headerlink" href="#2-configure-listmonk" title="Permanent link">&para;</a></h3>
+<ol>
+<li>In Listmonk Admin -&gt; Settings -&gt; Security -&gt; OIDC.<ul>
+<li><strong>Enable OIDC SSO</strong>: Turn on</li>
+<li><strong>Provider URL</strong>: <code>https://keycloak.yoursite.com/auth/realms/{realm}</code> (replace <code>{realm}</code> with the chosen realm name)</li>
+<li><strong>Provider name</strong>: Set a name to show on the listmonk login form, eg: <code>Login with OrgName</code></li>
+<li><strong>Client ID</strong>: Client ID set in Keycloak, eg: <code>listmonk</code></li>
+<li><strong>Client Secret</strong>: Client Secret copied from Keycloak</li>
+</ul>
+</li>
+</ol>
+<h2 id="authentik">Authentik<a class="headerlink" href="#authentik" title="Permanent link">&para;</a></h2>
+<p>Authentik configuration for listmonk SSO integration.</p>
+<h3 id="1-create-a-new-oidc-provider-in-authentik">1. Create a new OIDC provider in Authentik<a class="headerlink" href="#1-create-a-new-oidc-provider-in-authentik" title="Permanent link">&para;</a></h3>
+<p>In the Authentik admin interface, create a new OIDC provider for listmonk.</p>
+<ul>
+<li><strong>Provider Settings</strong>:  <ul>
+<li><strong>Name</strong>: <code>listmonk</code> (or any preferred name)</li>
+<li><strong>Signing Key</strong>: <code>authentik Self-signed Certificate</code></li>
+<li><strong>Client Type</strong>: <code>Confidential</code></li>
+<li><strong>Client ID</strong>: <code>listmonk</code> (or any preferred name)</li>
+<li><strong>Redirect URIs</strong>: Copy the <strong>Redirect URL for oAuth provider</strong> value from listmonk Admin -&gt; Settings -&gt; Security -&gt; OIDC. It will look like <code>https://listmonk.yoursite.com/auth/oidc</code></li>
+</ul>
+</li>
+</ul>
+<p>After creating the provider, copy the <strong>Client Secret</strong>.</p>
+<h3 id="2-create-an-application-in-authentik">2. Create an application in Authentik<a class="headerlink" href="#2-create-an-application-in-authentik" title="Permanent link">&para;</a></h3>
+<p>Create a new application and connect it to the newly created provider.</p>
+<ul>
+<li><strong>Application Settings</strong>:<ul>
+<li><strong>Name</strong>: <code>listmonk</code> (or any preferred name)</li>
+<li><strong>Slug</strong>: <code>listmonk</code> (or any preferred slug. Used in the redirect URL)</li>
+<li><strong>Provider</strong>: Select the OIDC provider created in the previous step</li>
+</ul>
+</li>
+</ul>
+<h3 id="3-configure-listmonk">3. Configure listmonk<a class="headerlink" href="#3-configure-listmonk" title="Permanent link">&para;</a></h3>
+<p>In listmonk Admin → Settings → Security → OIDC:</p>
+<ul>
+<li><strong>Enable OIDC SSO</strong>: Turn on</li>
+<li><strong>Provider URL</strong>: <code>https://authentik.yoursite.com/application/o/{slug}/</code> (replace <code>{slug}</code> with the application's slug)</li>
+<li><strong>Provider Name</strong>: Set a name to show on the login form (e.g., <code>Login with OrgName</code>)</li>
+<li><strong>Client ID</strong>: Client ID set in Authentik (e.g., <code>listmonk</code>)</li>
+<li><strong>Client Secret</strong>: Client Secret copied from Authentik</li>
+</ul>
 
 
 
