@@ -145,8 +145,7 @@
             <label for="#"><b-icon icon="speedometer" size="is-small" /></label>
             <span class="send-rate">
               <b-tooltip
-                :label="`${stats.netRate} / ${$t('campaigns.rateMinuteShort')} @
-                                                                                          ${$utils.duration(stats.startedAt, stats.updatedAt)}`"
+                :label="`${stats.netRate} / ${$t('campaigns.rateMinuteShort')} @ ${$utils.duration(stats.startedAt, stats.updatedAt)}`"
                 type="is-dark">
                 {{ stats.rate.toFixed(0) }} / {{ $t('campaigns.rateMinuteShort') }}
               </b-tooltip>

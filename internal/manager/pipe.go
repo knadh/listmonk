@@ -224,7 +224,7 @@ func (p *pipe) cleanup() {
 	}
 
 	// If a running campaign has exhausted subscribers, it's finished.
-	if c.Status == models.CampaignStatusRunning {
+	if c.Status == models.CampaignStatusRunning || c.Status == models.CampaignStatusScheduled {
 		c.Status = models.CampaignStatusFinished
 		if err := p.m.store.UpdateCampaignStatus(p.camp.ID, models.CampaignStatusFinished); err != nil {
 			p.m.log.Printf("error finishing campaign (%s): %v", p.camp.Name, err)
