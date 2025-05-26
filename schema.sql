@@ -432,3 +432,76 @@ CREATE MATERIALIZED VIEW mat_list_subscriber_stats AS
     UNION ALL
     SELECT NOW() AS updated_at, 0 AS list_id, NULL AS status, COUNT(id) AS subscriber_count FROM subscribers;
 DROP INDEX IF EXISTS mat_list_subscriber_stats_idx; CREATE UNIQUE INDEX mat_list_subscriber_stats_idx ON mat_list_subscriber_stats (list_id, status);
+
+
+-- subscriber verification status
+CREATE OR REPLACE FUNCTION move_subscriber_to_verified_list()
+RETURNS TRIGGER AS $$
+DECLARE
+    sl RECORD;
+    verified_list_id INTEGER;
+    unverified_list_id INTEGER;
+    is_verified BOOLEAN;
+    base_name TEXT;
+    verified_list_name TEXT;
+    unverified_list_name TEXT;
+BEGIN
+    -- Determine verification status
+    is_verified := (NEW.attribs->>'verified')::boolean;
+
+    -- Loop through all base lists the subscriber is in (excluding _verified/_unverified)
+    FOR sl IN
+        SELECT l.id AS list_id, l.name, l.type, l.optin
+        FROM subscriber_lists sbl
+        JOIN lists l ON l.id = sbl.list_id
+        WHERE sbl.subscriber_id = NEW.id
+          AND l.name NOT LIKE '%\_verified' ESCAPE '\'
+          AND l.name NOT LIKE '%\_unverified' ESCAPE '\'
+    LOOP
+        base_name := sl.name;
+        verified_list_name := base_name || '_verified';
+        unverified_list_name := base_name || '_unverified';
+
+        -- Ensure verified list exists
+        SELECT id INTO verified_list_id FROM lists WHERE name = verified_list_name;
+        IF NOT FOUND THEN
+            INSERT INTO lists (uuid, name, type, optin, description)
+            VALUES (gen_random_uuid(), verified_list_name, sl.type, sl.optin, 'Auto-created verified list')
+            RETURNING id INTO verified_list_id;
+        END IF;
+
+        -- Ensure unverified list exists
+        SELECT id INTO unverified_list_id FROM lists WHERE name = unverified_list_name;
+        IF NOT FOUND THEN
+            INSERT INTO lists (uuid, name, type, optin, description)
+            VALUES (gen_random_uuid(), unverified_list_name, sl.type, sl.optin, 'Auto-created unverified list')
+            RETURNING id INTO unverified_list_id;
+        END IF;
+
+        -- Remove subscriber from both _verified and _unverified lists
+        DELETE FROM subscriber_lists
+        WHERE subscriber_id = NEW.id
+          AND list_id IN (verified_list_id, unverified_list_id);
+
+        -- Add subscriber to the correct list
+        IF is_verified THEN
+            INSERT INTO subscriber_lists (subscriber_id, list_id)
+            VALUES (NEW.id, verified_list_id)
+            ON CONFLICT DO NOTHING;
+        ELSE
+            INSERT INTO subscriber_lists (subscriber_id, list_id)
+            VALUES (NEW.id, unverified_list_id)
+            ON CONFLICT DO NOTHING;
+        END IF;
+    END LOOP;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+
+CREATE TRIGGER trg_subscriber_verified_move
+AFTER INSERT OR UPDATE OF attribs
+ON subscribers
+FOR EACH ROW
+EXECUTE FUNCTION move_subscriber_to_verified_list();
