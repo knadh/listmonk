@@ -48,6 +48,7 @@ listmonk supports receiving bounce webhook events from the following SMTP provid
 | `https://listmonk.yoursite.com/webhooks/service/sendgrid`     | Sendgrid / Twilio Signed event webhook | [More info](https://docs.sendgrid.com/for-developers/tracking-events/getting-started-event-webhook-security-features) |
 | `https://listmonk.yoursite.com/webhooks/service/postmark`     | Postmark webhook                       | [More info](https://postmarkapp.com/developer/webhooks/webhooks-overview)                                             |
 | `https://listmonk.yoursite.com/webhooks/service/forwardemail` | Forward Email webhook                   | [More info](https://forwardemail.net/en/faq#do-you-support-bounce-webhooks)                                                  |
+| `https://listmonk.yoursite.com/webhooks/service/mailgun`     | Mailgun webhooks                       | See below                                                                                                             |
 
 ## Amazon Simple Email Service (SES)
 
@@ -104,3 +105,43 @@ FROM bounces
 LEFT JOIN subscribers ON (subscribers.id = bounces.subscriber_id)
 ORDER BY bounces.created_at DESC LIMIT 1000;
 ```
+
+## Mailgun
+
+listmonk can process bounce and complaint notifications from Mailgun via webhooks.
+
+### Configuration in Mailgun
+
+1.  Log in to your Mailgun control panel.
+2.  Navigate to **Sending** -> **Webhooks**.
+3.  If you don't have a webhook for listmonk yet, click **Add webhook**.
+4.  Select the domain for which you want to configure webhooks.
+5.  For **Event types**, ensure you select at least:
+    *   `Permanent Failures` (for hard bounces)
+    *   `Temporary Failures` (for soft bounces)
+    *   `Spam Complaints`
+6.  For the **URL**, enter your listmonk webhook endpoint: `https://listmonk.yoursite.com/webhooks/service/mailgun` (replace `listmonk.yoursite.com` with your listmonk instance's public URL).
+7.  Save the webhook.
+8.  After saving, or on the main Webhooks page, find your **Webhook Signing Key**. You might need to click a button to reveal it. Copy this key.
+
+### Configuration in listmonk
+
+1.  In listmonk, go to **Settings** -> **Bounces**.
+2.  Ensure **Enable bounce processing** and **Enable bounce webhooks** are turned on.
+3.  Check the **Enable Mailgun webhooks** option.
+4.  Paste the **Webhook Signing Key** you copied from Mailgun into the "Mailgun webhook signing key" field.
+5.  Save the settings.
+
+### Important: Campaign Tracking
+
+To associate bounces with specific campaigns, listmonk relies on a custom header `X-Listmonk-Campaign-UUID` being present in the emails sent via Mailgun.
+
+If you are using listmonk to send emails through Mailgun (e.g., via SMTP), ensure this header is added. You can typically do this in listmonk's SMTP settings under "Custom headers":
+
+```json
+[
+  {"X-Listmonk-Campaign-UUID": "{{ .CampaignUUID }}"}
+]
+```
+
+Consult the listmonk documentation on SMTP settings or Mailgun's documentation for adding custom MIME headers if you are sending emails through other means.

@@ -35,6 +35,8 @@ type Opt struct {
 		Enabled bool
 		Key     string
 	}
+	MailgunEnabled    bool
+	MailgunWebhookKey string
 
 	RecordBounceCB func(models.Bounce) error
 }
@@ -47,6 +49,7 @@ type Manager struct {
 	Sendgrid     *webhooks.Sendgrid
 	Postmark     *webhooks.Postmark
 	Forwardemail *webhooks.Forwardemail
+	Mailgun      *webhooks.Mailgun
 	queries      *Queries
 	opt          Opt
 	log          *log.Logger
@@ -99,6 +102,10 @@ func New(opt Opt, q *Queries, lo *log.Logger) (*Manager, error) {
 			fe := webhooks.NewForwardemail([]byte(opt.ForwardEmail.Key))
 			m.Forwardemail = fe
 		}
+
+		// Mailgun initialization is now handled externally after New() is called,
+		// typically in cmd/main.go or equivalent setup code,
+		// based on the bounce.Opt fields (MailgunEnabled, MailgunWebhookKey).
 	}
 
 	return m, nil

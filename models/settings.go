@@ -95,41 +95,48 @@ type Settings struct {
 		MaxMsgRetries int    `json:"max_msg_retries"`
 	} `json:"messengers"`
 
-	BounceEnabled        bool `json:"bounce.enabled"`
-	BounceEnableWebhooks bool `json:"bounce.webhooks_enabled"`
-	BounceActions        map[string]struct {
-		Count  int    `json:"count"`
-		Action string `json:"action"`
-	} `json:"bounce.actions"`
-	SESEnabled      bool   `json:"bounce.ses_enabled"`
-	SendgridEnabled bool   `json:"bounce.sendgrid_enabled"`
-	SendgridKey     string `json:"bounce.sendgrid_key"`
-	BouncePostmark  struct {
-		Enabled  bool   `json:"enabled"`
-		Username string `json:"username"`
-		Password string `json:"password"`
-	} `json:"bounce.postmark"`
-	BounceForwardEmail struct {
-		Enabled bool   `json:"enabled"`
-		Key     string `json:"key"`
-	} `json:"bounce.forwardemail"`
-	BounceBoxes []struct {
-		UUID          string `json:"uuid"`
-		Enabled       bool   `json:"enabled"`
-		Type          string `json:"type"`
-		Host          string `json:"host"`
-		Port          int    `json:"port"`
-		AuthProtocol  string `json:"auth_protocol"`
-		ReturnPath    string `json:"return_path"`
-		Username      string `json:"username"`
-		Password      string `json:"password,omitempty"`
-		TLSEnabled    bool   `json:"tls_enabled"`
-		TLSSkipVerify bool   `json:"tls_skip_verify"`
-		ScanInterval  string `json:"scan_interval"`
-	} `json:"bounce.mailboxes"`
+	Bounces BounceSettings `json:"bounce" mapstructure:"bounce"`
 
 	AdminCustomCSS  string `json:"appearance.admin.custom_css"`
 	AdminCustomJS   string `json:"appearance.admin.custom_js"`
 	PublicCustomCSS string `json:"appearance.public.custom_css"`
 	PublicCustomJS  string `json:"appearance.public.custom_js"`
+}
+
+// BounceSettings holds all bounce-related configuration.
+type BounceSettings struct {
+	Enabled        bool `json:"enabled" mapstructure:"enabled"`
+	EnableWebhooks bool `json:"webhooks_enabled" mapstructure:"webhooks_enabled"`
+	Actions        map[string]struct {
+		Count  int    `json:"count" mapstructure:"count"`
+		Action string `json:"action" mapstructure:"action"`
+	} `json:"actions" mapstructure:"actions"`
+	SESEnabled      bool   `json:"ses_enabled" mapstructure:"ses_enabled"`
+	SendgridEnabled bool   `json:"sendgrid_enabled" mapstructure:"sendgrid_enabled"`
+	SendgridKey     string `json:"sendgrid_key" mapstructure:"sendgrid_key"`
+	Postmark        struct {
+		Enabled  bool   `json:"enabled" mapstructure:"enabled"`
+		Username string `json:"username" mapstructure:"username"`
+		Password string `json:"password" mapstructure:"password"`
+	} `json:"postmark" mapstructure:"postmark"`
+	ForwardEmail struct {
+		Enabled bool   `json:"enabled" mapstructure:"enabled"`
+		Key     string `json:"key" mapstructure:"key"`
+	} `json:"forwardemail" mapstructure:"forwardemail"`
+	BounceMailgunEnabled bool   `json:"mailgun_enabled" mapstructure:"mailgun_enabled"`    // Changed tag to be relative
+	MailgunWebhookKey  string `json:"mailgun_webhook_key,omitempty" mapstructure:"mailgun_webhook_key"` // Changed tag to be relative
+	Boxes []struct {
+		UUID          string `json:"uuid" mapstructure:"uuid"`
+		Enabled       bool   `json:"enabled" mapstructure:"enabled"`
+		Type          string `json:"type" mapstructure:"type"`
+		Host          string `json:"host" mapstructure:"host"`
+		Port          int    `json:"port" mapstructure:"port"`
+		AuthProtocol  string `json:"auth_protocol" mapstructure:"auth_protocol"`
+		ReturnPath    string `json:"return_path" mapstructure:"return_path"`
+		Username      string `json:"username" mapstructure:"username"`
+		Password      string `json:"password,omitempty" mapstructure:"password"`
+		TLSEnabled    bool   `json:"tls_enabled" mapstructure:"tls_enabled"`
+		TLSSkipVerify bool   `json:"tls_skip_verify" mapstructure:"tls_skip_verify"`
+		ScanInterval  string `json:"scan_interval" mapstructure:"scan_interval"`
+	} `json:"mailboxes" mapstructure:"mailboxes"`
 }

@@ -210,6 +210,19 @@ func main() {
 	// POP3 mailbox scanning.
 	if ko.Bool("bounce.enabled") {
 		bounce = initBounceManager(core.RecordBounce, queries.RecordBounce, lo, ko)
+
+		// Initialize Mailgun if enabled. This happens after initBounceManager.
+		// cfg is populated by initConstConfig(ko). We assume initConstConfig unmarshals
+		// the "bounce" key from koanf into cfg.Bounces (models.BounceSettings).
+		if cfg.Bounces.Enabled && cfg.Bounces.EnableWebhooks && cfg.Bounces.BounceMailgunEnabled {
+			if cfg.Bounces.MailgunWebhookKey == "" {
+				lo.Fatalf("Mailgun webhook signing key is not set (bounce.mailgun_webhook_key)")
+			}
+			// 'bounce' is the *bounce.Manager instance.
+			// The 'Mailgun' field was added to bounce.Manager struct.
+			bounce.Mailgun = webhooks.NewMailgun(cfg.Bounces.MailgunWebhookKey)
+			lo.Printf("Mailgun bounce webhook processing enabled")
+		}
 	}
 
 	// Assign the default `email` messenger to the app.

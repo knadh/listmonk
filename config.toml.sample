@@ -22,3 +22,10 @@ max_lifetime = "300s"
 
 # Optional space separated Postgres DSN params. eg: "application_name=listmonk gssencmode=disable"
 params = ""
+
+# Bounce processing settings.
+[bounce]
+# Enable Mailgun bounce webhook processing.
+mailgun_enabled = false
+# Mailgun webhook signing key. Find this in your Mailgun dashboard under Webhooks.
+mailgun_webhook_key = ""

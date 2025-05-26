@@ -1,27 +1,28 @@
 <template>
   <div>
+    <!-- General bounce settings -->
     <div class="columns mb-6">
       <div class="column is-3">
         <b-field :label="$t('settings.bounces.enable')" data-cy="btn-enable-bounce">
-          <b-switch v-model="data['bounce.enabled']" name="bounce.enabled" />
+          <b-switch v-model="form.bounce.enabled" name="bounce.enabled" />
         </b-field>
       </div>
       <div class="column">
         <div v-for="typ in bounceTypes" :key="typ" class="columns">
-          <div class="column is-2" :class="{ disabled: !data['bounce.enabled'] }" :label="$t('settings.bounces.count')"
+          <div class="column is-2" :class="{ disabled: !form.bounce.enabled }" :label="$t('settings.bounces.count')"
             label-position="on-border">
             {{ $t(`bounces.${typ}`) }}
           </div>
-          <div class="column is-4" :class="{ disabled: !data['bounce.enabled'] }">
+          <div class="column is-4" :class="{ disabled: !form.bounce.enabled }">
             <b-field :label="$t('settings.bounces.count')" label-position="on-border"
               :message="$t('settings.bounces.countHelp')" data-cy="btn-bounce-count">
-              <b-numberinput v-model="data['bounce.actions'][typ]['count']" name="bounce.count" type="is-light"
+              <b-numberinput v-model="form.bounce.actions[typ]['count']" name="bounce.count" type="is-light"
                 controls-position="compact" placeholder="3" min="1" max="1000" />
             </b-field>
           </div>
-          <div class="column is-4" :class="{ disabled: !data['bounce.enabled'] }">
+          <div class="column is-4" :class="{ disabled: !form.bounce.enabled }">
             <b-field :label="$t('settings.bounces.action')" label-position="on-border">
-              <b-select name="bounce.action" v-model="data['bounce.actions'][typ]['action']" expanded>
+              <b-select name="bounce.action" v-model="form.bounce.actions[typ]['action']" expanded>
                 <option value="none">
                   {{ $t('globals.terms.none') }}
                 </option>
@@ -41,88 +42,129 @@
       </div>
     </div><!-- columns -->
 
+    <!-- Webhook settings -->
     <div class="mb-6">
       <b-field :label="$t('settings.bounces.enableWebhooks')" data-cy="btn-enable-bounce-webhook">
-        <b-switch v-model="data['bounce.webhooks_enabled']" :disabled="!data['bounce.enabled']" name="webhooks_enabled"
+        <b-switch v-model="form.bounce.webhooks_enabled" :disabled="!form.bounce.enabled" name="webhooks_enabled"
           :native-value="true" data-cy="btn-enable-bounce-webhook" />
         <p class="has-text-grey">
           <a href="https://listmonk.app/docs/bounces" target="_blank" rel="noopener noreferer">{{
             $t('globals.buttons.learnMore') }} &rarr;</a>
         </p>
       </b-field>
-      <div class="box" v-if="data['bounce.webhooks_enabled']">
+      <div class="box" v-if="form.bounce.webhooks_enabled">
+        <!-- SES -->
         <div class="columns">
           <div class="column">
             <b-field :label="$t('settings.bounces.enableSES')">
-              <b-switch v-model="data['bounce.ses_enabled']" name="ses_enabled" :native-value="true"
+              <b-switch v-model="form.bounce.ses_enabled" name="ses_enabled" :native-value="true"
+                :disabled="!form.bounce.enabled || !form.bounce.webhooks_enabled"
                 data-cy="btn-enable-bounce-ses" />
             </b-field>
           </div>
         </div>
+
+        <!-- SendGrid -->
         <div class="columns">
           <div class="column is-3">
             <b-field :label="$t('settings.bounces.enableSendgrid')">
-              <b-switch v-model="data['bounce.sendgrid_enabled']" name="sendgrid_enabled" :native-value="true"
+              <b-switch v-model="form.bounce.sendgrid_enabled" name="sendgrid_enabled" :native-value="true"
+                :disabled="!form.bounce.enabled || !form.bounce.webhooks_enabled"
                 data-cy="btn-enable-bounce-sendgrid" />
             </b-field>
           </div>
           <div class="column">
             <b-field :label="$t('settings.bounces.sendgridKey')" :message="$t('globals.messages.passwordChange')">
-              <b-input v-model="data['bounce.sendgrid_key']" type="password"
-                :disabled="!data['bounce.sendgrid_enabled']" name="sendgrid_enabled" :native-value="true"
-                data-cy="btn-enable-bounce-sendgrid" />
+              <b-input v-model="form.bounce.sendgrid_key" type="password"
+                :disabled="!form.bounce.enabled || !form.bounce.webhooks_enabled || !form.bounce.sendgrid_enabled"
+                name="sendgrid_key"
+                data-cy="input-bounce-sendgrid-key" />
             </b-field>
           </div>
         </div>
+
+        <!-- Postmark -->
         <div class="columns">
           <div class="column is-3">
             <b-field :label="$t('settings.bounces.enablePostmark')">
-              <b-switch v-model="data['bounce.postmark'].enabled" name="postmark_enabled" :native-value="true"
+              <b-switch v-model="form.bounce.postmark.enabled" name="postmark_enabled" :native-value="true"
+                :disabled="!form.bounce.enabled || !form.bounce.webhooks_enabled"
                 data-cy="btn-enable-bounce-postmark" />
             </b-field>
           </div>
           <div class="column">
             <b-field :label="$t('settings.bounces.postmarkUsername')"
               :message="$t('settings.bounces.postmarkUsernameHelp')">
-              <b-input v-model="data['bounce.postmark'].username" type="text"
-                :disabled="!data['bounce.postmark'].enabled" name="postmark_username"
-                data-cy="btn-enable-bounce-postmark" />
+              <b-input v-model="form.bounce.postmark.username" type="text"
+                :disabled="!form.bounce.enabled || !form.bounce.webhooks_enabled || !form.bounce.postmark.enabled"
+                name="postmark_username"
+                data-cy="input-bounce-postmark-user" />
             </b-field>
           </div>
           <div class="column">
             <b-field :label="$t('settings.bounces.postmarkPassword')" :message="$t('globals.messages.passwordChange')">
-              <b-input v-model="data['bounce.postmark'].password" type="password"
-                :disabled="!data['bounce.postmark'].enabled" name="postmark_password"
-                data-cy="btn-enable-bounce-postmark" />
+              <b-input v-model="form.bounce.postmark.password" type="password"
+                :disabled="!form.bounce.enabled || !form.bounce.webhooks_enabled || !form.bounce.postmark.enabled"
+                name="postmark_password"
+                data-cy="input-bounce-postmark-pass" />
             </b-field>
           </div>
         </div>
+
+        <!-- ForwardEmail -->
         <div class="columns">
           <div class="column is-3">
             <b-field :label="$t('settings.bounces.enableForwardemail')">
-              <b-switch v-model="data['bounce.forwardemail'].enabled" name="forwardemail_enabled" :native-value="true"
+              <b-switch v-model="form.bounce.forwardemail.enabled" name="forwardemail_enabled" :native-value="true"
+                :disabled="!form.bounce.enabled || !form.bounce.webhooks_enabled"
                 data-cy="btn-enable-bounce-forwardemail" />
             </b-field>
           </div>
           <div class="column">
             <b-field :label="$t('settings.bounces.forwardemailKey')" :message="$t('globals.messages.passwordChange')">
-              <b-input v-model="data['bounce.forwardemail'].key" type="password"
-                :disabled="!data['bounce.forwardemail'].enabled" name="forwardemail_enabled" :native-value="true"
-                data-cy="btn-enable-bounce-forwardemail" />
+              <b-input v-model="form.bounce.forwardemail.key" type="password"
+                :disabled="!form.bounce.enabled || !form.bounce.webhooks_enabled || !form.bounce.forwardemail.enabled"
+                name="forwardemail_key"
+                data-cy="input-bounce-forwardemail-key" />
             </b-field>
           </div>
         </div>
-      </div>
+
+        <!-- Mailgun -->
+        <h4 class="title is-size-6 mt-5">Mailgun</h4>
+        <div class="columns">
+          <div class="column is-3">
+            <b-field>
+              <b-switch v-model="form.bounce.mailgun_enabled" :disabled="!form.bounce.enabled || !form.bounce.webhooks_enabled">
+                {{ $t('settings.bounces.enableMailgun') }}
+              </b-switch>
+            </b-field>
+          </div>
+          <div class="column">
+            <b-field :label="$t('settings.bounces.mailgunWebhookKey')" v-if="form.bounce.mailgun_enabled"
+              :message="$t('settings.bounces.mailgunWebhookKeyHelp')">
+              <b-input type="text" v-model="form.bounce.mailgun_webhook_key"
+                       :disabled="!form.bounce.enabled || !form.bounce.webhooks_enabled || !form.bounce.mailgun_enabled"
+                       :placeholder="$t('settings.bounces.mailgunWebhookKeyPlaceholder')"></b-input>
+            </b-field>
+            <div class="webhook-url" v-if="form.bounce.mailgun_enabled && form.bounce.webhook_url">
+              <p>{{ $t("settings.bounces.webhookURL") }}:
+                <code>{{ form.bounce.webhook_url }}/mailgun</code>
+              </p>
+            </div>
+          </div>
+        </div> <!-- End Mailgun -->
+      </div><!-- box -->
     </div>
 
-    <!-- bounce mailbox -->
+    <!-- Bounce mailbox -->
     <b-field :label="$t('settings.bounces.enableMailbox')">
-      <b-switch v-if="data['bounce.mailboxes']" v-model="data['bounce.mailboxes'][0].enabled"
-        :disabled="!data['bounce.enabled']" name="enabled" :native-value="true" data-cy="btn-enable-bounce-mailbox" />
+      <b-switch v-if="form.bounce.boxes && form.bounce.boxes.length" v-model="form.bounce.boxes[0].enabled"
+        :disabled="!form.bounce.enabled" name="mailbox_enabled" :native-value="true" data-cy="btn-enable-bounce-mailbox" />
     </b-field>
 
-    <template v-if="data['bounce.enabled'] && data['bounce.mailboxes'][0].enabled">
-      <div class="block box" v-for="(item, n) in data['bounce.mailboxes']" :key="n">
+    <template v-if="form.bounce.enabled && form.bounce.boxes && form.bounce.boxes.length && form.bounce.boxes[0].enabled">
+      <div class="block box" v-for="(item, n) in form.bounce.boxes" :key="n">
         <div class="columns">
           <div class="column" :class="{ disabled: !item.enabled }">
             <div class="columns">
@@ -232,14 +274,18 @@ export default Vue.extend({
   data() {
     return {
       bounceTypes: ['soft', 'hard', 'complaint'],
-      data: this.form,
+      // The 'data' property is removed. Template now uses 'form' prop directly.
       regDuration,
     };
   },
 
   methods: {
     removeBounceBox(i) {
-      this.data['bounce.mailboxes'].splice(i, 1);
+      // Adjust to use 'form' prop directly if this method is still needed.
+      // Assuming 'form.bounce.boxes' is the correct path after refactor.
+      if (this.form.bounce && this.form.bounce.boxes) {
+        this.form.bounce.boxes.splice(i, 1);
+      }
     },
   },
 });

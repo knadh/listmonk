@@ -143,7 +143,8 @@ func (a *App) BounceWebhook(c echo.Context) error {
 		bounces = append(bounces, b)
 
 	// Amazon SES.
-	case service == "ses" && a.cfg.BounceSESEnabled:
+	// Updated to use a.cfg.Bounces based on models.Settings refactor and subtask consistency.
+	case service == "ses" && a.cfg.Bounces.SESEnabled:
 		switch c.Request().Header.Get("X-Amz-Sns-Message-Type") {
 		// SNS webhook registration confirmation. Only after these are processed will the endpoint
 		// start getting bounce notifications.
@@ -167,7 +168,8 @@ func (a *App) BounceWebhook(c echo.Context) error {
 		}
 
 	// SendGrid.
-	case service == "sendgrid" && a.cfg.BounceSendgridEnabled:
+	// Updated to use a.cfg.Bounces based on models.Settings refactor and subtask consistency.
+	case service == "sendgrid" && a.cfg.Bounces.SendgridEnabled:
 		var (
 			sig = c.Request().Header.Get("X-Twilio-Email-Event-Webhook-Signature")
 			ts  = c.Request().Header.Get("X-Twilio-Email-Event-Webhook-Timestamp")
@@ -182,7 +184,8 @@ func (a *App) BounceWebhook(c echo.Context) error {
 		bounces = append(bounces, bs...)
 
 	// Postmark.
-	case service == "postmark" && a.cfg.BouncePostmarkEnabled:
+	// Updated to use a.cfg.Bounces based on models.Settings refactor and subtask consistency.
+	case service == "postmark" && a.cfg.Bounces.Postmark.Enabled:
 		bs, err := a.bounce.Postmark.ProcessBounce(rawReq, c)
 		if err != nil {
 			a.log.Printf("error processing postmark notification: %v", err)
@@ -195,7 +198,8 @@ func (a *App) BounceWebhook(c echo.Context) error {
 		bounces = append(bounces, bs...)
 
 	// ForwardEmail.
-	case service == "forwardemail" && a.cfg.BounceForwardemailEnabled:
+	// Updated to use a.cfg.Bounces based on models.Settings refactor and subtask consistency.
+	case service == "forwardemail" && a.cfg.Bounces.ForwardEmail.Enabled:
 		var (
 			sig = c.Request().Header.Get("X-Webhook-Signature")
 		)
@@ -207,6 +211,22 @@ func (a *App) BounceWebhook(c echo.Context) error {
 				return err
 			}
 
+			return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("globals.messages.invalidData"))
+		}
+		bounces = append(bounces, bs...)
+
+	// Mailgun.
+	case service == "mailgun" && a.cfg.Bounces.BounceMailgunEnabled:
+		// rawReq is already read at the beginning of the function.
+		// The ProcessBounce method for Mailgun in internal/bounce/webhooks/mailgun.go
+		// expects only the body. Signature verification is part of ProcessBounce.
+		bs, err := a.bounce.Mailgun.ProcessBounce(rawReq)
+		if err != nil {
+			a.log.Printf("error processing mailgun notification: %v", err)
+			// Check if it's an HTTPError already, if so, return it directly.
+			if _, ok := err.(*echo.HTTPError); ok {
+				return err
+			}
 			return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("globals.messages.invalidData"))
 		}
 		bounces = append(bounces, bs...)
