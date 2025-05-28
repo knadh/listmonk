@@ -36,6 +36,8 @@ type Queries struct {
 	DeleteOrphanSubscribers         *sqlx.Stmt `query:"delete-orphan-subscribers"`
 	UnsubscribeByCampaign           *sqlx.Stmt `query:"unsubscribe-by-campaign"`
 	ExportSubscriberData            *sqlx.Stmt `query:"export-subscriber-data"`
+	UpsertBulkSubscriber            *sqlx.Stmt `query:"upsert-bulk-subscriber"`
+	UpsertBulkBlocklistSubscriber   *sqlx.Stmt `query:"upsert-bulk-blocklist-subscriber"`
 
 	// Non-prepared arbitrary subscriber queries.
 	QuerySubscribers                       string     `query:"query-subscribers"`

@@ -270,6 +270,17 @@ func (s *Session) Start() {
 		cur   = 0
 	)
 
+	type SubscriberInput struct {
+		UUID    string      `json:"uuid"`
+		Email   string      `json:"email"`
+		Name    string      `json:"name"`
+		Attribs models.JSON `json:"attribs"`
+		ListIDs []int       `json:"list_ids,omitempty"`
+		Status  string      `json:"status,omitempty"` // e.g., "enabled"
+	}
+
+	var subscribers []SubscriberInput
+
 	listIDs := make([]int, len(s.opt.ListIDs))
 	copy(listIDs, s.opt.ListIDs)
 
@@ -284,8 +295,10 @@ func (s *Session) Start() {
 
 			if s.opt.Mode == ModeSubscribe {
 				stmt = tx.Stmt(s.im.opt.UpsertStmt)
+
 			} else {
 				stmt = tx.Stmt(s.im.opt.BlocklistStmt)
+
 			}
 		}
 
@@ -297,20 +310,49 @@ func (s *Session) Start() {
 		}
 
 		if s.opt.Mode == ModeSubscribe {
-			_, err = stmt.Exec(uu, sub.Email, sub.Name, sub.Attribs, pq.Array(listIDs), s.opt.SubStatus, s.opt.Overwrite)
+			subscribers = append(subscribers, SubscriberInput{
+				UUID:    uu.String(),
+				Email:   sub.Email,
+				Name:    sub.Name,
+				Attribs: sub.Attribs,
+				ListIDs: listIDs,
+				Status:  s.opt.SubStatus,
+			})
 		} else if s.opt.Mode == ModeBlocklist {
-			_, err = stmt.Exec(uu, sub.Email, sub.Name, sub.Attribs)
+			subscribers = append(subscribers, SubscriberInput{
+				UUID:    uu.String(),
+				Email:   sub.Email,
+				Name:    sub.Name,
+				Attribs: sub.Attribs,
+			})
 		}
-		if err != nil {
-			s.log.Printf("error executing insert: %v", err)
-			tx.Rollback()
-			break
-		}
+
 		cur++
 		total++
 
 		// Batch size is met. Commit.
 		if cur%commitBatchSize == 0 {
+			jsonPayload, err := json.Marshal(subscribers)
+			if err != nil {
+				s.log.Printf("error marshalling subscribers: %v", err)
+				tx.Rollback()
+				break
+			}
+
+			if s.opt.Mode == ModeSubscribe {
+				if _, err := stmt.Exec(jsonPayload, s.opt.Overwrite); err != nil {
+					s.log.Printf("error executing upsert batch: %v", err)
+					tx.Rollback()
+					break
+				}
+			} else if s.opt.Mode == ModeBlocklist {
+				if _, err := stmt.Exec(jsonPayload); err != nil {
+					s.log.Printf("error executing upsert batch: %v", err)
+					tx.Rollback()
+					break
+				}
+			}
+			subscribers = nil // reset for next batch
 			if err := tx.Commit(); err != nil {
 				tx.Rollback()
 				s.log.Printf("error committing to DB: %v", err)
@@ -332,6 +374,26 @@ func (s *Session) Start() {
 		}
 		s.im.sendNotif(StatusFinished)
 		return
+	}
+
+	if len(subscribers) > 0 {
+		jsonPayload, err := json.Marshal(subscribers)
+		if err != nil {
+			s.log.Printf("error marshalling subscribers: %v", err)
+			tx.Rollback()
+		}
+
+		if s.opt.Mode == ModeSubscribe {
+			if _, err := stmt.Exec(jsonPayload, s.opt.Overwrite); err != nil {
+				s.log.Printf("error executing upsert batch: %v", err)
+				tx.Rollback()
+			}
+		} else if s.opt.Mode == ModeBlocklist {
+			if _, err := stmt.Exec(jsonPayload); err != nil {
+				s.log.Printf("error executing upsert batch: %v", err)
+				tx.Rollback()
+			}
+		}
 	}
 
 	// Queue's closed and there are records left to commit.
