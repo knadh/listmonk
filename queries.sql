@@ -1318,3 +1318,59 @@ UPDATE roles SET name=$2, permissions=$3 WHERE id=$1 and parent_id IS NULL RETUR
 
 -- name: delete-role
 DELETE FROM roles WHERE id=$1;
+
+
+-- name: upsert-bulk-subscriber
+WITH data AS (
+  SELECT *
+  FROM jsonb_to_recordset($1::jsonb)
+    AS x(uuid TEXT, email TEXT, name TEXT, attribs JSONB, list_ids INT[], status TEXT)
+),
+sub AS (
+  INSERT INTO subscribers (uuid, email, name, attribs, status)
+  SELECT uuid::UUID, email, name, attribs, 'enabled'
+  FROM data
+  ON CONFLICT (email)
+  DO UPDATE SET
+    name = CASE WHEN $2 THEN EXCLUDED.name ELSE subscribers.name END,
+    attribs = CASE WHEN $2 THEN EXCLUDED.attribs ELSE subscribers.attribs END,
+    updated_at = NOW()
+  RETURNING id, uuid, status, email
+),
+subs AS (
+  INSERT INTO subscriber_lists (subscriber_id, list_id, status)
+  SELECT
+    sub.id,
+    unnest(d.list_ids),
+    CASE WHEN sub.status = 'blocklisted' THEN 'unsubscribed' ELSE d.status::subscription_status END
+  FROM sub
+  JOIN data d ON sub.email = d.email
+  ON CONFLICT (subscriber_id, list_id)
+  DO UPDATE SET
+    updated_at = NOW(),
+    status = CASE WHEN EXCLUDED.status IS NOT NULL AND $2 THEN EXCLUDED.status ELSE subscriber_lists.status END
+)
+SELECT count(*) FROM sub;
+
+-- name: upsert-bulk-blocklist-subscriber
+WITH data AS (
+  SELECT *
+  FROM jsonb_to_recordset($1::jsonb)
+    AS x(uuid TEXT, email TEXT, name TEXT, attribs JSONB)
+),
+sub AS (
+  INSERT INTO subscribers (uuid, email, name, attribs, status)
+  SELECT uuid::UUID, email, name, attribs, 'blocklisted'
+  FROM data
+  ON CONFLICT (email)
+  DO UPDATE SET
+    status = 'blocklisted',
+    updated_at = NOW()
+  RETURNING id, email
+)
+UPDATE subscriber_lists
+SET status = 'unsubscribed',
+    updated_at = NOW()
+WHERE subscriber_id IN (
+  SELECT id FROM sub
+);
