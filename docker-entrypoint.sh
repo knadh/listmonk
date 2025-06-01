@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
 set -e
 
@@ -34,24 +34,21 @@ create_user() {
 create_group
 create_user
 
-load_env_from_file() {
-  VAR_NAME=$1
-  eval "value=\${$VAR_NAME:-}"
-  if [ -z "$value" ]; then
-    eval "value_FILE=\${${VAR_NAME}_FILE:-}"
-    if [ -n "$value_FILE" ]; then
-      TEMP=$(cat "$value_FILE")
-      eval "export $VAR_NAME=\"$TEMP\""
-      echo "Loaded $VAR_NAME"
+load_secret_files() {
+  # Capture all env variables starting with LISTMONK_ and ending with _FILE.
+  for var in $(compgen -v "LISTMONK_" | grep "_FILE$"); do
+    fpath="${!var}"
+    if [ -f "$fpath" ]; then
+      # If it's a valid file, read its contents and assign that to the var
+      # without the _FILE suffix.
+      # Eg: LISTMONK_DB_USER_FILE=/run/secrets/user -> LISTMONK_DB_USER=$(contents of /run/secrets/user)
+      export "${var%_FILE}"="$(cat "$fpath")"
+      echo "Loading ${var%_FILE} (from file)"
     fi
-  fi
+  done
 }
 
-load_env_from_file LISTMONK_db__user
-load_env_from_file LISTMONK_db__password
-load_env_from_file LISTMONK_db__database
-load_env_from_file LISTMONK_ADMIN_USER
-load_env_from_file LISTMONK_ADMIN_PASSWORD
+load_secret_files
 
 # Try to set the ownership of the app directory to the app user.
 if ! chown -R ${PUID}:${PGID} /listmonk 2>/dev/null; then
