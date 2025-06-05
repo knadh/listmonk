@@ -458,9 +458,6 @@ func (a *App) BlocklistSubscribersByQuery(c echo.Context) error {
 
 	req.Search = strings.TrimSpace(req.Search)
 	req.Query = formatSQLExp(req.Query)
-	if req.Search == "" && req.Query == "" {
-		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.Ts("globals.messages.invalidFields", "name", "query"))
-	}
 
 	// Does the user have the subscribers:sql_query permission?
 	if req.Query != "" {
@@ -495,9 +492,6 @@ func (a *App) ManageSubscriberListsByQuery(c echo.Context) error {
 
 	req.Search = strings.TrimSpace(req.Search)
 	req.Query = formatSQLExp(req.Query)
-	if req.Search == "" && req.Query == "" {
-		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.Ts("globals.messages.invalidFields", "name", "query"))
-	}
 
 	// Does the user have the subscribers:sql_query permission?
 	if req.Query != "" {

@@ -54,6 +54,7 @@ nav:
     - "Internationalization": "i18n.md"
     - "Integrating with external systems": external-integration.md
     - "User roles and permissions": roles-and-permissions.md
+    - "OIDC SSO": oidc.md
   - "API":
     - "Introduction": apis/apis.md
     - "SDKs and libs": apis/sdks.md

@@ -5,9 +5,11 @@ import {
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import updateLocale from 'dayjs/plugin/updateLocale';
+import dayDuration from 'dayjs/plugin/duration';
 
 dayjs.extend(updateLocale);
 dayjs.extend(relativeTime);
+dayjs.extend(dayDuration);
 
 const reEmail = /(.+?)@(.+?)/ig;
 const prefKey = 'listmonk_pref';
@@ -71,11 +73,15 @@ export default class Utils {
   duration = (start, end) => {
     const a = dayjs(start);
     const b = dayjs(end);
+    const d = dayjs.duration(Math.abs(b.diff(a)));
 
-    // Get the duration string, eg: "2 days".
-    const diff = b.from(a, true);
+    const parts = [
+      Math.floor(d.asDays()) && `${Math.floor(d.asDays())}d`,
+      d.hours() && `${d.hours()}h`,
+      d.minutes() && `${d.minutes()}m`,
+    ].filter(Boolean);
 
-    return `${b.isBefore(a) ? '-' : ''}${diff}`;
+    return `${b.isBefore(a) ? '-' : ''}${parts.join(' ')}`;
   };
 
   // Simple, naive, e-mail address check.
