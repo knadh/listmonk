@@ -1,7 +1,7 @@
 FROM alpine:latest
 
 # Install dependencies
-RUN apk --no-cache add ca-certificates tzdata shadow su-exec
+RUN apk --no-cache add ca-certificates tzdata shadow su-exec bash
 
 # Set the working directory
 WORKDIR /listmonk
