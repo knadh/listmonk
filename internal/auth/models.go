@@ -44,6 +44,7 @@ const (
 const (
 	PermListGetAll            = "lists:get_all"
 	PermListManageAll         = "lists:manage_all"
+	PermListCreate            = "lists:create"
 	PermListManage            = "list:manage"
 	PermListGet               = "list:get"
 	PermSubscribersGet        = "subscribers:get"
@@ -146,7 +147,8 @@ type Role struct {
 type ListRole struct {
 	Base
 
-	Name null.String `db:"name" json:"name"`
+	Name       null.String    `db:"name" json:"name"`
+	Messengers pq.StringArray `db:"permissions" json:"messengers"`
 
 	ListID   null.Int         `db:"list_id" json:"-"`
 	ParentID null.Int         `db:"parent_id" json:"-"`
