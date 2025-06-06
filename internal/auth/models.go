@@ -147,7 +147,8 @@ type Role struct {
 type ListRole struct {
 	Base
 
-	Name null.String `db:"name" json:"name"`
+	Name       null.String    `db:"name" json:"name"`
+	Messengers pq.StringArray `db:"permissions" json:"messengers"`
 
 	ListID   null.Int         `db:"list_id" json:"-"`
 	ParentID null.Int         `db:"parent_id" json:"-"`

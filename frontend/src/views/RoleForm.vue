@@ -72,6 +72,12 @@
               </a>
             </b-table-column>
           </b-table>
+
+          <b-table :data="allMessengers" :checked-rows.sync="form.messengers" checkbox-position="right" checkable>
+            <b-table-column v-slot="props" field="id" :label="$t('globals.terms.messengers')">
+              {{ props.row.id }}
+            </b-table-column>
+          </b-table>
         </div>
 
         <template v-if="type === 'user'">
@@ -142,8 +148,10 @@ export default Vue.extend({
         curList: null,
         lists: [],
         name: null,
+        messengers: [],
         permissions: {},
       },
+      allMessengers: [],
       hasToggle: false,
       disabled: false,
     };
@@ -195,6 +203,7 @@ export default Vue.extend({
         form.permissions = this.form.permissions;
       } else {
         fn = this.$api.createListRole;
+        form.messengers = this.form.messengers.map(({ id }) => id);
         form.lists = this.form.lists.reduce((acc, item) => {
           acc.push({ id: item.id, permissions: item.permissions });
           return acc;
@@ -217,6 +226,7 @@ export default Vue.extend({
         form.permissions = this.form.permissions;
       } else {
         fn = this.$api.updateListRole;
+        form.messengers = this.form.messengers.map(({ id }) => id);
         form.lists = this.form.lists.reduce((acc, item) => {
           acc.push({ id: item.id, permissions: item.permissions });
           return acc;
@@ -247,8 +257,14 @@ export default Vue.extend({
   },
 
   mounted() {
+    this.allMessengers.push(...this.serverConfig.messengers.map((id) => ({ id })));
     if (this.isEditing) {
       this.form = { ...this.form, ...this.$props.data };
+      this.form.messengers = [...this.allMessengers];
+      if (this.$props.data.messengers !== null) {
+        this.form.messengers = this.form.messengers
+          .filter(({ id }) => this.$props.data.messengers.includes(id));
+      }
 
       // It's the superadmin role. Disable the form.
       if (this.$props.data.id === 1 || !this.$can('roles:manage')) {
@@ -264,6 +280,7 @@ export default Vue.extend({
         'campaigns:get_all',
         'campaigns:manage_all',
       ];
+      this.form.messengers = [...this.allMessengers];
       this.form.permissions = this.serverConfig.permissions.reduce((acc, item) => {
         if (disabledGroups.includes(item.group)) return acc;
         item.permissions.forEach((p) => {

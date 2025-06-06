@@ -182,6 +182,11 @@ func (a *App) validateListRole(r auth.ListRole) error {
 	if !strHasLen(r.Name.String, 1, stdInputMaxLen) {
 		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.Ts("globals.messages.invalidFields", "name", "name"))
 	}
+	for _, p := range r.Messengers {
+		if !strHasLen(p, 1, stdInputMaxLen) {
+			return echo.NewHTTPError(http.StatusBadRequest, a.i18n.Ts("globals.messages.invalidFields", "name", fmt.Sprintf("messenger: %s", p)))
+		}
+	}
 
 	for _, l := range r.Lists {
 		for _, p := range l.Permissions {
