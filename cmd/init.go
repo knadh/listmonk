@@ -580,8 +580,8 @@ func initImporter(q *models.Queries, db *sqlx.DB, core *core.Core, i *i18n.I18n,
 		subimporter.Options{
 			DomainBlocklist:    ko.Strings("privacy.domain_blocklist"),
 			DomainAllowlist:    ko.Strings("privacy.domain_allowlist"),
-			UpsertStmt:         q.UpsertSubscriber.Stmt,
-			BlocklistStmt:      q.UpsertBlocklistSubscriber.Stmt,
+			UpsertStmt:         q.UpsertBulkSubscriber.Stmt,
+			BlocklistStmt:      q.UpsertBulkBlocklistSubscriber.Stmt,
 			UpdateListDateStmt: q.UpdateListsDate.Stmt,
 
 			// Hook for triggering admin notifications and refreshing stats materialized
