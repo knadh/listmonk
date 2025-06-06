@@ -57,6 +57,9 @@
         <b-field :label="$t('settings.security.enableCaptcha')" :message="$t('settings.security.enableCaptchaHelp')">
           <b-switch v-model="data['security.enable_captcha']" name="security.captcha" />
         </b-field>
+        <b-field :label="$t('settings.security.enableInvisibleCaptcha')" :message="$t('settings.security.enableInvisibleCaptchaHelp')">
+          <b-switch v-model="data['security.enable_invisible_captcha']" name="security.invisiblecaptcha" />
+        </b-field>
       </div>
       <div class="column is-9">
         <b-field :label="$t('settings.security.captchaKey')" label-position="on-border"
