@@ -7,6 +7,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/knadh/listmonk/internal/auth"
 	"github.com/labstack/echo/v4"
 	null "gopkg.in/volatiletech/null.v6"
 )
@@ -37,6 +38,7 @@ func (a *App) GetServerConfig(c echo.Context) error {
 		Lang:          a.cfg.Lang,
 		Permissions:   a.cfg.PermissionsRaw,
 		HasLegacyUser: a.cfg.HasLegacyUser,
+		Messengers:    []string{},
 	}
 	out.PublicSubscription.Enabled = a.cfg.EnablePublicSubPage
 	if a.cfg.Security.EnableCaptcha {
@@ -52,9 +54,13 @@ func (a *App) GetServerConfig(c echo.Context) error {
 	}
 	out.Langs = langList
 
-	out.Messengers = make([]string, 0, len(a.messengers))
-	for _, m := range a.messengers {
-		out.Messengers = append(out.Messengers, m.Name())
+	// List messengers user has access to.
+	if u, ok := c.Get(auth.UserHTTPCtxKey).(auth.User); ok {
+		if len(u.Messengers) > 0 {
+			out.Messengers = u.Messengers
+		} else {
+			out.Messengers = []string{emailMsgr}
+		}
 	}
 
 	a.Lock()
@@ -66,7 +72,7 @@ func (a *App) GetServerConfig(c echo.Context) error {
 	return c.JSON(http.StatusOK, okResp{out})
 }
 
-// GetDashboardCharts returns chart data points to render ont he dashboard.
+// GetDashboardCharts returns chart data points to render on the dashboard.
 func (a *App) GetDashboardCharts(c echo.Context) error {
 	// Get the chart data from the DB.
 	out, err := a.core.GetDashboardCharts()

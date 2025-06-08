@@ -86,16 +86,11 @@
                     <b-field :label="$tc('globals.terms.messenger')" label-position="on-border">
                       <b-select :placeholder="$tc('globals.terms.messenger')" v-model="form.messenger" name="messenger"
                         :disabled="!canEdit" required expanded>
-                        <template v-if="emailMessengers.length > 1">
-                          <optgroup label="email">
-                            <option v-for="m in emailMessengers" :value="m" :key="m">
-                              {{ m }}
-                            </option>
-                          </optgroup>
-                        </template>
-                        <template v-else>
-                          <option value="email">email</option>
-                        </template>
+                        <optgroup label="email">
+                          <option v-for="m in emailMessengers" :value="m" :key="m">
+                            {{ m }}
+                          </option>
+                        </optgroup>
                         <option v-for="m in otherMessengers" :value="m" :key="m">{{ m }}</option>
                       </b-select>
                     </b-field>
@@ -501,6 +496,9 @@ export default Vue.extend({
             templateId: data.templateId,
           },
         };
+        if (!this.emailMessengers.includes(this.form.messenger)) {
+          [this.form.messenger] = this.emailMessengers;
+        }
         this.isAttachFieldVisible = this.form.media.length > 0;
 
         this.form.media = this.form.media.map((f) => {
@@ -693,7 +691,7 @@ export default Vue.extend({
     },
 
     emailMessengers() {
-      return ['email', ...this.serverConfig.messengers.filter((m) => m.startsWith('email-'))];
+      return this.serverConfig.messengers.filter((m) => m === 'email' || m.startsWith('email-'));
     },
 
     otherMessengers() {
@@ -776,7 +774,7 @@ export default Vue.extend({
         }
       });
     } else {
-      this.form.messenger = 'email';
+      [this.form.messenger] = this.emailMessengers;
     }
 
     this.$nextTick(() => {

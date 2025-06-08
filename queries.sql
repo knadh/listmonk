@@ -1196,6 +1196,7 @@ SELECT
     ur.permissions AS user_role_permissions,
     lp.list_role_id,
     lr.name AS list_role_name,
+    lr.permissions AS messengers,
     lp.list_role_perms
 FROM users
     LEFT JOIN ur ON users.user_role_id = ur.id
@@ -1222,6 +1223,7 @@ SELECT
     ur.permissions AS user_role_permissions,
     lr.id AS list_role_id,
     lr.name AS list_role_name,
+    lr.permissions AS messengers,
     lp.list_role_perms
 FROM sel
     LEFT JOIN roles ur ON sel.user_role_id = ur.id AND ur.type = 'user' AND ur.parent_id IS NULL

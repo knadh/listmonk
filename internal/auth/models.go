@@ -103,6 +103,7 @@ type User struct {
 	ListRoleName  null.String      `db:"list_role_name" json:"-"`
 	UserRolePerms pq.StringArray   `db:"user_role_permissions" json:"-"`
 	ListsPermsRaw *json.RawMessage `db:"list_role_perms" json:"-"`
+	Messengers    pq.StringArray   `db:"messengers" json:"-"`
 
 	// Non-DB fields filled post-retrieval.
 	UserRole struct {
