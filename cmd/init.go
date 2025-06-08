@@ -988,7 +988,11 @@ func initTplFuncs(i *i18n.I18n, u *UrlConfig) template.FuncMap {
 	}
 
 	// Copy spring functions.
-	maps.Copy(funcs, sprig.GenericFuncMap())
+	sprigFuncs := sprig.GenericFuncMap()
+	delete(sprigFuncs, "env")
+	delete(sprigFuncs, "expandenv")
+
+	maps.Copy(funcs, sprigFuncs)
 
 	return funcs
 }
