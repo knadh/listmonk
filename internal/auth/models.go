@@ -58,6 +58,7 @@ const (
 	PermCampaignsGetAnalytics = "campaigns:get_analytics"
 	PermCampaignsManage       = "campaigns:manage"
 	PermCampaignsManageAll    = "campaigns:manage_all"
+	PermMessengersGetAll      = "messengers:get_all"
 	PermBouncesGet            = "bounces:get"
 	PermBouncesManage         = "bounces:manage"
 	PermWebhooksPostBounce    = "webhooks:post_bounce"

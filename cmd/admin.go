@@ -56,7 +56,12 @@ func (a *App) GetServerConfig(c echo.Context) error {
 
 	// List messengers user has access to.
 	if u, ok := c.Get(auth.UserHTTPCtxKey).(auth.User); ok {
-		if len(u.Messengers) > 0 {
+		if u.HasPerm(auth.PermMessengersGetAll) {
+			out.Messengers = make([]string, 0, len(a.messengers))
+			for _, m := range a.messengers {
+				out.Messengers = append(out.Messengers, m.Name())
+			}
+		} else if len(u.Messengers) > 0 {
 			out.Messengers = u.Messengers
 		} else {
 			out.Messengers = []string{emailMsgr}

@@ -17,5 +17,12 @@ func V5_1_0(db *sqlx.DB, fs stuffbin.FileSystem, ko *koanf.Koanf, lo *log.Logger
 		return err
 	}
 
+	// Insert new messenger sending permission.
+	if _, err := db.Exec(`
+		UPDATE roles SET permissions = permissions || '{messengers:get_all}' WHERE NOT permissions @> '{messengers:get_all}';
+	`); err != nil {
+		return err
+	}
+
 	return nil
 }
