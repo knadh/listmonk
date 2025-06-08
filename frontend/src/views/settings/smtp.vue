@@ -148,6 +148,14 @@
                   <b-input v-model="item.name" name="name" placeholder="email-primary" :maxlength="100" />
                 </b-field>
               </div>
+              <div class="column is-6">
+                <b-field :label="$t('settings.general.fromEmail')" label-position="on-border"
+                  :message="$t('settings.general.fromEmailHelp')">
+                  <b-input v-model="item.from_email" name="from_email"
+                    placeholder="Listmonk <noreply@listmonk.yoursite.com>" pattern="((.+?)\s)?<(.+?)@(.+?)>"
+                    :maxlength="300" />
+                </b-field>
+              </div>
             </div>
 
             <div class="columns">
@@ -261,6 +269,7 @@ export default Vue.extend({
     addSMTP() {
       this.data.smtp.push({
         name: '',
+        from_email: '',
         enabled: true,
         host: '',
         hello_hostname: '',
