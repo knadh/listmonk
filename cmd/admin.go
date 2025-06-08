@@ -45,7 +45,7 @@ func (a *App) GetServerConfig(c echo.Context) error {
 		Lang:          a.cfg.Lang,
 		Permissions:   a.cfg.PermissionsRaw,
 		HasLegacyUser: a.cfg.HasLegacyUser,
-		Messengers:    []messengerConfig{{Name: emailMsgr, DefaultFromEmail: a.cfg.FromEmail}},
+		Messengers:    []messengerConfig{},
 	}
 	out.PublicSubscription.Enabled = a.cfg.EnablePublicSubPage
 	if a.cfg.Security.EnableCaptcha {
@@ -78,6 +78,10 @@ func (a *App) GetServerConfig(c echo.Context) error {
 				}
 			}
 		}
+	}
+	// If messengers were renamed, or user has no messengers, fall back to default.
+	if len(out.Messengers) == 0 {
+		out.Messengers = []messengerConfig{{Name: emailMsgr, DefaultFromEmail: a.cfg.FromEmail}}
 	}
 
 	a.Lock()
