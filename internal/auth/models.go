@@ -44,6 +44,7 @@ const (
 const (
 	PermListGetAll            = "lists:get_all"
 	PermListManageAll         = "lists:manage_all"
+	PermListCreate            = "lists:create"
 	PermListManage            = "list:manage"
 	PermListGet               = "list:get"
 	PermSubscribersGet        = "subscribers:get"
@@ -57,6 +58,7 @@ const (
 	PermCampaignsGetAnalytics = "campaigns:get_analytics"
 	PermCampaignsManage       = "campaigns:manage"
 	PermCampaignsManageAll    = "campaigns:manage_all"
+	PermMessengersGetAll      = "messengers:get_all"
 	PermBouncesGet            = "bounces:get"
 	PermBouncesManage         = "bounces:manage"
 	PermWebhooksPostBounce    = "webhooks:post_bounce"
@@ -102,6 +104,7 @@ type User struct {
 	ListRoleName  null.String      `db:"list_role_name" json:"-"`
 	UserRolePerms pq.StringArray   `db:"user_role_permissions" json:"-"`
 	ListsPermsRaw *json.RawMessage `db:"list_role_perms" json:"-"`
+	Messengers    pq.StringArray   `db:"messengers" json:"-"`
 
 	// Non-DB fields filled post-retrieval.
 	UserRole struct {
@@ -146,7 +149,8 @@ type Role struct {
 type ListRole struct {
 	Base
 
-	Name null.String `db:"name" json:"name"`
+	Name       null.String    `db:"name" json:"name"`
+	Messengers pq.StringArray `db:"permissions" json:"messengers"`
 
 	ListID   null.Int         `db:"list_id" json:"-"`
 	ParentID null.Int         `db:"parent_id" json:"-"`

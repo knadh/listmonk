@@ -85,18 +85,11 @@
                   <div class="column is-6">
                     <b-field :label="$tc('globals.terms.messenger')" label-position="on-border">
                       <b-select :placeholder="$tc('globals.terms.messenger')" v-model="form.messenger" name="messenger"
-                        :disabled="!canEdit" required expanded>
-                        <template v-if="emailMessengers.length > 1">
-                          <optgroup label="email">
-                            <option v-for="m in emailMessengers" :value="m" :key="m">
-                              {{ m }}
-                            </option>
-                          </optgroup>
-                        </template>
-                        <template v-else>
-                          <option value="email">email</option>
-                        </template>
-                        <option v-for="m in otherMessengers" :value="m" :key="m">{{ m }}</option>
+                        :disabled="!canEdit" @input="onMessengerChange" required expanded>
+                        <optgroup label="email">
+                          <option v-for="m in emailMessengers" :value="m" :key="m">{{ m.name }}</option>
+                        </optgroup>
+                        <option v-for="m in otherMessengers" :value="m" :key="m">{{ m.name }}</option>
                       </b-select>
                     </b-field>
                   </div>
@@ -349,6 +342,7 @@ export default Vue.extend({
       isAttachModalOpen: false,
       isPreviewingArchive: false,
       activeTab: 'campaign',
+      prevMessenger: {},
 
       data: {},
 
@@ -363,7 +357,7 @@ export default Vue.extend({
         fromEmail: '',
         headersStr: '[]',
         headers: [],
-        messenger: 'email',
+        messenger: {},
         lists: [],
         tags: [],
         sendAt: null,
@@ -484,12 +478,25 @@ export default Vue.extend({
       }
     },
 
+    onMessengerChange() {
+      // If sending from the default from address,
+      // update from address to match updated messenger.
+      const prevEmail = this.prevMessenger.from_email || '';
+      const currEmail = this.form.fromEmail || '';
+      const nextEmail = this.form.messenger.from_email;
+      if (currEmail.trim() === prevEmail.trim() && nextEmail) {
+        this.form.fromEmail = nextEmail;
+      }
+      this.prevMessenger = this.form.messenger;
+    },
+
     getCampaign(id) {
       return this.$api.getCampaign(id).then((data) => {
         this.data = data;
         this.form = {
           ...this.form,
           ...data,
+          messenger: this.emailMessengers.find(({ name }) => name === data.messenger),
           headersStr: JSON.stringify(data.headers, null, 4),
           archiveMetaStr: data.archiveMeta ? JSON.stringify(data.archiveMeta, null, 4) : '{}',
 
@@ -501,6 +508,8 @@ export default Vue.extend({
             templateId: data.templateId,
           },
         };
+        this.form.messenger ||= this.emailMessengers[0];
+        this.form.from_email ||= this.form.messenger.from_email;
         this.isAttachFieldVisible = this.form.media.length > 0;
 
         this.form.media = this.form.media.map((f) => {
@@ -519,7 +528,7 @@ export default Vue.extend({
         subject: this.form.subject,
         lists: this.form.lists.map((l) => l.id),
         from_email: this.form.fromEmail,
-        messenger: this.form.messenger,
+        messenger: this.form.messenger.name,
         type: 'regular',
         headers: this.form.headers,
         tags: this.form.tags,
@@ -545,7 +554,7 @@ export default Vue.extend({
         lists: this.form.lists.map((l) => l.id),
         from_email: this.form.fromEmail,
         content_type: this.form.content.contentType,
-        messenger: this.form.messenger,
+        messenger: this.form.messenger.name,
         type: 'regular',
         tags: this.form.tags,
         send_at: this.form.sendLater ? this.form.sendAtDate : null,
@@ -566,7 +575,7 @@ export default Vue.extend({
         subject: this.form.subject,
         lists: this.form.lists.map((l) => l.id),
         from_email: this.form.fromEmail,
-        messenger: this.form.messenger,
+        messenger: this.form.messenger.name,
         type: 'regular',
         tags: this.form.tags,
         send_at: this.form.sendLater ? this.form.sendAtDate : null,
@@ -693,11 +702,11 @@ export default Vue.extend({
     },
 
     emailMessengers() {
-      return ['email', ...this.serverConfig.messengers.filter((m) => m.startsWith('email-'))];
+      return this.serverConfig.messengers.filter(({ name }) => name === 'email' || name.startsWith('email-'));
     },
 
     otherMessengers() {
-      return this.serverConfig.messengers.filter((m) => m !== 'email' && !m.startsWith('email-'));
+      return this.serverConfig.messengers.filter(({ name }) => name !== 'email' && !name.startsWith('email-'));
     },
   },
 
@@ -728,9 +737,6 @@ export default Vue.extend({
 
   mounted() {
     window.onbeforeunload = () => this.isUnsaved() || null;
-
-    // Fill default form fields.
-    this.form.fromEmail = this.serverConfig.from_email;
 
     // New campaign.
     const { id } = this.$route.params;
@@ -776,8 +782,10 @@ export default Vue.extend({
         }
       });
     } else {
-      this.form.messenger = 'email';
+      [this.form.messenger] = this.emailMessengers;
+      this.form.fromEmail = this.form.messenger.from_email;
     }
+    this.prevMessenger = this.form.messenger;
 
     this.$nextTick(() => {
       this.$refs.focus.focus();

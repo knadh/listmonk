@@ -75,7 +75,7 @@ func (c *Core) CreateRole(r auth.Role) (auth.Role, error) {
 func (c *Core) CreateListRole(r auth.ListRole) (auth.ListRole, error) {
 	var out auth.ListRole
 
-	if err := c.q.CreateRole.Get(&out, r.Name, auth.RoleTypeList, pq.Array([]string{})); err != nil {
+	if err := c.q.CreateRole.Get(&out, r.Name, auth.RoleTypeList, pq.Array(r.Messengers)); err != nil {
 		return out, echo.NewHTTPError(http.StatusInternalServerError,
 			c.i18n.Ts("globals.messages.errorCreating", "name", "{users.role}", "error", pqErrMsg(err)))
 	}
@@ -149,7 +149,7 @@ func (c *Core) UpdateUserRole(id int, r auth.Role) (auth.Role, error) {
 func (c *Core) UpdateListRole(id int, r auth.ListRole) (auth.ListRole, error) {
 	var out auth.ListRole
 
-	if err := c.q.UpdateRole.Get(&out, id, r.Name, pq.Array([]string{})); err != nil {
+	if err := c.q.UpdateRole.Get(&out, id, r.Name, pq.Array(r.Messengers)); err != nil {
 		return out, echo.NewHTTPError(http.StatusInternalServerError,
 			c.i18n.Ts("globals.messages.errorUpdating", "name", "{users.listRole}", "error", pqErrMsg(err)))
 	}
