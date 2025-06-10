@@ -438,61 +438,94 @@ DROP INDEX IF EXISTS mat_list_subscriber_stats_idx; CREATE UNIQUE INDEX mat_list
 CREATE OR REPLACE FUNCTION move_subscriber_to_verified_list()
 RETURNS TRIGGER AS $$
 DECLARE
-    sl RECORD;
-    verified_list_id INTEGER;
-    unverified_list_id INTEGER;
-    is_verified BOOLEAN;
-    base_name TEXT;
+    lang TEXT;
+    freq TEXT;
+    list_base_name TEXT;
+    shared_list_name TEXT;
     verified_list_name TEXT;
     unverified_list_name TEXT;
+    type list_type := 'public';
+    optin list_optin := 'double';
+    shared_list_id INT;
+    verified_list_id INT;
+    unverified_list_id INT;
+    is_verified BOOLEAN := (NEW.attribs->>'verified')::BOOLEAN;
+    old_lang TEXT;
+    old_freq TEXT;
+    old_list_base_name TEXT;
 BEGIN
-    -- Determine verification status
-    is_verified := (NEW.attribs->>'verified')::boolean;
+    -- Cleanup old list memberships if this is an update
+    IF TG_OP = 'UPDATE' AND OLD.attribs IS NOT NULL THEN
+        FOR old_lang IN SELECT jsonb_array_elements_text(OLD.attribs->'language_preferences')
+        LOOP
+            FOR old_freq IN SELECT jsonb_array_elements_text(OLD.attribs->'frequency_preferences')
+            LOOP
+                old_list_base_name := lower(old_lang) || '_' || lower(old_freq);
 
-    -- Loop through all base lists the subscriber is in (excluding _verified/_unverified)
-    FOR sl IN
-        SELECT l.id AS list_id, l.name, l.type, l.optin
-        FROM subscriber_lists sbl
-        JOIN lists l ON l.id = sbl.list_id
-        WHERE sbl.subscriber_id = NEW.id
-          AND l.name NOT LIKE '%\_verified' ESCAPE '\'
-          AND l.name NOT LIKE '%\_unverified' ESCAPE '\'
+                DELETE FROM subscriber_lists
+                USING lists
+                WHERE subscriber_lists.subscriber_id = NEW.id
+                  AND subscriber_lists.list_id = lists.id
+                  AND (
+                      lists.name = old_list_base_name
+                      OR lists.name = old_list_base_name || '_verified'
+                      OR lists.name = old_list_base_name || '_unverified'
+                  );
+            END LOOP;
+        END LOOP;
+    END IF;
+
+    -- Loop over language_preferences
+    FOR lang IN SELECT jsonb_array_elements_text(NEW.attribs->'language_preferences')
     LOOP
-        base_name := sl.name;
-        verified_list_name := base_name || '_verified';
-        unverified_list_name := base_name || '_unverified';
+        -- Loop over frequency_preferences
+        FOR freq IN SELECT jsonb_array_elements_text(NEW.attribs->'frequency_preferences')
+        LOOP
+            list_base_name := lower(lang) || '_' || lower(freq);
+            shared_list_name := list_base_name;
+            verified_list_name := list_base_name || '_verified';
+            unverified_list_name := list_base_name || '_unverified';
 
-        -- Ensure verified list exists
-        SELECT id INTO verified_list_id FROM lists WHERE name = verified_list_name;
-        IF NOT FOUND THEN
-            INSERT INTO lists (uuid, name, type, optin, description)
-            VALUES (gen_random_uuid(), verified_list_name, sl.type, sl.optin, 'Auto-created verified list')
-            RETURNING id INTO verified_list_id;
-        END IF;
+            -- Ensure shared list exists
+            SELECT id INTO shared_list_id FROM lists WHERE name = shared_list_name;
+            IF NOT FOUND THEN
+                INSERT INTO lists (uuid, name, type, optin, description)
+                VALUES (gen_random_uuid(), shared_list_name, type, optin, 'Auto-created shared list')
+                RETURNING id INTO shared_list_id;
+            END IF;
 
-        -- Ensure unverified list exists
-        SELECT id INTO unverified_list_id FROM lists WHERE name = unverified_list_name;
-        IF NOT FOUND THEN
-            INSERT INTO lists (uuid, name, type, optin, description)
-            VALUES (gen_random_uuid(), unverified_list_name, sl.type, sl.optin, 'Auto-created unverified list')
-            RETURNING id INTO unverified_list_id;
-        END IF;
+            -- Ensure verified list exists
+            SELECT id INTO verified_list_id FROM lists WHERE name = verified_list_name;
+            IF NOT FOUND THEN
+                INSERT INTO lists (uuid, name, type, optin, description)
+                VALUES (gen_random_uuid(), verified_list_name, type, optin, 'Auto-created verified list')
+                RETURNING id INTO verified_list_id;
+            END IF;
 
-        -- Remove subscriber from both _verified and _unverified lists
-        DELETE FROM subscriber_lists
-        WHERE subscriber_id = NEW.id
-          AND list_id IN (verified_list_id, unverified_list_id);
+            -- Ensure unverified list exists
+            SELECT id INTO unverified_list_id FROM lists WHERE name = unverified_list_name;
+            IF NOT FOUND THEN
+                INSERT INTO lists (uuid, name, type, optin, description)
+                VALUES (gen_random_uuid(), unverified_list_name, type, optin, 'Auto-created unverified list')
+                RETURNING id INTO unverified_list_id;
+            END IF;
 
-        -- Add subscriber to the correct list
-        IF is_verified THEN
-            INSERT INTO subscriber_lists (subscriber_id, list_id)
-            VALUES (NEW.id, verified_list_id)
+            -- Assign to shared list
+            INSERT INTO subscriber_lists (subscriber_id, list_id, status)
+            VALUES (NEW.id, shared_list_id, 'confirmed')
             ON CONFLICT DO NOTHING;
-        ELSE
-            INSERT INTO subscriber_lists (subscriber_id, list_id)
-            VALUES (NEW.id, unverified_list_id)
-            ON CONFLICT DO NOTHING;
-        END IF;
+
+            -- Assign to verified/unverified list
+            IF is_verified THEN
+                INSERT INTO subscriber_lists (subscriber_id, list_id, status)
+                VALUES (NEW.id, verified_list_id, 'confirmed')
+                ON CONFLICT DO NOTHING;
+            ELSE
+                INSERT INTO subscriber_lists (subscriber_id, list_id, status)
+                VALUES (NEW.id, unverified_list_id, 'confirmed')
+                ON CONFLICT DO NOTHING;
+            END IF;
+        END LOOP;
     END LOOP;
 
     RETURN NEW;
