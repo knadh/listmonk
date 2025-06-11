@@ -31,6 +31,8 @@ There are several template functions and expressions that can be used in campaig
 | `{{ .Subscriber.CreatedAt }}` | Timestamp when the subscriber was first added                                                |
 | `{{ .Subscriber.UpdatedAt }}` | Timestamp when the subscriber was modified                                                   |
 
+### Campaigns
+
 | Expression            | Description                                              |
 | --------------------- | -------------------------------------------------------- |
 | `{{ .Campaign.UUID }}`      | The randomly generated unique ID of the campaign         |
