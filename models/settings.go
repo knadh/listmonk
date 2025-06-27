@@ -66,6 +66,7 @@ type Settings struct {
 
 	SMTP []struct {
 		Name          string              `json:"name"`
+		FromEmail     string              `json:"from_email"`
 		UUID          string              `json:"uuid"`
 		Enabled       bool                `json:"enabled"`
 		Host          string              `json:"host"`
