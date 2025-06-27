@@ -3,7 +3,7 @@
 ### TOML Configuration file
 One or more TOML files can be read by passing `--config config.toml` multiple times. Apart from a few low level configuration variables and the database configuration, all other settings can be managed from the `Settings` dashboard on the admin UI.
 
-To generate a new sample configuration file, run `--listmonk --new-config`
+To generate a new sample configuration file, run `listmonk --new-config`
 
 ### Environment variables
 Variables in config.toml can also be provided as environment variables prefixed by `LISTMONK_` with periods replaced by `__` (double underscore). To start listmonk purely with environment variables without a configuration file, set the environment variables and pass the config flag as `--config=""`.
