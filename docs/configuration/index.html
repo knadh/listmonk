@@ -1593,7 +1593,7 @@
 <h1 id="configuration">Configuration<a class="headerlink" href="#configuration" title="Permanent link">&para;</a></h1>
 <h3 id="toml-configuration-file">TOML Configuration file<a class="headerlink" href="#toml-configuration-file" title="Permanent link">&para;</a></h3>
 <p>One or more TOML files can be read by passing <code>--config config.toml</code> multiple times. Apart from a few low level configuration variables and the database configuration, all other settings can be managed from the <code>Settings</code> dashboard on the admin UI.</p>
-<p>To generate a new sample configuration file, run <code>--listmonk --new-config</code></p>
+<p>To generate a new sample configuration file, run <code>listmonk --new-config</code></p>
 <h3 id="environment-variables">Environment variables<a class="headerlink" href="#environment-variables" title="Permanent link">&para;</a></h3>
 <p>Variables in config.toml can also be provided as environment variables prefixed by <code>LISTMONK_</code> with periods replaced by <code>__</code> (double underscore). To start listmonk purely with environment variables without a configuration file, set the environment variables and pass the config flag as <code>--config=""</code>.</p>
 <p>Example:</p>
