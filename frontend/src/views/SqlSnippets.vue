@@ -180,19 +180,33 @@
               </div>
               <div class="column is-6 has-text-right">
                 <div class="mb-3">
-                  <b-checkbox v-model="liveValidationEnabled" @input="onLiveValidationChange" size="is-small">
+                  <label class="checkbox is-flex is-justify-content-flex-end is-align-items-center">
+                    <input type="checkbox" v-model="liveValidationEnabled" @change="onLiveValidationChange" class="mr-2">
                     <b-icon icon="flash" size="is-small" class="mr-1" />
-                    Live SQL validation
-                  </b-checkbox>
+                    <span class="is-size-7">Live SQL validation</span>
+                  </label>
                 </div>
-                <b-button @click="validateQuery" type="is-info" icon-left="check" :loading="isValidating">
-                  {{ $t('sqlSnippets.validate') }}
-                </b-button>
+                <div class="is-flex is-justify-content-flex-end is-align-items-center">
+                  <div v-if="validationMessage" class="mr-3">
+                    <b-icon
+                      :icon="validationMessage.type === 'is-success' ? 'check-circle' : 'alert-circle'"
+                      :type="validationMessage.type === 'is-success' ? 'is-success' : 'is-danger'"
+                      size="is-small"
+                      :title="validationMessage.text"
+                    />
+                  </div>
+                  <b-button
+                    v-if="!liveValidationEnabled"
+                    @click="validateQuery"
+                    type="is-info"
+                    icon-left="check"
+                    :loading="isValidating"
+                    size="is-small"
+                  >
+                    {{ $t('sqlSnippets.validate') }}
+                  </b-button>
+                </div>
               </div>
-            </div>
-
-            <div v-if="validationMessage" class="notification" :class="validationMessage.type">
-              {{ validationMessage.text }}
             </div>
           </section>
           <footer class="modal-card-foot has-text-right">
