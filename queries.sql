@@ -1327,7 +1327,7 @@ WHERE ($1 = 0 OR id = $1)
 AND ($2 = '' OR name = $2)
 AND ($3::BOOLEAN IS NULL OR is_active = $3::BOOLEAN)
 ORDER BY name
-OFFSET $4 LIMIT (CASE WHEN $5 = 0 THEN NULL ELSE $5 END);
+OFFSET $4 LIMIT $5;
 
 -- name: get-sql-snippet
 SELECT * FROM sql_snippets WHERE (id = $1 OR name = $2) LIMIT 1;

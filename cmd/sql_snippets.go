@@ -43,7 +43,12 @@ func (a *App) HandleGetSQLSnippets(c echo.Context) error {
 	}
 
 	// Multiple snippets.
-	out, err := a.core.GetSQLSnippets(0, name, isActive, pg.Offset, pg.Limit)
+	limit := pg.Limit
+	if limit == 0 {
+		limit = 50 // Default limit
+	}
+	
+	out, err := a.core.GetSQLSnippets(0, name, isActive, pg.Offset, limit)
 	if err != nil {
 		return err
 	}
