@@ -48,6 +48,12 @@ const routes = [
     component: () => import('../views/Import.vue'),
   },
   {
+    path: '/sql-snippets',
+    name: 'sql-snippets',
+    meta: { title: 'sqlSnippets.title', group: 'subscribers' },
+    component: () => import('../views/SqlSnippets.vue'),
+  },
+  {
     path: '/subscribers/bounces',
     name: 'bounces',
     meta: { title: 'globals.terms.bounces', group: 'subscribers' },

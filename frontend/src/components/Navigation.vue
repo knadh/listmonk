@@ -20,6 +20,8 @@
         :label="$t('menu.allSubscribers')" />
       <b-menu-item v-if="$can('subscribers:import')" :to="{ name: 'import' }" tag="router-link"
         :active="activeItem.import" data-cy="import" icon="file-upload-outline" :label="$t('menu.import')" />
+      <b-menu-item v-if="$can('subscribers:sql_query')" :to="{ name: 'sql-snippets' }" tag="router-link" :active="activeItem['sql-snippets']"
+        data-cy="sql-snippets" icon="code-tags" :label="$t('sqlSnippets.title')" />
       <b-menu-item v-if="$can('bounces:get')" :to="{ name: 'bounces' }" tag="router-link" :active="activeItem.bounces"
         data-cy="bounces" icon="email-bounce" :label="$t('globals.terms.bounces')" />
     </b-menu-item><!-- subscribers -->
