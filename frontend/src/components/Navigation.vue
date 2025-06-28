@@ -20,8 +20,6 @@
         :label="$t('menu.allSubscribers')" />
       <b-menu-item v-if="$can('subscribers:import')" :to="{ name: 'import' }" tag="router-link"
         :active="activeItem.import" data-cy="import" icon="file-upload-outline" :label="$t('menu.import')" />
-      <b-menu-item v-if="$can('subscribers:sql_query')" :to="{ name: 'sql-snippets' }" tag="router-link" :active="activeItem['sql-snippets']"
-        data-cy="sql-snippets" icon="code-tags" :label="$t('sqlSnippets.title')" />
       <b-menu-item v-if="$can('bounces:get')" :to="{ name: 'bounces' }" tag="router-link" :active="activeItem.bounces"
         data-cy="bounces" icon="email-bounce" :label="$t('globals.terms.bounces')" />
     </b-menu-item><!-- subscribers -->
@@ -60,6 +58,8 @@
       :label="$t('menu.settings')">
       <b-menu-item v-if="$can('settings:get')" :to="{ name: 'settings' }" tag="router-link"
         :active="activeItem.settings" data-cy="all-settings" icon="cog-outline" :label="$t('menu.settings')" />
+      <b-menu-item v-if="$can('subscribers:sql_query')" :to="{ name: 'sql-snippets' }" tag="router-link" :active="activeItem['sql-snippets']"
+        data-cy="sql-snippets" icon="code-tags" :label="$t('sqlSnippets.title')" />
       <b-menu-item v-if="$can('settings:maintain')" :to="{ name: 'maintenance' }" tag="router-link"
         :active="activeItem.maintenance" data-cy="maintenance" icon="wrench-outline" :label="$t('menu.maintenance')" />
       <b-menu-item v-if="$can('settings:get')" :to="{ name: 'logs' }" tag="router-link" :active="activeItem.logs"

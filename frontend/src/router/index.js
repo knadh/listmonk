@@ -50,7 +50,7 @@ const routes = [
   {
     path: '/sql-snippets',
     name: 'sql-snippets',
-    meta: { title: 'sqlSnippets.title', group: 'subscribers' },
+    meta: { title: 'sqlSnippets.title', group: 'settings' },
     component: () => import('../views/SqlSnippets.vue'),
   },
   {

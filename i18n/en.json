@@ -650,5 +650,15 @@
     "users.userRole": "User role | User roles",
     "users.userRoles": "User roles",
     "users.username": "Username",
-    "users.usernameHelp": "Used with password login"
+    "users.usernameHelp": "Used with password login",
+    "sqlSnippets.description": "Create and manage reusable SQL query fragments for subscriber segmentation.",
+    "sqlSnippets.emptyQuery": "Please enter a SQL query to validate.",
+    "sqlSnippets.invalidQuery": "Invalid SQL query. Please check your syntax.",
+    "sqlSnippets.queryHelp": "Enter a WHERE clause condition for filtering subscribers (e.g., status = 'confirmed').",
+    "sqlSnippets.queryPlaceholder": "subscribers.status = 'confirmed'",
+    "sqlSnippets.querySQL": "SQL Query",
+    "sqlSnippets.snippet": "SQL Snippet",
+    "sqlSnippets.title": "SQL Snippets",
+    "sqlSnippets.validQuery": "SQL query is valid!",
+    "sqlSnippets.validate": "Validate Query"
 }
