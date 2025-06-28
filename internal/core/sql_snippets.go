@@ -53,7 +53,7 @@ func (c *Core) CreateSQLSnippet(s models.SQLSnippet, createdBy int) (models.SQLS
 
 // UpdateSQLSnippet updates a SQL snippet.
 func (c *Core) UpdateSQLSnippet(id int, s models.SQLSnippet) (models.SQLSnippet, error) {
-	if err := c.q.UpdateSQLSnippet.Exec(s.Name, s.Description, s.QuerySQL, s.IsActive, id); err != nil {
+	if _, err := c.q.UpdateSQLSnippet.Exec(s.Name, s.Description, s.QuerySQL, s.IsActive, id); err != nil {
 		c.log.Printf("error updating SQL snippet: %v", err)
 		return models.SQLSnippet{}, echo.NewHTTPError(http.StatusInternalServerError,
 			c.i18n.Ts("globals.messages.errorUpdating", "name", "SQL snippet", "error", pqErrMsg(err)))
@@ -64,7 +64,7 @@ func (c *Core) UpdateSQLSnippet(id int, s models.SQLSnippet) (models.SQLSnippet,
 
 // DeleteSQLSnippet deletes a SQL snippet.
 func (c *Core) DeleteSQLSnippet(id int) error {
-	if err := c.q.DeleteSQLSnippet.Exec(id); err != nil {
+	if _, err := c.q.DeleteSQLSnippet.Exec(id); err != nil {
 		c.log.Printf("error deleting SQL snippet: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			c.i18n.Ts("globals.messages.errorDeleting", "name", "SQL snippet", "error", pqErrMsg(err)))

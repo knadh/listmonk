@@ -1325,7 +1325,7 @@ DELETE FROM roles WHERE id=$1;
 SELECT * FROM sql_snippets 
 WHERE ($1 = 0 OR id = $1)
 AND ($2 = '' OR name = $2)
-AND ($3 IS NULL OR is_active = $3)
+AND ($3::BOOLEAN IS NULL OR is_active = $3::BOOLEAN)
 ORDER BY name
 OFFSET $4 LIMIT (CASE WHEN $5 = 0 THEN NULL ELSE $5 END);
 
