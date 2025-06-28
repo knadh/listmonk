@@ -1319,3 +1319,31 @@ UPDATE roles SET name=$2, permissions=$3 WHERE id=$1 and parent_id IS NULL RETUR
 
 -- name: delete-role
 DELETE FROM roles WHERE id=$1;
+
+-- SQL Snippets queries
+-- name: get-sql-snippets
+SELECT * FROM sql_snippets 
+WHERE ($1 = 0 OR id = $1)
+AND ($2 = '' OR name = $2)
+AND ($3 IS NULL OR is_active = $3)
+ORDER BY name
+OFFSET $4 LIMIT (CASE WHEN $5 = 0 THEN NULL ELSE $5 END);
+
+-- name: get-sql-snippet
+SELECT * FROM sql_snippets WHERE (id = $1 OR name = $2) LIMIT 1;
+
+-- name: create-sql-snippet
+INSERT INTO sql_snippets (name, description, query_sql, created_by) 
+VALUES ($1, $2, $3, $4) RETURNING id;
+
+-- name: update-sql-snippet
+UPDATE sql_snippets SET 
+    name = $1,
+    description = $2,
+    query_sql = $3,
+    is_active = $4,
+    updated_at = NOW()
+WHERE id = $5;
+
+-- name: delete-sql-snippet
+DELETE FROM sql_snippets WHERE id = $1;
