@@ -37,12 +37,8 @@ func V5_1_0(db *sqlx.DB, fs stuffbin.FileSystem, ko *koanf.Koanf, lo *log.Logger
 	// Insert default SQL snippets
 	if _, err := db.Exec(`
 		INSERT INTO sql_snippets (name, description, query_sql) VALUES
-		('Active Subscribers', 'Subscribers with confirmed status', 'subscribers.status = ''confirmed'''),
-		('Recent Signups', 'Subscribers who joined in the last 30 days', 'subscribers.created_at >= NOW() - INTERVAL ''30 days'''),
-		('Inactive Subscribers', 'Subscribers who haven''t been active for 90+ days', 'subscribers.updated_at <= NOW() - INTERVAL ''90 days'''),
-		('High Value Subscribers', 'Subscribers over 39 years old', 'EXTRACT(year FROM AGE(NOW(), (subscribers.attribs->>''age'')::date)) > 39'),
-		('Premium Tier', 'Subscribers with premium status', 'subscribers.attribs->>''tier'' = ''premium'''),
-		('Active in Last Week', 'Subscribers with recent activity', 'subscribers.updated_at >= NOW() - INTERVAL ''7 days''')
+		('Enabled Subscribers', 'Subscribers with enabled status', 'subscribers.status = ''enabled'''),
+		('Recent Signups', 'Subscribers who joined in the last 30 days', 'subscribers.created_at >= NOW() - INTERVAL ''30 days''')
 		ON CONFLICT (name) DO NOTHING;
 	`); err != nil {
 		return err

@@ -299,22 +299,9 @@ export default Vue.extend({
 
     // Load active SQL snippets for autocomplete
     loadSQLSnippets() {
-      console.log('loadSQLSnippets called');
-      console.log('API object:', this.$api);
-      console.log('getSQLSnippets method:', this.$api.getSQLSnippets);
-
       this.$api.getSQLSnippets({ is_active: true }).then((data) => {
-        console.log('SQL snippets API response:', data);
-        console.log('Response type:', typeof data);
-        console.log('Is array?', Array.isArray(data));
-        console.log('Data keys:', Object.keys(data));
-
         // API returns the array directly, not wrapped in results
         this.sqlSnippets = data || [];
-
-        console.log('Updated sqlSnippets array:', this.sqlSnippets);
-        console.log('Updated sqlSnippets length:', this.sqlSnippets.length);
-        console.log('Button should be enabled now? disabled =', this.sqlSnippets.length === 0);
       }).catch((err) => {
         console.error('Error loading SQL snippets:', err);
         console.error('Error details:', err.response || err);
@@ -360,7 +347,6 @@ export default Vue.extend({
 
     // Toggle snippets dropdown
     toggleSnippetsDropdown(event) {
-      console.log('Toggle dropdown clicked, current state:', this.showSnippetsDropdown);
       // Prevent the blur event from immediately closing the dropdown
       if (event) {
         event.preventDefault();
@@ -368,10 +354,8 @@ export default Vue.extend({
       }
 
       this.showSnippetsDropdown = !this.showSnippetsDropdown;
-      console.log('New state:', this.showSnippetsDropdown, 'Snippets count:', this.sqlSnippets.length);
 
       if (this.showSnippetsDropdown && this.sqlSnippets.length === 0) {
-        console.log('Loading SQL snippets...');
         this.loadSQLSnippets();
       }
     },
@@ -681,10 +665,6 @@ export default Vue.extend({
   },
 
   mounted() {
-    console.log('Subscribers component mounted');
-    console.log('Initial sqlSnippets:', this.sqlSnippets);
-    console.log('Loading SQL snippets for autocomplete...');
-
     // Load SQL snippets for autocomplete
     this.loadSQLSnippets();
 
