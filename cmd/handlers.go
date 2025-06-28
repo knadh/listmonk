@@ -182,6 +182,7 @@ func initHTTPHandlers(e *echo.Echo, a *App) {
 		g.PUT("/api/sql-snippets/:id", pm(hasID(a.HandleUpdateSQLSnippet), "subscribers:sql_query"))
 		g.DELETE("/api/sql-snippets/:id", pm(hasID(a.HandleDeleteSQLSnippet), "subscribers:sql_query"))
 		g.POST("/api/sql-snippets/validate", pm(a.HandleValidateSQLSnippet, "subscribers:sql_query"))
+		g.POST("/api/sql-snippets/count", pm(a.HandleCountSQLSnippet, "subscribers:sql_query"))
 
 		g.DELETE("/api/maintenance/subscribers/:type", pm(a.GCSubscribers, "settings:maintain"))
 		g.DELETE("/api/maintenance/analytics/:type", pm(a.GCCampaignAnalytics, "settings:maintain"))

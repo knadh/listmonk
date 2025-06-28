@@ -47,7 +47,7 @@ func (a *App) HandleGetSQLSnippets(c echo.Context) error {
 	if limit == 0 {
 		limit = 50 // Default limit
 	}
-	
+
 	out, err := a.core.GetSQLSnippets(0, name, isActive, pg.Offset, limit)
 	if err != nil {
 		return err
@@ -170,4 +170,44 @@ func (a *App) HandleValidateSQLSnippet(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, okResp{map[string]bool{"valid": true}})
+}
+
+// HandleCountSQLSnippet handles counting subscribers that match a SQL snippet.
+func (a *App) HandleCountSQLSnippet(c echo.Context) error {
+	var req struct {
+		QuerySQL string `json:"query_sql"`
+	}
+	if err := c.Bind(&req); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest,
+			a.i18n.Ts("globals.messages.invalidData", "error", err.Error()))
+	}
+
+	// Get the authenticated user.
+	user := auth.GetUser(c)
+
+	// Check permissions
+	if !user.HasPerm(auth.PermSubscribersSqlQuery) {
+		return echo.NewHTTPError(http.StatusForbidden,
+			a.i18n.Ts("globals.messages.permissionDenied", "name", auth.PermSubscribersSqlQuery))
+	}
+
+	// Get total subscriber count (cached)
+	totalCount, err := a.core.GetSubscriberCount("", "", "", []int{})
+	if err != nil {
+		return err
+	}
+
+	// Get count for the SQL snippet (if query is provided)
+	matchedCount := 0
+	if req.QuerySQL != "" {
+		matchedCount, err = a.core.GetSubscriberCount("", req.QuerySQL, "", []int{})
+		if err != nil {
+			return err
+		}
+	}
+
+	return c.JSON(http.StatusOK, okResp{map[string]int{
+		"total":   totalCount,
+		"matched": matchedCount,
+	}})
 }

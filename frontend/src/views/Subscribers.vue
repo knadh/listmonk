@@ -38,9 +38,56 @@
               </b-field>
 
               <div v-if="isSearchAdvanced">
-                <b-input v-model="queryParams.queryExp" @keydown.native.enter="onAdvancedQueryEnter" type="textarea"
-                  ref="queryExp" placeholder="subscribers.name LIKE '%user%' or subscribers.status='blocklisted'"
-                  data-cy="query" />
+                                <!-- SQL Snippets Autocomplete -->
+                <div class="field">
+                  <div class="field has-addons">
+                    <div class="control is-expanded">
+                      <b-input v-model="queryParams.queryExp" @keydown.native.enter="onAdvancedQueryEnter" type="textarea"
+                        ref="queryExp" placeholder="subscribers.name LIKE '%user%' or subscribers.status='blocklisted'"
+                        data-cy="query" />
+                    </div>
+                    <div class="control" style="position: relative;">
+                                                                  <b-button @click="toggleSnippetsDropdown($event)" type="is-light" icon-left="code"
+                        :class="{ 'is-info': showSnippetsDropdown }"
+                        :disabled="sqlSnippets.length === 0"
+                        :title="`Snippets count: ${sqlSnippets.length}`">
+                        {{ $t('sqlSnippets.snippet') }} ({{ sqlSnippets.length }})
+                      </b-button>
+
+                      <!-- SQL Snippets Dropdown -->
+                      <div v-if="showSnippetsDropdown" class="dropdown is-active" style="position: absolute; top: 100%; right: 0; width: 400px; z-index: 9999;">
+                        <div class="dropdown-menu" style="width: 100%;">
+                          <div class="dropdown-content">
+                            <div v-if="sqlSnippets.length === 0" class="dropdown-item has-text-grey">
+                              <em>{{ $t('globals.messages.emptyState') }}</em>
+                            </div>
+                            <a v-for="snippet in sqlSnippets" :key="snippet.id"
+                              @click="selectSQLSnippet(snippet)"
+                              @keydown.enter="selectSQLSnippet(snippet)"
+                              class="dropdown-item"
+                              tabindex="0"
+                              style="cursor: pointer;">
+                              <div class="media">
+                                <div class="media-left">
+                                  <b-icon icon="code" size="is-small" class="has-text-info" />
+                                </div>
+                                <div class="media-content">
+                                  <div class="content">
+                                    <p class="is-size-6 has-text-weight-semibold mb-1">{{ snippet.name }}</p>
+                                    <p v-if="snippet.description" class="is-size-7 has-text-grey mb-2">{{ snippet.description }}</p>
+                                    <p class="is-size-7 has-text-dark">
+                                      <code class="has-background-light">{{ snippet.querySql || snippet.query_sql }}</code>
+                                    </p>
+                                  </div>
+                                </div>
+                              </div>
+                            </a>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
                 <span class="is-size-6 has-text-grey">
                   {{ $t('subscribers.advancedQueryHelp') }}.{{ ' ' }}
                   <a href="https://listmonk.app/docs/querying-and-segmentation" target="_blank"
@@ -224,6 +271,10 @@ export default Vue.extend({
 
       queryInput: '',
 
+      // SQL snippets for autocomplete
+      sqlSnippets: [],
+      showSnippetsDropdown: false,
+
       // Query params to filter the getSubscribers() API call.
       queryParams: {
         // Search query expression.
@@ -244,6 +295,106 @@ export default Vue.extend({
     // Count the lists from which a subscriber has not unsubscribed.
     listCount(lists) {
       return lists.reduce((defVal, item) => (defVal + (item.subscriptionStatus !== 'unsubscribed' ? 1 : 0)), 0);
+    },
+
+    // Load active SQL snippets for autocomplete
+    loadSQLSnippets() {
+      console.log('loadSQLSnippets called');
+      console.log('API object:', this.$api);
+      console.log('getSQLSnippets method:', this.$api.getSQLSnippets);
+
+      this.$api.getSQLSnippets({ is_active: true }).then((data) => {
+        console.log('SQL snippets API response:', data);
+        console.log('Response type:', typeof data);
+        console.log('Is array?', Array.isArray(data));
+        console.log('Data keys:', Object.keys(data));
+
+        // API returns the array directly, not wrapped in results
+        this.sqlSnippets = data || [];
+
+        console.log('Updated sqlSnippets array:', this.sqlSnippets);
+        console.log('Updated sqlSnippets length:', this.sqlSnippets.length);
+        console.log('Button should be enabled now? disabled =', this.sqlSnippets.length === 0);
+      }).catch((err) => {
+        console.error('Error loading SQL snippets:', err);
+        console.error('Error details:', err.response || err);
+      });
+    },
+
+    // Handle SQL snippet selection
+    selectSQLSnippet(snippet) {
+      if (snippet && (snippet.querySql || snippet.query_sql)) {
+        const sqlQuery = snippet.querySql || snippet.query_sql;
+
+        // Simply replace the entire textarea content with the selected snippet
+        this.queryParams.queryExp = sqlQuery;
+
+        // Close dropdown
+        this.showSnippetsDropdown = false;
+
+        // Focus back to textarea and position cursor at the end
+        this.$nextTick(() => {
+          const textarea = this.$refs.queryExp;
+          let actualTextarea = null;
+
+          if (textarea) {
+            // Try different ways to get the actual textarea element
+            if (textarea.$el && textarea.$el.querySelector) {
+              actualTextarea = textarea.$el.querySelector('textarea');
+            } else if (textarea.tagName === 'TEXTAREA') {
+              actualTextarea = textarea;
+            }
+
+            if (actualTextarea && typeof actualTextarea.focus === 'function') {
+              actualTextarea.focus();
+              if (typeof actualTextarea.setSelectionRange === 'function') {
+                // Position cursor at the end of the inserted text
+                const endPos = sqlQuery.length;
+                actualTextarea.setSelectionRange(endPos, endPos);
+              }
+            }
+          }
+        });
+      }
+    },
+
+    // Toggle snippets dropdown
+    toggleSnippetsDropdown(event) {
+      console.log('Toggle dropdown clicked, current state:', this.showSnippetsDropdown);
+      // Prevent the blur event from immediately closing the dropdown
+      if (event) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
+
+      this.showSnippetsDropdown = !this.showSnippetsDropdown;
+      console.log('New state:', this.showSnippetsDropdown, 'Snippets count:', this.sqlSnippets.length);
+
+      if (this.showSnippetsDropdown && this.sqlSnippets.length === 0) {
+        console.log('Loading SQL snippets...');
+        this.loadSQLSnippets();
+      }
+    },
+
+    // Close snippets dropdown when clicking outside
+    onSnippetsDropdownBlur() {
+      // Use longer timeout to allow click on dropdown items to register first
+      setTimeout(() => {
+        this.showSnippetsDropdown = false;
+      }, 300);
+    },
+
+    // Handle clicks outside the dropdown to close it
+    handleClickOutside(event) {
+      if (this.showSnippetsDropdown) {
+        const dropdown = event.target.closest('.dropdown');
+        const button = event.target.closest('button');
+
+        // Don't close if clicking on the dropdown or the button
+        if (!dropdown && !button) {
+          this.showSnippetsDropdown = false;
+        }
+      }
     },
 
     toggleAdvancedSearch() {
@@ -268,6 +419,11 @@ export default Vue.extend({
         } else {
           this.queryParams.queryExp = `(name ~* '${q}' OR email ~* '${q.toLowerCase()}')`;
         }
+      }
+
+      // Load SQL snippets when opening advanced search
+      if (this.sqlSnippets.length === 0) {
+        this.loadSQLSnippets();
       }
 
       // Toggling to advanced search.
@@ -525,6 +681,16 @@ export default Vue.extend({
   },
 
   mounted() {
+    console.log('Subscribers component mounted');
+    console.log('Initial sqlSnippets:', this.sqlSnippets);
+    console.log('Loading SQL snippets for autocomplete...');
+
+    // Load SQL snippets for autocomplete
+    this.loadSQLSnippets();
+
+    // Add click outside listener for dropdown
+    document.addEventListener('click', this.handleClickOutside);
+
     if (this.$route.params.listID) {
       this.queryParams.listID = parseInt(this.$route.params.listID, 10);
     }
@@ -540,6 +706,11 @@ export default Vue.extend({
       // Get subscribers on load.
       this.querySubscribers();
     }
+  },
+
+  beforeDestroy() {
+    // Remove click outside listener
+    document.removeEventListener('click', this.handleClickOutside);
   },
 });
 </script>

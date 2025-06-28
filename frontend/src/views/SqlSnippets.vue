@@ -2,7 +2,10 @@
   <section class="sql-snippets">
     <header class="columns">
       <div class="column is-two-thirds">
-        <h1 class="title is-4">{{ $t('sqlSnippets.title') }}</h1>
+        <h1 class="title is-4">
+          <b-icon icon="code" size="is-small" class="mr-2" />
+          {{ $t('sqlSnippets.title') }}
+        </h1>
         <p class="has-text-grey">{{ $t('sqlSnippets.description') }}</p>
       </div>
       <div class="column has-text-right">
@@ -16,30 +19,51 @@
       <table class="table is-fullwidth is-striped is-hoverable">
         <thead>
           <tr>
-            <th>{{ $t('globals.fields.name') }}</th>
-            <th>{{ $t('globals.fields.description') }}</th>
-            <th>{{ $t('globals.fields.status') }}</th>
-            <th>{{ $t('globals.fields.createdAt') }}</th>
-            <th>{{ $t('globals.fields.updatedAt') }}</th>
-            <th />
+            <th>
+              <b-icon icon="tag-outline" size="is-small" class="mr-1" />
+              {{ $t('globals.fields.name') }}
+            </th>
+            <th>
+              <b-icon icon="text" size="is-small" class="mr-1" />
+              {{ $t('globals.fields.description') }}
+            </th>
+            <th>
+              <b-icon icon="check-circle-outline" size="is-small" class="mr-1" />
+              {{ $t('globals.fields.status') }}
+            </th>
+            <th>
+              <b-icon icon="calendar-clock" size="is-small" class="mr-1" />
+              {{ $t('globals.fields.createdAt') }}
+            </th>
+            <th>
+              <b-icon icon="calendar-clock" size="is-small" class="mr-1" />
+              {{ $t('globals.fields.updatedAt') }}
+            </th>
+            <th>
+              <b-icon icon="cog-outline" size="is-small" />
+            </th>
           </tr>
         </thead>
         <tbody>
           <tr v-if="sqlSnippets.length === 0">
-            <td colspan="6" class="has-text-centered">
+            <td colspan="6" class="has-text-centered has-text-grey py-6">
+              <b-icon icon="plus" size="is-large" class="mb-2" />
+              <br />
               {{ $t('globals.messages.emptyState') }}
             </td>
           </tr>
-          <tr v-for="snippet in sqlSnippets" :key="snippet.id" :class="{ 'has-text-grey': !snippet.is_active }">
+          <tr v-for="snippet in sqlSnippets" :key="snippet.id" :class="{ 'has-text-grey': !snippet.isActive }">
             <td>
-              <div>
+              <div class="is-flex is-align-items-center">
+                <b-icon icon="code" size="is-small" class="mr-2 has-text-info" />
                 <strong>{{ snippet.name }}</strong>
               </div>
             </td>
             <td>{{ snippet.description }}</td>
             <td>
-              <b-tag :type="snippet.is_active ? 'is-success' : 'is-light'">
-                {{ snippet.is_active ? $t('globals.buttons.enabled') : $t('users.status.disabled') }}
+              <b-tag :type="snippet.isActive ? 'is-success' : 'is-light'">
+                <b-icon :icon="snippet.isActive ? 'check-circle-outline' : 'pause-circle-outline'" size="is-small" class="mr-1" />
+                {{ snippet.isActive ? $t('users.status.enabled') : $t('users.status.disabled') }}
               </b-tag>
             </td>
             <td>{{ $utils.niceDate(snippet.created_at, true) }}</td>
@@ -65,6 +89,7 @@
         <div class="modal-card" style="width: auto">
           <header class="modal-card-head">
             <h4 class="modal-card-title">
+              <b-icon :icon="form.id ? 'pencil-outline' : 'plus'" size="is-small" class="mr-2" />
               {{ form.id ? $t('globals.buttons.edit') : $t('globals.buttons.new') }}
               {{ $t('sqlSnippets.snippet') }}
             </h4>
@@ -72,7 +97,11 @@
           <section class="modal-card-body">
             <div class="columns">
               <div class="column">
-                <b-field :label="$t('globals.fields.name')" label-position="on-border">
+                <b-field label-position="on-border">
+                  <template #label>
+                    <b-icon icon="tag-outline" size="is-small" class="mr-1" />
+                    {{ $t('globals.fields.name') }}
+                  </template>
                   <b-input v-model="form.name" name="name" :ref="'focus'" maxlength="200" required />
                 </b-field>
               </div>
@@ -80,7 +109,11 @@
 
             <div class="columns">
               <div class="column">
-                <b-field :label="$t('globals.fields.description')" label-position="on-border">
+                <b-field label-position="on-border">
+                  <template #label>
+                    <b-icon icon="text" size="is-small" class="mr-1" />
+                    {{ $t('globals.fields.description') }}
+                  </template>
                   <b-input v-model="form.description" name="description" maxlength="500" type="textarea" />
                 </b-field>
               </div>
@@ -88,29 +121,47 @@
 
             <div class="columns">
               <div class="column">
-                <b-field :label="$t('sqlSnippets.querySQL')" label-position="on-border">
+                <b-field label-position="on-border">
+                  <template #label>
+                    <b-icon icon="code" size="is-small" class="mr-1" />
+                    {{ $t('sqlSnippets.querySQL') }}
+                  </template>
                   <code-editor v-model="form.querySql" language="sql" :placeholder="$t('sqlSnippets.queryPlaceholder')" />
                 </b-field>
                 <p class="is-size-7 has-text-grey">
                   {{ $t('sqlSnippets.queryHelp') }}
                 </p>
-                
+
                 <!-- Live subscriber count -->
-                <div v-if="form.querySql.trim()" class="mt-3">
-                  <div class="columns is-mobile">
-                    <div class="column">
-                      <div class="level">
-                        <div class="level-left">
-                          <div class="level-item">
-                            <span class="tag is-info">
-                              <b-icon icon="account-group" size="is-small"></b-icon>
-                              <span class="ml-2">
-                                <span v-if="subscriberCount.loading">Loading...</span>
-                                <span v-else-if="subscriberCount.error" class="has-text-danger">Error</span>
-                                <span v-else>{{ subscriberCount.found }} / {{ subscriberCount.total }} subscribers</span>
-                              </span>
-                            </span>
-                          </div>
+                <div class="mt-3">
+                  <div class="level">
+                    <div class="level-left">
+                      <div class="level-item">
+                        <div class="tags has-addons">
+                          <span class="tag is-light">
+                            <b-icon icon="account-group" size="is-small" class="mr-1" />
+                            Matches
+                          </span>
+                          <span v-if="!liveValidationEnabled" class="tag is-light">
+                            <span class="has-text-grey is-italic">Live validation disabled</span>
+                          </span>
+                          <span v-else-if="subscriberCount.loading" class="tag is-info">
+                            <b-icon icon="loading" class="is-rotating" size="is-small" />
+                          </span>
+                          <span v-else-if="subscriberCount.error" class="tag is-danger">
+                            Error
+                          </span>
+                          <span v-else-if="form.querySql.trim()" class="tag is-success">
+                            {{ subscriberCount.found.toLocaleString() }}
+                          </span>
+                          <span v-else class="tag is-light">
+                            -
+                          </span>
+                        </div>
+                      </div>
+                      <div class="level-item ml-4">
+                        <div class="has-text-grey is-size-7">
+                          Total subscribers: {{ subscriberCount.total.toLocaleString() }}
                         </div>
                       </div>
                     </div>
@@ -122,10 +173,18 @@
             <div class="columns">
               <div class="column is-6">
                 <b-field>
-                  <b-checkbox v-model="form.is_active">{{ $t('globals.fields.status') }}</b-checkbox>
+                  <b-checkbox v-model="form.is_active">
+                    {{ $t('globals.fields.status') }}
+                  </b-checkbox>
                 </b-field>
               </div>
               <div class="column is-6 has-text-right">
+                <div class="mb-3">
+                  <b-checkbox v-model="liveValidationEnabled" @input="onLiveValidationChange" size="is-small">
+                    <b-icon icon="flash" size="is-small" class="mr-1" />
+                    Live SQL validation
+                  </b-checkbox>
+                </div>
                 <b-button @click="validateQuery" type="is-info" icon-left="check" :loading="isValidating">
                   {{ $t('sqlSnippets.validate') }}
                 </b-button>
@@ -171,6 +230,7 @@ export default {
         total: 0,
       },
       countDebounceTimer: null,
+      liveValidationEnabled: true,
     };
   },
 
@@ -200,7 +260,12 @@ export default {
         // If editing existing snippet, fetch full data including querySql
         if (snippet.id) {
           this.$api.getSQLSnippet(snippet.id).then((data) => {
-            this.form = { ...this.form, ...data };
+            this.form = {
+              ...this.form,
+              ...data,
+              is_active: data.isActive, // Convert camelCase to snake_case for form
+              querySql: data.querySql || data.query_sql || '',
+            };
             this.form.isVisible = true;
             this.$nextTick(() => {
               this.$refs.focus.focus();
@@ -208,7 +273,13 @@ export default {
           });
           return;
         }
-        this.form = { ...this.form, ...snippet };
+        // Convert camelCase to snake_case for form
+        this.form = {
+          ...this.form,
+          ...snippet,
+          is_active: snippet.isActive,
+          querySql: snippet.querySql || snippet.query_sql || '',
+        };
       }
 
       this.form.isVisible = true;
@@ -315,10 +386,86 @@ export default {
         this.sqlSnippets = data;
       });
     },
+
+    updateSubscriberCount(query) {
+      // Clear existing timer
+      if (this.countDebounceTimer) {
+        clearTimeout(this.countDebounceTimer);
+      }
+
+      // Reset counts if no query
+      if (!query || !query.trim()) {
+        this.subscriberCount.found = 0;
+        this.subscriberCount.error = false;
+        return;
+      }
+
+      // Set loading state
+      this.subscriberCount.loading = true;
+      this.subscriberCount.error = false;
+
+      // Debounce API call
+      this.countDebounceTimer = setTimeout(() => {
+        this.$api.countSQLSnippet({ query_sql: query }).then((response) => {
+          this.subscriberCount.found = response.matched || 0;
+          this.subscriberCount.total = response.total || 0;
+          this.subscriberCount.loading = false;
+          this.subscriberCount.error = false;
+        }).catch((err) => {
+          console.error('Error counting subscribers:', err);
+          this.subscriberCount.loading = false;
+          this.subscriberCount.error = true;
+        });
+      }, 500); // 500ms debounce
+    },
+
+    loadTotalSubscriberCount() {
+      // Load total subscriber count on page load
+      this.$api.countSQLSnippet({ query_sql: '' }).then((response) => {
+        this.subscriberCount.total = response.total || 0;
+      }).catch((err) => {
+        console.error('Error loading total subscriber count:', err);
+      });
+    },
+
+    onLiveValidationChange() {
+      // Save preference
+      this.$utils.setPref('sqlSnippets.liveValidation', this.liveValidationEnabled);
+
+      // If enabling live validation and there's a query, trigger validation
+      if (this.liveValidationEnabled && this.form.querySql.trim()) {
+        this.updateSubscriberCount(this.form.querySql);
+      } else if (!this.liveValidationEnabled) {
+        // Reset counts when disabling
+        this.subscriberCount.found = 0;
+        this.subscriberCount.error = false;
+        this.subscriberCount.loading = false;
+      }
+    },
+  },
+
+  watch: {
+    // Watch for changes in the SQL query to update counts
+    'form.querySql': {
+      handler(newQuery) {
+        if (this.liveValidationEnabled) {
+          this.updateSubscriberCount(newQuery);
+        } else {
+          // Reset counts when live validation is disabled
+          this.subscriberCount.found = 0;
+          this.subscriberCount.error = false;
+          this.subscriberCount.loading = false;
+        }
+      },
+      immediate: false,
+    },
   },
 
   mounted() {
     this.fetchSnippets();
+    this.loadTotalSubscriberCount();
+    // Load live validation preference
+    this.liveValidationEnabled = this.$utils.getPref('sqlSnippets.liveValidation') !== false; // Default to true
   },
 };
 </script>

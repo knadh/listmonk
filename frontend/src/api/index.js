@@ -566,3 +566,9 @@ export const validateSQLSnippet = (data) => http.post(
   data,
   { loading: models.sqlSnippets },
 );
+
+export const countSQLSnippet = (data) => http.post(
+  '/api/sql-snippets/count',
+  data,
+  { loading: models.sqlSnippets },
+);
