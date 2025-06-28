@@ -425,8 +425,7 @@ export default {
           this.subscriberCount.total = response.total || 0;
           this.subscriberCount.loading = false;
           this.subscriberCount.error = false;
-        }).catch((err) => {
-          console.error('Error counting subscribers:', err);
+        }).catch(() => {
           this.subscriberCount.loading = false;
           this.subscriberCount.error = true;
         });
@@ -437,8 +436,8 @@ export default {
       // Load total subscriber count on page load
       this.$api.countSQLSnippet({ query_sql: '' }).then((response) => {
         this.subscriberCount.total = response.total || 0;
-      }).catch((err) => {
-        console.error('Error loading total subscriber count:', err);
+      }).catch(() => {
+        // Silently fail for total count loading
       });
     },
 

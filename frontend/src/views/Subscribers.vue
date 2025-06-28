@@ -302,9 +302,9 @@ export default Vue.extend({
       this.$api.getSQLSnippets({ is_active: true }).then((data) => {
         // API returns the array directly, not wrapped in results
         this.sqlSnippets = data || [];
-      }).catch((err) => {
-        console.error('Error loading SQL snippets:', err);
-        console.error('Error details:', err.response || err);
+      }).catch(() => {
+        // Silently fail for SQL snippets loading - this is optional functionality
+        this.sqlSnippets = [];
       });
     },
 
