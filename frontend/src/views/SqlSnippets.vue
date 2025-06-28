@@ -350,8 +350,8 @@ export default {
 
     deleteSnippet(snippet) {
       this.$buefy.dialog.confirm({
-        title: this.$t('globals.terms.confirm'),
-        message: this.$t('globals.messages.confirmDelete', { name: snippet.name }),
+        title: this.$t('globals.messages.confirm'),
+        message: this.$t('sqlSnippets.confirmDelete', { name: snippet.name }),
         confirmText: this.$t('globals.buttons.delete'),
         type: 'is-danger',
         onConfirm: () => {
