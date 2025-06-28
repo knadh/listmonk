@@ -132,80 +132,21 @@
                   {{ $t('sqlSnippets.queryHelp') }}
                 </p>
 
-                <!-- Live subscriber count -->
-                <div class="mt-3">
-                  <div class="level">
-                    <div class="level-left">
-                      <div class="level-item">
-                        <div class="tags has-addons">
-                          <span class="tag is-light">
-                            <b-icon icon="account-group" size="is-small" class="mr-1" />
-                            Matches
-                          </span>
-                          <span v-if="!liveValidationEnabled" class="tag is-light">
-                            <span class="has-text-grey is-italic">Live validation disabled</span>
-                          </span>
-                          <span v-else-if="subscriberCount.loading" class="tag is-info">
-                            <b-icon icon="loading" class="is-rotating" size="is-small" />
-                          </span>
-                          <span v-else-if="subscriberCount.error" class="tag is-danger">
-                            Error
-                          </span>
-                          <span v-else-if="form.querySql.trim()" class="tag is-success">
-                            {{ subscriberCount.found.toLocaleString() }}
-                          </span>
-                          <span v-else class="tag is-light">
-                            -
-                          </span>
-                        </div>
-                      </div>
-                      <div class="level-item ml-4">
-                        <div class="has-text-grey is-size-7">
-                          Total subscribers: {{ subscriberCount.total.toLocaleString() }}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                <!-- SQL Counter -->
+                <SQLCounter
+                  :query="form.querySql"
+                  :live-validation-enabled.sync="liveValidationEnabled"
+                />
               </div>
             </div>
 
             <div class="columns">
-              <div class="column is-6">
+              <div class="column">
                 <b-field>
                   <b-checkbox v-model="form.is_active">
                     {{ $t('globals.fields.status') }}
                   </b-checkbox>
                 </b-field>
-              </div>
-              <div class="column is-6 has-text-right">
-                <div class="mb-3">
-                  <label class="checkbox is-flex is-justify-content-flex-end is-align-items-center">
-                    <input type="checkbox" v-model="liveValidationEnabled" @change="onLiveValidationChange" class="mr-2">
-                    <b-icon icon="flash" size="is-small" class="mr-1" />
-                    <span class="is-size-7">Live SQL validation</span>
-                  </label>
-                </div>
-                <div class="is-flex is-justify-content-flex-end is-align-items-center">
-                  <div v-if="validationMessage" class="mr-3">
-                    <b-icon
-                      :icon="validationMessage.type === 'is-success' ? 'check-circle' : 'alert-circle'"
-                      :type="validationMessage.type === 'is-success' ? 'is-success' : 'is-danger'"
-                      size="is-small"
-                      :title="validationMessage.text"
-                    />
-                  </div>
-                  <b-button
-                    v-if="!liveValidationEnabled"
-                    @click="validateQuery"
-                    type="is-info"
-                    icon-left="check"
-                    :loading="isValidating"
-                    size="is-small"
-                  >
-                    {{ $t('sqlSnippets.validate') }}
-                  </b-button>
-                </div>
               </div>
             </div>
           </section>
@@ -223,27 +164,20 @@
 
 <script>
 import CodeEditor from '../components/CodeEditor.vue';
+import SQLCounter from '../components/SQLCounter.vue';
 
 export default {
   name: 'SqlSnippets',
 
   components: {
     CodeEditor,
+    SQLCounter,
   },
 
   data() {
     return {
       sqlSnippets: [],
       form: this.initForm(),
-      isValidating: false,
-      validationMessage: null,
-      subscriberCount: {
-        loading: false,
-        error: false,
-        found: 0,
-        total: 0,
-      },
-      countDebounceTimer: null,
       liveValidationEnabled: true,
     };
   },
@@ -268,7 +202,6 @@ export default {
 
     showForm(snippet = null) {
       this.form = this.initForm();
-      this.validationMessage = null;
 
       if (snippet) {
         // If editing existing snippet, fetch full data including querySql
@@ -368,115 +301,15 @@ export default {
       });
     },
 
-    validateQuery() {
-      if (!this.form.querySql.trim()) {
-        this.validationMessage = {
-          type: 'is-warning',
-          text: this.$t('sqlSnippets.emptyQuery'),
-        };
-        return;
-      }
-
-      this.isValidating = true;
-      this.validationMessage = null;
-
-      this.$api.validateSQLSnippet({ query_sql: this.form.querySql }).then(() => {
-        this.validationMessage = {
-          type: 'is-success',
-          text: this.$t('sqlSnippets.validQuery'),
-        };
-      }).catch((err) => {
-        this.validationMessage = {
-          type: 'is-danger',
-          text: err.message || this.$t('sqlSnippets.invalidQuery'),
-        };
-      }).finally(() => {
-        this.isValidating = false;
-      });
-    },
-
     fetchSnippets() {
       this.$api.getSQLSnippets().then((data) => {
         this.sqlSnippets = data;
       });
     },
-
-    updateSubscriberCount(query) {
-      // Clear existing timer
-      if (this.countDebounceTimer) {
-        clearTimeout(this.countDebounceTimer);
-      }
-
-      // Reset counts if no query
-      if (!query || !query.trim()) {
-        this.subscriberCount.found = 0;
-        this.subscriberCount.error = false;
-        return;
-      }
-
-      // Set loading state
-      this.subscriberCount.loading = true;
-      this.subscriberCount.error = false;
-
-      // Debounce API call
-      this.countDebounceTimer = setTimeout(() => {
-        this.$api.countSQLSnippet({ query_sql: query }).then((response) => {
-          this.subscriberCount.found = response.matched || 0;
-          this.subscriberCount.total = response.total || 0;
-          this.subscriberCount.loading = false;
-          this.subscriberCount.error = false;
-        }).catch(() => {
-          this.subscriberCount.loading = false;
-          this.subscriberCount.error = true;
-        });
-      }, 500); // 500ms debounce
-    },
-
-    loadTotalSubscriberCount() {
-      // Load total subscriber count on page load
-      this.$api.countSQLSnippet({ query_sql: '' }).then((response) => {
-        this.subscriberCount.total = response.total || 0;
-      }).catch(() => {
-        // Silently fail for total count loading
-      });
-    },
-
-    onLiveValidationChange() {
-      // Save preference
-      this.$utils.setPref('sqlSnippets.liveValidation', this.liveValidationEnabled);
-
-      // If enabling live validation and there's a query, trigger validation
-      if (this.liveValidationEnabled && this.form.querySql.trim()) {
-        this.updateSubscriberCount(this.form.querySql);
-      } else if (!this.liveValidationEnabled) {
-        // Reset counts when disabling
-        this.subscriberCount.found = 0;
-        this.subscriberCount.error = false;
-        this.subscriberCount.loading = false;
-      }
-    },
-  },
-
-  watch: {
-    // Watch for changes in the SQL query to update counts
-    'form.querySql': {
-      handler(newQuery) {
-        if (this.liveValidationEnabled) {
-          this.updateSubscriberCount(newQuery);
-        } else {
-          // Reset counts when live validation is disabled
-          this.subscriberCount.found = 0;
-          this.subscriberCount.error = false;
-          this.subscriberCount.loading = false;
-        }
-      },
-      immediate: false,
-    },
   },
 
   mounted() {
     this.fetchSnippets();
-    this.loadTotalSubscriberCount();
     // Load live validation preference
     this.liveValidationEnabled = this.$utils.getPref('sqlSnippets.liveValidation') !== false; // Default to true
   },
