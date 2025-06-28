@@ -21,7 +21,7 @@
             <th>{{ $t('globals.fields.status') }}</th>
             <th>{{ $t('globals.fields.createdAt') }}</th>
             <th>{{ $t('globals.fields.updatedAt') }}</th>
-            <th></th>
+            <th />
           </tr>
         </thead>
         <tbody>
