@@ -66,8 +66,8 @@
                 {{ snippet.isActive ? $t('users.status.enabled') : $t('users.status.disabled') }}
               </b-tag>
             </td>
-            <td>{{ $utils.niceDate(snippet.created_at, true) }}</td>
-            <td>{{ $utils.niceDate(snippet.updated_at, true) }}</td>
+            <td>{{ $utils.niceDate(snippet.createdAt, true) }}</td>
+            <td>{{ $utils.niceDate(snippet.updatedAt, true) }}</td>
             <td class="actions">
               <div>
                 <b-button @click="showForm(snippet)" icon-left="edit-outline" size="is-small" type="is-text">
