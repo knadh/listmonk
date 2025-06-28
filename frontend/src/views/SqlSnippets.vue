@@ -39,7 +39,7 @@
             <td>{{ snippet.description }}</td>
             <td>
               <b-tag :type="snippet.is_active ? 'is-success' : 'is-light'">
-                {{ snippet.is_active ? $t('globals.terms.enabled') : $t('globals.terms.disabled') }}
+                {{ snippet.is_active ? $t('globals.buttons.enabled') : $t('users.status.disabled') }}
               </b-tag>
             </td>
             <td>{{ $utils.niceDate(snippet.created_at, true) }}</td>
@@ -60,7 +60,7 @@
     </div>
 
     <!-- SQL Snippet Form Modal -->
-    <b-modal trap-focus :active.sync="form.isVisible" :width="600" scroll="keep">
+    <b-modal trap-focus :active.sync="form.isVisible" :width="900" scroll="keep">
       <form @submit.prevent="onSubmit">
         <div class="modal-card" style="width: auto">
           <header class="modal-card-head">
@@ -89,11 +89,33 @@
             <div class="columns">
               <div class="column">
                 <b-field :label="$t('sqlSnippets.querySQL')" label-position="on-border">
-                  <code-editor v-model="form.query_sql" language="sql" :placeholder="$t('sqlSnippets.queryPlaceholder')" />
+                  <code-editor v-model="form.querySql" language="sql" :placeholder="$t('sqlSnippets.queryPlaceholder')" />
                 </b-field>
                 <p class="is-size-7 has-text-grey">
                   {{ $t('sqlSnippets.queryHelp') }}
                 </p>
+                
+                <!-- Live subscriber count -->
+                <div v-if="form.querySql.trim()" class="mt-3">
+                  <div class="columns is-mobile">
+                    <div class="column">
+                      <div class="level">
+                        <div class="level-left">
+                          <div class="level-item">
+                            <span class="tag is-info">
+                              <b-icon icon="account-group" size="is-small"></b-icon>
+                              <span class="ml-2">
+                                <span v-if="subscriberCount.loading">Loading...</span>
+                                <span v-else-if="subscriberCount.error" class="has-text-danger">Error</span>
+                                <span v-else>{{ subscriberCount.found }} / {{ subscriberCount.total }} subscribers</span>
+                              </span>
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -142,6 +164,13 @@ export default {
       form: this.initForm(),
       isValidating: false,
       validationMessage: null,
+      subscriberCount: {
+        loading: false,
+        error: false,
+        found: 0,
+        total: 0,
+      },
+      countDebounceTimer: null,
     };
   },
 
@@ -158,7 +187,7 @@ export default {
         id: 0,
         name: '',
         description: '',
-        query_sql: '',
+        querySql: '',
         is_active: true,
       };
     },
@@ -168,6 +197,17 @@ export default {
       this.validationMessage = null;
 
       if (snippet) {
+        // If editing existing snippet, fetch full data including querySql
+        if (snippet.id) {
+          this.$api.getSQLSnippet(snippet.id).then((data) => {
+            this.form = { ...this.form, ...data };
+            this.form.isVisible = true;
+            this.$nextTick(() => {
+              this.$refs.focus.focus();
+            });
+          });
+          return;
+        }
         this.form = { ...this.form, ...snippet };
       }
 
@@ -186,7 +226,13 @@ export default {
     },
 
     createSnippet() {
-      this.$api.createSQLSnippet(this.form).then((data) => {
+      const payload = {
+        name: this.form.name,
+        description: this.form.description,
+        query_sql: this.form.querySql,
+        is_active: this.form.is_active,
+      };
+      this.$api.createSQLSnippet(payload).then((data) => {
         this.$buefy.toast.open({
           message: this.$t('globals.messages.created', { name: data.name }),
           type: 'is-success',
@@ -199,7 +245,13 @@ export default {
     },
 
     updateSnippet() {
-      this.$api.updateSQLSnippet(this.form.id, this.form).then((data) => {
+      const payload = {
+        name: this.form.name,
+        description: this.form.description,
+        query_sql: this.form.querySql,
+        is_active: this.form.is_active,
+      };
+      this.$api.updateSQLSnippet(this.form.id, payload).then((data) => {
         this.$buefy.toast.open({
           message: this.$t('globals.messages.updated', { name: data.name }),
           type: 'is-success',
@@ -232,7 +284,7 @@ export default {
     },
 
     validateQuery() {
-      if (!this.form.query_sql.trim()) {
+      if (!this.form.querySql.trim()) {
         this.validationMessage = {
           type: 'is-warning',
           text: this.$t('sqlSnippets.emptyQuery'),
@@ -243,7 +295,7 @@ export default {
       this.isValidating = true;
       this.validationMessage = null;
 
-      this.$api.validateSQLSnippet({ query_sql: this.form.query_sql }).then(() => {
+      this.$api.validateSQLSnippet({ query_sql: this.form.querySql }).then(() => {
         this.validationMessage = {
           type: 'is-success',
           text: this.$t('sqlSnippets.validQuery'),
@@ -280,5 +332,10 @@ export default {
   display: flex;
   justify-content: flex-end;
   align-items: center;
+}
+
+/* Reduce CodeEditor height in modal */
+:deep(.code-editor) {
+  height: 200px !important;
 }
 </style>
