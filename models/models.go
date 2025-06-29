@@ -731,3 +731,14 @@ func (h Headers) Value() (driver.Value, error) {
 
 	return "[]", nil
 }
+
+// SQLSnippet represents a SQL snippet for subscriber queries.
+type SQLSnippet struct {
+	Base
+
+	Name        string `db:"name" json:"name"`
+	Description string `db:"description" json:"description"`
+	QuerySQL    string `db:"query_sql" json:"query_sql"`
+	IsActive    bool   `db:"is_active" json:"is_active"`
+	CreatedBy   *int   `db:"created_by" json:"created_by"`
+}
