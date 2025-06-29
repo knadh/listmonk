@@ -707,23 +707,34 @@ func (s *Session) mapCSVHeaders(csvHdrs []string, knownHdrs map[string]bool) map
 // Credit: https://stackoverflow.com/a/24563853
 func countLines(r io.Reader) (int, error) {
 	var (
-		buf     = make([]byte, 32*1024)
-		count   = 0
-		lineSep = []byte{'\n'}
+		buf       = make([]byte, 32*1024)
+		count     = 0
+		lineSep   = byte('\n')
+		lastByte  byte
+		bytesRead int
 	)
 
 	for {
 		c, err := r.Read(buf)
-		count += bytes.Count(buf[:c], lineSep)
+		if c > 0 {
+			count += bytes.Count(buf[:c], []byte{lineSep})
+			lastByte = buf[c-1]
+			bytesRead += c
+		}
 
-		switch {
-		case err == io.EOF:
-			return count, nil
-
-		case err != nil:
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
 			return count, err
 		}
 	}
+
+	if bytesRead > 0 && lastByte != lineSep {
+		count++
+	}
+
+	return count, nil
 }
 
 func makeDomainMap(domains []string) (map[string]struct{}, bool) {
