@@ -707,11 +707,10 @@ func (s *Session) mapCSVHeaders(csvHdrs []string, knownHdrs map[string]bool) map
 // Credit: https://stackoverflow.com/a/24563853
 func countLines(r io.Reader) (int, error) {
 	var (
-		buf       = make([]byte, 32*1024)
-		count     = 0
-		lineSep   = byte('\n')
-		lastByte  byte
-		bytesRead int
+		buf      = make([]byte, 32*1024)
+		count    = 0
+		lineSep  = byte('\n')
+		lastByte byte
 	)
 
 	for {
@@ -719,7 +718,6 @@ func countLines(r io.Reader) (int, error) {
 		if c > 0 {
 			count += bytes.Count(buf[:c], []byte{lineSep})
 			lastByte = buf[c-1]
-			bytesRead += c
 		}
 
 		if err == io.EOF {
@@ -730,7 +728,7 @@ func countLines(r io.Reader) (int, error) {
 		}
 	}
 
-	if bytesRead > 0 && lastByte != lineSep {
+	if lastByte != 0 && lastByte != lineSep {
 		count++
 	}
 
