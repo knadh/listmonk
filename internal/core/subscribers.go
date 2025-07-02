@@ -570,6 +570,12 @@ func (c *Core) getSubscriberCount(searchStr, queryExp, subStatus string, listIDs
 	return total, nil
 }
 
+// GetSubscriberCount returns the count of subscribers matching the given criteria.
+// This is a public wrapper around getSubscriberCount for use by API handlers.
+func (c *Core) GetSubscriberCount(searchStr, queryExp, subStatus string, listIDs []int) (int, error) {
+	return c.getSubscriberCount(searchStr, queryExp, subStatus, listIDs)
+}
+
 // validateQueryTables checks if the query accesses only allowed tables.
 func validateQueryTables(db *sqlx.DB, query string, allowedTables map[string]struct{}) error {
 	// Get the EXPLAIN (FORMAT JSON) output.
