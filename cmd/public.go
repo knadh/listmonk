@@ -460,7 +460,7 @@ func (a *App) SubscriptionForm(c echo.Context) error {
 	if err != nil {
 		e, ok := err.(*echo.HTTPError)
 		if !ok {
-			return e
+			return err
 		}
 
 		return c.Render(e.Code, tplMessage, makeMsgTpl(a.i18n.T("public.errorTitle"), "", fmt.Sprintf("%s", e.Message)))
@@ -648,12 +648,6 @@ func (a *App) processSubForm(c echo.Context) (bool, error) {
 		return false, echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("public.noListsSelected"))
 	}
 
-	// If there's no name, use the name bit from the e-mail.
-	req.Name = strings.TrimSpace(req.Name)
-	if req.Name == "" {
-		req.Name = strings.Split(req.Email, "@")[0]
-	}
-
 	// Validate fields.
 	if len(req.Email) > 1000 {
 		return false, echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("subscribers.invalidEmail"))
@@ -666,7 +660,10 @@ func (a *App) processSubForm(c echo.Context) (bool, error) {
 	req.Email = em
 
 	req.Name = strings.TrimSpace(req.Name)
-	if len(req.Name) == 0 || len(req.Name) > stdInputMaxLen {
+	if len(req.Name) == 0 {
+		// If there's no name, use the name bit from the e-mail.
+		req.Name = strings.Split(req.Email, "@")[0]
+	} else if len(req.Name) > stdInputMaxLen {
 		return false, echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("subscribers.invalidName"))
 	}
 
@@ -690,26 +687,32 @@ func (a *App) processSubForm(c echo.Context) (bool, error) {
 		Email:  req.Email,
 		Status: models.SubscriberStatusEnabled,
 	}, nil, listUUIDs, false)
-	if err != nil {
-		// Subscriber already exists. Update subscriptions in the DB.
-		if e, ok := err.(*echo.HTTPError); ok && e.Code == http.StatusConflict {
-			// Get the subscriber from the DB by their email.
-			sub, err := a.core.GetSubscriber(0, "", req.Email)
-			if err != nil {
-				return false, err
-			}
-
-			// Update the subscriber's subscriptions in the DB.
-			_, hasOptin, err := a.core.UpdateSubscriberWithLists(sub.ID, sub, nil, listUUIDs, false, false)
-			if err != nil {
-				return false, err
-			}
-
-			return hasOptin, nil
-		}
-
-		return false, echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("%s", err.(*echo.HTTPError).Message))
+	if err == nil {
+		return hasOptin, nil
 	}
 
-	return hasOptin, nil
+	// Insert returned an error. Examine it.
+	var lastErr = err
+
+	// Subscriber already exists. Update subscriptions in the DB.
+	if e, ok := err.(*echo.HTTPError); ok && e.Code == http.StatusConflict {
+		// Get the subscriber from the DB by their email.
+		sub, err := a.core.GetSubscriber(0, "", req.Email)
+		if err != nil {
+			return false, err
+		}
+
+		// Update the subscriber's subscriptions in the DB.
+		_, hasOptin, err := a.core.UpdateSubscriberWithLists(sub.ID, sub, nil, listUUIDs, false, false)
+		if err == nil {
+			return hasOptin, nil
+		}
+		lastErr = err
+	}
+
+	// Something else went wrong.
+	if e, ok := lastErr.(*echo.HTTPError); ok {
+		return false, echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("%s", e.Message))
+	}
+	return false, echo.NewHTTPError(http.StatusInternalServerError, a.i18n.T("public.errorProcessingRequest"))
 }
