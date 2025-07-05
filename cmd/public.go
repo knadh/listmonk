@@ -438,6 +438,11 @@ func (a *App) SubscriptionFormPage(c echo.Context) error {
 // SubscriptionForm handles subscription requests coming from public
 // HTML subscription forms.
 func (a *App) SubscriptionForm(c echo.Context) error {
+	if !a.cfg.EnablePublicSubPage {
+		return echo.NewHTTPError(http.StatusNotFound, a.i18n.T("public.invalidFeature"))
+
+	}
+
 	// If there's a nonce value, a bot could've filled the form.
 	if c.FormValue("nonce") != "" {
 		return echo.NewHTTPError(http.StatusBadGateway, a.i18n.T("public.invalidFeature"))
