@@ -548,7 +548,7 @@ func (s *Session) LoadCSV(srcPath string, delim rune) error {
 
 		sub, err = s.im.ValidateFields(sub)
 		if err != nil {
-			s.log.Printf("skipping line %d: %s: %v", i, sub.Email, err)
+			s.log.Printf("skipping line %d: %v: %v", i, err, cols)
 			continue
 		}
 
