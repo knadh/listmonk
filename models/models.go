@@ -331,9 +331,10 @@ type Bounce struct {
 	CreatedAt time.Time       `db:"created_at" json:"created_at"`
 
 	// One of these should be provided.
-	Email          string `db:"email" json:"email,omitempty"`
-	SubscriberUUID string `db:"subscriber_uuid" json:"subscriber_uuid,omitempty"`
-	SubscriberID   int    `db:"subscriber_id" json:"subscriber_id,omitempty"`
+	Email            string `db:"email" json:"email,omitempty"`
+	SubscriberUUID   string `db:"subscriber_uuid" json:"subscriber_uuid,omitempty"`
+	SubscriberID     int    `db:"subscriber_id" json:"subscriber_id,omitempty"`
+	SubscriberStatus string `db:"subscriber_status" json:"subscriber_status"`
 
 	CampaignUUID string           `db:"campaign_uuid" json:"campaign_uuid,omitempty"`
 	Campaign     *json.RawMessage `db:"campaign" json:"campaign"`
