@@ -4,7 +4,9 @@ import (
 	"errors"
 	"fmt"
 	"html/template"
+	"io"
 	"log"
+	"net/http"
 	"net/textproto"
 	"strings"
 	"sync"
@@ -371,6 +373,20 @@ func (m *Manager) TemplateFuncs(c *models.Campaign) template.FuncMap {
 		"RootURL": func() string {
 			return m.cfg.RootURL
 		},
+		"externalHTML": func(url string) (template.HTML, error) {
+			resp, err := http.Get(url)
+			if err != nil {
+				return "", err
+			}
+			defer resp.Body.Close()
+
+			body, err := io.ReadAll(resp.Body)
+			if err != nil {
+				return "", err
+			}
+
+			return template.HTML(body), nil
+		},
 	}
 
 	maps.Copy(f, m.tplFuncs)
@@ -617,6 +633,20 @@ func (m *Manager) makeGnericFuncMap() template.FuncMap {
 		},
 		"Safe": func(safeHTML string) template.HTML {
 			return template.HTML(safeHTML)
+		},
+		"externalHTML": func(url string) (template.HTML, error) {
+			resp, err := http.Get(url)
+			if err != nil {
+				return "", err
+			}
+			defer resp.Body.Close()
+
+			body, err := io.ReadAll(resp.Body)
+			if err != nil {
+				return "", err
+			}
+
+			return template.HTML(body), nil
 		},
 	}
 
