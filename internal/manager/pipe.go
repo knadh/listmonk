@@ -1,6 +1,7 @@
 package manager
 
 import (
+	"html/template"
 	"fmt"
 	"sync"
 	"sync/atomic"
@@ -27,7 +28,7 @@ type pipe struct {
 func (m *Manager) newPipe(c *models.Campaign) (*pipe, error) {
 	// Validate messenger.
 	if _, ok := m.messengers[c.Messenger]; !ok {
-		m.store.UpdateCampaignStatus(c.ID, models.CampaignStatusCancelled)
+		m.store.UpdateCampaignStatus(c.ID, models.CampaignStatusPaused)
 		return nil, fmt.Errorf("unknown messenger %s on campaign %s", c.Messenger, c.Name)
 	}
 
@@ -66,7 +67,40 @@ func (m *Manager) newPipe(c *models.Campaign) (*pipe, error) {
 	m.pipesMut.Lock()
 	m.pipes[c.ID] = p
 	m.pipesMut.Unlock()
+
+	// Initialize the cache for this campaign.
+	m.externalHTMLCacheMut.Lock()
+	m.externalHTMLCache[c.ID] = make(map[string]template.HTML)
+	m.externalHTMLCacheMut.Unlock()
+
 	return p, nil
+}
+
+// cleanup is called when a campaign's pipe is finished and is about to be destroyed.
+func (p *pipe) cleanup() {
+	// Remove the campaign from the active map.
+	p.m.pipesMut.Lock()
+	delete(p.m.pipes, p.camp.ID)
+	p.m.pipesMut.Unlock()
+
+	// Clear the static HTML cache for this campaign.
+	p.m.externalHTMLCacheMut.Lock()
+	delete(p.m.externalHTMLCache, p.camp.ID)
+	p.m.externalHTMLCacheMut.Unlock()
+
+	// If the campaign finished without being stopped, update its status.
+	if !p.stopped.Load() {
+		// If there were message sending errors, mark the campaign as failed.
+		if p.withErrors.Load() {
+			p.m.store.UpdateCampaignStatus(p.camp.ID, models.CampaignStatusPaused)
+			p.m.sendNotif(p.camp, "failed", p.m.i18n.T("manager.pipe.errSending"))
+		} else {
+			p.m.store.UpdateCampaignStatus(p.camp.ID, models.CampaignStatusFinished)
+			p.m.sendNotif(p.camp, "finished", "")
+		}
+	}
+
+	p.m.log.Printf("finished processing campaign (%s)", p.camp.Name)
 }
 
 // NextSubscribers processes the next batch of subscribers in a given campaign.
@@ -180,61 +214,4 @@ func (p *pipe) newMessage(s models.Subscriber) (CampaignMessage, error) {
 	p.wg.Add(1)
 
 	return msg, nil
-}
-
-// cleanup finishes the campaign and updates the campaign status in the DB
-// and also triggers a notification to the admin. This only triggers once
-// a pipe's wg counter is fully exhausted, draining all messages in its queue.
-func (p *pipe) cleanup() {
-	defer func() {
-		p.m.pipesMut.Lock()
-		delete(p.m.pipes, p.camp.ID)
-		p.m.pipesMut.Unlock()
-	}()
-
-	// Update campaign's 'sent count.
-	if err := p.m.store.UpdateCampaignCounts(p.camp.ID, 0, int(p.sent.Load()), int(p.lastID.Load())); err != nil {
-		p.m.log.Printf("error updating campaign counts (%s): %v", p.camp.Name, err)
-	}
-
-	// The campaign was auto-paused due to errors.
-	if p.withErrors.Load() {
-		if err := p.m.store.UpdateCampaignStatus(p.camp.ID, models.CampaignStatusPaused); err != nil {
-			p.m.log.Printf("error updating campaign (%s) status to %s: %v", p.camp.Name, models.CampaignStatusPaused, err)
-		} else {
-			p.m.log.Printf("set campaign (%s) to %s", p.camp.Name, models.CampaignStatusPaused)
-		}
-
-		_ = p.m.sendNotif(p.camp, models.CampaignStatusPaused, "Too many errors")
-		return
-	}
-
-	// The campaign was manually stopped (pause, cancel).
-	if p.stopped.Load() {
-		p.m.log.Printf("stop processing campaign (%s)", p.camp.Name)
-		return
-	}
-
-	// Campaign wasn't manually stopped and subscribers were naturally exhausted.
-	// Fetch the up-to-date campaign status from the DB.
-	c, err := p.m.store.GetCampaign(p.camp.ID)
-	if err != nil {
-		p.m.log.Printf("error fetching campaign (%s) for ending: %v", p.camp.Name, err)
-		return
-	}
-
-	// If a running campaign has exhausted subscribers, it's finished.
-	if c.Status == models.CampaignStatusRunning || c.Status == models.CampaignStatusScheduled {
-		c.Status = models.CampaignStatusFinished
-		if err := p.m.store.UpdateCampaignStatus(p.camp.ID, models.CampaignStatusFinished); err != nil {
-			p.m.log.Printf("error finishing campaign (%s): %v", p.camp.Name, err)
-		} else {
-			p.m.log.Printf("campaign (%s) finished", p.camp.Name)
-		}
-	} else {
-		p.m.log.Printf("finish processing campaign (%s)", p.camp.Name)
-	}
-
-	// Notify admin.
-	_ = p.m.sendNotif(c, c.Status, "")
 }

@@ -77,6 +77,11 @@ type Manager struct {
 	tpls    map[int]*models.Template
 	tplsMut sync.RWMutex
 
+	// Cache for external HTML content fetched by externalHtmlStatic.
+	// It's cleared when a campaign finishes.
+	externalHTMLCache    map[int]map[string]template.HTML
+	externalHTMLCacheMut sync.RWMutex
+
 	// Links generated using Track() are cached here so as to not query
 	// the database for the link UUID for every message sent. This has to
 	// be locked as it may be used externally when previewing campaigns.
@@ -171,6 +176,7 @@ func New(cfg Config, store Store, i *i18n.I18n, l *log.Logger) *Manager {
 		pipes:        make(map[int]*pipe),
 		tpls:         make(map[int]*models.Template),
 		links:        make(map[string]string),
+		externalHTMLCache: make(map[int]map[string]template.HTML),
 		nextPipes:    make(chan *pipe, 1000),
 		campMsgQ:     make(chan CampaignMessage, cfg.Concurrency*cfg.MessageRate*2),
 		msgQ:         make(chan models.Message, cfg.Concurrency*cfg.MessageRate*2),
@@ -373,7 +379,7 @@ func (m *Manager) TemplateFuncs(c *models.Campaign) template.FuncMap {
 		"RootURL": func() string {
 			return m.cfg.RootURL
 		},
-		"externalHTML": func(url string) (template.HTML, error) {
+		"ExternalHtmlDynamic": func(url string) (template.HTML, error) {
 			resp, err := http.Get(url)
 			if err != nil {
 				return "", err
@@ -386,6 +392,41 @@ func (m *Manager) TemplateFuncs(c *models.Campaign) template.FuncMap {
 			}
 
 			return template.HTML(body), nil
+		},
+		"ExternalHtmlStatic": func(url string) (template.HTML, error) {
+			// Check cache first.
+			m.externalHTMLCacheMut.RLock()
+			if campCache, ok := m.externalHTMLCache[c.ID]; ok {
+				if html, ok := campCache[url]; ok {
+					m.externalHTMLCacheMut.RUnlock()
+					return html, nil
+				}
+			}
+			m.externalHTMLCacheMut.RUnlock()
+
+			// Not in cache. Fetch and cache.
+			resp, err := http.Get(url)
+			if err != nil {
+				return "", err
+			}
+			defer resp.Body.Close()
+
+			body, err := io.ReadAll(resp.Body)
+			if err != nil {
+				return "", err
+			}
+
+			html := template.HTML(body)
+
+			// Write to cache.
+			m.externalHTMLCacheMut.Lock()
+			if _, ok := m.externalHTMLCache[c.ID]; !ok {
+				m.externalHTMLCache[c.ID] = make(map[string]template.HTML)
+			}
+			m.externalHTMLCache[c.ID][url] = html
+			m.externalHTMLCacheMut.Unlock()
+
+			return html, nil
 		},
 	}
 
@@ -634,7 +675,7 @@ func (m *Manager) makeGnericFuncMap() template.FuncMap {
 		"Safe": func(safeHTML string) template.HTML {
 			return template.HTML(safeHTML)
 		},
-		"externalHTML": func(url string) (template.HTML, error) {
+		"ExternalHtmlDynamic": func(url string) (template.HTML, error) {
 			resp, err := http.Get(url)
 			if err != nil {
 				return "", err
