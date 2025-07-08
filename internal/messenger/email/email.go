@@ -24,6 +24,7 @@ const (
 type Server struct {
 	// Name is a unique identifier for the server.
 	Name          string            `json:"name"`
+	FromEmail     string            `json:"from_email"`
 	Username      string            `json:"username"`
 	Password      string            `json:"password"`
 	AuthProtocol  string            `json:"auth_protocol"`
@@ -41,8 +42,9 @@ type Server struct {
 
 // Emailer is the SMTP e-mail messenger.
 type Emailer struct {
-	servers []*Server
-	name    string
+	name             string
+	servers          []*Server
+	DefaultFromEmail string
 }
 
 // New returns an SMTP e-mail Messenger backend with the given SMTP servers.
@@ -56,6 +58,10 @@ func New(name string, servers ...Server) (*Emailer, error) {
 
 	for _, srv := range servers {
 		s := srv
+
+		if len(e.DefaultFromEmail) == 0 && len(s.FromEmail) > 0 {
+			e.DefaultFromEmail = s.FromEmail
+		}
 
 		var auth smtp.Auth
 		switch s.AuthProtocol {

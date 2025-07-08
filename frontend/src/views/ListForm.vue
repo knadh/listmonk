@@ -58,7 +58,7 @@
         <b-button @click="$parent.close()">
           {{ $t('globals.buttons.close') }}
         </b-button>
-        <b-button v-if="$can('lists:manage_all') || $canList(data.id, 'list:manage')" native-type="submit"
+        <b-button v-if="!isEditing || $can('lists:manage_all') || $canList(data.id, 'list:manage')" native-type="submit"
           type="is-primary" :loading="loading.lists" data-cy="btn-save">
           {{ $t('globals.buttons.save') }}
         </b-button>
@@ -108,9 +108,11 @@ export default Vue.extend({
 
     createList() {
       this.$api.createList(this.form).then((data) => {
-        this.$emit('finished');
-        this.$parent.close();
-        this.$utils.toast(this.$t('globals.messages.created', { name: data.name }));
+        this.$refreshUser().then(() => {
+          this.$emit('finished');
+          this.$parent.close();
+          this.$utils.toast(this.$t('globals.messages.created', { name: data.name }));
+        });
       });
     },
 
