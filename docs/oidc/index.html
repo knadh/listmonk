@@ -1421,7 +1421,7 @@
 <ol>
 <li>In Listmonk Admin -&gt; Settings -&gt; Security -&gt; OIDC.<ul>
 <li><strong>Enable OIDC SSO</strong>: Turn on</li>
-<li><strong>Provider URL</strong>: <code>https://keycloak.yoursite.com/auth/realms/{realm}</code> (replace <code>{realm}</code> with the chosen realm name)</li>
+<li><strong>Provider URL</strong>: <code>https://keycloak.yoursite.com/realms/{realm}</code> (replace <code>{realm}</code> with the chosen realm name). This URL is as of v26.3 and may differ across Keycloak versions.</li>
 <li><strong>Provider name</strong>: Set a name to show on the listmonk login form, eg: <code>Login with OrgName</code></li>
 <li><strong>Client ID</strong>: Client ID set in Keycloak, eg: <code>listmonk</code></li>
 <li><strong>Client Secret</strong>: Client Secret copied from Keycloak</li>
