@@ -37,7 +37,7 @@ After the client creation steps above, go to the client's `Credentials` tab and 
 ### 2. Configure Listmonk
 2. In Listmonk Admin -> Settings -> Security -> OIDC.
     - **Enable OIDC SSO**: Turn on
-    - **Provider URL**: `https://keycloak.yoursite.com/auth/realms/{realm}` (replace `{realm}` with the chosen realm name)
+    - **Provider URL**: `https://keycloak.yoursite.com/realms/{realm}` (replace `{realm}` with the chosen realm name). This URL is as of v26.3 and may differ across Keycloak versions.
     - **Provider name**: Set a name to show on the listmonk login form, eg: `Login with OrgName`
     - **Client ID**: Client ID set in Keycloak, eg: `listmonk`
     - **Client Secret**: Client Secret copied from Keycloak
