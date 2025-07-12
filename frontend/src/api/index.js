@@ -532,3 +532,43 @@ export const deleteRole = (id) => http.delete(
   `/api/roles/${id}`,
   { loading: models.userRoles },
 );
+
+// SQL Snippets.
+export const getSQLSnippets = (params) => http.get(
+  '/api/sql-snippets',
+  { params, loading: models.sqlSnippets },
+);
+
+export const getSQLSnippet = (id) => http.get(
+  `/api/sql-snippets/${id}`,
+  { loading: models.sqlSnippets },
+);
+
+export const createSQLSnippet = (data) => http.post(
+  '/api/sql-snippets',
+  data,
+  { loading: models.sqlSnippets },
+);
+
+export const updateSQLSnippet = (id, data) => http.put(
+  `/api/sql-snippets/${id}`,
+  data,
+  { loading: models.sqlSnippets },
+);
+
+export const deleteSQLSnippet = (id) => http.delete(
+  `/api/sql-snippets/${id}`,
+  { loading: models.sqlSnippets },
+);
+
+export const validateSQLSnippet = (data) => http.post(
+  '/api/sql-snippets/validate',
+  data,
+  { loading: models.sqlSnippets },
+);
+
+export const countSQLSnippet = (data) => http.post(
+  '/api/sql-snippets/count',
+  data,
+  { loading: models.sqlSnippets },
+);
