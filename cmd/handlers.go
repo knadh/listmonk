@@ -98,6 +98,7 @@ func initHTTPHandlers(e *echo.Echo, a *App) {
 		g.GET("/api/dashboard/counts", a.GetDashboardCounts)
 
 		g.GET("/api/settings", pm(a.GetSettings, "settings:get"))
+		g.GET("/api/settings/state", pm(a.GetSettingsState, "settings:get"))
 		g.PUT("/api/settings", pm(a.UpdateSettings, "settings:manage"))
 		g.POST("/api/settings/smtp/test", pm(a.TestSMTPSettings, "settings:manage"))
 		g.POST("/api/admin/reload", pm(a.ReloadApp, "settings:manage"))

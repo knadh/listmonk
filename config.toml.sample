@@ -1,24 +1,211 @@
+# listmonk configuration sample
+# Copy this file to config.toml and edit the values.
+# All settings here can be overridden with environment variables.
+# Environment variable format: LISTMONK_section__key (note double underscore)
+# Example: LISTMONK_app__site_name="My Newsletter"
+
 [app]
-# Interface and port where the app will run its webserver.  The default value
+# Interface and port where the app will run its webserver. The default value
 # of localhost will only listen to connections from the current machine. To
 # listen on all interfaces use '0.0.0.0'. To listen on the default web address
 # port, use port 80 (this will require running with elevated permissions).
 address = "localhost:9000"
 
-# Database.
+# Basic application settings
+site_name = "listmonk"
+root_url = "http://localhost:9000"
+logo_url = ""
+favicon_url = ""
+from_email = "noreply@yoursite.com"
+notify_emails = ["admin@yoursite.com"]
+
+# Public pages
+enable_public_subscription_page = true
+enable_public_archive = true
+enable_public_archive_rss_content = true
+send_optin_confirmation = true
+check_updates = true
+lang = "en"
+
+# Performance settings
+batch_size = 1000
+concurrency = 5
+max_send_errors = 1999
+message_rate = 5
+cache_slow_queries = false
+cache_slow_queries_interval = "0 3 * * *"
+
+# Message sliding window (rate limiting)
+message_sliding_window = false
+message_sliding_window_duration = "1h"
+message_sliding_window_rate = 10000
+
+# Database settings
 [db]
 host = "localhost"
 port = 5432
 user = "listmonk"
 password = "listmonk"
-
-# Ensure that this database has been created in Postgres.
 database = "listmonk"
-
 ssl_mode = "disable"
 max_open = 25
 max_idle = 25
 max_lifetime = "300s"
-
-# Optional space separated Postgres DSN params. eg: "application_name=listmonk gssencmode=disable"
+# Optional space separated Postgres DSN params
+# Example: "application_name=listmonk gssencmode=disable"
 params = ""
+
+# Privacy settings
+[privacy]
+individual_tracking = true
+unsubscribe_header = true
+allow_blocklist = true
+allow_preferences = true
+allow_export = true
+allow_wipe = true
+record_optin_ip = false
+exportable = ["profile", "subscriptions", "campaign_views", "link_clicks"]
+domain_blocklist = []
+domain_allowlist = []
+
+# Security settings
+[security]
+enable_captcha = false
+captcha_key = ""
+captcha_secret = ""
+
+# OIDC (OAuth) authentication
+[security.oidc]
+enabled = false
+provider_url = ""
+provider_name = ""
+client_id = ""
+client_secret = ""
+
+# Media upload settings
+[upload]
+provider = "filesystem"  # filesystem | s3
+extensions = ["jpg", "jpeg", "png", "gif", "svg", "pdf"]
+
+# Filesystem upload settings
+[upload.filesystem]
+upload_path = "uploads"
+upload_uri = "/uploads"
+
+# S3 upload settings
+[upload.s3]
+url = ""
+public_url = ""
+aws_access_key_id = ""
+aws_default_region = ""
+aws_secret_access_key = ""
+bucket = ""
+bucket_domain = ""
+bucket_path = "/"
+bucket_type = "private"  # private | public
+expiry = "14d"
+
+# SMTP servers configuration
+# Multiple SMTP servers can be configured as an array
+[[smtp]]
+name = "main"
+enabled = true
+host = "smtp.yourprovider.com"
+hello_hostname = ""
+port = 587
+auth_protocol = "login"  # login | cram | plain | none
+username = "your_username"
+password = "your_password"
+email_headers = []
+max_conns = 10
+max_msg_retries = 2
+idle_timeout = "15s"
+wait_timeout = "5s"
+tls_type = "STARTTLS"  # none | STARTTLS | TLS
+tls_skip_verify = false
+
+# Example: Additional SMTP server
+# [[smtp]]
+# name = "backup"
+# enabled = false
+# host = "backup-smtp.yourprovider.com"
+# port = 465
+# auth_protocol = "login"
+# username = "backup_username"
+# password = "backup_password"
+# max_conns = 5
+# max_msg_retries = 2
+# idle_timeout = "15s"
+# wait_timeout = "5s"
+# tls_type = "TLS"
+# tls_skip_verify = false
+
+# Messenger (webhook) configuration
+# Multiple messengers can be configured as an array
+[[messengers]]
+enabled = false
+name = "webhook"
+root_url = "https://your-webhook-url.com/listmonk"
+username = ""
+password = ""
+max_conns = 25
+timeout = "5s"
+max_msg_retries = 2
+
+# Bounce handling settings
+[bounce]
+enabled = false
+webhooks_enabled = false
+
+# Amazon SES bounce handling
+ses_enabled = false
+
+# Sendgrid bounce handling
+sendgrid_enabled = false
+sendgrid_key = ""
+
+# Postmark bounce handling
+[bounce.postmark]
+enabled = false
+username = ""
+password = ""
+
+# Forward Email bounce handling
+[bounce.forwardemail]
+enabled = false
+key = ""
+
+# Bounce actions for different bounce types
+[bounce.actions.soft]
+count = 2
+action = "none"  # none | unsubscribe | blocklist | delete
+
+[bounce.actions.hard]
+count = 1
+action = "unsubscribe"
+
+[bounce.actions.complaint]
+count = 1
+action = "blocklist"
+
+# Bounce mailbox configuration (POP3)
+[[bounce.mailboxes]]
+enabled = false
+type = "pop"
+host = "mail.yourprovider.com"
+port = 995
+auth_protocol = "userpass"
+username = "bounce@yoursite.com"
+password = "bounce_password"
+tls_enabled = true
+tls_skip_verify = false
+scan_interval = "15m"
+
+# Appearance customization
+[appearance.admin]
+custom_css = ""
+custom_js = ""
+
+[appearance.public]
+custom_css = ""
+custom_js = ""

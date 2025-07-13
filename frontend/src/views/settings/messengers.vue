@@ -92,6 +92,9 @@ export default Vue.extend({
     form: {
       type: Object, default: () => { },
     },
+    externalSettings: {
+      type: Array, default: () => [],
+    },
   },
 
   data() {
@@ -102,6 +105,10 @@ export default Vue.extend({
   },
 
   methods: {
+    isExternallyManaged(settingKey) {
+      return this.externalSettings.includes(settingKey);
+    },
+
     addMessenger() {
       this.data.messengers.push({
         enabled: true,

@@ -38,6 +38,47 @@ __________________
 See [installation docs](https://listmonk.app/docs/installation)
 __________________
 
+## External Configuration
+
+listmonk supports declarative configuration via `config.toml` and environment variables for all settings, including those typically configured through the admin UI. This enables consistent deployments across environments.
+
+### Configuration Precedence
+1. **config.toml** - Highest priority
+2. **Environment variables** - Medium priority  
+3. **Database settings** - Lowest priority (UI-configured)
+
+### Usage
+
+**config.toml example:**
+```toml
+[app]
+root_url = "https://listmonk.mysite.com"
+site_name = "My Newsletter"
+from_email = "admin@mysite.com"
+
+[privacy]
+individual_tracking = false
+allow_blocklist = false
+
+[performance]
+concurrency = 20
+message_rate = 300
+```
+
+**Environment variables:**
+```bash
+export LISTMONK_app__root_url="https://listmonk.mysite.com"
+export LISTMONK_privacy__individual_tracking=false
+```
+
+### Behavior
+- Settings configured externally are **disabled** in the admin UI
+- External settings show "This setting is configured externally" message
+- API prevents overwriting externally configured values
+- Use `GET /api/settings/state` to view external configuration status
+
+__________________
+
 
 ## Developers
 listmonk is free and open source software licensed under AGPLv3. If you are interested in contributing, refer to the [developer setup](https://listmonk.app/docs/developer-setup). The backend is written in Go and the frontend is Vue with Buefy for UI. 

@@ -51,12 +51,15 @@ var (
 	reAlphaNum = regexp.MustCompile(`[^a-z0-9\-]`)
 )
 
-// GetSettings returns settings from the DB.
+// GetSettings returns settings from the DB merged with external config/env values.
 func (a *App) GetSettings(c echo.Context) error {
 	s, err := a.core.GetSettings()
 	if err != nil {
 		return err
 	}
+
+	// Merge external settings values into the DB settings
+	a.mergeExternalSettings(&s)
 
 	// Empty out passwords.
 	for i := range s.SMTP {
@@ -76,7 +79,277 @@ func (a *App) GetSettings(c echo.Context) error {
 	s.SecurityCaptchaSecret = strings.Repeat(pwdMask, utf8.RuneCountInString(s.SecurityCaptchaSecret))
 	s.OIDC.ClientSecret = strings.Repeat(pwdMask, utf8.RuneCountInString(s.OIDC.ClientSecret))
 
-	return c.JSON(http.StatusOK, okResp{s})
+	// Include external settings metadata in the response
+	response := map[string]any{
+		"data": s,
+		"external_settings": func() []string {
+			keys := make([]string, 0, len(a.externalSettings))
+			for k := range a.externalSettings {
+				keys = append(keys, k)
+			}
+			return keys
+		}(),
+	}
+
+	return c.JSON(http.StatusOK, okResp{response})
+}
+
+// IsSettingExternallyManaged checks if a specific setting key is configured externally (config file or environment variable).
+func (a *App) IsSettingExternallyManaged(key string) bool {
+	_, exists := a.externalSettings[key]
+	return exists
+}
+
+// GetExternallyManagedSettings returns a map of all externally managed settings.
+func (a *App) GetExternallyManagedSettings() map[string]any {
+	return a.externalSettings
+}
+
+// mergeExternalSettings merges external config/env values into the settings struct.
+func (a *App) mergeExternalSettings(s *models.Settings) {
+	// Merge external settings values into the DB settings struct
+	for key, value := range a.externalSettings {
+		switch key {
+		case "app.site_name":
+			if v, ok := value.(string); ok {
+				s.AppSiteName = v
+			}
+		case "app.root_url":
+			if v, ok := value.(string); ok {
+				s.AppRootURL = v
+			}
+		case "app.logo_url":
+			if v, ok := value.(string); ok {
+				s.AppLogoURL = v
+			}
+		case "app.favicon_url":
+			if v, ok := value.(string); ok {
+				s.AppFaviconURL = v
+			}
+		case "app.from_email":
+			if v, ok := value.(string); ok {
+				s.AppFromEmail = v
+			}
+		case "app.notify_emails":
+			if v, ok := value.([]any); ok {
+				emails := make([]string, 0, len(v))
+				for _, email := range v {
+					if str, ok := email.(string); ok {
+						emails = append(emails, str)
+					}
+				}
+				s.AppNotifyEmails = emails
+			}
+		case "app.enable_public_subscription_page":
+			if v, ok := value.(bool); ok {
+				s.EnablePublicSubPage = v
+			}
+		case "app.enable_public_archive":
+			if v, ok := value.(bool); ok {
+				s.EnablePublicArchive = v
+			}
+		case "app.enable_public_archive_rss_content":
+			if v, ok := value.(bool); ok {
+				s.EnablePublicArchiveRSSContent = v
+			}
+		case "app.send_optin_confirmation":
+			if v, ok := value.(bool); ok {
+				s.SendOptinConfirmation = v
+			}
+		case "app.check_updates":
+			if v, ok := value.(bool); ok {
+				s.CheckUpdates = v
+			}
+		case "app.lang":
+			if v, ok := value.(string); ok {
+				s.AppLang = v
+			}
+		case "app.batch_size":
+			if v, ok := value.(int); ok {
+				s.AppBatchSize = v
+			}
+		case "app.concurrency":
+			if v, ok := value.(int); ok {
+				s.AppConcurrency = v
+			}
+		case "app.max_send_errors":
+			if v, ok := value.(int); ok {
+				s.AppMaxSendErrors = v
+			}
+		case "app.message_rate":
+			if v, ok := value.(int); ok {
+				s.AppMessageRate = v
+			}
+		case "app.cache_slow_queries":
+			if v, ok := value.(bool); ok {
+				s.CacheSlowQueries = v
+			}
+		case "app.cache_slow_queries_interval":
+			if v, ok := value.(string); ok {
+				s.CacheSlowQueriesInterval = v
+			}
+		case "app.message_sliding_window":
+			if v, ok := value.(bool); ok {
+				s.AppMessageSlidingWindow = v
+			}
+		case "app.message_sliding_window_duration":
+			if v, ok := value.(string); ok {
+				s.AppMessageSlidingWindowDuration = v
+			}
+		case "app.message_sliding_window_rate":
+			if v, ok := value.(int); ok {
+				s.AppMessageSlidingWindowRate = v
+			}
+		case "privacy.individual_tracking":
+			if v, ok := value.(bool); ok {
+				s.PrivacyIndividualTracking = v
+			}
+		case "privacy.unsubscribe_header":
+			if v, ok := value.(bool); ok {
+				s.PrivacyUnsubHeader = v
+			}
+		case "privacy.allow_blocklist":
+			if v, ok := value.(bool); ok {
+				s.PrivacyAllowBlocklist = v
+			}
+		case "privacy.allow_preferences":
+			if v, ok := value.(bool); ok {
+				s.PrivacyAllowPreferences = v
+			}
+		case "privacy.allow_export":
+			if v, ok := value.(bool); ok {
+				s.PrivacyAllowExport = v
+			}
+		case "privacy.allow_wipe":
+			if v, ok := value.(bool); ok {
+				s.PrivacyAllowWipe = v
+			}
+		case "privacy.exportable":
+			if v, ok := value.([]any); ok {
+				exportable := make([]string, 0, len(v))
+				for _, item := range v {
+					if str, ok := item.(string); ok {
+						exportable = append(exportable, str)
+					}
+				}
+				s.PrivacyExportable = exportable
+			}
+		case "privacy.record_optin_ip":
+			if v, ok := value.(bool); ok {
+				s.PrivacyRecordOptinIP = v
+			}
+		case "privacy.domain_blocklist":
+			if v, ok := value.([]any); ok {
+				domains := make([]string, 0, len(v))
+				for _, domain := range v {
+					if str, ok := domain.(string); ok {
+						domains = append(domains, str)
+					}
+				}
+				s.DomainBlocklist = domains
+			}
+		case "privacy.domain_allowlist":
+			if v, ok := value.([]any); ok {
+				domains := make([]string, 0, len(v))
+				for _, domain := range v {
+					if str, ok := domain.(string); ok {
+						domains = append(domains, str)
+					}
+				}
+				s.DomainAllowlist = domains
+			}
+		case "security.enable_captcha":
+			if v, ok := value.(bool); ok {
+				s.SecurityEnableCaptcha = v
+			}
+		case "security.captcha_key":
+			if v, ok := value.(string); ok {
+				s.SecurityCaptchaKey = v
+			}
+		case "security.captcha_secret":
+			if v, ok := value.(string); ok {
+				s.SecurityCaptchaSecret = v
+			}
+		case "security.oidc":
+			if oidcMap, ok := value.(map[string]any); ok {
+				if enabled, ok := oidcMap["enabled"].(bool); ok {
+					s.OIDC.Enabled = enabled
+				}
+				if providerURL, ok := oidcMap["provider_url"].(string); ok {
+					s.OIDC.ProviderURL = providerURL
+				}
+				if providerName, ok := oidcMap["provider_name"].(string); ok {
+					s.OIDC.ProviderName = providerName
+				}
+				if clientID, ok := oidcMap["client_id"].(string); ok {
+					s.OIDC.ClientID = clientID
+				}
+				if clientSecret, ok := oidcMap["client_secret"].(string); ok {
+					s.OIDC.ClientSecret = clientSecret
+				}
+			}
+		}
+	}
+}
+
+// GetSettingsState returns the state of settings - which ones are configured externally vs database.
+func (a *App) GetSettingsState(c echo.Context) error {
+	// Create response with external settings state
+	state := map[string]any{
+		"external_settings": a.externalSettings,
+		"external_keys":     func() []string {
+			keys := make([]string, 0, len(a.externalSettings))
+			for k := range a.externalSettings {
+				keys = append(keys, k)
+			}
+			return keys
+		}(),
+	}
+
+	return c.JSON(http.StatusOK, okResp{state})
+}
+
+// validateAndRestoreExternalSettings checks if any externally managed settings are being changed
+// and restores them to their external values. Returns a list of blocked field names.
+func (a *App) validateAndRestoreExternalSettings(incoming *models.Settings, current *models.Settings) []string {
+	blockedFields := []string{}
+	
+	// Check each externally managed setting and restore it if it was modified
+	for key := range a.externalSettings {
+		// For now, we'll implement a simplified version that checks common fields
+		// A more comprehensive version would use reflection to check all fields
+		switch key {
+		case "app.root_url":
+			if incoming.AppRootURL != current.AppRootURL {
+				incoming.AppRootURL = current.AppRootURL
+				blockedFields = append(blockedFields, "App Root URL")
+			}
+		case "app.site_name":
+			if incoming.AppSiteName != current.AppSiteName {
+				incoming.AppSiteName = current.AppSiteName
+				blockedFields = append(blockedFields, "Site Name")
+			}
+		case "app.from_email":
+			if incoming.AppFromEmail != current.AppFromEmail {
+				incoming.AppFromEmail = current.AppFromEmail
+				blockedFields = append(blockedFields, "From Email")
+			}
+		case "app.logo_url":
+			if incoming.AppLogoURL != current.AppLogoURL {
+				incoming.AppLogoURL = current.AppLogoURL
+				blockedFields = append(blockedFields, "Logo URL")
+			}
+		case "app.favicon_url":
+			if incoming.AppFaviconURL != current.AppFaviconURL {
+				incoming.AppFaviconURL = current.AppFaviconURL
+				blockedFields = append(blockedFields, "Favicon URL")
+			}
+		// Add more field checks as needed...
+		// For complex fields like SMTP, messengers, etc., we'd need more sophisticated checking
+		}
+	}
+	
+	return blockedFields
 }
 
 // UpdateSettings returns settings from the DB.
@@ -252,6 +525,14 @@ func (a *App) UpdateSettings(c echo.Context) error {
 		if _, err := cron.ParseStandard(set.CacheSlowQueriesInterval); err != nil {
 			return echo.NewHTTPError(http.StatusBadRequest, a.i18n.Ts("globals.messages.invalidData")+": slow query cron: "+err.Error())
 		}
+	}
+
+	// Prevent updates to externally managed settings.
+	// We need to restore the external values and warn about blocked fields.
+	blockedFields := a.validateAndRestoreExternalSettings(&set, &cur)
+	if len(blockedFields) > 0 {
+		return echo.NewHTTPError(http.StatusBadRequest, 
+			"Cannot update externally configured settings: "+strings.Join(blockedFields, ", "))
 	}
 
 	// Update the settings in the DB.

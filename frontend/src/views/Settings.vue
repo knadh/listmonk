@@ -23,39 +23,39 @@
       <section class="wrap" v-if="form">
         <b-tabs type="is-boxed" :animated="false" v-model="tab">
           <b-tab-item :label="$t('settings.general.name')" label-position="on-border">
-            <general-settings :form="form" :key="key" />
+            <general-settings :form="form" :external-settings="externalSettings" :key="key" />
           </b-tab-item><!-- general -->
 
           <b-tab-item :label="$t('settings.performance.name')">
-            <performance-settings :form="form" :key="key" />
+            <performance-settings :form="form" :external-settings="externalSettings" :key="key" />
           </b-tab-item><!-- performance -->
 
           <b-tab-item :label="$t('settings.privacy.name')">
-            <privacy-settings :form="form" :key="key" />
+            <privacy-settings :form="form" :external-settings="externalSettings" :key="key" />
           </b-tab-item><!-- privacy -->
 
           <b-tab-item :label="$t('settings.security.name')">
-            <security-settings :form="form" :key="key" />
+            <security-settings :form="form" :external-settings="externalSettings" :key="key" />
           </b-tab-item><!-- security -->
 
           <b-tab-item :label="$t('settings.media.title')">
-            <media-settings :form="form" :key="key" />
+            <media-settings :form="form" :external-settings="externalSettings" :key="key" />
           </b-tab-item><!-- media -->
 
           <b-tab-item :label="$t('settings.smtp.name')">
-            <smtp-settings :form="form" :key="key" />
+            <smtp-settings :form="form" :external-settings="externalSettings" :key="key" />
           </b-tab-item><!-- mail servers -->
 
           <b-tab-item :label="$t('settings.bounces.name')">
-            <bounce-settings :form="form" :key="key" />
+            <bounce-settings :form="form" :external-settings="externalSettings" :key="key" />
           </b-tab-item><!-- bounces -->
 
           <b-tab-item :label="$t('settings.messengers.name')">
-            <messenger-settings :form="form" :key="key" />
+            <messenger-settings :form="form" :external-settings="externalSettings" :key="key" />
           </b-tab-item><!-- messengers -->
 
           <b-tab-item :label="$t('settings.appearance.name')">
-            <appearance-settings :form="form" :key="key" />
+            <appearance-settings :form="form" :external-settings="externalSettings" :key="key" />
           </b-tab-item><!-- appearance -->
         </b-tabs>
       </section>
@@ -102,6 +102,9 @@ export default Vue.extend({
       formCopy: '',
       form: null,
       tab: 0,
+
+      // External settings information for UI state management
+      externalSettings: [],
     };
   },
 
@@ -230,8 +233,16 @@ export default Vue.extend({
       this.$api.getSettings().then((data) => {
         let d = {};
         try {
-          // Create a deep-copy of the settings hierarchy.
-          d = JSON.parse(JSON.stringify(data));
+          // Handle new API response structure with external settings
+          if (data && typeof data === 'object' && 'data' in data && 'external_settings' in data) {
+            // New API response format with external settings metadata
+            d = JSON.parse(JSON.stringify(data.data));
+            this.externalSettings = data.external_settings || [];
+          } else {
+            // Fallback to old format for backward compatibility
+            d = JSON.parse(JSON.stringify(data));
+            this.externalSettings = [];
+          }
         } catch (err) {
           return;
         }
@@ -261,6 +272,10 @@ export default Vue.extend({
 
     hasDummy(pwd) {
       return pwd.includes('•');
+    },
+
+    isExternallyManaged(settingKey) {
+      return this.externalSettings.includes(settingKey);
     },
   },
 

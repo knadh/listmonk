@@ -1,39 +1,41 @@
 <template>
   <div class="items">
-    <b-field :label="$t('settings.general.siteName')" label-position="on-border">
+    <b-field :label="$t('settings.general.siteName')" label-position="on-border"
+      :message="isExternallyManaged('app.site_name') ? 'This setting is configured externally' : ''">
       <b-input v-model="data['app.site_name']" name="app.site_name" :label="$t('settings.general.siteName')"
-        :maxlength="300" required />
+        :maxlength="300" required :disabled="isExternallyManaged('app.site_name')" />
     </b-field>
 
     <b-field :label="$t('settings.general.rootURL')" label-position="on-border"
-      :message="$t('settings.general.rootURLHelp')">
+      :message="isExternallyManaged('app.root_url') ? 'This setting is configured externally' : $t('settings.general.rootURLHelp')">
       <b-input v-model="data['app.root_url']" name="app.root_url" placeholder="https://listmonk.yoursite.com"
-        :maxlength="300" required type="url" pattern="https?://.*" />
+        :maxlength="300" required type="url" pattern="https?://.*" :disabled="isExternallyManaged('app.root_url')" />
     </b-field>
 
     <div class="columns">
       <div class="column is-6">
         <b-field :label="$t('settings.general.logoURL')" label-position="on-border"
-          :message="$t('settings.general.logoURLHelp')">
+          :message="isExternallyManaged('app.logo_url') ? 'This setting is configured externally' : $t('settings.general.logoURLHelp')">
           <b-input v-model="data['app.logo_url']" name="app.logo_url" placeholder="https://listmonk.yoursite.com/logo.png"
-            :maxlength="300" type="url" pattern="https?://.*" />
+            :maxlength="300" type="url" pattern="https?://.*" :disabled="isExternallyManaged('app.logo_url')" />
         </b-field>
       </div>
       <div class="column is-6">
         <b-field :label="$t('settings.general.faviconURL')" label-position="on-border"
-          :message="$t('settings.general.faviconURLHelp')">
+          :message="isExternallyManaged('app.favicon_url') ? 'This setting is configured externally' : $t('settings.general.faviconURLHelp')">
           <b-input v-model="data['app.favicon_url']" name="app.favicon_url"
             placeholder="https://listmonk.yoursite.com/favicon.png" :maxlength="300"
-            type="url" pattern="https?://.*" />
+            type="url" pattern="https?://.*" :disabled="isExternallyManaged('app.favicon_url')" />
         </b-field>
       </div>
     </div>
 
     <hr />
     <b-field :label="$t('settings.general.fromEmail')" label-position="on-border"
-      :message="$t('settings.general.fromEmailHelp')">
+      :message="isExternallyManaged('app.from_email') ? 'This setting is configured externally' : $t('settings.general.fromEmailHelp')">
       <b-input v-model="data['app.from_email']" name="app.from_email"
-        placeholder="Listmonk <noreply@listmonk.yoursite.com>" pattern="((.+?)\s)?<(.+?)@(.+?)>" :maxlength="300" />
+        placeholder="Listmonk <noreply@listmonk.yoursite.com>" pattern="((.+?)\s)?<(.+?)@(.+?)>" :maxlength="300"
+        :disabled="isExternallyManaged('app.from_email')" />
     </b-field>
     <b-field :label="$t('settings.general.adminNotifEmails')" label-position="on-border"
       :message="$t('settings.general.adminNotifEmailsHelp')">
@@ -114,6 +116,9 @@ export default Vue.extend({
     form: {
       type: Object, default: () => { },
     },
+    externalSettings: {
+      type: Array, default: () => [],
+    },
   },
 
   data() {
@@ -124,6 +129,12 @@ export default Vue.extend({
 
   computed: {
     ...mapState(['serverConfig', 'loading']),
+  },
+
+  methods: {
+    isExternallyManaged(settingKey) {
+      return this.externalSettings.includes(settingKey);
+    },
   },
 
 });

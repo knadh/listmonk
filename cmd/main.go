@@ -56,6 +56,9 @@ type App struct {
 	about         about
 	fnOptinNotify func(models.Subscriber, []int) (int, error)
 
+	// External settings state for tracking config/env configured settings
+	externalSettings map[string]any
+
 	// Channel for passing reload signals.
 	chReload chan os.Signal
 
@@ -274,6 +277,14 @@ func main() {
 		fnOptinNotify: fbOptinNotify,
 		about:         initAbout(queries, db),
 		chReload:      chReload,
+
+		// Extract external settings from Koanf instance
+		externalSettings: func() map[string]any {
+			if ext := ko.Get("_external_settings"); ext != nil {
+				return ext.(map[string]any)
+			}
+			return make(map[string]any)
+		}(),
 
 		// If there are no users, then the app needs to prompt for new user setup.
 		needsUserSetup: !hasUsers,

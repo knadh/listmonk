@@ -366,6 +366,78 @@ func prepareQueries(qMap goyesql.Queries, db *sqlx.DB, ko *koanf.Koanf) *models.
 	return &q
 }
 
+// getAllSettingsKeys returns all possible settings keys from the models.Settings struct.
+// This is used to identify which settings can be configured externally.
+func getAllSettingsKeys() []string {
+	// These are all the JSON tag keys from models.Settings struct
+	return []string{
+		"app.site_name",
+		"app.root_url",
+		"app.logo_url",
+		"app.favicon_url",
+		"app.from_email",
+		"app.notify_emails",
+		"app.enable_public_subscription_page",
+		"app.enable_public_archive",
+		"app.enable_public_archive_rss_content",
+		"app.send_optin_confirmation",
+		"app.check_updates",
+		"app.lang",
+		"app.batch_size",
+		"app.concurrency",
+		"app.max_send_errors",
+		"app.message_rate",
+		"app.cache_slow_queries",
+		"app.cache_slow_queries_interval",
+		"app.message_sliding_window",
+		"app.message_sliding_window_duration",
+		"app.message_sliding_window_rate",
+		"privacy.individual_tracking",
+		"privacy.unsubscribe_header",
+		"privacy.allow_blocklist",
+		"privacy.allow_preferences",
+		"privacy.allow_export",
+		"privacy.allow_wipe",
+		"privacy.exportable",
+		"privacy.record_optin_ip",
+		"privacy.domain_blocklist",
+		"privacy.domain_allowlist",
+		"security.enable_captcha",
+		"security.captcha_key",
+		"security.captcha_secret",
+		"security.oidc",
+		"upload.provider",
+		"upload.extensions",
+		"upload.filesystem.upload_path",
+		"upload.filesystem.upload_uri",
+		"upload.s3.url",
+		"upload.s3.public_url",
+		"upload.s3.aws_access_key_id",
+		"upload.s3.aws_default_region",
+		"upload.s3.aws_secret_access_key",
+		"upload.s3.bucket",
+		"upload.s3.bucket_domain",
+		"upload.s3.bucket_path",
+		"upload.s3.bucket_type",
+		"upload.s3.expiry",
+		"smtp",
+		"messengers",
+		"bounce.enabled",
+		"bounce.webhooks_enabled",
+		"bounce.actions",
+		"bounce.ses_enabled",
+		"bounce.sendgrid_enabled",
+		"bounce.sendgrid_key",
+		"bounce.postmark",
+		"bounce.forwardemail",
+		"bounce.mailboxes",
+		"appearance.admin.custom_css",
+		"appearance.admin.custom_js",
+		"appearance.public.custom_css",
+		"appearance.public.custom_js",
+	}
+}
+
 // initSettings loads settings from the DB into the given Koanf map.
 func initSettings(query string, db *sqlx.DB, ko *koanf.Koanf) {
 	var s types.JSONText
@@ -382,11 +454,36 @@ func initSettings(query string, db *sqlx.DB, ko *koanf.Koanf) {
 
 	// Setting keys are dot separated, eg: app.favicon_url. Unflatten them into
 	// nested maps {app: {favicon_url}}.
-	var out map[string]any
-	if err := json.Unmarshal(s, &out); err != nil {
+	var dbSettings map[string]any
+	if err := json.Unmarshal(s, &dbSettings); err != nil {
 		lo.Fatalf("error unmarshalling settings from DB: %v", err)
 	}
-	if err := ko.Load(confmap.Provider(out, "."), nil); err != nil {
+
+	// Capture which settings are already loaded from config/env before merging DB settings.
+	// This is used later to track setting sources and prevent UI overwrites.
+	externalSettings := make(map[string]any)
+	
+	// Check all possible settings keys from the models.Settings struct
+	settingsKeys := getAllSettingsKeys()
+	for _, key := range settingsKeys {
+		if ko.Exists(key) {
+			externalSettings[key] = ko.Get(key)
+		}
+	}
+	
+	// Store external settings metadata in a special key for later retrieval
+	ko.Set("_external_settings", externalSettings)
+
+	// Merge database settings with config/env settings.
+	// Only load DB settings for keys that aren't already set from config/env.
+	filteredDbSettings := make(map[string]any)
+	for key, value := range dbSettings {
+		if !ko.Exists(key) {
+			filteredDbSettings[key] = value
+		}
+	}
+	
+	if err := ko.Load(confmap.Provider(filteredDbSettings, "."), nil); err != nil {
 		lo.Fatalf("error parsing settings from DB: %v", err)
 	}
 }

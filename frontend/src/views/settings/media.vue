@@ -2,8 +2,9 @@
   <div class="items">
     <div class="columns">
       <div class="column">
-        <b-field :label="$t('settings.media.provider')" label-position="on-border">
-          <b-select v-model="data['upload.provider']" name="upload.provider">
+        <b-field :label="$t('settings.media.provider')" label-position="on-border"
+          :message="isExternallyManaged('upload.provider') ? 'This setting is configured externally' : ''">
+          <b-select v-model="data['upload.provider']" name="upload.provider" :disabled="isExternallyManaged('upload.provider')">
             <option value="filesystem">
               filesystem
             </option>
@@ -14,9 +15,10 @@
         </b-field>
       </div>
       <div class="column is-10">
-        <b-field :label="$t('settings.media.upload.extensions')" label-position="on-border" expanded>
+        <b-field :label="$t('settings.media.upload.extensions')" label-position="on-border" expanded
+          :message="isExternallyManaged('upload.extensions') ? 'This setting is configured externally' : ''">
           <b-taginput v-model="data['upload.extensions']" name="tags" ellipsis icon="tag-outline"
-            placeholder="jpg, png, gif .." />
+            placeholder="jpg, png, gif .." :disabled="isExternallyManaged('upload.extensions')" />
         </b-field>
       </div>
     </div>
@@ -24,36 +26,38 @@
 
     <div class="block" v-if="data['upload.provider'] === 'filesystem'">
       <b-field :label="$t('settings.media.upload.path')" label-position="on-border"
-        :message="$t('settings.media.upload.pathHelp')">
+        :message="isExternallyManaged('upload.filesystem.upload_path') ? 'This setting is configured externally' : $t('settings.media.upload.pathHelp')">
         <b-input v-model="data['upload.filesystem.upload_path']" name="app.upload_path"
-          placeholder="/home/listmonk/uploads" :maxlength="200" required />
+          placeholder="/home/listmonk/uploads" :maxlength="200" required :disabled="isExternallyManaged('upload.filesystem.upload_path')" />
       </b-field>
 
       <b-field :label="$t('settings.media.upload.uri')" label-position="on-border"
-        :message="$t('settings.media.upload.uriHelp')">
+        :message="isExternallyManaged('upload.filesystem.upload_uri') ? 'This setting is configured externally' : $t('settings.media.upload.uriHelp')">
         <b-input v-model="data['upload.filesystem.upload_uri']" name="app.upload_uri" placeholder="/uploads"
-          :maxlength="200" required pattern="^\/(.+?)" />
+          :maxlength="200" required pattern="^\/(.+?)" :disabled="isExternallyManaged('upload.filesystem.upload_uri')" />
       </b-field>
     </div><!-- filesystem -->
 
     <div class="block" v-if="data['upload.provider'] === 's3'">
       <div class="columns">
         <div class="column is-3">
-          <b-field :label="$t('settings.media.s3.region')" label-position="on-border" expanded>
+          <b-field :label="$t('settings.media.s3.region')" label-position="on-border" expanded
+            :message="isExternallyManaged('upload.s3.aws_default_region') ? 'This setting is configured externally' : ''">
             <b-input v-model="data['upload.s3.aws_default_region']" @input="onS3URLChange"
-              name="upload.s3.aws_default_region" :maxlength="200" placeholder="ap-south-1" />
+              name="upload.s3.aws_default_region" :maxlength="200" placeholder="ap-south-1" :disabled="isExternallyManaged('upload.s3.aws_default_region')" />
           </b-field>
         </div>
         <div class="column">
           <b-field grouped>
-            <b-field :label="$t('settings.media.s3.key')" label-position="on-border" expanded>
+            <b-field :label="$t('settings.media.s3.key')" label-position="on-border" expanded
+              :message="isExternallyManaged('upload.s3.aws_access_key_id') ? 'This setting is configured externally' : ''">
               <b-input v-model="data['upload.s3.aws_access_key_id']" name="upload.s3.aws_access_key_id"
-                :maxlength="200" />
+                :maxlength="200" :disabled="isExternallyManaged('upload.s3.aws_access_key_id')" />
             </b-field>
             <b-field :label="$t('settings.media.s3.secret')" label-position="on-border" expanded
-              message="Enter a value to change.">
+              :message="isExternallyManaged('upload.s3.aws_secret_access_key') ? 'This setting is configured externally' : 'Enter a value to change.'">
               <b-input v-model="data['upload.s3.aws_secret_access_key']" name="upload.s3.aws_secret_access_key"
-                type="password" :maxlength="200" />
+                type="password" :maxlength="200" :disabled="isExternallyManaged('upload.s3.aws_secret_access_key')" />
             </b-field>
           </b-field>
         </div>
@@ -121,6 +125,9 @@ export default Vue.extend({
     form: {
       type: Object, default: () => { },
     },
+    externalSettings: {
+      type: Array, default: () => [],
+    },
   },
 
   data() {
@@ -132,6 +139,10 @@ export default Vue.extend({
   },
 
   methods: {
+    isExternallyManaged(settingKey) {
+      return this.externalSettings.includes(settingKey);
+    },
+
     onS3URLChange() {
       // If a custom non-AWS URL has been entered, don't update it automatically.
       if (this.data['upload.s3.url'] !== '' && !this.data['upload.s3.url'].match(/amazonaws\.com/)) {

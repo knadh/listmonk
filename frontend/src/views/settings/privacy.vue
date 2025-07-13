@@ -1,32 +1,38 @@
 <template>
   <div class="items">
     <b-field :label="$t('settings.privacy.individualSubTracking')"
-      :message="$t('settings.privacy.individualSubTrackingHelp')">
-      <b-switch v-model="data['privacy.individual_tracking']" name="privacy.individual_tracking" />
+      :message="isExternallyManaged('privacy.individual_tracking') ? 'This setting is configured externally' : $t('settings.privacy.individualSubTrackingHelp')">
+      <b-switch v-model="data['privacy.individual_tracking']" name="privacy.individual_tracking" :disabled="isExternallyManaged('privacy.individual_tracking')" />
     </b-field>
 
-    <b-field :label="$t('settings.privacy.listUnsubHeader')" :message="$t('settings.privacy.listUnsubHeaderHelp')">
-      <b-switch v-model="data['privacy.unsubscribe_header']" name="privacy.unsubscribe_header" />
+    <b-field :label="$t('settings.privacy.listUnsubHeader')"
+      :message="isExternallyManaged('privacy.unsubscribe_header') ? 'This setting is configured externally' : $t('settings.privacy.listUnsubHeaderHelp')">
+      <b-switch v-model="data['privacy.unsubscribe_header']" name="privacy.unsubscribe_header" :disabled="isExternallyManaged('privacy.unsubscribe_header')" />
     </b-field>
 
-    <b-field :label="$t('settings.privacy.allowBlocklist')" :message="$t('settings.privacy.allowBlocklistHelp')">
-      <b-switch v-model="data['privacy.allow_blocklist']" name="privacy.allow_blocklist" />
+    <b-field :label="$t('settings.privacy.allowBlocklist')"
+      :message="isExternallyManaged('privacy.allow_blocklist') ? 'This setting is configured externally' : $t('settings.privacy.allowBlocklistHelp')">
+      <b-switch v-model="data['privacy.allow_blocklist']" name="privacy.allow_blocklist" :disabled="isExternallyManaged('privacy.allow_blocklist')" />
     </b-field>
 
-    <b-field :label="$t('settings.privacy.allowPrefs')" :message="$t('settings.privacy.allowPrefsHelp')">
-      <b-switch v-model="data['privacy.allow_preferences']" name="privacy.allow_blocklist" />
+    <b-field :label="$t('settings.privacy.allowPrefs')"
+      :message="isExternallyManaged('privacy.allow_preferences') ? 'This setting is configured externally' : $t('settings.privacy.allowPrefsHelp')">
+      <b-switch v-model="data['privacy.allow_preferences']" name="privacy.allow_preferences" :disabled="isExternallyManaged('privacy.allow_preferences')" />
     </b-field>
 
-    <b-field :label="$t('settings.privacy.allowExport')" :message="$t('settings.privacy.allowExportHelp')">
-      <b-switch v-model="data['privacy.allow_export']" name="privacy.allow_export" />
+    <b-field :label="$t('settings.privacy.allowExport')"
+      :message="isExternallyManaged('privacy.allow_export') ? 'This setting is configured externally' : $t('settings.privacy.allowExportHelp')">
+      <b-switch v-model="data['privacy.allow_export']" name="privacy.allow_export" :disabled="isExternallyManaged('privacy.allow_export')" />
     </b-field>
 
-    <b-field :label="$t('settings.privacy.allowWipe')" :message="$t('settings.privacy.allowWipeHelp')">
-      <b-switch v-model="data['privacy.allow_wipe']" name="privacy.allow_wipe" />
+    <b-field :label="$t('settings.privacy.allowWipe')"
+      :message="isExternallyManaged('privacy.allow_wipe') ? 'This setting is configured externally' : $t('settings.privacy.allowWipeHelp')">
+      <b-switch v-model="data['privacy.allow_wipe']" name="privacy.allow_wipe" :disabled="isExternallyManaged('privacy.allow_wipe')" />
     </b-field>
 
-    <b-field :label="$t('settings.privacy.recordOptinIP')" :message="$t('settings.privacy.recordOptinIPHelp')">
-      <b-switch v-model="data['privacy.record_optin_ip']" name="privacy.record_optin_ip" />
+    <b-field :label="$t('settings.privacy.recordOptinIP')"
+      :message="isExternallyManaged('privacy.record_optin_ip') ? 'This setting is configured externally' : $t('settings.privacy.recordOptinIPHelp')">
+      <b-switch v-model="data['privacy.record_optin_ip']" name="privacy.record_optin_ip" :disabled="isExternallyManaged('privacy.record_optin_ip')" />
     </b-field>
 
     <hr />
@@ -54,6 +60,9 @@ export default Vue.extend({
     form: {
       type: Object, default: () => { },
     },
+    externalSettings: {
+      type: Array, default: () => [],
+    },
   },
 
   data() {
@@ -64,6 +73,10 @@ export default Vue.extend({
   },
 
   methods: {
+    isExternallyManaged(settingKey) {
+      return this.externalSettings.includes(settingKey);
+    },
+
     countItems(str) {
       return str.split('\n').filter((line) => line.trim()).length;
     },

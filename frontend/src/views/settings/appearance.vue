@@ -6,13 +6,16 @@
           {{ $t('settings.appearance.adminHelp') }}
         </div>
 
-        <b-field :label="$t('settings.appearance.customCSS')" label-position="on-border">
-          <code-editor lang="css" v-model="data['appearance.admin.custom_css']" name="body" key="editor-admin-css" />
+        <b-field :label="$t('settings.appearance.customCSS')" label-position="on-border"
+          :message="isExternallyManaged('appearance.admin.custom_css') ? 'This setting is configured externally' : ''">
+          <code-editor lang="css" v-model="data['appearance.admin.custom_css']" name="body" key="editor-admin-css"
+            :readonly="isExternallyManaged('appearance.admin.custom_css')" />
         </b-field>
 
-        <b-field :label="$t('settings.appearance.customJS')" label-position="on-border">
+        <b-field :label="$t('settings.appearance.customJS')" label-position="on-border"
+          :message="isExternallyManaged('appearance.admin.custom_js') ? 'This setting is configured externally' : ''">
           <code-editor lang="javascript" v-model="data['appearance.admin.custom_js']" name="body"
-            key="editor-admin-js" />
+            key="editor-admin-js" :readonly="isExternallyManaged('appearance.admin.custom_js')" />
         </b-field>
       </b-tab-item><!-- admin -->
 
@@ -21,13 +24,16 @@
           {{ $t('settings.appearance.publicHelp') }}
         </div>
 
-        <b-field :label="$t('settings.appearance.customCSS')" label-position="on-border">
-          <code-editor lang="css" v-model="data['appearance.public.custom_css']" name="body" key="editor-public-css" />
+        <b-field :label="$t('settings.appearance.customCSS')" label-position="on-border"
+          :message="isExternallyManaged('appearance.public.custom_css') ? 'This setting is configured externally' : ''">
+          <code-editor lang="css" v-model="data['appearance.public.custom_css']" name="body" key="editor-public-css"
+            :readonly="isExternallyManaged('appearance.public.custom_css')" />
         </b-field>
 
-        <b-field :label="$t('settings.appearance.customJS')" label-position="on-border">
+        <b-field :label="$t('settings.appearance.customJS')" label-position="on-border"
+          :message="isExternallyManaged('appearance.public.custom_js') ? 'This setting is configured externally' : ''">
           <code-editor lang="javascript" v-model="data['appearance.public.custom_js']" name="body"
-            key="editor-public-js" />
+            key="editor-public-js" :readonly="isExternallyManaged('appearance.public.custom_js')" />
         </b-field>
       </b-tab-item><!-- public -->
     </b-tabs>
@@ -48,6 +54,9 @@ export default Vue.extend({
     form: {
       type: Object, default: () => { },
     },
+    externalSettings: {
+      type: Array, default: () => [],
+    },
   },
 
   data() {
@@ -55,6 +64,12 @@ export default Vue.extend({
       data: this.form,
       tab: 0,
     };
+  },
+
+  methods: {
+    isExternallyManaged(settingKey) {
+      return this.externalSettings.includes(settingKey);
+    },
   },
 
   mounted() {
