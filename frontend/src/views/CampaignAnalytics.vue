@@ -39,14 +39,23 @@
       </div><!-- columns -->
     </form>
 
-    <p class="is-size-7 mt-2 has-text-grey-light">
-      <template v-if="settings['privacy.individual_tracking']">
-        {{ $t('analytics.isUnique') }}
-      </template>
-      <template v-else>
-        {{ $t('analytics.nonUnique') }}
-      </template>
-    </p>
+    <div class="level">
+      <div class="level-left">
+        <p class="is-size-7 mt-2 has-text-grey-light">
+          <template v-if="settings['privacy.individual_tracking']">
+            {{ $t('analytics.isUnique') }}
+          </template>
+          <template v-else>
+            {{ $t('analytics.nonUnique') }}
+          </template>
+        </p>
+      </div>
+      <div class="level-right">
+        <b-button type="is-primary" icon-left="download" @click="exportResults" size="is-small">
+          {{ $t('analytics.export') }}
+        </b-button>
+      </div>
+    </div>
 
     <section class="charts mt-5">
       <div class="chart" v-for="(v, k) in charts" :key="k">
@@ -287,6 +296,11 @@ export default Vue.extend({
       if (bars.length > 0) {
         window.open(this.urls[bars[0].index], '_blank', 'noopener noreferrer');
       }
+    },
+
+    exportResults() {
+      // Open the CSV export URL in a new window
+      window.open('/api/campaigns/results/csv', '_blank');
     },
   },
 

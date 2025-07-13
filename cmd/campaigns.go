@@ -567,6 +567,11 @@ func (a *App) GetCampaignViewAnalytics(c echo.Context) error {
 	return c.JSON(http.StatusOK, okResp{out})
 }
 
+// ExportCampaignResultsCSV returns campaign results as a CSV file.
+func (a *App) ExportCampaignResultsCSV(c echo.Context) error {
+	return a.core.ExportCampaignResultsCSV(c.Response())
+}
+
 // sendTestMessage takes a campaign and a subscriber and sends out a sample campaign message.
 func (a *App) sendTestMessage(sub models.Subscriber, camp *models.Campaign) error {
 	if err := camp.CompileTemplate(a.manager.TemplateFuncs(camp)); err != nil {

@@ -371,6 +371,16 @@ type Attachment struct {
 	Content []byte
 }
 
+type CampaignResult struct {
+	CampaignName string `db:"campaign_name" json:"campaign_name"`
+	CampaignID   int    `db:"campaign_id" json:"campaign_id"`
+	Email        string `db:"email" json:"email"`
+	LinkID       int    `db:"link_id" json:"link_id"`
+	LinkURL      string `db:"link_url" json:"link_url"`
+	Count        int    `db:"count" json:"count"`
+}
+
+
 // TxMessage represents an e-mail campaign.
 type TxMessage struct {
 	SubscriberEmails []string `json:"subscriber_emails"`

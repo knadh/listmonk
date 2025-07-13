@@ -129,6 +129,9 @@ type Queries struct {
 	DeleteRole            *sqlx.Stmt `query:"delete-role"`
 	UpsertListPermissions *sqlx.Stmt `query:"upsert-list-permissions"`
 	DeleteListPermission  *sqlx.Stmt `query:"delete-list-permission"`
+
+	// FetchCampaignResults retrieves campaign results from the campaign_results_view.
+	FetchCampaignResults *sqlx.Stmt
 }
 
 // compileSubscriberQueryTpl takes an arbitrary WHERE expressions
