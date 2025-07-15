@@ -28,11 +28,13 @@ type OIDCclaim struct {
 }
 
 type OIDCConfig struct {
-	Enabled      bool   `json:"enabled"`
-	ProviderURL  string `json:"provider_url"`
-	RedirectURL  string `json:"redirect_url"`
-	ClientID     string `json:"client_id"`
-	ClientSecret string `json:"client_secret"`
+	Enabled            bool   `json:"enabled"`
+	ProviderURL        string `json:"provider_url"`
+	RedirectURL        string `json:"redirect_url"`
+	ClientID           string `json:"client_id"`
+	ClientSecret       string `json:"client_secret"`
+	AutoCreateUsers    bool   `json:"auto_create_users"`
+	DefaultUserRoleID  int    `json:"default_user_role_id"`
 }
 
 type BasicAuthConfig struct {

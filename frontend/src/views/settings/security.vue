@@ -41,6 +41,30 @@
             :disabled="!data['security.oidc']['enabled']" :maxlength="200" required />
         </b-field>
 
+        <div class="columns">
+          <div class="column is-6">
+            <b-field :label="$t('settings.security.OIDCAutoCreateUsers')"
+                     :message="$t('settings.security.OIDCAutoCreateUsersHelp')">
+              <b-switch v-model="data['security.oidc']['auto_create_users']"
+                        :disabled="!data['security.oidc']['enabled']"
+                        name="oidc.auto_create_users" />
+            </b-field>
+          </div>
+          <div class="column is-6">
+            <b-field :label="$t('settings.security.OIDCDefaultRole')" label-position="on-border"
+                     :message="$t('settings.security.OIDCDefaultRoleHelp')">
+              <b-select v-model="data['security.oidc']['default_user_role_id']"
+                        :disabled="!data['security.oidc']['enabled'] || !data['security.oidc']['auto_create_users']"
+                        name="oidc.default_user_role_id">
+                <option value="0">{{ $t('settings.security.selectRole') }}</option>
+                <option v-for="role in userRoles" :key="role.id" :value="role.id">
+                  {{ role.name }}
+                </option>
+              </b-select>
+            </b-field>
+          </div>
+        </div>
+
         <b-field :label="$t('settings.security.OIDCRedirectURL')">
           <code><copy-text :text="`${serverConfig.root_url}/auth/oidc`" /></code>
         </b-field>
@@ -97,7 +121,7 @@ export default Vue.extend({
   },
 
   computed: {
-    ...mapState(['serverConfig']),
+    ...mapState(['serverConfig', 'userRoles']),
 
     version() {
       return import.meta.env.VUE_APP_VERSION;
@@ -116,7 +140,9 @@ export default Vue.extend({
       }
     },
   },
-
+  mounted() {
+    this.$api.getUserRoles();
+  },
   methods: {
     setProvider(provider) {
       this.$set(this.data['security.oidc'], 'provider_url', OIDC_PROVIDERS[provider]);

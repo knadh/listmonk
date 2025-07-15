@@ -226,6 +226,17 @@ func (a *App) UpdateSettings(c echo.Context) error {
 		set.OIDC.ClientSecret = cur.OIDC.ClientSecret
 	}
 
+	// Validate OIDC auto-create users configuration.
+	if set.OIDC.AutoCreateUsers && set.OIDC.DefaultUserRoleID > 0 {
+		if _, err := a.core.GetRole(set.OIDC.DefaultUserRoleID); err != nil {
+			return echo.NewHTTPError(http.StatusBadRequest, 
+				a.i18n.Ts("globals.messages.invalidFields", "name", "default_user_role_id"))
+		}
+	} else if set.OIDC.AutoCreateUsers && set.OIDC.DefaultUserRoleID == 0 {
+		return echo.NewHTTPError(http.StatusBadRequest, 
+			a.i18n.Ts("globals.messages.missingFields", "name", "default_user_role_id"))
+	}
+
 	for n, v := range set.UploadExtensions {
 		set.UploadExtensions[n] = strings.ToLower(strings.TrimPrefix(strings.TrimSpace(v), "."))
 	}

@@ -162,7 +162,31 @@ func (a *App) OIDCFinish(c echo.Context) error {
 	// Get the user by e-mail received from OIDC.
 	user, err := a.core.GetUser(0, "", email)
 	if err != nil {
-		return a.renderLoginPage(c, err)
+		// Check if this is a "user not found" error and auto-create is enabled
+		if httpErr, ok := err.(*echo.HTTPError); ok && httpErr.Code == http.StatusNotFound {
+			if a.cfg.Security.OIDC.AutoCreateUsers && a.cfg.Security.OIDC.DefaultUserRoleID > 0 {
+				// Create a new user with the email from OIDC claims
+				newUser := auth.User{
+					Type:          auth.UserTypeUser,
+					HasPassword:   false,
+					PasswordLogin: false,
+					Username:      email,        // Use email as username
+					Name:          claims.Email, // Use email as display name initially
+					Email:         null.NewString(email, true),
+					UserRoleID:    a.cfg.Security.OIDC.DefaultUserRoleID,
+					Status:        auth.UserStatusEnabled,
+				}
+
+				user, err = a.core.CreateUser(newUser)
+				if err != nil {
+					return a.renderLoginPage(c, err)
+				}
+			} else {
+				return a.renderLoginPage(c, err)
+			}
+		} else {
+			return a.renderLoginPage(c, err)
+		}
 	}
 
 	// Update the user login state (avatar, logged in date) in the DB.
