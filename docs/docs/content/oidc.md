@@ -3,8 +3,16 @@
 
 Listmonk supports single sign-on with OIDC (OpenID Connect). Any standards compliant OIDC provider can be configured in Settings -> Security -> OIDC
 
-!!! note "Automatic user creation"
-    There is no support for automatic user creation via OIDC currently. The Super Admin must create users prior in Admin -> Users with the same e-mail address that is expected from the OIDC provider per user.
+## Automatic User Creation
+
+Listmonk supports automatic user creation for OIDC SSO. When enabled, users who successfully authenticate via OIDC but don't exist in listmonk will be automatically created with a specified default role.
+
+### Configuration
+- **Auto-create users from SSO**: Enable/disable automatic user creation
+- **Default user role**: Select the role to assign to automatically created users
+
+!!! note "User Management"
+    Auto-created users will use their email address as both username and display name. They will not have password login enabled and can only access listmonk via OIDC SSO.
 
 
 # Tutorials
@@ -41,6 +49,8 @@ After the client creation steps above, go to the client's `Credentials` tab and 
     - **Provider name**: Set a name to show on the listmonk login form, eg: `Login with OrgName`
     - **Client ID**: Client ID set in Keycloak, eg: `listmonk`
     - **Client Secret**: Client Secret copied from Keycloak
+    - **Auto-create users from SSO**: (Optional) Enable to automatically create users who don't exist
+    - **Default user role**: (Required if auto-create enabled) Select role for new users
 
 
 
@@ -75,3 +85,5 @@ In listmonk Admin → Settings → Security → OIDC:
 - **Provider Name**: Set a name to show on the login form (e.g., `Login with OrgName`)
 - **Client ID**: Client ID set in Authentik (e.g., `listmonk`)
 - **Client Secret**: Client Secret copied from Authentik
+- **Auto-create users from SSO**: (Optional) Enable to automatically create users who don't exist
+- **Default user role**: (Required if auto-create enabled) Select role for new users
