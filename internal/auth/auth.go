@@ -21,10 +21,12 @@ import (
 )
 
 type OIDCclaim struct {
-	Email         string `json:"email"`
-	EmailVerified bool   `json:"email_verified"`
-	Sub           string `json:"sub"`
-	Picture       string `json:"picture"`
+	Email             string `json:"email"`
+	EmailVerified     bool   `json:"email_verified"`
+	Sub               string `json:"sub"`
+	Picture           string `json:"picture"`
+	Name              string `json:"name"`
+	PreferredUsername string `json:"preferred_username"`
 }
 
 type OIDCConfig struct {

@@ -166,12 +166,21 @@ func (a *App) OIDCFinish(c echo.Context) error {
 		if httpErr, ok := err.(*echo.HTTPError); ok && httpErr.Code == http.StatusNotFound {
 			if a.cfg.Security.OIDC.AutoCreateUsers && a.cfg.Security.OIDC.DefaultUserRoleID > 0 {
 				// Create a new user with the email from OIDC claims
+				// Use the best available display name from OIDC claims
+				displayName := claims.Name
+				if displayName == "" {
+					displayName = claims.PreferredUsername
+				}
+				if displayName == "" {
+					displayName = claims.Email
+				}
+				
 				newUser := auth.User{
 					Type:          auth.UserTypeUser,
 					HasPassword:   false,
 					PasswordLogin: false,
 					Username:      email,        // Use email as username
-					Name:          claims.Email, // Use email as display name initially
+					Name:          displayName,  // Use best available display name from OIDC
 					Email:         null.NewString(email, true),
 					UserRoleID:    a.cfg.Security.OIDC.DefaultUserRoleID,
 					Status:        auth.UserStatusEnabled,
