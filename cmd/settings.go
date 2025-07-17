@@ -226,6 +226,23 @@ func (a *App) UpdateSettings(c echo.Context) error {
 		set.OIDC.ClientSecret = cur.OIDC.ClientSecret
 	}
 
+	// Validate OIDC auto-create users configuration.
+	if set.OIDC.AutoCreateUsers {
+		if set.OIDC.DefaultUserRoleID < 0 {
+			return echo.NewHTTPError(http.StatusBadRequest, 
+				a.i18n.Ts("globals.messages.invalidFields", "name", a.i18n.T("settings.security.OIDCDefaultRole")))
+		} else if set.OIDC.DefaultUserRoleID > 0 {
+			if _, err := a.core.GetRole(set.OIDC.DefaultUserRoleID); err != nil {
+				return echo.NewHTTPError(http.StatusBadRequest, 
+					a.i18n.Ts("globals.messages.invalidFields", "name", a.i18n.T("settings.security.OIDCDefaultRole")))
+			}
+		} else {
+			// DefaultUserRoleID == 0
+			return echo.NewHTTPError(http.StatusBadRequest, 
+				a.i18n.Ts("globals.messages.missingFields", "name", a.i18n.T("settings.security.OIDCDefaultRole")))
+		}
+	}
+
 	for n, v := range set.UploadExtensions {
 		set.UploadExtensions[n] = strings.ToLower(strings.TrimPrefix(strings.TrimSpace(v), "."))
 	}

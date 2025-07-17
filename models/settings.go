@@ -42,11 +42,13 @@ type Settings struct {
 	SecurityCaptchaSecret string `json:"security.captcha_secret"`
 
 	OIDC struct {
-		Enabled      bool   `json:"enabled"`
-		ProviderURL  string `json:"provider_url"`
-		ProviderName string `json:"provider_name"`
-		ClientID     string `json:"client_id"`
-		ClientSecret string `json:"client_secret"`
+		Enabled            bool   `json:"enabled"`
+		ProviderURL        string `json:"provider_url"`
+		ProviderName       string `json:"provider_name"`
+		ClientID           string `json:"client_id"`
+		ClientSecret       string `json:"client_secret"`
+		AutoCreateUsers    bool   `json:"auto_create_users"`
+		DefaultUserRoleID  int    `json:"default_user_role_id"`
 	} `json:"security.oidc"`
 
 	UploadProvider             string   `json:"upload.provider"`

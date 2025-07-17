@@ -21,18 +21,22 @@ import (
 )
 
 type OIDCclaim struct {
-	Email         string `json:"email"`
-	EmailVerified bool   `json:"email_verified"`
-	Sub           string `json:"sub"`
-	Picture       string `json:"picture"`
+	Email             string `json:"email"`
+	EmailVerified     bool   `json:"email_verified"`
+	Sub               string `json:"sub"`
+	Picture           string `json:"picture"`
+	Name              string `json:"name"`
+	PreferredUsername string `json:"preferred_username"`
 }
 
 type OIDCConfig struct {
-	Enabled      bool   `json:"enabled"`
-	ProviderURL  string `json:"provider_url"`
-	RedirectURL  string `json:"redirect_url"`
-	ClientID     string `json:"client_id"`
-	ClientSecret string `json:"client_secret"`
+	Enabled            bool   `json:"enabled"`
+	ProviderURL        string `json:"provider_url"`
+	RedirectURL        string `json:"redirect_url"`
+	ClientID           string `json:"client_id"`
+	ClientSecret       string `json:"client_secret"`
+	AutoCreateUsers    bool   `json:"auto_create_users"`
+	DefaultUserRoleID  int    `json:"default_user_role_id"`
 }
 
 type BasicAuthConfig struct {
