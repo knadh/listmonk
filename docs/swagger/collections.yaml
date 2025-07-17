@@ -1134,8 +1134,8 @@ paths:
 
   /import/subscribers/logs:
     get:
-      description: returns import statistics
-      operationId: getImportSubscriberStats
+      description: returns import logs from an ongoing import
+      operationId: getImportSubscriberLogs
       tags:
         - Import
       responses:
@@ -1769,6 +1769,28 @@ paths:
                     type: array
                     items:
                       $ref: "#/components/schemas/Template"
+    post:
+      description: handles template creation
+      operationId: createTemplate
+      tags:
+        - Templates
+      requestBody:
+        description: new template info
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NewTemplate"
+      responses:
+        "200":
+          description: response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Template"
 
   "/templates/{id}":
     get:
@@ -1799,7 +1821,35 @@ paths:
                 properties:
                   data:
                     $ref: "#/components/schemas/Template"
-
+    put:
+      description: handles template modification
+      operationId: updateTemplateById
+      tags:
+        - Templates
+      parameters:
+        - in: path
+          name: id
+          required: true
+          description: The id value of the template you want to update.
+          schema:
+            type: integer
+      requestBody:
+        description: updated template info
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateTemplate"
+      responses:
+        "200":
+          description: response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Template"
     delete:
       description: handles deletion of templates
       operationId: deleteTemplateById
@@ -4033,9 +4083,19 @@ components:
           type: string
         filename:
           type: string
+        content_type:
+          type: string
         created_at:
           type: string
         thumb_url:
+          type: string
+        thumb_uri:
+          type: string
+        provider:
+          type: string
+        meta:
+          type: object
+        url:
           type: string
         uri:
           type: string
@@ -4053,10 +4113,58 @@ components:
           type: string
         body:
           type: string
+        body_source:
+          type: string
+        subject:
+          type: string
         type:
           type: string
         is_default:
           type: boolean
+
+    NewTemplate:
+      type: object
+      required:
+        - name
+        - type
+        - body
+      properties:
+        name:
+          type: string
+          description: Name of the template
+        type:
+          type: string
+          enum: [campaign, campaign_visual, tx]
+          description: Type of the template
+        subject:
+          type: string
+          description: Subject line for the template (only for tx)
+        body_source:
+          type: string
+          description: JSON source for the email-builder template (only for campaign_visual)
+        body:
+          type: string
+          description: HTML body of the template
+
+    UpdateTemplate:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Name of the template
+        type:
+          type: string
+          enum: [campaign, campaign_visual, tx]
+          description: Type of the template
+        subject:
+          type: string
+          description: Subject line for the template (only for tx)
+        body_source:
+          type: string
+          description: JSON source for the email-builder template (only for campaign_visual)
+        body:
+          type: string
+          description: HTML body of the template
 
     TransactionalMessage:
       type: object
