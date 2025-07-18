@@ -1,5 +1,3 @@
-version: "3"
-
 services:
   adminer:
     image: adminer:4.8.1-standalone

@@ -8,6 +8,7 @@ import (
 	"github.com/knadh/listmonk/internal/auth"
 	"github.com/knadh/listmonk/models"
 	"github.com/labstack/echo/v4"
+	"github.com/lib/pq"
 )
 
 // GetLists retrieves lists with additional metadata like subscriber counts.
@@ -104,6 +105,16 @@ func (a *App) CreateList(c echo.Context) error {
 	out, err := a.core.CreateList(l)
 	if err != nil {
 		return err
+	}
+
+	if user := auth.GetUser(c); user.ListRoleID != nil {
+		if err := a.core.UpsertListPermissions(*user.ListRoleID, append(user.ListRole.Lists, auth.ListPermission{
+			ID:          out.ID,
+			Name:        out.Name,
+			Permissions: pq.StringArray{auth.PermListManage, auth.PermListGet},
+		})); err != nil {
+			return err
+		}
 	}
 
 	return c.JSON(http.StatusOK, okResp{out})

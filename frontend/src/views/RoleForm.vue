@@ -72,6 +72,12 @@
               </a>
             </b-table-column>
           </b-table>
+
+          <b-table :data="allMessengers" :checked-rows.sync="form.messengers" checkbox-position="right" checkable>
+            <b-table-column v-slot="props" field="name" :label="$t('globals.terms.messengers')">
+              {{ props.row.name }}
+            </b-table-column>
+          </b-table>
         </div>
 
         <template v-if="type === 'user'">
@@ -142,8 +148,10 @@ export default Vue.extend({
         curList: null,
         lists: [],
         name: null,
+        messengers: [],
         permissions: {},
       },
+      allMessengers: [],
       hasToggle: false,
       disabled: false,
     };
@@ -195,6 +203,7 @@ export default Vue.extend({
         form.permissions = this.form.permissions;
       } else {
         fn = this.$api.createListRole;
+        form.messengers = this.form.messengers.map(({ name }) => name);
         form.lists = this.form.lists.reduce((acc, item) => {
           acc.push({ id: item.id, permissions: item.permissions });
           return acc;
@@ -217,6 +226,7 @@ export default Vue.extend({
         form.permissions = this.form.permissions;
       } else {
         fn = this.$api.updateListRole;
+        form.messengers = this.form.messengers.map(({ name }) => name);
         form.lists = this.form.lists.reduce((acc, item) => {
           acc.push({ id: item.id, permissions: item.permissions });
           return acc;
@@ -247,23 +257,34 @@ export default Vue.extend({
   },
 
   mounted() {
+    this.allMessengers.push(...this.serverConfig.messengers);
     if (this.isEditing) {
       this.form = { ...this.form, ...this.$props.data };
+      this.form.messengers = [...this.allMessengers];
+      if (this.$props.data.messengers !== null) {
+        this.form.messengers = this.form.messengers
+          .filter(({ name }) => this.$props.data.messengers.includes(name));
+      }
 
       // It's the superadmin role. Disable the form.
       if (this.$props.data.id === 1 || !this.$can('roles:manage')) {
         this.disabled = true;
       }
     } else {
-      const skip = ['admin', 'users'];
+      const disabledGroups = ['users', 'settings'];
+      const disabledPerms = [
+        'lists:get_all',
+        'lists:manage_all',
+        'subscribers:get_all',
+        'subscribers:sql_query',
+        'campaigns:get_all',
+        'campaigns:manage_all',
+      ];
+      this.form.messengers = [...this.allMessengers];
       this.form.permissions = this.serverConfig.permissions.reduce((acc, item) => {
-        if (skip.includes(item.group)) {
-          return acc;
-        }
+        if (disabledGroups.includes(item.group)) return acc;
         item.permissions.forEach((p) => {
-          if (p !== 'subscribers:sql_query' && !p.startsWith('lists:') && !p.startsWith('settings:')) {
-            acc.push(p);
-          }
+          if (!disabledPerms.includes(p)) acc.push(p);
         });
         return acc;
       }, []);

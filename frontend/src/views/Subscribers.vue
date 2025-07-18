@@ -37,7 +37,7 @@
                 </p>
               </b-field>
 
-              <div v-if="isSearchAdvanced">
+              <div v-if="isSearchAdvanced && $can('subscribers:sql_query')">
                 <b-input v-model="queryParams.queryExp" @keydown.native.enter="onAdvancedQueryEnter" type="textarea"
                   ref="queryExp" placeholder="subscribers.name LIKE '%user%' or subscribers.status='blocklisted'"
                   data-cy="query" />
@@ -60,7 +60,7 @@
               </div><!-- advanced query -->
             </div>
           </form>
-          <div v-if="!isSearchAdvanced" class="toggle-advanced">
+          <div v-if="!isSearchAdvanced && $can('subscribers:sql_query')" class="toggle-advanced">
             <a href="#" @click.prevent="toggleAdvancedSearch" data-cy="btn-advanced-search">
               <b-icon icon="cog-outline" size="is-small" />
               {{ $t('subscribers.advancedQuery') }}
