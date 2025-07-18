@@ -38,9 +38,22 @@
               </b-field>
 
               <div v-if="isSearchAdvanced">
-                <b-input v-model="queryParams.queryExp" @keydown.native.enter="onAdvancedQueryEnter" type="textarea"
-                  ref="queryExp" placeholder="subscribers.name LIKE '%user%' or subscribers.status='blocklisted'"
-                  data-cy="query" />
+                <!-- SQL Editor -->
+                <SQLEditor
+                  v-model="queryParams.queryExp"
+                  @enter="onAdvancedQueryEnter"
+                  @snippet-selected="onSnippetSelected"
+                  placeholder="subscribers.name LIKE '%user%' or subscribers.status='blocklisted'"
+                  ref="sqlEditor"
+                />
+
+                <!-- SQL Counter -->
+                <SQLCounter
+                  :query="queryParams.queryExp"
+                  :live-validation-enabled.sync="liveValidationEnabled"
+                  ref="sqlCounter"
+                />
+
                 <span class="is-size-6 has-text-grey">
                   {{ $t('subscribers.advancedQueryHelp') }}.{{ ' ' }}
                   <a href="https://listmonk.app/docs/querying-and-segmentation" target="_blank"
@@ -52,6 +65,11 @@
                   <b-button native-type="submit" type="is-primary" icon-left="magnify" data-cy="btn-query">
                     {{
                       $t('subscribers.query') }}
+                  </b-button>
+                  <b-button @click.prevent="showSaveSnippetModal" type="is-info" icon-left="code"
+                    :disabled="!queryParams.queryExp || queryParams.queryExp.trim() === ''"
+                    data-cy="btn-save-snippet">
+                    {{ $t('subscribers.saveAsSnippet') }}
                   </b-button>
                   <b-button @click.prevent="toggleAdvancedSearch" icon-left="cancel" data-cy="btn-query-reset">
                     {{ $t('subscribers.reset') }}
@@ -187,6 +205,61 @@
     <b-modal scroll="keep" :aria-modal="true" :active.sync="isFormVisible" :width="850" @close="onFormClose">
       <subscriber-form :data="curItem" :is-editing="isEditing" @finished="querySubscribers" />
     </b-modal>
+
+    <!-- Save SQL Snippet modal -->
+    <b-modal scroll="keep" :aria-modal="true" :active.sync="isSaveSnippetModalVisible" :width="900">
+      <div class="modal-card" style="width: auto">
+        <header class="modal-card-head">
+          <h4 class="modal-card-title">
+            <b-icon icon="code" size="is-small" class="mr-2" />
+            {{ $t('subscribers.saveAsSnippet') }}
+          </h4>
+        </header>
+        <section class="modal-card-body">
+          <div class="columns">
+            <div class="column">
+              <b-field label-position="on-border" :type="saveSnippetForm.name ? '' : 'is-danger'">
+                <template #label>
+                  <b-icon icon="tag-outline" size="is-small" class="mr-1" />
+                  {{ $t('globals.fields.name') }}
+                </template>
+                <b-input v-model="saveSnippetForm.name" :placeholder="$t('globals.fields.name')" required />
+              </b-field>
+            </div>
+          </div>
+
+          <div class="columns">
+            <div class="column">
+              <b-field label-position="on-border">
+                <template #label>
+                  <b-icon icon="text" size="is-small" class="mr-1" />
+                  {{ $t('globals.fields.description') }}
+                </template>
+                <b-input v-model="saveSnippetForm.description" type="textarea" :placeholder="$t('globals.fields.description')" />
+              </b-field>
+            </div>
+          </div>
+
+          <div class="columns">
+            <div class="column">
+              <b-field label-position="on-border">
+                <template #label>
+                  <b-icon icon="code" size="is-small" class="mr-1" />
+                  {{ $t('sqlSnippets.querySQL') }}
+                </template>
+                <b-input v-model="saveSnippetForm.query" type="textarea" readonly />
+              </b-field>
+            </div>
+          </div>
+        </section>
+        <footer class="modal-card-foot has-text-right">
+          <b-button @click="closeSaveSnippetModal">{{ $t('globals.buttons.cancel') }}</b-button>
+          <b-button @click="saveSQLSnippet" type="is-primary" :loading="loading.saveSnippet">
+            {{ $t('globals.buttons.save') }}
+          </b-button>
+        </footer>
+      </div>
+    </b-modal>
   </section>
 </template>
 
@@ -198,6 +271,8 @@ import { uris } from '../constants';
 import SubscriberBulkList from './SubscriberBulkList.vue';
 import SubscriberForm from './SubscriberForm.vue';
 import CopyText from '../components/CopyText.vue';
+import SQLEditor from '../components/SQLEditor.vue';
+import SQLCounter from '../components/SQLCounter.vue';
 
 export default Vue.extend({
   components: {
@@ -205,6 +280,8 @@ export default Vue.extend({
     SubscriberBulkList,
     CopyText,
     EmptyPlaceholder,
+    SQLEditor,
+    SQLCounter,
   },
 
   data() {
@@ -215,6 +292,7 @@ export default Vue.extend({
       isEditing: false,
       isFormVisible: false,
       isBulkListFormVisible: false,
+      isSaveSnippetModalVisible: false,
 
       // Table bulk row selection states.
       bulk: {
@@ -223,6 +301,14 @@ export default Vue.extend({
       },
 
       queryInput: '',
+      liveValidationEnabled: true,
+
+      // Save snippet form
+      saveSnippetForm: {
+        name: '',
+        description: '',
+        query: '',
+      },
 
       // Query params to filter the getSubscribers() API call.
       queryParams: {
@@ -270,9 +356,14 @@ export default Vue.extend({
         }
       }
 
+      // Load SQL snippets when opening advanced search
+      if (this.sqlSnippets.length === 0) {
+        this.loadSQLSnippets();
+      }
+
       // Toggling to advanced search.
       this.$nextTick(() => {
-        this.$refs.queryExp.focus();
+        this.$refs.sqlEditor.focus();
       });
     },
 
@@ -334,6 +425,15 @@ export default Vue.extend({
       if (e.ctrlKey) {
         this.onSubmit();
       }
+    },
+
+    // Handle snippet selection - update counter immediately
+    onSnippetSelected() {
+      this.$nextTick(() => {
+        if (this.$refs.sqlCounter) {
+          this.$refs.sqlCounter.updateImmediately();
+        }
+      });
     },
 
     onSubmit() {
@@ -502,6 +602,45 @@ export default Vue.extend({
         this.$utils.toast(this.$t('subscribers.listChangeApplied'));
       });
     },
+
+    // Show save snippet modal
+    showSaveSnippetModal() {
+      this.saveSnippetForm = {
+        name: '',
+        description: '',
+        query: this.queryParams.queryExp,
+      };
+      this.isSaveSnippetModalVisible = true;
+    },
+
+    // Close save snippet modal
+    closeSaveSnippetModal() {
+      this.isSaveSnippetModalVisible = false;
+    },
+
+    // Save SQL snippet
+    saveSQLSnippet() {
+      if (!this.saveSnippetForm.name || !this.saveSnippetForm.query) {
+        this.$utils.toast(this.$t('globals.messages.formIncomplete'), 'is-warning');
+        return;
+      }
+
+      this.$api.createSQLSnippet({
+        name: this.saveSnippetForm.name,
+        description: this.saveSnippetForm.description,
+        query_sql: this.saveSnippetForm.query,
+        is_active: true,
+      }).then(() => {
+        this.$utils.toast(this.$t('globals.messages.created', { name: this.saveSnippetForm.name }));
+        this.closeSaveSnippetModal();
+        // Refresh SQL snippets in the editor
+        if (this.$refs.sqlEditor) {
+          this.$refs.sqlEditor.refreshSnippets();
+        }
+      }).catch((e) => {
+        this.$utils.toast(e.message, 'is-danger');
+      });
+    },
   },
 
   computed: {
@@ -541,5 +680,6 @@ export default Vue.extend({
       this.querySubscribers();
     }
   },
+
 });
 </script>

@@ -432,3 +432,18 @@ CREATE MATERIALIZED VIEW mat_list_subscriber_stats AS
     UNION ALL
     SELECT NOW() AS updated_at, 0 AS list_id, NULL AS status, COUNT(id) AS subscriber_count FROM subscribers;
 DROP INDEX IF EXISTS mat_list_subscriber_stats_idx; CREATE UNIQUE INDEX mat_list_subscriber_stats_idx ON mat_list_subscriber_stats (list_id, status);
+
+-- SQL snippets for reusable query fragments
+DROP TABLE IF EXISTS sql_snippets CASCADE;
+CREATE TABLE sql_snippets (
+    id SERIAL PRIMARY KEY,
+    name TEXT NOT NULL UNIQUE,
+    description TEXT,
+    query_sql TEXT NOT NULL,
+    is_active BOOLEAN DEFAULT true,
+    created_by INTEGER NULL REFERENCES users(id) ON DELETE SET NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+DROP INDEX IF EXISTS idx_sql_snippets_name; CREATE INDEX idx_sql_snippets_name ON sql_snippets(name);
+DROP INDEX IF EXISTS idx_sql_snippets_is_active; CREATE INDEX idx_sql_snippets_is_active ON sql_snippets(is_active);
