@@ -256,7 +256,7 @@ INSERT INTO settings (key, value) VALUES
     ('security.enable_captcha', 'false'),
     ('security.captcha_key', '""'),
     ('security.captcha_secret', '""'),
-    ('security.oidc', '{"enabled": false, "provider_url": "", "provider_name": "", "client_id": "", "client_secret": ""}'),
+    ('security.oidc', '{"enabled": false, "provider_url": "", "provider_name": "", "client_id": "", "client_secret": "", "auto_create_users": false, "default_user_role_id": null, "default_list_role_id": null}'),
     ('upload.provider', '"filesystem"'),
     ('upload.max_file_size', '5000'),
     ('upload.extensions', '["jpg","jpeg","png","gif","svg","*"]'),

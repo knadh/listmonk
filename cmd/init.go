@@ -96,11 +96,14 @@ type Config struct {
 	} `koanf:"privacy"`
 	Security struct {
 		OIDC struct {
-			Enabled      bool   `koanf:"enabled"`
-			ProviderURL  string `koanf:"provider_url"`
-			ProviderName string `koanf:"provider_name"`
-			ClientID     string `koanf:"client_id"`
-			ClientSecret string `koanf:"client_secret"`
+			Enabled           bool   `koanf:"enabled"`
+			ProviderURL       string `koanf:"provider_url"`
+			ProviderName      string `koanf:"provider_name"`
+			ClientID          string `koanf:"client_id"`
+			ClientSecret      string `koanf:"client_secret"`
+			AutoCreateUsers   bool   `koanf:"auto_create_users"`
+			DefaultUserRoleID int    `koanf:"default_user_role_id"`
+			DefaultListRoleID int    `koanf:"default_list_role_id"`
 		} `koanf:"oidc"`
 
 		EnableCaptcha bool   `koanf:"enable_captcha"`
@@ -1004,11 +1007,14 @@ func initAuth(co *core.Core, db *sql.DB, ko *koanf.Koanf) (bool, *auth.Auth) {
 	// If OIDC is enabled, set up the OIDC config.
 	if ko.Bool("security.oidc.enabled") {
 		oidcCfg = auth.OIDCConfig{
-			Enabled:      true,
-			ProviderURL:  ko.String("security.oidc.provider_url"),
-			ClientID:     ko.String("security.oidc.client_id"),
-			ClientSecret: ko.String("security.oidc.client_secret"),
-			RedirectURL:  fmt.Sprintf("%s/auth/oidc", strings.TrimRight(ko.String("app.root_url"), "/")),
+			Enabled:           true,
+			ProviderURL:       ko.String("security.oidc.provider_url"),
+			ClientID:          ko.String("security.oidc.client_id"),
+			ClientSecret:      ko.String("security.oidc.client_secret"),
+			AutoCreateUsers:   ko.Bool("security.oidc.auto_create_users"),
+			DefaultUserRoleID: ko.Int("security.oidc.default_user_role_id"),
+			DefaultListRoleID: ko.Int("security.oidc.default_list_role_id"),
+			RedirectURL:       fmt.Sprintf("%s/auth/oidc", strings.TrimRight(ko.String("app.root_url"), "/")),
 		}
 	}
 

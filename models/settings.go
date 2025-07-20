@@ -1,5 +1,7 @@
 package models
 
+import "gopkg.in/volatiletech/null.v6"
+
 // Settings represents the app settings stored in the DB.
 type Settings struct {
 	AppSiteName                   string   `json:"app.site_name"`
@@ -42,11 +44,14 @@ type Settings struct {
 	SecurityCaptchaSecret string `json:"security.captcha_secret"`
 
 	OIDC struct {
-		Enabled      bool   `json:"enabled"`
-		ProviderURL  string `json:"provider_url"`
-		ProviderName string `json:"provider_name"`
-		ClientID     string `json:"client_id"`
-		ClientSecret string `json:"client_secret"`
+		Enabled           bool     `json:"enabled"`
+		ProviderURL       string   `json:"provider_url"`
+		ProviderName      string   `json:"provider_name"`
+		ClientID          string   `json:"client_id"`
+		ClientSecret      string   `json:"client_secret"`
+		AutoCreateUsers   bool     `json:"auto_create_users"`
+		DefaultUserRoleID null.Int `json:"default_user_role_id"`
+		DefaultListRoleID null.Int `json:"default_list_role_id"`
 	} `json:"security.oidc"`
 
 	UploadProvider             string   `json:"upload.provider"`

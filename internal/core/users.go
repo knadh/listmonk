@@ -27,7 +27,7 @@ func (c *Core) GetUser(id int, username, email string) (auth.User, error) {
 	var out auth.User
 	if err := c.q.GetUser.Get(&out, id, username, email); err != nil {
 		if err == sql.ErrNoRows {
-			return out, echo.NewHTTPError(http.StatusInternalServerError,
+			return out, echo.NewHTTPError(http.StatusNotFound,
 				c.i18n.Ts("globals.messages.notFound", "name", "{globals.terms.user}"))
 
 		}
@@ -141,8 +141,7 @@ func (c *Core) LoginUser(username, password string) (auth.User, error) {
 	var out auth.User
 	if err := c.q.LoginUser.Get(&out, username, password); err != nil {
 		if err == sql.ErrNoRows {
-			return out, echo.NewHTTPError(http.StatusForbidden,
-				c.i18n.T("users.invalidLogin"))
+			return out, echo.NewHTTPError(http.StatusForbidden, c.i18n.T("users.invalidLogin"))
 		}
 
 		return out, echo.NewHTTPError(http.StatusInternalServerError,

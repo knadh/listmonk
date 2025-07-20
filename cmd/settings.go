@@ -17,6 +17,7 @@ import (
 	"github.com/knadh/koanf/parsers/json"
 	"github.com/knadh/koanf/providers/rawbytes"
 	"github.com/knadh/koanf/v2"
+	"github.com/knadh/listmonk/internal/auth"
 	"github.com/knadh/listmonk/internal/messenger/email"
 	"github.com/knadh/listmonk/internal/notifs"
 	"github.com/knadh/listmonk/models"
@@ -224,6 +225,14 @@ func (a *App) UpdateSettings(c echo.Context) error {
 	}
 	if set.OIDC.ClientSecret == "" {
 		set.OIDC.ClientSecret = cur.OIDC.ClientSecret
+	}
+
+	// OIDC user auto-creation is enabled. Validate.
+	if set.OIDC.AutoCreateUsers {
+		if set.OIDC.DefaultUserRoleID.Int < auth.SuperAdminRoleID {
+			return echo.NewHTTPError(http.StatusBadRequest,
+				a.i18n.Ts("globals.messages.invalidFields", "name", a.i18n.T("settings.security.OIDCDefaultRole")))
+		}
 	}
 
 	for n, v := range set.UploadExtensions {
