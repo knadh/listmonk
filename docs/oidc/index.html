@@ -677,6 +677,21 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="OIDC Single Sign On">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#user-auto-creation" class="md-nav__link">
+    <span class="md-ellipsis">
+      User auto-creation
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -1272,6 +1287,21 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="OIDC Single Sign On">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#user-auto-creation" class="md-nav__link">
+    <span class="md-ellipsis">
+      User auto-creation
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -1382,10 +1412,8 @@
 
 <h2 id="oidc-single-sign-on">OIDC Single Sign On<a class="headerlink" href="#oidc-single-sign-on" title="Permanent link">&para;</a></h2>
 <p>Listmonk supports single sign-on with OIDC (OpenID Connect). Any standards compliant OIDC provider can be configured in Settings -&gt; Security -&gt; OIDC</p>
-<div class="admonition note">
-<p class="admonition-title">Automatic user creation</p>
-<p>There is no support for automatic user creation via OIDC currently. The Super Admin must create users prior in Admin -&gt; Users with the same e-mail address that is expected from the OIDC provider per user.</p>
-</div>
+<h3 id="user-auto-creation">User auto-creation<a class="headerlink" href="#user-auto-creation" title="Permanent link">&para;</a></h3>
+<p>If <code>Settings -&gt; Security -&gt; OIDC -&gt; Auto-create users</code> is turned on, when users login via OIDC, an account is auto-created if an existing account is not found (based on the OIDC e-mail ID).</p>
 <h1 id="tutorials">Tutorials<a class="headerlink" href="#tutorials" title="Permanent link">&para;</a></h1>
 <p>Tutorials for configuring listmonk SSO with popular OIDC providers.</p>
 <h2 id="keycloak">Keycloak<a class="headerlink" href="#keycloak" title="Permanent link">&para;</a></h2>
@@ -1425,6 +1453,8 @@
 <li><strong>Provider name</strong>: Set a name to show on the listmonk login form, eg: <code>Login with OrgName</code></li>
 <li><strong>Client ID</strong>: Client ID set in Keycloak, eg: <code>listmonk</code></li>
 <li><strong>Client Secret</strong>: Client Secret copied from Keycloak</li>
+<li><strong>Auto-create users from SSO</strong>: (Optional) Enable to automatically create users who don't exist</li>
+<li><strong>Default user role</strong>: (Required if auto-create enabled) Select role for new users</li>
 </ul>
 </li>
 </ol>
@@ -1461,6 +1491,8 @@
 <li><strong>Provider Name</strong>: Set a name to show on the login form (e.g., <code>Login with OrgName</code>)</li>
 <li><strong>Client ID</strong>: Client ID set in Authentik (e.g., <code>listmonk</code>)</li>
 <li><strong>Client Secret</strong>: Client Secret copied from Authentik</li>
+<li><strong>Auto-create users from SSO</strong>: (Optional) Enable to automatically create users who don't exist</li>
+<li><strong>Default user role</strong>: (Required if auto-create enabled) Select role for new users</li>
 </ul>
 
 
