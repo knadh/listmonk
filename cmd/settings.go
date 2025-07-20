@@ -17,6 +17,7 @@ import (
 	"github.com/knadh/koanf/parsers/json"
 	"github.com/knadh/koanf/providers/rawbytes"
 	"github.com/knadh/koanf/v2"
+	"github.com/knadh/listmonk/internal/auth"
 	"github.com/knadh/listmonk/internal/messenger/email"
 	"github.com/knadh/listmonk/internal/notifs"
 	"github.com/knadh/listmonk/models"
@@ -226,20 +227,11 @@ func (a *App) UpdateSettings(c echo.Context) error {
 		set.OIDC.ClientSecret = cur.OIDC.ClientSecret
 	}
 
-	// Validate OIDC auto-create users configuration.
+	// OIDC user auto-creation is enabled. Validate.
 	if set.OIDC.AutoCreateUsers {
-		if set.OIDC.DefaultUserRoleID < 0 {
-			return echo.NewHTTPError(http.StatusBadRequest, 
+		if set.OIDC.DefaultUserRoleID.Int < auth.SuperAdminRoleID {
+			return echo.NewHTTPError(http.StatusBadRequest,
 				a.i18n.Ts("globals.messages.invalidFields", "name", a.i18n.T("settings.security.OIDCDefaultRole")))
-		} else if set.OIDC.DefaultUserRoleID > 0 {
-			if _, err := a.core.GetRole(set.OIDC.DefaultUserRoleID); err != nil {
-				return echo.NewHTTPError(http.StatusBadRequest, 
-					a.i18n.Ts("globals.messages.invalidFields", "name", a.i18n.T("settings.security.OIDCDefaultRole")))
-			}
-		} else {
-			// DefaultUserRoleID == 0
-			return echo.NewHTTPError(http.StatusBadRequest, 
-				a.i18n.Ts("globals.messages.missingFields", "name", a.i18n.T("settings.security.OIDCDefaultRole")))
 		}
 	}
 

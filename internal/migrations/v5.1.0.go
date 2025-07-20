@@ -14,7 +14,8 @@ func V5_1_0(db *sqlx.DB, fs stuffbin.FileSystem, ko *koanf.Koanf, lo *log.Logger
 		UPDATE settings
 		SET value = value::JSONB
 			|| CASE WHEN NOT (value::JSONB ? 'auto_create_users') THEN '{"auto_create_users": false}'::JSONB ELSE '{}'::JSONB END
-			|| CASE WHEN NOT (value::JSONB ? 'default_user_role_id') THEN '{"default_user_role_id": 0}'::JSONB ELSE '{}'::JSONB END
+			|| CASE WHEN NOT (value::JSONB ? 'default_user_role_id') THEN '{"default_user_role_id": null}'::JSONB ELSE '{}'::JSONB END
+			|| CASE WHEN NOT (value::JSONB ? 'default_list_role_id') THEN '{"default_list_role_id": null}'::JSONB ELSE '{}'::JSONB END
 		WHERE key = 'security.oidc';
 	`)
 	if err != nil {

@@ -141,8 +141,7 @@ func (c *Core) LoginUser(username, password string) (auth.User, error) {
 	var out auth.User
 	if err := c.q.LoginUser.Get(&out, username, password); err != nil {
 		if err == sql.ErrNoRows {
-			return out, echo.NewHTTPError(http.StatusForbidden,
-				c.i18n.T("users.invalidLogin"))
+			return out, echo.NewHTTPError(http.StatusForbidden, c.i18n.T("users.invalidLogin"))
 		}
 
 		return out, echo.NewHTTPError(http.StatusInternalServerError,

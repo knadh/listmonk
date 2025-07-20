@@ -3,17 +3,8 @@
 
 Listmonk supports single sign-on with OIDC (OpenID Connect). Any standards compliant OIDC provider can be configured in Settings -> Security -> OIDC
 
-## Automatic User Creation
-
-Listmonk supports automatic user creation for OIDC SSO. When enabled, users who successfully authenticate via OIDC but don't exist in listmonk will be automatically created with a specified default role.
-
-### Configuration
-- **Auto-create users from SSO**: Enable/disable automatic user creation
-- **Default user role**: Select the role to assign to automatically created users
-
-!!! note "User Management"
-    Auto-created users will use their email address as both username and display name. They will not have password login enabled and can only access listmonk via OIDC SSO.
-
+### User auto-creation
+If `Settings -> Security -> OIDC -> Auto-create users` is turned on, when users login via OIDC, an account is auto-created if an existing account is not found (based on the OIDC e-mail ID).
 
 # Tutorials
 
