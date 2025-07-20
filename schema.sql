@@ -432,3 +432,19 @@ CREATE MATERIALIZED VIEW mat_list_subscriber_stats AS
     UNION ALL
     SELECT NOW() AS updated_at, 0 AS list_id, NULL AS status, COUNT(id) AS subscriber_count FROM subscribers;
 DROP INDEX IF EXISTS mat_list_subscriber_stats_idx; CREATE UNIQUE INDEX mat_list_subscriber_stats_idx ON mat_list_subscriber_stats (list_id, status);
+
+-- Create a view to fetch campaign results
+CREATE VIEW campaign_results_view AS
+SELECT
+  c.name         AS campaign_name,
+  c.id           AS campaign_id,
+  s.email        AS email,
+  ll.id          AS link_id,
+  ll.url         AS link_url,
+  COUNT(s.email) AS count
+FROM link_clicks l
+LEFT JOIN links ll ON ll.id = l.link_id
+LEFT JOIN subscribers s ON l.subscriber_id = s.id
+LEFT JOIN campaigns c ON l.campaign_id = c.id
+WHERE s.email IS NOT NULL
+GROUP BY c.name, c.id, s.email, ll.id, ll.url;
