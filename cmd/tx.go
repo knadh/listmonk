@@ -1,12 +1,14 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
 	"net/textproto"
 	"strings"
+	"text/template"
 
 	"github.com/knadh/listmonk/internal/manager"
 	"github.com/knadh/listmonk/models"
@@ -134,13 +136,29 @@ func (a *App) SendTxMessage(c echo.Context) error {
 		}
 
 		// Optional headers.
+		customUnsub := false
 		if len(m.Headers) != 0 {
 			msg.Headers = make(textproto.MIMEHeader, len(m.Headers))
 			for _, set := range m.Headers {
 				for hdr, val := range set {
-					msg.Headers.Add(hdr, val)
+					if strings.ToLower(hdr) == "list-unsubscribe" {
+						rendered, err := renderHeaderTemplate(val, sub, &m)
+						if err == nil {
+							msg.Headers.Set(hdr, rendered)
+							customUnsub = true
+						}
+					} else {
+						rendered, err := renderHeaderTemplate(val, sub, &m)
+						if err == nil {
+							msg.Headers.Add(hdr, rendered)
+						}
+					}
 				}
 			}
+		}
+		if !customUnsub {
+			msg.Headers.Set("List-Unsubscribe-Post", "List-Unsubscribe=One-Click")
+			msg.Headers.Set("List-Unsubscribe", `<https://example.com/unsub/${sub.UUID}>`) // TODO: Use actual unsub URL logic
 		}
 
 		if err := a.manager.PushMessage(msg); err != nil {
@@ -201,4 +219,22 @@ func (a *App) validateTxMessage(m models.TxMessage) (models.TxMessage, error) {
 	}
 
 	return m, nil
+}
+
+// renderHeaderTemplate renders a header value as a Go template with the subscriber and message context.
+func renderHeaderTemplate(tmplStr string, sub models.Subscriber, msg *models.TxMessage) (string, error) {
+	tmpl, err := template.New("header").Parse(tmplStr)
+	if err != nil {
+		return "", err
+	}
+	var buf bytes.Buffer
+	data := struct {
+		Subscriber models.Subscriber
+		Tx         *models.TxMessage
+	}{sub, msg}
+	err = tmpl.Execute(&buf, data)
+	if err != nil {
+		return "", err
+	}
+	return buf.String(), nil
 }

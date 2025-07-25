@@ -11,6 +11,8 @@ import (
 	"time"
 
 	"maps"
+	"bytes"
+	"text/template"
 
 	"github.com/Masterminds/sprig/v3"
 	"github.com/knadh/listmonk/internal/i18n"
@@ -478,22 +480,29 @@ func (m *Manager) worker() {
 			h.Set(models.EmailHeaderSubscriberUUID, msg.Subscriber.UUID)
 
 			// Attach List-Unsubscribe headers?
-			if m.cfg.UnsubHeader {
-				h.Set("List-Unsubscribe-Post", "List-Unsubscribe=One-Click")
-				h.Set("List-Unsubscribe", `<`+msg.unsubURL+`>`)
-			}
-
-			// Attach any custom headers.
+			customUnsub := false
 			if len(msg.Campaign.Headers) > 0 {
 				for _, set := range msg.Campaign.Headers {
 					for hdr, val := range set {
-						h.Add(hdr, val)
+						if strings.ToLower(hdr) == "list-unsubscribe" {
+							rendered, err := m.renderHeaderTemplate(val, msg)
+							if err == nil {
+								h.Set(hdr, rendered)
+								customUnsub = true
+							}
+						} else {
+							rendered, err := m.renderHeaderTemplate(val, msg)
+							if err == nil {
+								h.Add(hdr, rendered)
+							}
+						}
 					}
 				}
 			}
-
-			// Set the headers.
-			out.Headers = h
+			if m.cfg.UnsubHeader && !customUnsub {
+				h.Set("List-Unsubscribe-Post", "List-Unsubscribe=One-Click")
+				h.Set("List-Unsubscribe", `<`+msg.unsubURL+`>`)
+			}
 
 			// Push the message to the messenger.
 			err := m.messengers[msg.Campaign.Messenger].Push(out)
@@ -662,4 +671,18 @@ func MakeAttachmentHeader(filename, encoding, contentType string) textproto.MIME
 	h.Set("Content-Type", fmt.Sprintf("%s; name=\""+filename+"\"", contentType))
 	h.Set("Content-Transfer-Encoding", encoding)
 	return h
+}
+
+// renderHeaderTemplate renders a header value as a Go template with the CampaignMessage context.
+func (m *Manager) renderHeaderTemplate(tmplStr string, msg CampaignMessage) (string, error) {
+	tmpl, err := template.New("header").Funcs(m.TemplateFuncs(msg.Campaign)).Parse(tmplStr)
+	if err != nil {
+		return "", err
+	}
+	var buf bytes.Buffer
+	err = tmpl.Execute(&buf, msg)
+	if err != nil {
+		return "", err
+	}
+	return buf.String(), nil
 }

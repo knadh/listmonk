@@ -558,6 +558,8 @@
     "settings.smtp.toEmail": "To e-mail",
     "settings.title": "Settings",
     "settings.updateAvailable": "A new update {version} is available.",
+    "settings.smtp.customListUnsub": "Custom List-Unsubscribe header (supports Go template variables)",
+    "settings.smtp.customListUnsubHelp": "Leave blank to use the default unsubscribe URL. You can use Go template variables, e.g. {{ .Subscriber.Attribs.custom_id }}.",
     "subscribers.advancedQuery": "Advanced",
     "subscribers.advancedQueryHelp": "Partial SQL expression to query subscriber attributes",
     "subscribers.attribs": "Attributes",
