@@ -169,7 +169,7 @@ export default Vue.extend({
     },
 
     deleteBounces() {
-      const count = this.bulk.checked.length;
+      const count = this.numSelectedBounces;
       const fnSuccess = () => {
         this.getBounces();
         this.$utils.toast(this.$t(
@@ -182,10 +182,10 @@ export default Vue.extend({
         this.$api.deleteBounces({ id: ids }).then(fnSuccess);
         return;
       }
-      this.$api.deleteBounces({ all: true }).then(fnSuccess);
+      this.$api.deleteSubscribersByQuery({ all: true }).then(fnSuccess);
     },
     blocklistBounces() {
-      const count = this.bulk.checked.length;
+      const count = this.numSelectedBounces;
       const fnSuccess = () => {
         this.getBounces();
         this.$utils.toast(this.$t(
@@ -194,11 +194,11 @@ export default Vue.extend({
         ));
       };
       if (!this.bulk.all && this.bulk.checked.length > 0) {
-        const ids = this.bulk.checked.map((s) => s.id);
-        this.$api.blocklistSubscriberBounces({ id: ids }).then(fnSuccess);
+        const subscriberIds = this.bulk.checked.map((s) => s.id);
+        this.$api.blocklistSubscribers({ ids: subscriberIds }).then(fnSuccess);
         return;
       }
-      this.$api.blocklistSubscriberBounces({ all: true }).then(fnSuccess);
+      this.$api.blocklistSubscribersByQuery({ all: true }).then(fnSuccess);
     },
   },
 

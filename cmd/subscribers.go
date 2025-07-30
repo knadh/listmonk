@@ -458,7 +458,13 @@ func (a *App) BlocklistSubscribersByQuery(c echo.Context) error {
 
 	req.Search = strings.TrimSpace(req.Search)
 	req.Query = formatSQLExp(req.Query)
-
+	if req.All {
+		// If the "all" flag is set, ignore any subquery that may be present.
+		req.Search = ""
+		req.Query = ""
+	} else if req.Search == "" && req.Query == "" {
+		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.Ts("globals.messages.invalidFields", "name", "query"))
+	}
 	// Does the user have the subscribers:sql_query permission?
 	if req.Query != "" {
 		if !user.HasPerm(auth.PermSubscribersSqlQuery) {

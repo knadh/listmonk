@@ -889,58 +889,6 @@ paths:
                 properties:
                   data:
                     type: boolean
-
-  /bounces/blocklist:
-    put:
-      description: handles blocklisting of bounces
-      operationId: manageBlocklistBounces
-      tags:
-        - Bounces
-     parameters:
-        - in: query
-          name: all
-          description: flag for multiple bounce records to blocklist
-          schema:
-            type: boolean
-        - in: query
-          name: id
-          description: list of bounce ids to blocklist
-          schema:
-            type: string
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  data:
-                    type: boolean
-
-  "/bounces/{id}/blocklist":
-    put:
-      description: handles the blocklisting of one or more bounces.
-      operationId: manageBlocklistBouncesById
-      tags:
-        - Bounces
-      parameters:
-        - in: path
-          name: id
-          required: true
-          description: The id value of the bounce you want to blocklist.
-          schema:
-            type: integer
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  data:
-                    type: boolean
                     
   /lists:
     get:
