@@ -152,6 +152,15 @@
 
             <div class="columns">
               <div class="column">
+                <b-field :label="$t('settings.smtp.customListUnsub')" label-position="on-border"
+                  :message="$t('settings.smtp.customListUnsubHelp')">
+                  <b-input v-model="item.custom_list_unsub" name="custom_list_unsub" type="text"
+                    placeholder="https://acme.com/unsubscribe/user_id={{ .Subscriber.Attribs.custom_id }}" />
+                </b-field>
+              </div>
+            </div>
+            <div class="columns">
+              <div class="column">
                 <p v-if="item.email_headers.length === 0 && !item.showHeaders">
                   <a href="#" @click.prevent="() => showSMTPHeaders(n)">
                     <b-icon icon="plus" />{{ $t('settings.smtp.setCustomHeaders') }}</a>
