@@ -817,7 +817,7 @@ paths:
                       page:
                         type: integer
     delete:
-      description: handles retrieval of bounce records.
+      description: handles deletion of bounce records.
       operationId: deleteBounces
       tags:
         - Bounces
@@ -889,7 +889,7 @@ paths:
                 properties:
                   data:
                     type: boolean
-
+                    
   /lists:
     get:
       description: retrieves lists with additional metadata like subscriber counts. This may be slow.
@@ -2159,6 +2159,10 @@ components:
             analytics.title:
               type: string
             analytics.toDate:
+              type: string
+            bounces.numSelected:
+              type: string
+            bounces.selectAll:
               type: string
             bounces.source:
               type: string
