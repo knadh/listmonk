@@ -17,22 +17,19 @@
       <template #top-left>
         <div class="actions">
           <template v-if="bulk.checked.length > 0">
-            <a class="a" href="#"
-              @click.prevent="$utils.confirm($t('bounces.bouncesDeleted', { num: numSelectedBounces }), () => deleteBounces())"
-              data-cy="btn-delete">
+            <a class="a" href="#" @click.prevent="$utils.confirm(null, () => deleteBounces())" data-cy="btn-delete">
               <b-icon icon="trash-can-outline" size="is-small" /> {{ $t('globals.buttons.delete') }}
             </a>
-            <a class="a" href="#"
-              @click.prevent="$utils.confirm($t('bounces.confirmBlocklist', { num: numSelectedBounces }), () => blocklistSubscribers())"
+            <a class="a" href="#" @click.prevent="$utils.confirm(null, () => blocklistSubscribers())"
               data-cy="btn-manage-blocklist">
-              <b-icon icon="account-off-outline" size="is-small" /> {{ $t('settings.bounces.blocklist') }}
+              <b-icon icon="account-off-outline" size="is-small" /> {{ $t('import.blocklist') }}
             </a>
             <span>
-              {{ $t('bounces.numSelected', { num: numSelectedBounces }) }}
+              {{ $t('globals.messages.numSelected', { num: numSelectedBounces }) }}
               <span v-if="!bulk.all && bounces.total > bounces.perPage">
                 &mdash;
                 <a href="#" @click.prevent="selectAllBounces">
-                  {{ $t('bounces.selectAll', { num: bounces.total }) }}
+                  {{ $t('subscribers.selectAll', { num: bounces.total }) }}
                 </a>
               </span>
             </span>
@@ -174,28 +171,26 @@ export default Vue.extend({
     },
 
     deleteBounces() {
-      const cb = () => {
+      const params = {};
+      if (!this.bulk.all && this.bulk.checked.length > 0) {
+        params.id = this.bulk.checked.map((s) => s.id);
+      } else if (this.bulk.all) {
+        params.all = true;
+      }
+
+      this.$api.deleteBounces(params).then(() => {
         this.getBounces();
         this.$utils.toast(this.$t(
           'globals.messages.deletedCount',
           { name: this.$tc('globals.terms.bounces'), num: this.numSelectedBounces },
         ));
-      };
-      if (!this.bulk.all && this.bulk.checked.length > 0) {
-        const ids = this.bulk.checked.map((s) => s.id);
-        this.$api.deleteBounces({ id: ids }).then(cb);
-        return;
-      }
-      this.$api.deleteSubscribersByQuery({ all: true }).then(cb);
+      });
     },
 
     blocklistSubscribers() {
       const cb = () => {
         this.getBounces();
-        this.$utils.toast(this.$t(
-          'globals.messages.blocklistedCount',
-          { name: this.$tc('globals.terms.bounces'), num: this.numSelectedBounces },
-        ));
+        this.$utils.toast(this.$t('globals.messages.done'));
       };
 
       if (!this.bulk.all && this.bulk.checked.length > 0) {

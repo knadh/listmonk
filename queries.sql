@@ -1104,7 +1104,7 @@ WHERE ($1 = 0 OR bounces.id = $1)
 ORDER BY %order% OFFSET $5 LIMIT $6;
 
 -- name: delete-bounces
-DELETE FROM bounces WHERE CARDINALITY($1::INT[]) = 0 OR id = ANY($1);
+DELETE FROM bounces WHERE $2 = TRUE OR id = ANY($1);
 
 -- name: delete-bounces-by-subscriber
 WITH sub AS (

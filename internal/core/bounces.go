@@ -98,12 +98,12 @@ func (c *Core) BlocklistBouncedSubscribers() error {
 
 // DeleteBounce deletes a list.
 func (c *Core) DeleteBounce(id int) error {
-	return c.DeleteBounces([]int{id})
+	return c.DeleteBounces([]int{id}, false)
 }
 
 // DeleteBounces deletes multiple lists.
-func (c *Core) DeleteBounces(ids []int) error {
-	if _, err := c.q.DeleteBounces.Exec(pq.Array(ids)); err != nil {
+func (c *Core) DeleteBounces(ids []int, all bool) error {
+	if _, err := c.q.DeleteBounces.Exec(pq.Array(ids), all); err != nil {
 		c.log.Printf("error deleting lists: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			c.i18n.Ts("globals.messages.errorDeleting", "name", "{globals.terms.list}", "error", pqErrMsg(err)))
