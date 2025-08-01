@@ -11,37 +11,42 @@
 
     <b-table :data="bounces.results" :hoverable="true" :loading="loading.bounces" default-sort="createdAt" checkable
       @check-all="onTableCheck" @check="onTableCheck" :checked-rows.sync="bulk.checked" detailed show-detail-icon
-      paginated backend-pagination pagination-position="both" @page-change="onPageChange" :current-page="queryParams.page" :per-page="bounces.perPage"
-      :total="bounces.total" backend-sorting @sort="onSort">
+      paginated backend-pagination pagination-position="both" @page-change="onPageChange"
+      :current-page="queryParams.page" :per-page="bounces.perPage" :total="bounces.total" backend-sorting
+      @sort="onSort">
       <template #top-left>
         <div class="actions">
           <template v-if="bulk.checked.length > 0">
-            <a class="a" href="#" @click.prevent="$utils.confirm($t('bounces.bouncesDeleted', { num: numSelectedBounces }), () => deleteBounces())" data-cy="btn-delete">
-              <b-icon icon="trash-can-outline" size="is-small" />  {{ $t('globals.buttons.clear') }}
+            <a class="a" href="#"
+              @click.prevent="$utils.confirm($t('bounces.bouncesDeleted', { num: numSelectedBounces }), () => deleteBounces())"
+              data-cy="btn-delete">
+              <b-icon icon="trash-can-outline" size="is-small" /> {{ $t('globals.buttons.delete') }}
             </a>
-            <a class="a" href="#" @click.prevent="$utils.confirm($t('bounces.confirmBlocklist', { num: numSelectedBounces }), () => blocklistBounces())" data-cy="btn-manage-blocklist">
+            <a class="a" href="#"
+              @click.prevent="$utils.confirm($t('bounces.confirmBlocklist', { num: numSelectedBounces }), () => blocklistSubscribers())"
+              data-cy="btn-manage-blocklist">
               <b-icon icon="account-off-outline" size="is-small" /> {{ $t('settings.bounces.blocklist') }}
             </a>
             <span>
               {{ $t('bounces.numSelected', { num: numSelectedBounces }) }}
               <span v-if="!bulk.all && bounces.total > bounces.perPage">
-        &mdash;
-        <a href="#" @click.prevent="selectAllBounces">
-          {{ $t('bounces.selectAll', { num: bounces.total }) }}
-        </a>
-      </span>
-    </span>
+                &mdash;
+                <a href="#" @click.prevent="selectAllBounces">
+                  {{ $t('bounces.selectAll', { num: bounces.total }) }}
+                </a>
+              </span>
+            </span>
           </template>
         </div>
       </template>
       <b-table-column v-slot="props" field="email" :label="$t('subscribers.email')" :td-attrs="$utils.tdID" sortable>
-        <router-link
-        :to="{ name: 'subscriber', params: { id: props.row.subscriberId } }"
-        :class="{ 'blocklisted': props.row.subscriberStatus === 'blocklisted' }">
+        <router-link :to="{ name: 'subscriber', params: { id: props.row.subscriberId } }"
+          :class="{ 'blocklisted': props.row.subscriberStatus === 'blocklisted' }">
           {{ props.row.email }}
-          <b-tag v-if="props.row.subscriberStatus !== 'enabled'" :class="props.row.subscriberStatus" data-cy="blocklisted">
-          {{ $t(`subscribers.status.${props.row.subscriberStatus}`) }}
-        </b-tag>
+          <b-tag v-if="props.row.subscriberStatus !== 'enabled'" :class="props.row.subscriberStatus"
+            data-cy="blocklisted">
+            {{ $t(`subscribers.status.${props.row.subscriberStatus}`) }}
+          </b-tag>
         </router-link>
       </b-table-column>
 
@@ -169,36 +174,37 @@ export default Vue.extend({
     },
 
     deleteBounces() {
-      const count = this.numSelectedBounces;
-      const fnSuccess = () => {
+      const cb = () => {
         this.getBounces();
         this.$utils.toast(this.$t(
           'globals.messages.deletedCount',
-          { name: this.$tc('globals.terms.bounces'), num: count },
+          { name: this.$tc('globals.terms.bounces'), num: this.numSelectedBounces },
         ));
       };
       if (!this.bulk.all && this.bulk.checked.length > 0) {
         const ids = this.bulk.checked.map((s) => s.id);
-        this.$api.deleteBounces({ id: ids }).then(fnSuccess);
+        this.$api.deleteBounces({ id: ids }).then(cb);
         return;
       }
-      this.$api.deleteSubscribersByQuery({ all: true }).then(fnSuccess);
+      this.$api.deleteSubscribersByQuery({ all: true }).then(cb);
     },
-    blocklistBounces() {
-      const count = this.numSelectedBounces;
-      const fnSuccess = () => {
+
+    blocklistSubscribers() {
+      const cb = () => {
         this.getBounces();
         this.$utils.toast(this.$t(
           'globals.messages.blocklistedCount',
-          { name: this.$tc('globals.terms.bounces'), num: count },
+          { name: this.$tc('globals.terms.bounces'), num: this.numSelectedBounces },
         ));
       };
+
       if (!this.bulk.all && this.bulk.checked.length > 0) {
-        const subscriberIds = this.bulk.checked.map((s) => s.id);
-        this.$api.blocklistSubscribers({ ids: subscriberIds }).then(fnSuccess);
+        const subIds = this.bulk.checked.map((s) => s.subscriberId);
+        this.$api.blocklistSubscribers({ ids: subIds }).then(cb);
         return;
       }
-      this.$api.blocklistSubscribersByQuery({ all: true }).then(fnSuccess);
+
+      this.$api.blocklistSubscribersByQuery({ all: true }).then(cb);
     },
   },
 
