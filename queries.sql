@@ -1112,6 +1112,16 @@ WITH sub AS (
 )
 DELETE FROM bounces WHERE subscriber_id = (SELECT id FROM sub);
 
+-- name: blocklist-bounced-subscribers
+WITH subs AS (
+    SELECT subscriber_id FROM bounces
+),
+b AS (
+    UPDATE subscribers SET status='blocklisted', updated_at=NOW()
+    WHERE id = ANY(SELECT subscriber_id FROM subs)
+)
+UPDATE subscriber_lists SET status='unsubscribed', updated_at=NOW()
+    WHERE subscriber_id = ANY(SELECT subscriber_id FROM subs);
 
 -- name: get-db-info
 SELECT JSON_BUILD_OBJECT('version', (SELECT VERSION()),

@@ -104,6 +104,15 @@ func (a *App) DeleteBounce(c echo.Context) error {
 	return c.JSON(http.StatusOK, okResp{true})
 }
 
+// BlocklistBouncedSubscribers handles blocklisting of all bounced subscribers.
+func (a *App) BlocklistBouncedSubscribers(c echo.Context) error {
+	if err := a.core.BlocklistBouncedSubscribers(); err != nil {
+		return err
+	}
+
+	return c.JSON(http.StatusOK, okResp{true})
+}
+
 // BounceWebhook renders the HTML preview of a template.
 func (a *App) BounceWebhook(c echo.Context) error {
 	// Read the request body instead of using c.Bind() to read to save the entire raw request as meta.

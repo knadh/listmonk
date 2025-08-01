@@ -204,7 +204,7 @@ export default Vue.extend({
         return;
       }
 
-      this.$api.blocklistSubscribersByQuery({ all: true }).then(cb);
+      this.$api.blocklistBouncedSubscribers({ all: true }).then(cb);
     },
   },
 

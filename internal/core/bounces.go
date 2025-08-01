@@ -86,6 +86,16 @@ func (c *Core) RecordBounce(b models.Bounce) error {
 	return err
 }
 
+// BlocklistBouncedSubscribers blocklists all bounced subscribers.
+func (c *Core) BlocklistBouncedSubscribers() error {
+	if _, err := c.q.BlocklistBouncedSubscribers.Exec(); err != nil {
+		c.log.Printf("error blocklisting bounced subscribers: %v", err)
+		return echo.NewHTTPError(http.StatusInternalServerError, c.i18n.Ts("subscribers.errorBlocklisting", "error", err.Error()))
+	}
+
+	return nil
+}
+
 // DeleteBounce deletes a list.
 func (c *Core) DeleteBounce(id int) error {
 	return c.DeleteBounces([]int{id})
