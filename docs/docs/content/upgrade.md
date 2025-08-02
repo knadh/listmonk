@@ -27,7 +27,7 @@ If you are using an older docker-compose.yml file, you have to run the `--upgrad
 ```shell
 docker-compose down
 docker-compose pull && docker-compose run --rm app ./listmonk --upgrade
-docker-compose up -d app db
+docker-compose up -d app db nginx
 ```
 
 
