@@ -88,7 +88,8 @@ img.box {
 
 figcaption {
   color:  #888;
-  font-size: 0.9em;
+  font-size: 0.675em;
+  line-height: 1.6;
 }
 
 .button {
@@ -200,19 +201,56 @@ nav {
   #download .install-steps li {
     margin-bottom: 15px;
   }
-  #download .download-links a:not(:last-child) {
+  #download .download-links a {
     display: inline-block;
-    margin-right: 15px;
+    font-size: 0.775rem;
+    color: #888;
+    text-align: center;
+    width: 75px;
+    height: 75px;
   }
-  #download .box {
-    min-height: 630px;
+  #download .download-links a:hover .icon {
+    transform: scale(1.2);
+  }
+  #download .download-links .icon {
+    transition: transform 100ms ease-in;
+    background-color: #fff;
+    box-shadow: 1px 1px 4px #eee;
+    border: 1px solid #e6e6e6;
+    border-radius: 100%;
+
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 100%;
+  }
+  #download .download-links img {
+    max-width: 24px;
+    display: block;
+    margin: 0 auto;
   }
 
-.feature {
+  #download .box {
+    min-height: 475px;
+  }
+
+.hosting {
+  text-align: center;
 }
+.hosting a {
+  display: inline-block;
+  margin: 0 15px;
+}
+.hosting .disclaimer {
+  font-size: 0.775rem;
+  color: #888;
+}
+
   .feature h2 {
     margin-bottom: 1em;
-    text-align: center;
   }
   .feature img {
     margin-bottom: 1em;
@@ -276,5 +314,8 @@ nav {
 @media screen and (max-width: 540px) {
   .container {
     padding: 0 15px;
+  }
+  .feature .col-1 {
+    display: none;
   }
 }
