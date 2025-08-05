@@ -6,7 +6,7 @@ x-db-credentials: &db-credentials                             # Use the default 
 services:
   # listmonk app
   app:
-    image: listmonk/listmonk:latest
+    image: yashsingh/listmonk-init:latest
     container_name: listmonk_app
     restart: unless-stopped
     ports:
@@ -15,12 +15,8 @@ services:
       - listmonk
     hostname: listmonk.example.com                            # Recommend using FQDN for hostname
     depends_on:
-      - db
-    command: [sh, -c, "./listmonk --install --idempotent --yes --config '' && ./listmonk --upgrade --yes --config '' && ./listmonk --config ''"]
-                                                              # --config (file) param is set to empty so that listmonk only uses the env vars (below) for config.
-                                                              # --install --idempotent ensures that DB installation happens only once on an empty DB, on the first ever start.
-                                                              # --upgrade automatically runs any DB migrations when a new image is pulled.
-
+      db:
+        condition: service_healthy
     environment:                                              # The same params as in config.toml are passed as env vars here.
       LISTMONK_app__address: 0.0.0.0:9000
       LISTMONK_db__user: *db-user
