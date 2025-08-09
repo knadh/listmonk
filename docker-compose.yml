@@ -1,3 +1,6 @@
+# All LISTMONK_* env variables also support the LISTMONK_*_FILE pattern for loading secrets from files with Docker secrets and Podman
+# eg: LISTMONK_ADMIN_USER -> LISTMONK_ADMIN_USER_FILE=/path/to/file_with_value
+
 x-db-credentials: &db-credentials                             # Use the default POSTGRES_ credentials if they're available or simply default to "listmonk"
   POSTGRES_USER: &db-user listmonk                            # for database user, password, and database name
   POSTGRES_PASSWORD: &db-password listmonk
