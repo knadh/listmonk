@@ -39,9 +39,17 @@ type Settings struct {
 	DomainBlocklist           []string `json:"privacy.domain_blocklist"`
 	DomainAllowlist           []string `json:"privacy.domain_allowlist"`
 
-	SecurityEnableCaptcha bool   `json:"security.enable_captcha"`
-	SecurityCaptchaKey    string `json:"security.captcha_key"`
-	SecurityCaptchaSecret string `json:"security.captcha_secret"`
+	SecurityCaptcha struct {
+		Altcha struct {
+			Enabled    bool `json:"enabled"`
+			Complexity int  `json:"complexity"`
+		} `json:"altcha"`
+		HCaptcha struct {
+			Enabled bool   `json:"enabled"`
+			Key     string `json:"key"`
+			Secret  string `json:"secret"`
+		} `json:"hcaptcha"`
+	} `json:"security.captcha"`
 
 	OIDC struct {
 		Enabled           bool     `json:"enabled"`

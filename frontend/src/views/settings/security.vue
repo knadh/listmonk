@@ -98,19 +98,38 @@
     <div class="columns">
       <div class="column is-3">
         <b-field :label="$t('settings.security.enableCaptcha')" :message="$t('settings.security.enableCaptchaHelp')">
-          <b-switch v-model="data['security.enable_captcha']" name="security.captcha" />
+          <b-switch v-model="captchaEnabled" name="security.captcha" />
         </b-field>
       </div>
-      <div class="column is-9">
-        <b-field :label="$t('settings.security.captchaKey')" label-position="on-border"
-          :message="$t('settings.security.captchaKeyHelp')">
-          <b-input v-model="data['security.captcha_key']" name="captcha_key"
-            :disabled="!data['security.enable_captcha']" :maxlength="200" required />
+      <div class="column is-9" v-if="captchaEnabled">
+        <b-field :label="$t('settings.security.captchaProvider')">
+          <b-radio v-model="selectedProvider" native-value="altcha" name="captcha_provider">
+            ALTCHA
+          </b-radio>
+          <b-radio v-model="selectedProvider" native-value="hcaptcha" name="captcha_provider">
+            hCaptcha (deprecated)
+          </b-radio>
         </b-field>
-        <b-field :label="$t('settings.security.captchaSecret')" label-position="on-border">
-          <b-input v-model="data['security.captcha_secret']" name="captcha_secret" type="password"
-            :disabled="!data['security.enable_captcha']" :maxlength="200" required />
-        </b-field>
+
+        <!-- captcha settings -->
+        <div v-if="selectedProvider === 'altcha'">
+          <b-field :label="$t('settings.security.altchaComplexity')" label-position="on-border"
+            :message="$t('settings.security.altchaComplexityHelp')">
+            <b-input v-model.number="data['security.captcha']['altcha']['complexity']" name="altcha_complexity"
+              type="number" min="1000" max="1000000" required />
+          </b-field>
+        </div>
+        <div v-if="selectedProvider === 'hcaptcha'">
+          <b-field :label="$t('settings.security.captchaKey')" label-position="on-border"
+            :message="$t('settings.security.captchaKeyHelp')">
+            <b-input v-model="data['security.captcha']['hcaptcha']['key']" name="hcaptcha_key" :maxlength="200"
+              required />
+          </b-field>
+          <b-field :label="$t('settings.security.captchaSecret')" label-position="on-border">
+            <b-input v-model="data['security.captcha']['hcaptcha']['secret']" name="hcaptcha_secret" type="password"
+              :maxlength="200" required />
+          </b-field>
+        </div>
       </div>
     </div>
   </div>
@@ -142,6 +161,30 @@ export default Vue.extend({
   computed: {
     ...mapState(['serverConfig', 'userRoles', 'listRoles']),
 
+    captchaEnabled: {
+      get() {
+        return this.data['security.captcha'].altcha.enabled || this.data['security.captcha'].hcaptcha.enabled;
+      },
+      set(value) {
+        this.data['security.captcha'].altcha.enabled = !!value;
+        this.data['security.captcha'].hcaptcha.enabled = false;
+      },
+    },
+
+    selectedProvider: {
+      get() {
+        if (this.data['security.captcha'].hcaptcha.enabled) {
+          return 'hcaptcha';
+        }
+
+        return 'altcha';
+      },
+      set(value) {
+        this.data['security.captcha'].hcaptcha.enabled = value === 'hcaptcha';
+        this.data['security.captcha'].altcha.enabled = value === 'altcha';
+      },
+    },
+
     version() {
       return import.meta.env.VUE_APP_VERSION;
     },
@@ -159,10 +202,12 @@ export default Vue.extend({
       }
     },
   },
+
   mounted() {
     this.$api.getUserRoles();
     this.$api.getListRoles();
   },
+
   methods: {
     setProvider(provider) {
       this.$set(this.data['security.oidc'], 'provider_url', OIDC_PROVIDERS[provider]);
