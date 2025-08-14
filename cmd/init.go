@@ -106,9 +106,17 @@ type Config struct {
 			DefaultListRoleID int    `koanf:"default_list_role_id"`
 		} `koanf:"oidc"`
 
-		EnableCaptcha bool   `koanf:"enable_captcha"`
-		CaptchaKey    string `koanf:"captcha_key"`
-		CaptchaSecret string `koanf:"captcha_secret"`
+		Captcha struct {
+			Altcha struct {
+				Enabled    bool `koanf:"enabled"`
+				Complexity int  `koanf:"complexity"`
+			} `koanf:"altcha"`
+			HCaptcha struct {
+				Enabled bool   `koanf:"enabled"`
+				Key     string `koanf:"key"`
+				Secret  string `koanf:"secret"`
+			} `koanf:"hcaptcha"`
+		} `koanf:"captcha"`
 	} `koanf:"security"`
 
 	Appearance struct {
@@ -905,9 +913,12 @@ func initHTTPServer(cfg *Config, urlCfg *UrlConfig, i *i18n.I18n, fs stuffbin.Fi
 
 // initCaptcha initializes the captcha service.
 func initCaptcha() *captcha.Captcha {
-	return captcha.New(captcha.Opt{
-		CaptchaSecret: ko.String("security.captcha_secret"),
-	})
+	var opt captcha.Opt
+	if err := ko.Unmarshal("security.captcha", &opt); err != nil {
+		lo.Fatalf("error loading captcha config: %v", err)
+	}
+	
+	return captcha.New(opt)
 }
 
 // initCron initializes the cron job for refreshing slow query cache.
