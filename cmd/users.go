@@ -13,7 +13,7 @@ import (
 )
 
 var (
-	reUsername = regexp.MustCompile(`^[a-zA-Z0-9_\\-\\.]+$`)
+	reUsername = regexp.MustCompile(`^[a-zA-Z0-9_\-\.@]+$`)
 )
 
 // GetUser retrieves a single user by ID.
@@ -56,7 +56,7 @@ func (a *App) CreateUser(c echo.Context) error {
 
 	u.Username = strings.TrimSpace(u.Username)
 	u.Name = strings.TrimSpace(u.Name)
-	email := strings.TrimSpace(u.Email.String)
+	email := strings.ToLower(strings.TrimSpace(u.Email.String))
 
 	// Validate fields.
 	if !strHasLen(u.Username, 3, stdInputMaxLen) {
@@ -111,7 +111,7 @@ func (a *App) UpdateUser(c echo.Context) error {
 
 	u.Username = strings.TrimSpace(u.Username)
 	u.Name = strings.TrimSpace(u.Name)
-	email := strings.TrimSpace(u.Email.String)
+	email := strings.ToLower(strings.TrimSpace(u.Email.String))
 
 	// Validate fields.
 	if !strHasLen(u.Username, 3, stdInputMaxLen) {

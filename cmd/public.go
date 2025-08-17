@@ -12,6 +12,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/knadh/listmonk/internal/captcha"
 	"github.com/knadh/listmonk/internal/i18n"
 	"github.com/knadh/listmonk/internal/manager"
 	"github.com/knadh/listmonk/internal/notifs"
@@ -88,8 +89,13 @@ type msgTpl struct {
 
 type subFormTpl struct {
 	publicTpl
-	Lists      []models.List
-	CaptchaKey string
+	Lists   []models.List
+	Captcha struct {
+		Enabled    bool
+		Provider   string
+		Key        string
+		Complexity int
+	}
 }
 
 var (
@@ -427,9 +433,15 @@ func (a *App) SubscriptionFormPage(c echo.Context) error {
 	out.Title = a.i18n.T("public.sub")
 	out.Lists = lists
 
-	// Captcha is enabled. Set the key for the template to render.
-	if a.cfg.Security.EnableCaptcha {
-		out.CaptchaKey = a.cfg.Security.CaptchaKey
+	// Captcha configuration for template rendering.
+	if a.cfg.Security.Captcha.Altcha.Enabled {
+		out.Captcha.Enabled = true
+		out.Captcha.Provider = "altcha"
+		out.Captcha.Complexity = a.cfg.Security.Captcha.Altcha.Complexity
+	} else if a.cfg.Security.Captcha.HCaptcha.Enabled {
+		out.Captcha.Enabled = true
+		out.Captcha.Provider = "hcaptcha"
+		out.Captcha.Key = a.cfg.Security.Captcha.HCaptcha.Key
 	}
 
 	return c.Render(http.StatusOK, "subscription-form", out)
@@ -438,16 +450,39 @@ func (a *App) SubscriptionFormPage(c echo.Context) error {
 // SubscriptionForm handles subscription requests coming from public
 // HTML subscription forms.
 func (a *App) SubscriptionForm(c echo.Context) error {
+	if !a.cfg.EnablePublicSubPage {
+		return echo.NewHTTPError(http.StatusNotFound, a.i18n.T("public.invalidFeature"))
+
+	}
+
 	// If there's a nonce value, a bot could've filled the form.
 	if c.FormValue("nonce") != "" {
 		return echo.NewHTTPError(http.StatusBadGateway, a.i18n.T("public.invalidFeature"))
 	}
 
 	// Process CAPTCHA.
-	if a.cfg.Security.EnableCaptcha {
-		err, ok := a.captcha.Verify(c.FormValue("h-captcha-response"))
+	if a.captcha.IsEnabled() {
+		var val string
+
+		// Get the appropriate captcha response field based on provider.
+		switch a.captcha.GetProvider() {
+		case captcha.ProviderHCaptcha:
+			val = c.FormValue("h-captcha-response")
+		case captcha.ProviderAltcha:
+			val = c.FormValue("altcha")
+		default:
+			return c.Render(http.StatusBadRequest, tplMessage,
+				makeMsgTpl(a.i18n.T("public.errorTitle"), "", a.i18n.T("public.invalidCaptcha")))
+		}
+
+		if val == "" {
+			return c.Render(http.StatusBadRequest, tplMessage,
+				makeMsgTpl(a.i18n.T("public.errorTitle"), "", a.i18n.T("public.invalidCaptcha")))
+		}
+
+		err, ok := a.captcha.Verify(val)
 		if err != nil {
-			a.log.Printf("Captcha request failed: %v", err)
+			a.log.Printf("captcha request failed: %v", err)
 		}
 
 		if !ok {
@@ -460,7 +495,7 @@ func (a *App) SubscriptionForm(c echo.Context) error {
 	if err != nil {
 		e, ok := err.(*echo.HTTPError)
 		if !ok {
-			return e
+			return err
 		}
 
 		return c.Render(e.Code, tplMessage, makeMsgTpl(a.i18n.T("public.errorTitle"), "", fmt.Sprintf("%s", e.Message)))
@@ -618,6 +653,25 @@ func (a *App) WipeSubscriberData(c echo.Context) error {
 		makeMsgTpl(a.i18n.T("public.dataRemovedTitle"), "", a.i18n.T("public.dataRemoved")))
 }
 
+// AltchaChallenge generates a challenge for Altcha captcha.
+func (a *App) AltchaChallenge(c echo.Context) error {
+	// Check if Altcha is enabled.
+	if !a.captcha.IsEnabled() || a.captcha.GetProvider() != captcha.ProviderAltcha {
+		return echo.NewHTTPError(http.StatusNotFound, "captcha not enabled")
+	}
+
+	// Generate challenge.
+	out, err := a.captcha.GenerateChallenge()
+	if err != nil {
+		a.log.Printf("error generating altcha challenge: %v", err)
+		return echo.NewHTTPError(http.StatusInternalServerError, "Error generating challenge")
+	}
+
+	// Return the challenge as JSON.
+	c.Response().Header().Set("Content-Type", "application/json")
+	return c.String(http.StatusOK, out)
+}
+
 // drawTransparentImage draws a transparent PNG of given dimensions
 // and returns the PNG bytes.
 func drawTransparentImage(h, w int) []byte {
@@ -648,12 +702,6 @@ func (a *App) processSubForm(c echo.Context) (bool, error) {
 		return false, echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("public.noListsSelected"))
 	}
 
-	// If there's no name, use the name bit from the e-mail.
-	req.Name = strings.TrimSpace(req.Name)
-	if req.Name == "" {
-		req.Name = strings.Split(req.Email, "@")[0]
-	}
-
 	// Validate fields.
 	if len(req.Email) > 1000 {
 		return false, echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("subscribers.invalidEmail"))
@@ -666,7 +714,10 @@ func (a *App) processSubForm(c echo.Context) (bool, error) {
 	req.Email = em
 
 	req.Name = strings.TrimSpace(req.Name)
-	if len(req.Name) == 0 || len(req.Name) > stdInputMaxLen {
+	if len(req.Name) == 0 {
+		// If there's no name, use the name bit from the e-mail.
+		req.Name = strings.Split(req.Email, "@")[0]
+	} else if len(req.Name) > stdInputMaxLen {
 		return false, echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("subscribers.invalidName"))
 	}
 
@@ -690,26 +741,32 @@ func (a *App) processSubForm(c echo.Context) (bool, error) {
 		Email:  req.Email,
 		Status: models.SubscriberStatusEnabled,
 	}, nil, listUUIDs, false)
-	if err != nil {
-		// Subscriber already exists. Update subscriptions in the DB.
-		if e, ok := err.(*echo.HTTPError); ok && e.Code == http.StatusConflict {
-			// Get the subscriber from the DB by their email.
-			sub, err := a.core.GetSubscriber(0, "", req.Email)
-			if err != nil {
-				return false, err
-			}
-
-			// Update the subscriber's subscriptions in the DB.
-			_, hasOptin, err := a.core.UpdateSubscriberWithLists(sub.ID, sub, nil, listUUIDs, false, false)
-			if err != nil {
-				return false, err
-			}
-
-			return hasOptin, nil
-		}
-
-		return false, echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("%s", err.(*echo.HTTPError).Message))
+	if err == nil {
+		return hasOptin, nil
 	}
 
-	return hasOptin, nil
+	// Insert returned an error. Examine it.
+	var lastErr = err
+
+	// Subscriber already exists. Update subscriptions in the DB.
+	if e, ok := err.(*echo.HTTPError); ok && e.Code == http.StatusConflict {
+		// Get the subscriber from the DB by their email.
+		sub, err := a.core.GetSubscriber(0, "", req.Email)
+		if err != nil {
+			return false, err
+		}
+
+		// Update the subscriber's subscriptions in the DB.
+		_, hasOptin, err := a.core.UpdateSubscriberWithLists(sub.ID, sub, nil, listUUIDs, false, false)
+		if err == nil {
+			return hasOptin, nil
+		}
+		lastErr = err
+	}
+
+	// Something else went wrong.
+	if e, ok := lastErr.(*echo.HTTPError); ok {
+		return false, echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("%s", e.Message))
+	}
+	return false, echo.NewHTTPError(http.StatusInternalServerError, a.i18n.T("public.errorProcessingRequest"))
 }

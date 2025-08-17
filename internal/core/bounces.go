@@ -9,7 +9,7 @@ import (
 	"github.com/lib/pq"
 )
 
-var bounceQuerySortFields = []string{"email", "campaign_name", "source", "created_at"}
+var bounceQuerySortFields = []string{"email", "campaign_name", "source", "created_at", "type"}
 
 // QueryBounces retrieves paginated bounce entries based on the given params.
 // It also returns the total number of bounce records in the DB.
@@ -86,14 +86,24 @@ func (c *Core) RecordBounce(b models.Bounce) error {
 	return err
 }
 
+// BlocklistBouncedSubscribers blocklists all bounced subscribers.
+func (c *Core) BlocklistBouncedSubscribers() error {
+	if _, err := c.q.BlocklistBouncedSubscribers.Exec(); err != nil {
+		c.log.Printf("error blocklisting bounced subscribers: %v", err)
+		return echo.NewHTTPError(http.StatusInternalServerError, c.i18n.Ts("subscribers.errorBlocklisting", "error", err.Error()))
+	}
+
+	return nil
+}
+
 // DeleteBounce deletes a list.
 func (c *Core) DeleteBounce(id int) error {
-	return c.DeleteBounces([]int{id})
+	return c.DeleteBounces([]int{id}, false)
 }
 
 // DeleteBounces deletes multiple lists.
-func (c *Core) DeleteBounces(ids []int) error {
-	if _, err := c.q.DeleteBounces.Exec(pq.Array(ids)); err != nil {
+func (c *Core) DeleteBounces(ids []int, all bool) error {
+	if _, err := c.q.DeleteBounces.Exec(pq.Array(ids), all); err != nil {
 		c.log.Printf("error deleting lists: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			c.i18n.Ts("globals.messages.errorDeleting", "name", "{globals.terms.list}", "error", pqErrMsg(err)))

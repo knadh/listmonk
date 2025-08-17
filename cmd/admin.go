@@ -7,6 +7,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/knadh/listmonk/internal/captcha"
 	"github.com/labstack/echo/v4"
 	null "gopkg.in/volatiletech/null.v6"
 )
@@ -15,9 +16,11 @@ type serverConfig struct {
 	RootURL            string `json:"root_url"`
 	FromEmail          string `json:"from_email"`
 	PublicSubscription struct {
-		Enabled        bool        `json:"enabled"`
-		CaptchaEnabled bool        `json:"captcha_enabled"`
-		CaptchaKey     null.String `json:"captcha_key"`
+		Enabled          bool        `json:"enabled"`
+		CaptchaEnabled   bool        `json:"captcha_enabled"`
+		CaptchaProvider  null.String `json:"captcha_provider"`
+		CaptchaKey       null.String `json:"captcha_key"`
+		AltchaComplexity int         `json:"altcha_complexity"`
 	} `json:"public_subscription"`
 	Messengers    []string        `json:"messengers"`
 	Langs         []i18nLang      `json:"langs"`
@@ -39,9 +42,16 @@ func (a *App) GetServerConfig(c echo.Context) error {
 		HasLegacyUser: a.cfg.HasLegacyUser,
 	}
 	out.PublicSubscription.Enabled = a.cfg.EnablePublicSubPage
-	if a.cfg.Security.EnableCaptcha {
+
+	// CAPTCHA.
+	if a.cfg.Security.Captcha.Altcha.Enabled {
 		out.PublicSubscription.CaptchaEnabled = true
-		out.PublicSubscription.CaptchaKey = null.StringFrom(a.cfg.Security.CaptchaKey)
+		out.PublicSubscription.CaptchaProvider = null.StringFrom(captcha.ProviderAltcha)
+		out.PublicSubscription.AltchaComplexity = a.cfg.Security.Captcha.Altcha.Complexity
+	} else if a.cfg.Security.Captcha.HCaptcha.Enabled {
+		out.PublicSubscription.CaptchaEnabled = true
+		out.PublicSubscription.CaptchaProvider = null.StringFrom(captcha.ProviderHCaptcha)
+		out.PublicSubscription.CaptchaKey = null.StringFrom(a.cfg.Security.Captcha.HCaptcha.Key)
 	}
 
 	// Language list.

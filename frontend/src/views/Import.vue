@@ -256,8 +256,7 @@ export default Vue.extend({
 
     getLogs() {
       this.$api.getImportLogs().then((data) => {
-        this.logs = data.split('\n');
-
+        this.logs = data.split('\n').map((line) => line.replace(/\s+importer\.go:\d+:\s*/, ' *: '));
         Vue.nextTick(() => {
           // vue.$refs doesn't work as the logs textarea is rendered dynamically.
           const ref = document.getElementById('import-log');

@@ -148,7 +148,16 @@ export const deleteBounce = async (id) => http.delete(`/api/bounces/${id}`, { lo
 
 export const deleteBounces = async (params) => http.delete('/api/bounces', { params, loading: models.bounces });
 
-export const createSubscriber = (data) => http.post('/api/subscribers', data, { loading: models.subscribers });
+export const blocklistBouncedSubscribers = async () => http.put(
+  '/api/bounces/blocklist',
+  { loading: models.bounces },
+);
+
+export const createSubscriber = (data) => http.post(
+  '/api/subscribers',
+  data,
+  { loading: models.subscribers },
+);
 
 export const updateSubscriber = (data) => http.put(`/api/subscribers/${data.id}`, data, {
   loading: models.subscribers,

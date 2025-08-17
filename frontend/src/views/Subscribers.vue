@@ -9,6 +9,7 @@
           </span>
           <span v-if="currentList">
             &raquo; {{ currentList.name }}
+            <span v-if="queryParams.subStatus" class="has-text-grey has-text-weight-normal is-capitalized">({{ queryParams.subStatus }})</span>
           </span>
         </h1>
       </div>
@@ -452,7 +453,7 @@ export default Vue.extend({
           this.$api.deleteSubscribersByQuery({
             // If the query expression is empty, explicitly pass `all=true`
             // so that the backend deletes all records in the DB with an empty query string.
-            all: this.queryParams.queryExp.trim() === '',
+            all: this.queryParams.queryExp.trim() === '' && this.queryParams.search.trim() === '',
             search: this.queryParams.search,
             query: this.queryParams.queryExp,
             list_ids: this.queryParams.listID ? [this.queryParams.listID] : null,
@@ -527,6 +528,9 @@ export default Vue.extend({
     if (this.$route.params.listID) {
       this.queryParams.listID = parseInt(this.$route.params.listID, 10);
     }
+    if (this.$route.query.subscription_status) {
+      this.queryParams.subStatus = this.$route.query.subscription_status;
+    }
 
     if (this.$route.params.id) {
       this.$api.getSubscriber(parseInt(this.$route.params.id, 10)).then((data) => {
@@ -535,9 +539,6 @@ export default Vue.extend({
     } else {
       // Get subscribers on load.
       this.querySubscribers();
-    }
-    if (this.$route.query.subscription_status) {
-      this.queryParams.subStatus = this.$route.query.subscription_status;
     }
   },
 });

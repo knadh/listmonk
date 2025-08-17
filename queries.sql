@@ -190,6 +190,7 @@ INSERT INTO subscriber_lists (subscriber_id, list_id, status)
             -- When subscriber is edited from the admin form, retain the status. Otherwise, a blocklisted
             -- subscriber when being re-enabled, their subscription statuses change.
             WHEN subscriber_lists.status = 'confirmed' THEN 'confirmed'
+            WHEN subscriber_lists.status = 'unsubscribed' THEN 'unsubscribed'::subscription_status
             ELSE $8::subscription_status
         END
     );
@@ -1100,7 +1101,7 @@ SELECT COUNT(*) OVER () AS total,
     bounces.subscriber_id,
     subscribers.uuid AS subscriber_uuid,
     subscribers.email AS email,
-    subscribers.email AS email,
+    subscribers.status as subscriber_status,
     (
         CASE WHEN bounces.campaign_id IS NOT NULL
         THEN JSON_BUILD_OBJECT('id', bounces.campaign_id, 'name', campaigns.name)
@@ -1116,7 +1117,7 @@ WHERE ($1 = 0 OR bounces.id = $1)
 ORDER BY %order% OFFSET $5 LIMIT $6;
 
 -- name: delete-bounces
-DELETE FROM bounces WHERE CARDINALITY($1::INT[]) = 0 OR id = ANY($1);
+DELETE FROM bounces WHERE $2 = TRUE OR id = ANY($1);
 
 -- name: delete-bounces-by-subscriber
 WITH sub AS (
@@ -1124,6 +1125,16 @@ WITH sub AS (
 )
 DELETE FROM bounces WHERE subscriber_id = (SELECT id FROM sub);
 
+-- name: blocklist-bounced-subscribers
+WITH subs AS (
+    SELECT subscriber_id FROM bounces
+),
+b AS (
+    UPDATE subscribers SET status='blocklisted', updated_at=NOW()
+    WHERE id = ANY(SELECT subscriber_id FROM subs)
+)
+UPDATE subscriber_lists SET status='unsubscribed', updated_at=NOW()
+    WHERE subscriber_id = ANY(SELECT subscriber_id FROM subs);
 
 -- name: get-db-info
 SELECT JSON_BUILD_OBJECT('version', (SELECT VERSION()),

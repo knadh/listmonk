@@ -154,9 +154,9 @@ export default Vue.extend({
         hasDummy = 'sendgrid';
       }
 
-      if (this.isDummy(form['security.captcha_secret'])) {
-        form['security.captcha_secret'] = '';
-      } else if (this.hasDummy(form['security.captcha_secret'])) {
+      if (this.isDummy(form['security.captcha'].hcaptcha.secret)) {
+        form['security.captcha'].hcaptcha.secret = '';
+      } else if (this.hasDummy(form['security.captcha'].hcaptcha.secret)) {
         hasDummy = 'captcha';
       }
 

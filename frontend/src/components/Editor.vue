@@ -318,6 +318,10 @@ export default {
       if (this.self.contentType === 'visual') {
         this.visualTemplateId = this.validTemplates[0]?.id || null;
       } else {
+        if (this.templateId) {
+          return;
+        }
+
         const defaultTemplate = this.validTemplates.find((t) => t.isDefault === true);
         this.templateId = defaultTemplate?.id || this.validTemplates[0]?.id || null;
       }

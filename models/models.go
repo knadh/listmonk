@@ -98,11 +98,11 @@ type regTplFunc struct {
 
 var regTplFuncs = []regTplFunc{
 	// Regular expression for matching {{ TrackLink "http://link.com" }} in the template
-	// and substituting it with {{ Track "http://link.com" . }} (the dot context)
+	// and substituting it with {{ TrackLink "http://link.com" . }} (the dot context)
 	// before compilation. This is to make linking easier for users.
 	{
-		regExp:  regexp.MustCompile(`{{(\\s+)?TrackLink(\\s+)?(.+?)(\\s+)?}}`),
-		replace: `{{ TrackLink $3 . }}`,
+		regExp:  regexp.MustCompile(`{{\s*TrackLink\s+"([^"]+)"\s*}}`),
+		replace: `{{ TrackLink "$1" . }}`,
 	},
 
 	// Convert the shorthand https://google.com@TrackLink to {{ TrackLink ... }}.
@@ -345,9 +345,10 @@ type Bounce struct {
 	CreatedAt time.Time       `db:"created_at" json:"created_at"`
 
 	// One of these should be provided.
-	Email          string `db:"email" json:"email,omitempty"`
-	SubscriberUUID string `db:"subscriber_uuid" json:"subscriber_uuid,omitempty"`
-	SubscriberID   int    `db:"subscriber_id" json:"subscriber_id,omitempty"`
+	Email            string `db:"email" json:"email,omitempty"`
+	SubscriberUUID   string `db:"subscriber_uuid" json:"subscriber_uuid,omitempty"`
+	SubscriberID     int    `db:"subscriber_id" json:"subscriber_id,omitempty"`
+	SubscriberStatus string `db:"subscriber_status" json:"subscriber_status"`
 
 	CampaignUUID string           `db:"campaign_uuid" json:"campaign_uuid,omitempty"`
 	Campaign     *json.RawMessage `db:"campaign" json:"campaign"`
@@ -557,6 +558,7 @@ func (c *Campaign) CompileTemplate(f template.FuncMap) error {
 	for _, r := range regTplFuncs {
 		body = r.regExp.ReplaceAllString(body, r.replace)
 	}
+
 	baseTPL, err := template.New(BaseTpl).Funcs(f).Parse(body)
 	if err != nil {
 		return fmt.Errorf("error compiling base template: %v", err)

@@ -20,3 +20,4 @@ A list of 3rd party client libraries and SDKs that have been written for listmon
 - [listmonk-laravel](https://github.com/theafolayan/listmonk-laravel) — Laravel API Client
 - [nuxt-listmonk](https://github.com/roncallyt/nuxt-listmonk) — Listmonk module for Nuxt.js
 - [listmonk-japi](https://codeberg.org/hlassiege/listmonk-japi) - Listmonk client for Java/kotlin
+- [listmonk-mcp](https://github.com/rhnvrm/listmonk-mcp) — MCP (Model Context Protocol) server for Claude integration

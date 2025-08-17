@@ -4,6 +4,9 @@ A template is a re-usable HTML design that can be used across campaigns and tran
 
 listmonk supports [Go template](https://pkg.go.dev/text/template) expressions that lets you create powerful, dynamic HTML templates. It also integrates 100+ useful [Sprig template functions](https://masterminds.github.io/sprig/).
 
+!!! Warning
+    Sprig template functions are powerful and Turing-complete, allowing programming of complex behaviour in templates. This means that it is also possible to program undesired behaviour, such as overloading memory on the host by concatenating large strings in a loop. Ensure that templating (campaigns, templates) permissions are given only to trusted users.
+
 ## Campaign templates
 Campaign templates are used in an e-mail campaigns. These template are created and managed on the UI under `Campaigns -> Templates`, and are selected when creating new campaigns.
 
@@ -27,6 +30,8 @@ There are several template functions and expressions that can be used in campaig
 | `{{ .Subscriber.Attribs }}`   | Map of arbitrary attributes. Fields can be accessed with `.`, eg: `.Subscriber.Attribs.city` |
 | `{{ .Subscriber.CreatedAt }}` | Timestamp when the subscriber was first added                                                |
 | `{{ .Subscriber.UpdatedAt }}` | Timestamp when the subscriber was modified                                                   |
+
+### Campaigns
 
 | Expression            | Description                                              |
 | --------------------- | -------------------------------------------------------- |
