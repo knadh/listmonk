@@ -5,6 +5,9 @@ import (
 	"net/http"
 	"time"
 
+	"encoding/csv"
+	"fmt"
+
 	"github.com/gofrs/uuid/v5"
 	"github.com/jmoiron/sqlx"
 	"github.com/knadh/listmonk/models"
@@ -444,6 +447,48 @@ func (c *Core) DeleteCampaignLinkClicks(before time.Time) error {
 	if _, err := c.q.DeleteCampaignLinkClicks.Exec(before); err != nil {
 		c.log.Printf("error deleting campaign link clicks: %s", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, c.i18n.Ts("public.errorProcessingRequest"))
+	}
+
+	return nil
+}
+
+// FetchCampaignResults fetches campaign results from the campaign_results_view.
+func (c *Core) FetchCampaignResults() ([]models.CampaignResult, error) {
+	var results []models.CampaignResult
+	if err := c.q.FetchCampaignResults.Select(&results); err != nil {
+		c.log.Printf("error fetching campaign results: %v", err)
+		return nil, echo.NewHTTPError(http.StatusInternalServerError, c.i18n.Ts("globals.messages.errorFetching", "name", "{globals.terms.campaignResults}", "error", pqErrMsg(err)))
+	}
+	return results, nil
+}
+
+// ExportCampaignResultsCSV exports campaign results as a CSV file.
+func (c *Core) ExportCampaignResultsCSV(w http.ResponseWriter) error {
+	results, err := c.FetchCampaignResults()
+	if err != nil {
+		return err
+	}
+
+	w.Header().Set("Content-Type", "text/csv")
+	w.Header().Set("Content-Disposition", "attachment; filename=campaign_results.csv")
+
+	writer := csv.NewWriter(w)
+	defer writer.Flush()
+
+	// Write CSV header.
+	writer.Write([]string{"Campaign Name", "Campaign ID", "Email", "Link ID", "Link URL", "Count"})
+
+	// Write data rows.
+	for _, r := range results {
+		writer.Write([]string{
+			r.CampaignName,
+			fmt.Sprintf("%d", r.CampaignID),
+			r.Email,
+			fmt.Sprintf("%d", r.LinkID),
+			r.LinkURL,
+			fmt.Sprintf("%d", r.Count),
+		})
+
 	}
 
 	return nil
