@@ -688,7 +688,8 @@ func (a *App) validateCampaignFields(c campReq) (campReq, error) {
 		c.ContentType != models.CampaignContentTypeHTML &&
 		c.ContentType != models.CampaignContentTypePlain &&
 		c.ContentType != models.CampaignContentTypeVisual &&
-		c.ContentType != models.CampaignContentTypeMarkdown {
+		c.ContentType != models.CampaignContentTypeMarkdown &&
+		c.ContentType != models.CampaignContentTypeMJML {
 		c.ContentType = models.CampaignContentTypeRichtext
 	}
 
@@ -716,9 +717,24 @@ func (a *App) validateCampaignFields(c campReq) (campReq, error) {
 		}
 	}
 
-	camp := models.Campaign{Body: c.Body, TemplateBody: tplTag}
-	if err := c.CompileTemplate(a.manager.TemplateFuncs(&camp)); err != nil {
-		return c, errors.New(a.i18n.Ts("campaigns.fieldInvalidBody", "error", err.Error()))
+	// Empty MJML drafts are valid while creating/editing, but gomjml rejects
+	// an empty document with EOF. Validate only when there's something to compile.
+	shouldCompile := c.ContentType != models.CampaignContentTypeMJML || strings.TrimSpace(c.Body) != ""
+	if shouldCompile {
+		templateBody := tplTag
+
+		if c.ContentType == models.CampaignContentTypeMJML && c.TemplateID.Valid && c.TemplateID.Int > 0 {
+			tpl, err := a.core.GetTemplate(c.TemplateID.Int, false)
+			if err != nil {
+				return c, err
+			}
+			templateBody = tpl.Body
+		}
+
+		camp := models.Campaign{Body: c.Body, ContentType: c.ContentType, TemplateBody: templateBody}
+		if err := camp.CompileTemplate(a.manager.TemplateFuncs(&camp)); err != nil {
+			return c, errors.New(a.i18n.Ts("campaigns.fieldInvalidBody", "error", err.Error()))
+		}
 	}
 
 	if len(c.Headers) == 0 {
