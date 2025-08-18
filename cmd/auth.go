@@ -34,11 +34,11 @@ type oidcState struct {
 	Next  string `json:"next"`
 }
 
-var oidcProviders = map[string]bool{
-	"google.com":          true,
-	"microsoftonline.com": true,
-	"auth0.com":           true,
-	"github.com":          true,
+var oidcProviders = map[string]struct{}{
+	"google.com":          {},
+	"microsoftonline.com": {},
+	"auth0.com":           {},
+	"github.com":          {},
 }
 
 // LoginPage renders the login page and handles the login form.
