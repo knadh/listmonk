@@ -50,5 +50,10 @@ func V5_1_0(db *sqlx.DB, fs stuffbin.FileSystem, ko *koanf.Koanf, lo *log.Logger
 		return err
 	}
 
+	// Add MJML to content_type enum if not exists
+	if _, err = db.Exec(`ALTER TYPE content_type ADD VALUE IF NOT EXISTS 'mjml';`); err != nil {
+		return err
+	}
+
 	return nil
 }

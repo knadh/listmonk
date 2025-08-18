@@ -1,6 +1,6 @@
 module github.com/knadh/listmonk
 
-go 1.24.1
+go 1.24.4
 
 require (
 	github.com/Masterminds/sprig/v3 v3.3.0
@@ -29,6 +29,7 @@ require (
 	github.com/labstack/echo/v4 v4.13.4
 	github.com/lib/pq v1.10.9
 	github.com/paulbellamy/ratecounter v0.2.0
+	github.com/preslavrachev/gomjml v0.10.0
 	github.com/rhnvrm/simples3 v0.9.1
 	github.com/spf13/pflag v1.0.6
 	github.com/yuin/goldmark v1.7.12
