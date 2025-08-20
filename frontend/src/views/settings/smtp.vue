@@ -210,7 +210,6 @@
 </template>
 
 <script>
-import Vue from 'vue';
 import { mapState } from 'vuex';
 import { regDuration } from '../../constants';
 
@@ -238,7 +237,7 @@ const smtpTemplates = {
   },
 };
 
-export default Vue.extend({
+export default {
   props: {
     form: {
       type: Object, default: () => { },
@@ -362,5 +361,5 @@ export default Vue.extend({
   computed: {
     ...mapState(['settings']),
   },
-});
+};
 </script>

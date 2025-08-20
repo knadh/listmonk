@@ -1,6 +1,6 @@
-import Vue from 'vue';
-import Buefy from 'buefy';
-import VueI18n from 'vue-i18n';
+import { createApp, nextTick } from 'vue';
+import Oruga from '@oruga-ui/oruga-next';
+import { createI18n } from 'vue-i18n';
 
 import App from './App.vue';
 import router from './router';
@@ -8,12 +8,12 @@ import store from './store';
 import * as api from './api';
 import Utils from './utils';
 
-// Internationalisation.
-Vue.use(VueI18n);
-const i18n = new VueI18n();
-
-Vue.use(Buefy, {});
-Vue.config.productionTip = false;
+// Create i18n instance
+const i18n = createI18n({
+  legacy: false,
+  locale: 'en',
+  messages: {},
+});
 
 // Setup the router.
 router.beforeEach((to, from, next) => {
@@ -25,8 +25,8 @@ router.beforeEach((to, from, next) => {
 });
 
 router.afterEach((to) => {
-  Vue.nextTick(() => {
-    const t = to.meta.title && i18n.te(to.meta.title) ? `${i18n.tc(to.meta.title, 0)} /` : '';
+  nextTick(() => {
+    const t = to.meta.title && i18n.global.te(to.meta.title) ? `${i18n.global.tc(to.meta.title, 0)} /` : '';
     document.title = `${t} listmonk`;
   });
 });
@@ -36,16 +36,57 @@ async function initConfig(app) {
   const [profile, cfg] = await Promise.all([api.getUserProfile(), api.getServerConfig()]);
 
   const lang = await api.getLang(cfg.lang);
-  i18n.locale = cfg.lang;
-  i18n.setLocaleMessage(i18n.locale, lang);
+  i18n.global.locale.value = cfg.lang;
+  i18n.global.setLocaleMessage(cfg.lang, lang);
 
-  Vue.prototype.$utils = new Utils(i18n);
-  Vue.prototype.$api = api;
-  Vue.prototype.$events = app;
+  const utils = new Utils(i18n.global);
+
+  // Set global properties
+  // eslint-disable-next-line no-param-reassign
+  app.config.globalProperties.$utils = utils;
+  // eslint-disable-next-line no-param-reassign
+  app.config.globalProperties.$api = api;
+  // eslint-disable-next-line no-param-reassign
+  app.config.globalProperties.$events = app;
+
+  // Set up global toast/dialog functions for backward compatibility
+  // eslint-disable-next-line no-param-reassign
+  window.showToast = ({
+    message, type, duration, position,
+  }) => {
+    console.log(`Toast: ${type || 'info'} - ${message}`);
+  };
+
+  // eslint-disable-next-line no-param-reassign
+  window.toastError = (message) => {
+    console.log(`Error: ${message}`);
+  };
+
+  // eslint-disable-next-line no-param-reassign
+  window.showConfirm = ({ message, onConfirm, onCancel }) => {
+    if (confirm(message)) { // eslint-disable-line no-alert
+      if (onConfirm) onConfirm();
+    } else if (onCancel) {
+      onCancel();
+    }
+  };
+
+  // eslint-disable-next-line no-param-reassign
+  window.showPrompt = ({
+    message, onConfirm, onCancel, inputAttrs,
+  }) => {
+    const result = prompt(message, inputAttrs?.value || ''); // eslint-disable-line no-alert
+    if (result !== null && onConfirm) {
+      onConfirm(result);
+    } else if (result === null && onCancel) {
+      onCancel();
+    }
+  };
 
   // $can('permission:name') is used in the UI to check whether the logged in user
   // has a certain permission to toggle visibility of UI objects and UI functionality.
-  Vue.prototype.$can = (...perms) => {
+  // eslint-disable-next-line no-param-reassign
+  app.config.globalProperties.$can = (...perms) => {
     if (profile.userRole.id === 1) {
       return true;
     }
@@ -63,7 +104,8 @@ async function initConfig(app) {
     });
   };
 
-  Vue.prototype.$canList = (id, perm) => {
+  // eslint-disable-next-line no-param-reassign
+  app.config.globalProperties.$canList = (id, perm) => {
     if (profile.userRole.id === 1) {
       return true;
     }
@@ -72,34 +114,33 @@ async function initConfig(app) {
   };
 
   // Set the page title after i18n has loaded.
-  const to = router.history.current;
-  const title = to.meta.title ? `${i18n.tc(to.meta.title, 0)} /` : '';
+  const to = router.currentRoute.value;
+  const title = to.meta.title ? `${i18n.global.tc(to.meta.title, 0)} /` : '';
   document.title = `${title} listmonk`;
 
   if (app) {
-    app.$mount('#app');
+    app.mount('#app');
   }
 }
 
-const v = new Vue({
-  router,
-  store,
-  i18n,
-  render: (h) => h(App),
+// Create Vue 3 app
+const app = createApp(App);
 
-  data: {
-    isLoaded: false,
-  },
-
-  methods: {
-    loadConfig() {
-      initConfig();
-    },
-  },
-
-  mounted() {
-    v.isLoaded = true;
-  },
+// Use plugins
+app.use(router);
+app.use(store);
+app.use(i18n);
+app.use(Oruga, {
+  // Oruga config options can go here
 });
 
-initConfig(v);
+// Create a reactive data object for global state
+app.config.globalProperties.$isLoaded = false;
+
+// Method to reload config
+app.config.globalProperties.$loadConfig = () => {
+  initConfig();
+};
+
+// Initialize the app
+initConfig(app);

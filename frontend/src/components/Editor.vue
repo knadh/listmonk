@@ -13,11 +13,9 @@
 
         <b-field v-if="self.contentType !== 'visual'" :label="$tc('globals.terms.template')" label-position="on-border">
           <b-select :placeholder="$t('globals.terms.none')" v-model="templateId" name="template" :disabled="disabled">
-            <template v-for="t in validTemplates">
-              <option :value="t.id" :key="t.id">
-                {{ t.name }}
-              </option>
-            </template>
+            <option v-for="t in validTemplates" :key="t.id" :value="t.id">
+              {{ t.name }}
+            </option>
           </b-select>
         </b-field>
 
@@ -30,11 +28,9 @@
             <b-select :placeholder="$t('globals.terms.none')" v-model="visualTemplateId"
               @input="() => isVisualTplDisabled = false" name="template" :disabled="disabled"
               class="copy-visual-template-list">
-              <template v-for="t in validTemplates">
-                <option :value="t.id" :key="t.id">
-                  {{ t.name }}
-                </option>
-              </template>
+              <option v-for="t in validTemplates" :key="t.id" :value="t.id">
+                {{ t.name }}
+              </option>
             </b-select>
 
             <b-button :disabled="disabled || isVisualTplDisabled || !visualTemplateId" class="ml-3"

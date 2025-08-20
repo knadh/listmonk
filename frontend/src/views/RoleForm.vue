@@ -26,11 +26,9 @@
               <div class="column is-9">
                 <b-select :placeholder="$tc('globals.terms.list')" v-model="form.curList" name="list"
                   :disabled="disabled || filteredLists.length < 1" expanded class="mb-3">
-                  <template v-for="l in filteredLists">
-                    <option :value="l.id" :key="l.id">
-                      {{ l.name }}
-                    </option>
-                  </template>
+                  <option v-for="l in filteredLists" :key="l.id" :value="l.id">
+                    {{ l.name }}
+                  </option>
                 </b-select>
               </div>
               <div class="column">
@@ -118,11 +116,10 @@
 </template>
 
 <script>
-import Vue from 'vue';
 import { mapState } from 'vuex';
 import CopyText from '../components/CopyText.vue';
 
-export default Vue.extend({
+export default {
   name: 'RoleForm',
 
   components: {
@@ -276,5 +273,5 @@ export default Vue.extend({
       this.$refs.focus.focus();
     });
   },
-});
+};
 </script>

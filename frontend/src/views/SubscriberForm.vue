@@ -140,7 +140,7 @@
           </b-tab-item>
         </b-tabs>
 
-        <b-field :message="$t('subscribers.attribsHelp') + ' ' + egAttribs" class="mt-6">
+        <b-field :message="`${$t('subscribers.attribsHelp')} ${egAttribs}`" class="mt-6">
           <div>
             <h5>{{ $t('subscribers.attribs') }}</h5>
             <b-input v-model="form.strAttribs" name="attribs" type="textarea" />
@@ -164,12 +164,11 @@
 </template>
 
 <script>
-import Vue from 'vue';
 import { mapState } from 'vuex';
 import ListSelector from '../components/ListSelector.vue';
 import CopyText from '../components/CopyText.vue';
 
-export default Vue.extend({
+export default {
   components: {
     ListSelector,
     CopyText,
@@ -351,5 +350,5 @@ export default Vue.extend({
       this.$refs.focus.focus();
     });
   },
-});
+};
 </script>

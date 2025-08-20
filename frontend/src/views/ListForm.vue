@@ -68,11 +68,10 @@
 </template>
 
 <script>
-import Vue from 'vue';
 import { mapState } from 'vuex';
 import CopyText from '../components/CopyText.vue';
 
-export default Vue.extend({
+export default {
   name: 'ListForm',
 
   components: {
@@ -134,5 +133,5 @@ export default Vue.extend({
       this.$refs.focus.focus();
     });
   },
-});
+};
 </script>

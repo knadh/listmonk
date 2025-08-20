@@ -163,12 +163,11 @@
 </template>
 
 <script>
-import Vue from 'vue';
 import { mapState } from 'vuex';
 import EmptyPlaceholder from '../components/EmptyPlaceholder.vue';
 import ListForm from './ListForm.vue';
 
-export default Vue.extend({
+export default {
   components: {
     ListForm,
     EmptyPlaceholder,
@@ -294,5 +293,5 @@ export default Vue.extend({
       this.getLists();
     }
   },
-});
+};
 </script>

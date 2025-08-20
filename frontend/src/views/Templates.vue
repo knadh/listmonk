@@ -116,13 +116,12 @@
 </template>
 
 <script>
-import Vue from 'vue';
 import { mapState } from 'vuex';
 import CampaignPreview from '../components/CampaignPreview.vue';
 import EmptyPlaceholder from '../components/EmptyPlaceholder.vue';
 import TemplateForm from './TemplateForm.vue';
 
-export default Vue.extend({
+export default {
   components: {
     CampaignPreview,
     TemplateForm,
@@ -202,5 +201,5 @@ export default Vue.extend({
   mounted() {
     this.$api.getTemplates();
   },
-});
+};
 </script>

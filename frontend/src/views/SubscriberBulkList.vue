@@ -45,11 +45,10 @@
 </template>
 
 <script>
-import Vue from 'vue';
 import { mapState } from 'vuex';
 import ListSelector from '../components/ListSelector.vue';
 
-export default Vue.extend({
+export default {
   components: {
     ListSelector,
   },
@@ -83,5 +82,5 @@ export default Vue.extend({
       return this.form.lists.some((l) => l.optin === 'double');
     },
   },
-});
+};
 </script>

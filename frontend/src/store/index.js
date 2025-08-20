@@ -1,10 +1,7 @@
-import Vue from 'vue';
-import Vuex from 'vuex';
+import { createStore } from 'vuex';
 import { models } from '../constants';
 
-Vue.use(Vuex);
-
-export default new Vuex.Store({
+export default createStore({
   state: {
     // Data from API responses for different models, eg: lists, campaigns.
     // The API responses are stored in this map as-is. This is invoked by

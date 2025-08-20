@@ -35,11 +35,10 @@
 </template>
 
 <script>
-import Vue from 'vue';
 import { mapState } from 'vuex';
 import CodeEditor from '../../components/CodeEditor.vue';
 
-export default Vue.extend({
+export default {
   components: {
     'code-editor': CodeEditor,
   },
@@ -70,6 +69,6 @@ export default Vue.extend({
   computed: {
     ...mapState(['settings']),
   },
-});
+};
 
 </script>

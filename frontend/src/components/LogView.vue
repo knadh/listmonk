@@ -3,13 +3,11 @@
     <b-loading :active="loading" :is-full-page="false" />
     <div class="lines" ref="lines">
       <template v-for="(l, i) in lines">
-        <template v-if="l">
-          <span :set="line = splitLine(l)" :key="i" class="line">
-            <span class="timestamp">{{ line.timestamp }}&nbsp;</span>
-            <span v-if="line.file !== '*'" class="file">{{ line.file }}:&nbsp;</span>
-            <span class="log-message">{{ line.message }}</span>
-          </span>
-        </template>
+        <span v-if="l" :key="i" :set="line = splitLine(l)" class="line">
+          <span class="timestamp">{{ line.timestamp }}&nbsp;</span>
+          <span v-if="line.file !== '*'" class="file">{{ line.file }}:&nbsp;</span>
+          <span class="log-message">{{ line.message }}</span>
+        </span>
       </template>
     </div>
   </section>

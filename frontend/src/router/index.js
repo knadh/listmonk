@@ -1,7 +1,4 @@
-import Vue from 'vue';
-import VueRouter from 'vue-router';
-
-Vue.use(VueRouter);
+import { createRouter, createWebHistory } from 'vue-router';
 
 // The meta.group param is used in App.vue to expand menu group by name.
 const routes = [
@@ -139,16 +136,15 @@ const routes = [
   },
 ];
 
-const router = new VueRouter({
-  mode: 'history',
-  base: import.meta.env.BASE_URL,
+const router = createRouter({
+  history: createWebHistory(import.meta.env.BASE_URL),
   routes,
 
   scrollBehavior(to) {
     if (to.hash) {
-      return { selector: to.hash };
+      return { el: to.hash };
     }
-    return { x: 0, y: 0 };
+    return { top: 0, left: 0 };
   },
 });
 

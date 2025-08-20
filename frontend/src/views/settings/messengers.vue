@@ -84,10 +84,9 @@
 </template>
 
 <script>
-import Vue from 'vue';
 import { regDuration } from '../../constants';
 
-export default Vue.extend({
+export default {
   props: {
     form: {
       type: Object, default: () => { },
@@ -124,5 +123,5 @@ export default Vue.extend({
       this.data.messengers.splice(i, 1);
     },
   },
-});
+};
 </script>

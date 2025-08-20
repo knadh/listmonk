@@ -42,10 +42,9 @@
 </template>
 
 <script>
-import Vue from 'vue';
 import { mapState } from 'vuex';
 
-export default Vue.extend({
+export default {
   name: 'UserProfile',
 
   data() {
@@ -91,5 +90,5 @@ export default Vue.extend({
     ...mapState(['loading']),
   },
 
-});
+};
 </script>

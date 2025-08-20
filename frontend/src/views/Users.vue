@@ -129,12 +129,11 @@
 </template>
 
 <script>
-import Vue from 'vue';
 import { mapState } from 'vuex';
 import EmptyPlaceholder from '../components/EmptyPlaceholder.vue';
 import UserForm from './UserForm.vue';
 
-export default Vue.extend({
+export default {
   components: {
     EmptyPlaceholder,
     UserForm,
@@ -231,5 +230,5 @@ export default Vue.extend({
       this.getUsers();
     }
   },
-});
+};
 </script>

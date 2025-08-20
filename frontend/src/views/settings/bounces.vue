@@ -15,13 +15,13 @@
           <div class="column is-4" :class="{ disabled: !data['bounce.enabled'] }">
             <b-field :label="$t('settings.bounces.count')" label-position="on-border"
               :message="$t('settings.bounces.countHelp')" data-cy="btn-bounce-count">
-              <b-numberinput v-model="data['bounce.actions'][typ]['count']" name="bounce.count" type="is-light"
+              <b-numberinput v-model="data['bounce.actions'][typ].count" name="bounce.count" type="is-light"
                 controls-position="compact" placeholder="3" min="1" max="1000" />
             </b-field>
           </div>
           <div class="column is-4" :class="{ disabled: !data['bounce.enabled'] }">
             <b-field :label="$t('settings.bounces.action')" label-position="on-border">
-              <b-select name="bounce.action" v-model="data['bounce.actions'][typ]['action']" expanded>
+              <b-select name="bounce.action" v-model="data['bounce.actions'][typ].action" expanded>
                 <option value="none">
                   {{ $t('globals.terms.none') }}
                 </option>
@@ -219,10 +219,9 @@
 </template>
 
 <script>
-import Vue from 'vue';
 import { regDuration } from '../../constants';
 
-export default Vue.extend({
+export default {
   props: {
     form: {
       type: Object, default: () => { },
@@ -242,5 +241,5 @@ export default Vue.extend({
       this.data['bounce.mailboxes'].splice(i, 1);
     },
   },
-});
+};
 </script>

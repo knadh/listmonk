@@ -113,10 +113,9 @@
 </template>
 
 <script>
-import Vue from 'vue';
 import { regDuration } from '../../constants';
 
-export default Vue.extend({
+export default {
   props: {
     form: {
       type: Object, default: () => { },
@@ -140,5 +139,5 @@ export default Vue.extend({
       this.data['upload.s3.url'] = `https://s3.${this.data['upload.s3.aws_default_region']}.amazonaws.com`;
     },
   },
-});
+};
 </script>

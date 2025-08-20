@@ -80,12 +80,11 @@
 </template>
 
 <script>
-import Vue from 'vue';
 import { mapState } from 'vuex';
 import EmptyPlaceholder from '../components/EmptyPlaceholder.vue';
 import RoleForm from './RoleForm.vue';
 
-export default Vue.extend({
+export default {
   components: {
     EmptyPlaceholder,
     RoleForm,
@@ -189,5 +188,5 @@ export default Vue.extend({
     this.curType = this.$route.name === 'userRoles' ? 'user' : 'list';
     this.fetchRoles();
   },
-});
+};
 </script>

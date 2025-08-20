@@ -9,11 +9,10 @@
 </template>
 
 <script>
-import Vue from 'vue';
 import { mapState } from 'vuex';
 import LogView from '../components/LogView.vue';
 
-export default Vue.extend({
+export default {
   components: {
     LogView,
   },
@@ -47,5 +46,5 @@ export default Vue.extend({
   destroyed() {
     clearInterval(this.pollId);
   },
-});
+};
 </script>

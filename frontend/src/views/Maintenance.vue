@@ -112,10 +112,9 @@
 
 <script>
 import dayjs from 'dayjs';
-import Vue from 'vue';
 import { mapState } from 'vuex';
 
-export default Vue.extend({
+export default {
   components: {
   },
 
@@ -179,5 +178,5 @@ export default Vue.extend({
     ...mapState(['loading']),
   },
 
-});
+};
 </script>

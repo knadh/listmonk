@@ -1,7 +1,4 @@
-import {
-  ToastProgrammatic as Toast,
-  DialogProgrammatic as Dialog,
-} from 'buefy';
+// Dialog and toast functionality will be handled via global properties
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import updateLocale from 'dayjs/plugin/updateLocale';
@@ -145,44 +142,46 @@ export default class Utils {
 
   // UI shortcuts.
   confirm = (msg, onConfirm, onCancel) => {
-    Dialog.confirm({
-      scroll: 'keep',
-      message: !msg ? this.i18n.t('globals.messages.confirm') : this.escapeHTML(msg),
-      confirmText: this.i18n.t('globals.buttons.ok'),
-      cancelText: this.i18n.t('globals.buttons.cancel'),
-      onConfirm,
-      onCancel,
-    });
+    if (typeof window !== 'undefined' && window.showConfirm) {
+      window.showConfirm({
+        message: !msg ? this.i18n.t('globals.messages.confirm') : this.escapeHTML(msg),
+        confirmText: this.i18n.t('globals.buttons.ok'),
+        cancelText: this.i18n.t('globals.buttons.cancel'),
+        onConfirm,
+        onCancel,
+      });
+    }
   };
 
   prompt = (msg, inputAttrs, onConfirm, onCancel, params) => {
     const p = params || {};
 
-    Dialog.prompt({
-      scroll: 'keep',
-      message: this.escapeHTML(msg),
-      confirmText: p.confirmText || this.i18n.t('globals.buttons.ok'),
-      cancelText: p.cancelText || this.i18n.t('globals.buttons.cancel'),
-      inputAttrs: {
-        type: 'string',
-        maxlength: 200,
-        ...inputAttrs,
-      },
-      trapFocus: true,
-      onConfirm,
-      onCancel,
-    });
+    if (typeof window !== 'undefined' && window.showPrompt) {
+      window.showPrompt({
+        message: this.escapeHTML(msg),
+        confirmText: p.confirmText || this.i18n.t('globals.buttons.ok'),
+        cancelText: p.cancelText || this.i18n.t('globals.buttons.cancel'),
+        inputAttrs: {
+          type: 'string',
+          maxlength: 200,
+          ...inputAttrs,
+        },
+        onConfirm,
+        onCancel,
+      });
+    }
   };
 
-  toast = (msg, typ, duration, queue) => {
-    Toast.open({
-      message: this.escapeHTML(msg),
-      type: !typ ? 'is-success' : typ,
-      queue,
-      duration: duration || 3000,
-      position: 'is-top',
-      pauseOnHover: true,
-    });
+  toast = (msg, typ, duration) => {
+    if (typeof window !== 'undefined' && window.showToast) {
+      window.showToast({
+        message: this.escapeHTML(msg),
+        type: !typ ? 'is-success' : typ,
+        duration: duration || 3000,
+        position: 'is-top',
+        pauseOnHover: true,
+      });
+    }
   };
 
   // Takes a props.row from a Buefy b-column <td> template and

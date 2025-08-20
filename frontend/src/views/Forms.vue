@@ -47,11 +47,10 @@
 </template>
 
 <script>
-import Vue from 'vue';
 import { mapState } from 'vuex';
 import CodeEditor from '../components/CodeEditor.vue';
 
-export default Vue.extend({
+export default {
   name: 'ListForm',
 
   components: {
@@ -127,5 +126,5 @@ export default Vue.extend({
       this.renderHTML();
     },
   },
-});
+};
 </script>

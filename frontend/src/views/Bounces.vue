@@ -96,11 +96,10 @@
 </template>
 
 <script>
-import Vue from 'vue';
 import { mapState } from 'vuex';
 import EmptyPlaceholder from '../components/EmptyPlaceholder.vue';
 
-export default Vue.extend({
+export default {
   components: {
     EmptyPlaceholder,
   },
@@ -224,5 +223,5 @@ export default Vue.extend({
 
     this.getBounces();
   },
-});
+};
 </script>

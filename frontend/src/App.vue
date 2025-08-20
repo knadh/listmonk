@@ -103,13 +103,12 @@
 </template>
 
 <script>
-import Vue from 'vue';
 import { mapState } from 'vuex';
 import { uris } from './constants';
 
 import Navigation from './components/Navigation.vue';
 
-export default Vue.extend({
+export default {
   name: 'App',
 
   components: {
@@ -188,11 +187,11 @@ export default Vue.extend({
     ...mapState(['serverConfig', 'profile']),
 
     isGlobalNotices() {
-      return (this.serverConfig.needs_restart
+      return this.serverConfig.needs_restart
         || this.serverConfig.has_legacy_user
         || (this.serverConfig.update
-        && this.serverConfig.update.messages
-        && this.serverConfig.update.messages.length > 0));
+          && this.serverConfig.update.messages
+          && this.serverConfig.update.messages.length > 0);
     },
 
     version() {
@@ -215,7 +214,7 @@ export default Vue.extend({
 
     this.listenEvents();
   },
-});
+};
 </script>
 
 <style lang="scss">

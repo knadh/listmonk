@@ -1,5 +1,5 @@
 /* Import Bulma to set variables */
-@import "../node_modules/bulma/sass/utilities/_all";
+@import "bulma/sass/utilities/_index";
 
 /* import inter-regular */
 @font-face {
@@ -32,6 +32,10 @@ $link: $primary;
 $input-placeholder-color: $grey-light;
 $grey-lightest: #eaeaea;
 
+/* Missing color variables for compatibility */
+$green-invert: $white;
+$white-ter: #f5f5f5;
+
 $colors: map-merge($colors, (
     "turquoise": ($green, $green-invert),
     "green": ($green, $green-invert),
@@ -44,17 +48,15 @@ $sidebar-width: 240px;
 $menu-item-active-background-color: $white-bis;
 $menu-item-active-color: $primary;
 
-
-/* Buefy */
+/* Oruga */
 $modal-background-background-color: rgba(0, 0, 0, .30);
 
 .line-chart {
   min-height: 300px;
 }
 
-/* Import full Bulma and Buefy */
+/* Import full Bulma */
 @import "bulma";
-@import "buefy/src/scss/buefy";
 
 /* Custom style overrides */
 html, body {

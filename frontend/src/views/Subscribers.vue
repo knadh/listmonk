@@ -115,16 +115,14 @@
           {{ $t(`subscribers.status.${props.row.status}`) }}
         </b-tag>
         <b-taglist>
-          <template v-for="l in props.row.lists">
-            <router-link :to="`/subscribers/lists/${l.id}`" :key="l.id" style="padding-right:0.5em;">
-              <b-tag :class="l.subscriptionStatus" size="is-small" :key="l.id">
-                {{ l.name }}
-                <sup v-if="l.optin === 'double' || l.subscriptionStatus == 'unsubscribed'">
-                  {{ $t(`subscribers.status.${l.subscriptionStatus}`) }}
-                </sup>
-              </b-tag>
-            </router-link>
-          </template>
+          <router-link v-for="l in props.row.lists" :key="l.id" :to="`/subscribers/lists/${l.id}`" style="padding-right:0.5em;">
+            <b-tag :class="l.subscriptionStatus" size="is-small">
+              {{ l.name }}
+              <sup v-if="l.optin === 'double' || l.subscriptionStatus === 'unsubscribed'">
+                {{ $t(`subscribers.status.${l.subscriptionStatus}`) }}
+              </sup>
+            </b-tag>
+          </router-link>
         </b-taglist>
       </b-table-column>
 
@@ -191,7 +189,6 @@
 </template>
 
 <script>
-import Vue from 'vue';
 import { mapState } from 'vuex';
 import EmptyPlaceholder from '../components/EmptyPlaceholder.vue';
 import { uris } from '../constants';
@@ -199,7 +196,7 @@ import SubscriberBulkList from './SubscriberBulkList.vue';
 import SubscriberForm from './SubscriberForm.vue';
 import CopyText from '../components/CopyText.vue';
 
-export default Vue.extend({
+export default {
   components: {
     SubscriberForm,
     SubscriberBulkList,
@@ -541,5 +538,5 @@ export default Vue.extend({
       this.querySubscribers();
     }
   },
-});
+};
 </script>

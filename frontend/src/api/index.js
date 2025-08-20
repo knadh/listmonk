@@ -1,4 +1,4 @@
-import { ToastProgrammatic as Toast } from 'buefy';
+// Toast functionality will be handled via global properties
 import axios from 'axios';
 import qs from 'qs';
 import store from '../store';
@@ -78,13 +78,10 @@ http.interceptors.response.use((resp) => {
   }
 
   if (!err.config.disableToast) {
-    Toast.open({
-      message: msg,
-      type: 'is-danger',
-      queue: false,
-      position: 'is-top',
-      pauseOnHover: true,
-    });
+    // Toast will be handled by the global toast method
+    if (typeof window !== 'undefined' && window.toastError) {
+      window.toastError(msg);
+    }
   }
 
   return Promise.reject(err);

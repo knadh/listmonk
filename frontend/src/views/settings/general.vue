@@ -106,10 +106,9 @@
 </template>
 
 <script>
-import Vue from 'vue';
 import { mapState } from 'vuex';
 
-export default Vue.extend({
+export default {
   props: {
     form: {
       type: Object, default: () => { },
@@ -126,5 +125,5 @@ export default Vue.extend({
     ...mapState(['serverConfig', 'loading']),
   },
 
-});
+};
 </script>

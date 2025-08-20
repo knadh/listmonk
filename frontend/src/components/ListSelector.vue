@@ -22,7 +22,6 @@
 </template>
 
 <script>
-import Vue from 'vue';
 
 export default {
   name: 'ListSelector',
@@ -63,7 +62,7 @@ export default {
       this.query = '';
 
       // Propagate the items to the parent's v-model binding.
-      Vue.nextTick(() => {
+      this.$nextTick(() => {
         this.$emit('input', this.selectedItems);
       });
     },
@@ -72,7 +71,7 @@ export default {
       this.selectedItems = this.selectedItems.filter((l) => l.id !== id);
 
       // Propagate the items to the parent's v-model binding.
-      Vue.nextTick(() => {
+      this.$nextTick(() => {
         this.$emit('input', this.selectedItems);
       });
     },
@@ -81,7 +80,7 @@ export default {
   computed: {
     // Return the list of unselected lists.
     filteredLists() {
-      // Get a map of IDs of the user subscriptions. eg: {1: true, 2: true};
+      // Get a map of IDs of the user subscriptions. eg: {1: true, 2: true});
       const subIDs = this.selectedItems.reduce((obj, item) => ({ ...obj, [item.id]: true }), {});
 
       // Filter lists from the global lists whose IDs are not in the user's

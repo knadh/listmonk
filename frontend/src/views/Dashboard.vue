@@ -150,12 +150,11 @@
 
 <script>
 import dayjs from 'dayjs';
-import Vue from 'vue';
 import { mapState } from 'vuex';
 import { colors } from '../constants';
 import Chart from '../components/Chart.vue';
 
-export default Vue.extend({
+export default {
   components: {
     Chart,
   },
@@ -216,5 +215,5 @@ export default Vue.extend({
       this.campaignClicks = this.makeChart(data.linkClicks);
     });
   },
-});
+};
 </script>

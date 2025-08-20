@@ -261,13 +261,12 @@
 
 <script>
 import dayjs from 'dayjs';
-import Vue from 'vue';
 import { mapState } from 'vuex';
 import CampaignPreview from '../components/CampaignPreview.vue';
 import EmptyPlaceholder from '../components/EmptyPlaceholder.vue';
 import CopyText from '../components/CopyText.vue';
 
-export default Vue.extend({
+export default {
   components: {
     CampaignPreview,
     EmptyPlaceholder,
@@ -470,5 +469,5 @@ export default Vue.extend({
   destroyed() {
     clearInterval(this.pollID);
   },
-});
+};
 </script>

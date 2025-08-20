@@ -86,14 +86,13 @@
 </template>
 
 <script>
-import Vue from 'vue';
 import { mapState } from 'vuex';
 import CampaignPreview from '../components/CampaignPreview.vue';
 import CodeEditor from '../components/CodeEditor.vue';
 import VisualEditor from '../components/VisualEditor.vue';
 import CopyText from '../components/CopyText.vue';
 
-export default Vue.extend({
+export default {
   components: {
     CampaignPreview,
     CopyText,
@@ -200,5 +199,5 @@ export default Vue.extend({
   beforeDestroy() {
     window.removeEventListener('keydown', this.onPreviewShortcut);
   },
-});
+};
 </script>

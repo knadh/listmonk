@@ -1,4 +1,4 @@
-import vue from '@vitejs/plugin-vue2';
+import vue from '@vitejs/plugin-vue';
 import { defineConfig, loadEnv } from 'vite';
 
 const path = require('path');
@@ -13,7 +13,6 @@ export default defineConfig(({ _, mode }) => {
     resolve: {
       alias: {
         '@': path.resolve(__dirname, './src'),
-        bulma: require.resolve('bulma/bulma.sass'),
       },
     },
     build: {

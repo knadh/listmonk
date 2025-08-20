@@ -47,9 +47,8 @@
 </template>
 
 <script>
-import Vue from 'vue';
 
-export default Vue.extend({
+export default {
   props: {
     form: {
       type: Object, default: () => { },
@@ -87,5 +86,5 @@ export default Vue.extend({
       this.$utils.setPref('settings.privacyDomainTab', t);
     },
   },
-});
+};
 </script>

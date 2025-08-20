@@ -258,7 +258,7 @@
                 <b-select :placeholder="$tc('globals.terms.template')" v-model="form.archiveTemplateId" name="template"
                   :disabled="!canArchive || !form.archive || form.content.contentType === 'visual'" required>
                   <template v-for="t in templates">
-                    <option v-if="t.type === 'campaign'" :value="t.id" :key="t.id">
+                    <option v-if="t.type === 'campaign'" :key="t.id" :value="t.id">
                       {{ t.name }}
                     </option>
                   </template>
@@ -314,7 +314,6 @@
 <script>
 import dayjs from 'dayjs';
 import htmlToPlainText from 'textversionjs';
-import Vue from 'vue';
 import { mapState } from 'vuex';
 
 import CopyText from '../components/CopyText.vue';
@@ -323,7 +322,7 @@ import ListSelector from '../components/ListSelector.vue';
 import Media from './Media.vue';
 import CampaignPreview from '../components/CampaignPreview.vue';
 
-export default Vue.extend({
+export default {
   components: {
     ListSelector,
     Editor,
@@ -791,5 +790,5 @@ export default Vue.extend({
   beforeDestroy() {
     this.$events.$off('campaign.update');
   },
-});
+};
 </script>

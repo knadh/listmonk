@@ -64,7 +64,6 @@
 </template>
 
 <script>
-import Vue from 'vue';
 import { mapState } from 'vuex';
 import AppearanceSettings from './settings/appearance.vue';
 import BounceSettings from './settings/bounces.vue';
@@ -76,7 +75,7 @@ import PrivacySettings from './settings/privacy.vue';
 import SecuritySettings from './settings/security.vue';
 import SmtpSettings from './settings/smtp.vue';
 
-export default Vue.extend({
+export default {
   components: {
     GeneralSettings,
     PerformanceSettings,
@@ -293,5 +292,5 @@ export default Vue.extend({
       this.$utils.setPref('settings.tab', t);
     },
   },
-});
+};
 </script>
