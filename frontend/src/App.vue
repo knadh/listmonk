@@ -1,6 +1,7 @@
 <template>
   <div id="app">
-    <b-navbar :fixed-top="true" v-if="$root.isLoaded">
+    hello
+    <b-navbar :fixed-top="true" v-if="$isLoaded">
       <template #brand>
         <div class="logo">
           <router-link :to="{ name: 'dashboard' }">
@@ -38,7 +39,7 @@
       </template>
     </b-navbar>
 
-    <div class="wrapper" v-if="$root.isLoaded">
+    <div class="wrapper" v-if="$isLoaded">
       <section class="sidebar">
         <b-sidebar position="static" mobile="hide" :fullheight="true" :open="true" :can-cancel="false">
           <div>
@@ -98,7 +99,7 @@
       </div>
     </div>
 
-    <b-loading v-if="!$root.isLoaded" active />
+    <b-loading v-if="!$isLoaded" active />
   </div>
 </template>
 

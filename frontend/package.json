@@ -22,9 +22,10 @@
     "@codemirror/state": "^6.5.2",
     "@codemirror/view": "^6.36.5",
     "@lezer/highlight": "^1.2.1",
+    "@oruga-ui/oruga-next": "^0.8.12",
     "@tinymce/tinymce-vue": "^6.0.1",
     "axios": "^1.8.2",
-    "@oruga-ui/oruga-next": "^0.8.12",
+    "buefy": "^3.0.1",
     "bulma": "^1.0.2",
     "chart.js": "^4.4.1",
     "codemirror": "^6.0.0",
@@ -43,10 +44,10 @@
     "vuex": "^4.1.0"
   },
   "devDependencies": {
-    "altcha": "^2.1.0",
     "@types/js-beautify": "^1.14.3",
     "@vitejs/plugin-vue": "^5.2.1",
     "@vue/eslint-config-airbnb": "^8.0.0",
+    "altcha": "^2.1.0",
     "cypress": "13.15.0",
     "cypress-file-upload": "^5.0.2",
     "cypress-wait-until": "^3.0.2",

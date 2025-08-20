@@ -1,4 +1,5 @@
 import { createApp, nextTick } from 'vue';
+import Buefy from 'buefy';
 import Oruga from '@oruga-ui/oruga-next';
 import { createI18n } from 'vue-i18n';
 
@@ -119,12 +120,15 @@ async function initConfig(app) {
   document.title = `${title} listmonk`;
 
   if (app) {
+    // eslint-disable-next-line no-param-reassign
+    app.config.globalProperties.$isLoaded = true;
     app.mount('#app');
   }
 }
 
 // Create Vue 3 app
 const app = createApp(App);
+app.use(Buefy);
 
 // Use plugins
 app.use(router);

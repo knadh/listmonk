@@ -200,7 +200,7 @@ export default {
         if (typeof data === 'object' && data !== null && data.needsRestart) {
           // There are running campaigns and the app didn't auto restart.
           // The UI will show a warning.
-          this.$root.loadConfig();
+          this.$loadConfig();
           this.getSettings();
           this.isLoading = false;
           return;
@@ -213,7 +213,7 @@ export default {
         const pollId = setInterval(() => {
           this.$api.getHealth().then(() => {
             clearInterval(pollId);
-            this.$root.loadConfig();
+            this.$loadConfig();
             this.getSettings();
           });
         }, 1000);
