@@ -52,7 +52,7 @@
       <div class="chart" v-for="(v, k) in charts" :key="k">
         <div class="columns">
           <div class="column is-9">
-            <b-loading v-if="v.loading" :active="v.loading" :is-full-page="false" />
+            <b-loading v-if="v.loading" v-model="v.loading" :is-full-page="false" />
             <h4 v-if="v.chart !== null">
               {{ v.name }}
               <span class="has-text-grey-light">({{ $utils.niceNumber(counts[k]) }})</span>

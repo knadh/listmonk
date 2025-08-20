@@ -114,7 +114,7 @@
         </div>
       </section>
       <footer class="modal-card-foot has-text-right">
-        <b-button @click="$parent.close()">
+        <b-button @click="onFormClose()">
           {{ $t('globals.buttons.close') }}
         </b-button>
         <b-button v-if="$can('users:manage') && !apiToken" native-type="submit" type="is-primary"
@@ -159,6 +159,10 @@ export default {
   },
 
   methods: {
+    onFormClose() {
+      this.$emit('close');
+    },
+
     onSubmit() {
       if (!this.form.passwordLogin) {
         this.form.password = null;
@@ -198,7 +202,7 @@ export default {
         }
 
         this.$emit('finished');
-        this.$parent.close();
+        this.onFormClose();
       });
     },
 
@@ -208,7 +212,7 @@ export default {
       };
       this.$api.updateUser({ id: this.data.id, ...form }).then((data) => {
         this.$emit('finished');
-        this.$parent.close();
+        this.onFormClose();
         this.$utils.toast(this.$t('globals.messages.updated', { name: data.name }));
       });
     },

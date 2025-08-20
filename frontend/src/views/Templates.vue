@@ -105,7 +105,7 @@
     </b-table>
 
     <!-- Add / edit form modal -->
-    <b-modal scroll="keep" :aria-modal="true" :active.sync="isFormVisible" :width="1200" :can-cancel="false"
+    <b-modal scroll="keep" :aria-modal="true" v-model="isFormVisible" :width="1200" :can-cancel="false"
       class="template-modal">
       <template-form :data="curItem" :is-editing="isEditing" @finished="formFinished" />
     </b-modal>

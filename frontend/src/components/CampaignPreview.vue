@@ -1,6 +1,6 @@
 <template>
   <div>
-    <b-modal scroll="keep" @close="close" :aria-modal="true" :active="isVisible">
+    <b-modal scroll="keep" @close="close" :aria-modal="true" v-model="isVisible">
       <div>
         <div class="modal-card" style="width: auto">
           <header class="modal-card-head">
@@ -8,7 +8,7 @@
           </header>
         </div>
         <section expanded class="modal-card-body preview">
-          <b-loading :active="isLoading" :is-full-page="false" />
+          <b-loading v-model="isLoading" :is-full-page="false" />
           <form v-if="isPost" method="post" :action="previewURL" target="iframe" ref="form">
             <input v-if="templateId" type="hidden" name="template_id" :value="templateId" />
             <input v-if="contentType" type="hidden" name="content_type" :value="contentType" />

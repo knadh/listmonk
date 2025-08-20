@@ -1,6 +1,6 @@
 <template>
   <section class="user-profile section-mini">
-    <b-loading v-if="loading.users" :active="loading.users" :is-full-page="false" />
+    <b-loading v-if="loading.users" v-model="loading.users" :is-full-page="false" />
 
     <h1 class="title">
       @{{ data.username }}

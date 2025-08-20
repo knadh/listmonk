@@ -54,7 +54,7 @@
       </div>
     </header>
 
-    <b-loading :active="loading.campaigns" />
+    <b-loading v-model="loading.campaigns" />
 
     <b-tabs type="is-boxed" :animated="false" v-model="activeTab" @input="onTab">
       <b-tab-item :label="$t('globals.terms.campaign')" label-position="on-border" value="campaign"
@@ -297,7 +297,7 @@
       </b-tab-item><!-- archive -->
     </b-tabs>
 
-    <b-modal scroll="keep" :aria-modal="true" :active.sync="isAttachModalOpen" :width="900">
+    <b-modal scroll="keep" :aria-modal="true" v-model="isAttachModalOpen" :width="900">
       <div class="modal-card content" style="width: auto">
         <section expanded class="modal-card-body">
           <media is-modal @selected="onAttachSelect" />

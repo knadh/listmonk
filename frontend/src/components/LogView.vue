@@ -1,6 +1,6 @@
 <template>
   <section class="log-view">
-    <b-loading :active="loading" :is-full-page="false" />
+    <b-loading v-model="isLoading" :is-full-page="false" />
     <div class="lines" ref="lines">
       <template v-for="(l, i) in lines">
         <span v-if="l" :key="i" :set="line = splitLine(l)" class="line">
@@ -56,6 +56,12 @@ export default {
       this.$nextTick(() => {
         this.$refs.lines.scrollTop = this.$refs.lines.scrollHeight;
       });
+    },
+  },
+
+  computed: {
+    isLoading() {
+      return this.loading;
     },
   },
 };

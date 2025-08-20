@@ -6,7 +6,7 @@
       <span class="has-text-grey-light"> / {{ settings['upload.provider'] }}</span>
     </h1>
 
-    <b-loading :active="isProcessing || loading.media" />
+    <b-loading v-model="isLoading" />
 
     <section class="wrap gallery mt-6">
       <div class="columns mb-4">
@@ -64,7 +64,7 @@
       </div>
 
       <div v-if="loading.media" class="has-text-centered py-6">
-        <b-loading :active="loading.media" />
+        <b-loading v-model="loading.media" />
       </div>
       <div v-else-if="media.results && media.results.length > 0" class="grid">
         <div v-for="item in media.results" :key="item.id" class="item">
@@ -141,6 +141,10 @@ export default {
   },
 
   methods: {
+    onFormClose() {
+      this.$emit('close');
+    },
+
     removeUploadFile(i) {
       this.form.files.splice(i, 1);
     },
@@ -169,7 +173,7 @@ export default {
       if (this.isModal) {
         e.preventDefault();
         this.$emit('selected', m);
-        this.$parent.close();
+        this.onFormClose();
       }
     },
 
@@ -219,6 +223,10 @@ export default {
         return true;
       }
       return false;
+    },
+
+    isLoading() {
+      return this.loading.media || this.isProcessing;
     },
   },
 

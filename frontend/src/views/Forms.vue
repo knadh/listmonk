@@ -5,7 +5,7 @@
     </h1>
     <hr />
 
-    <b-loading v-if="loading.lists" :active="loading.lists" :is-full-page="false" />
+    <b-loading v-if="loading.lists" v-model="loading.lists" :is-full-page="false" />
     <p v-else-if="publicLists.length === 0">
       {{ $t('forms.noPublicLists') }}
     </p>
@@ -14,7 +14,7 @@
         <h4>{{ $t('forms.publicLists') }}</h4>
         <p>{{ $t('forms.selectHelp') }}</p>
 
-        <b-loading :active="loading.lists" :is-full-page="false" />
+        <b-loading v-model="loading.lists" :is-full-page="false" />
         <ul class="no" data-cy="lists">
           <li v-for="(l, i) in publicLists" :key="l.id">
             <b-checkbox v-model="checked" :native-value="i">

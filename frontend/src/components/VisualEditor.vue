@@ -4,7 +4,7 @@
       title="Visual email editor" />
 
     <!-- image picker -->
-    <b-modal scroll="keep" :aria-modal="true" :active.sync="isMediaVisible" :width="900">
+    <b-modal scroll="keep" :aria-modal="true" v-model="isMediaVisible" :width="900">
       <div class="modal-card content" style="width: auto">
         <section expanded class="modal-card-body">
           <media is-modal @selected="onMediaSelect" />

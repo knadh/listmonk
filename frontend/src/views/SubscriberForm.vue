@@ -151,7 +151,7 @@
         </b-field>
       </section>
       <footer class="modal-card-foot has-text-right">
-        <b-button @click="$parent.close()">
+        <b-button @click="onFormClose()">
           {{ $t('globals.buttons.close') }}
         </b-button>
         <b-button v-if="$can('subscribers:manage')" native-type="submit" type="is-primary"
@@ -201,6 +201,10 @@ export default {
   },
 
   methods: {
+    onFormClose() {
+      this.$emit('close');
+    },
+
     toggleBounces() {
       this.isBounceVisible = !this.isBounceVisible;
     },
@@ -262,7 +266,7 @@ export default {
 
       this.$api.createSubscriber(data).then((d) => {
         this.$emit('finished');
-        this.$parent.close();
+        this.onFormClose();
         this.$utils.toast(this.$t('globals.messages.created', { name: d.name }));
       });
     },
@@ -290,7 +294,7 @@ export default {
 
       this.$api.updateSubscriber(data).then((d) => {
         this.$emit('finished');
-        this.$parent.close();
+        this.onFormClose();
         this.$utils.toast(this.$t('globals.messages.updated', { name: d.name }));
       });
     },

@@ -104,7 +104,7 @@
       </section>
 
       <footer class="modal-card-foot has-text-right">
-        <b-button @click="$parent.close()">
+        <b-button @click="onFormClose()">
           {{ $t('globals.buttons.close') }}
         </b-button>
         <b-button v-if="!disabled" native-type="submit" type="is-primary" :loading="loading.roles" data-cy="btn-save">
@@ -147,6 +147,10 @@ export default {
   },
 
   methods: {
+    onFormClose() {
+      this.$emit('close');
+    },
+
     onAddListPerm() {
       const list = this.lists.results.find((l) => l.id === this.form.curList);
       this.form.lists.push({ id: list.id, name: list.name, permissions: ['list:get', 'list:manage'] });
@@ -201,7 +205,7 @@ export default {
       fn(form).then((data) => {
         this.$emit('finished');
         this.$utils.toast(this.$t('globals.messages.created', { name: data.name }));
-        this.$parent.close();
+        this.onFormClose();
       });
     },
 
@@ -223,7 +227,7 @@ export default {
       fn(form).then((data) => {
         this.$emit('finished');
         this.$utils.toast(this.$t('globals.messages.updated', { name: data.name }));
-        this.$parent.close();
+        this.onFormClose();
       });
     },
   },

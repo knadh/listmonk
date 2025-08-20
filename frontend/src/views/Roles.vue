@@ -73,7 +73,7 @@
     </b-table>
 
     <!-- Add / edit form modal -->
-    <b-modal scroll="keep" :aria-modal="true" :active.sync="isFormVisible" :width="700" @close="onFormClose">
+    <b-modal scroll="keep" :aria-modal="true" v-model="isFormVisible" :width="700" @close="onFormClose">
       <role-form :data="curItem" :type="curType" :is-editing="isEditing" @finished="formFinished" />
     </b-modal>
   </section>

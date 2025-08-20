@@ -33,7 +33,7 @@
       </section>
 
       <footer class="modal-card-foot has-text-right">
-        <b-button @click="$parent.close()">
+        <b-button @click="onFormClose()">
           {{ $t('globals.buttons.close') }}
         </b-button>
         <b-button native-type="submit" type="is-primary" :disabled="form.lists.length === 0">
@@ -69,9 +69,13 @@ export default {
   },
 
   methods: {
+    onFormClose() {
+      this.$emit('close');
+    },
+
     onSubmit() {
       this.$emit('finished', this.form.action, this.form.preconfirm, this.form.lists);
-      this.$parent.close();
+      this.onFormClose();
     },
   },
 

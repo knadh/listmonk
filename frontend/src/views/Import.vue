@@ -3,7 +3,7 @@
     <h1 class="title is-4">
       {{ $t('import.title') }}
     </h1>
-    <b-loading :active="isLoading" />
+    <b-loading v-model="isLoading" />
 
     <section v-if="isFree()" class="wrap">
       <form @submit.prevent="onUpload" class="box">
