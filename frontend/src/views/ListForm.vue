@@ -55,7 +55,7 @@
         </b-field>
       </section>
       <footer class="modal-card-foot has-text-right">
-        <b-button @click="$parent.close()">
+        <b-button @click="$emit('close')">
           {{ $t('globals.buttons.close') }}
         </b-button>
         <b-button v-if="$can('lists:manage_all') || $canList(data.id, 'list:manage')" native-type="submit"
@@ -108,7 +108,7 @@ export default {
     createList() {
       this.$api.createList(this.form).then((data) => {
         this.$emit('finished');
-        this.$parent.close();
+        this.$emit('close');
         this.$utils.toast(this.$t('globals.messages.created', { name: data.name }));
       });
     },
@@ -116,7 +116,7 @@ export default {
     updateList() {
       this.$api.updateList({ id: this.data.id, ...this.form }).then((data) => {
         this.$emit('finished');
-        this.$parent.close();
+        this.$emit('close');
         this.$utils.toast(this.$t('globals.messages.updated', { name: data.name }));
       });
     },

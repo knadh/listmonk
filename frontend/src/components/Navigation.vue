@@ -80,6 +80,8 @@ export default {
     isMobile: Boolean,
   },
 
+  emits: ['toggleGroup', 'doLogout'],
+
   methods: {
     toggleGroup(group, state) {
       this.$emit('toggleGroup', group, state);

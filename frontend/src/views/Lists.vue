@@ -148,8 +148,8 @@
     </b-table>
 
     <!-- Add / edit form modal -->
-    <b-modal scroll="keep" :aria-modal="true" :active.sync="isFormVisible" :width="600" @close="onFormClose">
-      <list-form :data="curItem" :is-editing="isEditing" @finished="formFinished" />
+    <b-modal v-model="isFormVisible" scroll="keep" :aria-modal :width="600" @close="onFormClose" trap-focus>
+      <list-form :data="curItem" :is-editing="isEditing" @finished="formFinished" @close="onFormClose" />
     </b-modal>
 
     <p v-if="settings['app.cache_slow_queries']" class="has-text-grey">
@@ -220,6 +220,7 @@ export default {
     },
 
     onFormClose() {
+      this.isFormVisible = false;
       if (this.$route.params.id) {
         this.$router.push({ name: 'lists' });
       }
