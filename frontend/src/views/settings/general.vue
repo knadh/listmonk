@@ -15,16 +15,15 @@
       <div class="column is-6">
         <b-field :label="$t('settings.general.logoURL')" label-position="on-border"
           :message="$t('settings.general.logoURLHelp')">
-          <b-input v-model="data['app.logo_url']" name="app.logo_url" placeholder="https://listmonk.yoursite.com/logo.png"
-            :maxlength="300" type="url" pattern="https?://.*" />
+          <b-input v-model="data['app.logo_url']" name="app.logo_url"
+            placeholder="https://listmonk.yoursite.com/logo.png" :maxlength="300" type="url" pattern="https?://.*" />
         </b-field>
       </div>
       <div class="column is-6">
         <b-field :label="$t('settings.general.faviconURL')" label-position="on-border"
           :message="$t('settings.general.faviconURLHelp')">
           <b-input v-model="data['app.favicon_url']" name="app.favicon_url"
-            placeholder="https://listmonk.yoursite.com/favicon.png" :maxlength="300"
-            type="url" pattern="https?://.*" />
+            placeholder="https://listmonk.yoursite.com/favicon.png" :maxlength="300" type="url" pattern="https?://.*" />
         </b-field>
       </div>
     </div>
@@ -45,13 +44,14 @@
 
     <div>
       <h2 class="is-size-4 mb-5">
-        {{ $tc('globals.terms.subscriptions', 2) }}
+        {{ $t('globals.terms.subscriptions', 2) }}
       </h2>
       <div class="columns">
         <div class="column is-4">
           <b-field :label="$t('settings.general.enablePublicSubPage')"
             :message="$t('settings.general.enablePublicSubPageHelp')">
-            <b-switch v-model="data['app.enable_public_subscription_page']" name="app.enable_public_subscription_page" />
+            <b-switch v-model="data['app.enable_public_subscription_page']"
+              name="app.enable_public_subscription_page" />
           </b-field>
         </div>
         <div class="column is-4">

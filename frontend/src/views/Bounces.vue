@@ -47,7 +47,7 @@
         </router-link>
       </b-table-column>
 
-      <b-table-column v-slot="props" field="campaign" :label="$tc('globals.terms.campaign')" sortable>
+      <b-table-column v-slot="props" field="campaign" :label="$t('globals.terms.campaign')" sortable>
         <router-link v-if="props.row.campaign" :to="{ name: 'bounces', query: { campaign_id: props.row.campaign.id } }">
           {{ props.row.campaign.name }}
         </router-link>
@@ -181,7 +181,7 @@ export default {
         this.getBounces();
         this.$utils.toast(this.$t(
           'globals.messages.deletedCount',
-          { name: this.$tc('globals.terms.bounces'), num: this.numSelectedBounces },
+          { name: this.$t('globals.terms.bounces'), num: this.numSelectedBounces },
         ));
       });
     },

@@ -82,11 +82,11 @@
           </div>
         </template>
 
-        <h5>{{ $tc('users.roles') }}</h5>
+        <h5>{{ $t('users.roles') }}</h5>
         <div class="box">
           <div class="columns">
             <div class="column is-6">
-              <b-field :label="$tc('users.userRole')" label-position="on-border">
+              <b-field :label="$t('users.userRole')" label-position="on-border">
                 <b-select v-model="form.userRoleId" name="user_role" required expanded>
                   <option v-for="r in userRoles" :value="r.id" :key="r.id">
                     {{ r.name }}
@@ -96,7 +96,7 @@
             </div>
 
             <div class="column is-6">
-              <b-field :label="$tc('users.listRole', 0)" label-position="on-border">
+              <b-field :label="$t('users.listRole', 0)" label-position="on-border">
                 <b-select v-model="form.listRoleId" name="list_role" expanded>
                   <option value="">&mdash; {{ $t("globals.terms.none") }} &mdash;</option>
                   <option v-for="r in listRoles" :value="r.id" :key="r.id">

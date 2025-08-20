@@ -66,11 +66,11 @@
             </div>
           </b-tab-item><!-- lists -->
 
-          <b-tab-item :label="`${$tc('globals.terms.subscriptions', 2)} (${data.lists ? data.lists.length : 0})`"
+          <b-tab-item :label="`${$t('globals.terms.subscriptions', 2)} (${data.lists ? data.lists.length : 0})`"
             label-position="on-border" :disabled="!data.lists || data.lists.length === 0">
             <template v-if="data.lists">
               <b-table :data="data.lists" hoverable default-sort="createdAt" class="subscriptions">
-                <b-table-column v-slot="props" field="name" :label="$tc('globals.terms.list', 1)">
+                <b-table-column v-slot="props" field="name" :label="$t('globals.terms.list', 1)">
                   <div>
                     <router-link :to="`/lists/${props.row.id}`">
                       {{ props.row.name }}
@@ -114,7 +114,7 @@
             </a>
 
             <b-table :data="bounces" hoverable default-sort="createdAt" class="bounces">
-              <b-table-column field="campaign" :label="$tc('globals.terms.campaign', 1)" v-slot="props">
+              <b-table-column field="campaign" :label="$t('globals.terms.campaign', 1)" v-slot="props">
                 <div v-if="props.row.campaign">
                   <router-link :to="{ name: 'bounces', query: { campaign_id: props.row.campaign.id } }">
                     {{ props.row.campaign.name }}

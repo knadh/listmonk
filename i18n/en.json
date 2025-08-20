@@ -49,7 +49,7 @@
     "campaigns.fieldInvalidSubject": "Invalid length for subject.",
     "campaigns.formatHTML": "Format HTML",
     "campaigns.fromAddress": "From address",
-    "campaigns.fromAddressPlaceholder": "Your Name <noreply@yoursite.com>",
+    "campaigns.fromAddressPlaceholder": "Your Name <noreply{'@'}yoursite.com>",
     "campaigns.invalid": "Invalid campaign",
     "campaigns.invalidCustomHeaders": "Invalid custom headers: {error}",
     "campaigns.markdown": "Markdown",

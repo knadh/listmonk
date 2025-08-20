@@ -22,7 +22,7 @@
                       {{ $utils.niceNumber(counts.lists.total) }}
                     </p>
                     <p class="is-size-6 has-text-grey">
-                      {{ $tc('globals.terms.list', counts.lists.total) }}
+                      {{ $t('globals.terms.list', counts.lists.total) }}
                     </p>
                   </div>
                   <div class="column is-6">
@@ -56,7 +56,7 @@
                       {{ $utils.niceNumber(counts.campaigns.total) }}
                     </p>
                     <p class="is-size-6 has-text-grey">
-                      {{ $tc('globals.terms.campaign', counts.campaigns.total) }}
+                      {{ $t('globals.terms.campaign', counts.campaigns.total) }}
                     </p>
                   </div>
                   <div class="column is-6">
@@ -84,7 +84,7 @@
                       {{ $utils.niceNumber(counts.subscribers.total) }}
                     </p>
                     <p class="is-size-6 has-text-grey">
-                      {{ $tc('globals.terms.subscriber', counts.subscribers.total) }}
+                      {{ $t('globals.terms.subscriber', counts.subscribers.total) }}
                     </p>
                   </div>
 

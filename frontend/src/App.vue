@@ -1,6 +1,5 @@
 <template>
   <div id="app">
-    hello
     <b-navbar :fixed-top="true" v-if="$isLoaded">
       <template #brand>
         <div class="logo">
@@ -41,7 +40,7 @@
 
     <div class="wrapper" v-if="$isLoaded">
       <section class="sidebar">
-        <b-sidebar position="static" mobile="hide" :fullheight="true" :open="true" :can-cancel="false">
+        <b-sidebar position="static" mobile="hide" :fullheight="true" v-model="isOpen" :can-cancel="false">
           <div>
             <b-menu :accordion="false">
               <navigation v-if="!isMobile" :is-mobile="isMobile" :active-item="activeItem" :active-group="activeGroup"
@@ -118,6 +117,7 @@ export default {
 
   data() {
     return {
+      isOpen: true,
       activeItem: {},
       activeGroup: {},
       windowWidth: window.innerWidth,

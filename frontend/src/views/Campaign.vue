@@ -57,7 +57,7 @@
     <b-loading :active="loading.campaigns" />
 
     <b-tabs type="is-boxed" :animated="false" v-model="activeTab" @input="onTab">
-      <b-tab-item :label="$tc('globals.terms.campaign')" label-position="on-border" value="campaign"
+      <b-tab-item :label="$t('globals.terms.campaign')" label-position="on-border" value="campaign"
         icon="rocket-launch-outline">
         <section class="wrap">
           <div class="columns">
@@ -83,8 +83,8 @@
 
                 <div class="columns">
                   <div class="column is-6">
-                    <b-field :label="$tc('globals.terms.messenger')" label-position="on-border">
-                      <b-select :placeholder="$tc('globals.terms.messenger')" v-model="form.messenger" name="messenger"
+                    <b-field :label="$t('globals.terms.messenger')" label-position="on-border">
+                      <b-select :placeholder="$t('globals.terms.messenger')" v-model="form.messenger" name="messenger"
                         :disabled="!canEdit" required expanded>
                         <template v-if="emailMessengers.length > 1">
                           <optgroup label="email">
@@ -254,8 +254,8 @@
 
           <div class="columns">
             <div class="column is-6">
-              <b-field :label="$tc('globals.terms.template')" label-position="on-border">
-                <b-select :placeholder="$tc('globals.terms.template')" v-model="form.archiveTemplateId" name="template"
+              <b-field :label="$t('globals.terms.template')" label-position="on-border">
+                <b-select :placeholder="$t('globals.terms.template')" v-model="form.archiveTemplateId" name="template"
                   :disabled="!canArchive || !form.archive || form.content.contentType === 'visual'" required>
                   <template v-for="t in templates">
                     <option v-if="t.type === 'campaign'" :key="t.id" :value="t.id">
@@ -782,9 +782,10 @@ export default {
       this.$refs.focus.focus();
     });
 
-    this.$events.$on('campaign.update', () => {
-      this.onSubmit('update');
-    });
+    // TODO
+    // this.$events.$on('campaign.update', () => {
+    //   this.onSubmit('update');
+    // });
   },
 
   beforeDestroy() {

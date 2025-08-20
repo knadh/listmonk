@@ -54,7 +54,7 @@
         </div>
       </b-table-column>
 
-      <b-table-column v-slot="props" field="status" :label="$tc('users.role')" header-class="cy-status" sortable
+      <b-table-column v-slot="props" field="status" :label="$t('users.role')" header-class="cy-status" sortable
         :td-attrs="$utils.tdID">
         <router-link :to="{ name: 'userRoles' }">
           <b-tag :class="props.row.userRole.id === 1 ? 'enabled' : 'primary'">

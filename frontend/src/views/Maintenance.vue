@@ -40,7 +40,7 @@
 
     <div class="box mt-6">
       <h4 class="is-size-4">
-        {{ $tc('globals.terms.subscriptions', 2) }}
+        {{ $t('globals.terms.subscriptions', 2) }}
       </h4><br />
       <div class="columns">
         <div class="column is-4">
@@ -140,7 +140,7 @@ export default {
           this.$api.deleteGCSubscribers(this.subscriberType).then((data) => {
             this.$utils.toast(this.$t(
               'globals.messages.deletedCount',
-              { name: this.$tc('globals.terms.subscribers', 2), num: data.count },
+              { name: this.$t('globals.terms.subscribers', 2), num: data.count },
             ));
           });
         },
@@ -154,7 +154,7 @@ export default {
           this.$api.deleteGCSubscriptions(this.subscriptionDate).then((data) => {
             this.$utils.toast(this.$t(
               'globals.messages.deletedCount',
-              { name: this.$tc('globals.terms.subscriptions', 2), num: data.count },
+              { name: this.$t('globals.terms.subscriptions', 2), num: data.count },
             ));
           });
         },

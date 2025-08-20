@@ -29,13 +29,13 @@
               <b-field :label="$t('globals.fields.type')" label-position="on-border">
                 <b-select v-model="form.type" :disabled="isEditing" expanded>
                   <option value="campaign">
-                    {{ $tc('templates.typeCampaignHTML') }}
+                    {{ $t('templates.typeCampaignHTML') }}
                   </option>
                   <option value="campaign_visual">
-                    {{ $tc('templates.typeCampaignVisual') }}
+                    {{ $t('templates.typeCampaignVisual') }}
                   </option>
                   <option value="tx">
-                    {{ $tc('templates.typeTransactional') }}
+                    {{ $t('templates.typeTransactional') }}
                   </option>
                 </b-select>
               </b-field>

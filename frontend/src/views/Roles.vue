@@ -17,7 +17,7 @@
       </div>
     </header>
     <b-table :data="roles" :loading="isLoading()" hoverable>
-      <b-table-column v-slot="props" field="role" :label="$tc('users.role')" sortable>
+      <b-table-column v-slot="props" field="role" :label="$t('users.role')" sortable>
         <a href="#" @click.prevent="showEditForm(props.row, 'user')">
           <b-tag v-if="props.row.id === 1" class="enabled">
             {{ props.row.name }}

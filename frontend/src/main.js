@@ -27,7 +27,7 @@ router.beforeEach((to, from, next) => {
 
 router.afterEach((to) => {
   nextTick(() => {
-    const t = to.meta.title && i18n.global.te(to.meta.title) ? `${i18n.global.tc(to.meta.title, 0)} /` : '';
+    const t = to.meta.title && i18n.global.te(to.meta.title) ? `${i18n.global.t(to.meta.title, 0)} /` : '';
     document.title = `${t} listmonk`;
   });
 });
@@ -116,7 +116,7 @@ async function initConfig(app) {
 
   // Set the page title after i18n has loaded.
   const to = router.currentRoute.value;
-  const title = to.meta.title ? `${i18n.global.tc(to.meta.title, 0)} /` : '';
+  const title = to.meta.title ? `${i18n.global.t(to.meta.title, 0)} /` : '';
   document.title = `${title} listmonk`;
 
   if (app) {

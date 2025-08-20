@@ -50,7 +50,7 @@
             <div class="buttons">
               <b-button native-type="submit" type="is-primary" icon-left="file-upload-outline"
                 :disabled="form.files.length === 0" :loading="isProcessing">
-                {{ $tc('media.upload') }}
+                {{ $t('media.upload') }}
               </b-button>
             </div>
           </div>

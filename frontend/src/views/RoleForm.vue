@@ -24,7 +24,7 @@
           <div class="mb-5">
             <div class="columns">
               <div class="column is-9">
-                <b-select :placeholder="$tc('globals.terms.list')" v-model="form.curList" name="list"
+                <b-select :placeholder="$t('globals.terms.list')" v-model="form.curList" name="list"
                   :disabled="disabled || filteredLists.length < 1" expanded class="mb-3">
                   <option v-for="l in filteredLists" :key="l.id" :value="l.id">
                     {{ l.name }}
@@ -46,7 +46,7 @@
           </div>
 
           <b-table :data="form.lists">
-            <b-table-column v-slot="props" field="name" :label="$tc('globals.terms.list')">
+            <b-table-column v-slot="props" field="name" :label="$t('globals.terms.list')">
               <router-link :to="`/lists/${props.row.id}`" target="_blank">
                 {{ props.row.name }}
               </router-link>
@@ -86,7 +86,7 @@
 
           <b-table :data="serverConfig.permissions">
             <b-table-column v-slot="props" field="group" :label="$t('users.roleGroup')">
-              {{ $tc(`globals.terms.${props.row.group}`) }}
+              {{ $t(`globals.terms.${props.row.group}`) }}
             </b-table-column>
 
             <b-table-column v-slot="props" field="permissions" label="Permissions">

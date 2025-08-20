@@ -11,7 +11,7 @@
           </b-select>
         </b-field>
 
-        <b-field v-if="self.contentType !== 'visual'" :label="$tc('globals.terms.template')" label-position="on-border">
+        <b-field v-if="self.contentType !== 'visual'" :label="$t('globals.terms.template')" label-position="on-border">
           <b-select :placeholder="$t('globals.terms.none')" v-model="templateId" name="template" :disabled="disabled">
             <option v-for="t in validTemplates" :key="t.id" :value="t.id">
               {{ t.name }}
@@ -24,7 +24,7 @@
             icon-left="file-find-outline" data-cy="btn-select-visual-tpl">
             {{ $t('campaigns.importVisualTemplate') }}
           </b-button>
-          <b-field v-else :label="$tc('globals.terms.template')" label-position="on-border">
+          <b-field v-else :label="$t('globals.terms.template')" label-position="on-border">
             <b-select :placeholder="$t('globals.terms.none')" v-model="visualTemplateId"
               @input="() => isVisualTplDisabled = false" name="template" :disabled="disabled"
               class="copy-visual-template-list">
@@ -331,9 +331,10 @@ export default {
 
     window.addEventListener('keydown', this.onKeyboardShortcut);
 
-    this.$events.$on('campaign.preview', () => {
-      this.isPreviewing = true;
-    });
+    // TODO
+    // this.$events.$on('campaign.preview', () => {
+    //   this.isPreviewing = true;
+    // });
   },
 
   beforeDestroy() {
