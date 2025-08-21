@@ -44,10 +44,12 @@
     "vuex": "^4.1.0"
   },
   "devDependencies": {
+    "@fullhuman/postcss-purgecss": "^7.0.2",
     "@types/js-beautify": "^1.14.3",
     "@vitejs/plugin-vue": "^5.2.1",
     "@vue/eslint-config-airbnb": "^8.0.0",
     "altcha": "^2.1.0",
+    "cssnano": "^7.1.0",
     "cypress": "13.15.0",
     "cypress-file-upload": "^5.0.2",
     "cypress-wait-until": "^3.0.2",
@@ -55,6 +57,11 @@
     "eslint-define-config": "^2.0.0",
     "eslint-plugin-import": "^2.23.3",
     "eslint-plugin-vue": "^9.19.2",
+    "postcss": "^8.5.6",
+    "postcss-custom-properties": "^14.0.6",
+    "postcss-discard-duplicates": "^7.0.2",
+    "postcss-discard-empty": "^7.0.1",
+    "postcss-prune-var": "^1.1.2",
     "sass": "^1.34.0",
     "vite": "^5.4.19",
     "vue-eslint-parser": "^9.3.2"

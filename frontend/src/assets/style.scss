@@ -1,11 +1,27 @@
 @use "sass:color";
 @use "sass:map";
 
-/* Import Bulma to set variables */
-@use "bulma/sass/utilities/_index" as *;
+/* Import Bulma with custom overrides */
+@use "bulma/sass" as * with (
+  // Custom colors
+  $primary: #0055d4,
+  $green: #36995b,
+  $turquoise: #36995b,
+  $red: #FF5722,
+  $link: #0055d4,
 
-/* Import full Bulma */
-@use "bulma" as *;
+  // Custom typography
+  $body-family: "Inter",
+  $body-size: 15px,
+
+  // Custom backgrounds
+  $background: #fafafa,
+  $body-background-color: #fafafa,
+
+  // Form inputs
+  $input-placeholder-color: #b5b5b5,
+);
+@use "buefy/src/scss/buefy";
 
 /* import inter-regular */
 @font-face {
@@ -25,34 +41,24 @@
        url('assets/fonts/Inter-Bold.woff2') format('woff2'),
 }
 
-$body-family: "Inter", "Helvetica Neue", sans-serif;
-$body-size: 15px;
-$background: $white-bis;
-$body-background-color: $white-bis;
-$primary: #0055d4;
-$green: #36995b;
-$turquoise: $green;
-$red: #FF5722;
-
-$link: $primary;
-$input-placeholder-color: $grey-light;
+/* Define custom variables */
 $grey-lightest: #eaeaea;
-
-/* Missing color variables for compatibility */
-$green-invert: $white;
+$green-invert: #ffffff;
 $white-ter: #f5f5f5;
+$white-bis: #fafafa;
+$grey-light: #b5b5b5;
+$grey: #7a7a7a;
+$grey-dark: #4a4a4a;
+$white: #ffffff;
+$black: #0a0a0a;
 
+/* Extend the colors map */
 $colors: map.merge($colors, (
     "turquoise": ($green, $green-invert),
     "green": ($green, $green-invert),
     "success": ($green, $green-invert),
     "danger": ($red, $green-invert),
 ));
-
-$sidebar-box-shadow: none;
-$sidebar-width: 240px;
-$menu-item-active-background-color: $white-bis;
-$menu-item-active-color: $primary;
 
 /* Oruga */
 $modal-background-background-color: rgba(0, 0, 0, .30);
