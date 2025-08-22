@@ -8,7 +8,6 @@ const purgecss = require('@fullhuman/postcss-purgecss').default;
 export default defineConfig(({ _, mode }) => {
   const env = loadEnv(mode, process.cwd(), '');
   const isProd = mode === 'production';
-  const THEME_IS_STATIC = true;
 
   const purge = purgecss({
     content: [
@@ -42,18 +41,14 @@ export default defineConfig(({ _, mode }) => {
   });
 
   const postcssPlugins = [
-    // Remove unused --vars.
-    require('postcss-prune-var')(),
-
-    // Inline remaining CSS custom properties.
-    THEME_IS_STATIC && require('postcss-custom-properties')({
-      preserve: false, // replace var(--x) with computed values; drop --x definitions
+    // In development, only use essential plugins for faster builds
+    isProd && require('postcss-prune-var')(),
+    isProd && require('postcss-custom-properties')({
+      preserve: false,
     }),
-
     isProd && purge,
-
-    require('postcss-discard-duplicates'),
-    require('postcss-discard-empty'),
+    isProd && require('postcss-discard-duplicates'),
+    isProd && require('postcss-discard-empty'),
     isProd && require('cssnano')({ preset: 'default' }),
   ].filter(Boolean);
 
@@ -64,10 +59,37 @@ export default defineConfig(({ _, mode }) => {
     resolve: {
       alias: {
         '@': path.resolve(__dirname, './src'),
+        sass: 'sass-embedded',
       },
     },
     build: {
       assetsDir: 'static',
+    },
+    optimizeDeps: {
+      // Pre-bundle heavy dependencies
+      include: [
+        'vue',
+        'vue-router',
+        'vuex',
+        'buefy',
+        '@oruga-ui/oruga-next',
+        'bulma',
+        'dayjs',
+        'axios',
+        'chart.js',
+        'vue-chartjs',
+        'codemirror',
+        '@codemirror/state',
+        '@codemirror/view',
+        '@codemirror/commands',
+        '@codemirror/language',
+        '@codemirror/lang-html',
+        '@codemirror/lang-css',
+        '@codemirror/lang-javascript',
+        '@codemirror/lang-markdown',
+        'tinymce',
+        '@tinymce/tinymce-vue',
+      ],
     },
     server: {
       port: env.LISTMONK_FRONTEND_PORT || 8080,
@@ -87,8 +109,16 @@ export default defineConfig(({ _, mode }) => {
       },
     },
     css: {
+      devSourcemap: false,
       postcss: {
         plugins: postcssPlugins,
+      },
+      // Optimize CSS processing
+      preprocessorOptions: {
+        scss: {
+          // Reduce precision for faster builds
+          precision: 6,
+        },
       },
     },
   };

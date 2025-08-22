@@ -219,6 +219,6 @@ export default {
 </script>
 
 <style lang="scss">
-@import "assets/style.scss";
-@import "assets/icons/fontello.css";
+@use "assets/style.scss";
+@use "assets/icons/fontello.css";
 </style>

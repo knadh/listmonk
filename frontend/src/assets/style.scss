@@ -60,9 +60,6 @@ $colors: map.merge($colors, (
     "danger": ($red, $green-invert),
 ));
 
-/* Oruga */
-$modal-background-background-color: rgba(0, 0, 0, .30);
-
 .line-chart {
   min-height: 300px;
 }
@@ -271,6 +268,9 @@ section {
     }
     a {
       border-radius: 0;
+    }
+    .icon {
+      margin-right: 8px;
     }
   }
 }
@@ -660,6 +660,7 @@ body.is-noscroll {
   }
 
   &.is-floating-label label.label {
+    background-color: $white;
     font-size: 0.875rem;
   }
 
