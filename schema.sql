@@ -489,24 +489,24 @@ BEGIN
             -- Ensure shared list exists
             SELECT id INTO shared_list_id FROM lists WHERE name = shared_list_name;
             IF NOT FOUND THEN
-                INSERT INTO lists (uuid, name, type, optin, description)
-                VALUES (gen_random_uuid(), shared_list_name, type, optin, 'Auto-created shared list')
+                INSERT INTO lists (uuid, name, type, optin, description, tags)
+                VALUES (gen_random_uuid(), shared_list_name, type, optin, 'Auto-created shared list', ARRAY['language:' || lower(lang), 'frequency:' || lower(freq)])
                 RETURNING id INTO shared_list_id;
             END IF;
 
             -- Ensure verified list exists
             SELECT id INTO verified_list_id FROM lists WHERE name = verified_list_name;
             IF NOT FOUND THEN
-                INSERT INTO lists (uuid, name, type, optin, description)
-                VALUES (gen_random_uuid(), verified_list_name, type, optin, 'Auto-created verified list')
+                INSERT INTO lists (uuid, name, type, optin, description, tags)
+                VALUES (gen_random_uuid(), verified_list_name, type, optin, 'Auto-created verified list', ARRAY['language:' || lower(lang), 'frequency:' || lower(freq)])
                 RETURNING id INTO verified_list_id;
             END IF;
 
             -- Ensure unverified list exists
             SELECT id INTO unverified_list_id FROM lists WHERE name = unverified_list_name;
             IF NOT FOUND THEN
-                INSERT INTO lists (uuid, name, type, optin, description)
-                VALUES (gen_random_uuid(), unverified_list_name, type, optin, 'Auto-created unverified list')
+                INSERT INTO lists (uuid, name, type, optin, description, tags)
+                VALUES (gen_random_uuid(), unverified_list_name, type, optin, 'Auto-created unverified list', ARRAY['language:' || lower(lang), 'frequency:' || lower(freq)])
                 RETURNING id INTO unverified_list_id;
             END IF;
 
