@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   width="64"
+   height="64"
+   viewBox="0 0 4.9345538 4.9345534"
+   version="1.1"
+   id="svg8"
+   sodipodi:docname="logo-mac.svg"
+   inkscape:version="1.4.2 (ebf0e940d0, 2025-05-08)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs8" />
+  <sodipodi:namedview
+     id="namedview8"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:zoom="5.6568542"
+     inkscape:cx="38.095378"
+     inkscape:cy="13.169864"
+     inkscape:window-width="2560"
+     inkscape:window-height="1367"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="g8" />
+  <g
+     fill-rule="evenodd"
+     clip-rule="evenodd"
+     id="g8"
+     transform="translate(-53.903803,-46.879577)">
+    <g
+       id="g9"
+       transform="matrix(0.04313043,0,0,0.04313043,54.02643,46.860281)">
+      <path
+         d="m 58.787198,84.737433 c -13.534,0.527 -28.121,-2.021 -40.423,-8.173 l 2.548,-4.042 c 11.951,5.624 25.66,7.558 37.875,7.03 0,0.439 0.525,-8.261 1.316,-13.006 h -18.365 c 1.669,-19.157 7.557,-36.205 16.345,-50.704 h -54.922 v 83.658 h 57.733 c -1.318,-5.01 -2.107,-14.939 -2.107,-14.763 z"
+         fill="#d0e9fb"
+         id="path2" />
+      <path
+         d="m 64.322198,79.200433 c 10.018,-0.967 18.805,-3.603 24.166,-7.03 l 3.164,4.042 c -7.383,4.307 -16.961,7.118 -27.33,8.173 0.264,5.185 1.055,10.105 2.373,15.115 H 106.2382 v -83.658 H 64.146198 c -8.963,13.709 -14.06,28.999 -15.993,45.168 h 18.894 c -1.583,6.151 -2.549,12.215 -2.725,18.19 z m -36.205,-50.704 h 5.361 v 12.391 h -5.361 z"
+         fill="#00acec"
+         id="path3" />
+      <path
+         d="m 72.757198,28.496433 h 5.362 v 12.391 h -5.362 z"
+         id="path4" />
+      <path
+         d="m 64.322198,79.200433 c 10.018,-0.967 18.805,-3.603 24.166,-7.03 l 3.164,4.042 c -7.383,4.307 -16.961,7.118 -27.33,8.173 0.439,9.314 2.725,18.540997 7.293,27.416997 l -4.568,2.459 c -8.348,-13.18 -9.842,-30.930997 -6.943,-47.714997 h -18.366 c 2.285,-26.099 12.302,-48.244 26.89,-65.4669996 l 3.953,3.427 c -14.234,16.5209996 -22.055,35.7659996 -24.428,56.5039996 h 18.894 c -1.583,6.151 -2.549,12.215 -2.725,18.19 z"
+         id="path5" />
+      <path
+         d="m 58.787198,79.552433 v 5.185 c -13.534,0.527 -28.121,-2.021 -40.423,-8.173 l 2.548,-4.042 c 11.95,5.624 25.659,7.557 37.875,7.03 z"
+         fill="#00acec"
+         id="path6" />
+    </g>
+  </g>
+</svg>

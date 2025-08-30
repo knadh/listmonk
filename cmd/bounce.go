@@ -86,7 +86,7 @@ func (a *App) DeleteBounces(c echo.Context) error {
 	}
 
 	// Delete bounces from the DB.
-	if err := a.core.DeleteBounces(ids); err != nil {
+	if err := a.core.DeleteBounces(ids, all); err != nil {
 		return err
 	}
 
@@ -97,7 +97,16 @@ func (a *App) DeleteBounces(c echo.Context) error {
 func (a *App) DeleteBounce(c echo.Context) error {
 	// Delete bounces from the DB.
 	id := getID(c)
-	if err := a.core.DeleteBounces([]int{id}); err != nil {
+	if err := a.core.DeleteBounces([]int{id}, false); err != nil {
+		return err
+	}
+
+	return c.JSON(http.StatusOK, okResp{true})
+}
+
+// BlocklistBouncedSubscribers handles blocklisting of all bounced subscribers.
+func (a *App) BlocklistBouncedSubscribers(c echo.Context) error {
+	if err := a.core.BlocklistBouncedSubscribers(); err != nil {
 		return err
 	}
 

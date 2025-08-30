@@ -848,6 +848,9 @@ section.lists {
     overflow-x: auto;
     max-width: 100%;
   }
+  .blocklisted {
+    color: red;
+  }
 }
 
 /* Import page */
@@ -947,23 +950,116 @@ section.analytics {
 /* Media gallery */
 .media-files {
   img {
-    max-width: 140px;
-    max-height: 140px;
+    border-radius: 3px;
+    max-width: 170px;
+    max-height: 170px;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.2s ease;
+
+    .item:hover & {
+      transform: scale(1.05);
+    }
   }
 
-  .thumb.box {
-    background: repeating-conic-gradient(#f0f0f0 0 90deg, #fff 90deg 180deg) 0 0 / 32px 32px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: fit-content;
-    height: fit-content;
-    text-align: center;
-    padding: 0;
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 1.5rem;
+    padding: 1rem 0;
+  }
+
+  .item {
+    background: $white;
+    box-shadow: 2px 2px 0 #f3f3f3;
+    border: 1px solid #e6e6e6;
+
+    border-radius: 8px;
+    overflow: hidden;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 2px 2px 5px #eee;
+
+      .actions {
+        opacity: 1;
+      }
+    }
+  }
+
+  .thumb {
+    position: relative;
+    aspect-ratio: 1;
     overflow: hidden;
   }
-  .ext {
+
+  .thumb-link {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .thumb-container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f8f9fa;
+  }
+
+  .thumb-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: $grey-dark;
+    color: white;
+  }
+
+  .file-ext {
     text-transform: uppercase;
+  }
+
+  .actions {
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+
+    .item:hover & {
+      opacity: 1;
+    }
+  }
+
+  .info {
+    padding: 10px;
+
+    .filename {
+      margin-bottom: 5px;
+      font-size: 0.9rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .date {
+      font-size: 0.75rem;
+      color: $grey-light;
+      margin-bottom: 0;
+    }
   }
 }
 
@@ -1020,6 +1116,9 @@ section.analytics {
       min-width: 175px;
       margin-right: 5px;
       user-select: auto;
+    }
+    .timestamp {
+      margin-right: 15px;
     }
 
     .line:hover {

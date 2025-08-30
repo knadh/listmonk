@@ -12,6 +12,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/knadh/listmonk/internal/captcha"
 	"github.com/knadh/listmonk/internal/i18n"
 	"github.com/knadh/listmonk/internal/manager"
 	"github.com/knadh/listmonk/internal/notifs"
@@ -88,8 +89,13 @@ type msgTpl struct {
 
 type subFormTpl struct {
 	publicTpl
-	Lists      []models.List
-	CaptchaKey string
+	Lists   []models.List
+	Captcha struct {
+		Enabled    bool
+		Provider   string
+		Key        string
+		Complexity int
+	}
 }
 
 var (
@@ -427,9 +433,15 @@ func (a *App) SubscriptionFormPage(c echo.Context) error {
 	out.Title = a.i18n.T("public.sub")
 	out.Lists = lists
 
-	// Captcha is enabled. Set the key for the template to render.
-	if a.cfg.Security.EnableCaptcha {
-		out.CaptchaKey = a.cfg.Security.CaptchaKey
+	// Captcha configuration for template rendering.
+	if a.cfg.Security.Captcha.Altcha.Enabled {
+		out.Captcha.Enabled = true
+		out.Captcha.Provider = "altcha"
+		out.Captcha.Complexity = a.cfg.Security.Captcha.Altcha.Complexity
+	} else if a.cfg.Security.Captcha.HCaptcha.Enabled {
+		out.Captcha.Enabled = true
+		out.Captcha.Provider = "hcaptcha"
+		out.Captcha.Key = a.cfg.Security.Captcha.HCaptcha.Key
 	}
 
 	return c.Render(http.StatusOK, "subscription-form", out)
@@ -449,10 +461,28 @@ func (a *App) SubscriptionForm(c echo.Context) error {
 	}
 
 	// Process CAPTCHA.
-	if a.cfg.Security.EnableCaptcha {
-		err, ok := a.captcha.Verify(c.FormValue("h-captcha-response"))
+	if a.captcha.IsEnabled() {
+		var val string
+
+		// Get the appropriate captcha response field based on provider.
+		switch a.captcha.GetProvider() {
+		case captcha.ProviderHCaptcha:
+			val = c.FormValue("h-captcha-response")
+		case captcha.ProviderAltcha:
+			val = c.FormValue("altcha")
+		default:
+			return c.Render(http.StatusBadRequest, tplMessage,
+				makeMsgTpl(a.i18n.T("public.errorTitle"), "", a.i18n.T("public.invalidCaptcha")))
+		}
+
+		if val == "" {
+			return c.Render(http.StatusBadRequest, tplMessage,
+				makeMsgTpl(a.i18n.T("public.errorTitle"), "", a.i18n.T("public.invalidCaptcha")))
+		}
+
+		err, ok := a.captcha.Verify(val)
 		if err != nil {
-			a.log.Printf("Captcha request failed: %v", err)
+			a.log.Printf("captcha request failed: %v", err)
 		}
 
 		if !ok {
@@ -621,6 +651,25 @@ func (a *App) WipeSubscriberData(c echo.Context) error {
 
 	return c.Render(http.StatusOK, tplMessage,
 		makeMsgTpl(a.i18n.T("public.dataRemovedTitle"), "", a.i18n.T("public.dataRemoved")))
+}
+
+// AltchaChallenge generates a challenge for Altcha captcha.
+func (a *App) AltchaChallenge(c echo.Context) error {
+	// Check if Altcha is enabled.
+	if !a.captcha.IsEnabled() || a.captcha.GetProvider() != captcha.ProviderAltcha {
+		return echo.NewHTTPError(http.StatusNotFound, "captcha not enabled")
+	}
+
+	// Generate challenge.
+	out, err := a.captcha.GenerateChallenge()
+	if err != nil {
+		a.log.Printf("error generating altcha challenge: %v", err)
+		return echo.NewHTTPError(http.StatusInternalServerError, "Error generating challenge")
+	}
+
+	// Return the challenge as JSON.
+	c.Response().Header().Set("Content-Type", "application/json")
+	return c.String(http.StatusOK, out)
 }
 
 // drawTransparentImage draws a transparent PNG of given dimensions

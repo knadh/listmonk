@@ -158,11 +158,22 @@ func (a *App) OIDCFinish(c echo.Context) error {
 		return a.renderLoginPage(c, err)
 	}
 	email = strings.ToLower(em.Address)
+	claims.Email = email
 
 	// Get the user by e-mail received from OIDC.
-	user, err := a.core.GetUser(0, "", email)
-	if err != nil {
-		return a.renderLoginPage(c, err)
+	user, userErr := a.core.GetUser(0, "", email)
+	if userErr != nil {
+		// If the user doesn't exist, and auto-creation is enabled, create a new user.
+		if httpErr, ok := userErr.(*echo.HTTPError); ok && httpErr.Code == http.StatusNotFound && a.cfg.Security.OIDC.AutoCreateUsers {
+			u, err := a.createOIDCUser(claims, c)
+			if err != nil {
+				return a.renderLoginPage(c, err)
+			}
+			user = u
+			userErr = nil
+		} else {
+			return a.renderLoginPage(c, userErr)
+		}
 	}
 
 	// Update the user login state (avatar, logged in date) in the DB.
@@ -277,6 +288,36 @@ func (a *App) renderLoginSetupPage(c echo.Context, loginErr error) error {
 	}
 
 	return c.Render(http.StatusOK, "admin-login-setup", out)
+}
+
+// createOIDCUser creates a new user in the DB with the OIDC claims.
+func (a *App) createOIDCUser(claims auth.OIDCclaim, c echo.Context) (auth.User, error) {
+	name := claims.Name
+	if name == "" {
+		name = strings.TrimSpace(claims.PreferredUsername)
+	}
+	if name == "" {
+		name = strings.Split(claims.Email, "@")[0]
+	}
+
+	var listRoleID *int
+	if a.cfg.Security.OIDC.DefaultListRoleID > 0 {
+		listRoleID = &a.cfg.Security.OIDC.DefaultListRoleID
+	}
+
+	user, err := a.core.CreateUser(auth.User{
+		Type:          auth.UserTypeUser,
+		HasPassword:   false,
+		PasswordLogin: false,
+		Username:      claims.Email,
+		Name:          name,
+		Email:         null.NewString(claims.Email, true),
+		UserRoleID:    a.cfg.Security.OIDC.DefaultUserRoleID,
+		ListRoleID:    listRoleID,
+		Status:        auth.UserStatusEnabled,
+	})
+
+	return user, err
 }
 
 // doLogin logs a user in with a username and password.

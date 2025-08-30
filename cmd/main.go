@@ -181,7 +181,7 @@ func main() {
 		// Initialize the media store.
 		media = initMediaStore(ko)
 
-		fbOptinNotify = makeOptinNotifyHook(ko.Bool("app.send_optin_confirmation"), urlCfg, queries, i18n)
+		fbOptinNotify = makeOptinNotifyHook(ko.Bool("privacy.unsubscribe_header"), urlCfg, queries, i18n)
 
 		// Crud core.
 		core = initCore(fbOptinNotify, queries, db, i18n, ko)

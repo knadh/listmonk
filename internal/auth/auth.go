@@ -21,18 +21,23 @@ import (
 )
 
 type OIDCclaim struct {
-	Email         string `json:"email"`
-	EmailVerified bool   `json:"email_verified"`
-	Sub           string `json:"sub"`
-	Picture       string `json:"picture"`
+	Email             string `json:"email"`
+	EmailVerified     bool   `json:"email_verified"`
+	Sub               string `json:"sub"`
+	Picture           string `json:"picture"`
+	Name              string `json:"name"`
+	PreferredUsername string `json:"preferred_username"`
 }
 
 type OIDCConfig struct {
-	Enabled      bool   `json:"enabled"`
-	ProviderURL  string `json:"provider_url"`
-	RedirectURL  string `json:"redirect_url"`
-	ClientID     string `json:"client_id"`
-	ClientSecret string `json:"client_secret"`
+	Enabled           bool   `json:"enabled"`
+	ProviderURL       string `json:"provider_url"`
+	RedirectURL       string `json:"redirect_url"`
+	ClientID          string `json:"client_id"`
+	ClientSecret      string `json:"client_secret"`
+	AutoCreateUsers   bool   `json:"auto_create_users"`
+	DefaultUserRoleID int    `json:"default_user_role_id"`
+	DefaultListRoleID int    `json:"default_list_role_id"`
 }
 
 type BasicAuthConfig struct {
@@ -331,7 +336,7 @@ func (o *Auth) validateSession(c echo.Context) (*simplesessions.Session, User, e
 	userID, err := o.sessStore.Int(vars["user_id"], nil)
 	if err != nil || userID < 1 {
 		o.log.Printf("error fetching session user ID: %v", err)
-		return nil, User{}, echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+		return nil, User{}, echo.NewHTTPError(http.StatusInternalServerError, "invalid session.")
 	}
 
 	// Fetch user details from the database.

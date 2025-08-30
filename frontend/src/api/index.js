@@ -189,6 +189,11 @@ export const deleteBounces = async (params) => http.delete(
   { params, loading: models.bounces },
 );
 
+export const blocklistBouncedSubscribers = async () => http.put(
+  '/api/bounces/blocklist',
+  { loading: models.bounces },
+);
+
 export const createSubscriber = (data) => http.post(
   '/api/subscribers',
   data,

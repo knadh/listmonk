@@ -91,9 +91,15 @@ export default Vue.extend({
 
       // Captcha?
       if (this.serverConfig.public_subscription.captcha_enabled) {
-        h += '\n'
-          + `    <div class="h-captcha" data-sitekey="${this.serverConfig.public_subscription.captcha_key}"></div>\n`
-          + `    <${'script'} src="https://js.hcaptcha.com/1/api.js" async defer></${'script'}>\n`;
+        if (this.serverConfig.public_subscription.captcha_provider === 'altcha') {
+          h += '\n'
+            + `    <altcha-widget challengeurl="${this.serverConfig.root_url}/api/captcha/altcha"></altcha-widget>\n`
+            + `    <${'script'} type="module" src="${this.serverConfig.root_url}/public/static/altcha.umd.js" async defer></${'script'}>\n`;
+        } else if (this.serverConfig.public_subscription.captcha_provider === 'hcaptcha') {
+          h += '\n'
+            + `    <div class="h-captcha" data-sitekey="${this.serverConfig.public_subscription.captcha_key}"></div>\n`
+            + `    <${'script'} src="https://js.hcaptcha.com/1/api.js" async defer></${'script'}>\n`;
+        }
       }
 
       h += '\n'
