@@ -16,3 +16,5 @@ node_modules
 listmonk
 dist/*
 uploads/
+admin
+listmonk
