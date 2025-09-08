@@ -917,7 +917,7 @@ func initCaptcha() *captcha.Captcha {
 	if err := ko.Unmarshal("security.captcha", &opt); err != nil {
 		lo.Fatalf("error loading captcha config: %v", err)
 	}
-	
+
 	return captcha.New(opt)
 }
 
@@ -1038,6 +1038,7 @@ func initAuth(co *core.Core, db *sql.DB, ko *koanf.Koanf) (bool, *auth.Auth) {
 		},
 		SetCookie: func(cookie *http.Cookie, w any) error {
 			c := w.(echo.Context)
+			cookie.SameSite = http.SameSiteLaxMode
 			c.SetCookie(cookie)
 			return nil
 		},
