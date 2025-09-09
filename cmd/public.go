@@ -740,7 +740,7 @@ func (a *App) processSubForm(c echo.Context) (bool, error) {
 		Name:   req.Name,
 		Email:  req.Email,
 		Status: models.SubscriberStatusEnabled,
-	}, nil, listUUIDs, false)
+	}, nil, listUUIDs, false, true)
 	if err == nil {
 		return hasOptin, nil
 	}
@@ -757,7 +757,7 @@ func (a *App) processSubForm(c echo.Context) (bool, error) {
 		}
 
 		// Update the subscriber's subscriptions in the DB.
-		_, hasOptin, err := a.core.UpdateSubscriberWithLists(sub.ID, sub, nil, listUUIDs, false, false)
+		_, hasOptin, err := a.core.UpdateSubscriberWithLists(sub.ID, sub, nil, listUUIDs, false, false, true)
 		if err == nil {
 			return hasOptin, nil
 		}
