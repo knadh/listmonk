@@ -93,7 +93,7 @@ export default Vue.extend({
       if (this.serverConfig.public_subscription.captcha_enabled) {
         if (this.serverConfig.public_subscription.captcha_provider === 'altcha') {
           h += '\n'
-            + `    <altcha-widget challengeurl="${this.serverConfig.root_url}/api/captcha/altcha"></altcha-widget>\n`
+            + `    <altcha-widget challengeurl="${this.serverConfig.root_url}/api/public/captcha/altcha"></altcha-widget>\n`
             + `    <${'script'} type="module" src="${this.serverConfig.root_url}/public/static/altcha.umd.js" async defer></${'script'}>\n`;
         } else if (this.serverConfig.public_subscription.captcha_provider === 'hcaptcha') {
           h += '\n'
