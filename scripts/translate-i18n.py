@@ -19,7 +19,7 @@ BASE = json.loads(open(os.path.join(DIR, DEFAULT_LANG), "r").read())
 
 def translate(data, lang):
     completion = client.chat.completions.create(
-        model="gpt-3.5-turbo-16k",
+        model="gpt-4.1-mini",
         messages=[
             {"role": "system", "content": "You are an i18n language pack translator for listmonk, a mailing list manager. Remember that context when translating."},
             {"role": "user",
