@@ -16,6 +16,7 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/jmoiron/sqlx/types"
 	"github.com/lib/pq"
+	"github.com/preslavrachev/gomjml/mjml"
 	"github.com/yuin/goldmark"
 	"github.com/yuin/goldmark/extension"
 	"github.com/yuin/goldmark/parser"
@@ -49,6 +50,7 @@ const (
 	CampaignContentTypeMarkdown = "markdown"
 	CampaignContentTypePlain    = "plain"
 	CampaignContentTypeVisual   = "visual"
+	CampaignContentTypeMJML     = "mjml"
 
 	// List.
 	ListTypePrivate = "private"
@@ -557,6 +559,13 @@ func (c *Campaign) CompileTemplate(f template.FuncMap) error {
 			return err
 		}
 		body = b.String()
+	} else if c.ContentType == CampaignContentTypeMJML {
+		// If the format is MJML, convert MJML to HTML.
+		htmlBody, err := mjml.Render(c.Body)
+		if err != nil {
+			return fmt.Errorf("error compiling MJML: %v", err)
+		}
+		body = htmlBody
 	} else {
 		body = c.Body
 	}
@@ -609,6 +618,13 @@ func (c *Campaign) ConvertContent(from, to string) (string, error) {
 			return out, err
 		}
 		out = b.String()
+	} else if from == CampaignContentTypeMJML &&
+		(to == CampaignContentTypeHTML || to == CampaignContentTypeRichtext) {
+		htmlBody, err := mjml.Render(c.Body)
+		if err != nil {
+			return out, fmt.Errorf("error converting MJML: %v", err)
+		}
+		out = htmlBody
 	} else {
 		return out, errors.New("unknown formats to convert")
 	}
