@@ -40,17 +40,6 @@
               {{ $t("globals.buttons.delete") }}
             </b-button>
           </b-field>
-          <hr />
-          <b-field>
-            <b-button
-              class="is-primary"
-              :loading="loading.maintenance"
-              @click="exportSubscribers"
-              expanded
-            >
-              Export All Subscribers
-            </b-button>
-          </b-field>
         </div>
       </div>
     </div>
