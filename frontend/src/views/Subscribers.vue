@@ -77,6 +77,10 @@
       :total="subscribers.total" hoverable checkable backend-sorting @sort="onSort">
       <template #top-left>
         <div class="actions">
+          <a class="a" href="#" @click.prevent="exportSubscribers" data-cy="btn-export-subscribers">
+            <b-icon icon="cloud-download-outline" size="is-small" />
+            {{ $t('subscribers.export') }}
+          </a>
           <template v-if="bulk.checked.length > 0">
             <a class="a" href="#" @click.prevent="showBulkListForm" data-cy="btn-manage-lists">
               <b-icon icon="format-list-bulleted-square" size="is-small" /> Manage lists
@@ -190,6 +194,7 @@
 import Vue from 'vue';
 import { mapState } from 'vuex';
 import EmptyPlaceholder from '../components/EmptyPlaceholder.vue';
+import { uris } from '../constants';
 import SubscriberBulkList from './SubscriberBulkList.vue';
 import SubscriberForm from './SubscriberForm.vue';
 import CopyText from '../components/CopyText.vue';
@@ -397,6 +402,36 @@ export default Vue.extend({
       }
 
       this.$utils.confirm(this.$t('subscribers.confirmBlocklist', { num: this.numSelectedSubscribers }), fn);
+    },
+
+    exportSubscribers() {
+      const num = !this.bulk.all && this.bulk.checked.length > 0
+        ? this.bulk.checked.length : this.subscribers.total;
+
+      this.$utils.confirm(this.$t('subscribers.confirmExport', { num }), () => {
+        const q = new URLSearchParams();
+
+        if (this.queryParams.search) {
+          q.append('search', this.queryParams.search);
+        } else if (this.queryParams.queryExp) {
+          q.append('query', this.queryParams.queryExp);
+        }
+
+        if (this.queryParams.listID) {
+          q.append('list_id', this.queryParams.listID);
+        }
+
+        if (this.queryParams.subStatus) {
+          q.append('subscription_status', this.queryParams.subStatus);
+        }
+
+        // Export selected subscribers.
+        if (!this.bulk.all && this.bulk.checked.length > 0) {
+          this.bulk.checked.map((s) => q.append('id', s.id));
+        }
+
+        document.location.href = `${uris.exportSubscribers}?${q.toString()}`;
+      });
     },
 
     deleteSubscribers() {
