@@ -23,7 +23,7 @@
     "@codemirror/view": "^6.36.5",
     "@lezer/highlight": "^1.2.1",
     "@tinymce/tinymce-vue": "^3",
-    "axios": "^1.8.2",
+    "axios": "^1.12.0",
     "buefy": "^0.9.25",
     "bulma": "^0.9.4",
     "chart.js": "^4.4.1",
