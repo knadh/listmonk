@@ -126,6 +126,13 @@
                 </b-field>
               </div>
               <div class="column is-3">
+                <b-field :label="$t('settings.smtp.retryDelay')" label-position="on-border"
+                  :message="$t('settings.smtp.retryDelay')">
+                  <b-input v-model="item.retry_delay" name="retry_delay" placeholder="15s" :pattern="regDuration"
+                    :maxlength="10" />
+                </b-field>
+              </div>
+              <div class="column is-3">
                 <b-field :label="$t('settings.mailserver.idleTimeout')" label-position="on-border"
                   :message="$t('settings.mailserver.idleTimeoutHelp')">
                   <b-input v-model="item.idle_timeout" name="idle_timeout" placeholder="15s" :pattern="regDuration"
@@ -271,6 +278,7 @@ export default Vue.extend({
         email_headers: [],
         max_conns: 10,
         max_msg_retries: 2,
+        retry_delay: '15s',
         idle_timeout: '15s',
         wait_timeout: '5s',
         tls_type: 'STARTTLS',
