@@ -624,6 +624,7 @@ func (m *Manager) makeGnericFuncMap() template.FuncMap {
 	sprigFuncs := sprig.GenericFuncMap()
 	delete(sprigFuncs, "env")
 	delete(sprigFuncs, "expandenv")
+	delete(sprigFuncs, "getHostByName")
 
 	maps.Copy(funcs, sprigFuncs)
 
