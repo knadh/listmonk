@@ -59,6 +59,53 @@ load_secret_files() {
 # Load env variables from files if LISTMONK_*_FILE variables are set.
 load_secret_files
 
+# Parse DATABASE_URL if it exists and set listmonk database environment variables
+if [ -n "$DATABASE_URL" ]; then
+  echo "DATABASE_URL found, parsing database configuration..."
+  
+  # Extract components from DATABASE_URL
+  # Format: postgres://user:password@host:port/database?options
+  
+  # Remove postgres:// prefix
+  db_url_no_prefix="${DATABASE_URL#postgres://}"
+  
+  # Extract user:password@host:port/database?options (remove query params)
+  user_pass_host_port_db="${db_url_no_prefix%%\?*}"
+  
+  # Extract user:password part
+  user_pass="${user_pass_host_port_db%%@*}"
+  db_user="${user_pass%%:*}"
+  db_password="${user_pass#*:}"
+  
+  # Extract host:port/database part
+  host_port_db="${user_pass_host_port_db#*@}"
+  
+  # Extract host:port
+  host_port="${host_port_db%%/*}"
+  db_host="${host_port%%:*}"
+  db_port="${host_port#*:}"
+  
+  # Extract database name
+  db_name="${host_port_db#*/}"
+  
+  # Set environment variables for listmonk
+  export LISTMONK_db__host="$db_host"
+  export LISTMONK_db__port="$db_port"
+  export LISTMONK_db__user="$db_user"
+  export LISTMONK_db__password="$db_password"
+  export LISTMONK_db__database="$db_name"
+  export LISTMONK_db__ssl_mode="disable"
+  
+  echo "Database configuration parsed successfully:"
+  echo "  Host: $db_host"
+  echo "  Port: $db_port"
+  echo "  Database: $db_name"
+  echo "  User: $db_user"
+  echo "  SSL Mode: disable"
+else
+  echo "No DATABASE_URL found, using config.toml settings"
+fi
+
 # Try to set the ownership of the app directory to the app user.
 if ! chown -R ${PUID}:${PGID} /listmonk 2>/dev/null; then
   echo "Warning: Failed to change ownership of /listmonk. Readonly volume?"
