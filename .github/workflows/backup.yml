@@ -1,0 +1,49 @@
+name: Database Backup
+
+on:
+  schedule:
+    # Run daily at 2 AM UTC
+    - cron: '0 2 * * *'
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Install Fly CLI
+      uses: superfly/flyctl-actions/setup-flyctl@master
+      
+    - name: Create database backup
+      env:
+        FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+      run: |
+        DATE=$(date +%Y%m%d_%H%M%S)
+        BACKUP_FILE="listmonk_backup_${DATE}.sql"
+        
+        # Create backup
+        flyctl postgres connect --app listmonk-db-1758978372 \
+          --database listmonk_app_1759010454 \
+          --command "pg_dump listmonk_app_1759010454" > $BACKUP_FILE
+        
+        # Compress backup
+        gzip $BACKUP_FILE
+        
+        echo "Backup created: ${BACKUP_FILE}.gz"
+        
+    - name: Upload to cloud storage (optional)
+      # Uncomment and configure for your cloud provider
+      # env:
+      #   AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      #   AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      # run: |
+      #   aws s3 cp ${BACKUP_FILE}.gz s3://your-backup-bucket/listmonk/
+      run: echo "Configure cloud storage upload here"
+      
+    - name: Cleanup old backups
+      run: |
+        # Keep only last 30 backups in repository (if storing there)
+        ls -t listmonk_backup_*.sql.gz | tail -n +31 | xargs -r rm --

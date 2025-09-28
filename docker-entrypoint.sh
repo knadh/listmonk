@@ -113,10 +113,17 @@ fi
 
 echo "Launching listmonk with user=[${USER_NAME}] group=[${GROUP_NAME}] PUID=[${PUID}] PGID=[${PGID}]"
 
-# If running as root and PUID is not 0, then execute command as PUID
-# this allows us to run the container as a non-root user
+# Check if database needs initialization
 if [ "$(id -u)" = "0" ] && [ "${PUID}" != "0" ]; then
-  su-exec ${PUID}:${PGID} "$@"
+  # Try to run install first, then start normally
+  echo "Attempting to initialize database..."
+  su-exec ${PUID}:${PGID} ./listmonk --install --yes || echo "Database may already be initialized"
+  echo "Starting listmonk..."
+  su-exec ${PUID}:${PGID} ./listmonk
 else
-  exec "$@"
+  # Try to run install first, then start normally
+  echo "Attempting to initialize database..."
+  ./listmonk --install --yes || echo "Database may already be initialized"
+  echo "Starting listmonk..."
+  exec ./listmonk
 fi
