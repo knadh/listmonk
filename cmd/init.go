@@ -1005,6 +1005,7 @@ func initTplFuncs(i *i18n.I18n, u *UrlConfig) template.FuncMap {
 	sprigFuncs := sprig.GenericFuncMap()
 	delete(sprigFuncs, "env")
 	delete(sprigFuncs, "expandenv")
+	delete(sprigFuncs, "getHostByName")
 
 	maps.Copy(funcs, sprigFuncs)
 
