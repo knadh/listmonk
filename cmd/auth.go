@@ -30,8 +30,8 @@ type loginTpl struct {
 }
 
 type oidcState struct {
-	Nonce string `json:"nonce"`
-	Next  string `json:"next"`
+	Nonce string json:"nonce"
+	Next  string json:"next"
 }
 
 var oidcProviders = map[string]struct{}{
@@ -345,6 +345,8 @@ func (a *App) doLogin(c echo.Context) error {
 	// Log the user in by fetching and verifying credentials from the DB.
 	user, err := a.core.LoginUser(username, password)
 	if err != nil {
+		// Log the failed login attempt
+		a.log.Printf("failed login attempt for user: %s, error: %v", username, err)
 		return err
 	}
 
