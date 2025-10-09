@@ -1,4 +1,4 @@
-package main
+ackage main
 
 import (
 	"bytes"
@@ -60,10 +60,10 @@ const (
 
 // UrlConfig contains various URL constants used in the app.
 type UrlConfig struct {
-	RootURL      string `koanf:"root_url"`
-	LogoURL      string `koanf:"logo_url"`
-	FaviconURL   string `koanf:"favicon_url"`
-	LoginURL     string `koanf:"login_url"`
+	RootURL      string koanf:"root_url"
+	LogoURL      string koanf:"logo_url"
+	FaviconURL   string koanf:"favicon_url"
+	LoginURL     string koanf:"login_url"
 	UnsubURL     string
 	LinkTrackURL string
 	ViewTrackURL string
@@ -74,56 +74,56 @@ type UrlConfig struct {
 
 // Config contains static, constant config values required by arbitrary handlers and functions.
 type Config struct {
-	SiteName                      string   `koanf:"site_name"`
-	FromEmail                     string   `koanf:"from_email"`
-	NotifyEmails                  []string `koanf:"notify_emails"`
-	EnablePublicSubPage           bool     `koanf:"enable_public_subscription_page"`
-	EnablePublicArchive           bool     `koanf:"enable_public_archive"`
-	EnablePublicArchiveRSSContent bool     `koanf:"enable_public_archive_rss_content"`
-	Lang                          string   `koanf:"lang"`
-	DBBatchSize                   int      `koanf:"batch_size"`
+	SiteName                      string   koanf:"site_name"
+	FromEmail                     string   koanf:"from_email"
+	NotifyEmails                  []string koanf:"notify_emails"
+	EnablePublicSubPage           bool     koanf:"enable_public_subscription_page"
+	EnablePublicArchive           bool     koanf:"enable_public_archive"
+	EnablePublicArchiveRSSContent bool     koanf:"enable_public_archive_rss_content"
+	Lang                          string   koanf:"lang"
+	DBBatchSize                   int      koanf:"batch_size"
 	Privacy                       struct {
-		IndividualTracking bool            `koanf:"individual_tracking"`
-		AllowPreferences   bool            `koanf:"allow_preferences"`
-		AllowBlocklist     bool            `koanf:"allow_blocklist"`
-		AllowExport        bool            `koanf:"allow_export"`
-		AllowWipe          bool            `koanf:"allow_wipe"`
-		RecordOptinIP      bool            `koanf:"record_optin_ip"`
-		UnsubHeader        bool            `koanf:"unsubscribe_header"`
-		Exportable         map[string]bool `koanf:"-"`
-		DomainBlocklist    []string        `koanf:"-"`
-		DomainAllowlist    []string        `koanf:"-"`
-	} `koanf:"privacy"`
+		IndividualTracking bool            koanf:"individual_tracking"
+		AllowPreferences   bool            koanf:"allow_preferences"
+		AllowBlocklist     bool            koanf:"allow_blocklist"
+		AllowExport        bool            koanf:"allow_export"
+		AllowWipe          bool            koanf:"allow_wipe"
+		RecordOptinIP      bool            koanf:"record_optin_ip"
+		UnsubHeader        bool            koanf:"unsubscribe_header"
+		Exportable         map[string]bool koanf:"-"
+		DomainBlocklist    []string        koanf:"-"
+		DomainAllowlist    []string        koanf:"-"
+	} koanf:"privacy"
 	Security struct {
 		OIDC struct {
-			Enabled           bool   `koanf:"enabled"`
-			ProviderURL       string `koanf:"provider_url"`
-			ProviderName      string `koanf:"provider_name"`
-			ClientID          string `koanf:"client_id"`
-			ClientSecret      string `koanf:"client_secret"`
-			AutoCreateUsers   bool   `koanf:"auto_create_users"`
-			DefaultUserRoleID int    `koanf:"default_user_role_id"`
-			DefaultListRoleID int    `koanf:"default_list_role_id"`
-		} `koanf:"oidc"`
+			Enabled           bool   koanf:"enabled"
+			ProviderURL       string koanf:"provider_url"
+			ProviderName      string koanf:"provider_name"
+			ClientID          string koanf:"client_id"
+			ClientSecret      string koanf:"client_secret"
+			AutoCreateUsers   bool   koanf:"auto_create_users"
+			DefaultUserRoleID int    koanf:"default_user_role_id"
+			DefaultListRoleID int    koanf:"default_list_role_id"
+		} koanf:"oidc"
 
 		Captcha struct {
 			Altcha struct {
-				Enabled    bool `koanf:"enabled"`
-				Complexity int  `koanf:"complexity"`
-			} `koanf:"altcha"`
+				Enabled    bool koanf:"enabled"
+				Complexity int  koanf:"complexity"
+			} koanf:"altcha"
 			HCaptcha struct {
-				Enabled bool   `koanf:"enabled"`
-				Key     string `koanf:"key"`
-				Secret  string `koanf:"secret"`
-			} `koanf:"hcaptcha"`
-		} `koanf:"captcha"`
-	} `koanf:"security"`
+				Enabled bool   koanf:"enabled"
+				Key     string koanf:"key"
+				Secret  string koanf:"secret"
+			} koanf:"hcaptcha"
+		} koanf:"captcha"
+	} koanf:"security"
 
 	Appearance struct {
-		AdminCSS  []byte `koanf:"admin.custom_css"`
-		AdminJS   []byte `koanf:"admin.custom_js"`
-		PublicCSS []byte `koanf:"public.custom_css"`
-		PublicJS  []byte `koanf:"public.custom_js"`
+		AdminCSS  []byte koanf:"admin.custom_css"
+		AdminJS   []byte koanf:"admin.custom_js"
+		PublicCSS []byte koanf:"public.custom_css"
+		PublicJS  []byte koanf:"public.custom_js"
 	}
 
 	HasLegacyUser bool
@@ -302,16 +302,16 @@ func initFS(appDir, frontendDir, staticDir, i18nDir string) stuffbin.FileSystem 
 // SQL queries into a prepared query map.
 func initDB() *sqlx.DB {
 	var c struct {
-		Host        string        `koanf:"host"`
-		Port        int           `koanf:"port"`
-		User        string        `koanf:"user"`
-		Password    string        `koanf:"password"`
-		DBName      string        `koanf:"database"`
-		SSLMode     string        `koanf:"ssl_mode"`
-		Params      string        `koanf:"params"`
-		MaxOpen     int           `koanf:"max_open"`
-		MaxIdle     int           `koanf:"max_idle"`
-		MaxLifetime time.Duration `koanf:"max_lifetime"`
+		Host        string        koanf:"host"
+		Port        int           koanf:"port"
+		User        string        koanf:"user"
+		Password    string        koanf:"password"
+		DBName      string        koanf:"database"
+		SSLMode     string        koanf:"ssl_mode"
+		Params      string        koanf:"params"
+		MaxOpen     int           koanf:"max_open"
+		MaxIdle     int           koanf:"max_idle"
+		MaxLifetime time.Duration koanf:"max_lifetime"
 	}
 	if err := ko.Unmarshal("db", &c); err != nil {
 		lo.Fatalf("error loading db config: %v", err)
@@ -475,8 +475,8 @@ func initConstConfig(ko *koanf.Koanf) *Config {
 
 	// Make a lookup map of permissions.
 	permGroups := []struct {
-		Group       string   `json:"group"`
-		Permissions []string `json:"permissions"`
+		Group       string   json:"group"
+		Permissions []string json:"permissions"
 	}{}
 	if err := json.Unmarshal(pm, &permGroups); err != nil {
 		lo.Fatalf("error loading permissions file: %v", err)
@@ -631,7 +631,7 @@ func initSMTPMessengers() []manager.Messenger {
 		lo.Printf("initialized email (SMTP) messenger: %s@%s", item.String("username"), item.String("host"))
 
 		// If the server has a name, initialize it as a standalone e-mail messenger
-		// allowing campaigns to select individual SMTPs. In the UI and config, it'll appear as `email / $name`.
+		// allowing campaigns to select individual SMTPs. In the UI and config, it'll appear as email / $name.
 		if s.Name != "" {
 			msgr, err := email.New(s.Name, s)
 			if err != nil {
@@ -822,7 +822,7 @@ func initAbout(q *models.Queries, db *sqlx.DB) about {
 	// Memory / alloc stats.
 	runtime.ReadMemStats(&mem)
 
-	info := types.JSONText(`{}`)
+	info := types.JSONText({})
 	if err := db.QueryRow(q.GetDBInfo).Scan(&info); err != nil {
 		lo.Printf("WARNING: error getting database version: %v", err)
 	}
@@ -1081,7 +1081,7 @@ func initAuth(co *core.Core, db *sql.DB, ko *koanf.Koanf) (bool, *auth.Auth) {
 		u.UserRole.ID = auth.SuperAdminRoleID
 		a.CacheAPIUser(u)
 
-		lo.Println(`WARNING: Remove the admin_username and admin_password fields from the TOML configuration file. If you are using APIs, create and use new credentials. Users are now managed via the Admin -> Settings -> Users dashboard.`)
+		lo.Println(WARNING: Remove the admin_username and admin_password fields from the TOML configuration file. If you are using APIs, create and use new credentials. Users are now managed via the Admin -> Settings -> Users dashboard.)
 	}
 
 	return hasUsers, a

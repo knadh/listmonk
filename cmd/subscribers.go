@@ -1,4 +1,4 @@
-package main
+ackage main
 
 import (
 	"encoding/csv"
@@ -26,15 +26,15 @@ const (
 // subQueryReq is a "catch all" struct for reading various
 // subscriber related requests.
 type subQueryReq struct {
-	Search             string `json:"search"`
-	Query              string `json:"query"`
-	ListIDs            []int  `json:"list_ids"`
-	TargetListIDs      []int  `json:"target_list_ids"`
-	SubscriberIDs      []int  `json:"ids"`
-	Action             string `json:"action"`
-	Status             string `json:"status"`
-	SubscriptionStatus string `json:"subscription_status"`
-	All                bool   `json:"all"`
+	Search             string json:"search"
+	Query              string json:"query"
+	ListIDs            []int  json:"list_ids"
+	TargetListIDs      []int  json:"target_list_ids"
+	SubscriberIDs      []int  json:"ids"
+	Action             string json:"action"
+	Status             string json:"status"
+	SubscriptionStatus string json:"subscription_status"
+	All                bool   json:"all"
 }
 
 // subOptin contains the data that's passed to the double opt-in e-mail template.
@@ -233,8 +233,8 @@ func (a *App) UpdateSubscriber(c echo.Context) error {
 	// Get and validate fields.
 	req := struct {
 		models.Subscriber
-		Lists          []int `json:"lists"`
-		PreconfirmSubs bool  `json:"preconfirm_subscriptions"`
+		Lists          []int json:"lists"
+		PreconfirmSubs bool  json:"preconfirm_subscriptions"
 	}{}
 	if err := c.Bind(&req); err != nil {
 		return err
@@ -560,7 +560,7 @@ func (a *App) ExportSubscriberData(c echo.Context) error {
 
 	// Set headers to force the browser to prompt for download.
 	c.Response().Header().Set("Cache-Control", "no-cache")
-	c.Response().Header().Set("Content-Disposition", `attachment; filename="data.json"`)
+	c.Response().Header().Set("Content-Disposition", attachment; filename="data.json")
 	return c.Blob(http.StatusOK, "application/json", b)
 }
 
@@ -670,7 +670,7 @@ func formatSQLExp(q string) string {
 
 // makeOptinNotifyHook returns an enclosed callback that sends optin confirmation e-mails.
 // This is plugged into the 'core' package to send optin confirmations when a new subscriber is
-// created via `core.CreateSubscriber()`.
+// created via core.CreateSubscriber().
 func makeOptinNotifyHook(unsubHeader bool, u *UrlConfig, q *models.Queries, i *i18n.I18n) func(sub models.Subscriber, listIDs []int) (int, error) {
 	return func(sub models.Subscriber, listIDs []int) (int, error) {
 		// Fetch double opt-in lists from the given list IDs.
@@ -706,7 +706,7 @@ func makeOptinNotifyHook(unsubHeader bool, u *UrlConfig, q *models.Queries, i *i
 		if unsubHeader {
 			unsubURL := fmt.Sprintf(u.UnsubURL, dummyUUID, sub.UUID)
 			hdr.Set("List-Unsubscribe-Post", "List-Unsubscribe=One-Click")
-			hdr.Set("List-Unsubscribe", `<`+unsubURL+`>`)
+			hdr.Set("List-Unsubscribe", <+unsubURL+>)
 		}
 
 		// Send the e-mail.

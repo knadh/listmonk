@@ -22,7 +22,7 @@ const (
 )
 
 type okResp struct {
-	Data any `json:"data"`
+	Data any json:"data"
 }
 
 var (
