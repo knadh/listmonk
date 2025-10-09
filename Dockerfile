@@ -1,26 +1,56 @@
+# -----------------------------------------------------
+# Build stage
+# -----------------------------------------------------
+FROM golang:1.24.1-alpine AS builder
+
+# Install build tools, Git, Node.js, npm
+RUN apk add --no-cache git build-base nodejs npm
+
+# Set working directory
+WORKDIR /app
+
+# Copy Go module files and download dependencies
+COPY go.mod go.sum ./
+RUN go mod download
+
+# Copy the entire source code
+COPY . .
+
+# -----------------------------------------------------
+# Build static frontend
+# -----------------------------------------------------
+WORKDIR /app/frontend
+
+# Ensure a .gitignore exists (it's excluded from build context by .dockerignore).
+# Then install Yarn v1, install dependencies and build the frontend.
+RUN printf "" > .gitignore && \
+    npm install -g yarn@1 && \
+    (yarn install --frozen-lockfile || yarn install) && \
+    yarn build
+
+# -----------------------------------------------------
+# Build backend binary with embedded static assets
+# -----------------------------------------------------
+WORKDIR /app
+RUN go build -o listmonk ./cmd
+
+# -----------------------------------------------------
+# Runtime stage
+# -----------------------------------------------------
 FROM alpine:latest
 
-# Install dependencies
+# Install runtime dependencies
 RUN apk --no-cache add ca-certificates tzdata shadow su-exec
 
-# Set the working directory
+# Set working directory
 WORKDIR /listmonk
 
-# Copy only the necessary files
-COPY listmonk .
-COPY config.toml.sample config.toml
+# Copy backend binary and config file
+COPY --from=builder /app/listmonk ./
+COPY config.toml.sample ./config.toml
 
-# Copy the entrypoint script
-COPY docker-entrypoint.sh /usr/local/bin/
-
-# Make the entrypoint script executable
-RUN chmod +x /usr/local/bin/docker-entrypoint.sh
-
-# Expose the application port
+# Expose application port
 EXPOSE 9000
 
-# Set the entrypoint
-ENTRYPOINT ["docker-entrypoint.sh"]
-
-# Define the command to run the application
+# Run the app
 CMD ["./listmonk"]

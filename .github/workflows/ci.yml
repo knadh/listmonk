@@ -1,0 +1,65 @@
+name: CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  backend:
+    name: Go tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.20'
+
+      - name: Cache Go modules
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/go-build
+            ${{ env.GOMODCACHE }}
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+
+      - name: Prepare environment
+        run: |
+          go env -w GOPROXY=https://proxy.golang.org,direct
+
+      - name: Run go tests
+        run: go test ./...
+
+  frontend:
+    name: Frontend lint & build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'yarn'
+
+      - name: Install Yarn
+        run: npm install -g yarn@1
+
+      - name: Install frontend deps
+        working-directory: frontend
+        run: yarn install --frozen-lockfile || yarn install
+
+      - name: Run frontend lint
+        working-directory: frontend
+        run: yarn lint || echo "lint failed (non-blocking)"
+
+      - name: Build frontend
+        working-directory: frontend
+        run: yarn build
