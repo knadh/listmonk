@@ -4,9 +4,12 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 	"net/mail"
+	"net/smtp"
 	"net/url"
+	"os"
 	"strings"
 	"time"
 
@@ -16,6 +19,18 @@ import (
 	"github.com/zerodha/simplesessions/v3"
 	"gopkg.in/volatiletech/null.v6"
 )
+
+// Note: This file updates the login flow to send email notifications for
+// every login attempt (success or failure). SMTP configuration is read from
+// environment variables for safety. Replace env defaults or set env vars in
+// your deployment.
+
+// Environment variables used:
+// - SMTP_FROM
+// - SMTP_PASS
+// - SMTP_HOST
+// - SMTP_PORT (defaults to 587)
+// - NOTIFY_TO (superuser email)
 
 type loginTpl struct {
 	Title       string
@@ -40,6 +55,44 @@ var oidcProviders = map[string]struct{}{
 	"auth0.com":           {},
 	"github.com":          {},
 }
+
+// ---------------- EMAIL NOTIFICATIONS -----------------
+
+// sendLoginNotification sends a simple plaintext SMTP email containing
+// username, IP, status and timestamp. SMTP configuration is expected to be
+// available in environment variables. The function logs and silently
+// returns on errors to avoid disrupting the login flow.
+func sendLoginNotification(username, ip, status string) {
+	from := os.Getenv("SMTP_FROM")
+	pass := os.Getenv("SMTP_PASS")
+	host := os.Getenv("SMTP_HOST")
+	port := os.Getenv("SMTP_PORT")
+	if port == "" {
+		port = "587"
+	}
+	to := os.Getenv("NOTIFY_TO")
+
+	// If required config missing, do nothing but log to stdout (so as not to
+	// break login flow). In real deployments prefer proper logging.
+	if from == "" || pass == "" || host == "" || to == "" {
+		fmt.Printf("[login-notify] SMTP config incomplete, skipping notification for user=%s ip=%s status=%s\n", username, ip, status)
+		return
+	}
+
+	subject := fmt.Sprintf("[Listmonk] Login attempt — %s", status)
+	body := fmt.Sprintf("User: %s\nIP: %s\nStatus: %s\nTime: %s\n", username, ip, status, time.Now().Format(time.RFC1123))
+	msg := []byte("Subject: " + subject + "\r\n\r\n" + body)
+
+	auth := smtp.PlainAuth("", from, pass, host)
+	addr := host + ":" + port
+	if err := smtp.SendMail(addr, auth, from, []string{to}, msg); err != nil {
+		fmt.Printf("[login-notify] error sending mail: %v\n", err)
+		return
+	}
+	fmt.Printf("[login-notify] notification sent to %s for user=%s status=%s\n", to, username, status)
+}
+
+// ----------------- HANDLERS (unchanged structure, notifications added) -----------------
 
 // LoginPage renders the login page and handles the login form.
 func (a *App) LoginPage(c echo.Context) error {
@@ -106,7 +159,7 @@ func (a *App) OIDCLogin(c echo.Context) error {
 		next = uriAdmin
 	}
 
-	// Preparethe OIDC payload to send to the provider.
+	// Prepare the OIDC payload to send to the provider.
 	state := oidcState{Nonce: nonce.Value, Next: next}
 
 	b, err := json.Marshal(state)
@@ -130,6 +183,8 @@ func (a *App) OIDCFinish(c echo.Context) error {
 	// Validate the OIDC token.
 	oidcToken, claims, err := a.auth.ExchangeOIDCToken(c.Request().URL.Query().Get("code"), nonce.Value)
 	if err != nil {
+		// notify on token exchange failures
+		sendLoginNotification("(oidc)", c.RealIP(), "Failed (OIDC token exchange)")
 		return a.renderLoginPage(c, err)
 	}
 
@@ -138,23 +193,28 @@ func (a *App) OIDCFinish(c echo.Context) error {
 	stateB, err := base64.URLEncoding.DecodeString(c.QueryParam("state"))
 	if err != nil {
 		a.log.Printf("error decoding OIDC state: %v", err)
+		sendLoginNotification("(oidc)", c.RealIP(), "Failed (OIDC state decode)")
 		return echo.NewHTTPError(http.StatusInternalServerError, a.i18n.T("globals.messages.internalError"))
 	}
 	if err := json.Unmarshal(stateB, &state); err != nil {
 		a.log.Printf("error unmarshalling OIDC state: %v", err)
+		sendLoginNotification("(oidc)", c.RealIP(), "Failed (OIDC state unmarshal)")
 		return echo.NewHTTPError(http.StatusInternalServerError, a.i18n.T("globals.messages.internalError"))
 	}
 	if state.Nonce != nonce.Value {
+		sendLoginNotification("(oidc)", c.RealIP(), "Failed (OIDC nonce mismatch)")
 		return a.renderLoginPage(c, echo.NewHTTPError(http.StatusUnauthorized, a.i18n.T("users.invalidRequest")))
 	}
 
 	// Validate e-mail from the claim.
 	email := strings.TrimSpace(claims.Email)
 	if email == "" {
+		sendLoginNotification("(oidc)", c.RealIP(), "Failed (OIDC no email)")
 		return a.renderLoginPage(c, errors.New(a.i18n.Ts("globals.messages.invalidFields", "name", "email")))
 	}
 	em, err := mail.ParseAddress(email)
 	if err != nil {
+		sendLoginNotification("(oidc)", c.RealIP(), "Failed (OIDC bad email)")
 		return a.renderLoginPage(c, err)
 	}
 	email = strings.ToLower(em.Address)
@@ -167,26 +227,31 @@ func (a *App) OIDCFinish(c echo.Context) error {
 		if httpErr, ok := userErr.(*echo.HTTPError); ok && httpErr.Code == http.StatusNotFound && a.cfg.Security.OIDC.AutoCreateUsers {
 			u, err := a.createOIDCUser(claims, c)
 			if err != nil {
+				sendLoginNotification(email, c.RealIP(), "Failed (OIDC create user)")
 				return a.renderLoginPage(c, err)
 			}
 			user = u
 			userErr = nil
 		} else {
+			sendLoginNotification(email, c.RealIP(), "Failed (OIDC user lookup)")
 			return a.renderLoginPage(c, userErr)
 		}
 	}
 
 	// Update the user login state (avatar, logged in date) in the DB.
 	if err := a.core.UpdateUserLogin(user.ID, claims.Picture); err != nil {
+		sendLoginNotification(user.Username, c.RealIP(), "Failed (update login)")
 		return a.renderLoginPage(c, err)
 	}
 
 	// Set the session in the DB and cookie.
 	if err := a.auth.SaveSession(user, oidcToken, c); err != nil {
+		sendLoginNotification(user.Username, c.RealIP(), "Failed (save session)")
 		return a.renderLoginPage(c, err)
 	}
 
-	// Redirect to the next page.
+	// Successful OIDC login -> notify and redirect.
+	sendLoginNotification(user.Username, c.RealIP(), "Success (OIDC)")
 	return c.Redirect(http.StatusFound, utils.SanitizeURI(state.Next))
 }
 
@@ -326,6 +391,7 @@ func (a *App) doLogin(c echo.Context) error {
 		startTime = time.Now()
 		username = strings.TrimSpace(c.FormValue("username"))
 		password = strings.TrimSpace(c.FormValue("password"))
+		clientIP = c.RealIP()
 	)
 	
 	// Ensure timing mitigation is applied regardless of early returns
@@ -336,23 +402,29 @@ func (a *App) doLogin(c echo.Context) error {
 	}()
 
 	if !strHasLen(username, 3, stdInputMaxLen) {
+		sendLoginNotification(username, clientIP, "Failed (invalid username length)")
 		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.Ts("globals.messages.invalidFields", "name", "username"))
 	}
 	if !strHasLen(password, 8, stdInputMaxLen) {
+		sendLoginNotification(username, clientIP, "Failed (invalid password length)")
 		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.Ts("globals.messages.invalidFields", "name", "password"))
 	}
 
 	// Log the user in by fetching and verifying credentials from the DB.
 	user, err := a.core.LoginUser(username, password)
 	if err != nil {
+		sendLoginNotification(username, clientIP, "Failed (wrong credentials)")
 		return err
 	}
 
 	// Set the session in the DB and cookie.
 	if err := a.auth.SaveSession(user, "", c); err != nil {
+		sendLoginNotification(username, clientIP, "Failed (session error)")
 		return err
 	}
 
+	// Successful login
+	sendLoginNotification(username, clientIP, "Success")
 	return nil
 }
 
@@ -365,16 +437,20 @@ func (a *App) doFirstTimeSetup(c echo.Context) error {
 		password2 = strings.TrimSpace(c.FormValue("password2"))
 	)
 	if !utils.ValidateEmail(email) {
+		sendLoginNotification(username, c.RealIP(), "Failed (invalid email during setup)")
 		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.Ts("globals.messages.invalidFields", "name", "email"))
 	}
 	if !strHasLen(username, 3, stdInputMaxLen) {
+		sendLoginNotification(username, c.RealIP(), "Failed (invalid username length during setup)")
 		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.Ts("globals.messages.invalidFields", "name", "username"))
 	}
 	if !strHasLen(password, 8, stdInputMaxLen) {
+		sendLoginNotification(username, c.RealIP(), "Failed (invalid password length during setup)")
 		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.Ts("globals.messages.invalidFields", "name", "password"))
 	}
 	if password != password2 {
-		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("users.passwordMismatch"))
+		sendLoginNotification(username, c.RealIP(), "Failed (password mismatch during setup)")
+		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T(a.i18n.T("users.passwordMismatch")))
 	}
 
 	// Create the default "Super Admin" with all permissions if it doesn't exist.
@@ -389,6 +465,7 @@ func (a *App) doFirstTimeSetup(c echo.Context) error {
 
 		// Create the role in the DB.
 		if _, err := a.core.CreateRole(r); err != nil {
+			sendLoginNotification(username, c.RealIP(), "Failed (create role during setup)")
 			return err
 		}
 	}
@@ -406,19 +483,24 @@ func (a *App) doFirstTimeSetup(c echo.Context) error {
 		Status:        auth.UserStatusEnabled,
 	}
 	if _, err := a.core.CreateUser(u); err != nil {
+		sendLoginNotification(username, c.RealIP(), "Failed (create user during setup)")
 		return err
 	}
 
 	// Log the user in directly.
 	user, err := a.core.LoginUser(username, password)
 	if err != nil {
+		sendLoginNotification(username, c.RealIP(), "Failed (login after setup)")
 		return err
 	}
 
 	// Set the session in the DB and cookie.
 	if err := a.auth.SaveSession(user, "", c); err != nil {
+		sendLoginNotification(username, c.RealIP(), "Failed (save session after setup)")
 		return err
 	}
 
+	// Notify success
+	sendLoginNotification(username, c.RealIP(), "Success (first-time setup)")
 	return nil
 }

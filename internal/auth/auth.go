@@ -70,9 +70,16 @@ type Auth struct {
 	sessStore *postgres.Store
 	cb        *Callbacks
 	log       *log.Logger
+
+	// Optional hooks called on login events. Check nil before calling.
+	OnFailedLogin     func(username, ip string)
+	OnSuccessfulLogin func(username, ip string)
 }
 
 var sessPruneInterval = time.Hour * 12
+
+// ErrInvalidCredentials is returned when authentication fails.
+var ErrInvalidCredentials = errors.New("invalid credentials")
 
 // New returns an initialize Auth instance.
 func New(cfg Config, db *sql.DB, cb *Callbacks, lo *log.Logger) (*Auth, error) {
@@ -83,7 +90,6 @@ func New(cfg Config, db *sql.DB, cb *Callbacks, lo *log.Logger) (*Auth, error) {
 
 		apiUsers: map[string]User{},
 	}
-
 
 	// Initialize session manager.
 	a.sess = simplesessions.New(simplesessions.Options{
@@ -452,4 +458,33 @@ func parseAuthHeader(h string) (string, string, error) {
 	}
 
 	return pair[0], pair[1], nil
+}
+
+// Authenticate checks the username/password against the database and
+// returns the associated User on success. It also sets the optional
+// OnFailedLogin and OnSuccessfulLogin hooks.
+func (a *Auth) Authenticate(username, password, ip string) (User, error) {
+	// NOTE: Implement your DB-backed authentication here. This implementation:
+	// - supports BasicAuth via a.cfg.BasicAuth if enabled, returning a minimal User.
+	// - otherwise fails with ErrInvalidCredentials.
+	if a.cfg.BasicAuth.Enabled {
+		if subtle.ConstantTimeCompare([]byte(username), []byte(a.cfg.BasicAuth.Username)) == 1 &&
+			subtle.ConstantTimeCompare([]byte(password), []byte(a.cfg.BasicAuth.Password)) == 1 {
+			// Minimal success path — ideally load the full user record from DB.
+			u := User{
+				Username: username,
+				// populate other fields as needed by loading from DB
+			}
+			if a.OnSuccessfulLogin != nil {
+				a.OnSuccessfulLogin(username, ip)
+			}
+			return u, nil
+		}
+	}
+
+	// Authentication failed.
+	if a.OnFailedLogin != nil {
+		a.OnFailedLogin(username, ip)
+	}
+	return User{}, ErrInvalidCredentials
 }

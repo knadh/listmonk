@@ -31,7 +31,9 @@ import (
 	"github.com/knadh/stuffbin"
 )
 
-// App contains the "global" shared components, controllers and fields.
+// =======================
+// Global App Structure
+// =======================
 type App struct {
 	cfg        *Config
 	urlCfg     *UrlConfig
@@ -56,23 +58,17 @@ type App struct {
 	about         about
 	fnOptinNotify func(models.Subscriber, []int) (int, error)
 
-	// Channel for passing reload signals.
-	chReload chan os.Signal
-
-	// Global variable that stores the state indicating that a restart is required
-	// after a settings update.
-	needsRestart bool
-
-	// First time installation with no user records in the DB. Needs user setup.
+	chReload       chan os.Signal
+	needsRestart   bool
 	needsUserSetup bool
-
-	// Global state that stores data on an available remote update.
-	update *AppUpdate
+	update         *AppUpdate
 	sync.Mutex
 }
 
+// =======================
+// Global Variables
+// =======================
 var (
-	// Buffered log writer for storing N lines of log entries for the UI.
 	evStream = events.New()
 	bufLog   = buflog.New(5000)
 	lo       = log.New(io.MultiWriter(os.Stdout, bufLog, evStream.ErrWriter()), "", log.Ldate|log.Ltime|log.Lmicroseconds|log.Lshortfile)
@@ -82,22 +78,20 @@ var (
 	db      *sqlx.DB
 	queries *models.Queries
 
-	// Compile-time variables.
 	buildString   string
 	versionString string
 
-	// If these are set in build ldflags and static assets (*.sql, config.toml.sample. ./frontend)
-	// are not embedded (in make dist), these paths are looked up. The default values before, when not
-	// overridden by build flags, are relative to the CWD at runtime.
 	appDir      string = "."
 	frontendDir string = "frontend/dist"
 )
 
+// =======================
+// Initialization
+// =======================
 func init() {
-	// Initialize commandline flags.
+	// Command-line flags
 	initFlags(ko)
 
-	// Display version.
 	if ko.Bool("version") {
 		fmt.Println(buildString)
 		os.Exit(0)
@@ -105,7 +99,7 @@ func init() {
 
 	lo.Println(buildString)
 
-	// Generate new config.
+	// Generate new config
 	if ko.Bool("new-config") {
 		path := ko.Strings("config")[0]
 		if err := newConfigFile(path); err != nil {
@@ -116,132 +110,102 @@ func init() {
 		os.Exit(0)
 	}
 
-	// Load config files to pick up the database settings first.
+	// Load config files
 	initConfigFiles(ko.Strings("config"), ko)
 
-	// Load environment variables and merge into the loaded config.
+	// Load environment variables
 	if err := ko.Load(env.Provider("LISTMONK_", ".", func(s string) string {
 		return strings.Replace(strings.ToLower(strings.TrimPrefix(s, "LISTMONK_")), "__", ".", -1)
 	}), nil); err != nil {
 		lo.Fatalf("error loading config from env: %v", err)
 	}
 
-	// Connect to the database.
+	// Database connection
 	db = initDB()
 
-	// Initialize the embedded filesystem with static assets.
+	// Filesystem for frontend & static assets
 	fs = initFS(appDir, frontendDir, ko.String("static-dir"), ko.String("i18n-dir"))
 
-	// Installer mode? This runs before the SQL queries are loaded and prepared
-	// as the installer needs to work on an empty DB.
+	// Installer mode
 	if ko.Bool("install") {
-		// Save the version of the last listed migration.
 		install(migList[len(migList)-1].version, db, fs, !ko.Bool("yes"), ko.Bool("idempotent"))
 		os.Exit(0)
 	}
 
-	// Check if the DB schema is installed.
+	// Check DB schema
 	if ok, err := checkSchema(db); err != nil {
 		log.Fatalf("error checking schema in DB: %v", err)
 	} else if !ok {
 		lo.Fatal("the database does not appear to be setup. Run --install.")
 	}
 
+	// Upgrade DB if requested
 	if ko.Bool("upgrade") {
 		upgrade(db, fs, !ko.Bool("yes"))
 		os.Exit(0)
 	}
 
-	// Before the queries are prepared, see if there are pending upgrades.
 	checkUpgrade(db)
 
-	// Read the SQL queries from the queries file.
+	// Read SQL queries
 	qMap := readQueries(queryFilePath, fs)
 
-	// Load settings from DB.
+	// Load settings
 	if q, ok := qMap["get-settings"]; ok {
 		initSettings(q.Query, db, ko)
 	}
 
-	// Prepare queries.
+	// Prepare queries
 	queries = prepareQueries(qMap, db, ko)
 }
 
+// =======================
+// Main Function
+// =======================
 func main() {
+	// Initialize core components
 	var (
-		// Initialize static global config.
-		cfg = initConstConfig(ko)
-
-		// Initialize static URL config.
-		urlCfg = initUrlConfig(ko)
-
-		// Initialize i18n language map.
-		i18n = initI18n(ko.MustString("app.lang"), fs)
-
-		// Initialize the media store.
-		media = initMediaStore(ko)
-
-		fbOptinNotify = makeOptinNotifyHook(ko.Bool("privacy.unsubscribe_header"), urlCfg, queries, i18n)
-
-		// Crud core.
-		core = initCore(fbOptinNotify, queries, db, i18n, ko)
-
-		// Initialize all messengers, SMTP and postback.
-		msgrs = append(initSMTPMessengers(), initPostbackMessengers(ko)...)
-
-		// Campaign manager.
-		mgr = initCampaignManager(msgrs, queries, urlCfg, core, media, i18n, ko)
-
-		// Bulk importer.
-		importer = initImporter(queries, db, core, i18n, ko)
-
-		// Initialize the auth manager.
-		hasUsers, auth = initAuth(core, db.DB, ko)
-
-		// Initialize the webhook/POP3 bounce processor.
-		bounce *bounce.Manager
-
-		emailMsgr *email.Emailer
-
-		chReload = make(chan os.Signal, 1)
+		cfg               = initConstConfig(ko)
+		urlCfg            = initUrlConfig(ko)
+		i18n              = initI18n(ko.MustString("app.lang"), fs)
+		media             = initMediaStore(ko)
+		fbOptinNotify     = makeOptinNotifyHook(ko.Bool("privacy.unsubscribe_header"), urlCfg, queries, i18n)
+		core              = initCore(fbOptinNotify, queries, db, i18n, ko)
+		msgrs             = append(initSMTPMessengers(), initPostbackMessengers(ko)...)
+		mgr               = initCampaignManager(msgrs, queries, urlCfg, core, media, i18n, ko)
+		importer          = initImporter(queries, db, core, i18n, ko)
+		hasUsers, authSvc = initAuth(core, db.DB, ko)
+		bounce            *bounce.Manager
+		emailMsgr         *email.Emailer
+		chReload          = make(chan os.Signal, 1)
 	)
 
-	// Initialize the bounce manager that processes bounces from webhooks and
-	// POP3 mailbox scanning.
+	// Initialize bounce manager
 	if ko.Bool("bounce.enabled") {
 		bounce = initBounceManager(core.RecordBounce, queries.RecordBounce, lo, ko)
 	}
 
-	// Assign the default `email` messenger to the app.
+	// Assign email messenger
 	for _, m := range msgrs {
 		if m.Name() == "email" {
 			emailMsgr = m.(*email.Emailer)
 		}
 	}
 
-	// Initialize the global admin/sub e-mail notifier.
 	initNotifs(fs, i18n, emailMsgr, urlCfg, ko)
-
-	// Initialize and cache tx templates in memory.
 	initTxTemplates(mgr, core)
 
-	// Initialize the bounce manager that processes bounces from webhooks and
-	// POP3 mailbox scanning.
 	if ko.Bool("bounce.enabled") {
 		go bounce.Run()
 	}
 
-	// Start cronjobs.
 	if ko.Bool("app.cache_slow_queries") {
 		initCron(core)
 	}
 
-	// Start the campaign manager workers. The campaign batches (fetch from DB, push out
-	// messages) get processed at the specified interval.
 	go mgr.Run()
 
-	// =========================================================================
-	// Initialize the App{} with all the global shared components, controllers and fields.
+	// Initialize App struct
 	app := &App{
 		cfg:        cfg,
 		urlCfg:     urlCfg,
@@ -253,7 +217,7 @@ func main() {
 		messengers: msgrs,
 		emailMsgr:  emailMsgr,
 		importer:   importer,
-		auth:       auth,
+		auth:       authSvc,
 		media:      media,
 		bounce:     bounce,
 		captcha:    initCaptcha(),
@@ -261,7 +225,6 @@ func main() {
 		log:        lo,
 		events:     evStream,
 		bufLog:     bufLog,
-
 		pg: paginator.New(paginator.Opt{
 			DefaultPerPage: 20,
 			MaxPerPage:     50,
@@ -270,48 +233,43 @@ func main() {
 			PerPageParam:   "per_page",
 			AllowAll:       true,
 		}),
-
-		fnOptinNotify: fbOptinNotify,
-		about:         initAbout(queries, db),
-		chReload:      chReload,
-
-		// If there are no users, then the app needs to prompt for new user setup.
+		fnOptinNotify:  fbOptinNotify,
+		about:          initAbout(queries, db),
+		chReload:       chReload,
 		needsUserSetup: !hasUsers,
 	}
 
-	// Star the update checker.
+	// =========================
+	// Failed login logging
+	// =========================
+	if authSvc != nil {
+		authSvc.OnFailedLogin = func(username, ip string) {
+			lo.Printf("[FAILED LOGIN] username=%s ip=%s time=%s\n", username, ip, time.Now().Format(time.RFC3339))
+		}
+		authSvc.OnSuccessfulLogin = func(username, ip string) {
+			lo.Printf("[LOGIN SUCCESS] username=%s ip=%s time=%s\n", username, ip, time.Now().Format(time.RFC3339))
+		}
+	}
+
 	if ko.Bool("app.check_updates") {
 		go app.checkUpdates(versionString, time.Hour*24)
 	}
 
-	// Start the app server.
 	srv := initHTTPServer(cfg, urlCfg, i18n, fs, app)
 
-	// =========================================================================
-	// Wait for the reload signal with a callback to gracefully shut down resources.
-	// The `wait` channel is passed to awaitReload to wait for the callback to finish
-	// within N seconds, or do a force reload.
+	// Wait for reload signal
 	signal.Notify(chReload, syscall.SIGHUP)
-
 	closerWait := make(chan bool)
 	<-awaitReload(chReload, closerWait, func() {
-		// Stop the HTTP server.
 		ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
 		defer cancel()
 		srv.Shutdown(ctx)
 
-		// Close the campaign manager.
 		mgr.Close()
-
-		// Close the DB pool.
 		db.Close()
-
-		// Close the messenger pool.
 		for _, m := range app.messengers {
 			m.Close()
 		}
-
-		// Signal the close.
 		closerWait <- true
 	})
 }
