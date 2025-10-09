@@ -226,6 +226,9 @@ export default Vue.extend({
     },
 
     getSettings() {
+      if (this.isLoading) {
+        return; // Prevent multiple simultaneous loading requests
+      }
       this.isLoading = true;
       this.$api.getSettings().then((data) => {
         let d = {};
@@ -285,7 +288,20 @@ export default Vue.extend({
 
   mounted() {
     this.tab = this.$utils.getPref('settings.tab') || 0;
-    this.getSettings();
+    // Wait for server config to be loaded before getting settings
+    if (this.serverConfig) {
+      this.getSettings();
+    } else {
+      // If serverConfig is not loaded yet, wait for it
+      this.$store.watch(
+        (state) => state.serverConfig,
+        (newValue) => {
+          if (newValue) {
+            this.getSettings();
+          }
+        }
+      );
+    }
   },
 
   watch: {
