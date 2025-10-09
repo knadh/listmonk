@@ -249,10 +249,8 @@ func (a *App) UpdateSettings(c echo.Context) error {
 	set.DomainBlocklist = doms
 
 	doms = make([]string, 0, len(set.DomainAllowlist))
-	for _, d := range set.DomainAllowlist {
-		if d = strings.TrimSpace(strings.ToLower(d)); d != "" {
-			doms = append(doms, d)
-		}
+	for i, d := range set.DomainAllowlist {
+		doms[i] = strings.TrimSpace(strings.ToLower(d))
 	}
 	set.DomainAllowlist = doms
 

@@ -17,11 +17,14 @@ listmonk is a simple binary application that requires a Postgres database instan
 
 The latest image is available on DockerHub at `listmonk/listmonk:latest`
 
-The recommended method is to download the [docker-compose.yml](https://github.com/knadh/listmonk/blob/master/docker-compose.yml) file, customize it for your environment and then to simply run `docker compose up -d`.
+The recommended method is to download the docker-compose.yml file, customize it for your environment, and then to simply run `docker compose up -d` (or `docker-compose up -d` with older versions of Docker).
 
 ```shell
 # Download the compose file to the current directory.
-curl -LO https://github.com/knadh/listmonk/raw/master/docker-compose.yml
+curl -LO https://github.com/knadh/listmonk/raw/master/docker-compose.yml.sample
+
+# Rename the sample file. On Windows, use `ren docker-compose.yml.sample docker-compose.yml`.
+mv docker-compose.yml.sample docker-compose.yml
 
 # Run the services in the background.
 docker compose up -d
