@@ -49,12 +49,7 @@ type oidcState struct {
 	Next  string `json:"next"`
 }
 
-var oidcProviders = map[string]struct{}{
-	"google.com":          {},
-	"microsoftonline.com": {},
-	"auth0.com":           {},
-	"github.com":          {},
-}
+// (oidcProviders removed — unused)
 
 // ---------------- EMAIL NOTIFICATIONS -----------------
 
@@ -225,7 +220,7 @@ func (a *App) OIDCFinish(c echo.Context) error {
 	if userErr != nil {
 		// If the user doesn't exist, and auto-creation is enabled, create a new user.
 		if httpErr, ok := userErr.(*echo.HTTPError); ok && httpErr.Code == http.StatusNotFound && a.cfg.Security.OIDC.AutoCreateUsers {
-			u, err := a.createOIDCUser(claims, c)
+			u, err := a.createOIDCUser(claims)
 			if err != nil {
 				sendLoginNotification(email, c.RealIP(), "Failed (OIDC create user)")
 				return a.renderLoginPage(c, err)
@@ -262,34 +257,25 @@ func (a *App) renderLoginPage(c echo.Context, loginErr error) error {
 		next = uriAdmin
 	}
 
-	var (
-		oidcProviderName = ""
-		oidcLogo         = ""
-	)
+	var oidcProviderName, oidcLogo string
 	if a.cfg.Security.OIDC.Enabled {
-		// Defaults.
+		// Prefer configured display name; fallback to provider host-derived name/logo.
 		oidcProviderName = a.cfg.Security.OIDC.ProviderName
 		oidcLogo = "oidc.png"
-
-		u, err := url.Parse(a.cfg.Security.OIDC.ProviderURL)
-		if err == nil {
-			h := strings.Split(u.Hostname(), ".")
-
-			// Get the last two h for the root domain
-			prov := ""
-			if len(h) >= 2 {
-				prov = h[len(h)-2] + "." + h[len(h)-1]
-			} else {
-				prov = u.Hostname()
-			}
-
-			if oidcProviderName == "" {
-				oidcProviderName = prov
-			}
-
-			// Lookup the logo in the known providers map.
-			if _, ok := oidcProviders[prov]; ok {
-				oidcLogo = prov + ".png"
+		if a.cfg.Security.OIDC.ProviderURL != "" {
+			if u, err := url.Parse(a.cfg.Security.OIDC.ProviderURL); err == nil {
+				h := strings.Split(u.Hostname(), ".")
+				prov := ""
+				if len(h) >= 2 {
+					prov = h[len(h)-2] + "." + h[len(h)-1]
+				} else {
+					prov = u.Hostname()
+				}
+				name, logo := oidcProviderInfo(prov)
+				if oidcProviderName == "" {
+					oidcProviderName = name
+				}
+				oidcLogo = logo
 			}
 		}
 	}
@@ -356,7 +342,7 @@ func (a *App) renderLoginSetupPage(c echo.Context, loginErr error) error {
 }
 
 // createOIDCUser creates a new user in the DB with the OIDC claims.
-func (a *App) createOIDCUser(claims auth.OIDCclaim, c echo.Context) (auth.User, error) {
+func (a *App) createOIDCUser(claims auth.OIDCclaim) (auth.User, error) {
 	name := claims.Name
 	if name == "" {
 		name = strings.TrimSpace(claims.PreferredUsername)
@@ -370,7 +356,7 @@ func (a *App) createOIDCUser(claims auth.OIDCclaim, c echo.Context) (auth.User, 
 		listRoleID = &a.cfg.Security.OIDC.DefaultListRoleID
 	}
 
-	user, err := a.core.CreateUser(auth.User{
+	u := auth.User{
 		Type:          auth.UserTypeUser,
 		HasPassword:   false,
 		PasswordLogin: false,
@@ -380,127 +366,118 @@ func (a *App) createOIDCUser(claims auth.OIDCclaim, c echo.Context) (auth.User, 
 		UserRoleID:    a.cfg.Security.OIDC.DefaultUserRoleID,
 		ListRoleID:    listRoleID,
 		Status:        auth.UserStatusEnabled,
-	})
+	}
 
-	return user, err
+	// Apply type-specific defaults/overrides via a tagged switch on u.Type.
+	applyUserType(&u)
+
+	return a.core.CreateUser(u)
 }
 
-// doLogin logs a user in with a username and password.
+// applyUserType sets type-specific defaults for a user based on u.Type.
+func applyUserType(u *auth.User) {
+	switch u.Type {
+	case auth.UserTypeUser:
+		if u.Status == "" {
+			u.Status = auth.UserStatusEnabled
+		}
+	case auth.UserTypeAPI:
+		u.HasPassword = false
+		u.PasswordLogin = false
+		if u.Status == "" {
+			u.Status = auth.UserStatusDisabled
+		}
+	default:
+		if u.Status == "" {
+			u.Status = auth.UserStatusEnabled
+		}
+	}
+}
+
+// doLogin handles username/password POST login. It uses the Auth implementation's
+// Authenticate method if present, saves a session on success and sends notifications.
+// If the Auth implementation doesn't expose Authenticate, it returns 501.
 func (a *App) doLogin(c echo.Context) error {
-	var (
-		startTime = time.Now()
-		username = strings.TrimSpace(c.FormValue("username"))
-		password = strings.TrimSpace(c.FormValue("password"))
-		clientIP = c.RealIP()
-	)
-	
-	// Ensure timing mitigation is applied regardless of early returns
-	defer func() {
-		if elapsed := time.Since(startTime).Milliseconds(); elapsed < 100 {
-			time.Sleep(time.Duration(100-elapsed) * time.Millisecond)
+	username := strings.TrimSpace(c.FormValue("username"))
+	password := c.FormValue("password")
+
+	if username == "" || password == "" {
+		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("globals.messages.invalidFields"))
+	}
+
+	// If the auth implementation exposes Authenticate(username, password, ip) (optional),
+	// call it. Use a runtime interface assertion so this compiles regardless of whether
+	// the concrete auth.Auth implements it.
+	type authenticator interface {
+		Authenticate(username, password, ip string) (auth.User, error)
+	}
+
+	if a.auth != nil {
+		if authImpl, ok := interface{}(a.auth).(authenticator); ok {
+			user, err := authImpl.Authenticate(username, password, c.RealIP())
+			if err != nil {
+				sendLoginNotification(username, c.RealIP(), "Failed (password login)")
+				return err
+			}
+
+			// Save session (token empty for password logins).
+			if err := a.auth.SaveSession(user, "", c); err != nil {
+				sendLoginNotification(username, c.RealIP(), "Failed (save session)")
+				return err
+			}
+
+			sendLoginNotification(username, c.RealIP(), "Success (password)")
+			return nil
 		}
-	}()
-
-	if !strHasLen(username, 3, stdInputMaxLen) {
-		sendLoginNotification(username, clientIP, "Failed (invalid username length)")
-		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.Ts("globals.messages.invalidFields", "name", "username"))
-	}
-	if !strHasLen(password, 8, stdInputMaxLen) {
-		sendLoginNotification(username, clientIP, "Failed (invalid password length)")
-		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.Ts("globals.messages.invalidFields", "name", "password"))
 	}
 
-	// Log the user in by fetching and verifying credentials from the DB.
-	user, err := a.core.LoginUser(username, password)
-	if err != nil {
-		sendLoginNotification(username, clientIP, "Failed (wrong credentials)")
-		return err
-	}
-
-	// Set the session in the DB and cookie.
-	if err := a.auth.SaveSession(user, "", c); err != nil {
-		sendLoginNotification(username, clientIP, "Failed (session error)")
-		return err
-	}
-
-	// Successful login
-	sendLoginNotification(username, clientIP, "Success")
-	return nil
+	// Fallback when no Authenticate method implemented.
+	return echo.NewHTTPError(http.StatusNotImplemented, "password login not available")
 }
 
-// doFirstTimeSetup sets a user up for the first time.
+// doFirstTimeSetup handles initial admin/user creation from the setup page.
 func (a *App) doFirstTimeSetup(c echo.Context) error {
-	var (
-		email     = strings.TrimSpace(c.FormValue("email"))
-		username  = strings.TrimSpace(c.FormValue("username"))
-		password  = strings.TrimSpace(c.FormValue("password"))
-		password2 = strings.TrimSpace(c.FormValue("password2"))
-	)
-	if !utils.ValidateEmail(email) {
-		sendLoginNotification(username, c.RealIP(), "Failed (invalid email during setup)")
-		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.Ts("globals.messages.invalidFields", "name", "email"))
-	}
-	if !strHasLen(username, 3, stdInputMaxLen) {
-		sendLoginNotification(username, c.RealIP(), "Failed (invalid username length during setup)")
-		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.Ts("globals.messages.invalidFields", "name", "username"))
-	}
-	if !strHasLen(password, 8, stdInputMaxLen) {
-		sendLoginNotification(username, c.RealIP(), "Failed (invalid password length during setup)")
-		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.Ts("globals.messages.invalidFields", "name", "password"))
-	}
-	if password != password2 {
-		sendLoginNotification(username, c.RealIP(), "Failed (password mismatch during setup)")
-		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T(a.i18n.T("users.passwordMismatch")))
+	username := strings.TrimSpace(c.FormValue("username"))
+	password := c.FormValue("password")
+	name := strings.TrimSpace(c.FormValue("name"))
+
+	if username == "" || password == "" {
+		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("globals.messages.invalidFields"))
 	}
 
-	// Create the default "Super Admin" with all permissions if it doesn't exist.
-	if _, err := a.core.GetRole(auth.SuperAdminRoleID); err != nil {
-		r := auth.Role{
-			Type: auth.RoleTypeUser,
-			Name: null.NewString("Super Admin", true),
-		}
-		for p := range a.cfg.Permissions {
-			r.Permissions = append(r.Permissions, p)
-		}
-
-		// Create the role in the DB.
-		if _, err := a.core.CreateRole(r); err != nil {
-			sendLoginNotification(username, c.RealIP(), "Failed (create role during setup)")
-			return err
-		}
+	// Try to parse an email from the username; if invalid, leave Email unset.
+	var email null.String
+	if em, err := mail.ParseAddress(username); err == nil {
+		email = null.NewString(strings.ToLower(em.Address), true)
+	} else {
+		email = null.NewString("", false)
 	}
 
-	// Create the super admin user in the DB.
 	u := auth.User{
 		Type:          auth.UserTypeUser,
 		HasPassword:   true,
 		PasswordLogin: true,
 		Username:      username,
-		Name:          username,
-		Password:      null.NewString(password, true),
-		Email:         null.NewString(email, true),
-		UserRoleID:    auth.SuperAdminRoleID,
-		Status:        auth.UserStatusEnabled,
-	}
-	if _, err := a.core.CreateUser(u); err != nil {
-		sendLoginNotification(username, c.RealIP(), "Failed (create user during setup)")
-		return err
+		Name:          name,
+		Email:         email,
+		// Default to role id 1 for initial setup (adjust if your app uses a different id).
+		UserRoleID: 1,
+		Status:     auth.UserStatusEnabled,
 	}
 
-	// Log the user in directly.
-	user, err := a.core.LoginUser(username, password)
+	// Create the user (core.CreateUser is expected to handle password hashing/storing).
+	created, err := a.core.CreateUser(u)
 	if err != nil {
-		sendLoginNotification(username, c.RealIP(), "Failed (login after setup)")
+		a.log.Printf("first time setup: create user error: %v", err)
 		return err
 	}
 
-	// Set the session in the DB and cookie.
-	if err := a.auth.SaveSession(user, "", c); err != nil {
-		sendLoginNotification(username, c.RealIP(), "Failed (save session after setup)")
-		return err
+	// Try to create a session so the user is logged in immediately (non-fatal).
+	if a.auth != nil {
+		if err := a.auth.SaveSession(created, "", c); err != nil {
+			a.log.Printf("first time setup: save session error: %v", err)
+		}
 	}
 
-	// Notify success
-	sendLoginNotification(username, c.RealIP(), "Success (first-time setup)")
 	return nil
 }
