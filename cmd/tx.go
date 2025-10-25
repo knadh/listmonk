@@ -181,7 +181,7 @@ func (a *App) validateTxMessage(m models.TxMessage) (models.TxMessage, error) {
 	}
 
 	for n, email := range m.SubscriberEmails {
-		if m.SubscriberEmail != "" {
+		if email != "" {
 			em, err := a.importer.SanitizeEmail(email)
 			if err != nil {
 				return m, echo.NewHTTPError(http.StatusBadRequest, err.Error())
