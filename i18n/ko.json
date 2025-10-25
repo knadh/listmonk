@@ -523,6 +523,8 @@
     "settings.privacy.recordOptinIP": "옵트인 IP 기록",
     "settings.privacy.recordOptinIPHelp": "더블 옵트인 시 구독자 속성에 IP 주소를 기록합니다.",
     "settings.restart": "재시작",
+    "settings.security.CORSDomains": "Allowed origins",
+    "settings.security.CORSDomainsHelp": "Permit accessing API endpoints via browser Javascript from external domains. Enter one domain per line (e.g: https://example.com). Leave empty to disable CORS or add * to allow all (not recommended).",
     "settings.security.OIDCAutoCreateUsers": "사용자 자동 생성",
     "settings.security.OIDCAutoCreateUsersHelp": "계정이 없으면 첫 로그인 시 자동으로 사용자 생성.",
     "settings.security.OIDCClientID": "클라이언트 ID",

@@ -523,6 +523,8 @@
     "settings.privacy.recordOptinIP": "Записувати IP-адресу згоди",
     "settings.privacy.recordOptinIPHelp": "Додавати в атрибути підписни_ці IP-адресу подвійної згоди.",
     "settings.restart": "Перезапустити",
+    "settings.security.CORSDomains": "Allowed origins",
+    "settings.security.CORSDomainsHelp": "Permit accessing API endpoints via browser Javascript from external domains. Enter one domain per line (e.g: https://example.com). Leave empty to disable CORS or add * to allow all (not recommended).",
     "settings.security.OIDCAutoCreateUsers": "Автоматичне створення користувачів",
     "settings.security.OIDCAutoCreateUsersHelp": "Автоматично створювати користувача при першому вході, якщо обліковий запис не існує.",
     "settings.security.OIDCClientID": "Ідентифікатор клієнта",

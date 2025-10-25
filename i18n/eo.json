@@ -523,6 +523,8 @@
     "settings.privacy.recordOptinIP": "Registra l'adreça IP de l'opt-in",
     "settings.privacy.recordOptinIPHelp": "Registra l'adreça IP dels opt-ins dobles en els atributs del subscrit.",
     "settings.restart": "Reinicia",
+    "settings.security.CORSDomains": "Allowed origins",
+    "settings.security.CORSDomainsHelp": "Permit accessing API endpoints via browser Javascript from external domains. Enter one domain per line (e.g: https://example.com). Leave empty to disable CORS or add * to allow all (not recommended).",
     "settings.security.OIDCAutoCreateUsers": "Aŭtomate krei uzantojn",
     "settings.security.OIDCAutoCreateUsersHelp": "Aŭtomate krei uzanton ĉe la unua ensaluto se la konto ne ekzistas.",
     "settings.security.OIDCClientID": "Klient-ID",

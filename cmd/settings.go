@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"io"
 	"net/http"
+	"net/url"
 	"regexp"
 	"runtime"
 	"strings"
@@ -255,6 +256,27 @@ func (a *App) UpdateSettings(c echo.Context) error {
 		}
 	}
 	set.DomainAllowlist = doms
+
+	// Validate and clean CORS domains.
+	cors := make([]string, 0, len(set.SecurityCORSOrigins))
+	for _, d := range set.SecurityCORSOrigins {
+		if d = strings.TrimSpace(d); d != "" {
+			if d == "*" {
+				cors = append(cors, d)
+				continue
+			}
+
+			// Parse and validate the URL.
+			u, err := url.Parse(d)
+			if err != nil || (u.Scheme != "http" && u.Scheme != "https") || u.Host == "" {
+				return echo.NewHTTPError(http.StatusBadRequest,
+					a.i18n.Ts("globals.messages.invalidData")+": invalid CORS domain: "+d)
+			}
+			// Save clean scheme + host
+			cors = append(cors, u.Scheme+"://"+u.Host)
+		}
+	}
+	set.SecurityCORSOrigins = cors
 
 	// Validate slow query caching cron.
 	if set.CacheSlowQueries {

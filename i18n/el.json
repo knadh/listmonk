@@ -523,6 +523,8 @@
     "settings.privacy.recordOptinIP": "Καταγραφή διεύθυνσης IP με τη συγκατάθεση",
     "settings.privacy.recordOptinIPHelp": "Καταγράψτε τη διεύθυνση IP της διπλής συγκατάθεσης στα χαρακτηριστικά των συνδρομητών.",
     "settings.restart": "Επανεκίννηση",
+    "settings.security.CORSDomains": "Allowed origins",
+    "settings.security.CORSDomainsHelp": "Permit accessing API endpoints via browser Javascript from external domains. Enter one domain per line (e.g: https://example.com). Leave empty to disable CORS or add * to allow all (not recommended).",
     "settings.security.OIDCAutoCreateUsers": "Αυτόματη δημιουργία χρηστών",
     "settings.security.OIDCAutoCreateUsersHelp": "Δημιουργεί αυτόματα χρήστη κατά την πρώτη σύνδεση αν ο λογαριασμός δεν υπάρχει.",
     "settings.security.OIDCClientID": "Ταυτοποίηση πελάτη",

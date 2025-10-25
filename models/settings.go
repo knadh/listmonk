@@ -62,6 +62,8 @@ type Settings struct {
 		DefaultListRoleID null.Int `json:"default_list_role_id"`
 	} `json:"security.oidc"`
 
+	SecurityCORSOrigins []string `json:"security.cors_origins"`
+
 	UploadProvider             string   `json:"upload.provider"`
 	UploadExtensions           []string `json:"upload.extensions"`
 	UploadFilesystemUploadPath string   `json:"upload.filesystem.upload_path"`

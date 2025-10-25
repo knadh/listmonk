@@ -523,6 +523,8 @@
     "settings.privacy.recordOptinIP": "ഓപ്റ്റ്-ഇന്‍ IP വിലാസം രേഖപ്പെടുത്തൂ",
     "settings.privacy.recordOptinIPHelp": "ഡബിള്‍ ഓപ്റ്റ് ഇന്‍സ് സബ്സ്ക്രൈബറുടെ വിവരഗണനയിലേക്ക് IP വിലാസം രേഖപ്പെടുത്തൂ.",
     "settings.restart": "പുനരാരംഭിയ്ക്കുക",
+    "settings.security.CORSDomains": "Allowed origins",
+    "settings.security.CORSDomainsHelp": "Permit accessing API endpoints via browser Javascript from external domains. Enter one domain per line (e.g: https://example.com). Leave empty to disable CORS or add * to allow all (not recommended).",
     "settings.security.OIDCAutoCreateUsers": "ഉപയോക്താക്കൾ സ്വയം സൃഷ്‌ടിക്കുക",
     "settings.security.OIDCAutoCreateUsersHelp": "അക്കൗണ്ട് നിലവിലില്ലെങ്കിൽ ആദ്യ ലോഗിനിൽ സ്വയം ഉപയോക്താവിനെ സൃഷ്‌ടിക്കും.",
     "settings.security.OIDCClientID": "ക്ലയന്റ് ഐഡി",

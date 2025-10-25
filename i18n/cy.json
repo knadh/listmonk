@@ -523,6 +523,8 @@
     "settings.privacy.recordOptinIP": "Cofnodi cyfeiriad IP dewis mewn",
     "settings.privacy.recordOptinIPHelp": "Cofnodi cyfeiriad IP ar bwyntio dwbl yn manylion tanysgrifiwr.",
     "settings.restart": "Ailgychwyn",
+    "settings.security.CORSDomains": "Allowed origins",
+    "settings.security.CORSDomainsHelp": "Permit accessing API endpoints via browser Javascript from external domains. Enter one domain per line (e.g: https://example.com). Leave empty to disable CORS or add * to allow all (not recommended).",
     "settings.security.OIDCAutoCreateUsers": "Creu defnyddwyr yn awtomatig",
     "settings.security.OIDCAutoCreateUsersHelp": "Creu defnyddiwr yn awtomatig ar y mewngofnodi cyntaf os nad yw'r cyfrif yn bodoli.",
     "settings.security.OIDCClientID": "ID Cleient",

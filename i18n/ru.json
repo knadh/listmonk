@@ -523,6 +523,8 @@
     "settings.privacy.recordOptinIP": "Записывать IP-адрес подтверждения подписки",
     "settings.privacy.recordOptinIPHelp": "Записывать IP-адрес двойных подтверждений в атрибуты подписчика.",
     "settings.restart": "Перезапустить",
+    "settings.security.CORSDomains": "Allowed origins",
+    "settings.security.CORSDomainsHelp": "Permit accessing API endpoints via browser Javascript from external domains. Enter one domain per line (e.g: https://example.com). Leave empty to disable CORS or add * to allow all (not recommended).",
     "settings.security.OIDCAutoCreateUsers": "Автоматическое создание пользователей",
     "settings.security.OIDCAutoCreateUsersHelp": "Автоматически создаёт пользователя при первом входе, если аккаунт не существует.",
     "settings.security.OIDCClientID": "ID клиента",

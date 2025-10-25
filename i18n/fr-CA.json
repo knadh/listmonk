@@ -523,6 +523,8 @@
     "settings.privacy.recordOptinIP": "Enregistrer l'adresse IP d'inscription",
     "settings.privacy.recordOptinIPHelp": "Enregistre l'adresse IP des double opt-ins dans les attributs des abonnés.",
     "settings.restart": "Redémarrer",
+    "settings.security.CORSDomains": "Allowed origins",
+    "settings.security.CORSDomainsHelp": "Permit accessing API endpoints via browser Javascript from external domains. Enter one domain per line (e.g: https://example.com). Leave empty to disable CORS or add * to allow all (not recommended).",
     "settings.security.OIDCAutoCreateUsers": "Créer les utilisateurs automatiquement",
     "settings.security.OIDCAutoCreateUsersHelp": "Créer automatiquement un utilisateur lors de la première connexion si le compte n'existe pas.",
     "settings.security.OIDCClientID": "ID client",

@@ -523,6 +523,8 @@
     "settings.privacy.recordOptinIP": "記錄訂閱同意的 IP 位址",
     "settings.privacy.recordOptinIPHelp": "在訂閱者屬性中記錄 double opt-ins 的 IP 位址。",
     "settings.restart": "重新開始",
+    "settings.security.CORSDomains": "Allowed origins",
+    "settings.security.CORSDomainsHelp": "Permit accessing API endpoints via browser Javascript from external domains. Enter one domain per line (e.g: https://example.com). Leave empty to disable CORS or add * to allow all (not recommended).",
     "settings.security.OIDCAutoCreateUsers": "自動建立使用者",
     "settings.security.OIDCAutoCreateUsersHelp": "若帳號不存在，首次登入時自動建立使用者。",
     "settings.security.OIDCClientID": "用戶端ID",

@@ -523,6 +523,8 @@
     "settings.privacy.recordOptinIP": "Opt-in IP-adres registreren",
     "settings.privacy.recordOptinIPHelp": "IP-adres van dubbele opt-ins registreren bij abonnee-attributen.",
     "settings.restart": "Herstarten",
+    "settings.security.CORSDomains": "Allowed origins",
+    "settings.security.CORSDomainsHelp": "Permit accessing API endpoints via browser Javascript from external domains. Enter one domain per line (e.g: https://example.com). Leave empty to disable CORS or add * to allow all (not recommended).",
     "settings.security.OIDCAutoCreateUsers": "Gebruikers automatisch aanmaken",
     "settings.security.OIDCAutoCreateUsersHelp": "Maak automatisch een gebruiker aan bij de eerste login als het account nog niet bestaat.",
     "settings.security.OIDCClientID": "Client ID",

@@ -523,6 +523,8 @@
     "settings.privacy.recordOptinIP": "Ghi lại IP đăng ký",
     "settings.privacy.recordOptinIPHelp": "Ghi lại địa chỉ IP của đăng ký kép vào thuộc tính của người đăng ký.",
     "settings.restart": "Khởi động lại",
+    "settings.security.CORSDomains": "Allowed origins",
+    "settings.security.CORSDomainsHelp": "Permit accessing API endpoints via browser Javascript from external domains. Enter one domain per line (e.g: https://example.com). Leave empty to disable CORS or add * to allow all (not recommended).",
     "settings.security.OIDCAutoCreateUsers": "Tự động tạo người dùng",
     "settings.security.OIDCAutoCreateUsersHelp": "Tự động tạo người dùng khi đăng nhập lần đầu nếu tài khoản chưa tồn tại.",
     "settings.security.OIDCClientID": "Mã client ID",

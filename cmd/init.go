@@ -117,6 +117,8 @@ type Config struct {
 				Secret  string `koanf:"secret"`
 			} `koanf:"hcaptcha"`
 		} `koanf:"captcha"`
+
+		CorsOrigins []string `koanf:"cors_origins"`
 	} `koanf:"security"`
 
 	Appearance struct {

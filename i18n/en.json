@@ -657,5 +657,7 @@
     "users.userRole": "User role | User roles",
     "users.userRoles": "User roles",
     "users.username": "Username",
-    "users.usernameHelp": "Used with password login"
+    "users.usernameHelp": "Used with password login",
+    "settings.security.CORSDomains": "Allowed origins",
+    "settings.security.CORSDomainsHelp": "Permit accessing API endpoints via browser Javascript from external domains. Enter one domain per line (e.g: https://example.com). Leave empty to disable CORS or add * to allow all (not recommended)."
 }

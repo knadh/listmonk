@@ -523,6 +523,8 @@
     "settings.privacy.recordOptinIP": "Zabeleži IP naslov za privolitev",
     "settings.privacy.recordOptinIPHelp": "Zabeleži naslov IP dvojne privolitve v atribute naročnika.",
     "settings.restart": "Ponovni zagon",
+    "settings.security.CORSDomains": "Allowed origins",
+    "settings.security.CORSDomainsHelp": "Permit accessing API endpoints via browser Javascript from external domains. Enter one domain per line (e.g: https://example.com). Leave empty to disable CORS or add * to allow all (not recommended).",
     "settings.security.OIDCAutoCreateUsers": "Samodejno ustvarjanje uporabnikov",
     "settings.security.OIDCAutoCreateUsersHelp": "Samodejno ustvari uporabnika ob prvem prijavljanju, če račun ne obstaja.",
     "settings.security.OIDCClientID": "ID odjemalca",

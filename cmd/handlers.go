@@ -40,6 +40,14 @@ func initHTTPHandlers(e *echo.Echo, a *App) {
 		e.DefaultHTTPErrorHandler(err, c)
 	}
 
+	// Configure CORS middleware if domains are configured.
+	if len(a.cfg.Security.CorsOrigins) > 0 {
+		e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
+			AllowOrigins: a.cfg.Security.CorsOrigins,
+			AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept},
+		}))
+	}
+
 	// =================================================================
 	// Authenticated non /api handlers.
 	{

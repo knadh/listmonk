@@ -523,6 +523,8 @@
     "settings.privacy.recordOptinIP": "Înregistrare adresă IP de opt-in",
     "settings.privacy.recordOptinIPHelp": "Înregistrați adresa IP a confirmărilor duble în atributele abonaților.",
     "settings.restart": "Repornește",
+    "settings.security.CORSDomains": "Allowed origins",
+    "settings.security.CORSDomainsHelp": "Permit accessing API endpoints via browser Javascript from external domains. Enter one domain per line (e.g: https://example.com). Leave empty to disable CORS or add * to allow all (not recommended).",
     "settings.security.OIDCAutoCreateUsers": "Creare automată a utilizatorilor",
     "settings.security.OIDCAutoCreateUsersHelp": "Creează automat utilizatorul la prima autentificare dacă contul nu există.",
     "settings.security.OIDCClientID": "ID client",

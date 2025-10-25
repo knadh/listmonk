@@ -523,6 +523,8 @@
     "settings.privacy.recordOptinIP": "Zaznamenávať IP adresu opt-in",
     "settings.privacy.recordOptinIPHelp": "Zaznamenávať IP adresu pri dvojitej opt-in v atribútoch odberateľov.",
     "settings.restart": "Restarť",
+    "settings.security.CORSDomains": "Allowed origins",
+    "settings.security.CORSDomainsHelp": "Permit accessing API endpoints via browser Javascript from external domains. Enter one domain per line (e.g: https://example.com). Leave empty to disable CORS or add * to allow all (not recommended).",
     "settings.security.OIDCAutoCreateUsers": "Automaticky vytvárať používateľov",
     "settings.security.OIDCAutoCreateUsersHelp": "Automaticky vytvoriť používateľa pri prvom prihlásení, ak účet neexistuje.",
     "settings.security.OIDCClientID": "ID klienta",

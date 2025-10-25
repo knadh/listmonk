@@ -523,6 +523,8 @@
     "settings.privacy.recordOptinIP": "Opt-in IP adresini kaydet",
     "settings.privacy.recordOptinIPHelp": "Çift onay aboneliklerinin IP adreslerini abone özelliklerinde kaydedin.",
     "settings.restart": "Yeniden başlat",
+    "settings.security.CORSDomains": "Allowed origins",
+    "settings.security.CORSDomainsHelp": "Permit accessing API endpoints via browser Javascript from external domains. Enter one domain per line (e.g: https://example.com). Leave empty to disable CORS or add * to allow all (not recommended).",
     "settings.security.OIDCAutoCreateUsers": "Kullanıcıları otomatik oluştur",
     "settings.security.OIDCAutoCreateUsersHelp": "Hesap yoksa ilk girişte kullanıcıyı otomatik oluştur.",
     "settings.security.OIDCClientID": "İstemci Kimliği",

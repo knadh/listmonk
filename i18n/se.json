@@ -523,6 +523,8 @@
     "settings.privacy.recordOptinIP": "Registrera opt-in-IP-adress",
     "settings.privacy.recordOptinIPHelp": "Registrera IP-adress för dubbelopt-in i prenumerationars attribut.",
     "settings.restart": "Starta om",
+    "settings.security.CORSDomains": "Allowed origins",
+    "settings.security.CORSDomainsHelp": "Permit accessing API endpoints via browser Javascript from external domains. Enter one domain per line (e.g: https://example.com). Leave empty to disable CORS or add * to allow all (not recommended).",
     "settings.security.OIDCAutoCreateUsers": "Skapa användare automatiskt",
     "settings.security.OIDCAutoCreateUsersHelp": "Skapa automatiskt användare vid första inloggning om kontot inte finns.",
     "settings.security.OIDCClientID": "Klient-ID",

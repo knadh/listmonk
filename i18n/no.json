@@ -523,6 +523,8 @@
     "settings.privacy.recordOptinIP": "Registrer opt-in IP-adresse",
     "settings.privacy.recordOptinIPHelp": "Registrer IP-adressen for dobbelt opt-ins i abonnentattributtene.",
     "settings.restart": "Start på nytt",
+    "settings.security.CORSDomains": "Allowed origins",
+    "settings.security.CORSDomainsHelp": "Permit accessing API endpoints via browser Javascript from external domains. Enter one domain per line (e.g: https://example.com). Leave empty to disable CORS or add * to allow all (not recommended).",
     "settings.security.OIDCAutoCreateUsers": "Opprett brukere automatisk",
     "settings.security.OIDCAutoCreateUsersHelp": "Opprett automatisk bruker ved første pålogging hvis kontoen ikke eksisterer.",
     "settings.security.OIDCClientID": "Klient-ID",

@@ -523,6 +523,8 @@
     "settings.privacy.recordOptinIP": "תצורת דין רישום IP הפעילה",
     "settings.privacy.recordOptinIPHelp": "תיחום כתובת ה־IP של רישום הפעילה החזקה במאפייני המנוי.",
     "settings.restart": "הפעלה מחדש",
+    "settings.security.CORSDomains": "Allowed origins",
+    "settings.security.CORSDomainsHelp": "Permit accessing API endpoints via browser Javascript from external domains. Enter one domain per line (e.g: https://example.com). Leave empty to disable CORS or add * to allow all (not recommended).",
     "settings.security.OIDCAutoCreateUsers": "יצירת משתמשים אוטומטית",
     "settings.security.OIDCAutoCreateUsersHelp": "יצירת משתמש אוטומטית בעת ההתחברות הראשונה אם החשבון לא קיים.",
     "settings.security.OIDCClientID": "זהות לקוח (Client ID)",

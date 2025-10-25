@@ -523,6 +523,8 @@
     "settings.privacy.recordOptinIP": "オプトインIPアドレスを記録する",
     "settings.privacy.recordOptinIPHelp": "購読者属性にダブルオプトインのIPアドレスを記録します。",
     "settings.restart": "再起動",
+    "settings.security.CORSDomains": "Allowed origins",
+    "settings.security.CORSDomainsHelp": "Permit accessing API endpoints via browser Javascript from external domains. Enter one domain per line (e.g: https://example.com). Leave empty to disable CORS or add * to allow all (not recommended).",
     "settings.security.OIDCAutoCreateUsers": "ユーザーの自動作成",
     "settings.security.OIDCAutoCreateUsersHelp": "アカウントが存在しない場合、初回ログイン時にユーザーを自動作成します。",
     "settings.security.OIDCClientID": "クライアントID",

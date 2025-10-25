@@ -523,6 +523,8 @@
     "settings.privacy.recordOptinIP": "IP-cím rögzítésére feliratkozás",
     "settings.privacy.recordOptinIPHelp": "Az előfizető attribútumainak feljegyzésekor rögzítse a dupla opt-in IP címét.",
     "settings.restart": "Újraindítás",
+    "settings.security.CORSDomains": "Allowed origins",
+    "settings.security.CORSDomainsHelp": "Permit accessing API endpoints via browser Javascript from external domains. Enter one domain per line (e.g: https://example.com). Leave empty to disable CORS or add * to allow all (not recommended).",
     "settings.security.OIDCAutoCreateUsers": "Felhasználók automatikus létrehozása",
     "settings.security.OIDCAutoCreateUsersHelp": "Felhasználó automatikus létrehozása az első bejelentkezéskor, ha a fiók nem létezik.",
     "settings.security.OIDCClientID": "Ügyfél-azonosító",

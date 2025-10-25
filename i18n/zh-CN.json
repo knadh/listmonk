@@ -523,6 +523,8 @@
     "settings.privacy.recordOptinIP": "记录开通IP地址",
     "settings.privacy.recordOptinIPHelp": "在订阅者属性中记录双选订阅的IP地址。",
     "settings.restart": "重新开始",
+    "settings.security.CORSDomains": "Allowed origins",
+    "settings.security.CORSDomainsHelp": "Permit accessing API endpoints via browser Javascript from external domains. Enter one domain per line (e.g: https://example.com). Leave empty to disable CORS or add * to allow all (not recommended).",
     "settings.security.OIDCAutoCreateUsers": "自动创建用户",
     "settings.security.OIDCAutoCreateUsersHelp": "如果账户不存在，首次登录时自动创建用户。",
     "settings.security.OIDCClientID": "客户端ID",
