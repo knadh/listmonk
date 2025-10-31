@@ -18,7 +18,7 @@ import (
 
 // install runs the first time setup of setting up the database.
 func install(lastVer string, db *sqlx.DB, fs stuffbin.FileSystem, prompt, idempotent bool) {
-	qMap := readQueries(queryFilePath, fs)
+	qMap := readAllQueries(fs)
 
 	fmt.Println("")
 	if !idempotent {
