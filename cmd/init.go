@@ -54,8 +54,8 @@ import (
 )
 
 const (
-	queryFilePath = "queries.sql"
-	emailMsgr     = "email"
+	queryDirPath = "queries"
+	emailMsgr    = "email"
 )
 
 // UrlConfig contains various URL constants used in the app.
@@ -199,7 +199,7 @@ func initFS(appDir, frontendDir, staticDir, i18nDir string) stuffbin.FileSystem 
 		// These paths are joined with appDir.
 		appFiles = []string{
 			"./config.toml.sample:config.toml.sample",
-			"./queries.sql:queries.sql",
+			"./queries:/queries",
 			"./schema.sql:schema.sql",
 			"./permissions.json:permissions.json",
 		}
@@ -331,6 +331,33 @@ func initDB() *sqlx.DB {
 	db.SetConnMaxLifetime(c.MaxLifetime)
 
 	return db.Unsafe()
+}
+
+var queryFiles = []string{
+	"subscribers.sql",
+	"lists.sql",
+	"campaigns.sql",
+	"templates.sql",
+	"media.sql",
+	"links.sql",
+	"privacy.sql",
+	"bounces.sql",
+	"users.sql",
+	"roles.sql",
+	"misc.sql",
+}
+
+func readAllQueries(fs stuffbin.FileSystem) goyesql.Queries {
+	qMap := goyesql.Queries{}
+
+	for _, file := range queryFiles {
+		filePath := path.Join(queryDirPath, file)
+
+		queries := readQueries(filePath, fs)
+
+		maps.Copy(qMap, queries)
+	}
+	return qMap
 }
 
 // readQueries reads named SQL queries from the SQL queries file into a query map.

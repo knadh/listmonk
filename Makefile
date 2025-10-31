@@ -33,11 +33,14 @@ FRONTEND_EMAIL_BUILDER_DEPS = \
 
 BIN := listmonk
 STATIC := config.toml.sample \
-	schema.sql queries.sql permissions.json \
+	schema.sql queries:/queries permissions.json \
 	static/public:/public \
 	static/email-templates \
 	frontend/dist:/admin \
 	i18n:/i18n
+
+SQL_QUERIES := $(shell find queries -type f -name "*.sql")
+GO_SRCS := $(shell find . -type f -name "*.go")
 
 .PHONY: build
 build: $(BIN)
@@ -54,7 +57,7 @@ $(FRONTEND_EMAIL_BUILDER_YARN_MODULES): frontend/package.json frontend/yarn.lock
 	touch -c $(FRONTEND_EMAIL_BUILDER_YARN_MODULES)
 
 # Build the backend to ./listmonk.
-$(BIN): $(shell find . -type f -name "*.go") go.mod go.sum schema.sql queries.sql permissions.json
+$(BIN): $(GO_SRCS) go.mod go.sum schema.sql $(SQL_QUERIES) permissions.json
 	CGO_ENABLED=0 go build -o ${BIN} -ldflags="-s -w -X 'main.buildString=${BUILDSTR}' -X 'main.versionString=${VERSION}'" cmd/*.go
 
 # Run the backend in dev mode. The frontend assets in dev mode are loaded from disk from frontend/dist.
