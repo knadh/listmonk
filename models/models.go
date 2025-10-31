@@ -16,6 +16,7 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/jmoiron/sqlx/types"
 	"github.com/lib/pq"
+	"github.com/preslavrachev/gomjml/mjml"
 	"github.com/yuin/goldmark"
 	"github.com/yuin/goldmark/extension"
 	"github.com/yuin/goldmark/parser"
@@ -49,6 +50,7 @@ const (
 	CampaignContentTypeMarkdown = "markdown"
 	CampaignContentTypePlain    = "plain"
 	CampaignContentTypeVisual   = "visual"
+	CampaignContentTypeMJML     = "mjml"
 
 	// List.
 	ListTypePrivate = "private"
@@ -545,19 +547,37 @@ func (c *Campaign) CompileTemplate(f template.FuncMap) error {
 		body = r.regExp.ReplaceAllString(body, r.replace)
 	}
 
+	// Parse the base template also as MJML if the campaign content type is MJML.
+	if c.ContentType == CampaignContentTypeMJML {
+		htmlBody, err := mjml.Render(body)
+		if err != nil {
+			return fmt.Errorf("error compiling MJML: %v", err)
+		}
+		body = htmlBody
+	}
+
 	baseTPL, err := template.New(BaseTpl).Funcs(f).Parse(body)
 	if err != nil {
 		return fmt.Errorf("error compiling base template: %v", err)
 	}
 
-	// If the format is markdown, convert Markdown to HTML.
-	if c.ContentType == CampaignContentTypeMarkdown {
+	// If the campaign format is markdown, convert Markdown to HTML.
+	switch c.ContentType {
+	case CampaignContentTypeMarkdown:
 		var b bytes.Buffer
 		if err := markdown.Convert([]byte(c.Body), &b); err != nil {
 			return err
 		}
 		body = b.String()
-	} else {
+
+		// Is it MJML? Convert to HTML.
+	case CampaignContentTypeMJML:
+		htmlBody, err := mjml.Render(c.Body)
+		if err != nil {
+			return fmt.Errorf("error compiling MJML: %v", err)
+		}
+		body = htmlBody
+	default:
 		body = c.Body
 	}
 
@@ -609,6 +629,13 @@ func (c *Campaign) ConvertContent(from, to string) (string, error) {
 			return out, err
 		}
 		out = b.String()
+	} else if from == CampaignContentTypeMJML &&
+		(to == CampaignContentTypeHTML || to == CampaignContentTypeRichtext) {
+		htmlBody, err := mjml.Render(c.Body)
+		if err != nil {
+			return out, fmt.Errorf("error converting MJML: %v", err)
+		}
+		out = htmlBody
 	} else {
 		return out, errors.New("unknown formats to convert")
 	}

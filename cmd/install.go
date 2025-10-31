@@ -235,6 +235,15 @@ func installTemplates(q *models.Queries) (int, int) {
 		lo.Fatalf("error creating default campaign template: %v", err)
 	}
 
+	// Insert MLML template.
+	tpl, err := fs.Get("/static/email-templates/sample-mjml.tpl")
+	if err != nil {
+		lo.Fatalf("error reading sample mjml template: %v", err)
+	}
+	if _, err := q.CreateTemplate.Exec("Sample MJML template", models.TemplateTypeCampaign, "", tpl.ReadBytes(), nil); err != nil {
+		lo.Fatalf("error creating mjml campaign template: %v", err)
+	}
+
 	return campTplID, archiveTplID
 }
 

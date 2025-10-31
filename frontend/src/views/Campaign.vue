@@ -340,6 +340,7 @@ export default Vue.extend({
         markdown: this.$t('campaigns.markdown'),
         plain: this.$t('campaigns.plainText'),
         visual: this.$t('campaigns.visual'),
+        mjml: 'MJML',
       }),
 
       isNew: false,
