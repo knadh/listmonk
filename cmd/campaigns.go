@@ -684,14 +684,16 @@ func (a *App) makeOptinCampaignMessage(o campReq) (campReq, error) {
 	}
 	// optinURLFunc := template.URL("{{ OptinURL }}?" + listIDs.Encode())
 	optinURLAttr := template.HTMLAttr(fmt.Sprintf(`href="{{ OptinURL }}%s"`, listIDs.Encode()))
+	unsubscribeURLAttr := template.HTMLAttr(`href="{{ UnsubscribeURL }}"`)
 
 	// Prepare sample opt-in message for the campaign.
 	var b bytes.Buffer
 
 	if err := notifs.Tpls.ExecuteTemplate(&b, "optin-campaign", struct {
-		Lists        []models.List
-		OptinURLAttr template.HTMLAttr
-	}{lists, optinURLAttr}); err != nil {
+		Lists              []models.List
+		OptinURLAttr       template.HTMLAttr
+		UnsubscribeURLAttr template.HTMLAttr
+	}{lists, optinURLAttr, unsubscribeURLAttr}); err != nil {
 		a.log.Printf("error compiling 'optin-campaign' template: %v", err)
 		return o, echo.NewHTTPError(http.StatusBadRequest,
 			a.i18n.Ts("templates.errorCompiling", "error", err.Error()))
