@@ -432,10 +432,11 @@ CREATE MATERIALIZED VIEW mat_list_subscriber_stats AS
 DROP INDEX IF EXISTS mat_list_subscriber_stats_idx; CREATE UNIQUE INDEX mat_list_subscriber_stats_idx ON mat_list_subscriber_stats (list_id, status);
 
 
--- subscriber verification status
-CREATE OR REPLACE FUNCTION move_subscriber_to_verified_list()
-RETURNS TRIGGER AS $$
+-- sync subscriber verification statuses
+CREATE OR REPLACE FUNCTION sync_all_subscribers_to_verified_status()
+RETURNS VOID AS $$
 DECLARE
+    sub RECORD;
     lang TEXT;
     freq TEXT;
     list_base_name TEXT;
@@ -447,95 +448,84 @@ DECLARE
     shared_list_id INT;
     verified_list_id INT;
     unverified_list_id INT;
-    is_verified BOOLEAN := (NEW.attribs->>'verified')::BOOLEAN;
-    old_lang TEXT;
-    old_freq TEXT;
-    old_list_base_name TEXT;
+    is_verified BOOLEAN;
 BEGIN
-    -- Cleanup old list memberships if this is an update
-    IF TG_OP = 'UPDATE' AND OLD.attribs IS NOT NULL THEN
-        FOR old_lang IN SELECT jsonb_array_elements_text(OLD.attribs->'language_preferences')
-        LOOP
-            FOR old_freq IN SELECT jsonb_array_elements_text(OLD.attribs->'frequency_preferences')
-            LOOP
-                old_list_base_name := lower(old_lang) || '_' || lower(old_freq);
-
-                DELETE FROM subscriber_lists
-                USING lists
-                WHERE subscriber_lists.subscriber_id = NEW.id
-                  AND subscriber_lists.list_id = lists.id
-                  AND (
-                      lists.name = old_list_base_name
-                      OR lists.name = old_list_base_name || '_verified'
-                      OR lists.name = old_list_base_name || '_unverified'
-                  );
-            END LOOP;
-        END LOOP;
-    END IF;
-
-    -- Loop over language_preferences
-    FOR lang IN SELECT jsonb_array_elements_text(NEW.attribs->'language_preferences')
+    -- Loop through all subscribers
+    FOR sub IN SELECT id, attribs FROM subscribers WHERE attribs IS NOT NULL
     LOOP
-        -- Loop over frequency_preferences
-        FOR freq IN SELECT jsonb_array_elements_text(NEW.attribs->'frequency_preferences')
+        is_verified := (sub.attribs->>'verified')::BOOLEAN;
+
+        -- Clean up any existing list memberships for this subscriber
+        DELETE FROM subscriber_lists
+        USING lists
+        WHERE subscriber_lists.subscriber_id = sub.id
+          AND subscriber_lists.list_id = lists.id
+          AND (
+              lists.name LIKE '%_verified'
+              OR lists.name LIKE '%_unverified'
+              OR lists.name ~ '^[a-z]+_[a-z]+$' -- shared lists
+          );
+
+        -- For each language and frequency preference
+        FOR lang IN SELECT jsonb_array_elements_text(sub.attribs->'language_preferences')
         LOOP
-            list_base_name := lower(lang) || '_' || lower(freq);
-            shared_list_name := list_base_name;
-            verified_list_name := list_base_name || '_verified';
-            unverified_list_name := list_base_name || '_unverified';
+            FOR freq IN SELECT jsonb_array_elements_text(sub.attribs->'frequency_preferences')
+            LOOP
+                list_base_name := lower(lang) || '_' || lower(freq);
+                shared_list_name := list_base_name;
+                verified_list_name := list_base_name || '_verified';
+                unverified_list_name := list_base_name || '_unverified';
 
-            -- Ensure shared list exists
-            SELECT id INTO shared_list_id FROM lists WHERE name = shared_list_name;
-            IF NOT FOUND THEN
-                INSERT INTO lists (uuid, name, type, optin, description, tags)
-                VALUES (gen_random_uuid(), shared_list_name, type, optin, 'Auto-created shared list', ARRAY['language:' || lower(lang), 'frequency:' || lower(freq)])
-                RETURNING id INTO shared_list_id;
-            END IF;
+                -- Ensure shared list exists
+                SELECT id INTO shared_list_id FROM lists WHERE name = shared_list_name;
+                IF NOT FOUND THEN
+                    INSERT INTO lists (uuid, name, type, optin, description, tags)
+                    VALUES (gen_random_uuid(), shared_list_name, type, optin, 'Auto-created shared list',
+                            ARRAY['language:' || lower(lang), 'frequency:' || lower(freq)])
+                    RETURNING id INTO shared_list_id;
+                END IF;
 
-            -- Ensure verified list exists
-            SELECT id INTO verified_list_id FROM lists WHERE name = verified_list_name;
-            IF NOT FOUND THEN
-                INSERT INTO lists (uuid, name, type, optin, description, tags)
-                VALUES (gen_random_uuid(), verified_list_name, type, optin, 'Auto-created verified list', ARRAY['language:' || lower(lang), 'frequency:' || lower(freq)])
-                RETURNING id INTO verified_list_id;
-            END IF;
+                -- Ensure verified list exists
+                SELECT id INTO verified_list_id FROM lists WHERE name = verified_list_name;
+                IF NOT FOUND THEN
+                    INSERT INTO lists (uuid, name, type, optin, description, tags)
+                    VALUES (gen_random_uuid(), verified_list_name, type, optin, 'Auto-created verified list',
+                            ARRAY['language:' || lower(lang), 'frequency:' || lower(freq)])
+                    RETURNING id INTO verified_list_id;
+                END IF;
 
-            -- Ensure unverified list exists
-            SELECT id INTO unverified_list_id FROM lists WHERE name = unverified_list_name;
-            IF NOT FOUND THEN
-                INSERT INTO lists (uuid, name, type, optin, description, tags)
-                VALUES (gen_random_uuid(), unverified_list_name, type, optin, 'Auto-created unverified list', ARRAY['language:' || lower(lang), 'frequency:' || lower(freq)])
-                RETURNING id INTO unverified_list_id;
-            END IF;
+                -- Ensure unverified list exists
+                SELECT id INTO unverified_list_id FROM lists WHERE name = unverified_list_name;
+                IF NOT FOUND THEN
+                    INSERT INTO lists (uuid, name, type, optin, description, tags)
+                    VALUES (gen_random_uuid(), unverified_list_name, type, optin, 'Auto-created unverified list',
+                            ARRAY['language:' || lower(lang), 'frequency:' || lower(freq)])
+                    RETURNING id INTO unverified_list_id;
+                END IF;
 
-            -- Assign to shared list
-            INSERT INTO subscriber_lists (subscriber_id, list_id, status)
-            VALUES (NEW.id, shared_list_id, 'confirmed')
-            ON CONFLICT DO NOTHING;
-
-            -- Assign to verified/unverified list
-            IF is_verified THEN
+                -- Assign to shared list
                 INSERT INTO subscriber_lists (subscriber_id, list_id, status)
-                VALUES (NEW.id, verified_list_id, 'confirmed')
+                VALUES (sub.id, shared_list_id, 'confirmed')
                 ON CONFLICT DO NOTHING;
-            ELSE
-                INSERT INTO subscriber_lists (subscriber_id, list_id, status)
-                VALUES (NEW.id, unverified_list_id, 'confirmed')
-                ON CONFLICT DO NOTHING;
-            END IF;
+
+                -- Assign to verified/unverified list
+                IF is_verified THEN
+                    INSERT INTO subscriber_lists (subscriber_id, list_id, status)
+                    VALUES (sub.id, verified_list_id, 'confirmed')
+                    ON CONFLICT DO NOTHING;
+                ELSE
+                    INSERT INTO subscriber_lists (subscriber_id, list_id, status)
+                    VALUES (sub.id, unverified_list_id, 'confirmed')
+                    ON CONFLICT DO NOTHING;
+                END IF;
+            END LOOP;
         END LOOP;
     END LOOP;
 
-    RETURN NEW;
+    RAISE NOTICE 'All subscribers synced to verified/unverified lists.';
 END;
 $$ LANGUAGE plpgsql;
 
-
-CREATE TRIGGER trg_subscriber_verified_move
-AFTER INSERT OR UPDATE OF attribs
-ON subscribers
-FOR EACH ROW
-EXECUTE FUNCTION move_subscriber_to_verified_list();
 
 
 -- Process Bounces
