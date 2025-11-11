@@ -74,6 +74,25 @@ func (a *App) GetSubscriber(c echo.Context) error {
 	return c.JSON(http.StatusOK, okResp{out})
 }
 
+// GetSubscriberActivity handles the retrieval of a subscriber's campaign views and link clicks.
+func (a *App) GetSubscriberActivity(c echo.Context) error {
+	user := auth.GetUser(c)
+
+	// Check if the user has access to at least one of the lists on the subscriber.
+	id := getID(c)
+	if err := a.hasSubPerm(user, []int{id}); err != nil {
+		return err
+	}
+
+	// Fetch the subscriber activity from the DB.
+	out, err := a.core.GetSubscriberActivity(id)
+	if err != nil {
+		return err
+	}
+
+	return c.JSON(http.StatusOK, okResp{out})
+}
+
 // QuerySubscribers handles querying subscribers based on an arbitrary SQL expression.
 func (a *App) QuerySubscribers(c echo.Context) error {
 	// Get the authenticated user.

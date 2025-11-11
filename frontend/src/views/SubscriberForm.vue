@@ -137,7 +137,11 @@
                 <pre v-if="visibleMeta[props.row.id]">{{ props.row.meta }}</pre>
               </b-table-column>
             </b-table>
-          </b-tab-item>
+          </b-tab-item><!-- bounces -->
+
+          <b-tab-item :label="$t('subscribers.activity.activity')" class="activity" :disabled="!isEditing">
+            <subscriber-activity v-if="isEditing && data.id" :subscriber-id="data.id" />
+          </b-tab-item><!-- activity -->
         </b-tabs>
 
         <b-field :message="$t('subscribers.attribsHelp') + ' ' + egAttribs" class="mt-6">
@@ -168,11 +172,13 @@ import Vue from 'vue';
 import { mapState } from 'vuex';
 import ListSelector from '../components/ListSelector.vue';
 import CopyText from '../components/CopyText.vue';
+import SubscriberActivity from '../components/SubscriberActivity.vue';
 
 export default Vue.extend({
   components: {
     ListSelector,
     CopyText,
+    SubscriberActivity,
   },
 
   props: {

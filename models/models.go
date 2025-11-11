@@ -172,6 +172,12 @@ type SubscriberExportProfile struct {
 	LinkClicks    json.RawMessage `db:"link_clicks" json:"link_clicks,omitempty"`
 }
 
+// SubscriberActivity represents a subscriber's campaign views and link clicks for the Activity tab.
+type SubscriberActivity struct {
+	CampaignViews json.RawMessage `db:"campaign_views" json:"campaign_views"`
+	LinkClicks    json.RawMessage `db:"link_clicks" json:"link_clicks"`
+}
+
 // JSON is the wrapper for reading and writing arbitrary JSONB fields from the DB.
 type JSON map[string]any
 
