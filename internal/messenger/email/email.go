@@ -6,6 +6,7 @@ import (
 	"math/rand"
 	"net/smtp"
 	"net/textproto"
+	"os"
 	"strings"
 
 	"github.com/knadh/listmonk/models"
@@ -109,6 +110,10 @@ func (e *Emailer) Name() string {
 
 // Push pushes a message to the server.
 func (e *Emailer) Push(m models.Message) error {
+	// Diagnostic: indicate Push was invoked for this message so we can
+	// confirm this messenger implementation is used by the runtime.
+	fmt.Printf("[email debug] Push called: From=%q To=%q Subject=%q\n", m.From, strings.Join(m.To, ","), m.Subject)
+
 	// If there are more than one SMTP servers, send to a random
 	// one from the list.
 	var (
@@ -163,6 +168,45 @@ func (e *Emailer) Push(m models.Message) error {
 		em.Headers.Del(hdrReturnPath)
 	}
 
+	// Copilot patch start: env-gated envelope rewrite for unverified senders
+	// When LISTMONK_ALLOW_UNVERIFIED_SENDER=true is set, rewrite the SMTP
+	// envelope sender (em.Sender) to a configured verified address while
+	// keeping the visible From header intact. The verified address is read
+	// from LISTMONK_VERIFIED_RETURN_PATH, falling back to
+	// LISTMONK_SMTP_FROM or the message's From if unset.
+	if strings.ToLower(os.Getenv("LISTMONK_ALLOW_UNVERIFIED_SENDER")) == "true" {
+		// Determine verified return-path address
+		verified := strings.TrimSpace(os.Getenv("LISTMONK_VERIFIED_RETURN_PATH"))
+		if verified == "" {
+			verified = strings.TrimSpace(os.Getenv("LISTMONK_SMTP_FROM"))
+		}
+		if verified == "" {
+			// Fallback to message From (visible) if nothing else configured.
+			verified = em.From
+		}
+
+			// Set the SMTP envelope sender to the verified address. This will
+			// be used by the underlying SMTP pool as the MAIL FROM (Return-Path).
+			// As some SMTP clients/libs use the `From` field to build the envelope,
+			// also set `em.From` to the verified address and then explicitly
+			// override the visible `From` header so the recipient still sees the
+			// original (unverified) sender.
+			originalFrom := em.From
+			em.Sender = verified
+			em.From = verified
+
+			// Ensure the visible From header remains the original value while
+			// the SMTP envelope uses the verified address.
+			em.Headers.Set("From", originalFrom)
+
+			// Ensure any Return-Path header is not leaking the original
+			// unverified address. Set Return-Path header to the verified
+			// address so downstream systems that inspect headers see the
+			// same envelope value.
+			em.Headers.Set(hdrReturnPath, verified)
+	}
+	// Copilot patch end
+
 	// If the `Bcc` header is set, it should be set on the Envelope
 	if bcc := em.Headers.Get(hdrBcc); bcc != "" {
 		for _, part := range strings.Split(bcc, ",") {
@@ -188,6 +232,10 @@ func (e *Emailer) Push(m models.Message) error {
 			em.Text = m.AltBody
 		}
 	}
+
+	// Diagnostic log: print the values used to build the SMTP envelope so
+	// we can confirm what is being handed to smtppool before Send.
+	fmt.Printf("[email debug] em.Sender=%q em.From=%q Return-Path-header=%q\n", em.Sender, em.From, em.Headers.Get(hdrReturnPath))
 
 	return srv.pool.Send(em)
 }
