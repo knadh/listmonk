@@ -1,252 +1,242 @@
 package email
 
 import (
-	"crypto/tls"
-	"fmt"
-	"math/rand"
-	"net/smtp"
-	"net/textproto"
-	"os"
-	"strings"
+    "crypto/tls"
+    "fmt"
+    "math/rand"
+    "net/smtp"
+    "net/textproto"
+    "os"
+    "strings"
 
-	"github.com/knadh/listmonk/models"
-	"github.com/knadh/smtppool/v2"
+    "github.com/knadh/listmonk/models"
+    "github.com/knadh/smtppool/v2"
 )
 
 const (
-	MessengerName = "email"
+    MessengerName = "email"
 
-	hdrReturnPath = "Return-Path"
-	hdrBcc        = "Bcc"
-	hdrCc         = "Cc"
+    hdrReturnPath = "Return-Path"
+    hdrBcc        = "Bcc"
+    hdrCc         = "Cc"
 )
 
 // Server represents an SMTP server's credentials.
 type Server struct {
-	// Name is a unique identifier for the server.
-	Name          string            `json:"name"`
-	Username      string            `json:"username"`
-	Password      string            `json:"password"`
-	AuthProtocol  string            `json:"auth_protocol"`
-	TLSType       string            `json:"tls_type"`
-	TLSSkipVerify bool              `json:"tls_skip_verify"`
-	EmailHeaders  map[string]string `json:"email_headers"`
+    // Name is a unique identifier for the server.
+    Name          string            `json:"name"`
+    Username      string            `json:"username"`
+    Password      string            `json:"password"`
+    AuthProtocol  string            `json:"auth_protocol"`
+    TLSType       string            `json:"tls_type"`
+    TLSSkipVerify bool              `json:"tls_skip_verify"`
+    EmailHeaders  map[string]string `json:"email_headers"`
 
-	// Rest of the options are embedded directly from the smtppool lib.
-	// The JSON tag is for config unmarshal to work.
-	//lint:ignore SA5008 ,squash is needed by koanf/mapstructure config unmarshal.
-	smtppool.Opt `json:",squash"`
+    // Rest of the options are embedded directly from the smtppool lib.
+    // The JSON tag is for config unmarshal to work.
+    //lint:ignore SA5008 ,squash is needed by koanf/mapstructure config unmarshal.
+    smtppool.Opt `json:",squash"`
 
-	pool *smtppool.Pool
+    pool *smtppool.Pool
 }
 
 // Emailer is the SMTP e-mail messenger.
 type Emailer struct {
-	servers []*Server
-	name    string
+    servers []*Server
+    name    string
 }
 
 // New returns an SMTP e-mail Messenger backend with the given SMTP servers.
 // Group indicates whether the messenger represents a group of SMTP servers (1 or more)
 // that are used as a round-robin pool, or a single server.
 func New(name string, servers ...Server) (*Emailer, error) {
-	e := &Emailer{
-		servers: make([]*Server, 0, len(servers)),
-		name:    name,
-	}
+    e := &Emailer{
+        servers: make([]*Server, 0, len(servers)),
+        name:    name,
+    }
 
-	for _, srv := range servers {
-		s := srv
+    for _, srv := range servers {
+        s := srv
 
-		var auth smtp.Auth
-		switch s.AuthProtocol {
-		case "cram":
-			auth = smtp.CRAMMD5Auth(s.Username, s.Password)
-		case "plain":
-			auth = smtp.PlainAuth("", s.Username, s.Password, s.Host)
-		case "login":
-			auth = &smtppool.LoginAuth{Username: s.Username, Password: s.Password}
-		case "", "none":
-		default:
-			return nil, fmt.Errorf("unknown SMTP auth type '%s'", s.AuthProtocol)
-		}
-		s.Opt.Auth = auth
+        var auth smtp.Auth
+        switch s.AuthProtocol {
+        case "cram":
+            auth = smtp.CRAMMD5Auth(s.Username, s.Password)
+        case "plain":
+            auth = smtp.PlainAuth("", s.Username, s.Password, s.Host)
+        case "login":
+            auth = &smtppool.LoginAuth{Username: s.Username, Password: s.Password}
+        case "", "none":
+        default:
+            return nil, fmt.Errorf("unknown SMTP auth type '%s'", s.AuthProtocol)
+        }
+        s.Opt.Auth = auth
 
-		// TLS config.
-		s.Opt.SSL = smtppool.SSLNone
-		if s.TLSType != "none" {
-			s.TLSConfig = &tls.Config{}
-			if s.TLSSkipVerify {
-				s.TLSConfig.InsecureSkipVerify = s.TLSSkipVerify
-			} else {
-				s.TLSConfig.ServerName = s.Host
-			}
+        // TLS config.
+        s.Opt.SSL = smtppool.SSLNone
+        if s.TLSType != "none" {
+            s.TLSConfig = &tls.Config{}
+            if s.TLSSkipVerify {
+                s.TLSConfig.InsecureSkipVerify = s.TLSSkipVerify
+            } else {
+                s.TLSConfig.ServerName = s.Host
+            }
 
-			// SSL/TLS, not STARTTLS.
-			switch s.TLSType {
-			case "TLS":
-				s.Opt.SSL = smtppool.SSLTLS
-			case "STARTTLS":
-				s.Opt.SSL = smtppool.SSLSTARTTLS
-			}
-		}
+            // SSL/TLS, not STARTTLS.
+            switch s.TLSType {
+            case "TLS":
+                s.Opt.SSL = smtppool.SSLTLS
+            case "STARTTLS":
+                s.Opt.SSL = smtppool.SSLSTARTTLS
+            }
+        }
 
-		pool, err := smtppool.New(s.Opt)
-		if err != nil {
-			return nil, err
-		}
+        pool, err := smtppool.New(s.Opt)
+        if err != nil {
+            return nil, err
+        }
 
-		s.pool = pool
-		e.servers = append(e.servers, &s)
-	}
+        s.pool = pool
+        e.servers = append(e.servers, &s)
+    }
 
-	return e, nil
+    return e, nil
 }
 
 // Name returns the messenger's name.
 func (e *Emailer) Name() string {
-	return e.name
+    return e.name
 }
 
 // Push pushes a message to the server.
 func (e *Emailer) Push(m models.Message) error {
-	// Diagnostic: indicate Push was invoked for this message so we can
-	// confirm this messenger implementation is used by the runtime.
-	fmt.Printf("[email debug] Push called: From=%q To=%q Subject=%q\n", m.From, strings.Join(m.To, ","), m.Subject)
+    // Diagnostic: indicate Push was invoked for this message so we can
+    // confirm this messenger implementation is used by the runtime.
+    fmt.Printf("[email debug] Push called: From=%q To=%q Subject=%q\n", m.From, strings.Join(m.To, ","), m.Subject)
 
-	// If there are more than one SMTP servers, send to a random
-	// one from the list.
-	var (
-		ln  = len(e.servers)
-		srv *Server
-	)
-	if ln > 1 {
-		srv = e.servers[rand.Intn(ln)]
-	} else {
-		srv = e.servers[0]
-	}
+    // If there are more than one SMTP servers, send to a random
+    // one from the list.
+    var (
+        ln  = len(e.servers)
+        srv *Server
+    )
+    if ln > 1 {
+        srv = e.servers[rand.Intn(ln)]
+    } else {
+        srv = e.servers[0]
+    }
 
-	// Are there attachments?
-	var files []smtppool.Attachment
-	if m.Attachments != nil {
-		files = make([]smtppool.Attachment, 0, len(m.Attachments))
-		for _, f := range m.Attachments {
-			a := smtppool.Attachment{
-				Filename: f.Name,
-				Header:   f.Header,
-				Content:  make([]byte, len(f.Content)),
-			}
-			copy(a.Content, f.Content)
-			files = append(files, a)
-		}
-	}
+    // Are there attachments?
+    var files []smtppool.Attachment
+    if m.Attachments != nil {
+        files = make([]smtppool.Attachment, 0, len(m.Attachments))
+        for _, f := range m.Attachments {
+            a := smtppool.Attachment{
+                Filename: f.Name,
+                Header:   f.Header,
+                Content:  make([]byte, len(f.Content)),
+            }
+            copy(a.Content, f.Content)
+            files = append(files, a)
+        }
+    }
 
-	// Create the email.
-	em := smtppool.Email{
-		From:        m.From,
-		To:          m.To,
-		Subject:     m.Subject,
-		Attachments: files,
-	}
+    // Create the email.
+    em := smtppool.Email{
+        From:        m.From,
+        To:          m.To,
+        Subject:     m.Subject,
+        Attachments: files,
+    }
 
-	em.Headers = textproto.MIMEHeader{}
+    em.Headers = textproto.MIMEHeader{}
 
-	// Attach SMTP level headers.
-	for k, v := range srv.EmailHeaders {
-		em.Headers.Set(k, v)
-	}
+    // Attach SMTP level headers.
+    for k, v := range srv.EmailHeaders {
+        em.Headers.Set(k, v)
+    }
 
-	// Attach e-mail level headers.
-	for k, v := range m.Headers {
-		em.Headers.Set(k, v[0])
-	}
+    // Attach e-mail level headers.
+    for k, v := range m.Headers {
+        em.Headers.Set(k, v[0])
+    }
 
-	// If the `Return-Path` header is set, it should be set as the
-	// the SMTP envelope sender (via the Sender field of the email struct).
-	if sender := em.Headers.Get(hdrReturnPath); sender != "" {
-		em.Sender = sender
-		em.Headers.Del(hdrReturnPath)
-	}
+    // If the `Return-Path` header is set, it should be set as the
+    // the SMTP envelope sender (via the Sender field of the email struct).
+    if sender := em.Headers.Get(hdrReturnPath); sender != "" {
+        em.Sender = sender
+        em.Headers.Del(hdrReturnPath)
+    }
 
-	// Copilot patch start: env-gated envelope rewrite for unverified senders
-	// When LISTMONK_ALLOW_UNVERIFIED_SENDER=true is set, rewrite the SMTP
-	// envelope sender (em.Sender) to a configured verified address while
-	// keeping the visible From header intact. The verified address is read
-	// from LISTMONK_VERIFIED_RETURN_PATH, falling back to
-	// LISTMONK_SMTP_FROM or the message's From if unset.
-	// Push invoked for this message.
-		if verified == "" {
-			verified = strings.TrimSpace(os.Getenv("LISTMONK_SMTP_FROM"))
-		}
-	// Envelope prepared; send via SMTP pool.
-			// Fallback to message From (visible) if nothing else configured.
-			verified = em.From
-		}
+    // Copilot patch start: env-gated envelope rewrite for unverified senders
+    // When LISTMONK_ALLOW_UNVERIFIED_SENDER=true is set, rewrite the SMTP
+    // envelope sender (em.Sender) to a configured verified address while
+    // keeping the visible From header intact. The verified address is read
+    // from LISTMONK_VERIFIED_RETURN_PATH, falling back to
+    // LISTMONK_SMTP_FROM or the message's From if unset.
+    if strings.ToLower(strings.TrimSpace(os.Getenv("LISTMONK_ALLOW_UNVERIFIED_SENDER"))) == "true" {
+        verified := strings.TrimSpace(os.Getenv("LISTMONK_VERIFIED_RETURN_PATH"))
+        if verified == "" {
+            verified = strings.TrimSpace(os.Getenv("LISTMONK_SMTP_FROM"))
+        }
+        if verified == "" {
+            verified = em.From
+        }
 
-			// Set the SMTP envelope sender to the verified address. This will
-			// be used by the underlying SMTP pool as the MAIL FROM (Return-Path).
-			// As some SMTP clients/libs use the `From` field to build the envelope,
-			// also set `em.From` to the verified address and then explicitly
-			// override the visible `From` header so the recipient still sees the
-			// original (unverified) sender.
-			originalFrom := em.From
-			em.Sender = verified
-			em.From = verified
+        // Preserve original visible From
+        originalFrom := em.From
 
-			// Ensure the visible From header remains the original value while
-			// the SMTP envelope uses the verified address.
-			em.Headers.Set("From", originalFrom)
+        // Set envelope sender to verified address (MAIL FROM / Return-Path)
+        em.Sender = verified
 
-			// Ensure any Return-Path header is not leaking the original
-			// unverified address. Set Return-Path header to the verified
-			// address so downstream systems that inspect headers see the
-			// same envelope value.
-			em.Headers.Set(hdrReturnPath, verified)
-	}
-	// Copilot patch end
+        // Ensure SMTP envelope uses verified address; keep visible From header
+        em.From = verified
+        em.Headers.Set("From", originalFrom)
+        em.Headers.Set(hdrReturnPath, verified)
+    }
+    // Copilot patch end
 
-	// If the `Bcc` header is set, it should be set on the Envelope
-	if bcc := em.Headers.Get(hdrBcc); bcc != "" {
-		for _, part := range strings.Split(bcc, ",") {
-			em.Bcc = append(em.Bcc, strings.TrimSpace(part))
-		}
-		em.Headers.Del(hdrBcc)
-	}
+    // If the `Bcc` header is set, it should be set on the Envelope
+    if bcc := em.Headers.Get(hdrBcc); bcc != "" {
+        for _, part := range strings.Split(bcc, ",") {
+            em.Bcc = append(em.Bcc, strings.TrimSpace(part))
+        }
+        em.Headers.Del(hdrBcc)
+    }
 
-	// If the `Cc` header is set, it should be set on the Envelope
-	if cc := em.Headers.Get(hdrCc); cc != "" {
-		for _, part := range strings.Split(cc, ",") {
-			em.Cc = append(em.Cc, strings.TrimSpace(part))
-		}
-		em.Headers.Del(hdrCc)
-	}
+    // If the `Cc` header is set, it should be set on the Envelope
+    if cc := em.Headers.Get(hdrCc); cc != "" {
+        for _, part := range strings.Split(cc, ",") {
+            em.Cc = append(em.Cc, strings.TrimSpace(part))
+        }
+        em.Headers.Del(hdrCc)
+    }
 
-	switch m.ContentType {
-	case "plain":
-		em.Text = []byte(m.Body)
-	default:
-		em.HTML = m.Body
-		if len(m.AltBody) > 0 {
-			em.Text = m.AltBody
-		}
-	}
+    switch m.ContentType {
+    case "plain":
+        em.Text = []byte(m.Body)
+    default:
+        em.HTML = m.Body
+        if len(m.AltBody) > 0 {
+            em.Text = m.AltBody
+        }
+    }
 
-	// Diagnostic log: print the values used to build the SMTP envelope so
-	// we can confirm what is being handed to smtppool before Send.
-	fmt.Printf("[email debug] em.Sender=%q em.From=%q Return-Path-header=%q\n", em.Sender, em.From, em.Headers.Get(hdrReturnPath))
-
-	return srv.pool.Send(em)
+    // Diagnostic log: print the values used to build the SMTP envelope so
+    // we can confirm what is being handed to smtppool before Send.
+    fmt.Printf("[email debug] em.Sender=%q em.From=%q Return-Path-header=%q\n", em.Sender, em.From, em.Headers.Get(hdrReturnPath))
+    return srv.pool.Send(em)
 }
 
 // Flush flushes the message queue to the server.
 func (e *Emailer) Flush() error {
-	return nil
+    return nil
 }
 
 // Close closes the SMTP pools.
 func (e *Emailer) Close() error {
-	for _, s := range e.servers {
-		s.pool.Close()
-	}
-	return nil
+    for _, s := range e.servers {
+        s.pool.Close()
+    }
+    return nil
 }
