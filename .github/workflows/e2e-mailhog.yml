@@ -1,0 +1,49 @@
+name: E2E MailHog
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  mailhog-e2e:
+    name: Run MailHog E2E script
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_DB: listmonk
+          POSTGRES_USER: listmonk
+          POSTGRES_PASSWORD: listmonk
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd="pg_isready -U listmonk" --health-interval=5s --health-timeout=5s --health-retries=5
+      mailhog:
+        image: mailhog/mailhog
+        ports: ['8025:8025','1025:1025']
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Wait for services
+        run: |
+          echo "Waiting for Postgres..."
+          for i in $(seq 1 30); do
+            nc -z localhost 5432 && break || sleep 1
+          done
+          echo "Waiting for MailHog..."
+          for i in $(seq 1 30); do
+            nc -z localhost 8025 && break || sleep 1
+          done
+
+      - name: Run e2e script if present
+        run: |
+          if [ -x ./tests/mailhog_e2e.sh ]; then
+            echo "Found tests/mailhog_e2e.sh — executing"
+            chmod +x ./tests/mailhog_e2e.sh
+            ./tests/mailhog_e2e.sh
+          else
+            echo "No ./tests/mailhog_e2e.sh found; skipping e2e job"
+            ls -la
+          fi
