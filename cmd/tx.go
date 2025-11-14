@@ -1,11 +1,13 @@
 package main
 
 import (
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
 	"net/textproto"
+	"os"
 	"strings"
 
 	"github.com/knadh/listmonk/internal/manager"
@@ -192,6 +194,21 @@ func (a *App) validateTxMessage(m models.TxMessage) (models.TxMessage, error) {
 
 	if m.FromEmail == "" {
 		m.FromEmail = a.cfg.FromEmail
+	}
+
+	// Enforce sender verification unless explicitly allowed by env var.
+	if strings.TrimSpace(strings.ToLower(os.Getenv("LISTMONK_ALLOW_UNVERIFIED_SENDER"))) != "true" {
+		var verified sql.NullBool
+		err := a.db.QueryRow("SELECT verified FROM senders WHERE LOWER(email)=LOWER($1)", m.FromEmail).Scan(&verified)
+		if err != nil {
+			if err == sql.ErrNoRows {
+				return m, echo.NewHTTPError(http.StatusBadRequest, a.i18n.Ts("globals.messages.invalidFields", "name", "sender not verified"))
+			}
+			return m, echo.NewHTTPError(http.StatusInternalServerError, a.i18n.Ts("globals.messages.errorFetching", "name"))
+		}
+		if !verified.Valid || !verified.Bool {
+			return m, echo.NewHTTPError(http.StatusBadRequest, a.i18n.Ts("globals.messages.invalidFields", "name", "sender not verified"))
+		}
 	}
 
 	if m.Messenger == "" {
