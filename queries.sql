@@ -300,6 +300,44 @@ SELECT (SELECT email FROM prof) as email,
         COALESCE((SELECT JSON_AGG(t) FROM views t), '[]') AS campaign_views,
         COALESCE((SELECT JSON_AGG(t) FROM clicks t), '[]') AS link_clicks;
 
+-- name: get-subscriber-activity
+-- Gets the subscriber's campaign views and link clicks with detailed information
+-- for display in the Activity tab
+WITH views AS (
+    SELECT
+        c.id,
+        c.uuid,
+        c.name,
+        c.subject,
+        COUNT(*) as view_count,
+        MAX(cv.created_at) as last_viewed_at
+    FROM campaign_views cv
+    LEFT JOIN campaigns c ON c.id = cv.campaign_id
+    WHERE cv.subscriber_id = $1
+    GROUP BY c.id, c.uuid, c.name, c.subject
+    ORDER BY last_viewed_at DESC
+),
+clicks AS (
+    SELECT
+        l.id as link_id,
+        l.url,
+        c.id as campaign_id,
+        c.uuid as campaign_uuid,
+        c.name as campaign_name,
+        c.subject as campaign_subject,
+        COUNT(*) as click_count,
+        MAX(lc.created_at) as last_clicked_at
+    FROM link_clicks lc
+    LEFT JOIN links l ON l.id = lc.link_id
+    LEFT JOIN campaigns c ON c.id = lc.campaign_id
+    WHERE lc.subscriber_id = $1
+    GROUP BY l.id, l.url, c.id, c.uuid, c.name, c.subject
+    ORDER BY last_clicked_at DESC
+)
+SELECT
+    COALESCE((SELECT JSON_AGG(v) FROM views v), '[]') as campaign_views,
+    COALESCE((SELECT JSON_AGG(c) FROM clicks c), '[]') as link_clicks;
+
 -- Partial and RAW queries used to construct arbitrary subscriber
 -- queries for segmentation follow.
 
