@@ -1,0 +1,52 @@
+name: CI E2E (docker compose)
+
+on:
+  pull_request:
+    paths:
+      - '**/*'
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: read
+      id-token: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and run test stack
+        env:
+          COMPOSE_DOCKER_CLI_BUILD: 1
+          DOCKER_BUILDKIT: 1
+        run: |
+          docker compose -f docker-compose.test.yml up -d --build
+
+      - name: Wait for services
+        run: |
+          for i in {1..60}; do
+            if curl -sSf http://127.0.0.1:9100/health >/dev/null 2>&1; then
+              echo "app ready"; break
+            fi
+            sleep 2
+          done
+
+      - name: Run migrations (best-effort)
+        run: |
+          if [ -x ./listmonk ]; then
+            ./listmonk --upgrade --yes || true
+          else
+            echo "listmonk binary not present in workspace; ensure migrations are applied in the test image"
+          fi
+
+      - name: Run unit + e2e tests
+        run: |
+          bash tests/unit/verify_sender_unit.sh
+
+      - name: Tear down
+        if: always()
+        run: docker compose -f docker-compose.test.yml down -v

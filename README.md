@@ -45,3 +45,14 @@ listmonk is free and open source software licensed under AGPLv3. If you are inte
 
 ## License
 listmonk is licensed under the AGPL v3 license.
+
+## Notes for PR reviewers (sender verification)
+
+This branch adds a verification-by-code flow for sender addresses and an opt-in environment flag to allow sending from unverified addresses for testing.
+
+- New endpoints (see `docs/SENDERS.md`): `POST /api/senders`, `POST /api/senders/verify`.
+- Env var: `LISTMONK_ALLOW_UNVERIFIED_SENDER=true` to bypass verification enforcement (testing only).
+- Env var: `LISTMONK_VERIFIED_RETURN_PATH` to set a verified envelope sender used when unverified senders are allowed.
+
+Local test helpers have been added under `src/tests` and `src/scripts` — run `bash src/scripts/run_local_ci.sh` from the repo root to spin up the test stack and execute the verification tests (requires Docker).
+

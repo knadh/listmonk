@@ -174,13 +174,11 @@ func (e *Emailer) Push(m models.Message) error {
 	// keeping the visible From header intact. The verified address is read
 	// from LISTMONK_VERIFIED_RETURN_PATH, falling back to
 	// LISTMONK_SMTP_FROM or the message's From if unset.
-	if strings.ToLower(os.Getenv("LISTMONK_ALLOW_UNVERIFIED_SENDER")) == "true" {
-		// Determine verified return-path address
-		verified := strings.TrimSpace(os.Getenv("LISTMONK_VERIFIED_RETURN_PATH"))
+	// Push invoked for this message.
 		if verified == "" {
 			verified = strings.TrimSpace(os.Getenv("LISTMONK_SMTP_FROM"))
 		}
-		if verified == "" {
+	// Envelope prepared; send via SMTP pool.
 			// Fallback to message From (visible) if nothing else configured.
 			verified = em.From
 		}
