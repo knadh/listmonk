@@ -23,6 +23,7 @@ type Queries struct {
 	GetSubscriberLists              *sqlx.Stmt `query:"get-subscriber-lists"`
 	GetSubscriptions                *sqlx.Stmt `query:"get-subscriptions"`
 	GetSubscriberListsLazy          *sqlx.Stmt `query:"get-subscriber-lists-lazy"`
+	GetLinkClicksAnalytics          *sqlx.Stmt `query:"get-link-clicks-analytics"`
 	UpdateSubscriber                *sqlx.Stmt `query:"update-subscriber"`
 	UpdateSubscriberWithLists       *sqlx.Stmt `query:"update-subscriber-with-lists"`
 	BlocklistSubscribers            *sqlx.Stmt `query:"blocklist-subscribers"`
@@ -58,14 +59,15 @@ type Queries struct {
 	UpdateListsDate *sqlx.Stmt `query:"update-lists-date"`
 	DeleteLists     *sqlx.Stmt `query:"delete-lists"`
 
-	CreateCampaign        *sqlx.Stmt `query:"create-campaign"`
-	QueryCampaigns        string     `query:"query-campaigns"`
-	GetCampaign           *sqlx.Stmt `query:"get-campaign"`
-	GetCampaignForPreview *sqlx.Stmt `query:"get-campaign-for-preview"`
-	GetCampaignStats      *sqlx.Stmt `query:"get-campaign-stats"`
-	GetCampaignStatus     *sqlx.Stmt `query:"get-campaign-status"`
-	GetArchivedCampaigns  *sqlx.Stmt `query:"get-archived-campaigns"`
-	CampaignHasLists      *sqlx.Stmt `query:"campaign-has-lists"`
+	CreateCampaign             *sqlx.Stmt `query:"create-campaign"`
+	QueryCampaigns             string     `query:"query-campaigns"`
+	GetCampaign                *sqlx.Stmt `query:"get-campaign"`
+	GetCampaignForPreview      *sqlx.Stmt `query:"get-campaign-for-preview"`
+	GetCampaignStats           *sqlx.Stmt `query:"get-campaign-stats"`
+	GetCampaignStatus          *sqlx.Stmt `query:"get-campaign-status"`
+	GetIndividualCampaignViews *sqlx.Stmt `query:"get-individual-campaign-views"`
+	GetArchivedCampaigns       *sqlx.Stmt `query:"get-archived-campaigns"`
+	CampaignHasLists           *sqlx.Stmt `query:"campaign-has-lists"`
 
 	// These two queries are read as strings and based on settings.individual_tracking=on/off,
 	// are interpolated and copied to view and click counts. Same query, different tables.

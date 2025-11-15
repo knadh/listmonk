@@ -147,6 +147,7 @@
     "globals.buttons.deleteAll": "Delete all",
     "globals.buttons.edit": "Edit",
     "globals.buttons.enabled": "Enabled",
+    "globals.buttons.export": "Export",
     "globals.buttons.insert": "Insert",
     "globals.buttons.learnMore": "Learn more",
     "globals.buttons.manage": "Manage",

@@ -11,7 +11,7 @@ dayjs.extend(updateLocale);
 dayjs.extend(relativeTime);
 dayjs.extend(dayDuration);
 
-const reEmail = /(.+?)@(.+?)/ig;
+const reEmail = /(.+?)@(.+?)/gi;
 const prefKey = 'listmonk_pref';
 
 const htmlEntities = {
@@ -95,21 +95,21 @@ export default class Utils {
     let pfx = '';
     let div = 1;
 
-    if (n >= 1.0e+9) {
+    if (n >= 1.0e9) {
       pfx = 'b';
-      div = 1.0e+9;
-    } else if (n >= 1.0e+6) {
+      div = 1.0e9;
+    } else if (n >= 1.0e6) {
       pfx = 'm';
-      div = 1.0e+6;
-    } else if (n >= 1.0e+4) {
+      div = 1.0e6;
+    } else if (n >= 1.0e4) {
       pfx = 'k';
-      div = 1.0e+3;
+      div = 1.0e3;
     } else {
       return n;
     }
 
     // Whole number without decimals.
-    const out = (n / div);
+    const out = n / div;
     if (Math.floor(out) === n) {
       return out + pfx;
     }
@@ -147,7 +147,9 @@ export default class Utils {
   confirm = (msg, onConfirm, onCancel) => {
     Dialog.confirm({
       scroll: 'keep',
-      message: !msg ? this.i18n.t('globals.messages.confirm') : this.escapeHTML(msg),
+      message: !msg
+        ? this.i18n.t('globals.messages.confirm')
+        : this.escapeHTML(msg),
       confirmText: this.i18n.t('globals.buttons.ok'),
       cancelText: this.i18n.t('globals.buttons.cancel'),
       onConfirm,
@@ -247,5 +249,23 @@ export default class Utils {
 
     p[key] = val;
     localStorage.setItem(prefKey, JSON.stringify(p));
+  };
+
+  downloadCSV = (jsonData, fileName) => {
+    const headers = Object.keys(jsonData[0]);
+    let csv = `${headers.join(',')}\n`;
+    jsonData.forEach((row) => {
+      const data = headers
+        .map((header) => JSON.stringify(row[header]).replaceAll(',', ';'))
+        .join(',');
+      csv += `${data}\n`;
+    });
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${fileName}.csv`;
+    document.body.appendChild(a);
+    a.click();
   };
 }

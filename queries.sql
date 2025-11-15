@@ -854,6 +854,19 @@ u AS (
 )
 SELECT * FROM subs;
 
+-- name: get-individual-campaign-views
+SELECT cviews.campaign_id AS cid, subs.name AS sname,
+subs.email AS email,
+CASE
+    WHEN subs.status = 'enabled' THEN 'subscribed'
+    ELSE 'unsubscribed'
+END AS user_status
+FROM campaign_views AS cviews INNER JOIN subscribers AS subs
+ON subs.id = cviews.subscriber_id
+WHERE cviews.campaign_id = $1
+AND cviews.created_at >= $2
+AND cviews.created_at <= $3;
+
 -- name: delete-campaign-views
 DELETE FROM campaign_views WHERE created_at < $1;
 
@@ -1010,7 +1023,7 @@ SELECT * FROM media WHERE
     CASE
         WHEN $1 > 0 THEN id = $1
         WHEN $2 != '' THEN uuid = $2::UUID
-        WHEN $3 != '' THEN filename = $3    
+        WHEN $3 != '' THEN filename = $3
         ELSE false
     END;
 
@@ -1329,3 +1342,13 @@ UPDATE roles SET name=$2, permissions=$3 WHERE id=$1 and parent_id IS NULL RETUR
 
 -- name: delete-role
 DELETE FROM roles WHERE id=$1;
+
+-- name: get-link-clicks-analytics
+SELECT campaign_id AS cid, subscribers.name AS sname,
+subscribers.email AS email, links.url AS url
+FROM link_clicks
+INNER JOIN links ON link_id = link_clicks.id
+INNER JOIN subscribers ON subscribers.id = subscriber_id
+WHERE link_clicks.campaign_id = $1
+AND link_clicks.created_at >= $2
+AND link_clicks.created_at <= $3;

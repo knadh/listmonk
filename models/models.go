@@ -297,6 +297,20 @@ type CampaignAnalyticsCount struct {
 	Timestamp  time.Time `db:"timestamp" json:"timestamp"`
 }
 
+type CampaignIndividualViews struct {
+	Id     string `db:"cid" json:"campaign_id"`
+	Name   string `db:"sname" json:"name"`
+	Email  string `db:"email" json:"email"`
+	Status string `db:"user_status" json:"status"`
+}
+
+type CampaignLinkClicksData struct {
+	Id    string `db:"cid" json:"campaign_id"`
+	Name  string `db:"sname" json:"name"`
+	Email string `db:"email" json:"email"`
+	Url   string `db:"url" json:"url"`
+}
+
 type CampaignAnalyticsLink struct {
 	URL   string `db:"url" json:"url"`
 	Count int    `db:"count" json:"count"`
