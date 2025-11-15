@@ -1942,7 +1942,7 @@ paths:
   "/templates/{id}/default":
     put:
       description: handles template modification.
-      operationId: updateTemplateById
+      operationId: setDefaultTemplateById
       tags:
         - Templates
       parameters:
