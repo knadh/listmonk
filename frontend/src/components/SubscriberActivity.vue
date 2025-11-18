@@ -1,7 +1,7 @@
 <template>
   <div class="subscriber-activity">
     <div v-if="isLoading" class="has-text-centered">
-      <b-loading :active="true" :is-full-page="false"></b-loading>
+      <b-loading :active="true" :is-full-page="false" />
     </div>
 
     <div v-else>
@@ -9,19 +9,19 @@
       <div class="columns">
         <div class="column is-4">
           <div class="box has-text-centered">
-            <p class="heading">{{ $t('subscribers.activity.totalCampaignsViewed') }}</p>
+            <p class="heading">{{ $t('globals.terms.campaigns') }}</p>
             <p class="title">{{ activity.campaignViews ? activity.campaignViews.length : 0 }}</p>
           </div>
         </div>
         <div class="column is-4">
           <div class="box has-text-centered">
-            <p class="heading">{{ $t('subscribers.activity.totalViews') }}</p>
+            <p class="heading">{{ $t('campaigns.views') }}</p>
             <p class="title">{{ totalViews }}</p>
           </div>
         </div>
         <div class="column is-4">
           <div class="box has-text-centered">
-            <p class="heading">{{ $t('subscribers.activity.totalClicks') }}</p>
+            <p class="heading">{{ $t('campaigns.clicks') }}</p>
             <p class="title">{{ totalClicks }}</p>
           </div>
         </div>
@@ -30,8 +30,7 @@
       <!-- Campaign Views Section -->
       <div class="section-header mb-4">
         <h5 class="title is-5">
-          <b-icon icon="email-open-outline" size="is-small" />
-          {{ $t('subscribers.activity.campaignViews') }}
+          {{ $t('campaigns.views') }}
         </h5>
       </div>
 
@@ -49,12 +48,11 @@
             </div>
           </b-table-column>
 
-          <b-table-column v-slot="props" field="viewCount" :label="$t('subscribers.activity.views')" sortable
-            numeric>
+          <b-table-column v-slot="props" field="viewCount" :label="$t('campaigns.views')" sortable numeric>
             <span class="tag is-light">{{ props.row.viewCount }}</span>
           </b-table-column>
 
-          <b-table-column v-slot="props" field="lastViewedAt" :label="$t('subscribers.activity.lastViewed')" sortable>
+          <b-table-column v-slot="props" field="lastViewedAt" :label="$t('globals.fields.createdAt')" sortable>
             <span v-if="props.row.lastViewedAt">
               {{ $utils.niceDate(props.row.lastViewedAt, true) }}
             </span>
@@ -62,25 +60,23 @@
         </b-table>
       </div>
       <div v-else class="has-text-centered has-text-grey p-6">
-        <b-icon icon="email-outline" size="is-large" />
-        <p class="mt-2">{{ $t('subscribers.activity.noCampaignViews') }}</p>
+        <p class="mt-2">{{ $t('globals.messages.emptyState') }}</p>
       </div>
 
       <!-- Link Clicks Section -->
       <div class="section-header mb-4 mt-6">
         <h5 class="title is-5">
-          <b-icon icon="cursor-default-click-outline" size="is-small" />
-          {{ $t('subscribers.activity.linkClicks') }}
+          {{ $t('campaigns.clicks') }}
         </h5>
       </div>
 
       <div v-if="activity.linkClicks && activity.linkClicks.length > 0">
         <b-table :data="activity.linkClicks" hoverable default-sort="lastClickedAt" default-sort-direction="desc"
           paginated :per-page="10" :pagination-simple="false" class="link-clicks-table">
-          <b-table-column v-slot="props" field="url" :label="$t('subscribers.activity.url')" sortable>
-            <a :href="props.row.url" target="_blank" rel="noopener noreferrer" class="is-size-7">
+          <b-table-column v-slot="props" field="url" :label="$t('globals.terms.url')" cell-class="link-click-url"
+            sortable>
+            <a :href="props.row.url" target="_blank" rel="noopener noreferrer">
               {{ props.row.url }}
-              <b-icon icon="open-in-new" size="is-small" />
             </a>
           </b-table-column>
 
@@ -91,16 +87,15 @@
               </router-link>
             </div>
             <div v-else>
-              <em class="has-text-grey">{{ $t('subscribers.activity.campaignDeleted') }}</em>
+              &mdash;
             </div>
           </b-table-column>
 
-          <b-table-column v-slot="props" field="clickCount" :label="$t('subscribers.activity.clicks')" sortable
-            numeric>
+          <b-table-column v-slot="props" field="clickCount" :label="$t('campaigns.clicks')" sortable numeric>
             <span class="tag is-light">{{ props.row.clickCount }}</span>
           </b-table-column>
 
-          <b-table-column v-slot="props" field="lastClickedAt" :label="$t('subscribers.activity.lastClicked')" sortable>
+          <b-table-column v-slot="props" field="lastClickedAt" :label="$t('globals.fields.createdAt')" sortable>
             <span v-if="props.row.lastClickedAt">
               {{ $utils.niceDate(props.row.lastClickedAt, true) }}
             </span>
@@ -108,8 +103,7 @@
         </b-table>
       </div>
       <div v-else class="has-text-centered has-text-grey p-6">
-        <b-icon icon="link-variant-off" size="is-large" />
-        <p class="mt-2">{{ $t('subscribers.activity.noLinkClicks') }}</p>
+        <p class="mt-2">{{ $t('globals.messages.emptyState') }}</p>
       </div>
     </div>
   </div>
@@ -165,23 +159,3 @@ export default Vue.extend({
   },
 });
 </script>
-
-<style scoped>
-.subscriber-activity {
-  min-height: 300px;
-}
-
-.section-header {
-  border-bottom: 1px solid #dbdbdb;
-  padding-bottom: 0.5rem;
-}
-
-.box {
-  height: 100%;
-}
-
-.campaign-views-table,
-.link-clicks-table {
-  margin-top: 1rem;
-}
-</style>
