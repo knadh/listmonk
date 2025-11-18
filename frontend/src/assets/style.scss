@@ -1357,3 +1357,241 @@ th.role-toggle-select a {
     width: auto;
   }
 }
+
+/* Dark mode styles */
+#app.dark-mode {
+  background: #1a1a1a;
+  color: #e0e0e0;
+
+  .navbar {
+    background: #2d2d2d;
+    color: #e0e0e0;
+  }
+
+  .navbar-item, .navbar-link {
+    color: #e0e0e0;
+
+    &:hover {
+      background: #3a3a3a;
+      color: #ffffff;
+    }
+  }
+
+  .navbar-dropdown {
+    background: #2d2d2d;
+    border-top-color: #3a3a3a;
+
+    .navbar-item {
+      color: #e0e0e0;
+
+      &:hover {
+        background: #3a3a3a;
+      }
+    }
+  }
+
+  .wrapper {
+    background: #1a1a1a;
+  }
+
+  .sidebar {
+    background: #2d2d2d;
+    box-shadow: 0 0 3px #000;
+
+    .menu-list a {
+      color: #e0e0e0;
+
+      &:hover {
+        background: #3a3a3a;
+        color: #ffffff;
+      }
+
+      &.is-active, &.router-link-exact-active {
+        background: #3a3a3a;
+        color: $primary;
+      }
+    }
+  }
+
+  .main {
+    background: #1a1a1a;
+    color: #e0e0e0;
+  }
+
+  .box {
+    background: #2d2d2d;
+    border-color: #3a3a3a;
+    box-shadow: 2px 2px 0 #1a1a1a;
+    color: #e0e0e0;
+  }
+
+  .table {
+    background: #2d2d2d;
+    color: #e0e0e0;
+
+    thead th {
+      background: #3a3a3a;
+      border-color: #4a4a4a;
+      color: #e0e0e0;
+    }
+
+    tbody td {
+      border-color: #3a3a3a;
+      color: #e0e0e0;
+    }
+
+    tbody tr:hover {
+      background: #3a3a3a;
+    }
+  }
+
+  .input, .textarea, .select select {
+    background: #3a3a3a;
+    border-color: #4a4a4a;
+    color: #e0e0e0;
+    box-shadow: 2px 2px 0 #2d2d2d;
+
+    &::placeholder {
+      color: #8a8a8a;
+    }
+
+    &:focus, &:active {
+      border-color: $primary;
+      box-shadow: 0 0 0 0.125em rgba($primary, 0.25);
+    }
+  }
+
+  .taginput .taginput-container.is-focusable {
+    background: #3a3a3a;
+    border-color: #4a4a4a;
+    box-shadow: 2px 2px 0 #2d2d2d;
+  }
+
+  .modal-background {
+    background: rgba(0, 0, 0, 0.7);
+  }
+
+  .modal-content, .modal.dialog .modal-card {
+    background: #2d2d2d;
+    border-color: #3a3a3a;
+    box-shadow: 0 0 10px #000;
+  }
+
+  .modal-card-head, .modal-card-body, .modal-card-foot {
+    background: #2d2d2d;
+    border-color: #3a3a3a;
+    color: #e0e0e0;
+  }
+
+  .notification {
+    background: #3a3a3a;
+    color: #e0e0e0;
+
+    &.is-danger {
+      background: #3a3a3a;
+      border-left-color: $red;
+    }
+
+    &.is-success {
+      background: #3a3a3a;
+      border-left-color: $green;
+    }
+
+    &.is-info {
+      background: #3a3a3a;
+      border-left-color: $primary;
+    }
+  }
+
+  .title, .subtitle, label, .label {
+    color: #e0e0e0;
+  }
+
+  .help {
+    color: #a0a0a0;
+  }
+
+  code {
+    background: #3a3a3a;
+    color: #e0e0e0;
+  }
+
+  pre {
+    background: #3a3a3a;
+    border-color: #4a4a4a;
+    color: #e0e0e0;
+  }
+
+  .button {
+    &:not(.is-primary) {
+      background: #3a3a3a;
+      border-color: #4a4a4a;
+      color: #e0e0e0;
+
+      &:hover {
+        background: #4a4a4a;
+        border-color: #5a5a5a;
+      }
+    }
+  }
+
+  .dropdown-content {
+    background: #2d2d2d;
+    box-shadow: 0 0.5em 1em -0.125em rgba(0, 0, 0, 0.5);
+  }
+
+  .dropdown-item {
+    color: #e0e0e0;
+
+    &:hover {
+      background: #3a3a3a;
+    }
+  }
+
+  .b-tabs .tab-content {
+    background: #2d2d2d;
+    border-color: #3a3a3a;
+    box-shadow: 2px 2px 0 #1a1a1a;
+  }
+
+  .tabs li.is-active a {
+    background: #2d2d2d;
+    border-bottom-color: #2d2d2d;
+    color: $primary;
+  }
+
+  .tabs a {
+    color: #e0e0e0;
+    border-bottom-color: #3a3a3a;
+
+    &:hover {
+      border-bottom-color: #4a4a4a;
+      color: #ffffff;
+    }
+  }
+
+  .user-avatar span {
+    background-color: #4a4a4a;
+    color: #e0e0e0;
+  }
+
+  .level-item {
+    background-color: #2d2d2d;
+  }
+
+  .autocomplete .dropdown-content {
+    background-color: #2d2d2d;
+    border-color: $primary;
+
+    a.dropdown-item {
+      &:hover, &.is-hovered {
+        background-color: #3a3a3a;
+        color: $primary;
+      }
+    }
+  }
+
+  .menu-list a {
+    color: #e0e0e0;
+  }
+}

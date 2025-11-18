@@ -32,6 +32,12 @@
             </router-link>
           </b-navbar-item>
           <b-navbar-item href="#">
+            <a href="#" @click.prevent="toggleDarkMode">
+              <b-icon :icon="isDarkMode ? 'white-balance-sunny' : 'moon-waning-crescent'" />
+              {{ isDarkMode ? 'Light Mode' : 'Dark Mode' }}
+            </a>
+          </b-navbar-item>
+          <b-navbar-item href="#">
             <a href="#" @click.prevent="doLogout"><b-icon icon="logout-variant" /> {{ $t('users.logout') }}</a>
           </b-navbar-item>
         </b-navbar-dropdown>
@@ -165,6 +171,21 @@ export default Vue.extend({
       });
     },
 
+    toggleDarkMode() {
+      const newValue = !this.isDarkMode;
+      this.$store.commit('setDarkMode', newValue);
+      this.$utils.setPref('darkMode', newValue);
+    },
+
+    applyDarkMode(isDark) {
+      const appElement = document.getElementById('app');
+      if (isDark) {
+        appElement.classList.add('dark-mode');
+      } else {
+        appElement.classList.remove('dark-mode');
+      }
+    },
+
     listenEvents() {
       const reMatchLog = /(.+?)\.go:\d+:(.+?)$/im;
       const evtSource = new EventSource(uris.errorEvents, { withCredentials: true });
@@ -185,7 +206,7 @@ export default Vue.extend({
   },
 
   computed: {
-    ...mapState(['serverConfig', 'profile']),
+    ...mapState(['serverConfig', 'profile', 'isDarkMode']),
 
     isGlobalNotices() {
       return (this.serverConfig.needs_restart
@@ -204,10 +225,23 @@ export default Vue.extend({
     },
   },
 
+  watch: {
+    isDarkMode(newVal) {
+      this.applyDarkMode(newVal);
+    },
+  },
+
   mounted() {
     // Lists is required across different views. On app load, fetch the lists
     // and have them in the store.
     this.$api.getLists({ minimal: true, per_page: 'all' });
+
+    // Initialize dark mode from localStorage
+    const savedDarkMode = this.$utils.getPref('darkMode');
+    if (savedDarkMode !== null) {
+      this.$store.commit('setDarkMode', savedDarkMode);
+    }
+    this.applyDarkMode(this.isDarkMode);
 
     window.addEventListener('resize', () => {
       this.windowWidth = window.innerWidth;

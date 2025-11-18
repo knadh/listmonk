@@ -18,6 +18,9 @@ export default new Vuex.Store({
     // and the response interceptor marks it as false. The model keys are being
     // pre-initialised here to fix "reactivity" issues on first loads.
     loading: Object.keys(models).reduce((obj, cur) => ({ ...obj, [cur]: false }), {}),
+
+    // Dark mode state
+    isDarkMode: false,
   },
 
   mutations: {
@@ -32,6 +35,11 @@ export default new Vuex.Store({
     // invoked by API requests in `http`.
     setLoading(state, { model, status }) {
       state.loading[model] = status;
+    },
+
+    // Toggle dark mode
+    setDarkMode(state, isDark) {
+      state.isDarkMode = isDark;
     },
   },
 
