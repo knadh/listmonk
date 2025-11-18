@@ -660,6 +660,14 @@
     "users.userRoles": "User roles",
     "users.username": "Username",
     "users.usernameHelp": "Used with password login",
+    "users.forgotPassword": "Forgot password?",
+    "users.resetLinkSent": "If the account is active, you will receive a password reset email.",
+    "users.resetPassword": "Reset password",
+    "users.newPassword": "New password",
+    "users.invalidResetLink": "Invalid or expired reset link",
+    "email.forgotPassword.subject": "Reset your password",
+    "email.forgotPassword.button": "Reset password",
+    "email.forgotPassword.info": "If you didn't request this, you can safely ignore this email. This link will expire in 30 minutes.",
     "settings.security.CORSDomains": "Allowed origins",
     "settings.security.CORSDomainsHelp": "Permit accessing API endpoints via browser Javascript from external domains. Enter one domain per line (e.g: https://example.com). Leave empty to disable CORS or add * to allow all (not recommended)."
 }
