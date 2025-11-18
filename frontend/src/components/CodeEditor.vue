@@ -50,6 +50,9 @@ export default {
       case 'html':
         langs = [html()];
         break;
+      case 'mjml':
+        langs = [html()];
+        break;
       case 'css':
         langs = [css()];
         break;
