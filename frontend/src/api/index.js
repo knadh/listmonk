@@ -169,6 +169,11 @@ export const getSubscriber = async (id) => http.get(
   { loading: models.subscribers },
 );
 
+export const getSubscriberActivity = async (id) => http.get(
+  `/api/subscribers/${id}/activity`,
+  { loading: models.subscribers },
+);
+
 export const getSubscriberBounces = async (id) => http.get(
   `/api/subscribers/${id}/bounces`,
   { loading: models.bounces },

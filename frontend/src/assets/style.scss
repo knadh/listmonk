@@ -665,7 +665,7 @@ body.is-noscroll {
 /* Tabs */
 .b-tabs {
   .tab-content {
-    padding: 30px 20px;
+    padding: 15px;
 
     border: 1px solid #ddd;
     border-width: 0 1px 1px 1px;
@@ -823,6 +823,13 @@ section.lists {
 
   .blocklisted {
     color: red;
+  }
+
+  td.link-click-url {
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 }
 
@@ -1082,6 +1089,9 @@ section.analytics {
 
 /* Settings */
 .settings {
+  .b-tabs .tab-content {
+    padding: 30px 20px;
+  }
   .disabled {
     opacity: 0.30;
   }
