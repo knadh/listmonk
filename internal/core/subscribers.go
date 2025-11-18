@@ -215,6 +215,19 @@ func (c *Core) GetSubscriberProfileForExport(id int, uuid string) (models.Subscr
 	return out, nil
 }
 
+// GetSubscriberActivity returns the subscriber's campaign views and link clicks for the Activity tab.
+func (c *Core) GetSubscriberActivity(id int) (models.SubscriberActivity, error) {
+	var out models.SubscriberActivity
+	if err := c.q.GetSubscriberActivity.Get(&out, id); err != nil {
+		c.log.Printf("error fetching subscriber activity: %v", err)
+
+		return models.SubscriberActivity{}, echo.NewHTTPError(http.StatusInternalServerError,
+			c.i18n.Ts("globals.messages.errorFetching", "name", "activity", "error", err.Error()))
+	}
+
+	return out, nil
+}
+
 // ExportSubscribers returns an iterator function that provides lists of subscribers based
 // on the given criteria in an exportable form. The iterator function returned can be called
 // repeatedly until there are nil subscribers. It's an iterator because exports can be extremely
