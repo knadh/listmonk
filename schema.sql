@@ -530,50 +530,32 @@ $$ LANGUAGE plpgsql;
 
 -- Process Bounces
 CREATE OR REPLACE FUNCTION check_bounce_threshold()
-RETURNS TRIGGER AS $$
-DECLARE
-    bounce_count INT;
+RETURNS VOID AS $$
 BEGIN
-    -- Count how many bounces this subscriber has
-    SELECT COUNT(*)
-    INTO bounce_count
-    FROM bounces
-    WHERE subscriber_id = NEW.subscriber_id;
-
-    -- If bounce count exceeds 3, mark subscriber as unverified
-    IF bounce_count > 3 THEN
-        UPDATE subscribers
-        SET attribs = jsonb_set(attribs, '{verified}', 'false'::jsonb, true)
-        WHERE id = NEW.subscriber_id;
-    END IF;
-
-    RETURN NEW;  -- allow insert to continue
+    -- Update all subscribers whose bounce count in the 'bounces' table
+    -- is greater than 3, marking them as unverified ('false').
+    UPDATE subscribers s
+    SET attribs = jsonb_set(s.attribs, '{verified}', 'false'::jsonb, true)
+    WHERE s.id IN (
+        SELECT b.subscriber_id
+        FROM bounces b
+        GROUP BY b.subscriber_id
+        HAVING COUNT(*) > 3
+    )
+    -- OPTIONAL: Only update if they aren't already marked unverified 
+    -- (This prevents unnecessary writes)
+    AND (s.attribs->>'verified')::boolean IS DISTINCT FROM false;
 END;
 $$ LANGUAGE plpgsql;
-
-CREATE TRIGGER bounce_threshold_trigger
-AFTER INSERT ON bounces
-FOR EACH ROW
-EXECUTE FUNCTION check_bounce_threshold();
 
 -- Process Unverified users as verified
 
 CREATE OR REPLACE FUNCTION mark_verified_on_view()
-RETURNS TRIGGER AS $$
+RETURNS VOID AS $$
 BEGIN
     -- Only update if subscriber exists and is currently unverified
     UPDATE subscribers
     SET attribs = jsonb_set(attribs, '{verified}', 'true'::jsonb, true)
-    WHERE id = NEW.subscriber_id
-      AND (attribs->>'verified')::boolean IS DISTINCT FROM true;
-
-    RETURN NEW;
+    WHERE (attribs->>'verified')::boolean IS DISTINCT FROM true;
 END;
 $$ LANGUAGE plpgsql;
-
-CREATE TRIGGER campaign_view_verified_trigger
-AFTER INSERT ON campaign_views
-FOR EACH ROW
-WHEN (NEW.subscriber_id IS NOT NULL)
-EXECUTE FUNCTION mark_verified_on_view();
-
