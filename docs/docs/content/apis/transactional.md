@@ -20,6 +20,7 @@ Allows sending transactional messages to one or more subscribers via a preconfig
 | subscriber_ids    | number\[\]  |          | Multiple subscriber IDs as an alternative to `subscriber_id`.              |
 | template_id       | number    | Yes      | ID of the transactional template to be used for the message.               |
 | from_email        | string    |          | Optional sender email.                                                     |
+| subject           | string    |          | Optional subject. If empty, the subject defined on the template is used    |
 | data              | JSON      |          | Optional nested JSON map. Available in the template as `{{ .Tx.Data.* }}`. |
 | headers           | JSON\[\]    |          | Optional array of email headers.                                           |
 | messenger         | string    |          | Messenger to send the message. Default is `email`.                         |

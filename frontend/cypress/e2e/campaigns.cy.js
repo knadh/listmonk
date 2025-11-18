@@ -25,10 +25,12 @@ describe('Campaigns', () => {
     cy.wait(500);
 
     cy.get('a[data-cy=btn-attach]').click();
+    cy.get('[data-cy=btn-toggle-upload]').click();
     cy.get('input[type=file]').attachFile('example.json');
+    cy.get('form[data-cy="upload"] button').click();
     cy.get('.modal button.is-primary:eq(0)').click();
     cy.wait(500);
-    cy.get('.modal td[data-label=Name] a.link').click();
+    cy.get('.modal a.thumb-link').click();
     cy.get('button[data-cy=btn-save]').click();
     cy.wait(500);
 

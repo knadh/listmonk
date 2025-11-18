@@ -23,14 +23,14 @@
           </form>
         </div>
         <div class="column is-narrow">
-          <b-button @click="onToggleForm" icon-left="file-upload-outline">
+          <b-button @click="onToggleForm" icon-left="file-upload-outline" data-cy="btn-toggle-upload">
             {{ $t('media.upload') }}
           </b-button>
         </div>
       </div>
 
       <b-collapse v-model="showUploadForm" animation="">
-        <form @submit.prevent="onSubmit" class="mb-6">
+        <form @submit.prevent="onSubmit" class="mb-6" data-cy="upload">
           <div>
             <b-field :label="$t('media.upload')">
               <b-upload v-model="form.files" drag-drop multiple xaccept=".png,.jpg,.jpeg,.gif,.svg" expanded>

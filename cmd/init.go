@@ -117,6 +117,8 @@ type Config struct {
 				Secret  string `koanf:"secret"`
 			} `koanf:"hcaptcha"`
 		} `koanf:"captcha"`
+
+		CorsOrigins []string `koanf:"cors_origins"`
 	} `koanf:"security"`
 
 	Appearance struct {
@@ -917,7 +919,7 @@ func initCaptcha() *captcha.Captcha {
 	if err := ko.Unmarshal("security.captcha", &opt); err != nil {
 		lo.Fatalf("error loading captcha config: %v", err)
 	}
-	
+
 	return captcha.New(opt)
 }
 
@@ -1005,6 +1007,7 @@ func initTplFuncs(i *i18n.I18n, u *UrlConfig) template.FuncMap {
 	sprigFuncs := sprig.GenericFuncMap()
 	delete(sprigFuncs, "env")
 	delete(sprigFuncs, "expandenv")
+	delete(sprigFuncs, "getHostByName")
 
 	maps.Copy(funcs, sprigFuncs)
 
@@ -1038,6 +1041,7 @@ func initAuth(co *core.Core, db *sql.DB, ko *koanf.Koanf) (bool, *auth.Auth) {
 		},
 		SetCookie: func(cookie *http.Cookie, w any) error {
 			c := w.(echo.Context)
+			cookie.SameSite = http.SameSiteLaxMode
 			c.SetCookie(cookie)
 			return nil
 		},

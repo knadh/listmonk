@@ -323,9 +323,17 @@ func (a *App) createOIDCUser(claims auth.OIDCclaim, c echo.Context) (auth.User, 
 // doLogin logs a user in with a username and password.
 func (a *App) doLogin(c echo.Context) error {
 	var (
+		startTime = time.Now()
 		username = strings.TrimSpace(c.FormValue("username"))
 		password = strings.TrimSpace(c.FormValue("password"))
 	)
+	
+	// Ensure timing mitigation is applied regardless of early returns
+	defer func() {
+		if elapsed := time.Since(startTime).Milliseconds(); elapsed < 100 {
+			time.Sleep(time.Duration(100-elapsed) * time.Millisecond)
+		}
+	}()
 
 	if !strHasLen(username, 3, stdInputMaxLen) {
 		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.Ts("globals.messages.invalidFields", "name", "username"))
@@ -338,11 +346,6 @@ func (a *App) doLogin(c echo.Context) error {
 	user, err := a.core.LoginUser(username, password)
 	if err != nil {
 		return err
-	}
-
-	// Resist potential constant-time-comparison attacks with a min response time.
-	if ms := time.Since(time.Now()).Milliseconds(); ms < 100 {
-		time.Sleep(time.Duration(ms))
 	}
 
 	// Set the session in the DB and cookie.

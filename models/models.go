@@ -172,6 +172,12 @@ type SubscriberExportProfile struct {
 	LinkClicks    json.RawMessage `db:"link_clicks" json:"link_clicks,omitempty"`
 }
 
+// SubscriberActivity represents a subscriber's campaign views and link clicks for the Activity tab.
+type SubscriberActivity struct {
+	CampaignViews json.RawMessage `db:"campaign_views" json:"campaign_views"`
+	LinkClicks    json.RawMessage `db:"link_clicks" json:"link_clicks"`
+}
+
 // JSON is the wrapper for reading and writing arbitrary JSONB fields from the DB.
 type JSON map[string]any
 
@@ -406,11 +412,11 @@ type TxMessage struct {
 	Headers     Headers        `json:"headers"`
 	ContentType string         `json:"content_type"`
 	Messenger   string         `json:"messenger"`
+	Subject     string         `json:"subject"`
 
 	// File attachments added from multi-part form data.
 	Attachments []Attachment `json:"-"`
 
-	Subject    string             `json:"-"`
 	Body       []byte             `json:"-"`
 	Tpl        *template.Template `json:"-"`
 	SubjectTpl *txttpl.Template   `json:"-"`
@@ -673,15 +679,35 @@ func (m *TxMessage) Render(sub Subscriber, tpl *Template) error {
 	copy(m.Body, b.Bytes())
 	b.Reset()
 
+	// Was a subject provided in the message?
+	var (
+		subjTpl *txttpl.Template
+		subject = m.Subject
+	)
+	if subject != "" {
+		if strings.Contains(m.Subject, "{{") {
+			// If the subject has a template string, render that.
+			s, err := txttpl.New(BaseTpl).Funcs(txttpl.FuncMap(nil)).Parse(m.Subject)
+			if err != nil {
+				return fmt.Errorf("error compiling subject: %v", err)
+			}
+			subjTpl = s
+		}
+	} else {
+		// Use the subject from the template.
+		subject = tpl.Subject
+		subjTpl = tpl.SubjectTpl
+	}
+
 	// If the subject is also a template, render that.
-	if tpl.SubjectTpl != nil {
-		if err := tpl.SubjectTpl.ExecuteTemplate(&b, BaseTpl, data); err != nil {
+	if subjTpl != nil {
+		if err := subjTpl.ExecuteTemplate(&b, BaseTpl, data); err != nil {
 			return err
 		}
 		m.Subject = b.String()
 		b.Reset()
 	} else {
-		m.Subject = tpl.Subject
+		m.Subject = subject
 	}
 
 	return nil

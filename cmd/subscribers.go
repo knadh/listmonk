@@ -74,6 +74,25 @@ func (a *App) GetSubscriber(c echo.Context) error {
 	return c.JSON(http.StatusOK, okResp{out})
 }
 
+// GetSubscriberActivity handles the retrieval of a subscriber's campaign views and link clicks.
+func (a *App) GetSubscriberActivity(c echo.Context) error {
+	user := auth.GetUser(c)
+
+	// Check if the user has access to at least one of the lists on the subscriber.
+	id := getID(c)
+	if err := a.hasSubPerm(user, []int{id}); err != nil {
+		return err
+	}
+
+	// Fetch the subscriber activity from the DB.
+	out, err := a.core.GetSubscriberActivity(id)
+	if err != nil {
+		return err
+	}
+
+	return c.JSON(http.StatusOK, okResp{out})
+}
+
 // QuerySubscribers handles querying subscribers based on an arbitrary SQL expression.
 func (a *App) QuerySubscribers(c echo.Context) error {
 	// Get the authenticated user.
@@ -217,7 +236,7 @@ func (a *App) CreateSubscriber(c echo.Context) error {
 	listIDs := user.FilterListsByPerm(auth.PermTypeManage, req.Lists)
 
 	// Insert the subscriber into the DB.
-	sub, _, err := a.core.InsertSubscriber(req.Subscriber, listIDs, nil, req.PreconfirmSubs)
+	sub, _, err := a.core.InsertSubscriber(req.Subscriber, listIDs, nil, req.PreconfirmSubs, false)
 	if err != nil {
 		return err
 	}
@@ -294,7 +313,7 @@ func (a *App) UpdateSubscriber(c echo.Context) error {
 
 	// Update the subscriber in the DB.
 	id := getID(c)
-	out, _, err := a.core.UpdateSubscriberWithLists(id, req.Subscriber, listIDs, nil, req.PreconfirmSubs, true)
+	out, _, err := a.core.UpdateSubscriberWithLists(id, req.Subscriber, listIDs, nil, req.PreconfirmSubs, true, false)
 	if err != nil {
 		return err
 	}

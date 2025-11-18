@@ -60,8 +60,8 @@ func (p *Postmark) ProcessBounce(b []byte, c echo.Context) ([]models.Bounce, err
 		return nil, fmt.Errorf("error unmarshalling postmark notification: %v", err)
 	}
 
-	// Ignore non-bounce messages.
-	if n.RecordType != "Bounce" {
+	// Ignore irrelevant messages.
+	if n.RecordType != "Bounce" && n.RecordType != "SpamComplaint" {
 		return nil, nil
 	}
 

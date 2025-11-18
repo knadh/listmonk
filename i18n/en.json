@@ -246,6 +246,7 @@
     "globals.terms.users": "Users",
     "globals.terms.year": "Year | Years",
     "globals.terms.import": "Import",
+    "globals.terms.url": "URL",
     "import.alreadyRunning": "An import is already running. Wait for it to finish or stop it before trying again.",
     "import.blocklist": "Blocklist",
     "import.csvDelim": "CSV delimiter",
@@ -606,6 +607,7 @@
     "subscribers.status.unconfirmed": "Unconfirmed",
     "subscribers.status.unsubscribed": "Unsubscribed",
     "subscribers.subscribersDeleted": "{num} subscriber(s) deleted",
+    "subscribers.activity": "Activity",
     "templates.cantDeleteDefault": "Cannot delete non-existent or default template",
     "templates.default": "Default",
     "templates.dummyName": "Dummy campaign",
@@ -657,5 +659,7 @@
     "users.userRole": "User role | User roles",
     "users.userRoles": "User roles",
     "users.username": "Username",
-    "users.usernameHelp": "Used with password login"
+    "users.usernameHelp": "Used with password login",
+    "settings.security.CORSDomains": "Allowed origins",
+    "settings.security.CORSDomainsHelp": "Permit accessing API endpoints via browser Javascript from external domains. Enter one domain per line (e.g: https://example.com). Leave empty to disable CORS or add * to allow all (not recommended)."
 }

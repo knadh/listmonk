@@ -126,7 +126,7 @@
             </b-tooltip>
           </a>
 
-          <router-link v-if="$can('lists:import')" :to="{ name: 'import', query: { list_id: props.row.id } }"
+          <router-link v-if="$can('subscribers:import')" :to="{ name: 'import', query: { list_id: props.row.id } }"
             data-cy="btn-import">
             <b-tooltip :label="$t('import.title')" type="is-dark">
               <b-icon icon="file-upload-outline" size="is-small" />

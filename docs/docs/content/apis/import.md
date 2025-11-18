@@ -71,8 +71,8 @@ Send a CSV (optionally ZIP compressed) file to import subscribers. Use a multipa
 |:----------|:---------|:---------|:-----------------------------------------------------------------------------------------------------------------------------------|
 | mode      | string   | Yes      | `subscribe` or `blocklist`                                                                                                         |
 | delim     | string   | Yes      | Single character indicating delimiter used in the CSV file, eg: `,`                                                                |
-| lists     | []number | Yes      | Single character indicating delimiter used in the CSV file, eg: `,`                                                                |
-| overwrite | bool     | Yes      | Whether to overwrite the subscriber parameters including subscriptions or ignore records that are already present in the database. |
+| lists     | []number |          | Array of list IDs to subscribe to.                                                                                                 |
+| overwrite | bool     |          | Whether to overwrite the subscriber parameters including subscriptions or ignore records that are already present in the database. |
 
 ##### Example Request
 

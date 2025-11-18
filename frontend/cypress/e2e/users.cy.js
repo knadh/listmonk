@@ -171,7 +171,7 @@ describe('Login ', () => {
     cy.get('tbody tr').should('have.length', 2);
     cy.get('tbody tr:nth-child(1) [data-cy=btn-edit]').should('exist');
     cy.get('tbody tr:nth-child(1) [data-cy=btn-delete]').should('exist');
-    cy.get('tbody tr:nth-child(2) [data-cy=btn-edit]').should('not.exist');
-    cy.get('tbody tr:nth-child(2) [data-cy=btn-delete]').should('not.exist');
+    cy.get('tbody tr:nth-child(2) [data-cy=btn-edit]').should('exist');
+    cy.get('tbody tr:nth-child(2) [data-cy=btn-delete]').should('exist');
   });
 });

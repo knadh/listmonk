@@ -68,6 +68,12 @@ async function initConfig(app) {
       return true;
     }
 
+    // If the user role has global list permissions, return true.
+    const can = Vue.prototype.$can('lists:get_all', 'lists:manage_all');
+    if (can) {
+      return true;
+    }
+
     return profile.listRole.lists.some((list) => list.id === id && list.permissions.includes(perm));
   };
 

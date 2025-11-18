@@ -65,7 +65,9 @@ export default {
         iframe.contentWindow.EmailBuilder.render('visual-editor-container', {
           data: {},
           onChange: (data, body) => {
-            this.$emit('change', { source: JSON.stringify(data), body });
+            // Hack to fix quotes in Go {{ templating }} in the HTML body.
+            const tpl = body.replace(/\{\{[^}]*\}\}/g, (match) => match.replace(/&quot;/g, '"'));
+            this.$emit('change', { source: JSON.stringify(data), body: tpl });
           },
         });
       }
