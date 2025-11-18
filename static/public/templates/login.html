@@ -23,7 +23,7 @@
 		</div>
 	</form>
 	{{ end }}
-
+	
 	{{ if .Data.OIDCProvider }}
 	<form method="post" action="/auth/oidc">
 		<div>
@@ -36,6 +36,8 @@
 		</div>
 	</form>
 	{{ end }}
+
+	<p class="center small"><a href="{{ .RootURL }}/admin/forgot">{{ .L.T "users.forgotPassword" }}</a></p>
 
 </section>
 

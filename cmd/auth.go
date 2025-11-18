@@ -1,17 +1,23 @@
 package main
 
 import (
+	"bytes"
 	"encoding/base64"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 	"net/mail"
 	"net/url"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/knadh/listmonk/internal/auth"
+	"github.com/knadh/listmonk/internal/i18n"
+	"github.com/knadh/listmonk/internal/notifs"
 	"github.com/knadh/listmonk/internal/utils"
+	"github.com/knadh/listmonk/models"
 	"github.com/labstack/echo/v4"
 	"github.com/zerodha/simplesessions/v3"
 	"gopkg.in/volatiletech/null.v6"
@@ -34,12 +40,41 @@ type oidcState struct {
 	Next  string `json:"next"`
 }
 
-var oidcProviders = map[string]struct{}{
-	"google.com":          {},
-	"microsoftonline.com": {},
-	"auth0.com":           {},
-	"github.com":          {},
+type resetEntry struct {
+	Token     string
+	Email     string
+	Timestamp time.Time
 }
+
+type forgotPasswordTpl struct {
+	Title       string
+	Description string
+	Error       string
+}
+
+type resetPasswordTpl struct {
+	Title       string
+	Description string
+	Token       string
+	Email       string
+	Error       string
+}
+
+var (
+	oidcProviders = map[string]struct{}{
+		"google.com":          {},
+		"microsoftonline.com": {},
+		"auth0.com":           {},
+		"github.com":          {},
+	}
+
+	// In-memory map to store password reset tokens. This is a good-enough, simple implementation
+	// that's a fair tradeoff compared to full fledged database state management for reset tokens.
+	pwdResetTokens = make(map[string]resetEntry)
+	resetMu        sync.Mutex
+)
+
+const passwordExpiryTTL = 30 * time.Minute
 
 // LoginPage renders the login page and handles the login form.
 func (a *App) LoginPage(c echo.Context) error {
@@ -324,10 +359,10 @@ func (a *App) createOIDCUser(claims auth.OIDCclaim, c echo.Context) (auth.User, 
 func (a *App) doLogin(c echo.Context) error {
 	var (
 		startTime = time.Now()
-		username = strings.TrimSpace(c.FormValue("username"))
-		password = strings.TrimSpace(c.FormValue("password"))
+		username  = strings.TrimSpace(c.FormValue("username"))
+		password  = strings.TrimSpace(c.FormValue("password"))
 	)
-	
+
 	// Ensure timing mitigation is applied regardless of early returns
 	defer func() {
 		if elapsed := time.Since(startTime).Milliseconds(); elapsed < 100 {
@@ -421,4 +456,193 @@ func (a *App) doFirstTimeSetup(c echo.Context) error {
 	}
 
 	return nil
+}
+
+// ForgotPage renders the forgot password page and handles the forgot password form.
+func (a *App) ForgotPage(c echo.Context) error {
+	// Process the forgot password request.
+	if c.Request().Method == http.MethodPost {
+		return a.doForgotPassword(c)
+	}
+
+	// Render the forgot page.
+	out := forgotPasswordTpl{Title: a.i18n.T("users.forgotPassword")}
+	return c.Render(http.StatusOK, "admin-forgot-password", out)
+}
+
+// ResetPage renders the reset password page and handles the reset password form.
+func (a *App) ResetPage(c echo.Context) error {
+	var (
+		token = strings.TrimSpace(c.QueryParam("token"))
+		email = strings.ToLower(strings.TrimSpace(c.QueryParam("email")))
+	)
+
+	// Validate token and email.
+	resetMu.Lock()
+	entry, exists := pwdResetTokens[email]
+	resetMu.Unlock()
+
+	if !exists || entry.Token != token {
+		return c.Render(http.StatusBadRequest, tplMessage, makeMsgTpl(a.i18n.T("users.resetPassword"), "", a.i18n.T("users.invalidResetLink")))
+	}
+
+	// Check if the token has expired.
+	if time.Since(entry.Timestamp) > passwordExpiryTTL {
+		resetMu.Lock()
+		delete(pwdResetTokens, email)
+		resetMu.Unlock()
+
+		return c.Render(http.StatusBadRequest, tplMessage, makeMsgTpl(a.i18n.T("users.resetPassword"), "", a.i18n.T("users.invalidResetLink")))
+	}
+
+	// Validate that the user exists.
+	_, err := a.core.GetUser(0, "", email)
+	if err != nil {
+		resetMu.Lock()
+		delete(pwdResetTokens, email)
+		resetMu.Unlock()
+		return c.Render(http.StatusBadRequest, tplMessage, makeMsgTpl(a.i18n.T("users.resetPassword"), "", a.i18n.T("users.invalidResetLink")))
+	}
+
+	// Process the reset password request form with the new passwords.
+	if c.Request().Method == http.MethodPost {
+		return a.doResetPassword(c, entry)
+	}
+
+	// Render the reset password form for GET request.
+	return a.renderResetPasswordPage(c, token, email, "")
+}
+
+// renderResetPasswordPage renders the reset password page.
+func (a *App) renderResetPasswordPage(c echo.Context, token, email, errMsg string) error {
+	out := resetPasswordTpl{
+		Title: a.i18n.T("users.resetPassword"),
+		Token: token,
+		Email: email,
+		Error: errMsg,
+	}
+	return c.Render(http.StatusOK, "admin-reset-password", out)
+}
+
+// doForgotPassword handles the forgot password form submission.
+func (a *App) doForgotPassword(c echo.Context) error {
+	var (
+		email = strings.ToLower(strings.TrimSpace(c.FormValue("email")))
+	)
+
+	// Validate email format.
+	if !utils.ValidateEmail(email) {
+		return c.Render(http.StatusOK, tplMessage, makeMsgTpl(a.i18n.T("users.resetPassword"), "", a.i18n.T("users.resetLinkSent")))
+	}
+
+	// Get the user by email.
+	user, err := a.core.GetUser(0, "", email)
+	if err != nil {
+		return c.Render(http.StatusOK, tplMessage, makeMsgTpl(a.i18n.T("users.resetPassword"), "", a.i18n.T("users.resetLinkSent")))
+	}
+
+	// If the password login is disabled, do not proceed, but show success message to prevent email enumeration.
+	if !user.PasswordLogin {
+		return c.Render(http.StatusOK, tplMessage, makeMsgTpl(a.i18n.T("users.resetPassword"), "", a.i18n.T("users.resetLinkSent")))
+	}
+
+	// Generate a random token.
+	token, err := generateRandomString(64)
+	if err != nil {
+		a.log.Printf("error generating reset token: %v", err)
+		return echo.NewHTTPError(http.StatusInternalServerError, a.i18n.T("globals.messages.internalError"))
+	}
+
+	// Store the reset entry in the map.
+	resetMu.Lock()
+	pwdResetTokens[email] = resetEntry{
+		Token:     token,
+		Email:     email,
+		Timestamp: time.Now(),
+	}
+	resetMu.Unlock()
+
+	// Prepare the reset URL.
+	resetURL := fmt.Sprintf("%s/admin/reset?token=%s&email=%s", a.urlCfg.RootURL, token, url.QueryEscape(email))
+
+	// Prepare the email.
+	var msg bytes.Buffer
+	data := struct {
+		ResetURL string
+		L        *i18n.I18n
+	}{
+		ResetURL: resetURL,
+		L:        a.i18n,
+	}
+
+	// Render the email template.
+	if err := notifs.Tpls.ExecuteTemplate(&msg, notifs.TplForgotPassword, data); err != nil {
+		a.log.Printf("error compiling notification template '%s': %v", notifs.TplForgotPassword, err)
+		return echo.NewHTTPError(http.StatusInternalServerError, a.i18n.T("globals.messages.internalError"))
+	}
+
+	subject, body := notifs.GetTplSubject(a.i18n.T("email.forgotPassword.subject"), msg.Bytes())
+
+	// Send the email.
+	if err := a.emailMsgr.Push(models.Message{
+		From:    a.cfg.FromEmail,
+		To:      []string{email},
+		Subject: subject,
+		Body:    body,
+	}); err != nil {
+		a.log.Printf("error sending reset email: %s", err)
+	}
+
+	// Show the success e-mail nonetheless to prevent e-mail enumeration.
+	return c.Render(http.StatusOK, tplMessage, makeMsgTpl(a.i18n.T("users.resetPassword"), "", a.i18n.T("users.resetLinkSent")))
+}
+
+// doResetPassword handles the reset password form submission.
+func (a *App) doResetPassword(c echo.Context, r resetEntry) error {
+	var (
+		password  = c.FormValue("password")
+		password2 = c.FormValue("password2")
+	)
+
+	// Validate password.
+	if !strHasLen(password, 8, stdInputMaxLen) {
+		return a.renderResetPasswordPage(c, r.Token, r.Email, a.i18n.Ts("globals.messages.invalidFields", "name", "password"))
+	}
+	if password != password2 {
+		return a.renderResetPasswordPage(c, r.Token, r.Email, a.i18n.T("users.passwordMismatch"))
+	}
+
+	// Get the user.
+	user, err := a.core.GetUser(0, "", r.Email)
+	if err != nil {
+		resetMu.Lock()
+		delete(pwdResetTokens, r.Email)
+		resetMu.Unlock()
+
+		return c.Render(http.StatusBadRequest, tplMessage, makeMsgTpl(a.i18n.T("users.resetPassword"), "", a.i18n.T("users.invalidResetLink")))
+	}
+
+	// Password login is disabled for the user.
+	if !user.PasswordLogin {
+		return c.Render(http.StatusBadRequest, tplMessage, makeMsgTpl(a.i18n.T("users.resetPassword"), "", a.i18n.T("public.invalidFeature")))
+	}
+
+	user.Password = null.NewString(password, true)
+	if _, err := a.core.UpdateUserProfile(user.ID, user); err != nil {
+		a.log.Printf("error updating user password: %v", err)
+		return echo.NewHTTPError(http.StatusInternalServerError, a.i18n.T("globals.messages.internalError"))
+	}
+
+	// Clean up the reset token.
+	resetMu.Lock()
+	delete(pwdResetTokens, r.Email)
+	resetMu.Unlock()
+
+	// Log the user in directly without forcing a manual login right after password change.
+	if err := a.auth.SaveSession(user, "", c); err != nil {
+		return err
+	}
+
+	// Redirect to the admin page.
+	return c.Redirect(http.StatusFound, uriAdmin)
 }
