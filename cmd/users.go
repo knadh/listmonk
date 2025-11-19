@@ -8,7 +8,9 @@ import (
 	"github.com/knadh/listmonk/internal/auth"
 	"github.com/knadh/listmonk/internal/core"
 	"github.com/knadh/listmonk/internal/utils"
+	"github.com/knadh/listmonk/models"
 	"github.com/labstack/echo/v4"
+	"github.com/pquerna/otp/totp"
 	"gopkg.in/volatiletech/null.v6"
 )
 
@@ -265,6 +267,72 @@ func (a *App) UpdateUserProfile(c echo.Context) error {
 	out.Password = null.String{}
 
 	return c.JSON(http.StatusOK, okResp{out})
+}
+
+// EnableTOTP enables TOTP 2FA for a user after verifying the code.
+func (a *App) EnableTOTP(c echo.Context) error {
+	var (
+		u      = c.Get(auth.UserHTTPCtxKey).(auth.User)
+		secret = strings.TrimSpace(c.FormValue("secret"))
+		code   = strings.TrimSpace(c.FormValue("code"))
+	)
+
+	if secret == "" || code == "" {
+		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("globals.messages.invalidFields"))
+	}
+
+	// If password login is disabled, can't enable TOTP.
+	if !u.PasswordLogin {
+		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("public.invalidFeature"))
+	}
+
+	// If TOTP is already enabled, don't allow re-enabling.
+	if u.TwofaType == models.TwofaTypeTOTP {
+		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("users.twoFAAlreadyEnabled"))
+	}
+
+	// Verify the TOTP code.
+	valid := totp.Validate(code, secret)
+	if !valid {
+		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("users.invalidTOTPCode"))
+	}
+
+	// Enable TOTP in the DB.
+	if err := a.core.SetTwoFA(u.ID, models.TwofaTypeTOTP, secret); err != nil {
+		return err
+	}
+
+	return c.JSON(http.StatusOK, okResp{true})
+}
+
+// DisableTOTP disables TOTP 2FA for a user after verifying the password.
+func (a *App) DisableTOTP(c echo.Context) error {
+	var (
+		u        = c.Get(auth.UserHTTPCtxKey).(auth.User)
+		password = c.FormValue("password")
+	)
+
+	// TOTP isn't enabled.
+	if u.TwofaType != models.TwofaTypeTOTP {
+		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("users.twoFANotEnabled"))
+	}
+
+	// Validate password.
+	if !strHasLen(password, 8, stdInputMaxLen) {
+		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.Ts("globals.messages.invalidFields", "name", "password"))
+	}
+
+	// Verify the password.
+	if _, err := a.core.LoginUser(u.Username, password); err != nil {
+		return echo.NewHTTPError(http.StatusForbidden, a.i18n.T("users.invalidPassword"))
+	}
+
+	// Disable TOTP in the DB.
+	if err := a.core.SetTwoFA(u.ID, models.TwofaTypeNone, ""); err != nil {
+		return err
+	}
+
+	return c.JSON(http.StatusOK, okResp{true})
 }
 
 // cacheUsers fetches (API) users and caches them in the auth module.

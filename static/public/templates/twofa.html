@@ -1,0 +1,25 @@
+{{ define "admin-twofa" }}
+{{ template "header" .}}
+
+<section class="login">
+	<h2>{{ .L.T "users.twoFA"}}</h2>
+	<p>{{ .L.T "users.totpCodeHelp" }}</p>
+
+	<form method="post" action="/admin/login/twofa" class="form">
+		<div>
+			<input type="hidden" name="token" value="{{ .Data.Token }}" />
+			<input type="hidden" name="next" value="{{ .Data.NextURI }}" />
+			<p>
+				<input id="totp_code" type="text" name="totp_code" autofocus required 
+				pattern="[0-9]{6}" maxlength="6" placeholder="• • • • • •" aria-label="{{ .L.T "users.totpCode" }}" />
+			</p>
+
+			{{ if .Data.Error }}<p><span class="error">{{ .Data.Error }}</span></p>{{ end }}
+
+			<p class="submit"><button class="button" type="submit">{{ .L.T "globals.buttons.continue" }}</button></p>
+		</div>
+	</form>
+</section>
+
+{{ template "footer" .}}
+{{ end }}

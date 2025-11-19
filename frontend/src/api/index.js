@@ -542,3 +542,19 @@ export const deleteRole = (id) => http.delete(
   `/api/roles/${id}`,
   { loading: models.userRoles },
 );
+
+// TOTP 2FA APIs
+export const getTOTPQR = (id) => http.get(
+  `/api/users/${id}/twofa/totp`,
+  { camelCase: true },
+);
+
+export const enableTOTP = (id, data) => http.put(
+  `/api/users/${id}/twofa`,
+  data,
+);
+
+export const disableTOTP = (id, data) => http.delete(
+  `/api/users/${id}/twofa`,
+  { data },
+);

@@ -122,6 +122,16 @@ func (c *Core) UpdateUserLogin(id int, avatar string) error {
 	return nil
 }
 
+// SetTwoFA sets or clears the 2FA configuration for a user.
+func (c *Core) SetTwoFA(id int, twofaType, twofaKey string) error {
+	if _, err := c.q.SetUserTwoFA.Exec(id, twofaType, twofaKey); err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError,
+			c.i18n.Ts("globals.messages.errorUpdating", "name", "{globals.terms.user}", "error", pqErrMsg(err)))
+	}
+
+	return nil
+}
+
 // DeleteUsers deletes a given user.
 func (c *Core) DeleteUsers(ids []int) error {
 	res, err := c.q.DeleteUsers.Exec(pq.Array(ids))

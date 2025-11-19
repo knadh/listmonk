@@ -199,6 +199,11 @@ input[disabled] {
     max-width: 24px;
     margin-right: 10px;
   }
+  .login input[name=totp_code] {
+    font-size: 2em;
+    letter-spacing: 5px;
+    text-align: center;
+  }
 
 #btn-back {
   display: none;

@@ -201,6 +201,11 @@ func initHTTPHandlers(e *echo.Echo, a *App) {
 		g.DELETE("/api/users/:id", pm(hasID(a.DeleteUser), "users:manage"))
 		g.POST("/api/logout", a.Logout)
 
+		// TOTP 2FA endpoints
+		g.GET("/api/users/:id/twofa/totp", hasID(a.GenerateTOTPQR))
+		g.PUT("/api/users/:id/twofa", hasID(a.EnableTOTP))
+		g.DELETE("/api/users/:id/twofa", hasID(a.DisableTOTP))
+
 		g.GET("/api/roles/users", pm(a.GetUserRoles, "roles:get"))
 		g.GET("/api/roles/lists", pm(a.GeListRoles, "roles:get"))
 		g.POST("/api/roles/users", pm(a.CreateUserRole, "roles:manage"))
@@ -234,6 +239,8 @@ func initHTTPHandlers(e *echo.Echo, a *App) {
 		// Public admin endpoints (login page, OIDC endpoints, password reset).
 		g.GET(path.Join(uriAdmin, "/login"), a.LoginPage)
 		g.POST(path.Join(uriAdmin, "/login"), a.LoginPage)
+		g.GET(path.Join(uriAdmin, "/login/twofa"), a.TwofaPage)
+		g.POST(path.Join(uriAdmin, "/login/twofa"), a.TwofaPage)
 		g.GET(path.Join(uriAdmin, "/forgot"), a.ForgotPage)
 		g.POST(path.Join(uriAdmin, "/forgot"), a.ForgotPage)
 		g.GET(path.Join(uriAdmin, "/reset"), a.ResetPage)
