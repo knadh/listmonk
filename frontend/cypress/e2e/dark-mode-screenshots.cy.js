@@ -25,10 +25,16 @@ describe('Dark Mode Screenshots', () => {
 
     // Open the user dropdown to show the toggle
     cy.get('.navbar-end .user').click();
-    cy.wait(500);
 
-    // Take screenshot showing the dropdown menu with dark mode toggle
-    cy.screenshot('dark-mode-toggle-menu', { overwrite: true });
+    // Wait for dropdown menu items to be visible
+    cy.contains('Dark Mode').should('be.visible');
+    cy.wait(800);
+
+    // Take full viewport screenshot showing the dropdown menu with dark mode toggle
+    cy.screenshot('dark-mode-toggle-menu', {
+      overwrite: true,
+      capture: 'viewport'
+    });
 
     // Click the dark mode toggle
     cy.contains('Dark Mode').click();
