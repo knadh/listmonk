@@ -82,6 +82,10 @@ const (
 	TemplateTypeCampaign       = "campaign"
 	TemplateTypeCampaignVisual = "campaign_visual"
 	TemplateTypeTx             = "tx"
+
+	// TwoFA types.
+	TwofaTypeNone = "none"
+	TwofaTypeTOTP = "totp"
 )
 
 // Headers represents an array of string maps used to represent SMTP, HTTP headers etc.

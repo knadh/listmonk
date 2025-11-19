@@ -10,6 +10,7 @@ DROP TYPE IF EXISTS template_type CASCADE; CREATE TYPE template_type AS ENUM ('c
 DROP TYPE IF EXISTS user_type CASCADE; CREATE TYPE user_type AS ENUM ('user', 'api');
 DROP TYPE IF EXISTS user_status CASCADE; CREATE TYPE user_status AS ENUM ('enabled', 'disabled');
 DROP TYPE IF EXISTS role_type CASCADE; CREATE TYPE role_type AS ENUM ('user', 'list');
+DROP TYPE IF EXISTS twofa_type CASCADE; CREATE TYPE twofa_type AS ENUM ('none', 'totp');
 
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
 
@@ -335,6 +336,8 @@ CREATE TABLE users (
     user_role_id     INTEGER NOT NULL REFERENCES roles(id) ON DELETE RESTRICT,
     list_role_id     INTEGER NULL REFERENCES roles(id) ON DELETE CASCADE,
     status           user_status NOT NULL DEFAULT 'disabled',
+    twofa_type       twofa_type NOT NULL DEFAULT 'none',
+    twofa_key        TEXT NULL,
     loggedin_at      TIMESTAMP WITH TIME ZONE NULL,
     created_at       TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at       TIMESTAMP WITH TIME ZONE DEFAULT NOW()

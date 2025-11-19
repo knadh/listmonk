@@ -16,5 +16,21 @@ func V5_2_0(db *sqlx.DB, fs stuffbin.FileSystem, ko *koanf.Koanf, lo *log.Logger
 		return err
 	}
 
+	// Add 2FA fields to users table.
+	_, err = db.Exec(`
+		DO $$ BEGIN
+			-- Create twofa_type enum if it doesn't exist
+			IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'twofa_type') THEN
+				CREATE TYPE twofa_type AS ENUM ('none', 'totp');
+			END IF;
+		END $$;
+
+		ALTER TABLE users ADD COLUMN IF NOT EXISTS twofa_type twofa_type NOT NULL DEFAULT 'none';
+		ALTER TABLE users ADD COLUMN IF NOT EXISTS twofa_key TEXT NULL;
+	`)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }

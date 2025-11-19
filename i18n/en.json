@@ -669,5 +669,20 @@
     "email.forgotPassword.button": "Reset password",
     "email.forgotPassword.info": "If you didn't request this, you can safely ignore this email. This link will expire in 30 minutes.",
     "settings.security.CORSDomains": "Allowed origins",
-    "settings.security.CORSDomainsHelp": "Permit accessing API endpoints via browser Javascript from external domains. Enter one domain per line (e.g: https://example.com). Leave empty to disable CORS or add * to allow all (not recommended)."
+    "settings.security.CORSDomainsHelp": "Permit accessing API endpoints via browser Javascript from external domains. Enter one domain per line (e.g: https://example.com). Leave empty to disable CORS or add * to allow all (not recommended).",
+    "users.twoFA": "Two-factor authentication",
+    "users.twoFAEnabled": "Two-factor authentication is on",
+    "users.twoFAEnabledDesc": "Your account is protected with {type} 2FA",
+    "users.twoFANotEnabled": "Enable 2FA for additional security when logging into your account.",
+    "users.twoFAAlreadyEnabled": "Two-factor authentication is already enabled.",
+    "users.enableTOTP": "Enable TOTP 2FA",
+    "users.disableTOTP": "Disable 2FA",
+    "users.twoFADisabled": "Two-factor authentication has been disabled",
+    "users.totpRequired": "TOTP code is required",
+    "users.totpCode": "TOTP code",
+    "users.totpCodeHelp": "Enter the 6-digit code from your authenticator app",
+    "users.totpScanQR": "Scan the QR code with your authenticator app such as Ente or Google Authenticator and enter the TOTP code below.",
+    "users.totpSecret": "Secret key",
+    "users.invalidTOTPCode": "Invalid TOTP code",
+    "users.invalidPassword": "Invalid password"
 }
