@@ -33,7 +33,8 @@
           </b-navbar-item>
           <b-navbar-item href="#">
             <a href="#" @click.prevent="toggleDarkMode">
-              <b-icon :icon="isDarkMode ? 'white-balance-sunny' : 'moon-waning-crescent'" />
+              <b-icon v-if="isDarkMode" icon="white-balance-sunny" />
+              <b-icon v-else icon="moon-waning-crescent" />
               {{ isDarkMode ? 'Light Mode' : 'Dark Mode' }}
             </a>
           </b-navbar-item>
@@ -143,6 +144,10 @@ export default Vue.extend({
         this.activeGroup = {};
       }
     },
+
+    isDarkMode(newVal) {
+      this.applyDarkMode(newVal);
+    },
   },
 
   methods: {
@@ -222,12 +227,6 @@ export default Vue.extend({
 
     isMobile() {
       return this.windowWidth <= 768;
-    },
-  },
-
-  watch: {
-    isDarkMode(newVal) {
-      this.applyDarkMode(newVal);
     },
   },
 

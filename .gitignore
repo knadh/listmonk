@@ -10,6 +10,12 @@ email-builder/.cache/
 email-builder/yarn.lock
 email-builder/dist/
 static/public/static/altcha.umd.js
+# Built Vue app files (have hash suffixes)
+static/public/index.html
+static/public/static/*-*.js
+static/public/static/*-*.css
+static/public/static/*-*.woff2
+static/public/static/tinymce/
 .vscode/
 
 config.toml
