@@ -10,8 +10,8 @@ module.exports = defineConfig({
     LISTMONK_ADMIN_USER: 'admin',
     LISTMONK_ADMIN_PASSWORD: 'listmonk',
   },
-  viewportWidth: 1400,
-  viewportHeight: 950,
+  viewportWidth: 1920,
+  viewportHeight: 1080,
   e2e: {
     experimentalRunAllSpecs: true,
     testIsolation: false,

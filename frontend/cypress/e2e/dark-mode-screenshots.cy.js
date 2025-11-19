@@ -30,10 +30,10 @@ describe('Dark Mode Screenshots', () => {
     cy.contains('Dark Mode').should('be.visible');
     cy.wait(800);
 
-    // Take full viewport screenshot showing the dropdown menu with dark mode toggle
+    // Take full page screenshot showing the dropdown menu
     cy.screenshot('dark-mode-toggle-menu', {
       overwrite: true,
-      capture: 'viewport'
+      capture: 'fullPage'
     });
 
     // Click the dark mode toggle
