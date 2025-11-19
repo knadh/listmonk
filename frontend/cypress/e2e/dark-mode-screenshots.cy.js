@@ -23,9 +23,12 @@ describe('Dark Mode Screenshots', () => {
     // Take dashboard screenshot in light mode
     cy.screenshot('dashboard-light', { overwrite: true });
 
-    // Enable dark mode by clicking the toggle in the user dropdown
+    // Open the user dropdown to show the toggle
     cy.get('.navbar-end .user').click();
     cy.wait(500);
+
+    // Take screenshot showing the dropdown menu with dark mode toggle
+    cy.screenshot('dark-mode-toggle-menu', { overwrite: true });
 
     // Click the dark mode toggle
     cy.contains('Dark Mode').click();
