@@ -95,6 +95,8 @@ type User struct {
 	Type          string           `db:"type" json:"type"`
 	Status        string           `db:"status" json:"status"`
 	Avatar        null.String      `db:"avatar" json:"avatar"`
+	TwofaType     string           `db:"twofa_type" json:"twofa_type"`
+	TwofaKey      null.String      `db:"twofa_key" json:"-"`
 	LoggedInAt    null.Time        `db:"loggedin_at" json:"loggedin_at"`
 	UserRoleID    int              `db:"user_role_id" json:"user_role_id,omitempty"`
 	UserRoleName  string           `db:"user_role_name" json:"-"`

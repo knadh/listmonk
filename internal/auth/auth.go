@@ -84,7 +84,6 @@ func New(cfg Config, db *sql.DB, cb *Callbacks, lo *log.Logger) (*Auth, error) {
 		apiUsers: map[string]User{},
 	}
 
-
 	// Initialize session manager.
 	a.sess = simplesessions.New(simplesessions.Options{
 		EnableAutoCreate: false,

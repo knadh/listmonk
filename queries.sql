@@ -1315,6 +1315,9 @@ UPDATE users SET name=$2, email=(CASE WHEN password_login THEN $3 ELSE email END
 -- name: update-user-login
 UPDATE users SET loggedin_at=NOW(), avatar=(CASE WHEN $2 != '' THEN $2 ELSE avatar END) WHERE id=$1;
 
+-- name: set-user-twofa
+UPDATE users SET twofa_type=$2::twofa_type, twofa_key=$3, updated_at=NOW() WHERE id=$1;
+
 -- name: get-user-roles
 WITH mainroles AS (
     SELECT ur.* FROM roles ur WHERE type = 'user' AND ur.parent_id IS NULL AND
