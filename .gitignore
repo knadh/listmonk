@@ -17,3 +17,5 @@ node_modules
 listmonk
 dist/*
 uploads/
+frontend/cypress/screenshots/
+frontend/package-lock.json
