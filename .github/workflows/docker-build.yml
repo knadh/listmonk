@@ -45,18 +45,12 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
-            # Branch name for all branches
             type=ref,event=branch
-            # PR number
             type=ref,event=pr
-            # Semver tags
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
-            # Git SHA with branch prefix
             type=sha,prefix={{branch}}-
-            # Latest tag only for default branch
             type=raw,value=latest,enable={{is_default_branch}}
-            # Dev tag for develop branch
             type=raw,value=dev,enable=${{ github.ref == 'refs/heads/develop' }}
 
       - name: Build and push Docker image
@@ -64,4 +58,7 @@ jobs:
         with:
           context: .
           push: true
-          tags: ${{ ste
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:buildcache
+          cache-to: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:buildcache,mode=max
