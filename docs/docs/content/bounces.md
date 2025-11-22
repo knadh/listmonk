@@ -14,6 +14,9 @@ Configure the bounce mailbox in Settings -> Bounces. Either the "From" e-mail th
 
 Some mail servers may also return the bounce to the `Reply-To` address, which can also be added to the header settings.
 
+### Bounce classification
+listmonk applies a series of heuristics looking for keywords in the bounced mail body to guess if it is a 'soft' bounce or a 'hard' bounce. For instance, 4.x.x and 5.x.x error status codes, common strings such as "mailbox not found" etc. If none of the heuristics match, then the bounce mail is considered to be 'soft' by default.
+
 ## Webhook API
 The bounce webhook API can be used to record bounce events with custom scripting. This could be by reading a mailbox, a database, or mail server logs.
 
@@ -22,14 +25,14 @@ The bounce webhook API can be used to record bounce events with custom scripting
 | `POST` | /webhooks/bounce | Record a bounce event. |
 
 
-| Name            | Type      | Required   | Description                                                                          |
-| ----------------| --------- | -----------| ------------------------------------------------------------------------------------ |
-| subscriber_uuid | string    |            | The UUID of the subscriber. Either this or `email` is required.                      |
-| email           | string    |            | The e-mail of the subscriber. Either this or `subscriber_uuid` is required.          |
-| campaign_uuid   | string    |            | UUID of the campaign for which the bounce happened.                                  |
-| source          | string    | Yes        | A string indicating the source, eg: `api`, `my_script` etc.                          |
-| type            | string    | Yes        | `hard` or `soft` bounce. Currently, this has no effect on how the bounce is treated. |
-| meta            | string    |            | An optional escaped JSON string with arbitrary metadata about the bounce event.      |
+| Name            | Type   | Required | Description                                                                          |
+| --------------- | ------ | -------- | ------------------------------------------------------------------------------------ |
+| subscriber_uuid | string |          | The UUID of the subscriber. Either this or `email` is required.                      |
+| email           | string |          | The e-mail of the subscriber. Either this or `subscriber_uuid` is required.          |
+| campaign_uuid   | string |          | UUID of the campaign for which the bounce happened.                                  |
+| source          | string | Yes      | A string indicating the source, eg: `api`, `my_script` etc.                          |
+| type            | string | Yes      | `hard` or `soft` bounce. Currently, this has no effect on how the bounce is treated. |
+| meta            | string |          | An optional escaped JSON string with arbitrary metadata about the bounce event.      |
  
 
 ```shell
@@ -43,11 +46,11 @@ curl -u 'api_username:access_token' -X POST 'http://localhost:9000/webhooks/boun
 listmonk supports receiving bounce webhook events from the following SMTP providers.
 
 | Endpoint                                                      | Description                            | More info                                                                                                             |
-|:--------------------------------------------------------------|:---------------------------------------|:----------------------------------------------------------------------------------------------------------------------|
+| :------------------------------------------------------------ | :------------------------------------- | :-------------------------------------------------------------------------------------------------------------------- |
 | `https://listmonk.yoursite.com/webhooks/service/ses`          | Amazon (AWS) SES                       | See below                                                                                                             |
 | `https://listmonk.yoursite.com/webhooks/service/sendgrid`     | Sendgrid / Twilio Signed event webhook | [More info](https://docs.sendgrid.com/for-developers/tracking-events/getting-started-event-webhook-security-features) |
 | `https://listmonk.yoursite.com/webhooks/service/postmark`     | Postmark webhook                       | [More info](https://postmarkapp.com/developer/webhooks/webhooks-overview)                                             |
-| `https://listmonk.yoursite.com/webhooks/service/forwardemail` | Forward Email webhook                   | [More info](https://forwardemail.net/en/faq#do-you-support-bounce-webhooks)                                                  |
+| `https://listmonk.yoursite.com/webhooks/service/forwardemail` | Forward Email webhook                  | [More info](https://forwardemail.net/en/faq#do-you-support-bounce-webhooks)                                           |
 
 ## Amazon Simple Email Service (SES)
 
