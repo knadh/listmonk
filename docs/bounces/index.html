@@ -610,6 +610,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="POP3 bounce mailbox">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bounce-classification" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bounce classification
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -1418,6 +1435,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="POP3 bounce mailbox">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bounce-classification" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bounce classification
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -1490,6 +1524,8 @@
 ]
 </code></pre></div>
 <p>Some mail servers may also return the bounce to the <code>Reply-To</code> address, which can also be added to the header settings.</p>
+<h3 id="bounce-classification">Bounce classification<a class="headerlink" href="#bounce-classification" title="Permanent link">&para;</a></h3>
+<p>listmonk applies a series of heuristics looking for keywords in the bounced mail body to guess if it is a 'soft' bounce or a 'hard' bounce. For instance, 4.x.x and 5.x.x error status codes, common strings such as "mailbox not found" etc. If none of the heuristics match, then the bounce mail is considered to be 'soft' by default.</p>
 <h2 id="webhook-api">Webhook API<a class="headerlink" href="#webhook-api" title="Permanent link">&para;</a></h2>
 <p>The bounce webhook API can be used to record bounce events with custom scripting. This could be by reading a mailbox, a database, or mail server logs.</p>
 <table>
