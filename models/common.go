@@ -4,8 +4,68 @@ import (
 	"database/sql/driver"
 	"encoding/json"
 	"fmt"
+	"regexp"
 
+	"github.com/yuin/goldmark"
+	"github.com/yuin/goldmark/extension"
+	"github.com/yuin/goldmark/parser"
+	"github.com/yuin/goldmark/renderer/html"
 	null "gopkg.in/volatiletech/null.v6"
+)
+
+// regTplFunc represents contains a regular expression for wrapping and
+// substituting a Go template function from the user's shorthand to a full
+// function call.
+type regTplFunc struct {
+	regExp  *regexp.Regexp
+	replace string
+}
+
+var regTplFuncs = []regTplFunc{
+	// Regular expression for matching {{ TrackLink "http://link.com" }} in the template
+	// and substituting it with {{ TrackLink "http://link.com" . }} (the dot context)
+	// before compilation. This is to make linking easier for users.
+	{
+		regExp:  regexp.MustCompile(`{{\s*TrackLink\s+"([^"]+)"\s*}}`),
+		replace: `{{ TrackLink "$1" . }}`,
+	},
+
+	// Convert the shorthand https://google.com@TrackLink to {{ TrackLink ... }}.
+	// This is for WYSIWYG editors that encode and break quotes {{ "" }} when inserted
+	// inside <a href="{{ TrackLink "https://these-quotes-break" }}>.
+	// The regex matches all characters that may occur in an URL
+	// (see "2. Characters" in RFC3986: https://www.ietf.org/rfc/rfc3986.txt)
+	{
+		regExp:  regexp.MustCompile(`(https?://[\p{L}\p{N}_\-\.~!#$&'()*+,/:;=?@\[\]]*)@TrackLink`),
+		replace: `{{ TrackLink "$1" . }}`,
+	},
+
+	{
+		regExp:  regexp.MustCompile(`{{(\s+)?(TrackView|UnsubscribeURL|ManageURL|OptinURL|MessageURL)(\s+)?}}`),
+		replace: `{{ $2 . }}`,
+	},
+}
+
+// markdown is a global instance of Markdown parser and renderer.
+var markdown = goldmark.New(
+	goldmark.WithParserOptions(
+		parser.WithAutoHeadingID(),
+	),
+	goldmark.WithRendererOptions(
+		html.WithXHTML(),
+		html.WithUnsafe(),
+	),
+	goldmark.WithExtensions(
+		extension.Table,
+		extension.Strikethrough,
+		extension.TaskList,
+		extension.NewTypographer(
+			extension.WithTypographicSubstitutions(extension.TypographicSubstitutions{
+				extension.LeftDoubleQuote:  []byte(`"`),
+				extension.RightDoubleQuote: []byte(`"`),
+			}),
+		),
+	),
 )
 
 // Headers represents an array of string maps used to represent SMTP, HTTP headers etc.

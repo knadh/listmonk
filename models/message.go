@@ -7,11 +7,6 @@ import (
 	"net/textproto"
 	"strings"
 	txttpl "text/template"
-
-	"github.com/yuin/goldmark"
-	"github.com/yuin/goldmark/extension"
-	"github.com/yuin/goldmark/parser"
-	"github.com/yuin/goldmark/renderer/html"
 )
 
 // Message is the message pushed to a Messenger.
@@ -66,28 +61,6 @@ type TxMessage struct {
 	Tpl        *template.Template `json:"-"`
 	SubjectTpl *txttpl.Template   `json:"-"`
 }
-
-// markdown is a global instance of Markdown parser and renderer.
-var markdown = goldmark.New(
-	goldmark.WithParserOptions(
-		parser.WithAutoHeadingID(),
-	),
-	goldmark.WithRendererOptions(
-		html.WithXHTML(),
-		html.WithUnsafe(),
-	),
-	goldmark.WithExtensions(
-		extension.Table,
-		extension.Strikethrough,
-		extension.TaskList,
-		extension.NewTypographer(
-			extension.WithTypographicSubstitutions(extension.TypographicSubstitutions{
-				extension.LeftDoubleQuote:  []byte(`"`),
-				extension.RightDoubleQuote: []byte(`"`),
-			}),
-		),
-	),
-)
 
 func (m *TxMessage) Render(sub Subscriber, tpl *Template) error {
 	data := struct {
