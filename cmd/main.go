@@ -156,7 +156,7 @@ func init() {
 	checkUpgrade(db)
 
 	// Read the SQL queries from the queries file.
-	qMap := readAllQueries(fs)
+	qMap := readQueries(queryFilePath, fs)
 
 	// Load settings from DB.
 	if q, ok := qMap["get-settings"]; ok {

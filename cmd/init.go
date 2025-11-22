@@ -54,8 +54,10 @@ import (
 )
 
 const (
-	queryDirPath = "queries"
-	emailMsgr    = "email"
+	// Path to the SQL queries directory in the embedded FS.
+	queryFilePath = "/queries"
+
+	emailMsgr = "email"
 )
 
 // UrlConfig contains various URL constants used in the app.
@@ -199,7 +201,7 @@ func initFS(appDir, frontendDir, staticDir, i18nDir string) stuffbin.FileSystem 
 		// These paths are joined with appDir.
 		appFiles = []string{
 			"./config.toml.sample:config.toml.sample",
-			"./queries:/queries",
+			"./queries:queries",
 			"./schema.sql:schema.sql",
 			"./permissions.json:permissions.json",
 		}
@@ -333,46 +335,35 @@ func initDB() *sqlx.DB {
 	return db.Unsafe()
 }
 
-var queryFiles = []string{
-	"subscribers.sql",
-	"lists.sql",
-	"campaigns.sql",
-	"templates.sql",
-	"media.sql",
-	"links.sql",
-	"privacy.sql",
-	"bounces.sql",
-	"users.sql",
-	"roles.sql",
-	"misc.sql",
-}
+func readQueries(dir string, fs stuffbin.FileSystem) goyesql.Queries {
+	out := goyesql.Queries{}
 
-func readAllQueries(fs stuffbin.FileSystem) goyesql.Queries {
-	qMap := goyesql.Queries{}
-
-	for _, file := range queryFiles {
-		filePath := path.Join(queryDirPath, file)
-
-		queries := readQueries(filePath, fs)
-
-		maps.Copy(qMap, queries)
-	}
-	return qMap
-}
-
-// readQueries reads named SQL queries from the SQL queries file into a query map.
-func readQueries(sqlFile string, fs stuffbin.FileSystem) goyesql.Queries {
-	// Load SQL queries.
-	qB, err := fs.Read(sqlFile)
+	// Glob all the .sql files in the queries directory.
+	qPath := path.Join(dir, "/*.sql")
+	files, err := fs.Glob(qPath)
 	if err != nil {
-		lo.Fatalf("error reading SQL file %s: %v", sqlFile, err)
-	}
-	qMap, err := goyesql.ParseBytes(qB)
-	if err != nil {
-		lo.Fatalf("error parsing SQL queries: %v", err)
+		lo.Fatalf("error reading *.sql query files from %s: %v", qPath, err)
 	}
 
-	return qMap
+	// Read and merge queries from all files into one map.
+	for _, file := range files {
+		// Read the SQL file.
+		b, err := fs.Read(file)
+		if err != nil {
+			lo.Fatalf("error reading SQL file %s: %v", file, err)
+		}
+
+		// Parse queries in it into a map.
+		mp, err := goyesql.ParseBytes(b)
+		if err != nil {
+			lo.Fatalf("error parsing SQL queries: %v", err)
+		}
+
+		// Merge into the main query map.
+		maps.Copy(out, mp)
+	}
+
+	return out
 }
 
 // prepareQueries queries prepares a query map and returns a *Queries
