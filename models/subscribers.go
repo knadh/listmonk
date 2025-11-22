@@ -1,18 +1,24 @@
 package models
 
 import (
+	"encoding/json"
 	"errors"
 	"strings"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/jmoiron/sqlx/types"
 	"github.com/lib/pq"
+	null "gopkg.in/volatiletech/null.v6"
 )
 
 const (
 	SubscriberStatusEnabled     = "enabled"
 	SubscriberStatusDisabled    = "disabled"
 	SubscriberStatusBlockListed = "blocklisted"
+
+	SubscriptionStatusUnconfirmed  = "unconfirmed"
+	SubscriptionStatusConfirmed    = "confirmed"
+	SubscriptionStatusUnsubscribed = "unsubscribed"
 )
 
 // Subscribers represents a slice of Subscriber.
@@ -28,6 +34,11 @@ type Subscriber struct {
 	Attribs JSON           `db:"attribs" json:"attribs"`
 	Status  string         `db:"status" json:"status"`
 	Lists   types.JSONText `db:"lists" json:"lists"`
+}
+
+type subLists struct {
+	SubscriberID int            `db:"subscriber_id"`
+	Lists        types.JSONText `db:"lists"`
 }
 
 // GetIDs returns the list of subscriber IDs.
@@ -88,4 +99,38 @@ func (s Subscriber) LastName() string {
 	}
 
 	return s.Name
+}
+
+// Subscription represents a list attached to a subscriber.
+type Subscription struct {
+	List
+	SubscriptionStatus    null.String     `db:"subscription_status" json:"subscription_status"`
+	SubscriptionCreatedAt null.String     `db:"subscription_created_at" json:"subscription_created_at"`
+	Meta                  json.RawMessage `db:"meta" json:"meta"`
+}
+
+// SubscriberExport represents a subscriber record that is exported to raw data.
+type SubscriberExport struct {
+	Base
+
+	UUID    string `db:"uuid" json:"uuid"`
+	Email   string `db:"email" json:"email"`
+	Name    string `db:"name" json:"name"`
+	Attribs string `db:"attribs" json:"attribs"`
+	Status  string `db:"status" json:"status"`
+}
+
+// SubscriberExportProfile represents a subscriber's collated data in JSON for export.
+type SubscriberExportProfile struct {
+	Email         string          `db:"email" json:"-"`
+	Profile       json.RawMessage `db:"profile" json:"profile,omitempty"`
+	Subscriptions json.RawMessage `db:"subscriptions" json:"subscriptions,omitempty"`
+	CampaignViews json.RawMessage `db:"campaign_views" json:"campaign_views,omitempty"`
+	LinkClicks    json.RawMessage `db:"link_clicks" json:"link_clicks,omitempty"`
+}
+
+// SubscriberActivity represents a subscriber's campaign views and link clicks for the Activity tab.
+type SubscriberActivity struct {
+	CampaignViews json.RawMessage `db:"campaign_views" json:"campaign_views"`
+	LinkClicks    json.RawMessage `db:"link_clicks" json:"link_clicks"`
 }

@@ -13,6 +13,25 @@ import (
 	null "gopkg.in/volatiletech/null.v6"
 )
 
+// Enum values for various statuses.
+const (
+	// Headers attached to e-mails for bounce tracking.
+	EmailHeaderSubscriberUUID = "X-Listmonk-Subscriber"
+	EmailHeaderCampaignUUID   = "X-Listmonk-Campaign"
+
+	// Standard e-mail headers.
+	EmailHeaderDate        = "Date"
+	EmailHeaderFrom        = "From"
+	EmailHeaderSubject     = "Subject"
+	EmailHeaderMessageId   = "Message-Id"
+	EmailHeaderDeliveredTo = "Delivered-To"
+	EmailHeaderReceived    = "Received"
+
+	// TwoFA types.
+	TwofaTypeNone = "none"
+	TwofaTypeTOTP = "totp"
+)
+
 // regTplFunc represents contains a regular expression for wrapping and
 // substituting a Go template function from the user's shorthand to a full
 // function call.
