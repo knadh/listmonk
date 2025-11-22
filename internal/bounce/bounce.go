@@ -125,6 +125,7 @@ func (m *Manager) Run() {
 // runMailboxScanner runs a blocking loop that scans the mailbox at given intervals.
 func (m *Manager) runMailboxScanner() {
 	for {
+		m.log.Printf("scanning bounce mailbox %s", m.opt.Mailbox.Host)
 		if err := m.mailbox.Scan(1000, m.queue); err != nil {
 			m.log.Printf("error scanning bounce mailbox: %v", err)
 		}
