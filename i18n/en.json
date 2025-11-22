@@ -3,6 +3,7 @@
     "_.name": "English (en)",
     "admin.errorMarshallingConfig": "Error marshalling config: {error}",
     "analytics.count": "Count",
+    "analytics.export": "Export Results",
     "analytics.fromDate": "From",
     "analytics.invalidDates": "Invalid `from` or `to` dates.",
     "analytics.isUnique": "The counts are unique per subscriber.",
