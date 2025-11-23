@@ -1994,6 +1994,9 @@
 <hr />
 <h4 id="get-apilists">GET /api/lists<a class="headerlink" href="#get-apilists" title="Permanent link">&para;</a></h4>
 <p>Retrieve lists.</p>
+<blockquote>
+<p><strong>Note:</strong> Lists with <code>status: archived</code> are hidden from list selectors in campaigns, public subscription forms, and roles by default. They can only be viewed by filtering with <code>status=archived</code> or by viewing all lists without a status filter.</p>
+</blockquote>
 <h5 id="parameters">Parameters<a class="headerlink" href="#parameters" title="Permanent link">&para;</a></h5>
 <table>
 <thead>
@@ -2009,13 +2012,19 @@
 <td style="text-align: left;">query</td>
 <td style="text-align: left;">string</td>
 <td style="text-align: left;"></td>
-<td style="text-align: left;">string for list name search.</td>
+<td style="text-align: left;">String for list name search.</td>
 </tr>
 <tr>
 <td style="text-align: left;">status</td>
-<td style="text-align: left;">[]string</td>
+<td style="text-align: left;">string</td>
 <td style="text-align: left;"></td>
-<td style="text-align: left;">Status to filter lists. Repeat in the query for multiple values.</td>
+<td style="text-align: left;">Status to filter lists. Options: active, archived. Defaults to showing all lists if not specified.</td>
+</tr>
+<tr>
+<td style="text-align: left;">minimal</td>
+<td style="text-align: left;">boolean</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">If true, returns lists without subscriber counts (faster). Defaults to false.</td>
 </tr>
 <tr>
 <td style="text-align: left;">tag</td>
@@ -2050,7 +2059,14 @@
 </tbody>
 </table>
 <h5 id="example-request">Example Request<a class="headerlink" href="#example-request" title="Permanent link">&para;</a></h5>
-<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-u<span class="w"> </span><span class="s2">&quot;api_user:token&quot;</span><span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span><span class="s1">&#39;http://localhost:9000/api/lists?page=1&amp;per_page=100&#39;</span>
+<div class="highlight"><pre><span></span><code><span class="c1"># Get all lists</span>
+curl<span class="w"> </span>-u<span class="w"> </span><span class="s2">&quot;api_user:token&quot;</span><span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span><span class="s1">&#39;http://localhost:9000/api/lists?page=1&amp;per_page=100&#39;</span>
+
+<span class="c1"># Get only active lists</span>
+curl<span class="w"> </span>-u<span class="w"> </span><span class="s2">&quot;api_user:token&quot;</span><span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span><span class="s1">&#39;http://localhost:9000/api/lists?status=active&amp;per_page=100&#39;</span>
+
+<span class="c1"># Get archived lists with minimal data</span>
+curl<span class="w"> </span>-u<span class="w"> </span><span class="s2">&quot;api_user:token&quot;</span><span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span><span class="s1">&#39;http://localhost:9000/api/lists?status=archived&amp;minimal=true&amp;per_page=all&#39;</span>
 </code></pre></div>
 <h5 id="example-response">Example Response<a class="headerlink" href="#example-response" title="Permanent link">&para;</a></h5>
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
@@ -2064,6 +2080,7 @@
 <span class="w">                </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Default list&quot;</span><span class="p">,</span>
 <span class="w">                </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;public&quot;</span><span class="p">,</span>
 <span class="w">                </span><span class="nt">&quot;optin&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;double&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;active&quot;</span><span class="p">,</span>
 <span class="w">                </span><span class="nt">&quot;tags&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">                    </span><span class="s2">&quot;test&quot;</span>
 <span class="w">                </span><span class="p">],</span>
@@ -2077,6 +2094,7 @@
 <span class="w">                </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;get&quot;</span><span class="p">,</span>
 <span class="w">                </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;private&quot;</span><span class="p">,</span>
 <span class="w">                </span><span class="nt">&quot;optin&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;single&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;active&quot;</span><span class="p">,</span>
 <span class="w">                </span><span class="nt">&quot;tags&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span>
 <span class="w">                </span><span class="nt">&quot;subscriber_count&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span>
 <span class="w">            </span><span class="p">}</span>
@@ -2090,6 +2108,9 @@
 <hr />
 <h4 id="get-apipubliclists">GET /api/public/lists<a class="headerlink" href="#get-apipubliclists" title="Permanent link">&para;</a></h4>
 <p>Retrieve public lists with name and uuid to submit a subscription. This is an unauthenticated call to enable scripting to subscription form.</p>
+<blockquote>
+<p><strong>Note:</strong> This endpoint only returns lists with <code>type: public</code> and <code>status: active</code>. Archived lists are never shown on public subscription forms.</p>
+</blockquote>
 <h5 id="example-request_1">Example Request<a class="headerlink" href="#example-request_1" title="Permanent link">&para;</a></h5>
 <div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span><span class="s1">&#39;http://localhost:9000/api/public/lists&#39;</span>
 </code></pre></div>
@@ -2136,6 +2157,7 @@
 <span class="w">        </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Test list&quot;</span><span class="p">,</span>
 <span class="w">        </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;public&quot;</span><span class="p">,</span>
 <span class="w">        </span><span class="nt">&quot;optin&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;double&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;active&quot;</span><span class="p">,</span>
 <span class="w">        </span><span class="nt">&quot;tags&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span>
 <span class="w">        </span><span class="nt">&quot;subscriber_count&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span>
 <span class="w">    </span><span class="p">}</span>
@@ -2174,6 +2196,12 @@
 <td style="text-align: left;">Opt-in type. Options: single, double.</td>
 </tr>
 <tr>
+<td style="text-align: left;">status</td>
+<td style="text-align: left;">string</td>
+<td style="text-align: left;">No</td>
+<td style="text-align: left;">Status of the list. Options: active, archived. Defaults to active.</td>
+</tr>
+<tr>
 <td style="text-align: left;">tags</td>
 <td style="text-align: left;">string[]</td>
 <td style="text-align: left;"></td>
@@ -2199,12 +2227,13 @@
 <span class="w">        </span><span class="nt">&quot;uuid&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;1bb246ab-7417-4cef-bddc-8fc8fc941d3a&quot;</span><span class="p">,</span>
 <span class="w">        </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Test list&quot;</span><span class="p">,</span>
 <span class="w">        </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;public&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;optin&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;single&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;active&quot;</span><span class="p">,</span>
 <span class="w">        </span><span class="nt">&quot;tags&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span>
 <span class="w">        </span><span class="nt">&quot;subscriber_count&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
 <span class="w">        </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;This is a test list&quot;</span>
 <span class="w">    </span><span class="p">}</span>
 <span class="p">}</span>
-<span class="kc">null</span>
 </code></pre></div>
 <hr />
 <h4 id="put-apilistslist_id">PUT /api/lists/{list_id}<a class="headerlink" href="#put-apilistslist_id" title="Permanent link">&para;</a></h4>
@@ -2245,6 +2274,12 @@
 <td style="text-align: left;">Opt-in type. Options: single, double.</td>
 </tr>
 <tr>
+<td style="text-align: left;">status</td>
+<td style="text-align: left;">string</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">Status of the list. Options: active, archived.</td>
+</tr>
+<tr>
 <td style="text-align: left;">tags</td>
 <td style="text-align: left;">string[]</td>
 <td style="text-align: left;"></td>
@@ -2254,7 +2289,7 @@
 <td style="text-align: left;">description</td>
 <td style="text-align: left;">string</td>
 <td style="text-align: left;"></td>
-<td style="text-align: left;">Description of the new list.</td>
+<td style="text-align: left;">Description of the list.</td>
 </tr>
 </tbody>
 </table>
@@ -2273,6 +2308,7 @@
 <span class="w">        </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;modified test list&quot;</span><span class="p">,</span>
 <span class="w">        </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;private&quot;</span><span class="p">,</span>
 <span class="w">        </span><span class="nt">&quot;optin&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;single&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;active&quot;</span><span class="p">,</span>
 <span class="w">        </span><span class="nt">&quot;tags&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span>
 <span class="w">        </span><span class="nt">&quot;subscriber_count&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
 <span class="w">        </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;This is a test list&quot;</span>
