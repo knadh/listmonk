@@ -74,5 +74,13 @@ UPDATE campaign_lists SET list_name = l.name FROM l WHERE campaign_lists.list_id
 UPDATE lists SET updated_at=NOW() WHERE id = ANY($1);
 
 -- name: delete-lists
-DELETE FROM lists WHERE id = ALL($1);
+DELETE FROM lists
+WHERE CASE
+    WHEN CARDINALITY($1::INT[]) > 0 THEN id = ANY($1)
+    ELSE ($2 = '' OR to_tsvector(name) @@ to_tsquery($2))
+END
+AND CASE
+    -- Optional list IDs based on user permission.
+    WHEN $3 = TRUE THEN TRUE ELSE id = ANY($4::INT[])
+END;
 

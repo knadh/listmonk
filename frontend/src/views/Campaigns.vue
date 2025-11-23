@@ -17,9 +17,10 @@
       </div>
     </header>
 
-    <b-table :data="campaigns.results" :loading="loading.campaigns" :row-class="highlightedRow" paginated
-      backend-pagination pagination-position="both" @page-change="onPageChange" :current-page="queryParams.page"
-      :per-page="campaigns.perPage" :total="campaigns.total" hoverable backend-sorting @sort="onSort">
+    <b-table :data="campaigns.results" :loading="loading.campaigns" :row-class="highlightedRow"
+      @check-all="onTableCheck" @check="onTableCheck" :checked-rows.sync="bulk.checked" paginated backend-pagination
+      pagination-position="both" @page-change="onPageChange" :current-page="queryParams.page"
+      :per-page="campaigns.perPage" :total="campaigns.total" hoverable checkable backend-sorting @sort="onSort">
       <template #top-left>
         <div class="columns">
           <div class="column is-6">
@@ -35,6 +36,20 @@
               </div>
             </form>
           </div>
+        </div>
+        <div class="actions" v-if="bulk.checked.length > 0">
+          <a class="a" href="#" @click.prevent="deleteCampaigns" data-cy="btn-delete-campaigns">
+            <b-icon icon="trash-can-outline" size="is-small" /> Delete
+          </a>
+          <span class="a">
+            {{ $tc('globals.messages.numSelected', numSelectedCampaigns, { num: numSelectedCampaigns }) }}
+            <span v-if="!bulk.all && campaigns.total > campaigns.perPage">
+              &mdash;
+              <a href="#" @click.prevent="onSelectAll">
+                {{ $tc('globals.messages.selectAll', campaigns.total, { num: campaigns.total }) }}
+              </a>
+            </span>
+          </span>
         </div>
       </template>
 
@@ -285,6 +300,12 @@ export default Vue.extend({
       },
       pollID: null,
       campaignStatsData: {},
+
+      // Table bulk row selection states.
+      bulk: {
+        checked: [],
+        all: false,
+      },
     };
   },
 
@@ -456,10 +477,57 @@ export default Vue.extend({
         this.$utils.toast(this.$t('globals.messages.deleted', { name: c.name }));
       });
     },
+
+    // Mark all campaigns in the query as selected.
+    onSelectAll() {
+      this.bulk.all = true;
+    },
+
+    onTableCheck() {
+      // Disable bulk.all selection if there are no rows checked in the table.
+      if (this.bulk.checked.length !== this.campaigns.total) {
+        this.bulk.all = false;
+      }
+    },
+
+    deleteCampaigns() {
+      const name = this.$tc('globals.terms.campaign', this.numSelectedCampaigns);
+
+      const fn = () => {
+        const params = {};
+        if (!this.bulk.all && this.bulk.checked.length > 0) {
+          // If 'all' is not selected, delete campaigns by IDs.
+          params.id = this.bulk.checked.map((c) => c.id);
+        } else {
+          // 'All' is selected, delete by query.
+          params.query = this.queryParams.query.replace(/[^\p{L}\p{N}\s]/gu, ' ');
+        }
+
+        this.$api.deleteCampaigns(params)
+          .then(() => {
+            this.getCampaigns();
+            this.$utils.toast(this.$tc(
+              'globals.messages.deletedCount',
+              this.numSelectedCampaigns,
+              { num: this.numSelectedCampaigns, name },
+            ));
+          });
+      };
+
+      this.$utils.confirm(this.$tc(
+        'globals.messages.confirmDelete',
+        this.numSelectedCampaigns,
+        { num: this.numSelectedCampaigns, name: name.toLowerCase() },
+      ), fn);
+    },
   },
 
   computed: {
     ...mapState(['campaigns', 'loading']),
+
+    numSelectedCampaigns() {
+      return this.bulk.all ? this.campaigns.total : this.bulk.checked.length;
+    },
   },
 
   mounted() {

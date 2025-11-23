@@ -143,32 +143,72 @@ func (a *App) UpdateList(c echo.Context) error {
 	return c.JSON(http.StatusOK, okResp{out})
 }
 
-// DeleteLists handles list deletion, either a single one (ID in the URI), or a list.
-// It's permission checked by the listPerm middleware.
+// DeleteList deletes a single list by ID.
+func (a *App) DeleteList(c echo.Context) error {
+	id := getID(c)
+
+	// Check if the user has manage permission for the list.
+	user := auth.GetUser(c)
+	if err := user.HasListPerm(auth.PermTypeManage, id); err != nil {
+		return err
+	}
+
+	// Delete the list from the DB.
+	// Pass getAll=true since we've already verified permissions above.
+	if err := a.core.DeleteLists([]int{id}, "", true, nil); err != nil {
+		return err
+	}
+
+	return c.JSON(http.StatusOK, okResp{true})
+}
+
+// DeleteLists deletes multiple lists by IDs or by query.
 func (a *App) DeleteLists(c echo.Context) error {
-	// Get the authenticated user.
 	user := auth.GetUser(c)
 
 	var (
-		id, _ = strconv.ParseInt(c.Param("id"), 10, 64)
 		ids   []int
+		query string
 	)
-	if id < 1 && len(ids) == 0 {
-		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("globals.messages.invalidID"))
+
+	// Check for IDs in query params.
+	if len(c.Request().URL.Query()["id"]) > 0 {
+		var err error
+		ids, err = parseStringIDs(c.Request().URL.Query()["id"])
+		if err != nil {
+			return echo.NewHTTPError(http.StatusBadRequest,
+				a.i18n.Ts("globals.messages.errorInvalidIDs", "error", err.Error()))
+		}
+	} else {
+		// Check for query param.
+		query = strings.TrimSpace(c.FormValue("query"))
 	}
 
-	if id > 0 {
-		ids = append(ids, int(id))
+	// Validate that either IDs or query is provided.
+	if len(ids) == 0 && query == "" {
+		return echo.NewHTTPError(http.StatusBadRequest,
+			a.i18n.Ts("globals.messages.errorInvalidIDs", "error", "id or query required"))
 	}
 
-	// Check if the user has access to the list.
-	if err := user.HasListPerm(auth.PermTypeManage, ids...); err != nil {
-		return err
-	}
+	// For ID deletion, check if the user has manage permission for the specific lists.
+	if len(ids) > 0 {
+		if err := user.HasListPerm(auth.PermTypeManage, ids...); err != nil {
+			return err
+		}
 
-	// Delete the lists from the DB.
-	if err := a.core.DeleteLists(ids); err != nil {
-		return err
+		// Delete the lists from the DB.
+		// Pass getAll=true since we've already verified permissions above.
+		if err := a.core.DeleteLists(ids, "", true, nil); err != nil {
+			return err
+		}
+	} else {
+		// For query deletion, get the list IDs the user has manage permission for.
+		hasAllPerm, permittedIDs := user.GetPermittedLists(auth.PermTypeManage)
+
+		// Delete the lists from the DB with permission filtering.
+		if err := a.core.DeleteLists(nil, query, hasAllPerm, permittedIDs); err != nil {
+			return err
+		}
 	}
 
 	return c.JSON(http.StatusOK, okResp{true})

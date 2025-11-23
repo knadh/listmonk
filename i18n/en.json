@@ -176,6 +176,8 @@
     "globals.fields.type": "Type",
     "globals.fields.updatedAt": "Updated",
     "globals.fields.uuid": "UUID",
+    "globals.messages.selectAll": "Select all {num}",
+    "globals.messages.confirmDelete": "Delete {num} {name}?",
     "globals.messages.numSelected": "{num} selected",
     "globals.messages.confirm": "Are you sure?",
     "globals.messages.confirmDiscard": "Discard changes?",

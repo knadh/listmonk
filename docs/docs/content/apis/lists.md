@@ -8,6 +8,7 @@
 | POST   | [/api/lists](#post-apilists)                    | Create a new list.        |
 | PUT    | [/api/lists/{list_id}](#put-apilistslist_id)    | Update a list.            |
 | DELETE | [/api/lists/{list_id}](#delete-apilistslist_id) | Delete a list.            |
+| DELETE | [/api/lists](#delete-apilists)                  | Delete multiple lists.    |
 
 ______________________________________________________________________
 
@@ -249,6 +250,41 @@ Delete a specific list.
 
 ```shell
 curl -u 'api_username:access_token' -X DELETE 'http://localhost:9000/api/lists/1'
+```
+
+##### Example Response
+
+```json
+{
+    "data": true
+}
+```
+
+______________________________________________________________________
+
+#### DELETE /api/lists
+
+Delete multiple lists by IDs or by a search query.
+
+> **Note:** Users can only delete lists they have `manage` permission for. Any lists in the query that the user doesn't have permission to manage is ignored.
+
+##### Parameters
+
+| Name  | Type       | Required                      | Description                                                        |
+| :---- | :--------- | :---------------------------- | :----------------------------------------------------------------- |
+| id    | number\[\] | Yes (if `query` not provided) | One or more list IDs to delete.                                    |
+| query | string     | Yes (if `id` not provided)    | Search query to filter lists for deletion (same as the GET query). |
+
+##### Example Request (by IDs)
+
+```shell
+curl -u "api_user:token" -X DELETE 'http://localhost:9000/api/lists?id=10&id=11&id=12'
+```
+
+##### Example Request (by search query)
+
+```shell
+curl -u "api_user:token" -X DELETE 'http://localhost:9000/api/lists?query=test%20list'
 ```
 
 ##### Example Response

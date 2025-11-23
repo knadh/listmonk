@@ -195,15 +195,25 @@ func (c *Core) UpdateList(id int, l models.List) (models.List, error) {
 
 // DeleteList deletes a list.
 func (c *Core) DeleteList(id int) error {
-	return c.DeleteLists([]int{id})
+	return c.DeleteLists([]int{id}, "", true, nil)
 }
 
 // DeleteLists deletes multiple lists.
-func (c *Core) DeleteLists(ids []int) error {
-	if _, err := c.q.DeleteLists.Exec(pq.Array(ids)); err != nil {
+func (c *Core) DeleteLists(ids []int, query string, getAll bool, permittedIDs []int) error {
+	var queryStr string
+
+	if len(ids) > 0 {
+		queryStr = ""
+	} else if query != "" {
+		queryStr, _ = makeSearchQuery(query, "", "", c.q.DeleteLists, listQuerySortFields)
+	} else {
+		return echo.NewHTTPError(http.StatusBadRequest, c.i18n.T("globals.messages.invalidData"))
+	}
+
+	if _, err := c.db.Exec(c.q.DeleteLists, pq.Array(ids), queryStr, getAll, pq.Array(permittedIDs)); err != nil {
 		c.log.Printf("error deleting lists: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
-			c.i18n.Ts("globals.messages.errorDeleting", "name", "{globals.terms.list}", "error", pqErrMsg(err)))
+			c.i18n.Ts("globals.messages.errorDeleting", "name", "{globals.terms.lists}", "error", pqErrMsg(err)))
 	}
 	return nil
 }

@@ -57,7 +57,7 @@ type Queries struct {
 	GetListTypes    *sqlx.Stmt `query:"get-list-types"`
 	UpdateList      *sqlx.Stmt `query:"update-list"`
 	UpdateListsDate *sqlx.Stmt `query:"update-lists-date"`
-	DeleteLists     *sqlx.Stmt `query:"delete-lists"`
+	DeleteLists     string     `query:"delete-lists"`
 
 	CreateCampaign        *sqlx.Stmt `query:"create-campaign"`
 	QueryCampaigns        string     `query:"query-campaigns"`
@@ -88,6 +88,7 @@ type Queries struct {
 	UpdateCampaignArchive    *sqlx.Stmt `query:"update-campaign-archive"`
 	RegisterCampaignView     *sqlx.Stmt `query:"register-campaign-view"`
 	DeleteCampaign           *sqlx.Stmt `query:"delete-campaign"`
+	DeleteCampaigns          string     `query:"delete-campaigns"`
 
 	InsertMedia *sqlx.Stmt `query:"insert-media"`
 	GetMedia    *sqlx.Stmt `query:"get-media"`
