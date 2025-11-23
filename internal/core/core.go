@@ -136,9 +136,7 @@ func pqErrMsg(err error) string {
 // query SQL statement (string interpolated) and returns the
 // search query string along with the SQL expression.
 func makeSearchQuery(searchStr, orderBy, order, query string, querySortFields []string) (string, string) {
-	if searchStr != "" {
-		searchStr = `%` + string(regexFullTextQuery.ReplaceAll([]byte(searchStr), []byte("&"))) + `%`
-	}
+	searchStr = makeSearchString(searchStr)
 
 	// Sort params.
 	if !strSliceContains(orderBy, querySortFields) {
@@ -151,6 +149,14 @@ func makeSearchQuery(searchStr, orderBy, order, query string, querySortFields []
 	query = strings.ReplaceAll(query, "%order%", orderBy+" "+order)
 
 	return searchStr, query
+}
+
+// makeSearchString prepares a search string for use in both tsquery and ILIKE queries.
+func makeSearchString(searchStr string) string {
+	if searchStr == "" {
+		return ""
+	}
+	return `%` + string(regexFullTextQuery.ReplaceAll([]byte(searchStr), []byte("&"))) + `%`
 }
 
 // strSliceContains checks if a string is present in the string slice.

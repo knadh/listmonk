@@ -13,6 +13,7 @@
 | PUT    | [/api/campaigns/{campaign_id}/status](#put-apicampaignscampaign_idstatus)   | Change status of a campaign.              |
 | PUT    | [/api/campaigns/{campaign_id}/archive](#put-apicampaignscampaign_idarchive) | Publish campaign to public archive.       |
 | DELETE | [/api/campaigns/{campaign_id}](#delete-apicampaignscampaign_id)             | Delete a campaign.                        |
+| DELETE | [/api/campaigns](#delete-apicampaigns)                                      | Delete multiple campaigns.                |
 
 ____________________________________________________________________________________________________________________________________
 
@@ -497,6 +498,39 @@ Delete a campaign.
 
 ```shell
 curl -u "api_user:token" -X DELETE 'http://localhost:9000/api/campaigns/34'
+```
+
+##### Example Response
+
+```json
+{
+    "data": true
+}
+```
+
+______________________________________________________________________
+
+#### DELETE /api/campaigns
+
+Delete multiple campaigns by IDs or by a search query.
+
+##### Parameters
+
+| Name  | Type       | Required                      | Description                                                                  |
+| :---- | :--------- | :---------------------------- | :--------------------------------------------------------------------------- |
+| id    | number\[\] | Yes (if `query` not provided) | Onr or more campaign IDs to delete.                                          |
+| query | string     | Yes (if `id` not provided)    | Fulltext search query to filter campaigns for deletion (same as GET query). |
+
+##### Example Request (by IDs)
+
+```shell
+curl -u "api_user:token" -X DELETE 'http://localhost:9000/api/campaigns?id=10&id=11&id=12'
+```
+
+##### Example Request (by search query)
+
+```shell
+curl -u "api_user:token" -X DELETE 'http://localhost:9000/api/campaigns?query=test%20campaign'
 ```
 
 ##### Example Response

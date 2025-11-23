@@ -423,6 +423,54 @@ func (a *App) DeleteCampaign(c echo.Context) error {
 	return c.JSON(http.StatusOK, okResp{true})
 }
 
+// DeleteCampaigns deletes multiple campaigns by IDs or by query.
+func (a *App) DeleteCampaigns(c echo.Context) error {
+	// Get the authenticated user.
+	user := auth.GetUser(c)
+
+	var (
+		hasAllPerm     = user.HasPerm(auth.PermCampaignsManageAll)
+		permittedLists []int
+	)
+
+	if !hasAllPerm {
+		// Either the user has campaigns:manage_all permissions and can manage all campaigns,
+		// or the campaigns are filtered by the lists the user has get|manage access to.
+		hasAllPerm, permittedLists = user.GetPermittedLists(auth.PermTypeGet | auth.PermTypeManage)
+	}
+
+	var (
+		ids   []int
+		query string
+	)
+
+	// Check for IDs in query params.
+	if len(c.Request().URL.Query()["id"]) > 0 {
+		var err error
+		ids, err = parseStringIDs(c.Request().URL.Query()["id"])
+		if err != nil {
+			return echo.NewHTTPError(http.StatusBadRequest,
+				a.i18n.Ts("globals.messages.errorInvalidIDs", "error", err.Error()))
+		}
+	} else {
+		// Check for query param.
+		query = strings.TrimSpace(c.FormValue("query"))
+	}
+
+	// Validate that either IDs or query is provided.
+	if len(ids) == 0 && query == "" {
+		return echo.NewHTTPError(http.StatusBadRequest,
+			a.i18n.Ts("globals.messages.errorInvalidIDs", "error", "id or query required"))
+	}
+
+	// Delete the campaigns from the DB.
+	if err := a.core.DeleteCampaigns(ids, query, hasAllPerm, permittedLists); err != nil {
+		return err
+	}
+
+	return c.JSON(http.StatusOK, okResp{true})
+}
+
 // GetRunningCampaignStats returns stats of a given set of campaign IDs.
 func (a *App) GetRunningCampaignStats(c echo.Context) error {
 	// Get the running campaign stats from the DB.

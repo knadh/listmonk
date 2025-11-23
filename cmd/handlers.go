@@ -153,7 +153,8 @@ func initHTTPHandlers(e *echo.Echo, a *App) {
 		g.GET("/api/lists/:id", hasID(a.GetList))
 		g.POST("/api/lists", pm(a.CreateList, "lists:manage_all"))
 		g.PUT("/api/lists/:id", hasID(a.UpdateList))
-		g.DELETE("/api/lists/:id", hasID(a.DeleteLists))
+		g.DELETE("/api/lists", a.DeleteLists)
+		g.DELETE("/api/lists/:id", hasID(a.DeleteList))
 
 		g.GET("/api/campaigns", pm(a.GetCampaigns, "campaigns:get_all", "campaigns:get"))
 		g.GET("/api/campaigns/running/stats", pm(a.GetRunningCampaignStats, "campaigns:get_all", "campaigns:get"))
@@ -169,6 +170,7 @@ func initHTTPHandlers(e *echo.Echo, a *App) {
 		g.PUT("/api/campaigns/:id", pm(hasID(a.UpdateCampaign), "campaigns:manage_all", "campaigns:manage"))
 		g.PUT("/api/campaigns/:id/status", pm(hasID(a.UpdateCampaignStatus), "campaigns:manage_all", "campaigns:manage"))
 		g.PUT("/api/campaigns/:id/archive", pm(hasID(a.UpdateCampaignArchive), "campaigns:manage_all", "campaigns:manage"))
+		g.DELETE("/api/campaigns", pm(a.DeleteCampaigns, "campaigns:manage", "campaigns:manage_all"))
 		g.DELETE("/api/campaigns/:id", pm(hasID(a.DeleteCampaign), "campaigns:manage_all", "campaigns:manage"))
 
 		g.GET("/api/media", pm(a.GetAllMedia, "media:get"))

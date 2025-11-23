@@ -26,9 +26,10 @@
       </div>
     </header>
 
-    <b-table :data="lists.results" :loading="loading.listsFull" hoverable default-sort="createdAt" paginated
-      backend-pagination pagination-position="both" @page-change="onPageChange" :current-page="queryParams.page"
-      :per-page="lists.perPage" :total="lists.total" backend-sorting @sort="onSort">
+    <b-table :data="lists.results" :loading="loading.listsFull" @check-all="onTableCheck" @check="onTableCheck"
+      :checked-rows.sync="bulk.checked" hoverable default-sort="createdAt" paginated backend-pagination
+      pagination-position="both" @page-change="onPageChange" :current-page="queryParams.page" :per-page="lists.perPage"
+      :total="lists.total" checkable backend-sorting @sort="onSort">
       <template #top-left>
         <div class="columns">
           <div class="column is-6">
@@ -41,6 +42,20 @@
               </b-field>
             </form>
           </div>
+        </div>
+        <div class="actions" v-if="bulk.checked.length > 0">
+          <a class="a" href="#" @click.prevent="deleteLists" data-cy="btn-delete-lists">
+            <b-icon icon="trash-can-outline" size="is-small" /> Delete
+          </a>
+          <span class="a">
+            {{ $tc('globals.messages.numSelected', numSelectedLists, { num: numSelectedLists }) }}
+            <span v-if="!bulk.all && lists.total > lists.perPage">
+              &mdash;
+              <a href="#" @click.prevent="onSelectAll">
+                {{ $tc('globals.messages.selectAll', lists.total, { num: lists.total }) }}
+              </a>
+            </span>
+          </span>
         </div>
       </template>
 
@@ -195,6 +210,12 @@ export default Vue.extend({
         order: 'asc',
         status: this.$route.query.status || 'active',
       },
+
+      // Table bulk row selection states.
+      bulk: {
+        checked: [],
+        all: false,
+      },
     };
   },
 
@@ -272,6 +293,49 @@ export default Vue.extend({
       );
     },
 
+    // Mark all lists in the query as selected.
+    onSelectAll() {
+      this.bulk.all = true;
+    },
+
+    onTableCheck() {
+      // Disable bulk.all selection if there are no rows checked in the table.
+      if (this.bulk.checked.length !== this.lists.total) {
+        this.bulk.all = false;
+      }
+    },
+
+    deleteLists() {
+      const name = this.$tc('globals.terms.list', this.numSelectedCampaigns);
+
+      const fn = () => {
+        const params = {};
+        if (!this.bulk.all && this.bulk.checked.length > 0) {
+          // If 'all' is not selected, delete lists by IDs.
+          params.id = this.bulk.checked.map((l) => l.id);
+        } else {
+          // 'All' is selected, delete by query.
+          params.query = this.queryParams.query.replace(/[^\p{L}\p{N}\s]/gu, ' ');
+        }
+
+        this.$api.deleteLists(params)
+          .then(() => {
+            this.getLists();
+            this.$utils.toast(this.$tc(
+              'globals.messages.deletedCount',
+              this.numSelectedLists,
+              { num: this.numSelectedLists, name },
+            ));
+          });
+      };
+
+      this.$utils.confirm(this.$tc(
+        'globals.messages.confirmDelete',
+        this.numSelectedLists,
+        { num: this.numSelectedLists, name: name.toLowerCase() },
+      ), fn);
+    },
+
     createOptinCampaign(list) {
       const data = {
         name: this.$t('lists.optinTo', { name: list.name }),
@@ -292,6 +356,10 @@ export default Vue.extend({
 
   computed: {
     ...mapState(['loading', 'settings']),
+
+    numSelectedLists() {
+      return this.bulk.all ? this.lists.total : this.bulk.checked.length;
+    },
   },
 
   mounted() {

@@ -330,6 +330,27 @@ func (c *Core) DeleteCampaign(id int) error {
 	return nil
 }
 
+// DeleteCampaigns deletes multiple campaigns by IDs or by query.
+func (c *Core) DeleteCampaigns(ids []int, query string, hasAllPerm bool, permittedLists []int) error {
+	var queryStr string
+
+	if len(ids) > 0 {
+		queryStr = ""
+	} else if query != "" {
+		queryStr = makeSearchString(query)
+	} else {
+		return echo.NewHTTPError(http.StatusBadRequest, c.i18n.T("globals.messages.invalidData"))
+	}
+
+	if _, err := c.q.DeleteCampaigns.Exec(pq.Array(ids), queryStr, hasAllPerm, pq.Array(permittedLists)); err != nil {
+		c.log.Printf("error deleting campaigns: %v", err)
+		return echo.NewHTTPError(http.StatusInternalServerError,
+			c.i18n.Ts("globals.messages.errorDeleting", "name", "{globals.terms.campaigns}", "error", pqErrMsg(err)))
+	}
+
+	return nil
+}
+
 // CampaignHasLists checks if a campaign has any of the given list IDs.
 func (c *Core) CampaignHasLists(id int, listIDs []int) (bool, error) {
 	has := false
