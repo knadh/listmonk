@@ -22,20 +22,6 @@ WITH tpl AS (
         END
     LIMIT 1
 ),
-counts AS (
-    -- This is going to be slow on large databases.
-    SELECT
-        COALESCE(COUNT(DISTINCT sl.subscriber_id), 0) AS to_send, COALESCE(MAX(s.id), 0) AS max_sub_id
-    FROM subscriber_lists sl
-        JOIN lists l ON sl.list_id = l.id
-        JOIN subscribers s ON sl.subscriber_id = s.id
-    WHERE sl.list_id = ANY($14::INT[])
-      AND s.status != 'blocklisted'
-      AND (
-        (l.optin = 'double' AND sl.status = 'confirmed') OR
-        (l.optin != 'double' AND sl.status != 'unsubscribed')
-      )
-),
 camp AS (
     INSERT INTO campaigns (uuid, type, name, subject, from_email, body, altbody,
         content_type, send_at, headers, tags, messenger, template_id, to_send,
@@ -47,8 +33,8 @@ camp AS (
             $8::content_type,
             $9, $10, $11, $12,
             (SELECT id FROM tpl),
-            (SELECT to_send FROM counts),
-            (SELECT max_sub_id FROM counts),
+            0,
+            0,
             $15, $16,
             -- archive_template_id
             $17,
