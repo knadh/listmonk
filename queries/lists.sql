@@ -56,15 +56,19 @@ SELECT id, uuid, type FROM lists WHERE
 INSERT INTO lists (uuid, name, type, optin, status, tags, description) VALUES($1, $2, $3, $4, $5, $6, $7) RETURNING id;
 
 -- name: update-list
-UPDATE lists SET
-    name=(CASE WHEN $2 != '' THEN $2 ELSE name END),
-    type=(CASE WHEN $3 != '' THEN $3::list_type ELSE type END),
-    optin=(CASE WHEN $4 != '' THEN $4::list_optin ELSE optin END),
-    status=(CASE WHEN $5 != '' THEN $5::list_status ELSE status END),
-    tags=$6::VARCHAR(100)[],
-    description=(CASE WHEN $7 != '' THEN $7 ELSE description END),
-    updated_at=NOW()
-WHERE id = $1;
+WITH l AS (
+    UPDATE lists SET
+        name=(CASE WHEN $2 != '' THEN $2 ELSE name END),
+        type=(CASE WHEN $3 != '' THEN $3::list_type ELSE type END),
+        optin=(CASE WHEN $4 != '' THEN $4::list_optin ELSE optin END),
+        status=(CASE WHEN $5 != '' THEN $5::list_status ELSE status END),
+        tags=$6::VARCHAR(100)[],
+        description=(CASE WHEN $7 != '' THEN $7 ELSE description END),
+        updated_at=NOW()
+    WHERE id = $1
+    RETURNING id, name
+)
+UPDATE campaign_lists SET list_name = l.name FROM l WHERE campaign_lists.list_id = l.id;
 
 -- name: update-lists-date
 UPDATE lists SET updated_at=NOW() WHERE id = ANY($1);
