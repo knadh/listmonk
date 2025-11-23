@@ -9,7 +9,8 @@
           </span>
           <span v-if="currentList">
             &raquo; {{ currentList.name }}
-            <span v-if="queryParams.subStatus" class="has-text-grey has-text-weight-normal is-capitalized">({{ queryParams.subStatus }})</span>
+            <span v-if="queryParams.subStatus" class="has-text-grey has-text-weight-normal is-capitalized">({{
+              queryParams.subStatus }})</span>
           </span>
         </h1>
       </div>
@@ -92,11 +93,11 @@
               <b-icon icon="account-off-outline" size="is-small" /> Blocklist
             </a>
             <span class="a">
-              {{ $t('subscribers.numSelected', { num: numSelectedSubscribers }) }}
+              {{ $t('globals.messages.numSelected', { num: numSelectedSubscribers }) }}
               <span v-if="!bulk.all && subscribers.total > subscribers.perPage">
                 &mdash;
                 <a href="#" @click.prevent="selectAllSubscribers">
-                  {{ $t('subscribers.selectAll', { num: subscribers.total }) }}
+                  {{ $t('globals.messages.selectAll', { num: subscribers.total }) }}
                 </a>
               </span>
             </span>

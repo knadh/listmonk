@@ -431,6 +431,21 @@ UPDATE campaigns SET
 -- name: delete-campaign
 DELETE FROM campaigns WHERE id=$1;
 
+-- name: delete-campaigns
+DELETE FROM campaigns c
+WHERE (
+    CASE
+        WHEN CARDINALITY($1::INT[]) > 0 THEN id = ANY($1)
+        ELSE $2 = '' OR TO_TSVECTOR(CONCAT(name, ' ', subject)) @@ TO_TSQUERY($2) OR CONCAT(c.name, ' ', c.subject) ILIKE $2
+    END
+)
+-- Get all campaigns or filter by permitted list IDs.
+AND (
+    $3 OR EXISTS (
+        SELECT 1 FROM campaign_lists WHERE campaign_id = c.id AND list_id = ANY($4::INT[])
+    )
+);
+
 -- name: register-campaign-view
 WITH view AS (
     SELECT campaigns.id as campaign_id, subscribers.id AS subscriber_id FROM campaigns

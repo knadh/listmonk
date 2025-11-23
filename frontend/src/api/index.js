@@ -153,6 +153,11 @@ export const deleteList = (id) => http.delete(
   { loading: models.lists },
 );
 
+export const deleteLists = (params) => http.delete(
+  '/api/lists',
+  { params, loading: models.lists },
+);
+
 // Subscribers.
 export const getSubscribers = async (params) => http.get(
   '/api/subscribers',
@@ -351,6 +356,11 @@ export const updateCampaignArchive = async (id, data) => http.put(
 export const deleteCampaign = async (id) => http.delete(
   `/api/campaigns/${id}`,
   { loading: models.campaigns },
+);
+
+export const deleteCampaigns = (params) => http.delete(
+  '/api/campaigns',
+  { params, loading: models.campaigns },
 );
 
 // Media.
