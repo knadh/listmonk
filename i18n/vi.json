@@ -282,6 +282,8 @@
     "import.subscribeWarning": "Ghi đè sẽ đăng ký lại các email đã hủy đăng ký. Tiếp tục?",
     "import.title": "Nhập người đăng ký",
     "import.upload": "Tải lên",
+    "lists.archived": "Archived",
+    "lists.archivedHelp": "Archiving hides the lists from lists page, campaigns, and public forms. It can be unarchived anytime. It is useful for hiding old and rarely used lists.",
     "lists.confirmDelete": "Bạn có chắc không? Điều này không xóa người đăng ký.",
     "lists.confirmSub": "Xác nhận (các) đăng ký với {name}",
     "lists.invalidName": "Tên không hợp lệ",

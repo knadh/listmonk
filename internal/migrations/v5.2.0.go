@@ -32,5 +32,21 @@ func V5_2_0(db *sqlx.DB, fs stuffbin.FileSystem, ko *koanf.Koanf, lo *log.Logger
 		return err
 	}
 
+	// Add status field to lists table.
+	_, err = db.Exec(`
+		DO $$ BEGIN
+			-- Create list_status enum if it doesn't exist
+			IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'list_status') THEN
+				CREATE TYPE list_status AS ENUM ('active', 'archived');
+			END IF;
+		END $$;
+
+		ALTER TABLE lists ADD COLUMN IF NOT EXISTS status list_status NOT NULL DEFAULT 'active';
+		CREATE INDEX IF NOT EXISTS idx_lists_status ON lists(status);
+	`)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }

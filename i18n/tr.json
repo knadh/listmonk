@@ -282,6 +282,8 @@
     "import.subscribeWarning": "Üzerine yazma, aboneliği iptal edilen e-postaları yeniden abone yapacak. Devam etmek istiyor musunuz?",
     "import.title": "Üyeleri içeri aktar",
     "import.upload": "Yükle",
+    "lists.archived": "Archived",
+    "lists.archivedHelp": "Archiving hides the lists from lists page, campaigns, and public forms. It can be unarchived anytime. It is useful for hiding old and rarely used lists.",
     "lists.confirmDelete": "Emin misiniz? Bu işlem üyeleri silmeyecek.",
     "lists.confirmSub": "{name} için üyelik(leri) doğrula",
     "lists.invalidName": "Yanlış isim",

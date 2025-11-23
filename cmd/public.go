@@ -122,7 +122,7 @@ func (t *tplRenderer) Render(w io.Writer, name string, data any, c echo.Context)
 // required to submit a subscription.
 func (a *App) GetPublicLists(c echo.Context) error {
 	// Get all public lists.
-	lists, err := a.core.GetLists(models.ListTypePublic, true, nil)
+	lists, err := a.core.GetLists(models.ListTypePublic, models.ListStatusActive, true, nil)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("public.errorFetchingLists"))
 	}
@@ -417,7 +417,7 @@ func (a *App) SubscriptionFormPage(c echo.Context) error {
 	}
 
 	// Get all public lists from the DB.
-	lists, err := a.core.GetLists(models.ListTypePublic, true, nil)
+	lists, err := a.core.GetLists(models.ListTypePublic, models.ListStatusActive, true, nil)
 	if err != nil {
 		return c.Render(http.StatusInternalServerError, tplMessage,
 			makeMsgTpl(a.i18n.T("public.errorTitle"), "", a.i18n.Ts("public.errorFetchingLists")))

@@ -191,8 +191,8 @@ export default Vue.extend({
       return (this.serverConfig.needs_restart
         || this.serverConfig.has_legacy_user
         || (this.serverConfig.update
-        && this.serverConfig.update.messages
-        && this.serverConfig.update.messages.length > 0));
+          && this.serverConfig.update.messages
+          && this.serverConfig.update.messages.length > 0));
     },
 
     version() {
@@ -207,7 +207,7 @@ export default Vue.extend({
   mounted() {
     // Lists is required across different views. On app load, fetch the lists
     // and have them in the store.
-    this.$api.getLists({ minimal: true, per_page: 'all' });
+    this.$api.getLists({ minimal: true, per_page: 'all', status: 'active' });
 
     window.addEventListener('resize', () => {
       this.windowWidth = window.innerWidth;

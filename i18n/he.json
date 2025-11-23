@@ -282,6 +282,8 @@
     "import.subscribeWarning": "שגר את עורך למערכת והרשם שוב לעיתוי כתובת אימייל שבוטלה. האם להמשיך?",
     "import.title": "ייבוא מנויים",
     "import.upload": "העלאה",
+    "lists.archived": "Archived",
+    "lists.archivedHelp": "Archiving hides the lists from lists page, campaigns, and public forms. It can be unarchived anytime. It is useful for hiding old and rarely used lists.",
     "lists.confirmDelete": "האם אתה בטוח? זה לא מוחק את המנויים.",
     "lists.confirmSub": "אשר את המנויים עבור {name}",
     "lists.invalidName": "שם לא חוקי",

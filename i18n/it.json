@@ -282,6 +282,8 @@
     "import.subscribeWarning": "Sovrascrivere sottoscriverà nuovamente gli indirizzi email non sottoscritti. Continuare?",
     "import.title": "Importare iscritti",
     "import.upload": "Caricare",
+    "lists.archived": "Archived",
+    "lists.archivedHelp": "Archiving hides the lists from lists page, campaigns, and public forms. It can be unarchived anytime. It is useful for hiding old and rarely used lists.",
     "lists.confirmDelete": "Sei sicuro? Questo non cancella gli iscritti",
     "lists.confirmSub": "Confermare gli iscritti di {name}",
     "lists.invalidName": "Nome errato",

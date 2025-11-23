@@ -282,6 +282,8 @@
     "import.subscribeWarning": "덮어쓰면 구독 해지된 이메일이 다시 구독됩니다. 계속하시겠습니까?",
     "import.title": "구독자 가져오기",
     "import.upload": "업로드",
+    "lists.archived": "Archived",
+    "lists.archivedHelp": "Archiving hides the lists from lists page, campaigns, and public forms. It can be unarchived anytime. It is useful for hiding old and rarely used lists.",
     "lists.confirmDelete": "정말 삭제하시겠습니까? 구독자는 삭제되지 않습니다.",
     "lists.confirmSub": "{name} 구독 확인",
     "lists.invalidName": "잘못된 이름",

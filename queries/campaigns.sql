@@ -282,7 +282,7 @@ SELECT campaigns.id AS campaign_id, campaigns.type as campaign_type, last_subscr
     FROM campaigns
     LEFT JOIN campaign_lists ON (campaign_lists.campaign_id = campaigns.id)
     LEFT JOIN lists ON (lists.id = campaign_lists.list_id)
-    WHERE campaigns.id = $1 AND status='running';
+    WHERE campaigns.id = $1 AND campaigns.status='running';
 
 -- name: next-campaign-subscribers
 -- Returns a batch of subscribers in a given campaign starting from the last checkpoint

@@ -282,6 +282,8 @@
     "import.subscribeWarning": "A sobrescrita irá resscrever e-mails que foram cancelados a assinatura. Continuar?",
     "import.title": "Importar inscritos",
     "import.upload": "Enviar arquivo",
+    "lists.archived": "Archived",
+    "lists.archivedHelp": "Archiving hides the lists from lists page, campaigns, and public forms. It can be unarchived anytime. It is useful for hiding old and rarely used lists.",
     "lists.confirmDelete": "Você tem certeza? Isso não exclui inscritos.",
     "lists.confirmSub": "Confirmar assinatura(s) para {name}",
     "lists.invalidName": "Nome inválido",

@@ -282,6 +282,8 @@
     "import.subscribeWarning": "覆盖将重新订阅已取消订阅的电子邮件。是否继续？",
     "import.title": "导入订阅者",
     "import.upload": "上传",
+    "lists.archived": "Archived",
+    "lists.archivedHelp": "Archiving hides the lists from lists page, campaigns, and public forms. It can be unarchived anytime. It is useful for hiding old and rarely used lists.",
     "lists.confirmDelete": "你确定吗？这不会删除订阅者。",
     "lists.confirmSub": "确认订阅 {name}",
     "lists.invalidName": "名称无效",

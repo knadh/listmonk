@@ -21,7 +21,8 @@ func (a *App) GetLists(c echo.Context) error {
 	// Minimal query simply returns the list of all lists without JOIN subscriber counts. This is fast.
 	minimal, _ := strconv.ParseBool(c.FormValue("minimal"))
 	if minimal {
-		res, err := a.core.GetLists("", hasAllPerm, permittedIDs)
+		status := c.FormValue("status")
+		res, err := a.core.GetLists("", status, hasAllPerm, permittedIDs)
 		if err != nil {
 			return err
 		}
@@ -48,11 +49,12 @@ func (a *App) GetLists(c echo.Context) error {
 		orderBy = c.FormValue("order_by")
 		typ     = c.FormValue("type")
 		optin   = c.FormValue("optin")
+		status  = c.FormValue("status")
 		order   = c.FormValue("order")
 
 		pg = a.pg.NewFromURL(c.Request().URL.Query())
 	)
-	res, total, err := a.core.QueryLists(query, typ, optin, tags, orderBy, order, hasAllPerm, permittedIDs, pg.Offset, pg.Limit)
+	res, total, err := a.core.QueryLists(query, typ, optin, status, tags, orderBy, order, hasAllPerm, permittedIDs, pg.Offset, pg.Limit)
 	if err != nil {
 		return err
 	}

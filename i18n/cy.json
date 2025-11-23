@@ -282,6 +282,8 @@
     "import.subscribeWarning": "Bydd troi'n ôl yn adysgrifio negeseuon e-bost wedi'u hallgofrestru. Cofiwch?",
     "import.title": "Mewngludo tanysgrifwyr",
     "import.upload": "Llwytho i fyny",
+    "lists.archived": "Archived",
+    "lists.archivedHelp": "Archiving hides the lists from lists page, campaigns, and public forms. It can be unarchived anytime. It is useful for hiding old and rarely used lists.",
     "lists.confirmDelete": "Ydych chi'n siŵr? Nid yw hyn yn dileu tanysgrifwyr.",
     "lists.confirmSub": "Cadarnhau tanysgrifiad i {name}",
     "lists.invalidName": "Enw annilys",

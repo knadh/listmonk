@@ -282,6 +282,8 @@
     "import.subscribeWarning": "Nadpisanie spowoduje ponowne zasubskrybowanie emaili, które zostały zrezygnowane z subskrypcji. Kontynuować?",
     "import.title": "Importuj subskrypcje",
     "import.upload": "Wyślij",
+    "lists.archived": "Archived",
+    "lists.archivedHelp": "Archiving hides the lists from lists page, campaigns, and public forms. It can be unarchived anytime. It is useful for hiding old and rarely used lists.",
     "lists.confirmDelete": "Jesteś pewny(a)? To nie usunie subskrybcji.",
     "lists.confirmSub": "Potwierdź subskrypcję dla  {name}",
     "lists.invalidName": "Nieprawidłowa nazwa",

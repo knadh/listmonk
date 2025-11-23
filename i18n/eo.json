@@ -282,6 +282,8 @@
     "import.subscribeWarning": "Ĉi tio forigos abonitajn retadresojn. Ĉu daŭrigi?",
     "import.title": "Importa subscriptors",
     "import.upload": "Carrega",
+    "lists.archived": "Archived",
+    "lists.archivedHelp": "Archiving hides the lists from lists page, campaigns, and public forms. It can be unarchived anytime. It is useful for hiding old and rarely used lists.",
     "lists.confirmDelete": "Estàs segur? Això no elimina els subscriptors.",
     "lists.confirmSub": "Confirmeu les subscripcions a {name}",
     "lists.invalidName": "Nom no vàlid",

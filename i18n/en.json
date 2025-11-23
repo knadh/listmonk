@@ -682,5 +682,7 @@
     "users.totpCodeHelp": "Enter the 6-digit code from your authenticator app",
     "users.totpScanQR": "Scan the QR code with your authenticator app such as Ente or Google Authenticator and enter the TOTP code below.",
     "users.totpSecret": "Secret key",
-    "users.invalidPassword": "Invalid password"
+    "users.invalidPassword": "Invalid password",
+    "lists.archived": "Archived",
+    "lists.archivedHelp": "Archiving hides the lists from lists page, campaigns, and public forms. It can be unarchived anytime. It is useful for hiding old and rarely used lists."
 }

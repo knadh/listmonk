@@ -282,6 +282,8 @@
     "import.subscribeWarning": "Sobrescreverá e-mails cancelados. Deseja continuar?",
     "import.title": "Importar subscritores",
     "import.upload": "Carregar",
+    "lists.archived": "Archived",
+    "lists.archivedHelp": "Archiving hides the lists from lists page, campaigns, and public forms. It can be unarchived anytime. It is useful for hiding old and rarely used lists.",
     "lists.confirmDelete": "Tens a certeza? Isto não elimina subscritores.",
     "lists.confirmSub": "Confirmar subscrição(ões) para {name}",
     "lists.invalidName": "Nome inválido",

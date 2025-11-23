@@ -282,6 +282,8 @@
     "import.subscribeWarning": "Prepis bo ponovno naročil odjavljene e-pošte. Želite nadaljevati?",
     "import.title": "Uvozi naročnike",
     "import.upload": "Naloži",
+    "lists.archived": "Archived",
+    "lists.archivedHelp": "Archiving hides the lists from lists page, campaigns, and public forms. It can be unarchived anytime. It is useful for hiding old and rarely used lists.",
     "lists.confirmDelete": "Ste prepričani? To ne izbriše naročnikov.",
     "lists.confirmSub": "Potrdi naročnino(e) na {name}",
     "lists.invalidName": "Neveljavno ime",
