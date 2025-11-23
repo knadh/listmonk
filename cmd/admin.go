@@ -22,6 +22,7 @@ type serverConfig struct {
 		CaptchaKey       null.String `json:"captcha_key"`
 		AltchaComplexity int         `json:"altcha_complexity"`
 	} `json:"public_subscription"`
+	MediaProvider string          `json:"media_provider"`
 	Messengers    []string        `json:"messengers"`
 	Langs         []i18nLang      `json:"langs"`
 	Lang          string          `json:"lang"`
@@ -53,6 +54,8 @@ func (a *App) GetServerConfig(c echo.Context) error {
 		out.PublicSubscription.CaptchaProvider = null.StringFrom(captcha.ProviderHCaptcha)
 		out.PublicSubscription.CaptchaKey = null.StringFrom(a.cfg.Security.Captcha.HCaptcha.Key)
 	}
+
+	out.MediaProvider = a.cfg.MediaUpload.Provider
 
 	// Language list.
 	langList, err := getI18nLangList(a.fs)

@@ -3,7 +3,7 @@
     <h1 class="title is-4">
       {{ $t('media.title') }}
       <span v-if="media.results && media.results.length > 0">({{ media.results.length }})</span>
-      <span class="has-text-grey-light"> / {{ settings['upload.provider'] }}</span>
+      <span class="has-text-grey-light"> / {{ serverConfig.media_provider }}</span>
     </h1>
 
     <b-loading :active="isProcessing || loading.media" />
@@ -22,14 +22,14 @@
             </div>
           </form>
         </div>
-        <div class="column is-narrow">
+        <div v-if="$can('media:manage')" class="column is-narrow">
           <b-button @click="onToggleForm" icon-left="file-upload-outline" data-cy="btn-toggle-upload">
             {{ $t('media.upload') }}
           </b-button>
         </div>
       </div>
 
-      <b-collapse v-model="showUploadForm" animation="">
+      <b-collapse v-if="$can('media:manage')" v-model="showUploadForm" animation="">
         <form @submit.prevent="onSubmit" class="mb-6" data-cy="upload">
           <div>
             <b-field :label="$t('media.upload')">
@@ -213,7 +213,7 @@ export default Vue.extend({
   },
 
   computed: {
-    ...mapState(['loading', 'media', 'settings']),
+    ...mapState(['loading', 'media', 'serverConfig']),
 
     isProcessing() {
       if (this.toUpload > 0 && this.uploaded < this.toUpload) {
@@ -224,7 +224,6 @@ export default Vue.extend({
   },
 
   mounted() {
-    this.$api.getSettings();
     this.$api.getMedia();
 
     if (this.$utils.getPref('media.upload')) {
