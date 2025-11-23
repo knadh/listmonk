@@ -282,6 +282,8 @@
     "import.subscribeWarning": "Bij overschrijven kunnen abonnees die zich hebben afgemeld weer worden ingeschreven. Doorgaan?",
     "import.title": "Abonnees importeren",
     "import.upload": "Opladen",
+    "lists.archived": "Archived",
+    "lists.archivedHelp": "Archiving hides the lists from lists page, campaigns, and public forms. It can be unarchived anytime. It is useful for hiding old and rarely used lists.",
     "lists.confirmDelete": "Bent u zeker? Dit verwijdert niet alle abonnees.",
     "lists.confirmSub": "Bevestig de inschrijving(en) voor {name}",
     "lists.invalidName": "Ongeldige naam",

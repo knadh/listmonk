@@ -282,6 +282,8 @@
     "import.subscribeWarning": "Přepsání znovu přihlásí odhlášené adresy. Pokračovat?",
     "import.title": "Importovat odběratele",
     "import.upload": "Odeslat",
+    "lists.archived": "Archived",
+    "lists.archivedHelp": "Archiving hides the lists from lists page, campaigns, and public forms. It can be unarchived anytime. It is useful for hiding old and rarely used lists.",
     "lists.confirmDelete": "Jste si jisti? Tímto se neodstraní odběratelé.",
     "lists.confirmSub": "Potvrdit odběr(y) pro {name}",
     "lists.invalidName": "Neplatné jméno",

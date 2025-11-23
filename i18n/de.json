@@ -282,6 +282,8 @@
     "import.subscribeWarning": "Das Überschreiben führt zur erneuten Anmeldung von abgemeldeten E-Mails. Fortfahren?",
     "import.title": "Abonnenten importieren",
     "import.upload": "Hochladen",
+    "lists.archived": "Archived",
+    "lists.archivedHelp": "Archiving hides the lists from lists page, campaigns, and public forms. It can be unarchived anytime. It is useful for hiding old and rarely used lists.",
     "lists.confirmDelete": "Bist du sicher? Das Löschen einer Liste löscht keine Abonnenten.",
     "lists.confirmSub": "Bestätige das/die Abonnement/s von {name}",
     "lists.invalidName": "Ungültiger Name",

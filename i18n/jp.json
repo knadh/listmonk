@@ -282,6 +282,8 @@
     "import.subscribeWarning": "上書きすると、登録解除されたメールアドレスが再登録されます。続行しますか？",
     "import.title": "加入者をインポート",
     "import.upload": "アップロード",
+    "lists.archived": "Archived",
+    "lists.archivedHelp": "Archiving hides the lists from lists page, campaigns, and public forms. It can be unarchived anytime. It is useful for hiding old and rarely used lists.",
     "lists.confirmDelete": "本当に良いですか？これは加入者を削除しません。",
     "lists.confirmSub": "{name}にサブスクリプション確認",
     "lists.invalidName": "無効な名前",

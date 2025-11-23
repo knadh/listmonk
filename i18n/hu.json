@@ -282,6 +282,8 @@
     "import.subscribeWarning": "A felülírás feliratkozatlan e-maileket újra fel fog iratkoztatni. Folytatja?",
     "import.title": "Tagok importálása",
     "import.upload": "Feltöltés",
+    "lists.archived": "Archived",
+    "lists.archivedHelp": "Archiving hides the lists from lists page, campaigns, and public forms. It can be unarchived anytime. It is useful for hiding old and rarely used lists.",
     "lists.confirmDelete": "Biztos? Ez nem törli a tagokat.",
     "lists.confirmSub": "Tagság megerősítése: {name}",
     "lists.invalidName": "Érvénytelen név",

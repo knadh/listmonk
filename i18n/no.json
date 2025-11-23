@@ -282,6 +282,8 @@
     "import.subscribeWarning": "Overskriving vil re-abonnere avmeldte e-poster. Fortsette?",
     "import.title": "Importer abonnenter",
     "import.upload": "Last opp",
+    "lists.archived": "Archived",
+    "lists.archivedHelp": "Archiving hides the lists from lists page, campaigns, and public forms. It can be unarchived anytime. It is useful for hiding old and rarely used lists.",
     "lists.confirmDelete": "Er du sikker? Dette sletter ikke abonnenter.",
     "lists.confirmSub": "Bekreft abonnement på {name}",
     "lists.invalidName": "Ugyldig navn",

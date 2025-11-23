@@ -53,6 +53,10 @@
           <b-input :maxlength="2000" v-model="form.description" name="description" type="textarea"
             :placeholder="$t('globals.fields.description')" />
         </b-field>
+
+        <b-field :message="$t('lists.archivedHelp')" :label="$t('lists.archived')">
+          <b-switch v-model="isArchived" name="status" />
+        </b-field>
       </section>
       <footer class="modal-card-foot has-text-right">
         <b-button @click="$parent.close()">
@@ -91,6 +95,7 @@ export default Vue.extend({
         name: '',
         type: 'private',
         optin: 'single',
+        status: 'active',
         tags: [],
       },
     };
@@ -125,6 +130,15 @@ export default Vue.extend({
 
   computed: {
     ...mapState(['loading', 'profile']),
+
+    isArchived: {
+      get() {
+        return this.form.status === 'archived';
+      },
+      set(v) {
+        this.form.status = v ? 'archived' : 'active';
+      },
+    },
   },
 
   mounted() {

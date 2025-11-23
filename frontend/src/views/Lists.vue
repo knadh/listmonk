@@ -2,10 +2,20 @@
   <section class="lists">
     <header class="columns page-header">
       <div class="column is-10">
-        <h1 class="title is-4">
+        <h1 class="title is-4 mb-2">
           {{ $t('globals.terms.lists') }}
+          <span v-if="queryParams.status === 'archived'" class="has-text-grey-light">/ {{ queryParams.status }} </span>
           <span v-if="!isNaN(lists.total)">({{ lists.total }})</span>
         </h1>
+
+        <div class="is-size-7">
+          <router-link v-if="queryParams.status !== 'archived'" :to="{ name: 'lists', query: { status: 'archived' } }">
+            {{ $t('globals.buttons.view') }} {{ $t('lists.archived').toLowerCase() }} &rarr;
+          </router-link>
+          <router-link v-else :to="{ name: 'lists' }">
+            {{ $t('globals.buttons.view') }} {{ $t('menu.allLists').toLowerCase() }} &rarr;
+          </router-link>
+        </div>
       </div>
       <div class="column has-text-right">
         <b-field v-if="$can('lists:manage_all')" expanded>
@@ -23,15 +33,12 @@
         <div class="columns">
           <div class="column is-6">
             <form @submit.prevent="getLists">
-              <div>
-                <b-field>
-                  <b-input v-model="queryParams.query" name="query" expanded icon="magnify" ref="query"
-                    data-cy="query" />
-                  <p class="controls">
-                    <b-button native-type="submit" type="is-primary" icon-left="magnify" data-cy="btn-query" />
-                  </p>
-                </b-field>
-              </div>
+              <b-field>
+                <b-input v-model="queryParams.query" name="query" expanded icon="magnify" ref="query" data-cy="query" />
+                <p class="controls">
+                  <b-button native-type="submit" type="is-primary" icon-left="magnify" data-cy="btn-query" />
+                </p>
+              </b-field>
             </form>
           </div>
         </div>
@@ -186,6 +193,7 @@ export default Vue.extend({
         query: '',
         orderBy: 'id',
         order: 'asc',
+        status: this.$route.query.status || 'active',
       },
     };
   },
@@ -241,13 +249,14 @@ export default Vue.extend({
         query: this.queryParams.query.replace(/[^\p{L}\p{N}\s]/gu, ' '),
         order_by: this.queryParams.orderBy,
         order: this.queryParams.order,
+        status: this.queryParams.status,
       }).then((resp) => {
         this.lists = resp;
       });
 
       // Also fetch the minimal lists for the global store that appears
       // in dropdown menus on other pages like import and campaigns.
-      this.$api.getLists({ minimal: true, per_page: 'all' });
+      this.$api.getLists({ minimal: true, per_page: 'all', status: 'active' });
     },
 
     deleteList(list) {

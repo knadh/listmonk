@@ -282,6 +282,8 @@
     "import.subscribeWarning": "Перезапись приведёт к повторной подписке отписавшихся адресов. Продолжить?",
     "import.title": "Импорт подписчиков",
     "import.upload": "Загрузить",
+    "lists.archived": "Archived",
+    "lists.archivedHelp": "Archiving hides the lists from lists page, campaigns, and public forms. It can be unarchived anytime. It is useful for hiding old and rarely used lists.",
     "lists.confirmDelete": "Вы уверены? Это не удалит подписчиков.",
     "lists.confirmSub": "Подтвердить подписку на {name}",
     "lists.invalidName": "Неверное имя",

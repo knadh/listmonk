@@ -282,6 +282,8 @@
     "import.subscribeWarning": "Презаписването ще абонира отново отписаните имейли. Продължавате ли?",
     "import.title": "Импортиране на абонати",
     "import.upload": "Качване",
+    "lists.archived": "Archived",
+    "lists.archivedHelp": "Archiving hides the lists from lists page, campaigns, and public forms. It can be unarchived anytime. It is useful for hiding old and rarely used lists.",
     "lists.confirmDelete": "Сигурни ли сте? Това не изтрива абонатите.",
     "lists.confirmSub": "Потвърждаване на абонамент(и) за {name}",
     "lists.invalidName": "Невалидно име",

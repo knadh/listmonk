@@ -6,10 +6,12 @@ import (
 )
 
 const (
-	ListTypePrivate = "private"
-	ListTypePublic  = "public"
-	ListOptinSingle = "single"
-	ListOptinDouble = "double"
+	ListTypePrivate    = "private"
+	ListTypePublic     = "public"
+	ListOptinSingle    = "single"
+	ListOptinDouble    = "double"
+	ListStatusActive   = "active"
+	ListStatusArchived = "archived"
 )
 
 // List represents a mailing list.
@@ -20,6 +22,7 @@ type List struct {
 	Name             string         `db:"name" json:"name"`
 	Type             string         `db:"type" json:"type"`
 	Optin            string         `db:"optin" json:"optin"`
+	Status           string         `db:"status" json:"status"`
 	Tags             pq.StringArray `db:"tags" json:"tags"`
 	Description      string         `db:"description" json:"description"`
 	SubscriberCount  int            `db:"subscriber_count" json:"subscriber_count"`

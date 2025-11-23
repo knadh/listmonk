@@ -282,6 +282,8 @@
     "import.subscribeWarning": "പുനര്‍വൃത്തിപ്പെടുന്ന അസഭ്യ ഇ-മെയിലുകള്‍ പുനര്‍വൃത്തിപ്പെടുത്തുന്നു. തുല്യമാക്കുക?",
     "import.title": "വരിക്കാരേ ഇംപോർട്ട് ചെയ്യുക",
     "import.upload": "അപ്ലോഡ്",
+    "lists.archived": "Archived",
+    "lists.archivedHelp": "Archiving hides the lists from lists page, campaigns, and public forms. It can be unarchived anytime. It is useful for hiding old and rarely used lists.",
     "lists.confirmDelete": "നിങ്ങൾക്ക് തീർച്ചയാണോ? ഇത് ലിസ്റ്റിലെ വരിക്കാരെ ഇല്ലാതാക്കില്ല.",
     "lists.confirmSub": "{name} ൽ വരിക്കാരനാകുന്നത് സ്ഥിരീകരിക്കുക",
     "lists.invalidName": "പേര് അസാധുവാണ്",

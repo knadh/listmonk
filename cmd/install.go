@@ -142,6 +142,7 @@ func installLists(q *models.Queries) (int, int) {
 		"Default list",
 		models.ListTypePrivate,
 		models.ListOptinSingle,
+		models.ListStatusActive,
 		pq.StringArray{"test"},
 		"",
 	); err != nil {
@@ -152,6 +153,7 @@ func installLists(q *models.Queries) (int, int) {
 		"Opt-in list",
 		models.ListTypePublic,
 		models.ListOptinDouble,
+		models.ListStatusActive,
 		pq.StringArray{"test"},
 		"",
 	); err != nil {

@@ -282,6 +282,8 @@
     "import.subscribeWarning": "La réinscription écrasera les e-mails désinscrits. Continuer ?",
     "import.title": "Importer des abonné·es",
     "import.upload": "Envoyer",
+    "lists.archived": "Archived",
+    "lists.archivedHelp": "Archiving hides the lists from lists page, campaigns, and public forms. It can be unarchived anytime. It is useful for hiding old and rarely used lists.",
     "lists.confirmDelete": "Êtes-vous sûr·e de supprimer cette liste ? Cela ne supprimera pas les abonné·es.",
     "lists.confirmSub": "Confirmer les abonnements à {name}",
     "lists.invalidName": "Nom incorrect",
