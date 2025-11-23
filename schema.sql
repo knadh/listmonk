@@ -461,9 +461,7 @@ BEGIN
         WHERE subscriber_lists.subscriber_id = sub.id
           AND subscriber_lists.list_id = lists.id
           AND (
-              lists.name LIKE '%_verified'
-              OR lists.name LIKE '%_unverified'
-              OR lists.name ~ '^[a-z]+_[a-z]+$' -- shared lists
+              lists.name LIKE '%_%m%'
           );
 
         -- For each language and frequency preference
