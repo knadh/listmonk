@@ -37,8 +37,16 @@ type Attachment struct {
 	Content []byte
 }
 
+// TxMessage subscriber modes.
+const (
+	TxSubModeDefault  = "default"
+	TxSubModeFallback = "fallback"
+	TxSubModeExternal = "external"
+)
+
 // TxMessage represents an e-mail campaign.
 type TxMessage struct {
+	SubscriberMode   string   `json:"subscriber_mode"`
 	SubscriberEmails []string `json:"subscriber_emails"`
 	SubscriberIDs    []int    `json:"subscriber_ids"`
 

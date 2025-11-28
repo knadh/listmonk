@@ -87,27 +87,45 @@ func (a *App) SendTxMessage(c echo.Context) error {
 
 	notFound := []string{}
 	for n := range num {
-		var (
-			subID    int
-			subEmail string
-		)
+		var sub models.Subscriber
 
-		if !isEmails {
-			subID = m.SubscriberIDs[n]
+		if m.SubscriberMode == models.TxSubModeExternal {
+			// `external`: Always create an ephemeral "subscriber" and don't
+			// lookup in the DB.
+			sub = models.Subscriber{
+				Email: m.SubscriberEmails[n],
+			}
 		} else {
-			subEmail = m.SubscriberEmails[n]
-		}
+			// Default/fallback mode: lookup subscriber in DB.
+			var (
+				subID    int
+				subEmail string
+			)
 
-		// Get the subscriber.
-		sub, err := a.core.GetSubscriber(subID, "", subEmail)
-		if err != nil {
-			// If the subscriber is not found, log that error and move on without halting on the list.
-			if er, ok := err.(*echo.HTTPError); ok && er.Code == http.StatusBadRequest {
-				notFound = append(notFound, fmt.Sprintf("%v", er.Message))
-				continue
+			if !isEmails {
+				subID = m.SubscriberIDs[n]
+			} else {
+				subEmail = m.SubscriberEmails[n]
 			}
 
-			return err
+			var err error
+			sub, err = a.core.GetSubscriber(subID, "", subEmail)
+			if err != nil {
+				if er, ok := err.(*echo.HTTPError); ok && er.Code == http.StatusBadRequest {
+					// `fallback`: Create an ephemeral "subscriber" if the subscriber wasn't found.
+					if m.SubscriberMode == models.TxSubModeFallback {
+						sub = models.Subscriber{
+							Email: subEmail,
+						}
+					} else {
+						// `default`: log error and continue.
+						notFound = append(notFound, fmt.Sprintf("%v", er.Message))
+						continue
+					}
+				} else {
+					return err
+				}
+			}
 		}
 
 		// Render the message.
@@ -175,9 +193,31 @@ func (a *App) validateTxMessage(m models.TxMessage) (models.TxMessage, error) {
 		m.SubscriberIDs = append(m.SubscriberIDs, m.SubscriberID)
 	}
 
-	if (len(m.SubscriberEmails) == 0 && len(m.SubscriberIDs) == 0) || (len(m.SubscriberEmails) > 0 && len(m.SubscriberIDs) > 0) {
+	// Validate subscriber_mode.
+	if m.SubscriberMode == "" {
+		m.SubscriberMode = models.TxSubModeDefault
+	}
+
+	switch m.SubscriberMode {
+	case models.TxSubModeDefault:
+		// Need subscriber_emails OR subscriber_ids, but not both.
+		if (len(m.SubscriberEmails) == 0 && len(m.SubscriberIDs) == 0) || (len(m.SubscriberEmails) > 0 && len(m.SubscriberIDs) > 0) {
+			return m, echo.NewHTTPError(http.StatusBadRequest,
+				a.i18n.Ts("globals.messages.invalidFields", "name", "send subscriber_emails OR subscriber_ids"))
+		}
+	case models.TxSubModeFallback, models.TxSubModeExternal:
+		// `fallback` and `external` can only use subscriber_emails.
+		if len(m.SubscriberIDs) > 0 {
+			return m, echo.NewHTTPError(http.StatusBadRequest,
+				a.i18n.Ts("globals.messages.invalidFields", "name", "subscriber_ids not allowed in fallback or external mode"))
+		}
+		if len(m.SubscriberEmails) == 0 {
+			return m, echo.NewHTTPError(http.StatusBadRequest,
+				a.i18n.Ts("globals.messages.invalidFields", "name", "subscriber_emails"))
+		}
+	default:
 		return m, echo.NewHTTPError(http.StatusBadRequest,
-			a.i18n.Ts("globals.messages.invalidFields", "name", "send subscriber_emails OR subscriber_ids"))
+			a.i18n.Ts("globals.messages.invalidFields", "name", "subscriber_mode"))
 	}
 
 	for n, email := range m.SubscriberEmails {
