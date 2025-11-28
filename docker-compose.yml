@@ -29,7 +29,7 @@ services:
       LISTMONK_db__user: *db-user
       LISTMONK_db__password: *db-password
       LISTMONK_db__database: *db-name
-      LISTMONK_db__host: listmonk_db
+      LISTMONK_db__host: db
       LISTMONK_db__port: 5432
       LISTMONK_db__ssl_mode: disable
       LISTMONK_db__max_open: 25
