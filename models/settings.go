@@ -143,6 +143,11 @@ type Settings struct {
 		ScanInterval  string `json:"scan_interval"`
 	} `json:"bounce.mailboxes"`
 
+	MaintenanceDB struct {
+		Vacuum         bool   `json:"vacuum"`
+		VacuumInterval string `json:"vacuum_cron_interval"`
+	} `json:"maintenance.db"`
+
 	AdminCustomCSS  string `json:"appearance.admin.custom_css"`
 	AdminCustomJS   string `json:"appearance.admin.custom_js"`
 	PublicCustomCSS string `json:"appearance.public.custom_css"`

@@ -232,9 +232,7 @@ func main() {
 	}
 
 	// Start cronjobs.
-	if ko.Bool("app.cache_slow_queries") {
-		initCron(core)
-	}
+	initCron(core, db)
 
 	// Start the campaign manager workers. The campaign batches (fetch from DB, push out
 	// messages) get processed at the specified interval.

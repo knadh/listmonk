@@ -50,5 +50,15 @@ func V5_1_0(db *sqlx.DB, fs stuffbin.FileSystem, ko *koanf.Koanf, lo *log.Logger
 		return err
 	}
 
+	// Add maintenance.db setting if not present.
+	_, err = db.Exec(`
+		INSERT INTO settings (key, value, updated_at)
+		VALUES ('maintenance.db', '{"vacuum": false, "vacuum_cron_interval": "0 2 * * *"}', NOW())
+		ON CONFLICT (key) DO NOTHING
+	`)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }

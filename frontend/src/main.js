@@ -101,6 +101,31 @@ const v = new Vue({
     loadConfig() {
       initConfig();
     },
+
+    // awaitRestart handles app restart polling after settings changes.
+    // Shows a toast and polls until the backend is back up.
+    // Returns a promise that resolves with { needsRestart: boolean }.
+    awaitRestart(response) {
+      return new Promise((resolve) => {
+        // If there are running campaigns, app won't auto restart.
+        if (response && typeof response === 'object' && response.needsRestart) {
+          this.loadConfig();
+          resolve({ needsRestart: true });
+          return;
+        }
+
+        Vue.prototype.$utils.toast(i18n.t('settings.messengers.messageSaved'));
+
+        // Poll until backend is back up.
+        const pollId = setInterval(() => {
+          api.getHealth().then(() => {
+            clearInterval(pollId);
+            this.loadConfig();
+            resolve({ needsRestart: false });
+          });
+        }, 1000);
+      });
+    },
   },
 
   mounted() {

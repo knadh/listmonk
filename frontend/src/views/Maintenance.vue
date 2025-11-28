@@ -107,6 +107,39 @@
         </div>
       </div>
     </div><!-- analytics -->
+
+    <form @submit.prevent="onUpdateDBSettings" class="box mt-6">
+      <h4 class="is-size-4">
+        {{ $t('maintenance.database.title') }}
+      </h4><br />
+      <h5 class="is-size-5">Vacuum</h5>
+      <p class="has-text-grey is-size-7">
+        {{ $t('maintenance.database.vacuumHelp') }}
+      </p>
+      <br />
+      <div class="columns">
+        <div class="column is-2">
+          <b-field :label="$t('globals.buttons.enabled')">
+            <b-switch v-model="dbSettings.vacuum" />
+          </b-field>
+        </div>
+        <div class="column is-4" :class="{ disabled: !dbSettings.vacuum }">
+          <b-field :label="$t('settings.maintenance.cron')">
+            <b-input v-model="dbSettings.vacuum_cron_interval" placeholder="0 2 * * *" :disabled="!dbSettings.vacuum"
+              pattern="((\*|[0-9,\-\/]+)\s+){4}(\*|[0-9,\-\/]+)" />
+          </b-field>
+        </div>
+        <div class="column is-3" />
+        <div class="column is-3">
+          <br />
+          <b-button type="is-primary" native-type="submit" :loading="loading.settings" expanded>
+            {{ $t('globals.buttons.save') }}
+          </b-button>
+        </div>
+      </div>
+    </form><!-- database -->
+
+    <b-loading :is-full-page="true" v-if="isLoading" active />
   </section>
 </template>
 
@@ -121,12 +154,21 @@ export default Vue.extend({
 
   data() {
     return {
+      isLoading: false,
       subscriberType: 'orphan',
       analyticsType: 'all',
       subscriptionType: 'optin',
       analyticsDate: dayjs().subtract(7, 'day').toDate(),
       subscriptionDate: dayjs().subtract(7, 'day').toDate(),
+      dbSettings: {
+        vacuum: false,
+        vacuum_cron_interval: '0 2 * * *',
+      },
     };
+  },
+
+  mounted() {
+    this.loadDBSettings();
   },
 
   methods: {
@@ -172,6 +214,21 @@ export default Vue.extend({
             });
         },
       );
+    },
+
+    loadDBSettings() {
+      this.$api.getSettings().then((data) => {
+        if (data['maintenance.db'] !== undefined) {
+          this.dbSettings = { ...data['maintenance.db'] };
+        }
+      });
+    },
+
+    async onUpdateDBSettings() {
+      this.isLoading = true;
+      const data = await this.$api.updateSettingsByKey('maintenance.db', this.dbSettings);
+      await this.$root.awaitRestart(data);
+      this.isLoading = false;
     },
   },
 

@@ -48,3 +48,13 @@ func (c *Core) UpdateSettings(s models.Settings) error {
 
 	return nil
 }
+
+// UpdateSettingsByKey updates a single setting by key.
+func (c *Core) UpdateSettingsByKey(key string, value json.RawMessage) error {
+	if _, err := c.q.UpdateSettingsByKey.Exec(key, value); err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError,
+			c.i18n.Ts("globals.messages.errorUpdating", "name", "{globals.terms.settings}", "error", pqErrMsg(err)))
+	}
+
+	return nil
+}

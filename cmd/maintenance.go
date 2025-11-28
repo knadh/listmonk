@@ -1,9 +1,11 @@
 package main
 
 import (
+	"log"
 	"net/http"
 	"time"
 
+	"github.com/jmoiron/sqlx"
 	"github.com/labstack/echo/v4"
 )
 
@@ -80,4 +82,15 @@ func (a *App) GCCampaignAnalytics(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, okResp{true})
+}
+
+// RunDBVacuum runs a full VACUUM on the PostgreSQL database.
+// VACUUM reclaims storage occupied by dead tuples and updates planner statistics.
+func RunDBVacuum(db *sqlx.DB, lo *log.Logger) {
+	lo.Println("running database VACUUM ANALYZE")
+	if _, err := db.Exec("VACUUM ANALYZE"); err != nil {
+		lo.Printf("error running VACUUM ANALYZE: %v", err)
+		return
+	}
+	lo.Println("finished database VACUUM ANALYZE")
 }

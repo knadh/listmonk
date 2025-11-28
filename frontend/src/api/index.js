@@ -431,6 +431,12 @@ export const updateSettings = async (data) => http.put(
   { loading: models.settings },
 );
 
+export const updateSettingsByKey = async (key, data) => http.put(
+  `/api/settings/${key}`,
+  data,
+  { loading: models.settings },
+);
+
 export const testSMTP = async (data) => http.post(
   '/api/settings/smtp/test',
   data,
