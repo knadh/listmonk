@@ -1251,6 +1251,67 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#delete-apilists" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DELETE /api/lists
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="DELETE /api/lists">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parameters
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-request-by-ids" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example Request (by IDs)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-request-by-search-query" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example Request (by search query)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-response_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example Response
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1932,6 +1993,67 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#delete-apilists" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DELETE /api/lists
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="DELETE /api/lists">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parameters
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-request-by-ids" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example Request (by IDs)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-request-by-search-query" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example Request (by search query)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-response_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example Response
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1988,6 +2110,11 @@
 <td style="text-align: left;">DELETE</td>
 <td style="text-align: left;"><a href="#delete-apilistslist_id">/api/lists/{list_id}</a></td>
 <td style="text-align: left;">Delete a list.</td>
+</tr>
+<tr>
+<td style="text-align: left;">DELETE</td>
+<td style="text-align: left;"><a href="#delete-apilists">/api/lists</a></td>
+<td style="text-align: left;">Delete multiple lists.</td>
 </tr>
 </tbody>
 </table>
@@ -2341,6 +2468,48 @@ curl<span class="w"> </span>-u<span class="w"> </span><span class="s2">&quot;api
 <div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-u<span class="w"> </span><span class="s1">&#39;api_username:access_token&#39;</span><span class="w"> </span>-X<span class="w"> </span>DELETE<span class="w"> </span><span class="s1">&#39;http://localhost:9000/api/lists/1&#39;</span>
 </code></pre></div>
 <h5 id="example-response_5">Example Response<a class="headerlink" href="#example-response_5" title="Permanent link">&para;</a></h5>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;data&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
+<span class="p">}</span>
+</code></pre></div>
+<hr />
+<h4 id="delete-apilists">DELETE /api/lists<a class="headerlink" href="#delete-apilists" title="Permanent link">&para;</a></h4>
+<p>Delete multiple lists by IDs or by a search query.</p>
+<blockquote>
+<p><strong>Note:</strong> Users can only delete lists they have <code>manage</code> permission for. Any lists in the query that the user doesn't have permission to manage is ignored.</p>
+</blockquote>
+<h5 id="parameters_5">Parameters<a class="headerlink" href="#parameters_5" title="Permanent link">&para;</a></h5>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Name</th>
+<th style="text-align: left;">Type</th>
+<th style="text-align: left;">Required</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">id</td>
+<td style="text-align: left;">number[]</td>
+<td style="text-align: left;">Yes (if <code>query</code> not provided)</td>
+<td style="text-align: left;">One or more list IDs to delete.</td>
+</tr>
+<tr>
+<td style="text-align: left;">query</td>
+<td style="text-align: left;">string</td>
+<td style="text-align: left;">Yes (if <code>id</code> not provided)</td>
+<td style="text-align: left;">Search query to filter lists for deletion (same as the GET query).</td>
+</tr>
+</tbody>
+</table>
+<h5 id="example-request-by-ids">Example Request (by IDs)<a class="headerlink" href="#example-request-by-ids" title="Permanent link">&para;</a></h5>
+<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-u<span class="w"> </span><span class="s2">&quot;api_user:token&quot;</span><span class="w"> </span>-X<span class="w"> </span>DELETE<span class="w"> </span><span class="s1">&#39;http://localhost:9000/api/lists?id=10&amp;id=11&amp;id=12&#39;</span>
+</code></pre></div>
+<h5 id="example-request-by-search-query">Example Request (by search query)<a class="headerlink" href="#example-request-by-search-query" title="Permanent link">&para;</a></h5>
+<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-u<span class="w"> </span><span class="s2">&quot;api_user:token&quot;</span><span class="w"> </span>-X<span class="w"> </span>DELETE<span class="w"> </span><span class="s1">&#39;http://localhost:9000/api/lists?query=test%20list&#39;</span>
+</code></pre></div>
+<h5 id="example-response_6">Example Response<a class="headerlink" href="#example-response_6" title="Permanent link">&para;</a></h5>
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
 <span class="w">    </span><span class="nt">&quot;data&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
 <span class="p">}</span>

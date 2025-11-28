@@ -1126,6 +1126,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#subscriber-modes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Subscriber modes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#example" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1141,6 +1152,17 @@
     <span class="md-ellipsis">
       
         Example response
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-with-external-mode" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example with external mode
       
     </span>
   </a>
@@ -1439,6 +1461,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#subscriber-modes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Subscriber modes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#example" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1454,6 +1487,17 @@
     <span class="md-ellipsis">
       
         Example response
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-with-external-mode" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example with external mode
       
     </span>
   </a>
@@ -1549,6 +1593,12 @@
 <td style="text-align: left;">Multiple subscriber IDs as an alternative to <code>subscriber_id</code>.</td>
 </tr>
 <tr>
+<td style="text-align: left;">subscriber_mode</td>
+<td style="text-align: left;">string</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">Subscriber lookup mode: <code>default</code>, <code>fallback</code>, or <code>external</code></td>
+</tr>
+<tr>
 <td style="text-align: left;">template_id</td>
 <td style="text-align: left;">number</td>
 <td style="text-align: left;">Yes</td>
@@ -1592,6 +1642,30 @@
 </tr>
 </tbody>
 </table>
+<h5 id="subscriber-modes">Subscriber modes<a class="headerlink" href="#subscriber-modes" title="Permanent link">&para;</a></h5>
+<p>The <code>subscriber_mode</code> parameter controls how the recipients (subscribers or non-subscriber recipients) are resolved.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Mode</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>default</code></td>
+<td style="text-align: left;">Recipients must exist as subscribers in the database. Pass either <code>subscriber_emails</code> or <code>subscriber_ids</code>.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>fallback</code></td>
+<td style="text-align: left;">Only accepts <code>subscriber_emails</code> and looks up subscribers in the database. If not found, sends the message to the e-mail anyway. In the template, apart from <code>{{ .Subscriber.Email }}</code>, other subscriber fields such as <code>.Name</code>. will be empty. Use <code>{{ Tx.Data.* }}</code> instead.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>external</code></td>
+<td style="text-align: left;">Sends to the given <code>subscriber_emails</code> without subscriber lookup in the database. In the template, apart from <code>{{ .Subscriber.Email }}</code>, other subscriber fields such as <code>.Name</code>. will be empty. Use <code>{{ Tx.Data.* }}</code> instead.</td>
+</tr>
+</tbody>
+</table>
 <h5 id="example">Example<a class="headerlink" href="#example" title="Permanent link">&para;</a></h5>
 <div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-u<span class="w"> </span><span class="s2">&quot;api_user:token&quot;</span><span class="w"> </span><span class="s2">&quot;http://localhost:9000/api/tx&quot;</span><span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="se">\</span>
 <span class="w">     </span>-H<span class="w"> </span><span class="s1">&#39;Content-Type: application/json; charset=utf-8&#39;</span><span class="w"> </span><span class="se">\</span>
@@ -1609,6 +1683,21 @@
 <span class="w">    </span><span class="nt">&quot;data&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
 <span class="p">}</span>
 </code></pre></div>
+<h5 id="example-with-external-mode">Example with external mode<a class="headerlink" href="#example-with-external-mode" title="Permanent link">&para;</a></h5>
+<p>Send to arbitrary email addresses without requiring them to be subscribers:</p>
+<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-u<span class="w"> </span><span class="s2">&quot;api_user:token&quot;</span><span class="w"> </span><span class="s2">&quot;http://localhost:9000/api/tx&quot;</span><span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="se">\</span>
+<span class="w">     </span>-H<span class="w"> </span><span class="s1">&#39;Content-Type: application/json; charset=utf-8&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">     </span>--data-binary<span class="w"> </span>@-<span class="w"> </span><span class="s">&lt;&lt; EOF</span>
+<span class="s">    {</span>
+<span class="s">        &quot;subscriber_mode&quot;: &quot;external&quot;,</span>
+<span class="s">        &quot;subscriber_emails&quot;: [&quot;recipient@example.com&quot;],</span>
+<span class="s">        &quot;template_id&quot;: 2,</span>
+<span class="s">        &quot;data&quot;: {&quot;name&quot;: &quot;John&quot;, &quot;order_id&quot;: &quot;1234&quot;},</span>
+<span class="s">        &quot;content_type&quot;: &quot;html&quot;</span>
+<span class="s">    }</span>
+<span class="s">EOF</span>
+</code></pre></div>
+<p>In the template, use <code>{{ .Tx.Data.name }}</code>, <code>{{ .Tx.Data.order_id }}</code>, etc. to access the data.</p>
 <hr />
 <h4 id="file-attachments">File Attachments<a class="headerlink" href="#file-attachments" title="Permanent link">&para;</a></h4>
 <p>To include file attachments in a transactional message, use the <code>multipart/form-data</code> Content-Type. Use <code>data</code> param for the parameters described above as a JSON object. Include any number of attachments via the <code>file</code> param.</p>

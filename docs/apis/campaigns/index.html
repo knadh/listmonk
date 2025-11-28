@@ -1551,6 +1551,67 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#delete-apicampaigns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DELETE /api/campaigns
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="DELETE /api/campaigns">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_10" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parameters
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-request-by-ids" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example Request (by IDs)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-request-by-search-query" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example Request (by search query)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-response_10" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example Response
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -2420,6 +2481,67 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#delete-apicampaigns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DELETE /api/campaigns
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="DELETE /api/campaigns">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_10" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parameters
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-request-by-ids" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example Request (by IDs)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-request-by-search-query" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example Request (by search query)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-response_10" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example Response
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -2501,6 +2623,11 @@
 <td style="text-align: left;">DELETE</td>
 <td style="text-align: left;"><a href="#delete-apicampaignscampaign_id">/api/campaigns/{campaign_id}</a></td>
 <td style="text-align: left;">Delete a campaign.</td>
+</tr>
+<tr>
+<td style="text-align: left;">DELETE</td>
+<td style="text-align: left;"><a href="#delete-apicampaigns">/api/campaigns</a></td>
+<td style="text-align: left;">Delete multiple campaigns.</td>
 </tr>
 </tbody>
 </table>
@@ -3172,6 +3299,45 @@ This is a test e-mail campaign. Your second name is Doe and you are from Bengalu
 <div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-u<span class="w"> </span><span class="s2">&quot;api_user:token&quot;</span><span class="w"> </span>-X<span class="w"> </span>DELETE<span class="w"> </span><span class="s1">&#39;http://localhost:9000/api/campaigns/34&#39;</span>
 </code></pre></div>
 <h5 id="example-response_9">Example Response<a class="headerlink" href="#example-response_9" title="Permanent link">&para;</a></h5>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;data&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
+<span class="p">}</span>
+</code></pre></div>
+<hr />
+<h4 id="delete-apicampaigns">DELETE /api/campaigns<a class="headerlink" href="#delete-apicampaigns" title="Permanent link">&para;</a></h4>
+<p>Delete multiple campaigns by IDs or by a search query.</p>
+<h5 id="parameters_10">Parameters<a class="headerlink" href="#parameters_10" title="Permanent link">&para;</a></h5>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Name</th>
+<th style="text-align: left;">Type</th>
+<th style="text-align: left;">Required</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">id</td>
+<td style="text-align: left;">number[]</td>
+<td style="text-align: left;">Yes (if <code>query</code> not provided)</td>
+<td style="text-align: left;">Onr or more campaign IDs to delete.</td>
+</tr>
+<tr>
+<td style="text-align: left;">query</td>
+<td style="text-align: left;">string</td>
+<td style="text-align: left;">Yes (if <code>id</code> not provided)</td>
+<td style="text-align: left;">Fulltext search query to filter campaigns for deletion (same as GET query).</td>
+</tr>
+</tbody>
+</table>
+<h5 id="example-request-by-ids">Example Request (by IDs)<a class="headerlink" href="#example-request-by-ids" title="Permanent link">&para;</a></h5>
+<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-u<span class="w"> </span><span class="s2">&quot;api_user:token&quot;</span><span class="w"> </span>-X<span class="w"> </span>DELETE<span class="w"> </span><span class="s1">&#39;http://localhost:9000/api/campaigns?id=10&amp;id=11&amp;id=12&#39;</span>
+</code></pre></div>
+<h5 id="example-request-by-search-query">Example Request (by search query)<a class="headerlink" href="#example-request-by-search-query" title="Permanent link">&para;</a></h5>
+<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-u<span class="w"> </span><span class="s2">&quot;api_user:token&quot;</span><span class="w"> </span>-X<span class="w"> </span>DELETE<span class="w"> </span><span class="s1">&#39;http://localhost:9000/api/campaigns?query=test%20campaign&#39;</span>
+</code></pre></div>
+<h5 id="example-response_10">Example Response<a class="headerlink" href="#example-response_10" title="Permanent link">&para;</a></h5>
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
 <span class="w">    </span><span class="nt">&quot;data&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
 <span class="p">}</span>
