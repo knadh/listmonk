@@ -67,8 +67,11 @@ WITH l AS (
         updated_at=NOW()
     WHERE id = $1
     RETURNING id, name
+),
+c AS (
+    UPDATE campaign_lists SET list_name = l.name FROM l WHERE campaign_lists.list_id = l.id RETURNING 1
 )
-UPDATE campaign_lists SET list_name = l.name FROM l WHERE campaign_lists.list_id = l.id;
+SELECT COUNT(*) FROM l, c;
 
 -- name: update-lists-date
 UPDATE lists SET updated_at=NOW() WHERE id = ANY($1);
