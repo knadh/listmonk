@@ -257,14 +257,19 @@ func (a *App) CreateCampaign(c echo.Context) error {
 		return err
 	}
 
+	// Filter lists against the current user's permitted lists.
+	user := auth.GetUser(c)
+	o.ListIDs = user.FilterListsByPerm(auth.PermTypeGet|auth.PermTypeManage, o.ListIDs)
+
 	// If the campaign's 'opt-in', prepare a default message.
-	if o.Type == models.CampaignTypeOptin {
+	switch o.Type {
+	case models.CampaignTypeOptin:
 		op, err := a.makeOptinCampaignMessage(o)
 		if err != nil {
 			return err
 		}
 		o = op
-	} else if o.Type == "" {
+	case "":
 		o.Type = models.CampaignTypeRegular
 	}
 
@@ -702,6 +707,8 @@ func (a *App) makeOptinCampaignMessage(o campReq) (campReq, error) {
 }
 
 // checkCampaignPerm checks if the user has get or manage access to the given campaign.
+// Either the user has blanket get_all/manage_all permissions, or the campaign
+// belongs to lists that the user has access to.
 func (a *App) checkCampaignPerm(types auth.PermType, id int, c echo.Context) error {
 	// Get the authenticated user.
 	user := auth.GetUser(c)
