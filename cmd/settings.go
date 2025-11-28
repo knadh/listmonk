@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"encoding/json"
 	"io"
 	"net/http"
 	"net/url"
@@ -15,7 +16,7 @@ import (
 	"github.com/gdgvda/cron"
 	"github.com/gofrs/uuid/v5"
 	"github.com/jmoiron/sqlx/types"
-	"github.com/knadh/koanf/parsers/json"
+	koanfjson "github.com/knadh/koanf/parsers/json"
 	"github.com/knadh/koanf/providers/rawbytes"
 	"github.com/knadh/koanf/v2"
 	"github.com/knadh/listmonk/internal/auth"
@@ -290,6 +291,33 @@ func (a *App) UpdateSettings(c echo.Context) error {
 		return err
 	}
 
+	return a.handleSettingsRestart(c)
+}
+
+// UpdateSettingsByKey updates a single setting key-value in the DB.
+func (a *App) UpdateSettingsByKey(c echo.Context) error {
+	key := c.Param("key")
+	if key == "" {
+		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("globals.messages.invalidData"))
+	}
+
+	// Read the raw JSON body as the value.
+	var b json.RawMessage
+	if err := c.Bind(&b); err != nil {
+		return err
+	}
+
+	// Update the value in the DB.
+	if err := a.core.UpdateSettingsByKey(key, b); err != nil {
+		return err
+	}
+
+	return a.handleSettingsRestart(c)
+}
+
+// handleSettingsRestart checks for running campaigns and either triggers an
+// immediate app restart or marks the app as needing a restart.
+func (a *App) handleSettingsRestart(c echo.Context) error {
 	// If there are any active campaigns, don't do an auto reload and
 	// warn the user on the frontend.
 	if a.manager.HasRunningCampaigns() {
@@ -302,7 +330,7 @@ func (a *App) UpdateSettings(c echo.Context) error {
 		}{true}})
 	}
 
-	// No running campaigns. Reload the a.
+	// No running campaigns. Reload the app.
 	go func() {
 		<-time.After(time.Millisecond * 500)
 		a.chReload <- syscall.SIGHUP
@@ -327,7 +355,7 @@ func (a *App) TestSMTPSettings(c echo.Context) error {
 
 	// Load the JSON into koanf to parse SMTP settings properly including timestrings.
 	ko := koanf.New(".")
-	if err := ko.Load(rawbytes.Provider(reqBody), json.Parser()); err != nil {
+	if err := ko.Load(rawbytes.Provider(reqBody), koanfjson.Parser()); err != nil {
 		a.log.Printf("error unmarshalling SMTP test request: %v", err)
 		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.Ts("globals.messages.internalError"))
 	}

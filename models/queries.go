@@ -104,8 +104,9 @@ type Queries struct {
 	CreateLink        *sqlx.Stmt `query:"create-link"`
 	RegisterLinkClick *sqlx.Stmt `query:"register-link-click"`
 
-	GetSettings    *sqlx.Stmt `query:"get-settings"`
-	UpdateSettings *sqlx.Stmt `query:"update-settings"`
+	GetSettings         *sqlx.Stmt `query:"get-settings"`
+	UpdateSettings      *sqlx.Stmt `query:"update-settings"`
+	UpdateSettingsByKey *sqlx.Stmt `query:"update-settings-by-key"`
 
 	// GetStats *sqlx.Stmt `query:"get-stats"`
 	RecordBounce                *sqlx.Stmt `query:"record-bounce"`

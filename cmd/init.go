@@ -8,7 +8,9 @@ import (
 	"errors"
 	"fmt"
 	"html/template"
+	"io"
 	"log"
+	"log/slog"
 	"maps"
 	"net/http"
 	"os"
@@ -941,27 +943,49 @@ func initCaptcha() *captcha.Captcha {
 	return captcha.New(opt)
 }
 
-// initCron initializes the cron job for refreshing slow query cache.
-func initCron(co *core.Core) {
-	intval := ko.String("app.cache_slow_queries_interval")
-	if intval == "" {
-		lo.Println("error: invalid cron interval string")
-		return
+// initCron initializes cron jobs for slow query cache refresh and database vacuum.
+func initCron(co *core.Core, db *sqlx.DB) {
+	c := cron.New(cron.WithLogger(slog.New(slog.NewTextHandler(io.Discard, nil))))
+
+	// Slow query cache cron job.
+	if ko.Bool("app.cache_slow_queries") {
+		intval := ko.String("app.cache_slow_queries_interval")
+		if intval == "" {
+			lo.Println("error: invalid cron interval string for slow query cache")
+		} else {
+			_, err := c.Add(intval, func() {
+				lo.Println("refreshing slow query cache")
+				_ = co.RefreshMatViews(true)
+				lo.Println("done refreshing slow query cache")
+			})
+			if err != nil {
+				lo.Printf("error initializing slow cache query cron: %v", err)
+			} else {
+				lo.Printf("IMPORTANT: database slow query caching is enabled. Aggregate numbers and stats will not be realtime. Next refresh at: %v", c.Entries()[len(c.Entries())-1].Next)
+			}
+		}
 	}
 
-	c := cron.New()
-	_, err := c.Add(intval, func() {
-		lo.Println("refreshing slow query cache")
-		_ = co.RefreshMatViews(true)
-		lo.Println("done refreshing slow query cache")
-	})
-	if err != nil {
-		lo.Printf("error initializing slow cache query cron: %v", err)
-		return
+	// Database vacuum cron job.
+	if ko.Bool("maintenance.db.vacuum") {
+		intval := ko.String("maintenance.db.vacuum_cron_interval")
+		if intval == "" {
+			lo.Println("error: invalid cron interval string for database vacuum")
+		} else {
+			_, err := c.Add(intval, func() {
+				RunDBVacuum(db, lo)
+			})
+			if err != nil {
+				lo.Printf("error initializing database vacuum cron: %v", err)
+			} else {
+				lo.Printf("database VACUUM cron enabled at interval: %s", intval)
+			}
+		}
 	}
 
-	c.Start()
-	lo.Printf("IMPORTANT: database slow query caching is enabled. Aggregate numbers and stats will not be realtime. Next refresh at: %v", c.Entries()[0].Next)
+	if len(c.Entries()) > 0 {
+		c.Start()
+	}
 }
 
 // awaitReload waits for a SIGHUP signal to reload the app. Every setting change on the UI causes a reload.
