@@ -102,7 +102,7 @@
         </b-field>
       </div>
       <div class="column is-9" v-if="captchaEnabled">
-        <b-field :label="$t('settings.security.captchaProvider')">
+        <b-field>
           <b-radio v-model="selectedProvider" native-value="altcha" name="captcha_provider">
             ALTCHA
           </b-radio>
