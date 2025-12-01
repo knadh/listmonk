@@ -53,6 +53,18 @@ There are several template functions and expressions that can be used in campaig
 | `{{ OptinURL }}`                            | URL to the double-optin confirmation page.                                                                                                                     |
 | `{{ Safe "<!-- comment -->" }}`             | Add any HTML code as it is.                                                                                                                                   |
 
+### Custom headers
+Custom e-mail headers defined in campaign settings also support template expressions. This allows you to include dynamic, subscriber-specific values in headers.
+
+For example, you can set custom headers like:
+```json
+[
+  {"X-Subscriber-ID": "{{ .Subscriber.UUID }}"},
+  {"X-Subscriber-City": "{{ .Subscriber.Attribs.city }}"},
+  {"X-Campaign-ID": "{{ .Campaign.UUID }}"}
+]
+```
+
 ### Sprig functions
 listmonk integrates the Sprig library that offers 100+ utility functions for working with strings, numbers, dates etc. that can be used in templating. Refer to the [Sprig documentation](https://masterminds.github.io/sprig/) for the full list of functions.
 

@@ -106,6 +106,7 @@ type CampaignMessage struct {
 	body     []byte
 	altBody  []byte
 	unsubURL string
+	headers  []map[string]string
 
 	pipe *pipe
 }
@@ -483,9 +484,9 @@ func (m *Manager) worker() {
 				h.Set("List-Unsubscribe", `<`+msg.unsubURL+`>`)
 			}
 
-			// Attach any custom headers.
-			if len(msg.Campaign.Headers) > 0 {
-				for _, set := range msg.Campaign.Headers {
+			// Attach any custom headers (with template expressions already rendered).
+			if len(msg.headers) > 0 {
+				for _, set := range msg.headers {
 					for hdr, val := range set {
 						h.Add(hdr, val)
 					}
