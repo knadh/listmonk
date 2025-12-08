@@ -120,8 +120,13 @@ func init() {
 	initConfigFiles(ko.Strings("config"), ko)
 
 	// Load environment variables and merge into the loaded config.
+	// LISTMONK_foo__bar -> foo.bar (double underscore becomes dot for nested config)
+	// LISTMONK_foo_bar -> foo-bar (single underscore becomes hyphen for flags like static-dir)
 	if err := ko.Load(env.Provider("LISTMONK_", ".", func(s string) string {
-		return strings.Replace(strings.ToLower(strings.TrimPrefix(s, "LISTMONK_")), "__", ".", -1)
+		key := strings.ToLower(strings.TrimPrefix(s, "LISTMONK_"))
+		key = strings.Replace(key, "__", ".", -1)
+		key = strings.Replace(key, "_", "-", -1)
+		return key
 	}), nil); err != nil {
 		lo.Fatalf("error loading config from env: %v", err)
 	}
