@@ -75,8 +75,8 @@
         <div class="column">
           <b-field grouped>
             <b-field :label="$t('settings.media.s3.bucket')" label-position="on-border" expanded>
-              <b-input v-model="data['upload.s3.bucket']" @input="onS3URLChange" name="upload.s3.bucket" :maxlength="200"
-                placeholder="" />
+              <b-input v-model="data['upload.s3.bucket']" @input="onS3URLChange" name="upload.s3.bucket"
+                :maxlength="200" placeholder="" />
             </b-field>
             <b-field :label="$t('settings.media.s3.bucketPath')" label-position="on-border"
               :message="$t('settings.media.s3.bucketPathHelp')" expanded>
@@ -98,13 +98,14 @@
         <div class="column is-9">
           <b-field :label="$t('settings.media.s3.url')" label-position="on-border"
             :message="$t('settings.media.s3.urlHelp')">
-            <b-input v-model="data['upload.s3.url']" name="upload.s3.url" :disabled="!data['upload.s3.bucket']" required
-              placeholder="https://s3.$region.amazonaws.com" :maxlength="200" expanded type="url" pattern="https?://.*" />
+            <b-input v-model="data['upload.s3.url']" name="upload.s3.url" required
+              placeholder="https://s3.$region.amazonaws.com" :maxlength="200" expanded type="url"
+              pattern="https?://.*" />
           </b-field>
           <b-field :label="$t('settings.media.s3.publicURL')" label-position="on-border" expanded>
             <b-input v-model="data['upload.s3.public_url']" :message="$t('settings.media.s3.publicURLHelp')"
-              name="upload.s3.public_url" :disabled="!data['upload.s3.bucket']" placeholder="https://files.yourdomain.com"
-              :maxlength="200" type="url" pattern="https?://.*" />
+              name="upload.s3.public_url" placeholder="https://files.yourdomain.com" :maxlength="200" type="url"
+              pattern="https?://.*" />
           </b-field>
         </div>
       </div>
