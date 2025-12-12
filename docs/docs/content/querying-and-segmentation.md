@@ -11,7 +11,7 @@ These are the fields in the subscriber database that can be queried.
 | `subscribers.uuid`       | The randomly generated unique ID of the subscriber                                                  |
 | `subscribers.email`      | E-mail ID of the subscriber                                                                         |
 | `subscribers.name`       | Name of the subscriber                                                                              |
-| `subscribers.status`     | Status of the subscriber (enabled, disabled, blocklisted)                                           |
+| `subscribers.status`     | Status of the subscriber (`enabled`, `disabled`, `blocklisted`)                                     |
 | `subscribers.attribs`    | Map of arbitrary attributes represented as JSON. Accessed via the `->` and `->>` Postgres operator. |
 | `subscribers.created_at` | Timestamp when the subscriber was first added                                                       |
 | `subscribers.updated_at` | Timestamp when the subscriber was modified                                                          |
@@ -63,7 +63,7 @@ subscribers.email LIKE 'John%'
 
 ```sql
 -- Find all Johns who have been blocklisted.
-subscribers.email LIKE 'John%' AND status = 'blocklisted'
+subscribers.email LIKE 'John%' AND subscribers.status = 'blocklisted'
 ```
 
 #### Querying subscribers who viewed the campaign email
