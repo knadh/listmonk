@@ -1456,23 +1456,27 @@
 <p>You can run your dev environment locally or inside containers.</p>
 <p>After setting up the dev environment, you can visit <code>http://localhost:8080</code>.</p>
 <ol>
-<li>Locally</li>
-<li>Run <code>make run</code> to start the listmonk dev server on <code>:9000</code>.</li>
 <li>
-<p>Run <code>make run-frontend</code> to start the Vue frontend in dev mode using yarn on <code>:8080</code>. All <code>/api/*</code> calls are proxied to the app running on <code>:9000</code>. Refer to the <a href="https://github.com/knadh/listmonk/blob/master/frontend/README.md">frontend README</a> for an overview on how the frontend is structured.</p>
+<p>Locally</p>
+<ul>
+<li>Run <code>make run</code> to start the listmonk dev server on <code>:9000</code>.</li>
+<li>Run <code>make run-frontend</code> to start the Vue frontend in dev mode using yarn on <code>:8080</code>. All <code>/api/*</code> calls are proxied to the app running on <code>:9000</code>. Refer to the <a href="https://github.com/knadh/listmonk/blob/master/frontend/README.md">frontend README</a> for an overview on how the frontend is structured.</li>
+</ul>
 </li>
 <li>
 <p>Inside containers (Using Makefile)</p>
-</li>
+<ul>
 <li>Run <code>make init-dev-docker</code> to setup container for db.</li>
 <li>Run <code>make dev-docker</code> to setup docker container suite.</li>
-<li>
-<p>Run <code>make rm-dev-docker</code> to clean up docker container suite.</p>
+<li>Run <code>make rm-dev-docker</code> to clean up docker container suite.</li>
+</ul>
 </li>
 <li>
 <p>Inside containers (Using devcontainer)</p>
-</li>
+<ul>
 <li>Open repo in vscode, open command palette, and select "Dev Containers: Rebuild and Reopen in Container".</li>
+</ul>
+</li>
 </ol>
 <p>It will set up db, and start frontend/backend for you.</p>
 <h1 id="production-build">Production build<a class="headerlink" href="#production-build" title="Permanent link">&para;</a></h1>
