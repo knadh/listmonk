@@ -1607,7 +1607,7 @@
 </tr>
 <tr>
 <td><code>subscribers.status</code></td>
-<td>Status of the subscriber (enabled, disabled, blocklisted)</td>
+<td>Status of the subscriber (<code>enabled</code>, <code>disabled</code>, <code>blocklisted</code>)</td>
 </tr>
 <tr>
 <td><code>subscribers.attribs</code></td>
@@ -1653,7 +1653,7 @@
 </code></pre></div>
 <h4 id="multiple-conditions">Multiple conditions<a class="headerlink" href="#multiple-conditions" title="Permanent link">&para;</a></h4>
 <div class="highlight"><pre><span></span><code><span class="c1">-- Find all Johns who have been blocklisted.</span>
-<span class="n">subscribers</span><span class="p">.</span><span class="n">email</span><span class="w"> </span><span class="k">LIKE</span><span class="w"> </span><span class="s1">&#39;John%&#39;</span><span class="w"> </span><span class="k">AND</span><span class="w"> </span><span class="n">status</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;blocklisted&#39;</span>
+<span class="n">subscribers</span><span class="p">.</span><span class="n">email</span><span class="w"> </span><span class="k">LIKE</span><span class="w"> </span><span class="s1">&#39;John%&#39;</span><span class="w"> </span><span class="k">AND</span><span class="w"> </span><span class="n">subscribers</span><span class="p">.</span><span class="n">status</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;blocklisted&#39;</span>
 </code></pre></div>
 <h4 id="querying-subscribers-who-viewed-the-campaign-email">Querying subscribers who viewed the campaign email<a class="headerlink" href="#querying-subscribers-who-viewed-the-campaign-email" title="Permanent link">&para;</a></h4>
 <div class="highlight"><pre><span></span><code><span class="c1">-- Find all subscribers who viewed the campaign email.</span>
