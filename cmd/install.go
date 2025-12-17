@@ -286,7 +286,7 @@ func recordMigrationVersion(ver string, db *sqlx.DB) error {
 
 func newConfigFile(path string) error {
 	if _, err := os.Stat(path); !os.IsNotExist(err) {
-		return fmt.Errorf("%s exists. Remove it to generate a new one", path)
+		return fmt.Errorf("error creating %s: %v", path, err)
 	}
 
 	// Initialize the static file system into which all

@@ -166,7 +166,7 @@ func initFlags(ko *koanf.Koanf) {
 	f.Bool("idempotent", false, "make --install run only if the database isn't already setup")
 	f.Bool("upgrade", false, "upgrade database to the current version")
 	f.Bool("version", false, "show current version of the build")
-	f.Bool("new-config", false, "generate sample config file")
+	f.Bool("new-config", false, "generate sample config file (at path given in --config)")
 	f.String("static-dir", "", "(optional) path to directory with static files")
 	f.String("i18n-dir", "", "(optional) path to directory with i18n language files")
 	f.Bool("yes", false, "assume 'yes' to prompts during --install/upgrade")
