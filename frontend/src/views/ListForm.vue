@@ -44,6 +44,17 @@
           </b-select>
         </b-field>
 
+        <b-field :label="$t('lists.welcomeTemplate')" label-position="on-border" :message="$t('lists.welcomeTemplateHelp')">
+          <b-select v-model="form.welcomeTemplateId" name="welcomeTemplate">
+            <option :value="null">{{ $tc('globals.terms.none') }}</option>
+            <template v-for="t in templates">
+              <option v-if="t.type === 'tx'" :value="t.id" :key="t.id">
+                {{ t.name }}
+              </option>
+            </template>
+          </b-select>
+        </b-field>
+
         <b-field :label="$t('globals.terms.tags')" label-position="on-border">
           <b-taginput v-model="form.tags" name="tags" ellipsis icon="tag-outline"
             :placeholder="$t('globals.terms.tags')" />
@@ -75,6 +86,7 @@
 import Vue from 'vue';
 import { mapState } from 'vuex';
 import CopyText from '../components/CopyText.vue';
+import { snakeKeys } from '../utils';
 
 export default Vue.extend({
   name: 'ListForm',
@@ -97,6 +109,7 @@ export default Vue.extend({
         optin: 'single',
         status: 'active',
         tags: [],
+        welcomeTemplateId: null,
       },
     };
   },
@@ -112,7 +125,7 @@ export default Vue.extend({
     },
 
     createList() {
-      this.$api.createList(this.form).then((data) => {
+      this.$api.createList(snakeKeys(this.form)).then((data) => {
         this.$emit('finished');
         this.$parent.close();
         this.$utils.toast(this.$t('globals.messages.created', { name: data.name }));
@@ -120,7 +133,8 @@ export default Vue.extend({
     },
 
     updateList() {
-      this.$api.updateList({ id: this.data.id, ...this.form }).then((data) => {
+      const form = snakeKeys(this.form);
+      this.$api.updateList({ id: this.data.id, ...form }).then((data) => {
         this.$emit('finished');
         this.$parent.close();
         this.$utils.toast(this.$t('globals.messages.updated', { name: data.name }));
@@ -129,7 +143,7 @@ export default Vue.extend({
   },
 
   computed: {
-    ...mapState(['loading', 'profile']),
+    ...mapState(['loading', 'profile', 'templates']),
 
     isArchived: {
       get() {
@@ -143,6 +157,9 @@ export default Vue.extend({
 
   mounted() {
     this.form = { ...this.form, ...this.$props.data };
+
+    // Get the templates list.
+    this.$api.getTemplates();
 
     this.$nextTick(() => {
       this.$refs.focus.focus();

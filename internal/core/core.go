@@ -52,6 +52,7 @@ type Constants struct {
 // Hooks contains external function hooks that are required by the core package.
 type Hooks struct {
 	SendOptinConfirmation func(models.Subscriber, []int) (int, error)
+	SendTxMessage         func(models.TxMessage) error
 }
 
 // Opt contains the controllers required to start the core.
