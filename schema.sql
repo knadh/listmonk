@@ -293,7 +293,7 @@ INSERT INTO settings (key, value) VALUES
     ('appearance.admin.custom_js', '""'),
     ('appearance.public.custom_css', '""'),
     ('appearance.public.custom_js', '""'),
-    ('webhooks', '{"subscription_confirmed": {"enabled": false, "url": "", "auth_type": "none", "username": "", "password": "", "bearer_token": "", "headers": [], "timeout": "10s", "max_retries": 3}}'),
+    ('webhooks', '{"subscription_confirmed": {"enabled": false, "url": "", "timeout": "10s", "max_retries": 3}}'),
     ('maintenance.db', '{"vacuum": false, "vacuum_cron_interval": "0 2 * * *"}');
 
 -- bounces

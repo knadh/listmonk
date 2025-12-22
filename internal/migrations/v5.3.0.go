@@ -14,7 +14,7 @@ func V5_3_0(db *sqlx.DB, fs stuffbin.FileSystem, ko *koanf.Koanf, lo *log.Logger
 
 	_, err := db.Exec(`
 		INSERT INTO settings (key, value, updated_at)
-		VALUES ('webhooks', '{"subscription_confirmed": {"enabled": false, "url": "", "auth_type": "none", "username": "", "password": "", "bearer_token": "", "headers": [], "timeout": "10s", "max_retries": 3}}', NOW())
+		VALUES ('webhooks', '{"subscription_confirmed": {"enabled": false, "url": "", "timeout": "10s", "max_retries": 3}}', NOW())
 		ON CONFLICT (key) DO NOTHING
 	`)
 	if err != nil {

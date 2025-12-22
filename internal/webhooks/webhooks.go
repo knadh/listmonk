@@ -3,7 +3,6 @@ package webhooks
 
 import (
 	"bytes"
-	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -14,15 +13,10 @@ import (
 
 // Config represents the configuration for a webhook endpoint.
 type Config struct {
-	Enabled     bool                `json:"enabled"`
-	URL         string              `json:"url"`
-	AuthType    string              `json:"auth_type"` // none, basic, bearer
-	Username    string              `json:"username"`
-	Password    string              `json:"password,omitempty"`
-	BearerToken string              `json:"bearer_token,omitempty"`
-	Headers     []map[string]string `json:"headers"`
-	Timeout     string              `json:"timeout"`
-	MaxRetries  int                 `json:"max_retries"`
+	Enabled    bool   `json:"enabled"`
+	URL        string `json:"url"`
+	Timeout    string `json:"timeout"`
+	MaxRetries int    `json:"max_retries"`
 }
 
 // Client handles sending webhook requests.
@@ -138,26 +132,6 @@ func (c *Client) doRequest(cfg Config, payload []byte) error {
 	// Set headers.
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("User-Agent", "listmonk")
-
-	// Set authentication.
-	switch cfg.AuthType {
-	case "basic":
-		if cfg.Username != "" {
-			authStr := base64.StdEncoding.EncodeToString([]byte(cfg.Username + ":" + cfg.Password))
-			req.Header.Set("Authorization", "Basic "+authStr)
-		}
-	case "bearer":
-		if cfg.BearerToken != "" {
-			req.Header.Set("Authorization", "Bearer "+cfg.BearerToken)
-		}
-	}
-
-	// Set custom headers.
-	for _, h := range cfg.Headers {
-		for k, v := range h {
-			req.Header.Set(k, v)
-		}
-	}
 
 	// Execute request.
 	resp, err := c.httpClient.Do(req)

@@ -145,15 +145,10 @@ type Settings struct {
 
 	Webhooks struct {
 		SubscriptionConfirmed struct {
-			Enabled     bool                `json:"enabled"`
-			URL         string              `json:"url"`
-			AuthType    string              `json:"auth_type"` // none, basic, bearer
-			Username    string              `json:"username"`
-			Password    string              `json:"password,omitempty"`
-			BearerToken string              `json:"bearer_token,omitempty"`
-			Headers     []map[string]string `json:"headers"`
-			Timeout     string              `json:"timeout"`
-			MaxRetries  int                 `json:"max_retries"`
+			Enabled    bool   `json:"enabled"`
+			URL        string `json:"url"`
+			Timeout    string `json:"timeout"`
+			MaxRetries int    `json:"max_retries"`
 		} `json:"subscription_confirmed"`
 	} `json:"webhooks"`
 

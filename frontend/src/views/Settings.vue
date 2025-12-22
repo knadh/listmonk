@@ -184,20 +184,6 @@ export default Vue.extend({
         hasDummy = 'forwardemail';
       }
 
-      // Webhook password fields.
-      if (form.webhooks && form.webhooks.subscription_confirmed) {
-        if (this.isDummy(form.webhooks.subscription_confirmed.password)) {
-          form.webhooks.subscription_confirmed.password = '';
-        } else if (this.hasDummy(form.webhooks.subscription_confirmed.password)) {
-          hasDummy = 'webhook';
-        }
-        if (this.isDummy(form.webhooks.subscription_confirmed.bearer_token)) {
-          form.webhooks.subscription_confirmed.bearer_token = '';
-        } else if (this.hasDummy(form.webhooks.subscription_confirmed.bearer_token)) {
-          hasDummy = 'webhook';
-        }
-      }
-
       for (let i = 0; i < form.messengers.length; i += 1) {
         // If it's the dummy UI password placeholder, ignore it.
         if (this.isDummy(form.messengers[i].password)) {

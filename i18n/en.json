@@ -693,8 +693,6 @@
     "settings.webhooks.help": "Configure outgoing webhooks that fire on specific events. Your server will receive HTTP POST requests with event data.",
     "settings.webhooks.subscriptionConfirmed": "Subscription confirmed",
     "settings.webhooks.subscriptionConfirmedHelp": "Fires when a subscriber confirms their subscription (double opt-in) or is added with single opt-in.",
-    "settings.webhooks.authType": "Auth type",
-    "settings.webhooks.bearerToken": "Bearer token",
     "settings.webhooks.timeout": "Timeout",
     "settings.webhooks.timeoutHelp": "Request timeout (e.g., 10s, 30s)",
     "settings.webhooks.maxRetries": "Max retries",

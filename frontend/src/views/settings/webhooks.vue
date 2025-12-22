@@ -27,49 +27,10 @@
               <b-field :label="$t('globals.terms.url')" label-position="on-border">
                 <b-input v-model="data['webhooks'].subscription_confirmed.url"
                   name="webhooks_subscription_url"
-                  placeholder="https://your-server.com/webhook/subscription"
+                  placeholder="http://your-server.com/webhook/subscription"
                   type="url" />
               </b-field>
             </div>
-          </div>
-
-          <div class="columns">
-            <div class="column is-3">
-              <b-field :label="$t('settings.webhooks.authType')" label-position="on-border">
-                <b-select v-model="data['webhooks'].subscription_confirmed.auth_type"
-                  name="webhooks_auth_type" expanded>
-                  <option value="none">{{ $t('globals.terms.none') }}</option>
-                  <option value="basic">Basic Auth</option>
-                  <option value="bearer">Bearer Token</option>
-                </b-select>
-              </b-field>
-            </div>
-
-            <template v-if="data['webhooks'].subscription_confirmed.auth_type === 'basic'">
-              <div class="column is-4">
-                <b-field :label="$t('settings.mailserver.username')" label-position="on-border">
-                  <b-input v-model="data['webhooks'].subscription_confirmed.username"
-                    name="webhooks_username" />
-                </b-field>
-              </div>
-              <div class="column is-4">
-                <b-field :label="$t('settings.mailserver.password')" label-position="on-border"
-                  :message="$t('globals.messages.passwordChange')">
-                  <b-input v-model="data['webhooks'].subscription_confirmed.password"
-                    name="webhooks_password" type="password" />
-                </b-field>
-              </div>
-            </template>
-
-            <template v-if="data['webhooks'].subscription_confirmed.auth_type === 'bearer'">
-              <div class="column is-8">
-                <b-field :label="$t('settings.webhooks.bearerToken')" label-position="on-border"
-                  :message="$t('globals.messages.passwordChange')">
-                  <b-input v-model="data['webhooks'].subscription_confirmed.bearer_token"
-                    name="webhooks_bearer_token" type="password" />
-                </b-field>
-              </div>
-            </template>
           </div>
 
           <div class="columns">
