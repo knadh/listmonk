@@ -60,11 +60,12 @@ type Campaign struct {
 	ArchiveMeta       json.RawMessage `db:"archive_meta" json:"archive_meta"`
 
 	// TemplateBody is joined in from templates by the next-campaigns query.
-	TemplateBody        string             `db:"template_body" json:"-"`
-	ArchiveTemplateBody string             `db:"archive_template_body" json:"-"`
-	Tpl                 *template.Template `json:"-"`
-	SubjectTpl          *txttpl.Template   `json:"-"`
-	AltBodyTpl          *template.Template `json:"-"`
+	TemplateBody        string                        `db:"template_body" json:"-"`
+	ArchiveTemplateBody string                        `db:"archive_template_body" json:"-"`
+	Tpl                 *template.Template            `json:"-"`
+	SubjectTpl          *txttpl.Template              `json:"-"`
+	AltBodyTpl          *template.Template            `json:"-"`
+	HeaderTpls          []map[string]*txttpl.Template `json:"-"`
 
 	// List of media (attachment) IDs obtained from the next-campaign query
 	// while sending a campaign.
@@ -203,6 +204,26 @@ func (c *Campaign) CompileTemplate(f template.FuncMap) error {
 			return fmt.Errorf("error compiling alt plaintext message: %v", err)
 		}
 		c.AltBodyTpl = bTpl
+	}
+
+	// Compile header templates for headers that contain template expressions.
+	if len(c.Headers) > 0 {
+		var txtFuncs map[string]any = f
+		c.HeaderTpls = make([]map[string]*txttpl.Template, len(c.Headers))
+		for i, set := range c.Headers {
+			for hdr, val := range set {
+				if strings.Contains(val, "{{") {
+					hdrTpl, err := txttpl.New(ContentTpl).Funcs(txtFuncs).Parse(val)
+					if err != nil {
+						return fmt.Errorf("error compiling header '%s': %v", hdr, err)
+					}
+					if c.HeaderTpls[i] == nil {
+						c.HeaderTpls[i] = make(map[string]*txttpl.Template)
+					}
+					c.HeaderTpls[i][hdr] = hdrTpl
+				}
+			}
+		}
 	}
 
 	return nil

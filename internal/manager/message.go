@@ -61,6 +61,29 @@ func (m *CampaignMessage) render() error {
 		}
 	}
 
+	// Render custom headers with template expressions.
+	if len(m.Campaign.Headers) > 0 {
+		m.headers = make([]map[string]string, len(m.Campaign.Headers))
+		for i, set := range m.Campaign.Headers {
+			m.headers[i] = make(map[string]string, len(set))
+			for hdr, val := range set {
+				// Check if there's a compiled template for this header.
+				if len(m.Campaign.HeaderTpls) > i && m.Campaign.HeaderTpls[i] != nil {
+					if tpl, ok := m.Campaign.HeaderTpls[i][hdr]; ok {
+						out.Reset()
+						if err := tpl.ExecuteTemplate(&out, models.ContentTpl, m); err != nil {
+							return fmt.Errorf("error rendering header '%s': %v", hdr, err)
+						}
+						m.headers[i][hdr] = out.String()
+						continue
+					}
+				}
+				// No template, use the raw value.
+				m.headers[i][hdr] = val
+			}
+		}
+	}
+
 	return nil
 }
 

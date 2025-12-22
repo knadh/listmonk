@@ -304,7 +304,7 @@ Create a new campaign.
 | messenger    | string     |          | 'email' or a custom messenger defined in settings. Defaults to 'email' if not provided. |
 | template_id  | number     |          | Template ID to use. Defaults to default template if not provided.                       |
 | tags         | string\[\] |          | Tags to mark campaign.                                                                  |
-| headers      | JSON       |          | Key-value pairs to send as SMTP headers. Example: \[{"x-custom-header": "value"}\].     |
+| headers      | JSON       |          | Key-value pairs to send as SMTP headers. Supports template expressions (e.g., `{{ .Subscriber.UUID }}`). Example: \[{"x-custom-header": "value"}, {"x-subscriber": "{{ .Subscriber.UUID }}"}\].     |
 
 ##### Example request
 
