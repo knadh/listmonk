@@ -11,6 +11,7 @@ import (
 	"github.com/gofrs/uuid/v5"
 	"github.com/jmoiron/sqlx"
 	"github.com/knadh/listmonk/internal/auth"
+	"github.com/knadh/listmonk/internal/webhooks"
 	"github.com/knadh/listmonk/models"
 	"github.com/labstack/echo/v4"
 	"github.com/lib/pq"
@@ -345,6 +346,12 @@ func (c *Core) InsertSubscriber(sub models.Subscriber, listIDs []int, listUUIDs 
 		hasOptin = num > 0
 	}
 
+	// For preconfirmed (single opt-in) subscriptions, fire webhook immediately.
+	// For double opt-in, the webhook fires in ConfirmOptionSubscription after user confirms.
+	if preconfirm && (len(listIDs) > 0 || len(listUUIDs) > 0) {
+		c.fireSubscriptionConfirmedWebhookByID(out, listIDs, listUUIDs, nil)
+	}
+
 	return out, hasOptin, nil
 }
 
@@ -433,6 +440,11 @@ func (c *Core) UpdateSubscriberWithLists(id int, sub models.Subscriber, listIDs 
 		hasOptin = num > 0
 	}
 
+	// For preconfirmed (single opt-in) subscriptions, fire webhook immediately.
+	if preconfirm && (len(listIDs) > 0 || len(listUUIDs) > 0) {
+		c.fireSubscriptionConfirmedWebhookByID(out, listIDs, listUUIDs, nil)
+	}
+
 	return out, hasOptin, nil
 }
 
@@ -510,6 +522,9 @@ func (c *Core) ConfirmOptionSubscription(subUUID string, listUUIDs []string, met
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			c.i18n.Ts("globals.messages.errorUpdating", "name", "{globals.terms.subscribers}", "error", pqErrMsg(err)))
 	}
+
+	// Fire subscription confirmed webhook asynchronously.
+	c.fireSubscriptionConfirmedWebhook(subUUID, listUUIDs, meta)
 
 	return nil
 }
@@ -658,4 +673,55 @@ func traverseQueryPlan(node map[string]any, tables map[string]struct{}) {
 			}
 		}
 	}
+}
+
+// fireSubscriptionConfirmedWebhook fires the subscription confirmed webhook asynchronously.
+// It fetches the subscriber and list data, then fires the webhook in a goroutine.
+func (c *Core) fireSubscriptionConfirmedWebhook(subUUID string, listUUIDs []string, meta models.JSON) {
+	if c.webhooks == nil || !c.webhooks.IsEnabled(webhooks.EventSubscriptionConfirmed) {
+		return
+	}
+
+	// Fire in goroutine to avoid blocking the request.
+	go func() {
+		// Fetch subscriber data.
+		sub, err := c.GetSubscriber(0, subUUID, "")
+		if err != nil {
+			c.log.Printf("error fetching subscriber for webhook: %v", err)
+			return
+		}
+
+		// Fetch list data.
+		lists, err := c.GetSubscriberLists(0, subUUID, nil, listUUIDs, models.SubscriptionStatusConfirmed, "")
+		if err != nil {
+			c.log.Printf("error fetching lists for webhook: %v", err)
+			return
+		}
+
+		// Fire the webhook.
+		event := webhooks.NewSubscriptionConfirmedEvent(sub, lists, meta)
+		c.webhooks.Fire(event)
+	}()
+}
+
+// fireSubscriptionConfirmedWebhookByID fires the subscription confirmed webhook for a known subscriber.
+// Used for single opt-in subscriptions where we already have the subscriber object.
+func (c *Core) fireSubscriptionConfirmedWebhookByID(sub models.Subscriber, listIDs []int, listUUIDs []string, meta models.JSON) {
+	if c.webhooks == nil || !c.webhooks.IsEnabled(webhooks.EventSubscriptionConfirmed) {
+		return
+	}
+
+	// Fire in goroutine to avoid blocking the request.
+	go func() {
+		// Fetch list data for the confirmed lists.
+		lists, err := c.GetSubscriberLists(sub.ID, "", listIDs, listUUIDs, models.SubscriptionStatusConfirmed, "")
+		if err != nil {
+			c.log.Printf("error fetching lists for webhook: %v", err)
+			return
+		}
+
+		// Fire the webhook.
+		event := webhooks.NewSubscriptionConfirmedEvent(sub, lists, meta)
+		c.webhooks.Fire(event)
+	}()
 }
