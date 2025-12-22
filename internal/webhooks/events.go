@@ -2,6 +2,7 @@ package webhooks
 
 import (
 	"time"
+
 	"github.com/knadh/listmonk/models"
 )
 
