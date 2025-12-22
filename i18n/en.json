@@ -688,5 +688,15 @@
     "lists.archived": "Archived",
     "lists.archivedHelp": "Archiving hides the lists from lists page, campaigns, and public forms. It can be unarchived anytime. It is useful for hiding old and rarely used lists.",
     "maintenance.database.title": "Database",
-    "maintenance.database.vacuumHelp": "PostgreSQL VACUUM ANALYZE reclaims storage used by deleted rows and significantly speeds up database performance on large databases. IMPORTANT: For large databases, this is a slow, blocking operation. Schedule to run this during off-peak hours."
+    "maintenance.database.vacuumHelp": "PostgreSQL VACUUM ANALYZE reclaims storage used by deleted rows and significantly speeds up database performance on large databases. IMPORTANT: For large databases, this is a slow, blocking operation. Schedule to run this during off-peak hours.",
+    "settings.webhooks.name": "Webhooks",
+    "settings.webhooks.help": "Configure outgoing webhooks that fire on specific events. Your server will receive HTTP POST requests with event data.",
+    "settings.webhooks.subscriptionConfirmed": "Subscription confirmed",
+    "settings.webhooks.subscriptionConfirmedHelp": "Fires when a subscriber confirms their subscription (double opt-in) or is added with single opt-in.",
+    "settings.webhooks.authType": "Auth type",
+    "settings.webhooks.bearerToken": "Bearer token",
+    "settings.webhooks.timeout": "Timeout",
+    "settings.webhooks.timeoutHelp": "Request timeout (e.g., 10s, 30s)",
+    "settings.webhooks.maxRetries": "Max retries",
+    "settings.webhooks.maxRetriesHelp": "Number of retry attempts on failure"
 }

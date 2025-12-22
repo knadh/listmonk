@@ -57,6 +57,10 @@
           <b-tab-item :label="$t('settings.appearance.name')">
             <appearance-settings :form="form" :key="key" />
           </b-tab-item><!-- appearance -->
+
+          <b-tab-item :label="$t('settings.webhooks.name')">
+            <webhook-settings :form="form" :key="key" />
+          </b-tab-item><!-- webhooks -->
         </b-tabs>
       </section>
     </section>
@@ -75,6 +79,7 @@ import PerformanceSettings from './settings/performance.vue';
 import PrivacySettings from './settings/privacy.vue';
 import SecuritySettings from './settings/security.vue';
 import SmtpSettings from './settings/smtp.vue';
+import WebhookSettings from './settings/webhooks.vue';
 
 export default Vue.extend({
   components: {
@@ -87,6 +92,7 @@ export default Vue.extend({
     BounceSettings,
     MessengerSettings,
     AppearanceSettings,
+    WebhookSettings,
   },
 
   data() {
@@ -176,6 +182,20 @@ export default Vue.extend({
         form['bounce.forwardemail'].key = '';
       } else if (this.hasDummy(form['bounce.forwardemail'].key)) {
         hasDummy = 'forwardemail';
+      }
+
+      // Webhook password fields.
+      if (form.webhooks && form.webhooks.subscription_confirmed) {
+        if (this.isDummy(form.webhooks.subscription_confirmed.password)) {
+          form.webhooks.subscription_confirmed.password = '';
+        } else if (this.hasDummy(form.webhooks.subscription_confirmed.password)) {
+          hasDummy = 'webhook';
+        }
+        if (this.isDummy(form.webhooks.subscription_confirmed.bearer_token)) {
+          form.webhooks.subscription_confirmed.bearer_token = '';
+        } else if (this.hasDummy(form.webhooks.subscription_confirmed.bearer_token)) {
+          hasDummy = 'webhook';
+        }
       }
 
       for (let i = 0; i < form.messengers.length; i += 1) {

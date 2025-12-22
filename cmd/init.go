@@ -47,6 +47,7 @@ import (
 	"github.com/knadh/listmonk/internal/messenger/postback"
 	"github.com/knadh/listmonk/internal/notifs"
 	"github.com/knadh/listmonk/internal/subimporter"
+	"github.com/knadh/listmonk/internal/webhooks"
 	"github.com/knadh/listmonk/models"
 	"github.com/knadh/stuffbin"
 	"github.com/labstack/echo/v4"
@@ -547,6 +548,9 @@ func initCore(fnNotify func(sub models.Subscriber, listIDs []int) (int, error), 
 	if err := ko.Unmarshal("bounce.actions", &opt.Constants.BounceActions); err != nil {
 		lo.Fatalf("error unmarshalling bounce config: %v", err)
 	}
+
+	// Initialize webhook client.
+	opt.Webhooks = initWebhooks(ko)
 
 	// Initialize the CRUD core.
 	return core.New(opt, &core.Hooks{
@@ -1142,4 +1146,24 @@ func joinFSPaths(root string, paths []string) []string {
 	}
 
 	return out
+}
+
+// initWebhooks initializes the webhook client with settings from the config.
+func initWebhooks(ko *koanf.Koanf) *webhooks.Client {
+	client := webhooks.New(lo)
+
+	// Configure subscription confirmed webhook.
+	var subConfirmed webhooks.Config
+	if err := ko.Unmarshal("webhooks.subscription_confirmed", &subConfirmed); err != nil {
+		lo.Printf("error loading webhooks.subscription_confirmed config: %v", err)
+		return client
+	}
+
+	client.SetConfig(webhooks.EventSubscriptionConfirmed, subConfirmed)
+
+	if subConfirmed.Enabled && subConfirmed.URL != "" {
+		lo.Printf("initialized subscription confirmed webhook: %s", subConfirmed.URL)
+	}
+
+	return client
 }
