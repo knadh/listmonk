@@ -26,7 +26,6 @@ type Client struct {
 	configs    map[EventType]Config
 }
 
-// New creates a new webhook client.
 func New(lo *log.Logger) *Client {
 	return &Client{
 		httpClient: &http.Client{
@@ -116,7 +115,7 @@ func (c *Client) send(cfg Config, event Event) error {
 			continue
 		}
 
-		return nil // Success
+		return nil
 	}
 
 	return fmt.Errorf("webhook failed after %d attempts: %w", maxRetries, lastErr)
@@ -129,11 +128,9 @@ func (c *Client) doRequest(cfg Config, payload []byte) error {
 		return fmt.Errorf("failed to create request: %w", err)
 	}
 
-	// Set headers.
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("User-Agent", "listmonk")
 
-	// Execute request.
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
 		return fmt.Errorf("request failed: %w", err)
@@ -143,7 +140,6 @@ func (c *Client) doRequest(cfg Config, payload []byte) error {
 		resp.Body.Close()
 	}()
 
-	// Check response status.
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
 		return fmt.Errorf("non-success status code: %d", resp.StatusCode)
 	}
