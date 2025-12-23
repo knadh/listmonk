@@ -264,14 +264,21 @@ export default {
 
         // If an existing link is being edited, check for the tracking flag `@TrackLink` at the end
         // of the url. Remove that from the URL and instead check the checkbox.
-        let checked = false;
-        if (!t.initialData.link !== '') {
+        // Default to true for new links (better UX - tracking enabled by default).
+        let checked = true;
+
+        // Check if this is an existing link being edited
+        if (t.initialData.url && t.initialData.url.value && t.initialData.url.value !== '') {
           const t2 = t;
           const url = t2.initialData.url.value.replace(/@TrackLink$/, '');
 
           if (t2.initialData.url.value !== url) {
+            // Link has @TrackLink suffix - keep it checked
             t2.initialData.url.value = url;
             checked = true;
+          } else {
+            // Link doesn't have @TrackLink suffix - uncheck it
+            checked = false;
           }
         }
 
@@ -286,6 +293,10 @@ export default {
 
           if (checked) {
             c.setAttribute('checked', checked);
+            // CRITICAL FIX: Sync the Vue instance state with the checkbox state
+            // This ensures that when the checkbox appears checked, the tracking
+            // will actually work when the user saves without manually toggling.
+            self.isTrackLink = true;
           }
 
           // Store the checkbox's state in the Vue instance to pick up from
