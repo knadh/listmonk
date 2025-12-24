@@ -391,6 +391,21 @@ func (c *Core) UpdateSubscriberWithLists(id int, sub models.Subscriber, listIDs 
 		subStatus = models.SubscriptionStatusConfirmed
 	}
 
+	// Get existing list IDs BEFORE the update to determine which lists are new.
+	// This prevents re-sending opt-in emails for existing subscriptions.
+	existingListIDs := make(map[int]bool)
+	if existing, err := c.GetSubscriber(id, "", ""); err == nil {
+		// Parse the Lists JSON to extract list IDs
+		var lists []struct {
+			ID int `json:"id"`
+		}
+		if err := json.Unmarshal(existing.Lists, &lists); err == nil {
+			for _, list := range lists {
+				existingListIDs[list.ID] = true
+			}
+		}
+	}
+
 	// Format raw JSON attributes.
 	attribs := []byte("{}")
 	if len(sub.Attribs) > 0 {
@@ -425,12 +440,22 @@ func (c *Core) UpdateSubscriberWithLists(id int, sub models.Subscriber, listIDs 
 
 	hasOptin := false
 	if !preconfirm && c.consts.SendOptinConfirmation {
-		// Send a confirmation e-mail (if there are any double opt-in lists).
-		num, err := c.h.SendOptinConfirmation(out, listIDs)
-		if assertOptin && err != nil {
-			return out, hasOptin, err
+		// Only send opt-in emails for NEW list subscriptions, not existing ones.
+		// This prevents spamming subscribers when their attributes are updated.
+		newListIDs := make([]int, 0)
+		for _, lid := range listIDs {
+			if !existingListIDs[lid] {
+				newListIDs = append(newListIDs, lid)
+			}
 		}
-		hasOptin = num > 0
+
+		if len(newListIDs) > 0 {
+			num, err := c.h.SendOptinConfirmation(out, newListIDs)
+			if assertOptin && err != nil {
+				return out, hasOptin, err
+			}
+			hasOptin = num > 0
+		}
 	}
 
 	return out, hasOptin, nil
