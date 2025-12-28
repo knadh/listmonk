@@ -243,7 +243,7 @@ func main() {
 	}
 
 	// Initialize the webhook manager for outgoing event webhooks.
-	webhookMgr := webhooks.New(lo)
+	webhookMgr := webhooks.New(lo, versionString)
 
 	// Load webhooks from settings.
 	if settings, err := core.GetSettings(); err == nil {

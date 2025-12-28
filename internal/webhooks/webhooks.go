@@ -35,16 +35,18 @@ type Webhook struct {
 
 // Manager handles webhook event delivery.
 type Manager struct {
-	webhooks []Webhook
-	log      *log.Logger
-	mu       sync.RWMutex
+	webhooks      []Webhook
+	log           *log.Logger
+	mu            sync.RWMutex
+	versionString string
 }
 
 // New creates a new webhook manager.
-func New(log *log.Logger) *Manager {
+func New(log *log.Logger, versionString string) *Manager {
 	return &Manager{
-		webhooks: []Webhook{},
-		log:      log,
+		webhooks:      []Webhook{},
+		log:           log,
+		versionString: versionString,
 	}
 }
 
@@ -168,7 +170,6 @@ func (m *Manager) deliver(wh Webhook, event string, payload []byte) {
 
 // send makes an HTTP request to deliver the webhook.
 func (m *Manager) send(wh Webhook, event string, payload []byte) error {
-	// Create HTTP request.
 	req, err := http.NewRequest(http.MethodPost, wh.URL, bytes.NewReader(payload))
 	if err != nil {
 		return fmt.Errorf("creating request: %w", err)
@@ -176,7 +177,7 @@ func (m *Manager) send(wh Webhook, event string, payload []byte) error {
 
 	// Set headers.
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("User-Agent", "listmonk-webhook/1.0")
+	req.Header.Set("User-Agent", fmt.Sprintf("listmonk/%s", m.versionString))
 	req.Header.Set("X-Listmonk-Event", event)
 
 	// Apply authentication.
