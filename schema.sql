@@ -348,6 +348,15 @@ CREATE TABLE sessions (
 );
 DROP INDEX IF EXISTS idx_sessions; CREATE INDEX idx_sessions ON sessions (id, created_at);
 
+-- sub_verified_by_lmonk
+DROP TABLE IF EXISTS sub_verified_by_lmonk CASCADE;
+CREATE TABLE sub_verified_by_lmonk (
+    id               SERIAL PRIMARY KEY,
+    subscriber_id    INTEGER NOT NULL REFERENCES subscribers(id) ON DELETE CASCADE ON UPDATE CASCADE,
+    verified_at      TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+DROP INDEX IF EXISTS idx_sub_verified_by_lmonk_sub_id; CREATE INDEX idx_sub_verified_by_lmonk_sub_id ON sub_verified_by_lmonk(subscriber_id);
+
 -- materialized views
 
 -- dashboard stats
@@ -548,12 +557,21 @@ $$ LANGUAGE plpgsql;
 
 -- Process Unverified users as verified
 
-CREATE OR REPLACE FUNCTION mark_verified_on_view()
+CREATE OR REPLACE FUNCTION mark_verified_on_view(view_date date)
 RETURNS VOID AS $$
 BEGIN
-    -- Only update if subscriber exists and is currently unverified
+    WITH verified_subs AS (
+        SELECT DISTINCT subscriber_id
+        FROM campaign_views
+        WHERE DATE(created_at) > view_date AND subscriber_id IS NOT NULL
+    )
     UPDATE subscribers
     SET attribs = jsonb_set(attribs, '{verified}', 'true'::jsonb, true)
-    WHERE (attribs->>'verified')::boolean IS DISTINCT FROM true;
+    WHERE (attribs->>'verified')::boolean IS false AND id IN (SELECT subscriber_id FROM verified_subs);
+
+    INSERT INTO sub_verified_by_lmonk (subscriber_id)
+    SELECT subscriber_id
+    FROM verified_subs
+    ON CONFLICT (subscriber_id) DO NOTHING;
 END;
 $$ LANGUAGE plpgsql;
