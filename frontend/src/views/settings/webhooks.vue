@@ -50,7 +50,7 @@
                       <span>{{ props.option }}</span>
                     </template>
                     <template #empty>
-                      {{ $t('globals.messages.noResults') }}
+                      {{ $t('globals.messages.emptyState') }}
                     </template>
                   </b-taginput>
                 </b-field>
