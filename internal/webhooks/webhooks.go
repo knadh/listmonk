@@ -24,7 +24,7 @@ type Webhook struct {
 	Enabled        bool
 	Name           string
 	URL            string
-	Events         []string
+	Events         map[string]struct{} // O(1) lookup
 	AuthType       string
 	AuthBasicUser  string
 	AuthBasicPass  string
@@ -71,12 +71,17 @@ func (m *Manager) Load(settings []models.Webhook) {
 			maxRetries = 3
 		}
 
+		events := make(map[string]struct{})
+		for _, ev := range s.Events {
+			events[ev] = struct{}{}
+		}
+
 		m.webhooks = append(m.webhooks, Webhook{
 			UUID:           s.UUID,
 			Enabled:        s.Enabled,
 			Name:           s.Name,
 			URL:            s.URL,
-			Events:         s.Events,
+			Events:         events,
 			AuthType:       s.AuthType,
 			AuthBasicUser:  s.AuthBasicUser,
 			AuthBasicPass:  s.AuthBasicPass,
@@ -128,12 +133,8 @@ func (m *Manager) Trigger(event string, data any) error {
 
 // isSubscribed checks if a webhook is subscribed to the given event.
 func (m *Manager) isSubscribed(wh Webhook, event string) bool {
-	for _, e := range wh.Events {
-		if e == event {
-			return true
-		}
-	}
-	return false
+	_, exists := wh.Events[event]
+	return exists
 }
 
 // deliver attempts to deliver a webhook with retries.
