@@ -98,7 +98,12 @@ func (m *Manager) Load(settings []struct {
 		})
 	}
 
-	m.log.Printf("loaded %d webhook(s)", len(m.webhooks))
+	numHooks := len(m.webhooks)
+	label := "webhook"
+	if numHooks > 1 {
+		label = "webhooks"
+	}
+	m.log.Printf("loaded %d %s", numHooks, label)
 }
 
 // Trigger fires all webhooks subscribed to the given event.
