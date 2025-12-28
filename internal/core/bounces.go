@@ -81,9 +81,13 @@ func (c *Core) RecordBounce(b models.Bounce) error {
 		}
 
 		c.log.Printf("error recording bounce: %v", err)
+		return err
 	}
 
-	return err
+	// Trigger webhook for bounce event.
+	c.triggerWebhook(models.EventSubscriberBounced, b)
+
+	return nil
 }
 
 // BlocklistBouncedSubscribers blocklists all bounced subscribers.

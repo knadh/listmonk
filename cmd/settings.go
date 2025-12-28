@@ -71,6 +71,10 @@ func (a *App) GetSettings(c echo.Context) error {
 	for i := range s.Messengers {
 		s.Messengers[i].Password = strings.Repeat(pwdMask, utf8.RuneCountInString(s.Messengers[i].Password))
 	}
+	for i := range s.Webhooks {
+		s.Webhooks[i].AuthBasicPass = strings.Repeat(pwdMask, utf8.RuneCountInString(s.Webhooks[i].AuthBasicPass))
+		s.Webhooks[i].AuthHMACSecret = strings.Repeat(pwdMask, utf8.RuneCountInString(s.Webhooks[i].AuthHMACSecret))
+	}
 
 	s.UploadS3AwsSecretAccessKey = strings.Repeat(pwdMask, utf8.RuneCountInString(s.UploadS3AwsSecretAccessKey))
 	s.SendgridKey = strings.Repeat(pwdMask, utf8.RuneCountInString(s.SendgridKey))
@@ -207,6 +211,31 @@ func (a *App) UpdateSettings(c echo.Context) error {
 
 		set.Messengers[i].Name = name
 		names[name] = true
+	}
+
+	// Webhooks password/secret handling.
+	for i, w := range set.Webhooks {
+		// UUID to keep track of password changes similar to the SMTP logic above.
+		if w.UUID == "" {
+			set.Webhooks[i].UUID = uuid.Must(uuid.NewV4()).String()
+		}
+
+		// If there's no password/secret coming in from the frontend, copy the existing
+		// values by matching the UUID.
+		if w.AuthBasicPass == "" {
+			for _, c := range cur.Webhooks {
+				if w.UUID == c.UUID {
+					set.Webhooks[i].AuthBasicPass = c.AuthBasicPass
+				}
+			}
+		}
+		if w.AuthHMACSecret == "" {
+			for _, c := range cur.Webhooks {
+				if w.UUID == c.UUID {
+					set.Webhooks[i].AuthHMACSecret = c.AuthHMACSecret
+				}
+			}
+		}
 	}
 
 	// S3 password?

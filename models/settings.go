@@ -110,6 +110,20 @@ type Settings struct {
 		MaxMsgRetries int    `json:"max_msg_retries"`
 	} `json:"messengers"`
 
+	Webhooks []struct {
+		UUID           string   `json:"uuid"`
+		Enabled        bool     `json:"enabled"`
+		Name           string   `json:"name"`
+		URL            string   `json:"url"`
+		Events         []string `json:"events"`
+		AuthType       string   `json:"auth_type"`
+		AuthBasicUser  string   `json:"auth_basic_user"`
+		AuthBasicPass  string   `json:"auth_basic_pass,omitempty"`
+		AuthHMACSecret string   `json:"auth_hmac_secret,omitempty"`
+		MaxRetries     int      `json:"max_retries"`
+		Timeout        string   `json:"timeout"`
+	} `json:"webhooks"`
+
 	BounceEnabled        bool `json:"bounce.enabled"`
 	BounceEnableWebhooks bool `json:"bounce.webhooks_enabled"`
 	BounceActions        map[string]struct {

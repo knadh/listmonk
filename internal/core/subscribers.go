@@ -343,7 +343,14 @@ func (c *Core) InsertSubscriber(sub models.Subscriber, listIDs []int, listUUIDs 
 		}
 
 		hasOptin = num > 0
+		if hasOptin {
+			// Trigger webhook for optin start.
+			c.triggerWebhook(models.EventSubscriberOptinStart, out)
+		}
 	}
+
+	// Trigger webhook for new subscriber creation.
+	c.triggerWebhook(models.EventSubscriberCreated, out)
 
 	return out, hasOptin, nil
 }
@@ -378,6 +385,9 @@ func (c *Core) UpdateSubscriber(id int, sub models.Subscriber) (models.Subscribe
 	if err != nil {
 		return models.Subscriber{}, err
 	}
+
+	// Trigger webhook for subscriber update.
+	c.triggerWebhook(models.EventSubscriberUpdated, out)
 
 	return out, nil
 }
@@ -431,7 +441,14 @@ func (c *Core) UpdateSubscriberWithLists(id int, sub models.Subscriber, listIDs 
 			return out, hasOptin, err
 		}
 		hasOptin = num > 0
+		if hasOptin {
+			// Trigger webhook for optin start.
+			c.triggerWebhook(models.EventSubscriberOptinStart, out)
+		}
 	}
+
+	// Trigger webhook for subscriber update.
+	c.triggerWebhook(models.EventSubscriberUpdated, out)
 
 	return out, hasOptin, nil
 }
@@ -473,6 +490,12 @@ func (c *Core) DeleteSubscribers(subIDs []int, subUUIDs []string) error {
 			c.i18n.Ts("globals.messages.errorDeleting", "name", "{globals.terms.subscribers}", "error", pqErrMsg(err)))
 	}
 
+	// Trigger webhook for subscriber deletion with IDs.
+	c.triggerWebhook(models.EventSubscriberDeleted, map[string]any{
+		"ids":   subIDs,
+		"uuids": subUUIDs,
+	})
+
 	return nil
 }
 
@@ -496,6 +519,13 @@ func (c *Core) UnsubscribeByCampaign(subUUID, campUUID string, blocklist bool) e
 			c.i18n.Ts("globals.messages.errorUpdating", "name", "{globals.terms.subscribers}", "error", pqErrMsg(err)))
 	}
 
+	// Trigger webhook for unsubscribe.
+	c.triggerWebhook(models.EventSubscriberUnsubscribed, map[string]any{
+		"subscriber_uuid": subUUID,
+		"campaign_uuid":   campUUID,
+		"blocklisted":     blocklist,
+	})
+
 	return nil
 }
 
@@ -510,6 +540,12 @@ func (c *Core) ConfirmOptionSubscription(subUUID string, listUUIDs []string, met
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			c.i18n.Ts("globals.messages.errorUpdating", "name", "{globals.terms.subscribers}", "error", pqErrMsg(err)))
 	}
+
+	// Trigger webhook for optin finish.
+	c.triggerWebhook(models.EventSubscriberOptinFinish, map[string]any{
+		"subscriber_uuid": subUUID,
+		"list_uuids":      listUUIDs,
+	})
 
 	return nil
 }

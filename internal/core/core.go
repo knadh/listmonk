@@ -52,6 +52,7 @@ type Constants struct {
 // Hooks contains external function hooks that are required by the core package.
 type Hooks struct {
 	SendOptinConfirmation func(models.Subscriber, []int) (int, error)
+	TriggerWebhook        func(event string, data any) error
 }
 
 // Opt contains the controllers required to start the core.
@@ -85,6 +86,11 @@ func New(o *Opt, h *Hooks) *Core {
 		q:      o.Queries,
 		log:    o.Log,
 	}
+}
+
+// SetWebhookHook sets the webhook trigger hook.
+func (c *Core) SetWebhookHook(fn func(event string, data any) error) {
+	c.h.TriggerWebhook = fn
 }
 
 // RefreshMatViews refreshes all materialized views.
@@ -206,4 +212,15 @@ func sanitizeSQLExp(q string) string {
 // strHasLen checks if the given string has a length within min-max.
 func strHasLen(str string, min, max int) bool {
 	return len(str) >= min && len(str) <= max
+}
+
+// triggerWebhook triggers a webhook event if the hook is set.
+func (c *Core) triggerWebhook(event string, data any) {
+	if c.h.TriggerWebhook != nil {
+		go func() {
+			if err := c.h.TriggerWebhook(event, data); err != nil {
+				c.log.Printf("error triggering webhook %s: %v", event, err)
+			}
+		}()
+	}
 }

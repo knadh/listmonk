@@ -26,6 +26,7 @@ import (
 	"github.com/knadh/listmonk/internal/media"
 	"github.com/knadh/listmonk/internal/messenger/email"
 	"github.com/knadh/listmonk/internal/subimporter"
+	"github.com/knadh/listmonk/internal/webhooks"
 	"github.com/knadh/listmonk/models"
 	"github.com/knadh/paginator"
 	"github.com/knadh/stuffbin"
@@ -46,6 +47,7 @@ type App struct {
 	auth       *auth.Auth
 	media      media.Store
 	bounce     *bounce.Manager
+	webhooks   *webhooks.Manager
 	captcha    *captcha.Captcha
 	i18n       *i18n.I18n
 	pg         *paginator.Paginator
@@ -240,6 +242,17 @@ func main() {
 		go bounce.Run()
 	}
 
+	// Initialize the webhook manager for outgoing event webhooks.
+	webhookMgr := webhooks.New(lo)
+
+	// Load webhooks from settings.
+	if settings, err := core.GetSettings(); err == nil {
+		webhookMgr.Load(settings.Webhooks)
+	}
+
+	// Set the webhook trigger hook in core so that CRUD operations can trigger webhooks.
+	core.SetWebhookHook(webhookMgr.Trigger)
+
 	// Start cronjobs.
 	initCron(core, db)
 
@@ -263,6 +276,7 @@ func main() {
 		auth:       auth,
 		media:      media,
 		bounce:     bounce,
+		webhooks:   webhookMgr,
 		captcha:    initCaptcha(),
 		i18n:       i18n,
 		log:        lo,
@@ -309,6 +323,9 @@ func main() {
 
 		// Close the campaign manager.
 		mgr.Close()
+
+		// Close the webhook manager.
+		webhookMgr.Close()
 
 		// Close the DB pool.
 		db.Close()
