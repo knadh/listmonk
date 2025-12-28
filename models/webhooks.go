@@ -35,6 +35,21 @@ const (
 	WebhookAuthTypeHMAC  = "hmac"
 )
 
+// Webhook is the configured endpoint to send events to.
+type Webhook struct {
+	UUID           string   `json:"uuid"`
+	Enabled        bool     `json:"enabled"`
+	Name           string   `json:"name"`
+	URL            string   `json:"url"`
+	Events         []string `json:"events"`
+	AuthType       string   `json:"auth_type"`
+	AuthBasicUser  string   `json:"auth_basic_user"`
+	AuthBasicPass  string   `json:"auth_basic_pass,omitempty"`
+	AuthHMACSecret string   `json:"auth_hmac_secret,omitempty"`
+	MaxRetries     int      `json:"max_retries"`
+	Timeout        string   `json:"timeout"`
+}
+
 // WebhookEvent represents an event payload to be sent to webhooks.
 type WebhookEvent struct {
 	Event     string    `json:"event"`
