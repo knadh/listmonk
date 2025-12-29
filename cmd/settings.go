@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"net/url"
@@ -215,6 +216,19 @@ func (a *App) UpdateSettings(c echo.Context) error {
 
 	// Webhooks password/secret handling.
 	for i, w := range set.Webhooks {
+		u, err := url.Parse(w.URL)
+		if err != nil {
+			return err
+		}
+
+		if u.Scheme != "http" && u.Scheme != "https" {
+			return fmt.Errorf("invalid scheme in the url provided for webhook: %s", w.URL)
+		}
+
+		if u.Host == "" {
+			return fmt.Errorf("invalid host in the url provided for webhook: %s", w.URL)
+		}
+
 		// UUID to keep track of password changes similar to the SMTP logic above.
 		if w.UUID == "" {
 			set.Webhooks[i].UUID = uuid.Must(uuid.NewV4()).String()
