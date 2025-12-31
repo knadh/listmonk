@@ -204,10 +204,8 @@ func (c *Core) DeleteLists(ids []int, query string, getAll bool, permittedIDs []
 
 	if len(ids) > 0 {
 		queryStr = ""
-	} else if query != "" {
-		queryStr = makeSearchString(query)
 	} else {
-		return echo.NewHTTPError(http.StatusBadRequest, c.i18n.T("globals.messages.invalidData"))
+		queryStr = makeSearchString(query)
 	}
 
 	if _, err := c.q.DeleteLists.Exec(pq.Array(ids), queryStr, getAll, pq.Array(permittedIDs)); err != nil {

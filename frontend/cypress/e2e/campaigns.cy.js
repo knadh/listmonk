@@ -25,7 +25,8 @@ describe('Campaigns', () => {
     cy.wait(500);
 
     cy.get('a[data-cy=btn-attach]').click();
-    cy.get('[data-cy=btn-toggle-upload]').click();
+    cy.get('button[data-cy=btn-toggle-upload]').click();
+    cy.wait(500);
     cy.get('input[type=file]').attachFile('example.json');
     cy.get('form[data-cy="upload"] button').click();
     cy.get('.modal button.is-primary:eq(0)').click();
@@ -196,7 +197,7 @@ describe('Campaigns', () => {
     cy.get('input[name=query]').clear().type('{enter}');
   });
 
-  it('Deletes campaign', () => {
+  it('Deletes campaigns', () => {
     cy.wait(1000);
     // Delete all visible lists.
     cy.get('tbody tr').each(() => {
@@ -376,5 +377,47 @@ describe('Campaigns', () => {
       cy.sortTable(`thead th.${c}`, desc);
       cy.wait(250);
     });
+  });
+
+  it('Bulk deletes campaigns', () => {
+    const apiUrl = Cypress.env('apiUrl');
+
+    const params = {
+      name: 'test-campaign-bulk',
+      subject: 'subject',
+      type: 'regular',
+      content_type: 'richtext',
+      template_id: 1,
+      lists: [1],
+    };
+
+    // Create 30 in a loop.
+    for (let i = 0; i < 30; i += 1) {
+      cy.request('POST', `${apiUrl}/api/campaigns`, params);
+    }
+
+    cy.loginAndVisit('/admin/campaigns');
+
+    // Bulk delete with the `all` flag.
+    cy.window().scrollTo('top');
+    cy.wait(500);
+    cy.get('thead input[type="checkbox"]').click({ force: true });
+    cy.get('a[data-cy=select-all-campaigns]').click();
+    cy.get('a[data-cy=btn-delete-campaigns]').click();
+    cy.get('.modal button.is-primary:eq(0)').click();
+    cy.get('table tr.is-empty');
+
+    // Bulk delete with the selected IDs.
+    // Create 5 campaigns in a loop.
+    for (let i = 0; i < 5; i += 1) {
+      cy.request('POST', `${apiUrl}/api/campaigns`, params);
+    }
+
+    cy.visit('/admin/campaigns');
+    cy.wait(500);
+    cy.get('thead input[type="checkbox"]').click({ force: true });
+    cy.get('a[data-cy=btn-delete-campaigns]').click();
+    cy.get('.modal button.is-primary:eq(0)').click();
+    cy.get('table tr.is-empty');
   });
 });
