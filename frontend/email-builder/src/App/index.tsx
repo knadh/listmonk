@@ -1,9 +1,9 @@
-import React from 'react';
 import { Stack, useTheme } from '@mui/material';
-import { renderToStaticMarkup } from '@usewaypoint/email-builder';
+import React from 'react';
 
 import { TEditorConfiguration } from '../documents/editor/core';
-import { useInspectorDrawerOpen, useSamplesDrawerOpen, subscribeDocument, setDocument } from '../documents/editor/EditorContext';
+import { setDocument, subscribeDocument, useInspectorDrawerOpen, useSamplesDrawerOpen } from '../documents/editor/EditorContext';
+import { renderHtmlWithMeta } from '../utils';
 import InspectorDrawer, { INSPECTOR_DRAWER_WIDTH } from './InspectorDrawer';
 import TemplatePanel from './TemplatePanel';
 
@@ -46,7 +46,7 @@ export default function App(props: AppProps) {
 
   if (props.onChange) {
     subscribeDocument ((document) => {
-      props.onChange?.(document, renderToStaticMarkup(document, { rootBlockId: 'root' }))
+      props.onChange?.(document, renderHtmlWithMeta(document, { rootBlockId: 'root' }))
     })
   }
 
