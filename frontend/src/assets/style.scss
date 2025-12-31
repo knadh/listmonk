@@ -150,6 +150,10 @@ section {
   }
 }
 
+.navbar-dropdown {
+  font-size: 1rem;
+}
+
 .user-avatar {
   img {
     display: inline-block;
@@ -1337,6 +1341,16 @@ th.role-toggle-select a {
       display: block;
       margin: 0 0 5px 0;
     }
+  }
+}
+
+@media screen and (max-width: 1024px) {
+  .navbar-item.user {
+    border-top: 1px solid #ddd;
+    margin-top: 15px;
+  }
+  .navbar-item.user .navbar-link {
+    padding: 15px;
   }
 }
 
