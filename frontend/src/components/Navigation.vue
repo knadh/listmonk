@@ -63,8 +63,6 @@
       <b-menu-item v-if="$can('settings:get')" :to="{ name: 'logs' }" tag="router-link" :active="activeItem.logs"
         data-cy="logs" icon="format-list-bulleted-square" :label="$t('menu.logs')" />
     </b-menu-item><!-- settings -->
-
-    <b-menu-item v-if="isMobile" icon="logout-variant" :label="$t('users.logout')" @click.prevent="doLogout" />
   </b-menu-list>
 </template>
 

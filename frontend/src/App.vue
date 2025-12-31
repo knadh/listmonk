@@ -13,7 +13,7 @@
         <navigation v-if="isMobile" :is-mobile="isMobile" :active-item="activeItem" :active-group="activeGroup"
           @toggleGroup="toggleGroup" @doLogout="doLogout" />
 
-        <b-navbar-dropdown class="user" tag="div" right v-else>
+        <b-navbar-dropdown class="user" tag="div" right>
           <template v-if="profile.username" #label>
             <span class="user-avatar">
               <img v-if="profile.avatar" :src="profile.avatar" alt="" />
