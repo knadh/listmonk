@@ -57,6 +57,10 @@
           <b-tab-item :label="$t('settings.appearance.name')">
             <appearance-settings :form="form" :key="key" />
           </b-tab-item><!-- appearance -->
+
+          <b-tab-item :label="$t('settings.webhooks.name')">
+            <webhook-settings :form="form" :key="key" />
+          </b-tab-item><!-- webhooks -->
         </b-tabs>
       </section>
     </section>
@@ -75,6 +79,7 @@ import PerformanceSettings from './settings/performance.vue';
 import PrivacySettings from './settings/privacy.vue';
 import SecuritySettings from './settings/security.vue';
 import SmtpSettings from './settings/smtp.vue';
+import WebhookSettings from './settings/webhooks.vue';
 
 export default Vue.extend({
   components: {
@@ -87,6 +92,7 @@ export default Vue.extend({
     BounceSettings,
     MessengerSettings,
     AppearanceSettings,
+    WebhookSettings,
   },
 
   data() {

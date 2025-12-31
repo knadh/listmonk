@@ -143,6 +143,15 @@ type Settings struct {
 		ScanInterval  string `json:"scan_interval"`
 	} `json:"bounce.mailboxes"`
 
+	Webhooks struct {
+		SubscriptionConfirmed struct {
+			Enabled    bool   `json:"enabled"`
+			URL        string `json:"url"`
+			Timeout    string `json:"timeout"`
+			MaxRetries int    `json:"max_retries"`
+		} `json:"subscription_confirmed"`
+	} `json:"webhooks"`
+
 	MaintenanceDB struct {
 		Vacuum         bool   `json:"vacuum"`
 		VacuumInterval string `json:"vacuum_cron_interval"`
