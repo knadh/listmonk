@@ -345,6 +345,9 @@ func (c *Core) InsertSubscriber(sub models.Subscriber, listIDs []int, listUUIDs 
 		hasOptin = num > 0
 	}
 
+	// Send welcome messages where applicable.
+	c.sendWelcomeMessage(sub.UUID, map[int]bool{})
+
 	return out, hasOptin, nil
 }
 
@@ -391,6 +394,13 @@ func (c *Core) UpdateSubscriberWithLists(id int, sub models.Subscriber, listIDs 
 		subStatus = models.SubscriptionStatusConfirmed
 	}
 
+	// Track welcome e-mails already sent before the update.
+	existingSub, err := c.GetSubscriber(id, "", "")
+	if err != nil {
+		return models.Subscriber{}, false, err
+	}
+	welcomesSent := c.getWelcomesSent(existingSub.UUID)
+
 	// Format raw JSON attributes.
 	attribs := []byte("{}")
 	if len(sub.Attribs) > 0 {
@@ -403,7 +413,7 @@ func (c *Core) UpdateSubscriberWithLists(id int, sub models.Subscriber, listIDs 
 		}
 	}
 
-	_, err := c.q.UpdateSubscriberWithLists.Exec(id,
+	_, err = c.q.UpdateSubscriberWithLists.Exec(id,
 		sub.Email,
 		strings.TrimSpace(sub.Name),
 		sub.Status,
@@ -418,7 +428,7 @@ func (c *Core) UpdateSubscriberWithLists(id int, sub models.Subscriber, listIDs 
 			c.i18n.Ts("globals.messages.errorUpdating", "name", "{globals.terms.subscriber}", "error", pqErrMsg(err)))
 	}
 
-	out, err := c.GetSubscriber(sub.ID, "", sub.Email)
+	out, err := c.GetSubscriber(id, "", sub.Email)
 	if err != nil {
 		return models.Subscriber{}, false, err
 	}
@@ -426,12 +436,15 @@ func (c *Core) UpdateSubscriberWithLists(id int, sub models.Subscriber, listIDs 
 	hasOptin := false
 	if !preconfirm && c.consts.SendOptinConfirmation {
 		// Send a confirmation e-mail (if there are any double opt-in lists).
-		num, err := c.h.SendOptinConfirmation(out, listIDs)
-		if assertOptin && err != nil {
-			return out, hasOptin, err
+		num, sendErr := c.h.SendOptinConfirmation(out, listIDs)
+		if assertOptin && sendErr != nil {
+			return out, hasOptin, sendErr
 		}
 		hasOptin = num > 0
 	}
+
+	// Send welcome messages where applicable.
+	c.sendWelcomeMessage(out.UUID, welcomesSent)
 
 	return out, hasOptin, nil
 }
@@ -505,12 +518,17 @@ func (c *Core) ConfirmOptionSubscription(subUUID string, listUUIDs []string, met
 		meta = models.JSON{}
 	}
 
+	// Track welcome e-mails already sent before the update.
+	welcomesSent := c.getWelcomesSent(subUUID)
+
 	if _, err := c.q.ConfirmSubscriptionOptin.Exec(subUUID, pq.Array(listUUIDs), meta); err != nil {
 		c.log.Printf("error confirming subscription: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			c.i18n.Ts("globals.messages.errorUpdating", "name", "{globals.terms.subscribers}", "error", pqErrMsg(err)))
 	}
 
+	// Send welcome messages where applicable.
+	c.sendWelcomeMessage(subUUID, welcomesSent)
 	return nil
 }
 
@@ -554,6 +572,73 @@ func (c *Core) DeleteBlocklistedSubscribers() (int, error) {
 
 	n, _ := res.RowsAffected()
 	return int(n), nil
+}
+
+func (c *Core) getWelcomesSent(subUUID string) map[int]bool {
+	welcomesSent := map[int]bool{}
+	listSubs, err := c.GetSubscriptions(0, subUUID, false)
+	if err != nil {
+		return welcomesSent
+	}
+
+	for _, listSub := range listSubs {
+		if listSub.WelcomeTemplateID == nil {
+			continue
+		}
+		if !(listSub.Optin == models.ListOptinSingle || listSub.SubscriptionStatus.String == models.SubscriptionStatusConfirmed) {
+			continue
+		}
+		welcomesSent[listSub.ID] = true
+	}
+
+	return welcomesSent
+}
+
+func (c *Core) sendWelcomeMessage(subUUID string, welcomesSent map[int]bool) {
+	if c.h == nil || c.h.SendTxMessage == nil {
+		return
+	}
+
+	listSubs, err := c.GetSubscriptions(0, subUUID, false)
+	if err != nil {
+		c.log.Printf("error getting the subscriber's lists: %v", err)
+		return
+	}
+
+	sub, err := c.GetSubscriber(0, subUUID, "")
+	if err != nil {
+		c.log.Printf("error sending welcome messages: subscriber not found %v", err)
+		return
+	}
+
+	for _, listSub := range listSubs {
+		if listSub.WelcomeTemplateID == nil {
+			continue
+		}
+		if welcomesSent[listSub.ID] {
+			continue
+		}
+		if !(listSub.Optin == models.ListOptinSingle || listSub.SubscriptionStatus.String == models.SubscriptionStatusConfirmed) {
+			continue
+		}
+
+		data := map[string]any{}
+		if len(listSub.Meta) > 0 {
+			err := json.Unmarshal(listSub.Meta, &data)
+			if err != nil {
+				c.log.Printf("error unmarshalling sub meta: %v", err)
+			}
+		}
+
+		err = c.h.SendTxMessage(models.TxMessage{
+			TemplateID:    *listSub.WelcomeTemplateID,
+			SubscriberIDs: []int{sub.ID},
+			Data:          data,
+		})
+		if err != nil {
+			c.log.Printf("error sending welcome messages: %v", err)
+		}
+	}
 }
 
 func (c *Core) getSubscriberCount(searchStr, queryExp, subStatus string, listIDs []int) (int, error) {

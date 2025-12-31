@@ -62,6 +62,18 @@ func (a *App) SendTxMessage(c echo.Context) error {
 		return err
 	}
 
+	if err := a.sendTxMessage(m); err != nil {
+		return err
+	}
+
+	return c.JSON(http.StatusOK, okResp{true})
+}
+
+func (a *App) sendTxMessage(m models.TxMessage) error {
+	if a == nil {
+		return fmt.Errorf("app is not initialized")
+	}
+
 	// Validate fields.
 	if r, err := a.validateTxMessage(m); err != nil {
 		return err
@@ -108,7 +120,6 @@ func (a *App) SendTxMessage(c echo.Context) error {
 				subEmail = m.SubscriberEmails[n]
 			}
 
-			var err error
 			sub, err = a.core.GetSubscriber(subID, "", subEmail)
 			if err != nil {
 				if er, ok := err.(*echo.HTTPError); ok && er.Code == http.StatusBadRequest {
@@ -171,7 +182,7 @@ func (a *App) SendTxMessage(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, strings.Join(notFound, "; "))
 	}
 
-	return c.JSON(http.StatusOK, okResp{true})
+	return nil
 }
 
 // validateTxMessage validates the tx message fields.

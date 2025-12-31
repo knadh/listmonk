@@ -531,7 +531,14 @@ func initI18n(lang string, fs stuffbin.FileSystem) *i18n.I18n {
 }
 
 // initCore initializes the CRUD DB core .
-func initCore(fnNotify func(sub models.Subscriber, listIDs []int) (int, error), queries *models.Queries, db *sqlx.DB, i *i18n.I18n, ko *koanf.Koanf) *core.Core {
+func initCore(
+	fnNotify func(sub models.Subscriber, listIDs []int) (int, error),
+	fnSendTx func(models.TxMessage) error,
+	queries *models.Queries,
+	db *sqlx.DB,
+	i *i18n.I18n,
+	ko *koanf.Koanf,
+) *core.Core {
 	opt := &core.Opt{
 		Constants: core.Constants{
 			SendOptinConfirmation: ko.Bool("app.send_optin_confirmation"),
@@ -551,6 +558,7 @@ func initCore(fnNotify func(sub models.Subscriber, listIDs []int) (int, error), 
 	// Initialize the CRUD core.
 	return core.New(opt, &core.Hooks{
 		SendOptinConfirmation: fnNotify,
+		SendTxMessage:         fnSendTx,
 	})
 }
 

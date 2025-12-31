@@ -176,8 +176,18 @@ func init() {
 	queries = prepareQueries(qMap, db, ko)
 }
 
+type appRef struct {
+	App *App
+}
+
+func (s *appRef) sendTxMessage(tx models.TxMessage) error {
+	return s.App.sendTxMessage(tx)
+}
+
 func main() {
 	var (
+		app *App
+
 		// Initialize static global config.
 		cfg = initConstConfig(ko)
 
@@ -192,8 +202,10 @@ func main() {
 
 		fbOptinNotify = makeOptinNotifyHook(ko.Bool("privacy.unsubscribe_header"), urlCfg, queries, i18n)
 
+		appRef = &appRef{}
+
 		// Crud core.
-		core = initCore(fbOptinNotify, queries, db, i18n, ko)
+		core = initCore(fbOptinNotify, appRef.sendTxMessage, queries, db, i18n, ko)
 
 		// Initialize all messengers, SMTP and postback.
 		msgrs = append(initSMTPMessengers(), initPostbackMessengers(ko)...)
@@ -249,7 +261,7 @@ func main() {
 
 	// =========================================================================
 	// Initialize the App{} with all the global shared components, controllers and fields.
-	app := &App{
+	app = &App{
 		cfg:        cfg,
 		urlCfg:     urlCfg,
 		fs:         fs,
@@ -285,6 +297,8 @@ func main() {
 		// If there are no users, then the app needs to prompt for new user setup.
 		needsUserSetup: !hasUsers,
 	}
+
+	appRef.App = app
 
 	// Star the update checker.
 	if ko.Bool("app.check_updates") {
