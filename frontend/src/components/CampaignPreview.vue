@@ -18,7 +18,7 @@
           </form>
 
           <iframe id="iframe" name="iframe" ref="iframe" :title="title" :src="isPost ? 'about:blank' : previewURL"
-            @load="onLoaded" />
+            @load="onLoaded" sandbox="allow-scripts" />
         </section>
         <footer class="modal-card-foot has-text-right">
           <b-button @click="close">
@@ -61,6 +61,7 @@ export default {
     return {
       isVisible: true,
       isLoading: true,
+      formSubmitted: false,
     };
   },
 
@@ -71,11 +72,15 @@ export default {
     },
 
     // On iframe load, kill the spinner.
-    onLoaded(l) {
-      if (l.srcElement.contentWindow.location.href === 'about:blank') {
+    onLoaded() {
+      if (!this.isPost) {
+        this.isLoading = false;
         return;
       }
-      this.isLoading = false;
+
+      if (this.formSubmitted) {
+        this.isLoading = false;
+      }
     },
   },
 
@@ -98,11 +103,12 @@ export default {
   },
 
   mounted() {
-    setTimeout(() => {
-      if (this.isPost) {
+    if (this.isPost) {
+      setTimeout(() => {
         this.$refs.form.submit();
-      }
-    }, 100);
+        this.formSubmitted = true;
+      }, 100);
+    }
   },
 };
 </script>
