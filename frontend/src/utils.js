@@ -1,11 +1,11 @@
 import {
-  ToastProgrammatic as Toast,
   DialogProgrammatic as Dialog,
+  ToastProgrammatic as Toast,
 } from 'buefy';
 import dayjs from 'dayjs';
+import dayDuration from 'dayjs/plugin/duration';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import updateLocale from 'dayjs/plugin/updateLocale';
-import dayDuration from 'dayjs/plugin/duration';
 
 dayjs.extend(updateLocale);
 dayjs.extend(relativeTime);
@@ -79,6 +79,7 @@ export default class Utils {
       Math.floor(d.asDays()) && `${Math.floor(d.asDays())}d`,
       d.hours() && `${d.hours()}h`,
       d.minutes() && `${d.minutes()}m`,
+      d.seconds() && `${d.seconds()}s`,
     ].filter(Boolean);
 
     return `${b.isBefore(a) ? '-' : ''}${parts.join(' ')}`;
