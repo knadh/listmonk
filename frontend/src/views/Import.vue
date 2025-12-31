@@ -42,17 +42,29 @@
             </div>
 
             <div class="column">
-              <b-field v-if="form.mode === 'subscribe'" :label="$t('import.overwrite')"
-                :message="$t('import.overwriteHelp')">
+              <b-field :label="$t('import.csvDelim')" :message="$t('import.csvDelimHelp')" class="delimiter">
+                <b-input v-model="form.delim" name="delim" placeholder="," maxlength="1" required />
+              </b-field>
+            </div>
+          </div>
+
+          <div class="columns">
+            <div class="column is-4">
+              <b-field v-if="form.mode === 'subscribe'" :label="$t('import.overwriteUserInfo')"
+                :message="$t('import.overwriteUserInfoHelp')">
                 <div>
-                  <b-switch v-model="form.overwrite" name="overwrite" data-cy="overwrite" />
+                  <b-switch v-model="form.overwriteUserInfo" name="overwriteUserInfo" data-cy="overwrite-user-info" />
                 </div>
               </b-field>
             </div>
 
             <div class="column">
-              <b-field :label="$t('import.csvDelim')" :message="$t('import.csvDelimHelp')" class="delimiter">
-                <b-input v-model="form.delim" name="delim" placeholder="," maxlength="1" required />
+              <b-field v-if="form.mode === 'subscribe'" :label="$t('import.overwriteSubStatus')"
+                :message="$t('import.overwriteSubStatusHelp')">
+                <div>
+                  <b-switch v-model="form.overwriteSubStatus" name="overwriteSubStatus"
+                    data-cy="overwrite-sub-status" />
+                </div>
               </b-field>
             </div>
           </div>
@@ -156,7 +168,8 @@ export default Vue.extend({
         subStatus: 'unconfirmed',
         delim: ',',
         lists: [],
-        overwrite: false,
+        overwriteUserInfo: false,
+        overwriteSubStatus: false,
         file: null,
         example: '',
       },
@@ -286,7 +299,8 @@ export default Vue.extend({
 
     resetForm() {
       this.form.mode = 'subscribe';
-      this.form.overwrite = false;
+      this.form.overwriteUserInfo = false;
+      this.form.overwriteSubStatus = false;
       this.form.file = null;
       this.form.lists = [];
       this.form.subStatus = 'unconfirmed';
@@ -294,7 +308,7 @@ export default Vue.extend({
     },
 
     onUpload() {
-      if (this.form.mode === 'subscribe' && this.form.overwrite) {
+      if (this.form.mode === 'subscribe' && this.form.overwriteSubStatus) {
         this.$utils.confirm(this.$t('import.subscribeWarning'), this.onSubmit, this.resetForm);
         return;
       }
@@ -312,7 +326,8 @@ export default Vue.extend({
         subscription_status: this.form.subStatus,
         delim: this.form.delim,
         lists: this.form.lists.map((l) => l.id),
-        overwrite: this.form.overwrite,
+        overwrite_userinfo: this.form.overwriteUserInfo,
+        overwrite_subscription_status: this.form.overwriteSubStatus,
       }));
       params.set('file', this.form.file);
 

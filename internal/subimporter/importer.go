@@ -88,12 +88,14 @@ type Session struct {
 
 // SessionOpt represents the options for an importer session.
 type SessionOpt struct {
-	Filename  string `json:"filename"`
-	Mode      string `json:"mode"`
-	SubStatus string `json:"subscription_status"`
-	Overwrite bool   `json:"overwrite"`
-	Delim     string `json:"delim"`
-	ListIDs   []int  `json:"lists"`
+	Filename           string `json:"filename"`
+	Mode               string `json:"mode"`
+	SubStatus          string `json:"subscription_status"`
+	Overwrite          bool   `json:"overwrite"`
+	OverwriteUserInfo  bool   `json:"overwrite_userinfo"`
+	OverwriteSubStatus bool   `json:"overwrite_subscription_status"`
+	Delim              string `json:"delim"`
+	ListIDs            []int  `json:"lists"`
 }
 
 // Status represents statistics from an ongoing import session.
@@ -165,6 +167,13 @@ func New(opt Options, db *sql.DB, i *i18n.I18n) *Importer {
 func (im *Importer) NewSession(opt SessionOpt) (*Session, error) {
 	if !im.isDone() {
 		return nil, errors.New("an import is already running")
+	}
+
+	// For API backwards compatibility, if the old 'overwrite'
+	// field is set, set both overwrite fields to true.
+	if opt.Overwrite {
+		opt.OverwriteUserInfo = true
+		opt.OverwriteSubStatus = true
 	}
 
 	im.Lock()
@@ -297,7 +306,7 @@ func (s *Session) Start() {
 		}
 
 		if s.opt.Mode == ModeSubscribe {
-			_, err = stmt.Exec(uu, sub.Email, sub.Name, sub.Attribs, pq.Array(listIDs), s.opt.SubStatus, s.opt.Overwrite)
+			_, err = stmt.Exec(uu, sub.Email, sub.Name, sub.Attribs, pq.Array(listIDs), s.opt.SubStatus, s.opt.OverwriteUserInfo, s.opt.OverwriteSubStatus)
 		} else if s.opt.Mode == ModeBlocklist {
 			_, err = stmt.Exec(uu, sub.Email, sub.Name, sub.Attribs)
 		}
