@@ -45,7 +45,7 @@
             {{ $tc('globals.messages.numSelected', numSelectedCampaigns, { num: numSelectedCampaigns }) }}
             <span v-if="!bulk.all && campaigns.total > campaigns.perPage">
               &mdash;
-              <a href="#" @click.prevent="onSelectAll">
+              <a href="#" @click.prevent="onSelectAll" data-cy="select-all-campaigns">
                 {{ $tc('globals.messages.selectAll', campaigns.total, { num: campaigns.total }) }}
               </a>
             </span>
@@ -279,8 +279,8 @@ import dayjs from 'dayjs';
 import Vue from 'vue';
 import { mapState } from 'vuex';
 import CampaignPreview from '../components/CampaignPreview.vue';
-import EmptyPlaceholder from '../components/EmptyPlaceholder.vue';
 import CopyText from '../components/CopyText.vue';
+import EmptyPlaceholder from '../components/EmptyPlaceholder.vue';
 
 export default Vue.extend({
   components: {
@@ -501,6 +501,7 @@ export default Vue.extend({
         } else {
           // 'All' is selected, delete by query.
           params.query = this.queryParams.query.replace(/[^\p{L}\p{N}\s]/gu, ' ');
+          params.all = this.bulk.all;
         }
 
         this.$api.deleteCampaigns(params)

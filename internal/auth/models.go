@@ -191,13 +191,13 @@ func (u *User) HasListPerm(types PermType, listIDs ...int) error {
 
 	for _, id := range listIDs {
 		if id > 0 {
-			if u.hasListPerm(perm, id) {
-				return nil
+			if !u.hasListPerm(perm, id) {
+				return ErrPermDenied
 			}
 		}
 	}
 
-	return ErrPermDenied
+	return nil
 }
 
 func (u *User) hasListPerm(perm string, listID int) bool {

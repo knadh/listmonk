@@ -145,4 +145,37 @@ describe('Lists', () => {
       });
     });
   });
+
+  it('Bulk deletes lists', () => {
+    const apiUrl = Cypress.env('apiUrl');
+
+    // Create 30 in a loop.
+    for (let i = 0; i < 30; i += 1) {
+      cy.request('POST', `${apiUrl}/api/lists`, { name: `test-list-${i}`, type: 'public', optin: 'single' });
+    }
+
+    cy.loginAndVisit('/admin/lists');
+
+    // Bulk delete with the `all` flag.
+    cy.window().scrollTo('top');
+    cy.wait(500);
+    cy.get('thead input[type="checkbox"]').click({ force: true });
+    cy.get('a[data-cy=select-all-lists]').click();
+    cy.get('a[data-cy=btn-delete-lists]').click();
+    cy.get('.modal button.is-primary:eq(0)').click();
+    cy.get('table tr.is-empty');
+
+    // Bulk delete with the selected IDs.
+    // Create 5 lists in a loop.
+    for (let i = 0; i < 5; i += 1) {
+      cy.request('POST', `${apiUrl}/api/lists`, { name: `test-list-bulk-${i}`, type: 'public', optin: 'single' });
+    }
+
+    cy.visit('/admin/lists');
+    cy.wait(500);
+    cy.get('thead input[type="checkbox"]').click({ force: true });
+    cy.get('a[data-cy=btn-delete-lists]').click();
+    cy.get('.modal button.is-primary:eq(0)').click();
+    cy.get('table tr.is-empty');
+  });
 });

@@ -51,7 +51,7 @@
             {{ $tc('globals.messages.numSelected', numSelectedLists, { num: numSelectedLists }) }}
             <span v-if="!bulk.all && lists.total > lists.perPage">
               &mdash;
-              <a href="#" @click.prevent="onSelectAll">
+              <a href="#" @click.prevent="onSelectAll" data-cy="select-all-lists">
                 {{ $tc('globals.messages.selectAll', lists.total, { num: lists.total }) }}
               </a>
             </span>
@@ -316,6 +316,7 @@ export default Vue.extend({
         } else {
           // 'All' is selected, delete by query.
           params.query = this.queryParams.query.replace(/[^\p{L}\p{N}\s]/gu, ' ');
+          params.all = this.bulk.all;
         }
 
         this.$api.deleteLists(params)
