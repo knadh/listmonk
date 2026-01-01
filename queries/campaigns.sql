@@ -17,39 +17,39 @@ WITH tpl AS (
         CASE
             -- If a template ID is present, use it. If not, use the default template only if
             -- it's not a visual template.
-            WHEN $13::INT IS NOT NULL THEN id = $13::INT
+            WHEN $14::INT IS NOT NULL THEN id = $14::INT
             ELSE $8 != 'visual' AND is_default = TRUE
         END
     LIMIT 1
 ),
 camp AS (
     INSERT INTO campaigns (uuid, type, name, subject, from_email, body, altbody,
-        content_type, send_at, headers, tags, messenger, template_id, to_send,
+        content_type, send_at, headers, attribs, tags, messenger, template_id, to_send,
         max_subscriber_id, archive, archive_slug, archive_template_id, archive_meta, body_source)
         SELECT $1, $2, $3, $4, $5,
             -- body
             COALESCE(NULLIF($6, ''), (SELECT body FROM tpl), ''),
             $7,
             $8::content_type,
-            $9, $10, $11, $12,
+            $9, $10, $11, $12, $13,
             (SELECT id FROM tpl),
             0,
             0,
-            $15, $16,
+            $16, $17,
             -- archive_template_id
-            $17,
             $18,
+            $19,
             -- body_source
-            COALESCE($20, (SELECT body_source FROM tpl))
+            COALESCE($21, (SELECT body_source FROM tpl))
         RETURNING id
 ),
 med AS (
     INSERT INTO campaign_media (campaign_id, media_id, filename)
-        (SELECT (SELECT id FROM camp), id, filename FROM media WHERE id=ANY($19::INT[]))
+        (SELECT (SELECT id FROM camp), id, filename FROM media WHERE id=ANY($20::INT[]))
 ),
 insLists AS (
     INSERT INTO campaign_lists (campaign_id, list_id, list_name)
-        SELECT (SELECT id FROM camp), id, name FROM lists WHERE id=ANY($14::INT[])
+        SELECT (SELECT id FROM camp), id, name FROM lists WHERE id=ANY($15::INT[])
 )
 SELECT id FROM camp;
 
@@ -371,33 +371,34 @@ WITH camp AS (
             END
         ),
         headers=$9,
-        tags=$10::VARCHAR(100)[],
-        messenger=$11,
+        attribs=$10,
+        tags=$11::VARCHAR(100)[],
+        messenger=$12,
         -- template_id shouldn't be saved for visual campaigns.
-        template_id=(CASE WHEN $7::content_type = 'visual' THEN NULL ELSE $12::INT END),
-        archive=$14,
-        archive_slug=$15,
-        archive_template_id=(CASE WHEN $7::content_type = 'visual' THEN NULL ELSE $16::INT END),
-        archive_meta=$17,
-        body_source=$19,
+        template_id=(CASE WHEN $7::content_type = 'visual' THEN NULL ELSE $13::INT END),
+        archive=$15,
+        archive_slug=$16,
+        archive_template_id=(CASE WHEN $7::content_type = 'visual' THEN NULL ELSE $17::INT END),
+        archive_meta=$18,
+        body_source=$20,
         updated_at=NOW()
     WHERE id = $1 RETURNING id
 ),
 clists AS (
     -- Reset list relationships
-    DELETE FROM campaign_lists WHERE campaign_id = $1 AND NOT(list_id = ANY($13))
+    DELETE FROM campaign_lists WHERE campaign_id = $1 AND NOT(list_id = ANY($14))
 ),
 med AS (
     DELETE FROM campaign_media WHERE campaign_id = $1
-    AND ( media_id IS NULL or NOT(media_id = ANY($18))) RETURNING media_id
+    AND ( media_id IS NULL or NOT(media_id = ANY($19))) RETURNING media_id
 ),
 medi AS (
     INSERT INTO campaign_media (campaign_id, media_id, filename)
-        (SELECT $1 AS campaign_id, id, filename FROM media WHERE id=ANY($18::INT[]))
+        (SELECT $1 AS campaign_id, id, filename FROM media WHERE id=ANY($19::INT[]))
         ON CONFLICT (campaign_id, media_id) DO NOTHING
 )
 INSERT INTO campaign_lists (campaign_id, list_id, list_name)
-    (SELECT $1 as campaign_id, id, name FROM lists WHERE id=ANY($13::INT[]))
+    (SELECT $1 as campaign_id, id, name FROM lists WHERE id=ANY($14::INT[]))
     ON CONFLICT (campaign_id, list_id) DO UPDATE SET list_name = EXCLUDED.list_name;
 
 -- name: update-campaign-counts

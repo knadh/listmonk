@@ -317,6 +317,11 @@ func (a *App) UpdateCampaign(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("campaigns.cantUpdate"))
 	}
 
+	// Clear attribs to avoid merging old and new values as json.Unmarshal in JSON.scan() merges maps,
+	// merging values already in the DB and incoming values. If this is nil, then DB values remain
+	// unchanged.
+	cm.Attribs = nil
+
 	// Read the incoming params into the existing campaign fields from the DB.
 	// This allows updating of values that have been sent whereas fields
 	// that are not in the request retain the old values.
@@ -694,6 +699,13 @@ func (a *App) validateCampaignFields(c campReq) (campReq, error) {
 
 	if len(c.Headers) == 0 {
 		c.Headers = make([]map[string]string, 0)
+	}
+
+	// Validate and initialize attribs.
+	if c.Attribs != nil {
+		if _, err := json.Marshal(c.Attribs); err != nil {
+			return c, errors.New(a.i18n.T("subscribers.invalidJSON"))
+		}
 	}
 
 	if len(c.ArchiveMeta) == 0 {

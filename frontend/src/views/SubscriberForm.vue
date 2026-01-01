@@ -146,7 +146,7 @@
 
         <b-field :message="$t('subscribers.attribsHelp') + ' ' + egAttribs" class="mt-6">
           <div>
-            <h5>{{ $t('subscribers.attribs') }}</h5>
+            <h5>{{ $t('globals.terms.attribs') }}</h5>
             <b-input v-model="form.strAttribs" name="attribs" type="textarea" />
             <a href="https://listmonk.app/docs/concepts" target="_blank" rel="noopener noreferrer" class="is-size-7">
               {{ $t('globals.buttons.learnMore') }} <b-icon icon="link-variant" size="is-small" />
