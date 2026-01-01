@@ -94,7 +94,7 @@ func New(o *Opt, h *Hooks) *Core {
 		q:      o.Queries,
 		log:    o.Log,
 
-		webhookTrigger: make(chan webhookTriggerEvent, 2<<16), // explicit 64k to avoid memory exhaustion
+		webhookTrigger: make(chan webhookTriggerEvent, 1<<16), // explicit 64k to avoid memory exhaustion
 	}
 }
 
