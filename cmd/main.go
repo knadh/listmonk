@@ -243,15 +243,36 @@ func main() {
 	}
 
 	// Initialize the webhook manager for outgoing event webhooks.
-	webhookMgr := webhooks.New(lo, versionString)
+	webhookMgr := webhooks.New(lo, versionString, queries)
 
 	// Load webhooks from settings.
-	if settings, err := core.GetSettings(); err == nil {
+	var settings models.Settings
+	var settingsLoaded bool
+	if s, err := core.GetSettings(); err == nil {
+		settings = s
+		settingsLoaded = true
 		webhookMgr.Load(settings.Webhooks)
 	}
 
 	// Set the webhook trigger hook in core so that CRUD operations can trigger webhooks.
 	core.SetWebhookHook(webhookMgr.Trigger)
+
+	// Initialize and start the webhook worker pool.
+	webhookWorkerCfg := webhooks.WorkerConfig{
+		NumWorkers: ko.Int("app.webhook_workers"),
+		BatchSize:  ko.Int("app.webhook_batch_size"),
+	}
+	if webhookWorkerCfg.NumWorkers < 1 {
+		webhookWorkerCfg.NumWorkers = 2
+	}
+	if webhookWorkerCfg.BatchSize < 1 {
+		webhookWorkerCfg.BatchSize = 50
+	}
+	webhookWorkerPool := webhooks.NewWorkerPool(webhookWorkerCfg, db, queries, lo, versionString)
+	if settingsLoaded {
+		webhookWorkerPool.LoadWebhooks(settings.Webhooks)
+	}
+	go webhookWorkerPool.Run()
 
 	// Start cronjobs.
 	initCron(core, db)
@@ -323,6 +344,9 @@ func main() {
 
 		// Close the campaign manager.
 		mgr.Close()
+
+		// Close the webhook worker pool.
+		webhookWorkerPool.Close()
 
 		// Close the webhook manager.
 		webhookMgr.Close()

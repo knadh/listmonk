@@ -24,6 +24,24 @@
         min="0" max="100000" />
     </b-field>
 
+    <hr />
+    <div class="columns">
+      <div class="column is-6">
+        <b-field :label="$t('settings.performance.webhookWorkers')" label-position="on-border"
+          :message="$t('settings.performance.webhookWorkersHelp')">
+          <b-numberinput v-model="data['app.webhook_workers']" name="app.webhook_workers" type="is-light" placeholder="2"
+            min="1" max="100" />
+        </b-field>
+      </div>
+      <div class="column is-6">
+        <b-field :label="$t('settings.performance.webhookBatchSize')" label-position="on-border"
+          :message="$t('settings.performance.webhookBatchSizeHelp')">
+          <b-numberinput v-model="data['app.webhook_batch_size']" name="app.webhook_batch_size" type="is-light"
+            placeholder="50" min="1" max="1000" />
+        </b-field>
+      </div>
+    </div>
+
     <div>
       <div class="columns">
         <div class="column is-6">

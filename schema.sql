@@ -12,6 +12,7 @@ DROP TYPE IF EXISTS user_type CASCADE; CREATE TYPE user_type AS ENUM ('user', 'a
 DROP TYPE IF EXISTS user_status CASCADE; CREATE TYPE user_status AS ENUM ('enabled', 'disabled');
 DROP TYPE IF EXISTS role_type CASCADE; CREATE TYPE role_type AS ENUM ('user', 'list');
 DROP TYPE IF EXISTS twofa_type CASCADE; CREATE TYPE twofa_type AS ENUM ('none', 'totp');
+DROP TYPE IF EXISTS webhook_log_status CASCADE; CREATE TYPE webhook_log_status AS ENUM ('triggered', 'processing', 'completed', 'failed');
 
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
 
@@ -293,7 +294,9 @@ INSERT INTO settings (key, value) VALUES
     ('appearance.admin.custom_js', '""'),
     ('appearance.public.custom_css', '""'),
     ('appearance.public.custom_js', '""'),
-    ('maintenance.db', '{"vacuum": false, "vacuum_cron_interval": "0 2 * * *"}');
+    ('maintenance.db', '{"vacuum": false, "vacuum_cron_interval": "0 2 * * *"}'),
+    ('app.webhook_workers', '2'),
+    ('app.webhook_batch_size', '50');
 
 -- bounces
 DROP TABLE IF EXISTS bounces CASCADE;
@@ -355,6 +358,26 @@ CREATE TABLE sessions (
     created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT now() NOT NULL
 );
 DROP INDEX IF EXISTS idx_sessions; CREATE INDEX idx_sessions ON sessions (id, created_at);
+
+-- webhook_logs
+DROP TABLE IF EXISTS webhook_logs CASCADE;
+CREATE TABLE webhook_logs (
+    id              SERIAL PRIMARY KEY,
+    webhook_id      TEXT NOT NULL,
+    event           TEXT NOT NULL,
+    payload         JSONB NOT NULL DEFAULT '{}',
+    status          webhook_log_status NOT NULL DEFAULT 'triggered',
+    retries         INT NOT NULL DEFAULT 0,
+    last_retried_at TIMESTAMP WITH TIME ZONE,
+    response        JSONB NOT NULL DEFAULT '{}',
+    note            TEXT,
+    created_at      TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at      TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+DROP INDEX IF EXISTS idx_webhook_logs_webhook_id; CREATE INDEX idx_webhook_logs_webhook_id ON webhook_logs(webhook_id);
+DROP INDEX IF EXISTS idx_webhook_logs_status; CREATE INDEX idx_webhook_logs_status ON webhook_logs(status);
+DROP INDEX IF EXISTS idx_webhook_logs_created_at; CREATE INDEX idx_webhook_logs_created_at ON webhook_logs(created_at);
+DROP INDEX IF EXISTS idx_webhook_logs_status_created; CREATE INDEX idx_webhook_logs_status_created ON webhook_logs(status, created_at);
 
 -- materialized views
 

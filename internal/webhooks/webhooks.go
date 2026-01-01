@@ -1,17 +1,10 @@
 // Package webhooks implements an outgoing webhook delivery system for listmonk.
-// It delivers events to configured webhook endpoints with retry logic and HMAC signatures.
+// It creates webhook log entries that are processed by background workers.
 package webhooks
 
 import (
-	"bytes"
-	"crypto/hmac"
-	"crypto/sha256"
-	"encoding/hex"
 	"encoding/json"
-	"fmt"
-	"io"
 	"log"
-	"net/http"
 	"sync"
 	"time"
 
@@ -33,20 +26,24 @@ type Webhook struct {
 	Timeout        time.Duration
 }
 
-// Manager handles webhook event delivery.
+// Manager handles webhook event triggering by creating log entries.
 type Manager struct {
 	webhooks      []Webhook
 	log           *log.Logger
 	mu            sync.RWMutex
 	versionString string
+
+	// Database query for creating webhook logs.
+	createLogStmt *models.Queries
 }
 
 // New creates a new webhook manager.
-func New(log *log.Logger, versionString string) *Manager {
+func New(log *log.Logger, versionString string, queries *models.Queries) *Manager {
 	return &Manager{
 		webhooks:      []Webhook{},
 		log:           log,
 		versionString: versionString,
+		createLogStmt: queries,
 	}
 }
 
@@ -101,8 +98,8 @@ func (m *Manager) Load(settings []models.Webhook) {
 	m.log.Printf("loaded %d %s", numHooks, label)
 }
 
-// Trigger fires all webhooks subscribed to the given event.
-// Delivery happens asynchronously in goroutines.
+// Trigger creates webhook log entries for all webhooks subscribed to the given event.
+// The logs are processed asynchronously by background workers.
 func (m *Manager) Trigger(event string, data any) error {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -120,14 +117,17 @@ func (m *Manager) Trigger(event string, data any) error {
 		return err
 	}
 
-	// Fire webhooks that are subscribed to this event.
+	// Create webhook log entries for subscribed webhooks.
 	for _, wh := range m.webhooks {
 		if !m.isSubscribed(wh, event) {
 			continue
 		}
 
-		// Deliver asynchronously.
-		go m.deliver(wh, event, payloadBytes)
+		// Create a webhook log entry.
+		if _, err := m.createLogStmt.CreateWebhookLog.Exec(wh.UUID, event, payloadBytes); err != nil {
+			m.log.Printf("error creating webhook log for %s: %v", wh.Name, err)
+			continue
+		}
 	}
 
 	return nil
@@ -137,89 +137,6 @@ func (m *Manager) Trigger(event string, data any) error {
 func (m *Manager) isSubscribed(wh Webhook, event string) bool {
 	_, exists := wh.Events[event]
 	return exists
-}
-
-// deliver attempts to deliver a webhook with retries.
-func (m *Manager) deliver(wh Webhook, event string, payload []byte) {
-	var lastErr error
-
-	for attempt := 0; attempt <= wh.MaxRetries; attempt++ {
-		if attempt > 0 {
-			// Exponential backoff: 1s, 2s, 4s, 8s, ...
-			backoff := time.Duration(1<<uint(attempt-1)) * time.Second
-			if backoff > 30*time.Second {
-				backoff = 30 * time.Second
-			}
-			time.Sleep(backoff)
-		}
-
-		err := m.send(wh, event, payload)
-		if err == nil {
-			if attempt > 0 {
-				m.log.Printf("webhook %s delivered after %d retries", wh.Name, attempt)
-			}
-			return
-		}
-
-		lastErr = err
-		m.log.Printf("webhook %s delivery attempt %d failed: %v", wh.Name, attempt+1, err)
-	}
-
-	m.log.Printf("webhook %s delivery failed after %d attempts: %v", wh.Name, wh.MaxRetries+1, lastErr)
-}
-
-// send makes an HTTP request to deliver the webhook.
-func (m *Manager) send(wh Webhook, event string, payload []byte) error {
-	req, err := http.NewRequest(http.MethodPost, wh.URL, bytes.NewReader(payload))
-	if err != nil {
-		return fmt.Errorf("creating request: %w", err)
-	}
-
-	// Set headers.
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("User-Agent", fmt.Sprintf("listmonk/%s", m.versionString))
-	req.Header.Set("X-Listmonk-Event", event)
-
-	// Apply authentication.
-	switch wh.AuthType {
-	case models.WebhookAuthTypeBasic:
-		req.SetBasicAuth(wh.AuthBasicUser, wh.AuthBasicPass)
-
-	case models.WebhookAuthTypeHMAC:
-		timestamp := time.Now().Unix()
-		signature := m.computeHMAC(payload, wh.AuthHMACSecret, timestamp)
-		req.Header.Set("X-Listmonk-Signature", signature)
-		req.Header.Set("X-Listmonk-Timestamp", fmt.Sprintf("%d", timestamp))
-	}
-
-	// Create a client with the specific timeout.
-	client := &http.Client{Timeout: wh.Timeout}
-
-	// Make the request.
-	resp, err := client.Do(req)
-	if err != nil {
-		return fmt.Errorf("request failed: %w", err)
-	}
-	defer func() {
-		io.Copy(io.Discard, resp.Body)
-		resp.Body.Close()
-	}()
-
-	// Check if delivery was successful (2xx status).
-	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-		return fmt.Errorf("non-2xx status: %d", resp.StatusCode)
-	}
-
-	return nil
-}
-
-// computeHMAC computes the HMAC-SHA256 signature for the payload.
-func (m *Manager) computeHMAC(payload []byte, secret string, timestamp int64) string {
-	// Signature is computed as HMAC-SHA256(timestamp.payload, secret)
-	data := fmt.Sprintf("%d.%s", timestamp, string(payload))
-	h := hmac.New(sha256.New, []byte(secret))
-	h.Write([]byte(data))
-	return "sha256=" + hex.EncodeToString(h.Sum(nil))
 }
 
 // Close is a no-op for the settings-based manager.
