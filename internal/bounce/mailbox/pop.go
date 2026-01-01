@@ -201,7 +201,6 @@ func (p *POP) Scan(limit int, ch chan models.Bounce) error {
 		bounceType, bounceReason := classifyBounce(b.Bytes())
 
 		// Additional bounce e-mail metadata.
-		fmt.Println(bounceReason)
 		meta, _ := json.Marshal(bounceMeta{
 			From:           hdr[models.EmailHeaderFrom],
 			Subject:        hdr[models.EmailHeaderSubject],

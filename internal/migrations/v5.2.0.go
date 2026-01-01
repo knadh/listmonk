@@ -48,5 +48,11 @@ func V5_2_0(db *sqlx.DB, fs stuffbin.FileSystem, ko *koanf.Koanf, lo *log.Logger
 		return err
 	}
 
+	// Add attribs field to campaigns table.
+	_, err = db.Exec(`ALTER TABLE campaigns ADD COLUMN IF NOT EXISTS attribs JSONB NOT NULL DEFAULT '{}'`)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
