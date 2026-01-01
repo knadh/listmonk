@@ -349,10 +349,8 @@ func (c *Core) DeleteCampaigns(ids []int, query string, hasAllPerm bool, permitt
 
 	if len(ids) > 0 {
 		queryStr = ""
-	} else if query != "" {
-		queryStr = makeSearchString(query)
 	} else {
-		return echo.NewHTTPError(http.StatusBadRequest, c.i18n.T("globals.messages.invalidData"))
+		queryStr = makeSearchString(query)
 	}
 
 	if _, err := c.q.DeleteCampaigns.Exec(pq.Array(ids), queryStr, hasAllPerm, pq.Array(permittedLists)); err != nil {

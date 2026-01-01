@@ -442,6 +442,7 @@ func (a *App) DeleteCampaigns(c echo.Context) error {
 	var (
 		ids   []int
 		query string
+		all   bool
 	)
 
 	// Check for IDs in query params.
@@ -455,10 +456,11 @@ func (a *App) DeleteCampaigns(c echo.Context) error {
 	} else {
 		// Check for query param.
 		query = strings.TrimSpace(c.FormValue("query"))
+		all = c.FormValue("all") == "true"
 	}
 
 	// Validate that either IDs or query is provided.
-	if len(ids) == 0 && query == "" {
+	if len(ids) == 0 && (query == "" && !all) {
 		return echo.NewHTTPError(http.StatusBadRequest,
 			a.i18n.Ts("globals.messages.errorInvalidIDs", "error", "id or query required"))
 	}

@@ -1,5 +1,8 @@
 <!doctype html>
 <html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+  </head>
   <body>
     <div
       style='background-color:#F5F5F5;color:#262626;font-family:"Helvetica Neue", "Arial Nova", "Nimbus Sans", Arial, sans-serif;font-size:16px;font-weight:400;letter-spacing:0.15008px;line-height:1.5;margin:0;padding:32px 0;min-height:100%;width:100%'
@@ -44,9 +47,9 @@
               </div>
               <div style="background-color:#F5F5F5;font-size:12px;font-weight:normal;text-align:center;padding:16px 24px 16px 24px">
                 <p>
-                  <a href="{{ UnsubscribeURL }}" style="color: #888;">{{ L.T &quot;email.unsub&quot; }}</a>
+                  <a href="{{ UnsubscribeURL }}" style="color: #888;">{{ L.T "email.unsub" }}</a>
                   &nbsp;&nbsp;&nbsp;&nbsp;
-                  <a href="{{ MessageURL }}"style="color: #888;">{{ L.T &quot;email.viewInBrowser&quot; }}</a>
+                  <a href="{{ MessageURL }}"style="color: #888;">{{ L.T "email.viewInBrowser" }}</a>
                   {{ TrackView }}
                 </p>
               </div>
