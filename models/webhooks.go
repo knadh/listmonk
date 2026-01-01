@@ -17,6 +17,11 @@ const (
 	EventSubscriberOptinStart  = "subscriber.optin_start"
 	EventSubscriberOptinFinish = "subscriber.optin_finish"
 
+	// Batch import events.
+	EventBatchImportStarted   = "batch_import.started"
+	EventBatchImportCompleted = "batch_import.completed"
+	EventBatchImportFailed    = "batch_import.failed"
+
 	// Subscription events.
 	EventSubscriberAddedToList     = "subscriber.added_to_list"
 	EventSubscriberRemovedFromList = "subscriber.removed_from_list"
@@ -118,18 +123,21 @@ func (r WebhookResponse) Value() (driver.Value, error) {
 // AllWebhookEvents returns a list of all available webhook events.
 func AllWebhookEvents() []string {
 	return []string{
-		EventSubscriberCreated,
-		EventSubscriberUpdated,
-		EventSubscriberDeleted,
-		EventSubscriberOptinStart,
-		EventSubscriberOptinFinish,
-		EventSubscriberAddedToList,
-		EventSubscriberRemovedFromList,
-		EventSubscriberUnsubscribed,
-		EventSubscriberBounced,
-		EventCampaignStarted,
-		EventCampaignPaused,
+		EventBatchImportCompleted,
+		EventBatchImportFailed,
+		EventBatchImportStarted,
 		EventCampaignCancelled,
 		EventCampaignFinished,
+		EventCampaignPaused,
+		EventCampaignStarted,
+		EventSubscriberAddedToList,
+		EventSubscriberBounced,
+		EventSubscriberCreated,
+		EventSubscriberDeleted,
+		EventSubscriberOptinFinish,
+		EventSubscriberOptinStart,
+		EventSubscriberRemovedFromList,
+		EventSubscriberUnsubscribed,
+		EventSubscriberUpdated,
 	}
 }

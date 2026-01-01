@@ -2,8 +2,8 @@
 
 -- name: create-webhook-log
 -- Creates a new webhook log entry with triggered status.
-INSERT INTO webhook_logs (webhook_id, event, payload, status, created_at, updated_at)
-VALUES ($1, $2, $3, 'triggered', NOW(), NOW())
+INSERT INTO webhook_logs (webhook_id, event, payload, status)
+VALUES ($1, $2, $3, 'triggered')
 RETURNING id;
 
 -- name: get-pending-webhook-logs
@@ -42,6 +42,8 @@ WHERE id = $1;
 -- Marks a webhook log as failed after all retries exhausted.
 UPDATE webhook_logs
 SET status = 'failed',
+    retries = retries + 1,
+    last_retried_at = NOW(),
     response = $2,
     note = $3,
     updated_at = NOW()

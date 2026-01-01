@@ -89,13 +89,6 @@ func (m *Manager) Load(settings []models.Webhook) {
 			Timeout:        timeout,
 		})
 	}
-
-	numHooks := len(m.webhooks)
-	label := "webhook"
-	if numHooks > 1 {
-		label = "webhooks"
-	}
-	m.log.Printf("loaded %d %s", numHooks, label)
 }
 
 // Trigger creates webhook log entries for all webhooks subscribed to the given event.

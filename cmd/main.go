@@ -84,6 +84,8 @@ var (
 	db      *sqlx.DB
 	queries *models.Queries
 
+	webhookMgr *webhooks.Manager
+
 	// Compile-time variables.
 	buildString   string
 	versionString string
@@ -176,6 +178,9 @@ func init() {
 
 	// Prepare queries.
 	queries = prepareQueries(qMap, db, ko)
+
+	// Initialize the webhook manager for outgoing event webhooks.
+	webhookMgr = webhooks.New(lo, versionString, queries)
 }
 
 func main() {
@@ -195,7 +200,7 @@ func main() {
 		fbOptinNotify = makeOptinNotifyHook(ko.Bool("privacy.unsubscribe_header"), urlCfg, queries, i18n)
 
 		// Crud core.
-		core = initCore(fbOptinNotify, queries, db, i18n, ko)
+		core = initCore(fbOptinNotify, queries, db, i18n, ko, webhookMgr)
 
 		// Initialize all messengers, SMTP and postback.
 		msgrs = append(initSMTPMessengers(), initPostbackMessengers(ko)...)
@@ -242,9 +247,6 @@ func main() {
 		go bounce.Run()
 	}
 
-	// Initialize the webhook manager for outgoing event webhooks.
-	webhookMgr := webhooks.New(lo, versionString, queries)
-
 	// Load webhooks from settings.
 	var settings models.Settings
 	var settingsLoaded bool
@@ -253,9 +255,6 @@ func main() {
 		settingsLoaded = true
 		webhookMgr.Load(settings.Webhooks)
 	}
-
-	// Set the webhook trigger hook in core so that CRUD operations can trigger webhooks.
-	core.SetWebhookHook(webhookMgr.Trigger)
 
 	// Initialize and start the webhook worker pool.
 	webhookWorkerCfg := webhooks.WorkerConfig{
@@ -273,6 +272,12 @@ func main() {
 		webhookWorkerPool.LoadWebhooks(settings.Webhooks)
 	}
 	go webhookWorkerPool.Run()
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	// write each webhook to db for the worker pool to pick up
+	go core.PersistWebhookLogs(ctx)
 
 	// Start cronjobs.
 	initCron(core, db)
@@ -350,6 +355,9 @@ func main() {
 
 		// Close the webhook manager.
 		webhookMgr.Close()
+
+		// close persist webhook log goroutine
+		cancel()
 
 		// Close the DB pool.
 		db.Close()

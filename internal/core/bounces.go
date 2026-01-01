@@ -85,7 +85,7 @@ func (c *Core) RecordBounce(b models.Bounce) error {
 	}
 
 	// Trigger webhook for bounce event.
-	c.triggerWebhook(models.EventSubscriberBounced, b)
+	c.TriggerWebhook(models.EventSubscriberBounced, b)
 
 	return nil
 }

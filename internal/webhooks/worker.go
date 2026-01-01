@@ -68,7 +68,9 @@ func (p *WorkerPool) LoadWebhooks(settings []models.Webhook) {
 	p.webhooksMu.Lock()
 	defer p.webhooksMu.Unlock()
 
-	p.webhooks = make(map[string]Webhook, len(settings))
+	numWebhooks := len(settings)
+
+	p.webhooks = make(map[string]Webhook, numWebhooks)
 	for _, s := range settings {
 		if !s.Enabled {
 			continue
@@ -105,8 +107,6 @@ func (p *WorkerPool) LoadWebhooks(settings []models.Webhook) {
 			Timeout:        timeout,
 		}
 	}
-
-	p.log.Printf("webhook worker pool loaded %d webhooks", len(p.webhooks))
 }
 
 // Run starts the worker pool. This is a blocking call.
@@ -189,11 +189,11 @@ func (p *WorkerPool) processLog(wl models.WebhookLog) {
 	}
 
 	// Attempt delivery with retries.
-	p.deliverWithRetries(wl, wh)
+	p.attemptDelivery(wl, wh)
 }
 
-// deliverWithRetries attempts to deliver a webhook with retry logic.
-func (p *WorkerPool) deliverWithRetries(wl models.WebhookLog, wh Webhook) {
+// attemptDelivery attempts to deliver a webhook with retry logic.
+func (p *WorkerPool) attemptDelivery(wl models.WebhookLog, wh Webhook) {
 	// Get the payload bytes.
 	payloadBytes, err := json.Marshal(wl.Payload)
 	if err != nil {
@@ -205,60 +205,62 @@ func (p *WorkerPool) deliverWithRetries(wl models.WebhookLog, wh Webhook) {
 		return
 	}
 
-	// Calculate remaining retries.
-	remainingRetries := wh.MaxRetries - wl.Retries
+	// Check if context is cancelled.
+	select {
+	case <-p.ctx.Done():
+		// Reset the log to triggered so it can be picked up again.
+		if _, err := p.queries.MarkWebhookLogTriggered.Exec(wl.ID); err != nil {
+			p.log.Printf("error resetting webhook log %d: %v", wl.ID, err)
+		}
+		return
+	default:
+	}
 
-	for attempt := 0; attempt <= remainingRetries; attempt++ {
-		// Check if context is cancelled.
-		select {
-		case <-p.ctx.Done():
-			// Reset the log to triggered so it can be picked up again.
-			if _, err := p.queries.MarkWebhookLogTriggered.Exec(wl.ID); err != nil {
-				p.log.Printf("error resetting webhook log %d: %v", wl.ID, err)
-			}
+	// Check if we must wait for the next tick due to earlier retry failure
+	if wl.Retries > 0 {
+		backoff := time.Duration(1<<uint(wl.Retries-1)) * time.Second
+		if backoff > 30*time.Second {
+			backoff = 30 * time.Second
+		}
+		now := time.Now()
+		if wl.LastRetriedAt.Valid && !now.After(wl.LastRetriedAt.Time.Add(backoff)) {
+			// we're trying too soon.. queue for later retry
 			return
-		default:
-		}
-
-		// Apply backoff for retries.
-		if attempt > 0 {
-			backoff := time.Duration(1<<uint(attempt-1)) * time.Second
-			if backoff > 30*time.Second {
-				backoff = 30 * time.Second
-			}
-			time.Sleep(backoff)
-		}
-
-		// Attempt delivery.
-		resp, err := p.send(wh, wl.Event, payloadBytes)
-		if err == nil {
-			// Success - mark as completed.
-			if _, err := p.queries.UpdateWebhookLogSuccess.Exec(wl.ID, resp); err != nil {
-				p.log.Printf("error marking webhook log %d as success: %v", wl.ID, err)
-			}
-			if attempt > 0 {
-				p.log.Printf("webhook %s (log %d) delivered after %d retries", wh.Name, wl.ID, attempt)
-			}
-			return
-		}
-
-		// Log the failure.
-		p.log.Printf("webhook %s (log %d) delivery attempt %d failed: %v", wh.Name, wl.ID, wl.Retries+attempt+1, err)
-
-		// Update retry count.
-		note := fmt.Sprintf("attempt %d failed: %v", wl.Retries+attempt+1, err)
-		if _, err := p.queries.UpdateWebhookLogRetry.Exec(wl.ID, resp, note); err != nil {
-			p.log.Printf("error updating webhook log %d retry: %v", wl.ID, err)
 		}
 	}
 
-	// All retries exhausted - mark as failed.
-	resp := models.WebhookResponse{}
-	note := fmt.Sprintf("delivery failed after %d attempts", wh.MaxRetries+1)
-	if _, err := p.queries.UpdateWebhookLogFailed.Exec(wl.ID, resp, note); err != nil {
-		p.log.Printf("error marking webhook log %d as failed: %v", wl.ID, err)
+	// Attempt delivery.
+	resp, err := p.send(wh, wl.Event, payloadBytes)
+	if err == nil {
+		// Success - mark as completed.
+		if _, err := p.queries.UpdateWebhookLogSuccess.Exec(wl.ID, resp); err != nil {
+			p.log.Printf("error marking webhook log %d as success: %v", wl.ID, err)
+		}
+		if wl.Retries > 0 {
+			p.log.Printf("webhook %s (log %d) delivered after %d retries", wh.Name, wl.ID, wl.Retries)
+		}
+		return
 	}
-	p.log.Printf("webhook %s (log %d) delivery failed after %d attempts", wh.Name, wl.ID, wh.MaxRetries+1)
+
+	if wl.Retries >= wh.MaxRetries {
+		// All retries exhausted - mark as failed.
+		resp := models.WebhookResponse{}
+		note := fmt.Sprintf("delivery failed after %d attempts", wh.MaxRetries+1)
+		if _, err := p.queries.UpdateWebhookLogFailed.Exec(wl.ID, resp, note); err != nil {
+			p.log.Printf("error marking webhook log %d as failed: %v", wl.ID, err)
+		}
+		p.log.Printf("webhook %s (log %d) delivery failed after %d attempts", wh.Name, wl.ID, wh.MaxRetries+1)
+		return
+	}
+
+	// Log the failure.
+	p.log.Printf("webhook %s (log %d) delivery attempt %d failed: %v", wh.Name, wl.ID, wl.Retries+wl.Retries+1, err)
+
+	// Update retry count.
+	note := fmt.Sprintf("attempt %d failed: %v", wl.Retries+wl.Retries+1, err)
+	if _, err := p.queries.UpdateWebhookLogRetry.Exec(wl.ID, resp, note); err != nil {
+		p.log.Printf("error updating webhook log %d retry: %v", wl.ID, err)
+	}
 }
 
 // send makes an HTTP request to deliver the webhook.

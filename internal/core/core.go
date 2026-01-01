@@ -6,6 +6,7 @@ package core
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"log"
 	"net/http"
@@ -37,6 +38,8 @@ type Core struct {
 	db     *sqlx.DB
 	q      *models.Queries
 	log    *log.Logger
+
+	webhookTrigger chan (webhookTriggerEvent)
 }
 
 // Constants represents constant config.
@@ -53,6 +56,11 @@ type Constants struct {
 type Hooks struct {
 	SendOptinConfirmation func(models.Subscriber, []int) (int, error)
 	TriggerWebhook        func(event string, data any) error
+}
+
+type webhookTriggerEvent struct {
+	Event string
+	Data  any
 }
 
 // Opt contains the controllers required to start the core.
@@ -85,12 +93,9 @@ func New(o *Opt, h *Hooks) *Core {
 		db:     o.DB,
 		q:      o.Queries,
 		log:    o.Log,
-	}
-}
 
-// SetWebhookHook sets the webhook trigger hook.
-func (c *Core) SetWebhookHook(fn func(event string, data any) error) {
-	c.h.TriggerWebhook = fn
+		webhookTrigger: make(chan webhookTriggerEvent, 2<<16), // explicit 64k to avoid memory exhaustion
+	}
 }
 
 // RefreshMatViews refreshes all materialized views.
@@ -214,13 +219,27 @@ func strHasLen(str string, min, max int) bool {
 	return len(str) >= min && len(str) <= max
 }
 
-// triggerWebhook triggers a webhook event if the hook is set.
-func (c *Core) triggerWebhook(event string, data any) {
-	if c.h.TriggerWebhook != nil {
-		go func() {
-			if err := c.h.TriggerWebhook(event, data); err != nil {
-				c.log.Printf("error triggering webhook %s: %v", event, err)
+// TriggerWebhook triggers a webhook event if the hook is set.
+func (c *Core) TriggerWebhook(event string, data any) {
+	c.log.Printf("trigger webhook for event %s", event)
+	c.webhookTrigger <- webhookTriggerEvent{
+		Event: event,
+		Data:  data,
+	}
+}
+
+// PersistWebhookLogs will receive each webhook trigger and write them to db
+// to survive restart and allow webhook worker pool to pick up
+func (c *Core) PersistWebhookLogs(ctx context.Context) {
+	for {
+		select {
+		case <-ctx.Done():
+			c.log.Println("shutdown signal received. stopping persist webhook_log goroutine.")
+			return
+		case ev := <-c.webhookTrigger:
+			if err := c.h.TriggerWebhook(ev.Event, ev.Data); err != nil {
+				c.log.Printf("error triggering webhook %s: %v", ev.Event, err)
 			}
-		}()
+		}
 	}
 }

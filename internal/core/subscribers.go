@@ -345,12 +345,12 @@ func (c *Core) InsertSubscriber(sub models.Subscriber, listIDs []int, listUUIDs 
 		hasOptin = num > 0
 		if hasOptin {
 			// Trigger webhook for optin start.
-			c.triggerWebhook(models.EventSubscriberOptinStart, out)
+			c.TriggerWebhook(models.EventSubscriberOptinStart, out)
 		}
 	}
 
 	// Trigger webhook for new subscriber creation.
-	c.triggerWebhook(models.EventSubscriberCreated, out)
+	c.TriggerWebhook(models.EventSubscriberCreated, out)
 
 	return out, hasOptin, nil
 }
@@ -387,7 +387,7 @@ func (c *Core) UpdateSubscriber(id int, sub models.Subscriber) (models.Subscribe
 	}
 
 	// Trigger webhook for subscriber update.
-	c.triggerWebhook(models.EventSubscriberUpdated, out)
+	c.TriggerWebhook(models.EventSubscriberUpdated, out)
 
 	return out, nil
 }
@@ -443,12 +443,12 @@ func (c *Core) UpdateSubscriberWithLists(id int, sub models.Subscriber, listIDs 
 		hasOptin = num > 0
 		if hasOptin {
 			// Trigger webhook for optin start.
-			c.triggerWebhook(models.EventSubscriberOptinStart, out)
+			c.TriggerWebhook(models.EventSubscriberOptinStart, out)
 		}
 	}
 
 	// Trigger webhook for subscriber update.
-	c.triggerWebhook(models.EventSubscriberUpdated, out)
+	c.TriggerWebhook(models.EventSubscriberUpdated, out)
 
 	return out, hasOptin, nil
 }
@@ -491,7 +491,7 @@ func (c *Core) DeleteSubscribers(subIDs []int, subUUIDs []string) error {
 	}
 
 	// Trigger webhook for subscriber deletion with IDs.
-	c.triggerWebhook(models.EventSubscriberDeleted, map[string]any{
+	c.TriggerWebhook(models.EventSubscriberDeleted, map[string]any{
 		"ids":   subIDs,
 		"uuids": subUUIDs,
 	})
@@ -520,7 +520,7 @@ func (c *Core) UnsubscribeByCampaign(subUUID, campUUID string, blocklist bool) e
 	}
 
 	// Trigger webhook for unsubscribe.
-	c.triggerWebhook(models.EventSubscriberUnsubscribed, map[string]any{
+	c.TriggerWebhook(models.EventSubscriberUnsubscribed, map[string]any{
 		"subscriber_uuid": subUUID,
 		"campaign_uuid":   campUUID,
 		"blocklisted":     blocklist,
@@ -542,7 +542,7 @@ func (c *Core) ConfirmOptionSubscription(subUUID string, listUUIDs []string, met
 	}
 
 	// Trigger webhook for optin finish.
-	c.triggerWebhook(models.EventSubscriberOptinFinish, map[string]any{
+	c.TriggerWebhook(models.EventSubscriberOptinFinish, map[string]any{
 		"subscriber_uuid": subUUID,
 		"list_uuids":      listUUIDs,
 	})
