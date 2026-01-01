@@ -66,7 +66,7 @@
                   <b-select v-model="item.auth_type" name="auth_type" expanded>
                     <option value="none">{{ $t('settings.webhooks.authNone') }}</option>
                     <option value="basic">{{ $t('settings.webhooks.authBasic') }}</option>
-                    <option value="hmac">{{ $t('settings.webhooks.authHmac') }}</option>
+                    <option value="token">{{ $t('settings.webhooks.authToken') }}</option>
                   </b-select>
                 </b-field>
               </div>
@@ -82,10 +82,10 @@
                     :placeholder="$t('globals.messages.passwordChange')" :maxlength="200" />
                 </b-field>
               </div>
-              <div class="column is-8" v-if="item.auth_type === 'hmac'">
-                <b-field :label="$t('settings.webhooks.hmacSecret')" label-position="on-border"
-                  :message="$t('settings.webhooks.hmacSecretHelp')">
-                  <b-input v-model="item.auth_hmac_secret" name="auth_hmac_secret" type="password"
+              <div class="column is-8" v-if="item.auth_type === 'token'">
+                <b-field :label="$t('settings.webhooks.token')" label-position="on-border"
+                  :message="$t('settings.webhooks.tokenHelp')">
+                  <b-input v-model="item.auth_token" name="auth_token" type="password"
                     :placeholder="$t('globals.messages.passwordChange')" :maxlength="500" />
                 </b-field>
               </div>
@@ -151,7 +151,7 @@ export default Vue.extend({
         auth_type: 'none',
         auth_basic_user: '',
         auth_basic_pass: '',
-        auth_hmac_secret: '',
+        auth_token: '',
         max_retries: 3,
         timeout: '30s',
       });

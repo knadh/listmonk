@@ -74,7 +74,7 @@ func (a *App) GetSettings(c echo.Context) error {
 	}
 	for i := range s.Webhooks {
 		s.Webhooks[i].AuthBasicPass = strings.Repeat(pwdMask, utf8.RuneCountInString(s.Webhooks[i].AuthBasicPass))
-		s.Webhooks[i].AuthHMACSecret = strings.Repeat(pwdMask, utf8.RuneCountInString(s.Webhooks[i].AuthHMACSecret))
+		s.Webhooks[i].AuthToken = strings.Repeat(pwdMask, utf8.RuneCountInString(s.Webhooks[i].AuthToken))
 	}
 
 	s.UploadS3AwsSecretAccessKey = strings.Repeat(pwdMask, utf8.RuneCountInString(s.UploadS3AwsSecretAccessKey))
@@ -234,7 +234,7 @@ func (a *App) UpdateSettings(c echo.Context) error {
 			set.Webhooks[i].UUID = uuid.Must(uuid.NewV4()).String()
 		}
 
-		// If there's no password/secret coming in from the frontend, copy the existing
+		// If there's no password/token coming in from the frontend, copy the existing
 		// values by matching the UUID.
 		if w.AuthBasicPass == "" {
 			for _, c := range cur.Webhooks {
@@ -243,10 +243,10 @@ func (a *App) UpdateSettings(c echo.Context) error {
 				}
 			}
 		}
-		if w.AuthHMACSecret == "" {
+		if w.AuthToken == "" {
 			for _, c := range cur.Webhooks {
 				if w.UUID == c.UUID {
-					set.Webhooks[i].AuthHMACSecret = c.AuthHMACSecret
+					set.Webhooks[i].AuthToken = c.AuthToken
 				}
 			}
 		}

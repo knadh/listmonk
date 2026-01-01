@@ -3,9 +3,6 @@ package webhooks
 import (
 	"bytes"
 	"context"
-	"crypto/hmac"
-	"crypto/sha256"
-	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -94,17 +91,17 @@ func (p *WorkerPool) LoadWebhooks(settings []models.Webhook) {
 		}
 
 		p.webhooks[s.UUID] = Webhook{
-			UUID:           s.UUID,
-			Enabled:        s.Enabled,
-			Name:           s.Name,
-			URL:            s.URL,
-			Events:         events,
-			AuthType:       s.AuthType,
-			AuthBasicUser:  s.AuthBasicUser,
-			AuthBasicPass:  s.AuthBasicPass,
-			AuthHMACSecret: s.AuthHMACSecret,
-			MaxRetries:     maxRetries,
-			Timeout:        timeout,
+			UUID:          s.UUID,
+			Enabled:       s.Enabled,
+			Name:          s.Name,
+			URL:           s.URL,
+			Events:        events,
+			AuthType:      s.AuthType,
+			AuthBasicUser: s.AuthBasicUser,
+			AuthBasicPass: s.AuthBasicPass,
+			AuthToken:     s.AuthToken,
+			MaxRetries:    maxRetries,
+			Timeout:       timeout,
 		}
 	}
 }
@@ -282,11 +279,8 @@ func (p *WorkerPool) send(wh Webhook, event string, payload []byte) (models.Webh
 	case models.WebhookAuthTypeBasic:
 		req.SetBasicAuth(wh.AuthBasicUser, wh.AuthBasicPass)
 
-	case models.WebhookAuthTypeHMAC:
-		timestamp := time.Now().Unix()
-		signature := p.computeHMAC(payload, wh.AuthHMACSecret, timestamp)
-		req.Header.Set("X-Listmonk-Signature", signature)
-		req.Header.Set("X-Listmonk-Timestamp", fmt.Sprintf("%d", timestamp))
+	case models.WebhookAuthTypeToken:
+		req.Header.Set("Authorization", "Bearer "+wh.AuthToken)
 	}
 
 	// Create a client with the specific timeout.
@@ -313,12 +307,4 @@ func (p *WorkerPool) send(wh Webhook, event string, payload []byte) (models.Webh
 	}
 
 	return resp, nil
-}
-
-// computeHMAC computes the HMAC-SHA256 signature for the payload.
-func (p *WorkerPool) computeHMAC(payload []byte, secret string, timestamp int64) string {
-	data := fmt.Sprintf("%d.%s", timestamp, string(payload))
-	h := hmac.New(sha256.New, []byte(secret))
-	h.Write([]byte(data))
-	return "sha256=" + hex.EncodeToString(h.Sum(nil))
 }

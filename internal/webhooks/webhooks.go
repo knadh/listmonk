@@ -13,17 +13,17 @@ import (
 
 // Webhook represents a webhook configuration loaded from settings.
 type Webhook struct {
-	UUID           string
-	Enabled        bool
-	Name           string
-	URL            string
-	Events         map[string]struct{} // O(1) lookup
-	AuthType       string
-	AuthBasicUser  string
-	AuthBasicPass  string
-	AuthHMACSecret string
-	MaxRetries     int
-	Timeout        time.Duration
+	UUID          string
+	Enabled       bool
+	Name          string
+	URL           string
+	Events        map[string]struct{} // O(1) lookup
+	AuthType      string
+	AuthBasicUser string
+	AuthBasicPass string
+	AuthToken     string
+	MaxRetries    int
+	Timeout       time.Duration
 }
 
 // Manager handles webhook event triggering by creating log entries.
@@ -76,17 +76,17 @@ func (m *Manager) Load(settings []models.Webhook) {
 		}
 
 		m.webhooks = append(m.webhooks, Webhook{
-			UUID:           s.UUID,
-			Enabled:        s.Enabled,
-			Name:           s.Name,
-			URL:            s.URL,
-			Events:         events,
-			AuthType:       s.AuthType,
-			AuthBasicUser:  s.AuthBasicUser,
-			AuthBasicPass:  s.AuthBasicPass,
-			AuthHMACSecret: s.AuthHMACSecret,
-			MaxRetries:     maxRetries,
-			Timeout:        timeout,
+			UUID:          s.UUID,
+			Enabled:       s.Enabled,
+			Name:          s.Name,
+			URL:           s.URL,
+			Events:        events,
+			AuthType:      s.AuthType,
+			AuthBasicUser: s.AuthBasicUser,
+			AuthBasicPass: s.AuthBasicPass,
+			AuthToken:     s.AuthToken,
+			MaxRetries:    maxRetries,
+			Timeout:       timeout,
 		})
 	}
 }
