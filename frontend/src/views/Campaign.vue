@@ -223,7 +223,8 @@
 
       <b-tab-item :label="$t('globals.terms.attribs')" icon="code" value="attribs" :disabled="isNew">
         <section class="wrap">
-          <b-field :label="$t('globals.terms.attribs')" :message="$t('campaigns.attribsHelp')" label-position="on-border">
+          <b-field :label="$t('globals.terms.attribs')" :message="$t('campaigns.attribsHelp')"
+            label-position="on-border">
             <b-input v-model="form.attribsStr" type="textarea" :disabled="!canEdit" rows="15" />
           </b-field>
         </section>

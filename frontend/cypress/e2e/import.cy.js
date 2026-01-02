@@ -25,7 +25,8 @@ describe('Import', () => {
       cy.get(`[data-cy=check-${c.chkSubStatus}] .check`).click();
 
       if (c.overwrite) {
-        cy.get('[data-cy=overwrite]').click();
+        cy.get('[data-cy=overwrite-user-info]').click();
+        cy.get('[data-cy=overwrite-sub-status]').click();
       }
 
       if (c.status === 'enabled') {
