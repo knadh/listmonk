@@ -1056,10 +1056,10 @@ ajv@^6.12.4:
     json-schema-traverse "^0.4.1"
     uri-js "^4.2.2"
 
-altcha@^2.1.0:
-  version "2.1.0"
-  resolved "https://registry.yarnpkg.com/altcha/-/altcha-2.1.0.tgz#8502afbdb34fa799474f203939d6de1cb622bc2b"
-  integrity sha512-V+Ug4Qr9oLR2WcDSgtzmwOzHGqoencaJoyRmUb1hqZ6Y91B3Xe8vHQ0Q3RwoKuBOYHX9yTYccJvaWHEp8+4UIQ==
+altcha@^2.3.0:
+  version "2.3.0"
+  resolved "https://registry.yarnpkg.com/altcha/-/altcha-2.3.0.tgz#4433f0206ccc4207624821d1acad12292cecb016"
+  integrity sha512-vl8I0dQvSQB7/Mx09XuWZ1+LdSP7vEda6OLbg9kUQ2ZO2LT7MzgUyLK7Iips+GAV6c0ntVcS1XWOqhEPpwbDhQ==
   dependencies:
     "@altcha/crypto" "^0.0.1"
   optionalDependencies:
