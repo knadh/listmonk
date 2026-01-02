@@ -3063,6 +3063,12 @@ This is a test e-mail campaign. Your second name is Doe and you are from Bengalu
 <td style="text-align: left;"></td>
 <td style="text-align: left;">Key-value pairs to send as SMTP headers. Example: [{"x-custom-header": "value"}].</td>
 </tr>
+<tr>
+<td style="text-align: left;">attribs</td>
+<td style="text-align: left;">JSON</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">Optional JSON object attributes that can be used in the campaign message template. Example <code>{"location": "Somewhere"}</code></td>
+</tr>
 </tbody>
 </table>
 <h5 id="example-request_6">Example request<a class="headerlink" href="#example-request_6" title="Permanent link">&para;</a></h5>
@@ -3097,7 +3103,9 @@ This is a test e-mail campaign. Your second name is Doe and you are from Bengalu
 <span class="w">        </span><span class="nt">&quot;content_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;richtext&quot;</span><span class="p">,</span>
 <span class="w">        </span><span class="nt">&quot;tags&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;test&quot;</span><span class="p">],</span>
 <span class="w">        </span><span class="nt">&quot;template_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
-<span class="w">        </span><span class="nt">&quot;messenger&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;email&quot;</span>
+<span class="w">        </span><span class="nt">&quot;messenger&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;email&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;headers&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{},</span>
+<span class="w">        </span><span class="nt">&quot;attribs&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{}</span>
 <span class="w">    </span><span class="p">}</span>
 <span class="p">}</span>
 </code></pre></div>
