@@ -8,7 +8,7 @@ import (
 	"github.com/knadh/stuffbin"
 )
 
-func V5_2_0(db *sqlx.DB, fs stuffbin.FileSystem, ko *koanf.Koanf, lo *log.Logger) error {
+func V6_0_0(db *sqlx.DB, fs stuffbin.FileSystem, ko *koanf.Koanf, lo *log.Logger) error {
 	_, err := db.Exec(`
 		INSERT INTO settings (key, value, updated_at) VALUES ('security.cors_origins', '[]', NOW()) ON CONFLICT (key) DO NOTHING
 	`)
