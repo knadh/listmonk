@@ -8,8 +8,8 @@ import (
 	"github.com/knadh/stuffbin"
 )
 
-// V5_3_0 adds webhook_logs table for persistent webhook delivery with background workers.
-func V5_3_0(db *sqlx.DB, fs stuffbin.FileSystem, ko *koanf.Koanf, lo *log.Logger) error {
+// V6_1_0 adds webhook_logs table for persistent webhook delivery with background workers.
+func V6_1_0(db *sqlx.DB, fs stuffbin.FileSystem, ko *koanf.Koanf, lo *log.Logger) error {
 	// Create webhook_log_status enum type.
 	_, err := db.Exec(`
 		DO $$ BEGIN
