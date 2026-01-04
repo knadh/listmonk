@@ -54,6 +54,10 @@
             <messenger-settings :form="form" :key="key" />
           </b-tab-item><!-- messengers -->
 
+          <b-tab-item :label="$t('settings.webhooks.name')">
+            <webhook-settings :form="form" :events="webhookEvents" :key="key" />
+          </b-tab-item><!-- webhooks -->
+
           <b-tab-item :label="$t('settings.appearance.name')">
             <appearance-settings :form="form" :key="key" />
           </b-tab-item><!-- appearance -->
@@ -75,6 +79,7 @@ import PerformanceSettings from './settings/performance.vue';
 import PrivacySettings from './settings/privacy.vue';
 import SecuritySettings from './settings/security.vue';
 import SmtpSettings from './settings/smtp.vue';
+import WebhookSettings from './settings/webhooks.vue';
 
 export default Vue.extend({
   components: {
@@ -86,6 +91,7 @@ export default Vue.extend({
     SmtpSettings,
     BounceSettings,
     MessengerSettings,
+    WebhookSettings,
     AppearanceSettings,
   },
 
@@ -102,6 +108,7 @@ export default Vue.extend({
       formCopy: '',
       form: null,
       tab: 0,
+      webhookEvents: [],
     };
   },
 
@@ -187,6 +194,22 @@ export default Vue.extend({
         }
       }
 
+      // Webhook secrets.
+      for (let i = 0; i < form.webhooks.length; i += 1) {
+        // If it's the dummy UI password placeholder, ignore it.
+        if (this.isDummy(form.webhooks[i].auth_basic_pass)) {
+          form.webhooks[i].auth_basic_pass = '';
+        } else if (this.hasDummy(form.webhooks[i].auth_basic_pass)) {
+          hasDummy = `webhook #${i + 1} password`;
+        }
+
+        if (this.isDummy(form.webhooks[i].auth_hmac_secret)) {
+          form.webhooks[i].auth_hmac_secret = '';
+        } else if (this.hasDummy(form.webhooks[i].auth_hmac_secret)) {
+          hasDummy = `webhook #${i + 1} HMAC secret`;
+        }
+      }
+
       if (hasDummy) {
         this.$utils.toast(this.$t('globals.messages.passwordChangeFull', { name: hasDummy }), 'is-danger');
         return false;
@@ -245,6 +268,12 @@ export default Vue.extend({
     hasDummy(pwd) {
       return pwd.includes('•');
     },
+
+    getWebhookEvents() {
+      this.$api.getWebhookEvents().then((data) => {
+        this.webhookEvents = data;
+      });
+    },
   },
 
   computed: {
@@ -269,6 +298,7 @@ export default Vue.extend({
   mounted() {
     this.tab = this.$utils.getPref('settings.tab') || 0;
     this.getSettings();
+    this.getWebhookEvents();
   },
 
   watch: {

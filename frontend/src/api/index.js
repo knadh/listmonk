@@ -574,3 +574,9 @@ export const disableTOTP = (id, data) => http.delete(
   `/api/users/${id}/twofa`,
   { data },
 );
+
+// Webhooks.
+export const getWebhookEvents = async () => http.get(
+  '/api/settings/webhooks/events',
+  { camelCase: false },
+);
