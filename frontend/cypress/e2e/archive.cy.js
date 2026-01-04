@@ -40,7 +40,7 @@ describe('Archive', () => {
     cy.get('td[data-label=Status] a').eq(0).click();
 
     // Switch to archive tab and enable archive.
-    cy.get('.b-tabs nav a').eq(2).click();
+    cy.get('.b-tabs nav a').eq(3).click();
     cy.wait(500);
     cy.get('[data-cy=btn-archive] .check').click();
     cy.get('[data-cy=archive-slug]').clear();
@@ -56,7 +56,7 @@ describe('Archive', () => {
     cy.get('td[data-label=Status] a').eq(1).click();
 
     // Switch to archive tab and enable archive.
-    cy.get('.b-tabs nav a').eq(2).click();
+    cy.get('.b-tabs nav a').eq(3).click();
     cy.wait(500);
     cy.get('[data-cy=btn-archive] .check').click();
     cy.get('[data-cy=archive-slug]').clear().type('my-archived-campaign');

@@ -264,6 +264,9 @@ section {
     a {
       border-radius: 0;
     }
+    .icon {
+      margin-right: 8px;
+    }
   }
 }
 
@@ -652,6 +655,7 @@ body.is-noscroll {
   }
 
   &.is-floating-label label.label {
+    background-color: $white;
     font-size: 0.875rem;
   }
 
@@ -669,7 +673,7 @@ body.is-noscroll {
 /* Tabs */
 .b-tabs {
   .tab-content {
-    padding: 15px;
+    padding: 30px 20px;
 
     border: 1px solid #ddd;
     border-width: 0 1px 1px 1px;
@@ -1093,9 +1097,6 @@ section.analytics {
 
 /* Settings */
 .settings {
-  .b-tabs .tab-content {
-    padding: 30px 20px;
-  }
   .disabled {
     opacity: 0.30;
   }

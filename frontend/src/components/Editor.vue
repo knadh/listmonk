@@ -58,7 +58,7 @@
     </div>
 
     <!-- wsywig //-->
-    <richtext-editor v-if="self.contentType === 'richtext'" v-model="self.body" />
+    <richtext-editor v-if="self.contentType === 'richtext'" :disabled="disabled" v-model="self.body" />
 
     <!-- visual editor //-->
     <visual-editor v-if="self.contentType === 'visual'" :source="self.bodySource" @change="onVisualEditorChange"

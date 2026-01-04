@@ -221,6 +221,15 @@
         </div>
       </b-tab-item><!-- content -->
 
+      <b-tab-item :label="$t('globals.terms.attribs')" icon="code" value="attribs" :disabled="isNew">
+        <section class="wrap">
+          <b-field :label="$t('globals.terms.attribs')" :message="$t('campaigns.attribsHelp')"
+            label-position="on-border">
+            <b-input v-model="form.attribsStr" type="textarea" :disabled="!canEdit" rows="15" />
+          </b-field>
+        </section>
+      </b-tab-item><!-- attribs -->
+
       <b-tab-item :label="$t('campaigns.archive')" icon="newspaper-variant-outline" value="archive" :disabled="isNew">
         <section class="wrap">
           <div class="columns">
@@ -317,11 +326,11 @@ import htmlToPlainText from 'textversionjs';
 import Vue from 'vue';
 import { mapState } from 'vuex';
 
+import CampaignPreview from '../components/CampaignPreview.vue';
 import CopyText from '../components/CopyText.vue';
 import Editor from '../components/Editor.vue';
 import ListSelector from '../components/ListSelector.vue';
 import Media from './Media.vue';
-import CampaignPreview from '../components/CampaignPreview.vue';
 
 export default Vue.extend({
   components: {
@@ -363,6 +372,7 @@ export default Vue.extend({
         fromEmail: '',
         headersStr: '[]',
         headers: [],
+        attribsStr: '{}',
         messenger: 'email',
         lists: [],
         tags: [],
@@ -471,6 +481,23 @@ export default Vue.extend({
         }
       }
 
+      // Validate custom JSON attribs.
+      let attribs = null;
+      if (this.form.attribsStr && this.form.attribsStr.trim()) {
+        try {
+          attribs = JSON.parse(this.form.attribsStr);
+        } catch (e) {
+          this.$utils.toast(
+            `${this.$t('subscribers.invalidJSON')}: ${e.toString()}`,
+            'is-danger',
+
+            3000,
+          );
+          return;
+        }
+      }
+      this.form.attribs = attribs;
+
       switch (typ) {
         case 'create':
           this.createCampaign();
@@ -492,6 +519,7 @@ export default Vue.extend({
           ...data,
           headersStr: JSON.stringify(data.headers, null, 4),
           archiveMetaStr: data.archiveMeta ? JSON.stringify(data.archiveMeta, null, 4) : '{}',
+          attribsStr: data.attribs ? JSON.stringify(data.attribs, null, 4) : '{}',
 
           // The structure that is populated by editor input event.
           content: {
@@ -550,6 +578,7 @@ export default Vue.extend({
         tags: this.form.tags,
         send_at: this.form.sendLater ? this.form.sendAtDate : null,
         headers: this.form.headers,
+        attribs: this.form.attribs,
         media: this.form.media.map((m) => m.id),
       };
 
@@ -571,6 +600,7 @@ export default Vue.extend({
         tags: this.form.tags,
         send_at: this.form.sendLater ? this.form.sendAtDate : null,
         headers: this.form.headers,
+        attribs: this.form.attribs,
         template_id: this.form.content.templateId,
         content_type: this.form.content.contentType,
         body: this.form.content.body,
@@ -596,6 +626,7 @@ export default Vue.extend({
         this.$api.updateCampaign(this.data.id, data).then((d) => {
           this.data = d;
           this.form.archiveSlug = d.archiveSlug;
+          this.form.attribsStr = d.attribs ? JSON.stringify(d.attribs, null, 4) : '{}';
 
           this.$utils.toast(this.$t(typMsg, { name: d.name }));
           resolve();

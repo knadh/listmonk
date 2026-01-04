@@ -8,7 +8,7 @@ import (
 	"github.com/knadh/stuffbin"
 )
 
-func V5_2_0(db *sqlx.DB, fs stuffbin.FileSystem, ko *koanf.Koanf, lo *log.Logger) error {
+func V6_0_0(db *sqlx.DB, fs stuffbin.FileSystem, ko *koanf.Koanf, lo *log.Logger) error {
 	_, err := db.Exec(`
 		INSERT INTO settings (key, value, updated_at) VALUES ('security.cors_origins', '[]', NOW()) ON CONFLICT (key) DO NOTHING
 	`)
@@ -44,6 +44,12 @@ func V5_2_0(db *sqlx.DB, fs stuffbin.FileSystem, ko *koanf.Koanf, lo *log.Logger
 		ALTER TABLE lists ADD COLUMN IF NOT EXISTS status list_status NOT NULL DEFAULT 'active';
 		CREATE INDEX IF NOT EXISTS idx_lists_status ON lists(status);
 	`)
+	if err != nil {
+		return err
+	}
+
+	// Add attribs field to campaigns table.
+	_, err = db.Exec(`ALTER TABLE campaigns ADD COLUMN IF NOT EXISTS attribs JSONB NOT NULL DEFAULT '{}'`)
 	if err != nil {
 		return err
 	}

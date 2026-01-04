@@ -43,7 +43,7 @@ describe('Forms', () => {
         cy.get('input[type=checkbox]').eq(j).click();
         cy.get('button').click();
         cy.wait(250);
-        cy.get('.wrap').contains(/has been sent|successfully/);
+        cy.get('.wrap').contains(/has been sent|successfully|retry/); // If SMTP is not configured, it shows retry message.
       }
     }
 

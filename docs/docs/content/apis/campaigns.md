@@ -289,22 +289,23 @@ Create a new campaign.
 
 ##### Parameters
 
-| Name         | Type       | Required | Description                                                                             |
-| :----------- | :--------- | :------- | :-------------------------------------------------------------------------------------- |
-| name         | string     | Yes      | Campaign name.                                                                          |
-| subject      | string     | Yes      | Campaign email subject.                                                                 |
-| lists        | number\[\] | Yes      | List IDs to send campaign to.                                                           |
-| from_email   | string     |          | 'From' email in campaign emails. Defaults to value from settings if not provided.       |
-| type         | string     | Yes      | Campaign type: 'regular' or 'optin'.                                                    |
-| content_type | string     | Yes      | Content type: 'richtext', 'html', 'markdown', 'plain', 'visual'.                        |
-| body         | string     | Yes      | Content body of campaign.                                                               |
-| body_source  | string     |          | If content_type is `visual`, the JSON block source of the body.                         |
-| altbody      | string     |          | Alternate plain text body for HTML (and richtext) emails.                               |
-| send_at      | string     |          | Timestamp to schedule campaign. Format: 'YYYY-MM-DDTHH:MM:SSZ'.                         |
-| messenger    | string     |          | 'email' or a custom messenger defined in settings. Defaults to 'email' if not provided. |
-| template_id  | number     |          | Template ID to use. Defaults to default template if not provided.                       |
-| tags         | string\[\] |          | Tags to mark campaign.                                                                  |
-| headers      | JSON       |          | Key-value pairs to send as SMTP headers. Example: \[{"x-custom-header": "value"}\].     |
+| Name         | Type       | Required | Description                                                                                                            |
+| :----------- | :--------- | :------- | :--------------------------------------------------------------------------------------------------------------------- |
+| name         | string     | Yes      | Campaign name.                                                                                                         |
+| subject      | string     | Yes      | Campaign email subject.                                                                                                |
+| lists        | number\[\] | Yes      | List IDs to send campaign to.                                                                                          |
+| from_email   | string     |          | 'From' email in campaign emails. Defaults to value from settings if not provided.                                      |
+| type         | string     | Yes      | Campaign type: 'regular' or 'optin'.                                                                                   |
+| content_type | string     | Yes      | Content type: 'richtext', 'html', 'markdown', 'plain', 'visual'.                                                       |
+| body         | string     | Yes      | Content body of campaign.                                                                                              |
+| body_source  | string     |          | If content_type is `visual`, the JSON block source of the body.                                                        |
+| altbody      | string     |          | Alternate plain text body for HTML (and richtext) emails.                                                              |
+| send_at      | string     |          | Timestamp to schedule campaign. Format: 'YYYY-MM-DDTHH:MM:SSZ'.                                                        |
+| messenger    | string     |          | 'email' or a custom messenger defined in settings. Defaults to 'email' if not provided.                                |
+| template_id  | number     |          | Template ID to use. Defaults to default template if not provided.                                                      |
+| tags         | string\[\] |          | Tags to mark campaign.                                                                                                 |
+| headers      | JSON       |          | Key-value pairs to send as SMTP headers. Example: \[{"x-custom-header": "value"}\].                                    |
+| attribs      | JSON       |          | Optional JSON object attributes that can be used in the campaign message template. Example `{"location": "Somewhere"}` |
 
 ##### Example request
 
@@ -343,7 +344,9 @@ curl -u "api_user:token" 'http://localhost:9000/api/campaigns' -X POST -H 'Conte
         "content_type": "richtext",
         "tags": ["test"],
         "template_id": 1,
-        "messenger": "email"
+        "messenger": "email",
+        "headers": {},
+        "attribs": {}
     }
 }
 ```
@@ -516,9 +519,9 @@ Delete multiple campaigns by IDs or by a search query.
 
 ##### Parameters
 
-| Name  | Type       | Required                      | Description                                                                  |
-| :---- | :--------- | :---------------------------- | :--------------------------------------------------------------------------- |
-| id    | number\[\] | Yes (if `query` not provided) | Onr or more campaign IDs to delete.                                          |
+| Name  | Type       | Required                      | Description                                                                 |
+| :---- | :--------- | :---------------------------- | :-------------------------------------------------------------------------- |
+| id    | number\[\] | Yes (if `query` not provided) | Onr or more campaign IDs to delete.                                         |
 | query | string     | Yes (if `id` not provided)    | Fulltext search query to filter campaigns for deletion (same as GET query). |
 
 ##### Example Request (by IDs)
