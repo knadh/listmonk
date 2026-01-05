@@ -20,6 +20,26 @@ func (c *Core) GetTemplates(status string, noBody bool) ([]models.Template, erro
 	return out, nil
 }
 
+// QueryTemplates retrieves paginated templates optionally filtering them by the given
+// search string. It also returns the total number of records in the DB.
+func (c *Core) QueryTemplates(searchStr, typ, orderBy, order string, noBody bool, offset, limit int) (models.Templates, int, error) {
+	queryStr, stmt := makeSearchQuery(searchStr, orderBy, order, c.q.QueryTemplates, templateQuerySortFields)
+
+	var out models.Templates
+	if err := c.db.Select(&out, stmt, noBody, typ, queryStr, offset, limit); err != nil {
+		c.log.Printf("error fetching templates: %v", err)
+		return nil, 0, echo.NewHTTPError(http.StatusInternalServerError,
+			c.i18n.Ts("globals.messages.errorFetching", "name", "{globals.terms.templates}", "error", pqErrMsg(err)))
+	}
+
+	total := 0
+	if len(out) > 0 {
+		total = out[0].Total
+	}
+
+	return out, total, nil
+}
+
 // GetTemplate retrieves a given template.
 func (c *Core) GetTemplate(id int, noBody bool) (models.Template, error) {
 	var out []models.Template

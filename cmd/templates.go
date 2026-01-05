@@ -48,13 +48,32 @@ func (a *App) GetTemplate(c echo.Context) error {
 
 // GetTemplates handles retrieval of templates.
 func (a *App) GetTemplates(c echo.Context) error {
-	// If no_body is true, blank out the body of the template from the response.
-	noBody, _ := strconv.ParseBool(c.QueryParam("no_body"))
+	var (
+		pg      = a.pg.NewFromURL(c.Request().URL.Query())
+		query   = strings.TrimSpace(c.FormValue("query"))
+		typ     = c.FormValue("type")
+		orderBy = c.FormValue("order_by")
+		order   = c.FormValue("order")
+		noBody, _ = strconv.ParseBool(c.QueryParam("no_body"))
+	)
 
-	// Fetch templates from the DB.
-	out, err := a.core.GetTemplates("", noBody)
+	// Query and retrieve templates from the DB.
+	res, total, err := a.core.QueryTemplates(query, typ, orderBy, order, noBody, pg.Offset, pg.Limit)
 	if err != nil {
 		return err
+	}
+
+	// Paginate the response.
+	if len(res) == 0 {
+		return c.JSON(http.StatusOK, okResp{models.PageResults{Results: []models.Template{}}})
+	}
+
+	out := models.PageResults{
+		Query:   query,
+		Results: res,
+		Total:   total,
+		Page:    pg.Page,
+		PerPage: pg.PerPage,
 	}
 
 	return c.JSON(http.StatusOK, okResp{out})
