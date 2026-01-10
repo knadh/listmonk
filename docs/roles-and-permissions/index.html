@@ -770,6 +770,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#subscriberssql_query" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        subscribers:sql_query
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1414,6 +1425,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#subscriberssql_query" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        subscribers:sql_query
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1478,7 +1500,7 @@
 <tr>
 <td></td>
 <td>subscribers:sql_query</td>
-<td>Run raw SQL queries on subscriber data. <strong>WARNING:</strong> This permission allows execution of arbitrary SQL expressions and SQL functions. While it is a readonly feature designed to allow querying of all lists and subscribers directly from the database superceding individual list and subscriber permissions above, raw SQL expressions makes it possible to obtain Postgres database configuration such as version and paths. Give this permission only to trusted users.</td>
+<td>Run raw SQL queries on subscriber data.<br /><span style="color: #de4a45;"><strong>WARNING:</strong></span><span style="font-size: 0.875em; line-height: 1.3; color:#888;">This permission allows execution of arbitrary SQL expressions and SQL functions. While it is readonly on the table data, it allows querying of all lists and subscribers directly from the database superceding individual list and subscriber permissions. Raw SQL expressions make it possible to obtain Postgres database configuration and potentially interact with other Postgres system features. Give this permission ONLY to trusted users. <a href="#subscriberssql_query">Learn more</a>.</td>
 </tr>
 <tr>
 <td></td>
@@ -1548,7 +1570,7 @@
 <tr>
 <td></td>
 <td>users:manage</td>
-<td>Create, update, and delete user accounts <strong>WARNING:</strong> This permission allows creation of users with any role, including Super Admin. This permission should only be given to Super Admin level accounts</td>
+<td>Create, update, and delete user accounts <span style="color: #de4a45;"><strong>WARNING:</strong></span><span style="font-size: 0.875em; line-height: 1.3; color:#888;">This permission allows creation of users with any role, including Super Admin. This permission should only be given to Super Admin level accounts</span></td>
 </tr>
 <tr>
 <td></td>
@@ -1581,6 +1603,18 @@
 <p>A list role is a collection of permissions assigned per list. Each list can be assigned a view (read) or manage (update) permission. List roles are attached to user accounts. Only the lists defined in a list role is accessible by the user, be it on the admin UI or via API calls. Do note that the <code>lists:get_all</code> and <code>lists:manage_all</code> permissions in user roles override all per-list permissions.</p>
 <h2 id="api-users">API users<a class="headerlink" href="#api-users" title="Permanent link">&para;</a></h2>
 <p>A user account can be of two types, a regular user or an API user. API users are meant for intertacting with the listmonk APIs programmatically. Unlike regular user accounts that have custom passwords or OIDC for authentication, API users get an automatically generated secret token.</p>
+<h2 id="subscriberssql_query"><code>subscribers:sql_query</code><a class="headerlink" href="#subscriberssql_query" title="Permanent link">&para;</a></h2>
+<p>This permission allowers users to write and execute arbitrary SQL queries on the database. Although it is executed as a read-only transaction disallowing changing of data in the database tables, it allows querying of all lists, subscribers and other data directly from the database superceding individual list and subscriber permissions.</p>
+<p>Raw SQL expressions also make it possible to obtain Postgres database configuration and potentially interact with other Postgres system features. Give this permission ONLY to trusted users.</p>
+<p>If this permission is being assigned to many users, it is highly recommended that you create a custom Postgres role disallowing any privileged operations. For example:</p>
+<div class="highlight"><pre><span></span><code><span class="k">CREATE</span><span class="w"> </span><span class="k">ROLE</span><span class="w"> </span><span class="n">listmonk_app</span><span class="w"> </span><span class="k">WITH</span>
+<span class="w">    </span><span class="n">LOGIN</span>
+<span class="w">    </span><span class="n">PASSWORD</span><span class="w"> </span><span class="s1">&#39;...&#39;</span>
+<span class="w">    </span><span class="n">NOSUPERUSER</span>
+<span class="w">    </span><span class="k">NOCREATEDB</span>
+<span class="w">    </span><span class="n">NOCREATEROLE</span>
+<span class="w">    </span><span class="n">NOREPLICATION</span><span class="p">;</span>
+</code></pre></div>
 
 
 
