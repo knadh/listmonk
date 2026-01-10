@@ -95,6 +95,11 @@
               <div v-for="p in props.row.permissions" :key="p">
                 <b-checkbox v-model="form.permissions" :native-value="p" :disabled="disabled">
                   {{ p }}
+                  <a v-if="p === 'subscribers:sql_query'"
+                    href="https://listmonk.app/docs/roles-and-permissions/#subscriberssql_query" target="_blank"
+                    rel="noopener noreferrer" aria-label="Warning: high risk permission">
+                    <b-icon icon="warning-empty" type="is-danger" size="is-small" />
+                  </a>
                 </b-checkbox>
               </div>
             </b-table-column>
