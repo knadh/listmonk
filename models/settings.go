@@ -35,8 +35,8 @@ type Settings struct {
 	PrivacyAllowExport        bool     `json:"privacy.allow_export"`
 	PrivacyAllowWipe          bool     `json:"privacy.allow_wipe"`
 	PrivacyExportable         []string `json:"privacy.exportable"`
-	PrivacyRecordOptinIP        bool     `json:"privacy.record_optin_ip"`
-	PrivacyDefaultLinkTracking  bool     `json:"privacy.default_link_tracking"`
+	PrivacyRecordOptinIP      bool     `json:"privacy.record_optin_ip"`
+	PrivacyDefaultLinkTracking bool    `json:"privacy.default_link_tracking"`
 	DomainBlocklist           []string `json:"privacy.domain_blocklist"`
 	DomainAllowlist           []string `json:"privacy.domain_allowlist"`
 
