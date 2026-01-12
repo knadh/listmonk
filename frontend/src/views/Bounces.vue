@@ -16,6 +16,7 @@
       @sort="onSort">
       <template #top-left>
         <div class="actions">
+          <reload-button :loading="loading.bounces" @reload="getBounces" />
           <template v-if="bulk.checked.length > 0">
             <a class="a" href="#" @click.prevent="$utils.confirm(null, () => deleteBounces())" data-cy="btn-delete">
               <b-icon icon="trash-can-outline" size="is-small" /> {{ $t('globals.buttons.delete') }}
@@ -99,10 +100,12 @@
 import Vue from 'vue';
 import { mapState } from 'vuex';
 import EmptyPlaceholder from '../components/EmptyPlaceholder.vue';
+import ReloadButton from '../components/ReloadButton.vue';
 
 export default Vue.extend({
   components: {
     EmptyPlaceholder,
+    ReloadButton,
   },
 
   data() {

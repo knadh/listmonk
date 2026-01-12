@@ -163,6 +163,7 @@
     "globals.buttons.save": "Speichern",
     "globals.buttons.saveChanges": "Änderungen speichern",
     "globals.buttons.toggleSelect": "Auswahl umschalten",
+    "globals.buttons.reload": "Reload",
     "globals.buttons.view": "Anzeigen",
     "globals.days.0": "So",
     "globals.days.1": "So",

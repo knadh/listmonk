@@ -4,6 +4,7 @@
       <div class="column is-two-thirds">
         <h1 class="title is-5">
           {{ $utils.niceDate(new Date()) }}
+          <reload-button :loading="isCountsLoading || isChartsLoading" @reload="reloadDashboard" />
         </h1>
       </div>
     </header>
@@ -154,10 +155,12 @@ import Vue from 'vue';
 import { mapState } from 'vuex';
 import { colors } from '../constants';
 import Chart from '../components/Chart.vue';
+import ReloadButton from '../components/ReloadButton.vue';
 
 export default Vue.extend({
   components: {
     Chart,
+    ReloadButton,
   },
 
   data() {
@@ -176,6 +179,22 @@ export default Vue.extend({
   },
 
   methods: {
+    reloadDashboard() {
+      this.isCountsLoading = true;
+      this.isChartsLoading = true;
+
+      this.$api.getDashboardCounts().then((data) => {
+        this.counts = data;
+        this.isCountsLoading = false;
+      });
+
+      this.$api.getDashboardCharts().then((data) => {
+        this.isChartsLoading = false;
+        this.campaignViews = this.makeChart(data.campaignViews);
+        this.campaignClicks = this.makeChart(data.linkClicks);
+      });
+    },
+
     makeChart(data) {
       if (data.length === 0) {
         return {};

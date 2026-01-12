@@ -163,6 +163,7 @@
     "globals.buttons.save": "Shrani",
     "globals.buttons.saveChanges": "Shrani spremembe",
     "globals.buttons.toggleSelect": "Preklopi izbiro",
+    "globals.buttons.reload": "Reload",
     "globals.buttons.view": "Pogled",
     "globals.days.0": "ned",
     "globals.days.1": "ned",

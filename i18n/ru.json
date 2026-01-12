@@ -163,6 +163,7 @@
     "globals.buttons.save": "Сохранить",
     "globals.buttons.saveChanges": "Сохранить изменения",
     "globals.buttons.toggleSelect": "Переключить выбор",
+    "globals.buttons.reload": "Reload",
     "globals.buttons.view": "Просмотреть",
     "globals.days.0": "Вс",
     "globals.days.1": "Вс",

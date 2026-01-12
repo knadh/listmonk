@@ -43,6 +43,9 @@
             </form>
           </div>
         </div>
+        <div class="actions">
+          <reload-button :loading="loading.listsFull" @reload="getLists" />
+        </div>
         <div class="actions" v-if="bulk.checked.length > 0">
           <a class="a" href="#" @click.prevent="deleteLists" data-cy="btn-delete-lists">
             <b-icon icon="trash-can-outline" size="is-small" /> Delete
@@ -188,12 +191,14 @@
 import Vue from 'vue';
 import { mapState } from 'vuex';
 import EmptyPlaceholder from '../components/EmptyPlaceholder.vue';
+import ReloadButton from '../components/ReloadButton.vue';
 import ListForm from './ListForm.vue';
 
 export default Vue.extend({
   components: {
     ListForm,
     EmptyPlaceholder,
+    ReloadButton,
   },
 
   data() {

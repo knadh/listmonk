@@ -21,6 +21,9 @@
               </b-field>
             </div>
           </form>
+          <div class="actions">
+            <reload-button :loading="loading.media" @reload="getMedia" />
+          </div>
         </div>
         <div v-if="$can('media:manage')" class="column is-narrow">
           <b-button @click="onToggleForm" icon-left="file-upload-outline" data-cy="btn-toggle-upload">
@@ -112,10 +115,12 @@
 import Vue from 'vue';
 import { mapState } from 'vuex';
 import EmptyPlaceholder from '../components/EmptyPlaceholder.vue';
+import ReloadButton from '../components/ReloadButton.vue';
 
 export default Vue.extend({
   components: {
     EmptyPlaceholder,
+    ReloadButton,
   },
 
   name: 'Media',

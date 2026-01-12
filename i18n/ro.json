@@ -163,6 +163,7 @@
     "globals.buttons.save": "Salvează",
     "globals.buttons.saveChanges": "Salvează modificările",
     "globals.buttons.toggleSelect": "Comută selecția",
+    "globals.buttons.reload": "Reload",
     "globals.buttons.view": "Vezi",
     "globals.days.0": "Dum",
     "globals.days.1": "Dum",

@@ -163,6 +163,7 @@
     "globals.buttons.save": "Lưu",
     "globals.buttons.saveChanges": "Lưu thay dổi",
     "globals.buttons.toggleSelect": "Chuyển đổi lựa chọn",
+    "globals.buttons.reload": "Reload",
     "globals.buttons.view": "Xem",
     "globals.days.0": "Chủ Nhật",
     "globals.days.1": "Thứ Hai",

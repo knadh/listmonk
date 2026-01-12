@@ -163,6 +163,7 @@
     "globals.buttons.save": "Opslaan",
     "globals.buttons.saveChanges": "Wijzigingen opslaan",
     "globals.buttons.toggleSelect": "Selectie omkeren",
+    "globals.buttons.reload": "Reload",
     "globals.buttons.view": "Bekijken",
     "globals.days.0": "Zo",
     "globals.days.1": "Zo",
