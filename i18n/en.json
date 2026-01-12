@@ -532,6 +532,8 @@
     "settings.privacy.name": "Privacy",
     "settings.privacy.recordOptinIP": "Record opt-in IP address",
     "settings.privacy.recordOptinIPHelp": "Record IP address of double opt-ins in subscriber attributes.",
+    "settings.privacy.defaultLinkTracking": "Enable link tracking by default",
+    "settings.privacy.defaultLinkTrackingHelp": "Enable link tracking by default when inserting links in the rich text editor. When disabled, tracking must be manually enabled per link.",
     "settings.restart": "Restart",
     "settings.security.OIDCClientID": "Client ID",
     "settings.security.OIDCClientSecret": "Client secret",

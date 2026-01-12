@@ -264,8 +264,8 @@ export default {
 
         // If an existing link is being edited, check for the tracking flag `@TrackLink` at the end
         // of the url. Remove that from the URL and instead check the checkbox.
-        // Default to true for new links (better UX - tracking enabled by default).
-        let checked = true;
+        // Use privacy setting for default on new links.
+        let checked = self.serverConfig.default_link_tracking;
 
         // Check if this is an existing link being edited
         if (t.initialData.url && t.initialData.url.value && t.initialData.url.value !== '') {
