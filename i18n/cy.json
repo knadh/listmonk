@@ -479,6 +479,8 @@
     "settings.media.s3.secret": "Cyfrinach mynediad AWS",
     "settings.media.s3.uploadExpiry": "Dyddiad dod i ben ar gyfer llwytho i fyny",
     "settings.media.s3.uploadExpiryHelp": "(Dewisol) Nodwch y TTL ar gyfer yr URL a lofnodwyd ymlaen llaw. Dim ond yn berthnasol ar gyfer bwcedi preifat (e",
+    "settings.media.s3.uploadURI": "Upload URI",
+    "settings.media.s3.uploadURIHelp": "Upload URI that is visible to the outside world. The media uploaded to S3 bucket will be publicly accessible under {root_url}, for instance, https://listmonk.yoursite.com/uploads.",
     "settings.media.s3.url": "URL cefn ôl S3",
     "settings.media.s3.urlHelp": "Dim ond ei newid os ydych yn defnyddio URL cefn ôl personol sy'n gydnaws â S3 fel Minio.",
     "settings.media.title": "Cyfryngau sydd wedi'u llwytho i fyny",

@@ -479,6 +479,8 @@
     "settings.media.s3.secret": "AWS 액세스 시크릿",
     "settings.media.s3.uploadExpiry": "업로드 만료 시간",
     "settings.media.s3.uploadExpiryHelp": "(선택) 생성된 presigned URL의 만료 시간을 지정합니다. 비공개 버킷에만 적용됩니다 (초: s, 분: m, 시간: h, 일: d).",
+    "settings.media.s3.uploadURI": "Upload URI",
+    "settings.media.s3.uploadURIHelp": "Upload URI that is visible to the outside world. The media uploaded to S3 bucket will be publicly accessible under {root_url}, for instance, https://listmonk.yoursite.com/uploads.",
     "settings.media.s3.url": "S3 백엔드 URL",
     "settings.media.s3.urlHelp": "Minio 등 커스텀 S3 호환 백엔드를 사용할 때만 변경하세요.",
     "settings.media.title": "미디어 업로드",

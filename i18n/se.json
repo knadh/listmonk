@@ -479,6 +479,8 @@
     "settings.media.s3.secret": "AWS-åtkomsthemlighet",
     "settings.media.s3.uploadExpiry": "Uppladdning löper ut",
     "settings.media.s3.uploadExpiryHelp": "(Optional) Specify TTL for the generated presigned URL. Only applicable for private buckets (s, m, h, d for seconds, minutes, hours, days).",
+    "settings.media.s3.uploadURI": "Upload URI",
+    "settings.media.s3.uploadURIHelp": "Upload URI that is visible to the outside world. The media uploaded to S3 bucket will be publicly accessible under {root_url}, for instance, https://listmonk.yoursite.com/uploads.",
     "settings.media.s3.url": "S3 backend-URL",
     "settings.media.s3.urlHelp": "Ändra bara om en anpassad S3-kompatibel backend används, t.ex. Minio.",
     "settings.media.title": "Medieuppladdningar",

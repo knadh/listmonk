@@ -479,6 +479,8 @@
     "settings.media.s3.secret": "Secreto de acceso a S3 (secret access key)",
     "settings.media.s3.uploadExpiry": "Expiración de la carga",
     "settings.media.s3.uploadExpiryHelp": "(Opcional) TTL específico para la URL pre firmada generada. Solo es aplicable para buckets/contenedores privados (s, m, h, d para segundos, minutos, horas, días)",
+    "settings.media.s3.uploadURI": "Upload URI",
+    "settings.media.s3.uploadURIHelp": "Upload URI that is visible to the outside world. The media uploaded to S3 bucket will be publicly accessible under {root_url}, for instance, https://listmonk.yoursite.com/uploads.",
     "settings.media.s3.url": "URL de API de S3",
     "settings.media.s3.urlHelp": "Cambiar únicamente si se utiliza un servicio S3 personalizado (por ejemplo MinIO).",
     "settings.media.title": "Cargas multimedia",

@@ -479,6 +479,8 @@
     "settings.media.s3.secret": "AWS tilgangshemmelighet",
     "settings.media.s3.uploadExpiry": "Opplastingsutløp",
     "settings.media.s3.uploadExpiryHelp": "(Valgfritt) Angi utløp for den genererte forhåndssignerte URL-en. Gjelder kun for private buckets (s, m, h, d for sekunder, minutter, timer, dager).",
+    "settings.media.s3.uploadURI": "Upload URI",
+    "settings.media.s3.uploadURIHelp": "Upload URI that is visible to the outside world. The media uploaded to S3 bucket will be publicly accessible under {root_url}, for instance, https://listmonk.yoursite.com/uploads.",
     "settings.media.s3.url": "S3-backend URL",
     "settings.media.s3.urlHelp": "Endre kun hvis du bruker en egendefinert S3-kompatibel backend som Minio.",
     "settings.media.title": "Medieopplastinger",
