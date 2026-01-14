@@ -93,7 +93,7 @@ In the Google Cloud Console interface, create a new Project.
 
 After creating the project, goto **Clients**.
 
-### 2. Create an client in Authentik
+### 2. Create an client in project.
 Create a new client and configure it.
 
 - **Application Settings**:
