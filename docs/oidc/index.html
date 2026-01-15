@@ -894,6 +894,56 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#google-workspace" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Google Workspace
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Google Workspace">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-create-a-new-oidc-provider-in-google-cloud-console-google-workspace" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Create a new OIDC provider in Google Cloud Console / Google Workspace
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-create-an-client-in-project" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Create an client in project.
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-configure-listmonk_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Configure listmonk
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1611,6 +1661,56 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#google-workspace" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Google Workspace
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Google Workspace">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-create-a-new-oidc-provider-in-google-cloud-console-google-workspace" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Create a new OIDC provider in Google Cloud Console / Google Workspace
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-create-an-client-in-project" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Create an client in project.
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-configure-listmonk_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Configure listmonk
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1714,6 +1814,45 @@
 <li><strong>Provider Name</strong>: Set a name to show on the login form (e.g., <code>Login with OrgName</code>)</li>
 <li><strong>Client ID</strong>: Client ID set in Authentik (e.g., <code>listmonk</code>)</li>
 <li><strong>Client Secret</strong>: Client Secret copied from Authentik</li>
+<li><strong>Auto-create users from SSO</strong>: (Optional) Enable to automatically create users who don't exist</li>
+<li><strong>Default user role</strong>: (Required if auto-create enabled) Select role for new users</li>
+</ul>
+<h2 id="google-workspace">Google Workspace<a class="headerlink" href="#google-workspace" title="Permanent link">&para;</a></h2>
+<p>Google Workspace (Google Cloud) configuration for listmonk SSO integration.</p>
+<h3 id="1-create-a-new-oidc-provider-in-google-cloud-console-google-workspace">1. Create a new OIDC provider in Google Cloud Console / Google Workspace<a class="headerlink" href="#1-create-a-new-oidc-provider-in-google-cloud-console-google-workspace" title="Permanent link">&para;</a></h3>
+<p>In the Google Cloud Console interface, create a new Project.</p>
+<ul>
+<li><strong>Project Settings</strong>:  <ul>
+<li><strong>Project name</strong>: <code>Listmonk</code> (or any preferred name)</li>
+</ul>
+</li>
+<li><strong>Branding Settings</strong>:<ul>
+<li><strong>App name</strong>: <code>Listmonk</code> (or any preferred name, this will be visible to the users.)</li>
+<li><strong>Authorised domains</strong>: <code>listmonk.example.com</code> (or domains that your instance is available on.)</li>
+</ul>
+</li>
+</ul>
+<p>After creating the project, goto <strong>Clients</strong>.</p>
+<h3 id="2-create-an-client-in-project">2. Create an client in project.<a class="headerlink" href="#2-create-an-client-in-project" title="Permanent link">&para;</a></h3>
+<p>Create a new client and configure it.</p>
+<ul>
+<li><strong>Application Settings</strong>:<ul>
+<li><strong>Application type</strong>: <code>Web application</code></li>
+<li><strong>Name</strong>: <code>listmonk</code> (or any preferred name)</li>
+<li><strong>Authorised JavaScript origins</strong>: <code>https://listmonk.example.com</code> (or domains that your instance is available on.)</li>
+<li><strong>Authorised redirect URIs</strong>: <code>https://listmonk.example.com/auth/oidc</code> (or domains that your instance is available on, value is also available in the Settings mentioned above. (Redirect URL for oAuth provider))</li>
+</ul>
+</li>
+</ul>
+<p>Hit save and note the Client ID and Client Secret</p>
+<h3 id="3-configure-listmonk_1">3. Configure listmonk<a class="headerlink" href="#3-configure-listmonk_1" title="Permanent link">&para;</a></h3>
+<p>In listmonk Admin → Settings → Security → OIDC:</p>
+<ul>
+<li><strong>Enable OIDC SSO</strong>: Turn on</li>
+<li><strong>Provider URL</strong>: <code>https://accounts.google.com</code> (select Google to Auto-Fill)</li>
+<li><strong>Provider Name</strong>: Set a name to show on the login form (e.g., <code>Login with OrgName</code>)</li>
+<li><strong>Client ID</strong>: Client ID copied from Console (e.g., <code>XXXX.apps.googleusercontent.com</code>)</li>
+<li><strong>Client Secret</strong>: Client Secret copied from Console</li>
 <li><strong>Auto-create users from SSO</strong>: (Optional) Enable to automatically create users who don't exist</li>
 <li><strong>Default user role</strong>: (Required if auto-create enabled) Select role for new users</li>
 </ul>
