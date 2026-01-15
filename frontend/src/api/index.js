@@ -387,9 +387,9 @@ export const createTemplate = async (data) => http.post(
   { loading: models.templates },
 );
 
-export const getTemplates = async () => http.get(
+export const getTemplates = async (params) => http.get(
   '/api/templates',
-  { loading: models.templates, store: models.templates },
+  { params, loading: models.templates, store: models.templates },
 );
 
 export const getTemplate = async (id) => http.get(

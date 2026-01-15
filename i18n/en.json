@@ -627,6 +627,7 @@
     "templates.newTemplate": "New template",
     "templates.placeholderHelp": "The placeholder {placeholder} should appear exactly once in the template.",
     "templates.preview": "Preview",
+    "templates.queryPlaceholder": "Name",
     "templates.rawHTML": "Raw HTML",
     "templates.subject": "Subject",
     "templates.typeCampaignHTML": "Campaign / HTML",
