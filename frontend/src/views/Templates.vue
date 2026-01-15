@@ -16,10 +16,6 @@
       </div>
     </header>
 
-    <div class="actions">
-      <reload-button :loading="loading.templates" @reload="$api.getTemplates()" />
-    </div>
-
     <b-table :data="templates" :hoverable="true" :loading="loading.templates" default-sort="createdAt">
       <b-table-column v-slot="props" field="name" :label="$t('globals.fields.name')" :td-attrs="$utils.tdID" sortable>
         <a href="#" @click.prevent="showEditForm(props.row)">
@@ -124,7 +120,7 @@ import Vue from 'vue';
 import { mapState } from 'vuex';
 import CampaignPreview from '../components/CampaignPreview.vue';
 import EmptyPlaceholder from '../components/EmptyPlaceholder.vue';
-import ReloadButton from '../components/ReloadButton.vue';
+
 import TemplateForm from './TemplateForm.vue';
 
 export default Vue.extend({
@@ -132,7 +128,6 @@ export default Vue.extend({
     CampaignPreview,
     TemplateForm,
     EmptyPlaceholder,
-    ReloadButton,
   },
 
   data() {
@@ -145,6 +140,10 @@ export default Vue.extend({
   },
 
   methods: {
+    fetchTemplates() {
+      this.$api.getTemplates();
+    },
+
     // Show the edit form.
     showEditForm(data) {
       this.curItem = data;
@@ -203,6 +202,14 @@ export default Vue.extend({
 
   computed: {
     ...mapState(['templates', 'loading']),
+  },
+
+  created() {
+    this.$root.$on('page.refresh', this.fetchTemplates);
+  },
+
+  destroyed() {
+    this.$root.$off('page.refresh', this.fetchTemplates);
   },
 
   mounted() {

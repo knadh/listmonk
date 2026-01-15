@@ -37,9 +37,7 @@
             </form>
           </div>
         </div>
-        <div class="actions">
-          <reload-button :loading="loading.campaigns" @reload="getCampaigns" />
-        </div>
+
         <div class="actions" v-if="bulk.checked.length > 0">
           <a class="a" href="#" @click.prevent="deleteCampaigns" data-cy="btn-delete-campaigns">
             <b-icon icon="trash-can-outline" size="is-small" /> Delete
@@ -284,14 +282,12 @@ import { mapState } from 'vuex';
 import CampaignPreview from '../components/CampaignPreview.vue';
 import CopyText from '../components/CopyText.vue';
 import EmptyPlaceholder from '../components/EmptyPlaceholder.vue';
-import ReloadButton from '../components/ReloadButton.vue';
 
 export default Vue.extend({
   components: {
     CampaignPreview,
     EmptyPlaceholder,
     CopyText,
-    ReloadButton,
   },
 
   data() {
@@ -536,12 +532,17 @@ export default Vue.extend({
     },
   },
 
+  created() {
+    this.$root.$on('page.refresh', this.getCampaigns);
+  },
+
   mounted() {
     this.getCampaigns();
     this.pollStats();
   },
 
   destroyed() {
+    this.$root.$off('page.refresh', this.getCampaigns);
     clearInterval(this.pollID);
   },
 });

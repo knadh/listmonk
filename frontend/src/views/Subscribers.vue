@@ -78,7 +78,6 @@
       :total="subscribers.total" hoverable checkable backend-sorting @sort="onSort">
       <template #top-left>
         <div class="actions">
-          <reload-button :loading="loading.subscribers" @reload="querySubscribers" />
           <a class="a" href="#" @click.prevent="exportSubscribers" data-cy="btn-export-subscribers">
             <b-icon icon="cloud-download-outline" size="is-small" />
             {{ $t('subscribers.export') }}
@@ -196,7 +195,6 @@
 import Vue from 'vue';
 import { mapState } from 'vuex';
 import EmptyPlaceholder from '../components/EmptyPlaceholder.vue';
-import ReloadButton from '../components/ReloadButton.vue';
 import { uris } from '../constants';
 import SubscriberBulkList from './SubscriberBulkList.vue';
 import SubscriberForm from './SubscriberForm.vue';
@@ -208,7 +206,6 @@ export default Vue.extend({
     SubscriberBulkList,
     CopyText,
     EmptyPlaceholder,
-    ReloadButton,
   },
 
   data() {
@@ -526,6 +523,14 @@ export default Vue.extend({
 
       return this.lists.results.find((l) => l.id === this.queryParams.listID);
     },
+  },
+
+  created() {
+    this.$root.$on('page.refresh', this.querySubscribers);
+  },
+
+  destroyed() {
+    this.$root.$off('page.refresh', this.querySubscribers);
   },
 
   mounted() {

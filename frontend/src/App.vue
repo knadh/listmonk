@@ -13,6 +13,13 @@
         <navigation v-if="isMobile" :is-mobile="isMobile" :active-item="activeItem" :active-group="activeGroup"
           @toggleGroup="toggleGroup" @doLogout="doLogout" />
 
+        <b-navbar-item tag="a" href="#" @click.prevent="emitPageRefresh" data-cy="btn-reload"
+          :aria-label="$t('globals.buttons.reload')" class="refresh-btn">
+          <b-tooltip :label="$t('globals.buttons.reload')" type="is-dark" position="is-bottom">
+            <b-icon icon="refresh" :class="{ 'spin': isPageLoading }" />
+          </b-tooltip>
+        </b-navbar-item>
+
         <b-navbar-dropdown class="user" tag="div" right>
           <template v-if="profile.username" #label>
             <span class="user-avatar">
@@ -144,6 +151,10 @@ export default Vue.extend({
       this.activeGroup = state ? { [group]: true } : {};
     },
 
+    emitPageRefresh() {
+      this.$root.$emit('page.refresh');
+    },
+
     reloadApp() {
       this.$api.reloadApp().then(() => {
         this.$utils.toast('Reloading app ...');
@@ -185,7 +196,12 @@ export default Vue.extend({
   },
 
   computed: {
-    ...mapState(['serverConfig', 'profile']),
+    ...mapState(['serverConfig', 'profile', 'loading']),
+
+    isPageLoading() {
+      // Check if any model is currently loading
+      return Object.values(this.loading).some((v) => v === true);
+    },
 
     isGlobalNotices() {
       return (this.serverConfig.needs_restart

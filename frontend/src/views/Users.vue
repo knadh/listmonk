@@ -34,9 +34,6 @@
             </form>
           </div>
         </div>
-        <div class="actions">
-          <reload-button :loading="loading.users" @reload="getUsers" />
-        </div>
       </template>
 
       <b-table-column v-slot="props" field="username" :label="$t('users.username')" header-class="cy-username" sortable
@@ -135,13 +132,12 @@
 import Vue from 'vue';
 import { mapState } from 'vuex';
 import EmptyPlaceholder from '../components/EmptyPlaceholder.vue';
-import ReloadButton from '../components/ReloadButton.vue';
+
 import UserForm from './UserForm.vue';
 
 export default Vue.extend({
   components: {
     EmptyPlaceholder,
-    ReloadButton,
     UserForm,
   },
 
@@ -225,6 +221,14 @@ export default Vue.extend({
 
   computed: {
     ...mapState(['loading', 'settings']),
+  },
+
+  created() {
+    this.$root.$on('page.refresh', this.getUsers);
+  },
+
+  destroyed() {
+    this.$root.$off('page.refresh', this.getUsers);
   },
 
   mounted() {
