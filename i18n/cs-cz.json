@@ -479,6 +479,8 @@
     "settings.media.s3.secret": "Přístupový tajný údaj AWS",
     "settings.media.s3.uploadExpiry": "Platnost nahrávání",
     "settings.media.s3.uploadExpiryHelp": "(Volitelné) Uveďte TTL pro generovanou předem přihlášenou adresu URL. Vhodné pouze pro soukromé buckety (s, m, h, d pro sekundy, minuty, hodiny, dny).",
+    "settings.media.s3.uploadURI": "Upload URI",
+    "settings.media.s3.uploadURIHelp": "Upload URI that is visible to the outside world. The media uploaded to S3 bucket will be publicly accessible under {root_url}, for instance, https://listmonk.yoursite.com/uploads.",
     "settings.media.s3.url": "Adresa URL pro S3 backend",
     "settings.media.s3.urlHelp": "Lze změnit, pouze pokud se použije S3 kompatibilní backend, jako je Minio.",
     "settings.media.title": "Nahrávání médií",

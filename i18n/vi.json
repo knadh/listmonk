@@ -479,6 +479,8 @@
     "settings.media.s3.secret": "AWS truy cập bí mật",
     "settings.media.s3.uploadExpiry": "Hết hạn tải lên",
     "settings.media.s3.uploadExpiryHelp": "(Tùy chọn) Chỉ định TTL cho URL được chỉ định trước đã tạo. Chỉ áp dụng cho các nhóm riêng (s, m, h, d cho giây, phút, giờ, ngày).",
+    "settings.media.s3.uploadURI": "Upload URI",
+    "settings.media.s3.uploadURIHelp": "Upload URI that is visible to the outside world. The media uploaded to S3 bucket will be publicly accessible under {root_url}, for instance, https://listmonk.yoursite.com/uploads.",
     "settings.media.s3.url": "URL phụ trợ S3",
     "settings.media.s3.urlHelp": "Chỉ thay đổi nếu sử dụng chương trình phụ trợ tương thích S3 tùy chỉnh như Minio.",
     "settings.media.title": "Tải lên phương tiện",

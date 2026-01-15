@@ -479,6 +479,8 @@
     "settings.media.s3.secret": "AWS 訪問密鑰",
     "settings.media.s3.uploadExpiry": "上傳已過期",
     "settings.media.s3.uploadExpiryHelp": "（選擇性）為預先指定的簽名 URL 指定過期時間。僅適用於不公開的 buckets（s、m、h、d 表示秒、分鐘、小時、天）。",
+    "settings.media.s3.uploadURI": "Upload URI",
+    "settings.media.s3.uploadURIHelp": "Upload URI that is visible to the outside world. The media uploaded to S3 bucket will be publicly accessible under {root_url}, for instance, https://listmonk.yoursite.com/uploads.",
     "settings.media.s3.url": "S3後端網址",
     "settings.media.s3.urlHelp": "當使用自訂的 S3 與後端相容時 (如：Minio) 才進行變更。",
     "settings.media.title": "媒體上傳",

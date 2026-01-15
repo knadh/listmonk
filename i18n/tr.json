@@ -479,6 +479,8 @@
     "settings.media.s3.secret": "AWS erişim parolası(secret)",
     "settings.media.s3.uploadExpiry": "Yükleme sona erme",
     "settings.media.s3.uploadExpiryHelp": "(İsteğe bağlı) Oluşturulan önceden imzalanmış URL için TTL'yi belirtin. Yalnızca özel paketler için geçerlidir (saniye, dakika, saat, gün için s, m, h, d).",
+    "settings.media.s3.uploadURI": "Upload URI",
+    "settings.media.s3.uploadURIHelp": "Upload URI that is visible to the outside world. The media uploaded to S3 bucket will be publicly accessible under {root_url}, for instance, https://listmonk.yoursite.com/uploads.",
     "settings.media.s3.url": "S3 arka uç URL'si",
     "settings.media.s3.urlHelp": "Yalnızca Minio gibi özel bir S3 uyumlu arka uç kullanıyorsanız değiştirin.",
     "settings.media.title": "Medya yüklemeleri",

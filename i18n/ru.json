@@ -479,6 +479,8 @@
     "settings.media.s3.secret": "Секретный ключ доступа AWS",
     "settings.media.s3.uploadExpiry": "Срок действия загрузки",
     "settings.media.s3.uploadExpiryHelp": "(Необязательно) Укажите срок действия для сгенерированного предварительно подписанного URL. Применимо только для приватных бакетов (s, m, h, d для секунд, минут, часов, дней).",
+    "settings.media.s3.uploadURI": "Upload URI",
+    "settings.media.s3.uploadURIHelp": "Upload URI that is visible to the outside world. The media uploaded to S3 bucket will be publicly accessible under {root_url}, for instance, https://listmonk.yoursite.com/uploads.",
     "settings.media.s3.url": "URL бэкенда S3",
     "settings.media.s3.urlHelp": "Изменяйте только при использовании пользовательского бэкенда, совместимого с S3, например, Minio.",
     "settings.media.title": "Загрузки медиа",

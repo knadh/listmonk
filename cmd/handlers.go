@@ -412,3 +412,18 @@ func noIndex(next echo.HandlerFunc) echo.HandlerFunc {
 func getID(c echo.Context) int {
 	return c.Get("id").(int)
 }
+
+func (a *App) proxyS3Get(c echo.Context) error {
+	key := c.Param("*")
+	if key == "" {
+		return echo.NewHTTPError(http.StatusBadRequest, "missing media key")
+	}
+
+	b, err := a.media.GetBlob(key)
+	if err != nil {
+		a.log.Printf("error fetching media %q: %v", key, err)
+		return echo.NewHTTPError(http.StatusInternalServerError, "error fetching media")
+	}
+
+	return c.Stream(http.StatusOK, http.DetectContentType(b), bytes.NewReader(b))
+}

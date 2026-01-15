@@ -479,6 +479,8 @@
     "settings.media.s3.secret": "Segredo de acesso AWS",
     "settings.media.s3.uploadExpiry": "Expiração do arquivo enviado",
     "settings.media.s3.uploadExpiryHelp": "(Opcional) Especificar TTL para a URL pré-assinada gerada. Apenas aplicável para buckets privados (s, m, h, d para segundos, minutos, horas e dias).",
+    "settings.media.s3.uploadURI": "Upload URI",
+    "settings.media.s3.uploadURIHelp": "Upload URI that is visible to the outside world. The media uploaded to S3 bucket will be publicly accessible under {root_url}, for instance, https://listmonk.yoursite.com/uploads.",
     "settings.media.s3.url": "URL backend do S3",
     "settings.media.s3.urlHelp": "Altere apenas se usar um backnd customizado compatível com S3, como o Minio.",
     "settings.media.title": "Envios de mídias",

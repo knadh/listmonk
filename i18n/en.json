@@ -474,6 +474,8 @@
     "settings.media.s3.uploadExpiryHelp": "(Optional) Specify expiry for the generated presigned URL. Only applicable for private buckets (s, m, h, d for seconds, minutes, hours, days).",
     "settings.media.s3.url": "S3 backend URL",
     "settings.media.s3.urlHelp": "Only change if using a custom S3 compatible backend like Minio.",
+    "settings.media.s3.uploadURI": "Upload URI",
+    "settings.media.s3.uploadURIHelp": "Upload URI that is visible to the outside world. The media uploaded to S3 bucket will be publicly accessible under {root_url}, for instance, https://listmonk.yoursite.com/uploads.",
     "settings.media.title": "Media uploads",
     "settings.media.upload.extensions": "Permitted file extensions",
     "settings.media.upload.extensionsHelp": "Add * to allow all extensions",

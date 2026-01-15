@@ -479,6 +479,8 @@
     "settings.media.s3.secret": "Secret de acces AWS",
     "settings.media.s3.uploadExpiry": "Încărcarea expirării",
     "settings.media.s3.uploadExpiryHelp": "(Opțional) Specifică TTL pentru adresa URL presemnată generată. Se aplică numai pentru bucketurile private (s, m, h, d pentru secunde, minute, ore, zile).",
+    "settings.media.s3.uploadURI": "Upload URI",
+    "settings.media.s3.uploadURIHelp": "Upload URI that is visible to the outside world. The media uploaded to S3 bucket will be publicly accessible under {root_url}, for instance, https://listmonk.yoursite.com/uploads.",
     "settings.media.s3.url": "S3 backend URL-ul",
     "settings.media.s3.urlHelp": "Schimbă numai dacă folosești un backend personalizat compatibil S3, cum ar fi Minio.",
     "settings.media.title": "Încărcări media",

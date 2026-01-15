@@ -479,6 +479,8 @@
     "settings.media.s3.secret": "AWS таен ключ за достъп",
     "settings.media.s3.uploadExpiry": "Изтичане на качването",
     "settings.media.s3.uploadExpiryHelp": "(По избор) Задайте изтичане за генерирания предварително подписан URL. Приложимо само за частни кофи (s, m, h, d за секунди, минути, часове, дни).",
+    "settings.media.s3.uploadURI": "Upload URI",
+    "settings.media.s3.uploadURIHelp": "Upload URI that is visible to the outside world. The media uploaded to S3 bucket will be publicly accessible under {root_url}, for instance, https://listmonk.yoursite.com/uploads.",
     "settings.media.s3.url": "S3 URL на бекенда",
     "settings.media.s3.urlHelp": "Променете само ако използвате персонализиран S3-съвместим бекенд като Minio.",
     "settings.media.title": "Качване на медия",

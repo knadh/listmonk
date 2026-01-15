@@ -479,6 +479,8 @@
     "settings.media.s3.secret": "Mot de passe d'accès AWS",
     "settings.media.s3.uploadExpiry": "Durée de validité",
     "settings.media.s3.uploadExpiryHelp": "(Facultatif) Spécifiez la durée de validité pour l'URL prédéfinie générée. Uniquement applicable pour les compartiments privés (s, m, h, d pour les secondes, minutes, heures, jours).",
+    "settings.media.s3.uploadURI": "Upload URI",
+    "settings.media.s3.uploadURIHelp": "Upload URI that is visible to the outside world. The media uploaded to S3 bucket will be publicly accessible under {root_url}, for instance, https://listmonk.yoursite.com/uploads.",
     "settings.media.s3.url": "URL du 'backend' S3",
     "settings.media.s3.urlHelp": "Ne changez que si vous utilisez un 'backend' personnalisé compatible S3 comme Minio.",
     "settings.media.title": "Mise en ligne de fichiers",
