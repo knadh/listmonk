@@ -525,6 +525,14 @@ export default Vue.extend({
     },
   },
 
+  created() {
+    this.$root.$on('page.refresh', this.querySubscribers);
+  },
+
+  destroyed() {
+    this.$root.$off('page.refresh', this.querySubscribers);
+  },
+
   mounted() {
     if (this.$route.params.listID) {
       this.queryParams.listID = parseInt(this.$route.params.listID, 10);

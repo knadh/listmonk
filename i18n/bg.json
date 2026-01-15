@@ -163,6 +163,7 @@
     "globals.buttons.save": "Запазване",
     "globals.buttons.saveChanges": "Запазване на промените",
     "globals.buttons.toggleSelect": "Превключване на избора",
+    "globals.buttons.reload": "Reload",
     "globals.buttons.view": "Преглед",
     "globals.days.0": "Нед",
     "globals.days.1": "Нед",

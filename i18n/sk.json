@@ -163,6 +163,7 @@
     "globals.buttons.save": "Uložiť",
     "globals.buttons.saveChanges": "Uložiť zmeny",
     "globals.buttons.toggleSelect": "Prepnúť výber",
+    "globals.buttons.reload": "Reload",
     "globals.buttons.view": "Zobraziť",
     "globals.days.0": "Ne",
     "globals.days.1": "Ne",

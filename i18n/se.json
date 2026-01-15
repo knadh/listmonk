@@ -163,6 +163,7 @@
     "globals.buttons.save": "Spara",
     "globals.buttons.saveChanges": "Spara ändringar",
     "globals.buttons.toggleSelect": "Växla markering",
+    "globals.buttons.reload": "Reload",
     "globals.buttons.view": "Visa",
     "globals.days.0": "sön",
     "globals.days.1": "sön",

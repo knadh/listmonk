@@ -1372,3 +1372,33 @@ th.role-toggle-select a {
     width: auto;
   }
 }
+
+/* Reload button spin animation */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.spin {
+  animation: spin 1s linear infinite;
+}
+
+.btn-reload {
+  margin-left: 0.5rem;
+
+  .icon {
+    transition: transform 0.2s ease;
+  }
+
+  &:hover .icon {
+    transform: rotate(30deg);
+  }
+
+  &.is-loading .icon {
+    animation: spin 1s linear infinite;
+  }
+}

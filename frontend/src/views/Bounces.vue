@@ -213,6 +213,14 @@ export default Vue.extend({
     },
   },
 
+  created() {
+    this.$root.$on('page.refresh', this.getBounces);
+  },
+
+  destroyed() {
+    this.$root.$off('page.refresh', this.getBounces);
+  },
+
   mounted() {
     if (this.$route.query.campaign_id) {
       this.queryParams.campaign_id = parseInt(this.$route.query.campaign_id, 10);

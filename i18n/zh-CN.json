@@ -163,6 +163,7 @@
     "globals.buttons.save": "保存",
     "globals.buttons.saveChanges": "保存更改",
     "globals.buttons.toggleSelect": "切换选择",
+    "globals.buttons.reload": "Reload",
     "globals.buttons.view": "查看",
     "globals.days.0": "星期日",
     "globals.days.1": "星期日",
