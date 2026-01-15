@@ -78,3 +78,39 @@ In listmonk Admin → Settings → Security → OIDC:
 - **Client Secret**: Client Secret copied from Authentik
 - **Auto-create users from SSO**: (Optional) Enable to automatically create users who don't exist
 - **Default user role**: (Required if auto-create enabled) Select role for new users
+
+## Google Workspace  
+Google Workspace (Google Cloud) configuration for listmonk SSO integration.
+
+### 1. Create a new OIDC provider in Google Cloud Console / Google Workspace
+In the Google Cloud Console interface, create a new Project.
+
+- **Project Settings**:  
+    - **Project name**: `Listmonk` (or any preferred name)
+- **Branding Settings**:
+    - **App name**: `Listmonk` (or any preferred name, this will be visible to the users.)
+    - **Authorised domains**: `listmonk.example.com` (or domains that your instance is available on.)
+
+After creating the project, goto **Clients**.
+
+### 2. Create an client in project.
+Create a new client and configure it.
+
+- **Application Settings**:
+    - **Application type**: `Web application`
+    - **Name**: `listmonk` (or any preferred name)
+    - **Authorised JavaScript origins**: `https://listmonk.example.com` (or domains that your instance is available on.)
+    - **Authorised redirect URIs**: `https://listmonk.example.com/auth/oidc` (or domains that your instance is available on, value is also available in the Settings mentioned above. (Redirect URL for oAuth provider))
+
+Hit save and note the Client ID and Client Secret
+
+### 3. Configure listmonk
+In listmonk Admin → Settings → Security → OIDC:
+
+- **Enable OIDC SSO**: Turn on
+- **Provider URL**: `https://accounts.google.com` (select Google to Auto-Fill)
+- **Provider Name**: Set a name to show on the login form (e.g., `Login with OrgName`)
+- **Client ID**: Client ID copied from Console (e.g., `XXXX.apps.googleusercontent.com`)
+- **Client Secret**: Client Secret copied from Console
+- **Auto-create users from SSO**: (Optional) Enable to automatically create users who don't exist
+- **Default user role**: (Required if auto-create enabled) Select role for new users
