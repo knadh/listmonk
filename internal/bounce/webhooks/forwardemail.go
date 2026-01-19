@@ -31,7 +31,7 @@ type forwardemailNotif struct {
 	Message         string            `json:"message"`
 	Response        string            `json:"response"`
 	ResponseCode    int               `json:"response_code"`
-	TruthSource     bool              `json:"truth_source"`
+	TruthSource     string            `json:"truth_source"`
 	Headers         map[string]string `json:"headers"`
 	Bounce          BounceDetails     `json:"bounce"`
 	BouncedAt       time.Time         `json:"bounced_at"`
