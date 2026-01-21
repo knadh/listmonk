@@ -89,7 +89,7 @@ build-email-builder: $(FRONTEND_EMAIL_BUILDER_DIST_FINAL)
 
 # Run the JS frontend server in dev mode.
 .PHONY: run-frontend
-run-frontend: $(FRONTEND_EMAIL_BUILDER_DIST_FINAL)
+run-frontend: $(FRONTEND_YARN_MODULES) $(FRONTEND_EMAIL_BUILDER_DIST_FINAL)
 	export VUE_APP_VERSION="${VERSION}" && cd frontend && $(YARN) dev
 
 # Run Go tests.
@@ -133,6 +133,7 @@ dev-docker: build-dev-docker ## Build and spawns docker containers for the entir
 # Run the backend in docker-dev mode. The frontend assets in dev mode are loaded from disk from frontend/dist.
 .PHONY: run-backend-docker
 run-backend-docker:
+	mkdir -p frontend/dist
 	CGO_ENABLED=0 go run -ldflags="-s -w -X 'main.buildString=${BUILDSTR}' -X 'main.versionString=${VERSION}' -X 'main.frontendDir=frontend/dist'" cmd/*.go --config=dev/config.toml
 
 # Tear down the complete local development docker suite.
