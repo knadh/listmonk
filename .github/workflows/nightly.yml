@@ -1,0 +1,140 @@
+name: nightly
+on:
+  schedule:
+    - cron: "0 2 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    outputs:
+      skip: ${{ steps.check_changes.outputs.skip }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Check for changes since last nightly release
+        id: check_changes
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          LAST_NIGHTLY_SHA=$(gh release view nightly --json targetCommitish -q '.targetCommitish' 2>/dev/null || echo "")
+          CURRENT_SHA=$(git rev-parse HEAD)
+          echo "Last nightly SHA: $LAST_NIGHTLY_SHA"
+          echo "Current SHA: $CURRENT_SHA"
+          if [ -n "$LAST_NIGHTLY_SHA" ] && [ "$LAST_NIGHTLY_SHA" = "$CURRENT_SHA" ]; then
+            echo "No changes since last nightly build, skipping ..."
+            echo "skip=true" >> $GITHUB_OUTPUT
+          else
+            echo "Changes detected, proceeding with build ..."
+            echo "skip=false" >> $GITHUB_OUTPUT
+          fi
+
+  nightly:
+    needs: check
+    if: needs.check.outputs.skip != 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.25.6"
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Delete existing nightly release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release delete nightly --yes --cleanup-tag 2>/dev/null || true
+
+      - name: Set nightly date
+        id: tag
+        run: |
+          NIGHTLY_DATE=$(date -u +%Y-%m-%d)
+          echo "date=$NIGHTLY_DATE" >> $GITHUB_OUTPUT
+
+      - name: Prepare dependencies
+        run: make dist
+        env:
+          LISTMONK_VERSION: nightly-${{ steps.tag.outputs.date }}
+
+      - name: Run GoReleaser
+        uses: goreleaser/goreleaser-action@v6
+        with:
+          version: latest
+          args: release --snapshot --parallelism 1 --clean --config .goreleaser-nightly.yml
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          LISTMONK_VERSION: nightly-${{ steps.tag.outputs.date }}
+
+      - name: Push Docker images
+        run: |
+          # Push all architecture-specific images
+          docker push listmonk/listmonk:nightly-amd64
+          docker push listmonk/listmonk:nightly-arm64v8
+          docker push listmonk/listmonk:nightly-armv6
+          docker push listmonk/listmonk:nightly-armv7
+          docker push ghcr.io/knadh/listmonk:nightly-amd64
+          docker push ghcr.io/knadh/listmonk:nightly-arm64v8
+          docker push ghcr.io/knadh/listmonk:nightly-armv6
+          docker push ghcr.io/knadh/listmonk:nightly-armv7
+
+      - name: Create and push Docker manifests
+        run: |
+          # Docker Hub manifest
+          docker manifest create listmonk/listmonk:nightly \
+            listmonk/listmonk:nightly-amd64 \
+            listmonk/listmonk:nightly-arm64v8 \
+            listmonk/listmonk:nightly-armv6 \
+            listmonk/listmonk:nightly-armv7
+          docker manifest push listmonk/listmonk:nightly
+
+          # GHCR manifest
+          docker manifest create ghcr.io/knadh/listmonk:nightly \
+            ghcr.io/knadh/listmonk:nightly-amd64 \
+            ghcr.io/knadh/listmonk:nightly-arm64v8 \
+            ghcr.io/knadh/listmonk:nightly-armv6 \
+            ghcr.io/knadh/listmonk:nightly-armv7
+          docker manifest push ghcr.io/knadh/listmonk:nightly
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create nightly \
+            --title "Nightly release" \
+            --notes "
+          > **Warning**: This is an automated nightly build from the master branch.
+          > It may contain bugs and breaking changes. Use at your own risk.
+          > Available on Docker Hub and GitHub Container Registry as `listmonk/listmonk:nightly`.
+          > For stable releases, please use a versioned release. [Learn more](https://listmonk.app/docs/installation/#nightly)
+
+          Built from commit: $(git rev-parse --short HEAD)" \
+            --prerelease \
+            --target $(git rev-parse HEAD) \
+            dist/*.tar.gz

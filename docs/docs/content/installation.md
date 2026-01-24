@@ -34,8 +34,6 @@ Then, visit `http://localhost:9000` to create the Super Admin user and login.
     `LISTMONK_ADMIN_USER=myuser LISTMONK_ADMIN_PASSWORD=xxxxx docker compose up -d`
 
 
-------------
-
 ### Mounting a custom config.toml
 The docker-compose file includes all necessary listmonk configuration as environment variables, `LISTMONK_*`.
 If you would like to remove those and mount a config.toml instead:
@@ -74,6 +72,18 @@ max_lifetime = "300s"
 command: [sh, -c, "./listmonk --install --idempotent --yes --config /listmonk/config.toml && ./listmonk --upgrade --yes --config /listmonk/config.toml && ./listmonk --config /listmonk/config.toml"]
 ```
 
+-----------
+
+## Nightly
+
+!!! Warning
+    Nightly releases are untested and may have bugs. Use at your own risk. Always take a backup of your Postgres database before using a nightly release.
+
+A nightly build is automatically published with the latest changes merged to the repository. If you want to access the latest changes without waiting for versioned releases, you can obtain the nightly builds and follow the same instructions above.
+
+- **Docker**: `listmonk/listmonk:nightly` (use this as the image name in the docker-compose file)
+- **Binary**: [Download nightly release](https://github.com/knadh/listmonk/releases/nightly)
+
 
 ## Compiling from source
 
@@ -83,9 +93,6 @@ To compile the latest unreleased version (`master` branch):
 2. `git clone git@github.com:knadh/listmonk.git`
 3. `cd listmonk && make dist`. This will generate the `listmonk` binary.
 
-## Release candidate (RC)
-
-The `master` branch with bleeding edge changes is periodically built and published as `listmonk/listmonk:rc` on DockerHub. To run the latest pre-release version, replace all instances of `listmonk/listmonk:latest` with `listmonk/listmonk:rc` in the docker-compose.yml file and follow the Docker installation steps above. While it is generally safe to run release candidate versions, they may have issues that only get resolved in a general release.
 
 ## Helm chart for Kubernetes
 
