@@ -1,0 +1,100 @@
+name: nightly
+on:
+  schedule:
+    - cron: "0 2 * * *"
+  workflow_dispatch:
+  push:
+    branches:
+      - nightly
+
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    outputs:
+      skip: ${{ steps.check_changes.outputs.skip }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Check for changes since last nightly release
+        id: check_changes
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          LAST_NIGHTLY_SHA=$(gh release view nightly --json targetCommitish -q '.targetCommitish' 2>/dev/null || echo "")
+          CURRENT_SHA=$(git rev-parse HEAD)
+          echo "Last nightly SHA: $LAST_NIGHTLY_SHA"
+          echo "Current SHA: $CURRENT_SHA"
+          if [ -n "$LAST_NIGHTLY_SHA" ] && [ "$LAST_NIGHTLY_SHA" = "$CURRENT_SHA" ]; then
+            echo "No changes since last nightly build, skipping ..."
+            echo "skip=true" >> $GITHUB_OUTPUT
+          else
+            echo "Changes detected, proceeding with build ..."
+            echo "skip=false" >> $GITHUB_OUTPUT
+          fi
+
+  nightly:
+    needs: check
+    if: needs.check.outputs.skip != 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.25.6"
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Delete existing nightly release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release delete nightly --yes --cleanup-tag 2>/dev/null || true
+
+      - name: Create and push nightly tag
+        id: tag
+        run: |
+          NIGHTLY_DATE=$(date -u +%Y-%m-%d)
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag -f nightly
+          git push origin refs/tags/nightly --force
+          echo "date=$NIGHTLY_DATE" >> $GITHUB_OUTPUT
+
+      - name: Prepare dependencies
+        run: make dist
+        env:
+          LISTMONK_VERSION: nightly-${{ steps.tag.outputs.date }}
+
+      - name: Run GoReleaser
+        uses: goreleaser/goreleaser-action@v6
+        with:
+          version: latest
+          args: release --nightly --parallelism 1 --clean --config .goreleaser-nightly.yml
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          LISTMONK_VERSION: nightly-${{ steps.tag.outputs.date }}
