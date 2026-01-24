@@ -431,10 +431,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#compiling-from-source" class="md-nav__link">
+  <a href="#nightly" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Compiling from source
+        Nightly
       
     </span>
   </a>
@@ -442,10 +442,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#release-candidate-rc" class="md-nav__link">
+  <a href="#compiling-from-source" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Release candidate (RC)
+        Compiling from source
       
     </span>
   </a>
@@ -1566,10 +1566,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#compiling-from-source" class="md-nav__link">
+  <a href="#nightly" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Compiling from source
+        Nightly
       
     </span>
   </a>
@@ -1577,10 +1577,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#release-candidate-rc" class="md-nav__link">
+  <a href="#compiling-from-source" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Release candidate (RC)
+        Compiling from source
       
     </span>
   </a>
@@ -1666,7 +1666,6 @@ docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> 
 <p>To set the Super Admin username and password during setup, set the environment variables (only the first time):
 <code>LISTMONK_ADMIN_USER=myuser LISTMONK_ADMIN_PASSWORD=xxxxx docker compose up -d</code></p>
 </div>
-<hr />
 <h3 id="mounting-a-custom-configtoml">Mounting a custom config.toml<a class="headerlink" href="#mounting-a-custom-configtoml" title="Permanent link">&para;</a></h3>
 <p>The docker-compose file includes all necessary listmonk configuration as environment variables, <code>LISTMONK_*</code>.
 If you would like to remove those and mount a config.toml instead:</p>
@@ -1695,6 +1694,17 @@ If you would like to remove those and mount a config.toml instead:</p>
 <h4 id="3-change-the-config-flags-in-the-command-section-to-point-to-the-path">3. Change the <code>--config ''</code> flags in the <code>command:</code> section to point to the path<a class="headerlink" href="#3-change-the-config-flags-in-the-command-section-to-point-to-the-path" title="Permanent link">&para;</a></h4>
 <div class="highlight"><pre><span></span><code><span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">sh</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">-c</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;./listmonk</span><span class="nv"> </span><span class="s">--install</span><span class="nv"> </span><span class="s">--idempotent</span><span class="nv"> </span><span class="s">--yes</span><span class="nv"> </span><span class="s">--config</span><span class="nv"> </span><span class="s">/listmonk/config.toml</span><span class="nv"> </span><span class="s">&amp;&amp;</span><span class="nv"> </span><span class="s">./listmonk</span><span class="nv"> </span><span class="s">--upgrade</span><span class="nv"> </span><span class="s">--yes</span><span class="nv"> </span><span class="s">--config</span><span class="nv"> </span><span class="s">/listmonk/config.toml</span><span class="nv"> </span><span class="s">&amp;&amp;</span><span class="nv"> </span><span class="s">./listmonk</span><span class="nv"> </span><span class="s">--config</span><span class="nv"> </span><span class="s">/listmonk/config.toml&quot;</span><span class="p p-Indicator">]</span>
 </code></pre></div>
+<hr />
+<h2 id="nightly">Nightly<a class="headerlink" href="#nightly" title="Permanent link">&para;</a></h2>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Nightly releases are untested and may have bugs. Use at your own risk. Always take a backup of your Postgres database before using a nightly release.</p>
+</div>
+<p>A nightly build is automatically published with the latest changes merged to the repository. If you want to access the latest changes without waiting for versioned releases, you can obtain the nightly builds and follow the same instructions above.</p>
+<ul>
+<li><strong>Docker</strong>: <code>listmonk/listmonk:nightly</code> (use this as the image name in the docker-compose file)</li>
+<li><strong>Binary</strong>: <a href="https://github.com/knadh/listmonk/releases/nightly">Download nightly release</a></li>
+</ul>
 <h2 id="compiling-from-source">Compiling from source<a class="headerlink" href="#compiling-from-source" title="Permanent link">&para;</a></h2>
 <p>To compile the latest unreleased version (<code>master</code> branch):</p>
 <ol>
@@ -1702,8 +1712,6 @@ If you would like to remove those and mount a config.toml instead:</p>
 <li><code>git clone git@github.com:knadh/listmonk.git</code></li>
 <li><code>cd listmonk &amp;&amp; make dist</code>. This will generate the <code>listmonk</code> binary.</li>
 </ol>
-<h2 id="release-candidate-rc">Release candidate (RC)<a class="headerlink" href="#release-candidate-rc" title="Permanent link">&para;</a></h2>
-<p>The <code>master</code> branch with bleeding edge changes is periodically built and published as <code>listmonk/listmonk:rc</code> on DockerHub. To run the latest pre-release version, replace all instances of <code>listmonk/listmonk:latest</code> with <code>listmonk/listmonk:rc</code> in the docker-compose.yml file and follow the Docker installation steps above. While it is generally safe to run release candidate versions, they may have issues that only get resolved in a general release.</p>
 <h2 id="helm-chart-for-kubernetes">Helm chart for Kubernetes<a class="headerlink" href="#helm-chart-for-kubernetes" title="Permanent link">&para;</a></h2>
 <p><img alt="Version: 0.1.0" src="https://img.shields.io/badge/Version-0.1.0-informational?style=flat-square" /> <img alt="Type: application" src="https://img.shields.io/badge/Type-application-informational?style=flat-square" /> <img alt="AppVersion: 3.0.0" src="https://img.shields.io/badge/AppVersion-3.0.0-informational?style=flat-square" /></p>
 <p>A helm chart for easily installing listmonk on a kubernetes cluster is made available by community <a href="https://github.com/th0th/helm-charts/tree/main/charts/listmonk">here</a>.</p>
