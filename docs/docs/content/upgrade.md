@@ -30,13 +30,10 @@ docker-compose pull && docker-compose run --rm app ./listmonk --upgrade
 docker-compose up -d app db
 ```
 
+## Nightly
+See [here](installation.md#nightly) for instructions on how to access the nightly builds.
 
-## Railway
-- Head to your dashboard, and select your Listmonk project.
-- Select the GitHub deployment service.
-- In the Deployment tab, head to the latest deployment, click on the three vertical dots to the right, and select "Redeploy".
-
-![Railway Redeploy option](https://user-images.githubusercontent.com/55474996/226517149-6dc512d5-f862-46f7-a57d-5e55b781ff53.png)
+-----------
 
 ## Downgrade
 
@@ -83,3 +80,11 @@ It is safe to upgrade an older installation with `--upgrade`, but there are a fe
 1. **API credentials**: If you are using APIs to interact with listmonk, after logging in, go to Settings -> Users and create a new API user with the necessary permissions. Change existing API integrations to use these credentials instead of the old username and password defined in the legacy TOML configuration file or environment variables.
 
 1. **Credentials in TOML file or old environment variables**: The admin dashboard shows a warning until the `admin_username` and `admin_password` fields are removed from the configuration file or old environment variables. In v4.x.x, these are irrelevant as user credentials are stored in the database and managed from the admin UI. IMPORTANT: if you are using APIs to interact with listmonk, follow the previous step before removing the legacy credentials.
+
+
+## Railway
+- Head to your dashboard, and select your Listmonk project.
+- Select the GitHub deployment service.
+- In the Deployment tab, head to the latest deployment, click on the three vertical dots to the right, and select "Redeploy".
+
+![Railway Redeploy option](https://user-images.githubusercontent.com/55474996/226517149-6dc512d5-f862-46f7-a57d-5e55b781ff53.png)
