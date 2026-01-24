@@ -29,6 +29,11 @@
       <b-switch v-model="data['privacy.record_optin_ip']" name="privacy.record_optin_ip" />
     </b-field>
 
+    <b-field :label="$t('settings.privacy.defaultLinkTracking')"
+      :message="$t('settings.privacy.defaultLinkTrackingHelp')">
+      <b-switch v-model="data['privacy.default_link_tracking']" name="privacy.default_link_tracking" />
+    </b-field>
+
     <hr />
 
     <b-tabs v-model="tab" type="is-boxed" :animated="false">
