@@ -479,6 +479,8 @@
     "settings.media.s3.secret": "AWS പ്രവേശന രഹസ്യം",
     "settings.media.s3.uploadExpiry": "അപ്‌ലോഡ് ചെയ്യുന്നതിന്റെ  കാലാവധി",
     "settings.media.s3.uploadExpiryHelp": "(ഐച്ഛികം) മുൻകൂട്ടി നിർമ്മിക്കുന്ന യൂ. ആർ. എല്ലിനുള്ള സെക്കന്റിലുള്ള TTL വ്യക്തമാക്കുക . സ്വകാര്യ ബക്കറ്റുകൾക്ക് മാത്രമേ ബാധകമാകൂ (s, m, h, d എന്നിവ യഥാക്രമം സെക്കന്റ്, മിനുട്ട്, മണിക്കൂർ, ദിവസങ്ങൾ എന്നിവയെ സൂചിപ്പിക്കുന്നു).",
+    "settings.media.s3.uploadURI": "Upload URI",
+    "settings.media.s3.uploadURIHelp": "Upload URI that is visible to the outside world. The media uploaded to S3 bucket will be publicly accessible under {root_url}, for instance, https://listmonk.yoursite.com/uploads.",
     "settings.media.s3.url": "S3 വിലാസം",
     "settings.media.s3.urlHelp": "Minio പോലെയുള്ള ഒരു ഇഷ്‌ടാനുസൃത S3 അനുയോജ്യമായ ബാക്കെൻഡ് ഉപയോഗിക്കുകയാണെങ്കിൽ മാത്രം മാറ്റുക.",
     "settings.media.title": "മീഡിയാ അപ്ലോഡുകൾ",

@@ -479,6 +479,8 @@
     "settings.media.s3.secret": "Μυστικό πρόσβασης AWS",
     "settings.media.s3.uploadExpiry": "Χρονικό διάστημα λήξης μεταφόρτωσης",
     "settings.media.s3.uploadExpiryHelp": "(Προαιρετικό) Καθορίστε τη λήξη για τη δημιουργούμενη προεπιλεγμένη URL. Ισχύει μόνο για ιδιωτικούς κάδους (s, m, h, d για δευτερόλεπτα, λεπτά, ώρες, ημέρες).",
+    "settings.media.s3.uploadURI": "Upload URI",
+    "settings.media.s3.uploadURIHelp": "Upload URI that is visible to the outside world. The media uploaded to S3 bucket will be publicly accessible under {root_url}, for instance, https://listmonk.yoursite.com/uploads.",
     "settings.media.s3.url": "URL του S3 backend",
     "settings.media.s3.urlHelp": "Αλλάξτε το μόνο αν χρησιμοποιείτε ένα προσαρμοσμένο backend συμβατό με το S3, όπως το Minio.",
     "settings.media.title": "Μεταφορτώσεις πολυμέσων",

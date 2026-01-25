@@ -479,6 +479,8 @@
     "settings.media.s3.secret": "סוד כניסה AWS",
     "settings.media.s3.uploadExpiry": "תפוגת עלייה",
     "settings.media.s3.uploadExpiryHelp": "(Optional) Specify TTL (in seconds) for the generated presigned URL. Only applicable for private buckets (s, m, h, d for seconds, minutes, hours, days).",
+    "settings.media.s3.uploadURI": "Upload URI",
+    "settings.media.s3.uploadURIHelp": "Upload URI that is visible to the outside world. The media uploaded to S3 bucket will be publicly accessible under {root_url}, for instance, https://listmonk.yoursite.com/uploads.",
     "settings.media.s3.url": "כתובת תשתית S3",
     "settings.media.s3.urlHelp": "אפשר לשנות רק אם משתמשים בתשתית S3 הזרה מותאמת אישית כמו Minio.",
     "settings.media.title": "העלאת קבצים",

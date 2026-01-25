@@ -479,6 +479,8 @@
     "settings.media.s3.secret": "Skrivnost dostopa do AWS",
     "settings.media.s3.uploadExpiry": "Potek nalaganja",
     "settings.media.s3.uploadExpiryHelp": "(Izbirno) Določite potek za ustvarjen vnaprej podpisan URL. Velja samo za zasebne segmente (s, m, h, d za sekunde, minute, ure, dneve).",
+    "settings.media.s3.uploadURI": "Upload URI",
+    "settings.media.s3.uploadURIHelp": "Upload URI that is visible to the outside world. The media uploaded to S3 bucket will be publicly accessible under {root_url}, for instance, https://listmonk.yoursite.com/uploads.",
     "settings.media.s3.url": "URL zalednega dela S3",
     "settings.media.s3.urlHelp": "Spremenite samo, če uporabljate prilagojeno zaledje, združljivo s S3, kot je Minio.",
     "settings.media.title": "Nalaganje predstavnosti",

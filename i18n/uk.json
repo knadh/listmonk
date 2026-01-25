@@ -479,6 +479,8 @@
     "settings.media.s3.secret": "Секрет AWS-доступу",
     "settings.media.s3.uploadExpiry": "Термін дії вивантаження",
     "settings.media.s3.uploadExpiryHelp": "(Необов'язково) Вкажіть термін дії автоматично створеної URL-адреси. Це стосується лише приватних сховищ (s — секунди, m — хвилини, h — години, d — дні).",
+    "settings.media.s3.uploadURI": "Upload URI",
+    "settings.media.s3.uploadURIHelp": "Upload URI that is visible to the outside world. The media uploaded to S3 bucket will be publicly accessible under {root_url}, for instance, https://listmonk.yoursite.com/uploads.",
     "settings.media.s3.url": "URL-адреса S3-сервера",
     "settings.media.s3.urlHelp": "Змінюйте лише при використанні S3-сумісного сервера, наприклад Minio.",
     "settings.media.title": "Вивантаження картинок",

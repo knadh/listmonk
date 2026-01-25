@@ -479,6 +479,8 @@
     "settings.media.s3.secret": "AWS访问密钥",
     "settings.media.s3.uploadExpiry": "上传到期",
     "settings.media.s3.uploadExpiryHelp": "（可选）为生成的预签名UR 指定TTL。仅适用于私有存储桶（s、m、h、d 表示秒、分钟、小时、天）。",
+    "settings.media.s3.uploadURI": "Upload URI",
+    "settings.media.s3.uploadURIHelp": "Upload URI that is visible to the outside world. The media uploaded to S3 bucket will be publicly accessible under {root_url}, for instance, https://listmonk.yoursite.com/uploads.",
     "settings.media.s3.url": "S3后端URL",
     "settings.media.s3.urlHelp": "只有在使用像Minio这样的自定义S3兼容后端时才进行更改。",
     "settings.media.title": "媒体上传",
