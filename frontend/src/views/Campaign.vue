@@ -102,10 +102,13 @@
                   </div>
                   <div class="column is-6">
                     <b-field :label="$t('campaigns.format')" label-position="on-border" class="mr-4 mb-0">
-                      <b-select v-model="form.content.contentType" :disabled="!canEdit || isEditing" value="richtext"
-                        expanded>
-                        <option v-for="(name, f) in contentTypes" :key="f" name="format" :value="f"
-                          :data-cy="`check-${f}`">
+                      <b-select v-model="form.content.contentType" :disabled="!canEdit || isEditing" expanded>
+                        <!-- Empty un-selectable options as Placeholder -->
+                        <option name="format" :value="''" :data-cy="`check-disabled`" selected disabled>
+                          {{ $t('campaigns.formatHTML') }}
+                        </option>
+                        <!-- Options for formats -->
+                        <option v-for="(name, f) in contentTypes" :key="f" name="format" :value="f" :data-cy="`check-${f}`">
                           {{ name }}
                         </option>
                       </b-select>
@@ -343,14 +346,6 @@ export default Vue.extend({
 
   data() {
     return {
-      contentTypes: Object.freeze({
-        richtext: this.$t('campaigns.richText'),
-        html: this.$t('campaigns.rawHTML'),
-        markdown: this.$t('campaigns.markdown'),
-        plain: this.$t('campaigns.plainText'),
-        visual: this.$t('campaigns.visual'),
-      }),
-
       isNew: false,
       isEditing: false,
       isHeadersVisible: false,
@@ -378,7 +373,7 @@ export default Vue.extend({
         tags: [],
         sendAt: null,
         content: {
-          contentType: 'richtext',
+          contentType: '',
           body: '',
           bodySource: null,
           templateId: null,
@@ -438,8 +433,8 @@ export default Vue.extend({
     },
 
     isUnsaved() {
-      return this.data.body !== this.form.content.body
-        || this.data.contentType !== this.form.content.contentType;
+      // compare changes in 'body' and 'contentType' only for content tab
+      return !this.$utils.isEqual(this.data.body || '', this.form.content.body) || !this.$utils.isEqual(this.data.contentType || '', this.form.content.contentType);
     },
 
     onTab(tab) {
@@ -729,6 +724,16 @@ export default Vue.extend({
 
     otherMessengers() {
       return this.serverConfig.messengers.filter((m) => m !== 'email' && !m.startsWith('email-'));
+    },
+    // Content types available for the selected messenger.
+    contentTypes() {
+      return {
+        richtext: this.$t('campaigns.richText'),
+        html: this.$t('campaigns.rawHTML'),
+        markdown: this.$t('campaigns.markdown'),
+        plain: this.$t('campaigns.plainText'),
+        visual: this.$t('campaigns.visual'),
+      };
     },
   },
 
