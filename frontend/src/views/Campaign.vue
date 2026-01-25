@@ -102,12 +102,12 @@
                   </div>
                   <div class="column is-6">
                     <b-field :label="$t('campaigns.format')" label-position="on-border" class="mr-4 mb-0">
-                      <b-select v-model="form.content.contentType" :disabled="!canEdit || isEditing" placeholder="Please select..."
-                        expanded>
+                      <b-select v-model="form.content.contentType" :disabled="!canEdit || isEditing" expanded>
                         <!-- Empty un-selectable options as Placeholder -->
                         <option name="format" :value="''" :data-cy="`check-disabled`" selected disabled>
                           {{ $t('campaigns.formatHTML') }}
                         </option>
+                        <!-- Options for formats -->
                         <option v-for="(name, f) in contentTypes" :key="f" name="format" :value="f" :data-cy="`check-${f}`">
                           {{ name }}
                         </option>
