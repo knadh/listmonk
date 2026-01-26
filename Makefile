@@ -143,7 +143,9 @@ rm-dev-docker: build ## Delete the docker containers including DB volumes.
 	docker compose down -v ; \
 
 # Setup the db for local dev docker suite.
+# Remove listmonk before make dist so we always build a Linux binary in the container;
+# otherwise a host-built binary (e.g. macOS) on the mount can be reused and cause "Exec format error".
 .PHONY: init-dev-docker
-init-dev-docker: build-dev-docker ## Delete the docker containers including DB volumes.
+init-dev-docker: build-dev-docker ## Setup DB by running --install inside the backend container.
 	cd dev; \
-	docker compose run --rm backend sh -c "make dist && ./listmonk --install --idempotent --yes --config dev/config.toml"
+	docker compose run --rm backend sh -c "rm -f listmonk && make dist && ./listmonk --install --idempotent --yes --config dev/config.toml"

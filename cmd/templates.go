@@ -28,8 +28,25 @@ const (
 )
 
 var (
-	regexpTplTag = regexp.MustCompile(`{{(\s+)?template\s+?"content"(\s+)?\.(\s+)?}}`)
+	regexpTplTag        = regexp.MustCompile(`{{(\s+)?template\s+?"content"(\s+)?\.(\s+)?}}`)
+	regexpTrackViewTag  = regexp.MustCompile(`\{\{(\s+)?TrackView(\s+)?\}\}`)
 )
+
+// ensureTrackView inserts {{ TrackView }} into campaign template bodies if not already present.
+// It places the tag before </body> when possible, otherwise appends to the end.
+func ensureTrackView(tpl *models.Template) {
+	if tpl.Type != models.TemplateTypeCampaign && tpl.Type != models.TemplateTypeCampaignVisual {
+		return
+	}
+	if regexpTrackViewTag.MatchString(tpl.Body) {
+		return
+	}
+	if strings.Contains(tpl.Body, "</body>") {
+		tpl.Body = strings.Replace(tpl.Body, "</body>", "{{ TrackView }}\n</body>", 1)
+	} else {
+		tpl.Body = tpl.Body + "\n{{ TrackView }}"
+	}
+}
 
 // GetTemplate handles the retrieval of a template
 func (a *App) GetTemplate(c echo.Context) error {
@@ -113,6 +130,7 @@ func (a *App) CreateTemplate(c echo.Context) error {
 	if err := a.validateTemplate(o); err != nil {
 		return err
 	}
+	ensureTrackView(&o)
 
 	// Subject is only relevant for fixed tx templates. For campaigns,
 	// the subject changes per campaign and is on models.Campaign.
@@ -153,6 +171,7 @@ func (a *App) UpdateTemplate(c echo.Context) error {
 	if err := a.validateTemplate(o); err != nil {
 		return err
 	}
+	ensureTrackView(&o)
 
 	// Subject is only relevant for fixed tx templates. For campaigns,
 	// the subject changes per campaign and is on models.Campaign.
