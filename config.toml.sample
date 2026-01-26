@@ -5,6 +5,14 @@
 # port, use port 80 (this will require running with elevated permissions).
 address = "localhost:9000"
 
+# Optional: append UTM parameters to tracked link redirects for analytics (e.g. Google Analytics).
+# When enabled and source is set, clicked links get utm_source, utm_medium, utm_campaign, utm_term, utm_content.
+# [app.utm]
+# enabled = false
+# source = ""
+# medium = "email"
+# content = ""
+
 # Database.
 [db]
 host = "localhost"

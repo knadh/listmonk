@@ -132,6 +132,15 @@ type Config struct {
 		PublicJS  []byte `koanf:"public.custom_js"`
 	}
 
+	// UTM optional params for tracked link redirects (analytics). When enabled and source is set,
+	// redirect URLs get utm_source, utm_medium, utm_campaign, utm_term, utm_content appended.
+	UTM struct {
+		Enabled bool   `koanf:"enabled"`
+		Source  string `koanf:"source"`
+		Medium  string `koanf:"medium"`
+		Content string `koanf:"content"`
+	} `koanf:"utm"`
+
 	HasLegacyUser bool
 	AssetVersion  string
 
@@ -460,6 +469,11 @@ func initConstConfig(ko *koanf.Koanf) *Config {
 	var c Config
 	if err := ko.Unmarshal("app", &c); err != nil {
 		lo.Fatalf("error loading app config: %v", err)
+	}
+	// Optional UTM section; ignore error so missing [app.utm] is fine.
+	_ = ko.Unmarshal("app.utm", &c.UTM)
+	if c.UTM.Medium == "" {
+		c.UTM.Medium = "email"
 	}
 	if err := ko.Unmarshal("privacy", &c.Privacy); err != nil {
 		lo.Fatalf("error loading app.privacy config: %v", err)

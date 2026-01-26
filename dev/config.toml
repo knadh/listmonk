@@ -22,3 +22,9 @@ max_lifetime = "300s"
 
 # Optional space separated Postgres DSN params. eg: "application_name=listmonk gssencmode=disable"
 params = ""
+
+[app.utm]
+enabled = true
+source = "Tech in Asia Main List"
+medium = "email"
+content = "listmonk"          # optional
