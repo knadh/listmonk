@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"regexp"
-	"strings"
 
 	"github.com/yuin/goldmark"
 	"github.com/yuin/goldmark/extension"
@@ -41,61 +40,17 @@ type regTplFunc struct {
 	replace string
 }
 
-// rePlainAnchorHrefDouble matches <a href="..."> (double-quoted). RE2 has no lookahead,
-// so we match and then skip unsafe URLs in the replacer.
-var rePlainAnchorHrefDouble = regexp.MustCompile(`<a\s+href="([^"]*)"`)
-
-// rePlainAnchorHrefSingle matches <a href='...'> (single-quoted).
-var rePlainAnchorHrefSingle = regexp.MustCompile(`<a\s+href='([^']*)'`)
-
-// shouldSkipPlainAnchorTrackLink returns true if the href value should not be
-// transformed to TrackLink (template vars, already tracked, or invalid).
-func shouldSkipPlainAnchorTrackLink(url string) bool {
-	if url == "" {
-		return true
-	}
-	if strings.Contains(url, `"`) {
-		return true
-	}
-	if strings.Contains(url, "{{") || strings.Contains(url, "}}") {
-		return true
-	}
-	if strings.Contains(url, "TrackLink") || strings.Contains(url, "@TrackLink") {
-		return true
-	}
-	return false
-}
-
-// PreprocessPlainAnchorsToTrackLink transforms plain <a href="url"> to use
-// {{ TrackLink "url" . }}, and is applied before regTplFuncs. Skips template
-// variables and links that already use TrackLink.
-func PreprocessPlainAnchorsToTrackLink(s string) string {
-	s = rePlainAnchorHrefDouble.ReplaceAllStringFunc(s, func(match string) string {
-		sub := rePlainAnchorHrefDouble.FindStringSubmatch(match)
-		if len(sub) < 2 {
-			return match
-		}
-		url := sub[1]
-		if shouldSkipPlainAnchorTrackLink(url) {
-			return match
-		}
-		return `<a href="{{ TrackLink "` + url + `" . }}"`
-	})
-	s = rePlainAnchorHrefSingle.ReplaceAllStringFunc(s, func(match string) string {
-		sub := rePlainAnchorHrefSingle.FindStringSubmatch(match)
-		if len(sub) < 2 {
-			return match
-		}
-		url := sub[1]
-		if shouldSkipPlainAnchorTrackLink(url) {
-			return match
-		}
-		return `<a href='{{ TrackLink "` + url + `" . }}'`
-	})
-	return s
-}
-
 var regTplFuncs = []regTplFunc{
+	// Transform plain <a href="url"> to TrackLink. [^"{}]+ skips template vars ({{ }}).
+	{
+		regExp:  regexp.MustCompile(`<a\s+href="([^"{}]+)"`),
+		replace: `<a href="{{ TrackLink "$1" . }}"`,
+	},
+	// Same for single-quoted href='url'.
+	{
+		regExp:  regexp.MustCompile(`<a\s+href='([^'{}]+)'`),
+		replace: `<a href='{{ TrackLink "$1" . }}'`,
+	},
 	// Regular expression for matching {{ TrackLink "http://link.com" }} in the template
 	// and substituting it with {{ TrackLink "http://link.com" . }} (the dot context)
 	// before compilation. This is to make linking easier for users.

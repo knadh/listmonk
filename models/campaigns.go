@@ -138,7 +138,7 @@ func (camps Campaigns) LoadStats(stmt *sqlx.Stmt) error {
 func (c *Campaign) CompileTemplate(f template.FuncMap) error {
 	// If the subject line has a template string, compile it.
 	if strings.Contains(c.Subject, "{{") {
-		subj := PreprocessPlainAnchorsToTrackLink(c.Subject)
+		subj := c.Subject
 		for _, r := range regTplFuncs {
 			subj = r.regExp.ReplaceAllString(subj, r.replace)
 		}
@@ -158,7 +158,6 @@ func (c *Campaign) CompileTemplate(f template.FuncMap) error {
 		body = `{{ template "content" . }}`
 	}
 
-	body = PreprocessPlainAnchorsToTrackLink(body)
 	for _, r := range regTplFuncs {
 		body = r.regExp.ReplaceAllString(body, r.replace)
 	}
@@ -180,7 +179,6 @@ func (c *Campaign) CompileTemplate(f template.FuncMap) error {
 	}
 
 	// Compile the campaign message.
-	body = PreprocessPlainAnchorsToTrackLink(body)
 	for _, r := range regTplFuncs {
 		body = r.regExp.ReplaceAllString(body, r.replace)
 	}
@@ -197,7 +195,7 @@ func (c *Campaign) CompileTemplate(f template.FuncMap) error {
 	c.Tpl = out
 
 	if strings.Contains(c.AltBody.String, "{{") {
-		b := PreprocessPlainAnchorsToTrackLink(c.AltBody.String)
+		b := c.AltBody.String
 		for _, r := range regTplFuncs {
 			b = r.regExp.ReplaceAllString(b, r.replace)
 		}
@@ -214,7 +212,7 @@ func (c *Campaign) CompileTemplate(f template.FuncMap) error {
 // ConvertContent converts a campaign's body from one format to another,
 // for example, Markdown to HTML.
 func (c *Campaign) ConvertContent(from, to string) (string, error) {
-	body := PreprocessPlainAnchorsToTrackLink(c.Body)
+	body := c.Body
 	for _, r := range regTplFuncs {
 		body = r.regExp.ReplaceAllString(body, r.replace)
 	}
