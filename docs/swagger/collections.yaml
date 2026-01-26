@@ -3375,6 +3375,8 @@ components:
           type: integer
         max_msg_retries:
           type: integer
+        retry_delay:
+          type: string
         idle_timeout:
           type: string
         wait_timeout:
@@ -3409,6 +3411,8 @@ components:
           type: integer
         max_msg_retries:
           type: integer
+        retry_delay:
+          type: string
         idle_timeout:
           type: string
         wait_timeout:
