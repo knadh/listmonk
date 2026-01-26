@@ -18,6 +18,9 @@ const (
 	TemplateTypeTx             = "tx"
 )
 
+// Templates represents a slice of Template.
+type Templates []Template
+
 // Template represents a reusable e-mail template.
 type Template struct {
 	Base
@@ -33,6 +36,9 @@ type Template struct {
 	// Only relevant to tx (transactional) templates.
 	SubjectTpl *txttpl.Template   `json:"-"`
 	Tpl        *template.Template `json:"-"`
+
+	// Pseudofield for getting the total number of templates in paginated queries.
+	Total int `db:"total" json:"-"`
 }
 
 // Compile compiles a template body and subject (only for tx templates) and

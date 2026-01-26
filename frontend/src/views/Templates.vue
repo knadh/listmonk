@@ -4,7 +4,7 @@
       <div class="column is-10">
         <h1 class="title is-4">
           {{ $t('globals.terms.templates') }}
-          <span v-if="templates.length > 0">({{ templates.length }})</span>
+          <span v-if="!isNaN(templates.total)">({{ templates.total }})</span>
         </h1>
       </div>
       <div class="column has-text-right">
@@ -16,8 +16,29 @@
       </div>
     </header>
 
-    <b-table :data="templates" :hoverable="true" :loading="loading.templates" default-sort="createdAt">
-      <b-table-column v-slot="props" field="name" :label="$t('globals.fields.name')" :td-attrs="$utils.tdID" sortable>
+    <b-table :data="templates.results" :hoverable="true" :loading="loading.templates" paginated backend-pagination
+      pagination-position="both" @page-change="onPageChange" :current-page="queryParams.page"
+      :per-page="templates.perPage" :total="templates.total" backend-sorting @sort="onSort">
+      <template #top-left>
+        <div class="columns">
+          <div class="column is-6">
+            <form @submit.prevent="getTemplates">
+              <div>
+                <b-field>
+                  <b-input v-model="queryParams.query" name="query" expanded
+                    :placeholder="$t('templates.queryPlaceholder')" icon="magnify" ref="query" />
+                  <p class="controls">
+                    <b-button native-type="submit" type="is-primary" icon-left="magnify" />
+                  </p>
+                </b-field>
+              </div>
+            </form>
+          </div>
+        </div>
+      </template>
+
+      <b-table-column v-slot="props" field="name" :label="$t('globals.fields.name')" :td-attrs="$utils.tdID" sortable
+        header-class="cy-name">
         <a href="#" @click.prevent="showEditForm(props.row)">
           {{ props.row.name }}
         </a>
@@ -30,7 +51,7 @@
         </p>
       </b-table-column>
 
-      <b-table-column v-slot="props" field="type" :label="$t('globals.fields.type')" sortable>
+      <b-table-column v-slot="props" field="type" :label="$t('globals.fields.type')" sortable header-class="cy-type">
         <b-tag v-if="props.row.type === 'campaign'" :class="props.row.type" :data-cy="`type-${props.row.type}`">
           {{ $tc('templates.typeCampaignHTML') }}
         </b-tag>
@@ -47,11 +68,13 @@
         {{ props.row.id }}
       </b-table-column>
 
-      <b-table-column v-slot="props" field="createdAt" :label="$t('globals.fields.createdAt')" sortable>
+      <b-table-column v-slot="props" field="created_at" :label="$t('globals.fields.createdAt')" sortable
+        header-class="cy-created-at">
         {{ $utils.niceDate(props.row.createdAt) }}
       </b-table-column>
 
-      <b-table-column v-slot="props" field="updatedAt" :label="$t('globals.fields.updatedAt')" sortable>
+      <b-table-column v-slot="props" field="updated_at" :label="$t('globals.fields.updatedAt')" sortable
+        header-class="cy-updated-at">
         {{ $utils.niceDate(props.row.updatedAt) }}
       </b-table-column>
 
@@ -135,6 +158,12 @@ export default Vue.extend({
       isEditing: false,
       isFormVisible: false,
       previewItem: null,
+      queryParams: {
+        page: 1,
+        query: '',
+        orderBy: 'created_at',
+        order: 'desc',
+      },
     };
   },
 
@@ -154,7 +183,28 @@ export default Vue.extend({
     },
 
     formFinished() {
-      this.$api.getTemplates();
+      this.getTemplates();
+    },
+
+    onPageChange(p) {
+      this.queryParams.page = p;
+      this.getTemplates();
+    },
+
+    onSort(field, direction) {
+      this.queryParams.orderBy = field;
+      this.queryParams.order = direction;
+      this.getTemplates();
+    },
+
+    getTemplates() {
+      this.$api.getTemplates({
+        page: this.queryParams.page,
+        query: this.queryParams.query.replace(/[^\p{L}\p{N}\s]/gu, ' '),
+        order_by: this.queryParams.orderBy,
+        order: this.queryParams.order,
+        no_body: true,
+      });
     },
 
     previewTemplate(c) {
@@ -174,7 +224,7 @@ export default Vue.extend({
         body_source: t.bodySource,
       };
       this.$api.createTemplate(data).then((d) => {
-        this.$api.getTemplates();
+        this.getTemplates();
         this.$emit('finished');
         this.$utils.toast(`'${d.name}' created`);
       });
@@ -182,14 +232,14 @@ export default Vue.extend({
 
     makeTemplateDefault(tpl) {
       this.$api.makeTemplateDefault(tpl.id).then(() => {
-        this.$api.getTemplates();
+        this.getTemplates();
         this.$utils.toast(this.$t('globals.messages.created', { name: tpl.name }));
       });
     },
 
     deleteTemplate(tpl) {
       this.$api.deleteTemplate(tpl.id).then(() => {
-        this.$api.getTemplates();
+        this.getTemplates();
         this.$utils.toast(this.$t('globals.messages.deleted', { name: tpl.name }));
       });
     },
@@ -200,7 +250,7 @@ export default Vue.extend({
   },
 
   mounted() {
-    this.$api.getTemplates();
+    this.getTemplates();
   },
 });
 </script>
