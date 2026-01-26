@@ -564,16 +564,15 @@ func (a *App) LinkRedirect(c echo.Context) error {
 		linkUUID = c.Param("linkUUID")
 		campUUID = c.Param("campUUID")
 	)
-	destURL, err := a.core.RegisterCampaignLinkClick(linkUUID, campUUID, subUUID)
+	destURL, campaignName, err := a.core.RegisterCampaignLinkClick(linkUUID, campUUID, subUUID)
 	if err != nil {
 		e := err.(*echo.HTTPError)
 		return c.Render(e.Code, tplMessage, makeMsgTpl(a.i18n.T("public.errorTitle"), "", e.Error()))
 	}
 
 	if a.cfg.UTM.Enabled && a.cfg.UTM.Source != "" {
-		campaignName := campUUID
-		if camp, err := a.core.GetCampaign(0, campUUID, ""); err == nil {
-			campaignName = camp.Name
+		if campaignName == "" {
+			campaignName = campUUID
 		}
 		medium := a.cfg.UTM.Medium
 		if medium == "" {

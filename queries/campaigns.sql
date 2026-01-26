@@ -120,13 +120,19 @@ media AS (
     SELECT campaign_id, JSON_AGG(JSON_BUILD_OBJECT('id', media_id, 'filename', filename)) AS media FROM campaign_media
     WHERE campaign_id = ANY($1) GROUP BY campaign_id
 ),
+-- Mailchimp-style: count unique subscribers (one open per person). Anonymous views (subscriber_id NULL) count as 1 each.
 views AS (
-    SELECT campaign_id, COUNT(campaign_id) as num FROM campaign_views
+    SELECT campaign_id,
+        COUNT(DISTINCT subscriber_id) + COUNT(*) FILTER (WHERE subscriber_id IS NULL) AS num
+    FROM campaign_views
     WHERE campaign_id = ANY($1)
     GROUP BY campaign_id
 ),
+-- Unique recipients who clicked at least one link; anonymous clicks count as 1 each.
 clicks AS (
-    SELECT campaign_id, COUNT(campaign_id) as num FROM link_clicks
+    SELECT campaign_id,
+        COUNT(DISTINCT subscriber_id) + COUNT(*) FILTER (WHERE subscriber_id IS NULL) AS num
+    FROM link_clicks
     WHERE campaign_id = ANY($1)
     GROUP BY campaign_id
 ),

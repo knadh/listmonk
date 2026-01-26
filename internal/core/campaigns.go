@@ -436,18 +436,19 @@ func (c *Core) RegisterCampaignView(campUUID, subUUID string) error {
 }
 
 // RegisterCampaignLinkClick registers a subscriber's link click on a campaign.
-func (c *Core) RegisterCampaignLinkClick(linkUUID, campUUID, subUUID string) (string, error) {
-	var url string
-	if err := c.q.RegisterLinkClick.Get(&url, linkUUID, campUUID, subUUID); err != nil {
+// Returns the destination URL and campaign name (empty if campaign not found) in one query for redirect and UTM.
+func (c *Core) RegisterCampaignLinkClick(linkUUID, campUUID, subUUID string) (url, campaignName string, err error) {
+	err = c.q.RegisterLinkClick.QueryRow(linkUUID, campUUID, subUUID).Scan(&url, &campaignName)
+	if err != nil {
 		if pqErr, ok := err.(*pq.Error); ok && pqErr.Column == "link_id" {
-			return "", echo.NewHTTPError(http.StatusBadRequest, c.i18n.Ts("public.invalidLink"))
+			return "", "", echo.NewHTTPError(http.StatusBadRequest, c.i18n.Ts("public.invalidLink"))
 		}
 
 		c.log.Printf("error registering link click: %s", err)
-		return "", echo.NewHTTPError(http.StatusInternalServerError, c.i18n.Ts("public.errorProcessingRequest"))
+		return "", "", echo.NewHTTPError(http.StatusInternalServerError, c.i18n.Ts("public.errorProcessingRequest"))
 	}
 
-	return url, nil
+	return url, campaignName, nil
 }
 
 // DeleteCampaignViews deletes campaign views older than a given date.
