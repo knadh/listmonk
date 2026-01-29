@@ -48,7 +48,8 @@ var migList = []migFunc{
 
 // upgrade upgrades the database to the current version by running SQL migration files
 // for all version from the last known version to the current one.
-func upgrade(db *sqlx.DB, fs stuffbin.FileSystem, prompt bool) {
+// If record is false, migration versions are not recorded in the DB (used for nightly builds).
+func upgrade(db *sqlx.DB, fs stuffbin.FileSystem, prompt bool, record bool) {
 	if prompt {
 		var ok string
 		fmt.Printf("** IMPORTANT: Take a backup of the database before upgrading.\n")
@@ -82,11 +83,14 @@ func upgrade(db *sqlx.DB, fs stuffbin.FileSystem, prompt bool) {
 
 		// Record the migration version in the settings table. There was no
 		// settings table until v0.7.0, so ignore the no-table errors.
-		if err := recordMigrationVersion(m.version, db); err != nil {
-			if isTableNotExistErr(err) {
-				continue
+		// For nightly builds, skip recording so migrations re-run on each boot.
+		if record {
+			if err := recordMigrationVersion(m.version, db); err != nil {
+				if isTableNotExistErr(err) {
+					continue
+				}
+				lo.Fatalf("error recording migration version %s: %v", m.version, err)
 			}
-			lo.Fatalf("error recording migration version %s: %v", m.version, err)
 		}
 	}
 

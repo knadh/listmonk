@@ -153,6 +153,9 @@ func init() {
 		os.Exit(0)
 	}
 
+	// Is this a nightly build?
+	isNightly := strings.Contains(versionString, "nightly")
+
 	// Check if the DB schema is installed.
 	if ok, err := checkSchema(db); err != nil {
 		log.Fatalf("error checking schema in DB: %v", err)
@@ -161,12 +164,23 @@ func init() {
 	}
 
 	if ko.Bool("upgrade") {
-		upgrade(db, fs, !ko.Bool("yes"))
+		// Even on explicit upgrade runs, for nightly builds, do not record the last
+		// migration version in the DB.
+		lo.Printf("running upgrade...")
+		upgrade(db, fs, !ko.Bool("yes"), !isNightly)
 		os.Exit(0)
 	}
 
-	// Before the queries are prepared, see if there are pending upgrades.
-	checkUpgrade(db)
+	// For nightly builds, always auto-run pending migrations without
+	// recording the last version in the DB. Migrations are idempotent, and between
+	// nightly releases, they may change multiple times.
+	if isNightly {
+		lo.Printf("auto-running all migrations for nightly %s since last major version", versionString)
+		upgrade(db, fs, false, false)
+	} else {
+		// Before the queries are prepared, see if there are pending upgrades.
+		checkUpgrade(db)
+	}
 
 	// Read the SQL queries from the queries file.
 	qMap := readQueries(queryFilePath, fs)
