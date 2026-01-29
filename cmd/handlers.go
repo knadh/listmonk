@@ -217,6 +217,9 @@ func initHTTPHandlers(e *echo.Echo, a *App) {
 		g.PUT("/api/roles/lists/:id", pm(hasID(a.UpdateListRole), "roles:manage"))
 		g.DELETE("/api/roles/:id", pm(hasID(a.DeleteRole), "roles:manage"))
 
+		// Webhook events list (webhooks are configured via settings).
+		g.GET("/api/settings/webhooks/events", pm(a.GetWebhookEvents, "settings:get"))
+
 		if a.cfg.BounceWebhooksEnabled {
 			// Private authenticated bounce endpoint.
 			g.POST("/webhooks/bounce", pm(a.BounceWebhook, "webhooks:post_bounce"))

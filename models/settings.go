@@ -28,6 +28,9 @@ type Settings struct {
 	AppMessageSlidingWindowDuration string `json:"app.message_sliding_window_duration"`
 	AppMessageSlidingWindowRate     int    `json:"app.message_sliding_window_rate"`
 
+	AppWebhookWorkers   int `json:"app.webhook_workers"`
+	AppWebhookBatchSize int `json:"app.webhook_batch_size"`
+
 	PrivacyIndividualTracking bool     `json:"privacy.individual_tracking"`
 	PrivacyUnsubHeader        bool     `json:"privacy.unsubscribe_header"`
 	PrivacyAllowBlocklist     bool     `json:"privacy.allow_blocklist"`
@@ -109,6 +112,8 @@ type Settings struct {
 		Timeout       string `json:"timeout"`
 		MaxMsgRetries int    `json:"max_msg_retries"`
 	} `json:"messengers"`
+
+	Webhooks []Webhook `json:"webhooks"`
 
 	BounceEnabled        bool `json:"bounce.enabled"`
 	BounceEnableWebhooks bool `json:"bounce.webhooks_enabled"`

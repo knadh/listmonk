@@ -74,8 +74,9 @@ func (s *store) GetCampaign(campID int) (*models.Campaign, error) {
 }
 
 // UpdateCampaignStatus updates a campaign's status.
+// Uses Core to ensure webhooks are triggered for status changes.
 func (s *store) UpdateCampaignStatus(campID int, status string) error {
-	_, err := s.queries.UpdateCampaignStatus.Exec(campID, status)
+	_, err := s.core.UpdateCampaignStatus(campID, status)
 	return err
 }
 

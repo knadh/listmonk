@@ -26,6 +26,7 @@ import (
 	"github.com/knadh/listmonk/internal/media"
 	"github.com/knadh/listmonk/internal/messenger/email"
 	"github.com/knadh/listmonk/internal/subimporter"
+	"github.com/knadh/listmonk/internal/webhooks"
 	"github.com/knadh/listmonk/models"
 	"github.com/knadh/paginator"
 	"github.com/knadh/stuffbin"
@@ -46,6 +47,7 @@ type App struct {
 	auth       *auth.Auth
 	media      media.Store
 	bounce     *bounce.Manager
+	webhooks   *webhooks.Manager
 	captcha    *captcha.Captcha
 	i18n       *i18n.I18n
 	pg         *paginator.Paginator
@@ -81,6 +83,8 @@ var (
 	fs      stuffbin.FileSystem
 	db      *sqlx.DB
 	queries *models.Queries
+
+	webhookMgr *webhooks.Manager
 
 	// Compile-time variables.
 	buildString   string
@@ -188,6 +192,9 @@ func init() {
 
 	// Prepare queries.
 	queries = prepareQueries(qMap, db, ko)
+
+	// Initialize the webhook manager for outgoing event webhooks.
+	webhookMgr = webhooks.New(lo, versionString, queries)
 }
 
 func main() {
@@ -207,7 +214,7 @@ func main() {
 		fbOptinNotify = makeOptinNotifyHook(ko.Bool("privacy.unsubscribe_header"), urlCfg, queries, i18n)
 
 		// Crud core.
-		core = initCore(fbOptinNotify, queries, db, i18n, ko)
+		core = initCore(fbOptinNotify, queries, db, i18n, ko, webhookMgr)
 
 		// Initialize all messengers, SMTP and postback.
 		msgrs = append(initSMTPMessengers(), initPostbackMessengers(ko)...)
@@ -254,6 +261,38 @@ func main() {
 		go bounce.Run()
 	}
 
+	// Load webhooks from settings.
+	var settings models.Settings
+	var settingsLoaded bool
+	if s, err := core.GetSettings(); err == nil {
+		settings = s
+		settingsLoaded = true
+		webhookMgr.Load(settings.Webhooks)
+	}
+
+	// Initialize and start the webhook worker pool.
+	webhookWorkerCfg := webhooks.WorkerConfig{
+		NumWorkers: ko.Int("app.webhook_workers"),
+		BatchSize:  ko.Int("app.webhook_batch_size"),
+	}
+	if webhookWorkerCfg.NumWorkers < 1 {
+		webhookWorkerCfg.NumWorkers = 2
+	}
+	if webhookWorkerCfg.BatchSize < 1 {
+		webhookWorkerCfg.BatchSize = 50
+	}
+	webhookWorkerPool := webhooks.NewWorkerPool(webhookWorkerCfg, db, queries, lo, versionString)
+	if settingsLoaded {
+		webhookWorkerPool.LoadWebhooks(settings.Webhooks)
+	}
+	go webhookWorkerPool.Run()
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	// write each webhook to db for the worker pool to pick up
+	go core.PersistWebhookLogs(ctx)
+
 	// Start cronjobs.
 	initCron(core, db)
 
@@ -277,6 +316,7 @@ func main() {
 		auth:       auth,
 		media:      media,
 		bounce:     bounce,
+		webhooks:   webhookMgr,
 		captcha:    initCaptcha(),
 		i18n:       i18n,
 		log:        lo,
@@ -323,6 +363,15 @@ func main() {
 
 		// Close the campaign manager.
 		mgr.Close()
+
+		// Close the webhook worker pool.
+		webhookWorkerPool.Close()
+
+		// Close the webhook manager.
+		webhookMgr.Close()
+
+		// close persist webhook log goroutine
+		cancel()
 
 		// Close the DB pool.
 		db.Close()

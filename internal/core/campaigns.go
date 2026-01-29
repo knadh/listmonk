@@ -299,6 +299,19 @@ func (c *Core) UpdateCampaignStatus(id int, status string) (models.Campaign, err
 	}
 
 	cm.Status = status
+
+	// Trigger webhooks for campaign status changes.
+	switch status {
+	case models.CampaignStatusRunning:
+		c.TriggerWebhook(models.EventCampaignStarted, cm)
+	case models.CampaignStatusPaused:
+		c.TriggerWebhook(models.EventCampaignPaused, cm)
+	case models.CampaignStatusCancelled:
+		c.TriggerWebhook(models.EventCampaignCancelled, cm)
+	case models.CampaignStatusFinished:
+		c.TriggerWebhook(models.EventCampaignFinished, cm)
+	}
+
 	return cm, nil
 }
 
