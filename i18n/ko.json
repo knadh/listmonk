@@ -163,6 +163,7 @@
     "globals.buttons.save": "저장",
     "globals.buttons.saveChanges": "변경사항 저장",
     "globals.buttons.toggleSelect": "선택 전환",
+    "globals.buttons.reload": "Reload",
     "globals.buttons.view": "보기",
     "globals.days.0": "일",
     "globals.days.1": "일",

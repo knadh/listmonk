@@ -163,6 +163,7 @@
     "globals.buttons.save": "Αποθήκευση",
     "globals.buttons.saveChanges": "Αποθήκευση αλλαγών",
     "globals.buttons.toggleSelect": "Εναλλαγή επιλογής",
+    "globals.buttons.reload": "Reload",
     "globals.buttons.view": "Προβολή",
     "globals.days.0": "Κυρ",
     "globals.days.1": "Κυρ",

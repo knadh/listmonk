@@ -163,6 +163,7 @@
     "globals.buttons.save": "Tallenna",
     "globals.buttons.saveChanges": "Tallenna muutokset",
     "globals.buttons.toggleSelect": "Vaihda valinta",
+    "globals.buttons.reload": "Reload",
     "globals.buttons.view": "Näytä",
     "globals.days.0": "Su",
     "globals.days.1": "Su",

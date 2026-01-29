@@ -163,6 +163,7 @@
     "globals.buttons.save": "Kaydet",
     "globals.buttons.saveChanges": "Kaydet değişiklik",
     "globals.buttons.toggleSelect": "Seçimi Değiştir",
+    "globals.buttons.reload": "Reload",
     "globals.buttons.view": "Görüntüle",
     "globals.days.0": "Paz",
     "globals.days.1": "Paz",

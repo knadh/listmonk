@@ -163,6 +163,7 @@
     "globals.buttons.save": "Desa",
     "globals.buttons.saveChanges": "Desa els canvis",
     "globals.buttons.toggleSelect": "Alternar selecció",
+    "globals.buttons.reload": "Reload",
     "globals.buttons.view": "Visualitzar",
     "globals.days.0": "dg.",
     "globals.days.1": "dg.",

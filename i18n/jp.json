@@ -163,6 +163,7 @@
     "globals.buttons.save": "保存",
     "globals.buttons.saveChanges": "変更内容を保存",
     "globals.buttons.toggleSelect": "選択の切り替え",
+    "globals.buttons.reload": "Reload",
     "globals.buttons.view": "表示",
     "globals.days.0": "日",
     "globals.days.1": "日",
