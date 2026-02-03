@@ -71,7 +71,7 @@ func New(opt Opt, q *Queries, lo *log.Logger) (*Manager, error) {
 	if opt.MailboxEnabled {
 		switch opt.MailboxType {
 		case "pop":
-			m.mailbox = mailbox.NewPOP(opt.Mailbox)
+			m.mailbox = mailbox.NewPOP(opt.Mailbox, lo)
 		default:
 			return nil, errors.New("unknown bounce mailbox type")
 		}
