@@ -111,7 +111,6 @@ func (p *pipe) NextSubscribers() (bool, error) {
 			if diff >= p.m.cfg.SlidingWindowDuration {
 				p.m.slidingStart = time.Now()
 				p.m.slidingCount = 0
-				continue
 			}
 
 			// Have the messages exceeded the limit?
