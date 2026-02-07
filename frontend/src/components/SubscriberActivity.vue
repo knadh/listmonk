@@ -40,8 +40,9 @@
           <b-table-column v-slot="props" field="subject" :label="$tc('globals.terms.campaign', 1)" sortable>
             <div v-if="props.row.uuid">
               <router-link :to="{ name: 'campaign', params: { id: props.row.id } }">
-                {{ props.row.subject || props.row.name }}
+                {{ props.row.name }}
               </router-link>
+              <p class="is-size-7 has-text-grey">{{ props.row.subject }}</p>
             </div>
             <div v-else>
               <em class="has-text-grey">{{ $t('subscribers.activity.campaignDeleted') }}</em>
