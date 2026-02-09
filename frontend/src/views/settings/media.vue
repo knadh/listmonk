@@ -102,10 +102,10 @@
               placeholder="https://s3.$region.amazonaws.com" :maxlength="200" expanded type="url"
               pattern="https?://.*" />
           </b-field>
-          <b-field :label="$t('settings.media.s3.publicURL')" label-position="on-border" expanded>
-            <b-input v-model="data['upload.s3.public_url']" :message="$t('settings.media.s3.publicURLHelp')"
-              name="upload.s3.public_url" placeholder="https://files.yourdomain.com" :maxlength="200" type="url"
-              pattern="https?://.*" />
+          <b-field :label="$t('settings.media.s3.publicURL')" label-position="on-border" :message="$t('settings.media.s3.publicURLHelp')" expanded>
+            <b-input v-model="data['upload.s3.public_url']"
+              name="upload.s3.public_url" placeholder="https://files.yourdomain.com" :maxlength="200" type="string"
+              pattern="(https?://.*|/.+)" />
           </b-field>
         </div>
       </div>

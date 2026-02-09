@@ -23,6 +23,7 @@ type Opt struct {
 	BucketPath string        `koanf:"bucket_path"`
 	BucketType string        `koanf:"bucket_type"`
 	Expiry     time.Duration `koanf:"expiry"`
+	RootURL    string        `koanf:"root_url"`
 }
 
 // Client implements `media.Store` for S3 provider
@@ -159,7 +160,11 @@ func (c *Client) makeBucketPath(name string) string {
 
 func (c *Client) makeFileURL(name string) string {
 	if c.opts.PublicURL != "" {
-		return c.opts.PublicURL + "/" + c.makeBucketPath(name)
+		prefix := c.opts.PublicURL
+		if strings.HasPrefix(prefix, "/") {
+			prefix = c.opts.RootURL + prefix
+		}
+		return prefix + "/" + c.makeBucketPath(name)
 	}
 
 	return c.opts.URL + "/" + c.opts.Bucket + "/" + c.makeBucketPath(name)

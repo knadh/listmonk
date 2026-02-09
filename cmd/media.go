@@ -191,6 +191,22 @@ func (a *App) DeleteMedia(c echo.Context) error {
 	return c.JSON(http.StatusOK, okResp{true})
 }
 
+// ServeS3Media serves media files stored in S3 when the public URL is a relative path.
+func (a *App) ServeS3Media(c echo.Context) error {
+	key := c.Param("filepath")
+	if key == "" {
+		return echo.NewHTTPError(http.StatusBadRequest, "missing media file path")
+	}
+
+	b, err := a.media.GetBlob(key)
+	if err != nil {
+		a.log.Printf("error fetching media from s3 %s: %v", key, err)
+		return echo.NewHTTPError(http.StatusInternalServerError, "error fetching media")
+	}
+
+	return c.Stream(http.StatusOK, http.DetectContentType(b), bytes.NewReader(b))
+}
+
 // processImage reads the image file and returns thumbnail bytes and
 // the original image's width, and height.
 func processImage(file *multipart.FileHeader) (*bytes.Reader, int, int, error) {
