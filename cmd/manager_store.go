@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	"github.com/gofrs/uuid/v5"
 	"github.com/knadh/listmonk/internal/core"
 	"github.com/knadh/listmonk/internal/manager"
@@ -22,7 +23,7 @@ type runningCamp struct {
 	CampaignType     string `db:"campaign_type"`
 	LastSubscriberID int    `db:"last_subscriber_id"`
 	MaxSubscriberID  int    `db:"max_subscriber_id"`
-	ListID           int    `db:"list_id"`
+	ListID           sql.NullInt64 `db:"list_id"`
 }
 
 func newManagerStore(q *models.Queries, c *core.Core, m media.Store) *store {
@@ -54,7 +55,10 @@ func (s *store) NextSubscribers(campID, limit int) ([]models.Subscriber, error) 
 
 	var listIDs []int
 	for _, c := range camps {
-		listIDs = append(listIDs, c.ListID)
+		// Only append if the ListID is valid (not NULL)
+        if c.ListID.Valid {
+            listIDs = append(listIDs, int(c.ListID.Int64))
+        }
 	}
 
 	if len(listIDs) == 0 {
