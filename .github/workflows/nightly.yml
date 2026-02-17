@@ -107,7 +107,7 @@ jobs:
       - name: Create and push Docker manifests
         run: |
           # Docker Hub manifest
-          docker manifest create --amend listmonk/listmonk:nightly \
+          docker buildx imagetools create -t listmonk/listmonk:nightly \
             listmonk/listmonk:nightly-amd64 \
             listmonk/listmonk:nightly-arm64v8 \
             listmonk/listmonk:nightly-armv6 \
@@ -115,7 +115,7 @@ jobs:
           docker manifest push listmonk/listmonk:nightly
 
           # GHCR manifest
-          docker manifest create --amend ghcr.io/knadh/listmonk:nightly \
+          docker buildx imagetools create -t ghcr.io/knadh/listmonk:nightly \
             ghcr.io/knadh/listmonk:nightly-amd64 \
             ghcr.io/knadh/listmonk:nightly-arm64v8 \
             ghcr.io/knadh/listmonk:nightly-armv6 \
