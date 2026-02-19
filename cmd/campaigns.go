@@ -689,7 +689,12 @@ func (a *App) validateCampaignFields(c campReq) (campReq, error) {
 	}
 
 	if !a.manager.HasMessenger(c.Messenger) {
-		return c, errors.New(a.i18n.Ts("campaigns.fieldInvalidMessenger", "name", c.Messenger))
+		// If it's a specific SMTP, but it's no longer available (removed/disabled), fall back to general email messenger.
+		if strings.HasPrefix(c.Messenger, "email-") {
+			c.Messenger = "email"
+		} else {
+			return c, errors.New(a.i18n.Ts("campaigns.fieldInvalidMessenger", "name", c.Messenger))
+		}
 	}
 
 	camp := models.Campaign{Body: c.Body, TemplateBody: tplTag}
