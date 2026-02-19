@@ -45,7 +45,7 @@
         </div>
         <div class="actions" v-if="bulk.checked.length > 0">
           <a class="a" href="#" @click.prevent="deleteLists" data-cy="btn-delete-lists">
-            <b-icon icon="trash-can-outline" size="is-small" /> Delete
+            <b-icon icon="trash-can-outline" size="is-small" /> {{ $t('globals.buttons.delete') }}
           </a>
           <span class="a">
             {{ $tc('globals.messages.numSelected', numSelectedLists, { num: numSelectedLists }) }}
