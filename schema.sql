@@ -258,6 +258,7 @@ INSERT INTO settings (key, value) VALUES
     ('privacy.domain_blocklist', '[]'),
     ('privacy.domain_allowlist', '[]'),
     ('privacy.record_optin_ip', 'false'),
+    ('privacy.default_link_tracking', 'true'),
     ('security.captcha', '{"altcha": {"enabled": false, "complexity": 300000}, "hcaptcha": {"enabled": false, "key": "", "secret": ""}}'),
     ('security.oidc', '{"enabled": false, "provider_url": "", "provider_name": "", "client_id": "", "client_secret": "", "auto_create_users": false, "default_user_role_id": null, "default_list_role_id": null}'),
     ('security.cors_origins', '[]'),

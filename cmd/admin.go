@@ -29,18 +29,20 @@ type serverConfig struct {
 	Permissions   json.RawMessage `json:"permissions"`
 	Update        *AppUpdate      `json:"update"`
 	NeedsRestart  bool            `json:"needs_restart"`
-	HasLegacyUser bool            `json:"has_legacy_user"`
-	Version       string          `json:"version"`
+	HasLegacyUser        bool            `json:"has_legacy_user"`
+	DefaultLinkTracking  bool            `json:"default_link_tracking"`
+	Version              string          `json:"version"`
 }
 
 // GetServerConfig returns general server config.
 func (a *App) GetServerConfig(c echo.Context) error {
 	out := serverConfig{
-		RootURL:       a.urlCfg.RootURL,
-		FromEmail:     a.cfg.FromEmail,
-		Lang:          a.cfg.Lang,
-		Permissions:   a.cfg.PermissionsRaw,
-		HasLegacyUser: a.cfg.HasLegacyUser,
+		RootURL:             a.urlCfg.RootURL,
+		FromEmail:           a.cfg.FromEmail,
+		Lang:                a.cfg.Lang,
+		Permissions:         a.cfg.PermissionsRaw,
+		HasLegacyUser:       a.cfg.HasLegacyUser,
+		DefaultLinkTracking: a.cfg.Privacy.DefaultLinkTracking,
 	}
 	out.PublicSubscription.Enabled = a.cfg.EnablePublicSubPage
 

@@ -93,6 +93,7 @@ type Config struct {
 		AllowExport        bool            `koanf:"allow_export"`
 		AllowWipe          bool            `koanf:"allow_wipe"`
 		RecordOptinIP      bool            `koanf:"record_optin_ip"`
+		DefaultLinkTracking bool           `koanf:"default_link_tracking"`
 		UnsubHeader        bool            `koanf:"unsubscribe_header"`
 		Exportable         map[string]bool `koanf:"-"`
 		DomainBlocklist    []string        `koanf:"-"`
