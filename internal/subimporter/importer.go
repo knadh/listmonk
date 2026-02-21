@@ -53,6 +53,8 @@ type Importer struct {
 	db   *sql.DB
 	i18n *i18n.I18n
 
+	triggerWebhook func(event string, data any)
+
 	domainBlocklist       map[string]struct{}
 	hasBlocklistWildcards bool
 	hasBlocklist          bool
@@ -72,6 +74,8 @@ type Options struct {
 	BlocklistStmt      *sql.Stmt
 	UpdateListDateStmt *sql.Stmt
 	PostCB             func(subject string, data any) error
+
+	TriggerWebhook func(event string, data any)
 
 	DomainBlocklist []string
 	DomainAllowlist []string
@@ -158,6 +162,8 @@ func New(opt Options, db *sql.DB, i *i18n.I18n) *Importer {
 	im.domainAllowlist = mp
 	im.hasAllowlistWildcards = hasWildcards
 	im.hasAllowlist = len(mp) > 0
+
+	im.triggerWebhook = opt.TriggerWebhook
 
 	return &im
 }
@@ -279,6 +285,8 @@ func (s *Session) Start() {
 		cur   = 0
 	)
 
+	s.im.triggerWebhook(models.EventBatchImportStarted, s.opt)
+
 	listIDs := make([]int, len(s.opt.ListIDs))
 	copy(listIDs, s.opt.ListIDs)
 
@@ -340,6 +348,7 @@ func (s *Session) Start() {
 			s.log.Printf("error updating lists date: %v", err)
 		}
 		s.im.sendNotif(StatusFinished)
+		s.im.triggerWebhook(models.EventBatchImportCompleted, s.opt)
 		return
 	}
 
@@ -349,6 +358,7 @@ func (s *Session) Start() {
 		s.im.setStatus(StatusFailed)
 		s.log.Printf("error committing to DB: %v", err)
 		s.im.sendNotif(StatusFailed)
+		s.im.triggerWebhook(models.EventBatchImportFailed, s.opt)
 		return
 	}
 
