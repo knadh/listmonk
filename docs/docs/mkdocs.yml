@@ -70,3 +70,4 @@ nav:
     - "Performance": maintenance/performance.md
   - "Contributions":
     - "Developer setup": developer-setup.md
+    - "Security reports": security-reports.md
