@@ -88,6 +88,7 @@ type Config struct {
 	DBBatchSize                   int      `koanf:"batch_size"`
 	Privacy                       struct {
 		IndividualTracking bool            `koanf:"individual_tracking"`
+		DisableTracking    bool            `koanf:"disable_tracking"`
 		AllowPreferences   bool            `koanf:"allow_preferences"`
 		AllowBlocklist     bool            `koanf:"allow_blocklist"`
 		AllowExport        bool            `koanf:"allow_export"`
@@ -567,6 +568,7 @@ func initCampaignManager(msgrs []manager.Messenger, q *models.Queries, u *UrlCon
 		MaxSendErrors:         ko.Int("app.max_send_errors"),
 		FromEmail:             ko.String("app.from_email"),
 		IndividualTracking:    ko.Bool("privacy.individual_tracking"),
+		DisableTracking:       ko.Bool("privacy.disable_tracking"),
 		UnsubURL:              u.UnsubURL,
 		OptinURL:              u.OptinURL,
 		LinkTrackURL:          u.LinkTrackURL,

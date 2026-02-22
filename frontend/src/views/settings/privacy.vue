@@ -1,9 +1,19 @@
 <template>
   <div class="items">
-    <b-field :label="$t('settings.privacy.individualSubTracking')"
-      :message="$t('settings.privacy.individualSubTrackingHelp')">
-      <b-switch v-model="data['privacy.individual_tracking']" name="privacy.individual_tracking" />
-    </b-field>
+    <div class="columns">
+      <div class="column is-6">
+        <b-field :label="$t('settings.privacy.disableTracking')" :message="$t('settings.privacy.disableTrackingHelp')">
+          <b-switch v-model="data['privacy.disable_tracking']" name="privacy.disable_tracking" />
+        </b-field>
+      </div>
+      <div class="column is-6" :class="{ 'is-disabled': data['privacy.disable_tracking'] }">
+        <b-field :label="$t('settings.privacy.individualSubTracking')"
+          :message="$t('settings.privacy.individualSubTrackingHelp')">
+          <b-switch v-model="data['privacy.individual_tracking']" :disabled="data['privacy.disable_tracking']"
+            name="privacy.individual_tracking" />
+        </b-field>
+      </div>
+    </div>
 
     <b-field :label="$t('settings.privacy.listUnsubHeader')" :message="$t('settings.privacy.listUnsubHeaderHelp')">
       <b-switch v-model="data['privacy.unsubscribe_header']" name="privacy.unsubscribe_header" />

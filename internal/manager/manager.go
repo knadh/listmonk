@@ -123,6 +123,7 @@ type Config struct {
 	RequeueOnError        bool
 	FromEmail             string
 	IndividualTracking    bool
+	DisableTracking       bool
 	LinkTrackURL          string
 	UnsubURL              string
 	OptinURL              string
@@ -335,6 +336,10 @@ func (m *Manager) GetTpl(id int) (*models.Template, error) {
 func (m *Manager) TemplateFuncs(c *models.Campaign) template.FuncMap {
 	f := template.FuncMap{
 		"TrackLink": func(url string, msg *CampaignMessage) string {
+			if m.cfg.DisableTracking {
+				return url
+			}
+
 			subUUID := msg.Subscriber.UUID
 			if !m.cfg.IndividualTracking {
 				subUUID = dummyUUID
@@ -343,6 +348,10 @@ func (m *Manager) TemplateFuncs(c *models.Campaign) template.FuncMap {
 			return m.trackLink(url, msg.Campaign.UUID, subUUID)
 		},
 		"TrackView": func(msg *CampaignMessage) template.HTML {
+			if m.cfg.DisableTracking {
+				return template.HTML("")
+			}
+
 			subUUID := msg.Subscriber.UUID
 			if !m.cfg.IndividualTracking {
 				subUUID = dummyUUID
@@ -560,6 +569,10 @@ func (m *Manager) getCurrentCampaigns() ([]int64, []int64) {
 // trackLink register a URL and return its UUID to be used in message templates
 // for tracking links.
 func (m *Manager) trackLink(url, campUUID, subUUID string) string {
+	if m.cfg.DisableTracking {
+		return url
+	}
+
 	url = strings.ReplaceAll(url, "&amp;", "&")
 
 	m.linksMut.RLock()

@@ -3,6 +3,15 @@
     <h1 class="title is-4">
       {{ $t('analytics.title') }}
     </h1>
+    <div v-if="serverConfig.privacy.disable_tracking || !serverConfig.privacy.individual_tracking"
+      class="notification is-info">
+      <template v-if="serverConfig.privacy.disable_tracking">
+        {{ $t('analytics.trackingDisabled') }}
+      </template>
+      <template v-else-if="!serverConfig.privacy.individual_tracking">
+        {{ $t('analytics.nonIndividualTracking') }}
+      </template>
+    </div>
     <hr />
 
     <form @submit.prevent="onSubmit">
@@ -38,15 +47,6 @@
         </div>
       </div><!-- columns -->
     </form>
-
-    <p class="is-size-7 mt-2 has-text-grey-light">
-      <template v-if="settings['privacy.individual_tracking']">
-        {{ $t('analytics.isUnique') }}
-      </template>
-      <template v-else>
-        {{ $t('analytics.nonUnique') }}
-      </template>
-    </p>
 
     <section class="charts mt-5">
       <div class="chart" v-for="(v, k) in charts" :key="k">
@@ -291,7 +291,7 @@ export default Vue.extend({
   },
 
   computed: {
-    ...mapState(['settings']),
+    ...mapState(['serverConfig']),
   },
 
   created() {

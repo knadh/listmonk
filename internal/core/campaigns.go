@@ -435,6 +435,16 @@ func (c *Core) RegisterCampaignView(campUUID, subUUID string) error {
 	return nil
 }
 
+// GetLinkURL returns the original URL for a link UUID without recording a click.
+func (c *Core) GetLinkURL(linkUUID string) (string, error) {
+	var url string
+	if err := c.q.GetLinkURL.Get(&url, linkUUID); err != nil {
+		c.log.Printf("error getting link URL: %s", err)
+		return "", echo.NewHTTPError(http.StatusInternalServerError, c.i18n.Ts("public.errorProcessingRequest"))
+	}
+	return url, nil
+}
+
 // RegisterCampaignLinkClick registers a subscriber's link click on a campaign.
 func (c *Core) RegisterCampaignLinkClick(linkUUID, campUUID, subUUID string) (string, error) {
 	var url string

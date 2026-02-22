@@ -22,6 +22,10 @@ type serverConfig struct {
 		CaptchaKey       null.String `json:"captcha_key"`
 		AltchaComplexity int         `json:"altcha_complexity"`
 	} `json:"public_subscription"`
+	Privacy struct {
+		DisableTracking    bool `json:"disable_tracking"`
+		IndividualTracking bool `json:"individual_tracking"`
+	} `json:"privacy"`
 	MediaProvider string          `json:"media_provider"`
 	Messengers    []string        `json:"messengers"`
 	Langs         []i18nLang      `json:"langs"`
@@ -41,6 +45,13 @@ func (a *App) GetServerConfig(c echo.Context) error {
 		Lang:          a.cfg.Lang,
 		Permissions:   a.cfg.PermissionsRaw,
 		HasLegacyUser: a.cfg.HasLegacyUser,
+		Privacy: struct {
+			DisableTracking    bool `json:"disable_tracking"`
+			IndividualTracking bool `json:"individual_tracking"`
+		}{
+			DisableTracking:    a.cfg.Privacy.DisableTracking,
+			IndividualTracking: a.cfg.Privacy.IndividualTracking,
+		},
 	}
 	out.PublicSubscription.Enabled = a.cfg.EnablePublicSubPage
 
