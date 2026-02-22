@@ -13,6 +13,7 @@ static/public/static/altcha.umd.js
 .vscode/
 
 config.toml
+docker-compose.override.yml
 node_modules
 listmonk
 dist/*
