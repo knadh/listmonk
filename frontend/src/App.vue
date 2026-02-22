@@ -13,10 +13,10 @@
         <navigation v-if="isMobile" :is-mobile="isMobile" :active-item="activeItem" :active-group="activeGroup"
           @toggleGroup="toggleGroup" @doLogout="doLogout" />
 
-        <b-navbar-item tag="a" href="#" @click.prevent="emitPageRefresh" data-cy="btn-reload"
-          :aria-label="$t('globals.buttons.reload')" class="refresh-btn">
-          <b-tooltip :label="$t('globals.buttons.reload')" type="is-dark" position="is-bottom">
-            <b-icon icon="refresh" :class="{ 'spin': isPageLoading }" />
+        <b-navbar-item tag="a" href="#" @click.prevent="emitPageRefresh" data-cy="btn-refresh"
+          :aria-label="$t('globals.buttons.refresh')">
+          <b-tooltip :label="$t('globals.buttons.refresh')" type="is-dark" position="is-bottom">
+            <b-icon icon="refresh" /> <span class="is-hidden-tablet">{{ $t('globals.buttons.refresh') }}</span>
           </b-tooltip>
         </b-navbar-item>
 
@@ -196,12 +196,7 @@ export default Vue.extend({
   },
 
   computed: {
-    ...mapState(['serverConfig', 'profile', 'loading']),
-
-    isPageLoading() {
-      // Check if any model is currently loading
-      return Object.values(this.loading).some((v) => v === true);
-    },
+    ...mapState(['serverConfig', 'profile']),
 
     isGlobalNotices() {
       return (this.serverConfig.needs_restart
