@@ -159,6 +159,7 @@
     "globals.buttons.more": "もっと",
     "globals.buttons.new": "新",
     "globals.buttons.ok": "OK",
+    "globals.buttons.refresh": "Refresh",
     "globals.buttons.remove": "削除",
     "globals.buttons.save": "保存",
     "globals.buttons.saveChanges": "変更内容を保存",

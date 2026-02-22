@@ -176,6 +176,22 @@ export default Vue.extend({
   },
 
   methods: {
+    fetchData() {
+      this.isCountsLoading = true;
+      this.isChartsLoading = true;
+
+      this.$api.getDashboardCounts().then((data) => {
+        this.counts = data;
+        this.isCountsLoading = false;
+      });
+
+      this.$api.getDashboardCharts().then((data) => {
+        this.isChartsLoading = false;
+        this.campaignViews = this.makeChart(data.campaignViews);
+        this.campaignClicks = this.makeChart(data.linkClicks);
+      });
+    },
+
     makeChart(data) {
       if (data.length === 0) {
         return {};
@@ -202,19 +218,16 @@ export default Vue.extend({
     },
   },
 
-  mounted() {
-    // Pull the counts.
-    this.$api.getDashboardCounts().then((data) => {
-      this.counts = data;
-      this.isCountsLoading = false;
-    });
+  created() {
+    this.$root.$on('page.refresh', this.fetchData);
+  },
 
-    // Pull the charts.
-    this.$api.getDashboardCharts().then((data) => {
-      this.isChartsLoading = false;
-      this.campaignViews = this.makeChart(data.campaignViews);
-      this.campaignClicks = this.makeChart(data.linkClicks);
-    });
+  destroyed() {
+    this.$root.$off('page.refresh', this.fetchData);
+  },
+
+  mounted() {
+    this.fetchData();
   },
 });
 </script>

@@ -13,6 +13,13 @@
         <navigation v-if="isMobile" :is-mobile="isMobile" :active-item="activeItem" :active-group="activeGroup"
           @toggleGroup="toggleGroup" @doLogout="doLogout" />
 
+        <b-navbar-item tag="a" href="#" @click.prevent="emitPageRefresh" data-cy="btn-refresh"
+          :aria-label="$t('globals.buttons.refresh')">
+          <b-tooltip :label="$t('globals.buttons.refresh')" type="is-dark" position="is-bottom">
+            <b-icon icon="refresh" /> <span class="is-hidden-tablet">{{ $t('globals.buttons.refresh') }}</span>
+          </b-tooltip>
+        </b-navbar-item>
+
         <b-navbar-dropdown class="user" tag="div" right>
           <template v-if="profile.username" #label>
             <span class="user-avatar">
@@ -142,6 +149,10 @@ export default Vue.extend({
   methods: {
     toggleGroup(group, state) {
       this.activeGroup = state ? { [group]: true } : {};
+    },
+
+    emitPageRefresh() {
+      this.$root.$emit('page.refresh');
     },
 
     reloadApp() {

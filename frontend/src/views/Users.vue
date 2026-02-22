@@ -132,6 +132,7 @@
 import Vue from 'vue';
 import { mapState } from 'vuex';
 import EmptyPlaceholder from '../components/EmptyPlaceholder.vue';
+
 import UserForm from './UserForm.vue';
 
 export default Vue.extend({
@@ -220,6 +221,14 @@ export default Vue.extend({
 
   computed: {
     ...mapState(['loading', 'settings']),
+  },
+
+  created() {
+    this.$root.$on('page.refresh', this.getUsers);
+  },
+
+  destroyed() {
+    this.$root.$off('page.refresh', this.getUsers);
   },
 
   mounted() {

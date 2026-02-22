@@ -159,6 +159,7 @@
     "globals.buttons.more": "더보기",
     "globals.buttons.new": "새로 만들기",
     "globals.buttons.ok": "확인",
+    "globals.buttons.refresh": "Refresh",
     "globals.buttons.remove": "제거",
     "globals.buttons.save": "저장",
     "globals.buttons.saveChanges": "변경사항 저장",

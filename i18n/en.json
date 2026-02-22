@@ -161,6 +161,7 @@
     "globals.buttons.save": "Save",
     "globals.buttons.saveChanges": "Save changes",
     "globals.buttons.toggleSelect": "Toggle selection",
+    "globals.buttons.refresh": "Refresh",
     "globals.buttons.view": "View",
     "globals.days.0": "Sun",
     "globals.days.1": "Sun",

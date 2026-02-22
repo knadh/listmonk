@@ -223,6 +223,14 @@ export default Vue.extend({
     },
   },
 
+  created() {
+    this.$root.$on('page.refresh', this.getMedia);
+  },
+
+  destroyed() {
+    this.$root.$off('page.refresh', this.getMedia);
+  },
+
   mounted() {
     this.$api.getMedia();
 

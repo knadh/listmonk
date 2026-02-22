@@ -363,6 +363,14 @@ export default Vue.extend({
     },
   },
 
+  created() {
+    this.$root.$on('page.refresh', this.getLists);
+  },
+
+  destroyed() {
+    this.$root.$off('page.refresh', this.getLists);
+  },
+
   mounted() {
     if (this.$route.params.id) {
       this.$api.getList(parseInt(this.$route.params.id, 10)).then((data) => {
