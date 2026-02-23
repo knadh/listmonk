@@ -49,6 +49,9 @@ jobs:
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
 
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
@@ -112,7 +115,6 @@ jobs:
             listmonk/listmonk:nightly-arm64v8 \
             listmonk/listmonk:nightly-armv6 \
             listmonk/listmonk:nightly-armv7
-          docker manifest push listmonk/listmonk:nightly
 
           # GHCR manifest
           docker buildx imagetools create -t ghcr.io/knadh/listmonk:nightly \
@@ -120,7 +122,11 @@ jobs:
             ghcr.io/knadh/listmonk:nightly-arm64v8 \
             ghcr.io/knadh/listmonk:nightly-armv6 \
             ghcr.io/knadh/listmonk:nightly-armv7
-          docker manifest push ghcr.io/knadh/listmonk:nightly
+
+      - name: Verify Docker manifests
+        run: |
+          docker buildx imagetools inspect listmonk/listmonk:nightly
+          docker buildx imagetools inspect ghcr.io/knadh/listmonk:nightly
 
       - name: Create GitHub Release
         env:
