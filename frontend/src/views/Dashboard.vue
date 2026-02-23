@@ -127,7 +127,7 @@
                   <chart type="line" v-if="campaignViews" :data="campaignViews" />
                 </div>
                 <div class="column is-6">
-                  <h3 class="title is-size-6 has-text-right">
+                  <h3 class="title is-size-6">
                     {{ $t('dashboard.linkClicks') }}
                   </h3><br />
                   <chart type="line" v-if="campaignClicks" :data="campaignClicks" />
