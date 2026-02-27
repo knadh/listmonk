@@ -5,7 +5,7 @@
     "analytics.count": "Tæl",
     "analytics.fromDate": "Fra",
     "analytics.invalidDates": "Ugyldig `fra`- eller `til`-dato.",
-    "analytics.isUnique": "Antal er er unikt pr. abonnent.",
+    "analytics.isUnique": "Antal er unikt pr. abonnent.",
     "analytics.links": "Links",
     "analytics.nonUnique": "Antallet er ikke unikt da sporing af individuelle abonnenter er deaktiveret.",
     "analytics.title": "Statistik",
