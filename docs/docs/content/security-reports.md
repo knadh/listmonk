@@ -1,4 +1,4 @@
-If you spot a security vulnerability in listmonk, please report it via GitHub [security advisories](__https://github.com/knadh/listmonk/security/advisories__).
+If you spot a security vulnerability in listmonk, please report it via GitHub [security advisories](https://github.com/knadh/listmonk/security/advisories).
 ### What not to report
 
 The below listed scenarios are either not security vulnerabilities or are of acceptable risk. They keep getting reported unfortunately. Please refrain from doing so.
