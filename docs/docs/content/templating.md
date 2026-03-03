@@ -42,16 +42,16 @@ There are several template functions and expressions that can be used in campaig
 
 ### Functions
 
-| Function                                    | Description                                                                                                                                                    |
-| ------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `{{ Date "2006-01-01" }}`                   | Prints the current datetime for the given format expressed as a [Go date layout](https://yourbasic.org/golang/format-parse-string-time-date-example/) |
-| `{{ TrackLink "https://link.com" }}` | Takes a URL and generates a tracking URL over it. For use in campaign bodies and templates.                                                                    |
-| `https://link.com@TrackLink`         | Shorthand for `TrackLink`. Eg: `<a href="https://link.com@TrackLink">Link</a>`                                                                       |
-| `{{ TrackView }}`                           | Inserts a single tracking pixel. Should only be used once, ideally in the template footer.                                                                     |
-| `{{ UnsubscribeURL }}`                      | Unsubscription and Manage preferences URL. Ideal for use in the template footer.                                                                                                      |
-| `{{ MessageURL }}`                          | URL to view the hosted version of an e-mail message.                                                                                                           |
-| `{{ OptinURL }}`                            | URL to the double-optin confirmation page.                                                                                                                     |
-| `{{ Safe "<!-- comment -->" }}`             | Add any HTML code as it is.                                                                                                                                   |
+| Function                             | Description                                                                                                                                           |
+|--------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `{{ Date "2006-01-01" }}`            | Prints the current datetime for the given format expressed as a [Go date layout](https://yourbasic.org/golang/format-parse-string-time-date-example/) |
+| `{{ TrackLink "https://link.com" }}` | Takes a URL and generates a tracking URL over it. For use in campaign bodies and templates.                                                           |
+| `https://link.com@TrackLink`         | Shorthand for `TrackLink`. Eg: `<a href="https://link.com@TrackLink">Link</a>`                                                                        |
+| `{{ TrackView }}`                    | Inserts a single tracking pixel. Should only be used once, ideally in the template footer.                                                            |
+| `{{ UnsubscribeURL }}`               | Unsubscription and Manage preferences URL. Ideal for use in the template footer.                                                                      |
+| `{{ MessageURL }}`                   | URL to view the hosted version of an e-mail message.                                                                                                  |
+| `{{ OptinURL }}`                     | URL to the double opt-in confirmation page.                                                                                                           |
+| `{{ Safe "<!-- comment -->" }}`      | Add any HTML code as it is.                                                                                                                           |
 
 ### Sprig functions
 listmonk integrates the Sprig library that offers 100+ utility functions for working with strings, numbers, dates etc. that can be used in templating. Refer to the [Sprig documentation](https://masterminds.github.io/sprig/) for the full list of functions.

@@ -26,12 +26,11 @@ Attributes are arbitrary properties attached to a subscriber in addition to thei
 
 A subscriber can be added to one or more lists, and each such relationship can have one of these statuses.
 
-| Status        | Description                                                                       |
-| ------------- | --------------------------------------------------------------------------------- |
-| `unconfirmed` | The subscriber was added to the list directly without their explicit confirmation. Nonetheless, the subscriber will receive campaign messages sent to single optin campaigns. |
-| `confirmed`   | The subscriber confirmed their subscription by clicking on 'accept' in the confirmation e-mail. Only confirmed subscribers in opt-in lists will receive campaign messages send to the list.                                       |
-| `unsubscribed` | The subscriber is unsubscribed from the list and will not receive any campaign messages sent to the list.
-
+| Status         | Description                                                                                                                                                                                 |
+|----------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `unconfirmed`  | The subscriber was added to the list directly without their explicit confirmation. Nonetheless, the subscriber will receive campaign messages sent to single opt-in campaigns.              |
+| `confirmed`    | The subscriber confirmed their subscription by clicking on 'accept' in the confirmation e-mail. Only confirmed subscribers in opt-in lists will receive campaign messages send to the list. |
+| `unsubscribed` | The subscriber is unsubscribed from the list and will not receive any campaign messages sent to the list.                                                                                   |
 
 ### Segmentation
 
@@ -39,7 +38,7 @@ Segmentation is the process of filtering a large list of subscribers into a smal
 
 ## List
 
-A list (or a _mailing list_) is a collection of subscribers grouped under a name, for instance, _clients_. Lists are used to organise subscribers and send e-mails to specific groups. A list can be single optin or double optin. Subscribers added to double optin lists have to explicitly accept the subscription by clicking on the confirmation e-mail they receive. Until then, they do not receive campaign messages.
+A list (or a _mailing list_) is a collection of subscribers grouped under a name, for instance, _clients_. Lists are used to organise subscribers and send e-mails to specific groups. A list can be single opt-in or double opt-in. Subscribers added to double opt-in lists have to explicitly accept the subscription by clicking on the confirmation e-mail they receive. Until then, they do not receive campaign messages.
 
 ## Campaign
 

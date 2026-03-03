@@ -301,13 +301,13 @@ Create a new subscriber.
 ##### Parameters
 
 | Name                     | Type       | Required | Description                                                                                                                   |
-| :----------------------- | :--------- | :------- | :---------------------------------------------------------------------------------------------------------------------------- |
+|:-------------------------|:-----------|:---------|:------------------------------------------------------------------------------------------------------------------------------|
 | email                    | string     | Yes      | Subscriber's email address.                                                                                                   |
 | name                     | string     | Yes      | Subscriber's name.                                                                                                            |
 | status                   | string     | Yes      | Subscriber's status: `enabled`, `blocklisted`.                                                                                |
 | lists                    | number\[\] |          | List of list IDs to subscribe to.                                                                                             |
 | attribs                  | JSON       |          | Optional JSON object attributes for the subscriber that can be used in message templates. Example `{"location": "Somewhere"}` |
-| preconfirm_subscriptions | bool       |          | If true, subscriptions are marked as confirmed and no-optin emails are sent for double opt-in lists.                          |
+| preconfirm_subscriptions | bool       |          | If true, subscriptions are marked as confirmed and no opt-in emails are sent for double opt-in lists.                         |
 
 ##### Example Request
 
@@ -342,7 +342,7 @@ ______________________________________________________________________
 
 #### POST /api/subscribers/{subscribers_id}/optin
 
-Sends optin confirmation email to subscribers.
+Sends opt-in confirmation email to subscribers.
 
 ##### Example Request
 
