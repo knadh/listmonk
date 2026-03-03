@@ -157,6 +157,13 @@ UPDATE subscribers SET
     updated_at=NOW()
 WHERE id = $1;
 
+-- name: patch-subscriber
+-- Patches a subscriber's data
+UPDATE subscribers SET
+    email=(CASE WHEN $2 != '' THEN $2 ELSE email END),
+    updated_at=NOW()
+WHERE id = $1 RETURNING id;
+
 -- name: update-subscriber-with-lists
 -- Updates a subscriber's data, and given a list of list_ids, inserts subscriptions
 -- for them while deleting existing subscriptions not in the list.

@@ -382,6 +382,26 @@ func (c *Core) UpdateSubscriber(id int, sub models.Subscriber) (models.Subscribe
 	return out, nil
 }
 
+// PatchSubscriber patches a subscriber's properties.
+// Currently only supports changing the email address.
+func (c *Core) PatchSubscriber(id int, sub models.Subscriber) (models.Subscriber, error) {
+
+	_, err := c.q.PatchSubscriber.Exec(id,
+		sub.Email)
+	if err != nil {
+		c.log.Printf("error patching subscriber: %v", err)
+		return models.Subscriber{}, echo.NewHTTPError(http.StatusInternalServerError,
+			c.i18n.Ts("globals.messages.errorUpdating", "name", "{globals.terms.subscriber}", "error", pqErrMsg(err)))
+	}
+
+	out, err := c.GetSubscriber(sub.ID, "", sub.Email)
+	if err != nil {
+		return models.Subscriber{}, err
+	}
+
+	return out, nil
+}
+
 // UpdateSubscriberWithLists updates a subscriber's properties.
 // If deleteLists is set to true, all existing subscriptions are deleted and only
 // the ones provided are added or retained.

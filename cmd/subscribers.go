@@ -244,6 +244,35 @@ func (a *App) CreateSubscriber(c echo.Context) error {
 	return c.JSON(http.StatusOK, okResp{sub})
 }
 
+// PatchSubscriber handles patching of a subscriber
+// Currently only supports changing the email address.
+func (a *App) PatchSubscriber(c echo.Context) error {
+
+	// Get and validate fields.
+	req := struct {
+		models.Subscriber
+	}{}
+	if err := c.Bind(&req); err != nil {
+		return err
+	}
+
+	// Sanitize and validate the email field.
+	if em, err := a.importer.SanitizeEmail(req.Email); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	} else {
+		req.Email = em
+	}
+
+	// Update the subscriber in the DB.
+	id := getID(c)
+	out, err := a.core.PatchSubscriber(id, req.Subscriber)
+	if err != nil {
+		return err
+	}
+
+	return c.JSON(http.StatusOK, okResp{out})
+}
+
 // UpdateSubscriber handles modification of a subscriber.
 func (a *App) UpdateSubscriber(c echo.Context) error {
 	// Get the authenticated user.
