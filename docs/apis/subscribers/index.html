@@ -3381,7 +3381,7 @@
 <td style="text-align: left;">preconfirm_subscriptions</td>
 <td style="text-align: left;">bool</td>
 <td style="text-align: left;"></td>
-<td style="text-align: left;">If true, subscriptions are marked as confirmed and no-optin emails are sent for double opt-in lists.</td>
+<td style="text-align: left;">If true, subscriptions are marked as confirmed and no opt-in emails are sent for double opt-in lists.</td>
 </tr>
 </tbody>
 </table>
@@ -3410,7 +3410,7 @@
 </code></pre></div>
 <hr />
 <h4 id="post-apisubscriberssubscribers_idoptin">POST /api/subscribers/{subscribers_id}/optin<a class="headerlink" href="#post-apisubscriberssubscribers_idoptin" title="Permanent link">&para;</a></h4>
-<p>Sends optin confirmation email to subscribers.</p>
+<p>Sends opt-in confirmation email to subscribers.</p>
 <h5 id="example-request_5">Example Request<a class="headerlink" href="#example-request_5" title="Permanent link">&para;</a></h5>
 <div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-u<span class="w"> </span><span class="s1">&#39;api_username:access_token&#39;</span><span class="w"> </span><span class="s1">&#39;http://localhost:9000/api/subscribers/11/optin&#39;</span><span class="w"> </span>-H<span class="w"> </span><span class="s1">&#39;Content-Type: application/json&#39;</span><span class="w"> </span><span class="se">\</span>
 --data<span class="w"> </span><span class="o">{}</span>
