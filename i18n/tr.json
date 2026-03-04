@@ -407,6 +407,8 @@
     "settings.bounces.folder": "Dizin",
     "settings.bounces.folderHelp": "Taranacak IMAP klasörünün adı. Örn: Gelen Kutusu.",
     "settings.bounces.forwardemailKey": "Yönlendirme E-posta Anahtarı",
+    "settings.bounces.enableLettermint": "Enable Lettermint",
+    "settings.bounces.lettermintKey": "Lettermint Webhook Secret",
     "settings.bounces.invalidScanInterval": "Sıçrama tarama aralığı en az 1 dakika olmalıdır.",
     "settings.bounces.name": "Sıçramalar",
     "settings.bounces.none": "Hiçbiri",

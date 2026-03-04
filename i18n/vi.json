@@ -407,6 +407,8 @@
     "settings.bounces.folder": "Thư mục",
     "settings.bounces.folderHelp": "Tên của thư mục IMAP để quét. Vd: Hộp thư đến.",
     "settings.bounces.forwardemailKey": "Khóa chuyển tiếp email",
+    "settings.bounces.enableLettermint": "Enable Lettermint",
+    "settings.bounces.lettermintKey": "Lettermint Webhook Secret",
     "settings.bounces.invalidScanInterval": "Khoảng thời gian quét bị trả lại phải tối thiểu là 1 phút.",
     "settings.bounces.name": "Bị trả lại",
     "settings.bounces.none": "Không có",

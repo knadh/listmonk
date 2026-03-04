@@ -407,6 +407,8 @@
     "settings.bounces.folder": "Cartella",
     "settings.bounces.folderHelp": "Nome della cartella IMAP da analizzare. Ad esempio: Posta in arrivo.",
     "settings.bounces.forwardemailKey": "Chiave inoltro email",
+    "settings.bounces.enableLettermint": "Enable Lettermint",
+    "settings.bounces.lettermintKey": "Lettermint Webhook Secret",
     "settings.bounces.invalidScanInterval": "L'intervallo di scansione dei rimbalzi deve essere di almeno 1 minuto.",
     "settings.bounces.name": "Rimbalzi",
     "settings.bounces.none": "Nessuno",

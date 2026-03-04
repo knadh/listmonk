@@ -220,6 +220,20 @@ func (a *App) BounceWebhook(c echo.Context) error {
 		}
 		bounces = append(bounces, bs...)
 
+	// Lettermint.
+	case service == "lettermint" && a.cfg.BounceLettermintEnabled:
+		sig := c.Request().Header.Get("X-Lettermint-Signature")
+		bs, err := a.bounce.Lettermint.ProcessBounce(sig, rawReq)
+		if err != nil {
+			a.log.Printf("error processing lettermint notification: %v", err)
+			if _, ok := err.(*echo.HTTPError); ok {
+				return err
+			}
+
+			return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("globals.messages.invalidData"))
+		}
+		bounces = append(bounces, bs...)
+
 	default:
 		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.Ts("bounces.unknownService"))
 	}

@@ -407,6 +407,8 @@
     "settings.bounces.folder": "Priečinok",
     "settings.bounces.folderHelp": "Názov kontrolovaného priečinku IMAP. Napríklad INBOX.",
     "settings.bounces.forwardemailKey": "Kľúč preposielania emailov",
+    "settings.bounces.enableLettermint": "Enable Lettermint",
+    "settings.bounces.lettermintKey": "Lettermint Webhook Secret",
     "settings.bounces.invalidScanInterval": "Interval kontroly nedoručiteľných by mal byť minimálne 1 minúta.",
     "settings.bounces.name": "Nedoručiteľné",
     "settings.bounces.none": "Žiadne",

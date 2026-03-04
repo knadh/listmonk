@@ -407,6 +407,8 @@
     "settings.bounces.folder": "Folder",
     "settings.bounces.folderHelp": "Nazwa folderu IMAP do skanowania. Np: Inbox.",
     "settings.bounces.forwardemailKey": "Klucz przekazywania e-maili",
+    "settings.bounces.enableLettermint": "Enable Lettermint",
+    "settings.bounces.lettermintKey": "Lettermint Webhook Secret",
     "settings.bounces.invalidScanInterval": "Interwał czasu powinien być minimum 1 minuta.",
     "settings.bounces.name": "Odbicia",
     "settings.bounces.none": "Brak",
