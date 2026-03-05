@@ -405,7 +405,7 @@ INSERT INTO campaign_lists (campaign_id, list_id, list_name)
 UPDATE campaigns SET
     to_send=(CASE WHEN $2 != 0 THEN $2 ELSE to_send END),
     sent=sent+$3,
-    last_subscriber_id=(CASE WHEN $4 > 0 THEN $4 ELSE to_send END),
+    last_subscriber_id=(CASE WHEN $4 > 0 THEN $4 ELSE last_subscriber_id END),
     updated_at=NOW()
 WHERE id=$1;
 
