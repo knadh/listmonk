@@ -29,16 +29,24 @@ jobs:
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: write
       packages: write
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Get short SHA
         id: slug
         run: echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+
+      - name: Generate CalVer
+        id: calver
+        run: |
+          VERSION=$(date +'%y.%m.%d').${{ github.run_number }}
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
 
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v3
@@ -52,10 +60,18 @@ jobs:
         with:
           context: .
           push: true
+          build-args: |
+            APP_VERSION=${{ steps.calver.outputs.version }}
           tags: |
             ghcr.io/ollisulopuisto/listmonk:latest
-            ghcr.io/ollisulopuisto/listmonk:${{ github.sha }}
+            ghcr.io/ollisulopuisto/listmonk:${{ steps.calver.outputs.version }}
             ghcr.io/ollisulopuisto/listmonk:${{ steps.slug.outputs.sha_short }}
+
+      - name: Create Git Tag
+        if: github.ref == 'refs/heads/master'
+        run: |
+          git tag v${{ steps.calver.outputs.version }}
+          git push origin v${{ steps.calver.outputs.version }}
 
   # 3. DEPLOY: Only runs if test AND build passed
   deploy-staging:

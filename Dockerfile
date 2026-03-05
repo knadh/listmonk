@@ -69,6 +69,10 @@ COPY docker-entrypoint.sh /usr/local/bin/
 
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
+# Version injection
+ARG APP_VERSION=dev
+ENV APP_VERSION=$APP_VERSION
+
 EXPOSE 9000
 ENTRYPOINT ["docker-entrypoint.sh"]
 CMD ["./listmonk"]
