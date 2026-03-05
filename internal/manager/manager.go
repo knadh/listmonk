@@ -280,6 +280,11 @@ func (m *Manager) Run() {
 		has, err := p.NextSubscribers()
 		if err != nil {
 			m.log.Printf("error processing campaign batch (%s): %v", p.camp.Name, err)
+
+			// If the batch fails, stop the pipe and release it so that it doesn't hang forever.
+			// The cleanup() records the state in DB and scanCampaigns() picks it up at a later point.
+			p.Stop(false)
+			p.wg.Done()
 			continue
 		}
 
