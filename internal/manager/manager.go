@@ -288,6 +288,11 @@ func (m *Manager) Run() {
 			select {
 			case m.nextPipes <- p:
 			default:
+				// If the queue is full for any reason, stop the pipe and release it.
+				// The cleanup() records the state in DB and scanCampaigns() picks it up
+				// at a later point.
+				p.Stop(false)
+				p.wg.Done()
 			}
 		} else {
 			// The pipe is created with a +1 on the waitgroup pseudo counter
@@ -437,6 +442,11 @@ func (m *Manager) scanCampaigns(tick time.Duration) {
 			select {
 			case m.nextPipes <- p:
 			default:
+				// If the queue is full for any reason, stop the pipe and release it.
+				// The cleanup() records the state in DB and scanCampaigns() picks it up
+				// at a later point.
+				p.Stop(false)
+				p.wg.Done()
 			}
 		}
 	}
