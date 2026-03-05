@@ -285,7 +285,15 @@ func (a *App) UpdateSubscriber(c echo.Context) error {
 
 	// Update the subscriber in the DB.
 	id := getID(c)
-	out, _, err := a.core.UpdateSubscriberWithLists(id, req.Subscriber, listIDs, nil, req.PreconfirmSubs, true, false)
+
+	// Get the user's permitted lists to pass to the update query so that lists on the subscribers
+	// to which they don't have permissions are preserved/left as-is when deleteLists=true.
+	allPerm, permittedLists := user.GetPermittedLists(auth.PermTypeManage)
+	if allPerm {
+		permittedLists = []int{}
+	}
+
+	out, _, err := a.core.UpdateSubscriberWithLists(id, req.Subscriber, listIDs, nil, req.PreconfirmSubs, true, false, permittedLists)
 	if err != nil {
 		return err
 	}

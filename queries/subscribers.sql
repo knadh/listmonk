@@ -175,7 +175,9 @@ listIDs AS (
               ELSE uuid=ANY($7::UUID[]) END)
 ),
 d AS (
-    DELETE FROM subscriber_lists WHERE $9 = TRUE AND subscriber_id = $1 AND list_id != ALL(SELECT id FROM listIDs)
+    DELETE FROM subscriber_lists WHERE $9 = TRUE AND subscriber_id = $1
+        AND list_id != ALL(SELECT id FROM listIDs)
+        AND (CARDINALITY($10::INT[]) = 0 OR list_id = ANY($10::INT[]))
 )
 INSERT INTO subscriber_lists (subscriber_id, list_id, status)
     VALUES(
