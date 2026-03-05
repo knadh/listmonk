@@ -1,7 +1,7 @@
 name: Hodor AI Code Review
 
 on:
-  pull_request:
+  pull_request_target:
     types: [opened, synchronize]
     paths-ignore:
       - 'i18n/**'
@@ -15,12 +15,13 @@ permissions:
 
 jobs:
   review:
+    if: github.actor != 'dependabot[bot]'
     runs-on: ubuntu-latest
     steps:
       - name: Run Hodor review
         uses: addnab/docker-run-action@v3
         with:
-          image: ghcr.io/mr-karan/hodor:0.2.14
+          image: ghcr.io/mr-karan/hodor:0.3.2
           options: >-
             -e GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}
             -e LLM_API_KEY=${{ secrets.LLM_API_KEY }}
