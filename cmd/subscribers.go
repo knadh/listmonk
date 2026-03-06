@@ -235,6 +235,11 @@ func (a *App) CreateSubscriber(c echo.Context) error {
 	// Filter lists against the current user's permitted lists.
 	listIDs := user.FilterListsByPerm(auth.PermTypeManage, req.Lists)
 
+	// Not a single permitted list?
+	if len(req.Lists) > 0 && len(listIDs) == 0 {
+		return echo.NewHTTPError(http.StatusForbidden, a.i18n.Ts("globals.messages.permissionDenied", "name", "lists"))
+	}
+
 	// Insert the subscriber into the DB.
 	sub, _, err := a.core.InsertSubscriber(req.Subscriber, listIDs, nil, req.PreconfirmSubs, false)
 	if err != nil {
@@ -273,9 +278,22 @@ func (a *App) UpdateSubscriber(c echo.Context) error {
 	// Filter lists against the current user's permitted lists.
 	listIDs := user.FilterListsByPerm(auth.PermTypeManage, req.Lists)
 
+	// Not a single permitted list?
+	if len(req.Lists) > 0 && len(listIDs) == 0 {
+		return echo.NewHTTPError(http.StatusForbidden, a.i18n.Ts("globals.messages.permissionDenied", "name", "lists"))
+	}
+
 	// Update the subscriber in the DB.
 	id := getID(c)
-	out, _, err := a.core.UpdateSubscriberWithLists(id, req.Subscriber, listIDs, nil, req.PreconfirmSubs, true, false)
+
+	// Get the user's permitted lists to pass to the update query so that lists on the subscribers
+	// to which they don't have permissions are preserved/left as-is when deleteLists=true.
+	allPerm, permittedLists := user.GetPermittedLists(auth.PermTypeManage)
+	if allPerm {
+		permittedLists = []int{}
+	}
+
+	out, _, err := a.core.UpdateSubscriberWithLists(id, req.Subscriber, listIDs, nil, req.PreconfirmSubs, true, false, permittedLists)
 	if err != nil {
 		return err
 	}
@@ -371,8 +389,7 @@ func (a *App) ManageSubscriberLists(c echo.Context) error {
 
 	// User doesn't have the required list permissions.
 	if len(listIDs) == 0 {
-		return echo.NewHTTPError(http.StatusForbidden,
-			a.i18n.Ts("globals.messages.permissionDenied", "name", "lists"))
+		return echo.NewHTTPError(http.StatusForbidden, a.i18n.Ts("globals.messages.permissionDenied", "name", "lists"))
 	}
 
 	// Run the action in the DB.

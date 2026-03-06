@@ -159,6 +159,7 @@
     "globals.buttons.more": "Plus",
     "globals.buttons.new": "Ajouter",
     "globals.buttons.ok": "Valider",
+    "globals.buttons.refresh": "Refresh",
     "globals.buttons.remove": "Supprimer",
     "globals.buttons.save": "Enregistrer",
     "globals.buttons.saveChanges": "Enregistrer les changements",

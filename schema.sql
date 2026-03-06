@@ -249,6 +249,7 @@ INSERT INTO settings (key, value) VALUES
     ('app.notify_emails', '[]'),
     ('app.lang', '"en"'),
     ('privacy.individual_tracking', 'false'),
+    ('privacy.disable_tracking', 'false'),
     ('privacy.unsubscribe_header', 'true'),
     ('privacy.allow_blocklist', 'true'),
     ('privacy.allow_export', 'true'),

@@ -236,10 +236,10 @@ export default Vue.extend({
     onListSelect(option) {
       this.selectedList = option;
       const id = option ? option.id : 0;
-      this.loadData(id);
+      this.fetchData(id);
     },
 
-    loadData(listId = 0) {
+    fetchData(listId = 0) {
       this.isCountsLoading = true;
       this.isChartsLoading = true;
 
@@ -267,8 +267,17 @@ export default Vue.extend({
     },
   },
 
+  created() {
+    this.$root.$on('page.refresh', this.fetchData);
+  },
+
+  destroyed() {
+    this.$root.$off('page.refresh', this.fetchData);
+  },
+
   mounted() {
-    this.loadData();
+    this.fetchData();
   },
 });
 </script>
+

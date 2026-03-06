@@ -59,6 +59,7 @@
             </form>
           </div>
         </div>
+
         <div class="actions" v-if="bulk.checked.length > 0">
           <a class="a" href="#" @click.prevent="deleteCampaigns" data-cy="btn-delete-campaigns">
             <b-icon icon="trash-can-outline" size="is-small" /> Delete
@@ -651,6 +652,10 @@ export default Vue.extend({
     },
   },
 
+  created() {
+    this.$root.$on('page.refresh', this.getCampaigns);
+  },
+
   mounted() {
     this.getCampaigns();
     this.pollStats();
@@ -661,6 +666,7 @@ export default Vue.extend({
 
   destroyed() {
     window.removeEventListener('resize', this.onResize);
+    this.$root.$off('page.refresh', this.getCampaigns);
     clearInterval(this.pollID);
   },
 });

@@ -17,6 +17,13 @@
           <b-button @click="toggleTheme" type="is-ghost" :icon-left="theme === 'dark' ? 'white-balance-sunny' : 'moon-waning-crescent'" />
         </b-navbar-item>
 
+        <b-navbar-item tag="a" href="#" @click.prevent="emitPageRefresh" data-cy="btn-refresh"
+          :aria-label="$t('globals.buttons.refresh')">
+          <b-tooltip :label="$t('globals.buttons.refresh')" type="is-dark" position="is-bottom">
+            <b-icon icon="refresh" /> <span class="is-hidden-tablet">{{ $t('globals.buttons.refresh') }}</span>
+          </b-tooltip>
+        </b-navbar-item>
+
         <b-navbar-dropdown class="user" tag="div" right>
           <template v-if="profile.username" #label>
             <span class="user-avatar">
@@ -158,6 +165,10 @@ export default Vue.extend({
 
     toggleTheme() {
       this.theme = this.theme === 'dark' ? 'light' : 'dark';
+    },
+
+    emitPageRefresh() {
+      this.$root.$emit('page.refresh');
     },
 
     reloadApp() {

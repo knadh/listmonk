@@ -47,7 +47,7 @@
       <template #top-left>
         <div class="actions" v-if="bulk.checked.length > 0">
           <a class="a" href="#" @click.prevent="deleteLists" data-cy="btn-delete-lists">
-            <b-icon icon="trash-can-outline" size="is-small" /> Delete
+            <b-icon icon="trash-can-outline" size="is-small" /> {{ $t('globals.buttons.delete') }}
           </a>
           <span class="a">
             {{ $tc('globals.messages.numSelected', numSelectedLists, { num: numSelectedLists }) }}
@@ -362,6 +362,14 @@ export default Vue.extend({
     numSelectedLists() {
       return this.bulk.all ? this.lists.total : this.bulk.checked.length;
     },
+  },
+
+  created() {
+    this.$root.$on('page.refresh', this.getLists);
+  },
+
+  destroyed() {
+    this.$root.$off('page.refresh', this.getLists);
   },
 
   mounted() {

@@ -1,0 +1,29 @@
+name: Hodor AI Code Review
+
+on:
+  pull_request_target:
+    types: [opened, synchronize]
+    paths-ignore:
+      - 'i18n/**'
+      - '*.md'
+      - 'LICENSE'
+      - '.gitignore'
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  review:
+    if: github.actor != 'dependabot[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run Hodor review
+        run: |
+          docker run --rm \
+            -e GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }} \
+            -e LLM_API_KEY=${{ secrets.LLM_API_KEY }} \
+            ghcr.io/mr-karan/hodor:0.3.2 \
+            "https://github.com/${{ github.repository }}/pull/${{ github.event.pull_request.number }}" \
+            --model "${{ vars.HODOR_MODEL || 'gpt-5.2' }}" \
+            --post

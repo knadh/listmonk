@@ -123,6 +123,7 @@ type Config struct {
 	RequeueOnError        bool
 	FromEmail             string
 	IndividualTracking    bool
+	DisableTracking       bool
 	LinkTrackURL          string
 	UnsubURL              string
 	OptinURL              string
@@ -279,6 +280,11 @@ func (m *Manager) Run() {
 		has, err := p.NextSubscribers()
 		if err != nil {
 			m.log.Printf("error processing campaign batch (%s): %v", p.camp.Name, err)
+
+			// If the batch fails, stop the pipe and release it so that it doesn't hang forever.
+			// The cleanup() records the state in DB and scanCampaigns() picks it up at a later point.
+			p.Stop(false)
+			p.wg.Done()
 			continue
 		}
 
@@ -287,6 +293,11 @@ func (m *Manager) Run() {
 			select {
 			case m.nextPipes <- p:
 			default:
+				// If the queue is full for any reason, stop the pipe and release it.
+				// The cleanup() records the state in DB and scanCampaigns() picks it up
+				// at a later point.
+				p.Stop(false)
+				p.wg.Done()
 			}
 		} else {
 			// The pipe is created with a +1 on the waitgroup pseudo counter
@@ -335,6 +346,10 @@ func (m *Manager) GetTpl(id int) (*models.Template, error) {
 func (m *Manager) TemplateFuncs(c *models.Campaign) template.FuncMap {
 	f := template.FuncMap{
 		"TrackLink": func(url string, msg *CampaignMessage) string {
+			if m.cfg.DisableTracking {
+				return url
+			}
+
 			subUUID := msg.Subscriber.UUID
 			if !m.cfg.IndividualTracking {
 				subUUID = dummyUUID
@@ -343,6 +358,10 @@ func (m *Manager) TemplateFuncs(c *models.Campaign) template.FuncMap {
 			return m.trackLink(url, msg.Campaign.UUID, subUUID)
 		},
 		"TrackView": func(msg *CampaignMessage) template.HTML {
+			if m.cfg.DisableTracking {
+				return template.HTML("")
+			}
+
 			subUUID := msg.Subscriber.UUID
 			if !m.cfg.IndividualTracking {
 				subUUID = dummyUUID
@@ -428,6 +447,11 @@ func (m *Manager) scanCampaigns(tick time.Duration) {
 			select {
 			case m.nextPipes <- p:
 			default:
+				// If the queue is full for any reason, stop the pipe and release it.
+				// The cleanup() records the state in DB and scanCampaigns() picks it up
+				// at a later point.
+				p.Stop(false)
+				p.wg.Done()
 			}
 		}
 	}
@@ -560,6 +584,10 @@ func (m *Manager) getCurrentCampaigns() ([]int64, []int64) {
 // trackLink register a URL and return its UUID to be used in message templates
 // for tracking links.
 func (m *Manager) trackLink(url, campUUID, subUUID string) string {
+	if m.cfg.DisableTracking {
+		return url
+	}
+
 	url = strings.ReplaceAll(url, "&amp;", "&")
 
 	m.linksMut.RLock()
