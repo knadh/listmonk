@@ -115,7 +115,7 @@ func parseLettermintSignature(sig string) (int64, string, error) {
 	)
 
 	for _, part := range strings.Split(sig, ",") {
-		kv := strings.SplitN(part, "=", 2)
+		kv := strings.SplitN(strings.TrimSpace(part), "=", 2)
 		if len(kv) != 2 {
 			continue
 		}
