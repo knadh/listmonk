@@ -669,7 +669,8 @@ func (a *App) validateCampaignFields(c campReq) (campReq, error) {
 		c.ContentType != models.CampaignContentTypeHTML &&
 		c.ContentType != models.CampaignContentTypePlain &&
 		c.ContentType != models.CampaignContentTypeVisual &&
-		c.ContentType != models.CampaignContentTypeMarkdown {
+		c.ContentType != models.CampaignContentTypeMarkdown &&
+		c.ContentType != models.CampaignContentTypeMJML {
 		c.ContentType = models.CampaignContentTypeRichtext
 	}
 
