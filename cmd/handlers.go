@@ -121,6 +121,7 @@ func initHTTPHandlers(e *echo.Echo, a *App) {
 		g.GET("/api/subscribers/:id/bounces", pm(hasID(a.GetSubscriberBounces), "bounces:get"))
 		g.DELETE("/api/subscribers/:id/bounces", pm(hasID(a.DeleteSubscriberBounces), "bounces:manage"))
 		g.POST("/api/subscribers", pm(a.CreateSubscriber, "subscribers:manage"))
+		g.PATCH("/api/subscribers/:id", pm(hasID(a.PatchSubscriber), "subscribers:manage"))
 		g.PUT("/api/subscribers/:id", pm(hasID(a.UpdateSubscriber), "subscribers:manage"))
 		g.POST("/api/subscribers/:id/optin", pm(hasID(a.SubscriberSendOptin), "subscribers:manage"))
 		g.PUT("/api/subscribers/blocklist", pm(a.BlocklistSubscribers, "subscribers:manage"))
