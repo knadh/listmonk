@@ -61,6 +61,7 @@ type TxMessage struct {
 	ContentType string         `json:"content_type"`
 	Messenger   string         `json:"messenger"`
 	Subject     string         `json:"subject"`
+	AltBody     string         `json:"altbody"`
 
 	// File attachments added from multi-part form data.
 	Attachments []Attachment `json:"-"`
@@ -70,7 +71,7 @@ type TxMessage struct {
 	SubjectTpl *txttpl.Template   `json:"-"`
 }
 
-func (m *TxMessage) Render(sub Subscriber, tpl *Template) error {
+func (m *TxMessage) Render(sub Subscriber, tpl *Template, funcs txttpl.FuncMap) error {
 	data := struct {
 		Subscriber Subscriber
 		Tx         *TxMessage
@@ -85,6 +86,19 @@ func (m *TxMessage) Render(sub Subscriber, tpl *Template) error {
 	copy(m.Body, b.Bytes())
 	b.Reset()
 
+	// Render alt body if it has any templating strings.
+	if m.AltBody != "" && strings.Contains(m.AltBody, "{{") {
+		t, err := txttpl.New(BaseTpl).Funcs(funcs).Parse(m.AltBody)
+		if err != nil {
+			return fmt.Errorf("error compiling alt body: %v", err)
+		}
+		if err := t.ExecuteTemplate(&b, BaseTpl, data); err != nil {
+			return err
+		}
+		m.AltBody = b.String()
+		b.Reset()
+	}
+
 	// Was a subject provided in the message?
 	var (
 		subjTpl *txttpl.Template
@@ -93,7 +107,7 @@ func (m *TxMessage) Render(sub Subscriber, tpl *Template) error {
 	if subject != "" {
 		if strings.Contains(m.Subject, "{{") {
 			// If the subject has a template string, render that.
-			s, err := txttpl.New(BaseTpl).Funcs(txttpl.FuncMap(nil)).Parse(m.Subject)
+			s, err := txttpl.New(BaseTpl).Funcs(funcs).Parse(m.Subject)
 			if err != nil {
 				return fmt.Errorf("error compiling subject: %v", err)
 			}
