@@ -32,6 +32,9 @@ builds:
     goarm:
       - 6
       - 7
+    ignore:
+      - goos: windows
+        goarch: arm
     ldflags:
       - -s -w -X "main.buildString=nightly ({{ .ShortCommit }} {{ .Date }}, {{ .Os }}/{{ .Arch }})" -X "main.versionString={{ .Env.LISTMONK_VERSION }}"
 
