@@ -10,7 +10,8 @@ import (
 
 func V6_1_0(db *sqlx.DB, fs stuffbin.FileSystem, ko *koanf.Koanf, lo *log.Logger) error {
 	_, err := db.Exec(`
-		INSERT INTO settings (key, value, updated_at) VALUES ('privacy.disable_tracking', 'false', NOW()) ON CONFLICT (key) DO NOTHING
+		INSERT INTO settings (key, value, updated_at) VALUES ('privacy.disable_tracking', 'false', NOW()) ON CONFLICT (key) DO NOTHING;
+		INSERT INTO settings (key, value) VALUES('bounce.lettermint', '{"enabled": false, "key": ""}') ON CONFLICT DO NOTHING;
 	`)
 	return err
 }
