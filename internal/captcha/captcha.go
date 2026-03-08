@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/altcha-org/altcha-lib-go"
+	"github.com/knadh/listmonk/internal/tmptokens"
 )
 
 const (
@@ -116,11 +117,13 @@ func (c *Captcha) GetProvider() string {
 func (c *Captcha) GenerateChallenge() (string, error) {
 	switch c.provider {
 	case ProviderAltcha:
+		exp := time.Now().Add(5 * time.Minute)
 		challenge, err := altcha.CreateChallenge(altcha.ChallengeOptions{
 			Algorithm:  altcha.SHA256,
 			MaxNumber:  int64(c.altcha.Complexity),
 			SaltLength: 12,
 			HMACKey:    c.altcha.HMACKey,
+			Expires:    &exp,
 		})
 		if err != nil {
 			return "", fmt.Errorf("failed to create Altcha challenge: %w", err)
@@ -182,7 +185,7 @@ func (c *Captcha) verifyHCaptcha(token string) (error, bool) {
 
 // verifyAltcha verifies an Altcha response.
 func (c *Captcha) verifyAltcha(payload string) (error, bool) {
-	valid, err := altcha.VerifySolution(payload, c.altcha.HMACKey, false)
+	valid, err := altcha.VerifySolution(payload, c.altcha.HMACKey, true)
 	if err != nil {
 		return fmt.Errorf("failed to verify captcha solution: %w", err), false
 	}
@@ -190,6 +193,12 @@ func (c *Captcha) verifyAltcha(payload string) (error, bool) {
 	if !valid {
 		return fmt.Errorf("captcha verification failed"), false
 	}
+
+	// Disallow token reuse.
+	if _, err := tmptokens.Check(payload); err == nil {
+		return fmt.Errorf("captcha token already used"), false
+	}
+	tmptokens.Set(payload, 5*time.Minute, nil)
 
 	return nil, true
 }
