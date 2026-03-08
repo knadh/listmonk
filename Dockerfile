@@ -5,6 +5,9 @@ WORKDIR /app/frontend
 # Install yarn (though it's usually in node:alpine)
 RUN apk add --no-cache yarn
 
+# Create directory structure expected by postinstall scripts
+RUN mkdir -p /app/static/public/static
+
 # Copy package files for caching
 COPY frontend/package.json frontend/yarn.lock* frontend/package-lock.json* ./
 RUN yarn install --frozen-lockfile || yarn install
