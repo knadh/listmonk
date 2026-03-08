@@ -45,6 +45,9 @@ RUN yarn build
 FROM docker.io/library/golang:1.24-alpine AS backend-builder
 WORKDIR /app
 
+# Version injection
+ARG APP_VERSION=dev
+
 RUN go install github.com/knadh/stuffbin/stuffbin@latest
 COPY go.mod go.sum ./
 RUN go mod download
@@ -53,8 +56,8 @@ COPY . .
 # Copy built frontend assets (dist now contains email-builder too)
 COPY --from=builder /app/frontend/dist ./frontend/dist
 
-# Build binary
-RUN CGO_ENABLED=0 go build -o listmonk -ldflags="-s -w" cmd/*.go
+# Build binary with version injection
+RUN CGO_ENABLED=0 go build -o listmonk -ldflags="-s -w -X 'main.calVersion=${APP_VERSION}'" cmd/*.go
 
 # Pack static assets
 RUN /go/bin/stuffbin -a stuff -in listmonk -out listmonk \

@@ -85,6 +85,7 @@ var (
 	// Compile-time variables.
 	buildString   string
 	versionString string
+	calVersion    string
 
 	// If these are set in build ldflags and static assets (*.sql, config.toml.sample. ./frontend)
 	// are not embedded (in make dist), these paths are looked up. The default values before, when not
@@ -103,7 +104,11 @@ func init() {
 		os.Exit(0)
 	}
 
-	lo.Println(buildString)
+	if calVersion != "" {
+		lo.Printf("version: %s (CalVer: %s)", buildString, calVersion)
+	} else {
+		lo.Println(buildString)
+	}
 
 	// Generate new config.
 	if ko.Bool("new-config") {
