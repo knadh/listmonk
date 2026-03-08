@@ -89,7 +89,13 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            /opt/stacks/scripts/deploy.sh listmonk deploy ${{ github.sha }}
+            /opt/stacks/scripts/deploy.sh listmonk deploy ${{ github.sha }} || (
+              SLOT=$(/opt/stacks/scripts/deploy.sh listmonk status | grep -oP "STANDBY_COLOR: \K\w+" || echo "unknown")
+              echo "Deployment failed. Standby slot was: $SLOT"
+              systemctl --user status listmonk-$SLOT.service || true
+              journalctl --user -n 100 -u listmonk-$SLOT.service
+              exit 1
+            )
 
   deploy-prod:
     needs: build-and-push
