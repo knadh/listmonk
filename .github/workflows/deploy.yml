@@ -66,6 +66,9 @@ jobs:
             ghcr.io/ollisulopuisto/listmonk:latest
             ghcr.io/ollisulopuisto/listmonk:${{ steps.calver.outputs.version }}
             ghcr.io/ollisulopuisto/listmonk:${{ steps.slug.outputs.sha_short }}
+            ghcr.io/ollisulopuisto/store:latest
+            ghcr.io/ollisulopuisto/store:${{ steps.calver.outputs.version }}
+            ghcr.io/ollisulopuisto/store:${{ steps.slug.outputs.sha_short }}
 
       - name: Create Git Tag
         if: github.ref == 'refs/heads/master'
