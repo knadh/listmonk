@@ -80,4 +80,4 @@ ENV APP_VERSION=$APP_VERSION
 
 EXPOSE 9000
 ENTRYPOINT ["docker-entrypoint.sh"]
-CMD ["sh", "-c", "./listmonk --install --idempotent --yes --config '' && ./listmonk --upgrade --yes --config '' && ./listmonk --config ''"]
+CMD ["sh", "-c", "./listmonk --install --idempotent --yes && ./listmonk --upgrade --yes && ./listmonk"]
