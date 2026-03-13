@@ -2,7 +2,7 @@ name: Hodor AI Code Review
 
 on:
   pull_request_target:
-    types: [opened, synchronize]
+    types: [labeled, synchronize]
     paths-ignore:
       - 'i18n/**'
       - '*.md'
@@ -15,7 +15,9 @@ permissions:
 
 jobs:
   review:
-    if: github.actor != 'dependabot[bot]'
+    if: >-
+      (github.event.action == 'labeled' && github.event.label.name == 'hodor-review') ||
+      (github.event.action == 'synchronize' && contains(github.event.pull_request.labels.*.name, 'hodor-review'))
     runs-on: ubuntu-latest
     steps:
       - name: Run Hodor review
@@ -23,7 +25,7 @@ jobs:
           docker run --rm \
             -e GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }} \
             -e LLM_API_KEY=${{ secrets.LLM_API_KEY }} \
-            ghcr.io/mr-karan/hodor:0.3.2 \
+            ghcr.io/mr-karan/hodor:0.3.4 \
             "https://github.com/${{ github.repository }}/pull/${{ github.event.pull_request.number }}" \
             --model "${{ vars.HODOR_MODEL || 'gpt-5.2' }}" \
             --post

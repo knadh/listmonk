@@ -129,7 +129,7 @@ func (a *App) SendTxMessage(c echo.Context) error {
 		}
 
 		// Render the message.
-		if err := m.Render(sub, tpl); err != nil {
+		if err := m.Render(sub, tpl, a.manager.GenericTemplateFuncs()); err != nil {
 			return echo.NewHTTPError(http.StatusBadRequest,
 				a.i18n.Ts("globals.messages.errorFetching", "name"))
 		}
@@ -143,6 +143,7 @@ func (a *App) SendTxMessage(c echo.Context) error {
 		msg.ContentType = m.ContentType
 		msg.Messenger = m.Messenger
 		msg.Body = m.Body
+		msg.AltBody = []byte(m.AltBody)
 		for _, a := range m.Attachments {
 			msg.Attachments = append(msg.Attachments, models.Attachment{
 				Name:    a.Name,

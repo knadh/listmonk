@@ -163,7 +163,7 @@ CREATE TABLE campaign_views (
 );
 DROP INDEX IF EXISTS idx_views_camp_id; CREATE INDEX idx_views_camp_id ON campaign_views(campaign_id);
 DROP INDEX IF EXISTS idx_views_subscriber_id; CREATE INDEX idx_views_subscriber_id ON campaign_views(subscriber_id);
-DROP INDEX IF EXISTS idx_views_date; CREATE INDEX idx_views_date ON campaign_views((TIMEZONE('UTC', created_at)::DATE));
+DROP INDEX IF EXISTS idx_views_date; CREATE INDEX idx_views_date ON campaign_views(created_at);
 
 -- media
 DROP TABLE IF EXISTS media CASCADE;
@@ -216,7 +216,7 @@ CREATE TABLE link_clicks (
 DROP INDEX IF EXISTS idx_clicks_camp_id; CREATE INDEX idx_clicks_camp_id ON link_clicks(campaign_id);
 DROP INDEX IF EXISTS idx_clicks_link_id; CREATE INDEX idx_clicks_link_id ON link_clicks(link_id);
 DROP INDEX IF EXISTS idx_clicks_sub_id; CREATE INDEX idx_clicks_sub_id ON link_clicks(subscriber_id);
-DROP INDEX IF EXISTS idx_clicks_date; CREATE INDEX idx_clicks_date ON link_clicks((TIMEZONE('UTC', created_at)::DATE));
+DROP INDEX IF EXISTS idx_clicks_date; CREATE INDEX idx_clicks_date ON link_clicks(created_at);
 
 -- settings
 DROP TABLE IF EXISTS settings CASCADE;
@@ -312,7 +312,7 @@ CREATE TABLE bounces (
 DROP INDEX IF EXISTS idx_bounces_sub_id; CREATE INDEX idx_bounces_sub_id ON bounces(subscriber_id);
 DROP INDEX IF EXISTS idx_bounces_camp_id; CREATE INDEX idx_bounces_camp_id ON bounces(campaign_id);
 DROP INDEX IF EXISTS idx_bounces_source; CREATE INDEX idx_bounces_source ON bounces(source);
-DROP INDEX IF EXISTS idx_bounces_date; CREATE INDEX idx_bounces_date ON bounces((TIMEZONE('UTC', created_at)::DATE));
+DROP INDEX IF EXISTS idx_bounces_date; CREATE INDEX idx_bounces_date ON bounces(created_at);
 
 -- roles
 DROP TABLE IF EXISTS roles CASCADE;
@@ -403,13 +403,13 @@ CREATE MATERIALIZED VIEW mat_dashboard_charts AS
         SELECT JSON_AGG(ROW_TO_JSON(row))
         FROM (
             WITH viewDates AS (
-              SELECT TIMEZONE('UTC', created_at)::DATE AS to_date,
-                     TIMEZONE('UTC', created_at)::DATE - INTERVAL '30 DAY' AS from_date
+              SELECT created_at::DATE AS to_date,
+                     created_at::DATE - INTERVAL '30 DAY' AS from_date
                      FROM link_clicks ORDER BY id DESC LIMIT 1
             )
             SELECT COUNT(*) AS count, created_at::DATE as date FROM link_clicks
-              -- use > between < to force the use of the date index.
-              WHERE TIMEZONE('UTC', created_at)::DATE BETWEEN (SELECT from_date FROM viewDates) AND (SELECT to_date FROM viewDates)
+              WHERE created_at >= (SELECT from_date FROM viewDates)
+                AND created_at < (SELECT to_date FROM viewDates) + INTERVAL '1 day'
               GROUP by date ORDER BY date
         ) row
     ),
@@ -417,13 +417,13 @@ CREATE MATERIALIZED VIEW mat_dashboard_charts AS
         SELECT JSON_AGG(ROW_TO_JSON(row))
         FROM (
             WITH viewDates AS (
-              SELECT TIMEZONE('UTC', created_at)::DATE AS to_date,
-                     TIMEZONE('UTC', created_at)::DATE - INTERVAL '30 DAY' AS from_date
+              SELECT created_at::DATE AS to_date,
+                     created_at::DATE - INTERVAL '30 DAY' AS from_date
                      FROM campaign_views ORDER BY id DESC LIMIT 1
             )
             SELECT COUNT(*) AS count, created_at::DATE as date FROM campaign_views
-              -- use > between < to force the use of the date index.
-              WHERE TIMEZONE('UTC', created_at)::DATE BETWEEN (SELECT from_date FROM viewDates) AND (SELECT to_date FROM viewDates)
+              WHERE created_at >= (SELECT from_date FROM viewDates)
+                AND created_at < (SELECT to_date FROM viewDates) + INTERVAL '1 day'
               GROUP by date ORDER BY date
         ) row
     )
