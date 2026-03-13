@@ -1,7 +1,7 @@
 # API / Subscribers
 
 | Method | Endpoint                                                                                | Description                                    |
-| ------ | --------------------------------------------------------------------------------------- | ---------------------------------------------- |
+|--------|-----------------------------------------------------------------------------------------|------------------------------------------------|
 | GET    | [/api/subscribers](#get-apisubscribers)                                                 | Query and retrieve subscribers.                |
 | GET    | [/api/subscribers/{subscriber_id}](#get-apisubscriberssubscriber_id)                    | Retrieve a specific subscriber.                |
 | GET    | [/api/subscribers/{subscriber_id}/export](#get-apisubscriberssubscriber_idexport)       | Export a specific subscriber.                  |
@@ -11,6 +11,7 @@
 | POST   | [/api/public/subscription](#post-apipublicsubscription)                                 | Create a public subscription.                  |
 | PUT    | [/api/subscribers/lists](#put-apisubscriberslists)                                      | Modify subscriber list memberships.            |
 | PUT    | [/api/subscribers/{subscriber_id}](#put-apisubscriberssubscriber_id)                    | Update a specific subscriber.                  |
+| PATCH  | [/api/subscribers/{subscriber_id}](#patch-apisubscriberssubscriber_id)                  | Patch a specific subscriber.                   |
 | PUT    | [/api/subscribers/{subscriber_id}/blocklist](#put-apisubscriberssubscriber_idblocklist) | Blocklist a specific subscriber.               |
 | PUT    | [/api/subscribers/blocklist](#put-apisubscribersblocklist)                              | Blocklist one or many subscribers.             |
 | PUT    | [/api/subscribers/query/blocklist](#put-apisubscribersqueryblocklist)                   | Blocklist subscribers based on SQL expression. |
@@ -434,6 +435,21 @@ ______________________________________________________________________
 Update a specific subscriber.
 
 > Refer to parameters from [POST /api/subscribers](#post-apisubscribers). Note: All parameters must be set, if not, the subscriber will be removed from all previously assigned lists.
+
+______________________________________________________________________
+
+#### PATCH /api/subscribers/{subscriber_id}
+
+Patch a specific subscriber.
+It is only possible to change the subscriber's email address at this time.
+
+##### Parameters
+
+| Name  | Type   | Required | Description                 |
+|:------|:-------|:---------|:----------------------------|
+| email | string | Yes      | Subscriber's email address. |
+
+_________________________________________________________________
 
 ______________________________________________________________________
 
