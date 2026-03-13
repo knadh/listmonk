@@ -127,6 +127,16 @@ export default Vue.extend({
         } else {
           form.smtp[i].email_headers = [];
         }
+
+        // Convert comma-separated from_addresses string to array.
+        if (form.smtp[i].strFromAddresses) {
+          form.smtp[i].from_addresses = form.smtp[i].strFromAddresses
+            .split(',')
+            .map((v) => v.trim())
+            .filter((v) => v !== '');
+        } else {
+          form.smtp[i].from_addresses = [];
+        }
       }
 
       // Bounces boxes.
@@ -228,6 +238,8 @@ export default Vue.extend({
         // Serialize the `email_headers` array map to display on the form.
         for (let i = 0; i < d.smtp.length; i += 1) {
           d.smtp[i].strEmailHeaders = JSON.stringify(d.smtp[i].email_headers, null, 4);
+          // Convert from_addresses array to comma-separated string.
+          d.smtp[i].strFromAddresses = (d.smtp[i].from_addresses || []).join(', ');
         }
 
         // Domain blocklist array to multi-line string.

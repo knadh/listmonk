@@ -33,6 +33,7 @@ type Server struct {
 	TLSType       string            `json:"tls_type"`
 	TLSSkipVerify bool              `json:"tls_skip_verify"`
 	EmailHeaders  map[string]string `json:"email_headers"`
+	FromAddresses []string          `json:"from_addresses"`
 
 	// Rest of the options are embedded directly from the smtppool lib.
 	// The JSON tag is for config unmarshal to work.
@@ -44,8 +45,9 @@ type Server struct {
 
 // Emailer is the SMTP e-mail messenger.
 type Emailer struct {
-	servers []*Server
-	name    string
+	servers        []*Server
+	name           string
+	fromAddrToSrv  map[string][]*Server
 }
 
 // New returns an SMTP e-mail Messenger backend with the given SMTP servers.
@@ -53,8 +55,9 @@ type Emailer struct {
 // that are used as a round-robin pool, or a single server.
 func New(name string, servers ...Server) (*Emailer, error) {
 	e := &Emailer{
-		servers: make([]*Server, 0, len(servers)),
-		name:    name,
+		servers:       make([]*Server, 0, len(servers)),
+		name:          name,
+		fromAddrToSrv: make(map[string][]*Server),
 	}
 
 	for _, srv := range servers {
@@ -100,6 +103,22 @@ func New(name string, servers ...Server) (*Emailer, error) {
 
 		s.pool = pool
 		e.servers = append(e.servers, &s)
+
+		// Map from addresses to this server.
+		// Track which keys are already mapped to this server to avoid duplicates.
+		seenForServer := make(map[string]bool)
+		for _, addr := range s.FromAddresses {
+			key := strings.ToLower(strings.TrimSpace(addr))
+			// Skip empty keys and duplicates for this server.
+			if key == "" {
+				continue
+			}
+			if seenForServer[key] {
+				continue
+			}
+			seenForServer[key] = true
+			e.fromAddrToSrv[key] = append(e.fromAddrToSrv[key], &s)
+		}
 	}
 
 	return e, nil
@@ -112,16 +131,58 @@ func (e *Emailer) Name() string {
 
 // Push pushes a message to the server.
 func (e *Emailer) Push(m models.Message) error {
-	// If there are more than one SMTP servers, send to a random
-	// one from the list.
+	// Check if there's a specific SMTP server mapped to the from address.
 	var (
 		ln  = len(e.servers)
 		srv *Server
 	)
-	if ln > 1 {
-		srv = e.servers[rand.Intn(ln)]
+
+	// Extract the email address from the From field using RFC 5322 parsing.
+	fromAddr := m.From
+	if addr, err := mail.ParseAddress(m.From); err == nil {
+		fromAddr = addr.Address
+	}
+	// If parsing fails, fall back to the raw From value (for backward compatibility).
+	fromAddr = strings.ToLower(strings.TrimSpace(fromAddr))
+
+	// Check if there's a server mapped to this from address.
+	// First try exact match, then try domain match.
+	var matchedServers []*Server
+	if servers, ok := e.fromAddrToSrv[fromAddr]; ok {
+		matchedServers = servers
 	} else {
-		srv = e.servers[0]
+		// Extract domain from email address for domain matching.
+		if atIdx := strings.Index(fromAddr, "@"); atIdx >= 0 {
+			domain := fromAddr[atIdx:] // includes @ symbol
+			if servers, ok := e.fromAddrToSrv[domain]; ok {
+				matchedServers = servers
+			} else {
+				// Try without @ symbol.
+				domainOnly := fromAddr[atIdx+1:]
+				if servers, ok := e.fromAddrToSrv[domainOnly]; ok {
+					matchedServers = servers
+				}
+			}
+		}
+	}
+
+	// If we found matching servers, pick one randomly (round-robin).
+	if len(matchedServers) > 0 {
+		if len(matchedServers) > 1 {
+			srv = matchedServers[rand.Intn(len(matchedServers))]
+		} else {
+			srv = matchedServers[0]
+		}
+	}
+
+	// If no match found, fall back to load balancing.
+	if srv == nil {
+		if ln > 1 {
+			// If there are more than one SMTP servers, send to a random one from the list.
+			srv = e.servers[rand.Intn(ln)]
+		} else {
+			srv = e.servers[0]
+		}
 	}
 
 	// Are there attachments?

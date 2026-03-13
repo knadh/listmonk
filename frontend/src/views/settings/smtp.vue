@@ -161,6 +161,13 @@
                   <b-input v-model="item.name" name="name" placeholder="email-primary" :maxlength="100" />
                 </b-field>
               </div>
+              <div class="column is-6">
+                <b-field :label="$t('settings.smtp.fromAddresses')" label-position="on-border"
+                  :message="$t('settings.smtp.fromAddressesHelp')">
+                  <b-input v-model="item.strFromAddresses" name="from_addresses"
+                    placeholder="@example.com, user@domain.com, anothersite.com" />
+                </b-field>
+              </div>
             </div>
 
             <div class="columns">
@@ -288,6 +295,7 @@ export default Vue.extend({
         username: '',
         password: '',
         email_headers: [],
+        from_addresses: [],
         max_conns: 10,
         max_msg_retries: 2,
         msg_retry_delay: '0s',

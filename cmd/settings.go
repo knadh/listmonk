@@ -151,6 +151,24 @@ func (a *App) UpdateSettings(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("settings.errorNoSMTP"))
 	}
 
+	// Normalize from_addresses (duplicates across servers are allowed for round-robin).
+	for i, s := range set.SMTP {
+		if !s.Enabled {
+			continue
+		}
+
+		// Normalize from addresses.
+		normalized := make([]string, 0, len(s.FromAddresses))
+		for _, addr := range s.FromAddresses {
+			addr = strings.ToLower(strings.TrimSpace(addr))
+			if addr == "" {
+				continue
+			}
+			normalized = append(normalized, addr)
+		}
+		set.SMTP[i].FromAddresses = normalized
+	}
+
 	// Always remove the trailing slash from the app root URL.
 	set.AppRootURL = strings.TrimRight(set.AppRootURL, "/")
 
