@@ -34,12 +34,15 @@ RUN go mod download
 # Copy source code
 COPY . .
 
+# Version injection
+ARG APP_VERSION=dev
+
 # Copy built frontend assets from previous stage
 COPY --from=frontend-builder /app/frontend/dist ./frontend/dist
 COPY --from=frontend-builder /app/frontend/public/static/email-builder ./frontend/public/static/email-builder
 
 # Build binary
-RUN CGO_ENABLED=0 go build -o listmonk -ldflags="-s -w" cmd/*.go
+RUN CGO_ENABLED=0 go build -o listmonk -ldflags="-s -w -X 'main.calVersion=${APP_VERSION}'" cmd/*.go
 
 # Pack static assets into the binary using stuffbin
 # Matches Makefile: stuffbin -a stuff -in ${BIN} -out ${BIN} ${STATIC}

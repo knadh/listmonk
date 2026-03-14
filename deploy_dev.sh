@@ -20,7 +20,10 @@ rsync -avz --exclude 'node_modules' \
 
 # 2. Build the image on the server using Podman
 echo "🔨 Building image on server..."
-ssh "$USER@$SERVER" "cd $REMOTE_DIR && podman build -f Dockerfile.local -t $IMAGE_NAME ."
+CALVER="v$(date +%y.%m.%d).$(git rev-list --count HEAD)"
+echo "🏷️ Version: $CALVER"
+
+ssh "$USER@$SERVER" "cd $REMOTE_DIR && podman build -f Dockerfile.local --build-arg APP_VERSION=$CALVER -t $IMAGE_NAME ."
 
 # 3. Instructions for running
 echo "✅ Build complete!"

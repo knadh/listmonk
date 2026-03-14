@@ -4,6 +4,9 @@ LAST_COMMIT := $(or $(shell git rev-parse --short HEAD 2> /dev/null),$(shell hea
 # Try to get the semver from 1) git 2) the VERSION file 3) fallback.
 VERSION := $(or $(LISTMONK_VERSION),$(shell git describe --tags --abbrev=0 2> /dev/null),$(shell grep -oP 'tag: \Kv\d+\.\d+\.\d+(-[a-zA-Z0-9.-]+)?' VERSION),"v0.0.0")
 
+# CalVer: vYY.MM.DD.N where N is the total commit count.
+CALVER := v$(shell date +%y.%m.%d).$(shell git rev-list --count HEAD)
+
 BUILDDATE := $(if $(SOURCE_DATE_EPOCH),$(shell date -u -d @$(SOURCE_DATE_EPOCH) +"%Y-%m-%dT%H:%M:%S%z"),$(shell date -u +"%Y-%m-%dT%H:%M:%S%z"))
 BUILDSTR := ${VERSION} (\#${LAST_COMMIT} $(BUILDDATE))
 
@@ -59,12 +62,12 @@ $(FRONTEND_EMAIL_BUILDER_YARN_MODULES): frontend/package.json frontend/yarn.lock
 
 # Build the backend to ./listmonk.
 $(BIN): $(SRC) go.mod go.sum schema.sql $(SQL) permissions.json
-	CGO_ENABLED=0 go build -o ${BIN} -ldflags="-s -w -X 'main.buildString=${BUILDSTR}' -X 'main.versionString=${VERSION}'" cmd/*.go
+	CGO_ENABLED=0 go build -o ${BIN} -ldflags="-s -w -X 'main.buildString=${BUILDSTR}' -X 'main.versionString=${VERSION}' -X 'main.calVersion=${CALVER}'" cmd/*.go
 
 # Run the backend in dev mode. The frontend assets in dev mode are loaded from disk from frontend/dist.
 .PHONY: run
 run:
-	CGO_ENABLED=0 go run -ldflags="-s -w -X 'main.buildString=${BUILDSTR}' -X 'main.versionString=${VERSION}' -X 'main.frontendDir=frontend/dist'" cmd/*.go
+	CGO_ENABLED=0 go run -ldflags="-s -w -X 'main.buildString=${BUILDSTR}' -X 'main.versionString=${VERSION}' -X 'main.calVersion=${CALVER}' -X 'main.frontendDir=frontend/dist'" cmd/*.go
 
 # Build the JS frontend into frontend/dist.
 $(FRONTEND_DIST): $(FRONTEND_DEPS)
