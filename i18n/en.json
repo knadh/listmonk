@@ -561,6 +561,8 @@
     "settings.smtp.customHeaders": "Custom headers",
     "settings.smtp.customHeadersHelp": "Optional array of e-mail headers to include in all messages sent from this server. eg: [{\"X-Custom\": \"value\"}, {\"X-Custom2\": \"value\"}]",
     "settings.smtp.enabled": "Enabled",
+    "settings.smtp.fromAddresses": "From addresses / domains",
+    "settings.smtp.fromAddressesHelp": "Optional comma-separated list of email addresses or domains. Supports full emails (user@example.com), domains with @ (@example.com), or domains without @ (example.com). Emails from these addresses/domains will be routed through this SMTP server. Multiple servers can specify the same address/domain for round-robin load balancing.",
     "settings.smtp.heloHost": "HELO hostname",
     "settings.smtp.heloHostHelp": "Optional. Some SMTP servers require a FQDN in the hostname. By default, HELLOs go with `localhost`. Set this if a custom hostname should be used.",
     "settings.smtp.name": "SMTP",

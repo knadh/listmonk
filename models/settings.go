@@ -97,6 +97,7 @@ type Settings struct {
 		WaitTimeout   string              `json:"wait_timeout"`
 		TLSType       string              `json:"tls_type"`
 		TLSSkipVerify bool                `json:"tls_skip_verify"`
+		FromAddresses []string            `json:"from_addresses"`
 	} `json:"smtp"`
 
 	Messengers []struct {
