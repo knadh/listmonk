@@ -5,7 +5,7 @@ WORKDIR /app/frontend
 RUN apk add --no-cache yarn
 RUN mkdir -p /app/static/public/static
 COPY frontend/package.json frontend/yarn.lock* frontend/package-lock.json* ./
-RUN yarn install --frozen-lockfile || yarn install
+RUN --mount=type=cache,target=/usr/local/share/.cache/yarn yarn install --frozen-lockfile || yarn install
 
 # Stage 2: Build Email Builder Dependencies
 FROM docker.io/library/node:22-alpine AS email-builder-deps
@@ -13,7 +13,7 @@ WORKDIR /app/frontend/email-builder
 
 RUN apk add --no-cache yarn
 COPY frontend/email-builder/package.json frontend/email-builder/yarn.lock* frontend/email-builder/package-lock.json* ./
-RUN yarn install --frozen-lockfile || yarn install
+RUN --mount=type=cache,target=/usr/local/share/.cache/yarn yarn install --frozen-lockfile || yarn install
 
 # Stage 3: Build Assets
 FROM docker.io/library/node:22-alpine AS builder
@@ -42,7 +42,7 @@ WORKDIR /app/frontend
 RUN yarn build
 
 # Stage 4: Build Backend
-FROM docker.io/library/golang:1.24-alpine AS backend-builder
+FROM docker.io/library/golang:1.26-alpine AS backend-builder
 WORKDIR /app
 
 # Version injection
@@ -50,14 +50,15 @@ ARG APP_VERSION=dev
 
 RUN go install github.com/knadh/stuffbin/stuffbin@latest
 COPY go.mod go.sum ./
-RUN go mod download
+RUN --mount=type=cache,target=/go/pkg/mod go mod download
 COPY . .
 
 # Copy built frontend assets (dist now contains email-builder too)
 COPY --from=builder /app/frontend/dist ./frontend/dist
 
 # Build binary with version injection
-RUN CGO_ENABLED=0 go build -o listmonk -ldflags="-s -w -X 'main.calVersion=${APP_VERSION}'" cmd/*.go
+RUN --mount=type=cache,target=/go/pkg/mod --mount=type=cache,target=/root/.cache/go-build \
+    CGO_ENABLED=0 go build -o listmonk -ldflags="-s -w -X 'main.calVersion=${APP_VERSION}'" cmd/*.go
 
 # Pack static assets
 RUN /go/bin/stuffbin -a stuff -in listmonk -out listmonk \

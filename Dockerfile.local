@@ -8,11 +8,11 @@ COPY static ./static
 
 # Build App Frontend
 WORKDIR /app/frontend
-RUN yarn install && npx vite build
+RUN --mount=type=cache,target=/usr/local/share/.cache/yarn yarn install && npx vite build
 
 # Build Email Builder
 WORKDIR /app/frontend/email-builder
-RUN yarn install && yarn build
+RUN --mount=type=cache,target=/usr/local/share/.cache/yarn yarn install && yarn build
 
 # Move Email Builder dist to final location expected by backend
 # FRONTEND_EMAIL_BUILDER_DIST_FINAL = frontend/public/static/email-builder
@@ -21,7 +21,7 @@ RUN mkdir -p frontend/public/static/email-builder && \
     cp -r frontend/email-builder/dist/* frontend/public/static/email-builder/
 
 # Stage 2: Build Backend
-FROM docker.io/library/golang:1.25-alpine AS backend-builder
+FROM docker.io/library/golang:1.26-alpine AS backend-builder
 WORKDIR /app
 
 # Install stuffbin
@@ -29,7 +29,7 @@ RUN go install github.com/knadh/stuffbin/stuffbin@latest
 
 # Copy go mod files
 COPY go.mod go.sum ./
-RUN go mod download
+RUN --mount=type=cache,target=/go/pkg/mod go mod download
 
 # Copy source code
 COPY . .
@@ -42,7 +42,8 @@ COPY --from=frontend-builder /app/frontend/dist ./frontend/dist
 COPY --from=frontend-builder /app/frontend/public/static/email-builder ./frontend/public/static/email-builder
 
 # Build binary
-RUN CGO_ENABLED=0 go build -o listmonk -ldflags="-s -w -X 'main.calVersion=${APP_VERSION}'" cmd/*.go
+RUN --mount=type=cache,target=/go/pkg/mod --mount=type=cache,target=/root/.cache/go-build \
+    CGO_ENABLED=0 go build -o listmonk -ldflags="-s -w -X 'main.calVersion=${APP_VERSION}'" cmd/*.go
 
 # Pack static assets into the binary using stuffbin
 # Matches Makefile: stuffbin -a stuff -in ${BIN} -out ${BIN} ${STATIC}

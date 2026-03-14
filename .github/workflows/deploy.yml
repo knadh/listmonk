@@ -18,7 +18,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: '1.24'
+          go-version: '1.26.1'
 
       - name: Run tests
         run: go test ./...
@@ -41,6 +41,9 @@ jobs:
       - name: Get short SHA
         id: slug
         run: echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
       - name: Generate CalVer
         id: calver
@@ -66,6 +69,8 @@ jobs:
             ghcr.io/ollisulopuisto/listmonk:latest
             ghcr.io/ollisulopuisto/listmonk:${{ steps.calver.outputs.version }}
             ghcr.io/ollisulopuisto/listmonk:${{ steps.slug.outputs.sha_short }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
       - name: Create Git Tag
         if: github.ref == 'refs/heads/master'
