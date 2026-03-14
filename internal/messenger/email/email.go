@@ -7,6 +7,7 @@ import (
 	"net/smtp"
 	"net/textproto"
 	"strings"
+	"time"
 
 	"github.com/knadh/listmonk/models"
 	"github.com/knadh/smtppool/v2"
@@ -18,6 +19,10 @@ const (
 	hdrReturnPath = "Return-Path"
 	hdrBcc        = "Bcc"
 	hdrCc         = "Cc"
+
+	// Retry settings (kept local for now)
+	maxSendRetries = 3
+	retryDelay     = 2 * time.Second
 )
 
 // Server represents an SMTP server's credentials.
@@ -109,8 +114,7 @@ func (e *Emailer) Name() string {
 
 // Push pushes a message to the server.
 func (e *Emailer) Push(m models.Message) error {
-	// If there are more than one SMTP servers, send to a random
-	// one from the list.
+	// If there are more than one SMTP servers, send to a random one from the list.
 	var (
 		ln  = len(e.servers)
 		srv *Server
@@ -156,8 +160,7 @@ func (e *Emailer) Push(m models.Message) error {
 		em.Headers.Set(k, v[0])
 	}
 
-	// If the `Return-Path` header is set, it should be set as the
-	// the SMTP envelope sender (via the Sender field of the email struct).
+	// If the `Return-Path` header is set, it should be set as the SMTP envelope sender (via the Sender field of the email struct).
 	if sender := em.Headers.Get(hdrReturnPath); sender != "" {
 		em.Sender = sender
 		em.Headers.Del(hdrReturnPath)
@@ -189,13 +192,25 @@ func (e *Emailer) Push(m models.Message) error {
 		}
 	}
 
-	return srv.pool.Send(em)
+	// Retry send with delay
+	var err error
+	for i := 0; i < maxSendRetries; i++ {
+		err = srv.pool.Send(em)
+		if err == nil {
+			return nil
+		}
+		time.Sleep(retryDelay)
+	}
+
+	return err
 }
 
 // Flush flushes the message queue to the server.
 func (e *Emailer) Flush() error {
 	return nil
 }
+
+ 
 
 // Close closes the SMTP pools.
 func (e *Emailer) Close() error {
