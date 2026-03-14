@@ -662,6 +662,10 @@ func (m *Manager) makeGnericFuncMap() template.FuncMap {
 // attachMedia loads any media/attachments from the media store and attaches
 // the byte blobs to the campaign.
 func (m *Manager) attachMedia(c *models.Campaign) error {
+	if len(c.Attachments) > 0 {
+		return nil
+	}
+
 	// Load any media/attachments.
 	for _, mid := range []int64(c.MediaIDs) {
 		a, err := m.store.GetAttachment(int(mid))
