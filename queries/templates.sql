@@ -8,6 +8,23 @@ SELECT id, name, type, subject,
     FROM templates WHERE ($1 = 0 OR id = $1) AND ($3 = '' OR type = $3::template_type)
     ORDER BY created_at;
 
+-- name: query-templates
+-- Retrieves templates with pagination, search, and sorting.
+-- $1: noBody - if true, blank out body and body_source
+-- $2: type filter (empty string = all types)
+-- $3: search query (for name matching)
+-- $4: offset
+-- $5: limit
+SELECT COUNT(*) OVER () AS total, id, name, type, subject,
+    (CASE WHEN $1 = false THEN body ELSE '' END) as body,
+    (CASE WHEN $1 = false THEN body_source ELSE NULL END) as body_source,
+    is_default, created_at, updated_at
+    FROM templates
+    WHERE ($2 = '' OR type = $2::template_type)
+    AND ($3 = '' OR name ILIKE $3)
+    ORDER BY %order%
+    OFFSET $4 LIMIT (CASE WHEN $5 < 1 THEN NULL ELSE $5 END);
+
 -- name: create-template
 INSERT INTO templates (name, type, subject, body, body_source) VALUES($1, $2, $3, $4, $5) RETURNING id;
 
