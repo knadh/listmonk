@@ -190,6 +190,7 @@ func (a *App) ViewCampaignMessage(c echo.Context) error {
 	}
 
 	c.Response().Header().Set("X-Frame-Options", "SAMEORIGIN")
+	c.Response().Header().Set("Content-Security-Policy", "frame-ancestors 'self'")
 	return c.HTML(http.StatusOK, string(msg.Body()))
 }
 

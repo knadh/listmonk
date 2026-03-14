@@ -191,6 +191,7 @@ func (a *App) PreviewCampaign(c echo.Context) error {
 	// Explicitly set the X-Frame-Options header to allow the preview to be
 	// loaded in an iframe on the same origin (the admin dashboard).
 	c.Response().Header().Set("X-Frame-Options", "SAMEORIGIN")
+	c.Response().Header().Set("Content-Security-Policy", "frame-ancestors 'self'")
 
 	// Plaintext headers for plain body.
 	if camp.ContentType == models.CampaignContentTypePlain {
@@ -237,6 +238,7 @@ func (a *App) PreviewCampaignArchive(c echo.Context) error {
 
 	// Explicitly set the X-Frame-Options header.
 	c.Response().Header().Set("X-Frame-Options", "SAMEORIGIN")
+	c.Response().Header().Set("Content-Security-Policy", "frame-ancestors 'self'")
 
 	return c.HTML(http.StatusOK, string(msg.Body()))
 }
