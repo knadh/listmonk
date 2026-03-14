@@ -55,7 +55,7 @@ var regTplFuncs = []regTplFunc{
 	// The regex matches all characters that may occur in an URL
 	// (see "2. Characters" in RFC3986: https://www.ietf.org/rfc/rfc3986.txt)
 	{
-		regExp:  regexp.MustCompile(`(https?://[\p{L}\p{N}_\-\.~!#$&'()*+,/:;=?@\[\]]*)@TrackLink`),
+		regExp:  regexp.MustCompile(`(https?://[\p{L}\p{N}_\-\.~!#$&'()*+,/:;=?@\[\]%]*)@TrackLink`),
 		replace: `{{ TrackLink "$1" . }}`,
 	},
 
