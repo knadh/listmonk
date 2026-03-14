@@ -75,6 +75,7 @@ func (a *App) PreviewTemplate(c echo.Context) error {
 		return err
 	}
 
+	c.Response().Header().Set("X-Frame-Options", "SAMEORIGIN")
 	return c.HTML(http.StatusOK, string(out))
 }
 
@@ -101,6 +102,7 @@ func (a *App) PreviewTemplateBody(c echo.Context) error {
 		return err
 	}
 
+	c.Response().Header().Set("X-Frame-Options", "SAMEORIGIN")
 	return c.HTML(http.StatusOK, string(out))
 }
 

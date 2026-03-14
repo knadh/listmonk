@@ -188,6 +188,10 @@ func (a *App) PreviewCampaign(c echo.Context) error {
 			a.i18n.Ts("templates.errorRendering", "error", err.Error()))
 	}
 
+	// Explicitly set the X-Frame-Options header to allow the preview to be
+	// loaded in an iframe on the same origin (the admin dashboard).
+	c.Response().Header().Set("X-Frame-Options", "SAMEORIGIN")
+
 	// Plaintext headers for plain body.
 	if camp.ContentType == models.CampaignContentTypePlain {
 		return c.String(http.StatusOK, string(msg.Body()))
@@ -230,6 +234,9 @@ func (a *App) PreviewCampaignArchive(c echo.Context) error {
 		return c.Render(http.StatusInternalServerError, tplMessage,
 			makeMsgTpl(a.i18n.T("public.errorTitle"), "", a.i18n.Ts("public.errorFetchingCampaign")))
 	}
+
+	// Explicitly set the X-Frame-Options header.
+	c.Response().Header().Set("X-Frame-Options", "SAMEORIGIN")
 
 	return c.HTML(http.StatusOK, string(msg.Body()))
 }

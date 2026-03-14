@@ -189,6 +189,7 @@ func (a *App) ViewCampaignMessage(c echo.Context) error {
 			makeMsgTpl(a.i18n.T("public.errorTitle"), "", a.i18n.Ts("public.errorFetchingCampaign")))
 	}
 
+	c.Response().Header().Set("X-Frame-Options", "SAMEORIGIN")
 	return c.HTML(http.StatusOK, string(msg.Body()))
 }
 
