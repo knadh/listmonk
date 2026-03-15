@@ -407,6 +407,8 @@
     "settings.bounces.folder": "תיקייה",
     "settings.bounces.folderHelp": "שם התיקייה של שורת הכתובת החדשה שמתקשרת עם שימוש. לדוגמה: Inbox.",
     "settings.bounces.forwardemailKey": "מפתח העברת מייל",
+    "settings.bounces.enableLettermint": "Enable Lettermint",
+    "settings.bounces.lettermintKey": "Lettermint Webhook Secret",
     "settings.bounces.invalidScanInterval": "מרווח הסריקה לשטחות צריך להיות מינימום של דקה אחת.",
     "settings.bounces.name": "השטחות",
     "settings.bounces.none": "אין",

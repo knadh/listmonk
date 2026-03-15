@@ -407,6 +407,8 @@
     "settings.bounces.folder": "Папка",
     "settings.bounces.folderHelp": "Имя IMAP-папки для сканирования. Например: Входящие.",
     "settings.bounces.forwardemailKey": "Ключ Forward Email",
+    "settings.bounces.enableLettermint": "Enable Lettermint",
+    "settings.bounces.lettermintKey": "Lettermint Webhook Secret",
     "settings.bounces.invalidScanInterval": "Интервал сканирования отказов должен быть не менее 1 минуты.",
     "settings.bounces.name": "Отказы",
     "settings.bounces.none": "Нет",

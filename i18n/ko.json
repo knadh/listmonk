@@ -407,6 +407,8 @@
     "settings.bounces.folder": "폴더",
     "settings.bounces.folderHelp": "스캔할 IMAP 폴더 이름. 예: Inbox.",
     "settings.bounces.forwardemailKey": "Forward Email 키",
+    "settings.bounces.enableLettermint": "Enable Lettermint",
+    "settings.bounces.lettermintKey": "Lettermint Webhook Secret",
     "settings.bounces.invalidScanInterval": "바운스 스캔 간격은 최소 1분이어야 합니다.",
     "settings.bounces.name": "바운스",
     "settings.bounces.none": "없음",

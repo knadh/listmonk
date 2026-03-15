@@ -407,6 +407,8 @@
     "settings.bounces.folder": "Dossier",
     "settings.bounces.folderHelp": "Nom du dossier IMAP à scanner. Exple : InBox.",
     "settings.bounces.forwardemailKey": "Clé de transfert d'e-mail",
+    "settings.bounces.enableLettermint": "Enable Lettermint",
+    "settings.bounces.lettermintKey": "Lettermint Webhook Secret",
     "settings.bounces.invalidScanInterval": "L'intervalle de 'scan' des rebonds doit être d'au moins 1 minute.",
     "settings.bounces.name": "Rebonds",
     "settings.bounces.none": "Aucun",
