@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Calendar Versioning](https://calver.org/).
 
+## [26.03.16.1995] - 2026-03-16
+
+### Fixed
+- Fixed Tiptap v3 import issues in the frontend's Richtext editor that caused CI/CD build failures.
+- Resolved linting errors in the frontend components.
+
 ## [26.03.16.1994] - 2026-03-16
 
 ### Added

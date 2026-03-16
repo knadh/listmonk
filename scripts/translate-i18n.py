@@ -12,8 +12,9 @@ client = OpenAI(
 KEYS = []
 
 DEFAULT_LANG = "en.json"
-DIR = os.path.normpath(os.path.join(
-    os.path.dirname(os.path.abspath(__file__)), "../i18n"))
+DIR = os.path.normpath(
+    os.path.join(os.path.dirname(os.path.abspath(__file__)), "../i18n")
+)
 BASE = json.loads(open(os.path.join(DIR, DEFAULT_LANG), "r").read())
 
 
@@ -21,12 +22,19 @@ def translate(data, lang):
     completion = client.chat.completions.create(
         model="gpt-4.1-mini",
         messages=[
-            {"role": "system", "content": "You are an i18n language pack translator for listmonk, a mailing list manager. Remember that context when translating."},
-            {"role": "user",
-                "content": "Translate the untranslated English strings in the following JSON language map to {}. Retain any technical terms or acronyms.".format(lang)},
-            {"role": "user", "content": json.dumps(data)}
+            {
+                "role": "system",
+                "content": "You are an i18n language pack translator for listmonk, a mailing list manager. Remember that context when translating.",
+            },
+            {
+                "role": "user",
+                "content": "Translate the untranslated English strings in the following JSON language map to {}. Retain any technical terms or acronyms.".format(
+                    lang
+                ),
+            },
+            {"role": "user", "content": json.dumps(data)},
             # {"role": "user", "content": "Hello world good morning!"}
-        ]
+        ],
     )
 
     return json.loads(str(completion.choices[0].message.content))
@@ -51,5 +59,4 @@ for f in glob(os.path.join(DIR, "*.json")):
     data.update(new)
 
     with open(f, "w") as o:
-        o.write(json.dumps(data, sort_keys=True,
-                indent=4, ensure_ascii=False) + "\n")
+        o.write(json.dumps(data, sort_keys=True, indent=4, ensure_ascii=False) + "\n")
