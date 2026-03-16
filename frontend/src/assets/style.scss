@@ -520,82 +520,6 @@ body.is-noscroll {
   }
 }
 
-.richtext-editor {
-  .tox-tinymce {
-    height: 100%;
-    box-shadow: 2px 2px 0 #f3f3f3;
-    border: 1px solid #e6e6e6;
-    border-radius: 3px;
-
-    .tox-toolbar__primary {
-      border-color: #e6e6e6 !important;
-    }
-  }
-
-  .tox-statusbar__branding {
-    display: none;
-  }
-
-  .tox .tox-statusbar {
-    border: 0;
-  }
-
-  .tox-tinymce--toolbar-sticky-on .tox-editor-header {
-    padding-top: 48px !important;
-  }
-}
-
-.tox.tox-silver-sink {
-  z-index: 850;
-
-  .tox-dialog-wrap {
-    z-index: 900;
-  }
-
-  .tox-dialog {
-    @extend .box;
-  }
-
-  .tox-track-link {
-    display: block;
-    cursor: pointer;
-
-    margin: 5px 0 10px 0;
-
-    input {
-      margin-right: 5px;
-    }
-  }
-
-  .tox-button {
-    border-radius: 4px;
-  }
-
-  .tox-button:not(.tox-button--secondary):not(.tox-button--naked) {
-    background: $primary;
-  }
-
-  .tox-textfield {
-    box-shadow: 2px 2px 0 $white-ter;
-    border: 1px solid $grey-lighter;
-  }
-}
-
-.tox,
-.tox-tinymce,
-.tox-tinymce-aux,
-.tox .tox-button,
-.tox .tox-button-link,
-.tox .tox-dialog__title,
-.tox .tox-textfield,
-.tox .tox-toolbar-textfield,
-.tox .tox-listboxfield .tox-listbox--select,
-.tox .tox-textarea,
-.tox .tox-selectfield select {
-  /* All TinyMCE components */
-  font-family: $body-family !important;
-}
-
 /* Table colors and padding */
 .main table {
   thead th {
@@ -1676,4 +1600,4 @@ th.role-toggle-select a {
     display: inline-block;
     width: auto;
   }
-}
+}\nbody.has-fullscreen-editor { overflow: hidden !important; }

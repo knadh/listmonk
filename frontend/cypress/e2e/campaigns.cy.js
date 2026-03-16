@@ -143,9 +143,11 @@ describe('Campaigns', () => {
     // Set test content the first time.
     cy.get('td[data-label=Status] a').click();
     cy.get('.b-tabs nav a').eq(1).click();
-    cy.window().then((win) => {
-      win.tinymce.editors[0].setContent(htmlBody);
-      win.tinymce.editors[0].save();
+    cy.get('[contenteditable="true"]').then(($el) => {
+      cy.window().then((win) => {
+        $el.focus();
+        win.document.execCommand('insertText', false, htmlBody);
+      });
     });
     cy.get('button[data-cy=btn-save]').click();
 
@@ -268,9 +270,11 @@ describe('Campaigns', () => {
 
         cy.log(`format = ${c}`);
         if (c === 'richtext') {
-          cy.window().then((win) => {
-            win.tinymce.editors[0].setContent(htmlBody);
-            win.tinymce.editors[0].save();
+          cy.get('[contenteditable="true"]').then(($el) => {
+            cy.window().then((win) => {
+              $el.focus();
+              win.document.execCommand('insertText', false, htmlBody);
+            });
           });
           cy.wait(500);
         } else if (c === 'html') {

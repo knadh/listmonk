@@ -1,5 +1,5 @@
 <template>
-  <div class="markdown-editor-container" :class="{ 'is-mobile': isMobile }">
+  <div class="markdown-editor-container" :class="{ 'is-mobile': isMobile, 'is-fullscreen': isFullscreen }">
     <div class="editor-header mb-2" v-if="!disabled">
       <div class="buttons md-toolbar">
         <b-button size="is-small" @click="wrapSelection('**', '**')">
@@ -22,6 +22,15 @@
         </b-button>
         <b-button size="is-small" @click="isMediaVisible = true">
           <span class="material-symbols-outlined">image</span>
+        </b-button>
+        <div class="is-divider-vertical mx-1" />
+        <b-button size="is-small" @click="isFullscreen = !isFullscreen" :type="isFullscreen ? 'is-primary' : ''">
+          <span class="material-symbols-outlined">{{ isFullscreen ? 'fullscreen_exit' : 'fullscreen' }}</span>
+        </b-button>
+      </div>
+      <div v-if="isFullscreen" class="fullscreen-close">
+        <b-button size="is-small" type="is-ghost" @click="isFullscreen = false">
+          <span class="material-symbols-outlined">close</span>
         </b-button>
       </div>
     </div>
@@ -107,6 +116,7 @@ export default {
       internalValue: this.value,
       isMediaVisible: false,
       showPreview: false,
+      isFullscreen: false,
     };
   },
 
@@ -117,6 +127,17 @@ export default {
     internalValue(val) {
       this.$emit('input', val);
     },
+    isFullscreen(val) {
+      if (val) {
+        document.body.classList.add('has-fullscreen-editor');
+      } else {
+        document.body.classList.remove('has-fullscreen-editor');
+      }
+    },
+  },
+
+  beforeDestroy() {
+    document.body.classList.remove('has-fullscreen-editor');
   },
 
   methods: {
@@ -177,11 +198,16 @@ export default {
     padding: 0.5rem;
     border-bottom: 1px solid #dbdbdb;
     background: #f5f5f5;
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 
     .md-toolbar {
       display: flex;
       flex-wrap: wrap;
       gap: 4px;
+      align-items: center;
 
       .button {
         width: auto;
@@ -191,6 +217,14 @@ export default {
 
       .material-symbols-outlined {
         font-size: 18px;
+      }
+
+      .is-divider-vertical {
+        display: block;
+        width: 1px;
+        background-color: #dbdbdb;
+        height: 20px;
+        margin: 0 4px;
       }
     }
   }
@@ -227,6 +261,24 @@ export default {
         overflow: auto;
         padding: 1rem;
       }
+    }
+  }
+
+  &.is-fullscreen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1900;
+    border-radius: 0;
+    border: none;
+    height: 100vh !important;
+    max-height: 100vh !important;
+
+    .editor-layout {
+      min-height: 0;
+      height: calc(100vh - 40px); // Subtract header height approximately.
     }
   }
 

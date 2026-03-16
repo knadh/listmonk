@@ -436,12 +436,6 @@ export default Vue.extend({
     },
 
     onTab(tab) {
-      if (tab === 'content' && window.tinymce && window.tinymce.editors.length > 0) {
-        this.$nextTick(() => {
-          window.tinymce.editors[0].focus();
-        });
-      }
-
       // this.$router.replace({ hash: `#${tab}` });
       window.history.replaceState({}, '', `#${tab}`);
     },
