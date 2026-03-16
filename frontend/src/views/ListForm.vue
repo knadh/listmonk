@@ -22,6 +22,12 @@
             :placeholder="$t('globals.fields.name')" required />
         </b-field>
 
+        <b-field :label="$t('lists.subjectPrefix')" label-position="on-border"
+          :message="$t('lists.subjectPrefixHelp')">
+          <b-input :maxlength="200" v-model="form.subject_prefix" name="subject_prefix"
+            :placeholder="$t('lists.subjectPrefix')" />
+        </b-field>
+
         <b-field :label="$t('lists.type')" label-position="on-border" :message="$t('lists.typeHelp')">
           <b-select v-model="form.type" name="type" :placeholder="$t('lists.typeHelp')" required expanded>
             <option value="private">
@@ -93,6 +99,7 @@ export default Vue.extend({
       // Binds form input values.
       form: {
         name: '',
+        subject_prefix: '',
         type: 'private',
         optin: 'single',
         status: 'active',

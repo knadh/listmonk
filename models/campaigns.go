@@ -77,6 +77,39 @@ type Campaign struct {
 	// Pseudofield for getting the total number of subscribers
 	// in searches and queries.
 	Total int `db:"total" json:"-"`
+
+	subjectPrefix string
+}
+
+// GetSubjectPrefix returns the first non-empty subject prefix from the lists
+// associated with the campaign.
+func (c *Campaign) GetSubjectPrefix() string {
+	if c.subjectPrefix != "" {
+		return c.subjectPrefix
+	}
+
+	if len(c.Lists) == 0 {
+		return ""
+	}
+
+	var lists []struct {
+		ID            int    `json:"id"`
+		Name          string `json:"name"`
+		SubjectPrefix string `json:"subject_prefix"`
+	}
+
+	if err := json.Unmarshal(c.Lists, &lists); err != nil {
+		return ""
+	}
+
+	for _, l := range lists {
+		if l.SubjectPrefix != "" {
+			c.subjectPrefix = l.SubjectPrefix
+			return l.SubjectPrefix
+		}
+	}
+
+	return ""
 }
 
 // CampaignMeta contains fields tracking a campaign's progress.
@@ -132,8 +165,34 @@ func (camps Campaigns) LoadStats(stmt *sqlx.Stmt) error {
 
 	return nil
 }
+// GetSubjectPrefix returns the first non-empty subject prefix from the lists
+// associated with the campaign.
+func (c *Campaign) GetSubjectPrefix() string {
+	if len(c.Lists) == 0 {
+		return ""
+	}
+
+	var lists []struct {
+		ID            int    `json:"id"`
+		Name          string `json:"name"`
+		SubjectPrefix string `json:"subject_prefix"`
+	}
+
+	if err := json.Unmarshal(c.Lists, &lists); err != nil {
+		return ""
+	}
+
+	for _, l := range lists {
+		if l.SubjectPrefix != "" {
+			return l.SubjectPrefix
+		}
+	}
+
+	return ""
+}
 
 // CompileTemplate compiles a campaign body template into its base
+...
 // template and sets the resultant template to Campaign.Tpl.
 func (c *Campaign) CompileTemplate(f template.FuncMap) error {
 	// If the subject line has a template string, compile it.

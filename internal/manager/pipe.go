@@ -41,6 +41,9 @@ func (m *Manager) newPipe(c *models.Campaign) (*pipe, error) {
 		return nil, err
 	}
 
+	// Pre-cache the subject prefix to avoid concurrent unmarshalling later.
+	c.GetSubjectPrefix()
+
 	// Add the campaign to the active map.
 	p := &pipe{
 		camp: c,

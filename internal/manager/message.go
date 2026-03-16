@@ -22,8 +22,13 @@ func (m *Manager) NewCampaignMessage(c *models.Campaign, s models.Subscriber) (C
 		unsubURL: fmt.Sprintf(m.cfg.UnsubURL, c.UUID, s.UUID),
 	}
 
-	if m.cfg.CampaignSubjectPrefix != "" {
-		msg.subject = fmt.Sprintf("%s %s", m.cfg.CampaignSubjectPrefix, msg.subject)
+	prefix := c.GetSubjectPrefix()
+	if prefix == "" {
+		prefix = m.cfg.CampaignSubjectPrefix
+	}
+
+	if prefix != "" {
+		msg.subject = fmt.Sprintf("%s %s", prefix, msg.subject)
 	}
 
 	if err := msg.render(); err != nil {
@@ -45,8 +50,13 @@ func (m *CampaignMessage) render() error {
 		}
 		m.subject = out.String()
 
-		if m.manager.cfg.CampaignSubjectPrefix != "" {
-			m.subject = fmt.Sprintf("%s %s", m.manager.cfg.CampaignSubjectPrefix, m.subject)
+		prefix := m.Campaign.GetSubjectPrefix()
+		if prefix == "" {
+			prefix = m.manager.cfg.CampaignSubjectPrefix
+		}
+
+		if prefix != "" {
+			m.subject = fmt.Sprintf("%s %s", prefix, m.subject)
 		}
 		out.Reset()
 	}

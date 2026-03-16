@@ -48,8 +48,8 @@ med AS (
         (SELECT (SELECT id FROM camp), id, filename FROM media WHERE id=ANY($20::INT[]))
 ),
 insLists AS (
-    INSERT INTO campaign_lists (campaign_id, list_id, list_name)
-        SELECT (SELECT id FROM camp), id, name FROM lists WHERE id=ANY($15::INT[])
+    INSERT INTO campaign_lists (campaign_id, list_id, list_name, subject_prefix)
+        SELECT (SELECT id FROM camp), id, name, subject_prefix FROM lists WHERE id=ANY($15::INT[])
 )
 SELECT id FROM camp;
 
@@ -65,7 +65,8 @@ SELECT  c.*,
         (
             SELECT COALESCE(ARRAY_TO_JSON(ARRAY_AGG(l)), '[]') FROM (
                 SELECT COALESCE(campaign_lists.list_id, 0) AS id,
-                campaign_lists.list_name AS name
+                campaign_lists.list_name AS name,
+                campaign_lists.subject_prefix AS subject_prefix
                 FROM campaign_lists WHERE campaign_lists.campaign_id = c.id
         ) l
     ) AS lists
@@ -158,7 +159,8 @@ SELECT campaigns.*, COALESCE(templates.body, '') AS template_body,
 (
 	SELECT COALESCE(ARRAY_TO_JSON(ARRAY_AGG(l)), '[]') FROM (
 		SELECT COALESCE(campaign_lists.list_id, 0) AS id,
-        campaign_lists.list_name AS name
+        campaign_lists.list_name AS name,
+        campaign_lists.subject_prefix AS subject_prefix
         FROM campaign_lists WHERE campaign_lists.campaign_id = campaigns.id
 	) l
 ) AS lists
@@ -401,9 +403,9 @@ medi AS (
         (SELECT $1 AS campaign_id, id, filename FROM media WHERE id=ANY($19::INT[]))
         ON CONFLICT (campaign_id, media_id) DO NOTHING
 )
-INSERT INTO campaign_lists (campaign_id, list_id, list_name)
-    (SELECT $1 as campaign_id, id, name FROM lists WHERE id=ANY($14::INT[]))
-    ON CONFLICT (campaign_id, list_id) DO UPDATE SET list_name = EXCLUDED.list_name;
+INSERT INTO campaign_lists (campaign_id, list_id, list_name, subject_prefix)
+    (SELECT $1 as campaign_id, id, name, subject_prefix FROM lists WHERE id=ANY($14::INT[]))
+    ON CONFLICT (campaign_id, list_id) DO UPDATE SET list_name = EXCLUDED.list_name, subject_prefix = EXCLUDED.subject_prefix;
 
 -- name: update-campaign-counts
 UPDATE campaigns SET

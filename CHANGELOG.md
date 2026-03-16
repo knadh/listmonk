@@ -8,7 +8,8 @@ and this project adheres to [Calendar Versioning](https://calver.org/).
 ## [26.03.16.1997] - 2026-03-16
 
 ### Added
-- Added a new global "Campaign subject prefix" setting (under Settings -> General) to automatically prepend a prefix (e.g., "[Mailing list]") to all outgoing campaign subjects.
+- Added list-specific "Campaign subject prefix" setting to automatically prepend a prefix (e.g., "[List name]") to outgoing campaign subjects.
+- Added a global fallback "Campaign subject prefix" setting (under Settings -> General) for lists without a specific prefix.
 
 ## [26.03.16.1996] - 2026-03-16
 

@@ -45,6 +45,7 @@ CREATE TABLE lists (
     status          list_status NOT NULL DEFAULT 'active',
     tags            VARCHAR(100)[],
     description     TEXT NOT NULL DEFAULT '',
+    subject_prefix  TEXT NOT NULL DEFAULT '',
 
     created_at      TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at      TIMESTAMP WITH TIME ZONE DEFAULT NOW()
@@ -146,7 +147,8 @@ CREATE TABLE campaign_lists (
     -- Lists may be deleted, so list_id is nullable
     -- and a copy of the original list name is maintained here.
     list_id      INTEGER NULL REFERENCES lists(id) ON DELETE SET NULL ON UPDATE CASCADE,
-    list_name    TEXT NOT NULL DEFAULT ''
+    list_name    TEXT NOT NULL DEFAULT '',
+    subject_prefix TEXT NOT NULL DEFAULT ''
 );
 CREATE UNIQUE INDEX ON campaign_lists (campaign_id, list_id);
 DROP INDEX IF EXISTS idx_camp_lists_camp_id; CREATE INDEX idx_camp_lists_camp_id ON campaign_lists(campaign_id);
