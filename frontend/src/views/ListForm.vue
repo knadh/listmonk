@@ -151,6 +151,11 @@ export default Vue.extend({
   mounted() {
     this.form = { ...this.form, ...this.$props.data };
 
+    // If the data came from the API, it would have been camelCased.
+    if (this.$props.data.subjectPrefix) {
+      this.form.subject_prefix = this.$props.data.subjectPrefix;
+    }
+
     this.$nextTick(() => {
       this.$refs.focus.focus();
     });
