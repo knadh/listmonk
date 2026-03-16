@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Calendar Versioning](https://calver.org/).
 
+## [26.03.16.1996] - 2026-03-16
+
+### Changed
+- Updated CI/CD workflows to use Node.js 24 and resolve Node.js 20 deprecation warnings.
+- Updated GitHub Actions to their latest versions (`checkout@v4.2.2`, `setup-go@v5.3.0`, `build-push-action@v6.15.0`, `ssh-action@v1.2.0`).
+
 ## [26.03.16.1995] - 2026-03-16
 
 ### Fixed
