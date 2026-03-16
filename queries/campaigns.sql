@@ -118,7 +118,7 @@ SELECT COUNT(*) OVER () AS total, campaigns.*,
 -- the query still returns a row with 0 values. Thus, for lazy loading, the application simply iterate on the results in
 -- the same order as the list of campaigns it would've queried and attach the results.
 WITH lists AS (
-    SELECT campaign_id, JSON_AGG(JSON_BUILD_OBJECT('id', list_id, 'name', list_name)) AS lists FROM campaign_lists
+    SELECT campaign_id, JSON_AGG(JSON_BUILD_OBJECT('id', list_id, 'name', list_name, 'subject_prefix', subject_prefix)) AS lists FROM campaign_lists
     WHERE campaign_id = ANY($1) GROUP BY campaign_id
 ),
 media AS (
@@ -235,7 +235,14 @@ u AS (
     FROM (SELECT * FROM counts) co
     WHERE ca.id = co.campaign_id
 )
-SELECT camps.*, campMedia.media_id FROM camps LEFT JOIN campMedia ON (campMedia.campaign_id = camps.id);
+SELECT camps.*, campMedia.media_id, (
+    SELECT COALESCE(ARRAY_TO_JSON(ARRAY_AGG(l)), '[]') FROM (
+        SELECT COALESCE(campaign_lists.list_id, 0) AS id,
+        campaign_lists.list_name AS name,
+        campaign_lists.subject_prefix AS subject_prefix
+        FROM campaign_lists WHERE campaign_lists.campaign_id = camps.id
+    ) l
+) AS lists FROM camps LEFT JOIN campMedia ON (campMedia.campaign_id = camps.id);
 
 -- name: get-campaign-analytics-unique-counts
 WITH intval AS (
