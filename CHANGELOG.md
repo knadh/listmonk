@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Calendar Versioning](https://calver.org/).
 
+## [26.03.16.1998] - 2026-03-16
+
+### Fixed
+- Fixed a syntax error and duplicate method in `models/campaigns.go` introduced in the previous version.
+
 ## [26.03.16.1997] - 2026-03-16
 
 ### Added
