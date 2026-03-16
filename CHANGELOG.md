@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Calendar Versioning](https://calver.org/).
 
+## [26.03.16.1997] - 2026-03-16
+
+### Added
+- Added a new global "Campaign subject prefix" setting (under Settings -> General) to automatically prepend a prefix (e.g., "[Mailing list]") to all outgoing campaign subjects.
+
 ## [26.03.16.1996] - 2026-03-16
 
 ### Changed

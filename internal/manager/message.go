@@ -14,11 +14,16 @@ func (m *Manager) NewCampaignMessage(c *models.Campaign, s models.Subscriber) (C
 	msg := CampaignMessage{
 		Campaign:   c,
 		Subscriber: s,
+		manager:    m,
 
 		subject:  c.Subject,
 		from:     c.FromEmail,
 		to:       s.Email,
 		unsubURL: fmt.Sprintf(m.cfg.UnsubURL, c.UUID, s.UUID),
+	}
+
+	if m.cfg.CampaignSubjectPrefix != "" {
+		msg.subject = fmt.Sprintf("%s %s", m.cfg.CampaignSubjectPrefix, msg.subject)
 	}
 
 	if err := msg.render(); err != nil {
@@ -39,6 +44,10 @@ func (m *CampaignMessage) render() error {
 			return err
 		}
 		m.subject = out.String()
+
+		if m.manager.cfg.CampaignSubjectPrefix != "" {
+			m.subject = fmt.Sprintf("%s %s", m.manager.cfg.CampaignSubjectPrefix, m.subject)
+		}
 		out.Reset()
 	}
 

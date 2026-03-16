@@ -418,6 +418,8 @@
     "settings.errorNoSMTP": "At least one SMTP block should be enabled",
     "settings.general.adminNotifEmails": "Admin notification e-mails",
     "settings.general.adminNotifEmailsHelp": "Comma separated list of e-mail addresses to which admin notifications such as import updates, campaign completion, failure etc. should be sent.",
+    "settings.general.campaignSubjectPrefix": "Campaign subject prefix",
+    "settings.general.campaignSubjectPrefixHelp": "(Optional) global prefix for campaign subject lines. e.g., [Mailing list]",
     "settings.general.checkUpdates": "Check for updates",
     "settings.general.checkUpdatesHelp": "Periodically check for new app releases and notify.",
     "settings.general.enablePublicArchive": "Enable public mailing list archive",

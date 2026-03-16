@@ -80,6 +80,7 @@ type UrlConfig struct {
 type Config struct {
 	SiteName                      string   `koanf:"site_name"`
 	FromEmail                     string   `koanf:"from_email"`
+	CampaignSubjectPrefix         string   `koanf:"campaign_subject_prefix"`
 	NotifyEmails                  []string `koanf:"notify_emails"`
 	EnablePublicSubPage           bool     `koanf:"enable_public_subscription_page"`
 	EnablePublicArchive           bool     `koanf:"enable_public_archive"`
@@ -567,6 +568,7 @@ func initCampaignManager(msgrs []manager.Messenger, q *models.Queries, u *UrlCon
 		MessageRate:           ko.Int("app.message_rate"),
 		MaxSendErrors:         ko.Int("app.max_send_errors"),
 		FromEmail:             ko.String("app.from_email"),
+		CampaignSubjectPrefix: ko.String("app.campaign_subject_prefix"),
 		IndividualTracking:    ko.Bool("privacy.individual_tracking"),
 		DisableTracking:       ko.Bool("privacy.disable_tracking"),
 		UnsubURL:              u.UnsubURL,

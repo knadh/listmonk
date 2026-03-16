@@ -10,6 +10,7 @@ type Settings struct {
 	AppFaviconURL                 string   `json:"app.favicon_url"`
 	AppFromEmail                  string   `json:"app.from_email"`
 	AppNotifyEmails               []string `json:"app.notify_emails"`
+	AppCampaignSubjectPrefix      string   `json:"app.campaign_subject_prefix"`
 	EnablePublicSubPage           bool     `json:"app.enable_public_subscription_page"`
 	EnablePublicArchive           bool     `json:"app.enable_public_archive"`
 	EnablePublicArchiveRSSContent bool     `json:"app.enable_public_archive_rss_content"`

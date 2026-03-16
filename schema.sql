@@ -231,6 +231,7 @@ INSERT INTO settings (key, value) VALUES
     ('app.root_url', '"http://localhost:9000"'),
     ('app.favicon_url', '""'),
     ('app.from_email', '"listmonk <noreply@listmonk.yoursite.com>"'),
+    ('app.campaign_subject_prefix', '""'),
     ('app.logo_url', '""'),
     ('app.concurrency', '10'),
     ('app.message_rate', '10'),

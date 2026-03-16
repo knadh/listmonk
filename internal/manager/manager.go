@@ -100,9 +100,10 @@ type CampaignMessage struct {
 	Campaign   *models.Campaign
 	Subscriber models.Subscriber
 
-	from     string
-	to       string
-	subject  string
+	manager *Manager
+	from    string
+	to      string
+	subject string
 	body     []byte
 	altBody  []byte
 	unsubURL string
@@ -120,6 +121,7 @@ type Config struct {
 	SlidingWindow         bool
 	SlidingWindowDuration time.Duration
 	SlidingWindowRate     int
+	CampaignSubjectPrefix string
 	RequeueOnError        bool
 	FromEmail             string
 	IndividualTracking    bool
