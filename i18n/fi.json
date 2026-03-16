@@ -134,7 +134,7 @@
     "forms.formHTMLHelp": "Käytä seuraavaa HTML-koodia, jotta saat liittymislomakkeen ulkoiselle verkkosivulle. Lomakkeessa pitää olla sähköpostikenttä ja yksi tai useampi `l` (listan UUID) -kenttä. Nimi kenttä on valinnainen.",
     "forms.noPublicLists": "Ei julkista listaa lomakkeen luomiseksi.",
     "forms.publicLists": "Julkiset listat",
-    "forms.publicSubPage": "Julkinen liittymis-sivu",
+    "forms.publicSubPage": "Julkinen liittymissivu",
     "forms.selectHelp": "Valitse listat, jotka haluat lisätä lomakkeelle.",
     "forms.title": "Lomakkeet",
     "globals.buttons.actions": "Toiminnot",
