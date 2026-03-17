@@ -74,7 +74,7 @@ FROM campaigns c
 WHERE ($1 = 0 OR id = $1)
     AND (CARDINALITY($2::campaign_status[]) = 0 OR status = ANY($2))
     AND (CARDINALITY($3::VARCHAR(100)[]) = 0 OR $3 <@ tags)
-    AND ($4 = '' OR TO_TSVECTOR(CONCAT(name, ' ', subject)) @@ TO_TSQUERY($4) OR CONCAT(c.name, ' ', c.subject) ILIKE $4)
+    AND ($4 = '' OR TO_TSVECTOR(CONCAT(name, ' ', subject)) @@ PLAINTO_TSQUERY($4) OR CONCAT(c.name, ' ', c.subject) ILIKE $4)
     -- Get all campaigns or filter by list IDs.
     AND (
         $5 OR EXISTS (
@@ -450,7 +450,7 @@ DELETE FROM campaigns c
 WHERE (
     CASE
         WHEN CARDINALITY($1::INT[]) > 0 THEN id = ANY($1)
-        ELSE $2 = '' OR TO_TSVECTOR(CONCAT(name, ' ', subject)) @@ TO_TSQUERY($2) OR CONCAT(c.name, ' ', c.subject) ILIKE $2
+        ELSE $2 = '' OR TO_TSVECTOR(CONCAT(name, ' ', subject)) @@ PLAINTO_TSQUERY($2) OR CONCAT(c.name, ' ', c.subject) ILIKE $2
     END
 )
 -- Get all campaigns or filter by permitted list IDs.

@@ -660,6 +660,10 @@ export default Vue.extend({
     this.getCampaigns();
     this.pollStats();
 
+    this.$api.getLists({ per_page: 10 }).then((data) => {
+      this.lists = data.results;
+    });
+
     this.onResize();
     window.addEventListener('resize', this.onResize);
   },

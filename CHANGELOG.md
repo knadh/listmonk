@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Calendar Versioning](https://calver.org/).
 
+## [26.03.17.2004] - 2026-03-17
+
+### Added
+- Pre-fetch lists on campaign view mount to populate the "Filter by list" autocomplete immediately.
+
+### Fixed
+- Fixed the "Filter by list" and general search functionality in the campaign view and list view by using `PLAINTO_TSQUERY` in the backend, which safely handles search strings containing special characters like `%`.
+- Added missing `github.com/lib/pq` import in `internal/core/media.go` to fix compilation error.
+
 ## [26.03.16.2001] - 2026-03-16
 
 ### Added

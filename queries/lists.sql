@@ -14,7 +14,7 @@ WITH ls AS (
     CASE
         WHEN $1 > 0 THEN id = $1
         WHEN $2 != '' THEN uuid = $2::UUID
-        WHEN $3 != '' THEN (TO_TSVECTOR(name) @@ TO_TSQUERY ($3) OR name ILIKE $3)
+        WHEN $3 != '' THEN (TO_TSVECTOR(name) @@ PLAINTO_TSQUERY ($3) OR name ILIKE $3)
         ELSE TRUE
     END
     AND ($4 = '' OR type = $4::list_type)
@@ -81,7 +81,7 @@ UPDATE lists SET updated_at=NOW() WHERE id = ANY($1);
 DELETE FROM lists
 WHERE CASE
     WHEN CARDINALITY($1::INT[]) > 0 THEN id = ANY($1)
-    ELSE ($2 = '' OR to_tsvector(name) @@ to_tsquery($2))
+    ELSE ($2 = '' OR to_tsvector(name) @@ plainto_tsquery($2))
 END
 AND CASE
     -- Optional list IDs based on user permission.
