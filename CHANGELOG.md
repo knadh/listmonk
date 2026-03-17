@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Calendar Versioning](https://calver.org/).
 
+## [26.03.17.2005] - 2026-03-17
+
+### Fixed
+- Fixed missing `fmt` and `internal/auth` imports in `cmd/media.go` which caused compilation failures.
+
 ## [26.03.17.2004] - 2026-03-17
 
 ### Added
