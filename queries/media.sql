@@ -4,7 +4,9 @@ INSERT INTO media (uuid, filename, thumb, content_type, provider, meta, created_
 
 -- name: query-media
 SELECT COUNT(*) OVER () AS total, * FROM media
-    WHERE ($1 = '' OR filename ILIKE $1) AND provider=$2 ORDER BY created_at DESC OFFSET $3 LIMIT $4;
+    WHERE ($1 = '' OR filename ILIKE $1) AND provider=$2
+    AND (CARDINALITY($5::TEXT[]) = 0 OR filename ILIKE ANY($5))
+    ORDER BY created_at DESC OFFSET $3 LIMIT $4;
 
 -- name: get-media
 SELECT * FROM media WHERE

@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Calendar Versioning](https://calver.org/).
 
+## [26.03.16.2001] - 2026-03-16
+
+### Added
+- Added media isolation for restricted users. Users with list-specific permissions are now restricted to uploading and viewing media within their own "virtual folders" (e.g., `list-{id}/filename`).
+- Updated the filesystem media provider to support subdirectory creation.
+
 ## [26.03.16.2000] - 2026-03-16
 
 ### Fixed

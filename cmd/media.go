@@ -55,6 +55,20 @@ func (a *App) UploadMedia(c echo.Context) error {
 	// Sanitize the filename.
 	fName := makeFilename(file.Filename)
 
+	// If the user is restricted to specific lists, enforce a folder prefix.
+	user := auth.GetUser(c)
+	if hasAllLists, permittedLists := user.GetPermittedLists(auth.PermTypeManage); !hasAllLists {
+		if len(permittedLists) > 0 {
+			// Use the first permitted list as the context.
+			// Format: list-{id}/{filename}
+			fName = fmt.Sprintf("list-%d/%s", permittedLists[0], fName)
+		} else {
+			// User has media management rights but no list management rights.
+			// This is an ambiguous state for isolated media. Deny upload.
+			return echo.NewHTTPError(http.StatusForbidden, "no list access to upload media")
+		}
+	}
+
 	// If the filename already exists in the DB, make it unique by adding a random suffix.
 	if _, err := a.core.GetMedia(0, "", fName, a.media); err == nil {
 		suffix, err := generateRandomString(6)
@@ -141,13 +155,34 @@ func (a *App) UploadMedia(c echo.Context) error {
 
 // GetAllMedia handles retrieval of uploaded media.
 func (a *App) GetAllMedia(c echo.Context) error {
-	var (
-		query = c.FormValue("query")
+	user := auth.GetUser(c)
 
-		pg = a.pg.NewFromURL(c.Request().URL.Query())
+	var (
+		query    = c.FormValue("query")
+		prefixes []string
+		pg       = a.pg.NewFromURL(c.Request().URL.Query())
 	)
+
+	// If the user doesn't have global list access, restrict media visibility
+	// to their permitted lists using a file prefix convention (list-{id}/%).
+	if hasAllLists, permittedLists := user.GetPermittedLists(auth.PermTypeGet | auth.PermTypeManage); !hasAllLists {
+		for _, id := range permittedLists {
+			prefixes = append(prefixes, fmt.Sprintf("list-%d/%%", id))
+			prefixes = append(prefixes, fmt.Sprintf("list-%d-%%", id))
+		}
+
+		// Always allow access to a "public" namespace.
+		prefixes = append(prefixes, "public/%", "public-%")
+
+		// If the user has no permitted lists and thus no prefixes,
+		// force a dummy prefix to ensure they see nothing (instead of everything).
+		if len(prefixes) == 0 {
+			prefixes = []string{"__none__"}
+		}
+	}
+
 	// Fetch the media items from the DB.
-	res, total, err := a.core.QueryMedia(a.cfg.MediaUpload.Provider, a.media, query, pg.Offset, pg.Limit)
+	res, total, err := a.core.QueryMedia(a.cfg.MediaUpload.Provider, a.media, query, prefixes, pg.Offset, pg.Limit)
 	if err != nil {
 		return err
 	}

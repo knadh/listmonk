@@ -32,9 +32,15 @@ func New(opts Opts) (media.Store, error) {
 func (c *Client) Put(filename string, cType string, src io.ReadSeeker) (string, error) {
 	// Get the directory path
 	dir := getDir(c.opts.UploadPath)
+	fPath := filepath.Join(dir, filename)
+
+	// Ensure the directory exists.
+	if err := os.MkdirAll(filepath.Dir(fPath), 0755); err != nil {
+		return "", err
+	}
 
 	// Read the  file contents.
-	out, err := os.OpenFile(filepath.Join(dir, filename), os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0664)
+	out, err := os.OpenFile(fPath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0664)
 	if err != nil {
 		return "", err
 	}
