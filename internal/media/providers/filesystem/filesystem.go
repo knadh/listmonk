@@ -59,9 +59,9 @@ func (c *Client) GetURL(name string) string {
 	return fmt.Sprintf("%s%s/%s", c.opts.RootURL, c.opts.UploadURI, name)
 }
 
-// GetBlob accepts a URL, reads the file, and returns the blob.
-func (c *Client) GetBlob(url string) ([]byte, error) {
-	b, err := os.ReadFile(filepath.Join(getDir(c.opts.UploadPath), filepath.Base(url)))
+// GetBlob accepts a key (relative path), reads the file, and returns the blob.
+func (c *Client) GetBlob(key string) ([]byte, error) {
+	b, err := os.ReadFile(filepath.Join(getDir(c.opts.UploadPath), key))
 	return b, err
 }
 

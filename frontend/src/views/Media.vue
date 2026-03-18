@@ -202,6 +202,7 @@ export default Vue.extend({
         this.uploaded = 0;
         this.form.files = [];
 
+        this.queryParams.page = 1;
         this.getMedia();
       }
     },

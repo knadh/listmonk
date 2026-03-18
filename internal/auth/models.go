@@ -246,20 +246,24 @@ func (u *User) GetPermittedLists(types PermType) (bool, []int) {
 		}
 	}
 
+	// Collect all permitted list IDs based on the requested types.
+	resMap := make(map[int]struct{})
 	if get {
-		// If the user has per-list permissions, return that. Otherwise, let the
-		// 'manage' permission check run.
-		if len(u.GetListIDs) > 0 {
-			out := make([]int, len(u.GetListIDs))
-			copy(out, u.GetListIDs)
-			return false, out
+		for _, id := range u.GetListIDs {
+			resMap[id] = struct{}{}
+		}
+	}
+	if manage {
+		for _, id := range u.ManageListIDs {
+			resMap[id] = struct{}{}
 		}
 	}
 
-	if manage {
-		// User has per-list permissions.
-		out := make([]int, len(u.ManageListIDs))
-		copy(out, u.ManageListIDs)
+	if len(resMap) > 0 {
+		out := make([]int, 0, len(resMap))
+		for id := range resMap {
+			out = append(out, id)
+		}
 		return false, out
 	}
 

@@ -22,6 +22,10 @@ func (c *Core) QueryMedia(provider string, s media.Store, query string, prefixes
 		query = strings.ToLower(query)
 	}
 
+	if prefixes == nil {
+		prefixes = []string{}
+	}
+
 	if err := c.q.QueryMedia.Select(&out, fmt.Sprintf("%%%s%%", query), provider, offset, limit, pq.StringArray(prefixes)); err != nil {
 		return out, 0, echo.NewHTTPError(http.StatusInternalServerError,
 			c.i18n.Ts("globals.messages.errorFetching",

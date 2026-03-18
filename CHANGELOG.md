@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Calendar Versioning](https://calver.org/).
 
+## [26.03.18.2006] - 2026-03-18
+
+### Fixed
+- Fixed a bug where superadmins (and users with global permissions) saw no media files in the browser due to an incorrect SQL CARDINALITY check against NULL prefix arrays.
+- Improved the media isolation logic to correctly handle users with a mix of "get" and "manage" list permissions by returning a union of permitted list IDs.
+- Fixed a bug in the filesystem media provider's `GetBlob` that prevented thumbnails and images in isolated subdirectories from being correctly processed and served.
+- Fixed the media browser not resetting to the first page after an upload, which sometimes caused newly uploaded files to be hidden on a previous page.
+
 ## [26.03.17.2005] - 2026-03-17
 
 ### Fixed
