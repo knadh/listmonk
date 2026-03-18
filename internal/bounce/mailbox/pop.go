@@ -1,6 +1,7 @@
 package mailbox
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -14,6 +15,9 @@ import (
 	"github.com/knadh/go-pop3"
 	"github.com/knadh/listmonk/models"
 )
+
+// UTF-8 BOM (Byte Order Mark) that some mail servers/proxies prepend to messages.
+var utf8BOM = []byte{0xEF, 0xBB, 0xBF}
 
 // POP represents a POP mailbox.
 type POP struct {
@@ -114,8 +118,11 @@ func (p *POP) Scan(limit int, ch chan models.Bounce) error {
 			continue
 		}
 
+		// Strip UTF-8 BOM if present (some mail servers/proxies like Office 365 add this).
+		rawBytes := bytes.TrimPrefix(b.Bytes(), utf8BOM)
+
 		// Parse the message.
-		m, err := message.Read(b)
+		m, err := message.Read(bytes.NewReader(rawBytes))
 		if err != nil {
 			p.lo.Printf("error parsing bounce message %d: %v", id, err)
 			continue
