@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Calendar Versioning](https://calver.org/).
 
+## [26.03.18.2008] - 2026-03-18
+
+### Fixed
+- Fixed a bug where the editor's main format/template selector toolbar would sometimes become invisible or conflict with the editor's internal sticky tools.
+
 ## [26.03.18.2007] - 2026-03-18
 
 ### Changed

@@ -465,9 +465,6 @@ export default {
 
 <style lang="scss" scoped>
 .editor-toolbar {
-  position: sticky;
-  top: 0;
-  z-index: 30;
   background: #fff;
   padding: 0.5rem 0;
   border-bottom: 1px solid #dbdbdb;
