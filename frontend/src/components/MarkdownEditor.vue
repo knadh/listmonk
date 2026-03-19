@@ -1,5 +1,5 @@
 <template>
-  <div class="markdown-editor-container" :class="{ 'is-mobile': isMobile, 'is-fullscreen': isFullscreen }">
+  <div class="markdown-editor-container" :class="{ 'is-mobile': isMobile, 'is-fullscreen': isFullscreen }" :style="{ height: isFullscreen ? '' : height }">
     <div class="editor-header mb-2" v-if="!disabled">
       <div class="buttons md-toolbar">
         <b-button size="is-small" @click="wrapSelection('**', '**')">
@@ -109,6 +109,7 @@ export default {
     id: { type: Number, default: 0 },
     title: { type: String, default: '' },
     templateId: { type: [Number, null], default: null },
+    height: { type: String, default: '75vh' },
   },
 
   data() {
@@ -198,7 +199,9 @@ export default {
     padding: 0.5rem;
     border-bottom: 1px solid #dbdbdb;
     background: #f5f5f5;
-    position: relative;
+    position: sticky;
+    top: 0;
+    z-index: 20;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -244,6 +247,7 @@ export default {
 
     .editor-pane {
       border-right: 1px solid #dbdbdb;
+      overflow: auto;
     }
 
     .markdown-code-editor {

@@ -1,5 +1,5 @@
 <template>
-  <div ref="editor" class="code-editor" />
+  <div ref="editor" class="code-editor" :style="{ height: height }" />
 </template>
 
 <script>
@@ -23,6 +23,7 @@ export default {
     value: { type: String, default: '' },
     lang: { type: String, default: 'html' },
     disabled: Boolean,
+    height: { type: String, default: '100%' },
   },
 
   data() {
@@ -129,3 +130,13 @@ export default {
   },
 };
 </script>
+
+<style lang="scss">
+.code-editor {
+  overflow: auto;
+
+  .cm-editor {
+    height: 100%;
+  }
+}
+</style>

@@ -1,7 +1,7 @@
 <template>
   <!-- Two-way Data-Binding -->
   <section class="editor">
-    <div class="columns" :class="{ 'is-mobile': !isMobile }">
+    <div class="columns editor-toolbar mb-0" :class="{ 'is-mobile': !isMobile }">
       <div class="column is-three-quarters" :class="{ 'is-inline-flex': !isMobile }">
         <b-field :label="$t('campaigns.format')" label-position="on-border" class="mr-4 mb-0">
           <b-select v-model="contentTypeSel" :disabled="disabled" name="content_type" :expanded="isMobile">
@@ -68,18 +68,18 @@
 
     <!-- markdown authoring for richtext //-->
     <markdown-editor v-if="self.contentType === 'richtext' && isMarkdownMode" v-model="markdownBody"
-      :disabled="disabled" :is-mobile="isMobile" :id="id" :title="title" :template-id="templateId" />
+      :disabled="disabled" :is-mobile="isMobile" :id="id" :title="title" :template-id="templateId" :height="height || '75vh'" />
 
     <!-- visual editor //-->
     <visual-editor v-if="self.contentType === 'visual'" :source="self.bodySource" @change="onVisualEditorChange"
       :height="height || '65vh'" ref="visualEditor" />
 
     <!-- raw html editor //-->
-    <code-editor lang="html" v-if="self.contentType === 'html'" v-model="self.body" key="editor-html" />
+    <code-editor lang="html" v-if="self.contentType === 'html'" v-model="self.body" key="editor-html" :height="height || '75vh'" />
 
     <!-- markdown editor //-->
     <markdown-editor v-if="self.contentType === 'markdown'" v-model="self.body"
-      :disabled="disabled" :is-mobile="isMobile" :id="id" :title="title" :template-id="templateId" />
+      :disabled="disabled" :is-mobile="isMobile" :id="id" :title="title" :template-id="templateId" :height="height || '75vh'" />
 
     <!-- plain text //-->
     <b-input v-if="self.contentType === 'plain'" v-model="self.body" type="textarea" name="content" ref="plainEditor"
@@ -462,3 +462,14 @@ export default {
 };
 
 </script>
+
+<style lang="scss" scoped>
+.editor-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  background: #fff;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #dbdbdb;
+}
+</style>

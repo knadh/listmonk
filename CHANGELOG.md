@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Calendar Versioning](https://calver.org/).
 
+## [26.03.18.2007] - 2026-03-18
+
+### Changed
+- Improved the campaign editor UI by making toolbars sticky and implementing internal scrolling for the content area in Markdown, Rich Text, and HTML editors. This ensures tools remain accessible even when writing long content.
+
 ## [26.03.18.2006] - 2026-03-18
 
 ### Fixed

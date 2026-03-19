@@ -1,5 +1,5 @@
 <template>
-  <div class="richtext-editor-container" :class="{ 'is-fullscreen': isFullscreen }">
+  <div class="richtext-editor-container" :class="{ 'is-fullscreen': isFullscreen }" :style="{ height: isFullscreen ? '' : height }">
     <div class="editor-header mb-2" v-if="!disabled">
       <div class="buttons md-toolbar" v-if="editor">
         <!-- History -->
@@ -285,7 +285,9 @@ export default {
     padding: 0.5rem;
     border-bottom: 1px solid #dbdbdb;
     background: #f5f5f5;
-    position: relative;
+    position: sticky;
+    top: 0;
+    z-index: 20;
     display: flex;
     justify-content: space-between;
     align-items: center;
