@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Calendar Versioning](https://calver.org/).
 
+## [26.03.22.2010] - 2026-03-22
+
+### Added
+- Started the implementation of Go unit tests for the backend, beginning with `internal/core` utility functions.
+- Added a new `Testing & QA` section to the roadmap in `todo.md` to address the lack of backend test coverage.
+
+### Changed
+- Analyzed the existing test suite (Cypress E2E) and identified critical weaknesses in backend testing coverage.
+
 ## [26.03.18.2008] - 2026-03-18
 
 ### Fixed
