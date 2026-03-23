@@ -7,6 +7,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/knadh/listmonk/internal/auth"
 	"github.com/knadh/listmonk/internal/subimporter"
 	"github.com/knadh/listmonk/models"
 	"github.com/labstack/echo/v4"
@@ -25,6 +26,14 @@ func (a *App) ImportSubscribers(c echo.Context) error {
 	if err := json.Unmarshal([]byte(c.FormValue("params")), &opt); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest,
 			a.i18n.Ts("import.invalidParams", "error", err.Error()))
+	}
+
+	// Filter list IDs against the current user's permitted lists.
+	user := auth.GetUser(c)
+	opt.ListIDs = user.FilterListsByPerm(auth.PermTypeManage, opt.ListIDs)
+	if len(opt.ListIDs) == 0 {
+		return echo.NewHTTPError(http.StatusForbidden,
+			a.i18n.Ts("globals.messages.permissionDenied", "name", "lists"))
 	}
 
 	// Validate mode.
