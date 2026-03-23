@@ -150,3 +150,6 @@ UPDATE users SET loggedin_at=NOW(), avatar=(CASE WHEN $2 != '' THEN $2 ELSE avat
 
 -- name: set-user-twofa
 UPDATE users SET twofa_type=$2::twofa_type, twofa_key=$3, updated_at=NOW() WHERE id=$1;
+
+-- name: delete-user-sessions
+DELETE FROM sessions WHERE data->>'user_id' = $1 AND ($2 = '' OR id != $2);
