@@ -260,10 +260,10 @@ describe('Domain blocklist', () => {
     cy.get('.b-tabs nav a').eq(2).click();
     cy.get('textarea[name="privacy.domain_blocklist"]').clear().type('ban.net\n\nBaN.OrG\n\nban.com\n\n');
     cy.get('[data-cy=btn-save]').click();
+    cy.waitForBackend();
   });
 
   it('Try subscribing via public page', () => {
-    cy.wait(1000);
     cy.visit(`${apiUrl}/subscription/form`);
     cy.get('input[name=email]').clear().type('test@noban.net');
     cy.get('button[type=submit]').click();
@@ -341,7 +341,7 @@ describe('Domain blocklist', () => {
     cy.get('.b-tabs nav a').eq(2).click();
     cy.get('textarea[name="privacy.domain_blocklist"]').clear();
     cy.get('[data-cy=btn-save]').click();
-    cy.wait(3000);
+    cy.waitForBackend();
 
     // Add banned domain.
     cy.request({

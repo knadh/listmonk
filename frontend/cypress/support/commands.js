@@ -4,14 +4,16 @@ import 'cypress-wait-until';
 Cypress.Commands.add('resetDB', () => {
   // Although cypress clearly states that a webserver should not be run
   // from within it, listmonk is killed, the DB reset, and run again
-  // in the background. If the DB is reset without restartin listmonk,
+  // in the background. If the DB is reset without restarting listmonk,
   // the live Postgres connections in the app throw errors because the
   // schema changes midway.
-  cy.exec(Cypress.env('serverInitCmd'));
+  cy.task('resetServer');
+  cy.waitForBackend();
 });
 
 Cypress.Commands.add('resetDBBlank', () => {
-  cy.exec(Cypress.env('serverInitBlankCmd'));
+  cy.task('resetServer', { blank: true });
+  cy.waitForBackend();
 });
 
 // Takes a th class selector of a Buefy table, clicks it sorting the table,
@@ -53,17 +55,16 @@ Cypress.Commands.add('iframe', { prevSubject: 'element' }, ($iframe, callback = 
   .within({}, callback));
 
 Cypress.Commands.add('waitForBackend', () => {
-  // Silence all network errors during wait
-  cy.intercept('*', { continueOnNetworkError: true });
+  // The server restarts after a 500ms delay on settings change.
+  // Wait for the server to go down
+  cy.wait(1000);
 
-  // Keep trying until backend responds successfully
+  // Keep polling the public /health endpoint until the (new) server
+  // is live. Use fetch() as cy.request() throws on ECONNREFUSED even with failOnStatusCode:false.
   cy.waitUntil(
-    () => cy.request({
-      url: '/api/health',
-      failOnStatusCode: false,
-    }).then((res) =>
-      // Re-enable exception handling once backend is healthy
-      res.status === 200),
+    () => cy.wrap(null, { log: false }).then(() => fetch('/health')
+      .then((res) => res.status === 200)
+      .catch(() => false)),
     {
       timeout: 60000,
       interval: 2000,
