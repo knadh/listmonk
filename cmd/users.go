@@ -173,6 +173,13 @@ func (a *App) UpdateUser(c echo.Context) error {
 	// Blank out the password hash in the response.
 	user.Password = null.String{}
 
+	// If password was changed by admin, destroy all sessions for the given user.
+	if u.Password.String != "" {
+		if err := a.core.DeleteUserSessions(id, ""); err != nil {
+			a.log.Printf("error destroying sessions on admin password change for user_id=%d: %v", id, err)
+		}
+	}
+
 	// Cache the API token for in-memory, off-DB /api/* request auth.
 	if _, err := cacheUsers(a.core, a.auth); err != nil {
 		return err
@@ -261,6 +268,13 @@ func (a *App) UpdateUserProfile(c echo.Context) error {
 	out, err := a.core.UpdateUserProfile(user.ID, u)
 	if err != nil {
 		return err
+	}
+
+	// If password was changed, destroy all existing sessions for the user except for the current one.
+	if u.Password.String != "" {
+		if err := a.core.DeleteUserSessions(user.ID, auth.GetSessionID(c)); err != nil {
+			a.log.Printf("error destroying sessions after profile password change for user_id=%d: %v", user.ID, err)
+		}
 	}
 
 	// Blank out the password hash in the response.
