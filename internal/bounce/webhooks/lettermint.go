@@ -54,12 +54,17 @@ func (l *Lettermint) ProcessBounce(sig string, body []byte) ([]models.Bounce, er
 		return nil, fmt.Errorf("signature timestamp expired")
 	}
 
+	// Decode the hex signature from the header.
+	sigB, err := hex.DecodeString(strings.TrimSpace(sigHex))
+	if err != nil {
+		return nil, fmt.Errorf("invalid signature encoding: %v", err)
+	}
+
 	// Compute HMAC-SHA256 of "{timestamp}.{body}" and compare.
 	mac := hmac.New(sha256.New, l.hmacKey)
 	mac.Write([]byte(fmt.Sprintf("%d.%s", ts, body)))
-	expected := hex.EncodeToString(mac.Sum(nil))
 
-	if !hmac.Equal([]byte(expected), []byte(sigHex)) {
+	if !hmac.Equal(mac.Sum(nil), sigB) {
 		return nil, fmt.Errorf("invalid signature")
 	}
 
