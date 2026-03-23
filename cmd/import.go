@@ -29,9 +29,10 @@ func (a *App) ImportSubscribers(c echo.Context) error {
 	}
 
 	// Filter list IDs against the current user's permitted lists.
+	// Blocklist mode doesn't require list subscriptions.
 	user := auth.GetUser(c)
 	opt.ListIDs = user.FilterListsByPerm(auth.PermTypeManage, opt.ListIDs)
-	if len(opt.ListIDs) == 0 {
+	if len(opt.ListIDs) == 0 && opt.Mode != subimporter.ModeBlocklist {
 		return echo.NewHTTPError(http.StatusForbidden,
 			a.i18n.Ts("globals.messages.permissionDenied", "name", "lists"))
 	}
