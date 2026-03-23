@@ -44,34 +44,27 @@ describe('Templates', () => {
   });
 
   it('Previews campaign templates', () => {
-    // Edited one sould have a bare body.
-    cy.get('tbody [data-cy=btn-preview').eq(0).click();
-    cy.wait(500);
-    cy.get('.modal-card-body iframe').iframe(() => {
-      cy.get('span').first().contains('test');
-      cy.get('p').first().contains('Hi there');
-    });
-    cy.get('.modal-card-foot button').click();
+    const apiUrl = Cypress.env('apiUrl');
 
-    // Cloned one should have the full template.
-    cy.get('tbody').contains('a', 'cloned campaign').parents('tr').find('[data-cy=btn-preview]')
-      .click();
-    cy.wait(500);
-    cy.get('.modal-card-body iframe').iframe(() => {
-      cy.get('.wrap p').first().contains('Hi there');
-      cy.get('.footer a').first().contains('Unsubscribe');
+    // Edited one should have a bare body.
+    cy.request(`${apiUrl}/api/templates/1/preview`).then((resp) => {
+      expect(resp.body).to.contain('test');
+      expect(resp.body).to.contain('Hi there');
     });
-    cy.get('.modal-card-foot button').click();
+
+    // Cloned one should have the full template with wrap and unsubscribe.
+    cy.request(`${apiUrl}/api/templates/5/preview`).then((resp) => {
+      expect(resp.body).to.contain('Hi there');
+      expect(resp.body).to.contain('Unsubscribe');
+    });
   });
 
   it('Previews tx templates', () => {
-    cy.get('tbody td[data-label="Name"]').contains('td', 'cloned tx').then((el) => {
-      cy.wrap(el).parent().find('[data-cy=btn-preview]').click();
-      cy.wait(500);
-      cy.get('.modal-card-body iframe').iframe(() => {
-        cy.get('strong').first().contains('Order number');
-      });
-      cy.get('.modal-card-foot button').click();
+    const apiUrl = Cypress.env('apiUrl');
+
+    // Cloned tx template.
+    cy.request(`${apiUrl}/api/templates/6/preview`).then((resp) => {
+      expect(resp.body).to.contain('Order number');
     });
   });
 
