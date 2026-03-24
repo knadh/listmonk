@@ -1,4 +1,6 @@
 const apiUrl = Cypress.env('apiUrl');
+const rootURL = 'http://127.0.0.1:9000';
+const faveURL = 'http://127.0.0.1:9000/public/static/logo.png';
 
 describe('Settings', () => {
   it('Opens settings page', () => {
@@ -8,9 +10,6 @@ describe('Settings', () => {
 
   it('Changes some settings', () => {
     cy.get('.b-tabs nav a').eq(0).click();
-
-    const rootURL = 'http://127.0.0.1:9000';
-    const faveURL = 'http://127.0.0.1:9000/public/static/logo.png';
 
     cy.get('input[name="app.root_url"]').clear().type(rootURL);
     cy.get('input[name="app.favicon_url"]').type(faveURL);
