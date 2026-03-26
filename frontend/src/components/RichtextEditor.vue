@@ -273,8 +273,8 @@ export default {
 
         // If an existing link is being edited, check for the tracking flag `@TrackLink` at the end
         // of the url. Remove that from the URL and instead check the checkbox.
-        // Default to true for new links (better UX - tracking enabled by default).
-        let checked = true;
+        // Default to the last user choice (stored in localStorage), or false if not set.
+        let checked = JSON.parse(localStorage.getItem('trackLink') || 'false');
 
         // Check if this is an existing link being edited
         if (t.initialData.url && t.initialData.url.value && t.initialData.url.value !== '') {
@@ -312,6 +312,7 @@ export default {
           // the TinyMCE link conversion callback.
           c.onchange = (e) => {
             self.isTrackLink = e.target.checked;
+            localStorage.setItem('trackLink', JSON.stringify(e.target.checked));
           };
 
           const l = document.createElement('label');
