@@ -11,15 +11,15 @@
   <link href="{{ .Site.BaseURL }}static/style.css" rel="stylesheet" type="text/css" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
-  <link rel="icon" href="{{ .Site.BaseURL }}static/images/favicon.png" type="image/png" />
+  <link rel="icon" href="{{ .Site.BaseURL }}static/images/favicon.webp" type="image/webp" />
 
   <meta property="og:title" content="{{ .Title }}" />
   {{ if .Params.thumbnail }}
     <link rel="image_src" href="{{ .Site.BaseURL }}static/images/{{ .Params.thumbnail }}" />
     <meta property="og:image" content="{{ .Site.BaseURL }}static/images/{{ .Params.thumbnail }}" />
   {{ else }}
-    <link rel="image_src" href="{{ .Site.BaseURL }}static/images/thumbnail.png" />
-    <meta property="og:image" content="{{ .Site.BaseURL }}static/images/thumbnail.png" />
+    <link rel="image_src" href="{{ .Site.BaseURL }}static/images/thumbnail.webp" />
+    <meta property="og:image" content="{{ .Site.BaseURL }}static/images/thumbnail.webp" />
   {{ end }}
 </head>
 <body>

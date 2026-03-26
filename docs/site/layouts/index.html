@@ -1,6 +1,6 @@
 {{ partial "header.html" . }}
 <div class="splash container center">
-      <img class="s4" src="static/images/s4.png" />
+      <img class="s4" src="static/images/s4.webp" />
       <div class="hero">
         <h1 class="title">Self-hosted newsletter and mailing list manager</h1>
         <h3 class="sub">
@@ -13,10 +13,10 @@
       </div>
 
       <div class="confetti">
-        <img class="s1" src="static/images/s1.png" />
-        <img class="s2" src="static/images/s2.png" />
-        <img class="s3" src="static/images/s3.png" />
-        <img class="box" src="{{ .Site.BaseURL }}static/images/splash.png" alt="listmonk screenshot" />
+        <img class="s1" src="static/images/s1.webp" />
+        <img class="s2" src="static/images/s2.webp" />
+        <img class="s3" src="static/images/s3.webp" />
+        <img class="box" src="{{ .Site.BaseURL }}static/images/splash.webp" alt="listmonk screenshot" />
       </div>
   </div>
 </div>
@@ -39,7 +39,7 @@
             {{ range.Page.Site.Data.github.assets }}
             <a href="{{ .url }}" class="item">
               <span class="icon">
-                <img src="{{ .Site.BaseURL }}static/images/logo-{{ .name }}.svg" alt="{{ .name | title }}" title="{{ .name | title }}" />
+                <img src="{{ .Site.BaseURL }}static/images/logo-{{ .name }}.{{ if eq .name "openbsd" }}webp{{ else }}svg{{ end }}" alt="{{ .name | title }}" title="{{ .name | title }}" />
               </span>
               <span class="name">{{ .name | title }}</span>
             </a>
@@ -85,14 +85,14 @@ docker compose up -d
   <div class="container">
     <h2 class="center">Hosting providers</h2><br />
     <div>
-      <a href="https://www.nodion.com/en/deploy/listmonk/"><img src="https://nodion-static.nodioncdn.com/nodion-button-s.svg" alt="Deploy to Nodion" style="max-height: 32px;" /></a>
-      <a href="https://www.kloudbean.com/listmonk-self-hosted"><img src="https://storage-basic.kloudbean.com/opensource/deploy_on_kloudbean_listmonk.svg" alt="One-click deploy on Kloudbean" style="max-height: 32px;" /></a>
-      <a href="https://northflank.com/stacks/deploy-listmonk"><img src="https://assets.northflank.com/deploy_to_northflank_smm_36700fb050.svg" alt="One-click deploy on Northflank" style="height: 32px; width: 150px; border-radius: 6px; object-fit: contain;" /></a>
-      <a href="https://railway.app/new/template/listmonk"><img src="https://railway.app/button.svg" alt="One-click deploy on Railway" style="max-height: 32px;" /></a>
-      <a href="https://www.pikapods.com/pods?run=listmonk"><img src="https://www.pikapods.com/static/run-button.svg" alt="Deploy on PikaPod" /></a>
-      <a href="https://elest.io/open-source/listmonk"><img height="33" src="https://raw.githubusercontent.com/elestio-examples/reactjs/refs/heads/master/src/deploy-on-elestio.png" alt="Deploy on Elestio" /></a>
-      <a href="https://zeabur.com/templates/5EDMN6"><img width="148" src="https://zeabur.com/button.svg" alt="Deploy on Zeabur"/></a>
-      <a href="https://cloudzy.com/marketplace/listmonk/"><img src="https://design.cloudzy.com/logo/cloudzy-light-marketplace-badge-147x32.svg" alt="Deploy to Cloudzy" style="max-height: 32px;" /></a>
+      <a href="https://www.nodion.com/en/deploy/listmonk/"><img src="static/images/host-nodion.svg" alt="Deploy to Nodion" style="max-height: 32px;" /></a>
+      <a href="https://www.kloudbean.com/listmonk-self-hosted"><img src="static/images/host-kloudbean.svg" alt="One-click deploy on Kloudbean" style="max-height: 32px;" /></a>
+      <a href="https://northflank.com/stacks/deploy-listmonk"><img src="static/images/host-northflank.webp" alt="One-click deploy on Northflank" style="height: 32px; width: 150px; border-radius: 6px; object-fit: contain;" /></a>
+      <a href="https://railway.app/new/template/listmonk"><img src="static/images/host-railway.svg" alt="One-click deploy on Railway" style="max-height: 32px;" /></a>
+      <a href="https://www.pikapods.com/pods?run=listmonk"><img src="static/images/host-pikapods.svg" alt="Deploy on PikaPod" /></a>
+      <a href="https://elest.io/open-source/listmonk"><img height="33" src="static/images/host-elestio.webp" alt="Deploy on Elestio" /></a>
+      <a href="https://zeabur.com/templates/5EDMN6"><img width="148" src="static/images/host-zeabur.svg" alt="Deploy on Zeabur"/></a>
+      <a href="https://cloudzy.com/marketplace/listmonk/"><img src="static/images/host-cloudzy.svg" alt="Deploy to Cloudzy" style="max-height: 32px;" /></a>
     </div>
     <p class="disclaimer">*listmonk has no affiliation with these providers</p>
   </div>
@@ -108,7 +108,7 @@ docker compose up -d
     </div>
     <div class="col-1"></div>
     <div class="col-6 right">
-      <img class="box" src="static/images/lists.png" alt="Screenshot of list management feature" />
+      <img class="box" src="static/images/lists.webp" alt="Screenshot of list management feature" />
     </div>
   </section>
 
@@ -121,7 +121,7 @@ docker compose up -d
     </div>
     <div class="col-1"></div>
     <div class="col-6 right">
-      <img class="box" src="static/images/analytics.png" alt="Screenshot of analytics feature" />
+      <img class="box" src="static/images/analytics.webp" alt="Screenshot of analytics feature" />
     </div>
   </section>
 
@@ -136,7 +136,7 @@ docker compose up -d
     </div>
     <div class="col-1"></div>
     <div class="col-6 right">
-      <img class="box" src="static/images/templating.png" alt="Screenshot of templating feature" />
+      <img class="box" src="static/images/templating.webp" alt="Screenshot of templating feature" />
     </div>
   </section>
 
@@ -152,7 +152,7 @@ docker compose up -d
     <div class="col-1"></div>
     <div class="col-6 right">
       <figure class="box">
-        <img src="static/images/performance.png" alt="Screenshot of performance metrics" />
+        <img src="static/images/performance.webp" alt="Screenshot of performance metrics" />
 
         <figcaption style="font-size:">
           A production listmonk instance sending a campaign of 7+ million e-mails.<br />
@@ -172,7 +172,7 @@ docker compose up -d
     </div>
     <div class="col-1"></div>
     <div class="col-6 right">
-      <img class="box" src="static/images/tx.png" alt="Screenshot of transactional API" />
+      <img class="box" src="static/images/tx.webp" alt="Screenshot of transactional API" />
     </div>
   </section>
 
@@ -187,7 +187,7 @@ docker compose up -d
     </div>
     <div class="col-1"></div>
     <div class="col-6 right">
-      <img class="box" src="static/images/messengers.png" alt="Screenshot of Messenger feature" />
+      <img class="box" src="static/images/messengers.webp" alt="Screenshot of Messenger feature" />
     </div>
   </section>
 
@@ -207,7 +207,7 @@ docker compose up -d
       <div class="col-2">&nbsp;</div>
       <div class="col-8">
         <div class="confetti">
-          <img class="s2" src="static/images/s3.png" />
+          <img class="s2" src="static/images/s3.webp" />
           <div class="box">
             <h2>Developers</h2>
             <p>
