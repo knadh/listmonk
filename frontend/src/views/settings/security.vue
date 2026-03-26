@@ -229,8 +229,10 @@ export default Vue.extend({
   },
 
   mounted() {
-    this.$api.getUserRoles();
-    this.$api.getListRoles();
+    if (this.$can('roles:get')) {
+      this.$api.getUserRoles();
+      this.$api.getListRoles();
+    }
   },
 
   methods: {
