@@ -407,6 +407,8 @@
     "settings.bounces.folder": "Carpeta",
     "settings.bounces.folderHelp": "Nombre de la carpeta IMAP a escanear, por ejemplo: Entrada.",
     "settings.bounces.forwardemailKey": "Clave de Reenvío de Email",
+    "settings.bounces.enableLettermint": "Enable Lettermint",
+    "settings.bounces.lettermintKey": "Lettermint Webhook Secret",
     "settings.bounces.invalidScanInterval": "El intervalo mínimo de escanéo de los rebotes debería de ser 1 minuto.",
     "settings.bounces.name": "Rebotes",
     "settings.bounces.none": "Ninguno",

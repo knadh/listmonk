@@ -407,6 +407,8 @@
     "settings.bounces.folder": "Φάκελος",
     "settings.bounces.folderHelp": "Όνομα του φακέλου IMAP προς περιοδική σάρωση. Π.χ.: Εισερχόμενα.",
     "settings.bounces.forwardemailKey": "Κλειδί προώθησης email",
+    "settings.bounces.enableLettermint": "Enable Lettermint",
+    "settings.bounces.lettermintKey": "Lettermint Webhook Secret",
     "settings.bounces.invalidScanInterval": "Το διάστημα σάρωσης για αναγνώριση των bounce πρέπει να είναι τουλάχιστον 1 λεπτό.",
     "settings.bounces.name": "Bounce",
     "settings.bounces.none": "Κανένα",

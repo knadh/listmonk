@@ -407,6 +407,8 @@
     "settings.bounces.folder": "Kansio",
     "settings.bounces.folderHelp": "IMAP-kansion nimi, joka tarkistetaan. Esim. Saapuneet.",
     "settings.bounces.forwardemailKey": "Välitysavaimen sähköposti",
+    "settings.bounces.enableLettermint": "Enable Lettermint",
+    "settings.bounces.lettermintKey": "Lettermint Webhook Secret",
     "settings.bounces.invalidScanInterval": "Bounce skannausintervallin pitää olla vähintään 1 minuutti.",
     "settings.bounces.name": "Bouncet",
     "settings.bounces.none": "Ei mitään",

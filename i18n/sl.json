@@ -407,6 +407,8 @@
     "settings.bounces.folder": "Mapa",
     "settings.bounces.folderHelp": "Ime mape IMAP za skeniranje. Npr.: Prejeto.",
     "settings.bounces.forwardemailKey": "Ključ za posredovanje e-pošte",
+    "settings.bounces.enableLettermint": "Enable Lettermint",
+    "settings.bounces.lettermintKey": "Lettermint Webhook Secret",
     "settings.bounces.invalidScanInterval": "Interval odbojnega skeniranja mora biti najmanj 1 minuta.",
     "settings.bounces.name": "Odboji",
     "settings.bounces.none": "Brez",

@@ -407,6 +407,8 @@
     "settings.bounces.folder": "フォルダ",
     "settings.bounces.folderHelp": "スキャンするIMAPフォルダの名前。 例: Inbox.",
     "settings.bounces.forwardemailKey": "転送メールキー",
+    "settings.bounces.enableLettermint": "Enable Lettermint",
+    "settings.bounces.lettermintKey": "Lettermint Webhook Secret",
     "settings.bounces.invalidScanInterval": "バウンススキャン間隔は最低1分。",
     "settings.bounces.name": "バウンス",
     "settings.bounces.none": "なし",

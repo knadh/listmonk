@@ -407,6 +407,8 @@
     "settings.bounces.folder": "資料夾",
     "settings.bounces.folderHelp": "要掃描的 IMAP 資料夾名稱。例如：收件匣。",
     "settings.bounces.forwardemailKey": "轉寄電子郵件鍵",
+    "settings.bounces.enableLettermint": "Enable Lettermint",
+    "settings.bounces.lettermintKey": "Lettermint Webhook Secret",
     "settings.bounces.invalidScanInterval": "退回信件的偵測間隔應至少為 1 分鐘。",
     "settings.bounces.name": "退回",
     "settings.bounces.none": "無",

@@ -407,6 +407,8 @@
     "settings.bounces.folder": "Director",
     "settings.bounces.folderHelp": "Numele folderului IMAP pentru a scana. De exemplu: Inbox.",
     "settings.bounces.forwardemailKey": "Cheie redirecționare e-mail",
+    "settings.bounces.enableLettermint": "Enable Lettermint",
+    "settings.bounces.lettermintKey": "Lettermint Webhook Secret",
     "settings.bounces.invalidScanInterval": "Intervalul de scanare a săririi ar trebui să fie de minim 1 minut.",
     "settings.bounces.name": "Neachitate",
     "settings.bounces.none": "Nimic",

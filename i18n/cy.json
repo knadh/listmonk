@@ -407,6 +407,8 @@
     "settings.bounces.folder": "Ffolder",
     "settings.bounces.folderHelp": "Enw'r ffolder IMAP i'w sganio. ee: blwch derbyn.",
     "settings.bounces.forwardemailKey": "Allwedd Anfon E-bost ymlaen",
+    "settings.bounces.enableLettermint": "Enable Lettermint",
+    "settings.bounces.lettermintKey": "Lettermint Webhook Secret",
     "settings.bounces.invalidScanInterval": "Dylai'r cyfnod sganio ar gyfer negeseuon sydd wedi sboncio'n ôl bara o leiaf 1 munud",
     "settings.bounces.name": "Wedi sboncio'n ôl",
     "settings.bounces.none": "Dim",

@@ -407,6 +407,8 @@
     "settings.bounces.folder": "ഫോൾഡർ",
     "settings.bounces.folderHelp": "സ്കാൻ ചെയ്യാനുള്ള IMAP ഫോൾഡറിന്റെ പേര്. ഉദാ: ഇൻബോക്സ്.",
     "settings.bounces.forwardemailKey": "ഫോറ്വേഡ് ഇമെയിൽ കീ",
+    "settings.bounces.enableLettermint": "Enable Lettermint",
+    "settings.bounces.lettermintKey": "Lettermint Webhook Secret",
     "settings.bounces.invalidScanInterval": "ബൗൺസ് സ്കാൻ ചെയ്യാനുള്ള ഏറ്റവും കുറഞ്ഞ ഇടവേള 1 മിനിറ്റായിരിക്കണം.",
     "settings.bounces.name": "ബൗൺസുകൾ",
     "settings.bounces.none": "ഒന്നുമില്ല",

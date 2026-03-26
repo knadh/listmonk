@@ -407,6 +407,8 @@
     "settings.bounces.folder": "Map",
     "settings.bounces.folderHelp": "Naam van de IMAP map om te scannen. Bv.: Inbox.",
     "settings.bounces.forwardemailKey": "Forward Email-sleutel",
+    "settings.bounces.enableLettermint": "Enable Lettermint",
+    "settings.bounces.lettermintKey": "Lettermint Webhook Secret",
     "settings.bounces.invalidScanInterval": "Bounce scan interval moet minstens 1 minuut zijn.",
     "settings.bounces.name": "Bounces",
     "settings.bounces.none": "Geen",

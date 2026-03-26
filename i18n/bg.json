@@ -407,6 +407,8 @@
     "settings.bounces.folder": "Папка",
     "settings.bounces.folderHelp": "Име на IMAP папката за сканиране. Напр.: Inbox.",
     "settings.bounces.forwardemailKey": "Forward Email ключ",
+    "settings.bounces.enableLettermint": "Enable Lettermint",
+    "settings.bounces.lettermintKey": "Lettermint Webhook Secret",
     "settings.bounces.invalidScanInterval": "Интервалът за сканиране на bounces трябва да бъде минимум 1 минута.",
     "settings.bounces.name": "Отскоци",
     "settings.bounces.none": "Няма",

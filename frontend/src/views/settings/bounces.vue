@@ -112,6 +112,21 @@
             </b-field>
           </div>
         </div>
+        <div class="columns">
+          <div class="column is-3">
+            <b-field :label="$t('settings.bounces.enableLettermint')">
+              <b-switch v-model="data['bounce.lettermint'].enabled" name="lettermint_enabled" :native-value="true"
+                data-cy="btn-enable-bounce-lettermint" />
+            </b-field>
+          </div>
+          <div class="column">
+            <b-field :label="$t('settings.bounces.lettermintKey')" :message="$t('globals.messages.passwordChange')">
+              <b-input v-model="data['bounce.lettermint'].key" type="password"
+                :disabled="!data['bounce.lettermint'].enabled" name="lettermint_key"
+                data-cy="bounce-lettermint-key" />
+            </b-field>
+          </div>
+        </div>
       </div>
     </div>
 
