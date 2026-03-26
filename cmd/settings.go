@@ -76,6 +76,7 @@ func (a *App) GetSettings(c echo.Context) error {
 	s.SendgridKey = strings.Repeat(pwdMask, utf8.RuneCountInString(s.SendgridKey))
 	s.BouncePostmark.Password = strings.Repeat(pwdMask, utf8.RuneCountInString(s.BouncePostmark.Password))
 	s.BounceForwardEmail.Key = strings.Repeat(pwdMask, utf8.RuneCountInString(s.BounceForwardEmail.Key))
+	s.BounceLettermint.Key = strings.Repeat(pwdMask, utf8.RuneCountInString(s.BounceLettermint.Key))
 	s.SecurityCaptcha.HCaptcha.Secret = strings.Repeat(pwdMask, utf8.RuneCountInString(s.SecurityCaptcha.HCaptcha.Secret))
 	s.OIDC.ClientSecret = strings.Repeat(pwdMask, utf8.RuneCountInString(s.OIDC.ClientSecret))
 
@@ -221,6 +222,9 @@ func (a *App) UpdateSettings(c echo.Context) error {
 	}
 	if set.BounceForwardEmail.Key == "" {
 		set.BounceForwardEmail.Key = cur.BounceForwardEmail.Key
+	}
+	if set.BounceLettermint.Key == "" {
+		set.BounceLettermint.Key = cur.BounceLettermint.Key
 	}
 	if set.SecurityCaptcha.HCaptcha.Secret == "" {
 		set.SecurityCaptcha.HCaptcha.Secret = cur.SecurityCaptcha.HCaptcha.Secret

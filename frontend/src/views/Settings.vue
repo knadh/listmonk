@@ -178,6 +178,12 @@ export default Vue.extend({
         hasDummy = 'forwardemail';
       }
 
+      if (this.isDummy(form['bounce.lettermint'].key)) {
+        form['bounce.lettermint'].key = '';
+      } else if (this.hasDummy(form['bounce.lettermint'].key)) {
+        hasDummy = 'lettermint';
+      }
+
       for (let i = 0; i < form.messengers.length; i += 1) {
         // If it's the dummy UI password placeholder, ignore it.
         if (this.isDummy(form.messengers[i].password)) {
