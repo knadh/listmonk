@@ -220,7 +220,7 @@ export default {
 
     onEditorURLConvert(url) {
       let u = url;
-      if (this.isTrackLink) {
+      if (this.isTrackLink && /^https?:\/\//i.test(u)) {
         u = `${u}@TrackLink`;
       }
 
