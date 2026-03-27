@@ -31,7 +31,7 @@ func TestNormalizeTags(t *testing.T) {
 	}{
 		{[]string{"tag1", "tag 2", "  tag3  "}, []string{"tag1", "tag-2", "tag3"}},
 		{[]string{"  ", ""}, nil},
-		{[]string{"TAG1", "Tag2"}, []string{"TAG1", "Tag2"}}, // current implementation doesn't lower case
+		{[]string{"TAG1", "Tag2"}, []string{"tag1", "tag2"}}, // tags should be lower-cased
 	}
 
 	for _, test := range tests {
