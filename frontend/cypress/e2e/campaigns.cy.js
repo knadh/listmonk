@@ -2,9 +2,18 @@ const apiUrl = Cypress.env('apiUrl');
 const headers = '[{"X-Custom": "Custom-Value"}]';
 
 describe('Campaigns', () => {
+  beforeEach(() => {
+    cy.intercept('GET', '/api/campaigns*').as('getCampaigns');
+    cy.intercept('POST', '/api/campaigns').as('postCampaign');
+    cy.intercept('PUT', '/api/campaigns/*').as('putCampaign');
+    cy.intercept('DELETE', '/api/campaigns/*').as('deleteCampaign');
+    cy.intercept('POST', '/api/media').as('uploadMedia');
+  });
+
   it('Opens campaigns page', () => {
     cy.resetDB();
     cy.loginAndVisit('/admin/campaigns');
+    cy.wait('@getCampaigns');
   });
 
   it('Counts campaigns', () => {
@@ -22,21 +31,22 @@ describe('Campaigns', () => {
     cy.get('.list-selector .autocomplete a').eq(0).click();
 
     cy.get('button[data-cy=btn-continue]').click();
-    cy.wait(500);
+    cy.get('.b-tabs nav a').eq(1).should('be.visible');
 
     cy.get('a[data-cy=btn-attach]').click();
     cy.get('button[data-cy=btn-toggle-upload]').click();
-    cy.wait(500);
     cy.get('input[type=file]').attachFile('example.json');
     cy.get('form[data-cy="upload"] button').click();
+    cy.wait('@uploadMedia');
+
     cy.get('.modal button.is-primary:eq(0)').click();
-    cy.wait(500);
-    cy.get('.modal a.thumb-link').click();
+    cy.get('.modal a.thumb-link').should('be.visible').click();
     cy.get('button[data-cy=btn-save]').click();
-    cy.wait(500);
+    cy.wait('@putCampaign');
 
     // Re-open and check that the file still exists.
     cy.loginAndVisit('/admin/campaigns');
+    cy.wait('@getCampaigns');
     cy.get('td[data-label=Status] a').eq(0).click();
     cy.get('.b-tabs nav a').eq(1).click();
     cy.get('div.field[data-cy=media]').contains('example');
@@ -44,7 +54,7 @@ describe('Campaigns', () => {
     // Start.
     cy.get('button[data-cy=btn-start]').click();
     cy.get('.modal button.is-primary:eq(0)').click();
-    cy.wait(500);
+    cy.wait('@putCampaign');
     cy.get('tbody tr').eq(0).within(() => {
       cy.get('td[data-label=Status] .tag').should(($tag) => {
         expect($tag.hasClass('running') || $tag.hasClass('finished')).to.be.true;
@@ -70,13 +80,9 @@ describe('Campaigns', () => {
 
     // Enable schedule.
     cy.get('[data-cy=btn-send-later] .check').click();
-    cy.wait(100);
     cy.get('.datepicker input').click();
-    cy.wait(100);
     cy.get('.datepicker-header .control:nth-child(2) select').select((new Date().getFullYear() + 1).toString());
-    cy.wait(100);
     cy.get('.datepicker-body a.is-selectable:first').click();
-    cy.wait(100);
     cy.get('body').click(1, 1);
 
     // Add custom headers.
@@ -93,12 +99,12 @@ describe('Campaigns', () => {
     // Enter body value.
     cy.get('textarea[name=content]').clear().type('new-content');
     cy.get('button[data-cy=btn-save]').click();
+    cy.wait('@putCampaign');
 
     // Schedule.
     cy.get('button[data-cy=btn-schedule]').click();
     cy.get('.modal button.is-primary:eq(0)').click();
-
-    cy.wait(250);
+    cy.wait('@putCampaign');
 
     // Verify the changes.
     cy.request(`${apiUrl}/api/campaigns/1`).should((response) => {
@@ -123,11 +129,11 @@ describe('Campaigns', () => {
 
   it('Unschedules campaign', () => {
     cy.get('td[data-label=Status] a').eq(1).click();
-    cy.wait(250);
-    cy.get('button[data-cy=btn-unschedule]').click();
+    cy.get('button[data-cy=btn-unschedule]').should('be.visible').click();
     cy.get('.modal button.is-primary:eq(0)').click();
-    cy.wait(250);
+    cy.wait('@putCampaign');
     cy.visit('/admin/campaigns');
+    cy.wait('@getCampaigns');
 
     // Check if the status label has the inner text `Draft`.
     cy.get('td[data-label=Status] .tag.draft').should('have.length', 1);
@@ -136,6 +142,7 @@ describe('Campaigns', () => {
   it('Switches formats', () => {
     cy.resetDB();
     cy.loginAndVisit('/admin/campaigns');
+    cy.wait('@getCampaigns');
     const formats = ['html', 'markdown', 'plain'];
     const htmlBody = '<strong>hello</strong> \{\{ .Subscriber.Name \}\} from {\{ .Subscriber.Attribs.city \}\}';
     const plainBody = 'hello Demo Subscriber from Bengaluru';
@@ -150,9 +157,11 @@ describe('Campaigns', () => {
       });
     });
     cy.get('button[data-cy=btn-save]').click();
+    cy.wait('@putCampaign');
 
     formats.forEach((c) => {
       cy.visit('/admin/campaigns');
+      cy.wait('@getCampaigns');
       cy.get('td[data-label=Status] a').click();
 
       // Switch to content tab.
@@ -164,8 +173,7 @@ describe('Campaigns', () => {
 
       // Check content.
       cy.get('button[data-cy=btn-preview]').click();
-      cy.wait(500);
-      cy.get('#iframe').then(($f) => {
+      cy.get('#iframe').should('be.visible').then(($f) => {
         if (c === 'plain') {
           return;
         }
@@ -178,14 +186,15 @@ describe('Campaigns', () => {
 
   it('Clones campaign', () => {
     cy.loginAndVisit('/admin/campaigns');
+    cy.wait('@getCampaigns');
     for (let n = 0; n < 3; n++) {
       // Clone the campaign.
       cy.get('[data-cy=btn-clone]').first().click();
       cy.get('.modal input').clear().type(`clone${n}`).click();
       cy.get('.modal button.is-primary:eq(0)').click();
-      cy.wait(250);
+      cy.wait('@postCampaign');
       cy.clickMenu('all-campaigns');
-      cy.wait(100);
+      cy.wait('@getCampaigns');
 
       // Verify the newly created row.
       cy.get('tbody td[data-label="Name"]').first().contains(`clone${n}`);
@@ -194,17 +203,19 @@ describe('Campaigns', () => {
 
   it('Searches campaigns', () => {
     cy.get('input[name=query]').clear().type('clone2{enter}');
+    cy.wait('@getCampaigns');
     cy.get('tbody tr').its('length').should('eq', 1);
     cy.get('tbody td[data-label="Name"]').first().contains('clone2');
     cy.get('input[name=query]').clear().type('{enter}');
+    cy.wait('@getCampaigns');
   });
 
   it('Deletes campaigns', () => {
-    cy.wait(1000);
-    // Delete all visible lists.
+    // Delete all visible campaigns.
     cy.get('tbody tr').each(() => {
       cy.get('tbody a[data-cy=btn-delete]').first().click();
       cy.get('.modal button.is-primary:eq(0)').click();
+      cy.wait('@deleteCampaign');
     });
 
     // Confirm deletion.
@@ -220,7 +231,6 @@ describe('Campaigns', () => {
       lists.forEach((l) => {
         // Click the 'new button'
         cy.get('[data-cy=btn-new]').click();
-        cy.wait(100);
 
         // Fill fields.
         cy.get('input[name=name]').clear().type(`name${n}`);
@@ -242,7 +252,7 @@ describe('Campaigns', () => {
 
         // Hit 'Continue'.
         cy.get('button[data-cy=btn-continue]').click();
-        cy.wait(250);
+        cy.wait('@postCampaign');
 
         // Verify the changes.
         (function (n) {
@@ -276,7 +286,6 @@ describe('Campaigns', () => {
               win.document.execCommand('insertText', false, htmlBody);
             });
           });
-          cy.wait(500);
         } else if (c === 'html') {
           cy.get('[contenteditable="true"]').then(($el) => {
             cy.window().then((win) => {
@@ -294,22 +303,19 @@ describe('Campaigns', () => {
         } else if (c === 'plain') {
           cy.get('textarea[name=content]').invoke('val', plainBody).trigger('input');
         } else if (c === 'visual') {
-          cy.wait(200);
-          cy.get('iframe').then((el) => {
-            cy.wait(200);
-            cy.wrap(el.contents()).find('table td').click();
-            cy.wait(200);
-            cy.wrap(el.contents()).find('textarea').eq(0).type(plainBody);
+          cy.get('iframe').should('be.visible').then((el) => {
+            cy.wrap(el.contents()).find('table td').should('be.visible').click();
+            cy.wrap(el.contents()).find('textarea').eq(0).should('be.visible').type(plainBody);
           });
         }
 
         // Save.
         cy.get('button[data-cy=btn-save]').click();
+        cy.wait('@putCampaign');
 
         // Preview and match the body.
         cy.get('button[data-cy=btn-preview]').click();
-        cy.wait(1000);
-        cy.get('#iframe').then(($f) => {
+        cy.get('#iframe').should('be.visible').then(($f) => {
           if (c === 'plain') {
             return;
           }
@@ -325,7 +331,7 @@ describe('Campaigns', () => {
         cy.get('.modal-card-foot button').click();
 
         cy.clickMenu('all-campaigns');
-        cy.wait(500);
+        cy.wait('@getCampaigns');
 
         // Verify the newly created campaign in the table.
         cy.get('tbody td[data-label="Name"]').first().contains(`name${n}`);
@@ -358,13 +364,13 @@ describe('Campaigns', () => {
     for (let n = 1; n <= 2; n++) {
       cy.get(`tbody tr:nth-child(${n}) [data-cy=btn-start]`).click();
       cy.get('.modal button.is-primary:eq(0)').click();
-      cy.wait(250);
+      cy.wait('@putCampaign');
       cy.get(`tbody tr:nth-child(${n}) td[data-label=Status] .tag.running`);
 
       if (n > 1) {
         cy.get(`tbody tr:nth-child(${n}) [data-cy=btn-cancel]`).click();
         cy.get('.modal button.is-primary:eq(0)').click();
-        cy.wait(250);
+        cy.wait('@putCampaign');
         cy.get(`tbody tr:nth-child(${n}) td[data-label=Status] .tag.cancelled`);
       }
     }
@@ -377,9 +383,7 @@ describe('Campaigns', () => {
 
     cases.forEach((c) => {
       cy.sortTable(`thead th.${c}`, asc);
-      cy.wait(250);
       cy.sortTable(`thead th.${c}`, desc);
-      cy.wait(250);
     });
   });
 
@@ -401,14 +405,15 @@ describe('Campaigns', () => {
     }
 
     cy.loginAndVisit('/admin/campaigns');
+    cy.wait('@getCampaigns');
 
     // Bulk delete with the `all` flag.
     cy.window().scrollTo('top');
-    cy.wait(500);
     cy.get('thead input[type="checkbox"]').click({ force: true });
     cy.get('a[data-cy=select-all-campaigns]').click();
     cy.get('a[data-cy=btn-delete-campaigns]').click();
     cy.get('.modal button.is-primary:eq(0)').click();
+    cy.wait('@getCampaigns');
     cy.get('table tr.is-empty');
 
     // Bulk delete with the selected IDs.
@@ -418,10 +423,11 @@ describe('Campaigns', () => {
     }
 
     cy.visit('/admin/campaigns');
-    cy.wait(500);
+    cy.wait('@getCampaigns');
     cy.get('thead input[type="checkbox"]').click({ force: true });
     cy.get('a[data-cy=btn-delete-campaigns]').click();
     cy.get('.modal button.is-primary:eq(0)').click();
+    cy.wait('@getCampaigns');
     cy.get('table tr.is-empty');
   });
 });
