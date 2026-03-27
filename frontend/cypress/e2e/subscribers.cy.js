@@ -282,7 +282,7 @@ describe('Domain blocklist', () => {
     cy.get('.b-tabs nav a').eq(2).click();
     cy.get('textarea[name="privacy.domain_blocklist"]').clear().type('ban.net\n\nBaN.OrG\n\nban.com\n\n');
     cy.get('[data-cy=btn-save]').click();
-    cy.waitForBackend();
+    cy.wait('@putSettings');
   });
 
   it('Try subscribing via public page', () => {
@@ -361,7 +361,7 @@ describe('Domain blocklist', () => {
     cy.get('.b-tabs nav a').eq(2).click();
     cy.get('textarea[name="privacy.domain_blocklist"]').clear();
     cy.get('[data-cy=btn-save]').click();
-    cy.waitForBackend();
+    cy.wait('@putSettings');
 
     // Add banned domain.
     cy.request({
