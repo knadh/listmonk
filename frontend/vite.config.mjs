@@ -27,6 +27,9 @@ export default defineConfig(({ _, mode }) => {
       vue(),
       injectCustomAssets(),
     ],
+    define: {
+      global: 'window',
+    },
     base: '/admin',
     mode,
     resolve: {

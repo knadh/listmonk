@@ -27,6 +27,7 @@ const (
 	CampaignContentTypeRichtext = "richtext"
 	CampaignContentTypeHTML     = "html"
 	CampaignContentTypeMarkdown = "markdown"
+	CampaignContentTypeEmailMarkdown = "emailmd"
 	CampaignContentTypePlain    = "plain"
 	CampaignContentTypeVisual   = "visual"
 )
@@ -187,7 +188,7 @@ func (c *Campaign) CompileTemplate(f template.FuncMap) error {
 	// Compile the base template.
 	body := c.TemplateBody
 
-	if body == "" || c.ContentType == CampaignContentTypeVisual {
+	if body == "" || c.ContentType == CampaignContentTypeVisual || c.ContentType == CampaignContentTypeEmailMarkdown {
 		body = `{{ template "content" . }}`
 	}
 

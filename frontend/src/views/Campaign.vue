@@ -336,6 +336,7 @@ export default Vue.extend({
         richtext: this.$t('campaigns.richText'),
         html: this.$t('campaigns.rawHTML'),
         markdown: this.$t('campaigns.markdown'),
+        emailmd: this.$t('campaigns.emailmd'),
         plain: this.$t('campaigns.plainText'),
         visual: this.$t('campaigns.visual'),
       }),

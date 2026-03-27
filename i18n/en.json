@@ -55,6 +55,7 @@
     "campaigns.invalid": "Invalid campaign",
     "campaigns.invalidCustomHeaders": "Invalid custom headers: {error}",
     "campaigns.markdown": "Markdown",
+    "campaigns.emailmd": "Email Markdown (emailmd)",
     "campaigns.needsSendAt": "Campaign needs a date to be scheduled.",
     "campaigns.newCampaign": "New campaign",
     "campaigns.noKnownSubsToTest": "No known subscribers to test.",

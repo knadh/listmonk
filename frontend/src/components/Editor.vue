@@ -81,6 +81,10 @@
     <markdown-editor v-if="self.contentType === 'markdown'" v-model="self.body"
       :disabled="disabled" :is-mobile="isMobile" :id="id" :title="title" :template-id="templateId" :height="height || '75vh'" />
 
+    <!-- emailmd editor //-->
+    <email-markdown-editor v-if="self.contentType === 'emailmd'" v-model="self.bodySource" @change="onEmailMDChange"
+      :disabled="disabled" :is-mobile="isMobile" :id="id" :title="title" :template-id="templateId" :height="height || '75vh'" />
+
     <!-- plain text //-->
     <b-input v-if="self.contentType === 'plain'" v-model="self.body" type="textarea" name="content" ref="plainEditor"
       class="plain-editor" />
@@ -98,6 +102,7 @@ import { mapState } from 'vuex';
 
 import CampaignPreview from './CampaignPreview.vue';
 import VisualEditor from './VisualEditor.vue';
+import EmailMarkdownEditor from './EmailMarkdownEditor.vue';
 import RichtextEditor from './RichtextEditor.vue';
 import MarkdownEditor from './MarkdownEditor.vue';
 import markdownToVisualBlock from './editor';
@@ -110,6 +115,7 @@ export default {
     CampaignPreview,
     'code-editor': CodeEditor,
     'visual-editor': VisualEditor,
+    'email-markdown-editor': EmailMarkdownEditor,
     'richtext-editor': RichtextEditor,
     'markdown-editor': MarkdownEditor,
   },
@@ -175,7 +181,8 @@ export default {
     },
 
     onContentTypeChange(to, from) {
-      if (!this.self.body.trim()) {
+      const { body } = this.self;
+      if (!body.trim()) {
         this.convertContentType(to, from);
         return;
       }
@@ -194,19 +201,24 @@ export default {
     },
 
     convertContentType(to, from) {
+      let { bodySource } = this.self;
       let body = this.self.body ?? '';
-      let bodySource = null;
 
       // Skip UI update (markdown => richtext, html requires a backenbd call).
       let skip = false;
 
       // If `from` is HTML content, strip out `<body>..` etc. and keep the beautified HTML.
       let isHTML = false;
-      if (from === 'richtext' || from === 'html' || from === 'visual') {
+      if (from === 'richtext' || from === 'html' || from === 'visual' || from === 'emailmd') {
         const d = document.createElement('div');
         d.innerHTML = body;
         body = this.beautifyHTML(d.innerHTML.trim());
         isHTML = true;
+      }
+
+      // Source for Markdown based formats.
+      if (from === 'emailmd') {
+        body = bodySource;
       }
 
       // HTML => Non-HTML.
@@ -220,12 +232,22 @@ export default {
           }
 
           case 'markdown': {
-            body = turndown.turndown(body).replace(/\n\n+/ig, '\n\n');
+            if (from !== 'emailmd') {
+              body = turndown.turndown(body).replace(/\n\n+/ig, '\n\n');
+            }
+            break;
+          }
+
+          case 'emailmd': {
+            if (from !== 'markdown') {
+              body = turndown.turndown(body).replace(/\n\n+/ig, '\n\n');
+            }
+            bodySource = body;
             break;
           }
 
           case 'visual': {
-            const md = turndown.turndown(body).replace(/\n\n+/ig, '\n\n');
+            const md = (from === 'emailmd') ? bodySource : turndown.turndown(body).replace(/\n\n+/ig, '\n\n');
             bodySource = JSON.stringify(markdownToVisualBlock(md));
             break;
           }
@@ -250,12 +272,18 @@ export default {
             this.self.body = this.beautifyHTML(data.trim());
           });
         });
+      } else if (from === 'markdown' && to === 'emailmd') {
+        bodySource = body;
 
         // Plain to an HTML type, change plain line breaks to HTML breaks.
       } else if (from === 'plain' && (to === 'richtext' || to === 'html')) {
         body = body.replace(/\n/ig, '<br>\n');
+      } else if (from === 'plain' && to === 'emailmd') {
+        bodySource = body;
       } else if (to === 'visual') {
         bodySource = JSON.stringify(markdownToVisualBlock(body));
+      } else if (to === 'emailmd') {
+        bodySource = body;
       }
 
       // =======================================================================
@@ -297,6 +325,11 @@ export default {
     },
 
     onVisualEditorChange({ body, source }) {
+      this.self.body = body;
+      this.self.bodySource = source;
+    },
+
+    onEmailMDChange({ body, source }) {
       this.self.body = body;
       this.self.bodySource = source;
     },
