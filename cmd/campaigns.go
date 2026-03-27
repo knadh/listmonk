@@ -340,6 +340,10 @@ func (a *App) UpdateCampaign(c echo.Context) error {
 		return err
 	}
 
+	// Filter lists against the current user's permitted lists.
+	user := auth.GetUser(c)
+	o.ListIDs = user.FilterListsByPerm(auth.PermTypeGet|auth.PermTypeManage, o.ListIDs)
+
 	if c, err := a.validateCampaignFields(o); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	} else {
@@ -556,6 +560,16 @@ func (a *App) TestCampaign(c echo.Context) error {
 	// Get the subscribers from the DB by their e-mails.
 	subs, err := a.core.GetSubscribersByEmail(req.SubscriberEmails)
 	if err != nil {
+		return err
+	}
+
+	// Check if the user has permission to access the subscribers.
+	user := auth.GetUser(c)
+	subIDs := make([]int, len(subs))
+	for i, s := range subs {
+		subIDs[i] = s.ID
+	}
+	if err := a.hasSubPerm(user, subIDs); err != nil {
 		return err
 	}
 

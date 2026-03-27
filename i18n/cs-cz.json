@@ -407,6 +407,8 @@
     "settings.bounces.folder": "Složka",
     "settings.bounces.folderHelp": "Název složky IMAP ke skenování. Např.: Došlá pošta.",
     "settings.bounces.forwardemailKey": "Klíč pro přeposílání e-mailů",
+    "settings.bounces.enableLettermint": "Enable Lettermint",
+    "settings.bounces.lettermintKey": "Lettermint Webhook Secret",
     "settings.bounces.invalidScanInterval": "Interval skenování v případě nedoručitelnosti by měl být minimálně 1 minuta.",
     "settings.bounces.name": "Případy nedoručitelnosti",
     "settings.bounces.none": "Žádné",

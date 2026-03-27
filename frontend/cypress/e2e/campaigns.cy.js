@@ -171,16 +171,20 @@ describe('Campaigns', () => {
       cy.get('select[name=content_type]').select(c);
       cy.get('.modal button.is-primary:eq(0)').click();
 
-      // Check content.
-      cy.get('button[data-cy=btn-preview]').click();
-      cy.get('#iframe').should('be.visible').then(($f) => {
-        if (c === 'plain') {
-          return;
-        }
-        const doc = $f.contents();
-        expect(doc.find('.wrap').text().trim().replace(/(\s|\n)+/, ' ')).equal(plainBody);
-      });
-      cy.get('.modal-card-foot button').click();
+<<<<<<< HEAD
+      // Check content via the preview API (the iframe is sandboxed and inaccessible to JS).
+      if (c !== 'plain') {
+        cy.location('pathname').then((p) => {
+          cy.request(`${apiUrl}/api/campaigns/${p.split('/').at(-1).replace(/#.*/, '')}/preview`).then((resp) => {
+            // Strip HTML tags and normalize whitespace.
+            const text = resp.body.replace(/<[^>]+>/g, ' ').replace(/&nbsp;/g, ' ').replace(/\s+/g, ' ').trim();
+            expect(text).to.contain(plainBody);
+          });
+        });
+      }
+
+      cy.visit('/admin/campaigns');
+>>>>>>> upstream/master
     });
   });
 
@@ -257,7 +261,7 @@ describe('Campaigns', () => {
         // Verify the changes.
         (function (n) {
           cy.location('pathname').then((p) => {
-            cy.request(`${apiUrl}/api/campaigns/${p.split('/').at(-1)}`).should((response) => {
+            cy.request(`${apiUrl}/api/campaigns/${p.split('/').at(-1).replace(/#.*/, '')}`).should((response) => {
               const { data } = response.body;
               expect(data.status).to.equal('draft');
               expect(data.name).to.equal(`name${n}`);
@@ -287,18 +291,15 @@ describe('Campaigns', () => {
             });
           });
         } else if (c === 'html') {
-          cy.get('[contenteditable="true"]').then(($el) => {
-            cy.window().then((win) => {
-              $el.focus();
-              win.document.execCommand('insertText', false, htmlBody);
-            });
+          // Use CodeMirror 6 via the Vue component's editor instance.
+          cy.get('.code-editor').then(($el) => {
+            const view = $el[0].__vue__.editor;
+            view.dispatch({ changes: { from: 0, to: view.state.doc.length, insert: htmlBody } });
           });
         } else if (c === 'markdown') {
-          cy.get('[contenteditable="true"]').then(($el) => {
-            cy.window().then((win) => {
-              $el.focus();
-              win.document.execCommand('insertText', false, markdownBody);
-            });
+          cy.get('.code-editor').then(($el) => {
+            const view = $el[0].__vue__.editor;
+            view.dispatch({ changes: { from: 0, to: view.state.doc.length, insert: markdownBody } });
           });
         } else if (c === 'plain') {
           cy.get('textarea[name=content]').invoke('val', plainBody).trigger('input');
@@ -313,22 +314,17 @@ describe('Campaigns', () => {
         cy.get('button[data-cy=btn-save]').click();
         cy.wait('@putCampaign');
 
-        // Preview and match the body.
-        cy.get('button[data-cy=btn-preview]').click();
-        cy.get('#iframe').should('be.visible').then(($f) => {
-          if (c === 'plain') {
-            return;
-          }
-          const doc = $f.contents();
-
-          if (c === 'visual') {
-            expect(doc.find('td').text().trim()).equal(plainBody);
-          } else {
-            expect(doc.find('.wrap').text().trim()).equal(plainBody);
-          }
-        });
-
-        cy.get('.modal-card-foot button').click();
+<<<<<<< HEAD
+        // Verify the preview content via the API (the iframe is sandboxed).
+        if (c !== 'plain') {
+          cy.location('pathname').then((p) => {
+            cy.request(`${apiUrl}/api/campaigns/${p.split('/').at(-1).replace(/#.*/, '')}/preview`).then((resp) => {
+              const text = resp.body.replace(/<[^>]+>/g, ' ').replace(/&nbsp;/g, ' ').replace(/\s+/g, ' ').trim();
+              expect(text).to.contain(plainBody);
+            });
+          });
+        }
+>>>>>>> upstream/master
 
         cy.clickMenu('all-campaigns');
         cy.wait('@getCampaigns');

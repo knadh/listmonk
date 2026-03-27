@@ -32,8 +32,9 @@
         <div class="column is-4">
           <b-field :label="$t('globals.terms.campaigns')" label-position="on-border">
             <b-taginput v-model="form.campaigns" :data="queriedCampaigns" name="campaigns" ellipsis icon="tag-outline"
-              :placeholder="$t('globals.terms.campaigns')" autocomplete :allow-new="false"
-              :before-adding="isCampaignSelected" @typing="queryCampaigns" field="name" :loading="isSearchLoading" />
+              :placeholder="$t('globals.terms.campaigns')" autocomplete :allow-new="false" :open-on-focus="true"
+              :before-adding="isCampaignSelected" @typing="queryCampaigns" @focus="queryCampaigns" field="name"
+              :loading="isSearchLoading" />
           </b-field>
         </div>
 
@@ -236,7 +237,7 @@ export default Vue.extend({
         return {
           label: camps[id].name,
           data: points.map((item) => ({ x: this.formatDateTime(item.timestamp), y: item.count })),
-          borderColor: chartColors[n % campIDs.length],
+          borderColor: chartColors[n % chartColors.length],
           borderWidth: 2,
           pointHoverBorderWidth: 5,
           pointBorderWidth: 0.5,

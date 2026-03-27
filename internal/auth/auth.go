@@ -382,6 +382,16 @@ func (o *Auth) SaveSession(u User, oidcToken string, c echo.Context, remember bo
 	return nil
 }
 
+// GetSessionID returns the current session ID from the echo context.
+func GetSessionID(c echo.Context) string {
+	sess, ok := c.Get(SessionKey).(*simplesessions.Session)
+	if !ok || sess == nil {
+		return ""
+	}
+
+	return sess.ID()
+}
+
 // validateSession checks if the cookie session is valid (in the DB) and returns the session and user details.
 func (o *Auth) validateSession(c echo.Context) (*simplesessions.Session, User, error) {
 	// Cookie session.

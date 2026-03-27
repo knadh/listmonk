@@ -695,6 +695,11 @@ func (a *App) doResetPassword(c echo.Context, token, email string) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, a.i18n.T("globals.messages.internalError"))
 	}
 
+	// Invalidate all existing sessions for the user after password reset.
+	if err := a.core.DeleteUserSessions(user.ID, ""); err != nil {
+		a.log.Printf("error destroying sessions after password reset for user_id=%d: %v", user.ID, err)
+	}
+
 	// Log the user in directly without forcing a manual login right after password change.
 	if err := a.auth.SaveSession(user, "", c, false); err != nil {
 		return err

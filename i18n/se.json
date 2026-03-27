@@ -407,6 +407,8 @@
     "settings.bounces.folder": "Mapp",
     "settings.bounces.folderHelp": "Namn på IMAP-mappen att skanna. t.ex: Inkorgen.",
     "settings.bounces.forwardemailKey": "Nyckel för vidarebefordrad e-post",
+    "settings.bounces.enableLettermint": "Enable Lettermint",
+    "settings.bounces.lettermintKey": "Lettermint Webhook Secret",
     "settings.bounces.invalidScanInterval": "Studsskanningsintervall bör vara minst 1 minut.",
     "settings.bounces.name": "Bounceadresser",
     "settings.bounces.none": "Ingen",

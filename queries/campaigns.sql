@@ -293,8 +293,8 @@ SELECT COUNT(%s) AS "count", url
 -- a batch of campaign subscribers for processing.
 SELECT campaigns.id AS campaign_id, campaigns.type as campaign_type, last_subscriber_id, max_subscriber_id, lists.id AS list_id
     FROM campaigns
-    LEFT JOIN campaign_lists ON (campaign_lists.campaign_id = campaigns.id)
-    LEFT JOIN lists ON (lists.id = campaign_lists.list_id)
+    JOIN campaign_lists ON (campaign_lists.campaign_id = campaigns.id)
+    JOIN lists ON (lists.id = campaign_lists.list_id)
     WHERE campaigns.id = $1 AND campaigns.status='running';
 
 -- name: next-campaign-subscribers

@@ -407,6 +407,8 @@
     "settings.bounces.folder": "Mappa",
     "settings.bounces.folderHelp": "A vizsgálandó IMAP mappa neve. Például: Beérkezett üzenetek",
     "settings.bounces.forwardemailKey": "Továbbító e-mail kulcs",
+    "settings.bounces.enableLettermint": "Enable Lettermint",
+    "settings.bounces.lettermintKey": "Lettermint Webhook Secret",
     "settings.bounces.invalidScanInterval": "Az ellenőrzés gyakorisága 1 percnél nagyobb kell legyen.",
     "settings.bounces.name": "Visszapattanók",
     "settings.bounces.none": "Nincs",

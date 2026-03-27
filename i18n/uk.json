@@ -407,6 +407,8 @@
     "settings.bounces.folder": "Тека",
     "settings.bounces.folderHelp": "Назва IMAP-теки, яку слід сканувати, наприклад Inbox.",
     "settings.bounces.forwardemailKey": "Ключ переадресації",
+    "settings.bounces.enableLettermint": "Enable Lettermint",
+    "settings.bounces.lettermintKey": "Lettermint Webhook Secret",
     "settings.bounces.invalidScanInterval": "Мінімальна частота опитування скриньки помилок — 1 хвилина.",
     "settings.bounces.name": "Помилки",
     "settings.bounces.none": "Нема",
