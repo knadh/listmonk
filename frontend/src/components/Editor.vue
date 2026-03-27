@@ -208,17 +208,13 @@ export default {
       let skip = false;
 
       // If `from` is HTML content, strip out `<body>..` etc. and keep the beautified HTML.
+      // For emailmd, body is the rendered HTML; bodySource holds the Markdown source.
       let isHTML = false;
       if (from === 'richtext' || from === 'html' || from === 'visual' || from === 'emailmd') {
         const d = document.createElement('div');
         d.innerHTML = body;
         body = this.beautifyHTML(d.innerHTML.trim());
         isHTML = true;
-      }
-
-      // Source for Markdown based formats.
-      if (from === 'emailmd') {
-        body = bodySource;
       }
 
       // HTML => Non-HTML.
@@ -232,17 +228,18 @@ export default {
           }
 
           case 'markdown': {
-            if (from !== 'emailmd') {
-              body = turndown.turndown(body).replace(/\n\n+/ig, '\n\n');
-            }
+            // For emailmd, use the Markdown source directly; for other HTML types, convert.
+            body = (from === 'emailmd') ? bodySource : turndown.turndown(body).replace(/\n\n+/ig, '\n\n');
             break;
           }
 
           case 'emailmd': {
-            if (from !== 'markdown') {
+            if (from !== 'emailmd') {
+              // Convert rendered HTML to Markdown for the emailmd source.
               body = turndown.turndown(body).replace(/\n\n+/ig, '\n\n');
+              bodySource = body;
             }
-            bodySource = body;
+            // If from === 'emailmd', body (rendered HTML) and bodySource stay as-is.
             break;
           }
 
@@ -253,9 +250,8 @@ export default {
           }
 
           default:
-            // Switching between HTML formats, no need to do anything further
-            // as body is already beautified.
-            // richtext|html => visual, the contents are simply lost.
+            // Switching between HTML formats (richtext|html|emailmd => richtext|html),
+            // body is already set to beautified HTML.
             break;
         }
 
