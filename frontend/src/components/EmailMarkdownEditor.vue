@@ -64,6 +64,12 @@
              :body="renderedHTML"
              inline
            />
+           <div v-else-if="renderError" class="has-text-danger mt-6 mx-4">
+             <div class="box has-background-danger-light">
+               <h5 class="title is-6 mb-2">Rendering Error</h5>
+               <p class="is-size-7">{{ renderError }}</p>
+             </div>
+           </div>
            <div v-else class="has-text-grey has-text-centered mt-6">
              Email Markdown preview will appear here.
            </div>

@@ -12,7 +12,7 @@ and this project adheres to [Calendar Versioning](https://calver.org/).
 - New `Email Markdown` content type that uses MJML-powered rendering in the frontend.
 - Specialized toolbar buttons for buttons and links in the Email Markdown editor.
 
-## [v26.03.23.2011] - 2026-03-23
+## [26.03.23.2011] - 2026-03-23
 
 ### Changed
 - App version: Updated the application version to match the current commit count and changelog.

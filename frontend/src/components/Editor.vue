@@ -268,14 +268,9 @@ export default {
             this.self.body = this.beautifyHTML(data.trim());
           });
         });
-      } else if (from === 'markdown' && to === 'emailmd') {
-        bodySource = body;
-
-        // Plain to an HTML type, change plain line breaks to HTML breaks.
       } else if (from === 'plain' && (to === 'richtext' || to === 'html')) {
+        // Plain to an HTML type, change plain line breaks to HTML breaks.
         body = body.replace(/\n/ig, '<br>\n');
-      } else if (from === 'plain' && to === 'emailmd') {
-        bodySource = body;
       } else if (to === 'visual') {
         bodySource = JSON.stringify(markdownToVisualBlock(body));
       } else if (to === 'emailmd') {
