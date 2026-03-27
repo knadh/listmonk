@@ -81,6 +81,10 @@
     <markdown-editor v-if="self.contentType === 'markdown'" v-model="self.body"
       :disabled="disabled" :is-mobile="isMobile" :id="id" :title="title" :template-id="templateId" :height="height || '75vh'" />
 
+    <!-- emailmd editor //-->
+    <email-markdown-editor v-if="self.contentType === 'emailmd'" v-model="self.bodySource" @change="onEmailMDChange"
+      :disabled="disabled" :is-mobile="isMobile" :id="id" :title="title" :template-id="templateId" :height="height || '75vh'" />
+
     <!-- plain text //-->
     <b-input v-if="self.contentType === 'plain'" v-model="self.body" type="textarea" name="content" ref="plainEditor"
       class="plain-editor" />
@@ -98,6 +102,7 @@ import { mapState } from 'vuex';
 
 import CampaignPreview from './CampaignPreview.vue';
 import VisualEditor from './VisualEditor.vue';
+import EmailMarkdownEditor from './EmailMarkdownEditor.vue';
 import RichtextEditor from './RichtextEditor.vue';
 import MarkdownEditor from './MarkdownEditor.vue';
 import markdownToVisualBlock from './editor';
@@ -110,6 +115,7 @@ export default {
     CampaignPreview,
     'code-editor': CodeEditor,
     'visual-editor': VisualEditor,
+    'email-markdown-editor': EmailMarkdownEditor,
     'richtext-editor': RichtextEditor,
     'markdown-editor': MarkdownEditor,
   },
@@ -175,7 +181,8 @@ export default {
     },
 
     onContentTypeChange(to, from) {
-      if (!this.self.body.trim()) {
+      const { body } = this.self;
+      if (!body.trim()) {
         this.convertContentType(to, from);
         return;
       }
@@ -194,15 +201,16 @@ export default {
     },
 
     convertContentType(to, from) {
+      let { bodySource } = this.self;
       let body = this.self.body ?? '';
-      let bodySource = null;
 
       // Skip UI update (markdown => richtext, html requires a backenbd call).
       let skip = false;
 
       // If `from` is HTML content, strip out `<body>..` etc. and keep the beautified HTML.
+      // For emailmd, body is the rendered HTML; bodySource holds the Markdown source.
       let isHTML = false;
-      if (from === 'richtext' || from === 'html' || from === 'visual') {
+      if (from === 'richtext' || from === 'html' || from === 'visual' || from === 'emailmd') {
         const d = document.createElement('div');
         d.innerHTML = body;
         body = this.beautifyHTML(d.innerHTML.trim());
@@ -220,20 +228,30 @@ export default {
           }
 
           case 'markdown': {
-            body = turndown.turndown(body).replace(/\n\n+/ig, '\n\n');
+            // For emailmd, use the Markdown source directly; for other HTML types, convert.
+            body = (from === 'emailmd') ? bodySource : turndown.turndown(body).replace(/\n\n+/ig, '\n\n');
+            break;
+          }
+
+          case 'emailmd': {
+            if (from !== 'emailmd') {
+              // Convert rendered HTML to Markdown for the emailmd source.
+              body = turndown.turndown(body).replace(/\n\n+/ig, '\n\n');
+              bodySource = body;
+            }
+            // If from === 'emailmd', body (rendered HTML) and bodySource stay as-is.
             break;
           }
 
           case 'visual': {
-            const md = turndown.turndown(body).replace(/\n\n+/ig, '\n\n');
+            const md = (from === 'emailmd') ? bodySource : turndown.turndown(body).replace(/\n\n+/ig, '\n\n');
             bodySource = JSON.stringify(markdownToVisualBlock(md));
             break;
           }
 
           default:
-            // Switching between HTML formats, no need to do anything further
-            // as body is already beautified.
-            // richtext|html => visual, the contents are simply lost.
+            // Switching between HTML formats (richtext|html|emailmd => richtext|html),
+            // body is already set to beautified HTML.
             break;
         }
 
@@ -250,12 +268,13 @@ export default {
             this.self.body = this.beautifyHTML(data.trim());
           });
         });
-
-        // Plain to an HTML type, change plain line breaks to HTML breaks.
       } else if (from === 'plain' && (to === 'richtext' || to === 'html')) {
+        // Plain to an HTML type, change plain line breaks to HTML breaks.
         body = body.replace(/\n/ig, '<br>\n');
       } else if (to === 'visual') {
         bodySource = JSON.stringify(markdownToVisualBlock(body));
+      } else if (to === 'emailmd') {
+        bodySource = body;
       }
 
       // =======================================================================
@@ -297,6 +316,11 @@ export default {
     },
 
     onVisualEditorChange({ body, source }) {
+      this.self.body = body;
+      this.self.bodySource = source;
+    },
+
+    onEmailMDChange({ body, source }) {
       this.self.body = body;
       this.self.bodySource = source;
     },

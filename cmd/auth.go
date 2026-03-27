@@ -636,7 +636,7 @@ func (a *App) doForgotPassword(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, a.i18n.T("globals.messages.internalError"))
 	}
 
-	subject, body := notifs.GetTplSubject(a.i18n.T("email.forgotPassword.subject"), msg.Bytes())
+	subject, body := utils.GetTplSubject(a.i18n.T("email.forgotPassword.subject"), msg.Bytes())
 
 	// Send the email.
 	if err := a.emailMsgr.Push(models.Message{

@@ -51,7 +51,7 @@ jobs:
       - name: Generate CalVer
         id: calver
         run: |
-          VERSION=$(date +'%y.%m.%d').${{ github.run_number }}
+          VERSION=$(date +'%y.%m.%d').$(git rev-list --count HEAD)
           echo "version=$VERSION" >> $GITHUB_OUTPUT
 
       - name: Log in to GitHub Container Registry

@@ -1,9 +1,20 @@
 const apiUrl = Cypress.env('apiUrl');
 
 describe('Subscribers', () => {
+  beforeEach(() => {
+    cy.intercept('GET', '/api/subscribers*').as('getSubscribers');
+    cy.intercept('POST', '/api/subscribers').as('postSubscriber');
+    cy.intercept('PUT', '/api/subscribers/*').as('putSubscriber');
+    cy.intercept('DELETE', '/api/subscribers/*').as('deleteSubscriber');
+    cy.intercept('POST', '/api/subscribers/lists').as('manageLists');
+    cy.intercept('GET', '/api/settings').as('getSettings');
+    cy.intercept('PUT', '/api/settings').as('putSettings');
+  });
+
   it('Opens subscribers page', () => {
     cy.resetDB();
     cy.loginAndVisit('/admin/subscribers');
+    cy.wait('@getSubscribers');
   });
 
   it('Counts subscribers', () => {
@@ -19,6 +30,7 @@ describe('Subscribers', () => {
 
     cases.forEach((c) => {
       cy.get('[data-cy=search]').clear().type(c.value);
+      cy.wait('@getSubscribers');
       cy.get('tbody td[data-label=E-mail]').its('length').should('eq', c.count);
       if (c.contains) {
         cy.get('tbody td[data-label=E-mail]').contains(c.contains);
@@ -59,11 +71,12 @@ describe('Subscribers', () => {
     cases.forEach((c) => {
       cy.get('[data-cy=query]').clear().type(c.value);
       cy.get('[data-cy=btn-query]').click();
+      cy.wait('@getSubscribers');
       cy.get('tbody td[data-label=E-mail]').its('length').should('eq', c.count);
     });
 
     cy.get('[data-cy=btn-query-reset]').click();
-    cy.wait(1000);
+    cy.wait('@getSubscribers');
     cy.get('tbody td[data-label=E-mail]').its('length').should('eq', 2);
   });
 
@@ -103,6 +116,8 @@ describe('Subscribers', () => {
 
       // Save.
       cy.get('.modal button.is-primary').click();
+      cy.wait('@manageLists');
+      cy.wait('@getSubscribers');
 
       // Check the status of the lists on the subscriber.
       Object.keys(c.rows).forEach((r) => {
@@ -120,6 +135,7 @@ describe('Subscribers', () => {
   it('Resets subscribers page', () => {
     cy.resetDB();
     cy.loginAndVisit('/admin/subscribers');
+    cy.wait('@getSubscribers');
   });
 
   it('Edits subscribers', () => {
@@ -153,13 +169,14 @@ describe('Subscribers', () => {
         cy.get('.list-selector .autocomplete a').first().click();
         cy.get('textarea[name=attribs]').clear().type(json, { parseSpecialCharSequences: false, delay: 0 });
         cy.get('.modal-card-foot button[type=submit]').click();
+        cy.wait('@putSubscriber');
 
         rows[id] = { email, name, status: status[n] };
       });
     });
 
     // Confirm the edits on the table.
-    cy.wait(500);
+    cy.wait('@getSubscribers');
     cy.log(rows);
     cy.get('tbody tr').each(($el) => {
       cy.wrap($el).find('td[data-id]').invoke('attr', 'data-id').then((idStr) => {
@@ -182,10 +199,11 @@ describe('Subscribers', () => {
   });
 
   it('Deletes subscribers', () => {
-    // Delete all visible lists.
+    // Delete all visible subscribers.
     cy.get('tbody tr').each(() => {
       cy.get('tbody a[data-cy=btn-delete]').first().click();
       cy.get('.modal button.is-primary').click();
+      cy.wait('@deleteSubscriber');
     });
 
     // Confirm deletion.
@@ -198,7 +216,6 @@ describe('Subscribers', () => {
     const json = '{"string": "hello", "ints": [1,2,3], "null": null, "sub": {"bool": true}}';
 
     // Cycle through each status and each list ID combination and create subscribers.
-    const n = 0;
     for (let n = 0; n < 6; n++) {
       const email = `email-${n}@EMAIL.com`;
       const name = `name-${n}`;
@@ -216,11 +233,11 @@ describe('Subscribers', () => {
       });
       cy.get('textarea[name=attribs]').clear().type(json, { parseSpecialCharSequences: false, delay: 0 });
       cy.get('.modal-card-foot button[type=submit]').click();
+      cy.wait('@postSubscriber');
 
       // Confirm the addition by inspecting the newly created list row,
       // which is always the first row in the table.
-      cy.wait(250);
-      const tr = cy.get('tbody tr:nth-child(1)').then(($el) => {
+      cy.get('tbody tr:nth-child(1)').should('be.visible').then(($el) => {
         cy.wrap($el).find('td[data-label=E-mail]').contains(email.toLowerCase());
         cy.wrap($el).find('td[data-label=Name]').contains(name);
 
@@ -243,27 +260,32 @@ describe('Subscribers', () => {
 
     cases.forEach((c) => {
       cy.sortTable(`thead th.${c}`, asc);
-      cy.wait(250);
       cy.sortTable(`thead th.${c}`, desc);
-      cy.wait(250);
     });
   });
 });
 
 describe('Domain blocklist', () => {
+  beforeEach(() => {
+    cy.intercept('GET', '/api/settings').as('getSettings');
+    cy.intercept('PUT', '/api/settings').as('putSettings');
+    cy.intercept('GET', '/api/subscribers*').as('getSubscribers');
+  });
+
   it('Opens settings page', () => {
     cy.resetDB();
   });
 
   it('Add domains to blocklist', () => {
     cy.loginAndVisit('/admin/settings');
+    cy.wait('@getSettings');
     cy.get('.b-tabs nav a').eq(2).click();
     cy.get('textarea[name="privacy.domain_blocklist"]').clear().type('ban.net\n\nBaN.OrG\n\nban.com\n\n');
     cy.get('[data-cy=btn-save]').click();
+    cy.wait('@putSettings');
   });
 
   it('Try subscribing via public page', () => {
-    cy.wait(1000);
     cy.visit(`${apiUrl}/subscription/form`);
     cy.get('input[name=email]').clear().type('test@noban.net');
     cy.get('button[type=submit]').click();
@@ -277,8 +299,6 @@ describe('Domain blocklist', () => {
 
   // Post to the admin API.
   it('Try via admin API', () => {
-    cy.wait(1000);
-
     // Add non-banned domain.
     cy.request({
       method: 'POST',
@@ -333,15 +353,15 @@ describe('Domain blocklist', () => {
     cy.get('section.wrap .has-text-success');
     // cy.get('button.is-primary').click();
     cy.get('.log-view').should('contain', 'ban1-import@BAN.net').and('contain', 'ban2-import@ban.ORG');
-    cy.wait(100);
   });
 
   it('Clear blocklist and try', () => {
     cy.loginAndVisit('/admin/settings');
+    cy.wait('@getSettings');
     cy.get('.b-tabs nav a').eq(2).click();
     cy.get('textarea[name="privacy.domain_blocklist"]').clear();
     cy.get('[data-cy=btn-save]').click();
-    cy.wait(3000);
+    cy.wait('@putSettings');
 
     // Add banned domain.
     cy.request({

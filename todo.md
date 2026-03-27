@@ -16,11 +16,16 @@
 
 ### 🛠 Code Maintenance
 - [x] **CalVer Implementation**: Added `cal_version` to API and logs, injected via Docker build.
-- [ ] **Refactor `GetTplSubject`**: Move it from `cmd/public.go` to a `utils` package.
+- [x] **Refactor `GetTplSubject`**: Move it from `cmd/public.go` to a `utils` package.
 - [ ] **Auth Cleanup**:
     - [ ] Review and replace `context.TODO()` in `internal/auth/auth.go`.
     - [ ] Remove legacy token logic as noted in `internal/auth/auth.go:297`.
 - [ ] **I18n**: Investigate if "private lists list" should be shown on opt-in emails (`internal/manager/manager.go:381`).
+- [ ] **Testing & QA**:
+    - [ ] Implement Go unit tests for `internal/core`.
+    - [ ] Setup integration tests with `testcontainers-go`.
+    - [ ] Add Vitest/Jest for frontend component testing.
+    - [ ] Refactor Cypress tests to reduce flakiness and `cy.wait` usage.
 
 ---
 

@@ -149,8 +149,8 @@ func (a *App) PreviewCampaign(c echo.Context) error {
 		contentType = c.FormValue("content_type")
 		tplID, _    = strconv.Atoi(c.FormValue("template_id"))
 	)
-	// For visual content, template ID for previewing is irrelevant.
-	if contentType == models.CampaignContentTypeVisual || tplID < 1 {
+	// For visual and emailmd content, template ID for previewing is irrelevant.
+	if contentType == models.CampaignContentTypeVisual || contentType == models.CampaignContentTypeEmailMarkdown || tplID < 1 {
 		tplID = 0
 	}
 
@@ -165,8 +165,8 @@ func (a *App) PreviewCampaign(c echo.Context) error {
 		camp.ContentType = contentType
 		camp.Body = c.FormValue("body")
 
-		// For visual campaigns, template body from the DB shouldn't be used.
-		if contentType == models.CampaignContentTypeVisual {
+		// For visual and emailmd campaigns, template body from the DB shouldn't be used.
+		if contentType == models.CampaignContentTypeVisual || contentType == models.CampaignContentTypeEmailMarkdown {
 			camp.TemplateBody = ""
 		}
 	}
@@ -679,11 +679,13 @@ func (a *App) validateCampaignFields(c campReq) (campReq, error) {
 		c.ContentType != models.CampaignContentTypeHTML &&
 		c.ContentType != models.CampaignContentTypePlain &&
 		c.ContentType != models.CampaignContentTypeVisual &&
-		c.ContentType != models.CampaignContentTypeMarkdown {
+		c.ContentType != models.CampaignContentTypeMarkdown &&
+		c.ContentType != models.CampaignContentTypeEmailMarkdown {
 		c.ContentType = models.CampaignContentTypeRichtext
 	}
 
-	if c.ContentType != models.CampaignContentTypeVisual {
+	if c.ContentType != models.CampaignContentTypeVisual &&
+		c.ContentType != models.CampaignContentTypeEmailMarkdown {
 		c.BodySource.Valid = false
 	}
 

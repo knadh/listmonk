@@ -179,7 +179,7 @@ func normalizeTags(tags []string) []string {
 	)
 
 	for _, t := range tags {
-		rep := regexpSpaces.ReplaceAll(bytes.TrimSpace([]byte(t)), dash)
+		rep := regexpSpaces.ReplaceAll(bytes.TrimSpace([]byte(strings.ToLower(t))), dash)
 
 		if len(rep) > 0 {
 			out = append(out, string(rep))

@@ -16,6 +16,7 @@ import (
 	"github.com/knadh/listmonk/internal/i18n"
 	"github.com/knadh/listmonk/internal/manager"
 	"github.com/knadh/listmonk/internal/notifs"
+	"github.com/knadh/listmonk/internal/utils"
 	"github.com/knadh/listmonk/models"
 	"github.com/labstack/echo/v4"
 	"github.com/lib/pq"
@@ -623,8 +624,7 @@ func (a *App) SelfExportSubscriberData(c echo.Context) error {
 			makeMsgTpl(a.i18n.T("public.errorTitle"), "", a.i18n.Ts("public.errorProcessingRequest")))
 	}
 
-	// TODO: GetTplSubject should be moved to a utils package.
-	subject, body := notifs.GetTplSubject(a.i18n.Ts("email.data.title"), msg.Bytes())
+	subject, body := utils.GetTplSubject(a.i18n.Ts("email.data.title"), msg.Bytes())
 
 	// E-mail the data as a JSON attachment to the subscriber.
 	const fname = "data.json"
