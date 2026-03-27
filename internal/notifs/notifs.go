@@ -9,10 +9,9 @@ import (
 	"html/template"
 	"log"
 	"net/textproto"
-	"regexp"
-	"strings"
 
 	"github.com/knadh/listmonk/internal/messenger/email"
+	"github.com/knadh/listmonk/internal/utils"
 	"github.com/knadh/listmonk/models"
 )
 
@@ -42,8 +41,6 @@ type Notifs struct {
 }
 
 var (
-	reTitle = regexp.MustCompile(`(?s)<title\s*data-i18n\s*>(.+?)</title>`)
-
 	Tpls *template.Template
 	no   *Notifs
 )
@@ -80,7 +77,7 @@ func Notify(toEmails []string, subject, tplName string, data any, hdr textproto.
 	}
 	body := buf.Bytes()
 
-	subject, body = GetTplSubject(subject, body)
+	subject, body = utils.GetTplSubject(subject, body)
 
 	m := models.Message{
 		Messenger:   "email",
@@ -99,15 +96,4 @@ func Notify(toEmails []string, subject, tplName string, data any, hdr textproto.
 	}
 
 	return nil
-}
-
-// GetTplSubject extracts any custom i18n subject rendered in the given rendered
-// template body. If it's not found, the incoming subject and body are returned.
-func GetTplSubject(subject string, body []byte) (string, []byte) {
-	m := reTitle.FindSubmatch(body)
-	if len(m) != 2 {
-		return subject, body
-	}
-
-	return strings.TrimSpace(string(m[1])), reTitle.ReplaceAll(body, []byte(""))
 }

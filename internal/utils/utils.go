@@ -5,7 +5,12 @@ import (
 	"net/mail"
 	"net/url"
 	"path"
+	"regexp"
 	"strings"
+)
+
+var (
+	reTitle = regexp.MustCompile(`(?s)<title\s*data-i18n\s*>(.+?)</title>`)
 )
 
 // ValidateEmail validates whether the given string is a correctly formed e-mail address.
@@ -50,4 +55,15 @@ func SanitizeURI(u string) string {
 	}
 
 	return path.Clean(p.Path)
+}
+
+// GetTplSubject extracts any custom i18n subject rendered in the given rendered
+// template body. If it's not found, the incoming subject and body are returned.
+func GetTplSubject(subject string, body []byte) (string, []byte) {
+	m := reTitle.FindSubmatch(body)
+	if len(m) != 2 {
+		return subject, body
+	}
+
+	return strings.TrimSpace(string(m[1])), reTitle.ReplaceAll(body, []byte(""))
 }
