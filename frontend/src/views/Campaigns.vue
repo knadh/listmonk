@@ -184,7 +184,7 @@
       <b-table-column v-slot="props" cell-class="actions" width="15%" align="right">
         <div>
           <!-- start / pause / resume / scheduled -->
-          <template v-if="$can('campaigns:manage')">
+          <template v-if="$can('campaigns:send')">
             <a v-if="canStart(props.row)" href="#"
               @click.prevent="$utils.confirm(null, () => changeCampaignStatus(props.row, 'running'))"
               data-cy="btn-start" :aria-label="$t('campaigns.start')">

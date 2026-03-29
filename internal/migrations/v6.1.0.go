@@ -72,5 +72,15 @@ func V6_1_0(db *sqlx.DB, fs stuffbin.FileSystem, ko *koanf.Koanf, lo *log.Logger
 		return err
 	}
 
+	// Grant 'campaigns:send' to all roles that previously had 'campaigns:manage' or 'campaigns:manage_all'
+	// for backwards compatibility. 'campaigns:send' is a new separate permission.
+	if _, err := db.Exec(`
+		UPDATE roles SET permissions = permissions || '{campaigns:send}'
+		WHERE (permissions @> '{campaigns:manage}' OR permissions @> '{campaigns:manage_all}')
+		AND NOT permissions @> '{campaigns:send}';
+	`); err != nil {
+		return err
+	}
+
 	return nil
 }
