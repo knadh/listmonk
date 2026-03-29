@@ -205,10 +205,6 @@ input[disabled] {
     text-align: center;
   }
 
-#btn-back {
-  display: none;
-}
-
 footer.container {
   margin-top: 15px;
   text-align: center;
