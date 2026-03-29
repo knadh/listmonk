@@ -1,6 +1,7 @@
 package manager
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"html/template"
@@ -9,6 +10,8 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"golang.org/x/time/rate"
 
 	"github.com/Masterminds/sprig/v3"
 	"github.com/knadh/listmonk/internal/i18n"
@@ -86,6 +89,16 @@ type Manager struct {
 	slidingCount int
 	slidingStart time.Time
 
+	// Global rate limiter shared across all workers.
+	// Caps the actual SMTP send rate to approximately the configured limit
+	// regardless of the number of concurrent workers. The token-bucket
+	// algorithm may allow one extra send after idle periods (burst=1).
+	rateLimiter *rate.Limiter
+
+	// ctx is cancelled on Close() to unblock any rate-limiter waits.
+	ctx    context.Context
+	cancel context.CancelFunc
+
 	tplFuncs template.FuncMap
 }
 
@@ -157,6 +170,18 @@ func New(cfg Config, store Store, notifCB models.AdminNotifCallback, i *i18n.I18
 		cfg.MessageRate = 1
 	}
 
+	// Compute the effective global send rate.
+	// Start with MessageRate (per-second cap), then apply the sliding window
+	// rate if it is more restrictive. This preserves MessageRate as a ceiling
+	// even when a sliding window is configured for longer-term quotas.
+	sendRate := rate.Limit(cfg.MessageRate)
+	if cfg.SlidingWindow && cfg.SlidingWindowRate > 0 && cfg.SlidingWindowDuration.Seconds() > 0 {
+		slidingRate := rate.Limit(float64(cfg.SlidingWindowRate) / cfg.SlidingWindowDuration.Seconds())
+		if slidingRate < sendRate {
+			sendRate = slidingRate
+		}
+	}
+
 	m := &Manager{
 		cfg:          cfg,
 		store:        store,
@@ -171,7 +196,12 @@ func New(cfg Config, store Store, notifCB models.AdminNotifCallback, i *i18n.I18
 		campMsgQ:     make(chan CampaignMessage, cfg.Concurrency*cfg.MessageRate*2),
 		msgQ:         make(chan models.Message, cfg.Concurrency*cfg.MessageRate*2),
 		slidingStart: time.Now(),
+		rateLimiter:  rate.NewLimiter(sendRate, 1),
 	}
+	// Drain the initial burst token so the first send still waits,
+	// preventing limit+1 events in the first window.
+	m.rateLimiter.Allow()
+	m.ctx, m.cancel = context.WithCancel(context.Background())
 	m.tplFuncs = m.makeGnericFuncMap()
 
 	return m
@@ -381,8 +411,26 @@ func (m *Manager) StopCampaign(id int) {
 
 // Close closes and exits the campaign manager.
 func (m *Manager) Close() {
-	close(m.nextPipes)
-	close(m.msgQ)
+	if m.cancel != nil {
+		m.cancel()
+	}
+
+	// Drain queued campaign messages so pipe waitgroups reach zero
+	// and cleanup runs. Without this, pipes for in-flight campaigns
+	// would hang forever after context cancellation.
+	for {
+		select {
+		case msg := <-m.campMsgQ:
+			if msg.pipe != nil {
+				msg.pipe.Stop(false)
+				msg.pipe.wg.Done()
+			}
+		default:
+			close(m.nextPipes)
+			close(m.msgQ)
+			return
+		}
+	}
 }
 
 // scanCampaigns is a blocking function that periodically scans the data source
@@ -427,8 +475,6 @@ func (m *Manager) scanCampaigns(tick time.Duration) {
 // worker is a blocking function that perpetually listents to events (message) on different
 // queues and processes them.
 func (m *Manager) worker() {
-	// Counter to keep track of the message / sec rate limit.
-	numMsg := 0
 	for {
 		select {
 		// Campaign message.
@@ -443,12 +489,24 @@ func (m *Manager) worker() {
 				continue
 			}
 
-			// Pause on hitting the message rate.
-			if numMsg >= m.cfg.MessageRate {
-				time.Sleep(time.Second)
-				numMsg = 0
+			// Wait for the global rate limiter to allow the next send.
+			// This uses the manager context so the wait is cancelled on
+			// Close() or process shutdown, preventing blocked workers.
+			// On cancellation, mark the pipe as stopped and call wg.Done()
+			// so the pipe cleans up properly without leaking goroutines.
+			if err := m.rateLimiter.Wait(m.ctx); err != nil {
+				if msg.pipe != nil {
+					msg.pipe.Stop(false)
+					msg.pipe.wg.Done()
+				}
+				return
 			}
-			numMsg++
+
+			// Re-check: campaign may have been stopped while we waited.
+			if msg.pipe != nil && msg.pipe.stopped.Load() {
+				msg.pipe.wg.Done()
+				continue
+			}
 
 			// Outgoing message.
 			out := models.Message{
