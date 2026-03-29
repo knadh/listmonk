@@ -817,6 +817,11 @@ section.lists {
 /* List selector */
 .list-tags {
   margin-bottom: 1rem;
+
+  .is-restricted {
+    opacity: 0.6;
+    font-style: italic;
+  }
 }
 
 /* Subscribers page */
