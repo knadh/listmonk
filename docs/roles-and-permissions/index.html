@@ -1555,7 +1555,17 @@
 <tr>
 <td></td>
 <td>campaigns:manage</td>
-<td>Create, update, and delete campaigns</td>
+<td>Create, update, and delete campaigns belonging to permitted lists</td>
+</tr>
+<tr>
+<td></td>
+<td>campaigns:manage_all</td>
+<td>Create, update, and delete campaigns across all lists</td>
+</tr>
+<tr>
+<td></td>
+<td>campaigns:send</td>
+<td>Start, schedule, pause, resume, and cancel campaigns. This is independent of manage permissions. This is required to send a campaign, even with <code>campaigns:manage_all</code></td>
 </tr>
 <tr>
 <td>bounces</td>
