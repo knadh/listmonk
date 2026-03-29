@@ -12,7 +12,7 @@ require (
 	github.com/gofrs/uuid/v5 v5.3.2
 	github.com/gorilla/feeds v1.2.0
 	github.com/jmoiron/sqlx v1.4.0
-	github.com/knadh/go-pop3 v1.0.0
+	github.com/knadh/go-pop3 v1.0.2
 	github.com/knadh/goyesql/v2 v2.2.0
 	github.com/knadh/koanf/maps v0.1.2
 	github.com/knadh/koanf/parsers/json v1.0.0
