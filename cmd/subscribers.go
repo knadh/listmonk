@@ -301,6 +301,67 @@ func (a *App) UpdateSubscriber(c echo.Context) error {
 	return c.JSON(http.StatusOK, okResp{out})
 }
 
+// PatchSubscriber handles partially modifying a subscriber.
+// Only fields present in the request body are updated.
+func (a *App) PatchSubscriber(c echo.Context) error {
+	user := auth.GetUser(c)
+	id := getID(c)
+
+	// Fetch the sub subscriber from the DB.
+	sub, err := a.core.GetSubscriber(id, "", "")
+	if err != nil {
+		return err
+	}
+
+	// Prepopulate the incoming request struct with existing values.
+	// Rather than tediously and conditionally checking each incoming field, we can simply
+	// overwrite everything in the DB with the incoming fields+existing fields.
+	req := struct {
+		models.Subscriber
+		Lists          *[]int `json:"lists"`
+		PreconfirmSubs bool   `json:"preconfirm_subscriptions"`
+	}{
+		Subscriber: sub,
+	}
+
+	if err := c.Bind(&req); err != nil {
+		return err
+	}
+
+	if em, err := a.importer.SanitizeEmail(req.Email); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	} else {
+		req.Email = em
+	}
+
+	if req.Name != "" && !strHasLen(req.Name, 1, stdInputMaxLen) {
+		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("subscribers.invalidName"))
+	}
+
+	// If lists were explicitly sent, replace the existing subscriptions.
+	overwriteSubs := false
+	var listIDs []int
+	if req.Lists != nil {
+		overwriteSubs = true
+		listIDs = user.FilterListsByPerm(auth.PermTypeManage, *req.Lists)
+		if len(*req.Lists) > 0 && len(listIDs) == 0 {
+			return echo.NewHTTPError(http.StatusForbidden, a.i18n.Ts("globals.messages.permissionDenied", "name", "lists"))
+		}
+	}
+
+	allPerm, permittedLists := user.GetPermittedLists(auth.PermTypeManage)
+	if allPerm {
+		permittedLists = []int{}
+	}
+
+	out, _, err := a.core.UpdateSubscriberWithLists(id, req.Subscriber, listIDs, nil, req.PreconfirmSubs, overwriteSubs, false, permittedLists)
+	if err != nil {
+		return err
+	}
+
+	return c.JSON(http.StatusOK, okResp{out})
+}
+
 // SubscriberSendOptin sends an optin confirmation e-mail to a subscriber.
 func (a *App) SubscriberSendOptin(c echo.Context) error {
 	user := auth.GetUser(c)

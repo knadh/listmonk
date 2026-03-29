@@ -11,6 +11,7 @@
 | POST   | [/api/public/subscription](#post-apipublicsubscription)                                 | Create a public subscription.                  |
 | PUT    | [/api/subscribers/lists](#put-apisubscriberslists)                                      | Modify subscriber list memberships.            |
 | PUT    | [/api/subscribers/{subscriber_id}](#put-apisubscriberssubscriber_id)                    | Update a specific subscriber.                  |
+| PATCH  | [/api/subscribers/{subscriber_id}](#patch-apisubscriberssubscriber_id)                  | Partially update a specific subscriber.        |
 | PUT    | [/api/subscribers/{subscriber_id}/blocklist](#put-apisubscriberssubscriber_idblocklist) | Blocklist a specific subscriber.               |
 | PUT    | [/api/subscribers/blocklist](#put-apisubscribersblocklist)                              | Blocklist one or many subscribers.             |
 | PUT    | [/api/subscribers/query/blocklist](#put-apisubscribersqueryblocklist)                   | Blocklist subscribers based on SQL expression. |
@@ -434,6 +435,56 @@ ______________________________________________________________________
 Update a specific subscriber.
 
 > Refer to parameters from [POST /api/subscribers](#post-apisubscribers). Note: All parameters must be set, if not, the subscriber will be removed from all previously assigned lists.
+
+______________________________________________________________________
+
+#### PATCH /api/subscribers/{subscriber_id}
+
+Partially update a subscriber. Only fields present in the request body are updated. Unlike PUT, omitting the `lists` field preserves existing list subscriptions. `PUT` treats empty `lists` as a signal to clear all subscriptions.
+
+##### Parameters
+
+| Name                     | Type       | Required | Description                                                                                                                       |
+|:-------------------------|:-----------|:---------|:----------------------------------------------------------------------------------------------------------------------------------|
+| email                    | string     |          | Subscriber's email address. Updated only if provided.                                                                             |
+| name                     | string     |          | Subscriber's name. Updated only if provided.                                                                                      |
+| status                   | string     |          | Subscriber's status: `enabled`, `disabled`, `blocklisted`. Updated only if provided.                                              |
+| lists                    | number\[\] |          | Array of list IDs. If provided, replaces the subscriber's current list subscriptions. If omitted, existing subscriptions are kept. |
+| attribs                  | JSON       |          | JSON object of subscriber attributes. If provided, merged with existing attributes.                                               |
+| preconfirm_subscriptions | bool       |          | If true, subscriptions are marked as confirmed and no opt-in emails are sent for double opt-in lists.                             |
+
+##### Example Request
+
+```shell
+curl -u 'api_username:access_token' -X PATCH 'http://localhost:9000/api/subscribers/1' \
+    -H 'Content-Type: application/json' \
+    --data '{"name":"Updated Name"}'
+```
+
+##### Example Response
+
+```json
+{
+  "data": {
+    "id": 1,
+    "created_at": "2020-02-10T23:07:16.199433+01:00",
+    "updated_at": "2020-03-10T16:37:17.228327+01:00",
+    "uuid": "ea06b2e7-4b08-4571-b436-5c5cf31c5cd4",
+    "email": "subscriber@domain.com",
+    "name": "Updated Name",
+    "attribs": {},
+    "status": "enabled",
+    "lists": [{
+      "subscription_status": "unconfirmed",
+      "id": 1,
+      "uuid": "ce13e971-c2ed-4069-bd0c-240e9a9f56f9",
+      "name": "Default list",
+      "type": "public",
+      "optin": "single"
+    }]
+  }
+}
+```
 
 ______________________________________________________________________
 
