@@ -72,9 +72,10 @@
               <b-table :data="data.lists" hoverable default-sort="createdAt" class="subscriptions">
                 <b-table-column v-slot="props" field="name" :label="$tc('globals.terms.list', 1)">
                   <div>
-                    <router-link :to="`/lists/${props.row.id}`">
+                    <router-link v-if="!props.row.restricted" :to="`/lists/${props.row.id}`">
                       {{ props.row.name }}
                     </router-link>
+                    <span v-else class="has-text-grey-light is-italic">{{ props.row.name }}</span>
                     <br />
                     <b-tag :class="props.row.optin" :data-cy="`optin-${props.row.optin}`">
                       <b-icon :icon="props.row.optin === 'double' ? 'account-check-outline' : 'account-off-outline'"

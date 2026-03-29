@@ -71,6 +71,8 @@ func (a *App) GetSubscriber(c echo.Context) error {
 		return err
 	}
 
+	maskRestrictedSubLists(user, &out)
+
 	return c.JSON(http.StatusOK, okResp{out})
 }
 
@@ -125,6 +127,10 @@ func (a *App) QuerySubscribers(c echo.Context) error {
 	res, total, err := a.core.QuerySubscribers(searchStr, query, listIDs, subStatus, order, orderBy, pg.Offset, pg.Limit)
 	if err != nil {
 		return err
+	}
+
+	for i := range res {
+		maskRestrictedSubLists(user, &res[i])
 	}
 
 	out := models.PageResults{
@@ -298,6 +304,8 @@ func (a *App) UpdateSubscriber(c echo.Context) error {
 		return err
 	}
 
+	maskRestrictedSubLists(user, &out)
+
 	return c.JSON(http.StatusOK, okResp{out})
 }
 
@@ -358,6 +366,8 @@ func (a *App) PatchSubscriber(c echo.Context) error {
 	if err != nil {
 		return err
 	}
+
+	maskRestrictedSubLists(user, &out)
 
 	return c.JSON(http.StatusOK, okResp{out})
 }
@@ -739,6 +749,34 @@ func (a *App) exportSubscriberData(id int, subUUID string, exportables map[strin
 	}
 
 	return data, b, nil
+}
+
+// maskRestrictedSubLists replaces list names with "*Unknown" for lists
+// the user doesn't have manage permission on. This appears on the subscriber
+// details UI and prevents users without access to certain lists from seeing their names.
+func maskRestrictedSubLists(user auth.User, sub *models.Subscriber) {
+	if user.HasPerm(auth.PermListManageAll) {
+		return
+	}
+
+	// Hacky JSON manipulation (for now).
+	var lists []map[string]interface{}
+	if err := json.Unmarshal(sub.Lists, &lists); err != nil || len(lists) == 0 {
+		return
+	}
+
+	for i, l := range lists {
+		id, _ := l["id"].(float64)
+		if user.HasListPerm(auth.PermTypeManage, int(id)) != nil {
+			lists[i]["name"] = "*Unknown"
+			lists[i]["restricted"] = true
+			delete(lists[i], "description")
+		}
+	}
+
+	if b, err := json.Marshal(lists); err == nil {
+		sub.Lists = b
+	}
 }
 
 // hasSubPerm checks whether the current user has permission to access the given list

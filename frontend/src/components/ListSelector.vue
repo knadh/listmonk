@@ -2,8 +2,8 @@
   <div class="field list-selector">
     <div :class="['list-tags', ...classes]">
       <b-taglist>
-        <b-tag v-for="l in selectedItems" :key="l.id" :class="l.subscriptionStatus" :closable="!$props.disabled"
-          :data-id="l.id" @close="removeList(l.id)" class="list">
+        <b-tag v-for="l in selectedItems" :key="l.id" :class="[l.subscriptionStatus, { 'is-restricted': l.restricted }]"
+          :closable="!$props.disabled && !l.restricted" :data-id="l.id" @close="removeList(l.id)" class="list">
           {{ l.name }}
           <sup v-if="l.optin === 'double' && l.subscriptionStatus">
             {{ $t(`subscribers.status.${l.subscriptionStatus}`) }}
