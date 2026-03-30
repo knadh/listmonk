@@ -130,6 +130,8 @@ export default {
       contentTypeSel: this.$props.value.contentType,
       templateId: null,
       visualTemplateId: null,
+      visualSnapshotBody: this.$props.value.contentType === 'visual' ? (this.$props.value.body || '') : null,
+      visualSnapshotSource: this.$props.value.contentType === 'visual' ? this.$props.value.bodySource : null,
     };
   },
 
@@ -167,6 +169,11 @@ export default {
         d.innerHTML = body;
         body = this.beautifyHTML(d.innerHTML.trim());
         isHTML = true;
+
+        if (from === 'visual') {
+          this.visualSnapshotBody = body;
+          this.visualSnapshotSource = this.self.bodySource;
+        }
       }
 
       // HTML => Non-HTML.
@@ -185,8 +192,12 @@ export default {
           }
 
           case 'visual': {
-            const md = turndown.turndown(body).replace(/\n\n+/ig, '\n\n');
-            bodySource = JSON.stringify(markdownToVisualBlock(md));
+            if (this.visualSnapshotSource && this.visualSnapshotBody === body) {
+              bodySource = this.visualSnapshotSource;
+            } else {
+              const md = turndown.turndown(body).replace(/\n\n+/ig, '\n\n');
+              bodySource = JSON.stringify(markdownToVisualBlock(md));
+            }
             break;
           }
 
@@ -215,7 +226,11 @@ export default {
       } else if (from === 'plain' && (to === 'richtext' || to === 'html')) {
         body = body.replace(/\n/ig, '<br>\n');
       } else if (to === 'visual') {
-        bodySource = JSON.stringify(markdownToVisualBlock(body));
+        if (this.visualSnapshotSource && this.visualSnapshotBody === body) {
+          bodySource = this.visualSnapshotSource;
+        } else {
+          bodySource = JSON.stringify(markdownToVisualBlock(body));
+        }
       }
 
       // =======================================================================
@@ -259,6 +274,8 @@ export default {
     onVisualEditorChange({ body, source }) {
       this.self.body = body;
       this.self.bodySource = source;
+      this.visualSnapshotBody = body;
+      this.visualSnapshotSource = source;
     },
 
     beautifyHTML(str) {
@@ -306,6 +323,8 @@ export default {
           this.$api.getTemplate(this.visualTemplateId).then((data) => {
             this.self.body = data.body;
             this.self.bodySource = data.bodySource;
+            this.visualSnapshotBody = data.body;
+            this.visualSnapshotSource = data.bodySource;
             this.isVisualTplDisabled = true;
 
             this.$refs.visualEditor.render(JSON.parse(data.bodySource));
@@ -332,6 +351,11 @@ export default {
     // Set initial content type for the selector.
     this.contentTypeSel = this.value.contentType;
     this.templateId = this.value.templateId;
+
+    if (this.value.contentType === 'visual') {
+      this.visualSnapshotBody = this.value.body || '';
+      this.visualSnapshotSource = this.value.bodySource;
+    }
 
     window.addEventListener('keydown', this.onKeyboardShortcut);
 
