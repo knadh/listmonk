@@ -242,7 +242,7 @@ func installTemplates(q *models.Queries) (int, int) {
 	if err != nil {
 		lo.Fatalf("error reading sample mjml template: %v", err)
 	}
-	if _, err := q.CreateTemplate.Exec("Sample MJML template", models.TemplateTypeCampaign, "", tpl.ReadBytes(), nil); err != nil {
+	if _, err := q.CreateTemplate.Exec("Sample MJML template", models.TemplateTypeCampaignMJML, "", tpl.ReadBytes(), nil); err != nil {
 		lo.Fatalf("error creating mjml campaign template: %v", err)
 	}
 

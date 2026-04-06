@@ -15,6 +15,7 @@ const (
 	ContentTpl                 = "content"
 	TemplateTypeCampaign       = "campaign"
 	TemplateTypeCampaignVisual = "campaign_visual"
+	TemplateTypeCampaignMJML   = "campaign_mjml"
 	TemplateTypeTx             = "tx"
 )
 

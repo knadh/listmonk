@@ -34,6 +34,9 @@
                   <option value="campaign_visual">
                     {{ $tc('templates.typeCampaignVisual') }}
                   </option>
+                  <option value="campaign_mjml">
+                    {{ $tc('templates.typeCampaignMJML') }}
+                  </option>
                   <option value="tx">
                     {{ $tc('templates.typeTransactional') }}
                   </option>

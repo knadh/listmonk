@@ -90,7 +90,7 @@ func (a *App) PreviewTemplateBody(c echo.Context) error {
 		tpl.Type = models.TemplateTypeCampaign
 	}
 
-	if tpl.Type == models.TemplateTypeCampaign && !regexpTplTag.MatchString(tpl.Body) {
+	if (tpl.Type == models.TemplateTypeCampaign || tpl.Type == models.TemplateTypeCampaignMJML) && !regexpTplTag.MatchString(tpl.Body) {
 		return echo.NewHTTPError(http.StatusBadRequest,
 			a.i18n.Ts("templates.placeholderHelp", "placeholder", tplTag))
 	}
@@ -117,7 +117,7 @@ func (a *App) CreateTemplate(c echo.Context) error {
 	// Subject is only relevant for fixed tx templates. For campaigns,
 	// the subject changes per campaign and is on models.Campaign.
 	var funcs template.FuncMap
-	if o.Type == models.TemplateTypeCampaign || o.Type == models.TemplateTypeCampaignVisual {
+	if o.Type == models.TemplateTypeCampaign || o.Type == models.TemplateTypeCampaignVisual || o.Type == models.TemplateTypeCampaignMJML {
 		o.Subject = ""
 		funcs = a.manager.TemplateFuncs(nil)
 	} else {
@@ -157,7 +157,7 @@ func (a *App) UpdateTemplate(c echo.Context) error {
 	// Subject is only relevant for fixed tx templates. For campaigns,
 	// the subject changes per campaign and is on models.Campaign.
 	var funcs template.FuncMap
-	if o.Type == models.TemplateTypeCampaign || o.Type == models.TemplateTypeCampaignVisual {
+	if o.Type == models.TemplateTypeCampaign || o.Type == models.TemplateTypeCampaignVisual || o.Type == models.TemplateTypeCampaignMJML {
 		o.Subject = ""
 		funcs = a.manager.TemplateFuncs(nil)
 	} else {
@@ -216,7 +216,7 @@ func (a *App) validateTemplate(o models.Template) error {
 		return errors.New(a.i18n.T("campaigns.fieldInvalidName"))
 	}
 
-	if o.Type == models.TemplateTypeCampaign && !regexpTplTag.MatchString(o.Body) {
+	if (o.Type == models.TemplateTypeCampaign || o.Type == models.TemplateTypeCampaignMJML) && !regexpTplTag.MatchString(o.Body) {
 		return echo.NewHTTPError(http.StatusBadRequest,
 			a.i18n.Ts("templates.placeholderHelp", "placeholder", tplTag))
 	}
@@ -232,14 +232,21 @@ func (a *App) validateTemplate(o models.Template) error {
 // previewTemplate renders the HTML preview of a template.
 func (a *App) previewTemplate(tpl models.Template) ([]byte, error) {
 	var out []byte
-	if tpl.Type == models.TemplateTypeCampaign || tpl.Type == models.TemplateTypeCampaignVisual {
+	if tpl.Type == models.TemplateTypeCampaign || tpl.Type == models.TemplateTypeCampaignVisual || tpl.Type == models.TemplateTypeCampaignMJML {
+		body := dummyTpl
+		contentType := models.CampaignContentTypeHTML
+		if tpl.Type == models.TemplateTypeCampaignMJML {
+			contentType = models.CampaignContentTypeMJML
+			body = `<mj-text>` + dummyTpl + `</mj-text>`
+		}
 		camp := models.Campaign{
 			UUID:         dummyUUID,
 			Name:         a.i18n.T("templates.dummyName"),
 			Subject:      a.i18n.T("templates.dummySubject"),
 			FromEmail:    "dummy-campaign@listmonk.app",
+			ContentType:  contentType,
 			TemplateBody: tpl.Body,
-			Body:         dummyTpl,
+			Body:         body,
 		}
 
 		if err := camp.CompileTemplate(a.manager.TemplateFuncs(&camp)); err != nil {
@@ -265,7 +272,7 @@ func (a *App) previewTemplate(tpl models.Template) ([]byte, error) {
 		}
 
 		// Render the message.
-		if err := m.Render(dummySubscriber, &tpl, a.manager.GenericTemplateFuncs()); err != nil {
+		if err := m.Render(dummySubscriber, &tpl); err != nil {
 			return nil, echo.NewHTTPError(http.StatusBadRequest, err.Error())
 		}
 		out = m.Body

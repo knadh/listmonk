@@ -38,6 +38,10 @@
           :data-cy="`type-${props.row.type}`">
           {{ $tc('templates.typeCampaignVisual') }}
         </b-tag>
+        <b-tag v-else-if="props.row.type === 'campaign_mjml'" :class="props.row.type"
+          :data-cy="`type-${props.row.type}`">
+          {{ $tc('templates.typeCampaignMJML') }}
+        </b-tag>
         <b-tag v-else :class="props.row.type" :data-cy="`type-${props.row.type}`">
           {{ $tc('templates.typeTransactional') }}
         </b-tag>
