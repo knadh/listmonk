@@ -407,6 +407,8 @@
     "settings.bounces.folder": "Pasta",
     "settings.bounces.folderHelp": "Noma da pasta IMAP para escanear. Ex: Inbox.",
     "settings.bounces.forwardemailKey": "Chave de Encaminhamento de Email",
+    "settings.bounces.enableLettermint": "Enable Lettermint",
+    "settings.bounces.lettermintKey": "Lettermint Webhook Secret",
     "settings.bounces.invalidScanInterval": "Intervalo de escaneamento de Bounce deve ser no mínimo 1 minuto.",
     "settings.bounces.name": "Rejeições",
     "settings.bounces.none": "Nenhuma",

@@ -74,6 +74,7 @@
               <a href="#" @click.prevent="() => fillSettings(n, 'sendgrid')">Sendgrid</a>
               <a href="#" @click.prevent="() => fillSettings(n, 'postmark')">Postmark</a>
               <a href="#" @click.prevent="() => fillSettings(n, 'forwardemail')">Forward Email</a>
+              <a href="#" @click.prevent="() => fillSettings(n, 'lettermint')">Lettermint</a>
             </div>
             <hr />
 
@@ -235,6 +236,9 @@ const smtpTemplates = {
   },
   postmark: {
     host: 'smtp.postmarkapp.com', port: 587, auth_protocol: 'cram', tls_type: 'STARTTLS',
+  },
+  lettermint: {
+    host: 'smtp.lettermint.co', port: 465, auth_protocol: 'login', tls_type: 'TLS',
   },
 };
 

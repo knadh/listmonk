@@ -407,6 +407,8 @@
     "settings.bounces.folder": "Carpeta",
     "settings.bounces.folderHelp": "Nom de la carpeta IMAP a escanejar. Ex: Safata d'entrada.",
     "settings.bounces.forwardemailKey": "Ŝlosilo por retpoŝta plusendo",
+    "settings.bounces.enableLettermint": "Enable Lettermint",
+    "settings.bounces.lettermintKey": "Lettermint Webhook Secret",
     "settings.bounces.invalidScanInterval": "L'interval d'escaneig ha de ser com a mínim d'1 minut.",
     "settings.bounces.name": "Rebots",
     "settings.bounces.none": "Cap",

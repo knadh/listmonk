@@ -280,8 +280,8 @@ SELECT COUNT(%s) AS "count", url
 -- a batch of campaign subscribers for processing.
 SELECT campaigns.id AS campaign_id, campaigns.type as campaign_type, last_subscriber_id, max_subscriber_id, lists.id AS list_id
     FROM campaigns
-    LEFT JOIN campaign_lists ON (campaign_lists.campaign_id = campaigns.id)
-    LEFT JOIN lists ON (lists.id = campaign_lists.list_id)
+    JOIN campaign_lists ON (campaign_lists.campaign_id = campaigns.id)
+    JOIN lists ON (lists.id = campaign_lists.list_id)
     WHERE campaigns.id = $1 AND campaigns.status='running';
 
 -- name: next-campaign-subscribers
@@ -405,7 +405,7 @@ INSERT INTO campaign_lists (campaign_id, list_id, list_name)
 UPDATE campaigns SET
     to_send=(CASE WHEN $2 != 0 THEN $2 ELSE to_send END),
     sent=sent+$3,
-    last_subscriber_id=(CASE WHEN $4 > 0 THEN $4 ELSE to_send END),
+    last_subscriber_id=(CASE WHEN $4 > 0 THEN $4 ELSE last_subscriber_id END),
     updated_at=NOW()
 WHERE id=$1;
 

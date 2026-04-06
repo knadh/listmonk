@@ -23,27 +23,27 @@
       </div>
 
       <div class="column is-6">
-        <div v-if="canManage" class="buttons">
+        <div v-if="canManage || canSend" class="buttons">
           <b-field grouped v-if="isEditing && canEdit">
-            <b-field expanded>
+            <b-field v-if="canManage" expanded>
               <b-button expanded @click="() => onSubmit('update')" :loading="loading.campaigns" type="is-primary"
                 icon-left="content-save-outline" data-cy="btn-save" aria-keyshortcuts="ctrl+s">
                 <span class="has-kbd">{{ $t('globals.buttons.saveChanges') }} <span class="kbd">Ctrl+S</span></span>
               </b-button>
             </b-field>
-            <b-field expanded v-if="canStart">
+            <b-field expanded v-if="canSend && canStart">
               <b-button expanded @click="startCampaign" :loading="loading.campaigns" type="is-primary"
                 icon-left="rocket-launch-outline" data-cy="btn-start">
                 {{ $t('campaigns.start') }}
               </b-button>
             </b-field>
-            <b-field expanded v-if="canSchedule">
+            <b-field expanded v-if="canSend && canSchedule">
               <b-button expanded @click="startCampaign" :loading="loading.campaigns" type="is-primary"
                 icon-left="clock-start" data-cy="btn-schedule">
                 {{ $t('campaigns.schedule') }}
               </b-button>
             </b-field>
-            <b-field expanded v-if="canUnSchedule">
+            <b-field expanded v-if="canSend && canUnSchedule">
               <b-button expanded @click="$utils.confirm(null, unscheduleCampaign)" :loading="loading.campaigns"
                 type="is-primary" icon-left="clock-start" data-cy="btn-unschedule">
                 {{ $t('campaigns.unSchedule') }}
@@ -693,6 +693,10 @@ export default Vue.extend({
 
     canManage() {
       return this.$can('campaigns:manage_all', 'campaigns:manage');
+    },
+
+    canSend() {
+      return this.$can('campaigns:send');
     },
 
     canEdit() {

@@ -280,6 +280,11 @@ func (m *Manager) Run() {
 		has, err := p.NextSubscribers()
 		if err != nil {
 			m.log.Printf("error processing campaign batch (%s): %v", p.camp.Name, err)
+
+			// If the batch fails, stop the pipe and release it so that it doesn't hang forever.
+			// The cleanup() records the state in DB and scanCampaigns() picks it up at a later point.
+			p.Stop(false)
+			p.wg.Done()
 			continue
 		}
 
@@ -288,6 +293,11 @@ func (m *Manager) Run() {
 			select {
 			case m.nextPipes <- p:
 			default:
+				// If the queue is full for any reason, stop the pipe and release it.
+				// The cleanup() records the state in DB and scanCampaigns() picks it up
+				// at a later point.
+				p.Stop(false)
+				p.wg.Done()
 			}
 		} else {
 			// The pipe is created with a +1 on the waitgroup pseudo counter
@@ -437,6 +447,11 @@ func (m *Manager) scanCampaigns(tick time.Duration) {
 			select {
 			case m.nextPipes <- p:
 			default:
+				// If the queue is full for any reason, stop the pipe and release it.
+				// The cleanup() records the state in DB and scanCampaigns() picks it up
+				// at a later point.
+				p.Stop(false)
+				p.wg.Done()
 			}
 		}
 	}
@@ -647,6 +662,10 @@ func (m *Manager) makeGnericFuncMap() template.FuncMap {
 // attachMedia loads any media/attachments from the media store and attaches
 // the byte blobs to the campaign.
 func (m *Manager) attachMedia(c *models.Campaign) error {
+	if len(c.Attachments) > 0 {
+		return nil
+	}
+
 	// Load any media/attachments.
 	for _, mid := range []int64(c.MediaIDs) {
 		a, err := m.store.GetAttachment(int(mid))

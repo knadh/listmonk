@@ -57,6 +57,7 @@ const (
 	PermCampaignsGetAnalytics = "campaigns:get_analytics"
 	PermCampaignsManage       = "campaigns:manage"
 	PermCampaignsManageAll    = "campaigns:manage_all"
+	PermCampaignsSend         = "campaigns:send"
 	PermBouncesGet            = "bounces:get"
 	PermBouncesManage         = "bounces:manage"
 	PermWebhooksPostBounce    = "webhooks:post_bounce"
@@ -308,4 +309,22 @@ func (u *User) FilterListsByPerm(types PermType, listIDs []int) []int {
 	}
 
 	return out
+}
+
+// GetPermittedListIDs filters the given list IDs by the user's get/manage
+// permissions and returns the filtered set. Unlike `FilterListsByPerm()`, if no
+// IDs are present (empty input or 0 permitted lists), it falls back to the user's
+// permitted list IDs if any. This is useful for endpoints which accept a few IDs
+// or the lack of which implies "all".
+func (u *User) GetPermittedListIDs(listIDs []int) []int {
+	listIDs = u.FilterListsByPerm(PermTypeGet|PermTypeManage, listIDs)
+	if len(listIDs) == 0 {
+		if _, ok := u.PermissionsMap[PermSubscribersGetAll]; !ok {
+			if len(u.GetListIDs) > 0 {
+				return u.GetListIDs
+			}
+			return []int{-1}
+		}
+	}
+	return listIDs
 }

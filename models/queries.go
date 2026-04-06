@@ -117,16 +117,17 @@ type Queries struct {
 	DeleteBouncesBySubscriber   *sqlx.Stmt `query:"delete-bounces-by-subscriber"`
 	GetDBInfo                   string     `query:"get-db-info"`
 
-	CreateUser        *sqlx.Stmt `query:"create-user"`
-	UpdateUser        *sqlx.Stmt `query:"update-user"`
-	UpdateUserProfile *sqlx.Stmt `query:"update-user-profile"`
-	UpdateUserLogin   *sqlx.Stmt `query:"update-user-login"`
-	SetUserTwoFA      *sqlx.Stmt `query:"set-user-twofa"`
-	DeleteUsers       *sqlx.Stmt `query:"delete-users"`
-	GetUsers          *sqlx.Stmt `query:"get-users"`
-	GetUser           *sqlx.Stmt `query:"get-user"`
-	GetAPITokens      *sqlx.Stmt `query:"get-api-tokens"`
-	LoginUser         *sqlx.Stmt `query:"login-user"`
+	CreateUser         *sqlx.Stmt `query:"create-user"`
+	UpdateUser         *sqlx.Stmt `query:"update-user"`
+	UpdateUserProfile  *sqlx.Stmt `query:"update-user-profile"`
+	UpdateUserLogin    *sqlx.Stmt `query:"update-user-login"`
+	SetUserTwoFA       *sqlx.Stmt `query:"set-user-twofa"`
+	DeleteUsers        *sqlx.Stmt `query:"delete-users"`
+	GetUsers           *sqlx.Stmt `query:"get-users"`
+	GetUser            *sqlx.Stmt `query:"get-user"`
+	GetAPITokens       *sqlx.Stmt `query:"get-api-tokens"`
+	LoginUser          *sqlx.Stmt `query:"login-user"`
+	DeleteUserSessions *sqlx.Stmt `query:"delete-user-sessions"`
 
 	CreateRole            *sqlx.Stmt `query:"create-role"`
 	GetUserRoles          *sqlx.Stmt `query:"get-user-roles"`

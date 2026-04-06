@@ -175,7 +175,9 @@ listIDs AS (
               ELSE uuid=ANY($7::UUID[]) END)
 ),
 d AS (
-    DELETE FROM subscriber_lists WHERE $9 = TRUE AND subscriber_id = $1 AND list_id != ALL(SELECT id FROM listIDs)
+    DELETE FROM subscriber_lists WHERE $9 = TRUE AND subscriber_id = $1
+        AND list_id != ALL(SELECT id FROM listIDs)
+        AND (CARDINALITY($10::INT[]) = 0 OR list_id = ANY($10::INT[]))
 )
 INSERT INTO subscriber_lists (subscriber_id, list_id, status)
     VALUES(
@@ -187,6 +189,8 @@ INSERT INTO subscriber_lists (subscriber_id, list_id, status)
     SET status = (
         CASE
             WHEN $4='blocklisted' THEN 'unsubscribed'::subscription_status
+            -- When $11 (allow resubscribe) is true, override existing statuses (used by public subscription form).
+            WHEN $11 = TRUE THEN $8::subscription_status
             -- When subscriber is edited from the admin form, retain the status. Otherwise, a blocklisted
             -- subscriber when being re-enabled, their subscription statuses change.
             WHEN subscriber_lists.status = 'confirmed' THEN 'confirmed'

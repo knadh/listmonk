@@ -407,6 +407,8 @@
     "settings.bounces.folder": "Pasta",
     "settings.bounces.folderHelp": "Nome da pasta IMAP para procurar. E.g.: Inbox.",
     "settings.bounces.forwardemailKey": "Chave de encaminhamento de e-mail",
+    "settings.bounces.enableLettermint": "Enable Lettermint",
+    "settings.bounces.lettermintKey": "Lettermint Webhook Secret",
     "settings.bounces.invalidScanInterval": "Intervalo de procura de bounces deve ser, no mínimo, 1 minuto.",
     "settings.bounces.name": "Rejeições",
     "settings.bounces.none": "Nenhum",

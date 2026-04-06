@@ -17,7 +17,6 @@ describe('Bounces', () => {
     cy.get('[data-cy=btn-save]').click();
 
     cy.waitForBackend();
-    cy.wait(1000);
   });
 
   it('Post bounces', () => {

@@ -26,6 +26,7 @@ Allows sending transactional messages to one or more subscribers via a preconfig
 | headers           | JSON\[\]   |          | Optional array of email headers.                                           |
 | messenger         | string     |          | Messenger to send the message. Default is `email`.                         |
 | content_type      | string     |          | Email format options include `html`, `markdown`, and `plain`.              |
+| altbody           | string     |          | Optional alternate plaintext body for multipart HTML emails.               |
 
 ##### Subscriber modes
 
