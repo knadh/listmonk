@@ -378,7 +378,9 @@ export default {
 
     // Returns the list of valid (visual vs. normal) templates for the template dropdown.
     validTemplates() {
-      const typ = this.self.contentType === 'visual' ? 'campaign_visual' : 'campaign';
+      let typ = 'campaign';
+      if (this.self.contentType === 'visual') typ = 'campaign_visual';
+      else if (this.self.contentType === 'mjml') typ = 'campaign_mjml';
       return this.templates.filter((t) => (t.type === typ));
     },
   },

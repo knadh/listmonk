@@ -267,7 +267,7 @@
                 <b-select :placeholder="$tc('globals.terms.template')" v-model="form.archiveTemplateId" name="template"
                   :disabled="!canArchive || !form.archive || form.content.contentType === 'visual'" required>
                   <template v-for="t in templates">
-                    <option v-if="t.type === 'campaign'" :value="t.id" :key="t.id">
+                    <option v-if="t.type === (form.content.contentType === 'mjml' ? 'campaign_mjml' : 'campaign')" :value="t.id" :key="t.id">
                       {{ t.name }}
                     </option>
                   </template>

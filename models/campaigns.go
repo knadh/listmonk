@@ -12,7 +12,6 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/jmoiron/sqlx/types"
 	"github.com/lib/pq"
-	"github.com/preslavrachev/gomjml/mjml"
 	null "gopkg.in/volatiletech/null.v6"
 )
 
@@ -62,8 +61,9 @@ type Campaign struct {
 	ArchiveTemplateID null.Int        `db:"archive_template_id" json:"archive_template_id"`
 	ArchiveMeta       json.RawMessage `db:"archive_meta" json:"archive_meta"`
 
-	// TemplateBody is joined in from templates by the next-campaigns query.
+	// TemplateBody and TemplateType are joined in from templates by the next-campaigns query.
 	TemplateBody        string             `db:"template_body" json:"-"`
+	TemplateType        string             `db:"template_type" json:"-"`
 	ArchiveTemplateBody string             `db:"archive_template_body" json:"-"`
 	Tpl                 *template.Template `json:"-"`
 	SubjectTpl          *txttpl.Template   `json:"-"`
@@ -153,6 +153,27 @@ func (c *Campaign) CompileTemplate(f template.FuncMap) error {
 		c.SubjectTpl = subjTpl
 	}
 
+	// For MJML wrapper templates, delegate entirely to the MJML adapter.
+	if c.TemplateType == TemplateTypeCampaignMJML {
+		tpl, err := compileMJMLCampaign(c, f)
+		if err != nil {
+			return err
+		}
+		c.Tpl = tpl
+		if strings.Contains(c.AltBody.String, "{{") {
+			b := c.AltBody.String
+			for _, r := range regTplFuncs {
+				b = r.regExp.ReplaceAllString(b, r.replace)
+			}
+			bTpl, err := template.New(ContentTpl).Funcs(f).Parse(b)
+			if err != nil {
+				return fmt.Errorf("error compiling alt plaintext message: %v", err)
+			}
+			c.AltBodyTpl = bTpl
+		}
+		return nil
+	}
+
 	// Compile the base template.
 	body := c.TemplateBody
 
@@ -162,15 +183,6 @@ func (c *Campaign) CompileTemplate(f template.FuncMap) error {
 
 	for _, r := range regTplFuncs {
 		body = r.regExp.ReplaceAllString(body, r.replace)
-	}
-
-	// Parse the base template also as MJML if the campaign content type is MJML.
-	if c.ContentType == CampaignContentTypeMJML {
-		htmlBody, err := mjml.Render(body)
-		if err != nil {
-			return fmt.Errorf("error compiling MJML: %v", err)
-		}
-		body = htmlBody
 	}
 
 	baseTPL, err := template.New(BaseTpl).Funcs(f).Parse(body)
@@ -187,12 +199,6 @@ func (c *Campaign) CompileTemplate(f template.FuncMap) error {
 		}
 		body = b.String()
 
-	case CampaignContentTypeMJML:
-		htmlBody, err := mjml.Render(c.Body)
-		if err != nil {
-			return fmt.Errorf("error compiling MJML: %v", err)
-		}
-		body = htmlBody
 	default:
 		body = c.Body
 	}
@@ -247,9 +253,9 @@ func (c *Campaign) ConvertContent(from, to string) (string, error) {
 		out = b.String()
 	} else if from == CampaignContentTypeMJML &&
 		(to == CampaignContentTypeHTML || to == CampaignContentTypeRichtext) {
-		htmlBody, err := mjml.Render(c.Body)
+		htmlBody, err := renderMJML(c.Body)
 		if err != nil {
-			return out, fmt.Errorf("error converting MJML: %v", err)
+			return out, err
 		}
 		out = htmlBody
 	} else {
