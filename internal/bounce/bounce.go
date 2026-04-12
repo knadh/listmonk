@@ -19,14 +19,17 @@ type Mailbox interface {
 
 // Opt represents bounce processing options.
 type Opt struct {
-	MailboxEnabled  bool        `json:"mailbox_enabled"`
-	MailboxType     string      `json:"mailbox_type"`
-	Mailbox         mailbox.Opt `json:"mailbox"`
-	WebhooksEnabled bool        `json:"webhooks_enabled"`
-	SESEnabled      bool        `json:"ses_enabled"`
-	SendgridEnabled bool        `json:"sendgrid_enabled"`
-	SendgridKey     string      `json:"sendgrid_key"`
-	Postmark        struct {
+	MailboxEnabled          bool        `json:"mailbox_enabled"`
+	MailboxType             string      `json:"mailbox_type"`
+	Mailbox                 mailbox.Opt `json:"mailbox"`
+	WebhooksEnabled         bool        `json:"webhooks_enabled"`
+	SESEnabled              bool        `json:"ses_enabled"`
+	AzureEnabled            bool        `json:"azure_enabled"`
+	AzureSharedSecret       string      `json:"azure_shared_secret"`
+	AzureSharedSecretHeader string      `json:"azure_shared_secret_header"`
+	SendgridEnabled         bool        `json:"sendgrid_enabled"`
+	SendgridKey             string      `json:"sendgrid_key"`
+	Postmark                struct {
 		Enabled  bool
 		Username string
 		Password string
@@ -48,6 +51,7 @@ type Manager struct {
 	queue        chan models.Bounce
 	mailbox      Mailbox
 	SES          *webhooks.SES
+	Azure        *webhooks.Azure
 	Sendgrid     *webhooks.Sendgrid
 	Postmark     *webhooks.Postmark
 	Forwardemail *webhooks.Forwardemail
@@ -85,6 +89,9 @@ func New(opt Opt, q *Queries, lo *log.Logger) (*Manager, error) {
 	if opt.WebhooksEnabled {
 		if opt.SESEnabled {
 			m.SES = webhooks.NewSES()
+		}
+		if opt.AzureEnabled {
+			m.Azure = webhooks.NewAzure(opt.AzureSharedSecret, opt.AzureSharedSecretHeader)
 		}
 
 		if opt.SendgridEnabled {

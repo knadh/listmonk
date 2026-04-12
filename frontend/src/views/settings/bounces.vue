@@ -61,6 +61,28 @@
         </div>
         <div class="columns">
           <div class="column is-3">
+            <b-field :label="$t('settings.bounces.enableAzure')">
+              <b-switch v-model="data['bounce.azure'].enabled" name="azure_enabled" :native-value="true"
+                data-cy="btn-enable-bounce-azure" />
+            </b-field>
+          </div>
+          <div class="column">
+            <b-field :label="$t('settings.bounces.azureSharedSecret')" :message="$t('settings.bounces.azureSharedSecretHelp')">
+              <b-input v-model="data['bounce.azure'].shared_secret" type="password"
+                :disabled="!data['bounce.azure'].enabled" name="azure_shared_secret"
+                data-cy="bounce-azure-shared-secret" />
+            </b-field>
+          </div>
+          <div class="column">
+            <b-field :label="$t('settings.bounces.azureSharedSecretHeader')" :message="$t('settings.bounces.azureSharedSecretHeaderHelp')">
+              <b-input v-model="data['bounce.azure'].shared_secret_header" type="text"
+                :disabled="!data['bounce.azure'].enabled" name="azure_shared_secret_header"
+                data-cy="bounce-azure-shared-secret-header" />
+            </b-field>
+          </div>
+        </div>
+        <div class="columns">
+          <div class="column is-3">
             <b-field :label="$t('settings.bounces.enableSendgrid')">
               <b-switch v-model="data['bounce.sendgrid_enabled']" name="sendgrid_enabled" :native-value="true"
                 data-cy="btn-enable-bounce-sendgrid" />

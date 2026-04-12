@@ -285,6 +285,7 @@ INSERT INTO settings (key, value) VALUES
     ('bounce.webhooks_enabled', 'false'),
     ('bounce.actions', '{"soft": {"count": 2, "action": "none"}, "hard": {"count": 1, "action": "blocklist"}, "complaint" : {"count": 1, "action": "blocklist"}}'),
     ('bounce.ses_enabled', 'false'),
+    ('bounce.azure', '{"enabled": false, "shared_secret": "", "shared_secret_header": ""}'),
     ('bounce.sendgrid_enabled', 'false'),
     ('bounce.sendgrid_key', '""'),
     ('bounce.postmark', '{"enabled": false, "username": "", "password": ""}'),
