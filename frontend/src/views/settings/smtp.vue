@@ -69,6 +69,7 @@
             <div class="spaced-links is-size-7">
               <a href="#" @click.prevent="() => fillSettings(n, 'gmail')">Gmail</a>
               <a href="#" @click.prevent="() => fillSettings(n, 'ses')">Amazon SES</a>
+              <a href="#" @click.prevent="() => fillSettings(n, 'azure')">Azure ACS</a>
               <a href="#" @click.prevent="() => fillSettings(n, 'mailgun')">Mailgun</a>
               <a href="#" @click.prevent="() => fillSettings(n, 'mailjet')">Mailjet</a>
               <a href="#" @click.prevent="() => fillSettings(n, 'sendgrid')">Sendgrid</a>
@@ -221,6 +222,9 @@ const smtpTemplates = {
   },
   ses: {
     host: 'email-smtp.YOUR-REGION.amazonaws.com', port: 465, auth_protocol: 'login', tls_type: 'TLS',
+  },
+  azure: {
+    host: 'smtp.azurecomm.net', port: 587, auth_protocol: 'login', tls_type: 'STARTTLS',
   },
   mailjet: {
     host: 'in-v3.mailjet.com', port: 465, auth_protocol: 'cram', tls_type: 'TLS',
