@@ -472,7 +472,7 @@
     "settings.media.s3.bucket": "Bucket/contenedor",
     "settings.media.s3.bucketPath": "Ruta de bucket",
     "settings.media.s3.bucketPathHelp": "Ruta dentro del bucket/contenedor desde donde cargar los archivos. Por defecto es '/'",
-    "settings.media.s3.bucketType": "Tipo de bucket/conteneor",
+    "settings.media.s3.bucketType": "Tipo de bucket/contenedor",
     "settings.media.s3.bucketTypePrivate": "Privado",
     "settings.media.s3.bucketTypePublic": "Público",
     "settings.media.s3.key": "Llave de acceso a S3 (access key)",
