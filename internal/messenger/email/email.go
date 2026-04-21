@@ -1,16 +1,24 @@
 package email
 
 import (
+	crand "crypto/rand"
 	"crypto/tls"
 	"fmt"
+	"math"
+	"math/big"
 	"math/rand"
+	"net/mail"
 	"net/smtp"
 	"net/textproto"
+	"os"
 	"strings"
+	"time"
 
 	"github.com/knadh/listmonk/models"
 	"github.com/knadh/smtppool/v2"
 )
+
+var maxBigInt = big.NewInt(math.MaxInt64)
 
 const (
 	MessengerName = "email"
@@ -18,6 +26,7 @@ const (
 	hdrReturnPath = "Return-Path"
 	hdrBcc        = "Bcc"
 	hdrCc         = "Cc"
+	hdrMessageID  = "Message-Id"
 )
 
 // Server represents an SMTP server's credentials.
@@ -156,6 +165,16 @@ func (e *Emailer) Push(m models.Message) error {
 		em.Headers.Set(k, v[0])
 	}
 
+	// Generate Message-Id based on the From address
+	if em.Headers.Get(hdrMessageID) == "" {
+		if d := fromDomain(m.From); d != "" {
+			if rint, err := crand.Int(crand.Reader, maxBigInt); err == nil {
+				em.Headers.Set(hdrMessageID, fmt.Sprintf("<%d.%d.%d@%s>",
+					time.Now().UnixNano(), os.Getpid(), rint, d))
+			}
+		}
+	}
+
 	// If the `Return-Path` header is set, it should be set as the
 	// the SMTP envelope sender (via the Sender field of the email struct).
 	if sender := em.Headers.Get(hdrReturnPath); sender != "" {
@@ -203,4 +222,17 @@ func (e *Emailer) Close() error {
 		s.pool.Close()
 	}
 	return nil
+}
+
+// fromDomain extracts the domain part from an RFC 5322 address string
+func fromDomain(from string) string {
+	a, err := mail.ParseAddress(from)
+	if err != nil {
+		return ""
+	}
+	i := strings.LastIndex(a.Address, "@")
+	if i <= 0 || i >= len(a.Address)-1 {
+		return ""
+	}
+	return a.Address[i+1:]
 }
