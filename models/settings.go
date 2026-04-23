@@ -29,7 +29,7 @@ type Settings struct {
 	AppMessageSlidingWindowRate     int    `json:"app.message_sliding_window_rate"`
 
 	PrivacyIndividualTracking bool     `json:"privacy.individual_tracking"`
-	PrivacyDisableTracking   bool     `json:"privacy.disable_tracking"`
+	PrivacyDisableTracking    bool     `json:"privacy.disable_tracking"`
 	PrivacyUnsubHeader        bool     `json:"privacy.unsubscribe_header"`
 	PrivacyAllowBlocklist     bool     `json:"privacy.allow_blocklist"`
 	PrivacyAllowPreferences   bool     `json:"privacy.allow_preferences"`
@@ -120,7 +120,12 @@ type Settings struct {
 	SESEnabled      bool   `json:"bounce.ses_enabled"`
 	SendgridEnabled bool   `json:"bounce.sendgrid_enabled"`
 	SendgridKey     string `json:"bounce.sendgrid_key"`
-	BouncePostmark  struct {
+	BounceAzure     struct {
+		Enabled            bool   `json:"enabled"`
+		SharedSecret       string `json:"shared_secret"`
+		SharedSecretHeader string `json:"shared_secret_header"`
+	} `json:"bounce.azure"`
+	BouncePostmark struct {
 		Enabled  bool   `json:"enabled"`
 		Username string `json:"username"`
 		Password string `json:"password"`

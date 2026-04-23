@@ -175,6 +175,31 @@ func (a *App) BounceWebhook(c echo.Context) error {
 			return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("globals.messages.invalidData"))
 		}
 
+	// Azure ACS through Event Grid.
+	case service == "azure" && a.bounce.Azure != nil:
+		switch c.Request().Header.Get("aeg-event-type") {
+		// Event Grid webhook registration validation.
+		case "SubscriptionValidation", "SubscriptionValidationEvent":
+			res, err := a.bounce.Azure.ProcessSubscription(rawReq)
+			if err != nil {
+				a.log.Printf("error processing Azure Event Grid subscription validation: %v", err)
+				return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("globals.messages.invalidData"))
+			}
+			return c.JSONBlob(http.StatusOK, res)
+
+		// Regular event delivery.
+		case "", "Notification":
+			bs, err := a.bounce.Azure.ProcessBounce(c.Request(), rawReq)
+			if err != nil {
+				a.log.Printf("error processing Azure Event Grid notification: %v", err)
+				return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("globals.messages.invalidData"))
+			}
+			bounces = append(bounces, bs...)
+
+		default:
+			return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("globals.messages.invalidData"))
+		}
+
 	// SendGrid.
 	case service == "sendgrid" && a.bounce.Sendgrid != nil:
 		var (

@@ -5,12 +5,17 @@ import (
 	"encoding/json"
 	"fmt"
 	"regexp"
+	"strings"
 
 	"github.com/yuin/goldmark"
 	"github.com/yuin/goldmark/extension"
 	"github.com/yuin/goldmark/parser"
 	"github.com/yuin/goldmark/renderer/html"
 	null "gopkg.in/volatiletech/null.v6"
+)
+
+var (
+	reHexToken = regexp.MustCompile(`^[a-f0-9]{32}$`)
 )
 
 // Enum values for various statuses.
@@ -31,6 +36,104 @@ const (
 	TwofaTypeNone = "none"
 	TwofaTypeTOTP = "totp"
 )
+
+const (
+	listmonkMessageIDPrefix = "lm"
+	listmonkMessageIDNoData = "0"
+	defaultMessageIDDomain  = "listmonk.local"
+)
+
+// BuildListmonkMessageID returns an RFC-5322 compatible deterministic Message-ID
+// that encodes campaign/subscriber context for webhook correlation.
+func BuildListmonkMessageID(campaignUUID, subscriberUUID, domain string) string {
+	campToken := uuidToMessageToken(campaignUUID)
+	subToken := uuidToMessageToken(subscriberUUID)
+	if campToken == "" && subToken == "" {
+		return ""
+	}
+
+	if campToken == "" {
+		campToken = listmonkMessageIDNoData
+	}
+
+	if subToken == "" {
+		subToken = listmonkMessageIDNoData
+	}
+
+	domain = strings.ToLower(strings.TrimSpace(domain))
+	if domain == "" {
+		domain = defaultMessageIDDomain
+	}
+
+	localPart := fmt.Sprintf("%s.%s", listmonkMessageIDPrefix, campToken)
+	return fmt.Sprintf("<%s@s%s.%s>", localPart, subToken, domain)
+}
+
+// ParseListmonkMessageID extracts campaign/subscriber UUIDs from a Message-ID generated
+// by BuildListmonkMessageID.
+func ParseListmonkMessageID(msgID string) (string, string, bool) {
+	msgID = strings.ToLower(strings.TrimSpace(msgID))
+	msgID = strings.TrimPrefix(msgID, "<")
+	msgID = strings.TrimSuffix(msgID, ">")
+
+	parts := strings.Split(msgID, "@")
+	if len(parts) != 2 {
+		return "", "", false
+	}
+
+	localPart := parts[0]
+	if !strings.HasPrefix(localPart, listmonkMessageIDPrefix+".") {
+		return "", "", false
+	}
+
+	campToken := strings.TrimPrefix(localPart, listmonkMessageIDPrefix+".")
+	campUUID, ok := messageTokenToUUID(campToken)
+	if !ok {
+		return "", "", false
+	}
+
+	hostLabels := strings.Split(parts[1], ".")
+	if len(hostLabels) == 0 || !strings.HasPrefix(hostLabels[0], "s") {
+		return "", "", false
+	}
+
+	subToken := strings.TrimPrefix(hostLabels[0], "s")
+	subUUID, ok := messageTokenToUUID(subToken)
+	if !ok {
+		return "", "", false
+	}
+
+	if campUUID == "" && subUUID == "" {
+		return "", "", false
+	}
+
+	return campUUID, subUUID, true
+}
+
+func uuidToMessageToken(uuid string) string {
+	token := strings.ToLower(strings.ReplaceAll(strings.TrimSpace(uuid), "-", ""))
+	if !reHexToken.MatchString(token) {
+		return ""
+	}
+	return token
+}
+
+func messageTokenToUUID(token string) (string, bool) {
+	if token == listmonkMessageIDNoData {
+		return "", true
+	}
+
+	if !reHexToken.MatchString(token) {
+		return "", false
+	}
+
+	return fmt.Sprintf("%s-%s-%s-%s-%s",
+		token[0:8],
+		token[8:12],
+		token[12:16],
+		token[16:20],
+		token[20:32]), true
+}
 
 // regTplFunc represents contains a regular expression for wrapping and
 // substituting a Go template function from the user's shorthand to a full

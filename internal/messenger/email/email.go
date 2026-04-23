@@ -4,8 +4,10 @@ import (
 	"crypto/tls"
 	"fmt"
 	"math/rand"
+	"net/mail"
 	"net/smtp"
 	"net/textproto"
+	"net/url"
 	"strings"
 
 	"github.com/knadh/listmonk/models"
@@ -156,6 +158,18 @@ func (e *Emailer) Push(m models.Message) error {
 		em.Headers.Set(k, v[0])
 	}
 
+	// Azure Event Grid preserves Message-ID. Generate one only for Azure SMTP
+	// when upstream headers have not set one explicitly.
+	if isAzureSMTPHost(srv.Host) && em.Headers.Get(models.EmailHeaderMessageId) == "" {
+		if msgID := models.BuildListmonkMessageID(
+			getCampaignUUID(m),
+			m.Subscriber.UUID,
+			extractDomain(m.From),
+		); msgID != "" {
+			em.Headers.Set(models.EmailHeaderMessageId, msgID)
+		}
+	}
+
 	// If the `Return-Path` header is set, it should be set as the
 	// the SMTP envelope sender (via the Sender field of the email struct).
 	if sender := em.Headers.Get(hdrReturnPath); sender != "" {
@@ -203,4 +217,50 @@ func (e *Emailer) Close() error {
 		s.pool.Close()
 	}
 	return nil
+}
+
+func isAzureSMTPHost(host string) bool {
+	h := strings.ToLower(strings.TrimSpace(host))
+	return strings.Contains(h, "azurecomm") || strings.Contains(h, "communication.azure.com")
+}
+
+func getCampaignUUID(m models.Message) string {
+	if m.Campaign == nil {
+		return ""
+	}
+	return m.Campaign.UUID
+}
+
+func extractDomain(from string) string {
+	from = strings.TrimSpace(from)
+	if from == "" {
+		return ""
+	}
+
+	if addr, err := mail.ParseAddress(from); err == nil {
+		if i := strings.LastIndex(addr.Address, "@"); i > -1 && i+1 < len(addr.Address) {
+			return sanitizeDomain(addr.Address[i+1:])
+		}
+	}
+
+	if i := strings.LastIndex(from, "@"); i > -1 && i+1 < len(from) {
+		return sanitizeDomain(from[i+1:])
+	}
+
+	return ""
+}
+
+func sanitizeDomain(d string) string {
+	d = strings.ToLower(strings.TrimSpace(d))
+	d = strings.Trim(d, "<>")
+	d = strings.TrimSuffix(d, ".")
+	if d == "" {
+		return ""
+	}
+
+	if u, err := url.Parse("//" + d); err == nil && u.Hostname() != "" {
+		return u.Hostname()
+	}
+
+	return d
 }

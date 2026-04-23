@@ -74,6 +74,7 @@ func (a *App) GetSettings(c echo.Context) error {
 
 	s.UploadS3AwsSecretAccessKey = strings.Repeat(pwdMask, utf8.RuneCountInString(s.UploadS3AwsSecretAccessKey))
 	s.SendgridKey = strings.Repeat(pwdMask, utf8.RuneCountInString(s.SendgridKey))
+	s.BounceAzure.SharedSecret = strings.Repeat(pwdMask, utf8.RuneCountInString(s.BounceAzure.SharedSecret))
 	s.BouncePostmark.Password = strings.Repeat(pwdMask, utf8.RuneCountInString(s.BouncePostmark.Password))
 	s.BounceForwardEmail.Key = strings.Repeat(pwdMask, utf8.RuneCountInString(s.BounceForwardEmail.Key))
 	s.BounceLettermint.Key = strings.Repeat(pwdMask, utf8.RuneCountInString(s.BounceLettermint.Key))
@@ -216,6 +217,9 @@ func (a *App) UpdateSettings(c echo.Context) error {
 	}
 	if set.SendgridKey == "" {
 		set.SendgridKey = cur.SendgridKey
+	}
+	if set.BounceAzure.SharedSecret == "" {
+		set.BounceAzure.SharedSecret = cur.BounceAzure.SharedSecret
 	}
 	if set.BouncePostmark.Password == "" {
 		set.BouncePostmark.Password = cur.BouncePostmark.Password

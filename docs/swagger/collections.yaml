@@ -2844,6 +2844,8 @@ components:
               type: string
             settings.bounces.enableSES:
               type: string
+            settings.bounces.enableAzure:
+              type: string
             settings.bounces.enableSendgrid:
               type: string
             settings.bounces.enableForwardemail:
@@ -2859,6 +2861,14 @@ components:
             settings.bounces.folderHelp:
               type: string
             settings.bounces.invalidScanInterval:
+              type: string
+            settings.bounces.azureSharedSecret:
+              type: string
+            settings.bounces.azureSharedSecretHelp:
+              type: string
+            settings.bounces.azureSharedSecretHeader:
+              type: string
+            settings.bounces.azureSharedSecretHeaderHelp:
               type: string
             settings.bounces.name:
               type: string
@@ -3553,6 +3563,12 @@ components:
           type: string
         bounce.ses_enabled:
           type: boolean
+        bounce.azure.enabled:
+          type: boolean
+        bounce.azure.shared_secret:
+          type: string
+        bounce.azure.shared_secret_header:
+          type: string
         bounce.sendgrid_enabled:
           type: boolean
         bounce.sendgrid_key:
