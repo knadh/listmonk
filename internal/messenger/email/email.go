@@ -4,10 +4,12 @@ import (
 	"crypto/tls"
 	"fmt"
 	"math/rand"
+	"net/mail"
 	"net/smtp"
 	"net/textproto"
 	"strings"
 
+	"github.com/knadh/listmonk/internal/utils"
 	"github.com/knadh/listmonk/models"
 	"github.com/knadh/smtppool/v2"
 )
@@ -18,6 +20,7 @@ const (
 	hdrReturnPath = "Return-Path"
 	hdrBcc        = "Bcc"
 	hdrCc         = "Cc"
+	hdrMessageID  = "Message-Id"
 )
 
 // Server represents an SMTP server's credentials.
@@ -154,6 +157,17 @@ func (e *Emailer) Push(m models.Message) error {
 	// Attach e-mail level headers.
 	for k, v := range m.Headers {
 		em.Headers.Set(k, v[0])
+	}
+
+	// Generate Message-Id based on the From address.
+	if em.Headers.Get(hdrMessageID) == "" {
+		d := "localhost"
+		if a, err := mail.ParseAddress(m.From); err == nil {
+			d = a.Address[strings.LastIndex(a.Address, "@")+1:]
+		}
+		if r, err := utils.GenerateRandomString(24); err == nil {
+			em.Headers.Set(hdrMessageID, fmt.Sprintf("<%s@%s>", r, d))
+		}
 	}
 
 	// If the `Return-Path` header is set, it should be set as the
