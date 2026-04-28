@@ -12,6 +12,7 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/jmoiron/sqlx/types"
 	"github.com/lib/pq"
+	"github.com/preslavrachev/gomjml/mjml"
 	null "gopkg.in/volatiletech/null.v6"
 )
 
@@ -29,6 +30,7 @@ const (
 	CampaignContentTypeMarkdown = "markdown"
 	CampaignContentTypePlain    = "plain"
 	CampaignContentTypeVisual   = "visual"
+	CampaignContentTypeMJML     = "mjml"
 )
 
 // Campaigns represents a slice of Campaigns.
@@ -156,8 +158,9 @@ func (c *Campaign) CompileTemplate(f template.FuncMap) error {
 
 	// Compile the base template.
 	body := c.TemplateBody
+	hasBaseTpl := body != ""
 
-	if body == "" || c.ContentType == CampaignContentTypeVisual {
+	if !hasBaseTpl || c.ContentType == CampaignContentTypeVisual {
 		body = `{{ template "content" . }}`
 	}
 
@@ -165,19 +168,36 @@ func (c *Campaign) CompileTemplate(f template.FuncMap) error {
 		body = r.regExp.ReplaceAllString(body, r.replace)
 	}
 
+	// For an MJML campaign, the entire body is one MJML document. Substitute
+	// the campaign body for the `{{ template "content" . }}` placeholder in
+	// the base, then run mjml.Render once.
+	if c.ContentType == CampaignContentTypeMJML {
+		b := regexpTplTag.ReplaceAllLiteralString(body, c.Body)
+		htmlBody, err := mjml.Render(b)
+		if err != nil {
+			return fmt.Errorf("error compiling MJML: %v", err)
+		}
+		body = htmlBody
+	}
+
 	baseTPL, err := template.New(BaseTpl).Funcs(f).Parse(body)
 	if err != nil {
 		return fmt.Errorf("error compiling base template: %v", err)
 	}
 
-	// If the format is markdown, convert Markdown to HTML.
-	if c.ContentType == CampaignContentTypeMarkdown {
+	// Pick the body to assign to the `content` sub-template.
+	switch c.ContentType {
+	case CampaignContentTypeMJML:
+		body = ""
+
+	case CampaignContentTypeMarkdown:
 		var b bytes.Buffer
 		if err := markdown.Convert([]byte(c.Body), &b); err != nil {
 			return err
 		}
 		body = b.String()
-	} else {
+
+	default:
 		body = c.Body
 	}
 
@@ -258,12 +278,19 @@ func (c *Campaign) ConvertContent(from, to string) (string, error) {
 	// If the format is markdown, convert Markdown to HTML.
 	var out string
 	if from == CampaignContentTypeMarkdown &&
-		(to == CampaignContentTypeHTML || to == CampaignContentTypeRichtext) {
+		(to == CampaignContentTypeHTML || to == CampaignContentTypeRichtext || to == CampaignContentTypeMJML) {
 		var b bytes.Buffer
 		if err := markdown.Convert([]byte(c.Body), &b); err != nil {
 			return out, err
 		}
 		out = b.String()
+	} else if from == CampaignContentTypeMJML &&
+		(to == CampaignContentTypeHTML || to == CampaignContentTypeRichtext) {
+		htmlBody, err := mjml.Render(c.Body)
+		if err != nil {
+			return out, fmt.Errorf("error converting MJML: %v", err)
+		}
+		out = htmlBody
 	} else {
 		return out, errors.New("unknown formats to convert")
 	}
