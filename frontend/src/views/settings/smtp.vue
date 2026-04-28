@@ -113,28 +113,21 @@
             <hr />
 
             <div class="columns">
-              <div class="column is-3">
+              <div class="column is-4">
                 <b-field :label="$t('settings.mailserver.maxConns')" label-position="on-border"
                   :message="$t('settings.mailserver.maxConnsHelp')">
                   <b-numberinput v-model="item.max_conns" name="max_conns" type="is-light" controls-position="compact"
                     placeholder="25" min="1" max="65535" />
                 </b-field>
               </div>
-              <div class="column is-3">
-                <b-field :label="$t('settings.smtp.retries')" label-position="on-border"
-                  :message="$t('settings.smtp.retriesHelp')">
-                  <b-numberinput v-model="item.max_msg_retries" name="max_msg_retries" type="is-light"
-                    controls-position="compact" placeholder="2" min="1" max="1000" />
-                </b-field>
-              </div>
-              <div class="column is-3">
+              <div class="column is-4">
                 <b-field :label="$t('settings.mailserver.idleTimeout')" label-position="on-border"
                   :message="$t('settings.mailserver.idleTimeoutHelp')">
                   <b-input v-model="item.idle_timeout" name="idle_timeout" placeholder="15s" :pattern="regDuration"
                     :maxlength="10" />
                 </b-field>
               </div>
-              <div class="column is-3">
+              <div class="column is-4">
                 <b-field :label="$t('settings.mailserver.waitTimeout')" label-position="on-border"
                   :message="$t('settings.mailserver.waitTimeoutHelp')">
                   <b-input v-model="item.wait_timeout" name="wait_timeout" placeholder="5s" :pattern="regDuration"
@@ -143,6 +136,24 @@
               </div>
             </div>
 
+            <div class="columns">
+              <div class="column is-4">
+                <b-field :label="$t('settings.smtp.retries')" label-position="on-border"
+                  :message="$t('settings.smtp.retriesHelp')">
+                  <b-numberinput v-model="item.max_msg_retries" name="max_msg_retries" type="is-light"
+                    controls-position="compact" placeholder="2" min="1" max="1000" />
+                </b-field>
+              </div>
+              <div class="column is-4">
+                <b-field :label="$t('settings.smtp.retryDelay')" label-position="on-border"
+                  :message="$t('settings.smtp.retryDelayHelp')">
+                  <b-input v-model="item.msg_retry_delay" name="msg_retry_delay" placeholder="0s" :pattern="regDuration"
+                    :maxlength="10" />
+                </b-field>
+              </div>
+            </div>
+
+            <hr />
             <div class="columns">
               <div class="column is-6">
                 <b-field :label="$t('globals.fields.name')" label-position="on-border"
@@ -279,6 +290,7 @@ export default Vue.extend({
         email_headers: [],
         max_conns: 10,
         max_msg_retries: 2,
+        msg_retry_delay: '0s',
         idle_timeout: '15s',
         wait_timeout: '5s',
         tls_type: 'STARTTLS',

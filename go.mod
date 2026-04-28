@@ -24,7 +24,7 @@ require (
 	github.com/knadh/koanf/providers/rawbytes v1.0.0
 	github.com/knadh/koanf/v2 v2.2.2
 	github.com/knadh/paginator v1.0.1
-	github.com/knadh/smtppool/v2 v2.0.2
+	github.com/knadh/smtppool/v2 v2.1.0
 	github.com/knadh/stuffbin v1.3.0
 	github.com/labstack/echo/v4 v4.13.4
 	github.com/lib/pq v1.10.9
@@ -69,3 +69,5 @@ require (
 	golang.org/x/sys v0.38.0 // indirect
 	golang.org/x/time v0.12.0 // indirect
 )
+
+replace github.com/knadh/smtppool/v2 => /home/kailash/code/go/my/knadh/smtp-pool
