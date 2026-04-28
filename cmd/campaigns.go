@@ -365,6 +365,17 @@ func (a *App) UpdateCampaignStatus(c echo.Context) error {
 		return err
 	}
 
+	// Lists are only required when starting or scheduling a campaign, not for drafts.
+	if req.Status == models.CampaignStatusRunning || req.Status == models.CampaignStatusScheduled {
+			camp, err := a.core.GetCampaign(id, "", "")
+			if err != nil {
+					return err
+			}
+			if len(camp.Lists) == 0 {
+					return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("campaigns.fieldInvalidListIDs"))
+			}
+	}
+
 	// Update the campaign status in the DB.
 	out, err := a.core.UpdateCampaignStatus(id, req.Status)
 	if err != nil {
@@ -698,9 +709,6 @@ func (a *App) validateCampaignFields(c campReq) (campReq, error) {
 		}
 	}
 
-	if len(c.ListIDs) == 0 {
-		return c, errors.New(a.i18n.T("campaigns.fieldInvalidListIDs"))
-	}
 
 	if !a.manager.HasMessenger(c.Messenger) {
 		// If it's a specific SMTP, but it's no longer available (removed/disabled), fall back to general email messenger.
