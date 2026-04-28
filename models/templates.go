@@ -3,7 +3,6 @@ package models
 import (
 	"fmt"
 	"html/template"
-	"strings"
 	txttpl "text/template"
 	"time"
 
@@ -45,7 +44,7 @@ func (t *Template) Compile(f template.FuncMap) error {
 	t.Tpl = tpl
 
 	// If the subject line has a template string, compile it.
-	if strings.Contains(t.Subject, "{{") {
+	if hasTplExpr(t.Subject) {
 		subj := t.Subject
 
 		subjTpl, err := txttpl.New(BaseTpl).Funcs(txttpl.FuncMap(f)).Parse(subj)
