@@ -680,7 +680,16 @@ func initSMTPMessengers() []manager.Messenger {
 			lo.Fatalf("error reading SMTP config: %v", err)
 		}
 
-		servers = append(servers, s)
+		// If the server is excluded from the default pool, it won't be part of the
+		// aggregated 'email' messenger. It must then have a Name to remain reachable
+		// as a standalone `email / $name` messenger.
+		if item.Bool("exclude_from_pool") {
+			if s.Name == "" {
+				lo.Printf("warning: SMTP server %s@%s is excluded from the default pool but has no name, it will be unreachable", item.String("username"), item.String("host"))
+			}
+		} else {
+			servers = append(servers, s)
+		}
 		lo.Printf("initialized email (SMTP) messenger: %s@%s", item.String("username"), item.String("host"))
 
 		// If the server has a name, initialize it as a standalone e-mail messenger
@@ -694,18 +703,30 @@ func initSMTPMessengers() []manager.Messenger {
 		}
 	}
 
-	// Initialize the 'email' messenger with all SMTP servers.
+	// If every server is excluded from the default pool, don't register the
+	// aggregated 'email' messenger at all (an empty pool would panic on Push).
+	// Sending without an explicit messenger will then fail cleanly via HasMessenger.
+	if len(servers) == 0 {
+		if len(out) == 0 {
+			lo.Println("warning: no SMTP servers available for the default 'email' messenger")
+		} else {
+			lo.Println("warning: all SMTP servers are excluded from the default pool; the 'email' messenger is unavailable, only named messengers can be used")
+		}
+		return out
+	}
+
+	// Initialize the 'email' messenger with the eligible SMTP servers.
 	msgr, err := email.New(email.MessengerName, servers...)
 	if err != nil {
 		lo.Fatalf("error initializing e-mail messenger: %v", err)
 	}
 
-	// If it's just one server, return the default "email" messenger.
-	if len(servers) == 1 {
+	// If only one eligible server and no named messengers, return just the default.
+	if len(servers) == 1 && len(out) == 0 {
 		return []manager.Messenger{msgr}
 	}
 
-	// If there are multiple servers, prepend the group "email" to be the first one.
+	// Prepend the group "email" so it appears first in the UI.
 	out = append([]manager.Messenger{msgr}, out...)
 
 	return out

@@ -442,6 +442,8 @@
     "settings.general.siteName": "Site name",
     "settings.invalidMessengerName": "Invalid messenger name.",
     "settings.mailserver.authProtocol": "Auth protocol",
+    "settings.mailserver.excludeFromPool": "Exclude from default pool",
+    "settings.mailserver.excludeFromPoolHelp": "When enabled, this server is not used by the default \"email\" messenger. It remains usable only via its named identifier (set a unique Name nearby).",
     "settings.mailserver.host": "Host",
     "settings.mailserver.hostHelp": "SMTP server's host address.",
     "settings.mailserver.idleTimeout": "Idle timeout",
