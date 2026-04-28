@@ -106,6 +106,42 @@
           </b-field>
         </div>
       </div>
+
+      <hr />
+      <h5 class="is-size-5">
+        {{ $t('subscribers.export') }}
+      </h5>
+      <br />
+      <div class="columns">
+        <div class="column is-4">
+          <b-field label="Data">
+            <b-select v-model="exportType" expanded>
+              <option value="views">
+                {{ $t('dashboard.campaignViews') }}
+              </option>
+              <option value="clicks">
+                {{ $t('dashboard.linkClicks') }}
+              </option>
+            </b-select>
+          </b-field>
+        </div>
+        <div class="column is-4">
+          <b-field :label="$t('analytics.fromDate')">
+            <b-datepicker v-model="exportDate" required expanded icon="calendar-clock"
+              :date-formatter="formatDateTime" />
+          </b-field>
+        </div>
+        <div class="column is-1" />
+        <div class="column">
+          <br />
+          <b-field>
+            <b-button expanded class="is-primary" tag="a" icon-left="download"
+              :href="exportURL">
+              {{ $t('subscribers.export') }}
+            </b-button>
+          </b-field>
+        </div>
+      </div>
     </div><!-- analytics -->
 
     <form @submit.prevent="onUpdateDBSettings" class="box mt-6">
@@ -160,6 +196,8 @@ export default Vue.extend({
       subscriptionType: 'optin',
       analyticsDate: dayjs().subtract(7, 'day').toDate(),
       subscriptionDate: dayjs().subtract(7, 'day').toDate(),
+      exportType: 'views',
+      exportDate: dayjs().subtract(30, 'day').toDate(),
       dbSettings: {
         vacuum: false,
         vacuum_cron_interval: '0 2 * * *',
@@ -234,6 +272,11 @@ export default Vue.extend({
 
   computed: {
     ...mapState(['loading']),
+
+    exportURL() {
+      const since = encodeURIComponent(dayjs(this.exportDate).toISOString());
+      return `/api/maintenance/analytics/${this.exportType}/export?since=${since}`;
+    },
   },
 
 });

@@ -1,8 +1,10 @@
 package main
 
 import (
+	"encoding/csv"
 	"log"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/jmoiron/sqlx"
@@ -82,6 +84,79 @@ func (a *App) GCCampaignAnalytics(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, okResp{true})
+}
+
+// ExportCampaignAnalytics streams campaign analytics (views or link clicks) as a CSV file.
+func (a *App) ExportCampaignAnalytics(c echo.Context) error {
+	since, err := time.Parse(time.RFC3339, c.QueryParam("since"))
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("globals.messages.invalidData"))
+	}
+
+	typ := c.Param("type")
+	if typ != "views" && typ != "clicks" {
+		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("globals.messages.invalidData"))
+	}
+
+	var (
+		hdr = c.Response().Header()
+		wr  = csv.NewWriter(c.Response())
+	)
+	hdr.Set(echo.HeaderContentType, "text/csv")
+	hdr.Set(echo.HeaderContentDisposition, "attachment; filename=campaign_"+typ+".csv")
+	hdr.Set("Cache-Control", "no-cache")
+
+	switch typ {
+	case "views":
+		wr.Write([]string{"campaign_id", "campaign_uuid", "campaign_name", "subscriber_id", "subscriber_uuid", "email", "subscriber_name", "created_at"})
+		next := a.core.ExportCampaignViews(since, a.cfg.DBBatchSize)
+		for {
+			rows, err := next()
+			if err != nil {
+				return err
+			}
+			if len(rows) == 0 {
+				break
+			}
+			for _, r := range rows {
+				if err := wr.Write([]string{
+					strconv.Itoa(r.CampaignID), r.CampaignUUID, r.CampaignName,
+					strconv.Itoa(r.SubscriberID), r.SubscriberUUID, r.Email, r.SubscriberName,
+					r.CreatedAt.Format(time.RFC3339),
+				}); err != nil {
+					a.log.Printf("error streaming CSV: %v", err)
+					return nil
+				}
+			}
+			wr.Flush()
+		}
+
+	case "clicks":
+		wr.Write([]string{"campaign_id", "campaign_uuid", "campaign_name", "subscriber_id", "subscriber_uuid", "email", "subscriber_name", "url", "created_at"})
+		next := a.core.ExportCampaignLinkClicks(since, a.cfg.DBBatchSize)
+		for {
+			rows, err := next()
+			if err != nil {
+				return err
+			}
+			if len(rows) == 0 {
+				break
+			}
+			for _, r := range rows {
+				if err := wr.Write([]string{
+					strconv.Itoa(r.CampaignID), r.CampaignUUID, r.CampaignName,
+					strconv.Itoa(r.SubscriberID), r.SubscriberUUID, r.Email, r.SubscriberName, r.URL,
+					r.CreatedAt.Format(time.RFC3339),
+				}); err != nil {
+					a.log.Printf("error streaming CSV: %v", err)
+					return nil
+				}
+			}
+			wr.Flush()
+		}
+	}
+
+	return nil
 }
 
 // RunDBVacuum runs a full VACUUM on the PostgreSQL database.
