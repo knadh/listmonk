@@ -79,3 +79,26 @@ type CampaignAnalyticsLink struct {
 	URL   string `db:"url" json:"url"`
 	Count int    `db:"count" json:"count"`
 }
+
+type CampaignViewExport struct {
+	CampaignID     int       `db:"campaign_id"`
+	CampaignUUID   string    `db:"campaign_uuid"`
+	CampaignName   string    `db:"campaign_name"`
+	SubscriberID   int       `db:"subscriber_id"`
+	SubscriberUUID string    `db:"subscriber_uuid"`
+	Email          string    `db:"email"`
+	SubscriberName string    `db:"subscriber_name"`
+	CreatedAt      time.Time `db:"created_at"`
+}
+
+type CampaignClickExport struct {
+	CampaignID     int       `db:"campaign_id"`
+	CampaignUUID   string    `db:"campaign_uuid"`
+	CampaignName   string    `db:"campaign_name"`
+	SubscriberID   int       `db:"subscriber_id"`
+	SubscriberUUID string    `db:"subscriber_uuid"`
+	Email          string    `db:"email"`
+	SubscriberName string    `db:"subscriber_name"`
+	URL            string    `db:"url"`
+	CreatedAt      time.Time `db:"created_at"`
+}

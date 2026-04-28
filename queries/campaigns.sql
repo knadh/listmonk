@@ -275,6 +275,37 @@ SELECT COUNT(%s) AS "count", url
     WHERE campaign_id=ANY($1) AND link_clicks.created_at >= $2 AND link_clicks.created_at <= $3
     GROUP BY links.url ORDER BY "count" DESC LIMIT 50;
 
+-- name: export-campaign-views
+SELECT campaign_views.campaign_id,
+       COALESCE(campaigns.uuid::TEXT, '') AS campaign_uuid,
+       COALESCE(campaigns.name, '') AS campaign_name,
+       COALESCE(campaign_views.subscriber_id, 0) AS subscriber_id,
+       COALESCE(subscribers.uuid::TEXT, '') AS subscriber_uuid,
+       COALESCE(subscribers.email, '') AS email,
+       COALESCE(subscribers.name, '') AS subscriber_name,
+       campaign_views.created_at
+    FROM campaign_views
+    LEFT JOIN campaigns ON (campaigns.id = campaign_views.campaign_id)
+    LEFT JOIN subscribers ON (subscribers.id = campaign_views.subscriber_id)
+    WHERE campaign_views.created_at >= $1
+    ORDER BY campaign_views.id ASC LIMIT $2 OFFSET $3;
+
+-- name: export-campaign-link-clicks
+SELECT link_clicks.campaign_id,
+       COALESCE(campaigns.uuid::TEXT, '') AS campaign_uuid,
+       COALESCE(campaigns.name, '') AS campaign_name,
+       COALESCE(link_clicks.subscriber_id, 0) AS subscriber_id,
+       COALESCE(subscribers.uuid::TEXT, '') AS subscriber_uuid,
+       COALESCE(subscribers.email, '') AS email,
+       COALESCE(subscribers.name, '') AS subscriber_name,
+       links.url, link_clicks.created_at
+    FROM link_clicks
+    LEFT JOIN campaigns ON (campaigns.id = link_clicks.campaign_id)
+    LEFT JOIN links ON (links.id = link_clicks.link_id)
+    LEFT JOIN subscribers ON (subscribers.id = link_clicks.subscriber_id)
+    WHERE link_clicks.created_at >= $1
+    ORDER BY link_clicks.id ASC LIMIT $2 OFFSET $3;
+
 -- name: get-running-campaign
 -- Returns the metadata for a running campaign that is required by next-campaign-subscribers to retrieve
 -- a batch of campaign subscribers for processing.

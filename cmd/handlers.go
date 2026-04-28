@@ -191,6 +191,7 @@ func initHTTPHandlers(e *echo.Echo, a *App) {
 
 		g.DELETE("/api/maintenance/subscribers/:type", pm(a.GCSubscribers, "settings:maintain"))
 		g.DELETE("/api/maintenance/analytics/:type", pm(a.GCCampaignAnalytics, "settings:maintain"))
+		g.GET("/api/maintenance/analytics/:type/export", pm(a.ExportCampaignAnalytics, "settings:maintain"))
 		g.DELETE("/api/maintenance/subscriptions/unconfirmed", pm(a.GCSubscriptions, "settings:maintain"))
 
 		g.POST("/api/tx", pm(a.SendTxMessage, "tx:send"))
