@@ -136,6 +136,17 @@ export default {
   },
 
   methods: {
+    syncVisualSnapshot(value) {
+      if (value.contentType === 'visual') {
+        this.visualSnapshotBody = value.body || '';
+        this.visualSnapshotSource = value.bodySource;
+        return;
+      }
+
+      this.visualSnapshotBody = null;
+      this.visualSnapshotSource = null;
+    },
+
     onContentTypeChange(to, from) {
       if (!this.self.body.trim()) {
         this.convertContentType(to, from);
@@ -351,11 +362,7 @@ export default {
     // Set initial content type for the selector.
     this.contentTypeSel = this.value.contentType;
     this.templateId = this.value.templateId;
-
-    if (this.value.contentType === 'visual') {
-      this.visualSnapshotBody = this.value.body || '';
-      this.visualSnapshotSource = this.value.bodySource;
-    }
+    this.syncVisualSnapshot(this.value);
 
     window.addEventListener('keydown', this.onKeyboardShortcut);
 
@@ -392,6 +399,12 @@ export default {
   },
 
   watch: {
+    value(to) {
+      this.contentTypeSel = to.contentType;
+      this.templateId = to.templateId;
+      this.syncVisualSnapshot(to);
+    },
+
     validTemplates() {
       // When the filtered list of validTemplates changes (visual vs. regular),
       // select the appropriate 'default' in the template select list.

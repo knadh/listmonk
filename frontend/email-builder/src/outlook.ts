@@ -141,7 +141,13 @@ function escapeTemplateString(value: string) {
 }
 
 function makeSafeTemplate(raw: string) {
-  return `{{ Safe "${escapeTemplateString(raw)}" }}`;
+  // Encode angle brackets so DOMParser does not consume Outlook conditional comments
+  // before the Go template expression is evaluated.
+  const escaped = escapeTemplateString(raw)
+    .replace(/</g, '\\x3c')
+    .replace(/>/g, '\\x3e');
+
+  return `{{ Safe "${escaped}" }}`;
 }
 
 function getWrapperOptions(style: string | null) {
@@ -155,7 +161,9 @@ function getWrapperOptions(style: string | null) {
 }
 
 function buildPresentationTable(contents: string, width: string = '100%') {
-  return `<table role="presentation" width="${width}" cellpadding="0" cellspacing="0" border="0" style="${PRESENTATION_TABLE_STYLE}">${contents}</table>`;
+  const widthAttr = width && width !== 'auto' ? ` width="${escapeAttribute(width)}"` : '';
+
+  return `<table role="presentation"${widthAttr} cellpadding="0" cellspacing="0" border="0" style="${PRESENTATION_TABLE_STYLE}">${contents}</table>`;
 }
 
 function hasSingleChildMatching(div: HTMLDivElement, predicate: (child: Element) => boolean) {
@@ -164,10 +172,7 @@ function hasSingleChildMatching(div: HTMLDivElement, predicate: (child: Element)
 }
 
 function addTableDefaults(doc: Document) {
-  doc.querySelectorAll('table').forEach((table) => {
-    if (!table.getAttribute('role')) {
-      table.setAttribute('role', 'presentation');
-    }
+  doc.querySelectorAll('table[role="presentation"]').forEach((table) => {
     if (!table.getAttribute('cellpadding')) {
       table.setAttribute('cellpadding', '0');
     }
@@ -189,6 +194,25 @@ function addTableDefaults(doc: Document) {
   });
 }
 
+function isStandaloneImage(img: HTMLImageElement) {
+  const parent = img.parentElement;
+  if (!parent) {
+    return false;
+  }
+
+  if (parent.tagName === 'DIV') {
+    return hasSingleChildMatching(parent as HTMLDivElement, (child) => child.tagName === 'IMG');
+  }
+
+  if (parent.tagName === 'A' && parent.children.length === 1) {
+    const grandparent = parent.parentElement;
+    return grandparent?.tagName === 'DIV'
+      && hasSingleChildMatching(grandparent as HTMLDivElement, (child) => child.tagName === 'A');
+  }
+
+  return false;
+}
+
 function hardenImages(doc: Document) {
   doc.querySelectorAll('img').forEach((img) => {
     img.setAttribute('border', '0');
@@ -198,18 +222,24 @@ function hardenImages(doc: Document) {
       img.setAttribute('width', width);
     }
 
-    img.setAttribute('style', setStyleValues(img.getAttribute('style'), [
-      ['display', 'block'],
+    const standaloneImage = isStandaloneImage(img);
+    const declarations: Array<[string, string | null]> = [
       ['border', '0'],
       ['outline', 'none'],
       ['text-decoration', 'none'],
       ['height', 'auto'],
       ['-ms-interpolation-mode', 'bicubic'],
-      ['vertical-align', null],
-    ]));
+    ];
+
+    if (standaloneImage) {
+      declarations.unshift(['display', 'block']);
+      declarations.push(['vertical-align', null]);
+    }
+
+    img.setAttribute('style', setStyleValues(img.getAttribute('style'), declarations));
 
     const parent = img.parentElement;
-    if (parent?.tagName === 'A') {
+    if (standaloneImage && parent?.tagName === 'A') {
       parent.setAttribute('style', setStyleValues(parent.getAttribute('style'), [
         ['display', 'inline-block'],
         ['border', '0'],
@@ -306,7 +336,7 @@ function buildBulletproofButton(anchor: HTMLAnchorElement, wrapperStyle: string)
   const targetAttr = target ? ` target="${escapeAttribute(target)}"` : '';
 
   if (fullWidth) {
-    const anchorStyle = appendMissingStyles(anchor.getAttribute('style'), [
+    const anchorStyle = setStyleValues(anchor.getAttribute('style'), [
       ['display', 'block'],
       ['text-align', 'center'],
       ['border', '1px solid ' + buttonColor],
@@ -326,12 +356,14 @@ function buildBulletproofButton(anchor: HTMLAnchorElement, wrapperStyle: string)
   const estimatedHeight = Math.max(lineHeight + paddingValues.top + paddingValues.bottom, 32);
   const arcsize = Math.max(0, Math.min(50, Math.round((borderRadius / estimatedHeight) * 100)));
   const cleanAnchorStyle = anchor.getAttribute('style') || '';
-  const vml = makeSafeTemplate(`<!--[if mso]><v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="${escapeAttribute(href)}" style="height:${estimatedHeight}px;v-text-anchor:middle;width:${estimatedWidth}px;" arcsize="${arcsize}%" strokecolor="${escapeAttribute(buttonColor)}" fillcolor="${escapeAttribute(buttonColor)}"><w:anchorlock/><center style="color:${escapeAttribute(textColor)};font-family:${escapeAttribute(fontFamily)};font-size:${fontSize}px;font-weight:${escapeAttribute(fontWeight)};">${escapeHtml(text)}</center></v:roundrect><![endif]-->`);
+  const msoStart = makeSafeTemplate('<!--[if mso]>');
+  const msoEnd = makeSafeTemplate('<![endif]-->');
+  const vml = `<v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="${escapeAttribute(href)}" style="height:${estimatedHeight}px;v-text-anchor:middle;width:${estimatedWidth}px;" arcsize="${arcsize}%" strokecolor="${escapeAttribute(buttonColor)}" fillcolor="${escapeAttribute(buttonColor)}"><w:anchorlock/><center style="color:${escapeAttribute(textColor)};font-family:${escapeAttribute(fontFamily)};font-size:${fontSize}px;font-weight:${escapeAttribute(fontWeight)};">${escapeHtml(text)}</center></v:roundrect>`;
   const nonMsoStart = makeSafeTemplate('<!--[if !mso]><!-->');
   const nonMsoEnd = makeSafeTemplate('<!--<![endif]-->');
 
   return buildPresentationTable(
-    `<tbody><tr><td align="${escapeAttribute(align)}" style="${escapeAttribute(wrapperStyle)}">${vml}${nonMsoStart}<a href="${escapeAttribute(href)}"${targetAttr} style="${escapeAttribute(cleanAnchorStyle)}">${escapeHtml(text)}</a>${nonMsoEnd}</td></tr></tbody>`
+    `<tbody><tr><td align="${escapeAttribute(align)}" style="${escapeAttribute(wrapperStyle)}">${msoStart}${vml}${msoEnd}${nonMsoStart}<a href="${escapeAttribute(href)}"${targetAttr} style="${escapeAttribute(cleanAnchorStyle)}">${escapeHtml(text)}</a>${nonMsoEnd}</td></tr></tbody>`
   );
 }
 
