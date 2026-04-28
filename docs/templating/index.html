@@ -1701,7 +1701,14 @@
 <h2 id="transactional-templates">Transactional templates<a class="headerlink" href="#transactional-templates" title="Permanent link">&para;</a></h2>
 <p>Transactional templates are used for sending arbitrary transactional messages using the transactional API. These template are created and managed on the UI under <code>Campaigns -&gt; Templates</code>.</p>
 <h2 id="template-expressions">Template expressions<a class="headerlink" href="#template-expressions" title="Permanent link">&para;</a></h2>
-<p>There are several template functions and expressions that can be used in campaign and template bodies. They are written in the form <code>{{ .Subscriber.Email }}</code>, that is, an expression between double curly braces <code>{{</code> and <code>}}</code>.</p>
+<p>There are several template functions and expressions that can be used in campaign and template bodies. They are written in the form <code>{{ .Subscriber.Email }}</code>, that is, an expression between double curly braces <code>{{</code> and <code>}}</code>. Template expressions are supported in:</p>
+<ul>
+<li>Campaign body and alt body</li>
+<li>Campaign subject</li>
+<li>Campaign headers</li>
+<li>Transactional message body and alt body</li>
+<li>Transactional message subject</li>
+</ul>
 <h3 id="subscriber-fields">Subscriber fields<a class="headerlink" href="#subscriber-fields" title="Permanent link">&para;</a></h3>
 <table>
 <thead>
