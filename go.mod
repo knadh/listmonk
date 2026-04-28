@@ -69,5 +69,3 @@ require (
 	golang.org/x/sys v0.38.0 // indirect
 	golang.org/x/time v0.12.0 // indirect
 )
-
-replace github.com/knadh/smtppool/v2 => /home/kailash/code/go/my/knadh/smtp-pool
