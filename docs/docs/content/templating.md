@@ -15,7 +15,13 @@ Transactional templates are used for sending arbitrary transactional messages us
 
 ## Template expressions
 
-There are several template functions and expressions that can be used in campaign and template bodies. They are written in the form `{{ .Subscriber.Email }}`, that is, an expression between double curly braces `{{` and `}}`.
+There are several template functions and expressions that can be used in campaign and template bodies. They are written in the form `{{ .Subscriber.Email }}`, that is, an expression between double curly braces `{{` and `}}`. Template expressions are supported in:
+
+- Campaign body and alt body
+- Campaign subject
+- Campaign headers
+- Transactional message body and alt body
+- Transactional message subject
 
 ### Subscriber fields
 
@@ -52,6 +58,7 @@ There are several template functions and expressions that can be used in campaig
 | `{{ MessageURL }}`                   | URL to view the hosted version of an e-mail message.                                                                                                  |
 | `{{ OptinURL }}`                     | URL to the double opt-in confirmation page.                                                                                                           |
 | `{{ Safe "<!-- comment -->" }}`      | Add any HTML code as it is.                                                                                                                           |
+
 
 ### Sprig functions
 listmonk integrates the Sprig library that offers 100+ utility functions for working with strings, numbers, dates etc. that can be used in templating. Refer to the [Sprig documentation](https://masterminds.github.io/sprig/) for the full list of functions.
