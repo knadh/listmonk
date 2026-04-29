@@ -151,22 +151,21 @@ func (a *App) UpdateSettings(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("settings.errorNoSMTP"))
 	}
 
-	// Normalize from_addresses (duplicates across servers are allowed for round-robin).
+	// Normalize `from_addresses``. Values are either an e-mail address
+	// or an FQDN. Duplicate domains across server blocks are allowed
+	// (they get round-robin'd while sending).
 	for i, s := range set.SMTP {
 		if !s.Enabled {
 			continue
 		}
 
-		// Normalize from addresses.
-		normalized := make([]string, 0, len(s.FromAddresses))
+		addrs := make([]string, 0, len(s.FromAddresses))
 		for _, addr := range s.FromAddresses {
-			addr = strings.ToLower(strings.TrimSpace(addr))
-			if addr == "" {
-				continue
+			if k := email.NormalizeAddr(addr); k != "" {
+				addrs = append(addrs, k)
 			}
-			normalized = append(normalized, addr)
 		}
-		set.SMTP[i].FromAddresses = normalized
+		set.SMTP[i].FromAddresses = addrs
 	}
 
 	// Always remove the trailing slash from the app root URL.

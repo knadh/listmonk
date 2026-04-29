@@ -164,8 +164,8 @@
               <div class="column is-6">
                 <b-field :label="$t('settings.smtp.fromAddresses')" label-position="on-border"
                   :message="$t('settings.smtp.fromAddressesHelp')">
-                  <b-input v-model="item.strFromAddresses" name="from_addresses"
-                    placeholder="@example.com, user@domain.com, anothersite.com" />
+                  <b-taginput v-model="item.from_addresses" name="from_addresses" ellipsis icon="tag-outline"
+                    :before-adding="validateFromAddress" placeholder="user@example.com, anothersite.com" />
                 </b-field>
               </div>
             </div>
@@ -369,6 +369,11 @@ export default Vue.extend({
       }
 
       return true;
+    },
+
+    validateFromAddress(v) {
+      // Accept an e-mail address (user@example.com) or a domain (example.com).
+      return /^[^\s@]+(\.[^\s@]+)+$|^[^\s@]+@[^\s@]+(\.[^\s@]+)+$/.test(v);
     },
 
     fillSettings(n, key) {

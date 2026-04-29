@@ -45,9 +45,17 @@ type Server struct {
 
 // Emailer is the SMTP e-mail messenger.
 type Emailer struct {
-	servers        []*Server
-	name           string
-	fromAddrToSrv  map[string][]*Server
+	name string
+
+	// pools holds groups of SMTP servers indexed by a key ('from'-address
+	// or a domain set per SMTPs server). An empty key holds all servers
+	// and is the fallback round-robin when there's no match (old behaviour).
+	pools map[string][]*Server
+}
+
+// NormalizeAddr normalizes an e-mail address (strip spaces, lowercase).
+func NormalizeAddr(s string) string {
+	return strings.ToLower(strings.TrimSpace(s))
 }
 
 // New returns an SMTP e-mail Messenger backend with the given SMTP servers.
@@ -55,9 +63,8 @@ type Emailer struct {
 // that are used as a round-robin pool, or a single server.
 func New(name string, servers ...Server) (*Emailer, error) {
 	e := &Emailer{
-		servers:       make([]*Server, 0, len(servers)),
-		name:          name,
-		fromAddrToSrv: make(map[string][]*Server),
+		name:  name,
+		pools: make(map[string][]*Server),
 	}
 
 	for _, srv := range servers {
@@ -102,22 +109,14 @@ func New(name string, servers ...Server) (*Emailer, error) {
 		}
 
 		s.pool = pool
-		e.servers = append(e.servers, &s)
 
-		// Map from addresses to this server.
-		// Track which keys are already mapped to this server to avoid duplicates.
-		seenForServer := make(map[string]bool)
+		// Add to the global list (empty key) and to each from-address
+		// bucket. Duplicate keys across servers are fine and get round-robin'd.
+		e.pools[""] = append(e.pools[""], &s)
 		for _, addr := range s.FromAddresses {
-			key := strings.ToLower(strings.TrimSpace(addr))
-			// Skip empty keys and duplicates for this server.
-			if key == "" {
-				continue
+			if key := NormalizeAddr(addr); key != "" {
+				e.pools[key] = append(e.pools[key], &s)
 			}
-			if seenForServer[key] {
-				continue
-			}
-			seenForServer[key] = true
-			e.fromAddrToSrv[key] = append(e.fromAddrToSrv[key], &s)
 		}
 	}
 
@@ -131,59 +130,15 @@ func (e *Emailer) Name() string {
 
 // Push pushes a message to the server.
 func (e *Emailer) Push(m models.Message) error {
-	// Check if there's a specific SMTP server mapped to the from address.
-	var (
-		ln  = len(e.servers)
-		srv *Server
-	)
-
-	// Extract the email address from the From field using RFC 5322 parsing.
-	fromAddr := m.From
-	if addr, err := mail.ParseAddress(m.From); err == nil {
-		fromAddr = addr.Address
-	}
-	// If parsing fails, fall back to the raw From value (for backward compatibility).
-	fromAddr = strings.ToLower(strings.TrimSpace(fromAddr))
-
-	// Check if there's a server mapped to this from address.
-	// First try exact match, then try domain match.
-	var matchedServers []*Server
-	if servers, ok := e.fromAddrToSrv[fromAddr]; ok {
-		matchedServers = servers
-	} else {
-		// Extract domain from email address for domain matching.
-		if atIdx := strings.Index(fromAddr, "@"); atIdx >= 0 {
-			domain := fromAddr[atIdx:] // includes @ symbol
-			if servers, ok := e.fromAddrToSrv[domain]; ok {
-				matchedServers = servers
-			} else {
-				// Try without @ symbol.
-				domainOnly := fromAddr[atIdx+1:]
-				if servers, ok := e.fromAddrToSrv[domainOnly]; ok {
-					matchedServers = servers
-				}
-			}
+	// Pick the from-address-routed pool if there is one, else default
+	// to the full pool (empty key) for roundrobin.
+	pool := e.pools[""]
+	if len(e.pools) > 1 {
+		if srvs := e.getPool(m.From); srvs != nil {
+			pool = srvs
 		}
 	}
-
-	// If we found matching servers, pick one randomly (round-robin).
-	if len(matchedServers) > 0 {
-		if len(matchedServers) > 1 {
-			srv = matchedServers[rand.Intn(len(matchedServers))]
-		} else {
-			srv = matchedServers[0]
-		}
-	}
-
-	// If no match found, fall back to load balancing.
-	if srv == nil {
-		if ln > 1 {
-			// If there are more than one SMTP servers, send to a random one from the list.
-			srv = e.servers[rand.Intn(ln)]
-		} else {
-			srv = e.servers[0]
-		}
-	}
+	srv := pool[rand.Intn(len(pool))]
 
 	// Are there attachments?
 	var files []smtppool.Attachment
@@ -274,8 +229,28 @@ func (e *Emailer) Flush() error {
 
 // Close closes the SMTP pools.
 func (e *Emailer) Close() error {
-	for _, s := range e.servers {
+	for _, s := range e.pools[""] {
 		s.pool.Close()
 	}
+	return nil
+}
+
+// getPool returns the pool of servers configured to handle the given From
+// header, matched by full e-mail and then by domain.
+// Returns nil if no mapping matches.
+func (e *Emailer) getPool(from string) []*Server {
+	addr := utils.ParseEmailAddress(from)
+	if addr == "" {
+		return nil
+	}
+
+	if srvs, ok := e.pools[addr]; ok {
+		return srvs
+	}
+
+	if _, after, ok := strings.Cut(addr, "@"); ok {
+		return e.pools[after]
+	}
+
 	return nil
 }

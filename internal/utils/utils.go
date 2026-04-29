@@ -2,23 +2,48 @@ package utils
 
 import (
 	"crypto/rand"
+	"errors"
 	"net/mail"
 	"net/url"
 	"path"
 	"strings"
 )
 
-// ValidateEmail validates whether the given string is a correctly formed e-mail address.
-func ValidateEmail(email string) bool {
-	// Since `mail.ParseAddress` parses an email address which can also contain an optional name component,
-	// here we check if incoming email string is same as the parsed email.Address. So this eliminates
-	// any valid email address with name and also valid address with empty name like `<abc@example.com>`.
-	em, err := mail.ParseAddress(email)
-	if err != nil || em.Address != email {
-		return false
-	}
+// ErrInvalidEmail is returned by SanitizeEmail for malformed input.
+var ErrInvalidEmail = errors.New("invalid e-mail address")
 
-	return true
+// ValidateEmail reports whether s is a correctly formed bare e-mail address
+// (no display name component).
+func ValidateEmail(s string) bool {
+	_, err := SanitizeEmail(s)
+	return err == nil
+}
+
+// SanitizeEmail trims, lowercases, and validates s as a bare e-mail address
+// (no display name) and returns the canonical form. Returns ErrInvalidEmail
+// for anything `mail.ParseAddress` rejects or for input with a display name.
+func SanitizeEmail(s string) (string, error) {
+	s = strings.ToLower(strings.TrimSpace(s))
+	em, err := mail.ParseAddress(s)
+	if err != nil || em.Address != s {
+		return "", ErrInvalidEmail
+	}
+	return em.Address, nil
+}
+
+// ParseEmailAddress extracts the lowercased bare address from an RFC 5322
+// "From"-style header value, accepting both bare addresses ("a@b.com") and
+// the display-name form ("Name <a@b.com>"). Returns "" if unparseable.
+func ParseEmailAddress(s string) string {
+	s = strings.TrimSpace(s)
+	if s == "" {
+		return ""
+	}
+	em, err := mail.ParseAddress(s)
+	if err != nil {
+		return ""
+	}
+	return strings.ToLower(em.Address)
 }
 
 // GenerateRandomString generates a cryptographically random, alphanumeric string of length n.
