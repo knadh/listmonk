@@ -16,7 +16,6 @@ import (
 	"fmt"
 	"io"
 	"log"
-	"net/mail"
 	"os"
 	"regexp"
 	"strings"
@@ -24,6 +23,7 @@ import (
 
 	"github.com/gofrs/uuid/v5"
 	"github.com/knadh/listmonk/internal/i18n"
+	"github.com/knadh/listmonk/internal/utils"
 	"github.com/knadh/listmonk/models"
 	"github.com/lib/pq"
 	"golang.org/x/text/cases"
@@ -601,25 +601,21 @@ func (im *Importer) Stop() {
 	}
 }
 
-// SanitizeEmail validates and sanitizes an e-mail string and returns the lowercased,
-// e-mail component of an e-mail string.
+// SanitizeEmail validates and sanitizes an e-mail string and returns the
+// canonical (lowercased, trimmed) address. Domain allowlist/blocklist rules
+// are enforced on top of the bare-address validation in utils.SanitizeEmail.
 func (im *Importer) SanitizeEmail(email string) (string, error) {
-	email = strings.ToLower(strings.TrimSpace(email))
-
-	// Since `mail.ParseAddress` parses an email address which can also contain optional name component
-	// here we check if incoming email string is same as the parsed email.Address. So this eliminates
-	// any valid email address with name and also valid address with empty name like `<abc@example.com>`.
-	em, err := mail.ParseAddress(email)
-	if err != nil || em.Address != email {
+	addr, err := utils.SanitizeEmail(email)
+	if err != nil {
 		return "", errors.New(im.i18n.T("subscribers.invalidEmail"))
 	}
 
 	// Check if the e-mail's domain is blocklisted. The e-mail domain and blocklist config
 	// are always lowercase.
 	if im.hasAllowlist || im.hasBlocklist {
-		d := strings.Split(em.Address, "@")
+		d := strings.Split(addr, "@")
 		if len(d) != 2 {
-			return em.Address, nil
+			return addr, nil
 		}
 
 		domain := d[1]
@@ -636,7 +632,7 @@ func (im *Importer) SanitizeEmail(email string) (string, error) {
 		}
 	}
 
-	return em.Address, nil
+	return addr, nil
 }
 
 // ValidateFields validates incoming subscriber field values and returns sanitized fields.
