@@ -43,8 +43,9 @@ export default {
       this.changeTimer = window.setTimeout(() => {
         const iframe = this.$refs.visualEditor;
         const renderHtml = iframe.contentWindow.EmailBuilder?.renderHtmlWithMeta;
+        const outlook = Boolean(data?.root?.data?.outlook);
         const processedBody = typeof renderHtml === 'function'
-          ? renderHtml(data, { rootBlockId: 'root', outlook: true })
+          ? renderHtml(data, { rootBlockId: 'root', outlook })
           : body;
         const tpl = processedBody.replace(/\{\{[^}]*\}\}/g, (match) => match.replace(/&quot;/g, '"'));
         this.$emit('change', { source: JSON.stringify(data), body: tpl });

@@ -25,6 +25,7 @@ export function renderHtmlWithMeta(
 ): string {
   const html = renderToStaticMarkup(document, options);
   const output = options.outlook ? postProcessForOutlook(html) : html;
+  const head = options.outlook ? `${VIEWPORT_META}${MSO_DOCUMENT_SETTINGS}` : VIEWPORT_META;
 
-  return injectHeadContents(output, `${VIEWPORT_META}${MSO_DOCUMENT_SETTINGS}`);
+  return injectHeadContents(output, head);
 }
