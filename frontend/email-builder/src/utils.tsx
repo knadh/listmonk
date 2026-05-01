@@ -19,13 +19,47 @@ function injectHeadContents(html: string, contents: string) {
   return `<head>${contents}</head>${html}`;
 }
 
+function collectImageEmbeds(document: TEditorConfiguration): Array<{ url: string; uuid: string }> {
+  const embeds: Array<{ url: string; uuid: string }> = [];
+
+  for (const block of Object.values(document)) {
+    if (!block || (block as { type?: string }).type !== 'Image') {
+      continue;
+    }
+
+    const props = ((block as { data?: { props?: { url?: string; embed?: boolean; uuid?: string } } }).data || {}).props || {};
+    if (props.embed && props.uuid && props.url) {
+      embeds.push({ url: props.url, uuid: props.uuid });
+    }
+  }
+
+  return embeds;
+}
+
+function applyImageEmbeds(html: string, embeds: Array<{ url: string; uuid: string }>): string {
+  let output = html;
+
+  for (const { url, uuid } of embeds) {
+    const re = new RegExp(`(<img\\b(?:(?!data-embed=)[^>])*?\\bsrc="${escapeRegExp(url)}")([^>]*>)`);
+    output = output.replace(re, `$1 data-embed="${uuid}"$2`);
+  }
+
+  return output;
+}
+
 export function renderHtmlWithMeta(
   document: TEditorConfiguration,
   options: { rootBlockId: string; outlook?: boolean }
 ): string {
+  const embeds = collectImageEmbeds(document);
   const html = renderToStaticMarkup(document, options);
-  const output = options.outlook ? postProcessForOutlook(html) : html;
+  const rendered = options.outlook ? postProcessForOutlook(html) : html;
+  const output = applyImageEmbeds(rendered, embeds);
   const head = options.outlook ? `${VIEWPORT_META}${MSO_DOCUMENT_SETTINGS}` : VIEWPORT_META;
 
   return injectHeadContents(output, head);
+}
+
+function escapeRegExp(s: string): string {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }

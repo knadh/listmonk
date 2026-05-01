@@ -1,18 +1,34 @@
-import React, { useState } from 'react';
-import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import {
   VerticalAlignBottomOutlined,
   VerticalAlignCenterOutlined,
   VerticalAlignTopOutlined,
 } from '@mui/icons-material';
-import { Stack, ToggleButton } from '@mui/material';
+import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import { Checkbox, FormControlLabel, Stack, ToggleButton } from '@mui/material';
 import { ImageProps, ImagePropsSchema } from '@usewaypoint/block-image';
+import React, { useEffect, useRef, useState } from 'react';
+import { z } from 'zod';
 
 import BaseSidebarPanel from './helpers/BaseSidebarPanel';
 import RadioGroupInput from './helpers/inputs/RadioGroupInput';
 import TextDimensionInput from './helpers/inputs/TextDimensionInput';
 import TextInput from './helpers/inputs/TextInput';
 import MultiStylePropertyPanel from './helpers/style-inputs/MultiStylePropertyPanel';
+
+// would strip embed/uuid during validation.
+const ImgPropsSchema = ImagePropsSchema.extend({
+  props: z.object({
+    width: z.number().nullable().optional(),
+    height: z.number().nullable().optional(),
+    url: z.string().nullable().optional(),
+    alt: z.string().nullable().optional(),
+    linkHref: z.string().nullable().optional(),
+    contentAlignment: z.enum(['top', 'middle', 'bottom']).nullable().optional(),
+    embed: z.boolean().nullable().optional(),
+    uuid: z.string().nullable().optional(),
+  }).nullable().optional(),
+});
+type ListmonkImageProps = z.infer<typeof ImgPropsSchema>;
 
 type ImageSidebarPanelProps = {
   data: ImageProps;
@@ -21,15 +37,37 @@ type ImageSidebarPanelProps = {
 export default function ImageSidebarPanel({ data, setData }: ImageSidebarPanelProps) {
   const [, setErrors] = useState<Zod.ZodError | null>(null);
 
+  const dataRef = useRef<ListmonkImageProps>(data as ListmonkImageProps);
+  dataRef.current = data as ListmonkImageProps;
+
   const updateData = (d: unknown) => {
-    const res = ImagePropsSchema.safeParse(d);
+    const res = ImgPropsSchema.safeParse(d);
     if (res.success) {
-      setData(res.data);
+      setData(res.data as ImageProps);
       setErrors(null);
     } else {
       setErrors(res.error);
     }
   };
+
+  useEffect(() => {
+    const onMessage = (e: MessageEvent) => {
+      if (!e.data || e.data.action !== 'visualeditor.media-uuid') {
+        return;
+      }
+      const cur = dataRef.current;
+      const curURL = (cur && cur.props && cur.props.url) || '';
+      // Guard against stale UUID deliveries after the user switched blocks.
+      if (e.data.url && e.data.url !== curURL) {
+        return;
+      }
+      updateData({ ...cur, props: { ...(cur && cur.props), uuid: e.data.uuid } });
+    };
+    window.addEventListener('message', onMessage);
+    return () => window.removeEventListener('message', onMessage);
+  }, []);
+
+  const props = (data && (data as ListmonkImageProps).props) || {};
 
   return (
     <BaseSidebarPanel title="Image block">
@@ -91,6 +129,17 @@ export default function ImageSidebarPanel({ data, setData }: ImageSidebarPanelPr
           <VerticalAlignBottomOutlined fontSize="small" />
         </ToggleButton>
       </RadioGroupInput>
+
+      <FormControlLabel
+        control={
+          <Checkbox
+            size="small"
+            checked={Boolean(props.embed)}
+            onChange={(e) => updateData({ ...data, props: { ...data.props, embed: e.target.checked } })}
+          />
+        }
+        label="Embed inline (CID)"
+      />
 
       <MultiStylePropertyPanel
         names={['backgroundColor', 'textAlign', 'padding']}
