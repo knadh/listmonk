@@ -15,6 +15,21 @@ import {
   buildBlockConfigurationSchema,
 } from '@usewaypoint/document-core';
 
+// Adds embed-uuid to the upstream Image props for opt-in CID inline image
+// embedding (ref: frontend/email-builder/src/utils.tsx).
+const ImgPropsSchema = ImagePropsSchema.extend({
+  props: z.object({
+    width: z.number().nullable().optional(),
+    height: z.number().nullable().optional(),
+    url: z.string().nullable().optional(),
+    alt: z.string().nullable().optional(),
+    linkHref: z.string().nullable().optional(),
+    contentAlignment: z.enum(['top', 'middle', 'bottom']).nullable().optional(),
+    embed: z.boolean().nullable().optional(),
+    uuid: z.string().nullable().optional(),
+  }).nullable().optional(),
+});
+
 import ColumnsContainerEditor from '../blocks/ColumnsContainer/ColumnsContainerEditor';
 import ColumnsContainerPropsSchema from '../blocks/ColumnsContainer/ColumnsContainerPropsSchema';
 import ContainerEditor from '../blocks/Container/ContainerEditor';
@@ -73,7 +88,7 @@ const EDITOR_DICTIONARY = buildBlockConfigurationDictionary({
     ),
   },
   Image: {
-    schema: ImagePropsSchema,
+    schema: ImgPropsSchema,
     Component: (data) => {
       const props = {
         ...data,

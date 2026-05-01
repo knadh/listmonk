@@ -6,6 +6,7 @@ import (
 	"html/template"
 	"log"
 	"net/textproto"
+	"regexp"
 	"strings"
 	"sync"
 	"time"
@@ -18,6 +19,15 @@ import (
 	"github.com/knadh/listmonk/models"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
+)
+
+// attribInlineEmbed is the HTML attrib used to mark <img> tags whose source
+// should be embedded as a multipart cid inline attachment.
+const attribInlineEmbed = "data-embed"
+
+var (
+	reInlineImage = regexp.MustCompile(`(?is)(<img\b[^>]*\b` + attribInlineEmbed + `\s*=\s*["']([0-9a-fA-F-]{36})["'][^>]*>)`)
+	reImgSrc      = regexp.MustCompile(`(?is)\bsrc\s*=\s*"[^"]*"|\bsrc\s*=\s*'[^']*'`)
 )
 
 const (
@@ -37,6 +47,7 @@ type Store interface {
 	NextSubscribers(campID, limit int) ([]models.Subscriber, error)
 	GetCampaign(campID int) (*models.Campaign, error)
 	GetAttachment(mediaID int) (models.Attachment, error)
+	GetInlineAttachmentByUUID(mediaUUID string) (models.Attachment, string, error)
 	UpdateCampaignStatus(campID int, status string) error
 	UpdateCampaignCounts(campID int, toSend int, sent int, lastSubID int) error
 	CreateLink(url string) (string, error)
@@ -317,6 +328,15 @@ func (m *Manager) Run() {
 
 // CacheTpl caches a template for ad-hoc use. This is currently only used by tx templates.
 func (m *Manager) CacheTpl(id int, tpl *models.Template) {
+	if body, atts := m.ApplyInlineImages(tpl.Body); len(atts) > 0 {
+		tpl.Body = body
+		tpl.Attachments = atts
+		if err := tpl.Compile(m.GenericTemplateFuncs()); err != nil {
+			m.log.Printf("error recompiling tx template %d after inline image: %v", id, err)
+			return
+		}
+	}
+
 	m.tplsMut.Lock()
 	m.tpls[id] = tpl
 	m.tplsMut.Unlock()
@@ -659,29 +679,88 @@ func (m *Manager) makeGnericFuncMap() template.FuncMap {
 }
 
 // attachMedia loads any media/attachments from the media store and attaches
-// the byte blobs to the campaign.
+// the byte blobs to the campaign. Inline attachments are
+// ignored as they're loaded earlier by prepareInlineImages().
 func (m *Manager) attachMedia(c *models.Campaign) error {
-	if len(c.Attachments) > 0 {
+	regular := 0
+	for _, a := range c.Attachments {
+		if !a.IsInline {
+			regular++
+		}
+	}
+	if regular >= len(c.MediaIDs) {
 		return nil
 	}
 
-	// Load any media/attachments.
 	for _, mid := range []int64(c.MediaIDs) {
 		a, err := m.store.GetAttachment(int(mid))
 		if err != nil {
 			return fmt.Errorf("error fetching attachment %d on campaign %s: %v", mid, c.Name, err)
 		}
-
 		c.Attachments = append(c.Attachments, a)
 	}
 
 	return nil
 }
 
-// MakeAttachmentHeader is a helper function that returns a
-// textproto.MIMEHeader tailored for attachments, primarily
-// email. If no encoding is given, base64 is assumed.
+// LoadInlineImages resolves any <img data-embed="<uuid>"> references in
+// the campaign body one time before CompileTemplate and replaces with CID URLs.
+func (m *Manager) LoadInlineImages(c *models.Campaign) error {
+	if c.ContentType == models.CampaignContentTypePlain {
+		return nil
+	}
+
+	body, atts := m.ApplyInlineImages(c.Body)
+	c.Body = body
+	c.Attachments = append(c.Attachments, atts...)
+	return nil
+}
+
+// ApplyInlineImages scans body for <img data-embed="<uuid>"> tags, resolves
+// each unique UUID to an inline attachment, and rewrites each matched img
+// src to cid.
+func (m *Manager) ApplyInlineImages(body string) (string, []models.Attachment) {
+	uuids := scanInlineImages(body)
+	if len(uuids) == 0 {
+		return body, nil
+	}
+
+	var (
+		atts []models.Attachment
+		cids = make(map[string]string, len(uuids))
+	)
+	for _, uu := range uuids {
+		a, cid, err := m.store.GetInlineAttachmentByUUID(uu)
+		if err != nil {
+			m.log.Printf("inline image %s not embedded: %v", uu, err)
+			continue
+		}
+		cids[uu] = cid
+		atts = append(atts, a)
+	}
+
+	return rewriteInlineImageSrcs(body, cids), atts
+}
+
+// MakeContentID returns an RFC 2392 Content-ID value without
+// angle brackets for a given media UUID.
+func MakeContentID(mediaUUID string) string {
+	return mediaUUID + "@" + "email"
+}
+
+// MakeAttachmentHeader returns a textproto.MIMEHeader for an email
+// attachment. Default encoding is base64  and contentType is application/octet-stream.
 func MakeAttachmentHeader(filename, encoding, contentType string) textproto.MIMEHeader {
+	return makeAttachmentHeader("attachment", filename, encoding, contentType, "")
+}
+
+// MakeInlineAttachmentHeader returns a textproto.MIMEHeader for an inline
+// image attachment referenced from the HTML body via a cid URL.
+func MakeInlineAttachmentHeader(filename, encoding, contentType, contentID string) textproto.MIMEHeader {
+	return makeAttachmentHeader("inline", filename, encoding, contentType, contentID)
+}
+
+func makeAttachmentHeader(disposition, filename, encoding, contentType, contentID string) textproto.MIMEHeader {
 	if encoding == "" {
 		encoding = "base64"
 	}
@@ -690,8 +769,49 @@ func MakeAttachmentHeader(filename, encoding, contentType string) textproto.MIME
 	}
 
 	h := textproto.MIMEHeader{}
-	h.Set("Content-Disposition", "attachment; filename="+filename)
+	h.Set("Content-Disposition", disposition+"; filename="+filename)
 	h.Set("Content-Type", fmt.Sprintf("%s; name=\""+filename+"\"", contentType))
 	h.Set("Content-Transfer-Encoding", encoding)
+	if contentID != "" {
+		h.Set("Content-ID", "<"+contentID+">")
+	}
 	return h
+}
+
+func scanInlineImages(body string) []string {
+	if !strings.Contains(body, attribInlineEmbed) {
+		return nil
+	}
+
+	seen := make(map[string]struct{})
+	var out []string
+	for _, match := range reInlineImage.FindAllStringSubmatch(body, -1) {
+		uu := strings.ToLower(match[2])
+		if _, ok := seen[uu]; ok {
+			continue
+		}
+		seen[uu] = struct{}{}
+		out = append(out, uu)
+	}
+	return out
+}
+
+func rewriteInlineImageSrcs(body string, cids map[string]string) string {
+	if len(cids) == 0 {
+		return body
+	}
+
+	return reInlineImage.ReplaceAllStringFunc(body, func(tag string) string {
+		sub := reInlineImage.FindStringSubmatch(tag)
+		if len(sub) < 3 {
+			return tag
+		}
+
+		cid := cids[strings.ToLower(sub[2])]
+		if cid == "" {
+			return tag
+		}
+
+		return reImgSrc.ReplaceAllString(tag, `src="cid:`+cid+`"`)
+	})
 }

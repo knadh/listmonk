@@ -111,6 +111,10 @@ export default {
         const inputEvent = new Event('input', { bubbles: true });
         input.dispatchEvent(inputEvent);
       }
+
+      if (media.uuid && iframe.contentWindow) {
+        iframe.contentWindow.postMessage({ action: 'visualeditor.media-uuid', url: media.url, uuid: media.uuid }, '*');
+      }
     },
 
     // Observe DOM changes in the iframe to inject media selector

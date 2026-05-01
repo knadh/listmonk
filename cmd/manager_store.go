@@ -104,6 +104,28 @@ func (s *store) GetAttachment(mediaID int) (models.Attachment, error) {
 	}, nil
 }
 
+// GetInlineAttachmentByUUID fetches a media item by UUID and returns it as
+// an inline attachment along with the Content-ID value.
+func (s *store) GetInlineAttachmentByUUID(mediaUUID string) (models.Attachment, string, error) {
+	m, err := s.core.GetMedia(0, mediaUUID, "", s.media)
+	if err != nil {
+		return models.Attachment{}, "", err
+	}
+
+	b, err := s.media.GetBlob(m.URL)
+	if err != nil {
+		return models.Attachment{}, "", err
+	}
+
+	cid := manager.MakeContentID(m.UUID)
+	return models.Attachment{
+		Name:     m.Filename,
+		Content:  b,
+		Header:   manager.MakeInlineAttachmentHeader(m.Filename, "", m.ContentType, cid),
+		IsInline: true,
+	}, cid, nil
+}
+
 // CreateLink registers a URL with a UUID for tracking clicks and returns the UUID.
 func (s *store) CreateLink(url string) (string, error) {
 	// Create a new UUID for the URL. If the URL already exists in the DB
