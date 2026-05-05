@@ -460,6 +460,36 @@ func (c *Core) RegisterCampaignLinkClick(linkUUID, campUUID, subUUID string) (st
 	return url, nil
 }
 
+// ExportCampaignViews returns an iterator with campaign views for streaming/exporting.
+func (c *Core) ExportCampaignViews(since time.Time, batchSize int) func() ([]models.CampaignViewExport, error) {
+	offset := 0
+	return func() ([]models.CampaignViewExport, error) {
+		var out []models.CampaignViewExport
+		if err := c.q.ExportCampaignViews.Select(&out, since, batchSize, offset); err != nil {
+			c.log.Printf("error exporting campaign views: %v", err)
+			return nil, echo.NewHTTPError(http.StatusInternalServerError,
+				c.i18n.Ts("globals.messages.errorFetching", "name", "{globals.terms.analytics}", "error", pqErrMsg(err)))
+		}
+		offset += len(out)
+		return out, nil
+	}
+}
+
+// ExportCampaignLinkClicks returns an iterator with campaign link click for streaming/exporting.
+func (c *Core) ExportCampaignLinkClicks(since time.Time, batchSize int) func() ([]models.CampaignClickExport, error) {
+	offset := 0
+	return func() ([]models.CampaignClickExport, error) {
+		var out []models.CampaignClickExport
+		if err := c.q.ExportCampaignLinkClicks.Select(&out, since, batchSize, offset); err != nil {
+			c.log.Printf("error exporting campaign link clicks: %v", err)
+			return nil, echo.NewHTTPError(http.StatusInternalServerError,
+				c.i18n.Ts("globals.messages.errorFetching", "name", "{globals.terms.analytics}", "error", pqErrMsg(err)))
+		}
+		offset += len(out)
+		return out, nil
+	}
+}
+
 // DeleteCampaignViews deletes campaign views older than a given date.
 func (c *Core) DeleteCampaignViews(before time.Time) error {
 	if _, err := c.q.DeleteCampaignViews.Exec(before); err != nil {
