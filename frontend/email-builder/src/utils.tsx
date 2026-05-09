@@ -19,29 +19,35 @@ function injectHeadContents(html: string, contents: string) {
   return `<head>${contents}</head>${html}`;
 }
 
-function collectImageEmbeds(document: TEditorConfiguration): Array<{ url: string; uuid: string }> {
-  const embeds: Array<{ url: string; uuid: string }> = [];
+function collectImageEmbedURLs(document: TEditorConfiguration): string[] {
+  // The upstream renderer strips the custom `embed` prop before rendering, so
+  // collect URLs from blocks marked for embedding and re-tag the matching <img>
+  // with a `data-embed` flag after rendering. The backend resolves the src
+  // filename to a media item at compile time.
+  const embedURLs: string[] = [];
 
   for (const block of Object.values(document)) {
     if (!block || (block as { type?: string }).type !== 'Image') {
       continue;
     }
 
-    const props = ((block as { data?: { props?: { url?: string; embed?: boolean; uuid?: string } } }).data || {}).props || {};
-    if (props.embed && props.uuid && props.url) {
-      embeds.push({ url: props.url, uuid: props.uuid });
+    const props = ((block as { data?: { props?: { url?: string; embed?: boolean } } }).data || {}).props || {};
+    if (props.embed && props.url) {
+      embedURLs.push(props.url);
     }
   }
 
-  return embeds;
+  return embedURLs;
 }
 
-function applyImageEmbeds(html: string, embeds: Array<{ url: string; uuid: string }>): string {
+function applyImageEmbeds(html: string, embedURLs: string[]): string {
   let output = html;
 
-  for (const { url, uuid } of embeds) {
-    const re = new RegExp(`(<img\\b(?:(?!data-embed=)[^>])*?\\bsrc="${escapeRegExp(url)}")([^>]*>)`);
-    output = output.replace(re, `$1 data-embed="${uuid}"$2`);
+  for (const url of embedURLs) {
+    const re = new RegExp(`<img\\b[^>]*?\\bsrc="${escapeRegExp(url)}"[^>]*>`, 'g');
+    output = output.replace(re, (tag) => (
+      /\bdata-embed\b/.test(tag) ? tag : tag.replace(/(\bsrc="[^"]*")/, '$1 data-embed="true"')
+    ));
   }
 
   return output;
@@ -51,10 +57,10 @@ export function renderHtmlWithMeta(
   document: TEditorConfiguration,
   options: { rootBlockId: string; outlook?: boolean }
 ): string {
-  const embeds = collectImageEmbeds(document);
+  const embedURLs = collectImageEmbedURLs(document);
   const html = renderToStaticMarkup(document, options);
   const rendered = options.outlook ? postProcessForOutlook(html) : html;
-  const output = applyImageEmbeds(rendered, embeds);
+  const output = applyImageEmbeds(rendered, embedURLs);
   const head = options.outlook ? `${VIEWPORT_META}${MSO_DOCUMENT_SETTINGS}` : VIEWPORT_META;
 
   return injectHeadContents(output, head);

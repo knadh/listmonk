@@ -15,9 +15,18 @@ import {
   buildBlockConfigurationSchema,
 } from '@usewaypoint/document-core';
 
-// Adds embed-uuid to the upstream Image props for opt-in CID inline image
-// embedding (ref: frontend/email-builder/src/utils.tsx).
-const ImgPropsSchema = ImagePropsSchema.extend({
+import ColumnsContainerEditor from '../blocks/ColumnsContainer/ColumnsContainerEditor';
+import ColumnsContainerPropsSchema from '../blocks/ColumnsContainer/ColumnsContainerPropsSchema';
+import ContainerEditor from '../blocks/Container/ContainerEditor';
+import ContainerPropsSchema from '../blocks/Container/ContainerPropsSchema';
+import EmailLayoutEditor from '../blocks/EmailLayout/EmailLayoutEditor';
+import EmailLayoutPropsSchema from '../blocks/EmailLayout/EmailLayoutPropsSchema';
+import EditorBlockWrapper from '../blocks/helpers/block-wrappers/EditorBlockWrapper';
+
+// Adds an opt-in `embed` flag to the upstream Image props. The renderer
+// (frontend/email-builder/src/utils.tsx) re-tags marked <img>s with
+// `data-embed` and the backend resolves the src filename to a media item.
+export const ImgPropsSchema = ImagePropsSchema.extend({
   props: z.object({
     width: z.number().nullable().optional(),
     height: z.number().nullable().optional(),
@@ -26,17 +35,9 @@ const ImgPropsSchema = ImagePropsSchema.extend({
     linkHref: z.string().nullable().optional(),
     contentAlignment: z.enum(['top', 'middle', 'bottom']).nullable().optional(),
     embed: z.boolean().nullable().optional(),
-    uuid: z.string().nullable().optional(),
   }).nullable().optional(),
 });
-
-import ColumnsContainerEditor from '../blocks/ColumnsContainer/ColumnsContainerEditor';
-import ColumnsContainerPropsSchema from '../blocks/ColumnsContainer/ColumnsContainerPropsSchema';
-import ContainerEditor from '../blocks/Container/ContainerEditor';
-import ContainerPropsSchema from '../blocks/Container/ContainerPropsSchema';
-import EmailLayoutEditor from '../blocks/EmailLayout/EmailLayoutEditor';
-import EmailLayoutPropsSchema from '../blocks/EmailLayout/EmailLayoutPropsSchema';
-import EditorBlockWrapper from '../blocks/helpers/block-wrappers/EditorBlockWrapper';
+export type ListmonkImageProps = z.infer<typeof ImgPropsSchema>;
 
 const EDITOR_DICTIONARY = buildBlockConfigurationDictionary({
   Avatar: {

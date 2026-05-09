@@ -1,11 +1,15 @@
 package manager
 
 import (
+	"crypto/sha1"
+	"encoding/hex"
 	"errors"
 	"fmt"
 	"html/template"
 	"log"
 	"net/textproto"
+	"net/url"
+	"path"
 	"regexp"
 	"strings"
 	"sync"
@@ -26,8 +30,8 @@ import (
 const attribInlineEmbed = "data-embed"
 
 var (
-	reInlineImage = regexp.MustCompile(`(?is)(<img\b[^>]*\b` + attribInlineEmbed + `\s*=\s*["']([0-9a-fA-F-]{36})["'][^>]*>)`)
-	reImgSrc      = regexp.MustCompile(`(?is)\bsrc\s*=\s*"[^"]*"|\bsrc\s*=\s*'[^']*'`)
+	reInlineImage = regexp.MustCompile(`(?is)<img\b[^>]*\b` + attribInlineEmbed + `\b[^>]*>`)
+	reImgSrc      = regexp.MustCompile(`(?is)\bsrc\s*=\s*"([^"]*)"|\bsrc\s*=\s*'([^']*)'`)
 )
 
 const (
@@ -47,7 +51,7 @@ type Store interface {
 	NextSubscribers(campID, limit int) ([]models.Subscriber, error)
 	GetCampaign(campID int) (*models.Campaign, error)
 	GetAttachment(mediaID int) (models.Attachment, error)
-	GetInlineAttachmentByUUID(mediaUUID string) (models.Attachment, string, error)
+	GetInlineAttachmentByFilename(filename string) (models.Attachment, string, error)
 	UpdateCampaignStatus(campID int, status string) error
 	UpdateCampaignCounts(campID int, toSend int, sent int, lastSubID int) error
 	CreateLink(url string) (string, error)
@@ -679,17 +683,14 @@ func (m *Manager) makeGnericFuncMap() template.FuncMap {
 }
 
 // attachMedia loads any media/attachments from the media store and attaches
-// the byte blobs to the campaign. Inline attachments are
-// ignored as they're loaded earlier by prepareInlineImages().
+// the byte blobs to the campaign. Inline attachments are skipped as they're
+// loaded earlier by LoadInlineImages().
 func (m *Manager) attachMedia(c *models.Campaign) error {
-	regular := 0
+	// Already loaded if any non-inline attachment is present.
 	for _, a := range c.Attachments {
 		if !a.IsInline {
-			regular++
+			return nil
 		}
-	}
-	if regular >= len(c.MediaIDs) {
-		return nil
 	}
 
 	for _, mid := range []int64(c.MediaIDs) {
@@ -703,8 +704,8 @@ func (m *Manager) attachMedia(c *models.Campaign) error {
 	return nil
 }
 
-// LoadInlineImages resolves any <img data-embed="<uuid>"> references in
-// the campaign body one time before CompileTemplate and replaces with CID URLs.
+// LoadInlineImages resolves any <img ... data-embed ...> tags in the campaign
+// body one time before CompileTemplate.
 func (m *Manager) LoadInlineImages(c *models.Campaign) error {
 	if c.ContentType == models.CampaignContentTypePlain {
 		return nil
@@ -716,36 +717,61 @@ func (m *Manager) LoadInlineImages(c *models.Campaign) error {
 	return nil
 }
 
-// ApplyInlineImages scans body for <img data-embed="<uuid>"> tags, resolves
-// each unique UUID to an inline attachment, and rewrites each matched img
-// src to cid.
+// ApplyInlineImages scans body for <img ... data-embed ...> tags, resolves
+// each unique src filename to a media item, attaches it as an inline part, and
+// rewrites the matched img src to cid.
 func (m *Manager) ApplyInlineImages(body string) (string, []models.Attachment) {
-	uuids := scanInlineImages(body)
-	if len(uuids) == 0 {
+	if !strings.Contains(body, attribInlineEmbed) {
 		return body, nil
 	}
 
 	var (
-		atts []models.Attachment
-		cids = make(map[string]string, len(uuids))
+		atts  []models.Attachment
+		cache = make(map[string]string) // src -> cid (empty cid = lookup failed, leave tag as-is)
 	)
-	for _, uu := range uuids {
-		a, cid, err := m.store.GetInlineAttachmentByUUID(uu)
-		if err != nil {
-			m.log.Printf("inline image %s not embedded: %v", uu, err)
-			continue
+	out := reInlineImage.ReplaceAllStringFunc(body, func(tag string) string {
+		src := extractSrc(tag)
+		if src == "" {
+			return tag
 		}
-		cids[uu] = cid
-		atts = append(atts, a)
-	}
+		cid, ok := cache[src]
+		if !ok {
+			if fname := filenameFromSrc(src); fname != "" {
+				if a, c, err := m.store.GetInlineAttachmentByFilename(fname); err == nil {
+					atts = append(atts, a)
+					cid = c
+				} else {
+					m.log.Printf("inline image %q not embedded: %v", src, err)
+				}
+			}
+			cache[src] = cid
+		}
+		if cid == "" {
+			return tag
+		}
+		return reImgSrc.ReplaceAllString(tag, `src="cid:`+cid+`"`)
+	})
 
-	return rewriteInlineImageSrcs(body, cids), atts
+	return out, atts
 }
 
-// MakeContentID returns an RFC 2392 Content-ID value without
-// angle brackets for a given media UUID.
-func MakeContentID(mediaUUID string) string {
-	return mediaUUID + "@" + "email"
+// MakeContentID returns a standard `Content-ID` value (without  the angle brackets).
+func MakeContentID(key string) string {
+	sum := sha1.Sum([]byte(key))
+	return hex.EncodeToString(sum[:8]) + "@email"
+}
+
+// filenameFromSrc extracts a media filename from an <img src> value (ignoring
+// any URLs and just capturing the filename.
+func filenameFromSrc(src string) string {
+	if src == "" {
+		return ""
+	}
+	p := src
+	if u, err := url.Parse(src); err == nil && u.Path != "" {
+		p = u.Path
+	}
+	return path.Base(p)
 }
 
 // MakeAttachmentHeader returns a textproto.MIMEHeader for an email
@@ -778,40 +804,13 @@ func makeAttachmentHeader(disposition, filename, encoding, contentType, contentI
 	return h
 }
 
-func scanInlineImages(body string) []string {
-	if !strings.Contains(body, attribInlineEmbed) {
-		return nil
+func extractSrc(tag string) string {
+	m := reImgSrc.FindStringSubmatch(tag)
+	if len(m) == 0 {
+		return ""
 	}
-
-	seen := make(map[string]struct{})
-	var out []string
-	for _, match := range reInlineImage.FindAllStringSubmatch(body, -1) {
-		uu := strings.ToLower(match[2])
-		if _, ok := seen[uu]; ok {
-			continue
-		}
-		seen[uu] = struct{}{}
-		out = append(out, uu)
+	if m[1] != "" {
+		return m[1]
 	}
-	return out
-}
-
-func rewriteInlineImageSrcs(body string, cids map[string]string) string {
-	if len(cids) == 0 {
-		return body
-	}
-
-	return reInlineImage.ReplaceAllStringFunc(body, func(tag string) string {
-		sub := reInlineImage.FindStringSubmatch(tag)
-		if len(sub) < 3 {
-			return tag
-		}
-
-		cid := cids[strings.ToLower(sub[2])]
-		if cid == "" {
-			return tag
-		}
-
-		return reImgSrc.ReplaceAllString(tag, `src="cid:`+cid+`"`)
-	})
+	return m[2]
 }
