@@ -132,7 +132,6 @@ export default {
       richtextConf: {},
       richTextSourceBody: '',
       contentType: '',
-      mediaURLToUUID: Object.create(null),
     };
   },
 
@@ -182,6 +181,7 @@ export default {
         convert_urls: true,
         relative_urls: false,
         remove_script_host: false,
+        extended_valid_elements: 'img[*]',
         plugins: [
           'anchor', 'autoresize', 'autolink', 'charmap', 'emoticons', 'fullscreen',
           'help', 'hr', 'image', 'imagetools', 'link', 'lists', 'paste', 'searchreplace',
@@ -292,28 +292,26 @@ export default {
           };
         } else {
           const img = this.getSelectedImage(ed);
-          const uuid = img && img.getAttribute('data-embed');
-          const currentSrc = img && img.getAttribute('src');
-          spec.initialData = { ...data, [EMBED_IMAGE]: Boolean(uuid) };
+          spec.initialData = { ...data, [EMBED_IMAGE]: Boolean(img && img.hasAttribute('data-embed')) };
           spec.onSubmit = (api) => {
             const d = api.getData();
-            const srcData = d.src || {};
-            const src = (typeof srcData === 'string' ? srcData : srcData.value) || currentSrc || '';
-            const absSrc = new URL(src, window.location.origin).href;
-            const embedUUID = this.getMediaUUID(src) || this.getMediaUUID(absSrc) || uuid;
             const shouldEmbed = d[EMBED_IMAGE] === true || d[EMBED_IMAGE] === 'true';
 
-            api.setData({
-              src: typeof srcData === 'string' ? absSrc : { ...srcData, value: absSrc },
-            });
-
             onSubmit(api);
-            setTimeout(() => {
-              const node = this.findImage(ed, absSrc, currentSrc);
-              const nodeSrc = node && node.getAttribute('src');
-              const nodeUUID = nodeSrc && this.getMediaUUID(nodeSrc);
-              this.applyImageEmbed(ed, shouldEmbed && (embedUUID || nodeUUID) ? embedUUID || nodeUUID : null, absSrc, currentSrc);
-            }, 0);
+
+            // Apply 'embed' attr.
+            const node = (img && ed.getBody().contains(img)) ? img : this.getSelectedImage(ed);
+            if (!node) {
+              return;
+            }
+            if (shouldEmbed) {
+              ed.dom.setAttrib(node, 'data-embed', 'true');
+            } else {
+              node.removeAttribute('data-embed');
+            }
+            ed.fire('change');
+            ed.save();
+            this.computedValue = ed.getContent();
           };
         }
 
@@ -335,46 +333,6 @@ export default {
       return { ...body, items: [...body.items, checkbox] };
     },
 
-    withoutTrackSuffix(url) {
-      return url.endsWith(TRACK_SUFFIX) ? url.slice(0, -TRACK_SUFFIX.length) : url;
-    },
-
-    isSameURL(a, b) {
-      return a && b && (a === b || new URL(a, window.location.origin).href === new URL(b, window.location.origin).href);
-    },
-
-    getMediaUUID(src) {
-      if (this.mediaURLToUUID[src]) {
-        return this.mediaURLToUUID[src];
-      }
-      const url = Object.keys(this.mediaURLToUUID).find((u) => {
-        const { pathname } = new URL(u);
-        return src === pathname || src.endsWith(pathname);
-      });
-      return url ? this.mediaURLToUUID[url] : null;
-    },
-
-    applyImageEmbed(editor, uuid, src, currentSrc) {
-      const node = this.findImage(editor, src, currentSrc);
-      if (!node) {
-        return;
-      }
-
-      editor.dom.setAttrib(node, 'data-embed', uuid || null);
-      editor.fire('change');
-      editor.save();
-      this.computedValue = editor.getContent();
-    },
-
-    findImage(editor, src, currentSrc) {
-      const selected = this.getSelectedImage(editor);
-      const images = Array.from(editor.dom.select('img'));
-      return images.find((img) => this.isSameURL(img.getAttribute('src'), src))
-        || images.find((img) => this.isSameURL(img.getAttribute('src'), currentSrc))
-        || selected
-        || (images.length === 1 ? images[0] : null);
-    },
-
     getSelectedImage(editor) {
       const node = editor.selection.getNode();
       if (!node) {
@@ -388,9 +346,6 @@ export default {
     },
 
     onMediaSelect(media) {
-      if (media.uuid) {
-        this.mediaURLToUUID[media.url] = media.uuid;
-      }
       this.imageCallack(media.url);
     },
 
