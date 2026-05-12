@@ -176,7 +176,7 @@
     "globals.fields.createdAt": "已创建",
     "globals.fields.description": "描述",
     "globals.fields.id": "身份标识",
-    "globals.fields.name": "姓名",
+    "globals.fields.name": "名称",
     "globals.fields.status": "状态",
     "globals.fields.type": "类型",
     "globals.fields.updatedAt": "已更新",
