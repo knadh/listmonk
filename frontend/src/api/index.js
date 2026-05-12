@@ -370,6 +370,23 @@ export const rewindCampaign = async (id) => http.post(
   { loading: models.campaigns },
 );
 
+// Solomon fork: clear in-memory sliding-window rate-limit state on a running
+// campaign. Wired to the "Reset rate limit" button on the campaign detail.
+export const resetCampaignWindow = async (id) => http.post(
+  `/api/campaigns/${id}/reset-window`,
+  null,
+  { loading: models.campaigns },
+);
+
+// Solomon fork: delete failed-status rows from campaign_send_log so the worker
+// retries those subscribers. Wired to the "Retry N failed" button on the
+// Send Log tab.
+export const retryFailedCampaignSends = async (id) => http.post(
+  `/api/campaigns/${id}/send-log/retry-failed`,
+  null,
+  { loading: models.campaigns },
+);
+
 export const deleteCampaign = async (id) => http.delete(
   `/api/campaigns/${id}`,
   { loading: models.campaigns },

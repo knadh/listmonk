@@ -301,6 +301,27 @@ func (m *Manager) GetCampaignStats(id int) CampStats {
 	return CampStats{SendRate: n}
 }
 
+// ResetCampaignWindow zeroes the in-memory sliding-window state for a running
+// campaign's pipe so the next send re-evaluates from a clean window. Used by
+// the admin UI's "Reset rate limit" button on the campaign detail page when a
+// campaign appears stalled (e.g. workers slept on stale state across a
+// pause/resume cycle). Returns true if a pipe was found and reset.
+//
+// Safe to call repeatedly. No-op if the campaign isn't currently in m.pipes.
+func (m *Manager) ResetCampaignWindow(campaignID int) bool {
+	m.pipesMut.Lock()
+	defer m.pipesMut.Unlock()
+
+	p, ok := m.pipes[campaignID]
+	if !ok {
+		return false
+	}
+	p.slidingStart = time.Now()
+	p.slidingCount = 0
+	m.log.Printf("manual rate-window reset for campaign id=%d", campaignID)
+	return true
+}
+
 // Run is a blocking function (that should be invoked as a goroutine)
 // that scans the data source at regular intervals for pending campaigns,
 // and queues them for processing. The process queue fetches batches of

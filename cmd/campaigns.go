@@ -922,3 +922,39 @@ func (a *App) GetCampaignSendLogStats(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, okResp{stats})
 }
+
+// RetryFailedCampaignSends deletes status='failed' rows from campaign_send_log
+// for one campaign so the worker treats those subscribers as un-attempted and
+// re-queues them on the next pipe pass. Returns the number of recipients that
+// will be retried. Surfaced to the admin via the "Retry N failed sends" button
+// on the campaign Send Log tab.
+func (a *App) RetryFailedCampaignSends(c echo.Context) error {
+	id := getID(c)
+
+	if err := a.checkCampaignPerm(auth.PermTypeManage, id, c); err != nil {
+		return err
+	}
+
+	deleted, err := a.core.DeleteFailedCampaignSends(id)
+	if err != nil {
+		return err
+	}
+
+	return c.JSON(http.StatusOK, okResp{map[string]int64{"requeued": deleted}})
+}
+
+// ResetCampaignWindow zeroes the in-memory sliding-window rate-limit counter
+// for a running campaign. Use when a campaign appears stalled despite
+// status='running' (workers stuck on stale window state from a previous
+// pause/resume cycle). No-op if the campaign isn't currently in the manager's
+// pipe map (campaign isn't actively being processed).
+func (a *App) ResetCampaignWindow(c echo.Context) error {
+	id := getID(c)
+
+	if err := a.checkCampaignPerm(auth.PermTypeManage, id, c); err != nil {
+		return err
+	}
+
+	reset := a.manager.ResetCampaignWindow(id)
+	return c.JSON(http.StatusOK, okResp{map[string]bool{"reset": reset}})
+}

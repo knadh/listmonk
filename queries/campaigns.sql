@@ -568,3 +568,17 @@ SELECT
 FROM campaign_send_log
 WHERE campaign_id = $1;
 
+-- name: delete-failed-campaign-sends
+-- Solomon fork: clears failed-status rows from campaign_send_log for a single
+-- campaign. Used by the admin UI's "Retry N failed sends" button on the Send
+-- Log tab. Once these rows are gone, the campaign worker's "not yet sent to"
+-- query (line ~332/390 above) treats those subscribers as un-sent again, so
+-- the next pipe pass re-queues them and the messenger retries delivery.
+-- Returns the count of rows deleted.
+WITH deleted AS (
+    DELETE FROM campaign_send_log
+    WHERE campaign_id = $1 AND status = 'failed'
+    RETURNING id
+)
+SELECT COUNT(*) FROM deleted;
+

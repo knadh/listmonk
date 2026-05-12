@@ -249,6 +249,48 @@
               </article>
             </div>
           </div><!-- features row -->
+
+          <!-- Solomon fork: Campaign Health — surfaces running campaigns and
+               flags any whose last send was > 2hr ago as STALLED. The whole
+               point is to make a stuck rate-limiter / silent worker stall
+               obvious the moment you log in, instead of discovering it days
+               later from someone asking "where are the conversions?". -->
+          <div class="tile is-parent relative" v-if="health.length > 0">
+            <article class="tile is-child notification">
+              <h3 class="title is-size-6">
+                <b-icon icon="heart-pulse" /> Campaign Health
+                <span v-if="anyStalled" class="tag is-danger ml-2">{{ stalledCount }} STALLED</span>
+              </h3>
+              <b-table :data="health" striped hoverable>
+                <b-table-column field="status" label="" v-slot="props" width="40">
+                  <b-tag v-if="props.row.stalled" type="is-danger">STALLED</b-tag>
+                  <b-tag v-else-if="props.row.idle" type="is-warning is-light">idle</b-tag>
+                  <b-tag v-else type="is-success is-light">sending</b-tag>
+                </b-table-column>
+                <b-table-column field="name" label="Campaign" v-slot="props">
+                  <router-link :to="{ name: 'campaign', params: { id: props.row.id } }">{{ props.row.name }}</router-link>
+                </b-table-column>
+                <b-table-column field="sent" label="Sent / Queued" v-slot="props">
+                  {{ props.row.sent.toLocaleString() }} / {{ props.row.to_send.toLocaleString() }}
+                </b-table-column>
+                <b-table-column field="last_sent_at" label="Last send" v-slot="props">
+                  <span v-if="props.row.last_sent_at" :class="{ 'has-text-danger': props.row.stalled }">
+                    {{ $utils.niceDate(props.row.last_sent_at, true) }}
+                  </span>
+                  <span v-else class="has-text-grey">never</span>
+                </b-table-column>
+                <b-table-column field="rate" label="Send rate" v-slot="props">
+                  <span class="has-text-grey">{{ props.row.send_rate || 0 }}/min</span>
+                </b-table-column>
+              </b-table>
+              <p v-if="anyStalled" class="mt-3 is-size-7 has-text-grey">
+                A campaign is flagged STALLED when status='running' but the last send is &gt; 2 hours old.
+                Open the campaign and try the <strong>Reset window</strong> button. If that doesn't help,
+                pause then resume the campaign to spawn a fresh worker pipe.
+              </p>
+            </article>
+          </div>
+
           <div class="tile is-parent relative">
             <b-loading v-if="isChartsLoading" active :is-full-page="false" />
             <article class="tile is-child notification charts">
@@ -307,6 +349,9 @@ export default Vue.extend({
         messages: 0,
       },
       features: {},
+      // Solomon fork: per-campaign health rows for the dashboard widget.
+      // Each: { id, name, sent, to_send, last_sent_at, send_rate, stalled, idle }
+      health: [],
     };
   },
 
@@ -331,6 +376,63 @@ export default Vue.extend({
         this.features = data;
         this.isFeaturesLoading = false;
       });
+
+      this.loadHealth();
+    },
+
+    // Solomon fork: build the Campaign Health rows. For every running campaign,
+    // pull the send-log stats (last_sent_at) and the live send-rate, compute
+    // stalled/idle flags, sort STALLED first so the operator sees the problem.
+    loadHealth() {
+      this.$api.http.get('/api/campaigns?per_page=100')
+        .then((res) => {
+          const all = ((res.data && res.data.data && res.data.data.results) || []);
+          const running = all.filter((c) => c.status === 'running');
+          if (running.length === 0) {
+            this.health = [];
+            return;
+          }
+          // Build base rows; we'll fill in last_sent_at + send_rate per campaign.
+          const rows = running.map((c) => ({
+            id: c.id,
+            name: c.name,
+            sent: c.sent || 0,
+            to_send: c.to_send || 0,
+            last_sent_at: null,
+            send_rate: 0,
+            stalled: false,
+            idle: false,
+          }));
+
+          // Fetch send-rate map (one call covers all running campaigns).
+          this.$api.http.get('/api/campaigns/running/stats').then((statsRes) => {
+            const list = (statsRes.data && statsRes.data.data) || [];
+            const rateById = {};
+            list.forEach((s) => { rateById[s.id] = s.send_rate || 0; });
+            rows.forEach((r) => { r.send_rate = rateById[r.id] || 0; });
+          }).catch(() => { /* non-fatal */ });
+
+          // Fetch last_sent_at per campaign in parallel.
+          const STALL_THRESHOLD_MS = 2 * 60 * 60 * 1000; // 2 hours
+          const now = Date.now();
+          Promise.all(rows.map((r) => this.$api.http.get(`/api/campaigns/${r.id}/send-log/stats`)
+            .then((sr) => {
+              const stats = (sr.data && sr.data.data) || {};
+              r.last_sent_at = stats.last_sent_at || null;
+              if (r.last_sent_at) {
+                const ageMs = now - new Date(r.last_sent_at).getTime();
+                r.stalled = ageMs > STALL_THRESHOLD_MS;
+              } else {
+                r.idle = true;
+              }
+            })
+            .catch(() => { /* non-fatal */ }))).then(() => {
+            // Stalled rows first, then idle, then sending.
+            rows.sort((a, b) => (b.stalled - a.stalled) || (b.idle - a.idle));
+            this.health = rows;
+          });
+        })
+        .catch(() => { /* non-fatal — health tile just won't render */ });
     },
 
     makeChart(data) {
@@ -362,6 +464,13 @@ export default Vue.extend({
       const warmingSent = this.features.warming
         ? this.features.warming.total_sent || 0 : 0;
       return campaignSent + warmingSent;
+    },
+    // Solomon fork: how many running campaigns are flagged stalled.
+    stalledCount() {
+      return this.health.filter((c) => c.stalled).length;
+    },
+    anyStalled() {
+      return this.stalledCount > 0;
     },
   },
 

@@ -165,6 +165,19 @@
                       ({{ data.status }}) — change it from the campaign list page.
                     </p>
                   </div>
+                  <!-- Solomon fork: clear in-memory sliding-window rate-limit
+                       state. Use when campaign is stuck not sending despite
+                       status='running' (workers stuck on stale window state
+                       from a pause/resume cycle). -->
+                  <div class="column is-4" v-if="!isNew && data.status === 'running'">
+                    <b-field label="Reset rate-limit window"
+                      message="One-shot fix when sends stall despite status=running. Clears the in-memory sliding-window counter so the next pipe pass starts fresh.">
+                      <b-button @click="onResetWindow" :loading="windowResetting"
+                        type="is-warning" icon-left="speedometer">
+                        Reset window
+                      </b-button>
+                    </b-field>
+                  </div>
                 </div>
 
                 <div>
@@ -348,6 +361,25 @@
             <div class="column"><p class="has-text-grey is-size-7">LAST</p><p class="is-size-7">{{ sendLogStats.last_sent_at ? $utils.niceDate(sendLogStats.last_sent_at, true) : '—' }}</p></div>
           </div>
 
+          <!-- Solomon fork: surface failed sends so the operator can see + retry
+               them without psql. Common case: Resend/SES daily quota tripped,
+               worker logged 'failed' once, never retried. Click re-queues. -->
+          <b-message v-if="sendLogStats && sendLogStats.total_failed > 0" type="is-warning" class="mb-3">
+            <div class="columns is-vcentered">
+              <div class="column">
+                <strong>{{ sendLogStats.total_failed.toLocaleString() }}</strong> sends failed.
+                Most common causes: SMTP daily-quota exceeded, transient connection errors, or rate-limit caps.
+                Use the Status filter below to inspect them. Retrying deletes the failed log rows so the
+                campaign worker re-queues those subscribers.
+              </div>
+              <div class="column is-narrow">
+                <b-button type="is-warning" icon-left="refresh" @click="onRetryFailed" :loading="sendLogRetrying">
+                  Retry {{ sendLogStats.total_failed.toLocaleString() }} failed
+                </b-button>
+              </div>
+            </div>
+          </b-message>
+
           <div class="columns">
             <div class="column"><b-input v-model="sendLogEmailFilter" placeholder="Filter by email" icon="magnify" @input="onSendLogFilter" /></div>
             <div class="column is-one-quarter">
@@ -451,6 +483,8 @@ export default Vue.extend({
       sendLogLoading: false,
       sendLogStats: null,
       sendLogFilterTimer: null,
+      sendLogRetrying: false,
+      windowResetting: false,
 
       data: {},
 
@@ -542,7 +576,10 @@ export default Vue.extend({
         });
       }
 
-      // Solomon fork: lazy-load send log when tab opens.
+      // Solomon fork: lazy-load send log when tab opens. Also handled by the
+      // activeTab watcher below — keeping this call too so an explicit click
+      // always refreshes the data (handles "user came back to the tab from
+      // another tab and expects fresh numbers").
       if (tab === 'sendlog' && this.data.id) {
         this.loadSendLogStats();
         this.loadSendLog();
@@ -596,6 +633,61 @@ export default Vue.extend({
         this.sendLogPage = 1;
         this.loadSendLog();
       }, 400);
+    },
+
+    // Solomon fork: deletes status='failed' rows from campaign_send_log so the
+    // worker treats those subscribers as un-attempted and re-queues them on
+    // the next pipe pass. Common case: SMTP daily-quota exceeded once, then
+    // the rows sit forever as silent permanent failures.
+    onRetryFailed() {
+      this.$buefy.dialog.confirm({
+        message: `Re-queue the ${this.sendLogStats.total_failed.toLocaleString()} failed sends? `
+          + 'They\'ll be re-attempted on the next worker pass (rate-limited as normal).',
+        confirmText: 'Retry',
+        type: 'is-warning',
+        onConfirm: () => {
+          this.sendLogRetrying = true;
+          this.$api.retryFailedCampaignSends(this.data.id)
+            .then((res) => {
+              const n = (res.data && res.data.requeued) || 0;
+              this.$utils.toast(`Re-queued ${n} subscribers. Next pipe pass will retry.`);
+              this.loadSendLogStats();
+              this.loadSendLog();
+            })
+            .catch((err) => {
+              this.$utils.toast(err.message || 'Retry failed', 'is-danger');
+            })
+            .finally(() => { this.sendLogRetrying = false; });
+        },
+      });
+    },
+
+    // Solomon fork: clears the in-memory sliding-window rate-limit counter on
+    // a running campaign. Use when sends have stalled despite status='running'
+    // (workers stuck on stale window state from a pause/resume cycle).
+    onResetWindow() {
+      this.$buefy.dialog.confirm({
+        message: 'Reset the in-memory rate-limit window for this campaign? '
+          + 'Use this if the campaign is stuck not sending despite running. '
+          + 'No-op if the worker isn\'t actively processing this campaign.',
+        confirmText: 'Reset window',
+        type: 'is-warning',
+        onConfirm: () => {
+          this.windowResetting = true;
+          this.$api.resetCampaignWindow(this.data.id)
+            .then((res) => {
+              const ok = res.data && res.data.reset;
+              this.$utils.toast(ok
+                ? 'Rate-limit window reset. Sending should resume within ~30s.'
+                : 'Campaign isn\'t in the active worker pool. Pause + resume to re-pipe it.',
+                ok ? 'is-success' : 'is-warning');
+            })
+            .catch((err) => {
+              this.$utils.toast(err.message || 'Reset failed', 'is-danger');
+            })
+            .finally(() => { this.windowResetting = false; });
+        },
+      });
     },
 
     onFillArchiveMeta() {
@@ -925,6 +1017,17 @@ export default Vue.extend({
       } else {
         this.form.sendLater = false;
         this.form.sendAtDate = null;
+      }
+    },
+
+    // Solomon fork: b-tabs @input only fires on user click, not on programmatic
+    // changes (e.g. mounted() setting activeTab from URL hash like #sendlog,
+    // or on page refresh while sitting on the Send Log tab). Without this
+    // watcher the table renders empty even when campaign_send_log has rows.
+    activeTab(val) {
+      if (val === 'sendlog' && this.data.id) {
+        this.loadSendLogStats();
+        this.loadSendLog();
       }
     },
   },
