@@ -537,6 +537,25 @@ func (c *Core) QueryCampaignSendLogStats(campaignID int) (models.CampaignSendLog
 	return out, nil
 }
 
+// DeleteFailedCampaignSends removes status='failed' rows from
+// campaign_send_log for one campaign. Once the rows are gone, the worker's
+// "not yet sent to" gate (in pipe.NextSubscribers' SQL filter) treats those
+// subscribers as un-attempted, so the next pipe pass re-queues them and the
+// messenger retries delivery. Returns the count deleted.
+//
+// Used by the admin UI's "Retry N failed sends" button on the Send Log tab —
+// the natural recovery path for transient failures (rate caps, daily quotas,
+// SMTP timeouts) that previously required psql to clean up.
+func (c *Core) DeleteFailedCampaignSends(campaignID int) (int64, error) {
+	var deleted int64
+	if err := c.q.DeleteFailedCampaignSends.Get(&deleted, campaignID); err != nil {
+		c.log.Printf("error deleting failed campaign sends: %s", err)
+		return 0, echo.NewHTTPError(http.StatusInternalServerError,
+			c.i18n.Ts("globals.messages.errorUpdating", "name", "{globals.terms.campaign}", "error", pqErrMsg(err)))
+	}
+	return deleted, nil
+}
+
 // GetLinkURL returns the original URL for a link UUID without recording a click.
 func (c *Core) GetLinkURL(linkUUID string) (string, error) {
 	var url string

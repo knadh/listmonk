@@ -164,6 +164,8 @@ func initHTTPHandlers(e *echo.Echo, a *App) {
 		g.GET("/api/campaigns/analytics/:type", pm(a.GetCampaignViewAnalytics, "campaigns:get_analytics"))
 		g.GET("/api/campaigns/:id/send-log", pm(hasID(a.GetCampaignSendLog), "campaigns:get_all", "campaigns:get"))
 		g.GET("/api/campaigns/:id/send-log/stats", pm(hasID(a.GetCampaignSendLogStats), "campaigns:get_all", "campaigns:get"))
+		g.POST("/api/campaigns/:id/send-log/retry-failed", pm(hasID(a.RetryFailedCampaignSends), "campaigns:manage_all", "campaigns:manage"))
+		g.POST("/api/campaigns/:id/reset-window", pm(hasID(a.ResetCampaignWindow), "campaigns:manage_all", "campaigns:manage"))
 		g.GET("/api/campaigns/:id/preview", pm(hasID(a.PreviewCampaign), "campaigns:get_all", "campaigns:get"))
 		g.POST("/api/campaigns/:id/preview/archive", pm(hasID(a.PreviewCampaignArchive), "campaigns:get_all", "campaigns:get"))
 		g.POST("/api/campaigns/:id/preview", pm(hasID(a.PreviewCampaign), "campaigns:get_all", "campaigns:get"))

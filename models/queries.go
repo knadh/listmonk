@@ -95,6 +95,7 @@ type Queries struct {
 	InsertCampaignSendLog     *sqlx.Stmt `query:"insert-campaign-send-log"`
 	QueryCampaignSendLog      *sqlx.Stmt `query:"query-campaign-send-log"`
 	QueryCampaignSendLogStats *sqlx.Stmt `query:"query-campaign-send-log-stats"`
+	DeleteFailedCampaignSends *sqlx.Stmt `query:"delete-failed-campaign-sends"`
 	DeleteCampaign            *sqlx.Stmt `query:"delete-campaign"`
 	DeleteCampaigns          *sqlx.Stmt `query:"delete-campaigns"`
 
