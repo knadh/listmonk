@@ -409,22 +409,23 @@ export default Vue.extend({
             const list = (statsRes.data && statsRes.data.data) || [];
             const rateById = {};
             list.forEach((s) => { rateById[s.id] = s.send_rate || 0; });
-            rows.forEach((r) => { r.send_rate = rateById[r.id] || 0; });
+            rows.forEach((_, i) => { rows[i] = { ...rows[i], send_rate: rateById[rows[i].id] || 0 }; });
           }).catch(() => { /* non-fatal */ });
 
-          // Fetch last_sent_at per campaign in parallel.
+          // Fetch last_sent_at per campaign in parallel. Index-keyed mutation
+          // (rather than mutating the row param) keeps eslint no-param-reassign
+          // happy.
           const STALL_THRESHOLD_MS = 2 * 60 * 60 * 1000; // 2 hours
           const now = Date.now();
-          Promise.all(rows.map((r) => this.$api.http.get(`/api/campaigns/${r.id}/send-log/stats`)
+          Promise.all(rows.map((row, i) => this.$api.http.get(`/api/campaigns/${row.id}/send-log/stats`)
             .then((sr) => {
               const stats = (sr.data && sr.data.data) || {};
-              r.last_sent_at = stats.last_sent_at || null;
-              if (r.last_sent_at) {
-                const ageMs = now - new Date(r.last_sent_at).getTime();
-                r.stalled = ageMs > STALL_THRESHOLD_MS;
-              } else {
-                r.idle = true;
-              }
+              const lastSentAt = stats.last_sent_at || null;
+              const stalled = lastSentAt
+                ? (now - new Date(lastSentAt).getTime()) > STALL_THRESHOLD_MS
+                : false;
+              const idle = !lastSentAt;
+              rows[i] = { ...rows[i], last_sent_at: lastSentAt, stalled, idle };
             })
             .catch(() => { /* non-fatal */ }))).then(() => {
             // Stalled rows first, then idle, then sending.
