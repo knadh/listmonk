@@ -425,7 +425,9 @@ export default Vue.extend({
                 ? (now - new Date(lastSentAt).getTime()) > STALL_THRESHOLD_MS
                 : false;
               const idle = !lastSentAt;
-              rows[i] = { ...rows[i], last_sent_at: lastSentAt, stalled, idle };
+              rows[i] = {
+                ...rows[i], last_sent_at: lastSentAt, stalled, idle,
+              };
             })
             .catch(() => { /* non-fatal */ }))).then(() => {
             // Stalled rows first, then idle, then sending.
