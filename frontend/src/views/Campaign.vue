@@ -677,10 +677,10 @@ export default Vue.extend({
           this.$api.resetCampaignWindow(this.data.id)
             .then((res) => {
               const ok = res.data && res.data.reset;
-              this.$utils.toast(ok
+              const msg = ok
                 ? 'Rate-limit window reset. Sending should resume within ~30s.'
-                : 'Campaign isn\'t in the active worker pool. Pause + resume to re-pipe it.',
-                ok ? 'is-success' : 'is-warning');
+                : 'Campaign isn\'t in the active worker pool. Pause + resume to re-pipe it.';
+              this.$utils.toast(msg, ok ? 'is-success' : 'is-warning');
             })
             .catch((err) => {
               this.$utils.toast(err.message || 'Reset failed', 'is-danger');
