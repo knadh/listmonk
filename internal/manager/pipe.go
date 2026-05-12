@@ -28,6 +28,12 @@ type pipe struct {
 	slidingCount int
 	slidingStart time.Time
 
+	// done is closed by Stop() so an in-progress sliding-window sleep wakes
+	// immediately on pause/cancel instead of blocking the goroutine for up to
+	// SlidingWindowDuration. Use stopOnce to guarantee a single close.
+	done     chan struct{}
+	stopOnce sync.Once
+
 	m *Manager
 }
 
@@ -55,6 +61,7 @@ func (m *Manager) newPipe(c *models.Campaign) (*pipe, error) {
 		rate:         ratecounter.NewRateCounter(time.Minute),
 		wg:           &sync.WaitGroup{},
 		slidingStart: time.Now(),
+		done:         make(chan struct{}),
 		m:            m,
 	}
 
@@ -73,6 +80,14 @@ func (m *Manager) newPipe(c *models.Campaign) (*pipe, error) {
 	}()
 
 	m.pipesMut.Lock()
+	// If a stale pipe is still registered for this campaign (e.g. its
+	// goroutine is still draining a previous sliding-window sleep), stop it
+	// so it can exit cleanly. The stale pipe's deferred cleanup uses a
+	// pointer-identity check before deleting the map entry, so it won't
+	// remove the new pipe we install on the next line.
+	if old, ok := m.pipes[c.ID]; ok {
+		old.Stop(false)
+	}
 	m.pipes[c.ID] = p
 	m.pipesMut.Unlock()
 	return p, nil
@@ -137,7 +152,21 @@ func (p *pipe) NextSubscribers() (bool, error) {
 					wait.Round(time.Second)*1)
 
 				p.slidingCount = 0
-				time.Sleep(wait)
+
+				// Sleep, but wake immediately if the campaign is paused or
+				// cancelled. Without this, a pause issued mid-sleep leaves
+				// the goroutine blocked for up to SlidingWindowDuration; on
+				// resume a new pipe gets installed and the stale goroutine's
+				// later cleanup would race with it.
+				timer := time.NewTimer(wait)
+				select {
+				case <-timer.C:
+				case <-p.done:
+					if !timer.Stop() {
+						<-timer.C
+					}
+					return false, nil
+				}
 			}
 		}
 	}
@@ -165,17 +194,23 @@ func (p *pipe) OnError() {
 // Stop "marks" a campaign as stopped. It doesn't actually stop the processing
 // of messages. That happens when every queued message in the campaign is processed,
 // marking .wg, the waitgroup counter as done. That triggers cleanup().
+//
+// Closing p.done also wakes any goroutine currently parked in a sliding-window
+// sleep so it can exit and let cleanup() run.
 func (p *pipe) Stop(withErrors bool) {
+	if withErrors {
+		p.withErrors.Store(true)
+	}
+
 	// Already stopped.
 	if p.stopped.Load() {
 		return
 	}
 
-	if withErrors {
-		p.withErrors.Store(true)
-	}
-
 	p.stopped.Store(true)
+	p.stopOnce.Do(func() {
+		close(p.done)
+	})
 }
 
 // newMessage returns a campaign message while internally incrementing the
@@ -199,7 +234,14 @@ func (p *pipe) newMessage(s models.Subscriber) (CampaignMessage, error) {
 func (p *pipe) cleanup() {
 	defer func() {
 		p.m.pipesMut.Lock()
-		delete(p.m.pipes, p.camp.ID)
+		// Pointer-identity check: only remove the map entry if it still
+		// points at THIS pipe. If a successor pipe has already been
+		// installed for this campaign (e.g. after a stale pause/resume
+		// cycle), leave it in place — otherwise the campaign goes silent
+		// until the container restarts. Friday May 8 stall traced to this.
+		if cur, ok := p.m.pipes[p.camp.ID]; ok && cur == p {
+			delete(p.m.pipes, p.camp.ID)
+		}
 		p.m.pipesMut.Unlock()
 	}()
 

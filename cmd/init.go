@@ -384,10 +384,17 @@ func prepareQueries(qMap goyesql.Queries, db *sqlx.DB, ko *koanf.Koanf) *models.
 	var (
 		countQuery = "get-campaign-analytics-counts"
 		linkSel    = "*"
+		// statsCountExpr is substituted into the views/clicks CTEs of
+		// get-campaign-stats so the campaigns list view counts the same way
+		// the analytics view does. Default counts every event row;
+		// individual_tracking switches to per-subscriber dedup to match
+		// get-campaign-analytics-unique-counts.
+		statsCountExpr = "COUNT(campaign_id)"
 	)
 	if ko.Bool("privacy.individual_tracking") {
 		countQuery = "get-campaign-analytics-unique-counts"
 		linkSel = "DISTINCT subscriber_id"
+		statsCountExpr = "COUNT(DISTINCT subscriber_id)"
 	}
 
 	// These don't exist in the SQL file but are in the queries struct to be prepared.
@@ -400,6 +407,7 @@ func prepareQueries(qMap goyesql.Queries, db *sqlx.DB, ko *koanf.Koanf) *models.
 		Tags:  map[string]string{"name": "get-campaign-click-counts"},
 	}
 	qMap["get-campaign-link-counts"].Query = fmt.Sprintf(qMap["get-campaign-link-counts"].Query, linkSel)
+	qMap["get-campaign-stats"].Query = fmt.Sprintf(qMap["get-campaign-stats"].Query, statsCountExpr, statsCountExpr)
 
 	// Scan and prepare all queries.
 	var q models.Queries

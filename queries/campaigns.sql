@@ -116,10 +116,16 @@ SELECT COUNT(*) OVER () AS total, campaigns.*,
     ORDER by campaigns.created_at DESC OFFSET $1 LIMIT $2;
 
 -- name: get-campaign-stats
+-- raw: true
 -- This query is used to lazy load campaign stats (views, counts, list of lists) given a list of campaign IDs.
 -- The query returns results in the same order as the given campaign IDs, and for non-existent campaign IDs,
 -- the query still returns a row with 0 values. Thus, for lazy loading, the application simply iterate on the results in
 -- the same order as the list of campaigns it would've queried and attach the results.
+--
+-- The two %s placeholders are replaced at boot in cmd/init.go with either
+-- COUNT(campaign_id) or COUNT(DISTINCT subscriber_id) depending on
+-- privacy.individual_tracking, so the list view matches the analytics view
+-- (was previously hardcoded to COUNT and diverged from analytics).
 WITH lists AS (
     SELECT campaign_id, JSON_AGG(JSON_BUILD_OBJECT('id', list_id, 'name', list_name)) AS lists FROM campaign_lists
     WHERE campaign_id = ANY($1) GROUP BY campaign_id
@@ -129,12 +135,12 @@ media AS (
     WHERE campaign_id = ANY($1) GROUP BY campaign_id
 ),
 views AS (
-    SELECT campaign_id, COUNT(campaign_id) as num FROM campaign_views
+    SELECT campaign_id, %s as num FROM campaign_views
     WHERE campaign_id = ANY($1)
     GROUP BY campaign_id
 ),
 clicks AS (
-    SELECT campaign_id, COUNT(campaign_id) as num FROM link_clicks
+    SELECT campaign_id, %s as num FROM link_clicks
     WHERE campaign_id = ANY($1)
     GROUP BY campaign_id
 ),
