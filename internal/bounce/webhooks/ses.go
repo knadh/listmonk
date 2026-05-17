@@ -13,6 +13,7 @@ import (
 	"net/url"
 	"regexp"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/knadh/listmonk/models"
@@ -65,6 +66,7 @@ type sesMail struct {
 // SES handles SES/SNS webhook notifications including confirming SNS topic subscription
 // requests and bounce notifications.
 type SES struct {
+	mu    sync.RWMutex
 	certs map[string]*x509.Certificate
 }
 
@@ -224,7 +226,10 @@ func (s *SES) getCert(certURL string) (*x509.Certificate, error) {
 	}
 
 	// Return if it's cached.
-	if c, ok := s.certs[u.Path]; ok {
+	s.mu.RLock()
+	c, ok := s.certs[u.Path]
+	s.mu.RUnlock()
+	if ok {
 		return c, nil
 	}
 
@@ -252,7 +257,14 @@ func (s *SES) getCert(certURL string) (*x509.Certificate, error) {
 	cert, err := x509.ParseCertificate(p.Bytes)
 
 	// Cache the cert in-memory.
+	s.mu.Lock()
+	// Check again if another goroutine already cached it while we were fetching.
+	if c2, ok := s.certs[u.Path]; ok {
+		s.mu.Unlock()
+		return c2, err
+	}
 	s.certs[u.Path] = cert
+	s.mu.Unlock()
 
 	return cert, err
 }
