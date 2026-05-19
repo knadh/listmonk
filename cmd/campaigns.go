@@ -663,9 +663,27 @@ func (a *App) sendTestMessage(sub models.Subscriber, camp *models.Campaign) erro
 func (a *App) validateCampaignFields(c campReq) (campReq, error) {
 	if c.FromEmail == "" {
 		c.FromEmail = a.cfg.FromEmail
-	} else if !reFromAddress.Match([]byte(c.FromEmail)) {
-		if _, err := a.importer.SanitizeEmail(c.FromEmail); err != nil {
-			return c, errors.New(a.i18n.T("campaigns.fieldInvalidFromEmail"))
+	} else {
+		fromEmail := c.FromEmail
+
+		// If the From header contains a template, render it against the
+		// dummy subscriber so the resolved address can be validated.
+		if strings.Contains(fromEmail, "{{") {
+			testCamp := models.Campaign{FromEmail: fromEmail}
+			if err := testCamp.CompileTemplate(a.manager.TemplateFuncs(&testCamp)); err != nil {
+				return c, errors.New(a.i18n.Ts("campaigns.fieldInvalidFromEmail") + ": " + err.Error())
+			}
+			msg, err := a.manager.NewCampaignMessage(&testCamp, dummySubscriber)
+			if err != nil {
+				return c, errors.New(a.i18n.Ts("campaigns.fieldInvalidFromEmail") + ": " + err.Error())
+			}
+			fromEmail = msg.From()
+		}
+
+		if !reFromAddress.Match([]byte(fromEmail)) {
+			if _, err := a.importer.SanitizeEmail(fromEmail); err != nil {
+				return c, errors.New(a.i18n.T("campaigns.fieldInvalidFromEmail"))
+			}
 		}
 	}
 
