@@ -232,7 +232,7 @@ func main() {
 	// Initialize the bounce manager that processes bounces from webhooks and
 	// POP3 mailbox scanning.
 	if ko.Bool("bounce.enabled") {
-		bounce = initBounceManager(core.RecordBounce, queries.RecordBounce, lo, ko)
+		bounce = initBounceManager(core.RecordBounce, queries.RecordBounce, queries.OCIBounceExists, lo, ko)
 	}
 
 	// Assign the default `email` messenger to the app.

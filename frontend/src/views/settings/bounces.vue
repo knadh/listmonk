@@ -230,6 +230,68 @@
         </div><!-- second container column -->
       </div><!-- block -->
     </template>
+
+    <!-- OCI (Oracle Cloud Infrastructure) suppression list poller -->
+    <b-field :label="$t('settings.bounces.enableOCI')">
+      <b-switch v-if="data['bounce.oci']" v-model="data['bounce.oci'].enabled"
+        :disabled="!data['bounce.enabled']" name="oci_enabled" :native-value="true"
+        data-cy="btn-enable-bounce-oci" />
+    </b-field>
+
+    <template v-if="data['bounce.enabled'] && data['bounce.oci'] && data['bounce.oci'].enabled">
+      <div class="block box">
+        <div class="columns">
+          <div class="column">
+            <b-field :label="$t('settings.bounces.ociHost')" label-position="on-border"
+              :message="$t('settings.bounces.ociHostHelp')">
+              <b-input v-model="data['bounce.oci'].host"
+                placeholder="ctrl.email.us-phoenix-1.oci.oraclecloud.com" name="oci_host" />
+            </b-field>
+          </div>
+          <div class="column is-4">
+            <b-field :label="$t('settings.bounces.ociScanInterval')" label-position="on-border"
+              :message="$t('settings.bounces.ociScanIntervalHelp')">
+              <b-input v-model="data['bounce.oci'].scan_interval" name="oci_scan_interval"
+                placeholder="24h" :pattern="regDuration" :maxlength="10" />
+            </b-field>
+          </div>
+        </div>
+
+        <div class="columns">
+          <div class="column">
+            <b-field :label="$t('settings.bounces.ociTenancyOCID')" label-position="on-border">
+              <b-input v-model="data['bounce.oci'].tenancy_ocid" name="oci_tenancy_ocid"
+                placeholder="ocid1.tenancy.oc1.." />
+            </b-field>
+            <b-field :label="$t('settings.bounces.ociUserOCID')" label-position="on-border">
+              <b-input v-model="data['bounce.oci'].user_ocid" name="oci_user_ocid"
+                placeholder="ocid1.user.oc1.." />
+            </b-field>
+            <b-field :label="$t('settings.bounces.ociCompartmentID')" label-position="on-border">
+              <b-input v-model="data['bounce.oci'].compartment_id" name="oci_compartment_id"
+                placeholder="ocid1.tenancy.oc1.." />
+            </b-field>
+            <b-field :label="$t('settings.bounces.ociFingerprint')" label-position="on-border">
+              <b-input v-model="data['bounce.oci'].fingerprint" name="oci_fingerprint"
+                placeholder="77:5f:a1:79:.." />
+            </b-field>
+          </div>
+        </div>
+
+        <b-field :label="$t('settings.bounces.ociPrivateKey')"
+          :message="$t('globals.messages.passwordChange')">
+          <b-input v-model="data['bounce.oci'].private_key" type="textarea"
+            name="oci_private_key" placeholder="-----BEGIN RSA PRIVATE KEY-----..." />
+        </b-field>
+
+        <b-field>
+          <b-switch v-model="data['bounce.oci'].delete_after_record"
+            name="oci_delete_after_record">
+            {{ $t('settings.bounces.ociDeleteAfterRecord') }}
+          </b-switch>
+        </b-field>
+      </div>
+    </template>
   </div>
 </template>
 

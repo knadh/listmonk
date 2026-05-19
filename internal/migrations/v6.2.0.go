@@ -27,5 +27,16 @@ func V6_2_0(db *sqlx.DB, fs stuffbin.FileSystem, ko *koanf.Koanf, lo *log.Logger
 		return err
 	}
 
+	// Default `bounce.oci` settings row for the Oracle Cloud Infrastructure
+	// suppression-list poller.
+	if _, err := db.Exec(`
+		INSERT INTO settings (key, value) VALUES (
+			'bounce.oci',
+			'{"enabled": false, "host": "", "tenancy_ocid": "", "user_ocid": "", "fingerprint": "", "private_key": "", "compartment_id": "", "delete_after_record": true, "scan_interval": "24h"}'
+		) ON CONFLICT DO NOTHING;
+	`); err != nil {
+		return err
+	}
+
 	return nil
 }

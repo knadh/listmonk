@@ -7,6 +7,7 @@ import (
 
 	"github.com/jmoiron/sqlx"
 	"github.com/knadh/listmonk/internal/bounce/mailbox"
+	"github.com/knadh/listmonk/internal/bounce/oci"
 	"github.com/knadh/listmonk/internal/bounce/webhooks"
 	"github.com/knadh/listmonk/models"
 )
@@ -40,6 +41,8 @@ type Opt struct {
 		Key     string
 	}
 
+	OCI oci.Opt `json:"oci"`
+
 	RecordBounceCB func(models.Bounce) error
 }
 
@@ -52,6 +55,7 @@ type Manager struct {
 	Postmark     *webhooks.Postmark
 	Forwardemail *webhooks.Forwardemail
 	Lettermint   *webhooks.Lettermint
+	oci          *oci.OCI
 	queries      *Queries
 	opt          Opt
 	log          *log.Logger
@@ -59,8 +63,9 @@ type Manager struct {
 
 // Queries contains the queries.
 type Queries struct {
-	DB          *sqlx.DB
-	RecordQuery *sqlx.Stmt
+	DB              *sqlx.DB
+	RecordQuery     *sqlx.Stmt
+	OCIExistsQuery  *sqlx.Stmt
 }
 
 // New returns a new instance of the bounce manager.
@@ -110,6 +115,27 @@ func New(opt Opt, q *Queries, lo *log.Logger) (*Manager, error) {
 		}
 	}
 
+	if opt.OCI.Enabled {
+		var exists oci.ExistsFn
+		if q != nil && q.OCIExistsQuery != nil {
+			stmt := q.OCIExistsQuery
+			exists = func(ocid string) (bool, error) {
+				var ok bool
+				if err := stmt.Get(&ok, ocid); err != nil {
+					return false, err
+				}
+				return ok, nil
+			}
+		}
+
+		o, err := oci.New(opt.OCI, exists, lo)
+		if err != nil {
+			lo.Printf("error initializing OCI bounce poller: %v", err)
+		} else {
+			m.oci = o
+		}
+	}
+
 	return m, nil
 }
 
@@ -118,6 +144,10 @@ func New(opt Opt, q *Queries, lo *log.Logger) (*Manager, error) {
 func (m *Manager) Run() {
 	if m.opt.MailboxEnabled {
 		go m.runMailboxScanner()
+	}
+
+	if m.oci != nil {
+		go m.runOCIScanner()
 	}
 
 	for b := range m.queue {
@@ -140,6 +170,18 @@ func (m *Manager) runMailboxScanner() {
 		}
 
 		time.Sleep(m.opt.Mailbox.ScanInterval)
+	}
+}
+
+// runOCIScanner polls the OCI suppression list at given intervals.
+func (m *Manager) runOCIScanner() {
+	for {
+		m.log.Printf("scanning OCI suppression list %s", m.opt.OCI.Host)
+		if err := m.oci.Scan(m.queue); err != nil {
+			m.log.Printf("error scanning OCI suppression list: %v", err)
+		}
+
+		time.Sleep(m.opt.OCI.ScanInterval)
 	}
 }
 

@@ -184,6 +184,12 @@ export default Vue.extend({
         hasDummy = 'lettermint';
       }
 
+      if (this.isDummy(form['bounce.oci'].private_key)) {
+        form['bounce.oci'].private_key = '';
+      } else if (this.hasDummy(form['bounce.oci'].private_key)) {
+        hasDummy = 'oci';
+      }
+
       for (let i = 0; i < form.messengers.length; i += 1) {
         // If it's the dummy UI password placeholder, ignore it.
         if (this.isDummy(form.messengers[i].password)) {

@@ -134,6 +134,17 @@ type Settings struct {
 		Enabled bool   `json:"enabled"`
 		Key     string `json:"key"`
 	} `json:"bounce.lettermint"`
+	BounceOCI struct {
+		Enabled           bool   `json:"enabled"`
+		Host              string `json:"host"`
+		TenancyOCID       string `json:"tenancy_ocid"`
+		UserOCID          string `json:"user_ocid"`
+		Fingerprint       string `json:"fingerprint"`
+		PrivateKey        string `json:"private_key,omitempty"`
+		CompartmentID     string `json:"compartment_id"`
+		DeleteAfterRecord bool   `json:"delete_after_record"`
+		ScanInterval      string `json:"scan_interval"`
+	} `json:"bounce.oci"`
 	BounceBoxes []struct {
 		UUID          string `json:"uuid"`
 		Enabled       bool   `json:"enabled"`

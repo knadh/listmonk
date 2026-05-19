@@ -117,6 +117,7 @@ type Queries struct {
 	BlocklistBouncedSubscribers *sqlx.Stmt `query:"blocklist-bounced-subscribers"`
 	DeleteBounces               *sqlx.Stmt `query:"delete-bounces"`
 	DeleteBouncesBySubscriber   *sqlx.Stmt `query:"delete-bounces-by-subscriber"`
+	OCIBounceExists             *sqlx.Stmt `query:"oci-bounce-exists"`
 	GetDBInfo                   string     `query:"get-db-info"`
 
 	CreateUser         *sqlx.Stmt `query:"create-user"`

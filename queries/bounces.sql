@@ -54,6 +54,9 @@ WHERE ($1 = 0 OR bounces.id = $1)
     AND ($4 = '' OR bounces.source = $4)
 ORDER BY %order% OFFSET $5 LIMIT (CASE WHEN $6 < 1 THEN NULL ELSE $6 END);
 
+-- name: oci-bounce-exists
+SELECT EXISTS(SELECT 1 FROM bounces WHERE source = 'oci' AND meta->>'ocid' = $1);
+
 -- name: delete-bounces
 DELETE FROM bounces WHERE $2 = TRUE OR id = ANY($1);
 

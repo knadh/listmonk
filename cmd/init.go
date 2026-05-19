@@ -148,6 +148,7 @@ type Config struct {
 	BouncePostmarkEnabled     bool
 	BounceForwardemailEnabled bool
 	BounceLettermintEnabled   bool
+	BounceOCIEnabled          bool
 
 	PermissionsRaw json.RawMessage
 	Permissions    map[string]struct{}
@@ -514,6 +515,7 @@ func initConstConfig(ko *koanf.Koanf) *Config {
 	c.BouncePostmarkEnabled = ko.Bool("bounce.postmark.enabled")
 	c.BounceForwardemailEnabled = ko.Bool("bounce.forwardemail.enabled")
 	c.BounceLettermintEnabled = ko.Bool("bounce.lettermint.enabled")
+	c.BounceOCIEnabled = ko.Bool("bounce.oci.enabled")
 	c.HasLegacyUser = ko.Exists("app.admin_username") || ko.Exists("app.admin_password")
 
 	b := md5.Sum([]byte(time.Now().String()))
@@ -816,7 +818,7 @@ func initNotifs(fs stuffbin.FileSystem, i *i18n.I18n, em *email.Emailer, u *UrlC
 
 // initBounceManager initializes the bounce manager that scans mailboxes and listens to webhooks
 // for incoming bounce events.
-func initBounceManager(cb func(models.Bounce) error, stmt *sqlx.Stmt, lo *log.Logger, ko *koanf.Koanf) *bounce.Manager {
+func initBounceManager(cb func(models.Bounce) error, stmt *sqlx.Stmt, ociExistsStmt *sqlx.Stmt, lo *log.Logger, ko *koanf.Koanf) *bounce.Manager {
 	opt := bounce.Opt{
 		WebhooksEnabled: ko.Bool("bounce.webhooks_enabled"),
 		SESEnabled:      ko.Bool("bounce.ses_enabled"),
@@ -865,8 +867,17 @@ func initBounceManager(cb func(models.Bounce) error, stmt *sqlx.Stmt, lo *log.Lo
 		break
 	}
 
+	// OCI (Oracle Cloud Infrastructure) suppression-list poller. Unlike the
+	// HTTP webhook sources above, OCI is polled on an interval — see
+	// internal/bounce/oci.
+	if ko.Bool("bounce.oci.enabled") {
+		if err := ko.UnmarshalWithConf("bounce.oci", &opt.OCI, koanf.UnmarshalConf{Tag: "json"}); err != nil {
+			lo.Fatalf("error reading bounce.oci config: %v", err)
+		}
+	}
+
 	// Initialize the bounce manager.
-	b, err := bounce.New(opt, &bounce.Queries{RecordQuery: stmt}, lo)
+	b, err := bounce.New(opt, &bounce.Queries{RecordQuery: stmt, OCIExistsQuery: ociExistsStmt}, lo)
 	if err != nil {
 		lo.Fatalf("error initializing bounce manager: %v", err)
 	}

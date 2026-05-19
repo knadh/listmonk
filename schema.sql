@@ -290,6 +290,7 @@ INSERT INTO settings (key, value) VALUES
     ('bounce.postmark', '{"enabled": false, "username": "", "password": ""}'),
     ('bounce.forwardemail', '{"enabled": false, "key": ""}'),
     ('bounce.lettermint', '{"enabled": false, "key": ""}'),
+    ('bounce.oci', '{"enabled": false, "host": "", "tenancy_ocid": "", "user_ocid": "", "fingerprint": "", "private_key": "", "compartment_id": "", "delete_after_record": true, "scan_interval": "24h"}'),
     ('bounce.mailboxes',
         '[{"enabled":false, "type": "pop", "host":"pop.yoursite.com","port":995,"auth_protocol":"userpass","username":"username","password":"password","return_path": "bounce@listmonk.yoursite.com","scan_interval":"15m","tls_enabled":true,"tls_skip_verify":false}]'),
     ('appearance.admin.custom_css', '""'),
