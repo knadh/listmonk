@@ -131,7 +131,7 @@ func (a *App) SendTxMessage(c echo.Context) error {
 		// Render the message.
 		if err := m.Render(sub, tpl, a.manager.GenericTemplateFuncs()); err != nil {
 			return echo.NewHTTPError(http.StatusBadRequest,
-				a.i18n.Ts("globals.messages.errorFetching", "name"))
+				a.i18n.Ts("templates.errorRendering", "error", err.Error()))
 		}
 
 		// Prepare the final message.
