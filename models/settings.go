@@ -81,23 +81,24 @@ type Settings struct {
 	UploadS3Expiry             string   `json:"upload.s3.expiry"`
 
 	SMTP []struct {
-		Name              string              `json:"name"`
-		UUID              string              `json:"uuid"`
-		Enabled           bool                `json:"enabled"`
-		Host              string              `json:"host"`
-		HelloHostname     string              `json:"hello_hostname"`
-		Port              int                 `json:"port"`
-		AuthProtocol      string              `json:"auth_protocol"`
-		Username          string              `json:"username"`
-		Password          string              `json:"password,omitempty"`
-		EmailHeaders      []map[string]string `json:"email_headers"`
-		MaxConns          int                 `json:"max_conns"`
-		MaxMsgRetries     int                 `json:"max_msg_retries"`
-		MsgRetryDelay     string              `json:"msg_retry_delay"`
-		IdleTimeout       string              `json:"idle_timeout"`
-		WaitTimeout       string              `json:"wait_timeout"`
-		TLSType           string              `json:"tls_type"`
-		TLSSkipVerify     bool                `json:"tls_skip_verify"`
+		Name          string              `json:"name"`
+		UUID          string              `json:"uuid"`
+		Enabled       bool                `json:"enabled"`
+		Host          string              `json:"host"`
+		HelloHostname string              `json:"hello_hostname"`
+		Port          int                 `json:"port"`
+		AuthProtocol  string              `json:"auth_protocol"`
+		Username      string              `json:"username"`
+		Password      string              `json:"password,omitempty"`
+		EmailHeaders  []map[string]string `json:"email_headers"`
+		MaxConns      int                 `json:"max_conns"`
+		MaxMsgRetries int                 `json:"max_msg_retries"`
+		MsgRetryDelay string              `json:"msg_retry_delay"`
+		IdleTimeout   string              `json:"idle_timeout"`
+		WaitTimeout   string              `json:"wait_timeout"`
+		TLSType       string              `json:"tls_type"`
+		TLSSkipVerify bool                `json:"tls_skip_verify"`
+		FromAddresses []string            `json:"from_addresses"`
 	} `json:"smtp"`
 
 	Messengers []struct {
