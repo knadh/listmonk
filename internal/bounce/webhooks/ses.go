@@ -259,11 +259,15 @@ func (s *SES) getCert(certURL string) (*x509.Certificate, error) {
 	// Cache the cert in-memory.
 	s.mu.Lock()
 	// Check again if another goroutine already cached it while we were fetching.
-	if c2, ok := s.certs[u.Path]; ok {
+	if c2, ok := s.certs[u.Path]; ok && c2 != nil {
 		s.mu.Unlock()
-		return c2, err
+		// Return the cached cert and ignore this goroutine's parse error (if any).
+		return c2, nil
 	}
-	s.certs[u.Path] = cert
+	// Only cache when parsing succeeded (don't cache nil certs from failures).
+	if err == nil {
+		s.certs[u.Path] = cert
+	}
 	s.mu.Unlock()
 
 	return cert, err
