@@ -67,6 +67,9 @@
     <!-- raw html editor //-->
     <code-editor lang="html" v-if="self.contentType === 'html'" v-model="self.body" key="editor-html" />
 
+    <!-- mjml editor //-->
+    <code-editor lang="mjml" v-if="self.contentType === 'mjml'" v-model="self.body" key="editor-mjml" />
+
     <!-- markdown editor //-->
     <code-editor lang="markdown" v-if="self.contentType === 'markdown'" v-model="self.body" key="editor-markdown" />
 
@@ -162,7 +165,7 @@ export default {
 
       // If `from` is HTML content, strip out `<body>..` etc. and keep the beautified HTML.
       let isHTML = false;
-      if (from === 'richtext' || from === 'html' || from === 'visual') {
+      if (from === 'richtext' || from === 'html' || from === 'visual' || from === 'mjml') {
         const d = document.createElement('div');
         d.innerHTML = body;
         body = this.beautifyHTML(d.innerHTML.trim());
@@ -198,7 +201,7 @@ export default {
         }
 
         // Markdown to HTML requires a backend call.
-      } else if (from === 'markdown' && (to === 'richtext' || to === 'html')) {
+      } else if (from === 'markdown' && (to === 'richtext' || to === 'html' || to === 'mjml')) {
         skip = true;
         this.$api.convertCampaignContent({
           id: 1, body, from, to,
@@ -212,8 +215,21 @@ export default {
         });
 
         // Plain to an HTML type, change plain line breaks to HTML breaks.
-      } else if (from === 'plain' && (to === 'richtext' || to === 'html')) {
+      } else if (from === 'plain' && (to === 'richtext' || to === 'html' || to === 'mjml')) {
         body = body.replace(/\n/ig, '<br>\n');
+      } else if (from === 'mjml' && (to === 'richtext' || to === 'html')) {
+        // MJML to HTML requires a backend call.
+        skip = true;
+        this.$api.convertCampaignContent({
+          id: 1, body, from, to,
+        }).then((data) => {
+          this.$nextTick(() => {
+            // Both type + body should be updated in one cycle to avoid firing
+            // multiple events.
+            this.self.contentType = to;
+            this.self.body = this.beautifyHTML(data.trim());
+          });
+        });
       } else if (to === 'visual') {
         bodySource = JSON.stringify(markdownToVisualBlock(body));
       }

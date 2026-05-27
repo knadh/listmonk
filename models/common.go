@@ -40,6 +40,10 @@ type regTplFunc struct {
 	replace string
 }
 
+// regexpTplTag matches a `{{ template "content" . }}` directive with any
+// amount of internal whitespace.
+var regexpTplTag = regexp.MustCompile(`{{\s*template\s+"content"\s+\.\s*}}`)
+
 var regTplFuncs = []regTplFunc{
 	// Regular expression for matching {{ TrackLink "http://link.com" }} in the template
 	// and substituting it with {{ TrackLink "http://link.com" . }} (the dot context)
