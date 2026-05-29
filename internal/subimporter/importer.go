@@ -17,6 +17,7 @@ import (
 	"io"
 	"log"
 	"os"
+	"path/filepath"
 	"regexp"
 	"strings"
 	"sync"
@@ -410,6 +411,9 @@ func (s *Session) ExtractZIP(srcPath string, maxCSVs int) (string, []string, err
 			s.log.Printf("skipping non .csv file '%s'", fName)
 			continue
 		}
+
+		// Sanitize the file name to prevent ZIP slip path traversal.
+		fName = filepath.Base(fName)
 
 		s.log.Printf("extracting '%s'", fName)
 		src, err := f.Open()
