@@ -1,9 +1,11 @@
 <template>
   <div>
     <div class="columns mb-6">
-      <div class="column is-3">
-        <b-field :label="$t('settings.bounces.enable')" data-cy="btn-enable-bounce">
-          <b-switch v-model="data['bounce.enabled']" name="bounce.enabled" />
+      <div class="column is-4">
+        <b-field data-cy="btn-enable-bounce">
+          <b-switch v-model="data['bounce.enabled']" name="bounce.enabled">
+            {{ $t('settings.bounces.enable') }}
+          </b-switch>
         </b-field>
       </div>
       <div class="column">
@@ -42,9 +44,11 @@
     </div><!-- columns -->
 
     <div class="mb-6">
-      <b-field :label="$t('settings.bounces.enableWebhooks')" data-cy="btn-enable-bounce-webhook">
+      <b-field data-cy="btn-enable-bounce-webhook">
         <b-switch v-model="data['bounce.webhooks_enabled']" :disabled="!data['bounce.enabled']" name="webhooks_enabled"
-          :native-value="true" data-cy="btn-enable-bounce-webhook" />
+          :native-value="true" data-cy="btn-enable-bounce-webhook">
+          {{ $t('settings.bounces.enableWebhooks') }}
+        </b-switch>
         <p class="has-text-grey">
           <a href="https://listmonk.app/docs/bounces" target="_blank" rel="noopener noreferer">{{
             $t('globals.buttons.learnMore') }} &rarr;</a>
@@ -53,17 +57,21 @@
       <div class="box" v-if="data['bounce.webhooks_enabled']">
         <div class="columns">
           <div class="column">
-            <b-field :label="$t('settings.bounces.enableSES')">
+            <b-field>
               <b-switch v-model="data['bounce.ses_enabled']" name="ses_enabled" :native-value="true"
-                data-cy="btn-enable-bounce-ses" />
+                data-cy="btn-enable-bounce-ses">
+                {{ $t('settings.bounces.enableSES') }}
+              </b-switch>
             </b-field>
           </div>
         </div>
         <div class="columns">
           <div class="column is-3">
-            <b-field :label="$t('settings.bounces.enableSendgrid')">
+            <b-field>
               <b-switch v-model="data['bounce.sendgrid_enabled']" name="sendgrid_enabled" :native-value="true"
-                data-cy="btn-enable-bounce-sendgrid" />
+                data-cy="btn-enable-bounce-sendgrid">
+                {{ $t('settings.bounces.enableSendgrid') }}
+              </b-switch>
             </b-field>
           </div>
           <div class="column">
@@ -76,9 +84,11 @@
         </div>
         <div class="columns">
           <div class="column is-3">
-            <b-field :label="$t('settings.bounces.enablePostmark')">
+            <b-field>
               <b-switch v-model="data['bounce.postmark'].enabled" name="postmark_enabled" :native-value="true"
-                data-cy="btn-enable-bounce-postmark" />
+                data-cy="btn-enable-bounce-postmark">
+                {{ $t('settings.bounces.enablePostmark') }}
+              </b-switch>
             </b-field>
           </div>
           <div class="column">
@@ -99,9 +109,11 @@
         </div>
         <div class="columns">
           <div class="column is-3">
-            <b-field :label="$t('settings.bounces.enableForwardemail')">
+            <b-field>
               <b-switch v-model="data['bounce.forwardemail'].enabled" name="forwardemail_enabled" :native-value="true"
-                data-cy="btn-enable-bounce-forwardemail" />
+                data-cy="btn-enable-bounce-forwardemail">
+                {{ $t('settings.bounces.enableForwardemail') }}
+              </b-switch>
             </b-field>
           </div>
           <div class="column">
@@ -114,16 +126,17 @@
         </div>
         <div class="columns">
           <div class="column is-3">
-            <b-field :label="$t('settings.bounces.enableLettermint')">
+            <b-field>
               <b-switch v-model="data['bounce.lettermint'].enabled" name="lettermint_enabled" :native-value="true"
-                data-cy="btn-enable-bounce-lettermint" />
+                data-cy="btn-enable-bounce-lettermint">
+                {{ $t('settings.bounces.enableLettermint') }}
+              </b-switch>
             </b-field>
           </div>
           <div class="column">
             <b-field :label="$t('settings.bounces.lettermintKey')" :message="$t('globals.messages.passwordChange')">
               <b-input v-model="data['bounce.lettermint'].key" type="password"
-                :disabled="!data['bounce.lettermint'].enabled" name="lettermint_key"
-                data-cy="bounce-lettermint-key" />
+                :disabled="!data['bounce.lettermint'].enabled" name="lettermint_key" data-cy="bounce-lettermint-key" />
             </b-field>
           </div>
         </div>
@@ -131,9 +144,11 @@
     </div>
 
     <!-- bounce mailbox -->
-    <b-field :label="$t('settings.bounces.enableMailbox')">
+    <b-field>
       <b-switch v-if="data['bounce.mailboxes']" v-model="data['bounce.mailboxes'][0].enabled"
-        :disabled="!data['bounce.enabled']" name="enabled" :native-value="true" data-cy="btn-enable-bounce-mailbox" />
+        :disabled="!data['bounce.enabled']" name="enabled" :native-value="true" data-cy="btn-enable-bounce-mailbox">
+        {{ $t('settings.bounces.enableMailbox') }}
+      </b-switch>
     </b-field>
 
     <template v-if="data['bounce.enabled'] && data['bounce.mailboxes'][0].enabled">
@@ -143,7 +158,7 @@
             <div class="columns">
               <div class="column is-3">
                 <b-field :label="$t('settings.bounces.type')" label-position="on-border">
-                  <b-select v-model="item.type" name="type">
+                  <b-select v-model="item.type" name="type" expanded>
                     <option value="pop">
                       POP
                     </option>
@@ -168,7 +183,7 @@
             <div class="columns">
               <div class="column is-3">
                 <b-field :label="$t('settings.mailserver.authProtocol')" label-position="on-border">
-                  <b-select v-model="item.auth_protocol" name="auth_protocol">
+                  <b-select v-model="item.auth_protocol" name="auth_protocol" expanded>
                     <option value="none">
                       none
                     </option>
@@ -207,13 +222,15 @@
             <div class="columns">
               <div class="column is-6">
                 <b-field grouped>
-                  <b-field :label="$t('settings.mailserver.tls')" expanded :message="$t('settings.mailserver.tlsHelp')">
-                    <b-switch v-model="item.tls_enabled" name="item.tls_enabled" />
+                  <b-field expanded :message="$t('settings.mailserver.tlsHelp')">
+                    <b-switch v-model="item.tls_enabled" name="item.tls_enabled">
+                      {{ $t('settings.mailserver.tls') }}
+                    </b-switch>
                   </b-field>
-                  <b-field :label="$t('settings.mailserver.skipTLS')" expanded
-                    :message="$t('settings.mailserver.skipTLSHelp')">
-                    <b-switch v-model="item.tls_skip_verify" :disabled="!item.tls_enabled"
-                      name="item.tls_skip_verify" />
+                  <b-field expanded :message="$t('settings.mailserver.skipTLSHelp')">
+                    <b-switch v-model="item.tls_skip_verify" :disabled="!item.tls_enabled" name="item.tls_skip_verify">
+                      {{ $t('settings.mailserver.skipTLS') }}
+                    </b-switch>
                   </b-field>
                 </b-field>
               </div>

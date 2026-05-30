@@ -2,41 +2,56 @@
   <div class="items">
     <div class="columns">
       <div class="column is-6">
-        <b-field :label="$t('settings.privacy.disableTracking')" :message="$t('settings.privacy.disableTrackingHelp')">
-          <b-switch v-model="data['privacy.disable_tracking']" name="privacy.disable_tracking" />
+        <b-field :message="$t('settings.privacy.disableTrackingHelp')">
+          <b-switch v-model="data['privacy.disable_tracking']" name="privacy.disable_tracking">
+            {{ $t('settings.privacy.disableTracking') }}
+          </b-switch>
         </b-field>
       </div>
       <div class="column is-6" :class="{ 'is-disabled': data['privacy.disable_tracking'] }">
-        <b-field :label="$t('settings.privacy.individualSubTracking')"
-          :message="$t('settings.privacy.individualSubTrackingHelp')">
+        <b-field :message="$t('settings.privacy.individualSubTrackingHelp')">
           <b-switch v-model="data['privacy.individual_tracking']" :disabled="data['privacy.disable_tracking']"
-            name="privacy.individual_tracking" />
+            name="privacy.individual_tracking">
+            {{ $t('settings.privacy.individualSubTracking') }}
+          </b-switch>
         </b-field>
       </div>
     </div>
 
-    <b-field :label="$t('settings.privacy.listUnsubHeader')" :message="$t('settings.privacy.listUnsubHeaderHelp')">
-      <b-switch v-model="data['privacy.unsubscribe_header']" name="privacy.unsubscribe_header" />
+    <b-field :message="$t('settings.privacy.listUnsubHeaderHelp')">
+      <b-switch v-model="data['privacy.unsubscribe_header']" name="privacy.unsubscribe_header">
+        {{ $t('settings.privacy.listUnsubHeader') }}
+      </b-switch>
     </b-field>
 
-    <b-field :label="$t('settings.privacy.allowBlocklist')" :message="$t('settings.privacy.allowBlocklistHelp')">
-      <b-switch v-model="data['privacy.allow_blocklist']" name="privacy.allow_blocklist" />
+    <b-field :message="$t('settings.privacy.allowBlocklistHelp')">
+      <b-switch v-model="data['privacy.allow_blocklist']" name="privacy.allow_blocklist">
+        {{ $t('settings.privacy.allowBlocklist') }}
+      </b-switch>
     </b-field>
 
-    <b-field :label="$t('settings.privacy.allowPrefs')" :message="$t('settings.privacy.allowPrefsHelp')">
-      <b-switch v-model="data['privacy.allow_preferences']" name="privacy.allow_blocklist" />
+    <b-field :message="$t('settings.privacy.allowPrefsHelp')">
+      <b-switch v-model="data['privacy.allow_preferences']" name="privacy.allow_blocklist">
+        {{ $t('settings.privacy.allowPrefs') }}
+      </b-switch>
     </b-field>
 
-    <b-field :label="$t('settings.privacy.allowExport')" :message="$t('settings.privacy.allowExportHelp')">
-      <b-switch v-model="data['privacy.allow_export']" name="privacy.allow_export" />
+    <b-field :message="$t('settings.privacy.allowExportHelp')">
+      <b-switch v-model="data['privacy.allow_export']" name="privacy.allow_export">
+        {{ $t('settings.privacy.allowExport') }}
+      </b-switch>
     </b-field>
 
-    <b-field :label="$t('settings.privacy.allowWipe')" :message="$t('settings.privacy.allowWipeHelp')">
-      <b-switch v-model="data['privacy.allow_wipe']" name="privacy.allow_wipe" />
+    <b-field :message="$t('settings.privacy.allowWipeHelp')">
+      <b-switch v-model="data['privacy.allow_wipe']" name="privacy.allow_wipe">
+        {{ $t('settings.privacy.allowWipe') }}
+      </b-switch>
     </b-field>
 
-    <b-field :label="$t('settings.privacy.recordOptinIP')" :message="$t('settings.privacy.recordOptinIPHelp')">
-      <b-switch v-model="data['privacy.record_optin_ip']" name="privacy.record_optin_ip" />
+    <b-field :message="$t('settings.privacy.recordOptinIPHelp')">
+      <b-switch v-model="data['privacy.record_optin_ip']" name="privacy.record_optin_ip">
+        {{ $t('settings.privacy.recordOptinIP') }}
+      </b-switch>
     </b-field>
 
     <hr />

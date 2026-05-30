@@ -37,78 +37,60 @@
     </div><!-- filesystem -->
 
     <div class="block" v-if="data['upload.provider'] === 's3'">
-      <div class="columns">
-        <div class="column is-3">
-          <b-field :label="$t('settings.media.s3.region')" label-position="on-border" expanded>
-            <b-input v-model="data['upload.s3.aws_default_region']" @input="onS3URLChange"
-              name="upload.s3.aws_default_region" :maxlength="200" placeholder="ap-south-1" />
-          </b-field>
-        </div>
-        <div class="column">
-          <b-field grouped>
-            <b-field :label="$t('settings.media.s3.key')" label-position="on-border" expanded>
-              <b-input v-model="data['upload.s3.aws_access_key_id']" name="upload.s3.aws_access_key_id"
-                :maxlength="200" />
-            </b-field>
-            <b-field :label="$t('settings.media.s3.secret')" label-position="on-border" expanded
-              message="Enter a value to change.">
-              <b-input v-model="data['upload.s3.aws_secret_access_key']" name="upload.s3.aws_secret_access_key"
-                type="password" :maxlength="200" />
-            </b-field>
-          </b-field>
-        </div>
-      </div>
+      <b-field :label="$t('settings.media.s3.region')" label-position="on-border" expanded>
+        <b-input v-model="data['upload.s3.aws_default_region']" @input="onS3URLChange"
+          name="upload.s3.aws_default_region" :maxlength="200" placeholder="ap-south-1" />
+      </b-field>
 
-      <div class="columns">
-        <div class="column is-3">
-          <b-field :label="$t('settings.media.s3.bucketType')" label-position="on-border">
-            <b-select v-model="data['upload.s3.bucket_type']" name="upload.s3.bucket_type" expanded>
-              <option value="private">
-                {{ $t('settings.media.s3.bucketTypePrivate') }}
-              </option>
-              <option value="public">
-                {{ $t('settings.media.s3.bucketTypePublic') }}
-              </option>
-            </b-select>
-          </b-field>
-        </div>
-        <div class="column">
-          <b-field grouped>
-            <b-field :label="$t('settings.media.s3.bucket')" label-position="on-border" expanded>
-              <b-input v-model="data['upload.s3.bucket']" @input="onS3URLChange" name="upload.s3.bucket"
-                :maxlength="200" placeholder="" />
-            </b-field>
-            <b-field :label="$t('settings.media.s3.bucketPath')" label-position="on-border"
-              :message="$t('settings.media.s3.bucketPathHelp')" expanded>
-              <b-input v-model="data['upload.s3.bucket_path']" name="upload.s3.bucket_path" :maxlength="200"
-                placeholder="/" />
-            </b-field>
-          </b-field>
-        </div>
-      </div>
+      <b-field :label="$t('settings.media.s3.key')" label-position="on-border" expanded>
+        <b-input v-model="data['upload.s3.aws_access_key_id']" name="upload.s3.aws_access_key_id" :maxlength="200" />
+      </b-field>
 
-      <div class="columns">
-        <div class="column is-3">
-          <b-field :label="$t('settings.media.s3.uploadExpiry')" label-position="on-border"
-            :message="$t('settings.media.s3.uploadExpiryHelp')" expanded>
-            <b-input v-model="data['upload.s3.expiry']" name="upload.s3.expiry" placeholder="14d" :pattern="regDuration"
-              :maxlength="10" />
-          </b-field>
-        </div>
-        <div class="column is-9">
-          <b-field :label="$t('settings.media.s3.url')" label-position="on-border"
-            :message="$t('settings.media.s3.urlHelp')">
-            <b-input v-model="data['upload.s3.url']" name="upload.s3.url" required
-              placeholder="https://s3.$region.amazonaws.com" :maxlength="200" expanded type="url"
-              pattern="https?://.*" />
-          </b-field>
-          <b-field :label="$t('settings.media.s3.publicURL')" label-position="on-border" :message="$t('settings.media.s3.publicURLHelp')" expanded>
-            <b-input v-model="data['upload.s3.public_url']"
-              name="upload.s3.public_url" placeholder="https://files.yourdomain.com" :maxlength="200" type="string"
-              pattern="(https?://.*|/.+)" />
-          </b-field>
-        </div>
-      </div>
+      <b-field :label="$t('settings.media.s3.secret')" label-position="on-border" expanded
+        message="Enter a value to change.">
+        <b-input v-model="data['upload.s3.aws_secret_access_key']" name="upload.s3.aws_secret_access_key"
+          type="password" :maxlength="200" />
+      </b-field>
+
+      <b-field :label="$t('settings.media.s3.bucketType')" label-position="on-border">
+        <b-select v-model="data['upload.s3.bucket_type']" name="upload.s3.bucket_type" expanded>
+          <option value="private">
+            {{ $t('settings.media.s3.bucketTypePrivate') }}
+          </option>
+          <option value="public">
+            {{ $t('settings.media.s3.bucketTypePublic') }}
+          </option>
+        </b-select>
+      </b-field>
+
+      <b-field :label="$t('settings.media.s3.bucket')" label-position="on-border" expanded>
+        <b-input v-model="data['upload.s3.bucket']" @input="onS3URLChange" name="upload.s3.bucket" :maxlength="200"
+          placeholder="" />
+      </b-field>
+
+      <b-field :label="$t('settings.media.s3.bucketPath')" label-position="on-border"
+        :message="$t('settings.media.s3.bucketPathHelp')" expanded>
+        <b-input v-model="data['upload.s3.bucket_path']" name="upload.s3.bucket_path" :maxlength="200"
+          placeholder="/" />
+      </b-field>
+
+      <b-field :label="$t('settings.media.s3.uploadExpiry')" label-position="on-border"
+        :message="$t('settings.media.s3.uploadExpiryHelp')" expanded>
+        <b-input v-model="data['upload.s3.expiry']" name="upload.s3.expiry" placeholder="14d" :pattern="regDuration"
+          :maxlength="10" />
+      </b-field>
+
+      <b-field :label="$t('settings.media.s3.url')" label-position="on-border"
+        :message="$t('settings.media.s3.urlHelp')">
+        <b-input v-model="data['upload.s3.url']" name="upload.s3.url" required
+          placeholder="https://s3.$region.amazonaws.com" :maxlength="200" expanded type="url" pattern="https?://.*" />
+      </b-field>
+
+      <b-field :label="$t('settings.media.s3.publicURL')" label-position="on-border"
+        :message="$t('settings.media.s3.publicURLHelp')" expanded>
+        <b-input v-model="data['upload.s3.public_url']" name="upload.s3.public_url"
+          placeholder="https://files.yourdomain.com" :maxlength="200" type="string" pattern="(https?://.*|/.+)" />
+      </b-field>
     </div><!-- s3 -->
   </div>
 </template>
