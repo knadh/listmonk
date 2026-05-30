@@ -20,9 +20,9 @@
       </header>
       <hr />
 
-      <section class="wrap" v-if="form">
-        <b-tabs type="is-boxed" :animated="false" v-model="tab">
-          <b-tab-item :label="$t('settings.general.name')" label-position="on-border">
+      <section class="wrap settings-wrap" v-if="form">
+        <b-tabs class="settings-tabs" vertical :animated="false" v-model="tab">
+          <b-tab-item :label="$t('settings.general.name')">
             <general-settings :form="form" :key="key" />
           </b-tab-item><!-- general -->
 

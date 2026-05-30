@@ -4,8 +4,10 @@
       <div class="block box" v-for="(item, n) in form.smtp" :key="n">
         <div class="columns">
           <div class="column is-2">
-            <b-field :label="$t('globals.buttons.enabled')">
-              <b-switch v-model="item.enabled" name="enabled" :native-value="true" data-cy="btn-enable-smtp" />
+            <b-field>
+              <b-switch v-model="item.enabled" name="enabled" :native-value="true" data-cy="btn-enable-smtp">
+                {{ $t('globals.buttons.enabled') }}
+              </b-switch>
             </b-field>
             <b-field v-if="form.smtp.length > 1">
               <a @click.prevent="$utils.confirm(null, () => removeSMTP(n))" href="#" data-cy="btn-delete-smtp">
@@ -33,9 +35,9 @@
             </div><!-- host -->
 
             <div class="columns">
-              <div class="column is-2">
+              <div class="column is-3">
                 <b-field :label="$t('settings.mailserver.authProtocol')" label-position="on-border">
-                  <b-select v-model="item.auth_protocol" name="auth_protocol">
+                  <b-select v-model="item.auth_protocol" name="auth_protocol" expanded>
                     <option value="login">
                       LOGIN
                     </option>
@@ -102,10 +104,11 @@
                       </option>
                     </b-select>
                   </b-field>
-                  <b-field :label="$t('settings.mailserver.skipTLS')" expanded
-                    :message="$t('settings.mailserver.skipTLSHelp')">
+                  <b-field expanded :message="$t('settings.mailserver.skipTLSHelp')">
                     <b-switch v-model="item.tls_skip_verify" :disabled="item.tls_type === 'none'"
-                      name="item.tls_skip_verify" />
+                      name="item.tls_skip_verify">
+                      {{ $t('settings.mailserver.skipTLS') }}
+                    </b-switch>
                   </b-field>
                 </b-field>
               </div>

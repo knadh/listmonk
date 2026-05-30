@@ -30,7 +30,7 @@ $red: #FF5722;
 
 $link: $primary;
 $input-placeholder-color: $grey-light;
-$grey-lightest: #eaeaea;
+$grey-lightest: #f3f3f3;
 
 $colors: map-merge($colors, (
     "turquoise": ($green, $green-invert),
@@ -1102,6 +1102,35 @@ section.analytics {
 
 /* Settings */
 .settings {
+  .settings-wrap {
+    max-width: 1240px;
+  }
+
+  .settings-tabs {
+    flex-wrap: nowrap;
+
+    > .tabs {
+      flex: 0 0 230px;
+
+      a {
+        border: 0;
+      }
+      li.is-active {
+        background: $grey-lightest;
+        border-left: 5px solid $primary;
+        border-bottom: 0;
+        color: inherit;
+      }
+    }
+
+    > .tab-content {
+      border: 0;
+      box-shadow: none;
+      padding: 0 0 0 45px;
+      min-width: 0;
+    }
+  }
+
   .disabled {
     opacity: 0.30;
   }
@@ -1367,6 +1396,20 @@ th.role-toggle-select a {
 
   .b-tabs .tab-content {
     padding: 15px 0 0 0;
+  }
+
+  .settings {
+    .settings-tabs {
+      display: block;
+
+      > .tabs {
+        margin-bottom: 20px;
+      }
+
+      > .tab-content {
+        padding: 0;
+      }
+    }
   }
 }
 
