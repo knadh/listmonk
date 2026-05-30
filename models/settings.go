@@ -13,6 +13,7 @@ type Settings struct {
 	EnablePublicSubPage           bool     `json:"app.enable_public_subscription_page"`
 	EnablePublicArchive           bool     `json:"app.enable_public_archive"`
 	EnablePublicArchiveRSSContent bool     `json:"app.enable_public_archive_rss_content"`
+	ShowOptinPage                 bool     `json:"app.show_optin_page"`
 	SendOptinConfirmation         bool     `json:"app.send_optin_confirmation"`
 	CheckUpdates                  bool     `json:"app.check_updates"`
 	AppLang                       string   `json:"app.lang"`

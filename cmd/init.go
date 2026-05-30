@@ -85,6 +85,7 @@ type Config struct {
 	EnablePublicSubPage           bool     `koanf:"enable_public_subscription_page"`
 	EnablePublicArchive           bool     `koanf:"enable_public_archive"`
 	EnablePublicArchiveRSSContent bool     `koanf:"enable_public_archive_rss_content"`
+	ShowOptinPage                 bool     `koanf:"show_optin_page"`
 	Lang                          string   `koanf:"lang"`
 	DBBatchSize                   int      `koanf:"batch_size"`
 	Privacy                       struct {

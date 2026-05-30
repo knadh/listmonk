@@ -40,5 +40,9 @@ func V6_2_0(db *sqlx.DB, fs stuffbin.FileSystem, ko *koanf.Koanf, lo *log.Logger
 		return err
 	}
 
+	if _, err := db.Exec(`INSERT INTO settings (key, value) VALUES ('app.show_optin_page', 'true') ON CONFLICT (key) DO NOTHING	`); err != nil {
+		return err
+	}
+
 	return nil
 }
