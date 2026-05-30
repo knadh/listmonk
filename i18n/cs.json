@@ -1,5 +1,5 @@
 {
-    "_.code": "cs-cz",
+    "_.code": "cs",
     "_.name": "Čeština (cs)",
     "admin.errorMarshallingConfig": "Chyba při serializaci konfigurace: {error}",
     "analytics.count": "Počet",
