@@ -60,6 +60,11 @@
             <b-switch v-model="data['app.send_optin_confirmation']" name="app.send_optin_confirmation" />
           </b-field>
         </div>
+        <div class="column is-4">
+          <b-field :label="$t('settings.general.showOptinPage')" :message="$t('settings.general.showOptinPageHelp')">
+            <b-switch v-model="data['app.show_optin_page']" name="app.show_optin_page" />
+          </b-field>
+        </div>
       </div>
     </div>
     <hr />
