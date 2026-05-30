@@ -279,12 +279,12 @@ func (a *App) UpdateSettings(c echo.Context) error {
 	}
 	set.DomainAllowlist = doms
 
-	// Validate and clean CORS domains.
-	cors := make([]string, 0, len(set.SecurityCORSOrigins))
-	for _, d := range set.SecurityCORSOrigins {
+	// Validate and clean trusted URLs.
+	urls := make([]string, 0, len(set.SecurityTrustedURLs))
+	for _, d := range set.SecurityTrustedURLs {
 		if d = strings.TrimSpace(d); d != "" {
 			if d == "*" {
-				cors = append(cors, d)
+				urls = append(urls, d)
 				continue
 			}
 
@@ -292,13 +292,12 @@ func (a *App) UpdateSettings(c echo.Context) error {
 			u, err := url.Parse(d)
 			if err != nil || (u.Scheme != "http" && u.Scheme != "https") || u.Host == "" {
 				return echo.NewHTTPError(http.StatusBadRequest,
-					a.i18n.Ts("globals.messages.invalidData")+": invalid CORS domain: "+d)
+					a.i18n.Ts("globals.messages.invalidData")+": invalid trusted URL: "+d)
 			}
-			// Save clean scheme + host
-			cors = append(cors, u.Scheme+"://"+u.Host)
+			urls = append(urls, d)
 		}
 	}
-	set.SecurityCORSOrigins = cors
+	set.SecurityTrustedURLs = urls
 
 	// Validate slow query caching cron.
 	if set.CacheSlowQueries {

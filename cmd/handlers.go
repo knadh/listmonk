@@ -41,9 +41,9 @@ func initHTTPHandlers(e *echo.Echo, a *App) {
 	}
 
 	// Configure CORS middleware if domains are configured.
-	if len(a.cfg.Security.CorsOrigins) > 0 {
+	if corsOrigins := trustedURLsToCORSOrigins(a.cfg.Security.TrustedURLs); len(corsOrigins) > 0 {
 		e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
-			AllowOrigins: a.cfg.Security.CorsOrigins,
+			AllowOrigins: corsOrigins,
 			AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept},
 		}))
 	}
@@ -413,4 +413,30 @@ func noIndex(next echo.HandlerFunc) echo.HandlerFunc {
 // getID returns the :id param from the URL parsed and stored as an int by the hasID middleware.
 func getID(c echo.Context) int {
 	return c.Get("id").(int)
+}
+
+// trustedURLsToCORSOrigins takes a list of trusted URLs and returns a list of
+// unique origin domains to be used in CORS middleware configuration, including '*' if it exists.
+func trustedURLsToCORSOrigins(urls []string) []string {
+	mp := map[string]struct{}{}
+
+	for _, s := range urls {
+		if s == "*" {
+			mp[s] = struct{}{}
+		}
+
+		u, err := url.ParseRequestURI(s)
+		if err != nil || u.Host == "" || (u.Scheme != "http" && u.Scheme != "https") {
+			continue
+		}
+		s = u.Scheme + "://" + u.Host
+		mp[s] = struct{}{}
+	}
+
+	out := make([]string, 0, len(mp))
+	for u := range mp {
+		out = append(out, u)
+	}
+
+	return out
 }

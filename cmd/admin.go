@@ -21,6 +21,7 @@ type serverConfig struct {
 		CaptchaProvider  null.String `json:"captcha_provider"`
 		CaptchaKey       null.String `json:"captcha_key"`
 		AltchaComplexity int         `json:"altcha_complexity"`
+		RedirectURLs     []string    `json:"redirect_urls"`
 	} `json:"public_subscription"`
 	Privacy struct {
 		DisableTracking    bool `json:"disable_tracking"`
@@ -54,6 +55,12 @@ func (a *App) GetServerConfig(c echo.Context) error {
 		},
 	}
 	out.PublicSubscription.Enabled = a.cfg.EnablePublicSubPage
+	for _, d := range a.cfg.Security.TrustedURLs {
+		if d == "*" {
+			continue
+		}
+		out.PublicSubscription.RedirectURLs = append(out.PublicSubscription.RedirectURLs, d)
+	}
 
 	// CAPTCHA.
 	if a.cfg.Security.Captcha.Altcha.Enabled {
