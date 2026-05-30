@@ -27,5 +27,18 @@ func V6_2_0(db *sqlx.DB, fs stuffbin.FileSystem, ko *koanf.Koanf, lo *log.Logger
 		return err
 	}
 
+	// Update app language settings that used incorrect locale codes.
+	if _, err := db.Exec(`
+		UPDATE settings SET value = langs.new_value
+		FROM (VALUES
+			('"cs-cz"'::JSONB, '"cs"'::JSONB),
+			('"jp"'::JSONB, '"ja"'::JSONB),
+			('"se"'::JSONB, '"sv"'::JSONB)
+		) AS langs(old_value, new_value)
+		WHERE key = 'app.lang' AND value = langs.old_value;
+	`); err != nil {
+		return err
+	}
+
 	return nil
 }

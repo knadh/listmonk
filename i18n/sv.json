@@ -1,6 +1,6 @@
 {
-    "_.code": "se",
-    "_.name": "Svenska (se)",
+    "_.code": "sv",
+    "_.name": "Svenska (sv)",
     "admin.errorMarshallingConfig": "Fel vid kodning av konfigurationen: {error}",
     "analytics.count": "Antal",
     "analytics.fromDate": "Från",

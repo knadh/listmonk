@@ -1,6 +1,6 @@
 {
-    "_.code": "jp",
-    "_.name": "日本語 (jp)",
+    "_.code": "ja",
+    "_.name": "日本語 (ja)",
     "admin.errorMarshallingConfig": "マーシャリングコンフィグエラー: {error}",
     "analytics.count": "カウント",
     "analytics.fromDate": "から",
