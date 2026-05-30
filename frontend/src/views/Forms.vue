@@ -33,6 +33,24 @@
             </a>
           </p>
         </template>
+
+        <hr />
+        <h4>{{ $t('forms.redirectURL') }}</h4>
+        <p class="is-size-7 has-text-grey">
+          {{ $t('forms.redirectURLHelp') }}
+        </p>
+        <ul v-if="redirectURLs.length > 0" class="no" data-cy="redirect-urls">
+          <li>
+            <b-radio v-model="selectedRedirectURL" native-value="">
+              {{ $t('globals.terms.none') }}
+            </b-radio>
+          </li>
+          <li v-for="url in redirectURLs" :key="url">
+            <b-radio v-model="selectedRedirectURL" :native-value="url">
+              {{ url }}
+            </b-radio>
+          </li>
+        </ul>
       </div>
       <div class="column" data-cy="form">
         <h4>{{ $t('forms.formHTML') }}</h4>
@@ -62,15 +80,31 @@ export default Vue.extend({
     return {
       checked: [],
       html: '',
+      selectedRedirectURL: '',
     };
   },
 
   methods: {
+    escapeAttr(value) {
+      return String(value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    },
+
     renderHTML() {
       let h = `<form method="post" action="${this.serverConfig.root_url}/subscription/form" class="listmonk-form">\n`
         + '  <div>\n'
         + `    <h3>${this.$t('public.sub')}</h3>\n`
-        + '    <input type="hidden" name="nonce" />\n\n'
+        + '    <input type="hidden" name="nonce" />\n';
+
+      if (this.selectedRedirectURL) {
+        h += `    <input type="hidden" name="next" value="${this.escapeAttr(this.selectedRedirectURL)}" />\n`;
+      }
+
+      h += '\n'
         + `    <p><input type="email" name="email" required placeholder="${this.$t('subscribers.email')}" /></p>\n`
         + `    <p><input type="text" name="name" placeholder="${this.$t('public.subName')}" /></p>\n\n`;
 
@@ -120,10 +154,21 @@ export default Vue.extend({
       }
       return this.lists.results.filter((l) => l.type === 'public');
     },
+
+    redirectURLs() {
+      const urls = this.serverConfig.public_subscription
+        ? this.serverConfig.public_subscription.redirect_urls
+        : [];
+      return Array.isArray(urls) ? urls : [];
+    },
   },
 
   watch: {
     checked() {
+      this.renderHTML();
+    },
+
+    selectedRedirectURL() {
       this.renderHTML();
     },
   },

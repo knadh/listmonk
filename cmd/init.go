@@ -125,7 +125,7 @@ type Config struct {
 			} `koanf:"hcaptcha"`
 		} `koanf:"captcha"`
 
-		CorsOrigins []string `koanf:"cors_origins"`
+		TrustedURLs []string `koanf:"trusted_urls"`
 	} `koanf:"security"`
 
 	Appearance struct {

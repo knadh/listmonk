@@ -510,6 +510,15 @@ func (a *App) SubscriptionForm(c echo.Context) error {
 		return c.Render(e.Code, tplMessage, makeMsgTpl(a.i18n.T("public.errorTitle"), "", fmt.Sprintf("%s", e.Message)))
 	}
 
+	// Redirect to a custom page if a trusted '?next' is set.
+	if nextURL := strings.TrimSpace(c.FormValue("next")); nextURL != "" {
+		for _, d := range a.cfg.Security.TrustedURLs {
+			if d != "*" && nextURL == d {
+				return c.Redirect(http.StatusSeeOther, nextURL)
+			}
+		}
+	}
+
 	// If there were double optin lists, show the opt-in pending message instead of
 	// the subscription confirmation message.
 	msg := "public.subConfirmed"

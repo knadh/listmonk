@@ -44,5 +44,10 @@ func V6_2_0(db *sqlx.DB, fs stuffbin.FileSystem, ko *koanf.Koanf, lo *log.Logger
 		return err
 	}
 
+	// Rename `security.cors_origins` to `security.trusted_urls`.
+	if _, err := db.Exec(`UPDATE settings SET key = 'security.trusted_urls' WHERE key = 'security.cors_origins'`); err != nil {
+		return err
+	}
+
 	return nil
 }

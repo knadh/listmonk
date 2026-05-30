@@ -128,10 +128,9 @@
     <!-- CORS -->
     <div class="columns">
       <div class="column is-12">
-        <h3 class="is-size-6"><strong>CORS</strong></h3><br />
-        <b-field :label="$t('settings.security.CORSDomains')" label-position="on-border"
-          :message="$t('settings.security.CORSDomainsHelp')">
-          <b-input v-model="corsDomains" name="cors_origins" type="textarea" rows="5"
+        <h3 class="is-size-6"><strong>{{ $t('settings.security.trustedURLs') }} / CORS</strong></h3><br />
+        <b-field label-position="on-border" :message="$t('settings.security.trustedURLsHelp')">
+          <b-input v-model="trustedURLs" name="trusted_urls" type="textarea" rows="5"
             placeholder="https://example.com" />
         </b-field>
       </div>
@@ -165,14 +164,14 @@ export default Vue.extend({
   computed: {
     ...mapState(['serverConfig', 'userRoles', 'listRoles']),
 
-    corsDomains: {
+    trustedURLs: {
       get() {
         // Convert array to newline-separated string.
-        const domains = this.data['security.cors_origins'];
+        const domains = this.data['security.trusted_urls'];
         return domains && Array.isArray(domains) ? domains.join('\n') : '';
       },
       set(value) {
-        this.$set(this.data, 'security.cors_origins', value.split('\n'));
+        this.$set(this.data, 'security.trusted_urls', value.split('\n'));
       },
     },
 
