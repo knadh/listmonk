@@ -1,14 +1,14 @@
 <template>
   <form @submit.prevent="onSubmit">
-    <div class="modal-card content" style="width: auto">
-      <header class="modal-card-head">
-        <p v-if="isEditing" class="has-text-grey-light is-size-7">
+    <div class="dialog-card content" style="width: auto">
+      <header class="dialog-head">
+        <p v-if="isEditing" class="text-lighter text-7 ">
           {{ $t('globals.fields.id') }}: <copy-text :text="`${data.id}`" />
           {{ $t('globals.fields.uuid') }}: <copy-text :text="data.uuid" />
         </p>
-        <b-tag v-if="isEditing" :class="[data.type, 'is-pulled-right']">
+        <oat-badge v-if="isEditing" :type="data.type" class="align-right">
           {{ $t(`lists.types.${data.type}`) }}
-        </b-tag>
+        </oat-badge>
         <h4 v-if="isEditing">
           {{ data.name }}
         </h4>
@@ -16,56 +16,55 @@
           {{ $t('lists.newList') }}
         </h4>
       </header>
-      <section expanded class="modal-card-body">
-        <b-field :label="$t('globals.fields.name')" label-position="on-border">
-          <b-input :maxlength="200" :ref="'focus'" v-model="form.name" name="name"
-            :placeholder="$t('globals.fields.name')" required />
-        </b-field>
+      <section class="dialog-body">
+        <oat-field :label="$t('globals.fields.name')">
+          <input aria-label="field" :maxlength="200" :ref="'focus'" v-model="form.name" name="name"
+            :placeholder="$t('globals.fields.name')" required>
+        </oat-field>
 
-        <b-field :label="$t('lists.type')" label-position="on-border" :message="$t('lists.typeHelp')">
-          <b-select v-model="form.type" name="type" :placeholder="$t('lists.typeHelp')" required expanded>
+        <oat-field :label="$t('lists.type')" :message="$t('lists.typeHelp')">
+          <select aria-label="field" v-model="form.type" name="type" :placeholder="$t('lists.typeHelp')" required>
             <option value="private">
               {{ $t('lists.types.private') }}
             </option>
             <option value="public">
               {{ $t('lists.types.public') }}
             </option>
-          </b-select>
-        </b-field>
+          </select>
+        </oat-field>
 
-        <b-field :label="$t('lists.optin')" label-position="on-border" :message="$t('lists.optinHelp')">
-          <b-select v-model="form.optin" name="optin" placeholder="Opt-in type" required expanded>
+        <oat-field :label="$t('lists.optin')" :message="$t('lists.optinHelp')">
+          <select aria-label="field" v-model="form.optin" name="optin" placeholder="Opt-in type" required>
             <option value="single">
               {{ $t('lists.optins.single') }}
             </option>
             <option value="double">
               {{ $t('lists.optins.double') }}
             </option>
-          </b-select>
-        </b-field>
+          </select>
+        </oat-field>
 
-        <b-field :label="$t('globals.terms.tags')" label-position="on-border">
-          <b-taginput v-model="form.tags" name="tags" ellipsis icon="tag-outline"
-            :placeholder="$t('globals.terms.tags')" />
-        </b-field>
+        <oat-field :label="$t('globals.terms.tags')">
+          <oat-tag-input v-model="form.tags" name="tags" :placeholder="$t('globals.terms.tags')" />
+        </oat-field>
 
-        <b-field :label="$t('globals.fields.description')" label-position="on-border">
-          <b-input :maxlength="2000" v-model="form.description" name="description" type="textarea"
+        <oat-field :label="$t('globals.fields.description')">
+          <textarea aria-label="field" :maxlength="2000" v-model="form.description" name="description"
             :placeholder="$t('globals.fields.description')" />
-        </b-field>
+        </oat-field>
 
-        <b-field :message="$t('lists.archivedHelp')" :label="$t('lists.archived')">
-          <b-switch v-model="isArchived" name="status" />
-        </b-field>
+        <oat-field :message="$t('lists.archivedHelp')" :label="$t('lists.archived')">
+          <oat-switch v-model="isArchived" name="status" />
+        </oat-field>
       </section>
-      <footer class="modal-card-foot has-text-right">
-        <b-button @click="$parent.close()">
+      <footer class="dialog-foot align-right">
+        <button type="button" class="outline" @click="$parent.close()">
           {{ $t('globals.buttons.close') }}
-        </b-button>
-        <b-button v-if="$can('lists:manage_all') || $canList(data.id, 'list:manage')" native-type="submit"
-          type="is-primary" :loading="loading.lists" data-cy="btn-save">
+        </button>
+        <button v-if="$can('lists:manage_all') || $canList(data.id, 'list:manage')" type="submit" data-variant="primary"
+          :loading="loading.lists" data-cy="btn-save">
           {{ $t('globals.buttons.save') }}
-        </b-button>
+        </button>
       </footer>
     </div>
   </form>

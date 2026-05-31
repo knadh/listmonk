@@ -1,44 +1,44 @@
 <template>
   <form @submit.prevent="onSubmit">
-    <div class="modal-card" style="width: auto">
-      <header class="modal-card-head">
-        <h4 class="title is-size-5">
+    <div class="dialog-card" style="width: auto">
+      <header class="dialog-head">
+        <h4>
           {{ $t('subscribers.manageLists') }}
         </h4>
       </header>
 
-      <section expanded class="modal-card-body">
-        <b-field label="Action">
+      <section class="dialog-body">
+        <oat-field label="Action">
           <div>
-            <b-radio v-model="form.action" name="action" native-value="add" data-cy="check-list-add">
+            <oat-radio v-model="form.action" name="action" native-value="add" data-cy="check-list-add">
               {{ $t('globals.buttons.add') }}
-            </b-radio>
-            <b-radio v-model="form.action" name="action" native-value="remove" data-cy="check-list-remove">
+            </oat-radio>
+            <oat-radio v-model="form.action" name="action" native-value="remove" data-cy="check-list-remove">
               {{ $t('globals.buttons.remove') }}
-            </b-radio>
-            <b-radio v-model="form.action" name="action" native-value="unsubscribe" data-cy="check-list-unsubscribe">
+            </oat-radio>
+            <oat-radio v-model="form.action" name="action" native-value="unsubscribe" data-cy="check-list-unsubscribe">
               {{ $t('subscribers.markUnsubscribed') }}
-            </b-radio>
+            </oat-radio>
           </div>
-        </b-field>
+        </oat-field>
 
         <list-selector label="Target lists" placeholder="Lists to apply to" v-model="form.lists" :selected="form.lists"
           :all="lists.results" />
 
-        <b-field :message="$t('subscribers.preconfirmHelp')">
-          <b-checkbox v-model="form.preconfirm" data-cy="preconfirm" :native-value="true" :disabled="!hasOptinList">
+        <oat-field :message="$t('subscribers.preconfirmHelp')">
+          <oat-checkbox v-model="form.preconfirm" data-cy="preconfirm" :native-value="true" :disabled="!hasOptinList">
             {{ $t('subscribers.preconfirm') }}
-          </b-checkbox>
-        </b-field>
+          </oat-checkbox>
+        </oat-field>
       </section>
 
-      <footer class="modal-card-foot has-text-right">
-        <b-button @click="$parent.close()">
+      <footer class="dialog-foot align-right">
+        <button type="button" class="outline" @click="$parent.close()">
           {{ $t('globals.buttons.close') }}
-        </b-button>
-        <b-button native-type="submit" type="is-primary" :disabled="form.lists.length === 0">
+        </button>
+        <button type="submit" data-variant="primary" :disabled="form.lists.length === 0">
           {{ $t('globals.buttons.save') }}
-        </b-button>
+        </button>
       </footer>
     </div>
   </form>

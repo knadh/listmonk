@@ -1,78 +1,76 @@
 <template>
   <div class="items">
-    <b-field :label="$t('settings.performance.concurrency')" label-position="on-border"
-      :message="$t('settings.performance.concurrencyHelp')">
-      <b-numberinput v-model="data['app.concurrency']" name="app.concurrency" type="is-light" placeholder="5" min="1"
-        max="10000" />
-    </b-field>
+    <oat-field :label="$t('settings.performance.concurrency')" :message="$t('settings.performance.concurrencyHelp')">
+      <input aria-label="field" type="number" v-model.number="data['app.concurrency']" name="app.concurrency"
+        placeholder="5" min="1" max="10000">
+    </oat-field>
 
-    <b-field :label="$t('settings.performance.messageRate')" label-position="on-border"
-      :message="$t('settings.performance.messageRateHelp')">
-      <b-numberinput v-model="data['app.message_rate']" name="app.message_rate" type="is-light" placeholder="5" min="1"
-        max="100000" />
-    </b-field>
+    <oat-field :label="$t('settings.performance.messageRate')" :message="$t('settings.performance.messageRateHelp')">
+      <input aria-label="field" type="number" v-model.number="data['app.message_rate']" name="app.message_rate"
+        placeholder="5" min="1" max="100000">
+    </oat-field>
 
-    <b-field :label="$t('settings.performance.batchSize')" label-position="on-border"
-      :message="$t('settings.performance.batchSizeHelp')">
-      <b-numberinput v-model="data['app.batch_size']" name="app.batch_size" type="is-light" placeholder="1000" min="1"
-        max="100000" />
-    </b-field>
+    <oat-field :label="$t('settings.performance.batchSize')" :message="$t('settings.performance.batchSizeHelp')">
+      <input aria-label="field" type="number" v-model.number="data['app.batch_size']" name="app.batch_size"
+        placeholder="1000" min="1" max="100000">
+    </oat-field>
 
-    <b-field :label="$t('settings.performance.maxErrThreshold')" label-position="on-border"
+    <oat-field :label="$t('settings.performance.maxErrThreshold')"
       :message="$t('settings.performance.maxErrThresholdHelp')">
-      <b-numberinput v-model="data['app.max_send_errors']" name="app.max_send_errors" type="is-light" placeholder="1999"
-        min="0" max="100000" />
-    </b-field>
+      <input aria-label="field" type="number" v-model.number="data['app.max_send_errors']" name="app.max_send_errors"
+        placeholder="1999" min="0" max="100000">
+    </oat-field>
 
     <div>
-      <div class="columns">
-        <div class="column is-6">
-          <b-field :message="$t('settings.performance.slidingWindowHelp')">
-            <b-switch v-model="data['app.message_sliding_window']" name="app.message_sliding_window">
+      <div class="row">
+        <div class="col-6">
+          <oat-field :message="$t('settings.performance.slidingWindowHelp')">
+            <oat-switch v-model="data['app.message_sliding_window']" name="app.message_sliding_window">
               {{ $t('settings.performance.slidingWindow') }}
-            </b-switch>
-          </b-field>
+            </oat-switch>
+          </oat-field>
         </div>
 
-        <div class="column is-3" :class="{ disabled: !data['app.message_sliding_window'] }">
-          <b-field :label="$t('settings.performance.slidingWindowRate')" label-position="on-border"
+        <div class="col-3" :class="{ disabled: !data['app.message_sliding_window'] }">
+          <oat-field :label="$t('settings.performance.slidingWindowRate')"
             :message="$t('settings.performance.slidingWindowRateHelp')">
-            <b-numberinput v-model="data['app.message_sliding_window_rate']" name="sliding_window_rate" type="is-light"
-              controls-position="compact" :disabled="!data['app.message_sliding_window']" placeholder="25" min="1"
-              max="10000000" />
-          </b-field>
+            <input aria-label="field" type="number" v-model.number="data['app.message_sliding_window_rate']"
+              name="sliding_window_rate" :disabled="!data['app.message_sliding_window']" placeholder="25" min="1"
+              max="10000000">
+          </oat-field>
         </div>
 
-        <div class="column is-3" :class="{ disabled: !data['app.message_sliding_window'] }">
-          <b-field :label="$t('settings.performance.slidingWindowDuration')" label-position="on-border"
+        <div class="col-3" :class="{ disabled: !data['app.message_sliding_window'] }">
+          <oat-field :label="$t('settings.performance.slidingWindowDuration')"
             :message="$t('settings.performance.slidingWindowDurationHelp')">
-            <b-input v-model="data['app.message_sliding_window_duration']" name="sliding_window_duration"
-              :disabled="!data['app.message_sliding_window']" placeholder="1h" :pattern="regDuration" :maxlength="10" />
-          </b-field>
+            <input aria-label="field" v-model="data['app.message_sliding_window_duration']"
+              name="sliding_window_duration" :disabled="!data['app.message_sliding_window']" placeholder="1h"
+              :pattern="regDuration" :maxlength="10">
+          </oat-field>
         </div>
       </div>
     </div><!-- sliding window -->
 
     <div>
       <hr />
-      <div class="columns">
-        <div class="column is-4">
-          <b-field :message="$t('settings.performance.cacheSlowQueriesHelp')">
-            <b-switch v-model="data['app.cache_slow_queries']" name="app.cache_slow_queries">
+      <div class="row">
+        <div class="col-4">
+          <oat-field :message="$t('settings.performance.cacheSlowQueriesHelp')">
+            <oat-switch v-model="data['app.cache_slow_queries']" name="app.cache_slow_queries">
               {{ $t('settings.performance.cacheSlowQueries') }}
-            </b-switch>
-          </b-field>
+            </oat-switch>
+          </oat-field>
         </div>
-        <div class="column is-4" :class="{ disabled: !data['app.cache_slow_queries'] }">
-          <b-field :label="$t('settings.maintenance.cron')">
-            <b-input v-model="data['app.cache_slow_queries_interval']" :disabled="!data['app.cache_slow_queries']"
-              placeholder="0 3 * * *" />
-          </b-field>
+        <div class="col-4" :class="{ disabled: !data['app.cache_slow_queries'] }">
+          <oat-field :label="$t('settings.maintenance.cron')">
+            <input aria-label="field" v-model="data['app.cache_slow_queries_interval']"
+              :disabled="!data['app.cache_slow_queries']" placeholder="0 3 * * *">
+          </oat-field>
         </div>
-        <div class="column">
+        <div class="col-4">
           <br /><br />
           <a href="https://listmonk.app/docs/maintenance/performance/" target="_blank" rel="noopener noreferer">
-            <b-icon icon="link-variant" /> {{ $t('globals.buttons.learnMore') }}
+            <oat-icon icon="link-variant" /> {{ $t('globals.buttons.learnMore') }}
           </a>
         </div>
       </div>

@@ -2,52 +2,52 @@
   <div class="richtext-editor" v-if="isRichtextReady">
     <tiny-mce v-model="computedValue" :disabled="disabled" :init="richtextConf" />
 
-    <b-modal scroll="keep" :width="1200" :aria-modal="true" :active.sync="isRichtextSourceVisible">
+    <oat-modal :width="1200" :active.sync="isRichtextSourceVisible">
       <div>
-        <section expanded class="modal-card-body preview">
+        <section class="dialog-body preview">
           <code-editor lang="html" v-model="richTextSourceBody" key="richtext-source" />
         </section>
-        <footer class="modal-card-foot has-text-right">
-          <b-button @click="onFormatRichtextHTML">
+        <footer class="dialog-foot align-right">
+          <button type="button" @click="onFormatRichtextHTML">
             {{ $t('campaigns.formatHTML') }}
-          </b-button>
-          <b-button @click="() => { this.isRichtextSourceVisible = false; }">
+          </button>
+          <button type="button" @click="() => { this.isRichtextSourceVisible = false; }">
             {{ $t('globals.buttons.close') }}
-          </b-button>
-          <b-button @click="onSaveRichTextSource" class="is-primary">
+          </button>
+          <button type="button" @click="onSaveRichTextSource" data-variant="primary">
             {{ $t('globals.buttons.save') }}
-          </b-button>
+          </button>
         </footer>
       </div>
-    </b-modal>
+    </oat-modal>
 
-    <b-modal scroll="keep" :width="750" :aria-modal="true" :active.sync="isInsertHTMLVisible">
+    <oat-modal :width="750" :active.sync="isInsertHTMLVisible">
       <div>
-        <section expanded class="modal-card-body preview">
+        <section class="dialog-body preview">
           <code-editor lang="html" v-model="insertHTMLSnippet" key="richtext-snippet" />
         </section>
-        <footer class="modal-card-foot has-text-right">
-          <b-button @click="onFormatRichtextHTMLSnippet">
+        <footer class="dialog-foot align-right">
+          <button type="button" @click="onFormatRichtextHTMLSnippet">
             {{ $t('campaigns.formatHTML') }}
-          </b-button>
-          <b-button @click="() => { this.isInsertHTMLVisible = false; }">
+          </button>
+          <button type="button" @click="() => { this.isInsertHTMLVisible = false; }">
             {{ $t('globals.buttons.close') }}
-          </b-button>
-          <b-button @click="onInsertHTML" class="is-primary">
+          </button>
+          <button type="button" @click="onInsertHTML" data-variant="primary">
             {{ $t('globals.buttons.insert') }}
-          </b-button>
+          </button>
         </footer>
       </div>
-    </b-modal>
+    </oat-modal>
 
     <!-- image picker -->
-    <b-modal scroll="keep" :aria-modal="true" :active.sync="isMediaVisible" :width="900">
-      <div class="modal-card content" style="width: auto">
-        <section expanded class="modal-card-body">
+    <oat-modal :active.sync="isMediaVisible" :width="900">
+      <div class="dialog-card content" style="width: auto">
+        <section class="dialog-body">
           <media is-modal @selected="onMediaSelect" />
         </section>
       </div>
-    </b-modal>
+    </oat-modal>
   </div>
 </template>
 

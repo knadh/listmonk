@@ -1,4 +1,3 @@
-import { ToastProgrammatic as Toast } from 'buefy';
 import axios from 'axios';
 import qs from 'qs';
 import store from '../store';
@@ -78,13 +77,7 @@ http.interceptors.response.use((resp) => {
   }
 
   if (!err.config.disableToast) {
-    Toast.open({
-      message: msg,
-      type: 'is-danger',
-      queue: false,
-      position: 'is-top',
-      pauseOnHover: true,
-    });
+    utils.toast(msg, 'is-danger');
   }
 
   return Promise.reject(err);

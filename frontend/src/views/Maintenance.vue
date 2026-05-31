@@ -1,181 +1,179 @@
 <template>
-  <section class="maintenance wrap">
-    <h1 class="title is-4">
-      {{ $t('maintenance.title') }}
-    </h1>
-    <hr />
-    <p class="has-text-grey">
-      {{ $t('maintenance.help') }}
-    </p>
-    <br />
-
-    <div class="box">
-      <h4 class="is-size-4">
-        {{ $t('globals.terms.subscribers') }}
-      </h4><br />
-      <div class="columns">
-        <div class="column is-4">
-          <b-field label="Data" :message="$t('maintenance.orphanHelp')">
-            <b-select v-model="subscriberType" expanded>
-              <option value="orphan">
-                {{ $t('dashboard.orphanSubs') }}
-              </option>
-              <option value="blocklisted">
-                {{ $t('subscribers.status.blocklisted') }}
-              </option>
-            </b-select>
-          </b-field>
-        </div>
-        <div class="column is-5" />
-        <div class="column">
-          <br />
-          <b-field>
-            <b-button class="is-primary" :loading="loading.maintenance" @click="deleteSubscribers" expanded>
-              {{ $t('globals.buttons.delete') }}
-            </b-button>
-          </b-field>
-        </div>
+  <section class="maintenance">
+    <header class="row page-header">
+      <div class="col-8">
+        <h1>
+          {{ $t('maintenance.title') }}
+        </h1>
+        <p class="text-light text-7">
+          {{ $t('maintenance.help') }}
+        </p>
       </div>
-    </div><!-- subscribers -->
+    </header>
 
-    <div class="box mt-6">
-      <h4 class="is-size-4">
-        {{ $tc('globals.terms.subscriptions', 2) }}
-      </h4><br />
-      <div class="columns">
-        <div class="column is-4">
-          <b-field label="Data">
-            <b-select v-model="subscriptionType" expanded>
-              <option value="optin">
-                {{ $t('maintenance.maintenance.unconfirmedOptins') }}
-              </option>
-            </b-select>
-          </b-field>
+    <div class="card page-content" :aria-busy="isLoading ? 'true' : null" data-spinner="large overlay">
+      <div class="card">
+        <h4 class="text-4">
+          {{ $t('globals.terms.subscribers') }}
+        </h4><br />
+        <div class="row">
+          <div class="col-4">
+            <oat-field label="Data" :message="$t('maintenance.orphanHelp')">
+              <select aria-label="field" v-model="subscriberType">
+                <option value="orphan">
+                  {{ $t('dashboard.orphanSubs') }}
+                </option>
+                <option value="blocklisted">
+                  {{ $t('subscribers.status.blocklisted') }}
+                </option>
+              </select>
+            </oat-field>
+          </div>
+          <div class="col-5" />
+          <div class="col-12">
+            <br />
+            <oat-field>
+              <button type="button" data-variant="danger" :loading="loading.maintenance" @click="deleteSubscribers">
+                {{ $t('globals.buttons.delete') }}
+              </button>
+            </oat-field>
+          </div>
         </div>
-        <div class="column is-4">
-          <b-field :label="$t('maintenance.olderThan')">
-            <b-datepicker v-model="subscriptionDate" required expanded icon="calendar-clock"
-              :date-formatter="formatDateTime" />
-          </b-field>
-        </div>
-        <div class="column is-1" />
-        <div class="column">
-          <br />
-          <b-field>
-            <b-button class="is-primary" :loading="loading.maintenance" @click="deleteSubscriptions" expanded>
-              {{ $t('globals.buttons.delete') }}
-            </b-button>
-          </b-field>
-        </div>
-      </div>
-    </div><!-- subscriptions -->
+      </div><!-- subscribers -->
 
-    <div class="box mt-6">
-      <h4 class="is-size-4">
-        {{ $t('globals.terms.analytics') }}
-      </h4><br />
-      <div class="columns">
-        <div class="column is-4">
-          <b-field label="Data">
-            <b-select v-model="analyticsType" expanded>
-              <option selected value="all">
-                {{ $t('globals.terms.all') }}
-              </option>
-              <option value="views">
-                {{ $t('dashboard.campaignViews') }}
-              </option>
-              <option value="clicks">
-                {{ $t('dashboard.linkClicks') }}
-              </option>
-            </b-select>
-          </b-field>
+      <div class="card mt-6">
+        <h4 class="text-4">
+          {{ $tc('globals.terms.subscriptions', 2) }}
+        </h4><br />
+        <div class="row">
+          <div class="col-4">
+            <oat-field label="Data">
+              <select aria-label="field" v-model="subscriptionType">
+                <option value="optin">
+                  {{ $t('maintenance.maintenance.unconfirmedOptins') }}
+                </option>
+              </select>
+            </oat-field>
+          </div>
+          <div class="col-4">
+            <oat-field :label="$t('maintenance.olderThan')">
+              <oat-date-input v-model="subscriptionDate" required />
+            </oat-field>
+          </div>
+          <div class="col-1" />
+          <div class="col-12">
+            <br />
+            <oat-field>
+              <button type="button" data-variant="danger" :loading="loading.maintenance" @click="deleteSubscriptions">
+                {{ $t('globals.buttons.delete') }}
+              </button>
+            </oat-field>
+          </div>
         </div>
-        <div class="column is-4">
-          <b-field :label="$t('maintenance.olderThan')">
-            <b-datepicker v-model="analyticsDate" required expanded icon="calendar-clock"
-              :date-formatter="formatDateTime" />
-          </b-field>
-        </div>
-        <div class="column is-1" />
-        <div class="column">
-          <br />
-          <b-field>
-            <b-button expanded class="is-primary" :loading="loading.maintenance" @click="deleteAnalytics">
-              {{ $t('globals.buttons.delete') }}
-            </b-button>
-          </b-field>
-        </div>
-      </div>
+      </div><!-- subscriptions -->
 
-      <hr />
-      <h5 class="is-size-5">
-        {{ $t('subscribers.export') }}
-      </h5>
-      <br />
-      <div class="columns">
-        <div class="column is-4">
-          <b-field label="Data">
-            <b-select v-model="exportType" expanded>
-              <option value="views">
-                {{ $t('dashboard.campaignViews') }}
-              </option>
-              <option value="clicks">
-                {{ $t('dashboard.linkClicks') }}
-              </option>
-            </b-select>
-          </b-field>
+      <div class="card mt-6">
+        <h4 class="text-4">
+          {{ $t('globals.terms.analytics') }}
+        </h4><br />
+        <div class="row">
+          <div class="col-4">
+            <oat-field label="Data">
+              <select aria-label="field" v-model="analyticsType">
+                <option selected value="all">
+                  {{ $t('globals.terms.all') }}
+                </option>
+                <option value="views">
+                  {{ $t('dashboard.campaignViews') }}
+                </option>
+                <option value="clicks">
+                  {{ $t('dashboard.linkClicks') }}
+                </option>
+              </select>
+            </oat-field>
+          </div>
+          <div class="col-4">
+            <oat-field :label="$t('maintenance.olderThan')">
+              <oat-date-input v-model="analyticsDate" required />
+            </oat-field>
+          </div>
+          <div class="col-1" />
+          <div class="col-12">
+            <br />
+            <oat-field>
+              <button type="button" data-variant="danger" :loading="loading.maintenance" @click="deleteAnalytics">
+                {{ $t('globals.buttons.delete') }}
+              </button>
+            </oat-field>
+          </div>
         </div>
-        <div class="column is-4">
-          <b-field :label="$t('analytics.fromDate')">
-            <b-datepicker v-model="exportDate" required expanded icon="calendar-clock"
-              :date-formatter="formatDateTime" />
-          </b-field>
-        </div>
-        <div class="column is-1" />
-        <div class="column">
-          <br />
-          <b-field>
-            <b-button expanded class="is-primary" tag="a" icon-left="download"
-              :href="exportURL">
-              {{ $t('subscribers.export') }}
-            </b-button>
-          </b-field>
-        </div>
-      </div>
-    </div><!-- analytics -->
 
-    <form @submit.prevent="onUpdateDBSettings" class="box mt-6">
-      <h4 class="is-size-4">
-        {{ $t('maintenance.database.title') }}
-      </h4><br />
-      <h5 class="is-size-5">Vacuum</h5>
-      <p class="has-text-grey is-size-7">
-        {{ $t('maintenance.database.vacuumHelp') }}
-      </p>
-      <br />
-      <div class="columns">
-        <div class="column is-2">
-          <b-field :label="$t('globals.buttons.enabled')">
-            <b-switch v-model="dbSettings.vacuum" />
-          </b-field>
+        <hr />
+        <h5 class="text-5">
+          {{ $t('subscribers.export') }}
+        </h5>
+        <br />
+        <div class="row">
+          <div class="col-4">
+            <oat-field label="Data">
+              <select aria-label="field" v-model="exportType">
+                <option value="views">
+                  {{ $t('dashboard.campaignViews') }}
+                </option>
+                <option value="clicks">
+                  {{ $t('dashboard.linkClicks') }}
+                </option>
+              </select>
+            </oat-field>
+          </div>
+          <div class="col-4">
+            <oat-field :label="$t('analytics.fromDate')">
+              <oat-date-input v-model="exportDate" required />
+            </oat-field>
+          </div>
+          <div class="col-1" />
+          <div class="col-12">
+            <br />
+            <oat-field>
+              <button type="button" data-variant="primary" tag="a" :href="exportURL">
+                {{ $t('subscribers.export') }}
+              </button>
+            </oat-field>
+          </div>
         </div>
-        <div class="column is-4" :class="{ disabled: !dbSettings.vacuum }">
-          <b-field :label="$t('settings.maintenance.cron')">
-            <b-input v-model="dbSettings.vacuum_cron_interval" placeholder="0 2 * * *" :disabled="!dbSettings.vacuum"
-              pattern="((\*|[0-9,\-\/]+)\s+){4}(\*|[0-9,\-\/]+)" />
-          </b-field>
-        </div>
-        <div class="column is-3" />
-        <div class="column is-3">
-          <br />
-          <b-button type="is-primary" native-type="submit" :loading="loading.settings" expanded>
-            {{ $t('globals.buttons.save') }}
-          </b-button>
-        </div>
-      </div>
-    </form><!-- database -->
+      </div><!-- analytics -->
 
-    <b-loading :is-full-page="true" v-if="isLoading" active />
+      <form @submit.prevent="onUpdateDBSettings" class="card mt-6">
+        <h4 class="text-4">
+          {{ $t('maintenance.database.title') }}
+        </h4><br />
+        <h5 class="text-5">Vacuum</h5>
+        <p class="text-light text-7 ">
+          {{ $t('maintenance.database.vacuumHelp') }}
+        </p>
+        <br />
+        <div class="row">
+          <div class="col-2">
+            <oat-field :label="$t('globals.buttons.enabled')">
+              <oat-switch v-model="dbSettings.vacuum" />
+            </oat-field>
+          </div>
+          <div class="col-4" :class="{ disabled: !dbSettings.vacuum }">
+            <oat-field :label="$t('settings.maintenance.cron')">
+              <input aria-label="field" v-model="dbSettings.vacuum_cron_interval" placeholder="0 2 * * *"
+                :disabled="!dbSettings.vacuum" pattern="((\*|[0-9,\-\/]+)\s+){4}(\*|[0-9,\-\/]+)">
+            </oat-field>
+          </div>
+          <div class="col-3" />
+          <div class="col-3">
+            <br />
+            <button data-variant="primary" type="submit" :loading="loading.settings">
+              {{ $t('globals.buttons.save') }}
+            </button>
+          </div>
+        </div>
+      </form><!-- database -->
+    </div>
   </section>
 </template>
 

@@ -1,7 +1,3 @@
-import {
-  DialogProgrammatic as Dialog,
-  ToastProgrammatic as Toast,
-} from 'buefy';
 import dayjs from 'dayjs';
 import dayDuration from 'dayjs/plugin/duration';
 import relativeTime from 'dayjs/plugin/relativeTime';
@@ -24,6 +20,22 @@ const htmlEntities = {
   '`': '&#x60;',
   '=': '&#x3D;',
 };
+
+function toastVariant(typ) {
+  if (!typ) {
+    return 'success';
+  }
+
+  return {
+    'is-success': 'success',
+    success: 'success',
+    'is-danger': 'danger',
+    danger: 'danger',
+    error: 'danger',
+    'is-warning': 'warning',
+    warning: 'warning',
+  }[typ] || 'info';
+}
 
 export default class Utils {
   constructor(i18n) {
@@ -146,48 +158,39 @@ export default class Utils {
 
   // UI shortcuts.
   confirm = (msg, onConfirm, onCancel) => {
-    Dialog.confirm({
-      scroll: 'keep',
-      message: !msg ? this.i18n.t('globals.messages.confirm') : this.escapeHTML(msg),
-      confirmText: this.i18n.t('globals.buttons.ok'),
-      cancelText: this.i18n.t('globals.buttons.cancel'),
-      onConfirm,
-      onCancel,
-    });
+    // Native browser dialogs are intentionally used during the Oat migration.
+    // eslint-disable-next-line no-alert
+    if (window.confirm(!msg ? this.i18n.t('globals.messages.confirm') : msg)) {
+      if (onConfirm) {
+        onConfirm();
+      }
+    } else if (onCancel) {
+      onCancel();
+    }
   };
 
-  prompt = (msg, inputAttrs, onConfirm, onCancel, params) => {
-    const p = params || {};
-
-    Dialog.prompt({
-      scroll: 'keep',
-      message: this.escapeHTML(msg),
-      confirmText: p.confirmText || this.i18n.t('globals.buttons.ok'),
-      cancelText: p.cancelText || this.i18n.t('globals.buttons.cancel'),
-      inputAttrs: {
-        type: 'string',
-        maxlength: 200,
-        ...inputAttrs,
-      },
-      trapFocus: true,
-      onConfirm,
-      onCancel,
-    });
+  prompt = (msg, inputAttrs, onConfirm, onCancel) => {
+    const initialValue = inputAttrs && inputAttrs.value ? inputAttrs.value : '';
+    // eslint-disable-next-line no-alert
+    const val = window.prompt(msg, initialValue);
+    if (val !== null) {
+      if (onConfirm) {
+        onConfirm(val);
+      }
+    } else if (onCancel) {
+      onCancel();
+    }
   };
 
-  toast = (msg, typ, duration, queue) => {
-    Toast.open({
-      message: this.escapeHTML(msg),
-      type: !typ ? 'is-success' : typ,
-      queue,
+  toast = (msg, typ, duration) => {
+    window.ot.toast(msg, '', {
       duration: duration || 3000,
-      position: 'is-top',
-      pauseOnHover: true,
+      placement: 'top-right',
+      variant: toastVariant(typ),
     });
   };
 
-  // Takes a props.row from a Buefy b-column <td> template and
-  // returns a `data-id` attribute which Buefy then applies to the td.
+  // Takes a table row and returns a `data-id` attribute for the cell.
   tdID = (row) => ({ 'data-id': row.id.toString() });
 
   camelString = (str) => {

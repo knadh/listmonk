@@ -13,7 +13,6 @@ export default defineConfig(({ _, mode }) => {
     resolve: {
       alias: {
         '@': path.resolve(__dirname, './src'),
-        bulma: require.resolve('bulma/bulma.sass'),
       },
     },
     build: {
