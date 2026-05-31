@@ -21,18 +21,20 @@ const htmlEntities = {
   '=': '&#x3D;',
 };
 
-function showToast(message, typ, duration) {
-  let root = document.querySelector('.toast-container');
-  if (!root) {
-    root = document.createElement('div');
-    root.className = 'toast-container';
-    document.body.appendChild(root);
+function toastVariant(typ) {
+  if (!typ) {
+    return 'success';
   }
-  const el = document.createElement('div');
-  el.className = `toast ${typ === 'is-danger' ? 'error' : ''}`;
-  el.textContent = message;
-  root.appendChild(el);
-  setTimeout(() => el.remove(), duration || 3000);
+
+  return {
+    'is-success': 'success',
+    success: 'success',
+    'is-danger': 'danger',
+    danger: 'danger',
+    error: 'danger',
+    'is-warning': 'warning',
+    warning: 'warning',
+  }[typ] || 'info';
 }
 
 export default class Utils {
@@ -181,7 +183,11 @@ export default class Utils {
   };
 
   toast = (msg, typ, duration) => {
-    showToast(msg, typ, duration);
+    window.ot.toast(msg, '', {
+      duration: duration || 3000,
+      placement: 'top-right',
+      variant: toastVariant(typ),
+    });
   };
 
   // Takes a table row and returns a `data-id` attribute for the cell.

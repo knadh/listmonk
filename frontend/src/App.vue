@@ -279,27 +279,6 @@ body[data-sidebar-layout] {
   margin-block-end: var(--space-4);
 }
 
-.toast-container {
-  display: grid;
-  gap: var(--space-2);
-  position: fixed;
-  right: var(--space-4);
-  top: var(--space-4);
-  z-index: 2000;
-}
-
-.toast {
-  background: var(--background);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
-  padding: var(--space-3);
-}
-
-.toast.error {
-  border-color: var(--danger);
-}
-
 .spaced-links {
   display: flex;
   flex-wrap: wrap;
