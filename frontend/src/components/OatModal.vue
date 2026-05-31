@@ -74,8 +74,10 @@ export default {
 
 .oat-modal>form>.dialog-card>header,
 .oat-modal>.dialog-card>header {
-  padding: var(--space-3) var(--space-6);
-  padding-block-end: 0;
+  background: var(--muted);
+  padding: var(--space-6);
+  padding-block-end: var(--space-2);
+  margin-block-end: var(--space-4);
 }
 
 .oat-modal>form>.dialog-card> :is(div, section),
@@ -83,6 +85,7 @@ export default {
   max-height: 70vh;
   overflow-y: auto;
   padding: var(--space-6);
+  padding-block-start: 0;
 }
 
 .oat-modal>form>.dialog-card>footer,
