@@ -67,6 +67,12 @@ a {
     margin-bottom: var(--space-2);
 }
 
+.data-field {
+    label {
+        font-weight: var(--font-semibold);
+    }
+}
+
 .badge {
     border: 0;
 
