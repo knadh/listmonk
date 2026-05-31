@@ -1,146 +1,154 @@
 <template>
   <section class="import">
-    <h1 class="title is-4">
-      {{ $t('import.title') }}
-    </h1>
-    <b-loading :active="isLoading" />
+    <header class="row page-header">
+      <div class="col-8">
+        <h1>
+          {{ $t('import.title') }}
+        </h1>
+      </div>
+    </header>
 
-    <section v-if="isFree()" class="wrap">
-      <form @submit.prevent="onUpload" class="box">
-        <div>
-          <div class="columns">
-            <div class="column">
-              <b-field :label="$t('import.mode')" :addons="false">
-                <div>
-                  <b-radio v-model="form.mode" name="mode" native-value="subscribe" data-cy="check-subscribe">
-                    {{ $t('import.subscribe') }}
-                  </b-radio>
-                  <br />
-                  <b-radio v-model="form.mode" name="mode" native-value="blocklist" data-cy="check-blocklist">
-                    {{ $t('import.blocklist') }}
-                  </b-radio>
+    <div class="card page-content" :aria-busy="isLoading ? 'true' : null" data-spinner="large overlay">
+      <section v-if="isFree()">
+        <form @submit.prevent="onUpload" class="card">
+          <div>
+            <div class="row">
+              <div class="col-12">
+                <oat-field :label="$t('import.mode')" :addons="false">
+                  <div>
+                    <oat-radio v-model="form.mode" name="mode" native-value="subscribe" data-cy="check-subscribe">
+                      {{ $t('import.subscribe') }}
+                    </oat-radio>
+                    <br />
+                    <oat-radio v-model="form.mode" name="mode" native-value="blocklist" data-cy="check-blocklist">
+                      {{ $t('import.blocklist') }}
+                    </oat-radio>
+                  </div>
+                </oat-field>
+              </div>
+              <div class="col-12">
+                <oat-field :label="$t('globals.fields.status')" :addons="false">
+                  <template v-if="form.mode === 'subscribe'">
+                    <oat-radio v-model="form.subStatus" name="subStatus" native-value="unconfirmed"
+                      data-cy="check-unconfirmed">
+                      {{ $t('subscribers.status.unconfirmed') }}
+                    </oat-radio>
+                    <oat-radio v-model="form.subStatus" name="subStatus" native-value="confirmed"
+                      data-cy="check-confirmed">
+                      {{ $t('subscribers.status.confirmed') }}
+                    </oat-radio>
+                  </template>
+
+                  <oat-radio v-else v-model="form.subStatus" name="subStatus" native-value="unsubscribed"
+                    data-cy="check-unsubscribed">
+                    {{ $t('subscribers.status.unsubscribed') }}
+                  </oat-radio>
+                </oat-field>
+              </div>
+
+              <div class="col-12">
+                <oat-field :label="$t('import.csvDelim')" :message="$t('import.csvDelimHelp')" class="delimiter">
+                  <input aria-label="field" v-model="form.delim" name="delim" placeholder="," maxlength="1" required>
+                </oat-field>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-4">
+                <oat-field v-if="form.mode === 'subscribe'" :label="$t('import.overwriteUserInfo')"
+                  :message="$t('import.overwriteUserInfoHelp')">
+                  <div>
+                    <oat-switch v-model="form.overwriteUserInfo" name="overwriteUserInfo"
+                      data-cy="overwrite-user-info" />
+                  </div>
+                </oat-field>
+              </div>
+
+              <div class="col-12">
+                <oat-field v-if="form.mode === 'subscribe'" :label="$t('import.overwriteSubStatus')"
+                  :message="$t('import.overwriteSubStatusHelp')">
+                  <div>
+                    <oat-switch v-model="form.overwriteSubStatus" name="overwriteSubStatus"
+                      data-cy="overwrite-sub-status" />
+                  </div>
+                </oat-field>
+              </div>
+            </div>
+
+            <list-selector v-if="form.mode === 'subscribe'" :label="$t('globals.terms.lists')"
+              :placeholder="$t('import.listSubHelp')" :message="$t('import.listSubHelp')" v-model="form.lists"
+              :selected="form.lists" :all="lists.results" />
+            <hr />
+
+            <oat-field :label="$t('import.csvFile')">
+              <oat-upload v-model="form.file">
+                <div class="align-center app-section">
+                  <p>
+                    <oat-icon icon="file-upload-outline" />
+                  </p>
+                  <p>{{ $t('import.csvFileHelp') }}</p>
                 </div>
-              </b-field>
+              </oat-upload>
+            </oat-field>
+            <div class="hstack" v-if="form.file">
+              <span closable @close="clearFile">
+                {{ form.file.name }}
+              </span>
             </div>
-            <div class="column">
-              <b-field :label="$t('globals.fields.status')" :addons="false">
-                <template v-if="form.mode === 'subscribe'">
-                  <b-radio v-model="form.subStatus" name="subStatus" native-value="unconfirmed"
-                    data-cy="check-unconfirmed">
-                    {{ $t('subscribers.status.unconfirmed') }}
-                  </b-radio>
-                  <b-radio v-model="form.subStatus" name="subStatus" native-value="confirmed" data-cy="check-confirmed">
-                    {{ $t('subscribers.status.confirmed') }}
-                  </b-radio>
-                </template>
-
-                <b-radio v-else v-model="form.subStatus" name="subStatus" native-value="unsubscribed"
-                  data-cy="check-unsubscribed">
-                  {{ $t('subscribers.status.unsubscribed') }}
-                </b-radio>
-              </b-field>
-            </div>
-
-            <div class="column">
-              <b-field :label="$t('import.csvDelim')" :message="$t('import.csvDelimHelp')" class="delimiter">
-                <b-input v-model="form.delim" name="delim" placeholder="," maxlength="1" required />
-              </b-field>
+            <div class="hstack">
+              <button type="submit" data-variant="primary"
+                :disabled="!form.file || (form.mode === 'subscribe' && form.lists.length === 0)"
+                :loading="isProcessing">
+                {{ $t('import.upload') }}
+              </button>
             </div>
           </div>
+        </form>
+        <br /><br />
 
-          <div class="columns">
-            <div class="column is-4">
-              <b-field v-if="form.mode === 'subscribe'" :label="$t('import.overwriteUserInfo')"
-                :message="$t('import.overwriteUserInfoHelp')">
-                <div>
-                  <b-switch v-model="form.overwriteUserInfo" name="overwriteUserInfo" data-cy="overwrite-user-info" />
-                </div>
-              </b-field>
-            </div>
+        <div class="import-help">
+          <h5>
+            {{ $t('import.instructions') }}
+          </h5>
+          <p>{{ $t('import.instructionsHelp') }}</p>
+          <br />
+          <blockquote class="csv-example">
+            <code class="csv-headers"> <span>email,</span> <span>name,</span> <span>attributes</span></code>
+          </blockquote>
 
-            <div class="column">
-              <b-field v-if="form.mode === 'subscribe'" :label="$t('import.overwriteSubStatus')"
-                :message="$t('import.overwriteSubStatusHelp')">
-                <div>
-                  <b-switch v-model="form.overwriteSubStatus" name="overwriteSubStatus"
-                    data-cy="overwrite-sub-status" />
-                </div>
-              </b-field>
-            </div>
-          </div>
-
-          <list-selector v-if="form.mode === 'subscribe'" :label="$t('globals.terms.lists')"
-            :placeholder="$t('import.listSubHelp')" :message="$t('import.listSubHelp')" v-model="form.lists"
-            :selected="form.lists" :all="lists.results" />
           <hr />
 
-          <b-field :label="$t('import.csvFile')" label-position="on-border">
-            <b-upload v-model="form.file" drag-drop expanded>
-              <div class="has-text-centered section">
-                <p>
-                  <b-icon icon="file-upload-outline" size="is-large" />
-                </p>
-                <p>{{ $t('import.csvFileHelp') }}</p>
-              </div>
-            </b-upload>
-          </b-field>
-          <div class="tags" v-if="form.file">
-            <b-tag size="is-medium" closable @close="clearFile">
-              {{ form.file.name }}
-            </b-tag>
-          </div>
-          <div class="buttons">
-            <b-button native-type="submit" type="is-primary"
-              :disabled="!form.file || (form.mode === 'subscribe' && form.lists.length === 0)" :loading="isProcessing">
-              {{ $t('import.upload') }}
-            </b-button>
-          </div>
+          <h5>
+            {{ $t('import.csvExample') }}
+          </h5>
+
+          <pre class="csv-example" v-text="example" />
         </div>
-      </form>
-      <br /><br />
+      </section><!-- upload //-->
 
-      <div class="import-help">
-        <h5 class="title is-size-6">
-          {{ $t('import.instructions') }}
-        </h5>
-        <p>{{ $t('import.instructionsHelp') }}</p>
+      <section v-if="isRunning() || isDone()" class="wrap status card align-center">
+        <progress :value="progress" data-variant="primary" />
         <br />
-        <blockquote class="csv-example">
-          <code class="csv-headers"> <span>email,</span> <span>name,</span> <span>attributes</span></code>
-        </blockquote>
+        <p
+          :class="['text-5', 'capitalize', { 'text-success': status.status === 'finished' }, { 'text-danger': (status.status === 'failed' || status.status === 'stopped') }]">
+          {{ status.status }}
+        </p>
 
-        <hr />
+        <p>{{ $t('import.recordsCount', { num: status.imported, total: status.total }) }}</p>
+        <br />
 
-        <h5 class="title is-size-6">
-          {{ $t('import.csvExample') }}
-        </h5>
+        <p>
+          <button type="button" @click="stopImport" :loading="isProcessing" data-variant="primary">
+            {{ isDone() ? $t('import.importDone') : $t('import.stopImport') }}
+          </button>
+        </p>
+        <br />
 
-        <pre class="csv-example" v-text="example" />
-      </div>
-    </section><!-- upload //-->
-
-    <section v-if="isRunning() || isDone()" class="wrap status box has-text-centered">
-      <b-progress :value="progress" show-value type="is-success" />
-      <br />
-      <p
-        :class="['is-size-5', 'is-capitalized', { 'has-text-success': status.status === 'finished' }, { 'has-text-danger': (status.status === 'failed' || status.status === 'stopped') }]">
-        {{ status.status }}
-      </p>
-
-      <p>{{ $t('import.recordsCount', { num: status.imported, total: status.total }) }}</p>
-      <br />
-
-      <p>
-        <b-button @click="stopImport" :loading="isProcessing" icon-left="file-upload-outline" type="is-primary">
-          {{ isDone() ? $t('import.importDone') : $t('import.stopImport') }}
-        </b-button>
-      </p>
-      <br />
-
-      <div class="import-logs">
-        <log-view :lines="logs" :loading="false" />
-      </div>
-    </section>
+        <div class="import-logs">
+          <log-view :lines="logs" :loading="false" />
+        </div>
+      </section>
+    </div>
   </section>
 </template>
 
@@ -175,7 +183,7 @@ export default Vue.extend({
       },
 
       // Initial page load still has to wait for the status API to return
-      // to either show the form or the status box.
+      // to either show the form or the status card.
       isLoading: true,
 
       isProcessing: false,

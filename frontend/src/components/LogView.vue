@@ -1,6 +1,5 @@
 <template>
-  <section class="log-view">
-    <b-loading :active="loading" :is-full-page="false" />
+  <section class="log-view" :aria-busy="loading ? 'true' : null" data-spinner="large overlay">
     <div class="lines" ref="lines">
       <template v-for="(l, i) in lines">
         <template v-if="l">
