@@ -17,6 +17,7 @@
       <div class="col-4 col-end align-right">
         <oat-field v-if="$can('subscribers:manage')">
           <button type="button" data-variant="primary" @click="showNewForm" data-cy="btn-new" class="btn-new">
+            <oat-icon icon="plus" />
             {{ $t('globals.buttons.new') }}
           </button>
         </oat-field>

@@ -10,6 +10,7 @@
       <div class="col-4 col-end align-right">
         <oat-field v-if="$can('templates:manage')">
           <button type="button" data-variant="primary" class="btn-new" @click="showNewForm">
+            <oat-icon icon="plus" />
             {{ $t('globals.buttons.new') }}
           </button>
         </oat-field>
