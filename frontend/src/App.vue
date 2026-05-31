@@ -27,7 +27,7 @@
             </button>
 
             <ot-dropdown v-if="profile.username">
-              <button popovertarget="user-menu" type="button" class="outline small user-trigger">
+              <button popovertarget="user-menu" type="button" class="user-nav-button ghost small user-trigger">
                 <span class="user-avatar">
                   <img v-if="profile.avatar" :src="profile.avatar" alt="" />
                   <span v-else>{{ profile.username[0].toUpperCase() }}</span>
