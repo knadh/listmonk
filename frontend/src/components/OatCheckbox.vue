@@ -1,11 +1,6 @@
 <template>
   <label>
-    <input
-      type="checkbox"
-      :checked="checked"
-      :disabled="disabled"
-      @change="onChange"
-    >
+    <input type="checkbox" :checked="checked" :disabled="disabled" @change="onChange">
     <slot />
   </label>
 </template>

@@ -1,12 +1,6 @@
 <template>
-  <input
-    :type="datetime ? 'datetime-local' : 'date'"
-    :name="name"
-    :required="required"
-    :aria-label="name || 'date'"
-    :value="formatted"
-    @input="onInput"
-  >
+  <input :type="datetime ? 'datetime-local' : 'date'" :name="name" :required="required" :aria-label="name || 'date'"
+    :value="formatted" @input="onInput">
 </template>
 
 <script>

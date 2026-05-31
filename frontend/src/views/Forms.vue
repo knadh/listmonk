@@ -9,62 +9,62 @@
     </header>
 
     <div class="card page-content">
-    <oat-loading v-if="loading.lists" :active="loading.lists" :is-full-page="false" />
-    <p v-else-if="publicLists.length === 0">
-      {{ $t('forms.noPublicLists') }}
-    </p>
-    <div class="row" v-else-if="publicLists.length > 0">
-      <div class="col-4">
-        <h4>{{ $t('forms.publicLists') }}</h4>
-        <p>{{ $t('forms.selectHelp') }}</p>
+      <oat-loading v-if="loading.lists" :active="loading.lists" :is-full-page="false" />
+      <p v-else-if="publicLists.length === 0">
+        {{ $t('forms.noPublicLists') }}
+      </p>
+      <div class="row" v-else-if="publicLists.length > 0">
+        <div class="col-4">
+          <h4>{{ $t('forms.publicLists') }}</h4>
+          <p>{{ $t('forms.selectHelp') }}</p>
 
-        <oat-loading :active="loading.lists" :is-full-page="false" />
-        <ul class="no" data-cy="lists">
-          <li v-for="(l, i) in publicLists" :key="l.id">
-            <oat-checkbox v-model="checked" :native-value="i">
-              {{ l.name }}
-            </oat-checkbox>
-          </li>
-        </ul>
+          <oat-loading :active="loading.lists" :is-full-page="false" />
+          <ul class="no" data-cy="lists">
+            <li v-for="(l, i) in publicLists" :key="l.id">
+              <oat-checkbox v-model="checked" :native-value="i">
+                {{ l.name }}
+              </oat-checkbox>
+            </li>
+          </ul>
 
-        <template v-if="serverConfig.public_subscription.enabled">
+          <template v-if="serverConfig.public_subscription.enabled">
+            <hr />
+            <h4>{{ $t('forms.publicSubPage') }}</h4>
+            <p>
+              <a :href="`${serverConfig.root_url}/subscription/form`" target="_blank" rel="noopener noreferer"
+                data-cy="url">
+                {{ serverConfig.root_url }}/subscription/form
+              </a>
+            </p>
+          </template>
+
           <hr />
-          <h4>{{ $t('forms.publicSubPage') }}</h4>
-          <p>
-            <a :href="`${serverConfig.root_url}/subscription/form`" target="_blank" rel="noopener noreferer"
-              data-cy="url">
-              {{ serverConfig.root_url }}/subscription/form
-            </a>
+          <h4>{{ $t('forms.redirectURL') }}</h4>
+          <p class="text-light text-7">
+            {{ $t('forms.redirectURLHelp') }}
           </p>
-        </template>
+          <ul v-if="redirectURLs.length > 0" class="no" data-cy="redirect-urls">
+            <li>
+              <oat-radio v-model="selectedRedirectURL" native-value="">
+                {{ $t('globals.terms.none') }}
+              </oat-radio>
+            </li>
+            <li v-for="url in redirectURLs" :key="url">
+              <oat-radio v-model="selectedRedirectURL" :native-value="url">
+                {{ url }}
+              </oat-radio>
+            </li>
+          </ul>
+        </div>
+        <div class="col-12" data-cy="form">
+          <h4>{{ $t('forms.formHTML') }}</h4>
+          <p>
+            {{ $t('forms.formHTMLHelp') }}
+          </p>
 
-        <hr />
-        <h4>{{ $t('forms.redirectURL') }}</h4>
-        <p class="text-light text-7">
-          {{ $t('forms.redirectURLHelp') }}
-        </p>
-        <ul v-if="redirectURLs.length > 0" class="no" data-cy="redirect-urls">
-          <li>
-            <oat-radio v-model="selectedRedirectURL" native-value="">
-              {{ $t('globals.terms.none') }}
-            </oat-radio>
-          </li>
-          <li v-for="url in redirectURLs" :key="url">
-            <oat-radio v-model="selectedRedirectURL" :native-value="url">
-              {{ url }}
-            </oat-radio>
-          </li>
-        </ul>
-      </div>
-      <div class="col-12" data-cy="form">
-        <h4>{{ $t('forms.formHTML') }}</h4>
-        <p>
-          {{ $t('forms.formHTMLHelp') }}
-        </p>
-
-        <code-editor lang="html" v-if="checked.length > 0" v-model="html" disabled />
-      </div>
-    </div><!-- row -->
+          <code-editor lang="html" v-if="checked.length > 0" v-model="html" disabled />
+        </div>
+      </div><!-- row -->
     </div>
   </section>
 </template>

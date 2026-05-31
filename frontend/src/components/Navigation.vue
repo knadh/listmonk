@@ -16,8 +16,7 @@
           </summary>
           <ul>
             <li>
-              <router-link :to="{ name: 'lists' }" :aria-current="activeItem.lists ? 'page' : null"
-                data-cy="all-lists">
+              <router-link :to="{ name: 'lists' }" :aria-current="activeItem.lists ? 'page' : null" data-cy="all-lists">
                 {{ $t('menu.allLists') }}
               </router-link>
             </li>
@@ -44,8 +43,7 @@
               </router-link>
             </li>
             <li v-if="$can('subscribers:import')">
-              <router-link :to="{ name: 'import' }" :aria-current="activeItem.import ? 'page' : null"
-                data-cy="import">
+              <router-link :to="{ name: 'import' }" :aria-current="activeItem.import ? 'page' : null" data-cy="import">
                 {{ $t('menu.import') }}
               </router-link>
             </li>

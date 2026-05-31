@@ -45,8 +45,7 @@
         </oat-field>
 
         <oat-field :label="$t('globals.terms.tags')">
-          <oat-tag-input v-model="form.tags" name="tags"
-            :placeholder="$t('globals.terms.tags')" />
+          <oat-tag-input v-model="form.tags" name="tags" :placeholder="$t('globals.terms.tags')" />
         </oat-field>
 
         <oat-field :label="$t('globals.fields.description')">
@@ -62,8 +61,8 @@
         <button type="button" class="outline" @click="$parent.close()">
           {{ $t('globals.buttons.close') }}
         </button>
-        <button v-if="$can('lists:manage_all') || $canList(data.id, 'list:manage')" type="submit"
-          data-variant="primary" :loading="loading.lists" data-cy="btn-save">
+        <button v-if="$can('lists:manage_all') || $canList(data.id, 'list:manage')" type="submit" data-variant="primary"
+          :loading="loading.lists" data-cy="btn-save">
           {{ $t('globals.buttons.save') }}
         </button>
       </footer>

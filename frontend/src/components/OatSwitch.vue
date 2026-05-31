@@ -1,14 +1,7 @@
 <template>
   <label>
-    <input
-      v-bind="$attrs"
-      type="checkbox"
-      role="switch"
-      :checked="isChecked"
-      :aria-checked="isChecked ? 'true' : 'false'"
-      :disabled="disabled"
-      @change="onChange"
-    >
+    <input v-bind="$attrs" type="checkbox" role="switch" :checked="isChecked"
+      :aria-checked="isChecked ? 'true' : 'false'" :disabled="disabled" @change="onChange">
     <slot />
   </label>
 </template>

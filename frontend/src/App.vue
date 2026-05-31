@@ -47,46 +47,47 @@
 
       <main>
         <div class="container">
-        <div class="global-notices" v-if="isGlobalNotices">
-          <div v-if="serverConfig.needs_restart" role="alert">
-            {{ $t('settings.needsRestart') }}
-            &mdash;
-            <button type="button" data-variant="danger" @click="$utils.confirm($t('settings.confirmRestart'), reloadApp)">
-              {{ $t('settings.restart') }}
-            </button>
-          </div>
-
-          <template v-if="serverConfig.update">
-            <div v-if="serverConfig.update.update.is_new" role="status">
-              {{ $t('settings.updateAvailable', {
-                version: `${serverConfig.update.update.release_version}
-              (${$utils.getDate(serverConfig.update.update.release_date).format('DD MMM YY')})`,
-              }) }}
-              <a :href="serverConfig.update.update.url" target="_blank" rel="noopener noreferer">View</a>
+          <div class="global-notices" v-if="isGlobalNotices">
+            <div v-if="serverConfig.needs_restart" role="alert">
+              {{ $t('settings.needsRestart') }}
+              &mdash;
+              <button type="button" data-variant="danger"
+                @click="$utils.confirm($t('settings.confirmRestart'), reloadApp)">
+                {{ $t('settings.restart') }}
+              </button>
             </div>
 
-            <template v-if="serverConfig.update.messages && serverConfig.update.messages.length > 0">
-              <div v-for="m in serverConfig.update.messages" role="status" :key="m.title">
-                <h3 v-if="m.title"><strong>{{ m.title }}</strong></h3>
-                <p v-if="m.description">{{ m.description }}</p>
-                <a v-if="m.url" :href="m.url" target="_blank" rel="noopener noreferer">View</a>
+            <template v-if="serverConfig.update">
+              <div v-if="serverConfig.update.update.is_new" role="status">
+                {{ $t('settings.updateAvailable', {
+                  version: `${serverConfig.update.update.release_version}
+                (${$utils.getDate(serverConfig.update.update.release_date).format('DD MMM YY')})`,
+                }) }}
+                <a :href="serverConfig.update.update.url" target="_blank" rel="noopener noreferer">View</a>
               </div>
+
+              <template v-if="serverConfig.update.messages && serverConfig.update.messages.length > 0">
+                <div v-for="m in serverConfig.update.messages" role="status" :key="m.title">
+                  <h3 v-if="m.title"><strong>{{ m.title }}</strong></h3>
+                  <p v-if="m.description">{{ m.description }}</p>
+                  <a v-if="m.url" :href="m.url" target="_blank" rel="noopener noreferer">View</a>
+                </div>
+              </template>
             </template>
-          </template>
 
-          <div v-if="serverConfig.has_legacy_user" role="alert">
-            <oat-icon icon="warning-empty" />
-            Remove the <code>admin_username</code> and <code>admin_password</code> fields from the TOML
-            configuration file or environment variables. If you are using APIs, create and use new API credentials
-            before removing them. Visit
-            <router-link :to="{ name: 'users' }">
-              Admin -> Settings -> Users
-            </router-link> dashboard. <a href="https://listmonk.app/docs/upgrade/#upgrading-to-v4xx" target="_blank"
-              rel="noopener noreferer">Learn more.</a>
+            <div v-if="serverConfig.has_legacy_user" role="alert">
+              <oat-icon icon="warning-empty" />
+              Remove the <code>admin_username</code> and <code>admin_password</code> fields from the TOML
+              configuration file or environment variables. If you are using APIs, create and use new API credentials
+              before removing them. Visit
+              <router-link :to="{ name: 'users' }">
+                Admin -> Settings -> Users
+              </router-link> dashboard. <a href="https://listmonk.app/docs/upgrade/#upgrading-to-v4xx" target="_blank"
+                rel="noopener noreferer">Learn more.</a>
+            </div>
           </div>
-        </div>
 
-        <router-view :key="$route.fullPath" />
+          <router-view :key="$route.fullPath" />
         </div>
       </main>
     </template>
@@ -288,5 +289,4 @@ body[data-sidebar-layout] {
 .disabled {
   opacity: 0.4;
 }
-
 </style>

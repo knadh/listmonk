@@ -1,15 +1,7 @@
 <template>
   <div class="oat-autocomplete">
-    <input
-      v-bind="$attrs"
-      :value="value"
-      type="text"
-      :placeholder="placeholder"
-      :disabled="disabled"
-      :aria-label="placeholder || 'Search'"
-      @input="onInput"
-      @focus="isOpen = true"
-    >
+    <input v-bind="$attrs" :value="value" type="text" :placeholder="placeholder" :disabled="disabled"
+      :aria-label="placeholder || 'Search'" @input="onInput" @focus="isOpen = true">
     <button v-if="clearable && value" type="button" class="ghost small" @click="clear">x</button>
     <menu v-if="isOpen && data.length > 0">
       <li v-for="(item, i) in data" :key="i">

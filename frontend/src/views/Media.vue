@@ -11,104 +11,104 @@
     </header>
 
     <div :class="isModal ? 'media-content' : 'card page-content'">
-    <oat-loading :active="isProcessing || loading.media" />
+      <oat-loading :active="isProcessing || loading.media" />
 
-    <section class="gallery">
-      <div class="row mb-4">
-        <div class="col-12">
-          <form @submit.prevent="onQueryMedia" class="search">
-            <fieldset class="group">
-              <input aria-label="Search" v-model="queryParams.query" name="query" ref="query" data-cy="query"
-                placeholder="Search">
-              <button type="submit" data-variant="primary" data-cy="btn-query" aria-label="Search">
-                <oat-icon icon="magnify" />
-              </button>
-            </fieldset>
+      <section class="gallery">
+        <div class="row mb-4">
+          <div class="col-12">
+            <form @submit.prevent="onQueryMedia" class="search">
+              <fieldset class="group">
+                <input aria-label="Search" v-model="queryParams.query" name="query" ref="query" data-cy="query"
+                  placeholder="Search">
+                <button type="submit" data-variant="primary" data-cy="btn-query" aria-label="Search">
+                  <oat-icon icon="magnify" />
+                </button>
+              </fieldset>
+            </form>
+          </div>
+          <div v-if="$can('media:manage')" class="col-2">
+            <button type="button" @click="onToggleForm" data-cy="btn-toggle-upload">
+              {{ $t('media.upload') }}
+            </button>
+          </div>
+        </div>
+
+        <div>
+          <form @submit.prevent="onSubmit" class="mb-6" data-cy="upload">
+            <div>
+              <oat-field :label="$t('media.upload')">
+                <oat-upload v-model="form.files" multiple xaccept=".png,.jpg,.jpeg,.gif,.svg">
+                  <div class="align-center app-section">
+                    <p>
+                      <oat-icon icon="file-upload-outline" />
+                    </p>
+                    <p>{{ $t('media.uploadHelp') }}</p>
+                  </div>
+                </oat-upload>
+              </oat-field>
+              <div class="hstack" v-if="form.files.length > 0">
+                <span v-for="(f, i) in form.files" :key="i" closable @close="removeUploadFile(i)">
+                  {{ f.name }}
+                </span>
+              </div>
+              <div class="hstack">
+                <button type="submit" data-variant="primary" :disabled="form.files.length === 0"
+                  :loading="isProcessing">
+                  {{ $tc('media.upload') }}
+                </button>
+              </div>
+            </div>
           </form>
         </div>
-        <div v-if="$can('media:manage')" class="col-2">
-          <button type="button" @click="onToggleForm" data-cy="btn-toggle-upload">
-            {{ $t('media.upload') }}
-          </button>
+
+        <!-- Pagination -->
+        <div v-if="media.total > media.perPage" class="pagination-wrapper mt-5">
+          <oat-pagination :total="media.total" :current.sync="media.page" :per-page="media.perPage"
+            @change="onPageChange" />
         </div>
-      </div>
 
-      <div>
-        <form @submit.prevent="onSubmit" class="mb-6" data-cy="upload">
-          <div>
-            <oat-field :label="$t('media.upload')">
-              <oat-upload v-model="form.files" multiple xaccept=".png,.jpg,.jpeg,.gif,.svg">
-                <div class="align-center app-section">
-                  <p>
-                    <oat-icon icon="file-upload-outline" />
-                  </p>
-                  <p>{{ $t('media.uploadHelp') }}</p>
+        <div v-if="loading.media" class="align-center py-6">
+          <oat-loading :active="loading.media" />
+        </div>
+        <div v-else-if="media.results && media.results.length > 0" class="grid">
+          <div v-for="item in media.results" :key="item.id" class="item">
+            <div class="thumb">
+              <a @click="(e) => onMediaSelect(item, e)" :href="item.url" target="_blank" rel="noopener noreferer"
+                class="thumb-link">
+                <div class="thumb-container">
+                  <img v-if="item.thumbUrl" :src="item.thumbUrl" :title="item.filename" :alt="item.filename" />
+                  <div v-else class="thumb-placeholder">
+                    <span class="file-ext">
+                      {{ item.filename.split(".").pop().toUpperCase() }}
+                    </span>
+                  </div>
                 </div>
-              </oat-upload>
-            </oat-field>
-            <div class="hstack" v-if="form.files.length > 0">
-              <span v-for="(f, i) in form.files" :key="i" closable @close="removeUploadFile(i)">
-                {{ f.name }}
-              </span>
-            </div>
-            <div class="hstack">
-              <button type="submit" data-variant="primary"
-                :disabled="form.files.length === 0" :loading="isProcessing">
-                {{ $tc('media.upload') }}
-              </button>
-            </div>
-          </div>
-        </form>
-      </div>
-
-      <!-- Pagination -->
-      <div v-if="media.total > media.perPage" class="pagination-wrapper mt-5">
-        <oat-pagination :total="media.total" :current.sync="media.page" :per-page="media.perPage"
-          @change="onPageChange" />
-      </div>
-
-      <div v-if="loading.media" class="align-center py-6">
-        <oat-loading :active="loading.media" />
-      </div>
-      <div v-else-if="media.results && media.results.length > 0" class="grid">
-        <div v-for="item in media.results" :key="item.id" class="item">
-          <div class="thumb">
-            <a @click="(e) => onMediaSelect(item, e)" :href="item.url" target="_blank" rel="noopener noreferer"
-              class="thumb-link">
-              <div class="thumb-container">
-                <img v-if="item.thumbUrl" :src="item.thumbUrl" :title="item.filename" :alt="item.filename" />
-                <div v-else class="thumb-placeholder">
-                  <span class="file-ext">
-                    {{ item.filename.split(".").pop().toUpperCase() }}
-                  </span>
-                </div>
-              </div>
-            </a>
-            <div class="actions">
-              <a href="#" @click.prevent="$utils.confirm(null, () => onDeleteMedia(item.id))" data-cy="btn-delete"
-                :aria-label="$t('globals.buttons.delete')" class="delete-btn">
-                <oat-icon icon="trash-can-outline" />
               </a>
+              <div class="actions">
+                <a href="#" @click.prevent="$utils.confirm(null, () => onDeleteMedia(item.id))" data-cy="btn-delete"
+                  :aria-label="$t('globals.buttons.delete')" class="delete-btn">
+                  <oat-icon icon="trash-can-outline" />
+                </a>
+              </div>
+            </div>
+            <div class="info">
+              <p class="filename" :title="item.filename">{{ item.filename }}</p>
+              <p class="date">{{ $utils.niceDate(item.createdAt, false) }}</p>
             </div>
           </div>
-          <div class="info">
-            <p class="filename" :title="item.filename">{{ item.filename }}</p>
-            <p class="date">{{ $utils.niceDate(item.createdAt, false) }}</p>
-          </div>
         </div>
-      </div>
 
-      <!-- Empty State -->
-      <div v-else-if="!loading.media">
-        <empty-placeholder />
-      </div>
+        <!-- Empty State -->
+        <div v-else-if="!loading.media">
+          <empty-placeholder />
+        </div>
 
-      <!-- Pagination -->
-      <div v-if="media.total > media.perPage" class="pagination-wrapper mt-5">
-        <oat-pagination :total="media.total" :current.sync="media.page" :per-page="media.perPage"
-          @change="onPageChange" />
-      </div>
-    </section>
+        <!-- Pagination -->
+        <div v-if="media.total > media.perPage" class="pagination-wrapper mt-5">
+          <oat-pagination :total="media.total" :current.sync="media.page" :per-page="media.perPage"
+            @change="onPageChange" />
+        </div>
+      </section>
     </div>
   </section>
 </template>

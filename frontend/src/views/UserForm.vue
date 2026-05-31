@@ -16,13 +16,11 @@
         <div class="row">
           <div class="col-6">
             <oat-field class="mb-6">
-              <oat-radio v-model="form.type" name="type" native-value="user" :disabled="isEditing"
->
+              <oat-radio v-model="form.type" name="type" native-value="user" :disabled="isEditing">
                 <oat-icon icon="account-outline" />
                 {{ $t('users.type.user') }}
               </oat-radio>
-              <oat-radio v-model="form.type" name="type" native-value="api" :disabled="isEditing"
->
+              <oat-radio v-model="form.type" name="type" native-value="api" :disabled="isEditing">
                 <oat-icon icon="code" />
                 {{ $t('users.type.api') }}
               </oat-radio>
@@ -49,11 +47,13 @@
         </oat-field>
 
         <oat-field :label="$t('globals.fields.name')">
-          <input aria-label="field" :maxlength="200" v-model="form.name" name="name" :placeholder="$t('globals.fields.name')">
+          <input aria-label="field" :maxlength="200" v-model="form.name" name="name"
+            :placeholder="$t('globals.fields.name')">
         </oat-field>
 
         <oat-field v-if="form.type !== 'api'" :label="$t('subscribers.email')">
-          <input aria-label="field" :maxlength="200" v-model="form.email" name="email" :placeholder="$t('subscribers.email')" required>
+          <input aria-label="field" :maxlength="200" v-model="form.email" name="email"
+            :placeholder="$t('subscribers.email')" required>
         </oat-field>
 
         <template v-if="form.type !== 'api'">
@@ -67,15 +67,16 @@
             <div class="row">
               <div class="col-6">
                 <oat-field :label="$t('users.password')">
-                  <input aria-label="field" :disabled="!form.passwordLogin" minlength="8" :maxlength="200" v-model="form.password"
-                    type="password" name="password" :placeholder="$t('users.password')"
+                  <input aria-label="field" :disabled="!form.passwordLogin" minlength="8" :maxlength="200"
+                    v-model="form.password" type="password" name="password" :placeholder="$t('users.password')"
                     :required="form.passwordLogin && !isEditing">
                 </oat-field>
               </div>
               <div class="col-6">
                 <oat-field :label="$t('users.passwordRepeat')">
-                  <input aria-label="field" :disabled="!form.passwordLogin" minlength="8" :maxlength="200" v-model="form.password2"
-                    type="password" name="password2" :required="form.passwordLogin && !isEditing && form.password">
+                  <input aria-label="field" :disabled="!form.passwordLogin" minlength="8" :maxlength="200"
+                    v-model="form.password2" type="password" name="password2"
+                    :required="form.passwordLogin && !isEditing && form.password">
                 </oat-field>
               </div>
             </div>
@@ -117,8 +118,8 @@
         <button type="button" class="outline" @click="$parent.close()">
           {{ $t('globals.buttons.close') }}
         </button>
-        <button v-if="$can('users:manage') && !apiToken" type="submit" data-variant="primary"
-          :loading="loading.lists" data-cy="btn-save">
+        <button v-if="$can('users:manage') && !apiToken" type="submit" data-variant="primary" :loading="loading.lists"
+          data-cy="btn-save">
           {{ $t('globals.buttons.save') }}
         </button>
       </footer>

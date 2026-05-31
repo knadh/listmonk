@@ -17,113 +17,113 @@
     </header>
 
     <div class="card page-content">
-    <oat-data-table :data="users" :loading="loading.users" checkable :checked-rows.sync="checked"
-      default-sort="createdAt" backend-sorting @sort="onSort" @check-all="onTableCheck" @check="onTableCheck">
-      <template #top-left>
-        <div class="row">
-          <div class="col-6">
-            <form @submit.prevent="getUsers">
-              <fieldset class="group">
-                <input aria-label="Search" v-model="queryParams.query" name="query" ref="query"
-                  data-cy="query" placeholder="Search">
-                <button type="submit" data-variant="primary" data-cy="btn-query" aria-label="Search">
-                  <oat-icon icon="magnify" />
-                </button>
-              </fieldset>
-            </form>
+      <oat-data-table :data="users" :loading="loading.users" checkable :checked-rows.sync="checked"
+        default-sort="createdAt" backend-sorting @sort="onSort" @check-all="onTableCheck" @check="onTableCheck">
+        <template #top-left>
+          <div class="row">
+            <div class="col-6">
+              <form @submit.prevent="getUsers">
+                <fieldset class="group">
+                  <input aria-label="Search" v-model="queryParams.query" name="query" ref="query" data-cy="query"
+                    placeholder="Search">
+                  <button type="submit" data-variant="primary" data-cy="btn-query" aria-label="Search">
+                    <oat-icon icon="magnify" />
+                  </button>
+                </fieldset>
+              </form>
+            </div>
           </div>
-        </div>
-      </template>
+        </template>
 
-      <oat-table-column v-slot="props" field="username" :label="$t('users.username')" header-class="cy-username" sortable
-        :td-attrs="$utils.tdID">
-        <a :href="`/users/${props.row.id}`" @click.prevent="showEditForm(props.row)"
-          :class="{ 'text-light': props.row.status === 'disabled' }">
-          {{ props.row.username }}
-        </a>
-        <oat-badge v-if="props.row.status === 'disabled'" type="disabled">
-          {{ $t(`users.status.${props.row.status}`) }}
-        </oat-badge>
-        <oat-badge v-if="props.row.type === 'api'" type="api">
-          <oat-icon icon="code" />
-          {{ $t(`users.type.${props.row.type}`) }}
-        </oat-badge>
-        <div class="text-light text-7 mt-2">
-          {{ props.row.name }}
-        </div>
-      </oat-table-column>
-
-      <oat-table-column v-slot="props" field="status" :label="$tc('users.role')" header-class="cy-status" sortable
-        :td-attrs="$utils.tdID">
-        <router-link :to="{ name: 'userRoles' }">
-          <oat-badge v-if="props.row.userRole" :type="props.row.userRole.id === 1 ? 'enabled' : 'primary'">
-            <oat-icon icon="account-outline" />
-            {{ props.row.userRole.name }}
-          </oat-badge>
-        </router-link>
-        <router-link :to="{ name: 'listRoles' }">
-          <span v-if="props.row.listRole" class="badge secondary">
-            <oat-icon icon="newspaper-variant-outline" />
-            {{ props.row.listRole.name }}
-          </span>
-        </router-link>
-      </oat-table-column>
-
-      <oat-table-column v-slot="props" field="name" :label="$t('subscribers.email')" header-class="cy-name" sortable
-        :td-attrs="$utils.tdID">
-        <div>
-          <a v-if="props.row.email" :href="`/users/${props.row.id}`" @click.prevent="showEditForm(props.row)"
+        <oat-table-column v-slot="props" field="username" :label="$t('users.username')" header-class="cy-username"
+          sortable :td-attrs="$utils.tdID">
+          <a :href="`/users/${props.row.id}`" @click.prevent="showEditForm(props.row)"
             :class="{ 'text-light': props.row.status === 'disabled' }">
-            {{ props.row.email }}
+            {{ props.row.username }}
           </a>
-          <template v-else>
-            —
-          </template>
-        </div>
-      </oat-table-column>
+          <oat-badge v-if="props.row.status === 'disabled'" type="disabled">
+            {{ $t(`users.status.${props.row.status}`) }}
+          </oat-badge>
+          <oat-badge v-if="props.row.type === 'api'" type="api">
+            <oat-icon icon="code" />
+            {{ $t(`users.type.${props.row.type}`) }}
+          </oat-badge>
+          <div class="text-light text-7 mt-2">
+            {{ props.row.name }}
+          </div>
+        </oat-table-column>
 
-      <oat-table-column v-slot="props" field="created_at" :label="$t('globals.fields.createdAt')"
-        header-class="cy-created_at" sortable>
-        {{ $utils.niceDate(props.row.createdAt) }}
-      </oat-table-column>
+        <oat-table-column v-slot="props" field="status" :label="$tc('users.role')" header-class="cy-status" sortable
+          :td-attrs="$utils.tdID">
+          <router-link :to="{ name: 'userRoles' }">
+            <oat-badge v-if="props.row.userRole" :type="props.row.userRole.id === 1 ? 'enabled' : 'primary'">
+              <oat-icon icon="account-outline" />
+              {{ props.row.userRole.name }}
+            </oat-badge>
+          </router-link>
+          <router-link :to="{ name: 'listRoles' }">
+            <span v-if="props.row.listRole" class="badge secondary">
+              <oat-icon icon="newspaper-variant-outline" />
+              {{ props.row.listRole.name }}
+            </span>
+          </router-link>
+        </oat-table-column>
 
-      <oat-table-column v-slot="props" field="updated_at" :label="$t('globals.fields.updatedAt')"
-        header-class="cy-updated_at" sortable>
-        {{ $utils.niceDate(props.row.updatedAt) }}
-      </oat-table-column>
+        <oat-table-column v-slot="props" field="name" :label="$t('subscribers.email')" header-class="cy-name" sortable
+          :td-attrs="$utils.tdID">
+          <div>
+            <a v-if="props.row.email" :href="`/users/${props.row.id}`" @click.prevent="showEditForm(props.row)"
+              :class="{ 'text-light': props.row.status === 'disabled' }">
+              {{ props.row.email }}
+            </a>
+            <template v-else>
+              —
+            </template>
+          </div>
+        </oat-table-column>
 
-      <oat-table-column v-slot="props" field="last_login" :label="$t('users.lastLogin')" header-class="cy-updated_at"
-        sortable>
-        {{ props.row.loggedinAt ? $utils.niceDate(props.row.loggedinAt, true) : '—' }}
-      </oat-table-column>
+        <oat-table-column v-slot="props" field="created_at" :label="$t('globals.fields.createdAt')"
+          header-class="cy-created_at" sortable>
+          {{ $utils.niceDate(props.row.createdAt) }}
+        </oat-table-column>
 
-      <oat-table-column v-slot="props" cell-class="actions" align="right">
-        <div>
-          <a v-if="$can('users:manage')" href="#" @click.prevent="showEditForm(props.row)" data-cy="btn-edit"
-            :aria-label="$t('globals.buttons.edit')">
+        <oat-table-column v-slot="props" field="updated_at" :label="$t('globals.fields.updatedAt')"
+          header-class="cy-updated_at" sortable>
+          {{ $utils.niceDate(props.row.updatedAt) }}
+        </oat-table-column>
+
+        <oat-table-column v-slot="props" field="last_login" :label="$t('users.lastLogin')" header-class="cy-updated_at"
+          sortable>
+          {{ props.row.loggedinAt ? $utils.niceDate(props.row.loggedinAt, true) : '—' }}
+        </oat-table-column>
+
+        <oat-table-column v-slot="props" cell-class="actions" align="right">
+          <div>
+            <a v-if="$can('users:manage')" href="#" @click.prevent="showEditForm(props.row)" data-cy="btn-edit"
+              :aria-label="$t('globals.buttons.edit')">
 
               <oat-icon icon="pencil-outline" />
 
-          </a>
+            </a>
 
-          <a v-if="$can('users:manage')" href="#" @click.prevent="deleteUser(props.row)" data-cy="btn-delete"
-            :aria-label="$t('globals.buttons.delete')">
+            <a v-if="$can('users:manage')" href="#" @click.prevent="deleteUser(props.row)" data-cy="btn-delete"
+              :aria-label="$t('globals.buttons.delete')">
 
               <oat-icon icon="trash-can-outline" />
 
-          </a>
-        </div>
-      </oat-table-column>
+            </a>
+          </div>
+        </oat-table-column>
 
-      <template #empty v-if="!loading.users">
-        <empty-placeholder />
-      </template>
-</oat-data-table>
+        <template #empty v-if="!loading.users">
+          <empty-placeholder />
+        </template>
+      </oat-data-table>
 
-    <!-- Add / edit form modal -->
-    <oat-modal :active.sync="isFormVisible" :width="600" @close="onFormClose">
-      <user-form :data="curItem" :is-editing="isEditing" @finished="formFinished" />
-    </oat-modal>
+      <!-- Add / edit form modal -->
+      <oat-modal :active.sync="isFormVisible" :width="600" @close="onFormClose">
+        <user-form :data="curItem" :is-editing="isEditing" @finished="formFinished" />
+      </oat-modal>
     </div>
   </section>
 </template>

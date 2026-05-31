@@ -42,7 +42,7 @@
                 <span class="badge blocklisted">{{ nice(counts.subscribers.blocklisted) }} {{
                   $t('subscribers.status.blocklisted') }}</span>
                 <span class="badge outline">{{ nice(counts.subscribers.orphans) }} {{ $t('dashboard.orphanSubs')
-                  }}</span>
+                }}</span>
               </small>
             </header>
           </article>

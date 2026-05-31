@@ -27,14 +27,14 @@
         <div class="row">
           <div class="col-8">
             <oat-field :label="$t('globals.fields.name')">
-              <input aria-label="field" :maxlength="200" v-model="form.name" name="name" :placeholder="$t('globals.fields.name')">
+              <input aria-label="field" :maxlength="200" v-model="form.name" name="name"
+                :placeholder="$t('globals.fields.name')">
             </oat-field>
           </div>
           <div class="col-4">
-            <oat-field :label="$t('globals.fields.status')"
-              :message="$t('subscribers.blocklistedHelp')">
-              <select aria-label="field" v-model="form.status" name="status" :placeholder="$t('globals.fields.status')" required
-               >
+            <oat-field :label="$t('globals.fields.status')" :message="$t('subscribers.blocklistedHelp')">
+              <select aria-label="field" v-model="form.status" name="status" :placeholder="$t('globals.fields.status')"
+                required>
                 <option value="enabled">
                   {{ $t('subscribers.status.enabled') }}
                 </option>
@@ -88,15 +88,16 @@
                     <span v-else class="text-lighter text-7 ">{{ props.row.name }}</span>
                     <br />
                     <oat-badge :type="props.row.optin" :data-cy="`optin-${props.row.optin}`">
-                      <oat-icon :icon="props.row.optin === 'double' ? 'account-check-outline' : 'account-off-outline'"
-                        />
+                      <oat-icon
+                        :icon="props.row.optin === 'double' ? 'account-check-outline' : 'account-off-outline'" />
                       {{ ' ' }}
                       {{ $t(`lists.optins.${props.row.optin}`) }}
                     </oat-badge>{{ ' ' }}
                   </div>
                 </oat-table-column>
 
-                <oat-table-column v-slot="props" field="status" cell-class="status" :label="$t('globals.fields.status')">
+                <oat-table-column v-slot="props" field="status" cell-class="status"
+                  :label="$t('globals.fields.status')">
                   <oat-badge :type="`status-${props.row.subscriptionStatus}`">
                     {{ $t(`subscribers.status.${props.row.subscriptionStatus}`) }}
                   </oat-badge>
@@ -112,13 +113,12 @@
                 <oat-table-column v-slot="props" field="updatedAt" :label="$t('globals.fields.updatedAt')">
                   {{ $utils.niceDate(props.row.subscriptionCreatedAt, true) }}
                 </oat-table-column>
-</oat-data-table>
+              </oat-data-table>
             </template>
           </section><!-- subscriptions -->
 
           <section role="tabpanel" class="bounces">
-            <a href="#" class="text-6 align-right" disabed="true" @click.prevent="deleteBounces"
-              v-if="isBounceVisible">
+            <a href="#" class="text-6 align-right" disabed="true" @click.prevent="deleteBounces" v-if="isBounceVisible">
               <oat-icon icon="trash-can-outline" />
               {{ $t('globals.buttons.delete') }}
             </a>
@@ -146,7 +146,7 @@
                 <span class="clearfix" />
                 <pre v-if="visibleMeta[props.row.id]">{{ props.row.meta }}</pre>
               </oat-table-column>
-</oat-data-table>
+            </oat-data-table>
           </section><!-- bounces -->
 
           <section role="tabpanel" class="activity">
@@ -168,8 +168,7 @@
         <button type="button" class="outline" @click="$parent.close()">
           {{ $t('globals.buttons.close') }}
         </button>
-        <button v-if="$can('subscribers:manage')" type="submit" data-variant="primary"
-          :loading="loading.subscribers">
+        <button v-if="$can('subscribers:manage')" type="submit" data-variant="primary" :loading="loading.subscribers">
           {{ $t('globals.buttons.save') }}
         </button>
       </footer>

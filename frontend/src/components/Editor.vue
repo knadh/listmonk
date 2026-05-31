@@ -12,7 +12,8 @@
         </oat-field>
 
         <oat-field v-if="self.contentType !== 'visual'" :label="$tc('globals.terms.template')">
-          <select aria-label="field" :placeholder="$t('globals.terms.none')" v-model="templateId" name="template" :disabled="disabled">
+          <select aria-label="field" :placeholder="$t('globals.terms.none')" v-model="templateId" name="template"
+            :disabled="disabled">
             <template v-for="t in validTemplates">
               <option :value="t.id" :key="t.id">
                 {{ t.name }}
@@ -38,8 +39,7 @@
             </select>
 
             <button type="button" :disabled="disabled || isVisualTplDisabled || !visualTemplateId" class="ml-3"
-              @click="onImportVisualTpl" data-variant="primary"
-              data-cy="btn-save-visual-tpl">
+              @click="onImportVisualTpl" data-variant="primary" data-cy="btn-save-visual-tpl">
               {{ $t('globals.terms.import') }}
 
               <span class="spinnertiny" v-if="loading.templates">
@@ -71,8 +71,8 @@
     <code-editor lang="markdown" v-if="self.contentType === 'markdown'" v-model="self.body" key="editor-markdown" />
 
     <!-- plain text //-->
-    <textarea aria-label="field" v-if="self.contentType === 'plain'" v-model="self.body" name="content" ref="plainEditor"
-      class="plain-editor" />
+    <textarea aria-label="field" v-if="self.contentType === 'plain'" v-model="self.body" name="content"
+      ref="plainEditor" class="plain-editor" />
 
     <!-- campaign preview //-->
     <campaign-preview v-if="isPreviewing" @close="onTogglePreview" type="campaign" :id="id" :title="title"

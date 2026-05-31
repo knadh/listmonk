@@ -20,16 +20,15 @@
           <div class="col-10" :class="{ disabled: !item.enabled }">
             <div class="row">
               <div class="col-9">
-                <oat-field :label="$t('settings.mailserver.host')"
-                  :message="$t('settings.mailserver.hostHelp')">
-                  <input aria-label="field" v-model="item.host" name="host" placeholder="smtp.yourmailserver.net" :maxlength="200">
+                <oat-field :label="$t('settings.mailserver.host')" :message="$t('settings.mailserver.hostHelp')">
+                  <input aria-label="field" v-model="item.host" name="host" placeholder="smtp.yourmailserver.net"
+                    :maxlength="200">
                 </oat-field>
               </div>
               <div class="col-3">
-                <oat-field :label="$t('settings.mailserver.port')"
-                  :message="$t('settings.mailserver.portHelp')">
-                  <input aria-label="field" type="number" v-model.number="item.port" name="port"
-                    placeholder="25" min="1" max="65535">
+                <oat-field :label="$t('settings.mailserver.port')" :message="$t('settings.mailserver.portHelp')">
+                  <input aria-label="field" type="number" v-model.number="item.port" name="port" placeholder="25"
+                    min="1" max="65535">
                 </oat-field>
               </div>
             </div><!-- host -->
@@ -56,14 +55,14 @@
               <div class="col-9">
                 <oat-field>
                   <oat-field :label="$t('settings.mailserver.username')">
-                    <input aria-label="field" v-model="item.username"
-                      :disabled="item.auth_protocol === 'none'" name="username" placeholder="mysmtp" :maxlength="200">
+                    <input aria-label="field" v-model="item.username" :disabled="item.auth_protocol === 'none'"
+                      name="username" placeholder="mysmtp" :maxlength="200">
                   </oat-field>
                   <oat-field :label="$t('settings.mailserver.password')"
                     :message="$t('settings.mailserver.passwordHelp')">
-                    <input aria-label="field" v-model="item.password" :disabled="item.auth_protocol === 'none'" name="password"
-                      type="password"
-                      :placeholder="$t('settings.mailserver.passwordHelp')" :maxlength="200">
+                    <input aria-label="field" v-model="item.password" :disabled="item.auth_protocol === 'none'"
+                      name="password" type="password" :placeholder="$t('settings.mailserver.passwordHelp')"
+                      :maxlength="200">
                   </oat-field>
                 </oat-field>
               </div>
@@ -83,15 +82,14 @@
 
             <div class="row">
               <div class="col-6">
-                <oat-field :label="$t('settings.smtp.heloHost')"
-                  :message="$t('settings.smtp.heloHostHelp')">
-                  <input aria-label="field" v-model="item.hello_hostname" name="hello_hostname" placeholder="" :maxlength="200">
+                <oat-field :label="$t('settings.smtp.heloHost')" :message="$t('settings.smtp.heloHostHelp')">
+                  <input aria-label="field" v-model="item.hello_hostname" name="hello_hostname" placeholder=""
+                    :maxlength="200">
                 </oat-field>
               </div>
               <div class="col-6">
                 <oat-field>
-                  <oat-field :label="$t('settings.mailserver.tls')" :message="$t('settings.mailserver.tlsHelp')"
-                   >
+                  <oat-field :label="$t('settings.mailserver.tls')" :message="$t('settings.mailserver.tlsHelp')">
                     <select aria-label="field" v-model="item.tls_type" name="items.tls_type">
                       <option value="none">
                         {{ $t('globals.states.off') }}
@@ -126,31 +124,30 @@
               <div class="col-4">
                 <oat-field :label="$t('settings.mailserver.idleTimeout')"
                   :message="$t('settings.mailserver.idleTimeoutHelp')">
-                  <input aria-label="field" v-model="item.idle_timeout" name="idle_timeout" placeholder="15s" :pattern="regDuration"
-                    :maxlength="10">
+                  <input aria-label="field" v-model="item.idle_timeout" name="idle_timeout" placeholder="15s"
+                    :pattern="regDuration" :maxlength="10">
                 </oat-field>
               </div>
               <div class="col-4">
                 <oat-field :label="$t('settings.mailserver.waitTimeout')"
                   :message="$t('settings.mailserver.waitTimeoutHelp')">
-                  <input aria-label="field" v-model="item.wait_timeout" name="wait_timeout" placeholder="5s" :pattern="regDuration"
-                    :maxlength="10">
+                  <input aria-label="field" v-model="item.wait_timeout" name="wait_timeout" placeholder="5s"
+                    :pattern="regDuration" :maxlength="10">
                 </oat-field>
               </div>
             </div>
 
             <div class="row">
               <div class="col-4">
-                <oat-field :label="$t('settings.smtp.retries')"
-                  :message="$t('settings.smtp.retriesHelp')">
-                  <input aria-label="field" type="number" v-model.number="item.max_msg_retries" name="max_msg_retries" placeholder="2" min="1" max="1000">
+                <oat-field :label="$t('settings.smtp.retries')" :message="$t('settings.smtp.retriesHelp')">
+                  <input aria-label="field" type="number" v-model.number="item.max_msg_retries" name="max_msg_retries"
+                    placeholder="2" min="1" max="1000">
                 </oat-field>
               </div>
               <div class="col-4">
-                <oat-field :label="$t('settings.smtp.retryDelay')"
-                  :message="$t('settings.smtp.retryDelayHelp')">
-                  <input aria-label="field" v-model="item.msg_retry_delay" name="msg_retry_delay" placeholder="0s" :pattern="regDuration"
-                    :maxlength="10">
+                <oat-field :label="$t('settings.smtp.retryDelay')" :message="$t('settings.smtp.retryDelayHelp')">
+                  <input aria-label="field" v-model="item.msg_retry_delay" name="msg_retry_delay" placeholder="0s"
+                    :pattern="regDuration" :maxlength="10">
                 </oat-field>
               </div>
             </div>
@@ -158,14 +155,13 @@
             <hr />
             <div class="row">
               <div class="col-6">
-                <oat-field :label="$t('globals.fields.name')"
-                  :message="$t('settings.mailserver.nameHelp')">
-                  <input aria-label="field" v-model="item.name" name="name" placeholder="email-primary" :maxlength="100">
+                <oat-field :label="$t('globals.fields.name')" :message="$t('settings.mailserver.nameHelp')">
+                  <input aria-label="field" v-model="item.name" name="name" placeholder="email-primary"
+                    :maxlength="100">
                 </oat-field>
               </div>
               <div class="col-6">
-                <oat-field :label="$t('settings.smtp.fromAddresses')"
-                  :message="$t('settings.smtp.fromAddressesHelp')">
+                <oat-field :label="$t('settings.smtp.fromAddresses')" :message="$t('settings.smtp.fromAddressesHelp')">
                   <oat-tag-input v-model="item.from_addresses" name="from_addresses"
                     :before-adding="validateFromAddress" placeholder="user@example.com, anothersite.com" />
                 </oat-field>
@@ -203,7 +199,8 @@
                   </div>
                 </template>
                 <div class="col-3 align-right">
-                  <button type="button" v-if="smtpTestItem === n" data-variant="primary" @click.prevent="() => doSMTPTest(item, n)">
+                  <button type="button" v-if="smtpTestItem === n" data-variant="primary"
+                    @click.prevent="() => doSMTPTest(item, n)">
                     {{ $t('settings.smtp.sendTest') }}
                   </button>
                   <a href="#" v-else data-variant="primary" @click.prevent="showTestForm(n)">

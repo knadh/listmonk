@@ -9,69 +9,68 @@
     </header>
 
     <div class="card page-content">
-    <div v-if="serverConfig.privacy.disable_tracking || !serverConfig.privacy.individual_tracking"
-      class="card ">
-      <template v-if="serverConfig.privacy.disable_tracking">
-        {{ $t('analytics.trackingDisabled') }}
-      </template>
-      <template v-else-if="!serverConfig.privacy.individual_tracking">
-        {{ $t('analytics.nonIndividualTracking') }}
-      </template>
-    </div>
-    <hr />
-
-    <form @submit.prevent="onSubmit">
-      <div class="row">
-        <div class="col-6">
-          <oat-field :label="$t('globals.terms.campaigns')">
-            <oat-tag-input v-model="form.campaigns" :data="queriedCampaigns" name="campaigns"
-              :placeholder="$t('globals.terms.campaigns')" autocomplete :allow-new="false" :open-on-focus="true"
-              :before-adding="isCampaignSelected" @typing="queryCampaigns" @focus="queryCampaigns" field="name"
-              :loading="isSearchLoading" />
-          </oat-field>
-        </div>
-
-        <div class="col-5">
-          <div class="row">
-            <div class="col-6">
-              <oat-field data-cy="from" :label="$t('analytics.fromDate')">
-                <oat-date-input datetime v-model="form.from" @input="onFromDateChange" />
-              </oat-field>
-            </div>
-            <div class="col-6">
-              <oat-field data-cy="to" :label="$t('analytics.toDate')">
-                <oat-date-input datetime v-model="form.to" @input="onToDateChange" />
-              </oat-field>
-            </div>
-          </div><!-- row -->
-        </div><!-- row -->
-
-        <div class="col-1">
-          <button type="submit" data-variant="primary" :disabled="form.campaigns.length === 0"
-            data-cy="btn-search" aria-label="Search">
-            <oat-icon icon="magnify" />
-          </button>
-        </div>
-      </div><!-- row -->
-    </form>
-
-    <section class="charts mt-5">
-      <div class="chart" v-for="(v, k) in charts" :key="k">
-        <div class="row">
-          <div class="col-9">
-            <oat-loading v-if="v.loading" :active="v.loading" :is-full-page="false" />
-            <h4 v-if="v.chart !== null">
-              {{ v.name }}
-              <span class="text-lighter text-7">({{ $utils.niceNumber(counts[k]) }})</span>
-            </h4>
-            <chart :type="v.type" v-if="!v.loading" :data="v.data" :on-click="v.onClick" />
-          </div>
-          <div class="col-2 donut-container">
-            <chart type="donut" v-if="!v.loading" :data="v.donutData" />
-          </div>
-        </div>
+      <div v-if="serverConfig.privacy.disable_tracking || !serverConfig.privacy.individual_tracking" class="card ">
+        <template v-if="serverConfig.privacy.disable_tracking">
+          {{ $t('analytics.trackingDisabled') }}
+        </template>
+        <template v-else-if="!serverConfig.privacy.individual_tracking">
+          {{ $t('analytics.nonIndividualTracking') }}
+        </template>
       </div>
-    </section>
+      <hr />
+
+      <form @submit.prevent="onSubmit">
+        <div class="row">
+          <div class="col-6">
+            <oat-field :label="$t('globals.terms.campaigns')">
+              <oat-tag-input v-model="form.campaigns" :data="queriedCampaigns" name="campaigns"
+                :placeholder="$t('globals.terms.campaigns')" autocomplete :allow-new="false" :open-on-focus="true"
+                :before-adding="isCampaignSelected" @typing="queryCampaigns" @focus="queryCampaigns" field="name"
+                :loading="isSearchLoading" />
+            </oat-field>
+          </div>
+
+          <div class="col-5">
+            <div class="row">
+              <div class="col-6">
+                <oat-field data-cy="from" :label="$t('analytics.fromDate')">
+                  <oat-date-input datetime v-model="form.from" @input="onFromDateChange" />
+                </oat-field>
+              </div>
+              <div class="col-6">
+                <oat-field data-cy="to" :label="$t('analytics.toDate')">
+                  <oat-date-input datetime v-model="form.to" @input="onToDateChange" />
+                </oat-field>
+              </div>
+            </div><!-- row -->
+          </div><!-- row -->
+
+          <div class="col-1">
+            <button type="submit" data-variant="primary" :disabled="form.campaigns.length === 0" data-cy="btn-search"
+              aria-label="Search">
+              <oat-icon icon="magnify" />
+            </button>
+          </div>
+        </div><!-- row -->
+      </form>
+
+      <section class="charts mt-5">
+        <div class="chart" v-for="(v, k) in charts" :key="k">
+          <div class="row">
+            <div class="col-9">
+              <oat-loading v-if="v.loading" :active="v.loading" :is-full-page="false" />
+              <h4 v-if="v.chart !== null">
+                {{ v.name }}
+                <span class="text-lighter text-7">({{ $utils.niceNumber(counts[k]) }})</span>
+              </h4>
+              <chart :type="v.type" v-if="!v.loading" :data="v.data" :on-click="v.onClick" />
+            </div>
+            <div class="col-2 donut-container">
+              <chart type="donut" v-if="!v.loading" :data="v.donutData" />
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
   </section>
 </template>

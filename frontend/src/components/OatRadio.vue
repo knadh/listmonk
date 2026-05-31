@@ -1,13 +1,7 @@
 <template>
   <label>
-    <input
-      type="radio"
-      :name="name"
-      :value="nativeValue"
-      :checked="value === nativeValue"
-      :disabled="disabled"
-      @change="$emit('input', nativeValue)"
-    >
+    <input type="radio" :name="name" :value="nativeValue" :checked="value === nativeValue" :disabled="disabled"
+      @change="$emit('input', nativeValue)">
     <slot />
   </label>
 </template>

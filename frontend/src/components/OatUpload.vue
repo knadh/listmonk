@@ -1,12 +1,6 @@
 <template>
   <label class="oat-upload" @dragover.prevent @drop.prevent="onDrop">
-    <input
-      type="file"
-      :multiple="multiple"
-      :accept="accept || xaccept"
-      :aria-label="label"
-      @change="onChange"
-    >
+    <input type="file" :multiple="multiple" :accept="accept || xaccept" :aria-label="label" @change="onChange">
     <slot />
   </label>
 </template>

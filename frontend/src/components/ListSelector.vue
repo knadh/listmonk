@@ -13,8 +13,7 @@
       </span>
     </div>
 
-    <oat-field :message="message" :label="label + (selectedItems ? ` (${selectedItems.length})` : '')"
-     >
+    <oat-field :message="message" :label="label + (selectedItems ? ` (${selectedItems.length})` : '')">
       <oat-autocomplete v-model="query" :placeholder="placeholder" clearable dropdown-position="top"
         :disabled="all.length === 0 || $props.disabled" :keep-first="true" :clear-on-select="true" :open-on-focus="true"
         :data="filteredLists" @select="selectList" field="name" />

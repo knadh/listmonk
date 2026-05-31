@@ -9,74 +9,73 @@
       </div>
       <div class="col-4 col-end align-right">
         <oat-field v-if="$can('users:manage')">
-          <button type="button" data-variant="primary" class="btn-new" @click="showNewForm('user')"
-            data-cy="btn-new">
+          <button type="button" data-variant="primary" class="btn-new" @click="showNewForm('user')" data-cy="btn-new">
             {{ $t('globals.buttons.new') }}
           </button>
         </oat-field>
       </div>
     </header>
     <div class="card page-content">
-    <oat-data-table :data="roles" :loading="isLoading()">
-      <oat-table-column v-slot="props" field="role" :label="$tc('users.role')" sortable>
-        <a href="#" @click.prevent="showEditForm(props.row, 'user')">
-          <oat-badge v-if="props.row.id === 1" type="enabled">
-            {{ props.row.name }}
-          </oat-badge>
-          <template v-else>{{ props.row.name }}</template>
-        </a>
-      </oat-table-column>
+      <oat-data-table :data="roles" :loading="isLoading()">
+        <oat-table-column v-slot="props" field="role" :label="$tc('users.role')" sortable>
+          <a href="#" @click.prevent="showEditForm(props.row, 'user')">
+            <oat-badge v-if="props.row.id === 1" type="enabled">
+              {{ props.row.name }}
+            </oat-badge>
+            <template v-else>{{ props.row.name }}</template>
+          </a>
+        </oat-table-column>
 
-      <oat-table-column v-slot="props" field="created_at" :label="$t('globals.fields.createdAt')"
-        header-class="cy-created_at" sortable>
-        {{ $utils.niceDate(props.row.createdAt) }}
-      </oat-table-column>
+        <oat-table-column v-slot="props" field="created_at" :label="$t('globals.fields.createdAt')"
+          header-class="cy-created_at" sortable>
+          {{ $utils.niceDate(props.row.createdAt) }}
+        </oat-table-column>
 
-      <oat-table-column v-slot="props" field="updated_at" :label="$t('globals.fields.updatedAt')"
-        header-class="cy-updated_at" sortable>
-        {{ $utils.niceDate(props.row.updatedAt) }}
-      </oat-table-column>
+        <oat-table-column v-slot="props" field="updated_at" :label="$t('globals.fields.updatedAt')"
+          header-class="cy-updated_at" sortable>
+          {{ $utils.niceDate(props.row.updatedAt) }}
+        </oat-table-column>
 
-      <oat-table-column v-slot="props" cell-class="actions align-right">
-        <template v-if="$can('roles:manage')">
-          <a href="#" @click.prevent="$utils.prompt($t('globals.buttons.clone'),
-            {
-              placeholder: $t('globals.fields.name'),
-              value: $t('campaigns.copyOf', { name: props.row.name }),
-            },
-            (name) => onCloneRole(name, props.row))" data-cy="btn-clone" :aria-label="$t('globals.buttons.clone')">
+        <oat-table-column v-slot="props" cell-class="actions align-right">
+          <template v-if="$can('roles:manage')">
+            <a href="#" @click.prevent="$utils.prompt($t('globals.buttons.clone'),
+              {
+                placeholder: $t('globals.fields.name'),
+                value: $t('campaigns.copyOf', { name: props.row.name }),
+              },
+              (name) => onCloneRole(name, props.row))" data-cy="btn-clone" :aria-label="$t('globals.buttons.clone')">
 
               <oat-icon icon="file-multiple-outline" />
 
-          </a>
+            </a>
 
-          <template v-if="props.row.id !== 1">
-            <a href="#" @click.prevent="showEditForm(props.row, 'user')" data-cy="btn-edit"
-              :aria-label="$t('globals.buttons.edit')">
+            <template v-if="props.row.id !== 1">
+              <a href="#" @click.prevent="showEditForm(props.row, 'user')" data-cy="btn-edit"
+                :aria-label="$t('globals.buttons.edit')">
 
                 <oat-icon icon="pencil-outline" />
 
-            </a>
+              </a>
 
-            <a href="#" @click.prevent="onDeleteRole(props.row)" data-cy="btn-delete"
-              :aria-label="$t('globals.buttons.delete')">
+              <a href="#" @click.prevent="onDeleteRole(props.row)" data-cy="btn-delete"
+                :aria-label="$t('globals.buttons.delete')">
 
                 <oat-icon icon="trash-can-outline" />
 
-            </a>
+              </a>
+            </template>
           </template>
+        </oat-table-column>
+
+        <template #empty v-if="!isLoading()">
+          <empty-placeholder />
         </template>
-      </oat-table-column>
+      </oat-data-table>
 
-      <template #empty v-if="!isLoading()">
-        <empty-placeholder />
-      </template>
-</oat-data-table>
-
-    <!-- Add / edit form modal -->
-    <oat-modal :active.sync="isFormVisible" :width="700" @close="onFormClose">
-      <role-form :data="curItem" :type="curType" :is-editing="isEditing" @finished="formFinished" />
-    </oat-modal>
+      <!-- Add / edit form modal -->
+      <oat-modal :active.sync="isFormVisible" :width="700" @close="onFormClose">
+        <role-form :data="curItem" :type="curType" :is-editing="isEditing" @finished="formFinished" />
+      </oat-modal>
     </div>
   </section>
 </template>

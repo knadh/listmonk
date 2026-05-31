@@ -24,171 +24,174 @@
     </header>
 
     <div class="card page-content">
-    <section class="subscribers-controls">
-      <div class="row">
-        <div class="col-8">
-          <form @submit.prevent="onSubmit">
-            <div>
-              <fieldset v-if="!isSearchAdvanced" class="group">
-                <input aria-label="field" @input="onSimpleQueryInput" v-model="queryInput"
-                  :placeholder="$t('subscribers.queryPlaceholder')" ref="query"
-                  :disabled="isSearchAdvanced" data-cy="search">
-                <button type="submit" data-variant="primary" :disabled="isSearchAdvanced"
-                  data-cy="btn-search" aria-label="Search">
-                  <oat-icon icon="magnify" />
-                </button>
-              </fieldset>
+      <section class="subscribers-controls">
+        <div class="row">
+          <div class="col-8">
+            <form @submit.prevent="onSubmit">
+              <div>
+                <fieldset v-if="!isSearchAdvanced" class="group">
+                  <input aria-label="field" @input="onSimpleQueryInput" v-model="queryInput"
+                    :placeholder="$t('subscribers.queryPlaceholder')" ref="query" :disabled="isSearchAdvanced"
+                    data-cy="search">
+                  <button type="submit" data-variant="primary" :disabled="isSearchAdvanced" data-cy="btn-search"
+                    aria-label="Search">
+                    <oat-icon icon="magnify" />
+                  </button>
+                </fieldset>
 
-              <div v-if="isSearchAdvanced">
-                <textarea aria-label="field" v-model="queryParams.queryExp" @keydown.native.enter="onAdvancedQueryEnter"
-                  ref="queryExp" placeholder="subscribers.name LIKE '%user%' or subscribers.status='blocklisted'"
-                  data-cy="query" />
-                <span class="text-light text-7">
-                  {{ $t('subscribers.advancedQueryHelp') }}.{{ ' ' }}
-                  <a href="https://listmonk.app/docs/querying-and-segmentation" target="_blank"
-                    rel="noopener noreferrer">
-                    {{ $t('globals.buttons.learnMore') }}.
+                <div v-if="isSearchAdvanced">
+                  <textarea aria-label="field" v-model="queryParams.queryExp"
+                    @keydown.native.enter="onAdvancedQueryEnter" ref="queryExp"
+                    placeholder="subscribers.name LIKE '%user%' or subscribers.status='blocklisted'" data-cy="query" />
+                  <span class="text-light text-7">
+                    {{ $t('subscribers.advancedQueryHelp') }}.{{ ' ' }}
+                    <a href="https://listmonk.app/docs/querying-and-segmentation" target="_blank"
+                      rel="noopener noreferrer">
+                      {{ $t('globals.buttons.learnMore') }}.
+                    </a>
+                  </span>
+                  <div class="hstack">
+                    <button type="submit" data-variant="primary" data-cy="btn-query">
+                      {{
+                        $t('subscribers.query') }}
+                    </button>
+                    <button type="button" @click.prevent="toggleAdvancedSearch" icon-left="cancel"
+                      data-cy="btn-query-reset">
+                      {{ $t('subscribers.reset') }}
+                    </button>
+                  </div>
+                </div><!-- advanced query -->
+              </div>
+            </form>
+            <div v-if="!isSearchAdvanced" class="toggle-advanced">
+              <a href="#" @click.prevent="toggleAdvancedSearch" data-cy="btn-advanced-search">
+                <oat-icon icon="cog-outline" />
+                {{ $t('subscribers.advancedQuery') }}
+              </a>
+            </div>
+          </div><!-- search -->
+        </div>
+      </section><!-- control -->
+
+      <br />
+      <oat-data-table :data="subscribers.results ?? []" :loading="loading.subscribers" @check-all="onTableCheck"
+        @check="onTableCheck" :checked-rows.sync="bulk.checked" paginated backend-pagination @page-change="onPageChange"
+        :current-page="queryParams.page" :per-page="subscribers.perPage" :total="subscribers.total" checkable
+        backend-sorting @sort="onSort">
+        <template #top-left>
+          <div class="actions">
+            <a class="a" href="#" @click.prevent="exportSubscribers" data-cy="btn-export-subscribers">
+              <oat-icon icon="cloud-download-outline" />
+              {{ $t('subscribers.export') }}
+            </a>
+            <template v-if="bulk.checked.length > 0">
+              <a class="a" href="#" @click.prevent="showBulkListForm" data-cy="btn-manage-lists">
+                <oat-icon icon="format-list-bulleted-square" /> Manage lists
+              </a>
+              <a class="a" href="#" @click.prevent="deleteSubscribers" data-cy="btn-delete-subscribers">
+                <oat-icon icon="trash-can-outline" /> Delete
+              </a>
+              <a class="a" href="#" @click.prevent="blocklistSubscribers" data-cy="btn-manage-blocklist">
+                <oat-icon icon="account-off-outline" /> Blocklist
+              </a>
+              <span class="a">
+                {{ $t('globals.messages.numSelected', { num: numSelectedSubscribers }) }}
+                <span v-if="!bulk.all && subscribers.total > subscribers.perPage">
+                  &mdash;
+                  <a href="#" @click.prevent="selectAllSubscribers">
+                    {{ $t('globals.messages.selectAll', { num: subscribers.total }) }}
                   </a>
                 </span>
-                <div class="hstack">
-                  <button type="submit" data-variant="primary" data-cy="btn-query">
-                    {{
-                      $t('subscribers.query') }}
-                  </button>
-                  <button type="button" @click.prevent="toggleAdvancedSearch" icon-left="cancel" data-cy="btn-query-reset">
-                    {{ $t('subscribers.reset') }}
-                  </button>
-                </div>
-              </div><!-- advanced query -->
-            </div>
-          </form>
-          <div v-if="!isSearchAdvanced" class="toggle-advanced">
-            <a href="#" @click.prevent="toggleAdvancedSearch" data-cy="btn-advanced-search">
-              <oat-icon icon="cog-outline" />
-              {{ $t('subscribers.advancedQuery') }}
-            </a>
-          </div>
-        </div><!-- search -->
-      </div>
-    </section><!-- control -->
-
-    <br />
-    <oat-data-table :data="subscribers.results ?? []" :loading="loading.subscribers" @check-all="onTableCheck"
-      @check="onTableCheck" :checked-rows.sync="bulk.checked" paginated backend-pagination
-      @page-change="onPageChange" :current-page="queryParams.page" :per-page="subscribers.perPage"
-      :total="subscribers.total" checkable backend-sorting @sort="onSort">
-      <template #top-left>
-        <div class="actions">
-          <a class="a" href="#" @click.prevent="exportSubscribers" data-cy="btn-export-subscribers">
-            <oat-icon icon="cloud-download-outline" />
-            {{ $t('subscribers.export') }}
-          </a>
-          <template v-if="bulk.checked.length > 0">
-            <a class="a" href="#" @click.prevent="showBulkListForm" data-cy="btn-manage-lists">
-              <oat-icon icon="format-list-bulleted-square" /> Manage lists
-            </a>
-            <a class="a" href="#" @click.prevent="deleteSubscribers" data-cy="btn-delete-subscribers">
-              <oat-icon icon="trash-can-outline" /> Delete
-            </a>
-            <a class="a" href="#" @click.prevent="blocklistSubscribers" data-cy="btn-manage-blocklist">
-              <oat-icon icon="account-off-outline" /> Blocklist
-            </a>
-            <span class="a">
-              {{ $t('globals.messages.numSelected', { num: numSelectedSubscribers }) }}
-              <span v-if="!bulk.all && subscribers.total > subscribers.perPage">
-                &mdash;
-                <a href="#" @click.prevent="selectAllSubscribers">
-                  {{ $t('globals.messages.selectAll', { num: subscribers.total }) }}
-                </a>
               </span>
-            </span>
-          </template>
-        </div>
-      </template>
+            </template>
+          </div>
+        </template>
 
-      <oat-table-column v-slot="props" field="email" :label="$t('subscribers.email')" header-class="cy-email" sortable
-        :td-attrs="$utils.tdID">
-        <a :href="`/subscribers/${props.row.id}`" @click.prevent="showEditForm(props.row)"
-          :class="{ 'blocklisted': props.row.status === 'blocklisted' }">
-          {{ props.row.email }}
-          <copy-text :text="`${props.row.email}`" hide-text />
-        </a>
-        <oat-badge v-if="props.row.status !== 'enabled'" :type="props.row.status" data-cy="blocklisted">
-          {{ $t(`subscribers.status.${props.row.status}`) }}
-        </oat-badge>
-        <span class="badge-list hstack gap-1">
-          <template v-for="l in (props.row.lists || [])">
-            <router-link :to="`/subscribers/lists/${l.id}`" :key="l.id" style="padding-right:0.5em;">
-              <oat-badge :type="l.subscriptionStatus" :key="l.id">
-                {{ l.name }}
-                <sup v-if="l.optin === 'double' || l.subscriptionStatus == 'unsubscribed'">
-                  {{ $t(`subscribers.status.${l.subscriptionStatus}`) }}
-                </sup>
-              </oat-badge>
-            </router-link>
-          </template>
-        </span>
-      </oat-table-column>
+        <oat-table-column v-slot="props" field="email" :label="$t('subscribers.email')" header-class="cy-email" sortable
+          :td-attrs="$utils.tdID">
+          <a :href="`/subscribers/${props.row.id}`" @click.prevent="showEditForm(props.row)"
+            :class="{ 'blocklisted': props.row.status === 'blocklisted' }">
+            {{ props.row.email }}
+            <copy-text :text="`${props.row.email}`" hide-text />
+          </a>
+          <oat-badge v-if="props.row.status !== 'enabled'" :type="props.row.status" data-cy="blocklisted">
+            {{ $t(`subscribers.status.${props.row.status}`) }}
+          </oat-badge>
+          <span class="badge-list hstack gap-1">
+            <template v-for="l in (props.row.lists || [])">
+              <router-link :to="`/subscribers/lists/${l.id}`" :key="l.id" style="padding-right:0.5em;">
+                <oat-badge :type="l.subscriptionStatus" :key="l.id">
+                  {{ l.name }}
+                  <sup v-if="l.optin === 'double' || l.subscriptionStatus == 'unsubscribed'">
+                    {{ $t(`subscribers.status.${l.subscriptionStatus}`) }}
+                  </sup>
+                </oat-badge>
+              </router-link>
+            </template>
+          </span>
+        </oat-table-column>
 
-      <oat-table-column v-slot="props" field="name" :label="$t('globals.fields.name')" header-class="cy-name" sortable>
-        <a :href="`/subscribers/${props.row.id}`" @click.prevent="showEditForm(props.row)"
-          :class="{ 'blocklisted': props.row.status === 'blocklisted' }">
-          {{ props.row.name }}
-          <copy-text :text="`${props.row.name}`" hide-text />
-        </a>
-      </oat-table-column>
+        <oat-table-column v-slot="props" field="name" :label="$t('globals.fields.name')" header-class="cy-name"
+          sortable>
+          <a :href="`/subscribers/${props.row.id}`" @click.prevent="showEditForm(props.row)"
+            :class="{ 'blocklisted': props.row.status === 'blocklisted' }">
+            {{ props.row.name }}
+            <copy-text :text="`${props.row.name}`" hide-text />
+          </a>
+        </oat-table-column>
 
-      <oat-table-column v-slot="props" field="lists" :label="$t('globals.terms.lists')" header-class="cy-lists" centered>
-        {{ listCount(props.row.lists || []) }}
-      </oat-table-column>
+        <oat-table-column v-slot="props" field="lists" :label="$t('globals.terms.lists')" header-class="cy-lists"
+          centered>
+          {{ listCount(props.row.lists || []) }}
+        </oat-table-column>
 
-      <oat-table-column v-slot="props" field="created_at" :label="$t('globals.fields.createdAt')"
-        header-class="cy-created_at" sortable>
-        {{ $utils.niceDate(props.row.createdAt) }}
-      </oat-table-column>
+        <oat-table-column v-slot="props" field="created_at" :label="$t('globals.fields.createdAt')"
+          header-class="cy-created_at" sortable>
+          {{ $utils.niceDate(props.row.createdAt) }}
+        </oat-table-column>
 
-      <oat-table-column v-slot="props" field="updated_at" :label="$t('globals.fields.updatedAt')"
-        header-class="cy-updated_at" sortable>
-        {{ $utils.niceDate(props.row.updatedAt) }}
-      </oat-table-column>
+        <oat-table-column v-slot="props" field="updated_at" :label="$t('globals.fields.updatedAt')"
+          header-class="cy-updated_at" sortable>
+          {{ $utils.niceDate(props.row.updatedAt) }}
+        </oat-table-column>
 
-      <oat-table-column v-slot="props" cell-class="actions" align="right">
-        <div>
-          <a :href="`/api/subscribers/${props.row.id}/export`" data-cy="btn-download"
-            :aria-label="$t('subscribers.downloadData')">
+        <oat-table-column v-slot="props" cell-class="actions" align="right">
+          <div>
+            <a :href="`/api/subscribers/${props.row.id}/export`" data-cy="btn-download"
+              :aria-label="$t('subscribers.downloadData')">
 
               <oat-icon icon="cloud-download-outline" />
 
-          </a>
-          <a v-if="$can('subscribers:manage')" :href="`/subscribers/${props.row.id}`"
-            @click.prevent="showEditForm(props.row)" data-cy="btn-edit" :aria-label="$t('globals.buttons.edit')">
+            </a>
+            <a v-if="$can('subscribers:manage')" :href="`/subscribers/${props.row.id}`"
+              @click.prevent="showEditForm(props.row)" data-cy="btn-edit" :aria-label="$t('globals.buttons.edit')">
 
               <oat-icon icon="pencil-outline" />
 
-          </a>
-          <a v-if="$can('subscribers:manage')" href="#" @click.prevent="deleteSubscriber(props.row)"
-            data-cy="btn-delete" :aria-label="$t('globals.buttons.delete')">
+            </a>
+            <a v-if="$can('subscribers:manage')" href="#" @click.prevent="deleteSubscriber(props.row)"
+              data-cy="btn-delete" :aria-label="$t('globals.buttons.delete')">
 
               <oat-icon icon="trash-can-outline" />
 
-          </a>
-        </div>
-      </oat-table-column>
+            </a>
+          </div>
+        </oat-table-column>
 
-      <template #empty v-if="!loading.subscribers">
-        <empty-placeholder />
-      </template>
-</oat-data-table>
+        <template #empty v-if="!loading.subscribers">
+          <empty-placeholder />
+        </template>
+      </oat-data-table>
 
-    <!-- Manage list modal -->
-    <oat-modal :active.sync="isBulkListFormVisible" :width="500" class="has-overflow">
-      <subscriber-bulk-list :num-subscribers="this.numSelectedSubscribers" @finished="bulkChangeLists" />
-    </oat-modal>
+      <!-- Manage list modal -->
+      <oat-modal :active.sync="isBulkListFormVisible" :width="500" class="has-overflow">
+        <subscriber-bulk-list :num-subscribers="this.numSelectedSubscribers" @finished="bulkChangeLists" />
+      </oat-modal>
 
-    <!-- Add / edit form modal -->
-    <oat-modal :active.sync="isFormVisible" :width="850" @close="onFormClose">
-      <subscriber-form :data="curItem" :is-editing="isEditing" @finished="querySubscribers" />
-    </oat-modal>
+      <!-- Add / edit form modal -->
+      <oat-modal :active.sync="isFormVisible" :width="850" @close="onFormClose">
+        <subscriber-form :data="curItem" :is-editing="isEditing" @finished="querySubscribers" />
+      </oat-modal>
     </div>
   </section>
 </template>

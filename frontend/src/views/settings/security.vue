@@ -24,8 +24,8 @@
         </oat-field>
 
         <oat-field :label="$t('settings.security.OIDCName')">
-          <input aria-label="field" v-model="data['security.oidc']['provider_name']" name="oidc.provider_name" ref="provider_name"
-            :disabled="!data['security.oidc']['enabled']" :maxlength="200">
+          <input aria-label="field" v-model="data['security.oidc']['provider_name']" name="oidc.provider_name"
+            ref="provider_name" :disabled="!data['security.oidc']['enabled']" :maxlength="200">
         </oat-field>
 
         <oat-field :label="$t('settings.security.OIDCClientID')">
@@ -34,8 +34,8 @@
         </oat-field>
 
         <oat-field :label="$t('settings.security.OIDCClientSecret')">
-          <input aria-label="field" v-model="data['security.oidc']['client_secret']" name="oidc.client_secret" type="password"
-            :disabled="!data['security.oidc']['enabled']" :maxlength="200" required>
+          <input aria-label="field" v-model="data['security.oidc']['client_secret']" name="oidc.client_secret"
+            type="password" :disabled="!data['security.oidc']['enabled']" :maxlength="200" required>
         </oat-field>
 
         <hr />
@@ -108,19 +108,18 @@
         <div v-if="selectedProvider === 'altcha'">
           <oat-field :label="$t('settings.security.altchaComplexity')"
             :message="$t('settings.security.altchaComplexityHelp')">
-            <input aria-label="field" v-model.number="data['security.captcha']['altcha']['complexity']" name="altcha_complexity"
-              type="number" min="1000" max="1000000" required>
+            <input aria-label="field" v-model.number="data['security.captcha']['altcha']['complexity']"
+              name="altcha_complexity" type="number" min="1000" max="1000000" required>
           </oat-field>
         </div>
         <div v-if="selectedProvider === 'hcaptcha'">
-          <oat-field :label="$t('settings.security.captchaKey')"
-            :message="$t('settings.security.captchaKeyHelp')">
-            <input aria-label="field" v-model="data['security.captcha']['hcaptcha']['key']" name="hcaptcha_key" :maxlength="200"
-              required>
+          <oat-field :label="$t('settings.security.captchaKey')" :message="$t('settings.security.captchaKeyHelp')">
+            <input aria-label="field" v-model="data['security.captcha']['hcaptcha']['key']" name="hcaptcha_key"
+              :maxlength="200" required>
           </oat-field>
           <oat-field :label="$t('settings.security.captchaSecret')">
-            <input aria-label="field" v-model="data['security.captcha']['hcaptcha']['secret']" name="hcaptcha_secret" type="password"
-              :maxlength="200" required>
+            <input aria-label="field" v-model="data['security.captcha']['hcaptcha']['secret']" name="hcaptcha_secret"
+              type="password" :maxlength="200" required>
           </oat-field>
         </div>
       </div>

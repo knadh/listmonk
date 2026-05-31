@@ -27,158 +27,156 @@
     </header>
 
     <div class="card page-content">
-    <oat-data-table :data="lists.results" :loading="loading.listsFull" @check-all="onTableCheck" @check="onTableCheck"
-      :checked-rows.sync="bulk.checked" default-sort="createdAt" paginated backend-pagination
-      @page-change="onPageChange" :current-page="queryParams.page" :per-page="lists.perPage"
-      :total="lists.total" checkable backend-sorting @sort="onSort">
-      <template #top-left>
-        <div class="row">
-          <div class="col-6">
-            <form @submit.prevent="getLists">
-              <fieldset class="group">
-                <input aria-label="Search" v-model="queryParams.query" name="query" ref="query" data-cy="query"
-                  placeholder="Search">
-                <button type="submit" data-variant="primary" data-cy="btn-query" aria-label="Search">
-                  <oat-icon icon="magnify" />
-                </button>
-              </fieldset>
-            </form>
+      <oat-data-table :data="lists.results" :loading="loading.listsFull" @check-all="onTableCheck" @check="onTableCheck"
+        :checked-rows.sync="bulk.checked" default-sort="createdAt" paginated backend-pagination
+        @page-change="onPageChange" :current-page="queryParams.page" :per-page="lists.perPage" :total="lists.total"
+        checkable backend-sorting @sort="onSort">
+        <template #top-left>
+          <div class="row">
+            <div class="col-6">
+              <form @submit.prevent="getLists">
+                <fieldset class="group">
+                  <input aria-label="Search" v-model="queryParams.query" name="query" ref="query" data-cy="query"
+                    placeholder="Search">
+                  <button type="submit" data-variant="primary" data-cy="btn-query" aria-label="Search">
+                    <oat-icon icon="magnify" />
+                  </button>
+                </fieldset>
+              </form>
+            </div>
           </div>
-        </div>
-        <div class="actions" v-if="bulk.checked.length > 0">
-          <a class="a" href="#" @click.prevent="deleteLists" data-cy="btn-delete-lists">
-            <oat-icon icon="trash-can-outline" /> {{ $t('globals.buttons.delete') }}
-          </a>
-          <span class="a">
-            {{ $tc('globals.messages.numSelected', numSelectedLists, { num: numSelectedLists }) }}
-            <span v-if="!bulk.all && lists.total > lists.perPage">
-              &mdash;
-              <a href="#" @click.prevent="onSelectAll" data-cy="select-all-lists">
-                {{ $tc('globals.messages.selectAll', lists.total, { num: lists.total }) }}
-              </a>
+          <div class="actions" v-if="bulk.checked.length > 0">
+            <a class="a" href="#" @click.prevent="deleteLists" data-cy="btn-delete-lists">
+              <oat-icon icon="trash-can-outline" /> {{ $t('globals.buttons.delete') }}
+            </a>
+            <span class="a">
+              {{ $tc('globals.messages.numSelected', numSelectedLists, { num: numSelectedLists }) }}
+              <span v-if="!bulk.all && lists.total > lists.perPage">
+                &mdash;
+                <a href="#" @click.prevent="onSelectAll" data-cy="select-all-lists">
+                  {{ $tc('globals.messages.selectAll', lists.total, { num: lists.total }) }}
+                </a>
+              </span>
             </span>
-          </span>
-        </div>
-      </template>
+          </div>
+        </template>
 
-      <oat-table-column v-slot="props" field="name" :label="$t('globals.fields.name')" header-class="cy-name" sortable
-        width="25%" paginated backend-pagination :td-attrs="$utils.tdID"
-        @page-change="onPageChange">
-        <div>
-          <a :href="`/lists/${props.row.id}`" @click.prevent="showEditForm(props.row)">
-            {{ props.row.name }}
-          </a>
-          <span class="badge-list hstack gap-1">
-            <span class="badge secondary" v-for="t in props.row.tags" :key="t">
-              {{ t }}
+        <oat-table-column v-slot="props" field="name" :label="$t('globals.fields.name')" header-class="cy-name" sortable
+          width="25%" paginated backend-pagination :td-attrs="$utils.tdID" @page-change="onPageChange">
+          <div>
+            <a :href="`/lists/${props.row.id}`" @click.prevent="showEditForm(props.row)">
+              {{ props.row.name }}
+            </a>
+            <span class="badge-list hstack gap-1">
+              <span class="badge secondary" v-for="t in props.row.tags" :key="t">
+                {{ t }}
+              </span>
             </span>
-          </span>
-        </div>
-      </oat-table-column>
+          </div>
+        </oat-table-column>
 
-      <oat-table-column v-slot="props" field="type" :label="$t('globals.fields.type')" header-class="cy-type" sortable
-        width="15%">
-        <div class="hstack">
-          <oat-badge :type="props.row.type" :data-cy="`type-${props.row.type}`">
-            {{ $t(`lists.types.${props.row.type}`) }}
-          </oat-badge>
-          {{ ' ' }}
-
-          <oat-badge :type="props.row.optin" :data-cy="`optin-${props.row.optin}`">
-            <oat-icon :icon="props.row.optin === 'double' ? 'account-check-outline' : 'account-off-outline'"
-              />
+        <oat-table-column v-slot="props" field="type" :label="$t('globals.fields.type')" header-class="cy-type" sortable
+          width="15%">
+          <div class="hstack">
+            <oat-badge :type="props.row.type" :data-cy="`type-${props.row.type}`">
+              {{ $t(`lists.types.${props.row.type}`) }}
+            </oat-badge>
             {{ ' ' }}
-            {{ $t(`lists.optins.${props.row.optin}`) }}
-          </oat-badge>{{ ' ' }}
 
-          <a v-if="props.row.optin === 'double'" class="text-7 send-optin" href="#"
-            @click="$utils.confirm(null, () => createOptinCampaign(props.row))" data-cy="btn-send-optin-campaign">
+            <oat-badge :type="props.row.optin" :data-cy="`optin-${props.row.optin}`">
+              <oat-icon :icon="props.row.optin === 'double' ? 'account-check-outline' : 'account-off-outline'" />
+              {{ ' ' }}
+              {{ $t(`lists.optins.${props.row.optin}`) }}
+            </oat-badge>{{ ' ' }}
+
+            <a v-if="props.row.optin === 'double'" class="text-7 send-optin" href="#"
+              @click="$utils.confirm(null, () => createOptinCampaign(props.row))" data-cy="btn-send-optin-campaign">
 
               <oat-icon icon="rocket-launch-outline" />
               {{ $t('lists.sendOptinCampaign') }}
 
-          </a>
-        </div>
-      </oat-table-column>
+            </a>
+          </div>
+        </oat-table-column>
 
-      <oat-table-column v-slot="props" field="subscriber_count" :label="$t('globals.terms.subscribers')"
-        header-class="cy-subscribers" numeric sortable centered>
-        <template v-if="$can('subscribers:get_all', 'subscribers:get')">
-          <router-link :to="`/subscribers/lists/${props.row.id}`">
-            {{ $utils.formatNumber(props.row.subscriberCount) }}
-            <span class="text-7 view">{{ $t('globals.buttons.view') }}</span>
-          </router-link>
-        </template>
-        <template v-else>
-          {{ $utils.formatNumber(props.row.subscriberCount) }}
-        </template>
-      </oat-table-column>
-
-      <oat-table-column v-slot="props" field="subscriber_counts" header-class="cy-subscribers" width="10%">
-        <div class="field-list stats">
-          <p v-for="(count, status) in filterStatuses(props.row)" :key="status">
-            <label for="#">{{ $tc(`subscribers.status.${status}`, count) }}</label>
-            <router-link :to="`/subscribers/lists/${props.row.id}?subscription_status=${status}`" :class="status">
-              {{ $utils.formatNumber(count) }}
+        <oat-table-column v-slot="props" field="subscriber_count" :label="$t('globals.terms.subscribers')"
+          header-class="cy-subscribers" numeric sortable centered>
+          <template v-if="$can('subscribers:get_all', 'subscribers:get')">
+            <router-link :to="`/subscribers/lists/${props.row.id}`">
+              {{ $utils.formatNumber(props.row.subscriberCount) }}
+              <span class="text-7 view">{{ $t('globals.buttons.view') }}</span>
             </router-link>
-          </p>
-        </div>
-      </oat-table-column>
+          </template>
+          <template v-else>
+            {{ $utils.formatNumber(props.row.subscriberCount) }}
+          </template>
+        </oat-table-column>
 
-      <oat-table-column v-slot="props" field="created_at" :label="$t('globals.fields.createdAt')"
-        header-class="cy-created_at" sortable>
-        {{ $utils.niceDate(props.row.createdAt) }}
-      </oat-table-column>
-      <oat-table-column v-slot="props" field="updated_at" :label="$t('globals.fields.updatedAt')"
-        header-class="cy-updated_at" sortable>
-        {{ $utils.niceDate(props.row.updatedAt) }}
-      </oat-table-column>
+        <oat-table-column v-slot="props" field="subscriber_counts" header-class="cy-subscribers" width="10%">
+          <div class="field-list stats">
+            <p v-for="(count, status) in filterStatuses(props.row)" :key="status">
+              <label for="#">{{ $tc(`subscribers.status.${status}`, count) }}</label>
+              <router-link :to="`/subscribers/lists/${props.row.id}?subscription_status=${status}`" :class="status">
+                {{ $utils.formatNumber(count) }}
+              </router-link>
+            </p>
+          </div>
+        </oat-table-column>
 
-      <oat-table-column v-slot="props" cell-class="actions" align="right">
-        <div>
-          <router-link v-if="$can('campaigns:manage')" :to="`/campaigns/new?list_id=${props.row.id}`"
-            data-cy="btn-campaign">
-<oat-icon icon="rocket-launch-outline" />
-</router-link>
+        <oat-table-column v-slot="props" field="created_at" :label="$t('globals.fields.createdAt')"
+          header-class="cy-created_at" sortable>
+          {{ $utils.niceDate(props.row.createdAt) }}
+        </oat-table-column>
+        <oat-table-column v-slot="props" field="updated_at" :label="$t('globals.fields.updatedAt')"
+          header-class="cy-updated_at" sortable>
+          {{ $utils.niceDate(props.row.updatedAt) }}
+        </oat-table-column>
 
-          <a v-if="$can('lists:manage') || $canList(props.row.id, 'list:manage')" href="#"
-            @click.prevent="showEditForm(props.row)" data-cy="btn-edit" :aria-label="$t('globals.buttons.edit')">
+        <oat-table-column v-slot="props" cell-class="actions" align="right">
+          <div>
+            <router-link v-if="$can('campaigns:manage')" :to="`/campaigns/new?list_id=${props.row.id}`"
+              data-cy="btn-campaign">
+              <oat-icon icon="rocket-launch-outline" />
+            </router-link>
+
+            <a v-if="$can('lists:manage') || $canList(props.row.id, 'list:manage')" href="#"
+              @click.prevent="showEditForm(props.row)" data-cy="btn-edit" :aria-label="$t('globals.buttons.edit')">
 
               <oat-icon icon="pencil-outline" />
 
-          </a>
+            </a>
 
-          <router-link v-if="$can('subscribers:import')" :to="{ name: 'import', query: { list_id: props.row.id } }"
-            data-cy="btn-import">
-<oat-icon icon="file-upload-outline" />
-</router-link>
+            <router-link v-if="$can('subscribers:import')" :to="{ name: 'import', query: { list_id: props.row.id } }"
+              data-cy="btn-import">
+              <oat-icon icon="file-upload-outline" />
+            </router-link>
 
-          <a v-if="$can('lists:manage') || $canList(props.row.id, 'list:manage')" href="#"
-            @click.prevent="deleteList(props.row)" data-cy="btn-delete" :aria-label="$t('globals.buttons.delete')">
+            <a v-if="$can('lists:manage') || $canList(props.row.id, 'list:manage')" href="#"
+              @click.prevent="deleteList(props.row)" data-cy="btn-delete" :aria-label="$t('globals.buttons.delete')">
 
               <oat-icon icon="trash-can-outline" />
 
-          </a>
-        </div>
-      </oat-table-column>
+            </a>
+          </div>
+        </oat-table-column>
 
-      <template #empty v-if="!loading.listsFull">
-        <empty-placeholder />
-      </template>
-</oat-data-table>
+        <template #empty v-if="!loading.listsFull">
+          <empty-placeholder />
+        </template>
+      </oat-data-table>
 
-    <!-- Add / edit form modal -->
-    <oat-modal :active.sync="isFormVisible" :width="600" @close="onFormClose">
-      <list-form :data="curItem" :is-editing="isEditing" @finished="formFinished" />
-    </oat-modal>
+      <!-- Add / edit form modal -->
+      <oat-modal :active.sync="isFormVisible" :width="600" @close="onFormClose">
+        <list-form :data="curItem" :is-editing="isEditing" @finished="formFinished" />
+      </oat-modal>
 
-    <p v-if="settings['app.cache_slow_queries']" class="text-light text-7">
-      *{{ $t('globals.messages.slowQueriesCached') }}
-      <a href="https://listmonk.app/docs/maintenance/performance/" target="_blank" rel="noopener noreferer"
-        class="text-light text-7">
-        <oat-icon icon="link-variant" /> {{ $t('globals.buttons.learnMore') }}
-      </a>
-    </p>
+      <p v-if="settings['app.cache_slow_queries']" class="text-light text-7">
+        *{{ $t('globals.messages.slowQueriesCached') }}
+        <a href="https://listmonk.app/docs/maintenance/performance/" target="_blank" rel="noopener noreferer"
+          class="text-light text-7">
+          <oat-icon icon="link-variant" /> {{ $t('globals.buttons.learnMore') }}
+        </a>
+      </p>
     </div>
   </section>
 </template>

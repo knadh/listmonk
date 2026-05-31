@@ -10,14 +10,14 @@
       </div>
       <div class="col-8">
         <div v-for="typ in bounceTypes" :key="typ" class="row">
-          <div class="col-2" :class="{ disabled: !data['bounce.enabled'] }" :label="$t('settings.bounces.count')"
-           >
+          <div class="col-2" :class="{ disabled: !data['bounce.enabled'] }" :label="$t('settings.bounces.count')">
             {{ $t(`bounces.${typ}`) }}
           </div>
           <div class="col-4" :class="{ disabled: !data['bounce.enabled'] }">
-            <oat-field :label="$t('settings.bounces.count')"
-              :message="$t('settings.bounces.countHelp')" data-cy="btn-bounce-count">
-              <input aria-label="field" type="number" v-model.number="data['bounce.actions'][typ]['count']" name="bounce.count" placeholder="3" min="1" max="1000">
+            <oat-field :label="$t('settings.bounces.count')" :message="$t('settings.bounces.countHelp')"
+              data-cy="btn-bounce-count">
+              <input aria-label="field" type="number" v-model.number="data['bounce.actions'][typ]['count']"
+                name="bounce.count" placeholder="3" min="1" max="1000">
             </oat-field>
           </div>
           <div class="col-4" :class="{ disabled: !data['bounce.enabled'] }">
@@ -44,8 +44,8 @@
 
     <div class="mb-6">
       <oat-field data-cy="btn-enable-bounce-webhook">
-        <oat-switch v-model="data['bounce.webhooks_enabled']" :disabled="!data['bounce.enabled']" name="webhooks_enabled"
-          :native-value="true" data-cy="btn-enable-bounce-webhook">
+        <oat-switch v-model="data['bounce.webhooks_enabled']" :disabled="!data['bounce.enabled']"
+          name="webhooks_enabled" :native-value="true" data-cy="btn-enable-bounce-webhook">
           {{ $t('settings.bounces.enableWebhooks') }}
         </oat-switch>
         <p class="text-light text-7">
@@ -99,7 +99,8 @@
             </oat-field>
           </div>
           <div class="col-5">
-            <oat-field :label="$t('settings.bounces.postmarkPassword')" :message="$t('globals.messages.passwordChange')">
+            <oat-field :label="$t('settings.bounces.postmarkPassword')"
+              :message="$t('globals.messages.passwordChange')">
               <input aria-label="field" v-model="data['bounce.postmark'].password" type="password"
                 :disabled="!data['bounce.postmark'].enabled" name="postmark_password"
                 data-cy="btn-enable-bounce-postmark">
@@ -165,16 +166,15 @@
                 </oat-field>
               </div>
               <div class="col-6">
-                <oat-field :label="$t('settings.mailserver.host')"
-                  :message="$t('settings.mailserver.hostHelp')">
-                  <input aria-label="field" v-model="item.host" name="host" placeholder="bounce.yourmailserver.net" :maxlength="200">
+                <oat-field :label="$t('settings.mailserver.host')" :message="$t('settings.mailserver.hostHelp')">
+                  <input aria-label="field" v-model="item.host" name="host" placeholder="bounce.yourmailserver.net"
+                    :maxlength="200">
                 </oat-field>
               </div>
               <div class="col-3">
-                <oat-field :label="$t('settings.mailserver.port')"
-                  :message="$t('settings.mailserver.portHelp')">
-                  <input aria-label="field" type="number" v-model.number="item.port" name="port"
-                    placeholder="25" min="1" max="65535">
+                <oat-field :label="$t('settings.mailserver.port')" :message="$t('settings.mailserver.portHelp')">
+                  <input aria-label="field" type="number" v-model.number="item.port" name="port" placeholder="25"
+                    min="1" max="65535">
                 </oat-field>
               </div>
             </div><!-- host -->
@@ -206,13 +206,14 @@
               <div class="col-9">
                 <oat-field>
                   <oat-field :label="$t('settings.mailserver.username')">
-                    <input aria-label="field" v-model="item.username" :disabled="item.auth_protocol === 'none'" name="username"
-                      placeholder="mysmtp" :maxlength="200">
+                    <input aria-label="field" v-model="item.username" :disabled="item.auth_protocol === 'none'"
+                      name="username" placeholder="mysmtp" :maxlength="200">
                   </oat-field>
                   <oat-field :label="$t('settings.mailserver.password')"
                     :message="$t('settings.mailserver.passwordHelp')">
-                    <input aria-label="field" v-model="item.password" :disabled="item.auth_protocol === 'none'" name="password"
-                      type="password" :placeholder="$t('settings.mailserver.passwordHelp')" :maxlength="200">
+                    <input aria-label="field" v-model="item.password" :disabled="item.auth_protocol === 'none'"
+                      name="password" type="password" :placeholder="$t('settings.mailserver.passwordHelp')"
+                      :maxlength="200">
                   </oat-field>
                 </oat-field>
               </div>
@@ -227,7 +228,8 @@
                     </oat-switch>
                   </oat-field>
                   <oat-field :message="$t('settings.mailserver.skipTLSHelp')">
-                    <oat-switch v-model="item.tls_skip_verify" :disabled="!item.tls_enabled" name="item.tls_skip_verify">
+                    <oat-switch v-model="item.tls_skip_verify" :disabled="!item.tls_enabled"
+                      name="item.tls_skip_verify">
                       {{ $t('settings.mailserver.skipTLS') }}
                     </oat-switch>
                   </oat-field>
@@ -237,8 +239,8 @@
               <div class="col-4">
                 <oat-field :label="$t('settings.bounces.scanInterval')"
                   :message="$t('settings.bounces.scanIntervalHelp')">
-                  <input aria-label="field" v-model="item.scan_interval" name="scan_interval" placeholder="15m" :pattern="regDuration"
-                    :maxlength="10">
+                  <input aria-label="field" v-model="item.scan_interval" name="scan_interval" placeholder="15m"
+                    :pattern="regDuration" :maxlength="10">
                 </oat-field>
               </div>
             </div><!-- TLS -->

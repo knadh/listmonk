@@ -67,11 +67,11 @@
               <a href="#" @click.prevent="onDeleteListPerm(props.row.id)" data-cy="btn-delete"
                 :aria-label="$t('globals.buttons.delete')">
 
-                  <oat-icon icon="trash-can-outline" />
+                <oat-icon icon="trash-can-outline" />
 
               </a>
             </oat-table-column>
-</oat-data-table>
+          </oat-data-table>
         </div>
 
         <template v-if="type === 'user'">
@@ -103,7 +103,7 @@
                 </oat-checkbox>
               </div>
             </oat-table-column>
-</oat-data-table>
+          </oat-data-table>
         </template>
         <a href="https://listmonk.app/docs/roles-and-permissions" target="_blank" rel="noopener noreferrer">
           <oat-icon icon="link-variant" /> {{ $t('globals.buttons.learnMore') }}

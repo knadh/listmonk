@@ -5,19 +5,9 @@
         {{ tag }}
         <button type="button" class="ghost small" :disabled="disabled" @click="remove(i)">x</button>
       </span>
-      <input
-        v-bind="$attrs"
-        v-model="draft"
-        type="text"
-        :name="name"
-        :aria-label="placeholder || name || 'Tags'"
-        :placeholder="placeholder"
-        :disabled="disabled"
-        @keydown.enter.prevent="add"
-        @keydown.tab="add"
-        @keydown.backspace="onBackspace"
-        @keyup="onKeyup"
-      >
+      <input v-bind="$attrs" v-model="draft" type="text" :name="name" :aria-label="placeholder || name || 'Tags'"
+        :placeholder="placeholder" :disabled="disabled" @keydown.enter.prevent="add" @keydown.tab="add"
+        @keydown.backspace="onBackspace" @keyup="onKeyup">
     </div>
   </div>
 </template>

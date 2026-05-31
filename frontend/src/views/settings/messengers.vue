@@ -15,44 +15,39 @@
         </oat-field>
 
         <div :class="{ disabled: !item.enabled }">
-          <oat-field :label="$t('globals.fields.name')"
-            :message="$t('settings.messengers.nameHelp')">
+          <oat-field :label="$t('globals.fields.name')" :message="$t('settings.messengers.nameHelp')">
             <input aria-label="field" v-model="item.name" name="name" placeholder="mymessenger" :maxlength="200">
           </oat-field>
 
-          <oat-field :label="$t('settings.messengers.url')"
-            :message="$t('settings.messengers.urlHelp')">
-            <input aria-label="field" v-model="item.root_url" name="root_url" placeholder="https://postback.messenger.net/path"
-              :maxlength="200" type="url" pattern="https?://.*">
+          <oat-field :label="$t('settings.messengers.url')" :message="$t('settings.messengers.urlHelp')">
+            <input aria-label="field" v-model="item.root_url" name="root_url"
+              placeholder="https://postback.messenger.net/path" :maxlength="200" type="url" pattern="https?://.*">
           </oat-field>
 
           <oat-field :label="$t('settings.messengers.username')">
             <input aria-label="field" v-model="item.username" name="username" :maxlength="200">
           </oat-field>
 
-          <oat-field :label="$t('settings.messengers.password')"
-            :message="$t('globals.messages.passwordChange')">
+          <oat-field :label="$t('settings.messengers.password')" :message="$t('globals.messages.passwordChange')">
             <input aria-label="field" v-model="item.password" name="password" type="password"
               :placeholder="$t('globals.messages.passwordChange')" :maxlength="200">
           </oat-field>
 
           <div class="row">
             <div class="col-4">
-              <oat-field :label="$t('settings.messengers.maxConns')"
-                :message="$t('settings.messengers.maxConnsHelp')">
+              <oat-field :label="$t('settings.messengers.maxConns')" :message="$t('settings.messengers.maxConnsHelp')">
                 <input aria-label="field" type="number" v-model.number="item.max_conns" name="max_conns"
                   placeholder="25" min="1" max="65535">
               </oat-field>
             </div>
             <div class="col-4">
-              <oat-field :label="$t('settings.messengers.retries')"
-                :message="$t('settings.messengers.retriesHelp')">
-                <input aria-label="field" type="number" v-model.number="item.max_msg_retries" name="max_msg_retries" placeholder="2" min="1" max="1000">
+              <oat-field :label="$t('settings.messengers.retries')" :message="$t('settings.messengers.retriesHelp')">
+                <input aria-label="field" type="number" v-model.number="item.max_msg_retries" name="max_msg_retries"
+                  placeholder="2" min="1" max="1000">
               </oat-field>
             </div>
             <div class="col-4">
-              <oat-field :label="$t('settings.messengers.timeout')"
-                :message="$t('settings.messengers.timeoutHelp')">
+              <oat-field :label="$t('settings.messengers.timeout')" :message="$t('settings.messengers.timeoutHelp')">
                 <input aria-label="field" v-model="item.timeout" name="timeout" placeholder="5s" :pattern="regDuration"
                   :maxlength="10">
               </oat-field>

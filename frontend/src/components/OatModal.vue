@@ -67,13 +67,13 @@ export default {
   width: min(100% - 2rem, 32rem);
 }
 
-.oat-modal > form > .dialog-card,
-.oat-modal > .dialog-card {
+.oat-modal>form>.dialog-card,
+.oat-modal>.dialog-card {
   display: contents;
 }
 
-.oat-modal > form > .dialog-card > header,
-.oat-modal > .dialog-card > header {
+.oat-modal>form>.dialog-card>header,
+.oat-modal>.dialog-card>header {
   display: flex;
   flex-direction: column;
   gap: var(--space-1);
@@ -81,15 +81,15 @@ export default {
   padding-block-end: 0;
 }
 
-.oat-modal > form > .dialog-card > :is(div, section),
-.oat-modal > .dialog-card > :is(div, section) {
+.oat-modal>form>.dialog-card> :is(div, section),
+.oat-modal>.dialog-card> :is(div, section) {
   max-height: 70vh;
   overflow-y: auto;
   padding: var(--space-6);
 }
 
-.oat-modal > form > .dialog-card > footer,
-.oat-modal > .dialog-card > footer {
+.oat-modal>form>.dialog-card>footer,
+.oat-modal>.dialog-card>footer {
   display: flex;
   gap: var(--space-2);
   justify-content: flex-end;

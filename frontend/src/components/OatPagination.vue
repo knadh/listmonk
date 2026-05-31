@@ -3,14 +3,8 @@
     <button type="button" :disabled="page <= 1" @click="setPage(page - 1)">
       <oat-icon icon="chevron-left" />
     </button>
-    <button
-      v-for="p in pages"
-      :key="p"
-      type="button"
-      :class="{ outline: p !== page }"
-      :aria-current="p === page ? 'page' : null"
-      @click="setPage(p)"
-    >
+    <button v-for="p in pages" :key="p" type="button" :class="{ outline: p !== page }"
+      :aria-current="p === page ? 'page' : null" @click="setPage(p)">
       {{ p }}
     </button>
     <button type="button" :disabled="page >= numPages" @click="setPage(page + 1)">

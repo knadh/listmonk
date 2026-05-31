@@ -58,7 +58,7 @@
               {{ $utils.niceDate(props.row.lastViewedAt, true) }}
             </span>
           </oat-table-column>
-</oat-data-table>
+        </oat-data-table>
       </div>
       <div v-else class="align-center text-light p-6">
         <p class="mt-2">{{ $t('globals.messages.emptyState') }}</p>
@@ -72,8 +72,8 @@
       </div>
 
       <div v-if="activity.linkClicks && activity.linkClicks.length > 0">
-        <oat-data-table :data="activity.linkClicks" default-sort="lastClickedAt" default-sort-direction="desc"
-          paginated :per-page="10" :pagination-simple="false" class="link-clicks-table">
+        <oat-data-table :data="activity.linkClicks" default-sort="lastClickedAt" default-sort-direction="desc" paginated
+          :per-page="10" :pagination-simple="false" class="link-clicks-table">
           <oat-table-column v-slot="props" field="url" :label="$t('globals.terms.url')" cell-class="link-click-url"
             sortable>
             <a :href="props.row.url" target="_blank" rel="noopener noreferrer">
@@ -101,7 +101,7 @@
               {{ $utils.niceDate(props.row.lastClickedAt, true) }}
             </span>
           </oat-table-column>
-</oat-data-table>
+        </oat-data-table>
       </div>
       <div v-else class="align-center text-light p-6">
         <p class="mt-2">{{ $t('globals.messages.emptyState') }}</p>
