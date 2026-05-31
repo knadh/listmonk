@@ -1,63 +1,71 @@
 <template>
   <form @submit.prevent="onSubmit">
     <section class="settings">
-      <b-loading :is-full-page="true" v-if="loading.settings || isLoading" active />
-      <header class="columns page-header">
-        <div class="column is-half">
-          <h1 class="title is-4">
+      <div v-if="loading.settings || isLoading" aria-busy="true" data-spinner="large overlay" />
+      <header class="settings-header">
+        <div>
+          <h1>
             {{ $t('settings.title') }}
-            <span class="has-text-grey-light">({{ serverConfig.version }})</span>
+            <small>({{ serverConfig.version }})</small>
           </h1>
         </div>
-        <div class="column has-text-right">
-          <b-field v-if="$can('settings:manage')" expanded>
-            <b-button expanded :disabled="!hasFormChanged" type="is-primary" icon-left="content-save-outline"
-              native-type="submit" class="isSaveEnabled" data-cy="btn-save">
+        <div>
+          <oat-field v-if="$can('settings:manage')">
+            <button :disabled="!hasFormChanged" data-variant="primary" type="submit" class="isSaveEnabled"
+              data-cy="btn-save">
+              <oat-icon icon="content-save-outline" />
               {{ $t('globals.buttons.save') }}
-            </b-button>
-          </b-field>
+            </button>
+          </oat-field>
         </div>
       </header>
       <hr />
 
-      <section class="wrap settings-wrap" v-if="form">
-        <b-tabs class="settings-tabs" vertical :animated="false" v-model="tab">
-          <b-tab-item :label="$t('settings.general.name')">
+      <section class="settings-wrap" v-if="form">
+        <div class="settings-tabs">
+          <div role="tablist" aria-orientation="vertical">
+            <button v-for="(item, i) in tabs" :key="item.key" type="button" role="tab"
+              :aria-selected="tab === i ? 'true' : 'false'" :class="{ outline: tab !== i }" @click="tab = i">
+              {{ item.label }}
+            </button>
+          </div>
+
+          <div v-show="tab === 0" role="tabpanel">
             <general-settings :form="form" :key="key" />
-          </b-tab-item><!-- general -->
+          </div>
 
-          <b-tab-item :label="$t('settings.performance.name')">
+          <div v-show="tab === 1" role="tabpanel">
             <performance-settings :form="form" :key="key" />
-          </b-tab-item><!-- performance -->
+          </div>
 
-          <b-tab-item :label="$t('settings.privacy.name')">
+          <div v-show="tab === 2" role="tabpanel">
             <privacy-settings :form="form" :key="key" />
-          </b-tab-item><!-- privacy -->
+          </div>
 
-          <b-tab-item :label="$t('settings.security.name')">
+          <div v-show="tab === 3" role="tabpanel">
             <security-settings :form="form" :key="key" />
-          </b-tab-item><!-- security -->
+          </div>
 
-          <b-tab-item :label="$t('settings.media.title')">
+          <div v-show="tab === 4" role="tabpanel">
             <media-settings :form="form" :key="key" />
-          </b-tab-item><!-- media -->
+          </div>
 
-          <b-tab-item :label="$t('settings.smtp.name')">
+          <div v-show="tab === 5" role="tabpanel">
             <smtp-settings :form="form" :key="key" />
-          </b-tab-item><!-- mail servers -->
+          </div>
 
-          <b-tab-item :label="$t('settings.bounces.name')">
+          <div v-show="tab === 6" role="tabpanel">
             <bounce-settings :form="form" :key="key" />
-          </b-tab-item><!-- bounces -->
+          </div>
 
-          <b-tab-item :label="$t('settings.messengers.name')">
+          <div v-show="tab === 7" role="tabpanel">
             <messenger-settings :form="form" :key="key" />
-          </b-tab-item><!-- messengers -->
+          </div>
 
-          <b-tab-item :label="$t('settings.appearance.name')">
+          <div v-show="tab === 8" role="tabpanel">
             <appearance-settings :form="form" :key="key" />
-          </b-tab-item><!-- appearance -->
-        </b-tabs>
+          </div>
+        </div>
       </section>
     </section>
   </form>
@@ -255,6 +263,20 @@ export default Vue.extend({
 
   computed: {
     ...mapState(['serverConfig', 'loading']),
+
+    tabs() {
+      return [
+        { key: 'general', label: this.$t('settings.general.name') },
+        { key: 'performance', label: this.$t('settings.performance.name') },
+        { key: 'privacy', label: this.$t('settings.privacy.name') },
+        { key: 'security', label: this.$t('settings.security.name') },
+        { key: 'media', label: this.$t('settings.media.title') },
+        { key: 'smtp', label: this.$t('settings.smtp.name') },
+        { key: 'bounces', label: this.$t('settings.bounces.name') },
+        { key: 'messengers', label: this.$t('settings.messengers.name') },
+        { key: 'appearance', label: this.$t('settings.appearance.name') },
+      ];
+    },
 
     hasFormChanged() {
       if (!this.formCopy) {

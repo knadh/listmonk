@@ -1,71 +1,70 @@
 <template>
   <div>
     <div class="items messengers">
-      <div class="block box" v-for="(item, n) in data.messengers" :key="n">
-        <b-field>
-          <b-switch v-model="item.enabled" name="enabled" :native-value="true">
+      <div class="card" v-for="(item, n) in data.messengers" :key="n">
+        <oat-field>
+          <oat-switch v-model="item.enabled" name="enabled" :native-value="true">
             {{ $t('globals.buttons.enabled') }}
-          </b-switch>
-        </b-field>
-        <b-field>
-          <a @click.prevent="$utils.confirm(null, () => removeMessenger(n))" href="#" class="is-size-7">
-            <b-icon icon="trash-can-outline" size="is-small" />
+          </oat-switch>
+        </oat-field>
+        <oat-field>
+          <a @click.prevent="$utils.confirm(null, () => removeMessenger(n))" href="#">
+            <oat-icon icon="trash-can-outline" size="is-small" />
             {{ $t('globals.buttons.delete') }}
           </a>
-        </b-field>
+        </oat-field>
 
         <div :class="{ disabled: !item.enabled }">
-          <b-field :label="$t('globals.fields.name')" label-position="on-border"
+          <oat-field :label="$t('globals.fields.name')"
             :message="$t('settings.messengers.nameHelp')">
-            <b-input v-model="item.name" name="name" placeholder="mymessenger" :maxlength="200" />
-          </b-field>
+            <input aria-label="field" v-model="item.name" name="name" placeholder="mymessenger" :maxlength="200">
+          </oat-field>
 
-          <b-field :label="$t('settings.messengers.url')" label-position="on-border"
+          <oat-field :label="$t('settings.messengers.url')"
             :message="$t('settings.messengers.urlHelp')">
-            <b-input v-model="item.root_url" name="root_url" placeholder="https://postback.messenger.net/path"
-              :maxlength="200" expanded type="url" pattern="https?://.*" />
-          </b-field>
+            <input aria-label="field" v-model="item.root_url" name="root_url" placeholder="https://postback.messenger.net/path"
+              :maxlength="200" type="url" pattern="https?://.*">
+          </oat-field>
 
-          <b-field :label="$t('settings.messengers.username')" label-position="on-border" expanded>
-            <b-input v-model="item.username" name="username" :maxlength="200" />
-          </b-field>
+          <oat-field :label="$t('settings.messengers.username')">
+            <input aria-label="field" v-model="item.username" name="username" :maxlength="200">
+          </oat-field>
 
-          <b-field :label="$t('settings.messengers.password')" label-position="on-border" expanded
+          <oat-field :label="$t('settings.messengers.password')"
             :message="$t('globals.messages.passwordChange')">
-            <b-input v-model="item.password" name="password" type="password"
-              :placeholder="$t('globals.messages.passwordChange')" :maxlength="200" />
-          </b-field>
+            <input aria-label="field" v-model="item.password" name="password" type="password"
+              :placeholder="$t('globals.messages.passwordChange')" :maxlength="200">
+          </oat-field>
 
-          <div class="columns">
-            <div class="column is-4">
-              <b-field :label="$t('settings.messengers.maxConns')" label-position="on-border"
+          <div class="row">
+            <div class="col-4">
+              <oat-field :label="$t('settings.messengers.maxConns')"
                 :message="$t('settings.messengers.maxConnsHelp')">
-                <b-numberinput v-model="item.max_conns" name="max_conns" type="is-light" controls-position="compact"
-                  placeholder="25" min="1" max="65535" />
-              </b-field>
+                <input aria-label="field" type="number" v-model.number="item.max_conns" name="max_conns"
+                  placeholder="25" min="1" max="65535">
+              </oat-field>
             </div>
-            <div class="column is-4">
-              <b-field :label="$t('settings.messengers.retries')" label-position="on-border"
+            <div class="col-4">
+              <oat-field :label="$t('settings.messengers.retries')"
                 :message="$t('settings.messengers.retriesHelp')">
-                <b-numberinput v-model="item.max_msg_retries" name="max_msg_retries" type="is-light"
-                  controls-position="compact" placeholder="2" min="1" max="1000" />
-              </b-field>
+                <input aria-label="field" type="number" v-model.number="item.max_msg_retries" name="max_msg_retries" placeholder="2" min="1" max="1000">
+              </oat-field>
             </div>
-            <div class="column is-4">
-              <b-field :label="$t('settings.messengers.timeout')" label-position="on-border"
+            <div class="col-4">
+              <oat-field :label="$t('settings.messengers.timeout')"
                 :message="$t('settings.messengers.timeoutHelp')">
-                <b-input v-model="item.timeout" name="timeout" placeholder="5s" :pattern="regDuration"
-                  :maxlength="10" />
-              </b-field>
+                <input aria-label="field" v-model="item.timeout" name="timeout" placeholder="5s" :pattern="regDuration"
+                  :maxlength="10">
+              </oat-field>
             </div>
           </div>
         </div>
       </div><!-- block -->
     </div><!-- mail-servers -->
 
-    <b-button @click="addMessenger" icon-left="plus" type="is-primary">
+    <button type="button" @click="addMessenger" data-variant="primary">
       {{ $t('globals.buttons.addNew') }}
-    </b-button>
+    </button>
   </div>
 </template>
 

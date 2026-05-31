@@ -3,6 +3,10 @@ import Buefy from 'buefy';
 import VueI18n from 'vue-i18n';
 
 import App from './App.vue';
+import OatField from './components/OatField.vue';
+import OatIcon from './components/OatIcon.vue';
+import OatSwitch from './components/OatSwitch.vue';
+import OatTagInput from './components/OatTagInput.vue';
 import router from './router';
 import store from './store';
 import * as api from './api';
@@ -12,6 +16,10 @@ import Utils from './utils';
 Vue.use(VueI18n);
 const i18n = new VueI18n();
 
+Vue.component('OatField', OatField);
+Vue.component('OatIcon', OatIcon);
+Vue.component('OatSwitch', OatSwitch);
+Vue.component('OatTagInput', OatTagInput);
 Vue.use(Buefy, {});
 Vue.config.productionTip = false;
 

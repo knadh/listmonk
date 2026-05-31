@@ -1,124 +1,127 @@
 <template>
   <div class="items">
-    <div class="columns">
-      <div class="column is-3">
-        <b-field :message="$t('settings.security.OIDCHelp')">
-          <b-switch v-model="data['security.oidc']['enabled']" name="security.oidc">
+    <div class="row">
+      <div class="col-3">
+        <oat-field :message="$t('settings.security.OIDCHelp')">
+          <oat-switch v-model="data['security.oidc']['enabled']" name="security.oidc">
             {{ $t('settings.security.enableOIDC') }}
-          </b-switch>
-        </b-field>
+          </oat-switch>
+        </oat-field>
       </div>
-      <div class="column is-9">
-        <b-field :label="$t('settings.security.OIDCURL')" label-position="on-border">
+      <div class="col-9">
+        <oat-field :label="$t('settings.security.OIDCURL')">
           <div>
-            <b-input v-model="data['security.oidc']['provider_url']" name="oidc.provider_url"
+            <input aria-label="field" v-model="data['security.oidc']['provider_url']" name="oidc.provider_url"
               placeholder="https://login.yoursite.com" :disabled="!data['security.oidc']['enabled']" :maxlength="300"
-              required type="url" pattern="https?://.*" />
+              required type="url" pattern="https?://.*">
 
-            <div class="spaced-links is-size-7 mt-2" :class="{ 'disabled': !data['security.oidc']['enabled'] }">
+            <div class="spaced-links mt-2" :class="{ disabled: !data['security.oidc']['enabled'] }">
               <a href="#" @click.prevent="() => setProvider('google')">Google</a>
               <a href="#" @click.prevent="() => setProvider('microsoft')">Microsoft</a>
               <a href="#" @click.prevent="() => setProvider('apple')">Apple</a>
             </div>
           </div>
-        </b-field>
+        </oat-field>
 
-        <b-field :label="$t('settings.security.OIDCName')" label-position="on-border">
-          <b-input v-model="data['security.oidc']['provider_name']" name="oidc.provider_name" ref="provider_name"
-            :disabled="!data['security.oidc']['enabled']" :maxlength="200" />
-        </b-field>
+        <oat-field :label="$t('settings.security.OIDCName')">
+          <input aria-label="field" v-model="data['security.oidc']['provider_name']" name="oidc.provider_name" ref="provider_name"
+            :disabled="!data['security.oidc']['enabled']" :maxlength="200">
+        </oat-field>
 
-        <b-field :label="$t('settings.security.OIDCClientID')" label-position="on-border">
-          <b-input v-model="data['security.oidc']['client_id']" name="oidc.client_id" ref="client_id"
-            :disabled="!data['security.oidc']['enabled']" :maxlength="200" required />
-        </b-field>
+        <oat-field :label="$t('settings.security.OIDCClientID')">
+          <input aria-label="field" v-model="data['security.oidc']['client_id']" name="oidc.client_id" ref="client_id"
+            :disabled="!data['security.oidc']['enabled']" :maxlength="200" required>
+        </oat-field>
 
-        <b-field :label="$t('settings.security.OIDCClientSecret')" label-position="on-border">
-          <b-input v-model="data['security.oidc']['client_secret']" name="oidc.client_secret" type="password"
-            :disabled="!data['security.oidc']['enabled']" :maxlength="200" required />
-        </b-field>
+        <oat-field :label="$t('settings.security.OIDCClientSecret')">
+          <input aria-label="field" v-model="data['security.oidc']['client_secret']" name="oidc.client_secret" type="password"
+            :disabled="!data['security.oidc']['enabled']" :maxlength="200" required>
+        </oat-field>
 
         <hr />
 
-        <b-field :message="$t('settings.security.OIDCAutoCreateUsersHelp')">
-          <b-switch v-model="data['security.oidc']['auto_create_users']" :disabled="!data['security.oidc']['enabled']"
+        <oat-field :message="$t('settings.security.OIDCAutoCreateUsersHelp')">
+          <oat-switch v-model="data['security.oidc']['auto_create_users']" :disabled="!data['security.oidc']['enabled']"
             name="oidc.auto_create_users">
             {{ $t('settings.security.OIDCAutoCreateUsers') }}
-          </b-switch>
-        </b-field>
+          </oat-switch>
+        </oat-field>
 
-        <b-field :label="$t('settings.security.OIDCDefaultUserRole')" label-position="on-border"
+        <oat-field :label="$t('settings.security.OIDCDefaultUserRole')"
           :message="$t('settings.security.OIDCDefaultRoleHelp')">
-          <b-select v-model="data['security.oidc']['default_user_role_id']"
+          <select aria-label="field" v-model="data['security.oidc']['default_user_role_id']"
             :disabled="!data['security.oidc']['enabled'] || !data['security.oidc']['auto_create_users']"
-            name="oidc.default_user_role_id" expanded>
+            name="oidc.default_user_role_id">
             <option v-for="role in userRoles" :key="role.id" :value="role.id">
               {{ role.name }}
             </option>
-          </b-select>
-        </b-field>
+          </select>
+        </oat-field>
 
-        <b-field :label="$t('settings.security.OIDCDefaultListRole')" label-position="on-border"
+        <oat-field :label="$t('settings.security.OIDCDefaultListRole')"
           :message="$t('settings.security.OIDCDefaultRoleHelp')">
-          <b-select v-model="data['security.oidc']['default_list_role_id']"
+          <select aria-label="field" v-model="data['security.oidc']['default_list_role_id']"
             :disabled="!data['security.oidc']['enabled'] || !data['security.oidc']['auto_create_users']"
-            name="oidc.default_list_role_id" expanded>
+            name="oidc.default_list_role_id">
             <option :value="null">&mdash; {{ $t("globals.terms.none") }} &mdash;</option>
             <option v-for="role in listRoles" :key="role.id" :value="role.id">
               {{ role.name }}
             </option>
-          </b-select>
-        </b-field>
+          </select>
+        </oat-field>
 
         <hr />
 
-        <b-field :label="$t('settings.security.OIDCRedirectURL')">
+        <oat-field :label="$t('settings.security.OIDCRedirectURL')">
           <code><copy-text :text="`${serverConfig.root_url}/auth/oidc`" /></code>
-        </b-field>
-        <p v-if="data['security.oidc']['enabled'] && !isURLOk" class="has-text-danger">
-          <b-icon icon="warning-empty" />
+        </oat-field>
+        <p v-if="data['security.oidc']['enabled'] && !isURLOk" class="error">
+          <oat-icon icon="warning-empty" />
           {{ $t('settings.security.OIDCRedirectWarning') }}
         </p>
       </div>
     </div>
 
     <hr />
-    <div class="columns">
-      <div class="column is-3">
-        <b-field :message="$t('settings.security.enableCaptchaHelp')">
-          <b-switch v-model="captchaEnabled" name="security.captcha">
+    <div class="row">
+      <div class="col-3">
+        <oat-field :message="$t('settings.security.enableCaptchaHelp')">
+          <oat-switch v-model="captchaEnabled" name="security.captcha">
             {{ $t('settings.security.enableCaptcha') }}
-          </b-switch>
-        </b-field>
+          </oat-switch>
+        </oat-field>
       </div>
-      <div class="column is-9" v-if="captchaEnabled">
-        <b-field>
-          <b-radio v-model="selectedProvider" native-value="altcha" name="captcha_provider">
+      <div class="col-9" v-if="captchaEnabled">
+        <fieldset>
+          <legend>{{ $t('settings.security.enableCaptcha') }}</legend>
+          <label>
+            <input aria-label="field" v-model="selectedProvider" type="radio" value="altcha" name="captcha_provider">
             ALTCHA
-          </b-radio>
-          <b-radio v-model="selectedProvider" native-value="hcaptcha" name="captcha_provider">
+          </label>
+          <label>
+            <input aria-label="field" v-model="selectedProvider" type="radio" value="hcaptcha" name="captcha_provider">
             hCaptcha (deprecated)
-          </b-radio>
-        </b-field>
+          </label>
+        </fieldset>
 
         <!-- captcha settings -->
         <div v-if="selectedProvider === 'altcha'">
-          <b-field :label="$t('settings.security.altchaComplexity')" label-position="on-border"
+          <oat-field :label="$t('settings.security.altchaComplexity')"
             :message="$t('settings.security.altchaComplexityHelp')">
-            <b-input v-model.number="data['security.captcha']['altcha']['complexity']" name="altcha_complexity"
-              type="number" min="1000" max="1000000" required />
-          </b-field>
+            <input aria-label="field" v-model.number="data['security.captcha']['altcha']['complexity']" name="altcha_complexity"
+              type="number" min="1000" max="1000000" required>
+          </oat-field>
         </div>
         <div v-if="selectedProvider === 'hcaptcha'">
-          <b-field :label="$t('settings.security.captchaKey')" label-position="on-border"
+          <oat-field :label="$t('settings.security.captchaKey')"
             :message="$t('settings.security.captchaKeyHelp')">
-            <b-input v-model="data['security.captcha']['hcaptcha']['key']" name="hcaptcha_key" :maxlength="200"
-              required />
-          </b-field>
-          <b-field :label="$t('settings.security.captchaSecret')" label-position="on-border">
-            <b-input v-model="data['security.captcha']['hcaptcha']['secret']" name="hcaptcha_secret" type="password"
-              :maxlength="200" required />
-          </b-field>
+            <input aria-label="field" v-model="data['security.captcha']['hcaptcha']['key']" name="hcaptcha_key" :maxlength="200"
+              required>
+          </oat-field>
+          <oat-field :label="$t('settings.security.captchaSecret')">
+            <input aria-label="field" v-model="data['security.captcha']['hcaptcha']['secret']" name="hcaptcha_secret" type="password"
+              :maxlength="200" required>
+          </oat-field>
         </div>
       </div>
     </div><!-- captcha -->
@@ -126,13 +129,13 @@
     <hr />
 
     <!-- CORS -->
-    <div class="columns">
-      <div class="column is-12">
-        <h3 class="is-size-6"><strong>{{ $t('settings.security.trustedURLs') }} / CORS</strong></h3><br />
-        <b-field label-position="on-border" :message="$t('settings.security.trustedURLsHelp')">
-          <b-input v-model="trustedURLs" name="trusted_urls" type="textarea" rows="5"
+    <div class="row">
+      <div class="col-12">
+        <h3><strong>{{ $t('settings.security.trustedURLs') }} / CORS</strong></h3><br />
+        <oat-field :message="$t('settings.security.trustedURLsHelp')">
+          <textarea aria-label="field" v-model="trustedURLs" name="trusted_urls" rows="5"
             placeholder="https://example.com" />
-        </b-field>
+        </oat-field>
       </div>
     </div><!-- cors -->
   </div>

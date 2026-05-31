@@ -1,73 +1,84 @@
 <template>
   <div class="items">
-    <div class="columns">
-      <div class="column is-6">
-        <b-field :message="$t('settings.privacy.disableTrackingHelp')">
-          <b-switch v-model="data['privacy.disable_tracking']" name="privacy.disable_tracking">
+    <div class="row">
+      <div class="col-6">
+        <oat-field :message="$t('settings.privacy.disableTrackingHelp')">
+          <oat-switch v-model="data['privacy.disable_tracking']" name="privacy.disable_tracking">
             {{ $t('settings.privacy.disableTracking') }}
-          </b-switch>
-        </b-field>
+          </oat-switch>
+        </oat-field>
       </div>
-      <div class="column is-6" :class="{ 'is-disabled': data['privacy.disable_tracking'] }">
-        <b-field :message="$t('settings.privacy.individualSubTrackingHelp')">
-          <b-switch v-model="data['privacy.individual_tracking']" :disabled="data['privacy.disable_tracking']"
+      <div class="col-6" :class="{ disabled: data['privacy.disable_tracking'] }">
+        <oat-field :message="$t('settings.privacy.individualSubTrackingHelp')">
+          <oat-switch v-model="data['privacy.individual_tracking']" :disabled="data['privacy.disable_tracking']"
             name="privacy.individual_tracking">
             {{ $t('settings.privacy.individualSubTracking') }}
-          </b-switch>
-        </b-field>
+          </oat-switch>
+        </oat-field>
       </div>
     </div>
 
-    <b-field :message="$t('settings.privacy.listUnsubHeaderHelp')">
-      <b-switch v-model="data['privacy.unsubscribe_header']" name="privacy.unsubscribe_header">
+    <oat-field :message="$t('settings.privacy.listUnsubHeaderHelp')">
+      <oat-switch v-model="data['privacy.unsubscribe_header']" name="privacy.unsubscribe_header">
         {{ $t('settings.privacy.listUnsubHeader') }}
-      </b-switch>
-    </b-field>
+      </oat-switch>
+    </oat-field>
 
-    <b-field :message="$t('settings.privacy.allowBlocklistHelp')">
-      <b-switch v-model="data['privacy.allow_blocklist']" name="privacy.allow_blocklist">
+    <oat-field :message="$t('settings.privacy.allowBlocklistHelp')">
+      <oat-switch v-model="data['privacy.allow_blocklist']" name="privacy.allow_blocklist">
         {{ $t('settings.privacy.allowBlocklist') }}
-      </b-switch>
-    </b-field>
+      </oat-switch>
+    </oat-field>
 
-    <b-field :message="$t('settings.privacy.allowPrefsHelp')">
-      <b-switch v-model="data['privacy.allow_preferences']" name="privacy.allow_blocklist">
+    <oat-field :message="$t('settings.privacy.allowPrefsHelp')">
+      <oat-switch v-model="data['privacy.allow_preferences']" name="privacy.allow_blocklist">
         {{ $t('settings.privacy.allowPrefs') }}
-      </b-switch>
-    </b-field>
+      </oat-switch>
+    </oat-field>
 
-    <b-field :message="$t('settings.privacy.allowExportHelp')">
-      <b-switch v-model="data['privacy.allow_export']" name="privacy.allow_export">
+    <oat-field :message="$t('settings.privacy.allowExportHelp')">
+      <oat-switch v-model="data['privacy.allow_export']" name="privacy.allow_export">
         {{ $t('settings.privacy.allowExport') }}
-      </b-switch>
-    </b-field>
+      </oat-switch>
+    </oat-field>
 
-    <b-field :message="$t('settings.privacy.allowWipeHelp')">
-      <b-switch v-model="data['privacy.allow_wipe']" name="privacy.allow_wipe">
+    <oat-field :message="$t('settings.privacy.allowWipeHelp')">
+      <oat-switch v-model="data['privacy.allow_wipe']" name="privacy.allow_wipe">
         {{ $t('settings.privacy.allowWipe') }}
-      </b-switch>
-    </b-field>
+      </oat-switch>
+    </oat-field>
 
-    <b-field :message="$t('settings.privacy.recordOptinIPHelp')">
-      <b-switch v-model="data['privacy.record_optin_ip']" name="privacy.record_optin_ip">
+    <oat-field :message="$t('settings.privacy.recordOptinIPHelp')">
+      <oat-switch v-model="data['privacy.record_optin_ip']" name="privacy.record_optin_ip">
         {{ $t('settings.privacy.recordOptinIP') }}
-      </b-switch>
-    </b-field>
+      </oat-switch>
+    </oat-field>
 
     <hr />
 
-    <b-tabs v-model="tab" type="is-boxed" :animated="false">
-      <b-tab-item :label="`${$t('settings.privacy.domainBlocklist')} (${numBlocked})`">
-        <b-field :message="$t('settings.privacy.domainBlocklistHelp')">
-          <b-input type="textarea" v-model="data['privacy.domain_blocklist']" name="privacy.domain_blocklist" />
-        </b-field>
-      </b-tab-item>
-      <b-tab-item :label="`${$t('settings.privacy.domainAllowlist')} (${numAllowed})`">
-        <b-field :message="$t('settings.privacy.domainAllowlistHelp')">
-          <b-input type="textarea" v-model="data['privacy.domain_allowlist']" name="privacy.domain_allowlist" />
-        </b-field>
-      </b-tab-item>
-    </b-tabs>
+    <div class="settings-subtabs">
+      <div role="tablist">
+        <button type="button" role="tab" :aria-selected="tab === 0 ? 'true' : 'false'"
+          :class="{ outline: tab !== 0 }" @click="tab = 0">
+          {{ `${$t('settings.privacy.domainBlocklist')} (${numBlocked})` }}
+        </button>
+        <button type="button" role="tab" :aria-selected="tab === 1 ? 'true' : 'false'"
+          :class="{ outline: tab !== 1 }" @click="tab = 1">
+          {{ `${$t('settings.privacy.domainAllowlist')} (${numAllowed})` }}
+        </button>
+      </div>
+
+      <div v-show="tab === 0" role="tabpanel">
+        <oat-field :message="$t('settings.privacy.domainBlocklistHelp')">
+          <textarea aria-label="field" v-model="data['privacy.domain_blocklist']" name="privacy.domain_blocklist" />
+        </oat-field>
+      </div>
+      <div v-show="tab === 1" role="tabpanel">
+        <oat-field :message="$t('settings.privacy.domainAllowlistHelp')">
+          <textarea aria-label="field" v-model="data['privacy.domain_allowlist']" name="privacy.domain_allowlist" />
+        </oat-field>
+      </div>
+    </div>
   </div>
 </template>
 

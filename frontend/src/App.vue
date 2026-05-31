@@ -231,5 +231,6 @@ export default Vue.extend({
 
 <style lang="scss">
 @import "assets/style.scss";
+@import "assets/vendor/oat.min.css";
 @import "assets/icons/fontello.css";
 </style>
