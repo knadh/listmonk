@@ -1,13 +1,13 @@
 <template>
   <section class="users">
     <header class="row page-header">
-      <div class="col-10">
+      <div class="col-8">
         <h1>
           {{ $t('globals.terms.users') }}
           <span v-if="!isNaN(users.length)">({{ users.length }})</span>
         </h1>
       </div>
-      <div class="col-12 align-right">
+      <div class="col-4 col-end align-right">
         <oat-field v-if="$can('users:manage')">
           <button type="button" data-variant="primary" class="btn-new" @click="showNewForm" data-cy="btn-new">
             {{ $t('globals.buttons.new') }}

@@ -1,7 +1,7 @@
 <template>
   <section class="campaign">
     <header class="row page-header">
-      <div class="col-6">
+      <div class="col-8">
         <p v-if="isEditing && data.status" class="hstack">
           <oat-badge v-if="isEditing" :type="data.status">
             {{ $t(`campaigns.status.${data.status}`) }}
@@ -22,8 +22,8 @@
         </h4>
       </div>
 
-      <div class="col-6">
-        <div v-if="canManage || canSend" class="hstack">
+      <div class="col-4 col-end align-right">
+        <div v-if="canManage || canSend" class="hstack justify-end">
           <oat-field v-if="isEditing && canEdit">
             <oat-field v-if="canManage">
               <button type="button" @click="() => onSubmit('update')" :loading="loading.campaigns" data-variant="primary"

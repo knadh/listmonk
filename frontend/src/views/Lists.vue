@@ -1,7 +1,7 @@
 <template>
   <section class="lists">
     <header class="row page-header">
-      <div class="col-10">
+      <div class="col-8">
         <h1 class="mb-2">
           {{ $t('globals.terms.lists') }}
           <span v-if="queryParams.status === 'archived'" class="text-lighter">/ {{ queryParams.status }} </span>
@@ -17,7 +17,7 @@
           </router-link>
         </div>
       </div>
-      <div class="col-12 align-right">
+      <div class="col-4 col-end align-right">
         <oat-field v-if="$can('lists:manage_all')">
           <button type="button" data-variant="primary" class="btn-new" @click="showNewForm" data-cy="btn-new">
             {{ $t('globals.buttons.new') }}

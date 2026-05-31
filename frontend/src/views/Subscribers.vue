@@ -1,7 +1,7 @@
 <template>
   <section class="subscribers">
     <header class="row page-header">
-      <div class="col-10">
+      <div class="col-8">
         <h1>
           {{ $t('globals.terms.subscribers') }}
           <span v-if="!isNaN(subscribers.total)">
@@ -14,7 +14,7 @@
           </span>
         </h1>
       </div>
-      <div class="col-12 align-right">
+      <div class="col-4 col-end align-right">
         <oat-field v-if="$can('subscribers:manage')">
           <button type="button" data-variant="primary" @click="showNewForm" data-cy="btn-new" class="btn-new">
             {{ $t('globals.buttons.new') }}

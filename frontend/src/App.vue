@@ -218,6 +218,7 @@ export default Vue.extend({
 <style>
 @import "assets/vendor/oat.min.css";
 @import "assets/icons/fontello.css";
+@import "assets/style.css";
 
 html,
 body {

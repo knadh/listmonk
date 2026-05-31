@@ -1,13 +1,13 @@
 <template>
   <section class="roles">
     <header class="row page-header">
-      <div class="col-10">
+      <div class="col-8">
         <h1>
           {{ $t(isUser ? 'users.userRoles' : 'users.listRoles') }}
           <span v-if="!isNaN(roles.length)">({{ roles.length }})</span>
         </h1>
       </div>
-      <div class="col-12 align-right">
+      <div class="col-4 col-end align-right">
         <oat-field v-if="$can('users:manage')">
           <button type="button" data-variant="primary" class="btn-new" @click="showNewForm('user')"
             data-cy="btn-new">
