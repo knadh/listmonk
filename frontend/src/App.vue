@@ -4,12 +4,19 @@
       <nav data-topnav>
         <div class="row">
           <div class="col-4 branding">
-            <button data-sidebar-toggle type="button" class="small outline" aria-label="Toggle menu">
-              <oat-icon icon="menu" />
+            <button data-sidebar-toggle type="button" aria-label="Toggle sidebar menu" class="small">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" role="img" aria-label="Menu icon">
+                <line x1="4" y1="7" x2="20" y2="7" />
+                <line x1="4" y1="12" x2="20" y2="12" />
+                <line x1="4" y1="17" x2="16" y2="17" />
+              </svg>
             </button>
+            <router-link :to="{ name: 'dashboard' }" class="favicon">
+              <img src="@/assets/favicon.png" alt="listmonk" />
+            </router-link>
             <router-link :to="{ name: 'dashboard' }" class="logo">
-              <img class="full" src="@/assets/logo.svg" alt="listmonk" />
-              <img class="favicon" src="@/assets/favicon.png" alt="listmonk" />
+              <img src="@/assets/logo.svg" alt="listmonk" />
             </router-link>
           </div>
 
@@ -220,73 +227,4 @@ export default Vue.extend({
 @import "assets/vendor/oat.min.css";
 @import "assets/icons/fontello.css";
 @import "assets/style.css";
-
-html,
-body {
-  height: 100%;
-}
-
-body[data-sidebar-layout] {
-  display: block;
-}
-
-#app {
-  min-height: 100dvh;
-}
-
-.branding {
-  align-items: center;
-  display: flex;
-  gap: var(--space-3);
-}
-
-.logo img.full {
-  height: 34px;
-}
-
-.logo img.favicon {
-  display: none;
-  height: 28px;
-}
-
-.user-trigger {
-  gap: var(--space-2);
-}
-
-.user-avatar img,
-.user-avatar span {
-  align-items: center;
-  border-radius: 50%;
-  display: inline-flex;
-  height: 32px;
-  justify-content: center;
-  width: 32px;
-}
-
-.user-avatar span {
-  background: var(--muted);
-  font-weight: 700;
-}
-
-.user-label {
-  max-width: 12rem;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.global-notices {
-  display: grid;
-  gap: var(--space-2);
-  margin-block-end: var(--space-4);
-}
-
-.spaced-links {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-2);
-}
-
-.disabled {
-  opacity: 0.4;
-}
 </style>
