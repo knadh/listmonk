@@ -68,7 +68,7 @@
                 </oat-field>
               </div>
             </div><!-- auth -->
-            <div class="spaced-links">
+            <div class="spaced-links text-7">
               <a href="#" @click.prevent="() => fillSettings(n, 'gmail')">Gmail</a>
               <a href="#" @click.prevent="() => fillSettings(n, 'ses')">Amazon SES</a>
               <a href="#" @click.prevent="() => fillSettings(n, 'azure')">Azure ACS</a>

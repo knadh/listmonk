@@ -2,7 +2,7 @@
   <form @submit.prevent="onSubmit">
     <div class="dialog-card content" style="width: auto">
       <header class="dialog-head">
-        <p v-if="isEditing" class="text-lighter ">
+        <p v-if="isEditing" class="text-lighter text-7 ">
           {{ $t('globals.fields.id') }}: <copy-text :text="`${data.id}`" />
         </p>
         <h4 v-if="isEditing">

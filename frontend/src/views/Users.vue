@@ -49,7 +49,7 @@
           <oat-icon icon="code" />
           {{ $t(`users.type.${props.row.type}`) }}
         </oat-badge>
-        <div class="text-light  mt-2">
+        <div class="text-light text-7 mt-2">
           {{ props.row.name }}
         </div>
       </oat-table-column>

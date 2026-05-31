@@ -4,11 +4,11 @@
       <div class="col-8">
         <h1 class="mb-2">
           {{ $t('globals.terms.lists') }}
-          <span v-if="queryParams.status === 'archived'" class="text-lighter">/ {{ queryParams.status }} </span>
+          <span v-if="queryParams.status === 'archived'" class="text-lighter text-7">/ {{ queryParams.status }} </span>
           <span v-if="!isNaN(lists.total)">({{ lists.total }})</span>
         </h1>
 
-        <div class="">
+        <div class="text-7">
           <router-link v-if="queryParams.status !== 'archived'" :to="{ name: 'lists', query: { status: 'archived' } }">
             {{ $t('globals.buttons.view') }} {{ $t('lists.archived').toLowerCase() }} &rarr;
           </router-link>
@@ -89,7 +89,7 @@
             {{ $t(`lists.optins.${props.row.optin}`) }}
           </oat-badge>{{ ' ' }}
 
-          <a v-if="props.row.optin === 'double'" class=" send-optin" href="#"
+          <a v-if="props.row.optin === 'double'" class="text-7 send-optin" href="#"
             @click="$utils.confirm(null, () => createOptinCampaign(props.row))" data-cy="btn-send-optin-campaign">
 
               <oat-icon icon="rocket-launch-outline" />
@@ -104,7 +104,7 @@
         <template v-if="$can('subscribers:get_all', 'subscribers:get')">
           <router-link :to="`/subscribers/lists/${props.row.id}`">
             {{ $utils.formatNumber(props.row.subscriberCount) }}
-            <span class=" view">{{ $t('globals.buttons.view') }}</span>
+            <span class="text-7 view">{{ $t('globals.buttons.view') }}</span>
           </router-link>
         </template>
         <template v-else>
@@ -170,10 +170,10 @@
       <list-form :data="curItem" :is-editing="isEditing" @finished="formFinished" />
     </oat-modal>
 
-    <p v-if="settings['app.cache_slow_queries']" class="text-light">
+    <p v-if="settings['app.cache_slow_queries']" class="text-light text-7">
       *{{ $t('globals.messages.slowQueriesCached') }}
       <a href="https://listmonk.app/docs/maintenance/performance/" target="_blank" rel="noopener noreferer"
-        class="text-light">
+        class="text-light text-7">
         <oat-icon icon="link-variant" /> {{ $t('globals.buttons.learnMore') }}
       </a>
     </p>

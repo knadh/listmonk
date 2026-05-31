@@ -2,13 +2,13 @@
   <form @submit.prevent="onSubmit">
     <div class="dialog-card content" style="width: auto">
       <header class="dialog-head">
-        <p v-if="isEditing" class="text-lighter ">
+        <p v-if="isEditing" class="text-lighter text-7 ">
           {{ $t('globals.fields.id') }}: <copy-text :text="`${data.id}`" />
           {{ $t('globals.fields.uuid') }}: <copy-text :text="data.uuid" />
         </p>
-        <span v-if="isEditing" :class="[data.type, 'align-right']">
+        <oat-badge v-if="isEditing" :type="data.type" class="align-right">
           {{ $t(`lists.types.${data.type}`) }}
-        </span>
+        </oat-badge>
         <h4 v-if="isEditing">
           {{ data.name }}
         </h4>

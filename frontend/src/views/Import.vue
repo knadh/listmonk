@@ -123,7 +123,7 @@
       <progress :value="progress" data-variant="primary" />
       <br />
       <p
-        :class="['', '', { 'success': status.status === 'finished' }, { 'error': (status.status === 'failed' || status.status === 'stopped') }]">
+        :class="['text-5', 'capitalize', { 'text-success': status.status === 'finished' }, { 'text-danger': (status.status === 'failed' || status.status === 'stopped') }]">
         {{ status.status }}
       </p>
 

@@ -25,7 +25,7 @@
           {{ $t('templates.default') }}
         </span>
 
-        <p class=" text-light" v-if="props.row.type === 'tx'">
+        <p class="text-light text-7" v-if="props.row.type === 'tx'">
           {{ props.row.subject }}
         </p>
       </oat-table-column>

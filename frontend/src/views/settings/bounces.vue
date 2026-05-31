@@ -48,7 +48,7 @@
           :native-value="true" data-cy="btn-enable-bounce-webhook">
           {{ $t('settings.bounces.enableWebhooks') }}
         </oat-switch>
-        <p class="text-light">
+        <p class="text-light text-7">
           <a href="https://listmonk.app/docs/bounces" target="_blank" rel="noopener noreferer">{{
             $t('globals.buttons.learnMore') }} &rarr;</a>
         </p>

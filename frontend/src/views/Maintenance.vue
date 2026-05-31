@@ -4,13 +4,13 @@
       {{ $t('maintenance.title') }}
     </h1>
     <hr />
-    <p class="text-light">
+    <p class="text-light text-7">
       {{ $t('maintenance.help') }}
     </p>
     <br />
 
     <div class="card">
-      <h4 class="">
+      <h4 class="text-4">
         {{ $t('globals.terms.subscribers') }}
       </h4><br />
       <div class="row">
@@ -39,7 +39,7 @@
     </div><!-- subscribers -->
 
     <div class="card mt-6">
-      <h4 class="">
+      <h4 class="text-4">
         {{ $tc('globals.terms.subscriptions', 2) }}
       </h4><br />
       <div class="row">
@@ -70,7 +70,7 @@
     </div><!-- subscriptions -->
 
     <div class="card mt-6">
-      <h4 class="">
+      <h4 class="text-4">
         {{ $t('globals.terms.analytics') }}
       </h4><br />
       <div class="row">
@@ -106,7 +106,7 @@
       </div>
 
       <hr />
-      <h5 class="">
+      <h5 class="text-5">
         {{ $t('subscribers.export') }}
       </h5>
       <br />
@@ -142,11 +142,11 @@
     </div><!-- analytics -->
 
     <form @submit.prevent="onUpdateDBSettings" class="card mt-6">
-      <h4 class="">
+      <h4 class="text-4">
         {{ $t('maintenance.database.title') }}
       </h4><br />
-      <h5 class="">Vacuum</h5>
-      <p class="text-light ">
+      <h5 class="text-5">Vacuum</h5>
+      <p class="text-light text-7 ">
         {{ $t('maintenance.database.vacuumHelp') }}
       </p>
       <br />

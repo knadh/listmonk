@@ -54,7 +54,7 @@
             <oat-loading v-if="v.loading" :active="v.loading" :is-full-page="false" />
             <h4 v-if="v.chart !== null">
               {{ v.name }}
-              <span class="text-lighter">({{ $utils.niceNumber(counts[k]) }})</span>
+              <span class="text-lighter text-7">({{ $utils.niceNumber(counts[k]) }})</span>
             </h4>
             <chart :type="v.type" v-if="!v.loading" :data="v.data" :on-click="v.onClick" />
           </div>

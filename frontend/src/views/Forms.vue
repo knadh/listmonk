@@ -36,7 +36,7 @@
 
         <hr />
         <h4>{{ $t('forms.redirectURL') }}</h4>
-        <p class=" text-light">
+        <p class="text-light text-7">
           {{ $t('forms.redirectURLHelp') }}
         </p>
         <ul v-if="redirectURLs.length > 0" class="no" data-cy="redirect-urls">

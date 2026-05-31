@@ -42,7 +42,7 @@
               <router-link :to="{ name: 'campaign', params: { id: props.row.id } }">
                 {{ props.row.name }}
               </router-link>
-              <p class=" text-light">{{ props.row.subject }}</p>
+              <p class="text-light text-7">{{ props.row.subject }}</p>
             </div>
             <div v-else>
               <em class="text-light">{{ $t('subscribers.activity.campaignDeleted') }}</em>

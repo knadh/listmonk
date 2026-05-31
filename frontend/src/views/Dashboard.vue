@@ -21,8 +21,8 @@
               {{ nice(counts.lists.total) }}
             </div>
             <small class="text-light hstack gap-2">
-              <span class="badge success">{{ nice(counts.lists.public) }} {{ $t('lists.types.public') }}</span>
-              <span class="badge secondary">{{ nice(counts.lists.private) }} {{ $t('lists.types.private') }}</span>
+              <span class="badge public">{{ nice(counts.lists.public) }} {{ $t('lists.types.public') }}</span>
+              <span class="badge private">{{ nice(counts.lists.private) }} {{ $t('lists.types.private') }}</span>
             </small>
           </header>
         </article>
@@ -37,7 +37,7 @@
               {{ nice(counts.subscribers.total) }}
             </div>
             <small class="text-light hstack gap-2">
-              <span class="badge danger">{{ nice(counts.subscribers.blocklisted) }} {{ $t('subscribers.status.blocklisted') }}</span>
+              <span class="badge blocklisted">{{ nice(counts.subscribers.blocklisted) }} {{ $t('subscribers.status.blocklisted') }}</span>
               <span class="badge outline">{{ nice(counts.subscribers.orphans) }} {{ $t('dashboard.orphanSubs') }}</span>
             </small>
           </header>
@@ -53,7 +53,7 @@
               {{ nice(counts.campaigns.total) }}
             </div>
             <small class="text-light hstack gap-2">
-              <span v-for="status in primaryCampaignStatuses" :key="status" :class="['badge', statusVariant(status)]">
+              <span v-for="status in primaryCampaignStatuses" :key="status" :class="['badge', status]">
                 {{ statusCount(status) }} {{ $t(`campaigns.status.${status}`) }}
               </span>
             </small>
@@ -110,7 +110,7 @@
         <article class="card">
           <header>
             <h3>{{ $tc('globals.terms.campaign', 2) }}</h3>
-            <p class="text-light">{{ $t('globals.fields.status') }}</p>
+            <p class="text-light text-7">{{ $t('globals.fields.status') }}</p>
           </header>
           <div class="table">
             <table>
@@ -123,7 +123,7 @@
               <tbody>
                 <tr v-for="(num, status) in campaignStatuses" :key="status">
                   <td>
-                    <span :class="['badge', statusVariant(status)]">
+                    <span :class="['badge', status]">
                       {{ $t(`campaigns.status.${status}`) }}
                     </span>
                   </td>
@@ -139,31 +139,31 @@
         <article class="card">
           <header>
             <h3>{{ $tc('globals.terms.list', 2) }}</h3>
-            <p class="text-light">{{ $t('globals.fields.type') }} / {{ $t('lists.optin') }}</p>
+            <p class="text-light text-7">{{ $t('globals.fields.type') }} / {{ $t('lists.optin') }}</p>
           </header>
           <div class="dashboard-mix">
             <div>
               <div class="hstack justify-between">
                 <strong>{{ $t('lists.types.public') }}</strong>
-                <span class="badge success">{{ nice(counts.lists.public) }}</span>
+                <span class="badge public">{{ nice(counts.lists.public) }}</span>
               </div>
             </div>
             <div>
               <div class="hstack justify-between">
                 <strong>{{ $t('lists.types.private') }}</strong>
-                <span class="badge secondary">{{ nice(counts.lists.private) }}</span>
+                <span class="badge private">{{ nice(counts.lists.private) }}</span>
               </div>
             </div>
             <div>
               <div class="hstack justify-between">
                 <strong>{{ $t('lists.optins.single') }}</strong>
-                <span class="badge secondary">{{ nice(counts.lists.optinSingle) }}</span>
+                <span class="badge single">{{ nice(counts.lists.optinSingle) }}</span>
               </div>
             </div>
             <div>
               <div class="hstack justify-between">
                 <strong>{{ $t('lists.optins.double') }}</strong>
-                <span class="badge warning">{{ nice(counts.lists.optinDouble) }}</span>
+                <span class="badge double">{{ nice(counts.lists.optinDouble) }}</span>
               </div>
             </div>
           </div>
@@ -259,18 +259,6 @@ export default Vue.extend({
 
     statusCount(status) {
       return this.nice(this.counts.campaigns.byStatus?.[status]);
-    },
-
-    statusVariant(status) {
-      const variants = {
-        finished: 'success',
-        running: 'warning',
-        scheduled: 'warning',
-        draft: 'secondary',
-        paused: 'warning',
-        cancelled: 'danger',
-      };
-      return variants[status] || 'outline';
     },
 
     chartTotal(chart) {

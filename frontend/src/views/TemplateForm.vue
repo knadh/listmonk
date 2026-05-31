@@ -9,7 +9,7 @@
 
           <template v-if="isEditing">
             <h4>{{ data.name }}</h4>
-            <p class="text-light ">
+            <p class="text-light text-7 ">
               {{ $t('globals.fields.id') }}: <span data-cy="id"><copy-text :text="`${data.id}`" /></span>
             </p>
           </template>
@@ -61,7 +61,7 @@
             </oat-field>
           </template>
 
-          <p class="">
+          <p class="text-7">
             <template v-if="form.type === 'campaign'">
               {{ $t('templates.placeholderHelp', { placeholder: egPlaceholder }) }}
             </template>

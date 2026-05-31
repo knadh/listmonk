@@ -2,7 +2,7 @@
   <form @submit.prevent="onSubmit">
     <div class="dialog-card content" style="width: auto">
       <header class="dialog-head">
-        <p v-if="isEditing" class="text-lighter ">
+        <p v-if="isEditing" class="text-lighter text-7 ">
           {{ $t('globals.fields.id') }}: <copy-text :text="`${data.id}`" />
         </p>
         <h4 v-if="isEditing">
@@ -41,7 +41,7 @@
             </div>
             <span
               v-if="form.lists.length > 0 && (form.permissions['lists:get_all'] || form.permissions['lists:manage_all'])"
-              class=" error">
+              class="text-danger text-6">
               <oat-icon icon="warning-empty" />
               {{ $t('users.listPermsWarning') }}
             </span>

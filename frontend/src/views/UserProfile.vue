@@ -5,7 +5,7 @@
     <h1>
       @{{ data.username }}
     </h1>
-    <span v-if="data.userRole">{{ data.userRole.name }}</span>
+    <span v-if="data.userRole" class="badge">{{ data.userRole.name }}</span>
 
     <br /><br /><br />
     <form @submit.prevent="onSubmit">
@@ -60,7 +60,7 @@
         <!-- TOTP setup -->
         <div v-if="isTotpVisible" class="totp-setup">
           <div v-if="totpQR" class="qr-app-section">
-            <p class="text-light">{{ $t('users.totpScanQR') }}</p><br />
+            <p class="text-light text-7">{{ $t('users.totpScanQR') }}</p><br />
 
             <img :src="'data:image/png;base64,' + totpQR" alt="QR Code" />
 

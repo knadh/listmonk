@@ -15,7 +15,7 @@
               placeholder="https://login.yoursite.com" :disabled="!data['security.oidc']['enabled']" :maxlength="300"
               required type="url" pattern="https?://.*">
 
-            <div class="spaced-links mt-2" :class="{ disabled: !data['security.oidc']['enabled'] }">
+            <div class="spaced-links text-7 mt-2" :class="{ disabled: !data['security.oidc']['enabled'] }">
               <a href="#" @click.prevent="() => setProvider('google')">Google</a>
               <a href="#" @click.prevent="() => setProvider('microsoft')">Microsoft</a>
               <a href="#" @click.prevent="() => setProvider('apple')">Apple</a>
@@ -75,7 +75,7 @@
         <oat-field :label="$t('settings.security.OIDCRedirectURL')">
           <code><copy-text :text="`${serverConfig.root_url}/auth/oidc`" /></code>
         </oat-field>
-        <p v-if="data['security.oidc']['enabled'] && !isURLOk" class="error">
+        <p v-if="data['security.oidc']['enabled'] && !isURLOk" class="text-danger">
           <oat-icon icon="warning-empty" />
           {{ $t('settings.security.OIDCRedirectWarning') }}
         </p>

@@ -85,7 +85,7 @@
       </oat-table-column>
 
       <template #detail="props">
-        <pre class="">{{ props.row.meta }}</pre>
+        <pre class="text-7">{{ props.row.meta }}</pre>
       </template>
 
       <template #empty v-if="!loading.templates">

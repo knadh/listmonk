@@ -9,7 +9,7 @@
           <oat-badge v-if="data.type === 'optin'" :type="data.type">
             {{ $t('lists.optin') }}
           </oat-badge>
-          <span v-if="isEditing" class="text-lighter " :data-campaign-id="data.id">
+          <span v-if="isEditing" class="text-lighter text-7 " :data-campaign-id="data.id">
             {{ $t('globals.fields.id') }}: <copy-text :text="`${data.id}`" />
             {{ $t('globals.fields.uuid') }}: <copy-text :text="data.uuid" />
           </span>
@@ -186,7 +186,7 @@
 
         <div class="row">
           <div class="col-6">
-            <p v-if="!isAttachFieldVisible" class=" text-light">
+            <p v-if="!isAttachFieldVisible" class="text-light text-7">
               <a href="#" @click.prevent="onShowAttachField()" data-cy="btn-attach">
                 <oat-icon icon="file-upload-outline" />
                 {{ $t('campaigns.addAttachments') }}
@@ -203,7 +203,7 @@
             <a href="https://listmonk.app/docs/templating/#template-expressions" target="_blank"
               rel="noopener noreferer">
               <oat-icon icon="code" /> {{ $t('campaigns.templatingRef') }}</a>
-            <span v-if="canEdit && form.content.contentType !== 'plain'" class=" text-light ml-6">
+            <span v-if="canEdit && form.content.contentType !== 'plain'" class="text-light text-7 ml-6">
               <a v-if="form.altbody === null" href="#" @click.prevent="onAddAltBody">
                 <oat-icon icon="text" /> {{ $t('campaigns.addAltText') }}
               </a>

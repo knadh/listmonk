@@ -3,7 +3,7 @@
     <h1>
       {{ $t('media.title') }}
       <span v-if="media.results && media.results.length > 0">({{ media.results.length }})</span>
-      <span class="text-lighter"> / {{ serverConfig.media_provider }}</span>
+      <span class="text-lighter text-7"> / {{ serverConfig.media_provider }}</span>
     </h1>
 
     <oat-loading :active="isProcessing || loading.media" />

@@ -9,7 +9,7 @@
           </span>
           <span v-if="currentList">
             &raquo; {{ currentList.name }}
-            <span v-if="queryParams.subStatus" class="text-light  ">({{
+            <span v-if="queryParams.subStatus" class="text-light text-7 ">({{
               queryParams.subStatus }})</span>
           </span>
         </h1>
@@ -42,7 +42,7 @@
                 <textarea aria-label="field" v-model="queryParams.queryExp" @keydown.native.enter="onAdvancedQueryEnter"
                   ref="queryExp" placeholder="subscribers.name LIKE '%user%' or subscribers.status='blocklisted'"
                   data-cy="query" />
-                <span class=" text-light">
+                <span class="text-light text-7">
                   {{ $t('subscribers.advancedQueryHelp') }}.{{ ' ' }}
                   <a href="https://listmonk.app/docs/querying-and-segmentation" target="_blank"
                     rel="noopener noreferrer">

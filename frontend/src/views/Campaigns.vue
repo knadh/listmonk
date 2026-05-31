@@ -68,7 +68,7 @@
             </router-link>
           </p>
           <p v-if="isSheduled(props.row)">
-            <span class=" text-light scheduled">
+            <span class="text-light text-7 scheduled">
               <oat-icon icon="alarm" />
               <span v-if="!isDone(props.row) && !isRunning(props.row)">
                 {{ $utils.duration(new Date(), props.row.sendAt, true) }}
@@ -91,7 +91,7 @@
               <copy-text :text="props.row.name" hide-text />
             </router-link>
           </p>
-          <p class=" text-light">
+          <p class="text-light text-7">
             <copy-text :text="props.row.subject" />
           </p>
           <span class="badge-list hstack gap-1">
@@ -125,7 +125,7 @@
             <label for="#">{{ $t('campaigns.ended') }}</label>
             <span>{{ $utils.niceDate(stats.updatedAt, true) }}</span>
           </p>
-          <p v-if="stats.startedAt && stats.updatedAt" class="">
+          <p v-if="stats.startedAt && stats.updatedAt" class="capitalize">
             <label for="#"><oat-icon icon="alarm" /></label>
             <span>{{ $utils.duration(stats.startedAt, stats.updatedAt) }}</span>
           </p>

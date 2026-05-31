@@ -45,8 +45,9 @@ export default {
   },
   computed: {
     badgeClass() {
-      const key = (this.type || '').replace(/-/g, '_');
-      return ['badge', this.variant || variantMap[key] || 'outline'];
+      const typeClass = (this.type || '').trim();
+      const key = typeClass.replace(/-/g, '_');
+      return ['badge', typeClass, key !== typeClass ? key : null, this.variant || variantMap[key] || 'outline'];
     },
   },
 };

@@ -37,7 +37,7 @@
     <hr />
 
     <div>
-      <h2>
+      <h2 class="text-4 mb-5">
         {{ $tc('globals.terms.subscriptions', 2) }}
       </h2>
       <oat-field :message="$t('settings.general.enablePublicSubPageHelp')">
@@ -59,7 +59,7 @@
     <hr />
 
     <div>
-      <h2>
+      <h2 class="text-4 mb-5">
         {{ $t('campaigns.archive') }}
       </h2>
       <oat-field :message="$t('settings.general.enablePublicArchiveHelp')">

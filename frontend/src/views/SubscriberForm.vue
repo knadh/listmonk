@@ -2,9 +2,9 @@
   <form @submit.prevent="onSubmit">
     <div class="dialog-card content" style="width: auto">
       <header class="dialog-head">
-        <span v-if="isEditing" :class="[data.status, 'align-right']">
+        <oat-badge v-if="isEditing" :type="data.status" class="align-right">
           {{ $t(`subscribers.status.${data.status}`) }}
-        </span>
+        </oat-badge>
         <h4 v-if="isEditing">
           {{ data.name }}
         </h4>
@@ -12,7 +12,7 @@
           {{ $t('subscribers.newSubscriber') }}
         </h4>
 
-        <p v-if="isEditing" class="text-light ">
+        <p v-if="isEditing" class="text-light text-7 ">
           {{ $t('globals.fields.id') }}: <span data-cy="id"><copy-text :text="`${data.id}`" /></span>
           {{ $t('globals.fields.uuid') }}: <copy-text :text="data.uuid" />
         </p>
@@ -75,7 +75,7 @@
                     <router-link v-if="!props.row.restricted" :to="`/lists/${props.row.id}`">
                       {{ props.row.name }}
                     </router-link>
-                    <span v-else class="text-lighter ">{{ props.row.name }}</span>
+                    <span v-else class="text-lighter text-7 ">{{ props.row.name }}</span>
                     <br />
                     <oat-badge :type="props.row.optin" :data-cy="`optin-${props.row.optin}`">
                       <oat-icon :icon="props.row.optin === 'double' ? 'account-check-outline' : 'account-off-outline'"
@@ -91,7 +91,7 @@
                     {{ $t(`subscribers.status.${props.row.subscriptionStatus}`) }}
                   </oat-badge>
                   <template v-if="props.row.optin === 'double' && props.row.subscriptionMeta.optinIp">
-                    <br /><span class="">{{ props.row.subscriptionMeta.optinIp }}</span>
+                    <br /><span class="text-7">{{ props.row.subscriptionMeta.optinIp }}</span>
                   </template>
                 </oat-table-column>
 
@@ -108,7 +108,7 @@
 
           <oat-tab-item :label="`${$t('globals.terms.bounces')} (${bounces.length})`" class="bounces"
             :disabled="bounces.length === 0">
-            <a href="#" class=" align-right" disabed="true" @click.prevent="deleteBounces"
+            <a href="#" class="text-6 align-right" disabed="true" @click.prevent="deleteBounces"
               v-if="isBounceVisible">
               <oat-icon icon="trash-can-outline" />
               {{ $t('globals.buttons.delete') }}
@@ -134,7 +134,7 @@
                     <oat-icon :icon="visibleMeta[props.row.id] ? 'arrow-up' : 'arrow-down'" />
                   </a>
                 </span>
-                <span class="" />
+                <span class="clearfix" />
                 <pre v-if="visibleMeta[props.row.id]">{{ props.row.meta }}</pre>
               </oat-table-column>
 </oat-data-table>
@@ -149,7 +149,7 @@
           <div>
             <h5>{{ $t('globals.terms.attribs') }}</h5>
             <textarea aria-label="field" v-model="form.strAttribs" name="attribs" />
-            <a href="https://listmonk.app/docs/concepts" target="_blank" rel="noopener noreferrer" class="">
+            <a href="https://listmonk.app/docs/concepts" target="_blank" rel="noopener noreferrer" class="text-7">
               {{ $t('globals.buttons.learnMore') }} <oat-icon icon="link-variant" />
             </a>
           </div>

@@ -3,7 +3,7 @@
     <div :class="['list-tags', ...classes]">
       <span class="badge-list hstack gap-1">
         <span v-for="l in selectedItems" :key="l.id"
-          :class="['badge', 'list', l.restricted ? 'outline' : '', l.subscriptionStatus === 'unsubscribed' ? 'danger' : l.subscriptionStatus === 'unconfirmed' ? 'warning' : 'success']"
+          :class="['badge', 'list', l.subscriptionStatus, l.subscriptionStatus ? `status-${l.subscriptionStatus}` : '', { 'is-restricted': l.restricted }]"
           :closable="!$props.disabled && !l.restricted" :data-id="l.id" @close="removeList(l.id)">
           {{ l.name }}
           <sup v-if="l.optin === 'double' && l.subscriptionStatus">
