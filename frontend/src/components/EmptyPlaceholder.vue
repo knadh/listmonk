@@ -1,8 +1,8 @@
 <template>
-  <section class="section">
-    <div class="content has-text-grey has-text-centered">
+  <section class="app-section">
+    <div class="content text-light align-center">
       <p>
-        <b-icon :icon="!icon ? 'plus' : icon" size="is-large" />
+        <oat-icon :icon="!icon ? 'plus' : icon" />
       </p>
       <p>{{ !label ? $t('globals.messages.emptyState') : label }}</p>
     </div>

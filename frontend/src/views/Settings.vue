@@ -1,64 +1,73 @@
 <template>
   <form @submit.prevent="onSubmit">
     <section class="settings">
-      <b-loading :is-full-page="true" v-if="loading.settings || isLoading" active />
-      <header class="columns page-header">
-        <div class="column is-half">
-          <h1 class="title is-4">
+      <header class="row page-header">
+        <div class="col-8">
+          <h1>
             {{ $t('settings.title') }}
-            <span class="has-text-grey-light">({{ serverConfig.version }})</span>
+            <small>({{ serverConfig.version }})</small>
           </h1>
         </div>
-        <div class="column has-text-right">
-          <b-field v-if="$can('settings:manage')" expanded>
-            <b-button expanded :disabled="!hasFormChanged" type="is-primary" icon-left="content-save-outline"
-              native-type="submit" class="isSaveEnabled" data-cy="btn-save">
+        <div class="col-4 col-end align-right">
+          <oat-field v-if="$can('settings:manage')">
+            <button :disabled="!hasFormChanged" data-variant="primary" type="submit" class="isSaveEnabled"
+              data-cy="btn-save">
+              <oat-icon icon="content-save-outline" />
               {{ $t('globals.buttons.save') }}
-            </b-button>
-          </b-field>
+            </button>
+          </oat-field>
         </div>
       </header>
-      <hr />
 
-      <section class="wrap settings-wrap" v-if="form">
-        <b-tabs class="settings-tabs" vertical :animated="false" v-model="tab">
-          <b-tab-item :label="$t('settings.general.name')">
-            <general-settings :form="form" :key="key" />
-          </b-tab-item><!-- general -->
+      <div class="card page-content" :aria-busy="(loading.settings || isLoading) ? 'true' : null"
+        data-spinner="large overlay">
+        <section class="settings-wrap" v-if="form">
+          <ot-tabs class="settings-tabs" @ot-tab-change="tab = $event.detail.index">
+            <div role="tablist" aria-orientation="vertical">
+              <button v-for="(item, i) in tabs" :key="item.key" type="button" role="tab"
+                :aria-selected="tab === i ? 'true' : 'false'">
+                {{ item.label }}
+              </button>
+            </div>
 
-          <b-tab-item :label="$t('settings.performance.name')">
-            <performance-settings :form="form" :key="key" />
-          </b-tab-item><!-- performance -->
+            <div role="tabpanel">
+              <general-settings :form="form" :key="key" />
+            </div>
 
-          <b-tab-item :label="$t('settings.privacy.name')">
-            <privacy-settings :form="form" :key="key" />
-          </b-tab-item><!-- privacy -->
+            <div role="tabpanel">
+              <performance-settings :form="form" :key="key" />
+            </div>
 
-          <b-tab-item :label="$t('settings.security.name')">
-            <security-settings :form="form" :key="key" />
-          </b-tab-item><!-- security -->
+            <div role="tabpanel">
+              <privacy-settings :form="form" :key="key" />
+            </div>
 
-          <b-tab-item :label="$t('settings.media.title')">
-            <media-settings :form="form" :key="key" />
-          </b-tab-item><!-- media -->
+            <div role="tabpanel">
+              <security-settings :form="form" :key="key" />
+            </div>
 
-          <b-tab-item :label="$t('settings.smtp.name')">
-            <smtp-settings :form="form" :key="key" />
-          </b-tab-item><!-- mail servers -->
+            <div role="tabpanel">
+              <media-settings :form="form" :key="key" />
+            </div>
 
-          <b-tab-item :label="$t('settings.bounces.name')">
-            <bounce-settings :form="form" :key="key" />
-          </b-tab-item><!-- bounces -->
+            <div role="tabpanel">
+              <smtp-settings :form="form" :key="key" />
+            </div>
 
-          <b-tab-item :label="$t('settings.messengers.name')">
-            <messenger-settings :form="form" :key="key" />
-          </b-tab-item><!-- messengers -->
+            <div role="tabpanel">
+              <bounce-settings :form="form" :key="key" />
+            </div>
 
-          <b-tab-item :label="$t('settings.appearance.name')">
-            <appearance-settings :form="form" :key="key" />
-          </b-tab-item><!-- appearance -->
-        </b-tabs>
-      </section>
+            <div role="tabpanel">
+              <messenger-settings :form="form" :key="key" />
+            </div>
+
+            <div role="tabpanel">
+              <appearance-settings :form="form" :key="key" />
+            </div>
+          </ot-tabs>
+        </section>
+      </div>
     </section>
   </form>
 </template>
@@ -109,7 +118,7 @@ export default Vue.extend({
     async onSubmit() {
       const form = JSON.parse(JSON.stringify(this.form));
 
-      // SMTP boxes.
+      // SMTP cardes.
       let hasDummy = '';
       for (let i = 0; i < form.smtp.length; i += 1) {
         // trim the host before saving
@@ -129,15 +138,15 @@ export default Vue.extend({
         }
       }
 
-      // Bounces boxes.
-      for (let i = 0; i < form['bounce.mailboxes'].length; i += 1) {
+      // Bounces cardes.
+      for (let i = 0; i < form['bounce.mailcardes'].length; i += 1) {
         // trim the host before saving
-        form['bounce.mailboxes'][i].host = form['bounce.mailboxes'][i].host?.trim();
+        form['bounce.mailcardes'][i].host = form['bounce.mailcardes'][i].host?.trim();
 
         // If it's the dummy UI password placeholder, ignore it.
-        if (this.isDummy(form['bounce.mailboxes'][i].password)) {
-          form['bounce.mailboxes'][i].password = '';
-        } else if (this.hasDummy(form['bounce.mailboxes'][i].password)) {
+        if (this.isDummy(form['bounce.mailcardes'][i].password)) {
+          form['bounce.mailcardes'][i].password = '';
+        } else if (this.hasDummy(form['bounce.mailcardes'][i].password)) {
           hasDummy = `bounce #${i + 1}`;
         }
       }
@@ -200,7 +209,7 @@ export default Vue.extend({
       }
 
       if (hasDummy) {
-        this.$utils.toast(this.$t('globals.messages.passwordChangeFull', { name: hasDummy }), 'is-danger');
+        this.$utils.toast(this.$t('globals.messages.passwordChangeFull', { name: hasDummy }), '');
         return false;
       }
 
@@ -261,6 +270,20 @@ export default Vue.extend({
 
   computed: {
     ...mapState(['serverConfig', 'loading']),
+
+    tabs() {
+      return [
+        { key: 'general', label: this.$t('settings.general.name') },
+        { key: 'performance', label: this.$t('settings.performance.name') },
+        { key: 'privacy', label: this.$t('settings.privacy.name') },
+        { key: 'security', label: this.$t('settings.security.name') },
+        { key: 'media', label: this.$t('settings.media.title') },
+        { key: 'smtp', label: this.$t('settings.smtp.name') },
+        { key: 'bounces', label: this.$t('settings.bounces.name') },
+        { key: 'messengers', label: this.$t('settings.messengers.name') },
+        { key: 'appearance', label: this.$t('settings.appearance.name') },
+      ];
+    },
 
     hasFormChanged() {
       if (!this.formCopy) {
