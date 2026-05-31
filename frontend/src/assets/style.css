@@ -55,6 +55,7 @@ a {
 .p-6 { padding: var(--space-6); }
 .py-6 { padding-block: var(--space-6); }
 .pb-0 { padding-block-end: 0; }
+.float-right { float: right; }
 
 .clearfix::after {
     clear: both;
