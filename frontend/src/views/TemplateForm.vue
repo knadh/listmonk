@@ -1,15 +1,15 @@
 <template>
   <section>
     <form @submit.prevent="onSubmit">
-      <div class="modal-card content template-modal-content" style="width: auto">
-        <header class="modal-card-head">
-          <b-button @click="onTogglePreview" class="is-pulled-right" type="is-primary" icon-left="file-find-outline">
+      <div class="dialog-card content template-modal-content" style="width: auto">
+        <header class="dialog-head">
+          <button type="button" @click="onTogglePreview" class="align-right" data-variant="primary">
             {{ $t('templates.preview') }} (F9)
-          </b-button>
+          </button>
 
           <template v-if="isEditing">
             <h4>{{ data.name }}</h4>
-            <p class="has-text-grey is-size-7">
+            <p class="text-light text-7 ">
               {{ $t('globals.fields.id') }}: <span data-cy="id"><copy-text :text="`${data.id}`" /></span>
             </p>
           </template>
@@ -17,17 +17,17 @@
             {{ $t('templates.newTemplate') }}
           </h4>
         </header>
-        <section expanded class="modal-card-body mb-0 pb-0">
-          <div class="columns">
-            <div class="column is-9">
-              <b-field :label="$t('globals.fields.name')" label-position="on-border">
-                <b-input :maxlength="200" :ref="'focus'" v-model="form.name" name="name"
-                  :placeholder="$t('globals.fields.name')" required />
-              </b-field>
+        <section class="dialog-body mb-0 pb-0">
+          <div class="row">
+            <div class="col-9">
+              <oat-field :label="$t('globals.fields.name')">
+                <input aria-label="field" :maxlength="200" :ref="'focus'" v-model="form.name" name="name"
+                  :placeholder="$t('globals.fields.name')" required>
+              </oat-field>
             </div>
-            <div class="column is-3">
-              <b-field :label="$t('globals.fields.type')" label-position="on-border">
-                <b-select v-model="form.type" :disabled="isEditing" expanded>
+            <div class="col-3">
+              <oat-field :label="$t('globals.fields.type')">
+                <select aria-label="field" v-model="form.type" :disabled="isEditing">
                   <option value="campaign">
                     {{ $tc('templates.typeCampaignHTML') }}
                   </option>
@@ -37,31 +37,31 @@
                   <option value="tx">
                     {{ $tc('templates.typeTransactional') }}
                   </option>
-                </b-select>
-              </b-field>
+                </select>
+              </oat-field>
             </div>
           </div>
-          <div class="columns" v-if="form.type === 'tx'">
-            <div class="column is-12">
-              <b-field :label="$t('templates.subject')" label-position="on-border">
-                <b-input :maxlength="200" :ref="'focus'" v-model="form.subject" name="name"
-                  :placeholder="$t('templates.subject')" required />
-              </b-field>
+          <div class="row" v-if="form.type === 'tx'">
+            <div class="col-12">
+              <oat-field :label="$t('templates.subject')">
+                <input aria-label="field" :maxlength="200" :ref="'focus'" v-model="form.subject" name="name"
+                  :placeholder="$t('templates.subject')" required>
+              </oat-field>
             </div>
           </div>
 
           <template v-if="form.body !== null">
-            <b-field v-if="form.type === 'campaign_visual'" label-position="on-border" class="mb-1">
+            <oat-field v-if="form.type === 'campaign_visual'" class="mb-1">
               <visual-editor v-if="form.type === 'campaign_visual'" name="body" :source="form.bodySource"
                 @change="onChangeVisualEditor" height="70vh" />
-            </b-field>
+            </oat-field>
 
-            <b-field v-else :label="$t('templates.rawHTML')" label-position="on-border">
+            <oat-field v-else :label="$t('templates.rawHTML')">
               <code-editor lang="html" v-model="form.body" name="body" />
-            </b-field>
+            </oat-field>
           </template>
 
-          <p class="is-size-7">
+          <p class="text-7">
             <template v-if="form.type === 'campaign'">
               {{ $t('templates.placeholderHelp', { placeholder: egPlaceholder }) }}
             </template>
@@ -70,13 +70,13 @@
             </a>
           </p>
         </section>
-        <footer class="modal-card-foot has-text-right">
-          <b-button @click="$parent.close()">
+        <footer class="dialog-foot align-right">
+          <button type="button" class="outline" @click="$parent.close()">
             {{ $t('globals.buttons.close') }}
-          </b-button>
-          <b-button v-if="$can('templates:manage')" native-type="submit" type="is-primary" :loading="loading.templates">
+          </button>
+          <button v-if="$can('templates:manage')" type="submit" data-variant="primary" :loading="loading.templates">
             {{ $t('globals.buttons.save') }}
-          </b-button>
+          </button>
         </footer>
       </div>
     </form>

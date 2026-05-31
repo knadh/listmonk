@@ -1,36 +1,45 @@
 <template>
   <div class="items">
-    <b-tabs :animated="false" v-model="tab">
-      <b-tab-item :label="$t('settings.appearance.adminName')" label-position="on-border">
-        <div class="block">
+    <ot-tabs ref="appearanceTabs" class="settings-subtabs" @ot-tab-change="tab = $event.detail.index">
+      <div role="tablist">
+        <button type="button" role="tab" :aria-selected="tab === 0 ? 'true' : 'false'">
+          {{ $t('settings.appearance.adminName') }}
+        </button>
+        <button type="button" role="tab" :aria-selected="tab === 1 ? 'true' : 'false'">
+          {{ $t('settings.appearance.publicName') }}
+        </button>
+      </div>
+
+      <div role="tabpanel">
+        <div>
           {{ $t('settings.appearance.adminHelp') }}
         </div>
 
-        <b-field :label="$t('settings.appearance.customCSS')" label-position="on-border">
+        <oat-field :label="$t('settings.appearance.customCSS')">
           <code-editor lang="css" v-model="data['appearance.admin.custom_css']" name="body" key="editor-admin-css" />
-        </b-field>
+        </oat-field>
 
-        <b-field :label="$t('settings.appearance.customJS')" label-position="on-border">
+        <oat-field :label="$t('settings.appearance.customJS')">
           <code-editor lang="javascript" v-model="data['appearance.admin.custom_js']" name="body"
             key="editor-admin-js" />
-        </b-field>
-      </b-tab-item><!-- admin -->
+        </oat-field>
+      </div>
 
-      <b-tab-item :label="$t('settings.appearance.publicName')" label-position="on-border">
-        <div class="block">
+      <div role="tabpanel">
+        <div>
           {{ $t('settings.appearance.publicHelp') }}
         </div>
 
-        <b-field :label="$t('settings.appearance.customCSS')" label-position="on-border">
+        <oat-field :label="$t('settings.appearance.customCSS')">
           <code-editor lang="css" v-model="data['appearance.public.custom_css']" name="body" key="editor-public-css" />
-        </b-field>
+        </oat-field>
 
-        <b-field :label="$t('settings.appearance.customJS')" label-position="on-border">
+        <oat-field :label="$t('settings.appearance.customJS')">
           <code-editor lang="javascript" v-model="data['appearance.public.custom_js']" name="body"
             key="editor-public-js" />
-        </b-field>
-      </b-tab-item><!-- public -->
-    </b-tabs>
+        </oat-field>
+      </div>
+    </ot-tabs>
   </div>
 </template>
 
@@ -59,6 +68,11 @@ export default Vue.extend({
 
   mounted() {
     this.tab = this.$utils.getPref('settings.apperanceTab') || 0;
+    this.$nextTick(() => {
+      if (this.$refs.appearanceTabs) {
+        this.$refs.appearanceTabs.activeIndex = Number(this.tab);
+      }
+    });
   },
 
   watch: {

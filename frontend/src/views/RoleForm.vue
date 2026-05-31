@@ -1,8 +1,8 @@
 <template>
   <form @submit.prevent="onSubmit">
-    <div class="modal-card content" style="width: auto">
-      <header class="modal-card-head">
-        <p v-if="isEditing" class="has-text-grey-light is-size-7">
+    <div class="dialog-card content" style="width: auto">
+      <header class="dialog-head">
+        <p v-if="isEditing" class="text-lighter text-7 ">
           {{ $t('globals.fields.id') }}: <copy-text :text="`${data.id}`" />
         </p>
         <h4 v-if="isEditing">
@@ -13,110 +13,110 @@
         </h4>
       </header>
 
-      <section expanded class="modal-card-body">
-        <b-field :label="$t('globals.fields.name')" label-position="on-border">
-          <b-input autofocus :disabled="disabled" :maxlength="200" v-model="form.name" name="name" ref="focus"
-            required />
-        </b-field>
+      <section class="dialog-body">
+        <oat-field :label="$t('globals.fields.name')">
+          <input aria-label="field" :disabled="disabled" :maxlength="200" v-model="form.name" name="name" ref="focus"
+            required>
+        </oat-field>
 
-        <div v-if="type === 'list'" class="box">
+        <div v-if="type === 'list'" class="card">
           <h5>{{ $t('users.listPerms') }}</h5>
           <div class="mb-5">
-            <div class="columns">
-              <div class="column is-9">
-                <b-select :placeholder="$tc('globals.terms.list')" v-model="form.curList" name="list"
-                  :disabled="disabled || filteredLists.length < 1" expanded class="mb-3">
+            <div class="row">
+              <div class="col-9">
+                <select aria-label="field" :placeholder="$tc('globals.terms.list')" v-model="form.curList" name="list"
+                  :disabled="disabled || filteredLists.length < 1" class="mb-3">
                   <template v-for="l in filteredLists">
                     <option :value="l.id" :key="l.id">
                       {{ l.name }}
                     </option>
                   </template>
-                </b-select>
+                </select>
               </div>
-              <div class="column">
-                <b-button @click="onAddListPerm" :disabled="!form.curList" class="is-primary" expanded>
+              <div class="col-12">
+                <button type="button" @click="onAddListPerm" :disabled="!form.curList" data-variant="primary">
                   {{ $t('globals.buttons.add') }}
-                </b-button>
+                </button>
               </div>
             </div>
             <span
               v-if="form.lists.length > 0 && (form.permissions['lists:get_all'] || form.permissions['lists:manage_all'])"
-              class="is-size-6 has-text-danger">
-              <b-icon icon="warning-empty" />
+              class="text-danger text-6">
+              <oat-icon icon="warning-empty" />
               {{ $t('users.listPermsWarning') }}
             </span>
           </div>
 
-          <b-table :data="form.lists">
-            <b-table-column v-slot="props" field="name" :label="$tc('globals.terms.list')">
+          <oat-data-table :data="form.lists">
+            <oat-table-column v-slot="props" field="name" :label="$tc('globals.terms.list')">
               <router-link :to="`/lists/${props.row.id}`" target="_blank">
                 {{ props.row.name }}
               </router-link>
-            </b-table-column>
+            </oat-table-column>
 
-            <b-table-column v-slot="props" field="permissions" :label="$t('users.perms')" width="40%">
-              <b-checkbox v-model="props.row.permissions" native-value="list:get">
+            <oat-table-column v-slot="props" field="permissions" :label="$t('users.perms')" width="40%">
+              <oat-checkbox v-model="props.row.permissions" native-value="list:get">
                 {{ $t('globals.buttons.view') }}
-              </b-checkbox>
-              <b-checkbox v-model="props.row.permissions" native-value="list:manage">
+              </oat-checkbox>
+              <oat-checkbox v-model="props.row.permissions" native-value="list:manage">
                 {{ $t('globals.buttons.manage') }}
-              </b-checkbox>
-            </b-table-column>
+              </oat-checkbox>
+            </oat-table-column>
 
-            <b-table-column v-slot="props" width="10%">
+            <oat-table-column v-slot="props" width="10%">
               <a href="#" @click.prevent="onDeleteListPerm(props.row.id)" data-cy="btn-delete"
                 :aria-label="$t('globals.buttons.delete')">
-                <b-tooltip :label="$t('globals.buttons.delete')" type="is-dark">
-                  <b-icon icon="trash-can-outline" size="is-small" />
-                </b-tooltip>
+
+                <oat-icon icon="trash-can-outline" />
+
               </a>
-            </b-table-column>
-          </b-table>
+            </oat-table-column>
+          </oat-data-table>
         </div>
 
         <template v-if="type === 'user'">
-          <div class="columns">
-            <div class="column is-7">
+          <div class="row">
+            <div class="col-7">
               <h5 class="mb-0">
                 {{ $t('users.perms') }}
               </h5>
             </div>
-            <div class="column has-text-right" v-if="!disabled">
+            <div class="col-12 align-right" v-if="!disabled">
               <a href="#" @click.prevent="onToggleSelect">{{ $t('globals.buttons.toggleSelect') }}</a>
             </div>
           </div>
 
-          <b-table :data="serverConfig.permissions">
-            <b-table-column v-slot="props" field="group" :label="$t('users.roleGroup')">
+          <oat-data-table :data="serverConfig.permissions">
+            <oat-table-column v-slot="props" field="group" :label="$t('users.roleGroup')">
               {{ $tc(`globals.terms.${props.row.group}`) }}
-            </b-table-column>
+            </oat-table-column>
 
-            <b-table-column v-slot="props" field="permissions" label="Permissions">
+            <oat-table-column v-slot="props" field="permissions" label="Permissions">
               <div v-for="p in props.row.permissions" :key="p">
-                <b-checkbox v-model="form.permissions" :native-value="p" :disabled="disabled">
+                <oat-checkbox v-model="form.permissions" :native-value="p" :disabled="disabled">
                   {{ p }}
                   <a v-if="p === 'subscribers:sql_query'"
                     href="https://listmonk.app/docs/roles-and-permissions/#subscriberssql_query" target="_blank"
                     rel="noopener noreferrer" aria-label="Warning: high risk permission">
-                    <b-icon icon="warning-empty" type="is-danger" size="is-small" />
+                    <oat-icon icon="warning-empty" data-variant="danger" />
                   </a>
-                </b-checkbox>
+                </oat-checkbox>
               </div>
-            </b-table-column>
-          </b-table>
+            </oat-table-column>
+          </oat-data-table>
         </template>
         <a href="https://listmonk.app/docs/roles-and-permissions" target="_blank" rel="noopener noreferrer">
-          <b-icon icon="link-variant" /> {{ $t('globals.buttons.learnMore') }}
+          <oat-icon icon="link-variant" /> {{ $t('globals.buttons.learnMore') }}
         </a>
       </section>
 
-      <footer class="modal-card-foot has-text-right">
-        <b-button @click="$parent.close()">
+      <footer class="dialog-foot align-right">
+        <button type="button" class="outline" @click="$parent.close()">
           {{ $t('globals.buttons.close') }}
-        </b-button>
-        <b-button v-if="!disabled" native-type="submit" type="is-primary" :loading="loading.roles" data-cy="btn-save">
+        </button>
+        <button v-if="!disabled" type="submit" data-variant="primary" :loading="loading.roles" data-cy="btn-save">
           {{ $t('globals.buttons.save') }}
-        </b-button>
+        </button>
       </footer>
     </div>
   </form>

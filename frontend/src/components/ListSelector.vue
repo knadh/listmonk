@@ -1,23 +1,23 @@
 <template>
-  <div class="field list-selector">
+  <div class="list-selector">
     <div :class="['list-tags', ...classes]">
-      <b-taglist>
-        <b-tag v-for="l in selectedItems" :key="l.id" :class="[l.subscriptionStatus, { 'is-restricted': l.restricted }]"
-          :closable="!$props.disabled && !l.restricted" :data-id="l.id" @close="removeList(l.id)" class="list">
+      <span class="badge-list hstack gap-1">
+        <span v-for="l in selectedItems" :key="l.id"
+          :class="['badge', 'list', l.subscriptionStatus, l.subscriptionStatus ? `status-${l.subscriptionStatus}` : '', { 'is-restricted': l.restricted }]"
+          :closable="!$props.disabled && !l.restricted" :data-id="l.id" @close="removeList(l.id)">
           {{ l.name }}
           <sup v-if="l.optin === 'double' && l.subscriptionStatus">
             {{ $t(`subscribers.status.${l.subscriptionStatus}`) }}
           </sup>
-        </b-tag>
-      </b-taglist>
+        </span>
+      </span>
     </div>
 
-    <b-field :message="message" :label="label + (selectedItems ? ` (${selectedItems.length})` : '')"
-      label-position="on-border">
-      <b-autocomplete v-model="query" :placeholder="placeholder" clearable dropdown-position="top"
+    <oat-field :message="message" :label="label + (selectedItems ? ` (${selectedItems.length})` : '')">
+      <oat-autocomplete v-model="query" :placeholder="placeholder" clearable dropdown-position="top"
         :disabled="all.length === 0 || $props.disabled" :keep-first="true" :clear-on-select="true" :open-on-focus="true"
         :data="filteredLists" @select="selectList" field="name" />
-    </b-field>
+    </oat-field>
   </div>
 </template>
 

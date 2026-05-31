@@ -1,125 +1,131 @@
 <template>
-  <section class="user-profile section-mini">
-    <b-loading v-if="loading.users" :active="loading.users" :is-full-page="false" />
-
-    <h1 class="title">
-      @{{ data.username }}
-    </h1>
-    <b-tag v-if="data.userRole">{{ data.userRole.name }}</b-tag>
-
-    <br /><br /><br />
-    <form @submit.prevent="onSubmit">
-      <b-field v-if="data.type !== 'api'" :label="$t('subscribers.email')" label-position="on-border">
-        <b-input :maxlength="200" v-model="form.email" name="email" :placeholder="$t('subscribers.email')"
-          :disabled="!data.passwordLogin" required autofocus />
-      </b-field>
-
-      <b-field :label="$t('globals.fields.name')" label-position="on-border">
-        <b-input :maxlength="200" v-model="form.name" name="name" :placeholder="$t('globals.fields.name')" />
-      </b-field>
-
-      <div v-if="data.passwordLogin" class="columns">
-        <div class="column is-6">
-          <b-field :label="$t('users.password')" label-position="on-border">
-            <b-input minlength="8" :maxlength="200" v-model="form.password" type="password" name="password"
-              :placeholder="$t('users.password')" />
-          </b-field>
-        </div>
-        <div class="column is-6">
-          <b-field :label="$t('users.passwordRepeat')" label-position="on-border">
-            <b-input minlength="8" :maxlength="200" v-model="form.password2" type="password" name="password2" />
-          </b-field>
-        </div>
+  <section class="user-profile">
+    <header class="row page-header">
+      <div class="col-8">
+        <h1>
+          @{{ data.username }}
+        </h1>
+        <span v-if="data.userRole" class="badge">{{ data.userRole.name }}</span>
       </div>
+    </header>
 
-      <b-field expanded>
-        <b-button type="is-primary" icon-left="content-save-outline" native-type="submit" data-cy="btn-save">
-          {{ $t('globals.buttons.save') }}
-        </b-button>
-      </b-field>
-    </form>
+    <div class="card page-content" :aria-busy="loading.users ? 'true' : null" data-spinner="large overlay">
+      <form @submit.prevent="onSubmit">
+        <oat-field v-if="data.type !== 'api'" :label="$t('subscribers.email')">
+          <input aria-label="field" :maxlength="200" v-model="form.email" name="email"
+            :placeholder="$t('subscribers.email')" :disabled="!data.passwordLogin" required>
+        </oat-field>
 
-    <br /><br />
+        <oat-field :label="$t('globals.fields.name')">
+          <input aria-label="field" :maxlength="200" v-model="form.name" name="name"
+            :placeholder="$t('globals.fields.name')">
+        </oat-field>
 
-    <!-- 2FA -->
-    <section v-if="this.data.passwordLogin" class="twofa-section">
-      <!-- TOTP disabled -->
-      <div v-if="data.twofaType === 'none'" class="box">
-        <div class="columns is-vcentered mb-4">
-          <div class="column">
-            <h3 class="title is-size-5 mb-0">{{ $t('users.twoFA') }}</h3>
+        <div v-if="data.passwordLogin" class="row">
+          <div class="col-6">
+            <oat-field :label="$t('users.password')">
+              <input aria-label="field" minlength="8" :maxlength="200" v-model="form.password" type="password"
+                name="password" :placeholder="$t('users.password')">
+            </oat-field>
           </div>
-          <div class="column is-narrow">
-            <b-switch v-if="!isTotpVisible" v-model="twofaEnabled" @input="onToggleEnableTotp" />
-          </div>
-        </div>
-
-        <p>{{ $t('users.twoFANotEnabled') }}</p>
-        <br />
-
-        <!-- TOTP setup -->
-        <div v-if="isTotpVisible" class="totp-setup">
-          <div v-if="totpQR" class="qr-section">
-            <p class="has-text-grey">{{ $t('users.totpScanQR') }}</p><br />
-
-            <img :src="'data:image/png;base64,' + totpQR" alt="QR Code" />
-
-            <br /><br />
-            <p>
-              <strong>{{ $t('users.totpSecret') }}</strong><br />
-              <code><copy-text :text="`${totpSecret}`" /></code>
-            </p>
-
-            <br /><br />
-            <form @submit.prevent="confirmTOTP">
-              <b-field :label="$t('users.totpCode')" label-position="on-border">
-                <b-input ref="totpCodeInput" v-model="totpCode" maxlength="6" pattern="[0-9]{6}" placeholder="000000"
-                  required />
-              </b-field>
-              <div class="buttons">
-                <b-button type="is-primary" native-type="submit">
-                  {{ $t('globals.buttons.enable') }}
-                </b-button>
-                <b-button type="button" @click="onCancelTOTPSetup">
-                  {{ $t('globals.buttons.cancel') }}
-                </b-button>
-              </div>
-            </form>
-          </div>
-        </div>
-      </div>
-
-      <!-- TOTP Enabled -->
-      <div v-if="data.twofaType === 'totp'" class="box">
-        <div class="columns is-vcentered">
-          <div class="column">
-            <h3 class="title is-size-5">
-              <b-icon icon="check-circle-outline" type="is-success" /> {{ $t('users.twoFAEnabled') }}
-            </h3>
-          </div>
-          <div class="column is-narrow">
-            <b-switch v-if="!showDisableTOTP" v-model="twofaEnabled" @input="toggleDisableTOTP" />
+          <div class="col-6">
+            <oat-field :label="$t('users.passwordRepeat')">
+              <input aria-label="field" minlength="8" :maxlength="200" v-model="form.password2" type="password"
+                name="password2">
+            </oat-field>
           </div>
         </div>
 
-        <p>{{ $t('users.twoFAEnabledDesc', { type: data.twofaType.toUpperCase() }) }}</p>
+        <oat-field>
+          <button data-variant="primary" type="submit" data-cy="btn-save">
+            {{ $t('globals.buttons.save') }}
+          </button>
+        </oat-field>
+      </form>
 
-        <!-- Disable TOTP Flow -->
-        <form v-if="showDisableTOTP" class="disable-totp mt-5" @submit.prevent="confirmDisableTOTP">
-          <b-field :label="$t('users.password')" label-position="on-border">
-            <b-input ref="disablePasswordInput" v-model="disableTOTPPassword" type="password" minlength="8" required />
-          </b-field>
-          <div class="buttons">
-            <b-button type="is-danger" native-type="submit">
-              {{ $t('globals.buttons.disable') }}
-            </b-button>
-            <b-button type="button" @click="onCancelTOTPSetup">
-              {{ $t('globals.buttons.cancel') }}
-            </b-button>
+      <br /><br />
+
+      <!-- 2FA -->
+      <section v-if="this.data.passwordLogin" class="twofa-app-section">
+        <!-- TOTP disabled -->
+        <div v-if="data.twofaType === 'none'" class="card">
+          <div class="row mb-4">
+            <div class="col-12">
+              <h3 class="mb-0">{{ $t('users.twoFA') }}</h3>
+            </div>
+            <div class="col-2">
+              <oat-switch v-if="!isTotpVisible" v-model="twofaEnabled" @input="onToggleEnableTotp" />
+            </div>
           </div>
-        </form>
-      </div>
-    </section>
+
+          <p>{{ $t('users.twoFANotEnabled') }}</p>
+          <br />
+
+          <!-- TOTP setup -->
+          <div v-if="isTotpVisible" class="totp-setup">
+            <div v-if="totpQR" class="qr-app-section">
+              <p class="text-light text-7">{{ $t('users.totpScanQR') }}</p><br />
+
+              <img :src="'data:image/png;base64,' + totpQR" alt="QR Code" />
+
+              <br /><br />
+              <p>
+                <strong>{{ $t('users.totpSecret') }}</strong><br />
+                <code><copy-text :text="`${totpSecret}`" /></code>
+              </p>
+
+              <br /><br />
+              <form @submit.prevent="confirmTOTP">
+                <oat-field :label="$t('users.totpCode')">
+                  <input aria-label="field" ref="totpCodeInput" v-model="totpCode" maxlength="6" pattern="[0-9]{6}"
+                    placeholder="000000" required>
+                </oat-field>
+                <div class="hstack">
+                  <button data-variant="primary" type="submit">
+                    {{ $t('globals.buttons.enable') }}
+                  </button>
+                  <button type="button" @click="onCancelTOTPSetup">
+                    {{ $t('globals.buttons.cancel') }}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <!-- TOTP Enabled -->
+        <div v-if="data.twofaType === 'totp'" class="card">
+          <div class="row">
+            <div class="col-12">
+              <h3>
+                <oat-icon icon="check-circle-outline" data-variant="primary" /> {{ $t('users.twoFAEnabled') }}
+              </h3>
+            </div>
+            <div class="col-2">
+              <oat-switch v-if="!showDisableTOTP" v-model="twofaEnabled" @input="toggleDisableTOTP" />
+            </div>
+          </div>
+
+          <p>{{ $t('users.twoFAEnabledDesc', { type: data.twofaType.toUpperCase() }) }}</p>
+
+          <!-- Disable TOTP Flow -->
+          <form v-if="showDisableTOTP" class="disable-totp mt-5" @submit.prevent="confirmDisableTOTP">
+            <oat-field :label="$t('users.password')">
+              <input aria-label="field" ref="disablePasswordInput" v-model="disableTOTPPassword" type="password"
+                minlength="8" required>
+            </oat-field>
+            <div class="hstack">
+              <button data-variant="danger" type="submit">
+                {{ $t('globals.buttons.disable') }}
+              </button>
+              <button type="button" @click="onCancelTOTPSetup">
+                {{ $t('globals.buttons.cancel') }}
+              </button>
+            </div>
+          </form>
+        </div>
+      </section>
+    </div>
   </section>
 </template>
 
@@ -158,7 +164,7 @@ export default Vue.extend({
 
       if (this.data.passwordLogin && this.form.password) {
         if (this.form.password !== this.form.password2) {
-          this.$utils.toast(this.$t('users.passwordMismatch'), 'is-danger');
+          this.$utils.toast(this.$t('users.passwordMismatch'), '');
           return;
         }
 
@@ -185,7 +191,7 @@ export default Vue.extend({
           }
         });
       }).catch(() => {
-        this.$utils.toast(this.$t('globals.messages.errorFetching'), 'is-danger');
+        this.$utils.toast(this.$t('globals.messages.errorFetching'), '');
       });
     },
 
@@ -201,7 +207,7 @@ export default Vue.extend({
 
     confirmTOTP() {
       if (!this.totpCode || this.totpCode.length !== 6) {
-        this.$utils.toast(this.$t('globals.messages.invalidValue'), 'is-danger');
+        this.$utils.toast(this.$t('globals.messages.invalidValue'), '');
         return;
       }
 
@@ -219,7 +225,7 @@ export default Vue.extend({
           this.twofaEnabled = data.twofaType === 'totp';
         });
       }).catch(() => {
-        this.$utils.toast(this.$t('globals.messages.invalidValue'), 'is-danger');
+        this.$utils.toast(this.$t('globals.messages.invalidValue'), '');
       });
     },
 
@@ -240,7 +246,7 @@ export default Vue.extend({
 
     confirmDisableTOTP() {
       if (!this.disableTOTPPassword) {
-        this.$utils.toast(this.$t('globals.messages.invalidFields'), 'is-danger');
+        this.$utils.toast(this.$t('globals.messages.invalidFields'), '');
         return;
       }
 
@@ -257,7 +263,7 @@ export default Vue.extend({
           this.twofaEnabled = data.twofaType === 'totp';
         });
       }).catch(() => {
-        this.$utils.toast(this.$t('users.invalidPassword'), 'is-danger');
+        this.$utils.toast(this.$t('users.invalidPassword'), '');
       });
     },
   },

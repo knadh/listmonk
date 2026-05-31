@@ -1,96 +1,89 @@
 <template>
   <div class="items">
-    <div class="columns">
-      <div class="column">
-        <b-field :label="$t('settings.media.provider')" label-position="on-border">
-          <b-select v-model="data['upload.provider']" name="upload.provider">
+    <div class="row">
+      <div class="col-2">
+        <oat-field :label="$t('settings.media.provider')">
+          <select aria-label="field" v-model="data['upload.provider']" name="upload.provider">
             <option value="filesystem">
               filesystem
             </option>
             <option value="s3">
               s3
             </option>
-          </b-select>
-        </b-field>
+          </select>
+        </oat-field>
       </div>
-      <div class="column is-10">
-        <b-field :label="$t('settings.media.upload.extensions')" label-position="on-border" expanded>
-          <b-taginput v-model="data['upload.extensions']" name="tags" ellipsis icon="tag-outline"
-            placeholder="jpg, png, gif .." />
-        </b-field>
+      <div class="col-10">
+        <oat-field :label="$t('settings.media.upload.extensions')">
+          <oat-tag-input v-model="data['upload.extensions']" name="tags" placeholder="jpg, png, gif .." />
+        </oat-field>
       </div>
     </div>
     <hr />
 
-    <div class="block" v-if="data['upload.provider'] === 'filesystem'">
-      <b-field :label="$t('settings.media.upload.path')" label-position="on-border"
-        :message="$t('settings.media.upload.pathHelp')">
-        <b-input v-model="data['upload.filesystem.upload_path']" name="app.upload_path"
-          placeholder="/home/listmonk/uploads" :maxlength="200" required />
-      </b-field>
+    <div v-if="data['upload.provider'] === 'filesystem'">
+      <oat-field :label="$t('settings.media.upload.path')" :message="$t('settings.media.upload.pathHelp')">
+        <input aria-label="field" v-model="data['upload.filesystem.upload_path']" name="app.upload_path"
+          placeholder="/home/listmonk/uploads" :maxlength="200" required>
+      </oat-field>
 
-      <b-field :label="$t('settings.media.upload.uri')" label-position="on-border"
-        :message="$t('settings.media.upload.uriHelp')">
-        <b-input v-model="data['upload.filesystem.upload_uri']" name="app.upload_uri" placeholder="/uploads"
-          :maxlength="200" required pattern="^\/(.+?)" />
-      </b-field>
+      <oat-field :label="$t('settings.media.upload.uri')" :message="$t('settings.media.upload.uriHelp')">
+        <input aria-label="field" v-model="data['upload.filesystem.upload_uri']" name="app.upload_uri"
+          placeholder="/uploads" :maxlength="200" required pattern="^\/(.+?)">
+      </oat-field>
     </div><!-- filesystem -->
 
-    <div class="block" v-if="data['upload.provider'] === 's3'">
-      <b-field :label="$t('settings.media.s3.region')" label-position="on-border" expanded>
-        <b-input v-model="data['upload.s3.aws_default_region']" @input="onS3URLChange"
-          name="upload.s3.aws_default_region" :maxlength="200" placeholder="ap-south-1" />
-      </b-field>
+    <div v-if="data['upload.provider'] === 's3'">
+      <oat-field :label="$t('settings.media.s3.region')">
+        <input aria-label="field" v-model="data['upload.s3.aws_default_region']" @input="onS3URLChange"
+          name="upload.s3.aws_default_region" :maxlength="200" placeholder="ap-south-1">
+      </oat-field>
 
-      <b-field :label="$t('settings.media.s3.key')" label-position="on-border" expanded>
-        <b-input v-model="data['upload.s3.aws_access_key_id']" name="upload.s3.aws_access_key_id" :maxlength="200" />
-      </b-field>
+      <oat-field :label="$t('settings.media.s3.key')">
+        <input aria-label="field" v-model="data['upload.s3.aws_access_key_id']" name="upload.s3.aws_access_key_id"
+          :maxlength="200">
+      </oat-field>
 
-      <b-field :label="$t('settings.media.s3.secret')" label-position="on-border" expanded
-        message="Enter a value to change.">
-        <b-input v-model="data['upload.s3.aws_secret_access_key']" name="upload.s3.aws_secret_access_key"
-          type="password" :maxlength="200" />
-      </b-field>
+      <oat-field :label="$t('settings.media.s3.secret')" message="Enter a value to change.">
+        <input aria-label="field" v-model="data['upload.s3.aws_secret_access_key']"
+          name="upload.s3.aws_secret_access_key" type="password" :maxlength="200">
+      </oat-field>
 
-      <b-field :label="$t('settings.media.s3.bucketType')" label-position="on-border">
-        <b-select v-model="data['upload.s3.bucket_type']" name="upload.s3.bucket_type" expanded>
+      <oat-field :label="$t('settings.media.s3.bucketType')">
+        <select aria-label="field" v-model="data['upload.s3.bucket_type']" name="upload.s3.bucket_type">
           <option value="private">
             {{ $t('settings.media.s3.bucketTypePrivate') }}
           </option>
           <option value="public">
             {{ $t('settings.media.s3.bucketTypePublic') }}
           </option>
-        </b-select>
-      </b-field>
+        </select>
+      </oat-field>
 
-      <b-field :label="$t('settings.media.s3.bucket')" label-position="on-border" expanded>
-        <b-input v-model="data['upload.s3.bucket']" @input="onS3URLChange" name="upload.s3.bucket" :maxlength="200"
-          placeholder="" />
-      </b-field>
+      <oat-field :label="$t('settings.media.s3.bucket')">
+        <input aria-label="field" v-model="data['upload.s3.bucket']" @input="onS3URLChange" name="upload.s3.bucket"
+          :maxlength="200" placeholder="">
+      </oat-field>
 
-      <b-field :label="$t('settings.media.s3.bucketPath')" label-position="on-border"
-        :message="$t('settings.media.s3.bucketPathHelp')" expanded>
-        <b-input v-model="data['upload.s3.bucket_path']" name="upload.s3.bucket_path" :maxlength="200"
-          placeholder="/" />
-      </b-field>
+      <oat-field :label="$t('settings.media.s3.bucketPath')" :message="$t('settings.media.s3.bucketPathHelp')">
+        <input aria-label="field" v-model="data['upload.s3.bucket_path']" name="upload.s3.bucket_path" :maxlength="200"
+          placeholder="/">
+      </oat-field>
 
-      <b-field :label="$t('settings.media.s3.uploadExpiry')" label-position="on-border"
-        :message="$t('settings.media.s3.uploadExpiryHelp')" expanded>
-        <b-input v-model="data['upload.s3.expiry']" name="upload.s3.expiry" placeholder="14d" :pattern="regDuration"
-          :maxlength="10" />
-      </b-field>
+      <oat-field :label="$t('settings.media.s3.uploadExpiry')" :message="$t('settings.media.s3.uploadExpiryHelp')">
+        <input aria-label="field" v-model="data['upload.s3.expiry']" name="upload.s3.expiry" placeholder="14d"
+          :pattern="regDuration" :maxlength="10">
+      </oat-field>
 
-      <b-field :label="$t('settings.media.s3.url')" label-position="on-border"
-        :message="$t('settings.media.s3.urlHelp')">
-        <b-input v-model="data['upload.s3.url']" name="upload.s3.url" required
-          placeholder="https://s3.$region.amazonaws.com" :maxlength="200" expanded type="url" pattern="https?://.*" />
-      </b-field>
+      <oat-field :label="$t('settings.media.s3.url')" :message="$t('settings.media.s3.urlHelp')">
+        <input aria-label="field" v-model="data['upload.s3.url']" name="upload.s3.url" required
+          placeholder="https://s3.$region.amazonaws.com" :maxlength="200" type="url" pattern="https?://.*">
+      </oat-field>
 
-      <b-field :label="$t('settings.media.s3.publicURL')" label-position="on-border"
-        :message="$t('settings.media.s3.publicURLHelp')" expanded>
-        <b-input v-model="data['upload.s3.public_url']" name="upload.s3.public_url"
-          placeholder="https://files.yourdomain.com" :maxlength="200" type="string" pattern="(https?://.*|/.+)" />
-      </b-field>
+      <oat-field :label="$t('settings.media.s3.publicURL')" :message="$t('settings.media.s3.publicURLHelp')">
+        <input aria-label="field" v-model="data['upload.s3.public_url']" name="upload.s3.public_url"
+          placeholder="https://files.yourdomain.com" :maxlength="200" type="string" pattern="(https?://.*|/.+)">
+      </oat-field>
     </div><!-- s3 -->
   </div>
 </template>
