@@ -1,38 +1,38 @@
 <template>
   <section class="campaigns">
-    <header class="columns page-header">
-      <div class="column is-10">
-        <h1 class="title is-4">
+    <header class="row page-header">
+      <div class="col-10">
+        <h1>
           {{ $t('globals.terms.campaigns') }}
           <span v-if="!isNaN(campaigns.total)">({{ campaigns.total }})</span>
         </h1>
       </div>
-      <div class="column has-text-right">
-        <b-field v-if="$can('campaigns:manage')" expanded>
-          <b-button expanded :to="{ name: 'campaign', params: { id: 'new' } }" tag="router-link" class="btn-new"
-            type="is-primary" icon-left="plus" data-cy="btn-new">
+      <div class="col-12 align-right">
+        <oat-field v-if="$can('campaigns:manage')">
+          <button type="button" :to="{ name: 'campaign', params: { id: 'new' } }" tag="router-link" class="btn-new"
+            data-variant="primary" data-cy="btn-new">
             {{ $t('globals.buttons.new') }}
-          </b-button>
-        </b-field>
+          </button>
+        </oat-field>
       </div>
     </header>
 
-    <b-table :data="campaigns.results" :loading="loading.campaigns" :row-class="highlightedRow"
+    <oat-data-table :data="campaigns.results" :loading="loading.campaigns" :row-class="highlightedRow"
       @check-all="onTableCheck" @check="onTableCheck" :checked-rows.sync="bulk.checked" paginated backend-pagination
-      pagination-position="both" @page-change="onPageChange" :current-page="queryParams.page"
-      :per-page="campaigns.perPage" :total="campaigns.total" hoverable checkable backend-sorting @sort="onSort">
+      @page-change="onPageChange" :current-page="queryParams.page"
+      :per-page="campaigns.perPage" :total="campaigns.total" checkable backend-sorting @sort="onSort">
       <template #top-left>
-        <div class="columns">
-          <div class="column is-6">
+        <div class="row">
+          <div class="col-6">
             <form @submit.prevent="getCampaigns">
               <div>
-                <b-field>
-                  <b-input v-model="queryParams.query" name="query" expanded
-                    :placeholder="$t('campaigns.queryPlaceholder')" icon="magnify" ref="query" />
-                  <p class="controls">
-                    <b-button native-type="submit" type="is-primary" icon-left="magnify" />
+                <oat-field>
+                  <input aria-label="field" v-model="queryParams.query" name="query"
+                    :placeholder="$t('campaigns.queryPlaceholder')" icon="magnify" ref="query">
+                  <p class="action-controls">
+                    <button type="submit" data-variant="primary" />
                   </p>
-                </b-field>
+                </oat-field>
               </div>
             </form>
           </div>
@@ -40,7 +40,7 @@
 
         <div class="actions" v-if="bulk.checked.length > 0">
           <a class="a" href="#" @click.prevent="deleteCampaigns" data-cy="btn-delete-campaigns">
-            <b-icon icon="trash-can-outline" size="is-small" /> Delete
+            <oat-icon icon="trash-can-outline" /> Delete
           </a>
           <span class="a">
             {{ $tc('globals.messages.numSelected', numSelectedCampaigns, { num: numSelectedCampaigns }) }}
@@ -54,22 +54,22 @@
         </div>
       </template>
 
-      <b-table-column v-slot="props" cell-class="status" field="status" :label="$t('globals.fields.status')" width="10%"
+      <oat-table-column v-slot="props" cell-class="status" field="status" :label="$t('globals.fields.status')" width="10%"
         sortable :td-attrs="$utils.tdID" header-class="cy-status">
         <div>
           <p>
             <router-link :to="{ name: 'campaign', params: { id: props.row.id } }">
-              <b-tag :class="props.row.status">
+              <oat-badge :type="props.row.status">
                 {{ $t(`campaigns.status.${props.row.status}`) }}
-              </b-tag>
-              <span class="spinner is-tiny" v-if="isRunning(props.row.id)">
-                <b-loading :is-full-page="false" active />
+              </oat-badge>
+              <span class="spinner" v-if="isRunning(props.row.id)">
+                <oat-loading :is-full-page="false" active />
               </span>
             </router-link>
           </p>
           <p v-if="isSheduled(props.row)">
-            <span class="is-size-7 has-text-grey scheduled">
-              <b-icon icon="alarm" size="is-small" />
+            <span class=" text-light scheduled">
+              <oat-icon icon="alarm" />
               <span v-if="!isDone(props.row) && !isRunning(props.row)">
                 {{ $utils.duration(new Date(), props.row.sendAt, true) }}
                 <br />
@@ -78,30 +78,30 @@
             </span>
           </p>
         </div>
-      </b-table-column>
-      <b-table-column v-slot="props" field="name" :label="$t('globals.fields.name')" width="25%" sortable
+      </oat-table-column>
+      <oat-table-column v-slot="props" field="name" :label="$t('globals.fields.name')" width="25%" sortable
         header-class="cy-name">
         <div>
           <p>
-            <b-tag v-if="props.row.type === 'optin'" class="is-small">
+            <oat-badge v-if="props.row.type === 'optin'" type="optin">
               {{ $t('lists.optin') }}
-            </b-tag>
+            </oat-badge>
             <router-link :to="{ name: 'campaign', params: { id: props.row.id } }">
               {{ props.row.name }}
               <copy-text :text="props.row.name" hide-text />
             </router-link>
           </p>
-          <p class="is-size-7 has-text-grey">
+          <p class=" text-light">
             <copy-text :text="props.row.subject" />
           </p>
-          <b-taglist>
-            <b-tag class="is-small" v-for="t in props.row.tags" :key="t">
+          <span class="badge-list hstack gap-1">
+            <span class="badge secondary" v-for="t in props.row.tags" :key="t">
               {{ t }}
-            </b-tag>
-          </b-taglist>
+            </span>
+          </span>
         </div>
-      </b-table-column>
-      <b-table-column v-slot="props" cell-class="lists" field="lists" :label="$t('globals.terms.lists')" width="15%">
+      </oat-table-column>
+      <oat-table-column v-slot="props" cell-class="lists" field="lists" :label="$t('globals.terms.lists')" width="15%">
         <ul>
           <li v-for="l in props.row.lists" :key="l.id">
             <router-link :to="{ name: 'subscribers_list', params: { listID: l.id } }">
@@ -109,10 +109,10 @@
             </router-link>
           </li>
         </ul>
-      </b-table-column>
-      <b-table-column v-slot="props" field="created_at" :label="$t('campaigns.timestamps')" width="19%" sortable
+      </oat-table-column>
+      <oat-table-column v-slot="props" field="created_at" :label="$t('campaigns.timestamps')" width="19%" sortable
         header-class="cy-timestamp">
-        <div class="fields timestamps" :set="stats = getCampaignStats(props.row)">
+        <div class="field-list timestamps" :set="stats = getCampaignStats(props.row)">
           <p>
             <label for="#">{{ $t('globals.fields.createdAt') }}</label>
             <span>{{ $utils.niceDate(props.row.createdAt, true) }}</span>
@@ -125,15 +125,15 @@
             <label for="#">{{ $t('campaigns.ended') }}</label>
             <span>{{ $utils.niceDate(stats.updatedAt, true) }}</span>
           </p>
-          <p v-if="stats.startedAt && stats.updatedAt" class="is-capitalized">
-            <label for="#"><b-icon icon="alarm" size="is-small" /></label>
+          <p v-if="stats.startedAt && stats.updatedAt" class="">
+            <label for="#"><oat-icon icon="alarm" /></label>
             <span>{{ $utils.duration(stats.startedAt, stats.updatedAt) }}</span>
           </p>
         </div>
-      </b-table-column>
+      </oat-table-column>
 
-      <b-table-column v-slot="props" field="stats" :label="$t('campaigns.stats')" width="15%">
-        <div class="fields stats" :set="stats = getCampaignStats(props.row)">
+      <oat-table-column v-slot="props" field="stats" :label="$t('campaigns.stats')" width="15%">
+        <div class="field-list stats" :set="stats = getCampaignStats(props.row)">
           <p>
             <label for="#">{{ $t('campaigns.views') }}</label>
             <span>{{ $utils.formatNumber(props.row.views) }}</span>
@@ -158,88 +158,86 @@
             </span>
           </p>
           <p v-if="stats.rate">
-            <label for="#"><b-icon icon="speedometer" size="is-small" /></label>
+            <label for="#"><oat-icon icon="speedometer" /></label>
             <span class="send-rate">
-              <b-tooltip
-                :label="`${stats.netRate} / ${$t('campaigns.rateMinuteShort')} @ ${$utils.duration(stats.startedAt, stats.updatedAt)}`"
-                type="is-dark">
+
                 {{ stats.rate.toFixed(0) }} / {{ $t('campaigns.rateMinuteShort') }}
-              </b-tooltip>
+
             </span>
           </p>
           <p v-if="isRunning(props.row.id)">
             <label for="#">
               {{ $t('campaigns.progress') }}
-              <span class="spinner is-tiny">
-                <b-loading :is-full-page="false" active />
+              <span class="spinner">
+                <oat-loading :is-full-page="false" active />
               </span>
             </label>
             <span>
-              <b-progress :value="stats.sent / stats.toSend * 100" size="is-small" />
+              <progress :value="stats.sent / stats.toSend * 100" />
             </span>
           </p>
         </div>
-      </b-table-column>
+      </oat-table-column>
 
-      <b-table-column v-slot="props" cell-class="actions" width="15%" align="right">
+      <oat-table-column v-slot="props" cell-class="actions" width="15%" align="right">
         <div>
           <!-- start / pause / resume / scheduled -->
           <template v-if="$can('campaigns:send')">
             <a v-if="canStart(props.row)" href="#"
               @click.prevent="$utils.confirm(null, () => changeCampaignStatus(props.row, 'running'))"
               data-cy="btn-start" :aria-label="$t('campaigns.start')">
-              <b-tooltip :label="$t('campaigns.start')" type="is-dark">
-                <b-icon icon="rocket-launch-outline" size="is-small" />
-              </b-tooltip>
+
+                <oat-icon icon="rocket-launch-outline" />
+
             </a>
 
             <a v-if="canPause(props.row)" href="#"
               @click.prevent="$utils.confirm(null, () => changeCampaignStatus(props.row, 'paused'))" data-cy="btn-pause"
               :aria-label="$t('campaigns.pause')">
-              <b-tooltip :label="$t('campaigns.pause')" type="is-dark">
-                <b-icon icon="pause-circle-outline" size="is-small" />
-              </b-tooltip>
+
+                <oat-icon icon="pause-circle-outline" />
+
             </a>
 
             <a v-if="canResume(props.row)" href="#"
               @click.prevent="$utils.confirm(null, () => changeCampaignStatus(props.row, 'running'))"
               data-cy="btn-resume" :aria-label="$t('campaigns.send')">
-              <b-tooltip :label="$t('campaigns.send')" type="is-dark">
-                <b-icon icon="rocket-launch-outline" size="is-small" />
-              </b-tooltip>
+
+                <oat-icon icon="rocket-launch-outline" />
+
             </a>
 
             <a v-if="canSchedule(props.row)" href="#"
               @click.prevent="$utils.confirm($t('campaigns.confirmSchedule'), () => changeCampaignStatus(props.row, 'scheduled'))"
               data-cy="btn-schedule" :aria-label="$t('campaigns.schedule')">
-              <b-tooltip :label="$t('campaigns.schedule')" type="is-dark">
-                <b-icon icon="clock-start" size="is-small" />
-              </b-tooltip>
+
+                <oat-icon icon="clock-start" />
+
             </a>
 
             <!-- placeholder for finished campaigns -->
             <a v-if="!canCancel(props.row) && !canSchedule(props.row) && !canStart(props.row)" href="#" data-disabled
               aria-label=" ">
-              <b-icon icon="rocket-launch-outline" size="is-small" />
+              <oat-icon icon="rocket-launch-outline" />
             </a>
 
             <a v-if="canCancel(props.row)" href="#"
               @click.prevent="$utils.confirm(null, () => changeCampaignStatus(props.row, 'cancelled'))"
               data-cy="btn-cancel" :aria-label="$t('globals.buttons.cancel')">
-              <b-tooltip :label="$t('globals.buttons.cancel')" type="is-dark">
-                <b-icon icon="cancel" size="is-small" />
-              </b-tooltip>
+
+                <oat-icon icon="cancel" />
+
             </a>
             <a v-else href="#" data-disabled aria-label=" ">
-              <b-icon icon="cancel" size="is-small" />
+              <oat-icon icon="cancel" />
             </a>
           </template>
 
           <a href="#" @click.prevent="previewCampaign(props.row)" data-cy="btn-preview"
             :aria-label="$t('campaigns.preview')">
-            <b-tooltip :label="$t('campaigns.preview')" type="is-dark">
-              <b-icon icon="file-find-outline" size="is-small" />
-            </b-tooltip>
+
+              <oat-icon icon="file-find-outline" />
+
           </a>
           <a v-if="$can('campaigns:manage')" href="#" @click.prevent="$utils.prompt($t('globals.buttons.clone'),
             {
@@ -247,28 +245,26 @@
               value: $t('campaigns.copyOf', { name: props.row.name }),
             },
             (name) => cloneCampaign(name, props.row))" data-cy="btn-clone" :aria-label="$t('globals.buttons.clone')">
-            <b-tooltip :label="$t('globals.buttons.clone')" type="is-dark">
-              <b-icon icon="file-multiple-outline" size="is-small" />
-            </b-tooltip>
+
+              <oat-icon icon="file-multiple-outline" />
+
           </a>
           <router-link v-if="$can('campaigns:get_analytics')"
             :to="{ name: 'campaignAnalytics', query: { id: props.row.id } }">
-            <b-tooltip :label="$t('globals.terms.analytics')" type="is-dark">
-              <b-icon icon="chart-bar" size="is-small" />
-            </b-tooltip>
-          </router-link>
+<oat-icon icon="chart-bar" />
+</router-link>
           <a v-if="$can('campaigns:manage')" href="#"
             @click.prevent="$utils.confirm($t('campaigns.confirmDelete', { name: props.row.name }), () => deleteCampaign(props.row))"
             data-cy="btn-delete" :aria-label="$t('globals.buttons.delete')">
-            <b-icon icon="trash-can-outline" size="is-small" />
+            <oat-icon icon="trash-can-outline" />
           </a>
         </div>
-      </b-table-column>
+      </oat-table-column>
 
       <template #empty v-if="!loading.campaigns">
         <empty-placeholder />
       </template>
-    </b-table>
+</oat-data-table>
 
     <campaign-preview v-if="previewItem" type="campaign" :id="previewItem.id" :title="previewItem.name"
       @close="closePreview" />

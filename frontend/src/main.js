@@ -1,12 +1,24 @@
 import Vue from 'vue';
-import Buefy from 'buefy';
 import VueI18n from 'vue-i18n';
 
 import App from './App.vue';
+import OatAutocomplete from './components/OatAutocomplete.vue';
+import OatBadge from './components/OatBadge.vue';
+import OatCheckbox from './components/OatCheckbox.vue';
+import OatDataTable from './components/OatDataTable.vue';
+import OatDateInput from './components/OatDateInput.vue';
 import OatField from './components/OatField.vue';
 import OatIcon from './components/OatIcon.vue';
+import OatLoading from './components/OatLoading.vue';
+import OatModal from './components/OatModal.vue';
+import OatPagination from './components/OatPagination.vue';
+import OatRadio from './components/OatRadio.vue';
 import OatSwitch from './components/OatSwitch.vue';
+import OatTabItem from './components/OatTabItem.vue';
+import OatTabs from './components/OatTabs.vue';
+import OatTableColumn from './components/OatTableColumn.vue';
 import OatTagInput from './components/OatTagInput.vue';
+import OatUpload from './components/OatUpload.vue';
 import router from './router';
 import store from './store';
 import * as api from './api';
@@ -16,11 +28,23 @@ import Utils from './utils';
 Vue.use(VueI18n);
 const i18n = new VueI18n();
 
+Vue.component('OatAutocomplete', OatAutocomplete);
+Vue.component('OatBadge', OatBadge);
+Vue.component('OatCheckbox', OatCheckbox);
+Vue.component('OatDataTable', OatDataTable);
+Vue.component('OatDateInput', OatDateInput);
 Vue.component('OatField', OatField);
 Vue.component('OatIcon', OatIcon);
+Vue.component('OatLoading', OatLoading);
+Vue.component('OatModal', OatModal);
+Vue.component('OatPagination', OatPagination);
+Vue.component('OatRadio', OatRadio);
 Vue.component('OatSwitch', OatSwitch);
+Vue.component('OatTabItem', OatTabItem);
+Vue.component('OatTabs', OatTabs);
+Vue.component('OatTableColumn', OatTableColumn);
 Vue.component('OatTagInput', OatTagInput);
-Vue.use(Buefy, {});
+Vue.component('OatUpload', OatUpload);
 Vue.config.productionTip = false;
 
 // Setup the router.

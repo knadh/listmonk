@@ -15,7 +15,7 @@
                 {{ $t('globals.buttons.delete') }}
               </a>
             </oat-field>
-          </div><!-- first column -->
+          </div><!-- first col-12 -->
 
           <div class="col-10" :class="{ disabled: !item.enabled }">
             <div class="row">
@@ -221,7 +221,7 @@
               </div>
             </form><!-- smtp test -->
           </div>
-        </div><!-- second container column -->
+        </div><!-- second container col-12 -->
       </div><!-- block -->
     </div><!-- mail-servers -->
 
@@ -332,7 +332,7 @@ export default Vue.extend({
 
     doSMTPTest(item, n) {
       if (!this.isTestEnabled(item)) {
-        this.$utils.toast(this.$t('settings.smtp.testEnterEmail'), 'is-danger');
+        this.$utils.toast(this.$t('settings.smtp.testEnterEmail'), '');
         this.$nextTick(() => {
           const i = document.querySelector(`.password-${n}`);
           this.data.smtp[n].password = '';

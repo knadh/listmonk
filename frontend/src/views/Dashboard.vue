@@ -1,32 +1,32 @@
 <template>
   <section class="dashboard content">
-    <header class="columns">
-      <div class="column is-two-thirds">
-        <h1 class="title is-5">
+    <header class="row">
+      <div class="col-8">
+        <h1>
           {{ $utils.niceDate(new Date()) }}
         </h1>
       </div>
     </header>
 
     <section class="counts wrap">
-      <div class="tile is-ancestor">
-        <div class="tile is-vertical is-12">
-          <div class="tile">
-            <div class="tile is-parent is-vertical relative">
-              <b-loading v-if="isCountsLoading" active :is-full-page="false" />
-              <article class="tile is-child notification" data-cy="lists">
-                <div class="columns is-mobile">
-                  <div class="column is-6">
-                    <p class="title">
-                      <b-icon icon="format-list-bulleted-square" />
+      <div class="dashboard-grid">
+        <div class="dashboard-grid">
+          <div class="dashboard-grid">
+            <div class="card relative">
+              <oat-loading v-if="isCountsLoading" active :is-full-page="false" />
+              <article class="card card" data-cy="lists">
+                <div class="row">
+                  <div class="col-6">
+                    <p>
+                      <oat-icon icon="format-list-bulleted-square" />
                       {{ $utils.niceNumber(counts.lists.total) }}
                     </p>
-                    <p class="is-size-6 has-text-grey">
+                    <p class=" text-light">
                       {{ $tc('globals.terms.list', counts.lists.total) }}
                     </p>
                   </div>
-                  <div class="column is-6">
-                    <ul class="no has-text-grey">
+                  <div class="col-6">
+                    <ul class="no text-light">
                       <li>
                         <label for="#">{{ $utils.niceNumber(counts.lists.public) }}</label>
                         {{ $t('lists.types.public') }}
@@ -48,24 +48,24 @@
                 </div>
               </article><!-- lists -->
 
-              <article class="tile is-child notification" data-cy="campaigns">
-                <div class="columns is-mobile">
-                  <div class="column is-6">
-                    <p class="title">
-                      <b-icon icon="rocket-launch-outline" />
+              <article class="card card" data-cy="campaigns">
+                <div class="row">
+                  <div class="col-6">
+                    <p>
+                      <oat-icon icon="rocket-launch-outline" />
                       {{ $utils.niceNumber(counts.campaigns.total) }}
                     </p>
-                    <p class="is-size-6 has-text-grey">
+                    <p class=" text-light">
                       {{ $tc('globals.terms.campaign', counts.campaigns.total) }}
                     </p>
                   </div>
-                  <div class="column is-6">
-                    <ul class="no has-text-grey">
+                  <div class="col-6">
+                    <ul class="no text-light">
                       <li v-for="(num, status) in counts.campaigns.byStatus" :key="status">
                         <label for="#" :data-cy="`campaigns-${status}`">{{ num }}</label>
                         {{ $t(`campaigns.status.${status}`) }}
-                        <span v-if="status === 'running'" class="spinner is-tiny">
-                          <b-loading :is-full-page="false" active />
+                        <span v-if="status === 'running'" class="spinner">
+                          <oat-loading :is-full-page="false" active />
                         </span>
                       </li>
                     </ul>
@@ -74,22 +74,22 @@
               </article><!-- campaigns -->
             </div><!-- block -->
 
-            <div class="tile is-parent relative">
-              <b-loading v-if="isCountsLoading" active :is-full-page="false" />
-              <article class="tile is-child notification" data-cy="subscribers">
-                <div class="columns is-mobile">
-                  <div class="column is-6">
-                    <p class="title">
-                      <b-icon icon="account-multiple" />
+            <div class="card relative">
+              <oat-loading v-if="isCountsLoading" active :is-full-page="false" />
+              <article class="card card" data-cy="subscribers">
+                <div class="row">
+                  <div class="col-6">
+                    <p>
+                      <oat-icon icon="account-multiple" />
                       {{ $utils.niceNumber(counts.subscribers.total) }}
                     </p>
-                    <p class="is-size-6 has-text-grey">
+                    <p class=" text-light">
                       {{ $tc('globals.terms.subscriber', counts.subscribers.total) }}
                     </p>
                   </div>
 
-                  <div class="column is-6">
-                    <ul class="no has-text-grey">
+                  <div class="col-6">
+                    <ul class="no text-light">
                       <li>
                         <label for="#">{{ $utils.niceNumber(counts.subscribers.blocklisted) }}</label>
                         {{ $t('subscribers.status.blocklisted') }}
@@ -100,15 +100,15 @@
                       </li>
                     </ul>
                   </div><!-- subscriber breakdown -->
-                </div><!-- subscriber columns -->
+                </div><!-- subscriber row -->
                 <hr />
-                <div class="columns" data-cy="messages">
-                  <div class="column is-12">
-                    <p class="title">
-                      <b-icon icon="email-outline" />
+                <div class="row" data-cy="messages">
+                  <div class="col-12">
+                    <p>
+                      <oat-icon icon="email-outline" />
                       {{ $utils.niceNumber(counts.messages) }}
                     </p>
-                    <p class="is-size-6 has-text-grey">
+                    <p class=" text-light">
                       {{ $t('dashboard.messagesSent') }}
                     </p>
                   </div>
@@ -116,18 +116,18 @@
               </article><!-- subscribers -->
             </div>
           </div>
-          <div class="tile is-parent relative">
-            <b-loading v-if="isChartsLoading" active :is-full-page="false" />
-            <article class="tile is-child notification charts">
-              <div class="columns">
-                <div class="column is-6">
-                  <h3 class="title is-size-6">
+          <div class="card relative">
+            <oat-loading v-if="isChartsLoading" active :is-full-page="false" />
+            <article class="card card charts">
+              <div class="row">
+                <div class="col-6">
+                  <h3>
                     {{ $t('dashboard.campaignViews') }}
                   </h3><br />
                   <chart type="line" v-if="campaignViews" :data="campaignViews" />
                 </div>
-                <div class="column is-6">
-                  <h3 class="title is-size-6 has-text-right">
+                <div class="col-6">
+                  <h3 class="align-right">
                     {{ $t('dashboard.linkClicks') }}
                   </h3><br />
                   <chart type="line" v-if="campaignClicks" :data="campaignClicks" />
@@ -136,12 +136,12 @@
             </article>
           </div>
         </div>
-      </div><!-- tile block -->
-      <p v-if="settings['app.cache_slow_queries']" class="has-text-grey">
+      </div><!-- dashboard-grid block -->
+      <p v-if="settings['app.cache_slow_queries']" class="text-light">
         *{{ $t('globals.messages.slowQueriesCached') }}
         <a href="https://listmonk.app/docs/maintenance/performance/" target="_blank" rel="noopener noreferer"
-          class="has-text-grey">
-          <b-icon icon="link-variant" /> {{ $t('globals.buttons.learnMore') }}
+          class="text-light">
+          <oat-icon icon="link-variant" /> {{ $t('globals.buttons.learnMore') }}
         </a>
       </p>
     </section>

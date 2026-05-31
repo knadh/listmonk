@@ -1,6 +1,6 @@
 <template>
   <section class="logs content relative">
-    <h1 class="title is-4">
+    <h1>
       {{ $t('logs.title') }}
     </h1>
     <hr />

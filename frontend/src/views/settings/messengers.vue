@@ -9,7 +9,7 @@
         </oat-field>
         <oat-field>
           <a @click.prevent="$utils.confirm(null, () => removeMessenger(n))" href="#">
-            <oat-icon icon="trash-can-outline" size="is-small" />
+            <oat-icon icon="trash-can-outline" />
             {{ $t('globals.buttons.delete') }}
           </a>
         </oat-field>

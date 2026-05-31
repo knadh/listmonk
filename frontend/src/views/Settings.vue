@@ -117,7 +117,7 @@ export default Vue.extend({
     async onSubmit() {
       const form = JSON.parse(JSON.stringify(this.form));
 
-      // SMTP boxes.
+      // SMTP cardes.
       let hasDummy = '';
       for (let i = 0; i < form.smtp.length; i += 1) {
         // trim the host before saving
@@ -137,15 +137,15 @@ export default Vue.extend({
         }
       }
 
-      // Bounces boxes.
-      for (let i = 0; i < form['bounce.mailboxes'].length; i += 1) {
+      // Bounces cardes.
+      for (let i = 0; i < form['bounce.mailcardes'].length; i += 1) {
         // trim the host before saving
-        form['bounce.mailboxes'][i].host = form['bounce.mailboxes'][i].host?.trim();
+        form['bounce.mailcardes'][i].host = form['bounce.mailcardes'][i].host?.trim();
 
         // If it's the dummy UI password placeholder, ignore it.
-        if (this.isDummy(form['bounce.mailboxes'][i].password)) {
-          form['bounce.mailboxes'][i].password = '';
-        } else if (this.hasDummy(form['bounce.mailboxes'][i].password)) {
+        if (this.isDummy(form['bounce.mailcardes'][i].password)) {
+          form['bounce.mailcardes'][i].password = '';
+        } else if (this.hasDummy(form['bounce.mailcardes'][i].password)) {
           hasDummy = `bounce #${i + 1}`;
         }
       }
@@ -202,7 +202,7 @@ export default Vue.extend({
       }
 
       if (hasDummy) {
-        this.$utils.toast(this.$t('globals.messages.passwordChangeFull', { name: hasDummy }), 'is-danger');
+        this.$utils.toast(this.$t('globals.messages.passwordChangeFull', { name: hasDummy }), '');
         return false;
       }
 

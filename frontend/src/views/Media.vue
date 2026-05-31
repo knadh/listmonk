@@ -1,70 +1,70 @@
 <template>
   <section class="media-files">
-    <h1 class="title is-4">
+    <h1>
       {{ $t('media.title') }}
       <span v-if="media.results && media.results.length > 0">({{ media.results.length }})</span>
-      <span class="has-text-grey-light"> / {{ serverConfig.media_provider }}</span>
+      <span class="text-lighter"> / {{ serverConfig.media_provider }}</span>
     </h1>
 
-    <b-loading :active="isProcessing || loading.media" />
+    <oat-loading :active="isProcessing || loading.media" />
 
     <section class="wrap gallery mt-6">
-      <div class="columns mb-4">
-        <div class="column">
+      <div class="row mb-4">
+        <div class="col-12">
           <form @submit.prevent="onQueryMedia" class="search">
             <div>
-              <b-field>
-                <b-input v-model="queryParams.query" name="query" expanded icon="magnify" ref="query" data-cy="query" />
-                <p class="controls">
-                  <b-button native-type="submit" type="is-primary" icon-left="magnify" data-cy="btn-query" />
+              <oat-field>
+                <input aria-label="field" v-model="queryParams.query" name="query" icon="magnify" ref="query" data-cy="query">
+                <p class="action-controls">
+                  <button type="submit" data-variant="primary" data-cy="btn-query" />
                 </p>
-              </b-field>
+              </oat-field>
             </div>
           </form>
         </div>
-        <div v-if="$can('media:manage')" class="column is-narrow">
-          <b-button @click="onToggleForm" icon-left="file-upload-outline" data-cy="btn-toggle-upload">
+        <div v-if="$can('media:manage')" class="col-2">
+          <button type="button" @click="onToggleForm" data-cy="btn-toggle-upload">
             {{ $t('media.upload') }}
-          </b-button>
+          </button>
         </div>
       </div>
 
-      <b-collapse v-if="$can('media:manage')" v-model="showUploadForm" animation="">
+      <div>
         <form @submit.prevent="onSubmit" class="mb-6" data-cy="upload">
           <div>
-            <b-field :label="$t('media.upload')">
-              <b-upload v-model="form.files" drag-drop multiple xaccept=".png,.jpg,.jpeg,.gif,.svg" expanded>
-                <div class="has-text-centered section">
+            <oat-field :label="$t('media.upload')">
+              <oat-upload v-model="form.files" multiple xaccept=".png,.jpg,.jpeg,.gif,.svg">
+                <div class="align-center app-section">
                   <p>
-                    <b-icon icon="file-upload-outline" size="is-large" />
+                    <oat-icon icon="file-upload-outline" />
                   </p>
                   <p>{{ $t('media.uploadHelp') }}</p>
                 </div>
-              </b-upload>
-            </b-field>
-            <div class="tags" v-if="form.files.length > 0">
-              <b-tag v-for="(f, i) in form.files" :key="i" size="is-medium" closable @close="removeUploadFile(i)">
+              </oat-upload>
+            </oat-field>
+            <div class="hstack" v-if="form.files.length > 0">
+              <span v-for="(f, i) in form.files" :key="i" closable @close="removeUploadFile(i)">
                 {{ f.name }}
-              </b-tag>
+              </span>
             </div>
-            <div class="buttons">
-              <b-button native-type="submit" type="is-primary" icon-left="file-upload-outline"
+            <div class="hstack">
+              <button type="submit" data-variant="primary"
                 :disabled="form.files.length === 0" :loading="isProcessing">
                 {{ $tc('media.upload') }}
-              </b-button>
+              </button>
             </div>
           </div>
         </form>
-      </b-collapse>
+      </div>
 
       <!-- Pagination -->
       <div v-if="media.total > media.perPage" class="pagination-wrapper mt-5">
-        <b-pagination :total="media.total" :current.sync="media.page" :per-page="media.perPage"
+        <oat-pagination :total="media.total" :current.sync="media.page" :per-page="media.perPage"
           @change="onPageChange" />
       </div>
 
-      <div v-if="loading.media" class="has-text-centered py-6">
-        <b-loading :active="loading.media" />
+      <div v-if="loading.media" class="align-center py-6">
+        <oat-loading :active="loading.media" />
       </div>
       <div v-else-if="media.results && media.results.length > 0" class="grid">
         <div v-for="item in media.results" :key="item.id" class="item">
@@ -83,7 +83,7 @@
             <div class="actions">
               <a href="#" @click.prevent="$utils.confirm(null, () => onDeleteMedia(item.id))" data-cy="btn-delete"
                 :aria-label="$t('globals.buttons.delete')" class="delete-btn">
-                <b-icon icon="trash-can-outline" size="is-small" />
+                <oat-icon icon="trash-can-outline" />
               </a>
             </div>
           </div>
@@ -101,7 +101,7 @@
 
       <!-- Pagination -->
       <div v-if="media.total > media.perPage" class="pagination-wrapper mt-5">
-        <b-pagination :total="media.total" :current.sync="media.page" :per-page="media.perPage"
+        <oat-pagination :total="media.total" :current.sync="media.page" :per-page="media.perPage"
           @change="onPageChange" />
       </div>
     </section>

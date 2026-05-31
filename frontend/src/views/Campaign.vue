@@ -1,91 +1,91 @@
 <template>
   <section class="campaign">
-    <header class="columns page-header">
-      <div class="column is-6">
-        <p v-if="isEditing && data.status" class="tags">
-          <b-tag v-if="isEditing" :class="data.status">
+    <header class="row page-header">
+      <div class="col-6">
+        <p v-if="isEditing && data.status" class="hstack">
+          <oat-badge v-if="isEditing" :type="data.status">
             {{ $t(`campaigns.status.${data.status}`) }}
-          </b-tag>
-          <b-tag v-if="data.type === 'optin'" :class="data.type">
+          </oat-badge>
+          <oat-badge v-if="data.type === 'optin'" :type="data.type">
             {{ $t('lists.optin') }}
-          </b-tag>
-          <span v-if="isEditing" class="has-text-grey-light is-size-7" :data-campaign-id="data.id">
+          </oat-badge>
+          <span v-if="isEditing" class="text-lighter " :data-campaign-id="data.id">
             {{ $t('globals.fields.id') }}: <copy-text :text="`${data.id}`" />
             {{ $t('globals.fields.uuid') }}: <copy-text :text="data.uuid" />
           </span>
         </p>
-        <h4 v-if="isEditing" class="title is-4">
+        <h4 v-if="isEditing">
           {{ data.name }}
         </h4>
-        <h4 v-else class="title is-4">
+        <h4 v-else>
           {{ $t('campaigns.newCampaign') }}
         </h4>
       </div>
 
-      <div class="column is-6">
-        <div v-if="canManage || canSend" class="buttons">
-          <b-field grouped v-if="isEditing && canEdit">
-            <b-field v-if="canManage" expanded>
-              <b-button expanded @click="() => onSubmit('update')" :loading="loading.campaigns" type="is-primary"
-                icon-left="content-save-outline" data-cy="btn-save" aria-keyshortcuts="ctrl+s">
+      <div class="col-6">
+        <div v-if="canManage || canSend" class="hstack">
+          <oat-field v-if="isEditing && canEdit">
+            <oat-field v-if="canManage">
+              <button type="button" @click="() => onSubmit('update')" :loading="loading.campaigns" data-variant="primary"
+                data-cy="btn-save" aria-keyshortcuts="ctrl+s">
                 <span class="has-kbd">{{ $t('globals.buttons.saveChanges') }} <span class="kbd">Ctrl+S</span></span>
-              </b-button>
-            </b-field>
-            <b-field expanded v-if="canSend && canStart">
-              <b-button expanded @click="startCampaign" :loading="loading.campaigns" type="is-primary"
+              </button>
+            </oat-field>
+            <oat-field v-if="canSend && canStart">
+              <button type="button" @click="startCampaign" :loading="loading.campaigns" data-variant="primary"
                 icon-left="rocket-launch-outline" data-cy="btn-start">
                 {{ $t('campaigns.start') }}
-              </b-button>
-            </b-field>
-            <b-field expanded v-if="canSend && canSchedule">
-              <b-button expanded @click="startCampaign" :loading="loading.campaigns" type="is-primary"
+              </button>
+            </oat-field>
+            <oat-field v-if="canSend && canSchedule">
+              <button type="button" @click="startCampaign" :loading="loading.campaigns" data-variant="primary"
                 icon-left="clock-start" data-cy="btn-schedule">
                 {{ $t('campaigns.schedule') }}
-              </b-button>
-            </b-field>
-            <b-field expanded v-if="canSend && canUnSchedule">
-              <b-button expanded @click="$utils.confirm(null, unscheduleCampaign)" :loading="loading.campaigns"
-                type="is-primary" icon-left="clock-start" data-cy="btn-unschedule">
+              </button>
+            </oat-field>
+            <oat-field v-if="canSend && canUnSchedule">
+              <button type="button" class="outline" @click="$utils.confirm(null, unscheduleCampaign)"
+                :loading="loading.campaigns" icon-left="clock-start" data-cy="btn-unschedule">
                 {{ $t('campaigns.unSchedule') }}
-              </b-button>
-            </b-field>
-          </b-field>
+              </button>
+            </oat-field>
+          </oat-field>
         </div>
       </div>
     </header>
 
-    <b-loading :active="loading.campaigns" />
+    <oat-loading :active="loading.campaigns" />
 
-    <b-tabs type="is-boxed" :animated="false" v-model="activeTab" @input="onTab">
-      <b-tab-item :label="$tc('globals.terms.campaign')" label-position="on-border" value="campaign"
+    <oat-tabs v-model="activeTab" @input="onTab">
+      <oat-tab-item :label="$tc('globals.terms.campaign')" value="campaign"
         icon="rocket-launch-outline">
         <section class="wrap">
-          <div class="columns">
-            <div class="column is-7">
+          <div class="row">
+            <div class="col-7">
               <form @submit.prevent="() => onSubmit(isNew ? 'create' : 'update')">
-                <b-field :label="$t('globals.fields.name')" label-position="on-border">
-                  <b-input :maxlength="200" :ref="'focus'" v-model="form.name" name="name" :disabled="!canEdit"
-                    :placeholder="$t('globals.fields.name')" required autofocus />
-                </b-field>
+                <oat-field :label="$t('globals.fields.name')">
+                  <input aria-label="field" :maxlength="200" :ref="'focus'" v-model="form.name" name="name" :disabled="!canEdit"
+                    :placeholder="$t('globals.fields.name')" required>
+                </oat-field>
 
-                <b-field :label="$t('campaigns.subject')" label-position="on-border">
-                  <b-input :maxlength="5000" v-model="form.subject" name="subject" :disabled="!canEdit"
-                    :placeholder="$t('campaigns.subject')" required />
-                </b-field>
+                <oat-field :label="$t('campaigns.subject')">
+                  <input aria-label="field" :maxlength="5000" v-model="form.subject" name="subject" :disabled="!canEdit"
+                    :placeholder="$t('campaigns.subject')" required>
+                </oat-field>
 
-                <b-field :label="$t('campaigns.fromAddress')" label-position="on-border">
-                  <b-input :maxlength="200" v-model="form.fromEmail" name="from_email" :disabled="!canEdit"
-                    :placeholder="$t('campaigns.fromAddressPlaceholder')" required />
-                </b-field>
+                <oat-field :label="$t('campaigns.fromAddress')">
+                  <input aria-label="field" :maxlength="200" v-model="form.fromEmail" name="from_email" :disabled="!canEdit"
+                    :placeholder="$t('campaigns.fromAddressPlaceholder')" required>
+                </oat-field>
 
                 <list-selector v-model="form.lists" :selected="form.lists" :all="lists.results" :disabled="!canEdit"
                   :label="$t('globals.terms.lists')" :placeholder="$t('campaigns.sendToLists')" />
 
-                <div class="columns">
-                  <div class="column is-6">
-                    <b-field :label="$tc('globals.terms.messenger')" label-position="on-border">
-                      <b-select :placeholder="$tc('globals.terms.messenger')" v-model="form.messenger" name="messenger"
-                        :disabled="!canEdit" required expanded>
+                <div class="row">
+                  <div class="col-6">
+                    <oat-field :label="$tc('globals.terms.messenger')">
+                      <select aria-label="field" :placeholder="$tc('globals.terms.messenger')" v-model="form.messenger" name="messenger"
+                        :disabled="!canEdit" required>
                         <template v-if="emailMessengers.length > 1">
                           <optgroup label="email">
                             <option v-for="m in emailMessengers" :value="m" :key="m">
@@ -97,119 +97,118 @@
                           <option value="email">email</option>
                         </template>
                         <option v-for="m in otherMessengers" :value="m" :key="m">{{ m }}</option>
-                      </b-select>
-                    </b-field>
+                      </select>
+                    </oat-field>
                   </div>
-                  <div class="column is-6">
-                    <b-field :label="$t('campaigns.format')" label-position="on-border" class="mr-4 mb-0">
-                      <b-select v-model="form.content.contentType" :disabled="!canEdit || isEditing" value="richtext"
-                        expanded>
+                  <div class="col-6">
+                    <oat-field :label="$t('campaigns.format')" class="mr-4 mb-0">
+                      <select aria-label="field" v-model="form.content.contentType" :disabled="!canEdit || isEditing" value="richtext"
+                       >
                         <option v-for="(name, f) in contentTypes" :key="f" name="format" :value="f"
                           :data-cy="`check-${f}`">
                           {{ name }}
                         </option>
-                      </b-select>
-                    </b-field>
+                      </select>
+                    </oat-field>
                   </div>
                 </div>
 
-                <b-field :label="$t('globals.terms.tags')" label-position="on-border">
-                  <b-taginput v-model="form.tags" name="tags" :disabled="!canEdit" ellipsis icon="tag-outline"
+                <oat-field :label="$t('globals.terms.tags')">
+                  <oat-tag-input v-model="form.tags" name="tags" :disabled="!canEdit"
                     :placeholder="$t('globals.terms.tags')" />
-                </b-field>
+                </oat-field>
                 <hr />
 
-                <div class="columns">
-                  <div class="column is-4">
-                    <b-field :label="$t('campaigns.sendLater')" data-cy="btn-send-later">
-                      <b-switch v-model="form.sendLater" :disabled="!canEdit" />
-                    </b-field>
+                <div class="row">
+                  <div class="col-4">
+                    <oat-field :label="$t('campaigns.sendLater')" data-cy="btn-send-later">
+                      <oat-switch v-model="form.sendLater" :disabled="!canEdit" />
+                    </oat-field>
                   </div>
-                  <div class="column">
+                  <div class="col-12">
                     <br />
-                    <b-field v-if="form.sendLater" data-cy="send_at"
+                    <oat-field v-if="form.sendLater" data-cy="send_at"
                       :message="form.sendAtDate ? $utils.duration(Date(), form.sendAtDate) : ''">
-                      <b-datetimepicker v-model="form.sendAtDate" :disabled="!canEdit" required editable mobile-native
-                        position="is-top-right" :placeholder="$t('campaigns.dateAndTime')" icon="calendar-clock"
-                        :timepicker="{ hourFormat: '24' }" :datetime-formatter="formatDateTime"
+                      <oat-date-input datetime v-model="form.sendAtDate" :disabled="!canEdit" required editable mobile-native
+ :placeholder="$t('campaigns.dateAndTime')"
                         horizontal-time-picker />
-                    </b-field>
+                    </oat-field>
                   </div>
                 </div>
 
                 <div>
-                  <p class="has-text-right">
+                  <p class="align-right">
                     <a href="#" @click.prevent="onShowHeaders" data-cy="btn-headers">
-                      <b-icon icon="plus" />{{ $t('settings.smtp.setCustomHeaders') }}
+                      <oat-icon icon="plus" />{{ $t('settings.smtp.setCustomHeaders') }}
                     </a>
                   </p>
-                  <b-field v-if="form.headersStr !== '[]' || isHeadersVisible" label-position="on-border"
+                  <oat-field v-if="form.headersStr !== '[]' || isHeadersVisible"
                     :message="$t('campaigns.customHeadersHelp')">
-                    <b-input v-model="form.headersStr" name="headers" type="textarea"
+                    <textarea aria-label="field" v-model="form.headersStr" name="headers"
                       placeholder="[{&quot;X-Custom&quot;: &quot;value&quot;}, {&quot;X-Custom2&quot;: &quot;value&quot;}]"
                       :disabled="!canEdit" />
-                  </b-field>
+                  </oat-field>
                 </div>
                 <hr />
 
-                <b-field v-if="isNew">
-                  <b-button native-type="submit" type="is-primary" :loading="loading.campaigns" data-cy="btn-continue">
+                <oat-field v-if="isNew">
+                  <button type="submit" data-variant="primary" :loading="loading.campaigns" data-cy="btn-continue">
                     {{ $t('campaigns.continue') }}
-                  </b-button>
-                </b-field>
+                  </button>
+                </oat-field>
               </form>
             </div>
-            <div v-if="canManage" class="column is-4 is-offset-1">
+            <div v-if="canManage" class="col-4 offset-1">
               <br />
-              <div class="box">
-                <h3 class="title is-size-6">
+              <div class="card">
+                <h3>
                   {{ $t('campaigns.sendTest') }}
                 </h3>
-                <b-field :message="$t('campaigns.sendTestHelp')">
-                  <b-taginput v-model="form.testEmails" :before-adding="$utils.validateEmail" :disabled="isNew" ellipsis
+                <oat-field :message="$t('campaigns.sendTestHelp')">
+                  <oat-tag-input v-model="form.testEmails" :before-adding="$utils.validateEmail" :disabled="isNew"
                     icon="email-outline" :placeholder="$t('campaigns.testEmails')" />
-                </b-field>
-                <b-field>
-                  <b-button @click="() => onSubmit('test')" :loading="loading.campaigns" :disabled="isNew"
-                    type="is-primary" icon-left="email-outline">
+                </oat-field>
+                <oat-field>
+                  <button type="button" @click="() => onSubmit('test')" :loading="loading.campaigns" :disabled="isNew"
+                    data-variant="primary" icon-left="email-outline">
                     {{ $t('campaigns.send') }}
-                  </b-button>
-                </b-field>
+                  </button>
+                </oat-field>
               </div>
             </div>
           </div>
         </section>
-      </b-tab-item><!-- campaign -->
+      </oat-tab-item><!-- campaign -->
 
-      <b-tab-item :label="$t('campaigns.content')" icon="text" :disabled="isNew" value="content">
+      <oat-tab-item :label="$t('campaigns.content')" icon="text" :disabled="isNew" value="content">
         <editor v-if="data.id" v-model="form.content" :id="data.id" :title="data.name" :disabled="!canEdit"
           :templates="templates" :content-types="contentTypes" />
 
-        <div class="columns">
-          <div class="column is-6">
-            <p v-if="!isAttachFieldVisible" class="is-size-6 has-text-grey">
+        <div class="row">
+          <div class="col-6">
+            <p v-if="!isAttachFieldVisible" class=" text-light">
               <a href="#" @click.prevent="onShowAttachField()" data-cy="btn-attach">
-                <b-icon icon="file-upload-outline" size="is-small" />
+                <oat-icon icon="file-upload-outline" />
                 {{ $t('campaigns.addAttachments') }}
               </a>
             </p>
 
-            <b-field v-if="isAttachFieldVisible" :label="$t('campaigns.attachments')" label-position="on-border"
-              expanded data-cy="media">
-              <b-taginput v-model="form.media" name="media" ellipsis icon="tag-outline" ref="media" field="filename"
+            <oat-field v-if="isAttachFieldVisible" :label="$t('campaigns.attachments')"
+              data-cy="media">
+              <oat-tag-input v-model="form.media" name="media" ref="media" field="filename"
                 @focus="onOpenAttach" :disabled="!canEdit" />
-            </b-field>
+            </oat-field>
           </div>
-          <div class="column has-text-right">
+          <div class="col-12 align-right">
             <a href="https://listmonk.app/docs/templating/#template-expressions" target="_blank"
               rel="noopener noreferer">
-              <b-icon icon="code" /> {{ $t('campaigns.templatingRef') }}</a>
-            <span v-if="canEdit && form.content.contentType !== 'plain'" class="is-size-6 has-text-grey ml-6">
+              <oat-icon icon="code" /> {{ $t('campaigns.templatingRef') }}</a>
+            <span v-if="canEdit && form.content.contentType !== 'plain'" class=" text-light ml-6">
               <a v-if="form.altbody === null" href="#" @click.prevent="onAddAltBody">
-                <b-icon icon="text" size="is-small" /> {{ $t('campaigns.addAltText') }}
+                <oat-icon icon="text" /> {{ $t('campaigns.addAltText') }}
               </a>
               <a v-else href="#" @click.prevent="$utils.confirm(null, onRemoveAltBody)">
-                <b-icon icon="trash-can-outline" size="is-small" />
+                <oat-icon icon="trash-can-outline" />
                 {{ $t('campaigns.removeAltText') }}
               </a>
             </span>
@@ -217,102 +216,102 @@
         </div>
 
         <div v-if="canEdit && form.content.contentType !== 'plain'" class="alt-body">
-          <b-input v-if="form.altbody !== null" v-model="form.altbody" type="textarea" :disabled="!canEdit" />
+          <textarea aria-label="field" v-if="form.altbody !== null" v-model="form.altbody" :disabled="!canEdit" />
         </div>
-      </b-tab-item><!-- content -->
+      </oat-tab-item><!-- content -->
 
-      <b-tab-item :label="$t('globals.terms.attribs')" icon="code" value="attribs" :disabled="isNew">
+      <oat-tab-item :label="$t('globals.terms.attribs')" icon="code" value="attribs" :disabled="isNew">
         <section class="wrap">
-          <b-field :label="$t('globals.terms.attribs')" :message="$t('campaigns.attribsHelp')"
-            label-position="on-border">
-            <b-input v-model="form.attribsStr" type="textarea" :disabled="!canEdit" rows="15" />
-          </b-field>
+          <oat-field :label="$t('globals.terms.attribs')" :message="$t('campaigns.attribsHelp')"
+           >
+            <textarea aria-label="field" v-model="form.attribsStr" :disabled="!canEdit" rows="15" />
+          </oat-field>
         </section>
-      </b-tab-item><!-- attribs -->
+      </oat-tab-item><!-- attribs -->
 
-      <b-tab-item :label="$t('campaigns.archive')" icon="newspaper-variant-outline" value="archive" :disabled="isNew">
+      <oat-tab-item :label="$t('campaigns.archive')" icon="newspaper-variant-outline" value="archive" :disabled="isNew">
         <section class="wrap">
-          <div class="columns">
-            <div class="column is-4">
-              <b-field :label="$t('campaigns.archiveEnable')" data-cy="btn-archive"
+          <div class="row">
+            <div class="col-4">
+              <oat-field :label="$t('campaigns.archiveEnable')" data-cy="btn-archive"
                 :message="$t('campaigns.archiveHelp')">
-                <div class="columns">
-                  <div class="column">
-                    <b-switch data-cy="btn-archive" v-model="form.archive" :disabled="!canArchive" />
+                <div class="row">
+                  <div class="col-12">
+                    <oat-switch data-cy="btn-archive" v-model="form.archive" :disabled="!canArchive" />
                   </div>
-                  <div class="column is-12">
+                  <div class="col-12">
                     <a :href="`${serverConfig.root_url}/archive/${data.uuid}`" target="_blank" rel="noopener noreferer"
-                      :class="{ 'has-text-grey-light': !form.archive }" aria-label="$t('campaigns.archive')">
-                      <b-icon icon="link-variant" />
+                      :class="{ 'text-lighter': !form.archive }" aria-label="$t('campaigns.archive')">
+                      <oat-icon icon="link-variant" />
                     </a>
                   </div>
                 </div>
-              </b-field>
+              </oat-field>
             </div>
-            <div class="column is-8">
-              <b-field grouped position="is-right">
-                <b-field v-if="!canEdit && canArchive">
-                  <b-button @click="onUpdateCampaignArchive" :loading="loading.campaigns" type="is-primary"
-                    icon-left="content-save-outline" data-cy="btn-save">
+            <div class="col-8">
+              <oat-field>
+                <oat-field v-if="!canEdit && canArchive">
+                  <button type="button" @click="onUpdateCampaignArchive" :loading="loading.campaigns" data-variant="primary"
+                    data-cy="btn-save">
                     {{ $t('globals.buttons.saveChanges') }}
-                  </b-button>
-                </b-field>
-              </b-field>
+                  </button>
+                </oat-field>
+              </oat-field>
             </div>
           </div>
 
-          <div class="columns">
-            <div class="column is-6">
-              <b-field :label="$tc('globals.terms.template')" label-position="on-border">
-                <b-select :placeholder="$tc('globals.terms.template')" v-model="form.archiveTemplateId" name="template"
+          <div class="row">
+            <div class="col-6">
+              <oat-field :label="$tc('globals.terms.template')">
+                <select aria-label="field" :placeholder="$tc('globals.terms.template')" v-model="form.archiveTemplateId" name="template"
                   :disabled="!canArchive || !form.archive || form.content.contentType === 'visual'" required>
                   <template v-for="t in templates">
                     <option v-if="t.type === 'campaign'" :value="t.id" :key="t.id">
                       {{ t.name }}
                     </option>
                   </template>
-                </b-select>
-              </b-field>
+                </select>
+              </oat-field>
             </div>
 
-            <div class="column is-6">
-              <b-field grouped position="is-right">
-                <b-field v-if="form.archive && (!this.form.archiveMetaStr || this.form.archiveMetaStr === '{}')">
-                  <a class="button is-primary" href="#" @click.prevent="onFillArchiveMeta" aria-label="{}"><b-icon
+            <div class="col-6">
+              <oat-field>
+                <oat-field v-if="form.archive && (!this.form.archiveMetaStr || this.form.archiveMetaStr === '{}')">
+                  <a class="button " href="#" @click.prevent="onFillArchiveMeta" aria-label="{}"><oat-icon
                       icon="code" /></a>
-                </b-field>
-                <b-field v-if="form.archive">
-                  <b-button @click="onToggleArchivePreview" type="is-primary" icon-left="file-find-outline"
+                </oat-field>
+                <oat-field v-if="form.archive">
+                  <button type="button" @click="onToggleArchivePreview" data-variant="primary"
                     data-cy="btn-preview">
                     {{ $t('campaigns.preview') }}
-                  </b-button>
-                </b-field>
-              </b-field>
+                  </button>
+                </oat-field>
+              </oat-field>
             </div>
           </div>
-          <b-field>
-            <b-field :label="$t('campaigns.archiveSlug')" label-position="on-border"
+          <oat-field>
+            <oat-field :label="$t('campaigns.archiveSlug')"
               :message="$t('campaigns.archiveSlugHelp')">
-              <b-input :maxlength="200" :ref="'focus'" v-model="form.archiveSlug" name="archive_slug"
-                data-cy="archive-slug" :disabled="!canArchive || !form.archive" />
-            </b-field>
-          </b-field>
-          <b-field :label="$t('campaigns.archiveMeta')" :message="$t('campaigns.archiveMetaHelp')"
-            label-position="on-border">
-            <b-input v-model="form.archiveMetaStr" name="archive_meta" type="textarea" data-cy="archive-meta"
+              <input aria-label="field" :maxlength="200" :ref="'focus'" v-model="form.archiveSlug" name="archive_slug"
+                data-cy="archive-slug" :disabled="!canArchive || !form.archive">
+            </oat-field>
+          </oat-field>
+          <oat-field :label="$t('campaigns.archiveMeta')" :message="$t('campaigns.archiveMetaHelp')"
+           >
+            <textarea aria-label="field" v-model="form.archiveMetaStr" name="archive_meta" data-cy="archive-meta"
               :disabled="!canArchive || !form.archive" rows="20" />
-          </b-field>
+          </oat-field>
         </section>
-      </b-tab-item><!-- archive -->
-    </b-tabs>
+      </oat-tab-item><!-- archive -->
+    </oat-tabs>
 
-    <b-modal scroll="keep" :aria-modal="true" :active.sync="isAttachModalOpen" :width="900">
-      <div class="modal-card content" style="width: auto">
-        <section expanded class="modal-card-body">
+    <oat-modal :active.sync="isAttachModalOpen" :width="900">
+      <div class="dialog-card content" style="width: auto">
+        <section class="dialog-body">
           <media is-modal @selected="onAttachSelect" />
         </section>
       </div>
-    </b-modal>
+    </oat-modal>
 
     <campaign-preview v-if="isPreviewingArchive" @close="onToggleArchivePreview" type="campaign" :id="data.id"
       :archive-meta="form.archiveMetaStr" :title="data.title" :content-type="data.contentType"
@@ -464,7 +463,7 @@ export default Vue.extend({
         try {
           this.form.headers = JSON.parse(this.form.headersStr);
         } catch (e) {
-          this.$utils.toast(e.toString(), 'is-danger');
+          this.$utils.toast(e.toString(), '');
           return;
         }
       } else {
@@ -476,7 +475,7 @@ export default Vue.extend({
         try {
           this.form.archiveMeta = JSON.parse(this.form.archiveMetaStr);
         } catch (e) {
-          this.$utils.toast(e.toString(), 'is-danger');
+          this.$utils.toast(e.toString(), '');
           return;
         }
       }
@@ -489,7 +488,7 @@ export default Vue.extend({
         } catch (e) {
           this.$utils.toast(
             `${this.$t('subscribers.invalidJSON')}: ${e.toString()}`,
-            'is-danger',
+            '',
 
             3000,
           );

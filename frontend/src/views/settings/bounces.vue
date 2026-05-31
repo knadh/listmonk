@@ -40,7 +40,7 @@
           </div>
         </div>
       </div>
-    </div><!-- columns -->
+    </div><!-- row -->
 
     <div class="mb-6">
       <oat-field data-cy="btn-enable-bounce-webhook">
@@ -142,16 +142,16 @@
       </div>
     </div>
 
-    <!-- bounce mailbox -->
+    <!-- bounce mailcard -->
     <oat-field>
-      <oat-switch v-if="data['bounce.mailboxes']" v-model="data['bounce.mailboxes'][0].enabled"
-        :disabled="!data['bounce.enabled']" name="enabled" :native-value="true" data-cy="btn-enable-bounce-mailbox">
-        {{ $t('settings.bounces.enableMailbox') }}
+      <oat-switch v-if="data['bounce.mailcardes']" v-model="data['bounce.mailcardes'][0].enabled"
+        :disabled="!data['bounce.enabled']" name="enabled" :native-value="true" data-cy="btn-enable-bounce-mailcard">
+        {{ $t('settings.bounces.enableMailcard') }}
       </oat-switch>
     </oat-field>
 
-    <template v-if="data['bounce.enabled'] && data['bounce.mailboxes'][0].enabled">
-      <div class="card" v-for="(item, n) in data['bounce.mailboxes']" :key="n">
+    <template v-if="data['bounce.enabled'] && data['bounce.mailcardes'][0].enabled">
+      <div class="card" v-for="(item, n) in data['bounce.mailcardes']" :key="n">
         <div class="row">
           <div class="col-12" :class="{ disabled: !item.enabled }">
             <div class="row">
@@ -243,7 +243,7 @@
               </div>
             </div><!-- TLS -->
           </div>
-        </div><!-- second container column -->
+        </div><!-- second container col-12 -->
       </div><!-- block -->
     </template>
   </div>
@@ -270,7 +270,7 @@ export default Vue.extend({
 
   methods: {
     removeBounceBox(i) {
-      this.data['bounce.mailboxes'].splice(i, 1);
+      this.data['bounce.mailcardes'].splice(i, 1);
     },
   },
 });

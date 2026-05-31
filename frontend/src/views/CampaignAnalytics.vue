@@ -1,10 +1,10 @@
 <template>
   <section class="analytics content relative">
-    <h1 class="title is-4">
+    <h1>
       {{ $t('analytics.title') }}
     </h1>
     <div v-if="serverConfig.privacy.disable_tracking || !serverConfig.privacy.individual_tracking"
-      class="notification is-info">
+      class="card ">
       <template v-if="serverConfig.privacy.disable_tracking">
         {{ $t('analytics.trackingDisabled') }}
       </template>
@@ -15,52 +15,50 @@
     <hr />
 
     <form @submit.prevent="onSubmit">
-      <div class="columns">
-        <div class="column is-6">
-          <b-field :label="$t('globals.terms.campaigns')" label-position="on-border">
-            <b-taginput v-model="form.campaigns" :data="queriedCampaigns" name="campaigns" ellipsis icon="tag-outline"
+      <div class="row">
+        <div class="col-6">
+          <oat-field :label="$t('globals.terms.campaigns')">
+            <oat-tag-input v-model="form.campaigns" :data="queriedCampaigns" name="campaigns"
               :placeholder="$t('globals.terms.campaigns')" autocomplete :allow-new="false" :open-on-focus="true"
               :before-adding="isCampaignSelected" @typing="queryCampaigns" @focus="queryCampaigns" field="name"
               :loading="isSearchLoading" />
-          </b-field>
+          </oat-field>
         </div>
 
-        <div class="column is-5">
-          <div class="columns">
-            <div class="column is-6">
-              <b-field data-cy="from" :label="$t('analytics.fromDate')" label-position="on-border">
-                <b-datetimepicker v-model="form.from" icon="calendar-clock" :timepicker="{ hourFormat: '24' }"
-                  :datetime-formatter="formatDateTime" @input="onFromDateChange" />
-              </b-field>
+        <div class="col-5">
+          <div class="row">
+            <div class="col-6">
+              <oat-field data-cy="from" :label="$t('analytics.fromDate')">
+                <oat-date-input datetime v-model="form.from" @input="onFromDateChange" />
+              </oat-field>
             </div>
-            <div class="column is-6">
-              <b-field data-cy="to" :label="$t('analytics.toDate')" label-position="on-border">
-                <b-datetimepicker v-model="form.to" icon="calendar-clock" :timepicker="{ hourFormat: '24' }"
-                  :datetime-formatter="formatDateTime" @input="onToDateChange" />
-              </b-field>
+            <div class="col-6">
+              <oat-field data-cy="to" :label="$t('analytics.toDate')">
+                <oat-date-input datetime v-model="form.to" @input="onToDateChange" />
+              </oat-field>
             </div>
-          </div><!-- columns -->
-        </div><!-- columns -->
+          </div><!-- row -->
+        </div><!-- row -->
 
-        <div class="column is-1">
-          <b-button native-type="submit" type="is-primary" icon-left="magnify" :disabled="form.campaigns.length === 0"
+        <div class="col-1">
+          <button type="submit" data-variant="primary" :disabled="form.campaigns.length === 0"
             data-cy="btn-search" />
         </div>
-      </div><!-- columns -->
+      </div><!-- row -->
     </form>
 
     <section class="charts mt-5">
       <div class="chart" v-for="(v, k) in charts" :key="k">
-        <div class="columns">
-          <div class="column is-9">
-            <b-loading v-if="v.loading" :active="v.loading" :is-full-page="false" />
+        <div class="row">
+          <div class="col-9">
+            <oat-loading v-if="v.loading" :active="v.loading" :is-full-page="false" />
             <h4 v-if="v.chart !== null">
               {{ v.name }}
-              <span class="has-text-grey-light">({{ $utils.niceNumber(counts[k]) }})</span>
+              <span class="text-lighter">({{ $utils.niceNumber(counts[k]) }})</span>
             </h4>
             <chart :type="v.type" v-if="!v.loading" :data="v.data" :on-click="v.onClick" />
           </div>
-          <div class="column is-2 donut-container">
+          <div class="col-2 donut-container">
             <chart type="donut" v-if="!v.loading" :data="v.donutData" />
           </div>
         </div>

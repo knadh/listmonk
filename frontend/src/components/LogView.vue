@@ -1,6 +1,6 @@
 <template>
   <section class="log-view">
-    <b-loading :active="loading" :is-full-page="false" />
+    <oat-loading :active="loading" :is-full-page="false" />
     <div class="lines" ref="lines">
       <template v-for="(l, i) in lines">
         <template v-if="l">

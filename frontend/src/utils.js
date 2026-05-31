@@ -1,7 +1,3 @@
-import {
-  DialogProgrammatic as Dialog,
-  ToastProgrammatic as Toast,
-} from 'buefy';
 import dayjs from 'dayjs';
 import dayDuration from 'dayjs/plugin/duration';
 import relativeTime from 'dayjs/plugin/relativeTime';
@@ -24,6 +20,20 @@ const htmlEntities = {
   '`': '&#x60;',
   '=': '&#x3D;',
 };
+
+function showToast(message, typ, duration) {
+  let root = document.querySelector('.toast-container');
+  if (!root) {
+    root = document.createElement('div');
+    root.className = 'toast-container';
+    document.body.appendChild(root);
+  }
+  const el = document.createElement('div');
+  el.className = `toast ${typ === 'is-danger' ? 'error' : ''}`;
+  el.textContent = message;
+  root.appendChild(el);
+  setTimeout(() => el.remove(), duration || 3000);
+}
 
 export default class Utils {
   constructor(i18n) {
@@ -146,48 +156,35 @@ export default class Utils {
 
   // UI shortcuts.
   confirm = (msg, onConfirm, onCancel) => {
-    Dialog.confirm({
-      scroll: 'keep',
-      message: !msg ? this.i18n.t('globals.messages.confirm') : this.escapeHTML(msg),
-      confirmText: this.i18n.t('globals.buttons.ok'),
-      cancelText: this.i18n.t('globals.buttons.cancel'),
-      onConfirm,
-      onCancel,
-    });
+    // Native browser dialogs are intentionally used during the Oat migration.
+    // eslint-disable-next-line no-alert
+    if (window.confirm(!msg ? this.i18n.t('globals.messages.confirm') : msg)) {
+      if (onConfirm) {
+        onConfirm();
+      }
+    } else if (onCancel) {
+      onCancel();
+    }
   };
 
-  prompt = (msg, inputAttrs, onConfirm, onCancel, params) => {
-    const p = params || {};
-
-    Dialog.prompt({
-      scroll: 'keep',
-      message: this.escapeHTML(msg),
-      confirmText: p.confirmText || this.i18n.t('globals.buttons.ok'),
-      cancelText: p.cancelText || this.i18n.t('globals.buttons.cancel'),
-      inputAttrs: {
-        type: 'string',
-        maxlength: 200,
-        ...inputAttrs,
-      },
-      trapFocus: true,
-      onConfirm,
-      onCancel,
-    });
+  prompt = (msg, inputAttrs, onConfirm, onCancel) => {
+    const initialValue = inputAttrs && inputAttrs.value ? inputAttrs.value : '';
+    // eslint-disable-next-line no-alert
+    const val = window.prompt(msg, initialValue);
+    if (val !== null) {
+      if (onConfirm) {
+        onConfirm(val);
+      }
+    } else if (onCancel) {
+      onCancel();
+    }
   };
 
-  toast = (msg, typ, duration, queue) => {
-    Toast.open({
-      message: this.escapeHTML(msg),
-      type: !typ ? 'is-success' : typ,
-      queue,
-      duration: duration || 3000,
-      position: 'is-top',
-      pauseOnHover: true,
-    });
+  toast = (msg, typ, duration) => {
+    showToast(msg, typ, duration);
   };
 
-  // Takes a props.row from a Buefy b-column <td> template and
-  // returns a `data-id` attribute which Buefy then applies to the td.
+  // Takes a table row and returns a `data-id` attribute for the cell.
   tdID = (row) => ({ 'data-id': row.id.toString() });
 
   camelString = (str) => {

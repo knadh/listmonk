@@ -1,33 +1,33 @@
 <template>
   <!-- Two-way Data-Binding -->
   <section class="editor">
-    <div class="columns">
-      <div class="column is-three-quarters is-inline-flex">
-        <b-field :label="$t('campaigns.format')" label-position="on-border" class="mr-4 mb-0">
-          <b-select v-model="contentTypeSel" :disabled="disabled" name="content_type">
+    <div class="row">
+      <div class="col-9 flex">
+        <oat-field :label="$t('campaigns.format')" class="mr-4 mb-0">
+          <select aria-label="field" v-model="contentTypeSel" :disabled="disabled" name="content_type">
             <option v-for="(name, f) in contentTypes" :key="f" name="format" :value="f" :data-cy="`check-${f}`">
               {{ name }}
             </option>
-          </b-select>
-        </b-field>
+          </select>
+        </oat-field>
 
-        <b-field v-if="self.contentType !== 'visual'" :label="$tc('globals.terms.template')" label-position="on-border">
-          <b-select :placeholder="$t('globals.terms.none')" v-model="templateId" name="template" :disabled="disabled">
+        <oat-field v-if="self.contentType !== 'visual'" :label="$tc('globals.terms.template')">
+          <select aria-label="field" :placeholder="$t('globals.terms.none')" v-model="templateId" name="template" :disabled="disabled">
             <template v-for="t in validTemplates">
               <option :value="t.id" :key="t.id">
                 {{ t.name }}
               </option>
             </template>
-          </b-select>
-        </b-field>
+          </select>
+        </oat-field>
 
         <div v-else>
-          <b-button v-if="!isVisualTplSelector" @click="onShowVisualTplSelector" type="is-ghost"
-            icon-left="file-find-outline" data-cy="btn-select-visual-tpl">
+          <button type="button" v-if="!isVisualTplSelector" @click="onShowVisualTplSelector" class="ghost"
+            data-cy="btn-select-visual-tpl">
             {{ $t('campaigns.importVisualTemplate') }}
-          </b-button>
-          <b-field v-else :label="$tc('globals.terms.template')" label-position="on-border">
-            <b-select :placeholder="$t('globals.terms.none')" v-model="visualTemplateId"
+          </button>
+          <oat-field v-else :label="$tc('globals.terms.template')">
+            <select aria-label="field" :placeholder="$t('globals.terms.none')" v-model="visualTemplateId"
               @input="() => isVisualTplDisabled = false" name="template" :disabled="disabled"
               class="copy-visual-template-list">
               <template v-for="t in validTemplates">
@@ -35,25 +35,25 @@
                   {{ t.name }}
                 </option>
               </template>
-            </b-select>
+            </select>
 
-            <b-button :disabled="disabled || isVisualTplDisabled || !visualTemplateId" class="ml-3"
-              @click="onImportVisualTpl" type="is-primary" icon-left="content-save-outline"
+            <button type="button" :disabled="disabled || isVisualTplDisabled || !visualTemplateId" class="ml-3"
+              @click="onImportVisualTpl" data-variant="primary"
               data-cy="btn-save-visual-tpl">
               {{ $t('globals.terms.import') }}
 
-              <span class="spinner is-tiny" v-if="loading.templates">
-                <b-loading :is-full-page="false" active />
+              <span class="spinnertiny" v-if="loading.templates">
+                <oat-loading :is-full-page="false" active />
               </span>
-            </b-button>
-          </b-field>
+            </button>
+          </oat-field>
         </div>
       </div>
-      <div class="column is- has-text-right">
-        <b-button @click="onTogglePreview" type="is-primary" icon-left="file-find-outline" data-cy="btn-preview"
+      <div class="col-12 align-right">
+        <button type="button" @click="onTogglePreview" data-variant="primary" data-cy="btn-preview"
           aria-keyshortcuts="F9">
           <span class="has-kbd">{{ $t('campaigns.preview') }} <span class="kbd">F9</span></span>
-        </b-button>
+        </button>
       </div>
     </div>
 
@@ -71,11 +71,11 @@
     <code-editor lang="markdown" v-if="self.contentType === 'markdown'" v-model="self.body" key="editor-markdown" />
 
     <!-- plain text //-->
-    <b-input v-if="self.contentType === 'plain'" v-model="self.body" type="textarea" name="content" ref="plainEditor"
+    <textarea aria-label="field" v-if="self.contentType === 'plain'" v-model="self.body" name="content" ref="plainEditor"
       class="plain-editor" />
 
     <!-- campaign preview //-->
-    <campaign-preview v-if="isPreviewing" is-post @close="onTogglePreview" type="campaign" :id="id" :title="title"
+    <campaign-preview v-if="isPreviewing" @close="onTogglePreview" type="campaign" :id="id" :title="title"
       :content-type="self.contentType" :template-id="templateId" :body="self.body" />
   </section>
 </template>

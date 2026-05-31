@@ -1,25 +1,25 @@
 <template>
   <section class="forms content relative">
-    <h1 class="title is-4">
+    <h1>
       {{ $t('forms.title') }}
     </h1>
     <hr />
 
-    <b-loading v-if="loading.lists" :active="loading.lists" :is-full-page="false" />
+    <oat-loading v-if="loading.lists" :active="loading.lists" :is-full-page="false" />
     <p v-else-if="publicLists.length === 0">
       {{ $t('forms.noPublicLists') }}
     </p>
-    <div class="columns" v-else-if="publicLists.length > 0">
-      <div class="column is-4">
+    <div class="row" v-else-if="publicLists.length > 0">
+      <div class="col-4">
         <h4>{{ $t('forms.publicLists') }}</h4>
         <p>{{ $t('forms.selectHelp') }}</p>
 
-        <b-loading :active="loading.lists" :is-full-page="false" />
+        <oat-loading :active="loading.lists" :is-full-page="false" />
         <ul class="no" data-cy="lists">
           <li v-for="(l, i) in publicLists" :key="l.id">
-            <b-checkbox v-model="checked" :native-value="i">
+            <oat-checkbox v-model="checked" :native-value="i">
               {{ l.name }}
-            </b-checkbox>
+            </oat-checkbox>
           </li>
         </ul>
 
@@ -36,23 +36,23 @@
 
         <hr />
         <h4>{{ $t('forms.redirectURL') }}</h4>
-        <p class="is-size-7 has-text-grey">
+        <p class=" text-light">
           {{ $t('forms.redirectURLHelp') }}
         </p>
         <ul v-if="redirectURLs.length > 0" class="no" data-cy="redirect-urls">
           <li>
-            <b-radio v-model="selectedRedirectURL" native-value="">
+            <oat-radio v-model="selectedRedirectURL" native-value="">
               {{ $t('globals.terms.none') }}
-            </b-radio>
+            </oat-radio>
           </li>
           <li v-for="url in redirectURLs" :key="url">
-            <b-radio v-model="selectedRedirectURL" :native-value="url">
+            <oat-radio v-model="selectedRedirectURL" :native-value="url">
               {{ url }}
-            </b-radio>
+            </oat-radio>
           </li>
         </ul>
       </div>
-      <div class="column" data-cy="form">
+      <div class="col-12" data-cy="form">
         <h4>{{ $t('forms.formHTML') }}</h4>
         <p>
           {{ $t('forms.formHTMLHelp') }}
@@ -60,7 +60,7 @@
 
         <code-editor lang="html" v-if="checked.length > 0" v-model="html" disabled />
       </div>
-    </div><!-- columns -->
+    </div><!-- row -->
   </section>
 </template>
 

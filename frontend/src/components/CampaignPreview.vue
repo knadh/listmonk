@@ -1,14 +1,14 @@
 <template>
   <div>
-    <b-modal scroll="keep" @close="close" :aria-modal="true" :active="isVisible">
+    <oat-modal @close="close" :active="isVisible">
       <div>
-        <div class="modal-card" style="width: auto">
-          <header class="modal-card-head">
+        <div class="dialog-card" style="width: auto">
+          <header class="dialog-head">
             <h4>{{ title }}</h4>
           </header>
         </div>
-        <section expanded class="modal-card-body preview">
-          <b-loading :active="isLoading" :is-full-page="false" />
+        <section class="dialog-body preview">
+          <oat-loading :active="isLoading" :is-full-page="false" />
           <form v-if="isPost" method="post" :action="previewURL" target="iframe" ref="form">
             <input v-if="templateId" type="hidden" name="template_id" :value="templateId" />
             <input v-if="contentType" type="hidden" name="content_type" :value="contentType" />
@@ -18,15 +18,15 @@
           </form>
 
           <iframe id="iframe" name="iframe" ref="iframe" :title="title" :src="isPost ? 'about:blank' : previewURL"
-            @load="onLoaded" sandbox="allow-scripts" />
+            @load="onLoaded" sandcard="allow-scripts" />
         </section>
-        <footer class="modal-card-foot has-text-right">
-          <b-button @click="close">
+        <footer class="dialog-foot align-right">
+          <button type="button" @click="close">
             {{ $t('globals.buttons.close') }}
-          </b-button>
+          </button>
         </footer>
       </div>
-    </b-modal>
+    </oat-modal>
   </div>
 </template>
 

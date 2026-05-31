@@ -1,69 +1,69 @@
 <template>
   <section class="subscribers">
-    <header class="columns page-header">
-      <div class="column is-10">
-        <h1 class="title is-4">
+    <header class="row page-header">
+      <div class="col-10">
+        <h1>
           {{ $t('globals.terms.subscribers') }}
           <span v-if="!isNaN(subscribers.total)">
             (<span data-cy="count">{{ subscribers.total }}</span>)
           </span>
           <span v-if="currentList">
             &raquo; {{ currentList.name }}
-            <span v-if="queryParams.subStatus" class="has-text-grey has-text-weight-normal is-capitalized">({{
+            <span v-if="queryParams.subStatus" class="text-light  ">({{
               queryParams.subStatus }})</span>
           </span>
         </h1>
       </div>
-      <div class="column has-text-right">
-        <b-field v-if="$can('subscribers:manage')" expanded>
-          <b-button expanded type="is-primary" icon-left="plus" @click="showNewForm" data-cy="btn-new" class="btn-new">
+      <div class="col-12 align-right">
+        <oat-field v-if="$can('subscribers:manage')">
+          <button type="button" data-variant="primary" @click="showNewForm" data-cy="btn-new" class="btn-new">
             {{ $t('globals.buttons.new') }}
-          </b-button>
-        </b-field>
+          </button>
+        </oat-field>
       </div>
     </header>
 
     <section class="subscribers-controls">
-      <div class="columns">
-        <div class="column is-8">
+      <div class="row">
+        <div class="col-8">
           <form @submit.prevent="onSubmit">
             <div>
-              <b-field addons>
-                <b-input @input="onSimpleQueryInput" v-model="queryInput" expanded
+              <oat-field addons>
+                <input aria-label="field" @input="onSimpleQueryInput" v-model="queryInput"
                   :placeholder="$t('subscribers.queryPlaceholder')" icon="magnify" ref="query"
-                  :disabled="isSearchAdvanced" data-cy="search" />
-                <p class="controls">
-                  <b-button native-type="submit" type="is-primary" icon-left="magnify" :disabled="isSearchAdvanced"
+                  :disabled="isSearchAdvanced" data-cy="search">
+                <p class="action-controls">
+                  <button type="submit" data-variant="primary" :disabled="isSearchAdvanced"
                     data-cy="btn-search" />
                 </p>
-              </b-field>
+              </oat-field>
 
               <div v-if="isSearchAdvanced">
-                <b-input v-model="queryParams.queryExp" @keydown.native.enter="onAdvancedQueryEnter" type="textarea"
+                <textarea aria-label="field" v-model="queryParams.queryExp" @keydown.native.enter="onAdvancedQueryEnter"
                   ref="queryExp" placeholder="subscribers.name LIKE '%user%' or subscribers.status='blocklisted'"
                   data-cy="query" />
-                <span class="is-size-6 has-text-grey">
+                <span class=" text-light">
                   {{ $t('subscribers.advancedQueryHelp') }}.{{ ' ' }}
                   <a href="https://listmonk.app/docs/querying-and-segmentation" target="_blank"
                     rel="noopener noreferrer">
                     {{ $t('globals.buttons.learnMore') }}.
                   </a>
                 </span>
-                <div class="buttons">
-                  <b-button native-type="submit" type="is-primary" icon-left="magnify" data-cy="btn-query">
+                <div class="hstack">
+                  <button type="submit" data-variant="primary" data-cy="btn-query">
                     {{
                       $t('subscribers.query') }}
-                  </b-button>
-                  <b-button @click.prevent="toggleAdvancedSearch" icon-left="cancel" data-cy="btn-query-reset">
+                  </button>
+                  <button type="button" @click.prevent="toggleAdvancedSearch" icon-left="cancel" data-cy="btn-query-reset">
                     {{ $t('subscribers.reset') }}
-                  </b-button>
+                  </button>
                 </div>
               </div><!-- advanced query -->
             </div>
           </form>
           <div v-if="!isSearchAdvanced" class="toggle-advanced">
             <a href="#" @click.prevent="toggleAdvancedSearch" data-cy="btn-advanced-search">
-              <b-icon icon="cog-outline" size="is-small" />
+              <oat-icon icon="cog-outline" />
               {{ $t('subscribers.advancedQuery') }}
             </a>
           </div>
@@ -72,25 +72,25 @@
     </section><!-- control -->
 
     <br />
-    <b-table :data="subscribers.results ?? []" :loading="loading.subscribers" @check-all="onTableCheck"
-      @check="onTableCheck" :checked-rows.sync="bulk.checked" paginated backend-pagination pagination-position="both"
+    <oat-data-table :data="subscribers.results ?? []" :loading="loading.subscribers" @check-all="onTableCheck"
+      @check="onTableCheck" :checked-rows.sync="bulk.checked" paginated backend-pagination
       @page-change="onPageChange" :current-page="queryParams.page" :per-page="subscribers.perPage"
-      :total="subscribers.total" hoverable checkable backend-sorting @sort="onSort">
+      :total="subscribers.total" checkable backend-sorting @sort="onSort">
       <template #top-left>
         <div class="actions">
           <a class="a" href="#" @click.prevent="exportSubscribers" data-cy="btn-export-subscribers">
-            <b-icon icon="cloud-download-outline" size="is-small" />
+            <oat-icon icon="cloud-download-outline" />
             {{ $t('subscribers.export') }}
           </a>
           <template v-if="bulk.checked.length > 0">
             <a class="a" href="#" @click.prevent="showBulkListForm" data-cy="btn-manage-lists">
-              <b-icon icon="format-list-bulleted-square" size="is-small" /> Manage lists
+              <oat-icon icon="format-list-bulleted-square" /> Manage lists
             </a>
             <a class="a" href="#" @click.prevent="deleteSubscribers" data-cy="btn-delete-subscribers">
-              <b-icon icon="trash-can-outline" size="is-small" /> Delete
+              <oat-icon icon="trash-can-outline" /> Delete
             </a>
             <a class="a" href="#" @click.prevent="blocklistSubscribers" data-cy="btn-manage-blocklist">
-              <b-icon icon="account-off-outline" size="is-small" /> Blocklist
+              <oat-icon icon="account-off-outline" /> Blocklist
             </a>
             <span class="a">
               {{ $t('globals.messages.numSelected', { num: numSelectedSubscribers }) }}
@@ -105,89 +105,89 @@
         </div>
       </template>
 
-      <b-table-column v-slot="props" field="email" :label="$t('subscribers.email')" header-class="cy-email" sortable
+      <oat-table-column v-slot="props" field="email" :label="$t('subscribers.email')" header-class="cy-email" sortable
         :td-attrs="$utils.tdID">
         <a :href="`/subscribers/${props.row.id}`" @click.prevent="showEditForm(props.row)"
           :class="{ 'blocklisted': props.row.status === 'blocklisted' }">
           {{ props.row.email }}
           <copy-text :text="`${props.row.email}`" hide-text />
         </a>
-        <b-tag v-if="props.row.status !== 'enabled'" :class="props.row.status" data-cy="blocklisted">
+        <oat-badge v-if="props.row.status !== 'enabled'" :type="props.row.status" data-cy="blocklisted">
           {{ $t(`subscribers.status.${props.row.status}`) }}
-        </b-tag>
-        <b-taglist>
-          <template v-for="l in props.row.lists">
+        </oat-badge>
+        <span class="badge-list hstack gap-1">
+          <template v-for="l in (props.row.lists || [])">
             <router-link :to="`/subscribers/lists/${l.id}`" :key="l.id" style="padding-right:0.5em;">
-              <b-tag :class="l.subscriptionStatus" size="is-small" :key="l.id">
+              <oat-badge :type="l.subscriptionStatus" :key="l.id">
                 {{ l.name }}
                 <sup v-if="l.optin === 'double' || l.subscriptionStatus == 'unsubscribed'">
                   {{ $t(`subscribers.status.${l.subscriptionStatus}`) }}
                 </sup>
-              </b-tag>
+              </oat-badge>
             </router-link>
           </template>
-        </b-taglist>
-      </b-table-column>
+        </span>
+      </oat-table-column>
 
-      <b-table-column v-slot="props" field="name" :label="$t('globals.fields.name')" header-class="cy-name" sortable>
+      <oat-table-column v-slot="props" field="name" :label="$t('globals.fields.name')" header-class="cy-name" sortable>
         <a :href="`/subscribers/${props.row.id}`" @click.prevent="showEditForm(props.row)"
           :class="{ 'blocklisted': props.row.status === 'blocklisted' }">
           {{ props.row.name }}
           <copy-text :text="`${props.row.name}`" hide-text />
         </a>
-      </b-table-column>
+      </oat-table-column>
 
-      <b-table-column v-slot="props" field="lists" :label="$t('globals.terms.lists')" header-class="cy-lists" centered>
-        {{ listCount(props.row.lists) }}
-      </b-table-column>
+      <oat-table-column v-slot="props" field="lists" :label="$t('globals.terms.lists')" header-class="cy-lists" centered>
+        {{ listCount(props.row.lists || []) }}
+      </oat-table-column>
 
-      <b-table-column v-slot="props" field="created_at" :label="$t('globals.fields.createdAt')"
+      <oat-table-column v-slot="props" field="created_at" :label="$t('globals.fields.createdAt')"
         header-class="cy-created_at" sortable>
         {{ $utils.niceDate(props.row.createdAt) }}
-      </b-table-column>
+      </oat-table-column>
 
-      <b-table-column v-slot="props" field="updated_at" :label="$t('globals.fields.updatedAt')"
+      <oat-table-column v-slot="props" field="updated_at" :label="$t('globals.fields.updatedAt')"
         header-class="cy-updated_at" sortable>
         {{ $utils.niceDate(props.row.updatedAt) }}
-      </b-table-column>
+      </oat-table-column>
 
-      <b-table-column v-slot="props" cell-class="actions" align="right">
+      <oat-table-column v-slot="props" cell-class="actions" align="right">
         <div>
           <a :href="`/api/subscribers/${props.row.id}/export`" data-cy="btn-download"
             :aria-label="$t('subscribers.downloadData')">
-            <b-tooltip :label="$t('subscribers.downloadData')" type="is-dark">
-              <b-icon icon="cloud-download-outline" size="is-small" />
-            </b-tooltip>
+
+              <oat-icon icon="cloud-download-outline" />
+
           </a>
           <a v-if="$can('subscribers:manage')" :href="`/subscribers/${props.row.id}`"
             @click.prevent="showEditForm(props.row)" data-cy="btn-edit" :aria-label="$t('globals.buttons.edit')">
-            <b-tooltip :label="$t('globals.buttons.edit')" type="is-dark">
-              <b-icon icon="pencil-outline" size="is-small" />
-            </b-tooltip>
+
+              <oat-icon icon="pencil-outline" />
+
           </a>
           <a v-if="$can('subscribers:manage')" href="#" @click.prevent="deleteSubscriber(props.row)"
             data-cy="btn-delete" :aria-label="$t('globals.buttons.delete')">
-            <b-tooltip :label="$t('globals.buttons.delete')" type="is-dark">
-              <b-icon icon="trash-can-outline" size="is-small" />
-            </b-tooltip>
+
+              <oat-icon icon="trash-can-outline" />
+
           </a>
         </div>
-      </b-table-column>
+      </oat-table-column>
 
       <template #empty v-if="!loading.subscribers">
         <empty-placeholder />
       </template>
-    </b-table>
+</oat-data-table>
 
     <!-- Manage list modal -->
-    <b-modal scroll="keep" :aria-modal="true" :active.sync="isBulkListFormVisible" :width="500" class="has-overflow">
+    <oat-modal :active.sync="isBulkListFormVisible" :width="500" class="has-overflow">
       <subscriber-bulk-list :num-subscribers="this.numSelectedSubscribers" @finished="bulkChangeLists" />
-    </b-modal>
+    </oat-modal>
 
     <!-- Add / edit form modal -->
-    <b-modal scroll="keep" :aria-modal="true" :active.sync="isFormVisible" :width="850" @close="onFormClose">
+    <oat-modal :active.sync="isFormVisible" :width="850" @close="onFormClose">
       <subscriber-form :data="curItem" :is-editing="isEditing" @finished="querySubscribers" />
-    </b-modal>
+    </oat-modal>
   </section>
 </template>
 
@@ -257,7 +257,9 @@ export default Vue.extend({
         this.queryParams.queryExp = '';
         this.queryParams.page = 1;
         this.querySubscribers();
-        this.$refs.query.focus();
+        if (this.$refs.query) {
+          this.$refs.query.focus();
+        }
         return;
       }
 
@@ -273,7 +275,9 @@ export default Vue.extend({
 
       // Toggling to advanced search.
       this.$nextTick(() => {
-        this.$refs.queryExp.focus();
+        if (this.$refs.queryExp) {
+          this.$refs.queryExp.focus();
+        }
       });
     },
 
