@@ -6,7 +6,7 @@
           {{ $t('globals.fields.id') }}: <copy-text :text="`${data.id}`" />
           {{ $t('globals.fields.uuid') }}: <copy-text :text="data.uuid" />
         </p>
-        <oat-badge v-if="isEditing" :type="data.type" class="align-right">
+        <oat-badge v-if="isEditing" :type="data.type" class="float-right">
           {{ $t(`lists.types.${data.type}`) }}
         </oat-badge>
         <h4 v-if="isEditing">

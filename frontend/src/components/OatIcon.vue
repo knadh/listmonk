@@ -1,5 +1,5 @@
 <template>
-  <span :class="`mdi-${icon}`" aria-hidden="true" />
+  <span class="icon" :class="`mdi-${icon}`" aria-hidden="true" />
 </template>
 
 <script>
