@@ -4,7 +4,7 @@
       <div class="col-8">
         <h1 class="mb-2">
           {{ $t('globals.terms.lists') }}
-          <span v-if="queryParams.status === 'archived'" class="text-lighter text-7">/ {{ queryParams.status }} </span>
+          <span v-if="queryParams.status === 'archived'" class="text-lighter">/ {{ queryParams.status }} </span>
           <span v-if="!isNaN(lists.total)">({{ lists.total }})</span>
         </h1>
 
