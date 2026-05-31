@@ -1,150 +1,182 @@
 <template>
-  <section class="dashboard content">
-    <header class="row">
-      <div class="col-8">
-        <h1>
-          {{ $utils.niceDate(new Date()) }}
-        </h1>
+  <section class="dashboard">
+    <header class="hstack justify-between mb-6">
+      <div class="hstack">
+        <h1>{{ $utils.niceDate(new Date()) }}</h1>
+        <span class="badge success">{{ $t('menu.dashboard') }}</span>
       </div>
+      <button type="button" class="outline small" @click="fetchData">
+        <oat-icon icon="refresh" />
+        {{ $t('globals.buttons.refresh') }}
+      </button>
     </header>
 
-    <section class="counts wrap">
-      <div class="dashboard-grid">
-        <div class="dashboard-grid">
-          <div class="dashboard-grid">
-            <div class="card relative">
-              <oat-loading v-if="isCountsLoading" active :is-full-page="false" />
-              <article class="card card" data-cy="lists">
-                <div class="row">
-                  <div class="col-6">
-                    <p>
-                      <oat-icon icon="format-list-bulleted-square" />
-                      {{ $utils.niceNumber(counts.lists.total) }}
-                    </p>
-                    <p class=" text-light">
-                      {{ $tc('globals.terms.list', counts.lists.total) }}
-                    </p>
-                  </div>
-                  <div class="col-6">
-                    <ul class="no text-light">
-                      <li>
-                        <label for="#">{{ $utils.niceNumber(counts.lists.public) }}</label>
-                        {{ $t('lists.types.public') }}
-                      </li>
-                      <li>
-                        <label for="#">{{ $utils.niceNumber(counts.lists.private) }}</label>
-                        {{ $t('lists.types.private') }}
-                      </li>
-                      <li>
-                        <label for="#">{{ $utils.niceNumber(counts.lists.optinSingle) }}</label>
-                        {{ $t('lists.optins.single') }}
-                      </li>
-                      <li>
-                        <label for="#">{{ $utils.niceNumber(counts.lists.optinDouble) }}</label>
-                        {{ $t('lists.optins.double') }}
-                      </li>
-                    </ul>
-                  </div>
-                </div>
-              </article><!-- lists -->
+    <section class="row">
+      <div class="col-3">
+        <article class="card stat-card" :aria-busy="isCountsLoading ? 'true' : 'false'" data-cy="lists">
+          <header>
+            <small class="text-light">{{ $tc('globals.terms.list', 2) }}</small>
+            <div class="stat-value">
+              <oat-icon icon="format-list-bulleted-square" />
+              {{ nice(counts.lists.total) }}
+            </div>
+            <small class="text-light hstack gap-2">
+              <span class="badge success">{{ nice(counts.lists.public) }} {{ $t('lists.types.public') }}</span>
+              <span class="badge secondary">{{ nice(counts.lists.private) }} {{ $t('lists.types.private') }}</span>
+            </small>
+          </header>
+        </article>
+      </div>
 
-              <article class="card card" data-cy="campaigns">
-                <div class="row">
-                  <div class="col-6">
-                    <p>
-                      <oat-icon icon="rocket-launch-outline" />
-                      {{ $utils.niceNumber(counts.campaigns.total) }}
-                    </p>
-                    <p class=" text-light">
-                      {{ $tc('globals.terms.campaign', counts.campaigns.total) }}
-                    </p>
-                  </div>
-                  <div class="col-6">
-                    <ul class="no text-light">
-                      <li v-for="(num, status) in counts.campaigns.byStatus" :key="status">
-                        <label for="#" :data-cy="`campaigns-${status}`">{{ num }}</label>
-                        {{ $t(`campaigns.status.${status}`) }}
-                        <span v-if="status === 'running'" class="spinner">
-                          <oat-loading :is-full-page="false" active />
-                        </span>
-                      </li>
-                    </ul>
-                  </div>
-                </div>
-              </article><!-- campaigns -->
-            </div><!-- block -->
+      <div class="col-3">
+        <article class="card stat-card" :aria-busy="isCountsLoading ? 'true' : 'false'" data-cy="subscribers">
+          <header>
+            <small class="text-light">{{ $tc('globals.terms.subscriber', 2) }}</small>
+            <div class="stat-value">
+              <oat-icon icon="account-multiple" />
+              {{ nice(counts.subscribers.total) }}
+            </div>
+            <small class="text-light hstack gap-2">
+              <span class="badge danger">{{ nice(counts.subscribers.blocklisted) }} {{ $t('subscribers.status.blocklisted') }}</span>
+              <span class="badge outline">{{ nice(counts.subscribers.orphans) }} {{ $t('dashboard.orphanSubs') }}</span>
+            </small>
+          </header>
+        </article>
+      </div>
 
-            <div class="card relative">
-              <oat-loading v-if="isCountsLoading" active :is-full-page="false" />
-              <article class="card card" data-cy="subscribers">
-                <div class="row">
-                  <div class="col-6">
-                    <p>
-                      <oat-icon icon="account-multiple" />
-                      {{ $utils.niceNumber(counts.subscribers.total) }}
-                    </p>
-                    <p class=" text-light">
-                      {{ $tc('globals.terms.subscriber', counts.subscribers.total) }}
-                    </p>
-                  </div>
+      <div class="col-3">
+        <article class="card stat-card" :aria-busy="isCountsLoading ? 'true' : 'false'" data-cy="campaigns">
+          <header>
+            <small class="text-light">{{ $tc('globals.terms.campaign', 2) }}</small>
+            <div class="stat-value">
+              <oat-icon icon="rocket-launch-outline" />
+              {{ nice(counts.campaigns.total) }}
+            </div>
+            <small class="text-light hstack gap-2">
+              <span v-for="status in primaryCampaignStatuses" :key="status" :class="['badge', statusVariant(status)]">
+                {{ statusCount(status) }} {{ $t(`campaigns.status.${status}`) }}
+              </span>
+            </small>
+          </header>
+        </article>
+      </div>
 
-                  <div class="col-6">
-                    <ul class="no text-light">
-                      <li>
-                        <label for="#">{{ $utils.niceNumber(counts.subscribers.blocklisted) }}</label>
-                        {{ $t('subscribers.status.blocklisted') }}
-                      </li>
-                      <li>
-                        <label for="#">{{ $utils.niceNumber(counts.subscribers.orphans) }}</label>
-                        {{ $t('dashboard.orphanSubs') }}
-                      </li>
-                    </ul>
-                  </div><!-- subscriber breakdown -->
-                </div><!-- subscriber row -->
-                <hr />
-                <div class="row" data-cy="messages">
-                  <div class="col-12">
-                    <p>
-                      <oat-icon icon="email-outline" />
-                      {{ $utils.niceNumber(counts.messages) }}
-                    </p>
-                    <p class=" text-light">
-                      {{ $t('dashboard.messagesSent') }}
-                    </p>
-                  </div>
-                </div>
-              </article><!-- subscribers -->
+      <div class="col-3">
+        <article class="card stat-card" :aria-busy="isCountsLoading ? 'true' : 'false'" data-cy="messages">
+          <header>
+            <small class="text-light">{{ $t('dashboard.messagesSent') }}</small>
+            <div class="stat-value">
+              <oat-icon icon="email-outline" />
+              {{ nice(counts.messages) }}
+            </div>
+            <small class="text-light">
+              <span class="badge">{{ nice(messagesPerSubscriber) }} / {{ $tc('globals.terms.subscriber', 1) }}</span>
+            </small>
+          </header>
+        </article>
+      </div>
+    </section>
+
+    <section class="row mt-6">
+      <div class="col-6">
+        <article class="card chart-card" :aria-busy="isChartsLoading ? 'true' : 'false'" data-spinner="overlay">
+          <header class="hstack justify-between">
+            <div>
+              <h3>{{ $t('dashboard.campaignViews') }}</h3>
+              <small class="text-light">{{ nice(chartTotal(campaignViews)) }} total</small>
+            </div>
+            <span class="badge success">{{ $t('globals.terms.analytics') }}</span>
+          </header>
+          <chart type="line" v-if="campaignViews" :data="campaignViews" />
+        </article>
+      </div>
+
+      <div class="col-6">
+        <article class="card chart-card" :aria-busy="isChartsLoading ? 'true' : 'false'" data-spinner="overlay">
+          <header class="hstack justify-between">
+            <div>
+              <h3>{{ $t('dashboard.linkClicks') }}</h3>
+              <small class="text-light">{{ nice(chartTotal(campaignClicks)) }} total</small>
+            </div>
+            <span class="badge warning">{{ $t('analytics.links') }}</span>
+          </header>
+          <chart type="line" v-if="campaignClicks" :data="campaignClicks" />
+        </article>
+      </div>
+    </section>
+
+    <section class="row mt-6">
+      <div class="col-6">
+        <article class="card">
+          <header>
+            <h3>{{ $tc('globals.terms.campaign', 2) }}</h3>
+            <p class="text-light">{{ $t('globals.fields.status') }}</p>
+          </header>
+          <div class="table">
+            <table>
+              <thead>
+                <tr>
+                  <th>{{ $t('globals.fields.status') }}</th>
+                  <th class="align-right">{{ $t('analytics.count') }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="(num, status) in campaignStatuses" :key="status">
+                  <td>
+                    <span :class="['badge', statusVariant(status)]">
+                      {{ $t(`campaigns.status.${status}`) }}
+                    </span>
+                  </td>
+                  <td class="align-right">{{ nice(num) }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </article>
+      </div>
+
+      <div class="col-6">
+        <article class="card">
+          <header>
+            <h3>{{ $tc('globals.terms.list', 2) }}</h3>
+            <p class="text-light">{{ $t('globals.fields.type') }} / {{ $t('lists.optin') }}</p>
+          </header>
+          <div class="dashboard-mix">
+            <div>
+              <div class="hstack justify-between">
+                <strong>{{ $t('lists.types.public') }}</strong>
+                <span class="badge success">{{ nice(counts.lists.public) }}</span>
+              </div>
+            </div>
+            <div>
+              <div class="hstack justify-between">
+                <strong>{{ $t('lists.types.private') }}</strong>
+                <span class="badge secondary">{{ nice(counts.lists.private) }}</span>
+              </div>
+            </div>
+            <div>
+              <div class="hstack justify-between">
+                <strong>{{ $t('lists.optins.single') }}</strong>
+                <span class="badge secondary">{{ nice(counts.lists.optinSingle) }}</span>
+              </div>
+            </div>
+            <div>
+              <div class="hstack justify-between">
+                <strong>{{ $t('lists.optins.double') }}</strong>
+                <span class="badge warning">{{ nice(counts.lists.optinDouble) }}</span>
+              </div>
             </div>
           </div>
-          <div class="card relative">
-            <oat-loading v-if="isChartsLoading" active :is-full-page="false" />
-            <article class="card card charts">
-              <div class="row">
-                <div class="col-6">
-                  <h3>
-                    {{ $t('dashboard.campaignViews') }}
-                  </h3><br />
-                  <chart type="line" v-if="campaignViews" :data="campaignViews" />
-                </div>
-                <div class="col-6">
-                  <h3 class="align-right">
-                    {{ $t('dashboard.linkClicks') }}
-                  </h3><br />
-                  <chart type="line" v-if="campaignClicks" :data="campaignClicks" />
-                </div>
-              </div>
-            </article>
-          </div>
-        </div>
-      </div><!-- dashboard-grid block -->
-      <p v-if="settings['app.cache_slow_queries']" class="text-light">
-        *{{ $t('globals.messages.slowQueriesCached') }}
-        <a href="https://listmonk.app/docs/maintenance/performance/" target="_blank" rel="noopener noreferer"
-          class="text-light">
-          <oat-icon icon="link-variant" /> {{ $t('globals.buttons.learnMore') }}
-        </a>
-      </p>
+        </article>
+      </div>
     </section>
+
+    <div v-if="settings['app.cache_slow_queries']" role="alert" class="mt-6">
+      *{{ $t('globals.messages.slowQueriesCached') }}
+      <a href="https://listmonk.app/docs/maintenance/performance/" target="_blank" rel="noopener noreferer">
+        <oat-icon icon="link-variant" /> {{ $t('globals.buttons.learnMore') }}
+      </a>
+    </div>
   </section>
 </template>
 
@@ -169,7 +201,9 @@ export default Vue.extend({
       counts: {
         lists: {},
         subscribers: {},
-        campaigns: {},
+        campaigns: {
+          byStatus: {},
+        },
         messages: 0,
       },
     };
@@ -181,7 +215,13 @@ export default Vue.extend({
       this.isChartsLoading = true;
 
       this.$api.getDashboardCounts().then((data) => {
-        this.counts = data;
+        this.counts = {
+          ...data,
+          campaigns: {
+            ...data.campaigns,
+            byStatus: data.campaigns.byStatus || {},
+          },
+        };
         this.isCountsLoading = false;
       });
 
@@ -194,27 +234,66 @@ export default Vue.extend({
 
     makeChart(data) {
       if (data.length === 0) {
-        return {};
+        return { labels: [], datasets: [{ data: [] }] };
       }
       return {
         labels: data.map((d) => dayjs(d.date).format('DD MMM')),
         datasets: [
           {
-            data: [...data.map((d) => d.count)],
+            data: data.map((d) => d.count),
             borderColor: colors.primary,
+            backgroundColor: `${colors.primary}22`,
             borderWidth: 2,
+            fill: true,
+            tension: 0.35,
             pointHoverBorderWidth: 5,
             pointBorderWidth: 0.5,
           },
         ],
       };
     },
+
+    nice(n) {
+      return this.$utils.niceNumber(n || 0);
+    },
+
+    statusCount(status) {
+      return this.nice(this.counts.campaigns.byStatus?.[status]);
+    },
+
+    statusVariant(status) {
+      const variants = {
+        finished: 'success',
+        running: 'warning',
+        scheduled: 'warning',
+        draft: 'secondary',
+        paused: 'warning',
+        cancelled: 'danger',
+      };
+      return variants[status] || 'outline';
+    },
+
+    chartTotal(chart) {
+      return chart?.datasets?.[0]?.data?.reduce((sum, n) => sum + n, 0) || 0;
+    },
   },
 
   computed: {
     ...mapState(['settings']),
-    dayjs() {
-      return dayjs;
+
+    messagesPerSubscriber() {
+      if (!this.counts.subscribers.total) {
+        return 0;
+      }
+      return Math.round((this.counts.messages || 0) / this.counts.subscribers.total);
+    },
+
+    campaignStatuses() {
+      return this.counts.campaigns.byStatus || {};
+    },
+
+    primaryCampaignStatuses() {
+      return Object.keys(this.campaignStatuses).slice(0, 3);
     },
   },
 
@@ -231,3 +310,36 @@ export default Vue.extend({
   },
 });
 </script>
+
+<style>
+.dashboard > header h1 {
+  margin: 0;
+}
+
+.stat-card header {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.stat-value {
+  align-items: center;
+  display: flex;
+  gap: var(--space-2);
+  font-size: var(--text-2);
+  font-weight: var(--font-semibold);
+  line-height: 1.1;
+}
+
+.chart-card {
+  min-height: 24rem;
+}
+
+.chart-card .chart {
+  height: 18rem;
+}
+
+.dashboard-mix {
+  display: grid;
+  gap: var(--space-4);
+}
+</style>
