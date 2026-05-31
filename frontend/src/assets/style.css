@@ -14,6 +14,7 @@
 
 * {
     --primary: #0055d4;
+    --ring: #0055d4;
     --container-max: 95%;
     --border: light-dark(#e5e7eb, #52525b);
     --font-sans: "Inter", system-ui, sans-serif;
@@ -71,6 +72,10 @@ a {
     label {
         font-weight: var(--font-semibold);
     }
+}
+
+dialog {
+    border-radius: var(--radius-medium);
 }
 
 .badge {
