@@ -17,6 +17,7 @@
     --container-max: 95%;
     --border: light-dark(#e5e7eb, #52525b);
     --font-sans: "Inter", system-ui, sans-serif;
+    --text-1: 1.75rem;
 }
 
 body {
@@ -59,6 +60,10 @@ a {
     clear: both;
     content: "";
     display: table;
+}
+
+.page-header {
+    margin-bottom: var(--space-2);
 }
 
 .badge {
