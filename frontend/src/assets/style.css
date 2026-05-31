@@ -183,6 +183,17 @@ nav[data-topnav] {
         }
     }
 
+    .user-nav-button {
+        padding-top: 0;
+        padding-bottom: 0;
+
+        .user-avatar span,
+        .user-avatar img {
+            height: 24px;
+            width: 24px;
+        }
+    }
+
     a,
     button {
         color: var(--muted-foreground);
