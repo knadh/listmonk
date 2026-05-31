@@ -74,10 +74,7 @@ export default {
 
 .oat-modal>form>.dialog-card>header,
 .oat-modal>.dialog-card>header {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-1);
-  padding: var(--space-6);
+  padding: var(--space-3) var(--space-6);
   padding-block-end: 0;
 }
 
