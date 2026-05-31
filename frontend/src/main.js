@@ -14,8 +14,6 @@ import OatModal from './components/OatModal.vue';
 import OatPagination from './components/OatPagination.vue';
 import OatRadio from './components/OatRadio.vue';
 import OatSwitch from './components/OatSwitch.vue';
-import OatTabItem from './components/OatTabItem.vue';
-import OatTabs from './components/OatTabs.vue';
 import OatTableColumn from './components/OatTableColumn.vue';
 import OatTagInput from './components/OatTagInput.vue';
 import OatUpload from './components/OatUpload.vue';
@@ -40,11 +38,10 @@ Vue.component('OatModal', OatModal);
 Vue.component('OatPagination', OatPagination);
 Vue.component('OatRadio', OatRadio);
 Vue.component('OatSwitch', OatSwitch);
-Vue.component('OatTabItem', OatTabItem);
-Vue.component('OatTabs', OatTabs);
 Vue.component('OatTableColumn', OatTableColumn);
 Vue.component('OatTagInput', OatTagInput);
 Vue.component('OatUpload', OatUpload);
+Vue.config.ignoredElements = [/^ot-/];
 Vue.config.productionTip = false;
 
 // Setup the router.

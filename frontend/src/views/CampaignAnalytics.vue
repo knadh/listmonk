@@ -1,8 +1,14 @@
 <template>
-  <section class="analytics content relative">
-    <h1>
-      {{ $t('analytics.title') }}
-    </h1>
+  <section class="analytics relative">
+    <header class="row page-header">
+      <div class="col-8">
+        <h1>
+          {{ $t('analytics.title') }}
+        </h1>
+      </div>
+    </header>
+
+    <div class="card page-content">
     <div v-if="serverConfig.privacy.disable_tracking || !serverConfig.privacy.individual_tracking"
       class="card ">
       <template v-if="serverConfig.privacy.disable_tracking">
@@ -42,7 +48,9 @@
 
         <div class="col-1">
           <button type="submit" data-variant="primary" :disabled="form.campaigns.length === 0"
-            data-cy="btn-search" />
+            data-cy="btn-search" aria-label="Search">
+            <oat-icon icon="magnify" />
+          </button>
         </div>
       </div><!-- row -->
     </form>
@@ -64,6 +72,7 @@
         </div>
       </div>
     </section>
+    </div>
   </section>
 </template>
 

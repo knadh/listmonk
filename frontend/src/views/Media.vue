@@ -1,25 +1,29 @@
 <template>
   <section class="media-files">
-    <h1>
-      {{ $t('media.title') }}
-      <span v-if="media.results && media.results.length > 0">({{ media.results.length }})</span>
-      <span class="text-lighter text-7"> / {{ serverConfig.media_provider }}</span>
-    </h1>
+    <header v-if="!isModal" class="row page-header">
+      <div class="col-8">
+        <h1>
+          {{ $t('media.title') }}
+          <span v-if="media.results && media.results.length > 0">({{ media.results.length }})</span>
+          <span class="text-lighter text-7"> / {{ serverConfig.media_provider }}</span>
+        </h1>
+      </div>
+    </header>
 
+    <div :class="isModal ? 'media-content' : 'card page-content'">
     <oat-loading :active="isProcessing || loading.media" />
 
-    <section class="wrap gallery mt-6">
+    <section class="gallery">
       <div class="row mb-4">
         <div class="col-12">
           <form @submit.prevent="onQueryMedia" class="search">
-            <div>
-              <oat-field>
-                <input aria-label="field" v-model="queryParams.query" name="query" icon="magnify" ref="query" data-cy="query">
-                <p class="action-controls">
-                  <button type="submit" data-variant="primary" data-cy="btn-query" />
-                </p>
-              </oat-field>
-            </div>
+            <fieldset class="group">
+              <input aria-label="Search" v-model="queryParams.query" name="query" ref="query" data-cy="query"
+                placeholder="Search">
+              <button type="submit" data-variant="primary" data-cy="btn-query" aria-label="Search">
+                <oat-icon icon="magnify" />
+              </button>
+            </fieldset>
           </form>
         </div>
         <div v-if="$can('media:manage')" class="col-2">
@@ -105,6 +109,7 @@
           @change="onPageChange" />
       </div>
     </section>
+    </div>
   </section>
 </template>
 

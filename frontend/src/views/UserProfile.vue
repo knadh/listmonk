@@ -1,13 +1,16 @@
 <template>
-  <section class="user-profile narrow">
+  <section class="user-profile">
+    <header class="row page-header">
+      <div class="col-8">
+        <h1>
+          @{{ data.username }}
+        </h1>
+        <span v-if="data.userRole" class="badge">{{ data.userRole.name }}</span>
+      </div>
+    </header>
+
+    <div class="card page-content">
     <oat-loading v-if="loading.users" :active="loading.users" :is-full-page="false" />
-
-    <h1>
-      @{{ data.username }}
-    </h1>
-    <span v-if="data.userRole" class="badge">{{ data.userRole.name }}</span>
-
-    <br /><br /><br />
     <form @submit.prevent="onSubmit">
       <oat-field v-if="data.type !== 'api'" :label="$t('subscribers.email')">
         <input aria-label="field" :maxlength="200" v-model="form.email" name="email" :placeholder="$t('subscribers.email')"
@@ -120,6 +123,7 @@
         </form>
       </div>
     </section>
+    </div>
   </section>
 </template>
 

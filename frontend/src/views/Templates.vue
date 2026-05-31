@@ -16,6 +16,7 @@
       </div>
     </header>
 
+    <div class="card page-content">
     <oat-data-table :data="templates" :hoverable="true" :loading="loading.templates" default-sort="createdAt">
       <oat-table-column v-slot="props" field="name" :label="$t('globals.fields.name')" :td-attrs="$utils.tdID" sortable>
         <a href="#" @click.prevent="showEditForm(props.row)">
@@ -112,6 +113,7 @@
 
     <campaign-preview v-if="previewItem" type="template" :id="previewItem.id" :template-type="previewItem.type"
       :title="previewItem.name" @close="closePreview" />
+    </div>
   </section>
 </template>
 

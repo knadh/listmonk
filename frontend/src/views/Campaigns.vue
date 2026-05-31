@@ -17,6 +17,7 @@
       </div>
     </header>
 
+    <div class="card page-content">
     <oat-data-table :data="campaigns.results" :loading="loading.campaigns" :row-class="highlightedRow"
       @check-all="onTableCheck" @check="onTableCheck" :checked-rows.sync="bulk.checked" paginated backend-pagination
       @page-change="onPageChange" :current-page="queryParams.page"
@@ -25,15 +26,13 @@
         <div class="row">
           <div class="col-6">
             <form @submit.prevent="getCampaigns">
-              <div>
-                <oat-field>
-                  <input aria-label="field" v-model="queryParams.query" name="query"
-                    :placeholder="$t('campaigns.queryPlaceholder')" icon="magnify" ref="query">
-                  <p class="action-controls">
-                    <button type="submit" data-variant="primary" />
-                  </p>
-                </oat-field>
-              </div>
+              <fieldset class="group">
+                <input aria-label="Search" v-model="queryParams.query" name="query"
+                  :placeholder="$t('campaigns.queryPlaceholder')" ref="query">
+                <button type="submit" data-variant="primary" aria-label="Search">
+                  <oat-icon icon="magnify" />
+                </button>
+              </fieldset>
             </form>
           </div>
         </div>
@@ -268,6 +267,7 @@
 
     <campaign-preview v-if="previewItem" type="campaign" :id="previewItem.id" :title="previewItem.name"
       @close="closePreview" />
+    </div>
   </section>
 </template>
 

@@ -9,6 +9,7 @@
       </div>
     </header>
 
+    <div class="card page-content">
     <oat-data-table :data="bounces.results" :hoverable="true" :loading="loading.bounces" default-sort="createdAt" checkable
       @check-all="onTableCheck" @check="onTableCheck" :checked-rows.sync="bulk.checked" detailed
       paginated backend-pagination @page-change="onPageChange"
@@ -92,6 +93,7 @@
         <empty-placeholder />
       </template>
 </oat-data-table>
+    </div>
   </section>
 </template>
 

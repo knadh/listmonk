@@ -1,15 +1,14 @@
 <template>
   <form @submit.prevent="onSubmit">
     <section class="settings">
-      <div v-if="loading.settings || isLoading" aria-busy="true" data-spinner="large overlay" />
-      <header class="settings-header">
-        <div>
+      <header class="row page-header">
+        <div class="col-8">
           <h1>
             {{ $t('settings.title') }}
             <small>({{ serverConfig.version }})</small>
           </h1>
         </div>
-        <div>
+        <div class="col-4 col-end align-right">
           <oat-field v-if="$can('settings:manage')">
             <button :disabled="!hasFormChanged" data-variant="primary" type="submit" class="isSaveEnabled"
               data-cy="btn-save">
@@ -19,54 +18,56 @@
           </oat-field>
         </div>
       </header>
-      <hr />
 
-      <section class="settings-wrap" v-if="form">
-        <div class="settings-tabs">
-          <div role="tablist" aria-orientation="vertical">
-            <button v-for="(item, i) in tabs" :key="item.key" type="button" role="tab"
-              :aria-selected="tab === i ? 'true' : 'false'" :class="{ outline: tab !== i }" @click="tab = i">
-              {{ item.label }}
-            </button>
-          </div>
+      <div class="card page-content">
+        <div v-if="loading.settings || isLoading" aria-busy="true" data-spinner="large overlay" />
+        <section class="settings-wrap" v-if="form">
+          <ot-tabs class="settings-tabs" @ot-tab-change="tab = $event.detail.index">
+            <div role="tablist" aria-orientation="vertical">
+              <button v-for="(item, i) in tabs" :key="item.key" type="button" role="tab"
+                :aria-selected="tab === i ? 'true' : 'false'">
+                {{ item.label }}
+              </button>
+            </div>
 
-          <div v-show="tab === 0" role="tabpanel">
-            <general-settings :form="form" :key="key" />
-          </div>
+            <div role="tabpanel">
+              <general-settings :form="form" :key="key" />
+            </div>
 
-          <div v-show="tab === 1" role="tabpanel">
-            <performance-settings :form="form" :key="key" />
-          </div>
+            <div role="tabpanel">
+              <performance-settings :form="form" :key="key" />
+            </div>
 
-          <div v-show="tab === 2" role="tabpanel">
-            <privacy-settings :form="form" :key="key" />
-          </div>
+            <div role="tabpanel">
+              <privacy-settings :form="form" :key="key" />
+            </div>
 
-          <div v-show="tab === 3" role="tabpanel">
-            <security-settings :form="form" :key="key" />
-          </div>
+            <div role="tabpanel">
+              <security-settings :form="form" :key="key" />
+            </div>
 
-          <div v-show="tab === 4" role="tabpanel">
-            <media-settings :form="form" :key="key" />
-          </div>
+            <div role="tabpanel">
+              <media-settings :form="form" :key="key" />
+            </div>
 
-          <div v-show="tab === 5" role="tabpanel">
-            <smtp-settings :form="form" :key="key" />
-          </div>
+            <div role="tabpanel">
+              <smtp-settings :form="form" :key="key" />
+            </div>
 
-          <div v-show="tab === 6" role="tabpanel">
-            <bounce-settings :form="form" :key="key" />
-          </div>
+            <div role="tabpanel">
+              <bounce-settings :form="form" :key="key" />
+            </div>
 
-          <div v-show="tab === 7" role="tabpanel">
-            <messenger-settings :form="form" :key="key" />
-          </div>
+            <div role="tabpanel">
+              <messenger-settings :form="form" :key="key" />
+            </div>
 
-          <div v-show="tab === 8" role="tabpanel">
-            <appearance-settings :form="form" :key="key" />
-          </div>
-        </div>
-      </section>
+            <div role="tabpanel">
+              <appearance-settings :form="form" :key="key" />
+            </div>
+          </ot-tabs>
+        </section>
+      </div>
     </section>
   </form>
 </template>

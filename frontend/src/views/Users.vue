@@ -16,21 +16,20 @@
       </div>
     </header>
 
+    <div class="card page-content">
     <oat-data-table :data="users" :loading="loading.users" checkable :checked-rows.sync="checked"
       default-sort="createdAt" backend-sorting @sort="onSort" @check-all="onTableCheck" @check="onTableCheck">
       <template #top-left>
         <div class="row">
           <div class="col-6">
             <form @submit.prevent="getUsers">
-              <div>
-                <oat-field>
-                  <input aria-label="field" v-model="queryParams.query" name="query" icon="magnify" ref="query"
-                    data-cy="query">
-                  <p class="action-controls">
-                    <button type="submit" data-variant="primary" data-cy="btn-query" />
-                  </p>
-                </oat-field>
-              </div>
+              <fieldset class="group">
+                <input aria-label="Search" v-model="queryParams.query" name="query" ref="query"
+                  data-cy="query" placeholder="Search">
+                <button type="submit" data-variant="primary" data-cy="btn-query" aria-label="Search">
+                  <oat-icon icon="magnify" />
+                </button>
+              </fieldset>
             </form>
           </div>
         </div>
@@ -125,6 +124,7 @@
     <oat-modal :active.sync="isFormVisible" :width="600" @close="onFormClose">
       <user-form :data="curItem" :is-editing="isEditing" @finished="formFinished" />
     </oat-modal>
+    </div>
   </section>
 </template>
 

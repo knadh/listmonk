@@ -203,13 +203,21 @@ export default {
       }
     });
 
+    const topLeft = this.$slots['top-left'];
+    const topRight = this.$slots['top-right'];
+    const toolbar = (topLeft || topRight) ? h('div', { class: 'table-toolbar' }, [
+      h('div', { class: 'table-toolbar-left' }, topLeft),
+      h('div', { class: 'table-toolbar-right' }, topRight),
+    ]) : null;
+
     return h('div', { class: 'oat-data-table' }, [
       hiddenColumns,
+      toolbar,
       this.loading ? h('oat-loading', { props: { active: true } }) : null,
-      h('table', [
+      h('div', { class: 'table' }, [h('table', [
         h('thead', [h('tr', headerCells)]),
         h('tbody', bodyRows),
-      ]),
+      ])]),
       this.paginated ? h('oat-pagination', {
         props: { total: this.totalRows, current: this.page, perPage: this.perPage },
         on: { change: this.setPage },
@@ -223,6 +231,23 @@ export default {
 .oat-data-table {
   overflow-x: auto;
   position: relative;
+}
+
+.table-toolbar {
+  align-items: flex-start;
+  display: flex;
+  gap: var(--space-4);
+  justify-content: space-between;
+  margin-block-end: var(--space-4);
+}
+
+.table-toolbar-left {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.table-toolbar-right {
+  flex: 0 0 auto;
 }
 
 .oat-data-table table {

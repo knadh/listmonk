@@ -16,6 +16,7 @@
         </oat-field>
       </div>
     </header>
+    <div class="card page-content">
     <oat-data-table :data="roles" :loading="isLoading()">
       <oat-table-column v-slot="props" field="role" :label="$tc('users.role')" sortable>
         <a href="#" @click.prevent="showEditForm(props.row, 'user')">
@@ -76,6 +77,7 @@
     <oat-modal :active.sync="isFormVisible" :width="700" @close="onFormClose">
       <role-form :data="curItem" :type="curType" :is-editing="isEditing" @finished="formFinished" />
     </oat-modal>
+    </div>
   </section>
 </template>
 

@@ -54,11 +54,29 @@
       </div>
     </header>
 
+    <div class="card page-content">
     <oat-loading :active="loading.campaigns" />
 
-    <oat-tabs v-model="activeTab" @input="onTab">
-      <oat-tab-item :label="$tc('globals.terms.campaign')" value="campaign"
-        icon="rocket-launch-outline">
+    <ot-tabs ref="campaignTabs" @ot-tab-change="onCampaignTabChange">
+      <div role="tablist">
+        <button type="button" role="tab" :aria-selected="activeTab === 'campaign' ? 'true' : 'false'">
+          {{ $tc('globals.terms.campaign') }}
+        </button>
+        <button type="button" role="tab" :aria-selected="activeTab === 'content' ? 'true' : 'false'"
+          :disabled="isNew">
+          {{ $t('campaigns.content') }}
+        </button>
+        <button type="button" role="tab" :aria-selected="activeTab === 'attribs' ? 'true' : 'false'"
+          :disabled="isNew">
+          {{ $t('globals.terms.attribs') }}
+        </button>
+        <button type="button" role="tab" :aria-selected="activeTab === 'archive' ? 'true' : 'false'"
+          :disabled="isNew">
+          {{ $t('campaigns.archive') }}
+        </button>
+      </div>
+
+      <section role="tabpanel">
         <section class="wrap">
           <div class="row">
             <div class="col-7">
@@ -178,9 +196,9 @@
             </div>
           </div>
         </section>
-      </oat-tab-item><!-- campaign -->
+      </section><!-- campaign -->
 
-      <oat-tab-item :label="$t('campaigns.content')" icon="text" :disabled="isNew" value="content">
+      <section role="tabpanel">
         <editor v-if="data.id" v-model="form.content" :id="data.id" :title="data.name" :disabled="!canEdit"
           :templates="templates" :content-types="contentTypes" />
 
@@ -218,18 +236,18 @@
         <div v-if="canEdit && form.content.contentType !== 'plain'" class="alt-body">
           <textarea aria-label="field" v-if="form.altbody !== null" v-model="form.altbody" :disabled="!canEdit" />
         </div>
-      </oat-tab-item><!-- content -->
+      </section><!-- content -->
 
-      <oat-tab-item :label="$t('globals.terms.attribs')" icon="code" value="attribs" :disabled="isNew">
+      <section role="tabpanel">
         <section class="wrap">
           <oat-field :label="$t('globals.terms.attribs')" :message="$t('campaigns.attribsHelp')"
            >
             <textarea aria-label="field" v-model="form.attribsStr" :disabled="!canEdit" rows="15" />
           </oat-field>
         </section>
-      </oat-tab-item><!-- attribs -->
+      </section><!-- attribs -->
 
-      <oat-tab-item :label="$t('campaigns.archive')" icon="newspaper-variant-outline" value="archive" :disabled="isNew">
+      <section role="tabpanel">
         <section class="wrap">
           <div class="row">
             <div class="col-4">
@@ -302,8 +320,8 @@
               :disabled="!canArchive || !form.archive" rows="20" />
           </oat-field>
         </section>
-      </oat-tab-item><!-- archive -->
-    </oat-tabs>
+      </section><!-- archive -->
+    </ot-tabs>
 
     <oat-modal :active.sync="isAttachModalOpen" :width="900">
       <div class="dialog-card content" style="width: auto">
@@ -316,6 +334,7 @@
     <campaign-preview v-if="isPreviewingArchive" @close="onToggleArchivePreview" type="campaign" :id="data.id"
       :archive-meta="form.archiveMetaStr" :title="data.title" :content-type="data.contentType"
       :template-id="form.archiveTemplateId" is-post is-archive />
+    </div>
   </section>
 </template>
 
@@ -441,7 +460,11 @@ export default Vue.extend({
         || this.data.contentType !== this.form.content.contentType;
     },
 
-    onTab(tab) {
+    onCampaignTabChange(e) {
+      const tabs = ['campaign', 'content', 'attribs', 'archive'];
+      const tab = tabs[e.detail.index] || 'campaign';
+      this.activeTab = tab;
+
       if (tab === 'content' && window.tinymce && window.tinymce.editors.length > 0) {
         this.$nextTick(() => {
           window.tinymce.editors[0].focus();
@@ -450,6 +473,14 @@ export default Vue.extend({
 
       // this.$router.replace({ hash: `#${tab}` });
       window.history.replaceState({}, '', `#${tab}`);
+    },
+
+    syncActiveTab() {
+      const tabs = ['campaign', 'content', 'attribs', 'archive'];
+      const index = tabs.indexOf(this.activeTab);
+      if (index >= 0 && this.$refs.campaignTabs) {
+        this.$refs.campaignTabs.activeIndex = index;
+      }
     },
 
     onFillArchiveMeta() {
@@ -807,6 +838,7 @@ export default Vue.extend({
       this.getCampaign(id).then(() => {
         if (this.$route.hash !== '') {
           this.activeTab = this.$route.hash.replace('#', '');
+          this.$nextTick(this.syncActiveTab);
         }
       });
     } else {

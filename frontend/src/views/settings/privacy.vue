@@ -56,29 +56,27 @@
 
     <hr />
 
-    <div class="settings-subtabs">
+    <ot-tabs ref="privacyDomainTabs" class="settings-subtabs" @ot-tab-change="tab = $event.detail.index">
       <div role="tablist">
-        <button type="button" role="tab" :aria-selected="tab === 0 ? 'true' : 'false'"
-          :class="{ outline: tab !== 0 }" @click="tab = 0">
+        <button type="button" role="tab" :aria-selected="tab === 0 ? 'true' : 'false'">
           {{ `${$t('settings.privacy.domainBlocklist')} (${numBlocked})` }}
         </button>
-        <button type="button" role="tab" :aria-selected="tab === 1 ? 'true' : 'false'"
-          :class="{ outline: tab !== 1 }" @click="tab = 1">
+        <button type="button" role="tab" :aria-selected="tab === 1 ? 'true' : 'false'">
           {{ `${$t('settings.privacy.domainAllowlist')} (${numAllowed})` }}
         </button>
       </div>
 
-      <div v-show="tab === 0" role="tabpanel">
+      <div role="tabpanel">
         <oat-field :message="$t('settings.privacy.domainBlocklistHelp')">
           <textarea aria-label="field" v-model="data['privacy.domain_blocklist']" name="privacy.domain_blocklist" />
         </oat-field>
       </div>
-      <div v-show="tab === 1" role="tabpanel">
+      <div role="tabpanel">
         <oat-field :message="$t('settings.privacy.domainAllowlistHelp')">
           <textarea aria-label="field" v-model="data['privacy.domain_allowlist']" name="privacy.domain_allowlist" />
         </oat-field>
       </div>
-    </div>
+    </ot-tabs>
   </div>
 </template>
 
@@ -107,6 +105,11 @@ export default Vue.extend({
 
   mounted() {
     this.tab = this.$utils.getPref('settings.privacyDomainTab') || 0;
+    this.$nextTick(() => {
+      if (this.$refs.privacyDomainTabs) {
+        this.$refs.privacyDomainTabs.activeIndex = Number(this.tab);
+      }
+    });
   },
 
   computed: {

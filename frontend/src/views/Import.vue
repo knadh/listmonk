@@ -1,11 +1,17 @@
 <template>
   <section class="import">
-    <h1>
-      {{ $t('import.title') }}
-    </h1>
+    <header class="row page-header">
+      <div class="col-8">
+        <h1>
+          {{ $t('import.title') }}
+        </h1>
+      </div>
+    </header>
+
+    <div class="card page-content">
     <oat-loading :active="isLoading" />
 
-    <section v-if="isFree()" class="wrap">
+    <section v-if="isFree()">
       <form @submit.prevent="onUpload" class="card">
         <div>
           <div class="row">
@@ -141,6 +147,7 @@
         <log-view :lines="logs" :loading="false" />
       </div>
     </section>
+    </div>
   </section>
 </template>
 

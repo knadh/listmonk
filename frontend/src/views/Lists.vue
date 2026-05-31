@@ -26,6 +26,7 @@
       </div>
     </header>
 
+    <div class="card page-content">
     <oat-data-table :data="lists.results" :loading="loading.listsFull" @check-all="onTableCheck" @check="onTableCheck"
       :checked-rows.sync="bulk.checked" default-sort="createdAt" paginated backend-pagination
       @page-change="onPageChange" :current-page="queryParams.page" :per-page="lists.perPage"
@@ -34,12 +35,13 @@
         <div class="row">
           <div class="col-6">
             <form @submit.prevent="getLists">
-              <oat-field>
-                <input aria-label="field" v-model="queryParams.query" name="query" icon="magnify" ref="query" data-cy="query">
-                <p class="action-controls">
-                  <button type="submit" data-variant="primary" data-cy="btn-query" />
-                </p>
-              </oat-field>
+              <fieldset class="group">
+                <input aria-label="Search" v-model="queryParams.query" name="query" ref="query" data-cy="query"
+                  placeholder="Search">
+                <button type="submit" data-variant="primary" data-cy="btn-query" aria-label="Search">
+                  <oat-icon icon="magnify" />
+                </button>
+              </fieldset>
             </form>
           </div>
         </div>
@@ -177,6 +179,7 @@
         <oat-icon icon="link-variant" /> {{ $t('globals.buttons.learnMore') }}
       </a>
     </p>
+    </div>
   </section>
 </template>
 

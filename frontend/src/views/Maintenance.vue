@@ -1,14 +1,17 @@
 <template>
-  <section class="maintenance wrap">
-    <h1>
-      {{ $t('maintenance.title') }}
-    </h1>
-    <hr />
-    <p class="text-light text-7">
-      {{ $t('maintenance.help') }}
-    </p>
-    <br />
+  <section class="maintenance">
+    <header class="row page-header">
+      <div class="col-8">
+        <h1>
+          {{ $t('maintenance.title') }}
+        </h1>
+        <p class="text-light text-7">
+          {{ $t('maintenance.help') }}
+        </p>
+      </div>
+    </header>
 
+    <div class="card page-content">
     <div class="card">
       <h4 class="text-4">
         {{ $t('globals.terms.subscribers') }}
@@ -173,6 +176,7 @@
     </form><!-- database -->
 
     <oat-loading :is-full-page="true" v-if="isLoading" active />
+    </div>
   </section>
 </template>
 

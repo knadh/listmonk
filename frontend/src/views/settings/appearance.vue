@@ -1,18 +1,16 @@
 <template>
   <div class="items">
-    <div class="settings-subtabs">
+    <ot-tabs ref="appearanceTabs" class="settings-subtabs" @ot-tab-change="tab = $event.detail.index">
       <div role="tablist">
-        <button type="button" role="tab" :aria-selected="tab === 0 ? 'true' : 'false'"
-          :class="{ outline: tab !== 0 }" @click="tab = 0">
+        <button type="button" role="tab" :aria-selected="tab === 0 ? 'true' : 'false'">
           {{ $t('settings.appearance.adminName') }}
         </button>
-        <button type="button" role="tab" :aria-selected="tab === 1 ? 'true' : 'false'"
-          :class="{ outline: tab !== 1 }" @click="tab = 1">
+        <button type="button" role="tab" :aria-selected="tab === 1 ? 'true' : 'false'">
           {{ $t('settings.appearance.publicName') }}
         </button>
       </div>
 
-      <div v-show="tab === 0" role="tabpanel">
+      <div role="tabpanel">
         <div>
           {{ $t('settings.appearance.adminHelp') }}
         </div>
@@ -27,7 +25,7 @@
         </oat-field>
       </div>
 
-      <div v-show="tab === 1" role="tabpanel">
+      <div role="tabpanel">
         <div>
           {{ $t('settings.appearance.publicHelp') }}
         </div>
@@ -41,7 +39,7 @@
             key="editor-public-js" />
         </oat-field>
       </div>
-    </div>
+    </ot-tabs>
   </div>
 </template>
 
@@ -70,6 +68,11 @@ export default Vue.extend({
 
   mounted() {
     this.tab = this.$utils.getPref('settings.apperanceTab') || 0;
+    this.$nextTick(() => {
+      if (this.$refs.appearanceTabs) {
+        this.$refs.appearanceTabs.activeIndex = Number(this.tab);
+      }
+    });
   },
 
   watch: {

@@ -1,10 +1,16 @@
 <template>
-  <section class="logs content relative">
-    <h1>
-      {{ $t('logs.title') }}
-    </h1>
-    <hr />
-    <log-view :loading="loading.logs" :lines="lines" />
+  <section class="logs relative">
+    <header class="row page-header">
+      <div class="col-8">
+        <h1>
+          {{ $t('logs.title') }}
+        </h1>
+      </div>
+    </header>
+
+    <div class="card page-content">
+      <log-view :loading="loading.logs" :lines="lines" />
+    </div>
   </section>
 </template>
 

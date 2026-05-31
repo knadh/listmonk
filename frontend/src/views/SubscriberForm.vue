@@ -46,8 +46,19 @@
           </div>
         </div>
 
-        <oat-tabs>
-          <oat-tab-item :label="$t('globals.terms.lists')">
+        <ot-tabs>
+          <div role="tablist">
+            <button type="button" role="tab">{{ $t('globals.terms.lists') }}</button>
+            <button type="button" role="tab" :disabled="!data.lists || data.lists.length === 0">
+              {{ `${$tc('globals.terms.subscriptions', 2)} (${data.lists ? data.lists.length : 0})` }}
+            </button>
+            <button type="button" role="tab" :disabled="bounces.length === 0">
+              {{ `${$t('globals.terms.bounces')} (${bounces.length})` }}
+            </button>
+            <button type="button" role="tab" :disabled="!isEditing">{{ $t('subscribers.activity') }}</button>
+          </div>
+
+          <section role="tabpanel">
             <list-selector :label="$t('subscribers.lists')" :placeholder="$t('subscribers.listsPlaceholder')"
               :message="$t('subscribers.listsHelp')" v-model="form.lists" :selected="form.lists" :all="lists.results" />
             <div class="row">
@@ -64,10 +75,9 @@
                   {{ $t('subscribers.sendOptinConfirm') }}</a>
               </div>
             </div>
-          </oat-tab-item><!-- lists -->
+          </section><!-- lists -->
 
-          <oat-tab-item :label="`${$tc('globals.terms.subscriptions', 2)} (${data.lists ? data.lists.length : 0})`"
-            :disabled="!data.lists || data.lists.length === 0">
+          <section role="tabpanel">
             <template v-if="data.lists">
               <oat-data-table :data="data.lists" default-sort="createdAt" class="subscriptions">
                 <oat-table-column v-slot="props" field="name" :label="$tc('globals.terms.list', 1)">
@@ -104,10 +114,9 @@
                 </oat-table-column>
 </oat-data-table>
             </template>
-          </oat-tab-item><!-- subscriptions -->
+          </section><!-- subscriptions -->
 
-          <oat-tab-item :label="`${$t('globals.terms.bounces')} (${bounces.length})`" class="bounces"
-            :disabled="bounces.length === 0">
+          <section role="tabpanel" class="bounces">
             <a href="#" class="text-6 align-right" disabed="true" @click.prevent="deleteBounces"
               v-if="isBounceVisible">
               <oat-icon icon="trash-can-outline" />
@@ -138,12 +147,12 @@
                 <pre v-if="visibleMeta[props.row.id]">{{ props.row.meta }}</pre>
               </oat-table-column>
 </oat-data-table>
-          </oat-tab-item><!-- bounces -->
+          </section><!-- bounces -->
 
-          <oat-tab-item :label="$t('subscribers.activity')" class="activity" :disabled="!isEditing">
+          <section role="tabpanel" class="activity">
             <subscriber-activity v-if="isEditing && data.id" :subscriber-id="data.id" />
-          </oat-tab-item><!-- activity -->
-        </oat-tabs>
+          </section><!-- activity -->
+        </ot-tabs>
 
         <oat-field :message="$t('subscribers.attribsHelp') + ' ' + egAttribs" class="mt-6">
           <div>

@@ -1,10 +1,14 @@
 <template>
-  <section class="forms content relative">
-    <h1>
-      {{ $t('forms.title') }}
-    </h1>
-    <hr />
+  <section class="forms relative">
+    <header class="row page-header">
+      <div class="col-8">
+        <h1>
+          {{ $t('forms.title') }}
+        </h1>
+      </div>
+    </header>
 
+    <div class="card page-content">
     <oat-loading v-if="loading.lists" :active="loading.lists" :is-full-page="false" />
     <p v-else-if="publicLists.length === 0">
       {{ $t('forms.noPublicLists') }}
@@ -61,6 +65,7 @@
         <code-editor lang="html" v-if="checked.length > 0" v-model="html" disabled />
       </div>
     </div><!-- row -->
+    </div>
   </section>
 </template>
 

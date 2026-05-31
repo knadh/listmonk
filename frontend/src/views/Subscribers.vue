@@ -23,20 +23,21 @@
       </div>
     </header>
 
+    <div class="card page-content">
     <section class="subscribers-controls">
       <div class="row">
         <div class="col-8">
           <form @submit.prevent="onSubmit">
             <div>
-              <oat-field addons>
+              <fieldset v-if="!isSearchAdvanced" class="group">
                 <input aria-label="field" @input="onSimpleQueryInput" v-model="queryInput"
-                  :placeholder="$t('subscribers.queryPlaceholder')" icon="magnify" ref="query"
+                  :placeholder="$t('subscribers.queryPlaceholder')" ref="query"
                   :disabled="isSearchAdvanced" data-cy="search">
-                <p class="action-controls">
-                  <button type="submit" data-variant="primary" :disabled="isSearchAdvanced"
-                    data-cy="btn-search" />
-                </p>
-              </oat-field>
+                <button type="submit" data-variant="primary" :disabled="isSearchAdvanced"
+                  data-cy="btn-search" aria-label="Search">
+                  <oat-icon icon="magnify" />
+                </button>
+              </fieldset>
 
               <div v-if="isSearchAdvanced">
                 <textarea aria-label="field" v-model="queryParams.queryExp" @keydown.native.enter="onAdvancedQueryEnter"
@@ -188,6 +189,7 @@
     <oat-modal :active.sync="isFormVisible" :width="850" @close="onFormClose">
       <subscriber-form :data="curItem" :is-editing="isEditing" @finished="querySubscribers" />
     </oat-modal>
+    </div>
   </section>
 </template>
 
