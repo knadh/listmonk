@@ -11,6 +11,7 @@
         <oat-field v-if="$can('campaigns:manage')">
           <button type="button" :to="{ name: 'campaign', params: { id: 'new' } }" tag="router-link" class="btn-new"
             data-variant="primary" data-cy="btn-new">
+            <oat-icon icon="plus" />
             {{ $t('globals.buttons.new') }}
           </button>
         </oat-field>
