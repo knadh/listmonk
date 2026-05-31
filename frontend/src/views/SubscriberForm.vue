@@ -2,7 +2,7 @@
   <form @submit.prevent="onSubmit">
     <div class="dialog-card content" style="width: auto">
       <header class="dialog-head">
-        <oat-badge v-if="isEditing" :type="data.status" class="align-right">
+        <oat-badge v-if="isEditing" :type="data.status" class="float-right">
           {{ $t(`subscribers.status.${data.status}`) }}
         </oat-badge>
         <h4 v-if="isEditing">
