@@ -15,7 +15,8 @@
     <div class="page-content">
       <section class="row">
         <div class="col-3">
-          <article class="card stat-card" :aria-busy="isCountsLoading ? 'true' : 'false'" data-cy="lists">
+          <article class="card stat-card" :aria-busy="isCountsLoading ? 'true' : null" data-spinner="large overlay"
+            data-cy="lists">
             <header>
               <small class="text-light">{{ $tc('globals.terms.list', 2) }}</small>
               <div class="stat-value">
@@ -31,7 +32,8 @@
         </div>
 
         <div class="col-3">
-          <article class="card stat-card" :aria-busy="isCountsLoading ? 'true' : 'false'" data-cy="subscribers">
+          <article class="card stat-card" :aria-busy="isCountsLoading ? 'true' : null" data-spinner="large overlay"
+            data-cy="subscribers">
             <header>
               <small class="text-light">{{ $tc('globals.terms.subscriber', 2) }}</small>
               <div class="stat-value">
@@ -42,14 +44,15 @@
                 <span class="badge blocklisted">{{ nice(counts.subscribers.blocklisted) }} {{
                   $t('subscribers.status.blocklisted') }}</span>
                 <span class="badge outline">{{ nice(counts.subscribers.orphans) }} {{ $t('dashboard.orphanSubs')
-                }}</span>
+                  }}</span>
               </small>
             </header>
           </article>
         </div>
 
         <div class="col-3">
-          <article class="card stat-card" :aria-busy="isCountsLoading ? 'true' : 'false'" data-cy="campaigns">
+          <article class="card stat-card" :aria-busy="isCountsLoading ? 'true' : null" data-spinner="large overlay"
+            data-cy="campaigns">
             <header>
               <small class="text-light">{{ $tc('globals.terms.campaign', 2) }}</small>
               <div class="stat-value">
@@ -66,7 +69,8 @@
         </div>
 
         <div class="col-3">
-          <article class="card stat-card" :aria-busy="isCountsLoading ? 'true' : 'false'" data-cy="messages">
+          <article class="card stat-card" :aria-busy="isCountsLoading ? 'true' : null" data-spinner="large overlay"
+            data-cy="messages">
             <header>
               <small class="text-light">{{ $t('dashboard.messagesSent') }}</small>
               <div class="stat-value">
@@ -83,7 +87,7 @@
 
       <section class="row mt-6">
         <div class="col-6">
-          <article class="card chart-card" :aria-busy="isChartsLoading ? 'true' : 'false'" data-spinner="overlay">
+          <article class="card chart-card" :aria-busy="isChartsLoading ? 'true' : null" data-spinner="large overlay">
             <header class="hstack justify-between">
               <div>
                 <h3>{{ $t('dashboard.campaignViews') }}</h3>
@@ -96,7 +100,7 @@
         </div>
 
         <div class="col-6">
-          <article class="card chart-card" :aria-busy="isChartsLoading ? 'true' : 'false'" data-spinner="overlay">
+          <article class="card chart-card" :aria-busy="isChartsLoading ? 'true' : null" data-spinner="large overlay">
             <header class="hstack justify-between">
               <div>
                 <h3>{{ $t('dashboard.linkClicks') }}</h3>

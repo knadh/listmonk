@@ -11,7 +11,7 @@
       </div>
     </header>
 
-    <div class="card page-content">
+    <div class="card page-content" :aria-busy="isLoading ? 'true' : null" data-spinner="large overlay">
       <div class="card">
         <h4 class="text-4">
           {{ $t('globals.terms.subscribers') }}
@@ -173,8 +173,6 @@
           </div>
         </div>
       </form><!-- database -->
-
-      <oat-loading :is-full-page="true" v-if="isLoading" active />
     </div>
   </section>
 </template>

@@ -38,13 +38,10 @@
               </template>
             </select>
 
-            <button type="button" :disabled="disabled || isVisualTplDisabled || !visualTemplateId" class="ml-3"
+            <button type="button" :disabled="disabled || isVisualTplDisabled || !visualTemplateId || loading.templates"
+              class="ml-3" :aria-busy="loading.templates ? 'true' : null" data-spinner="small"
               @click="onImportVisualTpl" data-variant="primary" data-cy="btn-save-visual-tpl">
               {{ $t('globals.terms.import') }}
-
-              <span class="spinnertiny" v-if="loading.templates">
-                <oat-loading :is-full-page="false" active />
-              </span>
             </button>
           </oat-field>
         </div>

@@ -19,8 +19,8 @@
         </div>
       </header>
 
-      <div class="card page-content">
-        <div v-if="loading.settings || isLoading" aria-busy="true" data-spinner="large overlay" />
+      <div class="card page-content" :aria-busy="(loading.settings || isLoading) ? 'true' : null"
+        data-spinner="large overlay">
         <section class="settings-wrap" v-if="form">
           <ot-tabs class="settings-tabs" @ot-tab-change="tab = $event.detail.index">
             <div role="tablist" aria-orientation="vertical">

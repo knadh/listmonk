@@ -8,9 +8,8 @@
       </div>
     </header>
 
-    <div class="card page-content">
-      <oat-loading v-if="loading.lists" :active="loading.lists" :is-full-page="false" />
-      <p v-else-if="publicLists.length === 0">
+    <div class="card page-content" :aria-busy="loading.lists ? 'true' : null" data-spinner="large overlay">
+      <p v-if="!loading.lists && publicLists.length === 0">
         {{ $t('forms.noPublicLists') }}
       </p>
       <div class="row" v-else-if="publicLists.length > 0">
@@ -18,7 +17,6 @@
           <h4>{{ $t('forms.publicLists') }}</h4>
           <p>{{ $t('forms.selectHelp') }}</p>
 
-          <oat-loading :active="loading.lists" :is-full-page="false" />
           <ul class="no" data-cy="lists">
             <li v-for="(l, i) in publicLists" :key="l.id">
               <oat-checkbox v-model="checked" :native-value="i">

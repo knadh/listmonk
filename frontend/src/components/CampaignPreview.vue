@@ -7,8 +7,7 @@
             <h4>{{ title }}</h4>
           </header>
         </div>
-        <section class="dialog-body preview">
-          <oat-loading :active="isLoading" :is-full-page="false" />
+        <section class="dialog-body preview" :aria-busy="isLoading ? 'true' : null" data-spinner="large overlay">
           <form v-if="isPost" method="post" :action="previewURL" target="iframe" ref="form">
             <input v-if="templateId" type="hidden" name="template_id" :value="templateId" />
             <input v-if="contentType" type="hidden" name="content_type" :value="contentType" />

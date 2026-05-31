@@ -10,9 +10,8 @@
       </div>
     </header>
 
-    <div :class="isModal ? 'media-content' : 'card page-content'">
-      <oat-loading :active="isProcessing || loading.media" />
-
+    <div :class="isModal ? 'media-content' : 'card page-content'"
+      :aria-busy="(isProcessing || loading.media) ? 'true' : null" data-spinner="large overlay">
       <section class="gallery">
         <div class="row mb-4">
           <div class="col-12">
@@ -67,10 +66,7 @@
             @change="onPageChange" />
         </div>
 
-        <div v-if="loading.media" class="align-center py-6">
-          <oat-loading :active="loading.media" />
-        </div>
-        <div v-else-if="media.results && media.results.length > 0" class="grid">
+        <div v-if="media.results && media.results.length > 0" class="grid">
           <div v-for="item in media.results" :key="item.id" class="item">
             <div class="thumb">
               <a @click="(e) => onMediaSelect(item, e)" :href="item.url" target="_blank" rel="noopener noreferer"

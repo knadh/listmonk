@@ -57,8 +57,7 @@
       <section class="charts mt-5">
         <div class="chart" v-for="(v, k) in charts" :key="k">
           <div class="row">
-            <div class="col-9">
-              <oat-loading v-if="v.loading" :active="v.loading" :is-full-page="false" />
+            <div class="col-9" :aria-busy="v.loading ? 'true' : null" data-spinner="large overlay">
               <h4 v-if="v.chart !== null">
                 {{ v.name }}
                 <span class="text-lighter text-7">({{ $utils.niceNumber(counts[k]) }})</span>

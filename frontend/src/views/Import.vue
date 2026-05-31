@@ -8,9 +8,7 @@
       </div>
     </header>
 
-    <div class="card page-content">
-      <oat-loading :active="isLoading" />
-
+    <div class="card page-content" :aria-busy="isLoading ? 'true' : null" data-spinner="large overlay">
       <section v-if="isFree()">
         <form @submit.prevent="onUpload" class="card">
           <div>

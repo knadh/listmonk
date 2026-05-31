@@ -210,10 +210,15 @@ export default {
       h('div', { class: 'table-toolbar-right' }, topRight),
     ]) : null;
 
-    return h('div', { class: 'oat-data-table' }, [
+    return h('div', {
+      class: 'oat-data-table',
+      attrs: {
+        'aria-busy': this.loading ? 'true' : null,
+        'data-spinner': 'large overlay',
+      },
+    }, [
       hiddenColumns,
       toolbar,
-      this.loading ? h('oat-loading', { props: { active: true } }) : null,
       h('div', { class: 'table' }, [h('table', [
         h('thead', [h('tr', headerCells)]),
         h('tbody', bodyRows),

@@ -54,10 +54,8 @@
       </div>
     </header>
 
-    <div class="card page-content">
-      <oat-loading :active="loading.campaigns" />
-
-      <ot-tabs ref="campaignTabs" @ot-tab-change="onCampaignTabChange">
+    <div class="card page-content" :aria-busy="loading.campaigns ? 'true' : null" data-spinner="large overlay">
+    <ot-tabs ref="campaignTabs" @ot-tab-change="onCampaignTabChange">
         <div role="tablist">
           <button type="button" role="tab" :aria-selected="activeTab === 'campaign' ? 'true' : 'false'">
             {{ $tc('globals.terms.campaign') }}

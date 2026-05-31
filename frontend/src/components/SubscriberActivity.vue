@@ -1,10 +1,6 @@
 <template>
-  <div class="subscriber-activity">
-    <div v-if="isLoading" class="align-center">
-      <oat-loading :active="true" :is-full-page="false" />
-    </div>
-
-    <div v-else>
+  <div class="subscriber-activity" :aria-busy="isLoading ? 'true' : null" data-spinner="large overlay">
+    <div v-if="!isLoading">
       <!-- Summary Stats -->
       <div class="row">
         <div class="col-4">
@@ -160,3 +156,9 @@ export default Vue.extend({
   },
 });
 </script>
+
+<style>
+.subscriber-activity[aria-busy="true"] {
+  min-height: 10rem;
+}
+</style>

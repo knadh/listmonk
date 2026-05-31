@@ -9,8 +9,7 @@
       </div>
     </header>
 
-    <div class="card page-content">
-      <oat-loading v-if="loading.users" :active="loading.users" :is-full-page="false" />
+    <div class="card page-content" :aria-busy="loading.users ? 'true' : null" data-spinner="large overlay">
       <form @submit.prevent="onSubmit">
         <oat-field v-if="data.type !== 'api'" :label="$t('subscribers.email')">
           <input aria-label="field" :maxlength="200" v-model="form.email" name="email"
