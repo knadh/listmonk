@@ -81,7 +81,7 @@ export default {
 
 .b-modal>form>.dialog-card>header,
 .b-modal>.dialog-card>header {
-  background: var(--muted);
+  background: var(--faint);
   padding: var(--space-6);
   padding-block-end: var(--space-2);
   margin-block-end: var(--space-4);
