@@ -14,10 +14,10 @@
       </header>
 
       <section class="dialog-body">
-        <oat-field :label="$t('globals.fields.name')">
+        <b-field :label="$t('globals.fields.name')">
           <input aria-label="field" :disabled="disabled" :maxlength="200" v-model="form.name" name="name" ref="focus"
             required>
-        </oat-field>
+        </b-field>
 
         <div v-if="type === 'list'" class="card">
           <h5>{{ $t('users.listPerms') }}</h5>
@@ -42,36 +42,36 @@
             <span
               v-if="form.lists.length > 0 && (form.permissions['lists:get_all'] || form.permissions['lists:manage_all'])"
               class="text-danger text-6">
-              <oat-icon icon="warning-empty" />
+              <b-icon icon="warning-empty" />
               {{ $t('users.listPermsWarning') }}
             </span>
           </div>
 
-          <oat-data-table :data="form.lists">
-            <oat-table-column v-slot="props" field="name" :label="$tc('globals.terms.list')">
+          <b-table :data="form.lists">
+            <b-table-column v-slot="props" field="name" :label="$tc('globals.terms.list')">
               <router-link :to="`/lists/${props.row.id}`" target="_blank">
                 {{ props.row.name }}
               </router-link>
-            </oat-table-column>
+            </b-table-column>
 
-            <oat-table-column v-slot="props" field="permissions" :label="$t('users.perms')" width="40%">
-              <oat-checkbox v-model="props.row.permissions" native-value="list:get">
+            <b-table-column v-slot="props" field="permissions" :label="$t('users.perms')" width="40%">
+              <b-checkbox v-model="props.row.permissions" native-value="list:get">
                 {{ $t('globals.buttons.view') }}
-              </oat-checkbox>
-              <oat-checkbox v-model="props.row.permissions" native-value="list:manage">
+              </b-checkbox>
+              <b-checkbox v-model="props.row.permissions" native-value="list:manage">
                 {{ $t('globals.buttons.manage') }}
-              </oat-checkbox>
-            </oat-table-column>
+              </b-checkbox>
+            </b-table-column>
 
-            <oat-table-column v-slot="props" width="10%">
+            <b-table-column v-slot="props" width="10%">
               <a href="#" @click.prevent="onDeleteListPerm(props.row.id)" data-cy="btn-delete"
                 :aria-label="$t('globals.buttons.delete')">
 
-                <oat-icon icon="trash-can-outline" />
+                <b-icon icon="trash-can-outline" />
 
               </a>
-            </oat-table-column>
-          </oat-data-table>
+            </b-table-column>
+          </b-table>
         </div>
 
         <template v-if="type === 'user'">
@@ -86,27 +86,27 @@
             </div>
           </div>
 
-          <oat-data-table :data="serverConfig.permissions">
-            <oat-table-column v-slot="props" field="group" :label="$t('users.roleGroup')">
+          <b-table :data="serverConfig.permissions">
+            <b-table-column v-slot="props" field="group" :label="$t('users.roleGroup')">
               {{ $tc(`globals.terms.${props.row.group}`) }}
-            </oat-table-column>
+            </b-table-column>
 
-            <oat-table-column v-slot="props" field="permissions" label="Permissions">
+            <b-table-column v-slot="props" field="permissions" label="Permissions">
               <div v-for="p in props.row.permissions" :key="p">
-                <oat-checkbox v-model="form.permissions" :native-value="p" :disabled="disabled">
+                <b-checkbox v-model="form.permissions" :native-value="p" :disabled="disabled">
                   {{ p }}
                   <a v-if="p === 'subscribers:sql_query'"
                     href="https://listmonk.app/docs/roles-and-permissions/#subscriberssql_query" target="_blank"
                     rel="noopener noreferrer" aria-label="Warning: high risk permission">
-                    <oat-icon icon="warning-empty" data-variant="danger" />
+                    <b-icon icon="warning-empty" data-variant="danger" />
                   </a>
-                </oat-checkbox>
+                </b-checkbox>
               </div>
-            </oat-table-column>
-          </oat-data-table>
+            </b-table-column>
+          </b-table>
         </template>
         <a href="https://listmonk.app/docs/roles-and-permissions" target="_blank" rel="noopener noreferrer">
-          <oat-icon icon="link-variant" /> {{ $t('globals.buttons.learnMore') }}
+          <b-icon icon="link-variant" /> {{ $t('globals.buttons.learnMore') }}
         </a>
       </section>
 

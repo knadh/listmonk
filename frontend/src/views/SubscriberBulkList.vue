@@ -8,28 +8,28 @@
       </header>
 
       <section class="dialog-body">
-        <oat-field label="Action">
+        <b-field label="Action">
           <div>
-            <oat-radio v-model="form.action" name="action" native-value="add" data-cy="check-list-add">
+            <b-radio v-model="form.action" name="action" native-value="add" data-cy="check-list-add">
               {{ $t('globals.buttons.add') }}
-            </oat-radio>
-            <oat-radio v-model="form.action" name="action" native-value="remove" data-cy="check-list-remove">
+            </b-radio>
+            <b-radio v-model="form.action" name="action" native-value="remove" data-cy="check-list-remove">
               {{ $t('globals.buttons.remove') }}
-            </oat-radio>
-            <oat-radio v-model="form.action" name="action" native-value="unsubscribe" data-cy="check-list-unsubscribe">
+            </b-radio>
+            <b-radio v-model="form.action" name="action" native-value="unsubscribe" data-cy="check-list-unsubscribe">
               {{ $t('subscribers.markUnsubscribed') }}
-            </oat-radio>
+            </b-radio>
           </div>
-        </oat-field>
+        </b-field>
 
         <list-selector label="Target lists" placeholder="Lists to apply to" v-model="form.lists" :selected="form.lists"
           :all="lists.results" />
 
-        <oat-field :message="$t('subscribers.preconfirmHelp')">
-          <oat-checkbox v-model="form.preconfirm" data-cy="preconfirm" :native-value="true" :disabled="!hasOptinList">
+        <b-field :message="$t('subscribers.preconfirmHelp')">
+          <b-checkbox v-model="form.preconfirm" data-cy="preconfirm" :native-value="true" :disabled="!hasOptinList">
             {{ $t('subscribers.preconfirm') }}
-          </oat-checkbox>
-        </oat-field>
+          </b-checkbox>
+        </b-field>
       </section>
 
       <footer class="dialog-foot align-right">

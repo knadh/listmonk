@@ -11,36 +11,36 @@
 
     <div class="card page-content" :aria-busy="loading.users ? 'true' : null" data-spinner="large overlay">
       <form @submit.prevent="onSubmit">
-        <oat-field v-if="data.type !== 'api'" :label="$t('subscribers.email')">
+        <b-field v-if="data.type !== 'api'" :label="$t('subscribers.email')">
           <input aria-label="field" :maxlength="200" v-model="form.email" name="email"
             :placeholder="$t('subscribers.email')" :disabled="!data.passwordLogin" required>
-        </oat-field>
+        </b-field>
 
-        <oat-field :label="$t('globals.fields.name')">
+        <b-field :label="$t('globals.fields.name')">
           <input aria-label="field" :maxlength="200" v-model="form.name" name="name"
             :placeholder="$t('globals.fields.name')">
-        </oat-field>
+        </b-field>
 
         <div v-if="data.passwordLogin" class="row">
           <div class="col-6">
-            <oat-field :label="$t('users.password')">
+            <b-field :label="$t('users.password')">
               <input aria-label="field" minlength="8" :maxlength="200" v-model="form.password" type="password"
                 name="password" :placeholder="$t('users.password')">
-            </oat-field>
+            </b-field>
           </div>
           <div class="col-6">
-            <oat-field :label="$t('users.passwordRepeat')">
+            <b-field :label="$t('users.passwordRepeat')">
               <input aria-label="field" minlength="8" :maxlength="200" v-model="form.password2" type="password"
                 name="password2">
-            </oat-field>
+            </b-field>
           </div>
         </div>
 
-        <oat-field>
+        <b-field>
           <button data-variant="primary" type="submit" data-cy="btn-save">
             {{ $t('globals.buttons.save') }}
           </button>
-        </oat-field>
+        </b-field>
       </form>
 
       <br /><br />
@@ -54,7 +54,7 @@
               <h3 class="mb-0">{{ $t('users.twoFA') }}</h3>
             </div>
             <div class="col-2">
-              <oat-switch v-if="!isTotpVisible" v-model="twofaEnabled" @input="onToggleEnableTotp" />
+              <b-switch v-if="!isTotpVisible" v-model="twofaEnabled" @input="onToggleEnableTotp" />
             </div>
           </div>
 
@@ -76,10 +76,10 @@
 
               <br /><br />
               <form @submit.prevent="confirmTOTP">
-                <oat-field :label="$t('users.totpCode')">
+                <b-field :label="$t('users.totpCode')">
                   <input aria-label="field" ref="totpCodeInput" v-model="totpCode" maxlength="6" pattern="[0-9]{6}"
                     placeholder="000000" required>
-                </oat-field>
+                </b-field>
                 <div class="hstack">
                   <button data-variant="primary" type="submit">
                     {{ $t('globals.buttons.enable') }}
@@ -98,11 +98,11 @@
           <div class="row">
             <div class="col-12">
               <h3>
-                <oat-icon icon="check-circle-outline" data-variant="primary" /> {{ $t('users.twoFAEnabled') }}
+                <b-icon icon="check-circle-outline" data-variant="primary" /> {{ $t('users.twoFAEnabled') }}
               </h3>
             </div>
             <div class="col-2">
-              <oat-switch v-if="!showDisableTOTP" v-model="twofaEnabled" @input="toggleDisableTOTP" />
+              <b-switch v-if="!showDisableTOTP" v-model="twofaEnabled" @input="toggleDisableTOTP" />
             </div>
           </div>
 
@@ -110,10 +110,10 @@
 
           <!-- Disable TOTP Flow -->
           <form v-if="showDisableTOTP" class="disable-totp mt-5" @submit.prevent="confirmDisableTOTP">
-            <oat-field :label="$t('users.password')">
+            <b-field :label="$t('users.password')">
               <input aria-label="field" ref="disablePasswordInput" v-model="disableTOTPPassword" type="password"
                 minlength="8" required>
-            </oat-field>
+            </b-field>
             <div class="hstack">
               <button data-variant="danger" type="submit">
                 {{ $t('globals.buttons.disable') }}

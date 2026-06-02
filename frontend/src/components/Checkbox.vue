@@ -1,13 +1,14 @@
 <template>
   <label>
-    <input type="checkbox" :checked="checked" :disabled="disabled" @change="onChange">
+    <input v-bind="$attrs" type="checkbox" :checked="checked" :disabled="disabled" @change="onChange">
     <slot />
   </label>
 </template>
 
 <script>
 export default {
-  name: 'OatCheckcard',
+  name: 'BCheckbox',
+  inheritAttrs: false,
   props: {
     value: {
       type: [Array, Boolean],

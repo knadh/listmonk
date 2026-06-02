@@ -1,9 +1,9 @@
 <script>
 export default {
-  name: 'OatDataTable',
+  name: 'BTable',
   provide() {
     return {
-      oatTable: this,
+      bTable: this,
     };
   },
   props: {
@@ -211,7 +211,7 @@ export default {
     ]) : null;
 
     return h('div', {
-      class: 'oat-data-table',
+      class: 'b-table',
       attrs: {
         'aria-busy': this.loading ? 'true' : null,
         'data-spinner': 'large overlay',
@@ -223,7 +223,7 @@ export default {
         h('thead', [h('tr', headerCells)]),
         h('tbody', bodyRows),
       ])]),
-      this.paginated ? h('oat-pagination', {
+      this.paginated ? h('b-pagination', {
         props: { total: this.totalRows, current: this.page, perPage: this.perPage },
         on: { change: this.setPage },
       }) : null,
@@ -233,7 +233,7 @@ export default {
 </script>
 
 <style>
-.oat-data-table {
+.b-table {
   overflow-x: auto;
   position: relative;
 }
@@ -255,15 +255,15 @@ export default {
   flex: 0 0 auto;
 }
 
-.oat-data-table table {
+.b-table table {
   width: 100%;
 }
 
-.oat-data-table .actions {
+.b-table .actions {
   white-space: nowrap;
 }
 
-.oat-data-table tr.details td {
+.b-table tr.details td {
   background: var(--muted);
 }
 </style>

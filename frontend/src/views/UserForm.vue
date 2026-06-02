@@ -15,19 +15,19 @@
       <section class="dialog-body">
         <div class="row">
           <div class="col-6">
-            <oat-field class="mb-6">
-              <oat-radio v-model="form.type" name="type" native-value="user" :disabled="isEditing">
-                <oat-icon icon="account-outline" />
+            <b-field class="mb-6">
+              <b-radio v-model="form.type" name="type" native-value="user" :disabled="isEditing">
+                <b-icon icon="account-outline" />
                 {{ $t('users.type.user') }}
-              </oat-radio>
-              <oat-radio v-model="form.type" name="type" native-value="api" :disabled="isEditing">
-                <oat-icon icon="code" />
+              </b-radio>
+              <b-radio v-model="form.type" name="type" native-value="api" :disabled="isEditing">
+                <b-icon icon="code" />
                 {{ $t('users.type.api') }}
-              </oat-radio>
-            </oat-field>
+              </b-radio>
+            </b-field>
           </div>
           <div class="col-6">
-            <oat-field :label="$t('globals.fields.status')">
+            <b-field :label="$t('globals.fields.status')">
               <select aria-label="field" v-model="form.status" name="status" required>
                 <option value="enabled">
                   {{ $t('users.status.enabled') }}
@@ -36,48 +36,48 @@
                   {{ $t('users.status.disabled') }}
                 </option>
               </select>
-            </oat-field>
+            </b-field>
           </div>
         </div>
 
-        <oat-field :label="$t('users.username')">
+        <b-field :label="$t('users.username')">
           <input aria-label="field" :maxlength="200" v-model="form.username" name="username" ref="focus"
             :placeholder="$t('users.username')" required :message="$t('users.usernameHelp')" autocomplete="off"
             pattern="[a-zA-Z0-9_\-\.@]+$">
-        </oat-field>
+        </b-field>
 
-        <oat-field :label="$t('globals.fields.name')">
+        <b-field :label="$t('globals.fields.name')">
           <input aria-label="field" :maxlength="200" v-model="form.name" name="name"
             :placeholder="$t('globals.fields.name')">
-        </oat-field>
+        </b-field>
 
-        <oat-field v-if="form.type !== 'api'" :label="$t('subscribers.email')">
+        <b-field v-if="form.type !== 'api'" :label="$t('subscribers.email')">
           <input aria-label="field" :maxlength="200" v-model="form.email" name="email"
             :placeholder="$t('subscribers.email')" required>
-        </oat-field>
+        </b-field>
 
         <template v-if="form.type !== 'api'">
           <div class="card">
-            <oat-field>
-              <oat-checkbox v-model="form.passwordLogin" :native-value="true" name="password_login">
+            <b-field>
+              <b-checkbox v-model="form.passwordLogin" :native-value="true" name="password_login">
                 {{ $t('users.passwordEnable') }}
-              </oat-checkbox>
-            </oat-field>
+              </b-checkbox>
+            </b-field>
 
             <div class="row">
               <div class="col-6">
-                <oat-field :label="$t('users.password')">
+                <b-field :label="$t('users.password')">
                   <input aria-label="field" :disabled="!form.passwordLogin" minlength="8" :maxlength="200"
                     v-model="form.password" type="password" name="password" :placeholder="$t('users.password')"
                     :required="form.passwordLogin && !isEditing">
-                </oat-field>
+                </b-field>
               </div>
               <div class="col-6">
-                <oat-field :label="$t('users.passwordRepeat')">
+                <b-field :label="$t('users.passwordRepeat')">
                   <input aria-label="field" :disabled="!form.passwordLogin" minlength="8" :maxlength="200"
                     v-model="form.password2" type="password" name="password2"
                     :required="form.passwordLogin && !isEditing && form.password">
-                </oat-field>
+                </b-field>
               </div>
             </div>
           </div>
@@ -87,24 +87,24 @@
         <div class="card">
           <div class="row">
             <div class="col-6">
-              <oat-field :label="$tc('users.userRole')">
+              <b-field :label="$tc('users.userRole')">
                 <select aria-label="field" v-model="form.userRoleId" name="user_role" required>
                   <option v-for="r in userRoles" :value="r.id" :key="r.id">
                     {{ r.name }}
                   </option>
                 </select>
-              </oat-field>
+              </b-field>
             </div>
 
             <div class="col-6">
-              <oat-field :label="$tc('users.listRole', 0)">
+              <b-field :label="$tc('users.listRole', 0)">
                 <select aria-label="field" v-model="form.listRoleId" name="list_role">
                   <option value="">&mdash; {{ $t("globals.terms.none") }} &mdash;</option>
                   <option v-for="r in listRoles" :value="r.id" :key="r.id">
                     {{ r.name }}
                   </option>
                 </select>
-              </oat-field>
+              </b-field>
             </div>
           </div>
         </div>

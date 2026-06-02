@@ -8,36 +8,36 @@
         </h1>
       </div>
       <div class="col-4 col-end align-right">
-        <oat-field v-if="$can('users:manage')">
+        <b-field v-if="$can('users:manage')">
           <button type="button" data-variant="primary" class="btn-new" @click="showNewForm('user')" data-cy="btn-new">
-            <oat-icon icon="plus" />
+            <b-icon icon="plus" />
             {{ $t('globals.buttons.new') }}
           </button>
-        </oat-field>
+        </b-field>
       </div>
     </header>
     <div class="card page-content">
-      <oat-data-table :data="roles" :loading="isLoading()">
-        <oat-table-column v-slot="props" field="role" :label="$tc('users.role')" sortable>
+      <b-table :data="roles" :loading="isLoading()">
+        <b-table-column v-slot="props" field="role" :label="$tc('users.role')" sortable>
           <a href="#" @click.prevent="showEditForm(props.row, 'user')">
-            <oat-badge v-if="props.row.id === 1" type="enabled">
+            <b-tag v-if="props.row.id === 1" type="enabled">
               {{ props.row.name }}
-            </oat-badge>
+            </b-tag>
             <template v-else>{{ props.row.name }}</template>
           </a>
-        </oat-table-column>
+        </b-table-column>
 
-        <oat-table-column v-slot="props" field="created_at" :label="$t('globals.fields.createdAt')"
+        <b-table-column v-slot="props" field="created_at" :label="$t('globals.fields.createdAt')"
           header-class="cy-created_at" sortable>
           {{ $utils.niceDate(props.row.createdAt) }}
-        </oat-table-column>
+        </b-table-column>
 
-        <oat-table-column v-slot="props" field="updated_at" :label="$t('globals.fields.updatedAt')"
+        <b-table-column v-slot="props" field="updated_at" :label="$t('globals.fields.updatedAt')"
           header-class="cy-updated_at" sortable>
           {{ $utils.niceDate(props.row.updatedAt) }}
-        </oat-table-column>
+        </b-table-column>
 
-        <oat-table-column v-slot="props" cell-class="actions align-right">
+        <b-table-column v-slot="props" cell-class="actions align-right">
           <template v-if="$can('roles:manage')">
             <a href="#" @click.prevent="$utils.prompt($t('globals.buttons.clone'),
               {
@@ -46,7 +46,7 @@
               },
               (name) => onCloneRole(name, props.row))" data-cy="btn-clone" :aria-label="$t('globals.buttons.clone')">
 
-              <oat-icon icon="file-multiple-outline" />
+              <b-icon icon="file-multiple-outline" />
 
             </a>
 
@@ -54,29 +54,29 @@
               <a href="#" @click.prevent="showEditForm(props.row, 'user')" data-cy="btn-edit"
                 :aria-label="$t('globals.buttons.edit')">
 
-                <oat-icon icon="pencil-outline" />
+                <b-icon icon="pencil-outline" />
 
               </a>
 
               <a href="#" @click.prevent="onDeleteRole(props.row)" data-cy="btn-delete"
                 :aria-label="$t('globals.buttons.delete')">
 
-                <oat-icon icon="trash-can-outline" />
+                <b-icon icon="trash-can-outline" />
 
               </a>
             </template>
           </template>
-        </oat-table-column>
+        </b-table-column>
 
         <template #empty v-if="!isLoading()">
           <empty-placeholder />
         </template>
-      </oat-data-table>
+      </b-table>
 
       <!-- Add / edit form modal -->
-      <oat-modal :active.sync="isFormVisible" :width="700" @close="onFormClose">
+      <b-modal :active.sync="isFormVisible" :width="700" @close="onFormClose">
         <role-form :data="curItem" :type="curType" :is-editing="isEditing" @finished="formFinished" />
-      </oat-modal>
+      </b-modal>
     </div>
   </section>
 </template>

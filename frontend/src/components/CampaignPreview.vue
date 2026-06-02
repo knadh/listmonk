@@ -1,6 +1,6 @@
 <template>
   <div>
-    <oat-modal @close="close" :active="isVisible">
+    <b-modal @close="close" :active="isVisible">
       <div>
         <div class="dialog-card" style="width: auto">
           <header class="dialog-head">
@@ -25,7 +25,7 @@
           </button>
         </footer>
       </div>
-    </oat-modal>
+    </b-modal>
   </div>
 </template>
 

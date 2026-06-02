@@ -18,7 +18,7 @@
         </h4><br />
         <div class="row">
           <div class="col-4">
-            <oat-field label="Data" :message="$t('maintenance.orphanHelp')">
+            <b-field label="Data" :message="$t('maintenance.orphanHelp')">
               <select aria-label="field" v-model="subscriberType">
                 <option value="orphan">
                   {{ $t('dashboard.orphanSubs') }}
@@ -27,16 +27,16 @@
                   {{ $t('subscribers.status.blocklisted') }}
                 </option>
               </select>
-            </oat-field>
+            </b-field>
           </div>
           <div class="col-5" />
           <div class="col-12">
             <br />
-            <oat-field>
+            <b-field>
               <button type="button" data-variant="danger" :loading="loading.maintenance" @click="deleteSubscribers">
                 {{ $t('globals.buttons.delete') }}
               </button>
-            </oat-field>
+            </b-field>
           </div>
         </div>
       </div><!-- subscribers -->
@@ -47,27 +47,27 @@
         </h4><br />
         <div class="row">
           <div class="col-4">
-            <oat-field label="Data">
+            <b-field label="Data">
               <select aria-label="field" v-model="subscriptionType">
                 <option value="optin">
                   {{ $t('maintenance.maintenance.unconfirmedOptins') }}
                 </option>
               </select>
-            </oat-field>
+            </b-field>
           </div>
           <div class="col-4">
-            <oat-field :label="$t('maintenance.olderThan')">
-              <oat-date-input v-model="subscriptionDate" required />
-            </oat-field>
+            <b-field :label="$t('maintenance.olderThan')">
+              <b-datepicker v-model="subscriptionDate" required />
+            </b-field>
           </div>
           <div class="col-1" />
           <div class="col-12">
             <br />
-            <oat-field>
+            <b-field>
               <button type="button" data-variant="danger" :loading="loading.maintenance" @click="deleteSubscriptions">
                 {{ $t('globals.buttons.delete') }}
               </button>
-            </oat-field>
+            </b-field>
           </div>
         </div>
       </div><!-- subscriptions -->
@@ -78,7 +78,7 @@
         </h4><br />
         <div class="row">
           <div class="col-4">
-            <oat-field label="Data">
+            <b-field label="Data">
               <select aria-label="field" v-model="analyticsType">
                 <option selected value="all">
                   {{ $t('globals.terms.all') }}
@@ -90,21 +90,21 @@
                   {{ $t('dashboard.linkClicks') }}
                 </option>
               </select>
-            </oat-field>
+            </b-field>
           </div>
           <div class="col-4">
-            <oat-field :label="$t('maintenance.olderThan')">
-              <oat-date-input v-model="analyticsDate" required />
-            </oat-field>
+            <b-field :label="$t('maintenance.olderThan')">
+              <b-datepicker v-model="analyticsDate" required />
+            </b-field>
           </div>
           <div class="col-1" />
           <div class="col-12">
             <br />
-            <oat-field>
+            <b-field>
               <button type="button" data-variant="danger" :loading="loading.maintenance" @click="deleteAnalytics">
                 {{ $t('globals.buttons.delete') }}
               </button>
-            </oat-field>
+            </b-field>
           </div>
         </div>
 
@@ -115,7 +115,7 @@
         <br />
         <div class="row">
           <div class="col-4">
-            <oat-field label="Data">
+            <b-field label="Data">
               <select aria-label="field" v-model="exportType">
                 <option value="views">
                   {{ $t('dashboard.campaignViews') }}
@@ -124,21 +124,21 @@
                   {{ $t('dashboard.linkClicks') }}
                 </option>
               </select>
-            </oat-field>
+            </b-field>
           </div>
           <div class="col-4">
-            <oat-field :label="$t('analytics.fromDate')">
-              <oat-date-input v-model="exportDate" required />
-            </oat-field>
+            <b-field :label="$t('analytics.fromDate')">
+              <b-datepicker v-model="exportDate" required />
+            </b-field>
           </div>
           <div class="col-1" />
           <div class="col-12">
             <br />
-            <oat-field>
+            <b-field>
               <button type="button" data-variant="primary" tag="a" :href="exportURL">
                 {{ $t('subscribers.export') }}
               </button>
-            </oat-field>
+            </b-field>
           </div>
         </div>
       </div><!-- analytics -->
@@ -154,15 +154,15 @@
         <br />
         <div class="row">
           <div class="col-2">
-            <oat-field :label="$t('globals.buttons.enabled')">
-              <oat-switch v-model="dbSettings.vacuum" />
-            </oat-field>
+            <b-field :label="$t('globals.buttons.enabled')">
+              <b-switch v-model="dbSettings.vacuum" />
+            </b-field>
           </div>
           <div class="col-4" :class="{ disabled: !dbSettings.vacuum }">
-            <oat-field :label="$t('settings.maintenance.cron')">
+            <b-field :label="$t('settings.maintenance.cron')">
               <input aria-label="field" v-model="dbSettings.vacuum_cron_interval" placeholder="0 2 * * *"
                 :disabled="!dbSettings.vacuum" pattern="((\*|[0-9,\-\/]+)\s+){4}(\*|[0-9,\-\/]+)">
-            </oat-field>
+            </b-field>
           </div>
           <div class="col-3" />
           <div class="col-3">
