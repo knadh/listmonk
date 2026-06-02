@@ -43,7 +43,10 @@ a {
 
 table {
     th, td {
-        padding: var(--space-3) 0;
+        padding: var(--space-3) var(--space-2);
+        p {
+            margin: 0 0 var(--space-1) 0;
+        }
     }
 
     .hstack {
@@ -400,6 +403,24 @@ ol.no {
 
 .page-content {
     margin-block-end: var(--space-6);
+
+    /* Stick the table to the edges */
+    .b-table {
+        margin: 0 calc(-1*var(--space-6));
+
+        tr th:first-child,
+        tr td:first-child {
+            padding-left: var(--space-6);
+        }
+        tr th:last-child,
+        tr td:last-child {
+            padding-right: var(--space-6);
+        }
+
+        .table-toolbar, .b-pagination {
+            padding: 0 var(--space-6);
+        }
+    }
 }
 
 .has-kbd {
