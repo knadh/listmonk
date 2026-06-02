@@ -8,18 +8,18 @@
         </h1>
       </div>
       <div class="col-4 col-end align-right">
-        <oat-field v-if="$can('templates:manage')">
+        <b-field v-if="$can('templates:manage')">
           <button type="button" data-variant="primary" class="btn-new" @click="showNewForm">
-            <oat-icon icon="plus" />
+            <b-icon icon="plus" />
             {{ $t('globals.buttons.new') }}
           </button>
-        </oat-field>
+        </b-field>
       </div>
     </header>
 
     <div class="card page-content">
-      <oat-data-table :data="templates" :hoverable="true" :loading="loading.templates" default-sort="createdAt">
-        <oat-table-column v-slot="props" field="name" :label="$t('globals.fields.name')" :td-attrs="$utils.tdID"
+      <b-table :data="templates" :hoverable="true" :loading="loading.templates" default-sort="createdAt">
+        <b-table-column v-slot="props" field="name" :label="$t('globals.fields.name')" :td-attrs="$utils.tdID"
           sortable>
           <a href="#" @click.prevent="showEditForm(props.row)">
             {{ props.row.name }}
@@ -31,87 +31,87 @@
           <p class="text-light text-7" v-if="props.row.type === 'tx'">
             {{ props.row.subject }}
           </p>
-        </oat-table-column>
+        </b-table-column>
 
-        <oat-table-column v-slot="props" field="type" :label="$t('globals.fields.type')" sortable>
-          <oat-badge v-if="props.row.type === 'campaign'" :type="props.row.type" :data-cy="`type-${props.row.type}`">
+        <b-table-column v-slot="props" field="type" :label="$t('globals.fields.type')" sortable>
+          <b-tag v-if="props.row.type === 'campaign'" :type="props.row.type" :data-cy="`type-${props.row.type}`">
             {{ $tc('templates.typeCampaignHTML') }}
-          </oat-badge>
-          <oat-badge v-else-if="props.row.type === 'campaign_visual'" :type="props.row.type"
+          </b-tag>
+          <b-tag v-else-if="props.row.type === 'campaign_visual'" :type="props.row.type"
             :data-cy="`type-${props.row.type}`">
             {{ $tc('templates.typeCampaignVisual') }}
-          </oat-badge>
-          <oat-badge v-else :type="props.row.type" :data-cy="`type-${props.row.type}`">
+          </b-tag>
+          <b-tag v-else :type="props.row.type" :data-cy="`type-${props.row.type}`">
             {{ $tc('templates.typeTransactional') }}
-          </oat-badge>
-        </oat-table-column>
+          </b-tag>
+        </b-table-column>
 
-        <oat-table-column v-slot="props" field="id" :label="$t('globals.fields.id')" sortable>
+        <b-table-column v-slot="props" field="id" :label="$t('globals.fields.id')" sortable>
           {{ props.row.id }}
-        </oat-table-column>
+        </b-table-column>
 
-        <oat-table-column v-slot="props" field="createdAt" :label="$t('globals.fields.createdAt')" sortable>
+        <b-table-column v-slot="props" field="createdAt" :label="$t('globals.fields.createdAt')" sortable>
           {{ $utils.niceDate(props.row.createdAt) }}
-        </oat-table-column>
+        </b-table-column>
 
-        <oat-table-column v-slot="props" field="updatedAt" :label="$t('globals.fields.updatedAt')" sortable>
+        <b-table-column v-slot="props" field="updatedAt" :label="$t('globals.fields.updatedAt')" sortable>
           {{ $utils.niceDate(props.row.updatedAt) }}
-        </oat-table-column>
+        </b-table-column>
 
-        <oat-table-column v-slot="props" cell-class="actions" align="right">
+        <b-table-column v-slot="props" cell-class="actions" align="right">
           <div>
             <a href="#" @click.prevent="previewTemplate(props.row)" data-cy="btn-preview"
               :aria-label="$t('templates.preview')">
 
-              <oat-icon icon="file-find-outline" />
+              <b-icon icon="file-find-outline" />
 
             </a>
             <a href="#" @click.prevent="showEditForm(props.row)" data-cy="btn-edit"
               :aria-label="$t('globals.buttons.edit')">
 
-              <oat-icon icon="pencil-outline" />
+              <b-icon icon="pencil-outline" />
 
             </a>
             <a href="#" @click.prevent="$utils.prompt(`Clone template`,
               { placeholder: 'Name', value: `Copy of ${props.row.name}` },
               (name) => cloneTemplate(name, props.row))" data-cy="btn-clone" :aria-label="$t('globals.buttons.clone')">
 
-              <oat-icon icon="file-multiple-outline" />
+              <b-icon icon="file-multiple-outline" />
 
             </a>
             <a v-if="!props.row.isDefault && props.row.type === 'campaign'" href="#"
               @click.prevent="$utils.confirm(null, () => makeTemplateDefault(props.row))" data-cy="btn-set-default"
               :aria-label="$t('templates.makeDefault')">
 
-              <oat-icon icon="check-circle-outline" />
+              <b-icon icon="check-circle-outline" />
 
             </a>
             <span v-else class="a text-lighter">
-              <oat-icon icon="check-circle-outline" />
+              <b-icon icon="check-circle-outline" />
             </span>
 
             <a v-if="!props.row.isDefault" href="#"
               @click.prevent="$utils.confirm(null, () => deleteTemplate(props.row))" data-cy="btn-delete"
               :aria-label="$t('globals.buttons.delete')">
 
-              <oat-icon icon="trash-can-outline" />
+              <b-icon icon="trash-can-outline" />
 
             </a>
             <span v-else class="a text-lighter">
-              <oat-icon icon="trash-can-outline" />
+              <b-icon icon="trash-can-outline" />
             </span>
           </div>
-        </oat-table-column>
+        </b-table-column>
 
         <template #empty v-if="!loading.templates">
           <empty-placeholder />
         </template>
-      </oat-data-table>
+      </b-table>
 
       <!-- Add / edit form modal -->
-      <oat-modal :active.sync="isFormVisible" :width="1200" :can-cancel="false" class="template-modal">
+      <b-modal :active.sync="isFormVisible" :width="1200" :can-cancel="false" class="template-modal">
         <template-form :data="curItem" :is-editing="isEditing" @finished="formFinished" />
-      </oat-modal>
+      </b-modal>
 
       <campaign-preview v-if="previewItem" type="template" :id="previewItem.id" :template-type="previewItem.type"
         :title="previewItem.name" @close="closePreview" />

@@ -4,7 +4,7 @@
 
 <script>
 export default {
-  name: 'OatIcon',
+  name: 'BIcon',
   props: {
     icon: {
       type: String,

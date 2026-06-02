@@ -1,5 +1,5 @@
 <template>
-  <div class="oat-autocomplete">
+  <div class="b-autocomplete">
     <input v-bind="$attrs" :value="value" type="text" :placeholder="placeholder" :disabled="disabled"
       :aria-label="placeholder || 'Search'" @input="onInput" @focus="isOpen = true">
     <button v-if="clearable && value" type="button" class="ghost small" @click="clear">x</button>
@@ -17,7 +17,7 @@
 
 <script>
 export default {
-  name: 'OatAutocomplete',
+  name: 'BAutocomplete',
   inheritAttrs: false,
   props: {
     value: {
@@ -70,11 +70,11 @@ export default {
 </script>
 
 <style>
-.oat-autocomplete {
+.b-autocomplete {
   position: relative;
 }
 
-.oat-autocomplete menu {
+.b-autocomplete menu {
   background: var(--background);
   border: 1px solid var(--border);
   border-radius: var(--radius);
@@ -90,7 +90,7 @@ export default {
   z-index: 20;
 }
 
-.oat-autocomplete menu button {
+.b-autocomplete menu button {
   justify-content: start;
   width: 100%;
 }

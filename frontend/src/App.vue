@@ -23,7 +23,7 @@
           <div class="col-8 justify-end hstack">
             <button type="button" class="ghost small" @click="emitPageRefresh" data-cy="btn-refresh"
               :aria-label="$t('globals.buttons.refresh')" :title="$t('globals.buttons.refresh')">
-              <oat-icon icon="refresh" />
+              <b-icon icon="refresh" />
             </button>
 
             <ot-dropdown v-if="profile.username">
@@ -36,10 +36,10 @@
               </button>
               <menu popover id="user-menu">
                 <router-link to="/user/profile" role="menuitem">
-                  <oat-icon icon="account-outline" /> {{ $t('users.profile') }}
+                  <b-icon icon="account-outline" /> {{ $t('users.profile') }}
                 </router-link>
                 <button type="button" role="menuitem" class="ghost" @click="doLogout">
-                  <oat-icon icon="logout-variant" /> {{ $t('users.logout') }}
+                  <b-icon icon="logout-variant" /> {{ $t('users.logout') }}
                 </button>
               </menu>
             </ot-dropdown>
@@ -83,7 +83,7 @@
             </template>
 
             <div v-if="serverConfig.has_legacy_user" role="alert">
-              <oat-icon icon="warning-empty" />
+              <b-icon icon="warning-empty" />
               Remove the <code>admin_username</code> and <code>admin_password</code> fields from the TOML
               configuration file or environment variables. If you are using APIs, create and use new API credentials
               before removing them. Visit
@@ -99,7 +99,7 @@
       </main>
     </template>
 
-    <oat-loading v-if="!$root.isLoaded" active />
+    <b-loading v-if="!$root.isLoaded" active />
   </div>
 </template>
 

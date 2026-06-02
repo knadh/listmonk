@@ -1,6 +1,7 @@
 <template>
   <span :class="badgeClass" :data-variant="variant || null">
     <slot />
+    <button v-if="closable" type="button" class="ghost small" @click="$emit('close')">x</button>
   </span>
 </template>
 
@@ -32,7 +33,7 @@ const variantMap = {
 };
 
 export default {
-  name: 'OatBadge',
+  name: 'BTag',
   props: {
     type: {
       type: String,
@@ -41,6 +42,10 @@ export default {
     variant: {
       type: String,
       default: '',
+    },
+    closable: {
+      type: Boolean,
+      default: false,
     },
   },
   computed: {

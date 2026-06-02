@@ -10,7 +10,7 @@
     </header>
 
     <div class="card page-content">
-      <oat-data-table :data="bounces.results" :hoverable="true" :loading="loading.bounces" default-sort="createdAt"
+      <b-table :data="bounces.results" :hoverable="true" :loading="loading.bounces" default-sort="createdAt"
         checkable @check-all="onTableCheck" @check="onTableCheck" :checked-rows.sync="bulk.checked" detailed paginated
         backend-pagination @page-change="onPageChange" :current-page="queryParams.page" :per-page="bounces.perPage"
         :total="bounces.total" backend-sorting @sort="onSort">
@@ -18,11 +18,11 @@
           <div class="actions">
             <template v-if="bulk.checked.length > 0">
               <a class="a" href="#" @click.prevent="$utils.confirm(null, () => deleteBounces())" data-cy="btn-delete">
-                <oat-icon icon="trash-can-outline" /> {{ $t('globals.buttons.delete') }}
+                <b-icon icon="trash-can-outline" /> {{ $t('globals.buttons.delete') }}
               </a>
               <a class="a" href="#" @click.prevent="$utils.confirm(null, () => blocklistSubscribers())"
                 data-cy="btn-manage-blocklist">
-                <oat-icon icon="account-off-outline" /> {{ $t('import.blocklist') }}
+                <b-icon icon="account-off-outline" /> {{ $t('import.blocklist') }}
               </a>
               <span>
                 {{ $t('globals.messages.numSelected', { num: numSelectedBounces }) }}
@@ -36,55 +36,55 @@
             </template>
           </div>
         </template>
-        <oat-table-column v-slot="props" field="email" :label="$t('subscribers.email')" :td-attrs="$utils.tdID"
+        <b-table-column v-slot="props" field="email" :label="$t('subscribers.email')" :td-attrs="$utils.tdID"
           sortable>
           <router-link :to="{ name: 'subscriber', params: { id: props.row.subscriberId } }"
             :class="{ 'blocklisted': props.row.subscriberStatus === 'blocklisted' }">
             {{ props.row.email }}
-            <oat-badge v-if="props.row.subscriberStatus !== 'enabled'" :type="props.row.subscriberStatus"
+            <b-tag v-if="props.row.subscriberStatus !== 'enabled'" :type="props.row.subscriberStatus"
               data-cy="blocklisted">
               {{ $t(`subscribers.status.${props.row.subscriberStatus}`) }}
-            </oat-badge>
+            </b-tag>
           </router-link>
-        </oat-table-column>
+        </b-table-column>
 
-        <oat-table-column v-slot="props" field="campaign" :label="$tc('globals.terms.campaign')" sortable>
+        <b-table-column v-slot="props" field="campaign" :label="$tc('globals.terms.campaign')" sortable>
           <router-link v-if="props.row.campaign"
             :to="{ name: 'bounces', query: { campaign_id: props.row.campaign.id } }">
             {{ props.row.campaign.name }}
           </router-link>
           <span v-else>-</span>
-        </oat-table-column>
+        </b-table-column>
 
-        <oat-table-column v-slot="props" field="source" :label="$t('bounces.source')" sortable>
+        <b-table-column v-slot="props" field="source" :label="$t('bounces.source')" sortable>
           <router-link :to="{ name: 'bounces', query: { source: props.row.source } }">
             {{ props.row.source }}
           </router-link>
-        </oat-table-column>
+        </b-table-column>
 
-        <oat-table-column v-slot="props" field="type" :label="$t('globals.fields.type')" sortable>
+        <b-table-column v-slot="props" field="type" :label="$t('globals.fields.type')" sortable>
           <router-link :to="{ name: 'bounces', query: { type: props.row.type } }">
             {{ $t(`bounces.${props.row.type}`) }}
           </router-link>
-        </oat-table-column>
+        </b-table-column>
 
-        <oat-table-column v-slot="props" field="created_at" :label="$t('globals.fields.createdAt')" sortable>
+        <b-table-column v-slot="props" field="created_at" :label="$t('globals.fields.createdAt')" sortable>
           {{ $utils.niceDate(props.row.createdAt, true) }}
-        </oat-table-column>
+        </b-table-column>
 
-        <oat-table-column v-slot="props" cell-class="actions" align="right">
+        <b-table-column v-slot="props" cell-class="actions" align="right">
           <div>
             <a v-if="!props.row.isDefault" href="#" @click.prevent="$utils.confirm(null, () => deleteBounce(props.row))"
               data-cy="btn-delete" :aria-label="$t('globals.buttons.delete')">
 
-              <oat-icon icon="trash-can-outline" />
+              <b-icon icon="trash-can-outline" />
 
             </a>
             <span v-else class="a text-lighter">
-              <oat-icon icon="trash-can-outline" />
+              <b-icon icon="trash-can-outline" />
             </span>
           </div>
-        </oat-table-column>
+        </b-table-column>
 
         <template #detail="props">
           <pre class="text-7">{{ props.row.meta }}</pre>
@@ -93,7 +93,7 @@
         <template #empty v-if="!loading.templates">
           <empty-placeholder />
         </template>
-      </oat-data-table>
+      </b-table>
     </div>
   </section>
 </template>

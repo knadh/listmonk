@@ -8,7 +8,7 @@
 
 <script>
 export default {
-  name: 'OatSwitch',
+  name: 'BSwitch',
   inheritAttrs: false,
   props: {
     value: {
