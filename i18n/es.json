@@ -292,7 +292,7 @@
     "lists.archived": "Archivado",
     "lists.archivedHelp": "Archivar oculta las listas de la página de listas, campañas y formularios públicos. Se puede desarchívar en cualquier momento. Es útil para ocultar listas antiguas y poco utilizadas.",
     "lists.confirmDelete": "¿Está seguro? Esto no elimina suscriptores",
-    "lists.confirmSub": "Suscripción confirmada a {name}",
+    "lists.confirmSub": "Confirme su Suscripción a {name}",
     "lists.invalidName": "Nombre inválido",
     "lists.newList": "Nueva lista",
     "lists.optin": "Confirmar la inclusión (opt-in)",
