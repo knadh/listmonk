@@ -1,20 +1,31 @@
 @font-face {
-    font-family: "Inter";
-    font-style: normal;
-    font-weight: 400;
-    src: url("./fonts/Inter-Regular.woff2") format("woff2");
+  font-family: 'Inter';
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+  src: url('./fonts/Inter-Regular.woff2') format('woff2');
 }
 
 @font-face {
-    font-family: "Inter";
-    font-style: normal;
-    font-weight: 600;
-    src: url("./fonts/Inter-Bold.woff2") format("woff2");
+  font-family: 'Inter';
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+  src: url('./fonts/Inter-Medium.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Inter';
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+  src: url('./fonts/Inter-SemiBold.woff2') format('woff2');
 }
 
 * {
     --primary: #0055d4;
     --ring: #0055d4;
+    --muted-foreground: light-dark(#7a7a7a, #a1a1aa);
     --container-max: 95%;
     --border: light-dark(#e5e7eb, #52525b);
     --font-sans: "Inter", system-ui, sans-serif;
@@ -23,10 +34,22 @@
 
 body {
     background: light-dark(#fafafa, #1a1a1a);
+    font-family: "Inter", system-ui, sans-serif;
 }
 
 a {
     text-decoration: none;
+}
+
+table {
+    th, td {
+        padding: var(--space-3) 0;
+    }
+
+    .hstack {
+        gap: var(--space-2);
+    }
+
 }
 
 .text-1 { font-size: var(--text-1); }
@@ -35,7 +58,7 @@ a {
 .text-4 { font-size: var(--text-4); }
 .text-5 { font-size: var(--text-5); }
 .text-6 { font-size: var(--text-6); }
-.text-7 { font-size: var(--text-7); }
+.text-7 { font-size: var(--text-8); }
 .text-8 { font-size: var(--text-8); }
 .font-normal { font-weight: var(--font-normal); }
 .font-medium { font-weight: var(--font-medium); }
@@ -127,7 +150,7 @@ dialog {
     &.disabled,
     &.draft,
     &.optin,
-    .b-taginput & {
+    .oat-tag-input & {
         background: #eee;
         color: #7a7a7a;
     }
@@ -397,27 +420,27 @@ ol.no {
     padding: 1px var(--space-2);
 }
 
-.b-table {
+.oat-data-table {
     font-size: var(--text-7);
 }
 
-.b-table .table {
+.oat-data-table .table {
     min-width: 100%;
 }
 
-.b-table thead th {
+.oat-data-table thead th {
     background: var(--faint);
     border-bottom: 1px solid var(--border);
 }
 
-.b-table thead th,
-.b-table tbody td {
+.oat-data-table thead th,
+.oat-data-table tbody td {
     border-color: var(--border);
     padding: var(--space-4) var(--space-3);
     vertical-align: top;
 }
 
-.b-table th button.ghost {
+.oat-data-table th button.ghost {
     color: inherit;
     font-size: inherit;
     font-weight: inherit;
@@ -425,7 +448,7 @@ ol.no {
     padding: 0;
 }
 
-.b-table .actions {
+.oat-data-table .actions {
     white-space: nowrap;
 
     a,
@@ -505,7 +528,7 @@ ol.no {
 }
 
 td .badge,
-.b-table .badge {
+.oat-data-table .badge {
     margin-block: 1px;
 }
 
