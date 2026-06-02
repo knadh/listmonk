@@ -54,7 +54,7 @@
             </li>
           </ul>
         </div>
-        <div class="col-12" data-cy="form">
+        <div class="col-8 cold-end" data-cy="form">
           <h4>{{ $t('forms.formHTML') }}</h4>
           <p>
             {{ $t('forms.formHTMLHelp') }}
