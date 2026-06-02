@@ -1,7 +1,7 @@
 <script>
 export default {
-  name: 'OatTableColumn',
-  inject: ['oatTable'],
+  name: 'BTableColumn',
+  inject: ['bTable'],
   props: {
     field: {
       type: String,
@@ -45,10 +45,10 @@ export default {
     },
   },
   created() {
-    this.oatTable.registerColumn(this);
+    this.bTable.registerColumn(this);
   },
   beforeDestroy() {
-    this.oatTable.unregisterColumn(this);
+    this.bTable.unregisterColumn(this);
   },
   render() {
     return null;

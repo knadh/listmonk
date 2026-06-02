@@ -4,13 +4,13 @@
       title="Visual email editor" />
 
     <!-- image picker -->
-    <oat-modal :active.sync="isMediaVisible" :width="900">
+    <b-modal :active.sync="isMediaVisible" :width="900">
       <div class="dialog-card content" style="width: auto">
         <section class="dialog-body">
           <media is-modal @selected="onMediaSelect" />
         </section>
       </div>
-    </oat-modal>
+    </b-modal>
   </div>
 </template>
 

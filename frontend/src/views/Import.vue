@@ -14,64 +14,64 @@
           <div>
             <div class="row">
               <div class="col-12">
-                <oat-field :label="$t('import.mode')" :addons="false">
+                <b-field :label="$t('import.mode')" :addons="false">
                   <div>
-                    <oat-radio v-model="form.mode" name="mode" native-value="subscribe" data-cy="check-subscribe">
+                    <b-radio v-model="form.mode" name="mode" native-value="subscribe" data-cy="check-subscribe">
                       {{ $t('import.subscribe') }}
-                    </oat-radio>
+                    </b-radio>
                     <br />
-                    <oat-radio v-model="form.mode" name="mode" native-value="blocklist" data-cy="check-blocklist">
+                    <b-radio v-model="form.mode" name="mode" native-value="blocklist" data-cy="check-blocklist">
                       {{ $t('import.blocklist') }}
-                    </oat-radio>
+                    </b-radio>
                   </div>
-                </oat-field>
+                </b-field>
               </div>
               <div class="col-12">
-                <oat-field :label="$t('globals.fields.status')" :addons="false">
+                <b-field :label="$t('globals.fields.status')" :addons="false">
                   <template v-if="form.mode === 'subscribe'">
-                    <oat-radio v-model="form.subStatus" name="subStatus" native-value="unconfirmed"
+                    <b-radio v-model="form.subStatus" name="subStatus" native-value="unconfirmed"
                       data-cy="check-unconfirmed">
                       {{ $t('subscribers.status.unconfirmed') }}
-                    </oat-radio>
-                    <oat-radio v-model="form.subStatus" name="subStatus" native-value="confirmed"
+                    </b-radio>
+                    <b-radio v-model="form.subStatus" name="subStatus" native-value="confirmed"
                       data-cy="check-confirmed">
                       {{ $t('subscribers.status.confirmed') }}
-                    </oat-radio>
+                    </b-radio>
                   </template>
 
-                  <oat-radio v-else v-model="form.subStatus" name="subStatus" native-value="unsubscribed"
+                  <b-radio v-else v-model="form.subStatus" name="subStatus" native-value="unsubscribed"
                     data-cy="check-unsubscribed">
                     {{ $t('subscribers.status.unsubscribed') }}
-                  </oat-radio>
-                </oat-field>
+                  </b-radio>
+                </b-field>
               </div>
 
               <div class="col-12">
-                <oat-field :label="$t('import.csvDelim')" :message="$t('import.csvDelimHelp')" class="delimiter">
+                <b-field :label="$t('import.csvDelim')" :message="$t('import.csvDelimHelp')" class="delimiter">
                   <input aria-label="field" v-model="form.delim" name="delim" placeholder="," maxlength="1" required>
-                </oat-field>
+                </b-field>
               </div>
             </div>
 
             <div class="row">
               <div class="col-4">
-                <oat-field v-if="form.mode === 'subscribe'" :label="$t('import.overwriteUserInfo')"
+                <b-field v-if="form.mode === 'subscribe'" :label="$t('import.overwriteUserInfo')"
                   :message="$t('import.overwriteUserInfoHelp')">
                   <div>
-                    <oat-switch v-model="form.overwriteUserInfo" name="overwriteUserInfo"
+                    <b-switch v-model="form.overwriteUserInfo" name="overwriteUserInfo"
                       data-cy="overwrite-user-info" />
                   </div>
-                </oat-field>
+                </b-field>
               </div>
 
               <div class="col-12">
-                <oat-field v-if="form.mode === 'subscribe'" :label="$t('import.overwriteSubStatus')"
+                <b-field v-if="form.mode === 'subscribe'" :label="$t('import.overwriteSubStatus')"
                   :message="$t('import.overwriteSubStatusHelp')">
                   <div>
-                    <oat-switch v-model="form.overwriteSubStatus" name="overwriteSubStatus"
+                    <b-switch v-model="form.overwriteSubStatus" name="overwriteSubStatus"
                       data-cy="overwrite-sub-status" />
                   </div>
-                </oat-field>
+                </b-field>
               </div>
             </div>
 
@@ -80,16 +80,16 @@
               :selected="form.lists" :all="lists.results" />
             <hr />
 
-            <oat-field :label="$t('import.csvFile')">
-              <oat-upload v-model="form.file">
+            <b-field :label="$t('import.csvFile')">
+              <b-upload v-model="form.file">
                 <div class="align-center app-section">
                   <p>
-                    <oat-icon icon="file-upload-outline" />
+                    <b-icon icon="file-upload-outline" />
                   </p>
                   <p>{{ $t('import.csvFileHelp') }}</p>
                 </div>
-              </oat-upload>
-            </oat-field>
+              </b-upload>
+            </b-field>
             <div class="hstack" v-if="form.file">
               <span closable @close="clearFile">
                 {{ form.file.name }}

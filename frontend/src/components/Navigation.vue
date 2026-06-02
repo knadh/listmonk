@@ -3,7 +3,7 @@
     <ul>
       <li>
         <router-link :to="{ name: 'dashboard' }" :aria-current="activeItem.dashboard ? 'page' : null">
-          <oat-icon icon="view-dashboard-variant-outline" />
+          <b-icon icon="view-dashboard-variant-outline" />
           {{ $t('menu.dashboard') }}
         </router-link>
       </li>
@@ -11,7 +11,7 @@
       <li>
         <details :open="activeGroup.lists" data-cy="lists" @toggle="onToggle($event, 'lists')">
           <summary>
-            <oat-icon icon="format-list-bulleted-square" />
+            <b-icon icon="format-list-bulleted-square" />
             {{ $t('globals.terms.lists') }}
           </summary>
           <ul>
@@ -32,7 +32,7 @@
       <li v-if="$can('subscribers:*')">
         <details :open="activeGroup.subscribers" data-cy="subscribers" @toggle="onToggle($event, 'subscribers')">
           <summary>
-            <oat-icon icon="account-multiple" />
+            <b-icon icon="account-multiple" />
             {{ $t('globals.terms.subscribers') }}
           </summary>
           <ul>
@@ -60,7 +60,7 @@
       <li v-if="$can('campaigns:*')">
         <details :open="activeGroup.campaigns" data-cy="campaigns" @toggle="onToggle($event, 'campaigns')">
           <summary>
-            <oat-icon icon="rocket-launch-outline" />
+            <b-icon icon="rocket-launch-outline" />
             {{ $t('globals.terms.campaigns') }}
           </summary>
           <ul>
@@ -100,7 +100,7 @@
       <li v-if="$can('users:*', 'roles:*')">
         <details :open="activeGroup.users" data-cy="users" @toggle="onToggle($event, 'users')">
           <summary>
-            <oat-icon icon="account-multiple" />
+            <b-icon icon="account-multiple" />
             {{ $t('globals.terms.users') }}
           </summary>
           <ul>
@@ -128,7 +128,7 @@
       <li v-if="$can('settings:*')">
         <details :open="activeGroup.settings" data-cy="settings" @toggle="onToggle($event, 'settings')">
           <summary>
-            <oat-icon icon="cog-outline" />
+            <b-icon icon="cog-outline" />
             {{ $t('menu.settings') }}
           </summary>
           <ul>

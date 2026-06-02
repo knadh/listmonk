@@ -20,13 +20,13 @@
         <section class="dialog-body mb-0 pb-0">
           <div class="row">
             <div class="col-9">
-              <oat-field :label="$t('globals.fields.name')">
+              <b-field :label="$t('globals.fields.name')">
                 <input aria-label="field" :maxlength="200" :ref="'focus'" v-model="form.name" name="name"
                   :placeholder="$t('globals.fields.name')" required>
-              </oat-field>
+              </b-field>
             </div>
             <div class="col-3">
-              <oat-field :label="$t('globals.fields.type')">
+              <b-field :label="$t('globals.fields.type')">
                 <select aria-label="field" v-model="form.type" :disabled="isEditing">
                   <option value="campaign">
                     {{ $tc('templates.typeCampaignHTML') }}
@@ -38,27 +38,27 @@
                     {{ $tc('templates.typeTransactional') }}
                   </option>
                 </select>
-              </oat-field>
+              </b-field>
             </div>
           </div>
           <div class="row" v-if="form.type === 'tx'">
             <div class="col-12">
-              <oat-field :label="$t('templates.subject')">
+              <b-field :label="$t('templates.subject')">
                 <input aria-label="field" :maxlength="200" :ref="'focus'" v-model="form.subject" name="name"
                   :placeholder="$t('templates.subject')" required>
-              </oat-field>
+              </b-field>
             </div>
           </div>
 
           <template v-if="form.body !== null">
-            <oat-field v-if="form.type === 'campaign_visual'" class="mb-1">
+            <b-field v-if="form.type === 'campaign_visual'" class="mb-1">
               <visual-editor v-if="form.type === 'campaign_visual'" name="body" :source="form.bodySource"
                 @change="onChangeVisualEditor" height="70vh" />
-            </oat-field>
+            </b-field>
 
-            <oat-field v-else :label="$t('templates.rawHTML')">
+            <b-field v-else :label="$t('templates.rawHTML')">
               <code-editor lang="html" v-model="form.body" name="body" />
-            </oat-field>
+            </b-field>
           </template>
 
           <p class="text-7">
