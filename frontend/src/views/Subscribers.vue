@@ -15,12 +15,12 @@
         </h1>
       </div>
       <div class="col-4 col-end align-right">
-        <oat-field v-if="$can('subscribers:manage')">
+        <b-field v-if="$can('subscribers:manage')">
           <button type="button" data-variant="primary" @click="showNewForm" data-cy="btn-new" class="btn-new">
-            <oat-icon icon="plus" />
+            <b-icon icon="plus" />
             {{ $t('globals.buttons.new') }}
           </button>
-        </oat-field>
+        </b-field>
       </div>
     </header>
 
@@ -36,7 +36,7 @@
                     data-cy="search">
                   <button type="submit" data-variant="primary" :disabled="isSearchAdvanced" data-cy="btn-search"
                     aria-label="Search">
-                    <oat-icon icon="magnify" />
+                    <b-icon icon="magnify" />
                   </button>
                 </fieldset>
 
@@ -66,7 +66,7 @@
             </form>
             <div v-if="!isSearchAdvanced" class="toggle-advanced">
               <a href="#" @click.prevent="toggleAdvancedSearch" data-cy="btn-advanced-search">
-                <oat-icon icon="cog-outline" />
+                <b-icon icon="cog-outline" />
                 {{ $t('subscribers.advancedQuery') }}
               </a>
             </div>
@@ -75,25 +75,25 @@
       </section><!-- control -->
 
       <br />
-      <oat-data-table :data="subscribers.results ?? []" :loading="loading.subscribers" @check-all="onTableCheck"
+      <b-table :data="subscribers.results ?? []" :loading="loading.subscribers" @check-all="onTableCheck"
         @check="onTableCheck" :checked-rows.sync="bulk.checked" paginated backend-pagination @page-change="onPageChange"
         :current-page="queryParams.page" :per-page="subscribers.perPage" :total="subscribers.total" checkable
         backend-sorting @sort="onSort">
         <template #top-left>
           <div class="actions">
             <a class="a" href="#" @click.prevent="exportSubscribers" data-cy="btn-export-subscribers">
-              <oat-icon icon="cloud-download-outline" />
+              <b-icon icon="cloud-download-outline" />
               {{ $t('subscribers.export') }}
             </a>
             <template v-if="bulk.checked.length > 0">
               <a class="a" href="#" @click.prevent="showBulkListForm" data-cy="btn-manage-lists">
-                <oat-icon icon="format-list-bulleted-square" /> Manage lists
+                <b-icon icon="format-list-bulleted-square" /> Manage lists
               </a>
               <a class="a" href="#" @click.prevent="deleteSubscribers" data-cy="btn-delete-subscribers">
-                <oat-icon icon="trash-can-outline" /> Delete
+                <b-icon icon="trash-can-outline" /> Delete
               </a>
               <a class="a" href="#" @click.prevent="blocklistSubscribers" data-cy="btn-manage-blocklist">
-                <oat-icon icon="account-off-outline" /> Blocklist
+                <b-icon icon="account-off-outline" /> Blocklist
               </a>
               <span class="a">
                 {{ $t('globals.messages.numSelected', { num: numSelectedSubscribers }) }}
@@ -108,91 +108,91 @@
           </div>
         </template>
 
-        <oat-table-column v-slot="props" field="email" :label="$t('subscribers.email')" header-class="cy-email" sortable
+        <b-table-column v-slot="props" field="email" :label="$t('subscribers.email')" header-class="cy-email" sortable
           :td-attrs="$utils.tdID">
           <a :href="`/subscribers/${props.row.id}`" @click.prevent="showEditForm(props.row)"
             :class="{ 'blocklisted': props.row.status === 'blocklisted' }">
             {{ props.row.email }}
             <copy-text :text="`${props.row.email}`" hide-text />
           </a>
-          <oat-badge v-if="props.row.status !== 'enabled'" :type="props.row.status" data-cy="blocklisted">
+          <b-tag v-if="props.row.status !== 'enabled'" :type="props.row.status" data-cy="blocklisted">
             {{ $t(`subscribers.status.${props.row.status}`) }}
-          </oat-badge>
+          </b-tag>
           <span class="badge-list hstack gap-1">
             <template v-for="l in (props.row.lists || [])">
               <router-link :to="`/subscribers/lists/${l.id}`" :key="l.id" style="padding-right:0.5em;">
-                <oat-badge :type="l.subscriptionStatus" :key="l.id">
+                <b-tag :type="l.subscriptionStatus" :key="l.id">
                   {{ l.name }}
                   <sup v-if="l.optin === 'double' || l.subscriptionStatus == 'unsubscribed'">
                     {{ $t(`subscribers.status.${l.subscriptionStatus}`) }}
                   </sup>
-                </oat-badge>
+                </b-tag>
               </router-link>
             </template>
           </span>
-        </oat-table-column>
+        </b-table-column>
 
-        <oat-table-column v-slot="props" field="name" :label="$t('globals.fields.name')" header-class="cy-name"
+        <b-table-column v-slot="props" field="name" :label="$t('globals.fields.name')" header-class="cy-name"
           sortable>
           <a :href="`/subscribers/${props.row.id}`" @click.prevent="showEditForm(props.row)"
             :class="{ 'blocklisted': props.row.status === 'blocklisted' }">
             {{ props.row.name }}
             <copy-text :text="`${props.row.name}`" hide-text />
           </a>
-        </oat-table-column>
+        </b-table-column>
 
-        <oat-table-column v-slot="props" field="lists" :label="$t('globals.terms.lists')" header-class="cy-lists"
+        <b-table-column v-slot="props" field="lists" :label="$t('globals.terms.lists')" header-class="cy-lists"
           centered>
           {{ listCount(props.row.lists || []) }}
-        </oat-table-column>
+        </b-table-column>
 
-        <oat-table-column v-slot="props" field="created_at" :label="$t('globals.fields.createdAt')"
+        <b-table-column v-slot="props" field="created_at" :label="$t('globals.fields.createdAt')"
           header-class="cy-created_at" sortable>
           {{ $utils.niceDate(props.row.createdAt) }}
-        </oat-table-column>
+        </b-table-column>
 
-        <oat-table-column v-slot="props" field="updated_at" :label="$t('globals.fields.updatedAt')"
+        <b-table-column v-slot="props" field="updated_at" :label="$t('globals.fields.updatedAt')"
           header-class="cy-updated_at" sortable>
           {{ $utils.niceDate(props.row.updatedAt) }}
-        </oat-table-column>
+        </b-table-column>
 
-        <oat-table-column v-slot="props" cell-class="actions" align="right">
+        <b-table-column v-slot="props" cell-class="actions" align="right">
           <div>
             <a :href="`/api/subscribers/${props.row.id}/export`" data-cy="btn-download"
               :aria-label="$t('subscribers.downloadData')">
 
-              <oat-icon icon="cloud-download-outline" />
+              <b-icon icon="cloud-download-outline" />
 
             </a>
             <a v-if="$can('subscribers:manage')" :href="`/subscribers/${props.row.id}`"
               @click.prevent="showEditForm(props.row)" data-cy="btn-edit" :aria-label="$t('globals.buttons.edit')">
 
-              <oat-icon icon="pencil-outline" />
+              <b-icon icon="pencil-outline" />
 
             </a>
             <a v-if="$can('subscribers:manage')" href="#" @click.prevent="deleteSubscriber(props.row)"
               data-cy="btn-delete" :aria-label="$t('globals.buttons.delete')">
 
-              <oat-icon icon="trash-can-outline" />
+              <b-icon icon="trash-can-outline" />
 
             </a>
           </div>
-        </oat-table-column>
+        </b-table-column>
 
         <template #empty v-if="!loading.subscribers">
           <empty-placeholder />
         </template>
-      </oat-data-table>
+      </b-table>
 
       <!-- Manage list modal -->
-      <oat-modal :active.sync="isBulkListFormVisible" :width="500" class="has-overflow">
+      <b-modal :active.sync="isBulkListFormVisible" :width="500" class="has-overflow">
         <subscriber-bulk-list :num-subscribers="this.numSelectedSubscribers" @finished="bulkChangeLists" />
-      </oat-modal>
+      </b-modal>
 
       <!-- Add / edit form modal -->
-      <oat-modal :active.sync="isFormVisible" :width="850" @close="onFormClose">
+      <b-modal :active.sync="isFormVisible" :width="850" @close="onFormClose">
         <subscriber-form :data="curItem" :is-editing="isEditing" @finished="querySubscribers" />
-      </oat-modal>
+      </b-modal>
     </div>
   </section>
 </template>

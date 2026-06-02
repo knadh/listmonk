@@ -1,6 +1,7 @@
 <template>
-  <input :type="datetime ? 'datetime-local' : 'date'" :name="name" :required="required" :aria-label="name || 'date'"
-    :value="formatted" @input="onInput">
+  <input v-bind="$attrs" :type="datetime ? 'datetime-local' : 'date'" :name="name" :required="required"
+    :disabled="disabled" :aria-label="placeholder || name || 'date'" :placeholder="placeholder" :value="formatted"
+    @input="onInput">
 </template>
 
 <script>
@@ -9,7 +10,8 @@ function pad(v) {
 }
 
 export default {
-  name: 'OatDateInput',
+  name: 'BDatepicker',
+  inheritAttrs: false,
   props: {
     value: {
       type: [Date, String],
@@ -26,6 +28,14 @@ export default {
     required: {
       type: Boolean,
       default: false,
+    },
+    disabled: {
+      type: Boolean,
+      default: false,
+    },
+    placeholder: {
+      type: String,
+      default: '',
     },
   },
   computed: {

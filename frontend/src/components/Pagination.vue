@@ -1,21 +1,21 @@
 <template>
-  <nav v-if="numPages > 1" class="oat-pagination" :aria-label="$t ? $t('globals.terms.page') : 'Pagination'">
+  <nav v-if="numPages > 1" class="b-pagination" :aria-label="$t ? $t('globals.terms.page') : 'Pagination'">
     <button type="button" :disabled="page <= 1" @click="setPage(page - 1)">
-      <oat-icon icon="chevron-left" />
+      <b-icon icon="chevron-left" />
     </button>
     <button v-for="p in pages" :key="p" type="button" :class="{ outline: p !== page }"
       :aria-current="p === page ? 'page' : null" @click="setPage(p)">
       {{ p }}
     </button>
     <button type="button" :disabled="page >= numPages" @click="setPage(page + 1)">
-      <oat-icon icon="chevron-right" />
+      <b-icon icon="chevron-right" />
     </button>
   </nav>
 </template>
 
 <script>
 export default {
-  name: 'OatPagination',
+  name: 'BPagination',
   props: {
     total: {
       type: Number,
@@ -61,7 +61,7 @@ export default {
 </script>
 
 <style>
-.oat-pagination {
+.b-pagination {
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-2);

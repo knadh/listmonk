@@ -9,13 +9,13 @@
           </h1>
         </div>
         <div class="col-4 col-end align-right">
-          <oat-field v-if="$can('settings:manage')">
+          <b-field v-if="$can('settings:manage')">
             <button :disabled="!hasFormChanged" data-variant="primary" type="submit" class="isSaveEnabled"
               data-cy="btn-save">
-              <oat-icon icon="content-save-outline" />
+              <b-icon icon="content-save-outline" />
               {{ $t('globals.buttons.save') }}
             </button>
-          </oat-field>
+          </b-field>
         </div>
       </header>
 

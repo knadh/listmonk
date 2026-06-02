@@ -6,7 +6,7 @@
       </div>
       <div class="col-4 col-end align-right">
         <button type="button" class="outline small" @click="fetchData">
-          <oat-icon icon="refresh" />
+          <b-icon icon="refresh" />
           {{ $t('globals.buttons.refresh') }}
         </button>
       </div>
@@ -20,7 +20,7 @@
             <header>
               <small class="text-light">{{ $tc('globals.terms.list', 2) }}</small>
               <div class="stat-value">
-                <oat-icon icon="format-list-bulleted-square" />
+                <b-icon icon="format-list-bulleted-square" />
                 {{ nice(counts.lists.total) }}
               </div>
               <small class="text-light hstack gap-2">
@@ -37,7 +37,7 @@
             <header>
               <small class="text-light">{{ $tc('globals.terms.subscriber', 2) }}</small>
               <div class="stat-value">
-                <oat-icon icon="account-multiple" />
+                <b-icon icon="account-multiple" />
                 {{ nice(counts.subscribers.total) }}
               </div>
               <small class="text-light hstack gap-2">
@@ -56,7 +56,7 @@
             <header>
               <small class="text-light">{{ $tc('globals.terms.campaign', 2) }}</small>
               <div class="stat-value">
-                <oat-icon icon="rocket-launch-outline" />
+                <b-icon icon="rocket-launch-outline" />
                 {{ nice(counts.campaigns.total) }}
               </div>
               <small class="text-light hstack gap-2">
@@ -74,7 +74,7 @@
             <header>
               <small class="text-light">{{ $t('dashboard.messagesSent') }}</small>
               <div class="stat-value">
-                <oat-icon icon="email-outline" />
+                <b-icon icon="email-outline" />
                 {{ nice(counts.messages) }}
               </div>
               <small class="text-light">
@@ -182,7 +182,7 @@
       <div v-if="settings['app.cache_slow_queries']" role="alert" class="mt-6">
         *{{ $t('globals.messages.slowQueriesCached') }}
         <a href="https://listmonk.app/docs/maintenance/performance/" target="_blank" rel="noopener noreferer">
-          <oat-icon icon="link-variant" /> {{ $t('globals.buttons.learnMore') }}
+          <b-icon icon="link-variant" /> {{ $t('globals.buttons.learnMore') }}
         </a>
       </div>
     </div>

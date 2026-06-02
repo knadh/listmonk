@@ -22,25 +22,25 @@
       <form @submit.prevent="onSubmit">
         <div class="row">
           <div class="col-6">
-            <oat-field :label="$t('globals.terms.campaigns')">
-              <oat-tag-input v-model="form.campaigns" :data="queriedCampaigns" name="campaigns"
+            <b-field :label="$t('globals.terms.campaigns')">
+              <b-taginput v-model="form.campaigns" :data="queriedCampaigns" name="campaigns"
                 :placeholder="$t('globals.terms.campaigns')" autocomplete :allow-new="false" :open-on-focus="true"
                 :before-adding="isCampaignSelected" @typing="queryCampaigns" @focus="queryCampaigns" field="name"
                 :loading="isSearchLoading" />
-            </oat-field>
+            </b-field>
           </div>
 
           <div class="col-5">
             <div class="row">
               <div class="col-6">
-                <oat-field data-cy="from" :label="$t('analytics.fromDate')">
-                  <oat-date-input datetime v-model="form.from" @input="onFromDateChange" />
-                </oat-field>
+                <b-field data-cy="from" :label="$t('analytics.fromDate')">
+                  <b-datetimepicker datetime v-model="form.from" @input="onFromDateChange" />
+                </b-field>
               </div>
               <div class="col-6">
-                <oat-field data-cy="to" :label="$t('analytics.toDate')">
-                  <oat-date-input datetime v-model="form.to" @input="onToDateChange" />
-                </oat-field>
+                <b-field data-cy="to" :label="$t('analytics.toDate')">
+                  <b-datetimepicker datetime v-model="form.to" @input="onToDateChange" />
+                </b-field>
               </div>
             </div><!-- row -->
           </div><!-- row -->
@@ -48,7 +48,7 @@
           <div class="col-1">
             <button type="submit" data-variant="primary" :disabled="form.campaigns.length === 0" data-cy="btn-search"
               aria-label="Search">
-              <oat-icon icon="magnify" />
+              <b-icon icon="magnify" />
             </button>
           </div>
         </div><!-- row -->

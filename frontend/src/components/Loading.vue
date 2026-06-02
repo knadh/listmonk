@@ -1,10 +1,10 @@
 <template>
-  <div v-if="active" class="oat-loading" :class="{ overlay }" aria-busy="true" data-spinner="large" />
+  <div v-if="active" class="b-loading" :class="{ overlay }" aria-busy="true" data-spinner="large" />
 </template>
 
 <script>
 export default {
-  name: 'OatLoading',
+  name: 'BLoading',
   props: {
     active: {
       type: Boolean,
@@ -24,7 +24,7 @@ export default {
 </script>
 
 <style>
-.oat-loading.overlay {
+.b-loading.overlay {
   align-items: center;
   background: color-mix(in srgb, var(--background) 70%, transparent);
   display: flex;

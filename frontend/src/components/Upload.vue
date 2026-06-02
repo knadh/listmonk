@@ -1,5 +1,5 @@
 <template>
-  <label class="oat-upload" @dragover.prevent @drop.prevent="onDrop">
+  <label class="b-upload" @dragover.prevent @drop.prevent="onDrop">
     <input type="file" :multiple="multiple" :accept="accept || xaccept" :aria-label="label" @change="onChange">
     <slot />
   </label>
@@ -7,7 +7,7 @@
 
 <script>
 export default {
-  name: 'OatUpload',
+  name: 'BUpload',
   props: {
     value: {
       type: [Array, File],
@@ -46,7 +46,7 @@ export default {
 </script>
 
 <style>
-.oat-upload {
+.b-upload {
   border: 1px dashed var(--border);
   border-radius: var(--radius);
   cursor: pointer;
@@ -54,7 +54,7 @@ export default {
   padding: var(--space-4);
 }
 
-.oat-upload input {
+.b-upload input {
   display: none;
 }
 </style>

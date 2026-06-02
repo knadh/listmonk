@@ -8,11 +8,11 @@
 
 <script>
 export default {
-  name: 'OatField',
+  name: 'BField',
   data() {
     return {
       generatedID: '',
-      fieldID: `oat-field-${Date.now()}-${Math.floor(Math.random() * 1000).toString().padStart(3, '0')}`,
+      fieldID: `b-field-${Date.now()}-${Math.floor(Math.random() * 1000).toString().padStart(3, '0')}`,
     };
   },
   props: {

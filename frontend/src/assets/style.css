@@ -127,7 +127,7 @@ dialog {
     &.disabled,
     &.draft,
     &.optin,
-    .oat-tag-input & {
+    .b-taginput & {
         background: #eee;
         color: #7a7a7a;
     }
@@ -397,27 +397,27 @@ ol.no {
     padding: 1px var(--space-2);
 }
 
-.oat-data-table {
+.b-table {
     font-size: var(--text-7);
 }
 
-.oat-data-table .table {
+.b-table .table {
     min-width: 100%;
 }
 
-.oat-data-table thead th {
+.b-table thead th {
     background: var(--faint);
     border-bottom: 1px solid var(--border);
 }
 
-.oat-data-table thead th,
-.oat-data-table tbody td {
+.b-table thead th,
+.b-table tbody td {
     border-color: var(--border);
     padding: var(--space-4) var(--space-3);
     vertical-align: top;
 }
 
-.oat-data-table th button.ghost {
+.b-table th button.ghost {
     color: inherit;
     font-size: inherit;
     font-weight: inherit;
@@ -425,7 +425,7 @@ ol.no {
     padding: 0;
 }
 
-.oat-data-table .actions {
+.b-table .actions {
     white-space: nowrap;
 
     a,
@@ -505,7 +505,7 @@ ol.no {
 }
 
 td .badge,
-.oat-data-table .badge {
+.b-table .badge {
     margin-block: 1px;
 }
 

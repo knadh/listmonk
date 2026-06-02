@@ -20,7 +20,7 @@
                 <input aria-label="Search" v-model="queryParams.query" name="query" ref="query" data-cy="query"
                   placeholder="Search">
                 <button type="submit" data-variant="primary" data-cy="btn-query" aria-label="Search">
-                  <oat-icon icon="magnify" />
+                  <b-icon icon="magnify" />
                 </button>
               </fieldset>
             </form>
@@ -35,16 +35,16 @@
         <div>
           <form @submit.prevent="onSubmit" class="mb-6" data-cy="upload">
             <div>
-              <oat-field :label="$t('media.upload')">
-                <oat-upload v-model="form.files" multiple xaccept=".png,.jpg,.jpeg,.gif,.svg">
+              <b-field :label="$t('media.upload')">
+                <b-upload v-model="form.files" multiple xaccept=".png,.jpg,.jpeg,.gif,.svg">
                   <div class="align-center app-section">
                     <p>
-                      <oat-icon icon="file-upload-outline" />
+                      <b-icon icon="file-upload-outline" />
                     </p>
                     <p>{{ $t('media.uploadHelp') }}</p>
                   </div>
-                </oat-upload>
-              </oat-field>
+                </b-upload>
+              </b-field>
               <div class="hstack" v-if="form.files.length > 0">
                 <span v-for="(f, i) in form.files" :key="i" closable @close="removeUploadFile(i)">
                   {{ f.name }}
@@ -62,7 +62,7 @@
 
         <!-- Pagination -->
         <div v-if="media.total > media.perPage" class="pagination-wrapper mt-5">
-          <oat-pagination :total="media.total" :current.sync="media.page" :per-page="media.perPage"
+          <b-pagination :total="media.total" :current.sync="media.page" :per-page="media.perPage"
             @change="onPageChange" />
         </div>
 
@@ -83,7 +83,7 @@
               <div class="actions">
                 <a href="#" @click.prevent="$utils.confirm(null, () => onDeleteMedia(item.id))" data-cy="btn-delete"
                   :aria-label="$t('globals.buttons.delete')" class="delete-btn">
-                  <oat-icon icon="trash-can-outline" />
+                  <b-icon icon="trash-can-outline" />
                 </a>
               </div>
             </div>
@@ -101,7 +101,7 @@
 
         <!-- Pagination -->
         <div v-if="media.total > media.perPage" class="pagination-wrapper mt-5">
-          <oat-pagination :total="media.total" :current.sync="media.page" :per-page="media.perPage"
+          <b-pagination :total="media.total" :current.sync="media.page" :per-page="media.perPage"
             @change="onPageChange" />
         </div>
       </section>

@@ -31,9 +31,9 @@
       </div>
 
       <div v-if="activity.campaignViews && activity.campaignViews.length > 0">
-        <oat-data-table :data="activity.campaignViews" default-sort="lastViewedAt" default-sort-direction="desc"
+        <b-table :data="activity.campaignViews" default-sort="lastViewedAt" default-sort-direction="desc"
           paginated :per-page="10" :pagination-simple="false" class="campaign-views-table">
-          <oat-table-column v-slot="props" field="subject" :label="$tc('globals.terms.campaign', 1)" sortable>
+          <b-table-column v-slot="props" field="subject" :label="$tc('globals.terms.campaign', 1)" sortable>
             <div v-if="props.row.uuid">
               <router-link :to="{ name: 'campaign', params: { id: props.row.id } }">
                 {{ props.row.name }}
@@ -43,18 +43,18 @@
             <div v-else>
               <em class="text-light">{{ $t('subscribers.activity.campaignDeleted') }}</em>
             </div>
-          </oat-table-column>
+          </b-table-column>
 
-          <oat-table-column v-slot="props" field="viewCount" :label="$t('campaigns.views')" sortable numeric>
+          <b-table-column v-slot="props" field="viewCount" :label="$t('campaigns.views')" sortable numeric>
             <span class="badge ">{{ props.row.viewCount }}</span>
-          </oat-table-column>
+          </b-table-column>
 
-          <oat-table-column v-slot="props" field="lastViewedAt" :label="$t('globals.fields.createdAt')" sortable>
+          <b-table-column v-slot="props" field="lastViewedAt" :label="$t('globals.fields.createdAt')" sortable>
             <span v-if="props.row.lastViewedAt">
               {{ $utils.niceDate(props.row.lastViewedAt, true) }}
             </span>
-          </oat-table-column>
-        </oat-data-table>
+          </b-table-column>
+        </b-table>
       </div>
       <div v-else class="align-center text-light p-6">
         <p class="mt-2">{{ $t('globals.messages.emptyState') }}</p>
@@ -68,16 +68,16 @@
       </div>
 
       <div v-if="activity.linkClicks && activity.linkClicks.length > 0">
-        <oat-data-table :data="activity.linkClicks" default-sort="lastClickedAt" default-sort-direction="desc" paginated
+        <b-table :data="activity.linkClicks" default-sort="lastClickedAt" default-sort-direction="desc" paginated
           :per-page="10" :pagination-simple="false" class="link-clicks-table">
-          <oat-table-column v-slot="props" field="url" :label="$t('globals.terms.url')" cell-class="link-click-url"
+          <b-table-column v-slot="props" field="url" :label="$t('globals.terms.url')" cell-class="link-click-url"
             sortable>
             <a :href="props.row.url" target="_blank" rel="noopener noreferrer">
               {{ props.row.url }}
             </a>
-          </oat-table-column>
+          </b-table-column>
 
-          <oat-table-column v-slot="props" field="campaignName" :label="$tc('globals.terms.campaign', 1)" sortable>
+          <b-table-column v-slot="props" field="campaignName" :label="$tc('globals.terms.campaign', 1)" sortable>
             <div v-if="props.row.campaignUuid">
               <router-link :to="{ name: 'campaign', params: { id: props.row.campaignId } }">
                 {{ props.row.campaignSubject || props.row.campaignName }}
@@ -86,18 +86,18 @@
             <div v-else>
               &mdash;
             </div>
-          </oat-table-column>
+          </b-table-column>
 
-          <oat-table-column v-slot="props" field="clickCount" :label="$t('campaigns.clicks')" sortable numeric>
+          <b-table-column v-slot="props" field="clickCount" :label="$t('campaigns.clicks')" sortable numeric>
             <span class="badge ">{{ props.row.clickCount }}</span>
-          </oat-table-column>
+          </b-table-column>
 
-          <oat-table-column v-slot="props" field="lastClickedAt" :label="$t('globals.fields.createdAt')" sortable>
+          <b-table-column v-slot="props" field="lastClickedAt" :label="$t('globals.fields.createdAt')" sortable>
             <span v-if="props.row.lastClickedAt">
               {{ $utils.niceDate(props.row.lastClickedAt, true) }}
             </span>
-          </oat-table-column>
-        </oat-data-table>
+          </b-table-column>
+        </b-table>
       </div>
       <div v-else class="align-center text-light p-6">
         <p class="mt-2">{{ $t('globals.messages.emptyState') }}</p>
