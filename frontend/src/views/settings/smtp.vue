@@ -4,38 +4,38 @@
       <div class="card" v-for="(item, n) in form.smtp" :key="n">
         <div class="row">
           <div class="col-2">
-            <oat-field>
-              <oat-switch v-model="item.enabled" name="enabled" :native-value="true" data-cy="btn-enable-smtp">
+            <b-field>
+              <b-switch v-model="item.enabled" name="enabled" :native-value="true" data-cy="btn-enable-smtp">
                 {{ $t('globals.buttons.enabled') }}
-              </oat-switch>
-            </oat-field>
-            <oat-field v-if="form.smtp.length > 1">
+              </b-switch>
+            </b-field>
+            <b-field v-if="form.smtp.length > 1">
               <a @click.prevent="$utils.confirm(null, () => removeSMTP(n))" href="#" data-cy="btn-delete-smtp">
-                <oat-icon icon="trash-can-outline" />
+                <b-icon icon="trash-can-outline" />
                 {{ $t('globals.buttons.delete') }}
               </a>
-            </oat-field>
+            </b-field>
           </div><!-- first col-12 -->
 
           <div class="col-10" :class="{ disabled: !item.enabled }">
             <div class="row">
               <div class="col-9">
-                <oat-field :label="$t('settings.mailserver.host')" :message="$t('settings.mailserver.hostHelp')">
+                <b-field :label="$t('settings.mailserver.host')" :message="$t('settings.mailserver.hostHelp')">
                   <input aria-label="field" v-model="item.host" name="host" placeholder="smtp.yourmailserver.net"
                     :maxlength="200">
-                </oat-field>
+                </b-field>
               </div>
               <div class="col-3">
-                <oat-field :label="$t('settings.mailserver.port')" :message="$t('settings.mailserver.portHelp')">
+                <b-field :label="$t('settings.mailserver.port')" :message="$t('settings.mailserver.portHelp')">
                   <input aria-label="field" type="number" v-model.number="item.port" name="port" placeholder="25"
                     min="1" max="65535">
-                </oat-field>
+                </b-field>
               </div>
             </div><!-- host -->
 
             <div class="row">
               <div class="col-3">
-                <oat-field :label="$t('settings.mailserver.authProtocol')">
+                <b-field :label="$t('settings.mailserver.authProtocol')">
                   <select aria-label="field" v-model="item.auth_protocol" name="auth_protocol">
                     <option value="login">
                       LOGIN
@@ -50,21 +50,21 @@
                       None
                     </option>
                   </select>
-                </oat-field>
+                </b-field>
               </div>
               <div class="col-9">
-                <oat-field>
-                  <oat-field :label="$t('settings.mailserver.username')">
+                <b-field>
+                  <b-field :label="$t('settings.mailserver.username')">
                     <input aria-label="field" v-model="item.username" :disabled="item.auth_protocol === 'none'"
                       name="username" placeholder="mysmtp" :maxlength="200">
-                  </oat-field>
-                  <oat-field :label="$t('settings.mailserver.password')"
+                  </b-field>
+                  <b-field :label="$t('settings.mailserver.password')"
                     :message="$t('settings.mailserver.passwordHelp')">
                     <input aria-label="field" v-model="item.password" :disabled="item.auth_protocol === 'none'"
                       name="password" type="password" :placeholder="$t('settings.mailserver.passwordHelp')"
                       :maxlength="200">
-                  </oat-field>
-                </oat-field>
+                  </b-field>
+                </b-field>
               </div>
             </div><!-- auth -->
             <div class="spaced-links text-7">
@@ -82,14 +82,14 @@
 
             <div class="row">
               <div class="col-6">
-                <oat-field :label="$t('settings.smtp.heloHost')" :message="$t('settings.smtp.heloHostHelp')">
+                <b-field :label="$t('settings.smtp.heloHost')" :message="$t('settings.smtp.heloHostHelp')">
                   <input aria-label="field" v-model="item.hello_hostname" name="hello_hostname" placeholder=""
                     :maxlength="200">
-                </oat-field>
+                </b-field>
               </div>
               <div class="col-6">
-                <oat-field>
-                  <oat-field :label="$t('settings.mailserver.tls')" :message="$t('settings.mailserver.tlsHelp')">
+                <b-field>
+                  <b-field :label="$t('settings.mailserver.tls')" :message="$t('settings.mailserver.tlsHelp')">
                     <select aria-label="field" v-model="item.tls_type" name="items.tls_type">
                       <option value="none">
                         {{ $t('globals.states.off') }}
@@ -101,70 +101,70 @@
                         SSL/TLS
                       </option>
                     </select>
-                  </oat-field>
-                  <oat-field :message="$t('settings.mailserver.skipTLSHelp')">
-                    <oat-switch v-model="item.tls_skip_verify" :disabled="item.tls_type === 'none'"
+                  </b-field>
+                  <b-field :message="$t('settings.mailserver.skipTLSHelp')">
+                    <b-switch v-model="item.tls_skip_verify" :disabled="item.tls_type === 'none'"
                       name="item.tls_skip_verify">
                       {{ $t('settings.mailserver.skipTLS') }}
-                    </oat-switch>
-                  </oat-field>
-                </oat-field>
+                    </b-switch>
+                  </b-field>
+                </b-field>
               </div>
             </div><!-- TLS -->
             <hr />
 
             <div class="row">
               <div class="col-4">
-                <oat-field :label="$t('settings.mailserver.maxConns')"
+                <b-field :label="$t('settings.mailserver.maxConns')"
                   :message="$t('settings.mailserver.maxConnsHelp')">
                   <input aria-label="field" type="number" v-model.number="item.max_conns" name="max_conns"
                     placeholder="25" min="1" max="65535">
-                </oat-field>
+                </b-field>
               </div>
               <div class="col-4">
-                <oat-field :label="$t('settings.mailserver.idleTimeout')"
+                <b-field :label="$t('settings.mailserver.idleTimeout')"
                   :message="$t('settings.mailserver.idleTimeoutHelp')">
                   <input aria-label="field" v-model="item.idle_timeout" name="idle_timeout" placeholder="15s"
                     :pattern="regDuration" :maxlength="10">
-                </oat-field>
+                </b-field>
               </div>
               <div class="col-4">
-                <oat-field :label="$t('settings.mailserver.waitTimeout')"
+                <b-field :label="$t('settings.mailserver.waitTimeout')"
                   :message="$t('settings.mailserver.waitTimeoutHelp')">
                   <input aria-label="field" v-model="item.wait_timeout" name="wait_timeout" placeholder="5s"
                     :pattern="regDuration" :maxlength="10">
-                </oat-field>
+                </b-field>
               </div>
             </div>
 
             <div class="row">
               <div class="col-4">
-                <oat-field :label="$t('settings.smtp.retries')" :message="$t('settings.smtp.retriesHelp')">
+                <b-field :label="$t('settings.smtp.retries')" :message="$t('settings.smtp.retriesHelp')">
                   <input aria-label="field" type="number" v-model.number="item.max_msg_retries" name="max_msg_retries"
                     placeholder="2" min="1" max="1000">
-                </oat-field>
+                </b-field>
               </div>
               <div class="col-4">
-                <oat-field :label="$t('settings.smtp.retryDelay')" :message="$t('settings.smtp.retryDelayHelp')">
+                <b-field :label="$t('settings.smtp.retryDelay')" :message="$t('settings.smtp.retryDelayHelp')">
                   <input aria-label="field" v-model="item.msg_retry_delay" name="msg_retry_delay" placeholder="0s"
                     :pattern="regDuration" :maxlength="10">
-                </oat-field>
+                </b-field>
               </div>
             </div>
 
             <hr />
             <div class="row">
               <div class="col-6">
-                <oat-field :label="$t('globals.fields.name')" :message="$t('settings.mailserver.nameHelp')">
+                <b-field :label="$t('globals.fields.name')" :message="$t('settings.mailserver.nameHelp')">
                   <input aria-label="field" v-model="item.name" name="name" placeholder="email-primary"
                     :maxlength="100">
-                </oat-field>
+                </b-field>
               </div>
               <div class="col-6">
-                <oat-field :label="$t('settings.smtp.fromAddresses')" :message="$t('settings.smtp.fromAddressesHelp')">
-                  <oat-tag-input v-model="item.from_addresses" name="from_addresses"
+                <b-field :label="$t('settings.smtp.fromAddresses')" :message="$t('settings.smtp.fromAddressesHelp')">
+                  <b-taginput v-model="item.from_addresses" name="from_addresses"
                     :before-adding="validateFromAddress" placeholder="user@example.com, anothersite.com" />
-                </oat-field>
+                </b-field>
               </div>
             </div>
 
@@ -172,13 +172,13 @@
               <div class="col-12">
                 <p v-if="item.email_headers.length === 0 && !item.showHeaders">
                   <a href="#" @click.prevent="() => showSMTPHeaders(n)">
-                    <oat-icon icon="plus" />{{ $t('settings.smtp.setCustomHeaders') }}</a>
+                    <b-icon icon="plus" />{{ $t('settings.smtp.setCustomHeaders') }}</a>
                 </p>
-                <oat-field v-if="item.email_headers.length > 0 || item.showHeaders"
+                <b-field v-if="item.email_headers.length > 0 || item.showHeaders"
                   :message="$t('settings.smtp.customHeadersHelp')">
                   <textarea aria-label="field" v-model="item.strEmailHeaders" name="email_headers"
                     placeholder="[{&quot;X-Custom&quot;: &quot;value&quot;}, {&quot;X-Custom2&quot;: &quot;value&quot;}]" />
-                </oat-field>
+                </b-field>
               </div>
             </div>
             <hr />
@@ -192,10 +192,10 @@
                     {{ settings['app.from_email'] }}
                   </div>
                   <div class="col-4">
-                    <oat-field :label="$t('settings.smtp.toEmail')">
+                    <b-field :label="$t('settings.smtp.toEmail')">
                       <input aria-label="field" type="email" required v-model="testEmail" :ref="'testEmailTo'"
                         placeholder="email@site.com">
-                    </oat-field>
+                    </b-field>
                   </div>
                 </template>
                 <div class="col-3 align-right">
@@ -204,7 +204,7 @@
                     {{ $t('settings.smtp.sendTest') }}
                   </button>
                   <a href="#" v-else data-variant="primary" @click.prevent="showTestForm(n)">
-                    <oat-icon icon="rocket-launch-outline" /> {{ $t('settings.smtp.testConnection') }}
+                    <b-icon icon="rocket-launch-outline" /> {{ $t('settings.smtp.testConnection') }}
                   </a>
                 </div>
                 <div class="row">
@@ -212,9 +212,9 @@
                 </div>
               </div>
               <div v-if="errMsg && smtpTestItem === n">
-                <oat-field class="mt-4">
+                <b-field class="mt-4">
                   <textarea aria-label="field" v-model="errMsg" readonly />
-                </oat-field>
+                </b-field>
               </div>
             </form><!-- smtp test -->
           </div>

@@ -15,14 +15,14 @@
           {{ $t('settings.appearance.adminHelp') }}
         </div>
 
-        <oat-field :label="$t('settings.appearance.customCSS')">
+        <b-field :label="$t('settings.appearance.customCSS')">
           <code-editor lang="css" v-model="data['appearance.admin.custom_css']" name="body" key="editor-admin-css" />
-        </oat-field>
+        </b-field>
 
-        <oat-field :label="$t('settings.appearance.customJS')">
+        <b-field :label="$t('settings.appearance.customJS')">
           <code-editor lang="javascript" v-model="data['appearance.admin.custom_js']" name="body"
             key="editor-admin-js" />
-        </oat-field>
+        </b-field>
       </div>
 
       <div role="tabpanel">
@@ -30,14 +30,14 @@
           {{ $t('settings.appearance.publicHelp') }}
         </div>
 
-        <oat-field :label="$t('settings.appearance.customCSS')">
+        <b-field :label="$t('settings.appearance.customCSS')">
           <code-editor lang="css" v-model="data['appearance.public.custom_css']" name="body" key="editor-public-css" />
-        </oat-field>
+        </b-field>
 
-        <oat-field :label="$t('settings.appearance.customJS')">
+        <b-field :label="$t('settings.appearance.customJS')">
           <code-editor lang="javascript" v-model="data['appearance.public.custom_js']" name="body"
             key="editor-public-js" />
-        </oat-field>
+        </b-field>
       </div>
     </ot-tabs>
   </div>

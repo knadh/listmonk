@@ -19,9 +19,9 @@
 
           <ul class="no" data-cy="lists">
             <li v-for="(l, i) in publicLists" :key="l.id">
-              <oat-checkbox v-model="checked" :native-value="i">
+              <b-checkbox v-model="checked" :native-value="i">
                 {{ l.name }}
-              </oat-checkbox>
+              </b-checkbox>
             </li>
           </ul>
 
@@ -43,14 +43,14 @@
           </p>
           <ul v-if="redirectURLs.length > 0" class="no" data-cy="redirect-urls">
             <li>
-              <oat-radio v-model="selectedRedirectURL" native-value="">
+              <b-radio v-model="selectedRedirectURL" native-value="">
                 {{ $t('globals.terms.none') }}
-              </oat-radio>
+              </b-radio>
             </li>
             <li v-for="url in redirectURLs" :key="url">
-              <oat-radio v-model="selectedRedirectURL" :native-value="url">
+              <b-radio v-model="selectedRedirectURL" :native-value="url">
                 {{ url }}
-              </oat-radio>
+              </b-radio>
             </li>
           </ul>
         </div>

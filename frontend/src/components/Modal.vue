@@ -1,12 +1,12 @@
 <template>
-  <dialog ref="dialog" class="oat-modal" :style="contentStyle" @close="onNativeClose" @cancel="onCancel">
+  <dialog ref="dialog" class="b-modal" :style="contentStyle" @close="onNativeClose" @cancel="onCancel">
     <slot />
   </dialog>
 </template>
 
 <script>
 export default {
-  name: 'OatModal',
+  name: 'BModal',
   props: {
     active: {
       type: Boolean,
@@ -15,6 +15,10 @@ export default {
     width: {
       type: [Number, String],
       default: '',
+    },
+    canCancel: {
+      type: [Boolean, Array],
+      default: true,
     },
   },
   computed: {
@@ -45,6 +49,9 @@ export default {
   },
   methods: {
     close() {
+      if (this.canCancel === false) {
+        return;
+      }
       this.$emit('update:active', false);
       this.$emit('close');
     },
@@ -62,34 +69,34 @@ export default {
 </script>
 
 <style>
-.oat-modal {
+.b-modal {
   max-width: min(96vw, 1200px);
   width: min(100% - 2rem, 32rem);
 }
 
-.oat-modal>form>.dialog-card,
-.oat-modal>.dialog-card {
+.b-modal>form>.dialog-card,
+.b-modal>.dialog-card {
   display: contents;
 }
 
-.oat-modal>form>.dialog-card>header,
-.oat-modal>.dialog-card>header {
+.b-modal>form>.dialog-card>header,
+.b-modal>.dialog-card>header {
   background: var(--muted);
   padding: var(--space-6);
   padding-block-end: var(--space-2);
   margin-block-end: var(--space-4);
 }
 
-.oat-modal>form>.dialog-card> :is(div, section),
-.oat-modal>.dialog-card> :is(div, section) {
+.b-modal>form>.dialog-card> :is(div, section),
+.b-modal>.dialog-card> :is(div, section) {
   max-height: 70vh;
   overflow-y: auto;
   padding: var(--space-6);
   padding-block-start: 0;
 }
 
-.oat-modal>form>.dialog-card>footer,
-.oat-modal>.dialog-card>footer {
+.b-modal>form>.dialog-card>footer,
+.b-modal>.dialog-card>footer {
   display: flex;
   gap: var(--space-2);
   justify-content: flex-end;

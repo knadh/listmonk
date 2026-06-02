@@ -2,7 +2,7 @@
   <div class="richtext-editor" v-if="isRichtextReady">
     <tiny-mce v-model="computedValue" :disabled="disabled" :init="richtextConf" />
 
-    <oat-modal :width="1200" :active.sync="isRichtextSourceVisible">
+    <b-modal :width="1200" :active.sync="isRichtextSourceVisible">
       <div>
         <section class="dialog-body preview">
           <code-editor lang="html" v-model="richTextSourceBody" key="richtext-source" />
@@ -19,9 +19,9 @@
           </button>
         </footer>
       </div>
-    </oat-modal>
+    </b-modal>
 
-    <oat-modal :width="750" :active.sync="isInsertHTMLVisible">
+    <b-modal :width="750" :active.sync="isInsertHTMLVisible">
       <div>
         <section class="dialog-body preview">
           <code-editor lang="html" v-model="insertHTMLSnippet" key="richtext-snippet" />
@@ -38,16 +38,16 @@
           </button>
         </footer>
       </div>
-    </oat-modal>
+    </b-modal>
 
     <!-- image picker -->
-    <oat-modal :active.sync="isMediaVisible" :width="900">
+    <b-modal :active.sync="isMediaVisible" :width="900">
       <div class="dialog-card content" style="width: auto">
         <section class="dialog-body">
           <media is-modal @selected="onMediaSelect" />
         </section>
       </div>
-    </oat-modal>
+    </b-modal>
   </div>
 </template>
 

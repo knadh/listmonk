@@ -3,15 +3,15 @@
   <section class="editor">
     <div class="row">
       <div class="col-9 flex">
-        <oat-field :label="$t('campaigns.format')" class="mr-4 mb-0">
+        <b-field :label="$t('campaigns.format')" class="mr-4 mb-0">
           <select aria-label="field" v-model="contentTypeSel" :disabled="disabled" name="content_type">
             <option v-for="(name, f) in contentTypes" :key="f" name="format" :value="f" :data-cy="`check-${f}`">
               {{ name }}
             </option>
           </select>
-        </oat-field>
+        </b-field>
 
-        <oat-field v-if="self.contentType !== 'visual'" :label="$tc('globals.terms.template')">
+        <b-field v-if="self.contentType !== 'visual'" :label="$tc('globals.terms.template')">
           <select aria-label="field" :placeholder="$t('globals.terms.none')" v-model="templateId" name="template"
             :disabled="disabled">
             <template v-for="t in validTemplates">
@@ -20,14 +20,14 @@
               </option>
             </template>
           </select>
-        </oat-field>
+        </b-field>
 
         <div v-else>
           <button type="button" v-if="!isVisualTplSelector" @click="onShowVisualTplSelector" class="ghost"
             data-cy="btn-select-visual-tpl">
             {{ $t('campaigns.importVisualTemplate') }}
           </button>
-          <oat-field v-else :label="$tc('globals.terms.template')">
+          <b-field v-else :label="$tc('globals.terms.template')">
             <select aria-label="field" :placeholder="$t('globals.terms.none')" v-model="visualTemplateId"
               @input="() => isVisualTplDisabled = false" name="template" :disabled="disabled"
               class="copy-visual-template-list">
@@ -43,7 +43,7 @@
               @click="onImportVisualTpl" data-variant="primary" data-cy="btn-save-visual-tpl">
               {{ $t('globals.terms.import') }}
             </button>
-          </oat-field>
+          </b-field>
         </div>
       </div>
       <div class="col-12 align-right">

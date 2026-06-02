@@ -1,7 +1,7 @@
 <template>
   <a href="#" class="copy-text" ref="text" @click.prevent="onClick">
     <template v-if="!hideText">{{ $props.text }}</template>
-    <oat-icon icon="file-multiple-outline" />
+    <b-icon icon="file-multiple-outline" />
   </a>
 </template>
 
