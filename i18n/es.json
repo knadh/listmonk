@@ -537,7 +537,7 @@
     "settings.privacy.domainAllowlistHelp": "Solo se permite suscribirse a direcciones de correo con estos dominios. Ingrese un dominio por línea, por ejemplo: example.com, *.example.com",
     "settings.privacy.domainBlocklist": "Listado de dominios bloqueados",
     "settings.privacy.domainBlocklistHelp": "Los correos electrónicos de estos dominios estan desabilitados para suscribirse. Introduzca un dominio por línea, por ejemplo: unsitio.com",
-    "settings.privacy.individualSubTracking": "Seguimiento de suscriptor inválido.",
+    "settings.privacy.individualSubTracking": "Seguimiento de suscriptor individual.",
     "settings.privacy.individualSubTrackingHelp": "Seguir a nivel de suscriptor las vistas y clics en una campaña. Cuando está deshabilitado, el seguimiento de vistas y clics continua sin ser asociado con suscriptores individuales.",
     "settings.privacy.listUnsubHeader": "Incluir el encabezado para `darse de baja` de la lista",
     "settings.privacy.listUnsubHeaderHelp": "Incluye los encabezados de darse de baja para habilitar a los clientes de correo para permitir a los usuarios darse de baja con un solo clic.",
