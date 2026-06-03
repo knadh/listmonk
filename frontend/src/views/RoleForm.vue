@@ -49,9 +49,9 @@
 
           <b-table :data="form.lists">
             <b-table-column v-slot="props" field="name" :label="$tc('globals.terms.list')">
-              <router-link :to="`/lists/${props.row.id}`" target="_blank">
+              <a :href="`/admin/lists/${props.row.id}`" target="_blank" rel="noopener noreferrer">
                 {{ props.row.name }}
-              </router-link>
+              </a>
             </b-table-column>
 
             <b-table-column v-slot="props" field="permissions" :label="$t('users.perms')" width="40%">

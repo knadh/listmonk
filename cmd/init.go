@@ -13,6 +13,7 @@ import (
 	"log/slog"
 	"maps"
 	"net/http"
+	"net/url"
 	"os"
 	"path"
 	"path/filepath"
@@ -53,6 +54,8 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/lib/pq"
 	flag "github.com/spf13/pflag"
+	"golang.org/x/text/language"
+	"golang.org/x/text/message"
 	"gopkg.in/volatiletech/null.v6"
 )
 
@@ -66,6 +69,7 @@ const (
 // UrlConfig contains various URL constants used in the app.
 type UrlConfig struct {
 	RootURL      string `koanf:"root_url"`
+	RootPath     string
 	LogoURL      string `koanf:"logo_url"`
 	FaviconURL   string `koanf:"favicon_url"`
 	LoginURL     string `koanf:"login_url"`
@@ -221,6 +225,7 @@ func initFS(appDir, frontendDir, staticDir, i18nDir string) stuffbin.FileSystem 
 
 		staticFiles = []string{
 			// These paths are joined with staticDir.
+			"./admin:/admin-ssr",
 			"./email-templates:static/email-templates",
 			"./public:/public",
 		}
@@ -458,8 +463,16 @@ func initSettings(query string, db *sqlx.DB, ko *koanf.Koanf) {
 func initUrlConfig(ko *koanf.Koanf) *UrlConfig {
 	root := strings.TrimSuffix(ko.String("app.root_url"), "/")
 
+	// rootPath is the path component of the root URL set in config.
+	// It's used as the base path for all admin/static asset URLs.
+	var rootPath string
+	if u, err := url.Parse(root); err == nil {
+		rootPath = "/" + strings.TrimSuffix(u.Path, "/")
+	}
+
 	return &UrlConfig{
 		RootURL:    root,
+		RootPath:   rootPath,
 		LogoURL:    ko.String("app.logo_url"),
 		FaviconURL: ko.String("app.favicon_url"),
 		LoginURL:   path.Join(uriAdmin, "/login"),
@@ -931,20 +944,37 @@ func initHTTPServer(cfg *Config, urlCfg *UrlConfig, i *i18n.I18n, fs stuffbin.Fi
 		}
 	})
 
-	tpl, err := stuffbin.ParseTemplatesGlob(initTplFuncs(i, urlCfg), fs, "/public/templates/*.html")
+	tplFuncs := initTplFuncs(i, urlCfg)
+	pubTpl, err := stuffbin.ParseTemplatesGlob(tplFuncs, fs, "/public/templates/*.html")
 	if err != nil {
 		lo.Fatalf("error parsing public templates: %v", err)
 	}
-	srv.Renderer = &tplRenderer{
-		templates:           tpl,
-		SiteName:            cfg.SiteName,
-		RootURL:             urlCfg.RootURL,
-		LogoURL:             urlCfg.LogoURL,
-		FaviconURL:          urlCfg.FaviconURL,
-		AssetVersion:        cfg.AssetVersion,
-		EnablePublicSubPage: cfg.EnablePublicSubPage,
-		EnablePublicArchive: cfg.EnablePublicArchive,
-		IndividualTracking:  cfg.Privacy.IndividualTracking,
+
+	adminTpl, err := stuffbin.ParseTemplatesGlob(tplFuncs, fs, "/admin-ssr/*/*.html")
+	if err != nil {
+		lo.Fatalf("error parsing admin templates: %v", err)
+	}
+	srv.Renderer = &appTplRenderer{
+		PubRenderer: &pubTplRenderer{
+			templates:           pubTpl,
+			SiteName:            cfg.SiteName,
+			RootURL:             urlCfg.RootURL,
+			LogoURL:             urlCfg.LogoURL,
+			FaviconURL:          urlCfg.FaviconURL,
+			AssetVersion:        cfg.AssetVersion,
+			EnablePublicSubPage: cfg.EnablePublicSubPage,
+			EnablePublicArchive: cfg.EnablePublicArchive,
+			IndividualTracking:  cfg.Privacy.IndividualTracking,
+		},
+		AdminRenderer: &adminTplRenderer{
+			templates:    adminTpl,
+			SiteName:     cfg.SiteName,
+			RootURL:      urlCfg.RootURL,
+			LogoURL:      urlCfg.LogoURL,
+			FaviconURL:   urlCfg.FaviconURL,
+			AssetVersion: cfg.AssetVersion,
+			Lang:         cfg.Lang,
+		},
 	}
 
 	// Initialize the static file server.
@@ -955,6 +985,7 @@ func initHTTPServer(cfg *Config, urlCfg *UrlConfig, i *i18n.I18n, fs stuffbin.Fi
 
 	// Admin (frontend) facing static files.
 	srv.GET("/admin/static/*", echo.WrapHandler(fSrv))
+	srv.GET("/admin-ssr/assets/*", echo.WrapHandler(fSrv))
 
 	// Public (subscriber) facing media upload files.
 	var (
@@ -1081,6 +1112,18 @@ func initTplFuncs(i *i18n.I18n, u *UrlConfig) template.FuncMap {
 		"RootURL": func() string {
 			return u.RootURL
 		},
+		// URI prefixes an absolute app path with the root path (if any) so that
+		// server-rendered links/assets resolve correctly when the app is hosted
+		// under a sub-path. It's a no-op for a root-level install.
+		"URI": func(p string) string {
+			out, err := url.JoinPath(u.RootPath, p)
+			if err != nil {
+				lo.Printf("error joining path %s with root path %s: %v", p, u.RootPath, err)
+				return u.RootPath + p
+			}
+
+			return out
+		},
 		"LogoURL": func() string {
 			return u.LogoURL
 		},
@@ -1095,6 +1138,33 @@ func initTplFuncs(i *i18n.I18n, u *UrlConfig) template.FuncMap {
 		},
 		"Safe": func(safeHTML string) template.HTML {
 			return template.HTML(safeHTML)
+		},
+		"Icon": func(name string) template.HTML {
+			name = template.HTMLEscapeString(name)
+			return template.HTML(fmt.Sprintf(`<svg class="icon"><use href="%sadmin-ssr/assets/icons.svg#icon-%s"></use></svg>`, u.RootPath, name))
+		},
+		"ToJSON":        jsonForTpl,
+		"Can":           can,
+		"CanManageList": canManageList,
+		"FormatNumber": func(n int) string {
+			p := message.NewPrinter(language.English)
+			return p.Sprintf("%d", n)
+		},
+		"NiceDate": func(t any) string {
+			switch v := t.(type) {
+			case time.Time:
+				if v.IsZero() {
+					return ""
+				}
+				return v.Format("Mon, 02 Jan 2006")
+			case null.Time:
+				if !v.Valid {
+					return ""
+				}
+				return v.Time.Format("Mon, 02 Jan 2006")
+			default:
+				return ""
+			}
 		},
 	}
 

@@ -72,8 +72,8 @@ github.com/knadh/koanf/providers/rawbytes v1.0.0 h1:MrKDh/HksJlKJmaZjgs4r8aVBb/z
 github.com/knadh/koanf/providers/rawbytes v1.0.0/go.mod h1:KxwYJf1uezTKy6PBtfE+m725NGp4GPVA7XoNTJ/PtLo=
 github.com/knadh/koanf/v2 v2.2.2 h1:ghbduIkpFui3L587wavneC9e3WIliCgiCgdxYO/wd7A=
 github.com/knadh/koanf/v2 v2.2.2/go.mod h1:abWQc0cBXLSF/PSOMCB/SK+T13NXDsPvOksbpi5e/9Q=
-github.com/knadh/paginator v1.0.1 h1:mzbhjx167qRpvv9ym7BBaaNa1//qXU2YKk7mTmSmW9o=
-github.com/knadh/paginator v1.0.1/go.mod h1:NDzJofYUQiHbDrWukKRi3E2vIKb0dzOZKY8VmxbM2Sk=
+github.com/knadh/paginator/v2 v2.0.2 h1:MhQ5QcNRSUMMj+CIHL3EfI2te67f2FjhmZJhXCtL7qk=
+github.com/knadh/paginator/v2 v2.0.2/go.mod h1:Vw3XTxOpKQyYNiv+eKMtemEz6iHBBs4yWygPDpdOcBo=
 github.com/knadh/smtppool/v2 v2.1.2 h1:FBpwnDTKmWwUy1reeeMeYJXl2QbUgVsKhAGVgJF3F2I=
 github.com/knadh/smtppool/v2 v2.1.2/go.mod h1:D7HcfSS8Xd3jpZ9LRwQ3aGdqp9FzFE66uW6w/BTpy4E=
 github.com/knadh/stuffbin v1.3.0 h1:HaVSuYV+KnrlCHl7DrLNyOCgpTU2K8x5Hb+J4Ck3gww=

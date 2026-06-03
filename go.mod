@@ -23,7 +23,7 @@ require (
 	github.com/knadh/koanf/providers/posflag v1.0.1
 	github.com/knadh/koanf/providers/rawbytes v1.0.0
 	github.com/knadh/koanf/v2 v2.2.2
-	github.com/knadh/paginator v1.0.1
+	github.com/knadh/paginator/v2 v2.0.2
 	github.com/knadh/smtppool/v2 v2.1.2
 	github.com/knadh/stuffbin v1.3.0
 	github.com/labstack/echo/v4 v4.13.4

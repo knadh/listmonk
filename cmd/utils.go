@@ -112,3 +112,47 @@ func getQueryInts(param string, qp url.Values) ([]int, error) {
 
 	return out, nil
 }
+
+// makeQuery takes a url.Values and a list of default key-value pairs, and returns a new url.Values with the defaults applied.
+// Any key that is not in defaults (removes unknown keys coming from the frontend) is filtered out.
+// Any key that's there but has an empty value is also filtered out (keeps query params clean without empty values)..
+// This is opinionated specifically for use with models.PageProps{} and its handlers.
+func makeQuery(q url.Values, defaults map[string]string) url.Values {
+	out := make(url.Values)
+
+	// Set the defaults first.
+	for key, def := range defaults {
+		if def != "" {
+			out.Set(key, def)
+		}
+	}
+
+	// Non-empty values in incoming params override the defaults.
+	for key, vals := range q {
+		if _, ok := defaults[key]; !ok {
+			continue
+		}
+
+		next := make([]string, 0, len(vals))
+		for _, val := range vals {
+			if val := strings.TrimSpace(val); val != "" {
+				next = append(next, val)
+			}
+		}
+		if len(next) > 0 {
+			out[key] = next
+		}
+	}
+
+	// Common across many handlers for arbitary queries.
+	search := strings.TrimSpace(out.Get("search"))
+	if search != "" {
+		out.Set("search", search)
+	}
+	query := strings.TrimSpace(out.Get("query"))
+	if query != "" {
+		out.Set("query", query)
+	}
+
+	return out
+}
