@@ -21,22 +21,6 @@ const htmlEntities = {
   '=': '&#x3D;',
 };
 
-function toastVariant(typ) {
-  if (!typ) {
-    return 'success';
-  }
-
-  return {
-    'is-success': 'success',
-    success: 'success',
-    'is-danger': 'danger',
-    danger: 'danger',
-    error: 'danger',
-    'is-warning': 'warning',
-    warning: 'warning',
-  }[typ] || 'info';
-}
-
 export default class Utils {
   constructor(i18n) {
     this.i18n = i18n;
@@ -186,7 +170,7 @@ export default class Utils {
     window.ot.toast(msg, '', {
       duration: duration || 3000,
       placement: 'top-right',
-      variant: toastVariant(typ),
+      variant: _toastVariant(typ),
     });
   };
 
@@ -252,4 +236,20 @@ export default class Utils {
     p[key] = val;
     localStorage.setItem(prefKey, JSON.stringify(p));
   };
+}
+
+function _toastVariant(typ) {
+  if (!typ) {
+    return 'success';
+  }
+
+  return {
+    'is-success': 'success',
+    success: 'success',
+    'is-danger': 'danger',
+    danger: 'danger',
+    error: 'danger',
+    'is-warning': 'warning',
+    warning: 'warning',
+  }[typ] || 'info';
 }

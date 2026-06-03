@@ -1,0 +1,123 @@
+@font-face {
+  font-family: 'fontello';
+  src: url('fontello.woff2') format('woff2');
+  font-weight: normal;
+  font-style: normal;
+}
+ 
+[class^="mdi-"]:before, [class*=" mdi-"]:before {
+  font-family: "fontello";
+  font-style: normal;
+  font-weight: normal;
+  speak: never;
+
+  display: inline-block;
+  text-decoration: inherit;
+  width: 1em;
+  margin-right: .2em;
+  text-align: center;
+  /* opacity: .8; */
+
+  /* For safety - reset parent styles, that can break glyph codes*/
+  font-variant: normal;
+  text-transform: none;
+
+  /* fix buttons height, for twitter bootstrap */
+  line-height: 1em;
+
+  /* Animation center compensation - margins should be symmetric */
+  /* remove if not needed */
+  margin-left: .2em;
+
+  /* you can be more comfortable with increased icons size */
+  /* font-size: 120%; */
+
+  /* Font smoothing. That was taken from TWBS */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  /* Uncomment for 3D effect */
+  /* text-shadow: 1px 1px 1px rgba(127, 127, 127, 0.3); */
+}
+
+[class^="mdi-"]:before, [class*=" mdi-"]:before {
+  font-family: "fontello";
+  font-style: normal;
+  font-weight: normal;
+  speak: never;
+
+  display: inline-block;
+  text-decoration: inherit;
+  width: 1em;
+  margin-right: .2em;
+  text-align: center;
+  /* opacity: .8; */
+
+  /* For safety - reset parent styles, that can break glyph codes*/
+  font-variant: normal;
+  text-transform: none;
+
+  /* fix buttons height, for twitter bootstrap */
+  line-height: 1em;
+
+  /* Animation center compensation - margins should be symmetric */
+  /* remove if not needed */
+  margin-left: .2em;
+
+  /* you can be more comfortable with increased icons size */
+  /* font-size: 120%; */
+
+  /* Font smoothing. That was taken from TWBS */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  /* Uncomment for 3D effect */
+  /* text-shadow: 1px 1px 1px rgba(127, 127, 127, 0.3); */
+}
+
+
+.mdi-view-dashboard-variant-outline:before { content: '\e800'; } /* '' */
+.mdi-format-list-bulleted-square:before { content: '\e801'; } /* '' */
+.mdi-newspaper-variant-outline:before { content: '\e802'; } /* '' */
+.mdi-account-multiple:before { content: '\e803'; } /* '' */
+.mdi-file-upload-outline:before { content: '\e804'; } /* '' */
+.mdi-rocket-launch-outline:before { content: '\e805'; } /* '' */
+.mdi-plus:before { content: '\e806'; } /* '' */
+.mdi-image-outline:before { content: '\e807'; } /* '' */
+.mdi-file-image-outline:before { content: '\e808'; } /* '' */
+.mdi-cog-outline:before { content: '\e809'; } /* '' */
+.mdi-tag-outline:before { content: '\e80a'; } /* '' */
+.mdi-calendar-clock:before { content: '\e80b'; } /* '' */
+.mdi-email-outline:before { content: '\e80c'; } /* '' */
+.mdi-text:before { content: '\e80d'; } /* '' */
+.mdi-alarm:before { content: '\e80e'; } /* '' */
+.mdi-pause-circle-outline:before { content: '\e80f'; } /* '' */
+.mdi-file-find-outline:before { content: '\e810'; } /* '' */
+.mdi-clock-start:before { content: '\e811'; } /* '' */
+.mdi-file-multiple-outline:before { content: '\e812'; } /* '' */
+.mdi-trash-can-outline:before { content: '\e813'; } /* '' */
+.mdi-pencil-outline:before { content: '\e814'; } /* '' */
+.mdi-arrow-top-right:before { content: '\e815'; } /* '' */
+.mdi-link-variant:before { content: '\e816'; } /* '' */
+.mdi-cloud-download-outline:before { content: '\e817'; } /* '' */
+.mdi-account-search-outline:before { content: '\e818'; } /* '' */
+.mdi-check-circle-outline:before { content: '\e819'; } /* '' */
+.mdi-account-check-outline:before { content: '\e81a'; } /* '' */
+.mdi-account-off-outline:before { content: '\e81b'; } /* '' */
+.mdi-chevron-right:before { content: '\e81c'; } /* '' */
+.mdi-chevron-left:before { content: '\e81d'; } /* '' */
+.mdi-content-save-outline:before { content: '\e81e'; } /* '' */
+.mdi-minus:before { content: '\e81f'; } /* '' */
+.mdi-arrow-up:before { content: '\e820'; } /* '' */
+.mdi-arrow-down:before { content: '\e821'; } /* '' */
+.mdi-cancel:before { content: '\e822'; } /* '' */
+.mdi-magnify:before { content: '\e823'; } /* '' */
+.mdi-chart-bar:before { content: '\e824'; } /* '' */
+.mdi-email-bounce:before { content: '\e825'; } /* '' */
+.mdi-speedometer:before { content: '\e826'; } /* '' */
+.mdi-warning-empty:before { content: '\e827'; } /* '' */
+.mdi-account-outline:before { content: '󰀓'; } /* '\f0013' */
+.mdi-code:before { content: '󰅩'; } /* '\f0169' */
+.mdi-refresh:before { content: '󰑐'; } /* '\f0450' */
+.mdi-logout-variant:before { content: '󰗽'; } /* '\f05fd' */
+.mdi-wrench-outline:before { content: '󰯠'; } /* '\f0be0' */

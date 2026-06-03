@@ -53,6 +53,8 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/lib/pq"
 	flag "github.com/spf13/pflag"
+	"golang.org/x/text/language"
+	"golang.org/x/text/message"
 	"gopkg.in/volatiletech/null.v6"
 )
 
@@ -220,6 +222,7 @@ func initFS(appDir, frontendDir, staticDir, i18nDir string) stuffbin.FileSystem 
 
 		staticFiles = []string{
 			// These paths are joined with staticDir.
+			"./admin:/admin-ssr",
 			"./email-templates:static/email-templates",
 			"./public:/public",
 		}
@@ -926,20 +929,36 @@ func initHTTPServer(cfg *Config, urlCfg *UrlConfig, i *i18n.I18n, fs stuffbin.Fi
 		}
 	})
 
-	tpl, err := stuffbin.ParseTemplatesGlob(initTplFuncs(i, urlCfg), fs, "/public/templates/*.html")
+	tplFuncs := initTplFuncs(i, urlCfg)
+	pubTpl, err := stuffbin.ParseTemplatesGlob(tplFuncs, fs, "/public/templates/*.html")
 	if err != nil {
 		lo.Fatalf("error parsing public templates: %v", err)
 	}
-	srv.Renderer = &tplRenderer{
-		templates:           tpl,
-		SiteName:            cfg.SiteName,
-		RootURL:             urlCfg.RootURL,
-		LogoURL:             urlCfg.LogoURL,
-		FaviconURL:          urlCfg.FaviconURL,
-		AssetVersion:        cfg.AssetVersion,
-		EnablePublicSubPage: cfg.EnablePublicSubPage,
-		EnablePublicArchive: cfg.EnablePublicArchive,
-		IndividualTracking:  cfg.Privacy.IndividualTracking,
+	adminTpl, err := stuffbin.ParseTemplatesGlob(tplFuncs, fs, "/admin-ssr/*/*.html")
+	if err != nil {
+		lo.Fatalf("error parsing admin templates: %v", err)
+	}
+	srv.Renderer = &appTplRenderer{
+		PubRenderer: &pubTplRenderer{
+			templates:           pubTpl,
+			SiteName:            cfg.SiteName,
+			RootURL:             urlCfg.RootURL,
+			LogoURL:             urlCfg.LogoURL,
+			FaviconURL:          urlCfg.FaviconURL,
+			AssetVersion:        cfg.AssetVersion,
+			EnablePublicSubPage: cfg.EnablePublicSubPage,
+			EnablePublicArchive: cfg.EnablePublicArchive,
+			IndividualTracking:  cfg.Privacy.IndividualTracking,
+		},
+		AdminRenderer: &adminTplRenderer{
+			templates:    adminTpl,
+			SiteName:     cfg.SiteName,
+			RootURL:      urlCfg.RootURL,
+			LogoURL:      urlCfg.LogoURL,
+			FaviconURL:   urlCfg.FaviconURL,
+			AssetVersion: cfg.AssetVersion,
+			Lang:         cfg.Lang,
+		},
 	}
 
 	// Initialize the static file server.
@@ -950,6 +969,7 @@ func initHTTPServer(cfg *Config, urlCfg *UrlConfig, i *i18n.I18n, fs stuffbin.Fi
 
 	// Admin (frontend) facing static files.
 	srv.GET("/admin/static/*", echo.WrapHandler(fSrv))
+	srv.GET("/admin-ssr/assets/*", echo.WrapHandler(fSrv))
 
 	// Public (subscriber) facing media upload files.
 	var (
@@ -1090,6 +1110,29 @@ func initTplFuncs(i *i18n.I18n, u *UrlConfig) template.FuncMap {
 		},
 		"Safe": func(safeHTML string) template.HTML {
 			return template.HTML(safeHTML)
+		},
+		"ToJSON":        jsonForTpl,
+		"Can":           can,
+		"CanManageList": canManageList,
+		"FormatNumber": func(n int) string {
+			p := message.NewPrinter(language.English)
+			return p.Sprintf("%d", n)
+		},
+		"NiceDate": func(t any) string {
+			switch v := t.(type) {
+			case time.Time:
+				if v.IsZero() {
+					return ""
+				}
+				return v.Format("Mon, 02 Jan 2006")
+			case null.Time:
+				if !v.Valid {
+					return ""
+				}
+				return v.Time.Format("Mon, 02 Jan 2006")
+			default:
+				return ""
+			}
 		},
 	}
 

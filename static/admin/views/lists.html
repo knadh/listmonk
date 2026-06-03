@@ -1,0 +1,210 @@
+{{ define "admin-lists" }}
+{{ template "admin-header" . }}
+{{ $d := .Data }}
+{{ $q := urlquery $d.Page.Query }}
+{{ $status := $d.Page.Status }}
+
+<section class="lists" x-data="listsPage({ query: {{ ToJSON $d.Page.Query }}, total: {{ $d.Page.Total }} })">
+	<header class="row page-header">
+		<div class="col-6">
+			<h1 class="mb-2">
+				{{ .L.T "globals.terms.lists" }}
+				{{ if eq $d.Page.Status "archived" }}<span class="text-lighter">/ {{ $d.Page.Status }}</span>{{ end }}
+				<span>({{ $d.Page.Total }})</span>
+			</h1>
+			<div class="text-7">
+				{{ if ne $d.Page.Status "archived" }}
+					<a href="/admin/lists-html?status=archived">{{ .L.T "globals.buttons.view" }} {{ lower (.L.T "lists.archived") }} &rarr;</a>
+				{{ else }}
+					<a href="/admin/lists-html">{{ .L.T "globals.buttons.view" }} {{ lower (.L.T "menu.allLists") }} &rarr;</a>
+				{{ end }}
+			</div>
+		</div>
+		<div class="col-6 col-end align-right hstack justify-end">
+			<form method="get" action="/admin/lists-html">
+				<input type="hidden" name="status" value="{{ $d.Page.Status }}" />
+				<input type="hidden" name="order_by" value="{{ $d.Page.OrderBy }}" />
+				<input type="hidden" name="order" value="{{ $d.Page.Order }}" />
+				<fieldset class="group">
+					<input aria-label="Search" name="query" data-cy="query" placeholder="Search" value="{{ $d.Page.Query }}">
+					<button type="submit" class="outline" data-cy="btn-query" aria-label="Search"><i class="mdi-magnify"></i></button>
+				</fieldset>
+			</form>
+			{{ if $d.Can "lists:manage_all" }}
+				<button type="button" data-variant="primary" class="btn-new" data-cy="btn-new" @click="onOpenNew">
+					<i class="mdi-plus"></i> {{ .L.T "globals.buttons.new" }}
+				</button>
+			{{ end }}
+		</div>
+	</header>
+
+	<div class="card page-content has-table">
+		<div class="table-wrapper">
+			<div class="actions" x-show="numSelected > 0" x-cloak>
+				<a class="a" href="#" data-cy="btn-delete-lists" @click.prevent="onDeleteSelected">
+					<i class="mdi-trash-can-outline"></i> {{ .L.T "globals.buttons.delete" }}
+				</a>
+				<span class="a">
+					<span x-text="numSelectedLabel"></span>
+					{{ if gt $d.Page.Total $d.Page.PerPage }}
+						<span x-show="!allSelected">
+							&mdash;
+							<a href="#" data-cy="select-all-lists" @click.prevent="onSelectAllQuery">
+								<span x-text="selectAllLabel"></span>
+							</a>
+						</span>
+					{{ end }}
+				</span>
+			</div>
+
+			<table>
+				<thead>
+					<tr>
+						<th><input type="checkbox" aria-label="{{ .L.T "globals.buttons.toggleSelect" }}" @change="onToggleVisible($event)"></th>
+						<th class="cy-name"><a href="/admin/lists-html?status={{ $status }}&query={{ $q }}&order_by=name&order={{ if and (eq $d.Page.OrderBy "name") (eq $d.Page.Order "asc") }}desc{{ else }}asc{{ end }}">{{ .L.T "globals.fields.name" }}</a></th>
+						<th class="cy-type"><a href="/admin/lists-html?status={{ $status }}&query={{ $q }}&order_by=type&order={{ if and (eq $d.Page.OrderBy "type") (eq $d.Page.Order "asc") }}desc{{ else }}asc{{ end }}">{{ .L.T "globals.fields.type" }}</a></th>
+						<th class="cy-subscribers align-center"><a href="/admin/lists-html?status={{ $status }}&query={{ $q }}&order_by=subscriber_count&order={{ if and (eq $d.Page.OrderBy "subscriber_count") (eq $d.Page.Order "asc") }}desc{{ else }}asc{{ end }}">{{ .L.T "globals.terms.subscribers" }}</a></th>
+						<th class="cy-subscribers"></th>
+						<th class="cy-created_at"><a href="/admin/lists-html?status={{ $status }}&query={{ $q }}&order_by=created_at&order={{ if and (eq $d.Page.OrderBy "created_at") (eq $d.Page.Order "asc") }}desc{{ else }}asc{{ end }}">{{ .L.T "globals.fields.createdAt" }}</a></th>
+						<th class="cy-updated_at"><a href="/admin/lists-html?status={{ $status }}&query={{ $q }}&order_by=updated_at&order={{ if and (eq $d.Page.OrderBy "updated_at") (eq $d.Page.Order "asc") }}desc{{ else }}asc{{ end }}">{{ .L.T "globals.fields.updatedAt" }}</a></th>
+						<th class="align-right"></th>
+					</tr>
+				</thead>
+				<tbody>
+					{{ range $d.Lists }}
+						<tr>
+							<td><input type="checkbox" name="id" value="{{ .ID }}" @change="onCheck"></td>
+							<td>
+								<a href="#" @click.prevent="onOpenEdit({{ ToJSON . }})">{{ .Name }}</a>
+								<span class="badge-list hstack gap-1">
+									{{ range .Tags }}<span class="badge secondary">{{ . }}</span>{{ end }}
+								</span>
+							</td>
+							<td>
+								<div class="hstack">
+									<span class="badge {{ .Type }}" data-cy="type-{{ .Type }}">{{ $.L.T (printf "lists.types.%s" .Type) }}</span>
+									<span class="badge {{ .Optin }}" data-cy="optin-{{ .Optin }}">
+										<i class="{{ if eq .Optin "double" }}mdi-account-check-outline{{ else }}mdi-account-off-outline{{ end }}"></i>
+										{{ $.L.T (printf "lists.optins.%s" .Optin) }}
+									</span>
+									{{ if and (eq .Optin "double") ($d.Can "campaigns:manage" "campaigns:manage_all") }}
+										<a class="text-7 send-optin" href="#" data-cy="btn-send-optin-campaign" @click.prevent="onCreateOptinCampaign({{ ToJSON . }})">
+											<i class="mdi-rocket-launch-outline"></i> {{ $.L.T "lists.sendOptinCampaign" }}
+										</a>
+									{{ end }}
+								</div>
+							</td>
+							<td class="align-center">
+								{{ if $d.Can "subscribers:get" "subscribers:get_all" }}
+									<a href="/admin/subscribers/lists/{{ .ID }}">{{ FormatNumber .SubscriberCount }} <span class="text-7 view">{{ $.L.T "globals.buttons.view" }}</span></a>
+								{{ else }}
+									{{ FormatNumber .SubscriberCount }}
+								{{ end }}
+							</td>
+							<td>
+								<div class="field-list stats">
+									{{ $counts := .SubscriberCounts }}
+									<p><label>{{ $.L.T "subscribers.status.subscribed" }}</label><a href="/admin/subscribers/lists/{{ .ID }}?subscription_status=subscribed" class="subscribed">{{ FormatNumber (index $counts "subscribed") }}</a></p>
+									<p><label>{{ $.L.T "subscribers.status.blocklisted" }}</label><a href="/admin/subscribers/lists/{{ .ID }}?subscription_status=blocklisted" class="blocklisted">{{ FormatNumber (index $counts "blocklisted") }}</a></p>
+									{{ if eq .Optin "double" }}
+										<p><label>{{ $.L.T "subscribers.status.confirmed" }}</label><a href="/admin/subscribers/lists/{{ .ID }}?subscription_status=confirmed" class="confirmed">{{ FormatNumber (index $counts "confirmed") }}</a></p>
+										<p><label>{{ $.L.T "subscribers.status.unconfirmed" }}</label><a href="/admin/subscribers/lists/{{ .ID }}?subscription_status=unconfirmed" class="unconfirmed">{{ FormatNumber (index $counts "unconfirmed") }}</a></p>
+									{{ end }}
+								</div>
+							</td>
+							<td>{{ NiceDate .CreatedAt }}</td>
+							<td>{{ NiceDate .UpdatedAt }}</td>
+							<td class="actions align-right">
+								{{ if $d.Can "campaigns:manage" "campaigns:manage_all" }}<a href="/admin/campaigns/new?list_id={{ .ID }}" data-cy="btn-campaign"><i class="mdi-rocket-launch-outline"></i></a>{{ end }}
+								{{ if $d.CanManageList .ID }}<a href="#" data-cy="btn-edit" aria-label="{{ $.L.T "globals.buttons.edit" }}" @click.prevent="onOpenEdit({{ ToJSON . }})"><i class="mdi-pencil-outline"></i></a>{{ end }}
+								{{ if $d.Can "subscribers:import" }}<a href="/admin/import?list_id={{ .ID }}" data-cy="btn-import"><i class="mdi-file-upload-outline"></i></a>{{ end }}
+								{{ if $d.CanManageList .ID }}<a href="#" data-cy="btn-delete" aria-label="{{ $.L.T "globals.buttons.delete" }}" @click.prevent="onDeleteList({{ ToJSON . }})"><i class="mdi-trash-can-outline"></i></a>{{ end }}
+							</td>
+						</tr>
+					{{ else }}
+						<tr><td colspan="8" class="align-center text-light">{{ .L.T "globals.messages.emptyState" }}</td></tr>
+					{{ end }}
+				</tbody>
+			</table>
+
+			{{ if $d.Page.Pages }}
+				<nav class="pagination hstack justify-end mt-4" aria-label="Pagination">
+					{{ if $d.Page.HasPrev }}<a href="/admin/lists-html?page={{ $d.Page.PrevPage }}&status={{ $status }}&query={{ $q }}&order_by={{ $d.Page.OrderBy }}&order={{ $d.Page.Order }}">&larr;</a>{{ end }}
+					{{ range $d.Page.Pages }}
+						<a {{ if eq . $d.Page.Page }}aria-current="page"{{ end }} href="/admin/lists-html?page={{ . }}&status={{ $status }}&query={{ $q }}&order_by={{ $d.Page.OrderBy }}&order={{ $d.Page.Order }}">{{ . }}</a>
+					{{ end }}
+					{{ if $d.Page.HasNext }}<a href="/admin/lists-html?page={{ $d.Page.NextPage }}&status={{ $status }}&query={{ $q }}&order_by={{ $d.Page.OrderBy }}&order={{ $d.Page.Order }}">&rarr;</a>{{ end }}
+				</nav>
+			{{ end }}
+
+			{{ if $d.CacheSlowQueries }}
+				<p class="text-light text-7">
+					*{{ .L.T "globals.messages.slowQueriesCached" }}
+					<a href="https://listmonk.app/docs/maintenance/performance/" target="_blank" rel="noopener noreferrer" class="text-light text-7">
+						<i class="mdi-link-variant"></i> {{ .L.T "globals.buttons.learnMore" }}
+					</a>
+				</p>
+			{{ end }}
+		</div>
+	</div>
+
+	<dialog x-ref="dialog" class="b-modal" @close="onDialogClose">
+		<form method="dialog" @submit.prevent="onSubmit">
+			<div class="dialog-card content">
+				<header class="dialog-head">
+					<p x-show="isEditing" class="text-lighter text-7">
+						{{ .L.T "globals.fields.id" }}: <span x-text="form.id"></span>
+						{{ .L.T "globals.fields.uuid" }}: <span x-text="form.uuid"></span>
+					</p>
+					<h4 x-text="isEditing ? form.name : {{ ToJSON (.L.T "lists.newList") }}"></h4>
+				</header>
+				<section class="dialog-body">
+					<label data-field>
+						{{ .L.T "globals.fields.name" }}
+						<input x-ref="name" x-model="form.name" name="name" maxlength="200" required>
+					</label>
+
+					<div data-field>
+						<label for="list-type">{{ .L.T "lists.type" }}</label>
+						<select id="list-type" x-model="form.type" name="type" aria-describedby="list-type-hint" required>
+							<option value="private">{{ .L.T "lists.types.private" }}</option>
+							<option value="public">{{ .L.T "lists.types.public" }}</option>
+						</select>
+						<small id="list-type-hint" data-hint>{{ .L.T "lists.typeHelp" }}</small>
+					</div>
+
+					<div data-field>
+						<label for="list-optin">{{ .L.T "lists.optin" }}</label>
+						<select id="list-optin" x-model="form.optin" name="optin" aria-describedby="list-optin-hint" required>
+							<option value="single">{{ .L.T "lists.optins.single" }}</option>
+							<option value="double">{{ .L.T "lists.optins.double" }}</option>
+						</select>
+						<small id="list-optin-hint" data-hint>{{ .L.T "lists.optinHelp" }}</small>
+					</div>
+
+					<label data-field>
+						{{ .L.T "globals.terms.tags" }}
+						<input x-model="tagsText" name="tags" placeholder="{{ .L.T "globals.terms.tags" }}">
+					</label>
+
+					<label data-field>
+						{{ .L.T "globals.fields.description" }}
+						<textarea x-model="form.description" name="description" maxlength="2000"></textarea>
+					</label>
+
+					<label data-field>
+						<input type="checkbox" x-model="isArchived"> {{ .L.T "lists.archived" }}
+						<small data-hint>{{ .L.T "lists.archivedHelp" }}</small>
+					</label>
+				</section>
+				<footer class="dialog-foot align-right">
+					<button type="button" class="outline" @click="onClose">{{ .L.T "globals.buttons.close" }}</button>
+					<button type="submit" data-variant="primary" data-cy="btn-save">{{ .L.T "globals.buttons.save" }}</button>
+				</footer>
+			</div>
+		</form>
+	</dialog>
+</section>
+
+{{ template "admin-footer" . }}
+{{ end }}
