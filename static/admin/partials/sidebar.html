@@ -1,0 +1,99 @@
+{{ define "admin-sidebar" }}
+{{ $u := .Data.Profile }}
+<nav>
+	<ul>
+		<li>
+			<a href="{{ URI "/admin" }}">{{ Icon "grid" }} {{ .L.T "menu.dashboard" }}</a>
+		</li>
+
+		<li>
+			<details name="sidebar-nav" data-cy="lists" open>
+				<summary>{{ Icon "list" }} {{ .L.T "globals.terms.lists" }}</summary>
+				<ul>
+					<li><a href="{{ URI "/admin/lists" }}" data-cy="all-lists">{{ .L.T "menu.allLists" }}</a></li>
+					<li><a href="{{ URI "/admin/lists" }}?status=archived" data-cy="archived-lists">{{ .L.T "lists.archived" }}</a></li>
+					<li><a href="{{ URI "/admin/lists/forms" }}" data-cy="forms">{{ .L.T "menu.forms" }}</a></li>
+				</ul>
+			</details>
+		</li>
+
+		{{ if Can $u "subscribers:get" "subscribers:get_all" "subscribers:manage" "subscribers:import" "bounces:get" }}
+		<li>
+			<details name="sidebar-nav" data-cy="subscribers">
+				<summary>{{ Icon "at-sign" }} {{ .L.T "globals.terms.subscribers" }}</summary>
+				<ul>
+					{{ if Can $u "subscribers:get" "subscribers:get_all" }}
+						<li><a href="{{ URI "/admin/subscribers" }}" data-cy="all-subscribers">{{ .L.T "menu.allSubscribers" }}</a></li>
+					{{ end }}
+					{{ if Can $u "subscribers:import" }}
+						<li><a href="{{ URI "/admin/import" }}" data-cy="import">{{ .L.T "menu.import" }}</a></li>
+					{{ end }}
+					{{ if Can $u "bounces:get" }}
+						<li><a href="{{ URI "/admin/bounces" }}" data-cy="bounces">{{ .L.T "globals.terms.bounces" }}</a></li>
+					{{ end }}
+				</ul>
+			</details>
+		</li>
+		{{ end }}
+
+		{{ if Can $u "campaigns:get" "campaigns:manage" "campaigns:get_analytics" "media:get" "templates:get" }}
+		<li>
+			<details name="sidebar-nav" data-cy="campaigns">
+				<summary>{{ Icon "send" }} {{ .L.T "globals.terms.campaigns" }}</summary>
+				<ul>
+					{{ if Can $u "campaigns:get" "campaigns:get_all" }}
+						<li><a href="{{ URI "/admin/campaigns" }}" data-cy="all-campaigns">{{ .L.T "menu.allCampaigns" }}</a></li>
+					{{ end }}
+					{{ if Can $u "campaigns:manage" "campaigns:manage_all" }}
+						<li><a href="{{ URI "/admin/campaigns/new" }}" data-cy="new-campaign">{{ .L.T "menu.newCampaign" }}</a></li>
+					{{ end }}
+					{{ if Can $u "media:get" "media:manage" }}
+						<li><a href="{{ URI "/admin/media" }}" data-cy="media">{{ .L.T "menu.media" }}</a></li>
+					{{ end }}
+					{{ if Can $u "templates:get" }}
+						<li><a href="{{ URI "/admin/templates" }}" data-cy="templates">{{ .L.T "globals.terms.templates" }}</a></li>
+					{{ end }}
+					{{ if Can $u "campaigns:get_analytics" }}
+						<li><a href="{{ URI "/admin/campaigns/analytics" }}" data-cy="analytics">{{ .L.T "globals.terms.analytics" }}</a></li>
+					{{ end }}
+				</ul>
+			</details>
+		</li>
+		{{ end }}
+
+		{{ if Can $u "users:get" "users:manage" "roles:get" "roles:manage" }}
+		<li>
+			<details name="sidebar-nav" data-cy="users">
+				<summary>{{ Icon "users" }} {{ .L.T "globals.terms.users" }}</summary>
+				<ul>
+					{{ if Can $u "users:get" }}
+						<li><a href="{{ URI "/admin/users" }}" data-cy="users">{{ .L.T "globals.terms.users" }}</a></li>
+					{{ end }}
+					{{ if Can $u "roles:get" }}
+						<li><a href="{{ URI "/admin/users/roles" }}" data-cy="userRoles">{{ .L.T "users.userRoles" }}</a></li>
+						<li><a href="{{ URI "/admin/users/roles/lists" }}" data-cy="listRoles">{{ .L.T "users.listRoles" }}</a></li>
+					{{ end }}
+				</ul>
+			</details>
+		</li>
+		{{ end }}
+
+		{{ if Can $u "settings:get" "settings:manage" "settings:maintain" }}
+		<li>
+			<details name="sidebar-nav" data-cy="settings">
+				<summary>{{ Icon "settings" }} {{ .L.T "menu.settings" }}</summary>
+				<ul>
+					{{ if Can $u "settings:get" }}
+						<li><a href="{{ URI "/admin/settings" }}" data-cy="all-settings">{{ .L.T "menu.settings" }}</a></li>
+						<li><a href="{{ URI "/admin/settings/logs" }}" data-cy="logs">{{ .L.T "menu.logs" }}</a></li>
+					{{ end }}
+					{{ if Can $u "settings:maintain" }}
+						<li><a href="{{ URI "/admin/settings/maintenance" }}" data-cy="maintenance">{{ .L.T "menu.maintenance" }}</a></li>
+					{{ end }}
+				</ul>
+			</details>
+		</li>
+		{{ end }}
+	</ul>
+</nav>
+{{ end }}

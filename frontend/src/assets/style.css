@@ -507,8 +507,10 @@ ol.no {
     margin-block-end: var(--space-6);
 
     /* Stick the table to the edges */
-    .b-table {
+    .b-table,
+    .table-wrapper {
         margin: 0 calc(-1*var(--space-6));
+        position: relative;
 
         tr th:first-child,
         tr td:first-child {
@@ -521,6 +523,53 @@ ol.no {
 
         .table-toolbar, .b-pagination {
             padding: 0 var(--space-6);
+        }
+
+        .bulk-actions {
+            position: absolute;
+            right: var(--space-6);
+            top: var(--space-2);
+            z-index: 1;
+        }
+
+        th a {
+            align-items: center;
+            color: inherit;
+            display: flex;
+            min-width: 0;
+            text-decoration: none;
+
+            &:hover {
+                color: var(--primary);
+            }
+        }
+
+        th[data-sort-field] a {
+            padding-inline-end: var(--space-5);
+            position: relative;
+        }
+
+        th > input[type=checkbox],
+        td > input[type=checkbox] {
+            vertical-align: middle;
+        }
+
+        th[data-sorted] a::after {
+            font-family: "fontello";
+            font-size: var(--text-8);
+            font-weight: normal;
+            inset-inline-end: 0;
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        th[data-sorted="asc"] a::after {
+            content: "\e820";
+        }
+
+        th[data-sorted="desc"] a::after {
+            content: "\e821";
         }
     }
 }
@@ -637,12 +686,6 @@ ol.no {
     }
 }
 
-.field-list.stats {
-    label {
-        flex-basis: 5.5rem;
-    }
-}
-
 .badge-list {
     display: inline-flex;
     flex-wrap: wrap;
@@ -656,18 +699,51 @@ td .badge,
 }
 
 section.lists {
+    .list-main-row {
+        border-bottom: 0;
+
+        td {
+            padding-block-end: var(--space-1);
+        }
+    }
+
+    .list-stats-row td {
+        padding-block-start: 0;
+    }
+
     td .badge {
         min-width: 65px;
     }
 
+    .subscriber-total {
+        color: var(--foreground);
+        font-weight: var(--font-medium);
+        text-decoration: none;
+    }
+
+    .subscriber-stats {
+        a {
+            color: var(--muted-foreground);
+            text-decoration: none;
+
+            &:hover {
+                color: var(--primary);
+            }
+        }
+    }
+
     .view {
         color: var(--faint-foreground);
-        display: block;
         font-size: var(--text-8);
 
         &:hover {
             color: var(--primary);
         }
+    }
+
+    .date-stack small {
+        display: block;
+        margin-block-start: var(--space-1);
     }
 }
 

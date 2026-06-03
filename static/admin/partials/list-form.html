@@ -1,0 +1,66 @@
+{{ define "list-form" -}}
+{{- $root := .Root -}}
+{{- $submit := .Submit -}}
+{{- $method := .Method -}}
+{{- $isDialog := eq $method "dialog" -}}
+{{- $canSave := .CanSave -}}
+<form method="{{ $method }}" :aria-busy="isLoading('lists')" @submit.prevent="{{ $submit }}">
+	<div class="{{ if $isDialog }}dialog-card content{{ else }}card page-content content p-6{{ end }}">
+		{{- if $isDialog }}
+			<header class="dialog-head">
+				<h3 class="dialog-title">{{ $root.L.T "globals.terms.new" }} {{ $root.L.T "globals.terms.list" }}</h3>
+			</header>
+		{{ end }}
+
+		<section class="dialog-body">
+			<label data-field>
+				{{ $root.L.T "globals.fields.name" }}
+				<input name="name" maxlength="200" autofocus required x-model="form.name" />
+			</label>
+
+			<div data-field>
+				<label for="list-type">{{ $root.L.T "lists.type" }}</label>
+				<select name="type" id="list-type" aria-describedby="list-type-hint" required x-model="form.type">
+					<option value="private">{{ $root.L.T "lists.types.private" }}</option>
+					<option value="public">{{ $root.L.T "lists.types.public" }}</option>
+				</select>
+				<small id="list-type-hint" data-hint>{{ $root.L.T "lists.typeHelp" }}</small>
+			</div>
+
+			<div data-field>
+				<label for="list-optin">{{ $root.L.T "lists.optin" }}</label>
+				<select name="optin" id="list-optin" aria-describedby="list-optin-hint" required x-model="form.optin">
+					<option value="single">{{ $root.L.T "lists.optins.single" }}</option>
+					<option value="double">{{ $root.L.T "lists.optins.double" }}</option>
+				</select>
+				<small id="list-optin-hint" data-hint>{{ $root.L.T "lists.optinHelp" }}</small>
+			</div>
+
+			<label data-field>
+				{{ $root.L.T "globals.terms.tags" }}
+				<ot-taginput x-model="form.tags"><input name="tags" placeholder="{{ $root.L.T "globals.terms.tags" }}" maxlength="50" /></ot-taginput>
+			</label>
+
+			<label data-field>
+				{{ $root.L.T "globals.fields.description" }}
+				<textarea name="description" maxlength="2000" x-model="form.description"></textarea>
+			</label>
+
+			<label data-field>
+				<input type="checkbox" role="switch" x-model="isArchived" /> {{ $root.L.T "lists.archived" }}
+				<small data-hint>{{ $root.L.T "lists.archivedHelp" }}</small>
+			</label>
+		</section>
+		<footer class="dialog-foot hstack gap-3 justify-end">
+			{{- if $isDialog }}
+				<button type="button" class="outline" @click="onClose">{{ $root.L.T "globals.buttons.close" }}</button>
+			{{- else }}
+				<a href="{{ URI "/admin/lists" }}" class="button outline">{{ $root.L.T "globals.buttons.back" }}</a>
+			{{- end }}
+			{{- if $canSave }}
+				<button type="submit" data-variant="primary" data-cy="btn-save" data-spinner="small" :disabled="isLoading('lists.save')" :aria-busy="isLoading('lists.save')">{{ $root.L.T "globals.buttons.save" }}</button>
+			{{- end }}
+		</footer>
+	</div>
+</form>
+{{- end }}

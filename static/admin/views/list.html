@@ -1,0 +1,30 @@
+{{ define "admin-list" -}}
+{{ template "admin-header" . }}
+{{- $d := .Data -}}
+
+<script>const _form = {{ ToJSON $d.List }};</script>
+<section class="lists" x-data="listsView(_form)">
+	<header class="row page-header">
+		<div class="col-6">
+			<div class="hstack gap-1">
+				<a href="{{ URI "/admin/lists" }}" class="back" aria-label="{{ .L.T "globals.buttons.back" }}">{{ Icon "chevron-left" }}</a>
+				<h1 class="page-title">{{ $d.List.Name }}</h1>
+			</div>
+		</div>
+		<div class="col-6 align-right">
+			<button class="small" data-variant="secondary" title="{{ .L.T "globals.messages.clickToCopy" }}" aria-label="{{ .L.T "globals.fields.id" }}" @click="copyToClipboard(form.id)">
+				<strong>{{ .L.T "globals.fields.id" }}</strong> <span x-text="form.id"></span>
+			</button>
+			<button class="small" data-variant="secondary" title="{{ .L.T "globals.messages.clickToCopy" }}" aria-label="{{ .L.T "globals.fields.uuid" }}" @click="copyToClipboard(form.uuid)">
+				<strong>{{ .L.T "globals.fields.uuid" }}</strong> <span x-text="form.uuid"></span>
+			</button>
+		</div>
+	</header>
+
+	{{ template "list-form" dict "Root" . "Submit" "onSubmitUpdate" "Method" "post" "CanSave" ($d.CanManageList $d.List.ID) }}
+</section>
+
+<script type="module" src="{{ URI "/admin-ssr/assets/js/views/lists.js" }}?v={{ .AssetVersion }}" defer></script>
+
+{{ template "admin-footer" . -}}
+{{ end }}

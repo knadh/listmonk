@@ -38,8 +38,39 @@ type serverConfig struct {
 	Version       string          `json:"version"`
 }
 
-// GetServerConfig returns general server config.
-func (a *App) GetServerConfig(c echo.Context) error {
+var adminJSI18nKeys = []string{
+	"globals.buttons.back",
+	"globals.buttons.cancel",
+	"globals.buttons.ok",
+	"globals.messages.copied",
+	"globals.messages.confirm",
+	"globals.messages.confirmDelete",
+	"globals.messages.created",
+	"globals.messages.deleted",
+	"globals.messages.deletedCount",
+	"globals.messages.numSelected",
+	"globals.messages.selectAll",
+	"globals.messages.updated",
+	"globals.terms.list",
+	"globals.terms.second",
+	"globals.terms.minute",
+	"globals.terms.minute",
+	"globals.terms.hour",
+	"globals.terms.hour",
+	"globals.terms.day",
+	"globals.terms.day",
+	"globals.terms.month",
+	"globals.terms.month",
+	"globals.terms.year",
+	"globals.terms.year",
+
+	"lists.confirmDelete",
+	"lists.confirmSub",
+	"lists.optinTo",
+	"lists.newList",
+}
+
+func (a *App) makeServerConfig() (serverConfig, error) {
 	out := serverConfig{
 		RootURL:       a.urlCfg.RootURL,
 		FromEmail:     a.cfg.FromEmail,
@@ -78,8 +109,7 @@ func (a *App) GetServerConfig(c echo.Context) error {
 	// Language list.
 	langList, err := getI18nLangList(a.fs)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError,
-			fmt.Sprintf("Error loading language list: %v", err))
+		return out, fmt.Errorf("error loading language list: %v", err)
 	}
 	out.Langs = langList
 
@@ -93,6 +123,32 @@ func (a *App) GetServerConfig(c echo.Context) error {
 	out.Update = a.update
 	a.Unlock()
 	out.Version = versionString
+
+	return out, nil
+}
+
+func (a *App) makeAdminJSI18n() map[string]string {
+	var lang map[string]string
+	if err := json.Unmarshal(a.i18n.JSON(), &lang); err != nil {
+		return map[string]string{}
+	}
+
+	out := make(map[string]string, len(adminJSI18nKeys))
+	for _, key := range adminJSI18nKeys {
+		if val, ok := lang[key]; ok {
+			out[key] = val
+		}
+	}
+	return out
+}
+
+// GetServerConfig returns general server config.
+func (a *App) GetServerConfig(c echo.Context) error {
+	out, err := a.makeServerConfig()
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError,
+			fmt.Sprintf("Error loading server config: %v", err))
+	}
 
 	return c.JSON(http.StatusOK, okResp{out})
 }

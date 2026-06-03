@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"html/template"
 	"image"
@@ -25,8 +26,8 @@ const (
 	tplMessage = "message"
 )
 
-// tplRenderer wraps a template.tplRenderer for echo.
-type tplRenderer struct {
+// pubTplRenderer wraps public templates for echo.
+type pubTplRenderer struct {
 	templates           *template.Template
 	SiteName            string
 	RootURL             string
@@ -36,6 +37,23 @@ type tplRenderer struct {
 	EnablePublicSubPage bool
 	EnablePublicArchive bool
 	IndividualTracking  bool
+}
+
+// adminTplRenderer wraps admin templates for echo.
+type adminTplRenderer struct {
+	templates    *template.Template
+	SiteName     string
+	RootURL      string
+	LogoURL      string
+	FaviconURL   string
+	AssetVersion string
+	Lang         string
+}
+
+// appTplRenderer dispatches c.Render() calls to the appropriate template set.
+type appTplRenderer struct {
+	PubRenderer   *pubTplRenderer
+	AdminRenderer *adminTplRenderer
 }
 
 // tplData is the data container that is injected
@@ -51,6 +69,20 @@ type tplData struct {
 	IndividualTracking  bool
 	Data                any
 	L                   *i18n.I18n
+}
+
+// adminTplData is the data container injected into admin templates.
+type adminTplData struct {
+	SiteName     string
+	RootURL      string
+	LogoURL      string
+	FaviconURL   string
+	AssetVersion string
+	Lang         string
+	ConfigJS     serverConfig
+	I18nJS       map[string]string
+	Data         any
+	L            *i18n.I18n
 }
 
 type publicTpl struct {
@@ -105,7 +137,7 @@ var (
 )
 
 // Render executes and renders a template for echo.
-func (t *tplRenderer) Render(w io.Writer, name string, data any, c echo.Context) error {
+func (t *pubTplRenderer) Render(w io.Writer, name string, data any, c echo.Context) error {
 	return t.templates.ExecuteTemplate(w, name, tplData{
 		SiteName:            t.SiteName,
 		RootURL:             t.RootURL,
@@ -118,6 +150,42 @@ func (t *tplRenderer) Render(w io.Writer, name string, data any, c echo.Context)
 		Data:                data,
 		L:                   c.Get("app").(*App).i18n,
 	})
+}
+
+// Render executes and renders an admin template for echo.
+func (t *adminTplRenderer) Render(w io.Writer, name string, data any, c echo.Context) error {
+	app := c.Get("app").(*App)
+	configJS, err := app.makeServerConfig()
+	if err != nil {
+		return err
+	}
+
+	return t.templates.ExecuteTemplate(w, name, adminTplData{
+		SiteName:     t.SiteName,
+		RootURL:      t.RootURL,
+		LogoURL:      t.LogoURL,
+		FaviconURL:   t.FaviconURL,
+		AssetVersion: t.AssetVersion,
+		Lang:         t.Lang,
+		ConfigJS:     configJS,
+		I18nJS:       app.makeAdminJSI18n(),
+		Data:         data,
+		L:            app.i18n,
+	})
+}
+
+// Render routes template execution to admin or public templates.
+func (t *appTplRenderer) Render(w io.Writer, name string, data any, c echo.Context) error {
+	if t.AdminRenderer != nil && t.AdminRenderer.templates.Lookup(name) != nil {
+		return t.AdminRenderer.Render(w, name, data, c)
+	}
+
+	return t.PubRenderer.Render(w, name, data, c)
+}
+
+func jsonForTpl(v any) template.JS {
+	b, _ := json.Marshal(v)
+	return template.JS(b)
 }
 
 // GetPublicLists returns the list of public lists with minimal fields

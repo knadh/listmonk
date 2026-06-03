@@ -49,6 +49,13 @@ func (c *Core) QueryLists(searchStr, typ, optin, status string, tags []string, o
 		tags = []string{}
 	}
 
+	if orderBy == "" {
+		orderBy = models.FieldID
+	}
+	if order == "" {
+		order = models.OrderAsc
+	}
+
 	var (
 		out            = []models.List{}
 		queryStr, stmt = makeSearchQuery(searchStr, orderBy, order, c.q.QueryLists, listQuerySortFields)
@@ -195,12 +202,16 @@ func (c *Core) UpdateList(id int, l models.List) (models.List, error) {
 
 // DeleteList deletes a list.
 func (c *Core) DeleteList(id int) error {
-	return c.DeleteLists([]int{id}, "", true, nil)
+	return c.DeleteLists([]int{id}, "", "", "", "", nil, true, nil)
 }
 
 // DeleteLists deletes multiple lists.
-func (c *Core) DeleteLists(ids []int, query string, getAll bool, permittedIDs []int) error {
+func (c *Core) DeleteLists(ids []int, query, typ, optin, status string, tags []string, getAll bool, permittedIDs []int) error {
 	var queryStr string
+
+	if tags == nil {
+		tags = []string{}
+	}
 
 	if len(ids) > 0 {
 		queryStr = ""
@@ -208,7 +219,7 @@ func (c *Core) DeleteLists(ids []int, query string, getAll bool, permittedIDs []
 		queryStr = makeSearchString(query)
 	}
 
-	if _, err := c.q.DeleteLists.Exec(pq.Array(ids), queryStr, getAll, pq.Array(permittedIDs)); err != nil {
+	if _, err := c.q.DeleteLists.Exec(pq.Array(ids), queryStr, typ, optin, status, pq.StringArray(tags), getAll, pq.Array(permittedIDs)); err != nil {
 		c.log.Printf("error deleting lists: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			c.i18n.Ts("globals.messages.errorDeleting", "name", "{globals.terms.lists}", "error", pqErrMsg(err)))

@@ -134,12 +134,14 @@ func (a *App) QuerySubscribers(c echo.Context) error {
 	}
 
 	out := models.PageResults{
-		Query:   query,
-		Search:  searchStr,
 		Results: res,
-		Total:   total,
-		Page:    pg.Page,
-		PerPage: pg.PerPage,
+		PageProps: models.PageProps{
+			Query:   query,
+			Search:  searchStr,
+			Total:   total,
+			Page:    pg.Page,
+			PerPage: pg.PerPage,
+		},
 	}
 
 	return c.JSON(http.StatusOK, okResp{out})

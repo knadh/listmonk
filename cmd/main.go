@@ -27,7 +27,7 @@ import (
 	"github.com/knadh/listmonk/internal/messenger/email"
 	"github.com/knadh/listmonk/internal/subimporter"
 	"github.com/knadh/listmonk/models"
-	"github.com/knadh/paginator"
+	"github.com/knadh/paginator/v2"
 	"github.com/knadh/stuffbin"
 )
 

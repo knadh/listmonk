@@ -1,0 +1,95 @@
+{{ define "admin-header" }}
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<title>{{ .Data.Title }} - {{ .SiteName }}</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+
+	<link href="{{ URI "/admin-ssr/assets/vendor/oat.min.css" }}?v={{ .AssetVersion }}" rel="stylesheet" type="text/css" />
+	<link href="{{ URI "/admin-ssr/assets/icons/fontello.css" }}?v={{ .AssetVersion }}" rel="stylesheet" type="text/css" />
+	<link href="{{ URI "/admin-ssr/assets/style.css" }}?v={{ .AssetVersion }}" rel="stylesheet" type="text/css" />
+	<link href="{{ URI "/admin/custom.css" }}?v={{ .AssetVersion }}" rel="stylesheet" type="text/css" />
+	<script>
+		window._LM_I18N = {{ ToJSON .I18nJS }};
+		window._LM_CONFIG = {{ ToJSON .ConfigJS }};
+	</script>
+	<script src="{{ URI "/admin-ssr/assets/vendor/oat.min.js" }}?v={{ .AssetVersion }}" defer></script>
+	<script src="{{ URI "/admin/custom.js" }}?v={{ .AssetVersion }}" defer></script>
+
+	{{ if ne .FaviconURL "" }}
+		<link rel="icon" href="{{ .FaviconURL }}" type="image/x-icon" />
+	{{ else }}
+		<link rel="icon" href="{{ URI "/admin-ssr/assets/favicon.png" }}?v={{ .AssetVersion }}" type="image/png" />
+	{{ end }}
+</head>
+<body x-data="adminApp">
+	<div id="app" data-sidebar-layout>
+		<nav data-topnav>
+			<div class="row">
+				<div class="col-4 branding">
+					<button data-sidebar-toggle type="button" aria-label="Toggle sidebar menu" class="small">
+						<i class="mdi-menu"></i>
+					</button>
+					<a href="{{ URI "/admin" }}" class="favicon"><img src="{{ URI "/admin-ssr/assets/favicon.png" }}?v={{ .AssetVersion }}" alt="listmonk" /></a>
+					<a href="{{ URI "/admin" }}" class="logo"><img src="{{ URI "/admin-ssr/assets/logo.svg" }}?v={{ .AssetVersion }}" alt="listmonk" /></a>
+				</div>
+				<div class="col-8 justify-end hstack">
+					<button type="button" class="ghost small" data-cy="btn-refresh" title="{{ .L.T "globals.buttons.refresh" }}"
+						onclick="document.location.reload()"><i class="mdi-refresh"></i></button>
+					{{ with .Data.Profile }}
+						<ot-dropdown>
+							<button popovertarget="user-menu" type="button" class="user-nav-button ghost small user-trigger">
+								<span class="user-avatar">
+									{{ if .Avatar.Valid }}<img src="{{ .Avatar.String }}" alt="" />{{ else }}<span>{{ upper (substr 0 1 .Username) }}</span>{{ end }}
+								</span>
+								<span class="user-label">{{ .Username }}</span>
+							</button>
+							<menu popover id="user-menu">
+								<a href="{{ URI "/admin/user/profile" }}" role="menuitem"><i class="mdi-account-outline"></i> {{ $.L.T "users.profile" }}</a>
+								<button type="button" role="menuitem" class="ghost" onclick="fetch('{{ URI "/api/logout" }}', { method: 'POST' }).then(() => { document.location.href = '{{ URI "/admin/login" }}'; })">
+									<i class="mdi-logout-variant"></i> {{ $.L.T "users.logout" }}
+								</button>
+							</menu>
+						</ot-dropdown>
+					{{ end }}
+				</div>
+			</div>
+		</nav>
+
+		<aside data-sidebar>
+			{{ template "admin-sidebar" . }}
+		</aside>
+
+		<main>
+			<div class="container">
+{{ end }}
+
+{{ define "admin-footer" }}
+			</div>
+		</main>
+	</div>
+	<template id="confirm-dialog-template">
+		<dialog class="b-modal">
+			<div class="dialog-card content">
+				<header class="dialog-head">
+					<h4 data-confirm-title>{{ .L.T "globals.messages.confirm" }}</h4>
+				</header>
+				<section class="dialog-body">
+					<div data-field>
+						<p data-confirm-message></p>
+					</div>
+				</section>
+				<footer class="dialog-foot align-right">
+					<button type="button" class="outline" data-confirm-cancel>{{ .L.T "globals.buttons.cancel" }}</button>
+					<button type="button" data-variant="primary" data-confirm-ok>{{ .L.T "globals.buttons.ok" }}</button>
+				</footer>
+			</div>
+		</dialog>
+	</template>
+
+	<script type="module" src="{{ URI "/admin-ssr/assets/js/main.js" }}?v={{ .AssetVersion }}" defer></script>
+	<script src="{{ URI "/admin-ssr/assets/vendor/alpinejs.min.js" }}?v={{ .AssetVersion }}" defer></script>
+</body>
+</html>
+{{ end }}
