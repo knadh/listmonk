@@ -26,14 +26,16 @@
     --primary: #0055d4;
     --ring: #0055d4;
     --muted-foreground: light-dark(#7a7a7a, #a1a1aa);
-    --container-max: 95%;
+    --container-max: 1040px;
     --border: light-dark(#e5e7eb, #52525b);
     --font-sans: "Inter", system-ui, sans-serif;
     --text-1: 1.75rem;
 }
 
 body {
-    background: light-dark(#fafafa, #1a1a1a);
+    background:
+        radial-gradient(circle at 50% 0, light-dark(#ffffff, #262626) 0, transparent 360px),
+        light-dark(#f6f7f8, #171717);
     font-family: "Inter", system-ui, sans-serif;
 }
 
@@ -194,8 +196,34 @@ body[data-sidebar-layout] {
     min-height: 100dvh;
 }
 
+#app[data-sidebar-layout] {
+    grid-template-columns: 10.5rem minmax(0, var(--container-max));
+    column-gap: var(--space-5);
+    height: auto;
+    justify-content: center;
+    min-height: 100dvh;
+    padding-inline: var(--space-5);
+
+    > main {
+        overflow-y: visible;
+    }
+}
+
+@media (max-width: 768px) {
+    #app[data-sidebar-layout] {
+        grid-template-columns: minmax(0, 1fr);
+        column-gap: 0;
+        justify-content: stretch;
+        padding-inline: var(--space-4);
+    }
+}
+
 nav[data-topnav] {
+    background: transparent;
+    border-bottom: 0;
     font-size: var(--text-7);
+    padding: var(--space-4) 0 var(--space-2);
+    box-shadow: none;
 
     button[data-sidebar-toggle] {
         border: 0;
@@ -263,7 +291,7 @@ nav[data-topnav] {
     }
 
     .hstack {
-        gap: var(--space-6);
+        gap: var(--space-3);
     }
 
     > .row {
@@ -297,6 +325,80 @@ nav[data-topnav] {
             gap: var(--space-2);
         }
     }
+}
+
+aside[data-sidebar] {
+    background: transparent;
+    border-inline-end: 0;
+    box-shadow: none;
+
+    > nav {
+        margin-block-start: var(--space-3);
+        max-height: calc(100dvh - 5.75rem);
+        padding: 0;
+        
+        ul > li {
+            margin-block-end: var(--space-1);
+        }
+    }
+
+
+    a,
+    summary {
+        color: var(--muted-foreground);
+        padding-inline: var(--space-2);
+    }
+
+    a:is(:hover, [aria-current]),
+    summary:hover {
+        background: light-dark(rgb(0 85 212 / 0.08), rgb(255 255 255 / 0.08));
+        color: var(--foreground);
+    }
+
+    details[open] > summary {
+        color: var(--foreground);
+    }
+}
+
+@media (min-width: 769px) {
+    aside[data-sidebar] {
+        align-self: start;
+        position: sticky;
+        top: 4.5rem;
+    }
+}
+
+@media (max-width: 768px) {
+    aside[data-sidebar] {
+        background: var(--background);
+        border-inline-end: 1px solid var(--border);
+        box-sizing: border-box;
+        box-shadow: none;
+        margin-inline-start: calc(-1 * var(--space-4));
+        max-width: calc(100vw - var(--space-4));
+
+        > nav {
+            margin-block-start: 0;
+            padding: var(--space-3) var(--space-2);
+        }
+
+        a,
+        summary {
+            padding-inline: var(--space-3);
+        }
+    }
+
+    #app[data-sidebar-layout][data-sidebar-open] > aside[data-sidebar] {
+        box-shadow: var(--shadow-large);
+    }
+}
+
+main {
+    padding-block-start: var(--space-3);
+}
+
+main > .container {
+    padding-inline: 0;
 }
 
 .user-trigger {
