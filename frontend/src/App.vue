@@ -48,8 +48,7 @@
       </nav>
 
       <aside data-sidebar>
-        <navigation :is-mobile="isMobile" :active-item="activeItem" :active-group="activeGroup"
-          @toggleGroup="toggleGroup" />
+        <navigation />
       </aside>
 
       <main>
@@ -117,34 +116,7 @@ export default Vue.extend({
     Navigation,
   },
 
-  data() {
-    return {
-      activeItem: {},
-      activeGroup: {},
-      windowWidth: window.innerWidth,
-    };
-  },
-
-  watch: {
-    $route(to) {
-      // Set the current route name to true for active+expanded keys in the
-      // menu to pick up.
-      this.activeItem = { [to.name]: true };
-      if (to.meta.group) {
-        this.activeGroup = { [to.meta.group]: true };
-      } else {
-        // Reset activeGroup to collapse menu items on navigating
-        // to non group items from sidebar
-        this.activeGroup = {};
-      }
-    },
-  },
-
   methods: {
-    toggleGroup(group, state) {
-      this.activeGroup = state ? { [group]: true } : {};
-    },
-
     emitPageRefresh() {
       this.$root.$emit('page.refresh');
     },
@@ -200,23 +172,12 @@ export default Vue.extend({
           && this.serverConfig.update.messages.length > 0));
     },
 
-    version() {
-      return import.meta.env.VUE_APP_VERSION;
-    },
-
-    isMobile() {
-      return this.windowWidth <= 768;
-    },
   },
 
   mounted() {
     // Lists is required across different views. On app load, fetch the lists
     // and have them in the store.
     this.$api.getLists({ minimal: true, per_page: 'all', status: 'active' });
-
-    window.addEventListener('resize', () => {
-      this.windowWidth = window.innerWidth;
-    });
 
     this.listenEvents();
   },
