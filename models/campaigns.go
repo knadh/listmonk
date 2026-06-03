@@ -65,6 +65,7 @@ type Campaign struct {
 	ArchiveTemplateBody string             `db:"archive_template_body" json:"-"`
 	Tpl                 *template.Template `json:"-"`
 	SubjectTpl          *txttpl.Template   `json:"-"`
+	FromEmailTpl        *txttpl.Template   `json:"-"`
 	AltBodyTpl          *template.Template `json:"-"`
 
 	// HeaderTpls is holds optionally {{ templated }} campaign headers.
@@ -152,6 +153,21 @@ func (c *Campaign) CompileTemplate(f template.FuncMap) error {
 			return fmt.Errorf("error compiling subject: %v", err)
 		}
 		c.SubjectTpl = subjTpl
+	}
+
+	// If the From header has a template string, compile it.
+	if hasTplExpr(c.FromEmail) {
+		from := c.FromEmail
+		for _, r := range regTplFuncs {
+			from = r.regExp.ReplaceAllString(from, r.replace)
+		}
+
+		var txtFuncs map[string]any = f
+		fromTpl, err := txttpl.New(ContentTpl).Funcs(txtFuncs).Parse(from)
+		if err != nil {
+			return fmt.Errorf("error compiling from: %v", err)
+		}
+		c.FromEmailTpl = fromTpl
 	}
 
 	// Compile the base template.

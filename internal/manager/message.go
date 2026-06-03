@@ -42,6 +42,15 @@ func (m *CampaignMessage) render() error {
 		out.Reset()
 	}
 
+	// Render the From header if it's a template.
+	if m.Campaign.FromEmailTpl != nil {
+		if err := m.Campaign.FromEmailTpl.ExecuteTemplate(&out, models.ContentTpl, m); err != nil {
+			return err
+		}
+		m.from = out.String()
+		out.Reset()
+	}
+
 	// Compile the main template.
 	if err := m.Campaign.Tpl.ExecuteTemplate(&out, models.BaseTpl, m); err != nil {
 		return err
@@ -90,6 +99,11 @@ func (m *CampaignMessage) render() error {
 // Subject returns a copy of the message subject
 func (m *CampaignMessage) Subject() string {
 	return m.subject
+}
+
+// From returns the rendered From header.
+func (m *CampaignMessage) From() string {
+	return m.from
 }
 
 // Body returns a copy of the message body.
