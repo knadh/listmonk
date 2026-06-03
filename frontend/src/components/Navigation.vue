@@ -16,9 +16,9 @@
           </summary>
           <ul>
             <li>
-              <router-link :to="{ name: 'lists' }" data-cy="all-lists">
+              <a href="/admin/lists" data-cy="all-lists">
                 {{ $t('menu.allLists') }}
-              </router-link>
+              </a>
             </li>
             <li>
               <router-link :to="{ name: 'forms' }" data-cy="forms">

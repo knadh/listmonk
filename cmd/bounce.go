@@ -48,9 +48,11 @@ func (a *App) GetBounces(c echo.Context) error {
 
 	out := models.PageResults{
 		Results: res,
-		Total:   total,
-		Page:    pg.Page,
-		PerPage: pg.PerPage,
+		PageProps: models.PageProps{
+			Total:   total,
+			Page:    pg.Page,
+			PerPage: pg.PerPage,
+		},
 	}
 
 	return c.JSON(http.StatusOK, okResp{out})

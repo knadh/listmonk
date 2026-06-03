@@ -36,6 +36,7 @@ BIN := listmonk
 STATIC := config.toml.sample \
 	schema.sql queries:/queries permissions.json \
 	static/public:/public \
+	static/admin:/admin-ssr \
 	static/email-templates \
 	frontend/dist:/admin \
 	i18n:/i18n

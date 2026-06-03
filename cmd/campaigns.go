@@ -98,11 +98,13 @@ func (a *App) GetCampaigns(c echo.Context) error {
 	}
 
 	out := models.PageResults{
-		Query:   query,
 		Results: res,
-		Total:   total,
-		Page:    pg.Page,
-		PerPage: pg.PerPage,
+		PageProps: models.PageProps{
+			Query:   query,
+			Total:   total,
+			Page:    pg.Page,
+			PerPage: pg.PerPage,
+		},
 	}
 
 	return c.JSON(http.StatusOK, okResp{out})

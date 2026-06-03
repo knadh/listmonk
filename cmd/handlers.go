@@ -73,6 +73,10 @@ func initHTTPHandlers(e *echo.Echo, a *App) {
 		g.GET(path.Join(uriAdmin, ""), a.AdminPage)
 		g.GET(path.Join(uriAdmin, "/custom.css"), serveCustomAppearance("admin.custom_css"))
 		g.GET(path.Join(uriAdmin, "/custom.js"), serveCustomAppearance("admin.custom_js"))
+		g.GET(path.Join(uriAdmin, "/lists"), a.ViewLists)
+		g.GET(path.Join(uriAdmin, "/lists/forms"), a.AdminPage)
+		g.GET(path.Join(uriAdmin, "/lists/roles"), a.AdminPage)
+		g.GET(path.Join(uriAdmin, "/lists/:id"), hasID(a.ViewList))
 		g.GET(path.Join(uriAdmin, "/*"), a.AdminPage)
 	}
 

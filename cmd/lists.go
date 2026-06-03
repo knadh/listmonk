@@ -2,7 +2,6 @@ package main
 
 import (
 	"net/http"
-	"strconv"
 	"strings"
 
 	"github.com/knadh/listmonk/internal/auth"
@@ -10,68 +9,79 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
+// listsView is the admin page view.
+type listsView struct {
+	adminView
+
+	Lists            []models.List
+	Page             models.PageProps
+	CacheSlowQueries bool
+}
+
+type listView struct {
+	adminView
+
+	List models.List
+}
+
 // GetLists retrieves lists with additional metadata like subscriber counts.
 func (a *App) GetLists(c echo.Context) error {
-	// Get the authenticated user.
-	user := auth.GetUser(c)
-
-	// Get the list IDs (or blanket permission) the user has access to.
-	hasAllPerm, permittedIDs := user.GetPermittedLists(auth.PermTypeGet)
-
-	// Minimal query simply returns the list of all lists without JOIN subscriber counts. This is fast.
-	minimal, _ := strconv.ParseBool(c.FormValue("minimal"))
-	if minimal {
-		status := c.FormValue("status")
-		res, err := a.core.GetLists("", status, hasAllPerm, permittedIDs)
-		if err != nil {
-			return err
-		}
-		if len(res) == 0 {
-			return c.JSON(http.StatusOK, okResp{[]struct{}{}})
-		}
-
-		// Meta.
-		total := len(res)
-		out := models.PageResults{
-			Results: res,
-			Total:   total,
-			Page:    1,
-			PerPage: total,
-		}
-
-		return c.JSON(http.StatusOK, okResp{out})
-	}
-
-	// Full list query.
-	var (
-		query   = strings.TrimSpace(c.FormValue("query"))
-		tags    = c.QueryParams()["tag"]
-		orderBy = c.FormValue("order_by")
-		typ     = c.FormValue("type")
-		optin   = c.FormValue("optin")
-		status  = c.FormValue("status")
-		order   = c.FormValue("order")
-
-		pg = a.pg.NewFromURL(c.Request().URL.Query())
-	)
-	res, total, err := a.core.QueryLists(query, typ, optin, status, tags, orderBy, order, hasAllPerm, permittedIDs, pg.Offset, pg.Limit)
+	lists, props, err := a.getLists(c)
 	if err != nil {
 		return err
 	}
 
-	out := models.PageResults{
-		Query:   query,
-		Results: res,
-		Total:   total,
-		Page:    pg.Page,
-		PerPage: pg.PerPage,
+	if props.Param("minimal") == "true" && props.Total == 0 {
+		return c.JSON(http.StatusOK, okResp{[]struct{}{}})
 	}
 
-	return c.JSON(http.StatusOK, okResp{out})
+	return c.JSON(http.StatusOK, okResp{models.PageResults{
+		Results:   lists,
+		PageProps: props,
+	}})
+}
+
+// ViewLists renders the HTML view for lists.
+func (a *App) ViewLists(c echo.Context) error {
+	lists, props, err := a.getLists(c)
+	if err != nil {
+		return err
+	}
+
+	data := listsView{
+		adminView:        newAdminView(c, a.i18n.T("globals.terms.lists"), ""),
+		Lists:            lists,
+		Page:             props,
+		CacheSlowQueries: ko.Bool("app.cache_slow_queries"),
+	}
+
+	return c.Render(http.StatusOK, "admin-lists", data)
+}
+
+// ViewList renders the HTML view for editing a list.
+func (a *App) ViewList(c echo.Context) error {
+	user := auth.GetUser(c)
+
+	// Check if the user has access to the list.
+	id := getID(c)
+	if err := user.HasListPerm(auth.PermTypeGet, id); err != nil {
+		return err
+	}
+
+	list, err := a.core.GetList(id, "")
+	if err != nil {
+		return err
+	}
+
+	data := listView{
+		adminView: newAdminView(c, list.Name, ""),
+		List:      list,
+	}
+
+	return c.Render(http.StatusOK, "admin-list", data)
 }
 
 // GetList retrieves a single list by id.
-// It's permission checked by the listPerm middleware.
 func (a *App) GetList(c echo.Context) error {
 	// Get the authenticated user.
 	user := auth.GetUser(c)
@@ -112,7 +122,6 @@ func (a *App) CreateList(c echo.Context) error {
 }
 
 // UpdateList handles list modification.
-// It's permission checked by the listPerm middleware.
 func (a *App) UpdateList(c echo.Context) error {
 	// Get the authenticated user.
 	user := auth.GetUser(c)
@@ -155,7 +164,7 @@ func (a *App) DeleteList(c echo.Context) error {
 
 	// Delete the list from the DB.
 	// Pass getAll=true since we've already verified permissions above.
-	if err := a.core.DeleteLists([]int{id}, "", true, nil); err != nil {
+	if err := a.core.DeleteLists([]int{id}, "", "", "", "", nil, true, nil); err != nil {
 		return err
 	}
 
@@ -200,7 +209,7 @@ func (a *App) DeleteLists(c echo.Context) error {
 
 		// Delete the lists from the DB.
 		// Pass getAll=true since we've already verified permissions above.
-		if err := a.core.DeleteLists(ids, "", true, nil); err != nil {
+		if err := a.core.DeleteLists(ids, "", "", "", "", nil, true, nil); err != nil {
 			return err
 		}
 	} else {
@@ -208,10 +217,70 @@ func (a *App) DeleteLists(c echo.Context) error {
 		hasAllPerm, permittedIDs := user.GetPermittedLists(auth.PermTypeManage)
 
 		// Delete the lists from the DB with permission filtering.
-		if err := a.core.DeleteLists(nil, query, hasAllPerm, permittedIDs); err != nil {
+		if err := a.core.DeleteLists(nil, query,
+			c.FormValue("type"),
+			c.FormValue("optin"),
+			c.FormValue("status"),
+			c.Request().URL.Query()["tag"],
+			hasAllPerm, permittedIDs); err != nil {
 			return err
 		}
 	}
 
 	return c.JSON(http.StatusOK, okResp{true})
+}
+
+func (a *App) getLists(c echo.Context) ([]models.List, models.PageProps, error) {
+	q := makeQuery(c.Request().URL.Query(), map[string]string{
+		"page":     "",
+		"minimal":  "",
+		"query":    "",
+		"order_by": "",
+		"order":    "",
+		"tag":      "",
+		"status":   models.ListStatusActive,
+	})
+
+	// Get the authenticated user.
+	user := auth.GetUser(c)
+
+	// Get the list IDs (or blanket permission) the user has access to.
+	hasAllPerm, permittedIDs := user.GetPermittedLists(auth.PermTypeGet)
+
+	// Minimal query simply returns the list of all lists without JOIN subscriber counts. This is fast.
+	minimal := q.Get("minimal") == "true"
+	status := q.Get("status")
+	if minimal {
+		res, err := a.core.GetLists("", status, hasAllPerm, permittedIDs)
+		if err != nil {
+			return nil, models.PageProps{}, err
+		}
+		if len(res) == 0 {
+			return res, models.NewPageProps(q, 0, 1, 0), nil
+		}
+
+		// Meta.
+		total := len(res)
+		return res, models.NewPageProps(q, total, 1, total), nil
+	}
+
+	// Run the DB query.
+	pg := a.pg.NewFromURL(q)
+	res, total, err := a.core.QueryLists(
+		q.Get("query"),
+		q.Get("type"),
+		q.Get("optin"),
+		status,
+		q["tag"],
+		q.Get("order_by"),
+		q.Get("order"),
+		hasAllPerm,
+		permittedIDs,
+		pg.Offset,
+		pg.Limit)
+	if err != nil {
+		return nil, models.PageProps{}, err
+	}
+
+	return res, models.NewPageProps(q, total, pg.Page, pg.PerPage), nil
 }

@@ -18,22 +18,10 @@ const routes = [
     component: () => import('../views/Dashboard.vue'),
   },
   {
-    path: '/lists',
-    name: 'lists',
-    meta: { title: 'globals.terms.lists', group: 'lists' },
-    component: () => import('../views/Lists.vue'),
-  },
-  {
     path: '/lists/forms',
     name: 'forms',
     meta: { title: 'forms.title', group: 'lists' },
     component: () => import('../views/Forms.vue'),
-  },
-  {
-    path: '/lists/:id',
-    name: 'list',
-    meta: { title: 'globals.terms.lists', group: 'lists' },
-    component: () => import('../views/Lists.vue'),
   },
   {
     path: '/subscribers',

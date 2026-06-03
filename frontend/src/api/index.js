@@ -116,41 +116,6 @@ export const getLists = (params) => http.get(
   },
 );
 
-export const queryLists = (params) => http.get(
-  '/api/lists',
-  {
-    params: (!params ? { per_page: 'all' } : params),
-    loading: models.listsFull,
-  },
-);
-
-export const getList = async (id) => http.get(
-  `/api/lists/${id}`,
-  { loading: models.list },
-);
-
-export const createList = (data) => http.post(
-  '/api/lists',
-  data,
-  { loading: models.lists },
-);
-
-export const updateList = (data) => http.put(
-  `/api/lists/${data.id}`,
-  data,
-  { loading: models.lists },
-);
-
-export const deleteList = (id) => http.delete(
-  `/api/lists/${id}`,
-  { loading: models.lists },
-);
-
-export const deleteLists = (params) => http.delete(
-  '/api/lists',
-  { params, loading: models.lists },
-);
-
 // Subscribers.
 export const getSubscribers = async (params) => http.get(
   '/api/subscribers',

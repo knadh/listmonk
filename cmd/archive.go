@@ -41,9 +41,11 @@ func (a *App) GetCampaignArchives(c echo.Context) error {
 	// Meta.
 	out := models.PageResults{
 		Results: camps,
-		Total:   total,
-		Page:    pg.Page,
-		PerPage: pg.PerPage,
+		PageProps: models.PageProps{
+			Total:   total,
+			Page:    pg.Page,
+			PerPage: pg.PerPage,
+		},
 	}
 
 	return c.JSON(200, okResp{out})
@@ -112,7 +114,7 @@ func (a *App) CampaignArchivesPage(c echo.Context) error {
 		Campaigns   []campArchive
 		TotalPages  int
 		Pagination  template.HTML
-	}{title, title, out, pg.TotalPages, template.HTML(pg.HTML("?page=%d"))})
+	}{title, title, out, pg.TotalPages, template.HTML(pg.HTML("", nil))})
 }
 
 // CampaignArchivePage renders the public campaign archives page.
