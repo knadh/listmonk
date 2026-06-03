@@ -9,12 +9,27 @@ SELECT * FROM lists WHERE (CASE WHEN $1 = '' THEN 1=1 ELSE type=$1::list_type EN
     ORDER BY CASE WHEN $3 = 'id' THEN id END, CASE WHEN $3 = 'name' THEN name END;
 
 -- name: query-lists
-WITH ls AS (
-    SELECT COUNT(*) OVER () AS total, lists.* FROM lists WHERE
+WITH statuses AS (
+    SELECT
+        list_id,
+        COALESCE(JSONB_OBJECT_AGG(status, subscriber_count) FILTER (WHERE status IS NOT NULL), '{}') AS subscriber_statuses,
+        SUM(subscriber_count) AS subscriber_count
+    FROM mat_list_subscriber_stats
+    GROUP BY list_id
+),
+ls AS (
+    SELECT
+        COUNT(*) OVER () AS total,
+        lists.*,
+        COALESCE(statuses.subscriber_statuses, '{}') AS subscriber_statuses,
+        COALESCE(statuses.subscriber_count, 0) AS subscriber_count
+    FROM lists
+    LEFT JOIN statuses ON (lists.id = statuses.list_id)
+    WHERE
     CASE
-        WHEN $1 > 0 THEN id = $1
+        WHEN $1 > 0 THEN lists.id = $1
         WHEN $2 != '' THEN uuid = $2::UUID
-        WHEN $3 != '' THEN (TO_TSVECTOR(name) @@ TO_TSQUERY ($3) OR name ILIKE $3)
+        WHEN $3 != '' THEN (TO_TSVECTOR(name) @@ PLAINTO_TSQUERY($3) OR name ILIKE ('%' || $3 || '%'))
         ELSE TRUE
     END
     AND ($4 = '' OR type = $4::list_type)
@@ -23,20 +38,11 @@ WITH ls AS (
     AND (CARDINALITY($7::VARCHAR(100)[]) = 0 OR $7 <@ tags)
     AND CASE
         -- Optional list IDs based on user permission.
-        WHEN $8 = TRUE THEN TRUE ELSE id = ANY($9::INT[])
+        WHEN $8 = TRUE THEN TRUE ELSE lists.id = ANY($9::INT[])
     END
-    OFFSET $10 LIMIT (CASE WHEN $11 < 1 THEN NULL ELSE $11 END)
-),
-statuses AS (
-    SELECT
-        list_id,
-        COALESCE(JSONB_OBJECT_AGG(status, subscriber_count) FILTER (WHERE status IS NOT NULL), '{}') AS subscriber_statuses,
-        SUM(subscriber_count) AS subscriber_count
-    FROM mat_list_subscriber_stats
-    GROUP BY list_id
+    ORDER BY %order% OFFSET $10 LIMIT (CASE WHEN $11 < 1 THEN NULL ELSE $11 END)
 )
-SELECT ls.*, COALESCE(ss.subscriber_statuses, '{}') AS subscriber_statuses, COALESCE(ss.subscriber_count, 0) AS subscriber_count
-    FROM ls LEFT JOIN statuses ss ON (ls.id = ss.list_id) ORDER BY %order%;
+SELECT * FROM ls ORDER BY %order%;
 
 -- name: get-lists-by-optin
 -- Can have a list of IDs or a list of UUIDs.
@@ -80,10 +86,17 @@ UPDATE lists SET updated_at=NOW() WHERE id = ANY($1);
 DELETE FROM lists
 WHERE CASE
     WHEN CARDINALITY($1::INT[]) > 0 THEN id = ANY($1)
-    ELSE ($2 = '' OR to_tsvector(name) @@ to_tsquery($2))
+    ELSE ($2 = '' OR to_tsvector(name) @@ plainto_tsquery($2) OR name ILIKE ('%' || $2 || '%'))
 END
+AND (
+    CARDINALITY($1::INT[]) > 0 OR (
+        ($3 = '' OR type = $3::list_type)
+        AND ($4 = '' OR optin = $4::list_optin)
+        AND ($5 = '' OR status = $5::list_status)
+        AND (CARDINALITY($6::VARCHAR(100)[]) = 0 OR $6 <@ tags)
+    )
+)
 AND CASE
     -- Optional list IDs based on user permission.
-    WHEN $3 = TRUE THEN TRUE ELSE id = ANY($4::INT[])
+    WHEN $7 = TRUE THEN TRUE ELSE id = ANY($8::INT[])
 END;
-
