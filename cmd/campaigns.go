@@ -643,6 +643,11 @@ func (a *App) GetCampaignViewAnalytics(c echo.Context) error {
 
 // sendTestMessage takes a campaign and a subscriber and sends out a sample campaign message.
 func (a *App) sendTestMessage(sub models.Subscriber, camp *models.Campaign) error {
+	if err := a.manager.LoadInlineImages(camp); err != nil {
+		a.log.Printf("error loading inline images: %v", err)
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
 	if err := camp.CompileTemplate(a.manager.TemplateFuncs(camp)); err != nil {
 		a.log.Printf("error compiling template: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,

@@ -84,8 +84,8 @@ import 'tinymce/skins/ui/oxide/skin.css';
 import 'tinymce/themes/silver';
 
 import { colors, uris } from '../constants';
-import CodeEditor from './CodeEditor.vue';
 import Media from '../views/Media.vue';
+import CodeEditor from './CodeEditor.vue';
 
 // Map of listmonk language codes to corresponding TinyMCE language files.
 const LANGS = {
@@ -100,6 +100,10 @@ const LANGS = {
   ro: 'ro',
   tr: 'tr',
 };
+
+const TRACK_LINK = 'trackLink';
+const TRACK_SUFFIX = '@TrackLink';
+const EMBED_IMAGE = 'embedImage';
 
 export default {
   components: {
@@ -125,7 +129,6 @@ export default {
       isRichtextSourceVisible: false,
       isInsertHTMLVisible: false,
       insertHTMLSnippet: '',
-      isTrackLink: false,
       richtextConf: {},
       richTextSourceBody: '',
       contentType: '',
@@ -176,6 +179,9 @@ export default {
         toolbar_sticky: true,
         entity_encoding: 'raw',
         convert_urls: true,
+        relative_urls: false,
+        remove_script_host: false,
+        extended_valid_elements: 'img[*]',
         plugins: [
           'anchor', 'autoresize', 'autolink', 'charmap', 'emoticons', 'fullscreen',
           'help', 'hr', 'image', 'imagetools', 'link', 'lists', 'paste', 'searchreplace',
@@ -219,13 +225,7 @@ export default {
     },
 
     onEditorURLConvert(url) {
-      let u = url;
-      if (this.isTrackLink && /^https?:\/\//i.test(u)) {
-        u = `${u}@TrackLink`;
-      }
-
-      this.isTrackLink = false;
-      return u;
+      return url;
     },
 
     onRichtextViewSource() {
@@ -261,69 +261,88 @@ export default {
     onEditorDialogOpen(editor) {
       const ed = editor;
       const oldEd = ed.windowManager.open;
-      const self = this;
 
       ed.windowManager.open = (t, r) => {
-        const isOK = t.initialData && 'url' in t.initialData && 'anchor' in t.initialData;
+        const data = t.initialData || {};
+        const isLink = data.url && 'anchor' in data;
+        const isImage = data.src && !isLink;
 
-        // Not the link modal.
-        if (!isOK) {
-          return oldEd.apply(this, [t, r]);
+        if (!isLink && !isImage) {
+          return oldEd.call(ed.windowManager, t, r);
         }
 
-        // If an existing link is being edited, check for the tracking flag `@TrackLink` at the end
-        // of the url. Remove that from the URL and instead check the checkbox.
-        // Default to the last user choice (stored in localStorage), or false if not set.
-        let checked = JSON.parse(localStorage.getItem('trackLink') || 'false');
+        const { onSubmit } = t;
+        const checkbox = isLink ? { type: 'checkbox', name: TRACK_LINK, label: 'Track link?' } : { type: 'checkbox', name: EMBED_IMAGE, label: this.$t('media.embed') };
+        const spec = { ...t, body: this.withDialogCheckbox(t.body, checkbox) };
 
-        // Check if this is an existing link being edited
-        if (t.initialData.url && t.initialData.url.value && t.initialData.url.value !== '') {
-          const t2 = t;
-          const url = t2.initialData.url.value.replace(/@TrackLink$/, '');
-
-          if (t2.initialData.url.value !== url) {
-            // Link has @TrackLink suffix - keep it checked
-            t2.initialData.url.value = url;
-            checked = true;
-          } else {
-            // Link doesn't have @TrackLink suffix - uncheck it
-            checked = false;
-          }
-        }
-
-        // Execute the modal.
-        const modal = oldEd.apply(this, [t, r]);
-
-        // Is it the link dialog?
-        if (isOK) {
-          // Insert tracking checkbox.
-          const c = document.createElement('input');
-          c.setAttribute('type', 'checkbox');
-
-          if (checked) {
-            c.setAttribute('checked', checked);
-            // CRITICAL FIX: Sync the Vue instance state with the checkbox state
-            // This ensures that when the checkbox appears checked, the tracking
-            // will actually work when the user saves without manually toggling.
-            self.isTrackLink = true;
-          }
-
-          // Store the checkbox's state in the Vue instance to pick up from
-          // the TinyMCE link conversion callback.
-          c.onchange = (e) => {
-            self.isTrackLink = e.target.checked;
-            localStorage.setItem('trackLink', JSON.stringify(e.target.checked));
+        if (isLink) {
+          const cleanURL = (data.url.value || '').replace(/@TrackLink$/, '');
+          const checked = data.url.value !== cleanURL
+            || (!cleanURL && JSON.parse(localStorage.getItem(TRACK_LINK) || 'false'));
+          spec.initialData = { ...data, [TRACK_LINK]: checked, url: { ...data.url, value: cleanURL } };
+          spec.onSubmit = (api) => {
+            const d = api.getData();
+            const shouldTrack = Boolean(d[TRACK_LINK]);
+            const url = (d.url.value || '').replace(/@TrackLink$/, '');
+            localStorage.setItem(TRACK_LINK, JSON.stringify(shouldTrack));
+            if (shouldTrack && /^https?:\/\//i.test(url)) {
+              api.setData({ url: { ...d.url, value: `${url}${TRACK_SUFFIX}` } });
+            }
+            onSubmit(api);
           };
+        } else {
+          const img = this.getSelectedImage(ed);
+          spec.initialData = { ...data, [EMBED_IMAGE]: Boolean(img && img.hasAttribute('data-embed')) };
+          spec.onSubmit = (api) => {
+            const d = api.getData();
+            const shouldEmbed = d[EMBED_IMAGE] === true || d[EMBED_IMAGE] === 'true';
 
-          const l = document.createElement('label');
-          l.appendChild(c);
-          l.appendChild(document.createTextNode('Track link?'));
-          l.classList.add('tox-label', 'tox-track-link');
+            onSubmit(api);
 
-          document.querySelector('.tox-form__controls-h-stack .tox-control-wrap').appendChild(l);
+            // Apply 'embed' attr.
+            const node = (img && ed.getBody().contains(img)) ? img : this.getSelectedImage(ed);
+            if (!node) {
+              return;
+            }
+            if (shouldEmbed) {
+              ed.dom.setAttrib(node, 'data-embed', 'true');
+            } else {
+              node.removeAttribute('data-embed');
+            }
+            ed.fire('change');
+            ed.save();
+            this.computedValue = ed.getContent();
+          };
         }
-        return modal;
+
+        return oldEd.call(ed.windowManager, spec, r);
       };
+    },
+
+    withDialogCheckbox(body, checkbox) {
+      if (body.type === 'tabpanel') {
+        return {
+          ...body,
+          tabs: body.tabs.map((tab) => (
+            tab.name === 'general' || tab.title === 'General'
+              ? { ...tab, items: [...tab.items, checkbox] }
+              : tab
+          )),
+        };
+      }
+      return { ...body, items: [...body.items, checkbox] };
+    },
+
+    getSelectedImage(editor) {
+      const node = editor.selection.getNode();
+      if (!node) {
+        return null;
+      }
+      if (node.nodeName === 'IMG') {
+        return node;
+      }
+      const figure = editor.dom.getParent(node, 'figure.image');
+      return figure ? figure.querySelector('img') : null;
     },
 
     onMediaSelect(media) {
@@ -332,7 +351,7 @@ export default {
 
     beautifyHTML(str) {
       // Pad all tags with linebreaks.
-      let s = this.trimLines(str.replace(/(<(?!(\/)?a|span)([^>]+)>)/ig, '\n$1\n'), true);
+      let s = this.trimLines(str.replace(/(<(?!(\/)?a|span)([^>]+)>)/gi, '\n$1\n'), true);
       // Remove extra linebreaks.
       s = s.replace(/\n+/g, '\n');
 
