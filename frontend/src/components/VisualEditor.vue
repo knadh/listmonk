@@ -30,10 +30,28 @@ export default {
   data() {
     return {
       isMediaVisible: false,
+      changeTimer: null,
     };
   },
 
   methods: {
+    emitVisualChange(data, body) {
+      if (this.changeTimer) {
+        window.clearTimeout(this.changeTimer);
+      }
+
+      this.changeTimer = window.setTimeout(() => {
+        const iframe = this.$refs.visualEditor;
+        const renderHtml = iframe.contentWindow.EmailBuilder?.renderHtmlWithMeta;
+        const outlook = Boolean(data?.root?.data?.outlook);
+        const processedBody = typeof renderHtml === 'function'
+          ? renderHtml(data, { rootBlockId: 'root', outlook })
+          : body;
+        const tpl = processedBody.replace(/\{\{[^}]*\}\}/g, (match) => match.replace(/&quot;/g, '"'));
+        this.$emit('change', { source: JSON.stringify(data), body: tpl });
+      }, 150);
+    },
+
     loadScript() {
       return new Promise((resolve, reject) => {
         const iframe = this.$refs.visualEditor;
@@ -67,7 +85,7 @@ export default {
           onChange: (data, body) => {
             // Hack to fix quotes in Go {{ templating }} in the HTML body.
             const tpl = body.replace(/\{\{[^}]*\}\}/g, (match) => match.replace(/&quot;/g, '"'));
-            this.$emit('change', { source: JSON.stringify(data), body: tpl });
+            this.emitVisualChange(data, tpl);
           },
         });
       }
@@ -165,6 +183,9 @@ export default {
   },
 
   unmounted() {
+    if (this.changeTimer) {
+      window.clearTimeout(this.changeTimer);
+    }
     window.removeEventListener('message', this.onSidebarMount, false);
   },
 };
