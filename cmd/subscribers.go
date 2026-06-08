@@ -871,11 +871,14 @@ func makeOptinNotifyHook(unsubHeader bool, u *UrlConfig, q *models.Queries, i *i
 		hdr := textproto.MIMEHeader{}
 		hdr.Set(models.EmailHeaderSubscriberUUID, sub.UUID)
 
-		// Attach List-Unsubscribe headers?
+		// Attach List-Unsubscribe header for opt-in emails.
+		// Note: List-Unsubscribe-Post (RFC 8058 one-click) is intentionally
+		// omitted here because opt-in emails use a dummy campaign UUID in the
+		// unsub URL, which the unsubscribe route rejects. The informational
+		// List-Unsubscribe header is still set so that email clients display a
+		// visible unsubscribe link that the subscriber can follow manually.
 		if unsubHeader {
-			unsubURL := fmt.Sprintf(u.UnsubURL, dummyUUID, sub.UUID)
-			hdr.Set("List-Unsubscribe-Post", "List-Unsubscribe=One-Click")
-			hdr.Set("List-Unsubscribe", `<`+unsubURL+`>`)
+			hdr.Set("List-Unsubscribe", "<"+out.UnsubURL+">")
 		}
 
 		// Send the e-mail.

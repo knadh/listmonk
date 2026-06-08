@@ -130,8 +130,12 @@ func (p *POP) Scan(limit int, ch chan models.Bounce) error {
 				if err == io.EOF {
 					break
 				} else if err != nil {
+					// A non-EOF error means the multipart reader is in a broken
+					// state (e.g. malformed boundary). Continuing the loop would
+					// call NextPart() on the same broken reader forever. Break
+					// and process whatever we have so far.
 					p.lo.Printf("error reading multipart bounce message %d: %v", id, err)
-					continue
+					break
 				}
 				h = part
 			}
