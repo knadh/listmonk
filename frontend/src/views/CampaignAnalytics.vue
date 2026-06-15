@@ -94,6 +94,8 @@ export default Vue.extend({
   },
 
   data() {
+    const individualTracking = this.$store.state.serverConfig.privacy.individual_tracking;
+
     return {
       isSearchLoading: false,
       queriedCampaigns: [],
@@ -101,7 +103,9 @@ export default Vue.extend({
       // Data for each view.
       counts: {
         views: 0,
+        uniqueViews: 0,
         clicks: 0,
+        uniqueClicks: 0,
         bounces: 0,
         links: 0,
       },
@@ -116,6 +120,19 @@ export default Vue.extend({
           loading: false,
         },
 
+        // When individual subscriber tracking is on, also show unique counts.
+        ...(individualTracking ? {
+          uniqueViews: {
+            name: this.$t('campaigns.uniqueViews'),
+            type: 'line',
+            data: null,
+            fn: this.$api.getCampaignViewCounts,
+            chartFn: this.makeCharts,
+            unique: true,
+            loading: false,
+          },
+        } : {}),
+
         clicks: {
           name: this.$t('campaigns.clicks'),
           type: 'line',
@@ -124,6 +141,18 @@ export default Vue.extend({
           chartFn: this.makeCharts,
           loading: false,
         },
+
+        ...(individualTracking ? {
+          uniqueClicks: {
+            name: this.$t('campaigns.uniqueClicks'),
+            type: 'line',
+            data: null,
+            fn: this.$api.getCampaignClickCounts,
+            chartFn: this.makeCharts,
+            unique: true,
+            loading: false,
+          },
+        } : {}),
 
         bounces: {
           name: this.$t('globals.terms.bounces'),
@@ -272,6 +301,7 @@ export default Vue.extend({
         id: camps.map((c) => c.id),
         from: this.form.from,
         to: this.form.to,
+        ...(this.charts[typ].unique ? { unique: true } : {}),
       }).then((data) => {
         // Set the total count.
         this.counts[typ] = data.reduce((sum, d) => sum + d.count, 0);
