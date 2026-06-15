@@ -40,6 +40,7 @@
     "campaigns.copyOf": "Salinan {name}",
     "campaigns.customHeadersHelp": "Kumpulan header kustom untuk dilampirkan ke pesan keluar. Mendukung ekspresi templat (cth: {{ .Subscriber.Attribs.city }}). cth: [{\"X-Custom\": \"value\"}, {\"X-Custom2\": \"{{ .Subscriber.UUID }}\"}]",
     "campaigns.dateAndTime": "Tanggal dan waktu",
+    "campaigns.downloadPDF": "Simpan sebagai PDF",
     "campaigns.ended": "Berakhir",
     "campaigns.errorSendTest": "Gagal mengirim tes: {error}",
     "campaigns.fieldInvalidBody": "Gagal menyusun badan kampanye: {error}",

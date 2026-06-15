@@ -39,6 +39,7 @@
     "campaigns.copyOf": " {name}をコピー",
     "campaigns.customHeadersHelp": "送信メッセージに添付するカスタムヘッダーの配列。 例: [{\"X-Custom\": \"Value\"}, {\"X-Custom2\": \"value\"}]",
     "campaigns.dateAndTime": "日時",
+    "campaigns.downloadPDF": "PDFとして保存",
     "campaigns.ended": "終了",
     "campaigns.errorSendTest": "テスト送信エラー: {error}",
     "campaigns.fieldInvalidBody": "キャンペーン本体コンパイルエラー: {error}",

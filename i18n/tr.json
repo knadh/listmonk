@@ -39,6 +39,7 @@
     "campaigns.copyOf": "{name} - Kopyası",
     "campaigns.customHeadersHelp": "Giden iletilere eklenecek özel başlıkların dizisi. örn: [{\"X-Custom\": \"value\"}, {\"X-Custom2\": \"value\"}]",
     "campaigns.dateAndTime": "Tarih ve saat",
+    "campaigns.downloadPDF": "PDF olarak kaydet",
     "campaigns.ended": "Bitti",
     "campaigns.errorSendTest": "Test gönderirken hata: {error}",
     "campaigns.fieldInvalidBody": "Kampanya gövdesini oluşturma hatası: {error}",

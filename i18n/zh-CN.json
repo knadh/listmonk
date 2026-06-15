@@ -39,6 +39,7 @@
     "campaigns.copyOf": "{name}的副本",
     "campaigns.customHeadersHelp": "要附加到传出消息的自定义标头数组。例如： [{\"X-Custom\": \"value\"}, {\"X-Custom2\": \"value\"}]",
     "campaigns.dateAndTime": "日期和时间",
+    "campaigns.downloadPDF": "保存为 PDF",
     "campaigns.ended": "结束",
     "campaigns.errorSendTest": "发送测试时出错：{error}",
     "campaigns.fieldInvalidBody": "编译营销活动正文时出错：{error}",

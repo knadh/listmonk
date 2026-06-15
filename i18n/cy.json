@@ -39,6 +39,7 @@
     "campaigns.copyOf": "Copi o {name}",
     "campaigns.customHeadersHelp": "Ystod eang o benynnau i'w hatodi i negeseuon. ee: [{\"\"X-Custom\"\": \"\"gwerth\"\"}",
     "campaigns.dateAndTime": "Dyddiad ac amser",
+    "campaigns.downloadPDF": "Cadw fel PDF",
     "campaigns.ended": "Wedi gorffen",
     "campaigns.errorSendTest": "Gwall wrth geisio anfon: {error}",
     "campaigns.fieldInvalidBody": "Gwall wrth lunio corff yr ymgyrch: {error}",

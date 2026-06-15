@@ -40,6 +40,7 @@
     "campaigns.copyOf": "Copy of {name}",
     "campaigns.customHeadersHelp": "Array of custom headers to attach to outgoing messages. Supports template expressions (e.g., {{ .Subscriber.Attribs.city }}). eg: [{\"X-Custom\": \"value\"}, {\"X-Custom2\": \"{{ .Subscriber.UUID }}\"}]",
     "campaigns.dateAndTime": "Date and time",
+    "campaigns.downloadPDF": "Save as PDF",
     "campaigns.ended": "Ended",
     "campaigns.errorSendTest": "Error sending test: {error}",
     "campaigns.fieldInvalidBody": "Error compiling campaign body: {error}",

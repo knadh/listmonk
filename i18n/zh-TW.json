@@ -39,6 +39,7 @@
     "campaigns.copyOf": "{name}的副本",
     "campaigns.customHeadersHelp": "要附加到傳出電子郵件的自定義 headers。例如： [{\"X-Custom\": \"value\"}, {\"X-Custom2\": \"value\"}]",
     "campaigns.dateAndTime": "日期和時間",
+    "campaigns.downloadPDF": "另存為 PDF",
     "campaigns.ended": "結束",
     "campaigns.errorSendTest": "發送測試時出現錯誤：{error}",
     "campaigns.fieldInvalidBody": "編譯廣告 body 時出現錯誤：{error}",

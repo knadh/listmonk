@@ -39,6 +39,7 @@
     "campaigns.copyOf": "Kopio de {name}",
     "campaigns.customHeadersHelp": "Matriu de capçaleres personalitzades per adjuntar als missatges de sortida. p. ex.: [{\"X-Custom\": \"valor\"}, {\"X-Custom2\": \"value\"}]",
     "campaigns.dateAndTime": "Data i hora",
+    "campaigns.downloadPDF": "Konservi kiel PDF",
     "campaigns.ended": "Finalitzada",
     "campaigns.errorSendTest": "S'ha produit un error en enviar la prova: {error}",
     "campaigns.fieldInvalidBody": "S'ha produït un error en compilar el cos de la campanya: {error}",

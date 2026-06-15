@@ -39,6 +39,7 @@
     "campaigns.copyOf": "Kopia av {name}",
     "campaigns.customHeadersHelp": "Array av anpassade header-filer att bifoga i utgående meddelanden. t.ex: [{\"X-Anpassad\": \"värde\"}, {\"X-Anpassad2\": \"värde\"}]",
     "campaigns.dateAndTime": "Datum och tid",
+    "campaigns.downloadPDF": "Spara som PDF",
     "campaigns.ended": "Avslutad",
     "campaigns.errorSendTest": "Fel vid sändning av test: {error}",
     "campaigns.fieldInvalidBody": "Fel vid kompilering av kampanjtext: {error}",

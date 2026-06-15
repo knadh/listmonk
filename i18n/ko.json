@@ -39,6 +39,7 @@
     "campaigns.copyOf": "{name}의 복사본",
     "campaigns.customHeadersHelp": "발송 메시지에 첨부할 커스텀 헤더 배열. 예: [{\"X-Custom\": \"value\"}, {\"X-Custom2\": \"value\"}]",
     "campaigns.dateAndTime": "날짜 및 시간",
+    "campaigns.downloadPDF": "PDF로 저장",
     "campaigns.ended": "종료됨",
     "campaigns.errorSendTest": "테스트 발송 오류: {error}",
     "campaigns.fieldInvalidBody": "캠페인 본문 컴파일 오류: {error}",

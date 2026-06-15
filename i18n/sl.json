@@ -39,6 +39,7 @@
     "campaigns.copyOf": "Kopija {name}",
     "campaigns.customHeadersHelp": "Dodatne glave [Headers], ki se pošljejo pri vseh sporočilih poslenih s tega strežnika. Npr.: [{\"X-Custom\": \"value\"}, {\"X-Custom2\": \"vrednost\" }]",
     "campaigns.dateAndTime": "Datum in ura",
+    "campaigns.downloadPDF": "Shrani kot PDF",
     "campaigns.ended": "Končano",
     "campaigns.errorSendTest": "Napaka pri pošiljanju testa: {error}",
     "campaigns.fieldInvalidBody": "Napaka pri prevajanju telesa akcije: {error}",

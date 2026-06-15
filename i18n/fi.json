@@ -39,6 +39,7 @@
     "campaigns.copyOf": "Kopio kampanjasta {name}",
     "campaigns.customHeadersHelp": "Taulukko mukautettuja otsakkeita lähtevissä viesteissä. esim: [{\"X-Custom\": \"arvo\"}, {\"X-Custom2\": \"arvo\"}]",
     "campaigns.dateAndTime": "Päiväys ja aika",
+    "campaigns.downloadPDF": "Tallenna PDF-tiedostona",
     "campaigns.ended": "Päättynyt",
     "campaigns.errorSendTest": "Virhe lähetettäessä testiä: {error}",
     "campaigns.fieldInvalidBody": "Virhe koostaessa kampanjan sisältöä: {error}",

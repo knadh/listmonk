@@ -39,6 +39,7 @@
     "campaigns.copyOf": "Bản sao của {name}",
     "campaigns.customHeadersHelp": "Mảng tiêu đề tùy chỉnh để đính kèm vào thư gửi đi. ví dụ: [{\"X-Custom\": \"value\"}, {\"X-Custom2\": \"value\"}]",
     "campaigns.dateAndTime": "Ngày và giờ",
+    "campaigns.downloadPDF": "Lưu dưới dạng PDF",
     "campaigns.ended": "Kết thúc",
     "campaigns.errorSendTest": "Lỗi khi gửi email thử nghiệm: {error}",
     "campaigns.fieldInvalidBody": "Lỗi khi biên dịch nội dung chiến dịch: {error}",
