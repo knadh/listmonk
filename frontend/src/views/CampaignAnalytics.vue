@@ -234,10 +234,11 @@ export default Vue.extend({
         return sum;
       });
 
+      const sent = campIDs.map((id) => camps[id].sent || 0);
       const donut = {
         labels,
         datasets: [{
-          data: points, backgroundColor: chartColors, borderWidth: 6,
+          data: points, sent, backgroundColor: chartColors, borderWidth: 6,
         }],
       };
       return { points: { datasets: lines }, donut };

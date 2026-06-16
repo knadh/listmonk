@@ -32,10 +32,14 @@ const DEFAULT_DONUT = {
         callbacks: {
           label: (item) => {
             const data = item.chart.data.datasets[item.datasetIndex];
-            const total = data.data.reduce((acc, val) => acc + val, 0);
             const val = data.data[item.dataIndex];
-            const percentage = ((val / total) * 100).toFixed(2);
-            return `${val} (${percentage}%)`;
+            // Rate against messages sent if the dataset carries `sent`, else the slice share.
+            if (data.sent) {
+              const sent = data.sent[item.dataIndex];
+              return sent > 0 ? `${val} (${((val / sent) * 100).toFixed(2)}% of ${sent} sent)` : `${val}`;
+            }
+            const total = data.data.reduce((acc, v) => acc + v, 0);
+            return `${val} (${((val / total) * 100).toFixed(2)}%)`;
           },
         },
       },
