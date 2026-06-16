@@ -13,7 +13,8 @@ const DEFAULT_DONUT = {
   options: {
     responsive: true,
     cutout: '70%',
-    maintainAspectRatio: false,
+    // Square donut so it fills the column width instead of a tall canvas.
+    aspectRatio: 1,
     plugins: {
       legend: {
         display: false,
