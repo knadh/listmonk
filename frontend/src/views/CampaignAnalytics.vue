@@ -54,9 +54,9 @@
         <div class="columns">
           <div class="column is-9">
             <b-loading v-if="v.loading" :active="v.loading" :is-full-page="false" />
-            <h4 v-if="v.chart !== null">
+            <h4>
               {{ v.name }}
-              <span class="has-text-grey-light">({{ $utils.niceNumber(counts[k]) }})</span>
+              <span v-if="v.type !== 'bar'" class="has-text-grey-light">({{ $utils.niceNumber(counts[k]) }})</span>
             </h4>
             <chart :type="v.type" v-if="!v.loading" :data="v.data" :on-click="v.onClick" />
           </div>
@@ -139,7 +139,6 @@ export default Vue.extend({
           name: this.$t('analytics.links'),
           type: 'bar',
           data: null,
-          chart: null,
           loading: false,
           fn: this.$api.getCampaignLinkCounts,
           chartFn: this.makeLinksChart,
