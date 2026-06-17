@@ -314,6 +314,21 @@ func (c *Core) UpdateCampaignArchive(id int, enabled bool, tplID int, meta model
 	return nil
 }
 
+// AddUnsentCampaignSubscribersToList finds all subscribers in the campaign's
+// lists that the campaign was NOT actually sent to (i.e. whose campaigns_sent
+// log doesn't contain the campaign_id), adds them to the given target lists
+// and returns the count of such non-recipient subscribers.
+func (c *Core) AddUnsentCampaignSubscribersToList(campID int, targetListIDs []int, status string) (int, error) {
+	var count int
+	if err := c.q.AddUnsentCampaignSubscribersToLists.Get(&count, campID, pq.Array(targetListIDs), status); err != nil {
+		c.log.Printf("error extracting unsent campaign subscribers: %v", err)
+		return 0, echo.NewHTTPError(http.StatusInternalServerError,
+			c.i18n.Ts("globals.messages.errorUpdating", "name", "{globals.terms.subscribers}", "error", pqErrMsg(err)))
+	}
+
+	return count, nil
+}
+
 // DeleteCampaign deletes a campaign.
 func (c *Core) DeleteCampaign(id int) error {
 	res, err := c.q.DeleteCampaign.Exec(id)

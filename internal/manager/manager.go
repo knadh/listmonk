@@ -39,6 +39,7 @@ type Store interface {
 	GetAttachment(mediaID int) (models.Attachment, error)
 	UpdateCampaignStatus(campID int, status string) error
 	UpdateCampaignCounts(campID int, toSend int, sent int, lastSubID int) error
+	RecordCampaignSent(campID, subID int) error
 	CreateLink(url string) (string, error)
 	BlocklistSubscriber(id int64) error
 	DeleteSubscriber(id int64) error
@@ -541,6 +542,15 @@ func (m *Manager) worker() {
 					}
 					msg.pipe.rate.Incr(1)
 					msg.pipe.sent.Add(1)
+
+					// The message was actually sent. Record the campaign send against
+					// the subscriber so it's possible to see exactly when a campaign
+					// was sent to them.
+					if msg.Campaign != nil && msg.Subscriber.ID > 0 {
+						if err := m.store.RecordCampaignSent(msg.Campaign.ID, msg.Subscriber.ID); err != nil {
+							m.log.Printf("error recording campaign %d sent to subscriber %d: %v", msg.Campaign.ID, msg.Subscriber.ID, err)
+						}
+					}
 				}
 			}
 

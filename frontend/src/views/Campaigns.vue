@@ -257,6 +257,17 @@
               <b-icon icon="chart-bar" size="is-small" />
             </b-tooltip>
           </router-link>
+          <a v-if="$can('campaigns:manage')" href="#" @click.prevent="$utils.prompt($t('campaigns.extractUnsentPrompt'),
+            {
+              placeholder: $t('globals.fields.name'),
+              value: $t('campaigns.unsentListName', { name: props.row.name }),
+            },
+            (name) => extractUnsent(name, props.row))" data-cy="btn-extract-unsent"
+            :aria-label="$t('campaigns.extractUnsent')">
+            <b-tooltip :label="$t('campaigns.extractUnsent')" type="is-dark">
+              <b-icon icon="account-alert-outline" size="is-small" />
+            </b-tooltip>
+          </a>
           <a v-if="$can('campaigns:manage')" href="#"
             @click.prevent="$utils.confirm($t('campaigns.confirmDelete', { name: props.row.name }), () => deleteCampaign(props.row))"
             data-cy="btn-delete" :aria-label="$t('globals.buttons.delete')">
@@ -476,6 +487,14 @@ export default Vue.extend({
       this.$api.deleteCampaign(c.id).then(() => {
         this.getCampaigns();
         this.$utils.toast(this.$t('globals.messages.deleted', { name: c.name }));
+      });
+    },
+
+    // Extract the subscribers a campaign was NOT sent to (non-recipients) into
+    // a new list so failed/unreached subscribers can be retargeted.
+    extractUnsent(name, c) {
+      this.$api.extractCampaignUnsent(c.id, { list_name: name }).then((d) => {
+        this.$utils.toast(this.$t('campaigns.extractUnsentDone', { num: d.count, name: d.list.name }));
       });
     },
 

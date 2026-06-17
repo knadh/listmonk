@@ -641,6 +641,61 @@ func (a *App) GetCampaignViewAnalytics(c echo.Context) error {
 	return c.JSON(http.StatusOK, okResp{out})
 }
 
+// ExtractCampaignUnsent extracts the subscribers in a campaign's lists that the
+// campaign was NOT actually sent to (the non-recipients / failed sends) and
+// adds them to a new list so they can be retargeted. It creates a new list
+// (named from the request) and returns the new list along with the number of
+// subscribers added to it.
+func (a *App) ExtractCampaignUnsent(c echo.Context) error {
+	// Get the campaign ID.
+	id := getID(c)
+
+	// Read the request.
+	var req struct {
+		ListName string `json:"list_name"`
+	}
+	if err := c.Bind(&req); err != nil {
+		return err
+	}
+
+	// Ensure the campaign exists.
+	camp, err := a.core.GetCampaign(id, "", "")
+	if err != nil {
+		return err
+	}
+
+	// Default the new list name to the campaign name if none is given.
+	req.ListName = strings.TrimSpace(req.ListName)
+	if req.ListName == "" {
+		req.ListName = a.i18n.Ts("campaigns.unsentListName", "name", camp.Name)
+	}
+	if !strHasLen(req.ListName, 1, stdInputMaxLen) {
+		return echo.NewHTTPError(http.StatusBadRequest,
+			a.i18n.Ts("globals.messages.invalidFields", "name", "list_name"))
+	}
+
+	// Create the new list to hold the non-recipients.
+	list, err := a.core.CreateList(models.List{
+		Name:  req.ListName,
+		Type:  models.ListTypePrivate,
+		Optin: models.ListOptinSingle,
+	})
+	if err != nil {
+		return err
+	}
+
+	// Add the non-recipient subscribers to the new list.
+	count, err := a.core.AddUnsentCampaignSubscribersToList(id, []int{list.ID}, "unconfirmed")
+	if err != nil {
+		return err
+	}
+
+	return c.JSON(http.StatusOK, okResp{struct {
+		List  models.List `json:"list"`
+		Count int         `json:"count"`
+	}{list, count}})
+}
+
 // sendTestMessage takes a campaign and a subscriber and sends out a sample campaign message.
 func (a *App) sendTestMessage(sub models.Subscriber, camp *models.Campaign) error {
 	if err := camp.CompileTemplate(a.manager.TemplateFuncs(camp)); err != nil {

@@ -34,6 +34,11 @@ type Subscriber struct {
 	Attribs JSON           `db:"attribs" json:"attribs"`
 	Status  string         `db:"status" json:"status"`
 	Lists   types.JSONText `db:"lists" json:"lists"`
+
+	// CampaignsSent is a log of campaigns that were actually sent to this
+	// subscriber. Each entry is an object of the form
+	// {"campaign_id": <int>, "sent_at": <timestamp>}.
+	CampaignsSent types.JSONText `db:"campaigns_sent" json:"campaigns_sent"`
 }
 
 type subLists struct {

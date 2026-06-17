@@ -3,6 +3,7 @@ package email
 import (
 	"crypto/tls"
 	"fmt"
+	"log"
 	"math/rand"
 	"net/smtp"
 	"net/textproto"
@@ -188,6 +189,13 @@ func (e *Emailer) Push(m models.Message) error {
 			em.Text = m.AltBody
 		}
 	}
+
+	// Log the e-mail that's about to be sent along with the subscriber's e-mail address.
+	subEmail := m.Subscriber.Email
+	if subEmail == "" && len(m.To) > 0 {
+		subEmail = strings.Join(m.To, ", ")
+	}
+	log.Printf("sending e-mail to subscriber '%s' (subject: %s)", subEmail, m.Subject)
 
 	return srv.pool.Send(em)
 }

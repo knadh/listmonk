@@ -78,17 +78,19 @@ type Queries struct {
 	DeleteCampaignViews        *sqlx.Stmt `query:"delete-campaign-views"`
 	DeleteCampaignLinkClicks   *sqlx.Stmt `query:"delete-campaign-link-clicks"`
 
-	NextCampaigns            *sqlx.Stmt `query:"next-campaigns"`
-	GetRunningCampaign       *sqlx.Stmt `query:"get-running-campaign"`
-	NextCampaignSubscribers  *sqlx.Stmt `query:"next-campaign-subscribers"`
-	GetOneCampaignSubscriber *sqlx.Stmt `query:"get-one-campaign-subscriber"`
-	UpdateCampaign           *sqlx.Stmt `query:"update-campaign"`
-	UpdateCampaignStatus     *sqlx.Stmt `query:"update-campaign-status"`
-	UpdateCampaignCounts     *sqlx.Stmt `query:"update-campaign-counts"`
-	UpdateCampaignArchive    *sqlx.Stmt `query:"update-campaign-archive"`
-	RegisterCampaignView     *sqlx.Stmt `query:"register-campaign-view"`
-	DeleteCampaign           *sqlx.Stmt `query:"delete-campaign"`
-	DeleteCampaigns          *sqlx.Stmt `query:"delete-campaigns"`
+	NextCampaigns                       *sqlx.Stmt `query:"next-campaigns"`
+	GetRunningCampaign                  *sqlx.Stmt `query:"get-running-campaign"`
+	NextCampaignSubscribers             *sqlx.Stmt `query:"next-campaign-subscribers"`
+	GetOneCampaignSubscriber            *sqlx.Stmt `query:"get-one-campaign-subscriber"`
+	UpdateCampaign                      *sqlx.Stmt `query:"update-campaign"`
+	UpdateCampaignStatus                *sqlx.Stmt `query:"update-campaign-status"`
+	UpdateCampaignCounts                *sqlx.Stmt `query:"update-campaign-counts"`
+	RecordCampaignSent                  *sqlx.Stmt `query:"record-campaign-sent"`
+	AddUnsentCampaignSubscribersToLists *sqlx.Stmt `query:"add-unsent-campaign-subscribers-to-lists"`
+	UpdateCampaignArchive               *sqlx.Stmt `query:"update-campaign-archive"`
+	RegisterCampaignView                *sqlx.Stmt `query:"register-campaign-view"`
+	DeleteCampaign                      *sqlx.Stmt `query:"delete-campaign"`
+	DeleteCampaigns                     *sqlx.Stmt `query:"delete-campaigns"`
 
 	InsertMedia *sqlx.Stmt `query:"insert-media"`
 	GetMedia    *sqlx.Stmt `query:"get-media"`

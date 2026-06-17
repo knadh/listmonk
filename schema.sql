@@ -25,6 +25,10 @@ CREATE TABLE subscribers (
     attribs         JSONB NOT NULL DEFAULT '{}',
     status          subscriber_status NOT NULL DEFAULT 'enabled',
 
+    -- Log of campaigns that were actually sent to this subscriber. Each entry is
+    -- an object of the form {"campaign_id": <int>, "sent_at": <timestamp>}.
+    campaigns_sent  JSONB NOT NULL DEFAULT '[]',
+
     created_at      TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at      TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );

@@ -85,6 +85,14 @@ func (s *store) UpdateCampaignCounts(campID int, toSend int, sent int, lastSubID
 	return err
 }
 
+// RecordCampaignSent records that a campaign was actually sent to a subscriber
+// by appending the campaign ID and the current timestamp to the subscriber's
+// campaigns_sent log.
+func (s *store) RecordCampaignSent(campID, subID int) error {
+	_, err := s.queries.RecordCampaignSent.Exec(subID, campID)
+	return err
+}
+
 // GetAttachment fetches a media attachment blob.
 func (s *store) GetAttachment(mediaID int) (models.Attachment, error) {
 	m, err := s.core.GetMedia(mediaID, "", "", s.media)
