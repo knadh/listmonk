@@ -89,6 +89,7 @@ type msgTpl struct {
 
 type subFormTpl struct {
 	publicTpl
+	Email   string
 	Lists   []models.List
 	Captcha struct {
 		Enabled    bool
@@ -431,6 +432,7 @@ func (a *App) SubscriptionFormPage(c echo.Context) error {
 
 	out := subFormTpl{}
 	out.Title = a.i18n.T("public.sub")
+	out.Email = c.QueryParam("email")
 	out.Lists = lists
 
 	// Captcha configuration for template rendering.

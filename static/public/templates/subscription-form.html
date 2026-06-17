@@ -7,7 +7,7 @@
         <div>
             <p>
                 <label for="email">{{ L.T "subscribers.email" }}</label>
-                <input id="email" name="email" required="true" type="email" placeholder="{{ L.T "subscribers.email" }}" autofocus="true" >
+                <input id="email" name="email" required="true" type="email" placeholder="{{ L.T "subscribers.email" }}" autofocus="true" value="{{ .Data.Email }}" >
 
                 <input name="nonce" class="nonce" value="" />
             </p>
