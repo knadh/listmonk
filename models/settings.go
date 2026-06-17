@@ -13,6 +13,7 @@ type Settings struct {
 	EnablePublicSubPage           bool     `json:"app.enable_public_subscription_page"`
 	EnablePublicArchive           bool     `json:"app.enable_public_archive"`
 	EnablePublicArchiveRSSContent bool     `json:"app.enable_public_archive_rss_content"`
+	ShowOptinPage                 bool     `json:"app.show_optin_page"`
 	SendOptinConfirmation         bool     `json:"app.send_optin_confirmation"`
 	CheckUpdates                  bool     `json:"app.check_updates"`
 	AppLang                       string   `json:"app.lang"`
@@ -29,7 +30,7 @@ type Settings struct {
 	AppMessageSlidingWindowRate     int    `json:"app.message_sliding_window_rate"`
 
 	PrivacyIndividualTracking bool     `json:"privacy.individual_tracking"`
-	PrivacyDisableTracking   bool     `json:"privacy.disable_tracking"`
+	PrivacyDisableTracking    bool     `json:"privacy.disable_tracking"`
 	PrivacyUnsubHeader        bool     `json:"privacy.unsubscribe_header"`
 	PrivacyAllowBlocklist     bool     `json:"privacy.allow_blocklist"`
 	PrivacyAllowPreferences   bool     `json:"privacy.allow_preferences"`
@@ -63,7 +64,7 @@ type Settings struct {
 		DefaultListRoleID null.Int `json:"default_list_role_id"`
 	} `json:"security.oidc"`
 
-	SecurityCORSOrigins []string `json:"security.cors_origins"`
+	SecurityTrustedURLs []string `json:"security.trusted_urls"`
 
 	UploadProvider             string   `json:"upload.provider"`
 	UploadExtensions           []string `json:"upload.extensions"`
@@ -93,10 +94,12 @@ type Settings struct {
 		EmailHeaders  []map[string]string `json:"email_headers"`
 		MaxConns      int                 `json:"max_conns"`
 		MaxMsgRetries int                 `json:"max_msg_retries"`
+		MsgRetryDelay string              `json:"msg_retry_delay"`
 		IdleTimeout   string              `json:"idle_timeout"`
 		WaitTimeout   string              `json:"wait_timeout"`
 		TLSType       string              `json:"tls_type"`
 		TLSSkipVerify bool                `json:"tls_skip_verify"`
+		FromAddresses []string            `json:"from_addresses"`
 	} `json:"smtp"`
 
 	Messengers []struct {

@@ -107,6 +107,7 @@ type CampaignMessage struct {
 	body     []byte
 	altBody  []byte
 	unsubURL string
+	headers  models.Headers
 
 	pipe *pipe
 }
@@ -509,11 +510,9 @@ func (m *Manager) worker() {
 			}
 
 			// Attach any custom headers.
-			if len(msg.Campaign.Headers) > 0 {
-				for _, set := range msg.Campaign.Headers {
-					for hdr, val := range set {
-						h.Add(hdr, val)
-					}
+			for _, set := range msg.headers {
+				for hdr, val := range set {
+					h.Add(hdr, val)
 				}
 			}
 

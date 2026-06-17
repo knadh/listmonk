@@ -17,6 +17,7 @@ import (
 	"path"
 	"path/filepath"
 	"runtime"
+	"strconv"
 	"strings"
 	"syscall"
 	"time"
@@ -84,6 +85,7 @@ type Config struct {
 	EnablePublicSubPage           bool     `koanf:"enable_public_subscription_page"`
 	EnablePublicArchive           bool     `koanf:"enable_public_archive"`
 	EnablePublicArchiveRSSContent bool     `koanf:"enable_public_archive_rss_content"`
+	ShowOptinPage                 bool     `koanf:"show_optin_page"`
 	Lang                          string   `koanf:"lang"`
 	DBBatchSize                   int      `koanf:"batch_size"`
 	Privacy                       struct {
@@ -123,7 +125,7 @@ type Config struct {
 			} `koanf:"hcaptcha"`
 		} `koanf:"captcha"`
 
-		CorsOrigins []string `koanf:"cors_origins"`
+		TrustedURLs []string `koanf:"trusted_urls"`
 	} `koanf:"security"`
 
 	Appearance struct {
@@ -326,8 +328,34 @@ func initDB() *sqlx.DB {
 	}
 
 	lo.Printf("connecting to db: %s:%d/%s", c.Host, c.Port, c.DBName)
-	db, err := sqlx.Connect("postgres",
-		fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=%s %s", c.Host, c.Port, c.User, c.Password, c.DBName, c.SSLMode, c.Params))
+
+	// Build Postgres DSN conditionally with non-empty fields.
+	fields := map[string]string{
+		"host":     c.Host,
+		"port":     strconv.Itoa(c.Port),
+		"user":     c.User,
+		"password": c.Password,
+		"dbname":   c.DBName,
+		"sslmode":  c.SSLMode,
+	}
+	if c.Port == 0 {
+		delete(fields, "port")
+	}
+
+	var parts []string
+	for k, v := range fields {
+		if v == "" {
+			continue
+		}
+
+		parts = append(parts, k+"="+v)
+	}
+
+	if c.Params != "" {
+		parts = append(parts, c.Params)
+	}
+
+	db, err := sqlx.Connect("postgres", strings.Join(parts, " "))
 	if err != nil {
 		lo.Fatalf("error connecting to DB: %v", err)
 	}

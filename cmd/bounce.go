@@ -113,8 +113,15 @@ func (a *App) BlocklistBouncedSubscribers(c echo.Context) error {
 	return c.JSON(http.StatusOK, okResp{true})
 }
 
-// BounceWebhook renders the HTML preview of a template.
+// BounceWebhook handles incoming bounce webhook notifications from various providers.
 func (a *App) BounceWebhook(c echo.Context) error {
+	// If bounce processing is disabled, a.bounce will be nil.
+	// Return early to prevent nil pointer dereference.
+	if a.bounce == nil {
+		return echo.NewHTTPError(http.StatusServiceUnavailable,
+			a.i18n.Ts("globals.messages.internalError"))
+	}
+
 	// Read the request body instead of using c.Bind() to read to save the entire raw request as meta.
 	rawReq, err := io.ReadAll(c.Request().Body)
 	if err != nil {

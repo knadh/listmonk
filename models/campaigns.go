@@ -67,6 +67,9 @@ type Campaign struct {
 	SubjectTpl          *txttpl.Template   `json:"-"`
 	AltBodyTpl          *template.Template `json:"-"`
 
+	// HeaderTpls is holds optionally {{ templated }} campaign headers.
+	HeaderTpls []map[string]*txttpl.Template `json:"-"`
+
 	// List of media (attachment) IDs obtained from the next-campaign query
 	// while sending a campaign.
 	MediaIDs pq.Int64Array `json:"-" db:"media_id"`
@@ -137,7 +140,7 @@ func (camps Campaigns) LoadStats(stmt *sqlx.Stmt) error {
 // template and sets the resultant template to Campaign.Tpl.
 func (c *Campaign) CompileTemplate(f template.FuncMap) error {
 	// If the subject line has a template string, compile it.
-	if strings.Contains(c.Subject, "{{") {
+	if hasTplExpr(c.Subject) {
 		subj := c.Subject
 		for _, r := range regTplFuncs {
 			subj = r.regExp.ReplaceAllString(subj, r.replace)
@@ -194,7 +197,7 @@ func (c *Campaign) CompileTemplate(f template.FuncMap) error {
 	}
 	c.Tpl = out
 
-	if strings.Contains(c.AltBody.String, "{{") {
+	if hasTplExpr(c.AltBody.String) {
 		b := c.AltBody.String
 		for _, r := range regTplFuncs {
 			b = r.regExp.ReplaceAllString(b, r.replace)
@@ -206,7 +209,42 @@ func (c *Campaign) CompileTemplate(f template.FuncMap) error {
 		c.AltBodyTpl = bTpl
 	}
 
+	// Compile any header values that contain template expressions.
+	for _, set := range c.Headers {
+		for _, val := range set {
+			if hasTplExpr(val) {
+				c.HeaderTpls = make([]map[string]*txttpl.Template, len(c.Headers))
+				break
+			}
+		}
+		if c.HeaderTpls != nil {
+			break
+		}
+	}
+	if c.HeaderTpls != nil {
+		var txtFuncs map[string]any = f
+		for i, set := range c.Headers {
+			c.HeaderTpls[i] = make(map[string]*txttpl.Template, len(set))
+			for hdr, val := range set {
+				if !hasTplExpr(val) {
+					continue
+				}
+				tpl, err := txttpl.New(ContentTpl).Funcs(txtFuncs).Parse(val)
+				if err != nil {
+					return fmt.Errorf("error compiling header %q: %v", hdr, err)
+				}
+				c.HeaderTpls[i][hdr] = tpl
+			}
+		}
+	}
+
 	return nil
+}
+
+// hasTplExpr checks whether a given string has a Go template expression with {{ and  }}.
+func hasTplExpr(s string) bool {
+	_, after, ok := strings.Cut(s, "{{")
+	return ok && strings.Contains(after, "}}")
 }
 
 // ConvertContent converts a campaign's body from one format to another,

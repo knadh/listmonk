@@ -11,23 +11,16 @@
         :maxlength="300" required type="url" pattern="https?://.*" />
     </b-field>
 
-    <div class="columns">
-      <div class="column is-6">
-        <b-field :label="$t('settings.general.logoURL')" label-position="on-border"
-          :message="$t('settings.general.logoURLHelp')">
-          <b-input v-model="data['app.logo_url']" name="app.logo_url" placeholder="https://listmonk.yoursite.com/logo.png"
-            :maxlength="300" type="url" pattern="https?://.*" />
-        </b-field>
-      </div>
-      <div class="column is-6">
-        <b-field :label="$t('settings.general.faviconURL')" label-position="on-border"
-          :message="$t('settings.general.faviconURLHelp')">
-          <b-input v-model="data['app.favicon_url']" name="app.favicon_url"
-            placeholder="https://listmonk.yoursite.com/favicon.png" :maxlength="300"
-            type="url" pattern="https?://.*" />
-        </b-field>
-      </div>
-    </div>
+    <b-field :label="$t('settings.general.logoURL')" label-position="on-border"
+      :message="$t('settings.general.logoURLHelp')">
+      <b-input v-model="data['app.logo_url']" name="app.logo_url" placeholder="https://listmonk.yoursite.com/logo.png"
+        :maxlength="300" type="url" pattern="https?://.*" />
+    </b-field>
+    <b-field :label="$t('settings.general.faviconURL')" label-position="on-border"
+      :message="$t('settings.general.faviconURLHelp')">
+      <b-input v-model="data['app.favicon_url']" name="app.favicon_url"
+        placeholder="https://listmonk.yoursite.com/favicon.png" :maxlength="300" type="url" pattern="https?://.*" />
+    </b-field>
 
     <hr />
     <b-field :label="$t('settings.general.fromEmail')" label-position="on-border"
@@ -47,20 +40,21 @@
       <h2 class="is-size-4 mb-5">
         {{ $tc('globals.terms.subscriptions', 2) }}
       </h2>
-      <div class="columns">
-        <div class="column is-4">
-          <b-field :label="$t('settings.general.enablePublicSubPage')"
-            :message="$t('settings.general.enablePublicSubPageHelp')">
-            <b-switch v-model="data['app.enable_public_subscription_page']" name="app.enable_public_subscription_page" />
-          </b-field>
-        </div>
-        <div class="column is-4">
-          <b-field :label="$t('settings.general.sendOptinConfirm')"
-            :message="$t('settings.general.sendOptinConfirmHelp')">
-            <b-switch v-model="data['app.send_optin_confirmation']" name="app.send_optin_confirmation" />
-          </b-field>
-        </div>
-      </div>
+      <b-field :message="$t('settings.general.enablePublicSubPageHelp')">
+        <b-switch v-model="data['app.enable_public_subscription_page']" name="app.enable_public_subscription_page">
+          {{ $t('settings.general.enablePublicSubPage') }}
+        </b-switch>
+      </b-field>
+      <b-field :message="$t('settings.general.sendOptinConfirmHelp')">
+        <b-switch v-model="data['app.send_optin_confirmation']" name="app.send_optin_confirmation">
+          {{ $t('settings.general.sendOptinConfirm') }}
+        </b-switch>
+      </b-field>
+      <b-field :message="$t('settings.general.showOptinPageHelp')">
+        <b-switch v-model="data['app.show_optin_page']" name="app.show_optin_page">
+          {{ $t('settings.general.showOptinPage') }}
+        </b-switch>
+      </b-field>
     </div>
     <hr />
 
@@ -68,26 +62,23 @@
       <h2 class="is-size-4 mb-5">
         {{ $t('campaigns.archive') }}
       </h2>
-      <div class="columns">
-        <div class="column is-4">
-          <b-field :label="$t('settings.general.enablePublicArchive')"
-            :message="$t('settings.general.enablePublicArchiveHelp')">
-            <b-switch v-model="data['app.enable_public_archive']" name="app.enable_public_archive" />
-          </b-field>
-        </div>
-        <div class="column is-4">
-          <b-field :label="$t('settings.general.enablePublicArchiveRSSContent')"
-            :message="$t('settings.general.enablePublicArchiveRSSContentHelp')">
-            <b-switch v-model="data['app.enable_public_archive_rss_content']"
-              name="app.enable_public_archive_rss_content" />
-          </b-field>
-        </div>
-      </div>
+      <b-field :message="$t('settings.general.enablePublicArchiveHelp')">
+        <b-switch v-model="data['app.enable_public_archive']" name="app.enable_public_archive">
+          {{ $t('settings.general.enablePublicArchive') }}
+        </b-switch>
+      </b-field>
+      <b-field :message="$t('settings.general.enablePublicArchiveRSSContentHelp')">
+        <b-switch v-model="data['app.enable_public_archive_rss_content']" name="app.enable_public_archive_rss_content">
+          {{ $t('settings.general.enablePublicArchiveRSSContent') }}
+        </b-switch>
+      </b-field>
     </div>
 
     <hr />
-    <b-field :label="$t('settings.general.checkUpdates')" :message="$t('settings.general.checkUpdatesHelp')">
-      <b-switch v-model="data['app.check_updates']" name="app.check_updates" />
+    <b-field :message="$t('settings.general.checkUpdatesHelp')">
+      <b-switch v-model="data['app.check_updates']" name="app.check_updates">
+        {{ $t('settings.general.checkUpdates') }}
+      </b-switch>
     </b-field>
 
     <hr />

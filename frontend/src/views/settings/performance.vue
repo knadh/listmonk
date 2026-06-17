@@ -27,9 +27,10 @@
     <div>
       <div class="columns">
         <div class="column is-6">
-          <b-field :label="$t('settings.performance.slidingWindow')"
-            :message="$t('settings.performance.slidingWindowHelp')">
-            <b-switch v-model="data['app.message_sliding_window']" name="app.message_sliding_window" />
+          <b-field :message="$t('settings.performance.slidingWindowHelp')">
+            <b-switch v-model="data['app.message_sliding_window']" name="app.message_sliding_window">
+              {{ $t('settings.performance.slidingWindow') }}
+            </b-switch>
           </b-field>
         </div>
 
@@ -56,9 +57,10 @@
       <hr />
       <div class="columns">
         <div class="column is-4">
-          <b-field :label="$t('settings.performance.cacheSlowQueries')"
-            :message="$t('settings.performance.cacheSlowQueriesHelp')">
-            <b-switch v-model="data['app.cache_slow_queries']" name="app.cache_slow_queries" />
+          <b-field :message="$t('settings.performance.cacheSlowQueriesHelp')">
+            <b-switch v-model="data['app.cache_slow_queries']" name="app.cache_slow_queries">
+              {{ $t('settings.performance.cacheSlowQueries') }}
+            </b-switch>
           </b-field>
         </div>
         <div class="column is-4" :class="{ disabled: !data['app.cache_slow_queries'] }">

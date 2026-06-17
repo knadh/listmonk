@@ -1,7 +1,7 @@
 {
     "$schema":"https://inlang.com/schema/project-settings",
     "sourceLanguageTag": "en",
-    "languageTags": ["ca", "cs-cz", "cy", "de", "en", "es", "fi", "fr", "hu", "it", "jp", "ml", "nl", "pl", "pt-BR", "pt", "ro", "ru", "se", "sk", "tr", "vi", "zh-CN", "zh-TW"],
+    "languageTags": ["ca", "cs", "cy", "de", "en", "es", "fi", "fr", "hu", "it", "ja", "ml", "nl", "pl", "pt-BR", "pt", "ro", "ru", "sk", "sv", "tr", "vi", "zh-CN", "zh-TW"],
     "modules": [
         "https://cdn.jsdelivr.net/npm/@inlang/plugin-json@4/dist/index.js",
         "https://cdn.jsdelivr.net/npm/@inlang/message-lint-rule-empty-pattern@1/dist/index.js",

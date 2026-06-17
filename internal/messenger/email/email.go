@@ -5,10 +5,12 @@ import (
 	"fmt"
 	"log"
 	"math/rand"
+	"net/mail"
 	"net/smtp"
 	"net/textproto"
 	"strings"
 
+	"github.com/knadh/listmonk/internal/utils"
 	"github.com/knadh/listmonk/models"
 	"github.com/knadh/smtppool/v2"
 )
@@ -19,6 +21,7 @@ const (
 	hdrReturnPath = "Return-Path"
 	hdrBcc        = "Bcc"
 	hdrCc         = "Cc"
+	hdrMessageID  = "Message-Id"
 )
 
 // Server represents an SMTP server's credentials.
@@ -31,6 +34,7 @@ type Server struct {
 	TLSType       string            `json:"tls_type"`
 	TLSSkipVerify bool              `json:"tls_skip_verify"`
 	EmailHeaders  map[string]string `json:"email_headers"`
+	FromAddresses []string          `json:"from_addresses"`
 
 	// Rest of the options are embedded directly from the smtppool lib.
 	// The JSON tag is for config unmarshal to work.
@@ -42,8 +46,17 @@ type Server struct {
 
 // Emailer is the SMTP e-mail messenger.
 type Emailer struct {
-	servers []*Server
-	name    string
+	name string
+
+	// pools holds groups of SMTP servers indexed by a key ('from'-address
+	// or a domain set per SMTPs server). An empty key holds all servers
+	// and is the fallback round-robin when there's no match (old behaviour).
+	pools map[string][]*Server
+}
+
+// NormalizeAddr normalizes an e-mail address (strip spaces, lowercase).
+func NormalizeAddr(s string) string {
+	return strings.ToLower(strings.TrimSpace(s))
 }
 
 // New returns an SMTP e-mail Messenger backend with the given SMTP servers.
@@ -51,8 +64,8 @@ type Emailer struct {
 // that are used as a round-robin pool, or a single server.
 func New(name string, servers ...Server) (*Emailer, error) {
 	e := &Emailer{
-		servers: make([]*Server, 0, len(servers)),
-		name:    name,
+		name:  name,
+		pools: make(map[string][]*Server),
 	}
 
 	for _, srv := range servers {
@@ -97,7 +110,15 @@ func New(name string, servers ...Server) (*Emailer, error) {
 		}
 
 		s.pool = pool
-		e.servers = append(e.servers, &s)
+
+		// Add to the global list (empty key) and to each from-address
+		// bucket. Duplicate keys across servers are fine and get round-robin'd.
+		e.pools[""] = append(e.pools[""], &s)
+		for _, addr := range s.FromAddresses {
+			if key := NormalizeAddr(addr); key != "" {
+				e.pools[key] = append(e.pools[key], &s)
+			}
+		}
 	}
 
 	return e, nil
@@ -110,17 +131,15 @@ func (e *Emailer) Name() string {
 
 // Push pushes a message to the server.
 func (e *Emailer) Push(m models.Message) error {
-	// If there are more than one SMTP servers, send to a random
-	// one from the list.
-	var (
-		ln  = len(e.servers)
-		srv *Server
-	)
-	if ln > 1 {
-		srv = e.servers[rand.Intn(ln)]
-	} else {
-		srv = e.servers[0]
+	// Pick the from-address-routed pool if there is one, else default
+	// to the full pool (empty key) for roundrobin.
+	pool := e.pools[""]
+	if len(e.pools) > 1 {
+		if srvs := e.getPool(m.From); srvs != nil {
+			pool = srvs
+		}
 	}
+	srv := pool[rand.Intn(len(pool))]
 
 	// Are there attachments?
 	var files []smtppool.Attachment
@@ -155,6 +174,17 @@ func (e *Emailer) Push(m models.Message) error {
 	// Attach e-mail level headers.
 	for k, v := range m.Headers {
 		em.Headers.Set(k, v[0])
+	}
+
+	// Generate Message-Id based on the From address.
+	if em.Headers.Get(hdrMessageID) == "" {
+		d := "localhost"
+		if a, err := mail.ParseAddress(m.From); err == nil {
+			d = a.Address[strings.LastIndex(a.Address, "@")+1:]
+		}
+		if r, err := utils.GenerateRandomString(24); err == nil {
+			em.Headers.Set(hdrMessageID, fmt.Sprintf("<%s@%s>", r, d))
+		}
 	}
 
 	// If the `Return-Path` header is set, it should be set as the
@@ -207,8 +237,28 @@ func (e *Emailer) Flush() error {
 
 // Close closes the SMTP pools.
 func (e *Emailer) Close() error {
-	for _, s := range e.servers {
+	for _, s := range e.pools[""] {
 		s.pool.Close()
 	}
+	return nil
+}
+
+// getPool returns the pool of servers configured to handle the given From
+// header, matched by full e-mail and then by domain.
+// Returns nil if no mapping matches.
+func (e *Emailer) getPool(from string) []*Server {
+	addr := utils.ParseEmailAddress(from)
+	if addr == "" {
+		return nil
+	}
+
+	if srvs, ok := e.pools[addr]; ok {
+		return srvs
+	}
+
+	if _, after, ok := strings.Cut(addr, "@"); ok {
+		return e.pools[after]
+	}
+
 	return nil
 }

@@ -89,7 +89,7 @@ import Media from '../views/Media.vue';
 
 // Map of listmonk language codes to corresponding TinyMCE language files.
 const LANGS = {
-  'cs-cz': 'cs',
+  cs: 'cs',
   de: 'de',
   es: 'es_419',
   fr: 'fr_FR',

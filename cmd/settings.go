@@ -151,6 +151,23 @@ func (a *App) UpdateSettings(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("settings.errorNoSMTP"))
 	}
 
+	// Normalize `from_addresses``. Values are either an e-mail address
+	// or an FQDN. Duplicate domains across server blocks are allowed
+	// (they get round-robin'd while sending).
+	for i, s := range set.SMTP {
+		if !s.Enabled {
+			continue
+		}
+
+		addrs := make([]string, 0, len(s.FromAddresses))
+		for _, addr := range s.FromAddresses {
+			if k := email.NormalizeAddr(addr); k != "" {
+				addrs = append(addrs, k)
+			}
+		}
+		set.SMTP[i].FromAddresses = addrs
+	}
+
 	// Always remove the trailing slash from the app root URL.
 	set.AppRootURL = strings.TrimRight(set.AppRootURL, "/")
 
@@ -262,12 +279,12 @@ func (a *App) UpdateSettings(c echo.Context) error {
 	}
 	set.DomainAllowlist = doms
 
-	// Validate and clean CORS domains.
-	cors := make([]string, 0, len(set.SecurityCORSOrigins))
-	for _, d := range set.SecurityCORSOrigins {
+	// Validate and clean trusted URLs.
+	urls := make([]string, 0, len(set.SecurityTrustedURLs))
+	for _, d := range set.SecurityTrustedURLs {
 		if d = strings.TrimSpace(d); d != "" {
 			if d == "*" {
-				cors = append(cors, d)
+				urls = append(urls, d)
 				continue
 			}
 
@@ -275,13 +292,12 @@ func (a *App) UpdateSettings(c echo.Context) error {
 			u, err := url.Parse(d)
 			if err != nil || (u.Scheme != "http" && u.Scheme != "https") || u.Host == "" {
 				return echo.NewHTTPError(http.StatusBadRequest,
-					a.i18n.Ts("globals.messages.invalidData")+": invalid CORS domain: "+d)
+					a.i18n.Ts("globals.messages.invalidData")+": invalid trusted URL: "+d)
 			}
-			// Save clean scheme + host
-			cors = append(cors, u.Scheme+"://"+u.Host)
+			urls = append(urls, d)
 		}
 	}
-	set.SecurityCORSOrigins = cors
+	set.SecurityTrustedURLs = urls
 
 	// Validate slow query caching cron.
 	if set.CacheSlowQueries {
