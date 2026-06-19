@@ -60,7 +60,7 @@ services:
       - db
     volumes:
       - ../:/app
-      - $GOPATH/pkg/mod/cache:/go/pkg/mod/cache
+      - ${GOPATH:-${HOME}/go}/pkg/mod/cache:/go/pkg/mod/cache
     networks:
       - listmonk-dev
 
