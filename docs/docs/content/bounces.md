@@ -48,6 +48,7 @@ listmonk supports receiving bounce webhook events from the following SMTP provid
 | Endpoint                                                      | Description                            | More info                                                                                                             |
 |:--------------------------------------------------------------|:---------------------------------------|:----------------------------------------------------------------------------------------------------------------------|
 | `https://listmonk.yoursite.com/webhooks/service/ses`          | Amazon (AWS) SES                       | See below                                                                                                             |
+| `https://listmonk.yoursite.com/webhooks/service/azure`        | Azure Communication Services (ACS)     | [More info](https://learn.microsoft.com/en-us/azure/event-grid/communication-services-email-events)                 |
 | `https://listmonk.yoursite.com/webhooks/service/sendgrid`     | Sendgrid / Twilio Signed event webhook | [More info](https://docs.sendgrid.com/for-developers/tracking-events/getting-started-event-webhook-security-features) |
 | `https://listmonk.yoursite.com/webhooks/service/postmark`     | Postmark webhook                       | [More info](https://postmarkapp.com/developer/webhooks/webhooks-overview)                                             |
 | `https://listmonk.yoursite.com/webhooks/service/forwardemail` | Forward Email webhook                  | [More info](https://forwardemail.net/en/faq#do-you-support-bounce-webhooks)                                           |
@@ -90,6 +91,26 @@ If using SES as your SMTP provider, automatic bounce processing is the recommend
     - Hard bounce: `bounce@simulator.amazonses.com`
     - Complaint: `complaint@simulator.amazonses.com`
 11. You can optionally [disable email feedback forwarding](https://docs.aws.amazon.com/ses/latest/dg/monitor-sending-activity-using-notifications-email.html#monitor-sending-activity-using-notifications-email-disabling).
+
+## Azure Communication Services (ACS)
+
+If you use Azure Communication Services Email, listmonk can receive delivery report events from Azure Event Grid and turn them into bounces.
+
+1. In listmonk settings, go to "Bounces" and configure:
+    - Enable bounce processing: `Enabled`
+    - Enable bounce webhooks: `Enabled`
+    - Enable Azure ACS: `Enabled`
+    - Optional: set `Azure Event Grid Shared Secret`.
+    - Optional: set `Azure Shared Secret Header Name` if you want listmonk to read the secret from a header (defaults to `X-Listmonk-Webhook-Secret`).
+2. In listmonk settings, go to "SMTP" and use the `Azure ACS` quick preset to fill SMTP defaults.
+3. In Azure, create an Event Grid subscription for your ACS Email events with:
+    - Endpoint type: `Web Hook`
+    - Endpoint URL: `https://listmonk.yoursite.com/webhooks/service/azure`
+      - If using query-param auth, append `?code=<your-shared-secret>`.
+      - If using header auth, configure Event Grid to include the same secret in the header name configured in listmonk.
+4. During subscription creation, Event Grid sends a subscription validation event. listmonk automatically returns `validationResponse` for this handshake.
+5. Subscribe to `Microsoft.Communication.EmailDeliveryReportReceived` events. listmonk maps relevant statuses to bounce records.
+6. Send test mail and verify bounces in listmonk.
 
 ## Exporting bounces
 
