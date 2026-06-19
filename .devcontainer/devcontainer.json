@@ -1,7 +1,10 @@
 {
   "name": "listmonk",
   "dockerComposeFile": "../dev/docker-compose.yml",
-  "service": "backend",
+  "service": "devcontainer",
   "workspaceFolder": "/app",
-  "forwardPorts": [9000]
+  "runServices": ["adminer", "mailhog", "db", "backend", "front"],
+  "features": {
+    "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {}
+  }
 }
