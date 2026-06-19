@@ -119,6 +119,9 @@ release-dry:
 release:
 	goreleaser release --parallelism 1 --clean
 
+# App services for `make dev-docker` (excludes the devcontainer workspace).
+DEV_DOCKER_SERVICES = adminer mailhog db backend front
+
 # Build local docker images for development.
 .PHONY: build-dev-docker
 build-dev-docker: build ## Build docker containers for the entire suite (Front/Core/PG).
@@ -129,7 +132,7 @@ build-dev-docker: build ## Build docker containers for the entire suite (Front/C
 .PHONY: dev-docker
 dev-docker: build-dev-docker ## Build and spawns docker containers for the entire suite (Front/Core/PG).
 	cd dev; \
-	docker compose up
+	docker compose up $(DEV_DOCKER_SERVICES)
 
 # Run the backend in docker-dev mode. The frontend assets in dev mode are loaded from disk from frontend/dist.
 .PHONY: run-backend-docker
