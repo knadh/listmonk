@@ -290,6 +290,7 @@ func initHTTPHandlers(e *echo.Echo, a *App) {
 
 		// Public health API endpoint.
 		g.GET("/health", a.HealthCheck)
+		g.GET("/robots.txt", a.RobotsTxt)
 
 		// 404 pages.
 		g.RouteNotFound("/*", func(c echo.Context) error {
@@ -320,6 +321,15 @@ func (a *App) AdminPage(c echo.Context) error {
 // HealthCheck is a healthcheck endpoint that returns a 200 response.
 func (a *App) HealthCheck(c echo.Context) error {
 	return c.JSON(http.StatusOK, okResp{true})
+}
+
+// RobotsTxt serves the robots.txt file from the static filesystem.
+func (a *App) RobotsTxt(c echo.Context) error {
+	b, err := a.fs.Read("/public/static/robots.txt")
+	if err != nil {
+		return echo.NewHTTPError(http.StatusNotFound, "robots.txt not found")
+	}
+	return c.Blob(http.StatusOK, "text/plain; charset=utf-8", b)
 }
 
 // serveCustomAppearance serves the given custom CSS/JS appearance blob
