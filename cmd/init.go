@@ -400,24 +400,37 @@ func readQueries(dir string, fs stuffbin.FileSystem) goyesql.Queries {
 
 // prepareQueries queries prepares a query map and returns a *Queries
 func prepareQueries(qMap goyesql.Queries, db *sqlx.DB, ko *koanf.Koanf) *models.Queries {
+	individualTracking := ko.Bool("privacy.individual_tracking")
+
+	// The unique (distinct-subscriber) statements are only used when individual
+	// tracking is on; when it's off the API never serves unique counts (see
+	// GetCampaignViewAnalytics), so prepare them from the total query instead of
+	// depending on the unique-count template being present in a custom query set.
+	uniqueSrc := "get-campaign-analytics-counts"
+	if individualTracking {
+		uniqueSrc = "get-campaign-analytics-unique-counts"
+	}
+
 	// These don't exist in the SQL file but are in the queries struct to be prepared.
-	// Both total and unique variants are interpolated with table names and prepared,
-	// so analytics can show total and unique counts side by side when tracking is on.
 	for _, c := range []struct{ name, src, table string }{
 		{"get-campaign-view-counts", "get-campaign-analytics-counts", "campaign_views"},
 		{"get-campaign-click-counts", "get-campaign-analytics-counts", "link_clicks"},
-		{"get-campaign-view-counts-unique", "get-campaign-analytics-unique-counts", "campaign_views"},
-		{"get-campaign-click-counts-unique", "get-campaign-analytics-unique-counts", "link_clicks"},
+		{"get-campaign-view-counts-unique", uniqueSrc, "campaign_views"},
+		{"get-campaign-click-counts-unique", uniqueSrc, "link_clicks"},
 	} {
+		src, ok := qMap[c.src]
+		if !ok {
+			lo.Fatalf("SQL query '%s' required for campaign analytics is missing", c.src)
+		}
 		qMap[c.name] = &goyesql.Query{
-			Query: fmt.Sprintf(qMap[c.src].Query, c.table),
+			Query: fmt.Sprintf(src.Query, c.table),
 			Tags:  map[string]string{"name": c.name},
 		}
 	}
 
 	// Link counts switch to unique subscribers only when individual tracking is on.
 	linkSel := "*"
-	if ko.Bool("privacy.individual_tracking") {
+	if individualTracking {
 		linkSel = "DISTINCT subscriber_id"
 	}
 	qMap["get-campaign-link-counts"].Query = fmt.Sprintf(qMap["get-campaign-link-counts"].Query, linkSel)

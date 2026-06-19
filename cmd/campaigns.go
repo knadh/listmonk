@@ -623,6 +623,13 @@ func (a *App) GetCampaignViewAnalytics(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("analytics.invalidDates"))
 	}
 
+	// Unique (distinct-subscriber) counts are only served when individual
+	// subscriber tracking is enabled. Otherwise force total counts so the API
+	// never exposes distinct-subscriber analytics against the privacy setting.
+	if unique && !a.cfg.Privacy.IndividualTracking {
+		unique = false
+	}
+
 	// Campaign link stats.
 	if typ == "links" {
 		out, err := a.core.GetCampaignAnalyticsLinks(ids, typ, from, to)
