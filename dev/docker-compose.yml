@@ -33,6 +33,21 @@ services:
         source: listmonk-dev-db
         target: /var/lib/postgresql/data
 
+  init:
+    build:
+      context: ../
+      dockerfile: dev/app.Dockerfile
+    command: ["make", "init-docker"]
+    depends_on:
+      db:
+        condition: service_started
+    volumes:
+      - ../:/app
+      - ${GOPATH:-${HOME}/go}/pkg/mod/cache:/go/pkg/mod/cache
+    networks:
+      - listmonk-dev
+    restart: "no"
+
   front:
     build:
       context: ../
@@ -57,7 +72,10 @@ services:
     ports:
       - "9000:9000"
     depends_on:
-      - db
+      db:
+        condition: service_started
+      init:
+        condition: service_completed_successfully
     volumes:
       - ../:/app
       - ${GOPATH:-${HOME}/go}/pkg/mod/cache:/go/pkg/mod/cache
