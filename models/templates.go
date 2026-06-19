@@ -44,10 +44,10 @@ func (t *Template) Compile(f template.FuncMap) error {
 	t.Tpl = tpl
 
 	// If the subject line has a template string, compile it.
-	if hasTplExpr(t.Subject) {
+	if HasTplExpr(t.Subject) {
 		subj := t.Subject
 
-		subjTpl, err := txttpl.New(BaseTpl).Funcs(txttpl.FuncMap(f)).Parse(subj)
+		subjTpl, err := txttpl.New(BaseTpl).Funcs(f).Parse(subj)
 		if err != nil {
 			return fmt.Errorf("error compiling subject: %v", err)
 		}

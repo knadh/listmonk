@@ -101,11 +101,6 @@ func (m *CampaignMessage) Subject() string {
 	return m.subject
 }
 
-// From returns the rendered From header.
-func (m *CampaignMessage) From() string {
-	return m.from
-}
-
 // Body returns a copy of the message body.
 func (m *CampaignMessage) Body() []byte {
 	out := make([]byte, len(m.body))
