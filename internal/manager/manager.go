@@ -705,14 +705,20 @@ func (m *Manager) attachMedia(c *models.Campaign) error {
 }
 
 // LoadInlineImages resolves any <img ... data-embed ...> tags in the campaign
-// body one time before CompileTemplate.
+// body and template body one time before CompileTemplate.
 func (m *Manager) LoadInlineImages(c *models.Campaign) error {
 	if c.ContentType == models.CampaignContentTypePlain {
 		return nil
 	}
 
-	body, atts := m.ApplyInlineImages(c.Body)
+	cidCache := make(map[string]string)
+	body, atts := m.applyInlineImages(c.Body, cidCache)
 	c.Body = body
+
+	tplBody, tplAtts := m.applyInlineImages(c.TemplateBody, cidCache)
+	c.TemplateBody = tplBody
+	atts = append(atts, tplAtts...)
+
 	c.Attachments = append(c.Attachments, atts...)
 	return nil
 }
@@ -721,28 +727,33 @@ func (m *Manager) LoadInlineImages(c *models.Campaign) error {
 // each unique src filename to a media item, attaches it as an inline part, and
 // rewrites the matched img src to cid.
 func (m *Manager) ApplyInlineImages(body string) (string, []models.Attachment) {
+	return m.applyInlineImages(body, make(map[string]string))
+}
+
+func (m *Manager) applyInlineImages(body string, cache map[string]string) (string, []models.Attachment) {
 	if !strings.Contains(body, attribInlineEmbed) {
 		return body, nil
 	}
 
-	var (
-		atts  []models.Attachment
-		cache = make(map[string]string) // src -> cid (empty cid = lookup failed, leave tag as-is)
-	)
+	var atts []models.Attachment
 	out := reInlineImage.ReplaceAllStringFunc(body, func(tag string) string {
 		src := extractSrc(tag)
-		if src == "" {
+		if src == "" || strings.HasPrefix(strings.ToLower(src), "cid:") {
 			return tag
 		}
+
+		fname := filenameFromSrc(src)
+		if fname == "" {
+			return tag
+		}
+
 		cid, ok := cache[src]
 		if !ok {
-			if fname := filenameFromSrc(src); fname != "" {
-				if a, c, err := m.store.GetInlineAttachmentByFilename(fname); err == nil {
-					atts = append(atts, a)
-					cid = c
-				} else {
-					m.log.Printf("inline image %q not embedded: %v", src, err)
-				}
+			if a, c, err := m.store.GetInlineAttachmentByFilename(fname); err == nil {
+				atts = append(atts, a)
+				cid = c
+			} else {
+				m.log.Printf("inline image %q not embedded: %v", src, err)
 			}
 			cache[src] = cid
 		}
