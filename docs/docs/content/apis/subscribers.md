@@ -10,6 +10,7 @@
 | POST   | [/api/subscribers/{subscriber_id}/optin](#post-apisubscriberssubscriber_idoptin)        | Sends optin confirmation email to subscribers. |
 | POST   | [/api/public/subscription](#post-apipublicsubscription)                                 | Create a public subscription.                  |
 | PUT    | [/api/subscribers/lists](#put-apisubscriberslists)                                      | Modify subscriber list memberships.            |
+| PUT    | [/api/subscribers/query/lists](#put-apisubscribersquerylists)                           | Bulk modify list memberships using SQL/Search queries. |
 | PUT    | [/api/subscribers/{subscriber_id}](#put-apisubscriberssubscriber_id)                    | Update a specific subscriber.                  |
 | PATCH  | [/api/subscribers/{subscriber_id}](#patch-apisubscriberssubscriber_id)                  | Partially update a specific subscriber.        |
 | PUT    | [/api/subscribers/{subscriber_id}/blocklist](#put-apisubscriberssubscriber_idblocklist) | Blocklist a specific subscriber.               |
@@ -426,6 +427,56 @@ curl -u 'api_username:access_token' -X PUT 'http://localhost:9000/api/subscriber
 {
     "data": true
 } 
+```
+______________________________________________________________________
+
+#### PUT /api/subscribers/query/lists
+
+Modify list memberships for multiple subscribers dynamically using a search query and/or SQL expression.
+
+##### Parameters
+
+| Name                | Type       | Required           | Description                                                                                     |
+| :------------------ | :--------- | :----------------- | :---------------------------------------------------------------------------------------------- |
+| action              | string     | Yes                | Action to be applied: `add`, `remove`, or `unsubscribe`.                                        |
+| target_list_ids     | number\[\] | Yes                | Array of list IDs that the matching subscribers should be added to or removed from.              |
+| query               | string     | No                 | SQL expression to filter subscribers (e.g., `subscribers.email LIKE '%@domain.com'`). |
+| search              | string     | No                 | Free-text search string targeting name, email, or other general text attributes.                 |
+| list_ids            | number\[\] | No                 | Optional list IDs to limit the query filter scope (only checks subscribers in these source lists). |
+| status              | string     | Required for `add` | Subscription status to set when subscribing: `confirmed`, `unconfirmed`, or `unsubscribed`.    |
+| subscription_status | string     | No                 | Optional subscription status filter to apply to the source lists specified in `list_ids`.       |
+
+##### Example Requests
+
+###### Subscribing Query Matches to a List
+```shell
+curl -u 'api_username:access_token' -X PUT 'http://localhost:9000/api/subscribers/query/lists' \
+    -H 'Content-Type: application/json' \
+    --data-raw '{
+      "query": "subscribers.email LIKE '\''%@domain.com'\''",
+      "action": "add",
+      "target_list_ids": [3],
+      "status": "confirmed"
+}'
+
+```
+
+###### Removing Disqualified Subscribers from a List
+```shell
+curl -u 'api_username:access_token' -X PUT 'http://localhost:9000/api/subscribers/query/lists' \
+    -H 'Content-Type: application/json' \
+    --data-raw '{
+      "query": "NOT subscribers.email LIKE '\''%@domain.com'\''",
+      "action": "remove",
+      "target_list_ids": [3]
+}'
+```
+
+##### Example Response
+```json
+{
+    "data": true
+}
 ```
 
 ______________________________________________________________________
