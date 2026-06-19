@@ -663,6 +663,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#azure-communication-services-acs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Azure Communication Services (ACS)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#exporting-bounces" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1518,6 +1529,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#azure-communication-services-acs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Azure Communication Services (ACS)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#exporting-bounces" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1643,6 +1665,11 @@
 <td style="text-align: left;">See below</td>
 </tr>
 <tr>
+<td style="text-align: left;"><code>https://listmonk.yoursite.com/webhooks/service/azure</code></td>
+<td style="text-align: left;">Azure Communication Services (ACS)</td>
+<td style="text-align: left;"><a href="https://learn.microsoft.com/en-us/azure/event-grid/communication-services-email-events">More info</a></td>
+</tr>
+<tr>
 <td style="text-align: left;"><code>https://listmonk.yoursite.com/webhooks/service/sendgrid</code></td>
 <td style="text-align: left;">Sendgrid / Twilio Signed event webhook</td>
 <td style="text-align: left;"><a href="https://docs.sendgrid.com/for-developers/tracking-events/getting-started-event-webhook-security-features">More info</a></td>
@@ -1718,6 +1745,29 @@
 </ul>
 </li>
 <li>You can optionally <a href="https://docs.aws.amazon.com/ses/latest/dg/monitor-sending-activity-using-notifications-email.html#monitor-sending-activity-using-notifications-email-disabling">disable email feedback forwarding</a>.</li>
+</ol>
+<h2 id="azure-communication-services-acs">Azure Communication Services (ACS)<a class="headerlink" href="#azure-communication-services-acs" title="Permanent link">&para;</a></h2>
+<p>If you use Azure Communication Services Email, listmonk can receive delivery report events from Azure Event Grid and turn them into bounces.</p>
+<ol>
+<li>In listmonk settings, go to "Bounces" and configure:<ul>
+<li>Enable bounce processing: <code>Enabled</code></li>
+<li>Enable bounce webhooks: <code>Enabled</code></li>
+<li>Enable Azure ACS: <code>Enabled</code></li>
+<li>Optional: set <code>Azure Event Grid Shared Secret</code>.</li>
+<li>Optional: set <code>Azure Shared Secret Header Name</code> if you want listmonk to read the secret from a header (defaults to <code>X-Listmonk-Webhook-Secret</code>).</li>
+</ul>
+</li>
+<li>In listmonk settings, go to "SMTP" and use the <code>Azure ACS</code> quick preset to fill SMTP defaults.</li>
+<li>In Azure, create an Event Grid subscription for your ACS Email events with:<ul>
+<li>Endpoint type: <code>Web Hook</code></li>
+<li>Endpoint URL: <code>https://listmonk.yoursite.com/webhooks/service/azure</code></li>
+<li>If using query-param auth, append <code>?code=&lt;your-shared-secret&gt;</code>.</li>
+<li>If using header auth, configure Event Grid to include the same secret in the header name configured in listmonk.</li>
+</ul>
+</li>
+<li>During subscription creation, Event Grid sends a subscription validation event. listmonk automatically returns <code>validationResponse</code> for this handshake.</li>
+<li>Subscribe to <code>Microsoft.Communication.EmailDeliveryReportReceived</code> events. listmonk maps relevant statuses to bounce records.</li>
+<li>Send test mail and verify bounces in listmonk.</li>
 </ol>
 <h2 id="exporting-bounces">Exporting bounces<a class="headerlink" href="#exporting-bounces" title="Permanent link">&para;</a></h2>
 <p>Bounces can be exported via the JSON API:
