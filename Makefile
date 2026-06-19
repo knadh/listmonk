@@ -121,7 +121,7 @@ release:
 
 # Build local docker images for development.
 .PHONY: build-dev-docker
-build-dev-docker: build ## Build docker containers for the entire suite (Front/Core/PG).
+build-dev-docker: ## Build docker containers for the entire suite (Front/Core/PG).
 	cd dev; \
 	docker compose build ; \
 
@@ -138,7 +138,7 @@ run-backend-docker:
 
 # Tear down the complete local development docker suite.
 .PHONY: rm-dev-docker
-rm-dev-docker: build ## Delete the docker containers including DB volumes.
+rm-dev-docker: ## Delete the docker containers including DB volumes.
 	cd dev; \
 	docker compose down -v ; \
 
