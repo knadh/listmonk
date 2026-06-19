@@ -18,15 +18,15 @@ import (
 
 var (
 	allowedSubQueryTables = map[string]struct{}{
-		"subscribers":       {},
-		"lists":             {},
-		"subscribers_lists": {},
-		"campaigns":         {},
-		"campaign_lists":    {},
-		"campaign_views":    {},
-		"links":             {},
-		"link_clicks":       {},
-		"bounces":           {},
+		"subscribers":      {},
+		"lists":            {},
+		"subscriber_lists": {},
+		"campaigns":        {},
+		"campaign_lists":   {},
+		"campaign_views":   {},
+		"links":            {},
+		"link_clicks":      {},
+		"bounces":          {},
 	}
 )
 
@@ -128,7 +128,7 @@ func (c *Core) QuerySubscribers(searchStr, queryExp string, listIDs []int, subSt
 	stmt = strings.ReplaceAll(stmt, "%order%", orderBy+" "+order)
 
 	// Validate the tables used in the query.
-	if err := validateQueryTables(c.db, stmt, allowedSubQueryTables); err != nil {
+	if err := validateQueryTables(c.db, stmt, allowedSubQueryTables, pq.Array(listIDs), subStatus, searchStr, offset, limit); err != nil {
 		c.log.Printf("error validating query tables: %v", err)
 		return nil, 0, echo.NewHTTPError(http.StatusBadRequest,
 			c.i18n.Ts("subscribers.errorPreparingQuery", "error", err.Error()))
@@ -247,6 +247,14 @@ func (c *Core) ExportSubscribers(searchStr, query string, subIDs, listIDs []int,
 	}
 
 	stmt := strings.ReplaceAll(c.q.QuerySubscribersForExport, "%query%", cond)
+
+	// Validate the tables used in the query.
+	if err := validateQueryTables(c.db, stmt, allowedSubQueryTables,
+		pq.Array(listIDs), 0, pq.Array(subIDs), subStatus, searchStr, batchSize); err != nil {
+		c.log.Printf("error validating query tables: %v", err)
+		return nil, echo.NewHTTPError(http.StatusBadRequest,
+			c.i18n.Ts("subscribers.errorPreparingQuery", "error", err.Error()))
+	}
 
 	// Create a readonly transaction that just does COUNT() to obtain the count of results
 	// and to ensure that the arbitrary query is indeed readonly.
@@ -593,7 +601,7 @@ func (c *Core) getSubscriberCount(searchStr, queryExp, subStatus string, listIDs
 }
 
 // validateQueryTables checks if the query accesses only allowed tables.
-func validateQueryTables(db *sqlx.DB, query string, allowedTables map[string]struct{}) error {
+func validateQueryTables(db *sqlx.DB, query string, allowedTables map[string]struct{}, args ...any) error {
 	// Get the EXPLAIN (FORMAT JSON) output.
 	tx, err := db.BeginTxx(context.Background(), &sql.TxOptions{ReadOnly: true})
 	if err != nil {
@@ -602,7 +610,7 @@ func validateQueryTables(db *sqlx.DB, query string, allowedTables map[string]str
 	defer tx.Rollback()
 
 	var plan string
-	if err = tx.QueryRow("EXPLAIN (FORMAT JSON) "+query, nil, models.SubscriberStatusEnabled, "", 0, 10).Scan(&plan); err != nil {
+	if err = tx.QueryRow("EXPLAIN (FORMAT JSON) "+query, args...).Scan(&plan); err != nil {
 		return err
 	}
 
