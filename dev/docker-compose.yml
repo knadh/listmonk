@@ -42,6 +42,7 @@ services:
       - "8080:8080"
     environment:
       - LISTMONK_API_URL=http://backend:9000
+      - LISTMONK_VITE_HOST=true
     depends_on:
       - db
     volumes:
