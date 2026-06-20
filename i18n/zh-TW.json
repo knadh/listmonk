@@ -7,6 +7,7 @@
     "analytics.invalidDates": "無效的`開始` 或`結束` 日期。",
     "analytics.links": "連結",
     "analytics.nonIndividualTracking": "The counts are non-unique as individual subscriber tracking is turned off.",
+    "analytics.percentOfSent": "已傳送的{percent}%",
     "analytics.title": "分析",
     "analytics.toDate": "至",
     "analytics.trackingDisabled": "E-mail tracking is globally disabled. No new views or clicks are being recorded.",

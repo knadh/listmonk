@@ -7,6 +7,7 @@
     "analytics.invalidDates": "Geçersiz `başlangıç' veya `bitiş' tarihleri.",
     "analytics.links": "Bağlantılar",
     "analytics.nonIndividualTracking": "The counts are non-unique as individual subscriber tracking is turned off.",
+    "analytics.percentOfSent": "gönderilenlerin %{percent}'i",
     "analytics.title": "Analitik",
     "analytics.toDate": "Bitiş Tarihi",
     "analytics.trackingDisabled": "E-mail tracking is globally disabled. No new views or clicks are being recorded.",

@@ -7,6 +7,7 @@
     "analytics.invalidDates": "La fecha `desde` o `hasta` no es válida.",
     "analytics.links": "Enlaces",
     "analytics.nonIndividualTracking": "The counts are non-unique as individual subscriber tracking is turned off.",
+    "analytics.percentOfSent": "{percent}% de los enviados",
     "analytics.title": "Analíticas",
     "analytics.toDate": "Hasta",
     "analytics.trackingDisabled": "E-mail tracking is globally disabled. No new views or clicks are being recorded.",

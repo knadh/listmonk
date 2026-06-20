@@ -7,6 +7,7 @@
     "analytics.invalidDates": "Ugyldige `fra`- eller `til`-datoer.",
     "analytics.links": "Lenker",
     "analytics.nonIndividualTracking": "The counts are non-unique as individual subscriber tracking is turned off.",
+    "analytics.percentOfSent": "{percent}% av sendte",
     "analytics.title": "Analyse",
     "analytics.toDate": "Til",
     "analytics.trackingDisabled": "E-mail tracking is globally disabled. No new views or clicks are being recorded.",
