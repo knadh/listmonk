@@ -37,7 +37,7 @@ const DEFAULT_DONUT = {
             // Rate against messages sent if the dataset carries `sent`, else the slice share.
             if (data.sent) {
               const sent = data.sent[item.dataIndex];
-              return sent > 0 ? `${val} (${((val / sent) * 100).toFixed(2)}% of ${sent} sent)` : `${val}`;
+              return sent > 0 ? `${val} (${((val / sent) * 100).toFixed(2)}%)` : `${val}`;
             }
             const total = data.data.reduce((acc, v) => acc + v, 0);
             return `${val} (${((val / total) * 100).toFixed(2)}%)`;
