@@ -104,6 +104,30 @@ func (s *store) GetAttachment(mediaID int) (models.Attachment, error) {
 	}, nil
 }
 
+// GetInlineAttachmentByFilename fetches a media item by filename and returns
+// it as an inline attachment along with the Content-ID value. The lookup is
+// uniform across filesystem and S3 providers because both use the same media
+// store interface; the first match for a given filename is returned.
+func (s *store) GetInlineAttachmentByFilename(filename string) (models.Attachment, string, error) {
+	m, err := s.core.GetMedia(0, "", filename, s.media)
+	if err != nil {
+		return models.Attachment{}, "", err
+	}
+
+	b, err := s.media.GetBlob(m.URL)
+	if err != nil {
+		return models.Attachment{}, "", err
+	}
+
+	cid := manager.MakeContentID(m.Filename)
+	return models.Attachment{
+		Name:     m.Filename,
+		Content:  b,
+		Header:   manager.MakeInlineAttachmentHeader(m.Filename, "", m.ContentType, cid),
+		IsInline: true,
+	}, cid, nil
+}
+
 // CreateLink registers a URL with a UUID for tracking clicks and returns the UUID.
 func (s *store) CreateLink(url string) (string, error) {
 	// Create a new UUID for the URL. If the URL already exists in the DB
