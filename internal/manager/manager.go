@@ -31,7 +31,7 @@ const attribInlineEmbed = "data-embed"
 
 var (
 	reInlineImage = regexp.MustCompile(`(?is)<img\b[^>]*\b` + attribInlineEmbed + `\b[^>]*>`)
-	reImgSrc      = regexp.MustCompile(`(?is)\bsrc\s*=\s*"([^"]*)"|\bsrc\s*=\s*'([^']*)'`)
+	reImgSrc      = regexp.MustCompile(`(?is)(\s)src\s*=\s*(?:"([^"]*)"|'([^']*)')`)
 )
 
 const (
@@ -760,7 +760,7 @@ func (m *Manager) applyInlineImages(body string, cache map[string]string) (strin
 		if cid == "" {
 			return tag
 		}
-		return reImgSrc.ReplaceAllString(tag, `src="cid:`+cid+`"`)
+		return reImgSrc.ReplaceAllString(tag, `${1}src="cid:`+cid+`"`)
 	})
 
 	return out, atts
@@ -820,8 +820,8 @@ func extractSrc(tag string) string {
 	if len(m) == 0 {
 		return ""
 	}
-	if m[1] != "" {
-		return m[1]
+	if m[2] != "" {
+		return m[2]
 	}
-	return m[2]
+	return m[3]
 }

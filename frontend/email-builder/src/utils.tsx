@@ -4,6 +4,13 @@ import { postProcessForOutlook } from './outlook';
 
 const VIEWPORT_META = '<meta name="viewport" content="width=device-width, initial-scale=1.0">';
 const MSO_DOCUMENT_SETTINGS = '<!--[if mso]><noscript><xml xmlns:o="urn:schemas-microsoft-com:office:office"><o:OfficeDocumentSettings><o:AllowPNG/><o:PixelsPerInch>96</o:PixelsPerInch></o:OfficeDocumentSettings></xml></noscript><![endif]-->';
+const HTML_ATTRIBUTE_ESCAPES: Record<string, string> = {
+  '&': '&amp;',
+  '"': '&quot;',
+  "'": '&#x27;',
+  '<': '&lt;',
+  '>': '&gt;',
+};
 
 function injectHeadContents(html: string, contents: string) {
   const headMatch = html.match(/<head\b([^>]*)>/i);
@@ -44,9 +51,9 @@ function applyImageEmbeds(html: string, embedURLs: string[]): string {
   let output = html;
 
   for (const url of embedURLs) {
-    const re = new RegExp(`<img\\b[^>]*?\\bsrc="${escapeRegExp(url)}"[^>]*>`, 'g');
+    const re = new RegExp(`<img\\b[^>]*?\\ssrc="${escapeRegExp(escapeHtmlAttribute(url))}"[^>]*>`, 'g');
     output = output.replace(re, (tag) => (
-      /\bdata-embed\b/.test(tag) ? tag : tag.replace(/(\bsrc="[^"]*")/, '$1 data-embed="true"')
+      /\bdata-embed\b/.test(tag) ? tag : tag.replace(/(\ssrc="[^"]*")/, '$1 data-embed="true"')
     ));
   }
 
@@ -68,4 +75,8 @@ export function renderHtmlWithMeta(
 
 function escapeRegExp(s: string): string {
   return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function escapeHtmlAttribute(s: string): string {
+  return s.replace(/[&"'<>]/g, (ch) => HTML_ATTRIBUTE_ESCAPES[ch]);
 }
