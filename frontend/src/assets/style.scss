@@ -942,6 +942,42 @@ section.analytics {
 
   .donut-container {
     position: relative;
+
+    // Center the square donut and its legend vertically in the tall chart row.
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
+    .chart {
+      margin-bottom: 0;
+    }
+
+    .chart canvas {
+      height: auto;
+    }
+  }
+
+  .donut-legend {
+    margin-top: 12px;
+    text-align: center;
+
+    .legend-item {
+      margin-bottom: 4px;
+      line-height: 1.4;
+    }
+
+    .dot {
+      display: inline-block;
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      margin-right: 6px;
+    }
+
+    // Wrap "(x% of sent)" as a unit, not mid-phrase.
+    .legend-rate {
+      white-space: nowrap;
+    }
   }
 }
 

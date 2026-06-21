@@ -13,7 +13,8 @@ const DEFAULT_DONUT = {
   options: {
     responsive: true,
     cutout: '70%',
-    maintainAspectRatio: false,
+    // Square donut so it fills the column width instead of a tall canvas.
+    aspectRatio: 1,
     plugins: {
       legend: {
         display: false,
@@ -32,10 +33,15 @@ const DEFAULT_DONUT = {
         callbacks: {
           label: (item) => {
             const data = item.chart.data.datasets[item.datasetIndex];
-            const total = data.data.reduce((acc, val) => acc + val, 0);
             const val = data.data[item.dataIndex];
-            const percentage = ((val / total) * 100).toFixed(2);
-            return `${val} (${percentage}%)`;
+            // Rate against messages sent when a per-slice `sent` count is available;
+            // otherwise fall back to the slice's share of the selected total.
+            const sent = data.sent ? data.sent[item.dataIndex] : 0;
+            if (sent > 0) {
+              return `${val} (${((val / sent) * 100).toFixed(2)}%)`;
+            }
+            const total = data.data.reduce((acc, v) => acc + v, 0);
+            return total > 0 ? `${val} (${((val / total) * 100).toFixed(2)}%)` : `${val}`;
           },
         },
       },

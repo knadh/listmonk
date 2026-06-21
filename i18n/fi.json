@@ -7,6 +7,7 @@
     "analytics.invalidDates": "Virheellinen `alkaen` tai `päättyen` päivämäärä.",
     "analytics.links": "Linkit",
     "analytics.nonIndividualTracking": "The counts are non-unique as individual subscriber tracking is turned off.",
+    "analytics.percentOfSent": "{percent}% / {sent} lähetetystä",
     "analytics.title": "Tilastot",
     "analytics.toDate": "Päättyen",
     "analytics.trackingDisabled": "E-mail tracking is globally disabled. No new views or clicks are being recorded.",

@@ -62,6 +62,12 @@
           </div>
           <div class="column is-2 donut-container">
             <chart type="donut" v-if="!v.loading" :data="v.donutData" />
+            <div v-if="v.legend && counts[k] > 0" class="donut-legend is-size-7">
+              <div v-for="(r, i) in v.legend" :key="i" class="legend-item">
+                <span class="dot" :style="{ backgroundColor: r.color }" />{{ r.name }}: {{ $utils.niceNumber(r.count) }} <span
+                  v-if="r.rate" class="legend-rate has-text-grey">({{ $t('analytics.percentOfSent', { percent: r.rate, sent: $utils.niceNumber(r.sent) }) }})</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -234,13 +240,24 @@ export default Vue.extend({
         return sum;
       });
 
+      const sent = campIDs.map((id) => camps[id].sent || 0);
+      // One color per slice (wrapping like the line chart) so the donut and the
+      // legend stay in sync even with more campaigns than colors.
+      const sliceColors = campIDs.map((id, i) => chartColors[i % chartColors.length]);
       const donut = {
         labels,
         datasets: [{
-          data: points, backgroundColor: chartColors, borderWidth: 6,
+          data: points, sent, backgroundColor: sliceColors, borderWidth: 6,
         }],
       };
-      return { points: { datasets: lines }, donut };
+      const legend = campIDs.map((id, i) => ({
+        name: camps[id].name,
+        count: points[i],
+        sent: sent[i],
+        rate: sent[i] > 0 ? ((points[i] / sent[i]) * 100).toFixed(1) : null,
+        color: sliceColors[i],
+      }));
+      return { points: { datasets: lines }, donut, legend };
     },
 
     onSubmit() {
@@ -275,9 +292,10 @@ export default Vue.extend({
         // Set the total count.
         this.counts[typ] = data.reduce((sum, d) => sum + d.count, 0);
 
-        const { points, donut } = this.charts[typ].chartFn(typ, camps, data);
+        const { points, donut, legend } = this.charts[typ].chartFn(typ, camps, data);
         this.charts[typ].data = points;
         this.charts[typ].donutData = donut;
+        this.charts[typ].legend = legend;
         this.charts[typ].loading = false;
       });
     },
