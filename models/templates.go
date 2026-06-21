@@ -30,8 +30,9 @@ type Template struct {
 	IsDefault  bool        `db:"is_default" json:"is_default"`
 
 	// Only relevant to tx (transactional) templates.
-	SubjectTpl *txttpl.Template   `json:"-"`
-	Tpl        *template.Template `json:"-"`
+	SubjectTpl  *txttpl.Template   `json:"-"`
+	Tpl         *template.Template `json:"-"`
+	Attachments []Attachment       `json:"-"`
 }
 
 // Compile compiles a template body and subject (only for tx templates) and

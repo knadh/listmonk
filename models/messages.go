@@ -34,6 +34,10 @@ type Attachment struct {
 	Name    string
 	Header  textproto.MIMEHeader
 	Content []byte
+
+	// IsInline marks the attachment as an inline (CID) part
+	// to be wrapped in multipart/related.
+	IsInline bool
 }
 
 // TxMessage subscriber modes.

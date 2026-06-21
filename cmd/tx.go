@@ -146,11 +146,13 @@ func (a *App) SendTxMessage(c echo.Context) error {
 		msg.AltBody = []byte(m.AltBody)
 		for _, a := range m.Attachments {
 			msg.Attachments = append(msg.Attachments, models.Attachment{
-				Name:    a.Name,
-				Header:  a.Header,
-				Content: a.Content,
+				Name:     a.Name,
+				Header:   a.Header,
+				Content:  a.Content,
+				IsInline: a.IsInline,
 			})
 		}
+		msg.Attachments = append(msg.Attachments, tpl.Attachments...)
 
 		// Optional headers.
 		if len(m.Headers) != 0 {

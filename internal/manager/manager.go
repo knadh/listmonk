@@ -1,11 +1,16 @@
 package manager
 
 import (
+	"crypto/sha1"
+	"encoding/hex"
 	"errors"
 	"fmt"
 	"html/template"
 	"log"
 	"net/textproto"
+	"net/url"
+	"path"
+	"regexp"
 	"strings"
 	"sync"
 	"time"
@@ -18,6 +23,15 @@ import (
 	"github.com/knadh/listmonk/models"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
+)
+
+// attribInlineEmbed is the HTML attrib used to mark <img> tags whose source
+// should be embedded as a multipart cid inline attachment.
+const attribInlineEmbed = "data-embed"
+
+var (
+	reInlineImage = regexp.MustCompile(`(?is)<img\b[^>]*\b` + attribInlineEmbed + `\b[^>]*>`)
+	reImgSrc      = regexp.MustCompile(`(?is)(\s)src\s*=\s*(?:"([^"]*)"|'([^']*)')`)
 )
 
 const (
@@ -37,6 +51,7 @@ type Store interface {
 	NextSubscribers(campID, limit int) ([]models.Subscriber, error)
 	GetCampaign(campID int) (*models.Campaign, error)
 	GetAttachment(mediaID int) (models.Attachment, error)
+	GetInlineAttachmentByFilename(filename string) (models.Attachment, string, error)
 	UpdateCampaignStatus(campID int, status string) error
 	UpdateCampaignCounts(campID int, toSend int, sent int, lastSubID int) error
 	CreateLink(url string) (string, error)
@@ -317,6 +332,15 @@ func (m *Manager) Run() {
 
 // CacheTpl caches a template for ad-hoc use. This is currently only used by tx templates.
 func (m *Manager) CacheTpl(id int, tpl *models.Template) {
+	if body, atts := m.ApplyInlineImages(tpl.Body); len(atts) > 0 {
+		tpl.Body = body
+		tpl.Attachments = atts
+		if err := tpl.Compile(m.GenericTemplateFuncs()); err != nil {
+			m.log.Printf("error recompiling tx template %d after inline image: %v", id, err)
+			return
+		}
+	}
+
 	m.tplsMut.Lock()
 	m.tpls[id] = tpl
 	m.tplsMut.Unlock()
@@ -659,29 +683,121 @@ func (m *Manager) makeGnericFuncMap() template.FuncMap {
 }
 
 // attachMedia loads any media/attachments from the media store and attaches
-// the byte blobs to the campaign.
+// the byte blobs to the campaign. Inline attachments are skipped as they're
+// loaded earlier by LoadInlineImages().
 func (m *Manager) attachMedia(c *models.Campaign) error {
-	if len(c.Attachments) > 0 {
-		return nil
+	// Already loaded if any non-inline attachment is present.
+	for _, a := range c.Attachments {
+		if !a.IsInline {
+			return nil
+		}
 	}
 
-	// Load any media/attachments.
 	for _, mid := range []int64(c.MediaIDs) {
 		a, err := m.store.GetAttachment(int(mid))
 		if err != nil {
 			return fmt.Errorf("error fetching attachment %d on campaign %s: %v", mid, c.Name, err)
 		}
-
 		c.Attachments = append(c.Attachments, a)
 	}
 
 	return nil
 }
 
-// MakeAttachmentHeader is a helper function that returns a
-// textproto.MIMEHeader tailored for attachments, primarily
-// email. If no encoding is given, base64 is assumed.
+// LoadInlineImages resolves any <img ... data-embed ...> tags in the campaign
+// body and template body one time before CompileTemplate.
+func (m *Manager) LoadInlineImages(c *models.Campaign) error {
+	if c.ContentType == models.CampaignContentTypePlain {
+		return nil
+	}
+
+	cidCache := make(map[string]string)
+	body, atts := m.applyInlineImages(c.Body, cidCache)
+	c.Body = body
+
+	tplBody, tplAtts := m.applyInlineImages(c.TemplateBody, cidCache)
+	c.TemplateBody = tplBody
+	atts = append(atts, tplAtts...)
+
+	c.Attachments = append(c.Attachments, atts...)
+	return nil
+}
+
+// ApplyInlineImages scans body for <img ... data-embed ...> tags, resolves
+// each unique src filename to a media item, attaches it as an inline part, and
+// rewrites the matched img src to cid.
+func (m *Manager) ApplyInlineImages(body string) (string, []models.Attachment) {
+	return m.applyInlineImages(body, make(map[string]string))
+}
+
+func (m *Manager) applyInlineImages(body string, cache map[string]string) (string, []models.Attachment) {
+	if !strings.Contains(body, attribInlineEmbed) {
+		return body, nil
+	}
+
+	var atts []models.Attachment
+	out := reInlineImage.ReplaceAllStringFunc(body, func(tag string) string {
+		src := extractSrc(tag)
+		if src == "" || strings.HasPrefix(strings.ToLower(src), "cid:") {
+			return tag
+		}
+
+		fname := filenameFromSrc(src)
+		if fname == "" {
+			return tag
+		}
+
+		cid, ok := cache[src]
+		if !ok {
+			if a, c, err := m.store.GetInlineAttachmentByFilename(fname); err == nil {
+				atts = append(atts, a)
+				cid = c
+			} else {
+				m.log.Printf("inline image %q not embedded: %v", src, err)
+			}
+			cache[src] = cid
+		}
+		if cid == "" {
+			return tag
+		}
+		return reImgSrc.ReplaceAllString(tag, `${1}src="cid:`+cid+`"`)
+	})
+
+	return out, atts
+}
+
+// MakeContentID returns a standard `Content-ID` value (without  the angle brackets).
+func MakeContentID(key string) string {
+	sum := sha1.Sum([]byte(key))
+	return hex.EncodeToString(sum[:8]) + "@email"
+}
+
+// filenameFromSrc extracts a media filename from an <img src> value (ignoring
+// any URLs and just capturing the filename.
+func filenameFromSrc(src string) string {
+	if src == "" {
+		return ""
+	}
+	p := src
+	if u, err := url.Parse(src); err == nil && u.Path != "" {
+		p = u.Path
+	}
+	return path.Base(p)
+}
+
+// MakeAttachmentHeader returns a textproto.MIMEHeader for an email
+// attachment. Default encoding is base64  and contentType is application/octet-stream.
 func MakeAttachmentHeader(filename, encoding, contentType string) textproto.MIMEHeader {
+	return makeAttachmentHeader("attachment", filename, encoding, contentType, "")
+}
+
+// MakeInlineAttachmentHeader returns a textproto.MIMEHeader for an inline
+// image attachment referenced from the HTML body via a cid URL.
+func MakeInlineAttachmentHeader(filename, encoding, contentType, contentID string) textproto.MIMEHeader {
+	return makeAttachmentHeader("inline", filename, encoding, contentType, contentID)
+}
+
+func makeAttachmentHeader(disposition, filename, encoding, contentType, contentID string) textproto.MIMEHeader {
 	if encoding == "" {
 		encoding = "base64"
 	}
@@ -690,8 +806,22 @@ func MakeAttachmentHeader(filename, encoding, contentType string) textproto.MIME
 	}
 
 	h := textproto.MIMEHeader{}
-	h.Set("Content-Disposition", "attachment; filename="+filename)
+	h.Set("Content-Disposition", disposition+"; filename="+filename)
 	h.Set("Content-Type", fmt.Sprintf("%s; name=\""+filename+"\"", contentType))
 	h.Set("Content-Transfer-Encoding", encoding)
+	if contentID != "" {
+		h.Set("Content-ID", "<"+contentID+">")
+	}
 	return h
+}
+
+func extractSrc(tag string) string {
+	m := reImgSrc.FindStringSubmatch(tag)
+	if len(m) == 0 {
+		return ""
+	}
+	if m[2] != "" {
+		return m[2]
+	}
+	return m[3]
 }

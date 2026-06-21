@@ -31,6 +31,11 @@ func (m *Manager) newPipe(c *models.Campaign) (*pipe, error) {
 		return nil, fmt.Errorf("unknown messenger %s on campaign %s", c.Messenger, c.Name)
 	}
 
+	// Resolve any inline images before compiling the template.
+	if err := m.LoadInlineImages(c); err != nil {
+		return nil, err
+	}
+
 	// Load the template.
 	if err := c.CompileTemplate(m.TemplateFuncs(c)); err != nil {
 		return nil, err

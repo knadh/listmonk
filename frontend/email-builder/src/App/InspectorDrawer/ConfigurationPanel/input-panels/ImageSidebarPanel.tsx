@@ -1,13 +1,14 @@
-import React, { useState } from 'react';
-import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import {
   VerticalAlignBottomOutlined,
   VerticalAlignCenterOutlined,
   VerticalAlignTopOutlined,
 } from '@mui/icons-material';
-import { Stack, ToggleButton } from '@mui/material';
-import { ImageProps, ImagePropsSchema } from '@usewaypoint/block-image';
+import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import { Checkbox, FormControlLabel, Stack, ToggleButton } from '@mui/material';
+import { ImageProps } from '@usewaypoint/block-image';
+import React, { useState } from 'react';
 
+import { ImgPropsSchema, ListmonkImageProps } from '../../../../documents/editor/core';
 import BaseSidebarPanel from './helpers/BaseSidebarPanel';
 import RadioGroupInput from './helpers/inputs/RadioGroupInput';
 import TextDimensionInput from './helpers/inputs/TextDimensionInput';
@@ -22,14 +23,16 @@ export default function ImageSidebarPanel({ data, setData }: ImageSidebarPanelPr
   const [, setErrors] = useState<Zod.ZodError | null>(null);
 
   const updateData = (d: unknown) => {
-    const res = ImagePropsSchema.safeParse(d);
+    const res = ImgPropsSchema.safeParse(d);
     if (res.success) {
-      setData(res.data);
+      setData(res.data as ImageProps);
       setErrors(null);
     } else {
       setErrors(res.error);
     }
   };
+
+  const props = (data && (data as ListmonkImageProps).props) || {};
 
   return (
     <BaseSidebarPanel title="Image block">
@@ -91,6 +94,17 @@ export default function ImageSidebarPanel({ data, setData }: ImageSidebarPanelPr
           <VerticalAlignBottomOutlined fontSize="small" />
         </ToggleButton>
       </RadioGroupInput>
+
+      <FormControlLabel
+        control={
+          <Checkbox
+            size="small"
+            checked={Boolean(props.embed)}
+            onChange={(e) => updateData({ ...data, props: { ...data.props, embed: e.target.checked } })}
+          />
+        }
+        label="Embed inline (CID)"
+      />
 
       <MultiStylePropertyPanel
         names={['backgroundColor', 'textAlign', 'padding']}
