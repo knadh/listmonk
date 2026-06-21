@@ -46,7 +46,10 @@ export default function App(props: AppProps) {
 
   if (props.onChange) {
     subscribeDocument ((document) => {
-      props.onChange?.(document, renderHtmlWithMeta(document, { rootBlockId: 'root' }))
+      props.onChange?.(
+        document,
+        renderHtmlWithMeta(document, { rootBlockId: 'root', outlook: Boolean(document.root?.data?.outlook) })
+      )
     })
   }
 
