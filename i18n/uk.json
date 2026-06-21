@@ -7,7 +7,7 @@
     "analytics.invalidDates": "Хибна дата `from` чи `to`.",
     "analytics.links": "Посилання",
     "analytics.nonIndividualTracking": "The counts are non-unique as individual subscriber tracking is turned off.",
-    "analytics.percentOfSent": "{percent}% від надісланих",
+    "analytics.percentOfSent": "{percent}% з {sent} надісланих",
     "analytics.title": "Аналітика",
     "analytics.toDate": "До",
     "analytics.trackingDisabled": "E-mail tracking is globally disabled. No new views or clicks are being recorded.",

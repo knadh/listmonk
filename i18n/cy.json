@@ -7,7 +7,7 @@
     "analytics.invalidDates": "Dyddiadau 'o' neu 'i' annilys",
     "analytics.links": "Dolenni",
     "analytics.nonIndividualTracking": "The counts are non-unique as individual subscriber tracking is turned off.",
-    "analytics.percentOfSent": "{percent}% o'r rhai a anfonwyd",
+    "analytics.percentOfSent": "{percent}% o {sent} a anfonwyd",
     "analytics.title": "Dadansoddeg",
     "analytics.toDate": "At",
     "analytics.trackingDisabled": "E-mail tracking is globally disabled. No new views or clicks are being recorded.",

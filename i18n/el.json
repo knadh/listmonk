@@ -7,7 +7,7 @@
     "analytics.invalidDates": "Μή έγκυρη ημερομηνία `από` ή `έως`.",
     "analytics.links": "Σύνδεσμοι",
     "analytics.nonIndividualTracking": "The counts are non-unique as individual subscriber tracking is turned off.",
-    "analytics.percentOfSent": "{percent}% των απεσταλμένων",
+    "analytics.percentOfSent": "{percent}% από {sent} απεσταλμένα",
     "analytics.title": "Στατιστικά",
     "analytics.toDate": "Έως",
     "analytics.trackingDisabled": "E-mail tracking is globally disabled. No new views or clicks are being recorded.",

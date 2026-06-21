@@ -7,7 +7,7 @@
     "analytics.invalidDates": "잘못된 `시작일` 또는 `종료일` 날짜입니다.",
     "analytics.links": "링크",
     "analytics.nonIndividualTracking": "The counts are non-unique as individual subscriber tracking is turned off.",
-    "analytics.percentOfSent": "발송 대비 {percent}%",
+    "analytics.percentOfSent": "{sent}건 중 {percent}%",
     "analytics.title": "분석",
     "analytics.toDate": "종료일",
     "analytics.trackingDisabled": "E-mail tracking is globally disabled. No new views or clicks are being recorded.",

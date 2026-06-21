@@ -7,7 +7,7 @@
     "analytics.invalidDates": "Érvénytelen kezdő vagy végdátum.",
     "analytics.links": "Hivatkozások",
     "analytics.nonIndividualTracking": "The counts are non-unique as individual subscriber tracking is turned off.",
-    "analytics.percentOfSent": "{percent}% az elküldöttekből",
+    "analytics.percentOfSent": "{percent}% / {sent} elküldöttből",
     "analytics.title": "Kimutatások",
     "analytics.toDate": "Eddig",
     "analytics.trackingDisabled": "E-mail tracking is globally disabled. No new views or clicks are being recorded.",

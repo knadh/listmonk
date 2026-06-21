@@ -7,7 +7,7 @@
     "analytics.invalidDates": "Dates invalides `depuis` ou `au`.",
     "analytics.links": "Liens",
     "analytics.nonIndividualTracking": "The counts are non-unique as individual subscriber tracking is turned off.",
-    "analytics.percentOfSent": "{percent} % des envoyés",
+    "analytics.percentOfSent": "{percent} % de {sent} envoyés",
     "analytics.title": "Analyses",
     "analytics.toDate": "Au",
     "analytics.trackingDisabled": "E-mail tracking is globally disabled. No new views or clicks are being recorded.",

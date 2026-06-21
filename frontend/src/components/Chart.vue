@@ -34,13 +34,14 @@ const DEFAULT_DONUT = {
           label: (item) => {
             const data = item.chart.data.datasets[item.datasetIndex];
             const val = data.data[item.dataIndex];
-            // Rate against messages sent if the dataset carries `sent`, else the slice share.
-            if (data.sent) {
-              const sent = data.sent[item.dataIndex];
-              return sent > 0 ? `${val} (${((val / sent) * 100).toFixed(2)}%)` : `${val}`;
+            // Rate against messages sent when a per-slice `sent` count is available;
+            // otherwise fall back to the slice's share of the selected total.
+            const sent = data.sent ? data.sent[item.dataIndex] : 0;
+            if (sent > 0) {
+              return `${val} (${((val / sent) * 100).toFixed(2)}%)`;
             }
             const total = data.data.reduce((acc, v) => acc + v, 0);
-            return `${val} (${((val / total) * 100).toFixed(2)}%)`;
+            return total > 0 ? `${val} (${((val / total) * 100).toFixed(2)}%)` : `${val}`;
           },
         },
       },

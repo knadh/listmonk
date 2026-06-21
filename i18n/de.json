@@ -7,7 +7,7 @@
     "analytics.invalidDates": "Ungültiges Datum in `von` oder `bis`.",
     "analytics.links": "Verweise",
     "analytics.nonIndividualTracking": "The counts are non-unique as individual subscriber tracking is turned off.",
-    "analytics.percentOfSent": "{percent} % der gesendeten",
+    "analytics.percentOfSent": "{percent} % von {sent} gesendeten",
     "analytics.title": "Statistiken",
     "analytics.toDate": "Bis",
     "analytics.trackingDisabled": "E-mail tracking is globally disabled. No new views or clicks are being recorded.",

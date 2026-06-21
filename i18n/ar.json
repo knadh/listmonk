@@ -7,7 +7,7 @@
     "analytics.invalidDates": "تواريخ غير صالحة.",
     "analytics.links": "الروابط",
     "analytics.nonIndividualTracking": "الأرقام غير فريدة لأن تتبع المشتركين الفردي معطّل.",
-    "analytics.percentOfSent": "{percent}% من المرسلة",
+    "analytics.percentOfSent": "{percent}% من {sent} مُرسَلة",
     "analytics.title": "التحليلات",
     "analytics.toDate": "إلى",
     "analytics.trackingDisabled": "تتبع البريد معطّل. لا يتم تسجيل مشاهدات أو نقرات جديدة.",

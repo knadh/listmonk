@@ -7,7 +7,7 @@
     "analytics.invalidDates": "Tanggal `dari` atau `ke` tidak valid.",
     "analytics.links": "Tautan",
     "analytics.nonIndividualTracking": "Jumlah tidak unik karena pelacakan pelanggan individu dimatikan.",
-    "analytics.percentOfSent": "{percent}% dari yang terkirim",
+    "analytics.percentOfSent": "{percent}% dari {sent} terkirim",
     "analytics.trackingDisabled": "Pelacakan e-mail dinonaktifkan secara global. Tidak ada tayangan atau klik baru yang direkam.",
     "analytics.title": "Analitik",
     "analytics.toDate": "Ke",

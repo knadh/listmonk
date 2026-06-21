@@ -7,7 +7,7 @@
     "analytics.invalidDates": "Invalid `de la` sau `la` dată.",
     "analytics.links": "Linkuri",
     "analytics.nonIndividualTracking": "The counts are non-unique as individual subscriber tracking is turned off.",
-    "analytics.percentOfSent": "{percent}% din cele trimise",
+    "analytics.percentOfSent": "{percent}% din {sent} trimise",
     "analytics.title": "Analitice",
     "analytics.toDate": "Către",
     "analytics.trackingDisabled": "E-mail tracking is globally disabled. No new views or clicks are being recorded.",
