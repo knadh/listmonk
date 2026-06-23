@@ -87,7 +87,7 @@ type User struct {
 
 	Username string `db:"username" json:"username"`
 
-	// For API users, this is the plaintext API token.
+	// For API users, this stores the SHA-256 token hash.
 	Password null.String `db:"password" json:"password,omitempty"`
 
 	PasswordLogin bool             `db:"password_login" json:"password_login"`

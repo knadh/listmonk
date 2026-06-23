@@ -342,7 +342,7 @@ func installUser(username, password, apiUsername string, q *models.Queries) {
 
 		var (
 			email    = null.String{String: apiUsername + "@api", Valid: true}
-			password = null.String{String: tk, Valid: true}
+			password = null.String{String: auth.HashAPIToken(tk), Valid: true}
 		)
 
 		if _, err := q.CreateUser.Exec(apiUsername, false, password, email, apiUsername, auth.UserTypeAPI, role.ID, nil, auth.UserStatusEnabled); err != nil {
