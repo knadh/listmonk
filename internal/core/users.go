@@ -42,23 +42,29 @@ func (c *Core) GetUser(id int, username, email string) (auth.User, error) {
 
 // CreateUser creates a new user.
 func (c *Core) CreateUser(u auth.User) (auth.User, error) {
-	var id int
+	var (
+		apiToken   string
+		dbPassword = u.Password
+	)
 
 	// If it's an API user, generate a random token for password
 	// and set the e-mail to default.
 	if u.Type == auth.UserTypeAPI {
-		// Generate a random admin password.
-		tk, err := utils.GenerateRandomString(32)
+		// Generate a random API token.
+		tk, err := utils.GenerateRandomString(48)
 		if err != nil {
 			return auth.User{}, err
 		}
+		apiToken = tk
 
 		u.Email = null.String{String: u.Username + "@api", Valid: true}
 		u.PasswordLogin = false
 		u.Password = null.String{String: tk, Valid: true}
+		dbPassword = null.String{String: auth.HashAPIToken(tk), Valid: true}
 	}
 
-	if err := c.q.CreateUser.Get(&id, u.Username, u.PasswordLogin, u.Password, u.Email, u.Name, u.Type, u.UserRoleID, u.ListRoleID, u.Status); err != nil {
+	var id int
+	if err := c.q.CreateUser.Get(&id, u.Username, u.PasswordLogin, dbPassword, u.Email, u.Name, u.Type, u.UserRoleID, u.ListRoleID, u.Status); err != nil {
 		return auth.User{}, echo.NewHTTPError(http.StatusInternalServerError,
 			c.i18n.Ts("globals.messages.errorCreating", "name", "{globals.terms.user}", "error", pqErrMsg(err)))
 	}
@@ -70,6 +76,10 @@ func (c *Core) CreateUser(u auth.User) (auth.User, error) {
 	}
 
 	out, err := c.GetUser(id, "", "")
+	if u.Type == auth.UserTypeAPI {
+		out.Password = null.String{String: apiToken, Valid: true}
+	}
+
 	return out, err
 }
 

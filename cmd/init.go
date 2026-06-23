@@ -1169,7 +1169,7 @@ func initAuth(co *core.Core, db *sql.DB, ko *koanf.Koanf) (bool, *auth.Auth) {
 	if len(username) > 2 && len(password) > 6 {
 		u := auth.User{
 			Username:      username,
-			Password:      null.String{Valid: true, String: password},
+			Password:      null.String{Valid: true, String: auth.HashAPIToken(password)},
 			PasswordLogin: true,
 			HasPassword:   true,
 			Status:        auth.UserStatusEnabled,

@@ -590,11 +590,7 @@
     "settings.smtp.name": "SMTP",
     "settings.smtp.retries": "Tentativi",
     "settings.smtp.retriesHelp": "Numero di tentativi in caso di errore invio messaggio.",
-<<<<<<< HEAD
     "settings.smtp.retryDelay": "Ritardo di nuovo tentativo",
-=======
-    "settings.smtp.retryDelay": "Ritardo di tentativo",
->>>>>>> 8b4743b4 (Auto-translate new i18n language strings.)
     "settings.smtp.retryDelayHelp": "Tempo di attesa prima di riprovare dopo un errore (s per secondi, m per minuti). 0s disabilita il ritardo.",
     "settings.smtp.sendTest": "Invia email",
     "settings.smtp.setCustomHeaders": "Definisci intestazioni personalizzate",

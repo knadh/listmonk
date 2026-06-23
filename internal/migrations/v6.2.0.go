@@ -62,5 +62,18 @@ func V6_2_0(db *sqlx.DB, fs stuffbin.FileSystem, ko *koanf.Koanf, lo *log.Logger
 		return err
 	}
 
+	// Hash existing API tokens. This is idempotent by skipping values that
+	// already look like lowercase SHA-256 hex digests.
+	if _, err := db.Exec(`
+		UPDATE users
+		SET password = ENCODE(DIGEST(password, 'sha256'), 'hex')
+		WHERE type = 'api'
+			AND password IS NOT NULL
+			AND password != ''
+			AND password !~ '^[a-f0-9]{64}$';
+	`); err != nil {
+		return err
+	}
+
 	return nil
 }
