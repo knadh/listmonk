@@ -292,6 +292,11 @@ func (a *App) UpdateSubscriber(c echo.Context) error {
 	// Update the subscriber in the DB.
 	id := getID(c)
 
+	// Check if the user has access to at least one of the lists on the target subscriber.
+	if err := a.hasSubPerm(user, []int{id}); err != nil {
+		return err
+	}
+
 	// Get the user's permitted lists to pass to the update query so that lists on the subscribers
 	// to which they don't have permissions are preserved/left as-is when deleteLists=true.
 	allPerm, permittedLists := user.GetPermittedLists(auth.PermTypeManage)
@@ -314,6 +319,12 @@ func (a *App) UpdateSubscriber(c echo.Context) error {
 func (a *App) PatchSubscriber(c echo.Context) error {
 	user := auth.GetUser(c)
 	id := getID(c)
+
+	// Check if the user has access to at least one of the lists on the target subscriber
+	// before fetching it. An empty PATCH body is otherwise a cross-scope PII read primitive.
+	if err := a.hasSubPerm(user, []int{id}); err != nil {
+		return err
+	}
 
 	// Fetch the sub subscriber from the DB.
 	sub, err := a.core.GetSubscriber(id, "", "")
@@ -478,7 +489,7 @@ func (a *App) ManageSubscriberLists(c echo.Context) error {
 	}
 
 	// Filter lists against the current user's permitted lists.
-	listIDs := user.FilterListsByPerm(auth.PermTypeGet|auth.PermTypeManage, req.TargetListIDs)
+	listIDs := user.FilterListsByPerm(auth.PermTypeManage, req.TargetListIDs)
 
 	// User doesn't have the required list permissions.
 	if len(listIDs) == 0 {
@@ -656,7 +667,7 @@ func (a *App) ManageSubscriberListsByQuery(c echo.Context) error {
 
 	// Filter lists against the current user's permitted lists.
 	sourceListIDs := user.GetPermittedListIDs(req.ListIDs)
-	targetListIDs := user.FilterListsByPerm(auth.PermTypeGet|auth.PermTypeManage, req.TargetListIDs)
+	targetListIDs := user.FilterListsByPerm(auth.PermTypeManage, req.TargetListIDs)
 
 	// Run the action in the DB.
 	var err error
@@ -680,8 +691,14 @@ func (a *App) ManageSubscriberListsByQuery(c echo.Context) error {
 
 // DeleteSubscriberBounces deletes all the bounces on a subscriber.
 func (a *App) DeleteSubscriberBounces(c echo.Context) error {
-	// Delete the bounces from the DB.
 	id := getID(c)
+
+	// Check if the user has access to at least one of the lists on the subscriber.
+	if err := a.hasSubPerm(auth.GetUser(c), []int{id}); err != nil {
+		return err
+	}
+
+	// Delete the bounces from the DB.
 	if err := a.core.DeleteSubscriberBounces(id, ""); err != nil {
 		return err
 	}
