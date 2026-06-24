@@ -1391,6 +1391,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#csv-formula-injection" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CSV formula injection
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1486,6 +1497,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#csv-formula-injection" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CSV formula injection
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1518,6 +1540,12 @@
 <p>listmonk is a full-fledged HTML content management system (similar to WordPress). It allows campaign messages to have arbitrary HTML, including <code>&lt;script&gt;</code>s, which is a legitimate use case in many environments. While campaign previews within the admin are iframe-sandboxed, when a campaign is published as a webpage (archive view), it will obviously execute whatever <code>&lt;script&gt;</code> it has. This is expected of a content management and publishing system. In a multi-user scenario, it is up to the admin to give appropriate permissions to trusted users if they deem this undesirable.</p>
 <h3 id="redosdos-in-templating">ReDoS/DoS in templating<a class="headerlink" href="#redosdos-in-templating" title="Permanent link">&para;</a></h3>
 <p>listmonk is a full-fledged HTML content management system (similar to WordPress) which provides the full power of the Go templating language in addition to bundling <a href="__https://masterminds.github.io/sprig/__">Sprig functions</a>. This allows executing Turing-complete code within templates where it is possible to write code that does loop-within-loop or memory-allocation code that runs within loops that could cause a DoS. There is no way to prevent this. In a multi-user scenario, it is up to the admin to give appropriate permissions to trusted users if they deem this undesirable.</p>
+<h3 id="csv-formula-injection">CSV formula injection<a class="headerlink" href="#csv-formula-injection" title="Permanent link">&para;</a></h3>
+<p>From <a href="https://owasp.org/www-community/attacks/CSV_Injection">OWASP</a>:</p>
+<blockquote>
+<p>This attack is difficult to mitigate, and explicitly disallowed from quite a few bug bounty programs.</p>
+</blockquote>
+<p>CSV formula injection in subscriber export is not accepted as as security issue on listmonk. The formula characters (=, | etc.) are "unwanted" only from a CSV export + Windows + old Excel perspective. A generic, cross-platform tool like listmonk shouldn't impose arbitrary restrictions universally. There may be legitimate usecases where a subscriber name has to be begin with "=" (a subscriber doesn't have to be a human).</p>
 
 
 
