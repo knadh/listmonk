@@ -18,3 +18,10 @@ listmonk is a full-fledged HTML content management system (similar to WordPress)
 
 ### ReDoS/DoS in templating
 listmonk is a full-fledged HTML content management system (similar to WordPress) which provides the full power of the Go templating language in addition to bundling [Sprig functions](__https://masterminds.github.io/sprig/__). This allows executing Turing-complete code within templates where it is possible to write code that does loop-within-loop or memory-allocation code that runs within loops that could cause a DoS. There is no way to prevent this. In a multi-user scenario, it is up to the admin to give appropriate permissions to trusted users if they deem this undesirable.
+
+### CSV formula injection
+From [OWASP](https://owasp.org/www-community/attacks/CSV_Injection):
+
+> This attack is difficult to mitigate, and explicitly disallowed from quite a few bug bounty programs.
+
+CSV formula injection in subscriber export is not accepted as as security issue on listmonk. The formula characters (=, | etc.) are "unwanted" only from a CSV export + Windows + old Excel perspective. A generic, cross-platform tool like listmonk shouldn't impose arbitrary restrictions universally. There may be legitimate usecases where a subscriber name has to be begin with "=" (a subscriber doesn't have to be a human).
