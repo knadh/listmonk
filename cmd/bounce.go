@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/knadh/listmonk/internal/auth"
 	"github.com/knadh/listmonk/models"
 	"github.com/labstack/echo/v4"
 )
@@ -57,8 +58,14 @@ func (a *App) GetBounces(c echo.Context) error {
 
 // GetSubscriberBounces retrieves a subscriber's bounce records.
 func (a *App) GetSubscriberBounces(c echo.Context) error {
-	// Query and fetch bounces from the DB.
 	subID := getID(c)
+
+	// Check if the user has access to at least one of the lists on the subscriber.
+	if err := a.hasSubPerm(auth.GetUser(c), []int{subID}); err != nil {
+		return err
+	}
+
+	// Query and fetch bounces from the DB.
 	out, _, err := a.core.QueryBounces(0, subID, "", "", "", 0, 1000)
 	if err != nil {
 		return err
