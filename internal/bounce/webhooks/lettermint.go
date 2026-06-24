@@ -43,6 +43,10 @@ func NewLettermint(key []byte) *Lettermint {
 
 // ProcessBounce processes an incoming Lettermint webhook payload and returns a bounce object.
 func (l *Lettermint) ProcessBounce(sig string, body []byte) ([]models.Bounce, error) {
+	if len(l.hmacKey) == 0 {
+		return nil, fmt.Errorf("webhook key is not configured")
+	}
+
 	// Parse the signature header: t={timestamp},v1={hex_signature}.
 	ts, sigHex, err := parseLettermintSignature(sig)
 	if err != nil {
