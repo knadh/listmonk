@@ -358,6 +358,12 @@ export const deleteCampaign = async (id) => http.delete(
   { loading: models.campaigns },
 );
 
+export const extractCampaignUnsent = async (id, data) => http.post(
+  `/api/campaigns/${id}/extract-unsent`,
+  data,
+  { loading: models.campaigns },
+);
+
 export const deleteCampaigns = (params) => http.delete(
   '/api/campaigns',
   { params, loading: models.campaigns },

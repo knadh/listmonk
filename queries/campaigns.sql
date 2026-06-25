@@ -440,6 +440,33 @@ UPDATE campaigns SET
     updated_at=NOW()
 WHERE id=$1;
 
+-- name: record-campaign-sent
+-- Records that a campaign was actually sent to a subscriber by appending an
+-- entry {campaign_id, sent_at} to the subscriber's campaigns_sent log.
+UPDATE subscribers SET
+    campaigns_sent = campaigns_sent || JSONB_BUILD_OBJECT('campaign_id', $2::INT, 'sent_at', NOW())
+WHERE id = $1;
+
+-- name: add-unsent-campaign-subscribers-to-lists
+-- Adds all subscribers in a campaign's lists who were NOT actually sent the
+-- campaign (i.e. whose campaigns_sent log doesn't contain the campaign_id) to
+-- the given target lists. This makes it possible to extract subscribers that a
+-- campaign failed to reach into a new list. Returns the number of subscribers
+-- that matched (the non-recipients).
+WITH subs AS (
+    SELECT DISTINCT subscribers.id FROM subscribers
+    JOIN subscriber_lists sl ON (sl.subscriber_id = subscribers.id)
+    WHERE sl.list_id = ANY(SELECT list_id FROM campaign_lists WHERE campaign_id = $1 AND list_id IS NOT NULL)
+    AND NOT (subscribers.campaigns_sent @> JSONB_BUILD_ARRAY(JSONB_BUILD_OBJECT('campaign_id', $1::INT)))
+),
+ins AS (
+    INSERT INTO subscriber_lists (subscriber_id, list_id, status)
+        (SELECT a, b, (CASE WHEN $3 != '' THEN $3::subscription_status ELSE 'unconfirmed' END)
+            FROM UNNEST(ARRAY(SELECT id FROM subs)) a, UNNEST($2::INT[]) b)
+        ON CONFLICT (subscriber_id, list_id) DO NOTHING
+)
+SELECT COUNT(*) AS count FROM subs;
+
 -- name: update-campaign-status
 UPDATE campaigns SET
     status=(

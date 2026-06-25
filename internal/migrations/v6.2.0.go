@@ -8,7 +8,16 @@ import (
 	"github.com/knadh/stuffbin"
 )
 
+// V6_2_0 performs the DB migrations.
 func V6_2_0(db *sqlx.DB, fs stuffbin.FileSystem, ko *koanf.Koanf, lo *log.Logger) error {
+	// Add a log column to subscribers to record the campaigns that were actually
+	// sent to them along with the timestamp of the send.
+	if _, err := db.Exec(`
+		ALTER TABLE subscribers ADD COLUMN IF NOT EXISTS campaigns_sent JSONB NOT NULL DEFAULT '[]';
+	`); err != nil {
+		return err
+	}
+
 	// Add `msg_retry_delay` to each SMTP server entry in the `smtp` settings JSON array.
 	// Idempotent: only updates rows where at least one entry is missing the key.
 	if _, err := db.Exec(`
