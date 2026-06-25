@@ -251,12 +251,6 @@
               <b-icon icon="file-multiple-outline" size="is-small" />
             </b-tooltip>
           </a>
-          <router-link v-if="$can('campaigns:get_analytics')"
-            :to="{ name: 'campaignAnalytics', query: { id: props.row.id } }">
-            <b-tooltip :label="$t('globals.terms.analytics')" type="is-dark">
-              <b-icon icon="chart-bar" size="is-small" />
-            </b-tooltip>
-          </router-link>
           <a v-if="$can('campaigns:manage')" href="#" @click.prevent="$utils.prompt($t('campaigns.extractUnsentPrompt'),
             {
               placeholder: $t('globals.fields.name'),
@@ -268,6 +262,12 @@
               <b-icon icon="account-alert-outline" size="is-small" />
             </b-tooltip>
           </a>
+          <router-link v-if="$can('campaigns:get_analytics')"
+            :to="{ name: 'campaignAnalytics', query: { id: props.row.id } }">
+            <b-tooltip :label="$t('globals.terms.analytics')" type="is-dark">
+              <b-icon icon="chart-bar" size="is-small" />
+            </b-tooltip>
+          </router-link>
           <a v-if="$can('campaigns:manage')" href="#"
             @click.prevent="$utils.confirm($t('campaigns.confirmDelete', { name: props.row.name }), () => deleteCampaign(props.row))"
             data-cy="btn-delete" :aria-label="$t('globals.buttons.delete')">
