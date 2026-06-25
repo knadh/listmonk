@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/knadh/listmonk/internal/auth"
 	"github.com/knadh/listmonk/models"
 	"github.com/labstack/echo/v4"
 )
@@ -57,8 +58,14 @@ func (a *App) GetBounces(c echo.Context) error {
 
 // GetSubscriberBounces retrieves a subscriber's bounce records.
 func (a *App) GetSubscriberBounces(c echo.Context) error {
-	// Query and fetch bounces from the DB.
 	subID := getID(c)
+
+	// Check if the user has access to at least one of the lists on the subscriber.
+	if err := a.hasSubPerm(auth.GetUser(c), []int{subID}); err != nil {
+		return err
+	}
+
+	// Query and fetch bounces from the DB.
 	out, _, err := a.core.QueryBounces(0, subID, "", "", "", 0, 1000)
 	if err != nil {
 		return err
@@ -177,6 +184,31 @@ func (a *App) BounceWebhook(c echo.Context) error {
 				return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("globals.messages.invalidData"))
 			}
 			bounces = append(bounces, b)
+
+		default:
+			return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("globals.messages.invalidData"))
+		}
+
+	// Azure ACS through Event Grid.
+	case service == "azure" && a.bounce.Azure != nil:
+		switch c.Request().Header.Get("aeg-event-type") {
+		// Event Grid webhook registration validation.
+		case "SubscriptionValidation", "SubscriptionValidationEvent":
+			res, err := a.bounce.Azure.ProcessSubscription(rawReq)
+			if err != nil {
+				a.log.Printf("error processing Azure Event Grid subscription validation: %v", err)
+				return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("globals.messages.invalidData"))
+			}
+			return c.JSONBlob(http.StatusOK, res)
+
+		// Regular event delivery.
+		case "", "Notification":
+			bs, err := a.bounce.Azure.ProcessBounce(c.Request(), rawReq)
+			if err != nil {
+				a.log.Printf("error processing Azure Event Grid notification: %v", err)
+				return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("globals.messages.invalidData"))
+			}
+			bounces = append(bounces, bs...)
 
 		default:
 			return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("globals.messages.invalidData"))

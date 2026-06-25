@@ -553,14 +553,19 @@ func (a *App) TestCampaign(c echo.Context) error {
 		return err
 	}
 
-	// Check if the user has permission to access the subscribers.
+	// Exclude subscribers from lists that the user doesn't have access to.
 	user := auth.GetUser(c)
-	subIDs := make([]int, len(subs))
-	for i, s := range subs {
-		subIDs[i] = s.ID
+	validSubs := subs[:0]
+	for _, s := range subs {
+		if err := a.hasSubPerm(user, []int{s.ID}); err == nil {
+			validSubs = append(validSubs, s)
+		}
 	}
-	if err := a.hasSubPerm(user, subIDs); err != nil {
-		return err
+	subs = validSubs
+
+	// No subscribers.
+	if len(subs) == 0 {
+		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("campaigns.noKnownSubsToTest"))
 	}
 
 	// Get the campaign from the DB for previewing.
@@ -611,6 +616,13 @@ func (a *App) GetCampaignViewAnalytics(c echo.Context) error {
 	if len(ids) == 0 {
 		return echo.NewHTTPError(http.StatusBadRequest,
 			a.i18n.Ts("globals.messages.missingFields", "name", "`id`"))
+	}
+
+	// Ensure the user has access to campaigns via lists.
+	for _, id := range ids {
+		if err := a.checkCampaignPerm(auth.PermTypeGet, id, c); err != nil {
+			return err
+		}
 	}
 
 	var (
@@ -698,6 +710,11 @@ func (a *App) ExtractCampaignUnsent(c echo.Context) error {
 
 // sendTestMessage takes a campaign and a subscriber and sends out a sample campaign message.
 func (a *App) sendTestMessage(sub models.Subscriber, camp *models.Campaign) error {
+	if err := a.manager.LoadInlineImages(camp); err != nil {
+		a.log.Printf("error loading inline images: %v", err)
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
 	if err := camp.CompileTemplate(a.manager.TemplateFuncs(camp)); err != nil {
 		a.log.Printf("error compiling template: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,

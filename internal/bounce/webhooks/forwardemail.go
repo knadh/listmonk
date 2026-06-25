@@ -47,6 +47,10 @@ func NewForwardemail(key []byte) *Forwardemail {
 }
 
 func (p *Forwardemail) ProcessBounce(sigHex string, body []byte) ([]models.Bounce, error) {
+	if len(p.hmacKey) == 0 {
+		return nil, errors.New("webhook key is not configured")
+	}
+
 	// Decode the hex-encoded signature from the webhook
 	sig, err := hex.DecodeString(sigHex)
 	if err != nil {

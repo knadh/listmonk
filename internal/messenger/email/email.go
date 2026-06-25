@@ -147,9 +147,10 @@ func (e *Emailer) Push(m models.Message) error {
 		files = make([]smtppool.Attachment, 0, len(m.Attachments))
 		for _, f := range m.Attachments {
 			a := smtppool.Attachment{
-				Filename: f.Name,
-				Header:   f.Header,
-				Content:  make([]byte, len(f.Content)),
+				Filename:    f.Name,
+				Header:      f.Header,
+				Content:     make([]byte, len(f.Content)),
+				HTMLRelated: f.IsInline,
 			}
 			copy(a.Content, f.Content)
 			files = append(files, a)

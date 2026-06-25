@@ -131,11 +131,7 @@ func (a *App) UpdateUser(c echo.Context) error {
 		}
 
 		// Validate password if password login is enabled.
-		if u.PasswordLogin && u.Password.String != "" {
-			if !strHasLen(u.Password.String, 8, stdInputMaxLen) {
-				return echo.NewHTTPError(http.StatusBadRequest, a.i18n.Ts("globals.messages.invalidFields", "name", "password"))
-			}
-
+		if u.PasswordLogin {
 			if u.Password.String != "" {
 				// If a password is sent, validate it before updating in the DB. If it's not set, leave the password in the DB untouched.
 				if !strHasLen(u.Password.String, 8, stdInputMaxLen) {

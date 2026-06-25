@@ -49,12 +49,38 @@ func V6_2_0(db *sqlx.DB, fs stuffbin.FileSystem, ko *koanf.Koanf, lo *log.Logger
 		return err
 	}
 
+	// Add `bounce.azure` for ACS/Event Grid bounce handling; upsert if the row already exists.
+	if _, err := db.Exec(`
+		INSERT INTO settings (key, value) VALUES('bounce.azure', '{"enabled": false, "shared_secret": "", "shared_secret_header": ""}')
+		ON CONFLICT (key) DO UPDATE
+		SET value = jsonb_build_object(
+			'enabled', COALESCE((settings.value->>'enabled')::boolean, false),
+			'shared_secret', COALESCE(settings.value->>'shared_secret', ''),
+			'shared_secret_header', COALESCE(settings.value->>'shared_secret_header', '')
+		);
+	`); err != nil {
+		return err
+	}
+
 	if _, err := db.Exec(`INSERT INTO settings (key, value) VALUES ('app.show_optin_page', 'true') ON CONFLICT (key) DO NOTHING	`); err != nil {
 		return err
 	}
 
 	// Rename `security.cors_origins` to `security.trusted_urls`.
 	if _, err := db.Exec(`UPDATE settings SET key = 'security.trusted_urls' WHERE key = 'security.cors_origins'`); err != nil {
+		return err
+	}
+
+	// Hash existing API tokens. This is idempotent by skipping values that
+	// already look like lowercase SHA-256 hex digests.
+	if _, err := db.Exec(`
+		UPDATE users
+		SET password = ENCODE(DIGEST(password, 'sha256'), 'hex')
+		WHERE type = 'api'
+			AND password IS NOT NULL
+			AND password != ''
+			AND password !~ '^[a-f0-9]{64}$';
+	`); err != nil {
 		return err
 	}
 

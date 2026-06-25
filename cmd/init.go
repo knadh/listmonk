@@ -145,6 +145,7 @@ type Config struct {
 
 	BounceWebhooksEnabled     bool
 	BounceSESEnabled          bool
+	BounceAzureEnabled        bool
 	BounceSendgridEnabled     bool
 	BouncePostmarkEnabled     bool
 	BounceForwardemailEnabled bool
@@ -511,6 +512,7 @@ func initConstConfig(ko *koanf.Koanf) *Config {
 
 	c.BounceWebhooksEnabled = ko.Bool("bounce.webhooks_enabled")
 	c.BounceSESEnabled = ko.Bool("bounce.ses_enabled")
+	c.BounceAzureEnabled = ko.Bool("bounce.azure.enabled")
 	c.BounceSendgridEnabled = ko.Bool("bounce.sendgrid_enabled")
 	c.BouncePostmarkEnabled = ko.Bool("bounce.postmark.enabled")
 	c.BounceForwardemailEnabled = ko.Bool("bounce.forwardemail.enabled")
@@ -819,10 +821,13 @@ func initNotifs(fs stuffbin.FileSystem, i *i18n.I18n, em *email.Emailer, u *UrlC
 // for incoming bounce events.
 func initBounceManager(cb func(models.Bounce) error, stmt *sqlx.Stmt, lo *log.Logger, ko *koanf.Koanf) *bounce.Manager {
 	opt := bounce.Opt{
-		WebhooksEnabled: ko.Bool("bounce.webhooks_enabled"),
-		SESEnabled:      ko.Bool("bounce.ses_enabled"),
-		SendgridEnabled: ko.Bool("bounce.sendgrid_enabled"),
-		SendgridKey:     ko.String("bounce.sendgrid_key"),
+		WebhooksEnabled:         ko.Bool("bounce.webhooks_enabled"),
+		SESEnabled:              ko.Bool("bounce.ses_enabled"),
+		AzureEnabled:            ko.Bool("bounce.azure.enabled"),
+		AzureSharedSecret:       ko.String("bounce.azure.shared_secret"),
+		AzureSharedSecretHeader: ko.String("bounce.azure.shared_secret_header"),
+		SendgridEnabled:         ko.Bool("bounce.sendgrid_enabled"),
+		SendgridKey:             ko.String("bounce.sendgrid_key"),
 		Postmark: struct {
 			Enabled  bool
 			Username string
@@ -1164,7 +1169,7 @@ func initAuth(co *core.Core, db *sql.DB, ko *koanf.Koanf) (bool, *auth.Auth) {
 	if len(username) > 2 && len(password) > 6 {
 		u := auth.User{
 			Username:      username,
-			Password:      null.String{Valid: true, String: password},
+			Password:      null.String{Valid: true, String: auth.HashAPIToken(password)},
 			PasswordLogin: true,
 			HasPassword:   true,
 			Status:        auth.UserStatusEnabled,

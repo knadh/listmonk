@@ -3,6 +3,7 @@ package webhooks
 import (
 	"crypto/subtle"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"strings"
 	"time"
@@ -106,7 +107,7 @@ func makePostmarkAuthHandler(cfgUser, cfgPassword string) func(username, passwor
 
 	return func(username, password string, c echo.Context) (bool, error) {
 		if len(u) == 0 || len(p) == 0 {
-			return true, nil
+			return false, errors.New("webhook credentials are not configured")
 		}
 
 		if subtle.ConstantTimeCompare([]byte(username), u) == 1 && subtle.ConstantTimeCompare([]byte(password), p) == 1 {

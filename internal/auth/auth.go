@@ -2,9 +2,11 @@ package auth
 
 import (
 	"context"
+	"crypto/sha256"
 	"crypto/subtle"
 	"database/sql"
 	"encoding/base64"
+	"encoding/hex"
 	"errors"
 	"fmt"
 	"log"
@@ -138,7 +140,7 @@ func (o *Auth) GetAPIToken(user string, token string) (User, bool) {
 	t, ok := o.apiUsers[user]
 	o.RUnlock()
 
-	if !ok || subtle.ConstantTimeCompare([]byte(t.Password.String), []byte(token)) != 1 {
+	if !ok || subtle.ConstantTimeCompare([]byte(t.Password.String), []byte(HashAPIToken(token))) != 1 {
 		return User{}, false
 	}
 
@@ -390,6 +392,12 @@ func GetSessionID(c echo.Context) string {
 	}
 
 	return sess.ID()
+}
+
+// HashAPIToken returns the SHA-256 hex digest of an API token.
+func HashAPIToken(token string) string {
+	sum := sha256.Sum256([]byte(token))
+	return hex.EncodeToString(sum[:])
 }
 
 // validateSession checks if the cookie session is valid (in the DB) and returns the session and user details.

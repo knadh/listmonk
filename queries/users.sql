@@ -26,7 +26,13 @@ WITH u AS (
 UPDATE users SET
     username=(CASE WHEN $2 != '' THEN $2 ELSE username END),
     password_login=$3,
-    password=(CASE WHEN $3 = TRUE THEN (CASE WHEN $4 != '' THEN CRYPT($4, GEN_SALT('bf')) ELSE password END) ELSE NULL END),
+    password=(
+        CASE
+            WHEN users.type = 'api' AND ($7 = '' OR $7 = 'api') THEN password
+            WHEN $3 = TRUE THEN (CASE WHEN $4 != '' THEN CRYPT($4, GEN_SALT('bf')) ELSE password END)
+            ELSE NULL
+        END
+    ),
     email=(CASE WHEN $5 != '' THEN $5 ELSE email END),
     name=(CASE WHEN $6 != '' THEN $6 ELSE name END),
     type=(CASE WHEN $7 != '' THEN $7::user_type ELSE type END),

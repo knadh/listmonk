@@ -154,6 +154,12 @@ export default Vue.extend({
         hasDummy = 'sendgrid';
       }
 
+      if (this.isDummy(form['bounce.azure'].shared_secret)) {
+        form['bounce.azure'].shared_secret = '';
+      } else if (this.hasDummy(form['bounce.azure'].shared_secret)) {
+        hasDummy = 'azure shared secret';
+      }
+
       if (this.isDummy(form['security.captcha'].hcaptcha.secret)) {
         form['security.captcha'].hcaptcha.secret = '';
       } else if (this.hasDummy(form['security.captcha'].hcaptcha.secret)) {

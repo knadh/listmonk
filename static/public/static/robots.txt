@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /subscription/form
+Disallow: /subscription/
+Disallow: /campaign/
+Disallow: /link/
