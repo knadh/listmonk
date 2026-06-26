@@ -119,9 +119,12 @@ release-dry:
 release:
 	goreleaser release --parallelism 1 --clean
 
+# App services for `make dev-docker` (excludes the devcontainer workspace).
+DEV_DOCKER_SERVICES = adminer mailhog db backend front
+
 # Build local docker images for development.
 .PHONY: build-dev-docker
-build-dev-docker: build ## Build docker containers for the entire suite (Front/Core/PG).
+build-dev-docker: ## Build docker containers for the entire suite (Front/Core/PG).
 	cd dev; \
 	docker compose build ; \
 
@@ -129,21 +132,28 @@ build-dev-docker: build ## Build docker containers for the entire suite (Front/C
 .PHONY: dev-docker
 dev-docker: build-dev-docker ## Build and spawns docker containers for the entire suite (Front/Core/PG).
 	cd dev; \
-	docker compose up
+	docker compose up $(DEV_DOCKER_SERVICES)
 
 # Run the backend in docker-dev mode. The frontend assets in dev mode are loaded from disk from frontend/dist.
 .PHONY: run-backend-docker
 run-backend-docker:
 	CGO_ENABLED=0 go run -ldflags="-s -w -X 'main.buildString=${BUILDSTR}' -X 'main.versionString=${VERSION}' -X 'main.frontendDir=frontend/dist'" ./cmd --config=dev/config.toml
 
+# Build assets and install the DB schema for the docker dev suite.
+.PHONY: init-docker
+init-docker:
+	@test -d frontend/dist || $(MAKE) build-frontend
+	@test -f $(BIN) || $(MAKE) build
+	./listmonk --install --idempotent --yes --config dev/config.toml
+
 # Tear down the complete local development docker suite.
 .PHONY: rm-dev-docker
-rm-dev-docker: build ## Delete the docker containers including DB volumes.
+rm-dev-docker: ## Delete the docker containers including DB volumes.
 	cd dev; \
 	docker compose down -v ; \
 
 # Setup the db for local dev docker suite.
 .PHONY: init-dev-docker
-init-dev-docker: build-dev-docker ## Delete the docker containers including DB volumes.
+init-dev-docker: build-dev-docker ## Build assets and install the DB schema in docker.
 	cd dev; \
-	docker compose run --rm backend sh -c "make dist && ./listmonk --install --idempotent --yes --config dev/config.toml"
+	docker compose run --rm init
