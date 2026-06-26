@@ -1,5 +1,8 @@
 # 1. Contributing
 
+> [!IMPORTANT]
+> **June 2026**: Until the next major version v7.0.0 is released, it would not be possible to accept code contributions (PRs) that involve changes to the admin frontend/UI. The entire Vue/Buefy frontend is being removed completely in favour of a server-side-rendered admin UI that eliminates the Javascript-ecosystem lockin. listmonk admin UI will no longer be a Vue SPA (Single-page App) after v7. [Read more](https://github.com/knadh/listmonk/issues/3073).
+
 Welcome to listmonk! You can contribute to the project in the following ways:
 
 1. **Bug reports:** One liner reports are difficult to understand and review.
