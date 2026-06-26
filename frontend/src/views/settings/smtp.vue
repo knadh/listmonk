@@ -301,7 +301,7 @@ export default Vue.extend({
         from_addresses: [],
         max_conns: 10,
         max_msg_retries: 2,
-        msg_retry_delay: '0s',
+        msg_retry_delay: '10ms',
         idle_timeout: '15s',
         wait_timeout: '5s',
         tls_type: 'STARTTLS',

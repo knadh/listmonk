@@ -411,3 +411,115 @@ describe('Campaigns', () => {
     cy.get('table tr.is-empty');
   });
 });
+
+describe('Campaign image embed', () => {
+  const mailhog = 'http://localhost:8025';
+  const logoUrl = `${apiUrl}/uploads/logo.png`;
+
+  // Create a campaign of the given content type via the API and open its content tab.
+  const newCampaign = (name, contentType) => cy.request('POST', `${apiUrl}/api/campaigns`, {
+    name, subject: name, type: 'regular', content_type: contentType, lists: [1],
+  }).then((r) => cy.visit(`/admin/campaigns/${r.body.data.id}#content`).then(() => r.body.data.id));
+
+  // Start the campaign and assert (via the MailHog API) whether the delivered e-mail
+  // embedded the image as a MIME/CID part (embed=true) or left it as a plain URL.
+  const send = (id, name, embed) => {
+    cy.request('PUT', `${apiUrl}/api/campaigns/${id}/status`, { status: 'running' });
+    cy.waitUntil(() => cy.request(`${mailhog}/api/v2/search?kind=containing&query=${name}`)
+      .then((r) => r.body.total > 0), { timeout: 20000, interval: 1000 });
+    cy.request(`${mailhog}/api/v2/search?kind=containing&query=${name}`).then((r) => {
+      const raw = JSON.stringify(r.body.items[0]);
+      expect(/image\/png/.test(raw), 'has inline image part').to.equal(embed);
+      expect(/cid:/.test(raw), 'references cid').to.equal(embed);
+    });
+  };
+
+  // Open the image dialog's media picker and upload/select image.
+  const pickLogo = (upload) => {
+    cy.window().then((win) => win.tinymce.editors[0].execCommand('mceImage'));
+    cy.get('.tox-dialog .tox-browse-url').click();
+    if (upload) {
+      cy.get('[data-cy=btn-toggle-upload]').click();
+      cy.get('input[type=file]').attachFile('logo.png');
+      cy.get('form[data-cy="upload"] button').click();
+    }
+    cy.get('.modal a.thumb-link', { timeout: 10000 }).first().click();
+    cy.get('.tox-dialog input[type=url]').should('have.value', logoUrl);
+  };
+
+  const richtext = (name, embed, upload) => {
+    let id;
+    newCampaign(name, 'richtext').then((cid) => { id = cid; });
+    cy.window().its('tinymce.editors.0').should('exist');
+    pickLogo(upload);
+    if (embed) {
+      cy.get('.tox-dialog input[type=checkbox]').check({ force: true });
+    }
+    cy.get('.tox-dialog__footer button').last().click();
+    cy.get('button[data-cy=btn-save]').click();
+    cy.wait(500);
+
+    // The 'embed?' selection is stored on the <img data-embed> and must persist across reloads.
+    cy.then(() => cy.visit(`/admin/campaigns/${id}#content`));
+    cy.window().its('tinymce.editors.0').should('exist');
+    cy.window().then((win) => {
+      const ed = win.tinymce.editors[0];
+      ed.selection.select(ed.getBody().querySelector('img'));
+      ed.execCommand('mceImage');
+    });
+    cy.get('.tox-dialog input[type=checkbox]').should(embed ? 'be.checked' : 'not.be.checked');
+    cy.get('.tox-dialog__footer button').first().click();
+
+    cy.then(() => send(id, name, embed));
+  };
+
+  const visual = (name, embed) => {
+    let id;
+    newCampaign(name, 'visual').then((cid) => { id = cid; });
+
+    // Add an image block pointing at the uploaded image.
+    cy.waitUntil(() => cy.get('#visual-editor')
+      .then(($f) => Boolean($f[0].contentWindow.EmailBuilder
+        && $f[0].contentWindow.EmailBuilder.isRendered('visual-editor-container'))));
+    cy.get('#visual-editor').then(($f) => $f[0].contentWindow.EmailBuilder.resetDocument({
+      root: { type: 'EmailLayout', data: { childrenIds: ['blk'] } },
+      blk: { type: 'Image', data: { props: { url: logoUrl, embed: false }, style: {} } },
+    }));
+    cy.wait(500);
+
+    // Select image and check 'embed?' checkbox.
+    const clickImage = () => cy.get('#visual-editor')
+      .then(($f) => $f[0].contentDocument.querySelector('#visual-editor-container img').click());
+    clickImage();
+    cy.wait(300);
+    if (embed) {
+      cy.get('#visual-editor').then(($f) => $f[0].contentDocument.querySelector('input[type=checkbox]').click());
+      cy.wait(300);
+    }
+    cy.get('button[data-cy=btn-save]').click();
+    cy.wait(500);
+
+    // Reload and confirm checkbox peristence.
+    cy.then(() => cy.visit(`/admin/campaigns/${id}#content`));
+    cy.waitUntil(() => cy.get('#visual-editor')
+      .then(($f) => Boolean($f[0].contentDocument.querySelector('#visual-editor-container img'))));
+    clickImage();
+    cy.wait(300);
+    cy.get('#visual-editor').then(($f) => {
+      expect($f[0].contentDocument.querySelector('input[type=checkbox]').checked).to.equal(embed);
+    });
+
+    cy.then(() => send(id, name, embed));
+  };
+
+  it('Resets DB and MailHog', () => {
+    cy.resetDB();
+    cy.request('DELETE', `${mailhog}/api/v1/messages`);
+    cy.loginAndVisit('/admin/campaigns');
+  });
+
+  it('Embeds a rich text image as a MIME/CID part', () => richtext('embedrich', true, true));
+  it('Sends a rich text image as a plain URL', () => richtext('plainrich', false, false));
+  it('Embeds a visual image as a MIME/CID part', () => visual('embedvis', true));
+  it('Sends a visual image as a plain URL', () => visual('plainvis', false));
+});
