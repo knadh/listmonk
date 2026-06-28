@@ -1,15 +1,16 @@
-frontend/node_modules/
-frontend/.cache/
-frontend/yarn.lock
-frontend/build/
-frontend/public/static/email-builder/
-frontend/dist/
-frontend/email-builder/dist/
+frontend-vue/node_modules/
+frontend-vue/.cache/
+frontend-vue/yarn.lock
+frontend-vue/build/
+frontend-vue/public/static/email-builder/
+frontend-vue/dist/
+frontend-vue/email-builder/dist/
 email-builder/node_modules/
 email-builder/.cache/
 email-builder/yarn.lock
 email-builder/dist/
 static/public/static/altcha.umd.js
+static/admin/dist/
 .vscode/
 
 config.toml
