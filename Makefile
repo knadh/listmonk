@@ -7,38 +7,27 @@ VERSION := $(or $(LISTMONK_VERSION),$(shell git describe --tags --abbrev=0 2> /d
 BUILDDATE := $(if $(SOURCE_DATE_EPOCH),$(shell date -u -d @$(SOURCE_DATE_EPOCH) +"%Y-%m-%dT%H:%M:%S%z"),$(shell date -u +"%Y-%m-%dT%H:%M:%S%z"))
 BUILDSTR := ${VERSION} (\#${LAST_COMMIT} $(BUILDDATE))
 
-YARN ?= yarn
 GOPATH ?= $(HOME)/go
 STUFFBIN ?= $(GOPATH)/bin/stuffbin
-FRONTEND_YARN_MODULES = frontend/node_modules
-FRONTEND_DIST = frontend/dist
-FRONTEND_EMAIL_BUILDER_DIST_FINAL = frontend/public/static/email-builder
-FRONTEND_DEPS = \
-	$(FRONTEND_YARN_MODULES) \
-	$(FRONTEND_EMAIL_BUILDER_DIST_FINAL) \
-	frontend/index.html \
-	frontend/package.json \
-	frontend/vite.config.js \
-	frontend/.eslintrc.js \
-	$(shell find frontend/fontello frontend/public frontend/src -type f)
 
-FRONTEND_EMAIL_BUILDER = frontend/email-builder
-FRONTEND_EMAIL_BUILDER_YARN_MODULES = $(FRONTEND_EMAIL_BUILDER)/node_modules
-FRONTEND_EMAIL_BUILDER_DIST = $(FRONTEND_EMAIL_BUILDER)/dist
-FRONTEND_EMAIL_BUILDER_DEPS = \
-	$(FRONTEND_EMAIL_BUILDER_YARN_MODULES) \
-	$(FRONTEND_EMAIL_BUILDER)/package.json \
-	$(FRONTEND_EMAIL_BUILDER)/tsconfig.json \
-	$(FRONTEND_EMAIL_BUILDER)/vite.config.ts \
-	$(shell find $(FRONTEND_EMAIL_BUILDER)/src -type f)
+# SSR admin frontend (built from static/admin/src -> static/admin/dist).
+FRONTEND = static/admin
+FRONTEND_DIST = $(FRONTEND)/dist
+FRONTEND_NODE_MODULES = $(FRONTEND)/node_modules
+FRONTEND_DEPS = \
+	$(FRONTEND_NODE_MODULES) \
+	$(FRONTEND)/package.json \
+	$(FRONTEND)/build.mjs \
+	$(shell find $(FRONTEND)/src -type f)
 
 BIN := listmonk
 STATIC := config.toml.sample \
 	schema.sql queries:/queries permissions.json \
 	static/public:/public \
-	static/admin:/admin-ssr \
+	static/admin/views:/admin/views \
+	static/admin/partials:/admin/partials \
+	static/admin/dist:/admin/static \
 	static/email-templates \
-	frontend/dist:/admin \
 	i18n:/i18n
 
 SQL := $(shell find . -type f -name "*.sql") $(shell find queries -type f -name "*.sql")
@@ -50,56 +39,35 @@ build: $(BIN)
 $(STUFFBIN):
 	go install github.com/knadh/stuffbin/...
 
-$(FRONTEND_YARN_MODULES): frontend/package.json frontend/yarn.lock
-	cd frontend && $(YARN) install
-	touch -c $(FRONTEND_YARN_MODULES)
-
-$(FRONTEND_EMAIL_BUILDER_YARN_MODULES): frontend/package.json frontend/yarn.lock
-	cd $(FRONTEND_EMAIL_BUILDER) && $(YARN) install
-	touch -c $(FRONTEND_EMAIL_BUILDER_YARN_MODULES)
-
 # Build the backend to ./listmonk.
 $(BIN): $(SRC) go.mod go.sum schema.sql $(SQL) permissions.json
 	CGO_ENABLED=0 go build -o ${BIN} -ldflags="-s -w -X 'main.buildString=${BUILDSTR}' -X 'main.versionString=${VERSION}'" ./cmd
 
-# Run the backend in dev mode. The frontend assets in dev mode are loaded from disk from frontend/dist.
+# Run the backend in dev mode. The SSR admin assets are loaded from disk from
+# static/admin/dist, so build them first.
 .PHONY: run
-run:
-	CGO_ENABLED=0 go run -ldflags="-s -w -X 'main.buildString=${BUILDSTR}' -X 'main.versionString=${VERSION}' -X 'main.frontendDir=frontend/dist'" ./cmd
+run: $(FRONTEND_DIST)
+	CGO_ENABLED=0 go run -ldflags="-s -w -X 'main.buildString=${BUILDSTR}' -X 'main.versionString=${VERSION}'" ./cmd
 
-# Build the JS frontend into frontend/dist.
+# Install SSR admin frontend deps.
+$(FRONTEND_NODE_MODULES): $(FRONTEND)/package.json
+	cd $(FRONTEND) && bun install
+	touch -c $(FRONTEND_NODE_MODULES)
+
+# Build the SSR admin frontend (Bun) into static/admin/dist.
 $(FRONTEND_DIST): $(FRONTEND_DEPS)
-	export VUE_APP_VERSION="${VERSION}" && cd frontend && $(YARN) build
+	cd $(FRONTEND) && bun run build
 	touch -c $(FRONTEND_DIST)
 
-# Build the JS email-builder dist.
-$(FRONTEND_EMAIL_BUILDER_DIST): $(FRONTEND_EMAIL_BUILDER_DEPS)
-	export VUE_APP_VERSION="${VERSION}" && cd $(FRONTEND_EMAIL_BUILDER) && $(YARN) build
-	touch -c $(FRONTEND_EMAIL_BUILDER_DIST)
-
-# Copy the build assets to frontend.
-$(FRONTEND_EMAIL_BUILDER_DIST_FINAL): $(FRONTEND_EMAIL_BUILDER_DIST)
-	mkdir -p $(FRONTEND_EMAIL_BUILDER_DIST_FINAL)
-	cp -r $(FRONTEND_EMAIL_BUILDER_DIST)/* $(FRONTEND_EMAIL_BUILDER_DIST_FINAL)
-	touch -c $(FRONTEND_EMAIL_BUILDER_DIST_FINAL)
-
 .PHONY: build-frontend
-build-frontend: $(FRONTEND_EMAIL_BUILDER_DIST_FINAL) $(FRONTEND_DIST)
-
-.PHONY: build-email-builder
-build-email-builder: $(FRONTEND_EMAIL_BUILDER_DIST_FINAL)
-
-# Run the JS frontend server in dev mode.
-.PHONY: run-frontend
-run-frontend: $(FRONTEND_EMAIL_BUILDER_DIST_FINAL)
-	export VUE_APP_VERSION="${VERSION}" && cd frontend && $(YARN) dev
+build-frontend: $(FRONTEND_DIST)
 
 # Run Go tests.
 .PHONY: test
 test:
 	go test ./...
 
-# Bundle all static assets including the JS frontend into the ./listmonk binary
+# Bundle all static assets including the JS frontends into the ./listmonk binary
 # using stuffbin (installed with make deps).
 .PHONY: dist
 dist: $(STUFFBIN) build build-frontend pack-bin
@@ -132,10 +100,10 @@ dev-docker: build-dev-docker ## Build and spawns docker containers for the entir
 	cd dev; \
 	docker compose up
 
-# Run the backend in docker-dev mode. The frontend assets in dev mode are loaded from disk from frontend/dist.
+# Run the backend in docker-dev mode. The SSR admin assets are loaded from disk from static/admin/dist.
 .PHONY: run-backend-docker
 run-backend-docker:
-	CGO_ENABLED=0 go run -ldflags="-s -w -X 'main.buildString=${BUILDSTR}' -X 'main.versionString=${VERSION}' -X 'main.frontendDir=frontend/dist'" ./cmd --config=dev/config.toml
+	CGO_ENABLED=0 go run -ldflags="-s -w -X 'main.buildString=${BUILDSTR}' -X 'main.versionString=${VERSION}'" ./cmd --config=dev/config.toml
 
 # Tear down the complete local development docker suite.
 .PHONY: rm-dev-docker

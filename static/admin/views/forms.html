@@ -1,0 +1,78 @@
+{{ define "admin-forms" -}}
+{{ template "admin-header" . }}
+{{- $d := .Data -}}
+
+<script>const _lists = {{ ToJSON $d.PublicLists }};</script>
+<section class="forms" x-data="formsView(_lists)">
+	<header class="row page-header">
+		<div class="col-8">
+			<h1 class="page-title">{{ .L.T "forms.title" }}</h1>
+		</div>
+	</header>
+
+	<div class="card page-content p-6">
+		{{- if not $d.PublicLists }}
+			<p class="text-light">{{ .L.T "forms.noPublicLists" }}</p>
+		{{- else }}
+			<div class="row">
+				<div class="col-4">
+					<h4>{{ .L.T "forms.publicLists" }}</h4>
+					<p class="text-light text-7">{{ .L.T "forms.selectHelp" }}</p>
+
+					<ul class="no" data-cy="lists">
+						{{- range $d.PublicLists }}
+							<li>
+								<label><input type="checkbox" class="checkbox" value="{{ .UUID }}" x-model="checked" /> {{ .Name }}</label>
+							</li>
+						{{- end }}
+					</ul>
+
+					{{- if $.ConfigJS.PublicSubscription.Enabled }}
+						<hr />
+						<h4>{{ .L.T "forms.publicSubPage" }}</h4>
+						<p>
+							<a href="{{ $.ConfigJS.RootURL }}/subscription/form" target="_blank" rel="noopener noreferrer" data-cy="url">
+								{{ $.ConfigJS.RootURL }}/subscription/form
+							</a>
+						</p>
+					{{- end }}
+
+					<hr />
+					<h4>{{ .L.T "forms.redirectURL" }}</h4>
+					<p class="text-light text-7">{{ .L.T "forms.redirectURLHelp" }}</p>
+					{{- if $.ConfigJS.PublicSubscription.RedirectURLs }}
+						<ul class="no" data-cy="redirect-urls">
+							<li>
+								<label><input type="radio" name="redirect-url" value="" x-model="redirectURL" /> {{ .L.T "globals.terms.none" }}</label>
+							</li>
+							{{- range $.ConfigJS.PublicSubscription.RedirectURLs }}
+								<li>
+									<label><input type="radio" name="redirect-url" value="{{ . }}" x-model="redirectURL" /> {{ . }}</label>
+								</li>
+							{{- end }}
+						</ul>
+					{{- end }}
+				</div>
+
+				<div class="col-8 col-end" data-cy="form">
+					<h4>{{ .L.T "forms.formHTML" }}</h4>
+					<p class="text-light text-7">{{ .L.T "forms.formHTMLHelp" }}</p>
+
+					<div x-show="checked.length > 0" x-cloak>
+						<div class="hstack justify-end">
+							<button type="button" class="small outline" @click="copyHTML" title="{{ .L.T "globals.messages.clickToCopy" }}">
+								{{ Icon "copy" }} {{ .L.T "globals.buttons.copy" }}
+							</button>
+						</div>
+						<pre class="form-html" role="textbox"><code x-text="html"></code></pre>
+					</div>
+				</div>
+			</div><!-- row -->
+		{{- end }}
+	</div>
+</section>
+
+<script type="module" src="{{ URI "/admin/static/js/views/forms.js" }}?v={{ .AssetVersion }}" defer></script>
+
+{{ template "admin-footer" . -}}
+{{ end }}
