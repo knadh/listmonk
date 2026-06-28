@@ -23,7 +23,7 @@
       :per-page="campaigns.perPage" :total="campaigns.total" hoverable checkable backend-sorting @sort="onSort">
       <template #top-left>
         <div class="columns">
-          <div class="column is-6">
+          <div class="column is-5">
             <form @submit.prevent="getCampaigns">
               <div>
                 <b-field>
@@ -35,6 +35,13 @@
                 </b-field>
               </div>
             </form>
+          </div>
+          <div class="column is-4">
+            <b-field>
+              <b-taginput v-model="queryParams.tags" :data="filteredTags" autocomplete :allow-new="false"
+                :open-on-focus="true" icon="tag-outline" :placeholder="$t('globals.terms.tags')"
+                @typing="onTagFilter" @input="onTagsChange" />
+            </b-field>
           </div>
         </div>
 
@@ -296,11 +303,14 @@ export default Vue.extend({
       queryParams: {
         page: 1,
         query: '',
+        tags: [],
         orderBy: 'created_at',
         order: 'desc',
       },
       pollID: null,
       campaignStatsData: {},
+      knownTagsList: [],
+      filteredTags: [],
 
       // Table bulk row selection states.
       bulk: {
@@ -372,10 +382,23 @@ export default Vue.extend({
       this.$api.getCampaigns({
         page: this.queryParams.page,
         query: this.queryParams.query.replace(/[^\p{L}\p{N}\s]/gu, ' '),
+        tag: this.queryParams.tags,
         order_by: this.queryParams.orderBy,
         order: this.queryParams.order,
         no_body: true,
       });
+    },
+
+    onTagsChange() {
+      this.queryParams.page = 1;
+      this.getCampaigns();
+    },
+
+    onTagFilter(text) {
+      const t = text.toLowerCase();
+      this.filteredTags = this.knownTagsList.filter(
+        (tag) => tag.toLowerCase().includes(t) && !this.queryParams.tags.includes(tag),
+      );
     },
 
     // Stats returns the campaign object with stats (sent, toSend etc.)
@@ -521,6 +544,18 @@ export default Vue.extend({
         this.numSelectedCampaigns,
         { num: this.numSelectedCampaigns, name: name.toLowerCase() },
       ), fn);
+    },
+  },
+
+  watch: {
+    'campaigns.results': {
+      handler(results) {
+        if (!results) return;
+        const seen = new Set(this.knownTagsList);
+        results.forEach((c) => c.tags && c.tags.forEach((t) => seen.add(t)));
+        this.knownTagsList = [...seen].sort();
+        this.filteredTags = this.knownTagsList.filter((t) => !this.queryParams.tags.includes(t));
+      },
     },
   },
 
