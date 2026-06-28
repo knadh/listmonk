@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bytes"
 	"net/http"
 	"net/url"
 	"path"
@@ -69,15 +68,12 @@ func initHTTPHandlers(e *echo.Echo, a *App) {
 			}
 		})
 
-		// Authenticated endpoints.
-		g.GET(path.Join(uriAdmin, ""), a.AdminPage)
+		// Authenticated endpoints. As views are ported to the SSR admin, register
+		// their routes here. Unported /admin/* paths fall through to the 404 handler.
 		g.GET(path.Join(uriAdmin, "/custom.css"), serveCustomAppearance("admin.custom_css"))
 		g.GET(path.Join(uriAdmin, "/custom.js"), serveCustomAppearance("admin.custom_js"))
 		g.GET(path.Join(uriAdmin, "/lists"), a.ViewLists)
-		g.GET(path.Join(uriAdmin, "/lists/forms"), a.AdminPage)
-		g.GET(path.Join(uriAdmin, "/lists/roles"), a.AdminPage)
 		g.GET(path.Join(uriAdmin, "/lists/:id"), hasID(a.ViewList))
-		g.GET(path.Join(uriAdmin, "/*"), a.AdminPage)
 	}
 
 	// =================================================================
@@ -310,17 +306,6 @@ func initHTTPHandlers(e *echo.Echo, a *App) {
 	}
 }
 
-// AdminPage is the root handler that renders the Javascript admin frontend.
-func (a *App) AdminPage(c echo.Context) error {
-	b, err := a.fs.Read(path.Join(uriAdmin, "/index.html"))
-	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
-	}
-
-	b = bytes.ReplaceAll(b, []byte("asset_version"), []byte(a.cfg.AssetVersion))
-
-	return c.HTMLBlob(http.StatusOK, b)
-}
 
 // HealthCheck is a healthcheck endpoint that returns a 200 response.
 func (a *App) HealthCheck(c echo.Context) error {

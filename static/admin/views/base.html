@@ -6,21 +6,20 @@
 	<title>{{ .Data.Title }} - {{ .SiteName }}</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 
-	<link href="{{ URI "/admin-ssr/assets/vendor/oat.min.css" }}?v={{ .AssetVersion }}" rel="stylesheet" type="text/css" />
-	<link href="{{ URI "/admin-ssr/assets/icons/fontello.css" }}?v={{ .AssetVersion }}" rel="stylesheet" type="text/css" />
-	<link href="{{ URI "/admin-ssr/assets/style.css" }}?v={{ .AssetVersion }}" rel="stylesheet" type="text/css" />
+	<link href="{{ URI "/admin/static/vendor/oat.min.css" }}?v={{ .AssetVersion }}" rel="stylesheet" type="text/css" />
+	<link href="{{ URI "/admin/static/style.css" }}?v={{ .AssetVersion }}" rel="stylesheet" type="text/css" />
 	<link href="{{ URI "/admin/custom.css" }}?v={{ .AssetVersion }}" rel="stylesheet" type="text/css" />
 	<script>
 		window._LM_I18N = {{ ToJSON .I18nJS }};
 		window._LM_CONFIG = {{ ToJSON .ConfigJS }};
 	</script>
-	<script src="{{ URI "/admin-ssr/assets/vendor/oat.min.js" }}?v={{ .AssetVersion }}" defer></script>
+	<script src="{{ URI "/admin/static/vendor/oat.min.js" }}?v={{ .AssetVersion }}" defer></script>
 	<script src="{{ URI "/admin/custom.js" }}?v={{ .AssetVersion }}" defer></script>
 
 	{{ if ne .FaviconURL "" }}
 		<link rel="icon" href="{{ .FaviconURL }}" type="image/x-icon" />
 	{{ else }}
-		<link rel="icon" href="{{ URI "/admin-ssr/assets/favicon.png" }}?v={{ .AssetVersion }}" type="image/png" />
+		<link rel="icon" href="{{ URI "/admin/static/favicon.png" }}?v={{ .AssetVersion }}" type="image/png" />
 	{{ end }}
 </head>
 <body x-data="adminApp">
@@ -29,14 +28,14 @@
 			<div class="row">
 				<div class="col-4 branding">
 					<button data-sidebar-toggle type="button" aria-label="Toggle sidebar menu" class="small">
-						<i class="mdi-menu"></i>
+						{{ Icon "menu" }}
 					</button>
-					<a href="{{ URI "/admin" }}" class="favicon"><img src="{{ URI "/admin-ssr/assets/favicon.png" }}?v={{ .AssetVersion }}" alt="listmonk" /></a>
-					<a href="{{ URI "/admin" }}" class="logo"><img src="{{ URI "/admin-ssr/assets/logo.svg" }}?v={{ .AssetVersion }}" alt="listmonk" /></a>
+					<a href="{{ URI "/admin" }}" class="favicon"><img src="{{ URI "/admin/static/favicon.png" }}?v={{ .AssetVersion }}" alt="listmonk" /></a>
+					<a href="{{ URI "/admin" }}" class="logo"><img src="{{ URI "/admin/static/logo.svg" }}?v={{ .AssetVersion }}" alt="listmonk" /></a>
 				</div>
 				<div class="col-8 justify-end hstack">
 					<button type="button" class="ghost small" data-cy="btn-refresh" title="{{ .L.T "globals.buttons.refresh" }}"
-						onclick="document.location.reload()"><i class="mdi-refresh"></i></button>
+						onclick="document.location.reload()">{{ Icon "refresh-cw" }}</button>
 					{{ with .Data.Profile }}
 						<ot-dropdown>
 							<button popovertarget="user-menu" type="button" class="user-nav-button ghost small user-trigger">
@@ -46,9 +45,9 @@
 								<span class="user-label">{{ .Username }}</span>
 							</button>
 							<menu popover id="user-menu">
-								<a href="{{ URI "/admin/user/profile" }}" role="menuitem"><i class="mdi-account-outline"></i> {{ $.L.T "users.profile" }}</a>
+								<a href="{{ URI "/admin/user/profile" }}" role="menuitem">{{ Icon "user" }} {{ $.L.T "users.profile" }}</a>
 								<button type="button" role="menuitem" class="ghost" onclick="fetch('{{ URI "/api/logout" }}', { method: 'POST' }).then(() => { document.location.href = '{{ URI "/admin/login" }}'; })">
-									<i class="mdi-logout-variant"></i> {{ $.L.T "users.logout" }}
+									{{ Icon "log-out" }} {{ $.L.T "users.logout" }}
 								</button>
 							</menu>
 						</ot-dropdown>
@@ -88,8 +87,8 @@
 		</dialog>
 	</template>
 
-	<script type="module" src="{{ URI "/admin-ssr/assets/js/main.js" }}?v={{ .AssetVersion }}" defer></script>
-	<script src="{{ URI "/admin-ssr/assets/vendor/alpinejs.min.js" }}?v={{ .AssetVersion }}" defer></script>
+	<script type="module" src="{{ URI "/admin/static/js/main.js" }}?v={{ .AssetVersion }}" defer></script>
+	<script src="{{ URI "/admin/static/vendor/alpinejs.min.js" }}?v={{ .AssetVersion }}" defer></script>
 </body>
 </html>
 {{ end }}

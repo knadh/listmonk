@@ -1,0 +1,15 @@
+{
+  "name": "listmonk-admin",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Build pipeline for the listmonk SSR admin frontend (Bun + Alpine + Oat).",
+  "scripts": {
+    "build": "bun ./build.mjs",
+    "watch": "bun ./build.mjs --watch"
+  },
+  "dependencies": {
+    "@knadh/oat": "^0.6.2",
+    "alpinejs": "^3.15.12"
+  }
+}
