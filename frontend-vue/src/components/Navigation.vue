@@ -21,9 +21,9 @@
               </a>
             </li>
             <li>
-              <router-link :to="{ name: 'forms' }" data-cy="forms">
+              <a href="/admin/lists/forms" data-cy="forms">
                 {{ $t('menu.forms') }}
-              </router-link>
+              </a>
             </li>
           </ul>
         </details>

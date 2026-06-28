@@ -555,6 +555,17 @@ svg.icon {
         padding-block-end: 0;
     }
 
+    .col-bleed {
+        margin: calc(-1 * var(--space-6));
+        margin-right: inherit;
+        padding: var(--space-6) 0;
+        border-right: 1px solid var(--border);
+
+        > * {
+            padding: 0 var(--space-6);
+        }
+    }
+
     /* Stick the table to the edges */
     .table-wrapper {
         margin: 0 calc(-1*var(--space-6));
@@ -901,6 +912,19 @@ section.analytics {
 
     .cm-gutters {
         margin-inline-end: var(--space-3);
+    }
+}
+
+.forms {
+    code-editor {
+        font-size: var(--text-8);
+        height: auto;
+        max-height: 40vh;
+        min-height: 0;
+    }
+    .lists {
+        max-height: 30vh;
+        overflow-y: auto;
     }
 }
 

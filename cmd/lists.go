@@ -24,6 +24,13 @@ type listView struct {
 	List models.List
 }
 
+// publicListForm is the minimal list representation used by the forms view.
+type publicListForm struct {
+	UUID        string `json:"uuid"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
+}
+
 // GetLists retrieves lists with additional metadata like subscriber counts.
 func (a *App) GetLists(c echo.Context) error {
 	lists, props, err := a.getLists(c)
@@ -79,6 +86,33 @@ func (a *App) ViewList(c echo.Context) error {
 	}
 
 	return c.Render(http.StatusOK, "admin-list", data)
+}
+
+// ViewForms renders the HTML view for the public subscription form generator.
+func (a *App) ViewForms(c echo.Context) error {
+	lists, err := a.core.GetLists(models.ListTypePublic, models.ListStatusActive, true, nil)
+	if err != nil {
+		return err
+	}
+
+	out := make([]publicListForm, 0, len(lists))
+	for _, l := range lists {
+		out = append(out, publicListForm{
+			UUID:        l.UUID,
+			Name:        l.Name,
+			Description: l.Description,
+		})
+	}
+
+	data := struct {
+		adminView
+		PublicLists []publicListForm
+	}{
+		adminView:   newAdminView(c, a.i18n.T("forms.title"), ""),
+		PublicLists: out,
+	}
+
+	return c.Render(http.StatusOK, "admin-forms", data)
 }
 
 // GetList retrieves a single list by id.

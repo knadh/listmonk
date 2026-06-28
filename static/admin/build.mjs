@@ -39,7 +39,7 @@ async function build() {
     .map((f) => path.join(srcJS, 'views', f));
 
   const result = await Bun.build({
-    entrypoints: [path.join(srcJS, 'main.js'), ...views],
+    entrypoints: [path.join(srcJS, 'main.js'), path.join(srcJS, 'code-editor.js'), ...views],
     outdir: path.join(dist, 'js'),
     root: srcJS,
     splitting: true,
