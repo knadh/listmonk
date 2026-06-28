@@ -1,0 +1,178 @@
+{{ define "subscriber-form" -}}
+{{- $root := .Root -}}
+{{- $submit := .Submit -}}
+{{- $method := .Method -}}
+{{- $isDialog := eq $method "dialog" -}}
+{{- $canSave := .CanSave -}}
+<form method="{{ $method }}" :aria-busy="isLoading('subscribers.save')" @submit.prevent="{{ $submit }}">
+	<div class="{{ if $isDialog }}dialog-card content{{ else }}card page-content content p-6{{ end }}">
+		{{- if $isDialog }}
+			<header class="dialog-head">
+				<h3 class="dialog-title">{{ $root.L.T "subscribers.newSubscriber" }}</h3>
+			</header>
+		{{ end }}
+
+		<section class="dialog-body">
+			<label data-field>
+				{{ $root.L.T "subscribers.email" }}
+				<input name="email" type="email" maxlength="200" autofocus required x-model="form.email" />
+			</label>
+
+			<div class="row">
+				<div class="col-8">
+					<label data-field>
+						{{ $root.L.T "globals.fields.name" }}
+						<input name="name" maxlength="200" x-model="form.name" />
+					</label>
+				</div>
+				<div class="col-4">
+					<div data-field>
+						<label for="sub-status">{{ $root.L.T "globals.fields.status" }}</label>
+						<select name="status" id="sub-status" required x-model="form.status">
+							<option value="enabled">{{ $root.L.T "subscribers.status.enabled" }}</option>
+							<option value="blocklisted">{{ $root.L.T "subscribers.status.blocklisted" }}</option>
+						</select>
+						<small data-hint>{{ $root.L.T "subscribers.blocklistedHelp" }}</small>
+					</div>
+				</div>
+			</div>
+
+			{{- if $isDialog }}
+				{{ template "list-selector" dict "Root" $root "Model" "form.lists" "ListID" "form-lists" "Label" "subscribers.lists" "Placeholder" "subscribers.listsPlaceholder" }}
+				<label data-field>
+					<input type="checkbox" x-model="form.preconfirm" :disabled="!hasOptinList" /> {{ $root.L.T "subscribers.preconfirm" }}
+					<small data-hint>{{ $root.L.T "subscribers.preconfirmHelp" }}</small>
+				</label>
+			{{- else }}
+				<ot-tabs>
+					<div role="tablist">
+						<button type="button" role="tab">{{ $root.L.T "globals.terms.lists" }}</button>
+						<button type="button" role="tab" :disabled="form.lists.length === 0">{{ $root.L.Tc "globals.terms.subscriptions" 2 }} (<span x-text="form.lists.length"></span>)</button>
+						<button type="button" role="tab" :disabled="bounces.length === 0">{{ $root.L.T "globals.terms.bounces" }} (<span x-text="bounces.length"></span>)</button>
+						<button type="button" role="tab" @click="loadActivity">{{ $root.L.T "subscribers.activity" }}</button>
+					</div>
+
+					<section role="tabpanel">
+						{{ template "list-selector" dict "Root" $root "Model" "form.lists" "ListID" "form-lists" "Label" "subscribers.lists" "Placeholder" "subscribers.listsPlaceholder" }}
+						<div class="row">
+							<div class="col-7">
+								<label data-field>
+									<input type="checkbox" x-model="form.preconfirm" :disabled="!hasOptinList" /> {{ $root.L.T "subscribers.preconfirm" }}
+									<small data-hint>{{ $root.L.T "subscribers.preconfirmHelp" }}</small>
+								</label>
+							</div>
+							{{- if $canSave }}
+								<div class="col-5 align-right">
+									<a href="#" @click.prevent="onSendOptin" :class="{ disabled: !hasOptinList }">{{ Icon "mail" }} {{ $root.L.T "subscribers.sendOptinConfirm" }}</a>
+								</div>
+							{{- end }}
+						</div>
+					</section>
+
+					<section role="tabpanel" class="subscriptions">
+						<table>
+							<thead><tr>
+								<th>{{ $root.L.T "globals.terms.list" }}</th>
+								<th>{{ $root.L.T "globals.fields.status" }}</th>
+								<th>{{ $root.L.T "globals.fields.createdAt" }}</th>
+							</tr></thead>
+							<tbody>
+								<template x-for="l in form.lists" :key="l.id">
+									<tr>
+										<td>
+											<a x-show="!l.restricted" :href="`{{ URI "/admin/lists" }}/${l.id}`" x-text="l.name"></a>
+											<span x-show="l.restricted" class="text-light" x-text="l.name"></span>
+											<br />
+											<span class="badge" :class="l.optin" x-text="optinLabel(l.optin)"></span>
+										</td>
+										<td><span class="badge" :class="'status-' + l.subscription_status" x-text="subStatusLabel(l.subscription_status)"></span></td>
+										<td x-text="fmtDate(l.subscription_created_at)"></td>
+									</tr>
+								</template>
+							</tbody>
+						</table>
+					</section>
+
+					<section role="tabpanel" class="bounces">
+						<p class="align-right" x-show="bounces.length > 0">
+							<a href="#" data-variant="danger" @click.prevent="onDeleteBounces">{{ Icon "trash-2" }} {{ $root.L.T "globals.buttons.delete" }}</a>
+						</p>
+						<table>
+							<thead><tr>
+								<th>{{ $root.L.T "globals.terms.campaign" }}</th>
+								<th>{{ $root.L.T "globals.fields.createdAt" }}</th>
+								<th>{{ $root.L.T "globals.fields.type" }}</th>
+							</tr></thead>
+							<tbody>
+								<template x-for="b in bounces" :key="b.id">
+									<tr>
+										<td x-text="b.campaign ? b.campaign.name : ''"></td>
+										<td x-text="fmtDate(b.created_at)"></td>
+										<td>
+											<a href="#" @click.prevent="toggleMeta(b.id)"><span x-text="b.source"></span> {{ Icon "chevron-down" }}</a>
+											<pre x-show="visibleMeta[b.id]" x-text="JSON.stringify(b.meta, null, 2)"></pre>
+										</td>
+									</tr>
+								</template>
+							</tbody>
+						</table>
+					</section>
+
+					<section role="tabpanel" class="activity" :aria-busy="isLoading('subscribers.activity')">
+						<div class="row">
+							<div class="col-4"><div class="card align-center"><p class="heading">{{ $root.L.T "globals.terms.campaigns" }}</p><p x-text="(activity.campaign_views || []).length"></p></div></div>
+							<div class="col-4"><div class="card align-center"><p class="heading">{{ $root.L.T "campaigns.views" }}</p><p x-text="totalViews"></p></div></div>
+							<div class="col-4"><div class="card align-center"><p class="heading">{{ $root.L.T "campaigns.clicks" }}</p><p x-text="totalClicks"></p></div></div>
+						</div>
+
+						<h5 class="mt-6">{{ $root.L.T "campaigns.views" }}</h5>
+						<table x-show="(activity.campaign_views || []).length > 0">
+							<thead><tr><th>{{ $root.L.T "globals.terms.campaign" }}</th><th>{{ $root.L.T "campaigns.views" }}</th><th>{{ $root.L.T "globals.fields.createdAt" }}</th></tr></thead>
+							<tbody>
+								<template x-for="v in (activity.campaign_views || [])" :key="v.id">
+									<tr>
+										<td><a :href="`{{ URI "/admin/campaigns" }}/${v.id}`" x-text="v.name"></a><p class="text-light text-7" x-text="v.subject"></p></td>
+										<td><span class="badge" x-text="v.view_count"></span></td>
+										<td x-text="fmtDate(v.last_viewed_at)"></td>
+									</tr>
+								</template>
+							</tbody>
+						</table>
+
+						<h5 class="mt-6">{{ $root.L.T "campaigns.clicks" }}</h5>
+						<table x-show="(activity.link_clicks || []).length > 0">
+							<thead><tr><th>{{ $root.L.T "globals.terms.url" }}</th><th>{{ $root.L.T "globals.terms.campaign" }}</th><th>{{ $root.L.T "campaigns.clicks" }}</th><th>{{ $root.L.T "globals.fields.createdAt" }}</th></tr></thead>
+							<tbody>
+								<template x-for="cl in (activity.link_clicks || [])" :key="cl.link_id">
+									<tr>
+										<td class="link-click-url"><a :href="cl.url" target="_blank" rel="noopener noreferrer" x-text="cl.url"></a></td>
+										<td><a x-show="cl.campaign_uuid" :href="`{{ URI "/admin/campaigns" }}/${cl.campaign_id}`" x-text="cl.campaign_subject || cl.campaign_name"></a></td>
+										<td><span class="badge" x-text="cl.click_count"></span></td>
+										<td x-text="fmtDate(cl.last_clicked_at)"></td>
+									</tr>
+								</template>
+							</tbody>
+						</table>
+					</section>
+				</ot-tabs>
+			{{- end }}
+
+			<label data-field class="mt-6">
+				{{ $root.L.T "globals.terms.attribs" }}
+				<textarea name="attribs" rows="4" x-model="form.strAttribs"></textarea>
+				<small data-hint>{{ $root.L.T "subscribers.attribsHelp" }} <code>{"job": "developer", "location": "Mars", "has_rocket": true}</code></small>
+			</label>
+		</section>
+		<footer class="dialog-foot hstack gap-3 justify-end">
+			{{- if $isDialog }}
+				<button type="button" class="outline" @click="onClose">{{ $root.L.T "globals.buttons.close" }}</button>
+			{{- else }}
+				<a href="{{ URI "/admin/subscribers" }}" class="button outline">{{ $root.L.T "globals.buttons.back" }}</a>
+			{{- end }}
+			{{- if $canSave }}
+				<button type="submit" data-variant="primary" data-cy="btn-save" :disabled="isLoading('subscribers.save')" :aria-busy="isLoading('subscribers.save')">{{ $root.L.T "globals.buttons.save" }}</button>
+			{{- end }}
+		</footer>
+	</div>
+</form>
+{{- end }}

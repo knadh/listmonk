@@ -18,12 +18,6 @@ const routes = [
     component: () => import('../views/Dashboard.vue'),
   },
   {
-    path: '/subscribers',
-    name: 'subscribers',
-    meta: { title: 'globals.terms.subscribers', group: 'subscribers' },
-    component: () => import('../views/Subscribers.vue'),
-  },
-  {
     path: '/subscribers/import',
     name: 'import',
     meta: { title: 'import.title', group: 'subscribers' },
@@ -34,18 +28,6 @@ const routes = [
     name: 'bounces',
     meta: { title: 'globals.terms.bounces', group: 'subscribers' },
     component: () => import('../views/Bounces.vue'),
-  },
-  {
-    path: '/subscribers/lists/:listID',
-    name: 'subscribers_list',
-    meta: { title: 'globals.terms.subscribers', group: 'subscribers' },
-    component: () => import('../views/Subscribers.vue'),
-  },
-  {
-    path: '/subscribers/:id',
-    name: 'subscriber',
-    meta: { title: 'globals.terms.subscribers', group: 'subscribers' },
-    component: () => import('../views/Subscribers.vue'),
   },
   {
     path: '/campaigns',

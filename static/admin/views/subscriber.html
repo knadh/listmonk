@@ -1,0 +1,37 @@
+{{ define "admin-subscriber" -}}
+{{ template "admin-header" . }}
+{{- $d := .Data -}}
+
+<script>
+	window._lists = {{ ToJSON $d.AllLists }};
+	window._canGetBounces = {{ $d.Can "bounces:get" }};
+	const _sub = {{ ToJSON $d.Subscriber }};
+</script>
+<section class="subscribers" x-data="subscribersView(_sub)">
+	<header class="row page-header">
+		<div class="col-6">
+			<div class="hstack gap-1">
+				<a href="{{ URI "/admin/subscribers" }}" class="back" aria-label="{{ .L.T "globals.buttons.back" }}">{{ Icon "chevron-left" }}</a>
+				<h1 class="page-title">
+					{{ $d.Subscriber.Email }}
+					{{- if ne $d.Subscriber.Status "enabled" }}<span class="badge {{ $d.Subscriber.Status }}">{{ .L.T (printf "subscribers.status.%s" $d.Subscriber.Status) }}</span>{{ end }}
+				</h1>
+			</div>
+		</div>
+		<div class="col-6 align-right">
+			<button class="small" data-variant="secondary" title="{{ .L.T "globals.messages.clickToCopy" }}" aria-label="{{ .L.T "globals.fields.id" }}" @click="copyToClipboard(form.id)">
+				<strong>{{ .L.T "globals.fields.id" }}</strong> <span x-text="form.id"></span>
+			</button>
+			<button class="small" data-variant="secondary" title="{{ .L.T "globals.messages.clickToCopy" }}" aria-label="{{ .L.T "globals.fields.uuid" }}" @click="copyToClipboard(form.uuid)">
+				<strong>{{ .L.T "globals.fields.uuid" }}</strong> <span x-text="form.uuid"></span>
+			</button>
+		</div>
+	</header>
+
+	{{ template "subscriber-form" dict "Root" . "Submit" "onSubmitUpdate" "Method" "post" "CanSave" ($d.Can "subscribers:manage") }}
+</section>
+
+<script type="module" src="{{ URI "/admin/static/js/views/subscribers.js" }}?v={{ .AssetVersion }}" defer></script>
+
+{{ template "admin-footer" . -}}
+{{ end }}

@@ -1,0 +1,24 @@
+{{ define "list-selector" -}}
+{{- /* Reusable list selector bound to an Alpine array (.Model, eg: "form.lists").
+       .ListID is the unique datalist element id. .Label and .Placeholder are i18n keys. */ -}}
+{{- $root := .Root -}}
+{{- $model := .Model -}}
+{{- $listID := .ListID -}}
+<div class="list-selector" data-field>
+	<label>{{ $root.L.T .Label }} (<span x-text="{{ $model }}.length"></span>)</label>
+	<div class="badge-list hstack gap-1">
+		<template x-for="l in {{ $model }}" :key="l.id">
+			<span class="badge list" :class="l.subscription_status ? 'status-' + l.subscription_status : ''" :data-id="l.id">
+				<span x-text="l.name"></span>
+				<sup x-show="l.optin === 'double' && l.subscription_status" x-text="subStatusLabel(l.subscription_status)"></sup>
+				<button type="button" class="ghost icon small" x-show="!l.restricted" @click="removeList('{{ $model }}', l.id)" aria-label="{{ $root.L.T "globals.buttons.remove" }}">{{ Icon "x" }}</button>
+			</span>
+		</template>
+	</div>
+	<input list="{{ $listID }}" placeholder="{{ $root.L.T .Placeholder }}" x-model="listQuery" @change="addList('{{ $model }}', $event)" :disabled="allLists.length === 0" />
+	<datalist id="{{ $listID }}">
+		<template x-for="l in availableLists({{ $model }})" :key="l.id"><option :value="l.name"></option></template>
+	</datalist>
+	<small data-hint>{{ $root.L.T "subscribers.listsHelp" }}</small>
+</div>
+{{- end }}

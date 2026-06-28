@@ -55,6 +55,153 @@ var (
 	}
 )
 
+// subscribersView is the admin page view for the subscribers listing.
+type subscribersView struct {
+	adminView
+
+	Subscribers []models.Subscriber
+	Page        models.PageProps
+	AllLists    []models.List
+	CurrentList *models.List
+}
+
+// subscriberView is the admin page view for editing a single subscriber.
+type subscriberView struct {
+	adminView
+
+	Subscriber models.Subscriber
+	AllLists   []models.List
+}
+
+// ViewSubscribers renders the HTML view for subscribers, optionally filtered by a list.
+func (a *App) ViewSubscribers(c echo.Context) error {
+	// /admin/subscribers/lists/:id carries the list ID in the path.
+	listID, _ := strconv.Atoi(c.Param("id"))
+
+	subs, props, err := a.getSubscribers(c, listID)
+	if err != nil {
+		return err
+	}
+
+	// All lists the user can access, for the subscriber form's list selector.
+	allLists, err := a.getViewableLists(c)
+	if err != nil {
+		return err
+	}
+
+	// Fetch the list being filtered by, if any, to show its name in the header.
+	var curList *models.List
+	if listID > 0 {
+		if l, err := a.core.GetList(listID, ""); err == nil {
+			curList = &l
+		}
+	}
+
+	data := subscribersView{
+		adminView:   newAdminView(c, a.i18n.T("globals.terms.subscribers"), ""),
+		Subscribers: subs,
+		Page:        props,
+		AllLists:    allLists,
+		CurrentList: curList,
+	}
+
+	return c.Render(http.StatusOK, "admin-subscribers", data)
+}
+
+// ViewSubscriber renders the HTML view for editing a single subscriber.
+func (a *App) ViewSubscriber(c echo.Context) error {
+	user := auth.GetUser(c)
+
+	// Check if the user has access to at least one of the lists on the subscriber.
+	id := getID(c)
+	if err := a.hasSubPerm(user, []int{id}); err != nil {
+		return err
+	}
+
+	out, err := a.core.GetSubscriber(id, "", "")
+	if err != nil {
+		return err
+	}
+	maskRestrictedSubLists(user, &out)
+
+	allLists, err := a.getViewableLists(c)
+	if err != nil {
+		return err
+	}
+
+	data := subscriberView{
+		adminView:  newAdminView(c, out.Email, ""),
+		Subscriber: out,
+		AllLists:   allLists,
+	}
+
+	return c.Render(http.StatusOK, "admin-subscriber", data)
+}
+
+// getViewableLists returns all active lists the user has access to. It's used to
+// populate the list selector in the subscriber form.
+func (a *App) getViewableLists(c echo.Context) ([]models.List, error) {
+	user := auth.GetUser(c)
+	hasAllPerm, permittedIDs := user.GetPermittedLists(auth.PermTypeGet)
+	return a.core.GetLists("", models.ListStatusActive, hasAllPerm, permittedIDs)
+}
+
+// getSubscribers queries subscribers from query params for the HTML view. If listID > 0,
+// results are filtered by that list (the per-list subscribers view).
+func (a *App) getSubscribers(c echo.Context, listID int) ([]models.Subscriber, models.PageProps, error) {
+	q := makeQuery(c.Request().URL.Query(), map[string]string{
+		"page":                "",
+		"search":              "",
+		"query":               "",
+		"order_by":            "",
+		"order":               "",
+		"subscription_status": "",
+	})
+
+	// Get the authenticated user.
+	user := auth.GetUser(c)
+
+	// Filter the list IDs by permission.
+	var listIDs []int
+	if listID > 0 {
+		listIDs = user.GetPermittedListIDs([]int{listID})
+	} else {
+		ids, err := a.filterListQueryByPerm("list_id", c.Request().URL.Query(), user)
+		if err != nil {
+			return nil, models.PageProps{}, err
+		}
+		listIDs = ids
+	}
+
+	// Does the user have the subscribers:sql_query permission for advanced queries?
+	query := formatSQLExp(q.Get("query"))
+	if query != "" && !user.HasPerm(auth.PermSubscribersSqlQuery) {
+		return nil, models.PageProps{}, echo.NewHTTPError(http.StatusForbidden,
+			a.i18n.Ts("globals.messages.permissionDenied", "name", auth.PermSubscribersSqlQuery))
+	}
+
+	// Run the DB query.
+	pg := a.pg.NewFromURL(q)
+	res, total, err := a.core.QuerySubscribers(
+		q.Get("search"),
+		query,
+		listIDs,
+		q.Get("subscription_status"),
+		q.Get("order"),
+		q.Get("order_by"),
+		pg.Offset,
+		pg.Limit)
+	if err != nil {
+		return nil, models.PageProps{}, err
+	}
+
+	for i := range res {
+		maskRestrictedSubLists(user, &res[i])
+	}
+
+	return res, models.NewPageProps(q, total, pg.Page, pg.PerPage), nil
+}
+
 // GetSubscriber handles the retrieval of a single subscriber by ID.
 func (a *App) GetSubscriber(c echo.Context) error {
 	user := auth.GetUser(c)
