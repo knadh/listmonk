@@ -204,7 +204,7 @@ func initConfigFiles(files []string, ko *koanf.Koanf) {
 
 // initFileSystem initializes the stuffbin FileSystem to provide
 // access to bundled static assets to the app.
-func initFS(appDir, frontendDir, staticDir, i18nDir string) stuffbin.FileSystem {
+func initFS(appDir, staticDir, i18nDir string) stuffbin.FileSystem {
 	var (
 		// stuffbin real_path:virtual_alias paths to map local assets on disk
 		// when there an embedded filestystem is not found.
@@ -217,15 +217,14 @@ func initFS(appDir, frontendDir, staticDir, i18nDir string) stuffbin.FileSystem 
 			"./permissions.json:permissions.json",
 		}
 
-		frontendFiles = []string{
-			// Admin frontend's static assets accessible at /admin/* during runtime.
-			// These paths are sourced from frontendDir.
-			"./:/admin",
-		}
-
 		staticFiles = []string{
-			// These paths are joined with staticDir.
-			"./admin:/admin-ssr",
+			// These paths are joined with staticDir. The SSR admin frontend is split:
+			// the Go HTML templates (views/, partials/) are parsed from source, while
+			// the JS/CSS/asset bundle is built into admin/dist (see static/admin/build.mjs)
+			// and served at /admin/static.
+			"./admin/views:/admin/views",
+			"./admin/partials:/admin/partials",
+			"./admin/dist:/admin/static",
 			"./email-templates:static/email-templates",
 			"./public:/public",
 		}
@@ -258,11 +257,10 @@ func initFS(appDir, frontendDir, staticDir, i18nDir string) stuffbin.FileSystem 
 		}
 	}
 
-	// If the embed failed, load app and frontend files from the compile-time paths.
+	// If the embed failed, load app files from the compile-time paths.
 	files := []string{}
 	if !hasEmbed {
 		files = append(files, joinFSPaths(appDir, appFiles)...)
-		files = append(files, joinFSPaths(frontendDir, frontendFiles)...)
 	}
 
 	// Irrespective of the embeds, if there are user specified static or i18n paths,
@@ -950,7 +948,7 @@ func initHTTPServer(cfg *Config, urlCfg *UrlConfig, i *i18n.I18n, fs stuffbin.Fi
 		lo.Fatalf("error parsing public templates: %v", err)
 	}
 
-	adminTpl, err := stuffbin.ParseTemplatesGlob(tplFuncs, fs, "/admin-ssr/*/*.html")
+	adminTpl, err := stuffbin.ParseTemplatesGlob(tplFuncs, fs, "/admin/*/*.html")
 	if err != nil {
 		lo.Fatalf("error parsing admin templates: %v", err)
 	}
@@ -983,9 +981,8 @@ func initHTTPServer(cfg *Config, urlCfg *UrlConfig, i *i18n.I18n, fs stuffbin.Fi
 	// Public (subscriber) facing static files.
 	srv.GET("/public/static/*", echo.WrapHandler(fSrv))
 
-	// Admin (frontend) facing static files.
+	// Admin (frontend) facing static files (SSR admin JS/CSS/asset bundle).
 	srv.GET("/admin/static/*", echo.WrapHandler(fSrv))
-	srv.GET("/admin-ssr/assets/*", echo.WrapHandler(fSrv))
 
 	// Public (subscriber) facing media upload files.
 	var (
@@ -1141,7 +1138,7 @@ func initTplFuncs(i *i18n.I18n, u *UrlConfig) template.FuncMap {
 		},
 		"Icon": func(name string) template.HTML {
 			name = template.HTMLEscapeString(name)
-			return template.HTML(fmt.Sprintf(`<svg class="icon"><use href="%sadmin-ssr/assets/icons.svg#icon-%s"></use></svg>`, u.RootPath, name))
+			return template.HTML(fmt.Sprintf(`<svg class="icon"><use href="%sadmin/static/icons.svg#icon-%s"></use></svg>`, u.RootPath, name))
 		},
 		"ToJSON":        jsonForTpl,
 		"Can":           can,

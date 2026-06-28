@@ -589,25 +589,6 @@ svg.icon {
             vertical-align: middle;
         }
 
-        th a[data-sorted]::after {
-            font-family: "fontello";
-            font-size: var(--text-8);
-            font-weight: normal;
-            inset-inline-end: 0;
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            right: -15px;
-        }
-
-        th a[data-sorted="asc"]::after {
-            content: "\e820";
-        }
-
-        th a[data-sorted="desc"]::after {
-            content: "\e821";
-        }
-
         .bulk-actions {
             position: absolute;
             right: var(--space-6);

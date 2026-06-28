@@ -33,22 +33,6 @@ services:
         source: listmonk-dev-db
         target: /var/lib/postgresql/data
 
-  front:
-    build:
-      context: ../
-      dockerfile: dev/app.Dockerfile
-    command: ["make", "run-frontend"]
-    ports:
-      - "8080:8080"
-    environment:
-      - LISTMONK_API_URL=http://backend:9000
-    depends_on:
-      - db
-    volumes:
-      - ../:/app
-    networks:
-      - listmonk-dev
-
   backend:
     build:
       context: ../
