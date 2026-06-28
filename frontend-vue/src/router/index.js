@@ -18,12 +18,6 @@ const routes = [
     component: () => import('../views/Dashboard.vue'),
   },
   {
-    path: '/lists/forms',
-    name: 'forms',
-    meta: { title: 'forms.title', group: 'lists' },
-    component: () => import('../views/Forms.vue'),
-  },
-  {
     path: '/subscribers',
     name: 'subscribers',
     meta: { title: 'globals.terms.subscribers', group: 'subscribers' },
