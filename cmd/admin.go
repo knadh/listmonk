@@ -68,6 +68,10 @@ var adminJSI18nKeys = []string{
 	"lists.confirmSub",
 	"lists.optinTo",
 	"lists.newList",
+
+	"public.sub",
+	"public.subName",
+	"subscribers.email",
 }
 
 func (a *App) makeServerConfig() (serverConfig, error) {
