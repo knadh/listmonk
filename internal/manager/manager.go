@@ -54,6 +54,7 @@ type Store interface {
 	GetInlineAttachmentByFilename(filename string) (models.Attachment, string, error)
 	UpdateCampaignStatus(campID int, status string) error
 	UpdateCampaignCounts(campID int, toSend int, sent int, lastSubID int) error
+	SetCampaignToSend(c *models.Campaign) (int, error)
 	CreateLink(url string) (string, error)
 	BlocklistSubscriber(id int64) error
 	DeleteSubscriber(id int64) error
@@ -465,6 +466,16 @@ func (m *Manager) scanCampaigns(tick time.Duration) {
 				continue
 			}
 			m.log.Printf("start processing campaign (%s)", c.Name)
+
+			// next-campaigns computes an unfiltered to_send. For a segmented campaign,
+			// correct it once now (the live pipe keeps next-campaigns from re-clobbering it).
+			if c.SubscriberQuery.Valid && strings.TrimSpace(c.SubscriberQuery.String) != "" {
+				if n, err := m.store.SetCampaignToSend(c); err != nil {
+					m.log.Printf("error correcting to_send for segmented campaign (%s): %v", c.Name, err)
+				} else {
+					c.ToSend = n
+				}
+			}
 
 			// If subscriber processing is busy, move on. Blocking and waiting
 			// can end up in a race condition where the waiting campaign's
