@@ -39,6 +39,7 @@
     "campaigns.copyOf": "Kopi av {name}",
     "campaigns.customHeadersHelp": "Array av egendefinerte overskrifter som skal legges til utgående meldinger, f.eks.: [{\"X-Custom\": \"verdi\"}, {\"X-Custom2\": \"verdi\"}]",
     "campaigns.dateAndTime": "Dato og tid",
+    "campaigns.downloadPDF": "Lagre som PDF",
     "campaigns.ended": "Avsluttet",
     "campaigns.errorSendTest": "Feil ved sending av test: {error}",
     "campaigns.fieldInvalidBody": "Feil ved kompilering av kampanjeinnhold: {error}",

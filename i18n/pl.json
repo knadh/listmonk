@@ -39,6 +39,7 @@
     "campaigns.copyOf": "Kopia {name}",
     "campaigns.customHeadersHelp": "Tablica niestandardowych nagłówków do dołączenia do wiadomości wychodzących. np: [{\"X-Custom\": \"wartosc\"}, {\"X-Custom2\": \"wartosc\"}]",
     "campaigns.dateAndTime": "Data i czas",
+    "campaigns.downloadPDF": "Zapisz jako PDF",
     "campaigns.ended": "Zakończona",
     "campaigns.errorSendTest": "Błąd wysyłania testu: {error}",
     "campaigns.fieldInvalidBody": "Błąd kompilacji treści kampanii: {error}",

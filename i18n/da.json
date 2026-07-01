@@ -39,6 +39,7 @@
     "campaigns.copyOf": "Kopi af {name}",
     "campaigns.customHeadersHelp": "Række af tilpassede headere der tilføjes nyheder der udsendes. F.eks: [{\"X-Custom\": \"value\"}, {\"X-Custom2\": \"value\"}]",
     "campaigns.dateAndTime": "Dato og tid",
+    "campaigns.downloadPDF": "Gem som PDF",
     "campaigns.ended": "Afslutet",
     "campaigns.errorSendTest": "Fejl under udsendelse af test: {error}",
     "campaigns.fieldInvalidBody": "Fejl under samling af udsendelsesindholdet: {error}",

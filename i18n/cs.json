@@ -39,6 +39,7 @@
     "campaigns.copyOf": "Kopie {name}",
     "campaigns.customHeadersHelp": "Pole volitelných hlaviček k odchozím zprávám, například: [{\"X-Custom\": \"value\"}, {\"X-Custom2\": \"value\"}]",
     "campaigns.dateAndTime": "Datum a čas",
+    "campaigns.downloadPDF": "Uložit jako PDF",
     "campaigns.ended": "Ukončeno",
     "campaigns.errorSendTest": "Chyba při odesílání testu: {error}",
     "campaigns.fieldInvalidBody": "Chyba při kompilaci těla kampaně: {error}",

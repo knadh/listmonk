@@ -39,6 +39,7 @@
     "campaigns.copyOf": "עותק של {name}",
     "campaigns.customHeadersHelp": "מערך כותרות מותאמות אישית לצירוף להודעות. דוגמא: [{\"X-Custom\": \"value\"}, {\"X-Custom2\": \"value\"}]",
     "campaigns.dateAndTime": "תאריך ושעה",
+    "campaigns.downloadPDF": "שמירה כ-PDF",
     "campaigns.ended": "הסתיים",
     "campaigns.errorSendTest": "שגיאה בשליחת הבדיקה: {error}",
     "campaigns.fieldInvalidBody": "שגיאה בקימפול גוף הקמפיין: {error}",

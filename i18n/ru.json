@@ -39,6 +39,7 @@
     "campaigns.copyOf": "Копия {name}",
     "campaigns.customHeadersHelp": "Массив пользовательских заголовков для добавления к исходящим сообщениям. Например: [{\"X-Custom\": \"value\"}, {\"X-Custom2\": \"value\"}]",
     "campaigns.dateAndTime": "Дата и время",
+    "campaigns.downloadPDF": "Сохранить как PDF",
     "campaigns.ended": "Завершена",
     "campaigns.errorSendTest": "Ошибка отправки тестового сообщения: {error}",
     "campaigns.fieldInvalidBody": "Ошибка компиляции тела кампании: {error}",

@@ -39,6 +39,7 @@
     "campaigns.copyOf": "Cópia de {name}",
     "campaigns.customHeadersHelp": "Array de cabeçalhos personalizados para anexar nas mensagens. eg: [{\"X-Custom\": \"value\"}, {\"X-Custom2\": \"value\"}]",
     "campaigns.dateAndTime": "Data e hora",
+    "campaigns.downloadPDF": "Salvar como PDF",
     "campaigns.ended": "Finalizada",
     "campaigns.errorSendTest": "Erro ao enviar o teste: {error}",
     "campaigns.fieldInvalidBody": "Erro ao compilar corpo da campanha: {error}",
