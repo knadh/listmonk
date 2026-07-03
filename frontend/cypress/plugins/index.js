@@ -26,9 +26,9 @@ module.exports = (on, config) => {
       execSync('./listmonk --install --yes', { cwd: rootDir, env, stdio: 'ignore' });
 
       // Replace the first SMTP block with local MailHog.
-      const smtpSQL = 'UPDATE settings SET value = \'[{"host":"localhost","name":"email-mailhog","port":1025,"uuid":"","enabled":true,"password":"","tls_type":"none","username":"","max_conns":10,"idle_timeout":"15s","wait_timeout":"5s","auth_protocol":"none","email_headers":[],"hello_hostname":"","max_msg_retries":2,"tls_skip_verify":true},{"host":"smtp.gmail.com","port":465,"enabled":false,"password":"password","tls_type":"TLS","username":"username@gmail.com","max_conns":10,"idle_timeout":"15s","wait_timeout":"5s","auth_protocol":"login","email_headers":[],"hello_hostname":"","max_msg_retries":2,"tls_skip_verify":false}]\' WHERE key = \'smtp\';';
+      const smtpSQL = "UPDATE settings SET value = (SELECT jsonb_agg(smtp || jsonb_build_object('host','localhost','port',1025,'tls_type','none')) FROM jsonb_array_elements(value) AS smtp) WHERE key = 'smtp';";
       try {
-        execSync('docker exec -i listmonk_db psql -U listmonk -d listmonk_test', {
+        execSync('docker exec -i listmonk_db psql -U listmonk -d listmonk', {
           input: smtpSQL,
           stdio: ['pipe', 'ignore', 'ignore'],
         });

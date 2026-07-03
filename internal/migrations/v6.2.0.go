@@ -19,18 +19,29 @@ func V6_2_0(db *sqlx.DB, fs stuffbin.FileSystem, ko *koanf.Koanf, lo *log.Logger
 	}
 
 	// Add `msg_retry_delay` to each SMTP server entry in the `smtp` settings JSON array.
+	// Add `msg_retry_delay` and `from_addresses` to each SMTP server entry in the `smtp`
 	// Idempotent: only updates rows where at least one entry is missing the key.
 	if _, err := db.Exec(`
-		UPDATE settings SET value = s.updated
-		FROM (
+		UPDATE settings
+		SET value = (
 			SELECT JSONB_AGG(
-				CASE WHEN v ? 'msg_retry_delay' THEN v
-				     ELSE JSONB_SET(v, '{msg_retry_delay}', '"10ms"'::JSONB)
-				END
-			) AS updated FROM settings, JSONB_ARRAY_ELEMENTS(value) v WHERE key = 'smtp'
-		) s WHERE key = 'smtp'
+				JSONB_SET(
+					JSONB_SET(
+						v,
+						'{msg_retry_delay}',
+						COALESCE(v->'msg_retry_delay', '"10ms"'::JSONB)
+					),
+					'{from_addresses}',
+					COALESCE(v->'from_addresses', '[]'::JSONB)
+				)
+				ORDER BY ord
+			)
+			FROM JSONB_ARRAY_ELEMENTS(value) WITH ORDINALITY AS t(v, ord)
+		)
+		WHERE key = 'smtp'
 		AND EXISTS (
-			SELECT 1 FROM JSONB_ARRAY_ELEMENTS(value) v WHERE NOT (v ? 'msg_retry_delay')
+			SELECT 1 FROM JSONB_ARRAY_ELEMENTS(value) AS v
+			WHERE NOT (v ? 'msg_retry_delay') OR NOT (v ? 'from_addresses')
 		);
 	`); err != nil {
 		return err
@@ -67,7 +78,9 @@ func V6_2_0(db *sqlx.DB, fs stuffbin.FileSystem, ko *koanf.Koanf, lo *log.Logger
 	}
 
 	// Rename `security.cors_origins` to `security.trusted_urls`.
-	if _, err := db.Exec(`UPDATE settings SET key = 'security.trusted_urls' WHERE key = 'security.cors_origins'`); err != nil {
+	if _, err := db.Exec(`UPDATE settings SET key = 'security.trusted_urls'
+		WHERE key = 'security.cors_origins'
+		AND NOT EXISTS (SELECT 1 FROM settings WHERE key = 'security.trusted_urls')`); err != nil {
 		return err
 	}
 
