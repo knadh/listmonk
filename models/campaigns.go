@@ -172,7 +172,11 @@ func (c *Campaign) CompileTemplate(f template.FuncMap) error {
 	// the campaign body for the `{{ template "content" . }}` placeholder in
 	// the base, then run mjml.Render once.
 	if c.ContentType == CampaignContentTypeMJML {
-		b := regexpTplTag.ReplaceAllLiteralString(body, c.Body)
+		campBody := c.Body
+		for _, r := range regTplFuncs {
+			campBody = r.regExp.ReplaceAllString(campBody, r.replace)
+		}
+		b := regexpTplTag.ReplaceAllLiteralString(body, campBody)
 		htmlBody, err := mjml.Render(b)
 		if err != nil {
 			return fmt.Errorf("error compiling MJML: %v", err)
