@@ -42,6 +42,11 @@ INSERT INTO roles (parent_id, list_id, permissions, type)
     SELECT $1, list_id, ARRAY_REMOVE(ARRAY(SELECT JSONB_ARRAY_ELEMENTS_TEXT(perms)), ''), 'list' FROM p
     ON CONFLICT (parent_id, list_id) DO UPDATE SET permissions = EXCLUDED.permissions;
 
+-- name: add-list-permission
+-- Grants a single list's permissions to a role, leaving the role's other list permissions intact.
+INSERT INTO roles (parent_id, list_id, permissions, type) VALUES($1, $2, $3, 'list')
+    ON CONFLICT (parent_id, list_id) DO UPDATE SET permissions = EXCLUDED.permissions;
+
 -- name: delete-list-permission
 DELETE FROM roles WHERE parent_id=$1 AND list_id=$2;
 

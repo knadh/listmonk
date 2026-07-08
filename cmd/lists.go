@@ -108,6 +108,17 @@ func (a *App) CreateList(c echo.Context) error {
 		return err
 	}
 
+	// Attach the new list to the creating user's list role (if any) with get and
+	// manage permissions so that they can immediately see and manage the list they
+	// created. Super admins and users with lists:get_all / lists:manage_all can
+	// already access all lists, so this is moot for them.
+	user := auth.GetUser(c)
+	if user.UserRole.ID != auth.SuperAdminRoleID && user.ListRoleID != nil {
+		if err := a.core.AddListPermission(*user.ListRoleID, out.ID, []string{auth.PermListGet, auth.PermListManage}); err != nil {
+			return err
+		}
+	}
+
 	return c.JSON(http.StatusOK, okResp{out})
 }
 

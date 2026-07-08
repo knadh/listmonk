@@ -116,6 +116,17 @@ func (c *Core) UpsertListPermissions(roleID int, lp []auth.ListPermission) error
 	return nil
 }
 
+// AddListPermission grants a single list's permissions to a role without
+// affecting the role's other list permissions.
+func (c *Core) AddListPermission(roleID, listID int, perms []string) error {
+	if _, err := c.q.AddListPermission.Exec(roleID, listID, pq.Array(perms)); err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError,
+			c.i18n.Ts("globals.messages.errorUpdating", "name", "{users.role}", "error", pqErrMsg(err)))
+	}
+
+	return nil
+}
+
 // DeleteListPermission deletes a list permission entry from a role.
 func (c *Core) DeleteListPermission(roleID, listID int) error {
 	if _, err := c.q.DeleteListPermission.Exec(roleID, listID); err != nil {
