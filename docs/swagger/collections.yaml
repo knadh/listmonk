@@ -377,6 +377,29 @@ paths:
                   data:
                     type: boolean
 
+  /subscribers/subscription:
+    post:
+      description: creates or updates a subscriber subscription with optional attributes.
+      operationId: subscribeSubscriber
+      tags:
+        - Subscribers
+      requestBody:
+        description: subscription request
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SubscribeSubscriber"
+      responses:
+        "200":
+          description: subscription result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/SubscribeSubscriberResponse"
+
   "/subscribers/{id}":
     get:
       description: handles the retrieval of a single subscriber by ID.
@@ -3717,6 +3740,41 @@ components:
         attribs:
           type: object
           additionalProperties: true
+
+    SubscribeSubscriber:
+      type: object
+      required:
+        - email
+      properties:
+        email:
+          type: string
+        name:
+          type: string
+        status:
+          type: string
+        lists:
+          type: array
+          items:
+            type: integer
+        attribs:
+          type: object
+          additionalProperties: true
+        attribs_conflict:
+          type: string
+          enum: ["incoming", "existing", "replace"]
+          default: incoming
+        preconfirm_subscriptions:
+          type: boolean
+
+    SubscribeSubscriberResponse:
+      type: object
+      properties:
+        subscriber:
+          $ref: "#/components/schemas/Subscriber"
+        created:
+          type: boolean
+        has_optin:
+          type: boolean
 
     UpdateSubscriber:
       type: object

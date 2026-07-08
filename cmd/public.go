@@ -769,38 +769,18 @@ func (a *App) processSubForm(c echo.Context) (bool, error) {
 		}
 	}
 
-	// Insert the subscriber into the DB.
-	_, hasOptin, err := a.core.InsertSubscriber(models.Subscriber{
+	// Subscribe the subscriber (create or update on conflict).
+	_, _, hasOptin, err := a.core.SubscribeSubscriber(models.Subscriber{
 		Name:   req.Name,
 		Email:  req.Email,
 		Status: models.SubscriberStatusEnabled,
-	}, nil, listUUIDs, false, true)
-	if err == nil {
-		return hasOptin, nil
-	}
-
-	// Insert returned an error. Examine it.
-	var lastErr = err
-
-	// Subscriber already exists. Update subscriptions in the DB.
-	if e, ok := err.(*echo.HTTPError); ok && e.Code == http.StatusConflict {
-		// Get the subscriber from the DB by their email.
-		sub, err := a.core.GetSubscriber(0, "", req.Email)
-		if err != nil {
-			return false, err
+	}, nil, listUUIDs, false, models.AttribsConflictIncoming)
+	if err != nil {
+		if e, ok := err.(*echo.HTTPError); ok {
+			return false, echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("%s", e.Message))
 		}
-
-		// Update the subscriber's subscriptions in the DB.
-		_, hasOptin, err := a.core.UpdateSubscriberWithLists(sub.ID, sub, nil, listUUIDs, false, false, true, nil, true)
-		if err == nil {
-			return hasOptin, nil
-		}
-		lastErr = err
+		return false, echo.NewHTTPError(http.StatusInternalServerError, a.i18n.T("public.errorProcessingRequest"))
 	}
 
-	// Something else went wrong.
-	if e, ok := lastErr.(*echo.HTTPError); ok {
-		return false, echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("%s", e.Message))
-	}
-	return false, echo.NewHTTPError(http.StatusInternalServerError, a.i18n.T("public.errorProcessingRequest"))
+	return hasOptin, nil
 }

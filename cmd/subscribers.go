@@ -255,6 +255,71 @@ func (a *App) CreateSubscriber(c echo.Context) error {
 	return c.JSON(http.StatusOK, okResp{sub})
 }
 
+type subscribeReq struct {
+	models.Subscriber
+	Lists           []int  `json:"lists"`
+	PreconfirmSubs  bool   `json:"preconfirm_subscriptions"`
+	AttribsConflict string `json:"attribs_conflict"`
+}
+
+type subscribeResp struct {
+	Subscriber models.Subscriber `json:"subscriber"`
+	Created    bool              `json:"created"`
+	HasOptin   bool              `json:"has_optin"`
+}
+
+// SubscribeSubscriber handles create-or-update subscription requests with optional attribs.
+func (a *App) SubscribeSubscriber(c echo.Context) error {
+	user := auth.GetUser(c)
+
+	var req subscribeReq
+	if err := c.Bind(&req); err != nil {
+		return err
+	}
+
+	validated, err := a.importer.ValidateFields(subimporter.SubReq{
+		Subscriber:     req.Subscriber,
+		Lists:          req.Lists,
+		PreconfirmSubs: req.PreconfirmSubs,
+	})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	listIDs := user.FilterListsByPerm(auth.PermTypeManage, req.Lists)
+	if len(req.Lists) > 0 && len(listIDs) == 0 {
+		return echo.NewHTTPError(http.StatusForbidden, a.i18n.Ts("globals.messages.permissionDenied", "name", "lists"))
+	}
+
+	attribsConflict := strings.TrimSpace(req.AttribsConflict)
+	if attribsConflict == "" {
+		attribsConflict = models.AttribsConflictIncoming
+	}
+	switch attribsConflict {
+	case models.AttribsConflictIncoming, models.AttribsConflictExisting, models.AttribsConflictReplace:
+	default:
+		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("subscribers.invalidAttribsConflict"))
+	}
+
+	sub := validated.Subscriber
+	if sub.Status == "" {
+		sub.Status = models.SubscriberStatusEnabled
+	}
+
+	out, created, hasOptin, err := a.core.SubscribeSubscriber(sub, listIDs, nil, req.PreconfirmSubs, attribsConflict)
+	if err != nil {
+		return err
+	}
+
+	maskRestrictedSubLists(user, &out)
+
+	return c.JSON(http.StatusOK, okResp{subscribeResp{
+		Subscriber: out,
+		Created:    created,
+		HasOptin:   hasOptin,
+	}})
+}
+
 // UpdateSubscriber handles modification of a subscriber.
 func (a *App) UpdateSubscriber(c echo.Context) error {
 	// Get the authenticated user.
