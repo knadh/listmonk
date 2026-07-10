@@ -38,6 +38,12 @@ __________________
 See [installation docs](https://listmonk.app/docs/installation)
 __________________
 
+### Managed hosting
+Prefer not to run a server? Deploy a one-click managed listmonk instance with storage, backups, email and a free subdomain included.
+
+[![Deploy with Zenith](https://cdn.zenith.hosting/buttons/deploy-with-zenith.svg)](https://zenith.hosting/host/listmonk)
+__________________
+
 
 ## Developers
 listmonk is free and open source software licensed under AGPLv3. If you are interested in contributing, refer to the [developer setup](https://listmonk.app/docs/developer-setup). The backend is written in Go and the frontend is Vue with Buefy for UI. 
