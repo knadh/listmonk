@@ -164,7 +164,24 @@
             </b-field>
           </div>
         </div>
+        <div class="columns">
+          <div class="column is-3">
+            <b-field>
+              <b-switch v-model="data['bounce.mailgun'].enabled" name="mailgun_enabled" :native-value="true"
+                data-cy="btn-enable-bounce-mailgun">
+                {{ $t('settings.bounces.enableMailgun') }}
+              </b-switch>
+            </b-field>
+          </div>
+          <div class="column">
+            <b-field :label="$t('settings.bounces.mailgunKey')" :message="$t('globals.messages.passwordChange')">
+              <b-input v-model="data['bounce.mailgun'].key" type="password"
+                :disabled="!data['bounce.mailgun'].enabled" name="mailgun_key" data-cy="bounce-mailgun-key" />
+            </b-field>
+          </div>
+        </div>
       </div>
+
     </div>
 
     <!-- bounce mailbox -->
