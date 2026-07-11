@@ -273,6 +273,19 @@ func (a *App) BounceWebhook(c echo.Context) error {
 		}
 		bounces = append(bounces, bs...)
 
+	// Mailgun.
+	case service == "mailgun" && a.bounce.Mailgun != nil:
+		bs, err := a.bounce.Mailgun.ProcessBounce(rawReq)
+		if err != nil {
+			a.log.Printf("error processing mailgun notification: %v", err)
+			if _, ok := err.(*echo.HTTPError); ok {
+				return err
+			}
+
+			return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("globals.messages.invalidData"))
+		}
+		bounces = append(bounces, bs...)
+
 	default:
 		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.Ts("bounces.unknownService"))
 	}

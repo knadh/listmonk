@@ -183,11 +183,16 @@ export default Vue.extend({
       } else if (this.hasDummy(form['bounce.forwardemail'].key)) {
         hasDummy = 'forwardemail';
       }
-
       if (this.isDummy(form['bounce.lettermint'].key)) {
         form['bounce.lettermint'].key = '';
       } else if (this.hasDummy(form['bounce.lettermint'].key)) {
         hasDummy = 'lettermint';
+      }
+
+      if (this.isDummy(form['bounce.mailgun'].key)) {
+        form['bounce.mailgun'].key = '';
+      } else if (this.hasDummy(form['bounce.mailgun'].key)) {
+        hasDummy = 'mailgun';
       }
 
       for (let i = 0; i < form.messengers.length; i += 1) {
