@@ -392,7 +392,9 @@ func (m *Manager) TemplateFuncs(c *models.Campaign) template.FuncMap {
 				subUUID = dummyUUID
 			}
 
-			return template.HTML(fmt.Sprintf(`<img src="%s" alt="" />`,
+			// Use a 1x1 invisible tracking pixel with explicit dimensions and CSS
+			// visibility properties for better anti-spam filter compatibility.
+			return template.HTML(fmt.Sprintf(`<img src="%s" width="1" height="1" style="display:none;max-height:0;max-width:0;opacity:0" alt="">`,
 				fmt.Sprintf(m.cfg.ViewTrackURL, msg.Campaign.UUID, subUUID)))
 		},
 		"UnsubscribeURL": func(msg *CampaignMessage) string {

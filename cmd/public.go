@@ -99,7 +99,9 @@ type subFormTpl struct {
 }
 
 var (
-	pixelPNG = drawTransparentImage(3, 14)
+	// pixelPNG is a 1x1 transparent PNG served as the tracking pixel.
+	// Using the canonical 1x1 size (industry standard for tracking pixels).
+	pixelPNG = drawTransparentImage(1, 1)
 )
 
 // Render executes and renders a template for echo.
