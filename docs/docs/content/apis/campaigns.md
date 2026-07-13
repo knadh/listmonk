@@ -69,6 +69,7 @@ Retrieve all campaigns.
                 "body": "<h3>Hi {{ .Subscriber.FirstName }}!</h3>\n\t\t\tThis is a test e-mail campaign. Your second name is {{ .Subscriber.LastName }} and you are from {{ .Subscriber.Attribs.city }}.",
                 "body_source": null,
                 "send_at": "2020-03-15T17:36:41.293233+01:00",
+                "send_until": null,
                 "status": "draft",
                 "content_type": "richtext",
                 "tags": [
@@ -132,6 +133,7 @@ curl -u "api_user:token" -X GET 'http://localhost:9000/api/campaigns/1'
         "body": "<h3>Hi {{ .Subscriber.FirstName }}!</h3>\n\t\t\tThis is a test e-mail campaign. Your second name is {{ .Subscriber.LastName }} and you are from {{ .Subscriber.Attribs.city }}.",
         "body_source": null,
         "send_at": "2020-03-15T17:36:41.293233+01:00",
+        "send_until": null,
         "status": "draft",
         "content_type": "richtext",
         "tags": [
@@ -301,6 +303,8 @@ Create a new campaign.
 | body_source  | string     |          | If content_type is `visual`, the JSON block source of the body.                                                        |
 | altbody      | string     |          | Alternate plain text body for HTML (and richtext) emails.                                                              |
 | send_at      | string     |          | Timestamp to schedule campaign. Format: 'YYYY-MM-DDTHH:MM:SSZ'.                                                        |
+| send_until   | string     |          | Timestamp to spread campaign delivery until. Format: 'YYYY-MM-DDTHH:MM:SSZ'.                                           |
+| send_window  | string     |          | Duration to spread campaign delivery over, for example `24h`. Relative to `send_at`, or now if `send_at` is empty.     |
 | messenger    | string     |          | 'email' or a custom messenger defined in settings. Defaults to 'email' if not provided.                                |
 | template_id  | number     |          | Template ID to use. Defaults to default template if not provided.                                                      |
 | tags         | string\[\] |          | Tags to mark campaign.                                                                                                 |
@@ -340,6 +344,7 @@ curl -u "api_user:token" 'http://localhost:9000/api/campaigns' -X POST -H 'Conte
         "body_source": null,
         "altbody": null,
         "send_at": null,
+        "send_until": null,
         "status": "draft",
         "content_type": "richtext",
         "tags": ["test"],
@@ -435,6 +440,7 @@ curl -u "api_user:token" -X PUT 'http://localhost:9000/api/campaigns/1/status' \
         "from_email": "No Reply <noreply@yoursite.com>",
         "body": "<h3>Hi {{ .Subscriber.FirstName }}!</h3>\n\t\t\tThis is a test e-mail campaign. Your second name is {{ .Subscriber.LastName }} and you are from {{ .Subscriber.Attribs.city }}.",
         "send_at": "2020-03-15T17:36:41.293233+01:00",
+        "send_until": null,
         "status": "scheduled",
         "content_type": "richtext",
         "tags": [

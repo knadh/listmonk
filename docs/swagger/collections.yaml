@@ -3905,6 +3905,8 @@ components:
           type: string
         send_at:
           type: string
+        send_until:
+          type: string
         status:
           type: string
         content_type:
@@ -3964,6 +3966,8 @@ components:
           type: string
         send_at:
           type: string
+        send_until:
+          type: string
         status:
           type: string
         content_type:
@@ -4016,6 +4020,10 @@ components:
                 type: object
             template_id:
               type: number
+        send_until:
+          type: string
+        send_window:
+          type: string
 
     CampaignUpdate:
       type: object
@@ -4042,6 +4050,10 @@ components:
           type: boolean
         send_at:
           type: object
+        send_until:
+          type: string
+        send_window:
+          type: string
         headers:
           type: array
           items:

@@ -36,6 +36,10 @@ type campReq struct {
 
 	// This is only relevant to campaign test requests.
 	SubscriberEmails pq.StringArray `json:"subscribers"`
+
+	// Optional duration (for example, "24h") to spread a campaign over. This is
+	// converted into Campaign.SendUntil relative to send_at or now.
+	SendWindow string `json:"send_window"`
 }
 
 // campContentReq wraps params coming from API requests for converting
@@ -712,6 +716,29 @@ func (a *App) validateCampaignFields(c campReq) (campReq, error) {
 	if c.SendAt.Valid {
 		if c.SendAt.Time.Before(time.Now()) {
 			return c, errors.New(a.i18n.T("campaigns.fieldInvalidSendAt"))
+		}
+	}
+
+	if c.SendWindow != "" {
+		d, err := time.ParseDuration(c.SendWindow)
+		if err != nil || d <= 0 {
+			return c, errors.New(a.i18n.T("campaigns.fieldInvalidSendWindow"))
+		}
+
+		start := time.Now()
+		if c.SendAt.Valid {
+			start = c.SendAt.Time
+		}
+		c.SendUntil = null.NewTime(start.Add(d), true)
+	}
+
+	if c.SendUntil.Valid {
+		start := time.Now()
+		if c.SendAt.Valid {
+			start = c.SendAt.Time
+		}
+		if !c.SendUntil.Time.After(start) {
+			return c, errors.New(a.i18n.T("campaigns.fieldInvalidSendUntil"))
 		}
 	}
 

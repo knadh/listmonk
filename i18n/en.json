@@ -48,6 +48,8 @@
     "campaigns.fieldInvalidMessenger": "Unknown messenger {name}.",
     "campaigns.fieldInvalidName": "Invalid length for name.",
     "campaigns.fieldInvalidSendAt": "Scheduled date should be in the future.",
+    "campaigns.fieldInvalidSendUntil": "`send_until` should be after `send_at` or now.",
+    "campaigns.fieldInvalidSendWindow": "`send_window` should be a positive duration like `24h`.",
     "campaigns.fieldInvalidSubject": "Invalid length for subject.",
     "campaigns.formatHTML": "Format HTML",
     "campaigns.fromAddress": "From address",

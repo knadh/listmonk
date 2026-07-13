@@ -15,6 +15,7 @@ type pipe struct {
 	rate       *ratecounter.RateCounter
 	wg         *sync.WaitGroup
 	sent       atomic.Int64
+	queued     atomic.Int64
 	lastID     atomic.Uint64
 	errors     atomic.Uint64
 	stopped    atomic.Bool
@@ -44,6 +45,18 @@ func (m *Manager) newPipe(c *models.Campaign) (*pipe, error) {
 	// Load any media/attachments.
 	if err := m.attachMedia(c); err != nil {
 		return nil, err
+	}
+
+	// Refresh DB-computed campaign counters after NextCampaigns has initialized
+	// them. Paced delivery depends on accurate to_send/sent/start values.
+	if c.SendUntil.Valid {
+		if fresh, err := m.store.GetCampaign(c.ID); err == nil {
+			c.SendAt = fresh.SendAt
+			c.SendUntil = fresh.SendUntil
+			c.StartedAt = fresh.StartedAt
+			c.ToSend = fresh.ToSend
+			c.Sent = fresh.Sent
+		}
 	}
 
 	// Add the campaign to the active map.
@@ -79,8 +92,17 @@ func (m *Manager) newPipe(c *models.Campaign) (*pipe, error) {
 // in the current batch or not. A false indicates that all subscribers
 // have been processed, or that a campaign has been paused or cancelled.
 func (p *pipe) NextSubscribers() (bool, error) {
+	limit := p.m.cfg.BatchSize
+	if pacedLimit, wait := p.pacedBatchLimit(); wait > 0 {
+		p.m.log.Printf("campaign (%s) pacing delivery. Sleeping for %s.", p.camp.Name, wait.Round(time.Second))
+		time.Sleep(wait)
+		limit = 1
+	} else if pacedLimit > 0 && pacedLimit < limit {
+		limit = pacedLimit
+	}
+
 	// Fetch the next batch of subscribers from a 'running' campaign.
-	subs, err := p.m.store.NextSubscribers(p.camp.ID, p.m.cfg.BatchSize)
+	subs, err := p.m.store.NextSubscribers(p.camp.ID, limit)
 	if err != nil {
 		return false, fmt.Errorf("error fetching campaign subscribers (%s): %v", p.camp.Name, err)
 	}
@@ -90,6 +112,7 @@ func (p *pipe) NextSubscribers() (bool, error) {
 	if len(subs) == 0 {
 		return false, nil
 	}
+	p.queued.Add(int64(len(subs)))
 
 	// Is there a sliding window limit configured?
 	hasSliding := p.m.cfg.SlidingWindow &&
@@ -136,6 +159,61 @@ func (p *pipe) NextSubscribers() (bool, error) {
 	}
 
 	return true, nil
+}
+
+// pacedBatchLimit returns the number of messages a campaign can queue right now
+// to spread delivery evenly until send_until. A zero limit means pacing is not
+// active. A positive wait means the caller should wait before fetching.
+func (p *pipe) pacedBatchLimit() (int, time.Duration) {
+	if !p.camp.SendUntil.Valid || p.camp.ToSend <= 1 {
+		return 0, 0
+	}
+
+	start := time.Now()
+	if p.camp.StartedAt.Valid {
+		start = p.camp.StartedAt.Time
+	} else if p.camp.SendAt.Valid {
+		start = p.camp.SendAt.Time
+	}
+
+	end := p.camp.SendUntil.Time
+	if !end.After(start) {
+		return 0, 0
+	}
+
+	now := time.Now()
+	if !now.Before(end) {
+		return p.m.cfg.BatchSize, 0
+	}
+
+	queued := p.camp.Sent + int(p.queued.Load())
+	if queued >= p.camp.ToSend {
+		return 0, 0
+	}
+
+	// The first message is allowed at the start, and the final message at
+	// send_until. This gives a smooth, inclusive delivery window.
+	elapsed := now.Sub(start)
+	if elapsed < 0 {
+		elapsed = 0
+	}
+
+	window := end.Sub(start)
+	allowed := int(float64(p.camp.ToSend-1)*(float64(elapsed)/float64(window))) + 1
+	if allowed > p.camp.ToSend {
+		allowed = p.camp.ToSend
+	}
+
+	if available := allowed - queued; available > 0 {
+		return available, 0
+	}
+
+	nextAt := start.Add(time.Duration(float64(window) * (float64(queued) / float64(p.camp.ToSend-1))))
+	if wait := time.Until(nextAt); wait > 0 {
+		return 0, wait
+	}
+
+	return 1, 0
 }
 
 // OnError keeps track of the number of errors that occur while sending messages

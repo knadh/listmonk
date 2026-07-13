@@ -48,6 +48,7 @@ type Campaign struct {
 	BodySource        null.String     `db:"body_source" json:"body_source"`
 	AltBody           null.String     `db:"altbody" json:"altbody"`
 	SendAt            null.Time       `db:"send_at" json:"send_at"`
+	SendUntil         null.Time       `db:"send_until" json:"send_until"`
 	Status            string          `db:"status" json:"status"`
 	ContentType       string          `db:"content_type" json:"content_type"`
 	Tags              pq.StringArray  `db:"tags" json:"tags"`

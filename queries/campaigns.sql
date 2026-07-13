@@ -25,7 +25,7 @@ WITH tpl AS (
 camp AS (
     INSERT INTO campaigns (uuid, type, name, subject, from_email, body, altbody,
         content_type, send_at, headers, attribs, tags, messenger, template_id, to_send,
-        max_subscriber_id, archive, archive_slug, archive_template_id, archive_meta, body_source)
+        max_subscriber_id, archive, archive_slug, archive_template_id, archive_meta, body_source, send_until)
         SELECT $1, $2, $3, $4, $5,
             -- body
             COALESCE(NULLIF($6, ''), (SELECT body FROM tpl), ''),
@@ -40,7 +40,8 @@ camp AS (
             $18,
             $19,
             -- body_source
-            COALESCE($21, (SELECT body_source FROM tpl))
+            COALESCE($21, (SELECT body_source FROM tpl)),
+            $22::TIMESTAMP WITH TIME ZONE
         RETURNING id
 ),
 med AS (
@@ -395,6 +396,7 @@ WITH camp AS (
         altbody=(CASE WHEN $6 = '' THEN NULL ELSE $6 END),
         content_type=$7::content_type,
         send_at=$8::TIMESTAMP WITH TIME ZONE,
+        send_until=$21::TIMESTAMP WITH TIME ZONE,
         status=(
             CASE
                 WHEN status = 'scheduled' AND $8 IS NULL THEN 'draft'
@@ -486,4 +488,3 @@ WITH view AS (
 )
 INSERT INTO campaign_views (campaign_id, subscriber_id)
     VALUES((SELECT campaign_id FROM view), (SELECT subscriber_id FROM view));
-
