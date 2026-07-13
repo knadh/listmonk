@@ -89,14 +89,14 @@ func (m *Manager) newPipe(c *models.Campaign) (*pipe, error) {
 
 // NextSubscribers processes the next batch of subscribers in a given campaign.
 // It returns a bool indicating whether any subscribers were processed
-// in the current batch or not. A false indicates that all subscribers
-// have been processed, or that a campaign has been paused or cancelled.
-func (p *pipe) NextSubscribers() (bool, error) {
+// in the current batch or not. The second bool indicates that processing was
+// deferred to a later time. A false indicates that all subscribers have been
+// processed, or that a campaign has been paused or cancelled.
+func (p *pipe) NextSubscribers() (bool, bool, error) {
 	limit := p.m.cfg.BatchSize
 	if pacedLimit, wait := p.pacedBatchLimit(); wait > 0 {
-		p.m.log.Printf("campaign (%s) pacing delivery. Sleeping for %s.", p.camp.Name, wait.Round(time.Second))
-		time.Sleep(wait)
-		limit = 1
+		p.deferNext(wait)
+		return false, true, nil
 	} else if pacedLimit > 0 && pacedLimit < limit {
 		limit = pacedLimit
 	}
@@ -104,13 +104,13 @@ func (p *pipe) NextSubscribers() (bool, error) {
 	// Fetch the next batch of subscribers from a 'running' campaign.
 	subs, err := p.m.store.NextSubscribers(p.camp.ID, limit)
 	if err != nil {
-		return false, fmt.Errorf("error fetching campaign subscribers (%s): %v", p.camp.Name, err)
+		return false, false, fmt.Errorf("error fetching campaign subscribers (%s): %v", p.camp.Name, err)
 	}
 
 	// There are no subscribers from the query. Either all subscribers on the campaign
 	// have been processed, or the campaign has changed from 'running' to 'paused' or 'cancelled'.
 	if len(subs) == 0 {
-		return false, nil
+		return false, false, nil
 	}
 	p.queued.Add(int64(len(subs)))
 
@@ -158,7 +158,40 @@ func (p *pipe) NextSubscribers() (bool, error) {
 		}
 	}
 
-	return true, nil
+	return true, false, nil
+}
+
+func (p *pipe) deferNext(wait time.Duration) {
+	delay := wait
+	if p.m.cfg.ScanInterval > 0 && delay > p.m.cfg.ScanInterval {
+		delay = p.m.cfg.ScanInterval
+	}
+
+	p.m.log.Printf("campaign (%s) pacing delivery. Requeueing in %s.", p.camp.Name, delay.Round(time.Second))
+	go func() {
+		defer func() {
+			if recover() != nil {
+				p.Stop(false)
+				p.wg.Done()
+			}
+		}()
+
+		t := time.NewTimer(delay)
+		defer t.Stop()
+		<-t.C
+
+		if p.stopped.Load() {
+			p.wg.Done()
+			return
+		}
+
+		select {
+		case p.m.nextPipes <- p:
+		default:
+			p.Stop(false)
+			p.wg.Done()
+		}
+	}()
 }
 
 // pacedBatchLimit returns the number of messages a campaign can queue right now

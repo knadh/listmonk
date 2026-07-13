@@ -293,7 +293,7 @@ func (m *Manager) Run() {
 	// Indefinitely wait on the pipe queue to fetch the next set of subscribers
 	// for any active campaigns.
 	for p := range m.nextPipes {
-		has, err := p.NextSubscribers()
+		has, deferred, err := p.NextSubscribers()
 		if err != nil {
 			m.log.Printf("error processing campaign batch (%s): %v", p.camp.Name, err)
 
@@ -301,6 +301,10 @@ func (m *Manager) Run() {
 			// The cleanup() records the state in DB and scanCampaigns() picks it up at a later point.
 			p.Stop(false)
 			p.wg.Done()
+			continue
+		}
+
+		if deferred {
 			continue
 		}
 
