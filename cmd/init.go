@@ -150,6 +150,7 @@ type Config struct {
 	BouncePostmarkEnabled     bool
 	BounceForwardemailEnabled bool
 	BounceLettermintEnabled   bool
+	BounceAnypostEnabled      bool
 
 	PermissionsRaw json.RawMessage
 	Permissions    map[string]struct{}
@@ -517,6 +518,7 @@ func initConstConfig(ko *koanf.Koanf) *Config {
 	c.BouncePostmarkEnabled = ko.Bool("bounce.postmark.enabled")
 	c.BounceForwardemailEnabled = ko.Bool("bounce.forwardemail.enabled")
 	c.BounceLettermintEnabled = ko.Bool("bounce.lettermint.enabled")
+	c.BounceAnypostEnabled = ko.Bool("bounce.anypost.enabled")
 	c.HasLegacyUser = ko.Exists("app.admin_username") || ko.Exists("app.admin_password")
 
 	b := md5.Sum([]byte(time.Now().String()))
@@ -850,6 +852,13 @@ func initBounceManager(cb func(models.Bounce) error, stmt *sqlx.Stmt, lo *log.Lo
 		}{
 			ko.Bool("bounce.lettermint.enabled"),
 			ko.String("bounce.lettermint.key"),
+		},
+		Anypost: struct {
+			Enabled bool
+			Key     string
+		}{
+			ko.Bool("bounce.anypost.enabled"),
+			ko.String("bounce.anypost.key"),
 		},
 		RecordBounceCB: cb,
 	}

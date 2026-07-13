@@ -42,6 +42,10 @@ type Opt struct {
 		Enabled bool
 		Key     string
 	}
+	Anypost struct {
+		Enabled bool
+		Key     string
+	}
 
 	RecordBounceCB func(models.Bounce) error
 }
@@ -56,6 +60,7 @@ type Manager struct {
 	Postmark     *webhooks.Postmark
 	Forwardemail *webhooks.Forwardemail
 	Lettermint   *webhooks.Lettermint
+	Anypost      *webhooks.Anypost
 	queries      *Queries
 	opt          Opt
 	log          *log.Logger
@@ -114,6 +119,10 @@ func New(opt Opt, q *Queries, lo *log.Logger) (*Manager, error) {
 
 		if opt.Lettermint.Enabled {
 			m.Lettermint = webhooks.NewLettermint([]byte(opt.Lettermint.Key))
+		}
+
+		if opt.Anypost.Enabled {
+			m.Anypost = webhooks.NewAnypost([]byte(opt.Anypost.Key))
 		}
 	}
 
