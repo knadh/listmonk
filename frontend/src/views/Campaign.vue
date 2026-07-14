@@ -137,6 +137,27 @@
                   </div>
                 </div>
 
+                <div class="columns">
+                  <div class="column is-4">
+                    <b-field :label="$t('campaigns.delivery')" label-position="on-border">
+                      <b-select v-model="form.deliveryMode" :disabled="!canEdit" expanded data-cy="delivery-mode">
+                        <option value="immediate">
+                          {{ $t('campaigns.deliveryImmediate') }}
+                        </option>
+                        <option value="paced">
+                          {{ $t('campaigns.deliveryPaced') }}
+                        </option>
+                      </b-select>
+                    </b-field>
+                  </div>
+                  <div class="column">
+                    <b-field v-if="isDeliveryPaced" :label="$t('campaigns.deliveryWindow')" label-position="on-border"
+                      data-cy="send_window">
+                      <b-input v-model.trim="form.sendWindow" :disabled="!canEdit" required placeholder="24h" />
+                    </b-field>
+                  </div>
+                </div>
+
                 <div>
                   <p class="has-text-right">
                     <a href="#" @click.prevent="onShowHeaders" data-cy="btn-headers">
@@ -389,6 +410,8 @@ export default Vue.extend({
         // Parsed Date() version of send_at from the API.
         sendAtDate: null,
         sendLater: false,
+        deliveryMode: 'immediate',
+        sendWindow: '24h',
         archive: false,
         archiveMetaStr: '{}',
         archiveMeta: {},
@@ -498,6 +521,10 @@ export default Vue.extend({
       }
       this.form.attribs = attribs;
 
+      if (!this.validateDelivery()) {
+        return;
+      }
+
       switch (typ) {
         case 'create':
           this.createCampaign();
@@ -540,6 +567,42 @@ export default Vue.extend({
       });
     },
 
+    validateDelivery() {
+      if (this.isDeliveryPaced && !this.form.sendWindow) {
+        this.$utils.toast(this.$t('campaigns.fieldInvalidSendWindow'), 'is-danger');
+        return false;
+      }
+      return true;
+    },
+
+    getDeliveryFields() {
+      return {
+        send_until: null,
+        send_window: this.isDeliveryPaced ? this.form.sendWindow : '',
+      };
+    },
+
+    getDeliveryWindow(campaign) {
+      if (!campaign.sendUntil) {
+        return this.form.sendWindow;
+      }
+
+      const start = campaign.sendAt || campaign.startedAt || campaign.updatedAt || campaign.createdAt;
+      if (!start) {
+        return this.form.sendWindow;
+      }
+
+      const minutes = dayjs(campaign.sendUntil).diff(dayjs(start), 'minute');
+      if (minutes <= 0) {
+        return this.form.sendWindow;
+      }
+
+      if (minutes % 60 === 0) {
+        return `${minutes / 60}h`;
+      }
+      return `${minutes}m`;
+    },
+
     sendTest() {
       const data = {
         id: this.data.id,
@@ -577,6 +640,7 @@ export default Vue.extend({
         type: 'regular',
         tags: this.form.tags,
         send_at: this.form.sendLater ? this.form.sendAtDate : null,
+        ...this.getDeliveryFields(),
         headers: this.form.headers,
         attribs: this.form.attribs,
         media: this.form.media.map((m) => m.id),
@@ -599,6 +663,7 @@ export default Vue.extend({
         type: 'regular',
         tags: this.form.tags,
         send_at: this.form.sendLater ? this.form.sendAtDate : null,
+        ...this.getDeliveryFields(),
         headers: this.form.headers,
         attribs: this.form.attribs,
         template_id: this.form.content.templateId,
@@ -654,6 +719,9 @@ export default Vue.extend({
     // Starts or schedule a campaign.
     startCampaign() {
       if (!this.canStart && !this.canSchedule) {
+        return;
+      }
+      if (!this.validateDelivery()) {
         return;
       }
 
@@ -715,6 +783,10 @@ export default Vue.extend({
       return (this.data.status === 'draft' || this.data.status === 'paused') && !this.form.sendLater;
     },
 
+    isDeliveryPaced() {
+      return this.form.deliveryMode === 'paced';
+    },
+
     canArchive() {
       return this.data.status !== 'cancelled' && this.data.type !== 'optin';
     },
@@ -757,6 +829,16 @@ export default Vue.extend({
       } else {
         this.form.sendLater = false;
         this.form.sendAtDate = null;
+      }
+    },
+
+    // eslint-disable-next-line func-names
+    'data.sendUntil': function () {
+      if (this.data.sendUntil !== null && this.data.sendUntil !== undefined) {
+        this.form.deliveryMode = 'paced';
+        this.form.sendWindow = this.getDeliveryWindow(this.data);
+      } else {
+        this.form.deliveryMode = 'immediate';
       }
     },
   },
