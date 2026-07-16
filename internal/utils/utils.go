@@ -76,3 +76,18 @@ func SanitizeURI(u string) string {
 
 	return path.Clean(p.Path)
 }
+
+// NormalizeDomains trims whitespace, converts domains to lowercase,
+// and removes empty entries while preserving their original order.
+func NormalizeDomains(domains []string) []string {
+	normalized := make([]string, 0, len(domains))
+
+	for _, domain := range domains {
+		domain = strings.TrimSpace(strings.ToLower(domain))
+		if domain != "" {
+			normalized = append(normalized, domain)
+		}
+	}
+
+	return normalized
+}

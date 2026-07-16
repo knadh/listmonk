@@ -22,6 +22,7 @@ import (
 	"github.com/knadh/listmonk/internal/auth"
 	"github.com/knadh/listmonk/internal/messenger/email"
 	"github.com/knadh/listmonk/internal/notifs"
+	"github.com/knadh/listmonk/internal/utils"
 	"github.com/knadh/listmonk/models"
 	"github.com/labstack/echo/v4"
 )
@@ -267,21 +268,8 @@ func (a *App) UpdateSettings(c echo.Context) error {
 	}
 
 	// Domain blocklist / allowlist.
-	doms := make([]string, 0, len(set.DomainBlocklist))
-	for _, d := range set.DomainBlocklist {
-		if d = strings.TrimSpace(strings.ToLower(d)); d != "" {
-			doms = append(doms, d)
-		}
-	}
-	set.DomainBlocklist = doms
-
-	doms = make([]string, 0, len(set.DomainAllowlist))
-	for _, d := range set.DomainAllowlist {
-		if d = strings.TrimSpace(strings.ToLower(d)); d != "" {
-			doms = append(doms, d)
-		}
-	}
-	set.DomainAllowlist = doms
+	set.DomainBlocklist = utils.NormalizeDomains(set.DomainBlocklist)
+	set.DomainAllowlist = utils.NormalizeDomains(set.DomainAllowlist)
 
 	// Validate and clean trusted URLs.
 	urls := make([]string, 0, len(set.SecurityTrustedURLs))
