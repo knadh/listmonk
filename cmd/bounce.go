@@ -120,6 +120,17 @@ func (a *App) BlocklistBouncedSubscribers(c echo.Context) error {
 	return c.JSON(http.StatusOK, okResp{true})
 }
 
+// bounceWebhookResult contains the outcome of processing a webhook request.
+// Most providers return bounce records, while subscription validation endpoints
+// may return an immediate response body instead.
+type bounceWebhookResult struct {
+	bounces     []models.Bounce
+	response    []byte
+	hasResponse bool
+}
+
+type bounceWebhookHandler func(echo.Context, []byte) (bounceWebhookResult, error)
+
 // BounceWebhook handles incoming bounce webhook notifications from various providers.
 func (a *App) BounceWebhook(c echo.Context) error {
 	// If bounce processing is disabled, a.bounce will be nil.
@@ -129,162 +140,208 @@ func (a *App) BounceWebhook(c echo.Context) error {
 			a.i18n.Ts("globals.messages.internalError"))
 	}
 
-	// Read the request body instead of using c.Bind() to read to save the entire raw request as meta.
+	// Read the request body instead of using c.Bind() to save the entire raw request as meta.
 	rawReq, err := io.ReadAll(c.Request().Body)
 	if err != nil {
-		a.log.Printf("error reading ses notification body: %v", err)
+		a.log.Printf("error reading bounce notification body: %v", err)
 		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.Ts("globals.messages.internalError"))
 	}
 
-	var (
-		service = c.Param("service")
-
-		bounces []models.Bounce
-	)
-	switch true {
-	// Native internal webhook.
-	case service == "":
-		var b models.Bounce
-		if err := json.Unmarshal(rawReq, &b); err != nil {
-			return echo.NewHTTPError(http.StatusBadRequest, a.i18n.Ts("globals.messages.invalidData")+":"+err.Error())
-		}
-
-		if bv, err := a.validateBounceFields(b); err != nil {
-			return err
-		} else {
-			b = bv
-		}
-
-		if len(b.Meta) == 0 {
-			b.Meta = json.RawMessage("{}")
-		}
-
-		if b.CreatedAt.Year() == 0 {
-			b.CreatedAt = time.Now()
-		}
-
-		bounces = append(bounces, b)
-
-	// Amazon SES.
-	case service == "ses" && a.bounce.SES != nil:
-		switch c.Request().Header.Get("X-Amz-Sns-Message-Type") {
-		// SNS webhook registration confirmation. Only after these are processed will the endpoint
-		// start getting bounce notifications.
-		case "SubscriptionConfirmation", "UnsubscribeConfirmation":
-			if err := a.bounce.SES.ProcessSubscription(rawReq); err != nil {
-				a.log.Printf("error processing SNS (SES) subscription: %v", err)
-				return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("globals.messages.invalidData"))
-			}
-
-		// Bounce notification.
-		case "Notification":
-			b, err := a.bounce.SES.ProcessBounce(rawReq)
-			if err != nil {
-				a.log.Printf("error processing SES notification: %v", err)
-				return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("globals.messages.invalidData"))
-			}
-			bounces = append(bounces, b)
-
-		default:
-			return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("globals.messages.invalidData"))
-		}
-
-	// Azure ACS through Event Grid.
-	case service == "azure" && a.bounce.Azure != nil:
-		switch c.Request().Header.Get("aeg-event-type") {
-		// Event Grid webhook registration validation.
-		case "SubscriptionValidation", "SubscriptionValidationEvent":
-			res, err := a.bounce.Azure.ProcessSubscription(rawReq)
-			if err != nil {
-				a.log.Printf("error processing Azure Event Grid subscription validation: %v", err)
-				return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("globals.messages.invalidData"))
-			}
-			return c.JSONBlob(http.StatusOK, res)
-
-		// Regular event delivery.
-		case "", "Notification":
-			bs, err := a.bounce.Azure.ProcessBounce(c.Request(), rawReq)
-			if err != nil {
-				a.log.Printf("error processing Azure Event Grid notification: %v", err)
-				return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("globals.messages.invalidData"))
-			}
-			bounces = append(bounces, bs...)
-
-		default:
-			return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("globals.messages.invalidData"))
-		}
-
-	// SendGrid.
-	case service == "sendgrid" && a.bounce.Sendgrid != nil:
-		var (
-			sig = c.Request().Header.Get("X-Twilio-Email-Event-Webhook-Signature")
-			ts  = c.Request().Header.Get("X-Twilio-Email-Event-Webhook-Timestamp")
-		)
-
-		// Sendgrid sends multiple bounces.
-		bs, err := a.bounce.Sendgrid.ProcessBounce(sig, ts, rawReq)
-		if err != nil {
-			a.log.Printf("error processing sendgrid notification: %v", err)
-			return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("globals.messages.invalidData"))
-		}
-		bounces = append(bounces, bs...)
-
-	// Postmark.
-	case service == "postmark" && a.bounce.Postmark != nil:
-		bs, err := a.bounce.Postmark.ProcessBounce(rawReq, c)
-		if err != nil {
-			a.log.Printf("error processing postmark notification: %v", err)
-			if _, ok := err.(*echo.HTTPError); ok {
-				return err
-			}
-
-			return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("globals.messages.invalidData"))
-		}
-		bounces = append(bounces, bs...)
-
-	// ForwardEmail.
-	case service == "forwardemail" && a.bounce.Forwardemail != nil:
-		var (
-			sig = c.Request().Header.Get("X-Webhook-Signature")
-		)
-
-		bs, err := a.bounce.Forwardemail.ProcessBounce(sig, rawReq)
-		if err != nil {
-			a.log.Printf("error processing forwardemail notification: %v", err)
-			if _, ok := err.(*echo.HTTPError); ok {
-				return err
-			}
-
-			return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("globals.messages.invalidData"))
-		}
-		bounces = append(bounces, bs...)
-
-	// Lettermint.
-	case service == "lettermint" && a.bounce.Lettermint != nil:
-		sig := c.Request().Header.Get("X-Lettermint-Signature")
-		bs, err := a.bounce.Lettermint.ProcessBounce(sig, rawReq)
-		if err != nil {
-			a.log.Printf("error processing lettermint notification: %v", err)
-			if _, ok := err.(*echo.HTTPError); ok {
-				return err
-			}
-
-			return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("globals.messages.invalidData"))
-		}
-		bounces = append(bounces, bs...)
-
-	default:
+	handler, ok := a.bounceWebhookHandlers()[c.Param("service")]
+	if !ok {
 		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.Ts("bounces.unknownService"))
 	}
 
+	result, err := handler(c, rawReq)
+	if err != nil {
+		return err
+	}
+
+	if result.hasResponse {
+		return c.JSONBlob(http.StatusOK, result.response)
+	}
+
 	// Insert bounces into the DB.
-	for _, b := range bounces {
+	for _, b := range result.bounces {
 		if err := a.bounce.Record(b); err != nil {
 			a.log.Printf("error recording bounce: %v", err)
 		}
 	}
 
 	return c.JSON(http.StatusOK, okResp{true})
+}
+
+// bounceWebhookHandlers registers only the webhook providers that are enabled.
+// Each handler encapsulates the processing rules for a single provider.
+func (a *App) bounceWebhookHandlers() map[string]bounceWebhookHandler {
+	handlers := map[string]bounceWebhookHandler{
+		"": a.processNativeBounceWebhook,
+	}
+
+	if a.bounce.SES != nil {
+		handlers["ses"] = a.processSESBounceWebhook
+	}
+	if a.bounce.Azure != nil {
+		handlers["azure"] = a.processAzureBounceWebhook
+	}
+	if a.bounce.Sendgrid != nil {
+		handlers["sendgrid"] = a.processSendgridBounceWebhook
+	}
+	if a.bounce.Postmark != nil {
+		handlers["postmark"] = a.processPostmarkBounceWebhook
+	}
+	if a.bounce.Forwardemail != nil {
+		handlers["forwardemail"] = a.processForwardEmailBounceWebhook
+	}
+	if a.bounce.Lettermint != nil {
+		handlers["lettermint"] = a.processLettermintBounceWebhook
+	}
+
+	return handlers
+}
+
+func (a *App) processNativeBounceWebhook(_ echo.Context, rawReq []byte) (bounceWebhookResult, error) {
+	var b models.Bounce
+	if err := json.Unmarshal(rawReq, &b); err != nil {
+		return bounceWebhookResult{}, echo.NewHTTPError(
+			http.StatusBadRequest,
+			a.i18n.Ts("globals.messages.invalidData")+":"+err.Error(),
+		)
+	}
+
+	validatedBounce, err := a.validateBounceFields(b)
+	if err != nil {
+		return bounceWebhookResult{}, err
+	}
+	b = validatedBounce
+
+	if len(b.Meta) == 0 {
+		b.Meta = json.RawMessage("{}")
+	}
+	if b.CreatedAt.Year() == 0 {
+		b.CreatedAt = time.Now()
+	}
+
+	return bounceWebhookResult{bounces: []models.Bounce{b}}, nil
+}
+
+func (a *App) processSESBounceWebhook(c echo.Context, rawReq []byte) (bounceWebhookResult, error) {
+	switch c.Request().Header.Get("X-Amz-Sns-Message-Type") {
+	case "SubscriptionConfirmation", "UnsubscribeConfirmation":
+		if err := a.bounce.SES.ProcessSubscription(rawReq); err != nil {
+			a.log.Printf("error processing SNS (SES) subscription: %v", err)
+			return bounceWebhookResult{}, echo.NewHTTPError(
+				http.StatusBadRequest,
+				a.i18n.T("globals.messages.invalidData"),
+			)
+		}
+		return bounceWebhookResult{}, nil
+
+	case "Notification":
+		b, err := a.bounce.SES.ProcessBounce(rawReq)
+		if err != nil {
+			a.log.Printf("error processing SES notification: %v", err)
+			return bounceWebhookResult{}, echo.NewHTTPError(
+				http.StatusBadRequest,
+				a.i18n.T("globals.messages.invalidData"),
+			)
+		}
+		return bounceWebhookResult{bounces: []models.Bounce{b}}, nil
+
+	default:
+		return bounceWebhookResult{}, echo.NewHTTPError(
+			http.StatusBadRequest,
+			a.i18n.T("globals.messages.invalidData"),
+		)
+	}
+}
+
+func (a *App) processAzureBounceWebhook(c echo.Context, rawReq []byte) (bounceWebhookResult, error) {
+	switch c.Request().Header.Get("aeg-event-type") {
+	case "SubscriptionValidation", "SubscriptionValidationEvent":
+		res, err := a.bounce.Azure.ProcessSubscription(rawReq)
+		if err != nil {
+			a.log.Printf("error processing Azure Event Grid subscription validation: %v", err)
+			return bounceWebhookResult{}, echo.NewHTTPError(
+				http.StatusBadRequest,
+				a.i18n.T("globals.messages.invalidData"),
+			)
+		}
+		return bounceWebhookResult{response: res, hasResponse: true}, nil
+
+	case "", "Notification":
+		bounces, err := a.bounce.Azure.ProcessBounce(c.Request(), rawReq)
+		if err != nil {
+			a.log.Printf("error processing Azure Event Grid notification: %v", err)
+			return bounceWebhookResult{}, echo.NewHTTPError(
+				http.StatusBadRequest,
+				a.i18n.T("globals.messages.invalidData"),
+			)
+		}
+		return bounceWebhookResult{bounces: bounces}, nil
+
+	default:
+		return bounceWebhookResult{}, echo.NewHTTPError(
+			http.StatusBadRequest,
+			a.i18n.T("globals.messages.invalidData"),
+		)
+	}
+}
+
+func (a *App) processSendgridBounceWebhook(c echo.Context, rawReq []byte) (bounceWebhookResult, error) {
+	signature := c.Request().Header.Get("X-Twilio-Email-Event-Webhook-Signature")
+	timestamp := c.Request().Header.Get("X-Twilio-Email-Event-Webhook-Timestamp")
+
+	bounces, err := a.bounce.Sendgrid.ProcessBounce(signature, timestamp, rawReq)
+	if err != nil {
+		a.log.Printf("error processing sendgrid notification: %v", err)
+		return bounceWebhookResult{}, echo.NewHTTPError(
+			http.StatusBadRequest,
+			a.i18n.T("globals.messages.invalidData"),
+		)
+	}
+
+	return bounceWebhookResult{bounces: bounces}, nil
+}
+
+func (a *App) processPostmarkBounceWebhook(c echo.Context, rawReq []byte) (bounceWebhookResult, error) {
+	bounces, err := a.bounce.Postmark.ProcessBounce(rawReq, c)
+	if err != nil {
+		a.log.Printf("error processing postmark notification: %v", err)
+		return bounceWebhookResult{}, a.normalizeBounceWebhookError(err)
+	}
+
+	return bounceWebhookResult{bounces: bounces}, nil
+}
+
+func (a *App) processForwardEmailBounceWebhook(c echo.Context, rawReq []byte) (bounceWebhookResult, error) {
+	signature := c.Request().Header.Get("X-Webhook-Signature")
+	bounces, err := a.bounce.Forwardemail.ProcessBounce(signature, rawReq)
+	if err != nil {
+		a.log.Printf("error processing forwardemail notification: %v", err)
+		return bounceWebhookResult{}, a.normalizeBounceWebhookError(err)
+	}
+
+	return bounceWebhookResult{bounces: bounces}, nil
+}
+
+func (a *App) processLettermintBounceWebhook(c echo.Context, rawReq []byte) (bounceWebhookResult, error) {
+	signature := c.Request().Header.Get("X-Lettermint-Signature")
+	bounces, err := a.bounce.Lettermint.ProcessBounce(signature, rawReq)
+	if err != nil {
+		a.log.Printf("error processing lettermint notification: %v", err)
+		return bounceWebhookResult{}, a.normalizeBounceWebhookError(err)
+	}
+
+	return bounceWebhookResult{bounces: bounces}, nil
+}
+
+func (a *App) normalizeBounceWebhookError(err error) error {
+	if _, ok := err.(*echo.HTTPError); ok {
+		return err
+	}
+
+	return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("globals.messages.invalidData"))
 }
 
 func (a *App) validateBounceFields(b models.Bounce) (models.Bounce, error) {
