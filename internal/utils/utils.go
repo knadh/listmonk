@@ -91,3 +91,47 @@ func NormalizeDomains(domains []string) []string {
 
 	return normalized
 }
+
+// NormalizeFileExtensions trims whitespace, removes a leading dot,
+// and converts file extensions to lowercase.
+func NormalizeFileExtensions(extensions []string) []string {
+	normalized := make([]string, len(extensions))
+
+	for i, extension := range extensions {
+		normalized[i] = strings.ToLower(
+			strings.TrimPrefix(strings.TrimSpace(extension), "."),
+		)
+	}
+
+	return normalized
+}
+
+// NormalizeTrustedURLs trims whitespace, removes empty entries,
+// and validates that each URL uses HTTP or HTTPS.
+// The wildcard "*" is accepted as a trusted URL entry.
+func NormalizeTrustedURLs(trustedURLs []string) ([]string, error) {
+	normalized := make([]string, 0, len(trustedURLs))
+
+	for _, trustedURL := range trustedURLs {
+		trustedURL = strings.TrimSpace(trustedURL)
+		if trustedURL == "" {
+			continue
+		}
+
+		if trustedURL == "*" {
+			normalized = append(normalized, trustedURL)
+			continue
+		}
+
+		parsedURL, err := url.Parse(trustedURL)
+		if err != nil ||
+			(parsedURL.Scheme != "http" && parsedURL.Scheme != "https") ||
+			parsedURL.Host == "" {
+			return nil, errors.New("invalid trusted URL: " + trustedURL)
+		}
+
+		normalized = append(normalized, trustedURL)
+	}
+
+	return normalized, nil
+}

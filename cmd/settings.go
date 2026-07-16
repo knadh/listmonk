@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
-	"net/url"
 	"regexp"
 	"runtime"
 	"strings"
@@ -263,33 +262,21 @@ func (a *App) UpdateSettings(c echo.Context) error {
 		}
 	}
 
-	for n, v := range set.UploadExtensions {
-		set.UploadExtensions[n] = strings.ToLower(strings.TrimPrefix(strings.TrimSpace(v), "."))
-	}
+	set.UploadExtensions = utils.NormalizeFileExtensions(set.UploadExtensions)
 
 	// Domain blocklist / allowlist.
 	set.DomainBlocklist = utils.NormalizeDomains(set.DomainBlocklist)
 	set.DomainAllowlist = utils.NormalizeDomains(set.DomainAllowlist)
 
 	// Validate and clean trusted URLs.
-	urls := make([]string, 0, len(set.SecurityTrustedURLs))
-	for _, d := range set.SecurityTrustedURLs {
-		if d = strings.TrimSpace(d); d != "" {
-			if d == "*" {
-				urls = append(urls, d)
-				continue
-			}
-
-			// Parse and validate the URL.
-			u, err := url.Parse(d)
-			if err != nil || (u.Scheme != "http" && u.Scheme != "https") || u.Host == "" {
-				return echo.NewHTTPError(http.StatusBadRequest,
-					a.i18n.Ts("globals.messages.invalidData")+": invalid trusted URL: "+d)
-			}
-			urls = append(urls, d)
-		}
+	trustedURLs, err := utils.NormalizeTrustedURLs(set.SecurityTrustedURLs)
+	if err != nil {
+		return echo.NewHTTPError(
+			http.StatusBadRequest,
+			a.i18n.Ts("globals.messages.invalidData")+": "+err.Error(),
+		)
 	}
-	set.SecurityTrustedURLs = urls
+	set.SecurityTrustedURLs = trustedURLs
 
 	// Validate slow query caching cron.
 	if set.CacheSlowQueries {
