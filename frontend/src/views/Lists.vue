@@ -170,7 +170,7 @@
     </b-table>
 
     <!-- Add / edit form modal -->
-    <b-modal scroll="keep" :aria-modal="true" :active.sync="isFormVisible" :width="600" @close="onFormClose">
+    <b-modal scroll="keep" :aria-modal="true" :active.sync="isFormVisible" :width="760" @close="onFormClose">
       <list-form :data="curItem" :is-editing="isEditing" @finished="formFinished" />
     </b-modal>
 

@@ -11,7 +11,9 @@ import (
 	"strings"
 
 	"github.com/knadh/listmonk/internal/auth"
+	"github.com/knadh/listmonk/internal/core"
 	"github.com/knadh/listmonk/internal/i18n"
+	"github.com/knadh/listmonk/internal/manager"
 	"github.com/knadh/listmonk/internal/notifs"
 	"github.com/knadh/listmonk/internal/subimporter"
 	"github.com/knadh/listmonk/models"
@@ -902,5 +904,26 @@ func makeOptinNotifyHook(unsubHeader bool, u *UrlConfig, q *models.Queries, i *i
 		}
 
 		return len(lists), nil
+	}
+}
+
+// makeWelcomeHook returns an enclosed callback that sends per-list welcome e-mails. It's plugged
+// into the 'core' package (via core.SetWelcomeHook) and fired when a subscriber becomes an active
+// member of a list. It atomically claims the welcome (dedup) and renders + enqueues one message per
+// eligible list, reusing the campaign rendering + rate-limited send pipeline.
+func makeWelcomeHook(co *core.Core, mgr *manager.Manager) func(sub models.Subscriber, listIDs []int) error {
+	return func(sub models.Subscriber, listIDs []int) error {
+		welcomes, err := co.ClaimWelcomes(sub.ID, listIDs)
+		if err != nil {
+			return err
+		}
+
+		for _, wl := range welcomes {
+			if err := mgr.SendWelcomeEmail(wl, sub); err != nil {
+				lo.Printf("error sending welcome e-mail for list %d to subscriber %d (%s): %v", wl.ID, sub.ID, sub.UUID, err)
+			}
+		}
+
+		return nil
 	}
 }

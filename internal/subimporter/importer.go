@@ -62,6 +62,11 @@ type Importer struct {
 	hasAllowlistWildcards bool
 	hasAllowlist          bool
 
+	// welcomeCB sends the per-list welcome e-mail to a subscriber. It's set after construction
+	// (SetWelcomeCB) as it depends on the campaign manager. Invoked at the end of an import for
+	// newly-added subscribers when the session opts into welcome e-mails.
+	welcomeCB func(sub models.Subscriber, listIDs []int) error
+
 	stop   chan bool
 	status Status
 	sync.RWMutex
@@ -97,6 +102,7 @@ type SessionOpt struct {
 	OverwriteSubStatus bool   `json:"overwrite_subscription_status"`
 	Delim              string `json:"delim"`
 	ListIDs            []int  `json:"lists"`
+	SendWelcome        bool   `json:"send_welcome"`
 }
 
 // Status represents statistics from an ongoing import session.
@@ -161,6 +167,12 @@ func New(opt Options, db *sql.DB, i *i18n.I18n) *Importer {
 	im.hasAllowlist = len(mp) > 0
 
 	return &im
+}
+
+// SetWelcomeCB sets the callback used to send per-list welcome e-mails to newly-imported
+// subscribers. It's set after construction because it depends on the campaign manager.
+func (im *Importer) SetWelcomeCB(fn func(sub models.Subscriber, listIDs []int) error) {
+	im.welcomeCB = fn
 }
 
 // NewSession returns an new instance of Session. It takes the name
@@ -283,6 +295,10 @@ func (s *Session) Start() {
 	listIDs := make([]int, len(s.opt.ListIDs))
 	copy(listIDs, s.opt.ListIDs)
 
+	// Newly-added (to the system) subscribers, collected only when the session opts into
+	// welcome e-mails, so they can be sent once the import finishes.
+	var newSubs []models.Subscriber
+
 	for sub := range s.subQueue {
 		if cur == 0 {
 			// New transaction batch.
@@ -307,7 +323,19 @@ func (s *Session) Start() {
 		}
 
 		if s.opt.Mode == ModeSubscribe {
-			_, err = stmt.Exec(uu, sub.Email, sub.Name, sub.Attribs, pq.Array(listIDs), s.opt.SubStatus, s.opt.OverwriteUserInfo, s.opt.OverwriteSubStatus)
+			// Capture the subscriber ID and whether it was newly added, so welcome e-mails
+			// can be sent to new subscribers only (never to pre-existing ones).
+			var (
+				subID int
+				isNew bool
+			)
+			err = stmt.QueryRow(uu, sub.Email, sub.Name, sub.Attribs, pq.Array(listIDs), s.opt.SubStatus, s.opt.OverwriteUserInfo, s.opt.OverwriteSubStatus).Scan(&subID, &isNew)
+			if err == nil && s.opt.SendWelcome && isNew {
+				ns := sub.Subscriber
+				ns.ID = subID
+				ns.UUID = uu.String()
+				newSubs = append(newSubs, ns)
+			}
 		} else if s.opt.Mode == ModeBlocklist {
 			_, err = stmt.Exec(uu, sub.Email, sub.Name, sub.Attribs)
 		}
@@ -340,6 +368,7 @@ func (s *Session) Start() {
 		if _, err := s.im.opt.UpdateListDateStmt.Exec(pq.Array(listIDs)); err != nil {
 			s.log.Printf("error updating lists date: %v", err)
 		}
+		s.dispatchWelcomes(newSubs, listIDs)
 		s.im.sendNotif(StatusFinished)
 		return
 	}
@@ -360,7 +389,24 @@ func (s *Session) Start() {
 		s.log.Printf("error updating lists date: %v", err)
 	}
 
+	s.dispatchWelcomes(newSubs, listIDs)
 	s.im.sendNotif(StatusFinished)
+}
+
+// dispatchWelcomes sends the per-list welcome e-mail to each newly-added subscriber from an import.
+// The welcome callback self-filters (via the DB) to welcome-enabled lists the subscriber is now an
+// active member of, and dedupes so each subscriber is welcomed at most once per list.
+func (s *Session) dispatchWelcomes(newSubs []models.Subscriber, listIDs []int) {
+	if !s.opt.SendWelcome || s.im.welcomeCB == nil || len(newSubs) == 0 || len(listIDs) == 0 {
+		return
+	}
+
+	s.log.Printf("sending welcome e-mails to %d new subscriber(s)", len(newSubs))
+	for _, ns := range newSubs {
+		if err := s.im.welcomeCB(ns, listIDs); err != nil {
+			s.log.Printf("error sending welcome e-mail on import to subscriber %d: %v", ns.ID, err)
+		}
+	}
 }
 
 // Stop stops an active import session.

@@ -46,6 +46,16 @@ CREATE TABLE lists (
     tags            VARCHAR(100)[],
     description     TEXT NOT NULL DEFAULT '',
 
+    -- Welcome e-mail: an optional message automatically sent to a subscriber when they
+    -- become an active member of the list (single opt-in: on subscribe; double opt-in: on confirm).
+    welcome_enabled      BOOLEAN NOT NULL DEFAULT false,
+    welcome_subject      TEXT NOT NULL DEFAULT '',
+    welcome_content_type content_type NOT NULL DEFAULT 'richtext',
+    welcome_body         TEXT NOT NULL DEFAULT '',
+    welcome_body_source  TEXT NULL,
+    -- FK to templates(id) is added via ALTER after the templates table is created below.
+    welcome_template_id  INTEGER NULL,
+
     created_at      TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at      TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
@@ -73,6 +83,17 @@ DROP INDEX IF EXISTS idx_sub_lists_sub_id; CREATE INDEX idx_sub_lists_sub_id ON 
 DROP INDEX IF EXISTS idx_sub_lists_list_id; CREATE INDEX idx_sub_lists_list_id ON subscriber_lists(list_id);
 DROP INDEX IF EXISTS idx_sub_lists_status; CREATE INDEX idx_sub_lists_status ON subscriber_lists(status);
 
+-- subscriber_welcomes tracks which subscribers have already been sent a list's welcome e-mail,
+-- guaranteeing the welcome is sent at most once per (subscriber, list) pair.
+DROP TABLE IF EXISTS subscriber_welcomes CASCADE;
+CREATE TABLE subscriber_welcomes (
+    subscriber_id      INTEGER NOT NULL REFERENCES subscribers(id) ON DELETE CASCADE ON UPDATE CASCADE,
+    list_id            INTEGER NOT NULL REFERENCES lists(id) ON DELETE CASCADE ON UPDATE CASCADE,
+    created_at         TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+
+    PRIMARY KEY(subscriber_id, list_id)
+);
+
 -- templates
 DROP TABLE IF EXISTS templates CASCADE;
 CREATE TABLE templates (
@@ -88,6 +109,10 @@ CREATE TABLE templates (
     updated_at      TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 CREATE UNIQUE INDEX ON templates (is_default) WHERE is_default = true;
+
+-- Welcome e-mail template FK (added here as templates is created after lists).
+ALTER TABLE lists ADD CONSTRAINT fk_lists_welcome_template
+    FOREIGN KEY (welcome_template_id) REFERENCES templates(id) ON DELETE SET NULL;
 
 
 -- campaigns

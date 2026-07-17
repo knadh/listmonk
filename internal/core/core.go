@@ -52,6 +52,11 @@ type Constants struct {
 // Hooks contains external function hooks that are required by the core package.
 type Hooks struct {
 	SendOptinConfirmation func(models.Subscriber, []int) (int, error)
+
+	// SendWelcome sends the per-list welcome e-mail to a subscriber for the given candidate
+	// list IDs. It's set after initialization (via SetWelcomeHook) because it depends on the
+	// campaign manager, which is constructed after the core.
+	SendWelcome func(models.Subscriber, []int) error
 }
 
 // Opt contains the controllers required to start the core.
@@ -84,6 +89,23 @@ func New(o *Opt, h *Hooks) *Core {
 		db:     o.DB,
 		q:      o.Queries,
 		log:    o.Log,
+	}
+}
+
+// SetWelcomeHook sets the hook that sends per-list welcome e-mails. It's set after
+// initialization because it depends on the campaign manager.
+func (c *Core) SetWelcomeHook(fn func(models.Subscriber, []int) error) {
+	c.h.SendWelcome = fn
+}
+
+// sendWelcome invokes the welcome hook (if set) for the given subscriber and candidate list IDs.
+// Errors are logged but never propagated, so a welcome failure never breaks the subscription flow.
+func (c *Core) sendWelcome(sub models.Subscriber, listIDs []int) {
+	if c.h.SendWelcome == nil {
+		return
+	}
+	if err := c.h.SendWelcome(sub, listIDs); err != nil {
+		c.log.Printf("error sending welcome e-mail to subscriber %d: %v", sub.ID, err)
 	}
 }
 

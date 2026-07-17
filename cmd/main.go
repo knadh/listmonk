@@ -245,6 +245,12 @@ func main() {
 	// Initialize the global admin/sub e-mail notifier.
 	initNotifs(fs, i18n, emailMsgr, urlCfg, ko)
 
+	// Wire the welcome-email hook now that the manager exists (it depends on the manager,
+	// which is constructed after the core). The same hook is reused by the bulk importer.
+	welcomeHook := makeWelcomeHook(core, mgr)
+	core.SetWelcomeHook(welcomeHook)
+	importer.SetWelcomeCB(welcomeHook)
+
 	// Initialize and cache tx templates in memory.
 	initTxTemplates(mgr, core)
 

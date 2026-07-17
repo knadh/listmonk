@@ -122,7 +122,9 @@ WITH sub AS (
         name=(CASE WHEN $7 THEN $3 ELSE s.name END),
         attribs=(CASE WHEN $7 THEN $4 ELSE s.attribs END),
         updated_at=NOW()
-    RETURNING uuid, id, status
+    -- (xmax = 0) is true only for freshly INSERTed rows (false for ON CONFLICT updates),
+    -- so `new` tells the importer whether this subscriber was newly added to the system.
+    RETURNING uuid, id, status, (xmax = 0) AS new
 ),
 subs AS (
     INSERT INTO subscriber_lists (subscriber_id, list_id, status)
@@ -132,7 +134,7 @@ subs AS (
     SET updated_at = NOW(),
         status = CASE WHEN $8 THEN EXCLUDED.status ELSE subscriber_lists.status END
 )
-SELECT uuid, id from sub;
+SELECT id, new from sub;
 
 -- name: upsert-blocklist-subscriber
 -- Upserts a subscriber where the update will only set the status to blocklisted
@@ -236,7 +238,8 @@ listIDs AS (
     SELECT id FROM lists WHERE uuid = ANY($2::UUID[])
 )
 UPDATE subscriber_lists SET status='confirmed', meta=meta || $3, updated_at=NOW()
-    WHERE subscriber_id = (SELECT id FROM subID) AND list_id = ANY(SELECT id FROM listIDs);
+    WHERE subscriber_id = (SELECT id FROM subID) AND list_id = ANY(SELECT id FROM listIDs)
+    RETURNING subscriber_id, list_id;
 
 -- name: unsubscribe-subscribers-from-lists
 WITH listIDs AS (

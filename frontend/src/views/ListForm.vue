@@ -17,46 +17,70 @@
         </h4>
       </header>
       <section expanded class="modal-card-body">
-        <b-field :label="$t('globals.fields.name')" label-position="on-border">
-          <b-input :maxlength="200" :ref="'focus'" v-model="form.name" name="name"
-            :placeholder="$t('globals.fields.name')" required />
-        </b-field>
+        <b-tabs v-model="activeTab" :animated="false">
+          <!-- List settings -->
+          <b-tab-item :label="$tc('globals.terms.list', 1)">
+            <b-field :label="$t('globals.fields.name')" label-position="on-border">
+              <b-input :maxlength="200" :ref="'focus'" v-model="form.name" name="name"
+                :placeholder="$t('globals.fields.name')" required />
+            </b-field>
 
-        <b-field :label="$t('lists.type')" label-position="on-border" :message="$t('lists.typeHelp')">
-          <b-select v-model="form.type" name="type" :placeholder="$t('lists.typeHelp')" required expanded>
-            <option value="private">
-              {{ $t('lists.types.private') }}
-            </option>
-            <option value="public">
-              {{ $t('lists.types.public') }}
-            </option>
-          </b-select>
-        </b-field>
+            <b-field :label="$t('lists.type')" label-position="on-border" :message="$t('lists.typeHelp')">
+              <b-select v-model="form.type" name="type" :placeholder="$t('lists.typeHelp')" required expanded>
+                <option value="private">
+                  {{ $t('lists.types.private') }}
+                </option>
+                <option value="public">
+                  {{ $t('lists.types.public') }}
+                </option>
+              </b-select>
+            </b-field>
 
-        <b-field :label="$t('lists.optin')" label-position="on-border" :message="$t('lists.optinHelp')">
-          <b-select v-model="form.optin" name="optin" placeholder="Opt-in type" required expanded>
-            <option value="single">
-              {{ $t('lists.optins.single') }}
-            </option>
-            <option value="double">
-              {{ $t('lists.optins.double') }}
-            </option>
-          </b-select>
-        </b-field>
+            <b-field :label="$t('lists.optin')" label-position="on-border" :message="$t('lists.optinHelp')">
+              <b-select v-model="form.optin" name="optin" placeholder="Opt-in type" required expanded>
+                <option value="single">
+                  {{ $t('lists.optins.single') }}
+                </option>
+                <option value="double">
+                  {{ $t('lists.optins.double') }}
+                </option>
+              </b-select>
+            </b-field>
 
-        <b-field :label="$t('globals.terms.tags')" label-position="on-border">
-          <b-taginput v-model="form.tags" name="tags" ellipsis icon="tag-outline"
-            :placeholder="$t('globals.terms.tags')" />
-        </b-field>
+            <b-field :label="$t('globals.terms.tags')" label-position="on-border">
+              <b-taginput v-model="form.tags" name="tags" ellipsis icon="tag-outline"
+                :placeholder="$t('globals.terms.tags')" />
+            </b-field>
 
-        <b-field :label="$t('globals.fields.description')" label-position="on-border">
-          <b-input :maxlength="2000" v-model="form.description" name="description" type="textarea"
-            :placeholder="$t('globals.fields.description')" />
-        </b-field>
+            <b-field :label="$t('globals.fields.description')" label-position="on-border">
+              <b-input :maxlength="2000" v-model="form.description" name="description" type="textarea"
+                :placeholder="$t('globals.fields.description')" />
+            </b-field>
 
-        <b-field :message="$t('lists.archivedHelp')" :label="$t('lists.archived')">
-          <b-switch v-model="isArchived" name="status" />
-        </b-field>
+            <b-field :message="$t('lists.archivedHelp')" :label="$t('lists.archived')">
+              <b-switch v-model="isArchived" name="status" />
+            </b-field>
+          </b-tab-item>
+
+          <!-- Welcome e-mail -->
+          <b-tab-item :label="$t('lists.welcomeEmail')">
+            <b-field :message="$t('lists.welcomeEmailHelp')">
+              <b-switch v-model="form.welcomeEnabled" name="welcome_enabled" data-cy="btn-welcome-enabled">
+                {{ $t('lists.welcomeEmailEnabled') }}
+              </b-switch>
+            </b-field>
+
+            <template v-if="form.welcomeEnabled">
+              <b-field :label="$t('campaigns.subject')" label-position="on-border">
+                <b-input :maxlength="1000" v-model="form.welcomeSubject" name="welcome_subject"
+                  :placeholder="$t('campaigns.subject')" required />
+              </b-field>
+
+              <editor v-model="form.welcome" :id="data.id || 0" :title="form.name" :templates="templates"
+                :content-types="contentTypes" hide-preview />
+            </template>
+          </b-tab-item>
+        </b-tabs>
       </section>
       <footer class="modal-card-foot has-text-right">
         <b-button @click="$parent.close()">
@@ -75,12 +99,14 @@
 import Vue from 'vue';
 import { mapState } from 'vuex';
 import CopyText from '../components/CopyText.vue';
+import Editor from '../components/Editor.vue';
 
 export default Vue.extend({
   name: 'ListForm',
 
   components: {
     CopyText,
+    Editor,
   },
 
   props: {
@@ -90,6 +116,16 @@ export default Vue.extend({
 
   data() {
     return {
+      activeTab: 0,
+
+      contentTypes: Object.freeze({
+        richtext: 'Rich text',
+        html: 'Raw HTML',
+        markdown: 'Markdown',
+        plain: 'Plain text',
+        visual: 'Visual',
+      }),
+
       // Binds form input values.
       form: {
         name: '',
@@ -97,6 +133,16 @@ export default Vue.extend({
         optin: 'single',
         status: 'active',
         tags: [],
+
+        // Welcome e-mail.
+        welcomeEnabled: false,
+        welcomeSubject: '',
+        welcome: {
+          contentType: 'richtext',
+          body: '',
+          bodySource: null,
+          templateId: null,
+        },
       },
     };
   },
@@ -111,8 +157,27 @@ export default Vue.extend({
       this.createList();
     },
 
+    // payload flattens the welcome sub-form into the snake_case fields the backend expects.
+    payload() {
+      return {
+        name: this.form.name,
+        type: this.form.type,
+        optin: this.form.optin,
+        status: this.form.status,
+        tags: this.form.tags,
+        description: this.form.description,
+
+        welcome_enabled: this.form.welcomeEnabled,
+        welcome_subject: this.form.welcomeSubject,
+        welcome_content_type: this.form.welcome.contentType,
+        welcome_body: this.form.welcome.body,
+        welcome_body_source: this.form.welcome.bodySource,
+        welcome_template_id: this.form.welcome.templateId,
+      };
+    },
+
     createList() {
-      this.$api.createList(this.form).then((data) => {
+      this.$api.createList(this.payload()).then((data) => {
         this.$emit('finished');
         this.$parent.close();
         this.$utils.toast(this.$t('globals.messages.created', { name: data.name }));
@@ -120,7 +185,7 @@ export default Vue.extend({
     },
 
     updateList() {
-      this.$api.updateList({ id: this.data.id, ...this.form }).then((data) => {
+      this.$api.updateList({ id: this.data.id, ...this.payload() }).then((data) => {
         this.$emit('finished');
         this.$parent.close();
         this.$utils.toast(this.$t('globals.messages.updated', { name: data.name }));
@@ -129,7 +194,7 @@ export default Vue.extend({
   },
 
   computed: {
-    ...mapState(['loading', 'profile']),
+    ...mapState(['loading', 'profile', 'templates']),
 
     isArchived: {
       get() {
@@ -142,7 +207,24 @@ export default Vue.extend({
   },
 
   mounted() {
-    this.form = { ...this.form, ...this.$props.data };
+    // Merge the incoming list data over the defaults, mapping the flat welcome_* fields
+    // (returned camelCased by the API) into the nested `welcome` object the editor binds to.
+    const d = this.$props.data;
+    this.form = {
+      ...this.form,
+      ...d,
+      welcomeEnabled: d.welcomeEnabled || false,
+      welcomeSubject: d.welcomeSubject || '',
+      welcome: {
+        contentType: d.welcomeContentType || 'richtext',
+        body: d.welcomeBody || '',
+        bodySource: d.welcomeBodySource || null,
+        templateId: d.welcomeTemplateId || null,
+      },
+    };
+
+    // Load templates for the welcome editor's template selector.
+    this.$api.getTemplates();
 
     this.$nextTick(() => {
       this.$refs.focus.focus();

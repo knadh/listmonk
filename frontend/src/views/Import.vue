@@ -72,6 +72,12 @@
           <list-selector v-if="form.mode === 'subscribe'" :label="$t('globals.terms.lists')"
             :placeholder="$t('import.listSubHelp')" :message="$t('import.listSubHelp')" v-model="form.lists"
             :selected="form.lists" :all="lists.results" />
+
+          <b-field v-if="form.mode === 'subscribe'" :message="$t('import.sendWelcomeHelp')">
+            <b-switch v-model="form.sendWelcome" name="sendWelcome" data-cy="send-welcome">
+              {{ $t('import.sendWelcome') }}
+            </b-switch>
+          </b-field>
           <hr />
 
           <b-field :label="$t('import.csvFile')" label-position="on-border">
@@ -170,6 +176,7 @@ export default Vue.extend({
         lists: [],
         overwriteUserInfo: false,
         overwriteSubStatus: false,
+        sendWelcome: false,
         file: null,
         example: '',
       },
@@ -301,6 +308,7 @@ export default Vue.extend({
       this.form.mode = 'subscribe';
       this.form.overwriteUserInfo = false;
       this.form.overwriteSubStatus = false;
+      this.form.sendWelcome = false;
       this.form.file = null;
       this.form.lists = [];
       this.form.subStatus = 'unconfirmed';
@@ -328,6 +336,7 @@ export default Vue.extend({
         lists: this.form.lists.map((l) => l.id),
         overwrite_userinfo: this.form.overwriteUserInfo,
         overwrite_subscription_status: this.form.overwriteSubStatus,
+        send_welcome: this.form.sendWelcome,
       }));
       params.set('file', this.form.file);
 

@@ -108,6 +108,9 @@ func (a *App) CreateList(c echo.Context) error {
 		return err
 	}
 
+	// Invalidate any cached welcome campaign for this list so it's rebuilt from fresh config.
+	a.manager.DeleteWelcomeCampaign(out.ID)
+
 	return c.JSON(http.StatusOK, okResp{out})
 }
 
@@ -139,6 +142,9 @@ func (a *App) UpdateList(c echo.Context) error {
 	if err != nil {
 		return err
 	}
+
+	// Invalidate the cached welcome campaign so the next send rebuilds it from the new config.
+	a.manager.DeleteWelcomeCampaign(id)
 
 	return c.JSON(http.StatusOK, okResp{out})
 }

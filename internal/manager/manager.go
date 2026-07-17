@@ -90,6 +90,12 @@ type Manager struct {
 	tpls    map[int]*models.Template
 	tplsMut sync.RWMutex
 
+	// welcomeCamps holds compiled, non-persisted campaigns built from each list's welcome
+	// e-mail config, keyed by list ID. Reused across subscribers and invalidated when a list
+	// is created/updated.
+	welcomeCamps    map[int]*models.Campaign
+	welcomeCampsMut sync.RWMutex
+
 	// Links generated using Track() are cached here so as to not query
 	// the database for the link UUID for every message sent. This has to
 	// be locked as it may be used externally when previewing campaigns.
@@ -185,6 +191,7 @@ func New(cfg Config, store Store, i *i18n.I18n, l *log.Logger) *Manager {
 		messengers:   make(map[string]Messenger),
 		pipes:        make(map[int]*pipe),
 		tpls:         make(map[int]*models.Template),
+		welcomeCamps: make(map[int]*models.Campaign),
 		links:        make(map[string]string),
 		nextPipes:    make(chan *pipe, 1000),
 		campMsgQ:     make(chan CampaignMessage, cfg.Concurrency*cfg.MessageRate*2),
@@ -364,6 +371,72 @@ func (m *Manager) GetTpl(id int) (*models.Template, error) {
 	}
 
 	return tpl, nil
+}
+
+// welcomeCampaignUUID is a placeholder campaign UUID used for the non-persisted transient
+// campaigns that render list welcome e-mails. Like the double opt-in confirmation e-mail, the
+// unsubscribe link uses this placeholder as there's no real campaign backing a welcome e-mail.
+const welcomeCampaignUUID = "00000000-0000-0000-0000-000000000000"
+
+// SendWelcomeEmail renders and enqueues a list's welcome e-mail for a single subscriber. It reuses
+// the campaign rendering + rate-limited send pipeline via a cached, non-persisted transient
+// campaign built from the list's welcome config. The enqueue is non-blocking.
+func (m *Manager) SendWelcomeEmail(wl models.WelcomeList, sub models.Subscriber) error {
+	camp, ok := m.getWelcomeCampaign(wl.ID)
+	if !ok {
+		c := buildWelcomeCampaign(wl, m.cfg.FromEmail)
+		if err := c.CompileTemplate(m.TemplateFuncs(c)); err != nil {
+			return fmt.Errorf("error compiling welcome template for list %d: %v", wl.ID, err)
+		}
+		m.welcomeCampsMut.Lock()
+		m.welcomeCamps[wl.ID] = c
+		m.welcomeCampsMut.Unlock()
+		camp = c
+	}
+
+	msg, err := m.NewCampaignMessage(camp, sub)
+	if err != nil {
+		return fmt.Errorf("error rendering welcome message for list %d: %v", wl.ID, err)
+	}
+
+	return m.PushCampaignMessage(msg)
+}
+
+// DeleteWelcomeCampaign invalidates the cached welcome campaign for a list so the next send
+// rebuilds it from the list's current welcome config. Called when a list is created or updated.
+func (m *Manager) DeleteWelcomeCampaign(listID int) {
+	m.welcomeCampsMut.Lock()
+	delete(m.welcomeCamps, listID)
+	m.welcomeCampsMut.Unlock()
+}
+
+func (m *Manager) getWelcomeCampaign(listID int) (*models.Campaign, bool) {
+	m.welcomeCampsMut.RLock()
+	c, ok := m.welcomeCamps[listID]
+	m.welcomeCampsMut.RUnlock()
+	return c, ok
+}
+
+// buildWelcomeCampaign constructs a non-persisted campaign from a list's welcome config, to be
+// compiled and rendered per subscriber. An empty template body makes CompileTemplate wrap the
+// welcome body as the whole e-mail; a set template body wraps it as the {{ template "content" }}.
+func buildWelcomeCampaign(wl models.WelcomeList, fromEmail string) *models.Campaign {
+	contentType := wl.ContentType
+	if contentType == "" {
+		contentType = models.CampaignContentTypeRichtext
+	}
+
+	return &models.Campaign{
+		UUID:         welcomeCampaignUUID,
+		Type:         models.CampaignTypeRegular,
+		Name:         fmt.Sprintf("welcome:list-%d", wl.ID),
+		Subject:      wl.Subject,
+		FromEmail:    fromEmail,
+		Body:         wl.Body,
+		ContentType:  contentType,
+		TemplateBody: wl.TemplateBody.String,
+		Messenger:    "email",
+	}
 }
 
 // TemplateFuncs returns the template functions to be applied into

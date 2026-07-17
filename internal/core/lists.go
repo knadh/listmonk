@@ -145,6 +145,15 @@ func (c *Core) GetListTypes(ids []int, uuids []string) (map[any]string, error) {
 	return out, nil
 }
 
+// welcomeContentType returns a valid content_type enum value for a list's welcome e-mail,
+// defaulting to 'richtext' when unset so the enum cast never fails.
+func welcomeContentType(t string) string {
+	if t == "" {
+		return models.CampaignContentTypeRichtext
+	}
+	return t
+}
+
 // CreateList creates a new list.
 func (c *Core) CreateList(l models.List) (models.List, error) {
 	uu, err := uuid.NewV4()
@@ -167,7 +176,8 @@ func (c *Core) CreateList(l models.List) (models.List, error) {
 	// Insert and read ID.
 	var newID int
 	l.UUID = uu.String()
-	if err := c.q.CreateList.Get(&newID, l.UUID, l.Name, l.Type, l.Optin, l.Status, pq.StringArray(normalizeTags(l.Tags)), l.Description); err != nil {
+	if err := c.q.CreateList.Get(&newID, l.UUID, l.Name, l.Type, l.Optin, l.Status, pq.StringArray(normalizeTags(l.Tags)), l.Description,
+		l.WelcomeEnabled, l.WelcomeSubject, welcomeContentType(l.WelcomeContentType), l.WelcomeBody, l.WelcomeBodySource, l.WelcomeTemplateID); err != nil {
 		c.log.Printf("error creating list: %v", err)
 		return models.List{}, echo.NewHTTPError(http.StatusInternalServerError,
 			c.i18n.Ts("globals.messages.errorCreating", "name", "{globals.terms.list}", "error", pqErrMsg(err)))
@@ -178,7 +188,8 @@ func (c *Core) CreateList(l models.List) (models.List, error) {
 
 // UpdateList updates a given list.
 func (c *Core) UpdateList(id int, l models.List) (models.List, error) {
-	res, err := c.q.UpdateList.Exec(id, l.Name, l.Type, l.Optin, l.Status, pq.StringArray(normalizeTags(l.Tags)), l.Description)
+	res, err := c.q.UpdateList.Exec(id, l.Name, l.Type, l.Optin, l.Status, pq.StringArray(normalizeTags(l.Tags)), l.Description,
+		l.WelcomeEnabled, l.WelcomeSubject, welcomeContentType(l.WelcomeContentType), l.WelcomeBody, l.WelcomeBodySource, l.WelcomeTemplateID)
 	if err != nil {
 		c.log.Printf("error updating list: %v", err)
 		return models.List{}, echo.NewHTTPError(http.StatusInternalServerError,

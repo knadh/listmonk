@@ -145,6 +145,7 @@ func installLists(q *models.Queries) (int, int) {
 		models.ListStatusActive,
 		pq.StringArray{"test"},
 		"",
+		false, "", models.CampaignContentTypeRichtext, "", nil, nil,
 	); err != nil {
 		lo.Fatalf("error creating list: %v", err)
 	}
@@ -156,6 +157,7 @@ func installLists(q *models.Queries) (int, int) {
 		models.ListStatusActive,
 		pq.StringArray{"test"},
 		"",
+		false, "", models.CampaignContentTypeRichtext, "", nil, nil,
 	); err != nil {
 		lo.Fatalf("error creating list: %v", err)
 	}

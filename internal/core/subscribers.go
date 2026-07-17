@@ -353,6 +353,10 @@ func (c *Core) InsertSubscriber(sub models.Subscriber, listIDs []int, listUUIDs 
 		hasOptin = num > 0
 	}
 
+	// Send the per-list welcome e-mail(s). The hook self-filters to welcome-enabled lists the
+	// subscriber is now an active member of (single opt-in: any non-unsubscribed status).
+	c.sendWelcome(out, listIDs)
+
 	return out, hasOptin, nil
 }
 
@@ -443,6 +447,9 @@ func (c *Core) UpdateSubscriberWithLists(id int, sub models.Subscriber, listIDs 
 		hasOptin = num > 0
 	}
 
+	// Send the per-list welcome e-mail(s) for lists the subscriber just became an active member of.
+	c.sendWelcome(out, listIDs)
+
 	return out, hasOptin, nil
 }
 
@@ -515,10 +522,27 @@ func (c *Core) ConfirmOptionSubscription(subUUID string, listUUIDs []string, met
 		meta = models.JSON{}
 	}
 
-	if _, err := c.q.ConfirmSubscriptionOptin.Exec(subUUID, pq.Array(listUUIDs), meta); err != nil {
+	// Capture the (subscriber, list) pairs that were just confirmed so welcome e-mails can be
+	// sent for double opt-in lists (which only become active on confirmation).
+	var confirmed []struct {
+		SubscriberID int `db:"subscriber_id"`
+		ListID       int `db:"list_id"`
+	}
+	if err := c.q.ConfirmSubscriptionOptin.Select(&confirmed, subUUID, pq.Array(listUUIDs), meta); err != nil {
 		c.log.Printf("error confirming subscription: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			c.i18n.Ts("globals.messages.errorUpdating", "name", "{globals.terms.subscribers}", "error", pqErrMsg(err)))
+	}
+
+	// Fire welcome e-mails for the just-confirmed lists.
+	if c.h.SendWelcome != nil && len(confirmed) > 0 {
+		listIDs := make([]int, 0, len(confirmed))
+		for _, r := range confirmed {
+			listIDs = append(listIDs, r.ListID)
+		}
+		if sub, err := c.GetSubscriber(confirmed[0].SubscriberID, "", ""); err == nil {
+			c.sendWelcome(sub, listIDs)
+		}
 	}
 
 	return nil

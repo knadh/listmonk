@@ -49,7 +49,7 @@
           </b-field>
         </div>
       </div>
-      <div class="column is- has-text-right">
+      <div v-if="!hidePreview" class="column is- has-text-right">
         <b-button @click="onTogglePreview" type="is-primary" icon-left="file-find-outline" data-cy="btn-preview"
           aria-keyshortcuts="F9">
           <span class="has-kbd">{{ $t('campaigns.preview') }} <span class="kbd">F9</span></span>
@@ -75,8 +75,8 @@
       class="plain-editor" />
 
     <!-- campaign preview //-->
-    <campaign-preview v-if="isPreviewing" is-post @close="onTogglePreview" type="campaign" :id="id" :title="title"
-      :content-type="self.contentType" :template-id="templateId" :body="self.body" />
+    <campaign-preview v-if="isPreviewing && !hidePreview" is-post @close="onTogglePreview" type="campaign" :id="id"
+      :title="title" :content-type="self.contentType" :template-id="templateId" :body="self.body" />
   </section>
 </template>
 
@@ -107,6 +107,10 @@ export default {
     title: { type: String, default: '' },
     disabled: { type: Boolean, default: false },
     templates: { type: Array, default: null },
+
+    // Hides the live preview button. Used where there's no saved campaign to preview against
+    // (e.g. the per-list welcome e-mail editor).
+    hidePreview: { type: Boolean, default: false },
 
     // value is provided by the parent component.
     // Throught the editor, `this.self` (a mutable clone of `value`) is used,

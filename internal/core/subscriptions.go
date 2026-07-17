@@ -22,6 +22,26 @@ func (c *Core) GetSubscriptions(subID int, subUUID string, allLists bool) ([]mod
 	return out, err
 }
 
+// ClaimWelcomes atomically claims and returns the welcome e-mail content for the lists (among the
+// given candidate listIDs) that the subscriber has just become an active member of and whose
+// welcome e-mail hasn't been sent yet. Each returned list is recorded in subscriber_welcomes so the
+// welcome is sent at most once per (subscriber, list), even under concurrency. Returns an empty
+// slice when there's nothing to send.
+func (c *Core) ClaimWelcomes(subID int, listIDs []int) ([]models.WelcomeList, error) {
+	if len(listIDs) == 0 {
+		return nil, nil
+	}
+
+	out := []models.WelcomeList{}
+	if err := c.q.ClaimWelcomes.Select(&out, subID, pq.Array(listIDs)); err != nil {
+		c.log.Printf("error claiming welcome e-mails: %v", err)
+		return nil, echo.NewHTTPError(http.StatusInternalServerError,
+			c.i18n.Ts("globals.messages.errorFetching", "name", "{globals.terms.list}", "error", pqErrMsg(err)))
+	}
+
+	return out, nil
+}
+
 // AddSubscriptions adds list subscriptions to subscribers.
 func (c *Core) AddSubscriptions(subIDs, listIDs []int, status string) error {
 	if _, err := c.q.AddSubscribersToLists.Exec(pq.Array(subIDs), pq.Array(listIDs), status); err != nil {

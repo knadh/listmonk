@@ -53,7 +53,37 @@ SELECT id, uuid, type FROM lists WHERE
     END);
 
 -- name: create-list
-INSERT INTO lists (uuid, name, type, optin, status, tags, description) VALUES($1, $2, $3, $4, $5, $6, $7) RETURNING id;
+INSERT INTO lists (uuid, name, type, optin, status, tags, description,
+    welcome_enabled, welcome_subject, welcome_content_type, welcome_body, welcome_body_source, welcome_template_id)
+    VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10::content_type, $11, $12, $13) RETURNING id;
+
+-- name: claim-welcomes
+-- Given a subscriber and a set of candidate list IDs, returns the welcome content for the lists
+-- the subscriber is now an active member of (single opt-in: not unsubscribed; double opt-in:
+-- confirmed) and whose welcome hasn't been sent yet. The insert atomically claims each (subscriber,
+-- list) so the welcome is sent at most once, even under concurrency.
+WITH eligible AS (
+    SELECT l.id, l.welcome_subject, l.welcome_content_type, l.welcome_body,
+           l.welcome_template_id, t.body AS template_body
+    FROM lists l
+    JOIN subscriber_lists sl ON sl.list_id = l.id
+    LEFT JOIN templates t ON t.id = l.welcome_template_id
+    WHERE sl.subscriber_id = $1
+      AND l.id = ANY($2::INT[])
+      AND l.welcome_enabled = true
+      AND (
+          (l.optin = 'single' AND sl.status != 'unsubscribed')
+          OR (l.optin = 'double' AND sl.status = 'confirmed')
+      )
+),
+claim AS (
+    INSERT INTO subscriber_welcomes (subscriber_id, list_id)
+    SELECT $1, id FROM eligible
+    ON CONFLICT (subscriber_id, list_id) DO NOTHING
+    RETURNING list_id
+)
+SELECT e.id, e.welcome_subject, e.welcome_content_type, e.welcome_body, e.welcome_template_id, e.template_body
+    FROM eligible e JOIN claim c ON c.list_id = e.id;
 
 -- name: update-list
 WITH l AS (
@@ -64,6 +94,12 @@ WITH l AS (
         status=(CASE WHEN $5 != '' THEN $5::list_status ELSE status END),
         tags=$6::VARCHAR(100)[],
         description=(CASE WHEN $7 != '' THEN $7 ELSE description END),
+        welcome_enabled=$8,
+        welcome_subject=$9,
+        welcome_content_type=$10::content_type,
+        welcome_body=$11,
+        welcome_body_source=$12,
+        welcome_template_id=$13,
         updated_at=NOW()
     WHERE id = $1
     RETURNING id, name
