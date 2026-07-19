@@ -1,0 +1,168 @@
+{{ define "admin-subscribers" -}}
+{{ template "admin-header" . }}
+{{- $d := .Data -}}
+{{- $subStatus := $d.Page.Param "subscription_status" -}}
+{{- $base := URI "/admin/subscribers" -}}
+{{- if $d.CurrentList }}{{ $base = printf "%s/lists/%d" (URI "/admin/subscribers") $d.CurrentList.ID }}{{ end -}}
+
+<script>
+	window._lists = {{ ToJSON $d.AllLists }};
+	window._filters = {
+		listID: {{ if $d.CurrentList }}{{ $d.CurrentList.ID }}{{ else }}null{{ end }},
+		search: {{ ToJSON $d.Page.Search }},
+		query: {{ ToJSON $d.Page.Query }},
+		subStatus: {{ ToJSON $subStatus }}
+	};
+</script>
+
+<section class="subscribers" x-data="subscribersView()">
+	<header class="row page-header">
+		<div class="col-6">
+			<h1 class="page-title">
+				{{ .L.T "globals.terms.subscribers" }}
+				<span>({{ $d.Page.Total }})</span>
+				{{- if $d.CurrentList }}
+					&raquo; <a href="{{ URI "/admin/lists" }}/{{ $d.CurrentList.ID }}">{{ $d.CurrentList.Name }}</a>
+					{{- if $subStatus }}<span class="text-light text-7">({{ $subStatus }})</span>{{ end }}
+				{{- end }}
+			</h1>
+		</div>
+		<div class="col-6 col-end hstack justify-end">
+			<form action="{{ $base }}" class="search-form" :method="advanced ? 'post' : 'get'">
+				{{- $d.Page.FormFields "search" "query" "page" -}}
+				<ot-dropdown>
+					<fieldset class="group">
+						<input name="search" aria-label="Search" data-cy="search" placeholder="{{ .L.T "subscribers.queryPlaceholder" }}" value="{{ $d.Page.Search }}" :disabled="isSqlOpen || advanced" autofocus />
+						<button type="button" class="outline sql-btn" :class="{ 'is-active': advanced }" popovertarget="sql-editor" data-cy="btn-advanced-search" :data-variant="advanced ? 'primary' : null" aria-label="{{ .L.T "subscribers.advancedQuery" }}">SQL {}</button>
+						<button type="submit" class="" data-cy="btn-search" aria-label="{{ .L.T "globals.buttons.search" }}">{{ Icon "search" }}</button>
+					</fieldset>
+					<div popover id="sql-editor" class="sql-editor" data-cy="query-editor" @toggle="isSqlOpen = ($event.newState === 'open'); if (isSqlOpen) $nextTick(() => $refs.queryInput.focus())">
+						<div data-field>
+							<textarea x-ref="queryInput" name="query" data-cy="query" rows="6" placeholder="subscribers.name LIKE '%user%' or subscribers.status='blocklisted'" x-model="query" :disabled="!isSqlOpen && !advanced"></textarea>
+							<small data-hint>
+								{{ .L.T "subscribers.advancedQueryHelp" }}.
+								<a href="https://listmonk.app/docs/querying-and-segmentation" target="_blank" rel="noopener noreferrer">{{ .L.T "globals.buttons.learnMore" }}.</a>
+							</small>
+						</div>
+						<div class="hstack justify-end">
+							<button type="button" class="outline" data-cy="btn-query-reset" @click="query = ''" :disabled="query.trim() === ''">{{ .L.T "subscribers.reset" }}</button>
+							<button type="submit" data-variant="primary" data-cy="btn-query">{{ .L.T "subscribers.query" }}</button>
+						</div>
+					</div>
+				</ot-dropdown>
+			</form>
+			{{- if $d.Can "subscribers:manage" }}
+				<button type="button" data-variant="primary" class="btn-new" data-cy="btn-new" @click="onOpenNew">
+					{{ Icon "plus" }} {{ .L.T "globals.buttons.new" }}
+				</button>
+			{{- end }}
+		</div>
+	</header>
+
+	<div class="card page-content has-table">
+		<div class="table-wrapper" x-data="table({ query: {{ ToJSON $d.Page.Query }}, filters: {{ ToJSON $d.Page.QueryParams }}, total: {{ $d.Page.Total }} })" :aria-busy="isLoading('subscribers')" @change="onChange($event)">
+			<template x-if="numSelected > 0">
+				<ot-dropdown class="bulk-actions">
+					<button popovertarget="sub-bulk-actions" type="button" class="small" data-cy="btn-bulk-actions">
+						<span x-text="numSelectedLabel"></span> {{ Icon "more-vertical" }}
+					</button>
+					<menu popover id="sub-bulk-actions">
+						{{- if gt $d.Page.Total $d.Page.PerPage }}
+							<button type="button" role="menuitem" class="ghost" data-cy="select-all-subscribers" x-cloak x-show="!allSelected" @click.prevent="onSelectAllQuery()">
+								{{ Icon "check-square" }} <span x-text="selectAllLabel"></span>
+							</button>
+						{{- end }}
+						<button type="button" role="menuitem" class="ghost" data-cy="btn-export-subscribers" @click.prevent="onExport(allSelected, selected, total)">{{ Icon "download-cloud" }} {{ .L.T "subscribers.export" }}</button>
+						{{- if $d.Can "subscribers:manage" }}
+							<button type="button" role="menuitem" class="ghost" data-cy="btn-manage-lists" @click.prevent="onOpenManageLists(allSelected, selected)">{{ Icon "list" }} {{ .L.T "subscribers.manageLists" }}</button>
+							<button type="button" role="menuitem" class="ghost" data-cy="btn-manage-blocklist" @click.prevent="onBlocklistSelected(allSelected, selected, total)">{{ Icon "user-x" }} {{ .L.T "import.blocklist" }}</button>
+							<hr />
+							<button type="button" role="menuitem" class="ghost" data-variant="danger" data-cy="btn-delete-subscribers" :disabled="isLoading('subscribers')" @click.prevent="onDeleteSelected(allSelected, selected, total)">{{ Icon "trash-2" }} {{ .L.T "globals.buttons.delete" }} <span x-text="numSelected"></span></button>
+						{{- end }}
+					</menu>
+				</ot-dropdown>
+			</template>
+
+			<table>
+				<thead>
+					<tr>
+						<th width="5%"><input type="checkbox" aria-label="{{ .L.T "globals.buttons.toggleSelect" }}"></th>
+						<th class="cy-email">{{ $d.Page.SortLink $base "email" (.L.T "subscribers.email") }}</th>
+						<th class="cy-name">{{ $d.Page.SortLink $base "name" (.L.T "globals.fields.name") }}</th>
+						<th class="align-center cy-lists">{{ .L.T "globals.terms.lists" }}</th>
+						<th class="cy-created_at">{{ $d.Page.SortLink $base "created_at" (.L.T "globals.fields.createdAt") }}</th>
+						<th class="cy-updated_at">{{ $d.Page.SortLink $base "updated_at" (.L.T "globals.fields.updatedAt") }}</th>
+						<th class="align-right"></th>
+					</tr>
+				</thead>
+				<tbody>
+					{{- range $d.Subscribers }}
+						{{- $sub := . }}
+						<tr {{ if eq .Status "blocklisted" }}class="blocklisted"{{ end }}>
+							<td><input name="id" type="checkbox" value="{{ .ID }}"></td>
+							<td >
+								<a href="{{ URI "/admin/subscribers" }}/{{ .ID }}">{{ .Email }}</a>
+								{{- if ne .Status "enabled" }}<span class="badge status-{{ .Status }}">{{ $.L.T (printf "subscribers.status.%s" .Status) }}</span>{{ end }}
+								<div class="badge-list hstack gap-1">
+									{{- range .ParsedLists }}
+										<a href="{{ URI "/admin/subscribers/lists" }}/{{ .ID }}" class="badge outline">
+											{{ .Name }}
+											{{- if or (eq .Optin "double") (eq .SubscriptionStatus "unsubscribed") }}
+											<sup class="status-{{ .SubscriptionStatus }}">{{ $.L.T (printf "subscribers.status.%s" .SubscriptionStatus) }}</sup>{{ end }}
+										</a>
+									{{- end }}
+								</div>
+							</td>
+							<td><a href="{{ URI "/admin/subscribers" }}/{{ .ID }}">{{ .Name }}</a></td>
+							<td class="align-center"><a href="{{ URI "/admin/subscribers" }}/{{ .ID }}/lists">{{ len .ParsedLists }}<br /><span class="view">{{ $.L.T "globals.buttons.view" }}</span></a></td>
+							<td>{{ NiceDate .CreatedAt }}</td>
+							<td>{{ NiceDate .UpdatedAt }}</td>
+							<td class="actions align-right">
+								<ot-dropdown>
+									<button popovertarget="sub-actions-{{ .ID }}" type="button" class="ghost small icon" aria-label="{{ $.L.T "globals.buttons.more" }}">
+										{{ Icon "more-vertical" }}
+									</button>
+									<menu popover id="sub-actions-{{ .ID }}">
+										<a href="{{ URI "/api/subscribers" }}/{{ .ID }}/export" role="menuitem" class="button ghost" data-cy="btn-download">{{ Icon "download-cloud" }} {{ $.L.T "subscribers.downloadData" }}</a>
+										{{- if $d.Can "subscribers:manage" }}
+											<a href="{{ URI "/admin/subscribers" }}/{{ .ID }}" role="menuitem" class="button ghost" data-cy="btn-edit">{{ Icon "edit-2" }} {{ $.L.T "globals.buttons.edit" }}</a>
+											<button type="button" role="menuitem" class="ghost" data-variant="danger" data-cy="btn-delete" :disabled="isLoading('subscribers')" @click.prevent="onDeleteSubscriber({{ .ID }}, {{ ToJSON .Email }})">{{ Icon "trash-2" }} {{ $.L.T "globals.buttons.delete" }}</button>
+										{{- end }}
+									</menu>
+								</ot-dropdown>
+							</td>
+						</tr>
+					{{- else }}
+						<tr><td colspan="7" class="align-center text-light">{{ .L.T "globals.messages.emptyState" }}</td></tr>
+					{{- end }}
+				</tbody>
+			</table>
+
+			{{- template "pagination" $d.Page.Pagination }}
+		</div>
+	</div>
+
+	<dialog class="b-modal" x-ref="dialog" @close="onDialogClose">
+		{{ template "subscriber-form" dict "Root" . "Submit" "onSubmitNew" "Method" "dialog" "CanSave" ($d.Can "subscribers:manage") }}
+	</dialog>
+
+	<dialog class="b-modal" x-ref="listDialog">
+		<form @submit.prevent="onSubmitManageLists">
+			<div class="dialog-card content">
+				<header class="dialog-head"><h3 class="dialog-title">{{ .L.T "subscribers.manageLists" }}</h3></header>
+				<section class="dialog-body">
+					{{ template "manage-lists-form" dict "Root" . "Model" "bulk" "ListID" "bulk-lists" }}
+				</section>
+				<footer class="dialog-foot hstack gap-3 justify-end">
+					<button type="button" class="outline" @click="$refs.listDialog.close()">{{ .L.T "globals.buttons.close" }}</button>
+					<button type="submit" data-variant="primary" :disabled="bulk.lists.length === 0">{{ .L.T "globals.buttons.save" }}</button>
+				</footer>
+			</div>
+		</form>
+	</dialog>
+</section>
+
+<script type="module" src="{{ URI "/admin/static/js/views/subscribers.js" }}?v={{ .AssetVersion }}" defer></script>
+
+{{ template "admin-footer" . -}}
+{{ end }}

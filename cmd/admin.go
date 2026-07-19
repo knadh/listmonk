@@ -68,10 +68,25 @@ var adminJSI18nKeys = []string{
 	"lists.confirmSub",
 	"lists.optinTo",
 	"lists.newList",
+	"lists.optins.single",
+	"lists.optins.double",
 
 	"public.sub",
 	"public.subName",
 	"subscribers.email",
+	"subscribers.confirmDelete",
+	"subscribers.confirmExport",
+	"subscribers.confirmBlocklist",
+	"subscribers.subscribersDeleted",
+	"subscribers.listChangeApplied",
+	"subscribers.sentOptinConfirm",
+	"subscribers.invalidJSON",
+	"subscribers.status.enabled",
+	"subscribers.status.blocklisted",
+	"subscribers.status.subscribed",
+	"subscribers.status.unsubscribed",
+	"subscribers.status.confirmed",
+	"subscribers.status.unconfirmed",
 }
 
 func (a *App) makeServerConfig() (serverConfig, error) {

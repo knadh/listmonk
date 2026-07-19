@@ -1,0 +1,13 @@
+{{ define "list-selector" -}}
+{{- $root := .Root -}}
+{{- $model := .Model -}}
+{{- $listID := .ListID -}}
+<label data-field>
+	{{ $root.L.T .Label }}
+	<ot-taginput x-model="{{ $model }}">
+		<input list="{{ $listID }}" placeholder="{{ $root.L.T .Placeholder }}" oninput="_listAutocomplete(this)" onpointerdown="_listAutocomplete(this)" onfocus="_listAutocomplete(this)" />
+		<datalist id="{{ $listID }}"></datalist>
+	</ot-taginput>
+	<small data-hint>{{ $root.L.T "subscribers.listsHelp" }}</small>
+</label>
+{{- end }}

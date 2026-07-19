@@ -1,0 +1,58 @@
+{{ define "admin-subscriber" -}}
+{{ template "admin-header" . }}
+{{- $d := .Data -}}
+{{- $sub := $d.Subscriber -}}
+{{- $base := printf "%s/%d" (URI "/admin/subscribers") $sub.ID -}}
+
+<script>
+	window._lists = {{ ToJSON $d.AllLists }};
+	const _sub = {{ ToJSON $sub }};
+</script>
+<section class="subscribers" x-data="subscribersView(_sub)">
+	<header class="row page-header">
+		<div class="col-6">
+			<div class="hstack gap-1">
+				<a href="{{ URI "/admin/subscribers" }}" class="back" aria-label="{{ .L.T "globals.buttons.back" }}">{{ Icon "chevron-left" }}</a>
+				<h1 class="page-title">
+					{{ $sub.Email }}
+					{{ if ne $sub.Status "enabled" }}<span class="badge status-{{ $sub.Status }}">{{ .L.T (printf "subscribers.status.%s" $sub.Status) }}</span>{{ end }}
+				</h1>
+			</div>
+		</div>
+		<div class="col-6 col-end align-right hstack justify-end">
+			{{- if and (eq $d.Tab "lists") ($d.Can "subscribers:manage") }}
+				{{ if ne $sub.Status "blocklisted" }}
+				<button type="button" class="outline" @click.prevent="onSendOptin" :disabled="!hasOptinSub">{{ Icon "mail" }} {{ .L.T "subscribers.sendOptinConfirm" }}</button>
+				{{ end }}
+				<button type="button" data-variant="primary" @click.prevent="onOpenManage">{{ Icon "list" }} {{ .L.T "globals.buttons.manage" }}</button>
+			{{- end }}
+			{{- if and (eq $d.Tab "bounces") $d.Bounces }}
+				<button type="button" class="outline" data-variant="danger" @click.prevent="onDeleteBounces">{{ Icon "trash-2" }} {{ .L.T "globals.buttons.clear" }}</button>
+			{{- end }}
+		</div>
+	</header>
+
+	<div role="tablist">
+		<a role="tab" href="{{ $base }}" {{ if eq $d.Tab "profile" }}aria-selected="true"{{ end }}>{{ .L.Tc "globals.terms.subscriber" 1 }}</a>
+		<a role="tab" href="{{ $base }}/lists" {{ if eq $d.Tab "lists" }}aria-selected="true"{{ end }}>{{ .L.Tc "globals.terms.lists" 2 }} ({{ len $sub.ParsedLists }})</a>
+		<a role="tab" href="{{ $base }}/activity" {{ if eq $d.Tab "activity" }}aria-selected="true"{{ end }}>{{ .L.T "subscribers.activity" }}</a>
+		{{- if $d.Can "bounces:get" }}
+			<a role="tab" href="{{ $base }}/bounces" {{ if eq $d.Tab "bounces" }}aria-selected="true"{{ end }}>{{ .L.T "globals.terms.bounces" }}</a>
+		{{- end }}
+	</div>
+
+	{{- if eq $d.Tab "profile" }}
+		{{ template "subscriber-form" dict "Root" . "Submit" "onSubmitUpdate" "Method" "post" "CanSave" ($d.Can "subscribers:manage") }}
+	{{- else if eq $d.Tab "lists" }}
+		{{ template "subscriber-lists" dict "Root" . "CanSave" ($d.Can "subscribers:manage") }}
+	{{- else if eq $d.Tab "bounces" }}
+		{{ template "subscriber-bounces" . }}
+	{{- else if eq $d.Tab "activity" }}
+		{{ template "subscriber-activity" . }}
+	{{- end }}
+</section>
+
+<script type="module" src="{{ URI "/admin/static/js/views/subscribers.js" }}?v={{ .AssetVersion }}" defer></script>
+
+{{ template "admin-footer" . -}}
+{{ end }}
