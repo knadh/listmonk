@@ -1,0 +1,32 @@
+{{ define "subscriber-bounces" -}}
+{{- $d := .Data -}}
+<div class="card page-content content bounces">
+	{{- if $d.Bounces }}
+		<table>
+			<thead><tr>
+				<th>{{ .L.T "globals.terms.campaign" }}</th>
+				<th>{{ .L.T "globals.fields.createdAt" }}</th>
+				<th>{{ .L.T "globals.fields.type" }}</th>
+			</tr></thead>
+			<tbody>
+				{{- range $d.Bounces }}
+					<tr>
+						<td>
+							{{- with .ParsedCampaign }}
+								<a href="{{ URI "/admin/campaigns" }}/{{ .ID }}">{{ .Name }}</a>
+							{{- end }}
+						</td>
+						<td>{{ NiceDate .CreatedAt }}</td>
+						<td>
+							<a href="#" @click.prevent="toggleMeta({{ .ID }})">{{ .Source }} {{ Icon "chevron-down" }}</a>
+							<pre x-show="visibleMeta[{{ .ID }}]" x-cloak>{{ printf "%s" .Meta }}</pre>
+						</td>
+					</tr>
+				{{- end }}
+			</tbody>
+		</table>
+	{{- else }}
+		<p class="align-center text-light">{{ .L.T "globals.messages.emptyState" }}</p>
+	{{- end }}
+</div>
+{{- end }}

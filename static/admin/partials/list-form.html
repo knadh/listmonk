@@ -4,8 +4,8 @@
 {{- $method := .Method -}}
 {{- $isDialog := eq $method "dialog" -}}
 {{- $canSave := .CanSave -}}
-<form method="{{ $method }}" :aria-busy="isLoading('lists')" @submit.prevent="{{ $submit }}">
-	<div class="{{ if $isDialog }}dialog-card content{{ else }}card page-content content p-6{{ end }}">
+<form method="{{ $method }}" @submit.prevent="{{ $submit }}">
+	<div class="{{ if $isDialog }}dialog-card content{{ else }}card page-content content{{ end }}">
 		{{- if $isDialog }}
 			<header class="dialog-head">
 				<h3 class="dialog-title">{{ $root.L.T "globals.terms.new" }} {{ $root.L.T "globals.terms.list" }}</h3>

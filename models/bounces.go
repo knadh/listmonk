@@ -32,3 +32,24 @@ type Bounce struct {
 	// in searches and queries.
 	Total int `db:"total" json:"-"`
 }
+
+// BounceCampaign is parsed from the bounce's raw campaign JSON for rendering in HTML views.
+type BounceCampaign struct {
+	ID   int    `json:"id"`
+	Name string `json:"name"`
+}
+
+// ParsedCampaign unmarshals the bounce's raw campaign JSON, or returns nil if the
+// bounce isn't associated with a campaign.
+func (b Bounce) ParsedCampaign() *BounceCampaign {
+	if b.Campaign == nil || len(*b.Campaign) == 0 {
+		return nil
+	}
+
+	var out BounceCampaign
+	if err := json.Unmarshal(*b.Campaign, &out); err != nil {
+		return nil
+	}
+
+	return &out
+}

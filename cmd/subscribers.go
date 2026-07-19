@@ -9,6 +9,7 @@ import (
 	"net/url"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/knadh/listmonk/internal/auth"
 	"github.com/knadh/listmonk/internal/i18n"
@@ -54,6 +55,252 @@ var (
 		Attribs: models.JSON{"city": "Bengaluru"},
 	}
 )
+
+// subscribersView is the admin page view for the subscribers list page.
+type subscribersView struct {
+	adminView
+
+	Subscribers []models.Subscriber
+	Page        models.PageProps
+	AllLists    []models.List
+	CurrentList *models.List
+}
+
+// subscriberView is the admin page view for a single subscriber.
+type subscriberView struct {
+	adminView
+
+	Tab           string
+	Subscriber    models.Subscriber
+	AllLists      []models.List
+	Bounces       []models.Bounce
+	CampaignViews []subCampaignView
+	LinkClicks    []subLinkClick
+	TotalViews    int
+	TotalClicks   int
+}
+
+// subCampaignView and subLinkClick are the parsed rows of a subscriber's activity,
+// unmarshalled from the JSON returned by GetSubscriberActivity.
+type subCampaignView struct {
+	ID           int       `json:"id"`
+	Name         string    `json:"name"`
+	Subject      string    `json:"subject"`
+	ViewCount    int       `json:"view_count"`
+	LastViewedAt time.Time `json:"last_viewed_at"`
+}
+
+type subLinkClick struct {
+	URL             string    `json:"url"`
+	CampaignID      int       `json:"campaign_id"`
+	CampaignName    string    `json:"campaign_name"`
+	CampaignSubject string    `json:"campaign_subject"`
+	ClickCount      int       `json:"click_count"`
+	LastClickedAt   time.Time `json:"last_clicked_at"`
+}
+
+// ViewSubscribers renders the HTML view for subscribers, optionally filtered by a list.
+func (a *App) ViewSubscribers(c echo.Context) error {
+	listID, _ := strconv.Atoi(c.Param("id"))
+
+	subs, props, err := a.getSubscribers(c, listID)
+	if err != nil {
+		return err
+	}
+
+	// All lists the user can access, for the subscriber form's list selector.
+	allLists, err := a.getViewableLists(c)
+	if err != nil {
+		return err
+	}
+
+	// Fetch the list being filtered by, if any, to show its name in the header.
+	var curList *models.List
+	if listID > 0 {
+		if l, err := a.core.GetList(listID, ""); err == nil {
+			curList = &l
+		}
+	}
+
+	data := subscribersView{
+		adminView:   newAdminView(c, a.i18n.T("globals.terms.subscribers"), ""),
+		Subscribers: subs,
+		Page:        props,
+		AllLists:    allLists,
+		CurrentList: curList,
+	}
+
+	return c.Render(http.StatusOK, "admin-subscribers", data)
+}
+
+// ViewSubscriber renders the profile and subscriptions tabs of a subscriber.
+func (a *App) ViewSubscriber(c echo.Context) error {
+	out, err := a.getViewSubscriber(c)
+	if err != nil {
+		return err
+	}
+
+	allLists, err := a.getViewableLists(c)
+	if err != nil {
+		return err
+	}
+
+	tab := "profile"
+	if strings.HasSuffix(c.Path(), "/lists") {
+		tab = "lists"
+	}
+
+	data := subscriberView{
+		adminView:  newAdminView(c, out.Email, ""),
+		Tab:        tab,
+		Subscriber: out,
+		AllLists:   allLists,
+	}
+
+	return c.Render(http.StatusOK, "admin-subscriber", data)
+}
+
+// ViewSubscriberBounces renders the bounces tab of a subscriber.
+func (a *App) ViewSubscriberBounces(c echo.Context) error {
+	out, err := a.getViewSubscriber(c)
+	if err != nil {
+		return err
+	}
+
+	bounces, _, err := a.core.QueryBounces(0, out.ID, "", "", "", 0, 1000)
+	if err != nil {
+		return err
+	}
+
+	data := subscriberView{
+		adminView:  newAdminView(c, out.Email, ""),
+		Tab:        "bounces",
+		Subscriber: out,
+		Bounces:    bounces,
+	}
+
+	return c.Render(http.StatusOK, "admin-subscriber", data)
+}
+
+// ViewSubscriberActivity renders the activity tab (campaign views and link clicks) of a subscriber.
+func (a *App) ViewSubscriberActivity(c echo.Context) error {
+	out, err := a.getViewSubscriber(c)
+	if err != nil {
+		return err
+	}
+
+	act, err := a.core.GetSubscriberActivity(out.ID)
+	if err != nil {
+		return err
+	}
+
+	data := subscriberView{
+		adminView:  newAdminView(c, out.Email, ""),
+		Tab:        "activity",
+		Subscriber: out,
+	}
+
+	// Parse the JSON activity blobs.
+	_ = json.Unmarshal(act.CampaignViews, &data.CampaignViews)
+	_ = json.Unmarshal(act.LinkClicks, &data.LinkClicks)
+	for _, v := range data.CampaignViews {
+		data.TotalViews += v.ViewCount
+	}
+	for _, cl := range data.LinkClicks {
+		data.TotalClicks += cl.ClickCount
+	}
+
+	return c.Render(http.StatusOK, "admin-subscriber", data)
+}
+
+// getViewSubscriber fetches the subscriber in the request path after validating permissions.
+func (a *App) getViewSubscriber(c echo.Context) (models.Subscriber, error) {
+	user := auth.GetUser(c)
+
+	id := getID(c)
+	if err := a.hasSubPerm(user, []int{id}); err != nil {
+		return models.Subscriber{}, err
+	}
+
+	out, err := a.core.GetSubscriber(id, "", "")
+	if err != nil {
+		return models.Subscriber{}, err
+	}
+	maskRestrictedSubLists(user, &out)
+
+	return out, nil
+}
+
+// getViewableLists returns all active lists the user has access to.
+func (a *App) getViewableLists(c echo.Context) ([]models.List, error) {
+	user := auth.GetUser(c)
+
+	hasAllPerm, permittedIDs := user.GetPermittedLists(auth.PermTypeGet)
+	return a.core.GetLists("", models.ListStatusActive, hasAllPerm, permittedIDs)
+}
+
+// getSubscribers queries subscribers from query params for the HTML view. If listID > 0,
+// results are filtered by that list (the per-list subscribers view).
+func (a *App) getSubscribers(c echo.Context, listID int) ([]models.Subscriber, models.PageProps, error) {
+	// GET and POST are both supported. `query` (SQL query) is sent by the frontend
+	// as a POST form param.
+	params, err := c.FormParams()
+	if err != nil {
+		return nil, models.PageProps{}, err
+	}
+
+	q := makeQuery(params, map[string]string{
+		"page":                "",
+		"search":              "",
+		"query":               "",
+		"order_by":            "",
+		"order":               "",
+		"subscription_status": "",
+	})
+
+	// Get the authenticated user.
+	user := auth.GetUser(c)
+
+	// Filter the list IDs by permission.
+	var listIDs []int
+	if listID > 0 {
+		listIDs = user.GetPermittedListIDs([]int{listID})
+	} else {
+		ids, err := a.filterListQueryByPerm("list_id", params, user)
+		if err != nil {
+			return nil, models.PageProps{}, err
+		}
+		listIDs = ids
+	}
+
+	// Does the user have the subscribers:sql_query permission for advanced queries?
+	query := formatSQLExp(q.Get("query"))
+	if query != "" && !user.HasPerm(auth.PermSubscribersSqlQuery) {
+		return nil, models.PageProps{}, echo.NewHTTPError(http.StatusForbidden,
+			a.i18n.Ts("globals.messages.permissionDenied", "name", auth.PermSubscribersSqlQuery))
+	}
+
+	// Run the DB query.
+	pg := a.pg.NewFromURL(q)
+	res, total, err := a.core.QuerySubscribers(
+		q.Get("search"),
+		query,
+		listIDs,
+		q.Get("subscription_status"),
+		q.Get("order"),
+		q.Get("order_by"),
+		pg.Offset,
+		pg.Limit)
+	if err != nil {
+		return nil, models.PageProps{}, err
+	}
+
+	for i := range res {
+		maskRestrictedSubLists(user, &res[i])
+	}
+
+	return res, models.NewPageProps(q, total, pg.Page, pg.PerPage), nil
+}
 
 // GetSubscriber handles the retrieval of a single subscriber by ID.
 func (a *App) GetSubscriber(c echo.Context) error {

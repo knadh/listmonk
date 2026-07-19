@@ -75,6 +75,14 @@ func initHTTPHandlers(e *echo.Echo, a *App) {
 		g.GET(path.Join(uriAdmin, "/lists"), a.ViewLists)
 		g.GET(path.Join(uriAdmin, "/lists/:id"), hasID(a.ViewList))
 		g.GET(path.Join(uriAdmin, "/lists/forms"), a.ViewForms)
+		g.GET(path.Join(uriAdmin, "/subscribers"), a.ViewSubscribers)
+		g.POST(path.Join(uriAdmin, "/subscribers"), a.ViewSubscribers)
+		g.GET(path.Join(uriAdmin, "/subscribers/lists/:id"), hasID(a.ViewSubscribers))
+		g.POST(path.Join(uriAdmin, "/subscribers/lists/:id"), hasID(a.ViewSubscribers))
+		g.GET(path.Join(uriAdmin, "/subscribers/:id"), hasID(a.ViewSubscriber))
+		g.GET(path.Join(uriAdmin, "/subscribers/:id/lists"), hasID(a.ViewSubscriber))
+		g.GET(path.Join(uriAdmin, "/subscribers/:id/bounces"), hasID(a.ViewSubscriberBounces))
+		g.GET(path.Join(uriAdmin, "/subscribers/:id/activity"), hasID(a.ViewSubscriberActivity))
 	}
 
 	// =================================================================
@@ -306,7 +314,6 @@ func initHTTPHandlers(e *echo.Echo, a *App) {
 		})
 	}
 }
-
 
 // HealthCheck is a healthcheck endpoint that returns a 200 response.
 func (a *App) HealthCheck(c echo.Context) error {
