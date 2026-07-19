@@ -311,6 +311,8 @@ Create a new subscriber.
 | attribs                  | JSON       |          | Optional JSON object attributes for the subscriber that can be used in message templates. Example `{"location": "Somewhere"}` |
 | preconfirm_subscriptions | bool       |          | If true, subscriptions are marked as confirmed and no opt-in emails are sent for double opt-in lists.                         |
 
+> **Note on confirmation email addresses:** Custom `confirmation_from` addresses on double opt-in lists can only be used when subscribing a user to a **single list**. Attempting to subscribe a user to multiple lists where any has a `confirmation_from` configured will return an error. To use custom confirmation addresses, either subscribe to one list at a time, or use lists without custom `confirmation_from` settings for multi-list subscriptions.
+
 ##### Example Request
 
 ```shell

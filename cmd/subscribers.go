@@ -895,8 +895,23 @@ func makeOptinNotifyHook(unsubHeader bool, u *UrlConfig, q *models.Queries, i *i
 			hdr.Set("List-Unsubscribe", `<`+unsubURL+`>`)
 		}
 
-		// Send the e-mail.
-		if err := notifs.Notify([]string{sub.Email}, i.T("subscribers.optinSubject"), notifs.TplSubscriberOptin, out, hdr); err != nil {
+		// Validate: confirmation_from can only be used with single list subscriptions.
+		if len(lists) > 1 {
+			for _, l := range lists {
+				if l.ConfirmationFrom.Valid && l.ConfirmationFrom.String != "" {
+					lo.Printf("error: confirmation_from cannot be used when subscribing to multiple lists (subscriber %d)", sub.ID)
+					return 0, fmt.Errorf("confirmation_from can only be used when subscribing to a single list")
+				}
+			}
+		}
+
+		// Send the e-mail. Use the list's custom confirmation_from if it's a single list subscription.
+		var fromAddr string
+		if len(lists) == 1 && lists[0].ConfirmationFrom.Valid && lists[0].ConfirmationFrom.String != "" {
+			fromAddr = lists[0].ConfirmationFrom.String
+		}
+
+		if err := notifs.Notify([]string{sub.Email}, i.T("subscribers.optinSubject"), notifs.TplSubscriberOptin, out, hdr, fromAddr); err != nil {
 			lo.Printf("error sending opt-in e-mail for subscriber %d (%s): %s", sub.ID, sub.UUID, err)
 			return 0, err
 		}

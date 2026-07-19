@@ -2,6 +2,7 @@ package main
 
 import (
 	"net/http"
+	"net/mail"
 	"strconv"
 	"strings"
 
@@ -103,6 +104,13 @@ func (a *App) CreateList(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("lists.invalidName"))
 	}
 
+	// Validate confirmation_from if provided.
+	if l.ConfirmationFrom.Valid && l.ConfirmationFrom.String != "" {
+		if _, err := mail.ParseAddress(l.ConfirmationFrom.String); err != nil {
+			return echo.NewHTTPError(http.StatusBadRequest, "invalid confirmation_from email address")
+		}
+	}
+
 	out, err := a.core.CreateList(l)
 	if err != nil {
 		return err
@@ -132,6 +140,13 @@ func (a *App) UpdateList(c echo.Context) error {
 	// Validate.
 	if !strHasLen(l.Name, 1, stdInputMaxLen) {
 		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("lists.invalidName"))
+	}
+
+	// Validate confirmation_from if provided.
+	if l.ConfirmationFrom.Valid && l.ConfirmationFrom.String != "" {
+		if _, err := mail.ParseAddress(l.ConfirmationFrom.String); err != nil {
+			return echo.NewHTTPError(http.StatusBadRequest, "invalid confirmation_from email address")
+		}
 	}
 
 	// Update the list in the DB.

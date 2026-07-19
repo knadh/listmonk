@@ -68,7 +68,8 @@ func NotifySystem(subject, tplName string, data any, hdr textproto.MIMEHeader) e
 }
 
 // Notify sends out an e-mail notification.
-func Notify(toEmails []string, subject, tplName string, data any, hdr textproto.MIMEHeader) error {
+// If fromAddr is provided and not empty, it's used instead of the default From address.
+func Notify(toEmails []string, subject, tplName string, data any, hdr textproto.MIMEHeader, fromAddr ...string) error {
 	if len(toEmails) == 0 {
 		return nil
 	}
@@ -82,10 +83,15 @@ func Notify(toEmails []string, subject, tplName string, data any, hdr textproto.
 
 	subject, body = GetTplSubject(subject, body)
 
+	from := no.opt.FromEmail
+	if len(fromAddr) > 0 && fromAddr[0] != "" {
+		from = fromAddr[0]
+	}
+
 	m := models.Message{
 		Messenger:   "email",
 		ContentType: no.opt.ContentType,
-		From:        no.opt.FromEmail,
+		From:        from,
 		To:          toEmails,
 		Subject:     subject,
 		Body:        body,

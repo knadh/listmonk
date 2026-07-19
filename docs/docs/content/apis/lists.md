@@ -1,5 +1,18 @@
 # API / Lists
 
+## Overview
+
+The Lists API allows you to manage your mailing lists. Each list can have optional per-list settings for customization.
+
+### Confirmation Email Configuration
+
+For lists with double opt-in enabled (`optin: "double"`), confirmation emails are sent to subscribers. The `confirmation_from` field allows you to specify a custom sender address for these emails. This is useful when running multiple services through a single listmonk instance, where each service needs to send confirmation emails from its own address.
+
+- If `confirmation_from` is not set, confirmation emails use the system default sender address (configured globally).
+- If `confirmation_from` is set to a valid email address, confirmation emails for that list will be sent from that address.
+
+**Important:** The custom `confirmation_from` address can only be used when subscribing a user to **a single list**. Attempting to subscribe a user to multiple lists where any of them has a `confirmation_from` configured will return an error. This ensures clarity and prevents ambiguous email sender configurations. To subscribe to multiple lists, either use lists without `confirmation_from` set, or make separate API calls for each list with a custom sender address.
+
 | Method | Endpoint                                        | Description               |
 | :----- | :---------------------------------------------- | :------------------------ |
 | GET    | [/api/lists](#get-apilists)                     | Retrieve all lists.       |
@@ -62,6 +75,7 @@ curl -u "api_user:token" -X GET 'http://localhost:9000/api/lists?status=archived
                 "tags": [
                     "test"
                 ],
+                "confirmation_from": "noreply@example.com",
                 "subscriber_count": 2
             },
             {
@@ -74,6 +88,7 @@ curl -u "api_user:token" -X GET 'http://localhost:9000/api/lists?status=archived
                 "optin": "single",
                 "status": "active",
                 "tags": [],
+                "confirmation_from": null,
                 "subscriber_count": 0
             }
         ],
@@ -140,6 +155,7 @@ curl -u "api_user:token" -X GET 'http://localhost:9000/api/lists/5'
         "optin": "double",
         "status": "active",
         "tags": [],
+        "confirmation_from": null,
         "subscriber_count": 0
     }
 }
@@ -153,19 +169,28 @@ Create a new list.
 
 ##### Parameters
 
-| Name        | Type       | Required | Description                                                        |
-| :---------- | :--------- | :------- | :----------------------------------------------------------------- |
-| name        | string     | Yes      | Name of the new list.                                              |
-| type        | string     | Yes      | Type of list. Options: private, public.                            |
-| optin       | string     | Yes      | Opt-in type. Options: single, double.                              |
-| status      | string     | No       | Status of the list. Options: active, archived. Defaults to active. |
-| tags        | string\[\] |          | Associated tags for a list.                                        |
-| description | string     | No       | Description of the new list.                                       |
+| Name              | Type       | Required | Description                                                                      |
+| :---------------- | :--------- | :------- | :------------------------------------------------------------------------------- |
+| name              | string     | Yes      | Name of the new list.                                                           |
+| type              | string     | Yes      | Type of list. Options: private, public.                                         |
+| optin             | string     | Yes      | Opt-in type. Options: single, double.                                           |
+| status            | string     | No       | Status of the list. Options: active, archived. Defaults to active.              |
+| tags              | string\[\] |          | Associated tags for a list.                                                     |
+| description       | string     | No       | Description of the new list.                                                    |
+| confirmation_from | string     | No       | Email address to use as the "from" address for confirmation emails (double opt-in). If not set, the system default is used. |
 
 ##### Example Request
 
 ```shell
-curl -u "api_user:token" -X POST 'http://localhost:9000/api/lists'
+curl -u "api_user:token" -X POST 'http://localhost:9000/api/lists' \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "name": "Test list",
+    "type": "public",
+    "optin": "double",
+    "description": "This is a test list",
+    "confirmation_from": "noreply@example.com"
+  }'
 ```
 
 ##### Example Response
@@ -179,9 +204,10 @@ curl -u "api_user:token" -X POST 'http://localhost:9000/api/lists'
         "uuid": "1bb246ab-7417-4cef-bddc-8fc8fc941d3a",
         "name": "Test list",
         "type": "public",
-        "optin": "single",
+        "optin": "double",
         "status": "active",
         "tags": [],
+        "confirmation_from": "noreply@example.com",
         "subscriber_count": 0,
         "description": "This is a test list"
     }
@@ -196,15 +222,16 @@ Update a list.
 
 ##### Parameters
 
-| Name        | Type       | Required | Description                                    |
-| :---------- | :--------- | :------- | :--------------------------------------------- |
-| list_id     | number     | Yes      | ID of the list to update.                      |
-| name        | string     |          | New name for the list.                         |
-| type        | string     |          | Type of list. Options: private, public.        |
-| optin       | string     |          | Opt-in type. Options: single, double.          |
-| status      | string     |          | Status of the list. Options: active, archived. |
-| tags        | string\[\] |          | Associated tags for the list.                  |
-| description | string     |          | Description of the list.                       |
+| Name              | Type       | Required | Description                                                                      |
+| :---------------- | :--------- | :------- | :------------------------------------------------------------------------------- |
+| list_id           | number     | Yes      | ID of the list to update.                                                       |
+| name              | string     |          | New name for the list.                                                          |
+| type              | string     |          | Type of list. Options: private, public.                                         |
+| optin             | string     |          | Opt-in type. Options: single, double.                                           |
+| status            | string     |          | Status of the list. Options: active, archived.                                  |
+| tags              | string\[\] |          | Associated tags for the list.                                                   |
+| description       | string     |          | Description of the list.                                                        |
+| confirmation_from | string     |          | Email address to use as the "from" address for confirmation emails (double opt-in). If not set, the system default is used. |
 
 ##### Example Request
 
@@ -228,6 +255,7 @@ curl -u "api_user:token" -X PUT 'http://localhost:9000/api/lists/5' \
         "optin": "single",
         "status": "active",
         "tags": [],
+        "confirmation_from": null,
         "subscriber_count": 0,
         "description": "This is a test list"
     }
