@@ -39,3 +39,4 @@ tool
 code
 refresh-cw
 more-vertical
+check-square

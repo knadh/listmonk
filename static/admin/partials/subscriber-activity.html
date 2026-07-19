@@ -1,0 +1,43 @@
+{{ define "subscriber-activity" -}}
+{{- $d := .Data -}}
+<div class="card page-content content activity">
+	<div class="row">
+		<div class="col-4"><div class="card stat-card"><small class="text-light">{{ .L.T "globals.terms.campaigns" }}</small><div class="stat-value">{{ len $d.CampaignViews }}</div></div></div>
+		<div class="col-4"><div class="card stat-card"><small class="text-light">{{ .L.T "campaigns.views" }}</small><div class="stat-value">{{ $d.TotalViews }}</div></div></div>
+		<div class="col-4"><div class="card stat-card"><small class="text-light">{{ .L.T "campaigns.clicks" }}</small><div class="stat-value">{{ $d.TotalClicks }}</div></div></div>
+	</div>
+
+	{{- if $d.CampaignViews }}
+		<h5 class="mt-6">{{ .L.T "campaigns.views" }}</h5>
+		<table>
+			<thead><tr><th>{{ .L.T "globals.terms.campaign" }}</th><th width="10%">{{ .L.T "campaigns.views" }}</th><th width="20%">{{ .L.T "globals.fields.createdAt" }}</th></tr></thead>
+			<tbody>
+				{{- range $d.CampaignViews }}
+					<tr>
+						<td><a href="{{ URI "/admin/campaigns" }}/{{ .ID }}">{{ .Name }}</a><p class="text-light text-7">{{ .Subject }}</p></td>
+						<td>{{ .ViewCount }}</td>
+						<td>{{ NiceDate .LastViewedAt }}</td>
+					</tr>
+				{{- end }}
+			</tbody>
+		</table>
+	{{- end }}
+
+	{{- if $d.LinkClicks }}
+		<h5 class="mt-6">{{ .L.T "campaigns.clicks" }}</h5>
+		<table>
+			<thead><tr><th>{{ .L.T "globals.terms.campaign" }}</th><th>{{ .L.T "globals.terms.url" }}</th><th width="10%">{{ .L.T "campaigns.clicks" }}</th><th width="20%">{{ .L.T "globals.fields.createdAt" }}</th></tr></thead>
+			<tbody>
+				{{- range $d.LinkClicks }}
+					<tr>
+						<td>{{- if .CampaignID }}<a href="{{ URI "/admin/campaigns" }}/{{ .CampaignID }}">{{ or .CampaignSubject .CampaignName }}</a>{{- end }}</td>
+						<td class="link-click-url"><a href="{{ .URL }}" target="_blank" rel="noopener noreferrer">{{ .URL }}</a></td>
+						<td>{{ .ClickCount }}</td>
+						<td>{{ NiceDate .LastClickedAt }}</td>
+					</tr>
+				{{- end }}
+			</tbody>
+		</table>
+	{{- end }}
+</div>
+{{- end }}

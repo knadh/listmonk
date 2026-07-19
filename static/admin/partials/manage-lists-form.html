@@ -1,0 +1,17 @@
+{{ define "manage-lists-form" -}}
+{{- $root := .Root -}}
+{{- $model := .Model -}}
+{{- $id := .ListID -}}
+
+<fieldset class="hstack">
+	<legend>{{ $root.L.T "settings.bounces.action" }}</legend>
+	<label><input type="radio" name="{{ $id }}-action" value="add" x-model="{{ $model }}.action" data-cy="check-list-add" /> {{ $root.L.T "globals.buttons.add" }}</label>
+	<label><input type="radio" name="{{ $id }}-action" value="remove" x-model="{{ $model }}.action" data-cy="check-list-remove" /> {{ $root.L.T "globals.buttons.remove" }}</label>
+	<label><input type="radio" name="{{ $id }}-action" value="unsubscribe" x-model="{{ $model }}.action" data-cy="check-list-unsubscribe" /> {{ $root.L.T "subscribers.markUnsubscribed" }}</label>
+</fieldset>
+{{ template "list-selector" dict "Root" $root "Model" (printf "%s.lists" $model) "ListID" $id "Label" "subscribers.lists" "Placeholder" "subscribers.listsPlaceholder" }}
+<label data-field :aria-disabled="!{{ $model }}HasOptinList">
+	<input type="checkbox" x-model="{{ $model }}.preconfirm" data-cy="preconfirm" :disabled="!{{ $model }}HasOptinList" /> {{ $root.L.T "subscribers.preconfirm" }}
+	<small data-hint>{{ $root.L.T "subscribers.preconfirmHelp" }}</small>
+</label>
+{{- end }}

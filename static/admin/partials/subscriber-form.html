@@ -1,0 +1,82 @@
+{{ define "subscriber-form" -}}
+{{- $root := .Root -}}
+{{- $submit := .Submit -}}
+{{- $method := .Method -}}
+{{- $isDialog := eq $method "dialog" -}}
+{{- $canSave := .CanSave -}}
+<form method="{{ $method }}" @submit.prevent="{{ $submit }}">
+	<div class="{{ if $isDialog }}dialog-card content{{ else }}card page-content content{{ end }}">
+		{{- if $isDialog }}
+			<header class="dialog-head">
+				<h3 class="dialog-title">{{ $root.L.T "subscribers.newSubscriber" }}</h3>
+			</header>
+
+			<section class="dialog-body">
+				{{ template "subscriber-fields" $root }}
+				{{ template "list-selector" dict "Root" $root "Model" "form.lists" "ListID" "form-lists" "Label" "subscribers.lists" "Placeholder" "subscribers.listsPlaceholder" }}
+				<label data-field :aria-disabled="!hasOptinList">
+					<input type="checkbox" x-model="form.preconfirm" :disabled="!hasOptinList" /> {{ $root.L.T "subscribers.preconfirm" }}
+					<small data-hint>{{ $root.L.T "subscribers.preconfirmHelp" }}</small>
+				</label>
+				{{ template "subscriber-attribs" $root }}
+			</section>
+			<footer class="dialog-foot hstack gap-3 justify-end">
+				<button type="button" class="outline" @click="onClose">{{ $root.L.T "globals.buttons.close" }}</button>
+				{{- if $canSave }}
+					<button type="submit" data-variant="primary" data-cy="btn-save" :disabled="isLoading('subscribers.save')" :aria-busy="isLoading('subscribers.save')">{{ $root.L.T "globals.buttons.save" }}</button>
+				{{- end }}
+			</footer>
+		{{- else }}
+			{{ template "subscriber-fields" $root }}
+			{{ template "subscriber-attribs" $root }}
+			<footer class="dialog-foot hstack justify-between mt-6">
+				<div class="hstack gap-1">
+					<button type="button" class="small" data-variant="secondary" title="{{ $root.L.T "globals.messages.clickToCopy" }}" aria-label="{{ $root.L.T "globals.fields.id" }}" @click="copyToClipboard(form.id)">
+						<strong>{{ $root.L.T "globals.fields.id" }}</strong> <span x-text="form.id"></span>
+					</button>
+					<button type="button" class="small" data-variant="secondary" title="{{ $root.L.T "globals.messages.clickToCopy" }}" aria-label="{{ $root.L.T "globals.fields.uuid" }}" @click="copyToClipboard(form.uuid)">
+						<strong>{{ $root.L.T "globals.fields.uuid" }}</strong> <span x-text="form.uuid"></span>
+					</button>
+				</div>
+				<div class="hstack gap-3 justify-end">
+					<a href="{{ URI "/admin/subscribers" }}" class="button outline">{{ $root.L.T "globals.buttons.back" }}</a>
+					{{- if $canSave }}
+						<button type="submit" data-variant="primary" data-cy="btn-save" :disabled="isLoading('subscribers.save')" :aria-busy="isLoading('subscribers.save')">{{ $root.L.T "globals.buttons.save" }}</button>
+					{{- end }}
+				</div>
+			</footer>
+		{{- end }}
+	</div>
+</form>
+{{- end }}
+
+{{ define "subscriber-fields" -}}
+{{- $root := . -}}
+<label data-field>
+	{{ $root.L.T "subscribers.email" }}
+	<input name="email" type="email" maxlength="200" autofocus required x-model="form.email" />
+</label>
+
+<label data-field>
+	{{ $root.L.T "globals.fields.name" }}
+	<input name="name" maxlength="200" x-model="form.name" />
+</label>
+
+<div data-field>
+	<label for="sub-status">{{ $root.L.T "globals.fields.status" }}</label>
+	<select name="status" id="sub-status" required x-model="form.status">
+		<option value="enabled">{{ $root.L.T "subscribers.status.enabled" }}</option>
+		<option value="blocklisted">{{ $root.L.T "subscribers.status.blocklisted" }}</option>
+	</select>
+	<small data-hint>{{ $root.L.T "subscribers.blocklistedHelp" }}</small>
+</div>
+{{- end }}
+
+{{ define "subscriber-attribs" -}}
+{{- $root := . -}}
+<label data-field class="mt-6">
+	{{ $root.L.T "globals.terms.attribs" }}
+	<textarea name="attribs" rows="4" x-model="form.strAttribs" class="monospace"></textarea>
+	<small data-hint>{{ $root.L.T "subscribers.attribsHelp" }} <code>{"job": "developer", "location": "Mars", "has_rocket": true}</code></small>
+</label>
+{{- end }}

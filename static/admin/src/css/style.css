@@ -77,8 +77,24 @@ table {
         vertical-align: top;
         border-bottom: 1px solid var(--border);
     }
+
+    .view {
+        color: var(--faint-foreground);
+        font-size: var(--text-8);
+
+        &:hover {
+            color: var(--primary);
+        }
+    }
+
+    .badge-list {
+        margin-top: var(--space-1);
+    }
 }
 
+.text-light {
+    color: var(--muted-foreground);
+}
 .text-1 { font-size: var(--text-1); }
 .text-2 { font-size: var(--text-2); }
 .text-3 { font-size: var(--text-3); }
@@ -104,7 +120,6 @@ table {
 .ml-6 { margin-inline-start: var(--space-6); }
 .ml-3 { margin-inline-start: var(--space-3); }
 .mr-4 { margin-inline-end: var(--space-4); }
-.p-6 { padding: var(--space-6); }
 .py-6 { padding-block: var(--space-6); }
 .pb-0 { padding-block-end: 0; }
 .float-right { float: right; }
@@ -125,6 +140,13 @@ table {
     }
 }
 
+.stat-card {
+    .stat-value {
+        font-size: var(--text-1);
+        font-weight: var(--font-semibold);
+    }
+}
+
 dialog {
     border-radius: var(--radius-medium);
 
@@ -134,14 +156,27 @@ dialog {
 }
 
 .badge {
+    padding: calc(var(--space-1) * 0.75) var(--space-4);
+
+    sup {
+        margin-top: -5px;
+        font-size: calc(var(--text-8) / 1.3);
+    }
+
+    &.outline {
+        color: var(--muted-foreground);
+    }
+
+    &.enum {
+        min-width: 7rem;
+    }
+
     &.private,
     &.scheduled,
     &.paused,
     &.tx,
     &.api,
     &.double,
-    &.status-unconfirmed,
-    &.status_unconfirmed,
     &.unconfirmed {
         background: #fff1e0;
         color: #ed7b00;
@@ -157,23 +192,30 @@ dialog {
         color: #3b8cff;
     }
 
-    &.finished,
-    &.enabled,
-    &.status-confirmed,
-    &.status_confirmed,
-    &.confirmed {
+
+    /* Subscription statuses */
+    sup.status-confirmed {
+        color: #36995b;
+    }
+    &.status-confirmed {
         background: #dcfce7;
         color: #36995b;
     }
 
-    &.blocklisted,
-    &.cancelled,
-    &.status-unsubscribed,
-    &.status_unsubscribed,
-    &.unsubscribed,
-    &.campaign_visual {
+    sup.status-unsubscribed {
+        color: #ff5722;
+    }
+    &.status-unsubscribed {
         background: #fff1f0;
         color: #ff5722;
+    }
+    &.status-blocklisted {
+        background: #fff1f0;
+        color: var(--danger);
+    }
+
+    sup.status-unconfirmed {
+        color: var(--muted-foreground);
     }
 
     &.disabled,
@@ -195,9 +237,7 @@ dialog {
         letter-spacing: 0.03em;
     }
 
-    &.unsubscribed sup,
-    &.status-unsubscribed sup,
-    &.status_unsubscribed sup {
+    &.status-unsubscribed sup {
         color: #fa8c16;
     }
 
@@ -215,6 +255,10 @@ body {
 
 body[data-sidebar-layout] {
     display: block;
+}
+
+textarea.monospace {
+    font-family: var(--font-mono);
 }
 
 #app {
@@ -386,8 +430,57 @@ aside[data-sidebar] {
 }
 
 .search-form {
-    fieldset.group button {
+    button.outline {
         border-color: var(--input);
+    }
+}
+.sql-btn {
+    position: relative;
+    border-right: 0;
+
+    &.is-active::before {
+        content: "";
+        position: absolute;
+        inset-block: -5px auto;
+        inset-inline: auto 7px;
+        width: 10px;
+        height: 10px;
+        border: 0;
+        border-radius: 50%;
+        background: var(--danger);
+        opacity: 1;
+        visibility: visible;
+        transform: none;
+        transition: none;
+    }
+}
+
+/* The advanced SQL query editor, shown in an ot-dropdown popover off the search box. */
+.sql-editor.sql-editor {
+    width: min(90vw, 40rem);
+    padding: var(--space-3);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+
+    textarea {
+        width: 100%;
+        box-sizing: border-box;
+        font-family: var(--font-mono);
+        resize: vertical;
+    }
+}
+
+@supports (anchor-name: --a) {
+    .sql-btn {
+        anchor-name: --sql-anchor;
+    }
+
+    .sql-editor.sql-editor {
+        position-anchor: --sql-anchor;
+        inset: auto !important;
+        top: calc(anchor(bottom) + var(--space-1)) !important;
+        right: anchor(right) !important;
     }
 }
 
@@ -601,6 +694,7 @@ svg.icon {
         }
 
         .bulk-actions {
+            box-shadow: -10px 0 10px var(--background);
             position: absolute;
             right: var(--space-6);
             top: var(--space-2);
@@ -757,15 +851,6 @@ section.lists {
         }
     }
 
-    .view {
-        color: var(--faint-foreground);
-        font-size: var(--text-8);
-
-        &:hover {
-            color: var(--primary);
-        }
-    }
-
     .date-stack small {
         display: block;
         margin-block-start: var(--space-1);
@@ -790,7 +875,9 @@ section.users {
     }
 
     .blocklisted {
-        color: var(--danger);
+        td > a:not(.badge) {
+            color: var(--danger);
+        }
     }
 
     td.link-click-url {

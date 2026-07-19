@@ -80,8 +80,8 @@
 							</td>
 							<td>
 								<div class="hstack">
-									<span class="badge {{ .Type }}" data-cy="type-{{ .Type }}">{{ $.L.T (printf "lists.types.%s" .Type) }}</span>
-									<span class="badge {{ .Optin }}" data-cy="optin-{{ .Optin }}">
+									<span class="badge enum {{ .Type }}" data-cy="type-{{ .Type }}">{{ $.L.T (printf "lists.types.%s" .Type) }}</span>
+									<span class="badge enum" data-variant="secondary" data-cy="optin-{{ .Optin }}">
 										{{ if eq .Optin "double" }}{{ Icon "user-check" }}{{ else }}{{ Icon "user-x" }}{{ end }}
 										{{ $.L.T (printf "lists.optins.%s" .Optin) }}
 									</span>
