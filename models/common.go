@@ -4,7 +4,9 @@ import (
 	"database/sql/driver"
 	"encoding/json"
 	"fmt"
+	"os"
 	"regexp"
+	"strings"
 
 	"github.com/yuin/goldmark"
 	"github.com/yuin/goldmark/extension"
@@ -40,6 +42,16 @@ type regTplFunc struct {
 	replace string
 }
 
+const trackLinkRegexModeEnv = "LISTMONK_TRACKLINK_REGEX_MODE"
+
+func trackLinkShorthandRegExp() *regexp.Regexp {
+	if strings.EqualFold(os.Getenv(trackLinkRegexModeEnv), "unicode") {
+		return regexp.MustCompile(`(https?://[\p{L}\p{N}_\-\.~!#$&'()*+,/:;=?@\[\]%]*)@TrackLink`)
+	}
+
+	return regexp.MustCompile(`(https?://[^"'\s<>{}]+)@TrackLink`)
+}
+
 var regTplFuncs = []regTplFunc{
 	// Regular expression for matching {{ TrackLink "http://link.com" }} in the template
 	// and substituting it with {{ TrackLink "http://link.com" . }} (the dot context)
@@ -52,10 +64,10 @@ var regTplFuncs = []regTplFunc{
 	// Convert the shorthand https://google.com@TrackLink to {{ TrackLink ... }}.
 	// This is for WYSIWYG editors that encode and break quotes {{ "" }} when inserted
 	// inside <a href="{{ TrackLink "https://these-quotes-break" }}>.
-	// The regex matches all characters that may occur in an URL
-	// (see "2. Characters" in RFC3986: https://www.ietf.org/rfc/rfc3986.txt)
+	// Defaults to an IRI-style match, stopping at HTML/template delimiters.
+	// Set LISTMONK_TRACKLINK_REGEX_MODE=unicode to use the older strict matcher.
 	{
-		regExp:  regexp.MustCompile(`(https?://[\p{L}\p{N}_\-\.~!#$&'()*+,/:;=?@\[\]%]*)@TrackLink`),
+		regExp:  trackLinkShorthandRegExp(),
 		replace: `{{ TrackLink "$1" . }}`,
 	},
 
