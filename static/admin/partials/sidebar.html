@@ -26,10 +26,10 @@
 						<li><a href="{{ URI "/admin/subscribers" }}" data-cy="all-subscribers">{{ .L.T "menu.allSubscribers" }}</a></li>
 					{{ end }}
 					{{ if Can $u "subscribers:import" }}
-						<li><a href="{{ URI "/admin/import" }}" data-cy="import">{{ .L.T "menu.import" }}</a></li>
+						<li><a href="{{ URI "/admin/subscribers/import" }}" data-cy="import">{{ .L.T "menu.import" }}</a></li>
 					{{ end }}
 					{{ if Can $u "bounces:get" }}
-						<li><a href="{{ URI "/admin/bounces" }}" data-cy="bounces">{{ .L.T "globals.terms.bounces" }}</a></li>
+						<li><a href="{{ URI "/admin/subscribers/bounces" }}" data-cy="bounces">{{ .L.T "globals.terms.bounces" }}</a></li>
 					{{ end }}
 				</ul>
 			</details>

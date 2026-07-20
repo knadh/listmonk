@@ -167,7 +167,7 @@ func (a *App) ViewSubscriberBounces(c echo.Context) error {
 		return err
 	}
 
-	bounces, _, err := a.core.QueryBounces(0, out.ID, "", "", "", 0, 1000)
+	bounces, _, err := a.core.QueryBounces(0, out.ID, "", "", "", "", 0, 1000)
 	if err != nil {
 		return err
 	}
