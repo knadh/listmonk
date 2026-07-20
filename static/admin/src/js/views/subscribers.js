@@ -2,36 +2,9 @@ import {
   api,
   urls,
   i18n,
+  ListTag,
 } from '../main.js';
 import * as u from '../utils.js';
-
-// ListTag is the object used in <ot-taginput> list selector.
-class ListTag {
-  constructor(list) {
-    Object.assign(this, list);
-  }
-
-  toString() {
-    return this.name;
-  }
-}
-
-// _listAutocomplete populates the <ot-taginput> listselector's suggestions with lists.
-window._listAutocomplete = (el) => {
-  const ti = el.closest('ot-taginput');
-  const chosen = new Set((ti ? ti.value : []).map((l) => l.id));
-  const q = el.value.toLowerCase();
-
-  el.list.replaceChildren(...(window._lists || [])
-    .filter((l) => !chosen.has(l.id) && l.name.toLowerCase().includes(q))
-    // Cap suggestions (so focusing with an empty input still shows a usable list of items).
-    .slice(0, 10)
-    .map((l) => {
-      const o = new Option(l.name);
-      o.data = new ListTag(l);
-      return o;
-    }));
-};
 
 function component(sub = null) {
   // The current view's filters are injected by the template.

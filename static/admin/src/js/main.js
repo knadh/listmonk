@@ -24,6 +24,7 @@ function setupAlpine() {
   window.Alpine.data('adminApp', () => ({
     isLoading,
     copyToClipboard: u.copyToClipboard,
+    listAutocomplete,
   }));
 }
 
@@ -52,6 +53,34 @@ u.setI18n(i18n);
 
 // ========
 // Public functions.
+
+// ListTag is the object used in the <ot-taginput> list selector.
+export class ListTag {
+  constructor(list) {
+    Object.assign(this, list);
+  }
+
+  toString() {
+    return this.name;
+  }
+}
+
+// listAutocomplete populates the <ot-taginput> list selector's suggestions with lists.
+export function listAutocomplete(el) {
+  const ti = el.closest('ot-taginput');
+  const chosen = new Set((ti ? ti.value : []).map((l) => l.id));
+  const q = el.value.toLowerCase();
+
+  el.list.replaceChildren(...(window._lists || [])
+    .filter((l) => !chosen.has(l.id) && l.name.toLowerCase().includes(q))
+    // Cap suggestions (so focusing with an empty input still shows a usable list of items).
+    .slice(0, 10)
+    .map((l) => {
+      const o = new Option(l.name);
+      o.data = new ListTag(l);
+      return o;
+    }));
+}
 
 // Returns true if the given named api() call is currently loading.
 export function isLoading(name) {
