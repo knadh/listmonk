@@ -12,6 +12,43 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
+// bouncesView is the admin page view for the bounces list page.
+type bouncesView struct {
+	adminView
+
+	Bounces []models.Bounce
+	Page    models.PageProps
+}
+
+// ViewBounces renders the HTML view for bounces.
+func (a *App) ViewBounces(c echo.Context) error {
+	q := makeQuery(c.Request().URL.Query(), map[string]string{
+		"page":        "",
+		"order_by":    "",
+		"order":       "",
+		"source":      "",
+		"type":        "",
+		"campaign_id": "",
+	})
+
+	campID, _ := strconv.Atoi(q.Get("campaign_id"))
+
+	// Query and fetch bounces from the DB.
+	pg := a.pg.NewFromURL(q)
+	res, total, err := a.core.QueryBounces(campID, 0, q.Get("source"), q.Get("type"), q.Get("order_by"), q.Get("order"), pg.Offset, pg.Limit)
+	if err != nil {
+		return err
+	}
+
+	data := bouncesView{
+		adminView: newAdminView(c, a.i18n.T("globals.terms.bounces"), ""),
+		Bounces:   res,
+		Page:      models.NewPageProps(q, total, pg.Page, pg.PerPage),
+	}
+
+	return c.Render(http.StatusOK, "admin-bounces", data)
+}
+
 // GetBounce handles retrieval of a specific bounce record by ID.
 func (a *App) GetBounce(c echo.Context) error {
 	// Fetch one bounce from the DB.
@@ -29,6 +66,7 @@ func (a *App) GetBounces(c echo.Context) error {
 	var (
 		campID, _ = strconv.Atoi(c.QueryParam("campaign_id"))
 		source    = c.FormValue("source")
+		typ       = c.FormValue("type")
 		orderBy   = c.FormValue("order_by")
 		order     = c.FormValue("order")
 
@@ -36,7 +74,7 @@ func (a *App) GetBounces(c echo.Context) error {
 	)
 
 	// Query and fetch bounces from the DB.
-	res, total, err := a.core.QueryBounces(campID, 0, source, orderBy, order, pg.Offset, pg.Limit)
+	res, total, err := a.core.QueryBounces(campID, 0, source, typ, orderBy, order, pg.Offset, pg.Limit)
 	if err != nil {
 		return err
 	}
@@ -68,7 +106,7 @@ func (a *App) GetSubscriberBounces(c echo.Context) error {
 	}
 
 	// Query and fetch bounces from the DB.
-	out, _, err := a.core.QueryBounces(0, subID, "", "", "", 0, 1000)
+	out, _, err := a.core.QueryBounces(0, subID, "", "", "", "", 0, 1000)
 	if err != nil {
 		return err
 	}

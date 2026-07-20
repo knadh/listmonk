@@ -1,0 +1,114 @@
+{{ define "admin-bounces" -}}
+{{ template "admin-header" . }}
+{{- $d := .Data -}}
+{{- $base := URI "/admin/subscribers/bounces" -}}
+{{- $source := $d.Page.Param "source" -}}
+{{- $type := $d.Page.Param "type" -}}
+{{- $campaign := $d.Page.Param "campaign_id" -}}
+
+<section class="bounces" x-data="bouncesView">
+	<header class="row page-header">
+		<div class="col-6">
+			<div class="hstack">
+				<h1 class="page-title">
+					{{ .L.T "globals.terms.bounces" }}
+					<span>({{ $d.Page.Total }})</span>
+				</h1>
+				<div class="text-7 hstack gap-1">
+					{{- if $source }}<a href="{{ $base }}" class="badge">{{ $source }} &times;</a>{{ end }}
+					{{- if $type }}<a href="{{ $base }}" class="badge">{{ .L.T (printf "bounces.%s" $type) }} &times;</a>{{ end }}
+					{{- if $campaign }}<a href="{{ $base }}" class="badge">#{{ $campaign }} &times;</a>{{ end }}
+				</div>
+			</div>
+		</div>
+	</header>
+
+	<div class="card page-content has-table">
+		<div class="table-wrapper" x-data="table({ query: {{ ToJSON $d.Page.Query }}, filters: {{ ToJSON $d.Page.QueryParams }}, total: {{ $d.Page.Total }} })" :aria-busy="isLoading('bounces')" @change="onChange($event)">
+			<template x-if="numSelected > 0">
+				<ot-dropdown class="bulk-actions">
+					<button popovertarget="bounce-bulk-actions" type="button" class="small" data-cy="btn-bulk-actions">
+						<span x-text="numSelectedLabel"></span> {{ Icon "more-vertical" }}
+					</button>
+					<menu popover id="bounce-bulk-actions">
+						{{- if gt $d.Page.Total $d.Page.PerPage }}
+							<button type="button" role="menuitem" class="ghost" data-cy="select-all-bounces" x-cloak x-show="!allSelected" @click.prevent="onSelectAllQuery()">
+								{{ Icon "list" }} <span x-text="selectAllLabel"></span>
+							</button>
+						{{- end }}
+						{{- if $d.Can "bounces:manage" }}
+							<button type="button" role="menuitem" class="ghost" data-cy="btn-manage-blocklist" @click.prevent="onBlocklistSelected(allSelected, total)">{{ Icon "user-x" }} {{ .L.T "import.blocklist" }}</button>
+							<hr />
+							<button type="button" role="menuitem" class="ghost" data-variant="danger" data-cy="btn-delete-bounces" :disabled="isLoading('bounces')" @click.prevent="onDeleteSelected(allSelected, selected, total)">{{ Icon "trash-2" }} {{ .L.T "globals.buttons.delete" }} <span x-text="numSelected"></span></button>
+						{{- end }}
+					</menu>
+				</ot-dropdown>
+			</template>
+
+			<table>
+				<thead>
+					<tr>
+						<th width="5%"><input type="checkbox" aria-label="{{ .L.T "globals.buttons.toggleSelect" }}"></th>
+						<th class="cy-email">{{ $d.Page.SortLink $base "email" (.L.T "subscribers.email") }}</th>
+						<th class="cy-campaign">{{ .L.T "globals.terms.campaign" }}</th>
+						<th class="cy-source">{{ $d.Page.SortLink $base "source" (.L.T "bounces.source") }}</th>
+						<th class="cy-type">{{ $d.Page.SortLink $base "type" (.L.T "globals.fields.type") }}</th>
+						<th class="cy-created_at">{{ $d.Page.SortLink $base "created_at" (.L.T "globals.fields.createdAt") }}</th>
+						<th class="align-right"></th>
+					</tr>
+				</thead>
+				<tbody>
+					{{- range $d.Bounces }}
+						<tr>
+							<td><input name="id" type="checkbox" value="{{ .ID }}" data-subscriber-id="{{ .SubscriberID }}"></td>
+							<td>
+								<a href="{{ URI "/admin/subscribers" }}/{{ .SubscriberID }}" {{ if eq .SubscriberStatus "blocklisted" }}class="blocklisted"{{ end }}>{{ .Email }}</a>
+								{{ if ne .SubscriberStatus "enabled" }}<span class="badge status-{{ .SubscriberStatus }}" data-cy="blocklisted">{{ $.L.T (printf "subscribers.status.%s" .SubscriberStatus) }}</span>{{ end }}
+							</td>
+							<td>
+								{{- with .ParsedCampaign }}<a href="{{ $base }}?campaign_id={{ .ID }}">{{ .Name }}</a>{{ else }}-{{ end }}
+							</td>
+							<td><a href="{{ $base }}?source={{ .Source }}">{{ .Source }}</a></td>
+							<td><a href="{{ $base }}?type={{ .Type }}"><span class="badge enum {{ .Type }}" data-cy="type-{{ .Type }}" data-variant="secondary">{{ $.L.T (printf "bounces.%s" .Type) }}</span></a></td>
+							<td class="date-stack">{{ NiceDate .CreatedAt }}</td>
+							<td class="actions align-right">
+								<ot-dropdown>
+									<button popovertarget="bounce-actions-{{ .ID }}" type="button" class="ghost small icon" aria-label="{{ $.L.T "globals.buttons.more" }}">
+										{{ Icon "more-vertical" }}
+									</button>
+									<menu popover id="bounce-actions-{{ .ID }}">
+										<button type="button" role="menuitem" class="ghost" data-cy="btn-meta" @click.prevent="onView({{ ToJSON .Email }}, {{ ToJSON .Meta }})">{{ Icon "file-text" }} {{ $.L.T "globals.buttons.view" }}</button>
+										{{- if $d.Can "bounces:manage" }}
+											<button type="button" role="menuitem" class="ghost" data-variant="danger" data-cy="btn-delete" :disabled="isLoading('bounces')" @click.prevent="onDeleteBounce({{ .ID }}, {{ ToJSON .Email }})">{{ Icon "trash-2" }} {{ $.L.T "globals.buttons.delete" }}</button>
+										{{- end }}
+									</menu>
+								</ot-dropdown>
+							</td>
+						</tr>
+					{{- else }}
+						<tr><td colspan="7" class="align-center text-light">{{ .L.T "globals.messages.emptyState" }}</td></tr>
+					{{- end }}
+				</tbody>
+			</table>
+
+			{{- template "pagination" $d.Page.Pagination }}
+		</div>
+	</div>
+
+	<dialog class="b-modal" x-ref="metaDialog">
+		<div class="dialog-card content">
+			<header class="dialog-head"><h3 class="dialog-title" x-text="metaTitle"></h3></header>
+			<section class="dialog-body">
+				<pre class="text-7" x-text="JSON.stringify(meta, null, 2)"></pre>
+			</section>
+			<footer class="dialog-foot hstack justify-end">
+				<button type="button" class="outline" @click="$refs.metaDialog.close()">{{ .L.T "globals.buttons.close" }}</button>
+			</footer>
+		</div>
+	</dialog>
+</section>
+
+<script type="module" src="{{ URI "/admin/static/js/views/bounces.js" }}?v={{ .AssetVersion }}" defer></script>
+
+{{ template "admin-footer" . -}}
+{{ end }}
